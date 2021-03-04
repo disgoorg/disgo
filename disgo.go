@@ -1,9 +1,13 @@
-package Disgo
+package disgo
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/Alex-R-31/disgo/src/models"
+)
 
 type Disgo struct {
-	Token string
-	Intents Intent
-	Client *http.Client
+	Token   string
+	Intents models.Intent
+	Client  *http.Client
 }

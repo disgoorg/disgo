@@ -1,12 +1,12 @@
-package Disgo
+package src
 
 const APIVersion = "8"
 
-const(
+const (
 	BaseEndpoint = "https://discord.com/"
-	CDNEndpoint = "https://cdn.discordapp.com/"
+	CDNEndpoint  = "https://cdn.discordapp.com/"
 
-	EndpointAPI = BaseEndpoint + "api/v/" + APIVersion + "/"
-	EndpointGateway = EndpointAPI + "gateway"
+	EndpointAPI        = BaseEndpoint + "api/v/" + APIVersion + "/"
+	EndpointGateway    = EndpointAPI + "gateway"
 	EndpointGatewayBot = EndpointGateway + "/bot"
 )

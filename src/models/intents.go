@@ -1,4 +1,4 @@
-package disgo
+package models
 
 type Intent int
 

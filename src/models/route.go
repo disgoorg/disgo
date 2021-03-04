@@ -1,21 +1,21 @@
-package disgo
+package models
 
 import (
 	"fmt"
 )
 
-type Route struct{
+type Route struct {
 	Method string
-	Url string
+	Url    string
 }
 
 func NewRoute(method string, url string) Route {
 	return Route{
 		Method: method,
-		Url: url,
+		Url:    url,
 	}
 }
 
 func (r Route) compile(args ...string) string {
-	return fmt.Sprintf(r, args)
+	return fmt.Sprintf(r.Url, args)
 }

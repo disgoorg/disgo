@@ -1,10 +1,9 @@
-package Disgo
+package src
 
 import (
-
 	"github.com/gorilla/websocket"
 )
 
-type Gateway struct{
+type Gateway struct {
 	wsConnection *websocket.Conn
 }

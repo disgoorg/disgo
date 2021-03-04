@@ -1,4 +1,4 @@
-module Disgo
+module github.com/Alex-R-31/disgo
 
 go 1.15
 

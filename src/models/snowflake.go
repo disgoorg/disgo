@@ -1,4 +1,4 @@
-package disgo
+package models
 
 import (
 	"fmt"
