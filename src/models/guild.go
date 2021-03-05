@@ -1,6 +1,8 @@
 package models
 
 import (
+	"strings"
+
 	"github.com/DiscoOrg/disgo/src/endpoints"
 )
 
@@ -13,10 +15,15 @@ type Guild struct {
 }
 
 // IconURL returns the Icon of a guild
-func (g Guild) IconURL(size int) *string {
+func (g Guild) IconURL() *string {
 	if g.Icon == nil {
 		return nil
 	}
-	u := endpoints.CDNGuildIcon(g.ID.String(), *g.Icon, size)
+	animated := strings.HasPrefix(*g.Icon, "a_")
+	format := "png"
+	if animated {
+		format = "gif"
+	}
+	u := endpoints.GuildIcon.Compile(g.ID.String(), *g.Icon, format)
 	return &u
 }
