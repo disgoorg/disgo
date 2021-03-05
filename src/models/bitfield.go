@@ -34,14 +34,12 @@ func (b Bit) Has(bit Bit) bool {
 }
 
 func (b Bit) MissingAny(bits ...Bit) bool {
-	hasAll := true
 	for _, bit := range bits {
 		if !b.Has(bit) {
-			hasAll = false
-			break
+			return true
 		}
 	}
-	return hasAll
+	return false
 }
 
 func (b Bit) Missing(bit Bit) bool {
