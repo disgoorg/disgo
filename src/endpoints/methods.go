@@ -10,6 +10,6 @@ const (
 	PATCH  Method = "PATCH"
 )
 
-func (m Method) string() string {
+func (m Method) String() string {
 	return string(m)
 }

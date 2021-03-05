@@ -6,9 +6,9 @@ import (
 
 const (
 	APIVersion = "8"
-	Base = "https://discord.com/"
-	CDN  = "https://cdn.discordapp.com/"
-	API  = Base + "/api/v" + APIVersion + "/"
+	Base       = "https://discord.com/"
+	CDN        = "https://cdn.discordapp.com/"
+	API        = Base + "api/v" + APIVersion + "/"
 )
 
 type Route struct {
@@ -23,6 +23,9 @@ func NewRoute(method Method, url string) Route {
 	}
 }
 
-func (r Route) compile(args ...string) string {
-	return fmt.Sprintf(r.Url, args)
+func (r Route) Compile(args ...interface{}) string {
+	if len(args) == 0 {
+		return API + r.Url
+	}
+	return API + fmt.Sprintf(r.Url, args)
 }
