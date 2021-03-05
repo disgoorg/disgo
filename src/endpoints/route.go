@@ -10,6 +10,7 @@ const (
 	Base       = "https://discord.com/"
 	CDN        = "https://cdn.discordapp.com/"
 	API        = Base + "api/v" + APIVersion + "/"
+	WS         = "wss://gateway.discord.gg/"
 )
 
 // Route is a basic struct containing Method and URL
