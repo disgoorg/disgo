@@ -8,8 +8,10 @@ import (
 
 var discordEpoch int64 = 1420070400000
 
+// Snowflake is a general utility class around discord's IDs
 type Snowflake string
 
+// DeconstructedSnowflake contains the properties used by Discord for each ID
 type DeconstructedSnowflake struct {
 	Timestamp int64
 	WorkerID  int64
@@ -22,6 +24,7 @@ func (s Snowflake) String() string {
 	return string(s)
 }
 
+// Binary converts the snowflake to binary
 func (s Snowflake) Binary() string {
 	i, err := strconv.ParseInt(s.String(), 10, 64)
 	if err != nil {
@@ -31,6 +34,7 @@ func (s Snowflake) Binary() string {
 	return fmt.Sprintf("%064s", b)
 }
 
+// Deconstruct returns DeconstructedSnowflake
 func (s Snowflake) Deconstruct() DeconstructedSnowflake {
 	binary := s.Binary()
 	t, _ := strconv.ParseInt(binary[0:42], 2, 64)
@@ -46,6 +50,7 @@ func (s Snowflake) Deconstruct() DeconstructedSnowflake {
 	}
 }
 
+// Timestamp returns a Time value of the snowflake
 func (s Snowflake) Timestamp() time.Time {
 	t := s.Deconstruct().Timestamp
 	return time.Unix(0, t*1000000)
