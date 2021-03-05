@@ -12,8 +12,9 @@ import (
 )
 
 type RestClient struct {
-	Client *http.Client
-	Token  string
+	Client    *http.Client
+	Token     string
+	UserAgent string
 }
 
 // Request makes a new rest request to discords api with the specific route
@@ -33,6 +34,10 @@ func (c RestClient) Request(route endpoints.Route, rqBody interface{}, v interfa
 		return err
 	}
 
+	rq.Header.Set("User-Agent", c.UserAgent)
+	rq.Header.Set("Authorization", "Bot "+c.Token)
+	rq.Header.Set("Content-Type", "application/json")
+
 	rs, err := c.Client.Do(rq)
 	if err != nil {
 		return err
@@ -49,6 +54,8 @@ func (c RestClient) Request(route endpoints.Route, rqBody interface{}, v interfa
 	if err != nil {
 		return err
 	}
+
+	log.Info(string(rsBody))
 
 	err = json.Unmarshal(rsBody, v)
 	if err != nil {

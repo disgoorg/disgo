@@ -11,13 +11,15 @@ import (
 
 func TestRestClient_Request(t *testing.T) {
 	restClient := RestClient{
-		Client: &http.Client{},
+		Client:    &http.Client{},
+		Token:     "",
+		UserAgent: "DiscordBot (https://github.com/disgoorg/disgo, 0.0.1)",
 	}
 	response := &struct {
 		Url    string `json:"url"`
-		Shards int
+		Shards int    `json:"shards"`
 	}{}
-	err := restClient.Request(endpoints.GatewayRoute, nil, response)
+	err := restClient.Request(endpoints.User, nil, response, "312617227490951168")
 	assert.NoError(t, err)
 	println(response.Url)
 }
