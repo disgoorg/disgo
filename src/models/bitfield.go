@@ -2,41 +2,41 @@ package models
 
 type Bit int64
 
-func (b Bit) Add(bits ...interface{}) Bit {
-	total := 0
-	for bit := range bits {
+func (b Bit) Add(bits ...Bit) Bit {
+	total := Bit(0)
+	for _, bit := range bits {
 		total |= bit
 	}
-	b |= Bit(total)
+	b |= total
 	return b
 }
 
-func (b Bit) Remove(bits ...interface{}) Bit {
-	total := 0
-	for bit := range bits {
+func (b Bit) Remove(bits ...Bit) Bit {
+	total := Bit(0)
+	for _, bit := range bits {
 		total |= bit
 	}
-	b &^= Bit(total)
+	b &^= total
 	return b
 }
 
-func (b Bit) HasAll(bits ...interface{}) bool {
-	for bit := range bits {
-		if !b.Has(int64(bit)) {
+func (b Bit) HasAll(bits ...Bit) bool {
+	for _, bit := range bits {
+		if !b.Has(bit) {
 			return false
 		}
 	}
 	return true
 }
 
-func (b Bit) Has(bit int64) bool {
-	return (b & Bit(bit)) == Bit(bit)
+func (b Bit) Has(bit Bit) bool {
+	return (b & bit) == bit
 }
 
-func (b Bit) MissingAny(bits ...interface{}) bool {
+func (b Bit) MissingAny(bits ...Bit) bool {
 	hasAll := true
-	for bit := range bits {
-		if !b.Has(int64(bit)) {
+	for _, bit := range bits {
+		if !b.Has(bit) {
 			hasAll = false
 			break
 		}
@@ -44,6 +44,6 @@ func (b Bit) MissingAny(bits ...interface{}) bool {
 	return hasAll
 }
 
-func (b Bit) Missing(bit int64) bool {
+func (b Bit) Missing(bit Bit) bool {
 	return !b.Has(bit)
 }
