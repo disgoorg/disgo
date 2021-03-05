@@ -15,6 +15,8 @@ jobs:
 
     - name: Set up Go
       uses: actions/setup-go@v2
+      env:
+        token: ${{ secrets.token }}
       with:
         go-version: 1.15
 
