@@ -51,7 +51,7 @@ type requestMembersPayload struct {
 	Query     string             `json:"query"` //If specified, user_ids must not be entered
 	Limit     int                `json:"limit"` //Must be >=1 if query/user_ids is used, otherwise 0
 	Presences bool               `json:"presences,omitempty"`
-	UserIDs   []models.Snowflake `json:"user_ids"` //If specified, query must not be entered
+	UserIDs   []models.Snowflake `json:"user_ids"`        //If specified, query must not be entered
 	Nonce     string             `json:"nonce,omitempty"` //All responses are hashed with this nonce, optional
 }
 
