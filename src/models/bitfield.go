@@ -1,15 +1,13 @@
 package models
 
-type Bit struct {
-	Bitfield int64
-}
+type Bit int64
 
 func (b Bit) Add(bits ...interface{}) Bit {
 	total := 0
 	for bit := range bits {
 		total |= bit
 	}
-	b.Bitfield |= int64(total)
+	b |= Bit(total)
 	return b
 }
 
@@ -18,7 +16,7 @@ func (b Bit) Remove(bits ...interface{}) Bit {
 	for bit := range bits {
 		total |= bit
 	}
-	b.Bitfield &^= int64(total)
+	b &^= Bit(total)
 	return b
 }
 
@@ -32,7 +30,7 @@ func (b Bit) HasAll(bits ...interface{}) bool {
 }
 
 func (b Bit) Has(bit int64) bool {
-	return (b.Bitfield & bit) == bit
+	return (b & Bit(bit)) == Bit(bit)
 }
 
 func (b Bit) MissingAny(bits ...interface{}) bool {
