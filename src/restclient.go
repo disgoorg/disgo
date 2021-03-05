@@ -8,7 +8,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/Alex-R-31/disgo/src/endpoints"
+	"github.com/DiscoOrg/disgo/src/endpoints"
 )
 
 type RestClient struct {

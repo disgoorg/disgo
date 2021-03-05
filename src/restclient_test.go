@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/Alex-R-31/disgo/src/endpoints"
+	"github.com/DiscoOrg/disgo/src/endpoints"
 )
 
 func TestRestClient_Request(t *testing.T) {
