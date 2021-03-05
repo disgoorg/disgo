@@ -1,5 +1,6 @@
 package endpoints
 
+// All of the Discord endpoints used by the lib
 var (
 	Gateway    = NewRoute(GET, "gateway")
 	GatewayBot = NewRoute(GET, "gateway/bot")

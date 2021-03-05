@@ -12,6 +12,7 @@ import (
 	"github.com/DiscoOrg/disgo/src/endpoints"
 )
 
+// RestClient is the client used for HTTP requests to discord
 type RestClient struct {
 	Client    *http.Client
 	Token     string
@@ -27,11 +28,11 @@ func (c RestClient) Request(route endpoints.Route, rqBody interface{}, v interfa
 
 	var reader io.Reader
 	if rqBody != nil {
-		rqJson, err := json.Marshal(rqBody)
+		rqJSON, err := json.Marshal(rqBody)
 		if err != nil {
 			return err
 		}
-		reader = bytes.NewBuffer(rqJson)
+		reader = bytes.NewBuffer(rqJSON)
 	} else {
 		reader = nil
 	}

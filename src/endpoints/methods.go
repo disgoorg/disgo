@@ -1,7 +1,9 @@
 package endpoints
 
+// Method is a HTTP request Method
 type Method string
 
+// HTTP Methods used by Discord
 const (
 	DELETE Method = "DELETE"
 	GET    Method = "GET"

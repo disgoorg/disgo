@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// Discord Route Constants
 const (
 	APIVersion = "8"
 	Base       = "https://discord.com/"
@@ -11,21 +12,24 @@ const (
 	API        = Base + "api/v" + APIVersion + "/"
 )
 
+// Route is a basic struct containing Method and URL
 type Route struct {
 	Method Method
-	Url    string
+	URL    string
 }
 
+// NewRoute generates a new Route struct
 func NewRoute(method Method, url string) Route {
 	return Route{
 		Method: method,
-		Url:    url,
+		URL:    url,
 	}
 }
 
+// Compile builds a full request URL based on arguments
 func (r Route) Compile(args ...interface{}) string {
 	if len(args) == 0 {
-		return API + r.Url
+		return API + r.URL
 	}
-	return API + fmt.Sprintf(r.Url, args)
+	return API + fmt.Sprintf(r.URL, args)
 }
