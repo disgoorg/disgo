@@ -3,6 +3,7 @@ package src
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"net/http"
 
@@ -24,12 +25,18 @@ type RestClient struct {
 // args path params to compile the route
 func (c RestClient) Request(route endpoints.Route, rqBody interface{}, v interface{}, args ...interface{}) error {
 
-	rqJson, err := json.Marshal(rqBody)
-	if err != nil {
-		return err
+	var reader io.Reader
+	if rqBody != nil {
+		rqJson, err := json.Marshal(rqBody)
+		if err != nil {
+			return err
+		}
+		reader = bytes.NewBuffer(rqJson)
+	} else {
+		reader = nil
 	}
 
-	rq, err := http.NewRequest(route.Method.String(), route.Compile(args...), bytes.NewBuffer(rqJson))
+	rq, err := http.NewRequest(route.Method.String(), route.Compile(args...), reader)
 	if err != nil {
 		return err
 	}

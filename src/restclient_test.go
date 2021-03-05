@@ -2,6 +2,7 @@ package src
 
 import (
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,14 +13,14 @@ import (
 func TestRestClient_Request(t *testing.T) {
 	restClient := RestClient{
 		Client:    &http.Client{},
-		Token:     "",
+		Token:     os.Getenv("token"),
 		UserAgent: "DiscordBot (https://github.com/disgoorg/disgo, 0.0.1)",
 	}
 	response := &struct {
 		Url    string `json:"url"`
 		Shards int    `json:"shards"`
 	}{}
-	err := restClient.Request(endpoints.User, nil, response, "312617227490951168")
+	err := restClient.Request(endpoints.GatewayBot, nil, response)
 	assert.NoError(t, err)
 	println(response.Url)
 }
