@@ -12,11 +12,11 @@ type Guild struct {
 	OwnerID Snowflake
 }
 
-// IconURL returns the Icon of a guild 
+// IconURL returns the Icon of a guild
 func (g Guild) IconURL(size int) *string {
 	if g.Icon == nil {
 		return nil
 	}
-	u :=endpoints.CDNGuildIcon(g.ID.String(), *g.Icon, size)
+	u := endpoints.CDNGuildIcon(g.ID.String(), *g.Icon, size)
 	return &u
 }

@@ -22,7 +22,7 @@ var (
 		if animated {
 			format = "gif"
 		}
-		return fmt.Sprintf(CDN + "icons/%s/%s.%s?size=%d", guildID, hash, format, size)
+		return fmt.Sprintf(CDN+"icons/%s/%s.%s?size=%d", guildID, hash, format, size)
 	}
 )
 
