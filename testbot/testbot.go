@@ -10,6 +10,7 @@ import (
 
 	"github.com/DiscoOrg/disgo"
 	"github.com/DiscoOrg/disgo/models"
+	"github.com/DiscoOrg/disgo/models/events/guild"
 )
 
 func main() {
@@ -18,6 +19,7 @@ func main() {
 		Intents: models.IntentsGuildMessages,
 	}
 	dgo := disgo.New(token, options)
+	dgo.AddEventHandlers(onGuildReady)
 
 	e := dgo.Connect()
 	if e != nil {
@@ -30,4 +32,8 @@ func main() {
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-s
+}
+
+func onGuildReady(event guild.GuildAvailableEvent){
+	log.Infof("lol it wörks BRUH guild: %#v", event.Guild())
 }

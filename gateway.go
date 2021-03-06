@@ -23,7 +23,6 @@ type Gateway interface {
 	Disgo() Disgo
 	Open() error
 	Close()
-	EventChannel() chan interface{}
 }
 
 // GatewayImpl is what is used to connect to discord
@@ -37,17 +36,11 @@ type GatewayImpl struct {
 	sessionID             string
 	lastSequenceReceived  *int
 	url                   *string
-	eventChannel          chan interface{}
 }
 
 // Close cleans up the gateway internals
 func (g GatewayImpl) Close() {
 	log.Info("Implement closing smh...")
-}
-
-// EventChannel returns the channel for emitting events
-func (g GatewayImpl) EventChannel() chan interface{} {
-	return g.eventChannel
 }
 
 // Disgo returns the gateway's disgo client
@@ -128,7 +121,6 @@ func (g GatewayImpl) Open() error {
 	}
 
 	g.connectionStatus = constants.WaitingForReady
-	g.eventChannel = make(chan interface{})
 
 	go g.heartbeat()
 	go g.listen()

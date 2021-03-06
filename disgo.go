@@ -6,6 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/DiscoOrg/disgo/models"
+	"github.com/DiscoOrg/disgo/models/events"
 )
 
 // Disgo is the main discord interface
@@ -18,15 +19,18 @@ type Disgo interface {
 	Intents() models.Intent
 	SelfUser() *models.User
 	setSelfUser(models.User)
+	event(events.GenericEvent)
+	AddEventHandlers(...func(event events.GenericEvent))
 }
 
 // DisgoImpl is the main discord client
 type DisgoImpl struct {
-	token      string
-	gateway    Gateway
-	restClient RestClient
-	intents    models.Intent
-	selfUser   *models.User
+	token        string
+	gateway      Gateway
+	restClient   RestClient
+	intents      models.Intent
+	selfUser     *models.User
+	eventHandler EventHandler
 }
 
 // Connect opens the gateway connection to discord
@@ -75,11 +79,20 @@ func (d DisgoImpl) setSelfUser(user models.User) {
 	d.selfUser = &user
 }
 
+func (d DisgoImpl) event(event events.GenericEvent) {
+	d.eventHandler.event(event)
+}
+
+func (d DisgoImpl) AddEventHandlers(handlers ...func(event events.GenericEvent)) {
+	d.eventHandler.AddEventHandlers(handlers...)
+}
+
 // New initialises a new disgo client
 func New(token string, options Options) Disgo {
 	disgo := &DisgoImpl{
-		token:   token,
-		intents: options.Intents,
+		token:        token,
+		intents:      options.Intents,
+		eventHandler: newEventHandler(),
 	}
 
 	disgo.restClient = RestClientImpl{
