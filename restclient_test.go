@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/DiscoOrg/disgo/disgo/endpoints"
-	"github.com/DiscoOrg/disgo/disgo/models"
+	"github.com/DiscoOrg/disgo/endpoints"
+	"github.com/DiscoOrg/disgo/models"
 )
 
 func TestRestClient_Request(t *testing.T) {

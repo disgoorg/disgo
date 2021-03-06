@@ -13,9 +13,9 @@ import (
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/DiscoOrg/disgo/disgo/constants"
-	"github.com/DiscoOrg/disgo/disgo/endpoints"
-	"github.com/DiscoOrg/disgo/disgo/models"
+	"github.com/DiscoOrg/disgo/constants"
+	"github.com/DiscoOrg/disgo/endpoints"
+	"github.com/DiscoOrg/disgo/models"
 )
 
 // Gateway is what is used to connect to discord

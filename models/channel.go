@@ -1,6 +1,6 @@
 package models
 
-import "github.com/DiscoOrg/disgo/disgo/constants"
+import "github.com/DiscoOrg/disgo/constants"
 
 type Channel struct {
 	ID Snowflake `json:"id"`

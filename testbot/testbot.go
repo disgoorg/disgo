@@ -8,8 +8,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/DiscoOrg/disgo/disgo"
-	"github.com/DiscoOrg/disgo/disgo/models"
+	"github.com/DiscoOrg/disgo"
+	"github.com/DiscoOrg/disgo/models"
 )
 
 func main() {

@@ -1,7 +1,7 @@
 package models
 
 //
-//import "github.com/DiscoOrg/disgo/disgo"
+//import "github.com/DiscoOrg/disgo"
 //
 //type GenericEvent interface {
 //	Disgo() disgo.Disgo

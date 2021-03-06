@@ -5,7 +5,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/DiscoOrg/disgo/disgo/models"
+	"github.com/DiscoOrg/disgo/models"
 )
 
 // Disgo is the main discord interface

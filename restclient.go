@@ -11,7 +11,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/DiscoOrg/disgo/disgo/endpoints"
+	"github.com/DiscoOrg/disgo/endpoints"
 )
 
 type RestClient interface {
