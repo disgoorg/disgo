@@ -154,11 +154,14 @@ func (g GatewayImpl) sendHeartbeat() {
 		},
 		D: g.lastSequenceReceived,
 	})
-	if err != nil || time.Now().UTC().Sub(last) > (time.Duration(g.heartbeatInterval * 5000)){
+	if err != nil || time.Now().UTC().Sub(last) > (time.Duration(g.heartbeatInterval*5000)) {
 		if err != nil {
 			log.Errorf("failed to send heartbeat with error: %s", err)
-		} else
-
+		} else {
+			log.Errorf("Haven't had a heartbeat response for %v", time.Now().UTC().Sub(last))
+		}
+		_ = g.conn.Close()
+		// Todo: reconnect
 	}
 	g.lastHeartbeatSent = time.Now().UTC()
 }
