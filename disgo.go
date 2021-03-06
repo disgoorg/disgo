@@ -29,6 +29,7 @@ type DisgoImpl struct {
 	selfUser   *models.User
 }
 
+// Connect opens the gateway connection to discord
 func (d DisgoImpl) Connect() error {
 	err := d.Gateway().Open()
 	if err != nil {
@@ -38,27 +39,34 @@ func (d DisgoImpl) Connect() error {
 	return nil
 }
 
+// Close will cleanup all disgo internals and close the discord connection safely
 func (d DisgoImpl) Close() {
 	d.RestClient().Close()
 	d.Gateway().Close()
 }
 
+// Token returns the token of the client
 func (d DisgoImpl) Token() string {
 	return d.token
 }
 
+// Gateway returns the websocket information
 func (d DisgoImpl) Gateway() Gateway {
 	return d.gateway
 }
 
+// RestClient returns the HTTP client used by disgo
 func (d DisgoImpl) RestClient() RestClient {
 	return d.restClient
 }
 
+// Intents returns the Intents originally specified when creating the client
 func (d DisgoImpl) Intents() models.Intent {
+	// Todo: Return copy of intents in this method so they can't be modified
 	return d.intents
 }
 
+// SelfUser returns a user object for the client, if available
 func (d DisgoImpl) SelfUser() *models.User {
 	return d.selfUser
 }
@@ -67,6 +75,7 @@ func (d DisgoImpl) setSelfUser(user models.User) {
 	d.selfUser = &user
 }
 
+// New initialises a new disgo client
 func New(token string, options Options) Disgo {
 	disgo := &DisgoImpl{
 		token:   token,

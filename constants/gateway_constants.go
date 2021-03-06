@@ -1,7 +1,9 @@
 package constants
 
+// Gateway opcodes used by discord
 type GatewayOp int
 
+// Constants for the gateway opcodes
 const (
 	OpDispatch GatewayOp = iota
 	OpHeartbeat

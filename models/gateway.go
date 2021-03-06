@@ -1,9 +1,11 @@
 package models
 
+// GatewayRs contains the response for GET /gateway
 type GatewayRs struct {
 	URL string `json:"url"`
 }
 
+// GatewayBotRs contains the response for GET /gateway/bot
 type GatewayBotRs struct {
 	URL               string `json:"url"`
 	Shards            int    `json:"shards"`

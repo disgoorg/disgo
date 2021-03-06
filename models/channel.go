@@ -2,33 +2,35 @@ package models
 
 import "github.com/DiscoOrg/disgo/constants"
 
+// Channel is a generic discord channel object
 type Channel struct {
-	ID Snowflake `json:"id"`
+	ID   Snowflake             `json:"id"`
 	Type constants.ChannelType `json:"type"`
 }
 
 /*
-
- */
+DMChannel is used for interacting in private messages with users
+*/
 type DMChannel struct {
 	Channel
 }
 
 /*
-
- */
+GuildChannel is a generic type for all server channels
+*/
 type GuildChannel struct {
 	Channel
 }
 
 /*
-
+VoiceChannel adds methods specifically for interacting with discord's voice
 */
 type VoiceChannel struct {
 	GuildChannel
 }
 
 /*
+TextChannel allows you to interact with discord's text channels
 {
   "id": "41771983423143937",
   "guild_id": "41771983423143937",
@@ -48,15 +50,15 @@ type TextChannel struct {
 }
 
 /*
-
- */
+StoreChannel allows you to interact with discord's store channels
+*/
 type StoreChannel struct {
 	GuildChannel
 }
 
 /*
-
- */
+NewsChannel allows you to interact with discord's news channels
+*/
 type NewsChannel struct {
 	TextChannel
 }

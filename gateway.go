@@ -40,18 +40,22 @@ type GatewayImpl struct {
 	eventChannel          chan interface{}
 }
 
+// Close cleans up the gateway internals
 func (g GatewayImpl) Close() {
 	log.Info("Implement closing smh...")
 }
 
+// EventChannel returns the channel for emitting events
 func (g GatewayImpl) EventChannel() chan interface{} {
 	return g.eventChannel
 }
 
+// Disgo returns the gateway's disgo client
 func (g GatewayImpl) Disgo() Disgo {
 	return g.disgo
 }
 
+// Open initializes the client and connection to discord
 func (g GatewayImpl) Open() error {
 	g.connectionStatus = constants.Connecting
 	log.Info("starting ws...")

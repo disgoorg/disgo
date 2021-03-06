@@ -14,31 +14,29 @@ import (
 	"github.com/DiscoOrg/disgo/endpoints"
 )
 
+// RestClient is a manager for all of disgo's HTTP requests
 type RestClient interface {
 	Disgo() Disgo
 	Close()
-	UserAgent() string
+	userAgent() string
 	Request(route endpoints.Route, rqBody interface{}, v interface{}, args ...interface{}) error
 }
 
 // RestClient is the client used for HTTP requests to discord
 type RestClientImpl struct {
-	disgo     Disgo
-	client    *http.Client
+	disgo  Disgo
+	client *http.Client
 }
 
+// Disgo returns the Disgo client
 func (r RestClientImpl) Disgo() Disgo {
 	return r.disgo
 }
 
+// Close cleans up the http managers connections
 func (r RestClientImpl) Close() {
 	r.client.CloseIdleConnections()
 }
-
-func (r RestClientImpl) UserAgent() string {
-	return "DiscordBot (https://github.com/disgoorg/disgo, 0.0.1)"
-}
-
 
 // Request makes a new rest request to discords api with the specific route
 // route the route to make a request to
@@ -63,7 +61,7 @@ func (r RestClientImpl) Request(route endpoints.Route, rqBody interface{}, v int
 		return err
 	}
 
-	rq.Header.Set("User-Agent", r.UserAgent())
+	rq.Header.Set("User-Agent", r.userAgent())
 	rq.Header.Set("Authorization", "Bot "+r.Disgo().Token())
 	rq.Header.Set("Content-Type", "application/json")
 
@@ -116,7 +114,12 @@ func (r RestClientImpl) Request(route endpoints.Route, rqBody interface{}, v int
 	return nil
 }
 
+// ErrorResponse contains custom errors from discord
 type ErrorResponse struct {
 	Code    int
 	Message string
+}
+
+func (r RestClientImpl) userAgent() string {
+	return "DiscordBot (https://github.com/disgoorg/disgo, 0.0.1)"
 }
