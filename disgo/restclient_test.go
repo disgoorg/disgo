@@ -1,4 +1,4 @@
-package src
+package disgo
 
 import (
 	"net/http"
@@ -6,14 +6,13 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/DiscoOrg/disgo/src/endpoints"
-	"github.com/DiscoOrg/disgo/src/models"
+	"github.com/DiscoOrg/disgo/disgo/endpoints"
+	"github.com/DiscoOrg/disgo/disgo/models"
 )
 
 func TestRestClient_Request(t *testing.T) {
-	restClient := RestClient{
-		Client:    &http.Client{},
-		UserAgent: "DiscordBot (https://github.com/disgoorg/disgo, 0.0.1)",
+	restClient := RestClientImpl{
+		client:    &http.Client{},
 	}
 	response := &models.GatewayBotRs{}
 	err := restClient.Request(endpoints.GatewayBot, nil, response)

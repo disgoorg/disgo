@@ -1,4 +1,4 @@
-package src
+package disgo
 
 import (
 	"bytes"
@@ -11,27 +11,41 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/DiscoOrg/disgo/src/endpoints"
+	"github.com/DiscoOrg/disgo/disgo/endpoints"
 )
 
-// RestClient is the client used for HTTP requests to discord
-type RestClient struct {
-	Disgo     *Disgo
-	Client    *http.Client
-	UserAgent string
+type RestClient interface {
+	Disgo() Disgo
+	Close()
+	UserAgent() string
+	Request(route endpoints.Route, rqBody interface{}, v interface{}, args ...interface{}) error
 }
 
-type ErrorResponse struct {
-	Code    int
-	Message string
+// RestClient is the client used for HTTP requests to discord
+type RestClientImpl struct {
+	disgo     Disgo
+	client    *http.Client
 }
+
+func (r RestClientImpl) Disgo() Disgo {
+	return r.disgo
+}
+
+func (r RestClientImpl) Close() {
+	r.client.CloseIdleConnections()
+}
+
+func (r RestClientImpl) UserAgent() string {
+	return "DiscordBot (https://github.com/disgoorg/disgo, 0.0.1)"
+}
+
 
 // Request makes a new rest request to discords api with the specific route
 // route the route to make a request to
 // rqBody the request body if one should be sent
 // v the struct which the response should be unmarshalled in
 // args path params to compile the route
-func (c RestClient) Request(route endpoints.Route, rqBody interface{}, v interface{}, args ...interface{}) error {
+func (r RestClientImpl) Request(route endpoints.Route, rqBody interface{}, v interface{}, args ...interface{}) error {
 
 	var reader io.Reader
 	if rqBody != nil {
@@ -49,11 +63,11 @@ func (c RestClient) Request(route endpoints.Route, rqBody interface{}, v interfa
 		return err
 	}
 
-	rq.Header.Set("User-Agent", c.UserAgent)
-	rq.Header.Set("Authorization", "Bot "+c.Disgo.Token)
+	rq.Header.Set("User-Agent", r.UserAgent())
+	rq.Header.Set("Authorization", "Bot "+r.Disgo().Token())
 	rq.Header.Set("Content-Type", "application/json")
 
-	rs, err := c.Client.Do(rq)
+	rs, err := r.client.Do(rq)
 	if err != nil {
 		return err
 	}
@@ -100,4 +114,9 @@ func (c RestClient) Request(route endpoints.Route, rqBody interface{}, v interfa
 	}
 
 	return nil
+}
+
+type ErrorResponse struct {
+	Code    int
+	Message string
 }
