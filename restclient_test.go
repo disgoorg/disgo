@@ -1,7 +1,7 @@
 package disgo
 
 import (
-	"net/http"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,9 +11,10 @@ import (
 )
 
 func TestRestClient_Request(t *testing.T) {
-	restClient := RestClientImpl{
-		client:    &http.Client{},
-	}
+	token := os.Getenv("token")
+	dgo := New(token, Options{})
+
+	restClient := dgo.RestClient()
 	response := &models.GatewayBotRs{}
 	err := restClient.Request(endpoints.GatewayBot, nil, response)
 	assert.NoError(t, err)
