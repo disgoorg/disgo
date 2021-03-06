@@ -16,8 +16,8 @@ import (
 
 // RestClient is the client used for HTTP requests to discord
 type RestClient struct {
+	Disgo     *Disgo
 	Client    *http.Client
-	Token     string
 	UserAgent string
 }
 
@@ -50,7 +50,7 @@ func (c RestClient) Request(route endpoints.Route, rqBody interface{}, v interfa
 	}
 
 	rq.Header.Set("User-Agent", c.UserAgent)
-	rq.Header.Set("Authorization", "Bot "+c.Token)
+	rq.Header.Set("Authorization", "Bot "+c.Disgo.Token)
 	rq.Header.Set("Content-Type", "application/json")
 
 	rs, err := c.Client.Do(rq)
