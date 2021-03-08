@@ -4,40 +4,48 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type ListenerAdapter struct {}
-
-func (l ListenerAdapter) OnGenericEvent(event GenericEvent) {
-	println("OnGenericEvent")
-}
-
-func (l ListenerAdapter) OnGuildAvailable(GuildAvailableEvent) {}
-
-func (l ListenerAdapter) OnGuildUnavailable(GuildUnavailableEvent) {}
-
-func (l ListenerAdapter) OnGuildJoin(GuildJoinEvent) {}
-
-func (l ListenerAdapter) OnGuildLeave(GuildLeaveEvent) {}
-
-func (l ListenerAdapter) OnGuildMessageReceived(GuildMessageReceivedEvent) {
-	println("fuck")
+type ListenerAdapter struct {
+	OnGenericEvent         func(GenericEvent)
+	OnGuildAvailable       func(GuildAvailableEvent)
+	OnGuildUnavailable     func(GuildUnavailableEvent)
+	OnGuildJoin            func(GuildJoinEvent)
+	OnGuildLeave           func(GuildLeaveEvent)
+	OnMessageReceived      func(MessageReceivedEvent)
+	OnGuildMessageReceived func(GuildMessageReceivedEvent)
 }
 
 func (l ListenerAdapter) OnEvent(event interface{}) {
-	println("OnEvent: %v", event)
 	switch v := event.(type) {
-	case GenericEvent:
-		l.OnGenericEvent(v)
 	case GuildAvailableEvent:
-		l.OnGuildAvailable(v)
+		if l.OnGuildAvailable != nil {
+			l.OnGuildAvailable(v)
+		}
 	case GuildUnavailableEvent:
-		l.OnGuildUnavailable(v)
+		if l.OnGuildUnavailable != nil {
+			l.OnGuildUnavailable(v)
+		}
 	case GuildJoinEvent:
-		l.OnGuildJoin(v)
+		if l.OnGuildJoin != nil {
+			l.OnGuildJoin(v)
+		}
 	case GuildLeaveEvent:
-		l.OnGuildLeave(v)
+		if l.OnGuildLeave != nil {
+			l.OnGuildLeave(v)
+		}
+	case MessageReceivedEvent:
+		if l.OnMessageReceived != nil {
+			l.OnMessageReceived(v)
+		}
 	case GuildMessageReceivedEvent:
-		l.OnGuildMessageReceived(v)
+		if l.OnGuildMessageReceived != nil {
+			l.OnGuildMessageReceived(v)
+		}
 	default:
 		log.Errorf("unexpected event received: %#v", event)
+	}
+	if event, ok := event.(GenericEvent); ok {
+		if l.OnGenericEvent != nil {
+			l.OnGenericEvent(event)
+		}
 	}
 }

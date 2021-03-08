@@ -24,8 +24,8 @@ type EventManager interface {
 
 type EventManagerImpl struct {
 	disgo     Disgo
-	listeners *[]EventListener
-	handlers  map[string]GatewayEventProvider
+	listeners *[]*EventListener
+	handlers  *map[string]GatewayEventProvider
 	channel   chan GenericEvent
 }
 
@@ -34,7 +34,7 @@ func (e EventManagerImpl) Disgo() Disgo {
 }
 
 func (e EventManagerImpl) handle(name string, payload json.RawMessage) {
-	if handler, ok := e.handlers[name]; ok {
+	if handler, ok := (*e.handlers)[name]; ok {
 		eventPayload := handler.New()
 		if err := json.Unmarshal(payload, &eventPayload); err != nil {
 			log.Errorf("error while unmarshaling event. error: %s", err)
@@ -45,24 +45,25 @@ func (e EventManagerImpl) handle(name string, payload json.RawMessage) {
 	}
 }
 
-func (e EventManagerImpl) Dispatch(event GenericEvent)  {
+func (e EventManagerImpl) Dispatch(event GenericEvent) {
 	e.channel <- event
 }
 
 func (e EventManagerImpl) AddEventListeners(listeners ...EventListener) {
 	for _, listener := range listeners {
-		*e.listeners = append(*e.listeners, listener)
+		*e.listeners = append(*e.listeners, &listener)
 	}
 }
 
 func (e EventManagerImpl) listenEvents() {
 	defer func() {
+		log.Infof("closing event channel...")
 		close(e.channel)
 	}()
 	for {
 		event := <-e.channel
 		for _, listener := range *e.listeners {
-			listener.OnEvent(event)
+			(*listener).OnEvent(event)
 		}
 	}
 }
@@ -71,7 +72,7 @@ func newEventManager(disgo Disgo) EventManager {
 	manager := EventManagerImpl{
 		disgo:     disgo,
 		channel:   make(chan GenericEvent),
-		listeners: &[]EventListener{},
+		listeners: &[]*EventListener{},
 		handlers:  GetHandlers(),
 	}
 	go manager.listenEvents()
@@ -79,5 +80,5 @@ func newEventManager(disgo Disgo) EventManager {
 }
 
 func (e EventManagerImpl) AddHandler(event string, handler GatewayEventProvider) {
-	e.handlers[event] = handler
+	(*e.handlers)[event] = handler
 }

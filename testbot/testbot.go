@@ -13,12 +13,16 @@ import (
 )
 
 func main() {
-	token := os.Getenv("token")
+	token := "ODE3NDAzMTgyNTI2MzY1NzA2.YEJACQ.43XOAVFCmCtWzLYAHIX6oh13hE0"
 	options := disgo.Options{
 		Intents: models.IntentsGuildMessages | models.IntentsGuildMembers,
 	}
 	dgo := disgo.New(token, options)
-	dgo.EventManager().AddEventListeners(&listener{})
+	dgo.EventManager().AddEventListeners(&disgo.ListenerAdapter{
+		OnGuildMessageReceived: func(event disgo.GuildMessageReceivedEvent) {
+			log.Printf("Message received: %s", event.Message.Content)
+		},
+	})
 
 	e := dgo.Connect()
 	if e != nil {
@@ -31,18 +35,4 @@ func main() {
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-s
-}
-
-type listener struct {
-	disgo.ListenerAdapter
-}
-
-func (l listener) OnGenericEvent(event disgo.GenericEvent) {
-	println("overridden OnGenericEvent")
-}
-
-
-func (l listener) OnGuildMessageReceived(event disgo.GuildMessageReceivedEvent) {
-	println("hm")
-	log.Infof("received message in guild: %s, channel: %s, content: %s", event.Guild.ID, event.TextChannel.ID, event.Message.Content)
 }
