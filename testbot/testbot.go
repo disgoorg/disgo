@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	token := "ODE3NDAzMTgyNTI2MzY1NzA2.YEJACQ.43XOAVFCmCtWzLYAHIX6oh13hE0"
+	token := os.Getenv("token")
 	options := disgo.Options{
 		Intents: models.IntentsGuildMessages | models.IntentsGuildMembers,
 	}
