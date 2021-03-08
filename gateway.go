@@ -93,7 +93,7 @@ func (g GatewayImpl) Open() error {
 
 	g.lastHeartbeatReceived = time.Now().UTC()
 
-	var eventData models.HelloEvent
+	var eventData models.HelloCommand
 	if err = json.Unmarshal(event.D, &eventData); err != nil {
 		return err
 	}
@@ -101,11 +101,11 @@ func (g GatewayImpl) Open() error {
 	g.connectionStatus = constants.Identifying
 	g.heartbeatInterval = eventData.HeartbeatInterval
 
-	if err = wsConn.WriteJSON(models.IdentifyEvent{
-		UnresolvedGatewayEvent: models.UnresolvedGatewayEvent{
+	if err = wsConn.WriteJSON(models.IdentifyCommand{
+		UnresolvedGatewayCommand: models.UnresolvedGatewayCommand{
 			Op: constants.OpIdentify,
 		},
-		D: models.IdentifyEventData{
+		D: models.IdentifyCommandData{
 			Token: g.Disgo().Token(),
 			Properties: models.OpIdentifyDataProperties{
 				OS:      getOS(),
@@ -140,22 +140,16 @@ func (g GatewayImpl) heartbeat() {
 }
 
 func (g GatewayImpl) sendHeartbeat() {
-	last := g.lastHeartbeatReceived
-
 	log.Info("sending heartbeat...")
 
-	err := g.conn.WriteJSON(models.HeartbeatEvent{
-		UnresolvedGatewayEvent: models.UnresolvedGatewayEvent{
+	err := g.conn.WriteJSON(models.HeartbeatCommand{
+		UnresolvedGatewayCommand: models.UnresolvedGatewayCommand{
 			Op: constants.OpHeartbeat,
 		},
 		D: g.lastSequenceReceived,
 	})
-	if err != nil || time.Now().UTC().Sub(last) > (time.Duration(g.heartbeatInterval*5000)) {
-		if err != nil {
-			log.Errorf("failed to send heartbeat with error: %s", err)
-		} else {
-			log.Errorf("Haven't had a heartbeat response for %v", time.Now().UTC().Sub(last))
-		}
+	if err != nil {
+		log.Errorf("failed to send heartbeat with error: %s", err)
 		_ = g.conn.Close()
 		// Todo: reconnect
 	}
@@ -172,8 +166,6 @@ func (g GatewayImpl) listen() {
 			log.Errorf("error while reading from ws. error: %s", err)
 		}
 
-		log.Info(string(data))
-
 		event, err := parseGatewayEvent(mt, data)
 		if err != nil {
 			log.Errorf("error while unpacking gateway event. error: %s", err)
@@ -182,9 +174,11 @@ func (g GatewayImpl) listen() {
 		switch op := event.Op; op {
 
 		case constants.OpDispatch:
+			log.Infof("received: OpDispatch")
 			if event.S != nil {
 				g.lastSequenceReceived = event.S
 			}
+
 			if event.T != nil && *event.T == "READY" {
 				var readyEvent models.ReadyEventData
 				if err := parseEventToStruct(event, &readyEvent); err != nil {
@@ -195,20 +189,30 @@ func (g GatewayImpl) listen() {
 				log.Info("Client Ready")
 			}
 
+			if event.T == nil {
+				log.Errorf("received event without T. playload: %s", string(data))
+				continue
+			}
+			g.Disgo().EventManager().handle(*event.T, event.D)
+
 		case constants.OpHeartbeat:
+			log.Infof("received: OpHeartbeat")
 			g.sendHeartbeat()
 
 		case constants.OpReconnect:
+			log.Infof("received: OpReconnect")
 
 		case constants.OpInvalidSession:
+			log.Infof("received: OpInvalidSession")
 
 		case constants.OpHeartbeatACK:
+			log.Infof("received: OpHeartbeatACK")
 			g.lastHeartbeatReceived = time.Now().UTC()
 		}
 	}
 }
 
-func parseEventToStruct(event *models.GatewayEvent, v interface{}) error {
+func parseEventToStruct(event *models.GatewayCommand, v interface{}) error {
 	if err := json.Unmarshal(event.D, v); err != nil {
 		log.Errorf("error while unmarshaling event. error: %s", err)
 		return err
@@ -216,7 +220,7 @@ func parseEventToStruct(event *models.GatewayEvent, v interface{}) error {
 	return nil
 }
 
-func parseGatewayEvent(mt int, data []byte) (*models.GatewayEvent, error) {
+func parseGatewayEvent(mt int, data []byte) (*models.GatewayCommand, error) {
 
 	var reader io.Reader = bytes.NewBuffer(data)
 
@@ -226,7 +230,7 @@ func parseGatewayEvent(mt int, data []byte) (*models.GatewayEvent, error) {
 	if mt != websocket.TextMessage {
 		return nil, fmt.Errorf("recieved unexpected message type: %d", mt)
 	}
-	var event models.GatewayEvent
+	var event models.GatewayCommand
 
 	decoder := json.NewDecoder(reader)
 	if err := decoder.Decode(&event); err != nil {

@@ -5,11 +5,11 @@ type ChannelType int
 
 // Channel constants
 const (
-	GuildText ChannelType = iota
-	DM
-	GuildVoice
-	GroupDM
-	GuildCategory
-	GuildNews
-	GuildStore
+	GuildTextChannel ChannelType = iota
+	DMChannel
+	GuildVoiceChannel
+	GroupDMChannel
+	GuildCategoryChannel
+	GuildNewsChannel
+	GuildStoreChannel
 )

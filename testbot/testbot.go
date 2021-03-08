@@ -10,16 +10,15 @@ import (
 
 	"github.com/DiscoOrg/disgo"
 	"github.com/DiscoOrg/disgo/models"
-	"github.com/DiscoOrg/disgo/models/events/guild"
 )
 
 func main() {
 	token := os.Getenv("token")
 	options := disgo.Options{
-		Intents: models.IntentsGuildMessages,
+		Intents: models.IntentsGuildMessages | models.IntentsGuildMembers,
 	}
 	dgo := disgo.New(token, options)
-	dgo.AddEventHandlers(onGuildReady)
+	dgo.EventManager().AddEventListeners(&listener{})
 
 	e := dgo.Connect()
 	if e != nil {
@@ -34,6 +33,16 @@ func main() {
 	<-s
 }
 
-func onGuildReady(event guild.GuildAvailableEvent){
-	log.Infof("lol it wörks BRUH guild: %#v", event.Guild())
+type listener struct {
+	disgo.ListenerAdapter
+}
+
+func (l listener) OnGenericEvent(event disgo.GenericEvent) {
+	println("overridden OnGenericEvent")
+}
+
+
+func (l listener) OnGuildMessageReceived(event disgo.GuildMessageReceivedEvent) {
+	println("hm")
+	log.Infof("received message in guild: %s, channel: %s, content: %s", event.Guild.ID, event.TextChannel.ID, event.Message.Content)
 }
