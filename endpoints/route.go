@@ -1,27 +1,39 @@
 package endpoints
 
 import (
-	"fmt"
+	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
-// Route is a basic struct containing Method and URL
+// Route the base struct for routes used in disgo
 type Route struct {
-	Method Method
-	URL    string
+	baseRoute  string
+	route      string
+	paramCount int
 }
 
-// NewRoute generates a new Route struct
-func NewRoute(method Method, url string) Route {
-	return Route{
-		Method: method,
-		URL:    url,
+// Compile builds a full request URL based on provided arguments
+func (r Route) Compile(args ...string) string {
+	if len(args) != r.paramCount {
+		log.Errorf("invalid amount of arguments received. expected: %d, received: %d", r.paramCount, len(args))
 	}
+	route := r.route
+	if len(args) > 0 {
+		for _, arg := range args {
+			start := strings.Index(route, "{")
+			end := strings.Index(route, "}")
+			route = route[:start] + arg + route[end+1:]
+		}
+	}
+
+	return r.baseRoute + route
 }
 
-// Compile builds a full request URL based on arguments
-func (r Route) Compile(args ...interface{}) string {
-	if len(args) == 0 {
-		return API + r.URL
+func countParams(url string) int {
+	paramCount := strings.Count(url, "{")
+	if paramCount != strings.Count(url, "}") {
+		log.Errorf("invalid format for route provided: %s", url)
 	}
-	return API + fmt.Sprintf(r.URL, args...)
+	return paramCount
 }

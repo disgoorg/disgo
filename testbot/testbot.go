@@ -9,7 +9,8 @@ import (
 	"github.com/chebyrash/promise"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/DiscoOrg/disgo/bla"
+
+	"github.com/DiscoOrg/disgo"
 	"github.com/DiscoOrg/disgo/events"
 	"github.com/DiscoOrg/disgo/internal"
 	"github.com/DiscoOrg/disgo/models"
@@ -20,7 +21,7 @@ func main() {
 	options := internal.Options{
 		Intents: models.IntentsGuildMessages | models.IntentsGuildMembers,
 	}
-	dgo := bla.New(token, options)
+	dgo := disgo.New(token, options)
 	dgo.EventManager().AddEventListeners(&events.ListenerAdapter{
 		OnGuildMessageReceived: messageHandler,
 	})
