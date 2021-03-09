@@ -15,6 +15,7 @@ type Disgo interface {
 	Token() string
 	Gateway() Gateway
 	RestClient() RestClient
+	Cache() Cache
 	Intents() models.Intent
 	SelfUser() *models.User
 	setSelfUser(models.User)
@@ -29,6 +30,7 @@ type disgoImpl struct {
 	intents      models.Intent
 	selfUser     *models.User
 	eventManager EventManager
+	cache        Cache
 }
 
 // Connect opens the gateway connection to discord
@@ -60,6 +62,11 @@ func (d disgoImpl) Gateway() Gateway {
 // RestClient returns the HTTP client used by disgo
 func (d disgoImpl) RestClient() RestClient {
 	return d.restClient
+}
+
+// Cache returns the entity cache used by disgo
+func (d disgoImpl) Cache() Cache {
+	return d.cache
 }
 
 // Intents returns the Intents originally specified when creating the client

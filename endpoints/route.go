@@ -23,5 +23,5 @@ func (r Route) Compile(args ...interface{}) string {
 	if len(args) == 0 {
 		return API + r.URL
 	}
-	return API + fmt.Sprintf(r.URL, args)
+	return API + fmt.Sprintf(r.URL, args...)
 }

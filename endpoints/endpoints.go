@@ -11,11 +11,14 @@ const (
 
 // All of the Discord endpoints used by the lib
 var (
-	Gateway    = NewRoute(GET, "gateway")
-	GatewayBot = NewRoute(GET, "gateway/bot")
+	GetGateway    = NewRoute(GET, "gateway")
+	GetGatewayBot = NewRoute(GET, "gateway/bot")
 
-	UsersMe = NewRoute(GET, "users/@me")
-	User    = NewRoute(GET, "users/%s")
+	GetUsersMe = NewRoute(GET, "users/@me")
+	GetUser    = NewRoute(GET, "users/%s")
+
+	GetMember = NewRoute(GET, "guilds/%s/members/%s")
+	PostMessage = NewRoute(POST, "channels/%s/messages")
 
 	GuildIcon CdnRoute = "icons/%s/%s.%s"
 )

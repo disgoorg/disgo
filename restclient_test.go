@@ -16,7 +16,7 @@ func TestRestClient_Request(t *testing.T) {
 
 	restClient := dgo.RestClient()
 	response := &models.GatewayBotRs{}
-	err := restClient.Request(endpoints.GatewayBot, nil, response)
+	err := restClient.Request(endpoints.GetGatewayBot, nil, response)
 	assert.NoError(t, err)
 	println(response.URL)
 }

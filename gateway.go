@@ -57,9 +57,9 @@ func (g GatewayImpl) Open() error {
 	g.url = &gatewayBase
 
 	if g.url == nil {
-		log.Println("Gateway url is nil, fetching...")
+		log.Println("GetGateway url is nil, fetching...")
 		gatewayRs := models.GatewayRs{}
-		if err := g.Disgo().RestClient().Request(endpoints.Gateway, nil, &gatewayRs); err != nil {
+		if err := g.Disgo().RestClient().Request(endpoints.GetGateway, nil, &gatewayRs); err != nil {
 			return err
 		}
 		g.url = &gatewayRs.URL

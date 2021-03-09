@@ -12,7 +12,7 @@ type GenericMessageEvent struct {
 type GenericGuildMessageEvent struct {
 	GenericMessageEvent
 	GenericGuildEvent
-	TextChannel models.TextChannel
+	TextChannel TextChannel
 }
 
 

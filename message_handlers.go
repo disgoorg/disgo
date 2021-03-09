@@ -27,6 +27,22 @@ func (h MessageCreateHandler) Handle(eventManager EventManager, i interface{}) {
 	case constants.GuildTextChannel:
 		eventManager.Dispatch(GuildMessageReceivedEvent{
 			Message: message.Message,
+			GenericGuildMessageEvent: GenericGuildMessageEvent{
+				TextChannel: TextChannel{
+					GuildChannel:   GuildChannel{
+						Channel{
+							Disgo: eventManager.Disgo(),
+							ID:    message.ChannelID,
+						},
+					},
+					MessageChannel: MessageChannel{
+						Channel{
+							Disgo: eventManager.Disgo(),
+							ID:    message.ChannelID,
+						},
+					},
+				},
+			},
 		})
 	case constants.DMChannel:
 	case constants.GroupDMChannel:

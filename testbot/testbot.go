@@ -20,6 +20,9 @@ func main() {
 	dgo := disgo.New(token, options)
 	dgo.EventManager().AddEventListeners(&disgo.ListenerAdapter{
 		OnGuildMessageReceived: func(event disgo.GuildMessageReceivedEvent) {
+			if event.Message.Content == "ping" {
+				event.TextChannel.SendMessage("pong")
+			}
 			log.Printf("Message received: %s", event.Message.Content)
 		},
 	})

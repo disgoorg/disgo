@@ -39,8 +39,6 @@ func (e EventManagerImpl) handle(name string, payload json.RawMessage) {
 		if err := json.Unmarshal(payload, &eventPayload); err != nil {
 			log.Errorf("error while unmarshaling event. error: %s", err)
 		}
-		// need to figure out how to call handle here now
-		//handler.handle duh
 		handler.Handle(e, eventPayload)
 	}
 }

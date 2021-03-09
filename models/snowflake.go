@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var discordEpoch int64 = 1420070400000
@@ -21,6 +23,7 @@ type DeconstructedSnowflake struct {
 }
 
 func (s Snowflake) String() string {
+	log.Infof("called: %s", string(s))
 	return string(s)
 }
 
