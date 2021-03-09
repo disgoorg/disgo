@@ -1,7 +1,7 @@
 package models
 
 type Emote struct {
-	ID Snowflake
+	ID   Snowflake
 	Name string
 }
 

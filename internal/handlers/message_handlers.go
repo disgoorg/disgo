@@ -3,10 +3,10 @@ package handlers
 import (
 	log "github.com/sirupsen/logrus"
 
-	"github.com/DiscoOrg/disgo"
-	"github.com/DiscoOrg/disgo/constants"
-	"github.com/DiscoOrg/disgo/events"
-	"github.com/DiscoOrg/disgo/models"
+	"github.com/DiscoOrg/disgo/api"
+	"github.com/DiscoOrg/disgo/api/constants"
+	"github.com/DiscoOrg/disgo/api/models"
+	"github.com/DiscoOrg/disgo/internal/events"
 )
 
 // GuildCreatePayload payload from GUILD_CREATE gateways event sent by discord
@@ -20,7 +20,7 @@ func (h MessageCreateHandler) New() interface{} {
 	return &MessageCreateEvent{}
 }
 
-func (h MessageCreateHandler) Handle(eventManager disgo.EventManager, i interface{}) {
+func (h MessageCreateHandler) Handle(eventManager api.EventManager, i interface{}) {
 	message, ok := i.(*MessageCreateEvent)
 	if !ok {
 		return

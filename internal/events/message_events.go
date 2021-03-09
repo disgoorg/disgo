@@ -1,12 +1,12 @@
 package events
 
 import (
-	"github.com/DiscoOrg/disgo"
-	"github.com/DiscoOrg/disgo/models"
+	"github.com/DiscoOrg/disgo/api"
+	"github.com/DiscoOrg/disgo/api/models"
 )
 
 type GenericMessageEvent struct {
-	disgo.Event
+	api.Event
 	MessageID models.Snowflake
 }
 

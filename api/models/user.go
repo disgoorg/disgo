@@ -3,11 +3,11 @@ package models
 import (
 	"github.com/chebyrash/promise"
 
-	"github.com/DiscoOrg/disgo"
+	"github.com/DiscoOrg/disgo/api"
 )
 
 type User struct {
-	Disgo         disgo.Disgo
+	Disgo         api.Disgo
 	ID            Snowflake `json:"id"`
 	Username      string    `json:"username"`
 	Discriminator string    `json:"discriminator"`

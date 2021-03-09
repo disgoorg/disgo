@@ -3,8 +3,8 @@ package internal
 import (
 	log "github.com/sirupsen/logrus"
 
-	"github.com/DiscoOrg/disgo"
-	"github.com/DiscoOrg/disgo/models"
+	"github.com/DiscoOrg/disgo/api"
+	"github.com/DiscoOrg/disgo/api/models"
 )
 
 // Options is the configuration used when creating the client
@@ -35,12 +35,12 @@ func (d DisgoImpl) SetGateway(gateway GatewayImpl) {
 // DisgoImpl is the main discord client
 type DisgoImpl struct {
 	token        string
-	gateway      disgo.Gateway
-	restClient   disgo.RestClient
+	gateway      api.Gateway
+	restClient   api.RestClient
 	intents      models.Intent
 	selfUser     *models.User
-	eventManager disgo.EventManager
-	cache        disgo.Cache
+	eventManager api.EventManager
+	cache        api.Cache
 }
 
 
@@ -67,17 +67,17 @@ func (d DisgoImpl) Token() string {
 }
 
 // Gateway returns the websocket information
-func (d DisgoImpl) Gateway() disgo.Gateway {
+func (d DisgoImpl) Gateway() api.Gateway {
 	return d.gateway
 }
 
 // RestClient returns the HTTP client used by disgo
-func (d DisgoImpl) RestClient() disgo.RestClient {
+func (d DisgoImpl) RestClient() api.RestClient {
 	return d.restClient
 }
 
 // Cache returns the entity cache used by disgo
-func (d DisgoImpl) Cache() disgo.Cache {
+func (d DisgoImpl) Cache() api.Cache {
 	return d.cache
 }
 
@@ -96,6 +96,6 @@ func (d DisgoImpl) SetSelfUser(user models.User) {
 	d.selfUser = &user
 }
 
-func (d DisgoImpl) EventManager() disgo.EventManager {
+func (d DisgoImpl) EventManager() api.EventManager {
 	return d.eventManager
 }

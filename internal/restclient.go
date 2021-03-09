@@ -12,19 +12,19 @@ import (
 	"github.com/chebyrash/promise"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/DiscoOrg/disgo"
-	"github.com/DiscoOrg/disgo/endpoints"
-	"github.com/DiscoOrg/disgo/models"
+	"github.com/DiscoOrg/disgo/api"
+	"github.com/DiscoOrg/disgo/api/endpoints"
+	"github.com/DiscoOrg/disgo/api/models"
 )
 
 // RestClient is the client used for HTTP requests to discord
 type RestClientImpl struct {
-	DisgoClient  disgo.Disgo
-	Client *http.Client
+	DisgoClient api.Disgo
+	Client      *http.Client
 }
 
 // Disgo returns the Disgo client
-func (r RestClientImpl) Disgo() disgo.Disgo {
+func (r RestClientImpl) Disgo() api.Disgo {
 	return r.DisgoClient
 }
 
@@ -116,16 +116,16 @@ func (r RestClientImpl) Request(route endpoints.Route, rqBody interface{}, v int
 		reset := rs.Header.Get("X-RateLimit-Limit")
 		bucket := rs.Header.Get("X-RateLimit-Limit")
 		log.Errorf("too many requests. limit: %s, remaining: %s, reset: %s,bucket: %s", limit, remaining, reset, bucket)
-		return disgo.RatelimitedError
+		return api.RatelimitedError
 
 	case http.StatusBadGateway:
-		return disgo.BadGatewayError
+		return api.BadGatewayError
 
 	case http.StatusUnauthorized:
-		return disgo.UnauthorizedError
+		return api.UnauthorizedError
 
 	default:
-		var errorRs disgo.ErrorResponse
+		var errorRs api.ErrorResponse
 		if err = json.Unmarshal(rsBody, &errorRs); err != nil {
 			log.Errorf("error unmarshalling error response. error: %s", err)
 			return err

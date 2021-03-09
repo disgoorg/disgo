@@ -3,7 +3,7 @@ package endpoints
 // Route is a basic struct containing Method and URL
 type APIRoute struct {
 	Route
-	method     Method
+	method Method
 }
 
 func (r APIRoute) Method() Method {
@@ -14,8 +14,8 @@ func (r APIRoute) Method() Method {
 func NewAPIRoute(method Method, url string) APIRoute {
 	return APIRoute{
 		Route: Route{
-			baseRoute: API,
-			route:    url,
+			baseRoute:  API,
+			route:      url,
 			paramCount: countParams(url),
 		},
 		method: method,

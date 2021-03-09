@@ -9,11 +9,10 @@ import (
 	"github.com/chebyrash/promise"
 	log "github.com/sirupsen/logrus"
 
-
 	"github.com/DiscoOrg/disgo"
-	"github.com/DiscoOrg/disgo/events"
+	"github.com/DiscoOrg/disgo/api/models"
 	"github.com/DiscoOrg/disgo/internal"
-	"github.com/DiscoOrg/disgo/models"
+	"github.com/DiscoOrg/disgo/internal/events"
 )
 
 func main() {

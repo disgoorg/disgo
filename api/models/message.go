@@ -5,12 +5,12 @@ import (
 
 	"github.com/chebyrash/promise"
 
-	"github.com/DiscoOrg/disgo"
-	"github.com/DiscoOrg/disgo/constants"
+	"github.com/DiscoOrg/disgo/api"
+	"github.com/DiscoOrg/disgo/api/constants"
 )
 
 type Message struct {
-	Disgo           disgo.Disgo
+	Disgo           api.Disgo
 	ID              Snowflake             `json:"id"`
 	GuildId         Snowflake             `json:"guild_id"`
 	Reactions       []Reactions           `json:"reactions"`

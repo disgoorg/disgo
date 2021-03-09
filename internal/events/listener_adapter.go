@@ -3,11 +3,11 @@ package events
 import (
 	log "github.com/sirupsen/logrus"
 
-	"github.com/DiscoOrg/disgo"
+	"github.com/DiscoOrg/disgo/api"
 )
 
 type ListenerAdapter struct {
-	OnGenericEvent         func(disgo.GenericEvent)
+	OnGenericEvent         func(api.GenericEvent)
 	OnGuildAvailable       func(GuildAvailableEvent)
 	OnGuildUnavailable     func(GuildUnavailableEvent)
 	OnGuildJoin            func(GuildJoinEvent)
@@ -45,7 +45,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 	default:
 		log.Errorf("unexpected event received: %#v", event)
 	}
-	if event, ok := event.(disgo.GenericEvent); ok {
+	if event, ok := event.(api.GenericEvent); ok {
 		if l.OnGenericEvent != nil {
 			l.OnGenericEvent(event)
 		}

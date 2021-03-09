@@ -3,7 +3,7 @@ package models
 import (
 	"strings"
 
-	"github.com/DiscoOrg/disgo/endpoints"
+	"github.com/DiscoOrg/disgo/api/endpoints"
 )
 
 // Guild represents a discord guild

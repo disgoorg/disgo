@@ -1,4 +1,4 @@
-package disgo
+package api
 
 // GenericEvent the basic interface each event implement
 type GenericEvent interface {}

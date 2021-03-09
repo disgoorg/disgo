@@ -11,15 +11,15 @@ import (
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/DiscoOrg/disgo"
-	"github.com/DiscoOrg/disgo/constants"
-	"github.com/DiscoOrg/disgo/endpoints"
-	"github.com/DiscoOrg/disgo/models"
+	"github.com/DiscoOrg/disgo/api"
+	"github.com/DiscoOrg/disgo/api/constants"
+	"github.com/DiscoOrg/disgo/api/endpoints"
+	"github.com/DiscoOrg/disgo/api/models"
 )
 
 // GatewayImpl is what is used to connect to discord
 type GatewayImpl struct {
-	DisgoClient           disgo.Disgo
+	DisgoClient           api.Disgo
 	conn                  *websocket.Conn
 	connectionStatus      constants.ConnectionStatus
 	heartbeatInterval     int
@@ -36,7 +36,7 @@ func (g GatewayImpl) Close() {
 }
 
 // Disgo returns the gateway's disgo client
-func (g GatewayImpl) Disgo() disgo.Disgo {
+func (g GatewayImpl) Disgo() api.Disgo {
 	return g.DisgoClient
 }
 
@@ -100,7 +100,7 @@ func (g GatewayImpl) Open() error {
 		D: models.IdentifyCommandData{
 			Token: g.Disgo().Token(),
 			Properties: models.OpIdentifyDataProperties{
-				OS:      disgo.GetOS(),
+				OS:      api.GetOS(),
 				Browser: "disgo",
 				Device:  "disgo",
 			},

@@ -3,13 +3,13 @@ package models
 import (
 	"github.com/chebyrash/promise"
 
-	"github.com/DiscoOrg/disgo"
-	"github.com/DiscoOrg/disgo/constants"
+	"github.com/DiscoOrg/disgo/api"
+	"github.com/DiscoOrg/disgo/api/constants"
 )
 
 // Channel is a generic discord channel object
 type Channel struct {
-	Disgo         disgo.Disgo
+	Disgo         api.Disgo
 	ID            Snowflake             `json:"id"`
 	Type          constants.ChannelType `json:"type"`
 	LastMessageID Snowflake             `json:"last_message_id"`

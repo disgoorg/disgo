@@ -1,12 +1,12 @@
 package internal
 
 import (
-	"github.com/DiscoOrg/disgo"
-	"github.com/DiscoOrg/disgo/models"
+	"github.com/DiscoOrg/disgo/api"
+	"github.com/DiscoOrg/disgo/api/models"
 )
 
 type EntityBuilder struct {
-	Disgo disgo.Disgo
+	Disgo api.Disgo
 }
 
 func (d EntityBuilder) createMember() models.Member {

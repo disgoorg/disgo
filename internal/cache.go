@@ -3,7 +3,7 @@ package internal
 import (
 	"strings"
 
-	"github.com/DiscoOrg/disgo/models"
+	"github.com/DiscoOrg/disgo/api/models"
 )
 
 type CacheImpl struct {

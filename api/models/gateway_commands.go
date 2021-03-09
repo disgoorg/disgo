@@ -3,7 +3,7 @@ package models
 import (
 	"encoding/json"
 
-	"github.com/DiscoOrg/disgo/constants"
+	"github.com/DiscoOrg/disgo/api/constants"
 )
 
 type UnresolvedGatewayCommand struct {

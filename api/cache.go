@@ -1,7 +1,7 @@
-package disgo
+package api
 
 import (
-	"github.com/DiscoOrg/disgo/models"
+	"github.com/DiscoOrg/disgo/api/models"
 )
 
 type Cache interface {

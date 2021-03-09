@@ -5,17 +5,17 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/DiscoOrg/disgo"
+	"github.com/DiscoOrg/disgo/api"
 )
 
 type EventManagerImpl struct {
-	DisgoClient     disgo.Disgo
-	Listeners *[]*disgo.EventListener
-	Handlers  *map[string]disgo.GatewayEventProvider
-	Channel   chan disgo.GenericEvent
+	DisgoClient api.Disgo
+	Listeners   *[]*api.EventListener
+	Handlers    *map[string]api.GatewayEventProvider
+	Channel     chan api.GenericEvent
 }
 
-func (e EventManagerImpl) Disgo() disgo.Disgo {
+func (e EventManagerImpl) Disgo() api.Disgo {
 	return e.DisgoClient
 }
 
@@ -29,11 +29,11 @@ func (e EventManagerImpl) Handle(name string, payload json.RawMessage) {
 	}
 }
 
-func (e EventManagerImpl) Dispatch(event disgo.GenericEvent) {
+func (e EventManagerImpl) Dispatch(event api.GenericEvent) {
 	e.Channel <- event
 }
 
-func (e EventManagerImpl) AddEventListeners(listeners ...disgo.EventListener) {
+func (e EventManagerImpl) AddEventListeners(listeners ...api.EventListener) {
 	for _, listener := range listeners {
 		*e.Listeners = append(*e.Listeners, &listener)
 	}
@@ -52,6 +52,6 @@ func (e EventManagerImpl) ListenEvents() {
 	}
 }
 
-func (e EventManagerImpl) AddHandler(event string, handler disgo.GatewayEventProvider) {
+func (e EventManagerImpl) AddHandler(event string, handler api.GatewayEventProvider) {
 	(*e.Handlers)[event] = handler
 }

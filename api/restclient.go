@@ -1,12 +1,12 @@
-package disgo
+package api
 
 import (
 	"errors"
 
 	"github.com/chebyrash/promise"
 
-	"github.com/DiscoOrg/disgo/endpoints"
-	"github.com/DiscoOrg/disgo/models"
+	"github.com/DiscoOrg/disgo/api/endpoints"
+	"github.com/DiscoOrg/disgo/api/models"
 )
 
 var (
