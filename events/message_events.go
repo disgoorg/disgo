@@ -1,18 +1,19 @@
-package disgo
+package events
 
 import (
+	"github.com/DiscoOrg/disgo"
 	"github.com/DiscoOrg/disgo/models"
 )
 
 type GenericMessageEvent struct {
-	Event
+	disgo.Event
 	MessageID models.Snowflake
 }
 
 type GenericGuildMessageEvent struct {
 	GenericMessageEvent
 	GenericGuildEvent
-	TextChannel TextChannel
+	TextChannel models.TextChannel
 }
 
 

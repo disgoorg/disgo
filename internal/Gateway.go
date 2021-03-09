@@ -1,4 +1,4 @@
-package disgo
+package internal
 
 import (
 	"bytes"
@@ -6,28 +6,20 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"runtime"
-	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/DiscoOrg/disgo"
 	"github.com/DiscoOrg/disgo/constants"
 	"github.com/DiscoOrg/disgo/endpoints"
 	"github.com/DiscoOrg/disgo/models"
 )
 
-// Gateway is what is used to connect to discord
-type Gateway interface {
-	Disgo() Disgo
-	Open() error
-	Close()
-}
-
 // GatewayImpl is what is used to connect to discord
 type GatewayImpl struct {
-	disgo                 Disgo
+	DisgoClient           disgo.Disgo
 	conn                  *websocket.Conn
 	connectionStatus      constants.ConnectionStatus
 	heartbeatInterval     int
@@ -44,8 +36,8 @@ func (g GatewayImpl) Close() {
 }
 
 // Disgo returns the gateway's disgo client
-func (g GatewayImpl) Disgo() Disgo {
-	return g.disgo
+func (g GatewayImpl) Disgo() disgo.Disgo {
+	return g.DisgoClient
 }
 
 // Open initializes the client and connection to discord
@@ -108,7 +100,7 @@ func (g GatewayImpl) Open() error {
 		D: models.IdentifyCommandData{
 			Token: g.Disgo().Token(),
 			Properties: models.OpIdentifyDataProperties{
-				OS:      getOS(),
+				OS:      disgo.GetOS(),
 				Browser: "disgo",
 				Device:  "disgo",
 			},
@@ -174,7 +166,7 @@ func (g GatewayImpl) listen() {
 		switch op := event.Op; op {
 
 		case constants.OpDispatch:
-			log.Infof("received: OpDispatch")
+			//log.Infof("received: OpDispatch")
 			if event.S != nil {
 				g.lastSequenceReceived = event.S
 			}
@@ -185,7 +177,7 @@ func (g GatewayImpl) listen() {
 					return
 				}
 				g.sessionID = readyEvent.SessionID
-				g.Disgo().setSelfUser(readyEvent.User)
+				g.Disgo().SetSelfUser(readyEvent.User)
 				log.Info("Client Ready")
 			}
 
@@ -193,7 +185,7 @@ func (g GatewayImpl) listen() {
 				log.Errorf("received event without T. playload: %s", string(data))
 				continue
 			}
-			g.Disgo().EventManager().handle(*event.T, event.D)
+			g.Disgo().EventManager().Handle(*event.T, event.D)
 
 		case constants.OpHeartbeat:
 			log.Infof("received: OpHeartbeat")
@@ -238,15 +230,4 @@ func parseGatewayEvent(mt int, data []byte) (*models.GatewayCommand, error) {
 		return nil, err
 	}
 	return &event, nil
-}
-
-func getOS() string {
-	OS := runtime.GOOS
-	if strings.HasPrefix(OS, "windows") {
-		return "windows"
-	}
-	if strings.HasPrefix(OS, "darwin") {
-		return "darwin"
-	}
-	return "linux"
 }

@@ -1,17 +1,18 @@
-package disgo
+package models
 
 import (
 	"github.com/chebyrash/promise"
 
+	"github.com/DiscoOrg/disgo"
 	"github.com/DiscoOrg/disgo/constants"
-	"github.com/DiscoOrg/disgo/models"
 )
 
 // Channel is a generic discord channel object
 type Channel struct {
-	Disgo Disgo
-	ID    models.Snowflake      `json:"id"`
-	Type  constants.ChannelType `json:"type"`
+	Disgo         disgo.Disgo
+	ID            Snowflake             `json:"id"`
+	Type          constants.ChannelType `json:"type"`
+	LastMessageID Snowflake             `json:"last_message_id"`
 }
 
 //  MessageChannel is used for sending messages to user
@@ -20,18 +21,20 @@ type MessageChannel struct {
 }
 
 func (c MessageChannel) SendMessage(content string) *promise.Promise {
-	return c.Disgo.RestClient().SendMessage(c.ID, models.Message{Content: content})
+	return c.Disgo.RestClient().SendMessage(c.ID, Message{Content: content})
 }
-
 
 // DMChannel is used for interacting in private messages with users
 type DMChannel struct {
 	MessageChannel
+	Users []User `json:"recipients"`
 }
 
 // GuildChannel is a generic type for all server channels
 type GuildChannel struct {
 	Channel
+	GuildID Snowflake `json:"guild_id"`
+	Guild   Guild
 }
 
 // CategoryChannel groups text & voice channels in servers together
@@ -49,7 +52,6 @@ type TextChannel struct {
 	GuildChannel
 	MessageChannel
 }
-
 
 // StoreChannel allows you to interact with discord's store channels
 type StoreChannel struct {

@@ -1,11 +1,12 @@
-package disgo
+package events
 
 import (
+	"github.com/DiscoOrg/disgo"
 	"github.com/DiscoOrg/disgo/models"
 )
 
 type GenericGuildEvent struct {
-	Event
+	disgo.Event
 	Guild models.Guild
 }
 

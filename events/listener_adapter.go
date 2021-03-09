@@ -1,11 +1,13 @@
-package disgo
+package events
 
 import (
 	log "github.com/sirupsen/logrus"
+
+	"github.com/DiscoOrg/disgo"
 )
 
 type ListenerAdapter struct {
-	OnGenericEvent         func(GenericEvent)
+	OnGenericEvent         func(disgo.GenericEvent)
 	OnGuildAvailable       func(GuildAvailableEvent)
 	OnGuildUnavailable     func(GuildUnavailableEvent)
 	OnGuildJoin            func(GuildJoinEvent)
@@ -43,7 +45,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 	default:
 		log.Errorf("unexpected event received: %#v", event)
 	}
-	if event, ok := event.(GenericEvent); ok {
+	if event, ok := event.(disgo.GenericEvent); ok {
 		if l.OnGenericEvent != nil {
 			l.OnGenericEvent(event)
 		}

@@ -1,8 +1,9 @@
-package disgo
+package handlers
 
 import (
 	log "github.com/sirupsen/logrus"
 
+	"github.com/DiscoOrg/disgo"
 	"github.com/DiscoOrg/disgo/models"
 )
 
@@ -17,7 +18,7 @@ func (h GuildCreateHandler) New() interface{} {
 	return &GuildCreateEvent{}
 }
 
-func (h GuildCreateHandler) Handle(eventManager EventManager, i interface{}) {
+func (h GuildCreateHandler) Handle(eventManager disgo.EventManager, i interface{}) {
 	guild, ok := i.(*GuildCreateEvent)
 	if !ok {
 		return
@@ -36,7 +37,7 @@ func (h GuildDeleteHandler) New() interface{} {
 	return &GuildDeleteEvent{}
 }
 
-func (h GuildDeleteHandler) Handle(eventManager EventManager, i interface{}) {
+func (h GuildDeleteHandler) Handle(eventManager disgo.EventManager, i interface{}) {
 	guild, ok := i.(*GuildDeleteEvent)
 	if !ok {
 		return
@@ -55,7 +56,7 @@ func (h GuildUpdateHandler) New() interface{} {
 	return &GuildUpdateEvent{}
 }
 
-func (h GuildUpdateHandler) Handle(eventManager EventManager, i interface{}) {
+func (h GuildUpdateHandler) Handle(eventManager disgo.EventManager, i interface{}) {
 	guild, ok := i.(*GuildUpdateEvent)
 	if !ok {
 		return

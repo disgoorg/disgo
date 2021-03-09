@@ -1,9 +1,11 @@
-package disgo
+package handlers
 
 import (
 	log "github.com/sirupsen/logrus"
 
+	"github.com/DiscoOrg/disgo"
 	"github.com/DiscoOrg/disgo/constants"
+	"github.com/DiscoOrg/disgo/events"
 	"github.com/DiscoOrg/disgo/models"
 )
 
@@ -18,25 +20,32 @@ func (h MessageCreateHandler) New() interface{} {
 	return &MessageCreateEvent{}
 }
 
-func (h MessageCreateHandler) Handle(eventManager EventManager, i interface{}) {
+func (h MessageCreateHandler) Handle(eventManager disgo.EventManager, i interface{}) {
 	message, ok := i.(*MessageCreateEvent)
 	if !ok {
 		return
 	}
 	switch message.ChannelType {
 	case constants.GuildTextChannel:
-		eventManager.Dispatch(GuildMessageReceivedEvent{
-			Message: message.Message,
-			GenericGuildMessageEvent: GenericGuildMessageEvent{
-				TextChannel: TextChannel{
-					GuildChannel:   GuildChannel{
-						Channel{
+		message := message.Message
+		message.Disgo = eventManager.Disgo()
+		message.User.Disgo = eventManager.Disgo()
+		eventManager.Dispatch(events.GuildMessageReceivedEvent{
+			Message: message,
+			GenericGuildMessageEvent: events.GenericGuildMessageEvent{
+				TextChannel: models.TextChannel{
+					GuildChannel:   models.GuildChannel{
+						Channel: models.Channel{
 							Disgo: eventManager.Disgo(),
 							ID:    message.ChannelID,
 						},
+						GuildID: message.GuildId,
+						Guild:   models.Guild{
+							ID: message.GuildId,
+						},
 					},
-					MessageChannel: MessageChannel{
-						Channel{
+					MessageChannel: models.MessageChannel{
+						Channel: models.Channel{
 							Disgo: eventManager.Disgo(),
 							ID:    message.ChannelID,
 						},
@@ -49,7 +58,7 @@ func (h MessageCreateHandler) Handle(eventManager EventManager, i interface{}) {
 	default:
 		log.Errorf("unknown channel type received: %d", message.ChannelType)
 	}
-	eventManager.Dispatch(MessageReceivedEvent{
+	eventManager.Dispatch(events.MessageReceivedEvent{
 		Message: message.Message,
 	})
 }

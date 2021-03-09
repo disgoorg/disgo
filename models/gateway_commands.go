@@ -49,11 +49,11 @@ type ReadyEvent struct {
 }
 
 type ReadyEventData struct {
-	User User `json:"user"`
-	PrivateChannels []PrivateChannel `json:"channel"`
-	Guilds []Guild `json:"guild"`
-	SessionID string `json:"session_id"`
-	Shard [2]int `json:"shard,omitempty"`
+	User            User        `json:"user"`
+	PrivateChannels []DMChannel `json:"channel"`
+	Guilds          []Guild     `json:"guild"`
+	SessionID       string      `json:"session_id"`
+	Shard           [2]int      `json:"shard,omitempty"`
 }
 
 type HeartbeatCommand struct {
