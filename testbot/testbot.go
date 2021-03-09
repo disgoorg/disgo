@@ -15,9 +15,14 @@ import (
 func main() {
 	token := os.Getenv("token")
 	options := disgo.Options{
-		Intents: models.IntentsGuildMessages,
+		Intents: models.IntentsGuildMessages | models.IntentsGuildMembers,
 	}
 	dgo := disgo.New(token, options)
+	dgo.EventManager().AddEventListeners(&disgo.ListenerAdapter{
+		OnGuildMessageReceived: func(event disgo.GuildMessageReceivedEvent) {
+			log.Printf("Message received: %s", event.Message.Content)
+		},
+	})
 
 	e := dgo.Connect()
 	if e != nil {

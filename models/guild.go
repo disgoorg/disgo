@@ -27,3 +27,9 @@ func (g Guild) IconURL() *string {
 	u := endpoints.GuildIcon.Compile(g.ID.String(), *g.Icon, format)
 	return &u
 }
+
+// UnavailableGuild represents a unavailable discord guild
+type UnavailableGuild struct {
+	ID          Snowflake
+	Unavailable bool
+}
