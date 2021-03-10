@@ -17,7 +17,7 @@ func (h GuildCreateHandler) New() interface{} {
 	return &GuildCreateEvent{}
 }
 
-func (h GuildCreateHandler) Handle(eventManager api.EventManager, i interface{}) {
+func (h GuildCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
 	guild, ok := i.(*GuildCreateEvent)
 	if !ok {
 		return
@@ -36,7 +36,7 @@ func (h GuildDeleteHandler) New() interface{} {
 	return &GuildDeleteEvent{}
 }
 
-func (h GuildDeleteHandler) Handle(eventManager api.EventManager, i interface{}) {
+func (h GuildDeleteHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
 	guild, ok := i.(*GuildDeleteEvent)
 	if !ok {
 		return
@@ -55,7 +55,7 @@ func (h GuildUpdateHandler) New() interface{} {
 	return &GuildUpdateEvent{}
 }
 
-func (h GuildUpdateHandler) Handle(eventManager api.EventManager, i interface{}) {
+func (h GuildUpdateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
 	guild, ok := i.(*GuildUpdateEvent)
 	if !ok {
 		return

@@ -4,8 +4,6 @@ import (
 	"time"
 
 	"github.com/chebyrash/promise"
-
-	"github.com/DiscoOrg/disgo/api/constants"
 )
 
 type Message struct {
@@ -25,7 +23,7 @@ type Message struct {
 	Content         string                `json:"content"`
 	ChannelID       Snowflake             `json:"channel_id"`
 	Mentions        []interface{}         `json:"mentions"`
-	ChannelType     constants.ChannelType `json:"type"`
+	ChannelType     ChannelType `json:"type"`
 }
 
 func (m Message) AddReactionByEmote(emote Emote) *promise.Promise {

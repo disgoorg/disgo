@@ -12,15 +12,20 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/DiscoOrg/disgo/api"
-	"github.com/DiscoOrg/disgo/api/constants"
 	"github.com/DiscoOrg/disgo/api/endpoints"
 )
 
+func newGatewayImpl(disgo api.Disgo) api.Gateway {
+	return &GatewayImpl{
+		disgo: disgo,
+	}
+}
+
 // GatewayImpl is what is used to connect to discord
 type GatewayImpl struct {
-	DisgoClient           api.Disgo
+	disgo                 api.Disgo
 	conn                  *websocket.Conn
-	connectionStatus      constants.ConnectionStatus
+	connectionStatus      api.ConnectionStatus
 	heartbeatInterval     int
 	lastHeartbeatSent     time.Time
 	lastHeartbeatReceived time.Time
@@ -29,19 +34,14 @@ type GatewayImpl struct {
 	url                   *string
 }
 
-// Close cleans up the gateway internals
-func (g GatewayImpl) Close() {
-	log.Info("Implement closing smh...")
-}
-
 // Disgo returns the gateway's disgo client
 func (g GatewayImpl) Disgo() api.Disgo {
-	return g.DisgoClient
+	return g.disgo
 }
 
 // Open initializes the client and connection to discord
 func (g GatewayImpl) Open() error {
-	g.connectionStatus = constants.Connecting
+	g.connectionStatus = api.Connecting
 	log.Info("starting ws...")
 
 	gatewayBase := "wss://gateway.discord.gg"
@@ -68,7 +68,7 @@ func (g GatewayImpl) Open() error {
 	})
 
 	g.conn = wsConn
-	g.connectionStatus = constants.WaitingForHello
+	g.connectionStatus = api.WaitingForHello
 
 	mt, data, err := g.conn.ReadMessage()
 	if err != nil {
@@ -78,7 +78,7 @@ func (g GatewayImpl) Open() error {
 	if err != nil {
 		return err
 	}
-	if event.Op != constants.OpHello {
+	if event.Op != api.OpHello {
 		return fmt.Errorf("expected op: hello type: 10, received: %d", mt)
 	}
 
@@ -89,16 +89,16 @@ func (g GatewayImpl) Open() error {
 		return err
 	}
 
-	g.connectionStatus = constants.Identifying
+	g.connectionStatus = api.Identifying
 	g.heartbeatInterval = eventData.HeartbeatInterval
 
 	if err = wsConn.WriteJSON(api.IdentifyCommand{
-		UnresolvedGatewayCommand: api.UnresolvedGatewayCommand{
-			Op: constants.OpIdentify,
+		GatewayCommand: api.GatewayCommand{
+			Op: api.OpIdentify,
 		},
 		D: api.IdentifyCommandData{
 			Token: g.Disgo().Token(),
-			Properties: api.OpIdentifyDataProperties{
+			Properties: api.IdentifyCommandDataProperties{
 				OS:      api.GetOS(),
 				Browser: "disgo",
 				Device:  "disgo",
@@ -111,7 +111,7 @@ func (g GatewayImpl) Open() error {
 		return err
 	}
 
-	g.connectionStatus = constants.WaitingForReady
+	g.connectionStatus = api.WaitingForReady
 
 	go g.heartbeat()
 	go g.listen()
@@ -121,7 +121,12 @@ func (g GatewayImpl) Open() error {
 
 func (g GatewayImpl) heartbeat() {
 	defer func() {
-		log.Info("Shutting down heartbeat...")
+		if r := recover(); r != nil {
+			log.Errorf("recovered heartbeat goroutine error: %s", r)
+			g.heartbeat()
+			return
+		}
+		log.Info("shutting down heartbeat goroutine...")
 	}()
 
 	for {
@@ -130,12 +135,22 @@ func (g GatewayImpl) heartbeat() {
 	}
 }
 
+// Status returns the gateway connection status
+func (g GatewayImpl) Status() api.ConnectionStatus {
+	return g.connectionStatus
+}
+
+// Close cleans up the gateway internals
+func (g GatewayImpl) Close() {
+	log.Info("Implement closing smh...")
+}
+
 func (g GatewayImpl) sendHeartbeat() {
 	log.Info("sending heartbeat...")
 
 	err := g.conn.WriteJSON(api.HeartbeatCommand{
-		UnresolvedGatewayCommand: api.UnresolvedGatewayCommand{
-			Op: constants.OpHeartbeat,
+		GatewayCommand: api.GatewayCommand{
+			Op: api.OpHeartbeat,
 		},
 		D: g.lastSequenceReceived,
 	})
@@ -149,7 +164,12 @@ func (g GatewayImpl) sendHeartbeat() {
 
 func (g GatewayImpl) listen() {
 	defer func() {
-		log.Info("Shutting down listen...")
+		if r := recover(); r != nil {
+			log.Errorf("recovered listen goroutine error: %s", r)
+			g.listen()
+			return
+		}
+		log.Info("shutting down ws goroutine...")
 	}()
 	for {
 		mt, data, err := g.conn.ReadMessage()
@@ -164,7 +184,7 @@ func (g GatewayImpl) listen() {
 
 		switch op := event.Op; op {
 
-		case constants.OpDispatch:
+		case api.OpDispatch:
 			//log.Infof("received: OpDispatch")
 			if event.S != nil {
 				g.lastSequenceReceived = event.S
@@ -184,26 +204,28 @@ func (g GatewayImpl) listen() {
 				log.Errorf("received event without T. playload: %s", string(data))
 				continue
 			}
-			g.Disgo().EventManager().Handle(*event.T, event.D)
+			d := g.Disgo()
+			e := d.EventManager()
+			e.Handle(*event.T, event.D)
 
-		case constants.OpHeartbeat:
+		case api.OpHeartbeat:
 			log.Infof("received: OpHeartbeat")
 			g.sendHeartbeat()
 
-		case constants.OpReconnect:
+		case api.OpReconnect:
 			log.Infof("received: OpReconnect")
 
-		case constants.OpInvalidSession:
+		case api.OpInvalidSession:
 			log.Infof("received: OpInvalidSession")
 
-		case constants.OpHeartbeatACK:
+		case api.OpHeartbeatACK:
 			log.Infof("received: OpHeartbeatACK")
 			g.lastHeartbeatReceived = time.Now().UTC()
 		}
 	}
 }
 
-func parseEventToStruct(event *api.GatewayCommand, v interface{}) error {
+func parseEventToStruct(event *api.RawGatewayCommand, v interface{}) error {
 	if err := json.Unmarshal(event.D, v); err != nil {
 		log.Errorf("error while unmarshaling event. error: %s", err)
 		return err
@@ -211,7 +233,7 @@ func parseEventToStruct(event *api.GatewayCommand, v interface{}) error {
 	return nil
 }
 
-func parseGatewayEvent(mt int, data []byte) (*api.GatewayCommand, error) {
+func parseGatewayEvent(mt int, data []byte) (*api.RawGatewayCommand, error) {
 
 	var reader io.Reader = bytes.NewBuffer(data)
 
@@ -221,7 +243,7 @@ func parseGatewayEvent(mt int, data []byte) (*api.GatewayCommand, error) {
 	if mt != websocket.TextMessage {
 		return nil, fmt.Errorf("recieved unexpected message type: %d", mt)
 	}
-	var event api.GatewayCommand
+	var event api.RawGatewayCommand
 
 	decoder := json.NewDecoder(reader)
 	if err := decoder.Decode(&event); err != nil {

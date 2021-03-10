@@ -4,7 +4,6 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/DiscoOrg/disgo/api"
-	"github.com/DiscoOrg/disgo/api/constants"
 	"github.com/DiscoOrg/disgo/internal/events"
 )
 
@@ -19,23 +18,23 @@ func (h MessageCreateHandler) New() interface{} {
 	return &MessageCreateEvent{}
 }
 
-func (h MessageCreateHandler) Handle(eventManager api.EventManager, i interface{}) {
+func (h MessageCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
 	message, ok := i.(*MessageCreateEvent)
 	if !ok {
 		return
 	}
 	switch message.ChannelType {
-	case constants.GuildTextChannel:
+	case api.GuildTextChannel:
 		message := message.Message
-		message.Disgo = eventManager.Disgo()
-		message.Author.Disgo = eventManager.Disgo()
+		message.Disgo = disgo
+		message.Author.Disgo = disgo
 		eventManager.Dispatch(events.GuildMessageReceivedEvent{
 			Message: message,
 			GenericGuildMessageEvent: events.GenericGuildMessageEvent{
 				TextChannel: api.TextChannel{
 					GuildChannel:   api.GuildChannel{
 						Channel: api.Channel{
-							Disgo: eventManager.Disgo(),
+							Disgo: disgo,
 							ID:    message.ChannelID,
 						},
 						GuildID: message.GuildId,
@@ -45,15 +44,15 @@ func (h MessageCreateHandler) Handle(eventManager api.EventManager, i interface{
 					},
 					MessageChannel: api.MessageChannel{
 						Channel: api.Channel{
-							Disgo: eventManager.Disgo(),
+							Disgo: disgo,
 							ID:    message.ChannelID,
 						},
 					},
 				},
 			},
 		})
-	case constants.DMChannel:
-	case constants.GroupDMChannel:
+	case api.DMTextChannel:
+	case api.GroupDMChannel:
 	default:
 		log.Errorf("unknown channel type received: %d", message.ChannelType)
 	}

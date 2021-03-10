@@ -6,34 +6,30 @@ import (
 	"github.com/DiscoOrg/disgo/api"
 )
 
-func New(token string, options api.Options) DisgoImpl {
-	return DisgoImpl{
+func New(token string, options api.Options) api.Disgo {
+	disgo := &DisgoImpl{
 		token:        token,
 		intents:      options.Intents,
+		restClient: newRestClientImpl(token),
 	}
+
+	disgo.eventManager = newEventManagerImpl(disgo, make([]api.EventListener, 0))
+
+	disgo.gateway = newGatewayImpl(disgo)
+
+	return disgo
 }
+
 
 // DisgoImpl is the main discord client
 type DisgoImpl struct {
 	token        string
-	gateway      *api.Gateway
-	restClient   *api.RestClient
+	gateway      api.Gateway
+	restClient   api.RestClient
 	intents      api.Intent
 	selfUser     *api.User
-	eventManager *api.EventManager
+	eventManager api.EventManager
 	cache        api.Cache
-}
-
-func (d DisgoImpl) SetRestClient(restClient api.RestClient) {
-	d.restClient = &restClient
-}
-
-func (d DisgoImpl) SetEventManager(eventManager api.EventManager) {
-	d.eventManager = &eventManager
-}
-
-func (d DisgoImpl) SetGateway(gateway api.Gateway) {
-	d.gateway = &gateway
 }
 
 // Connect opens the gateway connection to discord
@@ -59,16 +55,16 @@ func (d DisgoImpl) Token() string {
 
 // Gateway returns the websocket information
 func (d DisgoImpl) Gateway() api.Gateway {
-	return *d.gateway
+	return d.gateway
 }
 
 // RestClient returns the HTTP client used by disgo
 func (d DisgoImpl) RestClient() api.RestClient {
-	return *d.restClient
+	return d.restClient
 }
 
 func (d DisgoImpl) EventManager() api.EventManager {
-	return *d.eventManager
+	return d.eventManager
 }
 
 // Cache returns the entity cache used by disgo

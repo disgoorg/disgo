@@ -60,5 +60,5 @@ type Cache interface {
 	GetEmotesByName(string, bool) []Emote
 	GetEmotesCache() map[Snowflake]Emote
 	GetEmotes() []Emote
-	cacheEmote(Emote)
+	CacheEmote(Emote)
 }

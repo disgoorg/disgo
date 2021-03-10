@@ -2,15 +2,14 @@ package internal
 
 import (
 	"github.com/DiscoOrg/disgo/api"
-	"github.com/DiscoOrg/disgo/api/constants"
 	"github.com/DiscoOrg/disgo/internal/handlers"
 )
 
-func GetHandlers() *map[string]api.GatewayEventProvider {
+func getHandlers() *map[string]api.GatewayEventProvider {
 	return &map[string]api.GatewayEventProvider{
-		constants.GuildCreateEvent:   handlers.GuildCreateHandler{},
-		constants.GuildDeleteEvent:   handlers.GuildDeleteHandler{},
-		constants.GuildUpdateEvent:   handlers.GuildUpdateHandler{},
-		constants.MessageCreateEvent: handlers.MessageCreateHandler{},
+		api.GuildCreateGatewayEvent:   handlers.GuildCreateHandler{},
+		api.GuildDeleteGatewayEvent:   handlers.GuildDeleteHandler{},
+		api.GuildUpdateGatewayEvent:   handlers.GuildUpdateHandler{},
+		api.MessageCreateGatewayEvent: handlers.MessageCreateHandler{},
 	}
 }

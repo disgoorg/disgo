@@ -16,20 +16,21 @@ import (
 
 func main() {
 	token := os.Getenv("token")
-	options := api.Options{
-		Intents: api.IntentsGuildMessages | api.IntentsGuildMembers,
+
+	dgo, err := disgo.NewBuilder(token).
+		SetLogLevel(log.InfoLevel).
+		SetIntents(api.IntentsGuildMessages | api.IntentsGuildMembers).
+		AddEventListeners(&events.ListenerAdapter{
+			OnGuildMessageReceived: messageHandler,
+		}).
+		Build()
+	if err != nil {
+		return
 	}
-	dgo := disgo.New(token, options)
 
-	eventManager := dgo.EventManager()
-
-	eventManager.AddEventListeners(events.ListenerAdapter{
-		OnGuildMessageReceived: messageHandler,
-	})
-
-	e := dgo.Connect()
-	if e != nil {
-		log.Fatal(e)
+	err = dgo.Connect()
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	defer dgo.Close()
@@ -41,15 +42,17 @@ func main() {
 }
 
 func messageHandler(event events.GuildMessageReceivedEvent) {
-	log.Printf("Message received: %s", event.Message.Content)
+	log.Printf("Message received: %v", event.Message.Content)
 	if event.Message.Author.IsBot {
 		return
 	}
 
 	switch event.Message.Content {
 	case "ping":
+		log.Print("hm")
 		event.TextChannel.SendMessage("pong")
 	case "pong":
+		log.Print("hm2")
 		event.TextChannel.SendMessage("ping")
 	case "dm":
 		event.Message.Author.OpenDMChannel().Then(func(channel promise.Any) promise.Any {

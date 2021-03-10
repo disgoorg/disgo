@@ -16,15 +16,17 @@ import (
 	"github.com/DiscoOrg/disgo/api/endpoints"
 )
 
-// RestClient is the client used for HTTP requests to discord
-type RestClientImpl struct {
-	DisgoClient api.Disgo
-	Client      *http.Client
+func newRestClientImpl(token string) api.RestClient {
+	return &RestClientImpl{
+		token:  token,
+		Client: &http.Client{},
+	}
 }
 
-// Disgo returns the Disgo client
-func (r RestClientImpl) Disgo() api.Disgo {
-	return r.DisgoClient
+// RestClient is the client used for HTTP requests to discord
+type RestClientImpl struct {
+	token string
+	Client      *http.Client
 }
 
 // Close cleans up the http managers connections
@@ -41,6 +43,7 @@ func (r RestClientImpl) RequestAsync(route endpoints.APIRoute, rqBody interface{
 	return promise.New(func(resolve func(promise.Any), reject func(error)) {
 		err := r.Request(route, rqBody, v, args...)
 		if err != nil {
+			log.Errorf("received error on route: %s. error: %s", route.Compile(args...), err)
 			reject(err)
 			return
 		}
@@ -71,7 +74,7 @@ func (r RestClientImpl) Request(route endpoints.APIRoute, rqBody interface{}, v 
 	}
 
 	rq.Header.Set("GetUser-Agent", r.UserAgent())
-	rq.Header.Set("Authorization", "Bot "+r.Disgo().Token())
+	rq.Header.Set("Authorization", "Bot "+r.token)
 	rq.Header.Set("content-type", "application/json")
 
 	rs, err := r.Client.Do(rq)
@@ -97,7 +100,7 @@ func (r RestClientImpl) Request(route endpoints.APIRoute, rqBody interface{}, v 
 		}
 	}
 
-	log.Infof("code: %d, response: %s", rs.StatusCode, string(rsBody))
+	log.Debugf("code: %d, response: %s", rs.StatusCode, string(rsBody))
 
 	switch rs.StatusCode {
 	case http.StatusOK, http.StatusCreated, http.StatusNoContent:

@@ -22,7 +22,7 @@ type Disgo interface {
 
 type GatewayEventProvider interface {
 	New() interface{}
-	Handle(EventManager, interface{})
+	Handle(Disgo, EventManager, interface{})
 }
 
 type EventListener interface {
@@ -33,15 +33,6 @@ type EventManager interface {
 	AddEventListeners(...EventListener)
 	Handle(string, json.RawMessage)
 	Dispatch(GenericEvent)
-	Disgo() Disgo
-}
-
-
-// Gateway is what is used to connect to discord
-type Gateway interface {
-	Disgo() Disgo
-	Open() error
-	Close()
 }
 
 func GetOS() string {

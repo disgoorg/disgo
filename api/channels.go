@@ -2,15 +2,27 @@ package api
 
 import (
 	"github.com/chebyrash/promise"
+)
 
-	"github.com/DiscoOrg/disgo/api/constants"
+// ChannelType for interacting with discord's channels
+type ChannelType int
+
+// Channel constants
+const (
+	GuildTextChannel ChannelType = iota
+	DMTextChannel
+	GuildVoiceChannel
+	GroupDMChannel
+	GuildCategoryChannel
+	GuildNewsChannel
+	GuildStoreChannel
 )
 
 // Channel is a generic discord channel object
 type Channel struct {
 	Disgo         Disgo
 	ID            Snowflake             `json:"id"`
-	Type          constants.ChannelType `json:"type"`
+	Type          ChannelType `json:"type"`
 	LastMessageID Snowflake             `json:"last_message_id"`
 }
 

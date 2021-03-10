@@ -8,50 +8,58 @@ import (
 	"github.com/DiscoOrg/disgo/api"
 )
 
-type EventManagerImpl struct {
-	DisgoClient api.Disgo
-	Listeners   *[]*api.EventListener
-	Handlers    *map[string]api.GatewayEventProvider
-	Channel     chan api.GenericEvent
+func newEventManagerImpl(disgo api.Disgo, listeners []api.EventListener) api.EventManager {
+	eventManager := &EventManagerImpl{
+		disgo: disgo,
+		channel:   make(chan api.GenericEvent),
+		listeners: listeners,
+		handlers:  getHandlers(),
+	}
+	go eventManager.ListenEvents()
+	return eventManager
 }
 
-func (e EventManagerImpl) Disgo() api.Disgo {
-	return e.DisgoClient
+type EventManagerImpl struct {
+	disgo     api.Disgo
+	listeners []api.EventListener
+	handlers  *map[string]api.GatewayEventProvider
+	channel   chan api.GenericEvent
 }
 
 func (e EventManagerImpl) Handle(name string, payload json.RawMessage) {
-	if handler, ok := (*e.Handlers)[name]; ok {
+	if handler, ok := (*e.handlers)[name]; ok {
 		eventPayload := handler.New()
 		if err := json.Unmarshal(payload, &eventPayload); err != nil {
 			log.Errorf("error while unmarshaling event. error: %s", err)
 		}
-		handler.Handle(e, eventPayload)
+		handler.Handle(e.disgo, e, eventPayload)
 	}
 }
 
 func (e EventManagerImpl) Dispatch(event api.GenericEvent) {
-	e.Channel <- event
+	e.channel <- event
 }
 
 func (e EventManagerImpl) AddEventListeners(listeners ...api.EventListener) {
 	for _, listener := range listeners {
-		*e.Listeners = append(*e.Listeners, &listener)
+		e.listeners = append(e.listeners, listener)
 	}
 }
 
 func (e EventManagerImpl) ListenEvents() {
 	defer func() {
+		if r := recover(); r != nil {
+			log.Errorf("recovered event listen goroutine error: %s", r)
+			e.ListenEvents()
+			return
+		}
 		log.Infof("closing event channel...")
-		close(e.Channel)
+		close(e.channel)
 	}()
 	for {
-		event := <-e.Channel
-		for _, listener := range *e.Listeners {
-			(*listener).OnEvent(event)
+		event := <-e.channel
+		for _, listener := range e.listeners {
+			listener.OnEvent(event)
 		}
 	}
-}
-
-func (e EventManagerImpl) AddHandler(event string, handler api.GatewayEventProvider) {
-	(*e.Handlers)[event] = handler
 }

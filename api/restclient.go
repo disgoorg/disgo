@@ -16,7 +16,6 @@ var (
 
 // RestClient is a manager for all of disgo's HTTP requests
 type RestClient interface {
-	Disgo() Disgo
 	Close()
 	UserAgent() string
 	Request(route endpoints.APIRoute, rqBody interface{}, v interface{}, args ...string) error
