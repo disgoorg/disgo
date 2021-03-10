@@ -1,4 +1,4 @@
-package models
+package api
 
 import (
 	"strings"
@@ -20,11 +20,11 @@ func (g Guild) IconURL() *string {
 		return nil
 	}
 	animated := strings.HasPrefix(*g.Icon, "a_")
-	format := "png"
+	format := endpoints.PNG
 	if animated {
-		format = "gif"
+		format = endpoints.GIF
 	}
-	u := endpoints.GuildIcon.Compile(g.ID.String(), *g.Icon, format)
+	u := endpoints.GuildIcon.Compile(format, g.ID.String(), *g.Icon)
 	return &u
 }
 

@@ -3,25 +3,25 @@ package internal
 import (
 	"strings"
 
-	"github.com/DiscoOrg/disgo/api/models"
+	"github.com/DiscoOrg/disgo/api"
 )
 
 type CacheImpl struct {
-	guilds  map[models.Snowflake]models.Guild
-	members map[models.Snowflake]models.Member
-	users   map[models.Snowflake]models.User
-	channel map[models.Snowflake]models.Channel
-	emotes  map[models.Snowflake]models.Emote
+	guilds  map[api.Snowflake]api.Guild
+	members map[api.Snowflake]api.Member
+	users   map[api.Snowflake]api.User
+	channel map[api.Snowflake]api.Channel
+	emotes  map[api.Snowflake]api.Emote
 }
 
-func (c CacheImpl) GetGuildById(id models.Snowflake) models.Guild {
+func (c CacheImpl) GetGuildById(id api.Snowflake) api.Guild {
 	return c.guilds[id]
 }
-func (c CacheImpl) GetGuildsByName(name string, ignoreCase bool) []models.Guild {
+func (c CacheImpl) GetGuildsByName(name string, ignoreCase bool) []api.Guild {
 	if ignoreCase {
 		name = strings.ToLower(name)
 	}
-	guilds := make([]models.Guild, 1)
+	guilds := make([]api.Guild, 1)
 	for _, guild := range c.guilds {
 		if ignoreCase && strings.ToLower(guild.Name) == name || !ignoreCase && guild.Name == name{
 			guilds = append(guilds, guild)
@@ -29,11 +29,11 @@ func (c CacheImpl) GetGuildsByName(name string, ignoreCase bool) []models.Guild 
 	}
 	return guilds
 }
-func (c CacheImpl) GetGuildsCache() map[models.Snowflake]models.Guild {
+func (c CacheImpl) GetGuildsCache() map[api.Snowflake]api.Guild {
 	return c.guilds
 }
-func (c CacheImpl) GetGuilds() []models.Guild {
-	guilds := make([]models.Guild, len(c.guilds))
+func (c CacheImpl) GetGuilds() []api.Guild {
+	guilds := make([]api.Guild, len(c.guilds))
 	i := 0
 	for _, guild := range c.guilds {
 		guilds[i] = guild
@@ -44,6 +44,6 @@ func (c CacheImpl) GetGuilds() []models.Guild {
 
 
 
-func (c CacheImpl) GetUserById(id models.Snowflake) models.User {
+func (c CacheImpl) GetUserById(id api.Snowflake) api.User {
 	return c.users[id]
 }

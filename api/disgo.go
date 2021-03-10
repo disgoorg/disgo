@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"runtime"
 	"strings"
-
-	"github.com/DiscoOrg/disgo/api/models"
 )
 
 // Disgo is the main discord interface
@@ -16,9 +14,9 @@ type Disgo interface {
 	Gateway() Gateway
 	RestClient() RestClient
 	Cache() Cache
-	Intents() models.Intent
-	SelfUser() *models.User
-	SetSelfUser(models.User)
+	Intents() Intent
+	SelfUser() *User
+	SetSelfUser(User)
 	EventManager() EventManager
 }
 

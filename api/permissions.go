@@ -1,4 +1,4 @@
-package models
+package api
 
 // Permissions extends the Bit structure, and is used within roles and channels
 type Permissions Bit

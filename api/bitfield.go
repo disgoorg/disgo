@@ -1,4 +1,4 @@
-package models
+package api
 
 // Bit is a utility for interacting with bitfields
 type Bit int64

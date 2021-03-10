@@ -4,12 +4,11 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/DiscoOrg/disgo/api"
-	"github.com/DiscoOrg/disgo/api/models"
 )
 
 // GuildCreateEvent payload from GUILD_CREATE gateways event sent by discord
 type GuildCreateEvent struct {
-	Guild models.Guild
+	Guild api.Guild
 }
 
 type GuildCreateHandler struct {}
@@ -28,7 +27,7 @@ func (h GuildCreateHandler) Handle(eventManager api.EventManager, i interface{})
 
 // GuildDeleteEvent payload from GUILD_DELETE gateways event sent by discord
 type GuildDeleteEvent struct {
-	Guild models.UnavailableGuild
+	Guild api.UnavailableGuild
 }
 
 type GuildDeleteHandler struct {}
@@ -47,7 +46,7 @@ func (h GuildDeleteHandler) Handle(eventManager api.EventManager, i interface{})
 
 // GuildUpdateEvent payload from GUILD_DELETE gateways event sent by discord
 type GuildUpdateEvent struct {
-	Guild models.Guild
+	Guild api.Guild
 }
 
 type GuildUpdateHandler struct {}

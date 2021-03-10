@@ -1,4 +1,4 @@
-package models
+package api
 
 // GatewayRs contains the response for GET /gateway
 type GatewayRs struct {

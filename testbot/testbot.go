@@ -10,18 +10,20 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/DiscoOrg/disgo"
-	"github.com/DiscoOrg/disgo/api/models"
-	"github.com/DiscoOrg/disgo/internal"
+	"github.com/DiscoOrg/disgo/api"
 	"github.com/DiscoOrg/disgo/internal/events"
 )
 
 func main() {
 	token := os.Getenv("token")
-	options := internal.Options{
-		Intents: models.IntentsGuildMessages | models.IntentsGuildMembers,
+	options := api.Options{
+		Intents: api.IntentsGuildMessages | api.IntentsGuildMembers,
 	}
 	dgo := disgo.New(token, options)
-	dgo.EventManager().AddEventListeners(&events.ListenerAdapter{
+
+	eventManager := dgo.EventManager()
+
+	eventManager.AddEventListeners(events.ListenerAdapter{
 		OnGuildMessageReceived: messageHandler,
 	})
 
@@ -40,6 +42,9 @@ func main() {
 
 func messageHandler(event events.GuildMessageReceivedEvent) {
 	log.Printf("Message received: %s", event.Message.Content)
+	if event.Message.Author.IsBot {
+		return
+	}
 
 	switch event.Message.Content {
 	case "ping":
@@ -47,8 +52,8 @@ func messageHandler(event events.GuildMessageReceivedEvent) {
 	case "pong":
 		event.TextChannel.SendMessage("ping")
 	case "dm":
-		event.Message.User.OpenDMChannel().Then(func(channel promise.Any) promise.Any {
-			return channel.(*models.DMChannel).SendMessage("helo")
+		event.Message.Author.OpenDMChannel().Then(func(channel promise.Any) promise.Any {
+			return channel.(*api.DMChannel).SendMessage("helo")
 		}).Then(func(_ promise.Any) promise.Any {
 			return event.Message.AddReaction("✅")
 		}).Catch(func(_ error) error {

@@ -1,16 +1,15 @@
-package models
+package api
 
 import (
 	"time"
 
 	"github.com/chebyrash/promise"
 
-	"github.com/DiscoOrg/disgo/api"
 	"github.com/DiscoOrg/disgo/api/constants"
 )
 
 type Message struct {
-	Disgo           api.Disgo
+	Disgo           Disgo
 	ID              Snowflake             `json:"id"`
 	GuildId         Snowflake             `json:"guild_id"`
 	Reactions       []Reactions           `json:"reactions"`
@@ -21,7 +20,7 @@ type Message struct {
 	MentionEveryone bool                  `json:"mention_everyone"`
 	Pinned          bool                  `json:"pinned"`
 	EditedTimestamp interface{}           `json:"edited_timestamp"`
-	User            User                  `json:"author"`
+	Author          User                  `json:"author"`
 	MentionRoles    []interface{}         `json:"mention_roles"`
 	Content         string                `json:"content"`
 	ChannelID       Snowflake             `json:"channel_id"`

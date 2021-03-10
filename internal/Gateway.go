@@ -14,7 +14,6 @@ import (
 	"github.com/DiscoOrg/disgo/api"
 	"github.com/DiscoOrg/disgo/api/constants"
 	"github.com/DiscoOrg/disgo/api/endpoints"
-	"github.com/DiscoOrg/disgo/api/models"
 )
 
 // GatewayImpl is what is used to connect to discord
@@ -50,7 +49,7 @@ func (g GatewayImpl) Open() error {
 
 	if g.url == nil {
 		log.Println("GetGateway url is nil, fetching...")
-		gatewayRs := models.GatewayRs{}
+		gatewayRs := api.GatewayRs{}
 		if err := g.Disgo().RestClient().Request(endpoints.GetGateway, nil, &gatewayRs); err != nil {
 			return err
 		}
@@ -85,7 +84,7 @@ func (g GatewayImpl) Open() error {
 
 	g.lastHeartbeatReceived = time.Now().UTC()
 
-	var eventData models.HelloCommand
+	var eventData api.HelloCommand
 	if err = json.Unmarshal(event.D, &eventData); err != nil {
 		return err
 	}
@@ -93,13 +92,13 @@ func (g GatewayImpl) Open() error {
 	g.connectionStatus = constants.Identifying
 	g.heartbeatInterval = eventData.HeartbeatInterval
 
-	if err = wsConn.WriteJSON(models.IdentifyCommand{
-		UnresolvedGatewayCommand: models.UnresolvedGatewayCommand{
+	if err = wsConn.WriteJSON(api.IdentifyCommand{
+		UnresolvedGatewayCommand: api.UnresolvedGatewayCommand{
 			Op: constants.OpIdentify,
 		},
-		D: models.IdentifyCommandData{
+		D: api.IdentifyCommandData{
 			Token: g.Disgo().Token(),
-			Properties: models.OpIdentifyDataProperties{
+			Properties: api.OpIdentifyDataProperties{
 				OS:      api.GetOS(),
 				Browser: "disgo",
 				Device:  "disgo",
@@ -134,8 +133,8 @@ func (g GatewayImpl) heartbeat() {
 func (g GatewayImpl) sendHeartbeat() {
 	log.Info("sending heartbeat...")
 
-	err := g.conn.WriteJSON(models.HeartbeatCommand{
-		UnresolvedGatewayCommand: models.UnresolvedGatewayCommand{
+	err := g.conn.WriteJSON(api.HeartbeatCommand{
+		UnresolvedGatewayCommand: api.UnresolvedGatewayCommand{
 			Op: constants.OpHeartbeat,
 		},
 		D: g.lastSequenceReceived,
@@ -172,7 +171,7 @@ func (g GatewayImpl) listen() {
 			}
 
 			if event.T != nil && *event.T == "READY" {
-				var readyEvent models.ReadyEventData
+				var readyEvent api.ReadyEventData
 				if err := parseEventToStruct(event, &readyEvent); err != nil {
 					return
 				}
@@ -204,7 +203,7 @@ func (g GatewayImpl) listen() {
 	}
 }
 
-func parseEventToStruct(event *models.GatewayCommand, v interface{}) error {
+func parseEventToStruct(event *api.GatewayCommand, v interface{}) error {
 	if err := json.Unmarshal(event.D, v); err != nil {
 		log.Errorf("error while unmarshaling event. error: %s", err)
 		return err
@@ -212,7 +211,7 @@ func parseEventToStruct(event *models.GatewayCommand, v interface{}) error {
 	return nil
 }
 
-func parseGatewayEvent(mt int, data []byte) (*models.GatewayCommand, error) {
+func parseGatewayEvent(mt int, data []byte) (*api.GatewayCommand, error) {
 
 	var reader io.Reader = bytes.NewBuffer(data)
 
@@ -222,7 +221,7 @@ func parseGatewayEvent(mt int, data []byte) (*models.GatewayCommand, error) {
 	if mt != websocket.TextMessage {
 		return nil, fmt.Errorf("recieved unexpected message type: %d", mt)
 	}
-	var event models.GatewayCommand
+	var event api.GatewayCommand
 
 	decoder := json.NewDecoder(reader)
 	if err := decoder.Decode(&event); err != nil {

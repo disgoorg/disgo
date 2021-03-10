@@ -6,7 +6,6 @@ import (
 	"github.com/chebyrash/promise"
 
 	"github.com/DiscoOrg/disgo/api/endpoints"
-	"github.com/DiscoOrg/disgo/api/models"
 )
 
 var (
@@ -20,13 +19,13 @@ type RestClient interface {
 	Disgo() Disgo
 	Close()
 	UserAgent() string
-	Request(route endpoints.Route, rqBody interface{}, v interface{}, args ...interface{}) error
-	RequestAsync(route endpoints.Route, rqBody interface{}, v interface{}, args ...interface{}) *promise.Promise
-	GetUserById(models.Snowflake) *promise.Promise
-	GetMemberById(models.Snowflake, models.Snowflake) *promise.Promise
-	SendMessage(models.Snowflake, models.Message) *promise.Promise
-	OpenDMChannel(models.Snowflake) *promise.Promise
-	AddReaction(models.Snowflake, models.Snowflake, string) *promise.Promise
+	Request(route endpoints.APIRoute, rqBody interface{}, v interface{}, args ...string) error
+	RequestAsync(route endpoints.APIRoute, rqBody interface{}, v interface{}, args ...string) *promise.Promise
+	GetUserById(Snowflake) *promise.Promise
+	GetMemberById(Snowflake, Snowflake) *promise.Promise
+	SendMessage(Snowflake, Message) *promise.Promise
+	OpenDMChannel(Snowflake) *promise.Promise
+	AddReaction(Snowflake, Snowflake, string) *promise.Promise
 }
 
 // ErrorResponse contains custom errors from discord

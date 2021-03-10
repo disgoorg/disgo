@@ -1,68 +1,64 @@
 package api
 
-import (
-	"github.com/DiscoOrg/disgo/api/models"
-)
-
 type Cache interface {
-	GetGuildById(models.Snowflake) models.Guild
-	GetGuildsByName(string, bool) []models.Guild
-	GetGuildsCache() map[models.Snowflake]models.Guild
-	GetGuilds() []models.Guild
+	GetGuildById(Snowflake) Guild
+	GetGuildsByName(string, bool) []Guild
+	GetGuildsCache() map[Snowflake]Guild
+	GetGuilds() []Guild
 
-	GetUserById(models.Snowflake) models.User
-	GetUsersByName(models.Snowflake, bool) []models.User
-	GetUsersCache() map[models.Snowflake]models.User
-	GetUsers() []models.User
+	GetUserById(Snowflake) User
+	GetUsersByName(Snowflake, bool) []User
+	GetUsersCache() map[Snowflake]User
+	GetUsers() []User
 
-	GetMemberById(models.Snowflake) models.Member
-	GetMemberByName(string, bool) []models.Member
-	GetMembersCache() map[models.Snowflake]models.Member
-	GetMembers() []models.Member
+	GetMemberById(Snowflake) Member
+	GetMemberByName(string, bool) []Member
+	GetMembersCache() map[Snowflake]Member
+	GetMembers() []Member
 
-	GetChannelById(models.Snowflake) models.Channel
-	GetChannelsByName(string, bool) []models.Channel
-	GetChannelsCache() map[models.Snowflake]models.Channel
-	GetChannels() []models.Channel
+	GetChannelById(Snowflake) Channel
+	GetChannelsByName(string, bool) []Channel
+	GetChannelsCache() map[Snowflake]Channel
+	GetChannels() []Channel
 
-	GetPrivateChannelById(models.Snowflake) models.Channel
-	GetPrivateChannelsByName(string, bool) []models.Channel // not sure if we need this lul
-	GetPrivateChannelsCache() map[models.Snowflake]models.Channel
-	GetPrivateChannels() []models.Channel
+	GetPrivateChannelById(Snowflake) Channel
+	GetPrivateChannelsByName(string, bool) []Channel // not sure if we need this lul
+	GetPrivateChannelsCache() map[Snowflake]Channel
+	GetPrivateChannels() []Channel
 
-	GetGuildChannelById(models.Snowflake) models.GuildChannel
-	GetGuildChannelsByName(string, bool) []models.GuildChannel
-	GetGuildChannelsCache() map[models.Snowflake]models.GuildChannel
-	GetGuildChannels() []models.GuildChannel
+	GetGuildChannelById(Snowflake) GuildChannel
+	GetGuildChannelsByName(string, bool) []GuildChannel
+	GetGuildChannelsCache() map[Snowflake]GuildChannel
+	GetGuildChannels() []GuildChannel
 
-	GetTextChannelById(models.Snowflake) models.TextChannel
-	GetTextChannelsByName(string, bool) []models.CategoryChannel
-	GetTextChannelsCache() map[models.Snowflake]models.TextChannel
-	GetTextChannels() []models.TextChannel
+	GetTextChannelById(Snowflake) TextChannel
+	GetTextChannelsByName(string, bool) []CategoryChannel
+	GetTextChannelsCache() map[Snowflake]TextChannel
+	GetTextChannels() []TextChannel
 
-	GetNewsChannelById(models.Snowflake) models.NewsChannel
-	GetNewsChannelsByName(string, bool) []models.NewsChannel
-	GetNewsChannelsCache() map[models.Snowflake]models.NewsChannel
-	GetNewsChannels() []models.NewsChannel
+	GetNewsChannelById(Snowflake) NewsChannel
+	GetNewsChannelsByName(string, bool) []NewsChannel
+	GetNewsChannelsCache() map[Snowflake]NewsChannel
+	GetNewsChannels() []NewsChannel
 
-	GetStoreChannelById(models.Snowflake) models.StoreChannel
-	GetStoreChannelsByName(string, bool) []models.StoreChannel
-	GetStoreChannelsCache() map[models.Snowflake]models.StoreChannel
-	GetStoreChannels() []models.StoreChannel
+	GetStoreChannelById(Snowflake) StoreChannel
+	GetStoreChannelsByName(string, bool) []StoreChannel
+	GetStoreChannelsCache() map[Snowflake]StoreChannel
+	GetStoreChannels() []StoreChannel
 
-	GetVoiceChannelById(models.Snowflake) models.VoiceChannel
-	GetVoiceChannelsByName(string, bool) []models.CategoryChannel
-	GetVoiceChannelsCache() map[models.Snowflake]models.VoiceChannel
-	GetVoiceChannels() []models.VoiceChannel
+	GetVoiceChannelById(Snowflake) VoiceChannel
+	GetVoiceChannelsByName(string, bool) []CategoryChannel
+	GetVoiceChannelsCache() map[Snowflake]VoiceChannel
+	GetVoiceChannels() []VoiceChannel
 
-	GetCategoryById(models.Snowflake) models.CategoryChannel
-	GetCategoriesByName(string, bool) []models.CategoryChannel
-	GetCategoriesCache() map[models.Snowflake]models.CategoryChannel
-	GetCategories() []models.CategoryChannel
+	GetCategoryById(Snowflake) CategoryChannel
+	GetCategoriesByName(string, bool) []CategoryChannel
+	GetCategoriesCache() map[Snowflake]CategoryChannel
+	GetCategories() []CategoryChannel
 
-	GetEmoteById(models.Snowflake) models.Emote
-	GetEmotesByName(string, bool) []models.Emote
-	GetEmotesCache() map[models.Snowflake]models.Emote
-	GetEmotes() []models.Emote
-	cacheEmote(models.Emote)
+	GetEmoteById(Snowflake) Emote
+	GetEmotesByName(string, bool) []Emote
+	GetEmotesCache() map[Snowflake]Emote
+	GetEmotes() []Emote
+	cacheEmote(Emote)
 }

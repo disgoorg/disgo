@@ -1,4 +1,4 @@
-package models
+package api
 
 // Intent is an extension of the Bit structure used when identifying with discord
 type Intent Bit

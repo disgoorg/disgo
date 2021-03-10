@@ -8,7 +8,7 @@ import (
 	"github.com/DiscoOrg/disgo/internal"
 )
 
-func New(token string, options internal.Options) api.Disgo {
+func New(token string, options api.Options) api.Disgo {
 	disgoClient := internal.New(token, options)
 
 	disgoClient.SetRestClient(internal.RestClientImpl{
@@ -22,9 +22,9 @@ func New(token string, options internal.Options) api.Disgo {
 		Listeners:   &[]*api.EventListener{},
 		Handlers:    internal.GetHandlers(),
 	}
-	go eventManager.ListenEvents()
-
 	disgoClient.SetEventManager(eventManager)
+
+	go eventManager.ListenEvents()
 
 	disgoClient.SetGateway(internal.GatewayImpl{
 		DisgoClient: disgoClient,

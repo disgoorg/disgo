@@ -14,7 +14,6 @@ import (
 
 	"github.com/DiscoOrg/disgo/api"
 	"github.com/DiscoOrg/disgo/api/endpoints"
-	"github.com/DiscoOrg/disgo/api/models"
 )
 
 // RestClient is the client used for HTTP requests to discord
@@ -38,7 +37,7 @@ func (r RestClientImpl) Close() {
 // rqBody the request body if one should be sent
 // v the struct which the response should be unmarshalled in
 // args path params to compile the route
-func (r RestClientImpl) RequestAsync(route endpoints.Route, rqBody interface{}, v interface{}, args ...interface{}) *promise.Promise {
+func (r RestClientImpl) RequestAsync(route endpoints.APIRoute, rqBody interface{}, v interface{}, args ...string) *promise.Promise {
 	return promise.New(func(resolve func(promise.Any), reject func(error)) {
 		err := r.Request(route, rqBody, v, args...)
 		if err != nil {
@@ -54,7 +53,7 @@ func (r RestClientImpl) RequestAsync(route endpoints.Route, rqBody interface{}, 
 // rqBody the request body if one should be sent
 // v the struct which the response should be unmarshalled in
 // args path params to compile the route
-func (r RestClientImpl) Request(route endpoints.Route, rqBody interface{}, v interface{}, args ...interface{}) error {
+func (r RestClientImpl) Request(route endpoints.APIRoute, rqBody interface{}, v interface{}, args ...string) error {
 	var reader io.Reader
 	if rqBody != nil {
 		rqJSON, err := json.Marshal(rqBody)
@@ -66,7 +65,7 @@ func (r RestClientImpl) Request(route endpoints.Route, rqBody interface{}, v int
 		reader = nil
 	}
 
-	rq, err := http.NewRequest(route.Method.String(), route.Compile(args...), reader)
+	rq, err := http.NewRequest(route.Method().String(), route.Compile(args...), reader)
 	if err != nil {
 		return err
 	}
@@ -134,25 +133,25 @@ func (r RestClientImpl) Request(route endpoints.Route, rqBody interface{}, v int
 	}
 }
 
-func (r RestClientImpl) GetUserById(userID models.Snowflake) *promise.Promise {
-	return r.RequestAsync(endpoints.GetUser, nil, &models.User{}, userID)
+func (r RestClientImpl) GetUserById(userID api.Snowflake) *promise.Promise {
+	return r.RequestAsync(endpoints.GetUser, nil, &api.User{}, userID.String())
 }
 
-func (r RestClientImpl) GetMemberById(guildID models.Snowflake, userId models.Snowflake) *promise.Promise {
-	return r.RequestAsync(endpoints.GetMember, nil, &models.Member{}, guildID, userId)
+func (r RestClientImpl) GetMemberById(guildID api.Snowflake, userId api.Snowflake) *promise.Promise {
+	return r.RequestAsync(endpoints.GetMember, nil, &api.Member{}, guildID.String(), userId.String())
 }
 
-func (r RestClientImpl) SendMessage(channelID models.Snowflake, message models.Message) *promise.Promise {
-	return r.RequestAsync(endpoints.PostMessage, message, &models.Message{}, channelID)
+func (r RestClientImpl) SendMessage(channelID api.Snowflake, message api.Message) *promise.Promise {
+	return r.RequestAsync(endpoints.PostMessage, message, &api.Message{}, channelID.String())
 }
 
-func (r RestClientImpl) OpenDMChannel(userId models.Snowflake) *promise.Promise {
-	return r.RequestAsync(endpoints.PostUsersMeChannels, models.CreateDMChannel{RecipientID: userId}, &models.DMChannel{})
+func (r RestClientImpl) OpenDMChannel(userId api.Snowflake) *promise.Promise {
+	return r.RequestAsync(endpoints.PostUsersMeChannels, api.CreateDMChannel{RecipientID: userId}, &api.DMChannel{})
 }
 
-func (r RestClientImpl) AddReaction(channelID models.Snowflake, messageID models.Snowflake, emoji string) *promise.Promise {
+func (r RestClientImpl) AddReaction(channelID api.Snowflake, messageID api.Snowflake, emoji string) *promise.Promise {
 	emoji = strings.Replace(emoji, "#", "%23", -1)
-	return r.RequestAsync(endpoints.PutReaction, nil, nil, channelID, messageID, emoji)
+	return r.RequestAsync(endpoints.PutReaction, nil, nil, channelID.String(), messageID.String(), emoji)
 }
 
 func (r RestClientImpl) UserAgent() string {

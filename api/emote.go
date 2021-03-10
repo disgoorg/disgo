@@ -1,4 +1,4 @@
-package models
+package api
 
 type Emote struct {
 	ID   Snowflake

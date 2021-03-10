@@ -4,46 +4,37 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/DiscoOrg/disgo/api"
-	"github.com/DiscoOrg/disgo/api/models"
 )
 
-// Options is the configuration used when creating the client
-type Options struct {
-	Intents     models.Intent
-	RestTimeout int
-}
-
-func New(token string, options Options) DisgoImpl {
+func New(token string, options api.Options) DisgoImpl {
 	return DisgoImpl{
 		token:        token,
 		intents:      options.Intents,
 	}
 }
 
-func (d DisgoImpl) SetRestClient(restClient RestClientImpl) {
-	d.restClient = restClient
-}
-
-func (d DisgoImpl) SetEventManager(eventManager EventManagerImpl) {
-	d.eventManager = eventManager
-}
-
-func (d DisgoImpl) SetGateway(gateway GatewayImpl) {
-	d.gateway = gateway
-}
-
 // DisgoImpl is the main discord client
 type DisgoImpl struct {
 	token        string
-	gateway      api.Gateway
-	restClient   api.RestClient
-	intents      models.Intent
-	selfUser     *models.User
-	eventManager api.EventManager
+	gateway      *api.Gateway
+	restClient   *api.RestClient
+	intents      api.Intent
+	selfUser     *api.User
+	eventManager *api.EventManager
 	cache        api.Cache
 }
 
+func (d DisgoImpl) SetRestClient(restClient api.RestClient) {
+	d.restClient = &restClient
+}
 
+func (d DisgoImpl) SetEventManager(eventManager api.EventManager) {
+	d.eventManager = &eventManager
+}
+
+func (d DisgoImpl) SetGateway(gateway api.Gateway) {
+	d.gateway = &gateway
+}
 
 // Connect opens the gateway connection to discord
 func (d DisgoImpl) Connect() error {
@@ -68,12 +59,16 @@ func (d DisgoImpl) Token() string {
 
 // Gateway returns the websocket information
 func (d DisgoImpl) Gateway() api.Gateway {
-	return d.gateway
+	return *d.gateway
 }
 
 // RestClient returns the HTTP client used by disgo
 func (d DisgoImpl) RestClient() api.RestClient {
-	return d.restClient
+	return *d.restClient
+}
+
+func (d DisgoImpl) EventManager() api.EventManager {
+	return *d.eventManager
 }
 
 // Cache returns the entity cache used by disgo
@@ -82,20 +77,16 @@ func (d DisgoImpl) Cache() api.Cache {
 }
 
 // Intents returns the Intents originally specified when creating the client
-func (d DisgoImpl) Intents() models.Intent {
+func (d DisgoImpl) Intents() api.Intent {
 	// Todo: Return copy of intents in this method so they can't be modified
 	return d.intents
 }
 
 // SelfUser returns a user object for the client, if available
-func (d DisgoImpl) SelfUser() *models.User {
+func (d DisgoImpl) SelfUser() *api.User {
 	return d.selfUser
 }
 
-func (d DisgoImpl) SetSelfUser(user models.User) {
+func (d DisgoImpl) SetSelfUser(user api.User) {
 	d.selfUser = &user
-}
-
-func (d DisgoImpl) EventManager() api.EventManager {
-	return d.eventManager
 }
