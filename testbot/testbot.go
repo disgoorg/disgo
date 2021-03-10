@@ -6,30 +6,31 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/chebyrash/promise"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/DiscoOrg/disgo"
-	"github.com/DiscoOrg/disgo/models"
+	"github.com/DiscoOrg/disgo/api"
+	"github.com/DiscoOrg/disgo/internal/events"
 )
 
 func main() {
 	token := os.Getenv("token")
-	options := disgo.Options{
-		Intents: models.IntentsGuildMessages | models.IntentsGuildMembers,
-	}
-	dgo := disgo.New(token, options)
-	dgo.EventManager().AddEventListeners(&disgo.ListenerAdapter{
-		OnGuildMessageReceived: func(event disgo.GuildMessageReceivedEvent) {
-			if event.Message.Content == "ping" {
-				event.TextChannel.SendMessage("pong")
-			}
-			log.Printf("Message received: %s", event.Message.Content)
-		},
-	})
 
-	e := dgo.Connect()
-	if e != nil {
-		log.Fatal(e)
+	dgo, err := disgo.NewBuilder(token).
+		SetLogLevel(log.InfoLevel).
+		SetIntents(api.IntentsGuildMessages | api.IntentsGuildMembers).
+		AddEventListeners(&events.ListenerAdapter{
+			OnGuildMessageReceived: messageHandler,
+		}).
+		Build()
+	if err != nil {
+		return
+	}
+
+	err = dgo.Connect()
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	defer dgo.Close()
@@ -38,4 +39,29 @@ func main() {
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-s
+}
+
+func messageHandler(event events.GuildMessageReceivedEvent) {
+	log.Printf("Message received: %v", event.Message.Content)
+	if event.Message.Author.IsBot {
+		return
+	}
+
+	switch event.Message.Content {
+	case "ping":
+		log.Print("hm")
+		event.TextChannel.SendMessage("pong")
+	case "pong":
+		log.Print("hm2")
+		event.TextChannel.SendMessage("ping")
+	case "dm":
+		event.Message.Author.OpenDMChannel().Then(func(channel promise.Any) promise.Any {
+			return channel.(*api.DMChannel).SendMessage("helo")
+		}).Then(func(_ promise.Any) promise.Any {
+			return event.Message.AddReaction("✅")
+		}).Catch(func(_ error) error {
+			event.Message.AddReaction("❌")
+			return nil
+		})
+	}
 }
