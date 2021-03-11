@@ -2,6 +2,7 @@ package api
 
 type Member struct {
 	User
+	GuildID   Snowflake
 	Guild     Guild
 	IsPending bool
 }

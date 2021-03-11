@@ -145,7 +145,7 @@ func (r RestClientImpl) GetMemberById(guildID api.Snowflake, userId api.Snowflak
 }
 
 func (r RestClientImpl) SendMessage(channelID api.Snowflake, message api.Message) *promise.Promise {
-	return r.RequestAsync(endpoints.PostMessage, message, &api.Message{}, channelID.String())
+	return r.RequestAsync(endpoints.CreateMessage, message, &api.Message{}, channelID.String())
 }
 
 func (r RestClientImpl) OpenDMChannel(userId api.Snowflake) *promise.Promise {

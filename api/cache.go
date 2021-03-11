@@ -3,11 +3,11 @@ package api
 type MemberCachePolicy func(Member) bool
 
 var (
-	MemberCachePolicyNone MemberCachePolicy = func(_ Member) bool {return false}
-	MemberCachePolicyOwner MemberCachePolicy = func(member Member) bool {return member.isOwner()}
-	MemberCachePolicyONLINE MemberCachePolicy = func(_ Member) bool {return false }
-	MemberCachePolicyVOICE MemberCachePolicy = func(member Member) bool { return false }
-	MemberCachePolicyPENDING MemberCachePolicy = func(member Member) bool {return member.IsPending}
+	MemberCachePolicyNone    MemberCachePolicy = func(_ Member) bool { return false }
+	MemberCachePolicyOwner   MemberCachePolicy = func(member Member) bool { return member.isOwner() }
+	MemberCachePolicyONLINE  MemberCachePolicy = func(_ Member) bool { return false }
+	MemberCachePolicyVOICE   MemberCachePolicy = func(member Member) bool { return false }
+	MemberCachePolicyPENDING MemberCachePolicy = func(member Member) bool { return member.IsPending }
 	MemberCachePolicyDEFAULT MemberCachePolicy = MemberCachePolicyOwner.or(MemberCachePolicyVOICE)
 )
 
@@ -38,75 +38,100 @@ func MemberCachePolicyAll(policy MemberCachePolicy, policies ...MemberCachePolic
 }
 
 type Cache interface {
-	GetGuildById(Snowflake) Guild
-	GetGuildsByName(string, bool) []Guild
-	GetGuildsCache() map[Snowflake]Guild
-	GetGuilds() []Guild
-	CacheGuild(Guild)
+	Guild(Snowflake) *Guild
+	GuildsByName(string, bool) []*Guild
+	Guilds() []*Guild
+	GuildCache() map[Snowflake]*Guild
+	CacheGuild(*Guild)
+	UncacheGuild(Snowflake)
 
-	GetUserById(Snowflake) User
-	GetUsersByName(Snowflake, bool) []User
-	GetUsersCache() map[Snowflake]User
-	GetUsers() []User
-	CacheUser(User)
+	User(Snowflake) *User
+	UserByTag(string) *User
+	UsersByName(Snowflake, bool) []*User
+	Users() []*User
+	UserCache() map[Snowflake]*User
+	CacheUser(*User)
+	UncacheUser(Snowflake)
 
-	GetMemberById(Snowflake) Member
-	GetMemberByName(string, bool) []Member
-	GetMembersCache() map[Snowflake]Member
-	GetMembers() []Member
-	CacheMember(Member)
+	Member(Snowflake, Snowflake) *Member
+	MemberByTag(Snowflake, string) *Member
+	MembersByName(Snowflake, string, bool) []*Member
+	Members(Snowflake) []*Member
+	AllMembers() []*Member
+	MemberCache(Snowflake) map[Snowflake]*Member
+	AllMemberCache(Snowflake) map[Snowflake]map[Snowflake]*Member
+	CacheMember(*Member)
+	UncacheMember(Snowflake, Snowflake)
 
-	GetChannelById(Snowflake) Channel
-	GetChannelsByName(string, bool) []Channel
-	GetChannelsCache() map[Snowflake]Channel
-	GetChannels() []Channel
-	CacheChannel(Channel)
+	Role(Snowflake, Snowflake) *Role
+	RolesByName(Snowflake, string, bool) []*Role
+	Roles(Snowflake) []*Role
+	AllRoles() []*Role
+	RoleCache(Snowflake) map[Snowflake]*Role
+	AllRoleCache(Snowflake) map[Snowflake]map[Snowflake]*Role
+	CacheRole(*Role)
+	UncacheRole(Snowflake, Snowflake)
 
-	GetPrivateChannelById(Snowflake) Channel
-	GetPrivateChannelsByName(string, bool) []Channel // not sure if we need this lul
-	GetPrivateChannelsCache() map[Snowflake]Channel
-	GetPrivateChannels() []Channel
-	CachePrivateChannel(Channel)
+	Channel(Snowflake) *Channel
+	ChannelsByName(string, bool) []*Channel
+	Channels() []*Channel
+	ChannelCache() map[Snowflake]*Channel
+	CacheChannel(*Channel)
+	UncacheChannel(Snowflake)
 
-	GetGuildChannelById(Snowflake) GuildChannel
-	GetGuildChannelsByName(string, bool) []GuildChannel
-	GetGuildChannelsCache() map[Snowflake]GuildChannel
-	GetGuildChannels() []GuildChannel
-	CacheGuildChannel(GuildChannel)
+	DMChannel(Snowflake) *DMChannel
+	DMChannelsByName(string, bool) []*DMChannel
+	DMChannels() []*DMChannel
+	DMChannelCache() map[Snowflake]*DMChannel
+	CacheDMChannel(*DMChannel)
+	UncacheDMChannel(Snowflake)
 
-	GetTextChannelById(Snowflake) TextChannel
-	GetTextChannelsByName(string, bool) []CategoryChannel
-	GetTextChannelsCache() map[Snowflake]TextChannel
-	GetTextChannels() []TextChannel
-	CacheTextChannel(TextChannel)
+	GuildChannel(Snowflake) *GuildChannel
+	GuildChannelsByName(string, bool) []*GuildChannel
+	GuildChannels() []*GuildChannel
+	GuildChannelCache() map[Snowflake]*GuildChannel
+	CacheGuildChannel(*GuildChannel)
+	UncacheGuildChannel(Snowflake)
 
-	GetNewsChannelById(Snowflake) NewsChannel
-	GetNewsChannelsByName(string, bool) []NewsChannel
-	GetNewsChannelsCache() map[Snowflake]NewsChannel
-	GetNewsChannels() []NewsChannel
-	CacheNewsChannel(NewsChannel)
+	TextChannel(Snowflake) TextChannel
+	TextChannelsByName(string, bool) []*TextChannel
+	TextChannels() []*TextChannel
+	TextChannelCache() map[Snowflake]*TextChannel
+	CacheTextChannel(*TextChannel)
+	UncacheTextChannel(Snowflake)
 
-	GetStoreChannelById(Snowflake) StoreChannel
-	GetStoreChannelsByName(string, bool) []StoreChannel
-	GetStoreChannelsCache() map[Snowflake]StoreChannel
-	GetStoreChannels() []StoreChannel
-	CacheStoreChannel(StoreChannel)
+	NewsChannel(Snowflake) *NewsChannel
+	NewsChannelsByName(string, bool) []*NewsChannel
+	NewsChannels() []*NewsChannel
+	NewsChannelCache() map[Snowflake]*NewsChannel
+	CacheNewsChannel(*NewsChannel)
+	UncacheNewsChannel(Snowflake)
 
-	GetVoiceChannelById(Snowflake) VoiceChannel
-	GetVoiceChannelsByName(string, bool) []CategoryChannel
-	GetVoiceChannelsCache() map[Snowflake]VoiceChannel
-	GetVoiceChannels() []VoiceChannel
-	CacheVoiceChannel(VoiceChannel)
+	StoreChannel(Snowflake) *StoreChannel
+	StoreChannelsByName(string, bool) []*StoreChannel
+	StoreChannels() []*StoreChannel
+	StoreChannelCache() map[Snowflake]*StoreChannel
+	CacheStoreChannel(*StoreChannel)
+	UncacheStoreChannel(Snowflake)
 
-	GetCategoryById(Snowflake) CategoryChannel
-	GetCategoriesByName(string, bool) []CategoryChannel
-	GetCategoriesCache() map[Snowflake]CategoryChannel
-	GetCategories() []CategoryChannel
-	CacheEmoteCategory(CategoryChannel)
+	VoiceChannel(Snowflake) *VoiceChannel
+	VoiceChannelsByName(string, bool) []*VoiceChannel
+	VoiceChannels() []*VoiceChannel
+	VoiceChannelCache() map[Snowflake]*VoiceChannel
+	CacheVoiceChannel(*VoiceChannel)
+	UncacheVoiceChannel(Snowflake)
 
-	GetEmoteById(Snowflake) Emote
-	GetEmotesByName(string, bool) []Emote
-	GetEmotesCache() map[Snowflake]Emote
-	GetEmotes() []Emote
-	CacheEmote(Emote)
+	Category(Snowflake) *CategoryChannel
+	CategoriesByName(string, bool) []*CategoryChannel
+	Categories() []*CategoryChannel
+	CategoryCache() map[Snowflake]*CategoryChannel
+	CacheCategory(*CategoryChannel)
+	UncacheCategory(Snowflake)
+
+	Emote(Snowflake) *Emote
+	EmotesByName(string, bool) []*Emote
+	Emotes() []*Emote
+	EmoteCache() map[Snowflake]*Emote
+	CacheEmote(*Emote)
+	UncacheEmote(Snowflake)
 }

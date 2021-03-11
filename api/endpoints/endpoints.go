@@ -21,7 +21,7 @@ var (
 	DeleteUserReaction  = NewAPIRoute(DELETE, "channels/{channel.id}/messages/{message.id}/reactions/{emoji}/{user.id}")
 	GetReactions        = NewAPIRoute(GET, "channels/{channel.id}/messages/{message.id}/reactions/{emoji}/{user.id}")
 	GetMember           = NewAPIRoute(GET, "guilds/{guild.id}/members/{user.id}")
-	PostMessage         = NewAPIRoute(POST, "channels/{channel.id}/messages")
+	CreateMessage       = NewAPIRoute(POST, "channels/{channel.id}/messages")
 
 	Emote                = NewCDNRoute("emojis/{emote.id}.", PNG, GIF)
 	GuildIcon            = NewCDNRoute("icons/{guild.id}/{icon.hash}.", PNG, JPEG, WEBP, GIF)
