@@ -23,6 +23,18 @@ var (
 	GetMember           = NewAPIRoute(GET, "guilds/{guild.id}/members/{user.id}")
 	CreateMessage       = NewAPIRoute(POST, "channels/{channel.id}/messages")
 
+	GetGlobalApplicationCommands   = NewAPIRoute(GET, "/applications/{application.id}/commands")
+	CreateGlobalApplicationCommands  = NewAPIRoute(POST, "/applications/{application.id}/commands")
+	GetGlobalApplicationCommand    = NewAPIRoute(GET, "/applications/{application.id}/command/{command.id}")
+	EditGlobalApplicationCommand  = NewAPIRoute(PATCH, "/applications/{application.id}/commands/{command.id}")
+	DeleteGlobalApplicationCommand = NewAPIRoute(DELETE, "/applications/{application.id}/commands")
+
+	GetGuildApplicationCommands   = NewAPIRoute(GET, "/applications/{application.id}/{guild.id}/commands")
+	CreateGuildApplicationCommands  = NewAPIRoute(POST, "/applications/{application.id}/{guild.id}/commands")
+	GetGuildApplicationCommand    = NewAPIRoute(GET, "/applications/{application.id}/{guild.id}/command/{command.id}")
+	EditGuildApplicationCommand  = NewAPIRoute(PATCH, "/applications/{application.id}/{guild.id}/commands/{command.id}")
+	DeleteGuildApplicationCommand = NewAPIRoute(DELETE, "/applications/{application.id}/{guild.id}/commands")
+
 	Emote                = NewCDNRoute("emojis/{emote.id}.", PNG, GIF)
 	GuildIcon            = NewCDNRoute("icons/{guild.id}/{icon.hash}.", PNG, JPEG, WEBP, GIF)
 	GuildSplash          = NewCDNRoute("splashes/{guild.id}/guild_splash.", PNG, JPEG, WEBP)
