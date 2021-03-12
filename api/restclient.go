@@ -25,6 +25,27 @@ type RestClient interface {
 	SendMessage(Snowflake, Message) *promise.Promise
 	OpenDMChannel(Snowflake) *promise.Promise
 	AddReaction(Snowflake, Snowflake, string) *promise.Promise
+
+	GetGlobalApplicationCommands(Snowflake) *promise.Promise
+	CreateGlobalApplicationGlobalCommands(Snowflake, ...ApplicationCommand) *promise.Promise
+	SetGlobalApplicationCommands(Snowflake, ...ApplicationCommand) *promise.Promise
+	GetGlobalApplicationCommand(Snowflake, Snowflake) *promise.Promise
+	EditGlobalApplicationCommand(Snowflake, Snowflake, ApplicationCommand) *promise.Promise
+	DeleteGlobalApplicationCommand(Snowflake, Snowflake) *promise.Promise
+
+	GetGuildApplicationCommands(Snowflake, Snowflake) *promise.Promise
+	CreateGuildApplicationGuildCommands(Snowflake, Snowflake, ...ApplicationCommand) *promise.Promise
+	SetGuildApplicationCommands(Snowflake, Snowflake, ...ApplicationCommand) *promise.Promise
+	GetGuildApplicationCommand(Snowflake, Snowflake, Snowflake) *promise.Promise
+	EditGuildApplicationCommand(Snowflake, Snowflake, Snowflake, ApplicationCommand) *promise.Promise
+	DeleteGuildApplicationCommand(Snowflake, Snowflake, Snowflake) *promise.Promise
+
+	SendInteractionResponse(Snowflake, string, InteractionResponse) *promise.Promise
+	EditInteractionResponse(Snowflake, string, InteractionResponse) *promise.Promise
+	DeleteInteractionResponse(Snowflake, string) *promise.Promise
+	SendFollowupMessage(Snowflake, string, FollowupMessage) *promise.Promise
+	EditFollowupMessage(Snowflake, string, Snowflake, InteractionResponse) *promise.Promise
+	DeleteFollowupMessage(Snowflake, string, Snowflake) *promise.Promise
 }
 
 // ErrorResponse contains custom errors from discord

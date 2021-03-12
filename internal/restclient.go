@@ -157,6 +157,30 @@ func (r RestClientImpl) AddReaction(channelID api.Snowflake, messageID api.Snowf
 	return r.RequestAsync(endpoints.PutReaction, nil, nil, channelID.String(), messageID.String(), emoji)
 }
 
+func (r RestClientImpl) SendInteractionResponse(interactionID api.Snowflake, interactionToken string, interactionResponse api.InteractionResponse) *promise.Promise {
+	return r.RequestAsync(endpoints.CreateInteractionResponse, interactionResponse, nil, interactionID.String(), interactionToken)
+}
+
+func (r RestClientImpl) EditInteractionResponse(applicationID api.Snowflake, interactionToken string, interactionResponse api.InteractionResponse) *promise.Promise {
+	return r.RequestAsync(endpoints.EditInteractionResponse, interactionResponse, nil, applicationID.String(), interactionToken)
+}
+
+func (r RestClientImpl) DeleteInteractionResponse(applicationID api.Snowflake, interactionToken string) *promise.Promise {
+	return r.RequestAsync(endpoints.DeleteInteractionResponse, nil, nil, applicationID.String(), interactionToken)
+}
+
+func (r RestClientImpl) SendFollowupMessage(applicationID api.Snowflake, interactionToken string, followupMessage api.FollowupMessage) *promise.Promise {
+	return r.RequestAsync(endpoints.CreateInteractionResponse, followupMessage, nil, applicationID.String(), interactionToken)
+}
+
+func (r RestClientImpl) EditFollowupMessage(applicationID api.Snowflake, interactionToken string, messageID api.Snowflake, followupMessage api.InteractionResponse) *promise.Promise {
+	return r.RequestAsync(endpoints.CreateInteractionResponse, followupMessage, nil, applicationID.String(), interactionToken, messageID.String())
+}
+
+func (r RestClientImpl) DeleteFollowupMessage(applicationID api.Snowflake, interactionToken string, messageID api.Snowflake) *promise.Promise {
+	return r.RequestAsync(endpoints.CreateInteractionResponse, nil, nil, applicationID.String(), interactionToken, messageID.String())
+}
+
 func (r RestClientImpl) UserAgent() string {
 	return "DiscordBot (https://github.com/disgoorg/disgo, 0.0.1)"
 }

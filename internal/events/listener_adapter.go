@@ -14,6 +14,7 @@ type ListenerAdapter struct {
 	OnGuildLeave           func(GuildLeaveEvent)
 	OnMessageReceived      func(MessageReceivedEvent)
 	OnGuildMessageReceived func(GuildMessageReceivedEvent)
+	OnSlashCommand         func(SlashCommandEvent)
 }
 
 func (l ListenerAdapter) OnEvent(event interface{}) {
@@ -41,6 +42,10 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 	case GuildMessageReceivedEvent:
 		if l.OnGuildMessageReceived != nil {
 			l.OnGuildMessageReceived(v)
+		}
+	case SlashCommandEvent:
+		if l.OnSlashCommand != nil {
+			l.OnSlashCommand(v)
 		}
 	default:
 		log.Errorf("unexpected event received: %#v", event)
