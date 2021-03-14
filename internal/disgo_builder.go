@@ -11,19 +11,20 @@ import (
 func NewBuilder(token string) api.DisgoBuilder {
 	return DisgoBuilderImpl{
 		logLevel: log.InfoLevel,
-		token: &token,
+		token:    &token,
 	}
 }
 
 type DisgoBuilderImpl struct {
-	logLevel       log.Level
-	token          *string
-	gateway        api.Gateway
-	restClient     api.RestClient
-	intents        api.Intent
-	eventManager   api.EventManager
-	eventListeners []api.EventListener
-	cache          api.Cache
+	logLevel          log.Level
+	token             *string
+	gateway           api.Gateway
+	restClient        api.RestClient
+	cache             api.Cache
+	memberCachePolicy api.MemberCachePolicy
+	intents           api.Intent
+	eventManager      api.EventManager
+	eventListeners    []api.EventListener
 }
 
 func (b DisgoBuilderImpl) SetLogLevel(logLevel log.Level) api.DisgoBuilder {
@@ -63,6 +64,11 @@ func (b DisgoBuilderImpl) SetCache(cache api.Cache) api.DisgoBuilder {
 	return b
 }
 
+func (b DisgoBuilderImpl) SetMemberCachePolicy(memberCachePolicy api.MemberCachePolicy) api.DisgoBuilder {
+	b.memberCachePolicy = memberCachePolicy
+	return b
+}
+
 func (b DisgoBuilderImpl) SetGateway(gateway api.Gateway) api.DisgoBuilder {
 	b.gateway = gateway
 	return b
@@ -78,31 +84,33 @@ func (b DisgoBuilderImpl) Build() (api.Disgo, error) {
 	disgo.token = *b.token
 
 	if b.gateway == nil {
-		disgo.gateway = newGatewayImpl(disgo)
-	} else {
-		disgo.gateway = b.gateway
+		b.gateway = newGatewayImpl(disgo)
 	}
+	disgo.gateway = b.gateway
 
 	if b.restClient == nil {
-		disgo.restClient = newRestClientImpl(*b.token)
-	} else {
-		disgo.restClient = b.restClient
+		b.restClient = newRestClientImpl(*b.token)
 	}
+	disgo.restClient = b.restClient
+
 
 	disgo.intents = b.intents
 
 	if b.eventManager == nil {
-		disgo.eventManager = newEventManagerImpl(disgo, b.eventListeners)
+		b.eventManager = newEventManagerImpl(disgo, b.eventListeners)
 
-	} else {
-		disgo.eventManager = b.eventManager
 	}
+	disgo.eventManager = b.eventManager
+
 
 	if b.cache == nil {
-		disgo.cache = newCacheImpl()
-	} else {
-		disgo.cache = b.cache
+		if b.memberCachePolicy == nil {
+			b.memberCachePolicy = api.MemberCachePolicyDefault
+		}
+		b.cache = newCacheImpl(b.memberCachePolicy)
 	}
+	disgo.cache = b.cache
+
 
 	return disgo, nil
 }

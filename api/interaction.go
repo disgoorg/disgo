@@ -1,12 +1,15 @@
 package api
 
+// InteractionType is the type of Interaction
 type InteractionType int
 
+// Constants for InteractionType
 const (
 	InteractionTypePing = iota + 1
 	InteractionTypeApplicationCommand
 )
 
+// An Interaction is the slash command object you receive when a user uses one of your commands
 type Interaction struct {
 	ID        Snowflake       `json:"id"`
 	Type      InteractionType `json:"type"`
@@ -19,12 +22,14 @@ type Interaction struct {
 	Version   int             `json:"version"`
 }
 
+// InteractionData is the command data payload
 type InteractionData struct {
 	ID      Snowflake    `json:"id"`
 	Name    string       `json:"name"`
 	Options []OptionData `json:"options,omitempty"`
 }
 
+// OptionData is used for options or subcommands in your slash commands
 type OptionData struct {
 	Name    string       `json:"name"`
 	Value   interface{}  `json:"value,omitempty"`

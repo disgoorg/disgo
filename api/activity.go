@@ -2,16 +2,20 @@ package api
 
 import "time"
 
+// ActivityType represents the status of a user, one of Game, Streaming, Listening, Custom or Competing
 type ActivityType int
 
+// Constants for activities
 const (
 	Game = iota
 	Streaming
 	Listening
+	_
 	Custom
 	Competing
 )
 
+// Activity represents the fields of a user's presence
 type Activity struct {
 	Name          string              `json:"name"`
 	Type          ActivityType        `json:"type"`
@@ -29,22 +33,26 @@ type Activity struct {
 	Flags         int                `json:"flags,omitempty"`
 }
 
+// ActivityTimestamps represents when a user started and ended their activity
 type ActivityTimestamps struct {
 	Start *time.Time `json:"start,omitempty"`
 	End   *time.Time `json:"end,omitempty"`
 }
 
+// ActivityEmoji is an Emoji object for an Activity
 type ActivityEmoji struct {
 	Name     string     `json:"name"`
 	ID       *Snowflake `json:"id,omitempty"`
 	Animated *bool      `json:"animated,omitempty"`
 }
 
+// ActivityParty is information about the party of the player
 type ActivityParty struct {
 	ID   Snowflake `json:"id,omitempty"`
 	Size []int     `json:"size,omitempty"`
 }
 
+// ActivityAssets are the images for the presence and hover texts
 type ActivityAssets struct {
 	LargeImage string `json:"large_image,omitempty"`
 	LargeText  string `json:"large_text,omitempty"`
@@ -52,6 +60,7 @@ type ActivityAssets struct {
 	SmallText  string `json:"small_text,omitempty"`
 }
 
+// ActivitySecrets contain secrets for Rich Presence joining and spectating
 type ActivitySecrets struct {
 	Join     string `json:"join,omitempty"`
 	Spectate string `json:"spectate,omitempty"`

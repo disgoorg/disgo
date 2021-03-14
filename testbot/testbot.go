@@ -11,7 +11,7 @@ import (
 
 	"github.com/DiscoOrg/disgo"
 	"github.com/DiscoOrg/disgo/api"
-	"github.com/DiscoOrg/disgo/internal/events"
+	"github.com/DiscoOrg/disgo/api/events"
 )
 
 func main() {
@@ -20,13 +20,18 @@ func main() {
 	dgo, err := disgo.NewBuilder(token).
 		SetLogLevel(log.InfoLevel).
 		SetIntents(api.IntentsGuildMessages | api.IntentsGuildMembers).
+		SetMemberCachePolicy(func(member *api.Member) bool {
+			return member.GuildID == "817327181659111454"
+		}).
 		AddEventListeners(&events.ListenerAdapter{
-			OnGuildMessageReceived: messageHandler,
+			OnGuildMessageReceived: messageListener,
+			OnSlashCommand: slashCommandListener,
 		}).
 		Build()
 	if err != nil {
 		return
 	}
+
 
 	err = dgo.Connect()
 	if err != nil {
@@ -41,7 +46,13 @@ func main() {
 	<-s
 }
 
-func messageHandler(event events.GuildMessageReceivedEvent) {
+func slashCommandListener(event events.SlashCommandEvent){
+	if event.Name == "test" {
+		event.Reply("test", false)
+	}
+}
+
+func messageListener(event events.GuildMessageReceivedEvent) {
 	log.Printf("Message received: %v", event.Message.Content)
 	if event.Message.Author.IsBot {
 		return
@@ -50,10 +61,10 @@ func messageHandler(event events.GuildMessageReceivedEvent) {
 	switch event.Message.Content {
 	case "ping":
 		log.Print("hm")
-		event.TextChannel.SendMessage("pong")
+		event.MessageChannel().SendMessage("pong")
 	case "pong":
 		log.Print("hm2")
-		event.TextChannel.SendMessage("ping")
+		event.MessageChannel().SendMessage("ping")
 	case "dm":
 		event.Message.Author.OpenDMChannel().Then(func(channel promise.Any) promise.Any {
 			return channel.(*api.DMChannel).SendMessage("helo")

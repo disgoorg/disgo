@@ -6,42 +6,36 @@ import (
 	"github.com/DiscoOrg/disgo/api"
 )
 
-// GuildCreateEvent payload from GUILD_CREATE gateways event sent by discord
-type GuildCreateEvent struct {
-	Guild api.Guild
-}
 
 type GuildCreateHandler struct {}
 
 func (h GuildCreateHandler) New() interface{} {
-	return &GuildCreateEvent{}
+	return &api.Guild{}
 }
 
 func (h GuildCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
-	guild, ok := i.(*GuildCreateEvent)
+	guild, ok := i.(*api.Guild)
 	if !ok {
 		return
 	}
 	log.Infof("GuildCreateEvent: %v", guild)
-}
-
-// GuildDeleteEvent payload from GUILD_DELETE gateways event sent by discord
-type GuildDeleteEvent struct {
-	Guild api.UnavailableGuild
+	guild.Disgo = disgo
+	disgo.Cache().CacheGuild(guild)
 }
 
 type GuildDeleteHandler struct {}
 
 func (h GuildDeleteHandler) New() interface{} {
-	return &GuildDeleteEvent{}
+	return &api.UnavailableGuild{}
 }
 
 func (h GuildDeleteHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
-	guild, ok := i.(*GuildDeleteEvent)
+	unavailableGuild, ok := i.(*api.UnavailableGuild)
 	if !ok {
 		return
 	}
-	log.Infof("GuildDeleteEvent: %v", guild)
+	log.Infof("GuildDeleteEvent: %v", unavailableGuild)
+	disgo.Cache().UncacheGuild(unavailableGuild.ID)
 }
 
 // GuildUpdateEvent payload from GUILD_DELETE gateways event sent by discord

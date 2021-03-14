@@ -84,7 +84,7 @@ func (g GatewayImpl) Open() error {
 
 	g.lastHeartbeatReceived = time.Now().UTC()
 
-	var eventData api.HelloCommand
+	var eventData api.HelloEvent
 	if err = json.Unmarshal(event.D, &eventData); err != nil {
 		return err
 	}
@@ -241,13 +241,13 @@ func parseGatewayEvent(mt int, data []byte) (*api.RawGatewayCommand, error) {
 		return nil, errors.New("we don't handle compressed yet")
 	}
 	if mt != websocket.TextMessage {
-		return nil, fmt.Errorf("recieved unexpected message type: %d", mt)
+		return nil, fmt.Errorf("recieved unexpected message_events type: %d", mt)
 	}
 	var event api.RawGatewayCommand
 
 	decoder := json.NewDecoder(reader)
 	if err := decoder.Decode(&event); err != nil {
-		log.Errorf("error decoding websocket message, %s", err)
+		log.Errorf("error decoding websocket message_events, %s", err)
 		return nil, err
 	}
 	return &event, nil

@@ -1,62 +1,41 @@
 package handlers
 
 import (
-	log "github.com/sirupsen/logrus"
-
 	"github.com/DiscoOrg/disgo/api"
-	"github.com/DiscoOrg/disgo/internal/events"
+	"github.com/DiscoOrg/disgo/api/events"
 )
-
-// GuildCreatePayload payload from GUILD_CREATE gateways event sent by discord
-type MessageCreateEvent struct {
-	api.Message
-}
 
 type MessageCreateHandler struct{}
 
 func (h MessageCreateHandler) New() interface{} {
-	return &MessageCreateEvent{}
+	return &api.Message{}
 }
 
 func (h MessageCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
-	message, ok := i.(*MessageCreateEvent)
+	message, ok := i.(*api.Message)
 	if !ok {
 		return
 	}
-	switch message.ChannelType {
-	case api.GuildTextChannel:
-		message := message.Message
+	if message.GuildID == nil {
+		// dm channel
+	} else{
+		// text channel
 		message.Disgo = disgo
 		message.Author.Disgo = disgo
 		eventManager.Dispatch(events.GuildMessageReceivedEvent{
-			Message: message,
+			Message: *message,
 			GenericGuildMessageEvent: events.GenericGuildMessageEvent{
-				TextChannel: api.TextChannel{
-					GuildChannel:   api.GuildChannel{
-						Channel: api.Channel{
-							Disgo: disgo,
-							ID:    message.ChannelID,
-						},
-						GuildID: message.GuildId,
-						Guild:   api.Guild{
-							ID: message.GuildId,
-						},
+				GenericGuildEvent:   events.GenericGuildEvent{
+					Event:   api.Event{
+						Disgo: disgo,
 					},
-					MessageChannel: api.MessageChannel{
-						Channel: api.Channel{
-							Disgo: disgo,
-							ID:    message.ChannelID,
-						},
-					},
+					GuildID: *message.GuildID,
 				},
+				GenericMessageEvent: events.GenericMessageEvent{},
 			},
 		})
-	case api.DMTextChannel:
-	case api.GroupDMChannel:
-	default:
-		log.Errorf("unknown channel type received: %d", message.ChannelType)
 	}
 	eventManager.Dispatch(events.MessageReceivedEvent{
-		Message: message.Message,
+		Message: *message,
 	})
 }

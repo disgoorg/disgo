@@ -11,5 +11,6 @@ func getHandlers() *map[string]api.GatewayEventProvider {
 		api.GuildDeleteGatewayEvent:   handlers.GuildDeleteHandler{},
 		api.GuildUpdateGatewayEvent:   handlers.GuildUpdateHandler{},
 		api.MessageCreateGatewayEvent: handlers.MessageCreateHandler{},
+		api.InteractionCreateGatewayEvent: handlers.InteractionCreateHandler{},
 	}
 }

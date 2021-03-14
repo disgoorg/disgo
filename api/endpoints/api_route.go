@@ -1,11 +1,12 @@
 package endpoints
 
-// Route is a basic struct containing Method and URL
+// APIRoute is a basic struct containing Method and URL
 type APIRoute struct {
 	Route
 	method Method
 }
 
+// Method returns the request method used by the route
 func (r APIRoute) Method() Method {
 	return r.method
 }

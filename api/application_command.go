@@ -1,5 +1,6 @@
 package api
 
+// ApplicationCommand is the base "command" model that belongs to an application.
 type ApplicationCommand struct {
 	ID            Snowflake                  `json:"id"`
 	ApplicationID Snowflake                  `json:"application_id"`
@@ -8,8 +9,10 @@ type ApplicationCommand struct {
 	Options       []ApplicationCommandOption `json:"options,omitempty"`
 }
 
+// ApplicationCommandOptionType specifies the type of the arguments used in ApplicationCommand.Options
 type ApplicationCommandOptionType int
 
+// Constants for each slash command option type
 const (
 	ApplicationCommandOptionTypeSubCommand = iota + 1
 	ApplicationCommandOptionTypeSubCommandGroup
@@ -21,6 +24,7 @@ const (
 	ApplicationCommandOptionTypeRole
 )
 
+// ApplicationCommandOption are the arguments used in ApplicationCommand.Options
 type ApplicationCommandOption struct {
 	Type        ApplicationCommandOptionType     `json:"type"`
 	Name        string                           `json:"name"`
@@ -30,6 +34,7 @@ type ApplicationCommandOption struct {
 	Options     []ApplicationCommandOption       `json:"options,omitempty"`
 }
 
+// ApplicationCommandOptionChoice contains the data for a user using your command
 type ApplicationCommandOptionChoice struct {
 	Name  string      `json:"name"`
 	Value interface{} `json:"value"`

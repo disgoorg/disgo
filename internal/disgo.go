@@ -78,6 +78,11 @@ func (d DisgoImpl) Intents() api.Intent {
 	return d.intents
 }
 
+// ApplicationID returns the current application id
+func (d DisgoImpl) ApplicationID() api.Snowflake {
+	return d.selfUser.ID
+}
+
 // SelfUser returns a user object for the client, if available
 func (d DisgoImpl) SelfUser() *api.User {
 	return d.selfUser
@@ -85,4 +90,8 @@ func (d DisgoImpl) SelfUser() *api.User {
 
 func (d DisgoImpl) SetSelfUser(user api.User) {
 	d.selfUser = &user
+}
+
+func (d DisgoImpl) CreateCommand(name string, description string) api.GlobalCommandBuilder {
+	return api.NewGlobalCommandBuilder(d, name, description)
 }

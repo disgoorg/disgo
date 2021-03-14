@@ -2,8 +2,10 @@ package endpoints
 
 import log "github.com/sirupsen/logrus"
 
+// FileExtension is the type of an image on Discord's CDN
 type FileExtension string
 
+// The available FileExtension(s)
 const (
 	PNG  FileExtension = "png"
 	JPEG FileExtension = "jpg"

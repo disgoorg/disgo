@@ -25,7 +25,7 @@ type Gateway interface {
 }
 
 
-// Gateway opcodes used by discord
+// GatewayOp are opcodes used by discord
 type GatewayOp int
 
 // Constants for the gateway opcodes
@@ -44,6 +44,7 @@ const (
 	OpHeartbeatACK
 )
 
+// Constants for the gateway events
 const (
 	ChannelCreateGatewayEvent            = "CHANNEL_CREATE"
 	ChannelDeleteGatewayEvent            = "CHANNEL_DELETE"

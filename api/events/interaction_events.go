@@ -14,6 +14,7 @@ type GenericInteractionEvent struct {
 	Member        *api.Member
 	User          api.User
 	Channel       *api.MessageChannel
+	Version       int
 }
 
 type SlashCommandEvent struct {
@@ -21,10 +22,18 @@ type SlashCommandEvent struct {
 	Name      string
 	CommandID api.Snowflake
 	Options   []api.OptionData
-	Thread    api.CommandThread
 }
 
-func (e SlashCommandEvent) reply(message string,  ephemeral bool) *promise.Promise {
-	return e.Disgo.RestClient().SendInteractionResponse(e.InteractionID, e.Token, api.InteractionResponse{})
+func (e SlashCommandEvent) Reply(message string, ephemeral bool) *promise.Promise {
+	flags := 0
+	if ephemeral {
+		flags = 1 << 6
+	}
+	return e.Disgo.RestClient().SendInteractionResponse(e.InteractionID, e.Token, api.InteractionResponse{
+		Type: api.InteractionResponseTypeChannelMessageWithSource,
+		Data: &api.InteractionResponseData{
+			Content: message,
+			Flags:   flags,
+		},
+	})
 }
-

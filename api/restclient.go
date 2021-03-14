@@ -8,10 +8,13 @@ import (
 	"github.com/DiscoOrg/disgo/api/endpoints"
 )
 
+// Errors when connecting to discord
 var (
-	BadGatewayError = errors.New("bad gateway could not reach discord")
-	UnauthorizedError = errors.New("not authorized for this endpoint")
-	RatelimitedError = errors.New("too many requests")
+	ErrBadGateway                 = errors.New("bad gateway could not reach discord")
+	ErrUnauthorized               = errors.New("not authorized for this endpoint")
+	ErrBadRequest                 = errors.New("bad request please check your request")
+	ErrRatelimited                = errors.New("too many requests")
+	ErrTooMuchApplicationCommands = errors.New("you can provide a max of 100 application commands")
 )
 
 // RestClient is a manager for all of disgo's HTTP requests
@@ -20,21 +23,23 @@ type RestClient interface {
 	UserAgent() string
 	Request(route endpoints.APIRoute, rqBody interface{}, v interface{}, args ...string) error
 	RequestAsync(route endpoints.APIRoute, rqBody interface{}, v interface{}, args ...string) *promise.Promise
-	GetUserById(Snowflake) *promise.Promise
-	GetMemberById(Snowflake, Snowflake) *promise.Promise
+	GetUser(Snowflake) *promise.Promise
+	GetMember(Snowflake, Snowflake) *promise.Promise
 	SendMessage(Snowflake, Message) *promise.Promise
 	OpenDMChannel(Snowflake) *promise.Promise
 	AddReaction(Snowflake, Snowflake, string) *promise.Promise
+	RemoveOwnReaction(Snowflake, Snowflake, string) *promise.Promise
+	RemoveUserReaction(Snowflake, Snowflake, string, Snowflake) *promise.Promise
 
 	GetGlobalApplicationCommands(Snowflake) *promise.Promise
-	CreateGlobalApplicationGlobalCommands(Snowflake, ...ApplicationCommand) *promise.Promise
+	CreateGlobalApplicationGlobalCommand(Snowflake, ApplicationCommand) *promise.Promise
 	SetGlobalApplicationCommands(Snowflake, ...ApplicationCommand) *promise.Promise
 	GetGlobalApplicationCommand(Snowflake, Snowflake) *promise.Promise
 	EditGlobalApplicationCommand(Snowflake, Snowflake, ApplicationCommand) *promise.Promise
 	DeleteGlobalApplicationCommand(Snowflake, Snowflake) *promise.Promise
 
 	GetGuildApplicationCommands(Snowflake, Snowflake) *promise.Promise
-	CreateGuildApplicationGuildCommands(Snowflake, Snowflake, ...ApplicationCommand) *promise.Promise
+	CreateGuildApplicationGuildCommand(Snowflake, Snowflake, ApplicationCommand) *promise.Promise
 	SetGuildApplicationCommands(Snowflake, Snowflake, ...ApplicationCommand) *promise.Promise
 	GetGuildApplicationCommand(Snowflake, Snowflake, Snowflake) *promise.Promise
 	EditGuildApplicationCommand(Snowflake, Snowflake, Snowflake, ApplicationCommand) *promise.Promise
