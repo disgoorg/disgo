@@ -11,6 +11,7 @@ func newCacheImpl(memberCachePolicy api.MemberCachePolicy) api.Cache {
 		memberCachePolicy: memberCachePolicy,
 		users:             map[api.Snowflake]*api.User{},
 		guilds:            map[api.Snowflake]*api.Guild{},
+		unavailableGuilds: map[api.Snowflake]*api.UnavailableGuild{},
 		members:           map[api.Snowflake]map[api.Snowflake]*api.Member{},
 		roles:             map[api.Snowflake]map[api.Snowflake]*api.Role{},
 		dmChannels:        map[api.Snowflake]*api.DMChannel{},
@@ -25,6 +26,7 @@ type CacheImpl struct {
 	memberCachePolicy api.MemberCachePolicy
 	users             map[api.Snowflake]*api.User
 	guilds            map[api.Snowflake]*api.Guild
+	unavailableGuilds map[api.Snowflake]*api.UnavailableGuild
 	members           map[api.Snowflake]map[api.Snowflake]*api.Member
 	roles             map[api.Snowflake]map[api.Snowflake]*api.Role
 	dmChannels        map[api.Snowflake]*api.DMChannel
@@ -98,9 +100,9 @@ func (c CacheImpl) FindUsers(check func(u *api.User) bool) []*api.User {
 	return users
 }
 
-// guild_events cache
-func (c CacheImpl) Guild(id api.Snowflake) *api.Guild {
-	return c.guilds[id]
+// guild cache
+func (c CacheImpl) Guild(guildID api.Snowflake) *api.Guild {
+	return c.guilds[guildID]
 }
 func (c CacheImpl) GuildsByName(name string, ignoreCase bool) []*api.Guild {
 	if ignoreCase {
@@ -134,10 +136,10 @@ func (c CacheImpl) CacheGuild(guild *api.Guild) {
 	// guild_events was not yet cached so cache it directly
 	c.guilds[guild.ID] = guild
 }
-func (c CacheImpl) UncacheGuild(id api.Snowflake) {
-	delete(c.guilds, id)
+func (c CacheImpl) UncacheGuild(guildID api.Snowflake) {
+	delete(c.guilds, guildID)
 }
-func (c CacheImpl) FindGuild(check func(u *api.Guild) bool) *api.Guild {
+func (c CacheImpl) FindGuild(check func(g *api.Guild) bool) *api.Guild {
 	for _, guild := range c.guilds {
 		if check(guild) {
 			return guild
@@ -145,7 +147,7 @@ func (c CacheImpl) FindGuild(check func(u *api.Guild) bool) *api.Guild {
 	}
 	return nil
 }
-func (c CacheImpl) FindGuilds(check func(u *api.Guild) bool) []*api.Guild {
+func (c CacheImpl) FindGuilds(check func(g *api.Guild) bool) []*api.Guild {
 	guilds := make([]*api.Guild, 1)
 	for _, guild := range c.guilds {
 		if check(guild) {
@@ -153,6 +155,17 @@ func (c CacheImpl) FindGuilds(check func(u *api.Guild) bool) []*api.Guild {
 		}
 	}
 	return guilds
+}
+
+// unavailable guild cache
+func (c CacheImpl) UnavailableGuild(guildID api.Snowflake) *api.UnavailableGuild {
+	return c.unavailableGuilds[guildID]
+}
+func (c CacheImpl) CacheUnavailableGuild(unavailableGuild *api.UnavailableGuild) {
+	*c.unavailableGuilds[unavailableGuild.ID] = *unavailableGuild
+}
+func (c CacheImpl) UncacheUnavailableGuild(guildID api.Snowflake) {
+	delete(c.unavailableGuilds, guildID)
 }
 
 // member cache

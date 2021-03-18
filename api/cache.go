@@ -100,6 +100,10 @@ type Cache interface {
 	CacheGuild(*Guild)
 	UncacheGuild(Snowflake)
 
+	UnavailableGuild(Snowflake) *UnavailableGuild
+	CacheUnavailableGuild(*UnavailableGuild)
+	UncacheUnavailableGuild(Snowflake)
+
 	/*Message(Snowflake) *Message
 	Messages(Snowflake) []*Message
 	AllMessages() []*Message

@@ -197,7 +197,7 @@ func (g GatewayImpl) listen() {
 				}
 				g.sessionID = readyEvent.SessionID
 				g.Disgo().SetSelfUser(readyEvent.User)
-				log.Info("Client Ready")
+				log.Info("ready event received")
 			}
 
 			if event.T == nil {

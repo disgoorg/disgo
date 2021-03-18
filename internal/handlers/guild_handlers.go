@@ -4,8 +4,8 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/DiscoOrg/disgo/api"
+	"github.com/DiscoOrg/disgo/api/events"
 )
-
 
 type GuildCreateHandler struct {}
 
@@ -18,9 +18,32 @@ func (h GuildCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 	if !ok {
 		return
 	}
-	log.Infof("GuildCreateEvent: %v", guild)
+	log.Infof("GuildCreateEvent received: %v", guild)
 	guild.Disgo = disgo
+	wasUnavailable := disgo.Cache().UnavailableGuild(guild.ID) != nil
 	disgo.Cache().CacheGuild(guild)
+
+	if wasUnavailable {
+		disgo.Cache().UncacheUnavailableGuild(guild.ID)
+		eventManager.Dispatch(events.GuildAvailableEvent{
+			GenericGuildEvent: events.GenericGuildEvent{
+				Event:   api.Event{
+					Disgo: disgo,
+				},
+				GuildID: guild.ID,
+			},
+		})
+	} else {
+		// guild join
+		eventManager.Dispatch(events.GuildJoinEvent{
+			GenericGuildEvent: events.GenericGuildEvent{
+				Event:   api.Event{
+					Disgo: disgo,
+				},
+				GuildID: guild.ID,
+			},
+		})
+	}
 }
 
 type GuildDeleteHandler struct {}

@@ -15,7 +15,6 @@ func (e GenericGuildEvent) Guild() *api.Guild {
 
 type GuildAvailableEvent struct {
 	GenericGuildEvent
-	Guild *api.Guild
 }
 
 type GuildUnavailableEvent struct {
@@ -25,7 +24,6 @@ type GuildUnavailableEvent struct {
 
 type GuildJoinEvent struct {
 	GenericGuildEvent
-	Guild *api.Guild
 }
 
 type GuildLeaveEvent struct {
