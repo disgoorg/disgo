@@ -30,7 +30,7 @@ func (p MemberCachePolicy) And(policy MemberCachePolicy) MemberCachePolicy {
 	}
 }
 
-// MemberCachePolicyAny is a shorthand for MemberCachePolicy.Or(MemberCachePolicy).Or(MemberCachePolicy) etc.
+// MemberCachePolicyAnyOf is a shorthand for MemberCachePolicy.Or(MemberCachePolicy).Or(MemberCachePolicy) etc.
 func MemberCachePolicyAnyOf(policy MemberCachePolicy, policies ...MemberCachePolicy) MemberCachePolicy {
 	for _, p := range policies {
 		policy = policy.Or(p)
@@ -38,7 +38,7 @@ func MemberCachePolicyAnyOf(policy MemberCachePolicy, policies ...MemberCachePol
 	return policy
 }
 
-// MemberCachePolicyAll is a shorthand for MemberCachePolicy.And(MemberCachePolicy).And(MemberCachePolicy) etc.
+// MemberCachePolicyAllOf is a shorthand for MemberCachePolicy.And(MemberCachePolicy).And(MemberCachePolicy) etc.
 func MemberCachePolicyAllOf(policy MemberCachePolicy, policies ...MemberCachePolicy) MemberCachePolicy {
 	for _, p := range policies {
 		policy = policy.And(p)
