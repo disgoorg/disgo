@@ -131,6 +131,7 @@ func (c CacheImpl) GuildCache() map[api.Snowflake]*api.Guild {
 func (c CacheImpl) CacheGuild(guild *api.Guild) {
 	if _, ok := c.guilds[guild.ID]; ok {
 		// update old guild_events
+		*c.guilds[guild.ID] = *guild
 		return
 	}
 	// guild_events was not yet cached so cache it directly
@@ -162,7 +163,11 @@ func (c CacheImpl) UnavailableGuild(guildID api.Snowflake) *api.UnavailableGuild
 	return c.unavailableGuilds[guildID]
 }
 func (c CacheImpl) CacheUnavailableGuild(unavailableGuild *api.UnavailableGuild) {
-	*c.unavailableGuilds[unavailableGuild.ID] = *unavailableGuild
+	if _, ok := c.unavailableGuilds[unavailableGuild.ID]; ok {
+		*c.unavailableGuilds[unavailableGuild.ID] = *unavailableGuild
+		return
+	}
+	c.unavailableGuilds[unavailableGuild.ID] = unavailableGuild
 }
 func (c CacheImpl) UncacheUnavailableGuild(guildID api.Snowflake) {
 	delete(c.unavailableGuilds, guildID)

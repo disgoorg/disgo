@@ -8,6 +8,7 @@ type MemberCachePolicy func(*Member) bool
 // Default member cache policies
 var (
 	MemberCachePolicyNone    MemberCachePolicy = func(_ *Member) bool { return false }
+	MemberCachePolicyAll     MemberCachePolicy = func(_ *Member) bool { return true }
 	MemberCachePolicyOwner   MemberCachePolicy = func(member *Member) bool { return member.isOwner() }
 	MemberCachePolicyOnline  MemberCachePolicy = func(_ *Member) bool { return false }
 	MemberCachePolicyVoice   MemberCachePolicy = func(member *Member) bool { return false }
@@ -30,7 +31,7 @@ func (p MemberCachePolicy) And(policy MemberCachePolicy) MemberCachePolicy {
 }
 
 // MemberCachePolicyAny is a shorthand for MemberCachePolicy.Or(MemberCachePolicy).Or(MemberCachePolicy) etc.
-func MemberCachePolicyAny(policy MemberCachePolicy, policies ...MemberCachePolicy) MemberCachePolicy {
+func MemberCachePolicyAnyOf(policy MemberCachePolicy, policies ...MemberCachePolicy) MemberCachePolicy {
 	for _, p := range policies {
 		policy = policy.Or(p)
 	}
@@ -38,7 +39,7 @@ func MemberCachePolicyAny(policy MemberCachePolicy, policies ...MemberCachePolic
 }
 
 // MemberCachePolicyAll is a shorthand for MemberCachePolicy.And(MemberCachePolicy).And(MemberCachePolicy) etc.
-func MemberCachePolicyAll(policy MemberCachePolicy, policies ...MemberCachePolicy) MemberCachePolicy {
+func MemberCachePolicyAllOf(policy MemberCachePolicy, policies ...MemberCachePolicy) MemberCachePolicy {
 	for _, p := range policies {
 		policy = policy.And(p)
 	}

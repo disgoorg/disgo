@@ -190,6 +190,8 @@ func (g GatewayImpl) listen() {
 				g.lastSequenceReceived = event.S
 			}
 
+			log.Infof("received: %s", *event.T)
+
 			if event.T != nil && *event.T == "READY" {
 				var readyEvent api.ReadyEventData
 				if err := parseEventToStruct(event, &readyEvent); err != nil {

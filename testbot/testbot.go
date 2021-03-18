@@ -19,11 +19,10 @@ func main() {
 
 	dgo, err := disgo.NewBuilder(token).
 		SetLogLevel(log.InfoLevel).
-		SetIntents(api.IntentsGuildMessages | api.IntentsGuildMembers).
-		SetMemberCachePolicy(func(member *api.Member) bool {
-			return member.GuildID == "817327181659111454"
-		}).
+		SetIntents(api.IntentsGuilds | api.IntentsGuildMessages | api.IntentsGuildMembers).
+		SetMemberCachePolicy(api.MemberCachePolicyAll).
 		AddEventListeners(&events.ListenerAdapter{
+			OnGuildAvailable: guildAvailListener,
 			OnGuildMessageReceived: messageListener,
 			OnSlashCommand: slashCommandListener,
 		}).
@@ -44,6 +43,10 @@ func main() {
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-s
+}
+
+func guildAvailListener(event events.GuildAvailableEvent){
+	log.Printf("guild loaded: %s", event.GuildID)
 }
 
 func slashCommandListener(event events.SlashCommandEvent){

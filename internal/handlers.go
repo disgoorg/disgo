@@ -7,10 +7,11 @@ import (
 
 func getHandlers() *map[string]api.GatewayEventProvider {
 	return &map[string]api.GatewayEventProvider{
-		api.GuildCreateGatewayEvent:   handlers.GuildCreateHandler{},
-		api.GuildDeleteGatewayEvent:   handlers.GuildDeleteHandler{},
-		api.GuildUpdateGatewayEvent:   handlers.GuildUpdateHandler{},
-		api.MessageCreateGatewayEvent: handlers.MessageCreateHandler{},
+		api.ReadyGatewayEvent:             handlers.ReadyHandler{},
+		api.GuildCreateGatewayEvent:       handlers.GuildCreateHandler{},
+		api.GuildDeleteGatewayEvent:       handlers.GuildDeleteHandler{},
+		api.GuildUpdateGatewayEvent:       handlers.GuildUpdateHandler{},
+		api.MessageCreateGatewayEvent:     handlers.MessageCreateHandler{},
 		api.InteractionCreateGatewayEvent: handlers.InteractionCreateHandler{},
 	}
 }

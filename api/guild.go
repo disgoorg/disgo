@@ -79,6 +79,7 @@ const (
 type Guild struct {
 	Disgo                       Disgo
 	ID                          Snowflake                  `json:"id"`
+	Name                        string                     `json:"name"`
 	Icon                        *string                    `json:"icon"`
 	Region                      string                     `json:"region"`
 	OwnerID                     Snowflake                  `json:"owner_id"`
