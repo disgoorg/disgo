@@ -8,8 +8,11 @@ type GenericMessageEvent struct {
 	MessageChannelID api.Snowflake
 }
 
-func (e GenericMessageEvent) MessageChannel() *api.MessageChannel {
-	return e.Disgo.Cache().MessageChannel(e.MessageChannelID)
+func (e *GenericMessageEvent) MessageChannel() *api.MessageChannel {
+	return e.
+		Disgo.
+		Cache().
+		MessageChannel(e.MessageChannelID)
 }
 
 

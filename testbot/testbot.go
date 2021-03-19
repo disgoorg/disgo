@@ -45,17 +45,17 @@ func main() {
 	<-s
 }
 
-func guildAvailListener(event events.GuildAvailableEvent){
+func guildAvailListener(event *events.GuildAvailableEvent){
 	log.Printf("guild loaded: %s", event.GuildID)
 }
 
-func slashCommandListener(event events.SlashCommandEvent){
+func slashCommandListener(event *events.SlashCommandEvent){
 	if event.Name == "test" {
 		event.Reply("test", false)
 	}
 }
 
-func messageListener(event events.GuildMessageReceivedEvent) {
+func messageListener(event *events.GuildMessageReceivedEvent) {
 	log.Printf("Message received: %v", event.Message.Content)
 	if event.Message.Author.IsBot {
 		return
@@ -63,8 +63,10 @@ func messageListener(event events.GuildMessageReceivedEvent) {
 
 	switch event.Message.Content {
 	case "ping":
-		log.Print("hm")
-		event.MessageChannel().SendMessage("pong")
+		log.Printf("hm: %#v", event)
+		event.
+			MessageChannel().
+			SendMessage("pong")
 	case "pong":
 		log.Print("hm2")
 		event.MessageChannel().SendMessage("ping")

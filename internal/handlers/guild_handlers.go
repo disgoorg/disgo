@@ -7,7 +7,7 @@ import (
 	"github.com/DiscoOrg/disgo/api/events"
 )
 
-type GuildCreateHandler struct {}
+type GuildCreateHandler struct{}
 
 func (h GuildCreateHandler) New() interface{} {
 	return &api.Guild{}
@@ -22,12 +22,37 @@ func (h GuildCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 	guild.Disgo = disgo
 	wasUnavailable := disgo.Cache().UnavailableGuild(guild.ID) != nil
 	disgo.Cache().CacheGuild(guild)
+	for i := range guild.Channels {
+		channel := guild.Channels[i]
+		channel.Disgo = disgo
+		switch channel.Type {
+		case api.GuildTextChannel, api.GuildNewsChannel:
+			disgo.Cache().CacheTextChannel(&api.TextChannel{
+				GuildChannel: *channel,
+				MessageChannel: api.MessageChannel{
+					Channel: channel.Channel,
+				},
+			})
+		case api.GuildVoiceChannel:
+			disgo.Cache().CacheVoiceChannel(&api.VoiceChannel{
+				GuildChannel: *channel,
+			})
+		case api.GuildCategoryChannel:
+			disgo.Cache().CacheCategory(&api.CategoryChannel{
+				GuildChannel: *channel,
+			})
+		case api.GuildStoreChannel:
+			disgo.Cache().CacheStoreChannel(&api.StoreChannel{
+				GuildChannel: *channel,
+			})
+		}
+	}
 
 	if wasUnavailable {
 		disgo.Cache().UncacheUnavailableGuild(guild.ID)
 		eventManager.Dispatch(events.GuildAvailableEvent{
 			GenericGuildEvent: events.GenericGuildEvent{
-				Event:   api.Event{
+				Event: api.Event{
 					Disgo: disgo,
 				},
 				GuildID: guild.ID,
@@ -37,7 +62,7 @@ func (h GuildCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 		// guild join
 		eventManager.Dispatch(events.GuildJoinEvent{
 			GenericGuildEvent: events.GenericGuildEvent{
-				Event:   api.Event{
+				Event: api.Event{
 					Disgo: disgo,
 				},
 				GuildID: guild.ID,
@@ -46,7 +71,7 @@ func (h GuildCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 	}
 }
 
-type GuildDeleteHandler struct {}
+type GuildDeleteHandler struct{}
 
 func (h GuildDeleteHandler) New() interface{} {
 	return &api.UnavailableGuild{}
@@ -66,7 +91,7 @@ type GuildUpdateEvent struct {
 	Guild api.Guild
 }
 
-type GuildUpdateHandler struct {}
+type GuildUpdateHandler struct{}
 
 func (h GuildUpdateHandler) New() interface{} {
 	return &GuildUpdateEvent{}

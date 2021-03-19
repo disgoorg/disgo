@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	log "github.com/sirupsen/logrus"
+
 	"github.com/DiscoOrg/disgo/api"
 	"github.com/DiscoOrg/disgo/api/events"
 )
@@ -16,6 +18,7 @@ func (h MessageCreateHandler) Handle(disgo api.Disgo, eventManager api.EventMana
 	if !ok {
 		return
 	}
+	log.Printf("%#v", disgo)
 	if message.GuildID == nil {
 		// dm channel
 	} else{
@@ -31,11 +34,24 @@ func (h MessageCreateHandler) Handle(disgo api.Disgo, eventManager api.EventMana
 					},
 					GuildID: *message.GuildID,
 				},
-				GenericMessageEvent: events.GenericMessageEvent{},
+				GenericMessageEvent: events.GenericMessageEvent{
+					Event:   api.Event{
+						Disgo: disgo,
+					},
+					MessageChannelID: message.ChannelID,
+					MessageID: message.ID,
+				},
 			},
 		})
 	}
 	eventManager.Dispatch(events.MessageReceivedEvent{
+		GenericMessageEvent: events.GenericMessageEvent{
+			Event:   api.Event{
+				Disgo: disgo,
+			},
+			MessageChannelID: message.ChannelID,
+			MessageID: message.ID,
+		},
 		Message: *message,
 	})
 }

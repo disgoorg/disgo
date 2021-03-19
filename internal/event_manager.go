@@ -47,15 +47,16 @@ func (e EventManagerImpl) AddEventListeners(listeners ...api.EventListener) {
 }
 
 func (e EventManagerImpl) ListenEvents() {
-	defer func() {
+	/*defer func() {
 		if r := recover(); r != nil {
 			log.Errorf("recovered event listen goroutine error: %s", r)
+			debug.PrintStack()
 			e.ListenEvents()
 			return
 		}
 		log.Infof("closing event channel...")
 		close(e.channel)
-	}()
+	}()*/
 	for {
 		event := <-e.channel
 		for _, listener := range e.listeners {

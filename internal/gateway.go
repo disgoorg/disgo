@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"runtime/debug"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -123,6 +124,7 @@ func (g GatewayImpl) heartbeat() {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Errorf("recovered heartbeat goroutine error: %s", r)
+			debug.PrintStack()
 			g.heartbeat()
 			return
 		}
@@ -166,6 +168,7 @@ func (g GatewayImpl) listen() {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Errorf("recovered listen goroutine error: %s", r)
+			debug.PrintStack()
 			g.listen()
 			return
 		}

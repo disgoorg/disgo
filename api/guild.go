@@ -98,7 +98,7 @@ type Guild struct {
 	Members                     []*Member                  `json:"members"`
 	MaxPresences                int                        `json:"max_presences"`
 	MaxMembers                  int                        `json:"max_members"`
-	Channels                    []*Channel                 `json:"channels"`
+	Channels                    []*GuildChannel            `json:"channels"`
 	VoiceStates                 []*VoiceState              `json:"voice_states"`
 	Unavailable                 bool                       `json:"unavailable"`
 	ExplicitContentFilter       ExplicitContentFilterLevel `json:"explicit_content_filter"`

@@ -7,52 +7,52 @@ import (
 )
 
 type ListenerAdapter struct {
-	OnGenericEvent         func(api.GenericEvent)
-	OnGuildAvailable       func(GuildAvailableEvent)
-	OnGuildUnavailable     func(GuildUnavailableEvent)
-	OnGuildJoin            func(GuildJoinEvent)
-	OnGuildLeave           func(GuildLeaveEvent)
-	OnMessageReceived      func(MessageReceivedEvent)
-	OnGuildMessageReceived func(GuildMessageReceivedEvent)
-	OnSlashCommand         func(SlashCommandEvent)
+	OnGenericEvent         func(*api.GenericEvent)
+	OnGuildAvailable       func(*GuildAvailableEvent)
+	OnGuildUnavailable     func(*GuildUnavailableEvent)
+	OnGuildJoin            func(*GuildJoinEvent)
+	OnGuildLeave           func(*GuildLeaveEvent)
+	OnMessageReceived      func(*MessageReceivedEvent)
+	OnGuildMessageReceived func(*GuildMessageReceivedEvent)
+	OnSlashCommand         func(*SlashCommandEvent)
 }
 
 func (l ListenerAdapter) OnEvent(event interface{}) {
 	switch v := event.(type) {
 	case GuildAvailableEvent:
 		if l.OnGuildAvailable != nil {
-			l.OnGuildAvailable(v)
+			l.OnGuildAvailable(&v)
 		}
 	case GuildUnavailableEvent:
 		if l.OnGuildUnavailable != nil {
-			l.OnGuildUnavailable(v)
+			l.OnGuildUnavailable(&v)
 		}
 	case GuildJoinEvent:
 		if l.OnGuildJoin != nil {
-			l.OnGuildJoin(v)
+			l.OnGuildJoin(&v)
 		}
 	case GuildLeaveEvent:
 		if l.OnGuildLeave != nil {
-			l.OnGuildLeave(v)
+			l.OnGuildLeave(&v)
 		}
 	case MessageReceivedEvent:
 		if l.OnMessageReceived != nil {
-			l.OnMessageReceived(v)
+			l.OnMessageReceived(&v)
 		}
 	case GuildMessageReceivedEvent:
 		if l.OnGuildMessageReceived != nil {
-			l.OnGuildMessageReceived(v)
+			l.OnGuildMessageReceived(&v)
 		}
 	case SlashCommandEvent:
 		if l.OnSlashCommand != nil {
-			l.OnSlashCommand(v)
+			l.OnSlashCommand(&v)
 		}
 	default:
 		log.Errorf("unexpected event received: %#v", event)
 	}
 	if event, ok := event.(api.GenericEvent); ok {
 		if l.OnGenericEvent != nil {
-			l.OnGenericEvent(event)
+			l.OnGenericEvent(&event)
 		}
 	}
 }
