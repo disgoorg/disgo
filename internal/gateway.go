@@ -26,8 +26,9 @@ func newGatewayImpl(disgo api.Disgo) api.Gateway {
 type GatewayImpl struct {
 	disgo                 api.Disgo
 	conn                  *websocket.Conn
+	quit                  chan struct{}
 	connectionStatus      api.ConnectionStatus
-	heartbeatInterval     int
+	heartbeatInterval     time.Duration
 	lastHeartbeatSent     time.Time
 	lastHeartbeatReceived time.Time
 	sessionID             string
@@ -36,12 +37,12 @@ type GatewayImpl struct {
 }
 
 // Disgo returns the gateway's disgo client
-func (g GatewayImpl) Disgo() api.Disgo {
+func (g *GatewayImpl) Disgo() api.Disgo {
 	return g.disgo
 }
 
 // Open initializes the client and connection to discord
-func (g GatewayImpl) Open() error {
+func (g *GatewayImpl) Open() error {
 	g.connectionStatus = api.Connecting
 	log.Info("starting ws...")
 
@@ -91,7 +92,7 @@ func (g GatewayImpl) Open() error {
 	}
 
 	g.connectionStatus = api.Identifying
-	g.heartbeatInterval = eventData.HeartbeatInterval
+	g.heartbeatInterval = eventData.HeartbeatInterval * time.Millisecond
 
 	if err = wsConn.WriteJSON(api.IdentifyCommand{
 		GatewayCommand: api.GatewayCommand{
@@ -113,6 +114,7 @@ func (g GatewayImpl) Open() error {
 	}
 
 	g.connectionStatus = api.WaitingForReady
+	g.quit = make(chan struct{})
 
 	go g.heartbeat()
 	go g.listen()
@@ -120,7 +122,7 @@ func (g GatewayImpl) Open() error {
 	return nil
 }
 
-func (g GatewayImpl) heartbeat() {
+func (g *GatewayImpl) heartbeat() {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Errorf("recovered heartbeat goroutine error: %s", r)
@@ -131,23 +133,33 @@ func (g GatewayImpl) heartbeat() {
 		log.Info("shutting down heartbeat goroutine...")
 	}()
 
+	ticker := time.NewTicker(g.heartbeatInterval)
 	for {
-		time.Sleep(time.Duration(g.heartbeatInterval) * time.Millisecond)
-		g.sendHeartbeat()
+		select {
+		case <-ticker.C:
+			g.sendHeartbeat()
+		case <-g.quit:
+			log.Info("SHUT")
+			ticker.Stop()
+			return
+		}
 	}
 }
 
 // Status returns the gateway connection status
-func (g GatewayImpl) Status() api.ConnectionStatus {
+func (g *GatewayImpl) Status() api.ConnectionStatus {
 	return g.connectionStatus
 }
 
 // Close cleans up the gateway internals
-func (g GatewayImpl) Close() {
-	log.Info("Implement closing smh...")
+func (g *GatewayImpl) Close() {
+	log.Info("closing goroutines...")
+	g.quit <- struct{}{}
+	time.Sleep(10 * time.Second)
+	log.Printf("bla")
 }
 
-func (g GatewayImpl) sendHeartbeat() {
+func (g *GatewayImpl) sendHeartbeat() {
 	log.Info("sending heartbeat...")
 
 	err := g.conn.WriteJSON(api.HeartbeatCommand{
@@ -164,7 +176,7 @@ func (g GatewayImpl) sendHeartbeat() {
 	g.lastHeartbeatSent = time.Now().UTC()
 }
 
-func (g GatewayImpl) listen() {
+func (g *GatewayImpl) listen() {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Errorf("recovered listen goroutine error: %s", r)
@@ -227,6 +239,7 @@ func (g GatewayImpl) listen() {
 			log.Infof("received: OpHeartbeatACK")
 			g.lastHeartbeatReceived = time.Now().UTC()
 		}
+
 	}
 }
 

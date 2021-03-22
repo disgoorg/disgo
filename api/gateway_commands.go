@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"time"
 )
 
 // GatewayCommand object is used when sending data to discord's websocket, it's recommended that you don't use these
@@ -108,5 +109,5 @@ type UpdateStatusCommandData struct {
 // HelloEvent is used when
 type HelloEvent struct {
 	GatewayCommand
-	HeartbeatInterval int `json:"heartbeat_interval"`
+	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
 }
