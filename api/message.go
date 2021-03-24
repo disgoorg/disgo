@@ -32,6 +32,19 @@ const (
 	MessageTypeApplicationCommand
 )
 
+type MessageFlags Bit
+
+const (
+	MessageFlagNone        = 0
+	MessageFlagCROSSPOSTED = 1 << iota
+	MessageFlagIsCrosspost
+	MessageFlagSuppressEmbeds
+	MessageFlagSourceMessageDeleted
+	MessageFlagUrgent
+	_
+	MessageFlagEphemeral
+)
+
 // Message is a struct for messages sent in discord text-based channels
 type Message struct {
 	Disgo           Disgo
@@ -89,6 +102,3 @@ type Reactions struct {
 	Emoji Emote `json:"emoji"`
 }
 
-// Embed allows you to send embeds to discord
-type Embed struct {
-}

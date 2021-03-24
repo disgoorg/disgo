@@ -39,7 +39,7 @@ func main() {
 
 	defer dgo.Close()
 
-	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
+	fmt.Println("Bot is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-s
@@ -51,7 +51,7 @@ func guildAvailListener(event *events.GuildAvailableEvent){
 
 func slashCommandListener(event *events.SlashCommandEvent){
 	if event.Name == "test" {
-		event.Reply("test", false)
+		event.Reply("test").SetEphemeral(true).AddEmbeds(api.NewEmbedBuilder().SetDescription("test").Build()).ExecuteAsync()
 	}
 }
 

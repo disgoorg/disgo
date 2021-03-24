@@ -1,6 +1,7 @@
 package endpoints
 
 import (
+	"fmt"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -14,7 +15,7 @@ type Route struct {
 }
 
 // Compile builds a full request URL based on provided arguments
-func (r Route) Compile(args ...string) string {
+func (r Route) Compile(args ...interface{}) CompiledRoute {
 	if len(args) != r.paramCount {
 		log.Errorf("invalid amount of arguments received. expected: %d, received: %d", r.paramCount, len(args))
 	}
@@ -23,11 +24,11 @@ func (r Route) Compile(args ...string) string {
 		for _, arg := range args {
 			start := strings.Index(route, "{")
 			end := strings.Index(route, "}")
-			route = route[:start] + arg + route[end+1:]
+			route = route[:start] + fmt.Sprint(arg) + route[end+1:]
 		}
 	}
 
-	return r.baseRoute + route
+	return CompiledRoute{route: r.baseRoute + route}
 }
 
 func countParams(url string) int {
@@ -36,4 +37,14 @@ func countParams(url string) int {
 		log.Errorf("invalid format for route provided: %s", url)
 	}
 	return paramCount
+}
+
+// CompiledRoute is Route compiled with all URL args
+type CompiledRoute struct {
+	route string
+}
+
+// Route returns the full request url
+func (r CompiledRoute) Route() string {
+	return r.route
 }

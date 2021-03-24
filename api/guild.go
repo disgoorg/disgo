@@ -134,7 +134,7 @@ func (g Guild) IconURL() *string {
 	if animated {
 		format = endpoints.GIF
 	}
-	u := endpoints.GuildIcon.Compile(format, g.ID.String(), *g.Icon)
+	u := endpoints.GuildIcon.Compile(format, g.ID.String(), *g.Icon).Route()
 	return &u
 }
 

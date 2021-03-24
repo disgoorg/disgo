@@ -3,8 +3,6 @@ package api
 import (
 	"errors"
 
-	"github.com/chebyrash/promise"
-
 	"github.com/DiscoOrg/disgo/api/endpoints"
 )
 
@@ -21,36 +19,36 @@ var (
 type RestClient interface {
 	Close()
 	UserAgent() string
-	Request(route endpoints.APIRoute, rqBody interface{}, v interface{}, args ...string) error
-	RequestAsync(route endpoints.APIRoute, rqBody interface{}, v interface{}, args ...string) *promise.Promise
-	GetUser(Snowflake) *promise.Promise
-	GetMember(Snowflake, Snowflake) *promise.Promise
-	SendMessage(Snowflake, Message) *promise.Promise
-	OpenDMChannel(Snowflake) *promise.Promise
-	AddReaction(Snowflake, Snowflake, string) *promise.Promise
-	RemoveOwnReaction(Snowflake, Snowflake, string) *promise.Promise
-	RemoveUserReaction(Snowflake, Snowflake, string, Snowflake) *promise.Promise
+	Request(route endpoints.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) error
+	GetUser(userID Snowflake) (*User, error)
+	GetMember(guildID Snowflake, userID Snowflake) (*Member, error)
+	SendMessage(channelID Snowflake, message Message) (*Message, error)
+	OpenDMChannel(userID Snowflake) (*DMChannel, error)
+	AddReaction(channelID Snowflake, messageID Snowflake, emoji string) error
+	RemoveOwnReaction(channelID Snowflake, messageID Snowflake, emoji string) error
+	RemoveUserReaction(channelID Snowflake, messageID Snowflake, emoji string, userID Snowflake) error
 
-	GetGlobalApplicationCommands(Snowflake) *promise.Promise
-	CreateGlobalApplicationGlobalCommand(Snowflake, ApplicationCommand) *promise.Promise
-	SetGlobalApplicationCommands(Snowflake, ...ApplicationCommand) *promise.Promise
-	GetGlobalApplicationCommand(Snowflake, Snowflake) *promise.Promise
-	EditGlobalApplicationCommand(Snowflake, Snowflake, ApplicationCommand) *promise.Promise
-	DeleteGlobalApplicationCommand(Snowflake, Snowflake) *promise.Promise
+	GetGlobalApplicationCommands(applicationID Snowflake) ([]*ApplicationCommand, error)
+	CreateGlobalApplicationGlobalCommand(applicationID Snowflake, command ApplicationCommand) (*ApplicationCommand, error)
+	SetGlobalApplicationCommands(applicationID Snowflake, commands ...ApplicationCommand) ([]*ApplicationCommand, error)
+	GetGlobalApplicationCommand(applicationID Snowflake, commandID Snowflake) (*ApplicationCommand, error)
+	EditGlobalApplicationCommand(applicationID Snowflake, commandID Snowflake, command ApplicationCommand) (*ApplicationCommand, error)
+	DeleteGlobalApplicationCommand(applicationID Snowflake, commandID Snowflake) error
 
-	GetGuildApplicationCommands(Snowflake, Snowflake) *promise.Promise
-	CreateGuildApplicationGuildCommand(Snowflake, Snowflake, ApplicationCommand) *promise.Promise
-	SetGuildApplicationCommands(Snowflake, Snowflake, ...ApplicationCommand) *promise.Promise
-	GetGuildApplicationCommand(Snowflake, Snowflake, Snowflake) *promise.Promise
-	EditGuildApplicationCommand(Snowflake, Snowflake, Snowflake, ApplicationCommand) *promise.Promise
-	DeleteGuildApplicationCommand(Snowflake, Snowflake, Snowflake) *promise.Promise
+	GetGuildApplicationCommands(applicationID Snowflake, guildID Snowflake) ([]*ApplicationCommand, error)
+	CreateGuildApplicationGuildCommand(applicationID Snowflake, guildID Snowflake, command ApplicationCommand) (*ApplicationCommand, error)
+	SetGuildApplicationCommands(applicationID Snowflake, guildID Snowflake, commands ...ApplicationCommand) ([]*ApplicationCommand, error)
+	GetGuildApplicationCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake) (*ApplicationCommand, error)
+	EditGuildApplicationCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake, command ApplicationCommand) (*ApplicationCommand, error)
+	DeleteGuildApplicationCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake) error
 
-	SendInteractionResponse(Snowflake, string, InteractionResponse) *promise.Promise
-	EditInteractionResponse(Snowflake, string, InteractionResponse) *promise.Promise
-	DeleteInteractionResponse(Snowflake, string) *promise.Promise
-	SendFollowupMessage(Snowflake, string, FollowupMessage) *promise.Promise
-	EditFollowupMessage(Snowflake, string, Snowflake, InteractionResponse) *promise.Promise
-	DeleteFollowupMessage(Snowflake, string, Snowflake) *promise.Promise
+	SendInteractionResponse(interactionID Snowflake, interactionToken string, interactionResponse InteractionResponse) error
+	EditInteractionResponse(interactionID Snowflake, interactionToken string, interactionResponse InteractionResponse) (*Message, error)
+	DeleteInteractionResponse(interactionID Snowflake, interactionToken string) error
+
+	SendFollowupMessage(interactionID Snowflake, interactionToken string, followupMessage FollowupMessage) (*Message, error)
+	EditFollowupMessage(interactionID Snowflake, interactionToken string, Snowflake, followupMessage FollowupMessage) *Message
+	DeleteFollowupMessage(interactionID Snowflake, interactionToken string, followupMessageID Snowflake) error
 }
 
 // ErrorResponse contains custom errors from discord
