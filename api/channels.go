@@ -2,8 +2,6 @@ package api
 
 import (
 	//"time"
-
-	"github.com/chebyrash/promise"
 )
 
 // ChannelType for interacting with discord's channels
@@ -48,7 +46,7 @@ type MessageChannel struct {
 }
 
 // SendMessage a Message to a TextChannel
-func (c MessageChannel) SendMessage(content string) *promise.Promise {
+func (c MessageChannel) SendMessage(content string) (*Message, error) {
 	// Todo: embeds, attachments etc.
 	return c.Disgo.RestClient().SendMessage(c.ID, Message{Content: &content})
 }
@@ -65,6 +63,7 @@ type GuildChannel struct {
 	GuildID Snowflake `json:"guild_id"`
 }
 
+// Guild returns the channel's Guild
 func (c GuildChannel) Guild() *Guild {
 	return c.Disgo.Cache().Guild(c.GuildID)
 }

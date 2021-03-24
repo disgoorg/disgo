@@ -2,12 +2,12 @@ package api
 
 import (
 	"time"
-
-	"github.com/chebyrash/promise"
 )
 
+// The MessageType indicates the Message type
 type MessageType int
 
+// Constants for the MessageType
 const (
 	MessageTypeDefault = iota
 	MessageTypeRecipientAdd
@@ -32,11 +32,13 @@ const (
 	MessageTypeApplicationCommand
 )
 
+// The MessageFlags of a Message
 type MessageFlags Bit
 
+// Constants for MessageFlags
 const (
 	MessageFlagNone        = 0
-	MessageFlagCROSSPOSTED = 1 << iota
+	MessageFlagCrossposted = 1 << iota
 	MessageFlagIsCrosspost
 	MessageFlagSuppressEmbeds
 	MessageFlagSourceMessageDeleted
@@ -85,13 +87,13 @@ func (m Message) Channel() *MessageChannel {
 }
 
 // AddReactionByEmote allows you to add an Emote to a message_events via reaction
-func (m Message) AddReactionByEmote(emote Emote) *promise.Promise {
+func (m Message) AddReactionByEmote(emote Emote) error {
 	return m.AddReaction(emote.Reaction())
 }
 
 // AddReaction allows you to add a reaction to a message_events from a string, for example a custom emoji ID, or a native
 // emoji
-func (m Message) AddReaction(emoji string) *promise.Promise {
+func (m Message) AddReaction(emoji string) error {
 	return m.Disgo.RestClient().AddReaction(m.ChannelID, m.ID, emoji)
 }
 

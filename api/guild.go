@@ -7,8 +7,10 @@ import (
 	"github.com/DiscoOrg/disgo/api/endpoints"
 )
 
+// PremiumTier tells you the boost level of a guild
 type PremiumTier int
 
+// Constants for PremiumTier
 const (
 	PremiumTierNone PremiumTier = iota
 	PremiumTier1
@@ -16,111 +18,124 @@ const (
 	PremiumTier3
 )
 
+// SystemChannelFlag contains the settings for the guilds system channel
 type SystemChannelFlag int
 
+// Constants for SystemChannelFlag
 const (
-	SystemChannelFlagSuppressJoinNotifications = 1 << iota
+	SystemChannelFlagSuppressJoinNotifications SystemChannelFlag = 1 << iota
 	SystemChannelFlagSuppressPremiumSubscriptions
 )
 
+// The VerificationLevel of a guild that members must be to send messages
 type VerificationLevel int
 
+// Constants for VerificationLevel
 const (
-	VerificationLevelNone = iota
+	VerificationLevelNone VerificationLevel = iota
 	VerificationLevelLow
 	VerificationLevelMedium
 	VerificationLevelHigh
 	VerificationLevelVeryHigh
 )
 
+// MessageNotifications indicates whether users receive @ mentions on a new message
 type MessageNotifications int
 
+// Constants for MessageNotifications
 const (
-	MessageNotificationsAllMessages = iota
+	MessageNotificationsAllMessages MessageNotifications = iota
 	MessageNotificationsOnlyMentions
 )
 
+// The ExplicitContentFilterLevel of a Guild
 type ExplicitContentFilterLevel int
 
+// Constants for ExplicitContentFilterLevel
 const (
-	explicitContentFilterLevelDisabled = iota
+	ExplicitContentFilterLevelDisabled ExplicitContentFilterLevel = iota
 	ExplicitContentFilterLevelMembersWithoutRoles
 	ExplicitContentFilterLevelAllMembers
 )
 
-type MfaLevel int
+// The MFALevel of a Guild
+type MFALevel int
 
+// Constants for MFALevel
 const (
-	mfaLevelNone = iota
-	mfaLevelElevated
+	MFALevelNone MFALevel = iota
+	MFALevelElevated
 )
 
+// The GuildFeature (s) that a guild contains
 type GuildFeature string
 
+// Constants for GuildFeature
 const (
-	GuildFeatureInviteSplash                  = "INVITE_SPLASH"
-	GuildFeatureVipRegions                    = "VIP_REGIONS"
-	GuildFeatureVanityUrl                     = "VANITY_URL"
-	GuildFeatureVERIFIED                      = "VERIFIED"
-	GuildFeaturePARTNERED                     = "PARTNERED"
-	GuildFeatureCOMMUNITY                     = "COMMUNITY"
-	GuildFeatureCOMMERCE                      = "COMMERCE"
-	guildFeatureNews                          = "NEWS"
-	guildFeatureDiscoverable                  = "DISCOVERABLE"
-	guildFeatureFeaturable                    = "FEATURABLE"
-	GuildFeatureAnimatedIcon                  = "ANIMATED_ICON"
-	GuildFeatureBANNER                        = "BANNER"
-	GuildFeatureWelcomeScreenEnabled          = "WELCOME_SCREEN_ENABLED"
-	GuildFeatureMemberVerificationGateEnabled = "MEMBER_VERIFICATION_GATE_ENABLED"
-	GuildFeaturePreviewEnabled                = "PREVIEW_ENABLED"
+	GuildFeatureInviteSplash                  GuildFeature = "INVITE_SPLASH"
+	GuildFeatureVipRegions                    GuildFeature = "VIP_REGIONS"
+	GuildFeatureVanityURL                     GuildFeature = "VANITY_URL"
+	GuildFeatureVERIFIED                      GuildFeature = "VERIFIED"
+	GuildFeaturePARTNERED                     GuildFeature = "PARTNERED"
+	GuildFeatureCOMMUNITY                     GuildFeature = "COMMUNITY"
+	GuildFeatureCOMMERCE                      GuildFeature = "COMMERCE"
+	guildFeatureNews                          GuildFeature = "NEWS"
+	guildFeatureDiscoverable                  GuildFeature = "DISCOVERABLE"
+	guildFeatureFeaturable                    GuildFeature = "FEATURABLE"
+	GuildFeatureAnimatedIcon                  GuildFeature = "ANIMATED_ICON"
+	GuildFeatureBANNER                        GuildFeature = "BANNER"
+	GuildFeatureWelcomeScreenEnabled          GuildFeature = "WELCOME_SCREEN_ENABLED"
+	GuildFeatureMemberVerificationGateEnabled GuildFeature = "MEMBER_VERIFICATION_GATE_ENABLED"
+	GuildFeaturePreviewEnabled                GuildFeature = "PREVIEW_ENABLED"
 )
 
 // Guild represents a discord guild_events
 type Guild struct {
-	Disgo                       Disgo
-	ID                          Snowflake                  `json:"id"`
-	Name                        string                     `json:"name"`
-	Icon                        *string                    `json:"icon"`
-	Region                      string                     `json:"region"`
-	OwnerID                     Snowflake                  `json:"owner_id"`
-	Owner                       bool                       `json:"owner"`
-	JoinedAt                    time.Time                  `json:"joined_at"`
-	DiscoverySplash             string                     `json:"discovery_splash"`
-	Splash                      string                     `json:"splash"`
+	Disgo   Disgo
+	ID      Snowflake `json:"id"`
+	Name    string    `json:"name"`
+	Icon    *string   `json:"icon"`
+	Region  string    `json:"region"`
+	OwnerID Snowflake `json:"owner_id"`
+	// only used in GET USER GUILDS
+	//Owner                       *bool                       `json:"owner"`
+	//Permissions                 *Permissions                `json:"permissions"`
+	JoinedAt                    *time.Time                 `json:"joined_at"`
+	DiscoverySplash             *string                    `json:"discovery_splash"`
+	Splash                      *string                    `json:"splash"`
 	AfkChannelID                *Snowflake                 `json:"afk_channel_id"`
 	AfkTimeout                  int                        `json:"afk_timeout"`
-	MemberCount                 int                        `json:"member_count"`
+	MemberCount                 *int                       `json:"member_count"`
 	VerificationLevel           VerificationLevel          `json:"verification_level"`
-	Large                       bool                       `json:"large"`
+	Large                       *bool                      `json:"large"`
 	DefaultMessageNotifications MessageNotifications       `json:"default_message_notifications"`
 	Roles                       []*Role                    `json:"roles"`
 	Emojis                      []*Emote                   `json:"emojis"`
 	Members                     []*Member                  `json:"members"`
-	MaxPresences                int                        `json:"max_presences"`
-	MaxMembers                  int                        `json:"max_members"`
+	MaxPresences                *int                       `json:"max_presences"`
+	MaxMembers                  *int                       `json:"max_members"`
 	Channels                    []*GuildChannel            `json:"channels"`
 	VoiceStates                 []*VoiceState              `json:"voice_states"`
-	Unavailable                 bool                       `json:"unavailable"`
+	Unavailable                 *bool                      `json:"unavailable"`
 	ExplicitContentFilter       ExplicitContentFilterLevel `json:"explicit_content_filter"`
 	Features                    []GuildFeature             `json:"features"`
-	MfaLevel                    MfaLevel                   `json:"mfa_level"`
+	MfaLevel                    MFALevel                   `json:"mfa_level"`
 	ApplicationID               Snowflake                  `json:"application_id"`
 	WidgetEnabled               bool                       `json:"widget_enabled"`
 	WidgetChannelID             Snowflake                  `json:"widget_channel_id"`
 	SystemChannelID             Snowflake                  `json:"system_channel_id"`
 	SystemChannelFlags          SystemChannelFlag          `json:"system_channel_flags"`
 	RulesChannelID              Snowflake                  `json:"rules_channel_id"`
-	VanityURLCode               string                     `json:"vanity_url_code"`
-	Description                 string                     `json:"description"`
-	Banner                      string                     `json:"banner"`
+	VanityURLCode               *string                    `json:"vanity_url_code"`
+	Description                 *string                    `json:"description"`
+	Banner                      *string                    `json:"banner"`
 	PremiumTier                 PremiumTier                `json:"premium_tier"`
-	PremiumSubscriptionCount    int                        `json:"premium_subscription_count"`
+	PremiumSubscriptionCount    *int                       `json:"premium_subscription_count"`
 	PreferredLocale             string                     `json:"preferred_locale"`
-	PublicUpdatesChannelID      Snowflake                  `json:"public_updates_channel_id"`
-	MaxVideoChannelUsers        int                        `json:"max_video_channel_users"`
-	ApproximateMemberCount      int                        `json:"approximate_member_count"`
-	ApproximatePresenceCount    int                        `json:"approximate_presence_count"`
-	Permissions                 int64                      `json:"permissions"`
+	PublicUpdatesChannelID      *Snowflake                 `json:"public_updates_channel_id"`
+	MaxVideoChannelUsers        *int                       `json:"max_video_channel_users"`
+	ApproximateMemberCount      *int                       `json:"approximate_member_count"`
+	ApproximatePresenceCount    *int                       `json:"approximate_presence_count"`
 	//Presences                   []*Presence                `json:"presences"`
 }
 
@@ -138,6 +153,7 @@ func (g Guild) IconURL() *string {
 	return &u
 }
 
+// CreateCommand returns a GuildCommandBuilder for that guild
 func (g Guild) CreateCommand(name string, description string) GuildCommandBuilder {
 	return NewGuildCommandBuilder(g.Disgo, g.ID, name, description)
 }

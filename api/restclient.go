@@ -43,12 +43,12 @@ type RestClient interface {
 	DeleteGuildApplicationCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake) error
 
 	SendInteractionResponse(interactionID Snowflake, interactionToken string, interactionResponse InteractionResponse) error
-	EditInteractionResponse(interactionID Snowflake, interactionToken string, interactionResponse InteractionResponse) (*Message, error)
-	DeleteInteractionResponse(interactionID Snowflake, interactionToken string) error
+	EditInteractionResponse(applicationID Snowflake, interactionToken string, interactionResponse InteractionResponse) (*Message, error)
+	DeleteInteractionResponse(applicationID Snowflake, interactionToken string) error
 
-	SendFollowupMessage(interactionID Snowflake, interactionToken string, followupMessage FollowupMessage) (*Message, error)
-	EditFollowupMessage(interactionID Snowflake, interactionToken string, Snowflake, followupMessage FollowupMessage) *Message
-	DeleteFollowupMessage(interactionID Snowflake, interactionToken string, followupMessageID Snowflake) error
+	SendFollowupMessage(applicationID Snowflake, interactionToken string, followupMessage FollowupMessage) (*Message, error)
+	EditFollowupMessage(applicationID Snowflake, interactionToken string, messageID Snowflake, followupMessage FollowupMessage) (*Message, error)
+	DeleteFollowupMessage(applicationID Snowflake, interactionToken string, followupMessageID Snowflake) error
 }
 
 // ErrorResponse contains custom errors from discord

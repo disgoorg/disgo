@@ -6,6 +6,7 @@ type APIRoute struct {
 	method Method
 }
 
+// Compile returns a CompiledAPIRoute
 func (r APIRoute) Compile(args ...interface{}) CompiledAPIRoute {
 	return CompiledAPIRoute{
 		CompiledRoute: r.Route.Compile(args...),
