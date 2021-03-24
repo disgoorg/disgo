@@ -36,7 +36,7 @@ const (
 type Message struct {
 	Disgo           Disgo
 	ID              Snowflake     `json:"id"`
-	GuildID         *Snowflake     `json:"guild_id"`
+	GuildID         *Snowflake    `json:"guild_id"`
 	Reactions       []Reactions   `json:"reactions"`
 	Attachments     []interface{} `json:"attachments"`
 	Tts             bool          `json:"tts"`
@@ -47,7 +47,7 @@ type Message struct {
 	EditedTimestamp interface{}   `json:"edited_timestamp"`
 	Author          User          `json:"author"`
 	MentionRoles    []interface{} `json:"mention_roles"`
-	Content         string        `json:"content"`
+	Content         *string       `json:"content,omitempty"`
 	ChannelID       Snowflake     `json:"channel_id"`
 	Mentions        []interface{} `json:"mentions"`
 	MessageType     MessageType   `json:"type"`

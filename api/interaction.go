@@ -11,15 +11,15 @@ const (
 
 // An Interaction is the slash command object you receive when a user uses one of your commands
 type Interaction struct {
-	ID        Snowflake       `json:"id"`
-	Type      InteractionType `json:"type"`
-	Data      InteractionData `json:"data,omitempty"`
-	GuildID   Snowflake       `json:"guild_id,omitempty"`
-	ChannelID Snowflake       `json:"channel_id,omitempty"`
-	Member    *Member         `json:"member,omitempty"`
-	User      *User           `json:"User,omitempty"`
-	Token     string          `json:"token"`
-	Version   int             `json:"version"`
+	ID        Snowflake        `json:"id"`
+	Type      InteractionType  `json:"type"`
+	Data      *InteractionData `json:"data,omitempty"`
+	GuildID   *Snowflake       `json:"guild_id,omitempty"`
+	ChannelID *Snowflake       `json:"channel_id,omitempty"`
+	Member    *Member          `json:"member,omitempty"`
+	User      *User            `json:"User,omitempty"`
+	Token     string           `json:"token"`
+	Version   int              `json:"version"`
 }
 
 // InteractionData is the command data payload

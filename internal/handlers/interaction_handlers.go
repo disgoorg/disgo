@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	log "github.com/sirupsen/logrus"
-
 	"github.com/DiscoOrg/disgo/api"
 	"github.com/DiscoOrg/disgo/api/events"
 )
@@ -18,21 +16,27 @@ func (h InteractionCreateHandler) Handle(disgo api.Disgo, eventManager api.Event
 	if !ok {
 		return
 	}
-	log.Infof("interaction received: %v", interaction)
-	eventManager.Dispatch(events.SlashCommandEvent{
-		GenericInteractionEvent: events.GenericInteractionEvent{
-			Event:         api.Event{
-				Disgo:          disgo,
-			},
-			Token:         interaction.Token,
-			InteractionID: interaction.ID,
-			Guild:         disgo.Cache().Guild(interaction.GuildID),
-			Member:        nil,
-			User:          api.User{},
-			Channel:       nil,
+	if interaction.Member != nil {
+		disgo.Cache().CacheMember(interaction.Member)
+	}
+	if interaction.User != nil {
+		disgo.Cache().CacheUser(interaction.User)
+	}
+
+	genericInteractionEvent := events.GenericInteractionEvent{
+		Event: api.Event{
+			Disgo: disgo,
 		},
-		Name:                    interaction.Data.Name,
-		CommandID:               interaction.Data.ID,
-		Options:                 interaction.Data.Options,
-	})
+		Interaction: *interaction,
+	}
+
+	eventManager.Dispatch(genericInteractionEvent)
+
+	if interaction.Data != nil {
+		eventManager.Dispatch(events.SlashCommandEvent{
+			GenericInteractionEvent: genericInteractionEvent,
+			InteractionData: *interaction.Data,
+		})
+	}
+
 }

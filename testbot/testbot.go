@@ -56,12 +56,15 @@ func slashCommandListener(event *events.SlashCommandEvent){
 }
 
 func messageListener(event *events.GuildMessageReceivedEvent) {
-	log.Printf("Message received: %v", event.Message.Content)
+	log.Printf("Message received: %s", *event.Message.Content)
 	if event.Message.Author.IsBot {
 		return
 	}
 
-	switch event.Message.Content {
+	if event.Message.Content == nil {
+		return
+	}
+	switch *event.Message.Content {
 	case "ping":
 		event.MessageChannel().SendMessage("pong")
 		

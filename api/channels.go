@@ -50,7 +50,7 @@ type MessageChannel struct {
 // SendMessage a Message to a TextChannel
 func (c MessageChannel) SendMessage(content string) *promise.Promise {
 	// Todo: embeds, attachments etc.
-	return c.Disgo.RestClient().SendMessage(c.ID, Message{Content: content})
+	return c.Disgo.RestClient().SendMessage(c.ID, Message{Content: &content})
 }
 
 // DMChannel is used for interacting in private messages with users

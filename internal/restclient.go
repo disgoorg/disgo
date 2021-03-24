@@ -126,7 +126,7 @@ func (r RestClientImpl) Request(route endpoints.APIRoute, rqBody interface{}, v 
 	default:
 		var errorRs api.ErrorResponse
 		if err = json.Unmarshal(rsBody, &errorRs); err != nil {
-			log.Errorf("error unmarshalling error response. error: %s", err)
+			log.Errorf("error unmarshalling error response. code: %d, error: %s", rs.StatusCode, err)
 			return err
 		}
 		return fmt.Errorf("request to %s failed. statuscode: %d, errorcode: %d, message_events: %s", rq.URL, rs.StatusCode, errorRs.Code, errorRs.Message)
