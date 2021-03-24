@@ -26,7 +26,7 @@ func newGatewayImpl(disgo api.Disgo) api.Gateway {
 type GatewayImpl struct {
 	disgo                 api.Disgo
 	conn                  *websocket.Conn
-	quit                  chan struct{}
+	quit                  chan interface{}
 	connectionStatus      api.ConnectionStatus
 	heartbeatInterval     time.Duration
 	lastHeartbeatSent     time.Time
@@ -114,12 +114,17 @@ func (g *GatewayImpl) Open() error {
 	}
 
 	g.connectionStatus = api.WaitingForReady
-	g.quit = make(chan struct{})
+	g.quit = make(chan interface{})
 
 	go g.heartbeat()
 	go g.listen()
 
 	return nil
+}
+
+// Status returns the gateway connection status
+func (g *GatewayImpl) Status() api.ConnectionStatus {
+	return g.connectionStatus
 }
 
 func (g *GatewayImpl) heartbeat() {
@@ -130,7 +135,7 @@ func (g *GatewayImpl) heartbeat() {
 			g.heartbeat()
 			return
 		}
-		log.Info("shutting down heartbeat goroutine...")
+		log.Info("shut down heartbeat goroutine")
 	}()
 
 	ticker := time.NewTicker(g.heartbeatInterval)
@@ -139,24 +144,17 @@ func (g *GatewayImpl) heartbeat() {
 		case <-ticker.C:
 			g.sendHeartbeat()
 		case <-g.quit:
-			log.Info("SHUT")
 			ticker.Stop()
 			return
 		}
 	}
 }
 
-// Status returns the gateway connection status
-func (g *GatewayImpl) Status() api.ConnectionStatus {
-	return g.connectionStatus
-}
-
 // Close cleans up the gateway internals
 func (g *GatewayImpl) Close() {
 	log.Info("closing goroutines...")
-	g.quit <- struct{}{}
-	time.Sleep(10 * time.Second)
-	log.Printf("bla")
+	close(g.quit)
+	log.Info("closed goroutines")
 }
 
 func (g *GatewayImpl) sendHeartbeat() {
@@ -184,60 +182,68 @@ func (g *GatewayImpl) listen() {
 			g.listen()
 			return
 		}
-		log.Info("shutting down ws goroutine...")
+		log.Info("shut down listen goroutine")
 	}()
 	for {
-		mt, data, err := g.conn.ReadMessage()
-		if err != nil {
-			log.Errorf("error while reading from ws. error: %s", err)
-		}
-
-		event, err := parseGatewayEvent(mt, data)
-		if err != nil {
-			log.Errorf("error while unpacking gateway event. error: %s", err)
-		}
-
-		switch op := event.Op; op {
-
-		case api.OpDispatch:
-			//log.Infof("received: OpDispatch")
-			if event.S != nil {
-				g.lastSequenceReceived = event.S
+		select {
+		case <-g.quit:
+			_ = g.conn.Close()
+			return
+		default:
+			mt, data, err := g.conn.ReadMessage()
+			if err != nil {
+				log.Errorf("error while reading from ws. error: %s", err)
 			}
 
-			log.Infof("received: %s", *event.T)
+			event, err := parseGatewayEvent(mt, data)
+			if err != nil {
+				log.Errorf("error while unpacking gateway event. error: %s", err)
+			}
 
-			if event.T != nil && *event.T == "READY" {
-				var readyEvent api.ReadyEventData
-				if err := parseEventToStruct(event, &readyEvent); err != nil {
-					return
+			switch op := event.Op; op {
+
+			case api.OpDispatch:
+				//log.Infof("received: OpDispatch")
+				if event.S != nil {
+					g.lastSequenceReceived = event.S
 				}
-				g.sessionID = readyEvent.SessionID
-				g.Disgo().SetSelfUser(readyEvent.User)
-				log.Info("ready event received")
+
+				log.Infof("received: %s", *event.T)
+
+				if event.T != nil && *event.T == "READY" {
+					var readyEvent api.ReadyEventData
+					if err := parseEventToStruct(event, &readyEvent); err != nil {
+						log.Errorf("Error parsing ready event: %s", err)
+						continue
+					}
+					g.sessionID = readyEvent.SessionID
+					g.Disgo().SetSelfUser(readyEvent.User)
+					log.Info("ready event received")
+				}
+
+				if event.T == nil {
+					log.Errorf("received event without T. playload: %s", string(data))
+					continue
+				}
+				d := g.Disgo()
+				e := d.EventManager()
+				e.Handle(*event.T, event.D)
+
+			case api.OpHeartbeat:
+				log.Infof("received: OpHeartbeat")
+				g.sendHeartbeat()
+
+			case api.OpReconnect:
+				log.Infof("received: OpReconnect")
+
+			case api.OpInvalidSession:
+				log.Infof("received: OpInvalidSession")
+
+			case api.OpHeartbeatACK:
+				log.Infof("received: OpHeartbeatACK")
+				g.lastHeartbeatReceived = time.Now().UTC()
 			}
 
-			if event.T == nil {
-				log.Errorf("received event without T. playload: %s", string(data))
-				continue
-			}
-			d := g.Disgo()
-			e := d.EventManager()
-			e.Handle(*event.T, event.D)
-
-		case api.OpHeartbeat:
-			log.Infof("received: OpHeartbeat")
-			g.sendHeartbeat()
-
-		case api.OpReconnect:
-			log.Infof("received: OpReconnect")
-
-		case api.OpInvalidSession:
-			log.Infof("received: OpInvalidSession")
-
-		case api.OpHeartbeatACK:
-			log.Infof("received: OpHeartbeatACK")
-			g.lastHeartbeatReceived = time.Now().UTC()
 		}
 
 	}

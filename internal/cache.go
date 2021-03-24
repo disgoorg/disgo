@@ -37,10 +37,10 @@ type CacheImpl struct {
 }
 
 // user cache
-func (c CacheImpl) User(id api.Snowflake) *api.User {
+func (c *CacheImpl) User(id api.Snowflake) *api.User {
 	return c.users[id]
 }
-func (c CacheImpl) UserByTag(tag string) *api.User {
+func (c *CacheImpl) UserByTag(tag string) *api.User {
 	for _, user := range c.users {
 		if user.Tag() == tag {
 			return user
@@ -48,7 +48,7 @@ func (c CacheImpl) UserByTag(tag string) *api.User {
 	}
 	return nil
 }
-func (c CacheImpl) UsersByName(name string, ignoreCase bool) []*api.User {
+func (c *CacheImpl) UsersByName(name string, ignoreCase bool) []*api.User {
 	if ignoreCase {
 		name = strings.ToLower(name)
 	}
@@ -60,7 +60,7 @@ func (c CacheImpl) UsersByName(name string, ignoreCase bool) []*api.User {
 	}
 	return users
 }
-func (c CacheImpl) Users() []*api.User {
+func (c *CacheImpl) Users() []*api.User {
 	users := make([]*api.User, len(c.users))
 	i := 0
 	for _, user := range c.users {
@@ -69,20 +69,20 @@ func (c CacheImpl) Users() []*api.User {
 	}
 	return users
 }
-func (c CacheImpl) UserCache() map[api.Snowflake]*api.User {
+func (c *CacheImpl) UserCache() map[api.Snowflake]*api.User {
 	return c.users
 }
-func (c CacheImpl) CacheUser(user *api.User) {
+func (c *CacheImpl) CacheUser(user *api.User) {
 	if _, ok := c.guilds[user.ID]; ok {
 		// update old user
 		return
 	}
 	c.users[user.ID] = user
 }
-func (c CacheImpl) UncacheUser(id api.Snowflake) {
+func (c *CacheImpl) UncacheUser(id api.Snowflake) {
 	delete(c.users, id)
 }
-func (c CacheImpl) FindUser(check func(u *api.User) bool) *api.User {
+func (c *CacheImpl) FindUser(check func(u *api.User) bool) *api.User {
 	for _, user := range c.users {
 		if check(user) {
 			return user
@@ -90,7 +90,7 @@ func (c CacheImpl) FindUser(check func(u *api.User) bool) *api.User {
 	}
 	return nil
 }
-func (c CacheImpl) FindUsers(check func(u *api.User) bool) []*api.User {
+func (c *CacheImpl) FindUsers(check func(u *api.User) bool) []*api.User {
 	users := make([]*api.User, 1)
 	for _, user := range c.users {
 		if check(user) {
@@ -101,10 +101,10 @@ func (c CacheImpl) FindUsers(check func(u *api.User) bool) []*api.User {
 }
 
 // guild cache
-func (c CacheImpl) Guild(guildID api.Snowflake) *api.Guild {
+func (c *CacheImpl) Guild(guildID api.Snowflake) *api.Guild {
 	return c.guilds[guildID]
 }
-func (c CacheImpl) GuildsByName(name string, ignoreCase bool) []*api.Guild {
+func (c *CacheImpl) GuildsByName(name string, ignoreCase bool) []*api.Guild {
 	if ignoreCase {
 		name = strings.ToLower(name)
 	}
@@ -116,7 +116,7 @@ func (c CacheImpl) GuildsByName(name string, ignoreCase bool) []*api.Guild {
 	}
 	return guilds
 }
-func (c CacheImpl) Guilds() []*api.Guild {
+func (c *CacheImpl) Guilds() []*api.Guild {
 	guilds := make([]*api.Guild, len(c.guilds))
 	i := 0
 	for _, guild := range c.guilds {
@@ -125,10 +125,10 @@ func (c CacheImpl) Guilds() []*api.Guild {
 	}
 	return guilds
 }
-func (c CacheImpl) GuildCache() map[api.Snowflake]*api.Guild {
+func (c *CacheImpl) GuildCache() map[api.Snowflake]*api.Guild {
 	return c.guilds
 }
-func (c CacheImpl) CacheGuild(guild *api.Guild) {
+func (c *CacheImpl) CacheGuild(guild *api.Guild) {
 	if _, ok := c.guilds[guild.ID]; ok {
 		// update old guild_events
 		*c.guilds[guild.ID] = *guild
@@ -136,11 +136,23 @@ func (c CacheImpl) CacheGuild(guild *api.Guild) {
 	}
 	// guild_events was not yet cached so cache it directly
 	c.guilds[guild.ID] = guild
+	c.members[guild.ID] = map[api.Snowflake]*api.Member{}
+	c.roles[guild.ID] = map[api.Snowflake]*api.Role{}
+	c.categories[guild.ID] = map[api.Snowflake]*api.CategoryChannel{}
+	c.textChannels[guild.ID] = map[api.Snowflake]*api.TextChannel{}
+	c.voiceChannels[guild.ID] = map[api.Snowflake]*api.VoiceChannel{}
+	c.storeChannels[guild.ID] = map[api.Snowflake]*api.StoreChannel{}
 }
-func (c CacheImpl) UncacheGuild(guildID api.Snowflake) {
+func (c *CacheImpl) UncacheGuild(guildID api.Snowflake) {
 	delete(c.guilds, guildID)
+	delete(c.members, guildID)
+	delete(c.roles, guildID)
+	delete(c.categories, guildID)
+	delete(c.textChannels, guildID)
+	delete(c.voiceChannels, guildID)
+	delete(c.storeChannels, guildID)
 }
-func (c CacheImpl) FindGuild(check func(g *api.Guild) bool) *api.Guild {
+func (c *CacheImpl) FindGuild(check func(g *api.Guild) bool) *api.Guild {
 	for _, guild := range c.guilds {
 		if check(guild) {
 			return guild
@@ -148,7 +160,7 @@ func (c CacheImpl) FindGuild(check func(g *api.Guild) bool) *api.Guild {
 	}
 	return nil
 }
-func (c CacheImpl) FindGuilds(check func(g *api.Guild) bool) []*api.Guild {
+func (c *CacheImpl) FindGuilds(check func(g *api.Guild) bool) []*api.Guild {
 	guilds := make([]*api.Guild, 1)
 	for _, guild := range c.guilds {
 		if check(guild) {
@@ -159,28 +171,28 @@ func (c CacheImpl) FindGuilds(check func(g *api.Guild) bool) []*api.Guild {
 }
 
 // unavailable guild cache
-func (c CacheImpl) UnavailableGuild(guildID api.Snowflake) *api.UnavailableGuild {
+func (c *CacheImpl) UnavailableGuild(guildID api.Snowflake) *api.UnavailableGuild {
 	return c.unavailableGuilds[guildID]
 }
-func (c CacheImpl) CacheUnavailableGuild(unavailableGuild *api.UnavailableGuild) {
+func (c *CacheImpl) CacheUnavailableGuild(unavailableGuild *api.UnavailableGuild) {
 	if _, ok := c.unavailableGuilds[unavailableGuild.ID]; ok {
 		*c.unavailableGuilds[unavailableGuild.ID] = *unavailableGuild
 		return
 	}
 	c.unavailableGuilds[unavailableGuild.ID] = unavailableGuild
 }
-func (c CacheImpl) UncacheUnavailableGuild(guildID api.Snowflake) {
+func (c *CacheImpl) UncacheUnavailableGuild(guildID api.Snowflake) {
 	delete(c.unavailableGuilds, guildID)
 }
 
 // member cache
-func (c CacheImpl) Member(guildID api.Snowflake, userID api.Snowflake) *api.Member {
+func (c *CacheImpl) Member(guildID api.Snowflake, userID api.Snowflake) *api.Member {
 	if guildMembers, ok := c.members[guildID]; ok {
 		return guildMembers[userID]
 	}
 	return nil
 }
-func (c CacheImpl) MemberByTag(guildID api.Snowflake, tag string) *api.Member {
+func (c *CacheImpl) MemberByTag(guildID api.Snowflake, tag string) *api.Member {
 	if guildMembers, ok := c.members[guildID]; ok {
 		for _, member := range guildMembers {
 			if member.Username+"#"+member.Discriminator == tag {
@@ -190,7 +202,7 @@ func (c CacheImpl) MemberByTag(guildID api.Snowflake, tag string) *api.Member {
 	}
 	return nil
 }
-func (c CacheImpl) MembersByName(guildID api.Snowflake, name string, ignoreCase bool) []*api.Member {
+func (c *CacheImpl) MembersByName(guildID api.Snowflake, name string, ignoreCase bool) []*api.Member {
 	if guildMembers, ok := c.members[guildID]; ok {
 		if ignoreCase {
 			name = strings.ToLower(name)
@@ -205,7 +217,7 @@ func (c CacheImpl) MembersByName(guildID api.Snowflake, name string, ignoreCase 
 	}
 	return nil
 }
-func (c CacheImpl) Members(guildID api.Snowflake) []*api.Member {
+func (c *CacheImpl) Members(guildID api.Snowflake) []*api.Member {
 	if guildMembers, ok := c.members[guildID]; ok {
 		members := make([]*api.Member, len(guildMembers))
 		i := 0
@@ -217,7 +229,7 @@ func (c CacheImpl) Members(guildID api.Snowflake) []*api.Member {
 	}
 	return nil
 }
-func (c CacheImpl) AllMembers() []*api.Member {
+func (c *CacheImpl) AllMembers() []*api.Member {
 	members := make([]*api.Member, len(c.guilds))
 	for _, guildMembers := range c.members {
 		for _, member := range guildMembers {
@@ -226,13 +238,13 @@ func (c CacheImpl) AllMembers() []*api.Member {
 	}
 	return members
 }
-func (c CacheImpl) MemberCache(guildID api.Snowflake) map[api.Snowflake]*api.Member {
+func (c *CacheImpl) MemberCache(guildID api.Snowflake) map[api.Snowflake]*api.Member {
 	return c.members[guildID]
 }
-func (c CacheImpl) AllMemberCache() map[api.Snowflake]map[api.Snowflake]*api.Member {
+func (c *CacheImpl) AllMemberCache() map[api.Snowflake]map[api.Snowflake]*api.Member {
 	return c.members
 }
-func (c CacheImpl) CacheMember(member *api.Member) {
+func (c *CacheImpl) CacheMember(member *api.Member) {
 	if guildMembers, ok := c.members[member.GuildID]; ok {
 		if _, ok := guildMembers[member.ID]; ok {
 			// update old guild_events
@@ -241,10 +253,10 @@ func (c CacheImpl) CacheMember(member *api.Member) {
 		guildMembers[member.ID] = member
 	}
 }
-func (c CacheImpl) UncacheMember(guildID api.Snowflake, userID api.Snowflake) {
+func (c *CacheImpl) UncacheMember(guildID api.Snowflake, userID api.Snowflake) {
 	delete(c.members[guildID], userID)
 }
-func (c CacheImpl) FindMember(guildID api.Snowflake, check func(u *api.Member) bool) *api.Member {
+func (c *CacheImpl) FindMember(guildID api.Snowflake, check func(u *api.Member) bool) *api.Member {
 	for _, member := range c.Members(guildID) {
 		if check(member) {
 			return member
@@ -252,7 +264,7 @@ func (c CacheImpl) FindMember(guildID api.Snowflake, check func(u *api.Member) b
 	}
 	return nil
 }
-func (c CacheImpl) FindMembers(guildID api.Snowflake, check func(u *api.Member) bool) []*api.Member {
+func (c *CacheImpl) FindMembers(guildID api.Snowflake, check func(u *api.Member) bool) []*api.Member {
 	members := make([]*api.Member, 1)
 	for _, member := range c.Members(guildID) {
 		if check(member) {
@@ -263,13 +275,13 @@ func (c CacheImpl) FindMembers(guildID api.Snowflake, check func(u *api.Member) 
 }
 
 // role cache
-func (c CacheImpl) Role(guildID api.Snowflake, userID api.Snowflake) *api.Role {
+func (c *CacheImpl) Role(guildID api.Snowflake, userID api.Snowflake) *api.Role {
 	if guildRoles, ok := c.roles[guildID]; ok {
 		return guildRoles[userID]
 	}
 	return nil
 }
-func (c CacheImpl) RolesByName(guildID api.Snowflake, name string, ignoreCase bool) []*api.Role {
+func (c *CacheImpl) RolesByName(guildID api.Snowflake, name string, ignoreCase bool) []*api.Role {
 	if guildRoles, ok := c.roles[guildID]; ok {
 		if ignoreCase {
 			name = strings.ToLower(name)
@@ -284,7 +296,7 @@ func (c CacheImpl) RolesByName(guildID api.Snowflake, name string, ignoreCase bo
 	}
 	return nil
 }
-func (c CacheImpl) Roles(guildID api.Snowflake) []*api.Role {
+func (c *CacheImpl) Roles(guildID api.Snowflake) []*api.Role {
 	if guildRoles, ok := c.roles[guildID]; ok {
 		roles := make([]*api.Role, len(guildRoles))
 		i := 0
@@ -296,7 +308,7 @@ func (c CacheImpl) Roles(guildID api.Snowflake) []*api.Role {
 	}
 	return nil
 }
-func (c CacheImpl) AllRoles() []*api.Role {
+func (c *CacheImpl) AllRoles() []*api.Role {
 	roles := make([]*api.Role, len(c.guilds))
 	for _, guildRoles := range c.roles {
 		for _, role := range guildRoles {
@@ -305,13 +317,13 @@ func (c CacheImpl) AllRoles() []*api.Role {
 	}
 	return roles
 }
-func (c CacheImpl) RoleCache(guildID api.Snowflake) map[api.Snowflake]*api.Role {
+func (c *CacheImpl) RoleCache(guildID api.Snowflake) map[api.Snowflake]*api.Role {
 	return c.roles[guildID]
 }
-func (c CacheImpl) AllRoleCache() map[api.Snowflake]map[api.Snowflake]*api.Role {
+func (c *CacheImpl) AllRoleCache() map[api.Snowflake]map[api.Snowflake]*api.Role {
 	return c.roles
 }
-func (c CacheImpl) CacheRole(role *api.Role) {
+func (c *CacheImpl) CacheRole(role *api.Role) {
 	if guildRoles, ok := c.roles[role.GuildID]; ok {
 		if _, ok := guildRoles[role.ID]; ok {
 			// update old role
@@ -320,10 +332,10 @@ func (c CacheImpl) CacheRole(role *api.Role) {
 		guildRoles[role.ID] = role
 	}
 }
-func (c CacheImpl) UncacheRole(guildID api.Snowflake, userID api.Snowflake) {
+func (c *CacheImpl) UncacheRole(guildID api.Snowflake, userID api.Snowflake) {
 	delete(c.roles[guildID], userID)
 }
-func (c CacheImpl) FindRole(guildID api.Snowflake, check func(u *api.Role) bool) *api.Role {
+func (c *CacheImpl) FindRole(guildID api.Snowflake, check func(u *api.Role) bool) *api.Role {
 	for _, role := range c.Roles(guildID) {
 		if check(role) {
 			return role
@@ -331,7 +343,7 @@ func (c CacheImpl) FindRole(guildID api.Snowflake, check func(u *api.Role) bool)
 	}
 	return nil
 }
-func (c CacheImpl) FindRoles(guildID api.Snowflake, check func(u *api.Role) bool) []*api.Role {
+func (c *CacheImpl) FindRoles(guildID api.Snowflake, check func(u *api.Role) bool) []*api.Role {
 	roles := make([]*api.Role, 1)
 	for _, role := range c.Roles(guildID) {
 		if check(role) {
@@ -342,7 +354,7 @@ func (c CacheImpl) FindRoles(guildID api.Snowflake, check func(u *api.Role) bool
 }
 
 // other channel cache
-func (c CacheImpl) Channel(channelID api.Snowflake) *api.Channel {
+func (c *CacheImpl) Channel(channelID api.Snowflake) *api.Channel {
 	dmChannel := c.DMChannel(channelID)
 	if dmChannel != nil {
 		return &dmChannel.Channel
@@ -365,7 +377,7 @@ func (c CacheImpl) Channel(channelID api.Snowflake) *api.Channel {
 	}
 	return nil
 }
-func (c CacheImpl) MessageChannel(channelID api.Snowflake) *api.MessageChannel {
+func (c *CacheImpl) MessageChannel(channelID api.Snowflake) *api.MessageChannel {
 	dmChannel := c.DMChannel(channelID)
 	if dmChannel != nil {
 		return &dmChannel.MessageChannel
@@ -376,7 +388,7 @@ func (c CacheImpl) MessageChannel(channelID api.Snowflake) *api.MessageChannel {
 	}
 	return nil
 }
-func (c CacheImpl) GuildChannel(channelID api.Snowflake) *api.GuildChannel {
+func (c *CacheImpl) GuildChannel(channelID api.Snowflake) *api.GuildChannel {
 	category := c.Category(channelID)
 	if category != nil {
 		return &category.GuildChannel
@@ -397,10 +409,10 @@ func (c CacheImpl) GuildChannel(channelID api.Snowflake) *api.GuildChannel {
 }
 
 // dm channel cache
-func (c CacheImpl) DMChannel(dmChannelID api.Snowflake) *api.DMChannel {
+func (c *CacheImpl) DMChannel(dmChannelID api.Snowflake) *api.DMChannel {
 	return c.dmChannels[dmChannelID]
 }
-func (c CacheImpl) DMChannels() []*api.DMChannel {
+func (c *CacheImpl) DMChannels() []*api.DMChannel {
 	channels := make([]*api.DMChannel, len(c.dmChannels))
 	i := 0
 	for _, channel := range c.dmChannels {
@@ -409,10 +421,10 @@ func (c CacheImpl) DMChannels() []*api.DMChannel {
 	}
 	return channels
 }
-func (c CacheImpl) DMChannelCache() map[api.Snowflake]*api.DMChannel {
+func (c *CacheImpl) DMChannelCache() map[api.Snowflake]*api.DMChannel {
 	return c.dmChannels
 }
-func (c CacheImpl) CacheDMChannel(dmChannel *api.DMChannel) {
+func (c *CacheImpl) CacheDMChannel(dmChannel *api.DMChannel) {
 	if oldChannel, ok := c.dmChannels[dmChannel.ID]; ok {
 		*oldChannel = *dmChannel
 		return
@@ -420,10 +432,10 @@ func (c CacheImpl) CacheDMChannel(dmChannel *api.DMChannel) {
 	c.dmChannels[dmChannel.ID] = dmChannel
 
 }
-func (c CacheImpl) UncacheDMChannel(channelID api.Snowflake) {
+func (c *CacheImpl) UncacheDMChannel(channelID api.Snowflake) {
 	delete(c.dmChannels, channelID)
 }
-func (c CacheImpl) FindDMChannel(check func(u *api.DMChannel) bool) *api.DMChannel {
+func (c *CacheImpl) FindDMChannel(check func(u *api.DMChannel) bool) *api.DMChannel {
 	for _, dmChannel := range c.dmChannels {
 		if check(dmChannel) {
 			return dmChannel
@@ -431,7 +443,7 @@ func (c CacheImpl) FindDMChannel(check func(u *api.DMChannel) bool) *api.DMChann
 	}
 	return nil
 }
-func (c CacheImpl) FindDMChannels(check func(u *api.DMChannel) bool) []*api.DMChannel {
+func (c *CacheImpl) FindDMChannels(check func(u *api.DMChannel) bool) []*api.DMChannel {
 	dmChannels := make([]*api.DMChannel, 1)
 	for _, dmChannel := range c.dmChannels {
 		if check(dmChannel) {
@@ -442,7 +454,7 @@ func (c CacheImpl) FindDMChannels(check func(u *api.DMChannel) bool) []*api.DMCh
 }
 
 // text channel cache
-func (c CacheImpl) TextChannel(textChannelID api.Snowflake) *api.TextChannel {
+func (c *CacheImpl) TextChannel(textChannelID api.Snowflake) *api.TextChannel {
 	for _, guild := range c.textChannels {
 		if channel, ok := guild[textChannelID]; ok {
 			return channel
@@ -450,7 +462,7 @@ func (c CacheImpl) TextChannel(textChannelID api.Snowflake) *api.TextChannel {
 	}
 	return nil
 }
-func (c CacheImpl) TextChannelsByName(guildID api.Snowflake, name string, ignoreCase bool) []*api.TextChannel {
+func (c *CacheImpl) TextChannelsByName(guildID api.Snowflake, name string, ignoreCase bool) []*api.TextChannel {
 	if guildTextChannels, ok := c.textChannels[guildID]; ok {
 		if ignoreCase {
 			name = strings.ToLower(name)
@@ -465,7 +477,7 @@ func (c CacheImpl) TextChannelsByName(guildID api.Snowflake, name string, ignore
 	}
 	return nil
 }
-func (c CacheImpl) TextChannels(guildID api.Snowflake) []*api.TextChannel {
+func (c *CacheImpl) TextChannels(guildID api.Snowflake) []*api.TextChannel {
 	if guildTextChannels, ok := c.textChannels[guildID]; ok {
 		textChannels := make([]*api.TextChannel, len(guildTextChannels))
 		i := 0
@@ -477,7 +489,7 @@ func (c CacheImpl) TextChannels(guildID api.Snowflake) []*api.TextChannel {
 	}
 	return nil
 }
-func (c CacheImpl) AllTextChannels() []*api.TextChannel {
+func (c *CacheImpl) AllTextChannels() []*api.TextChannel {
 	textChannels := make([]*api.TextChannel, len(c.textChannels))
 	for _, guildTextChannels := range c.textChannels {
 		for _, textChannel := range guildTextChannels {
@@ -486,13 +498,13 @@ func (c CacheImpl) AllTextChannels() []*api.TextChannel {
 	}
 	return textChannels
 }
-func (c CacheImpl) TextChannelCache(guildID api.Snowflake) map[api.Snowflake]*api.TextChannel {
+func (c *CacheImpl) TextChannelCache(guildID api.Snowflake) map[api.Snowflake]*api.TextChannel {
 	return c.textChannels[guildID]
 }
-func (c CacheImpl) AllTextChannelCache() map[api.Snowflake]map[api.Snowflake]*api.TextChannel {
+func (c *CacheImpl) AllTextChannelCache() map[api.Snowflake]map[api.Snowflake]*api.TextChannel {
 	return c.textChannels
 }
-func (c CacheImpl) CacheTextChannel(textChannel *api.TextChannel) {
+func (c *CacheImpl) CacheTextChannel(textChannel *api.TextChannel) {
 	if guildTextChannels, ok := c.textChannels[textChannel.GuildID]; ok {
 		if guildTextChannel, ok := guildTextChannels[textChannel.MessageChannel.ID]; ok {
 			*guildTextChannel = *textChannel
@@ -501,10 +513,10 @@ func (c CacheImpl) CacheTextChannel(textChannel *api.TextChannel) {
 		guildTextChannels[textChannel.MessageChannel.ID] = textChannel
 	}
 }
-func (c CacheImpl) UncacheTextChannel(guildID api.Snowflake, textChannelID api.Snowflake) {
+func (c *CacheImpl) UncacheTextChannel(guildID api.Snowflake, textChannelID api.Snowflake) {
 	delete(c.textChannels[guildID], textChannelID)
 }
-func (c CacheImpl) FindTextChannel(guildID api.Snowflake, check func(u *api.TextChannel) bool) *api.TextChannel {
+func (c *CacheImpl) FindTextChannel(guildID api.Snowflake, check func(u *api.TextChannel) bool) *api.TextChannel {
 	for _, textChannel := range c.TextChannelCache(guildID) {
 		if check(textChannel) {
 			return textChannel
@@ -512,7 +524,7 @@ func (c CacheImpl) FindTextChannel(guildID api.Snowflake, check func(u *api.Text
 	}
 	return nil
 }
-func (c CacheImpl) FindTextChannels(guildID api.Snowflake, check func(u *api.TextChannel) bool) []*api.TextChannel {
+func (c *CacheImpl) FindTextChannels(guildID api.Snowflake, check func(u *api.TextChannel) bool) []*api.TextChannel {
 	textChannels := make([]*api.TextChannel, 1)
 	for _, textChannel := range c.TextChannelCache(guildID) {
 		if check(textChannel) {
@@ -523,7 +535,7 @@ func (c CacheImpl) FindTextChannels(guildID api.Snowflake, check func(u *api.Tex
 }
 
 // store channel cache
-func (c CacheImpl) StoreChannel(storeChannelID api.Snowflake) *api.StoreChannel {
+func (c *CacheImpl) StoreChannel(storeChannelID api.Snowflake) *api.StoreChannel {
 	for _, guild := range c.storeChannels {
 		if channel, ok := guild[storeChannelID]; ok {
 			return channel
@@ -531,7 +543,7 @@ func (c CacheImpl) StoreChannel(storeChannelID api.Snowflake) *api.StoreChannel 
 	}
 	return nil
 }
-func (c CacheImpl) StoreChannelsByName(guildID api.Snowflake, name string, ignoreCase bool) []*api.StoreChannel {
+func (c *CacheImpl) StoreChannelsByName(guildID api.Snowflake, name string, ignoreCase bool) []*api.StoreChannel {
 	if guildStoreChannels, ok := c.storeChannels[guildID]; ok {
 		if ignoreCase {
 			name = strings.ToLower(name)
@@ -546,7 +558,7 @@ func (c CacheImpl) StoreChannelsByName(guildID api.Snowflake, name string, ignor
 	}
 	return nil
 }
-func (c CacheImpl) StoreChannels(guildID api.Snowflake) []*api.StoreChannel {
+func (c *CacheImpl) StoreChannels(guildID api.Snowflake) []*api.StoreChannel {
 	if guildStoreChannels, ok := c.storeChannels[guildID]; ok {
 		storeChannels := make([]*api.StoreChannel, len(guildStoreChannels))
 		i := 0
@@ -558,7 +570,7 @@ func (c CacheImpl) StoreChannels(guildID api.Snowflake) []*api.StoreChannel {
 	}
 	return nil
 }
-func (c CacheImpl) AllStoreChannel() []*api.StoreChannel {
+func (c *CacheImpl) AllStoreChannel() []*api.StoreChannel {
 	storeChannels := make([]*api.StoreChannel, len(c.storeChannels))
 	for _, guildStoreChannels := range c.storeChannels {
 		for _, storeChannel := range guildStoreChannels {
@@ -567,13 +579,13 @@ func (c CacheImpl) AllStoreChannel() []*api.StoreChannel {
 	}
 	return storeChannels
 }
-func (c CacheImpl) StoreChannelCache(guildID api.Snowflake) map[api.Snowflake]*api.StoreChannel {
+func (c *CacheImpl) StoreChannelCache(guildID api.Snowflake) map[api.Snowflake]*api.StoreChannel {
 	return c.storeChannels[guildID]
 }
-func (c CacheImpl) AllStoreChannelCache() map[api.Snowflake]map[api.Snowflake]*api.StoreChannel {
+func (c *CacheImpl) AllStoreChannelCache() map[api.Snowflake]map[api.Snowflake]*api.StoreChannel {
 	return c.storeChannels
 }
-func (c CacheImpl) CacheStoreChannel(storeChannel *api.StoreChannel) {
+func (c *CacheImpl) CacheStoreChannel(storeChannel *api.StoreChannel) {
 	if guildStoreChannels, ok := c.storeChannels[storeChannel.GuildID]; ok {
 		if guildStoreChannel, ok := guildStoreChannels[storeChannel.ID]; ok {
 			*guildStoreChannel = *storeChannel
@@ -582,10 +594,10 @@ func (c CacheImpl) CacheStoreChannel(storeChannel *api.StoreChannel) {
 		guildStoreChannels[storeChannel.ID] = storeChannel
 	}
 }
-func (c CacheImpl) UncacheStoreChannel(guildID api.Snowflake, storeChannelID api.Snowflake) {
+func (c *CacheImpl) UncacheStoreChannel(guildID api.Snowflake, storeChannelID api.Snowflake) {
 	delete(c.storeChannels[guildID], storeChannelID)
 }
-func (c CacheImpl) FindStoreChannel(guildID api.Snowflake, check func(u *api.StoreChannel) bool) *api.StoreChannel {
+func (c *CacheImpl) FindStoreChannel(guildID api.Snowflake, check func(u *api.StoreChannel) bool) *api.StoreChannel {
 	for _, storeChannel := range c.StoreChannelCache(guildID) {
 		if check(storeChannel) {
 			return storeChannel
@@ -593,7 +605,7 @@ func (c CacheImpl) FindStoreChannel(guildID api.Snowflake, check func(u *api.Sto
 	}
 	return nil
 }
-func (c CacheImpl) FindStoreChannels(guildID api.Snowflake, check func(u *api.StoreChannel) bool) []*api.StoreChannel {
+func (c *CacheImpl) FindStoreChannels(guildID api.Snowflake, check func(u *api.StoreChannel) bool) []*api.StoreChannel {
 	storeChannels := make([]*api.StoreChannel, 1)
 	for _, storeChannel := range c.StoreChannelCache(guildID) {
 		if check(storeChannel) {
@@ -604,7 +616,7 @@ func (c CacheImpl) FindStoreChannels(guildID api.Snowflake, check func(u *api.St
 }
 
 // voice channel cache
-func (c CacheImpl) VoiceChannel(voiceChannelID api.Snowflake) *api.VoiceChannel {
+func (c *CacheImpl) VoiceChannel(voiceChannelID api.Snowflake) *api.VoiceChannel {
 	for _, guild := range c.voiceChannels {
 		if channel, ok := guild[voiceChannelID]; ok {
 			return channel
@@ -612,7 +624,7 @@ func (c CacheImpl) VoiceChannel(voiceChannelID api.Snowflake) *api.VoiceChannel 
 	}
 	return nil
 }
-func (c CacheImpl) VoiceChannelsByName(guildID api.Snowflake, name string, ignoreCase bool) []*api.VoiceChannel {
+func (c *CacheImpl) VoiceChannelsByName(guildID api.Snowflake, name string, ignoreCase bool) []*api.VoiceChannel {
 	if guildVoiceChannels, ok := c.voiceChannels[guildID]; ok {
 		if ignoreCase {
 			name = strings.ToLower(name)
@@ -627,7 +639,7 @@ func (c CacheImpl) VoiceChannelsByName(guildID api.Snowflake, name string, ignor
 	}
 	return nil
 }
-func (c CacheImpl) VoiceChannels(guildID api.Snowflake) []*api.VoiceChannel {
+func (c *CacheImpl) VoiceChannels(guildID api.Snowflake) []*api.VoiceChannel {
 	if guildVoiceChannels, ok := c.voiceChannels[guildID]; ok {
 		voiceChannels := make([]*api.VoiceChannel, len(guildVoiceChannels))
 		i := 0
@@ -639,7 +651,7 @@ func (c CacheImpl) VoiceChannels(guildID api.Snowflake) []*api.VoiceChannel {
 	}
 	return nil
 }
-func (c CacheImpl) AllVoiceChannel() []*api.VoiceChannel {
+func (c *CacheImpl) AllVoiceChannel() []*api.VoiceChannel {
 	voiceChannels := make([]*api.VoiceChannel, len(c.voiceChannels))
 	for _, guildVoiceChannels := range c.voiceChannels {
 		for _, voiceChannel := range guildVoiceChannels {
@@ -648,13 +660,13 @@ func (c CacheImpl) AllVoiceChannel() []*api.VoiceChannel {
 	}
 	return voiceChannels
 }
-func (c CacheImpl) VoiceChannelCache(guildID api.Snowflake) map[api.Snowflake]*api.VoiceChannel {
+func (c *CacheImpl) VoiceChannelCache(guildID api.Snowflake) map[api.Snowflake]*api.VoiceChannel {
 	return c.voiceChannels[guildID]
 }
-func (c CacheImpl) AllVoiceChannelCache() map[api.Snowflake]map[api.Snowflake]*api.VoiceChannel {
+func (c *CacheImpl) AllVoiceChannelCache() map[api.Snowflake]map[api.Snowflake]*api.VoiceChannel {
 	return c.voiceChannels
 }
-func (c CacheImpl) CacheVoiceChannel(voiceChannel *api.VoiceChannel) {
+func (c *CacheImpl) CacheVoiceChannel(voiceChannel *api.VoiceChannel) {
 	if guildVoiceChannels, ok := c.voiceChannels[voiceChannel.GuildID]; ok {
 		if guildVoiceChannel, ok := guildVoiceChannels[voiceChannel.ID]; ok {
 			*guildVoiceChannel = *voiceChannel
@@ -663,10 +675,10 @@ func (c CacheImpl) CacheVoiceChannel(voiceChannel *api.VoiceChannel) {
 		guildVoiceChannels[voiceChannel.ID] = voiceChannel
 	}
 }
-func (c CacheImpl) UncacheVoiceChannel(guildID api.Snowflake, voiceChannelID api.Snowflake) {
+func (c *CacheImpl) UncacheVoiceChannel(guildID api.Snowflake, voiceChannelID api.Snowflake) {
 	delete(c.voiceChannels[guildID], voiceChannelID)
 }
-func (c CacheImpl) FindVoiceChannel(guildID api.Snowflake, check func(u *api.VoiceChannel) bool) *api.VoiceChannel {
+func (c *CacheImpl) FindVoiceChannel(guildID api.Snowflake, check func(u *api.VoiceChannel) bool) *api.VoiceChannel {
 	for _, voiceChannel := range c.VoiceChannelCache(guildID) {
 		if check(voiceChannel) {
 			return voiceChannel
@@ -674,7 +686,7 @@ func (c CacheImpl) FindVoiceChannel(guildID api.Snowflake, check func(u *api.Voi
 	}
 	return nil
 }
-func (c CacheImpl) FindVoiceChannels(guildID api.Snowflake, check func(u *api.VoiceChannel) bool) []*api.VoiceChannel {
+func (c *CacheImpl) FindVoiceChannels(guildID api.Snowflake, check func(u *api.VoiceChannel) bool) []*api.VoiceChannel {
 	voiceChannels := make([]*api.VoiceChannel, 1)
 	for _, voiceChannel := range c.VoiceChannelCache(guildID) {
 		if check(voiceChannel) {
@@ -685,7 +697,7 @@ func (c CacheImpl) FindVoiceChannels(guildID api.Snowflake, check func(u *api.Vo
 }
 
 // category channel cache
-func (c CacheImpl) Category(categoryID api.Snowflake) *api.CategoryChannel {
+func (c *CacheImpl) Category(categoryID api.Snowflake) *api.CategoryChannel {
 	for _, guild := range c.categories {
 		if channel, ok := guild[categoryID]; ok {
 			return channel
@@ -693,7 +705,7 @@ func (c CacheImpl) Category(categoryID api.Snowflake) *api.CategoryChannel {
 	}
 	return nil
 }
-func (c CacheImpl) CategoriesByName(guildID api.Snowflake, name string, ignoreCase bool) []*api.CategoryChannel {
+func (c *CacheImpl) CategoriesByName(guildID api.Snowflake, name string, ignoreCase bool) []*api.CategoryChannel {
 	if guildCategories, ok := c.categories[guildID]; ok {
 		if ignoreCase {
 			name = strings.ToLower(name)
@@ -708,7 +720,7 @@ func (c CacheImpl) CategoriesByName(guildID api.Snowflake, name string, ignoreCa
 	}
 	return nil
 }
-func (c CacheImpl) Categories(guildID api.Snowflake) []*api.CategoryChannel {
+func (c *CacheImpl) Categories(guildID api.Snowflake) []*api.CategoryChannel {
 	if guildCategories, ok := c.categories[guildID]; ok {
 		categories := make([]*api.CategoryChannel, len(guildCategories))
 		i := 0
@@ -720,7 +732,7 @@ func (c CacheImpl) Categories(guildID api.Snowflake) []*api.CategoryChannel {
 	}
 	return nil
 }
-func (c CacheImpl) AllCategories() []*api.CategoryChannel {
+func (c *CacheImpl) AllCategories() []*api.CategoryChannel {
 	categories := make([]*api.CategoryChannel, len(c.categories))
 	for _, guildCategories := range c.categories {
 		for _, category := range guildCategories {
@@ -729,13 +741,13 @@ func (c CacheImpl) AllCategories() []*api.CategoryChannel {
 	}
 	return categories
 }
-func (c CacheImpl) CategoryCache(guildID api.Snowflake) map[api.Snowflake]*api.CategoryChannel {
+func (c *CacheImpl) CategoryCache(guildID api.Snowflake) map[api.Snowflake]*api.CategoryChannel {
 	return c.categories[guildID]
 }
-func (c CacheImpl) AllCategoryCache() map[api.Snowflake]map[api.Snowflake]*api.CategoryChannel {
+func (c *CacheImpl) AllCategoryCache() map[api.Snowflake]map[api.Snowflake]*api.CategoryChannel {
 	return c.categories
 }
-func (c CacheImpl) CacheCategory(category *api.CategoryChannel) {
+func (c *CacheImpl) CacheCategory(category *api.CategoryChannel) {
 	if guildCategories, ok := c.categories[category.GuildID]; ok {
 		if guildCategory, ok := guildCategories[category.ID]; ok {
 			*guildCategory = *category
@@ -744,10 +756,10 @@ func (c CacheImpl) CacheCategory(category *api.CategoryChannel) {
 		guildCategories[category.ID] = category
 	}
 }
-func (c CacheImpl) UncacheCategory(guildID api.Snowflake, categoryID api.Snowflake) {
+func (c *CacheImpl) UncacheCategory(guildID api.Snowflake, categoryID api.Snowflake) {
 	delete(c.categories[guildID], categoryID)
 }
-func (c CacheImpl) FindCategory(guildID api.Snowflake, check func(u *api.CategoryChannel) bool) *api.CategoryChannel {
+func (c *CacheImpl) FindCategory(guildID api.Snowflake, check func(u *api.CategoryChannel) bool) *api.CategoryChannel {
 	for _, category := range c.CategoryCache(guildID) {
 		if check(category) {
 			return category
@@ -755,7 +767,7 @@ func (c CacheImpl) FindCategory(guildID api.Snowflake, check func(u *api.Categor
 	}
 	return nil
 }
-func (c CacheImpl) FindCategories(guildID api.Snowflake, check func(u *api.CategoryChannel) bool) []*api.CategoryChannel {
+func (c *CacheImpl) FindCategories(guildID api.Snowflake, check func(u *api.CategoryChannel) bool) []*api.CategoryChannel {
 	categories := make([]*api.CategoryChannel, 1)
 	for _, category := range c.CategoryCache(guildID) {
 		if check(category) {

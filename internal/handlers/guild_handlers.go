@@ -25,23 +25,24 @@ func (h GuildCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 	for i := range guild.Channels {
 		channel := guild.Channels[i]
 		channel.Disgo = disgo
+		channel.GuildID = guild.ID
 		switch channel.Type {
-		case api.GuildTextChannel, api.GuildNewsChannel:
+		case api.ChannelTypeText, api.ChannelTypeNews:
 			disgo.Cache().CacheTextChannel(&api.TextChannel{
 				GuildChannel: *channel,
 				MessageChannel: api.MessageChannel{
 					Channel: channel.Channel,
 				},
 			})
-		case api.GuildVoiceChannel:
+		case api.ChannelTypeVoice:
 			disgo.Cache().CacheVoiceChannel(&api.VoiceChannel{
 				GuildChannel: *channel,
 			})
-		case api.GuildCategoryChannel:
+		case api.ChannelTypeCategory:
 			disgo.Cache().CacheCategory(&api.CategoryChannel{
 				GuildChannel: *channel,
 			})
-		case api.GuildStoreChannel:
+		case api.ChannelTypeStore:
 			disgo.Cache().CacheStoreChannel(&api.StoreChannel{
 				GuildChannel: *channel,
 			})

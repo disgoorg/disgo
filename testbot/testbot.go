@@ -63,13 +63,11 @@ func messageListener(event *events.GuildMessageReceivedEvent) {
 
 	switch event.Message.Content {
 	case "ping":
-		log.Printf("hm: %#v", event)
-		event.
-			MessageChannel().
-			SendMessage("pong")
+		event.MessageChannel().SendMessage("pong")
+		
 	case "pong":
-		log.Print("hm2")
 		event.MessageChannel().SendMessage("ping")
+
 	case "dm":
 		event.Message.Author.OpenDMChannel().Then(func(channel promise.Any) promise.Any {
 			return channel.(*api.DMChannel).SendMessage("helo")

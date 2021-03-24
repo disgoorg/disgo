@@ -11,13 +11,13 @@ type ChannelType int
 
 // Channel constants
 const (
-	GuildTextChannel ChannelType = iota
-	DMTextChannel
-	GuildVoiceChannel
-	GroupDMChannel
-	GuildCategoryChannel
-	GuildNewsChannel
-	GuildStoreChannel
+	ChannelTypeText ChannelType = iota
+	ChannelTypeDM
+	ChannelTypeVoice
+	ChannelTypeGroupDM
+	ChannelTypeCategory
+	ChannelTypeNews
+	ChannelTypeStore
 )
 
 // Channel is a generic discord channel object
