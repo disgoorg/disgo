@@ -2,7 +2,6 @@ package events
 
 import (
 	"github.com/DiscoOrg/disgo/api"
-	"github.com/DiscoOrg/disgo/api/endpoints"
 )
 
 type GenericInteractionEvent struct {
@@ -48,5 +47,5 @@ type SlashCommandEvent struct {
 }
 
 func (e SlashCommandEvent) Reply(response api.InteractionResponse) error {
-	return e.Disgo.RestClient().SendInteractionResponse()
+	return e.Disgo.RestClient().SendInteractionResponse(e.Interaction.ID, e.Token, response)
 }

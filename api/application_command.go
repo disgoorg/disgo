@@ -14,7 +14,7 @@ type ApplicationCommandOptionType int
 
 // Constants for each slash command option type
 const (
-	ApplicationCommandOptionTypeSubCommand = iota + 1
+	ApplicationCommandOptionTypeSubCommand ApplicationCommandOptionType = iota + 1
 	ApplicationCommandOptionTypeSubCommandGroup
 	ApplicationCommandOptionTypeString
 	ApplicationCommandOptionTypeInteger

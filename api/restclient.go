@@ -18,6 +18,7 @@ var (
 // RestClient is a manager for all of disgo's HTTP requests
 type RestClient interface {
 	Close()
+	Disgo() Disgo
 	UserAgent() string
 	Request(route endpoints.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) error
 	GetUser(userID Snowflake) (*User, error)

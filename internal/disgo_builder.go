@@ -89,7 +89,7 @@ func (b DisgoBuilderImpl) Build() (api.Disgo, error) {
 	disgo.gateway = b.gateway
 
 	if b.restClient == nil {
-		b.restClient = newRestClientImpl(*b.token)
+		b.restClient = newRestClientImpl(disgo, *b.token)
 	}
 	disgo.restClient = b.restClient
 

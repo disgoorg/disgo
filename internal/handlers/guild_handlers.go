@@ -18,7 +18,6 @@ func (h GuildCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 	if !ok {
 		return
 	}
-	log.Infof("GuildCreateEvent received: %v", guild)
 	guild.Disgo = disgo
 	wasUnavailable := disgo.Cache().UnavailableGuild(guild.ID) != nil
 	disgo.Cache().CacheGuild(guild)

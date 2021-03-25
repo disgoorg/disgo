@@ -14,9 +14,9 @@ var (
 	GetGateway    = NewAPIRoute(GET, "gateway")
 	GetGatewayBot = NewAPIRoute(GET, "gateway/bot")
 
-	GetUsersMe          = NewAPIRoute(GET, "users/@me")
-	GetUser             = NewAPIRoute(GET, "users/{user.id}")
-	PostUsersMeChannels = NewAPIRoute(POST, "users/@me/channels")
+	GetUserMe       = NewAPIRoute(GET, "users/@me")
+	GetUser         = NewAPIRoute(GET, "users/{user.id}")
+	CreateDMChannel = NewAPIRoute(POST, "users/@me/channels")
 
 	GetMember     = NewAPIRoute(GET, "guilds/{guild_events.id}/members/{user.id}")
 	CreateMessage = NewAPIRoute(POST, "channels/{channel.id}/messages")

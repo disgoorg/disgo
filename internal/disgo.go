@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"time"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/DiscoOrg/disgo/api"
@@ -10,8 +12,9 @@ func New(token string, options api.Options) api.Disgo {
 	disgo := &DisgoImpl{
 		token:        token,
 		intents:      options.Intents,
-		restClient: newRestClientImpl(token),
 	}
+
+	disgo.restClient = newRestClientImpl(disgo, token)
 
 	disgo.eventManager = newEventManagerImpl(disgo, make([]api.EventListener, 0))
 
@@ -94,4 +97,8 @@ func (d *DisgoImpl) SetSelfUser(user api.User) {
 
 func (d *DisgoImpl) CreateCommand(name string, description string) api.GlobalCommandBuilder {
 	return api.NewGlobalCommandBuilder(d, name, description)
+}
+
+func (d *DisgoImpl) HeartbeatLatency() time.Duration {
+	return d.Gateway().Latency()
 }

@@ -9,7 +9,7 @@ type MessageType int
 
 // Constants for the MessageType
 const (
-	MessageTypeDefault = iota
+	MessageTypeDefault MessageType = iota
 	MessageTypeRecipientAdd
 	MessageTypeRecipientRemove
 	MessageTypeCall
@@ -37,8 +37,8 @@ type MessageFlags Bit
 
 // Constants for MessageFlags
 const (
-	MessageFlagNone        = 0
-	MessageFlagCrossposted = 1 << iota
+	MessageFlagNone        MessageFlags = 0
+	MessageFlagCrossposted MessageFlags = 1 << iota
 	MessageFlagIsCrosspost
 	MessageFlagSuppressEmbeds
 	MessageFlagSourceMessageDeleted
@@ -55,7 +55,7 @@ type Message struct {
 	Reactions       []Reactions   `json:"reactions"`
 	Attachments     []interface{} `json:"attachments"`
 	Tts             bool          `json:"tts"`
-	Embeds          []Embed       `json:"embeds,omitempty"`
+	Embeds          []*Embed      `json:"embeds,omitempty"`
 	CreatedAt       time.Time     `json:"timestamp"`
 	MentionEveryone bool          `json:"mention_everyone"`
 	Pinned          bool          `json:"pinned"`
@@ -67,6 +67,14 @@ type Message struct {
 	Mentions        []interface{} `json:"mentions"`
 	MessageType     MessageType   `json:"type"`
 	LastUpdated     *time.Time
+}
+
+// MessageInteraction is sent on the Message object when the message_events is a response to an interaction
+type MessageInteraction struct {
+	ID   Snowflake       `json:"id"`
+	Type InteractionType `json:"type"`
+	Name string          `json:"name"`
+	User User            `json:"user"`
 }
 
 // missing Member, mention channels, nonce, webhook id, type, activity, application, message_reference, flags, stickers
@@ -103,4 +111,3 @@ type Reactions struct {
 	Me    bool  `json:"me"`
 	Emoji Emote `json:"emoji"`
 }
-

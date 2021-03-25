@@ -1,5 +1,7 @@
 package api
 
+import "time"
+
 // ConnectionStatus is the state that the client is currently in
 type ConnectionStatus int
 
@@ -22,6 +24,7 @@ type Gateway interface {
 	Open() error
 	Status() ConnectionStatus
 	Close()
+	Latency() time.Duration
 }
 
 

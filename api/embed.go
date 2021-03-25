@@ -29,7 +29,7 @@ type Embed struct {
 	Video       *EmbedResource `json:"video,omitempty"`
 	Provider    *EmbedProvider `json:"provider,omitempty"`
 	Author      *EmbedAuthor   `json:"author,omitempty"`
-	Fields      []EmbedField   `json:"fields,omitempty"`
+	Fields      []*EmbedField   `json:"fields,omitempty"`
 }
 
 // The EmbedFooter of an Embed
@@ -85,8 +85,8 @@ func (b *EmbedBuilder) SetTitle(title *string) *EmbedBuilder {
 }
 
 // SetDescription sets the description of the EmbedBuilder
-func (b *EmbedBuilder) SetDescription(description *string) *EmbedBuilder {
-	b.Description = description
+func (b *EmbedBuilder) SetDescription(description string) *EmbedBuilder {
+	b.Description = &description
 	return b
 }
 
@@ -140,27 +140,28 @@ func (b *EmbedBuilder) SetURL(u *string) *EmbedBuilder {
 	return b
 }
 
-// AddField adds a field to the EmbedBuilder
-func (b *EmbedBuilder) AddField(f EmbedField) *EmbedBuilder {
-	b.Fields = append(b.Fields, f)
-	return b
-}
-
-// AddFieldBy adds a field to the EmbedBuilder by name and value
-func (b *EmbedBuilder) AddFieldBy(name string, value string, inline bool) *EmbedBuilder {
-	b.Fields = append(b.Fields, EmbedField{name, value, &inline})
+// AddField adds a field to the EmbedBuilder by name and value
+func (b *EmbedBuilder) AddField(name string, value string, inline bool) *EmbedBuilder {
+	b.Fields = append(b.Fields, &EmbedField{name, value, &inline})
 	return b
 }
 
 // AddFields adds multiple fields to the EmbedBuilder
-func (b *EmbedBuilder) AddFields(f ...EmbedField) *EmbedBuilder {
-	b.Fields = append(b.Fields, f...)
+func (b *EmbedBuilder) AddFields(f *EmbedField, fs ...*EmbedField) *EmbedBuilder {
+	b.Fields = append(b.Fields, f)
+	b.Fields = append(b.Fields, fs...)
+	return b
+}
+
+// SetFields sets fields of the EmbedBuilder
+func (b *EmbedBuilder) SetFields(fs ...*EmbedField) *EmbedBuilder {
+	b.Fields = fs
 	return b
 }
 
 // ClearFields removes all of the fields from the EmbedBuilder
 func (b *EmbedBuilder) ClearFields() *EmbedBuilder {
-	b.Fields = []EmbedField{}
+	b.Fields = []*EmbedField{}
 	return b
 }
 
@@ -173,6 +174,6 @@ func (b *EmbedBuilder) RemoveField(index int) *EmbedBuilder {
 }
 
 // Build returns your built Embed
-func (b *EmbedBuilder) Build() Embed {
-	return b.Embed
+func (b *EmbedBuilder) Build() *Embed {
+	return &b.Embed
 }

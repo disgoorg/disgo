@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"runtime"
 	"strings"
+	"time"
 )
 
 // Disgo is the main discord interface
@@ -20,6 +21,7 @@ type Disgo interface {
 	SetSelfUser(User)
 	EventManager() EventManager
 	CreateCommand(string, string) GlobalCommandBuilder
+	HeartbeatLatency() time.Duration
 }
 
 // GatewayEventProvider is used to add new raw gateway events

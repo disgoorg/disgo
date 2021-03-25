@@ -157,6 +157,10 @@ func (g *GatewayImpl) Close() {
 	log.Info("closed goroutines")
 }
 
+func (g *GatewayImpl) Latency() time.Duration {
+	return g.lastHeartbeatSent.Sub(g.lastHeartbeatReceived)
+}
+
 func (g *GatewayImpl) sendHeartbeat() {
 	log.Info("sending heartbeat...")
 

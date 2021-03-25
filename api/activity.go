@@ -7,7 +7,7 @@ type ActivityType int
 
 // Constants for activities
 const (
-	Game = iota
+	Game ActivityType = iota
 	Streaming
 	Listening
 	_
@@ -30,7 +30,7 @@ type Activity struct {
 	Assets        *ActivityAssets     `json:"assets,omitempty"`
 	Secrets       *ActivitySecrets    `json:"secrets,omitempty"`
 	Instance      *bool               `json:"instance,omitempty"`
-	Flags         int                `json:"flags,omitempty"`
+	Flags         int                 `json:"flags,omitempty"`
 }
 
 // ActivityTimestamps represents when a user started and ended their activity
