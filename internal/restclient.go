@@ -162,6 +162,7 @@ func (r RestClientImpl) GetRoles(guildID api.Snowflake) (roles []*api.Role, err 
 		for _, role := range roles {
 			role.Disgo = r.disgo
 			role.GuildID = guildID
+			r.disgo.Cache().CacheRole(role)
 		}
 	}
 	return
@@ -172,6 +173,7 @@ func (r RestClientImpl) CreateRole(guildID api.Snowflake, role api.UpdateRole) (
 	if newRole != nil {
 		newRole.Disgo = r.disgo
 		newRole.GuildID = guildID
+		r.disgo.Cache().CacheRole(newRole)
 	}
 	return
 }
@@ -181,6 +183,7 @@ func (r RestClientImpl) UpdateRole(guildID api.Snowflake, roleID api.Snowflake, 
 	if newRole != nil {
 		newRole.Disgo = r.disgo
 		newRole.GuildID = guildID
+		r.disgo.Cache().CacheRole(newRole)
 	}
 	return
 }
@@ -191,13 +194,18 @@ func (r RestClientImpl) UpdateRolePositions(guildID api.Snowflake, roleUpdates .
 		for _, role := range roles {
 			role.Disgo = r.disgo
 			role.GuildID = guildID
+			r.disgo.Cache().CacheRole(role)
 		}
 	}
 	return
 }
 // DeleteRole deletes a role from a guild. Requires api.PermissionManageRoles
-func (r RestClientImpl) DeleteRole(guildID api.Snowflake, roleID api.Snowflake) error {
-	return r.Request(endpoints.UpdateRole.Compile(guildID, roleID), nil, nil)
+func (r RestClientImpl) DeleteRole(guildID api.Snowflake, roleID api.Snowflake) (err error) {
+	err = r.Request(endpoints.UpdateRole.Compile(guildID, roleID), nil, nil)
+	if err == nil {
+		r.disgo.Cache().UncacheRole(guildID, roleID)
+	}
+	return
 }
 
 
