@@ -1,13 +1,17 @@
 package internal
 
 import (
+	"runtime/debug"
 	"strings"
+	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/DiscoOrg/disgo/api"
 )
 
 func newCacheImpl(memberCachePolicy api.MemberCachePolicy) api.Cache {
-	return &CacheImpl{
+	cache := &CacheImpl{
 		memberCachePolicy: memberCachePolicy,
 		users:             map[api.Snowflake]*api.User{},
 		guilds:            map[api.Snowflake]*api.Guild{},
@@ -19,9 +23,12 @@ func newCacheImpl(memberCachePolicy api.MemberCachePolicy) api.Cache {
 		voiceChannels:     map[api.Snowflake]map[api.Snowflake]*api.VoiceChannel{},
 		storeChannels:     map[api.Snowflake]map[api.Snowflake]*api.StoreChannel{},
 	}
+	cache.cleanup(10 * time.Second)
+	return cache
 }
 
 type CacheImpl struct {
+	quit chan bool
 	memberCachePolicy api.MemberCachePolicy
 	users             map[api.Snowflake]*api.User
 	guilds            map[api.Snowflake]*api.Guild
@@ -32,6 +39,39 @@ type CacheImpl struct {
 	textChannels      map[api.Snowflake]map[api.Snowflake]*api.TextChannel
 	voiceChannels     map[api.Snowflake]map[api.Snowflake]*api.VoiceChannel
 	storeChannels     map[api.Snowflake]map[api.Snowflake]*api.StoreChannel
+}
+
+func (c *CacheImpl) Close() {
+	log.Info("closing cache goroutines...")
+	close(c.quit)
+	log.Info("closed cache goroutines")
+}
+
+func (c CacheImpl) cleanup(cleanupInterval time.Duration) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Errorf("recovered cache cleanup goroutine error: %s", r)
+			debug.PrintStack()
+			c.cleanup(cleanupInterval)
+			return
+		}
+		log.Info("shut down cache cleanup goroutine")
+	}()
+
+	ticker := time.NewTicker(cleanupInterval)
+	for {
+		select {
+		case <-ticker.C:
+			c.DoCleanup()
+		case <-c.quit:
+			ticker.Stop()
+			return
+		}
+	}
+}
+
+func (c *CacheImpl) DoCleanup() {
+	// TODO cleanup cache
 }
 
 // user cache

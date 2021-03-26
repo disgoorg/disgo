@@ -152,9 +152,9 @@ func (g *GatewayImpl) heartbeat() {
 
 // Close cleans up the gateway internals
 func (g *GatewayImpl) Close() {
-	log.Info("closing goroutines...")
+	log.Info("closing gateway goroutines...")
 	close(g.quit)
-	log.Info("closed goroutines")
+	log.Info("closed gateway goroutines")
 }
 
 func (g *GatewayImpl) Latency() time.Duration {
