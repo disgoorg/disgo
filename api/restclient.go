@@ -25,6 +25,13 @@ type RestClient interface {
 	GetMember(guildID Snowflake, userID Snowflake) (*Member, error)
 	SendMessage(channelID Snowflake, message Message) (*Message, error)
 	OpenDMChannel(userID Snowflake) (*DMChannel, error)
+
+	GetRoles(guildID Snowflake) ([]*Role, error)
+	CreateRole(guildID Snowflake, role UpdateRole) (*Role, error)
+	UpdateRole(guildID Snowflake, roleID Snowflake, role UpdateRole) (*Role, error)
+	UpdateRolePositions(guildID Snowflake, roleUpdates ...UpdateRolePosition) ([]*Role, error)
+	DeleteRole(guildID Snowflake, roleID Snowflake) error
+
 	AddReaction(channelID Snowflake, messageID Snowflake, emoji string) error
 	RemoveOwnReaction(channelID Snowflake, messageID Snowflake, emoji string) error
 	RemoveUserReaction(channelID Snowflake, messageID Snowflake, emoji string, userID Snowflake) error

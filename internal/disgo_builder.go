@@ -22,7 +22,7 @@ type DisgoBuilderImpl struct {
 	restClient        api.RestClient
 	cache             api.Cache
 	memberCachePolicy api.MemberCachePolicy
-	intents           api.Intent
+	intents           api.Intents
 	eventManager      api.EventManager
 	eventListeners    []api.EventListener
 }
@@ -37,7 +37,7 @@ func (b DisgoBuilderImpl) SetToken(token string) api.DisgoBuilder {
 	return b
 }
 
-func (b DisgoBuilderImpl) SetIntents(intents api.Intent) api.DisgoBuilder {
+func (b DisgoBuilderImpl) SetIntents(intents api.Intents) api.DisgoBuilder {
 	b.intents = intents
 	return b
 }

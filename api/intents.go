@@ -1,46 +1,61 @@
 package api
 
-// Intent is an extension of the Bit structure used when identifying with discord
-type Intent Bit
+// Intents is an extension of the Bit structure used when identifying with discord
+type Intents int64
 
-// Bit returns the Bit of the Intent
-func (i Intent) Bit() Bit {
-	return Bit(i)
+// Add allows you to add multiple bits together, producing a new bit
+func (p Intents) Add(bits ...Bit) Bit {
+	total := Intents(0)
+	for _, bit := range bits {
+		total |= bit.(Intents)
+	}
+	p |= total
+	return p
 }
 
-// Add calls the Bit Add method
-func (i Intent) Add(bits ...Bit) Intent {
-	return Intent(i.Bit().Add(bits...))
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (p Intents) Remove(bits ...Bit) Bit {
+	total := Intents(0)
+	for _, bit := range bits {
+		total |= bit.(Intents)
+	}
+	p &^= total
+	return p
 }
 
-// Remove calls the Bit Remove method
-func (i Intent) Remove(bits ...Bit) Intent {
-	return Intent(i.Bit().Remove(bits...))
+// HasAll will ensure that the bit includes all of the bits entered
+func (p Intents) HasAll(bits ...Bit) bool {
+	for _, bit := range bits {
+		if !p.Has(bit) {
+			return false
+		}
+	}
+	return true
 }
 
-// HasAll calls the Bit HasAll method
-func (i Intent) HasAll(bits ...Bit) bool {
-	return i.Bit().HasAll(bits...)
+// Has will check whether the Bit contains another bit
+func (p Intents) Has(bit Bit) bool {
+	return (p & bit.(Intents)) == bit
 }
 
-// Has calls the Bit Has method
-func (i Intent) Has(bit Bit) bool {
-	return i.Bit().Has(bit)
+// MissingAny will check whether the bit is missing any one of the bits
+func (p Intents) MissingAny(bits ...Bit) bool {
+	for _, bit := range bits {
+		if !p.Has(bit) {
+			return true
+		}
+	}
+	return false
 }
 
-// MissingAny calls the Bit MissingAny method
-func (i Intent) MissingAny(bits ...Bit) bool {
-	return i.Bit().MissingAny(bits...)
-}
-
-// Missing calls the Bit Missing method
-func (i Intent) Missing(bits Bit) bool {
-	return i.Bit().Missing(bits)
+// Missing will do the inverse of Bit.Has
+func (p Intents) Missing(bit Bit) bool {
+	return !p.Has(bit)
 }
 
 // Constants for the different bit offsets of intents
 const (
-	IntentsGuilds Intent = 1 << iota
+	IntentsGuilds Intents = 1 << iota
 	IntentsGuildMembers
 	IntentsGuildBans
 	IntentsGuildEmojis
@@ -72,5 +87,5 @@ const (
 	IntentsAll = IntentsAllWithoutPrivileged |
 		IntentsGuildMembers |
 		IntentsGuildPresences
-	IntentsNone Intent = 0
+	IntentsNone Intents = 0
 )

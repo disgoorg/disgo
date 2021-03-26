@@ -16,39 +16,42 @@ func (h MessageCreateHandler) Handle(disgo api.Disgo, eventManager api.EventMana
 	if !ok {
 		return
 	}
+
+	genericMessageEvent := events.GenericMessageEvent{
+		Event: api.Event{
+			Disgo: disgo,
+		},
+		MessageChannelID: message.ChannelID,
+		MessageID:        message.ID,
+	}
+	eventManager.Dispatch(genericMessageEvent)
+
+	genericGuildEvent := events.GenericGuildEvent{
+		Event: api.Event{
+			Disgo: disgo,
+		},
+		GuildID: *message.GuildID,
+	}
+	eventManager.Dispatch(genericGuildEvent)
+
+	eventManager.Dispatch(events.MessageReceivedEvent{
+		GenericMessageEvent: genericMessageEvent,
+		Message:             *message,
+	})
+
 	if message.GuildID == nil {
 		// dm channel
-	} else{
+	} else {
 		// text channel
 		message.Disgo = disgo
 		message.Author.Disgo = disgo
 		eventManager.Dispatch(events.GuildMessageReceivedEvent{
 			Message: *message,
 			GenericGuildMessageEvent: events.GenericGuildMessageEvent{
-				GenericGuildEvent:   events.GenericGuildEvent{
-					Event:   api.Event{
-						Disgo: disgo,
-					},
-					GuildID: *message.GuildID,
-				},
-				GenericMessageEvent: events.GenericMessageEvent{
-					Event:   api.Event{
-						Disgo: disgo,
-					},
-					MessageChannelID: message.ChannelID,
-					MessageID: message.ID,
-				},
+				GenericGuildEvent:   genericGuildEvent,
+				GenericMessageEvent: genericMessageEvent,
 			},
 		})
 	}
-	eventManager.Dispatch(events.MessageReceivedEvent{
-		GenericMessageEvent: events.GenericMessageEvent{
-			Event:   api.Event{
-				Disgo: disgo,
-			},
-			MessageChannelID: message.ChannelID,
-			MessageID: message.ID,
-		},
-		Message: *message,
-	})
+
 }

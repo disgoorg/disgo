@@ -33,7 +33,57 @@ const (
 )
 
 // The MessageFlags of a Message
-type MessageFlags Bit
+type MessageFlags int64
+
+// Add allows you to add multiple bits together, producing a new bit
+func (f MessageFlags) Add(bits ...Bit) Bit {
+	total := MessageFlags(0)
+	for _, bit := range bits {
+		total |= bit.(MessageFlags)
+	}
+	f |= total
+	return f
+}
+
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (f MessageFlags) Remove(bits ...Bit) Bit {
+	total := MessageFlags(0)
+	for _, bit := range bits {
+		total |= bit.(MessageFlags)
+	}
+	f &^= total
+	return f
+}
+
+// HasAll will ensure that the bit includes all of the bits entered
+func (f MessageFlags) HasAll(bits ...Bit) bool {
+	for _, bit := range bits {
+		if !f.Has(bit) {
+			return false
+		}
+	}
+	return true
+}
+
+// Has will check whether the Bit contains another bit
+func (f MessageFlags) Has(bit Bit) bool {
+	return (f & bit.(MessageFlags)) == bit
+}
+
+// MissingAny will check whether the bit is missing any one of the bits
+func (f MessageFlags) MissingAny(bits ...Bit) bool {
+	for _, bit := range bits {
+		if !f.Has(bit) {
+			return true
+		}
+	}
+	return false
+}
+
+// Missing will do the inverse of Bit.Has
+func (f MessageFlags) Missing(bit Bit) bool {
+	return !f.Has(bit)
+}
 
 // Constants for MessageFlags
 const (

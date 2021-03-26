@@ -1,41 +1,89 @@
 package api
 
+import (
+	"encoding/json"
+	"strconv"
+)
+
 // Permissions extends the Bit structure, and is used within roles and channels
-type Permissions Bit
+type Permissions int64
 
-// Bit returns the Bit of the Intent
-func (p Permissions) Bit() Bit {
-	return Bit(p)
+// MarshalJSON marshals permissions into a string
+func (p Permissions) MarshalJSON() ([]byte, error) {
+	strPermissions := strconv.FormatInt(int64(p), 10)
+
+	jsonValue, err := json.Marshal(strPermissions)
+	if err != nil {
+		return nil, err
+	}
+
+	return jsonValue, nil
 }
 
-// Add calls the Bit Add method
-func (p Permissions) Add(bits ...Bit) Permissions {
-	return Permissions(p.Bit().Add(bits...))
+// UnmarshalJSON unmarshals permissions into a int64
+func (p *Permissions) UnmarshalJSON(b []byte) error {
+	var strPermissions string
+	err := json.Unmarshal(b, &strPermissions)
+	if err != nil {
+		return err
+	}
+
+	intPermissions, err := strconv.Atoi(strPermissions)
+	if err != nil {
+		return err
+	}
+	*p = Permissions(intPermissions)
+	return nil
 }
 
-// Remove calls the Bit Remove method
-func (p Permissions) Remove(bits ...Bit) Permissions {
-	return Permissions(p.Bit().Remove(bits...))
+// Add allows you to add multiple bits together, producing a new bit
+func (p Permissions) Add(bits ...Bit) Bit {
+	total := Permissions(0)
+	for _, bit := range bits {
+		total |= bit.(Permissions)
+	}
+	p |= total
+	return p
 }
 
-// HasAll calls the Bit HasAll method
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (p Permissions) Remove(bits ...Bit) Bit {
+	total := Permissions(0)
+	for _, bit := range bits {
+		total |= bit.(Permissions)
+	}
+	p &^= total
+	return p
+}
+
+// HasAll will ensure that the bit includes all of the bits entered
 func (p Permissions) HasAll(bits ...Bit) bool {
-	return p.Bit().HasAll(bits...)
+	for _, bit := range bits {
+		if !p.Has(bit) {
+			return false
+		}
+	}
+	return true
 }
 
-// Has calls the Bit Has method
+// Has will check whether the Bit contains another bit
 func (p Permissions) Has(bit Bit) bool {
-	return p.Bit().Has(bit)
+	return (p & bit.(Permissions)) == bit
 }
 
-// MissingAny calls the Bit MissingAny method
+// MissingAny will check whether the bit is missing any one of the bits
 func (p Permissions) MissingAny(bits ...Bit) bool {
-	return p.Bit().MissingAny(bits...)
+	for _, bit := range bits {
+		if !p.Has(bit) {
+			return true
+		}
+	}
+	return false
 }
 
-// Missing calls the Bit Missing method
-func (p Permissions) Missing(bits Bit) bool {
-	return p.Bit().Missing(bits)
+// Missing will do the inverse of Bit.Has
+func (p Permissions) Missing(bit Bit) bool {
+	return !p.Has(bit)
 }
 
 // Constants for the different bit offsets of text channel permissions

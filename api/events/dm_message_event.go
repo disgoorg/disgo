@@ -12,13 +12,13 @@ type GenericDMMessageEvent struct {
 
 type DMMessageReceivedEvent struct {
 	GenericDMMessageEvent
-	Message api.Message
+	Message *api.Message
 }
 
 
 type DMMessageUpdateEvent struct {
 	GenericDMMessageEvent
-	Message api.Message
+	Message *api.Message
 }
 
 type DMMessageDeleteEvent struct {

@@ -128,12 +128,12 @@ func (r RestClientImpl) Request(route endpoints.CompiledAPIRoute, rqBody interfa
 
 // GetUser fetches the specific user
 func (r RestClientImpl) GetUser(userID api.Snowflake) (user *api.User, err error) {
-	return user, r.Request(endpoints.GetUser.Compile(userID), nil, user)
+	return user, r.Request(endpoints.GetUser.Compile(userID), nil, &user)
 }
 
 // GetMember fetches the specific member
 func (r RestClientImpl) GetMember(guildID api.Snowflake, userId api.Snowflake) (member *api.Member, err error) {
-	return member, r.Request(endpoints.GetMember.Compile(guildID, userId), nil, member)
+	return member, r.Request(endpoints.GetMember.Compile(guildID, userId), nil, &member)
 }
 
 // SendMessage lets you send a message_events to a channel
@@ -145,13 +145,61 @@ func (r RestClientImpl) SendMessage(channelID api.Snowflake, message api.Message
 func (r RestClientImpl) OpenDMChannel(userId api.Snowflake) (channel *api.DMChannel, err error) {
 	body := struct {
 		RecipientID api.Snowflake `json:"recipient_id"`
-	}{RecipientID: userId}
+	}{
+		RecipientID: userId,
+	}
 	err = r.Request(endpoints.CreateDMChannel.Compile(), body, &channel)
 	if channel != nil {
 		channel.Disgo = r.disgo
 	}
 	return
 }
+
+// GetRoles fetches all roles from a guild
+func (r RestClientImpl) GetRoles(guildID api.Snowflake) (roles []*api.Role, err error) {
+	err = r.Request(endpoints.GetRoles.Compile(guildID), nil, &roles)
+	if roles != nil {
+		for _, role := range roles {
+			role.Disgo = r.disgo
+			role.GuildID = guildID
+		}
+	}
+	return
+}
+// CreateRole creates a new role for a guild. Requires api.PermissionManageRoles
+func (r RestClientImpl) CreateRole(guildID api.Snowflake, role api.UpdateRole) (newRole *api.Role, err error) {
+	err = r.Request(endpoints.CreateRole.Compile(guildID), role, &newRole)
+	if newRole != nil {
+		newRole.Disgo = r.disgo
+		newRole.GuildID = guildID
+	}
+	return
+}
+// UpdateRole updates a role from a guild. Requires api.PermissionManageRoles
+func (r RestClientImpl) UpdateRole(guildID api.Snowflake, roleID api.Snowflake, role api.UpdateRole) (newRole *api.Role, err error) {
+	err = r.Request(endpoints.UpdateRole.Compile(guildID, roleID), role, &newRole)
+	if newRole != nil {
+		newRole.Disgo = r.disgo
+		newRole.GuildID = guildID
+	}
+	return
+}
+// UpdateRolePositions updates the position of a role from a guild. Requires api.PermissionManageRoles
+func (r RestClientImpl) UpdateRolePositions(guildID api.Snowflake, roleUpdates ...api.UpdateRolePosition) (roles []*api.Role, err error) {
+	err = r.Request(endpoints.GetRoles.Compile(guildID), roleUpdates, &roles)
+	if roles != nil {
+		for _, role := range roles {
+			role.Disgo = r.disgo
+			role.GuildID = guildID
+		}
+	}
+	return
+}
+// DeleteRole deletes a role from a guild. Requires api.PermissionManageRoles
+func (r RestClientImpl) DeleteRole(guildID api.Snowflake, roleID api.Snowflake) error {
+	return r.Request(endpoints.UpdateRole.Compile(guildID, roleID), nil, nil)
+}
+
 
 // AddReaction lets you add a reaction to a message_events
 func (r RestClientImpl) AddReaction(channelID api.Snowflake, messageID api.Snowflake, emoji string) error {

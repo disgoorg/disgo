@@ -31,7 +31,7 @@ type IdentifyCommandData struct {
 	Compress           bool                          `json:"compress,omitempty"`
 	LargeThreshold     int                           `json:"large_threshold,omitempty"`
 	GuildSubscriptions bool                          `json:"guild_subscriptions,omitempty"` // Deprecated, should not be specified when using intents
-	Intents            Intent                        `json:"intents"`
+	Intents            Intents                       `json:"intents"`
 	// Todo: Add presence property here, need presence methods/struct
 	// Todo: Add shard property here, need to discuss
 }

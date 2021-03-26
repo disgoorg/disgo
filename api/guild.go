@@ -116,7 +116,7 @@ type Guild struct {
 	MaxMembers                  *int                       `json:"max_members"`
 	Channels                    []*GuildChannel            `json:"channels"`
 	VoiceStates                 []*VoiceState              `json:"voice_states"`
-	Unavailable                 *bool                      `json:"unavailable"`
+	Unavailable                 bool                      `json:"unavailable"`
 	ExplicitContentFilter       ExplicitContentFilterLevel `json:"explicit_content_filter"`
 	Features                    []GuildFeature             `json:"features"`
 	MfaLevel                    MFALevel                   `json:"mfa_level"`
@@ -139,6 +139,10 @@ type Guild struct {
 	//Presences                   []*Presence                `json:"presences"`
 }
 
+func (g Guild) CreateRole(role UpdateRole) (*Role, error) {
+	return g.Disgo.RestClient().CreateRole(g.ID, role)
+}
+
 // IconURL returns the Icon of a guild_events
 func (g Guild) IconURL() *string {
 	if g.Icon == nil {
@@ -156,10 +160,4 @@ func (g Guild) IconURL() *string {
 // CreateCommand returns a GuildCommandBuilder for that guild
 func (g Guild) CreateCommand(name string, description string) GuildCommandBuilder {
 	return NewGuildCommandBuilder(g.Disgo, g.ID, name, description)
-}
-
-// UnavailableGuild represents a unavailable discord guild_events
-type UnavailableGuild struct {
-	ID          Snowflake
-	Unavailable bool
 }

@@ -11,7 +11,6 @@ func newCacheImpl(memberCachePolicy api.MemberCachePolicy) api.Cache {
 		memberCachePolicy: memberCachePolicy,
 		users:             map[api.Snowflake]*api.User{},
 		guilds:            map[api.Snowflake]*api.Guild{},
-		unavailableGuilds: map[api.Snowflake]*api.UnavailableGuild{},
 		members:           map[api.Snowflake]map[api.Snowflake]*api.Member{},
 		roles:             map[api.Snowflake]map[api.Snowflake]*api.Role{},
 		dmChannels:        map[api.Snowflake]*api.DMChannel{},
@@ -26,7 +25,6 @@ type CacheImpl struct {
 	memberCachePolicy api.MemberCachePolicy
 	users             map[api.Snowflake]*api.User
 	guilds            map[api.Snowflake]*api.Guild
-	unavailableGuilds map[api.Snowflake]*api.UnavailableGuild
 	members           map[api.Snowflake]map[api.Snowflake]*api.Member
 	roles             map[api.Snowflake]map[api.Snowflake]*api.Role
 	dmChannels        map[api.Snowflake]*api.DMChannel
@@ -168,21 +166,6 @@ func (c *CacheImpl) FindGuilds(check func(g *api.Guild) bool) []*api.Guild {
 		}
 	}
 	return guilds
-}
-
-// unavailable guild cache
-func (c *CacheImpl) UnavailableGuild(guildID api.Snowflake) *api.UnavailableGuild {
-	return c.unavailableGuilds[guildID]
-}
-func (c *CacheImpl) CacheUnavailableGuild(unavailableGuild *api.UnavailableGuild) {
-	if _, ok := c.unavailableGuilds[unavailableGuild.ID]; ok {
-		*c.unavailableGuilds[unavailableGuild.ID] = *unavailableGuild
-		return
-	}
-	c.unavailableGuilds[unavailableGuild.ID] = unavailableGuild
-}
-func (c *CacheImpl) UncacheUnavailableGuild(guildID api.Snowflake) {
-	delete(c.unavailableGuilds, guildID)
 }
 
 // member cache

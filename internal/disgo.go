@@ -29,7 +29,7 @@ type DisgoImpl struct {
 	token        string
 	gateway      api.Gateway
 	restClient   api.RestClient
-	intents      api.Intent
+	intents      api.Intents
 	selfUser     *api.User
 	eventManager api.EventManager
 	cache        api.Cache
@@ -76,7 +76,7 @@ func (d *DisgoImpl) Cache() api.Cache {
 }
 
 // Intents returns the Intents originally specified when creating the client
-func (d *DisgoImpl) Intents() api.Intent {
+func (d *DisgoImpl) Intents() api.Intents {
 	// Todo: Return copy of intents in this method so they can't be modified
 	return d.intents
 }
@@ -91,8 +91,8 @@ func (d *DisgoImpl) SelfUser() *api.User {
 	return d.selfUser
 }
 
-func (d *DisgoImpl) SetSelfUser(user api.User) {
-	d.selfUser = &user
+func (d *DisgoImpl) SetSelfUser(user *api.User) {
+	d.selfUser = user
 }
 
 func (d *DisgoImpl) CreateCommand(name string, description string) api.GlobalCommandBuilder {

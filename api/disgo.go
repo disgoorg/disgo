@@ -15,10 +15,10 @@ type Disgo interface {
 	Gateway() Gateway
 	RestClient() RestClient
 	Cache() Cache
-	Intents() Intent
+	Intents() Intents
 	ApplicationID() Snowflake
 	SelfUser() *User
-	SetSelfUser(User)
+	SetSelfUser(*User)
 	EventManager() EventManager
 	CreateCommand(string, string) GlobalCommandBuilder
 	HeartbeatLatency() time.Duration

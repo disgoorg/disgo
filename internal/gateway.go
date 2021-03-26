@@ -221,7 +221,7 @@ func (g *GatewayImpl) listen() {
 						continue
 					}
 					g.sessionID = readyEvent.SessionID
-					g.Disgo().SetSelfUser(readyEvent.User)
+
 					log.Info("ready event received")
 				}
 
