@@ -6,7 +6,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/chebyrash/promise"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/DiscoOrg/disgo"
@@ -36,10 +35,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	//_, _ = dgo.CreateCommand("test", "this is a test command").Create()
 
 	defer dgo.Close()
 
-	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
+	fmt.Println("Bot is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-s
@@ -51,34 +51,48 @@ func guildAvailListener(event *events.GuildAvailableEvent){
 
 func slashCommandListener(event *events.SlashCommandEvent){
 	if event.Name == "test" {
-		event.Reply("test", false)
+		go func() {
+			_ = event.Reply(*api.NewInteractionResponseBuilder().
+				SetContent("test").
+				SetEphemeral(true).
+				AddEmbeds(
+					api.NewEmbedBuilder().SetDescription("test1").Build(),
+					api.NewEmbedBuilder().SetDescription("test2").Build(),
+				).
+				Build(),
+			)
+		}()
 	}
 }
 
 func messageListener(event *events.GuildMessageReceivedEvent) {
-	log.Printf("Message received: %s", *event.Message.Content)
 	if event.Message.Author.IsBot {
 		return
 	}
-
 	if event.Message.Content == nil {
 		return
 	}
+
 	switch *event.Message.Content {
 	case "ping":
-		event.MessageChannel().SendMessage("pong")
+		_, _ = event.MessageChannel().SendMessage("pong")
 		
 	case "pong":
-		event.MessageChannel().SendMessage("ping")
+		_, _ = event.MessageChannel().SendMessage("ping")
 
 	case "dm":
-		event.Message.Author.OpenDMChannel().Then(func(channel promise.Any) promise.Any {
-			return channel.(*api.DMChannel).SendMessage("helo")
-		}).Then(func(_ promise.Any) promise.Any {
-			return event.Message.AddReaction("✅")
-		}).Catch(func(_ error) error {
-			event.Message.AddReaction("❌")
-			return nil
-		})
+		go func() {
+			channel, err := event.Message.Author.OpenDMChannel()
+			if err != nil {
+				_ = event.Message.AddReaction("❌")
+				return
+			}
+			_, err = channel.SendMessage("helo")
+			if err == nil {
+				_ = event.Message.AddReaction("✅")
+			} else {
+				_ = event.Message.AddReaction("❌")
+			}
+		}()
 	}
 }

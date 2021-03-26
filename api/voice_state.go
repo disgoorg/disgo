@@ -1,5 +1,6 @@
 package api
 
+// A VoiceState from Discord
 type VoiceState struct {
 	GuildID    *Snowflake `json:"guild_id,omitempty"`
 	ChannelID  *Snowflake `json:"channel_id"`

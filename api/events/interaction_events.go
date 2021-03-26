@@ -1,8 +1,6 @@
 package events
 
 import (
-	"github.com/chebyrash/promise"
-
 	"github.com/DiscoOrg/disgo/api"
 )
 
@@ -48,16 +46,6 @@ type SlashCommandEvent struct {
 	api.InteractionData
 }
 
-func (e SlashCommandEvent) Reply(message string, ephemeral bool) *promise.Promise {
-	flags := 0
-	if ephemeral {
-		flags = 1 << 6
-	}
-	return e.Disgo.RestClient().SendInteractionResponse(e.Interaction.ID, e.Token, api.InteractionResponse{
-		Type: api.InteractionResponseTypeChannelMessageWithSource,
-		Data: &api.InteractionResponseData{
-			Content: message,
-			Flags:   flags,
-		},
-	})
+func (e SlashCommandEvent) Reply(response api.InteractionResponse) error {
+	return e.Disgo.RestClient().SendInteractionResponse(e.Interaction.ID, e.Token, response)
 }

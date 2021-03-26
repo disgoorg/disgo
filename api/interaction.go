@@ -5,7 +5,7 @@ type InteractionType int
 
 // Constants for InteractionType
 const (
-	InteractionTypePing = iota + 1
+	InteractionTypePing InteractionType = iota + 1
 	InteractionTypeApplicationCommand
 )
 

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"runtime"
 	"strings"
+	"time"
 )
 
 // Disgo is the main discord interface
@@ -14,12 +15,13 @@ type Disgo interface {
 	Gateway() Gateway
 	RestClient() RestClient
 	Cache() Cache
-	Intents() Intent
+	Intents() Intents
 	ApplicationID() Snowflake
 	SelfUser() *User
-	SetSelfUser(User)
+	SetSelfUser(*User)
 	EventManager() EventManager
 	CreateCommand(string, string) GlobalCommandBuilder
+	HeartbeatLatency() time.Duration
 }
 
 // GatewayEventProvider is used to add new raw gateway events

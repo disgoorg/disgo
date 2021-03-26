@@ -1,9 +1,5 @@
 package api
 
-import (
-	"github.com/chebyrash/promise"
-)
-
 // User is a struct for interacting with discord's users
 type User struct {
 	Disgo         Disgo
@@ -37,9 +33,6 @@ func (u User) String() string {
 }
 
 // OpenDMChannel creates a DMChannel between the user and the Disgo client
-func (u User) OpenDMChannel() *promise.Promise {
-	return u.Disgo.RestClient().OpenDMChannel(u.ID).Then(func(channel promise.Any) promise.Any {
-		channel.(*DMChannel).Disgo = u.Disgo
-		return channel
-	})
+func (u User) OpenDMChannel() (*DMChannel, error) {
+	return u.Disgo.RestClient().OpenDMChannel(u.ID)
 }

@@ -52,7 +52,7 @@ func (g *GatewayImpl) Open() error {
 	if g.url == nil {
 		log.Println("GetGateway url is nil, fetching...")
 		gatewayRs := api.GatewayRs{}
-		if err := g.Disgo().RestClient().Request(endpoints.GetGateway, nil, &gatewayRs); err != nil {
+		if err := g.Disgo().RestClient().Request(endpoints.GetGateway.Compile(), nil, &gatewayRs); err != nil {
 			return err
 		}
 		g.url = &gatewayRs.URL
@@ -157,6 +157,10 @@ func (g *GatewayImpl) Close() {
 	log.Info("closed goroutines")
 }
 
+func (g *GatewayImpl) Latency() time.Duration {
+	return g.lastHeartbeatSent.Sub(g.lastHeartbeatReceived)
+}
+
 func (g *GatewayImpl) sendHeartbeat() {
 	log.Info("sending heartbeat...")
 
@@ -217,7 +221,7 @@ func (g *GatewayImpl) listen() {
 						continue
 					}
 					g.sessionID = readyEvent.SessionID
-					g.Disgo().SetSelfUser(readyEvent.User)
+
 					log.Info("ready event received")
 				}
 

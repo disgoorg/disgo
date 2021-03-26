@@ -36,7 +36,7 @@ func NewCDNRoute(url string, supportedFileExtensions ...FileExtension) CDNRoute 
 }
 
 // Compile builds a full request URL based on provided arguments
-func (r CDNRoute) Compile(fileExtension FileExtension, args ...string) string {
+func (r CDNRoute) Compile(fileExtension FileExtension, args ...interface{}) CompiledCDNRoute {
 	supported := false
 	for _, supportedFileExtension := range r.supportedFileExtensions {
 		if supportedFileExtension == fileExtension {
@@ -46,5 +46,14 @@ func (r CDNRoute) Compile(fileExtension FileExtension, args ...string) string {
 	if !supported {
 		log.Infof("provided file extension: %s is not supported by discord on this endpoint!", fileExtension)
 	}
-	return r.Route.Compile(args...) + fileExtension.String()
+	compiledRoute := CompiledCDNRoute{
+		CompiledRoute: r.Route.Compile(args...),
+	}
+	compiledRoute.CompiledRoute.route += fileExtension.String()
+	return compiledRoute
+}
+
+// CompiledCDNRoute is CDNRoute compiled with all URL args
+type CompiledCDNRoute struct {
+	CompiledRoute
 }

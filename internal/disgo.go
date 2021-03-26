@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"time"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/DiscoOrg/disgo/api"
@@ -10,8 +12,9 @@ func New(token string, options api.Options) api.Disgo {
 	disgo := &DisgoImpl{
 		token:        token,
 		intents:      options.Intents,
-		restClient: newRestClientImpl(token),
 	}
+
+	disgo.restClient = newRestClientImpl(disgo, token)
 
 	disgo.eventManager = newEventManagerImpl(disgo, make([]api.EventListener, 0))
 
@@ -26,7 +29,7 @@ type DisgoImpl struct {
 	token        string
 	gateway      api.Gateway
 	restClient   api.RestClient
-	intents      api.Intent
+	intents      api.Intents
 	selfUser     *api.User
 	eventManager api.EventManager
 	cache        api.Cache
@@ -73,7 +76,7 @@ func (d *DisgoImpl) Cache() api.Cache {
 }
 
 // Intents returns the Intents originally specified when creating the client
-func (d *DisgoImpl) Intents() api.Intent {
+func (d *DisgoImpl) Intents() api.Intents {
 	// Todo: Return copy of intents in this method so they can't be modified
 	return d.intents
 }
@@ -88,10 +91,14 @@ func (d *DisgoImpl) SelfUser() *api.User {
 	return d.selfUser
 }
 
-func (d *DisgoImpl) SetSelfUser(user api.User) {
-	d.selfUser = &user
+func (d *DisgoImpl) SetSelfUser(user *api.User) {
+	d.selfUser = user
 }
 
 func (d *DisgoImpl) CreateCommand(name string, description string) api.GlobalCommandBuilder {
 	return api.NewGlobalCommandBuilder(d, name, description)
+}
+
+func (d *DisgoImpl) HeartbeatLatency() time.Duration {
+	return d.Gateway().Latency()
 }

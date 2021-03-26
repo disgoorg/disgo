@@ -2,14 +2,14 @@ package api
 
 import (
 	"time"
-
-	"github.com/chebyrash/promise"
 )
 
+// The MessageType indicates the Message type
 type MessageType int
 
+// Constants for the MessageType
 const (
-	MessageTypeDefault = iota
+	MessageTypeDefault MessageType = iota
 	MessageTypeRecipientAdd
 	MessageTypeRecipientRemove
 	MessageTypeCall
@@ -32,6 +32,71 @@ const (
 	MessageTypeApplicationCommand
 )
 
+// The MessageFlags of a Message
+type MessageFlags int64
+
+// Add allows you to add multiple bits together, producing a new bit
+func (f MessageFlags) Add(bits ...Bit) Bit {
+	total := MessageFlags(0)
+	for _, bit := range bits {
+		total |= bit.(MessageFlags)
+	}
+	f |= total
+	return f
+}
+
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (f MessageFlags) Remove(bits ...Bit) Bit {
+	total := MessageFlags(0)
+	for _, bit := range bits {
+		total |= bit.(MessageFlags)
+	}
+	f &^= total
+	return f
+}
+
+// HasAll will ensure that the bit includes all of the bits entered
+func (f MessageFlags) HasAll(bits ...Bit) bool {
+	for _, bit := range bits {
+		if !f.Has(bit) {
+			return false
+		}
+	}
+	return true
+}
+
+// Has will check whether the Bit contains another bit
+func (f MessageFlags) Has(bit Bit) bool {
+	return (f & bit.(MessageFlags)) == bit
+}
+
+// MissingAny will check whether the bit is missing any one of the bits
+func (f MessageFlags) MissingAny(bits ...Bit) bool {
+	for _, bit := range bits {
+		if !f.Has(bit) {
+			return true
+		}
+	}
+	return false
+}
+
+// Missing will do the inverse of Bit.Has
+func (f MessageFlags) Missing(bit Bit) bool {
+	return !f.Has(bit)
+}
+
+// Constants for MessageFlags
+const (
+	MessageFlagNone        MessageFlags = 0
+	MessageFlagCrossposted MessageFlags = 1 << iota
+	MessageFlagIsCrosspost
+	MessageFlagSuppressEmbeds
+	MessageFlagSourceMessageDeleted
+	MessageFlagUrgent
+	_
+	MessageFlagEphemeral
+)
+
 // Message is a struct for messages sent in discord text-based channels
 type Message struct {
 	Disgo           Disgo
@@ -40,7 +105,7 @@ type Message struct {
 	Reactions       []Reactions   `json:"reactions"`
 	Attachments     []interface{} `json:"attachments"`
 	Tts             bool          `json:"tts"`
-	Embeds          []Embed       `json:"embeds,omitempty"`
+	Embeds          []*Embed      `json:"embeds,omitempty"`
 	CreatedAt       time.Time     `json:"timestamp"`
 	MentionEveryone bool          `json:"mention_everyone"`
 	Pinned          bool          `json:"pinned"`
@@ -52,6 +117,14 @@ type Message struct {
 	Mentions        []interface{} `json:"mentions"`
 	MessageType     MessageType   `json:"type"`
 	LastUpdated     *time.Time
+}
+
+// MessageInteraction is sent on the Message object when the message_events is a response to an interaction
+type MessageInteraction struct {
+	ID   Snowflake       `json:"id"`
+	Type InteractionType `json:"type"`
+	Name string          `json:"name"`
+	User User            `json:"user"`
 }
 
 // missing Member, mention channels, nonce, webhook id, type, activity, application, message_reference, flags, stickers
@@ -72,13 +145,13 @@ func (m Message) Channel() *MessageChannel {
 }
 
 // AddReactionByEmote allows you to add an Emote to a message_events via reaction
-func (m Message) AddReactionByEmote(emote Emote) *promise.Promise {
+func (m Message) AddReactionByEmote(emote Emote) error {
 	return m.AddReaction(emote.Reaction())
 }
 
 // AddReaction allows you to add a reaction to a message_events from a string, for example a custom emoji ID, or a native
 // emoji
-func (m Message) AddReaction(emoji string) *promise.Promise {
+func (m Message) AddReaction(emoji string) error {
 	return m.Disgo.RestClient().AddReaction(m.ChannelID, m.ID, emoji)
 }
 
@@ -87,8 +160,4 @@ type Reactions struct {
 	Count int   `json:"count"`
 	Me    bool  `json:"me"`
 	Emoji Emote `json:"emoji"`
-}
-
-// Embed allows you to send embeds to discord
-type Embed struct {
 }

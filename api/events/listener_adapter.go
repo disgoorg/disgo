@@ -14,6 +14,7 @@ type ListenerAdapter struct {
 	OnGuildLeave           func(*GuildLeaveEvent)
 	OnMessageReceived      func(*MessageReceivedEvent)
 	OnGuildMessageReceived func(*GuildMessageReceivedEvent)
+	OnGenericInteraction   func(*GenericInteractionEvent)
 	OnSlashCommand         func(*SlashCommandEvent)
 }
 
@@ -42,6 +43,10 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 	case GuildMessageReceivedEvent:
 		if l.OnGuildMessageReceived != nil {
 			l.OnGuildMessageReceived(&v)
+		}
+	case GenericInteractionEvent:
+		if l.OnGenericInteraction != nil {
+			l.OnGenericInteraction(&v)
 		}
 	case SlashCommandEvent:
 		if l.OnSlashCommand != nil {
