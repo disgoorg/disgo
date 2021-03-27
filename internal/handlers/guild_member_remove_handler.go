@@ -5,11 +5,12 @@ import (
 	"github.com/DiscoOrg/disgo/api/events"
 )
 
-type GuildMemberRemoveData struct {
+type guildMemberRemoveData struct {
 	GuildID api.Snowflake `json:"guild_id"`
 	User    api.User      `json:"user"`
 }
 
+// GuildMemberRemoveHandler handles api.GuildMemberRemoveGatewayEvent
 type GuildMemberRemoveHandler struct{}
 
 // Name returns the raw gateway event name
@@ -19,12 +20,12 @@ func (h GuildMemberRemoveHandler) Name() string {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h GuildMemberRemoveHandler) New() interface{} {
-	return &GuildMemberRemoveData{}
+	return &guildMemberRemoveData{}
 }
 
 // Handle handles the specific raw gateway event
 func (h GuildMemberRemoveHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
-	member, ok := i.(*GuildMemberRemoveData)
+	member, ok := i.(*guildMemberRemoveData)
 	if !ok {
 		return
 	}

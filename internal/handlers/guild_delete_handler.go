@@ -5,6 +5,7 @@ import (
 	"github.com/DiscoOrg/disgo/api/events"
 )
 
+// GuildDeleteHandler handles api.GuildDeleteGatewayEvent
 type GuildDeleteHandler struct{}
 
 // Name returns the raw gateway event name
@@ -28,7 +29,7 @@ func (h GuildDeleteHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 		disgo.Cache().Guild(guild.ID).Unavailable = true
 		eventManager.Dispatch(events.GuildUnavailableEvent{
 			GenericGuildEvent: events.GenericGuildEvent{
-				Event:   api.Event{
+				Event: api.Event{
 					Disgo: disgo,
 				},
 				GuildID: guild.ID,
@@ -39,7 +40,7 @@ func (h GuildDeleteHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 		disgo.Cache().UncacheGuild(guild.ID)
 
 		genericGuildEvent := events.GenericGuildEvent{
-			Event:   api.Event{
+			Event: api.Event{
 				Disgo: disgo,
 			},
 			GuildID: guild.ID,
@@ -49,7 +50,7 @@ func (h GuildDeleteHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 
 		eventManager.Dispatch(events.GuildLeaveEvent{
 			GenericGuildEvent: genericGuildEvent,
-			Guild: cachedGuild,
+			Guild:             cachedGuild,
 		})
 	}
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/DiscoOrg/disgo/api"
 )
 
+// NewBuilder returns a new api.DisgoBuilder instance
 func NewBuilder(token string) api.DisgoBuilder {
 	return DisgoBuilderImpl{
 		logLevel: log.InfoLevel,
@@ -15,6 +16,7 @@ func NewBuilder(token string) api.DisgoBuilder {
 	}
 }
 
+// DisgoBuilderImpl implementation of the api.DisgoBuilder interface
 type DisgoBuilderImpl struct {
 	logLevel          log.Level
 	token             *string
@@ -27,26 +29,31 @@ type DisgoBuilderImpl struct {
 	eventListeners    []api.EventListener
 }
 
+// SetLogLevel sets logrus.Level of logrus
 func (b DisgoBuilderImpl) SetLogLevel(logLevel log.Level) api.DisgoBuilder {
 	b.logLevel = logLevel
 	return b
 }
 
+// SetToken sets the token to connect to discord
 func (b DisgoBuilderImpl) SetToken(token string) api.DisgoBuilder {
 	b.token = &token
 	return b
 }
 
+// SetIntents sets the api.Intents to connect to discord
 func (b DisgoBuilderImpl) SetIntents(intents api.Intents) api.DisgoBuilder {
 	b.intents = intents
 	return b
 }
 
+// SetEventManager lets you inject your own api.EventManager
 func (b DisgoBuilderImpl) SetEventManager(eventManager api.EventManager) api.DisgoBuilder {
 	b.eventManager = eventManager
 	return b
 }
 
+// AddEventListeners lets you add an api.EventListener to your api.EventManager
 func (b DisgoBuilderImpl) AddEventListeners(eventListeners ...api.EventListener) api.DisgoBuilder {
 	for _, eventListener := range eventListeners {
 		b.eventListeners = append(b.eventListeners, eventListener)
@@ -54,26 +61,31 @@ func (b DisgoBuilderImpl) AddEventListeners(eventListeners ...api.EventListener)
 	return b
 }
 
+// SetRestClient lets you inject your own api.RestClient
 func (b DisgoBuilderImpl) SetRestClient(restClient api.RestClient) api.DisgoBuilder {
 	b.restClient = restClient
 	return b
 }
 
+// SetCache lets you inject your own api.Cache
 func (b DisgoBuilderImpl) SetCache(cache api.Cache) api.DisgoBuilder {
 	b.cache = cache
 	return b
 }
 
+// SetMemberCachePolicy lets oyu set your own api.MemberCachePolicy
 func (b DisgoBuilderImpl) SetMemberCachePolicy(memberCachePolicy api.MemberCachePolicy) api.DisgoBuilder {
 	b.memberCachePolicy = memberCachePolicy
 	return b
 }
 
+// SetGateway lets you inject your own api.Gateway
 func (b DisgoBuilderImpl) SetGateway(gateway api.Gateway) api.DisgoBuilder {
 	b.gateway = gateway
 	return b
 }
 
+// Build builds your api.Disgo instance
 func (b DisgoBuilderImpl) Build() (api.Disgo, error) {
 	log.SetLevel(b.logLevel)
 
@@ -101,7 +113,6 @@ func (b DisgoBuilderImpl) Build() (api.Disgo, error) {
 	}
 	disgo.restClient = b.restClient
 
-
 	disgo.intents = b.intents
 
 	if b.eventManager == nil {
@@ -110,7 +121,6 @@ func (b DisgoBuilderImpl) Build() (api.Disgo, error) {
 	}
 	disgo.eventManager = b.eventManager
 
-
 	if b.cache == nil {
 		if b.memberCachePolicy == nil {
 			b.memberCachePolicy = api.MemberCachePolicyDefault
@@ -118,7 +128,6 @@ func (b DisgoBuilderImpl) Build() (api.Disgo, error) {
 		b.cache = newCacheImpl(b.memberCachePolicy)
 	}
 	disgo.cache = b.cache
-
 
 	return disgo, nil
 }

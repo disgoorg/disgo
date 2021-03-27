@@ -48,18 +48,18 @@ type RestClient interface {
 	RemoveOwnReaction(channelID Snowflake, messageID Snowflake, emoji string) error
 	RemoveUserReaction(channelID Snowflake, messageID Snowflake, emoji string, userID Snowflake) error
 
-	GetGlobalCommands(applicationID Snowflake) ([]*Command, error)
-	CreateGlobalCommand(applicationID Snowflake, command Command) (*Command, error)
-	SetGlobalCommands(applicationID Snowflake, commands ...Command) ([]*Command, error)
-	GetGlobalCommand(applicationID Snowflake, commandID Snowflake) (*Command, error)
-	EditGlobalCommand(applicationID Snowflake, commandID Snowflake, command Command) (*Command, error)
+	GetGlobalCommands(applicationID Snowflake) ([]*SlashCommand, error)
+	CreateGlobalCommand(applicationID Snowflake, command SlashCommand) (*SlashCommand, error)
+	SetGlobalCommands(applicationID Snowflake, commands ...SlashCommand) ([]*SlashCommand, error)
+	GetGlobalCommand(applicationID Snowflake, commandID Snowflake) (*SlashCommand, error)
+	EditGlobalCommand(applicationID Snowflake, commandID Snowflake, command SlashCommand) (*SlashCommand, error)
 	DeleteGlobalCommand(applicationID Snowflake, commandID Snowflake) error
 
-	GetGuildCommands(applicationID Snowflake, guildID Snowflake) ([]*Command, error)
-	CreateGuildGuildCommand(applicationID Snowflake, guildID Snowflake, command Command) (*Command, error)
-	SetGuildCommands(applicationID Snowflake, guildID Snowflake, commands ...Command) ([]*Command, error)
-	GetGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake) (*Command, error)
-	EditGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake, command Command) (*Command, error)
+	GetGuildCommands(applicationID Snowflake, guildID Snowflake) ([]*SlashCommand, error)
+	CreateGuildGuildCommand(applicationID Snowflake, guildID Snowflake, command SlashCommand) (*SlashCommand, error)
+	SetGuildCommands(applicationID Snowflake, guildID Snowflake, commands ...SlashCommand) ([]*SlashCommand, error)
+	GetGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake) (*SlashCommand, error)
+	EditGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake, command SlashCommand) (*SlashCommand, error)
 	DeleteGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake) error
 
 	SendInteractionResponse(interactionID Snowflake, interactionToken string, interactionResponse InteractionResponse) error

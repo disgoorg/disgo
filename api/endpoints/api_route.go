@@ -10,7 +10,7 @@ type APIRoute struct {
 func (r APIRoute) Compile(args ...interface{}) CompiledAPIRoute {
 	return CompiledAPIRoute{
 		CompiledRoute: r.Route.Compile(args...),
-		method: r.method,
+		method:        r.method,
 	}
 }
 

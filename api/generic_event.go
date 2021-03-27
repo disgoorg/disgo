@@ -1,7 +1,7 @@
 package api
 
 // GenericEvent the basic interface each event implement
-type GenericEvent interface {}
+type GenericEvent interface{}
 
 // Event the base event structure
 type Event struct {

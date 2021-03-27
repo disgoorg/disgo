@@ -163,6 +163,7 @@ func (m Message) AddReaction(emoji string) error {
 	return m.Disgo.RestClient().AddReaction(m.ChannelID, m.ID, emoji)
 }
 
+// Reply allows you to reply to an existing Message
 func (m Message) Reply(message MessageCreate) (*Message, error) {
 	message.MessageReference = &MessageReference{
 		MessageID: &m.ID,

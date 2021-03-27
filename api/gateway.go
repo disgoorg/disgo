@@ -27,7 +27,6 @@ type Gateway interface {
 	Latency() time.Duration
 }
 
-
 // GatewayOp are opcodes used by discord
 type GatewayOp int
 
@@ -89,7 +88,6 @@ const (
 	VoiceStateUpdateGatewayEvent         = "VOICE_STATE_UPDATE"
 	WebhooksUpdateGatewayEvent           = "WEBHOOKS_UPDATE"
 )
-
 
 // GatewayRs contains the response for GET /gateway
 type GatewayRs struct {

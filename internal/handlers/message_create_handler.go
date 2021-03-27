@@ -5,6 +5,7 @@ import (
 	"github.com/DiscoOrg/disgo/api/events"
 )
 
+// MessageCreateHandler handles api.MessageCreateGatewayEvent
 type MessageCreateHandler struct{}
 
 // Name returns the raw gateway event name

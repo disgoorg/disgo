@@ -8,6 +8,7 @@ import (
 	"github.com/DiscoOrg/disgo/api"
 )
 
+// IDFromToken returns the applicationID from the token
 func IDFromToken(token string) (*api.Snowflake, error) {
 	strs := strings.Split(token, ".")
 	if len(strs) == 0 {

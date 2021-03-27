@@ -136,6 +136,7 @@ type Guild struct {
 	//Presences                   []*Presence                `json:"presences"`
 }
 
+// CreateRole allows you to create a new Role
 func (g Guild) CreateRole(role UpdateRole) (*Role, error) {
 	return g.Disgo.RestClient().CreateRole(g.ID, role)
 }
@@ -160,31 +161,31 @@ func (g Guild) IconURL() *string {
 }
 
 // GetCommand fetches a specific guild command
-func (g Guild) GetCommand(commandID Snowflake) (*Command, error) {
+func (g Guild) GetCommand(commandID Snowflake) (*SlashCommand, error) {
 	return g.Disgo.RestClient().GetGuildCommand(g.Disgo.ApplicationID(), g.ID, commandID)
 }
 
-// GetCommand fetches all guild commands
-func (g Guild) GetCommands() ([]*Command, error) {
+// GetCommands fetches all guild commands
+func (g Guild) GetCommands() ([]*SlashCommand, error) {
 	return g.Disgo.RestClient().GetGuildCommands(g.Disgo.ApplicationID(), g.ID)
 }
 
 // CreateCommand creates a new command for this guild
-func (g Guild) CreateCommand(command Command) (*Command, error) {
+func (g Guild) CreateCommand(command SlashCommand) (*SlashCommand, error) {
 	return g.Disgo.RestClient().CreateGuildGuildCommand(g.Disgo.ApplicationID(), g.ID, command)
 }
 
 // EditCommand edits a specific guild command
-func (g Guild) EditCommand(commandID Snowflake, command Command) (*Command, error) {
+func (g Guild) EditCommand(commandID Snowflake, command SlashCommand) (*SlashCommand, error) {
 	return g.Disgo.RestClient().EditGuildCommand(g.Disgo.ApplicationID(), g.ID, commandID, command)
 }
 
 // DeleteCommand creates a new command for this guild
-func (g Guild) DeleteCommand(command Command) (*Command, error) {
+func (g Guild) DeleteCommand(command SlashCommand) (*SlashCommand, error) {
 	return g.Disgo.RestClient().CreateGuildGuildCommand(g.Disgo.ApplicationID(), g.ID, command)
 }
 
 // SetCommands overrides all commands for this guild
-func (g Guild) SetCommands(commands ...Command) ([]*Command, error) {
+func (g Guild) SetCommands(commands ...SlashCommand) ([]*SlashCommand, error) {
 	return g.Disgo.RestClient().SetGuildCommands(g.Disgo.ApplicationID(), g.ID, commands...)
 }

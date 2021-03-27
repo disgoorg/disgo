@@ -5,12 +5,14 @@ import (
 	"encoding/json"
 )
 
-type Commands []Command
+// SlashCommands is a slice of SlashCommand
+type SlashCommands []SlashCommand
 
-func (commands Commands) MarshalJSON() ([]byte, error) {
+// MarshalJSON is used for marshalling multiple commands into a []byte
+func (commands SlashCommands) MarshalJSON() ([]byte, error) {
 	buffer := bytes.NewBufferString("[")
 	for i, command := range commands {
-		commandBytes, err:= json.Marshal(command)
+		commandBytes, err := json.Marshal(command)
 		if err != nil {
 			return nil, err
 		}
@@ -23,38 +25,38 @@ func (commands Commands) MarshalJSON() ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
-// Command is the base "command" model that belongs to an application.
-type Command struct {
-	ID            Snowflake       `json:"id,omitempty"`
-	ApplicationID Snowflake       `json:"application_id,omitempty"`
-	Name          string          `json:"name"`
-	Description   string          `json:"description"`
+// SlashCommand is the base "command" model that belongs to an application.
+type SlashCommand struct {
+	ID            Snowflake        `json:"id,omitempty"`
+	ApplicationID Snowflake        `json:"application_id,omitempty"`
+	Name          string           `json:"name"`
+	Description   string           `json:"description"`
 	Options       []*CommandOption `json:"options,omitempty"`
 }
 
-// CommandOptionType specifies the type of the arguments used in Command.Options
-type CommandOptionType int
+// SlashCommandOptionType specifies the type of the arguments used in SlashCommand.Options
+type SlashCommandOptionType int
 
 // Constants for each slash command option type
 const (
-	CommandOptionTypeSubCommand CommandOptionType = iota + 1
-	CommandOptionTypeSubCommandGroup
-	CommandOptionTypeString
-	CommandOptionTypeInteger
-	CommandOptionTypeBoolean
-	CommandOptionTypeUser
-	CommandOptionTypeChannel
-	CommandOptionTypeRole
+	OptionTypeSubCommand SlashCommandOptionType = iota + 1
+	OptionTypeSubCommandGroup
+	OptionTypeString
+	OptionTypeInteger
+	OptionTypeBoolean
+	OptionTypeUser
+	OptionTypeChannel
+	OptionTypeRole
 )
 
-// CommandOption are the arguments used in Command.Options
+// CommandOption are the arguments used in SlashCommand.Options
 type CommandOption struct {
-	Type        CommandOptionType `json:"type"`
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Required    bool              `json:"required,omitempty"`
-	Choices     []OptionChoice    `json:"choices,omitempty"`
-	Options     []CommandOption   `json:"options,omitempty"`
+	Type        SlashCommandOptionType `json:"type"`
+	Name        string                 `json:"name"`
+	Description string                 `json:"description"`
+	Required    bool                   `json:"required,omitempty"`
+	Choices     []OptionChoice         `json:"choices,omitempty"`
+	Options     []CommandOption        `json:"options,omitempty"`
 }
 
 // OptionChoice contains the data for a user using your command

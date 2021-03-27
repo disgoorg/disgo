@@ -5,6 +5,7 @@ import (
 	"github.com/DiscoOrg/disgo/api/events"
 )
 
+// GuildCreateHandler handles api.GuildCreateGatewayEvent
 type GuildCreateHandler struct{}
 
 // Name returns the raw gateway event name
@@ -68,7 +69,7 @@ func (h GuildCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 	}
 
 	genericGuildEvent := events.GenericGuildEvent{
-		Event:   api.Event{
+		Event: api.Event{
 			Disgo: disgo,
 		},
 		GuildID: guild.ID,
@@ -79,13 +80,13 @@ func (h GuildCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 	if wasUnavailable {
 		eventManager.Dispatch(events.GuildAvailableEvent{
 			GenericGuildEvent: genericGuildEvent,
-			Guild: guild,
+			Guild:             guild,
 		})
 	} else {
 		// guild join
 		eventManager.Dispatch(events.GuildJoinEvent{
 			GenericGuildEvent: genericGuildEvent,
-			Guild: guild,
+			Guild:             guild,
 		})
 	}
 }

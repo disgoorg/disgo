@@ -5,12 +5,12 @@ import (
 	"github.com/DiscoOrg/disgo/api/events"
 )
 
-// RoleCreateData is the GuildRoleCreate.D payload
-type RoleCreateData struct {
+type roleCreateData struct {
 	GuildID api.Snowflake `json:"guild_id"`
-	Role *api.Role `json:"role"`
+	Role    *api.Role     `json:"role"`
 }
 
+// GuildRoleCreateHandler handles api.GuildRoleCreateGatewayEvent
 type GuildRoleCreateHandler struct{}
 
 // Name returns the raw gateway event name
@@ -20,12 +20,12 @@ func (h GuildRoleCreateHandler) Name() string {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h GuildRoleCreateHandler) New() interface{} {
-	return &RoleCreateData{}
+	return &roleCreateData{}
 }
 
 // Handle handles the specific raw gateway event
 func (h GuildRoleCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
-	roleCreateData, ok := i.(*RoleCreateData)
+	roleCreateData, ok := i.(*roleCreateData)
 	if !ok {
 		return
 	}
@@ -34,7 +34,7 @@ func (h GuildRoleCreateHandler) Handle(disgo api.Disgo, eventManager api.EventMa
 	disgo.Cache().CacheRole(roleCreateData.Role)
 
 	genericGuildEvent := events.GenericGuildEvent{
-		Event:   api.Event{
+		Event: api.Event{
 			Disgo: disgo,
 		},
 		GuildID: roleCreateData.GuildID,

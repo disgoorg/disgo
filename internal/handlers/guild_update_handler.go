@@ -5,6 +5,7 @@ import (
 	"github.com/DiscoOrg/disgo/api/events"
 )
 
+// GuildUpdateHandler handles api.GuildUpdateGatewayEvent
 type GuildUpdateHandler struct{}
 
 // Name returns the raw gateway event name
@@ -28,7 +29,7 @@ func (h GuildUpdateHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 	disgo.Cache().CacheGuild(guild)
 
 	genericGuildEvent := events.GenericGuildEvent{
-		Event:   api.Event{
+		Event: api.Event{
 			Disgo: disgo,
 		},
 		GuildID: guild.ID,

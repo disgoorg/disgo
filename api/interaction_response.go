@@ -22,7 +22,7 @@ type InteractionResponse struct {
 type InteractionResponseData struct {
 	TTS             bool             `json:"tts,omitempty"`
 	Content         string           `json:"content,omitempty"`
-	Embeds          []*Embed         `json:"embeds,omitempty"`
+	Embeds          []Embed          `json:"embeds,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
 	Flags           MessageFlags     `json:"flags,omitempty"`
 }
@@ -75,7 +75,7 @@ func (b *InteractionResponseBuilder) SetContent(content string) *InteractionResp
 }
 
 // SetEmbeds sets the embeds of the InteractionResponse
-func (b *InteractionResponseBuilder) SetEmbeds(embeds ...*Embed) *InteractionResponseBuilder {
+func (b *InteractionResponseBuilder) SetEmbeds(embeds ...Embed) *InteractionResponseBuilder {
 	if b.Data == nil {
 		b.Data = &InteractionResponseData{}
 	}
@@ -84,7 +84,7 @@ func (b *InteractionResponseBuilder) SetEmbeds(embeds ...*Embed) *InteractionRes
 }
 
 // AddEmbeds adds multiple embeds to the InteractionResponse
-func (b *InteractionResponseBuilder) AddEmbeds(embeds ...*Embed) *InteractionResponseBuilder {
+func (b *InteractionResponseBuilder) AddEmbeds(embeds ...Embed) *InteractionResponseBuilder {
 	if b.Data == nil {
 		b.Data = &InteractionResponseData{}
 	}
@@ -95,7 +95,7 @@ func (b *InteractionResponseBuilder) AddEmbeds(embeds ...*Embed) *InteractionRes
 // ClearEmbeds removes all of the embeds from the InteractionResponse
 func (b *InteractionResponseBuilder) ClearEmbeds() *InteractionResponseBuilder {
 	if b.Data != nil && b.Data.Embeds != nil {
-		b.Data.Embeds = []*Embed{}
+		b.Data.Embeds = []Embed{}
 	}
 	return b
 }
@@ -145,8 +145,8 @@ func (b *InteractionResponseBuilder) SetEphemeral(ephemeral bool) *InteractionRe
 }
 
 // Build returns your built InteractionResponse
-func (b *InteractionResponseBuilder) Build() *InteractionResponse {
-	return &b.InteractionResponse
+func (b *InteractionResponseBuilder) Build() InteractionResponse {
+	return b.InteractionResponse
 }
 
 // FollowupMessage is used to add additional messages to an Interaction after you've responded initially

@@ -32,7 +32,7 @@ type Embed struct {
 	Video       *EmbedResource `json:"video,omitempty"`
 	Provider    *EmbedProvider `json:"provider,omitempty"`
 	Author      *EmbedAuthor   `json:"author,omitempty"`
-	Fields      []*EmbedField   `json:"fields,omitempty"`
+	Fields      []*EmbedField  `json:"fields,omitempty"`
 }
 
 // The EmbedFooter of an Embed
@@ -121,12 +121,11 @@ func (b *EmbedBuilder) SetFooter(footer *EmbedFooter) *EmbedBuilder {
 // SetFooterBy sets the footer of the EmbedBuilder by text and iconURL
 func (b *EmbedBuilder) SetFooterBy(text string, iconURL *string) *EmbedBuilder {
 	b.Footer = &EmbedFooter{
-		Text:         text,
-		IconURL:      iconURL,
+		Text:    text,
+		IconURL: iconURL,
 	}
 	return b
 }
-
 
 // SetImage sets the image of the EmbedBuilder
 func (b *EmbedBuilder) SetImage(i *string) *EmbedBuilder {
@@ -184,6 +183,6 @@ func (b *EmbedBuilder) RemoveField(index int) *EmbedBuilder {
 }
 
 // Build returns your built Embed
-func (b *EmbedBuilder) Build() *Embed {
-	return &b.Embed
+func (b *EmbedBuilder) Build() Embed {
+	return b.Embed
 }

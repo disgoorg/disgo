@@ -47,7 +47,7 @@ func (g *GatewayImpl) Open() error {
 	log.Info("starting ws...")
 
 	if g.url == nil {
-		log.Println("gateway url is nil, fetching...")
+		log.Debug("gateway url is nil, fetching...")
 		gatewayRs := api.GatewayRs{}
 		if err := g.Disgo().RestClient().Request(endpoints.GetGateway.Compile(), nil, &gatewayRs); err != nil {
 			return err
@@ -55,10 +55,10 @@ func (g *GatewayImpl) Open() error {
 		g.url = &gatewayRs.URL
 	}
 
-	gatewayUrl := *g.url + "?v=" + endpoints.APIVersion + "&encoding=json"
-	wsConn, _, err := websocket.DefaultDialer.Dial(gatewayUrl, nil)
+	gatewayURL := *g.url + "?v=" + endpoints.APIVersion + "&encoding=json"
+	wsConn, _, err := websocket.DefaultDialer.Dial(gatewayURL, nil)
 	if err != nil {
-		log.Errorf("error connecting to gateway. url: %s, error: %s", gatewayUrl, err.Error())
+		log.Errorf("error connecting to gateway. url: %s, error: %s", gatewayURL, err.Error())
 		return err
 	}
 	wsConn.SetCloseHandler(func(code int, error string) error {
@@ -154,6 +154,7 @@ func (g *GatewayImpl) Close() {
 	log.Info("closed gateway goroutines")
 }
 
+// Latency returns the api.Gateway latency
 func (g *GatewayImpl) Latency() time.Duration {
 	return g.lastHeartbeatSent.Sub(g.lastHeartbeatReceived)
 }

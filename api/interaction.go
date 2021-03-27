@@ -40,9 +40,8 @@ type Resolved struct {
 
 // OptionData is used for options or subcommands in your slash commands
 type OptionData struct {
-	Name     string            `json:"name"`
-	Type     CommandOptionType `json:"type"`
-	Value    interface{}       `json:"value,omitempty"`
-	Options  []*OptionData     `json:"options,omitempty"`
+	Name    string                 `json:"name"`
+	Type    SlashCommandOptionType `json:"type"`
+	Value   interface{}            `json:"value,omitempty"`
+	Options []*OptionData          `json:"options,omitempty"`
 }
-

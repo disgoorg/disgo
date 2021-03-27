@@ -32,52 +32,52 @@ func main() {
 	}
 
 	_, err = dgo.RestClient().SetGuildCommands(dgo.ApplicationID(), "817327181659111454",
-		api.Command{
+		api.SlashCommand{
 			Name:        "test",
 			Description: "test test test test test test",
 		},
-		api.Command{
+		api.SlashCommand{
 			Name:        "say",
 			Description: "says what you say",
 			Options: []*api.CommandOption{
 				{
-					Type: api.CommandOptionTypeString,
-					Name: "message",
+					Type:        api.OptionTypeString,
+					Name:        "message",
 					Description: "What to say",
-					Required: true,
+					Required:    true,
 				},
 			},
 		},
-		api.Command{
+		api.SlashCommand{
 			Name:        "addrole",
 			Description: "This command adds a role to a member",
 			Options: []*api.CommandOption{
 				{
-					Type:        api.CommandOptionTypeUser,
+					Type:        api.OptionTypeUser,
 					Name:        "member",
 					Description: "The member to add a role to",
 					Required:    true,
 				},
 				{
-					Type:        api.CommandOptionTypeRole,
+					Type:        api.OptionTypeRole,
 					Name:        "role",
 					Description: "The role to add to a member",
 					Required:    true,
 				},
 			},
 		},
-		api.Command{
+		api.SlashCommand{
 			Name:        "removerole",
 			Description: "This command removes a role from a member",
 			Options: []*api.CommandOption{
 				{
-					Type:        api.CommandOptionTypeUser,
+					Type:        api.OptionTypeUser,
 					Name:        "member",
 					Description: "The member to removes a role from",
 					Required:    true,
 				},
 				{
-					Type:        api.CommandOptionTypeRole,
+					Type:        api.OptionTypeRole,
 					Name:        "role",
 					Description: "The role to removes from a member",
 					Required:    true,
@@ -109,13 +109,13 @@ func guildAvailListener(event *events.GuildAvailableEvent) {
 func slashCommandListener(event *events.SlashCommandEvent) {
 	switch event.Interaction.Data.Name {
 	case "say":
-		_ = event.Reply(*api.NewInteractionResponseBuilder().
+		_ = event.Reply(api.NewInteractionResponseBuilder().
 			SetContent(event.OptionByName("message").String()).
 			SetAllowedMentionsEmpty().
 			Build(),
 		)
 	case "test":
-		_ = event.Reply(*api.NewInteractionResponseBuilder().
+		_ = event.Reply(api.NewInteractionResponseBuilder().
 			SetContent("test").
 			SetEphemeral(true).
 			AddEmbeds(
@@ -127,26 +127,26 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 	case "addrole":
 		user := event.OptionByName("member").User()
 		role := event.OptionByName("role").Role()
-		err := event.Disgo.RestClient().AddMemberRole(*event.GuildID, user.ID, role.ID)
+		err := event.Disgo.RestClient().AddMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
 		if err == nil {
-			_ = event.Reply(*api.NewInteractionResponseBuilder().AddEmbeds(
+			_ = event.Reply(api.NewInteractionResponseBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Added %s to %s", role, user).Build(),
 			).Build())
 		} else {
-			_ = event.Reply(*api.NewInteractionResponseBuilder().AddEmbeds(
+			_ = event.Reply(api.NewInteractionResponseBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(16711680).SetDescriptionf("Failed to add %s to %s", role, user).Build(),
 			).Build())
 		}
 	case "removerole":
 		user := event.OptionByName("member").User()
 		role := event.OptionByName("role").Role()
-		err := event.Disgo.RestClient().RemoveMemberRole(*event.GuildID, user.ID, role.ID)
+		err := event.Disgo.RestClient().RemoveMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
 		if err == nil {
-			_ = event.Reply(*api.NewInteractionResponseBuilder().AddEmbeds(
+			_ = event.Reply(api.NewInteractionResponseBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Removed %s from %s", role, user).Build(),
 			).Build())
 		} else {
-			_ = event.Reply(*api.NewInteractionResponseBuilder().AddEmbeds(
+			_ = event.Reply(api.NewInteractionResponseBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(16711680).SetDescriptionf("Failed to remove %s from %s", role, user).Build(),
 			).Build())
 		}
@@ -163,10 +163,10 @@ func messageListener(event *events.GuildMessageReceivedEvent) {
 
 	switch *event.Message.Content {
 	case "ping":
-		_, _ = event.Message.Reply(*api.NewMessageBuilder().SetContent("pong").SetAllowedMentions(&api.AllowedMentions{RepliedUser: false}).Build())
+		_, _ = event.Message.Reply(api.NewMessageBuilder().SetContent("pong").SetAllowedMentions(&api.AllowedMentions{RepliedUser: false}).Build())
 
 	case "pong":
-		_, _ = event.Message.Reply(*api.NewMessageBuilder().SetContent("ping").SetAllowedMentions(&api.AllowedMentions{RepliedUser: false}).Build())
+		_, _ = event.Message.Reply(api.NewMessageBuilder().SetContent("ping").SetAllowedMentions(&api.AllowedMentions{RepliedUser: false}).Build())
 
 	case "dm":
 		go func() {
@@ -175,7 +175,7 @@ func messageListener(event *events.GuildMessageReceivedEvent) {
 				_ = event.Message.AddReaction("❌")
 				return
 			}
-			_, err = channel.SendMessage(*api.NewMessageBuilder().SetContent("helo").Build())
+			_, err = channel.SendMessage(api.NewMessageBuilder().SetContent("helo").Build())
 			if err == nil {
 				_ = event.Message.AddReaction("✅")
 			} else {

@@ -4,6 +4,7 @@ import (
 	"github.com/DiscoOrg/disgo/api"
 )
 
+// ListenerAdapter lets you override the handles for receiving events
 type ListenerAdapter struct {
 	OnGenericEvent func(*api.GenericEvent)
 
@@ -26,10 +27,11 @@ type ListenerAdapter struct {
 	OnGuildMessageReceived func(*GuildMessageReceivedEvent)
 
 	// Interaction Events
-	OnGenericInteraction   func(*GenericInteractionEvent)
-	OnSlashCommand         func(*SlashCommandEvent)
+	OnGenericInteraction func(*GenericInteractionEvent)
+	OnSlashCommand       func(*SlashCommandEvent)
 }
 
+// OnEvent is getting called everytime we receive an event
 func (l ListenerAdapter) OnEvent(event interface{}) {
 	if event, ok := event.(api.GenericEvent); ok {
 		if l.OnGenericEvent != nil {

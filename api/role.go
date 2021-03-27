@@ -12,39 +12,47 @@ type Role struct {
 	Permissions Permissions `json:"permissions"`
 	Managed     bool        `json:"managed"`
 	Mentionable bool        `json:"mentionable"`
-	Tags        *RoleTag  `json:"tags,omitempty"`
+	Tags        *RoleTag    `json:"tags,omitempty"`
 }
 
+// Mention parses the Role as a Mention
 func (r Role) Mention() string {
-	return "<@&"+r.ID.String()+">"
+	return "<@&" + r.ID.String() + ">"
 }
 
+// String parses the Role to a String representation
 func (r Role) String() string {
 	return r.Mention()
 }
 
+// Guild returns the Guild of this role from the Cache
 func (r Role) Guild() *Guild {
 	return r.Disgo.Cache().Guild(r.GuildID)
 }
 
+// Update updates the Role with specific values
 func (r Role) Update(roleUpdate UpdateRole) (*Role, error) {
 	return r.Disgo.RestClient().UpdateRole(r.GuildID, r.ID, roleUpdate)
 }
 
+// SetPosition sets the position of the Role
 func (r Role) SetPosition(rolePositionUpdate UpdateRolePosition) ([]*Role, error) {
 	return r.Disgo.RestClient().UpdateRolePositions(r.GuildID, rolePositionUpdate)
 }
 
+// Delete deletes the Role
 func (r Role) Delete() error {
 	return r.Disgo.RestClient().DeleteRole(r.GuildID, r.ID)
 }
 
+// RoleTag are tags a Role has
 type RoleTag struct {
 	BotID             *Snowflake `json:"bot_id,omitempty"`
 	IntegrationID     *Snowflake `json:"integration_id,omitempty"`
 	PremiumSubscriber bool       `json:"premium_subscriber"`
 }
 
+// UpdateRole is the payload to update a Role
 type UpdateRole struct {
 	Name        *string      `json:"name,omitempty"`
 	Permissions *Permissions `json:"permissions,omitempty"`
@@ -53,6 +61,7 @@ type UpdateRole struct {
 	Mentionable *bool        `json:"mentionable,omitempty"`
 }
 
+// UpdateRolePosition is the payload to update a Role(s) position
 type UpdateRolePosition struct {
 	ID       Snowflake `json:"id"`
 	Position *int      `json:"position"`

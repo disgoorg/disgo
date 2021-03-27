@@ -8,6 +8,7 @@ import (
 	"github.com/DiscoOrg/disgo/api"
 )
 
+// New creates a new api.Disgo instance
 func New(token string, options api.Options) (api.Disgo, error) {
 	disgo := &DisgoImpl{
 		token:   token,
@@ -74,11 +75,12 @@ func (d *DisgoImpl) RestClient() api.RestClient {
 	return d.restClient
 }
 
+// EventManager returns the api.EventManager
 func (d *DisgoImpl) EventManager() api.EventManager {
 	return d.eventManager
 }
 
-// Cache returns the entity cache used by disgo
+// Cache returns the entity api.Cache used by disgo
 func (d *DisgoImpl) Cache() api.Cache {
 	return d.cache
 }
@@ -100,40 +102,42 @@ func (d *DisgoImpl) SelfUser() *api.User {
 	return d.selfUser
 }
 
+// SetSelfUser sets the self user
 func (d *DisgoImpl) SetSelfUser(user *api.User) {
 	d.selfUser = user
 }
 
+// HeartbeatLatency returns the heartbeat latency
 func (d *DisgoImpl) HeartbeatLatency() time.Duration {
 	return d.Gateway().Latency()
 }
 
 // GetCommand fetches a specific guild command
-func (d DisgoImpl) GetCommand(commandID api.Snowflake) (*api.Command, error) {
+func (d DisgoImpl) GetCommand(commandID api.Snowflake) (*api.SlashCommand, error) {
 	return d.RestClient().GetGlobalCommand(d.ApplicationID(), commandID)
 }
 
-// GetCommand fetches all guild commands
-func (d DisgoImpl) GetCommands() ([]*api.Command, error) {
+// GetCommands fetches all guild commands
+func (d DisgoImpl) GetCommands() ([]*api.SlashCommand, error) {
 	return d.RestClient().GetGlobalCommands(d.ApplicationID())
 }
 
 // CreateCommand creates a new command for this guild
-func (d DisgoImpl) CreateCommand(command api.Command) (*api.Command, error) {
+func (d DisgoImpl) CreateCommand(command api.SlashCommand) (*api.SlashCommand, error) {
 	return d.RestClient().CreateGlobalCommand(d.ApplicationID(), command)
 }
 
 // EditCommand edits a specific guild command
-func (d DisgoImpl) EditCommand(commandID api.Snowflake, command api.Command) (*api.Command, error) {
+func (d DisgoImpl) EditCommand(commandID api.Snowflake, command api.SlashCommand) (*api.SlashCommand, error) {
 	return d.RestClient().EditGlobalCommand(d.ApplicationID(), commandID, command)
 }
 
 // DeleteCommand creates a new command for this guild
-func (d DisgoImpl) DeleteCommand(command api.Command) (*api.Command, error) {
+func (d DisgoImpl) DeleteCommand(command api.SlashCommand) (*api.SlashCommand, error) {
 	return d.RestClient().CreateGlobalCommand(d.ApplicationID(), command)
 }
 
 // SetCommands overrides all commands for this guild
-func (d DisgoImpl) SetCommands(commands ...api.Command) ([]*api.Command, error) {
+func (d DisgoImpl) SetCommands(commands ...api.SlashCommand) ([]*api.SlashCommand, error) {
 	return d.RestClient().SetGlobalCommands(d.ApplicationID(), commands...)
 }

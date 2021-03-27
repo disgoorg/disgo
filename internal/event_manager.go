@@ -2,6 +2,7 @@ package internal
 
 import (
 	"encoding/json"
+	"runtime/debug"
 
 	log "github.com/sirupsen/logrus"
 
@@ -11,7 +12,7 @@ import (
 
 func newEventManagerImpl(disgo api.Disgo, listeners []api.EventListener) api.EventManager {
 	eventManager := &EventManagerImpl{
-		disgo: disgo,
+		disgo:     disgo,
 		channel:   make(chan api.GenericEvent),
 		listeners: listeners,
 		handlers:  map[string]api.GatewayEventHandler{},
@@ -23,6 +24,7 @@ func newEventManagerImpl(disgo api.Disgo, listeners []api.EventListener) api.Eve
 	return eventManager
 }
 
+// EventManagerImpl is the implementation of api.EventManager
 type EventManagerImpl struct {
 	disgo     api.Disgo
 	listeners []api.EventListener
@@ -30,6 +32,7 @@ type EventManagerImpl struct {
 	channel   chan api.GenericEvent
 }
 
+// Handle calls the correct api.GatewayEventHandler
 func (e EventManagerImpl) Handle(name string, payload json.RawMessage) {
 	if handler, ok := e.handlers[name]; ok {
 		eventPayload := handler.New()
@@ -40,18 +43,21 @@ func (e EventManagerImpl) Handle(name string, payload json.RawMessage) {
 	}
 }
 
+// Dispatch dispatches a new event to the client
 func (e EventManagerImpl) Dispatch(event api.GenericEvent) {
 	e.channel <- event
 }
 
+// AddEventListeners adds one or more api.EventListener(s) to the api.EventManager
 func (e EventManagerImpl) AddEventListeners(listeners ...api.EventListener) {
 	for _, listener := range listeners {
 		e.listeners = append(e.listeners, listener)
 	}
 }
 
+// ListenEvents starts the event goroutine
 func (e EventManagerImpl) ListenEvents() {
-	/*defer func() {
+	defer func() {
 		if r := recover(); r != nil {
 			log.Errorf("recovered event listen goroutine error: %s", r)
 			debug.PrintStack()
@@ -60,7 +66,7 @@ func (e EventManagerImpl) ListenEvents() {
 		}
 		log.Infof("closing event channel...")
 		close(e.channel)
-	}()*/
+	}()
 	for {
 		event := <-e.channel
 		for _, listener := range e.listeners {

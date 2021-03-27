@@ -1,5 +1,6 @@
 package api
 
+// DefaultInteractionAllowedMentions gives you the default AllowedMentions for an Interaction
 var DefaultInteractionAllowedMentions = AllowedMentions{
 	Parse:       []AllowedMentionType{AllowedMentionTypeUser},
 	Roles:       []Snowflake{},
@@ -7,6 +8,7 @@ var DefaultInteractionAllowedMentions = AllowedMentions{
 	RepliedUser: false,
 }
 
+// DefaultMessageAllowedMentions gives you the default AllowedMentions for a Message
 var DefaultMessageAllowedMentions = AllowedMentions{
 	Parse:       []AllowedMentionType{AllowedMentionTypeUser, AllowedMentionTypeRole, AllowedMentionTypeEveryone},
 	Roles:       []Snowflake{},

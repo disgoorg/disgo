@@ -5,6 +5,7 @@ import (
 	"github.com/DiscoOrg/disgo/api/events"
 )
 
+// InteractionCreateHandler handles api.InteractionCreateGatewayEvent
 type InteractionCreateHandler struct{}
 
 // Name returns the raw gateway event name
@@ -69,12 +70,12 @@ func (h InteractionCreateHandler) Handle(disgo api.Disgo, eventManager api.Event
 		var subCommandGroup *string
 		if len(options) == 1 {
 			option := interaction.Data.Options[0]
-			if option.Type == api.CommandOptionTypeSubCommandGroup {
+			if option.Type == api.OptionTypeSubCommandGroup {
 				subCommandGroup = &option.Name
 				options = option.Options
 				option = option.Options[0]
 			}
-			if option.Type == api.CommandOptionTypeSubCommand {
+			if option.Type == api.OptionTypeSubCommand {
 				subCommandName = &option.Name
 				options = option.Options
 			}

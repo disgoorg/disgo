@@ -5,12 +5,12 @@ import (
 	"github.com/DiscoOrg/disgo/api/events"
 )
 
-// RoleDeleteData is the GuildRoleDelete.D payload
-type RoleDeleteData struct {
+type roleDeleteData struct {
 	GuildID api.Snowflake `json:"guild_id"`
 	RoleID  api.Snowflake `json:"role_id"`
 }
 
+// GuildRoleDeleteHandler handles api.GuildRoleDeleteGatewayEvent
 type GuildRoleDeleteHandler struct{}
 
 // Name returns the raw gateway event name
@@ -20,12 +20,12 @@ func (h GuildRoleDeleteHandler) Name() string {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h GuildRoleDeleteHandler) New() interface{} {
-	return &RoleCreateData{}
+	return &roleCreateData{}
 }
 
 // Handle handles the specific raw gateway event
 func (h GuildRoleDeleteHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
-	roleDeleteData, ok := i.(*RoleDeleteData)
+	roleDeleteData, ok := i.(*roleDeleteData)
 	if !ok {
 		return
 	}

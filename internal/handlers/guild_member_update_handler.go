@@ -5,6 +5,7 @@ import (
 	"github.com/DiscoOrg/disgo/api/events"
 )
 
+// GuildMemberUpdateHandler handles api.GuildMemberUpdateGatewayEvent
 type GuildMemberUpdateHandler struct{}
 
 // Name returns the raw gateway event name

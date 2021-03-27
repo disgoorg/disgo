@@ -5,13 +5,12 @@ import (
 	"github.com/DiscoOrg/disgo/api/events"
 )
 
-// RoleUpdateData is the GuildRoleUpdate.D payload
-type RoleUpdateData struct {
+type roleUpdateData struct {
 	GuildID api.Snowflake `json:"guild_id"`
 	Role    *api.Role     `json:"role"`
 }
 
-// GuildRoleUpdateHandler handles guild role update event
+// GuildRoleUpdateHandler handles api.GuildRoleUpdateGatewayEvent
 type GuildRoleUpdateHandler struct{}
 
 // Name returns the raw gateway event name
@@ -21,12 +20,12 @@ func (h GuildRoleUpdateHandler) Name() string {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h GuildRoleUpdateHandler) New() interface{} {
-	return &RoleCreateData{}
+	return &roleUpdateData{}
 }
 
 // Handle handles the specific raw gateway event
 func (h GuildRoleUpdateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
-	roleUpdateData, ok := i.(*RoleUpdateData)
+	roleUpdateData, ok := i.(*roleUpdateData)
 	if !ok {
 		return
 	}
@@ -53,6 +52,6 @@ func (h GuildRoleUpdateHandler) Handle(disgo api.Disgo, eventManager api.EventMa
 
 	eventManager.Dispatch(events.GuildRoleUpdateEvent{
 		GenericGuildEvent: genericGuildEvent,
-		OldRole: &oldRole,
+		OldRole:           &oldRole,
 	})
 }
