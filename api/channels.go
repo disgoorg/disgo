@@ -43,7 +43,7 @@ type MessageChannel struct {
 }
 
 // SendMessage a Message to a TextChannel
-func (c MessageChannel) SendMessage(message Message) (*Message, error) {
+func (c MessageChannel) SendMessage(message MessageCreate) (*Message, error) {
 	// Todo: embeds, attachments etc.
 	return c.Disgo.RestClient().SendMessage(c.ID, message)
 }

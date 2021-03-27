@@ -132,7 +132,7 @@ func (r RestClientImpl) Request(route endpoints.CompiledAPIRoute, rqBody interfa
 }
 
 // SendMessage lets you send a message_events to a channel
-func (r RestClientImpl) SendMessage(channelID api.Snowflake, message api.Message) (rMessage *api.Message, err error) {
+func (r RestClientImpl) SendMessage(channelID api.Snowflake, message api.MessageCreate) (rMessage *api.Message, err error) {
 	err = r.Request(endpoints.CreateMessage.Compile(channelID), message, &rMessage)
 	if rMessage != nil {
 		//r.Disgo().Cache().CacheMessage(rMessage)

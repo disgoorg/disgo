@@ -1,5 +1,19 @@
 package api
 
+var DefaultInteractionAllowedMentions = AllowedMentions{
+	Parse:       []AllowedMentionType{AllowedMentionTypeUser},
+	Roles:       []Snowflake{},
+	Users:       []Snowflake{},
+	RepliedUser: false,
+}
+
+var DefaultMessageAllowedMentions = AllowedMentions{
+	Parse:       []AllowedMentionType{AllowedMentionTypeUser, AllowedMentionTypeRole, AllowedMentionTypeEveryone},
+	Roles:       []Snowflake{},
+	Users:       []Snowflake{},
+	RepliedUser: true,
+}
+
 // AllowedMentions are used for avoiding mentioning users in Message and Interaction
 type AllowedMentions struct {
 	Parse       []AllowedMentionType `json:"parse"`

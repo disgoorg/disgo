@@ -163,7 +163,7 @@ func (m Message) AddReaction(emoji string) error {
 	return m.Disgo.RestClient().AddReaction(m.ChannelID, m.ID, emoji)
 }
 
-func (m Message) Reply(message Message) (*Message, error) {
+func (m Message) Reply(message MessageCreate) (*Message, error) {
 	message.MessageReference = &MessageReference{
 		MessageID: &m.ID,
 	}

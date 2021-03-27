@@ -107,8 +107,8 @@ func (b *EmbedBuilder) SetAuthor(author *EmbedAuthor) *EmbedBuilder {
 }
 
 // SetColor sets the color of the EmbedBuilder
-func (b *EmbedBuilder) SetColor(color *int) *EmbedBuilder {
-	b.Color = color
+func (b *EmbedBuilder) SetColor(color int) *EmbedBuilder {
+	b.Color = &color
 	return b
 }
 

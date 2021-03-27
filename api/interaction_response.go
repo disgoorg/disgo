@@ -20,11 +20,11 @@ type InteractionResponse struct {
 
 // The InteractionResponseData is used to specify the message_events options when creating an InteractionResponse
 type InteractionResponseData struct {
-	TTS             *bool           `json:"tts,omitempty"`
-	Content         *string         `json:"content,omitempty"`
-	Embeds          []*Embed        `json:"embeds,omitempty"`
-	AllowedMentions AllowedMentions `json:"allowed_mentions,omitempty"`
-	Flags           MessageFlags    `json:"flags,omitempty"`
+	TTS             bool             `json:"tts,omitempty"`
+	Content         string           `json:"content,omitempty"`
+	Embeds          []*Embed         `json:"embeds,omitempty"`
+	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
+	Flags           MessageFlags     `json:"flags,omitempty"`
 }
 
 // InteractionResponseBuilder allows you to create an InteractionResponse with ease
@@ -37,10 +37,8 @@ func NewInteractionResponseBuilder() *InteractionResponseBuilder {
 	return &InteractionResponseBuilder{
 		InteractionResponse{
 			Type: InteractionResponseTypeChannelMessageWithSource,
-			Data: {
-				AllowedMentions: AllowedMentions{
-					Parse: []"users"{},
-				}
+			Data: &InteractionResponseData{
+				AllowedMentions: &DefaultInteractionAllowedMentions,
 			},
 		},
 	}
@@ -59,7 +57,7 @@ func (b *InteractionResponseBuilder) SetData(data *InteractionResponseData) *Int
 }
 
 // SetTTS sets if the InteractionResponse is a tts message
-func (b *InteractionResponseBuilder) SetTTS(tts *bool) *InteractionResponseBuilder {
+func (b *InteractionResponseBuilder) SetTTS(tts bool) *InteractionResponseBuilder {
 	if b.Data == nil {
 		b.Data = &InteractionResponseData{}
 	}
@@ -72,7 +70,7 @@ func (b *InteractionResponseBuilder) SetContent(content string) *InteractionResp
 	if b.Data == nil {
 		b.Data = &InteractionResponseData{}
 	}
-	b.Data.Content = &content
+	b.Data.Content = content
 	return b
 }
 
@@ -108,6 +106,20 @@ func (b *InteractionResponseBuilder) RemoveEmbed(index int) *InteractionResponse
 		b.Data.Embeds = append(b.Data.Embeds[:index], b.Data.Embeds[index+1:]...)
 	}
 	return b
+}
+
+// SetAllowedMentions sets the allowed mentions of the InteractionResponse
+func (b *InteractionResponseBuilder) SetAllowedMentions(allowedMentions *AllowedMentions) *InteractionResponseBuilder {
+	if b.Data == nil {
+		b.Data = &InteractionResponseData{}
+	}
+	b.Data.AllowedMentions = allowedMentions
+	return b
+}
+
+// SetAllowedMentionsEmpty sets the allowed mentions of the InteractionResponse to nothing
+func (b *InteractionResponseBuilder) SetAllowedMentionsEmpty() *InteractionResponseBuilder {
+	return b.SetAllowedMentions(&AllowedMentions{})
 }
 
 // SetFlags sets the message flags of the InteractionResponse

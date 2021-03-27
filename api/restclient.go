@@ -23,7 +23,7 @@ type RestClient interface {
 	UserAgent() string
 	Request(route endpoints.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) error
 
-	SendMessage(channelID Snowflake, message Message) (*Message, error)
+	SendMessage(channelID Snowflake, message MessageCreate) (*Message, error)
 	OpenDMChannel(userID Snowflake) (*DMChannel, error)
 
 	UpdateSelfNick(guildID Snowflake, nick *string) (*string, error)
