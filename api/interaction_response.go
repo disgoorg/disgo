@@ -20,11 +20,11 @@ type InteractionResponse struct {
 
 // The InteractionResponseData is used to specify the message_events options when creating an InteractionResponse
 type InteractionResponseData struct {
-	TTS             *bool        `json:"tts,omitempty"`
-	Content         *string      `json:"content,omitempty"`
-	Embeds          []*Embed     `json:"embeds,omitempty"`
-	AllowedMentions interface{}  `json:"allowed_mentions,omitempty"`
-	Flags           MessageFlags `json:"flags,omitempty"`
+	TTS             *bool           `json:"tts,omitempty"`
+	Content         *string         `json:"content,omitempty"`
+	Embeds          []*Embed        `json:"embeds,omitempty"`
+	AllowedMentions AllowedMentions `json:"allowed_mentions,omitempty"`
+	Flags           MessageFlags    `json:"flags,omitempty"`
 }
 
 // InteractionResponseBuilder allows you to create an InteractionResponse with ease
@@ -37,6 +37,11 @@ func NewInteractionResponseBuilder() *InteractionResponseBuilder {
 	return &InteractionResponseBuilder{
 		InteractionResponse{
 			Type: InteractionResponseTypeChannelMessageWithSource,
+			Data: {
+				AllowedMentions: AllowedMentions{
+					Parse: []"users"{},
+				}
+			},
 		},
 	}
 }

@@ -24,28 +24,25 @@ type Interaction struct {
 
 // InteractionData is the command data payload
 type InteractionData struct {
-	ID      Snowflake    `json:"id"`
-	Name    string       `json:"name"`
-	Options []OptionData `json:"options,omitempty"`
+	ID       Snowflake     `json:"id"`
+	Name     string        `json:"name"`
+	Resolved *Resolved     `json:"resolved"`
+	Options  []*OptionData `json:"options,omitempty"`
+}
+
+// Resolved contains resolved mention data
+type Resolved struct {
+	Users    map[Snowflake]*User    `json:"users,omitempty"`
+	Members  map[Snowflake]*Member  `json:"members,omitempty"`
+	Roles    map[Snowflake]*Role    `json:"roles,omitempty"`
+	Channels map[Snowflake]*Channel `json:"channels,omitempty"`
 }
 
 // OptionData is used for options or subcommands in your slash commands
 type OptionData struct {
-	Name    string                       `json:"name"`
-	Type    ApplicationCommandOptionType `json:"type"`
-	Value   interface{}                  `json:"value,omitempty"`
-	Options []OptionData                 `json:"options,omitempty"`
+	Name     string            `json:"name"`
+	Type     CommandOptionType `json:"type"`
+	Value    interface{}       `json:"value,omitempty"`
+	Options  []*OptionData     `json:"options,omitempty"`
 }
 
-
-func (v OptionData) String() string {
-	return v.Value.(string)
-}
-
-func (v OptionData) Bool() bool {
-	return v.Value.(bool)
-}
-
-func (v OptionData) Snowflake() Snowflake {
-	return Snowflake(v.String())
-}

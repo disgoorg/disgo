@@ -12,7 +12,15 @@ type Role struct {
 	Permissions Permissions `json:"permissions"`
 	Managed     bool        `json:"managed"`
 	Mentionable bool        `json:"mentionable"`
-	Tags        []*RoleTag  `json:"tags,omitempty"`
+	Tags        *RoleTag  `json:"tags,omitempty"`
+}
+
+func (r Role) Mention() string {
+	return "<@&"+r.ID.String()+">"
+}
+
+func (r Role) String() string {
+	return r.Mention()
 }
 
 func (r Role) Guild() *Guild {

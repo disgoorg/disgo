@@ -45,7 +45,7 @@ func (e VoiceChannelEvent) VoiceChannel() *api.VoiceChannel {
 type CategoryChannelEvent struct {
 	ChannelEvent
 }
-func (e CategoryChannelEvent) Category() *api.CategoryChannel {
+func (e CategoryChannelEvent) Category() *api.Category {
 	return e.Disgo.Cache().Category(e.ChannelID)
 }
 

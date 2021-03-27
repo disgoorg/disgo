@@ -9,7 +9,7 @@ type GuildMemberUpdateHandler struct{}
 
 // Name returns the raw gateway event name
 func (h GuildMemberUpdateHandler) Name() string {
-	return api.GuildMemberAddGatewayEvent
+	return api.GuildMemberUpdateGatewayEvent
 }
 
 // New constructs a new payload receiver for the raw gateway event
@@ -24,7 +24,7 @@ func (h GuildMemberUpdateHandler) Handle(disgo api.Disgo, eventManager api.Event
 		return
 	}
 
-	oldMember := *disgo.Cache().Member(member.GuildID, member.User.ID)
+	oldMember := disgo.Cache().Member(member.GuildID, member.User.ID)
 	disgo.Cache().CacheMember(member)
 
 	genericGuildEvent := events.GenericGuildEvent{

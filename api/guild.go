@@ -79,9 +79,9 @@ const (
 	GuildFeaturePARTNERED                     GuildFeature = "PARTNERED"
 	GuildFeatureCOMMUNITY                     GuildFeature = "COMMUNITY"
 	GuildFeatureCOMMERCE                      GuildFeature = "COMMERCE"
-	guildFeatureNews                          GuildFeature = "NEWS"
-	guildFeatureDiscoverable                  GuildFeature = "DISCOVERABLE"
-	guildFeatureFeaturable                    GuildFeature = "FEATURABLE"
+	GuildFeatureNews                          GuildFeature = "NEWS"
+	GuildFeatureDiscoverable                  GuildFeature = "DISCOVERABLE"
+	GuildFeatureFeaturable                    GuildFeature = "FEATURABLE"
 	GuildFeatureAnimatedIcon                  GuildFeature = "ANIMATED_ICON"
 	GuildFeatureBANNER                        GuildFeature = "BANNER"
 	GuildFeatureWelcomeScreenEnabled          GuildFeature = "WELCOME_SCREEN_ENABLED"
@@ -91,15 +91,12 @@ const (
 
 // Guild represents a discord guild_events
 type Guild struct {
-	Disgo   Disgo
-	ID      Snowflake `json:"id"`
-	Name    string    `json:"name"`
-	Icon    *string   `json:"icon"`
-	Region  string    `json:"region"`
-	OwnerID Snowflake `json:"owner_id"`
-	// only used in GET USER GUILDS
-	//Owner                       *bool                       `json:"owner"`
-	//Permissions                 *Permissions                `json:"permissions"`
+	Disgo                       Disgo
+	ID                          Snowflake                  `json:"id"`
+	Name                        string                     `json:"name"`
+	Icon                        *string                    `json:"icon"`
+	Region                      string                     `json:"region"`
+	OwnerID                     Snowflake                  `json:"owner_id"`
 	JoinedAt                    *time.Time                 `json:"joined_at"`
 	DiscoverySplash             *string                    `json:"discovery_splash"`
 	Splash                      *string                    `json:"splash"`
@@ -116,7 +113,7 @@ type Guild struct {
 	MaxMembers                  *int                       `json:"max_members"`
 	Channels                    []*GuildChannel            `json:"channels"`
 	VoiceStates                 []*VoiceState              `json:"voice_states"`
-	Unavailable                 bool                      `json:"unavailable"`
+	Unavailable                 bool                       `json:"unavailable"`
 	ExplicitContentFilter       ExplicitContentFilterLevel `json:"explicit_content_filter"`
 	Features                    []GuildFeature             `json:"features"`
 	MfaLevel                    MFALevel                   `json:"mfa_level"`
@@ -162,7 +159,32 @@ func (g Guild) IconURL() *string {
 	return &u
 }
 
-// CreateCommand returns a GuildCommandBuilder for that guild
-func (g Guild) CreateCommand(name string, description string) GuildCommandBuilder {
-	return NewGuildCommandBuilder(g.Disgo, g.ID, name, description)
+// GetCommand fetches a specific guild command
+func (g Guild) GetCommand(commandID Snowflake) (*Command, error) {
+	return g.Disgo.RestClient().GetGuildCommand(g.Disgo.ApplicationID(), g.ID, commandID)
+}
+
+// GetCommand fetches all guild commands
+func (g Guild) GetCommands() ([]*Command, error) {
+	return g.Disgo.RestClient().GetGuildCommands(g.Disgo.ApplicationID(), g.ID)
+}
+
+// CreateCommand creates a new command for this guild
+func (g Guild) CreateCommand(command Command) (*Command, error) {
+	return g.Disgo.RestClient().CreateGuildGuildCommand(g.Disgo.ApplicationID(), g.ID, command)
+}
+
+// EditCommand edits a specific guild command
+func (g Guild) EditCommand(commandID Snowflake, command Command) (*Command, error) {
+	return g.Disgo.RestClient().EditGuildCommand(g.Disgo.ApplicationID(), g.ID, commandID, command)
+}
+
+// DeleteCommand creates a new command for this guild
+func (g Guild) DeleteCommand(command Command) (*Command, error) {
+	return g.Disgo.RestClient().CreateGuildGuildCommand(g.Disgo.ApplicationID(), g.ID, command)
+}
+
+// SetCommands overrides all commands for this guild
+func (g Guild) SetCommands(commands ...Command) ([]*Command, error) {
+	return g.Disgo.RestClient().SetGuildCommands(g.Disgo.ApplicationID(), g.ID, commands...)
 }

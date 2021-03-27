@@ -1,9 +1,5 @@
 package api
 
-import (
-	//"time"
-)
-
 // ChannelType for interacting with discord's channels
 type ChannelType int
 
@@ -21,22 +17,23 @@ const (
 // Channel is a generic discord channel object
 type Channel struct {
 	Disgo            Disgo
-	ID               Snowflake   `json:"id"`
-	Type             ChannelType `json:"type"`
-	LastMessageID    *Snowflake  `json:"last_message_id,omitempty"`
-	Name             *string     `json:"name,omitempty"`
-	GuildID          *Snowflake  `json:"guild_id,omitempty"`
-	Position         *int        `json:"position,omitempty"`
-	Topic            *string     `json:"topic,omitempty"`
-	NSFW             *bool       `json:"nsfw,omitempty"`
-	Bitrate          *int        `json:"bitrate,omitempty"`
-	UserLimit        *int        `json:"user_limit,omitempty"`
-	RateLimitPerUser *int        `json:"rate_limit_per_user,omitempty"`
-	Recipients       []*User     `json:"recipients,omitempty"`
-	Icon             *string     `json:"icon,omitempty"`
-	OwnerID          *Snowflake  `json:"owner_id,omitempty"`
-	ApplicationID    *Snowflake  `json:"application_id,omitempty"`
-	ParentID         *Snowflake  `json:"parent_id,omitempty"`
+	ID               Snowflake    `json:"id"`
+	Name             *string      `json:"name,omitempty"`
+	Type             ChannelType  `json:"type"`
+	LastMessageID    *Snowflake   `json:"last_message_id,omitempty"`
+	GuildID          *Snowflake   `json:"guild_id,omitempty"`
+	Position         *int         `json:"position,omitempty"`
+	Topic            *string      `json:"topic,omitempty"`
+	NSFW             *bool        `json:"nsfw,omitempty"`
+	Bitrate          *int         `json:"bitrate,omitempty"`
+	UserLimit        *int         `json:"user_limit,omitempty"`
+	RateLimitPerUser *int         `json:"rate_limit_per_user,omitempty"`
+	Recipients       []*User      `json:"recipients,omitempty"`
+	Icon             *string      `json:"icon,omitempty"`
+	OwnerID          *Snowflake   `json:"owner_id,omitempty"`
+	ApplicationID    *Snowflake   `json:"application_id,omitempty"`
+	ParentID         *Snowflake   `json:"parent_id,omitempty"`
+	Permissions      *Permissions `json:"permissions,omitempty"`
 	//LastPinTimestamp *time.Time  `json:"last_pin_timestamp,omitempty"`
 }
 
@@ -68,8 +65,8 @@ func (c GuildChannel) Guild() *Guild {
 	return c.Disgo.Cache().Guild(c.GuildID)
 }
 
-// CategoryChannel groups text & voice channels in servers together
-type CategoryChannel struct {
+// Category groups text & voice channels in servers together
+type Category struct {
 	GuildChannel
 }
 

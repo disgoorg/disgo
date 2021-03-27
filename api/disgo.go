@@ -20,8 +20,14 @@ type Disgo interface {
 	SelfUser() *User
 	SetSelfUser(*User)
 	EventManager() EventManager
-	CreateCommand(name string, description string, options ...ApplicationCommandOption) GlobalCommandBuilder
 	HeartbeatLatency() time.Duration
+
+	GetCommand(commandID Snowflake) (*Command, error)
+	GetCommands() ([]*Command, error)
+	CreateCommand(command Command) (*Command, error)
+	EditCommand(commandID Snowflake, command Command) (*Command, error)
+	DeleteCommand(command Command) (*Command, error)
+	SetCommands(commands ...Command) ([]*Command, error)
 }
 
 // GatewayEventHandler is used to handle raw gateway events

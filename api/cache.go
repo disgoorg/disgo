@@ -92,16 +92,16 @@ type Cache interface {
 	FindVoiceChannel(Snowflake, func(*VoiceChannel) bool) *VoiceChannel
 	FindVoiceChannels(Snowflake, func(*VoiceChannel) bool) []*VoiceChannel
 
-	Category(Snowflake) *CategoryChannel
-	CategoriesByName(Snowflake, string, bool) []*CategoryChannel
-	Categories(Snowflake) []*CategoryChannel
-	AllCategories() []*CategoryChannel
-	CategoryCache(Snowflake) map[Snowflake]*CategoryChannel
-	AllCategoryCache() map[Snowflake]map[Snowflake]*CategoryChannel
-	CacheCategory(*CategoryChannel)
+	Category(Snowflake) *Category
+	CategoriesByName(Snowflake, string, bool) []*Category
+	Categories(Snowflake) []*Category
+	AllCategories() []*Category
+	CategoryCache(Snowflake) map[Snowflake]*Category
+	AllCategoryCache() map[Snowflake]map[Snowflake]*Category
+	CacheCategory(*Category)
 	UncacheCategory(Snowflake, Snowflake)
-	FindCategory(Snowflake, func(*CategoryChannel) bool) *CategoryChannel
-	FindCategories(Snowflake, func(*CategoryChannel) bool) []*CategoryChannel
+	FindCategory(Snowflake, func(*Category) bool) *Category
+	FindCategories(Snowflake, func(*Category) bool) []*Category
 
 	/*Emote(Snowflake) *Emote
 	EmotesByName(string, bool) []*Emote

@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 )
 
-type ApplicationCommands []ApplicationCommand
+type Commands []Command
 
-func (commands ApplicationCommands) MarshalJSON() ([]byte, error) {
+func (commands Commands) MarshalJSON() ([]byte, error) {
 	buffer := bytes.NewBufferString("[")
 	for i, command := range commands {
 		commandBytes, err:= json.Marshal(command)
@@ -19,46 +19,46 @@ func (commands ApplicationCommands) MarshalJSON() ([]byte, error) {
 			buffer.WriteString(",")
 		}
 	}
-	buffer = bytes.NewBufferString("]")
+	buffer.WriteString("]")
 	return buffer.Bytes(), nil
 }
 
-// ApplicationCommand is the base "command" model that belongs to an application.
-type ApplicationCommand struct {
-	ID            Snowflake                  `json:"id,omitempty"`
-	ApplicationID Snowflake                  `json:"application_id,omitempty"`
-	Name          string                     `json:"name"`
-	Description   string                     `json:"description"`
-	Options       []ApplicationCommandOption `json:"options,omitempty"`
+// Command is the base "command" model that belongs to an application.
+type Command struct {
+	ID            Snowflake       `json:"id,omitempty"`
+	ApplicationID Snowflake       `json:"application_id,omitempty"`
+	Name          string          `json:"name"`
+	Description   string          `json:"description"`
+	Options       []*CommandOption `json:"options,omitempty"`
 }
 
-// ApplicationCommandOptionType specifies the type of the arguments used in ApplicationCommand.Options
-type ApplicationCommandOptionType int
+// CommandOptionType specifies the type of the arguments used in Command.Options
+type CommandOptionType int
 
 // Constants for each slash command option type
 const (
-	ApplicationCommandOptionTypeSubCommand ApplicationCommandOptionType = iota + 1
-	ApplicationCommandOptionTypeSubCommandGroup
-	ApplicationCommandOptionTypeString
-	ApplicationCommandOptionTypeInteger
-	ApplicationCommandOptionTypeBoolean
-	ApplicationCommandOptionTypeUser
-	ApplicationCommandOptionTypeChannel
-	ApplicationCommandOptionTypeRole
+	CommandOptionTypeSubCommand CommandOptionType = iota + 1
+	CommandOptionTypeSubCommandGroup
+	CommandOptionTypeString
+	CommandOptionTypeInteger
+	CommandOptionTypeBoolean
+	CommandOptionTypeUser
+	CommandOptionTypeChannel
+	CommandOptionTypeRole
 )
 
-// ApplicationCommandOption are the arguments used in ApplicationCommand.Options
-type ApplicationCommandOption struct {
-	Type        ApplicationCommandOptionType     `json:"type"`
-	Name        string                           `json:"name"`
-	Description string                           `json:"description"`
-	Required    bool                             `json:"required,omitempty"`
-	Choices     []ApplicationCommandOptionChoice `json:"choices,omitempty"`
-	Options     []ApplicationCommandOption       `json:"options,omitempty"`
+// CommandOption are the arguments used in Command.Options
+type CommandOption struct {
+	Type        CommandOptionType `json:"type"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	Required    bool              `json:"required,omitempty"`
+	Choices     []OptionChoice    `json:"choices,omitempty"`
+	Options     []CommandOption   `json:"options,omitempty"`
 }
 
-// ApplicationCommandOptionChoice contains the data for a user using your command
-type ApplicationCommandOptionChoice struct {
+// OptionChoice contains the data for a user using your command
+type OptionChoice struct {
 	Name  string      `json:"name"`
 	Value interface{} `json:"value"`
 }

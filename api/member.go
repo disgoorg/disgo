@@ -11,8 +11,8 @@ type Member struct {
 	Roles        []Snowflake  `json:"roles,omitempty"`
 	JoinedAt     time.Time    `json:"joined_at"`
 	PremiumSince *time.Time   `json:"premium_since,omitempty"`
-	Deaf         bool         `json:"deaf"`
-	Mute         bool         `json:"mute"`
+	Deaf         *bool        `json:"deaf,omitempty"`
+	Mute         *bool        `json:"mute,omitempty"`
 	Pending      bool         `json:"pending"`
 	Permissions  *Permissions `json:"permissions,omitempty"`
 }

@@ -18,11 +18,11 @@ type GuildMemberJoinEvent struct {
 
 type GuildMemberUpdateEvent struct {
 	GenericGuildMemberEvent
-	OldMember api.Member
-	NewMember    *api.Member
+	OldMember *api.Member
+	NewMember *api.Member
 }
 
 type GuildMemberLeaveEvent struct {
 	GenericGuildMemberEvent
-	Member api.Member
+	Member *api.Member
 }

@@ -50,7 +50,7 @@ func (h GuildCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 				GuildChannel: *channel,
 			})
 		case api.ChannelTypeCategory:
-			disgo.Cache().CacheCategory(&api.CategoryChannel{
+			disgo.Cache().CacheCategory(&api.Category{
 				GuildChannel: *channel,
 			})
 		case api.ChannelTypeStore:

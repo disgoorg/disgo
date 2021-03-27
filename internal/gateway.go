@@ -46,11 +46,8 @@ func (g *GatewayImpl) Open() error {
 	g.connectionStatus = api.Connecting
 	log.Info("starting ws...")
 
-	// gatewayBase := "wss://gateway.discord.gg"
-	// g.url = &gatewayBase
-
 	if g.url == nil {
-		log.Println("GetGateway url is nil, fetching...")
+		log.Println("gateway url is nil, fetching...")
 		gatewayRs := api.GatewayRs{}
 		if err := g.Disgo().RestClient().Request(endpoints.GetGateway.Compile(), nil, &gatewayRs); err != nil {
 			return err

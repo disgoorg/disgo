@@ -28,7 +28,6 @@ func New(token string, options api.Options) (api.Disgo, error) {
 
 	disgo.gateway = newGatewayImpl(disgo)
 
-
 	return disgo, nil
 }
 
@@ -86,8 +85,9 @@ func (d *DisgoImpl) Cache() api.Cache {
 
 // Intents returns the Intents originally specified when creating the client
 func (d *DisgoImpl) Intents() api.Intents {
-	// Todo: Return copy of intents in this method so they can't be modified
-	return d.intents
+	// clones the intents so they can't be modified
+	c := d.intents
+	return c
 }
 
 // ApplicationID returns the current application id
@@ -104,10 +104,36 @@ func (d *DisgoImpl) SetSelfUser(user *api.User) {
 	d.selfUser = user
 }
 
-func (d *DisgoImpl) CreateCommand(name string, description string, options ...api.ApplicationCommandOption) api.GlobalCommandBuilder {
-	return api.NewGlobalCommandBuilder(d, name, description, options...)
-}
-
 func (d *DisgoImpl) HeartbeatLatency() time.Duration {
 	return d.Gateway().Latency()
+}
+
+// GetCommand fetches a specific guild command
+func (d DisgoImpl) GetCommand(commandID api.Snowflake) (*api.Command, error) {
+	return d.RestClient().GetGlobalCommand(d.ApplicationID(), commandID)
+}
+
+// GetCommand fetches all guild commands
+func (d DisgoImpl) GetCommands() ([]*api.Command, error) {
+	return d.RestClient().GetGlobalCommands(d.ApplicationID())
+}
+
+// CreateCommand creates a new command for this guild
+func (d DisgoImpl) CreateCommand(command api.Command) (*api.Command, error) {
+	return d.RestClient().CreateGlobalCommand(d.ApplicationID(), command)
+}
+
+// EditCommand edits a specific guild command
+func (d DisgoImpl) EditCommand(commandID api.Snowflake, command api.Command) (*api.Command, error) {
+	return d.RestClient().EditGlobalCommand(d.ApplicationID(), commandID, command)
+}
+
+// DeleteCommand creates a new command for this guild
+func (d DisgoImpl) DeleteCommand(command api.Command) (*api.Command, error) {
+	return d.RestClient().CreateGlobalCommand(d.ApplicationID(), command)
+}
+
+// SetCommands overrides all commands for this guild
+func (d DisgoImpl) SetCommands(commands ...api.Command) ([]*api.Command, error) {
+	return d.RestClient().SetGlobalCommands(d.ApplicationID(), commands...)
 }
