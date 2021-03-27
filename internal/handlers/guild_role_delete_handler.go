@@ -11,13 +11,20 @@ type RoleDeleteData struct {
 	RoleID  api.Snowflake `json:"role_id"`
 }
 
-type RoleDeleteHandler struct{}
+type GuildRoleDeleteHandler struct{}
 
-func (h RoleDeleteHandler) New() interface{} {
+// Name returns the raw gateway event name
+func (h GuildRoleDeleteHandler) Name() string {
+	return api.GuildRoleDeleteGatewayEvent
+}
+
+// New constructs a new payload receiver for the raw gateway event
+func (h GuildRoleDeleteHandler) New() interface{} {
 	return &RoleCreateData{}
 }
 
-func (h RoleDeleteHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
+// Handle handles the specific raw gateway event
+func (h GuildRoleDeleteHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
 	roleDeleteData, ok := i.(*RoleDeleteData)
 	if !ok {
 		return

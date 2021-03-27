@@ -8,11 +8,19 @@ import (
 	"github.com/DiscoOrg/disgo/api"
 )
 
-func New(token string, options api.Options) api.Disgo {
+func New(token string, options api.Options) (api.Disgo, error) {
 	disgo := &DisgoImpl{
-		token:        token,
-		intents:      options.Intents,
+		token:   token,
+		intents: options.Intents,
 	}
+
+	id, err := IDFromToken(token)
+	if err != nil {
+		log.Errorf("error while getting application id from token: %s", err)
+		return nil, err
+	}
+
+	disgo.applicationID = *id
 
 	disgo.restClient = newRestClientImpl(disgo, token)
 
@@ -20,19 +28,20 @@ func New(token string, options api.Options) api.Disgo {
 
 	disgo.gateway = newGatewayImpl(disgo)
 
-	return disgo
-}
 
+	return disgo, nil
+}
 
 // DisgoImpl is the main discord client
 type DisgoImpl struct {
-	token        string
-	gateway      api.Gateway
-	restClient   api.RestClient
-	intents      api.Intents
-	selfUser     *api.User
-	eventManager api.EventManager
-	cache        api.Cache
+	token         string
+	gateway       api.Gateway
+	restClient    api.RestClient
+	intents       api.Intents
+	selfUser      *api.User
+	eventManager  api.EventManager
+	cache         api.Cache
+	applicationID api.Snowflake
 }
 
 // Connect opens the gateway connection to discord
@@ -83,7 +92,7 @@ func (d *DisgoImpl) Intents() api.Intents {
 
 // ApplicationID returns the current application id
 func (d *DisgoImpl) ApplicationID() api.Snowflake {
-	return d.selfUser.ID
+	return d.applicationID
 }
 
 // SelfUser returns a user object for the client, if available
@@ -95,8 +104,8 @@ func (d *DisgoImpl) SetSelfUser(user *api.User) {
 	d.selfUser = user
 }
 
-func (d *DisgoImpl) CreateCommand(name string, description string) api.GlobalCommandBuilder {
-	return api.NewGlobalCommandBuilder(d, name, description)
+func (d *DisgoImpl) CreateCommand(name string, description string, options ...api.ApplicationCommandOption) api.GlobalCommandBuilder {
+	return api.NewGlobalCommandBuilder(d, name, description, options...)
 }
 
 func (d *DisgoImpl) HeartbeatLatency() time.Duration {

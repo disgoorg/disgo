@@ -6,7 +6,7 @@ import (
 )
 
 // New Initialises a new Disgo client
-func New(token string, options api.Options) api.Disgo {
+func New(token string, options api.Options) (api.Disgo, error) {
 	return internal.New(token, options)
 }
 

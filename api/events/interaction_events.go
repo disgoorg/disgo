@@ -43,7 +43,6 @@ func (e GenericInteractionEvent) GuildChannel() *api.GuildChannel {
 
 type SlashCommandEvent struct {
 	GenericInteractionEvent
-	api.InteractionData
 }
 
 func (e SlashCommandEvent) Reply(response api.InteractionResponse) error {

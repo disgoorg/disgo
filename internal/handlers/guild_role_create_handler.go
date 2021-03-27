@@ -11,13 +11,20 @@ type RoleCreateData struct {
 	Role *api.Role `json:"role"`
 }
 
-type RoleCreateHandler struct{}
+type GuildRoleCreateHandler struct{}
 
-func (h RoleCreateHandler) New() interface{} {
+// Name returns the raw gateway event name
+func (h GuildRoleCreateHandler) Name() string {
+	return api.GuildRoleCreateGatewayEvent
+}
+
+// New constructs a new payload receiver for the raw gateway event
+func (h GuildRoleCreateHandler) New() interface{} {
 	return &RoleCreateData{}
 }
 
-func (h RoleCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
+// Handle handles the specific raw gateway event
+func (h GuildRoleCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
 	roleCreateData, ok := i.(*RoleCreateData)
 	if !ok {
 		return

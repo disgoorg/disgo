@@ -16,10 +16,17 @@ type ReadyEventData struct {
 
 type ReadyHandler struct{}
 
+// Name returns the raw gateway event name
+func (h ReadyHandler) Name() string {
+	return api.ReadyGatewayEvent
+}
+
+// New constructs a new payload receiver for the raw gateway event
 func (h ReadyHandler) New() interface{} {
 	return &ReadyEventData{}
 }
 
+// Handle handles the specific raw gateway event
 func (h ReadyHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
 	readyEvent, ok := i.(*ReadyEventData)
 	if !ok {

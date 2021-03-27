@@ -23,7 +23,7 @@ func newCacheImpl(memberCachePolicy api.MemberCachePolicy) api.Cache {
 		voiceChannels:     map[api.Snowflake]map[api.Snowflake]*api.VoiceChannel{},
 		storeChannels:     map[api.Snowflake]map[api.Snowflake]*api.StoreChannel{},
 	}
-	cache.cleanup(10 * time.Second)
+	go cache.cleanup(10 * time.Second)
 	return cache
 }
 
@@ -218,7 +218,7 @@ func (c *CacheImpl) Member(guildID api.Snowflake, userID api.Snowflake) *api.Mem
 func (c *CacheImpl) MemberByTag(guildID api.Snowflake, tag string) *api.Member {
 	if guildMembers, ok := c.members[guildID]; ok {
 		for _, member := range guildMembers {
-			if member.Username+"#"+member.Discriminator == tag {
+			if member.User.Username+"#"+member.User.Discriminator == tag {
 				return member
 			}
 		}
@@ -232,7 +232,7 @@ func (c *CacheImpl) MembersByName(guildID api.Snowflake, name string, ignoreCase
 		}
 		members := make([]*api.Member, 1)
 		for _, member := range guildMembers {
-			if ignoreCase && strings.ToLower(member.Username) == name || !ignoreCase && member.Username == name {
+			if ignoreCase && strings.ToLower(member.User.Username) == name || !ignoreCase && member.User.Username == name {
 				members = append(members, member)
 			}
 		}
@@ -269,11 +269,11 @@ func (c *CacheImpl) AllMemberCache() map[api.Snowflake]map[api.Snowflake]*api.Me
 }
 func (c *CacheImpl) CacheMember(member *api.Member) {
 	if guildMembers, ok := c.members[member.GuildID]; ok {
-		if _, ok := guildMembers[member.ID]; ok {
+		if _, ok := guildMembers[member.User.ID]; ok {
 			// update old guild_events
 			return
 		}
-		guildMembers[member.ID] = member
+		guildMembers[member.User.ID] = member
 	}
 }
 func (c *CacheImpl) UncacheMember(guildID api.Snowflake, userID api.Snowflake) {

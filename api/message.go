@@ -99,24 +99,33 @@ const (
 
 // Message is a struct for messages sent in discord text-based channels
 type Message struct {
-	Disgo           Disgo
-	ID              Snowflake     `json:"id"`
-	GuildID         *Snowflake    `json:"guild_id"`
-	Reactions       []Reactions   `json:"reactions"`
-	Attachments     []interface{} `json:"attachments"`
-	Tts             bool          `json:"tts"`
-	Embeds          []*Embed      `json:"embeds,omitempty"`
-	CreatedAt       time.Time     `json:"timestamp"`
-	MentionEveryone bool          `json:"mention_everyone"`
-	Pinned          bool          `json:"pinned"`
-	EditedTimestamp interface{}   `json:"edited_timestamp"`
-	Author          User          `json:"author"`
-	MentionRoles    []interface{} `json:"mention_roles"`
-	Content         *string       `json:"content,omitempty"`
-	ChannelID       Snowflake     `json:"channel_id"`
-	Mentions        []interface{} `json:"mentions"`
-	MessageType     MessageType   `json:"type"`
-	LastUpdated     *time.Time
+	Disgo            Disgo
+	ID               Snowflake         `json:"id"`
+	GuildID          *Snowflake        `json:"guild_id"`
+	Reactions        []Reactions       `json:"reactions"`
+	Attachments      []interface{}     `json:"attachments"`
+	Tts              bool              `json:"tts"`
+	Embeds           []*Embed          `json:"embeds,omitempty"`
+	CreatedAt        time.Time         `json:"timestamp"`
+	MentionEveryone  bool              `json:"mention_everyone"`
+	Pinned           bool              `json:"pinned"`
+	EditedTimestamp  interface{}       `json:"edited_timestamp"`
+	Author           User              `json:"author"`
+	MentionRoles     []interface{}     `json:"mention_roles"`
+	Content          *string           `json:"content,omitempty"`
+	ChannelID        Snowflake         `json:"channel_id"`
+	Mentions         []interface{}     `json:"mentions"`
+	MessageType      MessageType       `json:"type"`
+	MessageReference *MessageReference `json:"message_reference,omitempty"`
+	LastUpdated      *time.Time
+}
+
+// MessageReference is a reference to another message
+type MessageReference struct {
+	MessageID       *Snowflake `json:"message_id"`
+	ChannelID       *Snowflake `json:"channel_id,omitempty"`
+	GuildID         *Snowflake `json:"guild_id,omitempty"`
+	FailIfNotExists *bool      `json:"fail_if_not_exists,omitempty"`
 }
 
 // MessageInteraction is sent on the Message object when the message_events is a response to an interaction
@@ -141,7 +150,7 @@ func (m Message) Guild() *Guild {
 
 // Channel gets the channel the message_events was sent in
 func (m Message) Channel() *MessageChannel {
-	return nil //m.Disgo.Cache().MessageChannel(m.ChannelID)
+	return m.Disgo.Cache().MessageChannel(m.ChannelID)
 }
 
 // AddReactionByEmote allows you to add an Emote to a message_events via reaction
@@ -149,10 +158,16 @@ func (m Message) AddReactionByEmote(emote Emote) error {
 	return m.AddReaction(emote.Reaction())
 }
 
-// AddReaction allows you to add a reaction to a message_events from a string, for example a custom emoji ID, or a native
-// emoji
+// AddReaction allows you to add a reaction to a message_events from a string, for example a custom emoji ID, or a native emoji
 func (m Message) AddReaction(emoji string) error {
 	return m.Disgo.RestClient().AddReaction(m.ChannelID, m.ID, emoji)
+}
+
+func (m Message) Reply(message Message) (*Message, error) {
+	message.MessageReference = &MessageReference{
+		MessageID: &m.ID,
+	}
+	return m.Channel().SendMessage(message)
 }
 
 // Reactions contains information about the reactions of a message_events

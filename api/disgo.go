@@ -20,12 +20,13 @@ type Disgo interface {
 	SelfUser() *User
 	SetSelfUser(*User)
 	EventManager() EventManager
-	CreateCommand(string, string) GlobalCommandBuilder
+	CreateCommand(name string, description string, options ...ApplicationCommandOption) GlobalCommandBuilder
 	HeartbeatLatency() time.Duration
 }
 
-// GatewayEventProvider is used to add new raw gateway events
-type GatewayEventProvider interface {
+// GatewayEventHandler is used to handle raw gateway events
+type GatewayEventHandler interface {
+	Name() string
 	New() interface{}
 	Handle(Disgo, EventManager, interface{})
 }

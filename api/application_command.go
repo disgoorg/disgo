@@ -1,9 +1,32 @@
 package api
 
+import (
+	"bytes"
+	"encoding/json"
+)
+
+type ApplicationCommands []ApplicationCommand
+
+func (commands ApplicationCommands) MarshalJSON() ([]byte, error) {
+	buffer := bytes.NewBufferString("[")
+	for i, command := range commands {
+		commandBytes, err:= json.Marshal(command)
+		if err != nil {
+			return nil, err
+		}
+		buffer.Write(commandBytes)
+		if i < len(commands) {
+			buffer.WriteString(",")
+		}
+	}
+	buffer = bytes.NewBufferString("]")
+	return buffer.Bytes(), nil
+}
+
 // ApplicationCommand is the base "command" model that belongs to an application.
 type ApplicationCommand struct {
-	ID            Snowflake                  `json:"id"`
-	ApplicationID Snowflake                  `json:"application_id"`
+	ID            Snowflake                  `json:"id,omitempty"`
+	ApplicationID Snowflake                  `json:"application_id,omitempty"`
 	Name          string                     `json:"name"`
 	Description   string                     `json:"description"`
 	Options       []ApplicationCommandOption `json:"options,omitempty"`

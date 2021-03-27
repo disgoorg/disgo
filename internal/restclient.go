@@ -40,6 +40,11 @@ func (r RestClientImpl) Close() {
 	r.Client.CloseIdleConnections()
 }
 
+// UserAgent returns the user agent for this rst client
+func (r RestClientImpl) UserAgent() string {
+	return "DiscordBot (https://github.com/disgoorg/disgo, 0.0.1)"
+}
+
 // Request makes a new rest request to discords api with the specific route
 func (r RestClientImpl) Request(route endpoints.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) error {
 	var reader io.Reader
@@ -126,19 +131,13 @@ func (r RestClientImpl) Request(route endpoints.CompiledAPIRoute, rqBody interfa
 	}
 }
 
-// GetUser fetches the specific user
-func (r RestClientImpl) GetUser(userID api.Snowflake) (user *api.User, err error) {
-	return user, r.Request(endpoints.GetUser.Compile(userID), nil, &user)
-}
-
-// GetMember fetches the specific member
-func (r RestClientImpl) GetMember(guildID api.Snowflake, userId api.Snowflake) (member *api.Member, err error) {
-	return member, r.Request(endpoints.GetMember.Compile(guildID, userId), nil, &member)
-}
-
 // SendMessage lets you send a message_events to a channel
 func (r RestClientImpl) SendMessage(channelID api.Snowflake, message api.Message) (rMessage *api.Message, err error) {
-	return rMessage, r.Request(endpoints.CreateMessage.Compile(channelID), message, &rMessage)
+	err = r.Request(endpoints.CreateMessage.Compile(channelID), message, &rMessage)
+	if rMessage != nil {
+		//r.Disgo().Cache().CacheMessage(rMessage)
+	}
+	return
 }
 
 // OpenDMChannel opens a new dm channel a user
@@ -150,7 +149,120 @@ func (r RestClientImpl) OpenDMChannel(userId api.Snowflake) (channel *api.DMChan
 	}
 	err = r.Request(endpoints.CreateDMChannel.Compile(), body, &channel)
 	if channel != nil {
-		channel.Disgo = r.disgo
+		channel.Disgo = r.Disgo()
+		r.Disgo().Cache().CacheDMChannel(channel)
+	}
+	return
+}
+
+// UpdateSelfNick updates the bots nickname in a guild
+func (r RestClientImpl) UpdateSelfNick(guildID api.Snowflake, nick *string) (newNick *string, err error) {
+	var updateNick *api.UpdateSelfNick
+	err = r.Request(endpoints.UpdateSelfNick.Compile(guildID), api.UpdateSelfNick{Nick: nick}, &updateNick)
+	if updateNick != nil {
+		r.Disgo().Cache().Member(guildID, r.Disgo().ApplicationID()).Nick = updateNick.Nick
+		newNick = updateNick.Nick
+	}
+	return
+}
+
+// GetUser fetches the specific user
+func (r RestClientImpl) GetUser(userID api.Snowflake) (user *api.User, err error) {
+	err = r.Request(endpoints.GetUser.Compile(userID), nil, &user)
+	if user != nil {
+		r.Disgo().Cache().CacheUser(user)
+	}
+	return
+}
+
+// GetMember fetches the specific member
+func (r RestClientImpl) GetMember(guildID api.Snowflake, userID api.Snowflake) (member *api.Member, err error) {
+	err = r.Request(endpoints.GetMember.Compile(guildID, userID), nil, &member)
+	if member != nil {
+		r.Disgo().Cache().CacheMember(member)
+	}
+	return
+}
+
+// GetMembers fetches all members for a guild
+func (r RestClientImpl) GetMembers(guildID api.Snowflake) (members []*api.Member, err error) {
+	err = r.Request(endpoints.GetMembers.Compile(guildID), nil, &members)
+	if members != nil {
+		for _, member := range members {
+			r.Disgo().Cache().CacheMember(member)
+		}
+	}
+	return
+}
+
+// AddMember adds a member to the guild with the oauth2 access token. requires api.PermissionCreateInstantInvite
+func (r RestClientImpl) AddMember(guildID api.Snowflake, userID api.Snowflake, addGuildMemberData api.AddGuildMemberData) (member *api.Member, err error) {
+	err = r.Request(endpoints.AddMember.Compile(guildID, userID), addGuildMemberData, &member)
+	if member != nil {
+		r.Disgo().Cache().CacheMember(member)
+	}
+	return
+}
+
+// KickMember kicks a member from the guild. requires api.PermissionKickMembers
+func (r RestClientImpl) KickMember(guildID api.Snowflake, userID api.Snowflake, reason *string) (err error) {
+	var route endpoints.CompiledAPIRoute
+	if reason == nil {
+		route = endpoints.RemoveMember.Compile(guildID, userID)
+	} else {
+		route = endpoints.RemoveMemberReason.Compile(guildID, userID, *reason)
+	}
+
+	err = r.Request(route, nil, nil)
+	if err == nil {
+		r.Disgo().Cache().UncacheMember(guildID, userID)
+	}
+	return
+}
+
+// UpdateMember updates a member
+func (r RestClientImpl) UpdateMember(guildID api.Snowflake, userID api.Snowflake, updateGuildMemberData api.UpdateGuildMemberData) (member *api.Member, err error) {
+	err = r.Request(endpoints.UpdateMember.Compile(guildID, userID), updateGuildMemberData, &member)
+	if member != nil {
+		r.Disgo().Cache().CacheMember(member)
+	}
+	return
+}
+
+// MoveMember moves/kicks the member to/from a voice channel
+func (r RestClientImpl) MoveMember(guildID api.Snowflake, userID api.Snowflake, channelID *api.Snowflake) (member *api.Member, err error) {
+	err = r.Request(endpoints.UpdateMember.Compile(guildID, userID), api.MoveGuildMemberData{ChannelID: channelID}, &member)
+	if member != nil {
+		r.Disgo().Cache().CacheMember(member)
+	}
+	return
+}
+
+// AddMemberRole adds a role to a member
+func (r RestClientImpl) AddMemberRole(guildID api.Snowflake, userID api.Snowflake, roleID api.Snowflake) (err error) {
+	err = r.Request(endpoints.AddMemberRole.Compile(guildID, userID, roleID), nil, nil)
+	if err == nil {
+		member := r.Disgo().Cache().Member(guildID, userID)
+		if member != nil {
+			member.Roles = append(member.Roles, roleID)
+		}
+	}
+	return
+}
+
+// AddMemberRole removes a role from a member
+func (r RestClientImpl) RemoveMemberRole(guildID api.Snowflake, userID api.Snowflake, roleID api.Snowflake) (err error) {
+	err = r.Request(endpoints.RemoveMemberRole.Compile(guildID, userID, roleID), nil, nil)
+	if err == nil {
+		member := r.Disgo().Cache().Member(guildID, userID)
+		if member != nil {
+			for i, id := range member.Roles {
+				if id == roleID {
+					member.Roles = append(member.Roles[:i], member.Roles[i+1:]...)
+					break
+				}
+			}
+		}
 	}
 	return
 }
@@ -167,6 +279,7 @@ func (r RestClientImpl) GetRoles(guildID api.Snowflake) (roles []*api.Role, err 
 	}
 	return
 }
+
 // CreateRole creates a new role for a guild. Requires api.PermissionManageRoles
 func (r RestClientImpl) CreateRole(guildID api.Snowflake, role api.UpdateRole) (newRole *api.Role, err error) {
 	err = r.Request(endpoints.CreateRole.Compile(guildID), role, &newRole)
@@ -177,6 +290,7 @@ func (r RestClientImpl) CreateRole(guildID api.Snowflake, role api.UpdateRole) (
 	}
 	return
 }
+
 // UpdateRole updates a role from a guild. Requires api.PermissionManageRoles
 func (r RestClientImpl) UpdateRole(guildID api.Snowflake, roleID api.Snowflake, role api.UpdateRole) (newRole *api.Role, err error) {
 	err = r.Request(endpoints.UpdateRole.Compile(guildID, roleID), role, &newRole)
@@ -187,6 +301,7 @@ func (r RestClientImpl) UpdateRole(guildID api.Snowflake, roleID api.Snowflake, 
 	}
 	return
 }
+
 // UpdateRolePositions updates the position of a role from a guild. Requires api.PermissionManageRoles
 func (r RestClientImpl) UpdateRolePositions(guildID api.Snowflake, roleUpdates ...api.UpdateRolePosition) (roles []*api.Role, err error) {
 	err = r.Request(endpoints.GetRoles.Compile(guildID), roleUpdates, &roles)
@@ -199,6 +314,7 @@ func (r RestClientImpl) UpdateRolePositions(guildID api.Snowflake, roleUpdates .
 	}
 	return
 }
+
 // DeleteRole deletes a role from a guild. Requires api.PermissionManageRoles
 func (r RestClientImpl) DeleteRole(guildID api.Snowflake, roleID api.Snowflake) (err error) {
 	err = r.Request(endpoints.UpdateRole.Compile(guildID, roleID), nil, nil)
@@ -207,7 +323,6 @@ func (r RestClientImpl) DeleteRole(guildID api.Snowflake, roleID api.Snowflake) 
 	}
 	return
 }
-
 
 // AddReaction lets you add a reaction to a message_events
 func (r RestClientImpl) AddReaction(channelID api.Snowflake, messageID api.Snowflake, emoji string) error {
@@ -226,12 +341,12 @@ func (r RestClientImpl) RemoveUserReaction(channelID api.Snowflake, messageID ap
 
 // GetGlobalApplicationCommands gets you all global commands
 func (r RestClientImpl) GetGlobalApplicationCommands(applicationID api.Snowflake) (commands []*api.ApplicationCommand, err error) {
-	return commands, r.Request(endpoints.GetGlobalApplicationCommands.Compile(applicationID), nil, commands)
+	return commands, r.Request(endpoints.GetGlobalApplicationCommands.Compile(applicationID), nil, &commands)
 }
 
 // CreateGlobalApplicationGlobalCommand lets you create a new global command
 func (r RestClientImpl) CreateGlobalApplicationGlobalCommand(applicationID api.Snowflake, command api.ApplicationCommand) (rCommand *api.ApplicationCommand, err error) {
-	return rCommand, r.Request(endpoints.CreateGlobalApplicationCommand.Compile(applicationID), command, rCommand)
+	return rCommand, r.Request(endpoints.CreateGlobalApplicationCommand.Compile(applicationID), command, &rCommand)
 }
 
 // SetGlobalApplicationCommands lets you override all global commands
@@ -240,17 +355,17 @@ func (r RestClientImpl) SetGlobalApplicationCommands(applicationID api.Snowflake
 		err = api.ErrTooMuchApplicationCommands
 		return
 	}
-	return rCommands, r.Request(endpoints.SetGlobalApplicationCommands.Compile(applicationID), commands, rCommands)
+	return rCommands, r.Request(endpoints.SetGlobalApplicationCommands.Compile(applicationID), api.ApplicationCommands(commands), &rCommands)
 }
 
 // GetGlobalApplicationCommand gets you a specific global global command
 func (r RestClientImpl) GetGlobalApplicationCommand(applicationID api.Snowflake, commandID api.Snowflake) (rCommand *api.ApplicationCommand, err error) {
-	return rCommand, r.Request(endpoints.GetGlobalApplicationCommand.Compile(applicationID, commandID), nil, rCommand)
+	return rCommand, r.Request(endpoints.GetGlobalApplicationCommand.Compile(applicationID, commandID), nil, &rCommand)
 }
 
 // EditGlobalApplicationCommand lets you edit a specific global command
 func (r RestClientImpl) EditGlobalApplicationCommand(applicationID api.Snowflake, commandID api.Snowflake, command api.ApplicationCommand) (rCommand *api.ApplicationCommand, err error) {
-	return rCommand, r.Request(endpoints.EditGlobalApplicationCommand.Compile(applicationID, commandID), command, rCommand)
+	return rCommand, r.Request(endpoints.EditGlobalApplicationCommand.Compile(applicationID, commandID), command, &rCommand)
 }
 
 // DeleteGlobalApplicationCommand lets you delete a specific global command
@@ -260,12 +375,12 @@ func (r RestClientImpl) DeleteGlobalApplicationCommand(applicationID api.Snowfla
 
 // GetGuildApplicationCommands gets you all guild_events commands
 func (r RestClientImpl) GetGuildApplicationCommands(applicationID api.Snowflake, guildID api.Snowflake) (commands []*api.ApplicationCommand, err error) {
-	return commands, r.Request(endpoints.GetGlobalApplicationCommands.Compile(applicationID, guildID), nil, commands)
+	return commands, r.Request(endpoints.GetGuildApplicationCommands.Compile(applicationID, guildID), nil, &commands)
 }
 
 // CreateGuildApplicationGuildCommand lets you create a new guild_events command
 func (r RestClientImpl) CreateGuildApplicationGuildCommand(applicationID api.Snowflake, guildID api.Snowflake, command api.ApplicationCommand) (rCommand *api.ApplicationCommand, err error) {
-	return rCommand, r.Request(endpoints.CreateGlobalApplicationCommand.Compile(applicationID, guildID), command, rCommand)
+	return rCommand, r.Request(endpoints.CreateGuildApplicationCommand.Compile(applicationID, guildID), command, &rCommand)
 }
 
 // SetGuildApplicationCommands lets you override all guild_events commands
@@ -274,22 +389,22 @@ func (r RestClientImpl) SetGuildApplicationCommands(applicationID api.Snowflake,
 		err = api.ErrTooMuchApplicationCommands
 		return
 	}
-	return rCommands, r.Request(endpoints.SetGlobalApplicationCommands.Compile(applicationID, guildID), commands, rCommands)
+	return rCommands, r.Request(endpoints.SetGuildApplicationCommands.Compile(applicationID, guildID), commands, &rCommands)
 }
 
 // GetGuildApplicationCommand gets you a specific guild_events command
 func (r RestClientImpl) GetGuildApplicationCommand(applicationID api.Snowflake, guildID api.Snowflake, commandID api.Snowflake) (rCommand *api.ApplicationCommand, err error) {
-	return rCommand, r.Request(endpoints.GetGlobalApplicationCommand.Compile(applicationID, guildID, commandID), nil, rCommand)
+	return rCommand, r.Request(endpoints.GetGuildApplicationCommand.Compile(applicationID, guildID, commandID), nil, &rCommand)
 }
 
 // EditGuildApplicationCommand lets you edit a specific guild_events command
 func (r RestClientImpl) EditGuildApplicationCommand(applicationID api.Snowflake, guildID api.Snowflake, commandID api.Snowflake, command api.ApplicationCommand) (rCommand *api.ApplicationCommand, err error) {
-	return rCommand, r.Request(endpoints.EditGlobalApplicationCommand.Compile(applicationID, guildID, commandID), command, rCommand)
+	return rCommand, r.Request(endpoints.EditGuildApplicationCommand.Compile(applicationID, guildID, commandID), command, &rCommand)
 }
 
 // DeleteGuildApplicationCommand lets you delete a specific guild_events command
 func (r RestClientImpl) DeleteGuildApplicationCommand(applicationID api.Snowflake, guildID api.Snowflake, commandID api.Snowflake) error {
-	return r.Request(endpoints.DeleteGlobalApplicationCommand.Compile(applicationID, guildID, commandID), nil, nil)
+	return r.Request(endpoints.DeleteGuildApplicationCommand.Compile(applicationID, guildID, commandID), nil, nil)
 }
 
 // SendInteractionResponse used to send the initial response on an interaction
@@ -299,7 +414,7 @@ func (r RestClientImpl) SendInteractionResponse(interactionID api.Snowflake, int
 
 // EditInteractionResponse used to edit the initial response on an interaction
 func (r RestClientImpl) EditInteractionResponse(applicationID api.Snowflake, interactionToken string, interactionResponse api.InteractionResponse) (message *api.Message, err error) {
-	return message, r.Request(endpoints.EditInteractionResponse.Compile(applicationID, interactionToken), interactionResponse, message)
+	return message, r.Request(endpoints.EditInteractionResponse.Compile(applicationID, interactionToken), interactionResponse, &message)
 }
 
 // DeleteInteractionResponse used to delete the initial response on an interaction
@@ -309,21 +424,17 @@ func (r RestClientImpl) DeleteInteractionResponse(applicationID api.Snowflake, i
 
 // SendFollowupMessage used to send a followup message_events to an interaction
 func (r RestClientImpl) SendFollowupMessage(applicationID api.Snowflake, interactionToken string, followupMessage api.FollowupMessage) (message *api.Message, err error) {
-	return message, r.Request(endpoints.CreateInteractionResponse.Compile(applicationID, interactionToken), followupMessage, message)
+	return message, r.Request(endpoints.CreateInteractionResponse.Compile(applicationID, interactionToken), followupMessage, &message)
 }
 
 // EditFollowupMessage used to send the initial response on an interaction
 func (r RestClientImpl) EditFollowupMessage(applicationID api.Snowflake, interactionToken string, messageID api.Snowflake, followupMessage api.FollowupMessage) (message *api.Message, err error) {
-	return message, r.Request(endpoints.CreateInteractionResponse.Compile(applicationID, interactionToken, messageID), followupMessage, message)
+	return message, r.Request(endpoints.CreateInteractionResponse.Compile(applicationID, interactionToken, messageID), followupMessage, &message)
 }
 
 // DeleteFollowupMessage used to send a followup message_events to an interaction
 func (r RestClientImpl) DeleteFollowupMessage(applicationID api.Snowflake, interactionToken string, messageID api.Snowflake) error {
 	return r.Request(endpoints.CreateInteractionResponse.Compile(applicationID, interactionToken, messageID), nil, nil)
-}
-
-func (r RestClientImpl) UserAgent() string {
-	return "DiscordBot (https://github.com/disgoorg/disgo, 0.0.1)"
 }
 
 func normalizeEmoji(emoji string) string {

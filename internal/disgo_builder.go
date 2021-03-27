@@ -83,6 +83,14 @@ func (b DisgoBuilderImpl) Build() (api.Disgo, error) {
 	}
 	disgo.token = *b.token
 
+	id, err := IDFromToken(disgo.token)
+	if err != nil {
+		log.Errorf("error while getting application id from token: %s", err)
+		return nil, err
+	}
+
+	disgo.applicationID = *id
+
 	if b.gateway == nil {
 		b.gateway = newGatewayImpl(disgo)
 	}

@@ -46,9 +46,9 @@ type MessageChannel struct {
 }
 
 // SendMessage a Message to a TextChannel
-func (c MessageChannel) SendMessage(content string) (*Message, error) {
+func (c MessageChannel) SendMessage(message Message) (*Message, error) {
 	// Todo: embeds, attachments etc.
-	return c.Disgo.RestClient().SendMessage(c.ID, Message{Content: &content})
+	return c.Disgo.RestClient().SendMessage(c.ID, message)
 }
 
 // DMChannel is used for interacting in private messages with users

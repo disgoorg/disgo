@@ -15,13 +15,14 @@ func NewGuildCommandBuilder(disgo Disgo, guildID Snowflake, name string, descrip
 }
 
 // NewGlobalCommandBuilder creates a new GlobalCommandBuilder for creating slash commands
-func NewGlobalCommandBuilder(disgo Disgo, name string, description string) GlobalCommandBuilder {
+func NewGlobalCommandBuilder(disgo Disgo, name string, description string, options ...ApplicationCommandOption) GlobalCommandBuilder {
 	return GlobalCommandBuilder{
 		CommandBuilder: CommandBuilder{
 			disgo: disgo,
 			command: ApplicationCommand{
 				Name: name,
 				Description: description,
+				Options: options,
 			},
 		},
 	}

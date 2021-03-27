@@ -7,10 +7,17 @@ import (
 
 type GuildCreateHandler struct{}
 
+// Name returns the raw gateway event name
+func (h GuildCreateHandler) Name() string {
+	return api.GuildCreateGatewayEvent
+}
+
+// New constructs a new payload receiver for the raw gateway event
 func (h GuildCreateHandler) New() interface{} {
 	return &api.Guild{}
 }
 
+// Handle handles the specific raw gateway event
 func (h GuildCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
 	guild, ok := i.(*api.Guild)
 	if !ok {

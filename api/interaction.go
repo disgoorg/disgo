@@ -31,7 +31,21 @@ type InteractionData struct {
 
 // OptionData is used for options or subcommands in your slash commands
 type OptionData struct {
-	Name    string       `json:"name"`
-	Value   interface{}  `json:"value,omitempty"`
-	Options []OptionData `json:"options,omitempty"`
+	Name    string                       `json:"name"`
+	Type    ApplicationCommandOptionType `json:"type"`
+	Value   interface{}                  `json:"value,omitempty"`
+	Options []OptionData                 `json:"options,omitempty"`
+}
+
+
+func (v OptionData) String() string {
+	return v.Value.(string)
+}
+
+func (v OptionData) Bool() bool {
+	return v.Value.(bool)
+}
+
+func (v OptionData) Snowflake() Snowflake {
+	return Snowflake(v.String())
 }

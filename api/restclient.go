@@ -19,12 +19,24 @@ var (
 type RestClient interface {
 	Close()
 	Disgo() Disgo
+
 	UserAgent() string
 	Request(route endpoints.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) error
-	GetUser(userID Snowflake) (*User, error)
-	GetMember(guildID Snowflake, userID Snowflake) (*Member, error)
+
 	SendMessage(channelID Snowflake, message Message) (*Message, error)
 	OpenDMChannel(userID Snowflake) (*DMChannel, error)
+
+	UpdateSelfNick(guildID Snowflake, nick *string) (*string, error)
+
+	GetUser(userID Snowflake) (*User, error)
+	GetMember(guildID Snowflake, userID Snowflake) (*Member, error)
+	GetMembers(guildID Snowflake) ([]*Member, error)
+	AddMember(guildID Snowflake, userID Snowflake, addGuildMemberData AddGuildMemberData) (*Member, error)
+	KickMember(guildID Snowflake, userID Snowflake, reason *string) error
+	UpdateMember(guildID Snowflake, userID Snowflake, updateGuildMemberData UpdateGuildMemberData) (*Member, error)
+	MoveMember(guildID Snowflake, userID Snowflake, channelID *Snowflake) (*Member, error)
+	AddMemberRole(guildID Snowflake, userID Snowflake, roleID Snowflake) error
+	RemoveMemberRole(guildID Snowflake, userID Snowflake, roleID Snowflake) error
 
 	GetRoles(guildID Snowflake) ([]*Role, error)
 	CreateRole(guildID Snowflake, role UpdateRole) (*Role, error)

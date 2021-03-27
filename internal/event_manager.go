@@ -6,6 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/DiscoOrg/disgo/api"
+	"github.com/DiscoOrg/disgo/internal/handlers"
 )
 
 func newEventManagerImpl(disgo api.Disgo, listeners []api.EventListener) api.EventManager {
@@ -13,7 +14,10 @@ func newEventManagerImpl(disgo api.Disgo, listeners []api.EventListener) api.Eve
 		disgo: disgo,
 		channel:   make(chan api.GenericEvent),
 		listeners: listeners,
-		handlers:  getHandlers(),
+		handlers:  map[string]api.GatewayEventHandler{},
+	}
+	for _, handler := range handlers.GetAllHandlers() {
+		eventManager.handlers[handler.Name()] = handler
 	}
 	go eventManager.ListenEvents()
 	return eventManager
@@ -22,12 +26,12 @@ func newEventManagerImpl(disgo api.Disgo, listeners []api.EventListener) api.Eve
 type EventManagerImpl struct {
 	disgo     api.Disgo
 	listeners []api.EventListener
-	handlers  *map[string]api.GatewayEventProvider
+	handlers  map[string]api.GatewayEventHandler
 	channel   chan api.GenericEvent
 }
 
 func (e EventManagerImpl) Handle(name string, payload json.RawMessage) {
-	if handler, ok := (*e.handlers)[name]; ok {
+	if handler, ok := e.handlers[name]; ok {
 		eventPayload := handler.New()
 		if err := json.Unmarshal(payload, &eventPayload); err != nil {
 			log.Errorf("error while unmarshaling event. error: %s", err)

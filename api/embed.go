@@ -1,6 +1,9 @@
 package api
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 // EmbedType is the type of an Embed
 type EmbedType string
@@ -87,6 +90,13 @@ func (b *EmbedBuilder) SetTitle(title *string) *EmbedBuilder {
 // SetDescription sets the description of the EmbedBuilder
 func (b *EmbedBuilder) SetDescription(description string) *EmbedBuilder {
 	b.Description = &description
+	return b
+}
+
+// SetDescriptionf sets the description of the EmbedBuilder with format
+func (b *EmbedBuilder) SetDescriptionf(description string, a ...interface{}) *EmbedBuilder {
+	descriptionf := fmt.Sprintf(description, a...)
+	b.Description = &descriptionf
 	return b
 }
 

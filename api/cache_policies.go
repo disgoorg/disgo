@@ -9,10 +9,10 @@ type MemberCachePolicy func(*Member) bool
 var (
 	MemberCachePolicyNone    MemberCachePolicy = func(_ *Member) bool { return false }
 	MemberCachePolicyAll     MemberCachePolicy = func(_ *Member) bool { return true }
-	MemberCachePolicyOwner   MemberCachePolicy = func(member *Member) bool { return member.isOwner() }
+	MemberCachePolicyOwner   MemberCachePolicy = func(member *Member) bool { return member.IsOwner() }
 	MemberCachePolicyOnline  MemberCachePolicy = func(_ *Member) bool { return false }
 	MemberCachePolicyVoice   MemberCachePolicy = func(member *Member) bool { return false }
-	MemberCachePolicyPending MemberCachePolicy = func(member *Member) bool { return member.IsPending }
+	MemberCachePolicyPending MemberCachePolicy = func(member *Member) bool { return member.Pending }
 	MemberCachePolicyDefault                   = MemberCachePolicyOwner.Or(MemberCachePolicyVoice)
 )
 

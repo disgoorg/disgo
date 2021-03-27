@@ -7,10 +7,17 @@ import (
 
 type MessageCreateHandler struct{}
 
+// Name returns the raw gateway event name
+func (h MessageCreateHandler) Name() string {
+	return api.MessageCreateGatewayEvent
+}
+
+// New constructs a new payload receiver for the raw gateway event
 func (h MessageCreateHandler) New() interface{} {
 	return &api.Message{}
 }
 
+// Handle handles the specific raw gateway event
 func (h MessageCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
 	message, ok := i.(*api.Message)
 	if !ok {

@@ -11,15 +11,21 @@ type RoleUpdateData struct {
 	Role    *api.Role     `json:"role"`
 }
 
-type RoleUpdateHandler struct{}
+// GuildRoleUpdateHandler handles guild role update event
+type GuildRoleUpdateHandler struct{}
+
+// Name returns the raw gateway event name
+func (h GuildRoleUpdateHandler) Name() string {
+	return api.GuildRoleUpdateGatewayEvent
+}
 
 // New constructs a new payload receiver for the raw gateway event
-func (h RoleUpdateHandler) New() interface{} {
+func (h GuildRoleUpdateHandler) New() interface{} {
 	return &RoleCreateData{}
 }
 
-// Handle handles the raw gateway event
-func (h RoleUpdateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
+// Handle handles the specific raw gateway event
+func (h GuildRoleUpdateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
 	roleUpdateData, ok := i.(*RoleUpdateData)
 	if !ok {
 		return

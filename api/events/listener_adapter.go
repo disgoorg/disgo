@@ -1,8 +1,6 @@
 package events
 
 import (
-	log "github.com/sirupsen/logrus"
-
 	"github.com/DiscoOrg/disgo/api"
 )
 
@@ -103,6 +101,6 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			l.OnSlashCommand(&e)
 		}
 	default:
-		log.Errorf("unexpected event received: %#e", event)
+		//log.Errorf("unexpected event received: %#e", event)
 	}
 }

@@ -46,8 +46,8 @@ func (g *GatewayImpl) Open() error {
 	g.connectionStatus = api.Connecting
 	log.Info("starting ws...")
 
-	gatewayBase := "wss://gateway.discord.gg"
-	g.url = &gatewayBase
+	// gatewayBase := "wss://gateway.discord.gg"
+	// g.url = &gatewayBase
 
 	if g.url == nil {
 		log.Println("GetGateway url is nil, fetching...")
@@ -162,7 +162,7 @@ func (g *GatewayImpl) Latency() time.Duration {
 }
 
 func (g *GatewayImpl) sendHeartbeat() {
-	log.Info("sending heartbeat...")
+	log.Debug("sending heartbeat...")
 
 	err := g.conn.WriteJSON(api.HeartbeatCommand{
 		GatewayCommand: api.GatewayCommand{
@@ -207,14 +207,14 @@ func (g *GatewayImpl) listen() {
 			switch op := event.Op; op {
 
 			case api.OpDispatch:
-				//log.Infof("received: OpDispatch")
+				log.Debugf("received: OpDispatch")
 				if event.S != nil {
 					g.lastSequenceReceived = event.S
 				}
 
-				log.Infof("received: %s", *event.T)
+				log.Debugf("received: %s", *event.T)
 
-				if event.T != nil && *event.T == "READY" {
+				if event.T != nil && *event.T == api.ReadyGatewayEvent {
 					var readyEvent api.ReadyEventData
 					if err := parseEventToStruct(event, &readyEvent); err != nil {
 						log.Errorf("Error parsing ready event: %s", err)
@@ -234,17 +234,17 @@ func (g *GatewayImpl) listen() {
 				e.Handle(*event.T, event.D)
 
 			case api.OpHeartbeat:
-				log.Infof("received: OpHeartbeat")
+				log.Debugf("received: OpHeartbeat")
 				g.sendHeartbeat()
 
 			case api.OpReconnect:
-				log.Infof("received: OpReconnect")
+				log.Debugf("received: OpReconnect")
 
 			case api.OpInvalidSession:
-				log.Infof("received: OpInvalidSession")
+				log.Debugf("received: OpInvalidSession")
 
 			case api.OpHeartbeatACK:
-				log.Infof("received: OpHeartbeatACK")
+				log.Debugf("received: OpHeartbeatACK")
 				g.lastHeartbeatReceived = time.Now().UTC()
 			}
 

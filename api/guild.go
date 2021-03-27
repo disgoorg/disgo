@@ -143,6 +143,11 @@ func (g Guild) CreateRole(role UpdateRole) (*Role, error) {
 	return g.Disgo.RestClient().CreateRole(g.ID, role)
 }
 
+// AddMember adds a member to the guild with the oauth2 access token
+func (g Guild) AddMember(userID Snowflake, addGuildMemberData AddGuildMemberData) (*Member, error) {
+	return g.Disgo.RestClient().AddMember(g.ID, userID, addGuildMemberData)
+}
+
 // IconURL returns the Icon of a guild_events
 func (g Guild) IconURL() *string {
 	if g.Icon == nil {
