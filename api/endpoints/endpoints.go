@@ -46,7 +46,7 @@ var (
 	GetUser         = NewAPIRoute(GET, "/users/{user.id}")
 	GetSelfUser     = NewAPIRoute(GET, "/users/@me")
 	UpdateSelfUser  = NewAPIRoute(PATCH, "/users/@me")
-	GetGuilds       = NewAPIRoute(GET, "/users/@me/guilds/{guild.id}")
+	GetGuilds       = NewAPIRoute(GET, "/users/@me/guilds")
 	LeaveGuild      = NewAPIRoute(DELETE, "/users/@me/guilds/{guild.id}")
 	GetDMChannels   = NewAPIRoute(GET, "/users/@me/channels")
 	CreateDMChannel = NewAPIRoute(POST, "/users/@me/channels")
