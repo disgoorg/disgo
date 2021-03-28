@@ -2,7 +2,7 @@ package api
 
 // DefaultInteractionAllowedMentions gives you the default AllowedMentions for an Interaction
 var DefaultInteractionAllowedMentions = AllowedMentions{
-	Parse:       []AllowedMentionType{AllowedMentionTypeUser},
+	Parse:       []AllowedMentionType{AllowedMentionTypeUsers},
 	Roles:       []Snowflake{},
 	Users:       []Snowflake{},
 	RepliedUser: false,
@@ -10,7 +10,7 @@ var DefaultInteractionAllowedMentions = AllowedMentions{
 
 // DefaultMessageAllowedMentions gives you the default AllowedMentions for a Message
 var DefaultMessageAllowedMentions = AllowedMentions{
-	Parse:       []AllowedMentionType{AllowedMentionTypeUser, AllowedMentionTypeRole, AllowedMentionTypeEveryone},
+	Parse:       []AllowedMentionType{AllowedMentionTypeUsers, AllowedMentionTypeRoles, AllowedMentionTypeEveryone},
 	Roles:       []Snowflake{},
 	Users:       []Snowflake{},
 	RepliedUser: true,
@@ -29,7 +29,7 @@ type AllowedMentionType string
 
 // All AllowedMentionType(s)
 const (
-	AllowedMentionTypeRole     AllowedMentionType = "roles"
-	AllowedMentionTypeUser     AllowedMentionType = "user"
+	AllowedMentionTypeRoles    AllowedMentionType = "roles"
+	AllowedMentionTypeUsers    AllowedMentionType = "users"
 	AllowedMentionTypeEveryone AllowedMentionType = "everyone"
 )

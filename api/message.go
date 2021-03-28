@@ -177,3 +177,11 @@ type Reactions struct {
 	Me    bool  `json:"me"`
 	Emoji Emote `json:"emoji"`
 }
+
+// UpdateMessage is used to edit a message
+type UpdateMessage struct {
+	Content         *string          `json:"content,omitempty"`
+	Embed           *Embed           `json:"embed,omitempty"`
+	Flags           *MessageFlags    `json:"flags,omitempty"`
+	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
+}

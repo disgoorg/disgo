@@ -7,7 +7,7 @@ import (
 )
 
 func TestAPIRoute_Compile(t *testing.T) {
-	assert.Equal(t, API+"/channels/test1/messages/test2/reactions/test3/@me", PutReaction.Compile("test1", "test2", "test3").Route())
+	assert.Equal(t, API+"/channels/test1/messages/test2/reactions/test3/@me", AddReaction.Compile("test1", "test2", "test3").Route())
 }
 
 func TestCDNRoute_Compile(t *testing.T) {

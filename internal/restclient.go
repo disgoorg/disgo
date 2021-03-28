@@ -80,15 +80,10 @@ func (r RestClientImpl) Request(route endpoints.CompiledAPIRoute, rqBody interfa
 		}
 	}()
 
-	var rawRsBody []byte
-	if rsBody == nil {
-		rawRsBody = nil
-	} else {
-		rawRsBody, err = ioutil.ReadAll(rs.Body)
-		if err != nil {
-			log.Errorf("error reading from response body: %s", err)
-			return err
-		}
+	rawRsBody, err := ioutil.ReadAll(rs.Body)
+	if err != nil {
+		log.Errorf("error reading from response body: %s", err)
+		return err
 	}
 
 	log.Debugf("code: %d, response: %s", rs.StatusCode, string(rawRsBody))
@@ -115,7 +110,7 @@ func (r RestClientImpl) Request(route endpoints.CompiledAPIRoute, rqBody interfa
 		return api.ErrBadGateway
 
 	case http.StatusBadRequest:
-		log.Errorf("bad request: %s", string(rqJSON))
+		log.Errorf("bad request request: \"%s\", response: \"%s\"", string(rqJSON), string(rawRsBody))
 		return api.ErrBadRequest
 
 	case http.StatusUnauthorized:
@@ -326,27 +321,27 @@ func (r RestClientImpl) DeleteRole(guildID api.Snowflake, roleID api.Snowflake) 
 
 // AddReaction lets you add a reaction to a message_events
 func (r RestClientImpl) AddReaction(channelID api.Snowflake, messageID api.Snowflake, emoji string) error {
-	return r.Request(endpoints.PutReaction.Compile(channelID, messageID, normalizeEmoji(emoji)), nil, nil)
+	return r.Request(endpoints.AddReaction.Compile(channelID, messageID, normalizeEmoji(emoji)), nil, nil)
 }
 
 // RemoveOwnReaction lets you remove your own reaction from a message_events
 func (r RestClientImpl) RemoveOwnReaction(channelID api.Snowflake, messageID api.Snowflake, emoji string) error {
-	return r.Request(endpoints.DeleteOwnReaction.Compile(channelID, messageID, normalizeEmoji(emoji)), nil, nil)
+	return r.Request(endpoints.RemoveOwnReaction.Compile(channelID, messageID, normalizeEmoji(emoji)), nil, nil)
 }
 
 // RemoveUserReaction lets you remove a specific reaction from a user from a message_events
 func (r RestClientImpl) RemoveUserReaction(channelID api.Snowflake, messageID api.Snowflake, emoji string, userID api.Snowflake) error {
-	return r.Request(endpoints.DeleteUserReaction.Compile(channelID, messageID, normalizeEmoji(emoji), userID), nil, nil)
+	return r.Request(endpoints.RemoveUserReaction.Compile(channelID, messageID, normalizeEmoji(emoji), userID), nil, nil)
 }
 
 // GetGlobalCommands gets you all global commands
 func (r RestClientImpl) GetGlobalCommands(applicationID api.Snowflake) (commands []*api.SlashCommand, err error) {
-	return commands, r.Request(endpoints.GetGlobalApplicationCommands.Compile(applicationID), nil, &commands)
+	return commands, r.Request(endpoints.GetGlobalCommands.Compile(applicationID), nil, &commands)
 }
 
 // CreateGlobalCommand lets you create a new global command
 func (r RestClientImpl) CreateGlobalCommand(applicationID api.Snowflake, command api.SlashCommand) (rCommand *api.SlashCommand, err error) {
-	return rCommand, r.Request(endpoints.CreateGlobalApplicationCommand.Compile(applicationID), command, &rCommand)
+	return rCommand, r.Request(endpoints.CreateGlobalCommand.Compile(applicationID), command, &rCommand)
 }
 
 // SetGlobalCommands lets you override all global commands
@@ -355,32 +350,32 @@ func (r RestClientImpl) SetGlobalCommands(applicationID api.Snowflake, commands 
 		err = api.ErrTooMuchApplicationCommands
 		return
 	}
-	return rCommands, r.Request(endpoints.SetGlobalApplicationCommands.Compile(applicationID), api.SlashCommands(commands), &rCommands)
+	return rCommands, r.Request(endpoints.SetGlobalCommands.Compile(applicationID), api.SlashCommands(commands), &rCommands)
 }
 
 // GetGlobalCommand gets you a specific global global command
 func (r RestClientImpl) GetGlobalCommand(applicationID api.Snowflake, commandID api.Snowflake) (rCommand *api.SlashCommand, err error) {
-	return rCommand, r.Request(endpoints.GetGlobalApplicationCommand.Compile(applicationID, commandID), nil, &rCommand)
+	return rCommand, r.Request(endpoints.GetGlobalCommand.Compile(applicationID, commandID), nil, &rCommand)
 }
 
 // EditGlobalCommand lets you edit a specific global command
 func (r RestClientImpl) EditGlobalCommand(applicationID api.Snowflake, commandID api.Snowflake, command api.SlashCommand) (rCommand *api.SlashCommand, err error) {
-	return rCommand, r.Request(endpoints.EditGlobalApplicationCommand.Compile(applicationID, commandID), command, &rCommand)
+	return rCommand, r.Request(endpoints.EditGlobalCommand.Compile(applicationID, commandID), command, &rCommand)
 }
 
 // DeleteGlobalCommand lets you delete a specific global command
 func (r RestClientImpl) DeleteGlobalCommand(applicationID api.Snowflake, commandID api.Snowflake) error {
-	return r.Request(endpoints.DeleteGlobalApplicationCommand.Compile(applicationID, commandID), nil, nil)
+	return r.Request(endpoints.DeleteGlobalCommand.Compile(applicationID, commandID), nil, nil)
 }
 
 // GetGuildCommands gets you all guild_events commands
 func (r RestClientImpl) GetGuildCommands(applicationID api.Snowflake, guildID api.Snowflake) (commands []*api.SlashCommand, err error) {
-	return commands, r.Request(endpoints.GetGuildApplicationCommands.Compile(applicationID, guildID), nil, &commands)
+	return commands, r.Request(endpoints.GetGuildCommands.Compile(applicationID, guildID), nil, &commands)
 }
 
 // CreateGuildGuildCommand lets you create a new guild_events command
 func (r RestClientImpl) CreateGuildGuildCommand(applicationID api.Snowflake, guildID api.Snowflake, command api.SlashCommand) (rCommand *api.SlashCommand, err error) {
-	return rCommand, r.Request(endpoints.CreateGuildApplicationCommand.Compile(applicationID, guildID), command, &rCommand)
+	return rCommand, r.Request(endpoints.CreateGuildCommand.Compile(applicationID, guildID), command, &rCommand)
 }
 
 // SetGuildCommands lets you override all guild_events commands
@@ -389,22 +384,22 @@ func (r RestClientImpl) SetGuildCommands(applicationID api.Snowflake, guildID ap
 		err = api.ErrTooMuchApplicationCommands
 		return
 	}
-	return rCommands, r.Request(endpoints.SetGuildApplicationCommands.Compile(applicationID, guildID), commands, &rCommands)
+	return rCommands, r.Request(endpoints.SetGuildCommands.Compile(applicationID, guildID), commands, &rCommands)
 }
 
 // GetGuildCommand gets you a specific guild_events command
 func (r RestClientImpl) GetGuildCommand(applicationID api.Snowflake, guildID api.Snowflake, commandID api.Snowflake) (rCommand *api.SlashCommand, err error) {
-	return rCommand, r.Request(endpoints.GetGuildApplicationCommand.Compile(applicationID, guildID, commandID), nil, &rCommand)
+	return rCommand, r.Request(endpoints.GetGuildCommand.Compile(applicationID, guildID, commandID), nil, &rCommand)
 }
 
 // EditGuildCommand lets you edit a specific guild_events command
 func (r RestClientImpl) EditGuildCommand(applicationID api.Snowflake, guildID api.Snowflake, commandID api.Snowflake, command api.SlashCommand) (rCommand *api.SlashCommand, err error) {
-	return rCommand, r.Request(endpoints.EditGuildApplicationCommand.Compile(applicationID, guildID, commandID), command, &rCommand)
+	return rCommand, r.Request(endpoints.EditGuildCommand.Compile(applicationID, guildID, commandID), command, &rCommand)
 }
 
 // DeleteGuildCommand lets you delete a specific guild_events command
 func (r RestClientImpl) DeleteGuildCommand(applicationID api.Snowflake, guildID api.Snowflake, commandID api.Snowflake) error {
-	return r.Request(endpoints.DeleteGuildApplicationCommand.Compile(applicationID, guildID, commandID), nil, nil)
+	return r.Request(endpoints.DeleteGuildCommand.Compile(applicationID, guildID, commandID), nil, nil)
 }
 
 // SendInteractionResponse used to send the initial response on an interaction
