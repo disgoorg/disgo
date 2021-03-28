@@ -5,7 +5,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/DiscoOrg/disgo/api"
+	"github.com/DisgoOrg/disgo/api"
 )
 
 // NewBuilder returns a new api.DisgoBuilder instance

@@ -1,8 +1,8 @@
 package disgo
 
 import (
-	"github.com/DiscoOrg/disgo/api"
-	"github.com/DiscoOrg/disgo/internal"
+	"github.com/DisgoOrg/disgo/api"
+	"github.com/DisgoOrg/disgo/internal"
 )
 
 // New Initialises a new Disgo client

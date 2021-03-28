@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/DiscoOrg/disgo/api"
+	"github.com/DisgoOrg/disgo/api"
 )
 
 // GenericGuildEvent generic api.Guild api.Event

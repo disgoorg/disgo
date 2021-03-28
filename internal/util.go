@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/DiscoOrg/disgo/api"
+	"github.com/DisgoOrg/disgo/api"
 )
 
 // IDFromToken returns the applicationID from the token

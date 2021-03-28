@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/DiscoOrg/disgo/api"
+	"github.com/DisgoOrg/disgo/api"
 )
 
 type readyEventData struct {

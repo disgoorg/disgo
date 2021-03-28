@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/DiscoOrg/disgo/api"
+	"github.com/DisgoOrg/disgo/api"
 )
 
 // GenericGuildMessageEvent indicates that we received a api.Message api.Event in a api.Guild

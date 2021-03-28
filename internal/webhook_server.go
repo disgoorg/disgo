@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/DiscoOrg/disgo/api"
+	"github.com/DisgoOrg/disgo/api"
 )
 
 func newWebhookServerImpl(disgo api.Disgo, listenURL string, listenPort int, publicKey string) api.WebhookServer {

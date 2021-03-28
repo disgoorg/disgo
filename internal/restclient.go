@@ -11,8 +11,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/DiscoOrg/disgo/api"
-	"github.com/DiscoOrg/disgo/api/endpoints"
+	"github.com/DisgoOrg/disgo/api"
+	"github.com/DisgoOrg/disgo/api/endpoints"
 )
 
 func newRestClientImpl(disgo api.Disgo, token string) api.RestClient {

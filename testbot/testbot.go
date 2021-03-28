@@ -7,9 +7,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/DiscoOrg/disgo"
-	"github.com/DiscoOrg/disgo/api"
-	"github.com/DiscoOrg/disgo/api/events"
+	"github.com/DisgoOrg/disgo"
+	"github.com/DisgoOrg/disgo/api"
+	"github.com/DisgoOrg/disgo/api/events"
 )
 
 func main() {

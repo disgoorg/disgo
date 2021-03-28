@@ -3,7 +3,7 @@ package events
 import (
 	"errors"
 
-	"github.com/DiscoOrg/disgo/api"
+	"github.com/DisgoOrg/disgo/api"
 )
 
 // GenericInteractionEvent generic api.Interaction event

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/DiscoOrg/disgo/api/endpoints"
+	"github.com/DisgoOrg/disgo/api/endpoints"
 )
 
 // PremiumTier tells you the boost level of a guild

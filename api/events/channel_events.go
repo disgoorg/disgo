@@ -1,6 +1,6 @@
 package events
 
-import "github.com/DiscoOrg/disgo/api"
+import "github.com/DisgoOrg/disgo/api"
 
 // GenericChannelEvent is called upon receiving an event in a api.Channel
 type GenericChannelEvent struct {

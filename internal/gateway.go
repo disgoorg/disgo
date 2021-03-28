@@ -12,8 +12,8 @@ import (
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/DiscoOrg/disgo/api"
-	"github.com/DiscoOrg/disgo/api/endpoints"
+	"github.com/DisgoOrg/disgo/api"
+	"github.com/DisgoOrg/disgo/api/endpoints"
 )
 
 func newGatewayImpl(disgo api.Disgo) api.Gateway {

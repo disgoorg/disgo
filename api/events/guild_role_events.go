@@ -1,6 +1,6 @@
 package events
 
-import "github.com/DiscoOrg/disgo/api"
+import "github.com/DisgoOrg/disgo/api"
 
 // GenericGuildRoleEvent generic api.Role event
 type GenericGuildRoleEvent struct {

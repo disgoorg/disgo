@@ -3,7 +3,7 @@ package api
 import (
 	"errors"
 
-	"github.com/DiscoOrg/disgo/api/endpoints"
+	"github.com/DisgoOrg/disgo/api/endpoints"
 )
 
 // Errors when connecting to discord

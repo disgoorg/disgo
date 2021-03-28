@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/DiscoOrg/disgo/api"
+	"github.com/DisgoOrg/disgo/api"
 )
 
 // InteractionCreateWebhookHandler handles api.InteractionCreateWebhookEvent

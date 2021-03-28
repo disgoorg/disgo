@@ -3,7 +3,7 @@ package api
 /*import (
 	"github.com/chebyrash/promise"
 
-	"github.com/DiscoOrg/disgo/internal/events"
+	"github.com/DisgoOrg/disgo/internal/events"
 )
 
 // CommandThread allows you to follow up Interactions (https://discord.com/developers/docs/interactions/slash-commands)

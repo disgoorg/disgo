@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"github.com/DiscoOrg/disgo/api"
-	"github.com/DiscoOrg/disgo/api/events"
+	"github.com/DisgoOrg/disgo/api"
+	"github.com/DisgoOrg/disgo/api/events"
 )
 
 // InteractionCreateHandler handles api.InteractionCreateGatewayEvent

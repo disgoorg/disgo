@@ -6,8 +6,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/DiscoOrg/disgo/api"
-	"github.com/DiscoOrg/disgo/internal/handlers"
+	"github.com/DisgoOrg/disgo/api"
+	"github.com/DisgoOrg/disgo/internal/handlers"
 )
 
 func newEventManagerImpl(disgo api.Disgo, listeners []api.EventListener) api.EventManager {
