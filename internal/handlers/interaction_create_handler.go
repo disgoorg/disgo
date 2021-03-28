@@ -24,6 +24,10 @@ func (h InteractionCreateHandler) Handle(disgo api.Disgo, eventManager api.Event
 	if !ok {
 		return
 	}
+	handleInteractions(disgo, eventManager, nil, interaction)
+}
+
+func handleInteractions(disgo api.Disgo, eventManager api.EventManager, c chan interface{}, interaction *api.Interaction) {
 	if interaction.Member != nil {
 		disgo.Cache().CacheMember(interaction.Member)
 	}
@@ -49,6 +53,7 @@ func (h InteractionCreateHandler) Handle(disgo api.Disgo, eventManager api.Event
 				disgo.Cache().CacheRole(role)
 			}
 		}
+		// TODO how do we cache partial channels?
 		/*if resolved.Channels != nil {
 			for _, user := range resolved.Users {
 				disgo.Cache().CacheChannel(user)
@@ -89,7 +94,10 @@ func (h InteractionCreateHandler) Handle(disgo api.Disgo, eventManager api.Event
 				Value:    optionData.Value,
 			})
 		}
+
 		eventManager.Dispatch(events.SlashCommandEvent{
+			ResponseChannel:         c,
+			FromWebhook:             c != nil,
 			GenericInteractionEvent: genericInteractionEvent,
 			CommandID:               interaction.Data.ID,
 			Name:                    interaction.Data.Name,
@@ -99,5 +107,4 @@ func (h InteractionCreateHandler) Handle(disgo api.Disgo, eventManager api.Event
 			Replied:                 false,
 		})
 	}
-
 }

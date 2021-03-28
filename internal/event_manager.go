@@ -15,7 +15,7 @@ func newEventManagerImpl(disgo api.Disgo, listeners []api.EventListener) api.Eve
 		disgo:     disgo,
 		channel:   make(chan api.GenericEvent),
 		listeners: listeners,
-		handlers:  map[string]api.GatewayEventHandler{},
+		handlers:  map[string]api.EventHandler{},
 	}
 	for _, handler := range handlers.GetAllHandlers() {
 		eventManager.handlers[handler.Name()] = handler
@@ -28,18 +28,23 @@ func newEventManagerImpl(disgo api.Disgo, listeners []api.EventListener) api.Eve
 type EventManagerImpl struct {
 	disgo     api.Disgo
 	listeners []api.EventListener
-	handlers  map[string]api.GatewayEventHandler
+	handlers  map[string]api.EventHandler
 	channel   chan api.GenericEvent
 }
 
-// Handle calls the correct api.GatewayEventHandler
-func (e EventManagerImpl) Handle(name string, payload json.RawMessage) {
+// Handle calls the correct api.EventHandler
+func (e EventManagerImpl) Handle(name string, payload json.RawMessage, c chan interface{}) {
 	if handler, ok := e.handlers[name]; ok {
 		eventPayload := handler.New()
 		if err := json.Unmarshal(payload, &eventPayload); err != nil {
 			log.Errorf("error while unmarshaling event. error: %s", err)
 		}
-		handler.Handle(e.disgo, e, eventPayload)
+		switch h := handler.(type) {
+		case api.GatewayEventHandler:
+			h.Handle(e.disgo, e, eventPayload)
+		case api.WebhookEventHandler:
+			h.Handle(e.disgo, e, c, eventPayload)
+		}
 	}
 }
 

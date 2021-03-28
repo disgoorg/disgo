@@ -1,42 +1,42 @@
 name: Go
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    push:
+        branches: [ master ]
+    pull_request:
+        branches: [ master ]
 
 jobs:
 
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v2
 
-    - name: Set up Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.15
+            -   name: Set up Go
+                uses: actions/setup-go@v2
+                with:
+                    go-version: 1.15
 
-    - name: Build
-      run: go build -v ./...
+            -   name: Build
+                run: go build -v ./...
 
-    - name: Test
-      env:
-        token: ${{ secrets.TOKEN }}
-      run: go test -v ./...
+            -   name: Test
+                env:
+                    token: ${{ secrets.TOKEN }}
+                run: go test -v ./...
 
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    
-    - name: Set up Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.15
-      
-    - name: Lint
-      uses: Jerome1337/golint-action@v1.0.2
-      with:
-        golint-path: './...'
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v2
+
+            -   name: Set up Go
+                uses: actions/setup-go@v2
+                with:
+                    go-version: 1.15
+
+            -   name: Lint
+                uses: Jerome1337/golint-action@v1.0.2
+                with:
+                    golint-path: './...'

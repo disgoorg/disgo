@@ -5,12 +5,12 @@ import (
 )
 
 type readyEventData struct {
-	Version         int             `json:"v"`
-	SelfUser        api.User        `json:"user"`
+	Version         int              `json:"v"`
+	SelfUser        api.User         `json:"user"`
 	PrivateChannels []*api.DMChannel `json:"private_channels"`
 	Guilds          []*api.Guild     `json:"guilds"`
-	SessionID       string          `json:"session_id"`
-	Shard           *[2]int         `json:"shard,omitempty"`
+	SessionID       string           `json:"session_id"`
+	Shard           *[2]int          `json:"shard,omitempty"`
 }
 
 // ReadyHandler handles api.ReadyGatewayEvent

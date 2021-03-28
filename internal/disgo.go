@@ -27,6 +27,10 @@ func New(token string, options api.Options) (api.Disgo, error) {
 
 	disgo.eventManager = newEventManagerImpl(disgo, make([]api.EventListener, 0))
 
+	if options.EnableWebhookInteractions {
+		disgo.webhookServer = newWebhookServerImpl(disgo, options.ListenURL, options.ListenPort, options.PublicKey)
+	}
+
 	disgo.gateway = newGatewayImpl(disgo)
 
 	return disgo, nil
@@ -40,6 +44,7 @@ type DisgoImpl struct {
 	intents       api.Intents
 	selfUser      *api.User
 	eventManager  api.EventManager
+	webhookServer api.WebhookServer
 	cache         api.Cache
 	applicationID api.Snowflake
 }
@@ -47,6 +52,16 @@ type DisgoImpl struct {
 // Connect opens the gateway connection to discord
 func (d *DisgoImpl) Connect() error {
 	err := d.Gateway().Open()
+	if err != nil {
+		log.Errorf("Unable to connect to gateway. error: %s", err)
+		return err
+	}
+	return nil
+}
+
+// Start starts the interaction webhook server
+func (d *DisgoImpl) Start() error {
+	err := d.WebhookServer().Start()
 	if err != nil {
 		log.Errorf("Unable to connect to gateway. error: %s", err)
 		return err
@@ -78,6 +93,11 @@ func (d *DisgoImpl) RestClient() api.RestClient {
 // EventManager returns the api.EventManager
 func (d *DisgoImpl) EventManager() api.EventManager {
 	return d.eventManager
+}
+
+// WebhookServer returns the api.EventManager
+func (d *DisgoImpl) WebhookServer() api.WebhookServer {
+	return d.webhookServer
 }
 
 // Cache returns the entity api.Cache used by disgo

@@ -26,6 +26,10 @@ type DisgoBuilderImpl struct {
 	memberCachePolicy api.MemberCachePolicy
 	intents           api.Intents
 	eventManager      api.EventManager
+	webhookServer     api.WebhookServer
+	listenURL         *string
+	listenPort        *int
+	publicKey         *string
 	eventListeners    []api.EventListener
 }
 
@@ -58,6 +62,20 @@ func (b DisgoBuilderImpl) AddEventListeners(eventListeners ...api.EventListener)
 	for _, eventListener := range eventListeners {
 		b.eventListeners = append(b.eventListeners, eventListener)
 	}
+	return b
+}
+
+// SetWebhookServer lets you inject your own api.EventManager
+func (b DisgoBuilderImpl) SetWebhookServer(webhookServer api.WebhookServer) api.DisgoBuilder {
+	b.webhookServer = webhookServer
+	return b
+}
+
+// SetWebhookServerProperties sets the default api.WebhookServer properties
+func (b DisgoBuilderImpl) SetWebhookServerProperties(listenURL string, listenPort int, publicKey string) api.DisgoBuilder {
+	b.listenURL = &listenURL
+	b.listenPort = &listenPort
+	b.publicKey = &publicKey
 	return b
 }
 
@@ -117,9 +135,13 @@ func (b DisgoBuilderImpl) Build() (api.Disgo, error) {
 
 	if b.eventManager == nil {
 		b.eventManager = newEventManagerImpl(disgo, b.eventListeners)
-
 	}
 	disgo.eventManager = b.eventManager
+
+	if b.webhookServer == nil && b.listenURL != nil && b.listenPort != nil && b.publicKey != nil {
+		b.webhookServer = newWebhookServerImpl(disgo, *b.listenURL, *b.listenPort, *b.publicKey)
+	}
+	disgo.webhookServer = b.webhookServer
 
 	if b.cache == nil {
 		if b.memberCachePolicy == nil {

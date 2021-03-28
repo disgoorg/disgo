@@ -67,6 +67,7 @@ const (
 	GuildRoleUpdateGatewayEvent          = "GUILD_ROLE_UPDATE"
 	GuildUpdateGatewayEvent              = "GUILD_UPDATE"
 	InteractionCreateGatewayEvent        = "INTERACTION_CREATE"
+	InteractionCreateWebhookEvent        = "INTERACTION_WEBHOOK_CREATE"
 	MessageAckGatewayEvent               = "MESSAGE_ACK"
 	MessageCreateGatewayEvent            = "MESSAGE_CREATE"
 	MessageDeleteGatewayEvent            = "MESSAGE_DELETE"

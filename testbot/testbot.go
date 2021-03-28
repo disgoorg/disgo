@@ -15,11 +15,15 @@ import (
 func main() {
 	log.Infof("starting testbot...")
 	token := os.Getenv("token")
+	publicKey := os.Getenv("public-key")
+
+	log.Print(publicKey)
 
 	dgo, err := disgo.NewBuilder(token).
 		SetLogLevel(log.InfoLevel).
-		SetIntents(api.IntentsGuilds | api.IntentsGuildMessages | api.IntentsGuildMembers).
+		SetIntents(api.IntentsGuilds|api.IntentsGuildMessages|api.IntentsGuildMembers).
 		SetMemberCachePolicy(api.MemberCachePolicyAll).
+		SetWebhookServerProperties("/webhooks/interactions/callback", 80, publicKey).
 		AddEventListeners(&events.ListenerAdapter{
 			OnGuildAvailable:       guildAvailListener,
 			OnGuildMessageReceived: messageListener,
@@ -31,7 +35,7 @@ func main() {
 		return
 	}
 
-	_, err = dgo.RestClient().SetGuildCommands(dgo.ApplicationID(), "817327181659111454",
+	/*_, err = dgo.RestClient().SetGuildCommands(dgo.ApplicationID(), "817327181659111454",
 		api.SlashCommand{
 			Name:        "test",
 			Description: "test test test test test test",
@@ -87,6 +91,11 @@ func main() {
 	)
 	if err != nil {
 		log.Errorf("error while registering guild commands: %s", err)
+	}*/
+
+	err = dgo.Start()
+	if err != nil {
+		log.Fatalf("error while starting webhookserver: %s", err)
 	}
 
 	err = dgo.Connect()

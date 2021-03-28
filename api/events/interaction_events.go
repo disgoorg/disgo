@@ -55,6 +55,8 @@ func (e GenericInteractionEvent) GuildChannel() *api.GuildChannel {
 // SlashCommandEvent indicates a slash api.SlashCommand was ran in a api.Guild
 type SlashCommandEvent struct {
 	GenericInteractionEvent
+	ResponseChannel chan interface{}
+	FromWebhook     bool
 	CommandID       api.Snowflake
 	Name            string
 	SubCommandName  *string
@@ -204,10 +206,16 @@ func (e SlashCommandEvent) OptionsByType(optionType api.SlashCommandOptionType) 
 }
 
 // Reply replies to the api.Interaction with the provided api.InteractionResponse
-func (e SlashCommandEvent) Reply(response api.InteractionResponse) error {
+func (e *SlashCommandEvent) Reply(response api.InteractionResponse) error {
 	if e.Replied {
 		return errors.New("you already replied to this interaction")
 	}
 	e.Replied = true
+
+	if e.FromWebhook {
+		e.ResponseChannel <- response
+		return nil
+	}
+
 	return e.Disgo.RestClient().SendInteractionResponse(e.Interaction.ID, e.Interaction.Token, response)
 }

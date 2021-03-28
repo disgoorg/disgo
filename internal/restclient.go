@@ -107,6 +107,7 @@ func (r RestClientImpl) Request(route endpoints.CompiledAPIRoute, rqBody interfa
 		return api.ErrRatelimited
 
 	case http.StatusBadGateway:
+		log.Error(api.ErrBadGateway)
 		return api.ErrBadGateway
 
 	case http.StatusBadRequest:
@@ -114,6 +115,7 @@ func (r RestClientImpl) Request(route endpoints.CompiledAPIRoute, rqBody interfa
 		return api.ErrBadRequest
 
 	case http.StatusUnauthorized:
+		log.Error(api.ErrUnauthorized)
 		return api.ErrUnauthorized
 
 	default:

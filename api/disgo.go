@@ -10,10 +10,12 @@ import (
 // Disgo is the main discord interface
 type Disgo interface {
 	Connect() error
+	Start() error
 	Close()
 	Token() string
 	Gateway() Gateway
 	RestClient() RestClient
+	WebhookServer() WebhookServer
 	Cache() Cache
 	Intents() Intents
 	ApplicationID() Snowflake
@@ -30,11 +32,22 @@ type Disgo interface {
 	SetCommands(commands ...SlashCommand) ([]*SlashCommand, error)
 }
 
-// GatewayEventHandler is used to handle raw gateway events
-type GatewayEventHandler interface {
+// EventHandler provides info about the EventHandler
+type EventHandler interface {
 	Name() string
 	New() interface{}
+}
+
+// GatewayEventHandler is used to handle raw gateway events
+type GatewayEventHandler interface {
+	EventHandler
 	Handle(Disgo, EventManager, interface{})
+}
+
+// WebhookEventHandler is used to handle raw webhook events
+type WebhookEventHandler interface {
+	EventHandler
+	Handle(Disgo, EventManager, chan interface{}, interface{})
 }
 
 // EventListener is used to create new EventListener to listen to events
@@ -45,7 +58,7 @@ type EventListener interface {
 // EventManager lets you listen for specific events triggered by raw gateway events
 type EventManager interface {
 	AddEventListeners(...EventListener)
-	Handle(string, json.RawMessage)
+	Handle(string, json.RawMessage, chan interface{})
 	Dispatch(GenericEvent)
 }
 

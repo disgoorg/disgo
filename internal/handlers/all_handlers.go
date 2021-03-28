@@ -5,8 +5,8 @@ import (
 )
 
 // GetAllHandlers returns all api.GatewayEventHandler(s)
-func GetAllHandlers() []api.GatewayEventHandler {
-	return []api.GatewayEventHandler{
+func GetAllHandlers() []api.EventHandler {
+	return []api.EventHandler{
 		ReadyHandler{},
 
 		GuildCreateHandler{},
@@ -24,5 +24,6 @@ func GetAllHandlers() []api.GatewayEventHandler {
 		MessageCreateHandler{},
 
 		InteractionCreateHandler{},
+		InteractionCreateWebhookHandler{},
 	}
 }

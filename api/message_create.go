@@ -61,7 +61,7 @@ func (b *MessageBuilder) SetMessageReference(messageReference *MessageReference)
 // SetMessageReferenceByMessageID allows you to specify a Message ID to reply to
 func (b *MessageBuilder) SetMessageReferenceByMessageID(messageID Snowflake) *MessageBuilder {
 	b.MessageReference = &MessageReference{
-		MessageID:       &messageID,
+		MessageID: &messageID,
 	}
 	return b
 }

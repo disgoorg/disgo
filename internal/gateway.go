@@ -229,7 +229,7 @@ func (g *GatewayImpl) listen() {
 				}
 				d := g.Disgo()
 				e := d.EventManager()
-				e.Handle(*event.T, event.D)
+				e.Handle(*event.T, event.D, nil)
 
 			case api.OpHeartbeat:
 				log.Debugf("received: OpHeartbeat")
