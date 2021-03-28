@@ -352,7 +352,7 @@ func (r RestClientImpl) SetGlobalCommands(applicationID api.Snowflake, commands 
 		err = api.ErrTooMuchApplicationCommands
 		return
 	}
-	return rCommands, r.Request(endpoints.SetGlobalCommands.Compile(applicationID), api.SlashCommands(commands), &rCommands)
+	return rCommands, r.Request(endpoints.SetGlobalCommands.Compile(applicationID), commands, &rCommands)
 }
 
 // GetGlobalCommand gets you a specific global global command

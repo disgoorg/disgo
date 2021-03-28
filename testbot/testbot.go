@@ -17,8 +17,6 @@ func main() {
 	token := os.Getenv("token")
 	publicKey := os.Getenv("public-key")
 
-	log.Print(publicKey)
-
 	dgo, err := disgo.NewBuilder(token).
 		SetLogLevel(log.InfoLevel).
 		SetIntents(api.IntentsGuilds|api.IntentsGuildMessages|api.IntentsGuildMembers).
@@ -35,7 +33,7 @@ func main() {
 		return
 	}
 
-	/*_, err = dgo.RestClient().SetGuildCommands(dgo.ApplicationID(), "817327181659111454",
+	_, err = dgo.RestClient().SetGuildCommands(dgo.ApplicationID(), "817327181659111454",
 		api.SlashCommand{
 			Name:        "test",
 			Description: "test test test test test test",
@@ -91,7 +89,7 @@ func main() {
 	)
 	if err != nil {
 		log.Errorf("error while registering guild commands: %s", err)
-	}*/
+	}
 
 	err = dgo.Start()
 	if err != nil {

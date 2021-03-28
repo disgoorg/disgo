@@ -149,6 +149,9 @@ func (g *GatewayImpl) heartbeat() {
 
 // Close cleans up the gateway internals
 func (g *GatewayImpl) Close() {
+	if g.quit == nil {
+		return
+	}
 	log.Info("closing gateway goroutines...")
 	close(g.quit)
 	log.Info("closed gateway goroutines")
