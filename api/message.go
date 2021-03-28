@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"time"
 )
 
@@ -163,12 +164,31 @@ func (m Message) AddReaction(emoji string) error {
 	return m.Disgo.RestClient().AddReaction(m.ChannelID, m.ID, emoji)
 }
 
+// Edit allows you to edit an existing Message sent by you
+func (m Message) Edit(message MessageUpdate) (*Message, error) {
+	return m.Disgo.RestClient().EditMessage(m.ChannelID, m.ID, message)
+}
+
+// Delete allows you to edit an existing Message sent by you
+func (m Message) Delete() error {
+	return m.Disgo.RestClient().DeleteMessage(m.ChannelID, m.ID)
+}
+
+// Crosspost crossposts an existing message
+func (m Message) Crosspost() (*Message, error) {
+	channel := m.Channel()
+	if channel != nil && channel.Type != ChannelTypeNews {
+		return nil, errors.New("channel type is not NEWS")
+	}
+	return m.Disgo.RestClient().CrosspostMessage(m.ChannelID, m.ID)
+}
+
 // Reply allows you to reply to an existing Message
 func (m Message) Reply(message MessageCreate) (*Message, error) {
 	message.MessageReference = &MessageReference{
 		MessageID: &m.ID,
 	}
-	return m.Channel().SendMessage(message)
+	return m.Disgo.RestClient().SendMessage(m.ChannelID, message)
 }
 
 // Reactions contains information about the reactions of a message_events
@@ -178,10 +198,24 @@ type Reactions struct {
 	Emoji Emote `json:"emoji"`
 }
 
-// UpdateMessage is used to edit a message
-type UpdateMessage struct {
-	Content         *string          `json:"content,omitempty"`
+// MessageUpdate is used to edit a Message
+type MessageUpdate struct {
+	Content         string           `json:"content,omitempty"`
 	Embed           *Embed           `json:"embed,omitempty"`
-	Flags           *MessageFlags    `json:"flags,omitempty"`
+	Flags           MessageFlags     `json:"flags,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
+}
+
+// MessageCreate is the struct to create a new Message with
+type MessageCreate struct {
+	Content          string            `json:"content,omitempty"`
+	TTS              bool              `json:"tts,omitempty"`
+	Embed            *Embed            `json:"embed,omitempty"`
+	AllowedMentions  *AllowedMentions  `json:"allowed_mentions,omitempty"`
+	MessageReference *MessageReference `json:"message_reference,omitempty"`
+}
+
+// MessageBulkDelete is used to bulk delete Message(s)
+type MessageBulkDelete struct {
+	Messages []Snowflake `json:"messages"`
 }

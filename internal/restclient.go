@@ -128,9 +128,37 @@ func (r RestClientImpl) Request(route endpoints.CompiledAPIRoute, rqBody interfa
 	}
 }
 
-// SendMessage lets you send a message_events to a channel
+// SendMessage lets you send a api.Message to a api.MessageChannel
 func (r RestClientImpl) SendMessage(channelID api.Snowflake, message api.MessageCreate) (rMessage *api.Message, err error) {
 	err = r.Request(endpoints.CreateMessage.Compile(channelID), message, &rMessage)
+	if rMessage != nil {
+		//r.Disgo().Cache().CacheMessage(rMessage)
+	}
+	return
+}
+
+// EditMessage lets you edit a api.Message
+func (r RestClientImpl) EditMessage(channelID api.Snowflake, messageID api.Snowflake, message api.MessageUpdate) (rMessage *api.Message, err error) {
+	err = r.Request(endpoints.UpdateMessage.Compile(channelID, messageID), message, &rMessage)
+	if rMessage != nil {
+		//r.Disgo().Cache().CacheMessage(rMessage)
+	}
+	return
+}
+
+// DeleteMessage lets you delete a api.Message
+func (r RestClientImpl) DeleteMessage(channelID api.Snowflake, messageID api.Snowflake) error {
+	return r.Request(endpoints.DeleteMessage.Compile(channelID, messageID), nil, nil)
+}
+
+// BulkDeleteMessages lets you bulk delete api.Message(s)
+func (r RestClientImpl) BulkDeleteMessages(channelID api.Snowflake, messageIDs... api.Snowflake) error {
+	return r.Request(endpoints.BulkDeleteMessage.Compile(channelID), api.MessageBulkDelete{Messages: messageIDs}, nil)
+}
+
+// CrosspostMessage lets you crosspost a api.Message in a channel with type api.ChannelTypeNews
+func (r RestClientImpl) CrosspostMessage(channelID api.Snowflake, messageID api.Snowflake) (rMessage *api.Message, err error) {
+	err = r.Request(endpoints.CrosspostMessage.Compile(channelID, messageID), nil, &rMessage)
 	if rMessage != nil {
 		//r.Disgo().Cache().CacheMessage(rMessage)
 	}

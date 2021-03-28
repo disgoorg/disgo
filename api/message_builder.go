@@ -1,14 +1,5 @@
 package api
 
-// MessageCreate is the struct to create a new Message with
-type MessageCreate struct {
-	Content          string            `json:"content,omitempty"`
-	TTS              bool              `json:"tts,omitempty"`
-	Embed            *Embed            `json:"embed,omitempty"`
-	AllowedMentions  *AllowedMentions  `json:"allowed_mentions,omitempty"`
-	MessageReference *MessageReference `json:"message_reference,omitempty"`
-}
-
 // MessageBuilder helper to build Message(s) easier
 type MessageBuilder struct {
 	MessageCreate

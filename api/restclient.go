@@ -24,6 +24,11 @@ type RestClient interface {
 	Request(route endpoints.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) error
 
 	SendMessage(channelID Snowflake, message MessageCreate) (*Message, error)
+	EditMessage(channelID Snowflake, messageID Snowflake, message MessageUpdate) (*Message, error)
+	DeleteMessage(channelID Snowflake, messageID Snowflake) error
+	BulkDeleteMessages(channelID Snowflake, messageIDs ...Snowflake) error
+	CrosspostMessage(channelID Snowflake, messageID Snowflake) (*Message, error)
+
 	OpenDMChannel(userID Snowflake) (*DMChannel, error)
 
 	UpdateSelfNick(guildID Snowflake, nick *string) (*string, error)
