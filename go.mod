@@ -1,4 +1,4 @@
-module github.com/DiscoOrg/disgo
+module github.com/DisgoOrg/disgo
 
 go 1.15
 
