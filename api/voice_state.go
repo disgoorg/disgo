@@ -2,16 +2,47 @@ package api
 
 // A VoiceState from Discord
 type VoiceState struct {
-	GuildID    *Snowflake `json:"guild_id,omitempty"`
-	ChannelID  *Snowflake `json:"channel_id"`
-	UserID     Snowflake  `json:"user_id"`
-	Member     *Member    `json:"member,omitempty"`
-	SessionID  string     `json:"session_id"`
-	Deaf       bool       `json:"deaf"`
-	Mute       bool       `json:"mute"`
-	SelfDeaf   bool       `json:"self_deaf"`
-	SelfMute   bool       `json:"self_mute"`
-	SelfStream *bool      `json:"self_stream,omitempty"`
-	SelfVideo  bool       `json:"self_video"`
-	Suppress   bool       `json:"suppress"`
+	Disgo         Disgo
+	GuildID       Snowflake  `json:"guild_id"`
+	ChannelID     *Snowflake `json:"channel_id"`
+	UserID        Snowflake  `json:"user_id"`
+	SessionID     string     `json:"session_id"`
+	GuildDeafened bool       `json:"deaf"`
+	GuildMuted    bool       `json:"mute"`
+	SelfDeafened  bool       `json:"self_deaf"`
+	SelfMuted     bool       `json:"self_mute"`
+	Stream        bool       `json:"self_stream"`
+	Video         bool       `json:"self_video"`
+	Suppressed    bool       `json:"suppress"`
+}
+
+func (s VoiceState) Muted() bool {
+	return s.GuildMuted || s.SelfMuted
+}
+
+func (s VoiceState) Deafened() bool {
+	return s.GuildDeafened || s.SelfDeafened
+}
+
+// Member returns the Member of this VoiceState from the Cache
+func (s VoiceState) Member() *Member {
+	return s.Disgo.Cache().Member(s.GuildID, s.UserID)
+}
+
+// User returns the User of this VoiceState from the Cache
+func (s VoiceState) User() *User {
+	return s.Disgo.Cache().User(s.UserID)
+}
+
+// Guild returns the Guild of this VoiceState from the Cache
+func (s VoiceState) Guild() *Guild {
+	return s.Disgo.Cache().Guild(s.GuildID)
+}
+
+// VoiceChannel returns the VoiceChannel of this VoiceState from the Cache
+func (s VoiceState) VoiceChannel() *VoiceChannel {
+	if s.ChannelID == nil {
+		return nil
+	}
+	return s.Disgo.Cache().VoiceChannel(*s.ChannelID)
 }

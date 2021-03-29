@@ -8,6 +8,7 @@ type DisgoBuilder interface {
 	SetToken(token string) DisgoBuilder
 	SetIntents(intents Intents) DisgoBuilder
 	SetEventManager(eventManager EventManager) DisgoBuilder
+	SetVoiceDispatchInterceptor(VoiceDispatchInterceptor) DisgoBuilder
 	AddEventListeners(eventsListeners ...EventListener) DisgoBuilder
 	SetWebhookServer(webhookServer WebhookServer) DisgoBuilder
 	SetWebhookServerProperties(listenURL string, listenPort int, publicKey string) DisgoBuilder

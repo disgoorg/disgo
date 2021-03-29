@@ -16,6 +16,7 @@ func newCacheImpl(memberCachePolicy api.MemberCachePolicy) api.Cache {
 		users:             map[api.Snowflake]*api.User{},
 		guilds:            map[api.Snowflake]*api.Guild{},
 		members:           map[api.Snowflake]map[api.Snowflake]*api.Member{},
+		voiceStates:       map[api.Snowflake]map[api.Snowflake]*api.VoiceState{},
 		roles:             map[api.Snowflake]map[api.Snowflake]*api.Role{},
 		dmChannels:        map[api.Snowflake]*api.DMChannel{},
 		categories:        map[api.Snowflake]map[api.Snowflake]*api.Category{},
@@ -34,6 +35,7 @@ type CacheImpl struct {
 	users             map[api.Snowflake]*api.User
 	guilds            map[api.Snowflake]*api.Guild
 	members           map[api.Snowflake]map[api.Snowflake]*api.Member
+	voiceStates       map[api.Snowflake]map[api.Snowflake]*api.VoiceState
 	roles             map[api.Snowflake]map[api.Snowflake]*api.Role
 	dmChannels        map[api.Snowflake]*api.DMChannel
 	categories        map[api.Snowflake]map[api.Snowflake]*api.Category
@@ -202,6 +204,7 @@ func (c *CacheImpl) CacheGuild(guild *api.Guild) {
 	// guild_events was not yet cached so cache it directly
 	c.guilds[guild.ID] = guild
 	c.members[guild.ID] = map[api.Snowflake]*api.Member{}
+	c.voiceStates[guild.ID] = map[api.Snowflake]*api.VoiceState{}
 	c.roles[guild.ID] = map[api.Snowflake]*api.Role{}
 	c.categories[guild.ID] = map[api.Snowflake]*api.Category{}
 	c.textChannels[guild.ID] = map[api.Snowflake]*api.TextChannel{}
@@ -213,6 +216,7 @@ func (c *CacheImpl) CacheGuild(guild *api.Guild) {
 func (c *CacheImpl) UncacheGuild(guildID api.Snowflake) {
 	delete(c.guilds, guildID)
 	delete(c.members, guildID)
+	delete(c.voiceStates, guildID)
 	delete(c.roles, guildID)
 	delete(c.categories, guildID)
 	delete(c.textChannels, guildID)
@@ -348,6 +352,49 @@ func (c *CacheImpl) FindMembers(guildID api.Snowflake, check func(u *api.Member)
 		}
 	}
 	return members
+}
+
+// VoiceState returns a Member's api.VoiceState for a api.Guild
+func (c *CacheImpl) VoiceState(guildID api.Snowflake, userID api.Snowflake) *api.VoiceState {
+	if voiceStates, ok := c.voiceStates[guildID]; ok {
+		return voiceStates[userID]
+	}
+	return nil
+}
+
+// VoiceStates returns the member cache of a guild by snowflake
+func (c *CacheImpl) VoiceStates(guildID api.Snowflake) []*api.VoiceState {
+	if guildVoiceStates, ok := c.voiceStates[guildID]; ok {
+		voiceStates := make([]*api.VoiceState, len(guildVoiceStates))
+		i := 0
+		for _, voiceState := range guildVoiceStates {
+			voiceStates[i] = voiceState
+			i++
+		}
+		return voiceStates
+	}
+	return nil
+}
+
+// VoiceStateCache returns the api.VoiceState api.Cache of a api.Guild as a map
+func (c *CacheImpl) VoiceStateCache(guildID api.Snowflake) map[api.Snowflake]*api.VoiceState {
+	return c.voiceStates[guildID]
+}
+
+// CacheVoiceState adds a api.VoiceState from the api.Cache
+func (c *CacheImpl) CacheVoiceState(voiceState *api.VoiceState) {
+	if voiceStates, ok := c.voiceStates[voiceState.GuildID]; ok {
+		if _, ok := voiceStates[voiceState.UserID]; ok {
+			*voiceStates[voiceState.UserID] = *voiceState
+			return
+		}
+		voiceStates[voiceState.UserID] = voiceState
+	}
+}
+
+// UncacheVoiceState removes a api.VoiceState from the api.Cache
+func (c *CacheImpl) UncacheVoiceState(guildID api.Snowflake, userID api.Snowflake) {
+	delete(c.voiceStates[guildID], userID)
 }
 
 // Role returns a role from cache by guild ID and role ID

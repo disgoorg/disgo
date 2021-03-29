@@ -15,15 +15,17 @@ func (h GuildCreateHandler) Name() string {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h GuildCreateHandler) New() interface{} {
-	return &api.Guild{}
+	return &api.FullGuild{}
 }
 
 // Handle handles the specific raw gateway event
 func (h GuildCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
-	guild, ok := i.(*api.Guild)
+	fullGuild, ok := i.(*api.FullGuild)
 	if !ok {
 		return
 	}
+
+	guild := fullGuild.Guild
 	guild.Disgo = disgo
 	oldGuild := disgo.Cache().Guild(guild.ID)
 	var wasUnavailable bool
@@ -34,8 +36,8 @@ func (h GuildCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 	}
 
 	disgo.Cache().CacheGuild(guild)
-	for i := range guild.Channels {
-		channel := guild.Channels[i]
+
+	for _, channel := range fullGuild.Channels {
 		channel.Disgo = disgo
 		channel.GuildID = guild.ID
 		switch channel.Type {
@@ -61,11 +63,16 @@ func (h GuildCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 		}
 	}
 
-	for i := range guild.Roles {
-		role := guild.Roles[i]
+	for _, role := range fullGuild.Roles {
 		role.Disgo = disgo
 		role.GuildID = guild.ID
 		disgo.Cache().CacheRole(role)
+	}
+
+	for _, voiceState := range fullGuild.VoiceStates {
+		voiceState.Disgo = disgo
+		voiceState.GuildID = guild.ID
+		disgo.Cache().CacheVoiceState(voiceState)
 	}
 
 	genericGuildEvent := events.GenericGuildEvent{
@@ -83,7 +90,6 @@ func (h GuildCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 			Guild:             guild,
 		})
 	} else {
-		// guild join
 		eventManager.Dispatch(events.GuildJoinEvent{
 			GenericGuildEvent: genericGuildEvent,
 			Guild:             guild,
