@@ -10,9 +10,16 @@ import (
 
 // New creates a new api.Disgo instance
 func New(token string, options api.Options) (api.Disgo, error) {
+	if options.MessageCachePolicy == nil {
+		options.MessageCachePolicy = api.MessageCachePolicyDefault
+	}
+	if options.MemberCachePolicy == nil {
+		options.MemberCachePolicy = api.MemberCachePolicyDefault
+	}
 	disgo := &DisgoImpl{
 		token:   token,
 		intents: options.Intents,
+		cache:   newCacheImpl(options.MessageCachePolicy, options.MemberCachePolicy, options.CacheVoiceStates, options.CacheRoles, options.CacheChannels, options.CacheEmotes),
 	}
 
 	id, err := IDFromToken(token)

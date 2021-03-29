@@ -11,8 +11,12 @@ import (
 // NewBuilder returns a new api.DisgoBuilder instance
 func NewBuilder(token string) api.DisgoBuilder {
 	return &DisgoBuilderImpl{
-		logLevel: log.InfoLevel,
-		token:    &token,
+		logLevel:         log.InfoLevel,
+		token:            &token,
+		cacheVoiceStates: true,
+		cacheRoles:       true,
+		cacheChannels:    true,
+		cacheEmotes:      true,
 	}
 }
 
@@ -23,7 +27,12 @@ type DisgoBuilderImpl struct {
 	gateway                  api.Gateway
 	restClient               api.RestClient
 	cache                    api.Cache
+	messageCachePolicy       api.MessageCachePolicy
 	memberCachePolicy        api.MemberCachePolicy
+	cacheVoiceStates         bool
+	cacheRoles               bool
+	cacheChannels            bool
+	cacheEmotes              bool
 	intents                  api.Intents
 	eventManager             api.EventManager
 	voiceDispatchInterceptor api.VoiceDispatchInterceptor
@@ -98,9 +107,39 @@ func (b *DisgoBuilderImpl) SetCache(cache api.Cache) api.DisgoBuilder {
 	return b
 }
 
+// SetMessageCachePolicy lets you set your own api.MessageCachePolicy
+func (b *DisgoBuilderImpl) SetMessageCachePolicy(messageCachePolicy api.MessageCachePolicy) api.DisgoBuilder {
+	b.messageCachePolicy = messageCachePolicy
+	return b
+}
+
 // SetMemberCachePolicy lets oyu set your own api.MemberCachePolicy
 func (b *DisgoBuilderImpl) SetMemberCachePolicy(memberCachePolicy api.MemberCachePolicy) api.DisgoBuilder {
 	b.memberCachePolicy = memberCachePolicy
+	return b
+}
+
+// SetCacheVoiceStates lets you disable the api.VoiceState api.Cache
+func (b *DisgoBuilderImpl) SetCacheVoiceStates(cacheVoiceStates bool) api.DisgoBuilder {
+	b.cacheVoiceStates = cacheVoiceStates
+	return b
+}
+
+// SetCacheRoles lets you disable the api.Role api.Cache
+func (b *DisgoBuilderImpl) SetCacheRoles(cacheRoles bool) api.DisgoBuilder {
+	b.cacheRoles = cacheRoles
+	return b
+}
+
+// SetCacheChannels lets you disable the api.Channel api.Cache
+func (b *DisgoBuilderImpl) SetCacheChannels(cacheChannels bool) api.DisgoBuilder {
+	b.cacheChannels = cacheChannels
+	return b
+}
+
+// SetCacheEmotes lets you disable the api.Emote api.Cache
+func (b *DisgoBuilderImpl) SetCacheEmotes(cacheEmotes bool) api.DisgoBuilder {
+	b.cacheEmotes = cacheEmotes
 	return b
 }
 
@@ -153,10 +192,13 @@ func (b *DisgoBuilderImpl) Build() (api.Disgo, error) {
 	disgo.webhookServer = b.webhookServer
 
 	if b.cache == nil {
+		if b.messageCachePolicy == nil {
+			b.messageCachePolicy = api.MessageCachePolicyDefault
+		}
 		if b.memberCachePolicy == nil {
 			b.memberCachePolicy = api.MemberCachePolicyDefault
 		}
-		b.cache = newCacheImpl(b.memberCachePolicy)
+		b.cache = newCacheImpl(b.messageCachePolicy, b.memberCachePolicy, b.cacheVoiceStates, b.cacheRoles, b.cacheChannels, b.cacheEmotes)
 	}
 	disgo.cache = b.cache
 

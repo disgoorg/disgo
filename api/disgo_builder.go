@@ -14,7 +14,12 @@ type DisgoBuilder interface {
 	SetWebhookServerProperties(listenURL string, listenPort int, publicKey string) DisgoBuilder
 	SetRestClient(restClient RestClient) DisgoBuilder
 	SetCache(cache Cache) DisgoBuilder
+	SetMessageCachePolicy(messageCachePolicy MessageCachePolicy) DisgoBuilder
 	SetMemberCachePolicy(memberCachePolicy MemberCachePolicy) DisgoBuilder
+	SetCacheVoiceStates(cacheVoiceStates bool) DisgoBuilder
+	SetCacheRoles(cacheRoles bool) DisgoBuilder
+	SetCacheChannels(cacheChannels bool) DisgoBuilder
+	SetCacheEmotes(cacheEmotes bool) DisgoBuilder
 	SetGateway(gateway Gateway) DisgoBuilder
 	Build() (Disgo, error)
 }
