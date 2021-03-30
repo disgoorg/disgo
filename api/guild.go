@@ -2,7 +2,6 @@ package api
 
 import (
 	"strings"
-	"time"
 
 	"github.com/DisgoOrg/disgo/api/endpoints"
 )
@@ -107,7 +106,7 @@ type Guild struct {
 	Icon                        *string                    `json:"icon"`
 	Region                      string                     `json:"region"`
 	OwnerID                     Snowflake                  `json:"owner_id"`
-	JoinedAt                    *time.Time                 `json:"joined_at"`
+	JoinedAt                    *Time                      `json:"joined_at"`
 	DiscoverySplash             *string                    `json:"discovery_splash"`
 	Splash                      *string                    `json:"splash"`
 	AfkChannelID                *Snowflake                 `json:"afk_channel_id"`

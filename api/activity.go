@@ -1,7 +1,5 @@
 package api
 
-import "time"
-
 // ActivityType represents the status of a user, one of Game, Streaming, Listening, Custom or Competing
 type ActivityType int
 
@@ -20,7 +18,7 @@ type Activity struct {
 	Name          string              `json:"name"`
 	Type          ActivityType        `json:"type"`
 	URL           *string             `json:"url"`
-	CreatedAt     time.Time           `json:"created_at"`
+	CreatedAt     Time                `json:"created_at"`
 	Timestamps    *ActivityTimestamps `json:"timestamps,omitempty"`
 	ApplicationID Snowflake           `json:"application_id,omitempty"`
 	Details       *string             `json:"details,omitempty"`
@@ -35,8 +33,8 @@ type Activity struct {
 
 // ActivityTimestamps represents when a user started and ended their activity
 type ActivityTimestamps struct {
-	Start *time.Time `json:"start,omitempty"`
-	End   *time.Time `json:"end,omitempty"`
+	Start *Time `json:"start,omitempty"`
+	End   *Time `json:"end,omitempty"`
 }
 
 // ActivityEmoji is an Emoji object for an Activity

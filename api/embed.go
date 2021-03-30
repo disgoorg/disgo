@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"time"
 )
 
 // EmbedType is the type of an Embed
@@ -24,7 +23,7 @@ type Embed struct {
 	Type        *EmbedType     `json:"type,omitempty"`
 	Description *string        `json:"description,omitempty"`
 	URL         *string        `json:"url,omitempty"`
-	Timestamp   *time.Time     `json:"timestamp,omitempty"`
+	Timestamp   *Time          `json:"timestamp,omitempty"`
 	Color       *int           `json:"color,omitempty"`
 	Footer      *EmbedFooter   `json:"footer,omitempty"`
 	Image       *EmbedResource `json:"image,omitempty"`
