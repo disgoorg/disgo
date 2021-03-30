@@ -5,21 +5,6 @@ type Cache interface {
 	Close()
 	DoCleanup()
 
-	Guild(Snowflake) *Guild
-	GuildsByName(string, bool) []*Guild
-	Guilds() []*Guild
-	GuildCache() map[Snowflake]*Guild
-	CacheGuild(*Guild)
-	UncacheGuild(Snowflake)
-
-	/*Message(Snowflake) *Message
-	Messages(Snowflake) []*Message
-	AllMessages() []*Message
-	MessageCache(Snowflake) map[Snowflake]*Message
-	AllMessageCache() map[Snowflake]map[Snowflake]*Message
-	CacheMessage(*Message)
-	UncacheMessage(Snowflake)*/
-
 	User(Snowflake) *User
 	UserByTag(string) *User
 	UsersByName(string, bool) []*User
@@ -29,6 +14,22 @@ type Cache interface {
 	UncacheUser(Snowflake)
 	FindUser(func(*User) bool) *User
 	FindUsers(func(*User) bool) []*User
+
+	Guild(Snowflake) *Guild
+	GuildsByName(string, bool) []*Guild
+	Guilds() []*Guild
+	GuildCache() map[Snowflake]*Guild
+	CacheGuild(*Guild)
+	UncacheGuild(Snowflake)
+
+	Message(Snowflake) *Message
+	Messages(Snowflake) []*Message
+	AllMessages() []*Message
+	MessageCache(Snowflake) map[Snowflake]*Message
+	AllMessageCache() map[Snowflake]map[Snowflake]*Message
+	CacheMessage(*Message)
+	UncacheMessage(Snowflake)
+
 
 	Member(Snowflake, Snowflake) *Member
 	MemberByTag(Snowflake, string) *Member
@@ -109,10 +110,10 @@ type Cache interface {
 	FindCategory(Snowflake, func(*Category) bool) *Category
 	FindCategories(Snowflake, func(*Category) bool) []*Category
 
-	/*Emote(Snowflake) *Emote
+	Emote(Snowflake) *Emote
 	EmotesByName(string, bool) []*Emote
 	Emotes() []*Emote
 	EmoteCache() map[Snowflake]*Emote
 	CacheEmote(*Emote)
-	UncacheEmote(Snowflake)*/
+	UncacheEmote(Snowflake)
 }

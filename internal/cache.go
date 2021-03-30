@@ -25,6 +25,7 @@ func newCacheImpl(messageCachePolicy api.MessageCachePolicy, memberCachePolicy a
 		cacheEmotes:        cacheEmotes,
 		users:              map[api.Snowflake]*api.User{},
 		guilds:             map[api.Snowflake]*api.Guild{},
+		messages:           map[api.Snowflake]*api.Message{},
 		members:            map[api.Snowflake]map[api.Snowflake]*api.Member{},
 		voiceStates:        map[api.Snowflake]map[api.Snowflake]*api.VoiceState{},
 		roles:              map[api.Snowflake]map[api.Snowflake]*api.Role{},
@@ -49,6 +50,7 @@ type CacheImpl struct {
 	cacheEmotes        bool
 	users              map[api.Snowflake]*api.User
 	guilds             map[api.Snowflake]*api.Guild
+	messages           map[api.Snowflake]*api.Message
 	members            map[api.Snowflake]map[api.Snowflake]*api.Member
 	voiceStates        map[api.Snowflake]map[api.Snowflake]*api.VoiceState
 	roles              map[api.Snowflake]map[api.Snowflake]*api.Role
@@ -258,6 +260,28 @@ func (c *CacheImpl) FindGuilds(check func(g *api.Guild) bool) []*api.Guild {
 		}
 	}
 	return guilds
+}
+
+func (c *CacheImpl) Message(messageID api.Snowflake) *api.Message {
+
+}
+func (c *CacheImpl) Messages(messageID api.Snowflake) []*api.Message {
+
+}
+func (c *CacheImpl) AllMessages() []*api.Message {
+
+}
+func (c *CacheImpl) MessageCache(messageID api.Snowflake) map[api.Snowflake]*api.Message {
+
+}
+func (c *CacheImpl) AllMessageCache() map[api.Snowflake]map[api.Snowflake]*api.Message {
+
+}
+func (c *CacheImpl) CacheMessage(message *api.Message) {
+
+}
+func (c *CacheImpl) UncacheMessage(messageID api.Snowflake) {
+
 }
 
 // Member returns a member from cache by guild ID and user ID
