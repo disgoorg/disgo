@@ -8,10 +8,4 @@ type Options struct {
 	ListenPort                int
 	ListenURL                 string
 	PublicKey                 string
-	MessageCachePolicy        MessageCachePolicy
-	MemberCachePolicy         MemberCachePolicy
-	CacheVoiceStates          bool
-	CacheRoles                bool
-	CacheChannels             bool
-	CacheEmotes               bool
 }

@@ -20,10 +20,8 @@ type Disgo interface {
 	Intents() Intents
 	ApplicationID() Snowflake
 	SelfUser() *User
-	SetSelfUser(user *User)
+	SetSelfUser(*User)
 	EventManager() EventManager
-	VoiceDispatchInterceptor() VoiceDispatchInterceptor
-	SetVoiceDispatchInterceptor(voiceInterceptor VoiceDispatchInterceptor)
 	HeartbeatLatency() time.Duration
 
 	GetCommand(commandID Snowflake) (*SlashCommand, error)
