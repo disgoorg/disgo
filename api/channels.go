@@ -36,7 +36,7 @@ type Channel struct {
 	ApplicationID    *Snowflake   `json:"application_id,omitempty"`
 	ParentID         *Snowflake   `json:"parent_id,omitempty"`
 	Permissions      *Permissions `json:"permissions,omitempty"`
-	//LastPinTimestamp *Time  `json:"last_pin_timestamp,omitempty"`
+	//LastPinTimestamp *time.Time  `json:"last_pin_timestamp,omitempty"`
 }
 
 // MessageChannel is used for sending Message(s) to User(s)
@@ -49,6 +49,7 @@ func (c MessageChannel) SendMessage(message MessageCreate) (*Message, error) {
 	// Todo: attachments
 	return c.Disgo.RestClient().SendMessage(c.ID, message)
 }
+
 
 // EditMessage edits a Message in this TextChannel
 func (c MessageChannel) EditMessage(messageID Snowflake, message MessageUpdate) (*Message, error) {

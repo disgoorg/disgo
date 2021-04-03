@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"time"
 )
 
 // The MessageType indicates the Message type
@@ -107,7 +108,7 @@ type Message struct {
 	Attachments      []interface{}     `json:"attachments"`
 	Tts              bool              `json:"tts"`
 	Embeds           []*Embed          `json:"embeds,omitempty"`
-	CreatedAt        Time              `json:"timestamp"`
+	CreatedAt        time.Time         `json:"timestamp"`
 	MentionEveryone  bool              `json:"mention_everyone"`
 	Pinned           bool              `json:"pinned"`
 	EditedTimestamp  interface{}       `json:"edited_timestamp"`
@@ -118,7 +119,7 @@ type Message struct {
 	Mentions         []interface{}     `json:"mentions"`
 	MessageType      MessageType       `json:"type"`
 	MessageReference *MessageReference `json:"message_reference,omitempty"`
-	LastUpdated      *Time
+	LastUpdated      *time.Time
 }
 
 // MessageReference is a reference to another message

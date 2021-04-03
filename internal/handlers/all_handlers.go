@@ -9,9 +9,6 @@ func GetAllHandlers() []api.EventHandler {
 	return []api.EventHandler{
 		ReadyHandler{},
 
-		VoiceServerUpdateHandler{},
-		VoiceStateUpdateHandler{},
-
 		GuildCreateHandler{},
 		GuildUpdateHandler{},
 		GuildDeleteHandler{},
