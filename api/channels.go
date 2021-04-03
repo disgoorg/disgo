@@ -61,7 +61,7 @@ func (c MessageChannel) DeleteMessage(messageID Snowflake) error {
 	return c.Disgo.RestClient().DeleteMessage(c.ID, messageID)
 }
 
-// DeleteMessage allows you bulk delete Message(s)
+// BulkDeleteMessages allows you bulk delete Message(s)
 func (c MessageChannel) BulkDeleteMessages(messageIDs ...Snowflake) error {
 	return c.Disgo.RestClient().BulkDeleteMessages(c.ID, messageIDs...)
 }
