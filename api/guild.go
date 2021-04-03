@@ -2,6 +2,7 @@ package api
 
 import (
 	"strings"
+	"time"
 
 	"github.com/DisgoOrg/disgo/api/endpoints"
 )
@@ -88,16 +89,6 @@ const (
 	GuildFeaturePreviewEnabled                GuildFeature = "PREVIEW_ENABLED"
 )
 
-type FullGuild struct {
-	*Guild
-	Roles       []*Role         `json:"roles"`
-	Emojis      []*Emote        `json:"emojis"`
-	Members     []*Member       `json:"members"`
-	Channels    []*GuildChannel `json:"channels"`
-	VoiceStates []*VoiceState   `json:"voice_states"`
-	//Presences   []*Presence     `json:"presences"`
-}
-
 // Guild represents a discord guild_events
 type Guild struct {
 	Disgo                       Disgo
@@ -106,7 +97,7 @@ type Guild struct {
 	Icon                        *string                    `json:"icon"`
 	Region                      string                     `json:"region"`
 	OwnerID                     Snowflake                  `json:"owner_id"`
-	JoinedAt                    *Time                      `json:"joined_at"`
+	JoinedAt                    *time.Time                 `json:"joined_at"`
 	DiscoverySplash             *string                    `json:"discovery_splash"`
 	Splash                      *string                    `json:"splash"`
 	AfkChannelID                *Snowflake                 `json:"afk_channel_id"`
@@ -115,8 +106,13 @@ type Guild struct {
 	VerificationLevel           VerificationLevel          `json:"verification_level"`
 	Large                       *bool                      `json:"large"`
 	DefaultMessageNotifications MessageNotifications       `json:"default_message_notifications"`
+	Roles                       []*Role                    `json:"roles"`
+	Emojis                      []*Emote                   `json:"emojis"`
+	Members                     []*Member                  `json:"members"`
 	MaxPresences                *int                       `json:"max_presences"`
 	MaxMembers                  *int                       `json:"max_members"`
+	Channels                    []*GuildChannel            `json:"channels"`
+	VoiceStates                 []*VoiceState              `json:"voice_states"`
 	Unavailable                 bool                       `json:"unavailable"`
 	ExplicitContentFilter       ExplicitContentFilterLevel `json:"explicit_content_filter"`
 	Features                    []GuildFeature             `json:"features"`
@@ -137,21 +133,7 @@ type Guild struct {
 	MaxVideoChannelUsers        *int                       `json:"max_video_channel_users"`
 	ApproximateMemberCount      *int                       `json:"approximate_member_count"`
 	ApproximatePresenceCount    *int                       `json:"approximate_presence_count"`
-}
-
-// SelfMember returns the self Member for this Guild. SelfMember is always cached
-func (g Guild) SelfMember() *Member {
-	return g.Member(g.Disgo.ApplicationID())
-}
-
-// Member returns the specific Member for this Guild from the Cache
-func (g Guild) Member(userID Snowflake) *Member {
-	return g.Disgo.Cache().Member(g.ID, userID)
-}
-
-// Role returns the specific Role for this Guild from the Cache
-func (g Guild) Role(roleID Snowflake) *Role {
-	return g.Disgo.Cache().Role(g.ID, roleID)
+	//Presences                   []*Presence                `json:"presences"`
 }
 
 // CreateRole allows you to create a new Role

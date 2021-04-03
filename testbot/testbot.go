@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -18,7 +19,7 @@ func main() {
 
 	dgo, err := disgo.NewBuilder(token).
 		SetLogLevel(log.InfoLevel).
-		SetIntents(api.IntentsGuilds | api.IntentsGuildMessages | api.IntentsGuildMembers | api.IntentsGuildVoiceStates).
+		SetIntents(api.IntentsGuilds|api.IntentsGuildMessages|api.IntentsGuildMembers).
 		SetMemberCachePolicy(api.MemberCachePolicyAll).
 		AddEventListeners(&events.ListenerAdapter{
 			OnGuildAvailable:       guildAvailListener,
@@ -115,15 +116,16 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 			Build(),
 		)
 	case "test":
-		_ = event.Reply(api.NewInteractionResponseBuilder().
-			SetContent("test").
-			SetEphemeral(true).
-			AddEmbeds(
-				api.NewEmbedBuilder().SetDescription("test1").Build(),
-				api.NewEmbedBuilder().SetDescription("test2").Build(),
-			).
-			Build(),
-		)
+		go func() {
+			_ = event.Acknowledge()
+			time.Sleep(2 * time.Second)
+			_, _ = event.EditOriginal(api.NewFollowupMessageBuilder().
+				SetEmbeds(api.NewEmbedBuilder().
+					SetDescription("Edited Original").
+					Build(),
+				).Build(),
+			)
+		}()
 	case "addrole":
 		user := event.OptionByName("member").User()
 		role := event.OptionByName("role").Role()

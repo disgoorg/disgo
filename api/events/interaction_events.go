@@ -205,6 +205,11 @@ func (e SlashCommandEvent) OptionsByType(optionType api.SlashCommandOptionType) 
 	return options
 }
 
+// Acknowledge replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource
+func (e *SlashCommandEvent) Acknowledge() error {
+	return e.Reply(api.NewInteractionResponseBuilder().SetType(api.InteractionResponseTypeDeferredChannelMessageWithSource).Build())
+}
+
 // Reply replies to the api.Interaction with the provided api.InteractionResponse
 func (e *SlashCommandEvent) Reply(response api.InteractionResponse) error {
 	if e.Replied {
@@ -219,3 +224,29 @@ func (e *SlashCommandEvent) Reply(response api.InteractionResponse) error {
 
 	return e.Disgo.RestClient().SendInteractionResponse(e.Interaction.ID, e.Interaction.Token, response)
 }
+
+// EditOriginal edits the original api.InteractionResponse
+func (e *SlashCommandEvent) EditOriginal(followupMessage api.FollowupMessage) (*api.Message, error) {
+	return e.Disgo.RestClient().EditInteractionResponse(e.Interaction.ID, e.Interaction.Token, followupMessage)
+}
+
+// DeleteOriginal deletes the original api.InteractionResponse
+func (e *SlashCommandEvent) DeleteOriginal() error {
+	return e.Disgo.RestClient().DeleteInteractionResponse(e.Interaction.ID, e.Interaction.Token)
+}
+
+// SendFollowup used to send a api.FollowupMessage to an api.Interaction
+func (e *SlashCommandEvent) SendFollowup(followupMessage api.FollowupMessage) (*api.Message, error) {
+	return e.Disgo.RestClient().SendFollowupMessage(e.Interaction.ID, e.Interaction.Token, followupMessage)
+}
+
+// EditFollowup used to edit a api.FollowupMessage from an api.Interaction
+func (e *SlashCommandEvent) EditFollowup(messageID api.Snowflake, followupMessage api.FollowupMessage) (*api.Message, error) {
+	return e.Disgo.RestClient().EditFollowupMessage(e.Interaction.ID, e.Interaction.Token, messageID, followupMessage)
+}
+
+// DeleteFollowup used to delete a api.FollowupMessage from an api.Interaction
+func (e *SlashCommandEvent) DeleteFollowup(messageID api.Snowflake) error {
+	return e.Disgo.RestClient().DeleteFollowupMessage(e.Interaction.ID, e.Interaction.Token, messageID)
+}
+

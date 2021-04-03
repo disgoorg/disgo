@@ -152,7 +152,7 @@ func (r RestClientImpl) DeleteMessage(channelID api.Snowflake, messageID api.Sno
 }
 
 // BulkDeleteMessages lets you bulk delete api.Message(s)
-func (r RestClientImpl) BulkDeleteMessages(channelID api.Snowflake, messageIDs ...api.Snowflake) error {
+func (r RestClientImpl) BulkDeleteMessages(channelID api.Snowflake, messageIDs... api.Snowflake) error {
 	return r.Request(endpoints.BulkDeleteMessage.Compile(channelID), api.MessageBulkDelete{Messages: messageIDs}, nil)
 }
 
@@ -438,8 +438,8 @@ func (r RestClientImpl) SendInteractionResponse(interactionID api.Snowflake, int
 }
 
 // EditInteractionResponse used to edit the initial response on an interaction
-func (r RestClientImpl) EditInteractionResponse(applicationID api.Snowflake, interactionToken string, interactionResponse api.InteractionResponse) (message *api.Message, err error) {
-	return message, r.Request(endpoints.EditInteractionResponse.Compile(applicationID, interactionToken), interactionResponse, &message)
+func (r RestClientImpl) EditInteractionResponse(applicationID api.Snowflake, interactionToken string, followupMessage api.FollowupMessage) (message *api.Message, err error) {
+	return message, r.Request(endpoints.EditInteractionResponse.Compile(applicationID, interactionToken), followupMessage, &message)
 }
 
 // DeleteInteractionResponse used to delete the initial response on an interaction
@@ -452,12 +452,12 @@ func (r RestClientImpl) SendFollowupMessage(applicationID api.Snowflake, interac
 	return message, r.Request(endpoints.CreateInteractionResponse.Compile(applicationID, interactionToken), followupMessage, &message)
 }
 
-// EditFollowupMessage used to send the initial response on an interaction
+// EditFollowupMessage used to edit a api.FollowupMessage from an api.Interaction
 func (r RestClientImpl) EditFollowupMessage(applicationID api.Snowflake, interactionToken string, messageID api.Snowflake, followupMessage api.FollowupMessage) (message *api.Message, err error) {
 	return message, r.Request(endpoints.CreateInteractionResponse.Compile(applicationID, interactionToken, messageID), followupMessage, &message)
 }
 
-// DeleteFollowupMessage used to send a followup message_events to an interaction
+// DeleteFollowupMessage used to delete a api.FollowupMessage from an api.Interaction
 func (r RestClientImpl) DeleteFollowupMessage(applicationID api.Snowflake, interactionToken string, messageID api.Snowflake) error {
 	return r.Request(endpoints.CreateInteractionResponse.Compile(applicationID, interactionToken, messageID), nil, nil)
 }

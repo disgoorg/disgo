@@ -148,8 +148,3 @@ func (b *InteractionResponseBuilder) SetEphemeral(ephemeral bool) *InteractionRe
 func (b *InteractionResponseBuilder) Build() InteractionResponse {
 	return b.InteractionResponse
 }
-
-// FollowupMessage is used to add additional messages to an Interaction after you've responded initially
-type FollowupMessage struct {
-	// Todo: fill this
-}

@@ -36,7 +36,7 @@ type Channel struct {
 	ApplicationID    *Snowflake   `json:"application_id,omitempty"`
 	ParentID         *Snowflake   `json:"parent_id,omitempty"`
 	Permissions      *Permissions `json:"permissions,omitempty"`
-	//LastPinTimestamp *Time  `json:"last_pin_timestamp,omitempty"`
+	//LastPinTimestamp *time.Time  `json:"last_pin_timestamp,omitempty"`
 }
 
 // MessageChannel is used for sending Message(s) to User(s)
@@ -50,6 +50,7 @@ func (c MessageChannel) SendMessage(message MessageCreate) (*Message, error) {
 	return c.Disgo.RestClient().SendMessage(c.ID, message)
 }
 
+
 // EditMessage edits a Message in this TextChannel
 func (c MessageChannel) EditMessage(messageID Snowflake, message MessageUpdate) (*Message, error) {
 	return c.Disgo.RestClient().EditMessage(c.ID, messageID, message)
@@ -60,7 +61,7 @@ func (c MessageChannel) DeleteMessage(messageID Snowflake) error {
 	return c.Disgo.RestClient().DeleteMessage(c.ID, messageID)
 }
 
-// DeleteMessage allows you bulk delete Message(s)
+// BulkDeleteMessages allows you bulk delete Message(s)
 func (c MessageChannel) BulkDeleteMessages(messageIDs ...Snowflake) error {
 	return c.Disgo.RestClient().BulkDeleteMessages(c.ID, messageIDs...)
 }

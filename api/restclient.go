@@ -68,7 +68,7 @@ type RestClient interface {
 	DeleteGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake) error
 
 	SendInteractionResponse(interactionID Snowflake, interactionToken string, interactionResponse InteractionResponse) error
-	EditInteractionResponse(applicationID Snowflake, interactionToken string, interactionResponse InteractionResponse) (*Message, error)
+	EditInteractionResponse(applicationID Snowflake, interactionToken string, followupMessage FollowupMessage) (*Message, error)
 	DeleteInteractionResponse(applicationID Snowflake, interactionToken string) error
 
 	SendFollowupMessage(applicationID Snowflake, interactionToken string, followupMessage FollowupMessage) (*Message, error)
