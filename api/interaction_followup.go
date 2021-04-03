@@ -17,7 +17,7 @@ type FollowupMessageBuilder struct {
 	FollowupMessage
 }
 
-// NewInteractionResponseBuilder returns a new FollowupMessageBuilder
+// NewFollowupMessageBuilder returns a new FollowupMessageBuilder
 func NewFollowupMessageBuilder() *FollowupMessageBuilder {
 	return &FollowupMessageBuilder{
 		FollowupMessage{},
