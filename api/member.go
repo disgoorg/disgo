@@ -1,7 +1,5 @@
 package api
 
-import "time"
-
 // Member is a discord GuildMember
 type Member struct {
 	Disgo        Disgo
@@ -9,8 +7,8 @@ type Member struct {
 	User         *User        `json:"user"`
 	Nick         *string      `json:"nick"`
 	Roles        []Snowflake  `json:"roles,omitempty"`
-	JoinedAt     time.Time    `json:"joined_at"`
-	PremiumSince *time.Time   `json:"premium_since,omitempty"`
+	JoinedAt     Time         `json:"joined_at"`
+	PremiumSince *Time        `json:"premium_since,omitempty"`
 	Deaf         *bool        `json:"deaf,omitempty"`
 	Mute         *bool        `json:"mute,omitempty"`
 	Pending      bool         `json:"pending"`

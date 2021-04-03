@@ -1,38 +1,40 @@
 package api
 
+var _ Mentionable = (User)(nil)
+
+
 // User is a struct for interacting with discord's users
-type User struct {
-	Disgo         Disgo
-	ID            Snowflake `json:"id"`
-	Username      string    `json:"username"`
-	Discriminator string    `json:"discriminator"`
-	Avatar        *string   `json:"avatar"`
-	IsBot         bool      `json:"bot"`
-	System        *bool     `json:"system"`
-	MfaEnabled    *bool     `json:"mfa_enabled"`
-	Locale        *string   `json:"locale"`
-	Verified      *bool     `json:"verified"`
-	Email         *string   `json:"email"`
-	Flags         *int      `json:"flags"`
-	PremiumType   *int      `json:"premium_type"`
-	PublicFlags   *int      `json:"public_flags"`
+type User interface {
+	Disgo() Disgo
+	ID() Snowflake
+	Username() string
+	Discriminator() int
+	Tag() string
+	AvatarURL() *string
+	EffectiveAvatarURL() string
+	Bot() bool
+	Flags() UserFlags
+	String() string
+	Mention() string
+	OpenDMChannel() (*DMChannel, error)
 }
 
-// Mention returns the user as a mention
-func (u User) Mention() string {
-	return "<@" + u.ID.String() + ">"
-}
 
-// Tag returns the user's Username and Discriminator
-func (u User) Tag() string {
-	return u.Username + "#" + u.Discriminator
-}
+type UserFlags int64
 
-func (u User) String() string {
-	return u.Mention()
-}
-
-// OpenDMChannel creates a DMChannel between the user and the Disgo client
-func (u User) OpenDMChannel() (*DMChannel, error) {
-	return u.Disgo.RestClient().OpenDMChannel(u.ID)
-}
+const (
+	UserFlagsNone           UserFlags = 0
+	UserFlagDiscordEmployee UserFlags = 1 << iota
+	UserFlagPartneredServerOwner
+	UserFlagHypeSquadEvents
+	UserFlagBugHunterLevel1
+	UserFlagHouseBravery
+	UserFlagHouseBrilliance
+	UserFlagHouseBalance
+	UserFlagEarlySupporter
+	UserFlagTeamUser
+	UserFlagSystem
+	UserFlagBugHunterLevel2
+	UserFlagVerifiedBot
+	UserFlagEarlyVerifiedBotDeveloper
+)

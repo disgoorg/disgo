@@ -10,9 +10,16 @@ import (
 
 // New creates a new api.Disgo instance
 func New(token string, options api.Options) (api.Disgo, error) {
+	if options.MessageCachePolicy == nil {
+		options.MessageCachePolicy = api.MessageCachePolicyDefault
+	}
+	if options.MemberCachePolicy == nil {
+		options.MemberCachePolicy = api.MemberCachePolicyDefault
+	}
 	disgo := &DisgoImpl{
 		token:   token,
 		intents: options.Intents,
+		cache:   newCacheImpl(options.MessageCachePolicy, options.MemberCachePolicy, options.CacheVoiceStates, options.CacheRoles, options.CacheChannels, options.CacheEmotes),
 	}
 
 	id, err := IDFromToken(token)
@@ -38,15 +45,16 @@ func New(token string, options api.Options) (api.Disgo, error) {
 
 // DisgoImpl is the main discord client
 type DisgoImpl struct {
-	token         string
-	gateway       api.Gateway
-	restClient    api.RestClient
-	intents       api.Intents
-	selfUser      *api.User
-	eventManager  api.EventManager
-	webhookServer api.WebhookServer
-	cache         api.Cache
-	applicationID api.Snowflake
+	token                    string
+	gateway                  api.Gateway
+	restClient               api.RestClient
+	intents                  api.Intents
+	selfUser                 *api.User
+	eventManager             api.EventManager
+	voiceDispatchInterceptor api.VoiceDispatchInterceptor
+	webhookServer            api.WebhookServer
+	cache                    api.Cache
+	applicationID            api.Snowflake
 }
 
 // Connect opens the gateway connection to discord
@@ -93,6 +101,16 @@ func (d *DisgoImpl) RestClient() api.RestClient {
 // EventManager returns the api.EventManager
 func (d *DisgoImpl) EventManager() api.EventManager {
 	return d.eventManager
+}
+
+// VoiceDispatchInterceptor returns the api.VoiceDispatchInterceptor
+func (d *DisgoImpl) VoiceDispatchInterceptor() api.VoiceDispatchInterceptor {
+	return d.voiceDispatchInterceptor
+}
+
+// SetVoiceDispatchInterceptor sets the api.VoiceDispatchInterceptor
+func (d *DisgoImpl) SetVoiceDispatchInterceptor(voiceDispatchInterceptor api.VoiceDispatchInterceptor) {
+	d.voiceDispatchInterceptor = voiceDispatchInterceptor
 }
 
 // WebhookServer returns the api.EventManager

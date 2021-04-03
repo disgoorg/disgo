@@ -19,7 +19,7 @@ func main() {
 
 	dgo, err := disgo.NewBuilder(token).
 		SetLogLevel(log.InfoLevel).
-		SetIntents(api.IntentsGuilds|api.IntentsGuildMessages|api.IntentsGuildMembers).
+		SetIntents(api.IntentsGuilds | api.IntentsGuildMessages | api.IntentsGuildMembers | api.IntentsGuildVoiceStates).
 		SetMemberCachePolicy(api.MemberCachePolicyAll).
 		AddEventListeners(&events.ListenerAdapter{
 			OnGuildAvailable:       guildAvailListener,
