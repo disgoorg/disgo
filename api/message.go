@@ -26,8 +26,8 @@ const (
 	_
 	MessageTypeGuildDiscoveryDisqualified
 	MessageTypeGuildDiscoveryRequalified
-	_
-	_
+	MessageTypeGuildDiscoveryInitialWarning
+	MessageTypeGuildDiscoveryFinalWarning
 	_
 	MessageTypeReply
 	MessageTypeApplicationCommand
