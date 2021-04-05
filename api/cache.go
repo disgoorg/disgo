@@ -4,6 +4,7 @@ package api
 type Cache interface {
 	Close()
 	DoCleanup()
+	CacheFlags() CacheFlags
 
 	Guild(Snowflake) *Guild
 	GuildsByName(string, bool) []*Guild

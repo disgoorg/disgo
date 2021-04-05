@@ -11,26 +11,29 @@ import (
 // NewBuilder returns a new api.DisgoBuilder instance
 func NewBuilder(token string) api.DisgoBuilder {
 	return DisgoBuilderImpl{
-		logLevel: log.InfoLevel,
-		token:    &token,
+		logLevel:   log.InfoLevel,
+		token:      &token,
+		cacheFlags: api.CacheFlagsDefault,
 	}
 }
 
 // DisgoBuilderImpl implementation of the api.DisgoBuilder interface
 type DisgoBuilderImpl struct {
-	logLevel          log.Level
-	token             *string
-	gateway           api.Gateway
-	restClient        api.RestClient
-	cache             api.Cache
-	memberCachePolicy api.MemberCachePolicy
-	intents           api.Intents
-	eventManager      api.EventManager
-	webhookServer     api.WebhookServer
-	listenURL         *string
-	listenPort        *int
-	publicKey         *string
-	eventListeners    []api.EventListener
+	logLevel           log.Level
+	token              *string
+	gateway            api.Gateway
+	restClient         api.RestClient
+	cache              api.Cache
+	memberCachePolicy  api.MemberCachePolicy
+	messageCachePolicy api.MessageCachePolicy
+	cacheFlags         api.CacheFlags
+	intents            api.Intents
+	eventManager       api.EventManager
+	webhookServer      api.WebhookServer
+	listenURL          *string
+	listenPort         *int
+	publicKey          *string
+	eventListeners     []api.EventListener
 }
 
 // SetLogLevel sets logrus.Level of logrus
@@ -91,9 +94,33 @@ func (b DisgoBuilderImpl) SetCache(cache api.Cache) api.DisgoBuilder {
 	return b
 }
 
-// SetMemberCachePolicy lets oyu set your own api.MemberCachePolicy
+// SetMemberCachePolicy lets you set your own api.MemberCachePolicy
 func (b DisgoBuilderImpl) SetMemberCachePolicy(memberCachePolicy api.MemberCachePolicy) api.DisgoBuilder {
 	b.memberCachePolicy = memberCachePolicy
+	return b
+}
+
+// SetMessageCachePolicy lets you set your own api.MessageCachePolicy
+func (b DisgoBuilderImpl) SetMessageCachePolicy(messageCachePolicy api.MessageCachePolicy) api.DisgoBuilder {
+	b.messageCachePolicy = messageCachePolicy
+	return b
+}
+
+// SetCacheFlags lets you set the api.CacheFlags
+func (b DisgoBuilderImpl) SetCacheFlags(cacheFlags api.CacheFlags) api.DisgoBuilder {
+	b.cacheFlags = cacheFlags
+	return b
+}
+
+// EnableCacheFlags lets you enable certain api.CacheFlags
+func (b DisgoBuilderImpl) EnableCacheFlags(cacheFlags api.CacheFlags) api.DisgoBuilder {
+	b.cacheFlags.Add(cacheFlags)
+	return b
+}
+
+// DisableCacheFlags lets you disable certain api.CacheFlags
+func (b DisgoBuilderImpl) DisableCacheFlags(cacheFlags api.CacheFlags) api.DisgoBuilder {
+	b.cacheFlags.Remove(cacheFlags)
 	return b
 }
 
@@ -147,7 +174,10 @@ func (b DisgoBuilderImpl) Build() (api.Disgo, error) {
 		if b.memberCachePolicy == nil {
 			b.memberCachePolicy = api.MemberCachePolicyDefault
 		}
-		b.cache = newCacheImpl(b.memberCachePolicy)
+		if b.messageCachePolicy == nil {
+			b.messageCachePolicy = api.MessageCachePolicyDefault
+		}
+		b.cache = newCacheImpl(b.memberCachePolicy, b.messageCachePolicy, b.cacheFlags)
 	}
 	disgo.cache = b.cache
 

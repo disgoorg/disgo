@@ -14,6 +14,8 @@ type DisgoBuilder interface {
 	SetRestClient(restClient RestClient) DisgoBuilder
 	SetCache(cache Cache) DisgoBuilder
 	SetMemberCachePolicy(memberCachePolicy MemberCachePolicy) DisgoBuilder
+	SetMessageCachePolicy(messageCachePolicy MessageCachePolicy) DisgoBuilder
+	SetCacheFlags(cacheFlags CacheFlags) DisgoBuilder
 	SetGateway(gateway Gateway) DisgoBuilder
 	Build() (Disgo, error)
 }

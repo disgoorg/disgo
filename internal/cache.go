@@ -10,36 +10,40 @@ import (
 	"github.com/DisgoOrg/disgo/api"
 )
 
-func newCacheImpl(memberCachePolicy api.MemberCachePolicy) api.Cache {
+func newCacheImpl(memberCachePolicy api.MemberCachePolicy, messageCachePolicy api.MessageCachePolicy, cacheFlags api.CacheFlags) api.Cache {
 	cache := &CacheImpl{
-		memberCachePolicy: memberCachePolicy,
-		users:             map[api.Snowflake]*api.User{},
-		guilds:            map[api.Snowflake]*api.Guild{},
-		members:           map[api.Snowflake]map[api.Snowflake]*api.Member{},
-		roles:             map[api.Snowflake]map[api.Snowflake]*api.Role{},
-		dmChannels:        map[api.Snowflake]*api.DMChannel{},
-		categories:        map[api.Snowflake]map[api.Snowflake]*api.Category{},
-		textChannels:      map[api.Snowflake]map[api.Snowflake]*api.TextChannel{},
-		voiceChannels:     map[api.Snowflake]map[api.Snowflake]*api.VoiceChannel{},
-		storeChannels:     map[api.Snowflake]map[api.Snowflake]*api.StoreChannel{},
+		memberCachePolicy:  memberCachePolicy,
+		messageCachePolicy: messageCachePolicy,
+		cacheFlags:         cacheFlags,
+		users:              map[api.Snowflake]*api.User{},
+		guilds:             map[api.Snowflake]*api.Guild{},
+		members:            map[api.Snowflake]map[api.Snowflake]*api.Member{},
+		roles:              map[api.Snowflake]map[api.Snowflake]*api.Role{},
+		dmChannels:         map[api.Snowflake]*api.DMChannel{},
+		categories:         map[api.Snowflake]map[api.Snowflake]*api.Category{},
+		textChannels:       map[api.Snowflake]map[api.Snowflake]*api.TextChannel{},
+		voiceChannels:      map[api.Snowflake]map[api.Snowflake]*api.VoiceChannel{},
+		storeChannels:      map[api.Snowflake]map[api.Snowflake]*api.StoreChannel{},
 	}
 	go cache.cleanup(10 * time.Second)
 	return cache
 }
 
-// CacheImpl is used for Disgo's Cache
+// CacheImpl is used for api.Disgo's api.Cache
 type CacheImpl struct {
-	quit              chan bool
-	memberCachePolicy api.MemberCachePolicy
-	users             map[api.Snowflake]*api.User
-	guilds            map[api.Snowflake]*api.Guild
-	members           map[api.Snowflake]map[api.Snowflake]*api.Member
-	roles             map[api.Snowflake]map[api.Snowflake]*api.Role
-	dmChannels        map[api.Snowflake]*api.DMChannel
-	categories        map[api.Snowflake]map[api.Snowflake]*api.Category
-	textChannels      map[api.Snowflake]map[api.Snowflake]*api.TextChannel
-	voiceChannels     map[api.Snowflake]map[api.Snowflake]*api.VoiceChannel
-	storeChannels     map[api.Snowflake]map[api.Snowflake]*api.StoreChannel
+	quit               chan bool
+	memberCachePolicy  api.MemberCachePolicy
+	messageCachePolicy api.MessageCachePolicy
+	cacheFlags         api.CacheFlags
+	users              map[api.Snowflake]*api.User
+	guilds             map[api.Snowflake]*api.Guild
+	members            map[api.Snowflake]map[api.Snowflake]*api.Member
+	roles              map[api.Snowflake]map[api.Snowflake]*api.Role
+	dmChannels         map[api.Snowflake]*api.DMChannel
+	categories         map[api.Snowflake]map[api.Snowflake]*api.Category
+	textChannels       map[api.Snowflake]map[api.Snowflake]*api.TextChannel
+	voiceChannels      map[api.Snowflake]map[api.Snowflake]*api.VoiceChannel
+	storeChannels      map[api.Snowflake]map[api.Snowflake]*api.StoreChannel
 }
 
 // Close cleans up the cache and it's internal tasks
@@ -75,6 +79,10 @@ func (c CacheImpl) cleanup(cleanupInterval time.Duration) {
 // DoCleanup removes items from the cache that no longer meet their policy
 func (c *CacheImpl) DoCleanup() {
 	// TODO cleanup cache
+}
+
+func (c CacheImpl) CacheFlags() api.CacheFlags {
+	return c.cacheFlags
 }
 
 // User allows you to get a user from the cache by ID
@@ -124,6 +132,7 @@ func (c *CacheImpl) UserCache() map[api.Snowflake]*api.User {
 
 // CacheUser adds a user to the cache
 func (c *CacheImpl) CacheUser(user *api.User) {
+	// TODO: only cache user if we have a mutal guild
 	if _, ok := c.guilds[user.ID]; ok {
 		// update old user
 		return
@@ -194,6 +203,7 @@ func (c *CacheImpl) GuildCache() map[api.Snowflake]*api.Guild {
 
 // CacheGuild adds a guild to the cache
 func (c *CacheImpl) CacheGuild(guild *api.Guild) {
+	// TODO: guilds are always cached?
 	if _, ok := c.guilds[guild.ID]; ok {
 		// update old guild_events
 		*c.guilds[guild.ID] = *guild
@@ -315,6 +325,10 @@ func (c *CacheImpl) AllMemberCache() map[api.Snowflake]map[api.Snowflake]*api.Me
 
 // CacheMember adds a member to the cache
 func (c *CacheImpl) CacheMember(member *api.Member) {
+	// only cache member if we want to!
+	if !c.memberCachePolicy(member) {
+		return
+	}
 	if guildMembers, ok := c.members[member.GuildID]; ok {
 		if _, ok := guildMembers[member.User.ID]; ok {
 			// update old guild_events
@@ -412,6 +426,9 @@ func (c *CacheImpl) AllRoleCache() map[api.Snowflake]map[api.Snowflake]*api.Role
 
 // CacheRole adds a role to the cache
 func (c *CacheImpl) CacheRole(role *api.Role) {
+	if !c.cacheFlags.Has(api.CacheFlagRoles) {
+		return
+	}
 	if guildRoles, ok := c.roles[role.GuildID]; ok {
 		if _, ok := guildRoles[role.ID]; ok {
 			// update old role
@@ -529,6 +546,9 @@ func (c *CacheImpl) DMChannelCache() map[api.Snowflake]*api.DMChannel {
 
 // CacheDMChannel adds a DM channel to the cache
 func (c *CacheImpl) CacheDMChannel(dmChannel *api.DMChannel) {
+	if !c.cacheFlags.Has(api.CacheFlagDMChannels) {
+		return
+	}
 	if oldChannel, ok := c.dmChannels[dmChannel.ID]; ok {
 		*oldChannel = *dmChannel
 		return
@@ -626,6 +646,9 @@ func (c *CacheImpl) AllTextChannelCache() map[api.Snowflake]map[api.Snowflake]*a
 
 // CacheTextChannel adds a channel to the cache
 func (c *CacheImpl) CacheTextChannel(textChannel *api.TextChannel) {
+	if !c.cacheFlags.Has(api.CacheFlagTextChannels) {
+		return
+	}
 	if guildTextChannels, ok := c.textChannels[textChannel.GuildID]; ok {
 		if guildTextChannel, ok := guildTextChannels[textChannel.MessageChannel.ID]; ok {
 			*guildTextChannel = *textChannel
@@ -725,6 +748,9 @@ func (c *CacheImpl) AllStoreChannelCache() map[api.Snowflake]map[api.Snowflake]*
 
 // CacheStoreChannel adds a store channel to the cache
 func (c *CacheImpl) CacheStoreChannel(storeChannel *api.StoreChannel) {
+	if !c.cacheFlags.Has(api.CacheFlagStoreChannels) {
+		return
+	}
 	if guildStoreChannels, ok := c.storeChannels[storeChannel.GuildID]; ok {
 		if guildStoreChannel, ok := guildStoreChannels[storeChannel.ID]; ok {
 			*guildStoreChannel = *storeChannel
@@ -824,6 +850,9 @@ func (c *CacheImpl) AllVoiceChannelCache() map[api.Snowflake]map[api.Snowflake]*
 
 // CacheVoiceChannel adds a voice channel to cache
 func (c *CacheImpl) CacheVoiceChannel(voiceChannel *api.VoiceChannel) {
+	if !c.cacheFlags.Has(api.CacheFlagVoiceChannels) {
+		return
+	}
 	if guildVoiceChannels, ok := c.voiceChannels[voiceChannel.GuildID]; ok {
 		if guildVoiceChannel, ok := guildVoiceChannels[voiceChannel.ID]; ok {
 			*guildVoiceChannel = *voiceChannel
@@ -923,6 +952,9 @@ func (c *CacheImpl) AllCategoryCache() map[api.Snowflake]map[api.Snowflake]*api.
 
 //CacheCategory adds a category to the cache
 func (c *CacheImpl) CacheCategory(category *api.Category) {
+	if !c.cacheFlags.Has(api.CacheFlagCategories) {
+		return
+	}
 	if guildCategories, ok := c.categories[category.GuildID]; ok {
 		if guildCategory, ok := guildCategories[category.ID]; ok {
 			*guildCategory = *category
