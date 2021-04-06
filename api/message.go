@@ -88,8 +88,8 @@ func (f MessageFlags) Missing(bit MessageFlags) bool {
 
 // Constants for MessageFlags
 const (
-	MessageFlagNone        MessageFlags = 0
-	MessageFlagCrossposted MessageFlags = 1 << iota
+	MessageFlagNone MessageFlags = 0 << iota
+	MessageFlagCrossposted
 	MessageFlagIsCrosspost
 	MessageFlagSuppressEmbeds
 	MessageFlagSourceMessageDeleted
