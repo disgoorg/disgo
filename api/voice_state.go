@@ -16,10 +16,12 @@ type VoiceState struct {
 	Suppressed    bool       `json:"suppress"`
 }
 
+// Muted returns if the Member is muted
 func (s VoiceState) Muted() bool {
 	return s.GuildMuted || s.SelfMuted
 }
 
+// Deafened returns if the Member is deafened
 func (s VoiceState) Deafened() bool {
 	return s.GuildDeafened || s.SelfDeafened
 }

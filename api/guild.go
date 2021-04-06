@@ -89,6 +89,17 @@ const (
 	GuildFeaturePreviewEnabled                GuildFeature = "PREVIEW_ENABLED"
 )
 
+// FullGuild represents a Guild objects sent by discord with the GatewayEventGuildCreate
+type FullGuild struct {
+	*Guild
+	Roles       []*Role         `json:"roles"`
+	Emotes      []*Emote        `json:"emojis"`
+	Members     []*Member       `json:"members"`
+	Channels    []*GuildChannel `json:"channels"`
+	VoiceStates []*VoiceState   `json:"voice_states"`
+	//Presences   []*Presence     `json:"presences"`
+}
+
 // Guild represents a discord guild_events
 type Guild struct {
 	Disgo                       Disgo
@@ -106,13 +117,8 @@ type Guild struct {
 	VerificationLevel           VerificationLevel          `json:"verification_level"`
 	Large                       *bool                      `json:"large"`
 	DefaultMessageNotifications MessageNotifications       `json:"default_message_notifications"`
-	Roles                       []*Role                    `json:"roles"`
-	Emojis                      []*Emote                   `json:"emojis"`
-	Members                     []*Member                  `json:"members"`
 	MaxPresences                *int                       `json:"max_presences"`
 	MaxMembers                  *int                       `json:"max_members"`
-	Channels                    []*GuildChannel            `json:"channels"`
-	VoiceStates                 []*VoiceState              `json:"voice_states"`
 	Unavailable                 bool                       `json:"unavailable"`
 	ExplicitContentFilter       ExplicitContentFilterLevel `json:"explicit_content_filter"`
 	Features                    []GuildFeature             `json:"features"`
@@ -133,7 +139,6 @@ type Guild struct {
 	MaxVideoChannelUsers        *int                       `json:"max_video_channel_users"`
 	ApproximateMemberCount      *int                       `json:"approximate_member_count"`
 	ApproximatePresenceCount    *int                       `json:"approximate_presence_count"`
-	//Presences                   []*Presence                `json:"presences"`
 }
 
 // CreateRole allows you to create a new Role

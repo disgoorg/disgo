@@ -46,6 +46,7 @@ const (
 	OpHeartbeatACK
 )
 
+// GatewayEvent wraps all GatewayEvent types
 type GatewayEvent string
 
 // Constants for the gateway events

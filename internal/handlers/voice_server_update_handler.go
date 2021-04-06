@@ -2,7 +2,7 @@ package handlers
 
 import "github.com/DisgoOrg/disgo/api"
 
-// InteractionCreateHandler handles api.VoiceServerUpdateGatewayEvent
+// VoiceServerUpdateHandler handles api.GatewayEventVoiceServerUpdate
 type VoiceServerUpdateHandler struct{}
 
 // Event returns the raw gateway event Event

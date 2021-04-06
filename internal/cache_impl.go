@@ -91,6 +91,7 @@ func (c *CacheImpl) DoCleanup() {
 	// TODO cleanup cache
 }
 
+// CacheFlags returns the current active api.CacheFlags
 func (c CacheImpl) CacheFlags() api.CacheFlags {
 	return c.cacheFlags
 }

@@ -1,7 +1,9 @@
 package api
 
+// CacheFlags are used to enable/disable certain internal caches
 type CacheFlags int
 
+// values for CacheFlags
 const (
 	CacheFlagDMChannels CacheFlags = 0 << iota
 	CacheFlagCategories
