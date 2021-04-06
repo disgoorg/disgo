@@ -449,17 +449,17 @@ func (r RestClientImpl) DeleteInteractionResponse(applicationID api.Snowflake, i
 
 // SendFollowupMessage used to send a followup message_events to an interaction
 func (r RestClientImpl) SendFollowupMessage(applicationID api.Snowflake, interactionToken string, followupMessage api.FollowupMessage) (message *api.Message, err error) {
-	return message, r.Request(endpoints.CreateInteractionResponse.Compile(applicationID, interactionToken), followupMessage, &message)
+	return message, r.Request(endpoints.CreateFollowupMessage.Compile(applicationID, interactionToken), followupMessage, &message)
 }
 
 // EditFollowupMessage used to edit a api.FollowupMessage from an api.Interaction
 func (r RestClientImpl) EditFollowupMessage(applicationID api.Snowflake, interactionToken string, messageID api.Snowflake, followupMessage api.FollowupMessage) (message *api.Message, err error) {
-	return message, r.Request(endpoints.CreateInteractionResponse.Compile(applicationID, interactionToken, messageID), followupMessage, &message)
+	return message, r.Request(endpoints.EditFollowupMessage.Compile(applicationID, interactionToken, messageID), followupMessage, &message)
 }
 
 // DeleteFollowupMessage used to delete a api.FollowupMessage from an api.Interaction
 func (r RestClientImpl) DeleteFollowupMessage(applicationID api.Snowflake, interactionToken string, messageID api.Snowflake) error {
-	return r.Request(endpoints.CreateInteractionResponse.Compile(applicationID, interactionToken, messageID), nil, nil)
+	return r.Request(endpoints.DeleteFollowupMessage.Compile(applicationID, interactionToken, messageID), nil, nil)
 }
 
 func normalizeEmoji(emoji string) string {

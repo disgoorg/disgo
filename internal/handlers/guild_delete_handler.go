@@ -9,7 +9,7 @@ import (
 type GuildDeleteHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h GuildDeleteHandler) Event() api.GatewayEvent {
+func (h GuildDeleteHandler) Event() api.GatewayEventName {
 	return api.GatewayEventGuildDelete
 }
 
@@ -30,7 +30,7 @@ func (h GuildDeleteHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 		eventManager.Dispatch(events.GuildUnavailableEvent{
 			GenericGuildEvent: events.GenericGuildEvent{
 				GenericEvent: api.NewEvent(disgo),
-				GuildID: guild.ID,
+				GuildID:      guild.ID,
 			},
 		})
 	} else {
@@ -39,7 +39,7 @@ func (h GuildDeleteHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 
 		genericGuildEvent := events.GenericGuildEvent{
 			GenericEvent: api.NewEvent(disgo),
-			GuildID: guild.ID,
+			GuildID:      guild.ID,
 		}
 
 		eventManager.Dispatch(genericGuildEvent)

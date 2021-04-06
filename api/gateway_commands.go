@@ -1,37 +1,29 @@
 package api
 
-import (
-	"encoding/json"
-	"time"
-)
+func NewGatewayCommand(op GatewayOp, d interface{}) GatewayCommand {
+	return GatewayCommand{
+		GatewayPacket: GatewayPacket{
+			Op: op,
+			S:  nil,
+			T:  nil,
+		},
+		D: d,
+	}
+}
 
 // GatewayCommand object is used when sending data to discord's websocket, it's recommended that you don't use these
 type GatewayCommand struct {
-	Op GatewayOp     `json:"op"`
-	S  *int          `json:"s,omitempty"`
-	T  *GatewayEvent `json:"t,omitempty"`
+	GatewayPacket
+	D interface{} `json:"d"`
 }
 
-// RawGatewayCommand specifies the data for the GatewayCommand payload that is being sent
-type RawGatewayCommand struct {
-	GatewayCommand
-	D json.RawMessage `json:"d"`
-}
-
-// IdentifyCommand is used for Identifying to discord
+// IdentifyCommand is the data used in IdentifyCommand
 type IdentifyCommand struct {
-	GatewayCommand
-	D IdentifyCommandData `json:"d"`
-}
-
-// IdentifyCommandData is the data used in IdentifyCommand
-type IdentifyCommandData struct {
-	Token              string                        `json:"token"`
-	Properties         IdentifyCommandDataProperties `json:"properties"`
-	Compress           bool                          `json:"compress,omitempty"`
-	LargeThreshold     int                           `json:"large_threshold,omitempty"`
-	GuildSubscriptions bool                          `json:"guild_subscriptions,omitempty"` // Deprecated, should not be specified when using intents
-	Intents            Intents                       `json:"intents"`
+	Token          string                        `json:"token"`
+	Properties     IdentifyCommandDataProperties `json:"properties"`
+	Compress       bool                          `json:"compress,omitempty"`
+	LargeThreshold int                           `json:"large_threshold,omitempty"`
+	Intents        Intents                       `json:"intents"`
 	// Todo: Add presence property here, need presence methods/struct
 	// Todo: Add shard property here, need to discuss
 }
@@ -47,29 +39,19 @@ type IdentifyCommandDataProperties struct {
 // ResumeCommand is used to resume a connection to discord in the case that you are disconnected. Is automatically
 // handled by the library and should rarely be used.
 type ResumeCommand struct {
-	GatewayCommand
-	D struct {
-		Token     string `json:"token"`
-		SessionID string `json:"session_id"`
-		Seq       int    `json:"seq"`
-	} `json:"d"`
+	Token     string `json:"token"`
+	SessionID string `json:"session_id"`
+	Seq       int    `json:"seq"`
 }
 
 // HeartbeatCommand is used to ensure the websocket connection remains open, and disconnect if not.
 type HeartbeatCommand struct {
-	GatewayCommand
 	D *int `json:"d"`
 }
 
 // RequestGuildMembersCommand is used for fetching all of the members of a guild_events. It is recommended you have a strict
 // member caching policy when using this.
 type RequestGuildMembersCommand struct {
-	GatewayCommand
-	D RequestGuildMembersCommandData `json:"d"`
-}
-
-// RequestGuildMembersCommandData is the RequestGuildMembersCommand.D payload
-type RequestGuildMembersCommandData struct {
 	GuildID   Snowflake   `json:"guild_id"`
 	Query     string      `json:"query"` //If specified, user_ids must not be entered
 	Limit     int         `json:"limit"` //Must be >=1 if query/user_ids is used, otherwise 0
@@ -80,12 +62,6 @@ type RequestGuildMembersCommandData struct {
 
 // UpdateVoiceStateCommand is used for updating the bots voice state in a guild_events
 type UpdateVoiceStateCommand struct {
-	GatewayCommand
-	D UpdateVoiceStateCommandData `json:"d"`
-}
-
-// UpdateVoiceStateCommandData is the UpdateVoiceStateCommand.D payload
-type UpdateVoiceStateCommandData struct {
 	GuildID   Snowflake `json:"guild_id"`
 	ChannelID Snowflake `json:"channel_id"`
 	SelfMute  bool      `json:"self_mute"`
@@ -94,20 +70,8 @@ type UpdateVoiceStateCommandData struct {
 
 // UpdateStatusCommand is used for updating Disgo's presence
 type UpdateStatusCommand struct {
-	GatewayCommand
-	D UpdateStatusCommandData `json:"d"`
-}
-
-// UpdateStatusCommandData is the UpdateStatusCommand.D payload
-type UpdateStatusCommandData struct {
 	Since      *int       `json:"since"`
 	Activities []Activity `json:"activities"`
 	Status     bool       `json:"status"`
 	AFK        bool       `json:"afk"`
-}
-
-// HelloEvent is used when
-type HelloEvent struct {
-	GatewayCommand
-	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
 }

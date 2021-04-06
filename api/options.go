@@ -8,4 +8,5 @@ type Options struct {
 	ListenPort                int
 	ListenURL                 string
 	PublicKey                 string
+	LargeThreshold            int
 }

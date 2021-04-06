@@ -10,7 +10,7 @@ import (
 // Disgo is the main discord interface
 type Disgo interface {
 	Connect() error
-	Start() error
+	Start()
 	Close()
 	Token() string
 	Gateway() Gateway
@@ -24,6 +24,7 @@ type Disgo interface {
 	VoiceDispatchInterceptor() VoiceDispatchInterceptor
 	SetVoiceDispatchInterceptor(voiceInterceptor VoiceDispatchInterceptor)
 	HeartbeatLatency() time.Duration
+	LargeThreshold() int
 
 	GetCommand(commandID Snowflake) (*SlashCommand, error)
 	GetCommands() ([]*SlashCommand, error)
@@ -35,7 +36,7 @@ type Disgo interface {
 
 // EventHandler provides info about the EventHandler
 type EventHandler interface {
-	Event() GatewayEvent
+	Event() GatewayEventName
 	New() interface{}
 }
 
@@ -58,8 +59,9 @@ type EventListener interface {
 
 // EventManager lets you listen for specific events triggered by raw gateway events
 type EventManager interface {
+	Close()
 	AddEventListeners(...EventListener)
-	Handle(GatewayEvent, json.RawMessage, chan interface{})
+	Handle(GatewayEventName, json.RawMessage, chan interface{})
 	Dispatch(Event)
 }
 

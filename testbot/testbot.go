@@ -115,17 +115,35 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 			SetAllowedMentionsEmpty().
 			Build(),
 		)
+
 	case "test":
 		go func() {
 			_ = event.Acknowledge()
+
 			time.Sleep(2 * time.Second)
 			_, _ = event.EditOriginal(api.NewFollowupMessageBuilder().
 				SetEmbeds(api.NewEmbedBuilder().
-					SetDescription("Edited Original").
+					SetDescription("finished with thinking").
 					Build(),
 				).Build(),
 			)
+
+			time.Sleep(1 * time.Second)
+			_, _ = event.SendFollowup(api.NewFollowupMessageBuilder().
+				SetEmbeds(api.NewEmbedBuilder().
+					SetDescription("followup 1").
+					Build(),
+				).Build(),
+			)
+
+			time.Sleep(1 * time.Second)
+			_, _ = event.SendFollowup(api.NewFollowupMessageBuilder().
+				SetEphemeral(true).
+				SetContent("followup 4 only you can see").
+				Build(),
+			)
 		}()
+
 	case "addrole":
 		user := event.OptionByName("member").User()
 		role := event.OptionByName("role").Role()
@@ -139,6 +157,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 				api.NewEmbedBuilder().SetColor(16711680).SetDescriptionf("Failed to add %s to %s", role, user).Build(),
 			).Build())
 		}
+
 	case "removerole":
 		user := event.OptionByName("member").User()
 		role := event.OptionByName("role").Role()
@@ -152,6 +171,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 				api.NewEmbedBuilder().SetColor(16711680).SetDescriptionf("Failed to remove %s from %s", role, user).Build(),
 			).Build())
 		}
+
 	}
 }
 

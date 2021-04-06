@@ -15,7 +15,7 @@ func newEventManagerImpl(disgo api.Disgo, listeners []api.EventListener) api.Eve
 		disgo:     disgo,
 		channel:   make(chan api.Event),
 		listeners: listeners,
-		handlers:  map[api.GatewayEvent]api.EventHandler{},
+		handlers:  map[api.GatewayEventName]api.EventHandler{},
 	}
 	for _, handler := range handlers.GetAllHandlers() {
 		eventManager.handlers[handler.Event()] = handler
@@ -28,12 +28,17 @@ func newEventManagerImpl(disgo api.Disgo, listeners []api.EventListener) api.Eve
 type EventManagerImpl struct {
 	disgo     api.Disgo
 	listeners []api.EventListener
-	handlers  map[api.GatewayEvent]api.EventHandler
+	handlers  map[api.GatewayEventName]api.EventHandler
 	channel   chan api.Event
 }
 
+func (e EventManagerImpl) Close() {
+	log.Info("closing eventManager goroutines...")
+	close(e.channel)
+}
+
 // Handle calls the correct api.EventHandler
-func (e EventManagerImpl) Handle(name api.GatewayEvent, payload json.RawMessage, c chan interface{}) {
+func (e EventManagerImpl) Handle(name api.GatewayEventName, payload json.RawMessage, c chan interface{}) {
 	if handler, ok := e.handlers[name]; ok {
 		eventPayload := handler.New()
 		if err := json.Unmarshal(payload, &eventPayload); err != nil {
@@ -69,11 +74,13 @@ func (e EventManagerImpl) ListenEvents() {
 			e.ListenEvents()
 			return
 		}
-		log.Infof("closing event channel...")
-		close(e.channel)
+		log.Infof("closed event goroutine")
 	}()
 	for {
-		event := <-e.channel
+		event, ok := <-e.channel
+		if !ok {
+			return
+		}
 		for _, listener := range e.listeners {
 			listener.OnEvent(event)
 		}

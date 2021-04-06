@@ -8,7 +8,7 @@ import (
 type InteractionCreateWebhookHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h InteractionCreateWebhookHandler) Event() api.GatewayEvent {
+func (h InteractionCreateWebhookHandler) Event() api.GatewayEventName {
 	return api.WebhookEventInteractionCreate
 }
 

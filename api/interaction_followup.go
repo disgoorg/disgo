@@ -8,6 +8,7 @@ type FollowupMessage struct {
 	TTS             bool             `json:"tts,omitempty"`
 	Embeds          []Embed          `json:"embeds,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
+	Flags           MessageFlags     `json:"flags,omitempty"`
 	//PayloadJSON     string           `json:"payload_json"`
 	//File          FileContents     `json:"file"`
 }
@@ -73,6 +74,26 @@ func (b *FollowupMessageBuilder) SetAllowedMentions(allowedMentions *AllowedMent
 // SetAllowedMentionsEmpty sets the allowed mentions of the FollowupMessage to nothing
 func (b *FollowupMessageBuilder) SetAllowedMentionsEmpty() *FollowupMessageBuilder {
 	return b.SetAllowedMentions(&AllowedMentions{})
+}
+
+// SetFlags sets the message flags of the FollowupMessage
+func (b *FollowupMessageBuilder) SetFlags(flags MessageFlags) *FollowupMessageBuilder {
+	b.Flags = flags
+	return b
+}
+
+// SetEphemeral adds/removes MessageFlagEphemeral to the message flags
+func (b *FollowupMessageBuilder) SetEphemeral(ephemeral bool) *FollowupMessageBuilder {
+	if ephemeral {
+		if !b.Flags.Has(MessageFlagEphemeral) {
+			b.Flags = b.Flags.Add(MessageFlagEphemeral)
+		}
+	} else {
+		if b.Flags.Has(MessageFlagEphemeral) {
+			b.Flags = b.Flags.Remove(MessageFlagEphemeral)
+		}
+	}
+	return b
 }
 
 // Build returns your built FollowupMessage

@@ -62,12 +62,15 @@ func (w *WebhookServerImpl) Router() *mux.Router {
 }
 
 // Start makes the WebhookServerImpl listen on the specified port and handle requests
-func (w *WebhookServerImpl) Start() error {
+func (w *WebhookServerImpl) Start() {
 	w.router = mux.NewRouter()
 	w.router.Handle(w.ListenURL(), w.interactionHandler).Methods("POST")
 
-	go http.ListenAndServe(":"+strconv.Itoa(w.listenPort), w.router)
-	return nil
+	go func() {
+		if err := http.ListenAndServe(":"+strconv.Itoa(w.listenPort), w.router); err != nil {
+			log.Errorf("error starting webhook server: %s", err)
+		}
+	}()
 }
 
 // Close shuts down the WebhookServerImpl
@@ -84,7 +87,11 @@ func (h *webhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-	defer r.Body.Close()
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			log.Errorf("error closing request body in WebhookServer: %s", err)
+		}
+	}()
 	rawBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

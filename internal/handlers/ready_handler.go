@@ -17,7 +17,7 @@ type readyEventData struct {
 type ReadyHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h ReadyHandler) Event() api.GatewayEvent {
+func (h ReadyHandler) Event() api.GatewayEventName {
 	return api.GatewayEventReady
 }
 

@@ -6,7 +6,7 @@ import "github.com/DisgoOrg/disgo/api"
 type VoiceServerUpdateHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h VoiceServerUpdateHandler) Event() api.GatewayEvent {
+func (h VoiceServerUpdateHandler) Event() api.GatewayEventName {
 	return api.GatewayEventVoiceServerUpdate
 }
 

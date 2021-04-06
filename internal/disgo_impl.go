@@ -10,9 +10,15 @@ import (
 
 // New creates a new api.Disgo instance
 func New(token string, options api.Options) (api.Disgo, error) {
+	if options.LargeThreshold < 50 {
+		options.LargeThreshold = 50
+	} else if options.LargeThreshold > 250 {
+		options.LargeThreshold = 250
+	}
 	disgo := &DisgoImpl{
-		token:   token,
-		intents: options.Intents,
+		token:          token,
+		intents:        options.Intents,
+		largeThreshold: options.LargeThreshold,
 	}
 
 	id, err := IDFromToken(token)
@@ -47,6 +53,7 @@ type DisgoImpl struct {
 	webhookServer            api.WebhookServer
 	cache                    api.Cache
 	selfUserID               api.Snowflake
+	largeThreshold           int
 }
 
 // Connect opens the gateway connection to discord
@@ -60,20 +67,27 @@ func (d *DisgoImpl) Connect() error {
 }
 
 // Start starts the interaction webhook server
-func (d *DisgoImpl) Start() error {
-	err := d.WebhookServer().Start()
-	if err != nil {
-		log.Errorf("Unable to connect to gateway. error: %s", err)
-		return err
-	}
-	return nil
+func (d *DisgoImpl) Start() {
+	d.WebhookServer().Start()
 }
 
 // Close will cleanup all disgo internals and close the discord connection safely
 func (d *DisgoImpl) Close() {
-	d.RestClient().Close()
-	d.Gateway().Close()
-	d.Cache().Close()
+	if d.RestClient() != nil {
+		d.RestClient().Close()
+	}
+	if d.WebhookServer() != nil {
+		d.WebhookServer().Close()
+	}
+	if d.Gateway() != nil {
+		d.Gateway().Close()
+	}
+	if d.EventManager() != nil {
+		d.EventManager().Close()
+	}
+	if d.Cache() != nil {
+		d.Cache().Close()
+	}
 }
 
 // Token returns the token of the client
@@ -136,6 +150,11 @@ func (d *DisgoImpl) SelfUser() *api.User {
 // HeartbeatLatency returns the heartbeat latency
 func (d *DisgoImpl) HeartbeatLatency() time.Duration {
 	return d.Gateway().Latency()
+}
+
+// HeartbeatLatency returns the heartbeat latency
+func (d *DisgoImpl) LargeThreshold() int {
+	return d.largeThreshold
 }
 
 // GetCommand fetches a specific guild command

@@ -9,7 +9,7 @@ import (
 type MessageCreateHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h MessageCreateHandler) Event() api.GatewayEvent {
+func (h MessageCreateHandler) Event() api.GatewayEventName {
 	return api.GatewayEventMessageCreate
 }
 

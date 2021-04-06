@@ -37,27 +37,27 @@ const (
 type MessageFlags int64
 
 // Add allows you to add multiple bits together, producing a new bit
-func (f MessageFlags) Add(bits ...Bit) Bit {
+func (f MessageFlags) Add(bits ...MessageFlags) MessageFlags {
 	total := MessageFlags(0)
 	for _, bit := range bits {
-		total |= bit.(MessageFlags)
+		total |= bit
 	}
 	f |= total
 	return f
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
-func (f MessageFlags) Remove(bits ...Bit) Bit {
+func (f MessageFlags) Remove(bits ...MessageFlags) MessageFlags {
 	total := MessageFlags(0)
 	for _, bit := range bits {
-		total |= bit.(MessageFlags)
+		total |= bit
 	}
 	f &^= total
 	return f
 }
 
 // HasAll will ensure that the bit includes all of the bits entered
-func (f MessageFlags) HasAll(bits ...Bit) bool {
+func (f MessageFlags) HasAll(bits ...MessageFlags) bool {
 	for _, bit := range bits {
 		if !f.Has(bit) {
 			return false
@@ -67,12 +67,12 @@ func (f MessageFlags) HasAll(bits ...Bit) bool {
 }
 
 // Has will check whether the Bit contains another bit
-func (f MessageFlags) Has(bit Bit) bool {
-	return (f & bit.(MessageFlags)) == bit
+func (f MessageFlags) Has(bit MessageFlags) bool {
+	return (f & bit) == bit
 }
 
 // MissingAny will check whether the bit is missing any one of the bits
-func (f MessageFlags) MissingAny(bits ...Bit) bool {
+func (f MessageFlags) MissingAny(bits ...MessageFlags) bool {
 	for _, bit := range bits {
 		if !f.Has(bit) {
 			return true
@@ -82,7 +82,7 @@ func (f MessageFlags) MissingAny(bits ...Bit) bool {
 }
 
 // Missing will do the inverse of Bit.Has
-func (f MessageFlags) Missing(bit Bit) bool {
+func (f MessageFlags) Missing(bit MessageFlags) bool {
 	return !f.Has(bit)
 }
 
@@ -94,7 +94,6 @@ const (
 	MessageFlagSuppressEmbeds
 	MessageFlagSourceMessageDeleted
 	MessageFlagUrgent
-	_
 	MessageFlagEphemeral
 	MessageFlagLoading // Message is an interaction of type 5, awaiting further response
 )

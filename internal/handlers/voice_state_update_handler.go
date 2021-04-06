@@ -8,7 +8,7 @@ import (
 type VoiceStateUpdateHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h VoiceStateUpdateHandler) Event() api.GatewayEvent {
+func (h VoiceStateUpdateHandler) Event() api.GatewayEventName {
 	return api.GatewayEventVoiceStateUpdate
 }
 

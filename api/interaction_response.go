@@ -137,9 +137,13 @@ func (b *InteractionResponseBuilder) SetEphemeral(ephemeral bool) *InteractionRe
 		b.Data = &InteractionResponseData{}
 	}
 	if ephemeral {
-		b.Data.Flags |= MessageFlagEphemeral
+		if !b.Data.Flags.Has(MessageFlagEphemeral) {
+			b.Data.Flags.Add(MessageFlagEphemeral)
+		}
 	} else {
-		b.Data.Flags &^= MessageFlagEphemeral
+		if b.Data.Flags.Has(MessageFlagEphemeral) {
+			b.Data.Flags.Remove(MessageFlagEphemeral)
+		}
 	}
 	return b
 }

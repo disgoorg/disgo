@@ -9,7 +9,7 @@ import (
 type InteractionCreateHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h InteractionCreateHandler) Event() api.GatewayEvent {
+func (h InteractionCreateHandler) Event() api.GatewayEventName {
 	return api.GatewayEventInteractionCreate
 }
 

@@ -18,7 +18,7 @@ type WebhookServer interface {
 	PublicKey() ed25519.PublicKey
 	ListenURL() string
 	Router() *mux.Router
-	Start() error
+	Start()
 	Close()
 }
 

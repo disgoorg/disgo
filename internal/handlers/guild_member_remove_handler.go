@@ -14,7 +14,7 @@ type guildMemberRemoveData struct {
 type GuildMemberRemoveHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h GuildMemberRemoveHandler) Event() api.GatewayEvent {
+func (h GuildMemberRemoveHandler) Event() api.GatewayEventName {
 	return api.GatewayEventGuildMemberRemove
 }
 
