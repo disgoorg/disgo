@@ -21,7 +21,7 @@ func New(token string, options api.Options) (api.Disgo, error) {
 		return nil, err
 	}
 
-	disgo.applicationID = *id
+	disgo.selfUserID = *id
 
 	disgo.restClient = newRestClientImpl(disgo, token)
 
@@ -42,11 +42,10 @@ type DisgoImpl struct {
 	gateway       api.Gateway
 	restClient    api.RestClient
 	intents       api.Intents
-	selfUser      *api.User
 	eventManager  api.EventManager
 	webhookServer api.WebhookServer
 	cache         api.Cache
-	applicationID api.Snowflake
+	selfUserID    api.Snowflake
 }
 
 // Connect opens the gateway connection to discord
@@ -73,6 +72,7 @@ func (d *DisgoImpl) Start() error {
 func (d *DisgoImpl) Close() {
 	d.RestClient().Close()
 	d.Gateway().Close()
+	d.Cache().Close()
 }
 
 // Token returns the token of the client
@@ -112,19 +112,14 @@ func (d *DisgoImpl) Intents() api.Intents {
 	return c
 }
 
-// ApplicationID returns the current application id
-func (d *DisgoImpl) ApplicationID() api.Snowflake {
-	return d.applicationID
+// SelfUserID returns the current application id
+func (d *DisgoImpl) SelfUserID() api.Snowflake {
+	return d.selfUserID
 }
 
 // SelfUser returns a user object for the client, if available
 func (d *DisgoImpl) SelfUser() *api.User {
-	return d.selfUser
-}
-
-// SetSelfUser sets the self user
-func (d *DisgoImpl) SetSelfUser(user *api.User) {
-	d.selfUser = user
+	return d.cache.User(d.selfUserID)
 }
 
 // HeartbeatLatency returns the heartbeat latency
@@ -134,30 +129,30 @@ func (d *DisgoImpl) HeartbeatLatency() time.Duration {
 
 // GetCommand fetches a specific guild command
 func (d DisgoImpl) GetCommand(commandID api.Snowflake) (*api.SlashCommand, error) {
-	return d.RestClient().GetGlobalCommand(d.ApplicationID(), commandID)
+	return d.RestClient().GetGlobalCommand(d.SelfUserID(), commandID)
 }
 
 // GetCommands fetches all guild commands
 func (d DisgoImpl) GetCommands() ([]*api.SlashCommand, error) {
-	return d.RestClient().GetGlobalCommands(d.ApplicationID())
+	return d.RestClient().GetGlobalCommands(d.SelfUserID())
 }
 
 // CreateCommand creates a new command for this guild
 func (d DisgoImpl) CreateCommand(command api.SlashCommand) (*api.SlashCommand, error) {
-	return d.RestClient().CreateGlobalCommand(d.ApplicationID(), command)
+	return d.RestClient().CreateGlobalCommand(d.SelfUserID(), command)
 }
 
 // EditCommand edits a specific guild command
 func (d DisgoImpl) EditCommand(commandID api.Snowflake, command api.SlashCommand) (*api.SlashCommand, error) {
-	return d.RestClient().EditGlobalCommand(d.ApplicationID(), commandID, command)
+	return d.RestClient().EditGlobalCommand(d.SelfUserID(), commandID, command)
 }
 
 // DeleteCommand creates a new command for this guild
 func (d DisgoImpl) DeleteCommand(command api.SlashCommand) (*api.SlashCommand, error) {
-	return d.RestClient().CreateGlobalCommand(d.ApplicationID(), command)
+	return d.RestClient().CreateGlobalCommand(d.SelfUserID(), command)
 }
 
 // SetCommands overrides all commands for this guild
 func (d DisgoImpl) SetCommands(commands ...api.SlashCommand) ([]*api.SlashCommand, error) {
-	return d.RestClient().SetGlobalCommands(d.ApplicationID(), commands...)
+	return d.RestClient().SetGlobalCommands(d.SelfUserID(), commands...)
 }

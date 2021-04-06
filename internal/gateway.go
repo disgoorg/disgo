@@ -153,7 +153,7 @@ func (g *GatewayImpl) Close() {
 		return
 	}
 	log.Info("closing gateway goroutines...")
-	close(g.quit)
+	g.quit <- true
 	log.Info("closed gateway goroutines")
 }
 

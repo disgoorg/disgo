@@ -177,7 +177,7 @@ func (b DisgoBuilderImpl) Build() (api.Disgo, error) {
 		if b.messageCachePolicy == nil {
 			b.messageCachePolicy = api.MessageCachePolicyDefault
 		}
-		b.cache = newCacheImpl(b.memberCachePolicy, b.messageCachePolicy, b.cacheFlags)
+		b.cache = newCacheImpl(disgo, b.memberCachePolicy, b.messageCachePolicy, b.cacheFlags)
 	}
 	disgo.cache = b.cache
 

@@ -185,7 +185,7 @@ func (r RestClientImpl) UpdateSelfNick(guildID api.Snowflake, nick *string) (new
 	var updateNick *api.UpdateSelfNick
 	err = r.Request(endpoints.UpdateSelfNick.Compile(guildID), api.UpdateSelfNick{Nick: nick}, &updateNick)
 	if updateNick != nil {
-		r.Disgo().Cache().Member(guildID, r.Disgo().ApplicationID()).Nick = updateNick.Nick
+		r.Disgo().Cache().Member(guildID, r.Disgo().SelfUserID()).Nick = updateNick.Nick
 		newNick = updateNick.Nick
 	}
 	return

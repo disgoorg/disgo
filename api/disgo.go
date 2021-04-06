@@ -18,9 +18,8 @@ type Disgo interface {
 	WebhookServer() WebhookServer
 	Cache() Cache
 	Intents() Intents
-	ApplicationID() Snowflake
+	SelfUserID() Snowflake
 	SelfUser() *User
-	SetSelfUser(*User)
 	EventManager() EventManager
 	HeartbeatLatency() time.Duration
 

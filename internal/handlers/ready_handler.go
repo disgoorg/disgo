@@ -32,7 +32,9 @@ func (h ReadyHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i i
 	if !ok {
 		return
 	}
-	disgo.SetSelfUser(&readyEvent.SelfUser)
+
+	disgo.Cache().CacheUser(&readyEvent.SelfUser)
+
 	for i := range readyEvent.Guilds {
 		disgo.Cache().CacheGuild(readyEvent.Guilds[i])
 	}

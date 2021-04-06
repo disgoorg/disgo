@@ -10,8 +10,10 @@ import (
 	"github.com/DisgoOrg/disgo/api"
 )
 
-func newCacheImpl(memberCachePolicy api.MemberCachePolicy, messageCachePolicy api.MessageCachePolicy, cacheFlags api.CacheFlags) api.Cache {
+func newCacheImpl(disgo api.Disgo, memberCachePolicy api.MemberCachePolicy, messageCachePolicy api.MessageCachePolicy, cacheFlags api.CacheFlags) api.Cache {
 	cache := &CacheImpl{
+		disgo:              disgo,
+		quit:               make(chan interface{}),
 		memberCachePolicy:  memberCachePolicy,
 		messageCachePolicy: messageCachePolicy,
 		cacheFlags:         cacheFlags,
@@ -25,13 +27,14 @@ func newCacheImpl(memberCachePolicy api.MemberCachePolicy, messageCachePolicy ap
 		voiceChannels:      map[api.Snowflake]map[api.Snowflake]*api.VoiceChannel{},
 		storeChannels:      map[api.Snowflake]map[api.Snowflake]*api.StoreChannel{},
 	}
-	go cache.cleanup(10 * time.Second)
+	go cache.startCleanup(10 * time.Second)
 	return cache
 }
 
 // CacheImpl is used for api.Disgo's api.Cache
 type CacheImpl struct {
-	quit               chan bool
+	disgo              api.Disgo
+	quit               chan interface{}
 	memberCachePolicy  api.MemberCachePolicy
 	messageCachePolicy api.MessageCachePolicy
 	cacheFlags         api.CacheFlags
@@ -49,16 +52,16 @@ type CacheImpl struct {
 // Close cleans up the cache and it's internal tasks
 func (c *CacheImpl) Close() {
 	log.Info("closing cache goroutines...")
-	close(c.quit)
+	c.quit <- true
 	log.Info("closed cache goroutines")
 }
 
-func (c CacheImpl) cleanup(cleanupInterval time.Duration) {
+func (c CacheImpl) startCleanup(cleanupInterval time.Duration) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Errorf("recovered cache cleanup goroutine error: %s", r)
 			debug.PrintStack()
-			c.cleanup(cleanupInterval)
+			c.startCleanup(cleanupInterval)
 			return
 		}
 		log.Info("shut down cache cleanup goroutine")
@@ -132,7 +135,7 @@ func (c *CacheImpl) UserCache() map[api.Snowflake]*api.User {
 
 // CacheUser adds a user to the cache
 func (c *CacheImpl) CacheUser(user *api.User) {
-	// TODO: only cache user if we have a mutal guild
+	// TODO: only cache user if we have a mutal guild & always cache self user
 	if _, ok := c.guilds[user.ID]; ok {
 		// update old user
 		return
@@ -325,8 +328,8 @@ func (c *CacheImpl) AllMemberCache() map[api.Snowflake]map[api.Snowflake]*api.Me
 
 // CacheMember adds a member to the cache
 func (c *CacheImpl) CacheMember(member *api.Member) {
-	// only cache member if we want to!
-	if !c.memberCachePolicy(member) {
+	// only cache member if we want to & always cache self member!
+	if member.User.ID != member.Disgo.SelfUserID() && !c.memberCachePolicy(member) {
 		return
 	}
 	if guildMembers, ok := c.members[member.GuildID]; ok {

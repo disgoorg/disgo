@@ -32,7 +32,7 @@ func main() {
 		return
 	}
 
-	_, err = dgo.RestClient().SetGuildCommands(dgo.ApplicationID(), "817327181659111454",
+	_, err = dgo.RestClient().SetGuildCommands(dgo.SelfUserID(), "817327181659111454",
 		api.SlashCommand{
 			Name:        "test",
 			Description: "test test test test test test",
