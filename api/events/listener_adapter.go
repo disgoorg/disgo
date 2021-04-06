@@ -6,7 +6,7 @@ import (
 
 // ListenerAdapter lets you override the handles for receiving events
 type ListenerAdapter struct {
-	OnGenericEvent func(*api.GenericEvent)
+	OnGenericEvent func(*api.Event)
 
 	// Guild Events
 	OnGenericGuildEvent func(*GenericGuildEvent)
@@ -33,7 +33,7 @@ type ListenerAdapter struct {
 
 // OnEvent is getting called everytime we receive an event
 func (l ListenerAdapter) OnEvent(event interface{}) {
-	if event, ok := event.(api.GenericEvent); ok {
+	if event, ok := event.(api.Event); ok {
 		if l.OnGenericEvent != nil {
 			l.OnGenericEvent(&event)
 		}

@@ -4,7 +4,7 @@ import (
 	"github.com/DisgoOrg/disgo/api"
 )
 
-// GenericDMMessageEvent generic api.DMChannel api.Message api.Event
+// GenericDMMessageEvent generic api.DMChannel api.Message api.GenericEvent
 type GenericDMMessageEvent struct {
 	GenericDMEvent
 	GenericMessageEvent

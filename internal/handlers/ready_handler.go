@@ -16,9 +16,9 @@ type readyEventData struct {
 // ReadyHandler handles api.ReadyGatewayEvent
 type ReadyHandler struct{}
 
-// Name returns the raw gateway event name
-func (h ReadyHandler) Name() string {
-	return api.ReadyGatewayEvent
+// Event returns the raw gateway event Event
+func (h ReadyHandler) Event() api.GatewayEvent {
+	return api.GatewayEventReady
 }
 
 // New constructs a new payload receiver for the raw gateway event

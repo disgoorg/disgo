@@ -90,7 +90,7 @@ func (h *webhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 		w.WriteHeader(http.StatusBadRequest)
 	}
 	c := make(chan interface{})
-	go h.webhookServer.Disgo().EventManager().Handle(api.InteractionCreateWebhookEvent, rawBody, c)
+	go h.webhookServer.Disgo().EventManager().Handle(api.WebhookEventInteractionCreate, rawBody, c)
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")

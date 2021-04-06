@@ -9,7 +9,7 @@ package api
 // CommandThread allows you to follow up Interactions (https://discord.com/developers/docs/interactions/slash-commands)
 type CommandThread interface {
 	Disgo() Disgo
-	Event() events.SlashCommandEvent
+	GenericEvent() events.SlashCommandEvent
 	Ephemeral(ephemeral bool) CommandThread
 	SendMessage() *promise.Promise
 	EditOriginal(message_events string) *promise.Promise

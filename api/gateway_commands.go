@@ -7,9 +7,9 @@ import (
 
 // GatewayCommand object is used when sending data to discord's websocket, it's recommended that you don't use these
 type GatewayCommand struct {
-	Op GatewayOp `json:"op"`
-	S  *int      `json:"s,omitempty"`
-	T  *string   `json:"t,omitempty"`
+	Op GatewayOp     `json:"op"`
+	S  *int          `json:"s,omitempty"`
+	T  *GatewayEvent `json:"t,omitempty"`
 }
 
 // RawGatewayCommand specifies the data for the GatewayCommand payload that is being sent

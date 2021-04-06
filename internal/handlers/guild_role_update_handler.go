@@ -13,9 +13,9 @@ type roleUpdateData struct {
 // GuildRoleUpdateHandler handles api.GuildRoleUpdateGatewayEvent
 type GuildRoleUpdateHandler struct{}
 
-// Name returns the raw gateway event name
-func (h GuildRoleUpdateHandler) Name() string {
-	return api.GuildRoleUpdateGatewayEvent
+// Event returns the raw gateway event Event
+func (h GuildRoleUpdateHandler) Event() api.GatewayEvent {
+	return api.GatewayEventGuildRoleUpdate
 }
 
 // New constructs a new payload receiver for the raw gateway event
@@ -36,10 +36,8 @@ func (h GuildRoleUpdateHandler) Handle(disgo api.Disgo, eventManager api.EventMa
 	disgo.Cache().CacheRole(roleUpdateData.Role)
 
 	genericGuildEvent := events.GenericGuildEvent{
-		Event: api.Event{
-			Disgo: disgo,
-		},
-		GuildID: roleUpdateData.GuildID,
+		GenericEvent: api.NewEvent(disgo),
+		GuildID:      roleUpdateData.GuildID,
 	}
 	eventManager.Dispatch(genericGuildEvent)
 

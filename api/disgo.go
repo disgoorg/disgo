@@ -21,6 +21,8 @@ type Disgo interface {
 	SelfUserID() Snowflake
 	SelfUser() *User
 	EventManager() EventManager
+	VoiceDispatchInterceptor() VoiceDispatchInterceptor
+	SetVoiceDispatchInterceptor(voiceInterceptor VoiceDispatchInterceptor)
 	HeartbeatLatency() time.Duration
 
 	GetCommand(commandID Snowflake) (*SlashCommand, error)
@@ -33,7 +35,7 @@ type Disgo interface {
 
 // EventHandler provides info about the EventHandler
 type EventHandler interface {
-	Name() string
+	Event() GatewayEvent
 	New() interface{}
 }
 
@@ -57,8 +59,8 @@ type EventListener interface {
 // EventManager lets you listen for specific events triggered by raw gateway events
 type EventManager interface {
 	AddEventListeners(...EventListener)
-	Handle(string, json.RawMessage, chan interface{})
-	Dispatch(GenericEvent)
+	Handle(GatewayEvent, json.RawMessage, chan interface{})
+	Dispatch(Event)
 }
 
 // GetOS returns the simplified version of the operating system for sending to Discord in the IdentifyCommandDataProperties.OS payload

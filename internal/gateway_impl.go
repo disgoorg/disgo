@@ -215,7 +215,7 @@ func (g *GatewayImpl) listen() {
 
 				log.Debugf("received: %s", *event.T)
 
-				if event.T != nil && *event.T == api.ReadyGatewayEvent {
+				if event.T != nil && *event.T == api.GatewayEventReady {
 					var readyEvent api.ReadyEventData
 					if err := parseEventToStruct(event, &readyEvent); err != nil {
 						log.Errorf("Error parsing ready event: %s", err)

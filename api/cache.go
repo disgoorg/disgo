@@ -2,6 +2,7 @@ package api
 
 // Cache allows you to access the objects that are stored in-memory by Discord
 type Cache interface {
+	Disgo() Disgo
 	Close()
 	DoCleanup()
 	CacheFlags() CacheFlags
@@ -42,6 +43,12 @@ type Cache interface {
 	UncacheMember(Snowflake, Snowflake)
 	FindMember(Snowflake, func(*Member) bool) *Member
 	FindMembers(Snowflake, func(*Member) bool) []*Member
+
+	VoiceState(guildID Snowflake, userID Snowflake) *VoiceState
+	VoiceStates(guildID Snowflake) []*VoiceState
+	VoiceStateCache(guildID Snowflake) map[Snowflake]*VoiceState
+	CacheVoiceState(voiceState *VoiceState)
+	UncacheVoiceState(guildID Snowflake, userID Snowflake)
 
 	Role(Snowflake, Snowflake) *Role
 	RolesByName(Snowflake, string, bool) []*Role

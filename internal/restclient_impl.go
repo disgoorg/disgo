@@ -152,7 +152,7 @@ func (r RestClientImpl) DeleteMessage(channelID api.Snowflake, messageID api.Sno
 }
 
 // BulkDeleteMessages lets you bulk delete api.Message(s)
-func (r RestClientImpl) BulkDeleteMessages(channelID api.Snowflake, messageIDs... api.Snowflake) error {
+func (r RestClientImpl) BulkDeleteMessages(channelID api.Snowflake, messageIDs ...api.Snowflake) error {
 	return r.Request(endpoints.BulkDeleteMessage.Compile(channelID), api.MessageBulkDelete{Messages: messageIDs}, nil)
 }
 

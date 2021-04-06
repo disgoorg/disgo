@@ -13,12 +13,12 @@ import (
 func newEventManagerImpl(disgo api.Disgo, listeners []api.EventListener) api.EventManager {
 	eventManager := &EventManagerImpl{
 		disgo:     disgo,
-		channel:   make(chan api.GenericEvent),
+		channel:   make(chan api.Event),
 		listeners: listeners,
-		handlers:  map[string]api.EventHandler{},
+		handlers:  map[api.GatewayEvent]api.EventHandler{},
 	}
 	for _, handler := range handlers.GetAllHandlers() {
-		eventManager.handlers[handler.Name()] = handler
+		eventManager.handlers[handler.Event()] = handler
 	}
 	go eventManager.ListenEvents()
 	return eventManager
@@ -28,12 +28,12 @@ func newEventManagerImpl(disgo api.Disgo, listeners []api.EventListener) api.Eve
 type EventManagerImpl struct {
 	disgo     api.Disgo
 	listeners []api.EventListener
-	handlers  map[string]api.EventHandler
-	channel   chan api.GenericEvent
+	handlers  map[api.GatewayEvent]api.EventHandler
+	channel   chan api.Event
 }
 
 // Handle calls the correct api.EventHandler
-func (e EventManagerImpl) Handle(name string, payload json.RawMessage, c chan interface{}) {
+func (e EventManagerImpl) Handle(name api.GatewayEvent, payload json.RawMessage, c chan interface{}) {
 	if handler, ok := e.handlers[name]; ok {
 		eventPayload := handler.New()
 		if err := json.Unmarshal(payload, &eventPayload); err != nil {
@@ -49,7 +49,7 @@ func (e EventManagerImpl) Handle(name string, payload json.RawMessage, c chan in
 }
 
 // Dispatch dispatches a new event to the client
-func (e EventManagerImpl) Dispatch(event api.GenericEvent) {
+func (e EventManagerImpl) Dispatch(event api.Event) {
 	e.channel <- event
 }
 

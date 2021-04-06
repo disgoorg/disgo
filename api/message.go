@@ -96,7 +96,7 @@ const (
 	MessageFlagUrgent
 	_
 	MessageFlagEphemeral
-    MessageFlagLoading // Message is an interaction of type 5, awaiting further response
+	MessageFlagLoading // Message is an interaction of type 5, awaiting further response
 )
 
 // Message is a struct for messages sent in discord text-based channels

@@ -4,15 +4,15 @@ import (
 	"github.com/DisgoOrg/disgo/api"
 )
 
-// GenericGuildEvent generic api.Guild api.Event
+// GenericGuildEvent generic api.Guild api.GenericEvent
 type GenericGuildEvent struct {
-	api.Event
+	api.GenericEvent
 	GuildID api.Snowflake
 }
 
 // Guild returns the api.Guild from the api.Cache
 func (e GenericGuildEvent) Guild() *api.Guild {
-	return e.Disgo.Cache().Guild(e.GuildID)
+	return e.Disgo().Cache().Guild(e.GuildID)
 }
 
 // GuildUpdateEvent called upon receiving api.Guild updates

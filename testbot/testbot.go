@@ -19,7 +19,7 @@ func main() {
 
 	dgo, err := disgo.NewBuilder(token).
 		SetLogLevel(log.InfoLevel).
-		SetIntents(api.IntentsGuilds|api.IntentsGuildMessages|api.IntentsGuildMembers).
+		SetIntents(api.IntentsGuilds | api.IntentsGuildMessages | api.IntentsGuildMembers).
 		SetMemberCachePolicy(api.MemberCachePolicyAll).
 		AddEventListeners(&events.ListenerAdapter{
 			OnGuildAvailable:       guildAvailListener,
@@ -129,7 +129,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 	case "addrole":
 		user := event.OptionByName("member").User()
 		role := event.OptionByName("role").Role()
-		err := event.Disgo.RestClient().AddMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
+		err := event.Disgo().RestClient().AddMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
 		if err == nil {
 			_ = event.Reply(api.NewInteractionResponseBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Added %s to %s", role, user).Build(),
@@ -142,7 +142,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 	case "removerole":
 		user := event.OptionByName("member").User()
 		role := event.OptionByName("role").Role()
-		err := event.Disgo.RestClient().RemoveMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
+		err := event.Disgo().RestClient().RemoveMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
 		if err == nil {
 			_ = event.Reply(api.NewInteractionResponseBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Removed %s from %s", role, user).Build(),

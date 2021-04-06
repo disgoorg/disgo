@@ -7,9 +7,9 @@ import (
 // InteractionCreateWebhookHandler handles api.InteractionCreateWebhookEvent
 type InteractionCreateWebhookHandler struct{}
 
-// Name returns the raw gateway event name
-func (h InteractionCreateWebhookHandler) Name() string {
-	return api.InteractionCreateWebhookEvent
+// Event returns the raw gateway event Event
+func (h InteractionCreateWebhookHandler) Event() api.GatewayEvent {
+	return api.WebhookEventInteractionCreate
 }
 
 // New constructs a new payload receiver for the raw gateway event
@@ -30,5 +30,5 @@ func (h InteractionCreateWebhookHandler) Handle(disgo api.Disgo, eventManager ap
 		}
 		return
 	}
-	handleInteractions(disgo, eventManager, c, interaction)
+	handleInteraction(disgo, eventManager, c, interaction)
 }

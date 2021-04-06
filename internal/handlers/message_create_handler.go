@@ -8,9 +8,9 @@ import (
 // MessageCreateHandler handles api.MessageCreateGatewayEvent
 type MessageCreateHandler struct{}
 
-// Name returns the raw gateway event name
-func (h MessageCreateHandler) Name() string {
-	return api.MessageCreateGatewayEvent
+// Event returns the raw gateway event Event
+func (h MessageCreateHandler) Event() api.GatewayEvent {
+	return api.GatewayEventMessageCreate
 }
 
 // New constructs a new payload receiver for the raw gateway event
@@ -26,19 +26,15 @@ func (h MessageCreateHandler) Handle(disgo api.Disgo, eventManager api.EventMana
 	}
 
 	genericMessageEvent := events.GenericMessageEvent{
-		Event: api.Event{
-			Disgo: disgo,
-		},
+		GenericEvent:     api.NewEvent(disgo),
 		MessageChannelID: message.ChannelID,
 		MessageID:        message.ID,
 	}
 	eventManager.Dispatch(genericMessageEvent)
 
 	genericGuildEvent := events.GenericGuildEvent{
-		Event: api.Event{
-			Disgo: disgo,
-		},
-		GuildID: *message.GuildID,
+		GenericEvent: api.NewEvent(disgo),
+		GuildID:      *message.GuildID,
 	}
 	eventManager.Dispatch(genericGuildEvent)
 
@@ -56,7 +52,6 @@ func (h MessageCreateHandler) Handle(disgo api.Disgo, eventManager api.EventMana
 		eventManager.Dispatch(events.GuildMessageReceivedEvent{
 			Message: *message,
 			GenericGuildMessageEvent: events.GenericGuildMessageEvent{
-				GenericGuildEvent:   genericGuildEvent,
 				GenericMessageEvent: genericMessageEvent,
 			},
 		})

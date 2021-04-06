@@ -7,6 +7,7 @@ type DisgoBuilder interface {
 	SetLogLevel(level log.Level) DisgoBuilder
 	SetToken(token string) DisgoBuilder
 	SetIntents(intents Intents) DisgoBuilder
+	SetVoiceDispatchInterceptor(VoiceDispatchInterceptor) DisgoBuilder
 	SetEventManager(eventManager EventManager) DisgoBuilder
 	AddEventListeners(eventsListeners ...EventListener) DisgoBuilder
 	SetWebhookServer(webhookServer WebhookServer) DisgoBuilder

@@ -10,7 +10,7 @@ type GenericGuildMemberEvent struct {
 
 // User gets the api.User form the api.Cache
 func (e GenericGuildMemberEvent) User() *api.User {
-	return e.Disgo.Cache().User(e.UserID)
+	return e.Disgo().Cache().User(e.UserID)
 }
 
 // GuildMemberJoinEvent indicates that a api.Member joined the api.Guild

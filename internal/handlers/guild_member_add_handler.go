@@ -8,9 +8,9 @@ import (
 // GuildMemberAddHandler handles api.GuildMemberAddGatewayEvent
 type GuildMemberAddHandler struct{}
 
-// Name returns the raw gateway event name
-func (h GuildMemberAddHandler) Name() string {
-	return api.GuildMemberAddGatewayEvent
+// Event returns the raw gateway event Event
+func (h GuildMemberAddHandler) Event() api.GatewayEvent {
+	return api.GatewayEventGuildMemberAdd
 }
 
 // New constructs a new payload receiver for the raw gateway event
@@ -28,10 +28,8 @@ func (h GuildMemberAddHandler) Handle(disgo api.Disgo, eventManager api.EventMan
 	disgo.Cache().CacheMember(member)
 
 	genericGuildEvent := events.GenericGuildEvent{
-		Event: api.Event{
-			Disgo: disgo,
-		},
-		GuildID: member.GuildID,
+		GenericEvent: api.NewEvent(disgo),
+		GuildID:      member.GuildID,
 	}
 	eventManager.Dispatch(genericGuildEvent)
 

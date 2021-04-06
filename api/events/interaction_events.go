@@ -8,7 +8,7 @@ import (
 
 // GenericInteractionEvent generic api.Interaction event
 type GenericInteractionEvent struct {
-	api.Event
+	api.GenericEvent
 	Interaction api.Interaction
 }
 
@@ -17,7 +17,7 @@ func (e GenericInteractionEvent) Guild() *api.Guild {
 	if e.Interaction.GuildID == nil {
 		return nil
 	}
-	return e.Disgo.Cache().Guild(*e.Interaction.GuildID)
+	return e.Disgo().Cache().Guild(*e.Interaction.GuildID)
 }
 
 // DMChannel returns the api.DMChannel from the api.Cache
@@ -25,7 +25,7 @@ func (e GenericInteractionEvent) DMChannel() *api.DMChannel {
 	if e.Interaction.ChannelID == nil {
 		return nil
 	}
-	return e.Disgo.Cache().DMChannel(*e.Interaction.ChannelID)
+	return e.Disgo().Cache().DMChannel(*e.Interaction.ChannelID)
 }
 
 // MessageChannel returns the api.MessageChannel from the api.Cache
@@ -33,7 +33,7 @@ func (e GenericInteractionEvent) MessageChannel() *api.MessageChannel {
 	if e.Interaction.ChannelID == nil {
 		return nil
 	}
-	return e.Disgo.Cache().MessageChannel(*e.Interaction.ChannelID)
+	return e.Disgo().Cache().MessageChannel(*e.Interaction.ChannelID)
 }
 
 // TextChannel returns the api.TextChannel from the api.Cache
@@ -41,7 +41,7 @@ func (e GenericInteractionEvent) TextChannel() *api.TextChannel {
 	if e.Interaction.ChannelID == nil {
 		return nil
 	}
-	return e.Disgo.Cache().TextChannel(*e.Interaction.ChannelID)
+	return e.Disgo().Cache().TextChannel(*e.Interaction.ChannelID)
 }
 
 // GuildChannel returns the api.GuildChannel from the api.Cache
@@ -49,20 +49,20 @@ func (e GenericInteractionEvent) GuildChannel() *api.GuildChannel {
 	if e.Interaction.ChannelID == nil {
 		return nil
 	}
-	return e.Disgo.Cache().GuildChannel(*e.Interaction.ChannelID)
+	return e.Disgo().Cache().GuildChannel(*e.Interaction.ChannelID)
 }
 
 // SlashCommandEvent indicates a slash api.SlashCommand was ran in a api.Guild
 type SlashCommandEvent struct {
 	GenericInteractionEvent
-	ResponseChannel chan interface{}
-	FromWebhook     bool
-	CommandID       api.Snowflake
-	Name            string
-	SubCommandName  *string
-	SubCommandGroup *string
-	Options         []*Option
-	Replied         bool
+	ResponseChannel     chan interface{}
+	FromWebhook         bool
+	CommandID           api.Snowflake
+	CommandName         string
+	SubCommandName      *string
+	SubCommandGroupName *string
+	Options             []*Option
+	Replied             bool
 }
 
 // Option holds info about an Option.Value
@@ -164,12 +164,12 @@ func (o Option) StoreChannel() *api.StoreChannel {
 
 // CommandPath returns the api.SlashCommand path
 func (e SlashCommandEvent) CommandPath() string {
-	path := e.Name
+	path := e.CommandName
 	if e.SubCommandName != nil {
 		path += "/" + *e.SubCommandName
 	}
-	if e.SubCommandGroup != nil {
-		path += "/" + *e.SubCommandGroup
+	if e.SubCommandGroupName != nil {
+		path += "/" + *e.SubCommandGroupName
 	}
 	return path
 }
@@ -222,31 +222,30 @@ func (e *SlashCommandEvent) Reply(response api.InteractionResponse) error {
 		return nil
 	}
 
-	return e.Disgo.RestClient().SendInteractionResponse(e.Interaction.ID, e.Interaction.Token, response)
+	return e.Disgo().RestClient().SendInteractionResponse(e.Interaction.ID, e.Interaction.Token, response)
 }
 
 // EditOriginal edits the original api.InteractionResponse
 func (e *SlashCommandEvent) EditOriginal(followupMessage api.FollowupMessage) (*api.Message, error) {
-	return e.Disgo.RestClient().EditInteractionResponse(e.Interaction.ID, e.Interaction.Token, followupMessage)
+	return e.Disgo().RestClient().EditInteractionResponse(e.Interaction.ID, e.Interaction.Token, followupMessage)
 }
 
 // DeleteOriginal deletes the original api.InteractionResponse
 func (e *SlashCommandEvent) DeleteOriginal() error {
-	return e.Disgo.RestClient().DeleteInteractionResponse(e.Interaction.ID, e.Interaction.Token)
+	return e.Disgo().RestClient().DeleteInteractionResponse(e.Interaction.ID, e.Interaction.Token)
 }
 
 // SendFollowup used to send a api.FollowupMessage to an api.Interaction
 func (e *SlashCommandEvent) SendFollowup(followupMessage api.FollowupMessage) (*api.Message, error) {
-	return e.Disgo.RestClient().SendFollowupMessage(e.Interaction.ID, e.Interaction.Token, followupMessage)
+	return e.Disgo().RestClient().SendFollowupMessage(e.Interaction.ID, e.Interaction.Token, followupMessage)
 }
 
 // EditFollowup used to edit a api.FollowupMessage from an api.Interaction
 func (e *SlashCommandEvent) EditFollowup(messageID api.Snowflake, followupMessage api.FollowupMessage) (*api.Message, error) {
-	return e.Disgo.RestClient().EditFollowupMessage(e.Interaction.ID, e.Interaction.Token, messageID, followupMessage)
+	return e.Disgo().RestClient().EditFollowupMessage(e.Interaction.ID, e.Interaction.Token, messageID, followupMessage)
 }
 
 // DeleteFollowup used to delete a api.FollowupMessage from an api.Interaction
 func (e *SlashCommandEvent) DeleteFollowup(messageID api.Snowflake) error {
-	return e.Disgo.RestClient().DeleteFollowupMessage(e.Interaction.ID, e.Interaction.Token, messageID)
+	return e.Disgo().RestClient().DeleteFollowupMessage(e.Interaction.ID, e.Interaction.Token, messageID)
 }
-

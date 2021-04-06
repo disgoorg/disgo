@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 )
 
 // WebhookServer is used for receiving an Interaction over http
@@ -48,7 +49,12 @@ func Verify(r *http.Request, key ed25519.PublicKey) bool {
 
 	msg.WriteString(timestamp)
 
-	defer r.Body.Close()
+	defer func() {
+		err = r.Body.Close()
+		if err != nil {
+			log.Errorf("error while closing request body: %s", err)
+		}
+	}()
 	var body bytes.Buffer
 
 	defer func() {

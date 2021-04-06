@@ -50,7 +50,6 @@ func (c MessageChannel) SendMessage(message MessageCreate) (*Message, error) {
 	return c.Disgo.RestClient().SendMessage(c.ID, message)
 }
 
-
 // EditMessage edits a Message in this TextChannel
 func (c MessageChannel) EditMessage(messageID Snowflake, message MessageUpdate) (*Message, error) {
 	return c.Disgo.RestClient().EditMessage(c.ID, messageID, message)

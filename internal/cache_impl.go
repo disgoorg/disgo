@@ -20,6 +20,7 @@ func newCacheImpl(disgo api.Disgo, memberCachePolicy api.MemberCachePolicy, mess
 		users:              map[api.Snowflake]*api.User{},
 		guilds:             map[api.Snowflake]*api.Guild{},
 		members:            map[api.Snowflake]map[api.Snowflake]*api.Member{},
+		voiceStates:        map[api.Snowflake]map[api.Snowflake]*api.VoiceState{},
 		roles:              map[api.Snowflake]map[api.Snowflake]*api.Role{},
 		dmChannels:         map[api.Snowflake]*api.DMChannel{},
 		categories:         map[api.Snowflake]map[api.Snowflake]*api.Category{},
@@ -41,12 +42,18 @@ type CacheImpl struct {
 	users              map[api.Snowflake]*api.User
 	guilds             map[api.Snowflake]*api.Guild
 	members            map[api.Snowflake]map[api.Snowflake]*api.Member
+	voiceStates        map[api.Snowflake]map[api.Snowflake]*api.VoiceState
 	roles              map[api.Snowflake]map[api.Snowflake]*api.Role
 	dmChannels         map[api.Snowflake]*api.DMChannel
 	categories         map[api.Snowflake]map[api.Snowflake]*api.Category
 	textChannels       map[api.Snowflake]map[api.Snowflake]*api.TextChannel
 	voiceChannels      map[api.Snowflake]map[api.Snowflake]*api.VoiceChannel
 	storeChannels      map[api.Snowflake]map[api.Snowflake]*api.StoreChannel
+}
+
+// Disgo returns the current api.Disgo instance
+func (c *CacheImpl) Disgo() api.Disgo {
+	return c.disgo
 }
 
 // Close cleans up the cache and it's internal tasks
@@ -365,6 +372,53 @@ func (c *CacheImpl) FindMembers(guildID api.Snowflake, check func(u *api.Member)
 		}
 	}
 	return members
+}
+
+// VoiceState returns a Member's api.VoiceState for a api.Guild
+func (c *CacheImpl) VoiceState(guildID api.Snowflake, userID api.Snowflake) *api.VoiceState {
+	if voiceStates, ok := c.voiceStates[guildID]; ok {
+		return voiceStates[userID]
+	}
+	return nil
+}
+
+// VoiceStates returns the member cache of a guild by snowflake
+func (c *CacheImpl) VoiceStates(guildID api.Snowflake) []*api.VoiceState {
+	if guildVoiceStates, ok := c.voiceStates[guildID]; ok {
+		voiceStates := make([]*api.VoiceState, len(guildVoiceStates))
+		i := 0
+		for _, voiceState := range guildVoiceStates {
+			voiceStates[i] = voiceState
+			i++
+		}
+		return voiceStates
+	}
+	return nil
+}
+
+// VoiceStateCache returns the api.VoiceState api.Cache of a api.Guild as a map
+func (c *CacheImpl) VoiceStateCache(guildID api.Snowflake) map[api.Snowflake]*api.VoiceState {
+	return c.voiceStates[guildID]
+}
+
+// CacheVoiceState adds a api.VoiceState from the api.Cache
+func (c *CacheImpl) CacheVoiceState(voiceState *api.VoiceState) {
+	// only cache voice states for ourself or member is cached & cache flag activated
+	if voiceState.UserID != c.disgo.SelfUserID() && (!c.cacheFlags.Has(api.CacheFlagVoiceState) || c.Member(voiceState.GuildID, voiceState.UserID) == nil) {
+		return
+	}
+	if voiceStates, ok := c.voiceStates[voiceState.GuildID]; ok {
+		if _, ok = voiceStates[voiceState.UserID]; ok {
+			*voiceStates[voiceState.UserID] = *voiceState
+			return
+		}
+		voiceStates[voiceState.UserID] = voiceState
+	}
+}
+
+// UncacheVoiceState removes a api.VoiceState from the api.Cache
+func (c *CacheImpl) UncacheVoiceState(guildID api.Snowflake, userID api.Snowflake) {
+	delete(c.voiceStates[guildID], userID)
 }
 
 // Role returns a role from cache by guild ID and role ID
