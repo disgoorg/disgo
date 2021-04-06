@@ -32,6 +32,7 @@ type EventManagerImpl struct {
 	channel   chan api.Event
 }
 
+// Close closes all goroutines created by the api.EventManager
 func (e EventManagerImpl) Close() {
 	log.Info("closing eventManager goroutines...")
 	close(e.channel)

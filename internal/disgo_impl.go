@@ -152,7 +152,7 @@ func (d *DisgoImpl) HeartbeatLatency() time.Duration {
 	return d.Gateway().Latency()
 }
 
-// HeartbeatLatency returns the heartbeat latency
+// LargeThreshold returns the large threshold set
 func (d *DisgoImpl) LargeThreshold() int {
 	return d.largeThreshold
 }

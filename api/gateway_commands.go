@@ -1,5 +1,6 @@
 package api
 
+// NewGatewayCommand returns a new GatewayCommand struct with the given payload
 func NewGatewayCommand(op GatewayOp, d interface{}) GatewayCommand {
 	return GatewayCommand{
 		GatewayPacket: GatewayPacket{

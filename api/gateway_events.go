@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// GatewayPacket raw GatewayEvent type
 type GatewayPacket struct {
 	Op GatewayOp         `json:"op"`
 	S  *int              `json:"s,omitempty"`
