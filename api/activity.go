@@ -2,7 +2,7 @@ package api
 
 import "time"
 
-// ActivityType represents the status of a user, one of Game, Streaming, Listening, Custom or Competing
+// ActivityType represents the status of a user, one of Game, Streaming, Listening, Watching, Custom or Competing
 type ActivityType int
 
 // Constants for activities
@@ -10,7 +10,7 @@ const (
 	Game ActivityType = iota
 	Streaming
 	Listening
-	_
+	Watching
 	Custom
 	Competing
 )

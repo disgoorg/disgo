@@ -1,5 +1,7 @@
 package api
 
+import "github.com/DisgoOrg/disgo/api/endpoints"
+
 // InteractionType is the type of Interaction
 type InteractionType int
 
@@ -18,7 +20,7 @@ type Interaction struct {
 	ChannelID *Snowflake       `json:"channel_id,omitempty"`
 	Member    *Member          `json:"member,omitempty"`
 	User      *User            `json:"User,omitempty"`
-	Token     string           `json:"token"`
+	Token     endpoints.Token  `json:"token"`
 	Version   int              `json:"version"`
 }
 
@@ -40,8 +42,8 @@ type Resolved struct {
 
 // OptionData is used for options or subcommands in your slash commands
 type OptionData struct {
-	Name    string                 `json:"name"`
-	Type    SlashCommandOptionType `json:"type"`
-	Value   interface{}            `json:"value,omitempty"`
-	Options []*OptionData          `json:"options,omitempty"`
+	Name    string            `json:"name"`
+	Type    CommandOptionType `json:"type"`
+	Value   interface{}       `json:"value,omitempty"`
+	Options []*OptionData     `json:"options,omitempty"`
 }

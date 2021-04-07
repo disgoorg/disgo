@@ -24,7 +24,13 @@ func (r Route) Compile(args ...interface{}) CompiledRoute {
 		for _, arg := range args {
 			start := strings.Index(route, "{")
 			end := strings.Index(route, "}")
-			route = route[:start] + fmt.Sprint(arg) + route[end+1:]
+			var value string
+			if t, ok := arg.(Token); ok {
+				value = string(t)
+			} else {
+				value = fmt.Sprint(arg)
+			}
+			route = route[:start] + value + route[end+1:]
 		}
 	}
 

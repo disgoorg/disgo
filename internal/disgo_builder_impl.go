@@ -6,21 +6,23 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/DisgoOrg/disgo/api"
+	"github.com/DisgoOrg/disgo/api/endpoints"
 )
 
 // NewBuilder returns a new api.DisgoBuilder instance
-func NewBuilder(token string) api.DisgoBuilder {
+func NewBuilder(token endpoints.Token) api.DisgoBuilder {
 	return &DisgoBuilderImpl{
 		logLevel:   log.InfoLevel,
-		token:      &token,
+		BotToken:   token,
 		cacheFlags: api.CacheFlagsDefault,
 	}
 }
 
 // DisgoBuilderImpl implementation of the api.DisgoBuilder interface
 type DisgoBuilderImpl struct {
-	logLevel                 log.Level
-	token                    *string
+	logLevel log.Level
+	// make this public so it does not print in fmt.Sprint("%+v, DisgoBuilderImpl{})
+	BotToken                 endpoints.Token
 	gateway                  api.Gateway
 	restClient               api.RestClient
 	cache                    api.Cache
@@ -43,9 +45,9 @@ func (b *DisgoBuilderImpl) SetLogLevel(logLevel log.Level) api.DisgoBuilder {
 	return b
 }
 
-// SetToken sets the token to connect to discord
-func (b *DisgoBuilderImpl) SetToken(token string) api.DisgoBuilder {
-	b.token = &token
+// SetToken sets the BotToken to connect to discord
+func (b *DisgoBuilderImpl) SetToken(token endpoints.Token) api.DisgoBuilder {
+	b.BotToken = token
 	return b
 }
 
@@ -142,14 +144,14 @@ func (b *DisgoBuilderImpl) Build() (api.Disgo, error) {
 	log.SetLevel(b.logLevel)
 
 	disgo := &DisgoImpl{}
-	if b.token == nil {
-		return nil, errors.New("please specify the token")
+	if b.BotToken == "" {
+		return nil, errors.New("please specify the BotToken")
 	}
-	disgo.token = *b.token
+	disgo.BotToken = b.BotToken
 
-	id, err := IDFromToken(disgo.token)
+	id, err := IDFromToken(disgo.BotToken)
 	if err != nil {
-		log.Errorf("error while getting application id from token: %s", err)
+		log.Errorf("error while getting application id from BotToken: %s", err)
 		return nil, err
 	}
 
@@ -161,7 +163,7 @@ func (b *DisgoBuilderImpl) Build() (api.Disgo, error) {
 	disgo.gateway = b.gateway
 
 	if b.restClient == nil {
-		b.restClient = newRestClientImpl(disgo, *b.token)
+		b.restClient = newRestClientImpl(disgo)
 	}
 	disgo.restClient = b.restClient
 

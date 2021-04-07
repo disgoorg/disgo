@@ -82,12 +82,12 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, c chan in
 		var subCommandGroupName *string
 		if len(options) == 1 {
 			option := interaction.Data.Options[0]
-			if option.Type == api.OptionTypeSubCommandGroup {
+			if option.Type == api.CommandOptionTypeSubCommandGroup {
 				subCommandGroupName = &option.Name
 				options = option.Options
 				option = option.Options[0]
 			}
-			if option.Type == api.OptionTypeSubCommand {
+			if option.Type == api.CommandOptionTypeSubCommand {
 				subCommandName = &option.Name
 				options = option.Options
 			}

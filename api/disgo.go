@@ -5,6 +5,8 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/DisgoOrg/disgo/api/endpoints"
 )
 
 // Disgo is the main discord interface
@@ -12,7 +14,7 @@ type Disgo interface {
 	Connect() error
 	Start()
 	Close()
-	Token() string
+	Token() endpoints.Token
 	Gateway() Gateway
 	RestClient() RestClient
 	WebhookServer() WebhookServer
@@ -26,12 +28,12 @@ type Disgo interface {
 	HeartbeatLatency() time.Duration
 	LargeThreshold() int
 
-	GetCommand(commandID Snowflake) (*SlashCommand, error)
-	GetCommands() ([]*SlashCommand, error)
-	CreateCommand(command SlashCommand) (*SlashCommand, error)
-	EditCommand(commandID Snowflake, command SlashCommand) (*SlashCommand, error)
-	DeleteCommand(command SlashCommand) (*SlashCommand, error)
-	SetCommands(commands ...SlashCommand) ([]*SlashCommand, error)
+	GetCommand(commandID Snowflake) (*Command, error)
+	GetCommands() ([]*Command, error)
+	CreateCommand(command Command) (*Command, error)
+	EditCommand(commandID Snowflake, command Command) (*Command, error)
+	DeleteCommand(command Command) (*Command, error)
+	SetCommands(commands ...Command) ([]*Command, error)
 }
 
 // EventHandler provides info about the EventHandler

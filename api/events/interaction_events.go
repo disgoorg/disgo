@@ -52,7 +52,7 @@ func (e GenericInteractionEvent) GuildChannel() *api.GuildChannel {
 	return e.Disgo().Cache().GuildChannel(*e.Interaction.ChannelID)
 }
 
-// SlashCommandEvent indicates a slash api.SlashCommand was ran in a api.Guild
+// SlashCommandEvent indicates a slash api.Command was ran in a api.Guild
 type SlashCommandEvent struct {
 	GenericInteractionEvent
 	ResponseChannel     chan interface{}
@@ -69,7 +69,7 @@ type SlashCommandEvent struct {
 type Option struct {
 	Resolved *api.Resolved
 	Name     string
-	Type     api.SlashCommandOptionType
+	Type     api.CommandOptionType
 	Value    interface{}
 }
 
@@ -162,7 +162,7 @@ func (o Option) StoreChannel() *api.StoreChannel {
 	return &api.StoreChannel{GuildChannel: api.GuildChannel{Channel: *channel}}
 }
 
-// CommandPath returns the api.SlashCommand path
+// CommandPath returns the api.Command path
 func (e SlashCommandEvent) CommandPath() string {
 	path := e.CommandName
 	if e.SubCommandName != nil {
@@ -174,17 +174,17 @@ func (e SlashCommandEvent) CommandPath() string {
 	return path
 }
 
-// OptionByName returns an Option by name
-func (e SlashCommandEvent) OptionByName(name string) *Option {
-	options := e.OptionsByName(name)
+// Option returns an Option by name
+func (e SlashCommandEvent) Option(name string) *Option {
+	options := e.OptionN(name)
 	if len(options) == 0 {
 		return nil
 	}
 	return options[0]
 }
 
-// OptionsByName returns Option(s) by name
-func (e SlashCommandEvent) OptionsByName(name string) []*Option {
+// OptionN returns Option(s) by name
+func (e SlashCommandEvent) OptionN(name string) []*Option {
 	options := make([]*Option, 0)
 	for _, option := range e.Options {
 		if option.Name == name {
@@ -194,8 +194,8 @@ func (e SlashCommandEvent) OptionsByName(name string) []*Option {
 	return options
 }
 
-// OptionsByType returns Option(s) by api.SlashCommandOptionType
-func (e SlashCommandEvent) OptionsByType(optionType api.SlashCommandOptionType) []*Option {
+// OptionsT returns Option(s) by api.CommandOptionType
+func (e SlashCommandEvent) OptionsT(optionType api.CommandOptionType) []*Option {
 	options := make([]*Option, 0)
 	for _, option := range e.Options {
 		if option.Type == optionType {

@@ -155,6 +155,14 @@ func (b *EmbedBuilder) AddField(name string, value string, inline bool) *EmbedBu
 	return b
 }
 
+// SetField sets a field to the EmbedBuilder by name and value
+func (b *EmbedBuilder) SetField(index int, name string, value string, inline bool) *EmbedBuilder {
+	if len(b.Fields) > index {
+		b.Fields[index] = &EmbedField{name, value, &inline}
+	}
+	return b
+}
+
 // AddFields adds multiple fields to the EmbedBuilder
 func (b *EmbedBuilder) AddFields(f *EmbedField, fs ...*EmbedField) *EmbedBuilder {
 	b.Fields = append(b.Fields, f)

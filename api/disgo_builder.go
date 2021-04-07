@@ -1,11 +1,15 @@
 package api
 
-import log "github.com/sirupsen/logrus"
+import (
+	log "github.com/sirupsen/logrus"
+
+	"github.com/DisgoOrg/disgo/api/endpoints"
+)
 
 // DisgoBuilder allows you to create a Disgo client through a series of methods
 type DisgoBuilder interface {
 	SetLogLevel(level log.Level) DisgoBuilder
-	SetToken(token string) DisgoBuilder
+	SetToken(token endpoints.Token) DisgoBuilder
 	SetIntents(intents Intents) DisgoBuilder
 	SetVoiceDispatchInterceptor(VoiceDispatchInterceptor) DisgoBuilder
 	SetEventManager(eventManager EventManager) DisgoBuilder

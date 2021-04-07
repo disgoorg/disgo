@@ -32,6 +32,11 @@ var (
 	EditGuildCommand   = NewAPIRoute(PATCH, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}")
 	DeleteGuildCommand = NewAPIRoute(DELETE, "/applications/{application.id}/guilds/{guild.id}/commands")
 
+	GetGuildCommandPermissions  = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/commands/permissions")
+	GetGuildCommandPermission   = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions")
+	SetGuildCommandsPermissions = NewAPIRoute(PUT, "/applications/{application.id}/guilds/{guild.id}/commands/permissions")
+	SetGuildCommandPermissions  = NewAPIRoute(PUT, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions")
+
 	CreateInteractionResponse = NewAPIRoute(POST, "/interactions/{interaction.id}/{interaction.token}/callback")
 	EditInteractionResponse   = NewAPIRoute(PATCH, "/webhooks/{application.id}/{interaction.token}/messages/@original")
 	DeleteInteractionResponse = NewAPIRoute(DELETE, "/webhooks/{application.id}/{interaction.token}/messages/@original")
@@ -87,7 +92,7 @@ var (
 
 	GetAuditLogs = NewAPIRoute(GET, "/guilds/{guild.id}/audit-logs")
 
-	GetVoiceRegions = NewAPIRoute(GET, "guilds/{guild.id}/regions")
+	GetVoiceRegions = NewAPIRoute(GET, "/guilds/{guild.id}/regions")
 
 	GetIntegrations   = NewAPIRoute(GET, "/guilds/{guild.id}/integrations")
 	CreateIntegration = NewAPIRoute(POST, "/guilds/{guild.id}/integrations")
