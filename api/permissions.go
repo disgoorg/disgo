@@ -20,7 +20,7 @@ func (p Permissions) MarshalJSON() ([]byte, error) {
 	return jsonValue, nil
 }
 
-// UnmarshalJSON unmarshals permissions into a int64
+// UnmarshalJSON unmarshals permissions into an int64
 func (p *Permissions) UnmarshalJSON(b []byte) error {
 	var strPermissions string
 	err := json.Unmarshal(b, &strPermissions)
@@ -116,6 +116,7 @@ const (
 	PermissionManageRoles
 	PermissionManageWebhooks
 	PermissionManageEmojis
+	PermissionUseSlashCommands
 )
 
 // Constants for the different bit offsets of general permissions

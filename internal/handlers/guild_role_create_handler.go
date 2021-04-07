@@ -34,7 +34,7 @@ func (h GuildRoleCreateHandler) Handle(disgo api.Disgo, eventManager api.EventMa
 	disgo.Cache().CacheRole(roleCreateData.Role)
 
 	genericGuildEvent := events.GenericGuildEvent{
-		GenericEvent: api.NewEvent(disgo),
+		GenericEvent: events.NewEvent(disgo),
 		GuildID:      roleCreateData.GuildID,
 	}
 	eventManager.Dispatch(genericGuildEvent)

@@ -85,7 +85,7 @@ var (
 
 	GetGuildWebhooks = NewAPIRoute(GET, "/guilds/{guild.id}/webhooks")
 
-	GetAudiotLogs = NewAPIRoute(GET, "/guilds/{guild.id}/audit-logs")
+	GetAuditLogs = NewAPIRoute(GET, "/guilds/{guild.id}/audit-logs")
 
 	GetVoiceRegions = NewAPIRoute(GET, "guilds/{guild.id}/regions")
 

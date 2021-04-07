@@ -88,8 +88,8 @@ func (f MessageFlags) Missing(bit MessageFlags) bool {
 
 // Constants for MessageFlags
 const (
-	MessageFlagNone MessageFlags = 0 << iota
-	MessageFlagCrossposted
+	MessageFlagNone        MessageFlags = 0
+	MessageFlagCrossposted MessageFlags = 1 << iota
 	MessageFlagIsCrosspost
 	MessageFlagSuppressEmbeds
 	MessageFlagSourceMessageDeleted
@@ -99,25 +99,29 @@ const (
 )
 
 // Message is a struct for messages sent in discord text-based channels
+// todo: missing Member, mention channels, webhook id, activity, application, stickers, referenced_message
+// https://discord.com/developers/docs/resources/channel#message-object
 type Message struct {
 	Disgo            Disgo
-	ID               Snowflake         `json:"id"`
-	GuildID          *Snowflake        `json:"guild_id"`
-	Reactions        []Reactions       `json:"reactions"`
-	Attachments      []interface{}     `json:"attachments"`
-	Tts              bool              `json:"tts"`
-	Embeds           []*Embed          `json:"embeds,omitempty"`
-	CreatedAt        time.Time         `json:"timestamp"`
-	MentionEveryone  bool              `json:"mention_everyone"`
-	Pinned           bool              `json:"pinned"`
-	EditedTimestamp  interface{}       `json:"edited_timestamp"`
-	Author           User              `json:"author"`
-	MentionRoles     []interface{}     `json:"mention_roles"`
-	Content          *string           `json:"content,omitempty"`
-	ChannelID        Snowflake         `json:"channel_id"`
-	Mentions         []interface{}     `json:"mentions"`
-	MessageType      MessageType       `json:"type"`
-	MessageReference *MessageReference `json:"message_reference,omitempty"`
+	ID               Snowflake           `json:"id"`
+	GuildID          *Snowflake          `json:"guild_id"`
+	Reactions        []Reactions         `json:"reactions"`
+	Attachments      []interface{}       `json:"attachments"`
+	TTS              bool                `json:"tts"`
+	Embeds           []*Embed            `json:"embeds,omitempty"`
+	CreatedAt        time.Time           `json:"timestamp"`
+	MentionEveryone  bool                `json:"mention_everyone"`
+	Pinned           bool                `json:"pinned"`
+	EditedTimestamp  interface{}         `json:"edited_timestamp"`
+	Author           User                `json:"author"`
+	MentionRoles     []interface{}       `json:"mention_roles"`
+	Content          *string             `json:"content,omitempty"`
+	ChannelID        Snowflake           `json:"channel_id"`
+	Mentions         []interface{}       `json:"mentions"`
+	Type             MessageType         `json:"type"`
+	Flags            *MessageFlags       `json:"flags"`
+	MessageReference *MessageReference   `json:"message_reference,omitempty"`
+	Interaction      *MessageInteraction `json:"message_interaction,omitempty"`
 	LastUpdated      *time.Time
 }
 
@@ -136,10 +140,6 @@ type MessageInteraction struct {
 	Name string          `json:"name"`
 	User User            `json:"user"`
 }
-
-// missing Member, mention channels, nonce, webhook id, type, activity, application, message_reference, flags, stickers
-// referenced_message, interaction
-// https://discord.com/developers/docs/resources/channel#message-object
 
 // Guild gets the guild_events the message_events was sent in
 func (m Message) Guild() *Guild {

@@ -4,7 +4,7 @@ import "github.com/DisgoOrg/disgo/api"
 
 // GenericDMEvent is a generic dm channel event
 type GenericDMEvent struct {
-	api.GenericEvent
+	GenericEvent
 	UserID      api.Snowflake
 	DMChannelID api.Snowflake
 }

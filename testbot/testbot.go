@@ -15,9 +15,8 @@ import (
 
 func main() {
 	log.Infof("starting testbot...")
-	token := os.Getenv("token")
 
-	dgo, err := disgo.NewBuilder(token).
+	dgo, err := disgo.NewBuilder(os.Getenv("token")).
 		SetLogLevel(log.InfoLevel).
 		SetIntents(api.IntentsGuilds | api.IntentsGuildMessages | api.IntentsGuildMembers).
 		SetMemberCachePolicy(api.MemberCachePolicyAll).
@@ -139,7 +138,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 			time.Sleep(1 * time.Second)
 			_, _ = event.SendFollowup(api.NewFollowupMessageBuilder().
 				SetEphemeral(true).
-				SetContent("followup 4 only you can see").
+				SetContent("followup 2 only you can see").
 				Build(),
 			)
 		}()
@@ -171,7 +170,6 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 				api.NewEmbedBuilder().SetColor(16711680).SetDescriptionf("Failed to remove %s from %s", role, user).Build(),
 			).Build())
 		}
-
 	}
 }
 

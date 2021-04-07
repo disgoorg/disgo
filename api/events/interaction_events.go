@@ -8,7 +8,7 @@ import (
 
 // GenericInteractionEvent generic api.Interaction event
 type GenericInteractionEvent struct {
-	api.GenericEvent
+	GenericEvent
 	Interaction api.Interaction
 }
 

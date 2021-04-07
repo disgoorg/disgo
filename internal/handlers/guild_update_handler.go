@@ -29,7 +29,7 @@ func (h GuildUpdateHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 	disgo.Cache().CacheGuild(guild)
 
 	genericGuildEvent := events.GenericGuildEvent{
-		GenericEvent: api.NewEvent(disgo),
+		GenericEvent: events.NewEvent(disgo),
 		GuildID:      guild.ID,
 	}
 

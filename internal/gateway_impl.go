@@ -19,8 +19,8 @@ import (
 
 func newGatewayImpl(disgo api.Disgo) api.Gateway {
 	return &GatewayImpl{
-		disgo:            disgo,
-		connectionStatus: api.Unconnected,
+		disgo:  disgo,
+		status: api.Unconnected,
 	}
 }
 
@@ -29,7 +29,7 @@ type GatewayImpl struct {
 	disgo                 api.Disgo
 	conn                  *websocket.Conn
 	quit                  chan interface{}
-	connectionStatus      api.ConnectionStatus
+	status                api.ConnectionStatus
 	heartbeatInterval     time.Duration
 	lastHeartbeatSent     time.Time
 	lastHeartbeatReceived time.Time
@@ -45,17 +45,16 @@ func (g *GatewayImpl) Disgo() api.Disgo {
 
 func (g *GatewayImpl) reconnect(delay time.Duration) {
 	go func() {
-		g.Close()
-
 		time.Sleep(delay)
 
-		if g.Status() != api.Connecting && g.Status() != api.Reconnecting {
+		if g.Status() == api.Connecting || g.Status() == api.Reconnecting {
 			log.Error("tried to reconnect gateway while connecting/reconnecting")
 			return
 		}
 		log.Info("reconnecting gateway...")
 		if err := g.Open(); err != nil {
 			log.Errorf("failed to reconnect gateway: %s", err)
+			g.status = api.Disconnected
 			g.reconnect(delay * 2)
 		}
 	}()
@@ -64,9 +63,9 @@ func (g *GatewayImpl) reconnect(delay time.Duration) {
 // Open initializes the client and connection to discord
 func (g *GatewayImpl) Open() error {
 	if g.lastSequenceReceived == nil || g.sessionID == nil {
-		g.connectionStatus = api.Connecting
+		g.status = api.Connecting
 	} else {
-		g.connectionStatus = api.Reconnecting
+		g.status = api.Reconnecting
 	}
 
 	log.Info("starting ws...")
@@ -106,7 +105,7 @@ func (g *GatewayImpl) Open() error {
 	})
 
 	g.conn = wsConn
-	g.connectionStatus = api.WaitingForHello
+	g.status = api.WaitingForHello
 
 	mt, data, err := g.conn.ReadMessage()
 	if err != nil {
@@ -130,7 +129,7 @@ func (g *GatewayImpl) Open() error {
 	g.heartbeatInterval = eventData.HeartbeatInterval * time.Millisecond
 
 	if g.lastSequenceReceived == nil || g.sessionID == nil {
-		g.connectionStatus = api.Identifying
+		g.status = api.Identifying
 		if err = wsConn.WriteJSON(
 			api.NewGatewayCommand(api.OpIdentify, api.IdentifyCommand{
 				Token: g.Disgo().Token(),
@@ -147,7 +146,7 @@ func (g *GatewayImpl) Open() error {
 			return err
 		}
 	} else {
-		g.connectionStatus = api.Resuming
+		g.status = api.Resuming
 		if err = wsConn.WriteJSON(
 			api.NewGatewayCommand(api.OpIdentify, api.ResumeCommand{
 				Token:     g.Disgo().Token(),
@@ -159,7 +158,7 @@ func (g *GatewayImpl) Open() error {
 		}
 	}
 
-	g.connectionStatus = api.WaitingForReady
+	g.status = api.WaitingForReady
 	g.quit = make(chan interface{})
 
 	go g.heartbeat()
@@ -170,7 +169,27 @@ func (g *GatewayImpl) Open() error {
 
 // Status returns the gateway connection status
 func (g *GatewayImpl) Status() api.ConnectionStatus {
-	return g.connectionStatus
+	return g.status
+}
+
+// Latency returns the api.Gateway latency
+func (g *GatewayImpl) Latency() time.Duration {
+	return g.lastHeartbeatSent.Sub(g.lastHeartbeatReceived)
+}
+
+// Close cleans up the gateway internals
+func (g *GatewayImpl) Close() {
+	g.status = api.Disconnected
+	if g.quit != nil {
+		log.Info("closing gateway goroutines...")
+		close(g.quit)
+		log.Info("closed gateway goroutines")
+	}
+	if g.conn != nil {
+		if err := g.conn.Close(); err != nil {
+			log.Errorf("error while closing wsconn: %s", err)
+		}
+	}
 }
 
 func (g *GatewayImpl) heartbeat() {
@@ -198,29 +217,12 @@ func (g *GatewayImpl) heartbeat() {
 	}
 }
 
-// Close cleans up the gateway internals
-func (g *GatewayImpl) Close() {
-	if g.quit != nil {
-		log.Info("closing gateway goroutines...")
-		close(g.quit)
-		log.Info("closed gateway goroutines")
-	}
-	if g.conn != nil {
-		_ = g.conn.Close()
-	}
-}
-
-// Latency returns the api.Gateway latency
-func (g *GatewayImpl) Latency() time.Duration {
-	return g.lastHeartbeatSent.Sub(g.lastHeartbeatReceived)
-}
-
 func (g *GatewayImpl) sendHeartbeat() {
 	log.Debug("sending heartbeat...")
 
 	if err := g.conn.WriteJSON(api.NewGatewayCommand(api.OpHeartbeat, g.lastSequenceReceived)); err != nil {
 		log.Errorf("failed to send heartbeat with error: %s", err)
-
+		g.Close()
 		g.reconnect(1 * time.Second)
 	}
 	g.lastHeartbeatSent = time.Now().UTC()
@@ -246,6 +248,7 @@ func (g *GatewayImpl) listen() {
 			mt, data, err := g.conn.ReadMessage()
 			if err != nil {
 				log.Errorf("error while reading from ws. error: %s", err)
+				g.Close()
 				g.reconnect(1 * time.Second)
 				return
 			}
@@ -289,6 +292,8 @@ func (g *GatewayImpl) listen() {
 				g.sendHeartbeat()
 
 			case api.OpReconnect:
+				g.Close()
+				g.reconnect(0)
 				log.Debugf("received: OpReconnect")
 
 			case api.OpInvalidSession:

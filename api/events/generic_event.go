@@ -1,21 +1,18 @@
-package api
+package events
 
-// Event the basic interface each event implement
-type Event interface {
-	Disgo() Disgo
-}
+import "github.com/DisgoOrg/disgo/api"
 
 // NewEvent constructs a new GenericEvent with the provided Disgo instance
-func NewEvent(disgo Disgo) GenericEvent {
+func NewEvent(disgo api.Disgo) GenericEvent {
 	return GenericEvent{disgo: disgo}
 }
 
 // GenericEvent the base event structure
 type GenericEvent struct {
-	disgo Disgo
+	disgo api.Disgo
 }
 
 // Disgo returns the Disgo instance for this event
-func (d GenericEvent) Disgo() Disgo {
+func (d GenericEvent) Disgo() api.Disgo {
 	return d.disgo
 }

@@ -5,7 +5,8 @@ type CacheFlags int
 
 // values for CacheFlags
 const (
-	CacheFlagDMChannels CacheFlags = 0 << iota
+	CacheFlagsNone      CacheFlags = 0
+	CacheFlagDMChannels CacheFlags = 1 << iota
 	CacheFlagCategories
 	CacheFlagTextChannels
 	CacheFlagVoiceChannels

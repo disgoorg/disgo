@@ -26,14 +26,14 @@ func (h MessageCreateHandler) Handle(disgo api.Disgo, eventManager api.EventMana
 	}
 
 	genericMessageEvent := events.GenericMessageEvent{
-		GenericEvent:     api.NewEvent(disgo),
+		GenericEvent:     events.NewEvent(disgo),
 		MessageChannelID: message.ChannelID,
 		MessageID:        message.ID,
 	}
 	eventManager.Dispatch(genericMessageEvent)
 
 	genericGuildEvent := events.GenericGuildEvent{
-		GenericEvent: api.NewEvent(disgo),
+		GenericEvent: events.NewEvent(disgo),
 		GuildID:      *message.GuildID,
 	}
 	eventManager.Dispatch(genericGuildEvent)

@@ -98,7 +98,7 @@ func (h GuildCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 	}*/
 
 	genericGuildEvent := events.GenericGuildEvent{
-		GenericEvent: api.NewEvent(disgo),
+		GenericEvent: events.NewEvent(disgo),
 		GuildID:      guild.ID,
 	}
 

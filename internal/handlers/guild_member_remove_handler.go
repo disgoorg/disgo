@@ -34,7 +34,7 @@ func (h GuildMemberRemoveHandler) Handle(disgo api.Disgo, eventManager api.Event
 	disgo.Cache().UncacheMember(member.GuildID, member.User.ID)
 
 	genericGuildEvent := events.GenericGuildEvent{
-		GenericEvent: api.NewEvent(disgo),
+		GenericEvent: events.NewEvent(disgo),
 		GuildID:      member.GuildID,
 	}
 	eventManager.Dispatch(genericGuildEvent)

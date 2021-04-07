@@ -4,7 +4,7 @@ import "github.com/DisgoOrg/disgo/api"
 
 // GenericChannelEvent is called upon receiving an event in a api.Channel
 type GenericChannelEvent struct {
-	api.GenericEvent
+	GenericEvent
 	ChannelID api.Snowflake
 }
 

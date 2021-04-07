@@ -31,7 +31,7 @@ func New(token string, options api.Options) (api.Disgo, error) {
 
 	disgo.restClient = newRestClientImpl(disgo, token)
 
-	disgo.eventManager = newEventManagerImpl(disgo, make([]api.EventListener, 0))
+	disgo.eventManager = newEventManagerImpl(disgo, []api.EventListener{})
 
 	if options.EnableWebhookInteractions {
 		disgo.webhookServer = newWebhookServerImpl(disgo, options.ListenURL, options.ListenPort, options.PublicKey)

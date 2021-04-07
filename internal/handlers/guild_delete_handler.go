@@ -29,7 +29,7 @@ func (h GuildDeleteHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 		disgo.Cache().Guild(guild.ID).Unavailable = true
 		eventManager.Dispatch(events.GuildUnavailableEvent{
 			GenericGuildEvent: events.GenericGuildEvent{
-				GenericEvent: api.NewEvent(disgo),
+				GenericEvent: events.NewEvent(disgo),
 				GuildID:      guild.ID,
 			},
 		})
@@ -38,7 +38,7 @@ func (h GuildDeleteHandler) Handle(disgo api.Disgo, eventManager api.EventManage
 		disgo.Cache().UncacheGuild(guild.ID)
 
 		genericGuildEvent := events.GenericGuildEvent{
-			GenericEvent: api.NewEvent(disgo),
+			GenericEvent: events.NewEvent(disgo),
 			GuildID:      guild.ID,
 		}
 

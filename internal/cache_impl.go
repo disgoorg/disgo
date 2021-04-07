@@ -27,6 +27,7 @@ func newCacheImpl(disgo api.Disgo, memberCachePolicy api.MemberCachePolicy, mess
 		textChannels:       map[api.Snowflake]map[api.Snowflake]*api.TextChannel{},
 		voiceChannels:      map[api.Snowflake]map[api.Snowflake]*api.VoiceChannel{},
 		storeChannels:      map[api.Snowflake]map[api.Snowflake]*api.StoreChannel{},
+		emotes:             map[api.Snowflake]map[api.Snowflake]*api.Emote{},
 	}
 	go cache.startCleanup(10 * time.Second)
 	return cache
@@ -49,6 +50,7 @@ type CacheImpl struct {
 	textChannels       map[api.Snowflake]map[api.Snowflake]*api.TextChannel
 	voiceChannels      map[api.Snowflake]map[api.Snowflake]*api.VoiceChannel
 	storeChannels      map[api.Snowflake]map[api.Snowflake]*api.StoreChannel
+	emotes             map[api.Snowflake]map[api.Snowflake]*api.Emote
 }
 
 // Disgo returns the current api.Disgo instance
@@ -234,6 +236,7 @@ func (c *CacheImpl) CacheGuild(guild *api.Guild) {
 func (c *CacheImpl) UncacheGuild(guildID api.Snowflake) {
 	delete(c.guilds, guildID)
 	delete(c.members, guildID)
+	delete(c.voiceStates, guildID)
 	delete(c.roles, guildID)
 	delete(c.categories, guildID)
 	delete(c.textChannels, guildID)
@@ -948,8 +951,8 @@ func (c *CacheImpl) FindVoiceChannels(guildID api.Snowflake, check func(u *api.V
 
 // Category returns a category from cache by ID
 func (c *CacheImpl) Category(categoryID api.Snowflake) *api.Category {
-	for _, guild := range c.categories {
-		if channel, ok := guild[categoryID]; ok {
+	for _, guildCategories := range c.categories {
+		if channel, ok := guildCategories[categoryID]; ok {
 			return channel
 		}
 	}
@@ -1008,7 +1011,7 @@ func (c *CacheImpl) AllCategoryCache() map[api.Snowflake]map[api.Snowflake]*api.
 	return c.categories
 }
 
-//CacheCategory adds a category to the cache
+// CacheCategory adds a category to the cache
 func (c *CacheImpl) CacheCategory(category *api.Category) {
 	if !c.cacheFlags.Has(api.CacheFlagCategories) {
 		return
@@ -1022,12 +1025,12 @@ func (c *CacheImpl) CacheCategory(category *api.Category) {
 	}
 }
 
-//UncacheCategory removes a category from cache
+// UncacheCategory removes a category from cache
 func (c *CacheImpl) UncacheCategory(guildID api.Snowflake, categoryID api.Snowflake) {
 	delete(c.categories[guildID], categoryID)
 }
 
-//FindCategory finds a category in a guild by custom method
+// FindCategory finds a category in a guild by custom method
 func (c *CacheImpl) FindCategory(guildID api.Snowflake, check func(u *api.Category) bool) *api.Category {
 	for _, category := range c.CategoryCache(guildID) {
 		if check(category) {
@@ -1037,7 +1040,7 @@ func (c *CacheImpl) FindCategory(guildID api.Snowflake, check func(u *api.Catego
 	return nil
 }
 
-//FindCategories finds categories in a guild by custom method
+// FindCategories finds categories in a guild by custom method
 func (c *CacheImpl) FindCategories(guildID api.Snowflake, check func(u *api.Category) bool) []*api.Category {
 	categories := make([]*api.Category, 1)
 	for _, category := range c.CategoryCache(guildID) {
@@ -1046,4 +1049,74 @@ func (c *CacheImpl) FindCategories(guildID api.Snowflake, check func(u *api.Cate
 		}
 	}
 	return categories
+}
+
+// Emote returns a specific emote from the cache
+func (c *CacheImpl) Emote(emoteID api.Snowflake) *api.Emote {
+	for _, guildEmotes := range c.emotes {
+		if emote, ok := guildEmotes[emoteID]; ok {
+			return emote
+		}
+	}
+	return nil
+}
+
+// EmotesByName returns all emotes for a guild by name
+func (c *CacheImpl) EmotesByName(guildID api.Snowflake, name string, ignoreCase bool) []*api.Emote {
+	if guildEmotes, ok := c.emotes[guildID]; ok {
+		if ignoreCase {
+			name = strings.ToLower(name)
+		}
+		emotes := make([]*api.Emote, 1)
+		for _, emote := range guildEmotes {
+			if ignoreCase && strings.ToLower(emote.Name) == name || !ignoreCase && emote.Name == name {
+				emotes = append(emotes, emote)
+			}
+		}
+		return emotes
+	}
+	return nil
+}
+
+// Emotes returns all cached emotes for a guild
+func (c *CacheImpl) Emotes(guildID api.Snowflake) []*api.Emote {
+	if guildEmotes, ok := c.emotes[guildID]; ok {
+		emotes := make([]*api.Emote, len(guildEmotes))
+		i := 0
+		for _, emote := range guildEmotes {
+			emotes[i] = emote
+			i++
+		}
+		return emotes
+	}
+	return nil
+}
+
+// EmoteCache returns the emote cache for a specific guild
+func (c *CacheImpl) EmoteCache(guildID api.Snowflake) map[api.Snowflake]*api.Emote {
+	return c.emotes[guildID]
+}
+
+// AllEmoteCache returns the full emote cache
+func (c *CacheImpl) AllEmoteCache() map[api.Snowflake]map[api.Snowflake]*api.Emote {
+	return c.emotes
+}
+
+// CacheEmote adds an Emote to the api.Cache if emoji caches are used
+func (c *CacheImpl) CacheEmote(emote *api.Emote) {
+	if !c.cacheFlags.Has(api.CacheFlagEmotes) {
+		return
+	}
+	if guildEmotes, ok := c.emotes[emote.GuildID]; ok {
+		if guildEmote, ok := guildEmotes[emote.ID]; ok {
+			*guildEmote = *emote
+			return
+		}
+		guildEmotes[emote.ID] = emote
+	}
+}
+
+// UncacheEmote removes an Emote from api.Cache
+func (c *CacheImpl) UncacheEmote(guildID api.Snowflake, emoteID api.Snowflake) {
+	delete(c.emotes[guildID], emoteID)
 }

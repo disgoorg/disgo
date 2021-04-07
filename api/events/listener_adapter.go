@@ -9,33 +9,33 @@ type ListenerAdapter struct {
 	OnGenericEvent func(*api.Event)
 
 	// Guild Events
-	OnGenericGuildEvent func(*GenericGuildEvent)
-	OnGuildJoin         func(*GuildJoinEvent)
-	OnGuildUpdate       func(*GuildUpdateEvent)
-	OnGuildLeave        func(*GuildLeaveEvent)
-	OnGuildAvailable    func(*GuildAvailableEvent)
-	OnGuildUnavailable  func(*GuildUnavailableEvent)
+	OnGenericGuildEvent func(event *GenericGuildEvent)
+	OnGuildJoin         func(event *GuildJoinEvent)
+	OnGuildUpdate       func(event *GuildUpdateEvent)
+	OnGuildLeave        func(event *GuildLeaveEvent)
+	OnGuildAvailable    func(event *GuildAvailableEvent)
+	OnGuildUnavailable  func(event *GuildUnavailableEvent)
 
 	// Guild Role Events
-	OnGenericGuildRole func(*GenericGuildRoleEvent)
-	OnGuildRoleCreate  func(*GuildRoleCreateEvent)
-	OnGuildRoleUpdate  func(*GuildRoleUpdateEvent)
-	OnGuildRoleDelete  func(*GuildRoleDeleteEvent)
+	OnGenericGuildRole func(event *GenericGuildRoleEvent)
+	OnGuildRoleCreate  func(event *GuildRoleCreateEvent)
+	OnGuildRoleUpdate  func(event *GuildRoleUpdateEvent)
+	OnGuildRoleDelete  func(event *GuildRoleDeleteEvent)
 
 	// Message Events
-	OnMessageReceived      func(*MessageReceivedEvent)
-	OnGuildMessageReceived func(*GuildMessageReceivedEvent)
+	OnMessageReceived      func(event *MessageReceivedEvent)
+	OnGuildMessageReceived func(event *GuildMessageReceivedEvent)
 
 	// Interaction Events
-	OnGenericInteraction func(*GenericInteractionEvent)
-	OnSlashCommand       func(*SlashCommandEvent)
+	OnGenericInteraction func(event *GenericInteractionEvent)
+	OnSlashCommand       func(event *SlashCommandEvent)
 }
 
 // OnEvent is getting called everytime we receive an event
 func (l ListenerAdapter) OnEvent(event interface{}) {
-	if event, ok := event.(api.Event); ok {
+	if e, ok := event.(api.Event); ok {
 		if l.OnGenericEvent != nil {
-			l.OnGenericEvent(&event)
+			l.OnGenericEvent(&e)
 		}
 	}
 	switch e := event.(type) {

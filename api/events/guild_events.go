@@ -6,7 +6,7 @@ import (
 
 // GenericGuildEvent generic api.Guild api.GenericEvent
 type GenericGuildEvent struct {
-	api.GenericEvent
+	GenericEvent
 	GuildID api.Snowflake
 }
 

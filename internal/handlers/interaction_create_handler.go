@@ -71,7 +71,7 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, c chan in
 	}
 
 	genericInteractionEvent := events.GenericInteractionEvent{
-		GenericEvent: api.NewEvent(disgo),
+		GenericEvent: events.NewEvent(disgo),
 		Interaction:  *interaction,
 	}
 	eventManager.Dispatch(genericInteractionEvent)

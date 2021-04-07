@@ -4,7 +4,7 @@ import "github.com/DisgoOrg/disgo/api"
 
 // GenericMessageEvent generic api.Message event
 type GenericMessageEvent struct {
-	api.GenericEvent
+	GenericEvent
 	MessageID        api.Snowflake
 	MessageChannelID api.Snowflake
 }

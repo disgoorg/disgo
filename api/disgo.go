@@ -57,6 +57,11 @@ type EventListener interface {
 	OnEvent(interface{})
 }
 
+// Event the basic interface each event implement
+type Event interface {
+	Disgo() Disgo
+}
+
 // EventManager lets you listen for specific events triggered by raw gateway events
 type EventManager interface {
 	Close()

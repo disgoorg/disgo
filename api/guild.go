@@ -89,6 +89,35 @@ const (
 	GuildFeaturePreviewEnabled                GuildFeature = "PREVIEW_ENABLED"
 )
 
+// GuildWelcomeScreen is the Welcome Screen of a Guild
+type GuildWelcomeScreen struct {
+	Description     *string                `json:"description,omitempty"`
+	WelcomeChannels []*GuildWelcomeChannel `json:"welcome_channels"`
+}
+
+// GuildWelcomeChannel is one of the channels in a GuildWelcomeScreen
+type GuildWelcomeChannel struct {
+	ChannelID   Snowflake  `json:"channel_id"`
+	Description string     `json:"description"`
+	EmojiID     *Snowflake `json:"emoji_id,omitempty"`
+	EmojiName   *string    `json:"emoji_name,omitempty"`
+}
+
+// GuildPreview is used for previewing public guilds before joining them
+type GuildPreview struct {
+	Disgo                    Disgo
+	ID                       Snowflake      `json:"id"`
+	Name                     string         `json:"name"`
+	Icon                     *string        `json:"icon"`
+	DiscoverySplash          *string        `json:"discovery_splash"`
+	Splash                   *string        `json:"splash"`
+	Features                 []GuildFeature `json:"features"`
+	Description              *string        `json:"description"`
+	ApproximateMemberCount   *int           `json:"approximate_member_count"`
+	ApproximatePresenceCount *int           `json:"approximate_presence_count"`
+	Emojis                   []*Emote       `json:"emojis"`
+}
+
 // FullGuild represents a Guild objects sent by discord with the GatewayEventGuildCreate
 type FullGuild struct {
 	*Guild
@@ -139,6 +168,7 @@ type Guild struct {
 	MaxVideoChannelUsers        *int                       `json:"max_video_channel_users"`
 	ApproximateMemberCount      *int                       `json:"approximate_member_count"`
 	ApproximatePresenceCount    *int                       `json:"approximate_presence_count"`
+	WelcomeScreen               *GuildWelcomeScreen        `json:"welcome_screen"`
 }
 
 // CreateRole allows you to create a new Role
