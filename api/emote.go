@@ -9,6 +9,7 @@ type Emote struct {
 	Animated bool
 }
 
+// Guild returns the Guild of the Emote from the Cache
 func (e Emote) Guild() *Guild {
 	return e.Disgo.Cache().Guild(e.GuildID)
 }
