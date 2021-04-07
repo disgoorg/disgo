@@ -57,20 +57,20 @@ type RestClient interface {
 	GetGlobalCommand(applicationID Snowflake, commandID Snowflake) (*Command, error)
 	CreateGlobalCommand(applicationID Snowflake, command Command) (*Command, error)
 	SetGlobalCommands(applicationID Snowflake, commands ...Command) ([]*Command, error)
-	EditGlobalCommand(applicationID Snowflake, commandID Snowflake, command Command) (*Command, error)
+	EditGlobalCommand(applicationID Snowflake, commandID Snowflake, command UpdateCommand) (*Command, error)
 	DeleteGlobalCommand(applicationID Snowflake, commandID Snowflake) error
 
 	GetGuildCommands(applicationID Snowflake, guildID Snowflake) ([]*Command, error)
+	GetGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake) (*Command, error)
 	CreateGuildCommand(applicationID Snowflake, guildID Snowflake, command Command) (*Command, error)
 	SetGuildCommands(applicationID Snowflake, guildID Snowflake, commands ...Command) ([]*Command, error)
-	GetGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake) (*Command, error)
-	EditGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake, command Command) (*Command, error)
+	EditGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake, command UpdateCommand) (*Command, error)
 	DeleteGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake) error
 
-	GetGuildCommandsPermissions(applicationID Snowflake, guildID Snowflake) ([]*CommandPermission, error)
-	GetGuildCommandPermissions(applicationID Snowflake, guildID Snowflake, commandID Snowflake) (*CommandPermission, error)
+	GetGuildCommandsPermissions(applicationID Snowflake, guildID Snowflake) ([]*GuildCommandPermissions, error)
+	GetGuildCommandPermissions(applicationID Snowflake, guildID Snowflake, commandID Snowflake) (*GuildCommandPermissions, error)
 	SetGuildCommandsPermissions(applicationID Snowflake, guildID Snowflake, commandPermissions ...SetGuildCommandPermissions) ([]*GuildCommandPermissions, error)
-	SetGuildCommandPermissions(applicationID Snowflake, guildID Snowflake, commandID Snowflake, permissions SetGuildCommandPermissions) (*GuildCommandPermissions, error)
+	SetGuildCommandPermissions(applicationID Snowflake, guildID Snowflake, commandID Snowflake, commandPermissions SetGuildCommandPermissions) (*GuildCommandPermissions, error)
 
 	SendInteractionResponse(interactionID Snowflake, interactionToken endpoints.Token, interactionResponse InteractionResponse) error
 	EditInteractionResponse(applicationID Snowflake, interactionToken endpoints.Token, followupMessage FollowupMessage) (*Message, error)

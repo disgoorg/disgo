@@ -2,12 +2,13 @@ package api
 
 import "errors"
 
-var noDisgoInstance = errors.New("no disgo instance injected")
+var errNoDisgoInstance = errors.New("no disgo instance injected")
 
 // Command is the base "command" model that belongs to an application.
 type Command struct {
 	Disgo             Disgo
-	GuildID           *Snowflake
+	GuildPermissions  map[Snowflake]*GuildCommandPermissions
+	GuildID           *Snowflake       `json:"guild_id"`
 	ID                Snowflake        `json:"id,omitempty"`
 	ApplicationID     Snowflake        `json:"application_id,omitempty"`
 	Name              string           `json:"name"`
@@ -16,9 +17,23 @@ type Command struct {
 	Options           []*CommandOption `json:"options,omitempty"`
 }
 
+// Guild returns the Guild the Command is from from the Cache or nil if it is a global Command
+func (c Command) Guild() *Guild {
+	if c.GuildID == nil {
+		return nil
+	}
+	return c.Disgo.Cache().Guild(*c.GuildID)
+}
+
+// FromGuild returns true if this is a guild Command else false
+func (c Command) FromGuild() bool {
+	return c.GuildID == nil
+}
+
+// Create creates the Command either as global or guild Command depending on if GuildID is set
 func (c *Command) Create() error {
 	if c.Disgo == nil {
-		return noDisgoInstance
+		return errNoDisgoInstance
 	}
 	var rC *Command
 	var err error
@@ -35,9 +50,10 @@ func (c *Command) Create() error {
 	return nil
 }
 
-func (c *Command) Get() error {
+// Fetch updates/fetches the current Command from discord
+func (c *Command) Fetch() error {
 	if c.Disgo == nil {
-		return noDisgoInstance
+		return errNoDisgoInstance
 	}
 	var rC *Command
 	var err error
@@ -54,17 +70,18 @@ func (c *Command) Get() error {
 	return nil
 }
 
-func (c *Command) Update() error {
+// Update updates the current Command with the given fields
+func (c *Command) Update(command UpdateCommand) error {
 	if c.Disgo == nil {
-		return noDisgoInstance
+		return errNoDisgoInstance
 	}
 	var rC *Command
 	var err error
 	if c.GuildID == nil {
-		rC, err = c.Disgo.RestClient().EditGlobalCommand(c.Disgo.SelfUserID(), c.ID, *c)
+		rC, err = c.Disgo.RestClient().EditGlobalCommand(c.Disgo.SelfUserID(), c.ID, command)
 
 	} else {
-		rC, err = c.Disgo.RestClient().EditGuildCommand(c.Disgo.SelfUserID(), *c.GuildID, c.ID, *c)
+		rC, err = c.Disgo.RestClient().EditGuildCommand(c.Disgo.SelfUserID(), *c.GuildID, c.ID, command)
 	}
 	if err != nil {
 		return err
@@ -73,9 +90,35 @@ func (c *Command) Update() error {
 	return nil
 }
 
+// SetPermissions sets the GuildCommandPermissions for a specific Guild. this overrides all existing CommandPermission(s). thx discord for that
+func (c Command) SetPermissions(guildID Snowflake, permissions ...CommandPermission) (*GuildCommandPermissions, error) {
+	perms, err := c.Disgo.RestClient().SetGuildCommandPermissions(c.Disgo.SelfUserID(), guildID, c.ID, SetGuildCommandPermissions{Permissions: permissions})
+	if err != nil {
+		return nil, err
+	}
+	c.GuildPermissions[guildID] = perms
+	return perms, nil
+}
+
+// GetPermissions returns the GuildCommandPermissions for the specific Guild from the Cache
+func (c Command) GetPermissions(guildID Snowflake) *GuildCommandPermissions {
+	return c.GuildPermissions[guildID]
+}
+
+// FetchPermissions fetched the GuildCommandPermissions for a specific Guild from discord
+func (c Command) FetchPermissions(guildID Snowflake) (*GuildCommandPermissions, error) {
+	perms, err := c.Disgo.RestClient().GetGuildCommandPermissions(c.Disgo.SelfUserID(), guildID, c.ID)
+	if err != nil {
+		return nil, err
+	}
+	c.GuildPermissions[guildID] = perms
+	return perms, nil
+}
+
+// Delete deletes the Command from discord
 func (c Command) Delete() error {
 	if c.Disgo == nil {
-		return noDisgoInstance
+		return errNoDisgoInstance
 	}
 	if c.GuildID == nil {
 		return c.Disgo.RestClient().DeleteGlobalCommand(c.Disgo.SelfUserID(), c.ID)
@@ -145,4 +188,12 @@ type SetGuildCommandsPermissions []SetGuildCommandPermissions
 type SetGuildCommandPermissions struct {
 	ID          Snowflake           `json:"id,omitempty"`
 	Permissions []CommandPermission `json:"permissions"`
+}
+
+// UpdateCommand is used to update an existing Command. all fields are optional
+type UpdateCommand struct {
+	Name              *string          `json:"name,omitempty"`
+	Description       *string          `json:"description,omitempty"`
+	DefaultPermission *bool            `json:"default_permission,omitempty"`
+	Options           []*CommandOption `json:"options,omitempty"`
 }

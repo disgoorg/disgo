@@ -225,13 +225,13 @@ func (g Guild) SetCommands(commands ...Command) ([]*Command, error) {
 	return g.Disgo.RestClient().SetGuildCommands(g.Disgo.SelfUserID(), g.ID, commands...)
 }
 
-// GetCommandsPermissions returns the CommandPermission for a all Command(s) in a guild
-func (g Guild) GetCommandsPermissions() ([]*CommandPermission, error) {
+// GetCommandsPermissions returns the GuildCommandPermissions for a all Command(s) in a guild
+func (g Guild) GetCommandsPermissions() ([]*GuildCommandPermissions, error) {
 	return g.Disgo.RestClient().GetGuildCommandsPermissions(g.Disgo.SelfUserID(), g.ID)
 }
 
-// GetCommandPermissions returns the CommandPermission for a specific Command in a guild
-func (g Guild) GetCommandPermissions(commandID Snowflake) (*CommandPermission, error) {
+// GetCommandPermissions returns the GuildCommandPermissions for a specific Command in a guild
+func (g Guild) GetCommandPermissions(commandID Snowflake) (*GuildCommandPermissions, error) {
 	return g.Disgo.RestClient().GetGuildCommandPermissions(g.Disgo.SelfUserID(), g.ID, commandID)
 }
 

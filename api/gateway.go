@@ -52,6 +52,9 @@ type GatewayEventName string
 
 // Constants for the gateway events
 const (
+	GatewayEventApplicationCommandCreate GatewayEventName = "APPLICATION_COMMAND_CREATE"
+	GatewayEventApplicationCommandUpdate GatewayEventName = "APPLICATION_COMMAND_UPDATE"
+	GatewayEventApplicationCommandDelete GatewayEventName = "APPLICATION_COMMAND_DELETE"
 	GatewayEventChannelCreate            GatewayEventName = "CHANNEL_CREATE"
 	GatewayEventChannelDelete            GatewayEventName = "CHANNEL_DELETE"
 	GatewayEventChannelPinsUpdate        GatewayEventName = "CHANNEL_PINS_UPDATE"

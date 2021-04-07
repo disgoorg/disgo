@@ -201,4 +201,5 @@ var (
 	ApplicationAsset     = NewCDNRoute("/app-assets/{application.id}/{asset.id}.", PNG, JPEG, WEBP)
 	AchievementIcon      = NewCDNRoute("/app-assets/{application.id}/achievements/{achievement.id}/icons/{icon.hash}.", PNG, JPEG, WEBP)
 	TeamIcon             = NewCDNRoute("/team-icons/{team.id}/team.icon.", PNG, JPEG, WEBP)
+	Attachments          = NewCDNRoute("/attachments/{channel.id}/{attachment.id}/{file.name}", BLANK)
 )

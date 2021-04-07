@@ -366,12 +366,34 @@ func (r RestClientImpl) RemoveUserReaction(channelID api.Snowflake, messageID ap
 
 // GetGlobalCommands gets you all global commands
 func (r RestClientImpl) GetGlobalCommands(applicationID api.Snowflake) (commands []*api.Command, err error) {
-	return commands, r.Request(endpoints.GetGlobalCommands.Compile(applicationID), nil, &commands)
+	err = r.Request(endpoints.GetGlobalCommands.Compile(applicationID), nil, &commands)
+	if err != nil {
+		return
+	}
+	for _, cmd := range commands {
+		cmd.Disgo = r.disgo
+	}
+	return
+}
+
+// GetGlobalCommand gets you a specific global global command
+func (r RestClientImpl) GetGlobalCommand(applicationID api.Snowflake, commandID api.Snowflake) (rCommand *api.Command, err error) {
+	err = r.Request(endpoints.GetGlobalCommand.Compile(applicationID, commandID), nil, &rCommand)
+	if err != nil {
+		return
+	}
+	rCommand.Disgo = r.disgo
+	return
 }
 
 // CreateGlobalCommand lets you create a new global command
 func (r RestClientImpl) CreateGlobalCommand(applicationID api.Snowflake, command api.Command) (rCommand *api.Command, err error) {
-	return rCommand, r.Request(endpoints.CreateGlobalCommand.Compile(applicationID), command, &rCommand)
+	err = r.Request(endpoints.CreateGlobalCommand.Compile(applicationID), command, &rCommand)
+	if err != nil {
+		return
+	}
+	rCommand.Disgo = r.disgo
+	return
 }
 
 // SetGlobalCommands lets you override all global commands
@@ -380,17 +402,24 @@ func (r RestClientImpl) SetGlobalCommands(applicationID api.Snowflake, commands 
 		err = api.ErrTooMuchApplicationCommands
 		return
 	}
-	return rCommands, r.Request(endpoints.SetGlobalCommands.Compile(applicationID), commands, &rCommands)
-}
-
-// GetGlobalCommand gets you a specific global global command
-func (r RestClientImpl) GetGlobalCommand(applicationID api.Snowflake, commandID api.Snowflake) (rCommand *api.Command, err error) {
-	return rCommand, r.Request(endpoints.GetGlobalCommand.Compile(applicationID, commandID), nil, &rCommand)
+	err = r.Request(endpoints.SetGlobalCommands.Compile(applicationID), commands, &rCommands)
+	if err != nil {
+		return
+	}
+	for _, cmd := range rCommands {
+		cmd.Disgo = r.disgo
+	}
+	return
 }
 
 // EditGlobalCommand lets you edit a specific global command
-func (r RestClientImpl) EditGlobalCommand(applicationID api.Snowflake, commandID api.Snowflake, command api.Command) (rCommand *api.Command, err error) {
-	return rCommand, r.Request(endpoints.EditGlobalCommand.Compile(applicationID, commandID), command, &rCommand)
+func (r RestClientImpl) EditGlobalCommand(applicationID api.Snowflake, commandID api.Snowflake, command api.UpdateCommand) (rCommand *api.Command, err error) {
+	err = r.Request(endpoints.EditGlobalCommand.Compile(applicationID, commandID), command, &rCommand)
+	if err != nil {
+		return
+	}
+	rCommand.Disgo = r.disgo
+	return
 }
 
 // DeleteGlobalCommand lets you delete a specific global command
@@ -400,12 +429,26 @@ func (r RestClientImpl) DeleteGlobalCommand(applicationID api.Snowflake, command
 
 // GetGuildCommands gets you all guild_events commands
 func (r RestClientImpl) GetGuildCommands(applicationID api.Snowflake, guildID api.Snowflake) (commands []*api.Command, err error) {
-	return commands, r.Request(endpoints.GetGuildCommands.Compile(applicationID, guildID), nil, &commands)
+	err = r.Request(endpoints.GetGuildCommands.Compile(applicationID, guildID), nil, &commands)
+	if err != nil {
+		return
+	}
+	for _, cmd := range commands {
+		cmd.Disgo = r.disgo
+		cmd.GuildID = &guildID
+	}
+	return
 }
 
-// CreateGuildGuildCommand lets you create a new guild_events command
+// CreateGuildCommand lets you create a new guild_events command
 func (r RestClientImpl) CreateGuildCommand(applicationID api.Snowflake, guildID api.Snowflake, command api.Command) (rCommand *api.Command, err error) {
-	return rCommand, r.Request(endpoints.CreateGuildCommand.Compile(applicationID, guildID), command, &rCommand)
+	err = r.Request(endpoints.CreateGuildCommand.Compile(applicationID, guildID), command, &rCommand)
+	if err != nil {
+		return
+	}
+	rCommand.Disgo = r.disgo
+	rCommand.GuildID = &guildID
+	return
 }
 
 // SetGuildCommands lets you override all guild_events commands
@@ -414,17 +457,37 @@ func (r RestClientImpl) SetGuildCommands(applicationID api.Snowflake, guildID ap
 		err = api.ErrTooMuchApplicationCommands
 		return
 	}
-	return rCommands, r.Request(endpoints.SetGuildCommands.Compile(applicationID, guildID), commands, &rCommands)
+	err = r.Request(endpoints.SetGuildCommands.Compile(applicationID, guildID), commands, &rCommands)
+	if err != nil {
+		return
+	}
+	for _, cmd := range rCommands {
+		cmd.Disgo = r.disgo
+		cmd.GuildID = &guildID
+	}
+	return
 }
 
 // GetGuildCommand gets you a specific guild_events command
 func (r RestClientImpl) GetGuildCommand(applicationID api.Snowflake, guildID api.Snowflake, commandID api.Snowflake) (rCommand *api.Command, err error) {
-	return rCommand, r.Request(endpoints.GetGuildCommand.Compile(applicationID, guildID, commandID), nil, &rCommand)
+	err = r.Request(endpoints.GetGuildCommand.Compile(applicationID, guildID, commandID), nil, &rCommand)
+	if err != nil {
+		return
+	}
+	rCommand.Disgo = r.disgo
+	rCommand.GuildID = &guildID
+	return
 }
 
 // EditGuildCommand lets you edit a specific guild_events command
-func (r RestClientImpl) EditGuildCommand(applicationID api.Snowflake, guildID api.Snowflake, commandID api.Snowflake, command api.Command) (rCommand *api.Command, err error) {
-	return rCommand, r.Request(endpoints.EditGuildCommand.Compile(applicationID, guildID, commandID), command, &rCommand)
+func (r RestClientImpl) EditGuildCommand(applicationID api.Snowflake, guildID api.Snowflake, commandID api.Snowflake, command api.UpdateCommand) (rCommand *api.Command, err error) {
+	err = r.Request(endpoints.EditGuildCommand.Compile(applicationID, guildID, commandID), command, &rCommand)
+	if err != nil {
+		return
+	}
+	rCommand.Disgo = r.disgo
+	rCommand.GuildID = &guildID
+	return
 }
 
 // DeleteGuildCommand lets you delete a specific guild_events command
@@ -433,12 +496,12 @@ func (r RestClientImpl) DeleteGuildCommand(applicationID api.Snowflake, guildID 
 }
 
 // GetGuildCommandsPermissions returns the api.CommandPermission for a all api.Command(s) in a guild
-func (r RestClientImpl) GetGuildCommandsPermissions(applicationID api.Snowflake, guildID api.Snowflake) (rCommandsPermissions []*api.CommandPermission, err error) {
+func (r RestClientImpl) GetGuildCommandsPermissions(applicationID api.Snowflake, guildID api.Snowflake) (rCommandsPermissions []*api.GuildCommandPermissions, err error) {
 	return rCommandsPermissions, r.Request(endpoints.GetGuildCommandPermissions.Compile(applicationID, guildID), nil, &rCommandsPermissions)
 }
 
 // GetGuildCommandPermissions returns the api.CommandPermission for a specific api.Command in a guild
-func (r RestClientImpl) GetGuildCommandPermissions(applicationID api.Snowflake, guildID api.Snowflake, commandID api.Snowflake) (rCommandPermissions *api.CommandPermission, err error) {
+func (r RestClientImpl) GetGuildCommandPermissions(applicationID api.Snowflake, guildID api.Snowflake, commandID api.Snowflake) (rCommandPermissions *api.GuildCommandPermissions, err error) {
 	return rCommandPermissions, r.Request(endpoints.GetGuildCommandPermission.Compile(applicationID, guildID, commandID), nil, &rCommandPermissions)
 }
 

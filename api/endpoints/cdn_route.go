@@ -11,6 +11,7 @@ const (
 	JPEG FileExtension = "jpg"
 	WEBP FileExtension = "webp"
 	GIF  FileExtension = "gif"
+	BLANK  FileExtension = ""
 )
 
 func (f FileExtension) String() string {
