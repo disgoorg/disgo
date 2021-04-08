@@ -43,7 +43,7 @@ func main() {
 		return
 	}
 
-	commands := []api.Command{
+	rawCmds := []api.Command{
 		{
 			Name:              "eval",
 			Description:       "runs some go code",
@@ -115,7 +115,8 @@ func main() {
 		},
 	}
 
-	cmds, err := dgo.RestClient().SetGuildCommands(dgo.SelfUserID(), guildID, commands...)
+	// using the api.RestClient directly to avoid the guild needing to be cached
+	cmds, err := dgo.RestClient().SetGuildCommands(dgo.SelfUserID(), guildID, rawCmds...)
 	if err != nil {
 		log.Errorf("error while registering guild commands: %s", err)
 	}

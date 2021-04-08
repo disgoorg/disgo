@@ -211,7 +211,7 @@ func (g Guild) CreateCommand(command Command) (*Command, error) {
 }
 
 // EditCommand edits a specific guild command
-func (g Guild) EditCommand(commandID Snowflake, command Command) (*Command, error) {
+func (g Guild) EditCommand(commandID Snowflake, command UpdateCommand) (*Command, error) {
 	return g.Disgo.RestClient().EditGuildCommand(g.Disgo.SelfUserID(), g.ID, commandID, command)
 }
 

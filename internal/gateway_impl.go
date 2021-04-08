@@ -183,11 +183,13 @@ func (g *GatewayImpl) Close() {
 	if g.quit != nil {
 		log.Info("closing gateway goroutines...")
 		close(g.quit)
+		g.quit = nil
 		log.Info("closed gateway goroutines")
 	}
 	if g.conn != nil {
 		if err := g.conn.Close(); err != nil {
 			log.Errorf("error while closing wsconn: %s", err)
+			g.conn = nil
 		}
 	}
 }

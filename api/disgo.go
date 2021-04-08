@@ -31,7 +31,7 @@ type Disgo interface {
 	GetCommand(commandID Snowflake) (*Command, error)
 	GetCommands() ([]*Command, error)
 	CreateCommand(command Command) (*Command, error)
-	EditCommand(commandID Snowflake, command Command) (*Command, error)
+	EditCommand(commandID Snowflake, command UpdateCommand) (*Command, error)
 	DeleteCommand(command Command) (*Command, error)
 	SetCommands(commands ...Command) ([]*Command, error)
 }

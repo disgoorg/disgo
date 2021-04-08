@@ -175,7 +175,7 @@ func (d DisgoImpl) CreateCommand(command api.Command) (*api.Command, error) {
 }
 
 // EditCommand edits a specific guild command
-func (d DisgoImpl) EditCommand(commandID api.Snowflake, command api.Command) (*api.Command, error) {
+func (d DisgoImpl) EditCommand(commandID api.Snowflake, command api.UpdateCommand) (*api.Command, error) {
 	return d.RestClient().EditGlobalCommand(d.SelfUserID(), commandID, command)
 }
 
