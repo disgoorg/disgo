@@ -4,7 +4,7 @@ import (
 	"github.com/DisgoOrg/disgo/api"
 )
 
-// GuildCreateHandler handles api.ApplicationCommandCreateEvent
+// ApplicationCommandCreateHandler handles api.ApplicationCommandCreateEvent
 type ApplicationCommandCreateHandler struct{}
 
 // Event returns the raw gateway event Event

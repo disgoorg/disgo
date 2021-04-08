@@ -169,6 +169,7 @@ type GuildCommandPermissions struct {
 // CommandPermissionType is the type of the CommandPermission
 type CommandPermissionType int
 
+// types of CommandPermissionType
 const (
 	CommandPermissionTypeRole = iota + 1
 	CommandPermissionTypeUser
