@@ -9,7 +9,7 @@ import (
 type InteractionCreateHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h InteractionCreateHandler) Event() api.GatewayEventName {
+func (h InteractionCreateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventInteractionCreate
 }
 
@@ -19,15 +19,15 @@ func (h InteractionCreateHandler) New() interface{} {
 }
 
 // Handle handles the specific raw gateway event
-func (h InteractionCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
+func (h InteractionCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	interaction, ok := i.(*api.Interaction)
 	if !ok {
 		return
 	}
-	handleInteraction(disgo, eventManager, nil, interaction)
+	handleInteraction(disgo, eventManager, sequenceNumber, interaction, nil)
 }
 
-func handleInteraction(disgo api.Disgo, eventManager api.EventManager, c chan interface{}, interaction *api.Interaction) {
+func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, interaction *api.Interaction, c chan interface{}) {
 	if interaction.Member != nil {
 		interaction.Member.Disgo = disgo
 		if interaction.Member.User != nil {
@@ -71,7 +71,7 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, c chan in
 	}
 
 	genericInteractionEvent := events.GenericInteractionEvent{
-		GenericEvent: events.NewEvent(disgo),
+		GenericEvent: events.NewEvent(disgo, sequenceNumber),
 		Interaction:  *interaction,
 	}
 	eventManager.Dispatch(genericInteractionEvent)
@@ -92,9 +92,9 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, c chan in
 				options = option.Options
 			}
 		}
-		var newOptions []*events.Option
+		var newOptions []*api.Option
 		for _, optionData := range options {
-			newOptions = append(newOptions, &events.Option{
+			newOptions = append(newOptions, &api.Option{
 				Resolved: interaction.Data.Resolved,
 				Name:     optionData.Name,
 				Type:     optionData.Type,

@@ -9,7 +9,7 @@ import (
 type GuildMemberAddHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h GuildMemberAddHandler) Event() api.GatewayEventName {
+func (h GuildMemberAddHandler) Event() api.GatewayEventType {
 	return api.GatewayEventGuildMemberAdd
 }
 
@@ -19,7 +19,7 @@ func (h GuildMemberAddHandler) New() interface{} {
 }
 
 // Handle handles the specific raw gateway event
-func (h GuildMemberAddHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
+func (h GuildMemberAddHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	member, ok := i.(*api.Member)
 	if !ok {
 		return
@@ -28,7 +28,7 @@ func (h GuildMemberAddHandler) Handle(disgo api.Disgo, eventManager api.EventMan
 	disgo.Cache().CacheMember(member)
 
 	genericGuildEvent := events.GenericGuildEvent{
-		GenericEvent: events.NewEvent(disgo),
+		GenericEvent: events.NewEvent(disgo, sequenceNumber),
 		GuildID:      member.GuildID,
 	}
 	eventManager.Dispatch(genericGuildEvent)

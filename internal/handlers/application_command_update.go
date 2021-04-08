@@ -8,7 +8,7 @@ import (
 type ApplicationCommandUpdateHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h ApplicationCommandUpdateHandler) Event() api.GatewayEventName {
+func (h ApplicationCommandUpdateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventApplicationCommandUpdate
 }
 
@@ -18,7 +18,7 @@ func (h ApplicationCommandUpdateHandler) New() interface{} {
 }
 
 // Handle handles the specific raw gateway event
-func (h ApplicationCommandUpdateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
+func (h ApplicationCommandUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
 	/*command, ok := i.(*api.Command)
 	if !ok {
 		return

@@ -103,19 +103,19 @@ const (
 // https://discord.com/developers/docs/resources/channel#message-object
 type Message struct {
 	Disgo            Disgo
-	ID               Snowflake           `json:"id"`
-	GuildID          *Snowflake          `json:"guild_id"`
-	Reactions        []Reactions         `json:"reactions"`
-	Attachments      []interface{}       `json:"attachments"`
-	TTS              bool                `json:"tts"`
-	Embeds           []*Embed            `json:"embeds,omitempty"`
-	CreatedAt        time.Time           `json:"timestamp"`
-	MentionEveryone  bool                `json:"mention_everyone"`
-	Pinned           bool                `json:"pinned"`
-	EditedTimestamp  interface{}         `json:"edited_timestamp"`
-	Author           User                `json:"author"`
-	MentionRoles     []interface{}       `json:"mention_roles"`
-	Content          *string             `json:"content,omitempty"`
+	ID               Snowflake         `json:"id"`
+	GuildID          *Snowflake        `json:"guild_id"`
+	Reactions        []MessageReaction `json:"reactions"`
+	Attachments      []interface{}     `json:"attachments"`
+	TTS              bool              `json:"tts"`
+	Embeds           []*Embed          `json:"embeds,omitempty"`
+	CreatedAt        time.Time         `json:"timestamp"`
+	MentionEveryone  bool              `json:"mention_everyone"`
+	Pinned           bool              `json:"pinned"`
+	EditedTimestamp  interface{}       `json:"edited_timestamp"`
+	Author           User              `json:"author"`
+	MentionRoles     []interface{}     `json:"mention_roles"`
+	Content          *string           `json:"content,omitempty"`
 	ChannelID        Snowflake           `json:"channel_id"`
 	Mentions         []interface{}       `json:"mentions"`
 	Type             MessageType         `json:"type"`
@@ -191,8 +191,8 @@ func (m Message) Reply(message MessageCreate) (*Message, error) {
 	return m.Disgo.RestClient().SendMessage(m.ChannelID, message)
 }
 
-// Reactions contains information about the reactions of a message_events
-type Reactions struct {
+// MessageReaction contains information about the reactions of a message_events
+type MessageReaction struct {
 	Count int   `json:"count"`
 	Me    bool  `json:"me"`
 	Emoji Emote `json:"emoji"`

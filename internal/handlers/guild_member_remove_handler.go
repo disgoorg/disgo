@@ -14,7 +14,7 @@ type guildMemberRemoveData struct {
 type GuildMemberRemoveHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h GuildMemberRemoveHandler) Event() api.GatewayEventName {
+func (h GuildMemberRemoveHandler) Event() api.GatewayEventType {
 	return api.GatewayEventGuildMemberRemove
 }
 
@@ -24,7 +24,7 @@ func (h GuildMemberRemoveHandler) New() interface{} {
 }
 
 // Handle handles the specific raw gateway event
-func (h GuildMemberRemoveHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
+func (h GuildMemberRemoveHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	member, ok := i.(*guildMemberRemoveData)
 	if !ok {
 		return
@@ -34,7 +34,7 @@ func (h GuildMemberRemoveHandler) Handle(disgo api.Disgo, eventManager api.Event
 	disgo.Cache().UncacheMember(member.GuildID, member.User.ID)
 
 	genericGuildEvent := events.GenericGuildEvent{
-		GenericEvent: events.NewEvent(disgo),
+		GenericEvent: events.NewEvent(disgo, sequenceNumber),
 		GuildID:      member.GuildID,
 	}
 	eventManager.Dispatch(genericGuildEvent)

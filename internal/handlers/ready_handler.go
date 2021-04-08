@@ -17,7 +17,7 @@ type readyEventData struct {
 type ReadyHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h ReadyHandler) Event() api.GatewayEventName {
+func (h ReadyHandler) Event() api.GatewayEventType {
 	return api.GatewayEventReady
 }
 
@@ -27,7 +27,7 @@ func (h ReadyHandler) New() interface{} {
 }
 
 // Handle handles the specific raw gateway event
-func (h ReadyHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
+func (h ReadyHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	readyEvent, ok := i.(*readyEventData)
 	if !ok {
 		return

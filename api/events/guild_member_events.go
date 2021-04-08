@@ -1,6 +1,8 @@
 package events
 
-import "github.com/DisgoOrg/disgo/api"
+import (
+	"github.com/DisgoOrg/disgo/api"
+)
 
 // GenericGuildMemberEvent generic api.Member event
 type GenericGuildMemberEvent struct {
@@ -11,6 +13,11 @@ type GenericGuildMemberEvent struct {
 // User gets the api.User form the api.Cache
 func (e GenericGuildMemberEvent) User() *api.User {
 	return e.Disgo().Cache().User(e.UserID)
+}
+
+// Member gets the api.Member form the api.Cache
+func (e GenericGuildMemberEvent) Member() *api.Member {
+	return e.Disgo().Cache().Member(e.GuildID, e.UserID)
 }
 
 // GuildMemberJoinEvent indicates that a api.Member joined the api.Guild

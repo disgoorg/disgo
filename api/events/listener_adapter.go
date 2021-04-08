@@ -17,10 +17,10 @@ type ListenerAdapter struct {
 	OnGuildUnavailable  func(event *GuildUnavailableEvent)
 
 	// Guild Role Events
-	OnGenericGuildRole func(event *GenericGuildRoleEvent)
-	OnGuildRoleCreate  func(event *GuildRoleCreateEvent)
-	OnGuildRoleUpdate  func(event *GuildRoleUpdateEvent)
-	OnGuildRoleDelete  func(event *GuildRoleDeleteEvent)
+	OnGenericRole func(event *GenericRoleEvent)
+	OnRoleCreate  func(event *RoleCreateEvent)
+	OnRoleUpdate  func(event *RoleUpdateEvent)
+	OnRoleDelete  func(event *RoleDeleteEvent)
 
 	// Message Events
 	OnMessageReceived      func(event *MessageReceivedEvent)
@@ -66,21 +66,21 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 
 	// Guild Role Events
-	case GenericGuildRoleEvent:
-		if l.OnGenericGuildRole != nil {
-			l.OnGenericGuildRole(&e)
+	case GenericRoleEvent:
+		if l.OnGenericRole != nil {
+			l.OnGenericRole(&e)
 		}
-	case GuildRoleCreateEvent:
-		if l.OnGuildRoleCreate != nil {
-			l.OnGuildRoleCreate(&e)
+	case RoleCreateEvent:
+		if l.OnRoleCreate != nil {
+			l.OnRoleCreate(&e)
 		}
-	case GuildRoleUpdateEvent:
-		if l.OnGuildRoleUpdate != nil {
-			l.OnGuildRoleUpdate(&e)
+	case RoleUpdateEvent:
+		if l.OnRoleUpdate != nil {
+			l.OnRoleUpdate(&e)
 		}
-	case GuildRoleDeleteEvent:
-		if l.OnGuildRoleDelete != nil {
-			l.OnGuildRoleDelete(&e)
+	case RoleDeleteEvent:
+		if l.OnRoleDelete != nil {
+			l.OnRoleDelete(&e)
 		}
 
 	// Message Events

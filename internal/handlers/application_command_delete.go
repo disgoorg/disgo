@@ -8,7 +8,7 @@ import (
 type ApplicationCommandDeleteHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h ApplicationCommandDeleteHandler) Event() api.GatewayEventName {
+func (h ApplicationCommandDeleteHandler) Event() api.GatewayEventType {
 	return api.GatewayEventApplicationCommandDelete
 }
 
@@ -18,7 +18,7 @@ func (h ApplicationCommandDeleteHandler) New() interface{} {
 }
 
 // Handle handles the specific raw gateway event
-func (h ApplicationCommandDeleteHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
+func (h ApplicationCommandDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
 	/*command, ok := i.(*api.Command)
 	if !ok {
 		return

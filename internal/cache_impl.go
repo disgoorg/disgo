@@ -426,9 +426,11 @@ func (c *CacheImpl) UncacheVoiceState(guildID api.Snowflake, userID api.Snowflak
 }
 
 // Role returns a role from cache by guild ID and role ID
-func (c *CacheImpl) Role(guildID api.Snowflake, roleID api.Snowflake) *api.Role {
-	if guildRoles, ok := c.roles[guildID]; ok {
-		return guildRoles[roleID]
+func (c *CacheImpl) Role(roleID api.Snowflake) *api.Role {
+	for _, guildRoles := range c.roles {
+		if role, ok := guildRoles[roleID]; ok {
+			return role
+		}
 	}
 	return nil
 }

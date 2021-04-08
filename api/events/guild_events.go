@@ -18,7 +18,7 @@ func (e GenericGuildEvent) Guild() *api.Guild {
 // GuildUpdateEvent called upon receiving api.Guild updates
 type GuildUpdateEvent struct {
 	GenericGuildEvent
-	Guild    *api.Guild
+	NewGuild *api.Guild
 	OldGuild *api.Guild
 }
 
@@ -31,6 +31,7 @@ type GuildAvailableEvent struct {
 // GuildUnavailableEvent called when an available api.Guild becomes unavailable
 type GuildUnavailableEvent struct {
 	GenericGuildEvent
+	Guild *api.Guild
 }
 
 // GuildJoinEvent called when the bot joins a api.Guild
@@ -43,4 +44,20 @@ type GuildJoinEvent struct {
 type GuildLeaveEvent struct {
 	GenericGuildEvent
 	Guild *api.Guild
+}
+
+// GuildReadyEvent called when the loaded the api.Guild in login phase
+type GuildReadyEvent struct {
+	GenericGuildEvent
+	Guild *api.Guild
+}
+
+type GuildBanEvent struct {
+	GenericGuildEvent
+	User *api.User
+}
+
+type GuildUnbanEvent struct {
+	GenericGuildEvent
+	User *api.User
 }

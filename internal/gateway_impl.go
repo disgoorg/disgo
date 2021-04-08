@@ -29,7 +29,7 @@ type GatewayImpl struct {
 	disgo                 api.Disgo
 	conn                  *websocket.Conn
 	quit                  chan interface{}
-	status                api.ConnectionStatus
+	status                api.GatewayStatus
 	heartbeatInterval     time.Duration
 	lastHeartbeatSent     time.Time
 	lastHeartbeatReceived time.Time
@@ -168,7 +168,7 @@ func (g *GatewayImpl) Open() error {
 }
 
 // Status returns the gateway connection status
-func (g *GatewayImpl) Status() api.ConnectionStatus {
+func (g *GatewayImpl) Status() api.GatewayStatus {
 	return g.status
 }
 
@@ -287,7 +287,7 @@ func (g *GatewayImpl) listen() {
 				}
 				d := g.Disgo()
 				e := d.EventManager()
-				e.Handle(*event.T, event.D, nil)
+				e.Handle(*event.T, nil, *event.S, event.D)
 
 			case api.OpHeartbeat:
 				log.Debugf("received: OpHeartbeat")

@@ -9,7 +9,7 @@ import (
 type GatewayPacket struct {
 	Op GatewayOp         `json:"op"`
 	S  *int              `json:"s,omitempty"`
-	T  *GatewayEventName `json:"t,omitempty"`
+	T  *GatewayEventType `json:"t,omitempty"`
 }
 
 // RawGatewayEvent specifies the data for the GatewayCommand payload that is being sent

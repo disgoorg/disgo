@@ -61,105 +61,8 @@ type SlashCommandEvent struct {
 	CommandName         string
 	SubCommandName      *string
 	SubCommandGroupName *string
-	Options             []*Option
+	Options             []*api.Option
 	Replied             bool
-}
-
-// Option holds info about an Option.Value
-type Option struct {
-	Resolved *api.Resolved
-	Name     string
-	Type     api.CommandOptionType
-	Value    interface{}
-}
-
-// String returns the Option.Value as string
-func (o Option) String() string {
-	return o.Value.(string)
-}
-
-// Bool returns the Option.Value as bool
-func (o Option) Bool() bool {
-	return o.Value.(bool)
-}
-
-// Snowflake returns the Option.Value as api.Snowflake
-func (o Option) Snowflake() api.Snowflake {
-	return api.Snowflake(o.String())
-}
-
-// User returns the Option.Value as api.User
-func (o Option) User() *api.User {
-	return o.Resolved.Users[o.Snowflake()]
-}
-
-// Member returns the Option.Value as api.Member
-func (o Option) Member() *api.Member {
-	return o.Resolved.Members[o.Snowflake()]
-}
-
-// Role returns the Option.Value as api.Role
-func (o Option) Role() *api.Role {
-	return o.Resolved.Roles[o.Snowflake()]
-}
-
-// Channel returns the Option.Value as api.Channel
-func (o Option) Channel() *api.Channel {
-	return o.Resolved.Channels[o.Snowflake()]
-}
-
-// MessageChannel returns the Option.Value as api.MessageChannel
-func (o Option) MessageChannel() *api.MessageChannel {
-	channel := o.Channel()
-	if channel == nil || (channel.Type != api.ChannelTypeText && channel.Type != api.ChannelTypeNews) {
-		return nil
-	}
-	return &api.MessageChannel{Channel: *channel}
-}
-
-// GuildChannel returns the Option.Value as api.GuildChannel
-func (o Option) GuildChannel() *api.GuildChannel {
-	channel := o.Channel()
-	if channel == nil || (channel.Type != api.ChannelTypeText && channel.Type != api.ChannelTypeNews && channel.Type != api.ChannelTypeCategory && channel.Type != api.ChannelTypeStore && channel.Type != api.ChannelTypeVoice) {
-		return nil
-	}
-	return &api.GuildChannel{Channel: *channel}
-}
-
-// VoiceChannel returns the Option.Value as api.VoiceChannel
-func (o Option) VoiceChannel() *api.VoiceChannel {
-	channel := o.Channel()
-	if channel == nil || channel.Type != api.ChannelTypeVoice {
-		return nil
-	}
-	return &api.VoiceChannel{GuildChannel: api.GuildChannel{Channel: *channel}}
-}
-
-// TextChannel returns the Option.Value as api.TextChannel
-func (o Option) TextChannel() *api.TextChannel {
-	channel := o.Channel()
-	if channel == nil || (channel.Type != api.ChannelTypeText && channel.Type != api.ChannelTypeNews) {
-		return nil
-	}
-	return &api.TextChannel{GuildChannel: api.GuildChannel{Channel: *channel}, MessageChannel: api.MessageChannel{Channel: *channel}}
-}
-
-// Category returns the Option.Value as api.Category
-func (o Option) Category() *api.Category {
-	channel := o.Channel()
-	if channel == nil || channel.Type != api.ChannelTypeCategory {
-		return nil
-	}
-	return &api.Category{GuildChannel: api.GuildChannel{Channel: *channel}}
-}
-
-// StoreChannel returns the Option.Value as api.StoreChannel
-func (o Option) StoreChannel() *api.StoreChannel {
-	channel := o.Channel()
-	if channel == nil || channel.Type != api.ChannelTypeStore {
-		return nil
-	}
-	return &api.StoreChannel{GuildChannel: api.GuildChannel{Channel: *channel}}
 }
 
 // CommandPath returns the api.Command path
@@ -175,7 +78,7 @@ func (e SlashCommandEvent) CommandPath() string {
 }
 
 // Option returns an Option by name
-func (e SlashCommandEvent) Option(name string) *Option {
+func (e SlashCommandEvent) Option(name string) *api.Option {
 	options := e.OptionN(name)
 	if len(options) == 0 {
 		return nil
@@ -184,8 +87,8 @@ func (e SlashCommandEvent) Option(name string) *Option {
 }
 
 // OptionN returns Option(s) by name
-func (e SlashCommandEvent) OptionN(name string) []*Option {
-	options := make([]*Option, 0)
+func (e SlashCommandEvent) OptionN(name string) []*api.Option {
+	options := make([]*api.Option, 0)
 	for _, option := range e.Options {
 		if option.Name == name {
 			options = append(options, option)
@@ -195,8 +98,8 @@ func (e SlashCommandEvent) OptionN(name string) []*Option {
 }
 
 // OptionsT returns Option(s) by api.CommandOptionType
-func (e SlashCommandEvent) OptionsT(optionType api.CommandOptionType) []*Option {
-	options := make([]*Option, 0)
+func (e SlashCommandEvent) OptionsT(optionType api.CommandOptionType) []*api.Option {
+	options := make([]*api.Option, 0)
 	for _, option := range e.Options {
 		if option.Type == optionType {
 			options = append(options, option)
@@ -249,3 +152,4 @@ func (e *SlashCommandEvent) EditFollowup(messageID api.Snowflake, followupMessag
 func (e *SlashCommandEvent) DeleteFollowup(messageID api.Snowflake) error {
 	return e.Disgo().RestClient().DeleteFollowupMessage(e.Disgo().SelfUserID(), e.Interaction.Token, messageID)
 }
+

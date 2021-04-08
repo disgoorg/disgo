@@ -50,7 +50,7 @@ type Cache interface {
 	CacheVoiceState(voiceState *VoiceState)
 	UncacheVoiceState(guildID Snowflake, userID Snowflake)
 
-	Role(Snowflake, Snowflake) *Role
+	Role(roleID Snowflake) *Role
 	RolesByName(Snowflake, string, bool) []*Role
 	Roles(Snowflake) []*Role
 	AllRoles() []*Role
