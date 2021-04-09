@@ -784,7 +784,7 @@ func (c *CacheImpl) CacheTextChannel(textChannel *api.TextChannel) *api.TextChan
 	if !c.cacheFlags.Has(api.CacheFlagTextChannels) {
 		return textChannel
 	}
-	if guildTextChannels, ok := c.textChannels[*textChannel.GuildID]; ok {
+	if guildTextChannels, ok := c.textChannels[*textChannel.GuildChannel.GuildID]; ok {
 		if guildTextChannel, ok := guildTextChannels[textChannel.MessageChannel.ID]; ok {
 			*guildTextChannel = *textChannel
 			return guildTextChannel

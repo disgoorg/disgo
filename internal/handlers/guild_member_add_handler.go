@@ -25,7 +25,7 @@ func (h GuildMemberAddHandler) HandleGatewayEvent(disgo api.Disgo, eventManager 
 		return
 	}
 
-	disgo.Cache().CacheMember(member)
+	member = disgo.EntityBuilder().CreateMember(member.GuildID, member, true)
 
 	genericGuildEvent := events.GenericGuildEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),

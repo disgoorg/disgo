@@ -124,7 +124,7 @@ type FullGuild struct {
 	Roles       []*Role         `json:"roles"`
 	Emotes      []*Emote        `json:"emojis"`
 	Members     []*Member       `json:"members"`
-	Channels    []*GuildChannel `json:"channels"`
+	Channels    []*Channel `json:"channels"`
 	VoiceStates []*VoiceState   `json:"voice_states"`
 	//Presences   []*Presence     `json:"presences"`
 }

@@ -39,58 +39,36 @@ func (h GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 	disgo.Cache().CacheGuild(guild)
 	for i := range fullGuild.Channels {
 		channel := fullGuild.Channels[i]
-		channel.Disgo = disgo
-		channel.GuildID = guild.ID
+		channel.GuildID = &guild.ID
 		switch channel.Type {
 		case api.ChannelTypeText, api.ChannelTypeNews:
-			disgo.Cache().CacheTextChannel(&api.TextChannel{
-				GuildChannel: *channel,
-				MessageChannel: api.MessageChannel{
-					Channel: channel.Channel,
-				},
-			})
+			disgo.EntityBuilder().CreateTextChannel(channel, true)
 		case api.ChannelTypeVoice:
-			disgo.Cache().CacheVoiceChannel(&api.VoiceChannel{
-				GuildChannel: *channel,
-			})
+			disgo.EntityBuilder().CreateVoiceChannel(channel, true)
 		case api.ChannelTypeCategory:
-			disgo.Cache().CacheCategory(&api.Category{
-				GuildChannel: *channel,
-			})
+			disgo.EntityBuilder().CreateCategory(channel, true)
 		case api.ChannelTypeStore:
-			disgo.Cache().CacheStoreChannel(&api.StoreChannel{
-				GuildChannel: *channel,
-			})
+			disgo.EntityBuilder().CreateStoreChannel(channel, true)
 		}
 	}
 
 	for i := range fullGuild.Roles {
-		role := fullGuild.Roles[i]
-		role.Disgo = disgo
-		role.GuildID = guild.ID
-		disgo.Cache().CacheRole(role)
+		disgo.EntityBuilder().CreateRole(guild.ID, fullGuild.Roles[i], true)
 	}
 
 	for i := range fullGuild.Members {
-		member := fullGuild.Members[i]
-		member.Disgo = disgo
-		member.GuildID = guild.ID
-		disgo.Cache().CacheMember(member)
+		disgo.EntityBuilder().CreateMember(guild.ID, fullGuild.Members[i], true)
 	}
 
 	for i := range fullGuild.VoiceStates {
-		voiceState := fullGuild.VoiceStates[i]
-		voiceState.Disgo = disgo
-		disgo.Cache().CacheVoiceState(voiceState)
+		disgo.EntityBuilder().CreateVoiceState(fullGuild.VoiceStates[i], true)
 	}
 
-	/*for i := range fullGuild.Emotes {
-		emote := fullGuild.Emotes[i]
-		emote.Disgo = disgo
-		emote.GuildID = guild.ID
-		disgo.Cache().CacheEmote(emote)
-	}*/
+	for i := range fullGuild.Emotes {
+		disgo.EntityBuilder().CreateEmote(guild.ID, fullGuild.Emotes[i], true)
+	}
 
+	// TODO: presence
 	/*for i := range fullGuild.Presences {
 		presence := fullGuild.Presences[i]
 		presence.Disgo = disgo
@@ -110,7 +88,6 @@ func (h GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 			Guild:             guild,
 		})
 	} else {
-		// guild join
 		eventManager.Dispatch(events.GuildJoinEvent{
 			GenericGuildEvent: genericGuildEvent,
 			Guild:             guild,

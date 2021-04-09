@@ -8,8 +8,10 @@ type EntityBuilder interface {
 	CreateUser(user *User, updateCache bool) *User
 
 	CreateGuild(guild *Guild, updateCache bool) *Guild
-	CreateMember(member *Member, updateCache bool) *Member
+	CreateMember(guildID Snowflake, member *Member, updateCache bool) *Member
 	CreateGuildCommand(guildID Snowflake, command *Command, updateCache bool) *Command
+	CreateRole(guildID Snowflake, role *Role, updateCache bool) *Role
+	CreateVoiceState(role *VoiceState, updateCache bool) *VoiceState
 
 	CreateTextChannel(channel *Channel, updateCache bool) *TextChannel
 	CreateVoiceChannel(channel *Channel, updateCache bool) *VoiceChannel
@@ -17,5 +19,5 @@ type EntityBuilder interface {
 	CreateCategory(channel *Channel, updateCache bool) *Category
 	CreateDMChannel(channel *Channel, updateCache bool) *DMChannel
 
-	CreateEmote(emote *Emote, updateCache bool) *Emote
+	CreateEmote(guildID Snowflake, emote *Emote, updateCache bool) *Emote
 }

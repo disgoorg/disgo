@@ -20,30 +20,32 @@ func (h GuildMemberUpdateHandler) New() interface{} {
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h GuildMemberUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
-	member, ok := i.(*api.Member)
+	newMember, ok := i.(*api.Member)
 	if !ok {
 		return
 	}
 
-	oldMember := disgo.Cache().Member(member.GuildID, member.User.ID)
-	member.Disgo = disgo
-	disgo.Cache().CacheMember(member)
+	oldMember := disgo.Cache().Member(newMember.GuildID, newMember.User.ID)
+	if oldMember != nil {
+		oldMember = &*oldMember
+	}
+	newMember = disgo.EntityBuilder().CreateMember(newMember.GuildID, newMember, true)
 
 	genericGuildEvent := events.GenericGuildEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		GuildID:      member.GuildID,
+		GuildID:      newMember.GuildID,
 	}
 	eventManager.Dispatch(genericGuildEvent)
 
 	genericGuildMemberEvent := events.GenericGuildMemberEvent{
 		GenericGuildEvent: genericGuildEvent,
-		UserID:            member.User.ID,
+		UserID:            newMember.User.ID,
 	}
 	eventManager.Dispatch(genericGuildMemberEvent)
 
 	eventManager.Dispatch(events.GuildMemberUpdateEvent{
 		GenericGuildMemberEvent: genericGuildMemberEvent,
-		NewMember:               member,
+		NewMember:               newMember,
 		OldMember:               oldMember,
 	})
 }

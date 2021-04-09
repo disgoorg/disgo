@@ -18,12 +18,12 @@ type CategoryCreateEvent struct {
 }
 
 type CategoryUpdateEvent struct {
-	GenericChannelEvent
+	GenericCategoryEvent
 	NewCategory *api.Category
 	OldCategory *api.Category
 }
 
 type CategoryDeleteEvent struct {
-	GenericChannelEvent
+	GenericCategoryEvent
 	Category *api.Category
 }

@@ -40,13 +40,22 @@ func (b EntityBuilderImpl) CreateGuild(guild *api.Guild, updateCache bool) *api.
 	return guild
 }
 
-func (b EntityBuilderImpl) CreateMember(member *api.Member, updateCache bool) *api.Member {
+func (b EntityBuilderImpl) CreateMember(guildID api.Snowflake, member *api.Member, updateCache bool) *api.Member {
 	member.Disgo = b.Disgo()
+	member.GuildID = guildID
 	member.User = b.CreateUser(member.User, updateCache)
 	if updateCache {
 		return b.Disgo().Cache().CacheMember(member)
 	}
 	return member
+}
+
+func (b EntityBuilderImpl) CreateVoiceState(voiceState *api.VoiceState, updateCache bool) *api.VoiceState {
+	voiceState.Disgo = b.Disgo()
+	if updateCache {
+		return b.Disgo().Cache().CacheVoiceState(voiceState)
+	}
+	return voiceState
 }
 
 func (b EntityBuilderImpl) CreateGuildCommand(guildID api.Snowflake, command *api.Command, updateCache bool) *api.Command {
@@ -56,6 +65,15 @@ func (b EntityBuilderImpl) CreateGuildCommand(guildID api.Snowflake, command *ap
 		return b.Disgo().Cache().CacheGuildCommand(command)
 	}
 	return command
+}
+
+func (b EntityBuilderImpl) CreateRole(guildID api.Snowflake, role *api.Role, updateCache bool) *api.Role {
+	role.Disgo = b.Disgo()
+	role.GuildID = guildID
+	if updateCache {
+		return b.Disgo().Cache().CacheRole(role)
+	}
+	return role
 }
 
 func (b EntityBuilderImpl) CreateTextChannel(channel *api.Channel, updateCache bool) *api.TextChannel {
@@ -126,8 +144,9 @@ func (b EntityBuilderImpl) CreateDMChannel(channel *api.Channel, updateCache boo
 	return dmChannel
 }
 
-func (b EntityBuilderImpl) CreateEmote(emote *api.Emote, updateCache bool) *api.Emote {
+func (b EntityBuilderImpl) CreateEmote(guildId api.Snowflake, emote *api.Emote, updateCache bool) *api.Emote {
 	emote.Disgo = b.Disgo()
+	emote.GuildID = guildId
 	if updateCache {
 		return b.Disgo().Cache().CacheEmote(emote)
 	}
