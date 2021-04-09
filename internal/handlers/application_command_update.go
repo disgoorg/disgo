@@ -25,6 +25,17 @@ func (h ApplicationCommandUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eve
 		return
 	}
 
+	oldCommand := disgo.Cache().Command(command.ID)
+	if oldCommand != nil {
+		oldCommand = &*oldCommand
+	}
+
+	if command.FromGuild() {
+		command = disgo.EntityBuilder().CreateGuildCommand(*command.GuildID, command, true)
+	} else {
+		command = disgo.EntityBuilder().CreateGlobalCommand(command, true)
+	}
+
 	genericApplicationCommandEvent := events.GenericApplicationCommandEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
 		CommandID:    command.ID,
@@ -35,6 +46,6 @@ func (h ApplicationCommandUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eve
 	eventManager.Dispatch(events.ApplicationCommandUpdateEvent{
 		GenericApplicationCommandEvent: genericApplicationCommandEvent,
 		NewCommand: command,
-		OldCommand: nil,
+		OldCommand: oldCommand,
 	})
 }

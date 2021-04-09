@@ -25,6 +25,14 @@ func (h ApplicationCommandDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eve
 		return
 	}
 
+	disgo.Cache().UncacheCommand(command.ID)
+
+	if command.FromGuild() {
+		command = disgo.EntityBuilder().CreateGuildCommand(*command.GuildID, command, false)
+	} else {
+		command = disgo.EntityBuilder().CreateGlobalCommand(command, false)
+	}
+
 	genericApplicationCommandEvent := events.GenericApplicationCommandEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
 		CommandID:    command.ID,
@@ -34,6 +42,6 @@ func (h ApplicationCommandDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eve
 
 	eventManager.Dispatch(events.ApplicationCommandDeleteEvent{
 		GenericApplicationCommandEvent: genericApplicationCommandEvent,
-		Command: command,
+		Command:                        command,
 	})
 }

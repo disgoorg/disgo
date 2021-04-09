@@ -14,6 +14,7 @@ const (
 	CacheFlagRoles
 	CacheFlagEmotes
 	CacheFlagVoiceState
+	CacheFlagCommands
 
 	CacheFlagsDefault = CacheFlagDMChannels |
 		CacheFlagCategories |

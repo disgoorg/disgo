@@ -34,7 +34,7 @@ func (h ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 
 	switch channel.Type {
 	case api.ChannelTypeDM:
-		dmChannel := disgo.EntityBuilder().CreateDMChannel(channel)
+		dmChannel := disgo.EntityBuilder().CreateDMChannel(channel, true)
 
 		genericDMChannelEvent := events.GenericDMChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
@@ -50,7 +50,7 @@ func (h ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		log.Warnf("ChannelTypeGroupDM received what the hell discord")
 
 	case api.ChannelTypeText, api.ChannelTypeNews:
-		textChannel := disgo.EntityBuilder().CreateTextChannel(channel)
+		textChannel := disgo.EntityBuilder().CreateTextChannel(channel, true)
 
 		genericTextChannelEvent := events.GenericTextChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
@@ -63,7 +63,7 @@ func (h ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		})
 
 	case api.ChannelTypeStore:
-		storeChannel := disgo.EntityBuilder().CreateStoreChannel(channel)
+		storeChannel := disgo.EntityBuilder().CreateStoreChannel(channel, true)
 
 		genericStoreChannelEvent := events.GenericStoreChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
@@ -76,7 +76,7 @@ func (h ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		})
 
 	case api.ChannelTypeCategory:
-		category := disgo.EntityBuilder().CreateCategory(channel)
+		category := disgo.EntityBuilder().CreateCategory(channel, true)
 
 		genericCategoryEvent := events.GenericCategoryEvent{
 			GenericChannelEvent: genericChannelEvent,
@@ -89,7 +89,7 @@ func (h ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		})
 
 	case api.ChannelTypeVoice:
-		voiceChannel := disgo.EntityBuilder().CreateVoiceChannel(channel)
+		voiceChannel := disgo.EntityBuilder().CreateVoiceChannel(channel, true)
 
 		genericVoiceChannelEvent := events.GenericVoiceChannelEvent{
 			GenericChannelEvent: genericChannelEvent,

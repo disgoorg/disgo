@@ -25,6 +25,12 @@ func (h ApplicationCommandCreateHandler) HandleGatewayEvent(disgo api.Disgo, eve
 		return
 	}
 
+	if command.FromGuild() {
+		command = disgo.EntityBuilder().CreateGuildCommand(*command.GuildID, command, true)
+	} else {
+		command = disgo.EntityBuilder().CreateGlobalCommand(command, true)
+	}
+
 	genericApplicationCommandEvent := events.GenericApplicationCommandEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
 		CommandID:    command.ID,
