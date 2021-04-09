@@ -22,6 +22,7 @@ type Disgo interface {
 	Intents() Intents
 	SelfUserID() Snowflake
 	SelfUser() *User
+	EntityBuilder() EntityBuilder
 	EventManager() EventManager
 	VoiceDispatchInterceptor() VoiceDispatchInterceptor
 	SetVoiceDispatchInterceptor(voiceInterceptor VoiceDispatchInterceptor)

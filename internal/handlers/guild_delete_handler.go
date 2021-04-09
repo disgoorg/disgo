@@ -18,7 +18,7 @@ func (h GuildDeleteHandler) New() interface{} {
 	return &api.Guild{}
 }
 
-// Handle handles the specific raw gateway event
+// HandleGatewayEvent handles the specific raw gateway event
 func (h GuildDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	guild, ok := i.(*api.Guild)
 	if !ok {

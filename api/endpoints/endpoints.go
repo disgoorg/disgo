@@ -203,3 +203,8 @@ var (
 	TeamIcon             = NewCDNRoute("/team-icons/{team.id}/team.icon.", PNG, JPEG, WEBP)
 	Attachments          = NewCDNRoute("/attachments/{channel.id}/{attachment.id}/{file.name}", BLANK)
 )
+
+// Other
+var (
+	InviteURL            = NewRoute("https://discord.gg/{code}")
+)

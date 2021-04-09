@@ -23,7 +23,7 @@ func (h GuildMemberRemoveHandler) New() interface{} {
 	return &guildMemberRemoveData{}
 }
 
-// Handle handles the specific raw gateway event
+// HandleGatewayEvent handles the specific raw gateway event
 func (h GuildMemberRemoveHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	member, ok := i.(*guildMemberRemoveData)
 	if !ok {

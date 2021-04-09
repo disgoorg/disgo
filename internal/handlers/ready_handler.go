@@ -26,7 +26,7 @@ func (h ReadyHandler) New() interface{} {
 	return &readyEventData{}
 }
 
-// Handle handles the specific raw gateway event
+// HandleGatewayEvent handles the specific raw gateway event
 func (h ReadyHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	readyEvent, ok := i.(*readyEventData)
 	if !ok {

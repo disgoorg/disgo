@@ -23,7 +23,7 @@ func (h GuildRoleCreateHandler) New() interface{} {
 	return &roleCreateData{}
 }
 
-// Handle handles the specific raw gateway event
+// HandleGatewayEvent handles the specific raw gateway event
 func (h GuildRoleCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	roleCreateData, ok := i.(*roleCreateData)
 	if !ok {

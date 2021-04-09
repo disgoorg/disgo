@@ -30,6 +30,7 @@ type DisgoBuilderImpl struct {
 	messageCachePolicy       api.MessageCachePolicy
 	cacheFlags               api.CacheFlags
 	intents                  api.Intents
+	entityBuilder            api.EntityBuilder
 	eventManager             api.EventManager
 	voiceDispatchInterceptor api.VoiceDispatchInterceptor
 	webhookServer            api.WebhookServer
@@ -54,6 +55,12 @@ func (b *DisgoBuilderImpl) SetToken(token endpoints.Token) api.DisgoBuilder {
 // SetIntents sets the api.Intents to connect to discord
 func (b *DisgoBuilderImpl) SetIntents(intents api.Intents) api.DisgoBuilder {
 	b.intents = intents
+	return b
+}
+
+// SetEntityBuilder lets you inject your own api.EntityBuilder
+func (b *DisgoBuilderImpl) SetEntityBuilder(entityBuilder api.EntityBuilder) api.DisgoBuilder {
+	b.entityBuilder = entityBuilder
 	return b
 }
 
@@ -168,6 +175,11 @@ func (b *DisgoBuilderImpl) Build() (api.Disgo, error) {
 	disgo.restClient = b.restClient
 
 	disgo.intents = b.intents
+
+	if b.entityBuilder == nil {
+		b.entityBuilder = newEntityBuilderImpl(disgo)
+	}
+	disgo.entityBuilder = b.entityBuilder
 
 	if b.eventManager == nil {
 		b.eventManager = newEventManagerImpl(disgo, b.eventListeners)

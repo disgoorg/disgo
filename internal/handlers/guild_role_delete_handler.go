@@ -23,7 +23,7 @@ func (h GuildRoleDeleteHandler) New() interface{} {
 	return &roleCreateData{}
 }
 
-// Handle handles the specific raw gateway event
+// HandleGatewayEvent handles the specific raw gateway event
 func (h GuildRoleDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	roleDeleteData, ok := i.(*roleDeleteData)
 	if !ok {

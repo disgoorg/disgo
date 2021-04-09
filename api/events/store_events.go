@@ -14,7 +14,7 @@ func (e GenericStoreChannelEvent) Category() *api.StoreChannel {
 
 type StoreChannelCreateEvent struct {
 	GenericStoreChannelEvent
-	StoreChannel *api.Category
+	StoreChannel *api.StoreChannel
 }
 
 type StoreChannelUpdateEvent struct {

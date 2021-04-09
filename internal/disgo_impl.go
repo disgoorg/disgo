@@ -32,6 +32,8 @@ func New(token endpoints.Token, options api.Options) (api.Disgo, error) {
 
 	disgo.restClient = newRestClientImpl(disgo)
 
+	disgo.entityBuilder = newEntityBuilderImpl(disgo)
+
 	disgo.eventManager = newEventManagerImpl(disgo, []api.EventListener{})
 
 	if options.EnableWebhookInteractions {
@@ -50,6 +52,7 @@ type DisgoImpl struct {
 	gateway                  api.Gateway
 	restClient               api.RestClient
 	intents                  api.Intents
+	entityBuilder            api.EntityBuilder
 	eventManager             api.EventManager
 	voiceDispatchInterceptor api.VoiceDispatchInterceptor
 	webhookServer            api.WebhookServer
@@ -105,6 +108,11 @@ func (d *DisgoImpl) Gateway() api.Gateway {
 // RestClient returns the HTTP client used by disgo
 func (d *DisgoImpl) RestClient() api.RestClient {
 	return d.restClient
+}
+
+// EntityBuilder returns the api.EntityBuilder
+func (d *DisgoImpl) EntityBuilder() api.EntityBuilder {
+	return d.entityBuilder
 }
 
 // EventManager returns the api.EventManager

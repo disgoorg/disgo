@@ -76,18 +76,19 @@ func (c MessageChannel) CrosspostMessage(messageID Snowflake) (*Message, error) 
 // DMChannel is used for interacting in private Message(s) with users
 type DMChannel struct {
 	MessageChannel
-	Users []User `json:"recipients"`
 }
 
 // GuildChannel is a generic type for all server channels
 type GuildChannel struct {
 	Channel
-	GuildID Snowflake `json:"guild_id"`
 }
 
 // Guild returns the channel's Guild
 func (c GuildChannel) Guild() *Guild {
-	return c.Disgo.Cache().Guild(c.GuildID)
+	if c.GuildID == nil {
+		return nil
+	}
+	return c.Disgo.Cache().Guild(*c.GuildID)
 }
 
 // Category groups text & voice channels in servers together

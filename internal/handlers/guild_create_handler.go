@@ -18,7 +18,7 @@ func (h GuildCreateHandler) New() interface{} {
 	return &api.FullGuild{}
 }
 
-// Handle handles the specific raw gateway event
+// HandleGatewayEvent handles the specific raw gateway event
 func (h GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	fullGuild, ok := i.(*api.FullGuild)
 	if !ok {

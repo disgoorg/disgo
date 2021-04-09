@@ -18,7 +18,7 @@ func (h InteractionCreateHandler) New() interface{} {
 	return &api.Interaction{}
 }
 
-// Handle handles the specific raw gateway event
+// HandleGatewayEvent handles the specific raw gateway event
 func (h InteractionCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	interaction, ok := i.(*api.Interaction)
 	if !ok {

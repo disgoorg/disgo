@@ -17,7 +17,7 @@ func (h InteractionCreateWebhookHandler) New() interface{} {
 	return &api.Interaction{}
 }
 
-// Handle handles the specific raw gateway event
+// HandleWebhookEvent handles the specific raw gateway event
 func (h InteractionCreateWebhookHandler) HandleWebhookEvent(disgo api.Disgo, eventManager api.EventManager, c chan interface{}, i interface{}) {
 	interaction, ok := i.(*api.Interaction)
 	if !ok {

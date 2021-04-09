@@ -18,7 +18,7 @@ func (h GuildMemberUpdateHandler) New() interface{} {
 	return &api.Member{}
 }
 
-// Handle handles the specific raw gateway event
+// HandleGatewayEvent handles the specific raw gateway event
 func (h GuildMemberUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	member, ok := i.(*api.Member)
 	if !ok {

@@ -8,7 +8,13 @@ type GenericApplicationCommandEvent struct {
 	GenericEvent
 	CommandID api.Snowflake
 	GuildID   *api.Snowflake
-	Guild     *api.Guild
+}
+
+func (e GenericApplicationCommandEvent) Guild() *api.Guild {
+	if e.GuildID == nil {
+		return nil
+	}
+	return e.Disgo().Cache().Guild(*e.GuildID)
 }
 
 type ApplicationCommandCreateEvent struct {

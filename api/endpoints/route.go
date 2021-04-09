@@ -37,6 +37,14 @@ func (r Route) Compile(args ...interface{}) CompiledRoute {
 	return CompiledRoute{route: r.baseRoute + route}
 }
 
+func NewRoute(url string) Route {
+	return Route{
+		baseRoute:  "",
+		route:      url,
+		paramCount: countParams(url),
+	}
+}
+
 func countParams(url string) int {
 	paramCount := strings.Count(url, "{")
 	if paramCount != strings.Count(url, "}") {

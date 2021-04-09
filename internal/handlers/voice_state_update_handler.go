@@ -17,7 +17,7 @@ func (h VoiceStateUpdateHandler) New() interface{} {
 	return &api.VoiceStateUpdate{}
 }
 
-// Handle handles the specific raw gateway event
+// HandleGatewayEvent handles the specific raw gateway event
 func (h VoiceStateUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	voiceStateUpdate, ok := i.(*api.VoiceStateUpdate)
 	if !ok {
