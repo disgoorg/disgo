@@ -109,6 +109,17 @@ type MessageAttachment struct {
 	Width    *int      `json:"width"`
 }
 
+// MessageActivityType is the type of a MessageActivity
+type MessageActivityType int
+
+const (
+	MessageActivityTypeJoin MessageActivityType = iota + 1
+	MessageActivityTypeSpectate
+	MessageActivityTypeListen
+	_
+	MessageAcitivtyTypeJoinReqi
+)
+
 // Message is a struct for messages sent in discord text-based channels
 // todo: missing activity, application, stickers, referenced_message
 // https://discord.com/developers/docs/resources/channel#message-object
