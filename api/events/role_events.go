@@ -27,7 +27,7 @@ type RoleUpdateEvent struct {
 	OldRole *api.Role
 }
 
-// GuildRRoleDeleteEventoleDeleteEvent indicates that a api.Role got deleted
+// RoleDeleteEvent indicates that a api.Role got deleted
 type RoleDeleteEvent struct {
 	GenericGuildEvent
 	Role *api.Role

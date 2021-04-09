@@ -6,36 +6,145 @@ import (
 
 // ListenerAdapter lets you override the handles for receiving events
 type ListenerAdapter struct {
-	OnGenericEvent func(*api.Event)
+	OnGenericApplicationCommandEvent func(event *GenericApplicationCommandEvent)
+	OnApplicationCommandCreate       func(event *ApplicationCommandCreateEvent)
+	OnApplicationCommandUpdate       func(event *ApplicationCommandUpdateEvent)
+	OnApplicationCommandDelete       func(event *ApplicationCommandDeleteEvent)
+
+	OnGenericCategoryEvent func(event *GenericCategoryEvent)
+	OnCategoryCreate       func(event *CategoryCreateEvent)
+	OnCategoryUpdate       func(event *CategoryUpdateEvent)
+	OnCategoryDelete       func(event *CategoryDeleteEvent)
+
+	OnGenericChannelEvent func(event *GenericChannelEvent)
+
+	OnGenericDMChannelEvent func(event *GenericDMChannelEvent)
+	OnDMChannelCreate       func(event *DMChannelCreateEvent)
+	OnDMChannelUpdate       func(event *DMChannelUpdateEvent)
+	OnDMChannelDelete       func(event *DMChannelDeleteEvent)
+
+	OnGenericDMMessageReactionEventEvent func(event *GenericDMMessageReactionEvent)
+	OnDMMessageReactionAddEvent          func(event *DMMessageReactionAddEvent)
+	OnDMMessageReactionRemove            func(event *DMMessageReactionRemoveEvent)
+	OnDMMessageReactionRemoveEmote       func(event *DMMessageReactionRemoveEmoteEvent)
+	OnDMMessageReactionRemoveAll         func(event *DMMessageReactionRemoveAllEvent)
+
+	OnGenericEmoteEvent func(event *GenericEmoteEvent)
+	OnEmoteCreate       func(event *EmoteCreateEvent)
+	OnEmoteUpdate       func(event *EmoteUpdateEvent)
+	OnEmoteDelete       func(event *EmoteDeleteEvent)
+
+	OnException func(event *ExceptionEvent)
+
+	OnGenericGatewayStatusEvent func(event *GenericGatewayStatusEvent)
+	OnConnected                 func(event *ConnectedEvent)
+	OnReconnected               func(event *ReconnectedEvent)
+	OnResumed                   func(event *ResumedEvent)
+	OnDisconnected              func(event *DisconnectedEvent)
+	OnShutdown                  func(event *ShutdownEvent)
+
+	OnGenericEvent func(event api.Event)
 
 	// Guild Events
 	OnGenericGuildEvent func(event *GenericGuildEvent)
-	OnGuildJoin         func(event *GuildJoinEvent)
 	OnGuildUpdate       func(event *GuildUpdateEvent)
-	OnGuildLeave        func(event *GuildLeaveEvent)
 	OnGuildAvailable    func(event *GuildAvailableEvent)
 	OnGuildUnavailable  func(event *GuildUnavailableEvent)
+	OnGuildJoin         func(event *GuildJoinEvent)
+	OnGuildLeave        func(event *GuildLeaveEvent)
+	OnGuildReady        func(event *GuildReadyEvent)
+	OnGuildBan          func(event *GuildBanEvent)
+	OnGuildUnban        func(event *GuildUnbanEvent)
 
-	// Guild Role Events
-	OnGenericRole func(event *GenericRoleEvent)
-	OnRoleCreate  func(event *RoleCreateEvent)
-	OnRoleUpdate  func(event *RoleUpdateEvent)
-	OnRoleDelete  func(event *RoleDeleteEvent)
+	OnGenericGuildInviteEvent func(event *GenericGuildInviteEvent)
+	OnGuildInviteCreate       func(event *GuildInviteCreateEvent)
+	OnGuildInviteDelete       func(event *GuildInviteDeleteEvent)
 
-	// Message Events
-	OnMessageReceived      func(event *MessageReceivedEvent)
-	OnGuildMessageReceived func(event *GuildMessageReceivedEvent)
+	// Member Events
+	OnGenericGuildMemberEvent func(event *GenericGuildMemberEvent)
+	OnGuildMemberJoin         func(event *GuildMemberJoinEvent)
+	OnGuildMemberUpdate       func(event *GuildMemberUpdateEvent)
+	OnGuildMemberLeave        func(event *GuildMemberLeaveEvent)
+
+	OnGenericGuildMessageEvent func(event *GenericGuildMessageEvent)
+	OnGuildMessageReceived     func(event *GuildMessageReceivedEvent)
+	OnGuildMessageUpdate       func(event *GuildMessageUpdateEvent)
+	OnGuildMessageDelete       func(event *GuildMessageDeleteEvent)
+
+	OnGenericGuildMessageReactionEvent func(event *GenericGuildMessageReactionEvent)
+	OnGuildMessageReactionAdd          func(event *GuildMessageReactionAddEvent)
+	OnGuildMessageReactionRemove       func(event *GuildMessageReactionRemoveEvent)
+	OnGuildMessageReactionRemoveEmote  func(event *GuildMessageReactionRemoveEmoteEvent)
+	OnGuildMessageReactionRemoveAll    func(event *GuildMessageReactionRemoveAllEvent)
+
+	OnGenericGuildVoiceEvent func(event *GenericGuildVoiceEvent)
+	OnGuildVoiceUpdate       func(event *GuildVoiceUpdateEvent)
+	OnGuildVoiceJoin         func(event *GuildVoiceJoinEvent)
+	OnGuildVoiceLeave        func(event *GuildVoiceLeaveEvent)
+
+	OnHeartbeat func(event *HeartbeatEvent)
+
+	OnHttpRequest func(event *HttpRequestEvent)
 
 	// Interaction Events
-	OnGenericInteraction func(event *GenericInteractionEvent)
-	OnSlashCommand       func(event *SlashCommandEvent)
+	OnGenericInteractionEvent func(event *GenericInteractionEvent)
+	OnSlashCommand            func(event *SlashCommandEvent)
+
+	OnGenericMessageEvent func(event *GenericMessageEvent)
+	OnMessageDelete       func(event *MessageDeleteEvent)
+	OnMessageReceived     func(event *MessageReceivedEvent)
+	OnMessageUpdate       func(event *MessageUpdateEvent)
+
+	OnGenericReactionEvent       func(event *GenericReactionEvents)
+	OnMessageReactionAdd         func(event *MessageReactionAddEvent)
+	OnMessageReactionRemove      func(event *MessageReactionRemoveEvent)
+	OnMessageReactionRemoveEmote func(event *MessageReactionRemoveEmoteEvent)
+	OnMessageReactionRemoveAll   func(event *MessageReactionRemoveAllEvent)
+
+	OnRawGateway func(event *RawGatewayEvent)
+
+	OnReadyEvent func(event *ReadyEvent)
+
+	// Guild Role Events
+	OnGenericRoleEvent func(event *GenericRoleEvent)
+	OnRoleCreate       func(event *RoleCreateEvent)
+	OnRoleUpdate       func(event *RoleUpdateEvent)
+	OnRoleDelete       func(event *RoleDeleteEvent)
+
+	OnSelfUpdate func(event *SelfUpdateEvent)
+
+	OnGenericStoreChannelEvent func(event *StoreChannelCreateEvent)
+	OnStoreChannelCreate       func(event *StoreChannelCreateEvent)
+	OnStoreChannelUpdate       func(event *StoreChannelUpdateEvent)
+	OnStoreChannelDelete       func(event *StoreChannelDeleteEvent)
+
+	OnGenericTextChannelEvent func(event *GenericTextChannelEvent)
+	OnTextChannelCreate       func(event *TextChannelCreateEvent)
+	OnTextChannelUpdate       func(event *TextChannelUpdateEvent)
+	OnTextChannelDelete       func(event *TextChannelDeleteEvent)
+
+	OnGenericUserActivityEvent func(event *GenericUserActivityEvent)
+	OnUserActivityStart        func(event *UserActivityStartEvent)
+	OnUserActivityUpdate       func(event *UserActivityUpdateEvent)
+	OnUserActivityEnd          func(event *UserActivityEndEvent)
+
+	OnGenericUserEvent func(event *GenericUserEvent)
+	OnUserUpdate       func(event *UserUpdateEvent)
+	OnUserTyping       func(event *UserTypingEvent)
+	OnGuildUserTyping  func(event *GuildUserTypingEvent)
+	OnDMUserTyping     func(event *DMUserTypingEvent)
+
+	OnGenericVoiceChannelEvent func(event *GenericVoiceChannelEvent)
+	OnVoiceChannelCreate       func(event *VoiceChannelCreateEvent)
+	OnVoiceChannelUpdate       func(event *VoiceChannelUpdateEvent)
+	OnVoiceChannelDelete       func(event *VoiceChannelDeleteEvent)
 }
 
 // OnEvent is getting called everytime we receive an event
 func (l ListenerAdapter) OnEvent(event interface{}) {
 	if e, ok := event.(api.Event); ok {
 		if l.OnGenericEvent != nil {
-			l.OnGenericEvent(&e)
+			l.OnGenericEvent(e)
 		}
 	}
 	switch e := event.(type) {
@@ -67,8 +176,8 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 
 	// Guild Role Events
 	case GenericRoleEvent:
-		if l.OnGenericRole != nil {
-			l.OnGenericRole(&e)
+		if l.OnGenericRoleEvent != nil {
+			l.OnGenericRoleEvent(&e)
 		}
 	case RoleCreateEvent:
 		if l.OnRoleCreate != nil {
@@ -95,8 +204,8 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 
 	// Interaction Events
 	case GenericInteractionEvent:
-		if l.OnGenericInteraction != nil {
-			l.OnGenericInteraction(&e)
+		if l.OnGenericInteractionEvent != nil {
+			l.OnGenericInteractionEvent(&e)
 		}
 	case SlashCommandEvent:
 		if l.OnSlashCommand != nil {
