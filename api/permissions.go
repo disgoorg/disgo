@@ -5,6 +5,20 @@ import (
 	"strconv"
 )
 
+type PermissionOverwriteType int
+
+const (
+	PermissionOverwriteTypeRole PermissionOverwriteType = iota
+	PermissionOverwriteTypeMember
+)
+
+type PermissionOverwrite struct {
+	ID    Snowflake               `json:"id"`
+	Type  PermissionOverwriteType `json:"type"`
+	Allow Permissions             `json:"allow"`
+	Deny  Permissions             `json:"deny"`
+}
+
 // Permissions extends the Bit structure, and is used within roles and channels
 type Permissions int64
 
