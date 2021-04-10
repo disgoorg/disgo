@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/DisgoOrg/disgo/api/events"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/DisgoOrg/disgo/api"
@@ -87,6 +88,12 @@ func (r RestClientImpl) Request(route endpoints.CompiledAPIRoute, rqBody interfa
 	}
 
 	log.Debugf("code: %d, response: %s", rs.StatusCode, string(rawRsBody))
+
+	r.Disgo().EventManager().Dispatch(events.HttpRequestEvent{
+		GenericEvent: events.NewEvent(r.Disgo(), 0),
+		Request:  rq,
+		Response: rs,
+	})
 
 	switch rs.StatusCode {
 	case http.StatusOK, http.StatusCreated, http.StatusNoContent:

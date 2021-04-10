@@ -10,6 +10,7 @@ import (
 	"runtime/debug"
 	"time"
 
+	"github.com/DisgoOrg/disgo/api/events"
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
 
@@ -222,12 +223,20 @@ func (g *GatewayImpl) heartbeat() {
 func (g *GatewayImpl) sendHeartbeat() {
 	log.Debug("sending heartbeat...")
 
+	heartbeatEvent := events.HeartbeatEvent{
+		GenericEvent: events.NewEvent(g.Disgo(), 0),
+		OldPing:      g.Latency(),
+	}
+
 	if err := g.conn.WriteJSON(api.NewGatewayCommand(api.OpHeartbeat, g.lastSequenceReceived)); err != nil {
 		log.Errorf("failed to send heartbeat with error: %s", err)
 		g.Close()
 		g.reconnect(1 * time.Second)
 	}
 	g.lastHeartbeatSent = time.Now().UTC()
+
+	heartbeatEvent.NewPing = g.Latency()
+	g.Disgo().EventManager().Dispatch(heartbeatEvent)
 }
 
 func (g *GatewayImpl) listen() {
@@ -267,10 +276,14 @@ func (g *GatewayImpl) listen() {
 				if event.S != nil {
 					g.lastSequenceReceived = event.S
 				}
+				if event.T == nil {
+					log.Errorf("received event without T. playload: %s", string(data))
+					continue
+				}
 
 				log.Debugf("received: %s", *event.T)
 
-				if event.T != nil && *event.T == api.GatewayEventReady {
+				if *event.T == api.GatewayEventReady {
 					var readyEvent api.ReadyGatewayEvent
 					if err := parseEventToStruct(event, &readyEvent); err != nil {
 						log.Errorf("Error parsing ready event: %s", err)
@@ -281,10 +294,19 @@ func (g *GatewayImpl) listen() {
 					log.Info("ready event received")
 				}
 
-				if event.T == nil {
-					log.Errorf("received event without T. playload: %s", string(data))
+				// TODO: add setting to enable raw gateway events?
+				var payload map[string]interface{}
+				if err = parseEventToStruct(event, &payload); err != nil {
+					log.Errorf("Error parsing event: %s", err)
 					continue
 				}
+				g.Disgo().EventManager().Dispatch(events.RawGatewayEvent{
+					GenericEvent: events.NewEvent(g.Disgo(), *event.S),
+					Type:         *event.T,
+					RawPayload:   event.D,
+					Payload:      payload,
+				})
+
 				d := g.Disgo()
 				e := d.EventManager()
 				e.Handle(*event.T, nil, *event.S, event.D)

@@ -2,13 +2,12 @@ package events
 
 import (
 	"net/http"
-
-	"github.com/DisgoOrg/disgo/api/endpoints"
 )
 
 type HttpRequestEvent struct {
-	Request  endpoints.Request
-	Response endpoints.Response
+	GenericEvent
+	Request  *http.Request
+	Response *http.Response
 }
 
 func (e HttpRequestEvent) RateLimited() bool {

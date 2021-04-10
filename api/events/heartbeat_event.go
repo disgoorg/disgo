@@ -1,7 +1,9 @@
 package events
 
+import "time"
+
 type HeartbeatEvent struct {
 	GenericEvent
-	NewPing int
-	OldPing int
+	NewPing time.Duration
+	OldPing time.Duration
 }

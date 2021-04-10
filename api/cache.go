@@ -32,13 +32,12 @@ type Cache interface {
 	CacheGuild(*Guild) *Guild
 	UncacheGuild(Snowflake)
 
-	/*Message(Snowflake) *Message
-	Messages(Snowflake) []*Message
-	AllMessages() []*Message
-	MessageCache(Snowflake) map[Snowflake]*Message
+	Message(channelID Snowflake, messageID Snowflake) *Message
+	Messages(channelID Snowflake) []*Message
+	MessageCache(channelID Snowflake) map[Snowflake]*Message
 	AllMessageCache() map[Snowflake]map[Snowflake]*Message
-	CacheMessage(*Message) *Message
-	UncacheMessage(Snowflake)*/
+	CacheMessage(message *Message) *Message
+	UncacheMessage(channelID Snowflake, messageID Snowflake)
 
 	Member(Snowflake, Snowflake) *Member
 	MemberByTag(Snowflake, string) *Member
