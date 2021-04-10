@@ -32,6 +32,20 @@ func (b EntityBuilderImpl) CreateUser(user *api.User, updateCache bool) *api.Use
 	return user
 }
 
+func (b EntityBuilderImpl) CreateMessage(message *api.Message, updateCache bool) *api.Message {
+	message.Disgo = b.Disgo()
+	if message.Member != nil {
+		message.Member = b.CreateMember(*message.GuildID, message.Member, true)
+	}
+	if message.Author != nil {
+		
+	}
+	if updateCache {
+		return b.Disgo().Cache().CacheMessage(message)
+	}
+	return message
+}
+
 func (b EntityBuilderImpl) CreateGuild(guild *api.Guild, updateCache bool) *api.Guild {
 	guild.Disgo = b.Disgo()
 	if updateCache {

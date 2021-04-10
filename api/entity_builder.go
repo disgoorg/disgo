@@ -7,6 +7,8 @@ type EntityBuilder interface {
 
 	CreateUser(user *User, updateCache bool) *User
 
+	CreateMessage(message *Message, updateCache bool) *Message
+
 	CreateGuild(guild *Guild, updateCache bool) *Guild
 	CreateMember(guildID Snowflake, member *Member, updateCache bool) *Member
 	CreateGuildCommand(guildID Snowflake, command *Command, updateCache bool) *Command
