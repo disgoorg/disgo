@@ -11,6 +11,7 @@ type ListenerAdapter struct {
 	// Other events
 	OnGenericEvent func(event *GenericEvent)
 	OnHeartbeat    func(event *HeartbeatEvent)
+	OnError        func(event *ErrorEvent)
 	OnHttpRequest  func(event *HttpRequestEvent)
 	OnRawGateway   func(event *RawGatewayEvent)
 	OnReadyEvent   func(event *ReadyEvent)
@@ -66,8 +67,6 @@ type ListenerAdapter struct {
 	OnEmoteCreate       func(event *EmoteCreateEvent)
 	OnEmoteUpdate       func(event *EmoteUpdateEvent)
 	OnEmoteDelete       func(event *EmoteDeleteEvent)
-
-	OnException func(event *ExceptionEvent)
 
 	// api.GatewayStatus Events
 	OnGenericGatewayStatusEvent func(event *GenericGatewayStatusEvent)
@@ -171,6 +170,10 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 	case HttpRequestEvent:
 		if listener := l.OnHttpRequest; listener != nil {
+			listener(&e)
+		}
+	case ErrorEvent:
+		if listener := l.OnError; listener != nil {
 			listener(&e)
 		}
 	case RawGatewayEvent:
@@ -333,11 +336,6 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 	case EmoteDeleteEvent:
 		if listener := l.OnEmoteDelete; listener != nil {
-			listener(&e)
-		}
-
-	case ExceptionEvent:
-		if listener := l.OnException; listener != nil {
 			listener(&e)
 		}
 

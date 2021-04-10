@@ -1,5 +1,5 @@
 package events
 
-type ExceptionEvent struct {
+type ErrorEvent struct {
 	Error error
 }
