@@ -4,7 +4,9 @@ import "github.com/DisgoOrg/disgo/api"
 
 // NewEvent constructs a new GenericEvent with the provided Disgo instance
 func NewEvent(disgo api.Disgo, sequenceNumber int) GenericEvent {
-	return GenericEvent{disgo: disgo, sequenceNumber: sequenceNumber}
+	event := GenericEvent{disgo: disgo, sequenceNumber: sequenceNumber}
+	disgo.EventManager().Dispatch(event)
+	return event
 }
 
 // GenericEvent the base event structure
