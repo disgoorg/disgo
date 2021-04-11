@@ -180,7 +180,7 @@ func (g *GatewayImpl) Status() api.GatewayStatus {
 
 // Latency returns the api.Gateway latency
 func (g *GatewayImpl) Latency() time.Duration {
-	return g.lastHeartbeatSent.Sub(g.lastHeartbeatReceived)
+	return g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
 }
 
 // Close cleans up the gateway internals
