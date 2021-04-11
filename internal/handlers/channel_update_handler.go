@@ -38,7 +38,7 @@ func (h ChannelUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		if oldDMChannel != nil {
 			oldDMChannel = &*oldDMChannel
 		}
-		newDMChannel := disgo.EntityBuilder().CreateDMChannel(channel, true)
+		newDMChannel := disgo.EntityBuilder().CreateDMChannel(channel, api.CacheStrategyYes)
 
 		genericDMChannelEvent := events.GenericDMChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
@@ -59,7 +59,7 @@ func (h ChannelUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		if oldTextChannel != nil {
 			oldTextChannel = &*oldTextChannel
 		}
-		newTextChannel := disgo.EntityBuilder().CreateTextChannel(channel, true)
+		newTextChannel := disgo.EntityBuilder().CreateTextChannel(channel, api.CacheStrategyYes)
 
 		genericTextChannelEvent := events.GenericTextChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
@@ -77,7 +77,7 @@ func (h ChannelUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		if oldStoreChannel != nil {
 			oldStoreChannel = &*oldStoreChannel
 		}
-		newStoreChannel := disgo.EntityBuilder().CreateStoreChannel(channel, true)
+		newStoreChannel := disgo.EntityBuilder().CreateStoreChannel(channel, api.CacheStrategyYes)
 
 		genericStoreChannelEvent := events.GenericStoreChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
@@ -95,7 +95,7 @@ func (h ChannelUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		if oldCategory != nil {
 			oldCategory = &*oldCategory
 		}
-		newCategory := disgo.EntityBuilder().CreateCategory(channel, true)
+		newCategory := disgo.EntityBuilder().CreateCategory(channel, api.CacheStrategyYes)
 
 		genericCategoryEvent := events.GenericCategoryEvent{
 			GenericChannelEvent: genericChannelEvent,
@@ -113,7 +113,7 @@ func (h ChannelUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		if oldVoiceChannel != nil {
 			oldVoiceChannel = &*oldVoiceChannel
 		}
-		newVoiceChannel := disgo.EntityBuilder().CreateVoiceChannel(channel, true)
+		newVoiceChannel := disgo.EntityBuilder().CreateVoiceChannel(channel, api.CacheStrategyYes)
 
 		genericVoiceChannelEvent := events.GenericVoiceChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
