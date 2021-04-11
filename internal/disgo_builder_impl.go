@@ -3,7 +3,7 @@ package internal
 import (
 	"errors"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/DisgoOrg/log"
 
 	"github.com/DisgoOrg/disgo/api"
 	"github.com/DisgoOrg/disgo/api/endpoints"
@@ -12,7 +12,6 @@ import (
 // NewBuilder returns a new api.DisgoBuilder instance
 func NewBuilder(token endpoints.Token) api.DisgoBuilder {
 	return &DisgoBuilderImpl{
-		logLevel:   log.InfoLevel,
 		BotToken:   token,
 		cacheFlags: api.CacheFlagsDefault,
 	}
@@ -20,7 +19,7 @@ func NewBuilder(token endpoints.Token) api.DisgoBuilder {
 
 // DisgoBuilderImpl implementation of the api.DisgoBuilder interface
 type DisgoBuilderImpl struct {
-	logLevel log.Level
+	logger log.Logger
 	// make this public so it does not print in fmt.Sprint("%+v, DisgoBuilderImpl{})
 	BotToken                 endpoints.Token
 	gateway                  api.Gateway
@@ -40,9 +39,9 @@ type DisgoBuilderImpl struct {
 	eventListeners           []api.EventListener
 }
 
-// SetLogLevel sets logrus.Level of logrus
-func (b *DisgoBuilderImpl) SetLogLevel(logLevel log.Level) api.DisgoBuilder {
-	b.logLevel = logLevel
+// SetLogger sets logger implementation disgo should use as an example logrus
+func (b *DisgoBuilderImpl) SetLogger(logger log.Logger) api.DisgoBuilder {
+	b.logger = logger
 	return b
 }
 
@@ -148,9 +147,10 @@ func (b *DisgoBuilderImpl) SetGateway(gateway api.Gateway) api.DisgoBuilder {
 
 // Build builds your api.Disgo instance
 func (b *DisgoBuilderImpl) Build() (api.Disgo, error) {
-	log.SetLevel(b.logLevel)
 
-	disgo := &DisgoImpl{}
+	disgo := &DisgoImpl{
+		logger: b.logger,
+	}
 	if b.BotToken == "" {
 		return nil, errors.New("please specify the BotToken")
 	}
@@ -158,7 +158,7 @@ func (b *DisgoBuilderImpl) Build() (api.Disgo, error) {
 
 	id, err := IDFromToken(disgo.BotToken)
 	if err != nil {
-		log.Errorf("error while getting application id from BotToken: %s", err)
+		disgo.Logger().Errorf("error while getting application id from BotToken: %s", err)
 		return nil, err
 	}
 

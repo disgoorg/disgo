@@ -32,7 +32,11 @@ func (e GenericGuildInviteEvent) Category() *api.Category {
 }
 
 func (e GenericGuildInviteEvent) URL() string {
-	return endpoints.InviteURL.Compile(e.Code).Route()
+	url, err := endpoints.InviteURL.Compile(e.Code)
+	if err != nil {
+		return ""
+	}
+	return url.Route()
 }
 
 type GuildInviteCreateEvent struct {

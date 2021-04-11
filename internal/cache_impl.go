@@ -5,8 +5,6 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/DisgoOrg/disgo/api"
 )
 
@@ -65,20 +63,20 @@ func (c *CacheImpl) Disgo() api.Disgo {
 
 // Close cleans up the cache and it's internal tasks
 func (c *CacheImpl) Close() {
-	log.Info("closing cache goroutines...")
+	c.Disgo().Logger().Info("closing cache goroutines...")
 	c.quit <- true
-	log.Info("closed cache goroutines")
+	c.Disgo().Logger().Info("closed cache goroutines")
 }
 
 func (c CacheImpl) startCleanup(cleanupInterval time.Duration) {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Errorf("recovered cache cleanup goroutine error: %s", r)
+			c.Disgo().Logger().Errorf("recovered cache cleanup goroutine error: %s", r)
 			debug.PrintStack()
 			c.startCleanup(cleanupInterval)
 			return
 		}
-		log.Info("shut down cache cleanup goroutine")
+		c.Disgo().Logger().Info("shut down cache cleanup goroutine")
 	}()
 
 	ticker := time.NewTicker(cleanupInterval)

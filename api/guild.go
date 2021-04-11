@@ -121,11 +121,11 @@ type GuildPreview struct {
 // FullGuild represents a Guild objects sent by discord with the GatewayEventGuildCreate
 type FullGuild struct {
 	*Guild
-	Roles       []*Role         `json:"roles"`
-	Emotes      []*Emote        `json:"emojis"`
-	Members     []*Member       `json:"members"`
-	Channels    []*Channel `json:"channels"`
-	VoiceStates []*VoiceState   `json:"voice_states"`
+	Roles       []*Role       `json:"roles"`
+	Emotes      []*Emote      `json:"emojis"`
+	Members     []*Member     `json:"members"`
+	Channels    []*Channel    `json:"channels"`
+	VoiceStates []*VoiceState `json:"voice_states"`
 	//Presences   []*Presence     `json:"presences"`
 }
 
@@ -191,7 +191,11 @@ func (g Guild) IconURL() *string {
 	if animated {
 		format = endpoints.GIF
 	}
-	u := endpoints.GuildIcon.Compile(format, g.ID.String(), *g.Icon).Route()
+	route, err := endpoints.GuildIcon.Compile(format, g.ID.String(), *g.Icon)
+	if err != nil {
+		return nil
+	}
+	u := route.Route()
 	return &u
 }
 

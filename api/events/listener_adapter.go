@@ -3,7 +3,7 @@ package events
 import (
 	"reflect"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/DisgoOrg/disgo/api"
 )
 
 // ListenerAdapter lets you override the handles for receiving events
@@ -608,6 +608,8 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 
 	default:
-		log.Errorf("unexpected event received: \"%s\", event: \"%#e\"", reflect.TypeOf(event).Name(), event)
+		if e, ok := e.(api.Event); ok {
+			e.Disgo().Logger().Errorf("unexpected event received: \"%s\", event: \"%#e\"", reflect.TypeOf(event).Name(), event)
+		}
 	}
 }

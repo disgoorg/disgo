@@ -3,7 +3,6 @@ package handlers
 import (
 	"github.com/DisgoOrg/disgo/api"
 	"github.com/DisgoOrg/disgo/api/events"
-	log "github.com/sirupsen/logrus"
 )
 
 // ChannelCreateHandler handles api.GatewayEventChannelCreate
@@ -47,7 +46,7 @@ func (h ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		})
 
 	case api.ChannelTypeGroupDM:
-		log.Warnf("ChannelTypeGroupDM received what the hell discord")
+		disgo.Logger().Warnf("ChannelTypeGroupDM received what the hell discord")
 
 	case api.ChannelTypeText, api.ChannelTypeNews:
 		textChannel := disgo.EntityBuilder().CreateTextChannel(channel, api.CacheStrategyYes)
@@ -102,7 +101,7 @@ func (h ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		})
 
 	default:
-		log.Warnf("unknown channel type received: %d", channel.Type)
+		disgo.Logger().Warnf("unknown channel type received: %d", channel.Type)
 	}
 
 }

@@ -3,7 +3,6 @@ package handlers
 import (
 	"github.com/DisgoOrg/disgo/api"
 	"github.com/DisgoOrg/disgo/api/events"
-	log "github.com/sirupsen/logrus"
 )
 
 // ChannelDeleteHandler handles api.GatewayEventChannelDelete
@@ -48,7 +47,7 @@ func (h ChannelDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		})
 
 	case api.ChannelTypeGroupDM:
-		log.Warnf("ChannelTypeGroupDM received what the hell discord")
+		disgo.Logger().Warnf("ChannelTypeGroupDM received what the hell discord")
 
 	case api.ChannelTypeText, api.ChannelTypeNews:
 		disgo.Cache().UncacheTextChannel(*channel.GuildID, channel.ID)
@@ -107,6 +106,6 @@ func (h ChannelDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		})
 
 	default:
-		log.Warnf("unknown channel type received: %d", channel.Type)
+		disgo.Logger().Warnf("unknown channel type received: %d", channel.Type)
 	}
 }

@@ -3,7 +3,7 @@ package internal
 import (
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/DisgoOrg/log"
 
 	"github.com/DisgoOrg/disgo/api"
 	"github.com/DisgoOrg/disgo/api/endpoints"
@@ -16,15 +16,17 @@ func New(token endpoints.Token, options api.Options) (api.Disgo, error) {
 	} else if options.LargeThreshold > 250 {
 		options.LargeThreshold = 250
 	}
+
 	disgo := &DisgoImpl{
 		BotToken:       token,
 		intents:        options.Intents,
 		largeThreshold: options.LargeThreshold,
+		logger:         options.Logger,
 	}
 
 	id, err := IDFromToken(token)
 	if err != nil {
-		log.Errorf("error while getting application id from BotToken: %s", err)
+		disgo.Logger().Errorf("error while getting application id from BotToken: %s", err)
 		return nil, err
 	}
 
@@ -49,6 +51,7 @@ func New(token endpoints.Token, options api.Options) (api.Disgo, error) {
 type DisgoImpl struct {
 	// make this public so it does not print in fmt.Sprint("%+v, DisgoImpl{})
 	BotToken                 endpoints.Token
+	logger                   log.Logger
 	gateway                  api.Gateway
 	restClient               api.RestClient
 	intents                  api.Intents
@@ -61,11 +64,16 @@ type DisgoImpl struct {
 	largeThreshold           int
 }
 
+// Logger returns the logger instance disgo uses
+func (d *DisgoImpl) Logger() log.Logger {
+	return d.logger
+}
+
 // Connect opens the gateway connection to discord
 func (d *DisgoImpl) Connect() error {
 	err := d.Gateway().Open()
 	if err != nil {
-		log.Errorf("Unable to connect to gateway. error: %s", err)
+		d.logger.Errorf("Unable to connect to gateway. error: %s", err)
 		return err
 	}
 	return nil

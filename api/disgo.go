@@ -7,10 +7,12 @@ import (
 	"time"
 
 	"github.com/DisgoOrg/disgo/api/endpoints"
+	"github.com/DisgoOrg/log"
 )
 
 // Disgo is the main discord interface
 type Disgo interface {
+	Logger() log.Logger
 	Connect() error
 	Start()
 	Close()
@@ -69,6 +71,7 @@ type Event interface {
 
 // EventManager lets you listen for specific events triggered by raw gateway events
 type EventManager interface {
+	Disgo() Disgo
 	Close()
 	AddEventListeners(eventListeners ...EventListener)
 	Handle(eventType GatewayEventType, replyChannel chan interface{}, sequenceNumber int, payload json.RawMessage)

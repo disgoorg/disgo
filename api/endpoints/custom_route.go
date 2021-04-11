@@ -6,11 +6,15 @@ type CustomRoute struct {
 }
 
 // Compile returns a CompiledAPIRoute
-func (r CustomRoute) Compile(args ...interface{}) CompiledAPIRoute {
-	return CompiledAPIRoute{
-		CompiledRoute: r.Route.Compile(args...),
-		method:        r.method,
+func (r CustomRoute) Compile(args ...interface{}) (*CompiledAPIRoute, error) {
+	compiledRoute, err := r.Route.Compile(args...)
+	if err != nil {
+		return nil, err
 	}
+	return &CompiledAPIRoute{
+		CompiledRoute: compiledRoute,
+		method:        r.method,
+	}, nil
 }
 
 // NewCustomRoute generates a new custom route struct

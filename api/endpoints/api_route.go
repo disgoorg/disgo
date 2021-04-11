@@ -7,11 +7,15 @@ type APIRoute struct {
 }
 
 // Compile returns a CompiledAPIRoute
-func (r APIRoute) Compile(args ...interface{}) CompiledAPIRoute {
-	return CompiledAPIRoute{
-		CompiledRoute: r.Route.Compile(args...),
-		method:        r.method,
+func (r APIRoute) Compile(args ...interface{}) (*CompiledAPIRoute, error) {
+	compiledRoute, err := r.Route.Compile(args...)
+	if err != nil {
+		return nil, err
 	}
+	return &CompiledAPIRoute{
+		CompiledRoute: compiledRoute,
+		method:        r.method,
+	}, nil
 }
 
 // Method returns the request method used by the route
@@ -33,7 +37,7 @@ func NewAPIRoute(method Method, url string) APIRoute {
 
 // CompiledAPIRoute is APIRoute compiled with all URL args
 type CompiledAPIRoute struct {
-	CompiledRoute
+	*CompiledRoute
 	method Method
 }
 

@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/PaesslerAG/gval"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 
 	"github.com/DisgoOrg/disgo"
 	"github.com/DisgoOrg/disgo/api"
@@ -25,11 +25,14 @@ const guildID = "817327181659111454"
 const adminRoleID = "817327279583264788"
 const testRoleID = "825156597935243304"
 
+var logger = logrus.New()
+
 func main() {
-	log.Info("starting testbot...")
+	logger.SetLevel(logrus.DebugLevel)
+	logger.Info("starting testbot...")
 
 	dgo, err := disgo.NewBuilder(endpoints.Token(os.Getenv("token"))).
-		SetLogLevel(log.DebugLevel).
+		SetLogger(logger).
 		SetIntents(api.IntentsGuilds | api.IntentsGuildMessages | api.IntentsGuildMembers).
 		SetMemberCachePolicy(api.MemberCachePolicyAll).
 		AddEventListeners(&events.ListenerAdapter{
@@ -39,7 +42,7 @@ func main() {
 		}).
 		Build()
 	if err != nil {
-		log.Fatalf("error while building disgo instance: %s", err)
+		logger.Fatalf("error while building disgo instance: %s", err)
 		return
 	}
 
@@ -118,7 +121,7 @@ func main() {
 	// using the api.RestClient directly to avoid the guild needing to be cached
 	cmds, err := dgo.RestClient().SetGuildCommands(dgo.SelfUserID(), guildID, rawCmds...)
 	if err != nil {
-		log.Errorf("error while registering guild commands: %s", err)
+		logger.Errorf("error while registering guild commands: %s", err)
 	}
 
 	var cmdsPermissions []api.SetGuildCommandPermissions
@@ -143,24 +146,24 @@ func main() {
 		})
 	}
 	if _, err = dgo.RestClient().SetGuildCommandsPermissions(dgo.SelfUserID(), guildID, cmdsPermissions...); err != nil {
-		log.Errorf("error while setting command permissions: %s", err)
+		logger.Errorf("error while setting command permissions: %s", err)
 	}
 
 	err = dgo.Connect()
 	if err != nil {
-		log.Fatalf("error while connecting to discord: %s", err)
+		logger.Fatalf("error while connecting to discord: %s", err)
 	}
 
 	defer dgo.Close()
 
-	log.Infof("Bot is now running. Press CTRL-C to exit.")
+	logger.Infof("Bot is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-s
 }
 
 func guildAvailListener(event *events.GuildAvailableEvent) {
-	log.Printf("guild loaded: %s", event.GuildID)
+	logger.Printf("guild loaded: %s", event.GuildID)
 }
 
 func slashCommandListener(event *events.SlashCommandEvent) {

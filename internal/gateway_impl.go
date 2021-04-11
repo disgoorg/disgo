@@ -12,7 +12,6 @@ import (
 
 	"github.com/DisgoOrg/disgo/api/events"
 	"github.com/gorilla/websocket"
-	log "github.com/sirupsen/logrus"
 
 	"github.com/DisgoOrg/disgo/api"
 	"github.com/DisgoOrg/disgo/api/endpoints"
@@ -49,12 +48,12 @@ func (g *GatewayImpl) reconnect(delay time.Duration) {
 		time.Sleep(delay)
 
 		if g.Status() == api.Connecting || g.Status() == api.Reconnecting {
-			log.Error("tried to reconnect gateway while connecting/reconnecting")
+			g.Disgo().Logger().Error("tried to reconnect gateway while connecting/reconnecting")
 			return
 		}
-		log.Info("reconnecting gateway...")
+		g.Disgo().Logger().Info("reconnecting gateway...")
 		if err := g.Open(); err != nil {
-			log.Errorf("failed to reconnect gateway: %s", err)
+			g.Disgo().Logger().Errorf("failed to reconnect gateway: %s", err)
 			g.status = api.Disconnected
 			g.reconnect(delay * 2)
 		}
@@ -69,12 +68,16 @@ func (g *GatewayImpl) Open() error {
 		g.status = api.Reconnecting
 	}
 
-	log.Info("starting ws...")
+	g.Disgo().Logger().Info("starting ws...")
 
 	if g.url == nil {
-		log.Debug("gateway url empty, fetching...")
+		g.Disgo().Logger().Debug("gateway url empty, fetching...")
 		gatewayRs := api.GatewayRs{}
-		if err := g.Disgo().RestClient().Request(endpoints.GetGateway.Compile(), nil, &gatewayRs); err != nil {
+		compiledRoute, err := endpoints.GetGateway.Compile()
+		if err != nil {
+			return err
+		}
+		if err = g.Disgo().RestClient().Request(*compiledRoute, nil, &gatewayRs); err != nil {
 			return err
 		}
 		g.url = &gatewayRs.URL
@@ -88,7 +91,7 @@ func (g *GatewayImpl) Open() error {
 		if rs != nil && rs.Body != nil {
 			rawBody, err := ioutil.ReadAll(rs.Body)
 			if err != nil {
-				log.Errorf("error while reading response body: %s", err)
+				g.Disgo().Logger().Errorf("error while reading response body: %s", err)
 				g.url = nil
 				return err
 			}
@@ -97,11 +100,11 @@ func (g *GatewayImpl) Open() error {
 			body = "null"
 		}
 
-		log.Errorf("error connecting to gateway. url: %s, error: %s, body: %s", gatewayURL, err.Error(), body)
+		g.Disgo().Logger().Errorf("error connecting to gateway. url: %s, error: %s, body: %s", gatewayURL, err.Error(), body)
 		return err
 	}
 	wsConn.SetCloseHandler(func(code int, error string) error {
-		log.Infof("connection to websocket closed with code: %d, error: %s", code, error)
+		g.Disgo().Logger().Infof("connection to websocket closed with code: %d, error: %s", code, error)
 		return nil
 	})
 
@@ -112,7 +115,7 @@ func (g *GatewayImpl) Open() error {
 	if err != nil {
 		return err
 	}
-	event, err := parseGatewayEvent(mt, data)
+	event, err := g.parseGatewayEvent(mt, data)
 	if err != nil {
 		return err
 	}
@@ -131,7 +134,7 @@ func (g *GatewayImpl) Open() error {
 
 	if g.lastSequenceReceived == nil || g.sessionID == nil {
 		g.status = api.Identifying
-		log.Infof("sending Identifying command...")
+		g.Disgo().Logger().Infof("sending Identifying command...")
 		if err = wsConn.WriteJSON(
 			api.NewGatewayCommand(api.OpIdentify, api.IdentifyCommand{
 				Token: g.Disgo().Token(),
@@ -148,7 +151,7 @@ func (g *GatewayImpl) Open() error {
 			return err
 		}
 	} else {
-		log.Infof("sending Resuming command...")
+		g.Disgo().Logger().Infof("sending Resuming command...")
 		g.status = api.Resuming
 		if err = wsConn.WriteJSON(
 			api.NewGatewayCommand(api.OpResume, api.ResumeCommand{
@@ -184,14 +187,14 @@ func (g *GatewayImpl) Latency() time.Duration {
 func (g *GatewayImpl) Close() {
 	g.status = api.Disconnected
 	if g.quit != nil {
-		log.Info("closing gateway goroutines...")
+		g.Disgo().Logger().Info("closing gateway goroutines...")
 		close(g.quit)
 		g.quit = nil
-		log.Info("closed gateway goroutines")
+		g.Disgo().Logger().Info("closed gateway goroutines")
 	}
 	if g.conn != nil {
 		if err := g.closeWithCode(websocket.CloseNormalClosure); err != nil {
-			log.Errorf("error while closing wsconn: %s", err)
+			g.Disgo().Logger().Errorf("error while closing wsconn: %s", err)
 		}
 	}
 }
@@ -220,12 +223,12 @@ func (g *GatewayImpl) closeWithCode(code int) error {
 func (g *GatewayImpl) heartbeat() {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Errorf("recovered heartbeat goroutine error: %s", r)
+			g.Disgo().Logger().Errorf("recovered heartbeat goroutine error: %s", r)
 			debug.PrintStack()
 			g.heartbeat()
 			return
 		}
-		log.Info("shut down heartbeat goroutine")
+		g.Disgo().Logger().Info("shut down heartbeat goroutine")
 	}()
 
 	ticker := time.NewTicker(g.heartbeatInterval)
@@ -241,7 +244,7 @@ func (g *GatewayImpl) heartbeat() {
 }
 
 func (g *GatewayImpl) sendHeartbeat() {
-	log.Debug("sending heartbeat...")
+	g.Disgo().Logger().Debug("sending heartbeat...")
 
 	heartbeatEvent := events.HeartbeatEvent{
 		GenericEvent: events.NewEvent(g.Disgo(), 0),
@@ -249,7 +252,7 @@ func (g *GatewayImpl) sendHeartbeat() {
 	}
 
 	if err := g.conn.WriteJSON(api.NewGatewayCommand(api.OpHeartbeat, g.lastSequenceReceived)); err != nil {
-		log.Errorf("failed to send heartbeat with error: %s", err)
+		g.Disgo().Logger().Errorf("failed to send heartbeat with error: %s", err)
 		g.Close()
 		g.reconnect(1 * time.Second)
 	}
@@ -262,61 +265,61 @@ func (g *GatewayImpl) sendHeartbeat() {
 func (g *GatewayImpl) listen() {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Errorf("recovered listen goroutine error: %s", r)
+			g.Disgo().Logger().Errorf("recovered listen goroutine error: %s", r)
 			debug.PrintStack()
 			g.listen()
 			return
 		}
-		log.Info("shut down listen goroutine")
+		g.Disgo().Logger().Info("shut down listen goroutine")
 	}()
 	for {
 		select {
 		case <-g.quit:
-			log.Infof("existed listen routine")
+			g.Disgo().Logger().Infof("existed listen routine")
 			return
 		default:
 			mt, data, err := g.conn.ReadMessage()
 			if err != nil {
-				log.Errorf("error while reading from ws. error: %s", err)
+				g.Disgo().Logger().Errorf("error while reading from ws. error: %s", err)
 				g.Close()
 				g.reconnect(1 * time.Second)
 				return
 			}
 
-			event, err := parseGatewayEvent(mt, data)
+			event, err := g.parseGatewayEvent(mt, data)
 			if err != nil {
-				log.Errorf("error while unpacking gateway event. error: %s", err)
+				g.Disgo().Logger().Errorf("error while unpacking gateway event. error: %s", err)
 			}
 
 			switch op := event.Op; op {
 
 			case api.OpDispatch:
-				log.Debugf("received: OpDispatch")
+				g.Disgo().Logger().Debugf("received: OpDispatch")
 				if event.S != nil {
 					g.lastSequenceReceived = event.S
 				}
 				if event.T == nil {
-					log.Errorf("received event without T. playload: %s", string(data))
+					g.Disgo().Logger().Errorf("received event without T. playload: %s", string(data))
 					continue
 				}
 
-				log.Debugf("received: %s", *event.T)
+				g.Disgo().Logger().Debugf("received: %s", *event.T)
 
 				if *event.T == api.GatewayEventReady {
 					var readyEvent api.ReadyGatewayEvent
-					if err := parseEventToStruct(event, &readyEvent); err != nil {
-						log.Errorf("Error parsing ready event: %s", err)
+					if err := g.parseEventToStruct(event, &readyEvent); err != nil {
+						g.Disgo().Logger().Errorf("Error parsing ready event: %s", err)
 						continue
 					}
 					g.sessionID = &readyEvent.D.SessionID
 
-					log.Info("ready event received")
+					g.Disgo().Logger().Info("ready event received")
 				}
 
 				// TODO: add setting to enable raw gateway events?
 				var payload map[string]interface{}
-				if err = parseEventToStruct(event, &payload); err != nil {
-					log.Errorf("Error parsing event: %s", err)
+				if err = g.parseEventToStruct(event, &payload); err != nil {
+					g.Disgo().Logger().Errorf("Error parsing event: %s", err)
 					continue
 				}
 				g.Disgo().EventManager().Dispatch(events.RawGatewayEvent{
@@ -331,19 +334,19 @@ func (g *GatewayImpl) listen() {
 				e.Handle(*event.T, nil, *event.S, event.D)
 
 			case api.OpHeartbeat:
-				log.Debugf("received: OpHeartbeat")
+				g.Disgo().Logger().Debugf("received: OpHeartbeat")
 				g.sendHeartbeat()
 
 			case api.OpReconnect:
 				g.Close()
 				g.reconnect(0)
-				log.Debugf("received: OpReconnect")
+				g.Disgo().Logger().Debugf("received: OpReconnect")
 
 			case api.OpInvalidSession:
-				log.Debugf("received: OpInvalidSession")
+				g.Disgo().Logger().Debugf("received: OpInvalidSession")
 
 			case api.OpHeartbeatACK:
-				log.Debugf("received: OpHeartbeatACK")
+				g.Disgo().Logger().Debugf("received: OpHeartbeatACK")
 				g.lastHeartbeatReceived = time.Now().UTC()
 			}
 
@@ -352,15 +355,15 @@ func (g *GatewayImpl) listen() {
 	}
 }
 
-func parseEventToStruct(event *api.RawGatewayEvent, v interface{}) error {
+func (g *GatewayImpl) parseEventToStruct(event *api.RawGatewayEvent, v interface{}) error {
 	if err := json.Unmarshal(event.D, v); err != nil {
-		log.Errorf("error while unmarshaling event. error: %s", err)
+		g.Disgo().Logger().Errorf("error while unmarshaling event. error: %s", err)
 		return err
 	}
 	return nil
 }
 
-func parseGatewayEvent(mt int, data []byte) (*api.RawGatewayEvent, error) {
+func (g *GatewayImpl) parseGatewayEvent(mt int, data []byte) (*api.RawGatewayEvent, error) {
 
 	var reader io.Reader = bytes.NewBuffer(data)
 
@@ -374,7 +377,7 @@ func parseGatewayEvent(mt int, data []byte) (*api.RawGatewayEvent, error) {
 
 	decoder := json.NewDecoder(reader)
 	if err := decoder.Decode(&event); err != nil {
-		log.Errorf("error decoding websocket message_events, %s", err)
+		g.Disgo().Logger().Errorf("error decoding websocket message_events, %s", err)
 		return nil, err
 	}
 	return &event, nil
