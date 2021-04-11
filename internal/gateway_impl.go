@@ -341,12 +341,17 @@ func (g *GatewayImpl) listen() {
 				g.sendHeartbeat()
 
 			case api.OpReconnect:
-				g.Close()
-				g.reconnect(0)
 				g.Disgo().Logger().Debugf("received: OpReconnect")
+				g.Close()
+				g.reconnect(1*time.Second)
 
 			case api.OpInvalidSession:
 				g.Disgo().Logger().Debugf("received: OpInvalidSession")
+				g.Close()
+				// clear reconnect info
+				g.sessionID = nil
+				g.lastSequenceReceived = nil
+				g.reconnect(5*time.Second)
 
 			case api.OpHeartbeatACK:
 				g.Disgo().Logger().Debugf("received: OpHeartbeatACK")

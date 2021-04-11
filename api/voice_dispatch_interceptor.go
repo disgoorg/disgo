@@ -32,6 +32,6 @@ func (u VoiceStateUpdateEvent) VoiceChannel() *VoiceChannel {
 
 // VoiceDispatchInterceptor lets you listen to VoiceServerUpdate & VoiceStateUpdate
 type VoiceDispatchInterceptor interface {
-	OnVoiceServerUpdate(voiceServerUpdateEvent VoiceServerUpdateEvent)
-	OnVoiceStateUpdate(voiceStateUpdateEvent VoiceStateUpdateEvent)
+	OnVoiceServerUpdate(voiceServerUpdateEvent *VoiceServerUpdateEvent)
+	OnVoiceStateUpdate(voiceStateUpdateEvent *VoiceStateUpdateEvent)
 }

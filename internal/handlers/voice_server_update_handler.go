@@ -23,7 +23,7 @@ func (h VoiceServerUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManag
 	}
 
 	if interceptor := disgo.VoiceDispatchInterceptor(); interceptor != nil {
-		interceptor.OnVoiceServerUpdate(api.VoiceServerUpdateEvent{
+		interceptor.OnVoiceServerUpdate(&api.VoiceServerUpdateEvent{
 			VoiceServerUpdate: *voiceServerUpdate,
 			Disgo:             disgo,
 		})

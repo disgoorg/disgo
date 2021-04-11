@@ -36,7 +36,7 @@ func (h VoiceStateUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManage
 
 	if disgo.SelfUserID() == voiceStateUpdate.UserID {
 		if interceptor := disgo.VoiceDispatchInterceptor(); interceptor != nil {
-			interceptor.OnVoiceStateUpdate(*voiceStateUpdate)
+			interceptor.OnVoiceStateUpdate(voiceStateUpdate)
 		}
 	}
 
