@@ -92,11 +92,10 @@ func (c *Command) Update(command UpdateCommand) error {
 
 // SetPermissions sets the GuildCommandPermissions for a specific Guild. this overrides all existing CommandPermission(s). thx discord for that
 func (c *Command) SetPermissions(guildID Snowflake, permissions ...CommandPermission) error {
-	perms, err := c.Disgo.RestClient().SetGuildCommandPermissions(c.Disgo.SelfUserID(), guildID, c.ID, SetGuildCommandPermissions{Permissions: permissions})
+	_, err := c.Disgo.RestClient().SetGuildCommandPermissions(c.Disgo.SelfUserID(), guildID, c.ID, SetGuildCommandPermissions{Permissions: permissions})
 	if err != nil {
 		return err
 	}
-	c.GuildPermissions[guildID] = perms
 	return nil
 }
 
@@ -111,7 +110,6 @@ func (c *Command) FetchPermissions(guildID Snowflake) (*GuildCommandPermissions,
 	if err != nil {
 		return nil, err
 	}
-	c.GuildPermissions[guildID] = perms
 	return perms, nil
 }
 
