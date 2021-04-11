@@ -42,30 +42,30 @@ func (h GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 		channel.GuildID = &guild.ID
 		switch channel.Type {
 		case api.ChannelTypeText, api.ChannelTypeNews:
-			disgo.EntityBuilder().CreateTextChannel(channel, true)
+			disgo.EntityBuilder().CreateTextChannel(channel, api.CacheStrategyYes)
 		case api.ChannelTypeVoice:
-			disgo.EntityBuilder().CreateVoiceChannel(channel, true)
+			disgo.EntityBuilder().CreateVoiceChannel(channel, api.CacheStrategyYes)
 		case api.ChannelTypeCategory:
-			disgo.EntityBuilder().CreateCategory(channel, true)
+			disgo.EntityBuilder().CreateCategory(channel, api.CacheStrategyYes)
 		case api.ChannelTypeStore:
-			disgo.EntityBuilder().CreateStoreChannel(channel, true)
+			disgo.EntityBuilder().CreateStoreChannel(channel, api.CacheStrategyYes)
 		}
 	}
 
 	for i := range fullGuild.Roles {
-		disgo.EntityBuilder().CreateRole(guild.ID, fullGuild.Roles[i], true)
+		disgo.EntityBuilder().CreateRole(guild.ID, fullGuild.Roles[i], api.CacheStrategyYes)
 	}
 
 	for i := range fullGuild.Members {
-		disgo.EntityBuilder().CreateMember(guild.ID, fullGuild.Members[i], true)
+		disgo.EntityBuilder().CreateMember(guild.ID, fullGuild.Members[i], api.CacheStrategyYes)
 	}
 
 	for i := range fullGuild.VoiceStates {
-		disgo.EntityBuilder().CreateVoiceState(fullGuild.VoiceStates[i], true)
+		disgo.EntityBuilder().CreateVoiceState(fullGuild.VoiceStates[i], api.CacheStrategyYes)
 	}
 
 	for i := range fullGuild.Emotes {
-		disgo.EntityBuilder().CreateEmote(guild.ID, fullGuild.Emotes[i], true)
+		disgo.EntityBuilder().CreateEmote(guild.ID, fullGuild.Emotes[i], api.CacheStrategyYes)
 	}
 
 	// TODO: presence

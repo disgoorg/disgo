@@ -29,7 +29,7 @@ func main() {
 	log.Info("starting testbot...")
 
 	dgo, err := disgo.NewBuilder(endpoints.Token(os.Getenv("token"))).
-		SetLogLevel(log.InfoLevel).
+		SetLogLevel(log.DebugLevel).
 		SetIntents(api.IntentsGuilds | api.IntentsGuildMessages | api.IntentsGuildMembers).
 		SetMemberCachePolicy(api.MemberCachePolicyAll).
 		AddEventListeners(&events.ListenerAdapter{

@@ -7,7 +7,7 @@ import (
 
 type guildMemberRemoveData struct {
 	GuildID api.Snowflake `json:"guild_id"`
-	User    api.User      `json:"user"`
+	User    *api.User     `json:"user"`
 }
 
 // GuildMemberRemoveHandler handles api.GuildMemberRemoveGatewayEvent
@@ -29,6 +29,8 @@ func (h GuildMemberRemoveHandler) HandleGatewayEvent(disgo api.Disgo, eventManag
 	if !ok {
 		return
 	}
+
+	member.User = disgo.EntityBuilder().CreateUser(member.User, api.CacheStrategyYes)
 
 	oldMember := disgo.Cache().Member(member.GuildID, member.User.ID)
 	disgo.Cache().UncacheMember(member.GuildID, member.User.ID)

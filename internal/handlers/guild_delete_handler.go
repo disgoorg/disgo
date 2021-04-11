@@ -25,6 +25,8 @@ func (h GuildDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 		return
 	}
 
+	guild = disgo.EntityBuilder().CreateGuild(guild, api.CacheStrategyNo)
+
 	if guild.Unavailable {
 		// set guild to unavail for now
 		disgo.Cache().Guild(guild.ID).Unavailable = true

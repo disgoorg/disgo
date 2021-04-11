@@ -101,7 +101,7 @@ func (g *GatewayImpl) Open() error {
 		return err
 	}
 	wsConn.SetCloseHandler(func(code int, error string) error {
-		log.Errorf("connection to websocket closed with code: %d, error: %s", code, error)
+		log.Infof("connection to websocket closed with code: %d, error: %s", code, error)
 		return nil
 	})
 
@@ -131,6 +131,7 @@ func (g *GatewayImpl) Open() error {
 
 	if g.lastSequenceReceived == nil || g.sessionID == nil {
 		g.status = api.Identifying
+		log.Infof("sending Identifying command...")
 		if err = wsConn.WriteJSON(
 			api.NewGatewayCommand(api.OpIdentify, api.IdentifyCommand{
 				Token: g.Disgo().Token(),
@@ -147,9 +148,10 @@ func (g *GatewayImpl) Open() error {
 			return err
 		}
 	} else {
+		log.Infof("sending Resuming command...")
 		g.status = api.Resuming
 		if err = wsConn.WriteJSON(
-			api.NewGatewayCommand(api.OpIdentify, api.ResumeCommand{
+			api.NewGatewayCommand(api.OpResume, api.ResumeCommand{
 				Token:     g.Disgo().Token(),
 				SessionID: *g.sessionID,
 				Seq:       *g.lastSequenceReceived,
@@ -188,11 +190,31 @@ func (g *GatewayImpl) Close() {
 		log.Info("closed gateway goroutines")
 	}
 	if g.conn != nil {
-		if err := g.conn.Close(); err != nil {
+		if err := g.closeWithCode(websocket.CloseNormalClosure); err != nil {
 			log.Errorf("error while closing wsconn: %s", err)
-			g.conn = nil
 		}
 	}
+}
+
+func (g *GatewayImpl) closeWithCode(code int) error {
+	if g.conn != nil {
+
+		err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, ""))
+		if err != nil {
+			return err
+		}
+
+		// TODO: Wait for Discord to actually close the connection.
+		time.Sleep(1 * time.Second)
+
+		err = g.conn.Close()
+		g.conn = nil
+		if err != nil {
+			return err
+		}
+
+	}
+	return nil
 }
 
 func (g *GatewayImpl) heartbeat() {
@@ -211,11 +233,9 @@ func (g *GatewayImpl) heartbeat() {
 		select {
 		case <-ticker.C:
 			g.sendHeartbeat()
-		case _, ok := <-g.quit:
-			if !ok {
-				ticker.Stop()
-				return
-			}
+		case <-g.quit:
+			ticker.Stop()
+			return
 		}
 	}
 }
@@ -251,10 +271,9 @@ func (g *GatewayImpl) listen() {
 	}()
 	for {
 		select {
-		case _, ok := <-g.quit:
-			if !ok {
-				return
-			}
+		case <-g.quit:
+			log.Infof("existed listen routine")
+			return
 		default:
 			mt, data, err := g.conn.ReadMessage()
 			if err != nil {

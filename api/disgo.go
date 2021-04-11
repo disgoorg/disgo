@@ -28,6 +28,7 @@ type Disgo interface {
 	SetVoiceDispatchInterceptor(voiceInterceptor VoiceDispatchInterceptor)
 	HeartbeatLatency() time.Duration
 	LargeThreshold() int
+	HasGateway() bool
 
 	GetCommand(commandID Snowflake) (*Command, error)
 	GetCommands() ([]*Command, error)

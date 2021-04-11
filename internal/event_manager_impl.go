@@ -56,7 +56,9 @@ func (e EventManagerImpl) Handle(name api.GatewayEventType, c chan interface{}, 
 
 // Dispatch dispatches a new event to the client
 func (e EventManagerImpl) Dispatch(event api.Event) {
-	e.channel <- event
+	go func() {
+		e.channel <- event
+	}()
 }
 
 // AddEventListeners adds one or more api.EventListener(s) to the api.EventManager

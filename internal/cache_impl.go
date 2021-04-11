@@ -342,7 +342,7 @@ func (c *CacheImpl) FindGuilds(check func(g *api.Guild) bool) []*api.Guild {
 
 func (c *CacheImpl) Message(channelID api.Snowflake, messageID api.Snowflake) *api.Message {
 	if channelMessages, ok := c.messages[channelID]; ok {
-		return channelMessages[channelID]
+		return channelMessages[messageID]
 	}
 	return nil
 }
@@ -379,7 +379,14 @@ func (c *CacheImpl) CacheMessage(message *api.Message) *api.Message {
 	return message
 }
 func (c *CacheImpl) UncacheMessage(channelID api.Snowflake, messageID api.Snowflake) {
-	delete(c.messages[channelID], messageID)
+	if channelMessages, ok := c.messages[channelID]; ok {
+		if message, ok := channelMessages[messageID]; ok {
+			// check if we really want to uncache that message according to our policy
+			if !c.messageCachePolicy(message) {
+				delete(channelMessages, messageID)
+			}
+		}
+	}
 }
 
 // Member returns a member from cache by guild ID and user ID
@@ -472,7 +479,16 @@ func (c *CacheImpl) CacheMember(member *api.Member) *api.Member {
 
 // UncacheMember removes a guild member from the cache
 func (c *CacheImpl) UncacheMember(guildID api.Snowflake, userID api.Snowflake) {
-	delete(c.members[guildID], userID)
+	// TODO: add UncacheUser call!
+	if guildMembers, ok := c.members[guildID]; ok {
+		if member, ok := guildMembers[userID]; ok {
+			// check if we really want to uncache that member according to our policy
+			if !c.memberCachePolicy(member) {
+				delete(guildMembers, userID)
+			}
+		}
+	}
+
 }
 
 // FindMember allows you to find a member in a guild by custom method
@@ -741,8 +757,13 @@ func (c *CacheImpl) CacheDMChannel(dmChannel *api.DMChannel) *api.DMChannel {
 }
 
 // UncacheDMChannel removes a DM channel from cache
-func (c *CacheImpl) UncacheDMChannel(channelID api.Snowflake) {
-	delete(c.dmChannels, channelID)
+func (c *CacheImpl) UncacheDMChannel(dmChannelID api.Snowflake) {
+	// TODO: check this
+	// should be okay to just uncache all messages if the channel gets uncached as that should mean it got deleted
+	if _, ok := c.messages[dmChannelID]; ok {
+		delete(c.messages, dmChannelID)
+	}
+	delete(c.dmChannels, dmChannelID)
 }
 
 // FindDMChannel finds a DM channel in cache with a custom method
@@ -845,6 +866,11 @@ func (c *CacheImpl) CacheTextChannel(textChannel *api.TextChannel) *api.TextChan
 
 // UncacheTextChannel removes a text channel from the cache
 func (c *CacheImpl) UncacheTextChannel(guildID api.Snowflake, textChannelID api.Snowflake) {
+	// TODO: check this
+	// should be okay to just uncache all messages if the channel gets uncached as that should mean it got deleted
+	if _, ok := c.messages[textChannelID]; ok {
+		delete(c.messages, textChannelID)
+	}
 	delete(c.textChannels[guildID], textChannelID)
 }
 

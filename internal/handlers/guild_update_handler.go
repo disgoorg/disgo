@@ -29,7 +29,7 @@ func (h GuildUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 	if oldGuild != nil {
 		oldGuild = &*oldGuild
 	}
-	newGuild = disgo.EntityBuilder().CreateGuild(newGuild, true)
+	newGuild = disgo.EntityBuilder().CreateGuild(newGuild, api.CacheStrategyYes)
 
 	genericGuildEvent := events.GenericGuildEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),

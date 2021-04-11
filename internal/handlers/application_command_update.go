@@ -31,9 +31,9 @@ func (h ApplicationCommandUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eve
 	}
 
 	if command.FromGuild() {
-		command = disgo.EntityBuilder().CreateGuildCommand(*command.GuildID, command, true)
+		command = disgo.EntityBuilder().CreateGuildCommand(*command.GuildID, command, api.CacheStrategyYes)
 	} else {
-		command = disgo.EntityBuilder().CreateGlobalCommand(command, true)
+		command = disgo.EntityBuilder().CreateGlobalCommand(command, api.CacheStrategyYes)
 	}
 
 	genericApplicationCommandEvent := events.GenericApplicationCommandEvent{

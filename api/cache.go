@@ -72,7 +72,7 @@ type Cache interface {
 	DMChannels() []*DMChannel
 	DMChannelCache() map[Snowflake]*DMChannel
 	CacheDMChannel(*DMChannel) *DMChannel
-	UncacheDMChannel(Snowflake)
+	UncacheDMChannel(dmChannelID Snowflake)
 	FindDMChannel(func(*DMChannel) bool) *DMChannel
 	FindDMChannels(func(*DMChannel) bool) []*DMChannel
 

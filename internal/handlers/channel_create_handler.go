@@ -34,7 +34,7 @@ func (h ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 
 	switch channel.Type {
 	case api.ChannelTypeDM:
-		dmChannel := disgo.EntityBuilder().CreateDMChannel(channel, true)
+		dmChannel := disgo.EntityBuilder().CreateDMChannel(channel, api.CacheStrategyYes)
 
 		genericDMChannelEvent := events.GenericDMChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
@@ -50,7 +50,7 @@ func (h ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		log.Warnf("ChannelTypeGroupDM received what the hell discord")
 
 	case api.ChannelTypeText, api.ChannelTypeNews:
-		textChannel := disgo.EntityBuilder().CreateTextChannel(channel, true)
+		textChannel := disgo.EntityBuilder().CreateTextChannel(channel, api.CacheStrategyYes)
 
 		genericTextChannelEvent := events.GenericTextChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
@@ -63,7 +63,7 @@ func (h ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		})
 
 	case api.ChannelTypeStore:
-		storeChannel := disgo.EntityBuilder().CreateStoreChannel(channel, true)
+		storeChannel := disgo.EntityBuilder().CreateStoreChannel(channel, api.CacheStrategyYes)
 
 		genericStoreChannelEvent := events.GenericStoreChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
@@ -76,7 +76,7 @@ func (h ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		})
 
 	case api.ChannelTypeCategory:
-		category := disgo.EntityBuilder().CreateCategory(channel, true)
+		category := disgo.EntityBuilder().CreateCategory(channel, api.CacheStrategyYes)
 
 		genericCategoryEvent := events.GenericCategoryEvent{
 			GenericChannelEvent: genericChannelEvent,
@@ -89,7 +89,7 @@ func (h ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		})
 
 	case api.ChannelTypeVoice:
-		voiceChannel := disgo.EntityBuilder().CreateVoiceChannel(channel, true)
+		voiceChannel := disgo.EntityBuilder().CreateVoiceChannel(channel, api.CacheStrategyYes)
 
 		genericVoiceChannelEvent := events.GenericVoiceChannelEvent{
 			GenericChannelEvent: genericChannelEvent,

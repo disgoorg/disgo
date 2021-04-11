@@ -14,12 +14,12 @@ func (h VoiceStateUpdateHandler) Event() api.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h VoiceStateUpdateHandler) New() interface{} {
-	return &api.VoiceStateUpdate{}
+	return &api.VoiceStateUpdateEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h VoiceStateUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
-	voiceStateUpdate, ok := i.(*api.VoiceStateUpdate)
+	voiceStateUpdate, ok := i.(*api.VoiceStateUpdateEvent)
 	if !ok {
 		return
 	}

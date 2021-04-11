@@ -167,6 +167,11 @@ func (d *DisgoImpl) LargeThreshold() int {
 	return d.largeThreshold
 }
 
+// HasGateway returns weather api.Disgo has an active api.Gateway connection or not
+func (d DisgoImpl) HasGateway() bool {
+	return d.gateway != nil
+}
+
 // GetCommand fetches a specific guild command
 func (d DisgoImpl) GetCommand(commandID api.Snowflake) (*api.Command, error) {
 	return d.RestClient().GetGlobalCommand(d.SelfUserID(), commandID)
