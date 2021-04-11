@@ -278,6 +278,9 @@ func (g *GatewayImpl) listen() {
 			g.Disgo().Logger().Infof("existed listen routine")
 			return
 		default:
+			if g.conn == nil {
+				return
+			}
 			mt, data, err := g.conn.ReadMessage()
 			if err != nil {
 				g.Disgo().Logger().Errorf("error while reading from ws. error: %s", err)

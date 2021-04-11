@@ -167,7 +167,7 @@ func guildAvailListener(event *events.GuildAvailableEvent) {
 }
 
 func slashCommandListener(event *events.SlashCommandEvent) {
-	switch event.Interaction.Data.Name {
+	switch event.CommandName {
 	case "eval":
 		go func() {
 			start := time.Now()
