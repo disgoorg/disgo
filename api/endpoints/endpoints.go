@@ -10,7 +10,6 @@ const (
 
 // Misc
 var (
-	GetVoiceRegions  = NewAPIRoute(GET, "/voice/regions")
 	GetGateway        = NewAPIRoute(GET, "/gateway")
 	GetGatewayBot     = NewAPIRoute(GET, "/gateway/bot")
 	GetBotApplication = NewAPIRoute(GET, "/oauth2/applications/@me")
