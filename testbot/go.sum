@@ -1,5 +1,7 @@
 github.com/DisgoOrg/log v1.0.0 h1:X8WSKatQUhZ/D8nYerJz75X3yD4/0vQgmAVbQ7XSVCI=
 github.com/DisgoOrg/log v1.0.0/go.mod h1:E60iniXaAsm9Iuxlz53nQDTYzJTSf1Kn/oH9KQhaK6w=
+github.com/DisgoOrg/log v1.0.2 h1:qDOmBkB2xnN0sG74dTNKs/qdWekVAJAyVPDASofIWOc=
+github.com/DisgoOrg/log v1.0.2/go.mod h1:KFGKhBQr37d6rxZ7p2bmc8BEmDH8DZbtgdlJDSCsE7I=
 github.com/PaesslerAG/gval v1.1.0 h1:k3RuxeZDO3eejD4cMPSt+74tUSvTnbGvLx0df4mdwFc=
 github.com/PaesslerAG/gval v1.1.0/go.mod h1:y/nm5yEyTeX6av0OfKJNp9rBNj2XrGhAf5+v24IBN1I=
 github.com/PaesslerAG/jsonpath v0.1.0 h1:gADYeifvlqK3R3i2cR5B4DGgxLXIPb3TRTH1mGi0jPI=
