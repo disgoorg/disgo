@@ -167,7 +167,7 @@ func (d *DisgoImpl) LargeThreshold() int {
 	return d.largeThreshold
 }
 
-// HasGateway returns weather api.Disgo has an active api.Gateway connection or not
+// HasGateway returns whether api.Disgo has an active api.Gateway connection or not
 func (d DisgoImpl) HasGateway() bool {
 	return d.gateway != nil
 }
