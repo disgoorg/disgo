@@ -150,6 +150,7 @@ func (g *GatewayImpl) Open() error {
 		); err != nil {
 			return err
 		}
+		g.status = api.WaitingForReady
 	} else {
 		g.Disgo().Logger().Infof("sending Resuming command...")
 		g.status = api.Resuming
@@ -164,7 +165,6 @@ func (g *GatewayImpl) Open() error {
 		}
 	}
 
-	g.status = api.WaitingForReady
 	g.quit = make(chan interface{})
 
 	go g.heartbeat()
