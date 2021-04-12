@@ -37,6 +37,7 @@ func (r Route) Compile(args ...interface{}) (*CompiledRoute, error) {
 	return &CompiledRoute{route: r.baseRoute + route}, nil
 }
 
+// NewRoute generates a Route when given a URL
 func NewRoute(url string) Route {
 	return Route{
 		baseRoute:  "",

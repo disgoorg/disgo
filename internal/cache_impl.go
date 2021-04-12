@@ -107,6 +107,7 @@ func (c CacheImpl) CacheFlags() api.CacheFlags {
 	return c.cacheFlags
 }
 
+// Command returns an api.Command from cache
 func (c *CacheImpl) Command(commandID api.Snowflake) *api.Command {
 	if command, ok := c.globalCommands[commandID]; ok {
 		return command
@@ -119,18 +120,22 @@ func (c *CacheImpl) Command(commandID api.Snowflake) *api.Command {
 	return nil
 }
 
+// GuildCommandCache returns the cache of commands in a Guild
 func (c *CacheImpl) GuildCommandCache(guildID api.Snowflake) map[api.Snowflake]*api.Command {
 	return c.guildCommands[guildID]
 }
 
+// AllGuildCommandCache returns the cache of all Guild Command(s)
 func (c *CacheImpl) AllGuildCommandCache() map[api.Snowflake]map[api.Snowflake]*api.Command {
 	return c.guildCommands
 }
 
+// GlobalCommandCache returns the cache of global Command(s)
 func (c *CacheImpl) GlobalCommandCache() map[api.Snowflake]*api.Command {
 	return c.globalCommands
 }
 
+// CacheGlobalCommand adds a global command to the cache
 func (c *CacheImpl) CacheGlobalCommand(command *api.Command) *api.Command {
 	if !c.CacheFlags().Has(api.CacheFlagCommands) {
 		return command
@@ -142,6 +147,8 @@ func (c *CacheImpl) CacheGlobalCommand(command *api.Command) *api.Command {
 	c.globalCommands[command.ID] = command
 	return command
 }
+
+// CacheGuildCommand adds a Guild Command to the cache
 func (c *CacheImpl) CacheGuildCommand(command *api.Command) *api.Command {
 	if !c.CacheFlags().Has(api.CacheFlagCommands) {
 		return command
@@ -155,6 +162,8 @@ func (c *CacheImpl) CacheGuildCommand(command *api.Command) *api.Command {
 	}
 	return command
 }
+
+// UncacheCommand removes a global Command from the cache
 func (c *CacheImpl) UncacheCommand(commandID api.Snowflake) {
 	if _, ok := c.globalCommands[commandID]; ok {
 		delete(c.globalCommands, commandID)
@@ -338,12 +347,15 @@ func (c *CacheImpl) FindGuilds(check func(g *api.Guild) bool) []*api.Guild {
 	return guilds
 }
 
+// Message returns a message from cache
 func (c *CacheImpl) Message(channelID api.Snowflake, messageID api.Snowflake) *api.Message {
 	if channelMessages, ok := c.messages[channelID]; ok {
 		return channelMessages[messageID]
 	}
 	return nil
 }
+
+// Messages returns the messages of a channel from cache
 func (c *CacheImpl) Messages(channelID api.Snowflake) []*api.Message {
 	if channelMessages, ok := c.messages[channelID]; ok {
 		messages := make([]*api.Message, len(channelMessages))
@@ -356,12 +368,18 @@ func (c *CacheImpl) Messages(channelID api.Snowflake) []*api.Message {
 	}
 	return nil
 }
+
+// MessageCache returns the entire cache of Message(s) for a Channel
 func (c *CacheImpl) MessageCache(channelID api.Snowflake) map[api.Snowflake]*api.Message {
 	return c.messages[channelID]
 }
+
+// AllMessageCache returns the entire cache of messages
 func (c *CacheImpl) AllMessageCache() map[api.Snowflake]map[api.Snowflake]*api.Message {
 	return c.messages
 }
+
+//CacheMessage adds a message to the cache
 func (c *CacheImpl) CacheMessage(message *api.Message) *api.Message {
 	// only cache message if we want to
 	if !c.messageCachePolicy(message) {
@@ -376,6 +394,8 @@ func (c *CacheImpl) CacheMessage(message *api.Message) *api.Message {
 	}
 	return message
 }
+
+// UncacheMessage removes a Message from the cache if the cache policy allows it
 func (c *CacheImpl) UncacheMessage(channelID api.Snowflake, messageID api.Snowflake) {
 	if channelMessages, ok := c.messages[channelID]; ok {
 		if message, ok := channelMessages[messageID]; ok {

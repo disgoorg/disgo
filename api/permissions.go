@@ -5,13 +5,16 @@ import (
 	"strconv"
 )
 
+// PermissionOverwriteType is the type of a PermissionOverwrite
 type PermissionOverwriteType int
 
+// Constants for PermissionOverwriteType
 const (
 	PermissionOverwriteTypeRole PermissionOverwriteType = iota
 	PermissionOverwriteTypeMember
 )
 
+// PermissionOverwrite is used to determine who can perform particular actions in a GuildChannel
 type PermissionOverwrite struct {
 	ID    Snowflake               `json:"id"`
 	Type  PermissionOverwriteType `json:"type"`

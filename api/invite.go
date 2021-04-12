@@ -2,6 +2,7 @@ package api
 
 import "time"
 
+// ExpandedInvite is a full Invite struct
 type ExpandedInvite struct {
 	Invite
 	Uses      int       `json:"uses"`
@@ -11,26 +12,31 @@ type ExpandedInvite struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+// Invite is a partial invite struct
 type Invite struct {
 	Disgo                    Disgo
-	Code                     string          `json:"code"`
-	Guild                    *InviteGuild    `json:"guild"`
-	Channel                  InviteChannel   `json:"channel"`
-	Inviter                  *User           `json:"inviter"`
-	TargetUser               *InviteUser     `json:"target_user"`
-	TargetUserType           *TargetUserType `json:"target_user_type"`
-	ApproximatePresenceCount *int            `json:"approximate_presence_count"`
-	ApproximateMemberCount   *int            `json:"approximate_member_count"`
+	Code                     string        `json:"code"`
+	Guild                    *InviteGuild  `json:"guild"`
+	Channel                  InviteChannel `json:"channel"`
+	Inviter                  *User         `json:"inviter"`
+	TargetUser               *InviteUser   `json:"target_user"`
+	TargetType               *TargetType   `json:"target_user_type"`
+	ApproximatePresenceCount *int          `json:"approximate_presence_count"`
+	ApproximateMemberCount   *int          `json:"approximate_member_count"`
 }
 
-type TargetUserType int
+// TargetType is type of target an Invite uses
+type TargetType int
 
+// Constants for TargetType
 const (
-	TargetUserTypeStream = iota + 1
+	TargetTypeStream TargetType = iota + 1
+	TargetTypeEmbeddedApplication
 )
 
+// An InviteGuild is the Guild of an Invite
 type InviteGuild struct {
-	Id                Snowflake         `json:"id"`
+	ID                Snowflake         `json:"id"`
 	Name              string            `json:"name"`
 	Splash            *string           `json:"splash"`
 	Banner            *string           `json:"banner"`
@@ -38,17 +44,19 @@ type InviteGuild struct {
 	Icon              *string           `json:"icon"`
 	Features          []GuildFeature    `json:"features"`
 	VerificationLevel VerificationLevel `json:"verification_level"`
-	VanityUrlCode     *string           `json:"vanity_url_code"`
+	VanityURLCode     *string           `json:"vanity_url_code"`
 }
 
+// InviteChannel is the Channel of an invite
 type InviteChannel struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
-	Type int    `json:"type"`
+	ID   string      `json:"id"`
+	Name string      `json:"name"`
+	Type ChannelType `json:"type"`
 }
 
+// InviteUser is the user who created an invite
 type InviteUser struct {
-	Id            string `json:"id"`
+	ID            string `json:"id"`
 	Username      string `json:"username"`
 	Avatar        string `json:"avatar"`
 	Discriminator string `json:"discriminator"`
