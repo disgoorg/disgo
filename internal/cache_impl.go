@@ -71,7 +71,7 @@ func (c *CacheImpl) Close() {
 func (c CacheImpl) startCleanup(cleanupInterval time.Duration) {
 	defer func() {
 		if r := recover(); r != nil {
-			c.Disgo().Logger().Errorf("recovered cache cleanup goroutine error: %s", r)
+			c.Disgo().Logger().Panicf("recovered cache cleanup goroutine error: %s", r)
 			debug.PrintStack()
 			c.startCleanup(cleanupInterval)
 			return

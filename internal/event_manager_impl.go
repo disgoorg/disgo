@@ -75,7 +75,7 @@ func (e *EventManagerImpl) AddEventListeners(listeners ...api.EventListener) {
 func (e *EventManagerImpl) ListenEvents() {
 	defer func() {
 		if r := recover(); r != nil {
-			e.Disgo().Logger().Errorf("recovered event listen goroutine error: %s", r)
+			e.Disgo().Logger().Panicf("recovered event listen goroutine error: %s", r)
 			debug.PrintStack()
 			e.ListenEvents()
 			return

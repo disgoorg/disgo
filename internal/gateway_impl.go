@@ -227,7 +227,7 @@ func (g *GatewayImpl) closeWithCode(code int) error {
 func (g *GatewayImpl) heartbeat() {
 	defer func() {
 		if r := recover(); r != nil {
-			g.Disgo().Logger().Errorf("recovered heartbeat goroutine error: %s", r)
+			g.Disgo().Logger().Panicf("recovered heartbeat goroutine error: %s", r)
 			debug.PrintStack()
 			g.heartbeat()
 			return
@@ -269,7 +269,7 @@ func (g *GatewayImpl) sendHeartbeat() {
 func (g *GatewayImpl) listen() {
 	defer func() {
 		if r := recover(); r != nil {
-			g.Disgo().Logger().Errorf("recovered listen goroutine error: %s", r)
+			g.Disgo().Logger().Panicf("recovered listen goroutine error: %s", r)
 			debug.PrintStack()
 			g.listen()
 			return
