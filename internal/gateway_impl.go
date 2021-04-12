@@ -86,7 +86,7 @@ func (g *GatewayImpl) Open() error {
 	gatewayURL := *g.url + "?v=" + endpoints.APIVersion + "&encoding=json"
 	wsConn, rs, err := websocket.DefaultDialer.Dial(gatewayURL, nil)
 	if err != nil {
-		g.Close()
+		g.Close(false)
 		var body string
 		if rs != nil && rs.Body != nil {
 			rawBody, err := ioutil.ReadAll(rs.Body)
@@ -184,7 +184,7 @@ func (g *GatewayImpl) Latency() time.Duration {
 }
 
 // Close cleans up the gateway internals
-func (g *GatewayImpl) Close() {
+func (g *GatewayImpl) Close(toReconnect bool) {
 	g.status = api.Disconnected
 	if g.quit != nil {
 		g.Disgo().Logger().Info("closing gateway goroutines...")
@@ -193,7 +193,11 @@ func (g *GatewayImpl) Close() {
 		g.Disgo().Logger().Info("closed gateway goroutines")
 	}
 	if g.conn != nil {
-		if err := g.closeWithCode(websocket.CloseNormalClosure); err != nil {
+		closeCode := websocket.CloseNormalClosure
+		if toReconnect {
+			closeCode = websocket.CloseServiceRestart
+		}
+		if err := g.closeWithCode(closeCode); err != nil {
 			g.Disgo().Logger().Errorf("error while closing wsconn: %s", err)
 		}
 	}
@@ -253,7 +257,7 @@ func (g *GatewayImpl) sendHeartbeat() {
 
 	if err := g.conn.WriteJSON(api.NewGatewayCommand(api.OpHeartbeat, g.lastSequenceReceived)); err != nil {
 		g.Disgo().Logger().Errorf("failed to send heartbeat with error: %s", err)
-		g.Close()
+		g.Close(true)
 		g.reconnect(1 * time.Second)
 	}
 	g.lastHeartbeatSent = time.Now().UTC()
@@ -284,7 +288,7 @@ func (g *GatewayImpl) listen() {
 			mt, data, err := g.conn.ReadMessage()
 			if err != nil {
 				g.Disgo().Logger().Errorf("error while reading from ws. error: %s", err)
-				g.Close()
+				g.Close(true)
 				g.reconnect(1 * time.Second)
 				return
 			}
@@ -342,12 +346,12 @@ func (g *GatewayImpl) listen() {
 
 			case api.OpReconnect:
 				g.Disgo().Logger().Debugf("received: OpReconnect")
-				g.Close()
+				g.Close(true)
 				g.reconnect(1*time.Second)
 
 			case api.OpInvalidSession:
 				g.Disgo().Logger().Debugf("received: OpInvalidSession")
-				g.Close()
+				g.Close(false)
 				// clear reconnect info
 				g.sessionID = nil
 				g.lastSequenceReceived = nil

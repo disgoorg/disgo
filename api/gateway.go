@@ -24,7 +24,7 @@ type Gateway interface {
 	Disgo() Disgo
 	Open() error
 	Status() GatewayStatus
-	Close()
+	Close(bool)
 	Latency() time.Duration
 }
 
