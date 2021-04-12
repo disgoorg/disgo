@@ -193,11 +193,14 @@ func (g *GatewayImpl) Close(toReconnect bool) {
 		g.Disgo().Logger().Info("closed gateway goroutines")
 	}
 	if g.conn != nil {
-		closeCode := websocket.CloseNormalClosure
+		var err error
 		if toReconnect {
-			closeCode = websocket.CloseServiceRestart
+			err = g.conn.Close()
+			g.conn = nil
+		} else {
+			err = g.closeWithCode(websocket.CloseNormalClosure)
 		}
-		if err := g.closeWithCode(closeCode); err != nil {
+		if err != nil {
 			g.Disgo().Logger().Errorf("error while closing wsconn: %s", err)
 		}
 	}
