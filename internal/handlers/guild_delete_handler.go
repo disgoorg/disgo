@@ -43,7 +43,6 @@ func (h GuildDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 		guild = disgo.Cache().Guild(guild.ID)
 		disgo.Cache().UncacheGuild(guild.ID)
 
-
 		eventManager.Dispatch(events.GuildLeaveEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})

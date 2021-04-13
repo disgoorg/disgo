@@ -227,6 +227,7 @@ func (g *GatewayImpl) closeWithCode(code int) error {
 	return nil
 }
 
+// Conn returns the underlying websocket.Conn of this api.Gateway
 func (g *GatewayImpl) Conn() *websocket.Conn {
 	return g.conn
 }
@@ -330,18 +331,18 @@ func (g *GatewayImpl) listen() {
 					g.Disgo().Logger().Info("ready event received")
 				}
 
-				// TODO: add setting to enable raw gateway events?
-				var payload map[string]interface{}
-				if err = g.parseEventToStruct(event, &payload); err != nil {
-					g.Disgo().Logger().Errorf("Error parsing event: %s", err)
-					continue
+				if g.Disgo().RawGatewayEventsEnabled() {
+					var payload map[string]interface{}
+					if err = g.parseEventToStruct(event, &payload); err != nil {
+						g.Disgo().Logger().Errorf("Error parsing raw gateway event: %s", err)
+					}
+					g.Disgo().EventManager().Dispatch(events.RawGatewayEvent{
+						GenericEvent: events.NewEvent(g.Disgo(), *event.S),
+						Type:         *event.T,
+						RawPayload:   event.D,
+						Payload:      payload,
+					})
 				}
-				g.Disgo().EventManager().Dispatch(events.RawGatewayEvent{
-					GenericEvent: events.NewEvent(g.Disgo(), *event.S),
-					Type:         *event.T,
-					RawPayload:   event.D,
-					Payload:      payload,
-				})
 
 				d := g.Disgo()
 				e := d.EventManager()

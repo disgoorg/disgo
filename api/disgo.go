@@ -22,6 +22,7 @@ type Disgo interface {
 	WebhookServer() WebhookServer
 	Cache() Cache
 	Intents() Intents
+	RawGatewayEventsEnabled() bool
 	ApplicationID() Snowflake
 	SelfUser() *User
 	EntityBuilder() EntityBuilder

@@ -88,7 +88,7 @@ func (r RestClientImpl) Request(route endpoints.CompiledAPIRoute, rqBody interfa
 
 	r.Disgo().Logger().Debugf("code: %d, response: %s", rs.StatusCode, string(rawRsBody))
 
-	r.Disgo().EventManager().Dispatch(events.HttpRequestEvent{
+	r.Disgo().EventManager().Dispatch(events.HTTPRequestEvent{
 		GenericEvent: events.NewEvent(r.Disgo(), 0),
 		Request:      rq,
 		Response:     rs,

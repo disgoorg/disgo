@@ -52,7 +52,7 @@ func (e GenericInteractionEvent) GuildChannel() *api.GuildChannel {
 	return e.Disgo().Cache().GuildChannel(*e.Interaction.ChannelID)
 }
 
-// SlashCommandEvent indicates a slash api.Command was ran in a api.Guild
+// SlashCommandEvent indicates that a slash api.Command was ran in a api.Guild
 type SlashCommandEvent struct {
 	GenericInteractionEvent
 	ResponseChannel     chan interface{}

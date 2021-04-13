@@ -186,9 +186,9 @@ func (b EntityBuilderImpl) CreateDMChannel(channel *api.Channel, updateCache api
 }
 
 // CreateEmote returns a new api.Emote entity
-func (b EntityBuilderImpl) CreateEmote(guildId api.Snowflake, emote *api.Emote, updateCache api.CacheStrategy) *api.Emote {
+func (b EntityBuilderImpl) CreateEmote(guildID api.Snowflake, emote *api.Emote, updateCache api.CacheStrategy) *api.Emote {
 	emote.Disgo = b.Disgo()
-	emote.GuildID = guildId
+	emote.GuildID = guildID
 	if updateCache(b.Disgo()) {
 		return b.Disgo().Cache().CacheEmote(emote)
 	}

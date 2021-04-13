@@ -18,10 +18,11 @@ func New(token endpoints.Token, options api.Options) (api.Disgo, error) {
 	}
 
 	disgo := &DisgoImpl{
-		BotToken:       token,
-		intents:        options.Intents,
-		largeThreshold: options.LargeThreshold,
-		logger:         options.Logger,
+		BotToken:                token,
+		intents:                 options.Intents,
+		largeThreshold:          options.LargeThreshold,
+		logger:                  options.Logger,
+		rawGatewayEventsEnabled: options.RawGatewayEventsEnabled,
 	}
 
 	id, err := IDFromToken(token)
@@ -57,6 +58,7 @@ type DisgoImpl struct {
 	gateway                  api.Gateway
 	restClient               api.RestClient
 	intents                  api.Intents
+	rawGatewayEventsEnabled  bool
 	entityBuilder            api.EntityBuilder
 	eventManager             api.EventManager
 	voiceDispatchInterceptor api.VoiceDispatchInterceptor
@@ -161,6 +163,11 @@ func (d *DisgoImpl) Intents() api.Intents {
 	// clones the intents so they can't be modified
 	c := d.intents
 	return c
+}
+
+// RawGatewayEventsEnabled returns if the events.RawGatewayEvent is enabled/disabled
+func (d *DisgoImpl) RawGatewayEventsEnabled() bool {
+	return d.rawGatewayEventsEnabled
 }
 
 // ApplicationID returns the current application id

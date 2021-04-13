@@ -205,5 +205,5 @@ var (
 
 // Other
 var (
-	InviteURL            = NewRoute("https://discord.gg/{code}")
+	InviteURL = NewRoute("https://discord.gg/{code}")
 )

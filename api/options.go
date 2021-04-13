@@ -12,4 +12,5 @@ type Options struct {
 	ListenURL                 string
 	PublicKey                 string
 	LargeThreshold            int
+	RawGatewayEventsEnabled   bool
 }

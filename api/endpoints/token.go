@@ -9,7 +9,7 @@ type Token string
 
 // MarshalJSON makes sure we don#t send ********* to discords as tokens
 func (t Token) MarshalJSON() ([]byte, error) {
-	return []byte("\""+t+"\""), nil
+	return []byte("\"" + t + "\""), nil
 }
 
 // UnmarshalJSON makes sure we parse tokens from discord correctly

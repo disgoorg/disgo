@@ -7,4 +7,3 @@ type ReadyEvent struct {
 	GenericEvent
 	api.ReadyGatewayEvent
 }
-

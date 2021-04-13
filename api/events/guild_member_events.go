@@ -35,11 +35,13 @@ type GuildMemberLeaveEvent struct {
 	User *api.User
 }
 
+// GuildMemberTypingEvent indicates that a api.Member started typing in a api.TextChannel(requires api.IntentsGuildMessageTyping)
 type GuildMemberTypingEvent struct {
 	GenericGuildMemberEvent
 	ChannelID api.Snowflake
 }
 
+// TextChannel returns the api.TextChannel the GuildMemberTypingEvent happened in
 func (e GuildMemberTypingEvent) TextChannel() *api.TextChannel {
 	return e.Disgo().Cache().TextChannel(e.ChannelID)
 }

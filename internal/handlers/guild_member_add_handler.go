@@ -34,7 +34,7 @@ func (h GuildMemberAddHandler) HandleGatewayEvent(disgo api.Disgo, eventManager 
 
 	genericGuildEvent := events.GenericGuildEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		Guild:      guild,
+		Guild:        guild,
 	}
 	eventManager.Dispatch(genericGuildEvent)
 

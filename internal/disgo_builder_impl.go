@@ -30,6 +30,7 @@ type DisgoBuilderImpl struct {
 	messageCachePolicy       api.MessageCachePolicy
 	cacheFlags               api.CacheFlags
 	intents                  api.Intents
+	rawGatewayEventsEnabled  bool
 	entityBuilder            api.EntityBuilder
 	eventManager             api.EventManager
 	voiceDispatchInterceptor api.VoiceDispatchInterceptor
@@ -55,6 +56,12 @@ func (b *DisgoBuilderImpl) SetToken(token endpoints.Token) api.DisgoBuilder {
 // SetIntents sets the api.Intents to connect to discord
 func (b *DisgoBuilderImpl) SetIntents(intents api.Intents) api.DisgoBuilder {
 	b.intents = intents
+	return b
+}
+
+// SetRawGatewayEventsEnabled enables/disables the events.RawGatewayEvent
+func (b *DisgoBuilderImpl) SetRawGatewayEventsEnabled(enabled bool) api.DisgoBuilder {
+	b.rawGatewayEventsEnabled = enabled
 	return b
 }
 
@@ -156,7 +163,8 @@ func (b *DisgoBuilderImpl) SetGateway(gateway api.Gateway) api.DisgoBuilder {
 func (b *DisgoBuilderImpl) Build() (api.Disgo, error) {
 
 	disgo := &DisgoImpl{
-		logger: b.logger,
+		logger:                  b.logger,
+		rawGatewayEventsEnabled: b.rawGatewayEventsEnabled,
 	}
 	if b.BotToken == "" {
 		return nil, errors.New("please specify the BotToken")

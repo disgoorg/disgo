@@ -29,6 +29,7 @@ type Invite struct {
 	ApproximateMemberCount   *int          `json:"approximate_member_count"`
 }
 
+// URL returns the invite url in format like https://discord.gg/{code}
 func (i Invite) URL() string {
 	url, err := endpoints.InviteURL.Compile(i.Code)
 	if err != nil {

@@ -11,6 +11,7 @@ type DisgoBuilder interface {
 	SetLogger(level log.Logger) DisgoBuilder
 	SetToken(token endpoints.Token) DisgoBuilder
 	SetIntents(intents Intents) DisgoBuilder
+	SetRawGatewayEventsEnabled(enabled bool) DisgoBuilder
 	SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor) DisgoBuilder
 	SetEntityBuilder(entityBuilder EntityBuilder) DisgoBuilder
 	SetEventManager(eventManager EventManager) DisgoBuilder

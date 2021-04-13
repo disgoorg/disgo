@@ -12,22 +12,22 @@ type GenericMessageEvent struct {
 	ChannelID api.Snowflake
 }
 
-// MessageChannel returns the api.MessageChannel where this api.message got received
+// MessageChannel returns the api.MessageChannel where the GenericMessageEvent happened
 func (e *GenericMessageEvent) MessageChannel() *api.MessageChannel {
 	return e.Disgo().Cache().MessageChannel(e.ChannelID)
 }
 
-// MessageDeleteEvent indicates a api.Message got deleted
+// MessageDeleteEvent indicates that a api.Message got deleted
 type MessageDeleteEvent struct {
 	GenericMessageEvent
 }
 
-// MessageCreateEvent indicates a api.Message got received
+// MessageCreateEvent indicates that a api.Message got received
 type MessageCreateEvent struct {
 	GenericMessageEvent
 }
 
-// MessageUpdateEvent indicates a api.Message got update
+// MessageUpdateEvent indicates that a api.Message got update
 type MessageUpdateEvent struct {
 	GenericMessageEvent
 	OldMessage *api.Message

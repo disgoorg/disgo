@@ -4,48 +4,50 @@ import (
 	"github.com/DisgoOrg/disgo/api"
 )
 
-// GenericGuildEvent generic api.Guild api.GenericEvent
+// GenericGuildEvent is called upon receiving GuildUpdateEvent, GuildAvailableEvent, GuildUnavailableEvent, GuildJoinEvent, GuildLeaveEvent, GuildReadyEvent, GuildBanEvent, GuildUnbanEvent
 type GenericGuildEvent struct {
 	GenericEvent
 	Guild *api.Guild
 }
 
-// GuildUpdateEvent called upon receiving api.Guild updates
+// GuildUpdateEvent is called upon receiving api.Guild updates
 type GuildUpdateEvent struct {
 	GenericGuildEvent
 	OldGuild *api.Guild
 }
 
-// GuildAvailableEvent called when an unavailable api.Guild becomes available
+// GuildAvailableEvent is called when an unavailable api.Guild becomes available
 type GuildAvailableEvent struct {
 	GenericGuildEvent
 }
 
-// GuildUnavailableEvent called when an available api.Guild becomes unavailable
+// GuildUnavailableEvent is called when an available api.Guild becomes unavailable
 type GuildUnavailableEvent struct {
 	GenericGuildEvent
 }
 
-// GuildJoinEvent called when the bot joins a api.Guild
+// GuildJoinEvent is called when the bot joins a api.Guild
 type GuildJoinEvent struct {
 	GenericGuildEvent
 }
 
-// GuildLeaveEvent called when the bot leaves a api.Guild
+// GuildLeaveEvent is called when the bot leaves a api.Guild
 type GuildLeaveEvent struct {
 	GenericGuildEvent
 }
 
-// GuildReadyEvent called when the loaded the api.Guild in login phase
+// GuildReadyEvent is called when the loaded the api.Guild in login phase
 type GuildReadyEvent struct {
 	GenericGuildEvent
 }
 
+// GuildBanEvent is called when a api.Member/api.User is banned from the api.Guild
 type GuildBanEvent struct {
 	GenericGuildEvent
 	User *api.User
 }
 
+// GuildUnbanEvent is called when a api.Member/api.User is unbanned from the api.Guild
 type GuildUnbanEvent struct {
 	GenericGuildEvent
 	User *api.User

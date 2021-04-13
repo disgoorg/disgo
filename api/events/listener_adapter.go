@@ -11,8 +11,7 @@ type ListenerAdapter struct {
 	// Other events
 	OnGenericEvent func(event *GenericEvent)
 	OnHeartbeat    func(event *HeartbeatEvent)
-	OnError        func(event *ErrorEvent)
-	OnHttpRequest  func(event *HttpRequestEvent)
+	OnHTTPRequest  func(event *HTTPRequestEvent)
 	OnRawGateway   func(event *RawGatewayEvent)
 	OnReadyEvent   func(event *ReadyEvent)
 
@@ -74,7 +73,6 @@ type ListenerAdapter struct {
 	OnReconnected               func(event *ReconnectedEvent)
 	OnResumed                   func(event *ResumedEvent)
 	OnDisconnected              func(event *DisconnectedEvent)
-	OnShutdown                  func(event *ShutdownEvent)
 
 	// api.Guild Events
 	OnGenericGuildEvent func(event *GenericGuildEvent)
@@ -100,7 +98,7 @@ type ListenerAdapter struct {
 
 	// api.Guild api.Message Events
 	OnGenericGuildMessageEvent func(event *GenericGuildMessageEvent)
-	OnGuildMessageCreate     func(event *GuildMessageCreateEvent)
+	OnGuildMessageCreate       func(event *GuildMessageCreateEvent)
 	OnGuildMessageUpdate       func(event *GuildMessageUpdateEvent)
 	OnGuildMessageDelete       func(event *GuildMessageDeleteEvent)
 
@@ -129,7 +127,7 @@ type ListenerAdapter struct {
 
 	// api.Message Events
 	OnGenericMessageEvent func(event *GenericMessageEvent)
-	OnMessageCreate     func(event *MessageCreateEvent)
+	OnMessageCreate       func(event *MessageCreateEvent)
 	OnMessageUpdate       func(event *MessageUpdateEvent)
 	OnMessageDelete       func(event *MessageDeleteEvent)
 
@@ -168,12 +166,8 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		if listener := l.OnHeartbeat; listener != nil {
 			listener(&e)
 		}
-	case HttpRequestEvent:
-		if listener := l.OnHttpRequest; listener != nil {
-			listener(&e)
-		}
-	case ErrorEvent:
-		if listener := l.OnError; listener != nil {
+	case HTTPRequestEvent:
+		if listener := l.OnHTTPRequest; listener != nil {
 			listener(&e)
 		}
 	case RawGatewayEvent:
@@ -358,10 +352,6 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 	case DisconnectedEvent:
 		if listener := l.OnDisconnected; listener != nil {
-			listener(&e)
-		}
-	case ShutdownEvent:
-		if listener := l.OnShutdown; listener != nil {
 			listener(&e)
 		}
 

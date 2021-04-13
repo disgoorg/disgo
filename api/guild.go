@@ -171,6 +171,7 @@ type Guild struct {
 	WelcomeScreen               *GuildWelcomeScreen        `json:"welcome_screen"`
 }
 
+// Disconnect sends a api.GatewayCommand to disconnect from this Guild
 func (g *Guild) Disconnect() error {
 	return g.Disgo.AudioController().Disconnect(g.ID)
 }
