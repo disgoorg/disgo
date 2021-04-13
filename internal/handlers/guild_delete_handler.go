@@ -27,28 +27,25 @@ func (h GuildDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 
 	guild = disgo.EntityBuilder().CreateGuild(guild, api.CacheStrategyNo)
 
+	genericGuildEvent := events.GenericGuildEvent{
+		GenericEvent: events.NewEvent(disgo, sequenceNumber),
+		Guild:        guild,
+	}
+	eventManager.Dispatch(genericGuildEvent)
+
 	if guild.Unavailable {
 		// set guild to unavail for now
 		disgo.Cache().Guild(guild.ID).Unavailable = true
 		eventManager.Dispatch(events.GuildUnavailableEvent{
-			GenericGuildEvent: events.GenericGuildEvent{
-				GenericEvent: events.NewEvent(disgo, sequenceNumber),
-				GuildID:      guild.ID,
-			},
+			GenericGuildEvent: genericGuildEvent,
 		})
 	} else {
 		guild = disgo.Cache().Guild(guild.ID)
 		disgo.Cache().UncacheGuild(guild.ID)
 
-		genericGuildEvent := events.GenericGuildEvent{
-			GenericEvent: events.NewEvent(disgo, sequenceNumber),
-			GuildID:      guild.ID,
-		}
-		eventManager.Dispatch(genericGuildEvent)
 
 		eventManager.Dispatch(events.GuildLeaveEvent{
 			GenericGuildEvent: genericGuildEvent,
-			Guild:             guild,
 		})
 	}
 }

@@ -34,6 +34,8 @@ func New(token endpoints.Token, options api.Options) (api.Disgo, error) {
 
 	disgo.restClient = newRestClientImpl(disgo)
 
+	disgo.audioController = newAudioControllerImpl(disgo)
+
 	disgo.entityBuilder = newEntityBuilderImpl(disgo)
 
 	disgo.eventManager = newEventManagerImpl(disgo, []api.EventListener{})
@@ -58,6 +60,7 @@ type DisgoImpl struct {
 	entityBuilder            api.EntityBuilder
 	eventManager             api.EventManager
 	voiceDispatchInterceptor api.VoiceDispatchInterceptor
+	audioController          api.AudioController
 	webhookServer            api.WebhookServer
 	cache                    api.Cache
 	selfUserID               api.Snowflake
@@ -138,6 +141,11 @@ func (d *DisgoImpl) SetVoiceDispatchInterceptor(voiceDispatchInterceptor api.Voi
 	d.voiceDispatchInterceptor = voiceDispatchInterceptor
 }
 
+// AudioController returns the api.AudioController which can be used to connect/reconnect/disconnect to/fom a api.VoiceChannel
+func (d *DisgoImpl) AudioController() api.AudioController {
+	return d.audioController
+}
+
 // WebhookServer returns the api.EventManager
 func (d *DisgoImpl) WebhookServer() api.WebhookServer {
 	return d.webhookServer
@@ -155,8 +163,8 @@ func (d *DisgoImpl) Intents() api.Intents {
 	return c
 }
 
-// SelfUserID returns the current application id
-func (d *DisgoImpl) SelfUserID() api.Snowflake {
+// ApplicationID returns the current application id
+func (d *DisgoImpl) ApplicationID() api.Snowflake {
 	return d.selfUserID
 }
 
@@ -182,30 +190,30 @@ func (d DisgoImpl) HasGateway() bool {
 
 // GetCommand fetches a specific guild command
 func (d DisgoImpl) GetCommand(commandID api.Snowflake) (*api.Command, error) {
-	return d.RestClient().GetGlobalCommand(d.SelfUserID(), commandID)
+	return d.RestClient().GetGlobalCommand(d.ApplicationID(), commandID)
 }
 
 // GetCommands fetches all guild commands
 func (d DisgoImpl) GetCommands() ([]*api.Command, error) {
-	return d.RestClient().GetGlobalCommands(d.SelfUserID())
+	return d.RestClient().GetGlobalCommands(d.ApplicationID())
 }
 
 // CreateCommand creates a new command for this guild
 func (d DisgoImpl) CreateCommand(command api.Command) (*api.Command, error) {
-	return d.RestClient().CreateGlobalCommand(d.SelfUserID(), command)
+	return d.RestClient().CreateGlobalCommand(d.ApplicationID(), command)
 }
 
 // EditCommand edits a specific guild command
 func (d DisgoImpl) EditCommand(commandID api.Snowflake, command api.UpdateCommand) (*api.Command, error) {
-	return d.RestClient().EditGlobalCommand(d.SelfUserID(), commandID, command)
+	return d.RestClient().EditGlobalCommand(d.ApplicationID(), commandID, command)
 }
 
 // DeleteCommand creates a new command for this guild
 func (d DisgoImpl) DeleteCommand(command api.Command) (*api.Command, error) {
-	return d.RestClient().CreateGlobalCommand(d.SelfUserID(), command)
+	return d.RestClient().CreateGlobalCommand(d.ApplicationID(), command)
 }
 
 // SetCommands overrides all commands for this guild
 func (d DisgoImpl) SetCommands(commands ...api.Command) ([]*api.Command, error) {
-	return d.RestClient().SetGlobalCommands(d.SelfUserID(), commands...)
+	return d.RestClient().SetGlobalCommands(d.ApplicationID(), commands...)
 }

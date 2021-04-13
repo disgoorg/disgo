@@ -24,6 +24,7 @@ type DisgoBuilderImpl struct {
 	BotToken                 endpoints.Token
 	gateway                  api.Gateway
 	restClient               api.RestClient
+	audioController          api.AudioController
 	cache                    api.Cache
 	memberCachePolicy        api.MemberCachePolicy
 	messageCachePolicy       api.MessageCachePolicy
@@ -103,6 +104,12 @@ func (b *DisgoBuilderImpl) SetRestClient(restClient api.RestClient) api.DisgoBui
 	return b
 }
 
+// SetAudioController lets you inject your own api.AudioController
+func (b *DisgoBuilderImpl) SetAudioController(audioController api.AudioController) api.DisgoBuilder {
+	b.audioController = audioController
+	return b
+}
+
 // SetCache lets you inject your own api.Cache
 func (b *DisgoBuilderImpl) SetCache(cache api.Cache) api.DisgoBuilder {
 	b.cache = cache
@@ -173,6 +180,11 @@ func (b *DisgoBuilderImpl) Build() (api.Disgo, error) {
 		b.restClient = newRestClientImpl(disgo)
 	}
 	disgo.restClient = b.restClient
+
+	if b.audioController == nil {
+		b.audioController = newAudioControllerImpl(disgo)
+	}
+	disgo.audioController = b.audioController
 
 	disgo.intents = b.intents
 

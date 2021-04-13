@@ -227,6 +227,10 @@ func (g *GatewayImpl) closeWithCode(code int) error {
 	return nil
 }
 
+func (g *GatewayImpl) Conn() *websocket.Conn {
+	return g.conn
+}
+
 func (g *GatewayImpl) heartbeat() {
 	defer func() {
 		if r := recover(); r != nil {
@@ -251,7 +255,7 @@ func (g *GatewayImpl) heartbeat() {
 }
 
 func (g *GatewayImpl) sendHeartbeat() {
-	g.Disgo().Logger().Debug("sending heartbeat...")
+	//g.Disgo().Logger().Debug("sending heartbeat...")
 
 	heartbeatEvent := events.HeartbeatEvent{
 		GenericEvent: events.NewEvent(g.Disgo(), 0),
@@ -344,13 +348,13 @@ func (g *GatewayImpl) listen() {
 				e.Handle(*event.T, nil, *event.S, event.D)
 
 			case api.OpHeartbeat:
-				g.Disgo().Logger().Debugf("received: OpHeartbeat")
+				//g.Disgo().Logger().Debugf("received: OpHeartbeat")
 				g.sendHeartbeat()
 
 			case api.OpReconnect:
 				g.Disgo().Logger().Debugf("received: OpReconnect")
 				g.Close(true)
-				g.reconnect(1*time.Second)
+				g.reconnect(1 * time.Second)
 
 			case api.OpInvalidSession:
 				g.Disgo().Logger().Debugf("received: OpInvalidSession")
@@ -358,10 +362,10 @@ func (g *GatewayImpl) listen() {
 				// clear reconnect info
 				g.sessionID = nil
 				g.lastSequenceReceived = nil
-				g.reconnect(5*time.Second)
+				g.reconnect(5 * time.Second)
 
 			case api.OpHeartbeatACK:
-				g.Disgo().Logger().Debugf("received: OpHeartbeatACK")
+				//g.Disgo().Logger().Debugf("received: OpHeartbeatACK")
 				g.lastHeartbeatReceived = time.Now().UTC()
 			}
 

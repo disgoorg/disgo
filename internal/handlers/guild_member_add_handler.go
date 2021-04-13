@@ -25,22 +25,26 @@ func (h GuildMemberAddHandler) HandleGatewayEvent(disgo api.Disgo, eventManager 
 		return
 	}
 
+	guild := disgo.Cache().Guild(member.GuildID)
+	if guild == nil {
+		// todo: replay event later. maybe guild is not cached yet but in a few seconds
+		return
+	}
 	member = disgo.EntityBuilder().CreateMember(member.GuildID, member, api.CacheStrategyYes)
 
 	genericGuildEvent := events.GenericGuildEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		GuildID:      member.GuildID,
+		Guild:      guild,
 	}
 	eventManager.Dispatch(genericGuildEvent)
 
 	genericGuildMemberEvent := events.GenericGuildMemberEvent{
 		GenericGuildEvent: genericGuildEvent,
-		UserID:            member.User.ID,
+		Member:            member,
 	}
 	eventManager.Dispatch(genericGuildMemberEvent)
 
 	eventManager.Dispatch(events.GuildMemberJoinEvent{
 		GenericGuildMemberEvent: genericGuildMemberEvent,
-		Member:                  member,
 	})
 }

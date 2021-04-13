@@ -38,10 +38,10 @@ func (c *Command) Create() error {
 	var rC *Command
 	var err error
 	if c.GuildID == nil {
-		rC, err = c.Disgo.RestClient().CreateGlobalCommand(c.Disgo.SelfUserID(), *c)
+		rC, err = c.Disgo.RestClient().CreateGlobalCommand(c.Disgo.ApplicationID(), *c)
 
 	} else {
-		rC, err = c.Disgo.RestClient().CreateGuildCommand(c.Disgo.SelfUserID(), *c.GuildID, *c)
+		rC, err = c.Disgo.RestClient().CreateGuildCommand(c.Disgo.ApplicationID(), *c.GuildID, *c)
 	}
 	if err != nil {
 		return err
@@ -58,10 +58,10 @@ func (c *Command) Fetch() error {
 	var rC *Command
 	var err error
 	if c.GuildID == nil {
-		rC, err = c.Disgo.RestClient().GetGlobalCommand(c.Disgo.SelfUserID(), c.ID)
+		rC, err = c.Disgo.RestClient().GetGlobalCommand(c.Disgo.ApplicationID(), c.ID)
 
 	} else {
-		rC, err = c.Disgo.RestClient().GetGuildCommand(c.Disgo.SelfUserID(), *c.GuildID, c.ID)
+		rC, err = c.Disgo.RestClient().GetGuildCommand(c.Disgo.ApplicationID(), *c.GuildID, c.ID)
 	}
 	if err != nil {
 		return err
@@ -78,10 +78,10 @@ func (c *Command) Update(command UpdateCommand) error {
 	var rC *Command
 	var err error
 	if c.GuildID == nil {
-		rC, err = c.Disgo.RestClient().EditGlobalCommand(c.Disgo.SelfUserID(), c.ID, command)
+		rC, err = c.Disgo.RestClient().EditGlobalCommand(c.Disgo.ApplicationID(), c.ID, command)
 
 	} else {
-		rC, err = c.Disgo.RestClient().EditGuildCommand(c.Disgo.SelfUserID(), *c.GuildID, c.ID, command)
+		rC, err = c.Disgo.RestClient().EditGuildCommand(c.Disgo.ApplicationID(), *c.GuildID, c.ID, command)
 	}
 	if err != nil {
 		return err
@@ -92,7 +92,7 @@ func (c *Command) Update(command UpdateCommand) error {
 
 // SetPermissions sets the GuildCommandPermissions for a specific Guild. this overrides all existing CommandPermission(s). thx discord for that
 func (c *Command) SetPermissions(guildID Snowflake, permissions ...CommandPermission) error {
-	_, err := c.Disgo.RestClient().SetGuildCommandPermissions(c.Disgo.SelfUserID(), guildID, c.ID, SetGuildCommandPermissions{Permissions: permissions})
+	_, err := c.Disgo.RestClient().SetGuildCommandPermissions(c.Disgo.ApplicationID(), guildID, c.ID, SetGuildCommandPermissions{Permissions: permissions})
 	if err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func (c Command) GetPermissions(guildID Snowflake) *GuildCommandPermissions {
 
 // FetchPermissions fetched the GuildCommandPermissions for a specific Guild from discord
 func (c *Command) FetchPermissions(guildID Snowflake) (*GuildCommandPermissions, error) {
-	perms, err := c.Disgo.RestClient().GetGuildCommandPermissions(c.Disgo.SelfUserID(), guildID, c.ID)
+	perms, err := c.Disgo.RestClient().GetGuildCommandPermissions(c.Disgo.ApplicationID(), guildID, c.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -119,10 +119,10 @@ func (c Command) Delete() error {
 		return errNoDisgoInstance
 	}
 	if c.GuildID == nil {
-		return c.Disgo.RestClient().DeleteGlobalCommand(c.Disgo.SelfUserID(), c.ID)
+		return c.Disgo.RestClient().DeleteGlobalCommand(c.Disgo.ApplicationID(), c.ID)
 
 	}
-	return c.Disgo.RestClient().DeleteGuildCommand(c.Disgo.SelfUserID(), *c.GuildID, c.ID)
+	return c.Disgo.RestClient().DeleteGuildCommand(c.Disgo.ApplicationID(), *c.GuildID, c.ID)
 }
 
 // CommandOptionType specifies the type of the arguments used in Command.Options

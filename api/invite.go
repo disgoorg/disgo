@@ -1,6 +1,10 @@
 package api
 
-import "time"
+import (
+	"time"
+
+	"github.com/DisgoOrg/disgo/api/endpoints"
+)
 
 // ExpandedInvite is a full Invite struct
 type ExpandedInvite struct {
@@ -23,6 +27,14 @@ type Invite struct {
 	TargetType               *TargetType   `json:"target_user_type"`
 	ApproximatePresenceCount *int          `json:"approximate_presence_count"`
 	ApproximateMemberCount   *int          `json:"approximate_member_count"`
+}
+
+func (i Invite) URL() string {
+	url, err := endpoints.InviteURL.Compile(i.Code)
+	if err != nil {
+		return ""
+	}
+	return url.Route()
 }
 
 // TargetType is type of target an Invite uses

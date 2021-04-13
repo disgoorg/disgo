@@ -119,7 +119,7 @@ func main() {
 	}
 
 	// using the api.RestClient directly to avoid the guild needing to be cached
-	cmds, err := dgo.RestClient().SetGuildCommands(dgo.SelfUserID(), guildID, rawCmds...)
+	cmds, err := dgo.RestClient().SetGuildCommands(dgo.ApplicationID(), guildID, rawCmds...)
 	if err != nil {
 		logger.Errorf("error while registering guild commands: %s", err)
 	}
@@ -145,7 +145,7 @@ func main() {
 			Permissions: []api.CommandPermission{perms},
 		})
 	}
-	if _, err = dgo.RestClient().SetGuildCommandsPermissions(dgo.SelfUserID(), guildID, cmdsPermissions...); err != nil {
+	if _, err = dgo.RestClient().SetGuildCommandsPermissions(dgo.ApplicationID(), guildID, cmdsPermissions...); err != nil {
 		logger.Errorf("error while setting command permissions: %s", err)
 	}
 
@@ -163,7 +163,7 @@ func main() {
 }
 
 func guildAvailListener(event *events.GuildAvailableEvent) {
-	logger.Printf("guild loaded: %s", event.GuildID)
+	logger.Printf("guild loaded: %s", event.Guild.ID)
 }
 
 func slashCommandListener(event *events.SlashCommandEvent) {

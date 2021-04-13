@@ -9,7 +9,3 @@ type HttpRequestEvent struct {
 	Request  *http.Request
 	Response *http.Response
 }
-
-func (e HttpRequestEvent) RateLimited() bool {
-	return e.Response.StatusCode == http.StatusTooManyRequests
-}

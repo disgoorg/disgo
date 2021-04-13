@@ -22,11 +22,10 @@ type RawGatewayEvent struct {
 type ReadyGatewayEvent struct {
 	GatewayPacket
 	D struct {
-		User            User        `json:"user"`
-		PrivateChannels []DMChannel `json:"channel"`
-		Guilds          []Guild     `json:"guild_events"`
-		SessionID       string      `json:"session_id"`
-		Shard           [2]int      `json:"shard,omitempty"`
+		User      User    `json:"user"`
+		Guilds    []Guild `json:"guild_events"`
+		SessionID string  `json:"session_id"`
+		Shard     [2]int  `json:"shard,omitempty"`
 	} `json:"d"`
 }
 

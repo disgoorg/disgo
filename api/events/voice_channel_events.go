@@ -6,24 +6,18 @@ import (
 
 type GenericVoiceChannelEvent struct {
 	GenericChannelEvent
-}
-
-func (e GenericVoiceChannelEvent) VoiceChannel() *api.VoiceChannel {
-	return e.Disgo().Cache().VoiceChannel(e.ChannelID)
+	VoiceChannel *api.VoiceChannel
 }
 
 type VoiceChannelCreateEvent struct {
 	GenericVoiceChannelEvent
-	VoiceChannel *api.VoiceChannel
 }
 
 type VoiceChannelUpdateEvent struct {
 	GenericVoiceChannelEvent
-	NewVoiceChannel *api.VoiceChannel
 	OldVoiceChannel *api.VoiceChannel
 }
 
 type VoiceChannelDeleteEvent struct {
 	GenericVoiceChannelEvent
-	VoiceChannel *api.VoiceChannel
 }

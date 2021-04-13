@@ -22,12 +22,13 @@ type Disgo interface {
 	WebhookServer() WebhookServer
 	Cache() Cache
 	Intents() Intents
-	SelfUserID() Snowflake
+	ApplicationID() Snowflake
 	SelfUser() *User
 	EntityBuilder() EntityBuilder
 	EventManager() EventManager
 	VoiceDispatchInterceptor() VoiceDispatchInterceptor
 	SetVoiceDispatchInterceptor(voiceInterceptor VoiceDispatchInterceptor)
+	AudioController() AudioController
 	HeartbeatLatency() time.Duration
 	LargeThreshold() int
 	HasGateway() bool

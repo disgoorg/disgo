@@ -147,7 +147,7 @@ type ListenerAdapter struct {
 	OnGenericUserEvent func(event *GenericUserEvent)
 	OnUserUpdate       func(event *UserUpdateEvent)
 	OnUserTyping       func(event *UserTypingEvent)
-	OnGuildUserTyping  func(event *GuildUserTypingEvent)
+	OnGuildUserTyping  func(event *GuildMemberTypingEvent)
 	OnDMUserTyping     func(event *DMUserTypingEvent)
 
 	// api.User api.Activity Events
@@ -580,7 +580,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		if listener := l.OnUserTyping; listener != nil {
 			listener(&e)
 		}
-	case GuildUserTypingEvent:
+	case GuildMemberTypingEvent:
 		if listener := l.OnGuildUserTyping; listener != nil {
 			listener(&e)
 		}

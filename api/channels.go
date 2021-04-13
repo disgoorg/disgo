@@ -101,6 +101,10 @@ type VoiceChannel struct {
 	GuildChannel
 }
 
+func (c *VoiceChannel) Connect() error {
+	return c.Disgo.AudioController().Connect(*c.GuildID, c.ID)
+}
+
 // TextChannel allows you to interact with discord's text channels
 type TextChannel struct {
 	GuildChannel

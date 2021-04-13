@@ -6,24 +6,26 @@ import (
 
 type GenericDMChannelEvent struct {
 	GenericChannelEvent
-}
-
-func (e GenericDMChannelEvent) DMChannel() *api.DMChannel {
-	return e.Disgo().Cache().DMChannel(e.ChannelID)
+	DMChannel *api.DMChannel
 }
 
 type DMChannelCreateEvent struct {
 	GenericDMChannelEvent
-	DMChannel *api.DMChannel
 }
 
 type DMChannelUpdateEvent struct {
 	GenericDMChannelEvent
-	NewDMChannel *api.DMChannel
 	OldDMChannel *api.DMChannel
 }
 
 type DMChannelDeleteEvent struct {
 	GenericDMChannelEvent
-	DMChannel *api.DMChannel
+}
+
+type DMUserTypingEvent struct {
+	GenericDMChannelEvent
+}
+
+func (e DMUserTypingEvent) DMChannel() *api.DMChannel {
+	return e.Disgo().Cache().DMChannel(e.ChannelID)
 }

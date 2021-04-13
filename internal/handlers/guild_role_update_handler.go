@@ -30,27 +30,33 @@ func (h GuildRoleUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager
 		return
 	}
 
+	guild := disgo.Cache().Guild(roleUpdateData.GuildID)
+	if guild == nil {
+		// todo: replay event later. maybe guild is not cached yet but in a few seconds
+		return
+	}
+
 	oldRole := disgo.Cache().Role(roleUpdateData.Role.ID)
 	if oldRole != nil {
 		oldRole = &*oldRole
 	}
-	newRole := disgo.EntityBuilder().CreateRole(roleUpdateData.GuildID, roleUpdateData.Role, api.CacheStrategyYes)
+	role := disgo.EntityBuilder().CreateRole(roleUpdateData.GuildID, roleUpdateData.Role, api.CacheStrategyYes)
 
 	genericGuildEvent := events.GenericGuildEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		GuildID:      newRole.GuildID,
+		Guild:        guild,
 	}
 	eventManager.Dispatch(genericGuildEvent)
 
 	genericRoleEvent := events.GenericRoleEvent{
 		GenericGuildEvent: genericGuildEvent,
-		RoleID:            newRole.ID,
+		RoleID:            roleUpdateData.Role.ID,
+		Role:              role,
 	}
 	eventManager.Dispatch(genericRoleEvent)
 
 	eventManager.Dispatch(events.RoleUpdateEvent{
 		GenericGuildEvent: genericGuildEvent,
-		NewRole:           newRole,
 		OldRole:           oldRole,
 	})
 }

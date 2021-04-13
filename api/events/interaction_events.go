@@ -9,7 +9,7 @@ import (
 // GenericInteractionEvent generic api.Interaction event
 type GenericInteractionEvent struct {
 	GenericEvent
-	Interaction api.Interaction
+	*api.Interaction
 }
 
 // Guild returns the api.Guild from the api.Cache
@@ -130,26 +130,25 @@ func (e *SlashCommandEvent) Reply(response api.InteractionResponse) error {
 
 // EditOriginal edits the original api.InteractionResponse
 func (e *SlashCommandEvent) EditOriginal(followupMessage api.FollowupMessage) (*api.Message, error) {
-	return e.Disgo().RestClient().EditInteractionResponse(e.Disgo().SelfUserID(), e.Interaction.Token, followupMessage)
+	return e.Disgo().RestClient().EditInteractionResponse(e.Disgo().ApplicationID(), e.Interaction.Token, followupMessage)
 }
 
 // DeleteOriginal deletes the original api.InteractionResponse
 func (e *SlashCommandEvent) DeleteOriginal() error {
-	return e.Disgo().RestClient().DeleteInteractionResponse(e.Disgo().SelfUserID(), e.Interaction.Token)
+	return e.Disgo().RestClient().DeleteInteractionResponse(e.Disgo().ApplicationID(), e.Interaction.Token)
 }
 
 // SendFollowup used to send a api.FollowupMessage to an api.Interaction
 func (e *SlashCommandEvent) SendFollowup(followupMessage api.FollowupMessage) (*api.Message, error) {
-	return e.Disgo().RestClient().SendFollowupMessage(e.Disgo().SelfUserID(), e.Interaction.Token, followupMessage)
+	return e.Disgo().RestClient().SendFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, followupMessage)
 }
 
 // EditFollowup used to edit a api.FollowupMessage from an api.Interaction
 func (e *SlashCommandEvent) EditFollowup(messageID api.Snowflake, followupMessage api.FollowupMessage) (*api.Message, error) {
-	return e.Disgo().RestClient().EditFollowupMessage(e.Disgo().SelfUserID(), e.Interaction.Token, messageID, followupMessage)
+	return e.Disgo().RestClient().EditFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, messageID, followupMessage)
 }
 
 // DeleteFollowup used to delete a api.FollowupMessage from an api.Interaction
 func (e *SlashCommandEvent) DeleteFollowup(messageID api.Snowflake) error {
-	return e.Disgo().RestClient().DeleteFollowupMessage(e.Disgo().SelfUserID(), e.Interaction.Token, messageID)
+	return e.Disgo().RestClient().DeleteFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, messageID)
 }
-

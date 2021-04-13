@@ -30,23 +30,31 @@ func (h GuildRoleDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager
 		return
 	}
 
+	guild := disgo.Cache().Guild(roleDeleteData.GuildID)
+	if guild == nil {
+		// todo: replay event later. maybe guild is not cached yet but in a few seconds
+		return
+	}
+
 	role := disgo.Cache().Role(roleDeleteData.RoleID)
-	disgo.Cache().UncacheRole(roleDeleteData.GuildID, roleDeleteData.RoleID)
+	if role != nil {
+		disgo.Cache().UncacheRole(roleDeleteData.GuildID, roleDeleteData.RoleID)
+	}
 
 	genericGuildEvent := events.GenericGuildEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		GuildID:      role.GuildID,
+		Guild:        guild,
 	}
 	eventManager.Dispatch(genericGuildEvent)
 
 	genericRoleEvent := events.GenericRoleEvent{
 		GenericGuildEvent: genericGuildEvent,
-		RoleID:            role.ID,
+		RoleID:            roleDeleteData.RoleID,
+		Role:              role,
 	}
 	eventManager.Dispatch(genericRoleEvent)
 
 	eventManager.Dispatch(events.RoleDeleteEvent{
 		GenericGuildEvent: genericGuildEvent,
-		Role:              role,
 	})
 }

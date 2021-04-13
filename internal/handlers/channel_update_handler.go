@@ -37,17 +37,16 @@ func (h ChannelUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		if oldDMChannel != nil {
 			oldDMChannel = &*oldDMChannel
 		}
-		newDMChannel := disgo.EntityBuilder().CreateDMChannel(channel, api.CacheStrategyYes)
 
 		genericDMChannelEvent := events.GenericDMChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
+			DMChannel:           disgo.EntityBuilder().CreateDMChannel(channel, api.CacheStrategyYes),
 		}
 		eventManager.Dispatch(genericDMChannelEvent)
 
 		eventManager.Dispatch(events.DMChannelUpdateEvent{
 			GenericDMChannelEvent: genericDMChannelEvent,
-			NewDMChannel:             newDMChannel,
-			OldDMChannel:             oldDMChannel,
+			OldDMChannel:          oldDMChannel,
 		})
 
 	case api.ChannelTypeGroupDM:
@@ -58,17 +57,16 @@ func (h ChannelUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		if oldTextChannel != nil {
 			oldTextChannel = &*oldTextChannel
 		}
-		newTextChannel := disgo.EntityBuilder().CreateTextChannel(channel, api.CacheStrategyYes)
 
 		genericTextChannelEvent := events.GenericTextChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
+			TextChannel:         disgo.EntityBuilder().CreateTextChannel(channel, api.CacheStrategyYes),
 		}
 		eventManager.Dispatch(genericTextChannelEvent)
 
 		eventManager.Dispatch(events.TextChannelUpdateEvent{
 			GenericTextChannelEvent: genericTextChannelEvent,
-			NewTextChannel:             newTextChannel,
-			OldTextChannel:             oldTextChannel,
+			OldTextChannel:          oldTextChannel,
 		})
 
 	case api.ChannelTypeStore:
@@ -76,17 +74,16 @@ func (h ChannelUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		if oldStoreChannel != nil {
 			oldStoreChannel = &*oldStoreChannel
 		}
-		newStoreChannel := disgo.EntityBuilder().CreateStoreChannel(channel, api.CacheStrategyYes)
 
 		genericStoreChannelEvent := events.GenericStoreChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
+			StoreChannel:        disgo.EntityBuilder().CreateStoreChannel(channel, api.CacheStrategyYes),
 		}
 		eventManager.Dispatch(genericStoreChannelEvent)
 
 		eventManager.Dispatch(events.StoreChannelUpdateEvent{
 			GenericStoreChannelEvent: genericStoreChannelEvent,
-			NewStoreChannel:             newStoreChannel,
-			OldStoreChannel:             oldStoreChannel,
+			OldStoreChannel:          oldStoreChannel,
 		})
 
 	case api.ChannelTypeCategory:
@@ -94,17 +91,16 @@ func (h ChannelUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		if oldCategory != nil {
 			oldCategory = &*oldCategory
 		}
-		newCategory := disgo.EntityBuilder().CreateCategory(channel, api.CacheStrategyYes)
 
 		genericCategoryEvent := events.GenericCategoryEvent{
 			GenericChannelEvent: genericChannelEvent,
+			Category:            disgo.EntityBuilder().CreateCategory(channel, api.CacheStrategyYes),
 		}
 		eventManager.Dispatch(genericCategoryEvent)
 
 		eventManager.Dispatch(events.CategoryUpdateEvent{
 			GenericCategoryEvent: genericCategoryEvent,
-			NewCategory:             newCategory,
-			OldCategory:             oldCategory,
+			OldCategory:          oldCategory,
 		})
 
 	case api.ChannelTypeVoice:
@@ -112,17 +108,16 @@ func (h ChannelUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		if oldVoiceChannel != nil {
 			oldVoiceChannel = &*oldVoiceChannel
 		}
-		newVoiceChannel := disgo.EntityBuilder().CreateVoiceChannel(channel, api.CacheStrategyYes)
 
 		genericVoiceChannelEvent := events.GenericVoiceChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
+			VoiceChannel:        disgo.EntityBuilder().CreateVoiceChannel(channel, api.CacheStrategyYes),
 		}
 		eventManager.Dispatch(genericVoiceChannelEvent)
 
 		eventManager.Dispatch(events.VoiceChannelUpdateEvent{
 			GenericVoiceChannelEvent: genericVoiceChannelEvent,
-			NewVoiceChannel:             newVoiceChannel,
-			OldVoiceChannel:             oldVoiceChannel,
+			OldVoiceChannel:          oldVoiceChannel,
 		})
 
 	default:

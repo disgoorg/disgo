@@ -1,6 +1,10 @@
 package api
 
-import "time"
+import (
+	"time"
+
+	"github.com/gorilla/websocket"
+)
 
 // GatewayStatus is the state that the client is currently in
 type GatewayStatus int
@@ -25,6 +29,7 @@ type Gateway interface {
 	Open() error
 	Status() GatewayStatus
 	Close(bool)
+	Conn() *websocket.Conn
 	Latency() time.Duration
 }
 

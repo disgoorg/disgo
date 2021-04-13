@@ -77,7 +77,7 @@ func (h GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 
 	genericGuildEvent := events.GenericGuildEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		GuildID:      guild.ID,
+		Guild:        guild,
 	}
 
 	eventManager.Dispatch(genericGuildEvent)
@@ -85,12 +85,10 @@ func (h GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 	if wasUnavailable {
 		eventManager.Dispatch(events.GuildAvailableEvent{
 			GenericGuildEvent: genericGuildEvent,
-			Guild:             guild,
 		})
 	} else {
 		eventManager.Dispatch(events.GuildJoinEvent{
 			GenericGuildEvent: genericGuildEvent,
-			Guild:             guild,
 		})
 	}
 }

@@ -72,7 +72,7 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceN
 
 	genericInteractionEvent := events.GenericInteractionEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		Interaction:  *interaction,
+		Interaction:  interaction,
 	}
 	eventManager.Dispatch(genericInteractionEvent)
 

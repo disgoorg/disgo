@@ -2,7 +2,6 @@ package events
 
 import (
 	"github.com/DisgoOrg/disgo/api"
-	"github.com/DisgoOrg/disgo/api/endpoints"
 )
 
 type GenericGuildInviteEvent struct {
@@ -29,14 +28,6 @@ func (e GenericGuildInviteEvent) StoreChannel() *api.StoreChannel {
 
 func (e GenericGuildInviteEvent) Category() *api.Category {
 	return e.Disgo().Cache().Category(e.ChannelID)
-}
-
-func (e GenericGuildInviteEvent) URL() string {
-	url, err := endpoints.InviteURL.Compile(e.Code)
-	if err != nil {
-		return ""
-	}
-	return url.Route()
 }
 
 type GuildInviteCreateEvent struct {

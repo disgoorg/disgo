@@ -30,22 +30,28 @@ func (h GuildRoleCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager
 		return
 	}
 
+	guild := disgo.Cache().Guild(roleCreateData.GuildID)
+	if guild == nil {
+		// todo: replay event later. maybe guild is not cached yet but in a few seconds
+		return
+	}
+
 	role := disgo.EntityBuilder().CreateRole(roleCreateData.GuildID, roleCreateData.Role, api.CacheStrategyYes)
 
 	genericGuildEvent := events.GenericGuildEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		GuildID:      role.GuildID,
+		Guild:        guild,
 	}
 	eventManager.Dispatch(genericGuildEvent)
 
 	genericRoleEvent := events.GenericRoleEvent{
 		GenericGuildEvent: genericGuildEvent,
 		RoleID:            role.ID,
+		Role:              role,
 	}
 	eventManager.Dispatch(genericRoleEvent)
 
 	eventManager.Dispatch(events.RoleCreateEvent{
 		GenericGuildEvent: genericGuildEvent,
-		Role:              role,
 	})
 }

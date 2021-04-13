@@ -37,12 +37,12 @@ func (h ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 
 		genericDMChannelEvent := events.GenericDMChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
+			DMChannel:           dmChannel,
 		}
 		eventManager.Dispatch(genericDMChannelEvent)
 
 		eventManager.Dispatch(events.DMChannelCreateEvent{
 			GenericDMChannelEvent: genericDMChannelEvent,
-			DMChannel:             dmChannel,
 		})
 
 	case api.ChannelTypeGroupDM:
@@ -53,12 +53,12 @@ func (h ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 
 		genericTextChannelEvent := events.GenericTextChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
+			TextChannel:         textChannel,
 		}
 		eventManager.Dispatch(genericTextChannelEvent)
 
 		eventManager.Dispatch(events.TextChannelCreateEvent{
 			GenericTextChannelEvent: genericTextChannelEvent,
-			TextChannel:             textChannel,
 		})
 
 	case api.ChannelTypeStore:
@@ -66,12 +66,12 @@ func (h ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 
 		genericStoreChannelEvent := events.GenericStoreChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
+			StoreChannel:        storeChannel,
 		}
 		eventManager.Dispatch(genericStoreChannelEvent)
 
 		eventManager.Dispatch(events.StoreChannelCreateEvent{
 			GenericStoreChannelEvent: genericStoreChannelEvent,
-			StoreChannel:             storeChannel,
 		})
 
 	case api.ChannelTypeCategory:
@@ -79,12 +79,12 @@ func (h ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 
 		genericCategoryEvent := events.GenericCategoryEvent{
 			GenericChannelEvent: genericChannelEvent,
+			Category:            category,
 		}
 		eventManager.Dispatch(genericCategoryEvent)
 
 		eventManager.Dispatch(events.CategoryCreateEvent{
 			GenericCategoryEvent: genericCategoryEvent,
-			Category:             category,
 		})
 
 	case api.ChannelTypeVoice:
@@ -92,12 +92,12 @@ func (h ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 
 		genericVoiceChannelEvent := events.GenericVoiceChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
+			VoiceChannel:        voiceChannel,
 		}
 		eventManager.Dispatch(genericVoiceChannelEvent)
 
 		eventManager.Dispatch(events.VoiceChannelCreateEvent{
 			GenericVoiceChannelEvent: genericVoiceChannelEvent,
-			VoiceChannel:             voiceChannel,
 		})
 
 	default:

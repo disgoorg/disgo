@@ -482,7 +482,7 @@ func (c *CacheImpl) AllMemberCache() map[api.Snowflake]map[api.Snowflake]*api.Me
 // CacheMember adds a member to the cache
 func (c *CacheImpl) CacheMember(member *api.Member) *api.Member {
 	// only cache member if we want to & always cache self member!
-	if member.User.ID != member.Disgo.SelfUserID() && !c.memberCachePolicy(member) {
+	if member.User.ID != member.Disgo.ApplicationID() && !c.memberCachePolicy(member) {
 		return member
 	}
 	if guildMembers, ok := c.members[member.GuildID]; ok {
@@ -560,7 +560,7 @@ func (c *CacheImpl) VoiceStateCache(guildID api.Snowflake) map[api.Snowflake]*ap
 // CacheVoiceState adds a api.VoiceState from the api.Cache
 func (c *CacheImpl) CacheVoiceState(voiceState *api.VoiceState) *api.VoiceState {
 	// only cache voice states for ourself or member is cached & cache flag activated
-	if voiceState.UserID != c.disgo.SelfUserID() && (!c.cacheFlags.Has(api.CacheFlagVoiceState) || c.Member(voiceState.GuildID, voiceState.UserID) == nil) {
+	if voiceState.UserID != c.disgo.ApplicationID() && (!c.cacheFlags.Has(api.CacheFlagVoiceState) || c.Member(voiceState.GuildID, voiceState.UserID) == nil) {
 		return voiceState
 	}
 	if guildVoiceStates, ok := c.voiceStates[voiceState.GuildID]; ok {

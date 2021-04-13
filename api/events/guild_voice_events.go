@@ -6,18 +6,17 @@ import (
 
 type GenericGuildVoiceEvent struct {
 	GenericGuildMemberEvent
-	Member *api.Member
-}
-
-type GuildVoiceUpdateEvent struct {
-	GenericGuildVoiceEvent
-	NewVoiceState *api.VoiceState
-	OldVoiceState *api.VoiceState
+	VoiceState *api.VoiceState
 }
 
 type GuildVoiceJoinEvent struct {
 	GenericGuildVoiceEvent
 	GenericVoiceChannelEvent
+}
+
+type GuildVoiceUpdateEvent struct {
+	GenericGuildVoiceEvent
+	OldVoiceState *api.VoiceState
 }
 
 type GuildVoiceLeaveEvent struct {
