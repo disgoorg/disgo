@@ -28,7 +28,7 @@ type Gateway interface {
 	Disgo() Disgo
 	Open() error
 	Status() GatewayStatus
-	Close(bool)
+	Close()
 	Conn() *websocket.Conn
 	Latency() time.Duration
 }

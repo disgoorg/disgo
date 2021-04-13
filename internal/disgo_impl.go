@@ -98,7 +98,7 @@ func (d *DisgoImpl) Close() {
 		d.WebhookServer().Close()
 	}
 	if d.Gateway() != nil {
-		d.Gateway().Close(false)
+		d.Gateway().Close()
 	}
 	if d.EventManager() != nil {
 		d.EventManager().Close()

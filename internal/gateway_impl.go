@@ -86,7 +86,7 @@ func (g *GatewayImpl) Open() error {
 	gatewayURL := *g.url + "?v=" + endpoints.APIVersion + "&encoding=json"
 	wsConn, rs, err := websocket.DefaultDialer.Dial(gatewayURL, nil)
 	if err != nil {
-		g.Close(false)
+		g.Close()
 		var body string
 		if rs != nil && rs.Body != nil {
 			rawBody, err := ioutil.ReadAll(rs.Body)
@@ -152,15 +152,15 @@ func (g *GatewayImpl) Open() error {
 		}
 		g.status = api.WaitingForReady
 	} else {
-		g.Disgo().Logger().Infof("sending Resuming command...")
 		g.status = api.Resuming
-		if err = wsConn.WriteJSON(
-			api.NewGatewayCommand(api.OpResume, api.ResumeCommand{
-				Token:     g.Disgo().Token(),
-				SessionID: *g.sessionID,
-				Seq:       *g.lastSequenceReceived,
-			}),
-		); err != nil {
+		cmd := api.NewGatewayCommand(api.OpResume, api.ResumeCommand{
+			Token:     g.Disgo().Token(),
+			SessionID: *g.sessionID,
+			Seq:       *g.lastSequenceReceived,
+		})
+		g.Disgo().Logger().Infof("sending Resuming command...")
+
+		if err = wsConn.WriteJSON(cmd); err != nil {
 			return err
 		}
 	}
@@ -184,8 +184,11 @@ func (g *GatewayImpl) Latency() time.Duration {
 }
 
 // Close cleans up the gateway internals
-func (g *GatewayImpl) Close(toReconnect bool) {
-	g.status = api.Disconnected
+func (g *GatewayImpl) Close() {
+	g.closeWithCode(websocket.CloseNormalClosure)
+}
+
+func (g *GatewayImpl) closeWithCode(code int) {
 	if g.quit != nil {
 		g.Disgo().Logger().Info("closing gateway goroutines...")
 		close(g.quit)
@@ -193,38 +196,20 @@ func (g *GatewayImpl) Close(toReconnect bool) {
 		g.Disgo().Logger().Info("closed gateway goroutines")
 	}
 	if g.conn != nil {
-		var err error
-		if toReconnect {
-			err = g.conn.Close()
-			g.conn = nil
-		} else {
-			err = g.closeWithCode(websocket.CloseNormalClosure)
-		}
-		if err != nil {
-			g.Disgo().Logger().Errorf("error while closing wsconn: %s", err)
-		}
-	}
-}
-
-func (g *GatewayImpl) closeWithCode(code int) error {
-	if g.conn != nil {
-
 		err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, ""))
 		if err != nil {
-			return err
+			g.Disgo().Logger().Errorf("error writing close code: %s", err)
 		}
 
 		// TODO: Wait for Discord to actually close the connection.
 		time.Sleep(1 * time.Second)
 
 		err = g.conn.Close()
-		g.conn = nil
 		if err != nil {
-			return err
+			g.Disgo().Logger().Errorf("error closing conn: %s", err)
 		}
-
+		g.conn = nil
 	}
-	return nil
 }
 
 // Conn returns the underlying websocket.Conn of this api.Gateway
@@ -256,7 +241,7 @@ func (g *GatewayImpl) heartbeat() {
 }
 
 func (g *GatewayImpl) sendHeartbeat() {
-	//g.Disgo().Logger().Debug("sending heartbeat...")
+	g.Disgo().Logger().Debug("sending heartbeat...")
 
 	heartbeatEvent := events.HeartbeatEvent{
 		GenericEvent: events.NewEvent(g.Disgo(), 0),
@@ -265,7 +250,7 @@ func (g *GatewayImpl) sendHeartbeat() {
 
 	if err := g.conn.WriteJSON(api.NewGatewayCommand(api.OpHeartbeat, g.lastSequenceReceived)); err != nil {
 		g.Disgo().Logger().Errorf("failed to send heartbeat with error: %s", err)
-		g.Close(true)
+		g.closeWithCode(websocket.CloseServiceRestart)
 		g.reconnect(1 * time.Second)
 	}
 	g.lastHeartbeatSent = time.Now().UTC()
@@ -296,7 +281,7 @@ func (g *GatewayImpl) listen() {
 			mt, data, err := g.conn.ReadMessage()
 			if err != nil {
 				g.Disgo().Logger().Errorf("error while reading from ws. error: %s", err)
-				g.Close(true)
+				g.closeWithCode(websocket.CloseServiceRestart)
 				g.reconnect(1 * time.Second)
 				return
 			}
@@ -326,7 +311,7 @@ func (g *GatewayImpl) listen() {
 						g.Disgo().Logger().Errorf("Error parsing ready event: %s", err)
 						continue
 					}
-					g.sessionID = &readyEvent.D.SessionID
+					g.sessionID = &readyEvent.SessionID
 
 					g.Disgo().Logger().Info("ready event received")
 				}
@@ -349,24 +334,32 @@ func (g *GatewayImpl) listen() {
 				e.Handle(*event.T, nil, *event.S, event.D)
 
 			case api.OpHeartbeat:
-				//g.Disgo().Logger().Debugf("received: OpHeartbeat")
+				g.Disgo().Logger().Debugf("received: OpHeartbeat")
 				g.sendHeartbeat()
 
 			case api.OpReconnect:
 				g.Disgo().Logger().Debugf("received: OpReconnect")
-				g.Close(true)
+				g.closeWithCode(websocket.CloseServiceRestart)
 				g.reconnect(1 * time.Second)
 
 			case api.OpInvalidSession:
-				g.Disgo().Logger().Debugf("received: OpInvalidSession")
-				g.Close(false)
-				// clear reconnect info
-				g.sessionID = nil
-				g.lastSequenceReceived = nil
+				var resumable bool
+				if err = g.parseEventToStruct(event, &resumable); err != nil {
+					g.Disgo().Logger().Errorf("Error parsing invalid session data: %s", err)
+				}
+				g.Disgo().Logger().Debugf("received: OpInvalidSession, resumable: %b", resumable)
+				if resumable {
+					g.closeWithCode(websocket.CloseServiceRestart)
+				} else {
+					g.Close()
+					// clear reconnect info
+					g.sessionID = nil
+					g.lastSequenceReceived = nil
+				}
 				g.reconnect(5 * time.Second)
 
 			case api.OpHeartbeatACK:
-				//g.Disgo().Logger().Debugf("received: OpHeartbeatACK")
+				g.Disgo().Logger().Debugf("received: OpHeartbeatACK")
 				g.lastHeartbeatReceived = time.Now().UTC()
 			}
 

@@ -20,13 +20,11 @@ type RawGatewayEvent struct {
 
 // ReadyGatewayEvent is the event sent by discord when you successfully Identify
 type ReadyGatewayEvent struct {
-	GatewayPacket
-	D struct {
-		User      User    `json:"user"`
-		Guilds    []Guild `json:"guild_events"`
-		SessionID string  `json:"session_id"`
-		Shard     [2]int  `json:"shard,omitempty"`
-	} `json:"d"`
+	Version   int      `json:"v"`
+	SelfUser  User     `json:"user"`
+	Guilds    []*Guild `json:"guilds"`
+	SessionID string   `json:"session_id"`
+	Shard     *[2]int  `json:"shard,omitempty"`
 }
 
 // HelloGatewayEventData is sent when we connect to the gateway

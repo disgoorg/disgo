@@ -4,14 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/api"
 )
 
-type readyEventData struct {
-	Version   int          `json:"v"`
-	SelfUser  api.User     `json:"user"`
-	Guilds    []*api.Guild `json:"guilds"`
-	SessionID string       `json:"session_id"`
-	Shard     *[2]int      `json:"shard,omitempty"`
-}
-
 // ReadyHandler handles api.ReadyGatewayEvent
 type ReadyHandler struct{}
 
@@ -22,12 +14,12 @@ func (h ReadyHandler) Event() api.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h ReadyHandler) New() interface{} {
-	return &readyEventData{}
+	return &api.ReadyGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h ReadyHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
-	readyEvent, ok := i.(*readyEventData)
+	readyEvent, ok := i.(*api.ReadyGatewayEvent)
 	if !ok {
 		return
 	}
