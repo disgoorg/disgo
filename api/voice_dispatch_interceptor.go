@@ -7,7 +7,7 @@ type VoiceServerUpdateEvent struct {
 }
 
 // Guild returns the Guild for this VoiceServerUpdate from the Cache
-func (u VoiceServerUpdateEvent) Guild() *Guild {
+func (u *VoiceServerUpdateEvent) Guild() *Guild {
 	return u.Disgo.Cache().Guild(u.GuildID)
 }
 
@@ -18,12 +18,12 @@ type VoiceStateUpdateEvent struct {
 }
 
 // Guild returns the Guild for this VoiceStateUpdate from the Cache
-func (u VoiceStateUpdateEvent) Guild() *Guild {
+func (u *VoiceStateUpdateEvent) Guild() *Guild {
 	return u.Disgo.Cache().Guild(u.GuildID)
 }
 
 // VoiceChannel returns the VoiceChannel for this VoiceStateUpdate from the Cache
-func (u VoiceStateUpdateEvent) VoiceChannel() *VoiceChannel {
+func (u *VoiceStateUpdateEvent) VoiceChannel() *VoiceChannel {
 	if u.ChannelID == nil {
 		return nil
 	}
