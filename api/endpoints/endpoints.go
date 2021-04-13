@@ -10,7 +10,6 @@ const (
 
 // Misc
 var (
-	GetVoiceReagions  = NewAPIRoute(GET, "/voice/regions")
 	GetGateway        = NewAPIRoute(GET, "/gateway")
 	GetGatewayBot     = NewAPIRoute(GET, "/gateway/bot")
 	GetBotApplication = NewAPIRoute(GET, "/oauth2/applications/@me")
@@ -202,4 +201,9 @@ var (
 	AchievementIcon      = NewCDNRoute("/app-assets/{application.id}/achievements/{achievement.id}/icons/{icon.hash}.", PNG, JPEG, WEBP)
 	TeamIcon             = NewCDNRoute("/team-icons/{team.id}/team.icon.", PNG, JPEG, WEBP)
 	Attachments          = NewCDNRoute("/attachments/{channel.id}/{attachment.id}/{file.name}", BLANK)
+)
+
+// Other
+var (
+	InviteURL = NewRoute("https://discord.gg/{code}")
 )

@@ -8,16 +8,14 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gorilla/mux"
-	log "github.com/sirupsen/logrus"
-
 	"github.com/DisgoOrg/disgo/api"
+	"github.com/gorilla/mux"
 )
 
 func newWebhookServerImpl(disgo api.Disgo, listenURL string, listenPort int, publicKey string) api.WebhookServer {
 	hexDecodedKey, err := hex.DecodeString(publicKey)
 	if err != nil {
-		log.Errorf("error while decoding hex string: %s", err)
+		disgo.Logger().Errorf("error while decoding hex string: %s", err)
 	}
 	w := &WebhookServerImpl{
 		disgo:      disgo,
@@ -26,7 +24,7 @@ func newWebhookServerImpl(disgo api.Disgo, listenURL string, listenPort int, pub
 		listenPort: listenPort,
 	}
 
-	w.interactionHandler = &webhookInteractionHandler{w}
+	w.interactionHandler = &webhookInteractionHandler{disgo: disgo, webhookServer: w}
 
 	return w
 }
@@ -68,7 +66,7 @@ func (w *WebhookServerImpl) Start() {
 
 	go func() {
 		if err := http.ListenAndServe(":"+strconv.Itoa(w.listenPort), w.router); err != nil {
-			log.Errorf("error starting webhook server: %s", err)
+			w.Disgo().Logger().Errorf("error starting webhook server: %s", err)
 		}
 	}()
 }
@@ -79,17 +77,18 @@ func (w *WebhookServerImpl) Close() {
 }
 
 type webhookInteractionHandler struct {
+	disgo         api.Disgo
 	webhookServer api.WebhookServer
 }
 
 func (h *webhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if ok := api.Verify(r, h.webhookServer.PublicKey()); !ok {
+	if ok := api.Verify(h.disgo, r, h.webhookServer.PublicKey()); !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	defer func() {
 		if err := r.Body.Close(); err != nil {
-			log.Errorf("error closing request body in WebhookServer: %s", err)
+			h.disgo.Logger().Errorf("error closing request body in WebhookServer: %s", err)
 		}
 	}()
 	rawBody, err := ioutil.ReadAll(r.Body)
@@ -97,13 +96,13 @@ func (h *webhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 		w.WriteHeader(http.StatusBadRequest)
 	}
 	c := make(chan interface{})
-	go h.webhookServer.Disgo().EventManager().Handle(api.WebhookEventInteractionCreate, rawBody, c)
+	go h.webhookServer.Disgo().EventManager().Handle(api.WebhookEventInteractionCreate, c, -1, rawBody)
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 
 	err = json.NewEncoder(w).Encode(<-c)
 	if err != nil {
-		log.Errorf("error writing body: %s", err)
+		h.disgo.Logger().Errorf("error writing body: %s", err)
 	}
 }

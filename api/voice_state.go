@@ -1,5 +1,12 @@
 package api
 
+// VoiceServerUpdate from Discord
+type VoiceServerUpdate struct {
+	Token    string    `json:"token"`
+	GuildID  Snowflake `json:"guild_id"`
+	Endpoint *string   `json:"endpoint"`
+}
+
 // VoiceState from Discord
 type VoiceState struct {
 	Disgo         Disgo

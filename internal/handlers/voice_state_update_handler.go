@@ -8,18 +8,18 @@ import (
 type VoiceStateUpdateHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h VoiceStateUpdateHandler) Event() api.GatewayEventName {
+func (h VoiceStateUpdateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventVoiceStateUpdate
 }
 
 // New constructs a new payload receiver for the raw gateway event
 func (h VoiceStateUpdateHandler) New() interface{} {
-	return &api.VoiceStateUpdate{}
+	return &api.VoiceStateUpdateEvent{}
 }
 
-// Handle handles the specific raw gateway event
-func (h VoiceStateUpdateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
-	voiceStateUpdate, ok := i.(*api.VoiceStateUpdate)
+// HandleGatewayEvent handles the specific raw gateway event
+func (h VoiceStateUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+	voiceStateUpdate, ok := i.(*api.VoiceStateUpdateEvent)
 	if !ok {
 		return
 	}
@@ -34,9 +34,9 @@ func (h VoiceStateUpdateHandler) Handle(disgo api.Disgo, eventManager api.EventM
 	// TODO update voice state cache
 	// TODO fire several events
 
-	if disgo.SelfUserID() == voiceStateUpdate.UserID {
+	if disgo.ApplicationID() == voiceStateUpdate.UserID {
 		if interceptor := disgo.VoiceDispatchInterceptor(); interceptor != nil {
-			interceptor.OnVoiceStateUpdate(*voiceStateUpdate)
+			interceptor.OnVoiceStateUpdate(voiceStateUpdate)
 		}
 	}
 

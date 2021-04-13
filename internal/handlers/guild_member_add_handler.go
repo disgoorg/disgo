@@ -9,7 +9,7 @@ import (
 type GuildMemberAddHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h GuildMemberAddHandler) Event() api.GatewayEventName {
+func (h GuildMemberAddHandler) Event() api.GatewayEventType {
 	return api.GatewayEventGuildMemberAdd
 }
 
@@ -18,29 +18,33 @@ func (h GuildMemberAddHandler) New() interface{} {
 	return &api.Member{}
 }
 
-// Handle handles the specific raw gateway event
-func (h GuildMemberAddHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
+// HandleGatewayEvent handles the specific raw gateway event
+func (h GuildMemberAddHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	member, ok := i.(*api.Member)
 	if !ok {
 		return
 	}
 
-	disgo.Cache().CacheMember(member)
+	guild := disgo.Cache().Guild(member.GuildID)
+	if guild == nil {
+		// todo: replay event later. maybe guild is not cached yet but in a few seconds
+		return
+	}
+	member = disgo.EntityBuilder().CreateMember(member.GuildID, member, api.CacheStrategyYes)
 
 	genericGuildEvent := events.GenericGuildEvent{
-		GenericEvent: events.NewEvent(disgo),
-		GuildID:      member.GuildID,
+		GenericEvent: events.NewEvent(disgo, sequenceNumber),
+		Guild:        guild,
 	}
 	eventManager.Dispatch(genericGuildEvent)
 
 	genericGuildMemberEvent := events.GenericGuildMemberEvent{
 		GenericGuildEvent: genericGuildEvent,
-		UserID:            member.User.ID,
+		Member:            member,
 	}
 	eventManager.Dispatch(genericGuildMemberEvent)
 
 	eventManager.Dispatch(events.GuildMemberJoinEvent{
 		GenericGuildMemberEvent: genericGuildMemberEvent,
-		Member:                  member,
 	})
 }

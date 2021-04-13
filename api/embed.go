@@ -82,8 +82,8 @@ type EmbedBuilder struct {
 }
 
 // SetTitle sets the title of the EmbedBuilder
-func (b *EmbedBuilder) SetTitle(title *string) *EmbedBuilder {
-	b.Title = title
+func (b *EmbedBuilder) SetTitle(title string) *EmbedBuilder {
+	b.Title = &title
 	return b
 }
 
@@ -100,9 +100,28 @@ func (b *EmbedBuilder) SetDescriptionf(description string, a ...interface{}) *Em
 	return b
 }
 
-// SetAuthor sets the author of the EmbedBuilder
-func (b *EmbedBuilder) SetAuthor(author *EmbedAuthor) *EmbedBuilder {
+// SetEmbedAuthor sets the author of the EmbedBuilder using an EmbedAuthor struct
+func (b *EmbedBuilder) SetEmbedAuthor(author *EmbedAuthor) *EmbedBuilder {
 	b.Author = author
+	return b
+}
+
+// SetAuthor sets the author of the EmbedBuilder without an Icon URL
+func (b *EmbedBuilder) SetAuthor(name string, url string) *EmbedBuilder {
+	b.Author = &EmbedAuthor{
+		Name: &name,
+		URL:  &url,
+	}
+	return b
+}
+
+// SetAuthorI sets the author of the EmbedBuilder with all properties
+func (b *EmbedBuilder) SetAuthorI(name string, url string, iconURL string) *EmbedBuilder {
+	b.Author = &EmbedAuthor{
+		Name:    &name,
+		URL:     &url,
+		IconURL: &iconURL,
+	}
 	return b
 }
 
@@ -144,8 +163,8 @@ func (b *EmbedBuilder) SetThumbnail(i *string) *EmbedBuilder {
 }
 
 // SetURL sets the URL of the EmbedBuilder
-func (b *EmbedBuilder) SetURL(u *string) *EmbedBuilder {
-	b.URL = u
+func (b *EmbedBuilder) SetURL(url string) *EmbedBuilder {
+	b.URL = &url
 	return b
 }
 

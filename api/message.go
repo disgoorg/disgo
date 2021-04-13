@@ -89,40 +89,104 @@ func (f MessageFlags) Missing(bit MessageFlags) bool {
 // Constants for MessageFlags
 const (
 	MessageFlagNone        MessageFlags = 0
-	MessageFlagCrossposted MessageFlags = 1 << iota
+	MessageFlagCrossposted MessageFlags = 1 << (iota - 1)
 	MessageFlagIsCrosspost
 	MessageFlagSuppressEmbeds
 	MessageFlagSourceMessageDeleted
 	MessageFlagUrgent
+	_
 	MessageFlagEphemeral
 	MessageFlagLoading // Message is an interaction of type 5, awaiting further response
 )
 
+//MessageAttachment is used for files sent in a Message
+type MessageAttachment struct {
+	ID       Snowflake `json:"id,omitempty"`
+	Filename string    `json:"filename"`
+	Size     int       `json:"size"`
+	URL      string    `json:"url"`
+	ProxyURL string    `json:"proxy_url"`
+	Height   *int      `json:"height"`
+	Width    *int      `json:"width"`
+}
+
+// MessageActivityType is the type of MessageActivity
+type MessageActivityType int
+
+//Constants for MessageActivityType
+const (
+	MessageActivityTypeJoin MessageActivityType = iota + 1
+	MessageActivityTypeSpectate
+	MessageActivityTypeListen
+	_
+	MessageActivityTypeJoinRequest
+)
+
+//MessageActivity is used for rich presence-related chat embeds in a Message
+type MessageActivity struct {
+	Type    MessageActivityType `json:"type"`
+	PartyID *string             `json:"party_id,omitempty"`
+}
+
+//MessageApplication is used for rich presence-related chat embeds in a Message
+type MessageApplication struct {
+	ID          Snowflake `json:"id"`
+	CoverImage  *string   `json:"cover_image,omitempty"`
+	Description string    `json:"description"`
+	Icon        *string   `json:"icon,omitempty"`
+	Name        string    `json:"name"`
+}
+
+// MessageStickerFormatType is the Format Type of a MessageSticker
+type MessageStickerFormatType int
+
+// Constants for MessageStickerFormatType
+const (
+	MessageStickerFormatPNG MessageStickerFormatType = iota + 1
+	MessageStickerFormatAPNG
+	MessageStickerFormatLottie
+)
+
+// MessageSticker is a sticker sent with a Message
+type MessageSticker struct {
+	ID          Snowflake                `json:"id"`
+	PackID      Snowflake                `json:"pack_id"`
+	Name        string                   `json:"name"`
+	Description string                   `json:"description"`
+	Tags        *string                  `json:"tags"`
+	FormatType  MessageStickerFormatType `json:"format_type"`
+}
+
 // Message is a struct for messages sent in discord text-based channels
-// todo: missing Member, mention channels, webhook id, activity, application, stickers, referenced_message
-// https://discord.com/developers/docs/resources/channel#message-object
 type Message struct {
-	Disgo            Disgo
-	ID               Snowflake           `json:"id"`
-	GuildID          *Snowflake          `json:"guild_id"`
-	Reactions        []Reactions         `json:"reactions"`
-	Attachments      []interface{}       `json:"attachments"`
-	TTS              bool                `json:"tts"`
-	Embeds           []*Embed            `json:"embeds,omitempty"`
-	CreatedAt        time.Time           `json:"timestamp"`
-	MentionEveryone  bool                `json:"mention_everyone"`
-	Pinned           bool                `json:"pinned"`
-	EditedTimestamp  interface{}         `json:"edited_timestamp"`
-	Author           User                `json:"author"`
-	MentionRoles     []interface{}       `json:"mention_roles"`
-	Content          *string             `json:"content,omitempty"`
-	ChannelID        Snowflake           `json:"channel_id"`
-	Mentions         []interface{}       `json:"mentions"`
-	Type             MessageType         `json:"type"`
-	Flags            *MessageFlags       `json:"flags"`
-	MessageReference *MessageReference   `json:"message_reference,omitempty"`
-	Interaction      *MessageInteraction `json:"message_interaction,omitempty"`
-	LastUpdated      *time.Time
+	Disgo             Disgo
+	ID                Snowflake            `json:"id"`
+	GuildID           *Snowflake           `json:"guild_id"`
+	Reactions         []*MessageReaction   `json:"reactions"`
+	Attachments       []*MessageAttachment `json:"attachments"`
+	TTS               bool                 `json:"tts"`
+	Embeds            []*Embed             `json:"embeds,omitempty"`
+	CreatedAt         time.Time            `json:"timestamp"`
+	Mentions          []interface{}        `json:"mentions"`
+	MentionEveryone   bool                 `json:"mention_everyone"`
+	MentionRoles      []*Role              `json:"mention_roles"`
+	MentionChannels   []*Channel           `json:"mention_channels"`
+	Pinned            bool                 `json:"pinned"`
+	EditedTimestamp   *time.Time           `json:"edited_timestamp"`
+	Author            *User                `json:"author"`
+	Member            *Member              `json:"member"`
+	Content           *string              `json:"content,omitempty"`
+	ChannelID         Snowflake            `json:"channel_id"`
+	Type              MessageType          `json:"type"`
+	Flags             *MessageFlags        `json:"flags"`
+	MessageReference  *MessageReference    `json:"message_reference,omitempty"`
+	Interaction       *MessageInteraction  `json:"message_interaction,omitempty"`
+	WebhookID         *Snowflake           `json:"webhook_id,omitempty"`
+	Activity          *MessageActivity     `json:"activity,omitempty"`
+	Application       *MessageApplication  `json:"application,omitempty"`
+	Stickers          []*MessageSticker    `json:"stickers,omitempty"`
+	ReferencedMessage *Message             `json:"referenced_message,omitempty"`
+	LastUpdated       *time.Time
 }
 
 // MessageReference is a reference to another message
@@ -191,8 +255,8 @@ func (m Message) Reply(message MessageCreate) (*Message, error) {
 	return m.Disgo.RestClient().SendMessage(m.ChannelID, message)
 }
 
-// Reactions contains information about the reactions of a message_events
-type Reactions struct {
+// MessageReaction contains information about the reactions of a message_events
+type MessageReaction struct {
 	Count int   `json:"count"`
 	Me    bool  `json:"me"`
 	Emoji Emote `json:"emoji"`

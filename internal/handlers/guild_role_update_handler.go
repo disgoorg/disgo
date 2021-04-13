@@ -14,7 +14,7 @@ type roleUpdateData struct {
 type GuildRoleUpdateHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h GuildRoleUpdateHandler) Event() api.GatewayEventName {
+func (h GuildRoleUpdateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventGuildRoleUpdate
 }
 
@@ -23,33 +23,40 @@ func (h GuildRoleUpdateHandler) New() interface{} {
 	return &roleUpdateData{}
 }
 
-// Handle handles the specific raw gateway event
-func (h GuildRoleUpdateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
+// HandleGatewayEvent handles the specific raw gateway event
+func (h GuildRoleUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	roleUpdateData, ok := i.(*roleUpdateData)
 	if !ok {
 		return
 	}
-	roleUpdateData.Role.Disgo = disgo
-	roleUpdateData.Role.GuildID = roleUpdateData.GuildID
 
-	oldRole := *disgo.Cache().Role(roleUpdateData.GuildID, roleUpdateData.Role.ID)
-	disgo.Cache().CacheRole(roleUpdateData.Role)
+	guild := disgo.Cache().Guild(roleUpdateData.GuildID)
+	if guild == nil {
+		// todo: replay event later. maybe guild is not cached yet but in a few seconds
+		return
+	}
+
+	oldRole := disgo.Cache().Role(roleUpdateData.Role.ID)
+	if oldRole != nil {
+		oldRole = &*oldRole
+	}
+	role := disgo.EntityBuilder().CreateRole(roleUpdateData.GuildID, roleUpdateData.Role, api.CacheStrategyYes)
 
 	genericGuildEvent := events.GenericGuildEvent{
-		GenericEvent: events.NewEvent(disgo),
-		GuildID:      roleUpdateData.GuildID,
+		GenericEvent: events.NewEvent(disgo, sequenceNumber),
+		Guild:        guild,
 	}
 	eventManager.Dispatch(genericGuildEvent)
 
-	genericRoleEvent := events.GenericGuildRoleEvent{
+	genericRoleEvent := events.GenericRoleEvent{
 		GenericGuildEvent: genericGuildEvent,
-		Role:              roleUpdateData.Role,
 		RoleID:            roleUpdateData.Role.ID,
+		Role:              role,
 	}
 	eventManager.Dispatch(genericRoleEvent)
 
-	eventManager.Dispatch(events.GuildRoleUpdateEvent{
+	eventManager.Dispatch(events.RoleUpdateEvent{
 		GenericGuildEvent: genericGuildEvent,
-		OldRole:           &oldRole,
+		OldRole:           oldRole,
 	})
 }

@@ -65,10 +65,10 @@ type RequestGuildMembersCommand struct {
 
 // UpdateVoiceStateCommand is used for updating the bots voice state in a guild_events
 type UpdateVoiceStateCommand struct {
-	GuildID   Snowflake `json:"guild_id"`
-	ChannelID Snowflake `json:"channel_id"`
-	SelfMute  bool      `json:"self_mute"`
-	SelfDeaf  bool      `json:"self_deaf"`
+	GuildID   Snowflake  `json:"guild_id"`
+	ChannelID *Snowflake `json:"channel_id"`
+	SelfMute  bool       `json:"self_mute"`
+	SelfDeaf  bool       `json:"self_deaf"`
 }
 
 // UpdateStatusCommand is used for updating Disgo's presence

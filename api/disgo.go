@@ -7,10 +7,12 @@ import (
 	"time"
 
 	"github.com/DisgoOrg/disgo/api/endpoints"
+	"github.com/DisgoOrg/log"
 )
 
 // Disgo is the main discord interface
 type Disgo interface {
+	Logger() log.Logger
 	Connect() error
 	Start()
 	Close()
@@ -20,13 +22,17 @@ type Disgo interface {
 	WebhookServer() WebhookServer
 	Cache() Cache
 	Intents() Intents
-	SelfUserID() Snowflake
+	RawGatewayEventsEnabled() bool
+	ApplicationID() Snowflake
 	SelfUser() *User
+	EntityBuilder() EntityBuilder
 	EventManager() EventManager
 	VoiceDispatchInterceptor() VoiceDispatchInterceptor
 	SetVoiceDispatchInterceptor(voiceInterceptor VoiceDispatchInterceptor)
+	AudioController() AudioController
 	HeartbeatLatency() time.Duration
 	LargeThreshold() int
+	HasGateway() bool
 
 	GetCommand(commandID Snowflake) (*Command, error)
 	GetCommands() ([]*Command, error)
@@ -38,38 +44,40 @@ type Disgo interface {
 
 // EventHandler provides info about the EventHandler
 type EventHandler interface {
-	Event() GatewayEventName
+	Event() GatewayEventType
 	New() interface{}
 }
 
 // GatewayEventHandler is used to handle raw gateway events
 type GatewayEventHandler interface {
 	EventHandler
-	Handle(Disgo, EventManager, interface{})
+	HandleGatewayEvent(disgo Disgo, eventManager EventManager, sequenceNumber int, payload interface{})
 }
 
 // WebhookEventHandler is used to handle raw webhook events
 type WebhookEventHandler interface {
 	EventHandler
-	Handle(Disgo, EventManager, chan interface{}, interface{})
+	HandleWebhookEvent(disgo Disgo, eventManager EventManager, replyChannel chan interface{}, payload interface{})
 }
 
 // EventListener is used to create new EventListener to listen to events
 type EventListener interface {
-	OnEvent(interface{})
+	OnEvent(event interface{})
 }
 
 // Event the basic interface each event implement
 type Event interface {
 	Disgo() Disgo
+	SequenceNumber() int
 }
 
 // EventManager lets you listen for specific events triggered by raw gateway events
 type EventManager interface {
+	Disgo() Disgo
 	Close()
-	AddEventListeners(...EventListener)
-	Handle(GatewayEventName, json.RawMessage, chan interface{})
-	Dispatch(Event)
+	AddEventListeners(eventListeners ...EventListener)
+	Handle(eventType GatewayEventType, replyChannel chan interface{}, sequenceNumber int, payload json.RawMessage)
+	Dispatch(event Event)
 }
 
 // GetOS returns the simplified version of the operating system for sending to Discord in the IdentifyCommandDataProperties.OS payload

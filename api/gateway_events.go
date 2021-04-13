@@ -9,7 +9,7 @@ import (
 type GatewayPacket struct {
 	Op GatewayOp         `json:"op"`
 	S  *int              `json:"s,omitempty"`
-	T  *GatewayEventName `json:"t,omitempty"`
+	T  *GatewayEventType `json:"t,omitempty"`
 }
 
 // RawGatewayEvent specifies the data for the GatewayCommand payload that is being sent
@@ -22,11 +22,10 @@ type RawGatewayEvent struct {
 type ReadyGatewayEvent struct {
 	GatewayPacket
 	D struct {
-		User            User        `json:"user"`
-		PrivateChannels []DMChannel `json:"channel"`
-		Guilds          []Guild     `json:"guild_events"`
-		SessionID       string      `json:"session_id"`
-		Shard           [2]int      `json:"shard,omitempty"`
+		User      User    `json:"user"`
+		Guilds    []Guild `json:"guild_events"`
+		SessionID string  `json:"session_id"`
+		Shard     [2]int  `json:"shard,omitempty"`
 	} `json:"d"`
 }
 

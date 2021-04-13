@@ -3,7 +3,7 @@ package internal
 import (
 	"errors"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/DisgoOrg/log"
 
 	"github.com/DisgoOrg/disgo/api"
 	"github.com/DisgoOrg/disgo/api/endpoints"
@@ -12,7 +12,6 @@ import (
 // NewBuilder returns a new api.DisgoBuilder instance
 func NewBuilder(token endpoints.Token) api.DisgoBuilder {
 	return &DisgoBuilderImpl{
-		logLevel:   log.InfoLevel,
 		BotToken:   token,
 		cacheFlags: api.CacheFlagsDefault,
 	}
@@ -20,16 +19,19 @@ func NewBuilder(token endpoints.Token) api.DisgoBuilder {
 
 // DisgoBuilderImpl implementation of the api.DisgoBuilder interface
 type DisgoBuilderImpl struct {
-	logLevel log.Level
+	logger log.Logger
 	// make this public so it does not print in fmt.Sprint("%+v, DisgoBuilderImpl{})
 	BotToken                 endpoints.Token
 	gateway                  api.Gateway
 	restClient               api.RestClient
+	audioController          api.AudioController
 	cache                    api.Cache
 	memberCachePolicy        api.MemberCachePolicy
 	messageCachePolicy       api.MessageCachePolicy
 	cacheFlags               api.CacheFlags
 	intents                  api.Intents
+	rawGatewayEventsEnabled  bool
+	entityBuilder            api.EntityBuilder
 	eventManager             api.EventManager
 	voiceDispatchInterceptor api.VoiceDispatchInterceptor
 	webhookServer            api.WebhookServer
@@ -39,9 +41,9 @@ type DisgoBuilderImpl struct {
 	eventListeners           []api.EventListener
 }
 
-// SetLogLevel sets logrus.Level of logrus
-func (b *DisgoBuilderImpl) SetLogLevel(logLevel log.Level) api.DisgoBuilder {
-	b.logLevel = logLevel
+// SetLogger sets logger implementation disgo should use as an example logrus
+func (b *DisgoBuilderImpl) SetLogger(logger log.Logger) api.DisgoBuilder {
+	b.logger = logger
 	return b
 }
 
@@ -54,6 +56,18 @@ func (b *DisgoBuilderImpl) SetToken(token endpoints.Token) api.DisgoBuilder {
 // SetIntents sets the api.Intents to connect to discord
 func (b *DisgoBuilderImpl) SetIntents(intents api.Intents) api.DisgoBuilder {
 	b.intents = intents
+	return b
+}
+
+// SetRawGatewayEventsEnabled enables/disables the events.RawGatewayEvent
+func (b *DisgoBuilderImpl) SetRawGatewayEventsEnabled(enabled bool) api.DisgoBuilder {
+	b.rawGatewayEventsEnabled = enabled
+	return b
+}
+
+// SetEntityBuilder lets you inject your own api.EntityBuilder
+func (b *DisgoBuilderImpl) SetEntityBuilder(entityBuilder api.EntityBuilder) api.DisgoBuilder {
+	b.entityBuilder = entityBuilder
 	return b
 }
 
@@ -94,6 +108,12 @@ func (b *DisgoBuilderImpl) SetWebhookServerProperties(listenURL string, listenPo
 // SetRestClient lets you inject your own api.RestClient
 func (b *DisgoBuilderImpl) SetRestClient(restClient api.RestClient) api.DisgoBuilder {
 	b.restClient = restClient
+	return b
+}
+
+// SetAudioController lets you inject your own api.AudioController
+func (b *DisgoBuilderImpl) SetAudioController(audioController api.AudioController) api.DisgoBuilder {
+	b.audioController = audioController
 	return b
 }
 
@@ -141,9 +161,11 @@ func (b *DisgoBuilderImpl) SetGateway(gateway api.Gateway) api.DisgoBuilder {
 
 // Build builds your api.Disgo instance
 func (b *DisgoBuilderImpl) Build() (api.Disgo, error) {
-	log.SetLevel(b.logLevel)
 
-	disgo := &DisgoImpl{}
+	disgo := &DisgoImpl{
+		logger:                  b.logger,
+		rawGatewayEventsEnabled: b.rawGatewayEventsEnabled,
+	}
 	if b.BotToken == "" {
 		return nil, errors.New("please specify the BotToken")
 	}
@@ -151,7 +173,7 @@ func (b *DisgoBuilderImpl) Build() (api.Disgo, error) {
 
 	id, err := IDFromToken(disgo.BotToken)
 	if err != nil {
-		log.Errorf("error while getting application id from BotToken: %s", err)
+		disgo.Logger().Errorf("error while getting application id from BotToken: %s", err)
 		return nil, err
 	}
 
@@ -167,7 +189,17 @@ func (b *DisgoBuilderImpl) Build() (api.Disgo, error) {
 	}
 	disgo.restClient = b.restClient
 
+	if b.audioController == nil {
+		b.audioController = newAudioControllerImpl(disgo)
+	}
+	disgo.audioController = b.audioController
+
 	disgo.intents = b.intents
+
+	if b.entityBuilder == nil {
+		b.entityBuilder = newEntityBuilderImpl(disgo)
+	}
+	disgo.entityBuilder = b.entityBuilder
 
 	if b.eventManager == nil {
 		b.eventManager = newEventManagerImpl(disgo, b.eventListeners)

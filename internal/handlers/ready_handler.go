@@ -5,19 +5,18 @@ import (
 )
 
 type readyEventData struct {
-	Version         int              `json:"v"`
-	SelfUser        api.User         `json:"user"`
-	PrivateChannels []*api.DMChannel `json:"private_channels"`
-	Guilds          []*api.Guild     `json:"guilds"`
-	SessionID       string           `json:"session_id"`
-	Shard           *[2]int          `json:"shard,omitempty"`
+	Version   int          `json:"v"`
+	SelfUser  api.User     `json:"user"`
+	Guilds    []*api.Guild `json:"guilds"`
+	SessionID string       `json:"session_id"`
+	Shard     *[2]int      `json:"shard,omitempty"`
 }
 
 // ReadyHandler handles api.ReadyGatewayEvent
 type ReadyHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h ReadyHandler) Event() api.GatewayEventName {
+func (h ReadyHandler) Event() api.GatewayEventType {
 	return api.GatewayEventReady
 }
 
@@ -26,8 +25,8 @@ func (h ReadyHandler) New() interface{} {
 	return &readyEventData{}
 }
 
-// Handle handles the specific raw gateway event
-func (h ReadyHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
+// HandleGatewayEvent handles the specific raw gateway event
+func (h ReadyHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	readyEvent, ok := i.(*readyEventData)
 	if !ok {
 		return

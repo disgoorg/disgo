@@ -1,10 +1,10 @@
 package endpoints
 
 import (
+	"errors"
 	"fmt"
+	"strconv"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
 )
 
 // Route the base struct for routes used in disgo
@@ -15,9 +15,9 @@ type Route struct {
 }
 
 // Compile builds a full request URL based on provided arguments
-func (r Route) Compile(args ...interface{}) CompiledRoute {
+func (r Route) Compile(args ...interface{}) (*CompiledRoute, error) {
 	if len(args) != r.paramCount {
-		log.Errorf("invalid amount of arguments received. expected: %d, received: %d", r.paramCount, len(args))
+		return nil, errors.New("invalid amount of arguments received. expected: " + strconv.Itoa(len(args)) + ", received: " + strconv.Itoa(r.paramCount))
 	}
 	route := r.route
 	if len(args) > 0 {
@@ -34,14 +34,20 @@ func (r Route) Compile(args ...interface{}) CompiledRoute {
 		}
 	}
 
-	return CompiledRoute{route: r.baseRoute + route}
+	return &CompiledRoute{route: r.baseRoute + route}, nil
+}
+
+// NewRoute generates a Route when given a URL
+func NewRoute(url string) Route {
+	return Route{
+		baseRoute:  "",
+		route:      url,
+		paramCount: countParams(url),
+	}
 }
 
 func countParams(url string) int {
 	paramCount := strings.Count(url, "{")
-	if paramCount != strings.Count(url, "}") {
-		log.Errorf("invalid format for route provided: %s", url)
-	}
 	return paramCount
 }
 
