@@ -20,8 +20,8 @@ func (e GenericGuildMessageEvent) TextChannel() *api.TextChannel {
 	return e.Disgo().Cache().TextChannel(e.ChannelID)
 }
 
-// GuildMessageReceivedEvent called upon receiving a api.Message in a api.DMChannel
-type GuildMessageReceivedEvent struct {
+// GuildMessageCreateEvent called upon receiving a api.Message in a api.DMChannel
+type GuildMessageCreateEvent struct {
 	GenericGuildMessageEvent
 }
 

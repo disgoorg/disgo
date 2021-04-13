@@ -22,8 +22,8 @@ type MessageDeleteEvent struct {
 	GenericMessageEvent
 }
 
-// MessageReceivedEvent indicates a api.Message got received
-type MessageReceivedEvent struct {
+// MessageCreateEvent indicates a api.Message got received
+type MessageCreateEvent struct {
 	GenericMessageEvent
 }
 

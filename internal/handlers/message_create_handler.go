@@ -36,7 +36,7 @@ func (h MessageCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 	}
 	eventManager.Dispatch(genericMessageEvent)
 
-	eventManager.Dispatch(events.MessageReceivedEvent{
+	eventManager.Dispatch(events.MessageCreateEvent{
 		GenericMessageEvent: genericMessageEvent,
 	})
 
@@ -46,7 +46,7 @@ func (h MessageCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		}
 		eventManager.Dispatch(genericDMMessageEvent)
 
-		eventManager.Dispatch(events.DMMessageReceivedEvent{
+		eventManager.Dispatch(events.DMMessageCreateEvent{
 			GenericDMMessageEvent: genericDMMessageEvent,
 		})
 	} else {
@@ -56,7 +56,7 @@ func (h MessageCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		}
 		eventManager.Dispatch(genericGuildMessageEvent)
 
-		eventManager.Dispatch(events.GuildMessageReceivedEvent{
+		eventManager.Dispatch(events.GuildMessageCreateEvent{
 			GenericGuildMessageEvent: genericGuildMessageEvent,
 		})
 	}

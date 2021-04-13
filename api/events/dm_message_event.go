@@ -14,8 +14,8 @@ func (e GenericDMMessageEvent) DMChannel() *api.DMChannel {
 	return e.Disgo().Cache().DMChannel(e.ChannelID)
 }
 
-// DMMessageReceivedEvent called upon receiving a api.Message in a api.DMChannel
-type DMMessageReceivedEvent struct {
+// DMMessageCreateEvent called upon receiving a api.Message in a api.DMChannel
+type DMMessageCreateEvent struct {
 	GenericDMMessageEvent
 }
 

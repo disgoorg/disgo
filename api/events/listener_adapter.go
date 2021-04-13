@@ -100,7 +100,7 @@ type ListenerAdapter struct {
 
 	// api.Guild api.Message Events
 	OnGenericGuildMessageEvent func(event *GenericGuildMessageEvent)
-	OnGuildMessageReceived     func(event *GuildMessageReceivedEvent)
+	OnGuildMessageCreate     func(event *GuildMessageCreateEvent)
 	OnGuildMessageUpdate       func(event *GuildMessageUpdateEvent)
 	OnGuildMessageDelete       func(event *GuildMessageDeleteEvent)
 
@@ -129,7 +129,7 @@ type ListenerAdapter struct {
 
 	// api.Message Events
 	OnGenericMessageEvent func(event *GenericMessageEvent)
-	OnMessageReceived     func(event *MessageReceivedEvent)
+	OnMessageCreate     func(event *MessageCreateEvent)
 	OnMessageUpdate       func(event *MessageUpdateEvent)
 	OnMessageDelete       func(event *MessageDeleteEvent)
 
@@ -440,8 +440,8 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		if listener := l.OnGenericGuildMessageEvent; listener != nil {
 			listener(&e)
 		}
-	case GuildMessageReceivedEvent:
-		if listener := l.OnGuildMessageReceived; listener != nil {
+	case GuildMessageCreateEvent:
+		if listener := l.OnGuildMessageCreate; listener != nil {
 			listener(&e)
 		}
 	case GuildMessageUpdateEvent:
@@ -526,8 +526,8 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		if listener := l.OnGenericMessageEvent; listener != nil {
 			listener(&e)
 		}
-	case MessageReceivedEvent:
-		if listener := l.OnMessageReceived; listener != nil {
+	case MessageCreateEvent:
+		if listener := l.OnMessageCreate; listener != nil {
 			listener(&e)
 		}
 	case MessageUpdateEvent:

@@ -37,7 +37,7 @@ func main() {
 		SetMemberCachePolicy(api.MemberCachePolicyAll).
 		AddEventListeners(&events.ListenerAdapter{
 			OnGuildAvailable:       guildAvailListener,
-			OnGuildMessageReceived: messageListener,
+			OnGuildMessageCreate: messageListener,
 			OnSlashCommand:         slashCommandListener,
 		}).
 		Build()
@@ -279,7 +279,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 	}
 }
 
-func messageListener(event *events.GuildMessageReceivedEvent) {
+func messageListener(event *events.GuildMessageCreateEvent) {
 	if event.Message.Author.IsBot {
 		return
 	}
