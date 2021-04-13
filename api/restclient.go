@@ -24,6 +24,11 @@ type RestClient interface {
 	Request(route endpoints.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) error
 
 	SendMessage(channelID Snowflake, message MessageCreate) (*Message, error)
+	EditMessage(channelID Snowflake, messageID Snowflake, message MessageUpdate) (*Message, error)
+	DeleteMessage(channelID Snowflake, messageID Snowflake) error
+	BulkDeleteMessages(channelID Snowflake, messageIDs ...Snowflake) error
+	CrosspostMessage(channelID Snowflake, messageID Snowflake) (*Message, error)
+
 	OpenDMChannel(userID Snowflake) (*DMChannel, error)
 
 	UpdateSelfNick(guildID Snowflake, nick *string) (*string, error)
@@ -48,27 +53,32 @@ type RestClient interface {
 	RemoveOwnReaction(channelID Snowflake, messageID Snowflake, emoji string) error
 	RemoveUserReaction(channelID Snowflake, messageID Snowflake, emoji string, userID Snowflake) error
 
-	GetGlobalCommands(applicationID Snowflake) ([]*SlashCommand, error)
-	CreateGlobalCommand(applicationID Snowflake, command SlashCommand) (*SlashCommand, error)
-	SetGlobalCommands(applicationID Snowflake, commands ...SlashCommand) ([]*SlashCommand, error)
-	GetGlobalCommand(applicationID Snowflake, commandID Snowflake) (*SlashCommand, error)
-	EditGlobalCommand(applicationID Snowflake, commandID Snowflake, command SlashCommand) (*SlashCommand, error)
+	GetGlobalCommands(applicationID Snowflake) ([]*Command, error)
+	GetGlobalCommand(applicationID Snowflake, commandID Snowflake) (*Command, error)
+	CreateGlobalCommand(applicationID Snowflake, command Command) (*Command, error)
+	SetGlobalCommands(applicationID Snowflake, commands ...Command) ([]*Command, error)
+	EditGlobalCommand(applicationID Snowflake, commandID Snowflake, command UpdateCommand) (*Command, error)
 	DeleteGlobalCommand(applicationID Snowflake, commandID Snowflake) error
 
-	GetGuildCommands(applicationID Snowflake, guildID Snowflake) ([]*SlashCommand, error)
-	CreateGuildGuildCommand(applicationID Snowflake, guildID Snowflake, command SlashCommand) (*SlashCommand, error)
-	SetGuildCommands(applicationID Snowflake, guildID Snowflake, commands ...SlashCommand) ([]*SlashCommand, error)
-	GetGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake) (*SlashCommand, error)
-	EditGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake, command SlashCommand) (*SlashCommand, error)
+	GetGuildCommands(applicationID Snowflake, guildID Snowflake) ([]*Command, error)
+	GetGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake) (*Command, error)
+	CreateGuildCommand(applicationID Snowflake, guildID Snowflake, command Command) (*Command, error)
+	SetGuildCommands(applicationID Snowflake, guildID Snowflake, commands ...Command) ([]*Command, error)
+	EditGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake, command UpdateCommand) (*Command, error)
 	DeleteGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake) error
 
-	SendInteractionResponse(interactionID Snowflake, interactionToken string, interactionResponse InteractionResponse) error
-	EditInteractionResponse(applicationID Snowflake, interactionToken string, interactionResponse InteractionResponse) (*Message, error)
-	DeleteInteractionResponse(applicationID Snowflake, interactionToken string) error
+	GetGuildCommandsPermissions(applicationID Snowflake, guildID Snowflake) ([]*GuildCommandPermissions, error)
+	GetGuildCommandPermissions(applicationID Snowflake, guildID Snowflake, commandID Snowflake) (*GuildCommandPermissions, error)
+	SetGuildCommandsPermissions(applicationID Snowflake, guildID Snowflake, commandPermissions ...SetGuildCommandPermissions) ([]*GuildCommandPermissions, error)
+	SetGuildCommandPermissions(applicationID Snowflake, guildID Snowflake, commandID Snowflake, commandPermissions SetGuildCommandPermissions) (*GuildCommandPermissions, error)
 
-	SendFollowupMessage(applicationID Snowflake, interactionToken string, followupMessage FollowupMessage) (*Message, error)
-	EditFollowupMessage(applicationID Snowflake, interactionToken string, messageID Snowflake, followupMessage FollowupMessage) (*Message, error)
-	DeleteFollowupMessage(applicationID Snowflake, interactionToken string, followupMessageID Snowflake) error
+	SendInteractionResponse(interactionID Snowflake, interactionToken endpoints.Token, interactionResponse InteractionResponse) error
+	EditInteractionResponse(applicationID Snowflake, interactionToken endpoints.Token, followupMessage FollowupMessage) (*Message, error)
+	DeleteInteractionResponse(applicationID Snowflake, interactionToken endpoints.Token) error
+
+	SendFollowupMessage(applicationID Snowflake, interactionToken endpoints.Token, followupMessage FollowupMessage) (*Message, error)
+	EditFollowupMessage(applicationID Snowflake, interactionToken endpoints.Token, messageID Snowflake, followupMessage FollowupMessage) (*Message, error)
+	DeleteFollowupMessage(applicationID Snowflake, interactionToken endpoints.Token, followupMessageID Snowflake) error
 }
 
 // ErrorResponse contains custom errors from discord

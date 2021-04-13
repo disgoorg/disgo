@@ -10,7 +10,6 @@ const (
 
 // Misc
 var (
-	GetVoiceReagions  = NewAPIRoute(GET, "/voice/regions")
 	GetGateway        = NewAPIRoute(GET, "/gateway")
 	GetGatewayBot     = NewAPIRoute(GET, "/gateway/bot")
 	GetBotApplication = NewAPIRoute(GET, "/oauth2/applications/@me")
@@ -32,6 +31,11 @@ var (
 	EditGuildCommand   = NewAPIRoute(PATCH, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}")
 	DeleteGuildCommand = NewAPIRoute(DELETE, "/applications/{application.id}/guilds/{guild.id}/commands")
 
+	GetGuildCommandPermissions  = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/commands/permissions")
+	GetGuildCommandPermission   = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions")
+	SetGuildCommandsPermissions = NewAPIRoute(PUT, "/applications/{application.id}/guilds/{guild.id}/commands/permissions")
+	SetGuildCommandPermissions  = NewAPIRoute(PUT, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions")
+
 	CreateInteractionResponse = NewAPIRoute(POST, "/interactions/{interaction.id}/{interaction.token}/callback")
 	EditInteractionResponse   = NewAPIRoute(PATCH, "/webhooks/{application.id}/{interaction.token}/messages/@original")
 	DeleteInteractionResponse = NewAPIRoute(DELETE, "/webhooks/{application.id}/{interaction.token}/messages/@original")
@@ -46,7 +50,7 @@ var (
 	GetUser         = NewAPIRoute(GET, "/users/{user.id}")
 	GetSelfUser     = NewAPIRoute(GET, "/users/@me")
 	UpdateSelfUser  = NewAPIRoute(PATCH, "/users/@me")
-	GetGuilds       = NewAPIRoute(GET, "/users/@me/guilds/{guild.id}")
+	GetGuilds       = NewAPIRoute(GET, "/users/@me/guilds")
 	LeaveGuild      = NewAPIRoute(DELETE, "/users/@me/guilds/{guild.id}")
 	GetDMChannels   = NewAPIRoute(GET, "/users/@me/channels")
 	CreateDMChannel = NewAPIRoute(POST, "/users/@me/channels")
@@ -85,9 +89,9 @@ var (
 
 	GetGuildWebhooks = NewAPIRoute(GET, "/guilds/{guild.id}/webhooks")
 
-	GetAudiotLogs = NewAPIRoute(GET, "/guilds/{guild.id}/audit-logs")
+	GetAuditLogs = NewAPIRoute(GET, "/guilds/{guild.id}/audit-logs")
 
-	GetVoiceRegions = NewAPIRoute(GET, "guilds/{guild.id}/regions")
+	GetVoiceRegions = NewAPIRoute(GET, "/guilds/{guild.id}/regions")
 
 	GetIntegrations   = NewAPIRoute(GET, "/guilds/{guild.id}/integrations")
 	CreateIntegration = NewAPIRoute(POST, "/guilds/{guild.id}/integrations")
@@ -196,4 +200,10 @@ var (
 	ApplicationAsset     = NewCDNRoute("/app-assets/{application.id}/{asset.id}.", PNG, JPEG, WEBP)
 	AchievementIcon      = NewCDNRoute("/app-assets/{application.id}/achievements/{achievement.id}/icons/{icon.hash}.", PNG, JPEG, WEBP)
 	TeamIcon             = NewCDNRoute("/team-icons/{team.id}/team.icon.", PNG, JPEG, WEBP)
+	Attachments          = NewCDNRoute("/attachments/{channel.id}/{attachment.id}/{file.name}", BLANK)
+)
+
+// Other
+var (
+	InviteURL = NewRoute("https://discord.gg/{code}")
 )

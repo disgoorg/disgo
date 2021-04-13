@@ -7,23 +7,34 @@ import (
 // GetAllHandlers returns all api.GatewayEventHandler(s)
 func GetAllHandlers() []api.EventHandler {
 	return []api.EventHandler{
-		ReadyHandler{},
+		ApplicationCommandCreateHandler{},
+		ApplicationCommandDeleteHandler{},
+		ApplicationCommandUpdateHandler{},
+
+		ChannelCreateHandler{},
+		ChannelDeleteHandler{},
+		ChannelUpdateHandler{},
 
 		GuildCreateHandler{},
-		GuildUpdateHandler{},
 		GuildDeleteHandler{},
+		GuildUpdateHandler{},
 
 		GuildMemberAddHandler{},
-		GuildMemberUpdateHandler{},
 		GuildMemberRemoveHandler{},
+		GuildMemberUpdateHandler{},
 
 		GuildRoleCreateHandler{},
-		GuildRoleUpdateHandler{},
 		GuildRoleDeleteHandler{},
-
-		MessageCreateHandler{},
+		GuildRoleUpdateHandler{},
 
 		InteractionCreateHandler{},
 		InteractionCreateWebhookHandler{},
+
+		MessageCreateHandler{},
+
+		ReadyHandler{},
+
+		VoiceServerUpdateHandler{},
+		VoiceStateUpdateHandler{},
 	}
 }

@@ -4,26 +4,34 @@ import (
 	"github.com/DisgoOrg/disgo/api"
 )
 
-// GenericGuildMessageEvent indicates that we received a api.Message api.Event in a api.Guild
+// GenericGuildMessageEvent is called upon receiving GuildMessageCreateEvent, GuildMessageUpdateEvent or GuildMessageDeleteEvent
 type GenericGuildMessageEvent struct {
-	GenericGuildEvent
 	GenericMessageEvent
+	GuildID api.Snowflake
 }
 
-// GuildMessageReceivedEvent indicates that we received a api.Message in a api.Guild
-type GuildMessageReceivedEvent struct {
+// Guild returns the api.Guild the GenericGuildMessageEvent happened in
+func (e GenericGuildMessageEvent) Guild() *api.Guild {
+	return e.Disgo().Cache().Guild(e.GuildID)
+}
+
+// TextChannel returns the api.TextChannel from the api.Cache
+func (e GenericGuildMessageEvent) TextChannel() *api.TextChannel {
+	return e.Disgo().Cache().TextChannel(e.ChannelID)
+}
+
+// GuildMessageCreateEvent is called upon receiving a api.Message in a api.DMChannel
+type GuildMessageCreateEvent struct {
 	GenericGuildMessageEvent
-	Message api.Message
 }
 
-// GuildMessageUpdateEvent indicates that a api.Message was updated in a api.Guild
+// GuildMessageUpdateEvent is called upon editing a api.Message in a api.DMChannel
 type GuildMessageUpdateEvent struct {
 	GenericGuildMessageEvent
-	Message api.Message
+	OldMessage *api.Message
 }
 
-// GuildMessageDeleteEvent indicates that a api.Message was deleted in a api.Guild
+// GuildMessageDeleteEvent is called upon deleting a api.Message in a api.DMChannel
 type GuildMessageDeleteEvent struct {
 	GenericGuildMessageEvent
-	Message *api.Message
 }

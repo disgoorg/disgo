@@ -2,9 +2,16 @@ package api
 
 // An Emote allows you to interact with custom emojis in discord.
 type Emote struct {
+	Disgo    Disgo
 	ID       Snowflake
+	GuildID  Snowflake
 	Name     string
 	Animated bool
+}
+
+// Guild returns the Guild of the Emote from the Cache
+func (e Emote) Guild() *Guild {
+	return e.Disgo.Cache().Guild(e.GuildID)
 }
 
 // Mention returns the string used to send the emoji
@@ -16,6 +23,7 @@ func (e Emote) Mention() string {
 	return start + e.Name + ":" + e.ID.String() + ">"
 }
 
+// String formats the Emote as string
 func (e Emote) String() string {
 	return e.Mention()
 }

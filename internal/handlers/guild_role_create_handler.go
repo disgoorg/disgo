@@ -13,9 +13,9 @@ type roleCreateData struct {
 // GuildRoleCreateHandler handles api.GuildRoleCreateGatewayEvent
 type GuildRoleCreateHandler struct{}
 
-// Name returns the raw gateway event name
-func (h GuildRoleCreateHandler) Name() string {
-	return api.GuildRoleCreateGatewayEvent
+// Event returns the raw gateway event Event
+func (h GuildRoleCreateHandler) Event() api.GatewayEventType {
+	return api.GatewayEventGuildRoleCreate
 }
 
 // New constructs a new payload receiver for the raw gateway event
@@ -23,32 +23,35 @@ func (h GuildRoleCreateHandler) New() interface{} {
 	return &roleCreateData{}
 }
 
-// Handle handles the specific raw gateway event
-func (h GuildRoleCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
+// HandleGatewayEvent handles the specific raw gateway event
+func (h GuildRoleCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	roleCreateData, ok := i.(*roleCreateData)
 	if !ok {
 		return
 	}
-	roleCreateData.Role.Disgo = disgo
-	roleCreateData.Role.GuildID = roleCreateData.GuildID
-	disgo.Cache().CacheRole(roleCreateData.Role)
+
+	guild := disgo.Cache().Guild(roleCreateData.GuildID)
+	if guild == nil {
+		// todo: replay event later. maybe guild is not cached yet but in a few seconds
+		return
+	}
+
+	role := disgo.EntityBuilder().CreateRole(roleCreateData.GuildID, roleCreateData.Role, api.CacheStrategyYes)
 
 	genericGuildEvent := events.GenericGuildEvent{
-		Event: api.Event{
-			Disgo: disgo,
-		},
-		GuildID: roleCreateData.GuildID,
+		GenericEvent: events.NewEvent(disgo, sequenceNumber),
+		Guild:        guild,
 	}
 	eventManager.Dispatch(genericGuildEvent)
 
-	genericRoleEvent := events.GenericGuildRoleEvent{
+	genericRoleEvent := events.GenericRoleEvent{
 		GenericGuildEvent: genericGuildEvent,
-		Role:              roleCreateData.Role,
-		RoleID:            roleCreateData.Role.ID,
+		RoleID:            role.ID,
+		Role:              role,
 	}
 	eventManager.Dispatch(genericRoleEvent)
 
-	eventManager.Dispatch(events.GuildRoleCreateEvent{
+	eventManager.Dispatch(events.RoleCreateEvent{
 		GenericGuildEvent: genericGuildEvent,
 	})
 }

@@ -1,153 +1,272 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
+	"time"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/PaesslerAG/gval"
+	"github.com/sirupsen/logrus"
 
 	"github.com/DisgoOrg/disgo"
 	"github.com/DisgoOrg/disgo/api"
+	"github.com/DisgoOrg/disgo/api/endpoints"
 	"github.com/DisgoOrg/disgo/api/events"
 )
 
-func main() {
-	log.Infof("starting testbot...")
-	token := os.Getenv("token")
-	publicKey := os.Getenv("public-key")
+const red = 16711680
+const orange = 16562691
+const green = 65280
 
-	dgo, err := disgo.NewBuilder(token).
-		SetLogLevel(log.InfoLevel).
-		SetIntents(api.IntentsGuilds|api.IntentsGuildMessages|api.IntentsGuildMembers).
+const guildID = "817327181659111454"
+const adminRoleID = "817327279583264788"
+const testRoleID = "825156597935243304"
+
+var logger = logrus.New()
+
+func main() {
+	logger.SetLevel(logrus.DebugLevel)
+	logger.Info("starting testbot...")
+
+	dgo, err := disgo.NewBuilder(endpoints.Token(os.Getenv("token"))).
+		SetLogger(logger).
+		SetIntents(api.IntentsGuilds | api.IntentsGuildMessages | api.IntentsGuildMembers).
 		SetMemberCachePolicy(api.MemberCachePolicyAll).
-		SetWebhookServerProperties("/webhooks/interactions/callback", 80, publicKey).
 		AddEventListeners(&events.ListenerAdapter{
 			OnGuildAvailable:       guildAvailListener,
-			OnGuildMessageReceived: messageListener,
+			OnGuildMessageCreate: messageListener,
 			OnSlashCommand:         slashCommandListener,
 		}).
 		Build()
 	if err != nil {
-		log.Fatalf("error while building disgo instance: %s", err)
+		logger.Fatalf("error while building disgo instance: %s", err)
 		return
 	}
 
-	_, err = dgo.RestClient().SetGuildCommands(dgo.ApplicationID(), "817327181659111454",
-		api.SlashCommand{
-			Name:        "test",
-			Description: "test test test test test test",
-		},
-		api.SlashCommand{
-			Name:        "say",
-			Description: "says what you say",
+	rawCmds := []api.Command{
+		{
+			Name:              "eval",
+			Description:       "runs some go code",
+			DefaultPermission: false,
 			Options: []*api.CommandOption{
 				{
-					Type:        api.OptionTypeString,
+					Type:        api.CommandOptionTypeString,
+					Name:        "code",
+					Description: "the code to eval",
+					Required:    true,
+				},
+			},
+		},
+		{
+			Name:              "test",
+			Description:       "test test test test test test",
+			DefaultPermission: false,
+		},
+		{
+			Name:              "say",
+			Description:       "says what you say",
+			DefaultPermission: false,
+			Options: []*api.CommandOption{
+				{
+					Type:        api.CommandOptionTypeString,
 					Name:        "message",
 					Description: "What to say",
 					Required:    true,
 				},
 			},
 		},
-		api.SlashCommand{
-			Name:        "addrole",
-			Description: "This command adds a role to a member",
+		{
+			Name:              "addrole",
+			Description:       "This command adds a role to a member",
+			DefaultPermission: false,
 			Options: []*api.CommandOption{
 				{
-					Type:        api.OptionTypeUser,
+					Type:        api.CommandOptionTypeUser,
 					Name:        "member",
 					Description: "The member to add a role to",
 					Required:    true,
 				},
 				{
-					Type:        api.OptionTypeRole,
+					Type:        api.CommandOptionTypeRole,
 					Name:        "role",
 					Description: "The role to add to a member",
 					Required:    true,
 				},
 			},
 		},
-		api.SlashCommand{
-			Name:        "removerole",
-			Description: "This command removes a role from a member",
+		{
+			Name:              "removerole",
+			Description:       "This command removes a role from a member",
+			DefaultPermission: false,
 			Options: []*api.CommandOption{
 				{
-					Type:        api.OptionTypeUser,
+					Type:        api.CommandOptionTypeUser,
 					Name:        "member",
 					Description: "The member to removes a role from",
 					Required:    true,
 				},
 				{
-					Type:        api.OptionTypeRole,
+					Type:        api.CommandOptionTypeRole,
 					Name:        "role",
 					Description: "The role to removes from a member",
 					Required:    true,
 				},
 			},
 		},
-	)
-	if err != nil {
-		log.Errorf("error while registering guild commands: %s", err)
 	}
 
-	err = dgo.Start()
+	// using the api.RestClient directly to avoid the guild needing to be cached
+	cmds, err := dgo.RestClient().SetGuildCommands(dgo.ApplicationID(), guildID, rawCmds...)
 	if err != nil {
-		log.Fatalf("error while starting webhookserver: %s", err)
+		logger.Errorf("error while registering guild commands: %s", err)
+	}
+
+	var cmdsPermissions []api.SetGuildCommandPermissions
+	for _, cmd := range cmds {
+		var perms api.CommandPermission
+		if cmd.Name == "eval" {
+			perms = api.CommandPermission{
+				ID:         adminRoleID,
+				Type:       api.CommandPermissionTypeRole,
+				Permission: true,
+			}
+		} else {
+			perms = api.CommandPermission{
+				ID:         testRoleID,
+				Type:       api.CommandPermissionTypeRole,
+				Permission: true,
+			}
+		}
+		cmdsPermissions = append(cmdsPermissions, api.SetGuildCommandPermissions{
+			ID:          cmd.ID,
+			Permissions: []api.CommandPermission{perms},
+		})
+	}
+	if _, err = dgo.RestClient().SetGuildCommandsPermissions(dgo.ApplicationID(), guildID, cmdsPermissions...); err != nil {
+		logger.Errorf("error while setting command permissions: %s", err)
 	}
 
 	err = dgo.Connect()
 	if err != nil {
-		log.Fatalf("error while connecting to discord: %s", err)
+		logger.Fatalf("error while connecting to discord: %s", err)
 	}
 
 	defer dgo.Close()
 
-	log.Infof("Bot is now running. Press CTRL-C to exit.")
+	logger.Infof("Bot is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-s
 }
 
 func guildAvailListener(event *events.GuildAvailableEvent) {
-	log.Printf("guild loaded: %s", event.GuildID)
+	logger.Printf("guild loaded: %s", event.Guild.ID)
 }
 
 func slashCommandListener(event *events.SlashCommandEvent) {
-	switch event.Interaction.Data.Name {
+	switch event.CommandName {
+	case "eval":
+		go func() {
+			start := time.Now()
+			code := event.Option("code").String()
+			embed := api.NewEmbedBuilder().
+				SetColor(orange).
+				AddField("Status", "...", true).
+				AddField("Time", "...", true).
+				AddField("Code", "```go\n"+code+"\n```", false).
+				AddField("Output", "```\n...\n```", false)
+
+			_ = event.Reply(api.NewInteractionResponseBuilder().SetEmbeds(embed.Build()).Build())
+
+			vars := map[string]interface{}{
+				"disgo": event.Disgo(),
+				"dgo":   event.Disgo(),
+				"event": event,
+			}
+			output, err := gval.Evaluate(code, vars)
+
+			elapsed := time.Since(start)
+			embed.SetField(1, "Time", strconv.Itoa(int(elapsed.Milliseconds()))+"ms", true)
+
+			if err != nil {
+				_, _ = event.EditOriginal(api.NewFollowupMessageBuilder().
+					SetEmbeds(embed.
+						SetColor(red).
+						SetField(0, "Status", "failed", true).
+						SetField(3, "Output", "```"+err.Error()+"```", false).
+						Build(),
+					).
+					Build(),
+				)
+				return
+			}
+			_, _ = event.EditOriginal(api.NewFollowupMessageBuilder().
+				SetEmbeds(embed.
+					SetColor(green).
+					SetField(0, "Status", "success", true).
+					SetField(3, "Output", "```"+fmt.Sprintf("%+v", output)+"```", false).
+					Build(),
+				).
+				Build(),
+			)
+		}()
+
 	case "say":
 		_ = event.Reply(api.NewInteractionResponseBuilder().
-			SetContent(event.OptionByName("message").String()).
+			SetContent(event.Option("message").String()).
 			SetAllowedMentionsEmpty().
 			Build(),
 		)
+
 	case "test":
-		_ = event.Reply(api.NewInteractionResponseBuilder().
-			SetContent("test").
-			SetEphemeral(true).
-			AddEmbeds(
-				api.NewEmbedBuilder().SetDescription("test1").Build(),
-				api.NewEmbedBuilder().SetDescription("test2").Build(),
-			).
-			Build(),
-		)
+		go func() {
+			_ = event.Acknowledge()
+
+			time.Sleep(2 * time.Second)
+			_, _ = event.EditOriginal(api.NewFollowupMessageBuilder().
+				SetEmbeds(api.NewEmbedBuilder().
+					SetDescription("finished with thinking").
+					Build(),
+				).Build(),
+			)
+
+			time.Sleep(1 * time.Second)
+			_, _ = event.SendFollowup(api.NewFollowupMessageBuilder().
+				SetEmbeds(api.NewEmbedBuilder().
+					SetDescription("followup 1").
+					Build(),
+				).Build(),
+			)
+
+			time.Sleep(1 * time.Second)
+			_, _ = event.SendFollowup(api.NewFollowupMessageBuilder().
+				SetEphemeral(true).
+				SetContent("followup 2 only you can see").
+				Build(),
+			)
+		}()
+
 	case "addrole":
-		user := event.OptionByName("member").User()
-		role := event.OptionByName("role").Role()
-		err := event.Disgo.RestClient().AddMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
+		user := event.Option("member").User()
+		role := event.Option("role").Role()
+		err := event.Disgo().RestClient().AddMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
 		if err == nil {
 			_ = event.Reply(api.NewInteractionResponseBuilder().AddEmbeds(
-				api.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Added %s to %s", role, user).Build(),
+				api.NewEmbedBuilder().SetColor(green).SetDescriptionf("Added %s to %s", role, user).Build(),
 			).Build())
 		} else {
 			_ = event.Reply(api.NewInteractionResponseBuilder().AddEmbeds(
-				api.NewEmbedBuilder().SetColor(16711680).SetDescriptionf("Failed to add %s to %s", role, user).Build(),
+				api.NewEmbedBuilder().SetColor(red).SetDescriptionf("Failed to add %s to %s", role, user).Build(),
 			).Build())
 		}
+
 	case "removerole":
-		user := event.OptionByName("member").User()
-		role := event.OptionByName("role").Role()
-		err := event.Disgo.RestClient().RemoveMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
+		user := event.Option("member").User()
+		role := event.Option("role").Role()
+		err := event.Disgo().RestClient().RemoveMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
 		if err == nil {
 			_ = event.Reply(api.NewInteractionResponseBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Removed %s from %s", role, user).Build(),
@@ -160,7 +279,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 	}
 }
 
-func messageListener(event *events.GuildMessageReceivedEvent) {
+func messageListener(event *events.GuildMessageCreateEvent) {
 	if event.Message.Author.IsBot {
 		return
 	}

@@ -1,16 +1,19 @@
 package endpoints
 
-import log "github.com/sirupsen/logrus"
+import (
+	"errors"
+)
 
 // FileExtension is the type of an image on Discord's CDN
 type FileExtension string
 
 // The available FileExtension(s)
 const (
-	PNG  FileExtension = "png"
-	JPEG FileExtension = "jpg"
-	WEBP FileExtension = "webp"
-	GIF  FileExtension = "gif"
+	PNG   FileExtension = "png"
+	JPEG  FileExtension = "jpg"
+	WEBP  FileExtension = "webp"
+	GIF   FileExtension = "gif"
+	BLANK FileExtension = ""
 )
 
 func (f FileExtension) String() string {
@@ -36,7 +39,7 @@ func NewCDNRoute(url string, supportedFileExtensions ...FileExtension) CDNRoute 
 }
 
 // Compile builds a full request URL based on provided arguments
-func (r CDNRoute) Compile(fileExtension FileExtension, args ...interface{}) CompiledCDNRoute {
+func (r CDNRoute) Compile(fileExtension FileExtension, args ...interface{}) (*CompiledCDNRoute, error) {
 	supported := false
 	for _, supportedFileExtension := range r.supportedFileExtensions {
 		if supportedFileExtension == fileExtension {
@@ -44,16 +47,20 @@ func (r CDNRoute) Compile(fileExtension FileExtension, args ...interface{}) Comp
 		}
 	}
 	if !supported {
-		log.Infof("provided file extension: %s is not supported by discord on this endpoint!", fileExtension)
+		return nil, errors.New("provided file extension: " + fileExtension.String() + " is not supported by discord on this endpoint!")
 	}
-	compiledRoute := CompiledCDNRoute{
-		CompiledRoute: r.Route.Compile(args...),
+	compiledRoute, err := r.Route.Compile(args...)
+	if err != nil {
+		return nil, err
 	}
-	compiledRoute.CompiledRoute.route += fileExtension.String()
-	return compiledRoute
+	compiledRoute.route += fileExtension.String()
+	compiledCDNRoute := &CompiledCDNRoute{
+		CompiledRoute: compiledRoute,
+	}
+	return compiledCDNRoute, nil
 }
 
 // CompiledCDNRoute is CDNRoute compiled with all URL args
 type CompiledCDNRoute struct {
-	CompiledRoute
+	*CompiledRoute
 }

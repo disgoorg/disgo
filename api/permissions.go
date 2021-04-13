@@ -5,6 +5,23 @@ import (
 	"strconv"
 )
 
+// PermissionOverwriteType is the type of a PermissionOverwrite
+type PermissionOverwriteType int
+
+// Constants for PermissionOverwriteType
+const (
+	PermissionOverwriteTypeRole PermissionOverwriteType = iota
+	PermissionOverwriteTypeMember
+)
+
+// PermissionOverwrite is used to determine who can perform particular actions in a GuildChannel
+type PermissionOverwrite struct {
+	ID    Snowflake               `json:"id"`
+	Type  PermissionOverwriteType `json:"type"`
+	Allow Permissions             `json:"allow"`
+	Deny  Permissions             `json:"deny"`
+}
+
 // Permissions extends the Bit structure, and is used within roles and channels
 type Permissions int64
 
@@ -20,7 +37,7 @@ func (p Permissions) MarshalJSON() ([]byte, error) {
 	return jsonValue, nil
 }
 
-// UnmarshalJSON unmarshals permissions into a int64
+// UnmarshalJSON unmarshals permissions into an int64
 func (p *Permissions) UnmarshalJSON(b []byte) error {
 	var strPermissions string
 	err := json.Unmarshal(b, &strPermissions)
@@ -116,6 +133,7 @@ const (
 	PermissionManageRoles
 	PermissionManageWebhooks
 	PermissionManageEmojis
+	PermissionUseSlashCommands
 )
 
 // Constants for the different bit offsets of general permissions

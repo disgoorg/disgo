@@ -7,15 +7,15 @@ import (
 
 type guildMemberRemoveData struct {
 	GuildID api.Snowflake `json:"guild_id"`
-	User    api.User      `json:"user"`
+	User    *api.User     `json:"user"`
 }
 
 // GuildMemberRemoveHandler handles api.GuildMemberRemoveGatewayEvent
 type GuildMemberRemoveHandler struct{}
 
-// Name returns the raw gateway event name
-func (h GuildMemberRemoveHandler) Name() string {
-	return api.GuildMemberRemoveGatewayEvent
+// Event returns the raw gateway event Event
+func (h GuildMemberRemoveHandler) Event() api.GatewayEventType {
+	return api.GatewayEventGuildMemberRemove
 }
 
 // New constructs a new payload receiver for the raw gateway event
@@ -23,32 +23,36 @@ func (h GuildMemberRemoveHandler) New() interface{} {
 	return &guildMemberRemoveData{}
 }
 
-// Handle handles the specific raw gateway event
-func (h GuildMemberRemoveHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
-	member, ok := i.(*guildMemberRemoveData)
+// HandleGatewayEvent handles the specific raw gateway event
+func (h GuildMemberRemoveHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+	memberData, ok := i.(*guildMemberRemoveData)
 	if !ok {
 		return
 	}
 
-	oldMember := disgo.Cache().Member(member.GuildID, member.User.ID)
-	disgo.Cache().UncacheMember(member.GuildID, member.User.ID)
+	guild := disgo.Cache().Guild(memberData.GuildID)
+	if guild == nil {
+		// todo: replay event later. maybe guild is not cached yet but in a few seconds
+		return
+	}
+	memberData.User = disgo.EntityBuilder().CreateUser(memberData.User, api.CacheStrategyYes)
+
+	member := disgo.Cache().Member(memberData.GuildID, memberData.User.ID)
+	disgo.Cache().UncacheMember(memberData.GuildID, memberData.User.ID)
 
 	genericGuildEvent := events.GenericGuildEvent{
-		Event: api.Event{
-			Disgo: disgo,
-		},
-		GuildID: member.GuildID,
+		GenericEvent: events.NewEvent(disgo, sequenceNumber),
+		Guild:        guild,
 	}
 	eventManager.Dispatch(genericGuildEvent)
 
 	genericGuildMemberEvent := events.GenericGuildMemberEvent{
 		GenericGuildEvent: genericGuildEvent,
-		UserID:            member.User.ID,
+		Member:            member,
 	}
 	eventManager.Dispatch(genericGuildMemberEvent)
 
 	eventManager.Dispatch(events.GuildMemberLeaveEvent{
 		GenericGuildMemberEvent: genericGuildMemberEvent,
-		Member:                  oldMember,
 	})
 }

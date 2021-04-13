@@ -8,85 +8,81 @@ import (
 // GuildCreateHandler handles api.GuildCreateGatewayEvent
 type GuildCreateHandler struct{}
 
-// Name returns the raw gateway event name
-func (h GuildCreateHandler) Name() string {
-	return api.GuildCreateGatewayEvent
+// Event returns the raw gateway event Event
+func (h GuildCreateHandler) Event() api.GatewayEventType {
+	return api.GatewayEventGuildCreate
 }
 
 // New constructs a new payload receiver for the raw gateway event
 func (h GuildCreateHandler) New() interface{} {
-	return &api.Guild{}
+	return &api.FullGuild{}
 }
 
-// Handle handles the specific raw gateway event
-func (h GuildCreateHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
-	guild, ok := i.(*api.Guild)
+// HandleGatewayEvent handles the specific raw gateway event
+func (h GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+	fullGuild, ok := i.(*api.FullGuild)
 	if !ok {
 		return
 	}
-	guild.Disgo = disgo
-	oldGuild := disgo.Cache().Guild(guild.ID)
-	var wasUnavailable bool
-	if oldGuild == nil {
-		wasUnavailable = true
-	} else {
+
+	oldGuild := disgo.Cache().Guild(fullGuild.ID)
+	wasUnavailable := true
+	if oldGuild != nil {
+		oldGuild = &*oldGuild
 		wasUnavailable = oldGuild.Unavailable
 	}
+	guild := disgo.EntityBuilder().CreateGuild(fullGuild.Guild, api.CacheStrategyYes)
 
-	disgo.Cache().CacheGuild(guild)
-	for i := range guild.Channels {
-		channel := guild.Channels[i]
-		channel.Disgo = disgo
-		channel.GuildID = guild.ID
+	for _, channel := range fullGuild.Channels {
+		channel.GuildID = &guild.ID
 		switch channel.Type {
 		case api.ChannelTypeText, api.ChannelTypeNews:
-			disgo.Cache().CacheTextChannel(&api.TextChannel{
-				GuildChannel: *channel,
-				MessageChannel: api.MessageChannel{
-					Channel: channel.Channel,
-				},
-			})
+			disgo.EntityBuilder().CreateTextChannel(channel, api.CacheStrategyYes)
 		case api.ChannelTypeVoice:
-			disgo.Cache().CacheVoiceChannel(&api.VoiceChannel{
-				GuildChannel: *channel,
-			})
+			disgo.EntityBuilder().CreateVoiceChannel(channel, api.CacheStrategyYes)
 		case api.ChannelTypeCategory:
-			disgo.Cache().CacheCategory(&api.Category{
-				GuildChannel: *channel,
-			})
+			disgo.EntityBuilder().CreateCategory(channel, api.CacheStrategyYes)
 		case api.ChannelTypeStore:
-			disgo.Cache().CacheStoreChannel(&api.StoreChannel{
-				GuildChannel: *channel,
-			})
+			disgo.EntityBuilder().CreateStoreChannel(channel, api.CacheStrategyYes)
 		}
 	}
 
-	for i := range guild.Roles {
-		role := guild.Roles[i]
-		role.Disgo = disgo
-		role.GuildID = guild.ID
-		disgo.Cache().CacheRole(role)
+	for _, role := range fullGuild.Roles {
+		disgo.EntityBuilder().CreateRole(guild.ID, role, api.CacheStrategyYes)
 	}
+
+	for _, member := range fullGuild.Members {
+		disgo.EntityBuilder().CreateMember(guild.ID, member, api.CacheStrategyYes)
+	}
+
+	for _, voiceState := range fullGuild.VoiceStates {
+		disgo.EntityBuilder().CreateVoiceState(voiceState, api.CacheStrategyYes)
+	}
+
+	for _, emote := range fullGuild.Emotes {
+		disgo.EntityBuilder().CreateEmote(guild.ID, emote, api.CacheStrategyYes)
+	}
+
+	// TODO: presence
+	/*for i := range fullGuild.Presences {
+		presence := fullGuild.Presences[i]
+		presence.Disgo = disgo
+		disgo.Cache().CachePresence(presence)
+	}*/
 
 	genericGuildEvent := events.GenericGuildEvent{
-		Event: api.Event{
-			Disgo: disgo,
-		},
-		GuildID: guild.ID,
+		GenericEvent: events.NewEvent(disgo, sequenceNumber),
+		Guild:        guild,
 	}
-
 	eventManager.Dispatch(genericGuildEvent)
 
 	if wasUnavailable {
 		eventManager.Dispatch(events.GuildAvailableEvent{
 			GenericGuildEvent: genericGuildEvent,
-			Guild:             guild,
 		})
 	} else {
-		// guild join
 		eventManager.Dispatch(events.GuildJoinEvent{
 			GenericGuildEvent: genericGuildEvent,
-			Guild:             guild,
 		})
 	}
 }

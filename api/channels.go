@@ -1,5 +1,7 @@
 package api
 
+import "errors"
+
 // ChannelType for interacting with discord's channels
 type ChannelType int
 
@@ -37,32 +39,56 @@ type Channel struct {
 	//LastPinTimestamp *time.Time  `json:"last_pin_timestamp,omitempty"`
 }
 
-// MessageChannel is used for sending messages to user
+// MessageChannel is used for sending Message(s) to User(s)
 type MessageChannel struct {
 	Channel
 }
 
-// SendMessage a Message to a TextChannel
+// SendMessage sends a Message to a TextChannel
 func (c MessageChannel) SendMessage(message MessageCreate) (*Message, error) {
-	// Todo: embeds, attachments etc.
+	// Todo: attachments
 	return c.Disgo.RestClient().SendMessage(c.ID, message)
 }
 
-// DMChannel is used for interacting in private messages with users
+// EditMessage edits a Message in this TextChannel
+func (c MessageChannel) EditMessage(messageID Snowflake, message MessageUpdate) (*Message, error) {
+	return c.Disgo.RestClient().EditMessage(c.ID, messageID, message)
+}
+
+// DeleteMessage allows you to edit an existing Message sent by you
+func (c MessageChannel) DeleteMessage(messageID Snowflake) error {
+	return c.Disgo.RestClient().DeleteMessage(c.ID, messageID)
+}
+
+// BulkDeleteMessages allows you bulk delete Message(s)
+func (c MessageChannel) BulkDeleteMessages(messageIDs ...Snowflake) error {
+	return c.Disgo.RestClient().BulkDeleteMessages(c.ID, messageIDs...)
+}
+
+// CrosspostMessage crossposts an existing Message
+func (c MessageChannel) CrosspostMessage(messageID Snowflake) (*Message, error) {
+	if c.Type != ChannelTypeNews {
+		return nil, errors.New("channel type is not NEWS")
+	}
+	return c.Disgo.RestClient().CrosspostMessage(c.ID, messageID)
+}
+
+// DMChannel is used for interacting in private Message(s) with users
 type DMChannel struct {
 	MessageChannel
-	Users []User `json:"recipients"`
 }
 
 // GuildChannel is a generic type for all server channels
 type GuildChannel struct {
 	Channel
-	GuildID Snowflake `json:"guild_id"`
 }
 
 // Guild returns the channel's Guild
 func (c GuildChannel) Guild() *Guild {
-	return c.Disgo.Cache().Guild(c.GuildID)
+	if c.GuildID == nil {
+		return nil
+	}
+	return c.Disgo.Cache().Guild(*c.GuildID)
 }
 
 // Category groups text & voice channels in servers together
@@ -73,6 +99,11 @@ type Category struct {
 // VoiceChannel adds methods specifically for interacting with discord's voice
 type VoiceChannel struct {
 	GuildChannel
+}
+
+// Connect sends a api.GatewayCommand to connect to this VoiceChannel
+func (c *VoiceChannel) Connect() error {
+	return c.Disgo.AudioController().Connect(*c.GuildID, c.ID)
 }
 
 // TextChannel allows you to interact with discord's text channels

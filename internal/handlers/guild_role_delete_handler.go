@@ -13,9 +13,9 @@ type roleDeleteData struct {
 // GuildRoleDeleteHandler handles api.GuildRoleDeleteGatewayEvent
 type GuildRoleDeleteHandler struct{}
 
-// Name returns the raw gateway event name
-func (h GuildRoleDeleteHandler) Name() string {
-	return api.GuildRoleDeleteGatewayEvent
+// Event returns the raw gateway event Event
+func (h GuildRoleDeleteHandler) Event() api.GatewayEventType {
+	return api.GatewayEventGuildRoleDelete
 }
 
 // New constructs a new payload receiver for the raw gateway event
@@ -23,32 +23,38 @@ func (h GuildRoleDeleteHandler) New() interface{} {
 	return &roleCreateData{}
 }
 
-// Handle handles the specific raw gateway event
-func (h GuildRoleDeleteHandler) Handle(disgo api.Disgo, eventManager api.EventManager, i interface{}) {
+// HandleGatewayEvent handles the specific raw gateway event
+func (h GuildRoleDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	roleDeleteData, ok := i.(*roleDeleteData)
 	if !ok {
 		return
 	}
 
-	role := *disgo.Cache().Role(roleDeleteData.GuildID, roleDeleteData.RoleID)
-	disgo.Cache().UncacheRole(roleDeleteData.GuildID, roleDeleteData.RoleID)
+	guild := disgo.Cache().Guild(roleDeleteData.GuildID)
+	if guild == nil {
+		// todo: replay event later. maybe guild is not cached yet but in a few seconds
+		return
+	}
+
+	role := disgo.Cache().Role(roleDeleteData.RoleID)
+	if role != nil {
+		disgo.Cache().UncacheRole(roleDeleteData.GuildID, roleDeleteData.RoleID)
+	}
 
 	genericGuildEvent := events.GenericGuildEvent{
-		Event: api.Event{
-			Disgo: disgo,
-		},
-		GuildID: roleDeleteData.GuildID,
+		GenericEvent: events.NewEvent(disgo, sequenceNumber),
+		Guild:        guild,
 	}
 	eventManager.Dispatch(genericGuildEvent)
 
-	genericRoleEvent := events.GenericGuildRoleEvent{
+	genericRoleEvent := events.GenericRoleEvent{
 		GenericGuildEvent: genericGuildEvent,
-		Role:              &role,
 		RoleID:            roleDeleteData.RoleID,
+		Role:              role,
 	}
 	eventManager.Dispatch(genericRoleEvent)
 
-	eventManager.Dispatch(events.GuildRoleDeleteEvent{
+	eventManager.Dispatch(events.RoleDeleteEvent{
 		GenericGuildEvent: genericGuildEvent,
 	})
 }

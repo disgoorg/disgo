@@ -17,14 +17,14 @@ type WebhookServer interface {
 	PublicKey() ed25519.PublicKey
 	ListenURL() string
 	Router() *mux.Router
-	Start() error
+	Start()
 	Close()
 }
 
 // Verify implements the verification side of the discord interactions api signing algorithm, as documented here:
 // https://discord.com/developers/docs/interactions/slash-commands#security-and-authorization
 // Credit: https://github.com/bsdlp/discord-interactions-go/blob/main/interactions/verify.go
-func Verify(r *http.Request, key ed25519.PublicKey) bool {
+func Verify(disgo Disgo, r *http.Request, key ed25519.PublicKey) bool {
 	var msg bytes.Buffer
 
 	signature := r.Header.Get("X-Signature-Ed25519")
@@ -48,7 +48,12 @@ func Verify(r *http.Request, key ed25519.PublicKey) bool {
 
 	msg.WriteString(timestamp)
 
-	defer r.Body.Close()
+	defer func() {
+		err = r.Body.Close()
+		if err != nil {
+			disgo.Logger().Errorf("error while closing request body: %s", err)
+		}
+	}()
 	var body bytes.Buffer
 
 	defer func() {

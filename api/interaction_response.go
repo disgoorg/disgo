@@ -137,9 +137,13 @@ func (b *InteractionResponseBuilder) SetEphemeral(ephemeral bool) *InteractionRe
 		b.Data = &InteractionResponseData{}
 	}
 	if ephemeral {
-		b.Data.Flags |= MessageFlagEphemeral
+		if !b.Data.Flags.Has(MessageFlagEphemeral) {
+			b.Data.Flags.Add(MessageFlagEphemeral)
+		}
 	} else {
-		b.Data.Flags &^= MessageFlagEphemeral
+		if b.Data.Flags.Has(MessageFlagEphemeral) {
+			b.Data.Flags.Remove(MessageFlagEphemeral)
+		}
 	}
 	return b
 }
@@ -147,9 +151,4 @@ func (b *InteractionResponseBuilder) SetEphemeral(ephemeral bool) *InteractionRe
 // Build returns your built InteractionResponse
 func (b *InteractionResponseBuilder) Build() InteractionResponse {
 	return b.InteractionResponse
-}
-
-// FollowupMessage is used to add additional messages to an Interaction after you've responded initially
-type FollowupMessage struct {
-	// Todo: fill this
 }

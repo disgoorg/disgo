@@ -1,13 +1,18 @@
 package api
 
-import "time"
+import (
+	"time"
 
-// ConnectionStatus is the state that the client is currently in
-type ConnectionStatus int
+	"github.com/gorilla/websocket"
+)
+
+// GatewayStatus is the state that the client is currently in
+type GatewayStatus int
 
 // Indicates how far along the client is to connecting
 const (
-	Ready ConnectionStatus = iota
+	Ready GatewayStatus = iota
+	Unconnected
 	Connecting
 	Reconnecting
 	WaitingForHello
@@ -22,8 +27,9 @@ const (
 type Gateway interface {
 	Disgo() Disgo
 	Open() error
-	Status() ConnectionStatus
+	Status() GatewayStatus
 	Close()
+	Conn() *websocket.Conn
 	Latency() time.Duration
 }
 
@@ -46,48 +52,54 @@ const (
 	OpHeartbeatACK
 )
 
+// GatewayEventType wraps all GatewayEventType types
+type GatewayEventType string
+
 // Constants for the gateway events
 const (
-	ChannelCreateGatewayEvent            = "CHANNEL_CREATE"
-	ChannelDeleteGatewayEvent            = "CHANNEL_DELETE"
-	ChannelPinsUpdateGatewayEvent        = "CHANNEL_PINS_UPDATE"
-	ChannelUpdateGatewayEvent            = "CHANNEL_UPDATE"
-	GuildBanAddGatewayEvent              = "GUILD_BAN_ADD"
-	GuildBanRemoveGatewayEvent           = "GUILD_BAN_REMOVE"
-	GuildCreateGatewayEvent              = "GUILD_CREATE"
-	GuildDeleteGatewayEvent              = "GUILD_DELETE"
-	GuildEmojisUpdateGatewayEvent        = "GUILD_EMOJIS_UPDATE"
-	GuildIntegrationsUpdateGatewayEvent  = "GUILD_INTEGRATIONS_UPDATE"
-	GuildMemberAddGatewayEvent           = "GUILD_MEMBER_ADD"
-	GuildMemberRemoveGatewayEvent        = "GUILD_MEMBER_REMOVE"
-	GuildMemberUpdateGatewayEvent        = "GUILD_MEMBER_UPDATE"
-	GuildMembersChunkGatewayEvent        = "GUILD_MEMBERS_CHUNK"
-	GuildRoleCreateGatewayEvent          = "GUILD_ROLE_CREATE"
-	GuildRoleDeleteGatewayEvent          = "GUILD_ROLE_DELETE"
-	GuildRoleUpdateGatewayEvent          = "GUILD_ROLE_UPDATE"
-	GuildUpdateGatewayEvent              = "GUILD_UPDATE"
-	InteractionCreateGatewayEvent        = "INTERACTION_CREATE"
-	InteractionCreateWebhookEvent        = "INTERACTION_WEBHOOK_CREATE"
-	MessageAckGatewayEvent               = "MESSAGE_ACK"
-	MessageCreateGatewayEvent            = "MESSAGE_CREATE"
-	MessageDeleteGatewayEvent            = "MESSAGE_DELETE"
-	MessageDeleteBulkGatewayEvent        = "MESSAGE_DELETE_BULK"
-	MessageReactionAddGatewayEvent       = "MESSAGE_REACTION_ADD"
-	MessageReactionRemoveGatewayEvent    = "MESSAGE_REACTION_REMOVE"
-	MessageReactionRemoveAllGatewayEvent = "MESSAGE_REACTION_REMOVE_ALL"
-	MessageUpdateGatewayEvent            = "MESSAGE_UPDATE"
-	PresenceUpdateGatewayEvent           = "PRESENCE_UPDATE"
-	PresencesReplaceGatewayEvent         = "PRESENCES_REPLACE"
-	ReadyGatewayEvent                    = "READY"
-	ResumedGatewayEvent                  = "RESUMED"
-	TypingStartGatewayEvent              = "TYPING_START"
-	UserGuildSettingsUpdateGatewayEvent  = "USER_GUILD_SETTINGS_UPDATE"
-	UserNoteUpdateGatewayEvent           = "USER_NOTE_UPDATE"
-	UserSettingsUpdateGatewayEvent       = "USER_SETTINGS_UPDATE"
-	UserUpdateGatewayEvent               = "USER_UPDATE"
-	VoiceServerUpdateGatewayEvent        = "VOICE_SERVER_UPDATE"
-	VoiceStateUpdateGatewayEvent         = "VOICE_STATE_UPDATE"
-	WebhooksUpdateGatewayEvent           = "WEBHOOKS_UPDATE"
+	GatewayEventApplicationCommandCreate GatewayEventType = "APPLICATION_COMMAND_CREATE"
+	GatewayEventApplicationCommandUpdate GatewayEventType = "APPLICATION_COMMAND_UPDATE"
+	GatewayEventApplicationCommandDelete GatewayEventType = "APPLICATION_COMMAND_DELETE"
+	GatewayEventChannelCreate            GatewayEventType = "CHANNEL_CREATE"
+	GatewayEventChannelDelete            GatewayEventType = "CHANNEL_DELETE"
+	GatewayEventChannelPinsUpdate        GatewayEventType = "CHANNEL_PINS_UPDATE"
+	GatewayEventChannelUpdate            GatewayEventType = "CHANNEL_UPDATE"
+	GatewayEventGuildBanAdd              GatewayEventType = "GUILD_BAN_ADD"
+	GatewayEventGuildBanRemove           GatewayEventType = "GUILD_BAN_REMOVE"
+	GatewayEventGuildCreate              GatewayEventType = "GUILD_CREATE"
+	GatewayEventGuildDelete              GatewayEventType = "GUILD_DELETE"
+	GatewayEventGuildEmojisUpdate        GatewayEventType = "GUILD_EMOJIS_UPDATE"
+	GatewayEventGuildIntegrationsUpdate  GatewayEventType = "GUILD_INTEGRATIONS_UPDATE"
+	GatewayEventGuildMemberAdd           GatewayEventType = "GUILD_MEMBER_ADD"
+	GatewayEventGuildMemberRemove        GatewayEventType = "GUILD_MEMBER_REMOVE"
+	GatewayEventGuildMemberUpdate        GatewayEventType = "GUILD_MEMBER_UPDATE"
+	GatewayEventGuildMembersChunk        GatewayEventType = "GUILD_MEMBERS_CHUNK"
+	GatewayEventGuildRoleCreate          GatewayEventType = "GUILD_ROLE_CREATE"
+	GatewayEventGuildRoleDelete          GatewayEventType = "GUILD_ROLE_DELETE"
+	GatewayEventGuildRoleUpdate          GatewayEventType = "GUILD_ROLE_UPDATE"
+	GatewayEventGuildUpdate              GatewayEventType = "GUILD_UPDATE"
+	GatewayEventInteractionCreate        GatewayEventType = "INTERACTION_CREATE"
+	WebhookEventInteractionCreate        GatewayEventType = "INTERACTION_WEBHOOK_CREATE"
+	GatewayEventMessageAck               GatewayEventType = "MESSAGE_ACK"
+	GatewayEventMessageCreate            GatewayEventType = "MESSAGE_CREATE"
+	GatewayEventMessageDelete            GatewayEventType = "MESSAGE_DELETE"
+	GatewayEventMessageDeleteBulk        GatewayEventType = "MESSAGE_DELETE_BULK"
+	GatewayEventMessageReactionAdd       GatewayEventType = "MESSAGE_REACTION_ADD"
+	GatewayEventMessageReactionRemove    GatewayEventType = "MESSAGE_REACTION_REMOVE"
+	GatewayEventMessageReactionRemoveAll GatewayEventType = "MESSAGE_REACTION_REMOVE_ALL"
+	GatewayEventMessageUpdate            GatewayEventType = "MESSAGE_UPDATE"
+	GatewayEventPresenceUpdate           GatewayEventType = "PRESENCE_UPDATE"
+	GatewayEventPresencesReplace         GatewayEventType = "PRESENCES_REPLACE"
+	GatewayEventReady                    GatewayEventType = "READY"
+	GatewayEventResumed                  GatewayEventType = "RESUMED"
+	GatewayEventTypingStart              GatewayEventType = "TYPING_START"
+	GatewayEventUserGuildSettingsUpdate  GatewayEventType = "USER_GUILD_SETTINGS_UPDATE"
+	GatewayEventUserNoteUpdate           GatewayEventType = "USER_NOTE_UPDATE"
+	GatewayEventUserSettingsUpdate       GatewayEventType = "USER_SETTINGS_UPDATE"
+	GatewayEventUserUpdate               GatewayEventType = "USER_UPDATE"
+	GatewayEventVoiceServerUpdate        GatewayEventType = "VOICE_SERVER_UPDATE"
+	GatewayEventVoiceStateUpdate         GatewayEventType = "VOICE_STATE_UPDATE"
+	GatewayEventWebhooksUpdate           GatewayEventType = "WEBHOOKS_UPDATE"
 )
 
 // GatewayRs contains the response for GET /gateway
