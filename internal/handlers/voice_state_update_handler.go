@@ -24,7 +24,15 @@ func (h VoiceStateUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManage
 		return
 	}
 
-	voiceStateUpdate.Disgo = disgo
+	disgo.Logger().Infof("voiceStateUpdate: %+v", voiceStateUpdate)
+
+	voiceStateUpdate.VoiceState.Disgo = disgo
+
+	if disgo.ApplicationID() == voiceStateUpdate.UserID {
+		if interceptor := disgo.VoiceDispatchInterceptor(); interceptor != nil {
+			interceptor.OnVoiceStateUpdate(voiceStateUpdate)
+		}
+	}
 
 	//guild := disgo.Cache().Guild(voiceStateUpdate.GuildID)
 
@@ -34,10 +42,6 @@ func (h VoiceStateUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManage
 	// TODO update voice state cache
 	// TODO fire several events
 
-	if disgo.ApplicationID() == voiceStateUpdate.UserID {
-		if interceptor := disgo.VoiceDispatchInterceptor(); interceptor != nil {
-			interceptor.OnVoiceStateUpdate(voiceStateUpdate)
-		}
-	}
+
 
 }

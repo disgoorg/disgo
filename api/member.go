@@ -17,6 +17,11 @@ type Member struct {
 	Permissions  *Permissions `json:"permissions,omitempty"`
 }
 
+// VoiceState returns the VoiceState for this Member from the Cache(requires CacheFlagVoiceState and IntentsGuildVoiceStates)
+func (m Member) VoiceState() *VoiceState {
+	return m.Disgo.Cache().VoiceState(m.GuildID, m.User.ID)
+}
+
 // Guild returns the members guild from the cache
 func (m Member) Guild() *Guild {
 	return m.Disgo.Cache().Guild(m.GuildID)

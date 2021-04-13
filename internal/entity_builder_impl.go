@@ -18,6 +18,43 @@ func (b EntityBuilderImpl) Disgo() api.Disgo {
 	return b.disgo
 }
 
+func (b EntityBuilderImpl) CreateInteraction(interaction *api.Interaction, updateCache api.CacheStrategy) *api.Interaction {
+	if interaction.Member != nil {
+		interaction.Member = b.CreateMember(*interaction.GuildID, interaction.Member, api.CacheStrategyYes)
+	}
+	if interaction.User != nil {
+		interaction.User = b.CreateUser(interaction.User, updateCache)
+	}
+
+	if interaction.Data != nil && interaction.Data.Resolved != nil {
+		resolved := interaction.Data.Resolved
+		if resolved.Users != nil {
+			for _, user := range resolved.Users {
+				user = b.CreateUser(user, updateCache)
+			}
+		}
+		if resolved.Members != nil {
+			for id, member := range resolved.Members {
+				member.User = resolved.Users[id]
+				member = b.CreateMember(*interaction.GuildID, member, updateCache)
+			}
+		}
+		if resolved.Roles != nil {
+			for _, role := range resolved.Roles {
+				role = b.CreateRole(*interaction.GuildID, role, updateCache)
+			}
+		}
+		// TODO how do we cache partial channels?
+		/*if resolved.Channels != nil {
+			for _, channel := range resolved.Channels {
+				channel.Disgo = disgo
+				disgo.Cache().CacheChannel(channel)
+			}
+		}*/
+	}
+	return interaction
+}
+
 // CreateGlobalCommand returns a new api.Command entity
 func (b EntityBuilderImpl) CreateGlobalCommand(command *api.Command, updateCache api.CacheStrategy) *api.Command {
 	command.Disgo = b.Disgo()
@@ -73,8 +110,11 @@ func (b EntityBuilderImpl) CreateMember(guildID api.Snowflake, member *api.Membe
 }
 
 // CreateVoiceState returns a new api.VoiceState entity
-func (b EntityBuilderImpl) CreateVoiceState(voiceState *api.VoiceState, updateCache api.CacheStrategy) *api.VoiceState {
+func (b EntityBuilderImpl) CreateVoiceState(guildID api.Snowflake, voiceState *api.VoiceState, updateCache api.CacheStrategy) *api.VoiceState {
 	voiceState.Disgo = b.Disgo()
+	voiceState.GuildID = guildID
+	b.Disgo().Logger().Infof("voiceState: %+v", voiceState)
+
 	if updateCache(b.Disgo()) {
 		return b.Disgo().Cache().CacheVoiceState(voiceState)
 	}

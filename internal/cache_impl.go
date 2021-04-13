@@ -305,6 +305,7 @@ func (c *CacheImpl) CacheGuild(guild *api.Guild) *api.Guild {
 	c.guilds[guild.ID] = guild
 	c.guildCommands[guild.ID] = map[api.Snowflake]*api.Command{}
 	c.members[guild.ID] = map[api.Snowflake]*api.Member{}
+	c.voiceStates[guild.ID] = map[api.Snowflake]*api.VoiceState{}
 	c.roles[guild.ID] = map[api.Snowflake]*api.Role{}
 	c.categories[guild.ID] = map[api.Snowflake]*api.Category{}
 	c.textChannels[guild.ID] = map[api.Snowflake]*api.TextChannel{}

@@ -61,6 +61,11 @@ func (o Option) String() string {
 	return o.Value.(string)
 }
 
+// Integer returns the Option.Value as int
+func (o Option) Integer() int {
+	return o.Value.(int)
+}
+
 // Bool returns the Option.Value as bool
 func (o Option) Bool() bool {
 	return o.Value.(bool)
