@@ -1,6 +1,9 @@
 package internal
 
-import "github.com/DisgoOrg/disgo/api"
+import (
+	"github.com/DisgoOrg/disgo/api"
+	"github.com/gorilla/websocket"
+)
 
 func newAudioControllerImpl(disgo api.Disgo) api.AudioController {
 	return &AudioControllerImpl{disgo: disgo}
@@ -18,7 +21,11 @@ func (c *AudioControllerImpl) Disgo() api.Disgo {
 
 // Connect sends a api.GatewayCommand to connect to a api.VoiceChannel
 func (c *AudioControllerImpl) Connect(guildID api.Snowflake, channelID api.Snowflake) error {
-	return c.Disgo().Gateway().Conn().WriteJSON(api.NewGatewayCommand(api.OpVoiceStateUpdate, api.UpdateVoiceStateCommand{
+	conn, err := c.getConn()
+	if err != nil {
+		return err
+	}
+	return conn.WriteJSON(api.NewGatewayCommand(api.OpVoiceStateUpdate, api.UpdateVoiceStateCommand{
 		GuildID:   guildID,
 		ChannelID: &channelID,
 	}))
@@ -26,8 +33,24 @@ func (c *AudioControllerImpl) Connect(guildID api.Snowflake, channelID api.Snowf
 
 // Disconnect sends a api.GatewayCommand to disconnect from a api.VoiceChannel
 func (c *AudioControllerImpl) Disconnect(guildID api.Snowflake) error {
-	return c.Disgo().Gateway().Conn().WriteJSON(api.NewGatewayCommand(api.OpVoiceStateUpdate, api.UpdateVoiceStateCommand{
+	conn, err := c.getConn()
+	if err != nil {
+		return err
+	}
+	return conn.WriteJSON(api.NewGatewayCommand(api.OpVoiceStateUpdate, api.UpdateVoiceStateCommand{
 		GuildID:   guildID,
 		ChannelID: nil,
 	}))
+}
+
+func (c *AudioControllerImpl) getConn() (*websocket.Conn, error) {
+	gateway := c.Disgo().Gateway()
+	if gateway == nil {
+		return nil, api.ErrNoGateway
+	}
+	conn := gateway.Conn()
+	if conn == nil {
+		return nil, api.ErrNoGatewayConn
+	}
+	return conn, nil
 }

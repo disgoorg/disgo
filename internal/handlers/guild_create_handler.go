@@ -25,20 +25,15 @@ func (h GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 		return
 	}
 
-	guild := fullGuild.Guild
-
-	guild.Disgo = disgo
-	oldGuild := disgo.Cache().Guild(guild.ID)
-	var wasUnavailable bool
-	if oldGuild == nil {
-		wasUnavailable = true
-	} else {
+	oldGuild := disgo.Cache().Guild(fullGuild.ID)
+	wasUnavailable := true
+	if oldGuild != nil {
+		oldGuild = &*oldGuild
 		wasUnavailable = oldGuild.Unavailable
 	}
+	guild := disgo.EntityBuilder().CreateGuild(fullGuild.Guild, api.CacheStrategyYes)
 
-	disgo.Cache().CacheGuild(guild)
-	for i := range fullGuild.Channels {
-		channel := fullGuild.Channels[i]
+	for _, channel := range fullGuild.Channels {
 		channel.GuildID = &guild.ID
 		switch channel.Type {
 		case api.ChannelTypeText, api.ChannelTypeNews:
@@ -52,20 +47,20 @@ func (h GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 		}
 	}
 
-	for i := range fullGuild.Roles {
-		disgo.EntityBuilder().CreateRole(guild.ID, fullGuild.Roles[i], api.CacheStrategyYes)
+	for _, role := range fullGuild.Roles {
+		disgo.EntityBuilder().CreateRole(guild.ID, role, api.CacheStrategyYes)
 	}
 
-	for i := range fullGuild.Members {
-		disgo.EntityBuilder().CreateMember(guild.ID, fullGuild.Members[i], api.CacheStrategyYes)
+	for _, member := range fullGuild.Members {
+		disgo.EntityBuilder().CreateMember(guild.ID, member, api.CacheStrategyYes)
 	}
 
-	for i := range fullGuild.VoiceStates {
-		disgo.EntityBuilder().CreateVoiceState(fullGuild.VoiceStates[i], api.CacheStrategyYes)
+	for _, voiceState := range fullGuild.VoiceStates {
+		disgo.EntityBuilder().CreateVoiceState(voiceState, api.CacheStrategyYes)
 	}
 
-	for i := range fullGuild.Emotes {
-		disgo.EntityBuilder().CreateEmote(guild.ID, fullGuild.Emotes[i], api.CacheStrategyYes)
+	for _, emote := range fullGuild.Emotes {
+		disgo.EntityBuilder().CreateEmote(guild.ID, emote, api.CacheStrategyYes)
 	}
 
 	// TODO: presence
@@ -79,7 +74,6 @@ func (h GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
 		Guild:        guild,
 	}
-
 	eventManager.Dispatch(genericGuildEvent)
 
 	if wasUnavailable {

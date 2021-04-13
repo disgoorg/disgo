@@ -36,11 +36,11 @@ func (h GuildDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 	if guild.Unavailable {
 		// set guild to unavail for now
 		disgo.Cache().Guild(guild.ID).Unavailable = true
+
 		eventManager.Dispatch(events.GuildUnavailableEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	} else {
-		guild = disgo.Cache().Guild(guild.ID)
 		disgo.Cache().UncacheGuild(guild.ID)
 
 		eventManager.Dispatch(events.GuildLeaveEvent{

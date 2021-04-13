@@ -8,7 +8,6 @@ import (
 type GenericGuildMessageEvent struct {
 	GenericMessageEvent
 	GuildID api.Snowflake
-	Message *api.Message
 }
 
 // Guild returns the api.Guild the GenericGuildMessageEvent happened in

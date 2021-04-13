@@ -7,7 +7,6 @@ import (
 // GenericDMMessageEvent is called upon receiving DMMessageCreateEvent, DMMessageUpdateEvent, DMMessageDeleteEvent, GenericDMMessageReactionEvent, DMMessageReactionAddEvent, DMMessageReactionRemoveEvent, DMMessageReactionRemoveEmoteEvent or DMMessageReactionRemoveAllEvent(requires api.IntentsDirectMessages)
 type GenericDMMessageEvent struct {
 	GenericMessageEvent
-	Message *api.Message
 }
 
 // DMChannel returns the api.DMChannel where the GenericDMMessageEvent happened
