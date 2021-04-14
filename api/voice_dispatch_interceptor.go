@@ -13,7 +13,7 @@ func (u *VoiceServerUpdateEvent) Guild() *Guild {
 
 // VoiceStateUpdateEvent sent when someone joins/leaves/moves voice channels
 type VoiceStateUpdateEvent struct {
-	VoiceState
+	*VoiceState
 	Member *Member `json:"member"`
 }
 
