@@ -13,7 +13,7 @@ type Command struct {
 	ApplicationID     Snowflake        `json:"application_id,omitempty"`
 	Name              string           `json:"name"`
 	Description       string           `json:"description"`
-	DefaultPermission bool             `json:"default_permission"`
+	DefaultPermission *bool             `json:"default_permission,omitempty"`
 	Options           []*CommandOption `json:"options,omitempty"`
 }
 

@@ -22,6 +22,14 @@ func (m Member) VoiceState() *VoiceState {
 	return m.Disgo.Cache().VoiceState(m.GuildID, m.User.ID)
 }
 
+// EffectiveName returns either the nickname or username depending on if the user has a nickname
+func (m Member) EffectiveName() string {
+	if m.Nick != nil {
+		return *m.Nick
+	}
+	return m.User.Username
+}
+
 // Guild returns the members guild from the cache
 func (m Member) Guild() *Guild {
 	return m.Disgo.Cache().Guild(m.GuildID)

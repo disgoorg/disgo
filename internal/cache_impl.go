@@ -420,7 +420,7 @@ func (c *CacheImpl) Member(guildID api.Snowflake, userID api.Snowflake) *api.Mem
 func (c *CacheImpl) MemberByTag(guildID api.Snowflake, tag string) *api.Member {
 	if guildMembers, ok := c.members[guildID]; ok {
 		for _, member := range guildMembers {
-			if member.User.Username+"#"+member.User.Discriminator == tag {
+			if member.User.Tag() == tag {
 				return member
 			}
 		}

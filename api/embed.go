@@ -138,10 +138,10 @@ func (b *EmbedBuilder) SetFooter(footer *EmbedFooter) *EmbedBuilder {
 }
 
 // SetFooterBy sets the footer of the EmbedBuilder by text and iconURL
-func (b *EmbedBuilder) SetFooterBy(text string, iconURL *string) *EmbedBuilder {
+func (b *EmbedBuilder) SetFooterBy(text string, iconURL string) *EmbedBuilder {
 	b.Footer = &EmbedFooter{
 		Text:    text,
-		IconURL: iconURL,
+		IconURL: &iconURL,
 	}
 	return b
 }
