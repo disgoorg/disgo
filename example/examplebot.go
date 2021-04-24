@@ -34,7 +34,7 @@ func main() {
 
 	dgo, err := disgo.NewBuilder(os.Getenv("token")).
 		SetLogger(logger).
-		SetHttpClient(client).
+		SetHTTPClient(client).
 		SetIntents(api.IntentsGuilds | api.IntentsGuildMessages | api.IntentsGuildMembers).
 		SetMemberCachePolicy(api.MemberCachePolicyAll).
 		AddEventListeners(&events.ListenerAdapter{
