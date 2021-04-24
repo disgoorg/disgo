@@ -94,6 +94,7 @@ func (h *webhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	rawBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 	c := make(chan interface{})
 	go h.webhookServer.Disgo().EventManager().Handle(api.WebhookEventInteractionCreate, c, -1, rawBody)
