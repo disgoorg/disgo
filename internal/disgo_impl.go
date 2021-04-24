@@ -17,7 +17,7 @@ func New(token string, options api.Options) (api.Disgo, error) {
 	}
 
 	disgo := &DisgoImpl{
-		BotToken:                token,
+		botToken:                token,
 		intents:                 options.Intents,
 		largeThreshold:          options.LargeThreshold,
 		logger:                  options.Logger,
@@ -51,8 +51,7 @@ func New(token string, options api.Options) (api.Disgo, error) {
 
 // DisgoImpl is the main discord client
 type DisgoImpl struct {
-	// make this public so it does not print in fmt.Sprint("%+v, DisgoImpl{})
-	BotToken                 string
+	botToken                 string
 	logger                   log.Logger
 	gateway                  api.Gateway
 	restClient               api.RestClient
@@ -109,7 +108,7 @@ func (d *DisgoImpl) Close() {
 
 // Token returns the BotToken of the client
 func (d *DisgoImpl) Token() string {
-	return d.BotToken
+	return d.botToken
 }
 
 // Gateway returns the websocket information
