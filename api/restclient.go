@@ -27,7 +27,7 @@ type RestClient interface {
 	Disgo() Disgo
 
 	UserAgent() string
-	Request(route endpoints.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) error
+	Request(route *endpoints.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) error
 
 	SendMessage(channelID Snowflake, message *MessageCreate) (*Message, error)
 	EditMessage(channelID Snowflake, messageID Snowflake, message *MessageUpdate) (*Message, error)

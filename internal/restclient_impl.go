@@ -53,7 +53,7 @@ func (r RestClientImpl) UserAgent() string {
 }
 
 // Request makes a new rest request to discords api with the specific endpoints.APIRoute
-func (r RestClientImpl) Request(route endpoints.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) error {
+func (r RestClientImpl) Request(route *endpoints.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) error {
 	var reader io.Reader
 	var rqJSON []byte
 	if rqBody != nil {
@@ -148,7 +148,7 @@ func (r RestClientImpl) SendMessage(channelID api.Snowflake, message *api.Messag
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, message, &msg)
+	err = r.Request(compiledRoute, message, &msg)
 	if err == nil {
 		msg = r.Disgo().EntityBuilder().CreateMessage(msg, api.CacheStrategyNoWs)
 	}
@@ -161,7 +161,7 @@ func (r RestClientImpl) EditMessage(channelID api.Snowflake, messageID api.Snowf
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, message, &msg)
+	err = r.Request(compiledRoute, message, &msg)
 	if err == nil {
 		msg = r.Disgo().EntityBuilder().CreateMessage(msg, api.CacheStrategyNoWs)
 	}
@@ -174,7 +174,7 @@ func (r RestClientImpl) DeleteMessage(channelID api.Snowflake, messageID api.Sno
 	if err != nil {
 		return err
 	}
-	err = r.Request(*compiledRoute, nil, nil)
+	err = r.Request(compiledRoute, nil, nil)
 	if err == nil && api.CacheStrategyNoWs(r.Disgo()) {
 		r.Disgo().Cache().UncacheMessage(channelID, messageID)
 	}
@@ -187,7 +187,7 @@ func (r RestClientImpl) BulkDeleteMessages(channelID api.Snowflake, messageIDs .
 	if err != nil {
 		return err
 	}
-	err = r.Request(*compiledRoute, api.MessageBulkDelete{Messages: messageIDs}, nil)
+	err = r.Request(compiledRoute, api.MessageBulkDelete{Messages: messageIDs}, nil)
 	if err == nil && api.CacheStrategyNoWs(r.Disgo()) {
 		// TODO: check here if no err means all messages deleted
 		for _, messageID := range messageIDs {
@@ -203,7 +203,7 @@ func (r RestClientImpl) CrosspostMessage(channelID api.Snowflake, messageID api.
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, nil, &msg)
+	err = r.Request(compiledRoute, nil, &msg)
 	if err == nil {
 		msg = r.Disgo().EntityBuilder().CreateMessage(msg, api.CacheStrategyNoWs)
 	}
@@ -221,7 +221,7 @@ func (r RestClientImpl) OpenDMChannel(userID api.Snowflake) (channel *api.DMChan
 	}{
 		RecipientID: userID,
 	}
-	err = r.Request(*compiledRoute, body, &channel)
+	err = r.Request(compiledRoute, body, &channel)
 	if err == nil {
 		channel = r.Disgo().EntityBuilder().CreateDMChannel(&channel.MessageChannel.Channel, api.CacheStrategyNoWs)
 	}
@@ -235,7 +235,7 @@ func (r RestClientImpl) UpdateSelfNick(guildID api.Snowflake, nick *string) (new
 		return nil, err
 	}
 	var updateNick *api.UpdateSelfNick
-	err = r.Request(*compiledRoute, &api.UpdateSelfNick{Nick: nick}, &updateNick)
+	err = r.Request(compiledRoute, &api.UpdateSelfNick{Nick: nick}, &updateNick)
 	if err == nil && api.CacheStrategyNoWs(r.Disgo()) {
 		r.Disgo().Cache().Member(guildID, r.Disgo().ApplicationID()).Nick = updateNick.Nick
 		newNick = updateNick.Nick
@@ -249,7 +249,7 @@ func (r RestClientImpl) GetUser(userID api.Snowflake) (user *api.User, err error
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, nil, &user)
+	err = r.Request(compiledRoute, nil, &user)
 	if err == nil {
 		user = r.Disgo().EntityBuilder().CreateUser(user, api.CacheStrategyNoWs)
 	}
@@ -262,7 +262,7 @@ func (r RestClientImpl) GetMember(guildID api.Snowflake, userID api.Snowflake) (
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, nil, &member)
+	err = r.Request(compiledRoute, nil, &member)
 	if err == nil {
 		member = r.Disgo().EntityBuilder().CreateMember(guildID, member, api.CacheStrategyNoWs)
 	}
@@ -275,7 +275,7 @@ func (r RestClientImpl) GetMembers(guildID api.Snowflake) (members []*api.Member
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, nil, &members)
+	err = r.Request(compiledRoute, nil, &members)
 	if err == nil {
 		for _, member := range members {
 			member = r.Disgo().EntityBuilder().CreateMember(guildID, member, api.CacheStrategyNoWs)
@@ -290,7 +290,7 @@ func (r RestClientImpl) AddMember(guildID api.Snowflake, userID api.Snowflake, a
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, addGuildMemberData, &member)
+	err = r.Request(compiledRoute, addGuildMemberData, &member)
 	if err == nil {
 		member = r.Disgo().EntityBuilder().CreateMember(guildID, member, api.CacheStrategyNoWs)
 	}
@@ -308,7 +308,7 @@ func (r RestClientImpl) KickMember(guildID api.Snowflake, userID api.Snowflake, 
 	if err != nil {
 		return
 	}
-	err = r.Request(*compiledRoute, nil, nil)
+	err = r.Request(compiledRoute, nil, nil)
 	if err == nil && api.CacheStrategyNoWs(r.Disgo()) {
 		r.Disgo().Cache().UncacheMember(guildID, userID)
 	}
@@ -321,7 +321,7 @@ func (r RestClientImpl) UpdateMember(guildID api.Snowflake, userID api.Snowflake
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, updateGuildMemberData, &member)
+	err = r.Request(compiledRoute, updateGuildMemberData, &member)
 	if err == nil {
 		member = r.Disgo().EntityBuilder().CreateMember(guildID, member, api.CacheStrategyNoWs)
 	}
@@ -334,7 +334,7 @@ func (r RestClientImpl) MoveMember(guildID api.Snowflake, userID api.Snowflake, 
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, api.MoveGuildMemberData{ChannelID: channelID}, &member)
+	err = r.Request(compiledRoute, api.MoveGuildMemberData{ChannelID: channelID}, &member)
 	if err == nil {
 		member = r.Disgo().EntityBuilder().CreateMember(guildID, member, api.CacheStrategyNoWs)
 	}
@@ -347,7 +347,7 @@ func (r RestClientImpl) AddMemberRole(guildID api.Snowflake, userID api.Snowflak
 	if err != nil {
 		return err
 	}
-	err = r.Request(*compiledRoute, nil, nil)
+	err = r.Request(compiledRoute, nil, nil)
 	if err == nil && api.CacheStrategyNoWs(r.Disgo()) {
 		member := r.Disgo().Cache().Member(guildID, userID)
 		if member != nil {
@@ -363,7 +363,7 @@ func (r RestClientImpl) RemoveMemberRole(guildID api.Snowflake, userID api.Snowf
 	if err != nil {
 		return err
 	}
-	err = r.Request(*compiledRoute, nil, nil)
+	err = r.Request(compiledRoute, nil, nil)
 	if err == nil && api.CacheStrategyNoWs(r.Disgo()) {
 		member := r.Disgo().Cache().Member(guildID, userID)
 		if member != nil {
@@ -384,7 +384,7 @@ func (r RestClientImpl) GetRoles(guildID api.Snowflake) (roles []*api.Role, err 
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, nil, &roles)
+	err = r.Request(compiledRoute, nil, &roles)
 	if err == nil {
 		for _, role := range roles {
 			role = r.Disgo().EntityBuilder().CreateRole(guildID, role, api.CacheStrategyNoWs)
@@ -399,7 +399,7 @@ func (r RestClientImpl) CreateRole(guildID api.Snowflake, role *api.UpdateRole) 
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, role, &newRole)
+	err = r.Request(compiledRoute, role, &newRole)
 	if err == nil {
 		newRole = r.Disgo().EntityBuilder().CreateRole(guildID, newRole, api.CacheStrategyNoWs)
 	}
@@ -412,7 +412,7 @@ func (r RestClientImpl) UpdateRole(guildID api.Snowflake, roleID api.Snowflake, 
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, role, &newRole)
+	err = r.Request(compiledRoute, role, &newRole)
 	if err == nil {
 		newRole = r.Disgo().EntityBuilder().CreateRole(guildID, newRole, api.CacheStrategyNoWs)
 	}
@@ -425,7 +425,7 @@ func (r RestClientImpl) UpdateRolePositions(guildID api.Snowflake, roleUpdates .
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, roleUpdates, &roles)
+	err = r.Request(compiledRoute, roleUpdates, &roles)
 	if err == nil {
 		for _, role := range roles {
 			role = r.Disgo().EntityBuilder().CreateRole(guildID, role, api.CacheStrategyNoWs)
@@ -440,7 +440,7 @@ func (r RestClientImpl) DeleteRole(guildID api.Snowflake, roleID api.Snowflake) 
 	if err != nil {
 		return err
 	}
-	err = r.Request(*compiledRoute, nil, nil)
+	err = r.Request(compiledRoute, nil, nil)
 	if err == nil && api.CacheStrategyNoWs(r.Disgo()) {
 		r.disgo.Cache().UncacheRole(guildID, roleID)
 	}
@@ -453,7 +453,7 @@ func (r RestClientImpl) AddReaction(channelID api.Snowflake, messageID api.Snowf
 	if err != nil {
 		return err
 	}
-	return r.Request(*compiledRoute, nil, nil)
+	return r.Request(compiledRoute, nil, nil)
 }
 
 // RemoveOwnReaction lets you remove your own reaction from a message_events
@@ -462,7 +462,7 @@ func (r RestClientImpl) RemoveOwnReaction(channelID api.Snowflake, messageID api
 	if err != nil {
 		return err
 	}
-	return r.Request(*compiledRoute, nil, nil)
+	return r.Request(compiledRoute, nil, nil)
 }
 
 // RemoveUserReaction lets you remove a specific reaction from a user from a message_events
@@ -471,7 +471,7 @@ func (r RestClientImpl) RemoveUserReaction(channelID api.Snowflake, messageID ap
 	if err != nil {
 		return err
 	}
-	return r.Request(*compiledRoute, nil, nil)
+	return r.Request(compiledRoute, nil, nil)
 }
 
 // GetGlobalCommands gets you all global commands
@@ -480,7 +480,7 @@ func (r RestClientImpl) GetGlobalCommands(applicationID api.Snowflake) (commands
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, nil, &commands)
+	err = r.Request(compiledRoute, nil, &commands)
 	if err == nil {
 		for _, cmd := range commands {
 			cmd = r.Disgo().EntityBuilder().CreateGlobalCommand(cmd, api.CacheStrategyNoWs)
@@ -495,7 +495,7 @@ func (r RestClientImpl) GetGlobalCommand(applicationID api.Snowflake, commandID 
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, nil, &cmd)
+	err = r.Request(compiledRoute, nil, &cmd)
 	if err == nil {
 		cmd = r.Disgo().EntityBuilder().CreateGlobalCommand(cmd, api.CacheStrategyNoWs)
 	}
@@ -508,7 +508,7 @@ func (r RestClientImpl) CreateGlobalCommand(applicationID api.Snowflake, command
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, command, &cmd)
+	err = r.Request(compiledRoute, command, &cmd)
 	if err == nil {
 		cmd = r.Disgo().EntityBuilder().CreateGlobalCommand(cmd, api.CacheStrategyNoWs)
 	}
@@ -525,7 +525,7 @@ func (r RestClientImpl) SetGlobalCommands(applicationID api.Snowflake, commands 
 		err = api.ErrTooMuchApplicationCommands
 		return
 	}
-	err = r.Request(*compiledRoute, commands, &cmds)
+	err = r.Request(compiledRoute, commands, &cmds)
 	if err == nil {
 		for _, cmd := range cmds {
 			cmd = r.Disgo().EntityBuilder().CreateGlobalCommand(cmd, api.CacheStrategyNoWs)
@@ -540,7 +540,7 @@ func (r RestClientImpl) EditGlobalCommand(applicationID api.Snowflake, commandID
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, command, &cmd)
+	err = r.Request(compiledRoute, command, &cmd)
 	if err == nil {
 		cmd = r.Disgo().EntityBuilder().CreateGlobalCommand(cmd, api.CacheStrategyNoWs)
 	}
@@ -553,7 +553,7 @@ func (r RestClientImpl) DeleteGlobalCommand(applicationID api.Snowflake, command
 	if err != nil {
 		return err
 	}
-	err = r.Request(*compiledRoute, nil, nil)
+	err = r.Request(compiledRoute, nil, nil)
 	if err == nil && api.CacheStrategyNoWs(r.Disgo()) {
 		r.Disgo().Cache().UncacheCommand(commandID)
 	}
@@ -566,7 +566,7 @@ func (r RestClientImpl) GetGuildCommands(applicationID api.Snowflake, guildID ap
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, nil, &commands)
+	err = r.Request(compiledRoute, nil, &commands)
 	if err == nil {
 		for _, cmd := range commands {
 			cmd = r.Disgo().EntityBuilder().CreateGuildCommand(guildID, cmd, api.CacheStrategyNoWs)
@@ -581,7 +581,7 @@ func (r RestClientImpl) CreateGuildCommand(applicationID api.Snowflake, guildID 
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, command, &cmd)
+	err = r.Request(compiledRoute, command, &cmd)
 	if err == nil {
 		cmd = r.Disgo().EntityBuilder().CreateGuildCommand(guildID, cmd, api.CacheStrategyNoWs)
 	}
@@ -598,7 +598,7 @@ func (r RestClientImpl) SetGuildCommands(applicationID api.Snowflake, guildID ap
 		err = api.ErrTooMuchApplicationCommands
 		return
 	}
-	err = r.Request(*compiledRoute, commands, &cmds)
+	err = r.Request(compiledRoute, commands, &cmds)
 	if err == nil {
 		for _, cmd := range cmds {
 			cmd = r.Disgo().EntityBuilder().CreateGuildCommand(guildID, cmd, api.CacheStrategyNoWs)
@@ -613,7 +613,7 @@ func (r RestClientImpl) GetGuildCommand(applicationID api.Snowflake, guildID api
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, nil, &cmd)
+	err = r.Request(compiledRoute, nil, &cmd)
 	if err == nil {
 		cmd = r.Disgo().EntityBuilder().CreateGuildCommand(guildID, cmd, api.CacheStrategyNoWs)
 	}
@@ -626,7 +626,7 @@ func (r RestClientImpl) EditGuildCommand(applicationID api.Snowflake, guildID ap
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, command, &cmd)
+	err = r.Request(compiledRoute, command, &cmd)
 	if err == nil {
 		cmd = r.Disgo().EntityBuilder().CreateGuildCommand(guildID, cmd, api.CacheStrategyNoWs)
 	}
@@ -639,7 +639,7 @@ func (r RestClientImpl) DeleteGuildCommand(applicationID api.Snowflake, guildID 
 	if err != nil {
 		return err
 	}
-	err = r.Request(*compiledRoute, nil, nil)
+	err = r.Request(compiledRoute, nil, nil)
 	if err == nil && api.CacheStrategyNoWs(r.Disgo()) {
 		r.Disgo().Cache().UncacheCommand(commandID)
 	}
@@ -652,7 +652,7 @@ func (r RestClientImpl) GetGuildCommandsPermissions(applicationID api.Snowflake,
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, nil, &cmdsPerms)
+	err = r.Request(compiledRoute, nil, &cmdsPerms)
 	if err == nil {
 		for _, cmdPerms := range cmdsPerms {
 			cmdPerms = r.Disgo().EntityBuilder().CreateGuildCommandPermissions(cmdPerms, api.CacheStrategyNoWs)
@@ -667,7 +667,7 @@ func (r RestClientImpl) GetGuildCommandPermissions(applicationID api.Snowflake, 
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, nil, &cmdPerms)
+	err = r.Request(compiledRoute, nil, &cmdPerms)
 	if err == nil {
 		cmdPerms = r.Disgo().EntityBuilder().CreateGuildCommandPermissions(cmdPerms, api.CacheStrategyNoWs)
 	}
@@ -680,7 +680,7 @@ func (r RestClientImpl) SetGuildCommandsPermissions(applicationID api.Snowflake,
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, api.SetGuildCommandsPermissions(commandsPermissions), &cmdsPerms)
+	err = r.Request(compiledRoute, api.SetGuildCommandsPermissions(commandsPermissions), &cmdsPerms)
 	if err == nil {
 		for _, cmdPerms := range cmdsPerms {
 			cmdPerms = r.Disgo().EntityBuilder().CreateGuildCommandPermissions(cmdPerms, api.CacheStrategyNoWs)
@@ -695,7 +695,7 @@ func (r RestClientImpl) SetGuildCommandPermissions(applicationID api.Snowflake, 
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(*compiledRoute, commandPermissions, &cmdPerms)
+	err = r.Request(compiledRoute, commandPermissions, &cmdPerms)
 	if err == nil {
 		cmdPerms = r.Disgo().EntityBuilder().CreateGuildCommandPermissions(cmdPerms, api.CacheStrategyNoWs)
 	}
@@ -708,7 +708,7 @@ func (r RestClientImpl) SendInteractionResponse(interactionID api.Snowflake, int
 	if err != nil {
 		return err
 	}
-	return r.Request(*compiledRoute, interactionResponse, nil)
+	return r.Request(compiledRoute, interactionResponse, nil)
 }
 
 // EditInteractionResponse used to edit the initial response on an interaction
@@ -717,7 +717,7 @@ func (r RestClientImpl) EditInteractionResponse(applicationID api.Snowflake, int
 	if err != nil {
 		return nil, err
 	}
-	return message, r.Request(*compiledRoute, followupMessage, &message)
+	return message, r.Request(compiledRoute, followupMessage, &message)
 }
 
 // DeleteInteractionResponse used to delete the initial response on an interaction
@@ -726,7 +726,7 @@ func (r RestClientImpl) DeleteInteractionResponse(applicationID api.Snowflake, i
 	if err != nil {
 		return err
 	}
-	return r.Request(*compiledRoute, nil, nil)
+	return r.Request(compiledRoute, nil, nil)
 }
 
 // SendFollowupMessage used to send a followup message_events to an interaction
@@ -735,7 +735,7 @@ func (r RestClientImpl) SendFollowupMessage(applicationID api.Snowflake, interac
 	if err != nil {
 		return nil, err
 	}
-	return message, r.Request(*compiledRoute, followupMessage, &message)
+	return message, r.Request(compiledRoute, followupMessage, &message)
 }
 
 // EditFollowupMessage used to edit a api.FollowupMessage from an api.Interaction
@@ -744,7 +744,7 @@ func (r RestClientImpl) EditFollowupMessage(applicationID api.Snowflake, interac
 	if err != nil {
 		return nil, err
 	}
-	return message, r.Request(*compiledRoute, followupMessage, &message)
+	return message, r.Request(compiledRoute, followupMessage, &message)
 }
 
 // DeleteFollowupMessage used to delete a api.FollowupMessage from an api.Interaction
@@ -753,7 +753,7 @@ func (r RestClientImpl) DeleteFollowupMessage(applicationID api.Snowflake, inter
 	if err != nil {
 		return err
 	}
-	return r.Request(*compiledRoute, nil, nil)
+	return r.Request(compiledRoute, nil, nil)
 }
 
 func normalizeEmoji(emoji string) string {
