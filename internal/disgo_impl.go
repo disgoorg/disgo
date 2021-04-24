@@ -32,7 +32,7 @@ func New(token string, options api.Options) (api.Disgo, error) {
 
 	disgo.selfUserID = *id
 
-	disgo.restClient = newRestClientImpl(disgo, options.HttpClient)
+	disgo.restClient = newRestClientImpl(disgo, options.HTTPClient)
 
 	disgo.audioController = newAudioControllerImpl(disgo)
 
