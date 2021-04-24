@@ -175,9 +175,9 @@ func (b *DisgoBuilderImpl) Build() (api.Disgo, error) {
 	if b.token == "" {
 		return nil, errors.New("please specify the BotToken")
 	}
-	disgo.BotToken = b.token
+	disgo.botToken = b.token
 
-	id, err := IDFromToken(disgo.BotToken)
+	id, err := IDFromToken(disgo.botToken)
 	if err != nil {
 		disgo.Logger().Errorf("error while getting application id from BotToken: %s", err)
 		return nil, err
