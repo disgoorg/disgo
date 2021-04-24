@@ -17,5 +17,5 @@ type Options struct {
 	PublicKey                 string
 	LargeThreshold            int
 	RawGatewayEventsEnabled   bool
-	HttpClient                *http.Client
+	HTTPClient                *http.Client
 }

@@ -16,10 +16,12 @@ func NewMessageBuilder() *MessageBuilder {
 	}
 }
 
+// NewMessageBuilderWithEmbed creates a new MessageBuilder with an Embed to be built later
 func NewMessageBuilderWithEmbed(embed *Embed) *MessageBuilder {
 	return NewMessageBuilder().SetEmbed(embed)
 }
 
+// NewMessageBuilderWithContent creates a new MessageBuilder with a content to be built later
 func NewMessageBuilderWithContent(content string) *MessageBuilder {
 	return NewMessageBuilder().SetContent(content)
 }

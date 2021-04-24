@@ -10,7 +10,7 @@ import (
 type DisgoBuilder interface {
 	SetLogger(level log.Logger) DisgoBuilder
 	SetToken(token string) DisgoBuilder
-	SetHttpClient(httpClient *http.Client) DisgoBuilder
+	SetHTTPClient(httpClient *http.Client) DisgoBuilder
 	SetIntents(intents Intents) DisgoBuilder
 	SetRawGatewayEventsEnabled(enabled bool) DisgoBuilder
 	SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor) DisgoBuilder

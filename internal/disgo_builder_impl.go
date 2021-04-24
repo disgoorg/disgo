@@ -53,8 +53,8 @@ func (b *DisgoBuilderImpl) SetToken(token string) api.DisgoBuilder {
 	return b
 }
 
-// SetHttpClient sets the http.Client the api.RestClient uses
-func (b *DisgoBuilderImpl) SetHttpClient(httpClient *http.Client) api.DisgoBuilder {
+// SetHTTPClient sets the http.Client the api.RestClient uses
+func (b *DisgoBuilderImpl) SetHTTPClient(httpClient *http.Client) api.DisgoBuilder {
 	b.httpClient = httpClient
 	return b
 }
