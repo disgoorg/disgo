@@ -1,7 +1,5 @@
 package api
 
-import "github.com/DisgoOrg/disgo/api/endpoints"
-
 // InteractionType is the type of Interaction
 type InteractionType int
 
@@ -20,7 +18,7 @@ type Interaction struct {
 	ChannelID *Snowflake       `json:"channel_id,omitempty"`
 	Member    *Member          `json:"member,omitempty"`
 	User      *User            `json:"User,omitempty"`
-	Token     endpoints.Token  `json:"token"`
+	Token     string           `json:"token"`
 	Version   int              `json:"version"`
 }
 

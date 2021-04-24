@@ -27,7 +27,7 @@ func (h InteractionCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManag
 	handleInteraction(disgo, eventManager, sequenceNumber, interaction, nil)
 }
 
-func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, interaction *api.Interaction, c chan interface{}) {
+func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, interaction *api.Interaction, c chan *api.InteractionResponse) {
 
 	interaction = disgo.EntityBuilder().CreateInteraction(interaction, api.CacheStrategyYes)
 	genericInteractionEvent := events.GenericInteractionEvent{

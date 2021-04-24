@@ -34,13 +34,6 @@ type Embed struct {
 	Fields      []*EmbedField  `json:"fields,omitempty"`
 }
 
-// The EmbedFooter of an Embed
-type EmbedFooter struct {
-	Text         string  `json:"text"`
-	IconURL      *string `json:"icon_url,omitempty"`
-	ProxyIconURL *string `json:"proxy_icon_url,omitempty"`
-}
-
 // The EmbedResource of an Embed.Image/Embed.Thumbnail/Embed.Video
 type EmbedResource struct {
 	URL      *string `json:"url,omitempty"`
@@ -59,6 +52,13 @@ type EmbedProvider struct {
 type EmbedAuthor struct {
 	Name         *string `json:"name,omitempty"`
 	URL          *string `json:"url,omitempty"`
+	IconURL      *string `json:"icon_url,omitempty"`
+	ProxyIconURL *string `json:"proxy_icon_url,omitempty"`
+}
+
+// The EmbedFooter of an Embed
+type EmbedFooter struct {
+	Text         string  `json:"text"`
 	IconURL      *string `json:"icon_url,omitempty"`
 	ProxyIconURL *string `json:"proxy_icon_url,omitempty"`
 }

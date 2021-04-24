@@ -41,7 +41,7 @@ func (m Member) IsOwner() bool {
 }
 
 // Update updates the member
-func (m Member) Update(updateGuildMemberData UpdateGuildMemberData) (*Member, error) {
+func (m Member) Update(updateGuildMemberData *UpdateGuildMemberData) (*Member, error) {
 	return m.Disgo.RestClient().UpdateMember(m.GuildID, m.User.ID, updateGuildMemberData)
 }
 

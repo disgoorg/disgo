@@ -18,6 +18,12 @@ func (b *EmbedBuilder) SetTitle(title string) *EmbedBuilder {
 	return b
 }
 
+// SetTitlef sets the title of the EmbedBuilder with format
+func (b *EmbedBuilder) SetTitlef(title string, a ...interface{}) *EmbedBuilder {
+	b.Title = &title
+	return b
+}
+
 // SetDescription sets the description of the EmbedBuilder
 func (b *EmbedBuilder) SetDescription(description string) *EmbedBuilder {
 	b.Description = &description
@@ -38,21 +44,40 @@ func (b *EmbedBuilder) SetEmbedAuthor(author *EmbedAuthor) *EmbedBuilder {
 }
 
 // SetAuthor sets the author of the EmbedBuilder without an Icon URL
-func (b *EmbedBuilder) SetAuthor(name string, url string) *EmbedBuilder {
-	b.Author = &EmbedAuthor{
-		Name: &name,
-		URL:  &url,
+func (b *EmbedBuilder) SetAuthor(name string, url string, iconURL string) *EmbedBuilder {
+	if b.Author == nil {
+		b.Author = &EmbedAuthor{}
 	}
+	b.Author.Name = &name
+	b.Author.URL = &url
+	b.Author.IconURL = &iconURL
 	return b
 }
 
-// SetAuthorI sets the author of the EmbedBuilder with all properties
-func (b *EmbedBuilder) SetAuthorI(name string, url string, iconURL string) *EmbedBuilder {
-	b.Author = &EmbedAuthor{
-		Name:    &name,
-		URL:     &url,
-		IconURL: &iconURL,
+// SetAuthorName sets the author of the EmbedBuilder
+func (b *EmbedBuilder) SetAuthorName(name string) *EmbedBuilder {
+	if b.Author == nil {
+		b.Author = &EmbedAuthor{}
 	}
+	b.Author.Name = &name
+	return b
+}
+
+// SetAuthorURL sets the author of the EmbedBuilder with an URL
+func (b *EmbedBuilder) SetAuthorURL(url string) *EmbedBuilder {
+	if b.Author == nil {
+		b.Author = &EmbedAuthor{}
+	}
+	b.Author.URL = &url
+	return b
+}
+
+// SetAuthorIcon sets the author of the EmbedBuilder with all properties
+func (b *EmbedBuilder) SetAuthorIcon(iconURL string) *EmbedBuilder {
+	if b.Author == nil {
+		b.Author = &EmbedAuthor{}
+	}
+	b.Author.IconURL = &iconURL
 	return b
 }
 
@@ -62,34 +87,55 @@ func (b *EmbedBuilder) SetColor(color int) *EmbedBuilder {
 	return b
 }
 
-// SetFooter sets the footer of the EmbedBuilder
-func (b *EmbedBuilder) SetFooter(footer *EmbedFooter) *EmbedBuilder {
+// SetEmbedFooter sets the footer of the EmbedBuilder
+func (b *EmbedBuilder) SetEmbedFooter(footer *EmbedFooter) *EmbedBuilder {
 	b.Footer = footer
 	return b
 }
 
-// SetFooterBy sets the footer of the EmbedBuilder by text and iconURL
-func (b *EmbedBuilder) SetFooterBy(text string, iconURL string) *EmbedBuilder {
-	b.Footer = &EmbedFooter{
-		Text:    text,
-		IconURL: &iconURL,
+// SetFooter sets the footer of the EmbedBuilder
+func (b *EmbedBuilder) SetFooter(text string, iconURL string) *EmbedBuilder {
+	if b.Footer == nil {
+		b.Footer = &EmbedFooter{}
 	}
+	b.Footer.Text = text
+	b.Footer.IconURL = &iconURL
+	return b
+}
+
+// SetFooterText sets the footer of the EmbedBuilder by text
+func (b *EmbedBuilder) SetFooterText(text string) *EmbedBuilder {
+	if b.Footer == nil {
+		b.Footer = &EmbedFooter{}
+	}
+	b.Footer.Text = text
+	return b
+}
+
+// SetFooterIcon sets the footer of the EmbedBuilder by iconURL
+func (b *EmbedBuilder) SetFooterIcon(iconURL string) *EmbedBuilder {
+	if b.Footer == nil {
+		b.Footer = &EmbedFooter{}
+	}
+	b.Footer.IconURL = &iconURL
 	return b
 }
 
 // SetImage sets the image of the EmbedBuilder
-func (b *EmbedBuilder) SetImage(i *string) *EmbedBuilder {
-	b.Image = &EmbedResource{
-		URL: i,
+func (b *EmbedBuilder) SetImage(url string) *EmbedBuilder {
+	if b.Image == nil {
+		b.Image = &EmbedResource{}
 	}
+	b.Image.URL = &url
 	return b
 }
 
 // SetThumbnail sets the thumbnail of the EmbedBuilder
-func (b *EmbedBuilder) SetThumbnail(i *string) *EmbedBuilder {
-	b.Thumbnail = &EmbedResource{
-		URL: i,
+func (b *EmbedBuilder) SetThumbnail(url string) *EmbedBuilder {
+	if b.Thumbnail == nil {
+		b.Thumbnail = &EmbedResource{}
 	}
+	b.Thumbnail.URL = &url
 	return b
 }
 
@@ -106,23 +152,22 @@ func (b *EmbedBuilder) AddField(name string, value string, inline bool) *EmbedBu
 }
 
 // SetField sets a field to the EmbedBuilder by name and value
-func (b *EmbedBuilder) SetField(index int, name string, value string, inline bool) *EmbedBuilder {
-	if len(b.Fields) > index {
-		b.Fields[index] = &EmbedField{name, value, &inline}
+func (b *EmbedBuilder) SetField(i int, name string, value string, inline bool) *EmbedBuilder {
+	if len(b.Fields) > i {
+		b.Fields[i] = &EmbedField{name, value, &inline}
 	}
 	return b
 }
 
 // AddFields adds multiple fields to the EmbedBuilder
-func (b *EmbedBuilder) AddFields(f *EmbedField, fs ...*EmbedField) *EmbedBuilder {
-	b.Fields = append(b.Fields, f)
-	b.Fields = append(b.Fields, fs...)
+func (b *EmbedBuilder) AddFields(field *EmbedField, fields ...*EmbedField) *EmbedBuilder {
+	b.Fields = append(append(b.Fields, field), fields...)
 	return b
 }
 
 // SetFields sets fields of the EmbedBuilder
-func (b *EmbedBuilder) SetFields(fs ...*EmbedField) *EmbedBuilder {
-	b.Fields = fs
+func (b *EmbedBuilder) SetFields(fields ...*EmbedField) *EmbedBuilder {
+	b.Fields = fields
 	return b
 }
 
@@ -133,14 +178,14 @@ func (b *EmbedBuilder) ClearFields() *EmbedBuilder {
 }
 
 // RemoveField removes a field from the EmbedBuilder
-func (b *EmbedBuilder) RemoveField(index int) *EmbedBuilder {
-	if len(b.Fields) > index {
-		b.Fields = append(b.Fields[:index], b.Fields[index+1:]...)
+func (b *EmbedBuilder) RemoveField(i int) *EmbedBuilder {
+	if len(b.Fields) > i {
+		b.Fields = append(b.Fields[:i], b.Fields[i+1:]...)
 	}
 	return b
 }
 
 // Build returns your built Embed
-func (b *EmbedBuilder) Build() Embed {
-	return b.Embed
+func (b *EmbedBuilder) Build() *Embed {
+	return &b.Embed
 }

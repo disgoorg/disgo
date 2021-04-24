@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"strconv"
@@ -13,7 +14,6 @@ import (
 
 	"github.com/DisgoOrg/disgo"
 	"github.com/DisgoOrg/disgo/api"
-	"github.com/DisgoOrg/disgo/api/endpoints"
 	"github.com/DisgoOrg/disgo/api/events"
 )
 
@@ -26,19 +26,21 @@ const adminRoleID = "817327279583264788"
 const testRoleID = "825156597935243304"
 
 var logger = logrus.New()
+var client = http.DefaultClient
 
 func main() {
 	logger.SetLevel(logrus.DebugLevel)
-	logger.Info("starting testbot...")
+	logger.Info("starting TestBot...")
 
-	dgo, err := disgo.NewBuilder(endpoints.Token(os.Getenv("token"))).
+	dgo, err := disgo.NewBuilder(os.Getenv("token")).
 		SetLogger(logger).
+		SetHttpClient(client).
 		SetIntents(api.IntentsGuilds | api.IntentsGuildMessages | api.IntentsGuildMembers).
 		SetMemberCachePolicy(api.MemberCachePolicyAll).
 		AddEventListeners(&events.ListenerAdapter{
-			OnGuildAvailable:       guildAvailListener,
+			OnGuildAvailable:     guildAvailListener,
 			OnGuildMessageCreate: messageListener,
-			OnSlashCommand:         slashCommandListener,
+			OnSlashCommand:       slashCommandListener,
 		}).
 		Build()
 	if err != nil {
@@ -46,11 +48,11 @@ func main() {
 		return
 	}
 
-	rawCmds := []api.Command{
+	rawCmds := []*api.CommandCreate{
 		{
 			Name:              "eval",
 			Description:       "runs some go code",
-			DefaultPermission: false,
+			DefaultPermission: ptrBool(false),
 			Options: []*api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeString,
@@ -63,12 +65,12 @@ func main() {
 		{
 			Name:              "test",
 			Description:       "test test test test test test",
-			DefaultPermission: false,
+			DefaultPermission: ptrBool(false),
 		},
 		{
 			Name:              "say",
 			Description:       "says what you say",
-			DefaultPermission: false,
+			DefaultPermission: ptrBool(false),
 			Options: []*api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeString,
@@ -81,7 +83,7 @@ func main() {
 		{
 			Name:              "addrole",
 			Description:       "This command adds a role to a member",
-			DefaultPermission: false,
+			DefaultPermission: ptrBool(false),
 			Options: []*api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeUser,
@@ -100,7 +102,7 @@ func main() {
 		{
 			Name:              "removerole",
 			Description:       "This command removes a role from a member",
-			DefaultPermission: false,
+			DefaultPermission: ptrBool(false),
 			Options: []*api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeUser,
@@ -124,25 +126,25 @@ func main() {
 		logger.Errorf("error while registering guild commands: %s", err)
 	}
 
-	var cmdsPermissions []api.SetGuildCommandPermissions
+	var cmdsPermissions []*api.SetGuildCommandPermissions
 	for _, cmd := range cmds {
-		var perms api.CommandPermission
+		var perms *api.CommandPermission
 		if cmd.Name == "eval" {
-			perms = api.CommandPermission{
+			perms = &api.CommandPermission{
 				ID:         adminRoleID,
 				Type:       api.CommandPermissionTypeRole,
 				Permission: true,
 			}
 		} else {
-			perms = api.CommandPermission{
+			perms = &api.CommandPermission{
 				ID:         testRoleID,
 				Type:       api.CommandPermissionTypeRole,
 				Permission: true,
 			}
 		}
-		cmdsPermissions = append(cmdsPermissions, api.SetGuildCommandPermissions{
+		cmdsPermissions = append(cmdsPermissions, &api.SetGuildCommandPermissions{
 			ID:          cmd.ID,
-			Permissions: []api.CommandPermission{perms},
+			Permissions: []*api.CommandPermission{perms},
 		})
 	}
 	if _, err = dgo.RestClient().SetGuildCommandsPermissions(dgo.ApplicationID(), guildID, cmdsPermissions...); err != nil {
@@ -156,7 +158,7 @@ func main() {
 
 	defer dgo.Close()
 
-	logger.Infof("Bot is now running. Press CTRL-C to exit.")
+	logger.Infof("TestBot is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-s
@@ -195,7 +197,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 				_, _ = event.EditOriginal(api.NewFollowupMessageBuilder().
 					SetEmbeds(embed.
 						SetColor(red).
-						SetField(0, "Status", "failed", true).
+						SetField(0, "Status", "Failed", true).
 						SetField(3, "Output", "```"+err.Error()+"```", false).
 						Build(),
 					).
@@ -206,7 +208,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 			_, _ = event.EditOriginal(api.NewFollowupMessageBuilder().
 				SetEmbeds(embed.
 					SetColor(green).
-					SetField(0, "Status", "success", true).
+					SetField(0, "Status", "Success", true).
 					SetField(3, "Output", "```"+fmt.Sprintf("%+v", output)+"```", false).
 					Build(),
 				).
@@ -309,4 +311,8 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 			}
 		}()
 	}
+}
+
+func ptrBool(bool bool) *bool {
+	return &bool
 }

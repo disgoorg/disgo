@@ -177,12 +177,12 @@ func (g *Guild) Disconnect() error {
 }
 
 // CreateRole allows you to create a new Role
-func (g *Guild) CreateRole(role UpdateRole) (*Role, error) {
+func (g *Guild) CreateRole(role *UpdateRole) (*Role, error) {
 	return g.Disgo.RestClient().CreateRole(g.ID, role)
 }
 
 // AddMember adds a member to the guild with the oauth2 access token
-func (g *Guild) AddMember(userID Snowflake, addGuildMemberData AddGuildMemberData) (*Member, error) {
+func (g *Guild) AddMember(userID Snowflake, addGuildMemberData *AddGuildMemberData) (*Member, error) {
 	return g.Disgo.RestClient().AddMember(g.ID, userID, addGuildMemberData)
 }
 
@@ -215,22 +215,22 @@ func (g *Guild) GetCommands() ([]*Command, error) {
 }
 
 // CreateCommand creates a new command for this guild
-func (g *Guild) CreateCommand(command Command) (*Command, error) {
+func (g *Guild) CreateCommand(command *CommandCreate) (*Command, error) {
 	return g.Disgo.RestClient().CreateGuildCommand(g.Disgo.ApplicationID(), g.ID, command)
 }
 
 // EditCommand edits a specific guild command
-func (g *Guild) EditCommand(commandID Snowflake, command UpdateCommand) (*Command, error) {
+func (g *Guild) EditCommand(commandID Snowflake, command *CommandUpdate) (*Command, error) {
 	return g.Disgo.RestClient().EditGuildCommand(g.Disgo.ApplicationID(), g.ID, commandID, command)
 }
 
 // DeleteCommand creates a new command for this guild
-func (g *Guild) DeleteCommand(command Command) (*Command, error) {
-	return g.Disgo.RestClient().CreateGuildCommand(g.Disgo.ApplicationID(), g.ID, command)
+func (g *Guild) DeleteCommand(commandID Snowflake) error {
+	return g.Disgo.RestClient().DeleteGuildCommand(g.Disgo.ApplicationID(), g.ID, commandID)
 }
 
 // SetCommands overrides all commands for this guild
-func (g *Guild) SetCommands(commands ...Command) ([]*Command, error) {
+func (g *Guild) SetCommands(commands ...*CommandCreate) ([]*Command, error) {
 	return g.Disgo.RestClient().SetGuildCommands(g.Disgo.ApplicationID(), g.ID, commands...)
 }
 
@@ -245,11 +245,11 @@ func (g *Guild) GetCommandPermissions(commandID Snowflake) (*GuildCommandPermiss
 }
 
 // SetCommandsPermissions sets the GuildCommandPermissions for a all Command(s)
-func (g *Guild) SetCommandsPermissions(commandPermissions ...SetGuildCommandPermissions) ([]*GuildCommandPermissions, error) {
+func (g *Guild) SetCommandsPermissions(commandPermissions ...*SetGuildCommandPermissions) ([]*GuildCommandPermissions, error) {
 	return g.Disgo.RestClient().SetGuildCommandsPermissions(g.Disgo.ApplicationID(), g.ID, commandPermissions...)
 }
 
 // SetCommandPermissions sets the GuildCommandPermissions for a specific Command
-func (g *Guild) SetCommandPermissions(commandID Snowflake, permissions SetGuildCommandPermissions) (*GuildCommandPermissions, error) {
+func (g *Guild) SetCommandPermissions(commandID Snowflake, permissions *SetGuildCommandPermissions) (*GuildCommandPermissions, error) {
 	return g.Disgo.RestClient().SetGuildCommandPermissions(g.Disgo.ApplicationID(), g.ID, commandID, permissions)
 }

@@ -18,14 +18,14 @@ func (h InteractionCreateWebhookHandler) New() interface{} {
 }
 
 // HandleWebhookEvent handles the specific raw gateway event
-func (h InteractionCreateWebhookHandler) HandleWebhookEvent(disgo api.Disgo, eventManager api.EventManager, c chan interface{}, i interface{}) {
+func (h InteractionCreateWebhookHandler) HandleWebhookEvent(disgo api.Disgo, eventManager api.EventManager, c chan *api.InteractionResponse, i interface{}) {
 	interaction, ok := i.(*api.Interaction)
 	if !ok {
 		return
 	}
 
 	if interaction.Type == api.InteractionTypePing {
-		c <- api.InteractionResponse{
+		c <- &api.InteractionResponse{
 			Type: api.InteractionResponseTypePong,
 		}
 		return

@@ -6,12 +6,11 @@ import (
 	"strings"
 
 	"github.com/DisgoOrg/disgo/api"
-	"github.com/DisgoOrg/disgo/api/endpoints"
 )
 
 // IDFromToken returns the applicationID from the BotToken
-func IDFromToken(token endpoints.Token) (*api.Snowflake, error) {
-	strs := strings.Split(string(token), ".")
+func IDFromToken(token string) (*api.Snowflake, error) {
+	strs := strings.Split(token, ".")
 	if len(strs) == 0 {
 		return nil, errors.New("BotToken is not in a valid format")
 	}

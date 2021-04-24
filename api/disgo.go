@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/DisgoOrg/disgo/api/endpoints"
 	"github.com/DisgoOrg/log"
 )
 
@@ -16,7 +15,7 @@ type Disgo interface {
 	Connect() error
 	Start()
 	Close()
-	Token() endpoints.Token
+	Token() string
 	Gateway() Gateway
 	RestClient() RestClient
 	WebhookServer() WebhookServer
@@ -36,10 +35,10 @@ type Disgo interface {
 
 	GetCommand(commandID Snowflake) (*Command, error)
 	GetCommands() ([]*Command, error)
-	CreateCommand(command Command) (*Command, error)
-	EditCommand(commandID Snowflake, command UpdateCommand) (*Command, error)
-	DeleteCommand(command Command) (*Command, error)
-	SetCommands(commands ...Command) ([]*Command, error)
+	CreateCommand(command *CommandCreate) (*Command, error)
+	EditCommand(commandID Snowflake, command *CommandUpdate) (*Command, error)
+	DeleteCommand(commandID Snowflake) error
+	SetCommands(commands ...*CommandCreate) ([]*Command, error)
 }
 
 // EventHandler provides info about the EventHandler

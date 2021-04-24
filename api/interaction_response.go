@@ -1,5 +1,7 @@
 package api
 
+import "fmt"
+
 // InteractionResponseType indicates the type of slash command response, whether it's responding immediately or deferring to edit your response later
 type InteractionResponseType int
 
@@ -20,11 +22,11 @@ type InteractionResponse struct {
 
 // The InteractionResponseData is used to specify the message_events options when creating an InteractionResponse
 type InteractionResponseData struct {
-	TTS             bool             `json:"tts,omitempty"`
-	Content         string           `json:"content,omitempty"`
-	Embeds          []Embed          `json:"embeds,omitempty"`
+	TTS             *bool            `json:"tts,omitempty"`
+	Content         *string          `json:"content,omitempty"`
+	Embeds          []*Embed         `json:"embeds,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
-	Flags           MessageFlags     `json:"flags,omitempty"`
+	Flags           *MessageFlags     `json:"flags,omitempty"`
 }
 
 // InteractionResponseBuilder allows you to create an InteractionResponse with ease
@@ -61,7 +63,7 @@ func (b *InteractionResponseBuilder) SetTTS(tts bool) *InteractionResponseBuilde
 	if b.Data == nil {
 		b.Data = &InteractionResponseData{}
 	}
-	b.Data.TTS = tts
+	b.Data.TTS = &tts
 	return b
 }
 
@@ -70,12 +72,22 @@ func (b *InteractionResponseBuilder) SetContent(content string) *InteractionResp
 	if b.Data == nil {
 		b.Data = &InteractionResponseData{}
 	}
-	b.Data.Content = content
+	b.Data.Content = &content
+	return b
+}
+
+// SetContentf sets the content of the InteractionResponse with format
+func (b *InteractionResponseBuilder) SetContentf(content string, a ...interface{}) *InteractionResponseBuilder {
+	if b.Data == nil {
+		b.Data = &InteractionResponseData{}
+	}
+	contentf := fmt.Sprintf(content, a...)
+	b.Data.Content = &contentf
 	return b
 }
 
 // SetEmbeds sets the embeds of the InteractionResponse
-func (b *InteractionResponseBuilder) SetEmbeds(embeds ...Embed) *InteractionResponseBuilder {
+func (b *InteractionResponseBuilder) SetEmbeds(embeds ...*Embed) *InteractionResponseBuilder {
 	if b.Data == nil {
 		b.Data = &InteractionResponseData{}
 	}
@@ -84,7 +96,7 @@ func (b *InteractionResponseBuilder) SetEmbeds(embeds ...Embed) *InteractionResp
 }
 
 // AddEmbeds adds multiple embeds to the InteractionResponse
-func (b *InteractionResponseBuilder) AddEmbeds(embeds ...Embed) *InteractionResponseBuilder {
+func (b *InteractionResponseBuilder) AddEmbeds(embeds ...*Embed) *InteractionResponseBuilder {
 	if b.Data == nil {
 		b.Data = &InteractionResponseData{}
 	}
@@ -94,16 +106,16 @@ func (b *InteractionResponseBuilder) AddEmbeds(embeds ...Embed) *InteractionResp
 
 // ClearEmbeds removes all of the embeds from the InteractionResponse
 func (b *InteractionResponseBuilder) ClearEmbeds() *InteractionResponseBuilder {
-	if b.Data != nil && b.Data.Embeds != nil {
-		b.Data.Embeds = []Embed{}
+	if b.Data != nil {
+		b.Data.Embeds = []*Embed{}
 	}
 	return b
 }
 
 // RemoveEmbed removes an embed from the InteractionResponse
-func (b *InteractionResponseBuilder) RemoveEmbed(index int) *InteractionResponseBuilder {
-	if b.Data != nil && len(b.Data.Embeds) > index {
-		b.Data.Embeds = append(b.Data.Embeds[:index], b.Data.Embeds[index+1:]...)
+func (b *InteractionResponseBuilder) RemoveEmbed(i int) *InteractionResponseBuilder {
+	if b.Data != nil && len(b.Data.Embeds) > i {
+		b.Data.Embeds = append(b.Data.Embeds[:i], b.Data.Embeds[i+1:]...)
 	}
 	return b
 }
@@ -127,7 +139,7 @@ func (b *InteractionResponseBuilder) SetFlags(flags MessageFlags) *InteractionRe
 	if b.Data == nil {
 		b.Data = &InteractionResponseData{}
 	}
-	b.Data.Flags = flags
+	b.Data.Flags = &flags
 	return b
 }
 
@@ -149,6 +161,6 @@ func (b *InteractionResponseBuilder) SetEphemeral(ephemeral bool) *InteractionRe
 }
 
 // Build returns your built InteractionResponse
-func (b *InteractionResponseBuilder) Build() InteractionResponse {
-	return b.InteractionResponse
+func (b *InteractionResponseBuilder) Build() *InteractionResponse {
+	return &b.InteractionResponse
 }

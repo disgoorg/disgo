@@ -37,23 +37,23 @@ const (
 type MessageFlags int64
 
 // Add allows you to add multiple bits together, producing a new bit
-func (f MessageFlags) Add(bits ...MessageFlags) MessageFlags {
+func (f MessageFlags) Add(bits ...MessageFlags) *MessageFlags {
 	total := MessageFlags(0)
 	for _, bit := range bits {
 		total |= bit
 	}
 	f |= total
-	return f
+	return &f
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
-func (f MessageFlags) Remove(bits ...MessageFlags) MessageFlags {
+func (f MessageFlags) Remove(bits ...MessageFlags) *MessageFlags {
 	total := MessageFlags(0)
 	for _, bit := range bits {
 		total |= bit
 	}
 	f &^= total
-	return f
+	return &f
 }
 
 // HasAll will ensure that the bit includes all of the bits entered
@@ -206,7 +206,7 @@ type MessageInteraction struct {
 }
 
 // Guild gets the guild_events the message_events was sent in
-func (m Message) Guild() *Guild {
+func (m *Message) Guild() *Guild {
 	if m.GuildID == nil {
 		return nil
 	}
@@ -214,32 +214,32 @@ func (m Message) Guild() *Guild {
 }
 
 // Channel gets the channel the message_events was sent in
-func (m Message) Channel() *MessageChannel {
+func (m *Message) Channel() *MessageChannel {
 	return m.Disgo.Cache().MessageChannel(m.ChannelID)
 }
 
 // AddReactionByEmote allows you to add an Emote to a message_events via reaction
-func (m Message) AddReactionByEmote(emote Emote) error {
+func (m *Message) AddReactionByEmote(emote Emote) error {
 	return m.AddReaction(emote.Reaction())
 }
 
 // AddReaction allows you to add a reaction to a message_events from a string, for example a custom emoji ID, or a native emoji
-func (m Message) AddReaction(emoji string) error {
+func (m *Message) AddReaction(emoji string) error {
 	return m.Disgo.RestClient().AddReaction(m.ChannelID, m.ID, emoji)
 }
 
 // Edit allows you to edit an existing Message sent by you
-func (m Message) Edit(message MessageUpdate) (*Message, error) {
+func (m *Message) Edit(message *MessageUpdate) (*Message, error) {
 	return m.Disgo.RestClient().EditMessage(m.ChannelID, m.ID, message)
 }
 
 // Delete allows you to edit an existing Message sent by you
-func (m Message) Delete() error {
+func (m *Message) Delete() error {
 	return m.Disgo.RestClient().DeleteMessage(m.ChannelID, m.ID)
 }
 
 // Crosspost crossposts an existing message
-func (m Message) Crosspost() (*Message, error) {
+func (m *Message) Crosspost() (*Message, error) {
 	channel := m.Channel()
 	if channel != nil && channel.Type != ChannelTypeNews {
 		return nil, errors.New("channel type is not NEWS")
@@ -248,7 +248,7 @@ func (m Message) Crosspost() (*Message, error) {
 }
 
 // Reply allows you to reply to an existing Message
-func (m Message) Reply(message MessageCreate) (*Message, error) {
+func (m *Message) Reply(message *MessageCreate) (*Message, error) {
 	message.MessageReference = &MessageReference{
 		MessageID: &m.ID,
 	}
@@ -264,16 +264,16 @@ type MessageReaction struct {
 
 // MessageUpdate is used to edit a Message
 type MessageUpdate struct {
-	Content         string           `json:"content,omitempty"`
+	Content         *string          `json:"content,omitempty"`
 	Embed           *Embed           `json:"embed,omitempty"`
-	Flags           MessageFlags     `json:"flags,omitempty"`
+	Flags           *MessageFlags    `json:"flags,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
 }
 
 // MessageCreate is the struct to create a new Message with
 type MessageCreate struct {
-	Content          string            `json:"content,omitempty"`
-	TTS              bool              `json:"tts,omitempty"`
+	Content          *string           `json:"content,omitempty"`
+	TTS              *bool             `json:"tts,omitempty"`
 	Embed            *Embed            `json:"embed,omitempty"`
 	AllowedMentions  *AllowedMentions  `json:"allowed_mentions,omitempty"`
 	MessageReference *MessageReference `json:"message_reference,omitempty"`

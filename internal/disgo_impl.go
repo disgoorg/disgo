@@ -6,11 +6,10 @@ import (
 	"github.com/DisgoOrg/log"
 
 	"github.com/DisgoOrg/disgo/api"
-	"github.com/DisgoOrg/disgo/api/endpoints"
 )
 
 // New creates a new api.Disgo instance
-func New(token endpoints.Token, options api.Options) (api.Disgo, error) {
+func New(token string, options api.Options) (api.Disgo, error) {
 	if options.LargeThreshold < 50 {
 		options.LargeThreshold = 50
 	} else if options.LargeThreshold > 250 {
@@ -33,7 +32,7 @@ func New(token endpoints.Token, options api.Options) (api.Disgo, error) {
 
 	disgo.selfUserID = *id
 
-	disgo.restClient = newRestClientImpl(disgo)
+	disgo.restClient = newRestClientImpl(disgo, options.HttpClient)
 
 	disgo.audioController = newAudioControllerImpl(disgo)
 
@@ -53,7 +52,7 @@ func New(token endpoints.Token, options api.Options) (api.Disgo, error) {
 // DisgoImpl is the main discord client
 type DisgoImpl struct {
 	// make this public so it does not print in fmt.Sprint("%+v, DisgoImpl{})
-	BotToken                 endpoints.Token
+	BotToken                 string
 	logger                   log.Logger
 	gateway                  api.Gateway
 	restClient               api.RestClient
@@ -109,7 +108,7 @@ func (d *DisgoImpl) Close() {
 }
 
 // Token returns the BotToken of the client
-func (d *DisgoImpl) Token() endpoints.Token {
+func (d *DisgoImpl) Token() string {
 	return d.BotToken
 }
 
@@ -206,21 +205,21 @@ func (d DisgoImpl) GetCommands() ([]*api.Command, error) {
 }
 
 // CreateCommand creates a new command for this guild
-func (d DisgoImpl) CreateCommand(command api.Command) (*api.Command, error) {
+func (d DisgoImpl) CreateCommand(command *api.CommandCreate) (*api.Command, error) {
 	return d.RestClient().CreateGlobalCommand(d.ApplicationID(), command)
 }
 
 // EditCommand edits a specific guild command
-func (d DisgoImpl) EditCommand(commandID api.Snowflake, command api.UpdateCommand) (*api.Command, error) {
+func (d DisgoImpl) EditCommand(commandID api.Snowflake, command *api.CommandUpdate) (*api.Command, error) {
 	return d.RestClient().EditGlobalCommand(d.ApplicationID(), commandID, command)
 }
 
 // DeleteCommand creates a new command for this guild
-func (d DisgoImpl) DeleteCommand(command api.Command) (*api.Command, error) {
-	return d.RestClient().CreateGlobalCommand(d.ApplicationID(), command)
+func (d DisgoImpl) DeleteCommand(commandID api.Snowflake) error {
+	return d.RestClient().DeleteGlobalCommand(d.ApplicationID(), commandID)
 }
 
 // SetCommands overrides all commands for this guild
-func (d DisgoImpl) SetCommands(commands ...api.Command) ([]*api.Command, error) {
+func (d DisgoImpl) SetCommands(commands ...*api.CommandCreate) ([]*api.Command, error) {
 	return d.RestClient().SetGlobalCommands(d.ApplicationID(), commands...)
 }

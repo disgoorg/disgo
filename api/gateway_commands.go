@@ -1,7 +1,5 @@
 package api
 
-import "github.com/DisgoOrg/disgo/api/endpoints"
-
 // NewGatewayCommand returns a new GatewayCommand struct with the given payload
 func NewGatewayCommand(op GatewayOp, d interface{}) GatewayCommand {
 	return GatewayCommand{
@@ -22,7 +20,7 @@ type GatewayCommand struct {
 
 // IdentifyCommand is the data used in IdentifyCommand
 type IdentifyCommand struct {
-	Token          endpoints.Token               `json:"token"`
+	Token          string                        `json:"token"`
 	Properties     IdentifyCommandDataProperties `json:"properties"`
 	Compress       bool                          `json:"compress,omitempty"`
 	LargeThreshold int                           `json:"large_threshold,omitempty"`
@@ -42,9 +40,9 @@ type IdentifyCommandDataProperties struct {
 // ResumeCommand is used to resume a connection to discord in the case that you are disconnected. Is automatically
 // handled by the library and should rarely be used.
 type ResumeCommand struct {
-	Token     endpoints.Token `json:"token"`
-	SessionID string          `json:"session_id"`
-	Seq       int             `json:"seq"`
+	Token     string `json:"token"`
+	SessionID string `json:"session_id"`
+	Seq       int    `json:"seq"`
 }
 
 // HeartbeatCommand is used to ensure the websocket connection remains open, and disconnect if not.
