@@ -1,0 +1,29 @@
+version: 2
+updates:
+- package-ecosystem: gomod
+  directory: "/"
+  target-branch: dependencies
+  schedule:
+    interval: daily
+    time: '13:00'
+    timezone: Europe/Berlin
+  pull-request-branch-name:
+    separator: "-"
+  open-pull-requests-limit: 99
+  assignees:
+  - TopiSenpai
+  - EveCodes31
+  
+  - package-ecosystem: gomod
+  directory: "/example"
+  target-branch: dependencies
+  schedule:
+    interval: daily
+    time: '13:00'
+    timezone: Europe/Berlin
+  pull-request-branch-name:
+    separator: "-"
+  open-pull-requests-limit: 99
+  assignees:
+  - TopiSenpai
+  - EveCodes31
