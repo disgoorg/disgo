@@ -305,6 +305,7 @@ func (c *CacheImpl) CacheGuild(guild *api.Guild) *api.Guild {
 	c.guilds[guild.ID] = guild
 	c.guildCommands[guild.ID] = map[api.Snowflake]*api.Command{}
 	c.members[guild.ID] = map[api.Snowflake]*api.Member{}
+	c.voiceStates[guild.ID] = map[api.Snowflake]*api.VoiceState{}
 	c.roles[guild.ID] = map[api.Snowflake]*api.Role{}
 	c.categories[guild.ID] = map[api.Snowflake]*api.Category{}
 	c.textChannels[guild.ID] = map[api.Snowflake]*api.TextChannel{}
@@ -419,7 +420,7 @@ func (c *CacheImpl) Member(guildID api.Snowflake, userID api.Snowflake) *api.Mem
 func (c *CacheImpl) MemberByTag(guildID api.Snowflake, tag string) *api.Member {
 	if guildMembers, ok := c.members[guildID]; ok {
 		for _, member := range guildMembers {
-			if member.User.Username+"#"+member.User.Discriminator == tag {
+			if member.User.Tag() == tag {
 				return member
 			}
 		}

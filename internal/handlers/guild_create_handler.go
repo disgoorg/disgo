@@ -56,7 +56,7 @@ func (h GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 	}
 
 	for _, voiceState := range fullGuild.VoiceStates {
-		disgo.EntityBuilder().CreateVoiceState(voiceState, api.CacheStrategyYes)
+		disgo.EntityBuilder().CreateVoiceState(guild.ID, voiceState, api.CacheStrategyYes)
 	}
 
 	for _, emote := range fullGuild.Emotes {

@@ -1,5 +1,7 @@
 package api
 
+import "fmt"
+
 // MessageBuilder helper to build Message(s) easier
 type MessageBuilder struct {
 	MessageCreate
@@ -14,15 +16,32 @@ func NewMessageBuilder() *MessageBuilder {
 	}
 }
 
+// NewMessageBuilderWithEmbed creates a new MessageBuilder with an Embed to be built later
+func NewMessageBuilderWithEmbed(embed *Embed) *MessageBuilder {
+	return NewMessageBuilder().SetEmbed(embed)
+}
+
+// NewMessageBuilderWithContent creates a new MessageBuilder with a content to be built later
+func NewMessageBuilderWithContent(content string) *MessageBuilder {
+	return NewMessageBuilder().SetContent(content)
+}
+
 // SetContent sets content of the Message
 func (b *MessageBuilder) SetContent(content string) *MessageBuilder {
-	b.Content = content
+	b.Content = &content
+	return b
+}
+
+// SetContentf sets content of the Message
+func (b *MessageBuilder) SetContentf(content string, a ...interface{}) *MessageBuilder {
+	contentf := fmt.Sprintf(content, a...)
+	b.Content = &contentf
 	return b
 }
 
 // SetTTS sets the text to speech of the Message
 func (b *MessageBuilder) SetTTS(tts bool) *MessageBuilder {
-	b.TTS = tts
+	b.TTS = &tts
 	return b
 }
 
@@ -38,8 +57,8 @@ func (b *MessageBuilder) SetAllowedMentions(allowedMentions *AllowedMentions) *M
 	return b
 }
 
-// SetAllowedMentionsEmpty sets the allowed mentions of the Message to nothing
-func (b *MessageBuilder) SetAllowedMentionsEmpty() *MessageBuilder {
+// ClearAllowedMentions clears the allowed mentions of the Message
+func (b *MessageBuilder) ClearAllowedMentions() *MessageBuilder {
 	return b.SetAllowedMentions(&AllowedMentions{})
 }
 
@@ -51,13 +70,14 @@ func (b *MessageBuilder) SetMessageReference(messageReference *MessageReference)
 
 // SetMessageReferenceByMessageID allows you to specify a Message ID to reply to
 func (b *MessageBuilder) SetMessageReferenceByMessageID(messageID Snowflake) *MessageBuilder {
-	b.MessageReference = &MessageReference{
-		MessageID: &messageID,
+	if b.MessageReference == nil {
+		b.MessageReference = &MessageReference{}
 	}
+	b.MessageReference.MessageID = &messageID
 	return b
 }
 
 // Build builds the MessageBuilder to a MessageCreate struct
-func (b *MessageBuilder) Build() MessageCreate {
-	return b.MessageCreate
+func (b *MessageBuilder) Build() *MessageCreate {
+	return &b.MessageCreate
 }

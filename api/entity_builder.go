@@ -15,6 +15,8 @@ var (
 type EntityBuilder interface {
 	Disgo() Disgo
 
+	CreateInteraction(interaction *Interaction, updateCache CacheStrategy) *Interaction
+
 	CreateGlobalCommand(command *Command, updateCache CacheStrategy) *Command
 
 	CreateUser(user *User, updateCache CacheStrategy) *User
@@ -26,7 +28,7 @@ type EntityBuilder interface {
 	CreateGuildCommand(guildID Snowflake, command *Command, updateCache CacheStrategy) *Command
 	CreateGuildCommandPermissions(guildCommandPermissions *GuildCommandPermissions, updateCache CacheStrategy) *GuildCommandPermissions
 	CreateRole(guildID Snowflake, role *Role, updateCache CacheStrategy) *Role
-	CreateVoiceState(role *VoiceState, updateCache CacheStrategy) *VoiceState
+	CreateVoiceState(guildID Snowflake, voiceState *VoiceState, updateCache CacheStrategy) *VoiceState
 
 	CreateTextChannel(channel *Channel, updateCache CacheStrategy) *TextChannel
 	CreateVoiceChannel(channel *Channel, updateCache CacheStrategy) *VoiceChannel

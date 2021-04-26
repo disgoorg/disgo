@@ -55,7 +55,7 @@ func (e GenericInteractionEvent) GuildChannel() *api.GuildChannel {
 // SlashCommandEvent indicates that a slash api.Command was ran in a api.Guild
 type SlashCommandEvent struct {
 	GenericInteractionEvent
-	ResponseChannel     chan interface{}
+	ResponseChannel     chan *api.InteractionResponse
 	FromWebhook         bool
 	CommandID           api.Snowflake
 	CommandName         string
@@ -114,7 +114,7 @@ func (e *SlashCommandEvent) Acknowledge() error {
 }
 
 // Reply replies to the api.Interaction with the provided api.InteractionResponse
-func (e *SlashCommandEvent) Reply(response api.InteractionResponse) error {
+func (e *SlashCommandEvent) Reply(response *api.InteractionResponse) error {
 	if e.Replied {
 		return errors.New("you already replied to this interaction")
 	}
@@ -129,7 +129,7 @@ func (e *SlashCommandEvent) Reply(response api.InteractionResponse) error {
 }
 
 // EditOriginal edits the original api.InteractionResponse
-func (e *SlashCommandEvent) EditOriginal(followupMessage api.FollowupMessage) (*api.Message, error) {
+func (e *SlashCommandEvent) EditOriginal(followupMessage *api.FollowupMessage) (*api.Message, error) {
 	return e.Disgo().RestClient().EditInteractionResponse(e.Disgo().ApplicationID(), e.Interaction.Token, followupMessage)
 }
 
@@ -139,12 +139,12 @@ func (e *SlashCommandEvent) DeleteOriginal() error {
 }
 
 // SendFollowup used to send a api.FollowupMessage to an api.Interaction
-func (e *SlashCommandEvent) SendFollowup(followupMessage api.FollowupMessage) (*api.Message, error) {
+func (e *SlashCommandEvent) SendFollowup(followupMessage *api.FollowupMessage) (*api.Message, error) {
 	return e.Disgo().RestClient().SendFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, followupMessage)
 }
 
 // EditFollowup used to edit a api.FollowupMessage from an api.Interaction
-func (e *SlashCommandEvent) EditFollowup(messageID api.Snowflake, followupMessage api.FollowupMessage) (*api.Message, error) {
+func (e *SlashCommandEvent) EditFollowup(messageID api.Snowflake, followupMessage *api.FollowupMessage) (*api.Message, error) {
 	return e.Disgo().RestClient().EditFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, messageID, followupMessage)
 }
 

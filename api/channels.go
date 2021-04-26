@@ -45,13 +45,13 @@ type MessageChannel struct {
 }
 
 // SendMessage sends a Message to a TextChannel
-func (c MessageChannel) SendMessage(message MessageCreate) (*Message, error) {
+func (c MessageChannel) SendMessage(message *MessageCreate) (*Message, error) {
 	// Todo: attachments
 	return c.Disgo.RestClient().SendMessage(c.ID, message)
 }
 
 // EditMessage edits a Message in this TextChannel
-func (c MessageChannel) EditMessage(messageID Snowflake, message MessageUpdate) (*Message, error) {
+func (c MessageChannel) EditMessage(messageID Snowflake, message *MessageUpdate) (*Message, error) {
 	return c.Disgo.RestClient().EditMessage(c.ID, messageID, message)
 }
 

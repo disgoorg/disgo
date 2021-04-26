@@ -77,7 +77,7 @@ func (g *GatewayImpl) Open() error {
 		if err != nil {
 			return err
 		}
-		if err = g.Disgo().RestClient().Request(*compiledRoute, nil, &gatewayRs); err != nil {
+		if err = g.Disgo().RestClient().Request(compiledRoute, nil, &gatewayRs); err != nil {
 			return err
 		}
 		g.url = &gatewayRs.URL

@@ -1,6 +1,10 @@
 package api
 
-import "github.com/DisgoOrg/log"
+import (
+	"net/http"
+
+	"github.com/DisgoOrg/log"
+)
 
 // Options is the configuration used when creating the client
 type Options struct {
@@ -13,4 +17,5 @@ type Options struct {
 	PublicKey                 string
 	LargeThreshold            int
 	RawGatewayEventsEnabled   bool
+	HTTPClient                *http.Client
 }

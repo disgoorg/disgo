@@ -17,6 +17,19 @@ type Member struct {
 	Permissions  *Permissions `json:"permissions,omitempty"`
 }
 
+// VoiceState returns the VoiceState for this Member from the Cache(requires CacheFlagVoiceState and IntentsGuildVoiceStates)
+func (m Member) VoiceState() *VoiceState {
+	return m.Disgo.Cache().VoiceState(m.GuildID, m.User.ID)
+}
+
+// EffectiveName returns either the nickname or username depending on if the user has a nickname
+func (m Member) EffectiveName() string {
+	if m.Nick != nil {
+		return *m.Nick
+	}
+	return m.User.Username
+}
+
 // Guild returns the members guild from the cache
 func (m Member) Guild() *Guild {
 	return m.Disgo.Cache().Guild(m.GuildID)
@@ -28,7 +41,7 @@ func (m Member) IsOwner() bool {
 }
 
 // Update updates the member
-func (m Member) Update(updateGuildMemberData UpdateGuildMemberData) (*Member, error) {
+func (m Member) Update(updateGuildMemberData *UpdateGuildMemberData) (*Member, error) {
 	return m.Disgo.RestClient().UpdateMember(m.GuildID, m.User.ID, updateGuildMemberData)
 }
 

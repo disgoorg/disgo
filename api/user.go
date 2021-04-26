@@ -1,5 +1,13 @@
 package api
 
+import (
+	"fmt"
+	"strconv"
+	"strings"
+
+	"github.com/DisgoOrg/disgo/api/endpoints"
+)
+
 // User is a struct for interacting with discord's users
 type User struct {
 	Disgo         Disgo
@@ -18,6 +26,27 @@ type User struct {
 	PublicFlags   *int      `json:"public_flags"`
 }
 
+// AvatarURL returns the Avatar URL of the User
+func (u *User) AvatarURL() string {
+	if u.Avatar == nil {
+		discrim, _ := strconv.Atoi(u.Discriminator)
+		route, err := endpoints.DefaultUserAvatar.Compile(endpoints.PNG, discrim%5)
+		if err != nil {
+			return ""
+		}
+		return route.Route()
+	}
+	format := endpoints.PNG
+	if strings.HasPrefix(*u.Avatar, "a_") {
+		format = endpoints.GIF
+	}
+	route, err := endpoints.UserAvatar.Compile(format, u.ID.String(), *u.Avatar)
+	if err != nil {
+		return ""
+	}
+	return route.Route()
+}
+
 // Mention returns the user as a mention
 func (u User) Mention() string {
 	return "<@" + u.ID.String() + ">"
@@ -25,7 +54,7 @@ func (u User) Mention() string {
 
 // Tag returns the user's Username and Discriminator
 func (u User) Tag() string {
-	return u.Username + "#" + u.Discriminator
+	return fmt.Sprintf("%s#%s", u.Username, u.Discriminator)
 }
 
 func (u User) String() string {

@@ -27,49 +27,9 @@ func (h InteractionCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManag
 	handleInteraction(disgo, eventManager, sequenceNumber, interaction, nil)
 }
 
-func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, interaction *api.Interaction, c chan interface{}) {
-	if interaction.Member != nil {
-		interaction.Member.Disgo = disgo
-		if interaction.Member.User != nil {
-			interaction.Member.User.Disgo = disgo
-		}
-		disgo.Cache().CacheMember(interaction.Member)
-	}
-	if interaction.User != nil {
-		interaction.User.Disgo = disgo
-		disgo.Cache().CacheUser(interaction.User)
-	}
+func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, interaction *api.Interaction, c chan *api.InteractionResponse) {
 
-	if interaction.Data != nil && interaction.Data.Resolved != nil {
-		resolved := interaction.Data.Resolved
-		if resolved.Users != nil {
-			for _, user := range resolved.Users {
-				user.Disgo = disgo
-				disgo.Cache().CacheUser(user)
-			}
-		}
-		if resolved.Members != nil {
-			for id, member := range resolved.Members {
-				member.User = resolved.Users[id]
-				member.Disgo = disgo
-				disgo.Cache().CacheMember(member)
-			}
-		}
-		if resolved.Roles != nil {
-			for _, role := range resolved.Roles {
-				role.Disgo = disgo
-				disgo.Cache().CacheRole(role)
-			}
-		}
-		// TODO how do we cache partial channels?
-		/*if resolved.Channels != nil {
-			for _, channel := range resolved.Channels {
-				channel.Disgo = disgo
-				disgo.Cache().CacheChannel(channel)
-			}
-		}*/
-	}
-
+	interaction = disgo.EntityBuilder().CreateInteraction(interaction, api.CacheStrategyYes)
 	genericInteractionEvent := events.GenericInteractionEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
 		Interaction:  interaction,

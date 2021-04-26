@@ -1,7 +1,5 @@
 package api
 
-import "github.com/DisgoOrg/disgo/api/endpoints"
-
 // InteractionType is the type of Interaction
 type InteractionType int
 
@@ -20,7 +18,7 @@ type Interaction struct {
 	ChannelID *Snowflake       `json:"channel_id,omitempty"`
 	Member    *Member          `json:"member,omitempty"`
 	User      *User            `json:"User,omitempty"`
-	Token     endpoints.Token  `json:"token"`
+	Token     string           `json:"token"`
 	Version   int              `json:"version"`
 }
 
@@ -59,6 +57,11 @@ type Option struct {
 // String returns the Option.Value as string
 func (o Option) String() string {
 	return o.Value.(string)
+}
+
+// Integer returns the Option.Value as int
+func (o Option) Integer() int {
+	return o.Value.(int)
 }
 
 // Bool returns the Option.Value as bool

@@ -2,26 +2,26 @@ package internal
 
 import (
 	"errors"
+	"net/http"
 
 	"github.com/DisgoOrg/log"
 
 	"github.com/DisgoOrg/disgo/api"
-	"github.com/DisgoOrg/disgo/api/endpoints"
 )
 
 // NewBuilder returns a new api.DisgoBuilder instance
-func NewBuilder(token endpoints.Token) api.DisgoBuilder {
+func NewBuilder(token string) api.DisgoBuilder {
 	return &DisgoBuilderImpl{
-		BotToken:   token,
+		token:      token,
 		cacheFlags: api.CacheFlagsDefault,
 	}
 }
 
 // DisgoBuilderImpl implementation of the api.DisgoBuilder interface
 type DisgoBuilderImpl struct {
-	logger log.Logger
-	// make this public so it does not print in fmt.Sprint("%+v, DisgoBuilderImpl{})
-	BotToken                 endpoints.Token
+	logger                   log.Logger
+	token                    string
+	httpClient               *http.Client
 	gateway                  api.Gateway
 	restClient               api.RestClient
 	audioController          api.AudioController
@@ -48,8 +48,14 @@ func (b *DisgoBuilderImpl) SetLogger(logger log.Logger) api.DisgoBuilder {
 }
 
 // SetToken sets the BotToken to connect to discord
-func (b *DisgoBuilderImpl) SetToken(token endpoints.Token) api.DisgoBuilder {
-	b.BotToken = token
+func (b *DisgoBuilderImpl) SetToken(token string) api.DisgoBuilder {
+	b.token = token
+	return b
+}
+
+// SetHTTPClient sets the http.Client the api.RestClient uses
+func (b *DisgoBuilderImpl) SetHTTPClient(httpClient *http.Client) api.DisgoBuilder {
+	b.httpClient = httpClient
 	return b
 }
 
@@ -166,12 +172,12 @@ func (b *DisgoBuilderImpl) Build() (api.Disgo, error) {
 		logger:                  b.logger,
 		rawGatewayEventsEnabled: b.rawGatewayEventsEnabled,
 	}
-	if b.BotToken == "" {
+	if b.token == "" {
 		return nil, errors.New("please specify the BotToken")
 	}
-	disgo.BotToken = b.BotToken
+	disgo.botToken = b.token
 
-	id, err := IDFromToken(disgo.BotToken)
+	id, err := IDFromToken(disgo.botToken)
 	if err != nil {
 		disgo.Logger().Errorf("error while getting application id from BotToken: %s", err)
 		return nil, err
@@ -184,8 +190,12 @@ func (b *DisgoBuilderImpl) Build() (api.Disgo, error) {
 	}
 	disgo.gateway = b.gateway
 
+	if b.httpClient == nil {
+		b.httpClient = http.DefaultClient
+	}
+
 	if b.restClient == nil {
-		b.restClient = newRestClientImpl(disgo)
+		b.restClient = newRestClientImpl(disgo, b.httpClient)
 	}
 	disgo.restClient = b.restClient
 
