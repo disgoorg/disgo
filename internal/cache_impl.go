@@ -562,7 +562,6 @@ func (c *CacheImpl) VoiceStateCache(guildID api.Snowflake) map[api.Snowflake]*ap
 func (c *CacheImpl) CacheVoiceState(voiceState *api.VoiceState) *api.VoiceState {
 	// only cache voice states for ourself or member is cached & cache flag activated
 	if c.cacheFlags.Missing(api.CacheFlagVoiceState) && voiceState.UserID != c.disgo.ApplicationID() {
-		println(2)
 		return voiceState
 	}
 	if guildVoiceStates, ok := c.voiceStates[voiceState.GuildID]; ok {
