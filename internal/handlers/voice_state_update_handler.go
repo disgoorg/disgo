@@ -24,13 +24,16 @@ func (h VoiceStateUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManage
 	if !ok {
 		return
 	}
+
 	oldVoiceState := disgo.Cache().VoiceState(voiceStateUpdate.GuildID, voiceStateUpdate.UserID)
 	if oldVoiceState != nil {
 		oldVoiceState = &*oldVoiceState
 	}
-	voiceStateUpdate.VoiceState = disgo.EntityBuilder().CreateVoiceState(voiceStateUpdate.GuildID, voiceStateUpdate.VoiceState, api.CacheStrategyYes)
-	voiceStateUpdate.Member = disgo.EntityBuilder().CreateMember(voiceStateUpdate.Member.GuildID, voiceStateUpdate.Member, api.CacheStrategyYes)
+	member := disgo.EntityBuilder().CreateMember(voiceStateUpdate.Member.GuildID, voiceStateUpdate.Member, api.CacheStrategyYes)
+	voiceState := disgo.EntityBuilder().CreateVoiceState(voiceStateUpdate.GuildID, voiceStateUpdate.VoiceState, api.CacheStrategyYes)
 
+	// voice state update for ourself received
+	// execute voice VoiceDispatchInterceptor.OnVoiceStateUpdate
 	if disgo.ApplicationID() == voiceStateUpdate.UserID {
 		if interceptor := disgo.VoiceDispatchInterceptor(); interceptor != nil {
 			interceptor.OnVoiceStateUpdate(voiceStateUpdate)
@@ -39,7 +42,7 @@ func (h VoiceStateUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManage
 
 	guild := voiceStateUpdate.Guild()
 	if guild == nil {
-		disgo.Logger().Error("received guild voice state update for unknown guild: %s", voiceStateUpdate.GuildID)
+		disgo.Logger().Warnf("received guild voice state update for unknown guild: %s", voiceStateUpdate.GuildID)
 		return
 	}
 
@@ -51,13 +54,13 @@ func (h VoiceStateUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManage
 
 	genericGuildMemberEvent := events.GenericGuildMemberEvent{
 		GenericGuildEvent: genericGuildEvent,
-		Member:            voiceStateUpdate.Member,
+		Member:            member,
 	}
 	disgo.EventManager().Dispatch(genericGuildMemberEvent)
 
 	genericGuildVoiceEvent := events.GenericGuildVoiceEvent{
 		GenericGuildMemberEvent: genericGuildMemberEvent,
-		VoiceState:              voiceStateUpdate.VoiceState,
+		VoiceState:              voiceState,
 	}
 	disgo.EventManager().Dispatch(genericGuildVoiceEvent)
 
