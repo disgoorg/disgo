@@ -166,6 +166,7 @@ type Message struct {
 	Attachments       []*MessageAttachment `json:"attachments"`
 	TTS               bool                 `json:"tts"`
 	Embeds            []*Embed             `json:"embeds,omitempty"`
+	Components        []*Component         `json:"components,omitempty"`
 	CreatedAt         time.Time            `json:"timestamp"`
 	Mentions          []interface{}        `json:"mentions"`
 	MentionEveryone   bool                 `json:"mention_everyone"`
@@ -186,7 +187,7 @@ type Message struct {
 	Application       *MessageApplication  `json:"application,omitempty"`
 	Stickers          []*MessageSticker    `json:"stickers,omitempty"`
 	ReferencedMessage *Message             `json:"referenced_message,omitempty"`
-	LastUpdated       *time.Time
+	LastUpdated       *time.Time           `json:"last_updated,omitempty"`
 }
 
 // MessageReference is a reference to another message
