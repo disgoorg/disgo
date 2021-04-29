@@ -145,7 +145,7 @@ func (g *GatewayImpl) Open() error {
 				},
 				Compress:       false,
 				LargeThreshold: g.Disgo().LargeThreshold(),
-				Intents:        g.Disgo().Intents(),
+				GatewayIntents: g.Disgo().GatewayIntents(),
 			}),
 		); err != nil {
 			return err

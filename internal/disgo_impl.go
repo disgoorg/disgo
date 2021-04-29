@@ -18,7 +18,7 @@ func New(token string, options api.Options) (api.Disgo, error) {
 
 	disgo := &DisgoImpl{
 		botToken:                token,
-		intents:                 options.Intents,
+		GatewayIntents:                 options.GatewayIntents,
 		largeThreshold:          options.LargeThreshold,
 		logger:                  options.Logger,
 		rawGatewayEventsEnabled: options.RawGatewayEventsEnabled,
@@ -55,7 +55,7 @@ type DisgoImpl struct {
 	logger                   log.Logger
 	gateway                  api.Gateway
 	restClient               api.RestClient
-	intents                  api.Intents
+	GatewayIntents                  api.GatewayIntents
 	rawGatewayEventsEnabled  bool
 	entityBuilder            api.EntityBuilder
 	eventManager             api.EventManager
@@ -156,10 +156,10 @@ func (d *DisgoImpl) Cache() api.Cache {
 	return d.cache
 }
 
-// Intents returns the Intents originally specified when creating the client
-func (d *DisgoImpl) Intents() api.Intents {
-	// clones the intents so they can't be modified
-	c := d.intents
+// GatewayIntents returns the GatewayIntents originally specified when creating the client
+func (d *DisgoImpl) GatewayIntents() api.GatewayIntents {
+	// clones the GatewayIntents so they can't be modified
+	c := d.GatewayIntents
 	return c
 }
 

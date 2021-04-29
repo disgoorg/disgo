@@ -4,7 +4,7 @@ import (
 	"github.com/DisgoOrg/disgo/api"
 )
 
-// GenericGuildInviteEvent is called upon receiving GuildInviteCreateEvent or GuildInviteDeleteEvent(requires api.IntentsGuildInvites)
+// GenericGuildInviteEvent is called upon receiving GuildInviteCreateEvent or GuildInviteDeleteEvent(requires api.GatewayIntentsGuildInvites)
 type GenericGuildInviteEvent struct {
 	GenericGuildEvent
 	Code      string
@@ -44,13 +44,13 @@ func (e GenericGuildInviteEvent) Category() *api.Category {
 	return e.Disgo().Cache().Category(e.ChannelID)
 }
 
-// GuildInviteCreateEvent is called upon creation of a new api.Invite in a api.Guild(requires api.IntentsGuildInvites)
+// GuildInviteCreateEvent is called upon creation of a new api.Invite in a api.Guild(requires api.GatewayIntentsGuildInvites)
 type GuildInviteCreateEvent struct {
 	GenericGuildInviteEvent
 	Invite *api.Invite
 }
 
-// GuildInviteDeleteEvent is called upon deletion of a new api.Invite in a api.Guild(requires api.IntentsGuildInvites)
+// GuildInviteDeleteEvent is called upon deletion of a new api.Invite in a api.Guild(requires api.GatewayIntentsGuildInvites)
 type GuildInviteDeleteEvent struct {
 	GenericGuildInviteEvent
 }

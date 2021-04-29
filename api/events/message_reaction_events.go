@@ -10,23 +10,23 @@ type GenericReactionEvents struct {
 	MessageReaction api.MessageReaction
 }
 
-// MessageReactionAddEvent indicates that a api.User added a api.MessageReaction to a api.Message in a api.Channel(this+++ requires the api.IntentsGuildMessageReactions and/or api.IntentsDirectMessageReactions)
+// MessageReactionAddEvent indicates that a api.User added a api.MessageReaction to a api.Message in a api.Channel(this+++ requires the api.GatewayIntentsGuildMessageReactions and/or api.GatewayIntentsDirectMessageReactions)
 type MessageReactionAddEvent struct {
 	GenericReactionEvents
 }
 
-// MessageReactionRemoveEvent indicates that a api.User removed a api.MessageReaction from a api.Message in a api.Channel(requires the api.IntentsGuildMessageReactions and/or api.IntentsDirectMessageReactions)
+// MessageReactionRemoveEvent indicates that a api.User removed a api.MessageReaction from a api.Message in a api.Channel(requires the api.GatewayIntentsGuildMessageReactions and/or api.GatewayIntentsDirectMessageReactions)
 type MessageReactionRemoveEvent struct {
 	GenericReactionEvents
 }
 
-// MessageReactionRemoveEmoteEvent indicates someone removed all api.MessageReaction of a specific api.Emote from a api.Message in a api.Channel(requires the api.IntentsGuildMessageReactions and/or api.IntentsDirectMessageReactions)
+// MessageReactionRemoveEmoteEvent indicates someone removed all api.MessageReaction of a specific api.Emote from a api.Message in a api.Channel(requires the api.GatewayIntentsGuildMessageReactions and/or api.GatewayIntentsDirectMessageReactions)
 type MessageReactionRemoveEmoteEvent struct {
 	GenericMessageEvent
 	MessageReaction api.MessageReaction
 }
 
-// MessageReactionRemoveAllEvent indicates someone removed all api.MessageReaction(s) from a api.Message in a api.Channel(requires the api.IntentsGuildMessageReactions and/or api.IntentsDirectMessageReactionss)
+// MessageReactionRemoveAllEvent indicates someone removed all api.MessageReaction(s) from a api.Message in a api.Channel(requires the api.GatewayIntentsGuildMessageReactions and/or api.GatewayIntentsDirectMessageReactionss)
 type MessageReactionRemoveAllEvent struct {
 	GenericMessageEvent
 }
