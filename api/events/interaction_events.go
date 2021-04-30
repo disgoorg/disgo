@@ -10,6 +10,9 @@ import (
 type GenericInteractionEvent struct {
 	GenericEvent
 	*api.Interaction
+	ResponseChannel chan *api.InteractionResponse
+	FromWebhook     bool
+	Replied         bool
 }
 
 // Guild returns the api.Guild from the api.Cache
@@ -55,14 +58,12 @@ func (e GenericInteractionEvent) GuildChannel() *api.GuildChannel {
 // SlashCommandEvent indicates that a slash api.Command was ran in a api.Guild
 type SlashCommandEvent struct {
 	GenericInteractionEvent
-	ResponseChannel     chan *api.InteractionResponse
-	FromWebhook         bool
 	CommandID           api.Snowflake
 	CommandName         string
 	SubCommandName      *string
 	SubCommandGroupName *string
 	Options             []*api.Option
-	Replied             bool
+	Resolved            *api.Resolved
 }
 
 // CommandPath returns the api.Command path
@@ -151,4 +152,10 @@ func (e *SlashCommandEvent) EditFollowup(messageID api.Snowflake, followupMessag
 // DeleteFollowup used to delete a api.FollowupMessage from an api.Interaction
 func (e *SlashCommandEvent) DeleteFollowup(messageID api.Snowflake) error {
 	return e.Disgo().RestClient().DeleteFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, messageID)
+}
+
+type ButtonClickEvent struct {
+	GenericInteractionEvent
+	CustomID      *string            `json:"custom_id,omitempty"`
+	ComponentType *api.ComponentType `json:"component_type,omitempty"`
 }

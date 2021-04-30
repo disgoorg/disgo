@@ -25,8 +25,9 @@ type InteractionResponseData struct {
 	TTS             *bool            `json:"tts,omitempty"`
 	Content         *string          `json:"content,omitempty"`
 	Embeds          []*Embed         `json:"embeds,omitempty"`
+	Components      []interface{}    `json:"components,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
-	Flags           *MessageFlags     `json:"flags,omitempty"`
+	Flags           *MessageFlags    `json:"flags,omitempty"`
 }
 
 // InteractionResponseBuilder allows you to create an InteractionResponse with ease
@@ -117,6 +118,15 @@ func (b *InteractionResponseBuilder) RemoveEmbed(i int) *InteractionResponseBuil
 	if b.Data != nil && len(b.Data.Embeds) > i {
 		b.Data.Embeds = append(b.Data.Embeds[:i], b.Data.Embeds[i+1:]...)
 	}
+	return b
+}
+
+// SetComponents sets the Component(s) of the InteractionResponse
+func (b *InteractionResponseBuilder) SetComponents(components ...interface{}) *InteractionResponseBuilder {
+	if b.Data == nil {
+		b.Data = &InteractionResponseData{}
+	}
+	b.Data.Components = components
 	return b
 }
 

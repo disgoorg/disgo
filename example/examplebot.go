@@ -224,32 +224,25 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 		)
 
 	case "test":
-		go func() {
-			_ = event.Acknowledge()
-
-			time.Sleep(2 * time.Second)
-			_, _ = event.EditOriginal(api.NewFollowupMessageBuilder().
-				SetEmbeds(api.NewEmbedBuilder().
-					SetDescription("finished with thinking").
-					Build(),
-				).Build(),
-			)
-
-			time.Sleep(1 * time.Second)
-			_, _ = event.SendFollowup(api.NewFollowupMessageBuilder().
-				SetEmbeds(api.NewEmbedBuilder().
-					SetDescription("followup 1").
-					Build(),
-				).Build(),
-			)
-
-			time.Sleep(1 * time.Second)
-			_, _ = event.SendFollowup(api.NewFollowupMessageBuilder().
-				SetEphemeral(true).
-				SetContent("followup 2 only you can see").
-				Build(),
-			)
-		}()
+		_ = event.Reply(api.NewInteractionResponseBuilder().
+			SetEphemeral(true).
+			SetContent("followup 2 only you can see").
+			SetComponents(&api.Buttons{
+				Component: api.Component{
+					Type: api.ComponentTypeButtons,
+				},
+				Buttons: []*api.Button{
+					{
+						Component: api.Component{
+							Type: api.ComponentTypeButton,
+						},
+						CustomID: "1",
+						Label:    "test",
+					},
+				},
+			}).
+			Build(),
+		)
 
 	case "addrole":
 		user := event.Option("member").User()

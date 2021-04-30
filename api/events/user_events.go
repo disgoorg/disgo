@@ -16,6 +16,7 @@ type UserUpdateEvent struct {
 	GenericUserEvent
 	OldUser *api.User
 }
+
 // UserTypingEvent indicates that a api.User started typing in a api.DMChannel or api.TextChannel(requires the api.GatewayIntentsDirectMessageTyping and/or api.GatewayIntentsGuildMessageTyping)
 type UserTypingEvent struct {
 	GenericUserEvent

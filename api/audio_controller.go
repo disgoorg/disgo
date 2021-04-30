@@ -4,7 +4,7 @@ import "errors"
 
 // errors returned when no gateway or ws conn exists
 var (
-	ErrNoGateway = errors.New("no gateway initialized")
+	ErrNoGateway     = errors.New("no gateway initialized")
 	ErrNoGatewayConn = errors.New("no active gateway connection found")
 )
 

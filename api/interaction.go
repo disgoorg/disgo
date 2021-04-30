@@ -1,5 +1,7 @@
 package api
 
+import "encoding/json"
+
 // InteractionType is the type of Interaction
 type InteractionType int
 
@@ -7,23 +9,34 @@ type InteractionType int
 const (
 	InteractionTypePing InteractionType = iota + 1
 	InteractionTypeApplicationCommand
+	InteractionTypeComponent
 )
+
+type FullInteraction struct {
+	*Interaction
+	Data json.RawMessage `json:"data,omitempty"`
+}
 
 // An Interaction is the slash command object you receive when a user uses one of your commands
 type Interaction struct {
-	ID        Snowflake        `json:"id"`
-	Type      InteractionType  `json:"type"`
-	Data      *InteractionData `json:"data,omitempty"`
-	GuildID   *Snowflake       `json:"guild_id,omitempty"`
-	ChannelID *Snowflake       `json:"channel_id,omitempty"`
-	Member    *Member          `json:"member,omitempty"`
-	User      *User            `json:"User,omitempty"`
-	Token     string           `json:"token"`
-	Version   int              `json:"version"`
+	ID        Snowflake       `json:"id"`
+	Type      InteractionType `json:"type"`
+	GuildID   *Snowflake      `json:"guild_id,omitempty"`
+	ChannelID *Snowflake      `json:"channel_id,omitempty"`
+	Member    *Member         `json:"member,omitempty"`
+	User      *User           `json:"User,omitempty"`
+	Token     string          `json:"token"`
+	Version   int             `json:"version"`
 }
 
-// InteractionData is the command data payload
-type InteractionData struct {
+// ComponentInteractionData is the command data payload
+type ComponentInteractionData struct {
+	CustomID *string `json:"custom_id,omitempty"`
+	Name     *string `json:"component_type,omitempty"`
+}
+
+// SlashCommandInteractionData is the command data payload
+type SlashCommandInteractionData struct {
 	ID       Snowflake     `json:"id"`
 	Name     string        `json:"name"`
 	Resolved *Resolved     `json:"resolved"`

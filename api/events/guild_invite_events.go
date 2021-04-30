@@ -35,10 +35,12 @@ func (e GenericGuildInviteEvent) TextChannel() *api.TextChannel {
 func (e GenericGuildInviteEvent) VoiceChannel() *api.VoiceChannel {
 	return e.Disgo().Cache().VoiceChannel(e.ChannelID)
 }
+
 // StoreChannel returns the api.StoreChannel the GenericGuildInviteEvent happened in(returns nil if the api.StoreChannel is uncached or api.CacheFlagStoreChannels is disabled)
 func (e GenericGuildInviteEvent) StoreChannel() *api.StoreChannel {
 	return e.Disgo().Cache().StoreChannel(e.ChannelID)
 }
+
 // Category returns the api.Category the GenericGuildInviteEvent happened in(returns nil if the api.Category is uncached or api.CacheFlagCategories is disabled)
 func (e GenericGuildInviteEvent) Category() *api.Category {
 	return e.Disgo().Cache().Category(e.ChannelID)

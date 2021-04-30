@@ -266,6 +266,7 @@ type MessageReaction struct {
 // MessageUpdate is used to edit a Message
 type MessageUpdate struct {
 	Content         *string          `json:"content,omitempty"`
+	Components      []*Component     `json:"components,omitempty"`
 	Embed           *Embed           `json:"embed,omitempty"`
 	Flags           *MessageFlags    `json:"flags,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
@@ -274,6 +275,7 @@ type MessageUpdate struct {
 // MessageCreate is the struct to create a new Message with
 type MessageCreate struct {
 	Content          *string           `json:"content,omitempty"`
+	Components       []*Component      `json:"components,omitempty"`
 	TTS              *bool             `json:"tts,omitempty"`
 	Embed            *Embed            `json:"embed,omitempty"`
 	AllowedMentions  *AllowedMentions  `json:"allowed_mentions,omitempty"`

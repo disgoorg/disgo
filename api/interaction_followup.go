@@ -7,6 +7,7 @@ type FollowupMessage struct {
 	Content         *string          `json:"content,omitempty"`
 	TTS             *bool            `json:"tts,omitempty"`
 	Embeds          []*Embed         `json:"embeds,omitempty"`
+	Components      []interface{}    `json:"components,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
 	Flags           *MessageFlags    `json:"flags,omitempty"`
 }
@@ -67,6 +68,12 @@ func (b *FollowupMessageBuilder) RemoveEmbed(index int) *FollowupMessageBuilder 
 	if b != nil && len(b.Embeds) > index {
 		b.Embeds = append(b.Embeds[:index], b.Embeds[index+1:]...)
 	}
+	return b
+}
+
+// SetComponents sets the Component(s) of the FollowupMessage
+func (b *FollowupMessageBuilder) SetComponents(components ...interface{}) *FollowupMessageBuilder {
+	b.Components = components
 	return b
 }
 

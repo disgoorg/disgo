@@ -124,6 +124,7 @@ type ListenerAdapter struct {
 	// api.Interaction Events
 	OnGenericInteractionEvent func(event *GenericInteractionEvent)
 	OnSlashCommand            func(event *SlashCommandEvent)
+	OnButtonClick             func(event *ButtonClickEvent)
 
 	// api.Message Events
 	OnGenericMessageEvent func(event *GenericMessageEvent)
@@ -508,6 +509,10 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 	case SlashCommandEvent:
 		if listener := l.OnSlashCommand; listener != nil {
+			listener(&e)
+		}
+	case ButtonClickEvent:
+		if listener := l.OnButtonClick; listener != nil {
 			listener(&e)
 		}
 

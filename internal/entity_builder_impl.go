@@ -14,21 +14,18 @@ type EntityBuilderImpl struct {
 }
 
 // Disgo returns the api.Disgo client
-func (b EntityBuilderImpl) Disgo() api.Disgo {
+func (b *EntityBuilderImpl) Disgo() api.Disgo {
 	return b.disgo
 }
 
-// CreateInteraction returns a new api.Interaction entity
-func (b EntityBuilderImpl) CreateInteraction(interaction *api.Interaction, updateCache api.CacheStrategy) *api.Interaction {
-	if interaction.Member != nil {
-		interaction.Member = b.CreateMember(*interaction.GuildID, interaction.Member, api.CacheStrategyYes)
-	}
-	if interaction.User != nil {
-		interaction.User = b.CreateUser(interaction.User, updateCache)
-	}
+func (b *EntityBuilderImpl) CreateComponentInteraction(interactionData *api.ComponentInteractionData, updateCache api.CacheStrategy) *api.ComponentInteractionData {
 
-	if interaction.Data != nil && interaction.Data.Resolved != nil {
-		resolved := interaction.Data.Resolved
+	return interactionData
+}
+
+func (b *EntityBuilderImpl) CreateApplicationCommandInteraction(interactionData *api.SlashCommandInteractionData, updateCache api.CacheStrategy) *api.SlashCommandInteractionData {
+	if interactionData.Resolved != nil {
+		resolved := interactionData.Resolved
 		if resolved.Users != nil {
 			for _, user := range resolved.Users {
 				user = b.CreateUser(user, updateCache)
@@ -37,12 +34,12 @@ func (b EntityBuilderImpl) CreateInteraction(interaction *api.Interaction, updat
 		if resolved.Members != nil {
 			for id, member := range resolved.Members {
 				member.User = resolved.Users[id]
-				member = b.CreateMember(*interaction.GuildID, member, updateCache)
+				member = b.CreateMember(member.GuildID, member, updateCache)
 			}
 		}
 		if resolved.Roles != nil {
 			for _, role := range resolved.Roles {
-				role = b.CreateRole(*interaction.GuildID, role, updateCache)
+				role = b.CreateRole(role.GuildID, role, updateCache)
 			}
 		}
 		// TODO how do we cache partial channels?
@@ -53,11 +50,22 @@ func (b EntityBuilderImpl) CreateInteraction(interaction *api.Interaction, updat
 			}
 		}*/
 	}
+	return interactionData
+}
+
+// CreateInteraction returns a new api.Interaction entity
+func (b *EntityBuilderImpl) CreateInteraction(interaction *api.Interaction, updateCache api.CacheStrategy) *api.Interaction {
+	if interaction.Member != nil {
+		interaction.Member = b.CreateMember(*interaction.GuildID, interaction.Member, api.CacheStrategyYes)
+	}
+	if interaction.User != nil {
+		interaction.User = b.CreateUser(interaction.User, updateCache)
+	}
 	return interaction
 }
 
 // CreateGlobalCommand returns a new api.Command entity
-func (b EntityBuilderImpl) CreateGlobalCommand(command *api.Command, updateCache api.CacheStrategy) *api.Command {
+func (b *EntityBuilderImpl) CreateGlobalCommand(command *api.Command, updateCache api.CacheStrategy) *api.Command {
 	command.Disgo = b.Disgo()
 	if updateCache(b.Disgo()) {
 		return b.Disgo().Cache().CacheGlobalCommand(command)
@@ -66,7 +74,7 @@ func (b EntityBuilderImpl) CreateGlobalCommand(command *api.Command, updateCache
 }
 
 // CreateUser returns a new api.User entity
-func (b EntityBuilderImpl) CreateUser(user *api.User, updateCache api.CacheStrategy) *api.User {
+func (b *EntityBuilderImpl) CreateUser(user *api.User, updateCache api.CacheStrategy) *api.User {
 	user.Disgo = b.Disgo()
 	if updateCache(b.Disgo()) {
 		return b.Disgo().Cache().CacheUser(user)
@@ -75,7 +83,7 @@ func (b EntityBuilderImpl) CreateUser(user *api.User, updateCache api.CacheStrat
 }
 
 // CreateMessage returns a new api.Message entity
-func (b EntityBuilderImpl) CreateMessage(message *api.Message, updateCache api.CacheStrategy) *api.Message {
+func (b *EntityBuilderImpl) CreateMessage(message *api.Message, updateCache api.CacheStrategy) *api.Message {
 	message.Disgo = b.Disgo()
 	if message.Member != nil {
 		message.Member = b.CreateMember(*message.GuildID, message.Member, updateCache)
@@ -91,7 +99,7 @@ func (b EntityBuilderImpl) CreateMessage(message *api.Message, updateCache api.C
 }
 
 // CreateGuild returns a new api.Guild entity
-func (b EntityBuilderImpl) CreateGuild(guild *api.Guild, updateCache api.CacheStrategy) *api.Guild {
+func (b *EntityBuilderImpl) CreateGuild(guild *api.Guild, updateCache api.CacheStrategy) *api.Guild {
 	guild.Disgo = b.Disgo()
 	if updateCache(b.Disgo()) {
 		return b.Disgo().Cache().CacheGuild(guild)
@@ -100,7 +108,7 @@ func (b EntityBuilderImpl) CreateGuild(guild *api.Guild, updateCache api.CacheSt
 }
 
 // CreateMember returns a new api.Member entity
-func (b EntityBuilderImpl) CreateMember(guildID api.Snowflake, member *api.Member, updateCache api.CacheStrategy) *api.Member {
+func (b *EntityBuilderImpl) CreateMember(guildID api.Snowflake, member *api.Member, updateCache api.CacheStrategy) *api.Member {
 	member.Disgo = b.Disgo()
 	member.GuildID = guildID
 	member.User = b.CreateUser(member.User, updateCache)
@@ -111,7 +119,7 @@ func (b EntityBuilderImpl) CreateMember(guildID api.Snowflake, member *api.Membe
 }
 
 // CreateVoiceState returns a new api.VoiceState entity
-func (b EntityBuilderImpl) CreateVoiceState(guildID api.Snowflake, voiceState *api.VoiceState, updateCache api.CacheStrategy) *api.VoiceState {
+func (b *EntityBuilderImpl) CreateVoiceState(guildID api.Snowflake, voiceState *api.VoiceState, updateCache api.CacheStrategy) *api.VoiceState {
 	voiceState.Disgo = b.Disgo()
 	voiceState.GuildID = guildID
 	b.Disgo().Logger().Infof("voiceState: %+v", voiceState)
@@ -123,7 +131,7 @@ func (b EntityBuilderImpl) CreateVoiceState(guildID api.Snowflake, voiceState *a
 }
 
 // CreateGuildCommand returns a new api.Command entity
-func (b EntityBuilderImpl) CreateGuildCommand(guildID api.Snowflake, command *api.Command, updateCache api.CacheStrategy) *api.Command {
+func (b *EntityBuilderImpl) CreateGuildCommand(guildID api.Snowflake, command *api.Command, updateCache api.CacheStrategy) *api.Command {
 	command.Disgo = b.Disgo()
 	command.GuildID = &guildID
 	if updateCache(b.Disgo()) {
@@ -133,7 +141,7 @@ func (b EntityBuilderImpl) CreateGuildCommand(guildID api.Snowflake, command *ap
 }
 
 // CreateGuildCommandPermissions returns a new api.GuildCommandPermissions entity
-func (b EntityBuilderImpl) CreateGuildCommandPermissions(guildCommandPermissions *api.GuildCommandPermissions, updateCache api.CacheStrategy) *api.GuildCommandPermissions {
+func (b *EntityBuilderImpl) CreateGuildCommandPermissions(guildCommandPermissions *api.GuildCommandPermissions, updateCache api.CacheStrategy) *api.GuildCommandPermissions {
 	guildCommandPermissions.Disgo = b.Disgo()
 	if updateCache(b.Disgo()) && b.Disgo().Cache().CacheFlags().Has(api.CacheFlagCommandPermissions) {
 		if cmd := b.Disgo().Cache().Command(guildCommandPermissions.ID); cmd != nil {
@@ -144,7 +152,7 @@ func (b EntityBuilderImpl) CreateGuildCommandPermissions(guildCommandPermissions
 }
 
 // CreateRole returns a new api.Role entity
-func (b EntityBuilderImpl) CreateRole(guildID api.Snowflake, role *api.Role, updateCache api.CacheStrategy) *api.Role {
+func (b *EntityBuilderImpl) CreateRole(guildID api.Snowflake, role *api.Role, updateCache api.CacheStrategy) *api.Role {
 	role.Disgo = b.Disgo()
 	role.GuildID = guildID
 	if updateCache(b.Disgo()) {
@@ -154,7 +162,7 @@ func (b EntityBuilderImpl) CreateRole(guildID api.Snowflake, role *api.Role, upd
 }
 
 // CreateTextChannel returns a new api.TextChannel entity
-func (b EntityBuilderImpl) CreateTextChannel(channel *api.Channel, updateCache api.CacheStrategy) *api.TextChannel {
+func (b *EntityBuilderImpl) CreateTextChannel(channel *api.Channel, updateCache api.CacheStrategy) *api.TextChannel {
 	channel.Disgo = b.Disgo()
 	textChannel := &api.TextChannel{
 		MessageChannel: api.MessageChannel{
@@ -171,7 +179,7 @@ func (b EntityBuilderImpl) CreateTextChannel(channel *api.Channel, updateCache a
 }
 
 // CreateVoiceChannel returns a new api.VoiceChannel entity
-func (b EntityBuilderImpl) CreateVoiceChannel(channel *api.Channel, updateCache api.CacheStrategy) *api.VoiceChannel {
+func (b *EntityBuilderImpl) CreateVoiceChannel(channel *api.Channel, updateCache api.CacheStrategy) *api.VoiceChannel {
 	channel.Disgo = b.Disgo()
 	voiceChannel := &api.VoiceChannel{
 		GuildChannel: api.GuildChannel{
@@ -185,7 +193,7 @@ func (b EntityBuilderImpl) CreateVoiceChannel(channel *api.Channel, updateCache 
 }
 
 // CreateStoreChannel returns a new api.StoreChannel entity
-func (b EntityBuilderImpl) CreateStoreChannel(channel *api.Channel, updateCache api.CacheStrategy) *api.StoreChannel {
+func (b *EntityBuilderImpl) CreateStoreChannel(channel *api.Channel, updateCache api.CacheStrategy) *api.StoreChannel {
 	channel.Disgo = b.Disgo()
 	storeChannel := &api.StoreChannel{
 		GuildChannel: api.GuildChannel{
@@ -199,7 +207,7 @@ func (b EntityBuilderImpl) CreateStoreChannel(channel *api.Channel, updateCache 
 }
 
 // CreateCategory returns a new api.Category entity
-func (b EntityBuilderImpl) CreateCategory(channel *api.Channel, updateCache api.CacheStrategy) *api.Category {
+func (b *EntityBuilderImpl) CreateCategory(channel *api.Channel, updateCache api.CacheStrategy) *api.Category {
 	channel.Disgo = b.Disgo()
 	category := &api.Category{
 		GuildChannel: api.GuildChannel{
@@ -213,7 +221,7 @@ func (b EntityBuilderImpl) CreateCategory(channel *api.Channel, updateCache api.
 }
 
 // CreateDMChannel returns a new api.DMChannel entity
-func (b EntityBuilderImpl) CreateDMChannel(channel *api.Channel, updateCache api.CacheStrategy) *api.DMChannel {
+func (b *EntityBuilderImpl) CreateDMChannel(channel *api.Channel, updateCache api.CacheStrategy) *api.DMChannel {
 	channel.Disgo = b.Disgo()
 	dmChannel := &api.DMChannel{
 		MessageChannel: api.MessageChannel{
@@ -227,7 +235,7 @@ func (b EntityBuilderImpl) CreateDMChannel(channel *api.Channel, updateCache api
 }
 
 // CreateEmote returns a new api.Emote entity
-func (b EntityBuilderImpl) CreateEmote(guildID api.Snowflake, emote *api.Emote, updateCache api.CacheStrategy) *api.Emote {
+func (b *EntityBuilderImpl) CreateEmote(guildID api.Snowflake, emote *api.Emote, updateCache api.CacheStrategy) *api.Emote {
 	emote.Disgo = b.Disgo()
 	emote.GuildID = guildID
 	if updateCache(b.Disgo()) {

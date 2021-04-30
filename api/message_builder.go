@@ -51,6 +51,12 @@ func (b *MessageBuilder) SetEmbed(embed *Embed) *MessageBuilder {
 	return b
 }
 
+// SetComponents sets the Component(s) of the Message
+func (b *MessageBuilder) SetComponents(components ...*Component) *MessageBuilder {
+	b.Components = components
+	return b
+}
+
 // SetAllowedMentions sets the AllowedMentions of the Message
 func (b *MessageBuilder) SetAllowedMentions(allowedMentions *AllowedMentions) *MessageBuilder {
 	b.AllowedMentions = allowedMentions

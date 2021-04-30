@@ -1,6 +1,7 @@
 package events
 
 import "github.com/DisgoOrg/disgo/api"
+
 // GenericGuildMessageReactionEvent is called upon receiving DMMessageReactionAddEvent or DMMessageReactionRemoveEvent
 type GenericGuildMessageReactionEvent struct {
 	GenericGuildMessageEvent
@@ -8,6 +9,7 @@ type GenericGuildMessageReactionEvent struct {
 	Member          *api.Member
 	MessageReaction api.MessageReaction
 }
+
 // GuildMessageReactionAddEvent indicates that a api.Member added a api.MessageReaction to a api.Message in a api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)
 type GuildMessageReactionAddEvent struct {
 	GenericGuildMessageReactionEvent
