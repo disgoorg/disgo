@@ -7,7 +7,7 @@ type FollowupMessage struct {
 	Content         *string          `json:"content,omitempty"`
 	TTS             *bool            `json:"tts,omitempty"`
 	Embeds          []*Embed         `json:"embeds,omitempty"`
-	Components      []interface{}    `json:"components,omitempty"`
+	Components      []Component    `json:"components,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
 	Flags           *MessageFlags    `json:"flags,omitempty"`
 }
