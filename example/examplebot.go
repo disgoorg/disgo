@@ -225,7 +225,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 
 	case "test":
 		go func() {
-			_ = event.Acknowledge()
+			_ = event.Acknowledge(true)
 
 			time.Sleep(2 * time.Second)
 			_, _ = event.EditOriginal(api.NewFollowupMessageBuilder().

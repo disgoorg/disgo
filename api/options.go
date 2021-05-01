@@ -9,7 +9,7 @@ import (
 // Options is the configuration used when creating the client
 type Options struct {
 	Logger                    log.Logger
-	GatewayIntents                   GatewayIntents
+	GatewayIntents            GatewayIntents
 	RestTimeout               int
 	EnableWebhookInteractions bool
 	ListenPort                int

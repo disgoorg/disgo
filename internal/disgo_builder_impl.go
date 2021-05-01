@@ -29,7 +29,7 @@ type DisgoBuilderImpl struct {
 	memberCachePolicy        api.MemberCachePolicy
 	messageCachePolicy       api.MessageCachePolicy
 	cacheFlags               api.CacheFlags
-	GatewayIntents                  api.GatewayIntents
+	gatewayIntents           api.GatewayIntents
 	rawGatewayEventsEnabled  bool
 	entityBuilder            api.EntityBuilder
 	eventManager             api.EventManager
@@ -61,7 +61,7 @@ func (b *DisgoBuilderImpl) SetHTTPClient(httpClient *http.Client) api.DisgoBuild
 
 // SetGatewayIntents sets the api.GatewayIntents to connect to discord
 func (b *DisgoBuilderImpl) SetGatewayIntents(GatewayIntents api.GatewayIntents) api.DisgoBuilder {
-	b.GatewayIntents = GatewayIntents
+	b.gatewayIntents = GatewayIntents
 	return b
 }
 
@@ -204,7 +204,7 @@ func (b *DisgoBuilderImpl) Build() (api.Disgo, error) {
 	}
 	disgo.audioController = b.audioController
 
-	disgo.GatewayIntents = b.GatewayIntents
+	disgo.gatewayIntents = b.gatewayIntents
 
 	if b.entityBuilder == nil {
 		b.entityBuilder = newEntityBuilderImpl(disgo)
