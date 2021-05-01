@@ -10,7 +10,7 @@ const (
 	_
 	InteractionResponseTypeChannelMessageWithSource
 	InteractionResponseTypeDeferredChannelMessageWithSource
-	_
+	InteractionResponseTypeButtonAck
 	InteractionResponseTypeButtonResponse
 )
 
