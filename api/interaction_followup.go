@@ -72,7 +72,7 @@ func (b *FollowupMessageBuilder) RemoveEmbed(index int) *FollowupMessageBuilder 
 }
 
 // SetComponents sets the Component(s) of the FollowupMessage
-func (b *FollowupMessageBuilder) SetComponents(components ...interface{}) *FollowupMessageBuilder {
+func (b *FollowupMessageBuilder) SetComponents(components ...Component) *FollowupMessageBuilder {
 	b.Components = components
 	return b
 }
