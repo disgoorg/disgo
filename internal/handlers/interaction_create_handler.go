@@ -17,16 +17,16 @@ func (h InteractionCreateHandler) Event() api.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h InteractionCreateHandler) New() interface{} {
-	return &api.Interaction{}
+	return &api.FullInteraction{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h InteractionCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
-	interaction, ok := i.(*api.FullInteraction)
+	fullInteraction, ok := i.(*api.FullInteraction)
 	if !ok {
 		return
 	}
-	handleInteraction(disgo, eventManager, sequenceNumber, interaction, nil)
+	handleInteraction(disgo, eventManager, sequenceNumber, fullInteraction, nil)
 }
 
 func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, fullInteraction *api.FullInteraction, c chan *api.InteractionResponse) {
@@ -87,5 +87,11 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceN
 			disgo.Logger().Errorf("failed to unmarshal ComponentInteractionData: %s", err)
 			return
 		}
+		eventManager.Dispatch(events.ButtonClickEvent{
+			GenericInteractionEvent: genericInteractionEvent,
+			CustomID:                data.CustomID,
+			ComponentType:           data.Type,
+			Message:                 fullInteraction.Message,
+		})
 	}
 }

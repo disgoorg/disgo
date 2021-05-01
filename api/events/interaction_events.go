@@ -15,6 +15,21 @@ type GenericInteractionEvent struct {
 	Replied         bool
 }
 
+// Reply replies to the api.Interaction with the provided api.InteractionResponse
+func (e *GenericInteractionEvent) Reply(response *api.InteractionResponse) error {
+	if e.Replied {
+		return errors.New("you already replied to this interaction")
+	}
+	e.Replied = true
+
+	if e.FromWebhook {
+		e.ResponseChannel <- response
+		return nil
+	}
+
+	return e.Disgo().RestClient().SendInteractionResponse(e.Interaction.ID, e.Interaction.Token, response)
+}
+
 // Guild returns the api.Guild from the api.Cache
 func (e GenericInteractionEvent) Guild() *api.Guild {
 	if e.Interaction.GuildID == nil {
@@ -111,22 +126,7 @@ func (e SlashCommandEvent) OptionsT(optionType api.CommandOptionType) []*api.Opt
 
 // Acknowledge replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource
 func (e *SlashCommandEvent) Acknowledge() error {
-	return e.Reply(api.NewInteractionResponseBuilder().SetType(api.InteractionResponseTypeDeferredChannelMessageWithSource).Build())
-}
-
-// Reply replies to the api.Interaction with the provided api.InteractionResponse
-func (e *SlashCommandEvent) Reply(response *api.InteractionResponse) error {
-	if e.Replied {
-		return errors.New("you already replied to this interaction")
-	}
-	e.Replied = true
-
-	if e.FromWebhook {
-		e.ResponseChannel <- response
-		return nil
-	}
-
-	return e.Disgo().RestClient().SendInteractionResponse(e.Interaction.ID, e.Interaction.Token, response)
+	return e.Reply(&api.InteractionResponse{Type: api.InteractionResponseTypeDeferredChannelMessageWithSource})
 }
 
 // EditOriginal edits the original api.InteractionResponse
@@ -156,6 +156,7 @@ func (e *SlashCommandEvent) DeleteFollowup(messageID api.Snowflake) error {
 
 type ButtonClickEvent struct {
 	GenericInteractionEvent
-	CustomID      *string            `json:"custom_id,omitempty"`
-	ComponentType *api.ComponentType `json:"component_type,omitempty"`
+	CustomID      string
+	ComponentType api.ComponentType
+	Message       *api.Message
 }

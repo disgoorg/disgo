@@ -34,13 +34,16 @@ func main() {
 
 	dgo, err := disgo.NewBuilder(os.Getenv("token")).
 		SetLogger(logger).
+		SetRawGatewayEventsEnabled(true).
 		SetHTTPClient(client).
 		SetGatewayIntents(api.GatewayIntentsGuilds | api.GatewayIntentsGuildMessages | api.GatewayIntentsGuildMembers).
 		SetMemberCachePolicy(api.MemberCachePolicyAll).
 		AddEventListeners(&events.ListenerAdapter{
+			OnRawGateway:         rawGatewayEventListener,
 			OnGuildAvailable:     guildAvailListener,
 			OnGuildMessageCreate: messageListener,
 			OnSlashCommand:       slashCommandListener,
+			OnButtonClick:        buttonClickListener,
 		}).
 		Build()
 	if err != nil {
@@ -168,11 +171,32 @@ func guildAvailListener(event *events.GuildAvailableEvent) {
 	logger.Printf("guild loaded: %s", event.Guild.ID)
 }
 
+func rawGatewayEventListener(event *events.RawGatewayEvent) {
+	if event.Type == api.GatewayEventInteractionCreate {
+		println(string(event.RawPayload))
+	}
+}
+
+func buttonClickListener(event *events.ButtonClickEvent) {
+	switch event.CustomID {
+	case "test":
+		err := event.Reply(&api.InteractionResponse{
+			Type: api.InteractionResponseTypeButtonResponse,
+			Data: &api.ButtonResponseData{
+				Content: nil,
+				//Components:      nil,
+			},
+		})
+		if err != nil {
+			logger.Errorf("error sending interaction response: %s", err)
+		}
+	}
+}
+
 func slashCommandListener(event *events.SlashCommandEvent) {
 	switch event.CommandName {
 	case "eval":
 		go func() {
-			start := time.Now()
 			code := event.Option("code").String()
 			embed := api.NewEmbedBuilder().
 				SetColor(orange).
@@ -180,15 +204,14 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 				AddField("Time", "...", true).
 				AddField("Code", "```go\n"+code+"\n```", false).
 				AddField("Output", "```\n...\n```", false)
+			_ = event.Reply(api.NewCommandResponseBuilder().SetEmbeds(embed.Build()).Build())
 
-			_ = event.Reply(api.NewInteractionResponseBuilder().SetEmbeds(embed.Build()).Build())
-
-			vars := map[string]interface{}{
+			start := time.Now()
+			output, err := gval.Evaluate(code, map[string]interface{}{
 				"disgo": event.Disgo(),
 				"dgo":   event.Disgo(),
 				"event": event,
-			}
-			output, err := gval.Evaluate(code, vars)
+			})
 
 			elapsed := time.Since(start)
 			embed.SetField(1, "Time", strconv.Itoa(int(elapsed.Milliseconds()))+"ms", true)
@@ -205,7 +228,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 				)
 				return
 			}
-			_, _ = event.EditOriginal(api.NewFollowupMessageBuilder().
+			_, err = event.EditOriginal(api.NewFollowupMessageBuilder().
 				SetEmbeds(embed.
 					SetColor(green).
 					SetField(0, "Status", "Success", true).
@@ -213,47 +236,56 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 					Build(),
 				).
 				Build(),
-			)
+			); if err != nil {
+				logger.Errorf("error sending interaction response: %s", err)
+			}
 		}()
 
 	case "say":
-		_ = event.Reply(api.NewInteractionResponseBuilder().
+		_ = event.Reply(api.NewCommandResponseBuilder().
 			SetContent(event.Option("message").String()).
 			SetAllowedMentionsEmpty().
 			Build(),
 		)
 
 	case "test":
-		_ = event.Reply(api.NewInteractionResponseBuilder().
+		if err := event.Reply(api.NewCommandResponseBuilder().
 			SetEphemeral(true).
-			SetContent("followup 2 only you can see").
-			SetComponents(&api.Buttons{
-				Component: api.Component{
-					Type: api.ComponentTypeButtons,
-				},
-				Buttons: []*api.Button{
-					{
-						Component: api.Component{
-							Type: api.ComponentTypeButton,
-						},
-						CustomID: "1",
-						Label:    "test",
+			SetContent("test1").
+			SetEmbeds(api.NewEmbedBuilder().SetDescription("this message should have some buttons").Build()).
+			SetComponents(api.NewRow(
+				api.NewBlurpleButton("test", "test", api.NewEmoji("❌"), false),
+				api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewCustomEmoji("837665167780216852"), false),
+				api.NewSelect("select", "placeholder", 1, 2,
+					&api.SelectOption{
+						Label:       "test1",
+						Value:       "value1",
+						Default:     false,
+						Description: "value1",
 					},
-				},
-			}).
+					&api.SelectOption{
+						Label:       "test2",
+						Value:       "value2",
+						Default:     false,
+						Description: "value2",
+					},
+				),
+			)).
 			Build(),
-		)
+		); err != nil {
+			logger.Errorf("error sending interaction response: %s", err)
+		}
 
 	case "addrole":
 		user := event.Option("member").User()
 		role := event.Option("role").Role()
 		err := event.Disgo().RestClient().AddMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
 		if err == nil {
-			_ = event.Reply(api.NewInteractionResponseBuilder().AddEmbeds(
+			_ = event.Reply(api.NewCommandResponseBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(green).SetDescriptionf("Added %s to %s", role, user).Build(),
 			).Build())
 		} else {
-			_ = event.Reply(api.NewInteractionResponseBuilder().AddEmbeds(
+			_ = event.Reply(api.NewCommandResponseBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(red).SetDescriptionf("Failed to add %s to %s", role, user).Build(),
 			).Build())
 		}
@@ -263,11 +295,11 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 		role := event.Option("role").Role()
 		err := event.Disgo().RestClient().RemoveMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
 		if err == nil {
-			_ = event.Reply(api.NewInteractionResponseBuilder().AddEmbeds(
+			_ = event.Reply(api.NewCommandResponseBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Removed %s from %s", role, user).Build(),
 			).Build())
 		} else {
-			_ = event.Reply(api.NewInteractionResponseBuilder().AddEmbeds(
+			_ = event.Reply(api.NewCommandResponseBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(16711680).SetDescriptionf("Failed to remove %s from %s", role, user).Build(),
 			).Build())
 		}

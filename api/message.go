@@ -88,15 +88,15 @@ func (f MessageFlags) Missing(bit MessageFlags) bool {
 
 // Constants for MessageFlags
 const (
-	MessageFlagNone        MessageFlags = 0
-	MessageFlagCrossposted MessageFlags = 1 << (iota - 1)
+	MessageFlagCrossposted MessageFlags = 1 << iota
 	MessageFlagIsCrosspost
 	MessageFlagSuppressEmbeds
 	MessageFlagSourceMessageDeleted
 	MessageFlagUrgent
 	_
 	MessageFlagEphemeral
-	MessageFlagLoading // Message is an interaction of type 5, awaiting further response
+	MessageFlagLoading              // Message is an interaction of type 5, awaiting further response
+	MessageFlagNone    MessageFlags = 0
 )
 
 //MessageAttachment is used for files sent in a Message
@@ -166,7 +166,7 @@ type Message struct {
 	Attachments       []*MessageAttachment `json:"attachments"`
 	TTS               bool                 `json:"tts"`
 	Embeds            []*Embed             `json:"embeds,omitempty"`
-	Components        []*Component         `json:"components,omitempty"`
+	Components        []Component         `json:"components,omitempty"`
 	CreatedAt         time.Time            `json:"timestamp"`
 	Mentions          []interface{}        `json:"mentions"`
 	MentionEveryone   bool                 `json:"mention_everyone"`
@@ -266,7 +266,7 @@ type MessageReaction struct {
 // MessageUpdate is used to edit a Message
 type MessageUpdate struct {
 	Content         *string          `json:"content,omitempty"`
-	Components      []*Component     `json:"components,omitempty"`
+	Components      []Component     `json:"components,omitempty"`
 	Embed           *Embed           `json:"embed,omitempty"`
 	Flags           *MessageFlags    `json:"flags,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
@@ -275,7 +275,7 @@ type MessageUpdate struct {
 // MessageCreate is the struct to create a new Message with
 type MessageCreate struct {
 	Content          *string           `json:"content,omitempty"`
-	Components       []*Component      `json:"components,omitempty"`
+	Components       []Component      `json:"components,omitempty"`
 	TTS              *bool             `json:"tts,omitempty"`
 	Embed            *Embed            `json:"embed,omitempty"`
 	AllowedMentions  *AllowedMentions  `json:"allowed_mentions,omitempty"`

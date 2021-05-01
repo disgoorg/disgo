@@ -14,7 +14,8 @@ const (
 
 type FullInteraction struct {
 	*Interaction
-	Data json.RawMessage `json:"data,omitempty"`
+	Data    json.RawMessage `json:"data,omitempty"`
+	Message *Message        `json:"message,omitempty"`
 }
 
 // An Interaction is the slash command object you receive when a user uses one of your commands
@@ -31,8 +32,8 @@ type Interaction struct {
 
 // ComponentInteractionData is the command data payload
 type ComponentInteractionData struct {
-	CustomID *string `json:"custom_id,omitempty"`
-	Name     *string `json:"component_type,omitempty"`
+	CustomID string        `json:"custom_id"`
+	Type     ComponentType `json:"component_type"`
 }
 
 // SlashCommandInteractionData is the command data payload

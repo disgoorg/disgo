@@ -52,7 +52,7 @@ func (b *MessageBuilder) SetEmbed(embed *Embed) *MessageBuilder {
 }
 
 // SetComponents sets the Component(s) of the Message
-func (b *MessageBuilder) SetComponents(components ...*Component) *MessageBuilder {
+func (b *MessageBuilder) SetComponents(components ...Component) *MessageBuilder {
 	b.Components = components
 	return b
 }
