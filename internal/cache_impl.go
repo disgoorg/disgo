@@ -51,6 +51,7 @@ type CacheImpl struct {
 	dmChannels         map[api.Snowflake]*api.DMChannel
 	categories         map[api.Snowflake]map[api.Snowflake]*api.Category
 	textChannels       map[api.Snowflake]map[api.Snowflake]*api.TextChannel
+	threads            map[api.Snowflake]map[api.Snowflake]*api.Thread
 	voiceChannels      map[api.Snowflake]map[api.Snowflake]*api.VoiceChannel
 	storeChannels      map[api.Snowflake]map[api.Snowflake]*api.StoreChannel
 	emotes             map[api.Snowflake]map[api.Snowflake]*api.Emote
@@ -913,6 +914,99 @@ func (c *CacheImpl) FindTextChannels(guildID api.Snowflake, check func(u *api.Te
 	}
 	return textChannels
 }
+
+// TextChannel returns a text channel from cache by ID
+func (c *CacheImpl) Thread(threadID api.Snowflake) *api.Thread {
+	for _, guild := range c.threads {
+		if channel, ok := guild[threadID]; ok {
+			return channel
+		}
+	}
+	return nil
+}
+
+// TextChannelsByName returns text channel from cache by guild ID and name
+func (c *CacheImpl) ThreadsByName(guildID api.Snowflake, name string, ignoreCase bool) []*api.Thread {
+	if guildTextChannels, ok := c.threads[guildID]; ok {
+		if ignoreCase {
+			name = strings.ToLower(name)
+		}
+		threads := make([]*api.TextChannel, 1)
+		for _, channel := range guildTextChannels {
+			if ignoreCase && strings.ToLower(*channel.MessageChannel.Name) == name || !ignoreCase && *channel.MessageChannel.Name == name {
+				threads = append(threads, channel)
+			}
+		}
+		return threads
+	}
+	return nil
+}
+
+// TextChannels returns the text channel cache from a guild
+func (c *CacheImpl) Threads(guildID api.Snowflake) []*api.Thread {
+	if guildTextChannels, ok := c.threads[guildID]; ok {
+		threads := make([]*api.TextChannel, len(guildTextChannels))
+		i := 0
+		for _, thread := range guildTextChannels {
+			threads[i] = thread
+			i++
+		}
+		return threads
+	}
+	return nil
+}
+
+// TextChannelCache returns the channel cache as a map
+func (c *CacheImpl) ThreadCache(guildID api.Snowflake) map[api.Snowflake]*api.Thread {
+	return c.threads[guildID]
+}
+
+// CacheTextChannel adds a channel to the cache
+func (c *CacheImpl) CacheThread(thread *api.TextChannel) *api.Thread {
+	if c.cacheFlags.Missing(api.CacheFlagTextChannels) {
+		return thread
+	}
+	if guildThreads, ok := c.threads[*thread.GuildChannel.GuildID]; ok {
+		if guildThread, ok := guildThreads[thread.MessageChannel.ID]; ok {
+			*guildThread = *thread
+			return guildTextChannel
+		}
+		guildTextChannels[thread.MessageChannel.ID] = thread
+	}
+	return thread
+}
+
+// UncacheTextChannel removes a text channel from the cache
+func (c *CacheImpl) UncacheThread(guildID api.Snowflake, threadID api.Snowflake) {
+	// TODO: check this
+	// should be okay to just uncache all messages if the channel gets uncached as that should mean it got deleted
+	if _, ok := c.messages[threadID]; ok {
+		delete(c.messages, threadID)
+	}
+	delete(c.threads[guildID], threadID)
+}
+
+// FindTextChannel finds a text channel in a guild by custom method
+func (c *CacheImpl) FindThread(guildID api.Snowflake, check func(u *api.TextChannel) bool) *api.Thread {
+	for _, thread := range c.TextChannelCache(guildID) {
+		if check(thread) {
+			return thread
+		}
+	}
+	return nil
+}
+
+// FindTextChannels finds text channels in a guild by custom method
+func (c *CacheImpl) FindThreads(guildID api.Snowflake, check func(u *api.TextChannel) bool) []*api.TextChannel {
+	threads := make([]*api.TextChannel, 1)
+	for _, thread := range c.TextChannelCache(guildID) {
+		if check(thread) {
+			threads = append(threads, thread)
+		}
+	}
+	return threads
+}
+
 
 //StoreChannel returns a store channel from cache by ID
 func (c *CacheImpl) StoreChannel(storeChannelID api.Snowflake) *api.StoreChannel {

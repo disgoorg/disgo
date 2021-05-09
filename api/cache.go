@@ -89,6 +89,15 @@ type Cache interface {
 	FindTextChannel(Snowflake, func(*TextChannel) bool) *TextChannel
 	FindTextChannels(Snowflake, func(*TextChannel) bool) []*TextChannel
 
+	Thread(Snowflake) *Thread
+	ThreadsByName(Snowflake, string, bool) []*Thread
+	Threads(Snowflake) []*Thread
+	ThreadCache(Snowflake) map[Snowflake]*Thread
+	CacheThread(*Thread) *Thread
+	UncacheThread(Snowflake, Snowflake)
+	FindThread(Snowflake, func(*Thread) bool) *Thread
+	FindThreads(Snowflake, func(*Thread) bool) []*Thread
+
 	StoreChannel(Snowflake) *StoreChannel
 	StoreChannelsByName(Snowflake, string, bool) []*StoreChannel
 	StoreChannels(Snowflake) []*StoreChannel
