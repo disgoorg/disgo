@@ -180,11 +180,34 @@ func rawGatewayEventListener(event *events.RawGatewayEvent) {
 func buttonClickListener(event *events.ButtonClickEvent) {
 	switch event.CustomID {
 	case "test":
+		content := "test2"
 		err := event.Reply(&api.InteractionResponse{
 			Type: api.InteractionResponseTypeButtonResponse,
 			Data: &api.ButtonResponseData{
-				Content: nil,
-				//Components:      nil,
+				Content: &content,
+				Components: []api.Component{
+					api.NewRow(
+						api.NewBlurpleButton("test2", "test2", api.NewEmoji("✔"), false),
+						api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewCustomEmoji("837665167780216852"), false),
+					),
+				},
+			},
+		})
+		if err != nil {
+			logger.Errorf("error sending interaction response: %s", err)
+		}
+	case "test2":
+		content := "test"
+		err := event.Reply(&api.InteractionResponse{
+			Type: api.InteractionResponseTypeButtonResponse,
+			Data: &api.ButtonResponseData{
+				Content: &content,
+				Components: []api.Component{
+					api.NewRow(
+						api.NewBlurpleButton("test", "test", api.NewEmoji("❌"), false),
+						api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewCustomEmoji("837665167780216852"), false),
+					),
+				},
 			},
 		})
 		if err != nil {
@@ -236,7 +259,8 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 					Build(),
 				).
 				Build(),
-			); if err != nil {
+			)
+			if err != nil {
 				logger.Errorf("error sending interaction response: %s", err)
 			}
 		}()
@@ -253,24 +277,28 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 			SetEphemeral(true).
 			SetContent("test1").
 			SetEmbeds(api.NewEmbedBuilder().SetDescription("this message should have some buttons").Build()).
-			SetComponents(api.NewRow(
-				api.NewBlurpleButton("test", "test", api.NewEmoji("❌"), false),
-				api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewCustomEmoji("837665167780216852"), false),
-				api.NewSelect("select", "placeholder", 1, 2,
-					&api.SelectOption{
-						Label:       "test1",
-						Value:       "value1",
-						Default:     false,
-						Description: "value1",
-					},
-					&api.SelectOption{
-						Label:       "test2",
-						Value:       "value2",
-						Default:     false,
-						Description: "value2",
-					},
+			SetComponents(
+				api.NewRow(
+					api.NewBlurpleButton("test", "test", api.NewEmoji("❌"), false),
+					api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewCustomEmoji("837665167780216852"), false),
 				),
-			)).
+				/*api.NewRow(
+					api.NewSelect("select", "placeholder", 1, 2,
+						&api.SelectOption{
+							Label:       "test1",
+							Value:       "value1",
+							Default:     true,
+							Description: "value1",
+						},
+						&api.SelectOption{
+							Label:       "test2",
+							Value:       "value2",
+							Default:     false,
+							Description: "value2",
+						},
+					),
+				),*/
+			).
 			Build(),
 		); err != nil {
 			logger.Errorf("error sending interaction response: %s", err)
