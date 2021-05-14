@@ -35,7 +35,7 @@ type RestClient interface {
 	BulkDeleteMessages(channelID Snowflake, messageIDs ...Snowflake) error
 	CrosspostMessage(channelID Snowflake, messageID Snowflake) (*Message, error)
 
-	OpenDMChannel(userID Snowflake) (*DMChannel, error)
+	OpenDMChannel(userID Snowflake) (DMChannel, error)
 
 	UpdateSelfNick(guildID Snowflake, nick *string) (*string, error)
 

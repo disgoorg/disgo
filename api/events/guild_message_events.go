@@ -16,7 +16,7 @@ func (e GenericGuildMessageEvent) Guild() *api.Guild {
 }
 
 // TextChannel returns the api.TextChannel from the api.Cache
-func (e GenericGuildMessageEvent) TextChannel() *api.TextChannel {
+func (e GenericGuildMessageEvent) TextChannel() api.TextChannel {
 	return e.Disgo().Cache().TextChannel(e.ChannelID)
 }
 

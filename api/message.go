@@ -37,23 +37,23 @@ const (
 type MessageFlags int64
 
 // Add allows you to add multiple bits together, producing a new bit
-func (f MessageFlags) Add(bits ...MessageFlags) *MessageFlags {
+func (f MessageFlags) Add(bits ...MessageFlags) MessageFlags {
 	total := MessageFlags(0)
 	for _, bit := range bits {
 		total |= bit
 	}
 	f |= total
-	return &f
+	return f
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
-func (f MessageFlags) Remove(bits ...MessageFlags) *MessageFlags {
+func (f MessageFlags) Remove(bits ...MessageFlags) MessageFlags {
 	total := MessageFlags(0)
 	for _, bit := range bits {
 		total |= bit
 	}
 	f &^= total
-	return &f
+	return f
 }
 
 // HasAll will ensure that the bit includes all of the bits entered
@@ -170,7 +170,7 @@ type Message struct {
 	Mentions          []interface{}        `json:"mentions"`
 	MentionEveryone   bool                 `json:"mention_everyone"`
 	MentionRoles      []*Role              `json:"mention_roles"`
-	MentionChannels   []*Channel           `json:"mention_channels"`
+	MentionChannels   []*ChannelImpl       `json:"mention_channels"`
 	Pinned            bool                 `json:"pinned"`
 	EditedTimestamp   *time.Time           `json:"edited_timestamp"`
 	Author            *User                `json:"author"`
@@ -213,8 +213,8 @@ func (m *Message) Guild() *Guild {
 	return m.Disgo.Cache().Guild(*m.GuildID)
 }
 
-// Channel gets the channel the message_events was sent in
-func (m *Message) Channel() *MessageChannel {
+// ChannelImpl gets the channel the message_events was sent in
+func (m *Message) Channel() MessageChannel {
 	return m.Disgo.Cache().MessageChannel(m.ChannelID)
 }
 
@@ -241,7 +241,7 @@ func (m *Message) Delete() error {
 // Crosspost crossposts an existing message
 func (m *Message) Crosspost() (*Message, error) {
 	channel := m.Channel()
-	if channel != nil && channel.Type != ChannelTypeNews {
+	if channel != nil && !channel.NewsChannel() {
 		return nil, errors.New("channel type is not NEWS")
 	}
 	return m.Disgo.RestClient().CrosspostMessage(m.ChannelID, m.ID)

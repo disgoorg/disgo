@@ -8,7 +8,7 @@ type FollowupMessage struct {
 	TTS             *bool            `json:"tts,omitempty"`
 	Embeds          []*Embed         `json:"embeds,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
-	Flags           *MessageFlags    `json:"flags,omitempty"`
+	Flags           MessageFlags    `json:"flags,omitempty"`
 }
 
 // FollowupMessageBuilder allows you to create an FollowupMessage with ease
@@ -83,7 +83,7 @@ func (b *FollowupMessageBuilder) SetAllowedMentionsEmpty() *FollowupMessageBuild
 
 // SetFlags sets the message flags of the FollowupMessage
 func (b *FollowupMessageBuilder) SetFlags(flags MessageFlags) *FollowupMessageBuilder {
-	b.Flags = &flags
+	b.Flags = flags
 	return b
 }
 

@@ -9,6 +9,7 @@ const (
 	CacheFlagDMChannels CacheFlags = 1 << iota
 	CacheFlagCategories
 	CacheFlagTextChannels
+	CacheFlagThreads
 	CacheFlagVoiceChannels
 	CacheFlagStoreChannels
 	CacheFlagRoles
@@ -20,6 +21,7 @@ const (
 	CacheFlagsDefault = CacheFlagDMChannels |
 		CacheFlagCategories |
 		CacheFlagTextChannels |
+		CacheFlagThreads |
 		CacheFlagVoiceChannels |
 		CacheFlagStoreChannels |
 		CacheFlagRoles |

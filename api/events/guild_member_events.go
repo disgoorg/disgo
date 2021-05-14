@@ -42,6 +42,6 @@ type GuildMemberTypingEvent struct {
 }
 
 // TextChannel returns the api.TextChannel the GuildMemberTypingEvent happened in
-func (e GuildMemberTypingEvent) TextChannel() *api.TextChannel {
+func (e GuildMemberTypingEvent) TextChannel() api.TextChannel {
 	return e.Disgo().Cache().TextChannel(e.ChannelID)
 }

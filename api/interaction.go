@@ -32,10 +32,10 @@ type InteractionData struct {
 
 // Resolved contains resolved mention data
 type Resolved struct {
-	Users    map[Snowflake]*User    `json:"users,omitempty"`
-	Members  map[Snowflake]*Member  `json:"members,omitempty"`
-	Roles    map[Snowflake]*Role    `json:"roles,omitempty"`
-	Channels map[Snowflake]*Channel `json:"channels,omitempty"`
+	Users    map[Snowflake]*User        `json:"users,omitempty"`
+	Members  map[Snowflake]*Member      `json:"members,omitempty"`
+	Roles    map[Snowflake]*Role        `json:"roles,omitempty"`
+	Channels map[Snowflake]*ChannelImpl `json:"channels,omitempty"`
 }
 
 // OptionData is used for options or subcommands in your slash commands
@@ -89,61 +89,70 @@ func (o Option) Role() *Role {
 	return o.Resolved.Roles[o.Snowflake()]
 }
 
-// Channel returns the Option.Value as Channel
-func (o Option) Channel() *Channel {
+// Channel returns the Option.Value as ChannelImpl
+func (o Option) Channel() Channel {
 	return o.Resolved.Channels[o.Snowflake()]
 }
 
 // MessageChannel returns the Option.Value as MessageChannel
-func (o Option) MessageChannel() *MessageChannel {
+func (o Option) MessageChannel() MessageChannel {
 	channel := o.Channel()
-	if channel == nil || (channel.Type != ChannelTypeText && channel.Type != ChannelTypeNews) {
+	if channel == nil || !channel.MessageChannel() {
 		return nil
 	}
-	return &MessageChannel{Channel: *channel}
+	return channel.(MessageChannel)
 }
 
 // GuildChannel returns the Option.Value as GuildChannel
-func (o Option) GuildChannel() *GuildChannel {
+func (o Option) GuildChannel() GuildChannel {
 	channel := o.Channel()
-	if channel == nil || (channel.Type != ChannelTypeText && channel.Type != ChannelTypeNews && channel.Type != ChannelTypeCategory && channel.Type != ChannelTypeStore && channel.Type != ChannelTypeVoice) {
+	if channel == nil || !channel.GuildChannel() {
 		return nil
 	}
-	return &GuildChannel{Channel: *channel}
+	return channel.(GuildChannel)
 }
 
 // VoiceChannel returns the Option.Value as VoiceChannel
-func (o Option) VoiceChannel() *VoiceChannel {
+func (o Option) VoiceChannel() VoiceChannel {
 	channel := o.Channel()
-	if channel == nil || channel.Type != ChannelTypeVoice {
+	if channel == nil || !channel.VoiceChannel() {
 		return nil
 	}
-	return &VoiceChannel{GuildChannel: GuildChannel{Channel: *channel}}
+	return channel.(VoiceChannel)
 }
 
 // TextChannel returns the Option.Value as TextChannel
-func (o Option) TextChannel() *TextChannel {
+func (o Option) TextChannel() TextChannel {
 	channel := o.Channel()
-	if channel == nil || (channel.Type != ChannelTypeText && channel.Type != ChannelTypeNews) {
+	if channel == nil || !channel.TextChannel() {
 		return nil
 	}
-	return &TextChannel{GuildChannel: GuildChannel{Channel: *channel}, MessageChannel: MessageChannel{Channel: *channel}}
+	return channel.(TextChannel)
+}
+
+// Thread returns the Option.Value as Thread
+func (o Option) Thread() Thread {
+	channel := o.Channel()
+	if channel == nil || !channel.Thread() {
+		return nil
+	}
+	return channel.(Thread)
 }
 
 // Category returns the Option.Value as Category
-func (o Option) Category() *Category {
+func (o Option) Category() Category {
 	channel := o.Channel()
-	if channel == nil || channel.Type != ChannelTypeCategory {
+	if channel == nil || !channel.Category() {
 		return nil
 	}
-	return &Category{GuildChannel: GuildChannel{Channel: *channel}}
+	return channel.(Category)
 }
 
 // StoreChannel returns the Option.Value as StoreChannel
-func (o Option) StoreChannel() *StoreChannel {
+func (o Option) StoreChannel() StoreChannel {
 	channel := o.Channel()
-	if channel == nil || channel.Type != ChannelTypeStore {
+	if channel == nil || !channel.StoreChannel() {
 		return nil
 	}
-	return &StoreChannel{GuildChannel: GuildChannel{Channel: *channel}}
+	return channel.(StoreChannel)
 }

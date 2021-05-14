@@ -211,7 +211,7 @@ func (r RestClientImpl) CrosspostMessage(channelID api.Snowflake, messageID api.
 }
 
 // OpenDMChannel opens a new dm channel a user
-func (r RestClientImpl) OpenDMChannel(userID api.Snowflake) (channel *api.DMChannel, err error) {
+func (r RestClientImpl) OpenDMChannel(userID api.Snowflake) (dmChannel api.DMChannel, err error) {
 	compiledRoute, err := endpoints.CreateDMChannel.Compile()
 	if err != nil {
 		return nil, err
@@ -221,9 +221,10 @@ func (r RestClientImpl) OpenDMChannel(userID api.Snowflake) (channel *api.DMChan
 	}{
 		RecipientID: userID,
 	}
+	var channel *api.ChannelImpl
 	err = r.Request(compiledRoute, body, &channel)
 	if err == nil {
-		channel = r.Disgo().EntityBuilder().CreateDMChannel(&channel.MessageChannel.Channel, api.CacheStrategyNoWs)
+		dmChannel = r.Disgo().EntityBuilder().CreateDMChannel(channel, api.CacheStrategyNoWs)
 	}
 	return
 }

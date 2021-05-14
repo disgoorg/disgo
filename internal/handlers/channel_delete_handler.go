@@ -15,25 +15,25 @@ func (h ChannelDeleteHandler) Event() api.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h ChannelDeleteHandler) New() interface{} {
-	return &api.Channel{}
+	return &api.ChannelImpl{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h ChannelDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
-	channel, ok := i.(*api.Channel)
+	channel, ok := i.(*api.ChannelImpl)
 	if !ok {
 		return
 	}
 
 	genericChannelEvent := events.GenericChannelEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		ChannelID:    channel.ID,
+		ChannelID:    channel.ID(),
 	}
 	eventManager.Dispatch(genericChannelEvent)
 
-	switch channel.Type {
+	switch channel.Type() {
 	case api.ChannelTypeDM:
-		disgo.Cache().UncacheDMChannel(channel.ID)
+		disgo.Cache().UncacheDMChannel(channel.ID())
 
 		genericDMChannelEvent := events.GenericDMChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
@@ -41,7 +41,7 @@ func (h ChannelDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		}
 		eventManager.Dispatch(genericDMChannelEvent)
 
-		eventManager.Dispatch(events.DMChannelCreateEvent{
+		eventManager.Dispatch(events.DMChannelDeleteEvent{
 			GenericDMChannelEvent: genericDMChannelEvent,
 		})
 
@@ -49,7 +49,7 @@ func (h ChannelDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		disgo.Logger().Warnf("ChannelTypeGroupDM received what the hell discord")
 
 	case api.ChannelTypeText, api.ChannelTypeNews:
-		disgo.Cache().UncacheTextChannel(*channel.GuildID, channel.ID)
+		disgo.Cache().UncacheTextChannel(channel.GuildID(), channel.ID())
 
 		genericTextChannelEvent := events.GenericTextChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
@@ -57,12 +57,12 @@ func (h ChannelDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		}
 		eventManager.Dispatch(genericTextChannelEvent)
 
-		eventManager.Dispatch(events.TextChannelCreateEvent{
+		eventManager.Dispatch(events.TextChannelDeleteEvent{
 			GenericTextChannelEvent: genericTextChannelEvent,
 		})
 
 	case api.ChannelTypeStore:
-		disgo.Cache().UncacheStoreChannel(*channel.GuildID, channel.ID)
+		disgo.Cache().UncacheStoreChannel(channel.GuildID(), channel.ID())
 
 		genericStoreChannelEvent := events.GenericStoreChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
@@ -70,12 +70,12 @@ func (h ChannelDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		}
 		eventManager.Dispatch(genericStoreChannelEvent)
 
-		eventManager.Dispatch(events.StoreChannelCreateEvent{
+		eventManager.Dispatch(events.StoreChannelDeleteEvent{
 			GenericStoreChannelEvent: genericStoreChannelEvent,
 		})
 
 	case api.ChannelTypeCategory:
-		disgo.Cache().UncacheCategory(*channel.GuildID, channel.ID)
+		disgo.Cache().UncacheCategory(channel.GuildID(), channel.ID())
 
 		genericCategoryEvent := events.GenericCategoryEvent{
 			GenericChannelEvent: genericChannelEvent,
@@ -83,12 +83,12 @@ func (h ChannelDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		}
 		eventManager.Dispatch(genericCategoryEvent)
 
-		eventManager.Dispatch(events.CategoryCreateEvent{
+		eventManager.Dispatch(events.CategoryDeleteEvent{
 			GenericCategoryEvent: genericCategoryEvent,
 		})
 
 	case api.ChannelTypeVoice:
-		disgo.Cache().UncacheVoiceChannel(*channel.GuildID, channel.ID)
+		disgo.Cache().UncacheVoiceChannel(channel.GuildID(), channel.ID())
 
 		genericVoiceChannelEvent := events.GenericVoiceChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
@@ -96,7 +96,7 @@ func (h ChannelDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		}
 		eventManager.Dispatch(genericVoiceChannelEvent)
 
-		eventManager.Dispatch(events.VoiceChannelCreateEvent{
+		eventManager.Dispatch(events.VoiceChannelDeleteEvent{
 			GenericVoiceChannelEvent: genericVoiceChannelEvent,
 		})
 

@@ -15,23 +15,23 @@ func (h ChannelCreateHandler) Event() api.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h ChannelCreateHandler) New() interface{} {
-	return &api.Channel{}
+	return &api.ChannelImpl{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
-	channel, ok := i.(*api.Channel)
+	channel, ok := i.(*api.ChannelImpl)
 	if !ok {
 		return
 	}
 
 	genericChannelEvent := events.GenericChannelEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		ChannelID:    channel.ID,
+		ChannelID:    channel.ID(),
 	}
 	eventManager.Dispatch(genericChannelEvent)
 
-	switch channel.Type {
+	switch channel.Type() {
 	case api.ChannelTypeDM:
 		dmChannel := disgo.EntityBuilder().CreateDMChannel(channel, api.CacheStrategyYes)
 

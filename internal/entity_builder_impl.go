@@ -110,6 +110,17 @@ func (b EntityBuilderImpl) CreateMember(guildID api.Snowflake, member *api.Membe
 	return member
 }
 
+// CreateThreadMember returns a new api.ThreadMember entity
+func (b EntityBuilderImpl) CreateThreadMember(guildID api.Snowflake, member *api.ThreadMember, updateCache api.CacheStrategy) *api.ThreadMember {
+	member.Disgo = b.Disgo()
+	member.GuildID = guildID
+
+	if updateCache(b.Disgo()) {
+		return b.Disgo().Cache().CacheThreadMember(member)
+	}
+	return member
+}
+
 // CreateVoiceState returns a new api.VoiceState entity
 func (b EntityBuilderImpl) CreateVoiceState(guildID api.Snowflake, voiceState *api.VoiceState, updateCache api.CacheStrategy) *api.VoiceState {
 	voiceState.Disgo = b.Disgo()
@@ -154,76 +165,63 @@ func (b EntityBuilderImpl) CreateRole(guildID api.Snowflake, role *api.Role, upd
 }
 
 // CreateTextChannel returns a new api.TextChannel entity
-func (b EntityBuilderImpl) CreateTextChannel(channel *api.Channel, updateCache api.CacheStrategy) *api.TextChannel {
-	channel.Disgo = b.Disgo()
-	textChannel := &api.TextChannel{
-		MessageChannel: api.MessageChannel{
-			Channel: *channel,
-		},
-		GuildChannel: api.GuildChannel{
-			Channel: *channel,
-		},
-	}
+func (b EntityBuilderImpl) CreateTextChannel(channel *api.ChannelImpl, updateCache api.CacheStrategy) api.TextChannel {
+	channel.Disgo_ = b.Disgo()
+
 	if updateCache(b.Disgo()) {
-		return b.Disgo().Cache().CacheTextChannel(textChannel)
+		return b.Disgo().Cache().CacheTextChannel(channel)
 	}
-	return textChannel
+	return channel
+}
+
+// CreateThread returns a new api.Thread entity
+func (b EntityBuilderImpl) CreateThread(channel *api.ChannelImpl, updateCache api.CacheStrategy) api.Thread {
+	channel.Disgo_ = b.Disgo()
+
+	if updateCache(b.Disgo()) {
+		return b.Disgo().Cache().CacheThread(channel)
+	}
+	return channel
 }
 
 // CreateVoiceChannel returns a new api.VoiceChannel entity
-func (b EntityBuilderImpl) CreateVoiceChannel(channel *api.Channel, updateCache api.CacheStrategy) *api.VoiceChannel {
-	channel.Disgo = b.Disgo()
-	voiceChannel := &api.VoiceChannel{
-		GuildChannel: api.GuildChannel{
-			Channel: *channel,
-		},
-	}
+func (b EntityBuilderImpl) CreateVoiceChannel(channel *api.ChannelImpl, updateCache api.CacheStrategy) api.VoiceChannel {
+	channel.Disgo_ = b.Disgo()
+
 	if updateCache(b.Disgo()) {
-		return b.Disgo().Cache().CacheVoiceChannel(voiceChannel)
+		return b.Disgo().Cache().CacheVoiceChannel(channel)
 	}
-	return voiceChannel
+	return channel
 }
 
 // CreateStoreChannel returns a new api.StoreChannel entity
-func (b EntityBuilderImpl) CreateStoreChannel(channel *api.Channel, updateCache api.CacheStrategy) *api.StoreChannel {
-	channel.Disgo = b.Disgo()
-	storeChannel := &api.StoreChannel{
-		GuildChannel: api.GuildChannel{
-			Channel: *channel,
-		},
-	}
+func (b EntityBuilderImpl) CreateStoreChannel(channel *api.ChannelImpl, updateCache api.CacheStrategy) api.StoreChannel {
+	channel.Disgo_ = b.Disgo()
+
 	if updateCache(b.Disgo()) {
-		return b.Disgo().Cache().CacheStoreChannel(storeChannel)
+		return b.Disgo().Cache().CacheStoreChannel(channel)
 	}
-	return storeChannel
+	return channel
 }
 
 // CreateCategory returns a new api.Category entity
-func (b EntityBuilderImpl) CreateCategory(channel *api.Channel, updateCache api.CacheStrategy) *api.Category {
-	channel.Disgo = b.Disgo()
-	category := &api.Category{
-		GuildChannel: api.GuildChannel{
-			Channel: *channel,
-		},
-	}
+func (b EntityBuilderImpl) CreateCategory(channel *api.ChannelImpl, updateCache api.CacheStrategy) api.Category {
+	channel.Disgo_ = b.Disgo()
+
 	if updateCache(b.Disgo()) {
-		return b.Disgo().Cache().CacheCategory(category)
+		return b.Disgo().Cache().CacheCategory(channel)
 	}
-	return category
+	return channel
 }
 
 // CreateDMChannel returns a new api.DMChannel entity
-func (b EntityBuilderImpl) CreateDMChannel(channel *api.Channel, updateCache api.CacheStrategy) *api.DMChannel {
-	channel.Disgo = b.Disgo()
-	dmChannel := &api.DMChannel{
-		MessageChannel: api.MessageChannel{
-			Channel: *channel,
-		},
-	}
+func (b EntityBuilderImpl) CreateDMChannel(channel *api.ChannelImpl, updateCache api.CacheStrategy) api.DMChannel {
+	channel.Disgo_ = b.Disgo()
+
 	if updateCache(b.Disgo()) {
-		return b.Disgo().Cache().CacheDMChannel(dmChannel)
+		return b.Disgo().Cache().CacheDMChannel(channel)
 	}
-	return dmChannel
+	return channel
 }
 
 // CreateEmote returns a new api.Emote entity

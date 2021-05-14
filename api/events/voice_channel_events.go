@@ -7,7 +7,7 @@ import (
 // GenericVoiceChannelEvent is called upon receiving VoiceChannelCreateEvent, VoiceChannelUpdateEvent or VoiceChannelDeleteEvent
 type GenericVoiceChannelEvent struct {
 	GenericChannelEvent
-	VoiceChannel *api.VoiceChannel
+	VoiceChannel api.VoiceChannel
 }
 
 // VoiceChannelCreateEvent indicates that a new api.VoiceChannel got created in a api.Guild
@@ -18,7 +18,7 @@ type VoiceChannelCreateEvent struct {
 // VoiceChannelUpdateEvent indicates that a api.VoiceChannel got updated in a api.Guild
 type VoiceChannelUpdateEvent struct {
 	GenericVoiceChannelEvent
-	OldVoiceChannel *api.VoiceChannel
+	OldVoiceChannel api.VoiceChannel
 }
 
 // VoiceChannelDeleteEvent indicates that a api.VoiceChannel got deleted in a api.Guild

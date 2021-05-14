@@ -49,7 +49,7 @@ func (s VoiceState) Guild() *Guild {
 }
 
 // VoiceChannel returns the VoiceChannel of this VoiceState from the Cache
-func (s VoiceState) VoiceChannel() *VoiceChannel {
+func (s VoiceState) VoiceChannel() VoiceChannel {
 	if s.ChannelID == nil {
 		return nil
 	}

@@ -25,16 +25,18 @@ type EntityBuilder interface {
 
 	CreateGuild(guild *Guild, updateCache CacheStrategy) *Guild
 	CreateMember(guildID Snowflake, member *Member, updateCache CacheStrategy) *Member
+	CreateThreadMember(guildID Snowflake, member *ThreadMember, updateCache CacheStrategy) *ThreadMember
 	CreateGuildCommand(guildID Snowflake, command *Command, updateCache CacheStrategy) *Command
 	CreateGuildCommandPermissions(guildCommandPermissions *GuildCommandPermissions, updateCache CacheStrategy) *GuildCommandPermissions
 	CreateRole(guildID Snowflake, role *Role, updateCache CacheStrategy) *Role
 	CreateVoiceState(guildID Snowflake, voiceState *VoiceState, updateCache CacheStrategy) *VoiceState
 
-	CreateTextChannel(channel *Channel, updateCache CacheStrategy) *TextChannel
-	CreateVoiceChannel(channel *Channel, updateCache CacheStrategy) *VoiceChannel
-	CreateStoreChannel(channel *Channel, updateCache CacheStrategy) *StoreChannel
-	CreateCategory(channel *Channel, updateCache CacheStrategy) *Category
-	CreateDMChannel(channel *Channel, updateCache CacheStrategy) *DMChannel
+	CreateTextChannel(channel *ChannelImpl, updateCache CacheStrategy) TextChannel
+	CreateThread(channel *ChannelImpl, updateCache CacheStrategy) Thread
+	CreateVoiceChannel(channel *ChannelImpl, updateCache CacheStrategy) VoiceChannel
+	CreateStoreChannel(channel *ChannelImpl, updateCache CacheStrategy) StoreChannel
+	CreateCategory(channel *ChannelImpl, updateCache CacheStrategy) Category
+	CreateDMChannel(channel *ChannelImpl, updateCache CacheStrategy) DMChannel
 
 	CreateEmote(guildID Snowflake, emote *Emote, updateCache CacheStrategy) *Emote
 }

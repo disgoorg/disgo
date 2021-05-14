@@ -21,7 +21,7 @@ type ListenerAdapter struct {
 	OnApplicationCommandUpdate       func(event *ApplicationCommandUpdateEvent)
 	OnApplicationCommandDelete       func(event *ApplicationCommandDeleteEvent)
 
-	// api.Channel Events
+	// api.ChannelImpl Events
 	OnGenericChannelEvent func(event *GenericChannelEvent)
 
 	// api.Category Events
@@ -197,7 +197,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(&e)
 		}
 
-	// api.Channel Events
+	// api.ChannelImpl Events
 	case GenericChannelEvent:
 		if listener := l.OnGenericChannelEvent; listener != nil {
 			listener(&e)

@@ -10,7 +10,7 @@ type GenericDMMessageEvent struct {
 }
 
 // DMChannel returns the api.DMChannel where the GenericDMMessageEvent happened
-func (e GenericDMMessageEvent) DMChannel() *api.DMChannel {
+func (e GenericDMMessageEvent) DMChannel() api.DMChannel {
 	return e.Disgo().Cache().DMChannel(e.ChannelID)
 }
 

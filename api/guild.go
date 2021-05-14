@@ -121,12 +121,12 @@ type GuildPreview struct {
 // FullGuild represents a Guild objects sent by discord with the GatewayEventGuildCreate
 type FullGuild struct {
 	*Guild
-	Roles       []*Role       `json:"roles"`
-	Emotes      []*Emote      `json:"emojis"`
-	Members     []*Member     `json:"members"`
-	Channels    []*Channel    `json:"channels"`
-	Threads     []*Thread     `json:"threads"`
-	VoiceStates []*VoiceState `json:"voice_states"`
+	Roles       []*Role        `json:"roles"`
+	Emotes      []*Emote       `json:"emojis"`
+	Members     []*Member      `json:"members"`
+	Channels    []*ChannelImpl `json:"channels"`
+	Threads     []*ChannelImpl `json:"threads"`
+	VoiceStates []*VoiceState  `json:"voice_states"`
 	//Presences   []*Presence     `json:"presences"`
 }
 

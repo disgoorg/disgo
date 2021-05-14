@@ -21,7 +21,7 @@ func (e GenericInteractionEvent) Guild() *api.Guild {
 }
 
 // DMChannel returns the api.DMChannel from the api.Cache
-func (e GenericInteractionEvent) DMChannel() *api.DMChannel {
+func (e GenericInteractionEvent) DMChannel() api.DMChannel {
 	if e.Interaction.ChannelID == nil {
 		return nil
 	}
@@ -29,7 +29,7 @@ func (e GenericInteractionEvent) DMChannel() *api.DMChannel {
 }
 
 // MessageChannel returns the api.MessageChannel from the api.Cache
-func (e GenericInteractionEvent) MessageChannel() *api.MessageChannel {
+func (e GenericInteractionEvent) MessageChannel() api.MessageChannel {
 	if e.Interaction.ChannelID == nil {
 		return nil
 	}
@@ -37,7 +37,7 @@ func (e GenericInteractionEvent) MessageChannel() *api.MessageChannel {
 }
 
 // TextChannel returns the api.TextChannel from the api.Cache
-func (e GenericInteractionEvent) TextChannel() *api.TextChannel {
+func (e GenericInteractionEvent) TextChannel() api.TextChannel {
 	if e.Interaction.ChannelID == nil {
 		return nil
 	}
@@ -45,7 +45,7 @@ func (e GenericInteractionEvent) TextChannel() *api.TextChannel {
 }
 
 // GuildChannel returns the api.GuildChannel from the api.Cache
-func (e GenericInteractionEvent) GuildChannel() *api.GuildChannel {
+func (e GenericInteractionEvent) GuildChannel() api.GuildChannel {
 	if e.Interaction.ChannelID == nil {
 		return nil
 	}

@@ -1,11 +1,23 @@
 package api
 
-import "errors"
+import (
+	"time"
+)
+
+var _ Channel = (*ChannelImpl)(nil)
+var _ MessageChannel = (*ChannelImpl)(nil)
+var _ GuildChannel = (*ChannelImpl)(nil)
+var _ VoiceChannel = (*ChannelImpl)(nil)
+var _ DMChannel = (*ChannelImpl)(nil)
+var _ TextChannel = (*ChannelImpl)(nil)
+var _ Category = (*ChannelImpl)(nil)
+var _ StoreChannel = (*ChannelImpl)(nil)
+var _ Thread = (*ChannelImpl)(nil)
 
 // ChannelType for interacting with discord's channels
 type ChannelType int
 
-// Channel constants
+// ChannelImpl constants
 const (
 	ChannelTypeText ChannelType = iota
 	ChannelTypeDM
@@ -14,105 +26,292 @@ const (
 	ChannelTypeCategory
 	ChannelTypeNews
 	ChannelTypeStore
+	ChannelTypeNewsThread
+	ChannelTypePublicThread
+	ChannelTypePrivateThread
+	ChannelTypeStage
 )
 
-// Channel is a generic discord channel object
-type Channel struct {
-	Disgo            Disgo
-	ID               Snowflake    `json:"id"`
-	Name             *string      `json:"name,omitempty"`
-	Type             ChannelType  `json:"type"`
-	LastMessageID    *Snowflake   `json:"last_message_id,omitempty"`
-	GuildID          *Snowflake   `json:"guild_id,omitempty"`
-	Position         *int         `json:"position,omitempty"`
-	Topic            *string      `json:"topic,omitempty"`
-	NSFW             *bool        `json:"nsfw,omitempty"`
-	Bitrate          *int         `json:"bitrate,omitempty"`
-	UserLimit        *int         `json:"user_limit,omitempty"`
-	RateLimitPerUser *int         `json:"rate_limit_per_user,omitempty"`
-	Recipients       []*User      `json:"recipients,omitempty"`
-	Icon             *string      `json:"icon,omitempty"`
-	OwnerID          *Snowflake   `json:"owner_id,omitempty"`
-	ApplicationID    *Snowflake   `json:"application_id,omitempty"`
-	ParentID         *Snowflake   `json:"parent_id,omitempty"`
-	Permissions      *Permissions `json:"permissions,omitempty"`
-	//LastPinTimestamp *time.Time  `json:"last_pin_timestamp,omitempty"`
+// ChannelImpl is a generic discord channel object
+type ChannelImpl struct {
+	Disgo_            Disgo
+	ID_               Snowflake       `json:"id"`
+	Name_             *string         `json:"name,omitempty"`
+	Type_             ChannelType     `json:"type"`
+	LastMessageID_    *Snowflake      `json:"last_message_id,omitempty"`
+	GuildID_          *Snowflake      `json:"guild_id,omitempty"`
+	Position_         *int            `json:"position,omitempty"`
+	Topic_            *string         `json:"topic,omitempty"`
+	NSFW_             *bool           `json:"nsfw,omitempty"`
+	Bitrate_          *int            `json:"bitrate,omitempty"`
+	UserLimit_        *int            `json:"user_limit,omitempty"`
+	RateLimitPerUser_ *int            `json:"rate_limit_per_user,omitempty"`
+	Recipients_       []*User         `json:"recipients,omitempty"`
+	Icon_             *string         `json:"icon,omitempty"`
+	OwnerID_          *Snowflake      `json:"owner_id,omitempty"`
+	ApplicationID_    *Snowflake      `json:"application_id,omitempty"`
+	ParentID_         *Snowflake      `json:"parent_id,omitempty"`
+	Permissions_      *Permissions    `json:"permissions,omitempty"`
+	LastPinTimestamp_ *time.Time      `json:"last_pin_timestamp,omitempty"`
+	ThreadMetadata_   *ThreadMetadata `json:"thread_metadata,omitempty"`
+}
+
+type Channel interface {
+	Disgo() Disgo
+	ID() Snowflake
+	Name() string
+	Type() ChannelType
+
+	MessageChannel() bool
+	GuildChannel() bool
+	Thread() bool
+	TextChannel() bool
+	VoiceChannel() bool
+	DMChannel() bool
+	Category() bool
+	NewsChannel() bool
+	StoreChannel() bool
+	NewsThread() bool
+	PublicThread() bool
+	PrivateThread() bool
+}
+
+func (c *ChannelImpl) Disgo() Disgo {
+	return c.Disgo_
+}
+
+func (c *ChannelImpl) ID() Snowflake {
+	return c.ID_
+}
+
+func (c *ChannelImpl) Name() string {
+	return *c.Name_
+}
+
+func (c *ChannelImpl) Type() ChannelType {
+	return c.Type_
+}
+
+func (c *ChannelImpl) MessageChannel() bool {
+	return c.TextChannel() || c.NewsChannel() || c.Thread() || c.DMChannel()
+}
+
+func (c *ChannelImpl) GuildChannel() bool {
+	return c.Category() || c.NewsChannel() || c.TextChannel() || c.VoiceChannel() || c.Thread()
+}
+
+func (c *ChannelImpl) Thread() bool {
+	return c.NewsThread() || c.PublicThread() || c.PrivateThread()
+}
+
+func (c *ChannelImpl) DMChannel() bool {
+	return c.Type() != ChannelTypeDM
+}
+
+func (c *ChannelImpl) TextChannel() bool {
+	return c.Type() != ChannelTypeText
+}
+
+func (c *ChannelImpl) VoiceChannel() bool {
+	return c.Type() != ChannelTypeVoice
+}
+
+func (c *ChannelImpl) Category() bool {
+	return c.Type() != ChannelTypeCategory
+}
+
+func (c *ChannelImpl) NewsChannel() bool {
+	return c.Type() != ChannelTypeNews
+}
+
+func (c *ChannelImpl) StoreChannel() bool {
+	return c.Type() != ChannelTypeStore
+}
+
+func (c *ChannelImpl) NewsThread() bool {
+	return c.Type() != ChannelTypeNewsThread
+}
+
+func (c *ChannelImpl) PublicThread() bool {
+	return c.Type() != ChannelTypePublicThread
+}
+
+func (c *ChannelImpl) PrivateThread() bool {
+	return c.Type() != ChannelTypePrivateThread
 }
 
 // MessageChannel is used for sending Message(s) to User(s)
-type MessageChannel struct {
+type MessageChannel interface {
 	Channel
+	NSFW() bool
+	Topic() *string
+	LastMessageID() *Snowflake
+	LastPinTimestamp() *time.Time
+	SendMessage(message *MessageCreate) (*Message, error)
+	EditMessage(messageID Snowflake, message *MessageUpdate) (*Message, error)
+	DeleteMessage(messageID Snowflake) error
+	BulkDeleteMessages(messageIDs ...Snowflake) error
+}
+
+func (c *ChannelImpl) NSFW() bool {
+	if c.NSFW_ == nil {
+		panic("unsupported operation")
+	}
+	return *c.NSFW_
+}
+
+func (c *ChannelImpl) Topic() *string {
+	return c.Topic_
+}
+
+func (c *ChannelImpl) LastMessageID() *Snowflake {
+	return c.LastMessageID_
+}
+
+func (c *ChannelImpl) LastPinTimestamp() *time.Time {
+	return c.LastPinTimestamp_
 }
 
 // SendMessage sends a Message to a TextChannel
-func (c MessageChannel) SendMessage(message *MessageCreate) (*Message, error) {
+func (c ChannelImpl) SendMessage(message *MessageCreate) (*Message, error) {
 	// Todo: attachments
-	return c.Disgo.RestClient().SendMessage(c.ID, message)
+	return c.Disgo().RestClient().SendMessage(c.ID(), message)
 }
 
 // EditMessage edits a Message in this TextChannel
-func (c MessageChannel) EditMessage(messageID Snowflake, message *MessageUpdate) (*Message, error) {
-	return c.Disgo.RestClient().EditMessage(c.ID, messageID, message)
+func (c ChannelImpl) EditMessage(messageID Snowflake, message *MessageUpdate) (*Message, error) {
+	return c.Disgo().RestClient().EditMessage(c.ID(), messageID, message)
 }
 
 // DeleteMessage allows you to edit an existing Message sent by you
-func (c MessageChannel) DeleteMessage(messageID Snowflake) error {
-	return c.Disgo.RestClient().DeleteMessage(c.ID, messageID)
+func (c ChannelImpl) DeleteMessage(messageID Snowflake) error {
+	return c.Disgo().RestClient().DeleteMessage(c.ID(), messageID)
 }
 
 // BulkDeleteMessages allows you bulk delete Message(s)
-func (c MessageChannel) BulkDeleteMessages(messageIDs ...Snowflake) error {
-	return c.Disgo.RestClient().BulkDeleteMessages(c.ID, messageIDs...)
-}
-
-// CrosspostMessage crossposts an existing Message
-func (c MessageChannel) CrosspostMessage(messageID Snowflake) (*Message, error) {
-	if c.Type != ChannelTypeNews {
-		return nil, errors.New("channel type is not NEWS")
-	}
-	return c.Disgo.RestClient().CrosspostMessage(c.ID, messageID)
+func (c ChannelImpl) BulkDeleteMessages(messageIDs ...Snowflake) error {
+	return c.Disgo().RestClient().BulkDeleteMessages(c.ID(), messageIDs...)
 }
 
 // DMChannel is used for interacting in private Message(s) with users
-type DMChannel struct {
+type DMChannel interface {
 	MessageChannel
 }
 
 // GuildChannel is a generic type for all server channels
-type GuildChannel struct {
+type GuildChannel interface {
 	Channel
+	Guild() *Guild
+	GuildID() Snowflake
+	Permissions() Permissions
+	ParentID() *Snowflake
+	Parent() Category
+	Position() int
 }
 
 // Guild returns the channel's Guild
-func (c GuildChannel) Guild() *Guild {
-	if c.GuildID == nil {
+func (c *ChannelImpl) Guild() *Guild {
+	return c.Disgo().Cache().Guild(c.GuildID())
+}
+
+// GuildID returns the channel's Guild ID
+func (c *ChannelImpl) GuildID() Snowflake {
+	if !c.GuildChannel() || c.GuildID_ == nil {
+		panic("unsupported operation")
+	}
+	return *c.GuildID_
+}
+
+func (c *ChannelImpl) Permissions() Permissions {
+	if !c.GuildChannel() || c.Permissions_ == nil {
+		panic("unsupported operation")
+	}
+	return *c.Permissions_
+}
+
+func (c *ChannelImpl) ParentID() *Snowflake {
+	if !c.GuildChannel() || c.ParentID_ == nil {
+		panic("unsupported operation")
+	}
+	return c.ParentID_
+}
+
+func (c *ChannelImpl) Parent() Category {
+	if c.ParentID() == nil {
 		return nil
 	}
-	return c.Disgo.Cache().Guild(*c.GuildID)
+	return c.Disgo().Cache().Category(*c.ParentID())
+}
+
+func (c *ChannelImpl) Position() int {
+	if !c.GuildChannel() || c.Permissions_ == nil {
+		panic("unsupported operation")
+	}
+	return *c.Position_
 }
 
 // Category groups text & voice channels in servers together
-type Category struct {
+type Category interface {
 	GuildChannel
 }
 
 // VoiceChannel adds methods specifically for interacting with discord's voice
-type VoiceChannel struct {
+type VoiceChannel interface {
 	GuildChannel
+	Connect() error
+	Bitrate() int
 }
 
 // Connect sends a api.GatewayCommand to connect to this VoiceChannel
-func (c *VoiceChannel) Connect() error {
-	return c.Disgo.AudioController().Connect(*c.GuildID, c.ID)
+func (c *ChannelImpl) Connect() error {
+	return c.Disgo().AudioController().Connect(c.GuildID(), c.ID())
+}
+
+func (c *ChannelImpl) Bitrate() int {
+	if c.Bitrate_ == nil {
+		panic("unsupported operation")
+	}
+	return *c.Bitrate_
 }
 
 // TextChannel allows you to interact with discord's text channels
-type TextChannel struct {
+type TextChannel interface {
 	GuildChannel
 	MessageChannel
 }
 
+// NewsChannel allows you to interact with discord's text channels
+type NewsChannel interface {
+	TextChannel
+	CrosspostMessage(messageID Snowflake) (*Message, error)
+}
+
+// CrosspostMessage crossposts an existing Message
+func (c ChannelImpl) CrosspostMessage(messageID Snowflake) (*Message, error) {
+	if c.Type() != ChannelTypeNews {
+		panic("channel type is not NEWS")
+	}
+	return c.Disgo().RestClient().CrosspostMessage(c.ID(), messageID)
+}
+
 // StoreChannel allows you to interact with discord's store channels
-type StoreChannel struct {
+type StoreChannel interface {
 	GuildChannel
+}
+
+type Thread interface {
+	TextChannel
+	ThreadMetadata() *ThreadMetadata
+}
+
+func (c *ChannelImpl) ThreadMetadata() *ThreadMetadata {
+	return c.ThreadMetadata_
+}
+
+type ThreadMetadata struct {
+	Archived            bool          `json:"archived"`
+	ArchiverId          *Snowflake    `json:"archiver_id"`
+	AutoArchiveDuration time.Duration `json:"auto_archive_duration"`
+	ArchiveTimestamp    *time.Time    `json:"archive_timestamp"`
+	Locked              bool          `json:"locked"`
 }

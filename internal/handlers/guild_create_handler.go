@@ -34,8 +34,8 @@ func (h GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 	guild := disgo.EntityBuilder().CreateGuild(fullGuild.Guild, api.CacheStrategyYes)
 
 	for _, channel := range fullGuild.Channels {
-		channel.GuildID = &guild.ID
-		switch channel.Type {
+		channel.GuildID_ = &guild.ID
+		switch channel.Type() {
 		case api.ChannelTypeText, api.ChannelTypeNews:
 			disgo.EntityBuilder().CreateTextChannel(channel, api.CacheStrategyYes)
 		case api.ChannelTypeVoice:
@@ -45,6 +45,10 @@ func (h GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 		case api.ChannelTypeStore:
 			disgo.EntityBuilder().CreateStoreChannel(channel, api.CacheStrategyYes)
 		}
+	}
+
+	for _, thread := range fullGuild.Threads {
+		disgo.EntityBuilder().CreateThread(thread, api.CacheStrategyYes)
 	}
 
 	for _, role := range fullGuild.Roles {

@@ -7,7 +7,7 @@ import (
 // GenericStoreChannelEvent is called upon receiving StoreChannelCreateEvent, StoreChannelUpdateEvent or StoreChannelDeleteEvent
 type GenericStoreChannelEvent struct {
 	GenericChannelEvent
-	StoreChannel *api.StoreChannel
+	StoreChannel api.StoreChannel
 }
 
 // StoreChannelCreateEvent indicates that a new api.StoreChannel got created in a api.Guild
@@ -18,7 +18,7 @@ type StoreChannelCreateEvent struct {
 // StoreChannelUpdateEvent indicates that a api.StoreChannel got updated in a api.Guild
 type StoreChannelUpdateEvent struct {
 	GenericStoreChannelEvent
-	OldStoreChannel *api.StoreChannel
+	OldStoreChannel api.StoreChannel
 }
 
 // StoreChannelDeleteEvent indicates that a api.StoreChannel got deleted in a api.Guild

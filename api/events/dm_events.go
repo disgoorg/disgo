@@ -7,7 +7,7 @@ import (
 // GenericDMChannelEvent is called upon receiving DMChannelCreateEvent, DMChannelUpdateEvent, DMChannelDeleteEvent or DMUserTypingEvent
 type GenericDMChannelEvent struct {
 	GenericChannelEvent
-	DMChannel *api.DMChannel
+	DMChannel api.DMChannel
 }
 
 // DMChannelCreateEvent indicates that a new api.DMChannel got created
@@ -18,7 +18,7 @@ type DMChannelCreateEvent struct {
 // DMChannelUpdateEvent indicates that a api.DMChannel got updated
 type DMChannelUpdateEvent struct {
 	GenericDMChannelEvent
-	OldDMChannel *api.DMChannel
+	OldDMChannel api.DMChannel
 }
 
 // DMChannelDeleteEvent indicates that a api.DMChannel got deleted

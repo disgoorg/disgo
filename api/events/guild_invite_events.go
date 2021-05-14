@@ -11,38 +11,38 @@ type GenericGuildInviteEvent struct {
 	ChannelID api.Snowflake
 }
 
-// Channel returns the api.Channel the GenericGuildInviteEvent happened in(returns nil if the api.Channel is uncached or api.Cache is disabled)
-func (e GenericGuildInviteEvent) Channel() *api.Channel {
+// Channel returns the api.ChannelImpl the GenericGuildInviteEvent happened in(returns nil if the api.ChannelImpl is uncached or api.Cache is disabled)
+func (e GenericGuildInviteEvent) Channel() api.Channel {
 	return e.Disgo().Cache().Channel(e.ChannelID)
 }
 
 // GuildChannel returns the api.GuildChannel the GenericGuildInviteEvent happened in(returns nil if the api.GuildChannel is uncached or api.Cache is disabled)
-func (e GenericGuildInviteEvent) GuildChannel() *api.GuildChannel {
+func (e GenericGuildInviteEvent) GuildChannel() api.GuildChannel {
 	return e.Disgo().Cache().GuildChannel(e.ChannelID)
 }
 
 // MessageChannel returns the api.MessageChannel the GenericGuildInviteEvent happened in(returns nil if the api.MessageChannel is uncached or api.Cache is disabled)
-func (e GenericGuildInviteEvent) MessageChannel() *api.TextChannel {
+func (e GenericGuildInviteEvent) MessageChannel() api.TextChannel {
 	return e.Disgo().Cache().TextChannel(e.ChannelID)
 }
 
 // TextChannel returns the api.TextChannel the GenericGuildInviteEvent happened in(returns nil if the api.TextChannel is uncached or api.CacheFlagTextChannels is disabled)
-func (e GenericGuildInviteEvent) TextChannel() *api.TextChannel {
+func (e GenericGuildInviteEvent) TextChannel() api.TextChannel {
 	return e.Disgo().Cache().TextChannel(e.ChannelID)
 }
 
 // VoiceChannel returns the api.VoiceChannel the GenericGuildInviteEvent happened in(returns nil if the api.VoiceChannel is uncached or api.CacheFlagVoiceChannels is disabled)
-func (e GenericGuildInviteEvent) VoiceChannel() *api.VoiceChannel {
+func (e GenericGuildInviteEvent) VoiceChannel() api.VoiceChannel {
 	return e.Disgo().Cache().VoiceChannel(e.ChannelID)
 }
 
 // StoreChannel returns the api.StoreChannel the GenericGuildInviteEvent happened in(returns nil if the api.StoreChannel is uncached or api.CacheFlagStoreChannels is disabled)
-func (e GenericGuildInviteEvent) StoreChannel() *api.StoreChannel {
+func (e GenericGuildInviteEvent) StoreChannel() api.StoreChannel {
 	return e.Disgo().Cache().StoreChannel(e.ChannelID)
 }
 
 // Category returns the api.Category the GenericGuildInviteEvent happened in(returns nil if the api.Category is uncached or api.CacheFlagCategories is disabled)
-func (e GenericGuildInviteEvent) Category() *api.Category {
+func (e GenericGuildInviteEvent) Category() api.Category {
 	return e.Disgo().Cache().Category(e.ChannelID)
 }
 
