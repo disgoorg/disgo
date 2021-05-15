@@ -572,21 +572,23 @@ func (c *CacheImpl) AllThreadMemberCache() map[api.Snowflake]map[api.Snowflake]m
 }
 
 func (c *CacheImpl) CacheThreadMember(member *api.ThreadMember) *api.ThreadMember {
-	// only cache member if we want to & always cache self member!
-	if !c.threadMemberCachePolicy(member) && member.User.ID != member.Disgo.ApplicationID() {
+	// only cache member if we want to & always cache self ThreadMember!
+	if !c.threadMemberCachePolicy(member) && member.UserID != member.Disgo.ApplicationID() {
 		return member
 	}
-	if guildMembers, ok := c.members[member.GuildID]; ok {
-		if guildMember, ok := guildMembers[member.User.ID]; ok {
-			*guildMember = *member
-			return guildMember
+	if guildThreadMembers, ok := c.threadMembers[member.GuildID]; ok {
+		if threadMembers, ok := guildThreadMembers[member.ThreadID]; ok {
+			if threadMember, ok := threadMembers[member.UserID]; ok {
+				*threadMember = *member
+				return threadMember
+			}
+			threadMembers[member.UserID] = member
 		}
-		guildMembers[member.User.ID] = member
 	}
 	return member
 }
 func (c *CacheImpl) UncacheThreadMember(guildID api.Snowflake, threadID api.Snowflake, userID api.Snowflake) {
-	// TODO: add UncacheUser call!
+	// TODO: add UncacheUser call?
 	if guildThreadMembers, ok := c.threadMembers[guildID]; ok {
 		if threadMembers, ok := guildThreadMembers[threadID]; ok {
 			if threadMember, ok := threadMembers[userID]; ok {
@@ -597,6 +599,11 @@ func (c *CacheImpl) UncacheThreadMember(guildID api.Snowflake, threadID api.Snow
 			}
 		}
 	}
+}
+
+// UncacheThreadMembers removes all ThreadsMembers for a Guild from the Cache
+func (c *CacheImpl) UncacheThreadMembers(guildID api.Snowflake) {
+	delete(c.threadMembers, guildID)
 }
 
 // VoiceState returns a Member's api.VoiceState for a api.Guild
@@ -994,7 +1001,7 @@ func (c *CacheImpl) FindTextChannels(guildID api.Snowflake, check func(u api.Tex
 	return textChannels
 }
 
-// Thread returns a text channel from cache by ID
+// Thread returns a thread from cache by ID
 func (c *CacheImpl) Thread(threadID api.Snowflake) api.Thread {
 	for _, guild := range c.threads {
 		if channel, ok := guild[threadID]; ok {
@@ -1040,6 +1047,11 @@ func (c *CacheImpl) ThreadCache(guildID api.Snowflake) map[api.Snowflake]api.Thr
 	return c.threads[guildID]
 }
 
+// AllThreadCache returns the thread cache as a map
+func (c *CacheImpl) AllThreadCache() map[api.Snowflake]map[api.Snowflake]api.Thread {
+	return c.threads
+}
+
 // CacheThread adds a channel to the cache
 func (c *CacheImpl) CacheThread(thread api.Thread) api.Thread {
 	if c.cacheFlags.Missing(api.CacheFlagThreads) {
@@ -1065,6 +1077,11 @@ func (c *CacheImpl) UncacheThread(guildID api.Snowflake, threadID api.Snowflake)
 	delete(c.threads[guildID], threadID)
 }
 
+// UncacheThreads removes all Threads for a Guild from the Cache
+func (c *CacheImpl) UncacheThreads(guildID api.Snowflake) {
+	delete(c.threads, guildID)
+}
+
 // FindThread finds a text channel in a guild by custom method
 func (c *CacheImpl) FindThread(guildID api.Snowflake, check func(u api.Thread) bool) api.Thread {
 	for _, thread := range c.ThreadCache(guildID) {
@@ -1078,7 +1095,7 @@ func (c *CacheImpl) FindThread(guildID api.Snowflake, check func(u api.Thread) b
 // FindThreads finds text channels in a guild by custom method
 func (c *CacheImpl) FindThreads(guildID api.Snowflake, check func(u api.Thread) bool) []api.Thread {
 	threads := make([]api.Thread, 1)
-	for _, thread := range c.TextChannelCache(guildID) {
+	for _, thread := range c.ThreadCache(guildID) {
 		if check(thread) {
 			threads = append(threads, thread)
 		}

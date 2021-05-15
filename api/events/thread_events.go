@@ -25,3 +25,4 @@ type ThreadUpdateEvent struct {
 type ThreadDeleteEvent struct {
 	GenericThreadEvent
 }
+

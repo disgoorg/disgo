@@ -53,6 +53,8 @@ type ChannelImpl struct {
 	ParentID_         *Snowflake      `json:"parent_id,omitempty"`
 	Permissions_      *Permissions    `json:"permissions,omitempty"`
 	LastPinTimestamp_ *time.Time      `json:"last_pin_timestamp,omitempty"`
+	MessageCount_      int             `json:"message_count"`
+	MemberCount_       int             `json:"member_count"`
 	ThreadMetadata_   *ThreadMetadata `json:"thread_metadata,omitempty"`
 }
 
@@ -301,7 +303,17 @@ type StoreChannel interface {
 
 type Thread interface {
 	TextChannel
+	MessageCount() int
+	MemberCount() int
 	ThreadMetadata() *ThreadMetadata
+}
+
+func (c *ChannelImpl) MessageCount() int {
+	return c.MessageCount_
+}
+
+func (c *ChannelImpl) MemberCount() int {
+	return c.MemberCount_
 }
 
 func (c *ChannelImpl) ThreadMetadata() *ThreadMetadata {
@@ -310,8 +322,8 @@ func (c *ChannelImpl) ThreadMetadata() *ThreadMetadata {
 
 type ThreadMetadata struct {
 	Archived            bool          `json:"archived"`
+	ArchiveTimestamp    *time.Time    `json:"archive_timestamp"`
 	ArchiverId          *Snowflake    `json:"archiver_id"`
 	AutoArchiveDuration time.Duration `json:"auto_archive_duration"`
-	ArchiveTimestamp    *time.Time    `json:"archive_timestamp"`
 	Locked              bool          `json:"locked"`
 }

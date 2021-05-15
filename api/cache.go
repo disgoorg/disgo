@@ -25,12 +25,12 @@ type Cache interface {
 	FindUser(func(*User) bool) *User
 	FindUsers(func(*User) bool) []*User
 
-	Guild(Snowflake) *Guild
-	GuildsByName(string, bool) []*Guild
+	Guild(guildId Snowflake) *Guild
+	GuildsByName(name string, ignoreCase bool) []*Guild
 	Guilds() []*Guild
 	GuildCache() map[Snowflake]*Guild
-	CacheGuild(*Guild) *Guild
-	UncacheGuild(Snowflake)
+	CacheGuild(guild *Guild) *Guild
+	UncacheGuild(guildID Snowflake)
 
 	Message(channelID Snowflake, messageID Snowflake) *Message
 	Messages(channelID Snowflake) []*Message
@@ -57,6 +57,7 @@ type Cache interface {
 	AllThreadMemberCache() map[Snowflake]map[Snowflake]map[Snowflake]*ThreadMember
 	CacheThreadMember(member *ThreadMember) *ThreadMember
 	UncacheThreadMember(Snowflake, Snowflake, Snowflake)
+	UncacheThreadMembers(guildID Snowflake)
 
 	VoiceState(guildID Snowflake, userID Snowflake) *VoiceState
 	VoiceStates(guildID Snowflake) []*VoiceState
@@ -100,8 +101,10 @@ type Cache interface {
 	ThreadsByName(Snowflake, string, bool) []Thread
 	Threads(Snowflake) []Thread
 	ThreadCache(Snowflake) map[Snowflake]Thread
+	AllThreadCache() map[Snowflake]map[Snowflake]Thread
 	CacheThread(Thread) Thread
 	UncacheThread(Snowflake, Snowflake)
+	UncacheThreads(guildID Snowflake)
 	FindThread(Snowflake, func(Thread) bool) Thread
 	FindThreads(Snowflake, func(Thread) bool) []Thread
 
