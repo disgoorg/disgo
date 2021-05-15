@@ -2,7 +2,7 @@ package endpoints
 
 // Discord Endpoint Constants
 const (
-	APIVersion = "8"
+	APIVersion = "9"
 	Base       = "https://discord.com/"
 	CDN        = "https://cdn.discordapp.com"
 	API        = Base + "api/v" + APIVersion
