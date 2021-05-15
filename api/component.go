@@ -30,8 +30,12 @@ func (t ComponentImpl) Type() ComponentType {
 	return t.ComponentType
 }
 
-func NewCustomEmoji(emoteID Snowflake) *Emoji {
-	return &Emoji{ID: emoteID}
+func NewEmote(emoteID Snowflake) *Emoji {
+	return &Emoji{ID: emoteID, Animated: false}
+}
+
+func NewAnimatedEmote(emoteID Snowflake) *Emoji {
+	return &Emoji{ID: emoteID, Animated: true}
 }
 
 func NewEmoji(name string) *Emoji {

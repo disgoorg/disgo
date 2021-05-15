@@ -188,7 +188,7 @@ func buttonClickListener(event *events.ButtonClickEvent) {
 				Components: []api.Component{
 					api.NewRow(
 						api.NewBlurpleButton("test2", "test2", api.NewEmoji("✔"), false),
-						api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewCustomEmoji("837665167780216852"), false),
+						api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote("837665167780216852"), false),
 					),
 				},
 			},
@@ -205,7 +205,7 @@ func buttonClickListener(event *events.ButtonClickEvent) {
 				Components: []api.Component{
 					api.NewRow(
 						api.NewBlurpleButton("test", "test", api.NewEmoji("❌"), false),
-						api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewCustomEmoji("837665167780216852"), false),
+						api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote("837665167780216852"), false),
 					),
 				},
 			},
@@ -280,7 +280,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 			SetComponents(
 				api.NewRow(
 					api.NewBlurpleButton("test", "test", api.NewEmoji("❌"), false),
-					api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewCustomEmoji("837665167780216852"), false),
+					api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote("837665167780216852"), false),
 				),
 				/*api.NewRow(
 					api.NewSelect("select", "placeholder", 1, 2,
