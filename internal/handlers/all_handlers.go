@@ -19,6 +19,8 @@ func GetAllHandlers() []api.EventHandler {
 		ThreadDeleteHandler{},
 		ThreadUpdateHandler{},
 		ThreadListSyncHandler{},
+		ThreadMembersUpdateHandler{},
+		ThreadMemberUpdateHandler{},
 
 		GuildCreateHandler{},
 		GuildDeleteHandler{},

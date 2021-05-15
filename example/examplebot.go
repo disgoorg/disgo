@@ -30,7 +30,7 @@ var client = http.DefaultClient
 
 func main() {
 	logger.SetLevel(logrus.DebugLevel)
-	logger.Info("starting TestBot...")
+	logger.Info("starting ExampleBot...")
 
 	dgo, err := disgo.NewBuilder(os.Getenv("token")).
 		SetLogger(logger).

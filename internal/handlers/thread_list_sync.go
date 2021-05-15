@@ -12,7 +12,7 @@ type threadListSyncPayload struct {
 type ThreadListSyncHandler struct{}
 
 func (h ThreadListSyncHandler) Event() api.GatewayEventType {
-	return api.GatewayEventThreadCreate
+	return api.GatewayEventThreadListSync
 }
 
 func (h ThreadListSyncHandler) New() interface{} {
