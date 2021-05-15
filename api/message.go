@@ -20,7 +20,7 @@ const (
 	MessageTypeGuildMemberJoin
 	MessageTypeUserPremiumGuildSubscription
 	MessageTypeUserPremiumGuildSubscriptionTier1
-	MMessageTypeUserPremiumGuildSubscriptionTier2
+	MessageTypeUserPremiumGuildSubscriptionTier2
 	MessageTypeUserPremiumGuildSubscriptionTier3
 	MessageTypeChannelFollowAdd
 	_
@@ -28,9 +28,10 @@ const (
 	MessageTypeGuildDiscoveryRequalified
 	MessageTypeGuildDiscoveryInitialWarning
 	MessageTypeGuildDiscoveryFinalWarning
-	_
+	MessageTypeThreadCreated
 	MessageTypeReply
 	MessageTypeApplicationCommand
+	MessageTypeThreadStarterMessage
 )
 
 // The MessageFlags of a Message

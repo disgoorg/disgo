@@ -1,6 +1,9 @@
 package handlers
 
-import "github.com/DisgoOrg/disgo/api"
+import (
+	"github.com/DisgoOrg/disgo/api"
+	"github.com/DisgoOrg/disgo/api/events"
+)
 
 type threadListSyncPayload struct {
 	GuildID       api.Snowflake       `json:"guild_id"`
@@ -28,11 +31,31 @@ func (h ThreadListSyncHandler) HandleGatewayEvent(disgo api.Disgo, eventManager 
 	disgo.Cache().UncacheThreads(threadListSyncPayload.GuildID)
 	disgo.Cache().UncacheThreadMembers(threadListSyncPayload.GuildID)
 
+	var threads []api.Thread
+
 	for _, thread := range threadListSyncPayload.Threads {
-		disgo.EntityBuilder().CreateThread(thread, api.CacheStrategyYes)
+		threads = append(threads, disgo.EntityBuilder().CreateThread(thread, api.CacheStrategyYes))
 	}
 
 	for _, threadMember := range threadListSyncPayload.ThreadMembers {
 		disgo.EntityBuilder().CreateThreadMember(threadListSyncPayload.GuildID, threadMember, api.CacheStrategyYes)
+	}
+
+	for _, thread := range threads {
+		genericChannelEvent := events.GenericChannelEvent{
+			GenericEvent: events.NewEvent(disgo, sequenceNumber),
+			ChannelID:    thread.ID(),
+		}
+		eventManager.Dispatch(genericChannelEvent)
+
+		genericThreadEvent := events.GenericThreadEvent{
+			GenericChannelEvent: genericChannelEvent,
+			Thread:              thread,
+		}
+		eventManager.Dispatch(genericThreadEvent)
+
+		eventManager.Dispatch(events.ThreadJoinEvent{
+			GenericThreadEvent: genericThreadEvent,
+		})
 	}
 }

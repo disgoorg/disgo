@@ -36,5 +36,9 @@ func (h ThreadCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager ap
 	eventManager.Dispatch(events.ThreadCreateEvent{
 		GenericThreadEvent: genericThreadEvent,
 	})
+
+	eventManager.Dispatch(events.ThreadJoinEvent{
+		GenericThreadEvent: genericThreadEvent,
+	})
 }
 

@@ -26,3 +26,12 @@ type ThreadDeleteEvent struct {
 	GenericThreadEvent
 }
 
+// ThreadJoinEvent indicates you joined a api.Thread
+type ThreadJoinEvent struct {
+	GenericThreadEvent
+}
+
+// ThreadLeaveEvent indicates you left a api.Thread
+type ThreadLeaveEvent struct {
+	GenericThreadEvent
+}
