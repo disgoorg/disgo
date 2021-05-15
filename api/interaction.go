@@ -89,7 +89,7 @@ func (o Option) Role() *Role {
 	return o.Resolved.Roles[o.Snowflake()]
 }
 
-// Channel returns the Option.Value as ChannelImpl
+// Channel returns the Option.Value as Channel
 func (o Option) Channel() Channel {
 	return o.Resolved.Channels[o.Snowflake()]
 }

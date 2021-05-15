@@ -17,7 +17,7 @@ var _ Thread = (*ChannelImpl)(nil)
 // ChannelType for interacting with discord's channels
 type ChannelType int
 
-// ChannelImpl constants
+// Channel constants
 const (
 	ChannelTypeText ChannelType = iota
 	ChannelTypeDM

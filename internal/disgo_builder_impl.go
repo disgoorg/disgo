@@ -27,6 +27,7 @@ type DisgoBuilderImpl struct {
 	audioController          api.AudioController
 	cache                    api.Cache
 	memberCachePolicy        api.MemberCachePolicy
+	threadMemberCachePolicy  api.ThreadMemberCachePolicy
 	messageCachePolicy       api.MessageCachePolicy
 	cacheFlags               api.CacheFlags
 	gatewayIntents           api.GatewayIntents
@@ -135,6 +136,12 @@ func (b *DisgoBuilderImpl) SetMemberCachePolicy(memberCachePolicy api.MemberCach
 	return b
 }
 
+// SetThreadMemberCachePolicy lets you set your own api.ThreadMemberCachePolicy
+func (b *DisgoBuilderImpl) SetThreadMemberCachePolicy(threadMemberCachePolicy api.ThreadMemberCachePolicy) api.DisgoBuilder {
+	b.threadMemberCachePolicy = threadMemberCachePolicy
+	return b
+}
+
 // SetMessageCachePolicy lets you set your own api.MessageCachePolicy
 func (b *DisgoBuilderImpl) SetMessageCachePolicy(messageCachePolicy api.MessageCachePolicy) api.DisgoBuilder {
 	b.messageCachePolicy = messageCachePolicy
@@ -230,7 +237,7 @@ func (b *DisgoBuilderImpl) Build() (api.Disgo, error) {
 		if b.messageCachePolicy == nil {
 			b.messageCachePolicy = api.MessageCachePolicyDefault
 		}
-		b.cache = newCacheImpl(disgo, b.memberCachePolicy, b.messageCachePolicy, b.cacheFlags)
+		b.cache = newCacheImpl(disgo, b.memberCachePolicy, b.threadMemberCachePolicy, b.messageCachePolicy, b.cacheFlags)
 	}
 	disgo.cache = b.cache
 

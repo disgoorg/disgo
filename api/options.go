@@ -10,6 +10,10 @@ import (
 type Options struct {
 	Logger                    log.Logger
 	GatewayIntents            GatewayIntents
+	MemberCachePolicy         MemberCachePolicy
+	ThreadMemberCachePolicy   ThreadMemberCachePolicy
+	MessageCachePolicy        MessageCachePolicy
+	CacheFlags                CacheFlags
 	RestTimeout               int
 	EnableWebhookInteractions bool
 	ListenPort                int

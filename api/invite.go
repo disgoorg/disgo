@@ -60,7 +60,7 @@ type InviteGuild struct {
 	VanityURLCode     *string           `json:"vanity_url_code"`
 }
 
-// InviteChannel is the ChannelImpl of an invite
+// InviteChannel is the Channel of an invite
 type InviteChannel struct {
 	ID   string      `json:"id"`
 	Name string      `json:"name"`

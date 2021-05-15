@@ -23,9 +23,14 @@ type UserTypingEvent struct {
 	ChannelID api.Snowflake
 }
 
-// Channel returns the api.ChannelImpl the api.User started typing in
+// Channel returns the api.Channel the api.User started typing in
 func (e UserTypingEvent) Channel() api.Channel {
 	return e.Disgo().Cache().Channel(e.ChannelID)
+}
+
+// MessageChannel returns the api.MessageChannel the api.User started typing in
+func (e UserTypingEvent) MessageChannel() api.MessageChannel {
+	return e.Disgo().Cache().MessageChannel(e.ChannelID)
 }
 
 // DMChannel returns the api.DMChannel the api.User started typing in

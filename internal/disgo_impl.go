@@ -40,6 +40,8 @@ func New(token string, options api.Options) (api.Disgo, error) {
 
 	disgo.eventManager = newEventManagerImpl(disgo, []api.EventListener{})
 
+	disgo.cache = newCacheImpl(disgo, options.MemberCachePolicy, options.ThreadMemberCachePolicy, options.MessageCachePolicy, options.CacheFlags)
+
 	if options.EnableWebhookInteractions {
 		disgo.webhookServer = newWebhookServerImpl(disgo, options.ListenURL, options.ListenPort, options.PublicKey)
 	}

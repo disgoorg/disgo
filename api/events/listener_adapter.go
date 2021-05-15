@@ -21,7 +21,7 @@ type ListenerAdapter struct {
 	OnApplicationCommandUpdate       func(event *ApplicationCommandUpdateEvent)
 	OnApplicationCommandDelete       func(event *ApplicationCommandDeleteEvent)
 
-	// api.ChannelImpl Events
+	// api.Channel Events
 	OnGenericChannelEvent func(event *GenericChannelEvent)
 
 	// api.Category Events

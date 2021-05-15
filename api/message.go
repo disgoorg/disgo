@@ -213,7 +213,7 @@ func (m *Message) Guild() *Guild {
 	return m.Disgo.Cache().Guild(*m.GuildID)
 }
 
-// ChannelImpl gets the channel the message_events was sent in
+// Channel gets the MessageChannel the message_events was sent in
 func (m *Message) Channel() MessageChannel {
 	return m.Disgo.Cache().MessageChannel(m.ChannelID)
 }
