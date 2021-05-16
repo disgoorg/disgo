@@ -112,9 +112,8 @@ func (e SlashCommandEvent) OptionsT(optionType api.CommandOptionType) []*api.Opt
 func (e *SlashCommandEvent) Acknowledge(ephemeral bool) error {
 	var data *api.InteractionResponseData
 	if ephemeral {
-		flag := api.MessageFlagEphemeral
 		data = &api.InteractionResponseData{
-			Flags: &flag,
+			Flags: api.MessageFlagEphemeral,
 		}
 	}
 	return e.Reply(&api.InteractionResponse{

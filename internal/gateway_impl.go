@@ -73,7 +73,7 @@ func (g *GatewayImpl) Open() error {
 	if g.url == nil {
 		g.Disgo().Logger().Debug("gateway url empty, fetching...")
 		gatewayRs := api.GatewayRs{}
-		compiledRoute, err := endpoints.GetGateway.Compile()
+		compiledRoute, err := endpoints.GetGateway.Compile(nil)
 		if err != nil {
 			return err
 		}

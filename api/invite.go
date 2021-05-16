@@ -31,7 +31,7 @@ type Invite struct {
 
 // URL returns the invite url in format like https://discord.gg/{code}
 func (i Invite) URL() string {
-	url, err := endpoints.InviteURL.Compile(i.Code)
+	url, err := endpoints.InviteURL.Compile(nil, i.Code)
 	if err != nil {
 		return ""
 	}
