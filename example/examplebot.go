@@ -21,9 +21,10 @@ const red = 16711680
 const orange = 16562691
 const green = 65280
 
-const guildID = "817327181659111454"
-const adminRoleID = "817327279583264788"
-const testRoleID = "825156597935243304"
+var guildID = api.Snowflake(os.Getenv("guild_id"))
+var adminRoleID = api.Snowflake(os.Getenv("admin_role_id"))
+var testRoleID = api.Snowflake(os.Getenv("test_role_id"))
+var emoteID = api.Snowflake(os.Getenv("test_emote_id"))
 
 var logger = logrus.New()
 var client = http.DefaultClient
@@ -188,7 +189,7 @@ func buttonClickListener(event *events.ButtonClickEvent) {
 				Components: []api.Component{
 					api.NewRow(
 						api.NewBlurpleButton("test2", "test2", api.NewEmoji("✔"), false),
-						api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote("837665167780216852"), false),
+						api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote(emoteID), false),
 					),
 				},
 			},
@@ -205,7 +206,7 @@ func buttonClickListener(event *events.ButtonClickEvent) {
 				Components: []api.Component{
 					api.NewRow(
 						api.NewBlurpleButton("test", "test", api.NewEmoji("❌"), false),
-						api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote("837665167780216852"), false),
+						api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote(emoteID), false),
 					),
 				},
 			},
@@ -280,7 +281,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 			SetComponents(
 				api.NewRow(
 					api.NewBlurpleButton("test", "test", api.NewEmoji("❌"), false),
-					api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote("837665167780216852"), false),
+					api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote(emoteID), false),
 				),
 				/*api.NewRow(
 					api.NewSelect("select", "placeholder", 1, 2,
