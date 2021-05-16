@@ -2,13 +2,13 @@ package endpoints
 
 // APIRoute is a basic struct containing Method and URL
 type APIRoute struct {
-	Route
+	*Route
 	method Method
 }
 
 // Compile returns a CompiledAPIRoute
-func (r APIRoute) Compile(args ...interface{}) (*CompiledAPIRoute, error) {
-	compiledRoute, err := r.Route.Compile(args...)
+func (r *APIRoute) Compile(queryParams map[string]string, args ...interface{}) (*CompiledAPIRoute, error) {
+	compiledRoute, err := r.Route.Compile(queryParams, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -19,17 +19,23 @@ func (r APIRoute) Compile(args ...interface{}) (*CompiledAPIRoute, error) {
 }
 
 // Method returns the request method used by the route
-func (r APIRoute) Method() Method {
+func (r *APIRoute) Method() Method {
 	return r.method
 }
 
 // NewAPIRoute generates a new discord api route struct
-func NewAPIRoute(method Method, url string) APIRoute {
-	return APIRoute{
-		Route: Route{
-			baseRoute:  API,
-			route:      url,
-			paramCount: countParams(url),
+func NewAPIRoute(method Method, url string, queryParams ...string) *APIRoute {
+	params := map[string]struct{}{}
+	for _, param := range queryParams {
+		params[param] = struct{}{}
+	}
+
+	return &APIRoute{
+		Route: &Route{
+			baseRoute:   API,
+			route:       url,
+			queryParams: params,
+			paramCount:  countParams(url),
 		},
 		method: method,
 	}
@@ -42,6 +48,6 @@ type CompiledAPIRoute struct {
 }
 
 // Method returns the request method used by the route
-func (r CompiledAPIRoute) Method() Method {
+func (r *CompiledAPIRoute) Method() Method {
 	return r.method
 }

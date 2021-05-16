@@ -34,7 +34,7 @@ func (h ThreadUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager ap
 
 	genericThreadEvent := events.GenericThreadEvent{
 		GenericChannelEvent: genericChannelEvent,
-		Thread:        disgo.EntityBuilder().CreateThread(channel, api.CacheStrategyYes),
+		Thread:              disgo.EntityBuilder().CreateThread(channel, api.CacheStrategyYes),
 	}
 	eventManager.Dispatch(genericThreadEvent)
 

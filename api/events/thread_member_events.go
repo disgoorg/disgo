@@ -23,4 +23,3 @@ type ThreadMemberUpdateEvent struct {
 type ThreadMemberRemoveEvent struct {
 	GenericThreadMemberEvent
 }
-

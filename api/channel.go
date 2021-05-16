@@ -12,7 +12,6 @@ var _ DMChannel = (*ChannelImpl)(nil)
 var _ TextChannel = (*ChannelImpl)(nil)
 var _ Category = (*ChannelImpl)(nil)
 var _ StoreChannel = (*ChannelImpl)(nil)
-var _ Thread = (*ChannelImpl)(nil)
 
 // ChannelType for interacting with discord's channels
 type ChannelType int
@@ -53,8 +52,8 @@ type ChannelImpl struct {
 	ParentID_         *Snowflake      `json:"parent_id,omitempty"`
 	Permissions_      *Permissions    `json:"permissions,omitempty"`
 	LastPinTimestamp_ *time.Time      `json:"last_pin_timestamp,omitempty"`
-	MessageCount_      int             `json:"message_count"`
-	MemberCount_       int             `json:"member_count"`
+	MessageCount_     int             `json:"message_count"`
+	MemberCount_      int             `json:"member_count"`
 	ThreadMetadata_   *ThreadMetadata `json:"thread_metadata,omitempty"`
 }
 
@@ -299,31 +298,4 @@ func (c ChannelImpl) CrosspostMessage(messageID Snowflake) (*Message, error) {
 // StoreChannel allows you to interact with discord's store channels
 type StoreChannel interface {
 	GuildChannel
-}
-
-type Thread interface {
-	TextChannel
-	MessageCount() int
-	MemberCount() int
-	ThreadMetadata() *ThreadMetadata
-}
-
-func (c *ChannelImpl) MessageCount() int {
-	return c.MessageCount_
-}
-
-func (c *ChannelImpl) MemberCount() int {
-	return c.MemberCount_
-}
-
-func (c *ChannelImpl) ThreadMetadata() *ThreadMetadata {
-	return c.ThreadMetadata_
-}
-
-type ThreadMetadata struct {
-	Archived            bool          `json:"archived"`
-	ArchiveTimestamp    *time.Time    `json:"archive_timestamp"`
-	ArchiverId          *Snowflake    `json:"archiver_id"`
-	AutoArchiveDuration time.Duration `json:"auto_archive_duration"`
-	Locked              bool          `json:"locked"`
 }

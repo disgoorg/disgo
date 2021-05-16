@@ -73,14 +73,13 @@ var (
 	CreateBan = NewAPIRoute(POST, "/guilds/{guild.id}/bans/{user.id}")
 	DeleteBan = NewAPIRoute(DELETE, "/guilds/{guild.id}/bans/{user.id}")
 
-	GetMember          = NewAPIRoute(GET, "/guilds/{guild.id}/members/{user.id}")
-	GetMembers         = NewAPIRoute(GET, "/guilds/{guild.id}/members")
-	AddMember          = NewAPIRoute(PUT, "/guilds/{guild.id}/members/{user.id}")
-	UpdateMember       = NewAPIRoute(PATCH, "/guilds/{guild.id}/members/{user.id}")
-	RemoveMember       = NewAPIRoute(DELETE, "/guilds/{guild.id}/members/{user.id}")
-	RemoveMemberReason = NewAPIRoute(DELETE, "/guilds/{guild.id}/members/{user.id}?reason={reason}")
-	AddMemberRole      = NewAPIRoute(PUT, "/guilds/{guild.id}/members/{user.id}/roles/{role.id}")
-	RemoveMemberRole   = NewAPIRoute(DELETE, "/guilds/{guild.id}/members/{user.id}/roles/{role.id}")
+	GetMember        = NewAPIRoute(GET, "/guilds/{guild.id}/members/{user.id}")
+	GetMembers       = NewAPIRoute(GET, "/guilds/{guild.id}/members")
+	AddMember        = NewAPIRoute(PUT, "/guilds/{guild.id}/members/{user.id}")
+	UpdateMember     = NewAPIRoute(PATCH, "/guilds/{guild.id}/members/{user.id}")
+	RemoveMember     = NewAPIRoute(DELETE, "/guilds/{guild.id}/members/{user.id}", "reason")
+	AddMemberRole    = NewAPIRoute(PUT, "/guilds/{guild.id}/members/{user.id}/roles/{role.id}")
+	RemoveMemberRole = NewAPIRoute(DELETE, "/guilds/{guild.id}/members/{user.id}/roles/{role.id}")
 
 	UpdateSelfNick = NewAPIRoute(PATCH, "/guilds/{guild.id}/members/@me/nick")
 
@@ -129,6 +128,15 @@ var (
 	SendTyping = NewAPIRoute(POST, "/channels/{channel.id}/typing")
 )
 
+// Threads
+var (
+	GetActiveThreads            = NewAPIRoute(GET, "/channels/{channel.id}/threads/active")
+	GetMyArchivedPrivateThreads = NewAPIRoute(GET, "/channels/{channel.id}/users/@me/threads/archived/private")
+	GetArchivedPublicThreads    = NewAPIRoute(GET, "/channels/{channel.id}/threads/archived/public")
+	GetArchivedPrivateThreads   = NewAPIRoute(GET, "/channels/{channel.id}/threads/archived/private")
+	GetThreadMembers            = NewAPIRoute(GET, "/channels/{channel.id}/thread-members")
+)
+
 // Messages
 var (
 	GetMessages       = NewAPIRoute(GET, "/channels/{channel.id}/messages")
@@ -170,9 +178,9 @@ var (
 	DeleteWebhook          = NewAPIRoute(DELETE, "/webhooks/{webhook.id}")
 	DeleteWebhookWithToken = NewAPIRoute(DELETE, "/webhooks/{webhook.id}/{token}")
 
-	CreateWebhookMessage       = NewAPIRoute(POST, "/webhooks/{webhook.id}")
-	CreateWebhookMessageSlack  = NewAPIRoute(POST, "/webhooks/{webhook.id}/slack")
-	CreateWebhookMessageGithub = NewAPIRoute(POST, "/webhooks/{webhook.id}/github")
+	CreateWebhookMessage       = NewAPIRoute(POST, "/webhooks/{webhook.id}", "wait", "thread_id")
+	CreateWebhookMessageSlack  = NewAPIRoute(POST, "/webhooks/{webhook.id}/slack", "wait")
+	CreateWebhookMessageGithub = NewAPIRoute(POST, "/webhooks/{webhook.id}/github", "wait")
 	UpdateWebhookMessage       = NewAPIRoute(POST, "/webhooks/{webhook.id}/{token}/messages/{message.id}")
 	DeleteWebhookMessage       = NewAPIRoute(POST, "/webhooks/{webhook.id}/{token}/messages/{message.id}")
 )

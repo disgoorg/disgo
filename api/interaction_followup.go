@@ -8,7 +8,7 @@ type FollowupMessage struct {
 	TTS             *bool            `json:"tts,omitempty"`
 	Embeds          []*Embed         `json:"embeds,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
-	Flags           MessageFlags    `json:"flags,omitempty"`
+	Flags           MessageFlags     `json:"flags,omitempty"`
 }
 
 // FollowupMessageBuilder allows you to create an FollowupMessage with ease

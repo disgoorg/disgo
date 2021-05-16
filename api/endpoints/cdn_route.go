@@ -22,14 +22,14 @@ func (f FileExtension) String() string {
 
 // CDNRoute is a route for interacting with images hosted on discord's CDN
 type CDNRoute struct {
-	Route
+	*Route
 	supportedFileExtensions []FileExtension
 }
 
 // NewCDNRoute generates a new discord cdn route struct
-func NewCDNRoute(url string, supportedFileExtensions ...FileExtension) CDNRoute {
-	return CDNRoute{
-		Route: Route{
+func NewCDNRoute(url string, supportedFileExtensions ...FileExtension) *CDNRoute {
+	return &CDNRoute{
+		Route: &Route{
 			baseRoute:  CDN,
 			route:      url,
 			paramCount: countParams(url),
@@ -39,7 +39,7 @@ func NewCDNRoute(url string, supportedFileExtensions ...FileExtension) CDNRoute 
 }
 
 // Compile builds a full request URL based on provided arguments
-func (r CDNRoute) Compile(fileExtension FileExtension, args ...interface{}) (*CompiledCDNRoute, error) {
+func (r *CDNRoute) Compile(fileExtension FileExtension, args ...interface{}) (*CompiledCDNRoute, error) {
 	supported := false
 	for _, supportedFileExtension := range r.supportedFileExtensions {
 		if supportedFileExtension == fileExtension {
@@ -49,7 +49,7 @@ func (r CDNRoute) Compile(fileExtension FileExtension, args ...interface{}) (*Co
 	if !supported {
 		return nil, errors.New("provided file extension: " + fileExtension.String() + " is not supported by discord on this endpoint!")
 	}
-	compiledRoute, err := r.Route.Compile(args...)
+	compiledRoute, err := r.Route.Compile(nil, args...)
 	if err != nil {
 		return nil, err
 	}
