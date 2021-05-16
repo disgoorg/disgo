@@ -126,11 +126,10 @@ func (e SlashCommandEvent) OptionsT(optionType api.CommandOptionType) []*api.Opt
 
 // Acknowledge replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource
 func (e *SlashCommandEvent) Acknowledge(ephemeral bool) error {
-	var data *api.InteractionResponseData
+	var data *api.CommandResponseData
 	if ephemeral {
-		flag := api.MessageFlagEphemeral
-		data = &api.InteractionResponseData{
-			Flags: &flag,
+		data = &api.CommandResponseData{
+			Flags: api.MessageFlagEphemeral,
 		}
 	}
 	return e.Reply(&api.InteractionResponse{
