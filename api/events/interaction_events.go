@@ -125,9 +125,20 @@ func (e SlashCommandEvent) OptionsT(optionType api.CommandOptionType) []*api.Opt
 }
 
 // Acknowledge replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource
-func (e *SlashCommandEvent) Acknowledge() error {
-	return e.Reply(&api.InteractionResponse{Type: api.InteractionResponseTypeDeferredChannelMessageWithSource})
+func (e *SlashCommandEvent) Acknowledge(ephemeral bool) error {
+	var data *api.InteractionResponseData
+	if ephemeral {
+		flag := api.MessageFlagEphemeral
+		data = &api.InteractionResponseData{
+			Flags: &flag,
+		}
+	}
+	return e.Reply(&api.InteractionResponse{
+		Type: api.InteractionResponseTypeDeferredChannelMessageWithSource,
+		Data: data,
+	})
 }
+
 
 // EditOriginal edits the original api.InteractionResponse
 func (e *SlashCommandEvent) EditOriginal(followupMessage *api.FollowupMessage) (*api.Message, error) {
