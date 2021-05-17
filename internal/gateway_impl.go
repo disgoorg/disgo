@@ -303,7 +303,7 @@ func (g *GatewayImpl) listen() {
 					continue
 				}
 
-				g.Disgo().Logger().Debugf("received: %s", *event.T)
+				g.Disgo().Logger().Debugf("received: %s, %s", *event.T, string(event.D))
 
 				if *event.T == api.GatewayEventReady {
 					var readyEvent api.ReadyGatewayEvent

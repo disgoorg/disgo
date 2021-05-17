@@ -25,14 +25,11 @@ func (h MessageCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		return
 	}
 
-	message.Disgo = disgo
-	message.Author.Disgo = disgo
+	message = disgo.EntityBuilder().CreateMessage(message, api.CacheStrategyYes)
 
 	genericMessageEvent := events.GenericMessageEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		MessageID:    message.ID,
 		Message:      message,
-		ChannelID:    message.ChannelID,
 	}
 	eventManager.Dispatch(genericMessageEvent)
 

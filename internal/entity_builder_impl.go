@@ -78,6 +78,9 @@ func (b EntityBuilderImpl) CreateUser(user *api.User, updateCache api.CacheStrat
 func (b EntityBuilderImpl) CreateMessage(message *api.Message, updateCache api.CacheStrategy) *api.Message {
 	message.Disgo = b.Disgo()
 	if message.Member != nil {
+		if message.Author != nil {
+			message.Member.User = message.Author
+		}
 		message.Member = b.CreateMember(*message.GuildID, message.Member, updateCache)
 	}
 	if message.Author != nil {

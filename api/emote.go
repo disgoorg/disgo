@@ -3,10 +3,10 @@ package api
 // An Emote allows you to interact with custom emojis in discord.
 type Emote struct {
 	Disgo    Disgo
-	ID       Snowflake
-	GuildID  Snowflake
-	Name     string
-	Animated bool
+	ID       Snowflake `json:"id"`
+	GuildID  Snowflake `json:"guild_id"`
+	Name     string    `json:"name"`
+	Animated bool      `json:"animated,omitempty"`
 }
 
 // Guild returns the Guild of the Emote from the Cache
