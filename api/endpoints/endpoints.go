@@ -49,7 +49,7 @@ var (
 var (
 	GetUser         = NewAPIRoute(GET, "/users/{user.id}")
 	GetSelfUser     = NewAPIRoute(GET, "/users/@me")
-	UpdateSelfUser  = NewAPIRoute(PATCH, "/users/@me")
+	EditSelfUser    = NewAPIRoute(PATCH, "/users/@me")
 	GetGuilds       = NewAPIRoute(GET, "/users/@me/guilds")
 	LeaveGuild      = NewAPIRoute(DELETE, "/users/@me/guilds/{guild.id}")
 	GetDMChannels   = NewAPIRoute(GET, "/users/@me/channels")
@@ -130,11 +130,18 @@ var (
 
 // Threads
 var (
-	GetActiveThreads            = NewAPIRoute(GET, "/channels/{channel.id}/threads/active")
-	GetMyArchivedPrivateThreads = NewAPIRoute(GET, "/channels/{channel.id}/users/@me/threads/archived/private")
-	GetArchivedPublicThreads    = NewAPIRoute(GET, "/channels/{channel.id}/threads/archived/public")
-	GetArchivedPrivateThreads   = NewAPIRoute(GET, "/channels/{channel.id}/threads/archived/private")
-	GetThreadMembers            = NewAPIRoute(GET, "/channels/{channel.id}/thread-members")
+	CreateThreadWithMessage = NewAPIRoute(POST, "/channels/{channel.id}/messages/{message.id}/threads")
+	CreateThread            = NewAPIRoute(POST, "/channels/{channel.id}/threads")
+	JoinThread              = NewAPIRoute(PUT, "/channels/{channel.id}/thread-members/@me")
+	LeaveThread             = NewAPIRoute(DELETE, "/channels/{channel.id}/thread-members/@me")
+	AddThreadMember         = NewAPIRoute(PUT, "/channels/{channel.id}/thread-members/{user.id}")
+	RemoveThreadMember      = NewAPIRoute(DELETE, "/channels/{channel.id}/thread-members/{user.id}")
+	GetThreadMembers        = NewAPIRoute(GET, "/channels/{channel.id}/thread-members")
+
+	GetActiveThreads                 = NewAPIRoute(GET, "/channels/{channel.id}/threads/active")
+	GetArchivedPublicThreads         = NewAPIRoute(GET, "/channels/{channel.id}/threads/archived/public")
+	GetArchivedPrivateThreads        = NewAPIRoute(GET, "/channels/{channel.id}/threads/archived/private")
+	GetJoinedArchievedPrivateThreads = NewAPIRoute(GET, "/channels/{channel.id}/users/@me/threads/archived/private")
 )
 
 // Messages

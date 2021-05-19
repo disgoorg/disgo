@@ -29,6 +29,18 @@ type RestClient interface {
 	UserAgent() string
 	Request(route *endpoints.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) error
 
+	GetGateway() (*GatewayRs, error)
+	GetGatewayBot() (*GatewayBotRs, error)
+	GetBotApplication() (*Application, error)
+
+	GetUser(userID Snowflake) (*User, error)
+	GetSelfUser() (*User, error)
+	EditSelfUser() (*User, error)
+	GetGuilds() ([]*Guild, error)
+	LeaveGuild() error
+	GetDMChannels() ([]DMChannel, error)
+	CreateDMChannel(userID Snowflake) (DMChannel, error)
+
 	SendMessage(channelID Snowflake, message *MessageCreate) (*Message, error)
 	EditMessage(channelID Snowflake, messageID Snowflake, message *MessageUpdate) (*Message, error)
 	DeleteMessage(channelID Snowflake, messageID Snowflake) error
@@ -39,7 +51,6 @@ type RestClient interface {
 
 	UpdateSelfNick(guildID Snowflake, nick *string) (*string, error)
 
-	GetUser(userID Snowflake) (*User, error)
 	GetMember(guildID Snowflake, userID Snowflake) (*Member, error)
 	GetMembers(guildID Snowflake) ([]*Member, error)
 	AddMember(guildID Snowflake, userID Snowflake, addGuildMemberData *AddGuildMemberData) (*Member, error)
