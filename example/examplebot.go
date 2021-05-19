@@ -283,22 +283,9 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 					api.NewBlurpleButton("test", "test", api.NewEmoji("❌"), false),
 					api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote(emoteID), false),
 				),
-				/*api.NewRow(
-					api.NewSelect("select", "placeholder", 1, 2,
-						&api.SelectOption{
-							Label:       "test1",
-							Value:       "value1",
-							Default:     true,
-							Description: "value1",
-						},
-						&api.SelectOption{
-							Label:       "test2",
-							Value:       "value2",
-							Default:     false,
-							Description: "value2",
-						},
-					),
-				),*/
+				api.NewRow(
+					api.NewBlurpleButton("test2", "test2", api.NewEmoji("✔"), false),
+				),
 			).
 			Build(),
 		); err != nil {
