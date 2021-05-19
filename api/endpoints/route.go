@@ -17,7 +17,7 @@ type Route struct {
 }
 
 // Compile builds a full request URL based on provided arguments
-func (r *Route) Compile(queryParams map[string]string, args ...interface{}) (*CompiledRoute, error) {
+func (r *Route) Compile(queryParams map[string]interface{}, args ...interface{}) (*CompiledRoute, error) {
 	if len(args) != r.paramCount {
 		return nil, errors.New("invalid amount of arguments received. expected: " + strconv.Itoa(len(args)) + ", received: " + strconv.Itoa(r.paramCount))
 	}
@@ -37,7 +37,7 @@ func (r *Route) Compile(queryParams map[string]string, args ...interface{}) (*Co
 			if _, ok := r.queryParams[param]; !ok {
 				return nil, errors.New("unexpected query param '" + param + "' received")
 			}
-			query.Add(param, value)
+			query.Add(param, fmt.Sprint(value))
 		}
 		if len(query) > 0 {
 			compiledRoute += "?" + query.Encode()

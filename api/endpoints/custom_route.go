@@ -6,7 +6,7 @@ type CustomRoute struct {
 }
 
 // Compile returns a CompiledAPIRoute
-func (r CustomRoute) Compile(queryParams map[string]string, args ...interface{}) (*CompiledAPIRoute, error) {
+func (r CustomRoute) Compile(queryParams map[string]interface{}, args ...interface{}) (*CompiledAPIRoute, error) {
 	compiledRoute, err := r.Route.Compile(queryParams, args...)
 	if err != nil {
 		return nil, err

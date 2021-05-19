@@ -70,7 +70,7 @@ var (
 
 	GetBans   = NewAPIRoute(GET, "/guilds/{guild.id}/bans")
 	GetBan    = NewAPIRoute(GET, "/guilds/{guild.id}/bans/{user.id}")
-	CreateBan = NewAPIRoute(POST, "/guilds/{guild.id}/bans/{user.id}")
+	CreateBan = NewAPIRoute(POST, "/guilds/{guild.id}/bans/{user.id}", "delete_message_days", "reason")
 	DeleteBan = NewAPIRoute(DELETE, "/guilds/{guild.id}/bans/{user.id}")
 
 	GetMember        = NewAPIRoute(GET, "/guilds/{guild.id}/members/{user.id}")
@@ -81,7 +81,7 @@ var (
 	AddMemberRole    = NewAPIRoute(PUT, "/guilds/{guild.id}/members/{user.id}/roles/{role.id}")
 	RemoveMemberRole = NewAPIRoute(DELETE, "/guilds/{guild.id}/members/{user.id}/roles/{role.id}")
 
-	UpdateSelfNick = NewAPIRoute(PATCH, "/guilds/{guild.id}/members/@me/nick")
+	EditSelfNick = NewAPIRoute(PATCH, "/guilds/{guild.id}/members/@me/nick")
 
 	PrunableCount = NewAPIRoute(GET, "/guilds/{guild.id}/prune")
 	PruneMembers  = NewAPIRoute(POST, "/guilds/{guild.id}/prune")
