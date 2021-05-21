@@ -13,43 +13,14 @@ var (
 	GetGateway        = NewAPIRoute(GET, "/gateway")
 	GetGatewayBot     = NewAPIRoute(GET, "/gateway/bot")
 	GetBotApplication = NewAPIRoute(GET, "/oauth2/applications/@me")
-)
-
-// Interactions
-var (
-	GetGlobalCommands   = NewAPIRoute(GET, "/applications/{application.id}/commands")
-	GetGlobalCommand    = NewAPIRoute(GET, "/applications/{application.id}/command/{command.id}")
-	CreateGlobalCommand = NewAPIRoute(POST, "/applications/{application.id}/commands")
-	SetGlobalCommands   = NewAPIRoute(PUT, "/applications/{application.id}/commands")
-	EditGlobalCommand   = NewAPIRoute(PATCH, "/applications/{application.id}/commands/{command.id}")
-	DeleteGlobalCommand = NewAPIRoute(DELETE, "/applications/{application.id}/commands")
-
-	GetGuildCommands   = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/commands")
-	GetGuildCommand    = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/command/{command.id}")
-	CreateGuildCommand = NewAPIRoute(POST, "/applications/{application.id}/guilds/{guild.id}/commands")
-	SetGuildCommands   = NewAPIRoute(PUT, "/applications/{application.id}/guilds/{guild.id}/commands")
-	EditGuildCommand   = NewAPIRoute(PATCH, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}")
-	DeleteGuildCommand = NewAPIRoute(DELETE, "/applications/{application.id}/guilds/{guild.id}/commands")
-
-	GetGuildCommandPermissions  = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/commands/permissions")
-	GetGuildCommandPermission   = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions")
-	SetGuildCommandsPermissions = NewAPIRoute(PUT, "/applications/{application.id}/guilds/{guild.id}/commands/permissions")
-	SetGuildCommandPermissions  = NewAPIRoute(PUT, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions")
-
-	CreateInteractionResponse = NewAPIRoute(POST, "/interactions/{interaction.id}/{interaction.token}/callback")
-	EditInteractionResponse   = NewAPIRoute(PATCH, "/webhooks/{application.id}/{interaction.token}/messages/@original")
-	DeleteInteractionResponse = NewAPIRoute(DELETE, "/webhooks/{application.id}/{interaction.token}/messages/@original")
-
-	CreateFollowupMessage = NewAPIRoute(POST, "/webhooks/{application.id}/{interaction.token}")
-	EditFollowupMessage   = NewAPIRoute(PATCH, "/webhooks/{application.id}/{interaction.token}/messages/{message.id}")
-	DeleteFollowupMessage = NewAPIRoute(DELETE, "/webhooks/{application.id}/{interaction.token}/messages/{message.id}")
+	GetVoiceRegions   = NewAPIRoute(GET, "/voice/regions")
 )
 
 // Users
 var (
 	GetUser         = NewAPIRoute(GET, "/users/{user.id}")
 	GetSelfUser     = NewAPIRoute(GET, "/users/@me")
-	EditSelfUser    = NewAPIRoute(PATCH, "/users/@me")
+	UpdateSelfUser  = NewAPIRoute(PATCH, "/users/@me")
 	GetGuilds       = NewAPIRoute(GET, "/users/@me/guilds")
 	LeaveGuild      = NewAPIRoute(DELETE, "/users/@me/guilds/{guild.id}")
 	GetDMChannels   = NewAPIRoute(GET, "/users/@me/channels")
@@ -58,15 +29,15 @@ var (
 
 // Guilds
 var (
-	GetGuild     = NewAPIRoute(GET, "/guilds/{guild.id}")
-	CreateGuild  = NewAPIRoute(POST, "/guilds")
-	UpdateGuild  = NewAPIRoute(PATCH, "/guilds/{guild.id}")
-	DeleteGuild  = NewAPIRoute(DELETE, "/guilds/{guild.id}")
-	GetVanityURL = NewAPIRoute(GET, "/guilds/{guild.id}/vanity-url")
+	GetGuild          = NewAPIRoute(GET, "/guilds/{guild.id}")
+	CreateGuild       = NewAPIRoute(POST, "/guilds")
+	UpdateGuild       = NewAPIRoute(PATCH, "/guilds/{guild.id}")
+	DeleteGuild       = NewAPIRoute(DELETE, "/guilds/{guild.id}")
+	GetGuildVanityURL = NewAPIRoute(GET, "/guilds/{guild.id}/vanity-url")
 
-	CreateChannel  = NewAPIRoute(POST, "/guilds/{guild.id}/channels")
-	GetChannels    = NewAPIRoute(GET, "/guilds/{guild.id}/channels")
-	UpdateChannels = NewAPIRoute(PATCH, "/guilds/{guild.id}/channels")
+	CreateGuildChannel     = NewAPIRoute(POST, "/guilds/{guild.id}/channels")
+	GetGuildChannels       = NewAPIRoute(GET, "/guilds/{guild.id}/channels")
+	UpdateChannelPositions = NewAPIRoute(PATCH, "/guilds/{guild.id}/channels")
 
 	GetBans   = NewAPIRoute(GET, "/guilds/{guild.id}/bans")
 	GetBan    = NewAPIRoute(GET, "/guilds/{guild.id}/bans/{user.id}")
@@ -81,22 +52,22 @@ var (
 	AddMemberRole    = NewAPIRoute(PUT, "/guilds/{guild.id}/members/{user.id}/roles/{role.id}")
 	RemoveMemberRole = NewAPIRoute(DELETE, "/guilds/{guild.id}/members/{user.id}/roles/{role.id}")
 
-	EditSelfNick = NewAPIRoute(PATCH, "/guilds/{guild.id}/members/@me/nick")
+	UpdateSelfNick = NewAPIRoute(PATCH, "/guilds/{guild.id}/members/@me/nick")
 
-	PrunableCount = NewAPIRoute(GET, "/guilds/{guild.id}/prune")
-	PruneMembers  = NewAPIRoute(POST, "/guilds/{guild.id}/prune")
+	GetPruneMembersCount = NewAPIRoute(GET, "/guilds/{guild.id}/prune")
+	PruneMembers         = NewAPIRoute(POST, "/guilds/{guild.id}/prune")
 
 	GetGuildWebhooks = NewAPIRoute(GET, "/guilds/{guild.id}/webhooks")
 
-	GetAuditLogs = NewAPIRoute(GET, "/guilds/{guild.id}/audit-logs")
+	GetGuildAuditLogs = NewAPIRoute(GET, "/guilds/{guild.id}/audit-logs")
 
-	GetVoiceRegions = NewAPIRoute(GET, "/guilds/{guild.id}/regions")
+	GetGuildVoiceRegions = NewAPIRoute(GET, "/guilds/{guild.id}/regions")
 
-	GetIntegrations   = NewAPIRoute(GET, "/guilds/{guild.id}/integrations")
-	CreateIntegration = NewAPIRoute(POST, "/guilds/{guild.id}/integrations")
-	UpdateIntegration = NewAPIRoute(PATCH, "/guilds/{guild.id}/integrations/{integration.id}")
-	DeleteIntegration = NewAPIRoute(DELETE, "/guilds/{guild.id}/integrations/{integration.id}")
-	SyncIntegration   = NewAPIRoute(POST, "/guilds/{guild.id}/integrations/{integration.id}/sync")
+	GetGuildIntegrations   = NewAPIRoute(GET, "/guilds/{guild.id}/integrations")
+	CreateGuildIntegration = NewAPIRoute(POST, "/guilds/{guild.id}/integrations")
+	UpdateGuildIntegration = NewAPIRoute(PATCH, "/guilds/{guild.id}/integrations/{integration.id}")
+	DeleteGuildIntegration = NewAPIRoute(DELETE, "/guilds/{guild.id}/integrations/{integration.id}")
+	SyncGuildIntegration   = NewAPIRoute(POST, "/guilds/{guild.id}/integrations/{integration.id}/sync")
 )
 
 // Roles
@@ -200,6 +171,36 @@ var (
 
 	GetGuildInvite    = NewAPIRoute(GET, "/guilds/{guild.id}/invites")
 	GetChannelInvites = NewAPIRoute(GET, "/channels/{channel.id}/invites")
+)
+
+// Interactions
+var (
+	GetGlobalCommands   = NewAPIRoute(GET, "/applications/{application.id}/commands")
+	GetGlobalCommand    = NewAPIRoute(GET, "/applications/{application.id}/command/{command.id}")
+	CreateGlobalCommand = NewAPIRoute(POST, "/applications/{application.id}/commands")
+	SetGlobalCommands   = NewAPIRoute(PUT, "/applications/{application.id}/commands")
+	UpdateGlobalCommand = NewAPIRoute(PATCH, "/applications/{application.id}/commands/{command.id}")
+	DeleteGlobalCommand = NewAPIRoute(DELETE, "/applications/{application.id}/commands")
+
+	GetGuildCommands   = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/commands")
+	GetGuildCommand    = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/command/{command.id}")
+	CreateGuildCommand = NewAPIRoute(POST, "/applications/{application.id}/guilds/{guild.id}/commands")
+	SetGuildCommands   = NewAPIRoute(PUT, "/applications/{application.id}/guilds/{guild.id}/commands")
+	UpdateGuildCommand = NewAPIRoute(PATCH, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}")
+	DeleteGuildCommand = NewAPIRoute(DELETE, "/applications/{application.id}/guilds/{guild.id}/commands")
+
+	GetGuildCommandPermissions  = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/commands/permissions")
+	GetGuildCommandPermission   = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions")
+	SetGuildCommandsPermissions = NewAPIRoute(PUT, "/applications/{application.id}/guilds/{guild.id}/commands/permissions")
+	SetGuildCommandPermissions  = NewAPIRoute(PUT, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions")
+
+	CreateInteractionResponse = NewAPIRoute(POST, "/interactions/{interaction.id}/{interaction.token}/callback")
+	UpdateInteractionResponse = NewAPIRoute(PATCH, "/webhooks/{application.id}/{interaction.token}/messages/@original")
+	DeleteInteractionResponse = NewAPIRoute(DELETE, "/webhooks/{application.id}/{interaction.token}/messages/@original")
+
+	CreateFollowupMessage = NewAPIRoute(POST, "/webhooks/{application.id}/{interaction.token}")
+	UpdateFollowupMessage = NewAPIRoute(PATCH, "/webhooks/{application.id}/{interaction.token}/messages/{message.id}")
+	DeleteFollowupMessage = NewAPIRoute(DELETE, "/webhooks/{application.id}/{interaction.token}/messages/{message.id}")
 )
 
 // CDN

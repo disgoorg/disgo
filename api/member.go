@@ -41,13 +41,13 @@ func (m Member) IsOwner() bool {
 }
 
 // Update updates the member
-func (m Member) Update(updateGuildMemberData *UpdateGuildMemberData) (*Member, error) {
+func (m Member) Update(updateGuildMemberData *UpdateGuildMember) (*Member, error) {
 	return m.Disgo.RestClient().UpdateMember(m.GuildID, m.User.ID, updateGuildMemberData)
 }
 
 // Move moves/kicks the member to/from a voice channel
 func (m Member) Move(channelID *Snowflake) (*Member, error) {
-	return m.Disgo.RestClient().MoveMember(m.GuildID, m.User.ID, channelID)
+	return m.Disgo.RestClient().UpdateMember(m.GuildID, m.User.ID, &UpdateGuildMember{ChannelID: channelID})
 }
 
 // AddRole adds a specific role the member
@@ -60,8 +60,8 @@ func (m Member) RemoveRole(roleID Snowflake) error {
 	return m.Disgo.RestClient().AddMemberRole(m.GuildID, m.User.ID, roleID)
 }
 
-// AddGuildMemberData is used to add a member via the oauth2 access token to a guild
-type AddGuildMemberData struct {
+// AddGuildMember is used to add a member via the oauth2 access token to a guild
+type AddGuildMember struct {
 	AccessToken string      `json:"access_token"`
 	Nick        *string     `json:"nick,omitempty"`
 	Roles       []Snowflake `json:"roles,omitempty"`
@@ -69,17 +69,13 @@ type AddGuildMemberData struct {
 	Deaf        *bool       `json:"deaf,omitempty"`
 }
 
-// UpdateGuildMemberData is used to modify
-type UpdateGuildMemberData struct {
-	Nick  *string     `json:"nick,omitempty"`
-	Roles []Snowflake `json:"roles,omitempty"`
-	Mute  *bool       `json:"mute,omitempty"`
-	Deaf  *bool       `json:"deaf,omitempty"`
-}
-
-// MoveGuildMemberData is used to move a member
-type MoveGuildMemberData struct {
-	ChannelID *Snowflake `json:"channel_id"`
+// UpdateGuildMember is used to modify
+type UpdateGuildMember struct {
+	Nick      *string     `json:"nick,omitempty"`
+	Roles     []Snowflake `json:"roles,omitempty"`
+	Mute      *bool       `json:"mute,omitempty"`
+	Deaf      *bool       `json:"deaf,omitempty"`
+	ChannelID *Snowflake  `json:"channel_id"`
 }
 
 // UpdateSelfNick is used to update your own nick

@@ -299,3 +299,10 @@ func (c ChannelImpl) CrosspostMessage(messageID Snowflake) (*Message, error) {
 type StoreChannel interface {
 	GuildChannel
 }
+
+type ChannelCreate struct {
+
+}
+type ChannelUpdate struct {
+
+}

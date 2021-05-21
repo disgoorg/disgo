@@ -286,7 +286,7 @@ func (r RestClientImpl) GetMembers(guildID api.Snowflake) (members []*api.Member
 }
 
 // AddMember adds a member to the guild with the oauth2 access BotToken. requires api.PermissionCreateInstantInvite
-func (r RestClientImpl) AddMember(guildID api.Snowflake, userID api.Snowflake, addGuildMemberData *api.AddGuildMemberData) (member *api.Member, err error) {
+func (r RestClientImpl) AddMember(guildID api.Snowflake, userID api.Snowflake, addGuildMemberData *api.AddGuildMember) (member *api.Member, err error) {
 	compiledRoute, err := endpoints.AddMember.Compile(nil, guildID, userID)
 	if err != nil {
 		return nil, err
@@ -317,7 +317,7 @@ func (r RestClientImpl) KickMember(guildID api.Snowflake, userID api.Snowflake, 
 }
 
 // UpdateMember updates a member
-func (r RestClientImpl) UpdateMember(guildID api.Snowflake, userID api.Snowflake, updateGuildMemberData *api.UpdateGuildMemberData) (member *api.Member, err error) {
+func (r RestClientImpl) UpdateMember(guildID api.Snowflake, userID api.Snowflake, updateGuildMemberData *api.UpdateGuildMember) (member *api.Member, err error) {
 	compiledRoute, err := endpoints.UpdateMember.Compile(nil, guildID, userID)
 	if err != nil {
 		return nil, err
@@ -395,7 +395,7 @@ func (r RestClientImpl) GetRoles(guildID api.Snowflake) (roles []*api.Role, err 
 }
 
 // CreateRole creates a new role for a guild. Requires api.PermissionManageRoles
-func (r RestClientImpl) CreateRole(guildID api.Snowflake, role *api.UpdateRole) (newRole *api.Role, err error) {
+func (r RestClientImpl) CreateRole(guildID api.Snowflake, role *api.RoleUpdate) (newRole *api.Role, err error) {
 	compiledRoute, err := endpoints.CreateRole.Compile(nil, guildID)
 	if err != nil {
 		return nil, err
@@ -408,7 +408,7 @@ func (r RestClientImpl) CreateRole(guildID api.Snowflake, role *api.UpdateRole) 
 }
 
 // UpdateRole updates a role from a guild. Requires api.PermissionManageRoles
-func (r RestClientImpl) UpdateRole(guildID api.Snowflake, roleID api.Snowflake, role *api.UpdateRole) (newRole *api.Role, err error) {
+func (r RestClientImpl) UpdateRole(guildID api.Snowflake, roleID api.Snowflake, role *api.RoleUpdate) (newRole *api.Role, err error) {
 	compiledRoute, err := endpoints.UpdateRole.Compile(nil, guildID, roleID)
 	if err != nil {
 		return nil, err
@@ -421,7 +421,7 @@ func (r RestClientImpl) UpdateRole(guildID api.Snowflake, roleID api.Snowflake, 
 }
 
 // UpdateRolePositions updates the position of a role from a guild. Requires api.PermissionManageRoles
-func (r RestClientImpl) UpdateRolePositions(guildID api.Snowflake, roleUpdates ...*api.UpdateRolePosition) (roles []*api.Role, err error) {
+func (r RestClientImpl) UpdateRolePositions(guildID api.Snowflake, roleUpdates ...*api.RolePositionUpdate) (roles []*api.Role, err error) {
 	compiledRoute, err := endpoints.GetRoles.Compile(nil, guildID)
 	if err != nil {
 		return nil, err

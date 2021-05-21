@@ -31,12 +31,12 @@ func (r Role) Guild() *Guild {
 }
 
 // Update updates the Role with specific values
-func (r Role) Update(roleUpdate *UpdateRole) (*Role, error) {
+func (r Role) Update(roleUpdate *RoleUpdate) (*Role, error) {
 	return r.Disgo.RestClient().UpdateRole(r.GuildID, r.ID, roleUpdate)
 }
 
 // SetPosition sets the position of the Role
-func (r Role) SetPosition(rolePositionUpdate *UpdateRolePosition) ([]*Role, error) {
+func (r Role) SetPosition(rolePositionUpdate *RolePositionUpdate) ([]*Role, error) {
 	return r.Disgo.RestClient().UpdateRolePositions(r.GuildID, rolePositionUpdate)
 }
 
@@ -52,8 +52,8 @@ type RoleTag struct {
 	PremiumSubscriber bool       `json:"premium_subscriber"`
 }
 
-// UpdateRole is the payload to update a Role
-type UpdateRole struct {
+// RoleUpdate is the payload to update a Role
+type RoleUpdate struct {
 	Name        *string      `json:"name,omitempty"`
 	Permissions *Permissions `json:"permissions,omitempty"`
 	Color       *Color       `json:"color,omitempty"`
@@ -61,8 +61,8 @@ type UpdateRole struct {
 	Mentionable *bool        `json:"mentionable,omitempty"`
 }
 
-// UpdateRolePosition is the payload to update a Role(s) position
-type UpdateRolePosition struct {
+// RolePositionUpdate is the payload to update a Role(s) position
+type RolePositionUpdate struct {
 	ID       Snowflake `json:"id"`
 	Position *int      `json:"position"`
 }
