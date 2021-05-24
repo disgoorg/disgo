@@ -93,10 +93,11 @@ func (h *webhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	}()
 	rawBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
+		h.disgo.Logger().Errorf("error reading body: %s", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	c := make(chan interface{})
+	c := make(chan *api.InteractionResponse)
 	go h.webhookServer.Disgo().EventManager().Handle(api.WebhookEventInteractionCreate, c, -1, rawBody)
 
 	w.WriteHeader(http.StatusOK)
