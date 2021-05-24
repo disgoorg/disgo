@@ -26,7 +26,7 @@ type InteractionResponseData struct {
 	Content         *string          `json:"content,omitempty"`
 	Embeds          []*Embed         `json:"embeds,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
-	Flags           *MessageFlags     `json:"flags,omitempty"`
+	Flags           MessageFlags     `json:"flags,omitempty"`
 }
 
 // InteractionResponseBuilder allows you to create an InteractionResponse with ease
@@ -139,7 +139,7 @@ func (b *InteractionResponseBuilder) SetFlags(flags MessageFlags) *InteractionRe
 	if b.Data == nil {
 		b.Data = &InteractionResponseData{}
 	}
-	b.Data.Flags = &flags
+	b.Data.Flags = flags
 	return b
 }
 
@@ -150,11 +150,11 @@ func (b *InteractionResponseBuilder) SetEphemeral(ephemeral bool) *InteractionRe
 	}
 	if ephemeral {
 		if !b.Data.Flags.Has(MessageFlagEphemeral) {
-			b.Data.Flags.Add(MessageFlagEphemeral)
+			b.Data.Flags = b.Data.Flags.Add(MessageFlagEphemeral)
 		}
 	} else {
 		if b.Data.Flags.Has(MessageFlagEphemeral) {
-			b.Data.Flags.Remove(MessageFlagEphemeral)
+			b.Data.Flags = b.Data.Flags.Remove(MessageFlagEphemeral)
 		}
 	}
 	return b
