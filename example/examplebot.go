@@ -194,7 +194,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 			embed.SetField(1, "Time", strconv.Itoa(int(elapsed.Milliseconds()))+"ms", true)
 
 			if err != nil {
-				_, _ = event.EditOriginal(api.NewFollowupMessageBuilder().
+				_, _ = event.Interaction.EditOriginal(api.NewFollowupMessageBuilder().
 					SetEmbeds(embed.
 						SetColor(red).
 						SetField(0, "Status", "Failed", true).
@@ -205,7 +205,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 				)
 				return
 			}
-			_, _ = event.EditOriginal(api.NewFollowupMessageBuilder().
+			_, _ = event.Interaction.EditOriginal(api.NewFollowupMessageBuilder().
 				SetEmbeds(embed.
 					SetColor(green).
 					SetField(0, "Status", "Success", true).
@@ -228,7 +228,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 			_ = event.Acknowledge(true)
 
 			time.Sleep(2 * time.Second)
-			_, _ = event.EditOriginal(api.NewFollowupMessageBuilder().
+			_, _ = event.Interaction.EditOriginal(api.NewFollowupMessageBuilder().
 				SetEmbeds(api.NewEmbedBuilder().
 					SetDescription("finished with thinking").
 					Build(),
@@ -236,7 +236,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 			)
 
 			time.Sleep(1 * time.Second)
-			_, _ = event.SendFollowup(api.NewFollowupMessageBuilder().
+			_, _ = event.Interaction.SendFollowup(api.NewFollowupMessageBuilder().
 				SetEmbeds(api.NewEmbedBuilder().
 					SetDescription("followup 1").
 					Build(),
@@ -244,7 +244,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 			)
 
 			time.Sleep(1 * time.Second)
-			_, _ = event.SendFollowup(api.NewFollowupMessageBuilder().
+			_, _ = event.Interaction.SendFollowup(api.NewFollowupMessageBuilder().
 				SetEphemeral(true).
 				SetContent("followup 2 only you can see").
 				Build(),

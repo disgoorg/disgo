@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/DisgoOrg/disgo/api/events"
@@ -56,12 +57,21 @@ func (r RestClientImpl) UserAgent() string {
 func (r RestClientImpl) Request(route *endpoints.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) error {
 	var reader io.Reader
 	var rqJSON []byte
+	var contentType string
 	if rqBody != nil {
-		rqJSON, err := json.Marshal(rqBody)
-		if err != nil {
-			return err
+		switch v := rqBody.(type) {
+		case url.Values:
+			contentType = "application/x-www-form-urlencoded"
+			rqJSON = []byte(v.Encode())
+		default:
+			contentType = "application/json"
+			var err error
+			rqJSON, err = json.Marshal(rqBody)
+			if err != nil {
+				return err
+			}
 		}
-		r.Disgo().Logger().Debugf("request json: \"%s\"", string(rqJSON))
+		r.Disgo().Logger().Debugf("request body: \"%s\"", string(rqJSON))
 		reader = bytes.NewBuffer(rqJSON)
 	} else {
 		reader = nil
@@ -71,10 +81,9 @@ func (r RestClientImpl) Request(route *endpoints.CompiledAPIRoute, rqBody interf
 	if err != nil {
 		return err
 	}
-
 	rq.Header.Set("User-Agent", r.UserAgent())
 	rq.Header.Set("Authorization", "Bot "+r.disgo.Token())
-	rq.Header.Set("Content-Type", "application/json")
+	rq.Header.Set("Content-Type", contentType)
 
 	rs, err := r.client.Do(rq)
 	if err != nil {
