@@ -101,7 +101,7 @@ func (h *webhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	go h.webhookServer.Disgo().EventManager().Handle(api.WebhookEventInteractionCreate, c, -1, rawBody)
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
+	w.WriteHeader(http.StatusOK)
 
 	err = json.NewEncoder(w).Encode(<-c)
 	if err != nil {
