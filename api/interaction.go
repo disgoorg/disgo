@@ -11,7 +11,6 @@ const (
 
 // An Interaction is the slash command object you receive when a user uses one of your commands
 type Interaction struct {
-	Disgo     Disgo
 	ID        Snowflake        `json:"id"`
 	Type      InteractionType  `json:"type"`
 	Data      *InteractionData `json:"data,omitempty"`

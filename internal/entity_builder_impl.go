@@ -20,7 +20,6 @@ func (b EntityBuilderImpl) Disgo() api.Disgo {
 
 // CreateInteraction returns a new api.Interaction entity
 func (b EntityBuilderImpl) CreateInteraction(interaction *api.Interaction, updateCache api.CacheStrategy) *api.Interaction {
-	interaction.Disgo = b.disgo
 	if interaction.Member != nil {
 		interaction.Member = b.CreateMember(*interaction.GuildID, interaction.Member, api.CacheStrategyYes)
 	}
