@@ -63,9 +63,9 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceN
 		}
 
 		eventManager.Dispatch(events.SlashCommandEvent{
+			GenericInteractionEvent: genericInteractionEvent,
 			ResponseChannel:         c,
 			FromWebhook:             c != nil,
-			GenericInteractionEvent: genericInteractionEvent,
 			CommandID:               interaction.Data.ID,
 			CommandName:             interaction.Data.Name,
 			SubCommandName:          subCommandName,
