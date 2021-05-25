@@ -26,7 +26,7 @@ type DMChannelDeleteEvent struct {
 	GenericDMChannelEvent
 }
 
-// DMUserTypingEvent indicates that a api.User started typing in a api.DMChannel(requires api.IntentsDirectMessageTyping)
+// DMUserTypingEvent indicates that a api.User started typing in a api.DMChannel(requires api.GatewayIntentsDirectMessageTyping)
 type DMUserTypingEvent struct {
 	GenericDMChannelEvent
 }

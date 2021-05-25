@@ -9,47 +9,7 @@ import (
 // GenericInteractionEvent generic api.Interaction event
 type GenericInteractionEvent struct {
 	GenericEvent
-	*api.Interaction
-}
-
-// Guild returns the api.Guild from the api.Cache
-func (e GenericInteractionEvent) Guild() *api.Guild {
-	if e.Interaction.GuildID == nil {
-		return nil
-	}
-	return e.Disgo().Cache().Guild(*e.Interaction.GuildID)
-}
-
-// DMChannel returns the api.DMChannel from the api.Cache
-func (e GenericInteractionEvent) DMChannel() *api.DMChannel {
-	if e.Interaction.ChannelID == nil {
-		return nil
-	}
-	return e.Disgo().Cache().DMChannel(*e.Interaction.ChannelID)
-}
-
-// MessageChannel returns the api.MessageChannel from the api.Cache
-func (e GenericInteractionEvent) MessageChannel() *api.MessageChannel {
-	if e.Interaction.ChannelID == nil {
-		return nil
-	}
-	return e.Disgo().Cache().MessageChannel(*e.Interaction.ChannelID)
-}
-
-// TextChannel returns the api.TextChannel from the api.Cache
-func (e GenericInteractionEvent) TextChannel() *api.TextChannel {
-	if e.Interaction.ChannelID == nil {
-		return nil
-	}
-	return e.Disgo().Cache().TextChannel(*e.Interaction.ChannelID)
-}
-
-// GuildChannel returns the api.GuildChannel from the api.Cache
-func (e GenericInteractionEvent) GuildChannel() *api.GuildChannel {
-	if e.Interaction.ChannelID == nil {
-		return nil
-	}
-	return e.Disgo().Cache().GuildChannel(*e.Interaction.ChannelID)
+	Interaction *api.Interaction
 }
 
 // SlashCommandEvent indicates that a slash api.Command was ran in a api.Guild
@@ -109,8 +69,17 @@ func (e SlashCommandEvent) OptionsT(optionType api.CommandOptionType) []*api.Opt
 }
 
 // Acknowledge replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource
-func (e *SlashCommandEvent) Acknowledge() error {
-	return e.Reply(api.NewInteractionResponseBuilder().SetType(api.InteractionResponseTypeDeferredChannelMessageWithSource).Build())
+func (e *SlashCommandEvent) Acknowledge(ephemeral bool) error {
+	var data *api.InteractionResponseData
+	if ephemeral {
+		data = &api.InteractionResponseData{
+			Flags: api.MessageFlagEphemeral,
+		}
+	}
+	return e.Reply(&api.InteractionResponse{
+		Type: api.InteractionResponseTypeDeferredChannelMessageWithSource,
+		Data: data,
+	})
 }
 
 // Reply replies to the api.Interaction with the provided api.InteractionResponse
@@ -125,30 +94,5 @@ func (e *SlashCommandEvent) Reply(response *api.InteractionResponse) error {
 		return nil
 	}
 
-	return e.Disgo().RestClient().SendInteractionResponse(e.Interaction.ID, e.Interaction.Token, response)
-}
-
-// EditOriginal edits the original api.InteractionResponse
-func (e *SlashCommandEvent) EditOriginal(followupMessage *api.FollowupMessage) (*api.Message, error) {
-	return e.Disgo().RestClient().EditInteractionResponse(e.Disgo().ApplicationID(), e.Interaction.Token, followupMessage)
-}
-
-// DeleteOriginal deletes the original api.InteractionResponse
-func (e *SlashCommandEvent) DeleteOriginal() error {
-	return e.Disgo().RestClient().DeleteInteractionResponse(e.Disgo().ApplicationID(), e.Interaction.Token)
-}
-
-// SendFollowup used to send a api.FollowupMessage to an api.Interaction
-func (e *SlashCommandEvent) SendFollowup(followupMessage *api.FollowupMessage) (*api.Message, error) {
-	return e.Disgo().RestClient().SendFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, followupMessage)
-}
-
-// EditFollowup used to edit a api.FollowupMessage from an api.Interaction
-func (e *SlashCommandEvent) EditFollowup(messageID api.Snowflake, followupMessage *api.FollowupMessage) (*api.Message, error) {
-	return e.Disgo().RestClient().EditFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, messageID, followupMessage)
-}
-
-// DeleteFollowup used to delete a api.FollowupMessage from an api.Interaction
-func (e *SlashCommandEvent) DeleteFollowup(messageID api.Snowflake) error {
-	return e.Disgo().RestClient().DeleteFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, messageID)
+	return e.Interaction.Disgo.RestClient().SendInteractionResponse(e.Interaction.ID, e.Interaction.Token, response)
 }

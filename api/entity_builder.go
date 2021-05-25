@@ -1,7 +1,7 @@
 package api
 
 // CacheStrategy is used to determine whether something should be cached when making an api request. When using the
-// gateway, you'll receive the event shortly afterwards if you have the correct intents.
+// gateway, you'll receive the event shortly afterwards if you have the correct GatewayIntents.
 type CacheStrategy func(disgo Disgo) bool
 
 // Default cache strategy choices

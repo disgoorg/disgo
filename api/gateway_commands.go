@@ -1,8 +1,8 @@
 package api
 
 // NewGatewayCommand returns a new GatewayCommand struct with the given payload
-func NewGatewayCommand(op GatewayOp, d interface{}) GatewayCommand {
-	return GatewayCommand{
+func NewGatewayCommand(op GatewayOp, d interface{}) *GatewayCommand {
+	return &GatewayCommand{
 		GatewayPacket: GatewayPacket{
 			Op: op,
 			S:  nil,
@@ -24,7 +24,7 @@ type IdentifyCommand struct {
 	Properties     IdentifyCommandDataProperties `json:"properties"`
 	Compress       bool                          `json:"compress,omitempty"`
 	LargeThreshold int                           `json:"large_threshold,omitempty"`
-	Intents        Intents                       `json:"intents"`
+	GatewayIntents GatewayIntents                `json:"intents"`
 	// Todo: Add presence property here, need presence methods/struct
 	// Todo: Add shard property here, need to discuss
 }
