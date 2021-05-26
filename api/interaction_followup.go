@@ -4,10 +4,10 @@ import "fmt"
 
 // FollowupMessage is used to add additional messages to an Interaction after you've responded initially
 type FollowupMessage struct {
-	Content         *string          `json:"content,omitempty"`
-	TTS             *bool            `json:"tts,omitempty"`
+	TTS             bool             `json:"tts,omitempty"`
+	Content         string           `json:"content,omitempty"`
 	Embeds          []*Embed         `json:"embeds,omitempty"`
-	Components      []Component    `json:"components,omitempty"`
+	Components      []Component      `json:"components,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
 	Flags           MessageFlags     `json:"flags,omitempty"`
 }
@@ -28,20 +28,19 @@ func NewFollowupMessageBuilder() *FollowupMessageBuilder {
 
 // SetTTS sets if the FollowupMessage is a tts message
 func (b *FollowupMessageBuilder) SetTTS(tts bool) *FollowupMessageBuilder {
-	b.TTS = &tts
+	b.TTS = tts
 	return b
 }
 
 // SetContent sets the content of the FollowupMessage
 func (b *FollowupMessageBuilder) SetContent(content string) *FollowupMessageBuilder {
-	b.Content = &content
+	b.Content = content
 	return b
 }
 
 // SetContentf sets the content of the FollowupMessage with format
 func (b *FollowupMessageBuilder) SetContentf(content string, a ...interface{}) *FollowupMessageBuilder {
-	contentf := fmt.Sprintf(content, a...)
-	b.Content = &contentf
+	b.Content = fmt.Sprintf(content, a...)
 	return b
 }
 
@@ -97,13 +96,9 @@ func (b *FollowupMessageBuilder) SetFlags(flags MessageFlags) *FollowupMessageBu
 // SetEphemeral adds/removes MessageFlagEphemeral to the message flags
 func (b *FollowupMessageBuilder) SetEphemeral(ephemeral bool) *FollowupMessageBuilder {
 	if ephemeral {
-		if !b.Flags.Has(MessageFlagEphemeral) {
-			b.Flags = b.Flags.Add(MessageFlagEphemeral)
-		}
+		b.Flags &= MessageFlagEphemeral
 	} else {
-		if b.Flags.Has(MessageFlagEphemeral) {
-			b.Flags = b.Flags.Remove(MessageFlagEphemeral)
-		}
+		b.Flags |= MessageFlagEphemeral
 	}
 	return b
 }

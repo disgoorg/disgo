@@ -8,7 +8,7 @@ type ButtonResponseData struct {
 	Embeds          []*Embed         `json:"embeds,omitempty"`
 	Components      []Component      `json:"components,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
-	Flags           *MessageFlags    `json:"flags,omitempty"`
+	Flags           MessageFlags     `json:"flags,omitempty"`
 }
 
 // ButtonResponseBuilder allows you to create an InteractionResponse with ease
@@ -85,17 +85,17 @@ func (b *ButtonResponseBuilder) SetAllowedMentionsEmpty() *ButtonResponseBuilder
 
 // SetFlags sets the message flags of the InteractionResponse
 func (b *ButtonResponseBuilder) SetFlags(flags MessageFlags) *ButtonResponseBuilder {
-	b.Flags = &flags
+	b.Flags = flags
 	return b
 }
 
 // SetEphemeral adds/removes MessageFlagEphemeral to the message flags
 func (b *ButtonResponseBuilder) SetEphemeral(ephemeral bool) *ButtonResponseBuilder {
 	if ephemeral {
-		*b.Flags = MessageFlagEphemeral
+		b.Flags &= MessageFlagEphemeral
 
 	} else {
-		*b.Flags |= MessageFlagEphemeral
+		b.Flags |= MessageFlagEphemeral
 	}
 	return b
 }

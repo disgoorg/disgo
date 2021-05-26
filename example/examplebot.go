@@ -56,7 +56,7 @@ func main() {
 		{
 			Name:              "eval",
 			Description:       "runs some go code",
-			DefaultPermission: ptrBool(false),
+			DefaultPermission: ptrBool(true),
 			Options: []*api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeString,
@@ -69,12 +69,12 @@ func main() {
 		{
 			Name:              "test",
 			Description:       "test test test test test test",
-			DefaultPermission: ptrBool(false),
+			DefaultPermission: ptrBool(true),
 		},
 		{
 			Name:              "say",
 			Description:       "says what you say",
-			DefaultPermission: ptrBool(false),
+			DefaultPermission: ptrBool(true),
 			Options: []*api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeString,
@@ -87,7 +87,7 @@ func main() {
 		{
 			Name:              "addrole",
 			Description:       "This command adds a role to a member",
-			DefaultPermission: ptrBool(false),
+			DefaultPermission: ptrBool(true),
 			Options: []*api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeUser,
@@ -106,7 +106,7 @@ func main() {
 		{
 			Name:              "removerole",
 			Description:       "This command removes a role from a member",
-			DefaultPermission: ptrBool(false),
+			DefaultPermission: ptrBool(true),
 			Options: []*api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeUser,
@@ -179,7 +179,7 @@ func rawGatewayEventListener(event *events.RawGatewayEvent) {
 }
 
 func buttonClickListener(event *events.ButtonClickEvent) {
-	switch event.CustomID {
+	switch event.CustomID() {
 	case "test":
 		content := "test2"
 		err := event.Reply(&api.InteractionResponse{
@@ -187,9 +187,9 @@ func buttonClickListener(event *events.ButtonClickEvent) {
 			Data: &api.ButtonResponseData{
 				Content: &content,
 				Components: []api.Component{
-					api.NewRow(
-						api.NewBlurpleButton("test2", "test2", api.NewEmoji("✔"), false),
-						api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote(emoteID), false),
+					api.NewActionRow(
+						api.NewPrimaryButton("test2", "test2", api.NewEmoji("✔"), false),
+						api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote("kittybot", emoteID), false),
 					),
 				},
 			},
@@ -204,9 +204,9 @@ func buttonClickListener(event *events.ButtonClickEvent) {
 			Data: &api.ButtonResponseData{
 				Content: &content,
 				Components: []api.Component{
-					api.NewRow(
-						api.NewBlurpleButton("test", "test", api.NewEmoji("❌"), false),
-						api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote(emoteID), false),
+					api.NewActionRow(
+						api.NewPrimaryButton("test", "test", api.NewEmoji("❌"), false),
+						api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote("kittybot", emoteID), false),
 					),
 				},
 			},
@@ -228,7 +228,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 				AddField("Time", "...", true).
 				AddField("Code", "```go\n"+code+"\n```", false).
 				AddField("Output", "```\n...\n```", false)
-			_ = event.Reply(api.NewCommandResponseBuilder().SetEmbeds(embed.Build()).Build())
+			_ = event.Reply(api.NewSlashCommandResponseBuilder().SetEmbeds(embed.Build()).Build())
 
 			start := time.Now()
 			output, err := gval.Evaluate(code, map[string]interface{}{
@@ -241,7 +241,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 			embed.SetField(1, "Time", strconv.Itoa(int(elapsed.Milliseconds()))+"ms", true)
 
 			if err != nil {
-				_, _ = event.Interaction.EditOriginal(api.NewFollowupMessageBuilder().
+				_, err = event.Interaction.EditOriginal(api.NewFollowupMessageBuilder().
 					SetEmbeds(embed.
 						SetColor(red).
 						SetField(0, "Status", "Failed", true).
@@ -250,9 +250,12 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 					).
 					Build(),
 				)
+				if err != nil {
+					logger.Errorf("error sending interaction response: %s", err)
+				}
 				return
 			}
-			_, _ = event.Interaction.EditOriginal(api.NewFollowupMessageBuilder().
+			_, err = event.Interaction.EditOriginal(api.NewFollowupMessageBuilder().
 				SetEmbeds(embed.
 					SetColor(green).
 					SetField(0, "Status", "Success", true).
@@ -267,24 +270,23 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 		}()
 
 	case "say":
-		_ = event.Reply(api.NewCommandResponseBuilder().
+		_ = event.Reply(api.NewSlashCommandResponseBuilder().
 			SetContent(event.Option("message").String()).
 			SetAllowedMentionsEmpty().
 			Build(),
 		)
 
 	case "test":
-		if err := event.Reply(api.NewCommandResponseBuilder().
-			SetEphemeral(true).
+		if err := event.Reply(api.NewSlashCommandResponseBuilder().
 			SetContent("test1").
 			SetEmbeds(api.NewEmbedBuilder().SetDescription("this message should have some buttons").Build()).
 			SetComponents(
-				api.NewRow(
-					api.NewBlurpleButton("test", "test", api.NewEmoji("❌"), false),
-					api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote(emoteID), false),
+				api.NewActionRow(
+					api.NewPrimaryButton("test", "test", api.NewEmoji("❌"), false),
+					api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote("kittybot", emoteID), false),
 				),
-				api.NewRow(
-					api.NewBlurpleButton("test2", "test2", api.NewEmoji("✔"), false),
+				api.NewActionRow(
+					api.NewPrimaryButton("test2", "test2", api.NewEmoji("✔"), false),
 				),
 			).
 			Build(),
@@ -297,11 +299,11 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 		role := event.Option("role").Role()
 		err := event.Disgo().RestClient().AddMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
 		if err == nil {
-			_ = event.Reply(api.NewCommandResponseBuilder().AddEmbeds(
+			_ = event.Reply(api.NewSlashCommandResponseBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(green).SetDescriptionf("Added %s to %s", role, user).Build(),
 			).Build())
 		} else {
-			_ = event.Reply(api.NewCommandResponseBuilder().AddEmbeds(
+			_ = event.Reply(api.NewSlashCommandResponseBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(red).SetDescriptionf("Failed to add %s to %s", role, user).Build(),
 			).Build())
 		}
@@ -311,11 +313,11 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 		role := event.Option("role").Role()
 		err := event.Disgo().RestClient().RemoveMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
 		if err == nil {
-			_ = event.Reply(api.NewCommandResponseBuilder().AddEmbeds(
+			_ = event.Reply(api.NewSlashCommandResponseBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Removed %s from %s", role, user).Build(),
 			).Build())
 		} else {
-			_ = event.Reply(api.NewCommandResponseBuilder().AddEmbeds(
+			_ = event.Reply(api.NewSlashCommandResponseBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(16711680).SetDescriptionf("Failed to remove %s from %s", role, user).Build(),
 			).Build())
 		}

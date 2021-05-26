@@ -9,7 +9,7 @@ import (
 // GenericInteractionEvent generic api.Interaction event
 type GenericInteractionEvent struct {
 	GenericEvent
-	Interaction *api.Interaction
+	Interaction     *api.Interaction
 	ResponseChannel chan *api.InteractionResponse
 	FromWebhook     bool
 	Replied         bool
@@ -29,17 +29,50 @@ func (e *GenericInteractionEvent) Reply(response *api.InteractionResponse) error
 
 	return e.Disgo().RestClient().SendInteractionResponse(e.Interaction.ID, e.Interaction.Token, response)
 }
+
+// EditOriginal edits the original api.InteractionResponse
+func (e *GenericInteractionEvent) EditOriginal(followupMessage *api.FollowupMessage) (*api.Message, error) {
+	return e.Disgo().RestClient().EditInteractionResponse(e.Disgo().ApplicationID(), e.Interaction.Token, followupMessage)
+}
+
+// DeleteOriginal deletes the original api.InteractionResponse
+func (e *GenericInteractionEvent) DeleteOriginal() error {
+	return e.Disgo().RestClient().DeleteInteractionResponse(e.Disgo().ApplicationID(), e.Interaction.Token)
+}
+
+// SendFollowup used to send a api.FollowupMessage to an api.Interaction
+func (e *GenericInteractionEvent) SendFollowup(followupMessage *api.FollowupMessage) (*api.Message, error) {
+	return e.Disgo().RestClient().SendFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, followupMessage)
+}
+
+// EditFollowup used to edit a api.FollowupMessage from an api.Interaction
+func (e *GenericInteractionEvent) EditFollowup(messageID api.Snowflake, followupMessage *api.FollowupMessage) (*api.Message, error) {
+	return e.Disgo().RestClient().EditFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, messageID, followupMessage)
+}
+
+// DeleteFollowup used to delete a api.FollowupMessage from an api.Interaction
+func (e *GenericInteractionEvent) DeleteFollowup(messageID api.Snowflake) error {
+	return e.Disgo().RestClient().DeleteFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, messageID)
 }
 
 // SlashCommandEvent indicates that a slash api.Command was ran in a api.Guild
 type SlashCommandEvent struct {
 	GenericInteractionEvent
-	CommandID           api.Snowflake
-	CommandName         string
-	SubCommandName      *string
-	SubCommandGroupName *string
-	Options             []*api.Option
-	Resolved            *api.Resolved
+	SlashCommandInteraction *api.SlashCommandInteraction
+	CommandID               api.Snowflake
+	CommandName             string
+	SubCommandName          *string
+	SubCommandGroupName     *string
+	Options                 []*api.Option
+}
+
+// DeferReply replies to the api.SlashCommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource
+func (e *SlashCommandEvent) DeferReply(ephemeral bool) error {
+	var data *api.SlashCommandResponse
+	if ephemeral {
+		data = &api.SlashCommandResponse{Flags: api.MessageFlagEphemeral}
+	}
+	return e.Reply(&api.InteractionResponse{Type: api.InteractionResponseTypeDeferredChannelMessageWithSource, Data: data})
 }
 
 // CommandPath returns the api.Command path
@@ -85,49 +118,23 @@ func (e SlashCommandEvent) OptionsT(optionType api.CommandOptionType) []*api.Opt
 	return options
 }
 
-// Acknowledge replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource
-func (e *SlashCommandEvent) Acknowledge(ephemeral bool) error {
-	var data *api.CommandResponseData
-	if ephemeral {
-		data = &api.CommandResponseData{
-			Flags: api.MessageFlagEphemeral,
-		}
-	}
-	return e.Reply(&api.InteractionResponse{
-		Type: api.InteractionResponseTypeDeferredChannelMessageWithSource,
-		Data: data,
-	})
-}
-
-
-// EditOriginal edits the original api.InteractionResponse
-func (e *SlashCommandEvent) EditOriginal(followupMessage *api.FollowupMessage) (*api.Message, error) {
-	return e.Disgo().RestClient().EditInteractionResponse(e.Disgo().ApplicationID(), e.Interaction.Token, followupMessage)
-}
-
-// DeleteOriginal deletes the original api.InteractionResponse
-func (e *SlashCommandEvent) DeleteOriginal() error {
-	return e.Disgo().RestClient().DeleteInteractionResponse(e.Disgo().ApplicationID(), e.Interaction.Token)
-}
-
-// SendFollowup used to send a api.FollowupMessage to an api.Interaction
-func (e *SlashCommandEvent) SendFollowup(followupMessage *api.FollowupMessage) (*api.Message, error) {
-	return e.Disgo().RestClient().SendFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, followupMessage)
-}
-
-// EditFollowup used to edit a api.FollowupMessage from an api.Interaction
-func (e *SlashCommandEvent) EditFollowup(messageID api.Snowflake, followupMessage *api.FollowupMessage) (*api.Message, error) {
-	return e.Disgo().RestClient().EditFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, messageID, followupMessage)
-}
-
-// DeleteFollowup used to delete a api.FollowupMessage from an api.Interaction
-func (e *SlashCommandEvent) DeleteFollowup(messageID api.Snowflake) error {
-	return e.Disgo().RestClient().DeleteFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, messageID)
-}
-
 type ButtonClickEvent struct {
 	GenericInteractionEvent
-	CustomID      string
-	ComponentType api.ComponentType
-	Message       *api.Message
+	ButtonInteraction *api.ButtonInteraction
+}
+
+func (e *ButtonClickEvent) Acknowledge() error {
+	return e.Reply(&api.InteractionResponse{Type: api.InteractionResponseTypeButtonAck})
+}
+
+func (e *ButtonClickEvent) CustomID() string {
+	return e.ButtonInteraction.Data.CustomID
+}
+
+func (e *ButtonClickEvent) ComponentType() string {
+	return e.ButtonInteraction.Data.CustomID
+}
+
+func (e *ButtonClickEvent) Message() *api.Message {
+	return e.ButtonInteraction.Message
 }

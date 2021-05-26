@@ -166,7 +166,7 @@ type Message struct {
 	Attachments       []*MessageAttachment `json:"attachments"`
 	TTS               bool                 `json:"tts"`
 	Embeds            []*Embed             `json:"embeds,omitempty"`
-	Components        []Component         `json:"components,omitempty"`
+	Components        []Component          `json:"components,omitempty"`
 	CreatedAt         time.Time            `json:"timestamp"`
 	Mentions          []interface{}        `json:"mentions"`
 	MentionEveryone   bool                 `json:"mention_everyone"`
@@ -266,7 +266,7 @@ type MessageReaction struct {
 // MessageUpdate is used to edit a Message
 type MessageUpdate struct {
 	Content         *string          `json:"content,omitempty"`
-	Components      []Component     `json:"components,omitempty"`
+	Components      []Component      `json:"components,omitempty"`
 	Embed           *Embed           `json:"embed,omitempty"`
 	Flags           *MessageFlags    `json:"flags,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
@@ -274,9 +274,10 @@ type MessageUpdate struct {
 
 // MessageCreate is the struct to create a new Message with
 type MessageCreate struct {
-	Content          *string           `json:"content,omitempty"`
-	Components       []Component      `json:"components,omitempty"`
-	TTS              *bool             `json:"tts,omitempty"`
+	Nonce            string            `json:"nonce,omitempty"`
+	Content          string            `json:"content,omitempty"`
+	Components       []Component       `json:"components,omitempty"`
+	TTS              bool              `json:"tts,omitempty"`
 	Embed            *Embed            `json:"embed,omitempty"`
 	AllowedMentions  *AllowedMentions  `json:"allowed_mentions,omitempty"`
 	MessageReference *MessageReference `json:"message_reference,omitempty"`

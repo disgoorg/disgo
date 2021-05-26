@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
-
 	"github.com/DisgoOrg/disgo/api"
 	"github.com/DisgoOrg/disgo/api/events"
 )
@@ -30,29 +28,25 @@ func (h InteractionCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManag
 }
 
 func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, fullInteraction *api.FullInteraction, c chan *api.InteractionResponse) {
-
-	interaction := disgo.EntityBuilder().CreateInteraction(fullInteraction.Interaction, api.CacheStrategyYes)
 	genericInteractionEvent := events.GenericInteractionEvent{
 		GenericEvent:    events.NewEvent(disgo, sequenceNumber),
-		Interaction:     interaction,
 		ResponseChannel: c,
 		FromWebhook:     c != nil,
 		Replied:         false,
 	}
-	eventManager.Dispatch(genericInteractionEvent)
 
-	switch interaction.Type {
-	case api.InteractionTypeApplicationCommand:
-		var data *api.SlashCommandInteractionData
-		if err := json.Unmarshal(fullInteraction.Data, &data); err != nil {
-			disgo.Logger().Errorf("failed to unmarshal SlashCommandInteractionData: %s", err)
-			return
-		}
-		options := data.Options
+	switch fullInteraction.Type {
+	case api.InteractionTypeSlashCommand:
+		interaction := disgo.EntityBuilder().CreateSlashCommandInteraction(fullInteraction, api.CacheStrategyYes)
+
+		genericInteractionEvent.Interaction = interaction.Interaction
+		eventManager.Dispatch(genericInteractionEvent)
+
+		options := interaction.Data.Options
 		var subCommandName *string
 		var subCommandGroupName *string
 		if len(options) == 1 {
-			option := data.Options[0]
+			option := options[0]
 			if option.Type == api.CommandOptionTypeSubCommandGroup {
 				subCommandGroupName = &option.Name
 				options = option.Options
@@ -63,10 +57,11 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceN
 				options = option.Options
 			}
 		}
+
 		var newOptions []*api.Option
 		for _, optionData := range options {
 			newOptions = append(newOptions, &api.Option{
-				Resolved: data.Resolved,
+				Resolved: interaction.Data.Resolved,
 				Name:     optionData.Name,
 				Type:     optionData.Type,
 				Value:    optionData.Value,
@@ -75,23 +70,22 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceN
 
 		eventManager.Dispatch(events.SlashCommandEvent{
 			GenericInteractionEvent: genericInteractionEvent,
-			CommandID:               data.ID,
-			CommandName:             data.Name,
+			SlashCommandInteraction: interaction,
+			CommandID:               interaction.Data.ID,
+			CommandName:             interaction.Data.Name,
 			SubCommandName:          subCommandName,
 			SubCommandGroupName:     subCommandGroupName,
 			Options:                 newOptions,
 		})
 	case api.InteractionTypeComponent:
-		var data *api.ComponentInteractionData
-		if err := json.Unmarshal(fullInteraction.Data, &data); err != nil {
-			disgo.Logger().Errorf("failed to unmarshal ComponentInteractionData: %s", err)
-			return
-		}
+		interaction := disgo.EntityBuilder().CreateButtonInteraction(fullInteraction, api.CacheStrategyYes)
+
+		genericInteractionEvent.Interaction = interaction.Interaction
+		eventManager.Dispatch(genericInteractionEvent)
+
 		eventManager.Dispatch(events.ButtonClickEvent{
 			GenericInteractionEvent: genericInteractionEvent,
-			CustomID:                data.CustomID,
-			ComponentType:           data.Type,
-			Message:                 fullInteraction.Message,
+			ButtonInteraction:       interaction,
 		})
 	}
 }

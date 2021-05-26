@@ -1,12 +1,24 @@
 package api
 
+func NewEmote(name string, emoteID Snowflake) *Emote {
+	return &Emote{Name: name, ID: emoteID, Animated: false}
+}
+
+func NewAnimatedEmote(name string, emoteID Snowflake) *Emote {
+	return &Emote{Name: name, ID: emoteID, Animated: true}
+}
+
+func NewEmoji(name string) *Emote {
+	return &Emote{Name: name}
+}
+
 // An Emote allows you to interact with custom emojis in discord.
 type Emote struct {
 	Disgo    Disgo
-	ID       Snowflake
-	GuildID  Snowflake
-	Name     string
-	Animated bool
+	GuildID  Snowflake `json:"guild_id,omitempty"`
+	Name     string    `json:"name,omitempty"`
+	ID       Snowflake `json:"id,omitempty"`
+	Animated bool      `json:"animated,omitempty"`
 }
 
 // Guild returns the Guild of the Emote from the Cache

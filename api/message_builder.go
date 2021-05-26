@@ -11,6 +11,7 @@ type MessageBuilder struct {
 func NewMessageBuilder() *MessageBuilder {
 	return &MessageBuilder{
 		MessageCreate: MessageCreate{
+			Nonce:           "test nonce",
 			AllowedMentions: &DefaultMessageAllowedMentions,
 		},
 	}
@@ -28,20 +29,19 @@ func NewMessageBuilderWithContent(content string) *MessageBuilder {
 
 // SetContent sets content of the Message
 func (b *MessageBuilder) SetContent(content string) *MessageBuilder {
-	b.Content = &content
+	b.Content = content
 	return b
 }
 
 // SetContentf sets content of the Message
 func (b *MessageBuilder) SetContentf(content string, a ...interface{}) *MessageBuilder {
-	contentf := fmt.Sprintf(content, a...)
-	b.Content = &contentf
+	b.Content = fmt.Sprintf(content, a...)
 	return b
 }
 
 // SetTTS sets the text to speech of the Message
 func (b *MessageBuilder) SetTTS(tts bool) *MessageBuilder {
-	b.TTS = &tts
+	b.TTS = tts
 	return b
 }
 

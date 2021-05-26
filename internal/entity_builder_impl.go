@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"encoding/json"
+
 	"github.com/DisgoOrg/disgo/api"
 )
 
@@ -18,23 +20,45 @@ func (b *EntityBuilderImpl) Disgo() api.Disgo {
 	return b.disgo
 }
 
-// CreateInteraction returns a new api.Interaction entity
-func (b EntityBuilderImpl) CreateInteraction(interaction *api.Interaction, updateCache api.CacheStrategy) *api.Interaction {
-	interaction.Disgo = b.disgo
-	if interaction.Member != nil {
-		interaction.Member = b.CreateMember(*interaction.GuildID, interaction.Member, api.CacheStrategyYes)
+func (b EntityBuilderImpl) createInteraction(fullInteraction *api.FullInteraction, updateCache api.CacheStrategy) *api.Interaction {
+	interaction := &api.Interaction{
+		Disgo:     b.disgo,
+		ID:        fullInteraction.ID,
+		Type:      fullInteraction.Type,
+		GuildID:   fullInteraction.GuildID,
+		ChannelID: fullInteraction.ChannelID,
+		Token:     fullInteraction.Token,
+		Version:   fullInteraction.Version,
 	}
-	if interaction.User != nil {
-		interaction.User = b.CreateUser(interaction.User, updateCache)
-	}
-func (b *EntityBuilderImpl) CreateComponentInteraction(interactionData *api.ComponentInteractionData, updateCache api.CacheStrategy) *api.ComponentInteractionData {
 
-	return interactionData
+	if fullInteraction.Member != nil {
+		interaction.Member = b.CreateMember(*fullInteraction.GuildID, fullInteraction.Member, api.CacheStrategyYes)
+	}
+	if fullInteraction.User != nil {
+		interaction.User = b.CreateUser(fullInteraction.User, updateCache)
+	}
+	return interaction
 }
 
-func (b *EntityBuilderImpl) CreateApplicationCommandInteraction(interactionData *api.SlashCommandInteractionData, updateCache api.CacheStrategy) *api.SlashCommandInteractionData {
-	if interactionData.Resolved != nil {
-		resolved := interactionData.Resolved
+// CreateButtonInteraction creates a api.ButtonInteraction from the full interaction response
+func (b *EntityBuilderImpl) CreateButtonInteraction(fullInteraction *api.FullInteraction, updateCache api.CacheStrategy) *api.ButtonInteraction {
+	var data *api.ButtonInteractionData
+	_ = json.Unmarshal(fullInteraction.Data, &data)
+
+	return &api.ButtonInteraction{
+		Interaction: b.createInteraction(fullInteraction, updateCache),
+		Message:     b.CreateMessage(fullInteraction.Message, updateCache),
+		Data:        data,
+	}
+}
+
+// CreateSlashCommandInteraction creates a api.SlashCommandInteraction from the full interaction response
+func (b *EntityBuilderImpl) CreateSlashCommandInteraction(fullInteraction *api.FullInteraction, updateCache api.CacheStrategy) *api.SlashCommandInteraction {
+	var data *api.SlashCommandInteractionData
+	_ = json.Unmarshal(fullInteraction.Data, &data)
+
+	if data.Resolved != nil {
+		resolved := data.Resolved
 		if resolved.Users != nil {
 			for _, user := range resolved.Users {
 				user = b.CreateUser(user, updateCache)
@@ -59,18 +83,11 @@ func (b *EntityBuilderImpl) CreateApplicationCommandInteraction(interactionData 
 			}
 		}*/
 	}
-	return interactionData
-}
 
-// CreateInteraction returns a new api.Interaction entity
-func (b *EntityBuilderImpl) CreateInteraction(interaction *api.Interaction, updateCache api.CacheStrategy) *api.Interaction {
-	if interaction.Member != nil {
-		interaction.Member = b.CreateMember(*interaction.GuildID, interaction.Member, api.CacheStrategyYes)
+	return &api.SlashCommandInteraction{
+		Interaction: b.createInteraction(fullInteraction, updateCache),
+		Data:        data,
 	}
-	if interaction.User != nil {
-		interaction.User = b.CreateUser(interaction.User, updateCache)
-	}
-	return interaction
 }
 
 // CreateGlobalCommand returns a new api.Command entity
