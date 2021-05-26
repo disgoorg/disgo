@@ -37,23 +37,23 @@ const (
 type MessageFlags int64
 
 // Add allows you to add multiple bits together, producing a new bit
-func (f MessageFlags) Add(bits ...MessageFlags) *MessageFlags {
+func (f MessageFlags) Add(bits ...MessageFlags) MessageFlags {
 	total := MessageFlags(0)
 	for _, bit := range bits {
 		total |= bit
 	}
 	f |= total
-	return &f
+	return f
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
-func (f MessageFlags) Remove(bits ...MessageFlags) *MessageFlags {
+func (f MessageFlags) Remove(bits ...MessageFlags) MessageFlags {
 	total := MessageFlags(0)
 	for _, bit := range bits {
 		total |= bit
 	}
 	f &^= total
-	return &f
+	return f
 }
 
 // HasAll will ensure that the bit includes all of the bits entered

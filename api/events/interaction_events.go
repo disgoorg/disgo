@@ -9,7 +9,7 @@ import (
 // GenericInteractionEvent generic api.Interaction event
 type GenericInteractionEvent struct {
 	GenericEvent
-	*api.Interaction
+	Interaction *api.Interaction
 	ResponseChannel chan *api.InteractionResponse
 	FromWebhook     bool
 	Replied         bool
@@ -29,45 +29,6 @@ func (e *GenericInteractionEvent) Reply(response *api.InteractionResponse) error
 
 	return e.Disgo().RestClient().SendInteractionResponse(e.Interaction.ID, e.Interaction.Token, response)
 }
-
-// Guild returns the api.Guild from the api.Cache
-func (e GenericInteractionEvent) Guild() *api.Guild {
-	if e.Interaction.GuildID == nil {
-		return nil
-	}
-	return e.Disgo().Cache().Guild(*e.Interaction.GuildID)
-}
-
-// DMChannel returns the api.DMChannel from the api.Cache
-func (e GenericInteractionEvent) DMChannel() *api.DMChannel {
-	if e.Interaction.ChannelID == nil {
-		return nil
-	}
-	return e.Disgo().Cache().DMChannel(*e.Interaction.ChannelID)
-}
-
-// MessageChannel returns the api.MessageChannel from the api.Cache
-func (e GenericInteractionEvent) MessageChannel() *api.MessageChannel {
-	if e.Interaction.ChannelID == nil {
-		return nil
-	}
-	return e.Disgo().Cache().MessageChannel(*e.Interaction.ChannelID)
-}
-
-// TextChannel returns the api.TextChannel from the api.Cache
-func (e GenericInteractionEvent) TextChannel() *api.TextChannel {
-	if e.Interaction.ChannelID == nil {
-		return nil
-	}
-	return e.Disgo().Cache().TextChannel(*e.Interaction.ChannelID)
-}
-
-// GuildChannel returns the api.GuildChannel from the api.Cache
-func (e GenericInteractionEvent) GuildChannel() *api.GuildChannel {
-	if e.Interaction.ChannelID == nil {
-		return nil
-	}
-	return e.Disgo().Cache().GuildChannel(*e.Interaction.ChannelID)
 }
 
 // SlashCommandEvent indicates that a slash api.Command was ran in a api.Guild

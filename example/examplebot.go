@@ -241,7 +241,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 			embed.SetField(1, "Time", strconv.Itoa(int(elapsed.Milliseconds()))+"ms", true)
 
 			if err != nil {
-				_, _ = event.EditOriginal(api.NewFollowupMessageBuilder().
+				_, _ = event.Interaction.EditOriginal(api.NewFollowupMessageBuilder().
 					SetEmbeds(embed.
 						SetColor(red).
 						SetField(0, "Status", "Failed", true).
@@ -252,7 +252,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 				)
 				return
 			}
-			_, err = event.EditOriginal(api.NewFollowupMessageBuilder().
+			_, _ = event.Interaction.EditOriginal(api.NewFollowupMessageBuilder().
 				SetEmbeds(embed.
 					SetColor(green).
 					SetField(0, "Status", "Success", true).

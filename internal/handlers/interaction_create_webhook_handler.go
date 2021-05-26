@@ -25,6 +25,7 @@ func (h InteractionCreateWebhookHandler) HandleWebhookEvent(disgo api.Disgo, eve
 	}
 
 	if fullInteraction.Type == api.InteractionTypePing {
+		disgo.Logger().Debugf("received interaction ping")
 		c <- &api.InteractionResponse{
 			Type: api.InteractionResponseTypePong,
 		}

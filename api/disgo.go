@@ -56,7 +56,7 @@ type GatewayEventHandler interface {
 // WebhookEventHandler is used to handle raw webhook events
 type WebhookEventHandler interface {
 	EventHandler
-	HandleWebhookEvent(disgo Disgo, eventManager EventManager, replyChannel chan interface{}, payload interface{})
+	HandleWebhookEvent(disgo Disgo, eventManager EventManager, replyChannel chan *InteractionResponse, payload interface{})
 }
 
 // EventListener is used to create new EventListener to listen to events
@@ -75,7 +75,7 @@ type EventManager interface {
 	Disgo() Disgo
 	Close()
 	AddEventListeners(eventListeners ...EventListener)
-	Handle(eventType GatewayEventType, replyChannel chan interface{}, sequenceNumber int, payload json.RawMessage)
+	Handle(eventType GatewayEventType, replyChannel chan *InteractionResponse, sequenceNumber int, payload json.RawMessage)
 	Dispatch(event Event)
 }
 

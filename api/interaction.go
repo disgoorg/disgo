@@ -20,6 +20,85 @@ type FullInteraction struct {
 
 // An Interaction is the slash command object you receive when a user uses one of your commands
 type Interaction struct {
+	Disgo     Disgo
+	ID        Snowflake        `json:"id"`
+	Type      InteractionType  `json:"type"`
+	Data      *InteractionData `json:"data,omitempty"`
+	GuildID   *Snowflake       `json:"guild_id,omitempty"`
+	ChannelID *Snowflake       `json:"channel_id,omitempty"`
+	Member    *Member          `json:"member,omitempty"`
+	User      *User            `json:"User,omitempty"`
+	Token     string           `json:"token"`
+	Version   int              `json:"version"`
+}
+
+// Guild returns the api.Guild from the api.Cache
+func (i *Interaction) Guild() *Guild {
+	if i.GuildID == nil {
+		return nil
+	}
+	return i.Disgo.Cache().Guild(*i.GuildID)
+}
+
+// DMChannel returns the api.DMChannel from the api.Cache
+func (i *Interaction) DMChannel() *DMChannel {
+	if i.ChannelID == nil {
+		return nil
+	}
+	return i.Disgo.Cache().DMChannel(*i.ChannelID)
+}
+
+// MessageChannel returns the api.MessageChannel from the api.Cache
+func (i *Interaction) MessageChannel() *MessageChannel {
+	if i.ChannelID == nil {
+		return nil
+	}
+	return i.Disgo.Cache().MessageChannel(*i.ChannelID)
+}
+
+// TextChannel returns the api.TextChannel from the api.Cache
+func (i *Interaction) TextChannel() *TextChannel {
+	if i.ChannelID == nil {
+		return nil
+	}
+	return i.Disgo.Cache().TextChannel(*i.ChannelID)
+}
+
+// GuildChannel returns the api.GuildChannel from the api.Cache
+func (i *Interaction) GuildChannel() *GuildChannel {
+	if i.ChannelID == nil {
+		return nil
+	}
+	return i.Disgo.Cache().GuildChannel(*i.ChannelID)
+}
+
+// EditOriginal edits the original api.InteractionResponse
+func (i *Interaction) EditOriginal(followupMessage *FollowupMessage) (*Message, error) {
+	return i.Disgo.RestClient().EditInteractionResponse(i.Disgo.ApplicationID(), i.Token, followupMessage)
+}
+
+// DeleteOriginal deletes the original api.InteractionResponse
+func (i *Interaction) DeleteOriginal() error {
+	return i.Disgo.RestClient().DeleteInteractionResponse(i.Disgo.ApplicationID(), i.Token)
+}
+
+// SendFollowup used to send a api.FollowupMessage to an api.Interaction
+func (i *Interaction) SendFollowup(followupMessage *FollowupMessage) (*Message, error) {
+	return i.Disgo.RestClient().SendFollowupMessage(i.Disgo.ApplicationID(), i.Token, followupMessage)
+}
+
+// EditFollowup used to edit a api.FollowupMessage from an api.Interaction
+func (i *Interaction) EditFollowup(messageID Snowflake, followupMessage *FollowupMessage) (*Message, error) {
+	return i.Disgo.RestClient().EditFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID, followupMessage)
+}
+
+// DeleteFollowup used to delete a api.FollowupMessage from an api.Interaction
+func (i *Interaction) DeleteFollowup(messageID Snowflake) error {
+	return i.Disgo.RestClient().DeleteFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID)
+}
+
+// InteractionData is the command data payload
+type InteractionData struct {
 	ID        Snowflake       `json:"id"`
 	Type      InteractionType `json:"type"`
 	GuildID   *Snowflake      `json:"guild_id,omitempty"`

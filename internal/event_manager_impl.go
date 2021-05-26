@@ -42,17 +42,20 @@ func (e *EventManagerImpl) Close() {
 }
 
 // Handle calls the correct api.EventHandler
-func (e *EventManagerImpl) Handle(name api.GatewayEventType, c chan interface{}, sequenceNumber int, payload json.RawMessage) {
+func (e *EventManagerImpl) Handle(name api.GatewayEventType, c chan *api.InteractionResponse, sequenceNumber int, payload json.RawMessage) {
 	if handler, ok := e.handlers[name]; ok {
 		eventPayload := handler.New()
 		if err := json.Unmarshal(payload, &eventPayload); err != nil {
-			e.disgo.Logger().Errorf("error while unmarshaling event. error: %s", err)
+			e.disgo.Logger().Errorf("error while unmarshalling event. error: %s", err)
 		}
+
 		switch h := handler.(type) {
 		case api.GatewayEventHandler:
 			h.HandleGatewayEvent(e.disgo, e, sequenceNumber, eventPayload)
 		case api.WebhookEventHandler:
 			h.HandleWebhookEvent(e.disgo, e, c, eventPayload)
+		default:
+			e.Disgo().Logger().Errorf("no event handler found for: %s", name)
 		}
 	}
 }
