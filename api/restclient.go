@@ -12,7 +12,7 @@ var (
 	ErrUnauthorized               = errors.New("not authorized for this endpoint")
 	ErrBadRequest                 = errors.New("bad request please check your request")
 	ErrRatelimited                = errors.New("too many requests")
-	ErrTooMuchApplicationCommands = errors.New("you can provide a max of 100 application commands")
+	ErrTooMuchCommands = errors.New("you can provide a max of 100 application commands")
 )
 
 // ErrorResponse contains custom errors from discord

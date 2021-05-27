@@ -30,7 +30,7 @@ const (
 	MessageTypeGuildDiscoveryFinalWarning
 	_
 	MessageTypeReply
-	MessageTypeApplicationCommand
+	MessageTypeCommand
 )
 
 // The MessageFlags of a Message

@@ -16,10 +16,10 @@ type ListenerAdapter struct {
 	OnReadyEvent   func(event *ReadyEvent)
 
 	// api.Command Events
-	OnGenericApplicationCommandEvent func(event *GenericApplicationCommandEvent)
-	OnApplicationCommandCreate       func(event *ApplicationCommandCreateEvent)
-	OnApplicationCommandUpdate       func(event *ApplicationCommandUpdateEvent)
-	OnApplicationCommandDelete       func(event *ApplicationCommandDeleteEvent)
+	OnGenericCommandEvent func(event *GenericCommandEvent)
+	OnCommandCreate       func(event *CommandCreateEvent)
+	OnCommandUpdate       func(event *CommandUpdateEvent)
+	OnCommandDelete       func(event *CommandDeleteEvent)
 
 	// api.Channel Events
 	OnGenericChannelEvent func(event *GenericChannelEvent)
@@ -123,7 +123,7 @@ type ListenerAdapter struct {
 
 	// api.Interaction Events
 	OnGenericInteractionEvent func(event *GenericInteractionEvent)
-	OnSlashCommand            func(event *SlashCommandEvent)
+	OnCommand            func(event *CommandEvent)
 	OnButtonClick             func(event *ButtonClickEvent)
 
 	// api.Message Events
@@ -181,20 +181,20 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 
 	// api.Command Events
-	case GenericApplicationCommandEvent:
-		if listener := l.OnGenericApplicationCommandEvent; listener != nil {
+	case GenericCommandEvent:
+		if listener := l.OnGenericCommandEvent; listener != nil {
 			listener(&e)
 		}
-	case ApplicationCommandCreateEvent:
-		if listener := l.OnApplicationCommandCreate; listener != nil {
+	case CommandCreateEvent:
+		if listener := l.OnCommandCreate; listener != nil {
 			listener(&e)
 		}
-	case ApplicationCommandUpdateEvent:
-		if listener := l.OnApplicationCommandUpdate; listener != nil {
+	case CommandUpdateEvent:
+		if listener := l.OnCommandUpdate; listener != nil {
 			listener(&e)
 		}
-	case ApplicationCommandDeleteEvent:
-		if listener := l.OnApplicationCommandDelete; listener != nil {
+	case CommandDeleteEvent:
+		if listener := l.OnCommandDelete; listener != nil {
 			listener(&e)
 		}
 
@@ -507,8 +507,8 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		if listener := l.OnGenericInteractionEvent; listener != nil {
 			listener(&e)
 		}
-	case SlashCommandEvent:
-		if listener := l.OnSlashCommand; listener != nil {
+	case CommandEvent:
+		if listener := l.OnCommand; listener != nil {
 			listener(&e)
 		}
 	case ButtonClickEvent:

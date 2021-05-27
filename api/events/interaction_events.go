@@ -55,10 +55,10 @@ func (e *GenericInteractionEvent) DeleteFollowup(messageID api.Snowflake) error 
 	return e.Disgo().RestClient().DeleteFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, messageID)
 }
 
-// SlashCommandEvent indicates that a slash api.Command was ran
-type SlashCommandEvent struct {
+// CommandEvent indicates that a slash api.Command was ran
+type CommandEvent struct {
 	GenericInteractionEvent
-	SlashCommandInteraction *api.SlashCommandInteraction
+	CommandInteraction *api.CommandInteraction
 	CommandID               api.Snowflake
 	CommandName             string
 	SubCommandName          *string
@@ -66,8 +66,8 @@ type SlashCommandEvent struct {
 	Options                 []*api.Option
 }
 
-// DeferReply replies to the api.SlashCommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource and shows a loading state
-func (e *SlashCommandEvent) DeferReply(ephemeral bool) error {
+// DeferReply replies to the api.CommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource and shows a loading state
+func (e *CommandEvent) DeferReply(ephemeral bool) error {
 	var data *api.InteractionResponseData
 	if ephemeral {
 		data = &api.InteractionResponseData{Flags: api.MessageFlagEphemeral}
@@ -75,13 +75,13 @@ func (e *SlashCommandEvent) DeferReply(ephemeral bool) error {
 	return e.Reply(&api.InteractionResponse{Type: api.InteractionResponseTypeDeferredChannelMessageWithSource, Data: data})
 }
 
-// ReplyCreate replies to the api.SlashCommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource & api.InteractionResponseData
-func (e *SlashCommandEvent) ReplyCreate(data *api.InteractionResponseData) error {
+// ReplyCreate replies to the api.CommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource & api.InteractionResponseData
+func (e *CommandEvent) ReplyCreate(data *api.InteractionResponseData) error {
 	return e.Reply(&api.InteractionResponse{Type: api.InteractionResponseTypeChannelMessageWithSource, Data: data})
 }
 
 // CommandPath returns the api.Command path
-func (e SlashCommandEvent) CommandPath() string {
+func (e CommandEvent) CommandPath() string {
 	path := e.CommandName
 	if e.SubCommandName != nil {
 		path += "/" + *e.SubCommandName
@@ -93,7 +93,7 @@ func (e SlashCommandEvent) CommandPath() string {
 }
 
 // Option returns an Option by name
-func (e SlashCommandEvent) Option(name string) *api.Option {
+func (e CommandEvent) Option(name string) *api.Option {
 	options := e.OptionN(name)
 	if len(options) == 0 {
 		return nil
@@ -102,7 +102,7 @@ func (e SlashCommandEvent) Option(name string) *api.Option {
 }
 
 // OptionN returns Option(s) by name
-func (e SlashCommandEvent) OptionN(name string) []*api.Option {
+func (e CommandEvent) OptionN(name string) []*api.Option {
 	options := make([]*api.Option, 0)
 	for _, option := range e.Options {
 		if option.Name == name {
@@ -113,7 +113,7 @@ func (e SlashCommandEvent) OptionN(name string) []*api.Option {
 }
 
 // OptionsT returns Option(s) by api.CommandOptionType
-func (e SlashCommandEvent) OptionsT(optionType api.CommandOptionType) []*api.Option {
+func (e CommandEvent) OptionsT(optionType api.CommandOptionType) []*api.Option {
 	options := make([]*api.Option, 0)
 	for _, option := range e.Options {
 		if option.Type == optionType {

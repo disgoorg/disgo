@@ -43,7 +43,7 @@ func main() {
 			OnRawGateway:         rawGatewayEventListener,
 			OnGuildAvailable:     guildAvailListener,
 			OnGuildMessageCreate: messageListener,
-			OnSlashCommand:       slashCommandListener,
+			OnCommand:       commandListener,
 			OnButtonClick:        buttonClickListener,
 		}).
 		Build()
@@ -206,7 +206,7 @@ func buttonClickListener(event *events.ButtonClickEvent) {
 	}
 }
 
-func slashCommandListener(event *events.SlashCommandEvent) {
+func commandListener(event *events.CommandEvent) {
 	switch event.CommandName {
 	case "eval":
 		go func() {

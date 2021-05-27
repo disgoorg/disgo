@@ -8,7 +8,7 @@ type InteractionType int
 // Supported InteractionType(s)
 const (
 	InteractionTypePing InteractionType = iota + 1
-	InteractionTypeSlashCommand
+	InteractionTypeCommand
 	InteractionTypeComponent
 )
 
@@ -111,10 +111,10 @@ type ButtonInteraction struct {
 	Data    *ButtonInteractionData `json:"data,omitempty"`
 }
 
-// SlashCommandInteraction is a specific Interaction when using Command(s)
-type SlashCommandInteraction struct {
+// CommandInteraction is a specific Interaction when using Command(s)
+type CommandInteraction struct {
 	*Interaction
-	Data *SlashCommandInteractionData `json:"data,omitempty"`
+	Data *CommandInteractionData `json:"data,omitempty"`
 }
 
 // ButtonInteractionData is the command data payload
@@ -123,8 +123,8 @@ type ButtonInteractionData struct {
 	ComponentType ComponentType `json:"component_type"`
 }
 
-// SlashCommandInteractionData is the command data payload
-type SlashCommandInteractionData struct {
+// CommandInteractionData is the command data payload
+type CommandInteractionData struct {
 	ID       Snowflake     `json:"id"`
 	Name     string        `json:"name"`
 	Resolved *Resolved     `json:"resolved,omitempty"`

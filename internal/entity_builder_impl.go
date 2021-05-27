@@ -52,9 +52,9 @@ func (b *EntityBuilderImpl) CreateButtonInteraction(fullInteraction *api.FullInt
 	}
 }
 
-// CreateSlashCommandInteraction creates a api.SlashCommandInteraction from the full interaction response
-func (b *EntityBuilderImpl) CreateSlashCommandInteraction(fullInteraction *api.FullInteraction, updateCache api.CacheStrategy) *api.SlashCommandInteraction {
-	var data *api.SlashCommandInteractionData
+// CreateCommandInteraction creates a api.CommandInteraction from the full interaction response
+func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullInteraction, updateCache api.CacheStrategy) *api.CommandInteraction {
+	var data *api.CommandInteractionData
 	_ = json.Unmarshal(fullInteraction.Data, &data)
 
 	if data.Resolved != nil {
@@ -84,7 +84,7 @@ func (b *EntityBuilderImpl) CreateSlashCommandInteraction(fullInteraction *api.F
 		}*/
 	}
 
-	return &api.SlashCommandInteraction{
+	return &api.CommandInteraction{
 		Interaction: b.createInteraction(fullInteraction, updateCache),
 		Data:        data,
 	}

@@ -133,7 +133,7 @@ const (
 	PermissionManageRoles
 	PermissionManageWebhooks
 	PermissionManageEmojis
-	PermissionUseSlashCommands
+	PermissionUseCommands
 )
 
 // Constants for the different bit offsets of general permissions

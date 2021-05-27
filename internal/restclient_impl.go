@@ -534,7 +534,7 @@ func (r RestClientImpl) SetGlobalCommands(applicationID api.Snowflake, commands 
 		return nil, err
 	}
 	if len(commands) > 100 {
-		err = api.ErrTooMuchApplicationCommands
+		err = api.ErrTooMuchCommands
 		return
 	}
 	err = r.Request(compiledRoute, commands, &cmds)
@@ -607,7 +607,7 @@ func (r RestClientImpl) SetGuildCommands(applicationID api.Snowflake, guildID ap
 		return nil, err
 	}
 	if len(commands) > 100 {
-		err = api.ErrTooMuchApplicationCommands
+		err = api.ErrTooMuchCommands
 		return
 	}
 	err = r.Request(compiledRoute, commands, &cmds)

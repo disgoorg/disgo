@@ -36,8 +36,8 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceN
 	}
 
 	switch fullInteraction.Type {
-	case api.InteractionTypeSlashCommand:
-		interaction := disgo.EntityBuilder().CreateSlashCommandInteraction(fullInteraction, api.CacheStrategyYes)
+	case api.InteractionTypeCommand:
+		interaction := disgo.EntityBuilder().CreateCommandInteraction(fullInteraction, api.CacheStrategyYes)
 
 		genericInteractionEvent.Interaction = interaction.Interaction
 		eventManager.Dispatch(genericInteractionEvent)
@@ -68,9 +68,9 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceN
 			})
 		}
 
-		eventManager.Dispatch(events.SlashCommandEvent{
+		eventManager.Dispatch(events.CommandEvent{
 			GenericInteractionEvent: genericInteractionEvent,
-			SlashCommandInteraction: interaction,
+			CommandInteraction: interaction,
 			CommandID:               interaction.Data.ID,
 			CommandName:             interaction.Data.Name,
 			SubCommandName:          subCommandName,
