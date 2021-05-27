@@ -47,7 +47,7 @@ func (b *EntityBuilderImpl) CreateButtonInteraction(fullInteraction *api.FullInt
 
 	return &api.ButtonInteraction{
 		Interaction: b.createInteraction(fullInteraction, updateCache),
-		Message:     b.CreateMessage(fullInteraction.Message, updateCache),
+		Message:     b.CreateMessage(fullInteraction.FullMessage, updateCache),
 		Data:        data,
 	}
 }
@@ -108,15 +108,58 @@ func (b *EntityBuilderImpl) CreateUser(user *api.User, updateCache api.CacheStra
 	return user
 }
 
+func (b *EntityBuilderImpl) createComponent(unmarshalComponent *api.UnmarshalComponent, updateCache api.CacheStrategy) api.Component {
+	switch unmarshalComponent.ComponentType {
+	case api.ComponentTypeActionRow:
+		components := make([]api.Component, len(unmarshalComponent.Components))
+		for i, unmarshalC := range unmarshalComponent.Components {
+			components[i] = b.createComponent(unmarshalC, updateCache)
+		}
+		return &api.ActionRow{
+			ComponentImpl: api.ComponentImpl{
+				ComponentType: api.ComponentTypeActionRow,
+			},
+			Components: components,
+		}
+
+	case api.ComponentTypeButton:
+		return &api.Button{
+			ComponentImpl: api.ComponentImpl{
+				ComponentType: api.ComponentTypeButton,
+			},
+			Style:    unmarshalComponent.Style,
+			Label:    unmarshalComponent.Label,
+			Emote:    b.CreateEmote("", unmarshalComponent.Emote, updateCache),
+			CustomID: unmarshalComponent.CustomID,
+			URL:      unmarshalComponent.URL,
+			Disabled: unmarshalComponent.Disabled,
+		}
+
+	default:
+		b.Disgo().Logger().Errorf("unexpected component type %d received", unmarshalComponent.ComponentType)
+		return nil
+	}
+}
+
 // CreateMessage returns a new api.Message entity
-func (b *EntityBuilderImpl) CreateMessage(message *api.Message, updateCache api.CacheStrategy) *api.Message {
+func (b *EntityBuilderImpl) CreateMessage(fullMessage *api.FullMessage, updateCache api.CacheStrategy) *api.Message {
+	message := fullMessage.Message
 	message.Disgo = b.Disgo()
+
 	if message.Member != nil {
+		message.Member.User = message.Author
 		message.Member = b.CreateMember(*message.GuildID, message.Member, updateCache)
 	}
 	if message.Author != nil {
 		message.Author = b.CreateUser(message.Author, updateCache)
 	}
+
+	if fullMessage.UnmarshalComponents != nil {
+		for _, component := range fullMessage.UnmarshalComponents {
+			message.Components = append(message.Components, b.createComponent(component, updateCache))
+		}
+	}
+
 	// TODO: should we cache mentioned users, members, etc?
 	if updateCache(b.Disgo()) {
 		return b.Disgo().Cache().CacheMessage(message)

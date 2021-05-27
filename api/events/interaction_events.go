@@ -68,11 +68,15 @@ type SlashCommandEvent struct {
 
 // DeferReply replies to the api.SlashCommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource
 func (e *SlashCommandEvent) DeferReply(ephemeral bool) error {
-	var data *api.SlashCommandResponse
+	var data *api.InteractionResponseData
 	if ephemeral {
-		data = &api.SlashCommandResponse{Flags: api.MessageFlagEphemeral}
+		data = &api.InteractionResponseData{Flags: api.MessageFlagEphemeral}
 	}
 	return e.Reply(&api.InteractionResponse{Type: api.InteractionResponseTypeDeferredChannelMessageWithSource, Data: data})
+}
+
+func (e *SlashCommandEvent) ReplyCreate(data *api.InteractionResponseData) error {
+	return e.Reply(&api.InteractionResponse{Type: api.InteractionResponseTypeChannelMessageWithSource, Data: data})
 }
 
 // CommandPath returns the api.Command path
@@ -123,8 +127,12 @@ type ButtonClickEvent struct {
 	ButtonInteraction *api.ButtonInteraction
 }
 
-func (e *ButtonClickEvent) Acknowledge() error {
-	return e.Reply(&api.InteractionResponse{Type: api.InteractionResponseTypeButtonAck})
+func (e *ButtonClickEvent) DeferEdit() error {
+	return e.Reply(&api.InteractionResponse{Type: api.InteractionResponseTypeDeferredUpdateMessage})
+}
+
+func (e *ButtonClickEvent) ReplyEdit(data *api.InteractionResponseData) error {
+	return e.Reply(&api.InteractionResponse{Type: api.InteractionResponseTypeUpdateMessage, Data: data})
 }
 
 func (e *ButtonClickEvent) CustomID() string {

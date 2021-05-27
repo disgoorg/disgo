@@ -20,9 +20,26 @@ type FollowupMessageBuilder struct {
 // NewFollowupMessageBuilder returns a new FollowupMessageBuilder
 func NewFollowupMessageBuilder() *FollowupMessageBuilder {
 	return &FollowupMessageBuilder{
-		FollowupMessage{
+		FollowupMessage: FollowupMessage{
 			AllowedMentions: &DefaultInteractionAllowedMentions,
 		},
+	}
+}
+
+// NewFollowupMessageBuilderByMessage returns a new FollowupMessageBuilder and takes an existing Message
+func NewFollowupMessageBuilderByMessage(message *Message) *FollowupMessageBuilder {
+	msg := FollowupMessage{
+		TTS:             message.TTS,
+		Embeds:          message.Embeds,
+		Components:      message.Components,
+		AllowedMentions: &DefaultInteractionAllowedMentions,
+		Flags:           message.Flags,
+	}
+	if message.Content != nil {
+		msg.Content = *message.Content
+	}
+	return &FollowupMessageBuilder{
+		FollowupMessage: msg,
 	}
 }
 
@@ -73,6 +90,12 @@ func (b *FollowupMessageBuilder) RemoveEmbed(index int) *FollowupMessageBuilder 
 // SetComponents sets the Component(s) of the FollowupMessage
 func (b *FollowupMessageBuilder) SetComponents(components ...Component) *FollowupMessageBuilder {
 	b.Components = components
+	return b
+}
+
+// AddComponents adds the Component(s) to the FollowupMessage
+func (b *FollowupMessageBuilder) AddComponents(components ...Component) *FollowupMessageBuilder {
+	b.Components = append(b.Components, components...)
 	return b
 }
 

@@ -179,7 +179,7 @@ type Message struct {
 	Content           *string              `json:"content,omitempty"`
 	ChannelID         Snowflake            `json:"channel_id"`
 	Type              MessageType          `json:"type"`
-	Flags             *MessageFlags        `json:"flags"`
+	Flags             MessageFlags         `json:"flags"`
 	MessageReference  *MessageReference    `json:"message_reference,omitempty"`
 	Interaction       *MessageInteraction  `json:"message_interaction,omitempty"`
 	WebhookID         *Snowflake           `json:"webhook_id,omitempty"`
@@ -188,6 +188,11 @@ type Message struct {
 	Stickers          []*MessageSticker    `json:"stickers,omitempty"`
 	ReferencedMessage *Message             `json:"referenced_message,omitempty"`
 	LastUpdated       *time.Time           `json:"last_updated,omitempty"`
+}
+
+type FullMessage struct {
+	*Message
+	UnmarshalComponents []*UnmarshalComponent `json:"components,omitempty"`
 }
 
 // MessageReference is a reference to another message
@@ -270,17 +275,6 @@ type MessageUpdate struct {
 	Embed           *Embed           `json:"embed,omitempty"`
 	Flags           *MessageFlags    `json:"flags,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
-}
-
-// MessageCreate is the struct to create a new Message with
-type MessageCreate struct {
-	Nonce            string            `json:"nonce,omitempty"`
-	Content          string            `json:"content,omitempty"`
-	Components       []Component       `json:"components,omitempty"`
-	TTS              bool              `json:"tts,omitempty"`
-	Embed            *Embed            `json:"embed,omitempty"`
-	AllowedMentions  *AllowedMentions  `json:"allowed_mentions,omitempty"`
-	MessageReference *MessageReference `json:"message_reference,omitempty"`
 }
 
 // MessageBulkDelete is used to bulk delete Message(s)

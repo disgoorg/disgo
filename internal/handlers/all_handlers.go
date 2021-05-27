@@ -31,6 +31,8 @@ func GetAllHandlers() []api.EventHandler {
 		InteractionCreateWebhookHandler{},
 
 		MessageCreateHandler{},
+		MessageUpdateHandler{},
+		MessageDeleteHandler{},
 
 		ReadyHandler{},
 
