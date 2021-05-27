@@ -157,9 +157,10 @@ func (r RestClientImpl) SendMessage(channelID api.Snowflake, message *api.Messag
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(compiledRoute, message, &msg)
+	var fullMsg *api.FullMessage
+	err = r.Request(compiledRoute, message, &fullMsg)
 	if err == nil {
-		msg = r.Disgo().EntityBuilder().CreateMessage(msg, api.CacheStrategyNoWs)
+		msg = r.Disgo().EntityBuilder().CreateMessage(fullMsg, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -170,9 +171,10 @@ func (r RestClientImpl) EditMessage(channelID api.Snowflake, messageID api.Snowf
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(compiledRoute, message, &msg)
+	var fullMsg *api.FullMessage
+	err = r.Request(compiledRoute, message, &fullMsg)
 	if err == nil {
-		msg = r.Disgo().EntityBuilder().CreateMessage(msg, api.CacheStrategyNoWs)
+		msg = r.Disgo().EntityBuilder().CreateMessage(fullMsg, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -212,9 +214,10 @@ func (r RestClientImpl) CrosspostMessage(channelID api.Snowflake, messageID api.
 	if err != nil {
 		return nil, err
 	}
-	err = r.Request(compiledRoute, nil, &msg)
+	var fullMsg *api.FullMessage
+	err = r.Request(compiledRoute, nil, &fullMsg)
 	if err == nil {
-		msg = r.Disgo().EntityBuilder().CreateMessage(msg, api.CacheStrategyNoWs)
+		msg = r.Disgo().EntityBuilder().CreateMessage(fullMsg, api.CacheStrategyNoWs)
 	}
 	return
 }

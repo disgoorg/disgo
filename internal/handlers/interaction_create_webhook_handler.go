@@ -14,22 +14,22 @@ func (h InteractionCreateWebhookHandler) Event() api.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h InteractionCreateWebhookHandler) New() interface{} {
-	return &api.Interaction{}
+	return &api.FullInteraction{}
 }
 
 // HandleWebhookEvent handles the specific raw gateway event
 func (h InteractionCreateWebhookHandler) HandleWebhookEvent(disgo api.Disgo, eventManager api.EventManager, c chan *api.InteractionResponse, i interface{}) {
-	interaction, ok := i.(*api.Interaction)
+	fullInteraction, ok := i.(*api.FullInteraction)
 	if !ok {
 		return
 	}
 
-	if interaction.Type == api.InteractionTypePing {
+	if fullInteraction.Type == api.InteractionTypePing {
 		disgo.Logger().Debugf("received interaction ping")
 		c <- &api.InteractionResponse{
 			Type: api.InteractionResponseTypePong,
 		}
 		return
 	}
-	handleInteraction(disgo, eventManager, -1, interaction, c)
+	handleInteraction(disgo, eventManager, -1, fullInteraction, c)
 }

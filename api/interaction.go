@@ -1,27 +1,16 @@
 package api
 
+import "encoding/json"
+
 // InteractionType is the type of Interaction
 type InteractionType int
 
-// Constants for InteractionType
+// Supported InteractionType(s)
 const (
 	InteractionTypePing InteractionType = iota + 1
-	InteractionTypeApplicationCommand
+	InteractionTypeSlashCommand
+	InteractionTypeComponent
 )
-
-// An Interaction is the slash command object you receive when a user uses one of your commands
-type Interaction struct {
-	Disgo     Disgo
-	ID        Snowflake        `json:"id"`
-	Type      InteractionType  `json:"type"`
-	Data      *InteractionData `json:"data,omitempty"`
-	GuildID   *Snowflake       `json:"guild_id,omitempty"`
-	ChannelID *Snowflake       `json:"channel_id,omitempty"`
-	Member    *Member          `json:"member,omitempty"`
-	User      *User            `json:"User,omitempty"`
-	Token     string           `json:"token"`
-	Version   int              `json:"version"`
-}
 
 // Guild returns the api.Guild from the api.Cache
 func (i *Interaction) Guild() *Guild {
@@ -88,11 +77,57 @@ func (i *Interaction) DeleteFollowup(messageID Snowflake) error {
 	return i.Disgo.RestClient().DeleteFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID)
 }
 
-// InteractionData is the command data payload
-type InteractionData struct {
+// FullInteraction is used for easier unmarshalling of different Interaction(s)
+type FullInteraction struct {
+	ID          Snowflake       `json:"id"`
+	Type        InteractionType `json:"type"`
+	GuildID     *Snowflake      `json:"guild_id,omitempty"`
+	ChannelID   *Snowflake      `json:"channel_id,omitempty"`
+	FullMessage *FullMessage    `json:"message,omitempty"`
+	Member      *Member         `json:"member,omitempty"`
+	User        *User           `json:"User,omitempty"`
+	Token       string          `json:"token"`
+	Version     int             `json:"version"`
+	Data        json.RawMessage `json:"data,omitempty"`
+}
+
+// Interaction holds the general parameters of each Interaction
+type Interaction struct {
+	Disgo     Disgo
+	ID        Snowflake       `json:"id"`
+	Type      InteractionType `json:"type"`
+	GuildID   *Snowflake      `json:"guild_id,omitempty"`
+	ChannelID *Snowflake      `json:"channel_id,omitempty"`
+	Member    *Member         `json:"member,omitempty"`
+	User      *User           `json:"User,omitempty"`
+	Token     string          `json:"token"`
+	Version   int             `json:"version"`
+}
+
+// ButtonInteraction is a specific Interaction when CLicked on Button(s)
+type ButtonInteraction struct {
+	*Interaction
+	Message *Message               `json:"message,omitempty"`
+	Data    *ButtonInteractionData `json:"data,omitempty"`
+}
+
+// SlashCommandInteraction is a specific Interaction when using Command(s)
+type SlashCommandInteraction struct {
+	*Interaction
+	Data *SlashCommandInteractionData `json:"data,omitempty"`
+}
+
+// ButtonInteractionData is the command data payload
+type ButtonInteractionData struct {
+	CustomID      string        `json:"custom_id"`
+	ComponentType ComponentType `json:"component_type"`
+}
+
+// SlashCommandInteractionData is the command data payload
+type SlashCommandInteractionData struct {
 	ID       Snowflake     `json:"id"`
 	Name     string        `json:"name"`
-	Resolved *Resolved     `json:"resolved"`
+	Resolved *Resolved     `json:"resolved,omitempty"`
 	Options  []*OptionData `json:"options,omitempty"`
 }
 

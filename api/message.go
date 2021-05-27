@@ -88,15 +88,15 @@ func (f MessageFlags) Missing(bit MessageFlags) bool {
 
 // Constants for MessageFlags
 const (
-	MessageFlagNone        MessageFlags = 0
-	MessageFlagCrossposted MessageFlags = 1 << (iota - 1)
+	MessageFlagCrossposted MessageFlags = 1 << iota
 	MessageFlagIsCrosspost
 	MessageFlagSuppressEmbeds
 	MessageFlagSourceMessageDeleted
 	MessageFlagUrgent
 	_
 	MessageFlagEphemeral
-	MessageFlagLoading // Message is an interaction of type 5, awaiting further response
+	MessageFlagLoading              // Message is an interaction of type 5, awaiting further response
+	MessageFlagNone    MessageFlags = 0
 )
 
 //MessageAttachment is used for files sent in a Message
@@ -166,6 +166,7 @@ type Message struct {
 	Attachments       []*MessageAttachment `json:"attachments"`
 	TTS               bool                 `json:"tts"`
 	Embeds            []*Embed             `json:"embeds,omitempty"`
+	Components        []Component          `json:"components,omitempty"`
 	CreatedAt         time.Time            `json:"timestamp"`
 	Mentions          []interface{}        `json:"mentions"`
 	MentionEveryone   bool                 `json:"mention_everyone"`
@@ -178,7 +179,7 @@ type Message struct {
 	Content           *string              `json:"content,omitempty"`
 	ChannelID         Snowflake            `json:"channel_id"`
 	Type              MessageType          `json:"type"`
-	Flags             *MessageFlags        `json:"flags"`
+	Flags             MessageFlags         `json:"flags"`
 	MessageReference  *MessageReference    `json:"message_reference,omitempty"`
 	Interaction       *MessageInteraction  `json:"message_interaction,omitempty"`
 	WebhookID         *Snowflake           `json:"webhook_id,omitempty"`
@@ -186,7 +187,13 @@ type Message struct {
 	Application       *MessageApplication  `json:"application,omitempty"`
 	Stickers          []*MessageSticker    `json:"stickers,omitempty"`
 	ReferencedMessage *Message             `json:"referenced_message,omitempty"`
-	LastUpdated       *time.Time
+	LastUpdated       *time.Time           `json:"last_updated,omitempty"`
+}
+
+// FullMessage is used for easier unmarshalling of Component(s) in Message(s)
+type FullMessage struct {
+	*Message
+	UnmarshalComponents []*UnmarshalComponent `json:"components,omitempty"`
 }
 
 // MessageReference is a reference to another message
@@ -265,18 +272,10 @@ type MessageReaction struct {
 // MessageUpdate is used to edit a Message
 type MessageUpdate struct {
 	Content         *string          `json:"content,omitempty"`
+	Components      []Component      `json:"components,omitempty"`
 	Embed           *Embed           `json:"embed,omitempty"`
 	Flags           *MessageFlags    `json:"flags,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
-}
-
-// MessageCreate is the struct to create a new Message with
-type MessageCreate struct {
-	Content          *string           `json:"content,omitempty"`
-	TTS              *bool             `json:"tts,omitempty"`
-	Embed            *Embed            `json:"embed,omitempty"`
-	AllowedMentions  *AllowedMentions  `json:"allowed_mentions,omitempty"`
-	MessageReference *MessageReference `json:"message_reference,omitempty"`
 }
 
 // MessageBulkDelete is used to bulk delete Message(s)
