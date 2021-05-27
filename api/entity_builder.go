@@ -15,13 +15,14 @@ var (
 type EntityBuilder interface {
 	Disgo() Disgo
 
-	CreateInteraction(interaction *Interaction, updateCache CacheStrategy) *Interaction
+	CreateButtonInteraction(fullInteraction *FullInteraction, updateCache CacheStrategy) *ButtonInteraction
+	CreateCommandInteraction(fullInteraction *FullInteraction, updateCache CacheStrategy) *CommandInteraction
 
 	CreateGlobalCommand(command *Command, updateCache CacheStrategy) *Command
 
 	CreateUser(user *User, updateCache CacheStrategy) *User
 
-	CreateMessage(message *Message, updateCache CacheStrategy) *Message
+	CreateMessage(message *FullMessage, updateCache CacheStrategy) *Message
 
 	CreateGuild(guild *Guild, updateCache CacheStrategy) *Guild
 	CreateMember(guildID Snowflake, member *Member, updateCache CacheStrategy) *Member

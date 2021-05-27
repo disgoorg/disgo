@@ -4,8 +4,8 @@ import (
 	"github.com/DisgoOrg/disgo/api"
 )
 
-// GenericApplicationCommandEvent is called upon receiving either ApplicationCommandCreateEvent, ApplicationCommandUpdateEvent or ApplicationCommandDeleteEvent
-type GenericApplicationCommandEvent struct {
+// GenericCommandEvent is called upon receiving either CommandCreateEvent, CommandUpdateEvent or CommandDeleteEvent
+type GenericCommandEvent struct {
 	GenericEvent
 	CommandID api.Snowflake
 	Command   *api.Command
@@ -13,25 +13,25 @@ type GenericApplicationCommandEvent struct {
 }
 
 // Guild returns the api.Guild the api.Event got called or nil for global api.Command(s)
-func (e GenericApplicationCommandEvent) Guild() *api.Guild {
+func (e GenericCommandEvent) Guild() *api.Guild {
 	if e.GuildID == nil {
 		return nil
 	}
 	return e.Disgo().Cache().Guild(*e.GuildID)
 }
 
-// ApplicationCommandCreateEvent indicates that a new api.Command got created(this can come from any bot!)
-type ApplicationCommandCreateEvent struct {
-	GenericApplicationCommandEvent
+// CommandCreateEvent indicates that a new api.Command got created(this can come from any bot!)
+type CommandCreateEvent struct {
+	GenericCommandEvent
 }
 
-// ApplicationCommandUpdateEvent indicates that a api.Command got updated(this can come from any bot!)
-type ApplicationCommandUpdateEvent struct {
-	GenericApplicationCommandEvent
+// CommandUpdateEvent indicates that a api.Command got updated(this can come from any bot!)
+type CommandUpdateEvent struct {
+	GenericCommandEvent
 	OldCommand *api.Command
 }
 
-// ApplicationCommandDeleteEvent indicates that a api.Command got deleted(this can come from any bot!)
-type ApplicationCommandDeleteEvent struct {
-	GenericApplicationCommandEvent
+// CommandDeleteEvent indicates that a api.Command got deleted(this can come from any bot!)
+type CommandDeleteEvent struct {
+	GenericCommandEvent
 }

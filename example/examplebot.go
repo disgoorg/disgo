@@ -21,9 +21,10 @@ const red = 16711680
 const orange = 16562691
 const green = 65280
 
-const guildID = "817327181659111454"
-const adminRoleID = "817327279583264788"
-const testRoleID = "825156597935243304"
+var guildID = api.Snowflake(os.Getenv("guild_id"))
+var adminRoleID = api.Snowflake(os.Getenv("admin_role_id"))
+var testRoleID = api.Snowflake(os.Getenv("test_role_id"))
+var emoteID = api.Snowflake(os.Getenv("test_emote_id"))
 
 var logger = logrus.New()
 var client = http.DefaultClient
@@ -34,13 +35,16 @@ func main() {
 
 	dgo, err := disgo.NewBuilder(os.Getenv("token")).
 		SetLogger(logger).
+		SetRawGatewayEventsEnabled(true).
 		SetHTTPClient(client).
 		SetGatewayIntents(api.GatewayIntentsNonPrivileged | api.GatewayIntentsGuildMembers).
 		SetMemberCachePolicy(api.MemberCachePolicyAll).
 		AddEventListeners(&events.ListenerAdapter{
+			OnRawGateway:         rawGatewayEventListener,
 			OnGuildAvailable:     guildAvailListener,
 			OnGuildMessageCreate: messageListener,
-			OnSlashCommand:       slashCommandListener,
+			OnCommand:       commandListener,
+			OnButtonClick:        buttonClickListener,
 		}).
 		Build()
 	if err != nil {
@@ -52,7 +56,7 @@ func main() {
 		{
 			Name:              "eval",
 			Description:       "runs some go code",
-			DefaultPermission: ptrBool(false),
+			DefaultPermission: ptrBool(true),
 			Options: []*api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeString,
@@ -65,12 +69,12 @@ func main() {
 		{
 			Name:              "test",
 			Description:       "test test test test test test",
-			DefaultPermission: ptrBool(false),
+			DefaultPermission: ptrBool(true),
 		},
 		{
 			Name:              "say",
 			Description:       "says what you say",
-			DefaultPermission: ptrBool(false),
+			DefaultPermission: ptrBool(true),
 			Options: []*api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeString,
@@ -83,7 +87,7 @@ func main() {
 		{
 			Name:              "addrole",
 			Description:       "This command adds a role to a member",
-			DefaultPermission: ptrBool(false),
+			DefaultPermission: ptrBool(true),
 			Options: []*api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeUser,
@@ -102,7 +106,7 @@ func main() {
 		{
 			Name:              "removerole",
 			Description:       "This command removes a role from a member",
-			DefaultPermission: ptrBool(false),
+			DefaultPermission: ptrBool(true),
 			Options: []*api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeUser,
@@ -168,11 +172,44 @@ func guildAvailListener(event *events.GuildAvailableEvent) {
 	logger.Printf("guild loaded: %s", event.Guild.ID)
 }
 
-func slashCommandListener(event *events.SlashCommandEvent) {
+func rawGatewayEventListener(event *events.RawGatewayEvent) {
+	if event.Type == api.GatewayEventInteractionCreate {
+		println(string(event.RawPayload))
+	}
+}
+
+func buttonClickListener(event *events.ButtonClickEvent) {
+	switch event.CustomID() {
+	case "test":
+		if err := event.ReplyEdit(api.NewInteractionResponseBuilder().
+			SetContent("test2").
+			SetComponents(api.NewActionRow(
+				api.NewPrimaryButton("test2", "test2", api.NewEmoji("✔"), false),
+				api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote("kittybot", emoteID), false),
+			)).
+			BuildData(),
+		); err != nil {
+			logger.Errorf("error sending interaction response: %s", err)
+		}
+
+	case "test2":
+		if err := event.ReplyEdit(api.NewInteractionResponseBuilder().
+			SetContent("test").
+			SetComponents(api.NewActionRow(
+				api.NewPrimaryButton("test", "test", api.NewEmoji("❌"), false),
+				api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote("kittybot", emoteID), false),
+			)).
+			BuildData(),
+		); err != nil {
+			logger.Errorf("error sending interaction response: %s", err)
+		}
+	}
+}
+
+func commandListener(event *events.CommandEvent) {
 	switch event.CommandName {
 	case "eval":
 		go func() {
-			start := time.Now()
 			code := event.Option("code").String()
 			embed := api.NewEmbedBuilder().
 				SetColor(orange).
@@ -180,21 +217,20 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 				AddField("Time", "...", true).
 				AddField("Code", "```go\n"+code+"\n```", false).
 				AddField("Output", "```\n...\n```", false)
+			_ = event.ReplyCreate(api.NewInteractionResponseBuilder().SetEmbeds(embed.Build()).BuildData())
 
-			_ = event.Reply(api.NewInteractionResponseBuilder().SetEmbeds(embed.Build()).Build())
-
-			vars := map[string]interface{}{
+			start := time.Now()
+			output, err := gval.Evaluate(code, map[string]interface{}{
 				"disgo": event.Disgo(),
 				"dgo":   event.Disgo(),
 				"event": event,
-			}
-			output, err := gval.Evaluate(code, vars)
+			})
 
 			elapsed := time.Since(start)
 			embed.SetField(1, "Time", strconv.Itoa(int(elapsed.Milliseconds()))+"ms", true)
 
 			if err != nil {
-				_, _ = event.EditOriginal(api.NewFollowupMessageBuilder().
+				_, err = event.Interaction.EditOriginal(api.NewFollowupMessageBuilder().
 					SetEmbeds(embed.
 						SetColor(red).
 						SetField(0, "Status", "Failed", true).
@@ -203,9 +239,12 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 					).
 					Build(),
 				)
+				if err != nil {
+					logger.Errorf("error sending interaction response: %s", err)
+				}
 				return
 			}
-			_, _ = event.EditOriginal(api.NewFollowupMessageBuilder().
+			_, err = event.Interaction.EditOriginal(api.NewFollowupMessageBuilder().
 				SetEmbeds(embed.
 					SetColor(green).
 					SetField(0, "Status", "Success", true).
@@ -214,6 +253,9 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 				).
 				Build(),
 			)
+			if err != nil {
+				logger.Errorf("error sending interaction response: %s", err)
+			}
 		}()
 
 	case "say":
@@ -224,32 +266,18 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 		)
 
 	case "test":
-		go func() {
-			_ = event.Acknowledge(true)
-
-			time.Sleep(2 * time.Second)
-			_, _ = event.EditOriginal(api.NewFollowupMessageBuilder().
-				SetEmbeds(api.NewEmbedBuilder().
-					SetDescription("finished with thinking").
-					Build(),
-				).Build(),
-			)
-
-			time.Sleep(1 * time.Second)
-			_, _ = event.SendFollowup(api.NewFollowupMessageBuilder().
-				SetEmbeds(api.NewEmbedBuilder().
-					SetDescription("followup 1").
-					Build(),
-				).Build(),
-			)
-
-			time.Sleep(1 * time.Second)
-			_, _ = event.SendFollowup(api.NewFollowupMessageBuilder().
-				SetEphemeral(true).
-				SetContent("followup 2 only you can see").
-				Build(),
-			)
-		}()
+		if err := event.Reply(api.NewInteractionResponseBuilder().
+			SetContent("test1").
+			SetEmbeds(api.NewEmbedBuilder().SetDescription("this message should have some buttons").Build()).
+			SetComponents(
+				api.NewActionRow(
+					api.NewPrimaryButton("test", "test", api.NewEmoji("❌"), false),
+				),
+			).
+			Build(),
+		); err != nil {
+			logger.Errorf("error sending interaction response: %s", err)
+		}
 
 	case "addrole":
 		user := event.Option("member").User()

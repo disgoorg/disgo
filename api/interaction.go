@@ -1,32 +1,133 @@
 package api
 
+import "encoding/json"
+
 // InteractionType is the type of Interaction
 type InteractionType int
 
-// Constants for InteractionType
+// Supported InteractionType(s)
 const (
 	InteractionTypePing InteractionType = iota + 1
-	InteractionTypeApplicationCommand
+	InteractionTypeCommand
+	InteractionTypeComponent
 )
 
-// An Interaction is the slash command object you receive when a user uses one of your commands
-type Interaction struct {
-	ID        Snowflake        `json:"id"`
-	Type      InteractionType  `json:"type"`
-	Data      *InteractionData `json:"data,omitempty"`
-	GuildID   *Snowflake       `json:"guild_id,omitempty"`
-	ChannelID *Snowflake       `json:"channel_id,omitempty"`
-	Member    *Member          `json:"member,omitempty"`
-	User      *User            `json:"User,omitempty"`
-	Token     string           `json:"token"`
-	Version   int              `json:"version"`
+// Guild returns the api.Guild from the api.Cache
+func (i *Interaction) Guild() *Guild {
+	if i.GuildID == nil {
+		return nil
+	}
+	return i.Disgo.Cache().Guild(*i.GuildID)
 }
 
-// InteractionData is the command data payload
-type InteractionData struct {
+// DMChannel returns the api.DMChannel from the api.Cache
+func (i *Interaction) DMChannel() *DMChannel {
+	if i.ChannelID == nil {
+		return nil
+	}
+	return i.Disgo.Cache().DMChannel(*i.ChannelID)
+}
+
+// MessageChannel returns the api.MessageChannel from the api.Cache
+func (i *Interaction) MessageChannel() *MessageChannel {
+	if i.ChannelID == nil {
+		return nil
+	}
+	return i.Disgo.Cache().MessageChannel(*i.ChannelID)
+}
+
+// TextChannel returns the api.TextChannel from the api.Cache
+func (i *Interaction) TextChannel() *TextChannel {
+	if i.ChannelID == nil {
+		return nil
+	}
+	return i.Disgo.Cache().TextChannel(*i.ChannelID)
+}
+
+// GuildChannel returns the api.GuildChannel from the api.Cache
+func (i *Interaction) GuildChannel() *GuildChannel {
+	if i.ChannelID == nil {
+		return nil
+	}
+	return i.Disgo.Cache().GuildChannel(*i.ChannelID)
+}
+
+// EditOriginal edits the original api.InteractionResponse
+func (i *Interaction) EditOriginal(followupMessage *FollowupMessage) (*Message, error) {
+	return i.Disgo.RestClient().EditInteractionResponse(i.Disgo.ApplicationID(), i.Token, followupMessage)
+}
+
+// DeleteOriginal deletes the original api.InteractionResponse
+func (i *Interaction) DeleteOriginal() error {
+	return i.Disgo.RestClient().DeleteInteractionResponse(i.Disgo.ApplicationID(), i.Token)
+}
+
+// SendFollowup used to send a api.FollowupMessage to an api.Interaction
+func (i *Interaction) SendFollowup(followupMessage *FollowupMessage) (*Message, error) {
+	return i.Disgo.RestClient().SendFollowupMessage(i.Disgo.ApplicationID(), i.Token, followupMessage)
+}
+
+// EditFollowup used to edit a api.FollowupMessage from an api.Interaction
+func (i *Interaction) EditFollowup(messageID Snowflake, followupMessage *FollowupMessage) (*Message, error) {
+	return i.Disgo.RestClient().EditFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID, followupMessage)
+}
+
+// DeleteFollowup used to delete a api.FollowupMessage from an api.Interaction
+func (i *Interaction) DeleteFollowup(messageID Snowflake) error {
+	return i.Disgo.RestClient().DeleteFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID)
+}
+
+// FullInteraction is used for easier unmarshalling of different Interaction(s)
+type FullInteraction struct {
+	ID          Snowflake       `json:"id"`
+	Type        InteractionType `json:"type"`
+	GuildID     *Snowflake      `json:"guild_id,omitempty"`
+	ChannelID   *Snowflake      `json:"channel_id,omitempty"`
+	FullMessage *FullMessage    `json:"message,omitempty"`
+	Member      *Member         `json:"member,omitempty"`
+	User        *User           `json:"User,omitempty"`
+	Token       string          `json:"token"`
+	Version     int             `json:"version"`
+	Data        json.RawMessage `json:"data,omitempty"`
+}
+
+// Interaction holds the general parameters of each Interaction
+type Interaction struct {
+	Disgo     Disgo
+	ID        Snowflake       `json:"id"`
+	Type      InteractionType `json:"type"`
+	GuildID   *Snowflake      `json:"guild_id,omitempty"`
+	ChannelID *Snowflake      `json:"channel_id,omitempty"`
+	Member    *Member         `json:"member,omitempty"`
+	User      *User           `json:"User,omitempty"`
+	Token     string          `json:"token"`
+	Version   int             `json:"version"`
+}
+
+// ButtonInteraction is a specific Interaction when CLicked on Button(s)
+type ButtonInteraction struct {
+	*Interaction
+	Message *Message               `json:"message,omitempty"`
+	Data    *ButtonInteractionData `json:"data,omitempty"`
+}
+
+// CommandInteraction is a specific Interaction when using Command(s)
+type CommandInteraction struct {
+	*Interaction
+	Data *CommandInteractionData `json:"data,omitempty"`
+}
+
+// ButtonInteractionData is the command data payload
+type ButtonInteractionData struct {
+	CustomID      string        `json:"custom_id"`
+	ComponentType ComponentType `json:"component_type"`
+}
+
+// CommandInteractionData is the command data payload
+type CommandInteractionData struct {
 	ID       Snowflake     `json:"id"`
 	Name     string        `json:"name"`
-	Resolved *Resolved     `json:"resolved"`
+	Resolved *Resolved     `json:"resolved,omitempty"`
 	Options  []*OptionData `json:"options,omitempty"`
 }
 

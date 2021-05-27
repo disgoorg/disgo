@@ -15,22 +15,22 @@ func (h MessageUpdateHandler) Event() api.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h MessageUpdateHandler) New() interface{} {
-	return &api.Message{}
+	return &api.FullMessage{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h MessageUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
-	message, ok := i.(*api.Message)
+	fullMessage, ok := i.(*api.FullMessage)
 	if !ok {
 		return
 	}
 
-	oldMessage := disgo.Cache().Message(message.ChannelID, message.ID)
+	oldMessage := disgo.Cache().Message(fullMessage.ChannelID, fullMessage.ID)
 	if oldMessage != nil {
 		oldMessage = &*oldMessage
 	}
 
-	message = disgo.EntityBuilder().CreateMessage(message, api.CacheStrategyYes)
+	message := disgo.EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyYes)
 
 	genericMessageEvent := events.GenericMessageEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
