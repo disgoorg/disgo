@@ -55,7 +55,7 @@ func (e *GenericInteractionEvent) DeleteFollowup(messageID api.Snowflake) error 
 	return e.Disgo().RestClient().DeleteFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, messageID)
 }
 
-// SlashCommandEvent indicates that a slash api.Command was ran in a api.Guild
+// SlashCommandEvent indicates that a slash api.Command was ran
 type SlashCommandEvent struct {
 	GenericInteractionEvent
 	SlashCommandInteraction *api.SlashCommandInteraction
@@ -66,7 +66,7 @@ type SlashCommandEvent struct {
 	Options                 []*api.Option
 }
 
-// DeferReply replies to the api.SlashCommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource
+// DeferReply replies to the api.SlashCommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource and shows a loading state
 func (e *SlashCommandEvent) DeferReply(ephemeral bool) error {
 	var data *api.InteractionResponseData
 	if ephemeral {
@@ -75,6 +75,7 @@ func (e *SlashCommandEvent) DeferReply(ephemeral bool) error {
 	return e.Reply(&api.InteractionResponse{Type: api.InteractionResponseTypeDeferredChannelMessageWithSource, Data: data})
 }
 
+// ReplyCreate replies to the api.SlashCommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource & api.InteractionResponseData
 func (e *SlashCommandEvent) ReplyCreate(data *api.InteractionResponseData) error {
 	return e.Reply(&api.InteractionResponse{Type: api.InteractionResponseTypeChannelMessageWithSource, Data: data})
 }
@@ -122,27 +123,33 @@ func (e SlashCommandEvent) OptionsT(optionType api.CommandOptionType) []*api.Opt
 	return options
 }
 
+// ButtonClickEvent indicates that a api.Button was clicked
 type ButtonClickEvent struct {
 	GenericInteractionEvent
 	ButtonInteraction *api.ButtonInteraction
 }
 
+// DeferEdit replies to the api.ButtonInteraction with api.InteractionResponseTypeDeferredUpdateMessage and cancels the loading state
 func (e *ButtonClickEvent) DeferEdit() error {
 	return e.Reply(&api.InteractionResponse{Type: api.InteractionResponseTypeDeferredUpdateMessage})
 }
 
+// ReplyEdit replies to the api.ButtonInteraction with api.InteractionResponseTypeUpdateMessage & api.InteractionResponseData which edits the original api.Message
 func (e *ButtonClickEvent) ReplyEdit(data *api.InteractionResponseData) error {
 	return e.Reply(&api.InteractionResponse{Type: api.InteractionResponseTypeUpdateMessage, Data: data})
 }
 
+// CustomID returns the customID from the called api.Button
 func (e *ButtonClickEvent) CustomID() string {
 	return e.ButtonInteraction.Data.CustomID
 }
 
+// ComponentType returns the api.ComponentType from the called api.Button
 func (e *ButtonClickEvent) ComponentType() string {
 	return e.ButtonInteraction.Data.CustomID
 }
 
+// Message returns the api.Message the api.Button is called from
 func (e *ButtonClickEvent) Message() *api.Message {
 	return e.ButtonInteraction.Message
 }

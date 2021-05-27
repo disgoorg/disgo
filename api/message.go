@@ -190,6 +190,7 @@ type Message struct {
 	LastUpdated       *time.Time           `json:"last_updated,omitempty"`
 }
 
+// FullMessage is used for easier unmarshalling of Component(s) in Message(s)
 type FullMessage struct {
 	*Message
 	UnmarshalComponents []*UnmarshalComponent `json:"components,omitempty"`

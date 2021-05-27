@@ -5,7 +5,7 @@ import "encoding/json"
 // InteractionType is the type of Interaction
 type InteractionType int
 
-// Constants for InteractionType
+// Supported InteractionType(s)
 const (
 	InteractionTypePing InteractionType = iota + 1
 	InteractionTypeSlashCommand
@@ -77,6 +77,7 @@ func (i *Interaction) DeleteFollowup(messageID Snowflake) error {
 	return i.Disgo.RestClient().DeleteFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID)
 }
 
+// FullInteraction is used for easier unmarshalling of different Interaction(s)
 type FullInteraction struct {
 	ID          Snowflake       `json:"id"`
 	Type        InteractionType `json:"type"`
@@ -90,7 +91,7 @@ type FullInteraction struct {
 	Data        json.RawMessage `json:"data,omitempty"`
 }
 
-// An Interaction is the slash command object you receive when a user uses one of your commands
+// Interaction holds the general parameters of each Interaction
 type Interaction struct {
 	Disgo     Disgo
 	ID        Snowflake       `json:"id"`
@@ -103,12 +104,14 @@ type Interaction struct {
 	Version   int             `json:"version"`
 }
 
+// ButtonInteraction is a specific Interaction when CLicked on Button(s)
 type ButtonInteraction struct {
 	*Interaction
 	Message *Message               `json:"message,omitempty"`
 	Data    *ButtonInteractionData `json:"data,omitempty"`
 }
 
+// SlashCommandInteraction is a specific Interaction when using Command(s)
 type SlashCommandInteraction struct {
 	*Interaction
 	Data *SlashCommandInteractionData `json:"data,omitempty"`

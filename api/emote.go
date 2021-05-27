@@ -1,18 +1,21 @@
 package api
 
+// NewEmote creates a new custom Emote with the given parameters
 func NewEmote(name string, emoteID Snowflake) *Emote {
 	return &Emote{Name: name, ID: emoteID, Animated: false}
 }
 
+// NewAnimatedEmote creates a new animated custom Emote with the given parameters
 func NewAnimatedEmote(name string, emoteID Snowflake) *Emote {
 	return &Emote{Name: name, ID: emoteID, Animated: true}
 }
 
+// NewEmoji creates a new emoji with the given unicode
 func NewEmoji(name string) *Emote {
 	return &Emote{Name: name}
 }
 
-// An Emote allows you to interact with custom emojis in discord.
+// Emote allows you to interact with emojis & emotes
 type Emote struct {
 	Disgo    Disgo
 	GuildID  Snowflake `json:"guild_id,omitempty"`
