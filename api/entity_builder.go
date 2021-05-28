@@ -15,8 +15,8 @@ var (
 type EntityBuilder interface {
 	Disgo() Disgo
 
-	CreateButtonInteraction(fullInteraction *FullInteraction, updateCache CacheStrategy) *ButtonInteraction
-	CreateCommandInteraction(fullInteraction *FullInteraction, updateCache CacheStrategy) *CommandInteraction
+	CreateButtonInteraction(fullInteraction *FullInteraction, c chan *InteractionResponse, updateCache CacheStrategy) *ButtonInteraction
+	CreateCommandInteraction(fullInteraction *FullInteraction, c chan *InteractionResponse, updateCache CacheStrategy) *CommandInteraction
 
 	CreateGlobalCommand(command *Command, updateCache CacheStrategy) *Command
 

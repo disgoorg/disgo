@@ -1,58 +1,43 @@
 package events
 
 import (
-	"errors"
-
 	"github.com/DisgoOrg/disgo/api"
 )
 
 // GenericInteractionEvent generic api.Interaction event
 type GenericInteractionEvent struct {
 	GenericEvent
-	Interaction     *api.Interaction
-	ResponseChannel chan *api.InteractionResponse
-	FromWebhook     bool
-	Replied         bool
+	Interaction *api.Interaction
 }
 
 // Reply replies to the api.Interaction with the provided api.InteractionResponse
 func (e *GenericInteractionEvent) Reply(response *api.InteractionResponse) error {
-	if e.Replied {
-		return errors.New("you already replied to this interaction")
-	}
-	e.Replied = true
-
-	if e.FromWebhook {
-		e.ResponseChannel <- response
-		return nil
-	}
-
-	return e.Disgo().RestClient().CreateInteractionResponse(e.Interaction.ID, e.Interaction.Token, response)
+	return e.Interaction.Reply(response)
 }
 
 // EditOriginal edits the original api.InteractionResponse
 func (e *GenericInteractionEvent) EditOriginal(followupMessage *api.FollowupMessage) (*api.Message, error) {
-	return e.Disgo().RestClient().UpdateInteractionResponse(e.Disgo().ApplicationID(), e.Interaction.Token, followupMessage)
+	return e.Interaction.EditOriginal(followupMessage)
 }
 
 // DeleteOriginal deletes the original api.InteractionResponse
 func (e *GenericInteractionEvent) DeleteOriginal() error {
-	return e.Disgo().RestClient().DeleteInteractionResponse(e.Disgo().ApplicationID(), e.Interaction.Token)
+	return e.Interaction.DeleteOriginal()
 }
 
 // SendFollowup used to send a api.FollowupMessage to an api.Interaction
 func (e *GenericInteractionEvent) SendFollowup(followupMessage *api.FollowupMessage) (*api.Message, error) {
-	return e.Disgo().RestClient().CreateFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, followupMessage)
+	return e.Interaction.SendFollowup(followupMessage)
 }
 
 // EditFollowup used to edit a api.FollowupMessage from an api.Interaction
 func (e *GenericInteractionEvent) EditFollowup(messageID api.Snowflake, followupMessage *api.FollowupMessage) (*api.Message, error) {
-	return e.Disgo().RestClient().UpdateFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, messageID, followupMessage)
+	return e.Interaction.EditFollowup(messageID, followupMessage)
 }
 
 // DeleteFollowup used to delete a api.FollowupMessage from an api.Interaction
 func (e *GenericInteractionEvent) DeleteFollowup(messageID api.Snowflake) error {
-	return e.Disgo().RestClient().DeleteFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, messageID)
+	return e.Interaction.DeleteFollowup(messageID)
 }
 
 // CommandEvent indicates that a slash api.Command was ran
@@ -68,16 +53,12 @@ type CommandEvent struct {
 
 // DeferReply replies to the api.CommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource and shows a loading state
 func (e *CommandEvent) DeferReply(ephemeral bool) error {
-	var data *api.InteractionResponseData
-	if ephemeral {
-		data = &api.InteractionResponseData{Flags: api.MessageFlagEphemeral}
-	}
-	return e.Reply(&api.InteractionResponse{Type: api.InteractionResponseTypeDeferredChannelMessageWithSource, Data: data})
+	return e.CommandInteraction.DeferReply(ephemeral)
 }
 
 // ReplyCreate replies to the api.CommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource & api.InteractionResponseData
 func (e *CommandEvent) ReplyCreate(data *api.InteractionResponseData) error {
-	return e.Reply(&api.InteractionResponse{Type: api.InteractionResponseTypeChannelMessageWithSource, Data: data})
+	return e.CommandInteraction.ReplyCreate(data)
 }
 
 // CommandPath returns the api.Command path
@@ -131,12 +112,12 @@ type ButtonClickEvent struct {
 
 // DeferEdit replies to the api.ButtonInteraction with api.InteractionResponseTypeDeferredUpdateMessage and cancels the loading state
 func (e *ButtonClickEvent) DeferEdit() error {
-	return e.Reply(&api.InteractionResponse{Type: api.InteractionResponseTypeDeferredUpdateMessage})
+	return e.ButtonInteraction.DeferEdit()
 }
 
 // ReplyEdit replies to the api.ButtonInteraction with api.InteractionResponseTypeUpdateMessage & api.InteractionResponseData which edits the original api.Message
 func (e *ButtonClickEvent) ReplyEdit(data *api.InteractionResponseData) error {
-	return e.Reply(&api.InteractionResponse{Type: api.InteractionResponseTypeUpdateMessage, Data: data})
+	return e.ButtonInteraction.ReplyEdit(data)
 }
 
 // CustomID returns the customID from the called api.Button

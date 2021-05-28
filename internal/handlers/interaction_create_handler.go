@@ -29,15 +29,12 @@ func (h InteractionCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManag
 
 func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, fullInteraction *api.FullInteraction, c chan *api.InteractionResponse) {
 	genericInteractionEvent := events.GenericInteractionEvent{
-		GenericEvent:    events.NewEvent(disgo, sequenceNumber),
-		ResponseChannel: c,
-		FromWebhook:     c != nil,
-		Replied:         false,
+		GenericEvent: events.NewEvent(disgo, sequenceNumber),
 	}
 
 	switch fullInteraction.Type {
 	case api.InteractionTypeCommand:
-		interaction := disgo.EntityBuilder().CreateCommandInteraction(fullInteraction, api.CacheStrategyYes)
+		interaction := disgo.EntityBuilder().CreateCommandInteraction(fullInteraction, c, api.CacheStrategyYes)
 
 		genericInteractionEvent.Interaction = interaction.Interaction
 		eventManager.Dispatch(genericInteractionEvent)
@@ -78,7 +75,7 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceN
 			Options:                 newOptions,
 		})
 	case api.InteractionTypeComponent:
-		interaction := disgo.EntityBuilder().CreateButtonInteraction(fullInteraction, api.CacheStrategyYes)
+		interaction := disgo.EntityBuilder().CreateButtonInteraction(fullInteraction, c, api.CacheStrategyYes)
 
 		genericInteractionEvent.Interaction = interaction.Interaction
 		eventManager.Dispatch(genericInteractionEvent)
