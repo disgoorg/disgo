@@ -12,6 +12,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var _ api.WebhookServer = (*WebhookServerImpl)(nil)
+
 func newWebhookServerImpl(disgo api.Disgo, listenURL string, listenPort int, publicKey string) api.WebhookServer {
 	hexDecodedKey, err := hex.DecodeString(publicKey)
 	if err != nil {

@@ -1,26 +1,53 @@
 package api
 
+import (
+	"encoding/json"
+	"errors"
+)
+
 // InteractionType is the type of Interaction
 type InteractionType int
 
-// Constants for InteractionType
+// Supported InteractionType(s)
 const (
 	InteractionTypePing InteractionType = iota + 1
-	InteractionTypeApplicationCommand
+	InteractionTypeCommand
+	InteractionTypeComponent
 )
 
-// An Interaction is the slash command object you receive when a user uses one of your commands
+// Interaction holds the general parameters of each Interaction
 type Interaction struct {
-	Disgo     Disgo
-	ID        Snowflake        `json:"id"`
-	Type      InteractionType  `json:"type"`
-	Data      *InteractionData `json:"data,omitempty"`
-	GuildID   *Snowflake       `json:"guild_id,omitempty"`
-	ChannelID *Snowflake       `json:"channel_id,omitempty"`
-	Member    *Member          `json:"member,omitempty"`
-	User      *User            `json:"User,omitempty"`
-	Token     string           `json:"token"`
-	Version   int              `json:"version"`
+	Disgo           Disgo
+	ResponseChannel chan *InteractionResponse
+	Replied         bool
+	ID              Snowflake       `json:"id"`
+	Type            InteractionType `json:"type"`
+	GuildID         *Snowflake      `json:"guild_id,omitempty"`
+	ChannelID       *Snowflake      `json:"channel_id,omitempty"`
+	Member          *Member         `json:"member,omitempty"`
+	User            *User           `json:"User,omitempty"`
+	Token           string          `json:"token"`
+	Version         int             `json:"version"`
+}
+
+// Reply replies to the api.Interaction with the provided api.InteractionResponse
+func (i *Interaction) Reply(response *InteractionResponse) error {
+	if i.Replied {
+		return errors.New("you already replied to this interaction")
+	}
+	i.Replied = true
+
+	if i.FromWebhook() {
+		i.ResponseChannel <- response
+		return nil
+	}
+
+	return i.Disgo.RestClient().SendInteractionResponse(i.ID, i.Token, response)
+}
+
+// FromWebhook returns is the Interaction was made via http
+func (i *Interaction) FromWebhook() bool {
+	return i.ResponseChannel != nil
 }
 
 // Guild returns the api.Guild from the api.Cache
@@ -88,12 +115,69 @@ func (i *Interaction) DeleteFollowup(messageID Snowflake) error {
 	return i.Disgo.RestClient().DeleteFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID)
 }
 
-// InteractionData is the command data payload
-type InteractionData struct {
+// FullInteraction is used for easier unmarshalling of different Interaction(s)
+type FullInteraction struct {
+	ID          Snowflake       `json:"id"`
+	Type        InteractionType `json:"type"`
+	GuildID     *Snowflake      `json:"guild_id,omitempty"`
+	ChannelID   *Snowflake      `json:"channel_id,omitempty"`
+	FullMessage *FullMessage    `json:"message,omitempty"`
+	Member      *Member         `json:"member,omitempty"`
+	User        *User           `json:"User,omitempty"`
+	Token       string          `json:"token"`
+	Version     int             `json:"version"`
+	Data        json.RawMessage `json:"data,omitempty"`
+}
+
+// CommandInteraction is a specific Interaction when using Command(s)
+type CommandInteraction struct {
+	*Interaction
+	Data *CommandInteractionData `json:"data,omitempty"`
+}
+
+// DeferReply replies to the api.CommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource and shows a loading state
+func (i *CommandInteraction) DeferReply(ephemeral bool) error {
+	var data *InteractionResponseData
+	if ephemeral {
+		data = &InteractionResponseData{Flags: MessageFlagEphemeral}
+	}
+	return i.Reply(&InteractionResponse{Type: InteractionResponseTypeDeferredChannelMessageWithSource, Data: data})
+}
+
+// ReplyCreate replies to the api.CommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource & api.InteractionResponseData
+func (i *CommandInteraction) ReplyCreate(data *InteractionResponseData) error {
+	return i.Reply(&InteractionResponse{Type: InteractionResponseTypeChannelMessageWithSource, Data: data})
+}
+
+// ButtonInteraction is a specific Interaction when CLicked on Button(s)
+type ButtonInteraction struct {
+	*Interaction
+	Message *Message               `json:"message,omitempty"`
+	Data    *ButtonInteractionData `json:"data,omitempty"`
+}
+
+// DeferEdit replies to the api.ButtonInteraction with api.InteractionResponseTypeDeferredUpdateMessage and cancels the loading state
+func (i *ButtonInteraction) DeferEdit() error {
+	return i.Reply(&InteractionResponse{Type: InteractionResponseTypeDeferredUpdateMessage})
+}
+
+// ReplyEdit replies to the api.ButtonInteraction with api.InteractionResponseTypeUpdateMessage & api.InteractionResponseData which edits the original api.Message
+func (i *ButtonInteraction) ReplyEdit(data *InteractionResponseData) error {
+	return i.Reply(&InteractionResponse{Type: InteractionResponseTypeUpdateMessage, Data: data})
+}
+
+// CommandInteractionData is the command data payload
+type CommandInteractionData struct {
 	ID       Snowflake     `json:"id"`
 	Name     string        `json:"name"`
-	Resolved *Resolved     `json:"resolved"`
+	Resolved *Resolved     `json:"resolved,omitempty"`
 	Options  []*OptionData `json:"options,omitempty"`
+}
+
+// ButtonInteractionData is the command data payload
+type ButtonInteractionData struct {
+	CustomID      string        `json:"custom_id"`
+	ComponentType ComponentType `json:"component_type"`
 }
 
 // Resolved contains resolved mention data

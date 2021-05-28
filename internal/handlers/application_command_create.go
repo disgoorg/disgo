@@ -5,21 +5,21 @@ import (
 	"github.com/DisgoOrg/disgo/api/events"
 )
 
-// ApplicationCommandCreateHandler handles api.ApplicationCommandCreateEvent
-type ApplicationCommandCreateHandler struct{}
+// CommandCreateHandler handles api.CommandCreateEvent
+type CommandCreateHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h ApplicationCommandCreateHandler) Event() api.GatewayEventType {
-	return api.GatewayEventApplicationCommandCreate
+func (h CommandCreateHandler) Event() api.GatewayEventType {
+	return api.GatewayEventCommandCreate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h ApplicationCommandCreateHandler) New() interface{} {
+func (h CommandCreateHandler) New() interface{} {
 	return &api.Command{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h ApplicationCommandCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+func (h CommandCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	command, ok := i.(*api.Command)
 	if !ok {
 		return
@@ -37,15 +37,15 @@ func (h ApplicationCommandCreateHandler) HandleGatewayEvent(disgo api.Disgo, eve
 		command = disgo.EntityBuilder().CreateGlobalCommand(command, cacheStrategy)
 	}
 
-	genericApplicationCommandEvent := events.GenericApplicationCommandEvent{
+	genericCommandEvent := events.GenericCommandEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
 		CommandID:    command.ID,
 		Command:      command,
 		GuildID:      command.GuildID,
 	}
-	eventManager.Dispatch(genericApplicationCommandEvent)
+	eventManager.Dispatch(genericCommandEvent)
 
-	eventManager.Dispatch(events.ApplicationCommandCreateEvent{
-		GenericApplicationCommandEvent: genericApplicationCommandEvent,
+	eventManager.Dispatch(events.CommandCreateEvent{
+		GenericCommandEvent: genericCommandEvent,
 	})
 }

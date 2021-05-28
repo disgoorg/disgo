@@ -15,33 +15,35 @@ func (h InteractionCreateHandler) Event() api.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h InteractionCreateHandler) New() interface{} {
-	return &api.Interaction{}
+	return &api.FullInteraction{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h InteractionCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
-	interaction, ok := i.(*api.Interaction)
+	fullInteraction, ok := i.(*api.FullInteraction)
 	if !ok {
 		return
 	}
-	handleInteraction(disgo, eventManager, sequenceNumber, interaction, nil)
+	handleInteraction(disgo, eventManager, sequenceNumber, fullInteraction, nil)
 }
 
-func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, interaction *api.Interaction, c chan *api.InteractionResponse) {
-
-	interaction = disgo.EntityBuilder().CreateInteraction(interaction, api.CacheStrategyYes)
+func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, fullInteraction *api.FullInteraction, c chan *api.InteractionResponse) {
 	genericInteractionEvent := events.GenericInteractionEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		Interaction:  interaction,
 	}
-	eventManager.Dispatch(genericInteractionEvent)
 
-	if interaction.Data != nil {
+	switch fullInteraction.Type {
+	case api.InteractionTypeCommand:
+		interaction := disgo.EntityBuilder().CreateCommandInteraction(fullInteraction, c, api.CacheStrategyYes)
+
+		genericInteractionEvent.Interaction = interaction.Interaction
+		eventManager.Dispatch(genericInteractionEvent)
+
 		options := interaction.Data.Options
 		var subCommandName *string
 		var subCommandGroupName *string
 		if len(options) == 1 {
-			option := interaction.Data.Options[0]
+			option := options[0]
 			if option.Type == api.CommandOptionTypeSubCommandGroup {
 				subCommandGroupName = &option.Name
 				options = option.Options
@@ -52,6 +54,7 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceN
 				options = option.Options
 			}
 		}
+
 		var newOptions []*api.Option
 		for _, optionData := range options {
 			newOptions = append(newOptions, &api.Option{
@@ -62,16 +65,24 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceN
 			})
 		}
 
-		eventManager.Dispatch(events.SlashCommandEvent{
+		eventManager.Dispatch(events.CommandEvent{
 			GenericInteractionEvent: genericInteractionEvent,
-			ResponseChannel:         c,
-			FromWebhook:             c != nil,
+			CommandInteraction:      interaction,
 			CommandID:               interaction.Data.ID,
 			CommandName:             interaction.Data.Name,
 			SubCommandName:          subCommandName,
 			SubCommandGroupName:     subCommandGroupName,
 			Options:                 newOptions,
-			Replied:                 false,
+		})
+	case api.InteractionTypeComponent:
+		interaction := disgo.EntityBuilder().CreateButtonInteraction(fullInteraction, c, api.CacheStrategyYes)
+
+		genericInteractionEvent.Interaction = interaction.Interaction
+		eventManager.Dispatch(genericInteractionEvent)
+
+		eventManager.Dispatch(events.ButtonClickEvent{
+			GenericInteractionEvent: genericInteractionEvent,
+			ButtonInteraction:       interaction,
 		})
 	}
 }

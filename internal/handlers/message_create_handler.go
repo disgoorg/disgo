@@ -5,7 +5,7 @@ import (
 	"github.com/DisgoOrg/disgo/api/events"
 )
 
-// MessageCreateHandler handles api.MessageCreateGatewayEvent
+// MessageCreateHandler handles api.GatewayEventMessageCreate
 type MessageCreateHandler struct{}
 
 // Event returns the raw gateway event Event
@@ -15,18 +15,17 @@ func (h MessageCreateHandler) Event() api.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h MessageCreateHandler) New() interface{} {
-	return &api.Message{}
+	return &api.FullMessage{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h MessageCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
-	message, ok := i.(*api.Message)
+	fullMessage, ok := i.(*api.FullMessage)
 	if !ok {
 		return
 	}
 
-	message.Disgo = disgo
-	message.Author.Disgo = disgo
+	message := disgo.EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyYes)
 
 	genericMessageEvent := events.GenericMessageEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),

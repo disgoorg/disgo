@@ -7,9 +7,9 @@ import (
 // GetAllHandlers returns all api.GatewayEventHandler(s)
 func GetAllHandlers() []api.EventHandler {
 	return []api.EventHandler{
-		ApplicationCommandCreateHandler{},
-		ApplicationCommandDeleteHandler{},
-		ApplicationCommandUpdateHandler{},
+		CommandCreateHandler{},
+		CommandDeleteHandler{},
+		CommandUpdateHandler{},
 
 		ChannelCreateHandler{},
 		ChannelDeleteHandler{},
@@ -31,6 +31,8 @@ func GetAllHandlers() []api.EventHandler {
 		InteractionCreateWebhookHandler{},
 
 		MessageCreateHandler{},
+		MessageUpdateHandler{},
+		MessageDeleteHandler{},
 
 		ReadyHandler{},
 

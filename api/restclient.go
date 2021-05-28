@@ -3,7 +3,7 @@ package api
 import (
 	"errors"
 
-	"github.com/DisgoOrg/disgo/api/endpoints"
+	"github.com/DisgoOrg/restclient"
 )
 
 // Errors when connecting to discord
@@ -12,7 +12,7 @@ var (
 	ErrUnauthorized               = errors.New("not authorized for this endpoint")
 	ErrBadRequest                 = errors.New("bad request please check your request")
 	ErrRatelimited                = errors.New("too many requests")
-	ErrTooMuchApplicationCommands = errors.New("you can provide a max of 100 application commands")
+	ErrTooMuchCommands = errors.New("you can provide a max of 100 application commands")
 )
 
 // ErrorResponse contains custom errors from discord
@@ -23,11 +23,9 @@ type ErrorResponse struct {
 
 // RestClient is a manager for all of disgo's HTTP requests
 type RestClient interface {
+	restclient.RestClient
 	Close()
 	Disgo() Disgo
-
-	UserAgent() string
-	Request(route *endpoints.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) error
 
 	SendMessage(channelID Snowflake, message *MessageCreate) (*Message, error)
 	EditMessage(channelID Snowflake, messageID Snowflake, message *MessageUpdate) (*Message, error)
