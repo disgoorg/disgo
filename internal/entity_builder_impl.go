@@ -125,17 +125,20 @@ func (b *EntityBuilderImpl) createComponent(unmarshalComponent *api.UnmarshalCom
 		}
 
 	case api.ComponentTypeButton:
-		return &api.Button{
+		button := &api.Button{
 			ComponentImpl: api.ComponentImpl{
 				ComponentType: api.ComponentTypeButton,
 			},
 			Style:    unmarshalComponent.Style,
 			Label:    unmarshalComponent.Label,
-			Emote:    b.CreateEmote("", unmarshalComponent.Emote, updateCache),
 			CustomID: unmarshalComponent.CustomID,
 			URL:      unmarshalComponent.URL,
 			Disabled: unmarshalComponent.Disabled,
 		}
+		if unmarshalComponent.Emote != nil {
+			button.Emote = b.CreateEmote("", unmarshalComponent.Emote, updateCache)
+		}
+		return button
 
 	default:
 		b.Disgo().Logger().Errorf("unexpected component type %d received", unmarshalComponent.ComponentType)
