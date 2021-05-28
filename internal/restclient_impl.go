@@ -34,6 +34,7 @@ func (r *RestClientImpl) Close() {
 	r.HttpClient().CloseIdleConnections()
 }
 
+// DoWithHeaders executes a rest request with custom headers
 func (r *RestClientImpl) DoWithHeaders(route *restclient.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, customHeader http.Header) (err restclient.RestError) {
 	err = r.RestClient.DoWithHeaders(route, rqBody, rsBody, customHeader)
 	// TODO reimplement events.HTTPRequestEvent 
