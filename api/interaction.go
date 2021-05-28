@@ -21,7 +21,7 @@ func (i *Interaction) Guild() *Guild {
 }
 
 // DMChannel returns the api.DMChannel from the api.Cache
-func (i *Interaction) DMChannel() *DMChannel {
+func (i *Interaction) DMChannel() DMChannel {
 	if i.ChannelID == nil {
 		return nil
 	}
@@ -29,7 +29,7 @@ func (i *Interaction) DMChannel() *DMChannel {
 }
 
 // MessageChannel returns the api.MessageChannel from the api.Cache
-func (i *Interaction) MessageChannel() *MessageChannel {
+func (i *Interaction) MessageChannel() MessageChannel {
 	if i.ChannelID == nil {
 		return nil
 	}
@@ -37,7 +37,7 @@ func (i *Interaction) MessageChannel() *MessageChannel {
 }
 
 // TextChannel returns the api.TextChannel from the api.Cache
-func (i *Interaction) TextChannel() *TextChannel {
+func (i *Interaction) TextChannel() TextChannel {
 	if i.ChannelID == nil {
 		return nil
 	}
@@ -45,7 +45,7 @@ func (i *Interaction) TextChannel() *TextChannel {
 }
 
 // GuildChannel returns the api.GuildChannel from the api.Cache
-func (i *Interaction) GuildChannel() *GuildChannel {
+func (i *Interaction) GuildChannel() GuildChannel {
 	if i.ChannelID == nil {
 		return nil
 	}
@@ -54,7 +54,7 @@ func (i *Interaction) GuildChannel() *GuildChannel {
 
 // EditOriginal edits the original api.InteractionResponse
 func (i *Interaction) EditOriginal(followupMessage *FollowupMessage) (*Message, error) {
-	return i.Disgo.RestClient().EditInteractionResponse(i.Disgo.ApplicationID(), i.Token, followupMessage)
+	return i.Disgo.RestClient().UpdateInteractionResponse(i.Disgo.ApplicationID(), i.Token, followupMessage)
 }
 
 // DeleteOriginal deletes the original api.InteractionResponse
@@ -64,12 +64,12 @@ func (i *Interaction) DeleteOriginal() error {
 
 // SendFollowup used to send a api.FollowupMessage to an api.Interaction
 func (i *Interaction) SendFollowup(followupMessage *FollowupMessage) (*Message, error) {
-	return i.Disgo.RestClient().SendFollowupMessage(i.Disgo.ApplicationID(), i.Token, followupMessage)
+	return i.Disgo.RestClient().CreateFollowupMessage(i.Disgo.ApplicationID(), i.Token, followupMessage)
 }
 
 // EditFollowup used to edit a api.FollowupMessage from an api.Interaction
 func (i *Interaction) EditFollowup(messageID Snowflake, followupMessage *FollowupMessage) (*Message, error) {
-	return i.Disgo.RestClient().EditFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID, followupMessage)
+	return i.Disgo.RestClient().UpdateFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID, followupMessage)
 }
 
 // DeleteFollowup used to delete a api.FollowupMessage from an api.Interaction

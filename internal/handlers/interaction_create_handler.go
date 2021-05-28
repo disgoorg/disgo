@@ -70,7 +70,7 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceN
 
 		eventManager.Dispatch(events.CommandEvent{
 			GenericInteractionEvent: genericInteractionEvent,
-			CommandInteraction: interaction,
+			CommandInteraction:      interaction,
 			CommandID:               interaction.Data.ID,
 			CommandName:             interaction.Data.Name,
 			SubCommandName:          subCommandName,

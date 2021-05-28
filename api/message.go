@@ -238,7 +238,7 @@ func (m *Message) AddReaction(emoji string) error {
 
 // Edit allows you to edit an existing Message sent by you
 func (m *Message) Edit(message *MessageUpdate) (*Message, error) {
-	return m.Disgo.RestClient().EditMessage(m.ChannelID, m.ID, message)
+	return m.Disgo.RestClient().UpdateMessage(m.ChannelID, m.ID, message)
 }
 
 // Delete allows you to edit an existing Message sent by you
@@ -260,7 +260,7 @@ func (m *Message) Reply(message *MessageCreate) (*Message, error) {
 	message.MessageReference = &MessageReference{
 		MessageID: &m.ID,
 	}
-	return m.Disgo.RestClient().SendMessage(m.ChannelID, message)
+	return m.Disgo.RestClient().CreateMessage(m.ChannelID, message)
 }
 
 // MessageReaction contains information about the reactions of a message_events

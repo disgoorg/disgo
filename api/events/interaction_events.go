@@ -27,12 +27,12 @@ func (e *GenericInteractionEvent) Reply(response *api.InteractionResponse) error
 		return nil
 	}
 
-	return e.Disgo().RestClient().SendInteractionResponse(e.Interaction.ID, e.Interaction.Token, response)
+	return e.Disgo().RestClient().CreateInteractionResponse(e.Interaction.ID, e.Interaction.Token, response)
 }
 
 // EditOriginal edits the original api.InteractionResponse
 func (e *GenericInteractionEvent) EditOriginal(followupMessage *api.FollowupMessage) (*api.Message, error) {
-	return e.Disgo().RestClient().EditInteractionResponse(e.Disgo().ApplicationID(), e.Interaction.Token, followupMessage)
+	return e.Disgo().RestClient().UpdateInteractionResponse(e.Disgo().ApplicationID(), e.Interaction.Token, followupMessage)
 }
 
 // DeleteOriginal deletes the original api.InteractionResponse
@@ -42,12 +42,12 @@ func (e *GenericInteractionEvent) DeleteOriginal() error {
 
 // SendFollowup used to send a api.FollowupMessage to an api.Interaction
 func (e *GenericInteractionEvent) SendFollowup(followupMessage *api.FollowupMessage) (*api.Message, error) {
-	return e.Disgo().RestClient().SendFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, followupMessage)
+	return e.Disgo().RestClient().CreateFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, followupMessage)
 }
 
 // EditFollowup used to edit a api.FollowupMessage from an api.Interaction
 func (e *GenericInteractionEvent) EditFollowup(messageID api.Snowflake, followupMessage *api.FollowupMessage) (*api.Message, error) {
-	return e.Disgo().RestClient().EditFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, messageID, followupMessage)
+	return e.Disgo().RestClient().UpdateFollowupMessage(e.Disgo().ApplicationID(), e.Interaction.Token, messageID, followupMessage)
 }
 
 // DeleteFollowup used to delete a api.FollowupMessage from an api.Interaction
@@ -58,12 +58,12 @@ func (e *GenericInteractionEvent) DeleteFollowup(messageID api.Snowflake) error 
 // CommandEvent indicates that a slash api.Command was ran
 type CommandEvent struct {
 	GenericInteractionEvent
-	CommandInteraction *api.CommandInteraction
-	CommandID               api.Snowflake
-	CommandName             string
-	SubCommandName          *string
-	SubCommandGroupName     *string
-	Options                 []*api.Option
+	CommandInteraction  *api.CommandInteraction
+	CommandID           api.Snowflake
+	CommandName         string
+	SubCommandName      *string
+	SubCommandGroupName *string
+	Options             []*api.Option
 }
 
 // DeferReply replies to the api.CommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource and shows a loading state

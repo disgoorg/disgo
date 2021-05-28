@@ -17,9 +17,9 @@ import (
 	"github.com/DisgoOrg/disgo/api/events"
 )
 
-const red = 16711680
-const orange = 16562691
-const green = 65280
+const red = 0xdb1222
+const orange = 0xff7700
+const green = 0x00fc00
 
 var guildID = api.Snowflake(os.Getenv("guild_id"))
 var adminRoleID = api.Snowflake(os.Getenv("admin_role_id"))
@@ -43,7 +43,7 @@ func main() {
 			OnRawGateway:         rawGatewayEventListener,
 			OnGuildAvailable:     guildAvailListener,
 			OnGuildMessageCreate: messageListener,
-			OnCommand:       commandListener,
+			OnCommand:            commandListener,
 			OnButtonClick:        buttonClickListener,
 		}).
 		Build()
@@ -52,11 +52,27 @@ func main() {
 		return
 	}
 
+	initCommands(dgo)
+
+	err = dgo.Connect()
+	if err != nil {
+		logger.Fatalf("error while connecting to discord: %s", err)
+	}
+
+	defer dgo.Close()
+
+	logger.Infof("TestBot is now running. Press CTRL-C to exit.")
+	s := make(chan os.Signal, 1)
+	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	<-s
+}
+
+func initCommands(dgo api.Disgo) {
 	rawCmds := []*api.CommandCreate{
 		{
 			Name:              "eval",
 			Description:       "runs some go code",
-			DefaultPermission: ptrBool(true),
+			DefaultPermission: true,
 			Options: []*api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeString,
@@ -69,12 +85,12 @@ func main() {
 		{
 			Name:              "test",
 			Description:       "test test test test test test",
-			DefaultPermission: ptrBool(true),
+			DefaultPermission: true,
 		},
 		{
 			Name:              "say",
 			Description:       "says what you say",
-			DefaultPermission: ptrBool(true),
+			DefaultPermission: true,
 			Options: []*api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeString,
@@ -87,7 +103,7 @@ func main() {
 		{
 			Name:              "addrole",
 			Description:       "This command adds a role to a member",
-			DefaultPermission: ptrBool(true),
+			DefaultPermission: true,
 			Options: []*api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeUser,
@@ -106,7 +122,7 @@ func main() {
 		{
 			Name:              "removerole",
 			Description:       "This command removes a role from a member",
-			DefaultPermission: ptrBool(true),
+			DefaultPermission: true,
 			Options: []*api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeUser,
@@ -154,18 +170,6 @@ func main() {
 	if _, err = dgo.RestClient().SetGuildCommandsPermissions(dgo.ApplicationID(), guildID, cmdsPermissions...); err != nil {
 		logger.Errorf("error while setting command permissions: %s", err)
 	}
-
-	err = dgo.Connect()
-	if err != nil {
-		logger.Fatalf("error while connecting to discord: %s", err)
-	}
-
-	defer dgo.Close()
-
-	logger.Infof("TestBot is now running. Press CTRL-C to exit.")
-	s := make(chan os.Signal, 1)
-	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
-	<-s
 }
 
 func guildAvailListener(event *events.GuildAvailableEvent) {
@@ -299,11 +303,11 @@ func commandListener(event *events.CommandEvent) {
 		err := event.Disgo().RestClient().RemoveMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
 		if err == nil {
 			_ = event.Reply(api.NewInteractionResponseBuilder().AddEmbeds(
-				api.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Removed %s from %s", role, user).Build(),
+				api.NewEmbedBuilder().SetColor(red).SetDescriptionf("Removed %s from %s", role, user).Build(),
 			).Build())
 		} else {
 			_ = event.Reply(api.NewInteractionResponseBuilder().AddEmbeds(
-				api.NewEmbedBuilder().SetColor(16711680).SetDescriptionf("Failed to remove %s from %s", role, user).Build(),
+				api.NewEmbedBuilder().SetColor(green).SetDescriptionf("Failed to remove %s from %s", role, user).Build(),
 			).Build())
 		}
 	}

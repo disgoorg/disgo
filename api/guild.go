@@ -178,8 +178,8 @@ func (g *Guild) Disconnect() error {
 }
 
 // CreateRole allows you to create a new Role
-func (g *Guild) CreateRole(role *RoleUpdate) (*Role, error) {
-	return g.Disgo.RestClient().CreateRole(g.ID, role)
+func (g *Guild) CreateRole(roleCreate *RoleCreate) (*Role, error) {
+	return g.Disgo.RestClient().CreateRole(g.ID, roleCreate)
 }
 
 // AddMember adds a member to the guild with the oauth2 access token
@@ -262,11 +262,11 @@ type GuildCreate struct {
 	VerificationLevel               VerificationLevel          `json:"verification_level,omitempty"`
 	DefaultMessageNotificationLevel MessageNotificationLevel   `json:"default_message_notification_level"`
 	ExplicitContentFilterLevel      ExplicitContentFilterLevel `json:"explicit_content_filter_level"`
-	Roles                           []*RoleCreate                     `json:"roles,omitempty"`
+	Roles                           []*RoleCreate              `json:"roles,omitempty"`
 	Channels                        []*GuildChannelCreate      `json:"channels,omitempty"`
 	AFKChannelID                    Snowflake                  `json:"afk_channel_id,omitempty"`
 	AFKTimeout                      int                        `json:"afk_timeout,omitempty"`
-	SystemChannelID                 Snowflake                 `json:"system_channel_id,omitempty"`
+	SystemChannelID                 Snowflake                  `json:"system_channel_id,omitempty"`
 	SystemChannelFlags              SystemChannelFlag          `json:"system_channel_flags,omitempty"`
 }
 

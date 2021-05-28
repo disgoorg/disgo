@@ -52,7 +52,7 @@ func (h MessageReactionAddHandler) HandleGatewayEvent(disgo api.Disgo, eventMana
 
 	genericMessageUserReactionEvent := events.GenericMessageUserReactionEvent{
 		GenericMessageReactionEvent: genericMessageReactionEvent,
-		UserID:               payload.UserID,
+		UserID:                      payload.UserID,
 	}
 	eventManager.Dispatch(genericMessageUserReactionEvent)
 
@@ -100,7 +100,7 @@ func (h MessageReactionAddHandler) HandleGatewayEvent(disgo api.Disgo, eventMana
 
 		genericDMMessageUserReactionEvent := events.GenericDMMessageUserReactionEvent{
 			GenericDMMessageReactionEvent: genericDMMessageReactionEvent,
-			UserID:                           payload.UserID,
+			UserID:                        payload.UserID,
 		}
 		eventManager.Dispatch(genericDMMessageUserReactionEvent)
 

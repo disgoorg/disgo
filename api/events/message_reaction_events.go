@@ -5,7 +5,7 @@ import "github.com/DisgoOrg/disgo/api"
 // GenericMessageReactionEvent is called upon receiving MessageReactionAddEvent or MessageReactionRemoveEvent
 type GenericMessageReactionEvent struct {
 	GenericMessageEvent
-	Emote  *api.Emote
+	Emote *api.Emote
 }
 
 type GenericMessageUserReactionEvent struct {

@@ -176,12 +176,12 @@ func (c *ChannelImpl) LastPinTimestamp() *time.Time {
 // SendMessage sends a Message to a TextChannel
 func (c ChannelImpl) SendMessage(message *MessageCreate) (*Message, error) {
 	// Todo: attachments
-	return c.Disgo().RestClient().SendMessage(c.ID(), message)
+	return c.Disgo().RestClient().CreateMessage(c.ID(), message)
 }
 
 // EditMessage edits a Message in this TextChannel
 func (c ChannelImpl) EditMessage(messageID Snowflake, message *MessageUpdate) (*Message, error) {
-	return c.Disgo().RestClient().EditMessage(c.ID(), messageID, message)
+	return c.Disgo().RestClient().UpdateMessage(c.ID(), messageID, message)
 }
 
 // DeleteMessage allows you to edit an existing Message sent by you
@@ -301,8 +301,6 @@ type StoreChannel interface {
 }
 
 type ChannelCreate struct {
-
 }
 type ChannelUpdate struct {
-
 }

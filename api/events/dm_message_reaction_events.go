@@ -5,7 +5,7 @@ import "github.com/DisgoOrg/disgo/api"
 // GenericDMMessageReactionEvent is called upon receiving DMMessageReactionAddEvent or DMMessageReactionRemoveEvent(requires the api.GatewayIntentsDirectMessageReactions)
 type GenericDMMessageReactionEvent struct {
 	GenericDMMessageEvent
-	Emote  *api.Emote
+	Emote *api.Emote
 }
 
 type GenericDMMessageUserReactionEvent struct {

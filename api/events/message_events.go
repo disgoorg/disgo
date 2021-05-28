@@ -9,7 +9,7 @@ type GenericMessageEvent struct {
 	GenericEvent
 	MessageID api.Snowflake
 	ChannelID api.Snowflake
-	Message *api.Message
+	Message   *api.Message
 }
 
 // MessageChannel returns the api.MessageChannel where the GenericMessageEvent happened

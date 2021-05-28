@@ -8,10 +8,10 @@ import (
 
 // Errors when connecting to discord
 var (
-	ErrBadGateway                 = errors.New("bad gateway could not reach discord")
-	ErrUnauthorized               = errors.New("not authorized for this endpoint")
-	ErrBadRequest                 = errors.New("bad request please check your request")
-	ErrRatelimited                = errors.New("too many requests")
+	ErrBadGateway      = errors.New("bad gateway could not reach discord")
+	ErrUnauthorized    = errors.New("not authorized for this endpoint")
+	ErrBadRequest      = errors.New("bad request please check your request")
+	ErrRatelimited     = errors.New("too many requests")
 	ErrTooMuchCommands = errors.New("you can provide a max of 100 application commands")
 )
 
@@ -31,16 +31,6 @@ type RestClient interface {
 	GetGatewayBot() (*GatewayBotRs, error)
 	GetBotApplication() (*Application, error)
 	GetVoiceRegions() ([]*VoiceRegion, error)
-
-	SendMessage(channelID Snowflake, message *MessageCreate) (*Message, error)
-	EditMessage(channelID Snowflake, messageID Snowflake, message *MessageUpdate) (*Message, error)
-	DeleteMessage(channelID Snowflake, messageID Snowflake) error
-	BulkDeleteMessages(channelID Snowflake, messageIDs ...Snowflake) error
-	CrosspostMessage(channelID Snowflake, messageID Snowflake) (*Message, error)
-
-	OpenDMChannel(userID Snowflake) (*DMChannel, error)
-
-	UpdateSelfNick(guildID Snowflake, nick *string) (*string, error)
 
 	GetUser(userID Snowflake) (*User, error)
 	GetSelfUser() (*User, error)
@@ -85,19 +75,19 @@ type RestClient interface {
 	GetGuildVoiceRegions(guildID Snowflake) ([]*VoiceRegion, error)
 
 	GetGuildIntegrations(guildID Snowflake) ([]*Integration, error)
-	CreateGuildIntegration(guildID Snowflake)
-	UpdateGuildIntegration(guildID Snowflake)
-	DeleteGuildIntegration(guildID Snowflake)
+	CreateGuildIntegration(guildID Snowflake) (*Integration, error)
+	UpdateGuildIntegration(guildID Snowflake) (*Integration, error)
+	DeleteGuildIntegration(guildID Snowflake) error
 	SyncIntegration(guildID Snowflake)
 
 	GetRoles(guildID Snowflake) ([]*Role, error)
-	CreateRole(guildID Snowflake, role *RoleUpdate) (*Role, error)
-	UpdateRole(guildID Snowflake, roleID Snowflake, role *RoleUpdate) (*Role, error)
-	UpdateRolePositions(guildID Snowflake, roleUpdates ...*RolePositionUpdate) ([]*Role, error)
+	CreateRole(guildID Snowflake, roleCreate *RoleCreate) (*Role, error)
+	UpdateRole(guildID Snowflake, roleID Snowflake, roleUpdate *RoleUpdate) (*Role, error)
+	UpdateRolePositions(guildID Snowflake, rolePositionUpdates ...*RolePositionUpdate) ([]*Role, error)
 	DeleteRole(guildID Snowflake, roleID Snowflake) error
 
-	CreateMessage(channelID Snowflake, message *MessageCreate) (*Message, error)
-	UpdateMessage(channelID Snowflake, messageID Snowflake, message *MessageUpdate) (*Message, error)
+	CreateMessage(channelID Snowflake, messageCreate *MessageCreate) (*Message, error)
+	UpdateMessage(channelID Snowflake, messageID Snowflake, messageUpdate *MessageUpdate) (*Message, error)
 	DeleteMessage(channelID Snowflake, messageID Snowflake) error
 	BulkDeleteMessages(channelID Snowflake, messageIDs ...Snowflake) error
 	CrosspostMessage(channelID Snowflake, messageID Snowflake) (*Message, error)
@@ -108,16 +98,16 @@ type RestClient interface {
 
 	GetGlobalCommands(applicationID Snowflake) ([]*Command, error)
 	GetGlobalCommand(applicationID Snowflake, commandID Snowflake) (*Command, error)
-	CreateGlobalCommand(applicationID Snowflake, command *CommandCreate) (*Command, error)
+	CreateGlobalCommand(applicationID Snowflake, commandCreate *CommandCreate) (*Command, error)
 	SetGlobalCommands(applicationID Snowflake, commands ...*CommandCreate) ([]*Command, error)
-	UpdateGlobalCommand(applicationID Snowflake, commandID Snowflake, command *CommandUpdate) (*Command, error)
+	UpdateGlobalCommand(applicationID Snowflake, commandID Snowflake, commandUpdate *CommandUpdate) (*Command, error)
 	DeleteGlobalCommand(applicationID Snowflake, commandID Snowflake) error
 
 	GetGuildCommands(applicationID Snowflake, guildID Snowflake) ([]*Command, error)
 	GetGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake) (*Command, error)
-	CreateGuildCommand(applicationID Snowflake, guildID Snowflake, command *CommandCreate) (*Command, error)
-	SetGuildCommands(applicationID Snowflake, guildID Snowflake, commands ...*CommandCreate) ([]*Command, error)
-	UpdateGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake, command *CommandUpdate) (*Command, error)
+	CreateGuildCommand(applicationID Snowflake, guildID Snowflake, commandCreate *CommandCreate) (*Command, error)
+	SetGuildCommands(applicationID Snowflake, guildID Snowflake, commandCreate ...*CommandCreate) ([]*Command, error)
+	UpdateGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake, commandUpdate *CommandUpdate) (*Command, error)
 	DeleteGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake) error
 
 	GetGuildCommandsPermissions(applicationID Snowflake, guildID Snowflake) ([]*GuildCommandPermissions, error)
