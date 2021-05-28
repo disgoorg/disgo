@@ -3,7 +3,7 @@ package api
 import (
 	"errors"
 
-	"github.com/DisgoOrg/disgo/api/endpoints"
+	"github.com/DisgoOrg/restclient"
 )
 
 // Errors when connecting to discord
@@ -23,16 +23,24 @@ type ErrorResponse struct {
 
 // RestClient is a manager for all of disgo's HTTP requests
 type RestClient interface {
+	restclient.RestClient
 	Close()
 	Disgo() Disgo
-
-	UserAgent() string
-	Request(route *endpoints.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) error
 
 	GetGateway() (*GatewayRs, error)
 	GetGatewayBot() (*GatewayBotRs, error)
 	GetBotApplication() (*Application, error)
 	GetVoiceRegions() ([]*VoiceRegion, error)
+
+	SendMessage(channelID Snowflake, message *MessageCreate) (*Message, error)
+	EditMessage(channelID Snowflake, messageID Snowflake, message *MessageUpdate) (*Message, error)
+	DeleteMessage(channelID Snowflake, messageID Snowflake) error
+	BulkDeleteMessages(channelID Snowflake, messageIDs ...Snowflake) error
+	CrosspostMessage(channelID Snowflake, messageID Snowflake) (*Message, error)
+
+	OpenDMChannel(userID Snowflake) (*DMChannel, error)
+
+	UpdateSelfNick(guildID Snowflake, nick *string) (*string, error)
 
 	GetUser(userID Snowflake) (*User, error)
 	GetSelfUser() (*User, error)

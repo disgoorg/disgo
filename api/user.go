@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/DisgoOrg/disgo/api/endpoints"
+	"github.com/DisgoOrg/restclient"
 )
 
 // User is a struct for interacting with discord's users
@@ -27,20 +27,20 @@ type User struct {
 }
 
 // AvatarURL returns the Avatar URL of the User
-func (u *User) AvatarURL() string {
+func (u *User) AvatarURL(size int) string {
 	if u.Avatar == nil {
 		discrim, _ := strconv.Atoi(u.Discriminator)
-		route, err := endpoints.DefaultUserAvatar.Compile(endpoints.PNG, discrim%5)
+		route, err := restclient.DefaultUserAvatar.Compile(nil, restclient.PNG, size, discrim%5)
 		if err != nil {
 			return ""
 		}
 		return route.Route()
 	}
-	format := endpoints.PNG
+	format := restclient.PNG
 	if strings.HasPrefix(*u.Avatar, "a_") {
-		format = endpoints.GIF
+		format = restclient.GIF
 	}
-	route, err := endpoints.UserAvatar.Compile(format, u.ID.String(), *u.Avatar)
+	route, err := restclient.UserAvatar.Compile(nil, format, size, u.ID.String(), *u.Avatar)
 	if err != nil {
 		return ""
 	}

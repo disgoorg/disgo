@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/DisgoOrg/disgo/api/endpoints"
+	"github.com/DisgoOrg/restclient"
 )
 
 // PremiumTier tells you the boost level of a guild
@@ -188,16 +188,16 @@ func (g *Guild) AddMember(userID Snowflake, addGuildMemberData *AddGuildMember) 
 }
 
 // IconURL returns the Icon of a guild_events
-func (g *Guild) IconURL() *string {
+func (g *Guild) IconURL(size int) *string {
 	if g.Icon == nil {
 		return nil
 	}
 	animated := strings.HasPrefix(*g.Icon, "a_")
-	format := endpoints.PNG
+	format := restclient.PNG
 	if animated {
-		format = endpoints.GIF
+		format = restclient.GIF
 	}
-	route, err := endpoints.GuildIcon.Compile(format, g.ID.String(), *g.Icon)
+	route, err := restclient.GuildIcon.Compile(nil, format, size, g.ID.String(), *g.Icon)
 	if err != nil {
 		return nil
 	}

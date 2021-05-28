@@ -14,7 +14,7 @@ import (
 	"github.com/gorilla/websocket"
 
 	"github.com/DisgoOrg/disgo/api"
-	"github.com/DisgoOrg/disgo/api/endpoints"
+	"github.com/DisgoOrg/restclient"
 )
 
 func newGatewayImpl(disgo api.Disgo) api.Gateway {
@@ -73,17 +73,17 @@ func (g *GatewayImpl) Open() error {
 	if g.url == nil {
 		g.Disgo().Logger().Debug("gateway url empty, fetching...")
 		gatewayRs := api.GatewayRs{}
-		compiledRoute, err := endpoints.GetGateway.Compile(nil)
+		compiledRoute, err := restclient.GetGateway.Compile(nil)
 		if err != nil {
 			return err
 		}
-		if err = g.Disgo().RestClient().Request(compiledRoute, nil, &gatewayRs); err != nil {
+		if err = g.Disgo().RestClient().Do(compiledRoute, nil, &gatewayRs); err != nil {
 			return err
 		}
 		g.url = &gatewayRs.URL
 	}
 
-	gatewayURL := *g.url + "?v=" + endpoints.APIVersion + "&encoding=json"
+	gatewayURL := *g.url + "?v=" + restclient.APIVersion + "&encoding=json"
 	wsConn, rs, err := websocket.DefaultDialer.Dial(gatewayURL, nil)
 	if err != nil {
 		g.Close()
