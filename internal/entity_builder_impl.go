@@ -20,15 +20,17 @@ func (b *EntityBuilderImpl) Disgo() api.Disgo {
 	return b.disgo
 }
 
-func (b EntityBuilderImpl) createInteraction(fullInteraction *api.FullInteraction, updateCache api.CacheStrategy) *api.Interaction {
+func (b EntityBuilderImpl) createInteraction(fullInteraction *api.FullInteraction, c chan *api.InteractionResponse, updateCache api.CacheStrategy) *api.Interaction {
 	interaction := &api.Interaction{
-		Disgo:     b.disgo,
-		ID:        fullInteraction.ID,
-		Type:      fullInteraction.Type,
-		GuildID:   fullInteraction.GuildID,
-		ChannelID: fullInteraction.ChannelID,
-		Token:     fullInteraction.Token,
-		Version:   fullInteraction.Version,
+		Disgo:           b.disgo,
+		ResponseChannel: c,
+		Replied:         false,
+		ID:              fullInteraction.ID,
+		Type:            fullInteraction.Type,
+		GuildID:         fullInteraction.GuildID,
+		ChannelID:       fullInteraction.ChannelID,
+		Token:           fullInteraction.Token,
+		Version:         fullInteraction.Version,
 	}
 
 	if fullInteraction.Member != nil {
@@ -41,19 +43,19 @@ func (b EntityBuilderImpl) createInteraction(fullInteraction *api.FullInteractio
 }
 
 // CreateButtonInteraction creates a api.ButtonInteraction from the full interaction response
-func (b *EntityBuilderImpl) CreateButtonInteraction(fullInteraction *api.FullInteraction, updateCache api.CacheStrategy) *api.ButtonInteraction {
+func (b *EntityBuilderImpl) CreateButtonInteraction(fullInteraction *api.FullInteraction, c chan *api.InteractionResponse, updateCache api.CacheStrategy) *api.ButtonInteraction {
 	var data *api.ButtonInteractionData
 	_ = json.Unmarshal(fullInteraction.Data, &data)
 
 	return &api.ButtonInteraction{
-		Interaction: b.createInteraction(fullInteraction, updateCache),
+		Interaction: b.createInteraction(fullInteraction, c, updateCache),
 		Message:     b.CreateMessage(fullInteraction.FullMessage, updateCache),
 		Data:        data,
 	}
 }
 
 // CreateCommandInteraction creates a api.CommandInteraction from the full interaction response
-func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullInteraction, updateCache api.CacheStrategy) *api.CommandInteraction {
+func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullInteraction, c chan *api.InteractionResponse, updateCache api.CacheStrategy) *api.CommandInteraction {
 	var data *api.CommandInteractionData
 	_ = json.Unmarshal(fullInteraction.Data, &data)
 
@@ -85,7 +87,7 @@ func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullIn
 	}
 
 	return &api.CommandInteraction{
-		Interaction: b.createInteraction(fullInteraction, updateCache),
+		Interaction: b.createInteraction(fullInteraction, c, updateCache),
 		Data:        data,
 	}
 }
