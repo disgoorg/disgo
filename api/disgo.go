@@ -39,6 +39,18 @@ type Disgo interface {
 	EditCommand(commandID Snowflake, command *CommandUpdate) (*Command, error)
 	DeleteCommand(commandID Snowflake) error
 	SetCommands(commands ...*CommandCreate) ([]*Command, error)
+
+	GetGuildCommand(guildId Snowflake, commandID Snowflake) (*Command, error)
+	GetGuildCommands(guildId Snowflake, ) ([]*Command, error)
+	CreateGuildCommand(guildId Snowflake, command *CommandCreate) (*Command, error)
+	EditGuildCommand(guildId Snowflake, commandID Snowflake, command *CommandUpdate) (*Command, error)
+	DeleteGuildCommand(guildId Snowflake, commandID Snowflake) error
+	SetGuildCommands(guildId Snowflake, commands ...*CommandCreate) ([]*Command, error)
+
+	GetGuildCommandsPermissions(guildId Snowflake) ([]*GuildCommandPermissions, error)
+	GetGuildCommandPermissions(guildId Snowflake, commandID Snowflake) (*GuildCommandPermissions, error)
+	SetGuildCommandsPermissions(guildId Snowflake, commandPermissions ...*SetGuildCommandPermissions) ([]*GuildCommandPermissions, error)
+	SetGuildCommandPermissions(guildId Snowflake, commandID Snowflake, permissions *SetGuildCommandPermissions) (*GuildCommandPermissions, error)
 }
 
 // EventHandler provides info about the EventHandler

@@ -30,6 +30,16 @@ func (c Command) FromGuild() bool {
 	return c.GuildID == nil
 }
 
+// ToCreate return the CommandCreate for this Command
+func (c *Command) ToCreate() *CommandCreate {
+	return &CommandCreate{
+		Name:              c.Name,
+		Description:       c.Description,
+		DefaultPermission: c.DefaultPermission,
+		Options:           c.Options,
+	}
+}
+
 // Fetch updates/fetches the current Command from discord
 func (c *Command) Fetch() error {
 	if c.Disgo == nil {
