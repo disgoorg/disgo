@@ -8,14 +8,13 @@ import (
 	"github.com/DisgoOrg/restclient"
 )
 
-var UserAgent = "DiscordBot (" + api.Github + ", " + api.Version + ")"
 
 func newRestClientImpl(disgo api.Disgo, httpClient *http.Client) api.RestClient {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
 	return &RestClientImpl{
-		RestClient: restclient.NewRestClient(httpClient, disgo.Logger(), UserAgent, http.Header{"Authorization": []string{"Bot " + disgo.Token()}}),
+		RestClient: restclient.NewRestClient(httpClient, disgo.Logger(), api.UserAgent, http.Header{"Authorization": []string{"Bot " + disgo.Token()}}),
 		disgo:      disgo,
 	}
 }

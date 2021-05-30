@@ -15,6 +15,9 @@ var (
 	ErrTooMuchCommands = errors.New("you can provide a max of 100 application commands")
 )
 
+// UserAgent is the global useragent disgo uses for all its requests
+var UserAgent = "DiscordBot (" + Github + ", " + Version + ")"
+
 // ErrorResponse contains custom errors from discord
 type ErrorResponse struct {
 	Code    int
