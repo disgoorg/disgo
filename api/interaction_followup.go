@@ -119,9 +119,9 @@ func (b *FollowupMessageBuilder) SetFlags(flags MessageFlags) *FollowupMessageBu
 // SetEphemeral adds/removes MessageFlagEphemeral to the message flags
 func (b *FollowupMessageBuilder) SetEphemeral(ephemeral bool) *FollowupMessageBuilder {
 	if ephemeral {
-		b.Flags &= MessageFlagEphemeral
+		b.Flags = b.Flags.Add(MessageFlagEphemeral)
 	} else {
-		b.Flags |= MessageFlagEphemeral
+		b.Flags = b.Flags.Remove(MessageFlagEphemeral)
 	}
 	return b
 }

@@ -174,10 +174,10 @@ func (b *InteractionResponseBuilder) SetFlags(flags MessageFlags) *InteractionRe
 // SetEphemeral adds/removes MessageFlagEphemeral to the message flags
 func (b *InteractionResponseBuilder) SetEphemeral(ephemeral bool) *InteractionResponseBuilder {
 	if ephemeral {
-		b.Data.Flags &= MessageFlagEphemeral
+		b.Data.Flags = b.Data.Flags.Add(MessageFlagEphemeral)
 
 	} else {
-		b.Data.Flags |= MessageFlagEphemeral
+		b.Data.Flags = b.Data.Flags.Remove(MessageFlagEphemeral)
 	}
 	return b
 }
