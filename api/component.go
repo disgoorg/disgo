@@ -7,6 +7,7 @@ type ComponentType int
 const (
 	ComponentTypeActionRow = iota + 1
 	ComponentTypeButton
+	ComponentTypeDropdown
 )
 
 // Component is a general interface each Component needs to implement

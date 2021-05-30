@@ -51,7 +51,7 @@ func main() {
 		logger.Fatalf("error while building disgo instance: %s", err)
 		return
 	}
-
+/*
 	rawCmds := []*api.CommandCreate{
 		{
 			Name:              "eval",
@@ -153,7 +153,7 @@ func main() {
 	}
 	if _, err = dgo.RestClient().SetGuildCommandsPermissions(dgo.ApplicationID(), guildID, cmdsPermissions...); err != nil {
 		logger.Errorf("error while setting command permissions: %s", err)
-	}
+	}*/
 
 	err = dgo.Connect()
 	if err != nil {
@@ -268,11 +268,13 @@ func commandListener(event *events.CommandEvent) {
 	case "test":
 		if err := event.Reply(api.NewInteractionResponseBuilder().
 			SetContent("test1").
+			SetEphemeral(true).
 			SetEmbeds(api.NewEmbedBuilder().SetDescription("this message should have some buttons").Build()).
 			SetComponents(
-				api.NewActionRow(
+				/*api.NewActionRow(
 					api.NewPrimaryButton("test", "test", api.NewEmoji("❌"), false),
-				),
+				),*/
+				api.NewDropdown("test", 0, 0, api.NewDropdownOption("test1", "1"), api.NewDropdownOption("test2", "2"), api.NewDropdownOption("test3", "3")),
 			).
 			Build(),
 		); err != nil {
