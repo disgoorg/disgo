@@ -8,7 +8,7 @@ import (
 	"github.com/DisgoOrg/restclient"
 )
 
-var UserAgent = "DiscordBot (" + api.GITHUB + ", " + api.VERSION + ")"
+var UserAgent = "DiscordBot (" + api.Github + ", " + api.Version + ")"
 
 func newRestClientImpl(disgo api.Disgo, httpClient *http.Client) api.RestClient {
 	if httpClient == nil {
