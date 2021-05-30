@@ -80,6 +80,7 @@ func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullIn
 	}
 }
 
+// CreateComponentInteraction creates a api.ComponentInteraction from the api.FullInteraction response
 func (b *EntityBuilderImpl) CreateComponentInteraction(fullInteraction *api.FullInteraction, c chan *api.InteractionResponse, updateCache api.CacheStrategy) *api.ComponentInteraction {
 	var data *api.ComponentInteractionData
 	_ = json.Unmarshal(fullInteraction.Data, &data)
@@ -94,7 +95,7 @@ func (b *EntityBuilderImpl) CreateComponentInteraction(fullInteraction *api.Full
 	}
 }
 
-// CreateButtonInteraction creates a api.ButtonInteraction from the full interaction response
+// CreateButtonInteraction creates a api.ButtonInteraction from the api.FullInteraction response
 func (b *EntityBuilderImpl) CreateButtonInteraction(fullInteraction *api.FullInteraction, cInteraction *api.ComponentInteraction) *api.ButtonInteraction {
 	var data *api.ButtonInteractionData
 	_ = json.Unmarshal(fullInteraction.Data, &data)

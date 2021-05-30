@@ -104,6 +104,7 @@ func (e CommandEvent) OptionsT(optionType api.CommandOptionType) []*api.Option {
 	return options
 }
 
+// GenericComponentEvent generic api.ComponentInteraction event
 type GenericComponentEvent struct {
 	GenericInteractionEvent
 	ComponentInteraction *api.ComponentInteraction
