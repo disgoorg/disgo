@@ -74,15 +74,32 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceN
 			SubCommandGroupName:     subCommandGroupName,
 			Options:                 newOptions,
 		})
-	case api.InteractionTypeComponent:
-		interaction := disgo.EntityBuilder().CreateButtonInteraction(fullInteraction, c, api.CacheStrategyYes)
 
-		genericInteractionEvent.Interaction = interaction.Interaction
+	case api.InteractionTypeComponent:
+		componentInteraction := disgo.EntityBuilder().CreateComponentInteraction(fullInteraction, c, api.CacheStrategyYes)
+
+		genericInteractionEvent.Interaction = componentInteraction.Interaction
 		eventManager.Dispatch(genericInteractionEvent)
 
-		eventManager.Dispatch(events.ButtonClickEvent{
+		genericComponentEvent := events.GenericComponentEvent{
 			GenericInteractionEvent: genericInteractionEvent,
-			ButtonInteraction:       interaction,
-		})
+			ComponentInteraction:    componentInteraction,
+		}
+		eventManager.Dispatch(genericComponentEvent)
+
+		switch componentInteraction.Data.ComponentType {
+		case api.ComponentTypeButton:
+			eventManager.Dispatch(events.ButtonClickEvent{
+				GenericComponentEvent: genericComponentEvent,
+				ButtonInteraction:     disgo.EntityBuilder().CreateButtonInteraction(fullInteraction, componentInteraction),
+			})
+
+		case api.ComponentTypeDropdown:
+			eventManager.Dispatch(events.DropdownSubmitEvent{
+				GenericComponentEvent: genericComponentEvent,
+				DropdownInteraction:   disgo.EntityBuilder().CreateDropdownInteraction(fullInteraction, componentInteraction),
+			})
+		}
+
 	}
 }

@@ -117,16 +117,19 @@ func (i *Interaction) DeleteFollowup(messageID Snowflake) error {
 
 // FullInteraction is used for easier unmarshalling of different Interaction(s)
 type FullInteraction struct {
-	ID          Snowflake       `json:"id"`
-	Type        InteractionType `json:"type"`
-	GuildID     *Snowflake      `json:"guild_id,omitempty"`
-	ChannelID   *Snowflake      `json:"channel_id,omitempty"`
-	FullMessage *FullMessage    `json:"message,omitempty"`
-	Member      *Member         `json:"member,omitempty"`
-	User        *User           `json:"User,omitempty"`
-	Token       string          `json:"token"`
-	Version     int             `json:"version"`
-	Data        json.RawMessage `json:"data,omitempty"`
+	// CommandInteraction & ComponentInteraction
+	ID        Snowflake       `json:"id"`
+	Type      InteractionType `json:"type"`
+	GuildID   *Snowflake      `json:"guild_id,omitempty"`
+	ChannelID *Snowflake      `json:"channel_id,omitempty"`
+	Member    *Member         `json:"member,omitempty"`
+	User      *User           `json:"User,omitempty"`
+	Token     string          `json:"token"`
+	Version   int             `json:"version"`
+	Data      json.RawMessage `json:"data,omitempty"`
+
+	// ComponentInteraction
+	FullMessage *FullMessage `json:"message,omitempty"`
 }
 
 // CommandInteraction is a specific Interaction when using Command(s)
@@ -149,24 +152,36 @@ func (i *CommandInteraction) ReplyCreate(data *InteractionResponseData) error {
 	return i.Reply(&InteractionResponse{Type: InteractionResponseTypeChannelMessageWithSource, Data: data})
 }
 
-// ButtonInteraction is a specific Interaction when CLicked on Button(s)
-type ButtonInteraction struct {
+// ComponentInteraction is a specific Interaction when using Component(s)
+type ComponentInteraction struct {
 	*Interaction
-	Message *Message               `json:"message,omitempty"`
-	Data    *ButtonInteractionData `json:"data,omitempty"`
+	Message *Message                  `json:"message,omitempty"`
+	Data    *ComponentInteractionData `json:"data,omitempty"`
 }
 
 // DeferEdit replies to the api.ButtonInteraction with api.InteractionResponseTypeDeferredUpdateMessage and cancels the loading state
-func (i *ButtonInteraction) DeferEdit() error {
+func (i *ComponentInteraction) DeferEdit() error {
 	return i.Reply(&InteractionResponse{Type: InteractionResponseTypeDeferredUpdateMessage})
 }
 
 // ReplyEdit replies to the api.ButtonInteraction with api.InteractionResponseTypeUpdateMessage & api.InteractionResponseData which edits the original api.Message
-func (i *ButtonInteraction) ReplyEdit(data *InteractionResponseData) error {
+func (i *ComponentInteraction) ReplyEdit(data *InteractionResponseData) error {
 	return i.Reply(&InteractionResponse{Type: InteractionResponseTypeUpdateMessage, Data: data})
 }
 
-// CommandInteractionData is the command data payload
+// ButtonInteraction is a specific Interaction when CLicked on Button(s)
+type ButtonInteraction struct {
+	*ComponentInteraction
+	Data *ButtonInteractionData `json:"data,omitempty"`
+}
+
+// DropdownInteraction is a specific Interaction when CLicked on Dropdown(s)
+type DropdownInteraction struct {
+	*ComponentInteraction
+	Data *DropdownInteractionData `json:"data,omitempty"`
+}
+
+// CommandInteractionData is the Command data payload
 type CommandInteractionData struct {
 	ID       Snowflake     `json:"id"`
 	Name     string        `json:"name"`
@@ -174,10 +189,21 @@ type CommandInteractionData struct {
 	Options  []*OptionData `json:"options,omitempty"`
 }
 
-// ButtonInteractionData is the command data payload
-type ButtonInteractionData struct {
+// ComponentInteractionData is the Component data payload
+type ComponentInteractionData struct {
 	CustomID      string        `json:"custom_id"`
 	ComponentType ComponentType `json:"component_type"`
+}
+
+// ButtonInteractionData is the Button data payload
+type ButtonInteractionData struct {
+	*ComponentInteractionData
+}
+
+// DropdownInteractionData is the Dropdown data payload
+type DropdownInteractionData struct {
+	*ComponentInteractionData
+	Values []string `json:"values"`
 }
 
 // Resolved contains resolved mention data

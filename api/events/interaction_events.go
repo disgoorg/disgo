@@ -104,33 +104,49 @@ func (e CommandEvent) OptionsT(optionType api.CommandOptionType) []*api.Option {
 	return options
 }
 
-// ButtonClickEvent indicates that a api.Button was clicked
-type ButtonClickEvent struct {
+type GenericComponentEvent struct {
 	GenericInteractionEvent
-	ButtonInteraction *api.ButtonInteraction
+	ComponentInteraction *api.ComponentInteraction
 }
 
 // DeferEdit replies to the api.ButtonInteraction with api.InteractionResponseTypeDeferredUpdateMessage and cancels the loading state
-func (e *ButtonClickEvent) DeferEdit() error {
-	return e.ButtonInteraction.DeferEdit()
+func (e *GenericComponentEvent) DeferEdit() error {
+	return e.ComponentInteraction.DeferEdit()
 }
 
 // ReplyEdit replies to the api.ButtonInteraction with api.InteractionResponseTypeUpdateMessage & api.InteractionResponseData which edits the original api.Message
-func (e *ButtonClickEvent) ReplyEdit(data *api.InteractionResponseData) error {
-	return e.ButtonInteraction.ReplyEdit(data)
+func (e *GenericComponentEvent) ReplyEdit(data *api.InteractionResponseData) error {
+	return e.ComponentInteraction.ReplyEdit(data)
 }
 
-// CustomID returns the customID from the called api.Button
-func (e *ButtonClickEvent) CustomID() string {
-	return e.ButtonInteraction.Data.CustomID
+// CustomID returns the customID from the called api.Component
+func (e *GenericComponentEvent) CustomID() string {
+	return e.ComponentInteraction.Data.CustomID
 }
 
-// ComponentType returns the api.ComponentType from the called api.Button
-func (e *ButtonClickEvent) ComponentType() string {
-	return e.ButtonInteraction.Data.CustomID
+// ComponentType returns the api.ComponentType from the called api.Component
+func (e *GenericComponentEvent) ComponentType() string {
+	return e.ComponentInteraction.Data.CustomID
 }
 
-// Message returns the api.Message the api.Button is called from
-func (e *ButtonClickEvent) Message() *api.Message {
-	return e.ButtonInteraction.Message
+// Message returns the api.Message the api.Component is called from
+func (e *GenericComponentEvent) Message() *api.Message {
+	return e.ComponentInteraction.Message
+}
+
+// ButtonClickEvent indicates that a api.Button was clicked
+type ButtonClickEvent struct {
+	GenericComponentEvent
+	ButtonInteraction *api.ButtonInteraction
+}
+
+// DropdownSubmitEvent indicates that a api.Dropdown was submitted
+type DropdownSubmitEvent struct {
+	GenericComponentEvent
+	DropdownInteraction *api.DropdownInteraction
+}
+
+// Values returns the submitted values from the api.Dropdown
+func (e *DropdownSubmitEvent) Values() []string {
+	return e.DropdownInteraction.Data.Values
 }

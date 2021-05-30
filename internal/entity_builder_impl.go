@@ -42,18 +42,6 @@ func (b EntityBuilderImpl) createInteraction(fullInteraction *api.FullInteractio
 	return interaction
 }
 
-// CreateButtonInteraction creates a api.ButtonInteraction from the full interaction response
-func (b *EntityBuilderImpl) CreateButtonInteraction(fullInteraction *api.FullInteraction, c chan *api.InteractionResponse, updateCache api.CacheStrategy) *api.ButtonInteraction {
-	var data *api.ButtonInteractionData
-	_ = json.Unmarshal(fullInteraction.Data, &data)
-
-	return &api.ButtonInteraction{
-		Interaction: b.createInteraction(fullInteraction, c, updateCache),
-		Message:     b.CreateMessage(fullInteraction.FullMessage, updateCache),
-		Data:        data,
-	}
-}
-
 // CreateCommandInteraction creates a api.CommandInteraction from the full interaction response
 func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullInteraction, c chan *api.InteractionResponse, updateCache api.CacheStrategy) *api.CommandInteraction {
 	var data *api.CommandInteractionData
@@ -89,6 +77,42 @@ func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullIn
 	return &api.CommandInteraction{
 		Interaction: b.createInteraction(fullInteraction, c, updateCache),
 		Data:        data,
+	}
+}
+
+func (b *EntityBuilderImpl) CreateComponentInteraction(fullInteraction *api.FullInteraction, c chan *api.InteractionResponse, updateCache api.CacheStrategy) *api.ComponentInteraction {
+	var data *api.ComponentInteractionData
+	_ = json.Unmarshal(fullInteraction.Data, &data)
+
+	return &api.ComponentInteraction{
+		Interaction: b.createInteraction(fullInteraction, c, updateCache),
+		Message:     b.CreateMessage(fullInteraction.FullMessage, updateCache),
+		Data: &api.ComponentInteractionData{
+			ComponentType: data.ComponentType,
+			CustomID:      data.CustomID,
+		},
+	}
+}
+
+// CreateButtonInteraction creates a api.ButtonInteraction from the full interaction response
+func (b *EntityBuilderImpl) CreateButtonInteraction(fullInteraction *api.FullInteraction, cInteraction *api.ComponentInteraction) *api.ButtonInteraction {
+	var data *api.ButtonInteractionData
+	_ = json.Unmarshal(fullInteraction.Data, &data)
+
+	return &api.ButtonInteraction{
+		ComponentInteraction: cInteraction,
+		Data:                 data,
+	}
+}
+
+// CreateDropdownInteraction creates a api.DropdownInteraction from the full interaction response
+func (b *EntityBuilderImpl) CreateDropdownInteraction(fullInteraction *api.FullInteraction, cInteraction *api.ComponentInteraction) *api.DropdownInteraction {
+	var data *api.DropdownInteractionData
+	_ = json.Unmarshal(fullInteraction.Data, &data)
+
+	return &api.DropdownInteraction{
+		ComponentInteraction: cInteraction,
+		Data:                 data,
 	}
 }
 
@@ -139,6 +163,18 @@ func (b *EntityBuilderImpl) createComponent(unmarshalComponent *api.UnmarshalCom
 			button.Emote = b.CreateEmote("", unmarshalComponent.Emote, updateCache)
 		}
 		return button
+	case api.ComponentTypeDropdown:
+		dropdown := &api.Dropdown{
+			ComponentImpl: api.ComponentImpl{
+				ComponentType: api.ComponentTypeButton,
+			},
+			CustomID:    unmarshalComponent.CustomID,
+			Placeholder: unmarshalComponent.Placeholder,
+			MinValues:   unmarshalComponent.MinValues,
+			MaxValues:   unmarshalComponent.MaxValues,
+			Options:     unmarshalComponent.Options,
+		}
+		return dropdown
 
 	default:
 		b.Disgo().Logger().Errorf("unexpected component type %d received", unmarshalComponent.ComponentType)

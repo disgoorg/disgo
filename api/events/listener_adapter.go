@@ -123,8 +123,10 @@ type ListenerAdapter struct {
 
 	// api.Interaction Events
 	OnGenericInteractionEvent func(event *GenericInteractionEvent)
-	OnCommand            func(event *CommandEvent)
+	OnCommand                 func(event *CommandEvent)
+	OnGenericComponentEvent   func(event *GenericComponentEvent)
 	OnButtonClick             func(event *ButtonClickEvent)
+	OnDropdownSubmit          func(event *DropdownSubmitEvent)
 
 	// api.Message Events
 	OnGenericMessageEvent func(event *GenericMessageEvent)
@@ -511,8 +513,16 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		if listener := l.OnCommand; listener != nil {
 			listener(&e)
 		}
+	case GenericComponentEvent:
+		if listener := l.OnGenericComponentEvent; listener != nil {
+			listener(&e)
+		}
 	case ButtonClickEvent:
 		if listener := l.OnButtonClick; listener != nil {
+			listener(&e)
+		}
+	case DropdownSubmitEvent:
+		if listener := l.OnDropdownSubmit; listener != nil {
 			listener(&e)
 		}
 

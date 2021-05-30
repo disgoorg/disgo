@@ -43,117 +43,118 @@ func main() {
 			OnRawGateway:         rawGatewayEventListener,
 			OnGuildAvailable:     guildAvailListener,
 			OnGuildMessageCreate: messageListener,
-			OnCommand:       commandListener,
+			OnCommand:            commandListener,
 			OnButtonClick:        buttonClickListener,
+			OnDropdownSubmit:     dropdownSubmitListener,
 		}).
 		Build()
 	if err != nil {
 		logger.Fatalf("error while building disgo instance: %s", err)
 		return
 	}
-/*
-	rawCmds := []*api.CommandCreate{
-		{
-			Name:              "eval",
-			Description:       "runs some go code",
-			DefaultPermission: ptrBool(true),
-			Options: []*api.CommandOption{
-				{
-					Type:        api.CommandOptionTypeString,
-					Name:        "code",
-					Description: "the code to eval",
-					Required:    true,
+	/*
+		rawCmds := []*api.CommandCreate{
+			{
+				Name:              "eval",
+				Description:       "runs some go code",
+				DefaultPermission: ptrBool(true),
+				Options: []*api.CommandOption{
+					{
+						Type:        api.CommandOptionTypeString,
+						Name:        "code",
+						Description: "the code to eval",
+						Required:    true,
+					},
 				},
 			},
-		},
-		{
-			Name:              "test",
-			Description:       "test test test test test test",
-			DefaultPermission: ptrBool(true),
-		},
-		{
-			Name:              "say",
-			Description:       "says what you say",
-			DefaultPermission: ptrBool(true),
-			Options: []*api.CommandOption{
-				{
-					Type:        api.CommandOptionTypeString,
-					Name:        "message",
-					Description: "What to say",
-					Required:    true,
+			{
+				Name:              "test",
+				Description:       "test test test test test test",
+				DefaultPermission: ptrBool(true),
+			},
+			{
+				Name:              "say",
+				Description:       "says what you say",
+				DefaultPermission: ptrBool(true),
+				Options: []*api.CommandOption{
+					{
+						Type:        api.CommandOptionTypeString,
+						Name:        "message",
+						Description: "What to say",
+						Required:    true,
+					},
 				},
 			},
-		},
-		{
-			Name:              "addrole",
-			Description:       "This command adds a role to a member",
-			DefaultPermission: ptrBool(true),
-			Options: []*api.CommandOption{
-				{
-					Type:        api.CommandOptionTypeUser,
-					Name:        "member",
-					Description: "The member to add a role to",
-					Required:    true,
-				},
-				{
-					Type:        api.CommandOptionTypeRole,
-					Name:        "role",
-					Description: "The role to add to a member",
-					Required:    true,
-				},
-			},
-		},
-		{
-			Name:              "removerole",
-			Description:       "This command removes a role from a member",
-			DefaultPermission: ptrBool(true),
-			Options: []*api.CommandOption{
-				{
-					Type:        api.CommandOptionTypeUser,
-					Name:        "member",
-					Description: "The member to removes a role from",
-					Required:    true,
-				},
-				{
-					Type:        api.CommandOptionTypeRole,
-					Name:        "role",
-					Description: "The role to removes from a member",
-					Required:    true,
+			{
+				Name:              "addrole",
+				Description:       "This command adds a role to a member",
+				DefaultPermission: ptrBool(true),
+				Options: []*api.CommandOption{
+					{
+						Type:        api.CommandOptionTypeUser,
+						Name:        "member",
+						Description: "The member to add a role to",
+						Required:    true,
+					},
+					{
+						Type:        api.CommandOptionTypeRole,
+						Name:        "role",
+						Description: "The role to add to a member",
+						Required:    true,
+					},
 				},
 			},
-		},
-	}
-
-	// using the api.RestClient directly to avoid the guild needing to be cached
-	cmds, err := dgo.RestClient().SetGuildCommands(dgo.ApplicationID(), guildID, rawCmds...)
-	if err != nil {
-		logger.Errorf("error while registering guild commands: %s", err)
-	}
-
-	var cmdsPermissions []*api.SetGuildCommandPermissions
-	for _, cmd := range cmds {
-		var perms *api.CommandPermission
-		if cmd.Name == "eval" {
-			perms = &api.CommandPermission{
-				ID:         adminRoleID,
-				Type:       api.CommandPermissionTypeRole,
-				Permission: true,
-			}
-		} else {
-			perms = &api.CommandPermission{
-				ID:         testRoleID,
-				Type:       api.CommandPermissionTypeRole,
-				Permission: true,
-			}
+			{
+				Name:              "removerole",
+				Description:       "This command removes a role from a member",
+				DefaultPermission: ptrBool(true),
+				Options: []*api.CommandOption{
+					{
+						Type:        api.CommandOptionTypeUser,
+						Name:        "member",
+						Description: "The member to removes a role from",
+						Required:    true,
+					},
+					{
+						Type:        api.CommandOptionTypeRole,
+						Name:        "role",
+						Description: "The role to removes from a member",
+						Required:    true,
+					},
+				},
+			},
 		}
-		cmdsPermissions = append(cmdsPermissions, &api.SetGuildCommandPermissions{
-			ID:          cmd.ID,
-			Permissions: []*api.CommandPermission{perms},
-		})
-	}
-	if _, err = dgo.RestClient().SetGuildCommandsPermissions(dgo.ApplicationID(), guildID, cmdsPermissions...); err != nil {
-		logger.Errorf("error while setting command permissions: %s", err)
-	}*/
+
+		// using the api.RestClient directly to avoid the guild needing to be cached
+		cmds, err := dgo.RestClient().SetGuildCommands(dgo.ApplicationID(), guildID, rawCmds...)
+		if err != nil {
+			logger.Errorf("error while registering guild commands: %s", err)
+		}
+
+		var cmdsPermissions []*api.SetGuildCommandPermissions
+		for _, cmd := range cmds {
+			var perms *api.CommandPermission
+			if cmd.Name == "eval" {
+				perms = &api.CommandPermission{
+					ID:         adminRoleID,
+					Type:       api.CommandPermissionTypeRole,
+					Permission: true,
+				}
+			} else {
+				perms = &api.CommandPermission{
+					ID:         testRoleID,
+					Type:       api.CommandPermissionTypeRole,
+					Permission: true,
+				}
+			}
+			cmdsPermissions = append(cmdsPermissions, &api.SetGuildCommandPermissions{
+				ID:          cmd.ID,
+				Permissions: []*api.CommandPermission{perms},
+			})
+		}
+		if _, err = dgo.RestClient().SetGuildCommandsPermissions(dgo.ApplicationID(), guildID, cmdsPermissions...); err != nil {
+			logger.Errorf("error while setting command permissions: %s", err)
+		}*/
 
 	err = dgo.Connect()
 	if err != nil {
@@ -203,6 +204,20 @@ func buttonClickListener(event *events.ButtonClickEvent) {
 		); err != nil {
 			logger.Errorf("error sending interaction response: %s", err)
 		}
+	}
+}
+
+func dropdownSubmitListener(event *events.DropdownSubmitEvent) {
+	switch event.CustomID() {
+	case "test3":
+		if err := event.DeferEdit(); err != nil {
+			logger.Errorf("error sending interaction response: %s", err)
+		}
+		_, _ = event.SendFollowup(api.NewFollowupMessageBuilder().
+			SetEphemeral(true).
+			SetContentf("selected options: %s", event.Values()).
+			Build(),
+		)
 	}
 }
 
@@ -266,17 +281,19 @@ func commandListener(event *events.CommandEvent) {
 		)
 
 	case "test":
-		if err := event.Reply(api.NewInteractionResponseBuilder().
+		if err := event.ReplyCreate(api.NewInteractionResponseBuilder().
 			SetContent("test1").
 			SetEphemeral(true).
 			SetEmbeds(api.NewEmbedBuilder().SetDescription("this message should have some buttons").Build()).
 			SetComponents(
-				/*api.NewActionRow(
+				api.NewActionRow(
 					api.NewPrimaryButton("test", "test", api.NewEmoji("❌"), false),
-				),*/
-				api.NewDropdown("test", 0, 0, api.NewDropdownOption("test1", "1"), api.NewDropdownOption("test2", "2"), api.NewDropdownOption("test3", "3")),
+				),
+				api.NewActionRow(
+					api.NewDropdown("test3", "test", 1, 1, api.NewDropdownOption("test1", "1"), api.NewDropdownOption("test2", "2"), api.NewDropdownOption("test3", "3")),
+				),
 			).
-			Build(),
+			BuildData(),
 		); err != nil {
 			logger.Errorf("error sending interaction response: %s", err)
 		}

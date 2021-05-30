@@ -8,10 +8,10 @@ import (
 
 // Errors when connecting to discord
 var (
-	ErrBadGateway                 = errors.New("bad gateway could not reach discord")
-	ErrUnauthorized               = errors.New("not authorized for this endpoint")
-	ErrBadRequest                 = errors.New("bad request please check your request")
-	ErrRatelimited                = errors.New("too many requests")
+	ErrBadGateway      = errors.New("bad gateway could not reach discord")
+	ErrUnauthorized    = errors.New("not authorized for this endpoint")
+	ErrBadRequest      = errors.New("bad request please check your request")
+	ErrRatelimited     = errors.New("too many requests")
 	ErrTooMuchCommands = errors.New("you can provide a max of 100 application commands")
 )
 

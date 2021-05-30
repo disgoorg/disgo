@@ -1,8 +1,9 @@
 package api
 
-func NewDropdown(placeholder string, minValues int, maxValues int, options ...*DropdownOption) *Dropdown {
+func NewDropdown(customID string, placeholder string, minValues int, maxValues int, options ...*DropdownOption) *Dropdown {
 	return &Dropdown{
 		ComponentImpl: newComponentImpl(ComponentTypeDropdown),
+		CustomID:      customID,
 		Placeholder:   placeholder,
 		MinValues:     minValues,
 		MaxValues:     maxValues,
@@ -13,6 +14,7 @@ func NewDropdown(placeholder string, minValues int, maxValues int, options ...*D
 // Dropdown ...
 type Dropdown struct {
 	ComponentImpl
+	CustomID    string            `json:"custom_id"`
 	Placeholder string            `json:"placeholder"`
 	MinValues   int               `json:"min_values,omitempty"`
 	MaxValues   int               `json:"max_values,omitempty"`
