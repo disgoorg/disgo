@@ -8,7 +8,6 @@ import (
 	"github.com/DisgoOrg/restclient"
 )
 
-
 func newRestClientImpl(disgo api.Disgo, httpClient *http.Client) api.RestClient {
 	if httpClient == nil {
 		httpClient = http.DefaultClient

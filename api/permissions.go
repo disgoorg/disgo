@@ -178,4 +178,6 @@ const (
 		PermissionAdministrator |
 		PermissionManageWebhooks |
 		PermissionManageEmojis
+
+	PermissionNone Permissions = 0
 )

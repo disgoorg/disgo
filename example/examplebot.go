@@ -44,7 +44,7 @@ func main() {
 			OnRawGateway:         rawGatewayEventListener,
 			OnGuildAvailable:     guildAvailListener,
 			OnGuildMessageCreate: messageListener,
-			OnCommand:       commandListener,
+			OnCommand:            commandListener,
 			OnButtonClick:        buttonClickListener,
 		}).
 		Build()
