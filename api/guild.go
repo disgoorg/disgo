@@ -132,6 +132,7 @@ type FullGuild struct {
 // Guild represents a discord Guild
 type Guild struct {
 	Disgo                       Disgo
+	Ready                       bool
 	ID                          Snowflake                  `json:"id"`
 	Name                        string                     `json:"name"`
 	Icon                        *string                    `json:"icon"`

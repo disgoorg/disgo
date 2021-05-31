@@ -76,10 +76,12 @@ func (h GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 	}
 	eventManager.Dispatch(genericGuildEvent)
 
-	// TODO we should only call this once
-	eventManager.Dispatch(events.GuildReadyEvent{
-		GenericGuildEvent: genericGuildEvent,
-	})
+	if !guild.Ready {
+		guild.Ready = true
+		eventManager.Dispatch(events.GuildReadyEvent{
+			GenericGuildEvent: genericGuildEvent,
+		})
+	}
 
 	if wasUnavailable {
 		eventManager.Dispatch(events.GuildAvailableEvent{
