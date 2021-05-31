@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/api"
+	"github.com/DisgoOrg/disgo/api/events"
 )
 
 // ReadyHandler handles api.ReadyGatewayEvent
@@ -29,5 +30,10 @@ func (h ReadyHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.Event
 	for i := range readyEvent.Guilds {
 		disgo.Cache().CacheGuild(readyEvent.Guilds[i])
 	}
+
+	disgo.EventManager().Dispatch(&events.ReadyEvent{
+		GenericEvent:      events.NewEvent(disgo, sequenceNumber),
+		ReadyGatewayEvent: readyEvent,
+	})
 
 }
