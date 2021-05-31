@@ -40,17 +40,17 @@ type Disgo interface {
 	DeleteCommand(commandID Snowflake) error
 	SetCommands(commands ...*CommandCreate) ([]*Command, error)
 
-	GetGuildCommand(guildId Snowflake, commandID Snowflake) (*Command, error)
-	GetGuildCommands(guildId Snowflake, ) ([]*Command, error)
-	CreateGuildCommand(guildId Snowflake, command *CommandCreate) (*Command, error)
-	EditGuildCommand(guildId Snowflake, commandID Snowflake, command *CommandUpdate) (*Command, error)
-	DeleteGuildCommand(guildId Snowflake, commandID Snowflake) error
-	SetGuildCommands(guildId Snowflake, commands ...*CommandCreate) ([]*Command, error)
+	GetGuildCommand(guildID Snowflake, commandID Snowflake) (*Command, error)
+	GetGuildCommands(guildID Snowflake, ) ([]*Command, error)
+	CreateGuildCommand(guildID Snowflake, command *CommandCreate) (*Command, error)
+	EditGuildCommand(guildID Snowflake, commandID Snowflake, command *CommandUpdate) (*Command, error)
+	DeleteGuildCommand(guildID Snowflake, commandID Snowflake) error
+	SetGuildCommands(guildID Snowflake, commands ...*CommandCreate) ([]*Command, error)
 
-	GetGuildCommandsPermissions(guildId Snowflake) ([]*GuildCommandPermissions, error)
-	GetGuildCommandPermissions(guildId Snowflake, commandID Snowflake) (*GuildCommandPermissions, error)
-	SetGuildCommandsPermissions(guildId Snowflake, commandPermissions ...*SetGuildCommandPermissions) ([]*GuildCommandPermissions, error)
-	SetGuildCommandPermissions(guildId Snowflake, commandID Snowflake, permissions *SetGuildCommandPermissions) (*GuildCommandPermissions, error)
+	GetGuildCommandsPermissions(guildID Snowflake) ([]*GuildCommandPermissions, error)
+	GetGuildCommandPermissions(guildID Snowflake, commandID Snowflake) (*GuildCommandPermissions, error)
+	SetGuildCommandsPermissions(guildID Snowflake, commandPermissions ...*SetGuildCommandPermissions) ([]*GuildCommandPermissions, error)
+	SetGuildCommandPermissions(guildID Snowflake, commandID Snowflake, permissions *SetGuildCommandPermissions) (*GuildCommandPermissions, error)
 }
 
 // EventHandler provides info about the EventHandler

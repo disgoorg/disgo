@@ -224,51 +224,51 @@ func (d *DisgoImpl) SetCommands(commands ...*api.CommandCreate) ([]*api.Command,
 }
 
 // GetGuildCommand fetches a specific api.Guild api.Command
-func (d *DisgoImpl) GetGuildCommand(guildId api.Snowflake, commandID api.Snowflake) (*api.Command, error) {
-	return d.RestClient().GetGuildCommand(d.ApplicationID(), guildId, commandID)
+func (d *DisgoImpl) GetGuildCommand(guildID api.Snowflake, commandID api.Snowflake) (*api.Command, error) {
+	return d.RestClient().GetGuildCommand(d.ApplicationID(), guildID, commandID)
 }
 
 // GetGuildCommands fetches all api.Guild api.Command(s)
-func (d *DisgoImpl) GetGuildCommands(guildId api.Snowflake, ) ([]*api.Command, error) {
-	return d.RestClient().GetGuildCommands(d.ApplicationID(), guildId)
+func (d *DisgoImpl) GetGuildCommands(guildID api.Snowflake, ) ([]*api.Command, error) {
+	return d.RestClient().GetGuildCommands(d.ApplicationID(), guildID)
 }
 
 // CreateGuildCommand creates a new api.Command for this api.Guild
-func (d *DisgoImpl) CreateGuildCommand(guildId api.Snowflake, command *api.CommandCreate) (*api.Command, error) {
-	return d.RestClient().CreateGuildCommand(d.ApplicationID(), guildId, command)
+func (d *DisgoImpl) CreateGuildCommand(guildID api.Snowflake, command *api.CommandCreate) (*api.Command, error) {
+	return d.RestClient().CreateGuildCommand(d.ApplicationID(), guildID, command)
 }
 
 // EditGuildCommand edits a specific api.Guild api.Command
-func (d *DisgoImpl) EditGuildCommand(guildId api.Snowflake, commandID api.Snowflake, command *api.CommandUpdate) (*api.Command, error) {
-	return d.RestClient().EditGuildCommand(d.ApplicationID(), guildId, commandID, command)
+func (d *DisgoImpl) EditGuildCommand(guildID api.Snowflake, commandID api.Snowflake, command *api.CommandUpdate) (*api.Command, error) {
+	return d.RestClient().EditGuildCommand(d.ApplicationID(), guildID, commandID, command)
 }
 
 // DeleteGuildCommand creates a new api.Command for this api.Guild
-func (d *DisgoImpl) DeleteGuildCommand(guildId api.Snowflake, commandID api.Snowflake) error {
-	return d.RestClient().DeleteGuildCommand(d.ApplicationID(), guildId, commandID)
+func (d *DisgoImpl) DeleteGuildCommand(guildID api.Snowflake, commandID api.Snowflake) error {
+	return d.RestClient().DeleteGuildCommand(d.ApplicationID(), guildID, commandID)
 }
 
 // SetGuildCommands overrides all api.Command(s) for this api.Guild
-func (d *DisgoImpl) SetGuildCommands(guildId api.Snowflake, commands ...*api.CommandCreate) ([]*api.Command, error) {
-	return d.RestClient().SetGuildCommands(d.ApplicationID(), guildId, commands...)
+func (d *DisgoImpl) SetGuildCommands(guildID api.Snowflake, commands ...*api.CommandCreate) ([]*api.Command, error) {
+	return d.RestClient().SetGuildCommands(d.ApplicationID(), guildID, commands...)
 }
 
 // GetGuildCommandsPermissions returns the api.GuildCommandPermissions for a all api.Command(s) in a api.Guild
-func (d *DisgoImpl) GetGuildCommandsPermissions(guildId api.Snowflake) ([]*api.GuildCommandPermissions, error) {
-	return d.RestClient().GetGuildCommandsPermissions(d.ApplicationID(), guildId)
+func (d *DisgoImpl) GetGuildCommandsPermissions(guildID api.Snowflake) ([]*api.GuildCommandPermissions, error) {
+	return d.RestClient().GetGuildCommandsPermissions(d.ApplicationID(), guildID)
 }
 
 // GetGuildCommandPermissions returns the api.GuildCommandPermissions for a specific api.Command in a api.Guild
-func (d *DisgoImpl) GetGuildCommandPermissions(guildId api.Snowflake, commandID api.Snowflake) (*api.GuildCommandPermissions, error) {
-	return d.RestClient().GetGuildCommandPermissions(d.ApplicationID(), guildId, commandID)
+func (d *DisgoImpl) GetGuildCommandPermissions(guildID api.Snowflake, commandID api.Snowflake) (*api.GuildCommandPermissions, error) {
+	return d.RestClient().GetGuildCommandPermissions(d.ApplicationID(), guildID, commandID)
 }
 
 // SetGuildCommandsPermissions sets the api.GuildCommandPermissions for a all api.Command(s)
-func (d *DisgoImpl) SetGuildCommandsPermissions(guildId api.Snowflake, commandPermissions ...*api.SetGuildCommandPermissions) ([]*api.GuildCommandPermissions, error) {
-	return d.RestClient().SetGuildCommandsPermissions(d.ApplicationID(), guildId, commandPermissions...)
+func (d *DisgoImpl) SetGuildCommandsPermissions(guildID api.Snowflake, commandPermissions ...*api.SetGuildCommandPermissions) ([]*api.GuildCommandPermissions, error) {
+	return d.RestClient().SetGuildCommandsPermissions(d.ApplicationID(), guildID, commandPermissions...)
 }
 
 // SetGuildCommandPermissions sets the api.GuildCommandPermissions for a specific api.Command
-func (d *DisgoImpl) SetGuildCommandPermissions(guildId api.Snowflake, commandID api.Snowflake, permissions *api.SetGuildCommandPermissions) (*api.GuildCommandPermissions, error) {
-	return d.RestClient().SetGuildCommandPermissions(d.ApplicationID(), guildId, commandID, permissions)
+func (d *DisgoImpl) SetGuildCommandPermissions(guildID api.Snowflake, commandID api.Snowflake, permissions *api.SetGuildCommandPermissions) (*api.GuildCommandPermissions, error) {
+	return d.RestClient().SetGuildCommandPermissions(d.ApplicationID(), guildID, commandID, permissions)
 }
