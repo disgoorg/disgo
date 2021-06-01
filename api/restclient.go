@@ -6,6 +6,9 @@ import (
 	"github.com/DisgoOrg/restclient"
 )
 
+// ErrMaxCommands returned if a Guild reached max of 100 Command(s)
+var ErrMaxCommands = errors.New("you can provide a max of 100 application commands")
+
 // UserAgent is the global useragent disgo uses for all its requests
 var UserAgent = "DiscordBot (" + Github + ", " + Version + ")"
 
