@@ -31,7 +31,7 @@ func (h ReadyHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.Event
 		disgo.Cache().CacheGuild(readyEvent.Guilds[i])
 	}
 
-	disgo.EventManager().Dispatch(&events.ReadyEvent{
+	disgo.EventManager().Dispatch(events.ReadyEvent{
 		GenericEvent:      events.NewEvent(disgo, sequenceNumber),
 		ReadyGatewayEvent: readyEvent,
 	})
