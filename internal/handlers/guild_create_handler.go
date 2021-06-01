@@ -76,6 +76,13 @@ func (h GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 	}
 	eventManager.Dispatch(genericGuildEvent)
 
+	if !guild.Ready {
+		guild.Ready = true
+		eventManager.Dispatch(events.GuildReadyEvent{
+			GenericGuildEvent: genericGuildEvent,
+		})
+	}
+
 	if wasUnavailable {
 		eventManager.Dispatch(events.GuildAvailableEvent{
 			GenericGuildEvent: genericGuildEvent,

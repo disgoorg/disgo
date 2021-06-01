@@ -6,14 +6,8 @@ import (
 	"github.com/DisgoOrg/restclient"
 )
 
-// Errors when connecting to discord
-var (
-	ErrBadGateway                 = errors.New("bad gateway could not reach discord")
-	ErrUnauthorized               = errors.New("not authorized for this endpoint")
-	ErrBadRequest                 = errors.New("bad request please check your request")
-	ErrRatelimited                = errors.New("too many requests")
-	ErrTooMuchCommands = errors.New("you can provide a max of 100 application commands")
-)
+// ErrMaxCommands returned if a Guild reached max of 100 Command(s)
+var ErrMaxCommands = errors.New("you can provide a max of 100 application commands")
 
 // UserAgent is the global useragent disgo uses for all its requests
 var UserAgent = "DiscordBot (" + Github + ", " + Version + ")"

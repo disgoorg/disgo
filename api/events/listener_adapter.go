@@ -123,7 +123,7 @@ type ListenerAdapter struct {
 
 	// api.Interaction Events
 	OnGenericInteractionEvent func(event *GenericInteractionEvent)
-	OnCommand            func(event *CommandEvent)
+	OnCommand                 func(event *CommandEvent)
 	OnButtonClick             func(event *ButtonClickEvent)
 
 	// api.Message Events

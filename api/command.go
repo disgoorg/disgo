@@ -30,6 +30,16 @@ func (c Command) FromGuild() bool {
 	return c.GuildID == nil
 }
 
+// ToCreate return the CommandCreate for this Command
+func (c *Command) ToCreate() *CommandCreate {
+	return &CommandCreate{
+		Name:              c.Name,
+		Description:       c.Description,
+		DefaultPermission: c.DefaultPermission,
+		Options:           c.Options,
+	}
+}
+
 // Fetch updates/fetches the current Command from discord
 func (c *Command) Fetch() error {
 	if c.Disgo == nil {
@@ -103,73 +113,6 @@ func (c Command) Delete() error {
 
 	}
 	return c.Disgo.RestClient().DeleteGuildCommand(c.Disgo.ApplicationID(), *c.GuildID, c.ID)
-}
-
-// CommandOptionType specifies the type of the arguments used in Command.Options
-type CommandOptionType int
-
-// Constants for each slash command option type
-const (
-	CommandOptionTypeSubCommand CommandOptionType = iota + 1
-	CommandOptionTypeSubCommandGroup
-	CommandOptionTypeString
-	CommandOptionTypeInteger
-	CommandOptionTypeBoolean
-	CommandOptionTypeUser
-	CommandOptionTypeChannel
-	CommandOptionTypeRole
-)
-
-// CommandOption are the arguments used in Command.Options
-type CommandOption struct {
-	Type        CommandOptionType `json:"type"`
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Required    bool              `json:"required,omitempty"`
-	Choices     []*OptionChoice   `json:"choices,omitempty"`
-	Options     []*CommandOption  `json:"options,omitempty"`
-}
-
-// OptionChoice contains the data for a user using your command
-type OptionChoice struct {
-	Name  string      `json:"name"`
-	Value interface{} `json:"value"`
-}
-
-// GuildCommandPermissions holds all permissions for a Command
-type GuildCommandPermissions struct {
-	Disgo         Disgo
-	ID            Snowflake            `json:"id"`
-	ApplicationID Snowflake            `json:"application_id"`
-	GuildID       Snowflake            `json:"guild_id"`
-	Permissions   []*CommandPermission `json:"permissions"`
-}
-
-// TODO: add methods to update those
-
-// CommandPermissionType is the type of the CommandPermission
-type CommandPermissionType int
-
-// types of CommandPermissionType
-const (
-	CommandPermissionTypeRole = iota + 1
-	CommandPermissionTypeUser
-)
-
-// CommandPermission holds a User or Role and if they are allowed to use the Command
-type CommandPermission struct {
-	ID         Snowflake             `json:"id"`
-	Type       CommandPermissionType `json:"type"`
-	Permission bool                  `json:"permission"`
-}
-
-// SetGuildCommandsPermissions holds a slice of SetGuildCommandPermissions
-type SetGuildCommandsPermissions []*SetGuildCommandPermissions
-
-// SetGuildCommandPermissions is used to update CommandPermission ID should be omitted fro bulk update
-type SetGuildCommandPermissions struct {
-	ID          Snowflake            `json:"id,omitempty"`
-	Permissions []*CommandPermission `json:"permissions"`
 }
 
 // CommandCreate is used to create an Command. all fields are optional

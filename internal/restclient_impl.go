@@ -8,7 +8,6 @@ import (
 	"github.com/DisgoOrg/restclient"
 )
 
-
 func newRestClientImpl(disgo api.Disgo, httpClient *http.Client) api.RestClient {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
@@ -440,7 +439,7 @@ func (r *RestClientImpl) SetGlobalCommands(applicationID api.Snowflake, commands
 		return nil, err
 	}
 	if len(commands) > 100 {
-		err = api.ErrTooMuchCommands
+		err = api.ErrMaxCommands
 		return
 	}
 	err = r.Do(compiledRoute, commands, &cmds)
@@ -513,7 +512,7 @@ func (r *RestClientImpl) SetGuildCommands(applicationID api.Snowflake, guildID a
 		return nil, err
 	}
 	if len(commands) > 100 {
-		err = api.ErrTooMuchCommands
+		err = api.ErrMaxCommands
 		return
 	}
 	err = r.Do(compiledRoute, commands, &cmds)

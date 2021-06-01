@@ -7,7 +7,7 @@ import (
 	"github.com/DisgoOrg/restclient"
 )
 
-// PremiumTier tells you the boost level of a guild
+// PremiumTier tells you the boost level of a Guild
 type PremiumTier int
 
 // Constants for PremiumTier
@@ -18,7 +18,7 @@ const (
 	PremiumTier3
 )
 
-// SystemChannelFlag contains the settings for the guilds system channel
+// SystemChannelFlag contains the settings for the Guild(s) system channel
 type SystemChannelFlag int
 
 // Constants for SystemChannelFlag
@@ -27,7 +27,7 @@ const (
 	SystemChannelFlagSuppressPremiumSubscriptions
 )
 
-// The VerificationLevel of a guild that members must be to send messages
+// The VerificationLevel of a Guild that members must be to send messages
 type VerificationLevel int
 
 // Constants for VerificationLevel
@@ -67,7 +67,7 @@ const (
 	MFALevelElevated
 )
 
-// The GuildFeature (s) that a guild contains
+// The GuildFeature (s) that a Guild contains
 type GuildFeature string
 
 // Constants for GuildFeature
@@ -103,7 +103,7 @@ type GuildWelcomeChannel struct {
 	EmojiName   *string    `json:"emoji_name,omitempty"`
 }
 
-// GuildPreview is used for previewing public guilds before joining them
+// GuildPreview is used for previewing public Guild(s) before joining them
 type GuildPreview struct {
 	Disgo                    Disgo
 	ID                       Snowflake      `json:"id"`
@@ -129,9 +129,10 @@ type FullGuild struct {
 	//Presences   []*Presence     `json:"presences"`
 }
 
-// Guild represents a discord guild_events
+// Guild represents a discord Guild
 type Guild struct {
 	Disgo                       Disgo
+	Ready                       bool
 	ID                          Snowflake                  `json:"id"`
 	Name                        string                     `json:"name"`
 	Icon                        *string                    `json:"icon"`
@@ -181,12 +182,12 @@ func (g *Guild) CreateRole(role *UpdateRole) (*Role, error) {
 	return g.Disgo.RestClient().CreateRole(g.ID, role)
 }
 
-// AddMember adds a member to the guild with the oauth2 access token
+// AddMember adds a member to the Guild with the oauth2 access token
 func (g *Guild) AddMember(userID Snowflake, addGuildMemberData *AddGuildMemberData) (*Member, error) {
 	return g.Disgo.RestClient().AddMember(g.ID, userID, addGuildMemberData)
 }
 
-// IconURL returns the Icon of a guild_events
+// IconURL returns the Icon of a Guild
 func (g *Guild) IconURL(size int) *string {
 	if g.Icon == nil {
 		return nil
@@ -204,52 +205,52 @@ func (g *Guild) IconURL(size int) *string {
 	return &u
 }
 
-// GetCommand fetches a specific guild command
+// GetCommand fetches a specific Guild Command
 func (g *Guild) GetCommand(commandID Snowflake) (*Command, error) {
-	return g.Disgo.RestClient().GetGuildCommand(g.Disgo.ApplicationID(), g.ID, commandID)
+	return g.Disgo.GetGuildCommand(g.ID, commandID)
 }
 
-// GetCommands fetches all guild commands
+// GetCommands fetches all Guild Command(s)
 func (g *Guild) GetCommands() ([]*Command, error) {
-	return g.Disgo.RestClient().GetGuildCommands(g.Disgo.ApplicationID(), g.ID)
+	return g.Disgo.GetGuildCommands(g.ID)
 }
 
-// CreateCommand creates a new command for this guild
+// CreateCommand creates a new Command for this Guild
 func (g *Guild) CreateCommand(command *CommandCreate) (*Command, error) {
-	return g.Disgo.RestClient().CreateGuildCommand(g.Disgo.ApplicationID(), g.ID, command)
+	return g.Disgo.CreateGuildCommand(g.ID, command)
 }
 
-// EditCommand edits a specific guild command
+// EditCommand edits a specific Guild Command
 func (g *Guild) EditCommand(commandID Snowflake, command *CommandUpdate) (*Command, error) {
-	return g.Disgo.RestClient().EditGuildCommand(g.Disgo.ApplicationID(), g.ID, commandID, command)
+	return g.Disgo.EditGuildCommand(g.ID, commandID, command)
 }
 
-// DeleteCommand creates a new command for this guild
+// DeleteCommand creates a new Command for this Guild
 func (g *Guild) DeleteCommand(commandID Snowflake) error {
-	return g.Disgo.RestClient().DeleteGuildCommand(g.Disgo.ApplicationID(), g.ID, commandID)
+	return g.Disgo.DeleteGuildCommand(g.ID, commandID)
 }
 
-// SetCommands overrides all commands for this guild
+// SetCommands overrides all Command(s) for this Guild
 func (g *Guild) SetCommands(commands ...*CommandCreate) ([]*Command, error) {
-	return g.Disgo.RestClient().SetGuildCommands(g.Disgo.ApplicationID(), g.ID, commands...)
+	return g.Disgo.SetGuildCommands(g.ID, commands...)
 }
 
-// GetCommandsPermissions returns the GuildCommandPermissions for a all Command(s) in a guild
+// GetCommandsPermissions returns the GuildCommandPermissions for a all Command(s) in a Guild
 func (g *Guild) GetCommandsPermissions() ([]*GuildCommandPermissions, error) {
-	return g.Disgo.RestClient().GetGuildCommandsPermissions(g.Disgo.ApplicationID(), g.ID)
+	return g.Disgo.GetGuildCommandsPermissions(g.ID)
 }
 
-// GetCommandPermissions returns the GuildCommandPermissions for a specific Command in a guild
+// GetCommandPermissions returns the GuildCommandPermissions for a specific Command in a Guild
 func (g *Guild) GetCommandPermissions(commandID Snowflake) (*GuildCommandPermissions, error) {
-	return g.Disgo.RestClient().GetGuildCommandPermissions(g.Disgo.ApplicationID(), g.ID, commandID)
+	return g.Disgo.GetGuildCommandPermissions(g.ID, commandID)
 }
 
 // SetCommandsPermissions sets the GuildCommandPermissions for a all Command(s)
 func (g *Guild) SetCommandsPermissions(commandPermissions ...*SetGuildCommandPermissions) ([]*GuildCommandPermissions, error) {
-	return g.Disgo.RestClient().SetGuildCommandsPermissions(g.Disgo.ApplicationID(), g.ID, commandPermissions...)
+	return g.Disgo.SetGuildCommandsPermissions(g.ID, commandPermissions...)
 }
 
 // SetCommandPermissions sets the GuildCommandPermissions for a specific Command
 func (g *Guild) SetCommandPermissions(commandID Snowflake, permissions *SetGuildCommandPermissions) (*GuildCommandPermissions, error) {
-	return g.Disgo.RestClient().SetGuildCommandPermissions(g.Disgo.ApplicationID(), g.ID, commandID, permissions)
+	return g.Disgo.SetGuildCommandPermissions(g.ID, commandID, permissions)
 }
