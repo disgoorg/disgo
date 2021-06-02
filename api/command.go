@@ -8,13 +8,13 @@ var errNoDisgoInstance = errors.New("no disgo instance injected")
 type Command struct {
 	Disgo             Disgo
 	GuildPermissions  map[Snowflake]*GuildCommandPermissions
-	GuildID           *Snowflake       `json:"guild_id"`
-	ID                Snowflake        `json:"id,omitempty"`
-	ApplicationID     Snowflake        `json:"application_id,omitempty"`
-	Name              string           `json:"name"`
-	Description       string           `json:"description"`
-	DefaultPermission *bool            `json:"default_permission,omitempty"`
-	Options           []*CommandOption `json:"options,omitempty"`
+	GuildID           *Snowflake      `json:"guild_id"`
+	ID                Snowflake       `json:"id,omitempty"`
+	ApplicationID     Snowflake       `json:"application_id,omitempty"`
+	Name              string          `json:"name"`
+	Description       string          `json:"description"`
+	DefaultPermission bool            `json:"default_permission,omitempty"`
+	Options           []CommandOption `json:"options,omitempty"`
 }
 
 // Guild returns the Guild the Command is from from the Cache or nil if it is a global Command
@@ -31,8 +31,8 @@ func (c Command) FromGuild() bool {
 }
 
 // ToCreate return the CommandCreate for this Command
-func (c *Command) ToCreate() *CommandCreate {
-	return &CommandCreate{
+func (c *Command) ToCreate() CommandCreate {
+	return CommandCreate{
 		Name:              c.Name,
 		Description:       c.Description,
 		DefaultPermission: c.DefaultPermission,
@@ -61,7 +61,7 @@ func (c *Command) Fetch() error {
 }
 
 // Update updates the current Command with the given fields
-func (c *Command) Update(command *CommandUpdate) error {
+func (c *Command) Update(command CommandUpdate) error {
 	if c.Disgo == nil {
 		return errNoDisgoInstance
 	}
@@ -81,8 +81,8 @@ func (c *Command) Update(command *CommandUpdate) error {
 }
 
 // SetPermissions sets the GuildCommandPermissions for a specific Guild. this overrides all existing CommandPermission(s). thx discord for that
-func (c *Command) SetPermissions(guildID Snowflake, permissions ...*CommandPermission) error {
-	_, err := c.Disgo.RestClient().SetGuildCommandPermissions(c.Disgo.ApplicationID(), guildID, c.ID, &SetGuildCommandPermissions{Permissions: permissions})
+func (c *Command) SetPermissions(guildID Snowflake, permissions ...CommandPermission) error {
+	_, err := c.Disgo.RestClient().SetGuildCommandPermissions(c.Disgo.ApplicationID(), guildID, c.ID, SetGuildCommandPermissions{Permissions: permissions})
 	if err != nil {
 		return err
 	}
@@ -117,16 +117,16 @@ func (c Command) Delete() error {
 
 // CommandCreate is used to create an Command. all fields are optional
 type CommandCreate struct {
-	Name              string           `json:"name,omitempty"`
-	Description       string           `json:"description,omitempty"`
-	DefaultPermission *bool            `json:"default_permission,omitempty"`
-	Options           []*CommandOption `json:"options,omitempty"`
+	Name              string          `json:"name,omitempty"`
+	Description       string          `json:"description,omitempty"`
+	DefaultPermission bool            `json:"default_permission,omitempty"`
+	Options           []CommandOption `json:"options,omitempty"`
 }
 
 // CommandUpdate is used to update an existing Command. all fields are optional
 type CommandUpdate struct {
-	Name              *string          `json:"name,omitempty"`
-	Description       *string          `json:"description,omitempty"`
-	DefaultPermission *bool            `json:"default_permission,omitempty"`
-	Options           []*CommandOption `json:"options,omitempty"`
+	Name              *string         `json:"name,omitempty"`
+	Description       *string         `json:"description,omitempty"`
+	DefaultPermission *bool           `json:"default_permission,omitempty"`
+	Options           []CommandOption `json:"options,omitempty"`
 }

@@ -225,8 +225,8 @@ func (m *Message) Channel() *MessageChannel {
 	return m.Disgo.Cache().MessageChannel(m.ChannelID)
 }
 
-// AddReactionByEmote allows you to add an Emote to a message_events via reaction
-func (m *Message) AddReactionByEmote(emote Emote) error {
+// AddReactionByEmote allows you to add an Emoji to a message_events via reaction
+func (m *Message) AddReactionByEmote(emote Emoji) error {
 	return m.AddReaction(emote.Reaction())
 }
 
@@ -236,7 +236,7 @@ func (m *Message) AddReaction(emoji string) error {
 }
 
 // Edit allows you to edit an existing Message sent by you
-func (m *Message) Edit(message *MessageUpdate) (*Message, error) {
+func (m *Message) Edit(message MessageUpdate) (*Message, error) {
 	return m.Disgo.RestClient().EditMessage(m.ChannelID, m.ID, message)
 }
 
@@ -255,7 +255,7 @@ func (m *Message) Crosspost() (*Message, error) {
 }
 
 // Reply allows you to reply to an existing Message
-func (m *Message) Reply(message *MessageCreate) (*Message, error) {
+func (m *Message) Reply(message MessageCreate) (*Message, error) {
 	message.MessageReference = &MessageReference{
 		MessageID: &m.ID,
 	}
@@ -266,7 +266,7 @@ func (m *Message) Reply(message *MessageCreate) (*Message, error) {
 type MessageReaction struct {
 	Count int   `json:"count"`
 	Me    bool  `json:"me"`
-	Emoji Emote `json:"emoji"`
+	Emoji Emoji `json:"emoji"`
 }
 
 // MessageUpdate is used to edit a Message

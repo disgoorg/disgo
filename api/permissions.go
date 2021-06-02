@@ -18,8 +18,8 @@ const (
 type PermissionOverwrite struct {
 	ID    Snowflake               `json:"id"`
 	Type  PermissionOverwriteType `json:"type"`
-	Allow Permissions             `json:"allow"`
-	Deny  Permissions             `json:"deny"`
+	Allow Permissions             `json:"allow,string"`
+	Deny  Permissions             `json:"deny,string"`
 }
 
 // Permissions extends the Bit structure, and is used within roles and channels
@@ -37,7 +37,7 @@ func (p Permissions) MarshalJSON() ([]byte, error) {
 	return jsonValue, nil
 }
 
-// UnmarshalJSON unmarshals permissions into an int64
+// UnmarshalJSON unmarshalls permissions into an int64
 func (p *Permissions) UnmarshalJSON(b []byte) error {
 	var strPermissions string
 	err := json.Unmarshal(b, &strPermissions)
@@ -54,27 +54,27 @@ func (p *Permissions) UnmarshalJSON(b []byte) error {
 }
 
 // Add allows you to add multiple bits together, producing a new bit
-func (p Permissions) Add(bits ...Bit) Bit {
+func (p Permissions) Add(bits ...Permissions) Permissions {
 	total := Permissions(0)
 	for _, bit := range bits {
-		total |= bit.(Permissions)
+		total |= bit
 	}
 	p |= total
 	return p
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
-func (p Permissions) Remove(bits ...Bit) Bit {
+func (p Permissions) Remove(bits ...Permissions) Permissions {
 	total := Permissions(0)
 	for _, bit := range bits {
-		total |= bit.(Permissions)
+		total |= bit
 	}
 	p &^= total
 	return p
 }
 
 // HasAll will ensure that the bit includes all of the bits entered
-func (p Permissions) HasAll(bits ...Bit) bool {
+func (p Permissions) HasAll(bits ...Permissions) bool {
 	for _, bit := range bits {
 		if !p.Has(bit) {
 			return false
@@ -84,12 +84,12 @@ func (p Permissions) HasAll(bits ...Bit) bool {
 }
 
 // Has will check whether the Bit contains another bit
-func (p Permissions) Has(bit Bit) bool {
-	return (p & bit.(Permissions)) == bit
+func (p Permissions) Has(bit Permissions) bool {
+	return (p & bit) == bit
 }
 
 // MissingAny will check whether the bit is missing any one of the bits
-func (p Permissions) MissingAny(bits ...Bit) bool {
+func (p Permissions) MissingAny(bits ...Permissions) bool {
 	for _, bit := range bits {
 		if !p.Has(bit) {
 			return true
@@ -99,7 +99,7 @@ func (p Permissions) MissingAny(bits ...Bit) bool {
 }
 
 // Missing will do the inverse of Bit.Has
-func (p Permissions) Missing(bit Bit) bool {
+func (p Permissions) Missing(bit Permissions) bool {
 	return !p.Has(bit)
 }
 
@@ -148,7 +148,7 @@ const (
 	PermissionViewAuditLogs
 	PermissionViewChannel Permissions = 1 << (iota + 2)
 
-	PermissionAllText = PermissionViewChannel |
+	PermissionsAllText = PermissionViewChannel |
 		PermissionSendMessages |
 		PermissionSendTTSMessages |
 		PermissionManageMessages |
@@ -156,7 +156,7 @@ const (
 		PermissionAttachFiles |
 		PermissionReadMessageHistory |
 		PermissionMentionEveryone
-	PermissionAllVoice = PermissionViewChannel |
+	PermissionsAllVoice = PermissionViewChannel |
 		PermissionVoiceConnect |
 		PermissionVoiceSpeak |
 		PermissionVoiceMuteMembers |
@@ -164,14 +164,14 @@ const (
 		PermissionVoiceMoveMembers |
 		PermissionVoiceUseVAD |
 		PermissionVoicePrioritySpeaker
-	PermissionAllChannel = PermissionAllText |
-		PermissionAllVoice |
+	PermissionsAllChannel = PermissionsAllText |
+		PermissionsAllVoice |
 		PermissionCreateInstantInvite |
 		PermissionManageRoles |
 		PermissionManageChannels |
 		PermissionAddReactions |
 		PermissionViewAuditLogs
-	PermissionAll = PermissionAllChannel |
+	PermissionsAll = PermissionsAllChannel |
 		PermissionKickMembers |
 		PermissionBanMembers |
 		PermissionManageServer |
@@ -179,5 +179,5 @@ const (
 		PermissionManageWebhooks |
 		PermissionManageEmojis
 
-	PermissionNone Permissions = 0
+	PermissionsNone Permissions = 0
 )

@@ -135,6 +135,6 @@ func (b *MessageBuilder) SetMessageReferenceByMessageID(messageID Snowflake) *Me
 }
 
 // Build builds the MessageBuilder to a MessageCreate struct
-func (b *MessageBuilder) Build() *MessageCreate {
-	return &b.MessageCreate
+func (b *MessageBuilder) Build() MessageCreate {
+	return b.MessageCreate
 }

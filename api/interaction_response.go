@@ -18,8 +18,8 @@ const (
 
 // InteractionResponse is how you answer interactions. If an answer is not sent within 3 seconds of receiving it, the interaction is failed, and you will be unable to respond to it.
 type InteractionResponse struct {
-	Type InteractionResponseType  `json:"type"`
-	Data *InteractionResponseData `json:"data,omitempty"`
+	Type InteractionResponseType `json:"type"`
+	Data InteractionResponseData `json:"data,omitempty"`
 }
 
 // The InteractionResponseData is used to specify the message_events options when creating an InteractionResponse
@@ -41,7 +41,19 @@ type InteractionResponseBuilder struct {
 func NewInteractionResponseBuilder() *InteractionResponseBuilder {
 	return &InteractionResponseBuilder{
 		InteractionResponse: InteractionResponse{
-			Data: &InteractionResponseData{
+			Data: InteractionResponseData{
+				AllowedMentions: &DefaultInteractionAllowedMentions,
+			},
+		},
+	}
+}
+
+// NewInteractionResponseWithTypeBuilder returns a new InteractionResponseBuilder with the given InteractionResponseType
+func NewInteractionResponseWithTypeBuilder(responseType InteractionResponseType) *InteractionResponseBuilder {
+	return &InteractionResponseBuilder{
+		InteractionResponse: InteractionResponse{
+			Type: responseType,
+			Data: InteractionResponseData{
 				AllowedMentions: &DefaultInteractionAllowedMentions,
 			},
 		},
@@ -50,7 +62,7 @@ func NewInteractionResponseBuilder() *InteractionResponseBuilder {
 
 // NewInteractionResponseBuilderByMessage returns a new InteractionResponseBuilder and takes an existing Message
 func NewInteractionResponseBuilderByMessage(message *Message) *InteractionResponseBuilder {
-	rs := &InteractionResponseData{
+	rs := InteractionResponseData{
 		TTS:             message.TTS,
 		Embeds:          message.Embeds,
 		Components:      message.Components,
@@ -183,11 +195,11 @@ func (b *InteractionResponseBuilder) SetEphemeral(ephemeral bool) *InteractionRe
 }
 
 // Build returns your built InteractionResponse
-func (b *InteractionResponseBuilder) Build() *InteractionResponse {
-	return &b.InteractionResponse
+func (b *InteractionResponseBuilder) Build() InteractionResponse {
+	return b.InteractionResponse
 }
 
 // BuildData returns your built InteractionResponseData
-func (b *InteractionResponseBuilder) BuildData() *InteractionResponseData {
+func (b *InteractionResponseBuilder) BuildData() InteractionResponseData {
 	return b.Data
 }

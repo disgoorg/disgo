@@ -27,7 +27,7 @@ func newCacheImpl(disgo api.Disgo, memberCachePolicy api.MemberCachePolicy, mess
 		textChannels:       map[api.Snowflake]map[api.Snowflake]*api.TextChannel{},
 		voiceChannels:      map[api.Snowflake]map[api.Snowflake]*api.VoiceChannel{},
 		storeChannels:      map[api.Snowflake]map[api.Snowflake]*api.StoreChannel{},
-		emotes:             map[api.Snowflake]map[api.Snowflake]*api.Emote{},
+		emotes:             map[api.Snowflake]map[api.Snowflake]*api.Emoji{},
 	}
 	go cache.startCleanup(10 * time.Second)
 	return cache
@@ -53,7 +53,7 @@ type CacheImpl struct {
 	textChannels       map[api.Snowflake]map[api.Snowflake]*api.TextChannel
 	voiceChannels      map[api.Snowflake]map[api.Snowflake]*api.VoiceChannel
 	storeChannels      map[api.Snowflake]map[api.Snowflake]*api.StoreChannel
-	emotes             map[api.Snowflake]map[api.Snowflake]*api.Emote
+	emotes             map[api.Snowflake]map[api.Snowflake]*api.Emoji
 }
 
 // Disgo returns the current api.Disgo instance
@@ -1224,7 +1224,7 @@ func (c *CacheImpl) FindCategories(guildID api.Snowflake, check func(u *api.Cate
 }
 
 // Emote returns a specific emote from the cache
-func (c *CacheImpl) Emote(emoteID api.Snowflake) *api.Emote {
+func (c *CacheImpl) Emote(emoteID api.Snowflake) *api.Emoji {
 	for _, guildEmotes := range c.emotes {
 		if emote, ok := guildEmotes[emoteID]; ok {
 			return emote
@@ -1234,12 +1234,12 @@ func (c *CacheImpl) Emote(emoteID api.Snowflake) *api.Emote {
 }
 
 // EmotesByName returns all emotes for a guild by name
-func (c *CacheImpl) EmotesByName(guildID api.Snowflake, name string, ignoreCase bool) []*api.Emote {
+func (c *CacheImpl) EmotesByName(guildID api.Snowflake, name string, ignoreCase bool) []*api.Emoji {
 	if guildEmotes, ok := c.emotes[guildID]; ok {
 		if ignoreCase {
 			name = strings.ToLower(name)
 		}
-		emotes := make([]*api.Emote, 1)
+		emotes := make([]*api.Emoji, 1)
 		for _, emote := range guildEmotes {
 			if ignoreCase && strings.ToLower(emote.Name) == name || !ignoreCase && emote.Name == name {
 				emotes = append(emotes, emote)
@@ -1251,9 +1251,9 @@ func (c *CacheImpl) EmotesByName(guildID api.Snowflake, name string, ignoreCase 
 }
 
 // Emotes returns all cached emotes for a guild
-func (c *CacheImpl) Emotes(guildID api.Snowflake) []*api.Emote {
+func (c *CacheImpl) Emotes(guildID api.Snowflake) []*api.Emoji {
 	if guildEmotes, ok := c.emotes[guildID]; ok {
-		emotes := make([]*api.Emote, len(guildEmotes))
+		emotes := make([]*api.Emoji, len(guildEmotes))
 		i := 0
 		for _, emote := range guildEmotes {
 			emotes[i] = emote
@@ -1265,17 +1265,17 @@ func (c *CacheImpl) Emotes(guildID api.Snowflake) []*api.Emote {
 }
 
 // EmoteCache returns the emote cache for a specific guild
-func (c *CacheImpl) EmoteCache(guildID api.Snowflake) map[api.Snowflake]*api.Emote {
+func (c *CacheImpl) EmoteCache(guildID api.Snowflake) map[api.Snowflake]*api.Emoji {
 	return c.emotes[guildID]
 }
 
 // AllEmoteCache returns the full emote cache
-func (c *CacheImpl) AllEmoteCache() map[api.Snowflake]map[api.Snowflake]*api.Emote {
+func (c *CacheImpl) AllEmoteCache() map[api.Snowflake]map[api.Snowflake]*api.Emoji {
 	return c.emotes
 }
 
 // CacheEmote adds an Emote to the api.Cache if emoji caches are used
-func (c *CacheImpl) CacheEmote(emote *api.Emote) *api.Emote {
+func (c *CacheImpl) CacheEmote(emote *api.Emoji) *api.Emoji {
 	if c.cacheFlags.Missing(api.CacheFlagEmotes) {
 		return emote
 	}

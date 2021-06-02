@@ -115,14 +115,14 @@ type GuildPreview struct {
 	Description              *string        `json:"description"`
 	ApproximateMemberCount   *int           `json:"approximate_member_count"`
 	ApproximatePresenceCount *int           `json:"approximate_presence_count"`
-	Emojis                   []*Emote       `json:"emojis"`
+	Emojis                   []*Emoji       `json:"emojis"`
 }
 
 // FullGuild represents a Guild objects sent by discord with the GatewayEventGuildCreate
 type FullGuild struct {
 	*Guild
 	Roles       []*Role       `json:"roles"`
-	Emotes      []*Emote      `json:"emojis"`
+	Emotes      []*Emoji      `json:"emojis"`
 	Members     []*Member     `json:"members"`
 	Channels    []*Channel    `json:"channels"`
 	VoiceStates []*VoiceState `json:"voice_states"`
@@ -178,12 +178,12 @@ func (g *Guild) Disconnect() error {
 }
 
 // CreateRole allows you to create a new Role
-func (g *Guild) CreateRole(role *UpdateRole) (*Role, error) {
+func (g *Guild) CreateRole(role UpdateRole) (*Role, error) {
 	return g.Disgo.RestClient().CreateRole(g.ID, role)
 }
 
 // AddMember adds a member to the Guild with the oauth2 access token
-func (g *Guild) AddMember(userID Snowflake, addGuildMemberData *AddGuildMemberData) (*Member, error) {
+func (g *Guild) AddMember(userID Snowflake, addGuildMemberData AddGuildMemberData) (*Member, error) {
 	return g.Disgo.RestClient().AddMember(g.ID, userID, addGuildMemberData)
 }
 
@@ -216,12 +216,12 @@ func (g *Guild) GetCommands() ([]*Command, error) {
 }
 
 // CreateCommand creates a new Command for this Guild
-func (g *Guild) CreateCommand(command *CommandCreate) (*Command, error) {
+func (g *Guild) CreateCommand(command CommandCreate) (*Command, error) {
 	return g.Disgo.CreateGuildCommand(g.ID, command)
 }
 
 // EditCommand edits a specific Guild Command
-func (g *Guild) EditCommand(commandID Snowflake, command *CommandUpdate) (*Command, error) {
+func (g *Guild) EditCommand(commandID Snowflake, command CommandUpdate) (*Command, error) {
 	return g.Disgo.EditGuildCommand(g.ID, commandID, command)
 }
 
@@ -231,7 +231,7 @@ func (g *Guild) DeleteCommand(commandID Snowflake) error {
 }
 
 // SetCommands overrides all Command(s) for this Guild
-func (g *Guild) SetCommands(commands ...*CommandCreate) ([]*Command, error) {
+func (g *Guild) SetCommands(commands ...CommandCreate) ([]*Command, error) {
 	return g.Disgo.SetGuildCommands(g.ID, commands...)
 }
 
@@ -246,11 +246,11 @@ func (g *Guild) GetCommandPermissions(commandID Snowflake) (*GuildCommandPermiss
 }
 
 // SetCommandsPermissions sets the GuildCommandPermissions for a all Command(s)
-func (g *Guild) SetCommandsPermissions(commandPermissions ...*SetGuildCommandPermissions) ([]*GuildCommandPermissions, error) {
+func (g *Guild) SetCommandsPermissions(commandPermissions ...SetGuildCommandPermissions) ([]*GuildCommandPermissions, error) {
 	return g.Disgo.SetGuildCommandsPermissions(g.ID, commandPermissions...)
 }
 
 // SetCommandPermissions sets the GuildCommandPermissions for a specific Command
-func (g *Guild) SetCommandPermissions(commandID Snowflake, permissions *SetGuildCommandPermissions) (*GuildCommandPermissions, error) {
+func (g *Guild) SetCommandPermissions(commandID Snowflake, permissions SetGuildCommandPermissions) (*GuildCommandPermissions, error) {
 	return g.Disgo.SetGuildCommandPermissions(g.ID, commandID, permissions)
 }

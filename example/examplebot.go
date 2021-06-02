@@ -21,6 +21,7 @@ const red = 16711680
 const orange = 16562691
 const green = 65280
 
+var token = os.Getenv("token")
 var guildID = api.Snowflake(os.Getenv("guild_id"))
 var adminRoleID = api.Snowflake(os.Getenv("admin_role_id"))
 var testRoleID = api.Snowflake(os.Getenv("test_role_id"))
@@ -34,7 +35,7 @@ func main() {
 	logger.Info("starting ExampleBot...")
 	logger.Infof("disgo %s", api.Version)
 
-	dgo, err := disgo.NewBuilder(os.Getenv("token")).
+	dgo, err := disgo.NewBuilder(token).
 		SetLogger(logger).
 		SetRawGatewayEventsEnabled(true).
 		SetHTTPClient(client).
@@ -53,12 +54,12 @@ func main() {
 		return
 	}
 
-	rawCmds := []*api.CommandCreate{
+	rawCmds := []api.CommandCreate{
 		{
 			Name:              "eval",
 			Description:       "runs some go code",
-			DefaultPermission: ptrBool(true),
-			Options: []*api.CommandOption{
+			DefaultPermission: true,
+			Options: []api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeString,
 					Name:        "code",
@@ -70,13 +71,13 @@ func main() {
 		{
 			Name:              "test",
 			Description:       "test test test test test test",
-			DefaultPermission: ptrBool(true),
+			DefaultPermission: true,
 		},
 		{
 			Name:              "say",
 			Description:       "says what you say",
-			DefaultPermission: ptrBool(true),
-			Options: []*api.CommandOption{
+			DefaultPermission: true,
+			Options: []api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeString,
 					Name:        "message",
@@ -88,8 +89,8 @@ func main() {
 		{
 			Name:              "addrole",
 			Description:       "This command adds a role to a member",
-			DefaultPermission: ptrBool(true),
-			Options: []*api.CommandOption{
+			DefaultPermission: true,
+			Options: []api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeUser,
 					Name:        "member",
@@ -107,8 +108,8 @@ func main() {
 		{
 			Name:              "removerole",
 			Description:       "This command removes a role from a member",
-			DefaultPermission: ptrBool(true),
-			Options: []*api.CommandOption{
+			DefaultPermission: true,
+			Options: []api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeUser,
 					Name:        "member",
@@ -131,25 +132,25 @@ func main() {
 		logger.Errorf("error while registering guild commands: %s", err)
 	}
 
-	var cmdsPermissions []*api.SetGuildCommandPermissions
+	var cmdsPermissions []api.SetGuildCommandPermissions
 	for _, cmd := range cmds {
-		var perms *api.CommandPermission
+		var perms api.CommandPermission
 		if cmd.Name == "eval" {
-			perms = &api.CommandPermission{
+			perms = api.CommandPermission{
 				ID:         adminRoleID,
 				Type:       api.CommandPermissionTypeRole,
 				Permission: true,
 			}
 		} else {
-			perms = &api.CommandPermission{
+			perms = api.CommandPermission{
 				ID:         testRoleID,
 				Type:       api.CommandPermissionTypeRole,
 				Permission: true,
 			}
 		}
-		cmdsPermissions = append(cmdsPermissions, &api.SetGuildCommandPermissions{
+		cmdsPermissions = append(cmdsPermissions, api.SetGuildCommandPermissions{
 			ID:          cmd.ID,
-			Permissions: []*api.CommandPermission{perms},
+			Permissions: []api.CommandPermission{perms},
 		})
 	}
 	if _, err = dgo.RestClient().SetGuildCommandsPermissions(dgo.ApplicationID(), guildID, cmdsPermissions...); err != nil {
@@ -169,17 +170,17 @@ func main() {
 	<-s
 }
 
-func guildAvailListener(event *events.GuildAvailableEvent) {
+func guildAvailListener(event events.GuildAvailableEvent) {
 	logger.Printf("guild loaded: %s", event.Guild.ID)
 }
 
-func rawGatewayEventListener(event *events.RawGatewayEvent) {
+func rawGatewayEventListener(event events.RawGatewayEvent) {
 	if event.Type == api.GatewayEventInteractionCreate {
 		println(string(event.RawPayload))
 	}
 }
 
-func buttonClickListener(event *events.ButtonClickEvent) {
+func buttonClickListener(event events.ButtonClickEvent) {
 	switch event.CustomID() {
 	case "test":
 		if err := event.ReplyEdit(api.NewInteractionResponseBuilder().
@@ -207,7 +208,7 @@ func buttonClickListener(event *events.ButtonClickEvent) {
 	}
 }
 
-func commandListener(event *events.CommandEvent) {
+func commandListener(event events.CommandEvent) {
 	switch event.CommandName {
 	case "eval":
 		go func() {
@@ -310,7 +311,7 @@ func commandListener(event *events.CommandEvent) {
 	}
 }
 
-func messageListener(event *events.GuildMessageCreateEvent) {
+func messageListener(event events.GuildMessageCreateEvent) {
 	if event.Message.Author.IsBot {
 		return
 	}
@@ -340,8 +341,4 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 			}
 		}()
 	}
-}
-
-func ptrBool(bool bool) *bool {
-	return &bool
 }

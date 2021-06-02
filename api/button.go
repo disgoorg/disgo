@@ -13,8 +13,8 @@ const (
 )
 
 // NewButton creates a new Button with the provided parameters. Link Button(s) need a url and other Button(s) need a customID
-func NewButton(style ButtonStyle, label *string, customID string, url string, emote *Emote, disabled bool) *Button {
-	return &Button{
+func NewButton(style ButtonStyle, label *string, customID string, url string, emote *Emoji, disabled bool) Button {
+	return Button{
 		ComponentImpl: newComponentImpl(ComponentTypeButton),
 		Style:         style,
 		CustomID:      customID,
@@ -26,27 +26,27 @@ func NewButton(style ButtonStyle, label *string, customID string, url string, em
 }
 
 // NewPrimaryButton creates a new Button with ButtonStylePrimary & the provided parameters
-func NewPrimaryButton(label string, customID string, emote *Emote, disabled bool) *Button {
+func NewPrimaryButton(label string, customID string, emote *Emoji, disabled bool) Button {
 	return NewButton(ButtonStylePrimary, &label, customID, "", emote, disabled)
 }
 
 // NewSecondaryButton creates a new Button with ButtonStyleSecondary & the provided parameters
-func NewSecondaryButton(label string, customID string, emote *Emote, disabled bool) *Button {
+func NewSecondaryButton(label string, customID string, emote *Emoji, disabled bool) Button {
 	return NewButton(ButtonStyleSecondary, &label, customID, "", emote, disabled)
 }
 
 // NewSuccessButton creates a new Button with ButtonStyleSuccess & the provided parameters
-func NewSuccessButton(label string, customID string, emote *Emote, disabled bool) *Button {
+func NewSuccessButton(label string, customID string, emote *Emoji, disabled bool) Button {
 	return NewButton(ButtonStyleSuccess, &label, customID, "", emote, disabled)
 }
 
 // NewDangerButton creates a new Button with ButtonStyleDanger & the provided parameters
-func NewDangerButton(label string, customID string, emote *Emote, disabled bool) *Button {
+func NewDangerButton(label string, customID string, emote *Emoji, disabled bool) Button {
 	return NewButton(ButtonStyleDanger, &label, customID, "", emote, disabled)
 }
 
 // NewLinkButton creates a new link Button with ButtonStyleLink & the provided parameters
-func NewLinkButton(label string, url string, emote *Emote, disabled bool) *Button {
+func NewLinkButton(label string, url string, emote *Emoji, disabled bool) Button {
 	return NewButton(ButtonStyleLink, &label, "", url, emote, disabled)
 }
 
@@ -55,7 +55,7 @@ type Button struct {
 	ComponentImpl
 	Style    ButtonStyle `json:"style,omitempty"`
 	Label    *string     `json:"label,omitempty"`
-	Emote    *Emote      `json:"emoji,omitempty"`
+	Emote    *Emoji      `json:"emoji,omitempty"`
 	CustomID string      `json:"custom_id,omitempty"`
 	URL      string      `json:"url,omitempty"`
 	Disabled bool        `json:"disabled,omitempty"`

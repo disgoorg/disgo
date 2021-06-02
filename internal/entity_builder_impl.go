@@ -20,7 +20,7 @@ func (b *EntityBuilderImpl) Disgo() api.Disgo {
 	return b.disgo
 }
 
-func (b EntityBuilderImpl) createInteraction(fullInteraction *api.FullInteraction, c chan *api.InteractionResponse, updateCache api.CacheStrategy) *api.Interaction {
+func (b EntityBuilderImpl) createInteraction(fullInteraction *api.FullInteraction, c chan api.InteractionResponse, updateCache api.CacheStrategy) *api.Interaction {
 	interaction := &api.Interaction{
 		Disgo:           b.disgo,
 		ResponseChannel: c,
@@ -43,7 +43,7 @@ func (b EntityBuilderImpl) createInteraction(fullInteraction *api.FullInteractio
 }
 
 // CreateButtonInteraction creates a api.ButtonInteraction from the full interaction response
-func (b *EntityBuilderImpl) CreateButtonInteraction(fullInteraction *api.FullInteraction, c chan *api.InteractionResponse, updateCache api.CacheStrategy) *api.ButtonInteraction {
+func (b *EntityBuilderImpl) CreateButtonInteraction(fullInteraction *api.FullInteraction, c chan api.InteractionResponse, updateCache api.CacheStrategy) *api.ButtonInteraction {
 	var data *api.ButtonInteractionData
 	_ = json.Unmarshal(fullInteraction.Data, &data)
 
@@ -55,7 +55,7 @@ func (b *EntityBuilderImpl) CreateButtonInteraction(fullInteraction *api.FullInt
 }
 
 // CreateCommandInteraction creates a api.CommandInteraction from the full interaction response
-func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullInteraction, c chan *api.InteractionResponse, updateCache api.CacheStrategy) *api.CommandInteraction {
+func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullInteraction, c chan api.InteractionResponse, updateCache api.CacheStrategy) *api.CommandInteraction {
 	var data *api.CommandInteractionData
 	_ = json.Unmarshal(fullInteraction.Data, &data)
 
@@ -308,8 +308,8 @@ func (b *EntityBuilderImpl) CreateDMChannel(channel *api.Channel, updateCache ap
 	return dmChannel
 }
 
-// CreateEmote returns a new api.Emote entity
-func (b *EntityBuilderImpl) CreateEmote(guildID api.Snowflake, emote *api.Emote, updateCache api.CacheStrategy) *api.Emote {
+// CreateEmote returns a new api.Emoji entity
+func (b *EntityBuilderImpl) CreateEmote(guildID api.Snowflake, emote *api.Emoji, updateCache api.CacheStrategy) *api.Emoji {
 	emote.Disgo = b.Disgo()
 	emote.GuildID = guildID
 	if updateCache(b.Disgo()) {

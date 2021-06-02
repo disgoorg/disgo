@@ -18,7 +18,7 @@ const (
 // Interaction holds the general parameters of each Interaction
 type Interaction struct {
 	Disgo           Disgo
-	ResponseChannel chan *InteractionResponse
+	ResponseChannel chan InteractionResponse
 	Replied         bool
 	ID              Snowflake       `json:"id"`
 	Type            InteractionType `json:"type"`
@@ -31,7 +31,7 @@ type Interaction struct {
 }
 
 // Reply replies to the api.Interaction with the provided api.InteractionResponse
-func (i *Interaction) Reply(response *InteractionResponse) error {
+func (i *Interaction) Reply(response InteractionResponse) error {
 	if i.Replied {
 		return errors.New("you already replied to this interaction")
 	}
@@ -91,7 +91,7 @@ func (i *Interaction) GuildChannel() *GuildChannel {
 }
 
 // EditOriginal edits the original api.InteractionResponse
-func (i *Interaction) EditOriginal(followupMessage *FollowupMessage) (*Message, error) {
+func (i *Interaction) EditOriginal(followupMessage FollowupMessage) (*Message, error) {
 	return i.Disgo.RestClient().EditInteractionResponse(i.Disgo.ApplicationID(), i.Token, followupMessage)
 }
 
@@ -101,12 +101,12 @@ func (i *Interaction) DeleteOriginal() error {
 }
 
 // SendFollowup used to send a api.FollowupMessage to an api.Interaction
-func (i *Interaction) SendFollowup(followupMessage *FollowupMessage) (*Message, error) {
+func (i *Interaction) SendFollowup(followupMessage FollowupMessage) (*Message, error) {
 	return i.Disgo.RestClient().SendFollowupMessage(i.Disgo.ApplicationID(), i.Token, followupMessage)
 }
 
 // EditFollowup used to edit a api.FollowupMessage from an api.Interaction
-func (i *Interaction) EditFollowup(messageID Snowflake, followupMessage *FollowupMessage) (*Message, error) {
+func (i *Interaction) EditFollowup(messageID Snowflake, followupMessage FollowupMessage) (*Message, error) {
 	return i.Disgo.RestClient().EditFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID, followupMessage)
 }
 
@@ -137,16 +137,16 @@ type CommandInteraction struct {
 
 // DeferReply replies to the api.CommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource and shows a loading state
 func (i *CommandInteraction) DeferReply(ephemeral bool) error {
-	var data *InteractionResponseData
+	var data InteractionResponseData
 	if ephemeral {
-		data = &InteractionResponseData{Flags: MessageFlagEphemeral}
+		data = InteractionResponseData{Flags: MessageFlagEphemeral}
 	}
-	return i.Reply(&InteractionResponse{Type: InteractionResponseTypeDeferredChannelMessageWithSource, Data: data})
+	return i.Reply(InteractionResponse{Type: InteractionResponseTypeDeferredChannelMessageWithSource, Data: data})
 }
 
 // ReplyCreate replies to the api.CommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource & api.InteractionResponseData
-func (i *CommandInteraction) ReplyCreate(data *InteractionResponseData) error {
-	return i.Reply(&InteractionResponse{Type: InteractionResponseTypeChannelMessageWithSource, Data: data})
+func (i *CommandInteraction) ReplyCreate(data InteractionResponseData) error {
+	return i.Reply(InteractionResponse{Type: InteractionResponseTypeChannelMessageWithSource, Data: data})
 }
 
 // ButtonInteraction is a specific Interaction when CLicked on Button(s)
@@ -158,12 +158,12 @@ type ButtonInteraction struct {
 
 // DeferEdit replies to the api.ButtonInteraction with api.InteractionResponseTypeDeferredUpdateMessage and cancels the loading state
 func (i *ButtonInteraction) DeferEdit() error {
-	return i.Reply(&InteractionResponse{Type: InteractionResponseTypeDeferredUpdateMessage})
+	return i.Reply(InteractionResponse{Type: InteractionResponseTypeDeferredUpdateMessage})
 }
 
 // ReplyEdit replies to the api.ButtonInteraction with api.InteractionResponseTypeUpdateMessage & api.InteractionResponseData which edits the original api.Message
-func (i *ButtonInteraction) ReplyEdit(data *InteractionResponseData) error {
-	return i.Reply(&InteractionResponse{Type: InteractionResponseTypeUpdateMessage, Data: data})
+func (i *ButtonInteraction) ReplyEdit(data InteractionResponseData) error {
+	return i.Reply(InteractionResponse{Type: InteractionResponseTypeUpdateMessage, Data: data})
 }
 
 // CommandInteractionData is the command data payload

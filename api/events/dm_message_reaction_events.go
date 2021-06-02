@@ -20,7 +20,7 @@ type DMMessageReactionRemoveEvent struct {
 	GenericDMMessageReactionEvent
 }
 
-// DMMessageReactionRemoveEmoteEvent indicates someone removed all api.MessageReaction of a specific api.Emote from a api.Message in a api.DMChannel(requires the api.GatewayIntentsDirectMessageReactions)
+// DMMessageReactionRemoveEmoteEvent indicates someone removed all api.MessageReaction of a specific api.Emoji from a api.Message in a api.DMChannel(requires the api.GatewayIntentsDirectMessageReactions)
 type DMMessageReactionRemoveEmoteEvent struct {
 	GenericDMMessageEvent
 	MessageReaction api.MessageReaction

@@ -127,6 +127,6 @@ func (b *FollowupMessageBuilder) SetEphemeral(ephemeral bool) *FollowupMessageBu
 }
 
 // Build returns your built FollowupMessage
-func (b *FollowupMessageBuilder) Build() *FollowupMessage {
-	return &b.FollowupMessage
+func (b *FollowupMessageBuilder) Build() FollowupMessage {
+	return b.FollowupMessage
 }

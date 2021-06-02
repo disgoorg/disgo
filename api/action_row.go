@@ -1,8 +1,8 @@
 package api
 
 // NewActionRow creates a new ActionRow holding th provided Component(s)
-func NewActionRow(components ...Component) *ActionRow {
-	return &ActionRow{
+func NewActionRow(components ...Component) ActionRow {
+	return ActionRow{
 		ComponentImpl: newComponentImpl(ComponentTypeActionRow),
 		Components:    components,
 	}

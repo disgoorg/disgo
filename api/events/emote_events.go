@@ -7,21 +7,21 @@ import (
 // GenericEmoteEvent is called upon receiving EmoteCreateEvent, EmoteUpdateEvent or EmoteDeleteEvent(requires api.GatewayIntentsGuildEmojis)
 type GenericEmoteEvent struct {
 	GenericGuildEvent
-	Emote *api.Emote
+	Emote *api.Emoji
 }
 
-// EmoteCreateEvent indicates that a new api.Emote got created in a api.Guild(requires api.GatewayIntentsGuildEmojis)
+// EmoteCreateEvent indicates that a new api.Emoji got created in a api.Guild(requires api.GatewayIntentsGuildEmojis)
 type EmoteCreateEvent struct {
 	GenericEmoteEvent
 }
 
-// EmoteUpdateEvent indicates that a api.Emote got updated in a api.Guild(requires api.GatewayIntentsGuildEmojis)
+// EmoteUpdateEvent indicates that a api.Emoji got updated in a api.Guild(requires api.GatewayIntentsGuildEmojis)
 type EmoteUpdateEvent struct {
 	GenericEmoteEvent
-	OldEmote *api.Emote
+	OldEmote *api.Emoji
 }
 
-// EmoteDeleteEvent indicates that a api.Emote got deleted in a api.Guild(requires api.GatewayIntentsGuildEmojis)
+// EmoteDeleteEvent indicates that a api.Emoji got deleted in a api.Guild(requires api.GatewayIntentsGuildEmojis)
 type EmoteDeleteEvent struct {
 	GenericEmoteEvent
 }
