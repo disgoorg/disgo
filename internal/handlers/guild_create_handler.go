@@ -60,7 +60,7 @@ func (h GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 	}
 
 	for _, emote := range fullGuild.Emojis {
-		disgo.EntityBuilder().CreateEmote(guild.ID, emote, api.CacheStrategyYes)
+		disgo.EntityBuilder().CreateEmoji(guild.ID, emote, api.CacheStrategyYes)
 	}
 
 	// TODO: presence
