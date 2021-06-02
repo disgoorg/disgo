@@ -24,7 +24,7 @@ func (e *Emoji) Guild() *Guild {
 	return e.Disgo.Cache().Guild(e.GuildID)
 }
 
-// Mention returns the string used to send the emoji
+// Mention returns the string used to send the Emoji
 func (e *Emoji) Mention() string {
 	start := "<:"
 	if e.Animated {

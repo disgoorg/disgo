@@ -37,5 +37,5 @@ type EntityBuilder interface {
 	CreateCategory(channel *Channel, updateCache CacheStrategy) *Category
 	CreateDMChannel(channel *Channel, updateCache CacheStrategy) *DMChannel
 
-	CreateEmote(guildID Snowflake, emote *Emoji, updateCache CacheStrategy) *Emoji
+	CreateEmoji(guildID Snowflake, emoji *Emoji, updateCache CacheStrategy) *Emoji
 }
