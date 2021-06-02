@@ -187,7 +187,7 @@ func buttonClickListener(event events.ButtonClickEvent) {
 			SetContent("test2").
 			SetComponents(api.NewActionRow(
 				api.NewPrimaryButton("test2", "test2", api.NewEmoji("✔"), false),
-				api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote("kittybot", emoteID), false),
+				api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote("kittybot", emoteID, true), false),
 			)).
 			BuildData(),
 		); err != nil {
@@ -199,7 +199,7 @@ func buttonClickListener(event events.ButtonClickEvent) {
 			SetContent("test").
 			SetComponents(api.NewActionRow(
 				api.NewPrimaryButton("test", "test", api.NewEmoji("❌"), false),
-				api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote("kittybot", emoteID), false),
+				api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote("kittybot", emoteID, true), false),
 			)).
 			BuildData(),
 		); err != nil {

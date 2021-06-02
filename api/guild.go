@@ -122,7 +122,7 @@ type GuildPreview struct {
 type FullGuild struct {
 	*Guild
 	Roles       []*Role       `json:"roles"`
-	Emotes      []*Emoji      `json:"emojis"`
+	Emojis      []*Emoji      `json:"emojis"`
 	Members     []*Member     `json:"members"`
 	Channels    []*Channel    `json:"channels"`
 	VoiceStates []*VoiceState `json:"voice_states"`

@@ -135,8 +135,8 @@ func (b *EntityBuilderImpl) createComponent(unmarshalComponent *api.UnmarshalCom
 			URL:      unmarshalComponent.URL,
 			Disabled: unmarshalComponent.Disabled,
 		}
-		if unmarshalComponent.Emote != nil {
-			button.Emote = b.CreateEmote("", unmarshalComponent.Emote, updateCache)
+		if unmarshalComponent.Emoji != nil {
+			button.Emoji = b.CreateEmote("", unmarshalComponent.Emoji, updateCache)
 		}
 		return button
 
@@ -310,6 +310,9 @@ func (b *EntityBuilderImpl) CreateDMChannel(channel *api.Channel, updateCache ap
 
 // CreateEmote returns a new api.Emoji entity
 func (b *EntityBuilderImpl) CreateEmote(guildID api.Snowflake, emote *api.Emoji, updateCache api.CacheStrategy) *api.Emoji {
+	if emote.ID == "" {// return if emoji is no custom emote
+		return emote
+	}
 	emote.Disgo = b.Disgo()
 	emote.GuildID = guildID
 	if updateCache(b.Disgo()) {

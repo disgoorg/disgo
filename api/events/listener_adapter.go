@@ -40,7 +40,7 @@ type ListenerAdapter struct {
 	OnGenericDMMessageReactionEventEvent func(event GenericDMMessageReactionEvent)
 	OnDMMessageReactionAdd               func(event DMMessageReactionAddEvent)
 	OnDMMessageReactionRemove            func(event DMMessageReactionRemoveEvent)
-	OnDMMessageReactionRemoveEmote       func(event DMMessageReactionRemoveEmoteEvent)
+	OnDMMessageReactionRemoveEmoji       func(event DMMessageReactionRemoveEmojiEvent)
 	OnDMMessageReactionRemoveAll         func(event DMMessageReactionRemoveAllEvent)
 
 	// api.StoreChannel Events
@@ -106,7 +106,7 @@ type ListenerAdapter struct {
 	OnGenericGuildMessageReactionEvent func(event GenericGuildMessageReactionEvent)
 	OnGuildMessageReactionAdd          func(event GuildMessageReactionAddEvent)
 	OnGuildMessageReactionRemove       func(event GuildMessageReactionRemoveEvent)
-	OnGuildMessageReactionRemoveEmote  func(event GuildMessageReactionRemoveEmoteEvent)
+	OnGuildMessageReactionRemoveEmoji  func(event GuildMessageReactionRemoveEmojiEvent)
 	OnGuildMessageReactionRemoveAll    func(event GuildMessageReactionRemoveAllEvent)
 
 	// api.Guild Voice Events
@@ -136,7 +136,7 @@ type ListenerAdapter struct {
 	OnGenericReactionEvent       func(event GenericReactionEvents)
 	OnMessageReactionAdd         func(event MessageReactionAddEvent)
 	OnMessageReactionRemove      func(event MessageReactionRemoveEvent)
-	OnMessageReactionRemoveEmote func(event MessageReactionRemoveEmoteEvent)
+	OnMessageReactionRemoveEmoji func(event MessageReactionRemoveEmojiEvent)
 	OnMessageReactionRemoveAll   func(event MessageReactionRemoveAllEvent)
 
 	// Self Events
@@ -253,8 +253,8 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		if listener := l.OnDMMessageReactionRemove; listener != nil {
 			listener(e)
 		}
-	case DMMessageReactionRemoveEmoteEvent:
-		if listener := l.OnDMMessageReactionRemoveEmote; listener != nil {
+	case DMMessageReactionRemoveEmojiEvent:
+		if listener := l.OnDMMessageReactionRemoveEmoji; listener != nil {
 			listener(e)
 		}
 	case DMMessageReactionRemoveAllEvent:
@@ -457,8 +457,8 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		if listener := l.OnGuildMessageReactionRemove; listener != nil {
 			listener(e)
 		}
-	case GuildMessageReactionRemoveEmoteEvent:
-		if listener := l.OnGuildMessageReactionRemoveEmote; listener != nil {
+	case GuildMessageReactionRemoveEmojiEvent:
+		if listener := l.OnGuildMessageReactionRemoveEmoji; listener != nil {
 			listener(e)
 		}
 	case GuildMessageReactionRemoveAllEvent:
@@ -547,8 +547,8 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		if listener := l.OnMessageReactionRemove; listener != nil {
 			listener(e)
 		}
-	case MessageReactionRemoveEmoteEvent:
-		if listener := l.OnMessageReactionRemoveEmote; listener != nil {
+	case MessageReactionRemoveEmojiEvent:
+		if listener := l.OnMessageReactionRemoveEmoji; listener != nil {
 			listener(e)
 		}
 	case MessageReactionRemoveAllEvent:

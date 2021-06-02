@@ -1,13 +1,8 @@
 package api
 
 // NewEmote creates a new custom Emoji with the given parameters
-func NewEmote(name string, emoteID Snowflake) *Emoji {
-	return &Emoji{Name: name, ID: emoteID, Animated: false}
-}
-
-// NewAnimatedEmote creates a new animated custom Emoji with the given parameters
-func NewAnimatedEmote(name string, emoteID Snowflake) *Emoji {
-	return &Emoji{Name: name, ID: emoteID, Animated: true}
+func NewEmote(name string, emoteID Snowflake, animated bool) *Emoji {
+	return &Emoji{Name: name, ID: emoteID, Animated: animated}
 }
 
 // NewEmoji creates a new emoji with the given unicode

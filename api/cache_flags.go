@@ -12,6 +12,7 @@ const (
 	CacheFlagVoiceChannels
 	CacheFlagStoreChannels
 	CacheFlagRoles
+	CacheFlagRoleTags
 	CacheFlagEmotes
 	CacheFlagVoiceState
 	CacheFlagCommands
