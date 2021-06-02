@@ -172,6 +172,13 @@ type Guild struct {
 	WelcomeScreen               *GuildWelcomeScreen        `json:"welcome_screen"`
 }
 
+// GetSelfMember returns the Member for the current logged in User for this Guild
+func (g *Guild) GetSelfMember() *SelfMember {
+	return &SelfMember{
+		Member: g.Disgo.Cache().Member(g.ID, g.Disgo.SelfUserID()),
+	}
+}
+
 // Disconnect sends a api.GatewayCommand to disconnect from this Guild
 func (g *Guild) Disconnect() error {
 	return g.Disgo.AudioController().Disconnect(g.ID)
