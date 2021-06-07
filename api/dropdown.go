@@ -1,8 +1,8 @@
 package api
 
 // NewDropdown builds a new Dropdown from the provided values
-func NewDropdown(customID string, placeholder string, minValues int, maxValues int, options ...DropdownOption) *Dropdown {
-	return &Dropdown{
+func NewDropdown(customID string, placeholder string, minValues int, maxValues int, options ...DropdownOption) Dropdown {
+	return Dropdown{
 		ComponentImpl: newComponentImpl(ComponentTypeDropdown),
 		CustomID:      customID,
 		Placeholder:   placeholder,
@@ -32,6 +32,9 @@ func NewDropdownOption(label string, value string) DropdownOption {
 
 // DropdownOption represents an option in a Dropdown
 type DropdownOption struct {
-	Label string `json:"label"`
-	Value string `json:"value"`
+	Label       string `json:"label"`
+	Value       string `json:"value"`
+	Description string `json:"description,omitempty"`
+	Default     bool   `json:"default"`
+	Emoji       *Emoji `json:"emoji"`
 }
