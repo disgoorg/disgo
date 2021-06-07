@@ -19,6 +19,7 @@ func (u WebhookMessageUpdate) isUpdated(flag updateFlags) bool {
 	return (u.updateFlags & flag) == flag
 }
 
+// MarshalJSON marshals the WebhookMessageUpdate into json
 func (u WebhookMessageUpdate) MarshalJSON() ([]byte, error) {
 	data := map[string]interface{}{}
 

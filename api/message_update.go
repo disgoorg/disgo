@@ -29,6 +29,7 @@ func (u MessageUpdate) isUpdated(flag updateFlags) bool {
 	return (u.updateFlags & flag) == flag
 }
 
+// MarshalJSON marshals the MessageUpdate into json
 func (u MessageUpdate) MarshalJSON() ([]byte, error) {
 	data := map[string]interface{}{}
 
