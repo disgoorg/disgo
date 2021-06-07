@@ -64,6 +64,7 @@ type DisgoImpl struct {
 	webhookServer            api.WebhookServer
 	cache                    api.Cache
 	selfUserID               api.Snowflake
+	selfUser                 *api.SelfUser
 	largeThreshold           int
 }
 
@@ -173,9 +174,14 @@ func (d *DisgoImpl) ApplicationID() api.Snowflake {
 	return d.selfUserID
 }
 
-// SelfUser returns a user object for the client, if available
-func (d *DisgoImpl) SelfUser() *api.User {
-	return d.cache.User(d.selfUserID)
+// SelfUser returns a api.SelfUser for the client, if available
+func (d *DisgoImpl) SelfUser() *api.SelfUser {
+	return d.selfUser
+}
+
+// SelfUserID returns the current user id
+func (d *DisgoImpl) SelfUserID() api.Snowflake {
+	return d.selfUserID
 }
 
 // HeartbeatLatency returns the heartbeat latency
@@ -204,12 +210,12 @@ func (d *DisgoImpl) GetCommands() ([]*api.Command, error) {
 }
 
 // CreateCommand creates a new global api.Command
-func (d *DisgoImpl) CreateCommand(command *api.CommandCreate) (*api.Command, error) {
+func (d *DisgoImpl) CreateCommand(command api.CommandCreate) (*api.Command, error) {
 	return d.RestClient().CreateGlobalCommand(d.ApplicationID(), command)
 }
 
 // EditCommand edits a specific global api.Command
-func (d *DisgoImpl) EditCommand(commandID api.Snowflake, command *api.CommandUpdate) (*api.Command, error) {
+func (d *DisgoImpl) EditCommand(commandID api.Snowflake, command api.CommandUpdate) (*api.Command, error) {
 	return d.RestClient().EditGlobalCommand(d.ApplicationID(), commandID, command)
 }
 
@@ -219,7 +225,7 @@ func (d *DisgoImpl) DeleteCommand(commandID api.Snowflake) error {
 }
 
 // SetCommands overrides all global api.Command(s)
-func (d *DisgoImpl) SetCommands(commands ...*api.CommandCreate) ([]*api.Command, error) {
+func (d *DisgoImpl) SetCommands(commands ...api.CommandCreate) ([]*api.Command, error) {
 	return d.RestClient().SetGlobalCommands(d.ApplicationID(), commands...)
 }
 
@@ -234,12 +240,12 @@ func (d *DisgoImpl) GetGuildCommands(guildID api.Snowflake, ) ([]*api.Command, e
 }
 
 // CreateGuildCommand creates a new api.Command for this api.Guild
-func (d *DisgoImpl) CreateGuildCommand(guildID api.Snowflake, command *api.CommandCreate) (*api.Command, error) {
+func (d *DisgoImpl) CreateGuildCommand(guildID api.Snowflake, command api.CommandCreate) (*api.Command, error) {
 	return d.RestClient().CreateGuildCommand(d.ApplicationID(), guildID, command)
 }
 
 // EditGuildCommand edits a specific api.Guild api.Command
-func (d *DisgoImpl) EditGuildCommand(guildID api.Snowflake, commandID api.Snowflake, command *api.CommandUpdate) (*api.Command, error) {
+func (d *DisgoImpl) EditGuildCommand(guildID api.Snowflake, commandID api.Snowflake, command api.CommandUpdate) (*api.Command, error) {
 	return d.RestClient().EditGuildCommand(d.ApplicationID(), guildID, commandID, command)
 }
 
@@ -249,7 +255,7 @@ func (d *DisgoImpl) DeleteGuildCommand(guildID api.Snowflake, commandID api.Snow
 }
 
 // SetGuildCommands overrides all api.Command(s) for this api.Guild
-func (d *DisgoImpl) SetGuildCommands(guildID api.Snowflake, commands ...*api.CommandCreate) ([]*api.Command, error) {
+func (d *DisgoImpl) SetGuildCommands(guildID api.Snowflake, commands ...api.CommandCreate) ([]*api.Command, error) {
 	return d.RestClient().SetGuildCommands(d.ApplicationID(), guildID, commands...)
 }
 
@@ -264,11 +270,11 @@ func (d *DisgoImpl) GetGuildCommandPermissions(guildID api.Snowflake, commandID 
 }
 
 // SetGuildCommandsPermissions sets the api.GuildCommandPermissions for a all api.Command(s)
-func (d *DisgoImpl) SetGuildCommandsPermissions(guildID api.Snowflake, commandPermissions ...*api.SetGuildCommandPermissions) ([]*api.GuildCommandPermissions, error) {
+func (d *DisgoImpl) SetGuildCommandsPermissions(guildID api.Snowflake, commandPermissions ...api.SetGuildCommandPermissions) ([]*api.GuildCommandPermissions, error) {
 	return d.RestClient().SetGuildCommandsPermissions(d.ApplicationID(), guildID, commandPermissions...)
 }
 
 // SetGuildCommandPermissions sets the api.GuildCommandPermissions for a specific api.Command
-func (d *DisgoImpl) SetGuildCommandPermissions(guildID api.Snowflake, commandID api.Snowflake, permissions *api.SetGuildCommandPermissions) (*api.GuildCommandPermissions, error) {
+func (d *DisgoImpl) SetGuildCommandPermissions(guildID api.Snowflake, commandID api.Snowflake, permissions api.SetGuildCommandPermissions) (*api.GuildCommandPermissions, error) {
 	return d.RestClient().SetGuildCommandPermissions(d.ApplicationID(), guildID, commandID, permissions)
 }

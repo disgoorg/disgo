@@ -30,7 +30,7 @@ type Invite struct {
 }
 
 // URL returns the invite url in format like https://discord.gg/{code}
-func (i Invite) URL() string {
+func (i *Invite) URL() string {
 	url, err := restclient.InviteURL.Compile(nil, i.Code)
 	if err != nil {
 		return ""

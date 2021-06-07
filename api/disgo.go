@@ -23,7 +23,8 @@ type Disgo interface {
 	GatewayIntents() GatewayIntents
 	RawGatewayEventsEnabled() bool
 	ApplicationID() Snowflake
-	SelfUser() *User
+	SelfUser() *SelfUser
+	SelfUserID() Snowflake
 	EntityBuilder() EntityBuilder
 	EventManager() EventManager
 	VoiceDispatchInterceptor() VoiceDispatchInterceptor
@@ -35,22 +36,22 @@ type Disgo interface {
 
 	GetCommand(commandID Snowflake) (*Command, error)
 	GetCommands() ([]*Command, error)
-	CreateCommand(command *CommandCreate) (*Command, error)
-	EditCommand(commandID Snowflake, command *CommandUpdate) (*Command, error)
+	CreateCommand(command CommandCreate) (*Command, error)
+	EditCommand(commandID Snowflake, command CommandUpdate) (*Command, error)
 	DeleteCommand(commandID Snowflake) error
-	SetCommands(commands ...*CommandCreate) ([]*Command, error)
+	SetCommands(commands ...CommandCreate) ([]*Command, error)
 
 	GetGuildCommand(guildID Snowflake, commandID Snowflake) (*Command, error)
-	GetGuildCommands(guildID Snowflake, ) ([]*Command, error)
-	CreateGuildCommand(guildID Snowflake, command *CommandCreate) (*Command, error)
-	EditGuildCommand(guildID Snowflake, commandID Snowflake, command *CommandUpdate) (*Command, error)
+	GetGuildCommands(guildID Snowflake) ([]*Command, error)
+	CreateGuildCommand(guildID Snowflake, command CommandCreate) (*Command, error)
+	EditGuildCommand(guildID Snowflake, commandID Snowflake, command CommandUpdate) (*Command, error)
 	DeleteGuildCommand(guildID Snowflake, commandID Snowflake) error
-	SetGuildCommands(guildID Snowflake, commands ...*CommandCreate) ([]*Command, error)
+	SetGuildCommands(guildID Snowflake, commands ...CommandCreate) ([]*Command, error)
 
 	GetGuildCommandsPermissions(guildID Snowflake) ([]*GuildCommandPermissions, error)
 	GetGuildCommandPermissions(guildID Snowflake, commandID Snowflake) (*GuildCommandPermissions, error)
-	SetGuildCommandsPermissions(guildID Snowflake, commandPermissions ...*SetGuildCommandPermissions) ([]*GuildCommandPermissions, error)
-	SetGuildCommandPermissions(guildID Snowflake, commandID Snowflake, permissions *SetGuildCommandPermissions) (*GuildCommandPermissions, error)
+	SetGuildCommandsPermissions(guildID Snowflake, commandPermissions ...SetGuildCommandPermissions) ([]*GuildCommandPermissions, error)
+	SetGuildCommandPermissions(guildID Snowflake, commandID Snowflake, permissions SetGuildCommandPermissions) (*GuildCommandPermissions, error)
 }
 
 // EventHandler provides info about the EventHandler
@@ -68,7 +69,7 @@ type GatewayEventHandler interface {
 // WebhookEventHandler is used to handle raw webhook events
 type WebhookEventHandler interface {
 	EventHandler
-	HandleWebhookEvent(disgo Disgo, eventManager EventManager, replyChannel chan *InteractionResponse, payload interface{})
+	HandleWebhookEvent(disgo Disgo, eventManager EventManager, replyChannel chan InteractionResponse, payload interface{})
 }
 
 // EventListener is used to create new EventListener to listen to events
@@ -87,7 +88,7 @@ type EventManager interface {
 	Disgo() Disgo
 	Close()
 	AddEventListeners(eventListeners ...EventListener)
-	Handle(eventType GatewayEventType, replyChannel chan *InteractionResponse, sequenceNumber int, payload json.RawMessage)
+	Handle(eventType GatewayEventType, replyChannel chan InteractionResponse, sequenceNumber int, payload json.RawMessage)
 	Dispatch(event Event)
 }
 

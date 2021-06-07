@@ -17,8 +17,8 @@ const (
 )
 
 // NewCommandOption creates a new CommandOption with the provided params
-func NewCommandOption(optionType CommandOptionType, name string, description string, options ...*CommandOption) *CommandOption {
-	return &CommandOption{
+func NewCommandOption(optionType CommandOptionType, name string, description string, options ...CommandOption) CommandOption {
+	return CommandOption{
 		Type:        optionType,
 		Name:        name,
 		Description: description,
@@ -27,42 +27,47 @@ func NewCommandOption(optionType CommandOptionType, name string, description str
 }
 
 // NewSubCommand creates a new CommandOption with CommandOptionTypeSubCommand
-func NewSubCommand(name string, description string, options ...*CommandOption) *CommandOption {
+func NewSubCommand(name string, description string, options ...CommandOption) CommandOption {
 	return NewCommandOption(CommandOptionTypeSubCommand, name, description, options...)
 }
 
 // NewSubCommandGroup creates a new CommandOption with CommandOptionTypeSubCommandGroup
-func NewSubCommandGroup(name string, description string, options ...*CommandOption) *CommandOption {
+func NewSubCommandGroup(name string, description string, options ...CommandOption) CommandOption {
 	return NewCommandOption(CommandOptionTypeSubCommandGroup, name, description, options...)
 }
 
 // NewStringOption creates a new CommandOption with CommandOptionTypeSubCommand
-func NewStringOption(name string, description string, options ...*CommandOption) *CommandOption {
+func NewStringOption(name string, description string, options ...CommandOption) CommandOption {
 	return NewCommandOption(CommandOptionTypeString, name, description, options...)
 }
 
 // NewIntegerOption creates a new CommandOption with CommandOptionTypeSubCommand
-func NewIntegerOption(name string, description string, options ...*CommandOption) *CommandOption {
+func NewIntegerOption(name string, description string, options ...CommandOption) CommandOption {
 	return NewCommandOption(CommandOptionTypeInteger, name, description, options...)
 }
 
 // NewBooleanOption creates a new CommandOption with CommandOptionTypeSubCommand
-func NewBooleanOption(name string, description string, options ...*CommandOption) *CommandOption {
+func NewBooleanOption(name string, description string, options ...CommandOption) CommandOption {
 	return NewCommandOption(CommandOptionTypeBoolean, name, description, options...)
 }
 
 // NewUserOption creates a new CommandOption with CommandOptionTypeSubCommand
-func NewUserOption(name string, description string, options ...*CommandOption) *CommandOption {
+func NewUserOption(name string, description string, options ...CommandOption) CommandOption {
 	return NewCommandOption(CommandOptionTypeUser, name, description, options...)
 }
 
 // NewChannelOption creates a new CommandOption with CommandOptionTypeSubCommand
-func NewChannelOption(name string, description string, options ...*CommandOption) *CommandOption {
+func NewChannelOption(name string, description string, options ...CommandOption) CommandOption {
 	return NewCommandOption(CommandOptionTypeChannel, name, description, options...)
 }
 
+// NewRoleOption creates a new CommandOption with CommandOptionTypeRole
+func NewRoleOption(name string, description string, options ...CommandOption) CommandOption {
+	return NewCommandOption(CommandOptionTypeRole, name, description, options...)
+}
+
 // NewMentionableOption creates a new CommandOption with CommandOptionTypeUser or CommandOptionTypeRole
-func NewMentionableOption(name string, description string, options ...*CommandOption) *CommandOption {
+func NewMentionableOption(name string, description string, options ...CommandOption) CommandOption {
 	return NewCommandOption(CommandOptionTypeMentionable, name, description, options...)
 }
 
@@ -72,13 +77,13 @@ type CommandOption struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
 	Required    bool              `json:"required,omitempty"`
-	Choices     []*OptionChoice   `json:"choices,omitempty"`
-	Options     []*CommandOption  `json:"options,omitempty"`
+	Choices     []OptionChoice    `json:"choices,omitempty"`
+	Options     []CommandOption   `json:"options,omitempty"`
 }
 
 // AddChoice adds a new choice to the the CommandOption
 func (o *CommandOption) AddChoice(name string, value interface{}) *CommandOption {
-	o.Choices = append(o.Choices, &OptionChoice{
+	o.Choices = append(o.Choices, OptionChoice{
 		Name:  name,
 		Value: value,
 	})
@@ -86,7 +91,7 @@ func (o *CommandOption) AddChoice(name string, value interface{}) *CommandOption
 }
 
 // AddOptions adds multiple choices to the the CommandOption
-func (o *CommandOption) AddOptions(options ...*CommandOption) *CommandOption {
+func (o *CommandOption) AddOptions(options ...CommandOption) *CommandOption {
 	o.Options = append(o.Options, options...)
 	return o
 }

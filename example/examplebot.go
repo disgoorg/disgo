@@ -21,6 +21,7 @@ const red = 16711680
 const orange = 16562691
 const green = 65280
 
+var token = os.Getenv("token")
 var guildID = api.Snowflake(os.Getenv("guild_id"))
 var adminRoleID = api.Snowflake(os.Getenv("admin_role_id"))
 var testRoleID = api.Snowflake(os.Getenv("test_role_id"))
@@ -34,7 +35,7 @@ func main() {
 	logger.Info("starting ExampleBot...")
 	logger.Infof("disgo %s", api.Version)
 
-	dgo, err := disgo.NewBuilder(os.Getenv("token")).
+	dgo, err := disgo.NewBuilder(token).
 		SetLogger(logger).
 		SetRawGatewayEventsEnabled(true).
 		SetHTTPClient(client).
@@ -53,12 +54,12 @@ func main() {
 		return
 	}
 
-	rawCmds := []*api.CommandCreate{
+	/*rawCmds := []api.CommandCreate{
 		{
 			Name:              "eval",
 			Description:       "runs some go code",
-			DefaultPermission: ptrBool(true),
-			Options: []*api.CommandOption{
+			DefaultPermission: true,
+			Options: []api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeString,
 					Name:        "code",
@@ -70,13 +71,13 @@ func main() {
 		{
 			Name:              "test",
 			Description:       "test test test test test test",
-			DefaultPermission: ptrBool(true),
+			DefaultPermission: true,
 		},
 		{
 			Name:              "say",
 			Description:       "says what you say",
-			DefaultPermission: ptrBool(true),
-			Options: []*api.CommandOption{
+			DefaultPermission: true,
+			Options: []api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeString,
 					Name:        "message",
@@ -88,8 +89,8 @@ func main() {
 		{
 			Name:              "addrole",
 			Description:       "This command adds a role to a member",
-			DefaultPermission: ptrBool(true),
-			Options: []*api.CommandOption{
+			DefaultPermission: true,
+			Options: []api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeUser,
 					Name:        "member",
@@ -107,8 +108,8 @@ func main() {
 		{
 			Name:              "removerole",
 			Description:       "This command removes a role from a member",
-			DefaultPermission: ptrBool(true),
-			Options: []*api.CommandOption{
+			DefaultPermission: true,
+			Options: []api.CommandOption{
 				{
 					Type:        api.CommandOptionTypeUser,
 					Name:        "member",
@@ -131,30 +132,30 @@ func main() {
 		logger.Errorf("error while registering guild commands: %s", err)
 	}
 
-	var cmdsPermissions []*api.SetGuildCommandPermissions
+	var cmdsPermissions []api.SetGuildCommandPermissions
 	for _, cmd := range cmds {
-		var perms *api.CommandPermission
+		var perms api.CommandPermission
 		if cmd.Name == "eval" {
-			perms = &api.CommandPermission{
+			perms = api.CommandPermission{
 				ID:         adminRoleID,
 				Type:       api.CommandPermissionTypeRole,
 				Permission: true,
 			}
 		} else {
-			perms = &api.CommandPermission{
+			perms = api.CommandPermission{
 				ID:         testRoleID,
 				Type:       api.CommandPermissionTypeRole,
 				Permission: true,
 			}
 		}
-		cmdsPermissions = append(cmdsPermissions, &api.SetGuildCommandPermissions{
+		cmdsPermissions = append(cmdsPermissions, api.SetGuildCommandPermissions{
 			ID:          cmd.ID,
-			Permissions: []*api.CommandPermission{perms},
+			Permissions: []api.CommandPermission{perms},
 		})
 	}
 	if _, err = dgo.RestClient().SetGuildCommandsPermissions(dgo.ApplicationID(), guildID, cmdsPermissions...); err != nil {
 		logger.Errorf("error while setting command permissions: %s", err)
-	}
+	}*/
 
 	err = dgo.Connect()
 	if err != nil {
@@ -169,45 +170,41 @@ func main() {
 	<-s
 }
 
-func guildAvailListener(event *events.GuildAvailableEvent) {
+func guildAvailListener(event events.GuildAvailableEvent) {
 	logger.Printf("guild loaded: %s", event.Guild.ID)
 }
 
-func rawGatewayEventListener(event *events.RawGatewayEvent) {
+func rawGatewayEventListener(event events.RawGatewayEvent) {
 	if event.Type == api.GatewayEventInteractionCreate {
 		println(string(event.RawPayload))
 	}
 }
 
-func buttonClickListener(event *events.ButtonClickEvent) {
+func buttonClickListener(event events.ButtonClickEvent) {
 	switch event.CustomID() {
-	case "test":
-		if err := event.ReplyEdit(api.NewInteractionResponseBuilder().
-			SetContent("test2").
-			SetComponents(api.NewActionRow(
-				api.NewPrimaryButton("test2", "test2", api.NewEmoji("✔"), false),
-				api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote("kittybot", emoteID), false),
-			)).
-			BuildData(),
-		); err != nil {
-			logger.Errorf("error sending interaction response: %s", err)
-		}
+	case "test1":
+		_ = event.Respond(api.InteractionResponseTypeChannelMessageWithSource,
+			api.NewWebhookMessageCreateBuilder().
+				SetContent(event.CustomID()).
+				Build(),
+		)
 
 	case "test2":
-		if err := event.ReplyEdit(api.NewInteractionResponseBuilder().
-			SetContent("test").
-			SetComponents(api.NewActionRow(
-				api.NewPrimaryButton("test", "test", api.NewEmoji("❌"), false),
-				api.NewLinkButton("KittyBot", "https://kittybot.de", api.NewEmote("kittybot", emoteID), false),
-			)).
-			BuildData(),
-		); err != nil {
-			logger.Errorf("error sending interaction response: %s", err)
-		}
+		_ = event.Respond(api.InteractionResponseTypeDeferredChannelMessageWithSource, nil)
+
+	case "test3":
+		_ = event.Respond(api.InteractionResponseTypeDeferredUpdateMessage, nil)
+
+	case "test4":
+		_ = event.Respond(api.InteractionResponseTypeUpdateMessage,
+			api.NewWebhookMessageCreateBuilder().
+				SetContent(event.CustomID()).
+				Build(),
+		)
 	}
 }
 
-func commandListener(event *events.CommandEvent) {
+func commandListener(event events.CommandEvent) {
 	switch event.CommandName {
 	case "eval":
 		go func() {
@@ -218,7 +215,7 @@ func commandListener(event *events.CommandEvent) {
 				AddField("Time", "...", true).
 				AddField("Code", "```go\n"+code+"\n```", false).
 				AddField("Output", "```\n...\n```", false)
-			_ = event.ReplyCreate(api.NewInteractionResponseBuilder().SetEmbeds(embed.Build()).BuildData())
+			_ = event.Reply(api.NewWebhookMessageCreateBuilder().SetEmbeds(embed.Build()).Build())
 
 			start := time.Now()
 			output, err := gval.Evaluate(code, map[string]interface{}{
@@ -231,7 +228,7 @@ func commandListener(event *events.CommandEvent) {
 			embed.SetField(1, "Time", strconv.Itoa(int(elapsed.Milliseconds()))+"ms", true)
 
 			if err != nil {
-				_, err = event.Interaction.EditOriginal(api.NewFollowupMessageBuilder().
+				_, err = event.Interaction.EditOriginal(api.NewWebhookMessageUpdateBuilder().
 					SetEmbeds(embed.
 						SetColor(red).
 						SetField(0, "Status", "Failed", true).
@@ -245,7 +242,7 @@ func commandListener(event *events.CommandEvent) {
 				}
 				return
 			}
-			_, err = event.Interaction.EditOriginal(api.NewFollowupMessageBuilder().
+			_, err = event.Interaction.EditOriginal(api.NewWebhookMessageUpdateBuilder().
 				SetEmbeds(embed.
 					SetColor(green).
 					SetField(0, "Status", "Success", true).
@@ -260,36 +257,37 @@ func commandListener(event *events.CommandEvent) {
 		}()
 
 	case "say":
-		_ = event.Reply(api.NewInteractionResponseBuilder().
+		_ = event.Reply(api.NewWebhookMessageCreateBuilder().
 			SetContent(event.Option("message").String()).
 			SetAllowedMentionsEmpty().
 			Build(),
 		)
 
 	case "test":
-		if err := event.Reply(api.NewInteractionResponseBuilder().
-			SetContent("test1").
-			SetEmbeds(api.NewEmbedBuilder().SetDescription("this message should have some buttons").Build()).
+		_ = event.Reply(api.NewWebhookMessageCreateBuilder().
+			SetContent("test message").
+			SetEphemeral(true).
 			SetComponents(
 				api.NewActionRow(
-					api.NewPrimaryButton("test", "test", api.NewEmoji("❌"), false),
+					api.NewPrimaryButton("test1", "test1", nil, false),
+					api.NewPrimaryButton("test2", "test2", nil, false),
+					api.NewPrimaryButton("test3", "test3", nil, false),
+					api.NewPrimaryButton("test4", "test4", nil, false),
 				),
 			).
 			Build(),
-		); err != nil {
-			logger.Errorf("error sending interaction response: %s", err)
-		}
+		)
 
 	case "addrole":
 		user := event.Option("member").User()
 		role := event.Option("role").Role()
 		err := event.Disgo().RestClient().AddMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
 		if err == nil {
-			_ = event.Reply(api.NewInteractionResponseBuilder().AddEmbeds(
+			_ = event.Reply(api.NewWebhookMessageCreateBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(green).SetDescriptionf("Added %s to %s", role, user).Build(),
 			).Build())
 		} else {
-			_ = event.Reply(api.NewInteractionResponseBuilder().AddEmbeds(
+			_ = event.Reply(api.NewWebhookMessageCreateBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(red).SetDescriptionf("Failed to add %s to %s", role, user).Build(),
 			).Build())
 		}
@@ -299,18 +297,18 @@ func commandListener(event *events.CommandEvent) {
 		role := event.Option("role").Role()
 		err := event.Disgo().RestClient().RemoveMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
 		if err == nil {
-			_ = event.Reply(api.NewInteractionResponseBuilder().AddEmbeds(
+			_ = event.Reply(api.NewWebhookMessageCreateBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Removed %s from %s", role, user).Build(),
 			).Build())
 		} else {
-			_ = event.Reply(api.NewInteractionResponseBuilder().AddEmbeds(
+			_ = event.Reply(api.NewWebhookMessageCreateBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(16711680).SetDescriptionf("Failed to remove %s from %s", role, user).Build(),
 			).Build())
 		}
 	}
 }
 
-func messageListener(event *events.GuildMessageCreateEvent) {
+func messageListener(event events.GuildMessageCreateEvent) {
 	if event.Message.Author.IsBot {
 		return
 	}
@@ -320,10 +318,23 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 
 	switch *event.Message.Content {
 	case "ping":
-		_, _ = event.Message.Reply(api.NewMessageBuilder().SetContent("pong").SetAllowedMentions(&api.AllowedMentions{RepliedUser: false}).Build())
+		_, _ = event.Message.Reply(api.NewMessageCreateBuilder().SetContent("pong").SetAllowedMentions(&api.AllowedMentions{RepliedUser: false}).Build())
 
 	case "pong":
-		_, _ = event.Message.Reply(api.NewMessageBuilder().SetContent("ping").SetAllowedMentions(&api.AllowedMentions{RepliedUser: false}).Build())
+		_, _ = event.Message.Reply(api.NewMessageCreateBuilder().SetContent("ping").SetAllowedMentions(&api.AllowedMentions{RepliedUser: false}).Build())
+
+	case "test":
+		go func() {
+			message, _ := event.MessageChannel().SendMessage(api.NewMessageCreateBuilder().SetContent("test").Build())
+
+			time.Sleep(time.Second * 2)
+
+			message, _ = message.Edit(api.NewMessageUpdateBuilder().SetContent("edit").SetEmbed(api.NewEmbedBuilder().SetDescription("edit").Build()).Build())
+
+			time.Sleep(time.Second * 2)
+
+			_, _ = message.Edit(api.NewMessageUpdateBuilder().SetContent("").SetEmbed(api.NewEmbedBuilder().SetDescription("edit2").Build()).Build())
+		}()
 
 	case "dm":
 		go func() {
@@ -332,7 +343,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 				_ = event.Message.AddReaction("❌")
 				return
 			}
-			_, err = channel.SendMessage(api.NewMessageBuilder().SetContent("helo").Build())
+			_, err = channel.SendMessage(api.NewMessageCreateBuilder().SetContent("helo").Build())
 			if err == nil {
 				_ = event.Message.AddReaction("✅")
 			} else {
@@ -340,8 +351,4 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 			}
 		}()
 	}
-}
-
-func ptrBool(bool bool) *bool {
-	return &bool
 }

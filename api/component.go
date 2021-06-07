@@ -30,12 +30,12 @@ func (t ComponentImpl) Type() ComponentType {
 
 // UnmarshalComponent is used for easier unmarshalling of different Component(s)
 type UnmarshalComponent struct {
-	ComponentType ComponentType         `json:"type"`
-	Style         ButtonStyle           `json:"style"`
-	Label         *string               `json:"label"`
-	Emote         *Emote                `json:"emoji"`
-	CustomID      string                `json:"custom_id"`
-	URL           string                `json:"url"`
-	Disabled      bool                  `json:"disabled"`
-	Components    []*UnmarshalComponent `json:"components"`
+	ComponentType ComponentType        `json:"type"`
+	Style         ButtonStyle          `json:"style"`
+	Label         *string              `json:"label"`
+	Emoji         *Emoji               `json:"emoji"`
+	CustomID      string               `json:"custom_id"`
+	URL           string               `json:"url"`
+	Disabled      bool                 `json:"disabled"`
+	Components    []UnmarshalComponent `json:"components"`
 }
