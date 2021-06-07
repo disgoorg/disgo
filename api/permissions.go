@@ -18,90 +18,12 @@ const (
 type PermissionOverwrite struct {
 	ID    Snowflake               `json:"id"`
 	Type  PermissionOverwriteType `json:"type"`
-	Allow Permissions             `json:"allow"`
-	Deny  Permissions             `json:"deny"`
+	Allow Permissions             `json:"allow,string"`
+	Deny  Permissions             `json:"deny,string"`
 }
 
 // Permissions extends the Bit structure, and is used within roles and channels
 type Permissions int64
-
-// MarshalJSON marshals permissions into a string
-func (p Permissions) MarshalJSON() ([]byte, error) {
-	strPermissions := strconv.FormatInt(int64(p), 10)
-
-	jsonValue, err := json.Marshal(strPermissions)
-	if err != nil {
-		return nil, err
-	}
-
-	return jsonValue, nil
-}
-
-// UnmarshalJSON unmarshals permissions into an int64
-func (p *Permissions) UnmarshalJSON(b []byte) error {
-	var strPermissions string
-	err := json.Unmarshal(b, &strPermissions)
-	if err != nil {
-		return err
-	}
-
-	intPermissions, err := strconv.Atoi(strPermissions)
-	if err != nil {
-		return err
-	}
-	*p = Permissions(intPermissions)
-	return nil
-}
-
-// Add allows you to add multiple bits together, producing a new bit
-func (p Permissions) Add(bits ...Bit) Bit {
-	total := Permissions(0)
-	for _, bit := range bits {
-		total |= bit.(Permissions)
-	}
-	p |= total
-	return p
-}
-
-// Remove allows you to subtract multiple bits from the first, producing a new bit
-func (p Permissions) Remove(bits ...Bit) Bit {
-	total := Permissions(0)
-	for _, bit := range bits {
-		total |= bit.(Permissions)
-	}
-	p &^= total
-	return p
-}
-
-// HasAll will ensure that the bit includes all of the bits entered
-func (p Permissions) HasAll(bits ...Bit) bool {
-	for _, bit := range bits {
-		if !p.Has(bit) {
-			return false
-		}
-	}
-	return true
-}
-
-// Has will check whether the Bit contains another bit
-func (p Permissions) Has(bit Bit) bool {
-	return (p & bit.(Permissions)) == bit
-}
-
-// MissingAny will check whether the bit is missing any one of the bits
-func (p Permissions) MissingAny(bits ...Bit) bool {
-	for _, bit := range bits {
-		if !p.Has(bit) {
-			return true
-		}
-	}
-	return false
-}
-
-// Missing will do the inverse of Bit.Has
-func (p Permissions) Missing(bit Bit) bool {
-	return !p.Has(bit)
-}
 
 // Constants for the different bit offsets of text channel permissions
 const (
@@ -148,7 +70,7 @@ const (
 	PermissionViewAuditLogs
 	PermissionViewChannel Permissions = 1 << (iota + 2)
 
-	PermissionAllText = PermissionViewChannel |
+	PermissionsAllText = PermissionViewChannel |
 		PermissionSendMessages |
 		PermissionSendTTSMessages |
 		PermissionManageMessages |
@@ -156,7 +78,7 @@ const (
 		PermissionAttachFiles |
 		PermissionReadMessageHistory |
 		PermissionMentionEveryone
-	PermissionAllVoice = PermissionViewChannel |
+	PermissionsAllVoice = PermissionViewChannel |
 		PermissionVoiceConnect |
 		PermissionVoiceSpeak |
 		PermissionVoiceMuteMembers |
@@ -164,18 +86,98 @@ const (
 		PermissionVoiceMoveMembers |
 		PermissionVoiceUseVAD |
 		PermissionVoicePrioritySpeaker
-	PermissionAllChannel = PermissionAllText |
-		PermissionAllVoice |
+	PermissionsAllChannel = PermissionsAllText |
+		PermissionsAllVoice |
 		PermissionCreateInstantInvite |
 		PermissionManageRoles |
 		PermissionManageChannels |
 		PermissionAddReactions |
 		PermissionViewAuditLogs
-	PermissionAll = PermissionAllChannel |
+	PermissionsAll = PermissionsAllChannel |
 		PermissionKickMembers |
 		PermissionBanMembers |
 		PermissionManageServer |
 		PermissionAdministrator |
 		PermissionManageWebhooks |
 		PermissionManageEmojis
+
+	PermissionsNone Permissions = 0
 )
+
+// MarshalJSON marshals permissions into a string
+func (p Permissions) MarshalJSON() ([]byte, error) {
+	strPermissions := strconv.FormatInt(int64(p), 10)
+
+	jsonValue, err := json.Marshal(strPermissions)
+	if err != nil {
+		return nil, err
+	}
+
+	return jsonValue, nil
+}
+
+// UnmarshalJSON unmarshalls permissions into an int64
+func (p *Permissions) UnmarshalJSON(b []byte) error {
+	var strPermissions string
+	err := json.Unmarshal(b, &strPermissions)
+	if err != nil {
+		return err
+	}
+
+	intPermissions, err := strconv.Atoi(strPermissions)
+	if err != nil {
+		return err
+	}
+	*p = Permissions(intPermissions)
+	return nil
+}
+
+// Add allows you to add multiple bits together, producing a new bit
+func (p Permissions) Add(bits ...Permissions) Permissions {
+	total := Permissions(0)
+	for _, bit := range bits {
+		total |= bit
+	}
+	p |= total
+	return p
+}
+
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (p Permissions) Remove(bits ...Permissions) Permissions {
+	total := Permissions(0)
+	for _, bit := range bits {
+		total |= bit
+	}
+	p &^= total
+	return p
+}
+
+// HasAll will ensure that the bit includes all of the bits entered
+func (p Permissions) HasAll(bits ...Permissions) bool {
+	for _, bit := range bits {
+		if !p.Has(bit) {
+			return false
+		}
+	}
+	return true
+}
+
+// Has will check whether the Bit contains another bit
+func (p Permissions) Has(bit Permissions) bool {
+	return (p & bit) == bit
+}
+
+// MissingAny will check whether the bit is missing any one of the bits
+func (p Permissions) MissingAny(bits ...Permissions) bool {
+	for _, bit := range bits {
+		if !p.Has(bit) {
+			return true
+		}
+	}
+	return false
+}
+
+// Missing will do the inverse of Bit.Has
+func (p Permissions) Missing(bit Permissions) bool {
+	return !p.Has(bit)
+}

@@ -42,7 +42,7 @@ func (e *EventManagerImpl) Close() {
 }
 
 // Handle calls the correct api.EventHandler
-func (e *EventManagerImpl) Handle(name api.GatewayEventType, c chan *api.InteractionResponse, sequenceNumber int, payload json.RawMessage) {
+func (e *EventManagerImpl) Handle(name api.GatewayEventType, c chan api.InteractionResponse, sequenceNumber int, payload json.RawMessage) {
 	if handler, ok := e.handlers[name]; ok {
 		eventPayload := handler.New()
 		if err := json.Unmarshal(payload, &eventPayload); err != nil {

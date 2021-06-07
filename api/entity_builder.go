@@ -15,8 +15,8 @@ var (
 type EntityBuilder interface {
 	Disgo() Disgo
 
-	CreateCommandInteraction(fullInteraction *FullInteraction, c chan *InteractionResponse, updateCache CacheStrategy) *CommandInteraction
-	CreateComponentInteraction(fullInteraction *FullInteraction, c chan *InteractionResponse, updateCache CacheStrategy) *ComponentInteraction
+	CreateCommandInteraction(fullInteraction *FullInteraction, c chan InteractionResponse, updateCache CacheStrategy) *CommandInteraction
+	CreateComponentInteraction(fullInteraction *FullInteraction, c chan InteractionResponse, updateCache CacheStrategy) *ComponentInteraction
 	CreateButtonInteraction(fullInteraction *FullInteraction, cInteraction *ComponentInteraction) *ButtonInteraction
 	CreateDropdownInteraction(fullInteraction *FullInteraction, cInteraction *ComponentInteraction) *DropdownInteraction
 
@@ -39,5 +39,5 @@ type EntityBuilder interface {
 	CreateCategory(channel *Channel, updateCache CacheStrategy) *Category
 	CreateDMChannel(channel *Channel, updateCache CacheStrategy) *DMChannel
 
-	CreateEmote(guildID Snowflake, emote *Emote, updateCache CacheStrategy) *Emote
+	CreateEmoji(guildID Snowflake, emoji *Emoji, updateCache CacheStrategy) *Emoji
 }

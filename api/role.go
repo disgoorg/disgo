@@ -6,7 +6,7 @@ type Role struct {
 	GuildID     Snowflake
 	ID          Snowflake   `json:"id"`
 	Name        string      `json:"name"`
-	Color       Color       `json:"color"`
+	Color       int         `json:"color"`
 	Hoist       bool        `json:"hoist"`
 	Position    int         `json:"position"`
 	Permissions Permissions `json:"permissions"`
@@ -16,32 +16,32 @@ type Role struct {
 }
 
 // Mention parses the Role as a Mention
-func (r Role) Mention() string {
+func (r *Role) Mention() string {
 	return "<@&" + r.ID.String() + ">"
 }
 
 // String parses the Role to a String representation
-func (r Role) String() string {
+func (r *Role) String() string {
 	return r.Mention()
 }
 
 // Guild returns the Guild of this role from the Cache
-func (r Role) Guild() *Guild {
+func (r *Role) Guild() *Guild {
 	return r.Disgo.Cache().Guild(r.GuildID)
 }
 
 // Update updates the Role with specific values
-func (r Role) Update(roleUpdate *UpdateRole) (*Role, error) {
+func (r *Role) Update(roleUpdate UpdateRole) (*Role, error) {
 	return r.Disgo.RestClient().UpdateRole(r.GuildID, r.ID, roleUpdate)
 }
 
 // SetPosition sets the position of the Role
-func (r Role) SetPosition(rolePositionUpdate *UpdateRolePosition) ([]*Role, error) {
+func (r *Role) SetPosition(rolePositionUpdate UpdateRolePosition) ([]*Role, error) {
 	return r.Disgo.RestClient().UpdateRolePositions(r.GuildID, rolePositionUpdate)
 }
 
 // Delete deletes the Role
-func (r Role) Delete() error {
+func (r *Role) Delete() error {
 	return r.Disgo.RestClient().DeleteRole(r.GuildID, r.ID)
 }
 
@@ -56,7 +56,7 @@ type RoleTag struct {
 type UpdateRole struct {
 	Name        *string      `json:"name,omitempty"`
 	Permissions *Permissions `json:"permissions,omitempty"`
-	Color       *Color       `json:"color,omitempty"`
+	Color       *int         `json:"color,omitempty"`
 	Hoist       *bool        `json:"hoist,omitempty"`
 	Mentionable *bool        `json:"mentionable,omitempty"`
 }

@@ -15,10 +15,24 @@ const (
 	InteractionTypeComponent
 )
 
+// InteractionResponseType indicates the type of slash command response, whether it's responding immediately or deferring to edit your response later
+type InteractionResponseType int
+
+// Constants for the InteractionResponseType(s)
+const (
+	InteractionResponseTypePong InteractionResponseType = iota + 1
+	_
+	_
+	InteractionResponseTypeChannelMessageWithSource
+	InteractionResponseTypeDeferredChannelMessageWithSource
+	InteractionResponseTypeDeferredUpdateMessage
+	InteractionResponseTypeUpdateMessage
+)
+
 // Interaction holds the general parameters of each Interaction
 type Interaction struct {
 	Disgo           Disgo
-	ResponseChannel chan *InteractionResponse
+	ResponseChannel chan InteractionResponse
 	Replied         bool
 	ID              Snowflake       `json:"id"`
 	Type            InteractionType `json:"type"`
@@ -30,8 +44,18 @@ type Interaction struct {
 	Version         int             `json:"version"`
 }
 
-// Reply replies to the api.Interaction with the provided api.InteractionResponse
-func (i *Interaction) Reply(response *InteractionResponse) error {
+// InteractionResponse is how you answer interactions. If an answer is not sent within 3 seconds of receiving it, the interaction is failed, and you will be unable to respond to it.
+type InteractionResponse struct {
+	Type InteractionResponseType `json:"type"`
+	Data interface{}             `json:"data,omitempty"`
+}
+
+// Respond responds to the api.Interaction with the provided api.InteractionResponse
+func (i *Interaction) Respond(responseType InteractionResponseType, data interface{}) error {
+	response := InteractionResponse{
+		Type: responseType,
+		Data: data,
+	}
 	if i.Replied {
 		return errors.New("you already replied to this interaction")
 	}
@@ -43,6 +67,45 @@ func (i *Interaction) Reply(response *InteractionResponse) error {
 	}
 
 	return i.Disgo.RestClient().SendInteractionResponse(i.ID, i.Token, response)
+}
+
+// DeferReply replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource and shows a loading state
+func (i *Interaction) DeferReply(ephemeral bool) error {
+	var data *WebhookMessageCreate
+	if ephemeral {
+		data = &WebhookMessageCreate{Flags: MessageFlagEphemeral}
+	}
+	return i.Respond(InteractionResponseTypeDeferredChannelMessageWithSource, data)
+}
+
+// Reply replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource & api.WebhookMessageCreate
+func (i *Interaction) Reply(data WebhookMessageCreate) error {
+	return i.Respond(InteractionResponseTypeChannelMessageWithSource, data)
+}
+
+// EditOriginal edits the original api.InteractionResponse
+func (i *Interaction) EditOriginal(messageUpdate WebhookMessageUpdate) (*Message, error) {
+	return i.Disgo.RestClient().EditInteractionResponse(i.Disgo.ApplicationID(), i.Token, messageUpdate)
+}
+
+// DeleteOriginal deletes the original api.InteractionResponse
+func (i *Interaction) DeleteOriginal() error {
+	return i.Disgo.RestClient().DeleteInteractionResponse(i.Disgo.ApplicationID(), i.Token)
+}
+
+// SendFollowup used to send a api.WebhookMessageCreate to an api.Interaction
+func (i *Interaction) SendFollowup(messageCreate WebhookMessageCreate) (*Message, error) {
+	return i.Disgo.RestClient().SendFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageCreate)
+}
+
+// EditFollowup used to edit a api.WebhookMessageCreate from an api.Interaction
+func (i *Interaction) EditFollowup(messageID Snowflake, messageUpdate WebhookMessageUpdate) (*Message, error) {
+	return i.Disgo.RestClient().EditFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID, messageUpdate)
+}
+
+// DeleteFollowup used to delete a api.WebhookMessageCreate from an api.Interaction
+func (i *Interaction) DeleteFollowup(messageID Snowflake) error {
+	return i.Disgo.RestClient().DeleteFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID)
 }
 
 // FromWebhook returns is the Interaction was made via http
@@ -90,31 +153,6 @@ func (i *Interaction) GuildChannel() *GuildChannel {
 	return i.Disgo.Cache().GuildChannel(*i.ChannelID)
 }
 
-// EditOriginal edits the original api.InteractionResponse
-func (i *Interaction) EditOriginal(followupMessage *FollowupMessage) (*Message, error) {
-	return i.Disgo.RestClient().EditInteractionResponse(i.Disgo.ApplicationID(), i.Token, followupMessage)
-}
-
-// DeleteOriginal deletes the original api.InteractionResponse
-func (i *Interaction) DeleteOriginal() error {
-	return i.Disgo.RestClient().DeleteInteractionResponse(i.Disgo.ApplicationID(), i.Token)
-}
-
-// SendFollowup used to send a api.FollowupMessage to an api.Interaction
-func (i *Interaction) SendFollowup(followupMessage *FollowupMessage) (*Message, error) {
-	return i.Disgo.RestClient().SendFollowupMessage(i.Disgo.ApplicationID(), i.Token, followupMessage)
-}
-
-// EditFollowup used to edit a api.FollowupMessage from an api.Interaction
-func (i *Interaction) EditFollowup(messageID Snowflake, followupMessage *FollowupMessage) (*Message, error) {
-	return i.Disgo.RestClient().EditFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID, followupMessage)
-}
-
-// DeleteFollowup used to delete a api.FollowupMessage from an api.Interaction
-func (i *Interaction) DeleteFollowup(messageID Snowflake) error {
-	return i.Disgo.RestClient().DeleteFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID)
-}
-
 // FullInteraction is used for easier unmarshalling of different Interaction(s)
 type FullInteraction struct {
 	// CommandInteraction & ComponentInteraction
@@ -130,196 +168,4 @@ type FullInteraction struct {
 
 	// ComponentInteraction
 	FullMessage *FullMessage `json:"message,omitempty"`
-}
-
-// CommandInteraction is a specific Interaction when using Command(s)
-type CommandInteraction struct {
-	*Interaction
-	Data *CommandInteractionData `json:"data,omitempty"`
-}
-
-// DeferReply replies to the api.CommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource and shows a loading state
-func (i *CommandInteraction) DeferReply(ephemeral bool) error {
-	var data *InteractionResponseData
-	if ephemeral {
-		data = &InteractionResponseData{Flags: MessageFlagEphemeral}
-	}
-	return i.Reply(&InteractionResponse{Type: InteractionResponseTypeDeferredChannelMessageWithSource, Data: data})
-}
-
-// ReplyCreate replies to the api.CommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource & api.InteractionResponseData
-func (i *CommandInteraction) ReplyCreate(data *InteractionResponseData) error {
-	return i.Reply(&InteractionResponse{Type: InteractionResponseTypeChannelMessageWithSource, Data: data})
-}
-
-// ComponentInteraction is a specific Interaction when using Component(s)
-type ComponentInteraction struct {
-	*Interaction
-	Message *Message                  `json:"message,omitempty"`
-	Data    *ComponentInteractionData `json:"data,omitempty"`
-}
-
-// DeferEdit replies to the api.ButtonInteraction with api.InteractionResponseTypeDeferredUpdateMessage and cancels the loading state
-func (i *ComponentInteraction) DeferEdit() error {
-	return i.Reply(&InteractionResponse{Type: InteractionResponseTypeDeferredUpdateMessage})
-}
-
-// ReplyEdit replies to the api.ButtonInteraction with api.InteractionResponseTypeUpdateMessage & api.InteractionResponseData which edits the original api.Message
-func (i *ComponentInteraction) ReplyEdit(data *InteractionResponseData) error {
-	return i.Reply(&InteractionResponse{Type: InteractionResponseTypeUpdateMessage, Data: data})
-}
-
-// ButtonInteraction is a specific Interaction when CLicked on Button(s)
-type ButtonInteraction struct {
-	*ComponentInteraction
-	Data *ButtonInteractionData `json:"data,omitempty"`
-}
-
-// DropdownInteraction is a specific Interaction when CLicked on Dropdown(s)
-type DropdownInteraction struct {
-	*ComponentInteraction
-	Data *DropdownInteractionData `json:"data,omitempty"`
-}
-
-// CommandInteractionData is the Command data payload
-type CommandInteractionData struct {
-	ID       Snowflake     `json:"id"`
-	Name     string        `json:"name"`
-	Resolved *Resolved     `json:"resolved,omitempty"`
-	Options  []*OptionData `json:"options,omitempty"`
-}
-
-// ComponentInteractionData is the Component data payload
-type ComponentInteractionData struct {
-	CustomID      string        `json:"custom_id"`
-	ComponentType ComponentType `json:"component_type"`
-}
-
-// ButtonInteractionData is the Button data payload
-type ButtonInteractionData struct {
-	*ComponentInteractionData
-}
-
-// DropdownInteractionData is the Dropdown data payload
-type DropdownInteractionData struct {
-	*ComponentInteractionData
-	Values []string `json:"values"`
-}
-
-// Resolved contains resolved mention data
-type Resolved struct {
-	Users    map[Snowflake]*User    `json:"users,omitempty"`
-	Members  map[Snowflake]*Member  `json:"members,omitempty"`
-	Roles    map[Snowflake]*Role    `json:"roles,omitempty"`
-	Channels map[Snowflake]*Channel `json:"channels,omitempty"`
-}
-
-// OptionData is used for options or subcommands in your slash commands
-type OptionData struct {
-	Name    string            `json:"name"`
-	Type    CommandOptionType `json:"type"`
-	Value   interface{}       `json:"value,omitempty"`
-	Options []*OptionData     `json:"options,omitempty"`
-}
-
-// Option holds info about an Option.Value
-type Option struct {
-	Resolved *Resolved
-	Name     string
-	Type     CommandOptionType
-	Value    interface{}
-}
-
-// String returns the Option.Value as string
-func (o Option) String() string {
-	return o.Value.(string)
-}
-
-// Integer returns the Option.Value as int
-func (o Option) Integer() int {
-	return o.Value.(int)
-}
-
-// Bool returns the Option.Value as bool
-func (o Option) Bool() bool {
-	return o.Value.(bool)
-}
-
-// Snowflake returns the Option.Value as Snowflake
-func (o Option) Snowflake() Snowflake {
-	return Snowflake(o.String())
-}
-
-// User returns the Option.Value as User
-func (o Option) User() *User {
-	return o.Resolved.Users[o.Snowflake()]
-}
-
-// Member returns the Option.Value as Member
-func (o Option) Member() *Member {
-	return o.Resolved.Members[o.Snowflake()]
-}
-
-// Role returns the Option.Value as Role
-func (o Option) Role() *Role {
-	return o.Resolved.Roles[o.Snowflake()]
-}
-
-// Channel returns the Option.Value as Channel
-func (o Option) Channel() *Channel {
-	return o.Resolved.Channels[o.Snowflake()]
-}
-
-// MessageChannel returns the Option.Value as MessageChannel
-func (o Option) MessageChannel() *MessageChannel {
-	channel := o.Channel()
-	if channel == nil || (channel.Type != ChannelTypeText && channel.Type != ChannelTypeNews) {
-		return nil
-	}
-	return &MessageChannel{Channel: *channel}
-}
-
-// GuildChannel returns the Option.Value as GuildChannel
-func (o Option) GuildChannel() *GuildChannel {
-	channel := o.Channel()
-	if channel == nil || (channel.Type != ChannelTypeText && channel.Type != ChannelTypeNews && channel.Type != ChannelTypeCategory && channel.Type != ChannelTypeStore && channel.Type != ChannelTypeVoice) {
-		return nil
-	}
-	return &GuildChannel{Channel: *channel}
-}
-
-// VoiceChannel returns the Option.Value as VoiceChannel
-func (o Option) VoiceChannel() *VoiceChannel {
-	channel := o.Channel()
-	if channel == nil || channel.Type != ChannelTypeVoice {
-		return nil
-	}
-	return &VoiceChannel{GuildChannel: GuildChannel{Channel: *channel}}
-}
-
-// TextChannel returns the Option.Value as TextChannel
-func (o Option) TextChannel() *TextChannel {
-	channel := o.Channel()
-	if channel == nil || (channel.Type != ChannelTypeText && channel.Type != ChannelTypeNews) {
-		return nil
-	}
-	return &TextChannel{GuildChannel: GuildChannel{Channel: *channel}, MessageChannel: MessageChannel{Channel: *channel}}
-}
-
-// Category returns the Option.Value as Category
-func (o Option) Category() *Category {
-	channel := o.Channel()
-	if channel == nil || channel.Type != ChannelTypeCategory {
-		return nil
-	}
-	return &Category{GuildChannel: GuildChannel{Channel: *channel}}
-}
-
-// StoreChannel returns the Option.Value as StoreChannel
-func (o Option) StoreChannel() *StoreChannel {
-	channel := o.Channel()
-	if channel == nil || channel.Type != ChannelTypeStore {
-		return nil
-	}
-	return &StoreChannel{GuildChannel: GuildChannel{Channel: *channel}}
 }

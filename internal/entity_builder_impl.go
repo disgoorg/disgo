@@ -20,7 +20,7 @@ func (b *EntityBuilderImpl) Disgo() api.Disgo {
 	return b.disgo
 }
 
-func (b EntityBuilderImpl) createInteraction(fullInteraction *api.FullInteraction, c chan *api.InteractionResponse, updateCache api.CacheStrategy) *api.Interaction {
+func (b EntityBuilderImpl) createInteraction(fullInteraction *api.FullInteraction, c chan api.InteractionResponse, updateCache api.CacheStrategy) *api.Interaction {
 	interaction := &api.Interaction{
 		Disgo:           b.disgo,
 		ResponseChannel: c,
@@ -43,7 +43,7 @@ func (b EntityBuilderImpl) createInteraction(fullInteraction *api.FullInteractio
 }
 
 // CreateCommandInteraction creates a api.CommandInteraction from the full interaction response
-func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullInteraction, c chan *api.InteractionResponse, updateCache api.CacheStrategy) *api.CommandInteraction {
+func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullInteraction, c chan api.InteractionResponse, updateCache api.CacheStrategy) *api.CommandInteraction {
 	var data *api.CommandInteractionData
 	_ = json.Unmarshal(fullInteraction.Data, &data)
 
@@ -81,7 +81,7 @@ func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullIn
 }
 
 // CreateComponentInteraction creates a api.ComponentInteraction from the api.FullInteraction response
-func (b *EntityBuilderImpl) CreateComponentInteraction(fullInteraction *api.FullInteraction, c chan *api.InteractionResponse, updateCache api.CacheStrategy) *api.ComponentInteraction {
+func (b *EntityBuilderImpl) CreateComponentInteraction(fullInteraction *api.FullInteraction, c chan api.InteractionResponse, updateCache api.CacheStrategy) *api.ComponentInteraction {
 	var data *api.ComponentInteractionData
 	_ = json.Unmarshal(fullInteraction.Data, &data)
 
@@ -135,7 +135,7 @@ func (b *EntityBuilderImpl) CreateUser(user *api.User, updateCache api.CacheStra
 	return user
 }
 
-func (b *EntityBuilderImpl) createComponent(unmarshalComponent *api.UnmarshalComponent, updateCache api.CacheStrategy) api.Component {
+func (b *EntityBuilderImpl) createComponent(unmarshalComponent api.UnmarshalComponent, updateCache api.CacheStrategy) api.Component {
 	switch unmarshalComponent.ComponentType {
 	case api.ComponentTypeActionRow:
 		components := make([]api.Component, len(unmarshalComponent.Components))
@@ -160,8 +160,8 @@ func (b *EntityBuilderImpl) createComponent(unmarshalComponent *api.UnmarshalCom
 			URL:      unmarshalComponent.URL,
 			Disabled: unmarshalComponent.Disabled,
 		}
-		if unmarshalComponent.Emote != nil {
-			button.Emote = b.CreateEmote("", unmarshalComponent.Emote, updateCache)
+		if unmarshalComponent.Emoji != nil {
+			button.Emoji = b.CreateEmoji("", unmarshalComponent.Emoji, updateCache)
 		}
 		return button
 	case api.ComponentTypeDropdown:
@@ -345,12 +345,15 @@ func (b *EntityBuilderImpl) CreateDMChannel(channel *api.Channel, updateCache ap
 	return dmChannel
 }
 
-// CreateEmote returns a new api.Emote entity
-func (b *EntityBuilderImpl) CreateEmote(guildID api.Snowflake, emote *api.Emote, updateCache api.CacheStrategy) *api.Emote {
-	emote.Disgo = b.Disgo()
-	emote.GuildID = guildID
-	if updateCache(b.Disgo()) {
-		return b.Disgo().Cache().CacheEmote(emote)
+// CreateEmoji returns a new api.Emoji entity
+func (b *EntityBuilderImpl) CreateEmoji(guildID api.Snowflake, emoji *api.Emoji, updateCache api.CacheStrategy) *api.Emoji {
+	if emoji.ID == "" { // return if emoji is no custom emote
+		return emoji
 	}
-	return emote
+	emoji.Disgo = b.Disgo()
+	emoji.GuildID = guildID
+	if updateCache(b.Disgo()) {
+		return b.Disgo().Cache().CacheEmote(emoji)
+	}
+	return emoji
 }

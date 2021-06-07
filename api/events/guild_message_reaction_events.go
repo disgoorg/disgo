@@ -20,8 +20,8 @@ type GuildMessageReactionRemoveEvent struct {
 	GenericGuildMessageReactionEvent
 }
 
-// GuildMessageReactionRemoveEmoteEvent indicates someone removed all api.MessageReaction of a specific api.Emote from a api.Message in a api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)
-type GuildMessageReactionRemoveEmoteEvent struct {
+// GuildMessageReactionRemoveEmojiEvent indicates someone removed all api.MessageReaction of a specific api.Emoji from a api.Message in a api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)
+type GuildMessageReactionRemoveEmojiEvent struct {
 	GenericGuildMessageEvent
 	MessageReaction api.MessageReaction
 }

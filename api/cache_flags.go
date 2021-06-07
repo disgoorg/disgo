@@ -12,6 +12,7 @@ const (
 	CacheFlagVoiceChannels
 	CacheFlagStoreChannels
 	CacheFlagRoles
+	CacheFlagRoleTags
 	CacheFlagEmotes
 	CacheFlagVoiceState
 	CacheFlagCommands
@@ -27,27 +28,27 @@ const (
 )
 
 // Add allows you to add multiple bits together, producing a new bit
-func (c CacheFlags) Add(bits ...Bit) Bit {
+func (c CacheFlags) Add(bits ...CacheFlags) CacheFlags {
 	total := CacheFlags(0)
 	for _, bit := range bits {
-		total |= bit.(CacheFlags)
+		total |= bit
 	}
 	c |= total
 	return c
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
-func (c CacheFlags) Remove(bits ...Bit) Bit {
+func (c CacheFlags) Remove(bits ...CacheFlags) CacheFlags {
 	total := CacheFlags(0)
 	for _, bit := range bits {
-		total |= bit.(CacheFlags)
+		total |= bit
 	}
 	c &^= total
 	return c
 }
 
 // HasAll will ensure that the bit includes all of the bits entered
-func (c CacheFlags) HasAll(bits ...Bit) bool {
+func (c CacheFlags) HasAll(bits ...CacheFlags) bool {
 	for _, bit := range bits {
 		if !c.Has(bit) {
 			return false
@@ -57,12 +58,12 @@ func (c CacheFlags) HasAll(bits ...Bit) bool {
 }
 
 // Has will check whether the Bit contains another bit
-func (c CacheFlags) Has(bit Bit) bool {
-	return (c & bit.(CacheFlags)) == bit
+func (c CacheFlags) Has(bit CacheFlags) bool {
+	return (c & bit) == bit
 }
 
 // MissingAny will check whether the bit is missing any one of the bits
-func (c CacheFlags) MissingAny(bits ...Bit) bool {
+func (c CacheFlags) MissingAny(bits ...CacheFlags) bool {
 	for _, bit := range bits {
 		if !c.Has(bit) {
 			return true
@@ -72,6 +73,6 @@ func (c CacheFlags) MissingAny(bits ...Bit) bool {
 }
 
 // Missing will do the inverse of Bit.Has
-func (c CacheFlags) Missing(bit Bit) bool {
+func (c CacheFlags) Missing(bit CacheFlags) bool {
 	return !c.Has(bit)
 }

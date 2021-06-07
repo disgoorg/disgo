@@ -7,7 +7,7 @@ import (
 	"github.com/DisgoOrg/restclient"
 )
 
-// PremiumTier tells you the boost level of a guild
+// PremiumTier tells you the boost level of a Guild
 type PremiumTier int
 
 // Constants for PremiumTier
@@ -18,7 +18,7 @@ const (
 	PremiumTier3
 )
 
-// SystemChannelFlag contains the settings for the guilds system channel
+// SystemChannelFlag contains the settings for the Guild(s) system channel
 type SystemChannelFlag int
 
 // Constants for SystemChannelFlag
@@ -27,7 +27,7 @@ const (
 	SystemChannelFlagSuppressPremiumSubscriptions
 )
 
-// The VerificationLevel of a guild that members must be to send messages
+// The VerificationLevel of a Guild that members must be to send messages
 type VerificationLevel int
 
 // Constants for VerificationLevel
@@ -67,7 +67,7 @@ const (
 	MFALevelElevated
 )
 
-// The GuildFeature (s) that a guild contains
+// The GuildFeature (s) that a Guild contains
 type GuildFeature string
 
 // Constants for GuildFeature
@@ -103,7 +103,7 @@ type GuildWelcomeChannel struct {
 	EmojiName   *string    `json:"emoji_name,omitempty"`
 }
 
-// GuildPreview is used for previewing public guilds before joining them
+// GuildPreview is used for previewing public Guild(s) before joining them
 type GuildPreview struct {
 	Disgo                    Disgo
 	ID                       Snowflake      `json:"id"`
@@ -115,23 +115,24 @@ type GuildPreview struct {
 	Description              *string        `json:"description"`
 	ApproximateMemberCount   *int           `json:"approximate_member_count"`
 	ApproximatePresenceCount *int           `json:"approximate_presence_count"`
-	Emojis                   []*Emote       `json:"emojis"`
+	Emojis                   []*Emoji       `json:"emojis"`
 }
 
 // FullGuild represents a Guild objects sent by discord with the GatewayEventGuildCreate
 type FullGuild struct {
 	*Guild
 	Roles       []*Role       `json:"roles"`
-	Emotes      []*Emote      `json:"emojis"`
+	Emojis      []*Emoji      `json:"emojis"`
 	Members     []*Member     `json:"members"`
 	Channels    []*Channel    `json:"channels"`
 	VoiceStates []*VoiceState `json:"voice_states"`
 	//Presences   []*Presence     `json:"presences"`
 }
 
-// Guild represents a discord guild_events
+// Guild represents a discord Guild
 type Guild struct {
 	Disgo                       Disgo
+	Ready                       bool
 	ID                          Snowflake                  `json:"id"`
 	Name                        string                     `json:"name"`
 	Icon                        *string                    `json:"icon"`
@@ -171,22 +172,29 @@ type Guild struct {
 	WelcomeScreen               *GuildWelcomeScreen        `json:"welcome_screen"`
 }
 
+// GetSelfMember returns the Member for the current logged in User for this Guild
+func (g *Guild) GetSelfMember() *SelfMember {
+	return &SelfMember{
+		Member: g.Disgo.Cache().Member(g.ID, g.Disgo.SelfUserID()),
+	}
+}
+
 // Disconnect sends a api.GatewayCommand to disconnect from this Guild
 func (g *Guild) Disconnect() error {
 	return g.Disgo.AudioController().Disconnect(g.ID)
 }
 
 // CreateRole allows you to create a new Role
-func (g *Guild) CreateRole(role *UpdateRole) (*Role, error) {
+func (g *Guild) CreateRole(role UpdateRole) (*Role, error) {
 	return g.Disgo.RestClient().CreateRole(g.ID, role)
 }
 
-// AddMember adds a member to the guild with the oauth2 access token
-func (g *Guild) AddMember(userID Snowflake, addGuildMemberData *AddGuildMemberData) (*Member, error) {
+// AddMember adds a member to the Guild with the oauth2 access token
+func (g *Guild) AddMember(userID Snowflake, addGuildMemberData AddGuildMemberData) (*Member, error) {
 	return g.Disgo.RestClient().AddMember(g.ID, userID, addGuildMemberData)
 }
 
-// IconURL returns the Icon of a guild_events
+// IconURL returns the Icon of a Guild
 func (g *Guild) IconURL(size int) *string {
 	if g.Icon == nil {
 		return nil
@@ -204,52 +212,52 @@ func (g *Guild) IconURL(size int) *string {
 	return &u
 }
 
-// GetCommand fetches a specific guild command
+// GetCommand fetches a specific Guild Command
 func (g *Guild) GetCommand(commandID Snowflake) (*Command, error) {
-	return g.Disgo.RestClient().GetGuildCommand(g.Disgo.ApplicationID(), g.ID, commandID)
+	return g.Disgo.GetGuildCommand(g.ID, commandID)
 }
 
-// GetCommands fetches all guild commands
+// GetCommands fetches all Guild Command(s)
 func (g *Guild) GetCommands() ([]*Command, error) {
-	return g.Disgo.RestClient().GetGuildCommands(g.Disgo.ApplicationID(), g.ID)
+	return g.Disgo.GetGuildCommands(g.ID)
 }
 
-// CreateCommand creates a new command for this guild
-func (g *Guild) CreateCommand(command *CommandCreate) (*Command, error) {
-	return g.Disgo.RestClient().CreateGuildCommand(g.Disgo.ApplicationID(), g.ID, command)
+// CreateCommand creates a new Command for this Guild
+func (g *Guild) CreateCommand(command CommandCreate) (*Command, error) {
+	return g.Disgo.CreateGuildCommand(g.ID, command)
 }
 
-// EditCommand edits a specific guild command
-func (g *Guild) EditCommand(commandID Snowflake, command *CommandUpdate) (*Command, error) {
-	return g.Disgo.RestClient().EditGuildCommand(g.Disgo.ApplicationID(), g.ID, commandID, command)
+// EditCommand edits a specific Guild Command
+func (g *Guild) EditCommand(commandID Snowflake, command CommandUpdate) (*Command, error) {
+	return g.Disgo.EditGuildCommand(g.ID, commandID, command)
 }
 
-// DeleteCommand creates a new command for this guild
+// DeleteCommand creates a new Command for this Guild
 func (g *Guild) DeleteCommand(commandID Snowflake) error {
-	return g.Disgo.RestClient().DeleteGuildCommand(g.Disgo.ApplicationID(), g.ID, commandID)
+	return g.Disgo.DeleteGuildCommand(g.ID, commandID)
 }
 
-// SetCommands overrides all commands for this guild
-func (g *Guild) SetCommands(commands ...*CommandCreate) ([]*Command, error) {
-	return g.Disgo.RestClient().SetGuildCommands(g.Disgo.ApplicationID(), g.ID, commands...)
+// SetCommands overrides all Command(s) for this Guild
+func (g *Guild) SetCommands(commands ...CommandCreate) ([]*Command, error) {
+	return g.Disgo.SetGuildCommands(g.ID, commands...)
 }
 
-// GetCommandsPermissions returns the GuildCommandPermissions for a all Command(s) in a guild
+// GetCommandsPermissions returns the GuildCommandPermissions for a all Command(s) in a Guild
 func (g *Guild) GetCommandsPermissions() ([]*GuildCommandPermissions, error) {
-	return g.Disgo.RestClient().GetGuildCommandsPermissions(g.Disgo.ApplicationID(), g.ID)
+	return g.Disgo.GetGuildCommandsPermissions(g.ID)
 }
 
-// GetCommandPermissions returns the GuildCommandPermissions for a specific Command in a guild
+// GetCommandPermissions returns the GuildCommandPermissions for a specific Command in a Guild
 func (g *Guild) GetCommandPermissions(commandID Snowflake) (*GuildCommandPermissions, error) {
-	return g.Disgo.RestClient().GetGuildCommandPermissions(g.Disgo.ApplicationID(), g.ID, commandID)
+	return g.Disgo.GetGuildCommandPermissions(g.ID, commandID)
 }
 
 // SetCommandsPermissions sets the GuildCommandPermissions for a all Command(s)
-func (g *Guild) SetCommandsPermissions(commandPermissions ...*SetGuildCommandPermissions) ([]*GuildCommandPermissions, error) {
-	return g.Disgo.RestClient().SetGuildCommandsPermissions(g.Disgo.ApplicationID(), g.ID, commandPermissions...)
+func (g *Guild) SetCommandsPermissions(commandPermissions ...SetGuildCommandPermissions) ([]*GuildCommandPermissions, error) {
+	return g.Disgo.SetGuildCommandsPermissions(g.ID, commandPermissions...)
 }
 
 // SetCommandPermissions sets the GuildCommandPermissions for a specific Command
-func (g *Guild) SetCommandPermissions(commandID Snowflake, permissions *SetGuildCommandPermissions) (*GuildCommandPermissions, error) {
-	return g.Disgo.RestClient().SetGuildCommandPermissions(g.Disgo.ApplicationID(), g.ID, commandID, permissions)
+func (g *Guild) SetCommandPermissions(commandID Snowflake, permissions SetGuildCommandPermissions) (*GuildCommandPermissions, error) {
+	return g.Disgo.SetGuildCommandPermissions(g.ID, commandID, permissions)
 }

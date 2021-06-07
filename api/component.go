@@ -39,16 +39,16 @@ type UnmarshalComponent struct {
 	// Button
 	Style    ButtonStyle `json:"style"`
 	Label    *string     `json:"label"`
-	Emote    *Emote      `json:"emoji"`
+	Emoji    *Emoji      `json:"emoji"`
 	URL      string      `json:"url"`
 	Disabled bool        `json:"disabled"`
 
 	// ActionRow
-	Components []*UnmarshalComponent `json:"components"`
+	Components []UnmarshalComponent `json:"components"`
 
 	// Dropdown
-	Placeholder string            `json:"placeholder"`
-	MinValues   int               `json:"min_values,omitempty"`
-	MaxValues   int               `json:"max_values,omitempty"`
-	Options     []*DropdownOption `json:"options"`
+	Placeholder string           `json:"placeholder"`
+	MinValues   int              `json:"min_values,omitempty"`
+	MaxValues   int              `json:"max_values,omitempty"`
+	Options     []DropdownOption `json:"options"`
 }
