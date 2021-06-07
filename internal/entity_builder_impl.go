@@ -110,7 +110,7 @@ func (b *EntityBuilderImpl) CreateUser(user *api.User, updateCache api.CacheStra
 	return user
 }
 
-func (b *EntityBuilderImpl) createComponent(unmarshalComponent *api.UnmarshalComponent, updateCache api.CacheStrategy) api.Component {
+func (b *EntityBuilderImpl) createComponent(unmarshalComponent api.UnmarshalComponent, updateCache api.CacheStrategy) api.Component {
 	switch unmarshalComponent.ComponentType {
 	case api.ComponentTypeActionRow:
 		components := make([]api.Component, len(unmarshalComponent.Components))
@@ -310,7 +310,7 @@ func (b *EntityBuilderImpl) CreateDMChannel(channel *api.Channel, updateCache ap
 
 // CreateEmoji returns a new api.Emoji entity
 func (b *EntityBuilderImpl) CreateEmoji(guildID api.Snowflake, emoji *api.Emoji, updateCache api.CacheStrategy) *api.Emoji {
-	if emoji.ID == "" {// return if emoji is no custom emote
+	if emoji.ID == "" { // return if emoji is no custom emote
 		return emoji
 	}
 	emoji.Disgo = b.Disgo()

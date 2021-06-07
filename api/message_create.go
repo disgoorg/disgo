@@ -38,21 +38,11 @@ func NewMessageBuilderByMessage(message *Message) *MessageCreateBuilder {
 		msg.Content = *message.Content
 	}
 	if len(message.Embeds) > 0 {
-		msg.Embed = message.Embeds[0]
+		msg.Embed = &message.Embeds[0]
 	}
 	return &MessageCreateBuilder{
 		MessageCreate: msg,
 	}
-}
-
-// NewMessageCreateBuilderWithEmbed creates a new MessageCreateBuilder with an Embed to be built later
-func NewMessageCreateBuilderWithEmbed(embed *Embed) *MessageCreateBuilder {
-	return NewMessageCreateBuilder().SetEmbed(embed)
-}
-
-// NewMessageCreateBuilderWithContent creates a new MessageCreateBuilder with a content to be built later
-func NewMessageCreateBuilderWithContent(content string) *MessageCreateBuilder {
-	return NewMessageCreateBuilder().SetContent(content)
 }
 
 // SetContent sets content of the Message
@@ -74,8 +64,14 @@ func (b *MessageCreateBuilder) SetTTS(tts bool) *MessageCreateBuilder {
 }
 
 // SetEmbed sets the Embed of the Message
-func (b *MessageCreateBuilder) SetEmbed(embed *Embed) *MessageCreateBuilder {
-	b.Embed = embed
+func (b *MessageCreateBuilder) SetEmbed(embed Embed) *MessageCreateBuilder {
+	b.Embed = &embed
+	return b
+}
+
+// ClearEmbed clears the Embed of the Message
+func (b *MessageCreateBuilder) ClearEmbed() *MessageCreateBuilder {
+	b.Embed = nil
 	return b
 }
 

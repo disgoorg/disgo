@@ -79,7 +79,7 @@ func (i *Interaction) DeferReply(ephemeral bool) error {
 }
 
 // Reply replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource & api.WebhookMessageCreate
-func (i *Interaction) Reply(data *WebhookMessageCreate) error {
+func (i *Interaction) Reply(data WebhookMessageCreate) error {
 	return i.Respond(InteractionResponseTypeChannelMessageWithSource, data)
 }
 

@@ -72,8 +72,8 @@ type CommandOption struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
 	Required    bool              `json:"required,omitempty"`
-	Choices     []OptionChoice   `json:"choices,omitempty"`
-	Options     []CommandOption  `json:"options,omitempty"`
+	Choices     []OptionChoice    `json:"choices,omitempty"`
+	Options     []CommandOption   `json:"options,omitempty"`
 }
 
 // AddChoice adds a new choice to the the CommandOption

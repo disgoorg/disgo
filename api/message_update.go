@@ -79,8 +79,15 @@ func (b *MessageUpdateBuilder) SetContentf(content string, a ...interface{}) *Me
 }
 
 // SetEmbed sets the Embed of the Message
-func (b *MessageUpdateBuilder) SetEmbed(embed *Embed) *MessageUpdateBuilder {
-	b.Embed = embed
+func (b *MessageUpdateBuilder) SetEmbed(embed Embed) *MessageUpdateBuilder {
+	b.Embed = &embed
+	b.updateFlags |= updateFlagEmbed
+	return b
+}
+
+// ClearEmbed clears the Embed of the Message
+func (b *MessageUpdateBuilder) ClearEmbed() *MessageUpdateBuilder {
+	b.Embed = nil
 	b.updateFlags |= updateFlagEmbed
 	return b
 }

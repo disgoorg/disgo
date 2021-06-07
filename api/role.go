@@ -56,7 +56,7 @@ type RoleTag struct {
 type UpdateRole struct {
 	Name        *string      `json:"name,omitempty"`
 	Permissions *Permissions `json:"permissions,omitempty"`
-	Color       *int       `json:"color,omitempty"`
+	Color       *int         `json:"color,omitempty"`
 	Hoist       *bool        `json:"hoist,omitempty"`
 	Mentionable *bool        `json:"mentionable,omitempty"`
 }

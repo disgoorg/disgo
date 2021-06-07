@@ -160,40 +160,40 @@ type MessageSticker struct {
 // Message is a struct for messages sent in discord text-based channels
 type Message struct {
 	Disgo             Disgo
-	ID                Snowflake            `json:"id"`
-	GuildID           *Snowflake           `json:"guild_id"`
-	Reactions         []*MessageReaction   `json:"reactions"`
-	Attachments       []*MessageAttachment `json:"attachments"`
-	TTS               bool                 `json:"tts"`
-	Embeds            []*Embed             `json:"embeds,omitempty"`
-	Components        []Component          `json:"components,omitempty"`
-	CreatedAt         time.Time            `json:"timestamp"`
-	Mentions          []interface{}        `json:"mentions"`
-	MentionEveryone   bool                 `json:"mention_everyone"`
-	MentionRoles      []*Role              `json:"mention_roles"`
-	MentionChannels   []*Channel           `json:"mention_channels"`
-	Pinned            bool                 `json:"pinned"`
-	EditedTimestamp   *time.Time           `json:"edited_timestamp"`
-	Author            *User                `json:"author"`
-	Member            *Member              `json:"member"`
-	Content           *string              `json:"content,omitempty"`
-	ChannelID         Snowflake            `json:"channel_id"`
-	Type              MessageType          `json:"type"`
-	Flags             MessageFlags         `json:"flags"`
-	MessageReference  *MessageReference    `json:"message_reference,omitempty"`
-	Interaction       *MessageInteraction  `json:"message_interaction,omitempty"`
-	WebhookID         *Snowflake           `json:"webhook_id,omitempty"`
-	Activity          *MessageActivity     `json:"activity,omitempty"`
-	Application       *MessageApplication  `json:"application,omitempty"`
-	Stickers          []*MessageSticker    `json:"stickers,omitempty"`
-	ReferencedMessage *Message             `json:"referenced_message,omitempty"`
-	LastUpdated       *time.Time           `json:"last_updated,omitempty"`
+	ID                Snowflake           `json:"id"`
+	GuildID           *Snowflake          `json:"guild_id"`
+	Reactions         []MessageReaction   `json:"reactions"`
+	Attachments       []MessageAttachment `json:"attachments"`
+	TTS               bool                `json:"tts"`
+	Embeds            []Embed             `json:"embeds,omitempty"`
+	Components        []Component         `json:"components,omitempty"`
+	CreatedAt         time.Time           `json:"timestamp"`
+	Mentions          []interface{}       `json:"mentions"`
+	MentionEveryone   bool                `json:"mention_everyone"`
+	MentionRoles      []*Role             `json:"mention_roles"`
+	MentionChannels   []*Channel          `json:"mention_channels"`
+	Pinned            bool                `json:"pinned"`
+	EditedTimestamp   *time.Time          `json:"edited_timestamp"`
+	Author            *User               `json:"author"`
+	Member            *Member             `json:"member"`
+	Content           *string             `json:"content,omitempty"`
+	ChannelID         Snowflake           `json:"channel_id"`
+	Type              MessageType         `json:"type"`
+	Flags             MessageFlags        `json:"flags"`
+	MessageReference  *MessageReference   `json:"message_reference,omitempty"`
+	Interaction       *MessageInteraction `json:"message_interaction,omitempty"`
+	WebhookID         *Snowflake          `json:"webhook_id,omitempty"`
+	Activity          *MessageActivity    `json:"activity,omitempty"`
+	Application       *MessageApplication `json:"application,omitempty"`
+	Stickers          []*MessageSticker   `json:"stickers,omitempty"`
+	ReferencedMessage *Message            `json:"referenced_message,omitempty"`
+	LastUpdated       *time.Time          `json:"last_updated,omitempty"`
 }
 
 // FullMessage is used for easier unmarshalling of Component(s) in Message(s)
 type FullMessage struct {
 	*Message
-	UnmarshalComponents []*UnmarshalComponent `json:"components,omitempty"`
+	UnmarshalComponents []UnmarshalComponent `json:"components,omitempty"`
 }
 
 // MessageReference is a reference to another message

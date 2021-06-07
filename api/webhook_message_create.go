@@ -6,7 +6,7 @@ import "fmt"
 type WebhookMessageCreate struct {
 	TTS             bool             `json:"tts,omitempty"`
 	Content         string           `json:"content,omitempty"`
-	Embeds          []*Embed         `json:"embeds,omitempty"`
+	Embeds          []Embed          `json:"embeds,omitempty"`
 	Components      []Component      `json:"components,omitempty"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
 	Flags           MessageFlags     `json:"flags,omitempty"`
@@ -45,20 +45,20 @@ func (b *WebhookMessageCreateBuilder) SetContentf(content string, a ...interface
 }
 
 // SetEmbeds sets the embeds of the WebhookMessageCreate
-func (b *WebhookMessageCreateBuilder) SetEmbeds(embeds ...*Embed) *WebhookMessageCreateBuilder {
+func (b *WebhookMessageCreateBuilder) SetEmbeds(embeds ...Embed) *WebhookMessageCreateBuilder {
 	b.Embeds = embeds
 	return b
 }
 
 // AddEmbeds adds multiple embeds to the WebhookMessageCreate
-func (b *WebhookMessageCreateBuilder) AddEmbeds(embeds ...*Embed) *WebhookMessageCreateBuilder {
+func (b *WebhookMessageCreateBuilder) AddEmbeds(embeds ...Embed) *WebhookMessageCreateBuilder {
 	b.Embeds = append(b.Embeds, embeds...)
 	return b
 }
 
 // ClearEmbeds removes all of the embeds from the WebhookMessageCreate
 func (b *WebhookMessageCreateBuilder) ClearEmbeds() *WebhookMessageCreateBuilder {
-	b.Embeds = []*Embed{}
+	b.Embeds = []Embed{}
 	return b
 }
 
@@ -110,6 +110,6 @@ func (b *WebhookMessageCreateBuilder) SetEphemeral(ephemeral bool) *WebhookMessa
 }
 
 // Build returns your built WebhookMessageCreate
-func (b *WebhookMessageCreateBuilder) Build() *WebhookMessageCreate {
-	return &b.WebhookMessageCreate
+func (b *WebhookMessageCreateBuilder) Build() WebhookMessageCreate {
+	return b.WebhookMessageCreate
 }

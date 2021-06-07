@@ -9,7 +9,7 @@ import (
 type WebhookMessageUpdate struct {
 	Content         string           `json:"content"`
 	Components      []Component      `json:"components"`
-	Embeds          []*Embed         `json:"embeds"`
+	Embeds          []Embed          `json:"embeds"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions"`
 	Flags           MessageFlags     `json:"flags"`
 	updateFlags     updateFlags
@@ -69,14 +69,14 @@ func (b *WebhookMessageUpdateBuilder) SetContentf(content string, a ...interface
 }
 
 // SetEmbeds sets the embeds of the WebhookMessageUpdate
-func (b *WebhookMessageUpdateBuilder) SetEmbeds(embeds ...*Embed) *WebhookMessageUpdateBuilder {
+func (b *WebhookMessageUpdateBuilder) SetEmbeds(embeds ...Embed) *WebhookMessageUpdateBuilder {
 	b.Embeds = embeds
 	b.updateFlags |= updateFlagEmbed
 	return b
 }
 
 // AddEmbeds adds multiple embeds to the WebhookMessageUpdate
-func (b *WebhookMessageUpdateBuilder) AddEmbeds(embeds ...*Embed) *WebhookMessageUpdateBuilder {
+func (b *WebhookMessageUpdateBuilder) AddEmbeds(embeds ...Embed) *WebhookMessageUpdateBuilder {
 	b.Embeds = append(b.Embeds, embeds...)
 	b.updateFlags |= updateFlagEmbed
 	return b
@@ -84,7 +84,7 @@ func (b *WebhookMessageUpdateBuilder) AddEmbeds(embeds ...*Embed) *WebhookMessag
 
 // ClearEmbeds removes all of the embeds from the WebhookMessageUpdate
 func (b *WebhookMessageUpdateBuilder) ClearEmbeds() *WebhookMessageUpdateBuilder {
-	b.Embeds = []*Embed{}
+	b.Embeds = []Embed{}
 	b.updateFlags |= updateFlagEmbed
 	return b
 }

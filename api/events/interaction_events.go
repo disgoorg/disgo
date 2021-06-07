@@ -21,7 +21,7 @@ func (e *GenericInteractionEvent) DeferReply(ephemeral bool) error {
 }
 
 // Reply replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource & api.WebhookMessageCreate
-func (e *GenericInteractionEvent) Reply(data *api.WebhookMessageCreate) error {
+func (e *GenericInteractionEvent) Reply(data api.WebhookMessageCreate) error {
 	return e.Interaction.Reply(data)
 }
 
