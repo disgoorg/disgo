@@ -61,6 +61,11 @@ func NewChannelOption(name string, description string, options ...CommandOption)
 	return NewCommandOption(CommandOptionTypeChannel, name, description, options...)
 }
 
+// NewRoleOption creates a new CommandOption with CommandOptionTypeRole
+func NewRoleOption(name string, description string, options ...CommandOption) CommandOption {
+	return NewCommandOption(CommandOptionTypeRole, name, description, options...)
+}
+
 // NewMentionableOption creates a new CommandOption with CommandOptionTypeUser or CommandOptionTypeRole
 func NewMentionableOption(name string, description string, options ...CommandOption) CommandOption {
 	return NewCommandOption(CommandOptionTypeMentionable, name, description, options...)
