@@ -55,7 +55,7 @@ func main() {
 		return
 	}
 
-	/*rawCmds := []api.CommandCreate{
+	rawCmds := []api.CommandCreate{
 		{
 			Name:              "eval",
 			Description:       "runs some go code",
@@ -117,33 +117,21 @@ func main() {
 					Description: "The member to removes a role from",
 					Required:    true,
 				},
-			},
-			{
-				Name:              "removerole",
-				Description:       "This command removes a role from a member",
-				DefaultPermission: ptrBool(true),
-				Options: []*api.CommandOption{
-					{
-						Type:        api.CommandOptionTypeUser,
-						Name:        "member",
-						Description: "The member to removes a role from",
-						Required:    true,
-					},
-					{
-						Type:        api.CommandOptionTypeRole,
-						Name:        "role",
-						Description: "The role to removes from a member",
-						Required:    true,
-					},
+				{
+					Type:        api.CommandOptionTypeRole,
+					Name:        "role",
+					Description: "The role to removes from a member",
+					Required:    true,
 				},
 			},
-		}
+		},
+	}
 
-		// using the api.RestClient directly to avoid the guild needing to be cached
-		cmds, err := dgo.RestClient().SetGuildCommands(dgo.ApplicationID(), guildID, rawCmds...)
-		if err != nil {
-			logger.Errorf("error while registering guild commands: %s", err)
-		}
+	// using the api.RestClient directly to avoid the guild needing to be cached
+	cmds, err := dgo.RestClient().SetGuildCommands(dgo.ApplicationID(), guildID, rawCmds...)
+	if err != nil {
+		logger.Errorf("error while registering guild commands: %s", err)
+	}
 
 	var cmdsPermissions []api.SetGuildCommandPermissions
 	for _, cmd := range cmds {
@@ -160,9 +148,9 @@ func main() {
 				Type:       api.CommandPermissionTypeRole,
 				Permission: true,
 			}
-			cmdsPermissions = append(cmdsPermissions, &api.SetGuildCommandPermissions{
+			cmdsPermissions = append(cmdsPermissions, api.SetGuildCommandPermissions{
 				ID:          cmd.ID,
-				Permissions: []*api.CommandPermission{perms},
+				Permissions: []api.CommandPermission{perms},
 			})
 		}
 		cmdsPermissions = append(cmdsPermissions, api.SetGuildCommandPermissions{
@@ -172,7 +160,7 @@ func main() {
 	}
 	if _, err = dgo.RestClient().SetGuildCommandsPermissions(dgo.ApplicationID(), guildID, cmdsPermissions...); err != nil {
 		logger.Errorf("error while setting command permissions: %s", err)
-	}*/
+	}
 
 	err = dgo.Connect()
 	if err != nil {
