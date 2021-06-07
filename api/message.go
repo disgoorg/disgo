@@ -36,6 +36,19 @@ const (
 // The MessageFlags of a Message
 type MessageFlags int64
 
+// Constants for MessageFlags
+const (
+	MessageFlagCrossposted MessageFlags = 1 << iota
+	MessageFlagIsCrosspost
+	MessageFlagSuppressEmbeds
+	MessageFlagSourceMessageDeleted
+	MessageFlagUrgent
+	_
+	MessageFlagEphemeral
+	MessageFlagLoading              // Message is an interaction of type 5, awaiting further response
+	MessageFlagNone    MessageFlags = 0
+)
+
 // Add allows you to add multiple bits together, producing a new bit
 func (f MessageFlags) Add(bits ...MessageFlags) MessageFlags {
 	total := MessageFlags(0)
@@ -85,19 +98,6 @@ func (f MessageFlags) MissingAny(bits ...MessageFlags) bool {
 func (f MessageFlags) Missing(bit MessageFlags) bool {
 	return !f.Has(bit)
 }
-
-// Constants for MessageFlags
-const (
-	MessageFlagCrossposted MessageFlags = 1 << iota
-	MessageFlagIsCrosspost
-	MessageFlagSuppressEmbeds
-	MessageFlagSourceMessageDeleted
-	MessageFlagUrgent
-	_
-	MessageFlagEphemeral
-	MessageFlagLoading              // Message is an interaction of type 5, awaiting further response
-	MessageFlagNone    MessageFlags = 0
-)
 
 //MessageAttachment is used for files sent in a Message
 type MessageAttachment struct {

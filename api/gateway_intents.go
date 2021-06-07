@@ -3,6 +3,44 @@ package api
 // GatewayIntents is an extension of the Bit structure used when identifying with discord
 type GatewayIntents int64
 
+// Constants for the different bit offsets of GatewayIntents
+const (
+	GatewayIntentsGuilds GatewayIntents = 1 << iota
+	GatewayIntentsGuildMembers
+	GatewayIntentsGuildBans
+	GatewayIntentsGuildEmojis
+	GatewayIntentsGuildIntegrations
+	GatewayIntentsGuildWebhooks
+	GatewayIntentsGuildInvites
+	GatewayIntentsGuildVoiceStates
+	GatewayIntentsGuildPresences
+	GatewayIntentsGuildMessages
+	GatewayIntentsGuildMessageReactions
+	GatewayIntentsGuildMessageTyping
+	GatewayIntentsDirectMessages
+	GatewayIntentsDirectMessageReactions
+	GatewayIntentsDirectMessageTyping
+
+	GatewayIntentsNonPrivileged = GatewayIntentsGuilds |
+		GatewayIntentsGuildBans |
+		GatewayIntentsGuildEmojis |
+		GatewayIntentsGuildIntegrations |
+		GatewayIntentsGuildWebhooks |
+		GatewayIntentsGuildInvites |
+		GatewayIntentsGuildVoiceStates |
+		GatewayIntentsGuildMessages |
+		GatewayIntentsGuildMessageReactions |
+		GatewayIntentsGuildMessageTyping |
+		GatewayIntentsDirectMessages |
+		GatewayIntentsDirectMessageReactions |
+		GatewayIntentsDirectMessageTyping
+	GatewayIntentsPrivileged = GatewayIntentsGuildMembers |
+		GatewayIntentsGuildPresences
+	GatewayIntentsAll = GatewayIntentsNonPrivileged |
+		GatewayIntentsPrivileged
+	GatewayIntentsNone GatewayIntents = 0
+)
+
 // Add allows you to add multiple bits together, producing a new bit
 func (p GatewayIntents) Add(bits ...GatewayIntents) GatewayIntents {
 	total := GatewayIntents(0)
@@ -52,41 +90,3 @@ func (p GatewayIntents) MissingAny(bits ...GatewayIntents) bool {
 func (p GatewayIntents) Missing(bit GatewayIntents) bool {
 	return !p.Has(bit)
 }
-
-// Constants for the different bit offsets of GatewayIntents
-const (
-	GatewayIntentsGuilds GatewayIntents = 1 << iota
-	GatewayIntentsGuildMembers
-	GatewayIntentsGuildBans
-	GatewayIntentsGuildEmojis
-	GatewayIntentsGuildIntegrations
-	GatewayIntentsGuildWebhooks
-	GatewayIntentsGuildInvites
-	GatewayIntentsGuildVoiceStates
-	GatewayIntentsGuildPresences
-	GatewayIntentsGuildMessages
-	GatewayIntentsGuildMessageReactions
-	GatewayIntentsGuildMessageTyping
-	GatewayIntentsDirectMessages
-	GatewayIntentsDirectMessageReactions
-	GatewayIntentsDirectMessageTyping
-
-	GatewayIntentsNonPrivileged = GatewayIntentsGuilds |
-		GatewayIntentsGuildBans |
-		GatewayIntentsGuildEmojis |
-		GatewayIntentsGuildIntegrations |
-		GatewayIntentsGuildWebhooks |
-		GatewayIntentsGuildInvites |
-		GatewayIntentsGuildVoiceStates |
-		GatewayIntentsGuildMessages |
-		GatewayIntentsGuildMessageReactions |
-		GatewayIntentsGuildMessageTyping |
-		GatewayIntentsDirectMessages |
-		GatewayIntentsDirectMessageReactions |
-		GatewayIntentsDirectMessageTyping
-	GatewayIntentsPrivileged = GatewayIntentsGuildMembers |
-		GatewayIntentsGuildPresences
-	GatewayIntentsAll = GatewayIntentsNonPrivileged |
-		GatewayIntentsPrivileged
-	GatewayIntentsNone GatewayIntents = 0
-)
