@@ -25,7 +25,7 @@ type RestClient interface {
 	Disgo() Disgo
 
 	SendMessage(channelID Snowflake, message MessageCreate) (*Message, error)
-	EditMessage(channelID Snowflake, messageID Snowflake, message MessageUpdate) (*Message, error)
+	EditMessage(channelID Snowflake, messageID Snowflake, messageUpdate MessageUpdate) (*Message, error)
 	DeleteMessage(channelID Snowflake, messageID Snowflake) error
 	BulkDeleteMessages(channelID Snowflake, messageIDs ...Snowflake) error
 	CrosspostMessage(channelID Snowflake, messageID Snowflake) (*Message, error)
@@ -74,10 +74,10 @@ type RestClient interface {
 	SetGuildCommandPermissions(applicationID Snowflake, guildID Snowflake, commandID Snowflake, commandPermissions SetGuildCommandPermissions) (*GuildCommandPermissions, error)
 
 	SendInteractionResponse(interactionID Snowflake, interactionToken string, interactionResponse InteractionResponse) error
-	EditInteractionResponse(applicationID Snowflake, interactionToken string, followupMessage FollowupMessage) (*Message, error)
+	EditInteractionResponse(applicationID Snowflake, interactionToken string, messageUpdate WebhookMessageUpdate) (*Message, error)
 	DeleteInteractionResponse(applicationID Snowflake, interactionToken string) error
 
-	SendFollowupMessage(applicationID Snowflake, interactionToken string, followupMessage FollowupMessage) (*Message, error)
-	EditFollowupMessage(applicationID Snowflake, interactionToken string, messageID Snowflake, followupMessage FollowupMessage) (*Message, error)
+	SendFollowupMessage(applicationID Snowflake, interactionToken string, messageCreate WebhookMessageCreate) (*Message, error)
+	EditFollowupMessage(applicationID Snowflake, interactionToken string, messageID Snowflake, messageUpdate WebhookMessageUpdate) (*Message, error)
 	DeleteFollowupMessage(applicationID Snowflake, interactionToken string, followupMessageID Snowflake) error
 }

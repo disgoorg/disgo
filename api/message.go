@@ -269,15 +269,6 @@ type MessageReaction struct {
 	Emoji Emoji `json:"emoji"`
 }
 
-// MessageUpdate is used to edit a Message
-type MessageUpdate struct {
-	Content         *string          `json:"content,omitempty"`
-	Components      []Component      `json:"components,omitempty"`
-	Embed           *Embed           `json:"embed,omitempty"`
-	Flags           *MessageFlags    `json:"flags,omitempty"`
-	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
-}
-
 // MessageBulkDelete is used to bulk delete Message(s)
 type MessageBulkDelete struct {
 	Messages []Snowflake `json:"messages"`

@@ -629,12 +629,12 @@ func (r *RestClientImpl) SendInteractionResponse(interactionID api.Snowflake, in
 }
 
 // EditInteractionResponse used to edit the initial response on an interaction
-func (r *RestClientImpl) EditInteractionResponse(applicationID api.Snowflake, interactionToken string, followupMessage api.FollowupMessage) (message *api.Message, err error) {
+func (r *RestClientImpl) EditInteractionResponse(applicationID api.Snowflake, interactionToken string, messageUpdate api.WebhookMessageUpdate) (message *api.Message, err error) {
 	compiledRoute, err := restclient.UpdateInteractionResponse.Compile(nil, applicationID, interactionToken)
 	if err != nil {
 		return nil, err
 	}
-	return message, r.Do(compiledRoute, followupMessage, &message)
+	return message, r.Do(compiledRoute, messageUpdate, &message)
 }
 
 // DeleteInteractionResponse used to delete the initial response on an interaction
@@ -647,24 +647,24 @@ func (r *RestClientImpl) DeleteInteractionResponse(applicationID api.Snowflake, 
 }
 
 // SendFollowupMessage used to send a followup message_events to an interaction
-func (r *RestClientImpl) SendFollowupMessage(applicationID api.Snowflake, interactionToken string, followupMessage api.FollowupMessage) (message *api.Message, err error) {
+func (r *RestClientImpl) SendFollowupMessage(applicationID api.Snowflake, interactionToken string, messageCreate api.WebhookMessageCreate) (message *api.Message, err error) {
 	compiledRoute, err := restclient.CreateFollowupMessage.Compile(nil, applicationID, interactionToken)
 	if err != nil {
 		return nil, err
 	}
-	return message, r.Do(compiledRoute, followupMessage, &message)
+	return message, r.Do(compiledRoute, messageCreate, &message)
 }
 
-// EditFollowupMessage used to edit a api.FollowupMessage from an api.Interaction
-func (r *RestClientImpl) EditFollowupMessage(applicationID api.Snowflake, interactionToken string, messageID api.Snowflake, followupMessage api.FollowupMessage) (message *api.Message, err error) {
+// EditFollowupMessage used to edit a api.WebhookMessageCreate from an api.Interaction
+func (r *RestClientImpl) EditFollowupMessage(applicationID api.Snowflake, interactionToken string, messageID api.Snowflake, messageUpdate api.WebhookMessageUpdate) (message *api.Message, err error) {
 	compiledRoute, err := restclient.UpdateFollowupMessage.Compile(nil, applicationID, interactionToken, messageID)
 	if err != nil {
 		return nil, err
 	}
-	return message, r.Do(compiledRoute, followupMessage, &message)
+	return message, r.Do(compiledRoute, messageUpdate, &message)
 }
 
-// DeleteFollowupMessage used to delete a api.FollowupMessage from an api.Interaction
+// DeleteFollowupMessage used to delete a api.WebhookMessageCreate from an api.Interaction
 func (r *RestClientImpl) DeleteFollowupMessage(applicationID api.Snowflake, interactionToken string, messageID api.Snowflake) error {
 	compiledRoute, err := restclient.DeleteFollowupMessage.Compile(nil, applicationID, interactionToken, messageID)
 	if err != nil {
