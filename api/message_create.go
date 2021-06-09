@@ -6,11 +6,12 @@ import "fmt"
 type MessageCreate struct {
 	Nonce            string            `json:"nonce,omitempty"`
 	Content          string            `json:"content,omitempty"`
-	Components       []Component       `json:"components,omitempty"`
 	TTS              bool              `json:"tts,omitempty"`
-	Embed            *Embed            `json:"embed,omitempty"`
+	Embeds           []Embed           `json:"embeds,omitempty"`
+	Components       []Component       `json:"components,omitempty"`
 	AllowedMentions  *AllowedMentions  `json:"allowed_mentions,omitempty"`
 	MessageReference *MessageReference `json:"message_reference,omitempty"`
+	Flags            MessageFlags      `json:"flags,omitempty"`
 }
 
 // MessageCreateBuilder helper to build Message(s) easier
@@ -32,13 +33,11 @@ func NewMessageBuilderByMessage(message *Message) *MessageCreateBuilder {
 	msg := MessageCreate{
 		TTS:             message.TTS,
 		Components:      message.Components,
+		Embeds:          message.Embeds,
 		AllowedMentions: &DefaultInteractionAllowedMentions,
 	}
 	if message.Content != nil {
 		msg.Content = *message.Content
-	}
-	if len(message.Embeds) > 0 {
-		msg.Embed = &message.Embeds[0]
 	}
 	return &MessageCreateBuilder{
 		MessageCreate: msg,
@@ -63,15 +62,29 @@ func (b *MessageCreateBuilder) SetTTS(tts bool) *MessageCreateBuilder {
 	return b
 }
 
-// SetEmbed sets the Embed of the Message
-func (b *MessageCreateBuilder) SetEmbed(embed Embed) *MessageCreateBuilder {
-	b.Embed = &embed
+// SetEmbeds sets the embeds of the Message
+func (b *MessageCreateBuilder) SetEmbeds(embeds ...Embed) *MessageCreateBuilder {
+	b.Embeds = embeds
 	return b
 }
 
-// ClearEmbed clears the Embed of the Message
-func (b *MessageCreateBuilder) ClearEmbed() *MessageCreateBuilder {
-	b.Embed = nil
+// AddEmbeds adds multiple embeds to the Message
+func (b *MessageCreateBuilder) AddEmbeds(embeds ...Embed) *MessageCreateBuilder {
+	b.Embeds = append(b.Embeds, embeds...)
+	return b
+}
+
+// ClearEmbeds removes all of the embeds from the Message
+func (b *MessageCreateBuilder) ClearEmbeds() *MessageCreateBuilder {
+	b.Embeds = []Embed{}
+	return b
+}
+
+// RemoveEmbed removes an embed from the Message
+func (b *MessageCreateBuilder) RemoveEmbed(index int) *MessageCreateBuilder {
+	if b != nil && len(b.Embeds) > index {
+		b.Embeds = append(b.Embeds[:index], b.Embeds[index+1:]...)
+	}
 	return b
 }
 
@@ -89,9 +102,7 @@ func (b *MessageCreateBuilder) AddComponents(components ...Component) *MessageCr
 
 // ClearComponents removes all of the Component(s) of the Message
 func (b *MessageCreateBuilder) ClearComponents() *MessageCreateBuilder {
-	if b != nil {
-		b.Components = []Component{}
-	}
+	b.Components = []Component{}
 	return b
 }
 
@@ -111,7 +122,7 @@ func (b *MessageCreateBuilder) SetAllowedMentions(allowedMentions *AllowedMentio
 
 // ClearAllowedMentions clears the allowed mentions of the Message
 func (b *MessageCreateBuilder) ClearAllowedMentions() *MessageCreateBuilder {
-	return b.SetAllowedMentions(&AllowedMentions{})
+	return b.SetAllowedMentions(nil)
 }
 
 // SetMessageReference allows you to specify a MessageReference to reply to
@@ -120,12 +131,28 @@ func (b *MessageCreateBuilder) SetMessageReference(messageReference *MessageRefe
 	return b
 }
 
-// SetMessageReferenceByMessageID allows you to specify a Message ID to reply to
-func (b *MessageCreateBuilder) SetMessageReferenceByMessageID(messageID Snowflake) *MessageCreateBuilder {
+// SetMessageReferenceByID allows you to specify a Message ID to reply to
+func (b *MessageCreateBuilder) SetMessageReferenceByID(messageID Snowflake) *MessageCreateBuilder {
 	if b.MessageReference == nil {
 		b.MessageReference = &MessageReference{}
 	}
 	b.MessageReference.MessageID = &messageID
+	return b
+}
+
+// SetFlags sets the message flags of the Message
+func (b *MessageCreateBuilder) SetFlags(flags MessageFlags) *MessageCreateBuilder {
+	b.Flags = flags
+	return b
+}
+
+// SetEphemeral adds/removes MessageFlagEphemeral to the Message flags
+func (b *MessageCreateBuilder) SetEphemeral(ephemeral bool) *MessageCreateBuilder {
+	if ephemeral {
+		b.Flags = b.Flags.Add(MessageFlagEphemeral)
+	} else {
+		b.Flags = b.Flags.Remove(MessageFlagEphemeral)
+	}
 	return b
 }
 
