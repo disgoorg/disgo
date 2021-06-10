@@ -258,7 +258,7 @@ func (r *RestClientImpl) MoveMember(guildID api.Snowflake, userID api.Snowflake,
 	return
 }
 
-// AddMemberRole adds a api.Rol to a api.Member
+// AddMemberRole adds a api.Role to a api.Member
 func (r *RestClientImpl) AddMemberRole(guildID api.Snowflake, userID api.Snowflake, roleID api.Snowflake) (err error) {
 	compiledRoute, err := restclient.AddMemberRole.Compile(nil, guildID, userID, roleID)
 	if err != nil {
