@@ -18,8 +18,8 @@ const (
 // MessageUpdate is used to edit a Message
 type MessageUpdate struct {
 	Content         string           `json:"content"`
+	Embeds          []Embed          `json:"embeds"`
 	Components      []Component      `json:"components"`
-	Embed           *Embed           `json:"embed"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions"`
 	Flags           MessageFlags     `json:"flags"`
 	updateFlags     updateFlags
@@ -36,11 +36,11 @@ func (u MessageUpdate) MarshalJSON() ([]byte, error) {
 	if u.isUpdated(updateFlagContent) {
 		data["content"] = u.Content
 	}
+	if u.isUpdated(updateFlagEmbed) {
+		data["embeds"] = u.Embeds
+	}
 	if u.isUpdated(updateFlagComponents) {
 		data["components"] = u.Components
-	}
-	if u.isUpdated(updateFlagEmbed) {
-		data["embed"] = u.Embed
 	}
 	if u.isUpdated(updateFlagAllowedMentions) {
 		data["allowed_mentions"] = u.AllowedMentions
@@ -78,16 +78,32 @@ func (b *MessageUpdateBuilder) SetContentf(content string, a ...interface{}) *Me
 	return b.SetContent(fmt.Sprintf(content, a...))
 }
 
-// SetEmbed sets the Embed of the Message
-func (b *MessageUpdateBuilder) SetEmbed(embed Embed) *MessageUpdateBuilder {
-	b.Embed = &embed
+// SetEmbeds sets the embeds of the Message
+func (b *MessageUpdateBuilder) SetEmbeds(embeds ...Embed) *MessageUpdateBuilder {
+	b.Embeds = embeds
 	b.updateFlags |= updateFlagEmbed
 	return b
 }
 
-// ClearEmbed clears the Embed of the Message
-func (b *MessageUpdateBuilder) ClearEmbed() *MessageUpdateBuilder {
-	b.Embed = nil
+// AddEmbeds adds multiple embeds to the Message
+func (b *MessageUpdateBuilder) AddEmbeds(embeds ...Embed) *MessageUpdateBuilder {
+	b.Embeds = append(b.Embeds, embeds...)
+	b.updateFlags |= updateFlagEmbed
+	return b
+}
+
+// ClearEmbeds removes all of the embeds from the Message
+func (b *MessageUpdateBuilder) ClearEmbeds() *MessageUpdateBuilder {
+	b.Embeds = []Embed{}
+	b.updateFlags |= updateFlagEmbed
+	return b
+}
+
+// RemoveEmbed removes an embed from the Message
+func (b *MessageUpdateBuilder) RemoveEmbed(index int) *MessageUpdateBuilder {
+	if b != nil && len(b.Embeds) > index {
+		b.Embeds = append(b.Embeds[:index], b.Embeds[index+1:]...)
+	}
 	b.updateFlags |= updateFlagEmbed
 	return b
 }
@@ -133,6 +149,13 @@ func (b *MessageUpdateBuilder) SetAllowedMentions(allowedMentions *AllowedMentio
 func (b *MessageUpdateBuilder) ClearAllowedMentions() *MessageUpdateBuilder {
 	return b.SetAllowedMentions(&AllowedMentions{})
 }
+
+// SetFlags sets the MessageFlags of the Message
+func (b *MessageUpdateBuilder) SetFlags(flags MessageFlags) *MessageUpdateBuilder {
+	b.Flags = flags
+	return b
+}
+
 
 // Build builds the MessageUpdateBuilder to a MessageUpdate struct
 func (b *MessageUpdateBuilder) Build() MessageUpdate {

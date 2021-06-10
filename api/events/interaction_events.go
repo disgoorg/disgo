@@ -20,13 +20,13 @@ func (e *GenericInteractionEvent) DeferReply(ephemeral bool) error {
 	return e.Interaction.DeferReply(ephemeral)
 }
 
-// Reply replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource & api.WebhookMessageCreate
-func (e *GenericInteractionEvent) Reply(data api.WebhookMessageCreate) error {
-	return e.Interaction.Reply(data)
+// Reply replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource & api.MessageCreate
+func (e *GenericInteractionEvent) Reply(messageCreate api.MessageCreate) error {
+	return e.Interaction.Reply(messageCreate)
 }
 
 // EditOriginal edits the original api.InteractionResponse
-func (e *GenericInteractionEvent) EditOriginal(messageUpdate api.WebhookMessageUpdate) (*api.Message, error) {
+func (e *GenericInteractionEvent) EditOriginal(messageUpdate api.MessageUpdate) (*api.Message, error) {
 	return e.Interaction.EditOriginal(messageUpdate)
 }
 
@@ -35,17 +35,17 @@ func (e *GenericInteractionEvent) DeleteOriginal() error {
 	return e.Interaction.DeleteOriginal()
 }
 
-// SendFollowup used to send a api.WebhookMessageCreate to an api.Interaction
-func (e *GenericInteractionEvent) SendFollowup(followupMessage api.WebhookMessageCreate) (*api.Message, error) {
-	return e.Interaction.SendFollowup(followupMessage)
+// SendFollowup used to send a followup api.MessageCreate to an api.Interaction
+func (e *GenericInteractionEvent) SendFollowup(messageCreate api.MessageCreate) (*api.Message, error) {
+	return e.Interaction.SendFollowup(messageCreate)
 }
 
-// EditFollowup used to edit a api.WebhookMessageCreate from an api.Interaction
-func (e *GenericInteractionEvent) EditFollowup(messageID api.Snowflake, messageUpdate api.WebhookMessageUpdate) (*api.Message, error) {
+// EditFollowup used to edit a followup api.Message from an api.Interaction
+func (e *GenericInteractionEvent) EditFollowup(messageID api.Snowflake, messageUpdate api.MessageUpdate) (*api.Message, error) {
 	return e.Interaction.EditFollowup(messageID, messageUpdate)
 }
 
-// DeleteFollowup used to delete a api.WebhookMessageCreate from an api.Interaction
+// DeleteFollowup used to delete a followup api.Message from an api.Interaction
 func (e *GenericInteractionEvent) DeleteFollowup(messageID api.Snowflake) error {
 	return e.Interaction.DeleteFollowup(messageID)
 }
@@ -115,9 +115,9 @@ func (e *GenericComponentEvent) DeferEdit() error {
 	return e.ComponentInteraction.DeferEdit()
 }
 
-// Edit replies to the api.ButtonInteraction with api.InteractionResponseTypeUpdateMessage & api.WebhookMessageUpdate which edits the original api.Message
-func (e *GenericComponentEvent) Edit(data api.WebhookMessageUpdate) error {
-	return e.ComponentInteraction.Edit(data)
+// Edit replies to the api.ButtonInteraction with api.InteractionResponseTypeUpdateMessage & api.MessageUpdate which edits the original api.Message
+func (e *GenericComponentEvent) Edit(messageUpdate api.MessageUpdate) error {
+	return e.ComponentInteraction.Edit(messageUpdate)
 }
 
 // CustomID returns the customID from the called api.Component

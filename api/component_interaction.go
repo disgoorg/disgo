@@ -18,7 +18,8 @@ func (i *ComponentInteraction) DeferEdit() error {
 	return i.Respond(InteractionResponseTypeDeferredUpdateMessage, nil)
 }
 
-// Edit replies to the api.ComponentInteraction with api.InteractionResponseTypeUpdateMessage & api.WebhookMessageCreate which edits the original api.Message
-func (i *ComponentInteraction) Edit(data WebhookMessageUpdate) error {
-	return i.Respond(InteractionResponseTypeUpdateMessage, data)
+// Edit replies to the api.ComponentInteraction with api.InteractionResponseTypeUpdateMessage & api.MessageUpdate which edits the original api.Message
+func (i *ComponentInteraction) Edit(messageUpdate MessageUpdate) error {
+	return i.Respond(InteractionResponseTypeUpdateMessage, messageUpdate)
+}
 }

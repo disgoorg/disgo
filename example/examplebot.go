@@ -189,7 +189,7 @@ func buttonClickListener(event events.ButtonClickEvent) {
 	switch event.CustomID() {
 	case "test1":
 		_ = event.Respond(api.InteractionResponseTypeChannelMessageWithSource,
-			api.NewWebhookMessageCreateBuilder().
+			api.NewMessageCreateBuilder().
 				SetContent(event.CustomID()).
 				Build(),
 		)
@@ -202,7 +202,7 @@ func buttonClickListener(event events.ButtonClickEvent) {
 
 	case "test4":
 		_ = event.Respond(api.InteractionResponseTypeUpdateMessage,
-			api.NewWebhookMessageCreateBuilder().
+			api.NewMessageCreateBuilder().
 				SetContent(event.CustomID()).
 				Build(),
 		)
@@ -215,7 +215,7 @@ func dropdownSubmitListener(event events.DropdownSubmitEvent) {
 		if err := event.DeferEdit(); err != nil {
 			logger.Errorf("error sending interaction response: %s", err)
 		}
-		_, _ = event.SendFollowup(api.NewWebhookMessageCreateBuilder().
+		_, _ = event.SendFollowup(api.NewMessageCreateBuilder().
 			SetEphemeral(true).
 			SetContentf("selected options: %s", event.Values()).
 			Build(),
@@ -234,7 +234,7 @@ func commandListener(event events.CommandEvent) {
 				AddField("Time", "...", true).
 				AddField("Code", "```go\n"+code+"\n```", false).
 				AddField("Output", "```\n...\n```", false)
-			_ = event.Reply(api.NewWebhookMessageCreateBuilder().SetEmbeds(embed.Build()).Build())
+			_ = event.Reply(api.NewMessageCreateBuilder().SetEmbeds(embed.Build()).Build())
 
 			start := time.Now()
 			output, err := gval.Evaluate(code, map[string]interface{}{
@@ -247,7 +247,7 @@ func commandListener(event events.CommandEvent) {
 			embed.SetField(1, "Time", strconv.Itoa(int(elapsed.Milliseconds()))+"ms", true)
 
 			if err != nil {
-				_, err = event.Interaction.EditOriginal(api.NewWebhookMessageUpdateBuilder().
+				_, err = event.Interaction.EditOriginal(api.NewMessageUpdateBuilder().
 					SetEmbeds(embed.
 						SetColor(red).
 						SetField(0, "Status", "Failed", true).
@@ -261,7 +261,7 @@ func commandListener(event events.CommandEvent) {
 				}
 				return
 			}
-			_, err = event.Interaction.EditOriginal(api.NewWebhookMessageUpdateBuilder().
+			_, err = event.Interaction.EditOriginal(api.NewMessageUpdateBuilder().
 				SetEmbeds(embed.
 					SetColor(green).
 					SetField(0, "Status", "Success", true).
@@ -276,14 +276,14 @@ func commandListener(event events.CommandEvent) {
 		}()
 
 	case "say":
-		_ = event.Reply(api.NewWebhookMessageCreateBuilder().
+		_ = event.Reply(api.NewMessageCreateBuilder().
 			SetContent(event.Option("message").String()).
-			SetAllowedMentionsEmpty().
+			ClearAllowedMentions().
 			Build(),
 		)
 
 	case "test":
-		if err := event.Reply(api.NewWebhookMessageCreateBuilder().
+		if err := event.Reply(api.NewMessageCreateBuilder().
 			SetContent("test message").
 			SetEphemeral(true).
 			SetComponents(
@@ -307,11 +307,11 @@ func commandListener(event events.CommandEvent) {
 		role := event.Option("role").Role()
 		err := event.Disgo().RestClient().AddMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
 		if err == nil {
-			_ = event.Reply(api.NewWebhookMessageCreateBuilder().AddEmbeds(
+			_ = event.Reply(api.NewMessageCreateBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(green).SetDescriptionf("Added %s to %s", role, user).Build(),
 			).Build())
 		} else {
-			_ = event.Reply(api.NewWebhookMessageCreateBuilder().AddEmbeds(
+			_ = event.Reply(api.NewMessageCreateBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(red).SetDescriptionf("Failed to add %s to %s", role, user).Build(),
 			).Build())
 		}
@@ -321,11 +321,11 @@ func commandListener(event events.CommandEvent) {
 		role := event.Option("role").Role()
 		err := event.Disgo().RestClient().RemoveMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
 		if err == nil {
-			_ = event.Reply(api.NewWebhookMessageCreateBuilder().AddEmbeds(
+			_ = event.Reply(api.NewMessageCreateBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Removed %s from %s", role, user).Build(),
 			).Build())
 		} else {
-			_ = event.Reply(api.NewWebhookMessageCreateBuilder().AddEmbeds(
+			_ = event.Reply(api.NewMessageCreateBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(16711680).SetDescriptionf("Failed to remove %s from %s", role, user).Build(),
 			).Build())
 		}
@@ -353,11 +353,12 @@ func messageListener(event events.GuildMessageCreateEvent) {
 
 			time.Sleep(time.Second * 2)
 
-			message, _ = message.Edit(api.NewMessageUpdateBuilder().SetContent("edit").SetEmbed(api.NewEmbedBuilder().SetDescription("edit").Build()).Build())
+			embed := api.NewEmbedBuilder().SetDescription("edit").Build()
+			message, _ = message.Edit(api.NewMessageUpdateBuilder().SetContent("edit").SetEmbeds(embed, embed).Build())
 
 			time.Sleep(time.Second * 2)
 
-			_, _ = message.Edit(api.NewMessageUpdateBuilder().SetContent("").SetEmbed(api.NewEmbedBuilder().SetDescription("edit2").Build()).Build())
+			_, _ = message.Edit(api.NewMessageUpdateBuilder().SetContent("").SetEmbeds(api.NewEmbedBuilder().SetDescription("edit2").Build()).Build())
 		}()
 
 	case "dm":

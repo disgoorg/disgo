@@ -71,20 +71,20 @@ func (i *Interaction) Respond(responseType InteractionResponseType, data interfa
 
 // DeferReply replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource and shows a loading state
 func (i *Interaction) DeferReply(ephemeral bool) error {
-	var data *WebhookMessageCreate
+	var messageCreate *MessageCreate
 	if ephemeral {
-		data = &WebhookMessageCreate{Flags: MessageFlagEphemeral}
+		messageCreate = &MessageCreate{Flags: MessageFlagEphemeral}
 	}
-	return i.Respond(InteractionResponseTypeDeferredChannelMessageWithSource, data)
+	return i.Respond(InteractionResponseTypeDeferredChannelMessageWithSource, messageCreate)
 }
 
-// Reply replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource & api.WebhookMessageCreate
-func (i *Interaction) Reply(data WebhookMessageCreate) error {
-	return i.Respond(InteractionResponseTypeChannelMessageWithSource, data)
+// Reply replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource & api.MessageCreate
+func (i *Interaction) Reply(messageCreate MessageCreate) error {
+	return i.Respond(InteractionResponseTypeChannelMessageWithSource, messageCreate)
 }
 
 // EditOriginal edits the original api.InteractionResponse
-func (i *Interaction) EditOriginal(messageUpdate WebhookMessageUpdate) (*Message, error) {
+func (i *Interaction) EditOriginal(messageUpdate MessageUpdate) (*Message, error) {
 	return i.Disgo.RestClient().EditInteractionResponse(i.Disgo.ApplicationID(), i.Token, messageUpdate)
 }
 
@@ -93,17 +93,17 @@ func (i *Interaction) DeleteOriginal() error {
 	return i.Disgo.RestClient().DeleteInteractionResponse(i.Disgo.ApplicationID(), i.Token)
 }
 
-// SendFollowup used to send a api.WebhookMessageCreate to an api.Interaction
-func (i *Interaction) SendFollowup(messageCreate WebhookMessageCreate) (*Message, error) {
+// SendFollowup used to send a api.MessageCreate to an api.Interaction
+func (i *Interaction) SendFollowup(messageCreate MessageCreate) (*Message, error) {
 	return i.Disgo.RestClient().SendFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageCreate)
 }
 
-// EditFollowup used to edit a api.WebhookMessageCreate from an api.Interaction
-func (i *Interaction) EditFollowup(messageID Snowflake, messageUpdate WebhookMessageUpdate) (*Message, error) {
+// EditFollowup used to edit a api.Message from an api.Interaction
+func (i *Interaction) EditFollowup(messageID Snowflake, messageUpdate MessageUpdate) (*Message, error) {
 	return i.Disgo.RestClient().EditFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID, messageUpdate)
 }
 
-// DeleteFollowup used to delete a api.WebhookMessageCreate from an api.Interaction
+// DeleteFollowup used to delete a api.Message from an api.Interaction
 func (i *Interaction) DeleteFollowup(messageID Snowflake) error {
 	return i.Disgo.RestClient().DeleteFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID)
 }
