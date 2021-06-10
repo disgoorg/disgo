@@ -12,9 +12,9 @@ func (i *ButtonInteraction) DeferEdit() error {
 	return i.Respond(InteractionResponseTypeDeferredUpdateMessage, nil)
 }
 
-// Edit replies to the api.ButtonInteraction with api.InteractionResponseTypeUpdateMessage & api.WebhookMessageCreate which edits the original api.Message
-func (i *ButtonInteraction) Edit(data *WebhookMessageCreate) error {
-	return i.Respond(InteractionResponseTypeUpdateMessage, data)
+// Edit replies to the api.ButtonInteraction with api.InteractionResponseTypeUpdateMessage & api.MessageCreate which edits the original api.Message
+func (i *ButtonInteraction) Edit(messageCreate MessageCreate) error {
+	return i.Respond(InteractionResponseTypeUpdateMessage, messageCreate)
 }
 
 // ButtonInteractionData is the command data payload

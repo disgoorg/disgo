@@ -74,10 +74,10 @@ type RestClient interface {
 	SetGuildCommandPermissions(applicationID Snowflake, guildID Snowflake, commandID Snowflake, commandPermissions SetGuildCommandPermissions) (*GuildCommandPermissions, error)
 
 	SendInteractionResponse(interactionID Snowflake, interactionToken string, interactionResponse InteractionResponse) error
-	EditInteractionResponse(applicationID Snowflake, interactionToken string, messageUpdate WebhookMessageUpdate) (*Message, error)
+	EditInteractionResponse(applicationID Snowflake, interactionToken string, messageUpdate MessageUpdate) (*Message, error)
 	DeleteInteractionResponse(applicationID Snowflake, interactionToken string) error
 
-	SendFollowupMessage(applicationID Snowflake, interactionToken string, messageCreate WebhookMessageCreate) (*Message, error)
-	EditFollowupMessage(applicationID Snowflake, interactionToken string, messageID Snowflake, messageUpdate WebhookMessageUpdate) (*Message, error)
+	SendFollowupMessage(applicationID Snowflake, interactionToken string, messageCreate MessageCreate) (*Message, error)
+	EditFollowupMessage(applicationID Snowflake, interactionToken string, messageID Snowflake, messageUpdate MessageUpdate) (*Message, error)
 	DeleteFollowupMessage(applicationID Snowflake, interactionToken string, followupMessageID Snowflake) error
 }
