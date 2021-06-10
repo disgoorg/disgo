@@ -22,4 +22,8 @@ func (i *ComponentInteraction) DeferEdit() error {
 func (i *ComponentInteraction) Edit(messageUpdate MessageUpdate) error {
 	return i.Respond(InteractionResponseTypeUpdateMessage, messageUpdate)
 }
+
+// Component returns the Component which issued this ComponentInteraction. nil for ephemeral Message(s)
+func (i *ComponentInteraction) Component() Component {
+	return i.Message.ComponentByID(i.Data.CustomID)
 }

@@ -10,3 +10,8 @@ type ButtonInteraction struct {
 type ButtonInteractionData struct {
 	*ComponentInteractionData
 }
+
+// Button returns the Button which issued this ButtonInteraction. nil for ephemeral Message(s)
+func (i *ButtonInteraction) Button() *Button {
+	return i.Message.ButtonByID(i.Data.CustomID)
+}

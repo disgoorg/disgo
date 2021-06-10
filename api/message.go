@@ -262,6 +262,84 @@ func (m *Message) Reply(message MessageCreate) (*Message, error) {
 	return m.Disgo.RestClient().SendMessage(m.ChannelID, message)
 }
 
+// ComponentByID returns the first Button or Dropdown with the specific customID
+func (m *Message) ComponentByID(customID string) Component {
+	for _, actionRow := range m.ActionRows() {
+		for _, component := range actionRow.Components {
+			switch c := component.(type) {
+			case Button:
+				if c.CustomID == customID {
+					return c
+				}
+			case Dropdown:
+				if c.CustomID == customID {
+					return c
+				}
+			default:
+				continue
+			}
+		}
+	}
+	return nil
+}
+
+// ActionRows returns all ActionRow(s) from this Message
+func (m *Message) ActionRows() []ActionRow {
+	var actionRows []ActionRow
+	for _, component := range m.Components {
+		if actionRow, ok := component.(ActionRow); ok {
+			actionRows = append(actionRows, actionRow)
+		}
+	}
+	return actionRows
+}
+
+// Buttons returns all Button(s) from this Message
+func (m *Message) Buttons() []Button {
+	var buttons []Button
+	for _, actionRow := range m.ActionRows() {
+		for _, component := range actionRow.Components {
+			if button, ok := component.(Button); ok {
+				buttons = append(buttons, button)
+			}
+		}
+	}
+	return buttons
+}
+
+// ButtonByID returns a Button with the specific customID from this Message
+func (m *Message) ButtonByID(customID string) *Button {
+	for _, button := range m.Buttons() {
+		if button.CustomID == customID {
+			return &button
+		}
+	}
+	return nil
+}
+
+// Dropdowns returns all Dropdown(s) from this Message
+func (m *Message) Dropdowns() []Dropdown {
+	var dropdowns []Dropdown
+	for _, actionRow := range m.ActionRows() {
+		for _, component := range actionRow.Components {
+			if dropdown, ok := component.(Dropdown); ok {
+				dropdowns = append(dropdowns, dropdown)
+			}
+		}
+	}
+	return dropdowns
+}
+
+// DropdownByID returns a Dropdown with the specific customID from this Message
+func (m *Message) DropdownByID(customID string) *Dropdown {
+	for _, dropdown := range m.Dropdowns() {
+		if dropdown.CustomID == customID {
+			return &dropdown
+		}
+	}
+	return nil
+}
+
 // MessageReaction contains information about the reactions of a message_events
 type MessageReaction struct {
 	Count int   `json:"count"`

@@ -12,3 +12,8 @@ type DropdownInteractionData struct {
 	Values []string `json:"values"`
 }
 
+// Dropdown returns the Dropdown which issued this DropdownInteraction. nil for ephemeral Message(s)
+func (i *DropdownInteraction) Dropdown() *Dropdown {
+	return i.Message.DropdownByID(i.Data.CustomID)
+}
+
