@@ -329,7 +329,8 @@ func messageListener(event events.GuildMessageCreateEvent) {
 
 			time.Sleep(time.Second * 2)
 
-			message, _ = message.Edit(api.NewMessageUpdateBuilder().SetContent("edit").SetEmbeds(api.NewEmbedBuilder().SetDescription("edit").Build()).Build())
+			embed := api.NewEmbedBuilder().SetDescription("edit").Build()
+			message, _ = message.Edit(api.NewMessageUpdateBuilder().SetContent("edit").SetEmbeds(embed, embed).Build())
 
 			time.Sleep(time.Second * 2)
 
