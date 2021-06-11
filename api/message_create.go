@@ -1,6 +1,11 @@
 package api
 
-import "fmt"
+import (
+	"fmt"
+	"io"
+
+	"github.com/DisgoOrg/restclient"
+)
 
 // MessageCreate is the struct to create a new Message with
 type MessageCreate struct {
@@ -9,6 +14,7 @@ type MessageCreate struct {
 	TTS              bool              `json:"tts,omitempty"`
 	Embeds           []Embed           `json:"embeds,omitempty"`
 	Components       []Component       `json:"components,omitempty"`
+	Files            []restclient.File `json:"-"`
 	AllowedMentions  *AllowedMentions  `json:"allowed_mentions,omitempty"`
 	MessageReference *MessageReference `json:"message_reference,omitempty"`
 	Flags            MessageFlags      `json:"flags,omitempty"`
@@ -110,6 +116,38 @@ func (b *MessageCreateBuilder) ClearComponents() *MessageCreateBuilder {
 func (b *MessageCreateBuilder) RemoveComponent(i int) *MessageCreateBuilder {
 	if b != nil && len(b.Components) > i {
 		b.Components = append(b.Components[:i], b.Components[i+1:]...)
+	}
+	return b
+}
+
+func (b *MessageCreateBuilder) SetFiles(files ...restclient.File) *MessageCreateBuilder {
+	b.Files = files
+	return b
+}
+
+func (b *MessageCreateBuilder) AddFiles(files ...restclient.File) *MessageCreateBuilder {
+	b.Files = append(b.Files, files...)
+	return b
+}
+
+func (b *MessageCreateBuilder) AddFile(name string, reader io.Reader, contentType string, flags ...restclient.FileFlags) *MessageCreateBuilder {
+	b.Files = append(b.Files, restclient.File{
+		Name:        name,
+		Reader:      reader,
+		ContentType: contentType,
+		Flags:       restclient.FileFlagNone.Add(flags...),
+	})
+	return b
+}
+
+func (b *MessageCreateBuilder) ClearFiles() *MessageCreateBuilder {
+	b.Files = []restclient.File{}
+	return b
+}
+
+func (b *MessageCreateBuilder) RemoveFiles(i int) *MessageCreateBuilder {
+	if b != nil && len(b.Files) > i {
+		b.Files = append(b.Files[:i], b.Files[i+1:]...)
 	}
 	return b
 }

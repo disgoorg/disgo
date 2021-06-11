@@ -349,8 +349,16 @@ func messageListener(event events.GuildMessageCreateEvent) {
 
 	case "test":
 		go func() {
-			message, _ := event.MessageChannel().SendMessage(api.NewMessageCreateBuilder().SetContent("test").Build())
-
+			reader, err := os.Open("example/gopher.png")
+			if err != nil {
+				logger.Errorf("error while opening file: %s", err)
+				return
+			}
+			message, err := event.MessageChannel().SendMessage(api.NewMessageCreateBuilder().SetContent("test").AddFile("gopher.png", reader, "image/png").Build())
+			if err != nil {
+				logger.Errorf("error while sending file: %s", err)
+				return
+			}
 			time.Sleep(time.Second * 2)
 
 			embed := api.NewEmbedBuilder().SetDescription("edit").Build()
