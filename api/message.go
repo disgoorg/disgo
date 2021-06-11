@@ -99,8 +99,8 @@ func (f MessageFlags) Missing(bit MessageFlags) bool {
 	return !f.Has(bit)
 }
 
-//MessageAttachment is used for files sent in a Message
-type MessageAttachment struct {
+//Attachment is used for files sent in a Message
+type Attachment struct {
 	ID       Snowflake `json:"id,omitempty"`
 	Filename string    `json:"filename"`
 	Size     int       `json:"size"`
@@ -163,7 +163,7 @@ type Message struct {
 	ID                Snowflake           `json:"id"`
 	GuildID           *Snowflake          `json:"guild_id"`
 	Reactions         []MessageReaction   `json:"reactions"`
-	Attachments       []MessageAttachment `json:"attachments"`
+	Attachments       []Attachment        `json:"attachments"`
 	TTS               bool                `json:"tts"`
 	Embeds            []Embed             `json:"embeds,omitempty"`
 	Components        []Component         `json:"components,omitempty"`
