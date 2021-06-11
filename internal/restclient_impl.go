@@ -46,26 +46,37 @@ func (r *RestClientImpl) DoWithHeaders(route *restclient.CompiledAPIRoute, rqBod
 
 	// TODO reimplement api.ErrorResponse unmarshalling
 	/*
-	var errorRs api.ErrorResponse
-			if err = json.Unmarshal(rawRsBody, &errorRs); err != nil {
-				r.Disgo().Logger().Errorf("error unmarshalling error response. code: %d, error: %s", rs.StatusCode, err)
-				return err
-			}
-			return fmt.Errorf("request to %s failed. statuscode: %d, errorcode: %d, message_events: %s", rq.URL, rs.StatusCode, errorRs.Code, errorRs.Message)
+		var errorRs api.ErrorResponse
+				if err = json.Unmarshal(rawRsBody, &errorRs); err != nil {
+					r.Disgo().Logger().Errorf("error unmarshalling error response. code: %d, error: %s", rs.StatusCode, err)
+					return err
+				}
+				return fmt.Errorf("request to %s failed. statuscode: %d, errorcode: %d, message_events: %s", rq.URL, rs.StatusCode, errorRs.Code, errorRs.Message)
 	*/
 	return
 }
 
 // SendMessage lets you send a api.Message to a api.MessageChannel
-func (r *RestClientImpl) SendMessage(channelID api.Snowflake, message api.MessageCreate) (msg *api.Message, err error) {
+func (r *RestClientImpl) SendMessage(channelID api.Snowflake, messageCreate api.MessageCreate) (message *api.Message, err error) {
 	compiledRoute, err := restclient.CreateMessage.Compile(nil, channelID)
 	if err != nil {
 		return nil, err
 	}
-	var fullMsg *api.FullMessage
-	err = r.Do(compiledRoute, message, &fullMsg)
+
+	var body interface{}
+	if len(messageCreate.Files) > 0 {
+		body, err = restclient.PayloadWithFiles(messageCreate, messageCreate.Files...)
+		if err != nil {
+			return
+		}
+	} else {
+		body = messageCreate
+	}
+
+	var fullMessage *api.FullMessage
+	err = r.Do(compiledRoute, body, &fullMessage)
 	if err == nil {
-		msg = r.Disgo().EntityBuilder().CreateMessage(fullMsg, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -76,10 +87,10 @@ func (r *RestClientImpl) EditMessage(channelID api.Snowflake, messageID api.Snow
 	if err != nil {
 		return nil, err
 	}
-	var fullMsg *api.FullMessage
-	err = r.Do(compiledRoute, message, &fullMsg)
+	var fullMessage *api.FullMessage
+	err = r.Do(compiledRoute, message, &fullMessage)
 	if err == nil {
-		msg = r.Disgo().EntityBuilder().CreateMessage(fullMsg, api.CacheStrategyNoWs)
+		msg = r.Disgo().EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -652,7 +663,16 @@ func (r *RestClientImpl) SendFollowupMessage(applicationID api.Snowflake, intera
 	if err != nil {
 		return nil, err
 	}
-	return message, r.Do(compiledRoute, messageCreate, &message)
+	var body interface{}
+	if len(messageCreate.Files) > 0 {
+		body, err = restclient.PayloadWithFiles(messageCreate, messageCreate.Files...)
+		if err != nil {
+			return
+		}
+	} else {
+		body = messageCreate
+	}
+	return message, r.Do(compiledRoute, body, &message)
 }
 
 // EditFollowupMessage used to edit a followup api.Message from an api.Interaction
@@ -676,3 +696,4 @@ func (r *RestClientImpl) DeleteFollowupMessage(applicationID api.Snowflake, inte
 func normalizeEmoji(emoji string) string {
 	return strings.Replace(emoji, "#", "%23", -1)
 }
+

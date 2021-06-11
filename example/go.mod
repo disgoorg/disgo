@@ -2,7 +2,10 @@ module github.com/DisgoOrg/disgo/example
 
 go 1.16
 
-replace github.com/DisgoOrg/disgo => ../
+replace (
+	github.com/DisgoOrg/disgo => ../
+	github.com/DisgoOrg/restclient => ../../restclient
+)
 
 require (
 	github.com/DisgoOrg/disgo v0.3.2
