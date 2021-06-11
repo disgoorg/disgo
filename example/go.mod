@@ -4,7 +4,6 @@ go 1.16
 
 replace (
 	github.com/DisgoOrg/disgo => ../
-	github.com/DisgoOrg/restclient => ../../restclient
 )
 
 require (

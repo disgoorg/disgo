@@ -20,6 +20,13 @@ type MessageCreate struct {
 	Flags            MessageFlags      `json:"flags,omitempty"`
 }
 
+func (m MessageCreate) ToBody() (interface{}, error) {
+	if len(m.Files) > 0 {
+		return restclient.PayloadWithFiles(m, m.Files...)
+	}
+	return m, nil
+}
+
 // MessageCreateBuilder helper to build Message(s) easier
 type MessageCreateBuilder struct {
 	MessageCreate
@@ -130,12 +137,11 @@ func (b *MessageCreateBuilder) AddFiles(files ...restclient.File) *MessageCreate
 	return b
 }
 
-func (b *MessageCreateBuilder) AddFile(name string, reader io.Reader, contentType string, flags ...restclient.FileFlags) *MessageCreateBuilder {
+func (b *MessageCreateBuilder) AddFile(name string, reader io.Reader, flags ...restclient.FileFlags) *MessageCreateBuilder {
 	b.Files = append(b.Files, restclient.File{
-		Name:        name,
-		Reader:      reader,
-		ContentType: contentType,
-		Flags:       restclient.FileFlagNone.Add(flags...),
+		Name:   name,
+		Reader: reader,
+		Flags:  restclient.FileFlagNone.Add(flags...),
 	})
 	return b
 }

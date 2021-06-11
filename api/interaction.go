@@ -3,6 +3,8 @@ package api
 import (
 	"encoding/json"
 	"errors"
+
+	"github.com/DisgoOrg/restclient"
 )
 
 // InteractionType is the type of Interaction
@@ -50,6 +52,23 @@ type InteractionResponse struct {
 	Data interface{}             `json:"data,omitempty"`
 }
 
+func (r InteractionResponse) ToBody() (interface{}, error) {
+	if r.Data == nil {
+		return r, nil
+	}
+	switch v := r.Data.(type) {
+	case MessageCreate:
+		if len(v.Files) > 0  {
+			return restclient.PayloadWithFiles(r, v.Files...)
+		}
+	case MessageUpdate:
+		if len(v.Files) > 0  {
+			return restclient.PayloadWithFiles(r, v.Files...)
+		}
+	}
+	return r, nil
+}
+
 // Respond responds to the api.Interaction with the provided api.InteractionResponse
 func (i *Interaction) Respond(responseType InteractionResponseType, data interface{}) error {
 	response := InteractionResponse{
@@ -71,9 +90,9 @@ func (i *Interaction) Respond(responseType InteractionResponseType, data interfa
 
 // DeferReply replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource and shows a loading state
 func (i *Interaction) DeferReply(ephemeral bool) error {
-	var messageCreate *MessageCreate
+	var messageCreate interface{}
 	if ephemeral {
-		messageCreate = &MessageCreate{Flags: MessageFlagEphemeral}
+		messageCreate = MessageCreate{Flags: MessageFlagEphemeral}
 	}
 	return i.Respond(InteractionResponseTypeDeferredChannelMessageWithSource, messageCreate)
 }

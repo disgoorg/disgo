@@ -3,6 +3,9 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+
+	"github.com/DisgoOrg/restclient"
 )
 
 type updateFlags int
@@ -10,43 +13,57 @@ type updateFlags int
 const (
 	updateFlagContent = 1 << iota
 	updateFlagComponents
-	updateFlagEmbed
-	updateFlagFlags
+	updateFlagEmbeds
+	updateFlagFiles
+	updateFlagRetainAttachment
 	updateFlagAllowedMentions
+	updateFlagFlags
 )
 
 // MessageUpdate is used to edit a Message
 type MessageUpdate struct {
-	Content         string           `json:"content"`
-	Embeds          []Embed          `json:"embeds"`
-	Components      []Component      `json:"components"`
-	AllowedMentions *AllowedMentions `json:"allowed_mentions"`
-	Flags           MessageFlags     `json:"flags"`
+	Content         string            `json:"content"`
+	Embeds          []Embed           `json:"embeds"`
+	Components      []Component       `json:"components"`
+	Attachments     []Attachment      `json:"attachments"`
+	Files           []restclient.File `json:"-"`
+	AllowedMentions *AllowedMentions  `json:"allowed_mentions"`
+	Flags           MessageFlags      `json:"flags"`
 	updateFlags     updateFlags
 }
 
-func (u MessageUpdate) isUpdated(flag updateFlags) bool {
-	return (u.updateFlags & flag) == flag
+func (m MessageUpdate) ToBody() (interface{}, error) {
+	if len(m.Files) > 0 && m.isUpdated(updateFlagFiles) {
+		return restclient.PayloadWithFiles(m, m.Files...)
+	}
+	return m, nil
+}
+
+func (m MessageUpdate) isUpdated(flag updateFlags) bool {
+	return (m.updateFlags & flag) == flag
 }
 
 // MarshalJSON marshals the MessageUpdate into json
-func (u MessageUpdate) MarshalJSON() ([]byte, error) {
+func (m MessageUpdate) MarshalJSON() ([]byte, error) {
 	data := map[string]interface{}{}
 
-	if u.isUpdated(updateFlagContent) {
-		data["content"] = u.Content
+	if m.isUpdated(updateFlagContent) {
+		data["content"] = m.Content
 	}
-	if u.isUpdated(updateFlagEmbed) {
-		data["embeds"] = u.Embeds
+	if m.isUpdated(updateFlagEmbeds) {
+		data["embeds"] = m.Embeds
 	}
-	if u.isUpdated(updateFlagComponents) {
-		data["components"] = u.Components
+	if m.isUpdated(updateFlagComponents) {
+		data["components"] = m.Components
 	}
-	if u.isUpdated(updateFlagAllowedMentions) {
-		data["allowed_mentions"] = u.AllowedMentions
+	if m.isUpdated(updateFlagRetainAttachment) {
+		data["attachments"] = m.Attachments
 	}
-	if u.isUpdated(updateFlagFlags) {
-		data["flags"] = u.Flags
+	if m.isUpdated(updateFlagAllowedMentions) {
+		data["allowed_mentions"] = m.AllowedMentions
+	}
+	if m.isUpdated(updateFlagFlags) {
+		data["flags"] = m.Flags
 	}
 
 	return json.Marshal(data)
@@ -81,21 +98,21 @@ func (b *MessageUpdateBuilder) SetContentf(content string, a ...interface{}) *Me
 // SetEmbeds sets the embeds of the Message
 func (b *MessageUpdateBuilder) SetEmbeds(embeds ...Embed) *MessageUpdateBuilder {
 	b.Embeds = embeds
-	b.updateFlags |= updateFlagEmbed
+	b.updateFlags |= updateFlagEmbeds
 	return b
 }
 
 // AddEmbeds adds multiple embeds to the Message
 func (b *MessageUpdateBuilder) AddEmbeds(embeds ...Embed) *MessageUpdateBuilder {
 	b.Embeds = append(b.Embeds, embeds...)
-	b.updateFlags |= updateFlagEmbed
+	b.updateFlags |= updateFlagEmbeds
 	return b
 }
 
 // ClearEmbeds removes all of the embeds from the Message
 func (b *MessageUpdateBuilder) ClearEmbeds() *MessageUpdateBuilder {
 	b.Embeds = []Embed{}
-	b.updateFlags |= updateFlagEmbed
+	b.updateFlags |= updateFlagEmbeds
 	return b
 }
 
@@ -104,7 +121,7 @@ func (b *MessageUpdateBuilder) RemoveEmbed(index int) *MessageUpdateBuilder {
 	if b != nil && len(b.Embeds) > index {
 		b.Embeds = append(b.Embeds[:index], b.Embeds[index+1:]...)
 	}
-	b.updateFlags |= updateFlagEmbed
+	b.updateFlags |= updateFlagEmbeds
 	return b
 }
 
@@ -131,10 +148,62 @@ func (b *MessageUpdateBuilder) ClearComponents() *MessageUpdateBuilder {
 
 // RemoveComponent removes a Component from the Message
 func (b *MessageUpdateBuilder) RemoveComponent(i int) *MessageUpdateBuilder {
-	if b != nil && len(b.Components) > i {
+	if len(b.Components) > i {
 		b.Components = append(b.Components[:i], b.Components[i+1:]...)
 	}
 	b.updateFlags |= updateFlagComponents
+	return b
+}
+
+func (b *MessageUpdateBuilder) SetFiles(files ...restclient.File) *MessageUpdateBuilder {
+	b.Files = files
+	b.updateFlags |= updateFlagFiles
+	return b
+}
+
+func (b *MessageUpdateBuilder) AddFiles(files ...restclient.File) *MessageUpdateBuilder {
+	b.Files = append(b.Files, files...)
+	b.updateFlags |= updateFlagFiles
+	return b
+}
+
+func (b *MessageUpdateBuilder) AddFile(name string, reader io.Reader, flags ...restclient.FileFlags) *MessageUpdateBuilder {
+	b.Files = append(b.Files, restclient.File{
+		Name:   name,
+		Reader: reader,
+		Flags:  restclient.FileFlagNone.Add(flags...),
+	})
+	b.updateFlags |= updateFlagFiles
+	return b
+}
+
+func (b *MessageUpdateBuilder) ClearFiles() *MessageUpdateBuilder {
+	b.Files = []restclient.File{}
+	b.updateFlags |= updateFlagFiles
+	return b
+}
+
+func (b *MessageUpdateBuilder) RemoveFiles(i int) *MessageUpdateBuilder {
+	if len(b.Files) > i {
+		b.Files = append(b.Files[:i], b.Files[i+1:]...)
+	}
+	b.updateFlags |= updateFlagFiles
+	return b
+}
+
+func (b *MessageUpdateBuilder) RetainAttachments(attachments ...Attachment) *MessageUpdateBuilder {
+	b.Attachments = append(b.Attachments, attachments...)
+	b.updateFlags |= updateFlagRetainAttachment
+	return b
+}
+
+func (b *MessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...Snowflake) *MessageUpdateBuilder {
+	for _, attachmentID := range attachmentIDs {
+		b.Attachments = append(b.Attachments, Attachment{
+			ID: attachmentID,
+		})
+	}
+	b.updateFlags |= updateFlagRetainAttachment
 	return b
 }
 
@@ -155,7 +224,6 @@ func (b *MessageUpdateBuilder) SetFlags(flags MessageFlags) *MessageUpdateBuilde
 	b.Flags = flags
 	return b
 }
-
 
 // Build builds the MessageUpdateBuilder to a MessageUpdate struct
 func (b *MessageUpdateBuilder) Build() MessageUpdate {
