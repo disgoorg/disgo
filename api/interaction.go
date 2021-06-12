@@ -52,6 +52,7 @@ type InteractionResponse struct {
 	Data interface{}             `json:"data,omitempty"`
 }
 
+// ToBody returns the InteractionResponse ready for body
 func (r InteractionResponse) ToBody() (interface{}, error) {
 	if r.Data == nil {
 		return r, nil

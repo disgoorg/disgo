@@ -20,6 +20,7 @@ type MessageCreate struct {
 	Flags            MessageFlags      `json:"flags,omitempty"`
 }
 
+// ToBody returns the MessageCreate ready for body
 func (m MessageCreate) ToBody() (interface{}, error) {
 	if len(m.Files) > 0 {
 		return restclient.PayloadWithFiles(m, m.Files...)
@@ -127,16 +128,19 @@ func (b *MessageCreateBuilder) RemoveComponent(i int) *MessageCreateBuilder {
 	return b
 }
 
+// SetFiles sets the files for this WebhookMessageCreate
 func (b *MessageCreateBuilder) SetFiles(files ...restclient.File) *MessageCreateBuilder {
 	b.Files = files
 	return b
 }
 
+// AddFiles adds the files to the WebhookMessageCreate
 func (b *MessageCreateBuilder) AddFiles(files ...restclient.File) *MessageCreateBuilder {
 	b.Files = append(b.Files, files...)
 	return b
 }
 
+// AddFile adds a file to the WebhookMessageCreate
 func (b *MessageCreateBuilder) AddFile(name string, reader io.Reader, flags ...restclient.FileFlags) *MessageCreateBuilder {
 	b.Files = append(b.Files, restclient.File{
 		Name:   name,
@@ -146,11 +150,13 @@ func (b *MessageCreateBuilder) AddFile(name string, reader io.Reader, flags ...r
 	return b
 }
 
+// ClearFiles removes all files of this WebhookMessageCreate
 func (b *MessageCreateBuilder) ClearFiles() *MessageCreateBuilder {
 	b.Files = []restclient.File{}
 	return b
 }
 
+// RemoveFiles removes the file at this index
 func (b *MessageCreateBuilder) RemoveFiles(i int) *MessageCreateBuilder {
 	if b != nil && len(b.Files) > i {
 		b.Files = append(b.Files[:i], b.Files[i+1:]...)
