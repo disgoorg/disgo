@@ -4,7 +4,7 @@ import (
 	"github.com/DisgoOrg/disgo/api"
 )
 
-// GenericDMMessageEvent is called upon receiving DMMessageCreateEvent, DMMessageUpdateEvent, DMMessageDeleteEvent, GenericDMMessageReactionEvent, DMMessageReactionAddEvent, DMMessageReactionRemoveEvent, DMMessageReactionRemoveEmoteEvent or DMMessageReactionRemoveAllEvent(requires api.GatewayIntentsDirectMessages)
+// GenericDMMessageEvent is called upon receiving DMMessageCreateEvent, DMMessageUpdateEvent, DMMessageDeleteEvent, GenericDMMessageReactionEvent, DMMessageReactionAddEvent, DMMessageReactionRemoveEvent, DMMessageReactionRemoveEmojiEvent or DMMessageReactionRemoveAllEvent(requires api.GatewayIntentsDirectMessages)
 type GenericDMMessageEvent struct {
 	GenericMessageEvent
 }

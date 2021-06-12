@@ -141,6 +141,11 @@ func (c *ChannelImpl) PrivateThread() bool {
 	return c.Type() != ChannelTypePrivateThread
 }
 
+func (c *ChannelImpl) Stage() bool {
+	return c.Type() != ChannelTypeStage
+}
+
+
 // MessageChannel is used for sending Message(s) to User(s)
 type MessageChannel interface {
 	Channel
@@ -148,8 +153,8 @@ type MessageChannel interface {
 	Topic() *string
 	LastMessageID() *Snowflake
 	LastPinTimestamp() *time.Time
-	SendMessage(message *MessageCreate) (*Message, error)
-	EditMessage(messageID Snowflake, message *MessageUpdate) (*Message, error)
+	SendMessage(messageCreate MessageCreate) (*Message, error)
+	EditMessage(messageID Snowflake, messageUpdate MessageUpdate) (*Message, error)
 	DeleteMessage(messageID Snowflake) error
 	BulkDeleteMessages(messageIDs ...Snowflake) error
 }
@@ -174,14 +179,14 @@ func (c *ChannelImpl) LastPinTimestamp() *time.Time {
 }
 
 // SendMessage sends a Message to a TextChannel
-func (c ChannelImpl) SendMessage(message *MessageCreate) (*Message, error) {
+func (c ChannelImpl) SendMessage(messageCreate MessageCreate) (*Message, error) {
 	// Todo: attachments
-	return c.Disgo().RestClient().CreateMessage(c.ID(), message)
+	return c.Disgo().RestClient().CreateMessage(c.ID(), messageCreate)
 }
 
 // EditMessage edits a Message in this TextChannel
-func (c ChannelImpl) EditMessage(messageID Snowflake, message *MessageUpdate) (*Message, error) {
-	return c.Disgo().RestClient().UpdateMessage(c.ID(), messageID, message)
+func (c ChannelImpl) EditMessage(messageID Snowflake, messageUpdate MessageUpdate) (*Message, error) {
+	return c.Disgo().RestClient().UpdateMessage(c.ID(), messageID, messageUpdate)
 }
 
 // DeleteMessage allows you to edit an existing Message sent by you

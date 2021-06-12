@@ -11,7 +11,7 @@ type messageReactionAddPayload struct {
 	MessageID api.Snowflake  `json:"message_id"`
 	GuildID   *api.Snowflake `json:"guild_id,omitempty"`
 	Member    *api.Member    `json:"member,omitempty"`
-	Emote     *api.Emote     `json:"emoji"`
+	Emoji     *api.Emoji     `json:"emoji"`
 }
 
 // MessageReactionAddHandler handles api.GatewayEventMessageReactionAdd
@@ -34,7 +34,7 @@ func (h MessageReactionAddHandler) HandleGatewayEvent(disgo api.Disgo, eventMana
 		return
 	}
 
-	emote := disgo.EntityBuilder().CreateEmote("", payload.Emote, api.CacheStrategyYes)
+	emoji := disgo.EntityBuilder().CreateEmoji("", payload.Emoji, api.CacheStrategyYes)
 
 	genericMessageEvent := events.GenericMessageEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
@@ -46,7 +46,7 @@ func (h MessageReactionAddHandler) HandleGatewayEvent(disgo api.Disgo, eventMana
 
 	genericMessageReactionEvent := events.GenericMessageReactionEvent{
 		GenericMessageEvent: genericMessageEvent,
-		Emote:               emote,
+		Emoji:               emoji,
 	}
 	eventManager.Dispatch(genericMessageReactionEvent)
 
@@ -71,7 +71,7 @@ func (h MessageReactionAddHandler) HandleGatewayEvent(disgo api.Disgo, eventMana
 
 		genericGuildMessageReactionEvent := events.GenericGuildMessageReactionEvent{
 			GenericGuildMessageEvent: genericGuildMessageEvent,
-			Emote:                    emote,
+			Emoji:                    emoji,
 		}
 		eventManager.Dispatch(genericGuildMessageReactionEvent)
 
@@ -94,7 +94,7 @@ func (h MessageReactionAddHandler) HandleGatewayEvent(disgo api.Disgo, eventMana
 
 		genericDMMessageReactionEvent := events.GenericDMMessageReactionEvent{
 			GenericDMMessageEvent: genericDMMessageEvent,
-			Emote:                 emote,
+			Emoji:                 emoji,
 		}
 		eventManager.Dispatch(genericDMMessageReactionEvent)
 

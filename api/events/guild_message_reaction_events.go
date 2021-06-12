@@ -5,7 +5,7 @@ import "github.com/DisgoOrg/disgo/api"
 // GenericGuildMessageReactionEvent is called upon receiving DMMessageReactionAddEvent or DMMessageReactionRemoveEvent
 type GenericGuildMessageReactionEvent struct {
 	GenericGuildMessageEvent
-	Emote *api.Emote
+	Emoji *api.Emoji
 }
 
 type GenericGuildMessageUserReactionEvent struct {
@@ -28,8 +28,8 @@ type GuildMessageReactionRemoveEvent struct {
 	GenericGuildMessageUserReactionEvent
 }
 
-// GuildMessageReactionRemoveEmoteEvent indicates someone removed all api.MessageReaction of a specific api.Emote from a api.Message in a api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)
-type GuildMessageReactionRemoveEmoteEvent struct {
+// GuildMessageReactionRemoveEmojiEvent indicates someone removed all api.MessageReaction of a specific api.Emoji from a api.Message in a api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)
+type GuildMessageReactionRemoveEmojiEvent struct {
 	GenericGuildMessageReactionEvent
 }
 

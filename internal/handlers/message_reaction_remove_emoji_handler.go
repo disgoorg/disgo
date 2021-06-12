@@ -9,7 +9,7 @@ type messageReactionRemoveEmotePayload struct {
 	ChannelID api.Snowflake  `json:"channel_id"`
 	MessageID api.Snowflake  `json:"message_id"`
 	GuildID   *api.Snowflake `json:"guild_id,omitempty"`
-	Emote     *api.Emote     `json:"emoji"`
+	Emoji     *api.Emoji     `json:"emoji"`
 }
 
 // MessageReactionRemoveEmoteHandler handles api.GatewayEventMessageReactionRemoveEmoji
@@ -32,7 +32,7 @@ func (h MessageReactionRemoveEmoteHandler) HandleGatewayEvent(disgo api.Disgo, e
 		return
 	}
 
-	emote := disgo.EntityBuilder().CreateEmote("", payload.Emote, api.CacheStrategyYes)
+	emoji := disgo.EntityBuilder().CreateEmoji("", payload.Emoji, api.CacheStrategyYes)
 
 	genericMessageEvent := events.GenericMessageEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
@@ -44,11 +44,11 @@ func (h MessageReactionRemoveEmoteHandler) HandleGatewayEvent(disgo api.Disgo, e
 
 	genericMessageReactionEvent := events.GenericMessageReactionEvent{
 		GenericMessageEvent: genericMessageEvent,
-		Emote:               emote,
+		Emoji:               emoji,
 	}
 	eventManager.Dispatch(genericMessageReactionEvent)
 
-	eventManager.Dispatch(events.MessageReactionRemoveEmoteEvent{
+	eventManager.Dispatch(events.MessageReactionRemoveEmojiEvent{
 		GenericMessageReactionEvent: genericMessageReactionEvent,
 	})
 
@@ -61,11 +61,11 @@ func (h MessageReactionRemoveEmoteHandler) HandleGatewayEvent(disgo api.Disgo, e
 
 		genericGuildMessageReactionEvent := events.GenericGuildMessageReactionEvent{
 			GenericGuildMessageEvent: genericGuildMessageEvent,
-			Emote:                    emote,
+			Emoji:                    emoji,
 		}
 		eventManager.Dispatch(genericGuildMessageReactionEvent)
 
-		eventManager.Dispatch(events.GuildMessageReactionRemoveEmoteEvent{
+		eventManager.Dispatch(events.GuildMessageReactionRemoveEmojiEvent{
 			GenericGuildMessageReactionEvent: genericGuildMessageReactionEvent,
 		})
 
@@ -77,11 +77,11 @@ func (h MessageReactionRemoveEmoteHandler) HandleGatewayEvent(disgo api.Disgo, e
 
 		genericDMMessageReactionEvent := events.GenericDMMessageReactionEvent{
 			GenericDMMessageEvent: genericDMMessageEvent,
-			Emote:                 emote,
+			Emoji:                 emoji,
 		}
 		eventManager.Dispatch(genericDMMessageReactionEvent)
 
-		eventManager.Dispatch(events.DMMessageReactionRemoveEmoteEvent{
+		eventManager.Dispatch(events.DMMessageReactionRemoveEmojiEvent{
 			GenericDMMessageReactionEvent: genericDMMessageReactionEvent,
 		})
 	}

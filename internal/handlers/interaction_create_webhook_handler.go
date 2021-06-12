@@ -18,7 +18,7 @@ func (h InteractionCreateWebhookHandler) New() interface{} {
 }
 
 // HandleWebhookEvent handles the specific raw gateway event
-func (h InteractionCreateWebhookHandler) HandleWebhookEvent(disgo api.Disgo, eventManager api.EventManager, c chan *api.InteractionResponse, i interface{}) {
+func (h InteractionCreateWebhookHandler) HandleWebhookEvent(disgo api.Disgo, eventManager api.EventManager, c chan api.InteractionResponse, i interface{}) {
 	fullInteraction, ok := i.(*api.FullInteraction)
 	if !ok {
 		return
@@ -26,7 +26,7 @@ func (h InteractionCreateWebhookHandler) HandleWebhookEvent(disgo api.Disgo, eve
 
 	if fullInteraction.Type == api.InteractionTypePing {
 		disgo.Logger().Debugf("received interaction ping")
-		c <- &api.InteractionResponse{
+		c <- api.InteractionResponse{
 			Type: api.InteractionResponseTypePong,
 		}
 		return

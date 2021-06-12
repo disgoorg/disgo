@@ -41,13 +41,13 @@ func (m Member) IsOwner() bool {
 }
 
 // Update updates the member
-func (m Member) Update(updateGuildMemberData *UpdateGuildMember) (*Member, error) {
-	return m.Disgo.RestClient().UpdateMember(m.GuildID, m.User.ID, updateGuildMemberData)
+func (m Member) Update(updateGuildMember UpdateGuildMember) (*Member, error) {
+	return m.Disgo.RestClient().UpdateMember(m.GuildID, m.User.ID, updateGuildMember)
 }
 
 // Move moves/kicks the member to/from a voice channel
 func (m Member) Move(channelID *Snowflake) (*Member, error) {
-	return m.Disgo.RestClient().UpdateMember(m.GuildID, m.User.ID, &UpdateGuildMember{ChannelID: channelID})
+	return m.Disgo.RestClient().UpdateMember(m.GuildID, m.User.ID, UpdateGuildMember{ChannelID: channelID})
 }
 
 // AddRole adds a specific role the member

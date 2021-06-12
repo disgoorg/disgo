@@ -8,13 +8,13 @@ var errNoDisgoInstance = errors.New("no disgo instance injected")
 type Command struct {
 	Disgo             Disgo
 	GuildPermissions  map[Snowflake]*GuildCommandPermissions
-	GuildID           *Snowflake       `json:"guild_id"`
-	ID                Snowflake        `json:"id,omitempty"`
-	ApplicationID     Snowflake        `json:"application_id,omitempty"`
-	Name              string           `json:"name"`
-	Description       string           `json:"description"`
-	DefaultPermission *bool            `json:"default_permission,omitempty"`
-	Options           []*CommandOption `json:"options,omitempty"`
+	GuildID           *Snowflake      `json:"guild_id"`
+	ID                Snowflake       `json:"id,omitempty"`
+	ApplicationID     Snowflake       `json:"application_id,omitempty"`
+	Name              string          `json:"name"`
+	Description       string          `json:"description"`
+	DefaultPermission bool            `json:"default_permission,omitempty"`
+	Options           []CommandOption `json:"options,omitempty"`
 }
 
 // Guild returns the Guild the Command is from from the Cache or nil if it is a global Command
@@ -28,6 +28,16 @@ func (c Command) Guild() *Guild {
 // FromGuild returns true if this is a guild Command else false
 func (c Command) FromGuild() bool {
 	return c.GuildID == nil
+}
+
+// ToCreate return the CommandCreate for this Command
+func (c *Command) ToCreate() CommandCreate {
+	return CommandCreate{
+		Name:              c.Name,
+		Description:       c.Description,
+		DefaultPermission: c.DefaultPermission,
+		Options:           c.Options,
+	}
 }
 
 // Fetch updates/fetches the current Command from discord
@@ -51,7 +61,7 @@ func (c *Command) Fetch() error {
 }
 
 // Update updates the current Command with the given fields
-func (c *Command) Update(command *CommandUpdate) error {
+func (c *Command) Update(command CommandUpdate) error {
 	if c.Disgo == nil {
 		return errNoDisgoInstance
 	}
@@ -71,8 +81,8 @@ func (c *Command) Update(command *CommandUpdate) error {
 }
 
 // SetPermissions sets the GuildCommandPermissions for a specific Guild. this overrides all existing CommandPermission(s). thx discord for that
-func (c *Command) SetPermissions(guildID Snowflake, permissions ...*CommandPermission) error {
-	_, err := c.Disgo.RestClient().SetGuildCommandPermissions(c.Disgo.ApplicationID(), guildID, c.ID, &SetGuildCommandPermissions{Permissions: permissions})
+func (c *Command) SetPermissions(guildID Snowflake, permissions ...CommandPermission) error {
+	_, err := c.Disgo.RestClient().SetGuildCommandPermissions(c.Disgo.ApplicationID(), guildID, c.ID, SetGuildCommandPermissions{Permissions: permissions})
 	if err != nil {
 		return err
 	}
@@ -105,85 +115,18 @@ func (c Command) Delete() error {
 	return c.Disgo.RestClient().DeleteGuildCommand(c.Disgo.ApplicationID(), *c.GuildID, c.ID)
 }
 
-// CommandOptionType specifies the type of the arguments used in Command.Options
-type CommandOptionType int
-
-// Constants for each slash command option type
-const (
-	CommandOptionTypeSubCommand CommandOptionType = iota + 1
-	CommandOptionTypeSubCommandGroup
-	CommandOptionTypeString
-	CommandOptionTypeInteger
-	CommandOptionTypeBoolean
-	CommandOptionTypeUser
-	CommandOptionTypeChannel
-	CommandOptionTypeRole
-)
-
-// CommandOption are the arguments used in Command.Options
-type CommandOption struct {
-	Type        CommandOptionType `json:"type"`
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Required    bool              `json:"required,omitempty"`
-	Choices     []*OptionChoice   `json:"choices,omitempty"`
-	Options     []*CommandOption  `json:"options,omitempty"`
-}
-
-// OptionChoice contains the data for a user using your command
-type OptionChoice struct {
-	Name  string      `json:"name"`
-	Value interface{} `json:"value"`
-}
-
-// GuildCommandPermissions holds all permissions for a Command
-type GuildCommandPermissions struct {
-	Disgo         Disgo
-	ID            Snowflake            `json:"id"`
-	ApplicationID Snowflake            `json:"application_id"`
-	GuildID       Snowflake            `json:"guild_id"`
-	Permissions   []*CommandPermission `json:"permissions"`
-}
-
-// TODO: add methods to update those
-
-// CommandPermissionType is the type of the CommandPermission
-type CommandPermissionType int
-
-// types of CommandPermissionType
-const (
-	CommandPermissionTypeRole = iota + 1
-	CommandPermissionTypeUser
-)
-
-// CommandPermission holds a User or Role and if they are allowed to use the Command
-type CommandPermission struct {
-	ID         Snowflake             `json:"id"`
-	Type       CommandPermissionType `json:"type"`
-	Permission bool                  `json:"permission"`
-}
-
-// SetGuildCommandsPermissions holds a slice of SetGuildCommandPermissions
-type SetGuildCommandsPermissions []*SetGuildCommandPermissions
-
-// SetGuildCommandPermissions is used to update CommandPermission ID should be omitted fro bulk update
-type SetGuildCommandPermissions struct {
-	ID          Snowflake            `json:"id,omitempty"`
-	Permissions []*CommandPermission `json:"permissions"`
-}
-
 // CommandCreate is used to create an Command. all fields are optional
 type CommandCreate struct {
-	Name              string           `json:"name,omitempty"`
-	Description       string           `json:"description,omitempty"`
-	DefaultPermission bool             `json:"default_permission,omitempty"`
-	Options           []*CommandOption `json:"options,omitempty"`
+	Name              string          `json:"name,omitempty"`
+	Description       string          `json:"description,omitempty"`
+	DefaultPermission bool            `json:"default_permission,omitempty"`
+	Options           []CommandOption `json:"options,omitempty"`
 }
 
 // CommandUpdate is used to update an existing Command. all fields are optional
 type CommandUpdate struct {
-	Name              *string          `json:"name,omitempty"`
-	Description       *string          `json:"description,omitempty"`
-	DefaultPermission *bool            `json:"default_permission,omitempty"`
-	Options           []*CommandOption `json:"options,omitempty"`
+	Name              *string         `json:"name,omitempty"`
+	Description       *string         `json:"description,omitempty"`
+	DefaultPermission *bool           `json:"default_permission,omitempty"`
+	Options           []CommandOption `json:"options,omitempty"`
 }

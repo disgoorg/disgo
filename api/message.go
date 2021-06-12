@@ -37,6 +37,19 @@ const (
 // The MessageFlags of a Message
 type MessageFlags int64
 
+// Constants for MessageFlags
+const (
+	MessageFlagCrossposted MessageFlags = 1 << iota
+	MessageFlagIsCrosspost
+	MessageFlagSuppressEmbeds
+	MessageFlagSourceMessageDeleted
+	MessageFlagUrgent
+	_
+	MessageFlagEphemeral
+	MessageFlagLoading              // Message is an interaction of type 5, awaiting further response
+	MessageFlagNone    MessageFlags = 0
+)
+
 // Add allows you to add multiple bits together, producing a new bit
 func (f MessageFlags) Add(bits ...MessageFlags) MessageFlags {
 	total := MessageFlags(0)
@@ -87,21 +100,8 @@ func (f MessageFlags) Missing(bit MessageFlags) bool {
 	return !f.Has(bit)
 }
 
-// Constants for MessageFlags
-const (
-	MessageFlagCrossposted MessageFlags = 1 << iota
-	MessageFlagIsCrosspost
-	MessageFlagSuppressEmbeds
-	MessageFlagSourceMessageDeleted
-	MessageFlagUrgent
-	_
-	MessageFlagEphemeral
-	MessageFlagLoading              // Message is an interaction of type 5, awaiting further response
-	MessageFlagNone    MessageFlags = 0
-)
-
-//MessageAttachment is used for files sent in a Message
-type MessageAttachment struct {
+//Attachment is used for files sent in a Message
+type Attachment struct {
 	ID       Snowflake `json:"id,omitempty"`
 	Filename string    `json:"filename"`
 	Size     int       `json:"size"`
@@ -161,40 +161,40 @@ type MessageSticker struct {
 // Message is a struct for messages sent in discord text-based channels
 type Message struct {
 	Disgo             Disgo
-	ID                Snowflake            `json:"id"`
-	GuildID           *Snowflake           `json:"guild_id"`
-	Reactions         []*MessageReaction   `json:"reactions"`
-	Attachments       []*MessageAttachment `json:"attachments"`
-	TTS               bool                 `json:"tts"`
-	Embeds            []*Embed             `json:"embeds,omitempty"`
-	Components        []Component          `json:"components,omitempty"`
-	CreatedAt         time.Time            `json:"timestamp"`
-	Mentions          []interface{}        `json:"mentions"`
-	MentionEveryone   bool                 `json:"mention_everyone"`
-	MentionRoles      []*Role              `json:"mention_roles"`
-	MentionChannels   []*ChannelImpl       `json:"mention_channels"`
-	Pinned            bool                 `json:"pinned"`
-	EditedTimestamp   *time.Time           `json:"edited_timestamp"`
-	Author            *User                `json:"author"`
-	Member            *Member              `json:"member"`
-	Content           *string              `json:"content,omitempty"`
-	ChannelID         Snowflake            `json:"channel_id"`
-	Type              MessageType          `json:"type"`
-	Flags             MessageFlags         `json:"flags"`
-	MessageReference  *MessageReference    `json:"message_reference,omitempty"`
-	Interaction       *MessageInteraction  `json:"message_interaction,omitempty"`
-	WebhookID         *Snowflake           `json:"webhook_id,omitempty"`
-	Activity          *MessageActivity     `json:"activity,omitempty"`
-	Application       *MessageApplication  `json:"application,omitempty"`
-	Stickers          []*MessageSticker    `json:"stickers,omitempty"`
-	ReferencedMessage *Message             `json:"referenced_message,omitempty"`
-	LastUpdated       *time.Time           `json:"last_updated,omitempty"`
+	ID                Snowflake           `json:"id"`
+	GuildID           *Snowflake          `json:"guild_id"`
+	Reactions         []MessageReaction   `json:"reactions"`
+	Attachments       []Attachment        `json:"attachments"`
+	TTS               bool                `json:"tts"`
+	Embeds            []Embed             `json:"embeds,omitempty"`
+	Components        []Component         `json:"components,omitempty"`
+	CreatedAt         time.Time           `json:"timestamp"`
+	Mentions          []interface{}       `json:"mentions"`
+	MentionEveryone   bool                `json:"mention_everyone"`
+	MentionRoles      []*Role             `json:"mention_roles"`
+	MentionChannels   []*Channel          `json:"mention_channels"`
+	Pinned            bool                `json:"pinned"`
+	EditedTimestamp   *time.Time          `json:"edited_timestamp"`
+	Author            *User               `json:"author"`
+	Member            *Member             `json:"member"`
+	Content           *string             `json:"content,omitempty"`
+	ChannelID         Snowflake           `json:"channel_id"`
+	Type              MessageType         `json:"type"`
+	Flags             MessageFlags        `json:"flags"`
+	MessageReference  *MessageReference   `json:"message_reference,omitempty"`
+	Interaction       *MessageInteraction `json:"message_interaction,omitempty"`
+	WebhookID         *Snowflake          `json:"webhook_id,omitempty"`
+	Activity          *MessageActivity    `json:"activity,omitempty"`
+	Application       *MessageApplication `json:"application,omitempty"`
+	Stickers          []*MessageSticker   `json:"stickers,omitempty"`
+	ReferencedMessage *Message            `json:"referenced_message,omitempty"`
+	LastUpdated       *time.Time          `json:"last_updated,omitempty"`
 }
 
 // FullMessage is used for easier unmarshalling of Component(s) in Message(s)
 type FullMessage struct {
 	*Message
-	UnmarshalComponents []*UnmarshalComponent `json:"components,omitempty"`
+	UnmarshalComponents []UnmarshalComponent `json:"components,omitempty"`
 }
 
 // MessageReference is a reference to another message
@@ -226,8 +226,8 @@ func (m *Message) Channel() MessageChannel {
 	return m.Disgo.Cache().MessageChannel(m.ChannelID)
 }
 
-// AddReactionByEmote allows you to add an Emote to a message_events via reaction
-func (m *Message) AddReactionByEmote(emote Emote) error {
+// AddReactionByEmote allows you to add an Emoji to a message_events via reaction
+func (m *Message) AddReactionByEmote(emote Emoji) error {
 	return m.AddReaction(emote.Reaction())
 }
 
@@ -237,7 +237,7 @@ func (m *Message) AddReaction(emoji string) error {
 }
 
 // Edit allows you to edit an existing Message sent by you
-func (m *Message) Edit(message *MessageUpdate) (*Message, error) {
+func (m *Message) Edit(message MessageUpdate) (*Message, error) {
 	return m.Disgo.RestClient().UpdateMessage(m.ChannelID, m.ID, message)
 }
 
@@ -256,7 +256,7 @@ func (m *Message) Crosspost() (*Message, error) {
 }
 
 // Reply allows you to reply to an existing Message
-func (m *Message) Reply(message *MessageCreate) (*Message, error) {
+func (m *Message) Reply(message MessageCreate) (*Message, error) {
 	message.MessageReference = &MessageReference{
 		MessageID: &m.ID,
 	}
@@ -267,16 +267,7 @@ func (m *Message) Reply(message *MessageCreate) (*Message, error) {
 type MessageReaction struct {
 	Count int   `json:"count"`
 	Me    bool  `json:"me"`
-	Emoji Emote `json:"emoji"`
-}
-
-// MessageUpdate is used to edit a Message
-type MessageUpdate struct {
-	Content         *string          `json:"content,omitempty"`
-	Components      []Component      `json:"components,omitempty"`
-	Embed           *Embed           `json:"embed,omitempty"`
-	Flags           *MessageFlags    `json:"flags,omitempty"`
-	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
+	Emoji Emoji `json:"emoji"`
 }
 
 // MessageBulkDelete is used to bulk delete Message(s)

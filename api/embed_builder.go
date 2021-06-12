@@ -186,6 +186,6 @@ func (b *EmbedBuilder) RemoveField(i int) *EmbedBuilder {
 }
 
 // Build returns your built Embed
-func (b *EmbedBuilder) Build() *Embed {
-	return &b.Embed
+func (b *EmbedBuilder) Build() Embed {
+	return b.Embed
 }
