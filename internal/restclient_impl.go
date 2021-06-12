@@ -31,7 +31,7 @@ func (r *RestClientImpl) Disgo() api.Disgo {
 
 // Close cleans up the http managers connections
 func (r *RestClientImpl) Close() {
-	r.HttpClient().CloseIdleConnections()
+	r.HTTPClient().CloseIdleConnections()
 }
 
 // DoWithHeaders executes a rest request with custom headers
