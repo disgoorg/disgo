@@ -1,6 +1,11 @@
 package api
 
-import "fmt"
+import (
+	"fmt"
+	"io"
+
+	"github.com/DisgoOrg/restclient"
+)
 
 // MessageCreate is the struct to create a new Message with
 type MessageCreate struct {
@@ -9,9 +14,18 @@ type MessageCreate struct {
 	TTS              bool              `json:"tts,omitempty"`
 	Embeds           []Embed           `json:"embeds,omitempty"`
 	Components       []Component       `json:"components,omitempty"`
+	Files            []restclient.File `json:"-"`
 	AllowedMentions  *AllowedMentions  `json:"allowed_mentions,omitempty"`
 	MessageReference *MessageReference `json:"message_reference,omitempty"`
 	Flags            MessageFlags      `json:"flags,omitempty"`
+}
+
+// ToBody returns the MessageCreate ready for body
+func (m MessageCreate) ToBody() (interface{}, error) {
+	if len(m.Files) > 0 {
+		return restclient.PayloadWithFiles(m, m.Files...)
+	}
+	return m, nil
 }
 
 // MessageCreateBuilder helper to build Message(s) easier
@@ -110,6 +124,42 @@ func (b *MessageCreateBuilder) ClearComponents() *MessageCreateBuilder {
 func (b *MessageCreateBuilder) RemoveComponent(i int) *MessageCreateBuilder {
 	if b != nil && len(b.Components) > i {
 		b.Components = append(b.Components[:i], b.Components[i+1:]...)
+	}
+	return b
+}
+
+// SetFiles sets the files for this WebhookMessageCreate
+func (b *MessageCreateBuilder) SetFiles(files ...restclient.File) *MessageCreateBuilder {
+	b.Files = files
+	return b
+}
+
+// AddFiles adds the files to the WebhookMessageCreate
+func (b *MessageCreateBuilder) AddFiles(files ...restclient.File) *MessageCreateBuilder {
+	b.Files = append(b.Files, files...)
+	return b
+}
+
+// AddFile adds a file to the WebhookMessageCreate
+func (b *MessageCreateBuilder) AddFile(name string, reader io.Reader, flags ...restclient.FileFlags) *MessageCreateBuilder {
+	b.Files = append(b.Files, restclient.File{
+		Name:   name,
+		Reader: reader,
+		Flags:  restclient.FileFlagNone.Add(flags...),
+	})
+	return b
+}
+
+// ClearFiles removes all files of this WebhookMessageCreate
+func (b *MessageCreateBuilder) ClearFiles() *MessageCreateBuilder {
+	b.Files = []restclient.File{}
+	return b
+}
+
+// RemoveFiles removes the file at this index
+func (b *MessageCreateBuilder) RemoveFiles(i int) *MessageCreateBuilder {
+	if b != nil && len(b.Files) > i {
+		b.Files = append(b.Files[:i], b.Files[i+1:]...)
 	}
 	return b
 }

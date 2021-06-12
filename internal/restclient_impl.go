@@ -31,7 +31,7 @@ func (r *RestClientImpl) Disgo() api.Disgo {
 
 // Close cleans up the http managers connections
 func (r *RestClientImpl) Close() {
-	r.HttpClient().CloseIdleConnections()
+	r.HTTPClient().CloseIdleConnections()
 }
 
 // DoWithHeaders executes a rest request with custom headers
@@ -46,40 +46,52 @@ func (r *RestClientImpl) DoWithHeaders(route *restclient.CompiledAPIRoute, rqBod
 
 	// TODO reimplement api.ErrorResponse unmarshalling
 	/*
-	var errorRs api.ErrorResponse
-			if err = json.Unmarshal(rawRsBody, &errorRs); err != nil {
-				r.Disgo().Logger().Errorf("error unmarshalling error response. code: %d, error: %s", rs.StatusCode, err)
-				return err
-			}
-			return fmt.Errorf("request to %s failed. statuscode: %d, errorcode: %d, message_events: %s", rq.URL, rs.StatusCode, errorRs.Code, errorRs.Message)
+		var errorRs api.ErrorResponse
+				if err = json.Unmarshal(rawRsBody, &errorRs); err != nil {
+					r.Disgo().Logger().Errorf("error unmarshalling error response. code: %d, error: %s", rs.StatusCode, err)
+					return err
+				}
+				return fmt.Errorf("request to %s failed. statuscode: %d, errorcode: %d, message_events: %s", rq.URL, rs.StatusCode, errorRs.Code, errorRs.Message)
 	*/
 	return
 }
 
 // SendMessage lets you send a api.Message to a api.MessageChannel
-func (r *RestClientImpl) SendMessage(channelID api.Snowflake, message api.MessageCreate) (msg *api.Message, err error) {
+func (r *RestClientImpl) SendMessage(channelID api.Snowflake, messageCreate api.MessageCreate) (message *api.Message, err error) {
 	compiledRoute, err := restclient.CreateMessage.Compile(nil, channelID)
 	if err != nil {
 		return nil, err
 	}
-	var fullMsg *api.FullMessage
-	err = r.Do(compiledRoute, message, &fullMsg)
+
+	body, err := messageCreate.ToBody()
+	if err != nil {
+		return nil, err
+	}
+
+	var fullMessage *api.FullMessage
+	err = r.Do(compiledRoute, body, &fullMessage)
 	if err == nil {
-		msg = r.Disgo().EntityBuilder().CreateMessage(fullMsg, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyNoWs)
 	}
 	return
 }
 
 // EditMessage lets you edit a api.Message
-func (r *RestClientImpl) EditMessage(channelID api.Snowflake, messageID api.Snowflake, message api.MessageUpdate) (msg *api.Message, err error) {
+func (r *RestClientImpl) EditMessage(channelID api.Snowflake, messageID api.Snowflake, messageUpdate api.MessageUpdate) (message *api.Message, err error) {
 	compiledRoute, err := restclient.UpdateMessage.Compile(nil, channelID, messageID)
 	if err != nil {
 		return nil, err
 	}
-	var fullMsg *api.FullMessage
-	err = r.Do(compiledRoute, message, &fullMsg)
+
+	body, err := messageUpdate.ToBody()
+	if err != nil {
+		return nil, err
+	}
+
+	var fullMessage *api.FullMessage
+	err = r.Do(compiledRoute, body, &fullMessage)
 	if err == nil {
-		msg = r.Disgo().EntityBuilder().CreateMessage(fullMsg, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -625,7 +637,13 @@ func (r *RestClientImpl) SendInteractionResponse(interactionID api.Snowflake, in
 	if err != nil {
 		return err
 	}
-	return r.Do(compiledRoute, interactionResponse, nil)
+
+	body, err := interactionResponse.ToBody()
+	if err != nil {
+		return err
+	}
+
+	return r.Do(compiledRoute, body, nil)
 }
 
 // EditInteractionResponse used to edit the initial response on an api.Interaction
@@ -634,7 +652,18 @@ func (r *RestClientImpl) EditInteractionResponse(applicationID api.Snowflake, in
 	if err != nil {
 		return nil, err
 	}
-	return message, r.Do(compiledRoute, messageUpdate, &message)
+
+	body, err := messageUpdate.ToBody()
+	if err != nil {
+		return nil, err
+	}
+
+	var fullMessage *api.FullMessage
+	err = r.Do(compiledRoute, body, &fullMessage)
+	if err == nil {
+		message = r.Disgo().EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyNoWs)
+	}
+	return
 }
 
 // DeleteInteractionResponse used to delete the initial response on an api.Interaction
@@ -652,7 +681,19 @@ func (r *RestClientImpl) SendFollowupMessage(applicationID api.Snowflake, intera
 	if err != nil {
 		return nil, err
 	}
-	return message, r.Do(compiledRoute, messageCreate, &message)
+
+	body, err := messageCreate.ToBody()
+	if err != nil {
+		return nil, err
+	}
+
+	var fullMessage *api.FullMessage
+	err = r.Do(compiledRoute, body, &fullMessage)
+	if err == nil {
+		message = r.Disgo().EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyNoWs)
+	}
+
+	return
 }
 
 // EditFollowupMessage used to edit a followup api.Message from an api.Interaction
@@ -661,7 +702,19 @@ func (r *RestClientImpl) EditFollowupMessage(applicationID api.Snowflake, intera
 	if err != nil {
 		return nil, err
 	}
-	return message, r.Do(compiledRoute, messageUpdate, &message)
+
+	body, err := messageUpdate.ToBody()
+	if err != nil {
+		return nil, err
+	}
+
+	var fullMessage *api.FullMessage
+	err = r.Do(compiledRoute, body, &fullMessage)
+	if err == nil {
+		message = r.Disgo().EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyNoWs)
+	}
+
+	return
 }
 
 // DeleteFollowupMessage used to delete a followup api.Message from an api.Interaction

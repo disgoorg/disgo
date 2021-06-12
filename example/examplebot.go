@@ -164,7 +164,7 @@ func main() {
 
 	defer dgo.Close()
 
-	logger.Infof("TestBot is now running. Press CTRL-C to exit.")
+	logger.Infof("ExampleBot is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-s
@@ -264,9 +264,10 @@ func commandListener(event events.CommandEvent) {
 		)
 
 	case "test":
+		reader, _ := os.Open("gopher.png")
 		_ = event.Reply(api.NewMessageCreateBuilder().
 			SetContent("test message").
-			SetEphemeral(true).
+			AddFile("gopher.png", reader).
 			SetComponents(
 				api.NewActionRow(
 					api.NewPrimaryButton("test1", "test1", nil, false),
@@ -325,8 +326,11 @@ func messageListener(event events.GuildMessageCreateEvent) {
 
 	case "test":
 		go func() {
-			message, _ := event.MessageChannel().SendMessage(api.NewMessageCreateBuilder().SetContent("test").Build())
-
+			message, err := event.MessageChannel().SendMessage(api.NewMessageCreateBuilder().SetContent("test").Build())
+			if err != nil {
+				logger.Errorf("error while sending file: %s", err)
+				return
+			}
 			time.Sleep(time.Second * 2)
 
 			embed := api.NewEmbedBuilder().SetDescription("edit").Build()
