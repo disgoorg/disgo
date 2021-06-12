@@ -284,7 +284,7 @@ func commandListener(event events.CommandEvent) {
 
 	case "test":
 		reader, _ := os.Open("gopher.png")
-		_ = event.Reply(api.NewMessageCreateBuilder().
+		if err := event.Reply(api.NewMessageCreateBuilder().
 			SetContent("test message").
 			AddFile("gopher.png", reader).
 			SetComponents(
