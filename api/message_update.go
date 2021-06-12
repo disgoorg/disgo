@@ -32,6 +32,7 @@ type MessageUpdate struct {
 	updateFlags     updateFlags
 }
 
+// ToBody returns the MessageUpdate ready for body
 func (m MessageUpdate) ToBody() (interface{}, error) {
 	if len(m.Files) > 0 && m.isUpdated(updateFlagFiles) {
 		return restclient.PayloadWithFiles(m, m.Files...)
@@ -155,18 +156,21 @@ func (b *MessageUpdateBuilder) RemoveComponent(i int) *MessageUpdateBuilder {
 	return b
 }
 
+// SetFiles sets the files for this Message
 func (b *MessageUpdateBuilder) SetFiles(files ...restclient.File) *MessageUpdateBuilder {
 	b.Files = files
 	b.updateFlags |= updateFlagFiles
 	return b
 }
 
+// AddFiles adds the files to the Message
 func (b *MessageUpdateBuilder) AddFiles(files ...restclient.File) *MessageUpdateBuilder {
 	b.Files = append(b.Files, files...)
 	b.updateFlags |= updateFlagFiles
 	return b
 }
 
+// AddFile adds a file to the Message
 func (b *MessageUpdateBuilder) AddFile(name string, reader io.Reader, flags ...restclient.FileFlags) *MessageUpdateBuilder {
 	b.Files = append(b.Files, restclient.File{
 		Name:   name,
@@ -177,12 +181,14 @@ func (b *MessageUpdateBuilder) AddFile(name string, reader io.Reader, flags ...r
 	return b
 }
 
+// ClearFiles removes all files of this Message
 func (b *MessageUpdateBuilder) ClearFiles() *MessageUpdateBuilder {
 	b.Files = []restclient.File{}
 	b.updateFlags |= updateFlagFiles
 	return b
 }
 
+// RemoveFiles removes the file at this index
 func (b *MessageUpdateBuilder) RemoveFiles(i int) *MessageUpdateBuilder {
 	if len(b.Files) > i {
 		b.Files = append(b.Files[:i], b.Files[i+1:]...)
@@ -191,12 +197,14 @@ func (b *MessageUpdateBuilder) RemoveFiles(i int) *MessageUpdateBuilder {
 	return b
 }
 
+// RetainAttachments removes all Attachment(s) from this Message except the ones provided
 func (b *MessageUpdateBuilder) RetainAttachments(attachments ...Attachment) *MessageUpdateBuilder {
 	b.Attachments = append(b.Attachments, attachments...)
 	b.updateFlags |= updateFlagRetainAttachment
 	return b
 }
 
+// RetainAttachmentsByID removes all Attachment(s) from this Message except the ones provided
 func (b *MessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...Snowflake) *MessageUpdateBuilder {
 	for _, attachmentID := range attachmentIDs {
 		b.Attachments = append(b.Attachments, Attachment{
