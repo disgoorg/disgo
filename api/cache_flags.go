@@ -18,13 +18,27 @@ const (
 	CacheFlagCommands
 	CacheFlagCommandPermissions
 
-	CacheFlagsDefault = CacheFlagDMChannels |
+	CacheFlagsChannels = CacheFlagDMChannels |
 		CacheFlagCategories |
 		CacheFlagTextChannels |
 		CacheFlagVoiceChannels |
-		CacheFlagStoreChannels |
+		CacheFlagStoreChannels
+
+	CacheFlagsDefault = CacheFlagsChannels |
 		CacheFlagRoles |
 		CacheFlagEmotes
+
+	CacheFlagsFullRoles = CacheFlagRoles |
+		CacheFlagRoleTags
+
+	CacheFlagsFullCommands = CacheFlagCommands |
+		CacheFlagCommandPermissions
+
+	CacheFlagsAll = CacheFlagsChannels |
+		CacheFlagsFullRoles |
+		CacheFlagEmotes |
+		CacheFlagVoiceState |
+		CacheFlagsFullCommands
 )
 
 // Add allows you to add multiple bits together, producing a new bit
