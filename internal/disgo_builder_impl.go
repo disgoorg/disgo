@@ -60,8 +60,8 @@ func (b *DisgoBuilderImpl) SetHTTPClient(httpClient *http.Client) api.DisgoBuild
 }
 
 // SetGatewayIntents sets the api.GatewayIntents to connect to discord
-func (b *DisgoBuilderImpl) SetGatewayIntents(gatewayIntents api.GatewayIntents) api.DisgoBuilder {
-	b.gatewayIntents = gatewayIntents
+func (b *DisgoBuilderImpl) SetGatewayIntents(gatewayIntents ...api.GatewayIntents) api.DisgoBuilder {
+	b.gatewayIntents = api.GatewayIntentsNone.Add(gatewayIntents...)
 	return b
 }
 

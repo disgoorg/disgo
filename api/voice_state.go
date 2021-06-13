@@ -24,32 +24,32 @@ type VoiceState struct {
 }
 
 // Muted returns if the Member is muted
-func (s VoiceState) Muted() bool {
+func (s *VoiceState) Muted() bool {
 	return s.GuildMuted || s.SelfMuted
 }
 
 // Deafened returns if the Member is deafened
-func (s VoiceState) Deafened() bool {
+func (s *VoiceState) Deafened() bool {
 	return s.GuildDeafened || s.SelfDeafened
 }
 
 // Member returns the Member of this VoiceState from the Cache
-func (s VoiceState) Member() *Member {
+func (s *VoiceState) Member() *Member {
 	return s.Disgo.Cache().Member(s.GuildID, s.UserID)
 }
 
 // User returns the User of this VoiceState from the Cache
-func (s VoiceState) User() *User {
+func (s *VoiceState) User() *User {
 	return s.Disgo.Cache().User(s.UserID)
 }
 
 // Guild returns the Guild of this VoiceState from the Cache
-func (s VoiceState) Guild() *Guild {
+func (s *VoiceState) Guild() *Guild {
 	return s.Disgo.Cache().Guild(s.GuildID)
 }
 
 // VoiceChannel returns the VoiceChannel of this VoiceState from the Cache
-func (s VoiceState) VoiceChannel() *VoiceChannel {
+func (s *VoiceState) VoiceChannel() *VoiceChannel {
 	if s.ChannelID == nil {
 		return nil
 	}

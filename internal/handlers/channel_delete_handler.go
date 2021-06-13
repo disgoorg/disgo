@@ -25,11 +25,30 @@ func (h ChannelDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		return
 	}
 
+	channel.Disgo = disgo
+
 	genericChannelEvent := events.GenericChannelEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
 		ChannelID:    channel.ID,
+		Channel:      channel,
 	}
 	eventManager.Dispatch(genericChannelEvent)
+
+	var genericGuildChannelEvent events.GenericGuildChannelEvent
+	if channel.GuildID != nil {
+		genericGuildChannelEvent = events.GenericGuildChannelEvent{
+			GenericChannelEvent: genericChannelEvent,
+			GuildID:             *channel.GuildID,
+			GuildChannel: &api.GuildChannel{
+				Channel: *channel,
+			},
+		}
+		eventManager.Dispatch(genericGuildChannelEvent)
+
+		eventManager.Dispatch(events.GuildChannelDeleteEvent{
+			GenericGuildChannelEvent: genericGuildChannelEvent,
+		})
+	}
 
 	switch channel.Type {
 	case api.ChannelTypeDM:
@@ -52,8 +71,8 @@ func (h ChannelDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		disgo.Cache().UncacheTextChannel(*channel.GuildID, channel.ID)
 
 		genericTextChannelEvent := events.GenericTextChannelEvent{
-			GenericChannelEvent: genericChannelEvent,
-			TextChannel:         disgo.EntityBuilder().CreateTextChannel(channel, api.CacheStrategyNo),
+			GenericGuildChannelEvent: genericGuildChannelEvent,
+			TextChannel:              disgo.EntityBuilder().CreateTextChannel(channel, api.CacheStrategyNo),
 		}
 		eventManager.Dispatch(genericTextChannelEvent)
 
@@ -65,8 +84,8 @@ func (h ChannelDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		disgo.Cache().UncacheStoreChannel(*channel.GuildID, channel.ID)
 
 		genericStoreChannelEvent := events.GenericStoreChannelEvent{
-			GenericChannelEvent: genericChannelEvent,
-			StoreChannel:        disgo.EntityBuilder().CreateStoreChannel(channel, api.CacheStrategyNo),
+			GenericGuildChannelEvent: genericGuildChannelEvent,
+			StoreChannel:             disgo.EntityBuilder().CreateStoreChannel(channel, api.CacheStrategyNo),
 		}
 		eventManager.Dispatch(genericStoreChannelEvent)
 
@@ -78,8 +97,8 @@ func (h ChannelDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		disgo.Cache().UncacheCategory(*channel.GuildID, channel.ID)
 
 		genericCategoryEvent := events.GenericCategoryEvent{
-			GenericChannelEvent: genericChannelEvent,
-			Category:            disgo.EntityBuilder().CreateCategory(channel, api.CacheStrategyNo),
+			GenericGuildChannelEvent: genericGuildChannelEvent,
+			Category:                 disgo.EntityBuilder().CreateCategory(channel, api.CacheStrategyNo),
 		}
 		eventManager.Dispatch(genericCategoryEvent)
 
@@ -91,8 +110,8 @@ func (h ChannelDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		disgo.Cache().UncacheVoiceChannel(*channel.GuildID, channel.ID)
 
 		genericVoiceChannelEvent := events.GenericVoiceChannelEvent{
-			GenericChannelEvent: genericChannelEvent,
-			VoiceChannel:        disgo.EntityBuilder().CreateVoiceChannel(channel, api.CacheStrategyNo),
+			GenericGuildChannelEvent: genericGuildChannelEvent,
+			VoiceChannel:             disgo.EntityBuilder().CreateVoiceChannel(channel, api.CacheStrategyNo),
 		}
 		eventManager.Dispatch(genericVoiceChannelEvent)
 

@@ -118,11 +118,11 @@ type Cache interface {
 	FindCategory(Snowflake, func(*Category) bool) *Category
 	FindCategories(Snowflake, func(*Category) bool) []*Category
 
-	Emote(emoteID Snowflake) *Emote
-	EmotesByName(guildID Snowflake, name string, ignoreCase bool) []*Emote
-	Emotes(guildID Snowflake) []*Emote
-	EmoteCache(guildID Snowflake) map[Snowflake]*Emote
-	AllEmoteCache() map[Snowflake]map[Snowflake]*Emote
-	CacheEmote(*Emote) *Emote
+	Emote(emoteID Snowflake) *Emoji
+	EmotesByName(guildID Snowflake, name string, ignoreCase bool) []*Emoji
+	Emotes(guildID Snowflake) []*Emoji
+	EmoteCache(guildID Snowflake) map[Snowflake]*Emoji
+	AllEmoteCache() map[Snowflake]map[Snowflake]*Emoji
+	CacheEmote(*Emoji) *Emoji
 	UncacheEmote(guildID Snowflake, emoteID Snowflake)
 }

@@ -11,7 +11,7 @@ type DisgoBuilder interface {
 	SetLogger(level log.Logger) DisgoBuilder
 	SetToken(token string) DisgoBuilder
 	SetHTTPClient(httpClient *http.Client) DisgoBuilder
-	SetGatewayIntents(GatewayIntents GatewayIntents) DisgoBuilder
+	SetGatewayIntents(GatewayIntents ...GatewayIntents) DisgoBuilder
 	SetRawGatewayEventsEnabled(enabled bool) DisgoBuilder
 	SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor) DisgoBuilder
 	SetEntityBuilder(entityBuilder EntityBuilder) DisgoBuilder

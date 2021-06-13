@@ -48,20 +48,20 @@ func (u *User) AvatarURL(size int) string {
 }
 
 // Mention returns the user as a mention
-func (u User) Mention() string {
+func (u *User) Mention() string {
 	return "<@" + u.ID.String() + ">"
 }
 
 // Tag returns the user's Username and Discriminator
-func (u User) Tag() string {
+func (u *User) Tag() string {
 	return fmt.Sprintf("%s#%s", u.Username, u.Discriminator)
 }
 
-func (u User) String() string {
+func (u *User) String() string {
 	return u.Mention()
 }
 
 // OpenDMChannel creates a DMChannel between the user and the Disgo client
-func (u User) OpenDMChannel() (*DMChannel, error) {
+func (u *User) OpenDMChannel() (*DMChannel, error) {
 	return u.Disgo.RestClient().OpenDMChannel(u.ID)
 }

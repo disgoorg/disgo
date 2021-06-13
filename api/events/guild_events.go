@@ -7,7 +7,8 @@ import (
 // GenericGuildEvent is called upon receiving GuildUpdateEvent, GuildAvailableEvent, GuildUnavailableEvent, GuildJoinEvent, GuildLeaveEvent, GuildReadyEvent, GuildBanEvent, GuildUnbanEvent
 type GenericGuildEvent struct {
 	GenericEvent
-	Guild *api.Guild
+	GuildID api.Snowflake
+	Guild   *api.Guild
 }
 
 // GuildUpdateEvent is called upon receiving api.Guild updates

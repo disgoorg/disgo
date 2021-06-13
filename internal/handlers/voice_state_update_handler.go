@@ -5,7 +5,7 @@ import (
 	"github.com/DisgoOrg/disgo/api/events"
 )
 
-// VoiceStateUpdateHandler handles api.VoiceStateUpdateGatewayEvent
+// VoiceStateUpdateHandler handles api.GatewayEventVoiceStateUpdate
 type VoiceStateUpdateHandler struct{}
 
 // Event returns the raw gateway event Event

@@ -6,7 +6,7 @@ import (
 
 // GenericCategoryEvent is called upon receiving CategoryCreateEvent, CategoryUpdateEvent or CategoryDeleteEvent
 type GenericCategoryEvent struct {
-	GenericChannelEvent
+	GenericGuildChannelEvent
 	Category *api.Category
 }
 

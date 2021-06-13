@@ -10,14 +10,24 @@ type GenericInteractionEvent struct {
 	Interaction *api.Interaction
 }
 
-// Reply replies to the api.Interaction with the provided api.InteractionResponse
-func (e *GenericInteractionEvent) Reply(response *api.InteractionResponse) error {
-	return e.Interaction.Reply(response)
+// Respond replies to the api.Interaction with the provided api.InteractionResponse
+func (e *GenericInteractionEvent) Respond(responseType api.InteractionResponseType, data interface{}) error {
+	return e.Interaction.Respond(responseType, data)
+}
+
+// DeferReply replies to the api.CommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource and shows a loading state
+func (e *GenericInteractionEvent) DeferReply(ephemeral bool) error {
+	return e.Interaction.DeferReply(ephemeral)
+}
+
+// Reply replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource & api.MessageCreate
+func (e *GenericInteractionEvent) Reply(messageCreate api.MessageCreate) error {
+	return e.Interaction.Reply(messageCreate)
 }
 
 // EditOriginal edits the original api.InteractionResponse
-func (e *GenericInteractionEvent) EditOriginal(followupMessage *api.FollowupMessage) (*api.Message, error) {
-	return e.Interaction.EditOriginal(followupMessage)
+func (e *GenericInteractionEvent) EditOriginal(messageUpdate api.MessageUpdate) (*api.Message, error) {
+	return e.Interaction.EditOriginal(messageUpdate)
 }
 
 // DeleteOriginal deletes the original api.InteractionResponse
@@ -25,17 +35,17 @@ func (e *GenericInteractionEvent) DeleteOriginal() error {
 	return e.Interaction.DeleteOriginal()
 }
 
-// SendFollowup used to send a api.FollowupMessage to an api.Interaction
-func (e *GenericInteractionEvent) SendFollowup(followupMessage *api.FollowupMessage) (*api.Message, error) {
-	return e.Interaction.SendFollowup(followupMessage)
+// SendFollowup used to send a followup api.MessageCreate to an api.Interaction
+func (e *GenericInteractionEvent) SendFollowup(messageCreate api.MessageCreate) (*api.Message, error) {
+	return e.Interaction.SendFollowup(messageCreate)
 }
 
-// EditFollowup used to edit a api.FollowupMessage from an api.Interaction
-func (e *GenericInteractionEvent) EditFollowup(messageID api.Snowflake, followupMessage *api.FollowupMessage) (*api.Message, error) {
-	return e.Interaction.EditFollowup(messageID, followupMessage)
+// EditFollowup used to edit a followup api.Message from an api.Interaction
+func (e *GenericInteractionEvent) EditFollowup(messageID api.Snowflake, messageUpdate api.MessageUpdate) (*api.Message, error) {
+	return e.Interaction.EditFollowup(messageID, messageUpdate)
 }
 
-// DeleteFollowup used to delete a api.FollowupMessage from an api.Interaction
+// DeleteFollowup used to delete a followup api.Message from an api.Interaction
 func (e *GenericInteractionEvent) DeleteFollowup(messageID api.Snowflake) error {
 	return e.Interaction.DeleteFollowup(messageID)
 }
@@ -49,16 +59,6 @@ type CommandEvent struct {
 	SubCommandName      *string
 	SubCommandGroupName *string
 	Options             []*api.Option
-}
-
-// DeferReply replies to the api.CommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource and shows a loading state
-func (e *CommandEvent) DeferReply(ephemeral bool) error {
-	return e.CommandInteraction.DeferReply(ephemeral)
-}
-
-// ReplyCreate replies to the api.CommandInteraction with api.InteractionResponseTypeDeferredChannelMessageWithSource & api.InteractionResponseData
-func (e *CommandEvent) ReplyCreate(data *api.InteractionResponseData) error {
-	return e.CommandInteraction.ReplyCreate(data)
 }
 
 // CommandPath returns the api.Command path
@@ -115,9 +115,9 @@ func (e *ButtonClickEvent) DeferEdit() error {
 	return e.ButtonInteraction.DeferEdit()
 }
 
-// ReplyEdit replies to the api.ButtonInteraction with api.InteractionResponseTypeUpdateMessage & api.InteractionResponseData which edits the original api.Message
-func (e *ButtonClickEvent) ReplyEdit(data *api.InteractionResponseData) error {
-	return e.ButtonInteraction.ReplyEdit(data)
+// Edit replies to the api.ButtonInteraction with api.InteractionResponseTypeUpdateMessage & api.MessageCreate which edits the original api.Message
+func (e *ButtonClickEvent) Edit(messageCreate api.MessageCreate) error {
+	return e.ButtonInteraction.Edit(messageCreate)
 }
 
 // CustomID returns the customID from the called api.Button
