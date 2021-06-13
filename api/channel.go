@@ -145,29 +145,15 @@ func (c *ChannelImpl) Stage() bool {
 	return c.Type() != ChannelTypeStage
 }
 
-
 // MessageChannel is used for sending Message(s) to User(s)
 type MessageChannel interface {
 	Channel
-	NSFW() bool
-	Topic() *string
 	LastMessageID() *Snowflake
 	LastPinTimestamp() *time.Time
 	SendMessage(messageCreate MessageCreate) (*Message, error)
 	EditMessage(messageID Snowflake, messageUpdate MessageUpdate) (*Message, error)
 	DeleteMessage(messageID Snowflake) error
 	BulkDeleteMessages(messageIDs ...Snowflake) error
-}
-
-func (c *ChannelImpl) NSFW() bool {
-	if c.NSFW_ == nil {
-		panic("unsupported operation")
-	}
-	return *c.NSFW_
-}
-
-func (c *ChannelImpl) Topic() *string {
-	return c.Topic_
 }
 
 func (c *ChannelImpl) LastMessageID() *Snowflake {
@@ -284,6 +270,20 @@ func (c *ChannelImpl) Bitrate() int {
 type TextChannel interface {
 	GuildChannel
 	MessageChannel
+	NSFW() bool
+	Topic() *string
+}
+
+
+func (c *ChannelImpl) NSFW() bool {
+	if c.NSFW_ == nil {
+		panic("unsupported operation")
+	}
+	return *c.NSFW_
+}
+
+func (c *ChannelImpl) Topic() *string {
+	return c.Topic_
 }
 
 // NewsChannel allows you to interact with discord's text channels
