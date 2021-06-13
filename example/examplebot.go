@@ -39,7 +39,7 @@ func main() {
 		SetLogger(logger).
 		SetRawGatewayEventsEnabled(true).
 		SetHTTPClient(client).
-		SetGatewayIntents(api.GatewayIntentsGuilds | api.GatewayIntentsGuildMessages | api.GatewayIntentsGuildMembers).
+		SetGatewayIntents(api.GatewayIntentsGuilds, api.GatewayIntentsGuildMessages, api.GatewayIntentsGuildMembers, api.GatewayIntentsGuildWebhooks).
 		SetMemberCachePolicy(api.MemberCachePolicyAll).
 		AddEventListeners(&events.ListenerAdapter{
 			OnRawGateway:         rawGatewayEventListener,

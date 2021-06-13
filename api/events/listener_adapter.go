@@ -24,6 +24,12 @@ type ListenerAdapter struct {
 	// api.Channel Events
 	OnGenericChannelEvent func(event GenericChannelEvent)
 
+	// api.GuildChannel Events
+	OnGenericGuildChannelEvent func(event GenericGuildChannelEvent)
+	OnGuildChannelCreate       func(event GuildChannelCreateEvent)
+	OnGuildChannelUpdate       func(event GuildChannelUpdateEvent)
+	OnGuildChannelDelete       func(event GuildChannelDeleteEvent)
+
 	// api.Category Events
 	OnGenericCategoryEvent func(event GenericCategoryEvent)
 	OnCategoryCreate       func(event CategoryCreateEvent)
@@ -201,6 +207,24 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 	// api.Channel Events
 	case GenericChannelEvent:
 		if listener := l.OnGenericChannelEvent; listener != nil {
+			listener(e)
+		}
+
+	// api.GuildChannel Events
+	case GenericGuildChannelEvent:
+		if listener := l.OnGenericGuildChannelEvent; listener != nil {
+			listener(e)
+		}
+	case GuildChannelCreateEvent:
+		if listener := l.OnGuildChannelCreate; listener != nil {
+			listener(e)
+		}
+	case GuildChannelUpdateEvent:
+		if listener := l.OnGuildChannelUpdate; listener != nil {
+			listener(e)
+		}
+	case GuildChannelDeleteEvent:
+		if listener := l.OnGuildChannelDelete; listener != nil {
 			listener(e)
 		}
 
