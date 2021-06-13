@@ -142,20 +142,20 @@ func (b *DisgoBuilderImpl) SetMessageCachePolicy(messageCachePolicy api.MessageC
 }
 
 // SetCacheFlags lets you set the api.CacheFlags
-func (b *DisgoBuilderImpl) SetCacheFlags(cacheFlags api.CacheFlags) api.DisgoBuilder {
-	b.cacheFlags = cacheFlags
+func (b *DisgoBuilderImpl) SetCacheFlags(cacheFlags ...api.CacheFlags) api.DisgoBuilder {
+	b.cacheFlags = api.CacheFlagsNone.Add(cacheFlags...)
 	return b
 }
 
 // EnableCacheFlags lets you enable certain api.CacheFlags
-func (b *DisgoBuilderImpl) EnableCacheFlags(cacheFlags api.CacheFlags) api.DisgoBuilder {
-	b.cacheFlags.Add(cacheFlags)
+func (b *DisgoBuilderImpl) EnableCacheFlags(cacheFlags ...api.CacheFlags) api.DisgoBuilder {
+	b.cacheFlags.Add(cacheFlags...)
 	return b
 }
 
 // DisableCacheFlags lets you disable certain api.CacheFlags
-func (b *DisgoBuilderImpl) DisableCacheFlags(cacheFlags api.CacheFlags) api.DisgoBuilder {
-	b.cacheFlags.Remove(cacheFlags)
+func (b *DisgoBuilderImpl) DisableCacheFlags(cacheFlags ...api.CacheFlags) api.DisgoBuilder {
+	b.cacheFlags.Remove(cacheFlags...)
 	return b
 }
 
