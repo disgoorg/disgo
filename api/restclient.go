@@ -37,16 +37,22 @@ type RestClient interface {
 	GetUser(userID Snowflake) (*User, error)
 	GetMember(guildID Snowflake, userID Snowflake) (*Member, error)
 	GetMembers(guildID Snowflake) ([]*Member, error)
-	AddMember(guildID Snowflake, userID Snowflake, addGuildMemberData AddGuildMemberData) (*Member, error)
+	AddMember(guildID Snowflake, userID Snowflake, addMember AddMember) (*Member, error)
 	KickMember(guildID Snowflake, userID Snowflake, reason *string) error
-	UpdateMember(guildID Snowflake, userID Snowflake, updateGuildMemberData UpdateGuildMemberData) (*Member, error)
+	UpdateMember(guildID Snowflake, userID Snowflake, updateMember UpdateMember) (*Member, error)
 	MoveMember(guildID Snowflake, userID Snowflake, channelID *Snowflake) (*Member, error)
 	AddMemberRole(guildID Snowflake, userID Snowflake, roleID Snowflake) error
 	RemoveMemberRole(guildID Snowflake, userID Snowflake, roleID Snowflake) error
 
+	GetGuild(guildID Snowflake, withCounts bool) (*Guild, error)
+	GetGuildPreview(guildID Snowflake) (*GuildPreview, error)
+	CreateGuild(guildID Snowflake, createGuild CreateGuild) (*Guild, error)
+	UpdateGuild(guildID Snowflake, updateGuild UpdateGuild) (*Guild, error)
+	DeleteGuild(guildID Snowflake) error
+
 	GetRoles(guildID Snowflake) ([]*Role, error)
-	CreateRole(guildID Snowflake, role UpdateRole) (*Role, error)
-	UpdateRole(guildID Snowflake, roleID Snowflake, role UpdateRole) (*Role, error)
+	CreateRole(guildID Snowflake, createRole CreateRole) (*Role, error)
+	UpdateRole(guildID Snowflake, roleID Snowflake, updateRole UpdateRole) (*Role, error)
 	UpdateRolePositions(guildID Snowflake, roleUpdates ...UpdateRolePosition) ([]*Role, error)
 	DeleteRole(guildID Snowflake, roleID Snowflake) error
 

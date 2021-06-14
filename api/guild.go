@@ -194,14 +194,44 @@ func (g *Guild) Disconnect() error {
 	return g.Disgo.AudioController().Disconnect(g.ID)
 }
 
+// Update updates the current Guild
+func (g *Guild) Update(updateGuild UpdateGuild) (*Guild, error) {
+	return g.Disgo.RestClient().UpdateGuild(g.ID, updateGuild)
+}
+
+// Delete deletes the current Guild
+func (g *Guild) Delete() error {
+	return g.Disgo.RestClient().DeleteGuild(g.ID)
+}
+
 // CreateRole allows you to create a new Role
-func (g *Guild) CreateRole(role UpdateRole) (*Role, error) {
-	return g.Disgo.RestClient().CreateRole(g.ID, role)
+func (g *Guild) CreateRole(createRole CreateRole) (*Role, error) {
+	return g.Disgo.RestClient().CreateRole(g.ID, createRole)
+}
+
+// UpdateRole allows you to update a Role
+func (g *Guild) UpdateRole(roleID Snowflake, role UpdateRole) (*Role, error) {
+	return g.Disgo.RestClient().UpdateRole(g.ID, roleID, role)
+}
+
+// DeleteRole allows you to delete a Role
+func (g *Guild) DeleteRole(roleID Snowflake) error {
+	return g.Disgo.RestClient().DeleteRole(g.ID, roleID)
 }
 
 // AddMember adds a member to the Guild with the oauth2 access token
-func (g *Guild) AddMember(userID Snowflake, addGuildMemberData AddGuildMemberData) (*Member, error) {
-	return g.Disgo.RestClient().AddMember(g.ID, userID, addGuildMemberData)
+func (g *Guild) AddMember(userID Snowflake, addMember AddMember) (*Member, error) {
+	return g.Disgo.RestClient().AddMember(g.ID, userID, addMember)
+}
+
+// UpdateMember updates an existing member of the Guild
+func (g *Guild) UpdateMember(userID Snowflake, updateMember UpdateMember) (*Member, error) {
+	return g.Disgo.RestClient().UpdateMember(g.ID, userID, updateMember)
+}
+
+// KickMember kicks an existing member from the Guild
+func (g *Guild) KickMember(userID Snowflake, reason *string) error {
+	return g.Disgo.RestClient().KickMember(g.ID, userID, reason)
 }
 
 // IconURL returns the Icon of a Guild
@@ -270,4 +300,41 @@ func (g *Guild) SetCommandsPermissions(commandPermissions ...SetGuildCommandPerm
 // SetCommandPermissions sets the GuildCommandPermissions for a specific Command
 func (g *Guild) SetCommandPermissions(commandID Snowflake, permissions SetGuildCommandPermissions) (*GuildCommandPermissions, error) {
 	return g.Disgo.SetGuildCommandPermissions(g.ID, commandID, permissions)
+}
+
+type CreateGuild struct {
+	Name                            string                     `json:"name"`
+	Region                          string                     `json:"region,omitempty"`
+	Icon                            string                     `json:"icon,omitempty"`
+	VerificationLevel               VerificationLevel          `json:"verification_level,omitempty"`
+	DefaultMessageNotificationLevel MessageNotifications       `json:"default_message_notification_level"`
+	ExplicitContentFilterLevel      ExplicitContentFilterLevel `json:"explicit_content_filter_level"`
+	Roles                           []CreateRole               `json:"roles,omitempty"`
+	Channels                        []interface{}              `json:"channels,omitempty"`
+	AFKChannelID                    Snowflake                  `json:"afk_channel_id,omitempty"`
+	AFKTimeout                      int                        `json:"afk_timeout,omitempty"`
+	SystemChannelID                 Snowflake                  `json:"system_channel_id,omitempty"`
+	SystemChannelFlags              SystemChannelFlag          `json:"system_channel_flags,omitempty"`
+}
+
+type UpdateGuild struct {
+	Name                            string                      `json:"name"`
+	Region                          *string                     `json:"region"`
+	VerificationLevel               *VerificationLevel          `json:"verification_level"`
+	DefaultMessageNotificationLevel *MessageNotifications       `json:"default_message_notification_level"`
+	ExplicitContentFilterLevel      *ExplicitContentFilterLevel `json:"explicit_content_filter_level"`
+	AFKChannelID                    *Snowflake                  `json:"afk_channel_id"`
+	AFKTimeout                      int                         `json:"afk_timeout"`
+	Icon                            *string                     `json:"icon"`
+	OwnerID                         Snowflake                   `json:"owner_id"`
+	Splash                          interface{}                 `json:"splash"`
+	DiscoverySplash                 interface{}                 `json:"discovery_splash"`
+	Banner                          interface{}                 `json:"banner"`
+	SystemChannelID                 *Snowflake                  `json:"system_channel_id"`
+	SystemChannelFlags              *SystemChannelFlag          `json:"system_channel_flags"`
+	RulesChannelID                  *Snowflake                  `json:"rules_channel_id"`
+	PublicUpdatesChannelID          *Snowflake                  `json:"public_updates_channel_id"`
+	PreferredLocale                 *string                     `json:"preferred_locale"`
+	Features                        []GuildFeature              `json:"features"`
+	Description                     *string                     `json:"description"`
 }
