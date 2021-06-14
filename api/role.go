@@ -52,13 +52,22 @@ type RoleTag struct {
 	PremiumSubscriber bool       `json:"premium_subscriber"`
 }
 
+// CreateRole is the payload to create a Role
+type CreateRole struct {
+	Name        string      `json:"name,omitempty"`
+	Permissions Permissions `json:"permissions,omitempty"`
+	Color       int         `json:"color,omitempty"`
+	Hoist       bool        `json:"hoist,omitempty"`
+	Mentionable bool        `json:"mentionable,omitempty"`
+}
+
 // UpdateRole is the payload to update a Role
 type UpdateRole struct {
-	Name        *string      `json:"name,omitempty"`
-	Permissions *Permissions `json:"permissions,omitempty"`
-	Color       *int         `json:"color,omitempty"`
-	Hoist       *bool        `json:"hoist,omitempty"`
-	Mentionable *bool        `json:"mentionable,omitempty"`
+	Name        *string      `json:"name"`
+	Permissions *Permissions `json:"permissions"`
+	Color       *int         `json:"color"`
+	Hoist       *bool        `json:"hoist"`
+	Mentionable *bool        `json:"mentionable"`
 }
 
 // UpdateRolePosition is the payload to update a Role(s) position
