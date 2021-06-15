@@ -173,8 +173,47 @@ func (b *EntityBuilderImpl) CreateMessage(fullMessage *api.FullMessage, updateCa
 }
 
 // CreateGuild returns a new api.Guild entity
-func (b *EntityBuilderImpl) CreateGuild(guild *api.Guild, updateCache api.CacheStrategy) *api.Guild {
+func (b *EntityBuilderImpl) CreateGuild(fullGuild *api.FullGuild, updateCache api.CacheStrategy) *api.Guild {
+	guild := fullGuild.Guild
 	guild.Disgo = b.Disgo()
+
+	for _, channel := range fullGuild.Channels {
+		channel.GuildID = &guild.ID
+		switch channel.Type {
+		case api.ChannelTypeText, api.ChannelTypeNews:
+			b.Disgo().EntityBuilder().CreateTextChannel(channel, api.CacheStrategyYes)
+		case api.ChannelTypeVoice:
+			b.Disgo().EntityBuilder().CreateVoiceChannel(channel, api.CacheStrategyYes)
+		case api.ChannelTypeCategory:
+			b.Disgo().EntityBuilder().CreateCategory(channel, api.CacheStrategyYes)
+		case api.ChannelTypeStore:
+			b.Disgo().EntityBuilder().CreateStoreChannel(channel, api.CacheStrategyYes)
+		}
+	}
+
+	for _, role := range fullGuild.Roles {
+		b.Disgo().EntityBuilder().CreateRole(guild.ID, role, api.CacheStrategyYes)
+	}
+
+	for _, member := range fullGuild.Members {
+		b.Disgo().EntityBuilder().CreateMember(guild.ID, member, api.CacheStrategyYes)
+	}
+
+	for _, voiceState := range fullGuild.VoiceStates {
+		b.Disgo().EntityBuilder().CreateVoiceState(guild.ID, voiceState, api.CacheStrategyYes)
+	}
+
+	for _, emote := range fullGuild.Emojis {
+		b.Disgo().EntityBuilder().CreateEmoji(guild.ID, emote, api.CacheStrategyYes)
+	}
+
+	// TODO: presence
+	/*for i := range fullGuild.Presences {
+		presence := fullGuild.Presences[i]
+		presence.Disgo = disgo
+		b.Disgo().Cache().CachePresence(presence)
+	}*/
+
 	if updateCache(b.Disgo()) {
 		return b.Disgo().Cache().CacheGuild(guild)
 	}

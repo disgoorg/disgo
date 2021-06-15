@@ -1,6 +1,10 @@
 package api
 
-import "time"
+import (
+	"time"
+
+	"github.com/DisgoOrg/restclient"
+)
 
 // Member is a discord GuildMember
 type Member struct {
@@ -56,37 +60,37 @@ func (m *Member) IsOwner() bool {
 }
 
 // Update updates the Member
-func (m *Member) Update(updateGuildMember UpdateMember) (*Member, error) {
+func (m *Member) Update(updateGuildMember UpdateMember) (*Member, restclient.RestError) {
 	return m.Disgo.RestClient().UpdateMember(m.GuildID, m.User.ID, updateGuildMember)
 }
 
 // Kick kicks the Member from the Guild
-func (m *Member) Kick(reason *string) error {
-	return m.Disgo.RestClient().KickMember(m.GuildID, m.User.ID, reason)
+func (m *Member) Kick(reason string) restclient.RestError {
+	return m.Disgo.RestClient().RemoveMember(m.GuildID, m.User.ID, reason)
 }
 
 // Move moves/kicks the member to/from a voice channel
-func (m *Member) Move(channelID *Snowflake) (*Member, error) {
+func (m *Member) Move(channelID *Snowflake) (*Member, restclient.RestError) {
 	return m.Disgo.RestClient().MoveMember(m.GuildID, m.User.ID, channelID)
 }
 
 // AddRole adds a specific role the member
-func (m *Member) AddRole(roleID Snowflake) error {
+func (m *Member) AddRole(roleID Snowflake) restclient.RestError {
 	return m.Disgo.RestClient().AddMemberRole(m.GuildID, m.User.ID, roleID)
 }
 
 // RemoveRole removes a specific role the member
-func (m *Member) RemoveRole(roleID Snowflake) error {
+func (m *Member) RemoveRole(roleID Snowflake) restclient.RestError {
 	return m.Disgo.RestClient().AddMemberRole(m.GuildID, m.User.ID, roleID)
 }
 
 // AddMember is used to add a member via the oauth2 access token to a guild
 type AddMember struct {
 	AccessToken string      `json:"access_token"`
-	Nick        *string     `json:"nick,omitempty"`
+	Nick        string      `json:"nick,omitempty"`
 	Roles       []Snowflake `json:"roles,omitempty"`
-	Mute        *bool       `json:"mute,omitempty"`
-	Deaf        *bool       `json:"deaf,omitempty"`
+	Mute        bool        `json:"mute,omitempty"`
+	Deaf        bool        `json:"deaf,omitempty"`
 }
 
 // UpdateMember is used to modify
@@ -100,10 +104,10 @@ type UpdateMember struct {
 
 // MoveMember is used to move a member
 type MoveMember struct {
-	ChannelID *Snowflake `json:"channel_id"`
+	ChannelID *Snowflake `json:"channel_id,omitempty"`
 }
 
 // UpdateSelfNick is used to update your own nick
 type UpdateSelfNick struct {
-	Nick *string `json:"nick"`
+	Nick string `json:"nick"`
 }

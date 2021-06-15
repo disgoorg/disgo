@@ -1,5 +1,7 @@
 package api
 
+import "github.com/DisgoOrg/restclient"
+
 // Role is a Guild Role object
 type Role struct {
 	Disgo       Disgo
@@ -31,17 +33,17 @@ func (r *Role) Guild() *Guild {
 }
 
 // Update updates the Role with specific values
-func (r *Role) Update(roleUpdate UpdateRole) (*Role, error) {
+func (r *Role) Update(roleUpdate UpdateRole) (*Role, restclient.RestError) {
 	return r.Disgo.RestClient().UpdateRole(r.GuildID, r.ID, roleUpdate)
 }
 
 // SetPosition sets the position of the Role
-func (r *Role) SetPosition(rolePositionUpdate UpdateRolePosition) ([]*Role, error) {
+func (r *Role) SetPosition(rolePositionUpdate UpdateRolePosition) ([]*Role, restclient.RestError) {
 	return r.Disgo.RestClient().UpdateRolePositions(r.GuildID, rolePositionUpdate)
 }
 
 // Delete deletes the Role
-func (r *Role) Delete() error {
+func (r *Role) Delete() restclient.RestError {
 	return r.Disgo.RestClient().DeleteRole(r.GuildID, r.ID)
 }
 

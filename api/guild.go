@@ -105,7 +105,6 @@ type GuildWelcomeChannel struct {
 
 // GuildPreview is used for previewing public Guild(s) before joining them
 type GuildPreview struct {
-	Disgo                    Disgo
 	ID                       Snowflake      `json:"id"`
 	Name                     string         `json:"name"`
 	Icon                     *string        `json:"icon"`
@@ -195,43 +194,58 @@ func (g *Guild) Disconnect() error {
 }
 
 // Update updates the current Guild
-func (g *Guild) Update(updateGuild UpdateGuild) (*Guild, error) {
+func (g *Guild) Update(updateGuild UpdateGuild) (*Guild, restclient.RestError) {
 	return g.Disgo.RestClient().UpdateGuild(g.ID, updateGuild)
 }
 
 // Delete deletes the current Guild
-func (g *Guild) Delete() error {
+func (g *Guild) Delete() restclient.RestError {
 	return g.Disgo.RestClient().DeleteGuild(g.ID)
 }
 
 // CreateRole allows you to create a new Role
-func (g *Guild) CreateRole(createRole CreateRole) (*Role, error) {
+func (g *Guild) CreateRole(createRole CreateRole) (*Role, restclient.RestError) {
 	return g.Disgo.RestClient().CreateRole(g.ID, createRole)
 }
 
 // UpdateRole allows you to update a Role
-func (g *Guild) UpdateRole(roleID Snowflake, role UpdateRole) (*Role, error) {
+func (g *Guild) UpdateRole(roleID Snowflake, role UpdateRole) (*Role, restclient.RestError) {
 	return g.Disgo.RestClient().UpdateRole(g.ID, roleID, role)
 }
 
 // DeleteRole allows you to delete a Role
-func (g *Guild) DeleteRole(roleID Snowflake) error {
+func (g *Guild) DeleteRole(roleID Snowflake) restclient.RestError {
 	return g.Disgo.RestClient().DeleteRole(g.ID, roleID)
 }
 
+// GetSelfMember returns the SelfMember for this Guild
+func (g *Guild) GetSelfMember() *SelfMember {
+	return &SelfMember{Member: g.GetMember(g.Disgo.ClientID())}
+}
+
+// Leave leaves the Guild
+func (g *Guild) Leave() restclient.RestError {
+	return g.Disgo.RestClient().LeaveGuild(g.ID)
+}
+
+// GetMember returns the Member for the current logged in User for this Guild
+func (g *Guild) GetMember(userID Snowflake) *Member {
+	return g.Disgo.Cache().Member(g.ID, userID)
+}
+
 // AddMember adds a member to the Guild with the oauth2 access token
-func (g *Guild) AddMember(userID Snowflake, addMember AddMember) (*Member, error) {
+func (g *Guild) AddMember(userID Snowflake, addMember AddMember) (*Member, restclient.RestError) {
 	return g.Disgo.RestClient().AddMember(g.ID, userID, addMember)
 }
 
 // UpdateMember updates an existing member of the Guild
-func (g *Guild) UpdateMember(userID Snowflake, updateMember UpdateMember) (*Member, error) {
+func (g *Guild) UpdateMember(userID Snowflake, updateMember UpdateMember) (*Member, restclient.RestError) {
 	return g.Disgo.RestClient().UpdateMember(g.ID, userID, updateMember)
 }
 
 // KickMember kicks an existing member from the Guild
-func (g *Guild) KickMember(userID Snowflake, reason *string) error {
-	return g.Disgo.RestClient().KickMember(g.ID, userID, reason)
+func (g *Guild) KickMember(userID Snowflake, reason string) restclient.RestError {
+	return g.Disgo.RestClient().RemoveMember(g.ID, userID, reason)
 }
 
 // IconURL returns the Icon of a Guild
@@ -253,42 +267,42 @@ func (g *Guild) IconURL(size int) *string {
 }
 
 // GetCommand fetches a specific Guild Command
-func (g *Guild) GetCommand(commandID Snowflake) (*Command, error) {
+func (g *Guild) GetCommand(commandID Snowflake) (*Command, restclient.RestError) {
 	return g.Disgo.GetGuildCommand(g.ID, commandID)
 }
 
 // GetCommands fetches all Guild Command(s)
-func (g *Guild) GetCommands() ([]*Command, error) {
+func (g *Guild) GetCommands() ([]*Command, restclient.RestError) {
 	return g.Disgo.GetGuildCommands(g.ID)
 }
 
 // CreateCommand creates a new Command for this Guild
-func (g *Guild) CreateCommand(command CommandCreate) (*Command, error) {
+func (g *Guild) CreateCommand(command CommandCreate) (*Command, restclient.RestError) {
 	return g.Disgo.CreateGuildCommand(g.ID, command)
 }
 
 // EditCommand edits a specific Guild Command
-func (g *Guild) EditCommand(commandID Snowflake, command CommandUpdate) (*Command, error) {
+func (g *Guild) EditCommand(commandID Snowflake, command CommandUpdate) (*Command, restclient.RestError) {
 	return g.Disgo.EditGuildCommand(g.ID, commandID, command)
 }
 
 // DeleteCommand creates a new Command for this Guild
-func (g *Guild) DeleteCommand(commandID Snowflake) error {
+func (g *Guild) DeleteCommand(commandID Snowflake) restclient.RestError {
 	return g.Disgo.DeleteGuildCommand(g.ID, commandID)
 }
 
 // SetCommands overrides all Command(s) for this Guild
-func (g *Guild) SetCommands(commands ...CommandCreate) ([]*Command, error) {
+func (g *Guild) SetCommands(commands ...CommandCreate) ([]*Command, restclient.RestError) {
 	return g.Disgo.SetGuildCommands(g.ID, commands...)
 }
 
 // GetCommandsPermissions returns the GuildCommandPermissions for a all Command(s) in a Guild
-func (g *Guild) GetCommandsPermissions() ([]*GuildCommandPermissions, error) {
+func (g *Guild) GetCommandsPermissions() ([]*GuildCommandPermissions, restclient.RestError) {
 	return g.Disgo.GetGuildCommandsPermissions(g.ID)
 }
 
 // GetCommandPermissions returns the GuildCommandPermissions for a specific Command in a Guild
-func (g *Guild) GetCommandPermissions(commandID Snowflake) (*GuildCommandPermissions, error) {
+func (g *Guild) GetCommandPermissions(commandID Snowflake) (*GuildCommandPermissions, restclient.RestError) {
 	return g.Disgo.GetGuildCommandPermissions(g.ID, commandID)
 }
 
@@ -302,6 +316,17 @@ func (g *Guild) SetCommandPermissions(commandID Snowflake, permissions SetGuildC
 	return g.Disgo.SetGuildCommandPermissions(g.ID, commandID, permissions)
 }
 
+// PartialGuild is returned on the restclient.GetGuilds route
+type PartialGuild struct {
+	ID          Snowflake      `json:"id"`
+	Name        string         `json:"name"`
+	Icon        string         `json:"icon"`
+	Owner       bool           `json:"owner"`
+	Permissions Permissions    `json:"permissions"`
+	Features    []GuildFeature `json:"features"`
+}
+
+// CreateGuild is the payload used to create a Guild
 type CreateGuild struct {
 	Name                            string                     `json:"name"`
 	Region                          string                     `json:"region,omitempty"`
