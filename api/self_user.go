@@ -7,7 +7,7 @@ import (
 )
 
 // ErrDMChannelToYourself occurs when opening a DMChannel to yourself
-var ErrDMChannelToYourself = restclient.NewRestError(nil, errors.New("can't open a dm channel to yourself"))
+var ErrDMChannelToYourself = restclient.NewError(nil, errors.New("can't open a dm channel to yourself"))
 
 // SelfUser represents the current logged in User
 type SelfUser struct {
