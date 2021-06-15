@@ -77,7 +77,7 @@ func (i *Interaction) Respond(responseType InteractionResponseType, data interfa
 		Data: data,
 	}
 	if i.Replied {
-		return restclient.NewRestError(nil, errors.New("you already replied to this interaction"))
+		return restclient.NewError(nil, errors.New("you already replied to this interaction"))
 	}
 	i.Replied = true
 

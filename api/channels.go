@@ -71,7 +71,7 @@ func (c MessageChannel) BulkDeleteMessages(messageIDs ...Snowflake) restclient.R
 // CrosspostMessage crossposts an existing Message
 func (c MessageChannel) CrosspostMessage(messageID Snowflake) (*Message, restclient.RestError) {
 	if c.Type != ChannelTypeNews {
-		return nil, restclient.NewRestError(nil, errors.New("channel type is not NEWS"))
+		return nil, restclient.NewError(nil, errors.New("channel type is not NEWS"))
 	}
 	return c.Disgo.RestClient().CrosspostMessage(c.ID, messageID)
 }

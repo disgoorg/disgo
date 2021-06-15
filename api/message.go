@@ -251,7 +251,7 @@ func (m *Message) Delete() restclient.RestError {
 func (m *Message) Crosspost() (*Message, restclient.RestError) {
 	channel := m.Channel()
 	if channel != nil && channel.Type != ChannelTypeNews {
-		return nil, restclient.NewRestError(nil, errors.New("channel type is not NEWS"))
+		return nil, restclient.NewError(nil, errors.New("channel type is not NEWS"))
 	}
 	return m.Disgo.RestClient().CrosspostMessage(m.ChannelID, m.ID)
 }
