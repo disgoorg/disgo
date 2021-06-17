@@ -23,7 +23,9 @@ type DisgoBuilder interface {
 	SetCache(cache Cache) DisgoBuilder
 	SetMemberCachePolicy(memberCachePolicy MemberCachePolicy) DisgoBuilder
 	SetMessageCachePolicy(messageCachePolicy MessageCachePolicy) DisgoBuilder
-	SetCacheFlags(cacheFlags CacheFlags) DisgoBuilder
+	SetCacheFlags(cacheFlags ...CacheFlags) DisgoBuilder
+	EnableCacheFlags(cacheFlags ...CacheFlags) DisgoBuilder
+	DisableCacheFlags(cacheFlags ...CacheFlags) DisgoBuilder
 	SetGateway(gateway Gateway) DisgoBuilder
 	Build() (Disgo, error)
 }

@@ -82,7 +82,7 @@ type CommandOption struct {
 }
 
 // AddChoice adds a new choice to the the CommandOption
-func (o *CommandOption) AddChoice(name string, value interface{}) *CommandOption {
+func (o CommandOption) AddChoice(name string, value interface{}) CommandOption {
 	o.Choices = append(o.Choices, OptionChoice{
 		Name:  name,
 		Value: value,
@@ -91,13 +91,13 @@ func (o *CommandOption) AddChoice(name string, value interface{}) *CommandOption
 }
 
 // AddOptions adds multiple choices to the the CommandOption
-func (o *CommandOption) AddOptions(options ...CommandOption) *CommandOption {
+func (o CommandOption) AddOptions(options ...CommandOption) CommandOption {
 	o.Options = append(o.Options, options...)
 	return o
 }
 
 // SetRequired sets if the CommandOption is required
-func (o *CommandOption) SetRequired(required bool) *CommandOption {
+func (o CommandOption) SetRequired(required bool) CommandOption {
 	o.Required = required
 	return o
 }

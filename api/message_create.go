@@ -48,7 +48,7 @@ func NewMessageBuilderByMessage(message *Message) *MessageCreateBuilder {
 		TTS:             message.TTS,
 		Components:      message.Components,
 		Embeds:          message.Embeds,
-		AllowedMentions: &DefaultInteractionAllowedMentions,
+		AllowedMentions: &DefaultMessageAllowedMentions,
 	}
 	if message.Content != nil {
 		msg.Content = *message.Content
@@ -68,6 +68,11 @@ func (b *MessageCreateBuilder) SetContent(content string) *MessageCreateBuilder 
 func (b *MessageCreateBuilder) SetContentf(content string, a ...interface{}) *MessageCreateBuilder {
 	b.Content = fmt.Sprintf(content, a...)
 	return b
+}
+
+// ClearContent removes content of the Message
+func (b *MessageCreateBuilder) ClearContent() *MessageCreateBuilder {
+	return b.SetContent("")
 }
 
 // SetTTS sets the text to speech of the Message
@@ -194,6 +199,23 @@ func (b *MessageCreateBuilder) SetMessageReferenceByID(messageID Snowflake) *Mes
 func (b *MessageCreateBuilder) SetFlags(flags MessageFlags) *MessageCreateBuilder {
 	b.Flags = flags
 	return b
+}
+
+// AddFlags adds the MessageFlags of the Message
+func (b *MessageCreateBuilder) AddFlags(flags ...MessageFlags) *MessageCreateBuilder {
+	b.Flags = b.Flags.Add(flags...)
+	return b
+}
+
+// RemoveFlags removes the MessageFlags of the Message
+func (b *MessageCreateBuilder) RemoveFlags(flags ...MessageFlags) *MessageCreateBuilder {
+	b.Flags = b.Flags.Remove(flags...)
+	return b
+}
+
+// ClearFlags clears the MessageFlags of the Message
+func (b *MessageCreateBuilder) ClearFlags() *MessageCreateBuilder {
+	return b.SetFlags(MessageFlagNone)
 }
 
 // SetEphemeral adds/removes MessageFlagEphemeral to the Message flags
