@@ -1,12 +1,12 @@
 package api
 
-// Integration Account (https://discord.com/developers/docs/resources/guild#integration-account-object)
+// IntegrationAccount (https://discord.com/developers/docs/resources/guild#integration-account-object)
 type IntegrationAccount struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
-// Integration Application (https://discord.com/developers/docs/resources/guild#integration-application-object)
+// IntegrationApplication (https://discord.com/developers/docs/resources/guild#integration-application-object)
 type IntegrationApplication struct {
 	ID          Snowflake `json:"id"`
 	Name        string    `json:"name"`
@@ -16,7 +16,7 @@ type IntegrationApplication struct {
 	Bot         *bool     `json:"bot"`
 }
 
-// Integrations (https://discord.com/developers/docs/resources/guild#integration-object)
+// Integration (https://discord.com/developers/docs/resources/guild#integration-object)
 type Integration struct {
 	ID                Snowflake               `json:"id"`
 	Name              string                  `json:"name"`
