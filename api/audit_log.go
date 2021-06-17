@@ -1,5 +1,7 @@
 package api
 
+// Audit Log Change Key (https://discord.com/developers/docs/resources/audit-log#audit-log-change-object-audit-log-change-key)
+// This is data representing changes values/settings in an audit log.
 type AuditLogChangeKey struct {
 	Name                        *string                     `json:"name"`
 	Description                 *string                     `json:"description"`
@@ -58,8 +60,11 @@ type AuditLogChangeKey struct {
 	PrivacyLevel                *uint8                      `json:"privacy_level"`
 }
 
+// Audit Log Event
+// This is a 8-bit unsigned integer representing an audit log event.
 type AuditLogEvent uint8
 
+// Optional Audit Log Entry Info (https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object-optional-audit-entry-info)
 type OptionalAuditLogEntryInfo struct {
 	DeleteMemberDays *string    `json:"delete_member_days"`
 	MembersRemoved   *string    `json:"members_removed"`
@@ -71,6 +76,8 @@ type OptionalAuditLogEntryInfo struct {
 	RoleName         *string    `json:"role_name"`
 }
 
+// Audit Log Entry (https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object)
+// This is essentially the body of an audit log.
 type AuditLogEntry struct {
 	TargetID   *Snowflake                 `json:"target_id"`
 	Changes    *[]AuditLogChangeKey       `json:"changes"`
@@ -81,6 +88,8 @@ type AuditLogEntry struct {
 	Reason     *string                    `json:"reason"`
 }
 
+// Audit Logs (https://discord.com/developers/docs/resources/audit-log)
+// These are logs of events that occurred, accessible via the Discord API.
 type AuditLog struct {
 	Webhooks     []Webhook
 	Users        []User
