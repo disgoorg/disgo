@@ -160,65 +160,6 @@ func (b *MessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...Snowflake)
 	return b
 }
 
-// SetFiles sets the files for this Message
-func (b *MessageUpdateBuilder) SetFiles(files ...restclient.File) *MessageUpdateBuilder {
-	b.Files = files
-	b.updateFlags |= updateFlagFiles
-	return b
-}
-
-// AddFiles adds the files to the Message
-func (b *MessageUpdateBuilder) AddFiles(files ...restclient.File) *MessageUpdateBuilder {
-	b.Files = append(b.Files, files...)
-	b.updateFlags |= updateFlagFiles
-	return b
-}
-
-// AddFile adds a file to the Message
-func (b *MessageUpdateBuilder) AddFile(name string, reader io.Reader, flags ...restclient.FileFlags) *MessageUpdateBuilder {
-	b.Files = append(b.Files, restclient.File{
-		Name:   name,
-		Reader: reader,
-		Flags:  restclient.FileFlagNone.Add(flags...),
-	})
-	b.updateFlags |= updateFlagFiles
-	return b
-}
-
-// ClearFiles removes all files of this Message
-func (b *MessageUpdateBuilder) ClearFiles() *MessageUpdateBuilder {
-	b.Files = []restclient.File{}
-	b.updateFlags |= updateFlagFiles
-	return b
-}
-
-// RemoveFiles removes the file at this index
-func (b *MessageUpdateBuilder) RemoveFiles(i int) *MessageUpdateBuilder {
-	if len(b.Files) > i {
-		b.Files = append(b.Files[:i], b.Files[i+1:]...)
-	}
-	b.updateFlags |= updateFlagFiles
-	return b
-}
-
-// RetainAttachments removes all Attachment(s) from this Message except the ones provided
-func (b *MessageUpdateBuilder) RetainAttachments(attachments ...Attachment) *MessageUpdateBuilder {
-	b.Attachments = append(b.Attachments, attachments...)
-	b.updateFlags |= updateFlagRetainAttachment
-	return b
-}
-
-// RetainAttachmentsByID removes all Attachment(s) from this Message except the ones provided
-func (b *MessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...Snowflake) *MessageUpdateBuilder {
-	for _, attachmentID := range attachmentIDs {
-		b.Attachments = append(b.Attachments, Attachment{
-			ID: attachmentID,
-		})
-	}
-	b.updateFlags |= updateFlagRetainAttachment
-	return b
-}
-
 // SetAllowedMentions sets the AllowedMentions of the Message
 func (b *MessageUpdateBuilder) SetAllowedMentions(allowedMentions *AllowedMentions) *MessageUpdateBuilder {
 	b.AllowedMentions = allowedMentions
