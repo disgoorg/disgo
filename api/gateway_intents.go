@@ -5,39 +5,42 @@ type GatewayIntents int64
 
 // Constants for the different bit offsets of GatewayIntents
 const (
-	GatewayIntentsGuilds GatewayIntents = 1 << iota
-	GatewayIntentsGuildMembers
-	GatewayIntentsGuildBans
-	GatewayIntentsGuildEmojis
-	GatewayIntentsGuildIntegrations
-	GatewayIntentsGuildWebhooks
-	GatewayIntentsGuildInvites
-	GatewayIntentsGuildVoiceStates
-	GatewayIntentsGuildPresences
-	GatewayIntentsGuildMessages
-	GatewayIntentsGuildMessageReactions
-	GatewayIntentsGuildMessageTyping
-	GatewayIntentsDirectMessages
-	GatewayIntentsDirectMessageReactions
-	GatewayIntentsDirectMessageTyping
+	GatewayIntentGuilds GatewayIntents = 1 << iota
+	GatewayIntentGuildMembers
+	GatewayIntentGuildBans
+	GatewayIntentGuildEmojis
+	GatewayIntentGuildIntegrations
+	GatewayIntentGuildWebhooks
+	GatewayIntentGuildInvites
+	GatewayIntentGuildVoiceStates
+	GatewayIntentGuildPresences
+	GatewayIntentGuildMessages
+	GatewayIntentGuildMessageReactions
+	GatewayIntentGuildMessageTyping
+	GatewayIntentDirectMessages
+	GatewayIntentDirectMessageReactions
+	GatewayIntentDirectMessageTyping
 
-	GatewayIntentsNonPrivileged = GatewayIntentsGuilds |
-		GatewayIntentsGuildBans |
-		GatewayIntentsGuildEmojis |
-		GatewayIntentsGuildIntegrations |
-		GatewayIntentsGuildWebhooks |
-		GatewayIntentsGuildInvites |
-		GatewayIntentsGuildVoiceStates |
-		GatewayIntentsGuildMessages |
-		GatewayIntentsGuildMessageReactions |
-		GatewayIntentsGuildMessageTyping |
-		GatewayIntentsDirectMessages |
-		GatewayIntentsDirectMessageReactions |
-		GatewayIntentsDirectMessageTyping
-	GatewayIntentsPrivileged = GatewayIntentsGuildMembers |
-		GatewayIntentsGuildPresences
+	GatewayIntentsNonPrivileged = GatewayIntentGuilds |
+		GatewayIntentGuildBans |
+		GatewayIntentGuildEmojis |
+		GatewayIntentGuildIntegrations |
+		GatewayIntentGuildWebhooks |
+		GatewayIntentGuildInvites |
+		GatewayIntentGuildVoiceStates |
+		GatewayIntentGuildMessages |
+		GatewayIntentGuildMessageReactions |
+		GatewayIntentGuildMessageTyping |
+		GatewayIntentDirectMessages |
+		GatewayIntentDirectMessageReactions |
+		GatewayIntentDirectMessageTyping
+
+	GatewayIntentsPrivileged = GatewayIntentGuildMembers |
+		GatewayIntentGuildPresences
+
 	GatewayIntentsAll = GatewayIntentsNonPrivileged |
 		GatewayIntentsPrivileged
+
 	GatewayIntentsNone GatewayIntents = 0
 )
 

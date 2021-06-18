@@ -27,6 +27,8 @@ func GetAllHandlers() []api.EventHandler {
 		GuildRoleDeleteHandler{},
 		GuildRoleUpdateHandler{},
 
+		WebhooksUpdateHandler{},
+
 		InteractionCreateHandler{},
 		InteractionCreateWebhookHandler{},
 
