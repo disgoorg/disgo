@@ -8,9 +8,5 @@ import (
 type GenericChannelEvent struct {
 	GenericEvent
 	ChannelID api.Snowflake
-}
-
-// Channel returns the api.Channel from the api.Cache if cached
-func (e GenericChannelEvent) Channel() api.Channel {
-	return e.Disgo().Cache().Channel(e.ChannelID)
+	Channel   api.Channel
 }

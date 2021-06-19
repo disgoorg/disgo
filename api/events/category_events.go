@@ -6,8 +6,8 @@ import (
 
 // GenericCategoryEvent is called upon receiving CategoryCreateEvent, CategoryUpdateEvent or CategoryDeleteEvent
 type GenericCategoryEvent struct {
-	GenericChannelEvent
-	Category api.Category
+	GenericGuildChannelEvent
+	Category *api.Category
 }
 
 // CategoryCreateEvent indicates that a new api.Category got created in a api.Guild
@@ -18,7 +18,7 @@ type CategoryCreateEvent struct {
 // CategoryUpdateEvent indicates that a api.Category got updated in a api.Guild
 type CategoryUpdateEvent struct {
 	GenericCategoryEvent
-	OldCategory api.Category
+	OldCategory *api.Category
 }
 
 // CategoryDeleteEvent indicates that a api.Category got deleted in a api.Guild

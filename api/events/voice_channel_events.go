@@ -6,7 +6,7 @@ import (
 
 // GenericVoiceChannelEvent is called upon receiving VoiceChannelCreateEvent, VoiceChannelUpdateEvent or VoiceChannelDeleteEvent
 type GenericVoiceChannelEvent struct {
-	GenericChannelEvent
+	GenericGuildChannelEvent
 	VoiceChannel api.VoiceChannel
 }
 

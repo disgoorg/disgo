@@ -6,7 +6,7 @@ import (
 
 // GenericStoreChannelEvent is called upon receiving StoreChannelCreateEvent, StoreChannelUpdateEvent or StoreChannelDeleteEvent
 type GenericStoreChannelEvent struct {
-	GenericChannelEvent
+	GenericGuildChannelEvent
 	StoreChannel api.StoreChannel
 }
 

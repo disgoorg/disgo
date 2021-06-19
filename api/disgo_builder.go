@@ -11,7 +11,7 @@ type DisgoBuilder interface {
 	SetLogger(level log.Logger) DisgoBuilder
 	SetToken(token string) DisgoBuilder
 	SetHTTPClient(httpClient *http.Client) DisgoBuilder
-	SetGatewayIntents(GatewayIntents GatewayIntents) DisgoBuilder
+	SetGatewayIntents(GatewayIntents ...GatewayIntents) DisgoBuilder
 	SetRawGatewayEventsEnabled(enabled bool) DisgoBuilder
 	SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor) DisgoBuilder
 	SetEntityBuilder(entityBuilder EntityBuilder) DisgoBuilder
@@ -24,7 +24,9 @@ type DisgoBuilder interface {
 	SetMemberCachePolicy(memberCachePolicy MemberCachePolicy) DisgoBuilder
 	SetThreadMemberCachePolicy(threadMemberCachePolicy ThreadMemberCachePolicy) DisgoBuilder
 	SetMessageCachePolicy(messageCachePolicy MessageCachePolicy) DisgoBuilder
-	SetCacheFlags(cacheFlags CacheFlags) DisgoBuilder
+	SetCacheFlags(cacheFlags ...CacheFlags) DisgoBuilder
+	EnableCacheFlags(cacheFlags ...CacheFlags) DisgoBuilder
+	DisableCacheFlags(cacheFlags ...CacheFlags) DisgoBuilder
 	SetGateway(gateway Gateway) DisgoBuilder
 	Build() (Disgo, error)
 }
