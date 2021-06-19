@@ -6,7 +6,7 @@ import "github.com/DisgoOrg/disgo/api"
 type GenericGuildChannelEvent struct {
 	GenericChannelEvent
 	GuildID      api.Snowflake
-	GuildChannel *api.GuildChannel
+	GuildChannel api.GuildChannel
 }
 
 // Guild returns the cached api.Guild the event happened in
@@ -22,7 +22,7 @@ type GuildChannelCreateEvent struct {
 // GuildChannelUpdateEvent indicates that a api.GuildChannel got updated in a api.Guild
 type GuildChannelUpdateEvent struct {
 	GenericGuildChannelEvent
-	OldGuildChannel *api.GuildChannel
+	OldGuildChannel api.GuildChannel
 }
 
 // GuildChannelDeleteEvent indicates that a api.GuildChannel got deleted in a api.Guild

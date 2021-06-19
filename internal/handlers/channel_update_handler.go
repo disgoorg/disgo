@@ -25,7 +25,7 @@ func (h ChannelUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		return
 	}
 
-	channel.Disgo = disgo
+	channel.Disgo_ = disgo
 
 	genericChannelEvent := events.GenericChannelEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
@@ -38,16 +38,14 @@ func (h ChannelUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 	if channel.Guild() != nil {
 		genericGuildChannelEvent = events.GenericGuildChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
-			GuildID:             *channel.GuildID,
-			GuildChannel: &api.GuildChannel{
-				Channel: *channel,
-			},
+			GuildID:             channel.GuildID(),
+			GuildChannel:        channel,
 		}
 		eventManager.Dispatch(genericGuildChannelEvent)
 
 		eventManager.Dispatch(events.GuildChannelUpdateEvent{
 			GenericGuildChannelEvent: genericGuildChannelEvent,
-			OldGuildChannel:          disgo.Cache().GuildChannel(channel.ID),
+			OldGuildChannel:          disgo.Cache().GuildChannel(channel.ID()),
 		})
 	}
 

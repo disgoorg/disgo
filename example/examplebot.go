@@ -23,9 +23,6 @@ const green = 0x00fc00
 
 var token = os.Getenv("token")
 var guildID = api.Snowflake(os.Getenv("guild_id"))
-var adminRoleID = api.Snowflake(os.Getenv("admin_role_id"))
-var testRoleID = api.Snowflake(os.Getenv("test_role_id"))
-var emoteID = api.Snowflake(os.Getenv("test_emote_id"))
 
 var logger = logrus.New()
 var client = http.DefaultClient
@@ -39,9 +36,9 @@ func main() {
 		SetLogger(logger).
 		SetRawGatewayEventsEnabled(true).
 		SetHTTPClient(client).
-		SetGatewayIntents(api.GatewayIntentsNonPrivileged | api.GatewayIntentsGuildMembers).
+		SetGatewayIntents(api.GatewayIntentsNonPrivileged | api.GatewayIntentGuildMembers).
 		SetMemberCachePolicy(api.MemberCachePolicyAll).
-		AddEventListeners(&events.ListenerAdapter{
+		AddEventListeners(events.ListenerAdapter{
 			OnRawGateway:         rawGatewayEventListener,
 			OnGuildAvailable:     guildAvailListener,
 			OnGuildMessageCreate: messageListener,
@@ -54,108 +51,11 @@ func main() {
 		return
 	}
 
-	/*rawCmds := []api.CommandCreate{
-		{
-			Name:              "eval",
-			Description:       "runs some go code",
-			DefaultPermission: true,
-			Options: []api.CommandOption{
-				{
-					Type:        api.CommandOptionTypeString,
-					Name:        "code",
-					Description: "the code to eval",
-					Required:    true,
-				},
-			},
-		},
-		{
-			Name:              "test",
-			Description:       "test test test test test test",
-			DefaultPermission: true,
-		},
-		{
-			Name:              "say",
-			Description:       "says what you say",
-			DefaultPermission: true,
-			Options: []api.CommandOption{
-				{
-					Type:        api.CommandOptionTypeString,
-					Name:        "message",
-					Description: "What to say",
-					Required:    true,
-				},
-			},
-		},
-		{
-			Name:              "addrole",
-			Description:       "This command adds a role to a member",
-			DefaultPermission: true,
-			Options: []api.CommandOption{
-				{
-					Type:        api.CommandOptionTypeUser,
-					Name:        "member",
-					Description: "The member to add a role to",
-					Required:    true,
-				},
-				{
-					Type:        api.CommandOptionTypeRole,
-					Name:        "role",
-					Description: "The role to add to a member",
-					Required:    true,
-				},
-			},
-		},
-		{
-			Name:              "removerole",
-			Description:       "This command removes a role from a member",
-			DefaultPermission: true,
-			Options: []api.CommandOption{
-				{
-					Type:        api.CommandOptionTypeUser,
-					Name:        "member",
-					Description: "The member to removes a role from",
-					Required:    true,
-				},
-				{
-					Type:        api.CommandOptionTypeRole,
-					Name:        "role",
-					Description: "The role to removes from a member",
-					Required:    true,
-				},
-			},
-		},
-	}
-
 	// using the api.RestClient directly to avoid the guild needing to be cached
-	cmds, err := dgo.RestClient().SetGuildCommands(dgo.ApplicationID(), guildID, rawCmds...)
+	_, err = dgo.RestClient().SetGuildCommands(dgo.ApplicationID(), guildID, rawCmds...)
 	if err != nil {
 		logger.Errorf("error while registering guild commands: %s", err)
 	}
-
-	var cmdsPermissions []api.SetGuildCommandPermissions
-	for _, cmd := range cmds {
-		var perms api.CommandPermission
-		if cmd.Name == "eval" {
-			perms = api.CommandPermission{
-				ID:         adminRoleID,
-				Type:       api.CommandPermissionTypeRole,
-				Permission: true,
-			}
-		} else {
-			perms = api.CommandPermission{
-				ID:         testRoleID,
-				Type:       api.CommandPermissionTypeRole,
-				Permission: true,
-			}
-		}
-		cmdsPermissions = append(cmdsPermissions, api.SetGuildCommandPermissions{
-			ID:          cmd.ID,
-			Permissions: []api.CommandPermission{perms},
-		})
-	}
-	if _, err = dgo.RestClient().SetGuildCommandsPermissions(dgo.ApplicationID(), guildID, cmdsPermissions...); err != nil {
-		logger.Errorf("error while setting command permissions: %s", err)
-	}*/
 
 	err = dgo.Connect()
 	if err != nil {
