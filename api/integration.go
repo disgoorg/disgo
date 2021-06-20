@@ -13,7 +13,7 @@ type IntegrationApplication struct {
 	Icon        string    `json:"icon"`
 	Description string    `json:"description"`
 	Summary     string    `json:"summary"`
-	Bot         *bool     `json:"bot"`
+	Bot         *User     `json:"bot"`
 }
 
 // Integration (https://discord.com/developers/docs/resources/guild#integration-object)
@@ -23,7 +23,7 @@ type Integration struct {
 	Type              string                  `json:"type"`
 	Enabled           bool                    `json:"enabled"`
 	Syncing           *bool                   `json:"syncing"`
-	RoleID            *bool                   `json:"role_id"`
+	RoleID            *Snowflake              `json:"role_id"`
 	EnableEmoticons   *bool                   `json:"enable_emoticons"`
 	ExpireBehavior    *uint8                  `json:"expire_behavior"`
 	ExpireGracePeriod *uint                   `json:"expire_grace_period"`

@@ -20,8 +20,8 @@ type AuditLogChangeKey struct {
 	ExplicitContentFilterLevel  *ExplicitContentFilterLevel `json:"explicit_content_filter"`
 	DefaultMessageNotifications *MessageNotifications       `json:"default_message_notifications"`
 	VanityURLCode               *string                     `json:"vanity_url_code"`
-	Add                         *[]Role                     `json:"$add"`
-	Remove                      *[]Role                     `json:"$remove"`
+	Add                         []Role                      `json:"$add"`
+	Remove                      []Role                      `json:"$remove"`
 	PruneDeleteDays             *uint8                      `json:"prune_delete_days"`
 	WidgetEnabled               *bool                       `json:"widget_enabled"`
 	WidgetChannelID             *string                     `json:"widget_channel_id"`
@@ -29,7 +29,7 @@ type AuditLogChangeKey struct {
 	Position                    *uint8                      `json:"position"`
 	Topic                       *string                     `json:"topic"`
 	Bitrate                     *uint8                      `json:"bitrate"`
-	PermissionOverwrites        *[]PermissionOverwrite      `json:"permission_overwrites"`
+	PermissionOverwrites        []PermissionOverwrite       `json:"permission_overwrites"`
 	NSFW                        *bool                       `json:"nsfw"`
 	ApplicationID               *Snowflake                  `json:"application_id"`
 	RateLimitPerUser            *uint                       `json:"ratelimit_per_user"`
@@ -62,6 +62,48 @@ type AuditLogChangeKey struct {
 // AuditLogEvent is an 8-bit unsigned integer representing an audit log event.
 type AuditLogEvent uint8
 
+// AuditLogEventGuildUpdate
+const (
+	AuditLogEventGuildUpdate            AuditLogEvent = 1
+	AuditLogEventChannelCreate          AuditLogEvent = 10
+	AuditLogEventChannelUpdate          AuditLogEvent = 11
+	AuditLogEventChannelDelete          AuditLogEvent = 12
+	AuditLogEventChannelOverwriteCreate AuditLogEvent = 13
+	AuditLogEventChannelOverwriteUpdate AuditLogEvent = 14
+	AuditLogEventChannelOverwriteDelete AuditLogEvent = 15
+	AuditLogEventMemberKick             AuditLogEvent = 20
+	AuditLogEventMemberPrune            AuditLogEvent = 21
+	AuditLogEventMemberBanAdd           AuditLogEvent = 22
+	AuditLogEventMemberBanRemove        AuditLogEvent = 23
+	AuditLogEventMemberUpdate           AuditLogEvent = 24
+	AuditLogEventMemberRoleUpdate       AuditLogEvent = 25
+	AuditLogEventMemberMove             AuditLogEvent = 26
+	AuditLogEventMemberDisconnect       AuditLogEvent = 27
+	AuditLogEventBotAdd                 AuditLogEvent = 28
+	AuditLogEventRoleCreate             AuditLogEvent = 30
+	AuditLogEventRoleUpdate             AuditLogEvent = 31
+	AuditLogEventRoleDelete             AuditLogEvent = 32
+	AuditLogEventInviteCreate           AuditLogEvent = 40
+	AuditLogEventInviteUpdate           AuditLogEvent = 41
+	AuditLogEventInviteDelete           AuditLogEvent = 42
+	AuditLogEventWebhookCreate          AuditLogEvent = 50
+	AuditLogEventWebhookUpdate          AuditLogEvent = 51
+	AuditLogEventWebhookDelete          AuditLogEvent = 52
+	AuditLogEventEmojiCreate            AuditLogEvent = 60
+	AuditLogEventEmojiUpdate            AuditLogEvent = 61
+	AuditLogEventEmojiDelete            AuditLogEvent = 62
+	AuditLogEventMessageDelete          AuditLogEvent = 72
+	AuditLogEventMessageBulkDelete      AuditLogEvent = 73
+	AuditLogEventMessagePin             AuditLogEvent = 74
+	AuditLogEventMessageUnpin           AuditLogEvent = 75
+	AuditLogEventIntegrationCreate      AuditLogEvent = 80
+	AuditLogEventIntegrationUpdate      AuditLogEvent = 81
+	AuditLogEventIntegrationDelete      AuditLogEvent = 82
+	AuditLogEventStageInstanceCreate    AuditLogEvent = 83
+	AuditLogEventStageInstanceUpdate    AuditLogEvent = 84
+	AuditLogEventStageInstanceDelete    AuditLogEvent = 85
+)
+
 // OptionalAuditLogEntryInfo (https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object-optional-audit-entry-info)
 type OptionalAuditLogEntryInfo struct {
 	DeleteMemberDays *string    `json:"delete_member_days"`
@@ -77,7 +119,7 @@ type OptionalAuditLogEntryInfo struct {
 // AuditLogEntry (https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object)
 type AuditLogEntry struct {
 	TargetID   *Snowflake                 `json:"target_id"`
-	Changes    *[]AuditLogChangeKey       `json:"changes"`
+	Changes    []AuditLogChangeKey        `json:"changes"`
 	UserID     Snowflake                  `json:"user_id"`
 	ID         Snowflake                  `json:"id"`
 	ActionType AuditLogEvent              `json:"action_type"`
