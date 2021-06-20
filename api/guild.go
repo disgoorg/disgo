@@ -172,8 +172,18 @@ type Guild struct {
 	WelcomeScreen               *GuildWelcomeScreen        `json:"welcome_screen"`
 }
 
-// GetSelfMember returns the Member for the current logged in User for this Guild
-func (g *Guild) GetSelfMember() *SelfMember {
+// PublicRole returns the @everyone Role
+func (g *Guild) PublicRole() *Role {
+	return g.Disgo.Cache().Role(g.ID)
+}
+
+// Roles return all Role(s) in this Guild
+func (g *Guild) Roles() []*Role {
+	return g.Disgo.Cache().Roles(g.ID)
+}
+
+// SelfMember returns the Member for the current logged in User for this Guild
+func (g *Guild) SelfMember() *SelfMember {
 	return &SelfMember{
 		Member: g.Disgo.Cache().Member(g.ID, g.Disgo.SelfUserID()),
 	}

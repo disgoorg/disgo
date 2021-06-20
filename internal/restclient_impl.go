@@ -280,7 +280,7 @@ func (r *RestClientImpl) AddMemberRole(guildID api.Snowflake, userID api.Snowfla
 	if err == nil && api.CacheStrategyNoWs(r.Disgo()) {
 		member := r.Disgo().Cache().Member(guildID, userID)
 		if member != nil {
-			member.Roles = append(member.Roles, roleID)
+			member.RoleIDs = append(member.RoleIDs, roleID)
 		}
 	}
 	return
@@ -296,9 +296,9 @@ func (r *RestClientImpl) RemoveMemberRole(guildID api.Snowflake, userID api.Snow
 	if err == nil && api.CacheStrategyNoWs(r.Disgo()) {
 		member := r.Disgo().Cache().Member(guildID, userID)
 		if member != nil {
-			for i, id := range member.Roles {
+			for i, id := range member.RoleIDs {
 				if id == roleID {
-					member.Roles = append(member.Roles[:i], member.Roles[i+1:]...)
+					member.RoleIDs = append(member.RoleIDs[:i], member.RoleIDs[i+1:]...)
 					break
 				}
 			}
