@@ -2,7 +2,6 @@ package internal
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/DisgoOrg/disgo/api"
 	"github.com/DisgoOrg/restclient"
