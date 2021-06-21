@@ -311,7 +311,7 @@ func (g *Guild) SyncTemplate(code string) (*GuildTemplate, error) {
 	return g.Disgo.RestClient().SyncGuildTemplate(g.ID, code)
 }
 
-func (g *Guild) UpdateTemplate(code string, data UpdateGuildTemplate) (*GuildTemplate, error) {
+func (g *Guild) UpdateTemplate(code string, updateGuildTemplate UpdateGuildTemplate) (*GuildTemplate, restclient.restError) {
 	return g.Disgo.RestClient().UpdateGuildTemplate(g.ID, code, data)
 }
 
