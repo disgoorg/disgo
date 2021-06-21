@@ -9,7 +9,7 @@ type GuildTemplate struct {
 	Description   *string   `json:"description,omitempty"`
 	UsageCount    int       `json:"usage_count"`
 	CreatorID     Snowflake `json:"creator_id"`
-	Creator       User      `json:"creator"`
+	Creator       *User     `json:"creator"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 	SourceGuildID Snowflake `json:"source_guild_id"`
