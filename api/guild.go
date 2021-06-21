@@ -299,7 +299,7 @@ func (g *Guild) SetCommandPermissions(commandID Snowflake, permissions SetGuildC
 	return g.Disgo.SetGuildCommandPermissions(g.ID, commandID, permissions)
 }
 
-func (g *Guild) GetTemplates() ([]*GuildTemplate, error) {
+func (g *Guild) GetTemplates() ([]*GuildTemplate, restclient.restError) {
 	return g.Disgo.RestClient().GetGuildTemplates(g.ID)
 }
 
