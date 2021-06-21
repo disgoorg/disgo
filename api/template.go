@@ -13,7 +13,7 @@ type GuildTemplate struct {
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 	SourceGuildID Snowflake `json:"source_guild_id"`
-	SourceGuild   Guild     `json:"serialized_source_guild"`
+	SourceGuild   PartialGuild     `json:"serialized_source_guild"`
 	IsDirty       *bool     `json:"is_dirty,omitempty"`
 }
 
