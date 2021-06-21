@@ -918,7 +918,7 @@ func (r *restClientImpl) GetGuildTemplates(guildID api.Snowflake) (guildTemplate
 	return
 }
 
-func (r *restClientImpl) CreateGuildTemplate(guildID api.Snowflake, createTemplate api.CreateGuildTemplate) (guildTemplate *api.GuildTemplate, rErr restclient.RestError) {
+func (r *restClientImpl) CreateGuildTemplate(guildID api.Snowflake, createGuildTemplate api.CreateGuildTemplate) (guildTemplate *api.GuildTemplate, rErr restclient.RestError) {
 	compiledRoute, err := restclient.CreateGuildTemplate.Compile(nil, guildID)
 	if err != nil {
 		return nil, restclient.NewError(nil, err)
