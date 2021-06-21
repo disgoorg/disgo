@@ -903,7 +903,9 @@ func (r *restClientImpl) GetGuildTemplate(templateCode string) (guildTemplate *a
 	}
 
 	rErr = r.Do(compiledRoute, nil, &guildTemplate)
-
+	if rErr == nil {
+		guildTemplate = r.Disgo().EntityBuilder().CreateGuildTemplate(guildTemplate, api.CacheStrategyNoWs)
+	}
 	return
 }
 
@@ -914,7 +916,11 @@ func (r *restClientImpl) GetGuildTemplates(guildID api.Snowflake) (guildTemplate
 	}
 
 	rErr = r.Do(compiledRoute, nil, &guildTemplates)
-
+	if rErr == nil {
+		for _, guildTemplate := range guildTemplates {
+			guildTemplate = r.Disgo().EntityBuilder().CreateGuildTemplate(guildTemplate, api.CacheStrategyNoWs)
+		}
+	}
 	return
 }
 
@@ -924,8 +930,10 @@ func (r *restClientImpl) CreateGuildTemplate(guildID api.Snowflake, createGuildT
 		return nil, restclient.NewError(nil, err)
 	}
 
-	rErr = r.Do(compiledRoute, createTemplate, &guildTemplate)
-
+	rErr = r.Do(compiledRoute, createGuildTemplate, &guildTemplate)
+	if rErr == nil {
+		guildTemplate = r.Disgo().EntityBuilder().CreateGuildTemplate(guildTemplate, api.CacheStrategyNoWs)
+	}
 	return
 }
 
@@ -951,7 +959,9 @@ func (r *restClientImpl) SyncGuildTemplate(guildID api.Snowflake, templateCode s
 	}
 
 	rErr = r.Do(compiledRoute, nil, &guildTemplate)
-
+	if rErr == nil {
+		guildTemplate = r.Disgo().EntityBuilder().CreateGuildTemplate(guildTemplate, api.CacheStrategyNoWs)
+	}
 	return
 }
 
@@ -962,7 +972,9 @@ func (r *restClientImpl) UpdateGuildTemplate(guildID api.Snowflake, templateCode
 	}
 
 	rErr = r.Do(compiledRoute, updateGuildTemplate, &guildTemplate)
-
+	if rErr == nil {
+		guildTemplate = r.Disgo().EntityBuilder().CreateGuildTemplate(guildTemplate, api.CacheStrategyNoWs)
+	}
 	return
 }
 
@@ -973,10 +985,8 @@ func (r *restClientImpl) DeleteGuildTemplate(guildID api.Snowflake, templateCode
 	}
 
 	rErr = r.Do(compiledRoute, nil, &guildTemplate)
-
+	if rErr == nil {
+		guildTemplate = r.Disgo().EntityBuilder().CreateGuildTemplate(guildTemplate, api.CacheStrategyNoWs)
+	}
 	return
-}
-
-func normalizeEmoji(emoji string) string {
-	return strings.Replace(emoji, "#", "%23", -1)
 }
