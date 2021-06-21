@@ -172,6 +172,16 @@ func (b *EntityBuilderImpl) CreateMessage(fullMessage *api.FullMessage, updateCa
 	return message
 }
 
+// CreateGuildTemplate returns a new api.GuildTemplate entity
+func (b *EntityBuilderImpl) CreateGuildTemplate(guildTemplate *api.GuildTemplate, updateCache api.CacheStrategy) *api.GuildTemplate {
+	guildTemplate.Disgo = b.Disgo()
+
+	if guildTemplate.Creator != nil {
+		guildTemplate.Creator = b.CreateUser(guildTemplate.Creator, updateCache)
+	}
+	return guildTemplate
+}
+
 // CreateGuild returns a new api.Guild entity
 func (b *EntityBuilderImpl) CreateGuild(fullGuild *api.FullGuild, updateCache api.CacheStrategy) *api.Guild {
 	guild := fullGuild.Guild

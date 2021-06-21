@@ -299,6 +299,26 @@ func (g *Guild) SetCommandPermissions(commandID Snowflake, permissions SetGuildC
 	return g.Disgo.SetGuildCommandPermissions(g.ID, commandID, permissions)
 }
 
+func (g *Guild) GetTemplates() ([]*GuildTemplate, restclient.RestError) {
+	return g.Disgo.RestClient().GetGuildTemplates(g.ID)
+}
+
+func (g *Guild) CreateTemplate(createGuildTemplate CreateGuildTemplate) (*GuildTemplate, restclient.RestError) {
+	return g.Disgo.RestClient().CreateGuildTemplate(g.ID, createGuildTemplate)
+}
+
+func (g *Guild) SyncTemplate(code string) (*GuildTemplate, restclient.RestError) {
+	return g.Disgo.RestClient().SyncGuildTemplate(g.ID, code)
+}
+
+func (g *Guild) UpdateTemplate(code string, updateGuildTemplate UpdateGuildTemplate) (*GuildTemplate, restclient.RestError) {
+	return g.Disgo.RestClient().UpdateGuildTemplate(g.ID, code, updateGuildTemplate)
+}
+
+func (g *Guild) DeleteTemplate(code string) (*GuildTemplate, restclient.RestError) {
+	return g.Disgo.RestClient().DeleteGuildTemplate(g.ID, code)
+}
+
 // PartialGuild is returned on the restclient.GetGuilds route
 type PartialGuild struct {
 	ID          Snowflake      `json:"id"`

@@ -92,4 +92,12 @@ type RestClient interface {
 	SendFollowupMessage(applicationID Snowflake, interactionToken string, messageCreate MessageCreate) (*Message, restclient.RestError)
 	UpdateFollowupMessage(applicationID Snowflake, interactionToken string, messageID Snowflake, messageUpdate MessageUpdate) (*Message, restclient.RestError)
 	DeleteFollowupMessage(applicationID Snowflake, interactionToken string, followupMessageID Snowflake) restclient.RestError
+
+	GetGuildTemplate(templateCode string) (*GuildTemplate, restclient.RestError)
+	GetGuildTemplates(guildID Snowflake) ([]*GuildTemplate, restclient.RestError)
+	CreateGuildTemplate(guildID Snowflake, createGuildTemplate CreateGuildTemplate) (*GuildTemplate, restclient.RestError)
+	CreateGuildFromTemplate(templateCode string, createGuildFromTemplate CreateGuildFromTemplate) (*Guild, restclient.RestError)
+	SyncGuildTemplate(guildID Snowflake, templateCode string) (*GuildTemplate, restclient.RestError)
+	UpdateGuildTemplate(guildID Snowflake, templateCode string, updateGuildTemplate UpdateGuildTemplate) (*GuildTemplate, restclient.RestError)
+	DeleteGuildTemplate(guildID Snowflake, templateCode string) (*GuildTemplate, restclient.RestError)
 }

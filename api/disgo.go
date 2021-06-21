@@ -52,6 +52,9 @@ type Disgo interface {
 	GetGuildCommandPermissions(guildID Snowflake, commandID Snowflake) (*GuildCommandPermissions, restclient.RestError)
 	SetGuildCommandsPermissions(guildID Snowflake, commandPermissions ...SetGuildCommandPermissions) ([]*GuildCommandPermissions, restclient.RestError)
 	SetGuildCommandPermissions(guildID Snowflake, commandID Snowflake, permissions SetGuildCommandPermissions) (*GuildCommandPermissions, restclient.RestError)
+
+	GetTemplate(code string) (*GuildTemplate, restclient.RestError)
+	CreateGuildFromTemplate(templateCode string, createGuildFromTemplate CreateGuildFromTemplate) (*Guild, restclient.RestError)
 }
 
 // GetOS returns the simplified version of the operating system for sending to Discord in the IdentifyCommandDataProperties.OS payload
