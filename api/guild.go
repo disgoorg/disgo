@@ -303,7 +303,7 @@ func (g *Guild) GetTemplates() ([]*GuildTemplate, error) {
 	return g.Disgo.RestClient().GetGuildTemplates(g.ID)
 }
 
-func (g *Guild) CreateTemplate(data CreateGuildTemplate) (*GuildTemplate, error) {
+func (g *Guild) CreateTemplate(createGuildTemplate CreateGuildTemplate) (*GuildTemplate, restclient.restError) {
 	return g.Disgo.RestClient().CreateGuildTemplate(g.ID, data)
 }
 
