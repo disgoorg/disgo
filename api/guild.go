@@ -307,7 +307,7 @@ func (g *Guild) CreateTemplate(createGuildTemplate CreateGuildTemplate) (*GuildT
 	return g.Disgo.RestClient().CreateGuildTemplate(g.ID, data)
 }
 
-func (g *Guild) SyncTemplate(code string) (*GuildTemplate, error) {
+func (g *Guild) SyncTemplate(code string) (*GuildTemplate, restclient.restError) {
 	return g.Disgo.RestClient().SyncGuildTemplate(g.ID, code)
 }
 
