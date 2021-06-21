@@ -32,5 +32,5 @@ type UpdateGuildTemplate struct {
 // CreateGuildFromTemplate is the data used to create a Guild from a GuildTemplate
 type CreateGuildFromTemplate struct {
 	Name      string  `json:"name"`
-	ImageData []*byte `json:"icon,omitempty"`
+	ImageData []byte  `json:"icon,omitempty"`
 }
