@@ -896,6 +896,87 @@ func (r *restClientImpl) DeleteFollowupMessage(applicationID api.Snowflake, inte
 	return r.Do(compiledRoute, nil, nil)
 }
 
+func (r *restClientImpl) GetGuildTemplate(templateCode string) (guildTemplate *api.GuildTemplate, rErr restclient.RestError) {
+	compiledRoute, err := restclient.GetGuildTemplate.Compile(nil, templateCode)
+	if err != nil {
+		return nil, restclient.NewError(nil, err)
+	}
+
+	rErr = r.Do(compiledRoute, nil, &guildTemplate)
+
+	return
+}
+
+func (r *restClientImpl) GetGuildTemplates(guildID api.Snowflake) (guildTemplates []*api.GuildTemplate, rErr restclient.RestError) {
+	compiledRoute, err := restclient.GetGuildTemplates.Compile(nil, guildID)
+	if err != nil {
+		return nil, restclient.NewError(nil, err)
+	}
+
+	rErr = r.Do(compiledRoute, nil, &guildTemplates)
+
+	return
+}
+
+func (r *restClientImpl) CreateGuildTemplate(guildID api.Snowflake, createTemplate api.CreateGuildTemplate) (guildTemplate *api.GuildTemplate, rErr restclient.RestError) {
+	compiledRoute, err := restclient.CreateGuildTemplate.Compile(nil, guildID)
+	if err != nil {
+		return nil, restclient.NewError(nil, err)
+	}
+
+	rErr = r.Do(compiledRoute, createTemplate, &guildTemplate)
+
+	return
+}
+
+func (r *restClientImpl) CreateGuildFromTemplate(templateCode string, createGuildFromTemplate api.CreateGuildFromTemplate) (guild *api.Guild, rErr restclient.RestError) {
+	compiledRoute, err := restclient.CreateGuildFromTemplate.Compile(nil, templateCode)
+	if err != nil {
+		return nil, restclient.NewError(nil, err)
+	}
+
+	var fullGuild *api.FullGuild
+	rErr = r.Do(compiledRoute, createGuildFromTemplate, &fullGuild)
+	if rErr == nil {
+		guild = r.Disgo().EntityBuilder().CreateGuild(fullGuild, api.CacheStrategyNoWs)
+	}
+
+	return
+}
+
+func (r *restClientImpl) SyncGuildTemplate(guildID api.Snowflake, templateCode string) (guildTemplate *api.GuildTemplate, rErr restclient.RestError) {
+	compiledRoute, err := restclient.SyncGuildTemplate.Compile(nil, guildID, templateCode)
+	if err != nil {
+		return nil, restclient.NewError(nil, err)
+	}
+
+	rErr = r.Do(compiledRoute, nil, &guildTemplate)
+
+	return
+}
+
+func (r *restClientImpl) UpdateGuildTemplate(guildID api.Snowflake, templateCode string, updateGuildTemplate api.UpdateGuildTemplate) (guildTemplate *api.GuildTemplate, rErr restclient.RestError) {
+	compiledRoute, err := restclient.UpdateGuildTemplate.Compile(nil, guildID, templateCode)
+	if err != nil {
+		return nil, restclient.NewError(nil, err)
+	}
+
+	rErr = r.Do(compiledRoute, updateGuildTemplate, &guildTemplate)
+
+	return
+}
+
+func (r *restClientImpl) DeleteGuildTemplate(guildID api.Snowflake, templateCode string) (guildTemplate *api.GuildTemplate, rErr restclient.RestError) {
+	compiledRoute, err := restclient.DeleteGuildTemplate.Compile(nil, guildID, templateCode)
+	if err != nil {
+		return nil, restclient.NewError(nil, err)
+	}
+
+	rErr = r.Do(compiledRoute, nil, &guildTemplate)
+
+	return
+}
+
 func normalizeEmoji(emoji string) string {
 	return strings.Replace(emoji, "#", "%23", -1)
 }
