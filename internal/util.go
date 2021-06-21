@@ -21,4 +21,3 @@ func IDFromToken(token string) (*api.Snowflake, error) {
 	strID := api.Snowflake(byteID)
 	return &strID, nil
 }
-

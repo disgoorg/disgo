@@ -1,6 +1,10 @@
 package api
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/DisgoOrg/restclient"
+)
 
 // ChannelType for interacting with discord's channels
 type ChannelType int
@@ -45,30 +49,29 @@ type MessageChannel struct {
 }
 
 // SendMessage sends a Message to a TextChannel
-func (c MessageChannel) SendMessage(message MessageCreate) (*Message, error) {
-	// Todo: attachments
-	return c.Disgo.RestClient().SendMessage(c.ID, message)
+func (c MessageChannel) SendMessage(message MessageCreate) (*Message, restclient.RestError) {
+	return c.Disgo.RestClient().CreateMessage(c.ID, message)
 }
 
 // EditMessage edits a Message in this TextChannel
-func (c MessageChannel) EditMessage(messageID Snowflake, message MessageUpdate) (*Message, error) {
-	return c.Disgo.RestClient().EditMessage(c.ID, messageID, message)
+func (c MessageChannel) EditMessage(messageID Snowflake, message MessageUpdate) (*Message, restclient.RestError) {
+	return c.Disgo.RestClient().UpdateMessage(c.ID, messageID, message)
 }
 
 // DeleteMessage allows you to edit an existing Message sent by you
-func (c MessageChannel) DeleteMessage(messageID Snowflake) error {
+func (c MessageChannel) DeleteMessage(messageID Snowflake) restclient.RestError {
 	return c.Disgo.RestClient().DeleteMessage(c.ID, messageID)
 }
 
 // BulkDeleteMessages allows you bulk delete Message(s)
-func (c MessageChannel) BulkDeleteMessages(messageIDs ...Snowflake) error {
+func (c MessageChannel) BulkDeleteMessages(messageIDs ...Snowflake) restclient.RestError {
 	return c.Disgo.RestClient().BulkDeleteMessages(c.ID, messageIDs...)
 }
 
 // CrosspostMessage crossposts an existing Message
-func (c MessageChannel) CrosspostMessage(messageID Snowflake) (*Message, error) {
+func (c MessageChannel) CrosspostMessage(messageID Snowflake) (*Message, restclient.RestError) {
 	if c.Type != ChannelTypeNews {
-		return nil, errors.New("channel type is not NEWS")
+		return nil, restclient.NewError(nil, errors.New("channel type is not NEWS"))
 	}
 	return c.Disgo.RestClient().CrosspostMessage(c.ID, messageID)
 }
@@ -76,6 +79,11 @@ func (c MessageChannel) CrosspostMessage(messageID Snowflake) (*Message, error) 
 // DMChannel is used for interacting in private Message(s) with users
 type DMChannel struct {
 	MessageChannel
+}
+
+// CreateDMChannel is the payload used to create a DMChannel
+type CreateDMChannel struct {
+	RecipientID Snowflake `json:"recipient_id"`
 }
 
 // GuildChannel is a generic type for all server channels

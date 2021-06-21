@@ -3,6 +3,8 @@ package api
 import (
 	"errors"
 	"time"
+
+	"github.com/DisgoOrg/restclient"
 )
 
 // The MessageType indicates the Message type
@@ -226,40 +228,40 @@ func (m *Message) Channel() *MessageChannel {
 }
 
 // AddReactionByEmote allows you to add an Emoji to a message_events via reaction
-func (m *Message) AddReactionByEmote(emote Emoji) error {
+func (m *Message) AddReactionByEmote(emote Emoji) restclient.RestError {
 	return m.AddReaction(emote.Reaction())
 }
 
 // AddReaction allows you to add a reaction to a message_events from a string, for example a custom emoji ID, or a native emoji
-func (m *Message) AddReaction(emoji string) error {
+func (m *Message) AddReaction(emoji string) restclient.RestError {
 	return m.Disgo.RestClient().AddReaction(m.ChannelID, m.ID, emoji)
 }
 
-// Edit allows you to edit an existing Message sent by you
-func (m *Message) Edit(message MessageUpdate) (*Message, error) {
-	return m.Disgo.RestClient().EditMessage(m.ChannelID, m.ID, message)
+// Update allows you to edit an existing Message sent by you
+func (m *Message) Update(message MessageUpdate) (*Message, restclient.RestError) {
+	return m.Disgo.RestClient().UpdateMessage(m.ChannelID, m.ID, message)
 }
 
 // Delete allows you to edit an existing Message sent by you
-func (m *Message) Delete() error {
+func (m *Message) Delete() restclient.RestError {
 	return m.Disgo.RestClient().DeleteMessage(m.ChannelID, m.ID)
 }
 
 // Crosspost crossposts an existing message
-func (m *Message) Crosspost() (*Message, error) {
+func (m *Message) Crosspost() (*Message, restclient.RestError) {
 	channel := m.Channel()
 	if channel != nil && channel.Type != ChannelTypeNews {
-		return nil, errors.New("channel type is not NEWS")
+		return nil, restclient.NewError(nil, errors.New("channel type is not NEWS"))
 	}
 	return m.Disgo.RestClient().CrosspostMessage(m.ChannelID, m.ID)
 }
 
 // Reply allows you to reply to an existing Message
-func (m *Message) Reply(message MessageCreate) (*Message, error) {
+func (m *Message) Reply(message MessageCreate) (*Message, restclient.RestError) {
 	message.MessageReference = &MessageReference{
 		MessageID: &m.ID,
 	}
-	return m.Disgo.RestClient().SendMessage(m.ChannelID, message)
+	return m.Disgo.RestClient().CreateMessage(m.ChannelID, message)
 }
 
 // MessageReaction contains information about the reactions of a message_events

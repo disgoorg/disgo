@@ -15,17 +15,17 @@ func (h GuildDeleteHandler) Event() api.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h GuildDeleteHandler) New() interface{} {
-	return &api.Guild{}
+	return &api.FullGuild{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h GuildDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
-	guild, ok := i.(*api.Guild)
+	fullGuild, ok := i.(*api.FullGuild)
 	if !ok {
 		return
 	}
 
-	guild = disgo.EntityBuilder().CreateGuild(guild, api.CacheStrategyNo)
+	guild := disgo.EntityBuilder().CreateGuild(fullGuild, api.CacheStrategyNo)
 
 	genericGuildEvent := events.GenericGuildEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),
@@ -34,7 +34,7 @@ func (h GuildDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 	eventManager.Dispatch(genericGuildEvent)
 
 	if guild.Unavailable {
-		// set guild to unavail for now
+		// set guild to unavailable for now
 		disgo.Cache().Guild(guild.ID).Unavailable = true
 
 		eventManager.Dispatch(events.GuildUnavailableEvent{
