@@ -96,7 +96,7 @@ type RestClient interface {
 	GetGuildTemplate(templateCode string) (*GuildTemplate, restclient.RestError)
 	GetGuildTemplates(guildID Snowflake) ([]*GuildTemplate, restclient.RestError)
 	CreateGuildTemplate(guildID Snowflake, createGuildTemplate CreateGuildTemplate) (*GuildTemplate, restclient.RestError)
-	CreateGuildFromTemplate(templateCode string, data CreateGuildFromTemplate) (*Guild, restclient.RestError)
+	CreateGuildFromTemplate(templateCode string, createGuildFromTemplate CreateGuildFromTemplate) (*Guild, restclient.RestError)
 	SyncGuildTemplate(guildID Snowflake, templateCode string) (*GuildTemplate, restclient.RestError)
 	UpdateGuildTemplate(guildID Snowflake, templateCode string, updateGuildTemplate UpdateGuildTemplate) (*GuildTemplate, restclient.RestError)
 	DeleteGuildTemplate(guildID Snowflake, templateCode string) (*GuildTemplate, restclient.RestError)
