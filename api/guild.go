@@ -315,7 +315,7 @@ func (g *Guild) UpdateTemplate(code string, updateGuildTemplate UpdateGuildTempl
 	return g.Disgo.RestClient().UpdateGuildTemplate(g.ID, code, data)
 }
 
-func (g *Guild) DeleteTemplate(code string) (*GuildTemplate, error) {
+func (g *Guild) DeleteTemplate(code string) (*GuildTemplate, restclient.restError) {
 	return g.Disgo.RestClient().DeleteGuildTemplate(g.ID, code)
 }
 
