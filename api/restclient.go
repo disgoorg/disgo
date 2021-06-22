@@ -18,7 +18,7 @@ type ErrorResponse struct {
 	Message string
 }
 
-// RestClient is a manager for all of Disgo's HTTP requests
+// RestClient is a manager for all of disgo's HTTP requests
 type RestClient interface {
 	restclient.RestClient
 	Close()

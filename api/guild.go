@@ -171,6 +171,23 @@ type Guild struct {
 	WelcomeScreen               *GuildWelcomeScreen        `json:"welcome_screen"`
 }
 
+// PublicRole returns the @everyone Role
+func (g *Guild) PublicRole() *Role {
+	return g.Disgo.Cache().Role(g.ID)
+}
+
+// Roles return all Role(s) in this Guild
+func (g *Guild) Roles() []*Role {
+	return g.Disgo.Cache().Roles(g.ID)
+}
+
+// SelfMember returns the Member for the current logged in User for this Guild
+func (g *Guild) SelfMember() *SelfMember {
+	return &SelfMember{
+		Member: g.Disgo.Cache().Member(g.ID, g.Disgo.ClientID()),
+	}
+}
+
 // Disconnect sends a api.GatewayCommand to disconnect from this Guild
 func (g *Guild) Disconnect() error {
 	return g.Disgo.AudioController().Disconnect(g.ID)
@@ -345,7 +362,6 @@ type CreateGuild struct {
 	SystemChannelFlags              SystemChannelFlag          `json:"system_channel_flags,omitempty"`
 }
 
-// UpdateGuild is the payload used to update a Guild
 type UpdateGuild struct {
 	Name                            string                      `json:"name"`
 	Region                          *string                     `json:"region"`
