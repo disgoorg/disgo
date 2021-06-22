@@ -52,7 +52,10 @@ func (m *Member) Guild() *Guild {
 
 // IsOwner returns whether the member is the owner of the guild_events that it belongs to
 func (m *Member) IsOwner() bool {
-	return m.Guild().OwnerID == m.User.ID
+	if guild := m.Guild(); guild != nil {
+		return guild.OwnerID == m.User.ID
+	}
+	return false
 }
 
 // Update updates the member
