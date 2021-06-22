@@ -8,17 +8,32 @@ import (
 
 // Member is a discord GuildMember
 type Member struct {
-	Disgo        Disgo
-	GuildID      Snowflake    `json:"guild_id"`
-	User         *User        `json:"user"`
-	Nick         *string      `json:"nick"`
-	Roles        []Snowflake  `json:"roles,omitempty"`
-	JoinedAt     time.Time    `json:"joined_at"`
-	PremiumSince *time.Time   `json:"premium_since,omitempty"`
-	Deaf         *bool        `json:"deaf,omitempty"`
-	Mute         *bool        `json:"mute,omitempty"`
-	Pending      bool         `json:"pending"`
-	Permissions  *Permissions `json:"permissions,omitempty"`
+	Disgo              Disgo
+	GuildID            Snowflake    `json:"guild_id"`
+	User               *User        `json:"user"`
+	Nick               *string      `json:"nick"`
+	RoleIDs            []Snowflake  `json:"roles,omitempty"`
+	JoinedAt           time.Time    `json:"joined_at"`
+	PremiumSince       *time.Time   `json:"premium_since,omitempty"`
+	Deaf               *bool        `json:"deaf,omitempty"`
+	Mute               *bool        `json:"mute,omitempty"`
+	Pending            bool         `json:"pending"`
+	ChannelPermissions *Permissions `json:"permissions,omitempty"`
+}
+
+// Permissions returns the Permissions the Member has in the Guild
+func (m *Member) Permissions() Permissions {
+	return GetMemberPermissions(m)
+}
+
+// Roles return all Role(s)the Member has
+func (m *Member) Roles() []*Role {
+	var roles []*Role
+	allRoles := m.Disgo.Cache().RoleCache(m.GuildID)
+	for _, roleID := range m.RoleIDs {
+		roles = append(roles, allRoles[roleID])
+	}
+	return roles
 }
 
 // VoiceState returns the VoiceState for this Member from the Cache(requires CacheFlagVoiceState and GatewayIntentsGuildVoiceStates)

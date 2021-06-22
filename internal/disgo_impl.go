@@ -289,5 +289,5 @@ func (d *DisgoImpl) GetTemplate(code string) (*api.GuildTemplate, restclient.Res
 
 // CreateGuildFromTemplate creates an api.Guild using a api.Template code
 func (d *DisgoImpl) CreateGuildFromTemplate(templateCode string, createGuildFromTemplate api.CreateGuildFromTemplate) (*api.Guild, restclient.RestError) {
-	return d.RestClient().CreateGuildFromTemplate(templateCode, data)
+	return d.RestClient().CreateGuildFromTemplate(templateCode, createGuildFromTemplate)
 }
