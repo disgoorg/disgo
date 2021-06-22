@@ -184,7 +184,7 @@ func (g *Guild) Roles() []*Role {
 // SelfMember returns the Member for the current logged in User for this Guild
 func (g *Guild) SelfMember() *SelfMember {
 	return &SelfMember{
-		Member: g.Disgo.Cache().Member(g.ID, g.Disgo.SelfUserID()),
+		Member: g.Disgo.Cache().Member(g.ID, g.Disgo.ClientID()),
 	}
 }
 
