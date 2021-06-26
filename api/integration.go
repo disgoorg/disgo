@@ -25,12 +25,12 @@ type Integration struct {
 	Syncing           *bool                   `json:"syncing"`
 	RoleID            *Snowflake              `json:"role_id"`
 	EnableEmoticons   *bool                   `json:"enable_emoticons"`
-	ExpireBehavior    *uint8                  `json:"expire_behavior"`
-	ExpireGracePeriod *uint                   `json:"expire_grace_period"`
+	ExpireBehavior    *int                    `json:"expire_behavior"`
+	ExpireGracePeriod *int                    `json:"expire_grace_period"`
 	User              *User                   `json:"user"`
 	Account           IntegrationAccount      `json:"account"`
 	SyncedAt          *string                 `json:"synced_at"`
-	SubscriberCount   *uint                   `json:"subscriber_account"`
+	SubscriberCount   *int                    `json:"subscriber_account"`
 	Revoked           *bool                   `json:"revoked"`
 	Application       *IntegrationApplication `json:"application"`
 }

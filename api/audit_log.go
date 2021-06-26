@@ -12,7 +12,7 @@ type AuditLogChangeKey struct {
 	Region                      *string                     `json:"region"`
 	PreferredLocale             *string                     `json:"preferred_locale"`
 	AFKChannelID                *Snowflake                  `json:"afk_channel_id"`
-	AFKTimeout                  *uint8                      `json:"afk_timeout"`
+	AFKTimeout                  *int                        `json:"afk_timeout"`
 	RulesChannelID              *Snowflake                  `json:"rules_channel_id"`
 	PublicUpdatesChannelID      *Snowflake                  `json:"public_updates_channel_id"`
 	MFALevel                    *MFALevel                   `json:"mfa_level"`
@@ -22,19 +22,19 @@ type AuditLogChangeKey struct {
 	VanityURLCode               *string                     `json:"vanity_url_code"`
 	Add                         []Role                      `json:"$add"`
 	Remove                      []Role                      `json:"$remove"`
-	PruneDeleteDays             *uint8                      `json:"prune_delete_days"`
+	PruneDeleteDays             *int                        `json:"prune_delete_days"`
 	WidgetEnabled               *bool                       `json:"widget_enabled"`
 	WidgetChannelID             *string                     `json:"widget_channel_id"`
 	SystemChannelID             *string                     `json:"system_channel_id"`
-	Position                    *uint8                      `json:"position"`
+	Position                    *int                        `json:"position"`
 	Topic                       *string                     `json:"topic"`
-	Bitrate                     *uint8                      `json:"bitrate"`
+	Bitrate                     *int                        `json:"bitrate"`
 	PermissionOverwrites        []PermissionOverwrite       `json:"permission_overwrites"`
 	NSFW                        *bool                       `json:"nsfw"`
 	ApplicationID               *Snowflake                  `json:"application_id"`
-	RateLimitPerUser            *uint                       `json:"ratelimit_per_user"`
+	RateLimitPerUser            *int                        `json:"ratelimit_per_user"`
 	Permissions                 *string                     `json:"permissions"`
-	Color                       *uint                       `json:"color"`
+	Color                       *int                        `json:"color"`
 	Hoist                       *bool                       `json:"hoist"`
 	Mentionable                 *bool                       `json:"mentionable"`
 	Allow                       *string                     `json:"allow"`
@@ -42,8 +42,8 @@ type AuditLogChangeKey struct {
 	Code                        *string                     `json:"code"`
 	ChannelID                   *Snowflake                  `json:"channel_id"`
 	InviterID                   *Snowflake                  `json:"inviter_id"`
-	MaxUses                     *uint8                      `json:"max_uses"`
-	Uses                        *uint                       `json:"uses"`
+	MaxUses                     *int                        `json:"max_uses"`
+	Uses                        *int                        `json:"uses"`
 	MaxAge                      *string                     `json:"max_age"`
 	Temporary                   *bool                       `json:"temporary"`
 	Deaf                        *bool                       `json:"deaf"`
@@ -53,14 +53,14 @@ type AuditLogChangeKey struct {
 	ID                          *Snowflake                  `json:"id"`
 	Type                        *interface{}                `json:"type"`
 	EnableEmoticons             *bool                       `json:"enable_emoticons"`
-	ExpireBehavior              *uint                       `json:"expire_behavior"`
-	ExpireGracePeriod           *uint                       `json:"expire_grace_period"`
-	UserLimit                   *uint8                      `json:"user_limit"`
-	PrivacyLevel                *uint8                      `json:"privacy_level"`
+	ExpireBehavior              *int                        `json:"expire_behavior"`
+	ExpireGracePeriod           *int                        `json:"expire_grace_period"`
+	UserLimit                   *int                        `json:"user_limit"`
+	PrivacyLevel                *int                        `json:"privacy_level"`
 }
 
 // AuditLogEvent is an 8-bit unsigned integer representing an audit log event.
-type AuditLogEvent uint8
+type AuditLogEvent int
 
 // AuditLogEventGuildUpdate
 const (

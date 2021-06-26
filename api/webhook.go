@@ -1,7 +1,7 @@
 package api
 
 // WebhookType (https://discord.com/developers/docs/resources/webhook#webhook-object-webhook-types)
-type WebhookType uint8
+type WebhookType int
 
 // Incoming
 const (
