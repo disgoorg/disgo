@@ -64,44 +64,76 @@ type AuditLogEvent uint8
 
 // AuditLogEventGuildUpdate
 const (
-	AuditLogEventGuildUpdate            AuditLogEvent = 1
-	AuditLogEventChannelCreate          AuditLogEvent = 10
-	AuditLogEventChannelUpdate          AuditLogEvent = 11
-	AuditLogEventChannelDelete          AuditLogEvent = 12
-	AuditLogEventChannelOverwriteCreate AuditLogEvent = 13
-	AuditLogEventChannelOverwriteUpdate AuditLogEvent = 14
-	AuditLogEventChannelOverwriteDelete AuditLogEvent = 15
-	AuditLogEventMemberKick             AuditLogEvent = 20
-	AuditLogEventMemberPrune            AuditLogEvent = 21
-	AuditLogEventMemberBanAdd           AuditLogEvent = 22
-	AuditLogEventMemberBanRemove        AuditLogEvent = 23
-	AuditLogEventMemberUpdate           AuditLogEvent = 24
-	AuditLogEventMemberRoleUpdate       AuditLogEvent = 25
-	AuditLogEventMemberMove             AuditLogEvent = 26
-	AuditLogEventMemberDisconnect       AuditLogEvent = 27
-	AuditLogEventBotAdd                 AuditLogEvent = 28
-	AuditLogEventRoleCreate             AuditLogEvent = 30
-	AuditLogEventRoleUpdate             AuditLogEvent = 31
-	AuditLogEventRoleDelete             AuditLogEvent = 32
-	AuditLogEventInviteCreate           AuditLogEvent = 40
-	AuditLogEventInviteUpdate           AuditLogEvent = 41
-	AuditLogEventInviteDelete           AuditLogEvent = 42
-	AuditLogEventWebhookCreate          AuditLogEvent = 50
-	AuditLogEventWebhookUpdate          AuditLogEvent = 51
-	AuditLogEventWebhookDelete          AuditLogEvent = 52
-	AuditLogEventEmojiCreate            AuditLogEvent = 60
-	AuditLogEventEmojiUpdate            AuditLogEvent = 61
-	AuditLogEventEmojiDelete            AuditLogEvent = 62
-	AuditLogEventMessageDelete          AuditLogEvent = 72
-	AuditLogEventMessageBulkDelete      AuditLogEvent = 73
-	AuditLogEventMessagePin             AuditLogEvent = 74
-	AuditLogEventMessageUnpin           AuditLogEvent = 75
-	AuditLogEventIntegrationCreate      AuditLogEvent = 80
-	AuditLogEventIntegrationUpdate      AuditLogEvent = 81
-	AuditLogEventIntegrationDelete      AuditLogEvent = 82
-	AuditLogEventStageInstanceCreate    AuditLogEvent = 83
-	AuditLogEventStageInstanceUpdate    AuditLogEvent = 84
-	AuditLogEventStageInstanceDelete    AuditLogEvent = 85
+	AuditLogEventGuildUpdate AuditLogEvent = 1
+)
+
+// AuditLogEventChannelCreate
+const (
+	AuditLogEventChannelCreate AuditLogEvent = iota + 10
+	AuditLogEventChannelUpdate
+	AuditLogEventChannelDelete
+	AuditLogEventChannelOverwriteCreate
+	AuditLogEventChannelOverwriteUpdate
+	AuditLogEventChannelOverwriteDelete
+)
+
+// AuditLogEventMemberKick
+const (
+	AuditLogEventMemberKick AuditLogEvent = iota + 20
+	AuditLogEventMemberPrune
+	AuditLogEventMemberBanAdd
+	AuditLogEventMemberBanRemove
+	AuditLogEventMemberUpdate
+	AuditLogEventMemberRoleUpdate
+	AuditLogEventMemberMove
+	AuditLogEventMemberDisconnect
+	AuditLogEventBotAdd
+)
+
+// AuditLogEventRoleCreate
+const (
+	AuditLogEventRoleCreate AuditLogEvent = iota + 30
+	AuditLogEventRoleUpdate
+	AuditLogEventRoleDelete
+)
+
+// AuditLogEventInviteCreate
+const (
+	AuditLogEventInviteCreate AuditLogEvent = iota + 40
+	AuditLogEventInviteUpdate
+	AuditLogEventInviteDelete
+)
+
+// AuditLogEventWebhookCreate
+const (
+	AuditLogEventWebhookCreate AuditLogEvent = iota + 50
+	AuditLogEventWebhookUpdate
+	AuditLogEventWebhookDelete
+)
+
+// AuditLogEventEmojiCreate
+const (
+	AuditLogEventEmojiCreate AuditLogEvent = iota + 60
+	AuditLogEventEmojiUpdate
+	AuditLogEventEmojiDelete
+)
+
+// AuditLogEventMessageDelete
+const (
+	AuditLogEventMessageDelete AuditLogEvent = iota + 72
+	AuditLogEventMessageBulkDelete
+	AuditLogEventMessagePin
+	AuditLogEventMessageUnpin
+)
+
+// AuditLogEventIntegrationCreate
+const (
+	AuditLogEventIntegrationCreate AuditLogEvent = iota + 80
+	AuditLogEventIntegrationUpdate
+	AuditLogEventIntegrationDelete
+	AuditLogEventStageInstanceCreate
+	AuditLogEventStageInstanceUpdate
+	AuditLogEventStageInstanceDelete
 )
 
 // OptionalAuditLogEntryInfo (https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object-optional-audit-entry-info)
