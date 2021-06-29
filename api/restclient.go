@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"time"
 
 	"github.com/DisgoOrg/restclient"
 )
@@ -29,48 +30,57 @@ type RestClient interface {
 	UpdateSelfUser(updateSelfUser UpdateSelfUser) (*SelfUser, restclient.RestError)
 	GetGuilds(before int, after int, limit int) ([]*PartialGuild, restclient.RestError)
 	LeaveGuild(guildID Snowflake) restclient.RestError
-	GetDMChannels() ([]*DMChannel, restclient.RestError)
-	CreateDMChannel(userID Snowflake) (*DMChannel, restclient.RestError)
+	GetDMChannels() ([]DMChannel, restclient.RestError)
+	CreateDMChannel(userID Snowflake) (DMChannel, restclient.RestError)
 
 	GetGuild(guildID Snowflake, withCounts bool) (*Guild, restclient.RestError)
 	GetGuildPreview(guildID Snowflake) (*GuildPreview, restclient.RestError)
-	CreateGuild(createGuild CreateGuild) (*Guild, restclient.RestError)
-	UpdateGuild(guildID Snowflake, updateGuild UpdateGuild) (*Guild, restclient.RestError)
+	CreateGuild(createGuild GuildCreate) (*Guild, restclient.RestError)
+	UpdateGuild(guildID Snowflake, updateGuild GuildUpdate) (*Guild, restclient.RestError)
 	DeleteGuild(guildID Snowflake) restclient.RestError
+
+	CreateThreadWithMessage(channelID Snowflake, messageID Snowflake, threadCreate ThreadCreate) (Thread, restclient.RestError)
+	CreateThreadWithoutMessage(channelID Snowflake, threadCreate ThreadCreate) (Thread, restclient.RestError)
+	JoinThread(threadID Snowflake) restclient.RestError
+	AddThreadMember(threadID Snowflake, userID Snowflake) restclient.RestError
+	LeaveThread(threadID Snowflake) restclient.RestError
+	RemoveThreadMember(threadID Snowflake, userID Snowflake) restclient.RestError
+	GetThreadMembers(threadID Snowflake) ([]*ThreadMember, restclient.RestError)
+	GetActiveThreads(channelID Snowflake) ([]Thread, restclient.RestError)
+	GetPublicArchivedThreads(channelID Snowflake, before time.Time, limit int) ([]Thread, restclient.RestError)
+	GetPrivateArchivedThreads(channelID Snowflake, before time.Time, limit int) ([]Thread, restclient.RestError)
+	GetJoinedPrivateArchivedThreads(channelID Snowflake, before time.Time, limit int) ([]Thread, restclient.RestError)
 
 	GetMember(guildID Snowflake, userID Snowflake) (*Member, restclient.RestError)
 	GetMembers(guildID Snowflake) ([]*Member, restclient.RestError)
 	SearchMembers(guildID Snowflake, query string, limit int) ([]*Member, restclient.RestError)
-	AddMember(guildID Snowflake, userID Snowflake, addMember AddMember) (*Member, restclient.RestError)
+	AddMember(guildID Snowflake, userID Snowflake, memberAdd MemberAdd) (*Member, restclient.RestError)
 	RemoveMember(guildID Snowflake, userID Snowflake, reason string) restclient.RestError
-	UpdateMember(guildID Snowflake, userID Snowflake, updateMember UpdateMember) (*Member, restclient.RestError)
+	UpdateMember(guildID Snowflake, userID Snowflake, memberUpdate MemberUpdate) (*Member, restclient.RestError)
 	UpdateSelfNick(guildID Snowflake, nick string) (*string, restclient.RestError)
 	MoveMember(guildID Snowflake, userID Snowflake, channelID *Snowflake) (*Member, restclient.RestError)
 	AddMemberRole(guildID Snowflake, userID Snowflake, roleID Snowflake) restclient.RestError
 	RemoveMemberRole(guildID Snowflake, userID Snowflake, roleID Snowflake) restclient.RestError
 
-	GetRoles(guildID Snowflake) ([]*Role, error)
-	CreateRole(guildID Snowflake, roleCreate RoleCreate) (*Role, error)
-	UpdateRole(guildID Snowflake, roleID Snowflake, roleUpdate RoleUpdate) (*Role, error)
-	UpdateRolePositions(guildID Snowflake, rolePositionUpdates ...RolePositionUpdate) ([]*Role, error)
-	DeleteRole(guildID Snowflake, roleID Snowflake) error
+	GetRoles(guildID Snowflake) ([]*Role, restclient.RestError)
+	CreateRole(guildID Snowflake, roleCreate RoleCreate) (*Role, restclient.RestError)
+	UpdateRole(guildID Snowflake, roleID Snowflake, roleUpdate RoleUpdate) (*Role, restclient.RestError)
+	UpdateRolePositions(guildID Snowflake, rolePositionUpdates ...RolePositionUpdate) ([]*Role, restclient.RestError)
+	DeleteRole(guildID Snowflake, roleID Snowflake) restclient.RestError
 
-
-	UpdateSelfNick(guildID Snowflake, nick *string) (*string, error)
-
-	GetPruneMembersCount(guildID Snowflake, days int, includeRoles []Snowflake) (*int, error)
-	PruneMembers(guildID Snowflake, days int, computePruneCount bool, includeRoles []Snowflake, reason string) (*int, error)
+	GetPruneMembersCount(guildID Snowflake, days int, includeRoles []Snowflake) (*int, restclient.RestError)
+	PruneMembers(guildID Snowflake, days int, computePruneCount bool, includeRoles []Snowflake, reason string) (*int, restclient.RestError)
 
 	GetGuildWebhooks(guildID Snowflake)
 
 	GetAuditLogs(guildID Snowflake)
 
-	GetGuildVoiceRegions(guildID Snowflake) ([]*VoiceRegion, error)
+	GetGuildVoiceRegions(guildID Snowflake) ([]*VoiceRegion, restclient.RestError)
 
-	GetGuildIntegrations(guildID Snowflake) ([]*Integration, error)
-	CreateGuildIntegration(guildID Snowflake) (*Integration, error)
-	UpdateGuildIntegration(guildID Snowflake) (*Integration, error)
-	DeleteGuildIntegration(guildID Snowflake) error
+	GetGuildIntegrations(guildID Snowflake) ([]*Integration, restclient.RestError)
+	CreateGuildIntegration(guildID Snowflake) (*Integration, restclient.RestError)
+	UpdateGuildIntegration(guildID Snowflake) (*Integration, restclient.RestError)
+	DeleteGuildIntegration(guildID Snowflake) restclient.RestError
 	SyncIntegration(guildID Snowflake)
 
 	GetMessage(channelID Snowflake, messageID Snowflake) (*Message, restclient.RestError)

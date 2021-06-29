@@ -30,3 +30,18 @@ type ThreadMetadata struct {
 	AutoArchiveDuration time.Duration `json:"auto_archive_duration"`
 	Locked              bool          `json:"locked"`
 }
+
+type ThreadAutoArchiveDuration int
+
+const (
+	ThreadAutoArchiveDuration60    ThreadAutoArchiveDuration = 60
+	ThreadAutoArchiveDuration1440  ThreadAutoArchiveDuration = 1440
+	ThreadAutoArchiveDuration4320  ThreadAutoArchiveDuration = 4320
+	ThreadAutoArchiveDuration10080 ThreadAutoArchiveDuration = 10080
+)
+
+type ThreadCreate struct {
+	Name                string                    `json:"name"`
+	AutoArchiveDuration ThreadAutoArchiveDuration `json:"auto_archive_duration"`
+	Type                ChannelType               `json:"type"`
+}

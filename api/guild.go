@@ -196,8 +196,8 @@ func (g *Guild) Disconnect() error {
 }
 
 // Update updates the current Guild
-func (g *Guild) Update(updateGuild UpdateGuild) (*Guild, restclient.RestError) {
-	return g.Disgo.RestClient().UpdateGuild(g.ID, updateGuild)
+func (g *Guild) Update(guildUpdate GuildUpdate) (*Guild, restclient.RestError) {
+	return g.Disgo.RestClient().UpdateGuild(g.ID, guildUpdate)
 }
 
 // Delete deletes the current Guild
@@ -328,16 +328,16 @@ type PartialGuild struct {
 	Features    []GuildFeature `json:"features"`
 }
 
-// CreateGuild is the payload used to create a Guild
+// GuildCreate is the payload used to create a Guild
 type GuildCreate struct {
 	Name                            string                     `json:"name"`
 	Region                          string                     `json:"region,omitempty"`
 	Icon                            string                     `json:"icon,omitempty"`
 	VerificationLevel               VerificationLevel          `json:"verification_level,omitempty"`
-	DefaultMessageNotificationLevel MessageNotifications       `json:"default_message_notification_level"`
+	DefaultMessageNotificationLevel MessageNotificationLevel   `json:"default_message_notification_level"`
 	ExplicitContentFilterLevel      ExplicitContentFilterLevel `json:"explicit_content_filter_level"`
-	Roles                           []CreateRole               `json:"roles,omitempty"`
-	Channels                        []GuildChannelCreate{}              `json:"channels,omitempty"`
+	Roles                           []RoleCreate               `json:"roles,omitempty"`
+	Channels                        []GuildChannelCreate       `json:"channels,omitempty"`
 	AFKChannelID                    Snowflake                  `json:"afk_channel_id,omitempty"`
 	AFKTimeout                      int                        `json:"afk_timeout,omitempty"`
 	SystemChannelID                 Snowflake                  `json:"system_channel_id,omitempty"`
@@ -355,7 +355,7 @@ type GuildUpdate struct {
 	Name                            string                      `json:"name"`
 	Region                          *string                     `json:"region"`
 	VerificationLevel               *VerificationLevel          `json:"verification_level"`
-	DefaultMessageNotificationLevel *MessageNotifications       `json:"default_message_notification_level"`
+	DefaultMessageNotificationLevel *MessageNotificationLevel   `json:"default_message_notification_level"`
 	ExplicitContentFilterLevel      *ExplicitContentFilterLevel `json:"explicit_content_filter_level"`
 	AFKChannelID                    *Snowflake                  `json:"afk_channel_id"`
 	AFKTimeout                      int                         `json:"afk_timeout"`

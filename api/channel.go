@@ -2,6 +2,8 @@ package api
 
 import (
 	"time"
+
+	"github.com/DisgoOrg/restclient"
 )
 
 var _ Channel = (*ChannelImpl)(nil)
@@ -150,10 +152,10 @@ type MessageChannel interface {
 	Channel
 	LastMessageID() *Snowflake
 	LastPinTimestamp() *time.Time
-	SendMessage(messageCreate MessageCreate) (*Message, error)
-	EditMessage(messageID Snowflake, messageUpdate MessageUpdate) (*Message, error)
-	DeleteMessage(messageID Snowflake) error
-	BulkDeleteMessages(messageIDs ...Snowflake) error
+	CreateMessage(messageCreate MessageCreate) (*Message, restclient.RestError)
+	UpdateMessage(messageID Snowflake, messageUpdate MessageUpdate) (*Message, restclient.RestError)
+	DeleteMessage(messageID Snowflake) restclient.RestError
+	BulkDeleteMessages(messageIDs ...Snowflake) restclient.RestError
 }
 
 func (c *ChannelImpl) LastMessageID() *Snowflake {
@@ -164,24 +166,24 @@ func (c *ChannelImpl) LastPinTimestamp() *time.Time {
 	return c.LastPinTimestamp_
 }
 
-// SendMessage sends a Message to a TextChannel
-func (c ChannelImpl) SendMessage(messageCreate MessageCreate) (*Message, error) {
+// CreateMessage sends a Message to a TextChannel
+func (c ChannelImpl) CreateMessage(messageCreate MessageCreate) (*Message, restclient.RestError) {
 	// Todo: attachments
 	return c.Disgo().RestClient().CreateMessage(c.ID(), messageCreate)
 }
 
-// EditMessage edits a Message in this TextChannel
-func (c ChannelImpl) EditMessage(messageID Snowflake, messageUpdate MessageUpdate) (*Message, error) {
+// UpdateMessage edits a Message in this TextChannel
+func (c ChannelImpl) UpdateMessage(messageID Snowflake, messageUpdate MessageUpdate) (*Message, restclient.RestError) {
 	return c.Disgo().RestClient().UpdateMessage(c.ID(), messageID, messageUpdate)
 }
 
 // DeleteMessage allows you to edit an existing Message sent by you
-func (c ChannelImpl) DeleteMessage(messageID Snowflake) error {
+func (c ChannelImpl) DeleteMessage(messageID Snowflake) restclient.RestError {
 	return c.Disgo().RestClient().DeleteMessage(c.ID(), messageID)
 }
 
 // BulkDeleteMessages allows you bulk delete Message(s)
-func (c ChannelImpl) BulkDeleteMessages(messageIDs ...Snowflake) error {
+func (c ChannelImpl) BulkDeleteMessages(messageIDs ...Snowflake) restclient.RestError {
 	return c.Disgo().RestClient().BulkDeleteMessages(c.ID(), messageIDs...)
 }
 
@@ -274,7 +276,6 @@ type TextChannel interface {
 	Topic() *string
 }
 
-
 func (c *ChannelImpl) NSFW() bool {
 	if c.NSFW_ == nil {
 		panic("unsupported operation")
@@ -289,11 +290,11 @@ func (c *ChannelImpl) Topic() *string {
 // NewsChannel allows you to interact with discord's text channels
 type NewsChannel interface {
 	TextChannel
-	CrosspostMessage(messageID Snowflake) (*Message, error)
+	CrosspostMessage(messageID Snowflake) (*Message, restclient.RestError)
 }
 
 // CrosspostMessage crossposts an existing Message
-func (c ChannelImpl) CrosspostMessage(messageID Snowflake) (*Message, error) {
+func (c ChannelImpl) CrosspostMessage(messageID Snowflake) (*Message, restclient.RestError) {
 	if c.Type() != ChannelTypeNews {
 		panic("channel type is not NEWS")
 	}

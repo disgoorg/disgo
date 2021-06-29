@@ -226,7 +226,7 @@ func messageListener(event events.GuildMessageCreateEvent) {
 
 	case "test":
 		go func() {
-			message, err := event.MessageChannel().SendMessage(api.NewMessageCreateBuilder().SetContent("test").Build())
+			message, err := event.MessageChannel().CreateMessage(api.NewMessageCreateBuilder().SetContent("test").Build())
 			if err != nil {
 				logger.Errorf("error while sending file: %s", err)
 				return
@@ -243,12 +243,12 @@ func messageListener(event events.GuildMessageCreateEvent) {
 
 	case "dm":
 		go func() {
-			channel, err := event.Message.Author.OpenDMChannel()
+			channel, err := event.Message.Author.CreateDMChannel()
 			if err != nil {
 				_ = event.Message.AddReaction("❌")
 				return
 			}
-			_, err = channel.SendMessage(api.NewMessageCreateBuilder().SetContent("helo").Build())
+			_, err = channel.CreateMessage(api.NewMessageCreateBuilder().SetContent("helo").Build())
 			if err == nil {
 				_ = event.Message.AddReaction("✅")
 			} else {

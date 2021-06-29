@@ -178,8 +178,8 @@ func (b *EntityBuilderImpl) CreateGuild(fullGuild *api.FullGuild, updateCache ap
 	guild.Disgo = b.Disgo()
 
 	for _, channel := range fullGuild.Channels {
-		channel.GuildID = &guild.ID
-		switch channel.Type {
+		channel.GuildID_ = &guild.ID
+		switch channel.Type() {
 		case api.ChannelTypeText, api.ChannelTypeNews:
 			b.Disgo().EntityBuilder().CreateTextChannel(channel, api.CacheStrategyYes)
 		case api.ChannelTypeVoice:
@@ -189,6 +189,10 @@ func (b *EntityBuilderImpl) CreateGuild(fullGuild *api.FullGuild, updateCache ap
 		case api.ChannelTypeStore:
 			b.Disgo().EntityBuilder().CreateStoreChannel(channel, api.CacheStrategyYes)
 		}
+	}
+
+	for _, thread := range fullGuild.Threads {
+		b.Disgo().EntityBuilder().CreateThread(thread, api.CacheStrategyYes)
 	}
 
 	for _, role := range fullGuild.Roles {
