@@ -26,46 +26,6 @@ type restClientImpl struct {
 	disgo api.Disgo
 }
 
-func (r *restClientImpl) GetPruneMembersCount(guildID api.Snowflake, days int, includeRoles []api.Snowflake) (*int, restclient.RestError) {
-	panic("implement me")
-}
-
-func (r *restClientImpl) PruneMembers(guildID api.Snowflake, days int, computePruneCount bool, includeRoles []api.Snowflake, reason string) (*int, restclient.RestError) {
-	panic("implement me")
-}
-
-func (r *restClientImpl) GetGuildWebhooks(guildID api.Snowflake) {
-	panic("implement me")
-}
-
-func (r *restClientImpl) GetAuditLogs(guildID api.Snowflake) {
-	panic("implement me")
-}
-
-func (r *restClientImpl) GetGuildVoiceRegions(guildID api.Snowflake) ([]*api.VoiceRegion, restclient.RestError) {
-	panic("implement me")
-}
-
-func (r *restClientImpl) GetGuildIntegrations(guildID api.Snowflake) ([]*api.Integration, restclient.RestError) {
-	panic("implement me")
-}
-
-func (r *restClientImpl) CreateGuildIntegration(guildID api.Snowflake) (*api.Integration, restclient.RestError) {
-	panic("implement me")
-}
-
-func (r *restClientImpl) UpdateGuildIntegration(guildID api.Snowflake) (*api.Integration, restclient.RestError) {
-	panic("implement me")
-}
-
-func (r *restClientImpl) DeleteGuildIntegration(guildID api.Snowflake) restclient.RestError {
-	panic("implement me")
-}
-
-func (r *restClientImpl) SyncIntegration(guildID api.Snowflake) {
-	panic("implement me")
-}
-
 // Disgo returns the api.Disgo instance
 func (r *restClientImpl) Disgo() api.Disgo {
 	return r.disgo
