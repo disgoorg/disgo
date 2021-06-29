@@ -31,48 +31,7 @@ func (h GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 		oldGuild = &*oldGuild
 		wasUnavailable = oldGuild.Unavailable
 	}
-	guild := disgo.EntityBuilder().CreateGuild(fullGuild.Guild, api.CacheStrategyYes)
-
-	for _, channel := range fullGuild.Channels {
-		channel.GuildID_ = &guild.ID
-		switch channel.Type() {
-		case api.ChannelTypeText, api.ChannelTypeNews:
-			disgo.EntityBuilder().CreateTextChannel(channel, api.CacheStrategyYes)
-		case api.ChannelTypeVoice:
-			disgo.EntityBuilder().CreateVoiceChannel(channel, api.CacheStrategyYes)
-		case api.ChannelTypeCategory:
-			disgo.EntityBuilder().CreateCategory(channel, api.CacheStrategyYes)
-		case api.ChannelTypeStore:
-			disgo.EntityBuilder().CreateStoreChannel(channel, api.CacheStrategyYes)
-		}
-	}
-
-	for _, thread := range fullGuild.Threads {
-		disgo.EntityBuilder().CreateThread(thread, api.CacheStrategyYes)
-	}
-
-	for _, role := range fullGuild.Roles {
-		disgo.EntityBuilder().CreateRole(guild.ID, role, api.CacheStrategyYes)
-	}
-
-	for _, member := range fullGuild.Members {
-		disgo.EntityBuilder().CreateMember(guild.ID, member, api.CacheStrategyYes)
-	}
-
-	for _, voiceState := range fullGuild.VoiceStates {
-		disgo.EntityBuilder().CreateVoiceState(guild.ID, voiceState, api.CacheStrategyYes)
-	}
-
-	for _, emote := range fullGuild.Emojis {
-		disgo.EntityBuilder().CreateEmoji(guild.ID, emote, api.CacheStrategyYes)
-	}
-
-	// TODO: presence
-	/*for i := range fullGuild.Presences {
-		presence := fullGuild.Presences[i]
-		presence.Disgo = disgo
-		disgo.Cache().CachePresence(presence)
-	}*/
+	guild := disgo.EntityBuilder().CreateGuild(fullGuild, api.CacheStrategyYes)
 
 	genericGuildEvent := events.GenericGuildEvent{
 		GenericEvent: events.NewEvent(disgo, sequenceNumber),

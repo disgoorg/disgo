@@ -181,3 +181,21 @@ func (p Permissions) MissingAny(bits ...Permissions) bool {
 func (p Permissions) Missing(bit Permissions) bool {
 	return !p.Has(bit)
 }
+
+// GetMemberPermissions returns all Permissions from the provided Member
+func GetMemberPermissions(member *Member) Permissions {
+	if member.IsOwner() {
+		return PermissionsAll
+	}
+	if guild := member.Guild(); guild != nil {
+		var permissions Permissions
+		for _, role := range member.Roles() {
+			permissions = permissions.Add(role.Permissions)
+			if permissions.Has(PermissionAdministrator) {
+				return PermissionsAll
+			}
+		}
+		return permissions
+	}
+	return PermissionsNone
+}

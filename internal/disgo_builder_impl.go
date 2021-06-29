@@ -190,7 +190,8 @@ func (b *DisgoBuilderImpl) Build() (api.Disgo, error) {
 		return nil, err
 	}
 
-	disgo.selfUserID = *id
+	disgo.applicationID = *id
+	disgo.clientID = *id
 
 	if b.gateway == nil {
 		b.gateway = newGatewayImpl(disgo)

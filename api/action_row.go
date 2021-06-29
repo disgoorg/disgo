@@ -1,5 +1,7 @@
 package api
 
+var _ Component = (*ActionRow)(nil)
+
 // NewActionRow creates a new ActionRow holding th provided Component(s)
 func NewActionRow(components ...Component) ActionRow {
 	return ActionRow{

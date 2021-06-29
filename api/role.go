@@ -1,5 +1,7 @@
 package api
 
+import "github.com/DisgoOrg/restclient"
+
 // Role is a Guild Role object
 type Role struct {
 	Disgo       Disgo
@@ -31,12 +33,12 @@ func (r *Role) Guild() *Guild {
 }
 
 // Update updates the Role with specific values
-func (r *Role) Update(roleUpdate RoleUpdate) (*Role, error) {
+func (r *Role) Update(roleUpdate RoleUpdate) (*Role, restclient.RestError) {
 	return r.Disgo.RestClient().UpdateRole(r.GuildID, r.ID, roleUpdate)
 }
 
 // SetPosition sets the position of the Role
-func (r *Role) SetPosition(rolePositionUpdate RolePositionUpdate) ([]*Role, error) {
+func (r *Role) SetPosition(rolePositionUpdate RolePositionUpdate) ([]*Role, restclient.RestError) {
 	return r.Disgo.RestClient().UpdateRolePositions(r.GuildID, rolePositionUpdate)
 }
 
@@ -54,11 +56,11 @@ type RoleTag struct {
 
 // RoleCreate is the payload to create a Role
 type RoleCreate struct {
-	Name        string       `json:"name,omitempty"`
-	Permissions *Permissions `json:"permissions,omitempty"`
-	Color       *int         `json:"color,omitempty"`
-	Hoist       *bool        `json:"hoist,omitempty"`
-	Mentionable *bool        `json:"mentionable,omitempty"`
+	Name        string      `json:"name,omitempty"`
+	Permissions Permissions `json:"permissions,omitempty"`
+	Color       int         `json:"color,omitempty"`
+	Hoist       bool        `json:"hoist,omitempty"`
+	Mentionable bool        `json:"mentionable,omitempty"`
 }
 
 // RoleUpdate is the payload to update a Role

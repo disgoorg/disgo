@@ -29,8 +29,8 @@ type User struct {
 // AvatarURL returns the Avatar URL of the User
 func (u *User) AvatarURL(size int) string {
 	if u.Avatar == nil {
-		discrim, _ := strconv.Atoi(u.Discriminator)
-		route, err := restclient.DefaultUserAvatar.Compile(nil, restclient.PNG, size, discrim%5)
+		discriminator, _ := strconv.Atoi(u.Discriminator)
+		route, err := restclient.DefaultUserAvatar.Compile(nil, restclient.PNG, size, discriminator%5)
 		if err != nil {
 			return ""
 		}
@@ -62,6 +62,6 @@ func (u *User) String() string {
 }
 
 // OpenDMChannel creates a DMChannel between the user and the Disgo client
-func (u *User) OpenDMChannel() (DMChannel, error) {
+func (u *User) OpenDMChannel() (*DMChannel, restclient.RestError) {
 	return u.Disgo.RestClient().CreateDMChannel(u.ID)
 }

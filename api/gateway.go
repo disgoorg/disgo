@@ -9,18 +9,28 @@ import (
 // GatewayStatus is the state that the client is currently in
 type GatewayStatus int
 
+// IsConnected returns weather you can send payloads to the Gateway
+func (s GatewayStatus) IsConnected() bool {
+	switch s {
+	case GatewayStatusWaitingForGuilds, GatewayStatusReady:
+		return true
+	default:
+		return false
+	}
+}
+
 // Indicates how far along the client is to connecting
 const (
-	Ready GatewayStatus = iota
-	Unconnected
-	Connecting
-	Reconnecting
-	WaitingForHello
-	WaitingForReady
-	Disconnected
-	WaitingForGuilds
-	Identifying
-	Resuming
+	GatewayStatusUnconnected GatewayStatus = iota
+	GatewayStatusConnecting
+	GatewayStatusReconnecting
+	GatewayStatusIdentifying
+	GatewayStatusWaitingForHello
+	GatewayStatusWaitingForReady
+	GatewayStatusWaitingForGuilds
+	GatewayStatusReady
+	GatewayStatusDisconnected
+	GatewayStatusResuming
 )
 
 // Gateway is what is used to connect to discord
@@ -28,6 +38,7 @@ type Gateway interface {
 	Disgo() Disgo
 	Open() error
 	Status() GatewayStatus
+	Send(command GatewayCommand) error
 	Close()
 	Conn() *websocket.Conn
 	Latency() time.Duration
