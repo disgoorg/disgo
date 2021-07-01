@@ -20,7 +20,7 @@ func (b *EntityBuilderImpl) Disgo() api.Disgo {
 	return b.disgo
 }
 
-func (b EntityBuilderImpl) createInteraction(fullInteraction *api.FullInteraction, c chan api.InteractionResponse, updateCache api.CacheStrategy) *api.Interaction {
+func (b EntityBuilderImpl) CreateInteraction(fullInteraction *api.FullInteraction, c chan api.InteractionResponse, updateCache api.CacheStrategy) *api.Interaction {
 	interaction := &api.Interaction{
 		Disgo:           b.disgo,
 		ResponseChannel: c,
@@ -43,9 +43,12 @@ func (b EntityBuilderImpl) createInteraction(fullInteraction *api.FullInteractio
 }
 
 // CreateCommandInteraction creates a api.CommandInteraction from the full interaction response
-func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullInteraction, c chan api.InteractionResponse, updateCache api.CacheStrategy) *api.CommandInteraction {
+func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullInteraction, interaction *api.Interaction, updateCache api.CacheStrategy) *api.CommandInteraction {
 	var data *api.CommandInteractionData
-	_ = json.Unmarshal(fullInteraction.Data, &data)
+	err := json.Unmarshal(fullInteraction.Data, &data)
+	if err != nil {
+		b.Disgo().Logger().Errorf("error while unmarshalling api.CommandInteractionData: %s", err)
+	}
 
 	if data.Resolved != nil {
 		resolved := data.Resolved
@@ -75,19 +78,22 @@ func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullIn
 	}
 
 	return &api.CommandInteraction{
-		Interaction: b.createInteraction(fullInteraction, c, updateCache),
+		Interaction: interaction,
 		Data:        data,
 	}
 }
 
 // CreateComponentInteraction creates a api.ComponentInteraction from the api.FullInteraction response
-func (b *EntityBuilderImpl) CreateComponentInteraction(fullInteraction *api.FullInteraction, c chan api.InteractionResponse, updateCache api.CacheStrategy) *api.ComponentInteraction {
+func (b *EntityBuilderImpl) CreateComponentInteraction(fullInteraction *api.FullInteraction, interaction *api.Interaction, updateCache api.CacheStrategy) *api.ComponentInteraction {
 	var data *api.ComponentInteractionData
-	_ = json.Unmarshal(fullInteraction.Data, &data)
+	err := json.Unmarshal(fullInteraction.Data, &data)
+	if err != nil {
+		b.Disgo().Logger().Errorf("error while unmarshalling api.ComponentInteractionData: %s", err)
+	}
 
 	return &api.ComponentInteraction{
-		Interaction: b.createInteraction(fullInteraction, c, updateCache),
-		Message:     b.CreateMessage(fullInteraction.FullMessage, updateCache),
+		Interaction: interaction,
+		Message:     b.CreateMessage(fullInteraction.Message, updateCache),
 		Data: &api.ComponentInteractionData{
 			ComponentType: data.ComponentType,
 			CustomID:      data.CustomID,
@@ -96,23 +102,29 @@ func (b *EntityBuilderImpl) CreateComponentInteraction(fullInteraction *api.Full
 }
 
 // CreateButtonInteraction creates a api.ButtonInteraction from the api.FullInteraction response
-func (b *EntityBuilderImpl) CreateButtonInteraction(fullInteraction *api.FullInteraction, cInteraction *api.ComponentInteraction) *api.ButtonInteraction {
+func (b *EntityBuilderImpl) CreateButtonInteraction(fullInteraction *api.FullInteraction, componentInteraction *api.ComponentInteraction) *api.ButtonInteraction {
 	var data *api.ButtonInteractionData
-	_ = json.Unmarshal(fullInteraction.Data, &data)
+	err := json.Unmarshal(fullInteraction.Data, &data)
+	if err != nil {
+		b.Disgo().Logger().Errorf("error while unmarshalling api.ButtonInteractionData: %s", err)
+	}
 
 	return &api.ButtonInteraction{
-		ComponentInteraction: cInteraction,
+		ComponentInteraction: componentInteraction,
 		Data:                 data,
 	}
 }
 
-// CreateDropdownInteraction creates a api.DropdownInteraction from the full interaction response
-func (b *EntityBuilderImpl) CreateDropdownInteraction(fullInteraction *api.FullInteraction, cInteraction *api.ComponentInteraction) *api.DropdownInteraction {
-	var data *api.DropdownInteractionData
-	_ = json.Unmarshal(fullInteraction.Data, &data)
+// CreateSelectMenuInteraction creates a api.SelectMenuInteraction from the full interaction response
+func (b *EntityBuilderImpl) CreateSelectMenuInteraction(fullInteraction *api.FullInteraction, componentInteraction *api.ComponentInteraction) *api.SelectMenuInteraction {
+	var data *api.SelectMenuInteractionData
+	err := json.Unmarshal(fullInteraction.Data, &data)
+	if err != nil {
+		b.Disgo().Logger().Errorf("error while unmarshalling api.SelectMenuInteractionData: %s", err)
+	}
 
-	return &api.DropdownInteraction{
-		ComponentInteraction: cInteraction,
+	return &api.SelectMenuInteraction{
+		ComponentInteraction: componentInteraction,
 		Data:                 data,
 	}
 }

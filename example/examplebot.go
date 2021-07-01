@@ -47,7 +47,7 @@ func main() {
 			OnGuildMessageCreate: messageListener,
 			OnCommand:            commandListener,
 			OnButtonClick:        buttonClickListener,
-			OnDropdownSubmit:     dropdownSubmitListener,
+			OnSelectMenuSubmit:     selectMenuSubmitListener,
 		}).
 		Build()
 	if err != nil {
@@ -209,7 +209,7 @@ func buttonClickListener(event events.ButtonClickEvent) {
 	}
 }
 
-func dropdownSubmitListener(event events.DropdownSubmitEvent) {
+func selectMenuSubmitListener(event events.SelectMenuSubmitEvent) {
 	switch event.CustomID() {
 	case "test3":
 		if err := event.DeferEdit(); err != nil {
@@ -295,7 +295,7 @@ func commandListener(event events.CommandEvent) {
 					api.NewPrimaryButton("test4", "test4", nil, false),
 				),
 				api.NewActionRow(
-					api.NewDropdown("test3", "test", 1, 1, api.NewDropdownOption("test1", "1"), api.NewDropdownOption("test2", "2"), api.NewDropdownOption("test3", "3")),
+					api.NewSelectMenu("test3", "test", 1, 1, api.NewSelectMenuOption("test1", "1"), api.NewSelectMenuOption("test2", "2"), api.NewSelectMenuOption("test3", "3")),
 				),
 			).
 			Build(),

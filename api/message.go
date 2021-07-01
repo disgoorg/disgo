@@ -307,7 +307,7 @@ func (m *Message) Reply(message MessageCreate) (*Message, restclient.RestError) 
 	return m.Disgo.RestClient().CreateMessage(m.ChannelID, message)
 }
 
-// ComponentByID returns the first Button or Dropdown with the specific customID
+// ComponentByID returns the first Button or SelectMenu with the specific customID
 func (m *Message) ComponentByID(customID string) Component {
 	for _, actionRow := range m.ActionRows() {
 		for _, component := range actionRow.Components {
@@ -316,7 +316,7 @@ func (m *Message) ComponentByID(customID string) Component {
 				if c.CustomID == customID {
 					return c
 				}
-			case Dropdown:
+			case SelectMenu:
 				if c.CustomID == customID {
 					return c
 				}
@@ -362,24 +362,24 @@ func (m *Message) ButtonByID(customID string) *Button {
 	return nil
 }
 
-// Dropdowns returns all Dropdown(s) from this Message
-func (m *Message) Dropdowns() []Dropdown {
-	var dropdowns []Dropdown
+// SelectMenus returns all SelectMenu(s) from this Message
+func (m *Message) SelectMenus() []SelectMenu {
+	var selectMenus []SelectMenu
 	for _, actionRow := range m.ActionRows() {
 		for _, component := range actionRow.Components {
-			if dropdown, ok := component.(Dropdown); ok {
-				dropdowns = append(dropdowns, dropdown)
+			if selectMenu, ok := component.(SelectMenu); ok {
+				selectMenus = append(selectMenus, selectMenu)
 			}
 		}
 	}
-	return dropdowns
+	return selectMenus
 }
 
-// DropdownByID returns a Dropdown with the specific customID from this Message
-func (m *Message) DropdownByID(customID string) *Dropdown {
-	for _, dropdown := range m.Dropdowns() {
-		if dropdown.CustomID == customID {
-			return &dropdown
+// SelectMenuByID returns a SelectMenu with the specific customID from this Message
+func (m *Message) SelectMenuByID(customID string) *SelectMenu {
+	for _, selectMenu := range m.SelectMenus() {
+		if selectMenu.CustomID == customID {
+			return &selectMenu
 		}
 	}
 	return nil

@@ -136,13 +136,13 @@ type ButtonClickEvent struct {
 	ButtonInteraction *api.ButtonInteraction
 }
 
-// DropdownSubmitEvent indicates that a api.Dropdown was submitted
-type DropdownSubmitEvent struct {
+// SelectMenuSubmitEvent indicates that a api.SelectMenu was submitted
+type SelectMenuSubmitEvent struct {
 	GenericComponentEvent
-	DropdownInteraction *api.DropdownInteraction
+	SelectMenuInteraction *api.SelectMenuInteraction
 }
 
-// Values returns the submitted values from the api.Dropdown
-func (e *DropdownSubmitEvent) Values() []string {
-	return e.DropdownInteraction.Data.Values
+// Values returns the submitted values from the api.SelectMenu
+func (e *SelectMenuSubmitEvent) Values() []string {
+	return e.SelectMenuInteraction.Data.Values
 }

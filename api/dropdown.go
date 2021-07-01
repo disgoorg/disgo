@@ -1,9 +1,9 @@
 package api
 
-// NewDropdown builds a new Dropdown from the provided values
-func NewDropdown(customID string, placeholder string, minValues int, maxValues int, options ...DropdownOption) Dropdown {
-	return Dropdown{
-		ComponentImpl: newComponentImpl(ComponentTypeDropdown),
+// NewSelectMenu builds a new SelectMenu from the provided values
+func NewSelectMenu(customID string, placeholder string, minValues int, maxValues int, options ...SelectMenuOption) SelectMenu {
+	return SelectMenu{
+		ComponentImpl: newComponentImpl(ComponentTypeSelectMenu),
 		CustomID:      customID,
 		Placeholder:   placeholder,
 		MinValues:     minValues,
@@ -12,26 +12,26 @@ func NewDropdown(customID string, placeholder string, minValues int, maxValues i
 	}
 }
 
-// Dropdown is a Component which lets the User select from various options
-type Dropdown struct {
+// SelectMenu is a Component which lets the User select from various options
+type SelectMenu struct {
 	ComponentImpl
 	CustomID    string           `json:"custom_id"`
 	Placeholder string           `json:"placeholder"`
 	MinValues   int              `json:"min_values,omitempty"`
 	MaxValues   int              `json:"max_values,omitempty"`
-	Options     []DropdownOption `json:"options"`
+	Options     []SelectMenuOption `json:"options"`
 }
 
-// NewDropdownOption builds a new DropdownOption
-func NewDropdownOption(label string, value string) DropdownOption {
-	return DropdownOption{
+// NewSelectMenuOption builds a new SelectMenuOption
+func NewSelectMenuOption(label string, value string) SelectMenuOption {
+	return SelectMenuOption{
 		Label: label,
 		Value: value,
 	}
 }
 
-// DropdownOption represents an option in a Dropdown
-type DropdownOption struct {
+// SelectMenuOption represents an option in a SelectMenu
+type SelectMenuOption struct {
 	Label       string `json:"label"`
 	Value       string `json:"value"`
 	Description string `json:"description,omitempty"`

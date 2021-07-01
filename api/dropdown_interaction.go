@@ -1,19 +1,19 @@
 package api
 
-// DropdownInteraction is a specific Interaction when CLicked on Dropdown(s)
-type DropdownInteraction struct {
+// SelectMenuInteraction is a specific Interaction when CLicked on SelectMenu(s)
+type SelectMenuInteraction struct {
 	*ComponentInteraction
-	Data *DropdownInteractionData `json:"data,omitempty"`
+	Data *SelectMenuInteractionData `json:"data,omitempty"`
 }
 
-// DropdownInteractionData is the Dropdown data payload
-type DropdownInteractionData struct {
+// SelectMenuInteractionData is the SelectMenu data payload
+type SelectMenuInteractionData struct {
 	*ComponentInteractionData
 	Values []string `json:"values"`
 }
 
-// Dropdown returns the Dropdown which issued this DropdownInteraction. nil for ephemeral Message(s)
-func (i *DropdownInteraction) Dropdown() *Dropdown {
-	return i.Message.DropdownByID(i.Data.CustomID)
+// SelectMenu returns the SelectMenu which issued this SelectMenuInteraction. nil for ephemeral Message(s)
+func (i *SelectMenuInteraction) SelectMenu() *SelectMenu {
+	return i.Message.SelectMenuByID(i.Data.CustomID)
 }
 

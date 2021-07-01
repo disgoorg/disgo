@@ -7,7 +7,7 @@ type ComponentType int
 const (
 	ComponentTypeActionRow = iota + 1
 	ComponentTypeButton
-	ComponentTypeDropdown
+	ComponentTypeSelectMenu
 )
 
 // Component is a general interface each Component needs to implement
@@ -33,7 +33,7 @@ func (t ComponentImpl) Type() ComponentType {
 type UnmarshalComponent struct {
 	ComponentType ComponentType `json:"type"`
 
-	// Button && Dropdown
+	// Button && SelectMenu
 	CustomID string `json:"custom_id"`
 
 	// Button
@@ -46,9 +46,9 @@ type UnmarshalComponent struct {
 	// ActionRow
 	Components []UnmarshalComponent `json:"components"`
 
-	// Dropdown
+	// SelectMenu
 	Placeholder string           `json:"placeholder"`
 	MinValues   int              `json:"min_values,omitempty"`
 	MaxValues   int              `json:"max_values,omitempty"`
-	Options     []DropdownOption `json:"options"`
+	Options     []SelectMenuOption `json:"options"`
 }
