@@ -3,6 +3,7 @@ package internal
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/DisgoOrg/disgo/api"
 	"github.com/DisgoOrg/restclient"
@@ -24,6 +25,90 @@ func newRestClientImpl(disgo api.Disgo, httpClient *http.Client) api.RestClient 
 type restClientImpl struct {
 	restclient.RestClient
 	disgo api.Disgo
+}
+
+func (r *restClientImpl) CreateThreadWithMessage(channelID api.Snowflake, messageID api.Snowflake, threadCreate api.ThreadCreate) (api.Thread, restclient.RestError) {
+	panic("implement me")
+}
+
+func (r *restClientImpl) CreateThreadWithoutMessage(channelID api.Snowflake, threadCreate api.ThreadCreate) (api.Thread, restclient.RestError) {
+	panic("implement me")
+}
+
+func (r *restClientImpl) JoinThread(threadID api.Snowflake) restclient.RestError {
+	panic("implement me")
+}
+
+func (r *restClientImpl) AddThreadMember(threadID api.Snowflake, userID api.Snowflake) restclient.RestError {
+	panic("implement me")
+}
+
+func (r *restClientImpl) LeaveThread(threadID api.Snowflake) restclient.RestError {
+	panic("implement me")
+}
+
+func (r *restClientImpl) RemoveThreadMember(threadID api.Snowflake, userID api.Snowflake) restclient.RestError {
+	panic("implement me")
+}
+
+func (r *restClientImpl) GetThreadMembers(threadID api.Snowflake) ([]*api.ThreadMember, restclient.RestError) {
+	panic("implement me")
+}
+
+func (r *restClientImpl) GetActiveThreads(channelID api.Snowflake) ([]api.Thread, restclient.RestError) {
+	panic("implement me")
+}
+
+func (r *restClientImpl) GetPublicArchivedThreads(channelID api.Snowflake, before time.Time, limit int) ([]api.Thread, restclient.RestError) {
+	panic("implement me")
+}
+
+func (r *restClientImpl) GetPrivateArchivedThreads(channelID api.Snowflake, before time.Time, limit int) ([]api.Thread, restclient.RestError) {
+	panic("implement me")
+}
+
+func (r *restClientImpl) GetJoinedPrivateArchivedThreads(channelID api.Snowflake, before time.Time, limit int) ([]api.Thread, restclient.RestError) {
+	panic("implement me")
+}
+
+func (r *restClientImpl) GetPruneMembersCount(guildID api.Snowflake, days int, includeRoles []api.Snowflake) (*int, restclient.RestError) {
+	panic("implement me")
+}
+
+func (r *restClientImpl) PruneMembers(guildID api.Snowflake, days int, computePruneCount bool, includeRoles []api.Snowflake, reason string) (*int, restclient.RestError) {
+	panic("implement me")
+}
+
+func (r *restClientImpl) GetGuildWebhooks(guildID api.Snowflake) {
+	panic("implement me")
+}
+
+func (r *restClientImpl) GetAuditLogs(guildID api.Snowflake) {
+	panic("implement me")
+}
+
+func (r *restClientImpl) GetGuildVoiceRegions(guildID api.Snowflake) ([]*api.VoiceRegion, restclient.RestError) {
+	panic("implement me")
+}
+
+func (r *restClientImpl) GetGuildIntegrations(guildID api.Snowflake) ([]*api.Integration, restclient.RestError) {
+	panic("implement me")
+}
+
+func (r *restClientImpl) CreateGuildIntegration(guildID api.Snowflake) (*api.Integration, restclient.RestError) {
+	panic("implement me")
+}
+
+func (r *restClientImpl) UpdateGuildIntegration(guildID api.Snowflake) (*api.Integration, restclient.RestError) {
+	panic("implement me")
+}
+
+func (r *restClientImpl) DeleteGuildIntegration(guildID api.Snowflake) restclient.RestError {
+	panic("implement me")
+}
+
+func (r *restClientImpl) SyncIntegration(guildID api.Snowflake) {
+	panic("implement me")
 }
 
 // Disgo returns the api.Disgo instance
@@ -149,10 +234,9 @@ func (r *restClientImpl) GetMessage(channelID api.Snowflake, messageID api.Snowf
 		return nil, restclient.NewError(nil, err)
 	}
 
-	var fullMessage *api.FullMessage
-	rErr = r.Do(compiledRoute, nil, &fullMessage)
+	rErr = r.Do(compiledRoute, nil, &message)
 	if rErr == nil {
-		message = r.Disgo().EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -169,10 +253,9 @@ func (r *restClientImpl) CreateMessage(channelID api.Snowflake, messageCreate ap
 		return nil, restclient.NewError(nil, err)
 	}
 
-	var fullMessage *api.FullMessage
-	rErr = r.Do(compiledRoute, body, &fullMessage)
+	rErr = r.Do(compiledRoute, body, &message)
 	if rErr == nil {
-		message = r.Disgo().EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -189,10 +272,9 @@ func (r *restClientImpl) UpdateMessage(channelID api.Snowflake, messageID api.Sn
 		return nil, restclient.NewError(nil, err)
 	}
 
-	var fullMessage *api.FullMessage
-	rErr = r.Do(compiledRoute, body, &fullMessage)
+	rErr = r.Do(compiledRoute, body, &message)
 	if rErr == nil {
-		message = r.Disgo().EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -227,15 +309,14 @@ func (r *restClientImpl) BulkDeleteMessages(channelID api.Snowflake, messageIDs 
 }
 
 // CrosspostMessage lets you crosspost a api.Message in a channel with type api.ChannelTypeNews
-func (r *restClientImpl) CrosspostMessage(channelID api.Snowflake, messageID api.Snowflake) (msg *api.Message, rErr restclient.RestError) {
+func (r *restClientImpl) CrosspostMessage(channelID api.Snowflake, messageID api.Snowflake) (message *api.Message, rErr restclient.RestError) {
 	compiledRoute, err := restclient.CrosspostMessage.Compile(nil, channelID, messageID)
 	if err != nil {
 		return nil, restclient.NewError(nil, err)
 	}
-	var fullMsg *api.FullMessage
-	rErr = r.Do(compiledRoute, nil, &fullMsg)
+	rErr = r.Do(compiledRoute, nil, &message)
 	if rErr == nil {
-		msg = r.Disgo().EntityBuilder().CreateMessage(fullMsg, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -831,10 +912,9 @@ func (r *restClientImpl) UpdateInteractionResponse(applicationID api.Snowflake, 
 		return nil, restclient.NewError(nil, err)
 	}
 
-	var fullMessage *api.FullMessage
-	rErr = r.Do(compiledRoute, body, &fullMessage)
+	rErr = r.Do(compiledRoute, body, &message)
 	if rErr == nil {
-		message = r.Disgo().EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -848,7 +928,7 @@ func (r *restClientImpl) DeleteInteractionResponse(applicationID api.Snowflake, 
 	return r.Do(compiledRoute, nil, nil)
 }
 
-// SendFollowupMessage used to send a followup api.Message to an api.Interaction
+// CreateFollowupMessage used to send a followup api.Message to an api.Interaction
 func (r *restClientImpl) CreateFollowupMessage(applicationID api.Snowflake, interactionToken string, messageCreate api.MessageCreate) (message *api.Message, rErr restclient.RestError) {
 	compiledRoute, err := restclient.CreateFollowupMessage.Compile(nil, applicationID, interactionToken)
 	if err != nil {
@@ -860,10 +940,9 @@ func (r *restClientImpl) CreateFollowupMessage(applicationID api.Snowflake, inte
 		return nil, restclient.NewError(nil, err)
 	}
 
-	var fullMessage *api.FullMessage
-	rErr = r.Do(compiledRoute, body, &fullMessage)
+	rErr = r.Do(compiledRoute, body, &message)
 	if rErr == nil {
-		message = r.Disgo().EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
 	}
 
 	return
@@ -881,10 +960,9 @@ func (r *restClientImpl) UpdateFollowupMessage(applicationID api.Snowflake, inte
 		return nil, restclient.NewError(nil, err)
 	}
 
-	var fullMessage *api.FullMessage
-	rErr = r.Do(compiledRoute, body, &fullMessage)
+	rErr = r.Do(compiledRoute, body, &message)
 	if rErr == nil {
-		message = r.Disgo().EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
 	}
 
 	return

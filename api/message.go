@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
 	"time"
 
@@ -193,10 +194,52 @@ type Message struct {
 	LastUpdated       *time.Time          `json:"last_updated,omitempty"`
 }
 
-// FullMessage is used for easier unmarshalling of Component(s) in Message(s)
-type FullMessage struct {
-	*Message
-	UnmarshalComponents []UnmarshalComponent `json:"components,omitempty"`
+func (m *Message) Unmarshal(data []byte) error {
+	var fullM struct {
+		*Message
+		UnmarshalComponents []UnmarshalComponent `json:"components,omitempty"`
+	}
+	err := json.Unmarshal(data, &fullM)
+	if err != nil {
+		return err
+	}
+	*m = *fullM.Message
+	for _, component := range fullM.UnmarshalComponents {
+		m.Components = append(m.Components, createComponent(component))
+	}
+	return nil
+}
+
+func createComponent(unmarshalComponent UnmarshalComponent) Component {
+	switch unmarshalComponent.ComponentType {
+	case ComponentTypeActionRow:
+		components := make([]Component, len(unmarshalComponent.Components))
+		for i, unmarshalC := range unmarshalComponent.Components {
+			components[i] = createComponent(unmarshalC)
+		}
+		return &ActionRow{
+			ComponentImpl: ComponentImpl{
+				ComponentType: ComponentTypeActionRow,
+			},
+			Components: components,
+		}
+
+	case ComponentTypeButton:
+		return &Button{
+			ComponentImpl: ComponentImpl{
+				ComponentType: ComponentTypeButton,
+			},
+			Style:    unmarshalComponent.Style,
+			Label:    unmarshalComponent.Label,
+			Emoji:    unmarshalComponent.Emoji,
+			CustomID: unmarshalComponent.CustomID,
+			URL:      unmarshalComponent.URL,
+			Disabled: unmarshalComponent.Disabled,
+		}
+
+	default:
+		return nil
+	}
 }
 
 // MessageReference is a reference to another message

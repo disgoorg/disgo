@@ -175,14 +175,14 @@ func (i *Interaction) GuildChannel() GuildChannel {
 
 // FullInteraction is used for easier unmarshalling of different Interaction(s)
 type FullInteraction struct {
-	ID          Snowflake       `json:"id"`
-	Type        InteractionType `json:"type"`
-	GuildID     *Snowflake      `json:"guild_id,omitempty"`
-	ChannelID   *Snowflake      `json:"channel_id,omitempty"`
-	FullMessage *FullMessage    `json:"message,omitempty"`
-	Member      *Member         `json:"member,omitempty"`
-	User        *User           `json:"User,omitempty"`
-	Token       string          `json:"token"`
-	Version     int             `json:"version"`
-	Data        json.RawMessage `json:"data,omitempty"`
+	ID        Snowflake       `json:"id"`
+	Type      InteractionType `json:"type"`
+	GuildID   *Snowflake      `json:"guild_id,omitempty"`
+	ChannelID *Snowflake      `json:"channel_id,omitempty"`
+	Message   *Message        `json:"message,omitempty"`
+	Member    *Member         `json:"member,omitempty"`
+	User      *User           `json:"User,omitempty"`
+	Token     string          `json:"token"`
+	Version   int             `json:"version"`
+	Data      json.RawMessage `json:"data,omitempty"`
 }
