@@ -68,10 +68,10 @@ func (c *Command) Update(command CommandUpdate) error {
 	var rC *Command
 	var err error
 	if c.GuildID == nil {
-		rC, err = c.Disgo.RestClient().EditGlobalCommand(c.Disgo.ApplicationID(), c.ID, command)
+		rC, err = c.Disgo.RestClient().UpdateGlobalCommand(c.Disgo.ApplicationID(), c.ID, command)
 
 	} else {
-		rC, err = c.Disgo.RestClient().EditGuildCommand(c.Disgo.ApplicationID(), *c.GuildID, c.ID, command)
+		rC, err = c.Disgo.RestClient().UpdateGuildCommand(c.Disgo.ApplicationID(), *c.GuildID, c.ID, command)
 	}
 	if err != nil {
 		return err

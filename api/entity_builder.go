@@ -24,9 +24,9 @@ type EntityBuilder interface {
 
 	CreateUser(user *User, updateCache CacheStrategy) *User
 
-	CreateMessage(message *FullMessage, updateCache CacheStrategy) *Message
+	CreateMessage(message *Message, updateCache CacheStrategy) *Message
 
-	CreateGuild(guild *Guild, updateCache CacheStrategy) *Guild
+	CreateGuild(fullGuild *FullGuild, updateCache CacheStrategy) *Guild
 	CreateMember(guildID Snowflake, member *Member, updateCache CacheStrategy) *Member
 	CreateGuildCommand(guildID Snowflake, command *Command, updateCache CacheStrategy) *Command
 	CreateGuildCommandPermissions(guildCommandPermissions *GuildCommandPermissions, updateCache CacheStrategy) *GuildCommandPermissions

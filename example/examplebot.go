@@ -358,11 +358,11 @@ func messageListener(event events.GuildMessageCreateEvent) {
 			time.Sleep(time.Second * 2)
 
 			embed := api.NewEmbedBuilder().SetDescription("edit").Build()
-			message, _ = message.Edit(api.NewMessageUpdateBuilder().SetContent("edit").SetEmbeds(embed, embed).Build())
+			message, _ = message.Update(api.NewMessageUpdateBuilder().SetContent("edit").SetEmbeds(embed, embed).Build())
 
 			time.Sleep(time.Second * 2)
 
-			_, _ = message.Edit(api.NewMessageUpdateBuilder().SetContent("").SetEmbeds(api.NewEmbedBuilder().SetDescription("edit2").Build()).Build())
+			_, _ = message.Update(api.NewMessageUpdateBuilder().SetContent("").SetEmbeds(api.NewEmbedBuilder().SetDescription("edit2").Build()).Build())
 		}()
 
 	case "dm":

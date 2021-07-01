@@ -135,57 +135,8 @@ func (b *EntityBuilderImpl) CreateUser(user *api.User, updateCache api.CacheStra
 	return user
 }
 
-func (b *EntityBuilderImpl) createComponent(unmarshalComponent api.UnmarshalComponent, updateCache api.CacheStrategy) api.Component {
-	switch unmarshalComponent.ComponentType {
-	case api.ComponentTypeActionRow:
-		components := make([]api.Component, len(unmarshalComponent.Components))
-		for i, unmarshalC := range unmarshalComponent.Components {
-			components[i] = b.createComponent(unmarshalC, updateCache)
-		}
-		return &api.ActionRow{
-			ComponentImpl: api.ComponentImpl{
-				ComponentType: api.ComponentTypeActionRow,
-			},
-			Components: components,
-		}
-
-	case api.ComponentTypeButton:
-		button := &api.Button{
-			ComponentImpl: api.ComponentImpl{
-				ComponentType: api.ComponentTypeButton,
-			},
-			Style:    unmarshalComponent.Style,
-			Label:    unmarshalComponent.Label,
-			CustomID: unmarshalComponent.CustomID,
-			URL:      unmarshalComponent.URL,
-			Disabled: unmarshalComponent.Disabled,
-		}
-		if unmarshalComponent.Emoji != nil {
-			button.Emoji = b.CreateEmoji("", unmarshalComponent.Emoji, updateCache)
-		}
-		return button
-	case api.ComponentTypeDropdown:
-		dropdown := &api.Dropdown{
-			ComponentImpl: api.ComponentImpl{
-				ComponentType: api.ComponentTypeButton,
-			},
-			CustomID:    unmarshalComponent.CustomID,
-			Placeholder: unmarshalComponent.Placeholder,
-			MinValues:   unmarshalComponent.MinValues,
-			MaxValues:   unmarshalComponent.MaxValues,
-			Options:     unmarshalComponent.Options,
-		}
-		return dropdown
-
-	default:
-		b.Disgo().Logger().Errorf("unexpected component type %d received", unmarshalComponent.ComponentType)
-		return nil
-	}
-}
-
 // CreateMessage returns a new api.Message entity
-func (b *EntityBuilderImpl) CreateMessage(fullMessage *api.FullMessage, updateCache api.CacheStrategy) *api.Message {
-	message := fullMessage.Message
+func (b *EntityBuilderImpl) CreateMessage(message *api.Message, updateCache api.CacheStrategy) *api.Message {
 	message.Disgo = b.Disgo()
 
 	if message.Member != nil {
@@ -196,12 +147,6 @@ func (b *EntityBuilderImpl) CreateMessage(fullMessage *api.FullMessage, updateCa
 		message.Author = b.CreateUser(message.Author, updateCache)
 	}
 
-	if fullMessage.UnmarshalComponents != nil {
-		for _, component := range fullMessage.UnmarshalComponents {
-			message.Components = append(message.Components, b.createComponent(component, updateCache))
-		}
-	}
-
 	// TODO: should we cache mentioned users, members, etc?
 	if updateCache(b.Disgo()) {
 		return b.Disgo().Cache().CacheMessage(message)
@@ -210,8 +155,47 @@ func (b *EntityBuilderImpl) CreateMessage(fullMessage *api.FullMessage, updateCa
 }
 
 // CreateGuild returns a new api.Guild entity
-func (b *EntityBuilderImpl) CreateGuild(guild *api.Guild, updateCache api.CacheStrategy) *api.Guild {
+func (b *EntityBuilderImpl) CreateGuild(fullGuild *api.FullGuild, updateCache api.CacheStrategy) *api.Guild {
+	guild := fullGuild.Guild
 	guild.Disgo = b.Disgo()
+
+	for _, channel := range fullGuild.Channels {
+		channel.GuildID = &guild.ID
+		switch channel.Type {
+		case api.ChannelTypeText, api.ChannelTypeNews:
+			b.Disgo().EntityBuilder().CreateTextChannel(channel, api.CacheStrategyYes)
+		case api.ChannelTypeVoice:
+			b.Disgo().EntityBuilder().CreateVoiceChannel(channel, api.CacheStrategyYes)
+		case api.ChannelTypeCategory:
+			b.Disgo().EntityBuilder().CreateCategory(channel, api.CacheStrategyYes)
+		case api.ChannelTypeStore:
+			b.Disgo().EntityBuilder().CreateStoreChannel(channel, api.CacheStrategyYes)
+		}
+	}
+
+	for _, role := range fullGuild.Roles {
+		b.Disgo().EntityBuilder().CreateRole(guild.ID, role, api.CacheStrategyYes)
+	}
+
+	for _, member := range fullGuild.Members {
+		b.Disgo().EntityBuilder().CreateMember(guild.ID, member, api.CacheStrategyYes)
+	}
+
+	for _, voiceState := range fullGuild.VoiceStates {
+		b.Disgo().EntityBuilder().CreateVoiceState(guild.ID, voiceState, api.CacheStrategyYes)
+	}
+
+	for _, emote := range fullGuild.Emojis {
+		b.Disgo().EntityBuilder().CreateEmoji(guild.ID, emote, api.CacheStrategyYes)
+	}
+
+	// TODO: presence
+	/*for i := range fullGuild.Presences {
+		presence := fullGuild.Presences[i]
+		presence.Disgo = disgo
+		b.Disgo().Cache().CachePresence(presence)
+	}*/
+
 	if updateCache(b.Disgo()) {
 		return b.Disgo().Cache().CacheGuild(guild)
 	}
