@@ -39,6 +39,9 @@ func (b EntityBuilderImpl) createInteraction(fullInteraction *api.FullInteractio
 	if fullInteraction.User != nil {
 		interaction.User = b.CreateUser(fullInteraction.User, updateCache)
 	}
+	if fullInteraction.User == nil && fullInteraction.Member != nil {
+		interaction.User = interaction.Member.User
+	}
 	return interaction
 }
 
