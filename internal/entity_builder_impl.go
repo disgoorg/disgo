@@ -49,7 +49,7 @@ func (b *EntityBuilderImpl) CreateButtonInteraction(fullInteraction *api.FullInt
 
 	return &api.ButtonInteraction{
 		Interaction: b.createInteraction(fullInteraction, c, updateCache),
-		Message:     b.CreateMessage(fullInteraction.FullMessage, updateCache),
+		Message:     b.CreateMessage(fullInteraction.Message, updateCache),
 		Data:        data,
 	}
 }
@@ -110,45 +110,8 @@ func (b *EntityBuilderImpl) CreateUser(user *api.User, updateCache api.CacheStra
 	return user
 }
 
-func (b *EntityBuilderImpl) createComponent(unmarshalComponent api.UnmarshalComponent, updateCache api.CacheStrategy) api.Component {
-	switch unmarshalComponent.ComponentType {
-	case api.ComponentTypeActionRow:
-		components := make([]api.Component, len(unmarshalComponent.Components))
-		for i, unmarshalC := range unmarshalComponent.Components {
-			components[i] = b.createComponent(unmarshalC, updateCache)
-		}
-		return &api.ActionRow{
-			ComponentImpl: api.ComponentImpl{
-				ComponentType: api.ComponentTypeActionRow,
-			},
-			Components: components,
-		}
-
-	case api.ComponentTypeButton:
-		button := &api.Button{
-			ComponentImpl: api.ComponentImpl{
-				ComponentType: api.ComponentTypeButton,
-			},
-			Style:    unmarshalComponent.Style,
-			Label:    unmarshalComponent.Label,
-			CustomID: unmarshalComponent.CustomID,
-			URL:      unmarshalComponent.URL,
-			Disabled: unmarshalComponent.Disabled,
-		}
-		if unmarshalComponent.Emoji != nil {
-			button.Emoji = b.CreateEmoji("", unmarshalComponent.Emoji, updateCache)
-		}
-		return button
-
-	default:
-		b.Disgo().Logger().Errorf("unexpected component type %d received", unmarshalComponent.ComponentType)
-		return nil
-	}
-}
-
 // CreateMessage returns a new api.Message entity
-func (b *EntityBuilderImpl) CreateMessage(fullMessage *api.FullMessage, updateCache api.CacheStrategy) *api.Message {
-	message := fullMessage.Message
+func (b *EntityBuilderImpl) CreateMessage(message *api.Message, updateCache api.CacheStrategy) *api.Message {
 	message.Disgo = b.Disgo()
 
 	if message.Member != nil {
@@ -157,12 +120,6 @@ func (b *EntityBuilderImpl) CreateMessage(fullMessage *api.FullMessage, updateCa
 	}
 	if message.Author != nil {
 		message.Author = b.CreateUser(message.Author, updateCache)
-	}
-
-	if fullMessage.UnmarshalComponents != nil {
-		for _, component := range fullMessage.UnmarshalComponents {
-			message.Components = append(message.Components, b.createComponent(component, updateCache))
-		}
 	}
 
 	// TODO: should we cache mentioned users, members, etc?

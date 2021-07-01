@@ -161,10 +161,9 @@ func (r *restClientImpl) GetMessage(channelID api.Snowflake, messageID api.Snowf
 		return nil, restclient.NewError(nil, err)
 	}
 
-	var fullMessage *api.FullMessage
-	rErr = r.Do(compiledRoute, nil, &fullMessage)
+	rErr = r.Do(compiledRoute, nil, &message)
 	if rErr == nil {
-		message = r.Disgo().EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -181,10 +180,9 @@ func (r *restClientImpl) CreateMessage(channelID api.Snowflake, messageCreate ap
 		return nil, restclient.NewError(nil, err)
 	}
 
-	var fullMessage *api.FullMessage
-	rErr = r.Do(compiledRoute, body, &fullMessage)
+	rErr = r.Do(compiledRoute, body, &message)
 	if rErr == nil {
-		message = r.Disgo().EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -201,10 +199,9 @@ func (r *restClientImpl) UpdateMessage(channelID api.Snowflake, messageID api.Sn
 		return nil, restclient.NewError(nil, err)
 	}
 
-	var fullMessage *api.FullMessage
-	rErr = r.Do(compiledRoute, body, &fullMessage)
+	rErr = r.Do(compiledRoute, body, &message)
 	if rErr == nil {
-		message = r.Disgo().EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -239,15 +236,14 @@ func (r *restClientImpl) BulkDeleteMessages(channelID api.Snowflake, messageIDs 
 }
 
 // CrosspostMessage lets you crosspost a api.Message in a channel with type api.ChannelTypeNews
-func (r *restClientImpl) CrosspostMessage(channelID api.Snowflake, messageID api.Snowflake) (msg *api.Message, rErr restclient.RestError) {
+func (r *restClientImpl) CrosspostMessage(channelID api.Snowflake, messageID api.Snowflake) (message *api.Message, rErr restclient.RestError) {
 	compiledRoute, err := restclient.CrosspostMessage.Compile(nil, channelID, messageID)
 	if err != nil {
 		return nil, restclient.NewError(nil, err)
 	}
-	var fullMsg *api.FullMessage
-	rErr = r.Do(compiledRoute, nil, &fullMsg)
+	rErr = r.Do(compiledRoute, nil, &message)
 	if rErr == nil {
-		msg = r.Disgo().EntityBuilder().CreateMessage(fullMsg, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -828,10 +824,9 @@ func (r *restClientImpl) UpdateInteractionResponse(applicationID api.Snowflake, 
 		return nil, restclient.NewError(nil, err)
 	}
 
-	var fullMessage *api.FullMessage
-	rErr = r.Do(compiledRoute, body, &fullMessage)
+	rErr = r.Do(compiledRoute, body, &message)
 	if rErr == nil {
-		message = r.Disgo().EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -857,10 +852,9 @@ func (r *restClientImpl) SendFollowupMessage(applicationID api.Snowflake, intera
 		return nil, restclient.NewError(nil, err)
 	}
 
-	var fullMessage *api.FullMessage
-	rErr = r.Do(compiledRoute, body, &fullMessage)
+	rErr = r.Do(compiledRoute, body, &message)
 	if rErr == nil {
-		message = r.Disgo().EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
 	}
 
 	return
@@ -878,10 +872,9 @@ func (r *restClientImpl) UpdateFollowupMessage(applicationID api.Snowflake, inte
 		return nil, restclient.NewError(nil, err)
 	}
 
-	var fullMessage *api.FullMessage
-	rErr = r.Do(compiledRoute, body, &fullMessage)
+	rErr = r.Do(compiledRoute, body, &message)
 	if rErr == nil {
-		message = r.Disgo().EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
 	}
 
 	return
