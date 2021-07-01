@@ -323,7 +323,7 @@ func (r *restClientImpl) CrosspostMessage(channelID api.Snowflake, messageID api
 
 // CreateDMChannel opens a new api.DMChannel a user
 func (r *restClientImpl) CreateDMChannel(userID api.Snowflake) (dmChannel api.DMChannel, rErr restclient.RestError) {
-	compiledRoute, err := restclient.CreateDMChannel.Compile(nil)
+	compiledRoute, err := restclient.CreateDMChannel.Compile(nil, struct{ Recipient api.Snowflake }{Recipient: userID})
 	if err != nil {
 		return nil, restclient.NewError(nil, restclient.NewError(nil, err))
 	}
