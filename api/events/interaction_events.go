@@ -104,33 +104,45 @@ func (e CommandEvent) OptionsT(optionType api.CommandOptionType) []*api.Option {
 	return options
 }
 
-// ButtonClickEvent indicates that a api.Button was clicked
-type ButtonClickEvent struct {
+// GenericComponentEvent generic api.ComponentInteraction event
+type GenericComponentEvent struct {
 	GenericInteractionEvent
-	ButtonInteraction *api.ButtonInteraction
+	ComponentInteraction *api.ComponentInteraction
 }
 
 // DeferEdit replies to the api.ButtonInteraction with api.InteractionResponseTypeDeferredUpdateMessage and cancels the loading state
-func (e *ButtonClickEvent) DeferEdit() error {
-	return e.ButtonInteraction.DeferEdit()
+func (e *GenericComponentEvent) DeferEdit() error {
+	return e.ComponentInteraction.DeferEdit()
 }
 
-// Edit replies to the api.ButtonInteraction with api.InteractionResponseTypeUpdateMessage & api.MessageCreate which edits the original api.Message
-func (e *ButtonClickEvent) Edit(messageCreate api.MessageCreate) error {
-	return e.ButtonInteraction.Edit(messageCreate)
+// Edit replies to the api.ButtonInteraction with api.InteractionResponseTypeUpdateMessage & api.MessageUpdate which edits the original api.Message
+func (e *GenericComponentEvent) Edit(messageUpdate api.MessageUpdate) error {
+	return e.ComponentInteraction.Edit(messageUpdate)
 }
 
-// CustomID returns the customID from the called api.Button
-func (e *ButtonClickEvent) CustomID() string {
-	return e.ButtonInteraction.Data.CustomID
+// CustomID returns the customID from the called api.Component
+func (e *GenericComponentEvent) CustomID() string {
+	return e.ComponentInteraction.Data.CustomID
 }
 
-// ComponentType returns the api.ComponentType from the called api.Button
-func (e *ButtonClickEvent) ComponentType() string {
-	return e.ButtonInteraction.Data.CustomID
+// ComponentType returns the api.ComponentType from the called api.Component
+func (e *GenericComponentEvent) ComponentType() string {
+	return e.ComponentInteraction.Data.CustomID
 }
 
-// Message returns the api.Message the api.Button is called from
-func (e *ButtonClickEvent) Message() *api.Message {
-	return e.ButtonInteraction.Message
+// ButtonClickEvent indicates that a api.Button was clicked
+type ButtonClickEvent struct {
+	GenericComponentEvent
+	ButtonInteraction *api.ButtonInteraction
+}
+
+// SelectMenuSubmitEvent indicates that a api.SelectMenu was submitted
+type SelectMenuSubmitEvent struct {
+	GenericComponentEvent
+	SelectMenuInteraction *api.SelectMenuInteraction
+}
+
+// Values returns the submitted values from the api.SelectMenu
+func (e *SelectMenuSubmitEvent) Values() []string {
+	return e.SelectMenuInteraction.Data.Values
 }
