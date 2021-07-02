@@ -47,8 +47,8 @@ type UnmarshalComponent struct {
 	Components []UnmarshalComponent `json:"components"`
 
 	// SelectMenu
-	Placeholder string             `json:"placeholder"`
-	MinValues   int                `json:"min_values,omitempty"`
-	MaxValues   int                `json:"max_values,omitempty"`
-	Options     []SelectMenuOption `json:"options"`
+	Placeholder string         `json:"placeholder"`
+	MinValues   int            `json:"min_values,omitempty"`
+	MaxValues   int            `json:"max_values,omitempty"`
+	Options     []SelectOption `json:"options"`
 }
