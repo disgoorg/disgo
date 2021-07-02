@@ -20,6 +20,7 @@ func (b *EntityBuilderImpl) Disgo() api.Disgo {
 	return b.disgo
 }
 
+// CreateInteraction creates a api.Interaction from the api.FullInteraction response
 func (b EntityBuilderImpl) CreateInteraction(fullInteraction *api.FullInteraction, c chan api.InteractionResponse, updateCache api.CacheStrategy) *api.Interaction {
 	interaction := &api.Interaction{
 		Disgo:           b.disgo,
@@ -45,7 +46,7 @@ func (b EntityBuilderImpl) CreateInteraction(fullInteraction *api.FullInteractio
 	return interaction
 }
 
-// CreateCommandInteraction creates a api.CommandInteraction from the full interaction response
+// CreateCommandInteraction creates a api.CommandInteraction from the api.FullInteraction response
 func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullInteraction, interaction *api.Interaction, updateCache api.CacheStrategy) *api.CommandInteraction {
 	var data *api.CommandInteractionData
 	err := json.Unmarshal(fullInteraction.Data, &data)
@@ -118,7 +119,7 @@ func (b *EntityBuilderImpl) CreateButtonInteraction(fullInteraction *api.FullInt
 	}
 }
 
-// CreateSelectMenuInteraction creates a api.SelectMenuInteraction from the full interaction response
+// CreateSelectMenuInteraction creates a api.SelectMenuInteraction from the api.FullInteraction response
 func (b *EntityBuilderImpl) CreateSelectMenuInteraction(fullInteraction *api.FullInteraction, componentInteraction *api.ComponentInteraction) *api.SelectMenuInteraction {
 	var data *api.SelectMenuInteractionData
 	err := json.Unmarshal(fullInteraction.Data, &data)

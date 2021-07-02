@@ -342,6 +342,7 @@ type CreateGuild struct {
 	SystemChannelFlags              SystemChannelFlag          `json:"system_channel_flags,omitempty"`
 }
 
+// UpdateGuild is the payload used to update a Guild
 type UpdateGuild struct {
 	Name                            string                      `json:"name"`
 	Region                          *string                     `json:"region"`

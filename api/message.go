@@ -193,6 +193,8 @@ type Message struct {
 	LastUpdated       *time.Time          `json:"last_updated,omitempty"`
 }
 
+
+// Unmarshal is used to unmarshal a Message we received from discord
 func (m *Message) Unmarshal(data []byte) error {
 	var fullM struct {
 		*Message
