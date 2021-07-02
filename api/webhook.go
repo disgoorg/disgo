@@ -5,7 +5,7 @@ type WebhookType int
 
 // Incoming
 const (
-	Incoming WebhookType = iota
+	Incoming WebhookType = iota + 1
 	ChannelFollower
 	Application
 )
