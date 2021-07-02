@@ -38,7 +38,7 @@ type UnmarshalComponent struct {
 
 	// Button
 	Style    ButtonStyle `json:"style"`
-	Label    *string     `json:"label"`
+	Label    string      `json:"label"`
 	Emoji    *Emoji      `json:"emoji"`
 	URL      string      `json:"url"`
 	Disabled bool        `json:"disabled"`
@@ -47,8 +47,8 @@ type UnmarshalComponent struct {
 	Components []UnmarshalComponent `json:"components"`
 
 	// SelectMenu
-	Placeholder string           `json:"placeholder"`
-	MinValues   int              `json:"min_values,omitempty"`
-	MaxValues   int              `json:"max_values,omitempty"`
+	Placeholder string             `json:"placeholder"`
+	MinValues   int                `json:"min_values,omitempty"`
+	MaxValues   int                `json:"max_values,omitempty"`
 	Options     []SelectMenuOption `json:"options"`
 }

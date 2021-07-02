@@ -289,10 +289,10 @@ func commandListener(event events.CommandEvent) {
 			AddFile("gopher.png", reader).
 			SetComponents(
 				api.NewActionRow(
-					api.NewPrimaryButton("test1", "test1", nil, false),
-					api.NewPrimaryButton("test2", "test2", nil, false),
-					api.NewPrimaryButton("test3", "test3", nil, false),
-					api.NewPrimaryButton("test4", "test4", nil, false),
+					api.NewPrimaryButton("test1", "test1", nil),
+					api.NewPrimaryButton("test2", "test2", nil),
+					api.NewPrimaryButton("test3", "test3", nil),
+					api.NewPrimaryButton("test4", "test4", nil),
 				),
 				api.NewActionRow(
 					api.NewSelectMenu("test3", "test", 1, 1, api.NewSelectMenuOption("test1", "1"), api.NewSelectMenuOption("test2", "2"), api.NewSelectMenuOption("test3", "3")),
