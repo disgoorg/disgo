@@ -193,19 +193,18 @@ type Message struct {
 	LastUpdated       *time.Time          `json:"last_updated,omitempty"`
 }
 
-
 // Unmarshal is used to unmarshal a Message we received from discord
 func (m *Message) Unmarshal(data []byte) error {
 	var fullM struct {
+		Components []UnmarshalComponent `json:"components,omitempty"`
 		*Message
-		UnmarshalComponents []UnmarshalComponent `json:"components,omitempty"`
 	}
 	err := json.Unmarshal(data, &fullM)
 	if err != nil {
 		return err
 	}
 	*m = *fullM.Message
-	for _, component := range fullM.UnmarshalComponents {
+	for _, component := range fullM.Components {
 		m.Components = append(m.Components, createComponent(component))
 	}
 	return nil
@@ -218,7 +217,7 @@ func createComponent(unmarshalComponent UnmarshalComponent) Component {
 		for i, unmarshalC := range unmarshalComponent.Components {
 			components[i] = createComponent(unmarshalC)
 		}
-		return &ActionRow{
+		return ActionRow{
 			ComponentImpl: ComponentImpl{
 				ComponentType: ComponentTypeActionRow,
 			},
@@ -226,7 +225,7 @@ func createComponent(unmarshalComponent UnmarshalComponent) Component {
 		}
 
 	case ComponentTypeButton:
-		return &Button{
+		return Button{
 			ComponentImpl: ComponentImpl{
 				ComponentType: ComponentTypeButton,
 			},
