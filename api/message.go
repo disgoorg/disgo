@@ -169,7 +169,7 @@ type Message struct {
 	Attachments       []Attachment        `json:"attachments"`
 	TTS               bool                `json:"tts"`
 	Embeds            []Embed             `json:"embeds,omitempty"`
-	Components        []Component         `json:"components,omitempty"`
+	Components        []Component         `json:"-"`
 	CreatedAt         time.Time           `json:"timestamp"`
 	Mentions          []interface{}       `json:"mentions"`
 	MentionEveryone   bool                `json:"mention_everyone"`
@@ -196,8 +196,8 @@ type Message struct {
 // Unmarshal is used to unmarshal a Message we received from discord
 func (m *Message) Unmarshal(data []byte) error {
 	var fullM struct {
-		Components []UnmarshalComponent `json:"components,omitempty"`
 		*Message
+		Components []UnmarshalComponent `json:"components,omitempty"`
 	}
 	err := json.Unmarshal(data, &fullM)
 	if err != nil {
@@ -208,6 +208,23 @@ func (m *Message) Unmarshal(data []byte) error {
 		m.Components = append(m.Components, createComponent(component))
 	}
 	return nil
+}
+
+// Marshal is used to marshal a Message we send to discord
+func (m *Message) Marshal() ([]byte, error) {
+	fullM := struct {
+		*Message
+		Components []Component `json:"components,omitempty"`
+	}{
+		Message:    m,
+		Components: m.Components,
+	}
+	fullM.Message = m
+	data, err := json.Marshal(fullM)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }
 
 func createComponent(unmarshalComponent UnmarshalComponent) Component {
