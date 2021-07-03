@@ -6,12 +6,12 @@ type ButtonInteraction struct {
 	Data *ButtonInteractionData `json:"data,omitempty"`
 }
 
+// Button returns the Button which issued this ButtonInteraction. nil for ephemeral Message(s)
+func (i *ButtonInteraction) Button() *Button {
+	return i.Message.ButtonByID(i.CustomID())
+}
+
 // ButtonInteractionData is the Button data payload
 type ButtonInteractionData struct {
 	*ComponentInteractionData
-}
-
-// Button returns the Button which issued this ButtonInteraction. nil for ephemeral Message(s)
-func (i *ButtonInteraction) Button() *Button {
-	return i.Message.ButtonByID(i.Data.CustomID)
 }

@@ -325,8 +325,25 @@ func (m *Message) Reply(message MessageCreate) (*Message, restclient.RestError) 
 	return m.Disgo.RestClient().CreateMessage(m.ChannelID, message)
 }
 
-// ComponentByID returns the first Button or SelectMenu with the specific customID
+// ActionRows returns all ActionRow(s) from this Message
+func (m *Message) ActionRows() []ActionRow {
+	if m.IsEphemeral() {
+		return nil
+	}
+	var actionRows []ActionRow
+	for _, component := range m.Components {
+		if actionRow, ok := component.(ActionRow); ok {
+			actionRows = append(actionRows, actionRow)
+		}
+	}
+	return actionRows
+}
+
+// ComponentByID returns the first Component with the specific customID
 func (m *Message) ComponentByID(customID string) Component {
+	if m.IsEphemeral() {
+		return nil
+	}
 	for _, actionRow := range m.ActionRows() {
 		for _, component := range actionRow.Components {
 			switch c := component.(type) {
@@ -346,19 +363,11 @@ func (m *Message) ComponentByID(customID string) Component {
 	return nil
 }
 
-// ActionRows returns all ActionRow(s) from this Message
-func (m *Message) ActionRows() []ActionRow {
-	var actionRows []ActionRow
-	for _, component := range m.Components {
-		if actionRow, ok := component.(ActionRow); ok {
-			actionRows = append(actionRows, actionRow)
-		}
-	}
-	return actionRows
-}
-
 // Buttons returns all Button(s) from this Message
 func (m *Message) Buttons() []Button {
+	if m.IsEphemeral() {
+		return nil
+	}
 	var buttons []Button
 	for _, actionRow := range m.ActionRows() {
 		for _, component := range actionRow.Components {
@@ -372,6 +381,9 @@ func (m *Message) Buttons() []Button {
 
 // ButtonByID returns a Button with the specific customID from this Message
 func (m *Message) ButtonByID(customID string) *Button {
+	if m.IsEphemeral() {
+		return nil
+	}
 	for _, button := range m.Buttons() {
 		if button.CustomID == customID {
 			return &button
@@ -382,6 +394,9 @@ func (m *Message) ButtonByID(customID string) *Button {
 
 // SelectMenus returns all SelectMenu(s) from this Message
 func (m *Message) SelectMenus() []SelectMenu {
+	if m.IsEphemeral() {
+		return nil
+	}
 	var selectMenus []SelectMenu
 	for _, actionRow := range m.ActionRows() {
 		for _, component := range actionRow.Components {
@@ -395,12 +410,20 @@ func (m *Message) SelectMenus() []SelectMenu {
 
 // SelectMenuByID returns a SelectMenu with the specific customID from this Message
 func (m *Message) SelectMenuByID(customID string) *SelectMenu {
+	if m.IsEphemeral() {
+		return nil
+	}
 	for _, selectMenu := range m.SelectMenus() {
 		if selectMenu.CustomID == customID {
 			return &selectMenu
 		}
 	}
 	return nil
+}
+
+// IsEphemeral returns true if the Message has MessageFlagEphemeral
+func (m *Message) IsEphemeral() bool {
+	return m.Flags.Has(MessageFlagEphemeral)
 }
 
 // MessageReaction contains information about the reactions of a message_events

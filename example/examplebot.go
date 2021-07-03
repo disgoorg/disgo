@@ -295,7 +295,7 @@ func commandListener(event events.CommandEvent) {
 					api.NewPrimaryButton("test4", "test4", nil),
 				),
 				api.NewActionRow(
-					api.NewSelectMenu("test3", "test", 1, 1, api.NewSelectOption("test1", "1"), api.NewSelectOption("test2", "2"), api.NewSelectOption("test3", "3")),
+					api.NewSelectMenu("test3", "test", 0, 1, api.NewSelectOption("test1", "1"), api.NewSelectOption("test2", "2"), api.NewSelectOption("test3", "3")),
 				),
 			).
 			Build(),

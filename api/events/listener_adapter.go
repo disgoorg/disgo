@@ -132,7 +132,7 @@ type ListenerAdapter struct {
 	OnCommand                 func(event CommandEvent)
 	OnGenericComponentEvent   func(event GenericComponentEvent)
 	OnButtonClick             func(event ButtonClickEvent)
-	OnSelectMenuSubmit          func(event SelectMenuSubmitEvent)
+	OnSelectMenuSubmit        func(event SelectMenuSubmitEvent)
 
 	// api.Message Events
 	OnGenericMessageEvent func(event GenericMessageEvent)
