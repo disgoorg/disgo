@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
 	"time"
 
@@ -168,7 +169,7 @@ type Message struct {
 	Attachments       []Attachment        `json:"attachments"`
 	TTS               bool                `json:"tts"`
 	Embeds            []Embed             `json:"embeds,omitempty"`
-	Components        []Component         `json:"components,omitempty"`
+	Components        []Component         `json:"-"`
 	CreatedAt         time.Time           `json:"timestamp"`
 	Mentions          []interface{}       `json:"mentions"`
 	MentionEveryone   bool                `json:"mention_everyone"`
@@ -192,10 +193,70 @@ type Message struct {
 	LastUpdated       *time.Time          `json:"last_updated,omitempty"`
 }
 
-// FullMessage is used for easier unmarshalling of Component(s) in Message(s)
-type FullMessage struct {
-	*Message
-	UnmarshalComponents []UnmarshalComponent `json:"components,omitempty"`
+// Unmarshal is used to unmarshal a Message we received from discord
+func (m *Message) Unmarshal(data []byte) error {
+	var fullM struct {
+		*Message
+		Components []UnmarshalComponent `json:"components,omitempty"`
+	}
+	err := json.Unmarshal(data, &fullM)
+	if err != nil {
+		return err
+	}
+	*m = *fullM.Message
+	for _, component := range fullM.Components {
+		m.Components = append(m.Components, createComponent(component))
+	}
+	return nil
+}
+
+// Marshal is used to marshal a Message we send to discord
+func (m *Message) Marshal() ([]byte, error) {
+	fullM := struct {
+		*Message
+		Components []Component `json:"components,omitempty"`
+	}{
+		Message:    m,
+		Components: m.Components,
+	}
+	fullM.Message = m
+	data, err := json.Marshal(fullM)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+func createComponent(unmarshalComponent UnmarshalComponent) Component {
+	switch unmarshalComponent.ComponentType {
+	case ComponentTypeActionRow:
+		components := make([]Component, len(unmarshalComponent.Components))
+		for i, unmarshalC := range unmarshalComponent.Components {
+			components[i] = createComponent(unmarshalC)
+		}
+		return ActionRow{
+			ComponentImpl: ComponentImpl{
+				ComponentType: ComponentTypeActionRow,
+			},
+			Components: components,
+		}
+
+	case ComponentTypeButton:
+		return Button{
+			ComponentImpl: ComponentImpl{
+				ComponentType: ComponentTypeButton,
+			},
+			Style:    unmarshalComponent.Style,
+			Label:    unmarshalComponent.Label,
+			Emoji:    unmarshalComponent.Emoji,
+			CustomID: unmarshalComponent.CustomID,
+			URL:      unmarshalComponent.URL,
+			Disabled: unmarshalComponent.Disabled,
+		}
+
+	default:
+		return nil
+	}
 }
 
 // MessageReference is a reference to another message
@@ -262,6 +323,84 @@ func (m *Message) Reply(message MessageCreate) (*Message, restclient.RestError) 
 		MessageID: &m.ID,
 	}
 	return m.Disgo.RestClient().CreateMessage(m.ChannelID, message)
+}
+
+// ComponentByID returns the first Button or SelectMenu with the specific customID
+func (m *Message) ComponentByID(customID string) Component {
+	for _, actionRow := range m.ActionRows() {
+		for _, component := range actionRow.Components {
+			switch c := component.(type) {
+			case Button:
+				if c.CustomID == customID {
+					return c
+				}
+			case SelectMenu:
+				if c.CustomID == customID {
+					return c
+				}
+			default:
+				continue
+			}
+		}
+	}
+	return nil
+}
+
+// ActionRows returns all ActionRow(s) from this Message
+func (m *Message) ActionRows() []ActionRow {
+	var actionRows []ActionRow
+	for _, component := range m.Components {
+		if actionRow, ok := component.(ActionRow); ok {
+			actionRows = append(actionRows, actionRow)
+		}
+	}
+	return actionRows
+}
+
+// Buttons returns all Button(s) from this Message
+func (m *Message) Buttons() []Button {
+	var buttons []Button
+	for _, actionRow := range m.ActionRows() {
+		for _, component := range actionRow.Components {
+			if button, ok := component.(Button); ok {
+				buttons = append(buttons, button)
+			}
+		}
+	}
+	return buttons
+}
+
+// ButtonByID returns a Button with the specific customID from this Message
+func (m *Message) ButtonByID(customID string) *Button {
+	for _, button := range m.Buttons() {
+		if button.CustomID == customID {
+			return &button
+		}
+	}
+	return nil
+}
+
+// SelectMenus returns all SelectMenu(s) from this Message
+func (m *Message) SelectMenus() []SelectMenu {
+	var selectMenus []SelectMenu
+	for _, actionRow := range m.ActionRows() {
+		for _, component := range actionRow.Components {
+			if selectMenu, ok := component.(SelectMenu); ok {
+				selectMenus = append(selectMenus, selectMenu)
+			}
+		}
+	}
+	return selectMenus
+}
+
+// SelectMenuByID returns a SelectMenu with the specific customID from this Message
+func (m *Message) SelectMenuByID(customID string) *SelectMenu {
+	for _, selectMenu := range m.SelectMenus() {
+		if selectMenu.CustomID == customID {
+			return &selectMenu
+		}
+	}
+	return nil
 }
 
 // MessageReaction contains information about the reactions of a message_events

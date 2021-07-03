@@ -20,7 +20,8 @@ func (b *EntityBuilderImpl) Disgo() api.Disgo {
 	return b.disgo
 }
 
-func (b EntityBuilderImpl) createInteraction(fullInteraction *api.FullInteraction, c chan api.InteractionResponse, updateCache api.CacheStrategy) *api.Interaction {
+// CreateInteraction creates a api.Interaction from the api.FullInteraction response
+func (b EntityBuilderImpl) CreateInteraction(fullInteraction *api.FullInteraction, c chan api.InteractionResponse, updateCache api.CacheStrategy) *api.Interaction {
 	interaction := &api.Interaction{
 		Disgo:           b.disgo,
 		ResponseChannel: c,
@@ -39,25 +40,19 @@ func (b EntityBuilderImpl) createInteraction(fullInteraction *api.FullInteractio
 	if fullInteraction.User != nil {
 		interaction.User = b.CreateUser(fullInteraction.User, updateCache)
 	}
+	if fullInteraction.User == nil && fullInteraction.Member != nil {
+		interaction.User = interaction.Member.User
+	}
 	return interaction
 }
 
-// CreateButtonInteraction creates a api.ButtonInteraction from the full interaction response
-func (b *EntityBuilderImpl) CreateButtonInteraction(fullInteraction *api.FullInteraction, c chan api.InteractionResponse, updateCache api.CacheStrategy) *api.ButtonInteraction {
-	var data *api.ButtonInteractionData
-	_ = json.Unmarshal(fullInteraction.Data, &data)
-
-	return &api.ButtonInteraction{
-		Interaction: b.createInteraction(fullInteraction, c, updateCache),
-		Message:     b.CreateMessage(fullInteraction.FullMessage, updateCache),
-		Data:        data,
-	}
-}
-
-// CreateCommandInteraction creates a api.CommandInteraction from the full interaction response
-func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullInteraction, c chan api.InteractionResponse, updateCache api.CacheStrategy) *api.CommandInteraction {
+// CreateCommandInteraction creates a api.CommandInteraction from the api.FullInteraction response
+func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullInteraction, interaction *api.Interaction, updateCache api.CacheStrategy) *api.CommandInteraction {
 	var data *api.CommandInteractionData
-	_ = json.Unmarshal(fullInteraction.Data, &data)
+	err := json.Unmarshal(fullInteraction.Data, &data)
+	if err != nil {
+		b.Disgo().Logger().Errorf("error while unmarshalling api.CommandInteractionData: %s", err)
+	}
 
 	if data.Resolved != nil {
 		resolved := data.Resolved
@@ -87,8 +82,54 @@ func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullIn
 	}
 
 	return &api.CommandInteraction{
-		Interaction: b.createInteraction(fullInteraction, c, updateCache),
+		Interaction: interaction,
 		Data:        data,
+	}
+}
+
+// CreateComponentInteraction creates a api.ComponentInteraction from the api.FullInteraction response
+func (b *EntityBuilderImpl) CreateComponentInteraction(fullInteraction *api.FullInteraction, interaction *api.Interaction, updateCache api.CacheStrategy) *api.ComponentInteraction {
+	var data *api.ComponentInteractionData
+	err := json.Unmarshal(fullInteraction.Data, &data)
+	if err != nil {
+		b.Disgo().Logger().Errorf("error while unmarshalling api.ComponentInteractionData: %s", err)
+	}
+
+	return &api.ComponentInteraction{
+		Interaction: interaction,
+		Message:     b.CreateMessage(fullInteraction.Message, updateCache),
+		Data: &api.ComponentInteractionData{
+			ComponentType: data.ComponentType,
+			CustomID:      data.CustomID,
+		},
+	}
+}
+
+// CreateButtonInteraction creates a api.ButtonInteraction from the api.FullInteraction response
+func (b *EntityBuilderImpl) CreateButtonInteraction(fullInteraction *api.FullInteraction, componentInteraction *api.ComponentInteraction) *api.ButtonInteraction {
+	var data *api.ButtonInteractionData
+	err := json.Unmarshal(fullInteraction.Data, &data)
+	if err != nil {
+		b.Disgo().Logger().Errorf("error while unmarshalling api.ButtonInteractionData: %s", err)
+	}
+
+	return &api.ButtonInteraction{
+		ComponentInteraction: componentInteraction,
+		Data:                 data,
+	}
+}
+
+// CreateSelectMenuInteraction creates a api.SelectMenuInteraction from the api.FullInteraction response
+func (b *EntityBuilderImpl) CreateSelectMenuInteraction(fullInteraction *api.FullInteraction, componentInteraction *api.ComponentInteraction) *api.SelectMenuInteraction {
+	var data *api.SelectMenuInteractionData
+	err := json.Unmarshal(fullInteraction.Data, &data)
+	if err != nil {
+		b.Disgo().Logger().Errorf("error while unmarshalling api.SelectMenuInteractionData: %s", err)
+	}
+
+	return &api.SelectMenuInteraction{
+		ComponentInteraction: componentInteraction,
+		Data:                 data,
 	}
 }
 
@@ -110,45 +151,8 @@ func (b *EntityBuilderImpl) CreateUser(user *api.User, updateCache api.CacheStra
 	return user
 }
 
-func (b *EntityBuilderImpl) createComponent(unmarshalComponent api.UnmarshalComponent, updateCache api.CacheStrategy) api.Component {
-	switch unmarshalComponent.ComponentType {
-	case api.ComponentTypeActionRow:
-		components := make([]api.Component, len(unmarshalComponent.Components))
-		for i, unmarshalC := range unmarshalComponent.Components {
-			components[i] = b.createComponent(unmarshalC, updateCache)
-		}
-		return &api.ActionRow{
-			ComponentImpl: api.ComponentImpl{
-				ComponentType: api.ComponentTypeActionRow,
-			},
-			Components: components,
-		}
-
-	case api.ComponentTypeButton:
-		button := &api.Button{
-			ComponentImpl: api.ComponentImpl{
-				ComponentType: api.ComponentTypeButton,
-			},
-			Style:    unmarshalComponent.Style,
-			Label:    unmarshalComponent.Label,
-			CustomID: unmarshalComponent.CustomID,
-			URL:      unmarshalComponent.URL,
-			Disabled: unmarshalComponent.Disabled,
-		}
-		if unmarshalComponent.Emoji != nil {
-			button.Emoji = b.CreateEmoji("", unmarshalComponent.Emoji, updateCache)
-		}
-		return button
-
-	default:
-		b.Disgo().Logger().Errorf("unexpected component type %d received", unmarshalComponent.ComponentType)
-		return nil
-	}
-}
-
 // CreateMessage returns a new api.Message entity
-func (b *EntityBuilderImpl) CreateMessage(fullMessage *api.FullMessage, updateCache api.CacheStrategy) *api.Message {
-	message := fullMessage.Message
+func (b *EntityBuilderImpl) CreateMessage(message *api.Message, updateCache api.CacheStrategy) *api.Message {
 	message.Disgo = b.Disgo()
 
 	if message.Member != nil {
@@ -157,12 +161,6 @@ func (b *EntityBuilderImpl) CreateMessage(fullMessage *api.FullMessage, updateCa
 	}
 	if message.Author != nil {
 		message.Author = b.CreateUser(message.Author, updateCache)
-	}
-
-	if fullMessage.UnmarshalComponents != nil {
-		for _, component := range fullMessage.UnmarshalComponents {
-			message.Components = append(message.Components, b.createComponent(component, updateCache))
-		}
 	}
 
 	// TODO: should we cache mentioned users, members, etc?

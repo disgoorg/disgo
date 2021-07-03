@@ -8,10 +8,10 @@ type CommandInteraction struct {
 
 // CommandInteractionData is the command data payload
 type CommandInteractionData struct {
-	ID       Snowflake     `json:"id"`
-	Name     string        `json:"name"`
-	Resolved *Resolved     `json:"resolved,omitempty"`
-	Options  []*OptionData `json:"options,omitempty"`
+	ID       Snowflake    `json:"id"`
+	Name     string       `json:"name"`
+	Resolved *Resolved    `json:"resolved,omitempty"`
+	Options  []OptionData `json:"options,omitempty"`
 }
 
 // Resolved contains resolved mention data
@@ -27,7 +27,7 @@ type OptionData struct {
 	Name    string            `json:"name"`
 	Type    CommandOptionType `json:"type"`
 	Value   interface{}       `json:"value,omitempty"`
-	Options []*OptionData     `json:"options,omitempty"`
+	Options []OptionData      `json:"options,omitempty"`
 }
 
 // Option holds info about an Option.Value

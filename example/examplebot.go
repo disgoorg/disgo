@@ -47,6 +47,7 @@ func main() {
 			OnGuildMessageCreate: messageListener,
 			OnCommand:            commandListener,
 			OnButtonClick:        buttonClickListener,
+			OnSelectMenuSubmit:     selectMenuSubmitListener,
 		}).
 		Build()
 	if err != nil {
@@ -54,7 +55,7 @@ func main() {
 		return
 	}
 
-	/*rawCmds := []api.CommandCreate{
+	rawCmds := []api.CommandCreate{
 		{
 			Name:              "eval",
 			Description:       "runs some go code",
@@ -147,6 +148,10 @@ func main() {
 				Type:       api.CommandPermissionTypeRole,
 				Permission: true,
 			}
+			cmdsPermissions = append(cmdsPermissions, api.SetGuildCommandPermissions{
+				ID:          cmd.ID,
+				Permissions: []api.CommandPermission{perms},
+			})
 		}
 		cmdsPermissions = append(cmdsPermissions, api.SetGuildCommandPermissions{
 			ID:          cmd.ID,
@@ -155,7 +160,7 @@ func main() {
 	}
 	if _, err = dgo.RestClient().SetGuildCommandsPermissions(dgo.ApplicationID(), guildID, cmdsPermissions...); err != nil {
 		logger.Errorf("error while setting command permissions: %s", err)
-	}*/
+	}
 
 	err = dgo.Connect()
 	if err != nil {
@@ -200,6 +205,20 @@ func buttonClickListener(event events.ButtonClickEvent) {
 			api.NewMessageCreateBuilder().
 				SetContent(event.CustomID()).
 				Build(),
+		)
+	}
+}
+
+func selectMenuSubmitListener(event events.SelectMenuSubmitEvent) {
+	switch event.CustomID() {
+	case "test3":
+		if err := event.DeferEdit(); err != nil {
+			logger.Errorf("error sending interaction response: %s", err)
+		}
+		_, _ = event.SendFollowup(api.NewMessageCreateBuilder().
+			SetEphemeral(true).
+			SetContentf("selected options: %s", event.Values()).
+			Build(),
 		)
 	}
 }
@@ -265,19 +284,24 @@ func commandListener(event events.CommandEvent) {
 
 	case "test":
 		reader, _ := os.Open("gopher.png")
-		_ = event.Reply(api.NewMessageCreateBuilder().
+		if err := event.Reply(api.NewMessageCreateBuilder().
 			SetContent("test message").
 			AddFile("gopher.png", reader).
 			SetComponents(
 				api.NewActionRow(
-					api.NewPrimaryButton("test1", "test1", nil, false),
-					api.NewPrimaryButton("test2", "test2", nil, false),
-					api.NewPrimaryButton("test3", "test3", nil, false),
-					api.NewPrimaryButton("test4", "test4", nil, false),
+					api.NewPrimaryButton("test1", "test1", nil),
+					api.NewPrimaryButton("test2", "test2", nil),
+					api.NewPrimaryButton("test3", "test3", nil),
+					api.NewPrimaryButton("test4", "test4", nil),
+				),
+				api.NewActionRow(
+					api.NewSelectMenu("test3", "test", 1, 1, api.NewSelectOption("test1", "1"), api.NewSelectOption("test2", "2"), api.NewSelectOption("test3", "3")),
 				),
 			).
 			Build(),
-		)
+		); err != nil {
+			logger.Errorf("error sending interaction response: %s", err)
+		}
 
 	case "addrole":
 		user := event.Option("member").User()
