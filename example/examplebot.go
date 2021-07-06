@@ -47,7 +47,7 @@ func main() {
 			OnGuildMessageCreate: messageListener,
 			OnCommand:            commandListener,
 			OnButtonClick:        buttonClickListener,
-			OnSelectMenuSubmit:     selectMenuSubmitListener,
+			OnSelectMenuSubmit:   selectMenuSubmitListener,
 		}).
 		Build()
 	if err != nil {
@@ -175,17 +175,17 @@ func main() {
 	<-s
 }
 
-func guildAvailListener(event events.GuildAvailableEvent) {
+func guildAvailListener(event *events.GuildAvailableEvent) {
 	logger.Printf("guild loaded: %s", event.Guild.ID)
 }
 
-func rawGatewayEventListener(event events.RawGatewayEvent) {
+func rawGatewayEventListener(event *events.RawGatewayEvent) {
 	if event.Type == api.GatewayEventInteractionCreate {
 		println(string(event.RawPayload))
 	}
 }
 
-func buttonClickListener(event events.ButtonClickEvent) {
+func buttonClickListener(event *events.ButtonClickEvent) {
 	switch event.CustomID() {
 	case "test1":
 		_ = event.Respond(api.InteractionResponseTypeChannelMessageWithSource,
@@ -209,7 +209,7 @@ func buttonClickListener(event events.ButtonClickEvent) {
 	}
 }
 
-func selectMenuSubmitListener(event events.SelectMenuSubmitEvent) {
+func selectMenuSubmitListener(event *events.SelectMenuSubmitEvent) {
 	switch event.CustomID() {
 	case "test3":
 		if err := event.DeferEdit(); err != nil {
@@ -223,8 +223,8 @@ func selectMenuSubmitListener(event events.SelectMenuSubmitEvent) {
 	}
 }
 
-func commandListener(event events.CommandEvent) {
-	switch event.CommandName {
+func commandListener(event *events.CommandEvent) {
+	switch event.CommandName() {
 	case "eval":
 		go func() {
 			code := event.Option("code").String()
@@ -333,7 +333,7 @@ func commandListener(event events.CommandEvent) {
 	}
 }
 
-func messageListener(event events.GuildMessageCreateEvent) {
+func messageListener(event *events.GuildMessageCreateEvent) {
 	if event.Message.Author.IsBot {
 		return
 	}

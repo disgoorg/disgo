@@ -6,26 +6,26 @@ import (
 
 // GenericGatewayStatusEvent is called upon receiving ConnectedEvent, ReconnectedEvent, ResumedEvent, DisconnectedEvent or ShutdownEvent
 type GenericGatewayStatusEvent struct {
-	GenericEvent
+	*GenericEvent
 	Status api.GatewayStatus
 }
 
 // ConnectedEvent indicates disgo connected to the api.Gateway
 type ConnectedEvent struct {
-	GenericGatewayStatusEvent
+	*GenericGatewayStatusEvent
 }
 
 // ReconnectedEvent indicates disgo reconnected to the api.Gateway
 type ReconnectedEvent struct {
-	GenericGatewayStatusEvent
+	*GenericGatewayStatusEvent
 }
 
 // ResumedEvent indicates disgo resumed to the api.Gateway
 type ResumedEvent struct {
-	GenericGatewayStatusEvent
+	*GenericGatewayStatusEvent
 }
 
 // DisconnectedEvent indicates disgo disconnected to the api.Gateway
 type DisconnectedEvent struct {
-	GenericGatewayStatusEvent
+	*GenericGatewayStatusEvent
 }

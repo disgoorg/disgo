@@ -6,7 +6,7 @@ import (
 
 // GenericGuildMessageEvent is called upon receiving GuildMessageCreateEvent, GuildMessageUpdateEvent or GuildMessageDeleteEvent
 type GenericGuildMessageEvent struct {
-	GenericMessageEvent
+	*GenericMessageEvent
 	GuildID api.Snowflake
 }
 
@@ -22,16 +22,16 @@ func (e GenericGuildMessageEvent) TextChannel() *api.TextChannel {
 
 // GuildMessageCreateEvent is called upon receiving a api.Message in a api.DMChannel
 type GuildMessageCreateEvent struct {
-	GenericGuildMessageEvent
+	*GenericGuildMessageEvent
 }
 
 // GuildMessageUpdateEvent is called upon editing a api.Message in a api.DMChannel
 type GuildMessageUpdateEvent struct {
-	GenericGuildMessageEvent
+	*GenericGuildMessageEvent
 	OldMessage *api.Message
 }
 
 // GuildMessageDeleteEvent is called upon deleting a api.Message in a api.DMChannel
 type GuildMessageDeleteEvent struct {
-	GenericGuildMessageEvent
+	*GenericGuildMessageEvent
 }

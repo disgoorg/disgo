@@ -7,38 +7,38 @@ import (
 // GetAllHandlers returns all api.GatewayEventHandler(s)
 func GetAllHandlers() []api.EventHandler {
 	return []api.EventHandler{
-		CommandCreateHandler{},
-		CommandDeleteHandler{},
-		CommandUpdateHandler{},
+		&CommandCreateHandler{},
+		&CommandDeleteHandler{},
+		&CommandUpdateHandler{},
 
-		ChannelCreateHandler{},
-		ChannelDeleteHandler{},
-		ChannelUpdateHandler{},
+		&ChannelCreateHandler{},
+		&ChannelDeleteHandler{},
+		&ChannelUpdateHandler{},
 
-		GuildCreateHandler{},
-		GuildDeleteHandler{},
-		GuildUpdateHandler{},
+		&GuildCreateHandler{},
+		&GuildDeleteHandler{},
+		&GuildUpdateHandler{},
 
-		GuildMemberAddHandler{},
-		GuildMemberRemoveHandler{},
-		GuildMemberUpdateHandler{},
+		&GuildMemberAddHandler{},
+		&GuildMemberRemoveHandler{},
+		&GuildMemberUpdateHandler{},
 
-		GuildRoleCreateHandler{},
-		GuildRoleDeleteHandler{},
-		GuildRoleUpdateHandler{},
+		&GuildRoleCreateHandler{},
+		&GuildRoleDeleteHandler{},
+		&GuildRoleUpdateHandler{},
 
-		WebhooksUpdateHandler{},
+		&WebhooksUpdateHandler{},
 
-		InteractionCreateHandler{},
-		InteractionCreateWebhookHandler{},
+		&InteractionCreateHandler{},
+		&InteractionCreateWebhookHandler{},
 
-		MessageCreateHandler{},
-		MessageUpdateHandler{},
-		MessageDeleteHandler{},
+		&MessageCreateHandler{},
+		&MessageUpdateHandler{},
+		&MessageDeleteHandler{},
 
-		ReadyHandler{},
+		&ReadyHandler{},
 
-		VoiceServerUpdateHandler{},
-		VoiceStateUpdateHandler{},
+		&VoiceServerUpdateHandler{},
+		&VoiceStateUpdateHandler{},
 	}
 }
