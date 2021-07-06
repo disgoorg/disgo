@@ -9,17 +9,17 @@ import (
 type GuildCreateHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h GuildCreateHandler) Event() api.GatewayEventType {
+func (h *GuildCreateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventGuildCreate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h GuildCreateHandler) New() interface{} {
+func (h *GuildCreateHandler) New() interface{} {
 	return &api.FullGuild{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+func (h *GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	fullGuild, ok := i.(*api.FullGuild)
 	if !ok {
 		return
@@ -33,26 +33,25 @@ func (h GuildCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api
 	}
 	guild := disgo.EntityBuilder().CreateGuild(fullGuild, api.CacheStrategyYes)
 
-	genericGuildEvent := events.GenericGuildEvent{
-		GenericEvent: events.NewEvent(disgo, sequenceNumber),
+	genericGuildEvent := &events.GenericGuildEvent{
+		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 		GuildID:      guild.ID,
 		Guild:        guild,
 	}
-	eventManager.Dispatch(genericGuildEvent)
 
 	if !guild.Ready {
 		guild.Ready = true
-		eventManager.Dispatch(events.GuildReadyEvent{
+		eventManager.Dispatch(&events.GuildReadyEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	}
 
 	if wasUnavailable {
-		eventManager.Dispatch(events.GuildAvailableEvent{
+		eventManager.Dispatch(&events.GuildAvailableEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	} else {
-		eventManager.Dispatch(events.GuildJoinEvent{
+		eventManager.Dispatch(&events.GuildJoinEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	}

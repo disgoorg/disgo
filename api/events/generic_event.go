@@ -2,9 +2,9 @@ package events
 
 import "github.com/DisgoOrg/disgo/api"
 
-// NewEvent constructs a new GenericEvent with the provided Disgo instance
-func NewEvent(disgo api.Disgo, sequenceNumber int) GenericEvent {
-	event := GenericEvent{disgo: disgo, sequenceNumber: sequenceNumber}
+// NewGenericEvent constructs a new GenericEvent with the provided Disgo instance
+func NewGenericEvent(disgo api.Disgo, sequenceNumber int) *GenericEvent {
+	event := &GenericEvent{disgo: disgo, sequenceNumber: sequenceNumber}
 	disgo.EventManager().Dispatch(event)
 	return event
 }
@@ -16,11 +16,11 @@ type GenericEvent struct {
 }
 
 // Disgo returns the Disgo instance for this event
-func (d GenericEvent) Disgo() api.Disgo {
-	return d.disgo
+func (e GenericEvent) Disgo() api.Disgo {
+	return e.disgo
 }
 
 // SequenceNumber returns the sequence number of the gateway event
-func (d GenericEvent) SequenceNumber() int {
-	return d.sequenceNumber
+func (e GenericEvent) SequenceNumber() int {
+	return e.sequenceNumber
 }

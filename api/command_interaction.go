@@ -6,12 +6,35 @@ type CommandInteraction struct {
 	Data *CommandInteractionData `json:"data,omitempty"`
 }
 
+func (i *CommandInteraction) CommandID() Snowflake {
+	return i.Data.ID
+}
+
+func (i *CommandInteraction) CommandName() string {
+	return i.Data.CommandName
+}
+
+func (i *CommandInteraction) SubCommandName() *string {
+	return i.Data.SubCommandName
+}
+
+func (i *CommandInteraction) SubCommandGroupName() *string {
+	return i.Data.SubCommandGroupName
+}
+
+func (i *CommandInteraction) Options() []*Option {
+	return i.Data.Options
+}
+
 // CommandInteractionData is the command data payload
 type CommandInteractionData struct {
-	ID       Snowflake    `json:"id"`
-	Name     string       `json:"name"`
-	Resolved *Resolved    `json:"resolved,omitempty"`
-	Options  []OptionData `json:"options,omitempty"`
+	ID                  Snowflake    `json:"id"`
+	CommandName         string       `json:"name"`
+	SubCommandName      *string      `json:"-"`
+	SubCommandGroupName *string      `json:"-"`
+	Resolved            *Resolved    `json:"resolved,omitempty"`
+	RawOptions          []OptionData `json:"options,omitempty"`
+	Options             []*Option    `json:"-"`
 }
 
 // Resolved contains resolved mention data

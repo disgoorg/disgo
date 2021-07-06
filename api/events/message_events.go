@@ -6,7 +6,7 @@ import (
 
 // GenericMessageEvent generic api.Message event
 type GenericMessageEvent struct {
-	GenericEvent
+	*GenericEvent
 	MessageID api.Snowflake
 	Message   *api.Message
 	ChannelID api.Snowflake
@@ -19,16 +19,16 @@ func (e *GenericMessageEvent) MessageChannel() *api.MessageChannel {
 
 // MessageDeleteEvent indicates that a api.Message got deleted
 type MessageDeleteEvent struct {
-	GenericMessageEvent
+	*GenericMessageEvent
 }
 
 // MessageCreateEvent indicates that a api.Message got received
 type MessageCreateEvent struct {
-	GenericMessageEvent
+	*GenericMessageEvent
 }
 
 // MessageUpdateEvent indicates that a api.Message got update
 type MessageUpdateEvent struct {
-	GenericMessageEvent
+	*GenericMessageEvent
 	OldMessage *api.Message
 }

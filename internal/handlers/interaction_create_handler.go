@@ -30,17 +30,16 @@ func (h InteractionCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManag
 func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, fullInteraction *api.FullInteraction, c chan api.InteractionResponse) {
 	interaction := disgo.EntityBuilder().CreateInteraction(fullInteraction, c, api.CacheStrategyYes)
 
-	genericInteractionEvent := events.GenericInteractionEvent{
-		GenericEvent: events.NewEvent(disgo, sequenceNumber),
+	genericInteractionEvent := &events.GenericInteractionEvent{
+		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 		Interaction:  interaction,
 	}
-	eventManager.Dispatch(genericInteractionEvent)
 
 	switch fullInteraction.Type {
 	case api.InteractionTypeCommand:
 		commandInteraction := disgo.EntityBuilder().CreateCommandInteraction(fullInteraction, interaction, api.CacheStrategyYes)
 
-		options := commandInteraction.Data.Options
+		options := commandInteraction.Data.RawOptions
 		var subCommandName *string
 		var subCommandGroupName *string
 		if len(options) == 1 {
@@ -66,24 +65,21 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceN
 			})
 		}
 
-		eventManager.Dispatch(events.CommandEvent{
+		commandInteraction.Data.SubCommandName = subCommandName
+		commandInteraction.Data.SubCommandGroupName = subCommandGroupName
+
+		eventManager.Dispatch(&events.CommandEvent{
 			GenericInteractionEvent: genericInteractionEvent,
 			CommandInteraction:      commandInteraction,
-			CommandID:               commandInteraction.Data.ID,
-			CommandName:             commandInteraction.Data.Name,
-			SubCommandName:          subCommandName,
-			SubCommandGroupName:     subCommandGroupName,
-			Options:                 newOptions,
 		})
 
 	case api.InteractionTypeComponent:
 		componentInteraction := disgo.EntityBuilder().CreateComponentInteraction(fullInteraction, interaction, api.CacheStrategyYes)
 
-		genericComponentEvent := events.GenericComponentEvent{
+		genericComponentEvent := &events.GenericComponentEvent{
 			GenericInteractionEvent: genericInteractionEvent,
 			ComponentInteraction:    componentInteraction,
 		}
-		eventManager.Dispatch(genericComponentEvent)
 
 		switch componentInteraction.Data.ComponentType {
 		case api.ComponentTypeButton:

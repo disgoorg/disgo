@@ -6,7 +6,7 @@ import (
 
 // SelfUpdateEvent is called when something about this api.User updates
 type SelfUpdateEvent struct {
-	GenericEvent
+	*GenericEvent
 	Self    *api.User
 	OldSelf *api.User
 }
