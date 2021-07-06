@@ -56,14 +56,13 @@ func (h *VoiceStateUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManag
 		},
 		VoiceState: voiceState,
 	}
-	disgo.EventManager().Dispatch(genericGuildVoiceEvent)
 
 	if (oldVoiceState == nil || oldVoiceState.ChannelID == nil) && voiceStateUpdate.VoiceState.ChannelID != nil {
-		disgo.EventManager().Dispatch(events.GuildVoiceJoinEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent})
+		disgo.EventManager().Dispatch(&events.GuildVoiceJoinEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent})
 	} else if oldVoiceState != nil && oldVoiceState.ChannelID != nil && voiceStateUpdate.VoiceState.ChannelID == nil {
-		disgo.EventManager().Dispatch(events.GuildVoiceLeaveEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent})
+		disgo.EventManager().Dispatch(&events.GuildVoiceLeaveEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent})
 	} else if oldVoiceState != nil && oldVoiceState.ChannelID != nil && voiceStateUpdate.VoiceState.ChannelID != nil {
-		disgo.EventManager().Dispatch(events.GuildVoiceUpdateEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent, OldVoiceState: oldVoiceState})
+		disgo.EventManager().Dispatch(&events.GuildVoiceUpdateEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent, OldVoiceState: oldVoiceState})
 	} else {
 		disgo.Logger().Warnf("could not decide which GuildVoiceEvent to fire")
 	}

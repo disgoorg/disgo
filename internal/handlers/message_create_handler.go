@@ -34,18 +34,18 @@ func (h *MessageCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager 
 		ChannelID:    message.ChannelID,
 	}
 
-	eventManager.Dispatch(events.MessageCreateEvent{
+	eventManager.Dispatch(&events.MessageCreateEvent{
 		GenericMessageEvent: genericMessageEvent,
 	})
 
 	if message.GuildID == nil {
-		eventManager.Dispatch(events.DMMessageCreateEvent{
+		eventManager.Dispatch(&events.DMMessageCreateEvent{
 			GenericDMMessageEvent: &events.GenericDMMessageEvent{
 				GenericMessageEvent: genericMessageEvent,
 			},
 		})
 	} else {
-		eventManager.Dispatch(events.GuildMessageCreateEvent{
+		eventManager.Dispatch(&events.GuildMessageCreateEvent{
 			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
 				GenericMessageEvent: genericMessageEvent,
 				GuildID:             *message.GuildID,

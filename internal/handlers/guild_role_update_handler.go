@@ -42,7 +42,7 @@ func (h *GuildRoleUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManage
 	}
 	role := disgo.EntityBuilder().CreateRole(roleUpdateData.GuildID, roleUpdateData.Role, api.CacheStrategyYes)
 
-	eventManager.Dispatch(events.RoleUpdateEvent{
+	eventManager.Dispatch(&events.RoleUpdateEvent{
 		GenericRoleEvent: &events.GenericRoleEvent{
 			GenericGuildEvent: &events.GenericGuildEvent{
 				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),

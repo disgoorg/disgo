@@ -40,7 +40,7 @@ func (h *GuildMemberRemoveHandler) HandleGatewayEvent(disgo api.Disgo, eventMana
 	member := disgo.Cache().Member(memberData.GuildID, memberData.User.ID)
 	disgo.Cache().UncacheMember(memberData.GuildID, memberData.User.ID)
 
-	eventManager.Dispatch(events.GuildMemberLeaveEvent{
+	eventManager.Dispatch(&events.GuildMemberLeaveEvent{
 		GenericGuildMemberEvent: &events.GenericGuildMemberEvent{
 			GenericGuildEvent: &events.GenericGuildEvent{
 				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),

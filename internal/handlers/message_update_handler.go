@@ -37,13 +37,13 @@ func (h *MessageUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager 
 		Message:      message,
 	}
 
-	eventManager.Dispatch(events.MessageUpdateEvent{
+	eventManager.Dispatch(&events.MessageUpdateEvent{
 		GenericMessageEvent: genericMessageEvent,
 		OldMessage:          oldMessage,
 	})
 
 	if message.GuildID == nil {
-		eventManager.Dispatch(events.DMMessageUpdateEvent{
+		eventManager.Dispatch(&events.DMMessageUpdateEvent{
 			GenericDMMessageEvent: &events.GenericDMMessageEvent{
 				GenericMessageEvent: genericMessageEvent,
 			},
@@ -51,7 +51,7 @@ func (h *MessageUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager 
 		})
 	} else {
 
-		eventManager.Dispatch(events.GuildMessageUpdateEvent{
+		eventManager.Dispatch(&events.GuildMessageUpdateEvent{
 			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
 				GenericMessageEvent: genericMessageEvent,
 				GuildID:             *message.GuildID,

@@ -41,7 +41,7 @@ func (h *GuildRoleDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManage
 		disgo.Cache().UncacheRole(roleDeleteData.GuildID, roleDeleteData.RoleID)
 	}
 
-	eventManager.Dispatch(events.RoleDeleteEvent{
+	eventManager.Dispatch(&events.RoleDeleteEvent{
 		GenericRoleEvent: &events.GenericRoleEvent{
 			GenericGuildEvent: &events.GenericGuildEvent{
 				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),

@@ -30,7 +30,7 @@ func (h *WebhooksUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager
 		return
 	}
 
-	eventManager.Dispatch(events.WebhooksUpdateEvent{
+	eventManager.Dispatch(&events.WebhooksUpdateEvent{
 		GenericTextChannelEvent: &events.GenericTextChannelEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
 				GenericChannelEvent: &events.GenericChannelEvent{

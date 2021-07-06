@@ -83,13 +83,13 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceN
 
 		switch componentInteraction.Data.ComponentType {
 		case api.ComponentTypeButton:
-			eventManager.Dispatch(events.ButtonClickEvent{
+			eventManager.Dispatch(&events.ButtonClickEvent{
 				GenericComponentEvent: genericComponentEvent,
 				ButtonInteraction:     disgo.EntityBuilder().CreateButtonInteraction(fullInteraction, componentInteraction),
 			})
 
 		case api.ComponentTypeSelectMenu:
-			eventManager.Dispatch(events.SelectMenuSubmitEvent{
+			eventManager.Dispatch(&events.SelectMenuSubmitEvent{
 				GenericComponentEvent: genericComponentEvent,
 				SelectMenuInteraction: disgo.EntityBuilder().CreateSelectMenuInteraction(fullInteraction, componentInteraction),
 			})

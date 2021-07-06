@@ -509,7 +509,13 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 
 	default:
 		if e, ok := e.(api.Event); ok {
-			e.Disgo().Logger().Errorf("unexpected event received: \"%s\", event: \"%#e\"", reflect.TypeOf(event).Name(), event)
+			var name string
+			if t := reflect.TypeOf(e); t.Kind() == reflect.Ptr {
+				name = "*" + t.Elem().Name()
+			} else {
+				name = t.Name()
+			}
+			e.Disgo().Logger().Errorf("unexpected event received: \"%s\", event: \"%#e\"", name, event)
 		}
 	}
 }
