@@ -56,34 +56,32 @@ type CommandEvent struct {
 	CommandInteraction *api.CommandInteraction
 }
 
+// CommandID returns the ID of the api.Command which got used
 func (e *CommandEvent) CommandID() api.Snowflake {
 	return e.CommandInteraction.CommandID()
 }
 
+// CommandName the name of the api.Command which got used
 func (e *CommandEvent) CommandName() string {
 	return e.CommandInteraction.CommandName()
 }
 
+// SubCommandName the subcommand name of the api.Command which got used. May be nil
 func (e *CommandEvent) SubCommandName() *string {
 	return e.CommandInteraction.SubCommandName()
 }
 
+// SubCommandGroupName the subcommand group name of the api.Command which got used. May be nil
 func (e *CommandEvent) SubCommandGroupName() *string {
 	return e.CommandInteraction.SubCommandGroupName()
 }
 
 // CommandPath returns the api.Command path
 func (e *CommandEvent) CommandPath() string {
-	path := e.CommandName()
-	if name := e.SubCommandName(); name != nil {
-		path += "/" + *name
-	}
-	if name := e.SubCommandGroupName(); name != nil {
-		path += "/" + *name
-	}
-	return path
+	return e.CommandInteraction.CommandPath()
 }
 
+// Options returns the parsed api.Option which the api.Command got used with
 func (e *CommandEvent) Options() []*api.Option {
 	return e.CommandInteraction.Options()
 }
