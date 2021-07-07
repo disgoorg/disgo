@@ -19,7 +19,7 @@ type GuildTemplate struct {
 	UpdatedAt    time.Time    `json:"updated_at"`
 	GuildID      Snowflake    `json:"source_guild_id"`
 	PartialGuild PartialGuild `json:"serialized_source_guild"`
-	IsDirty      *bool        `json:"is_dirty,omitempty"`
+	IsDirty       bool        `json:"is_dirty,omitempty"`
 }
 
 // Guild returns the full Guild of the GuildTemplate if in cache
