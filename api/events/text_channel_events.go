@@ -6,27 +6,27 @@ import (
 
 // GenericTextChannelEvent is called upon receiving TextChannelCreateEvent, TextChannelUpdateEvent or TextChannelDeleteEvent
 type GenericTextChannelEvent struct {
-	GenericGuildChannelEvent
+	*GenericGuildChannelEvent
 	TextChannel *api.TextChannel
 }
 
 // TextChannelCreateEvent indicates that a new api.TextChannel got created in a api.Guild
 type TextChannelCreateEvent struct {
-	GenericTextChannelEvent
+	*GenericTextChannelEvent
 }
 
 // TextChannelUpdateEvent indicates that a api.TextChannel got updated in a api.Guild
 type TextChannelUpdateEvent struct {
-	GenericTextChannelEvent
+	*GenericTextChannelEvent
 	OldTextChannel *api.TextChannel
 }
 
 // TextChannelDeleteEvent indicates that a api.TextChannel got deleted in a api.Guild
 type TextChannelDeleteEvent struct {
-	GenericTextChannelEvent
+	*GenericTextChannelEvent
 }
 
 // WebhooksUpdateEvent indicates that a api.Webhook updated in this api.TextChannel
 type WebhooksUpdateEvent struct {
-	GenericTextChannelEvent
+	*GenericTextChannelEvent
 }

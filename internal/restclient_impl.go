@@ -38,7 +38,7 @@ func (r *restClientImpl) DoWithHeaders(route *restclient.CompiledAPIRoute, rqBod
 	err := r.RestClient.DoWithHeaders(route, rqBody, rsBody, customHeader)
 	rErr = restclient.NewError(nil, err)
 	// TODO reimplement events.HTTPRequestEvent
-	/*r.Disgo().EventManager().Dispatch(events.HTTPRequestEvent{
+	/*r.Disgo().EventManager().Dispatch(&events.HTTPRequestEvent{
 		GenericEvent: events.NewEvent(r.Disgo(), 0),
 		Request:      rq,
 		Response:     rs,

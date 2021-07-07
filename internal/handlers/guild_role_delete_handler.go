@@ -14,17 +14,17 @@ type roleDeleteData struct {
 type GuildRoleDeleteHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h GuildRoleDeleteHandler) Event() api.GatewayEventType {
+func (h *GuildRoleDeleteHandler) Event() api.GatewayEventType {
 	return api.GatewayEventGuildRoleDelete
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h GuildRoleDeleteHandler) New() interface{} {
+func (h *GuildRoleDeleteHandler) New() interface{} {
 	return &roleCreateData{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h GuildRoleDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+func (h *GuildRoleDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	roleDeleteData, ok := i.(*roleDeleteData)
 	if !ok {
 		return
@@ -41,20 +41,14 @@ func (h GuildRoleDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager
 		disgo.Cache().UncacheRole(roleDeleteData.GuildID, roleDeleteData.RoleID)
 	}
 
-	genericGuildEvent := events.GenericGuildEvent{
-		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		Guild:        guild,
-	}
-	eventManager.Dispatch(genericGuildEvent)
-
-	genericRoleEvent := events.GenericRoleEvent{
-		GenericGuildEvent: genericGuildEvent,
-		RoleID:            roleDeleteData.RoleID,
-		Role:              role,
-	}
-	eventManager.Dispatch(genericRoleEvent)
-
-	eventManager.Dispatch(events.RoleDeleteEvent{
-		GenericGuildEvent: genericGuildEvent,
+	eventManager.Dispatch(&events.RoleDeleteEvent{
+		GenericRoleEvent: &events.GenericRoleEvent{
+			GenericGuildEvent: &events.GenericGuildEvent{
+				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+				Guild:        guild,
+			},
+			RoleID: roleDeleteData.RoleID,
+			Role:   role,
+		},
 	})
 }

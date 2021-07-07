@@ -6,7 +6,7 @@ import (
 
 // GenericGuildInviteEvent is called upon receiving GuildInviteCreateEvent or GuildInviteDeleteEvent(requires api.GatewayIntentsGuildInvites)
 type GenericGuildInviteEvent struct {
-	GenericGuildEvent
+	*GenericGuildEvent
 	Code      string
 	ChannelID api.Snowflake
 }
@@ -48,11 +48,11 @@ func (e GenericGuildInviteEvent) Category() *api.Category {
 
 // GuildInviteCreateEvent is called upon creation of a new api.Invite in a api.Guild(requires api.GatewayIntentsGuildInvites)
 type GuildInviteCreateEvent struct {
-	GenericGuildInviteEvent
+	*GenericGuildInviteEvent
 	Invite *api.Invite
 }
 
 // GuildInviteDeleteEvent is called upon deletion of a new api.Invite in a api.Guild(requires api.GatewayIntentsGuildInvites)
 type GuildInviteDeleteEvent struct {
-	GenericGuildInviteEvent
+	*GenericGuildInviteEvent
 }

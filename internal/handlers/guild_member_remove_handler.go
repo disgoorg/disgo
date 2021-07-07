@@ -14,17 +14,17 @@ type guildMemberRemoveData struct {
 type GuildMemberRemoveHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h GuildMemberRemoveHandler) Event() api.GatewayEventType {
+func (h *GuildMemberRemoveHandler) Event() api.GatewayEventType {
 	return api.GatewayEventGuildMemberRemove
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h GuildMemberRemoveHandler) New() interface{} {
+func (h *GuildMemberRemoveHandler) New() interface{} {
 	return &guildMemberRemoveData{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h GuildMemberRemoveHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+func (h *GuildMemberRemoveHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	memberData, ok := i.(*guildMemberRemoveData)
 	if !ok {
 		return
@@ -40,19 +40,13 @@ func (h GuildMemberRemoveHandler) HandleGatewayEvent(disgo api.Disgo, eventManag
 	member := disgo.Cache().Member(memberData.GuildID, memberData.User.ID)
 	disgo.Cache().UncacheMember(memberData.GuildID, memberData.User.ID)
 
-	genericGuildEvent := events.GenericGuildEvent{
-		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		Guild:        guild,
-	}
-	eventManager.Dispatch(genericGuildEvent)
-
-	genericGuildMemberEvent := events.GenericGuildMemberEvent{
-		GenericGuildEvent: genericGuildEvent,
-		Member:            member,
-	}
-	eventManager.Dispatch(genericGuildMemberEvent)
-
-	eventManager.Dispatch(events.GuildMemberLeaveEvent{
-		GenericGuildMemberEvent: genericGuildMemberEvent,
+	eventManager.Dispatch(&events.GuildMemberLeaveEvent{
+		GenericGuildMemberEvent: &events.GenericGuildMemberEvent{
+			GenericGuildEvent: &events.GenericGuildEvent{
+				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+				Guild:        guild,
+			},
+			Member: member,
+		},
 	})
 }
