@@ -316,6 +316,31 @@ func (g *Guild) SetCommandPermissions(commandID Snowflake, permissions SetGuildC
 	return g.Disgo.SetGuildCommandPermissions(g.ID, commandID, permissions)
 }
 
+// GetTemplates gets a specific GuildTemplate
+func (g *Guild) GetTemplates() ([]*GuildTemplate, restclient.RestError) {
+	return g.Disgo.RestClient().GetGuildTemplates(g.ID)
+}
+
+// CreateTemplate creates a new GuildTemplate
+func (g *Guild) CreateTemplate(createGuildTemplate CreateGuildTemplate) (*GuildTemplate, restclient.RestError) {
+	return g.Disgo.RestClient().CreateGuildTemplate(g.ID, createGuildTemplate)
+}
+
+// SyncTemplate syncs the current Guild status to an existing GuildTemplate
+func (g *Guild) SyncTemplate(code string) (*GuildTemplate, restclient.RestError) {
+	return g.Disgo.RestClient().SyncGuildTemplate(g.ID, code)
+}
+
+// UpdateTemplate updates a specific GuildTemplate
+func (g *Guild) UpdateTemplate(code string, updateGuildTemplate UpdateGuildTemplate) (*GuildTemplate, restclient.RestError) {
+	return g.Disgo.RestClient().UpdateGuildTemplate(g.ID, code, updateGuildTemplate)
+}
+
+// DeleteTemplate deletes a specific GuildTemplate
+func (g *Guild) DeleteTemplate(code string) (*GuildTemplate, restclient.RestError) {
+	return g.Disgo.RestClient().DeleteGuildTemplate(g.ID, code)
+}
+
 // PartialGuild is returned on the restclient.GetGuilds route
 type PartialGuild struct {
 	ID          Snowflake      `json:"id"`
@@ -344,23 +369,23 @@ type CreateGuild struct {
 
 // UpdateGuild is the payload used to update a Guild
 type UpdateGuild struct {
-	Name                            string                      `json:"name"`
-	Region                          *string                     `json:"region"`
-	VerificationLevel               *VerificationLevel          `json:"verification_level"`
-	DefaultMessageNotificationLevel *MessageNotifications       `json:"default_message_notification_level"`
-	ExplicitContentFilterLevel      *ExplicitContentFilterLevel `json:"explicit_content_filter_level"`
-	AFKChannelID                    *Snowflake                  `json:"afk_channel_id"`
-	AFKTimeout                      int                         `json:"afk_timeout"`
-	Icon                            *string                     `json:"icon"`
-	OwnerID                         Snowflake                   `json:"owner_id"`
-	Splash                          interface{}                 `json:"splash"`
-	DiscoverySplash                 interface{}                 `json:"discovery_splash"`
-	Banner                          interface{}                 `json:"banner"`
-	SystemChannelID                 *Snowflake                  `json:"system_channel_id"`
-	SystemChannelFlags              *SystemChannelFlag          `json:"system_channel_flags"`
-	RulesChannelID                  *Snowflake                  `json:"rules_channel_id"`
-	PublicUpdatesChannelID          *Snowflake                  `json:"public_updates_channel_id"`
-	PreferredLocale                 *string                     `json:"preferred_locale"`
-	Features                        []GuildFeature              `json:"features"`
-	Description                     *string                     `json:"description"`
+	Name                            *string                     `json:"name,omitempty"`
+	Region                          *string                     `json:"region,omitempty"`
+	VerificationLevel               *VerificationLevel          `json:"verification_level,omitempty"`
+	DefaultMessageNotificationLevel *MessageNotifications       `json:"default_message_notification_level,omitempty"`
+	ExplicitContentFilterLevel      *ExplicitContentFilterLevel `json:"explicit_content_filter_level,omitempty"`
+	AFKChannelID                    *Snowflake                  `json:"afk_channel_id,omitempty"`
+	AFKTimeout                      *int                        `json:"afk_timeout,omitempty"`
+	Icon                            *string                     `json:"icon,omitempty"`
+	OwnerID                         *Snowflake                  `json:"owner_id,omitempty"`
+	Splash                          []byte                      `json:"splash,omitempty"`
+	DiscoverySplash                 []byte                      `json:"discovery_splash,omitempty"`
+	Banner                          []byte                      `json:"banner,omitempty"`
+	SystemChannelID                 *Snowflake                  `json:"system_channel_id,omitempty"`
+	SystemChannelFlags              *SystemChannelFlag          `json:"system_channel_flags,omitempty"`
+	RulesChannelID                  *Snowflake                  `json:"rules_channel_id,omitempty"`
+	PublicUpdatesChannelID          *Snowflake                  `json:"public_updates_channel_id,omitempty"`
+	PreferredLocale                 *string                     `json:"preferred_locale,omitempty"`
+	Features                        *[]GuildFeature             `json:"features,omitempty"`
+	Description                     *string                     `json:"description,omitempty"`
 }
