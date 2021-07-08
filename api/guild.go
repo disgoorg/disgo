@@ -181,11 +181,9 @@ func (g *Guild) Roles() []*Role {
 	return g.Disgo.Cache().Roles(g.ID)
 }
 
-// SelfMember returns the Member for the current logged in User for this Guild
-func (g *Guild) SelfMember() *SelfMember {
-	return &SelfMember{
-		Member: g.Disgo.Cache().Member(g.ID, g.Disgo.ClientID()),
-	}
+// SelfMember returns the Member for the current logged-in User for this Guild
+func (g *Guild) SelfMember() *Member {
+	return g.Disgo.Cache().Member(g.ID, g.Disgo.ClientID())
 }
 
 // Disconnect sends a api.GatewayCommand to disconnect from this Guild
@@ -216,11 +214,6 @@ func (g *Guild) UpdateRole(roleID Snowflake, role UpdateRole) (*Role, restclient
 // DeleteRole allows you to delete a Role
 func (g *Guild) DeleteRole(roleID Snowflake) restclient.RestError {
 	return g.Disgo.RestClient().DeleteRole(g.ID, roleID)
-}
-
-// GetSelfMember returns the SelfMember for this Guild
-func (g *Guild) GetSelfMember() *SelfMember {
-	return &SelfMember{Member: g.GetMember(g.Disgo.ClientID())}
 }
 
 // Leave leaves the Guild

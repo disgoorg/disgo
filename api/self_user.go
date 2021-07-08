@@ -12,6 +12,12 @@ var ErrDMChannelToYourself = restclient.NewError(nil, errors.New("can't open a d
 // SelfUser represents the current logged in User
 type SelfUser struct {
 	*User
+	MfaEnabled    *bool     `json:"mfa_enabled"`
+	Locale        *string   `json:"locale"`
+	Verified      *bool     `json:"verified"`
+	Email         *string   `json:"email"`
+	Flags         *int      `json:"flags"`
+	PremiumType   *int      `json:"premium_type"`
 }
 
 // Update updates the SelfUser with the given payload

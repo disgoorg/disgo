@@ -287,15 +287,17 @@ func commandListener(event *events.CommandEvent) {
 		if err := event.Reply(api.NewMessageCreateBuilder().
 			SetContent("test message").
 			AddFile("gopher.png", reader).
-			SetComponents(
-				api.NewActionRow(
-					api.NewPrimaryButton("test1", "test1", nil),
-					api.NewPrimaryButton("test2", "test2", nil),
-					api.NewPrimaryButton("test3", "test3", nil),
-					api.NewPrimaryButton("test4", "test4", nil),
-				),
-				api.NewActionRow(
-					api.NewSelectMenu("test3", "test", 0, 1, api.NewSelectOption("test1", "1"), api.NewSelectOption("test2", "2"), api.NewSelectOption("test3", "3")),
+			AddActionRow(
+				api.NewPrimaryButton("test1", "test1", nil),
+				api.NewPrimaryButton("test2", "test2", nil),
+				api.NewPrimaryButton("test3", "test3", nil),
+				api.NewPrimaryButton("test4", "test4", nil),
+			).
+			AddActionRow(
+				api.NewSelectMenu("test3", "test", 1, 1,
+					api.NewSelectOption("test1", "1"),
+					api.NewSelectOption("test2", "2"),
+					api.NewSelectOption("test3", "3"),
 				),
 			).
 			Build(),
@@ -306,8 +308,8 @@ func commandListener(event *events.CommandEvent) {
 	case "addrole":
 		user := event.Option("member").User()
 		role := event.Option("role").Role()
-		err := event.Disgo().RestClient().AddMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
-		if err == nil {
+
+		if err := event.Disgo().RestClient().AddMemberRole(*event.Interaction.GuildID, user.ID, role.ID); err == nil {
 			_ = event.Reply(api.NewMessageCreateBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(green).SetDescriptionf("Added %s to %s", role, user).Build(),
 			).Build())
@@ -320,8 +322,8 @@ func commandListener(event *events.CommandEvent) {
 	case "removerole":
 		user := event.Option("member").User()
 		role := event.Option("role").Role()
-		err := event.Disgo().RestClient().RemoveMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
-		if err == nil {
+
+		if err := event.Disgo().RestClient().RemoveMemberRole(*event.Interaction.GuildID, user.ID, role.ID); err == nil {
 			_ = event.Reply(api.NewMessageCreateBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Removed %s from %s", role, user).Build(),
 			).Build())
