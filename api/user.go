@@ -60,8 +60,10 @@ func (u *User) OpenDMChannel() (*DMChannel, restclient.RestError) {
 	return u.Disgo.RestClient().CreateDMChannel(u.ID)
 }
 
+// UserFlags defines certain flags/badges a user can have (https://discord.com/developers/docs/resources/user#user-object-user-flags)
 type UserFlags int
 
+// All UserFlags
 const (
 	UserFlagDiscordEmployee UserFlags = 1 << iota
 	UserFlagPartneredServerOwner
