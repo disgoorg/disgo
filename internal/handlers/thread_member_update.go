@@ -41,26 +41,17 @@ func (h ThreadMemberUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventMana
 
 	threadMember = disgo.EntityBuilder().CreateThreadMember(*guildID, threadMember, api.CacheStrategyYes)
 
-	genericChannelEvent := events.GenericChannelEvent{
-		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		ChannelID:    threadMember.ThreadID,
-	}
-	eventManager.Dispatch(genericChannelEvent)
-
-	genericThreadEvent := events.GenericThreadEvent{
-		GenericChannelEvent: genericChannelEvent,
-		Thread:              disgo.Cache().Thread(threadMember.ThreadID),
-	}
-	eventManager.Dispatch(genericThreadEvent)
-
-	genericThreadMemberEvent := events.GenericThreadMemberEvent{
-		GenericThreadEvent: genericThreadEvent,
-		ThreadMember:       threadMember,
-	}
-	eventManager.Dispatch(genericThreadMemberEvent)
-
-	eventManager.Dispatch(events.ThreadMemberUpdateEvent{
-		GenericThreadMemberEvent: genericThreadMemberEvent,
-		OldThreadMember:          oldThreadMember,
+	eventManager.Dispatch(&events.ThreadMemberUpdateEvent{
+		GenericThreadMemberEvent: &events.GenericThreadMemberEvent{
+			GenericThreadEvent: &events.GenericThreadEvent{
+				GenericChannelEvent: &events.GenericChannelEvent{
+					GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+					ChannelID:    threadMember.ThreadID,
+				},
+				Thread: disgo.Cache().Thread(threadMember.ThreadID),
+			},
+			ThreadMember: threadMember,
+		},
+		OldThreadMember: oldThreadMember,
 	})
 }

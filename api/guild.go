@@ -183,11 +183,9 @@ func (g *Guild) Roles() []*Role {
 	return g.Disgo.Cache().Roles(g.ID)
 }
 
-// SelfMember returns the Member for the current logged in User for this Guild
-func (g *Guild) SelfMember() *SelfMember {
-	return &SelfMember{
-		Member: g.Disgo.Cache().Member(g.ID, g.Disgo.ClientID()),
-	}
+// SelfMember returns the Member for the current logged-in User for this Guild
+func (g *Guild) SelfMember() *Member {
+	return g.Disgo.Cache().Member(g.ID, g.Disgo.ClientID())
 }
 
 // Disconnect sends a api.GatewayCommand to disconnect from this Guild
@@ -218,11 +216,6 @@ func (g *Guild) UpdateRole(roleID Snowflake, roleUpdate RoleUpdate) (*Role, rest
 // DeleteRole allows you to delete a Role
 func (g *Guild) DeleteRole(roleID Snowflake) restclient.RestError {
 	return g.Disgo.RestClient().DeleteRole(g.ID, roleID)
-}
-
-// GetSelfMember returns the SelfMember for this Guild
-func (g *Guild) GetSelfMember() *SelfMember {
-	return &SelfMember{Member: g.GetMember(g.Disgo.ClientID())}
 }
 
 // Leave leaves the Guild
@@ -318,6 +311,31 @@ func (g *Guild) SetCommandPermissions(commandID Snowflake, permissions SetGuildC
 	return g.Disgo.SetGuildCommandPermissions(g.ID, commandID, permissions)
 }
 
+// GetTemplates gets a specific GuildTemplate
+func (g *Guild) GetTemplates() ([]*GuildTemplate, restclient.RestError) {
+	return g.Disgo.RestClient().GetGuildTemplates(g.ID)
+}
+
+// CreateTemplate creates a new GuildTemplate
+func (g *Guild) CreateTemplate(createGuildTemplate CreateGuildTemplate) (*GuildTemplate, restclient.RestError) {
+	return g.Disgo.RestClient().CreateGuildTemplate(g.ID, createGuildTemplate)
+}
+
+// SyncTemplate syncs the current Guild status to an existing GuildTemplate
+func (g *Guild) SyncTemplate(code string) (*GuildTemplate, restclient.RestError) {
+	return g.Disgo.RestClient().SyncGuildTemplate(g.ID, code)
+}
+
+// UpdateTemplate updates a specific GuildTemplate
+func (g *Guild) UpdateTemplate(code string, updateGuildTemplate UpdateGuildTemplate) (*GuildTemplate, restclient.RestError) {
+	return g.Disgo.RestClient().UpdateGuildTemplate(g.ID, code, updateGuildTemplate)
+}
+
+// DeleteTemplate deletes a specific GuildTemplate
+func (g *Guild) DeleteTemplate(code string) (*GuildTemplate, restclient.RestError) {
+	return g.Disgo.RestClient().DeleteGuildTemplate(g.ID, code)
+}
+
 // PartialGuild is returned on the restclient.GetGuilds route
 type PartialGuild struct {
 	ID          Snowflake      `json:"id"`
@@ -352,18 +370,18 @@ type GuildChannelCreate struct {
 }
 
 type GuildUpdate struct {
-	Name                            string                      `json:"name"`
+	Name                            *string                      `json:"name"`
 	Region                          *string                     `json:"region"`
 	VerificationLevel               *VerificationLevel          `json:"verification_level"`
 	DefaultMessageNotificationLevel *MessageNotificationLevel   `json:"default_message_notification_level"`
 	ExplicitContentFilterLevel      *ExplicitContentFilterLevel `json:"explicit_content_filter_level"`
 	AFKChannelID                    *Snowflake                  `json:"afk_channel_id"`
-	AFKTimeout                      int                         `json:"afk_timeout"`
+	AFKTimeout                      *int                         `json:"afk_timeout"`
 	Icon                            *string                     `json:"icon"`
 	OwnerID                         Snowflake                   `json:"owner_id"`
-	Splash                          interface{}                 `json:"splash"`
-	DiscoverySplash                 interface{}                 `json:"discovery_splash"`
-	Banner                          interface{}                 `json:"banner"`
+	Splash                          []byte                 `json:"splash"`
+	DiscoverySplash                 []byte                 `json:"discovery_splash"`
+	Banner                          []byte                 `json:"banner"`
 	SystemChannelID                 *Snowflake                  `json:"system_channel_id"`
 	SystemChannelFlags              *SystemChannelFlag          `json:"system_channel_flags"`
 	RulesChannelID                  *Snowflake                  `json:"rules_channel_id"`

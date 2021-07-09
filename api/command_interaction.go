@@ -6,12 +6,52 @@ type CommandInteraction struct {
 	Data *CommandInteractionData `json:"data,omitempty"`
 }
 
+// CommandID returns the ID of the api.Command which got used
+func (i *CommandInteraction) CommandID() Snowflake {
+	return i.Data.ID
+}
+
+// CommandName the name of the api.Command which got used
+func (i *CommandInteraction) CommandName() string {
+	return i.Data.CommandName
+}
+
+// SubCommandName the subcommand name of the api.Command which got used. May be nil
+func (i *CommandInteraction) SubCommandName() *string {
+	return i.Data.SubCommandName
+}
+
+// SubCommandGroupName the subcommand group name of the api.Command which got used. May be nil
+func (i *CommandInteraction) SubCommandGroupName() *string {
+	return i.Data.SubCommandGroupName
+}
+
+// CommandPath returns the api.Command path
+func (i *CommandInteraction) CommandPath() string {
+	path := i.CommandName()
+	if name := i.SubCommandName(); name != nil {
+		path += "/" + *name
+	}
+	if name := i.SubCommandGroupName(); name != nil {
+		path += "/" + *name
+	}
+	return path
+}
+
+// Options returns the parsed Option which the Command got used with
+func (i *CommandInteraction) Options() []*Option {
+	return i.Data.Options
+}
+
 // CommandInteractionData is the command data payload
 type CommandInteractionData struct {
-	ID       Snowflake     `json:"id"`
-	Name     string        `json:"name"`
-	Resolved *Resolved     `json:"resolved,omitempty"`
-	Options  []*OptionData `json:"options,omitempty"`
+	ID                  Snowflake    `json:"id"`
+	CommandName         string       `json:"name"`
+	SubCommandName      *string      `json:"-"`
+	SubCommandGroupName *string      `json:"-"`
+	Resolved            *Resolved    `json:"resolved,omitempty"`
+	RawOptions          []OptionData `json:"options,omitempty"`
+	Options             []*Option    `json:"-"`
 }
 
 // Resolved contains resolved mention data
@@ -27,7 +67,7 @@ type OptionData struct {
 	Name    string            `json:"name"`
 	Type    CommandOptionType `json:"type"`
 	Value   interface{}       `json:"value,omitempty"`
-	Options []*OptionData     `json:"options,omitempty"`
+	Options []OptionData      `json:"options,omitempty"`
 }
 
 // Option holds info about an Option.Value

@@ -36,15 +36,10 @@ func (h CommandDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		command = disgo.EntityBuilder().CreateGlobalCommand(command, api.CacheStrategyNo)
 	}
 
-	genericCommandEvent := events.GenericCommandEvent{
-		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		CommandID:    command.ID,
-		Command:      command,
-		GuildID:      command.GuildID,
-	}
-	eventManager.Dispatch(genericCommandEvent)
-
-	eventManager.Dispatch(events.CommandDeleteEvent{
-		GenericCommandEvent: genericCommandEvent,
+	eventManager.Dispatch(&events.CommandDeleteEvent{
+		GenericCommandEvent: &events.GenericCommandEvent{
+			GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+			Command:      command,
+		},
 	})
 }

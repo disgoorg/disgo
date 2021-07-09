@@ -14,17 +14,17 @@ type roleUpdateData struct {
 type GuildRoleUpdateHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h GuildRoleUpdateHandler) Event() api.GatewayEventType {
+func (h *GuildRoleUpdateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventGuildRoleUpdate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h GuildRoleUpdateHandler) New() interface{} {
+func (h *GuildRoleUpdateHandler) New() interface{} {
 	return &roleUpdateData{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h GuildRoleUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+func (h *GuildRoleUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	roleUpdateData, ok := i.(*roleUpdateData)
 	if !ok {
 		return
@@ -42,21 +42,15 @@ func (h GuildRoleUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager
 	}
 	role := disgo.EntityBuilder().CreateRole(roleUpdateData.GuildID, roleUpdateData.Role, api.CacheStrategyYes)
 
-	genericGuildEvent := events.GenericGuildEvent{
-		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		Guild:        guild,
-	}
-	eventManager.Dispatch(genericGuildEvent)
-
-	genericRoleEvent := events.GenericRoleEvent{
-		GenericGuildEvent: genericGuildEvent,
-		RoleID:            roleUpdateData.Role.ID,
-		Role:              role,
-	}
-	eventManager.Dispatch(genericRoleEvent)
-
-	eventManager.Dispatch(events.RoleUpdateEvent{
-		GenericGuildEvent: genericGuildEvent,
-		OldRole:           oldRole,
+	eventManager.Dispatch(&events.RoleUpdateEvent{
+		GenericRoleEvent: &events.GenericRoleEvent{
+			GenericGuildEvent: &events.GenericGuildEvent{
+				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+				Guild:        guild,
+			},
+			RoleID: roleUpdateData.Role.ID,
+			Role:   role,
+		},
+		OldRole: oldRole,
 	})
 }

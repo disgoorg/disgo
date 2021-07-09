@@ -283,3 +283,13 @@ func (d *DisgoImpl) SetGuildCommandsPermissions(guildID api.Snowflake, commandPe
 func (d *DisgoImpl) SetGuildCommandPermissions(guildID api.Snowflake, commandID api.Snowflake, permissions api.SetGuildCommandPermissions) (*api.GuildCommandPermissions, restclient.RestError) {
 	return d.RestClient().SetGuildCommandPermissions(d.ApplicationID(), guildID, commandID, permissions)
 }
+
+// GetTemplate gets a api.GuildTemplate by it's code
+func (d *DisgoImpl) GetTemplate(code string) (*api.GuildTemplate, restclient.RestError) {
+	return d.RestClient().GetGuildTemplate(code)
+}
+
+// CreateGuildFromTemplate creates an api.Guild using a api.Template code
+func (d *DisgoImpl) CreateGuildFromTemplate(templateCode string, createGuildFromTemplate api.CreateGuildFromTemplate) (*api.Guild, restclient.RestError) {
+	return d.RestClient().CreateGuildFromTemplate(templateCode, createGuildFromTemplate)
+}

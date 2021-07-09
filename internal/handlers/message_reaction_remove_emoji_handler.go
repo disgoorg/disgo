@@ -16,17 +16,17 @@ type messageReactionRemoveEmotePayload struct {
 type MessageReactionRemoveEmoteHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h MessageReactionRemoveEmoteHandler) Event() api.GatewayEventType {
+func (h *MessageReactionRemoveEmoteHandler) Event() api.GatewayEventType {
 	return api.GatewayEventMessageReactionRemoveEmoji
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h MessageReactionRemoveEmoteHandler) New() interface{} {
+func (h *MessageReactionRemoveEmoteHandler) New() interface{} {
 	return &messageReactionRemoveEmotePayload{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h MessageReactionRemoveEmoteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+func (h *MessageReactionRemoveEmoteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	payload, ok := i.(*messageReactionRemoveEmotePayload)
 	if !ok {
 		return
@@ -34,55 +34,39 @@ func (h MessageReactionRemoveEmoteHandler) HandleGatewayEvent(disgo api.Disgo, e
 
 	emoji := disgo.EntityBuilder().CreateEmoji("", payload.Emoji, api.CacheStrategyYes)
 
-	genericMessageEvent := events.GenericMessageEvent{
-		GenericEvent: events.NewEvent(disgo, sequenceNumber),
+	genericMessageEvent := &events.GenericMessageEvent{
+		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 		MessageID:    payload.MessageID,
 		ChannelID:    payload.ChannelID,
 		Message:      disgo.Cache().Message(payload.ChannelID, payload.MessageID),
 	}
-	eventManager.Dispatch(genericMessageEvent)
 
-	genericMessageReactionEvent := events.GenericMessageReactionEvent{
-		GenericMessageEvent: genericMessageEvent,
-		Emoji:               emoji,
-	}
-	eventManager.Dispatch(genericMessageReactionEvent)
-
-	eventManager.Dispatch(events.MessageReactionRemoveEmojiEvent{
-		GenericMessageReactionEvent: genericMessageReactionEvent,
+	eventManager.Dispatch(&events.MessageReactionRemoveEmojiEvent{
+		GenericMessageReactionEvent: &events.GenericMessageReactionEvent{
+			GenericMessageEvent: genericMessageEvent,
+			Emoji:               emoji,
+		},
 	})
 
 	if payload.GuildID != nil {
-		genericGuildMessageEvent := events.GenericGuildMessageEvent{
-			GenericMessageEvent: genericMessageEvent,
-			GuildID:             *payload.GuildID,
-		}
-		eventManager.Dispatch(genericMessageEvent)
-
-		genericGuildMessageReactionEvent := events.GenericGuildMessageReactionEvent{
-			GenericGuildMessageEvent: genericGuildMessageEvent,
-			Emoji:                    emoji,
-		}
-		eventManager.Dispatch(genericGuildMessageReactionEvent)
-
-		eventManager.Dispatch(events.GuildMessageReactionRemoveEmojiEvent{
-			GenericGuildMessageReactionEvent: genericGuildMessageReactionEvent,
+		eventManager.Dispatch(&events.GuildMessageReactionRemoveEmojiEvent{
+			GenericGuildMessageReactionEvent: &events.GenericGuildMessageReactionEvent{
+				GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
+					GenericMessageEvent: genericMessageEvent,
+					GuildID:             *payload.GuildID,
+				},
+				Emoji: emoji,
+			},
 		})
 
 	} else {
-		genericDMMessageEvent := events.GenericDMMessageEvent{
-			GenericMessageEvent: genericMessageEvent,
-		}
-		eventManager.Dispatch(genericMessageEvent)
-
-		genericDMMessageReactionEvent := events.GenericDMMessageReactionEvent{
-			GenericDMMessageEvent: genericDMMessageEvent,
-			Emoji:                 emoji,
-		}
-		eventManager.Dispatch(genericDMMessageReactionEvent)
-
-		eventManager.Dispatch(events.DMMessageReactionRemoveEmojiEvent{
-			GenericDMMessageReactionEvent: genericDMMessageReactionEvent,
+		eventManager.Dispatch(&events.DMMessageReactionRemoveEmojiEvent{
+			GenericDMMessageReactionEvent: &events.GenericDMMessageReactionEvent{
+				GenericDMMessageEvent: &events.GenericDMMessageEvent{
+					GenericMessageEvent: genericMessageEvent,
+				},
+				Emoji: emoji,
+			},
 		})
 	}
 }

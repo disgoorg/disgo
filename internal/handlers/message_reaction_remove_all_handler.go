@@ -15,53 +15,46 @@ type messageReactionRemoveAllPayload struct {
 type MessageReactionRemoveAllHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h MessageReactionRemoveAllHandler) Event() api.GatewayEventType {
+func (h *MessageReactionRemoveAllHandler) Event() api.GatewayEventType {
 	return api.GatewayEventMessageReactionRemoveAll
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h MessageReactionRemoveAllHandler) New() interface{} {
+func (h *MessageReactionRemoveAllHandler) New() interface{} {
 	return &messageReactionRemoveAllPayload{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h MessageReactionRemoveAllHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+func (h *MessageReactionRemoveAllHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	payload, ok := i.(*messageReactionRemoveAllPayload)
 	if !ok {
 		return
 	}
 
-	genericMessageEvent := events.GenericMessageEvent{
-		GenericEvent: events.NewEvent(disgo, sequenceNumber),
+	genericMessageEvent := &events.GenericMessageEvent{
+		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 		MessageID:    payload.MessageID,
 		ChannelID:    payload.ChannelID,
 		Message:      disgo.Cache().Message(payload.ChannelID, payload.MessageID),
 	}
-	eventManager.Dispatch(genericMessageEvent)
 
-	eventManager.Dispatch(events.MessageReactionRemoveAllEvent{
+	eventManager.Dispatch(&events.MessageReactionRemoveAllEvent{
 		GenericMessageEvent: genericMessageEvent,
 	})
 
 	if payload.GuildID != nil {
-		genericGuildMessageEvent := events.GenericGuildMessageEvent{
-			GenericMessageEvent: genericMessageEvent,
-			GuildID:             *payload.GuildID,
-		}
-		eventManager.Dispatch(genericMessageEvent)
-
-		eventManager.Dispatch(events.GuildMessageReactionRemoveAllEvent{
-			GenericGuildMessageEvent: genericGuildMessageEvent,
+		eventManager.Dispatch(&events.GuildMessageReactionRemoveAllEvent{
+			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
+				GenericMessageEvent: genericMessageEvent,
+				GuildID:             *payload.GuildID,
+			},
 		})
 
 	} else {
-		genericDMMessageEvent := events.GenericDMMessageEvent{
-			GenericMessageEvent: genericMessageEvent,
-		}
-		eventManager.Dispatch(genericDMMessageEvent)
-
-		eventManager.Dispatch(events.DMMessageReactionRemoveAllEvent{
-			GenericDMMessageEvent: genericDMMessageEvent,
+		eventManager.Dispatch(&events.DMMessageReactionRemoveAllEvent{
+			GenericDMMessageEvent: &events.GenericDMMessageEvent{
+				GenericMessageEvent: genericMessageEvent,
+			},
 		})
 	}
 }

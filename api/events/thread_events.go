@@ -6,32 +6,32 @@ import (
 
 // GenericThreadEvent is called upon receiving ThreadCreateEvent, ThreadUpdateEvent or ThreadDeleteEvent
 type GenericThreadEvent struct {
-	GenericChannelEvent
+	*GenericChannelEvent
 	Thread api.Thread
 }
 
 // ThreadCreateEvent indicates that a new api.Thread got created in a api.Guild
 type ThreadCreateEvent struct {
-	GenericThreadEvent
+	*GenericThreadEvent
 }
 
 // ThreadUpdateEvent indicates that a api.Thread got updated in a api.Guild
 type ThreadUpdateEvent struct {
-	GenericThreadEvent
+	*GenericThreadEvent
 	OldThread api.Thread
 }
 
 // ThreadDeleteEvent indicates that a api.Thread got deleted in a api.Guild
 type ThreadDeleteEvent struct {
-	GenericThreadEvent
+	*GenericThreadEvent
 }
 
 // ThreadJoinEvent indicates you joined a api.Thread
 type ThreadJoinEvent struct {
-	GenericThreadEvent
+	*GenericThreadEvent
 }
 
 // ThreadLeaveEvent indicates you left a api.Thread
 type ThreadLeaveEvent struct {
-	GenericThreadEvent
+	*GenericThreadEvent
 }

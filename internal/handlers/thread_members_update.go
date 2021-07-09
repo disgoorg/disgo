@@ -39,49 +39,41 @@ func (h ThreadMembersUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventMan
 		thread = disgo.EntityBuilder().CreateThread(channelImpl, api.CacheStrategyYes)
 	}
 
-	genericChannelEvent := events.GenericChannelEvent{
-		GenericEvent: events.NewEvent(disgo, sequenceNumber),
+	genericChannelEvent := &events.GenericChannelEvent{
+		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 		ChannelID:    payload.ThreadID,
 	}
 
-	genericThreadEvent := events.GenericThreadEvent{
+	genericThreadEvent := &events.GenericThreadEvent{
 		GenericChannelEvent: genericChannelEvent,
 		Thread:              thread,
 	}
 
-	eventManager.Dispatch(events.ThreadUpdateEvent{
+	eventManager.Dispatch(&events.ThreadUpdateEvent{
 		GenericThreadEvent: genericThreadEvent,
 		OldThread:          oldThread,
 	})
 
 	for _, threadMember := range payload.AddedMembers {
-		eventManager.Dispatch(genericChannelEvent)
-		eventManager.Dispatch(genericThreadEvent)
-
-		genericThreadMemberEvent := events.GenericThreadMemberEvent{
-			GenericThreadEvent: genericThreadEvent,
-			ThreadMember:       disgo.EntityBuilder().CreateThreadMember(payload.GuildID, threadMember, api.CacheStrategyYes),
-		}
-		eventManager.Dispatch(genericThreadMemberEvent)
-
-		eventManager.Dispatch(events.ThreadMemberAddEvent{
-			GenericThreadMemberEvent: genericThreadMemberEvent,
+		eventManager.Dispatch(&events.ThreadMemberAddEvent{
+			GenericThreadMemberEvent: &events.GenericThreadMemberEvent{
+				GenericThreadEvent: genericThreadEvent,
+				ThreadMember:       disgo.EntityBuilder().CreateThreadMember(payload.GuildID, threadMember, api.CacheStrategyYes),
+			},
 		})
 	}
 
 	for _, threadMemberID := range payload.RemovedMemberIDs {
-		eventManager.Dispatch(genericChannelEvent)
-		eventManager.Dispatch(genericThreadEvent)
 
-		genericThreadMemberEvent := events.GenericThreadMemberEvent{
-			GenericThreadEvent: genericThreadEvent,
-			ThreadMember:       disgo.Cache().ThreadMember(payload.GuildID, payload.ThreadID, threadMemberID),
-		}
+		threadMember := disgo.Cache().ThreadMember(payload.GuildID, payload.ThreadID, threadMemberID)
+
 		disgo.Cache().UncacheThreadMember(payload.GuildID, payload.ThreadID, threadMemberID)
-		eventManager.Dispatch(genericThreadMemberEvent)
 
-		eventManager.Dispatch(events.ThreadMemberRemoveEvent{
-			GenericThreadMemberEvent: genericThreadMemberEvent,
+		eventManager.Dispatch(&events.ThreadMemberRemoveEvent{
+			GenericThreadMemberEvent: &events.GenericThreadMemberEvent{
+				GenericThreadEvent: genericThreadEvent,
+				ThreadMember:       threadMember,
+			},
 		})
 	}
 

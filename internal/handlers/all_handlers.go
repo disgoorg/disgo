@@ -7,46 +7,46 @@ import (
 // GetAllHandlers returns all api.GatewayEventHandler(s)
 func GetAllHandlers() []api.EventHandler {
 	return []api.EventHandler{
-		CommandCreateHandler{},
-		CommandDeleteHandler{},
-		CommandUpdateHandler{},
+		&CommandCreateHandler{},
+		&CommandDeleteHandler{},
+		&CommandUpdateHandler{},
 
-		ChannelCreateHandler{},
-		ChannelDeleteHandler{},
-		ChannelUpdateHandler{},
+		&ChannelCreateHandler{},
+		&ChannelDeleteHandler{},
+		&ChannelUpdateHandler{},
 
-		ThreadCreateHandler{},
-		ThreadDeleteHandler{},
-		ThreadUpdateHandler{},
-		ThreadListSyncHandler{},
-		ThreadMembersUpdateHandler{},
-		ThreadMemberUpdateHandler{},
+		&ThreadCreateHandler{},
+		&ThreadDeleteHandler{},
+		&ThreadUpdateHandler{},
+		&ThreadListSyncHandler{},
+		&ThreadMembersUpdateHandler{},
+		&ThreadMemberUpdateHandler{},
 
-		GuildCreateHandler{},
-		GuildDeleteHandler{},
-		GuildUpdateHandler{},
+		&GuildCreateHandler{},
+		&GuildDeleteHandler{},
+		&GuildUpdateHandler{},
 
-		GuildMemberAddHandler{},
-		GuildMemberRemoveHandler{},
-		GuildMemberUpdateHandler{},
+		&GuildMemberAddHandler{},
+		&GuildMemberRemoveHandler{},
+		&GuildMemberUpdateHandler{},
 
-		GuildRoleCreateHandler{},
-		GuildRoleDeleteHandler{},
-		GuildRoleUpdateHandler{},
+		&GuildRoleCreateHandler{},
+		&GuildRoleDeleteHandler{},
+		&GuildRoleUpdateHandler{},
 
-		WebhooksUpdateHandler{},
+		&WebhooksUpdateHandler{},
 
-		InteractionCreateHandler{},
-		InteractionCreateWebhookHandler{},
+		&InteractionCreateHandler{},
+		&InteractionCreateWebhookHandler{},
 
-		MessageCreateHandler{},
-		MessageDeleteHandler{},
-		MessageDeleteBulkHandler{},
-		MessageUpdateHandler{},
+		&MessageCreateHandler{},
+		&MessageDeleteHandler{},
+		&MessageDeleteBulkHandler{},
+		&MessageUpdateHandler{},
 
-		ReadyHandler{},
+		&ReadyHandler{},
 
-		VoiceServerUpdateHandler{},
-		VoiceStateUpdateHandler{},
+		&VoiceServerUpdateHandler{},
+		&VoiceStateUpdateHandler{},
 	}
 }

@@ -251,8 +251,8 @@ func (g *GatewayImpl) heartbeat() {
 func (g *GatewayImpl) sendHeartbeat() {
 	g.Disgo().Logger().Debug("sending heartbeat...")
 
-	heartbeatEvent := events.HeartbeatEvent{
-		GenericEvent: events.NewEvent(g.Disgo(), 0),
+	heartbeatEvent := &events.HeartbeatEvent{
+		GenericEvent: events.NewGenericEvent(g.Disgo(), 0),
 		OldPing:      g.Latency(),
 	}
 
@@ -330,8 +330,8 @@ func (g *GatewayImpl) listen() {
 					if err = g.parseEventToStruct(event, &payload); err != nil {
 						g.Disgo().Logger().Errorf("Error parsing raw gateway event: %s", err)
 					}
-					g.Disgo().EventManager().Dispatch(events.RawGatewayEvent{
-						GenericEvent: events.NewEvent(g.Disgo(), *event.S),
+					g.Disgo().EventManager().Dispatch(&events.RawGatewayEvent{
+						GenericEvent: events.NewGenericEvent(g.Disgo(), *event.S),
 						Type:         *event.T,
 						RawPayload:   event.D,
 						Payload:      payload,

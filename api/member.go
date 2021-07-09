@@ -8,21 +8,24 @@ import (
 
 // Member is a discord GuildMember
 type Member struct {
-	Disgo              Disgo
-	GuildID            Snowflake    `json:"guild_id"`
-	User               *User        `json:"user"`
-	Nick               *string      `json:"nick"`
-	RoleIDs            []Snowflake  `json:"roles,omitempty"`
-	JoinedAt           time.Time    `json:"joined_at"`
-	PremiumSince       *time.Time   `json:"premium_since,omitempty"`
-	Deaf               *bool        `json:"deaf,omitempty"`
-	Mute               *bool        `json:"mute,omitempty"`
-	Pending            bool         `json:"pending"`
-	ChannelPermissions *Permissions `json:"permissions,omitempty"`
+	Disgo                  Disgo
+	GuildID                Snowflake    `json:"guild_id"`
+	User                   *User        `json:"user"`
+	Nick                   *string      `json:"nick"`
+	RoleIDs                []Snowflake  `json:"roles,omitempty"`
+	JoinedAt               time.Time    `json:"joined_at"`
+	PremiumSince           *time.Time   `json:"premium_since,omitempty"`
+	Deaf                   bool         `json:"deaf,omitempty"`
+	Mute                   bool         `json:"mute,omitempty"`
+	Pending                bool         `json:"pending"`
+	InteractionPermissions *Permissions `json:"permissions,omitempty"`
 }
 
 // Permissions returns the Permissions the Member has in the Guild
 func (m *Member) Permissions() Permissions {
+	if m.InteractionPermissions != nil {
+		return *m.InteractionPermissions
+	}
 	return GetMemberPermissions(m)
 }
 

@@ -21,20 +21,15 @@ func (h ThreadDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager ap
 		return
 	}
 
-	genericChannelEvent := events.GenericChannelEvent{
-		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		ChannelID:    channel.ID(),
-	}
-	eventManager.Dispatch(genericChannelEvent)
-
 	disgo.Cache().UncacheThread(channel.GuildID(), channel.ID())
-	genericThreadEvent := events.GenericThreadEvent{
-		GenericChannelEvent: genericChannelEvent,
-		Thread:              disgo.EntityBuilder().CreateThread(channel, api.CacheStrategyNo),
-	}
-	eventManager.Dispatch(genericThreadEvent)
 
-	eventManager.Dispatch(events.ThreadDeleteEvent{
-		GenericThreadEvent: genericThreadEvent,
+	eventManager.Dispatch(&events.ThreadDeleteEvent{
+		GenericThreadEvent: &events.GenericThreadEvent{
+			GenericChannelEvent: &events.GenericChannelEvent{
+				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+				ChannelID:    channel.ID(),
+			},
+			Thread: disgo.EntityBuilder().CreateThread(channel, api.CacheStrategyNo),
+		},
 	})
 }

@@ -6,7 +6,7 @@ import (
 
 // GenericGuildMemberEvent generic api.Member event
 type GenericGuildMemberEvent struct {
-	GenericGuildEvent
+	*GenericGuildEvent
 	Member *api.Member
 }
 
@@ -20,24 +20,24 @@ func (e GenericGuildMemberEvent) User() *api.User {
 
 // GuildMemberJoinEvent indicates that a api.Member joined the api.Guild
 type GuildMemberJoinEvent struct {
-	GenericGuildMemberEvent
+	*GenericGuildMemberEvent
 }
 
 // GuildMemberUpdateEvent indicates that a api.Member updated
 type GuildMemberUpdateEvent struct {
-	GenericGuildMemberEvent
+	*GenericGuildMemberEvent
 	OldMember *api.Member
 }
 
 // GuildMemberLeaveEvent indicates that a api.Member left the api.Guild
 type GuildMemberLeaveEvent struct {
-	GenericGuildMemberEvent
+	*GenericGuildMemberEvent
 	User *api.User
 }
 
 // GuildMemberTypingEvent indicates that a api.Member started typing in a api.TextChannel(requires api.GatewayIntentsGuildMessageTyping)
 type GuildMemberTypingEvent struct {
-	GenericGuildMemberEvent
+	*GenericGuildMemberEvent
 	ChannelID api.Snowflake
 }
 

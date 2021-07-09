@@ -42,20 +42,14 @@ func (h ThreadListSyncHandler) HandleGatewayEvent(disgo api.Disgo, eventManager 
 	}
 
 	for _, thread := range threads {
-		genericChannelEvent := events.GenericChannelEvent{
-			GenericEvent: events.NewEvent(disgo, sequenceNumber),
-			ChannelID:    thread.ID(),
-		}
-		eventManager.Dispatch(genericChannelEvent)
-
-		genericThreadEvent := events.GenericThreadEvent{
-			GenericChannelEvent: genericChannelEvent,
-			Thread:              thread,
-		}
-		eventManager.Dispatch(genericThreadEvent)
-
-		eventManager.Dispatch(events.ThreadJoinEvent{
-			GenericThreadEvent: genericThreadEvent,
+		eventManager.Dispatch(&events.ThreadJoinEvent{
+			GenericThreadEvent: &events.GenericThreadEvent{
+				GenericChannelEvent: &events.GenericChannelEvent{
+					GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+					ChannelID:    thread.ID(),
+				},
+				Thread: thread,
+			},
 		})
 	}
 }

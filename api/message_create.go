@@ -42,8 +42,8 @@ func NewMessageCreateBuilder() *MessageCreateBuilder {
 	}
 }
 
-// NewMessageBuilderByMessage returns a new MessageCreateBuilder and takes an existing Message
-func NewMessageBuilderByMessage(message *Message) *MessageCreateBuilder {
+// NewMessageCreateBuilderByMessage returns a new MessageCreateBuilder and takes an existing Message
+func NewMessageCreateBuilderByMessage(message *Message) *MessageCreateBuilder {
 	msg := MessageCreate{
 		TTS:             message.TTS,
 		Components:      message.Components,
@@ -66,8 +66,7 @@ func (b *MessageCreateBuilder) SetContent(content string) *MessageCreateBuilder 
 
 // SetContentf sets content of the Message
 func (b *MessageCreateBuilder) SetContentf(content string, a ...interface{}) *MessageCreateBuilder {
-	b.Content = fmt.Sprintf(content, a...)
-	return b
+	return b.SetContent(fmt.Sprintf(content, a...))
 }
 
 // ClearContent removes content of the Message
@@ -81,9 +80,17 @@ func (b *MessageCreateBuilder) SetTTS(tts bool) *MessageCreateBuilder {
 	return b
 }
 
-// SetEmbeds sets the embeds of the Message
+// SetEmbeds sets the Embed(s) of the Message
 func (b *MessageCreateBuilder) SetEmbeds(embeds ...Embed) *MessageCreateBuilder {
 	b.Embeds = embeds
+	return b
+}
+
+// SetEmbed sets the provided Embed at the index of the Message
+func (b *MessageCreateBuilder) SetEmbed(i int, embed Embed) *MessageCreateBuilder {
+	if len(b.Embeds) > i {
+		b.Embeds[i] = embed
+	}
 	return b
 }
 
@@ -100,52 +107,74 @@ func (b *MessageCreateBuilder) ClearEmbeds() *MessageCreateBuilder {
 }
 
 // RemoveEmbed removes an embed from the Message
-func (b *MessageCreateBuilder) RemoveEmbed(index int) *MessageCreateBuilder {
-	if b != nil && len(b.Embeds) > index {
-		b.Embeds = append(b.Embeds[:index], b.Embeds[index+1:]...)
+func (b *MessageCreateBuilder) RemoveEmbed(i int) *MessageCreateBuilder {
+	if len(b.Embeds) > i {
+		b.Embeds = append(b.Embeds[:i], b.Embeds[i+1:]...)
 	}
 	return b
 }
 
-// SetComponents sets the Component(s) of the Message
-func (b *MessageCreateBuilder) SetComponents(components ...Component) *MessageCreateBuilder {
-	b.Components = components
+// SetActionRows sets the ActionRow(s) of the Message
+func (b *MessageCreateBuilder) SetActionRows(actionRows ...ActionRow) *MessageCreateBuilder {
+	b.Components = actionRowsToComponents(actionRows)
 	return b
 }
 
-// AddComponents adds the Component(s) to the Message
-func (b *MessageCreateBuilder) AddComponents(components ...Component) *MessageCreateBuilder {
-	b.Components = append(b.Components, components...)
+// SetActionRow sets the provided ActionRow at the index of Component(s)
+func (b *MessageCreateBuilder) SetActionRow(i int, actionRow ActionRow) *MessageCreateBuilder {
+	if len(b.Components) > i {
+		b.Components[i] = actionRow
+	}
 	return b
 }
 
-// ClearComponents removes all of the Component(s) of the Message
-func (b *MessageCreateBuilder) ClearComponents() *MessageCreateBuilder {
-	b.Components = []Component{}
+// AddActionRow adds a new ActionRow with the provided Component(s) to the Message
+func (b *MessageCreateBuilder) AddActionRow(components ...Component) *MessageCreateBuilder {
+	b.Components = append(b.Components, NewActionRow(components...))
 	return b
 }
 
-// RemoveComponent removes a Component from the Message
-func (b *MessageCreateBuilder) RemoveComponent(i int) *MessageCreateBuilder {
-	if b != nil && len(b.Components) > i {
+// AddActionRows adds the ActionRow(s) to the Message
+func (b *MessageCreateBuilder) AddActionRows(actionRows ...ActionRow) *MessageCreateBuilder {
+	b.Components = append(b.Components, actionRowsToComponents(actionRows)...)
+	return b
+}
+
+// RemoveActionRow removes a ActionRow from the Message
+func (b *MessageCreateBuilder) RemoveActionRow(i int) *MessageCreateBuilder {
+	if len(b.Components) > i {
 		b.Components = append(b.Components[:i], b.Components[i+1:]...)
 	}
 	return b
 }
 
-// SetFiles sets the files for this WebhookMessageCreate
+// ClearActionRows removes all of the ActionRow(s) of the Message
+func (b *MessageCreateBuilder) ClearActionRows() *MessageCreateBuilder {
+	b.Components = []Component{}
+	return b
+}
+
+// SetFiles sets the restclient.File(s) for this MessageCreate
 func (b *MessageCreateBuilder) SetFiles(files ...restclient.File) *MessageCreateBuilder {
 	b.Files = files
 	return b
 }
 
-// AddFiles adds the files to the WebhookMessageCreate
+// SetFile sets the restclient.File at the index for this MessageCreate
+func (b *MessageCreateBuilder) SetFile(i int,  file restclient.File) *MessageCreateBuilder {
+	if len(b.Files) > i {
+		b.Files[i] = file
+	}
+	return b
+}
+
+// AddFiles adds the restclient.File(s) to the MessageCreate
 func (b *MessageCreateBuilder) AddFiles(files ...restclient.File) *MessageCreateBuilder {
 	b.Files = append(b.Files, files...)
 	return b
 }
 
-// AddFile adds a file to the WebhookMessageCreate
+// AddFile adds a restclient.File to the MessageCreate
 func (b *MessageCreateBuilder) AddFile(name string, reader io.Reader, flags ...restclient.FileFlags) *MessageCreateBuilder {
 	b.Files = append(b.Files, restclient.File{
 		Name:   name,
@@ -155,7 +184,7 @@ func (b *MessageCreateBuilder) AddFile(name string, reader io.Reader, flags ...r
 	return b
 }
 
-// ClearFiles removes all files of this WebhookMessageCreate
+// ClearFiles removes all files of this MessageCreate
 func (b *MessageCreateBuilder) ClearFiles() *MessageCreateBuilder {
 	b.Files = []restclient.File{}
 	return b
@@ -163,7 +192,7 @@ func (b *MessageCreateBuilder) ClearFiles() *MessageCreateBuilder {
 
 // RemoveFiles removes the file at this index
 func (b *MessageCreateBuilder) RemoveFiles(i int) *MessageCreateBuilder {
-	if b != nil && len(b.Files) > i {
+	if len(b.Files) > i {
 		b.Files = append(b.Files[:i], b.Files[i+1:]...)
 	}
 	return b
@@ -231,4 +260,12 @@ func (b *MessageCreateBuilder) SetEphemeral(ephemeral bool) *MessageCreateBuilde
 // Build builds the MessageCreateBuilder to a MessageCreate struct
 func (b *MessageCreateBuilder) Build() MessageCreate {
 	return b.MessageCreate
+}
+
+func actionRowsToComponents(actionRows []ActionRow) []Component {
+	components := make([]Component, len(actionRows))
+	for i := range actionRows {
+		components[i] = components[i]
+	}
+	return components
 }

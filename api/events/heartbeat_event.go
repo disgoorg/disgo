@@ -4,7 +4,7 @@ import "time"
 
 // HeartbeatEvent is called upon sending a heartbeat to the api.Gateway
 type HeartbeatEvent struct {
-	GenericEvent
+	*GenericEvent
 	NewPing time.Duration
 	OldPing time.Duration
 }
