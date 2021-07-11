@@ -65,6 +65,7 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceN
 			})
 		}
 
+		commandInteraction.Data.Options = newOptions
 		commandInteraction.Data.SubCommandName = subCommandName
 		commandInteraction.Data.SubCommandGroupName = subCommandGroupName
 
