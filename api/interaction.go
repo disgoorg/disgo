@@ -59,11 +59,11 @@ func (r InteractionResponse) ToBody() (interface{}, error) {
 	}
 	switch v := r.Data.(type) {
 	case MessageCreate:
-		if len(v.Files) > 0  {
+		if len(v.Files) > 0 {
 			return restclient.PayloadWithFiles(r, v.Files...)
 		}
 	case MessageUpdate:
-		if len(v.Files) > 0  {
+		if len(v.Files) > 0 {
 			return restclient.PayloadWithFiles(r, v.Files...)
 		}
 	}
@@ -71,13 +71,13 @@ func (r InteractionResponse) ToBody() (interface{}, error) {
 }
 
 // Respond responds to the api.Interaction with the provided api.InteractionResponse
-func (i *Interaction) Respond(responseType InteractionResponseType, data interface{}) error {
+func (i *Interaction) Respond(responseType InteractionResponseType, data interface{}) restclient.RestError {
 	response := InteractionResponse{
 		Type: responseType,
 		Data: data,
 	}
 	if i.Replied {
-		return errors.New("you already replied to this interaction")
+		return restclient.NewError(nil, errors.New("you already replied to this interaction"))
 	}
 	i.Replied = true
 
@@ -90,7 +90,7 @@ func (i *Interaction) Respond(responseType InteractionResponseType, data interfa
 }
 
 // DeferReply replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource and shows a loading state
-func (i *Interaction) DeferReply(ephemeral bool) error {
+func (i *Interaction) DeferReply(ephemeral bool) restclient.RestError {
 	var messageCreate interface{}
 	if ephemeral {
 		messageCreate = MessageCreate{Flags: MessageFlagEphemeral}
@@ -99,32 +99,32 @@ func (i *Interaction) DeferReply(ephemeral bool) error {
 }
 
 // Reply replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource & api.MessageCreate
-func (i *Interaction) Reply(messageCreate MessageCreate) error {
+func (i *Interaction) Reply(messageCreate MessageCreate) restclient.RestError {
 	return i.Respond(InteractionResponseTypeChannelMessageWithSource, messageCreate)
 }
 
 // EditOriginal edits the original api.InteractionResponse
-func (i *Interaction) EditOriginal(messageUpdate MessageUpdate) (*Message, error) {
-	return i.Disgo.RestClient().EditInteractionResponse(i.Disgo.ApplicationID(), i.Token, messageUpdate)
+func (i *Interaction) EditOriginal(messageUpdate MessageUpdate) (*Message, restclient.RestError) {
+	return i.Disgo.RestClient().UpdateInteractionResponse(i.Disgo.ApplicationID(), i.Token, messageUpdate)
 }
 
 // DeleteOriginal deletes the original api.InteractionResponse
-func (i *Interaction) DeleteOriginal() error {
+func (i *Interaction) DeleteOriginal() restclient.RestError {
 	return i.Disgo.RestClient().DeleteInteractionResponse(i.Disgo.ApplicationID(), i.Token)
 }
 
 // SendFollowup used to send a api.MessageCreate to an api.Interaction
-func (i *Interaction) SendFollowup(messageCreate MessageCreate) (*Message, error) {
+func (i *Interaction) SendFollowup(messageCreate MessageCreate) (*Message, restclient.RestError) {
 	return i.Disgo.RestClient().SendFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageCreate)
 }
 
 // EditFollowup used to edit a api.Message from an api.Interaction
-func (i *Interaction) EditFollowup(messageID Snowflake, messageUpdate MessageUpdate) (*Message, error) {
-	return i.Disgo.RestClient().EditFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID, messageUpdate)
+func (i *Interaction) EditFollowup(messageID Snowflake, messageUpdate MessageUpdate) (*Message, restclient.RestError) {
+	return i.Disgo.RestClient().UpdateFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID, messageUpdate)
 }
 
 // DeleteFollowup used to delete a api.Message from an api.Interaction
-func (i *Interaction) DeleteFollowup(messageID Snowflake) error {
+func (i *Interaction) DeleteFollowup(messageID Snowflake) restclient.RestError {
 	return i.Disgo.RestClient().DeleteFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID)
 }
 
@@ -175,14 +175,14 @@ func (i *Interaction) GuildChannel() *GuildChannel {
 
 // FullInteraction is used for easier unmarshalling of different Interaction(s)
 type FullInteraction struct {
-	ID          Snowflake       `json:"id"`
-	Type        InteractionType `json:"type"`
-	GuildID     *Snowflake      `json:"guild_id,omitempty"`
-	ChannelID   *Snowflake      `json:"channel_id,omitempty"`
-	FullMessage *FullMessage    `json:"message,omitempty"`
-	Member      *Member         `json:"member,omitempty"`
-	User        *User           `json:"User,omitempty"`
-	Token       string          `json:"token"`
-	Version     int             `json:"version"`
-	Data        json.RawMessage `json:"data,omitempty"`
+	ID        Snowflake       `json:"id"`
+	Type      InteractionType `json:"type"`
+	GuildID   *Snowflake      `json:"guild_id,omitempty"`
+	ChannelID *Snowflake      `json:"channel_id,omitempty"`
+	Message   *Message        `json:"message,omitempty"`
+	Member    *Member         `json:"member,omitempty"`
+	User      *User           `json:"User,omitempty"`
+	Token     string          `json:"token"`
+	Version   int             `json:"version"`
+	Data      json.RawMessage `json:"data,omitempty"`
 }

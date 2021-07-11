@@ -1,8 +1,11 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
 	"time"
+
+	"github.com/DisgoOrg/restclient"
 )
 
 // The MessageType indicates the Message type
@@ -166,7 +169,7 @@ type Message struct {
 	Attachments       []Attachment        `json:"attachments"`
 	TTS               bool                `json:"tts"`
 	Embeds            []Embed             `json:"embeds,omitempty"`
-	Components        []Component         `json:"components,omitempty"`
+	Components        []Component         `json:"-"`
 	CreatedAt         time.Time           `json:"timestamp"`
 	Mentions          []interface{}       `json:"mentions"`
 	MentionEveryone   bool                `json:"mention_everyone"`
@@ -190,10 +193,70 @@ type Message struct {
 	LastUpdated       *time.Time          `json:"last_updated,omitempty"`
 }
 
-// FullMessage is used for easier unmarshalling of Component(s) in Message(s)
-type FullMessage struct {
-	*Message
-	UnmarshalComponents []UnmarshalComponent `json:"components,omitempty"`
+// Unmarshal is used to unmarshal a Message we received from discord
+func (m *Message) Unmarshal(data []byte) error {
+	var fullM struct {
+		*Message
+		Components []UnmarshalComponent `json:"components,omitempty"`
+	}
+	err := json.Unmarshal(data, &fullM)
+	if err != nil {
+		return err
+	}
+	*m = *fullM.Message
+	for _, component := range fullM.Components {
+		m.Components = append(m.Components, createComponent(component))
+	}
+	return nil
+}
+
+// Marshal is used to marshal a Message we send to discord
+func (m *Message) Marshal() ([]byte, error) {
+	fullM := struct {
+		*Message
+		Components []Component `json:"components,omitempty"`
+	}{
+		Message:    m,
+		Components: m.Components,
+	}
+	fullM.Message = m
+	data, err := json.Marshal(fullM)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+func createComponent(unmarshalComponent UnmarshalComponent) Component {
+	switch unmarshalComponent.ComponentType {
+	case ComponentTypeActionRow:
+		components := make([]Component, len(unmarshalComponent.Components))
+		for i, unmarshalC := range unmarshalComponent.Components {
+			components[i] = createComponent(unmarshalC)
+		}
+		return ActionRow{
+			ComponentImpl: ComponentImpl{
+				ComponentType: ComponentTypeActionRow,
+			},
+			Components: components,
+		}
+
+	case ComponentTypeButton:
+		return Button{
+			ComponentImpl: ComponentImpl{
+				ComponentType: ComponentTypeButton,
+			},
+			Style:    unmarshalComponent.Style,
+			Label:    unmarshalComponent.Label,
+			Emoji:    unmarshalComponent.Emoji,
+			CustomID: unmarshalComponent.CustomID,
+			URL:      unmarshalComponent.URL,
+			Disabled: unmarshalComponent.Disabled,
+		}
+
+	default:
+		return nil
+	}
 }
 
 // MessageReference is a reference to another message
@@ -226,40 +289,141 @@ func (m *Message) Channel() *MessageChannel {
 }
 
 // AddReactionByEmote allows you to add an Emoji to a message_events via reaction
-func (m *Message) AddReactionByEmote(emote Emoji) error {
+func (m *Message) AddReactionByEmote(emote Emoji) restclient.RestError {
 	return m.AddReaction(emote.Reaction())
 }
 
 // AddReaction allows you to add a reaction to a message_events from a string, for example a custom emoji ID, or a native emoji
-func (m *Message) AddReaction(emoji string) error {
+func (m *Message) AddReaction(emoji string) restclient.RestError {
 	return m.Disgo.RestClient().AddReaction(m.ChannelID, m.ID, emoji)
 }
 
-// Edit allows you to edit an existing Message sent by you
-func (m *Message) Edit(message MessageUpdate) (*Message, error) {
-	return m.Disgo.RestClient().EditMessage(m.ChannelID, m.ID, message)
+// Update allows you to edit an existing Message sent by you
+func (m *Message) Update(message MessageUpdate) (*Message, restclient.RestError) {
+	return m.Disgo.RestClient().UpdateMessage(m.ChannelID, m.ID, message)
 }
 
 // Delete allows you to edit an existing Message sent by you
-func (m *Message) Delete() error {
+func (m *Message) Delete() restclient.RestError {
 	return m.Disgo.RestClient().DeleteMessage(m.ChannelID, m.ID)
 }
 
 // Crosspost crossposts an existing message
-func (m *Message) Crosspost() (*Message, error) {
+func (m *Message) Crosspost() (*Message, restclient.RestError) {
 	channel := m.Channel()
 	if channel != nil && channel.Type != ChannelTypeNews {
-		return nil, errors.New("channel type is not NEWS")
+		return nil, restclient.NewError(nil, errors.New("channel type is not NEWS"))
 	}
 	return m.Disgo.RestClient().CrosspostMessage(m.ChannelID, m.ID)
 }
 
 // Reply allows you to reply to an existing Message
-func (m *Message) Reply(message MessageCreate) (*Message, error) {
+func (m *Message) Reply(message MessageCreate) (*Message, restclient.RestError) {
 	message.MessageReference = &MessageReference{
 		MessageID: &m.ID,
 	}
-	return m.Disgo.RestClient().SendMessage(m.ChannelID, message)
+	return m.Disgo.RestClient().CreateMessage(m.ChannelID, message)
+}
+
+// ActionRows returns all ActionRow(s) from this Message
+func (m *Message) ActionRows() []ActionRow {
+	if m.IsEphemeral() {
+		return nil
+	}
+	var actionRows []ActionRow
+	for _, component := range m.Components {
+		if actionRow, ok := component.(ActionRow); ok {
+			actionRows = append(actionRows, actionRow)
+		}
+	}
+	return actionRows
+}
+
+// ComponentByID returns the first Component with the specific customID
+func (m *Message) ComponentByID(customID string) Component {
+	if m.IsEphemeral() {
+		return nil
+	}
+	for _, actionRow := range m.ActionRows() {
+		for _, component := range actionRow.Components {
+			switch c := component.(type) {
+			case Button:
+				if c.CustomID == customID {
+					return c
+				}
+			case SelectMenu:
+				if c.CustomID == customID {
+					return c
+				}
+			default:
+				continue
+			}
+		}
+	}
+	return nil
+}
+
+// Buttons returns all Button(s) from this Message
+func (m *Message) Buttons() []Button {
+	if m.IsEphemeral() {
+		return nil
+	}
+	var buttons []Button
+	for _, actionRow := range m.ActionRows() {
+		for _, component := range actionRow.Components {
+			if button, ok := component.(Button); ok {
+				buttons = append(buttons, button)
+			}
+		}
+	}
+	return buttons
+}
+
+// ButtonByID returns a Button with the specific customID from this Message
+func (m *Message) ButtonByID(customID string) *Button {
+	if m.IsEphemeral() {
+		return nil
+	}
+	for _, button := range m.Buttons() {
+		if button.CustomID == customID {
+			return &button
+		}
+	}
+	return nil
+}
+
+// SelectMenus returns all SelectMenu(s) from this Message
+func (m *Message) SelectMenus() []SelectMenu {
+	if m.IsEphemeral() {
+		return nil
+	}
+	var selectMenus []SelectMenu
+	for _, actionRow := range m.ActionRows() {
+		for _, component := range actionRow.Components {
+			if selectMenu, ok := component.(SelectMenu); ok {
+				selectMenus = append(selectMenus, selectMenu)
+			}
+		}
+	}
+	return selectMenus
+}
+
+// SelectMenuByID returns a SelectMenu with the specific customID from this Message
+func (m *Message) SelectMenuByID(customID string) *SelectMenu {
+	if m.IsEphemeral() {
+		return nil
+	}
+	for _, selectMenu := range m.SelectMenus() {
+		if selectMenu.CustomID == customID {
+			return &selectMenu
+		}
+	}
+	return nil
+}
+
+// IsEphemeral returns true if the Message has MessageFlagEphemeral
+func (m *Message) IsEphemeral() bool {
+	return m.Flags.Has(MessageFlagEphemeral)
 }
 
 // MessageReaction contains information about the reactions of a message_events

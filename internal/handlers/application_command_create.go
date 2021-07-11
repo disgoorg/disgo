@@ -9,17 +9,17 @@ import (
 type CommandCreateHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h CommandCreateHandler) Event() api.GatewayEventType {
+func (h *CommandCreateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventCommandCreate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h CommandCreateHandler) New() interface{} {
+func (h *CommandCreateHandler) New() interface{} {
 	return &api.Command{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h CommandCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+func (h *CommandCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	command, ok := i.(*api.Command)
 	if !ok {
 		return
@@ -37,15 +37,10 @@ func (h CommandCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		command = disgo.EntityBuilder().CreateGlobalCommand(command, cacheStrategy)
 	}
 
-	genericCommandEvent := events.GenericCommandEvent{
-		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		CommandID:    command.ID,
-		Command:      command,
-		GuildID:      command.GuildID,
-	}
-	eventManager.Dispatch(genericCommandEvent)
-
 	eventManager.Dispatch(events.CommandCreateEvent{
-		GenericCommandEvent: genericCommandEvent,
+		GenericCommandEvent: &events.GenericCommandEvent{
+			GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+			Command:      command,
+		},
 	})
 }

@@ -14,16 +14,16 @@ type messageDeletePayload struct {
 type MessageDeleteHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h MessageDeleteHandler) Event() api.GatewayEventType {
+func (h *MessageDeleteHandler) Event() api.GatewayEventType {
 	return api.GatewayEventMessageDelete
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h MessageDeleteHandler) New() interface{} {
+func (h *MessageDeleteHandler) New() interface{} {
 	return &messageDeletePayload{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h MessageDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+func (h *MessageDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	//payload, ok := i.(*api.messageDeletePayload)
 }

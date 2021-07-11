@@ -15,16 +15,20 @@ var (
 type EntityBuilder interface {
 	Disgo() Disgo
 
-	CreateButtonInteraction(fullInteraction *FullInteraction, c chan InteractionResponse, updateCache CacheStrategy) *ButtonInteraction
-	CreateCommandInteraction(fullInteraction *FullInteraction, c chan InteractionResponse, updateCache CacheStrategy) *CommandInteraction
+	CreateInteraction(fullInteraction *FullInteraction, c chan InteractionResponse, updateCache CacheStrategy) *Interaction
+	CreateCommandInteraction(fullInteraction *FullInteraction, interaction *Interaction, updateCache CacheStrategy) *CommandInteraction
+	CreateComponentInteraction(fullInteraction *FullInteraction, interaction *Interaction, updateCache CacheStrategy) *ComponentInteraction
+	CreateButtonInteraction(fullInteraction *FullInteraction, componentInteraction *ComponentInteraction) *ButtonInteraction
+	CreateSelectMenuInteraction(fullInteraction *FullInteraction, componentInteraction *ComponentInteraction) *SelectMenuInteraction
 
 	CreateGlobalCommand(command *Command, updateCache CacheStrategy) *Command
 
 	CreateUser(user *User, updateCache CacheStrategy) *User
 
-	CreateMessage(message *FullMessage, updateCache CacheStrategy) *Message
+	CreateMessage(message *Message, updateCache CacheStrategy) *Message
 
-	CreateGuild(guild *Guild, updateCache CacheStrategy) *Guild
+	CreateGuildTemplate(guildTemplate *GuildTemplate, updateCache CacheStrategy) *GuildTemplate
+	CreateGuild(fullGuild *FullGuild, updateCache CacheStrategy) *Guild
 	CreateMember(guildID Snowflake, member *Member, updateCache CacheStrategy) *Member
 	CreateGuildCommand(guildID Snowflake, command *Command, updateCache CacheStrategy) *Command
 	CreateGuildCommandPermissions(guildCommandPermissions *GuildCommandPermissions, updateCache CacheStrategy) *GuildCommandPermissions

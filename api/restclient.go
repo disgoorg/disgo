@@ -24,60 +24,80 @@ type RestClient interface {
 	Close()
 	Disgo() Disgo
 
-	SendMessage(channelID Snowflake, message MessageCreate) (*Message, error)
-	EditMessage(channelID Snowflake, messageID Snowflake, messageUpdate MessageUpdate) (*Message, error)
-	DeleteMessage(channelID Snowflake, messageID Snowflake) error
-	BulkDeleteMessages(channelID Snowflake, messageIDs ...Snowflake) error
-	CrosspostMessage(channelID Snowflake, messageID Snowflake) (*Message, error)
+	GetUser(userID Snowflake) (*User, restclient.RestError)
+	GetSelfUser() (*SelfUser, restclient.RestError)
+	UpdateSelfUser(updateSelfUser UpdateSelfUser) (*SelfUser, restclient.RestError)
+	GetGuilds(before int, after int, limit int) ([]*PartialGuild, restclient.RestError)
+	LeaveGuild(guildID Snowflake) restclient.RestError
+	GetDMChannels() ([]*DMChannel, restclient.RestError)
+	CreateDMChannel(userID Snowflake) (*DMChannel, restclient.RestError)
 
-	OpenDMChannel(userID Snowflake) (*DMChannel, error)
+	GetMessage(channelID Snowflake, messageID Snowflake) (*Message, restclient.RestError)
+	CreateMessage(channelID Snowflake, message MessageCreate) (*Message, restclient.RestError)
+	UpdateMessage(channelID Snowflake, messageID Snowflake, messageUpdate MessageUpdate) (*Message, restclient.RestError)
+	DeleteMessage(channelID Snowflake, messageID Snowflake) restclient.RestError
+	BulkDeleteMessages(channelID Snowflake, messageIDs ...Snowflake) restclient.RestError
+	CrosspostMessage(channelID Snowflake, messageID Snowflake) (*Message, restclient.RestError)
 
-	UpdateSelfNick(guildID Snowflake, nick *string) (*string, error)
+	GetGuild(guildID Snowflake, withCounts bool) (*Guild, restclient.RestError)
+	GetGuildPreview(guildID Snowflake) (*GuildPreview, restclient.RestError)
+	CreateGuild(createGuild CreateGuild) (*Guild, restclient.RestError)
+	UpdateGuild(guildID Snowflake, updateGuild UpdateGuild) (*Guild, restclient.RestError)
+	DeleteGuild(guildID Snowflake) restclient.RestError
 
-	GetUser(userID Snowflake) (*User, error)
-	GetMember(guildID Snowflake, userID Snowflake) (*Member, error)
-	GetMembers(guildID Snowflake) ([]*Member, error)
-	AddMember(guildID Snowflake, userID Snowflake, addGuildMemberData AddGuildMemberData) (*Member, error)
-	KickMember(guildID Snowflake, userID Snowflake, reason *string) error
-	UpdateMember(guildID Snowflake, userID Snowflake, updateGuildMemberData UpdateGuildMemberData) (*Member, error)
-	MoveMember(guildID Snowflake, userID Snowflake, channelID *Snowflake) (*Member, error)
-	AddMemberRole(guildID Snowflake, userID Snowflake, roleID Snowflake) error
-	RemoveMemberRole(guildID Snowflake, userID Snowflake, roleID Snowflake) error
+	GetMember(guildID Snowflake, userID Snowflake) (*Member, restclient.RestError)
+	GetMembers(guildID Snowflake) ([]*Member, restclient.RestError)
+	SearchMembers(guildID Snowflake, query string, limit int) ([]*Member, restclient.RestError)
+	AddMember(guildID Snowflake, userID Snowflake, addMember AddMember) (*Member, restclient.RestError)
+	RemoveMember(guildID Snowflake, userID Snowflake, reason string) restclient.RestError
+	UpdateMember(guildID Snowflake, userID Snowflake, updateMember UpdateMember) (*Member, restclient.RestError)
+	UpdateSelfNick(guildID Snowflake, nick string) (*string, restclient.RestError)
+	MoveMember(guildID Snowflake, userID Snowflake, channelID *Snowflake) (*Member, restclient.RestError)
+	AddMemberRole(guildID Snowflake, userID Snowflake, roleID Snowflake) restclient.RestError
+	RemoveMemberRole(guildID Snowflake, userID Snowflake, roleID Snowflake) restclient.RestError
 
-	GetRoles(guildID Snowflake) ([]*Role, error)
-	CreateRole(guildID Snowflake, role UpdateRole) (*Role, error)
-	UpdateRole(guildID Snowflake, roleID Snowflake, role UpdateRole) (*Role, error)
-	UpdateRolePositions(guildID Snowflake, roleUpdates ...UpdateRolePosition) ([]*Role, error)
-	DeleteRole(guildID Snowflake, roleID Snowflake) error
+	GetRoles(guildID Snowflake) ([]*Role, restclient.RestError)
+	CreateRole(guildID Snowflake, createRole CreateRole) (*Role, restclient.RestError)
+	UpdateRole(guildID Snowflake, roleID Snowflake, updateRole UpdateRole) (*Role, restclient.RestError)
+	UpdateRolePositions(guildID Snowflake, roleUpdates ...UpdateRolePosition) ([]*Role, restclient.RestError)
+	DeleteRole(guildID Snowflake, roleID Snowflake) restclient.RestError
 
-	AddReaction(channelID Snowflake, messageID Snowflake, emoji string) error
-	RemoveOwnReaction(channelID Snowflake, messageID Snowflake, emoji string) error
-	RemoveUserReaction(channelID Snowflake, messageID Snowflake, emoji string, userID Snowflake) error
+	AddReaction(channelID Snowflake, messageID Snowflake, emoji string) restclient.RestError
+	RemoveOwnReaction(channelID Snowflake, messageID Snowflake, emoji string) restclient.RestError
+	RemoveUserReaction(channelID Snowflake, messageID Snowflake, emoji string, userID Snowflake) restclient.RestError
 
-	GetGlobalCommands(applicationID Snowflake) ([]*Command, error)
-	GetGlobalCommand(applicationID Snowflake, commandID Snowflake) (*Command, error)
-	CreateGlobalCommand(applicationID Snowflake, command CommandCreate) (*Command, error)
-	SetGlobalCommands(applicationID Snowflake, commands ...CommandCreate) ([]*Command, error)
-	EditGlobalCommand(applicationID Snowflake, commandID Snowflake, command CommandUpdate) (*Command, error)
-	DeleteGlobalCommand(applicationID Snowflake, commandID Snowflake) error
+	GetGlobalCommands(applicationID Snowflake) ([]*Command, restclient.RestError)
+	GetGlobalCommand(applicationID Snowflake, commandID Snowflake) (*Command, restclient.RestError)
+	CreateGlobalCommand(applicationID Snowflake, command CommandCreate) (*Command, restclient.RestError)
+	SetGlobalCommands(applicationID Snowflake, commands ...CommandCreate) ([]*Command, restclient.RestError)
+	UpdateGlobalCommand(applicationID Snowflake, commandID Snowflake, command CommandUpdate) (*Command, restclient.RestError)
+	DeleteGlobalCommand(applicationID Snowflake, commandID Snowflake) restclient.RestError
 
-	GetGuildCommands(applicationID Snowflake, guildID Snowflake) ([]*Command, error)
-	GetGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake) (*Command, error)
-	CreateGuildCommand(applicationID Snowflake, guildID Snowflake, command CommandCreate) (*Command, error)
-	SetGuildCommands(applicationID Snowflake, guildID Snowflake, commands ...CommandCreate) ([]*Command, error)
-	EditGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake, command CommandUpdate) (*Command, error)
-	DeleteGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake) error
+	GetGuildCommands(applicationID Snowflake, guildID Snowflake) ([]*Command, restclient.RestError)
+	GetGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake) (*Command, restclient.RestError)
+	CreateGuildCommand(applicationID Snowflake, guildID Snowflake, command CommandCreate) (*Command, restclient.RestError)
+	SetGuildCommands(applicationID Snowflake, guildID Snowflake, commands ...CommandCreate) ([]*Command, restclient.RestError)
+	UpdateGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake, command CommandUpdate) (*Command, restclient.RestError)
+	DeleteGuildCommand(applicationID Snowflake, guildID Snowflake, commandID Snowflake) restclient.RestError
 
-	GetGuildCommandsPermissions(applicationID Snowflake, guildID Snowflake) ([]*GuildCommandPermissions, error)
-	GetGuildCommandPermissions(applicationID Snowflake, guildID Snowflake, commandID Snowflake) (*GuildCommandPermissions, error)
-	SetGuildCommandsPermissions(applicationID Snowflake, guildID Snowflake, commandPermissions ...SetGuildCommandPermissions) ([]*GuildCommandPermissions, error)
-	SetGuildCommandPermissions(applicationID Snowflake, guildID Snowflake, commandID Snowflake, commandPermissions SetGuildCommandPermissions) (*GuildCommandPermissions, error)
+	GetGuildCommandsPermissions(applicationID Snowflake, guildID Snowflake) ([]*GuildCommandPermissions, restclient.RestError)
+	GetGuildCommandPermissions(applicationID Snowflake, guildID Snowflake, commandID Snowflake) (*GuildCommandPermissions, restclient.RestError)
+	SetGuildCommandsPermissions(applicationID Snowflake, guildID Snowflake, commandPermissions ...SetGuildCommandPermissions) ([]*GuildCommandPermissions, restclient.RestError)
+	SetGuildCommandPermissions(applicationID Snowflake, guildID Snowflake, commandID Snowflake, commandPermissions SetGuildCommandPermissions) (*GuildCommandPermissions, restclient.RestError)
 
-	SendInteractionResponse(interactionID Snowflake, interactionToken string, interactionResponse InteractionResponse) error
-	EditInteractionResponse(applicationID Snowflake, interactionToken string, messageUpdate MessageUpdate) (*Message, error)
-	DeleteInteractionResponse(applicationID Snowflake, interactionToken string) error
+	SendInteractionResponse(interactionID Snowflake, interactionToken string, interactionResponse InteractionResponse) restclient.RestError
+	UpdateInteractionResponse(applicationID Snowflake, interactionToken string, messageUpdate MessageUpdate) (*Message, restclient.RestError)
+	DeleteInteractionResponse(applicationID Snowflake, interactionToken string) restclient.RestError
 
-	SendFollowupMessage(applicationID Snowflake, interactionToken string, messageCreate MessageCreate) (*Message, error)
-	EditFollowupMessage(applicationID Snowflake, interactionToken string, messageID Snowflake, messageUpdate MessageUpdate) (*Message, error)
-	DeleteFollowupMessage(applicationID Snowflake, interactionToken string, followupMessageID Snowflake) error
+	SendFollowupMessage(applicationID Snowflake, interactionToken string, messageCreate MessageCreate) (*Message, restclient.RestError)
+	UpdateFollowupMessage(applicationID Snowflake, interactionToken string, messageID Snowflake, messageUpdate MessageUpdate) (*Message, restclient.RestError)
+	DeleteFollowupMessage(applicationID Snowflake, interactionToken string, followupMessageID Snowflake) restclient.RestError
+
+	GetGuildTemplate(templateCode string) (*GuildTemplate, restclient.RestError)
+	GetGuildTemplates(guildID Snowflake) ([]*GuildTemplate, restclient.RestError)
+	CreateGuildTemplate(guildID Snowflake, createGuildTemplate CreateGuildTemplate) (*GuildTemplate, restclient.RestError)
+	CreateGuildFromTemplate(templateCode string, createGuildFromTemplate CreateGuildFromTemplate) (*Guild, restclient.RestError)
+	SyncGuildTemplate(guildID Snowflake, templateCode string) (*GuildTemplate, restclient.RestError)
+	UpdateGuildTemplate(guildID Snowflake, templateCode string, updateGuildTemplate UpdateGuildTemplate) (*GuildTemplate, restclient.RestError)
+	DeleteGuildTemplate(guildID Snowflake, templateCode string) (*GuildTemplate, restclient.RestError)
 }

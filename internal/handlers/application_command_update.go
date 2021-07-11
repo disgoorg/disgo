@@ -39,16 +39,11 @@ func (h CommandUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		command = disgo.EntityBuilder().CreateGlobalCommand(command, api.CacheStrategyYes)
 	}
 
-	genericCommandEvent := events.GenericCommandEvent{
-		GenericEvent: events.NewEvent(disgo, sequenceNumber),
-		CommandID:    command.ID,
-		Command:      command,
-		GuildID:      command.GuildID,
-	}
-	eventManager.Dispatch(genericCommandEvent)
-
-	eventManager.Dispatch(events.CommandUpdateEvent{
-		GenericCommandEvent: genericCommandEvent,
+	eventManager.Dispatch(&events.CommandUpdateEvent{
+		GenericCommandEvent: &events.GenericCommandEvent{
+			GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+			Command:      command,
+		},
 		// always nil for not our own commands
 		OldCommand: oldCommand,
 	})

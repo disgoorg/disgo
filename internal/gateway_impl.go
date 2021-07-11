@@ -1,12 +1,12 @@
 package internal
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"runtime/debug"
 	"time"
 
@@ -20,7 +20,7 @@ import (
 func newGatewayImpl(disgo api.Disgo) api.Gateway {
 	return &GatewayImpl{
 		disgo:  disgo,
-		status: api.Unconnected,
+		status: api.GatewayStatusUnconnected,
 	}
 }
 
@@ -47,14 +47,14 @@ func (g *GatewayImpl) reconnect(delay time.Duration) {
 	go func() {
 		time.Sleep(delay)
 
-		if g.Status() == api.Connecting || g.Status() == api.Reconnecting {
+		if g.Status() == api.GatewayStatusConnecting || g.Status() == api.GatewayStatusReconnecting {
 			g.Disgo().Logger().Error("tried to reconnect gateway while connecting/reconnecting")
 			return
 		}
 		g.Disgo().Logger().Info("reconnecting gateway...")
 		if err := g.Open(); err != nil {
 			g.Disgo().Logger().Errorf("failed to reconnect gateway: %s", err)
-			g.status = api.Disconnected
+			g.status = api.GatewayStatusDisconnected
 			g.reconnect(delay * 2)
 		}
 	}()
@@ -63,9 +63,9 @@ func (g *GatewayImpl) reconnect(delay time.Duration) {
 // Open initializes the client and connection to discord
 func (g *GatewayImpl) Open() error {
 	if g.lastSequenceReceived == nil || g.sessionID == nil {
-		g.status = api.Connecting
+		g.status = api.GatewayStatusConnecting
 	} else {
-		g.status = api.Reconnecting
+		g.status = api.GatewayStatusReconnecting
 	}
 
 	g.Disgo().Logger().Info("starting ws...")
@@ -84,41 +84,44 @@ func (g *GatewayImpl) Open() error {
 	}
 
 	gatewayURL := *g.url + "?v=" + restclient.APIVersion + "&encoding=json"
-	wsConn, rs, err := websocket.DefaultDialer.Dial(gatewayURL, nil)
+	var rs *http.Response
+	var err error
+	g.conn, rs, err = websocket.DefaultDialer.Dial(gatewayURL, nil)
 	if err != nil {
 		g.Close()
-		var body string
+		var body []byte
 		if rs != nil && rs.Body != nil {
-			rawBody, err := ioutil.ReadAll(rs.Body)
+			body, err = ioutil.ReadAll(rs.Body)
 			if err != nil {
 				g.Disgo().Logger().Errorf("error while reading response body: %s", err)
 				g.url = nil
 				return err
 			}
-			body = string(rawBody)
 		} else {
-			body = "null"
+			body = []byte("null")
 		}
 
-		g.Disgo().Logger().Errorf("error connecting to gateway. url: %s, error: %s, body: %s", gatewayURL, err.Error(), body)
+		g.Disgo().Logger().Errorf("error connecting to gateway. url: %s, error: %s, body: %s", gatewayURL, err, string(body))
 		return err
 	}
-	wsConn.SetCloseHandler(func(code int, error string) error {
+
+	g.conn.SetCloseHandler(func(code int, error string) error {
 		g.Disgo().Logger().Infof("connection to websocket closed with code: %d, error: %s", code, error)
 		return nil
 	})
 
-	g.conn = wsConn
-	g.status = api.WaitingForHello
+	g.status = api.GatewayStatusWaitingForHello
 
-	mt, data, err := g.conn.ReadMessage()
+	mt, reader, err := g.conn.NextReader()
 	if err != nil {
 		return err
 	}
-	event, err := g.parseGatewayEvent(mt, data)
+
+	event, err := g.parseGatewayEvent(mt, reader)
 	if err != nil {
 		return err
 	}
+
 	if event.Op != api.OpHello {
 		return fmt.Errorf("expected op: hello type: 10, received: %d", mt)
 	}
@@ -133,9 +136,9 @@ func (g *GatewayImpl) Open() error {
 	g.heartbeatInterval = eventData.HeartbeatInterval * time.Millisecond
 
 	if g.lastSequenceReceived == nil || g.sessionID == nil {
-		g.status = api.Identifying
-		g.Disgo().Logger().Infof("sending Identifying command...")
-		if err = wsConn.WriteJSON(
+		g.status = api.GatewayStatusIdentifying
+		g.Disgo().Logger().Infof("sending GatewayStatusIdentifying command...")
+		if err = g.Send(
 			api.NewGatewayCommand(api.OpIdentify, api.IdentifyCommand{
 				Token: g.Disgo().Token(),
 				Properties: api.IdentifyCommandDataProperties{
@@ -150,17 +153,17 @@ func (g *GatewayImpl) Open() error {
 		); err != nil {
 			return err
 		}
-		g.status = api.WaitingForReady
+		g.status = api.GatewayStatusWaitingForReady
 	} else {
-		g.status = api.Resuming
+		g.status = api.GatewayStatusResuming
 		cmd := api.NewGatewayCommand(api.OpResume, api.ResumeCommand{
 			Token:     g.Disgo().Token(),
 			SessionID: *g.sessionID,
 			Seq:       *g.lastSequenceReceived,
 		})
-		g.Disgo().Logger().Infof("sending Resuming command...")
+		g.Disgo().Logger().Infof("sending GatewayStatusResuming command...")
 
-		if err = wsConn.WriteJSON(cmd); err != nil {
+		if err = g.Send(cmd); err != nil {
 			return err
 		}
 	}
@@ -176,6 +179,11 @@ func (g *GatewayImpl) Open() error {
 // Status returns the gateway connection status
 func (g *GatewayImpl) Status() api.GatewayStatus {
 	return g.status
+}
+
+// Send sends a payload to the Gateway
+func (g *GatewayImpl) Send(command api.GatewayCommand) error {
+	return g.conn.WriteJSON(command)
 }
 
 // Latency returns the api.Gateway latency
@@ -243,12 +251,12 @@ func (g *GatewayImpl) heartbeat() {
 func (g *GatewayImpl) sendHeartbeat() {
 	g.Disgo().Logger().Debug("sending heartbeat...")
 
-	heartbeatEvent := events.HeartbeatEvent{
-		GenericEvent: events.NewEvent(g.Disgo(), 0),
+	heartbeatEvent := &events.HeartbeatEvent{
+		GenericEvent: events.NewGenericEvent(g.Disgo(), 0),
 		OldPing:      g.Latency(),
 	}
 
-	if err := g.conn.WriteJSON(api.NewGatewayCommand(api.OpHeartbeat, g.lastSequenceReceived)); err != nil {
+	if err := g.Send(api.NewGatewayCommand(api.OpHeartbeat, g.lastSequenceReceived)); err != nil {
 		g.Disgo().Logger().Errorf("failed to send heartbeat with error: %s", err)
 		g.closeWithCode(websocket.CloseServiceRestart)
 		g.reconnect(1 * time.Second)
@@ -269,6 +277,7 @@ func (g *GatewayImpl) listen() {
 		}
 		g.Disgo().Logger().Info("shut down listen goroutine")
 	}()
+
 	for {
 		select {
 		case <-g.quit:
@@ -278,7 +287,7 @@ func (g *GatewayImpl) listen() {
 			if g.conn == nil {
 				return
 			}
-			mt, data, err := g.conn.ReadMessage()
+			mt, reader, err := g.conn.NextReader()
 			if err != nil {
 				g.Disgo().Logger().Errorf("error while reading from ws. error: %s", err)
 				g.closeWithCode(websocket.CloseServiceRestart)
@@ -286,7 +295,7 @@ func (g *GatewayImpl) listen() {
 				return
 			}
 
-			event, err := g.parseGatewayEvent(mt, data)
+			event, err := g.parseGatewayEvent(mt, reader)
 			if err != nil {
 				g.Disgo().Logger().Errorf("error while unpacking gateway event. error: %s", err)
 			}
@@ -299,7 +308,7 @@ func (g *GatewayImpl) listen() {
 					g.lastSequenceReceived = event.S
 				}
 				if event.T == nil {
-					g.Disgo().Logger().Errorf("received event without T. playload: %s", string(data))
+					g.Disgo().Logger().Errorf("received event without T. payload: %+v", event)
 					continue
 				}
 
@@ -307,12 +316,12 @@ func (g *GatewayImpl) listen() {
 
 				if *event.T == api.GatewayEventReady {
 					var readyEvent api.ReadyGatewayEvent
-					if err := g.parseEventToStruct(event, &readyEvent); err != nil {
+					if err = g.parseEventToStruct(event, &readyEvent); err != nil {
 						g.Disgo().Logger().Errorf("Error parsing ready event: %s", err)
 						continue
 					}
 					g.sessionID = &readyEvent.SessionID
-
+					g.status = api.GatewayStatusWaitingForGuilds
 					g.Disgo().Logger().Info("ready event received")
 				}
 
@@ -321,8 +330,8 @@ func (g *GatewayImpl) listen() {
 					if err = g.parseEventToStruct(event, &payload); err != nil {
 						g.Disgo().Logger().Errorf("Error parsing raw gateway event: %s", err)
 					}
-					g.Disgo().EventManager().Dispatch(events.RawGatewayEvent{
-						GenericEvent: events.NewEvent(g.Disgo(), *event.S),
+					g.Disgo().EventManager().Dispatch(&events.RawGatewayEvent{
+						GenericEvent: events.NewGenericEvent(g.Disgo(), *event.S),
 						Type:         *event.T,
 						RawPayload:   event.D,
 						Payload:      payload,
@@ -343,12 +352,12 @@ func (g *GatewayImpl) listen() {
 				g.reconnect(1 * time.Second)
 
 			case api.OpInvalidSession:
-				var resumable bool
-				if err = g.parseEventToStruct(event, &resumable); err != nil {
+				var canResume bool
+				if err = g.parseEventToStruct(event, &canResume); err != nil {
 					g.Disgo().Logger().Errorf("Error parsing invalid session data: %s", err)
 				}
-				g.Disgo().Logger().Debugf("received: OpInvalidSession, resumable: %b", resumable)
-				if resumable {
+				g.Disgo().Logger().Debugf("received: OpInvalidSession, canResume: %b", canResume)
+				if canResume {
 					g.closeWithCode(websocket.CloseServiceRestart)
 				} else {
 					g.Close()
@@ -370,27 +379,25 @@ func (g *GatewayImpl) listen() {
 
 func (g *GatewayImpl) parseEventToStruct(event *api.RawGatewayEvent, v interface{}) error {
 	if err := json.Unmarshal(event.D, v); err != nil {
-		g.Disgo().Logger().Errorf("error while unmarshaling event. error: %s", err)
+		g.Disgo().Logger().Errorf("error while unmarshalling event. error: %s", err)
 		return err
 	}
 	return nil
 }
 
-func (g *GatewayImpl) parseGatewayEvent(mt int, data []byte) (*api.RawGatewayEvent, error) {
-
-	var reader io.Reader = bytes.NewBuffer(data)
-
+func (g *GatewayImpl) parseGatewayEvent(mt int, reader io.Reader) (*api.RawGatewayEvent, error) {
 	if mt == websocket.BinaryMessage {
 		return nil, errors.New("we don't handle compressed yet")
 	}
+
 	if mt != websocket.TextMessage {
-		return nil, fmt.Errorf("recieved unexpected message_events type: %d", mt)
+		return nil, fmt.Errorf("recieved unexpected message type: %d", mt)
 	}
-	var event api.RawGatewayEvent
 
 	decoder := json.NewDecoder(reader)
+	var event api.RawGatewayEvent
 	if err := decoder.Decode(&event); err != nil {
-		g.Disgo().Logger().Errorf("error decoding websocket message_events, %s", err)
+		g.Disgo().Logger().Errorf("error decoding websocket message, %s", err)
 		return nil, err
 	}
 	return &event, nil

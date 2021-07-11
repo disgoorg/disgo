@@ -24,6 +24,8 @@ func (h InteractionCreateWebhookHandler) HandleWebhookEvent(disgo api.Disgo, eve
 		return
 	}
 
+	// we just want to pong all pings
+	// no need for any event
 	if fullInteraction.Type == api.InteractionTypePing {
 		disgo.Logger().Debugf("received interaction ping")
 		c <- api.InteractionResponse{

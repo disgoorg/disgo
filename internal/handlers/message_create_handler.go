@@ -9,54 +9,47 @@ import (
 type MessageCreateHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h MessageCreateHandler) Event() api.GatewayEventType {
+func (h *MessageCreateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventMessageCreate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h MessageCreateHandler) New() interface{} {
-	return &api.FullMessage{}
+func (h *MessageCreateHandler) New() interface{} {
+	return &api.Message{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h MessageCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
-	fullMessage, ok := i.(*api.FullMessage)
+func (h *MessageCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+	message, ok := i.(*api.Message)
 	if !ok {
 		return
 	}
 
-	message := disgo.EntityBuilder().CreateMessage(fullMessage, api.CacheStrategyYes)
+	message = disgo.EntityBuilder().CreateMessage(message, api.CacheStrategyYes)
 
-	genericMessageEvent := events.GenericMessageEvent{
-		GenericEvent: events.NewEvent(disgo, sequenceNumber),
+	genericMessageEvent := &events.GenericMessageEvent{
+		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 		MessageID:    message.ID,
 		Message:      message,
 		ChannelID:    message.ChannelID,
 	}
-	eventManager.Dispatch(genericMessageEvent)
 
-	eventManager.Dispatch(events.MessageCreateEvent{
+	eventManager.Dispatch(&events.MessageCreateEvent{
 		GenericMessageEvent: genericMessageEvent,
 	})
 
 	if message.GuildID == nil {
-		genericDMMessageEvent := events.GenericDMMessageEvent{
-			GenericMessageEvent: genericMessageEvent,
-		}
-		eventManager.Dispatch(genericDMMessageEvent)
-
-		eventManager.Dispatch(events.DMMessageCreateEvent{
-			GenericDMMessageEvent: genericDMMessageEvent,
+		eventManager.Dispatch(&events.DMMessageCreateEvent{
+			GenericDMMessageEvent: &events.GenericDMMessageEvent{
+				GenericMessageEvent: genericMessageEvent,
+			},
 		})
 	} else {
-		genericGuildMessageEvent := events.GenericGuildMessageEvent{
-			GenericMessageEvent: genericMessageEvent,
-			GuildID:             *message.GuildID,
-		}
-		eventManager.Dispatch(genericGuildMessageEvent)
-
-		eventManager.Dispatch(events.GuildMessageCreateEvent{
-			GenericGuildMessageEvent: genericGuildMessageEvent,
+		eventManager.Dispatch(&events.GuildMessageCreateEvent{
+			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
+				GenericMessageEvent: genericMessageEvent,
+				GuildID:             *message.GuildID,
+			},
 		})
 	}
 

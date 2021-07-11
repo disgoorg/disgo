@@ -47,6 +47,7 @@ func main() {
 			OnGuildMessageCreate: messageListener,
 			OnCommand:            commandListener,
 			OnButtonClick:        buttonClickListener,
+			OnSelectMenuSubmit:   selectMenuSubmitListener,
 		}).
 		Build()
 	if err != nil {
@@ -54,7 +55,7 @@ func main() {
 		return
 	}
 
-	/*rawCmds := []api.CommandCreate{
+	rawCmds := []api.CommandCreate{
 		{
 			Name:              "eval",
 			Description:       "runs some go code",
@@ -147,6 +148,10 @@ func main() {
 				Type:       api.CommandPermissionTypeRole,
 				Permission: true,
 			}
+			cmdsPermissions = append(cmdsPermissions, api.SetGuildCommandPermissions{
+				ID:          cmd.ID,
+				Permissions: []api.CommandPermission{perms},
+			})
 		}
 		cmdsPermissions = append(cmdsPermissions, api.SetGuildCommandPermissions{
 			ID:          cmd.ID,
@@ -155,7 +160,7 @@ func main() {
 	}
 	if _, err = dgo.RestClient().SetGuildCommandsPermissions(dgo.ApplicationID(), guildID, cmdsPermissions...); err != nil {
 		logger.Errorf("error while setting command permissions: %s", err)
-	}*/
+	}
 
 	err = dgo.Connect()
 	if err != nil {
@@ -170,17 +175,17 @@ func main() {
 	<-s
 }
 
-func guildAvailListener(event events.GuildAvailableEvent) {
+func guildAvailListener(event *events.GuildAvailableEvent) {
 	logger.Printf("guild loaded: %s", event.Guild.ID)
 }
 
-func rawGatewayEventListener(event events.RawGatewayEvent) {
+func rawGatewayEventListener(event *events.RawGatewayEvent) {
 	if event.Type == api.GatewayEventInteractionCreate {
 		println(string(event.RawPayload))
 	}
 }
 
-func buttonClickListener(event events.ButtonClickEvent) {
+func buttonClickListener(event *events.ButtonClickEvent) {
 	switch event.CustomID() {
 	case "test1":
 		_ = event.Respond(api.InteractionResponseTypeChannelMessageWithSource,
@@ -204,8 +209,22 @@ func buttonClickListener(event events.ButtonClickEvent) {
 	}
 }
 
-func commandListener(event events.CommandEvent) {
-	switch event.CommandName {
+func selectMenuSubmitListener(event *events.SelectMenuSubmitEvent) {
+	switch event.CustomID() {
+	case "test3":
+		if err := event.DeferEdit(); err != nil {
+			logger.Errorf("error sending interaction response: %s", err)
+		}
+		_, _ = event.SendFollowup(api.NewMessageCreateBuilder().
+			SetEphemeral(true).
+			SetContentf("selected options: %s", event.Values()).
+			Build(),
+		)
+	}
+}
+
+func commandListener(event *events.CommandEvent) {
+	switch event.CommandName() {
 	case "eval":
 		go func() {
 			code := event.Option("code").String()
@@ -265,25 +284,32 @@ func commandListener(event events.CommandEvent) {
 
 	case "test":
 		reader, _ := os.Open("gopher.png")
-		_ = event.Reply(api.NewMessageCreateBuilder().
+		if err := event.Reply(api.NewMessageCreateBuilder().
 			SetContent("test message").
 			AddFile("gopher.png", reader).
-			SetComponents(
-				api.NewActionRow(
-					api.NewPrimaryButton("test1", "test1", nil, false),
-					api.NewPrimaryButton("test2", "test2", nil, false),
-					api.NewPrimaryButton("test3", "test3", nil, false),
-					api.NewPrimaryButton("test4", "test4", nil, false),
+			AddActionRow(
+				api.NewPrimaryButton("test1", "test1", nil),
+				api.NewPrimaryButton("test2", "test2", nil),
+				api.NewPrimaryButton("test3", "test3", nil),
+				api.NewPrimaryButton("test4", "test4", nil),
+			).
+			AddActionRow(
+				api.NewSelectMenu("test3", "test", 1, 1,
+					api.NewSelectOption("test1", "1"),
+					api.NewSelectOption("test2", "2"),
+					api.NewSelectOption("test3", "3"),
 				),
 			).
 			Build(),
-		)
+		); err != nil {
+			logger.Errorf("error sending interaction response: %s", err)
+		}
 
 	case "addrole":
 		user := event.Option("member").User()
 		role := event.Option("role").Role()
-		err := event.Disgo().RestClient().AddMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
-		if err == nil {
+
+		if err := event.Disgo().RestClient().AddMemberRole(*event.Interaction.GuildID, user.ID, role.ID); err == nil {
 			_ = event.Reply(api.NewMessageCreateBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(green).SetDescriptionf("Added %s to %s", role, user).Build(),
 			).Build())
@@ -296,8 +322,8 @@ func commandListener(event events.CommandEvent) {
 	case "removerole":
 		user := event.Option("member").User()
 		role := event.Option("role").Role()
-		err := event.Disgo().RestClient().RemoveMemberRole(*event.Interaction.GuildID, user.ID, role.ID)
-		if err == nil {
+
+		if err := event.Disgo().RestClient().RemoveMemberRole(*event.Interaction.GuildID, user.ID, role.ID); err == nil {
 			_ = event.Reply(api.NewMessageCreateBuilder().AddEmbeds(
 				api.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Removed %s from %s", role, user).Build(),
 			).Build())
@@ -309,7 +335,7 @@ func commandListener(event events.CommandEvent) {
 	}
 }
 
-func messageListener(event events.GuildMessageCreateEvent) {
+func messageListener(event *events.GuildMessageCreateEvent) {
 	if event.Message.Author.IsBot {
 		return
 	}
@@ -334,11 +360,11 @@ func messageListener(event events.GuildMessageCreateEvent) {
 			time.Sleep(time.Second * 2)
 
 			embed := api.NewEmbedBuilder().SetDescription("edit").Build()
-			message, _ = message.Edit(api.NewMessageUpdateBuilder().SetContent("edit").SetEmbeds(embed, embed).Build())
+			message, _ = message.Update(api.NewMessageUpdateBuilder().SetContent("edit").SetEmbeds(embed, embed).Build())
 
 			time.Sleep(time.Second * 2)
 
-			_, _ = message.Edit(api.NewMessageUpdateBuilder().SetContent("").SetEmbeds(api.NewEmbedBuilder().SetDescription("edit2").Build()).Build())
+			_, _ = message.Update(api.NewMessageUpdateBuilder().SetContent("").SetEmbeds(api.NewEmbedBuilder().SetDescription("edit2").Build()).Build())
 		}()
 
 	case "dm":

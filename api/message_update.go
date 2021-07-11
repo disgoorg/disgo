@@ -56,9 +56,17 @@ func (b *MessageUpdateBuilder) ClearContent() *MessageUpdateBuilder {
 	return b.SetContent("")
 }
 
-// SetEmbeds sets the embeds of the Message
+// SetEmbeds sets the Embed(s) of the Message
 func (b *MessageUpdateBuilder) SetEmbeds(embeds ...Embed) *MessageUpdateBuilder {
 	b.Embeds = embeds
+	return b
+}
+
+// SetEmbed sets the provided Embed at the index of the Message
+func (b *MessageUpdateBuilder) SetEmbed(i int, embed Embed) *MessageUpdateBuilder {
+	if len(b.Embeds) > i {
+		b.Embeds[i] = embed
+	}
 	return b
 }
 
@@ -75,52 +83,74 @@ func (b *MessageUpdateBuilder) ClearEmbeds() *MessageUpdateBuilder {
 }
 
 // RemoveEmbed removes an embed from the Message
-func (b *MessageUpdateBuilder) RemoveEmbed(index int) *MessageUpdateBuilder {
-	if b != nil && len(b.Embeds) > index {
-		b.Embeds = append(b.Embeds[:index], b.Embeds[index+1:]...)
+func (b *MessageUpdateBuilder) RemoveEmbed(i int) *MessageUpdateBuilder {
+	if len(b.Embeds) > i {
+		b.Embeds = append(b.Embeds[:i], b.Embeds[i+1:]...)
 	}
 	return b
 }
 
-// SetComponents sets the Component(s) of the Message
-func (b *MessageUpdateBuilder) SetComponents(components ...Component) *MessageUpdateBuilder {
-	b.Components = components
+// SetActionRows sets the ActionRow(s) of the Message
+func (b *MessageUpdateBuilder) SetActionRows(actionRows ...ActionRow) *MessageUpdateBuilder {
+	b.Components = actionRowsToComponents(actionRows)
 	return b
 }
 
-// AddComponents adds the Component(s) to the Message
-func (b *MessageUpdateBuilder) AddComponents(components ...Component) *MessageUpdateBuilder {
-	b.Components = append(b.Components, components...)
+// SetActionRow sets the provided ActionRow at the index of Component(s)
+func (b *MessageUpdateBuilder) SetActionRow(i int, actionRow ActionRow) *MessageUpdateBuilder {
+	if len(b.Components) > i {
+		b.Components[i] = actionRow
+	}
 	return b
 }
 
-// ClearComponents removes all of the Component(s) of the Message
-func (b *MessageUpdateBuilder) ClearComponents() *MessageUpdateBuilder {
-	b.Components = []Component{}
+// AddActionRow adds a new ActionRow with the provided Component(s) to the Message
+func (b *MessageUpdateBuilder) AddActionRow(components ...Component) *MessageUpdateBuilder {
+	b.Components = append(b.Components, NewActionRow(components...))
 	return b
 }
 
-// RemoveComponent removes a Component from the Message
-func (b *MessageUpdateBuilder) RemoveComponent(i int) *MessageUpdateBuilder {
+// AddActionRows adds the ActionRow(s) to the Message
+func (b *MessageUpdateBuilder) AddActionRows(actionRows ...ActionRow) *MessageUpdateBuilder {
+	b.Components = append(b.Components, actionRowsToComponents(actionRows)...)
+	return b
+}
+
+// RemoveActionRow removes a ActionRow from the Message
+func (b *MessageUpdateBuilder) RemoveActionRow(i int) *MessageUpdateBuilder {
 	if len(b.Components) > i {
 		b.Components = append(b.Components[:i], b.Components[i+1:]...)
 	}
 	return b
 }
 
-// SetFiles sets the files for this Message
+// ClearActionRows removes all of the ActionRow(s) of the Message
+func (b *MessageUpdateBuilder) ClearActionRows() *MessageUpdateBuilder {
+	b.Components = []Component{}
+	return b
+}
+
+// SetFiles sets the restclient.File(s) for this MessageCreate
 func (b *MessageUpdateBuilder) SetFiles(files ...restclient.File) *MessageUpdateBuilder {
 	b.Files = files
 	return b
 }
 
-// AddFiles adds the files to the Message
+// SetFile sets the restclient.File at the index for this MessageCreate
+func (b *MessageUpdateBuilder) SetFile(i int, file restclient.File) *MessageUpdateBuilder {
+	if len(b.Files) > i {
+		b.Files[i] = file
+	}
+	return b
+}
+
+// AddFiles adds the restclient.File(s) to the MessageCreate
 func (b *MessageUpdateBuilder) AddFiles(files ...restclient.File) *MessageUpdateBuilder {
 	b.Files = append(b.Files, files...)
 	return b
 }
 
-// AddFile adds a file to the Message
+// AddFile adds a restclient.File to the MessageCreate
 func (b *MessageUpdateBuilder) AddFile(name string, reader io.Reader, flags ...restclient.FileFlags) *MessageUpdateBuilder {
 	b.Files = append(b.Files, restclient.File{
 		Name:   name,
@@ -130,7 +160,7 @@ func (b *MessageUpdateBuilder) AddFile(name string, reader io.Reader, flags ...r
 	return b
 }
 
-// ClearFiles removes all files of this Message
+// ClearFiles removes all files of this MessageCreate
 func (b *MessageUpdateBuilder) ClearFiles() *MessageUpdateBuilder {
 	b.Files = []restclient.File{}
 	return b
@@ -168,12 +198,12 @@ func (b *MessageUpdateBuilder) SetAllowedMentions(allowedMentions *AllowedMentio
 
 // ClearAllowedMentions clears the allowed mentions of the Message
 func (b *MessageUpdateBuilder) ClearAllowedMentions() *MessageUpdateBuilder {
-	return b.SetAllowedMentions(&AllowedMentions{})
+	return b.SetAllowedMentions(nil)
 }
 
-// SetFlags sets the MessageFlags of the Message
-func (b *MessageUpdateBuilder) SetFlags(flags ...MessageFlags) *MessageUpdateBuilder {
-	*b.Flags = MessageFlagNone.Add(flags...)
+// SetFlags sets the message flags of the Message
+func (b *MessageUpdateBuilder) SetFlags(flags MessageFlags) *MessageUpdateBuilder {
+	*b.Flags = flags
 	return b
 }
 

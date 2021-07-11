@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/DisgoOrg/log"
+	"github.com/DisgoOrg/restclient"
 
 	"github.com/DisgoOrg/disgo/api"
 )
@@ -30,7 +31,8 @@ func New(token string, options api.Options) (api.Disgo, error) {
 		return nil, err
 	}
 
-	disgo.selfUserID = *id
+	disgo.applicationID = *id
+	disgo.clientID = *id
 
 	disgo.restClient = newRestClientImpl(disgo, options.HTTPClient)
 
@@ -63,7 +65,8 @@ type DisgoImpl struct {
 	audioController          api.AudioController
 	webhookServer            api.WebhookServer
 	cache                    api.Cache
-	selfUserID               api.Snowflake
+	applicationID            api.Snowflake
+	clientID                 api.Snowflake
 	selfUser                 *api.SelfUser
 	largeThreshold           int
 }
@@ -171,7 +174,7 @@ func (d *DisgoImpl) RawGatewayEventsEnabled() bool {
 
 // ApplicationID returns the current application id
 func (d *DisgoImpl) ApplicationID() api.Snowflake {
-	return d.selfUserID
+	return d.applicationID
 }
 
 // SelfUser returns a api.SelfUser for the client, if available
@@ -179,9 +182,9 @@ func (d *DisgoImpl) SelfUser() *api.SelfUser {
 	return d.selfUser
 }
 
-// SelfUserID returns the current user id
-func (d *DisgoImpl) SelfUserID() api.Snowflake {
-	return d.selfUserID
+// ClientID returns the current user id
+func (d *DisgoImpl) ClientID() api.Snowflake {
+	return d.clientID
 }
 
 // HeartbeatLatency returns the heartbeat latency
@@ -200,81 +203,91 @@ func (d *DisgoImpl) HasGateway() bool {
 }
 
 // GetCommand fetches a specific global api.Command
-func (d *DisgoImpl) GetCommand(commandID api.Snowflake) (*api.Command, error) {
+func (d *DisgoImpl) GetCommand(commandID api.Snowflake) (*api.Command, restclient.RestError) {
 	return d.RestClient().GetGlobalCommand(d.ApplicationID(), commandID)
 }
 
 // GetCommands fetches all global api.Command(s)
-func (d *DisgoImpl) GetCommands() ([]*api.Command, error) {
+func (d *DisgoImpl) GetCommands() ([]*api.Command, restclient.RestError) {
 	return d.RestClient().GetGlobalCommands(d.ApplicationID())
 }
 
 // CreateCommand creates a new global api.Command
-func (d *DisgoImpl) CreateCommand(command api.CommandCreate) (*api.Command, error) {
+func (d *DisgoImpl) CreateCommand(command api.CommandCreate) (*api.Command, restclient.RestError) {
 	return d.RestClient().CreateGlobalCommand(d.ApplicationID(), command)
 }
 
 // EditCommand edits a specific global api.Command
-func (d *DisgoImpl) EditCommand(commandID api.Snowflake, command api.CommandUpdate) (*api.Command, error) {
-	return d.RestClient().EditGlobalCommand(d.ApplicationID(), commandID, command)
+func (d *DisgoImpl) EditCommand(commandID api.Snowflake, command api.CommandUpdate) (*api.Command, restclient.RestError) {
+	return d.RestClient().UpdateGlobalCommand(d.ApplicationID(), commandID, command)
 }
 
 // DeleteCommand creates a new global api.Command
-func (d *DisgoImpl) DeleteCommand(commandID api.Snowflake) error {
+func (d *DisgoImpl) DeleteCommand(commandID api.Snowflake) restclient.RestError {
 	return d.RestClient().DeleteGlobalCommand(d.ApplicationID(), commandID)
 }
 
 // SetCommands overrides all global api.Command(s)
-func (d *DisgoImpl) SetCommands(commands ...api.CommandCreate) ([]*api.Command, error) {
+func (d *DisgoImpl) SetCommands(commands ...api.CommandCreate) ([]*api.Command, restclient.RestError) {
 	return d.RestClient().SetGlobalCommands(d.ApplicationID(), commands...)
 }
 
 // GetGuildCommand fetches a specific api.Guild api.Command
-func (d *DisgoImpl) GetGuildCommand(guildID api.Snowflake, commandID api.Snowflake) (*api.Command, error) {
+func (d *DisgoImpl) GetGuildCommand(guildID api.Snowflake, commandID api.Snowflake) (*api.Command, restclient.RestError) {
 	return d.RestClient().GetGuildCommand(d.ApplicationID(), guildID, commandID)
 }
 
 // GetGuildCommands fetches all api.Guild api.Command(s)
-func (d *DisgoImpl) GetGuildCommands(guildID api.Snowflake, ) ([]*api.Command, error) {
+func (d *DisgoImpl) GetGuildCommands(guildID api.Snowflake) ([]*api.Command, restclient.RestError) {
 	return d.RestClient().GetGuildCommands(d.ApplicationID(), guildID)
 }
 
 // CreateGuildCommand creates a new api.Command for this api.Guild
-func (d *DisgoImpl) CreateGuildCommand(guildID api.Snowflake, command api.CommandCreate) (*api.Command, error) {
+func (d *DisgoImpl) CreateGuildCommand(guildID api.Snowflake, command api.CommandCreate) (*api.Command, restclient.RestError) {
 	return d.RestClient().CreateGuildCommand(d.ApplicationID(), guildID, command)
 }
 
 // EditGuildCommand edits a specific api.Guild api.Command
-func (d *DisgoImpl) EditGuildCommand(guildID api.Snowflake, commandID api.Snowflake, command api.CommandUpdate) (*api.Command, error) {
-	return d.RestClient().EditGuildCommand(d.ApplicationID(), guildID, commandID, command)
+func (d *DisgoImpl) EditGuildCommand(guildID api.Snowflake, commandID api.Snowflake, command api.CommandUpdate) (*api.Command, restclient.RestError) {
+	return d.RestClient().UpdateGuildCommand(d.ApplicationID(), guildID, commandID, command)
 }
 
 // DeleteGuildCommand creates a new api.Command for this api.Guild
-func (d *DisgoImpl) DeleteGuildCommand(guildID api.Snowflake, commandID api.Snowflake) error {
+func (d *DisgoImpl) DeleteGuildCommand(guildID api.Snowflake, commandID api.Snowflake) restclient.RestError {
 	return d.RestClient().DeleteGuildCommand(d.ApplicationID(), guildID, commandID)
 }
 
 // SetGuildCommands overrides all api.Command(s) for this api.Guild
-func (d *DisgoImpl) SetGuildCommands(guildID api.Snowflake, commands ...api.CommandCreate) ([]*api.Command, error) {
+func (d *DisgoImpl) SetGuildCommands(guildID api.Snowflake, commands ...api.CommandCreate) ([]*api.Command, restclient.RestError) {
 	return d.RestClient().SetGuildCommands(d.ApplicationID(), guildID, commands...)
 }
 
 // GetGuildCommandsPermissions returns the api.GuildCommandPermissions for a all api.Command(s) in a api.Guild
-func (d *DisgoImpl) GetGuildCommandsPermissions(guildID api.Snowflake) ([]*api.GuildCommandPermissions, error) {
+func (d *DisgoImpl) GetGuildCommandsPermissions(guildID api.Snowflake) ([]*api.GuildCommandPermissions, restclient.RestError) {
 	return d.RestClient().GetGuildCommandsPermissions(d.ApplicationID(), guildID)
 }
 
 // GetGuildCommandPermissions returns the api.GuildCommandPermissions for a specific api.Command in a api.Guild
-func (d *DisgoImpl) GetGuildCommandPermissions(guildID api.Snowflake, commandID api.Snowflake) (*api.GuildCommandPermissions, error) {
+func (d *DisgoImpl) GetGuildCommandPermissions(guildID api.Snowflake, commandID api.Snowflake) (*api.GuildCommandPermissions, restclient.RestError) {
 	return d.RestClient().GetGuildCommandPermissions(d.ApplicationID(), guildID, commandID)
 }
 
 // SetGuildCommandsPermissions sets the api.GuildCommandPermissions for a all api.Command(s)
-func (d *DisgoImpl) SetGuildCommandsPermissions(guildID api.Snowflake, commandPermissions ...api.SetGuildCommandPermissions) ([]*api.GuildCommandPermissions, error) {
+func (d *DisgoImpl) SetGuildCommandsPermissions(guildID api.Snowflake, commandPermissions ...api.SetGuildCommandPermissions) ([]*api.GuildCommandPermissions, restclient.RestError) {
 	return d.RestClient().SetGuildCommandsPermissions(d.ApplicationID(), guildID, commandPermissions...)
 }
 
 // SetGuildCommandPermissions sets the api.GuildCommandPermissions for a specific api.Command
-func (d *DisgoImpl) SetGuildCommandPermissions(guildID api.Snowflake, commandID api.Snowflake, permissions api.SetGuildCommandPermissions) (*api.GuildCommandPermissions, error) {
+func (d *DisgoImpl) SetGuildCommandPermissions(guildID api.Snowflake, commandID api.Snowflake, permissions api.SetGuildCommandPermissions) (*api.GuildCommandPermissions, restclient.RestError) {
 	return d.RestClient().SetGuildCommandPermissions(d.ApplicationID(), guildID, commandID, permissions)
+}
+
+// GetTemplate gets a api.GuildTemplate by it's code
+func (d *DisgoImpl) GetTemplate(code string) (*api.GuildTemplate, restclient.RestError) {
+	return d.RestClient().GetGuildTemplate(code)
+}
+
+// CreateGuildFromTemplate creates an api.Guild using a api.Template code
+func (d *DisgoImpl) CreateGuildFromTemplate(templateCode string, createGuildFromTemplate api.CreateGuildFromTemplate) (*api.Guild, restclient.RestError) {
+	return d.RestClient().CreateGuildFromTemplate(templateCode, createGuildFromTemplate)
 }

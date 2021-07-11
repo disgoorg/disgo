@@ -6,17 +6,17 @@ import "github.com/DisgoOrg/disgo/api"
 type VoiceServerUpdateHandler struct{}
 
 // Event returns the raw gateway event Event
-func (h VoiceServerUpdateHandler) Event() api.GatewayEventType {
+func (h *VoiceServerUpdateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventVoiceServerUpdate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h VoiceServerUpdateHandler) New() interface{} {
+func (h *VoiceServerUpdateHandler) New() interface{} {
 	return &api.VoiceServerUpdate{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h VoiceServerUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+func (h *VoiceServerUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	voiceServerUpdate, ok := i.(*api.VoiceServerUpdate)
 	if !ok {
 		return
@@ -24,7 +24,7 @@ func (h VoiceServerUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManag
 
 	if interceptor := disgo.VoiceDispatchInterceptor(); interceptor != nil {
 		interceptor.OnVoiceServerUpdate(&api.VoiceServerUpdateEvent{
-			VoiceServerUpdate: *voiceServerUpdate,
+			VoiceServerUpdate: voiceServerUpdate,
 			Disgo:             disgo,
 		})
 	}

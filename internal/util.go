@@ -22,3 +22,6 @@ func IDFromToken(token string) (*api.Snowflake, error) {
 	return &strID, nil
 }
 
+func normalizeEmoji(emoji string) string {
+	return strings.Replace(emoji, "#", "%23", -1)
+}

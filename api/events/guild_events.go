@@ -6,50 +6,50 @@ import (
 
 // GenericGuildEvent is called upon receiving GuildUpdateEvent, GuildAvailableEvent, GuildUnavailableEvent, GuildJoinEvent, GuildLeaveEvent, GuildReadyEvent, GuildBanEvent, GuildUnbanEvent
 type GenericGuildEvent struct {
-	GenericEvent
+	*GenericEvent
 	GuildID api.Snowflake
 	Guild   *api.Guild
 }
 
 // GuildUpdateEvent is called upon receiving api.Guild updates
 type GuildUpdateEvent struct {
-	GenericGuildEvent
+	*GenericGuildEvent
 	OldGuild *api.Guild
 }
 
 // GuildAvailableEvent is called when an unavailable api.Guild becomes available
 type GuildAvailableEvent struct {
-	GenericGuildEvent
+	*GenericGuildEvent
 }
 
 // GuildUnavailableEvent is called when an available api.Guild becomes unavailable
 type GuildUnavailableEvent struct {
-	GenericGuildEvent
+	*GenericGuildEvent
 }
 
 // GuildJoinEvent is called when the bot joins a api.Guild
 type GuildJoinEvent struct {
-	GenericGuildEvent
+	*GenericGuildEvent
 }
 
 // GuildLeaveEvent is called when the bot leaves a api.Guild
 type GuildLeaveEvent struct {
-	GenericGuildEvent
+	*GenericGuildEvent
 }
 
 // GuildReadyEvent is called when the loaded the api.Guild in login phase
 type GuildReadyEvent struct {
-	GenericGuildEvent
+	*GenericGuildEvent
 }
 
 // GuildBanEvent is called when a api.Member/api.User is banned from the api.Guild
 type GuildBanEvent struct {
-	GenericGuildEvent
+	*GenericGuildEvent
 	User *api.User
 }
 
 // GuildUnbanEvent is called when a api.Member/api.User is unbanned from the api.Guild
 type GuildUnbanEvent struct {
-	GenericGuildEvent
+	*GenericGuildEvent
 	User *api.User
 }

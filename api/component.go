@@ -7,6 +7,7 @@ type ComponentType int
 const (
 	ComponentTypeActionRow = iota + 1
 	ComponentTypeButton
+	ComponentTypeSelectMenu
 )
 
 // Component is a general interface each Component needs to implement
@@ -30,12 +31,24 @@ func (t ComponentImpl) Type() ComponentType {
 
 // UnmarshalComponent is used for easier unmarshalling of different Component(s)
 type UnmarshalComponent struct {
-	ComponentType ComponentType        `json:"type"`
-	Style         ButtonStyle          `json:"style"`
-	Label         *string              `json:"label"`
-	Emoji         *Emoji               `json:"emoji"`
-	CustomID      string               `json:"custom_id"`
-	URL           string               `json:"url"`
-	Disabled      bool                 `json:"disabled"`
-	Components    []UnmarshalComponent `json:"components"`
+	ComponentType ComponentType `json:"type"`
+
+	// Button && SelectMenu
+	CustomID string `json:"custom_id"`
+
+	// Button
+	Style    ButtonStyle `json:"style"`
+	Label    string      `json:"label"`
+	Emoji    *Emoji      `json:"emoji"`
+	URL      string      `json:"url"`
+	Disabled bool        `json:"disabled"`
+
+	// ActionRow
+	Components []UnmarshalComponent `json:"components"`
+
+	// SelectMenu
+	Placeholder string         `json:"placeholder"`
+	MinValues   int            `json:"min_values,omitempty"`
+	MaxValues   int            `json:"max_values,omitempty"`
+	Options     []SelectOption `json:"options"`
 }
