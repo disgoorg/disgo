@@ -37,8 +37,8 @@ type AuditLogChangeKey struct {
 	Color                       *int                        `json:"color"`
 	Hoist                       *bool                       `json:"hoist"`
 	Mentionable                 *bool                       `json:"mentionable"`
-	Allow                       *string                     `json:"allow"`
-	Deny                        *string                     `json:"deny"`
+	Allow                       *Permissions                `json:"allow"`
+	Deny                        *Permissions                `json:"deny"`
 	Code                        *string                     `json:"code"`
 	ChannelID                   *Snowflake                  `json:"channel_id"`
 	InviterID                   *Snowflake                  `json:"inviter_id"`
