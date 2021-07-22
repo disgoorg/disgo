@@ -435,6 +435,46 @@ func (r *restClientImpl) MoveMember(guildID api.Snowflake, userID api.Snowflake,
 	return
 }
 
+func (r *restClientImpl) GetBans(guildID api.Snowflake) (bans []api.Ban, rErr restclient.RestError) {
+	compiledRoute, err := restclient.GetBans.Compile(nil, guildID)
+	if err != nil {
+		return nil, restclient.NewError(nil, err)
+	}
+	rErr = r.Do(compiledRoute, nil, &bans)
+	if rErr == nil {
+		for _, ban := range bans {
+			ban.User = r.Disgo().EntityBuilder().CreateUser(ban.User, api.CacheStrategyNoWs)
+		}
+	}
+	return
+}
+func (r *restClientImpl) GetBan(guildID api.Snowflake, userID api.Snowflake) (ban *api.Ban, rErr restclient.RestError) {
+	compiledRoute, err := restclient.GetBan.Compile(nil, guildID, userID)
+	if err != nil {
+		return nil, restclient.NewError(nil, err)
+	}
+	rErr = r.Do(compiledRoute, nil, &ban)
+	if rErr == nil {
+		ban.User = r.Disgo().EntityBuilder().CreateUser(ban.User, api.CacheStrategyNoWs)
+	}
+	return
+}
+func (r *restClientImpl) AddBan(guildID api.Snowflake, userID api.Snowflake, reason string, deleteMessageDays int) restclient.RestError {
+	compiledRoute, err := restclient.AddBan.Compile(nil, guildID, userID)
+	if err != nil {
+		return restclient.NewError(nil, err)
+	}
+	return r.Do(compiledRoute, api.AddBan{DeleteMessageDays: deleteMessageDays, Reason: reason}, nil)
+}
+
+func (r *restClientImpl) DeleteBan(guildID api.Snowflake, userID api.Snowflake) restclient.RestError {
+	compiledRoute, err := restclient.DeleteBan.Compile(nil, guildID, userID)
+	if err != nil {
+		return restclient.NewError(nil, err)
+	}
+	return r.Do(compiledRoute, nil, nil)
+}
+
 // AddMemberRole adds a api.Role to a api.Member
 func (r *restClientImpl) AddMemberRole(guildID api.Snowflake, userID api.Snowflake, roleID api.Snowflake) (rErr restclient.RestError) {
 	compiledRoute, err := restclient.AddMemberRole.Compile(nil, guildID, userID, roleID)

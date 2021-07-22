@@ -259,6 +259,26 @@ func (g *Guild) IconURL(size int) *string {
 	return &u
 }
 
+// GetBans fetches all bans for this Guild
+func (g *Guild) GetBans() ([]Ban, restclient.RestError) {
+	return g.Disgo.RestClient().GetBans(g.ID)
+}
+
+// GetBan fetches a ban for a User for this Guild
+func (g *Guild) GetBan(userID Snowflake) (*Ban, restclient.RestError) {
+	return g.Disgo.RestClient().GetBan(g.ID, userID)
+}
+
+// BanMember bans a Member from the Guild
+func (g *Guild) BanMember(userID Snowflake, reason string, deleteMessageDays int) restclient.RestError {
+	return g.Disgo.RestClient().AddBan(g.ID, userID, reason, deleteMessageDays)
+}
+
+// UnbanMember unbans a Member from the Guild
+func (g *Guild) UnbanMember(userID Snowflake) restclient.RestError {
+	return g.Disgo.RestClient().DeleteBan(g.ID, userID)
+}
+
 // GetCommand fetches a specific Guild Command
 func (g *Guild) GetCommand(commandID Snowflake) (*Command, restclient.RestError) {
 	return g.Disgo.GetGuildCommand(g.ID, commandID)

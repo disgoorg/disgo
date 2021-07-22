@@ -75,6 +75,16 @@ func (m *Member) Kick(reason string) restclient.RestError {
 	return m.Disgo.RestClient().RemoveMember(m.GuildID, m.User.ID, reason)
 }
 
+// Ban bans the Member from the Guild
+func (m *Member) Ban(reason string, deleteMessageDays int) restclient.RestError {
+	return m.Disgo.RestClient().AddBan(m.GuildID, m.User.ID, reason, deleteMessageDays)
+}
+
+// Unban unbans the Member from the Guild
+func (m *Member) Unban() restclient.RestError {
+	return m.Disgo.RestClient().DeleteBan(m.GuildID, m.User.ID)
+}
+
 // Move moves/kicks the member to/from a voice channel
 func (m *Member) Move(channelID *Snowflake) (*Member, restclient.RestError) {
 	return m.Disgo.RestClient().MoveMember(m.GuildID, m.User.ID, channelID)

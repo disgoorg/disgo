@@ -56,6 +56,11 @@ type RestClient interface {
 	AddMemberRole(guildID Snowflake, userID Snowflake, roleID Snowflake) restclient.RestError
 	RemoveMemberRole(guildID Snowflake, userID Snowflake, roleID Snowflake) restclient.RestError
 
+	GetBans(guildID Snowflake) ([]Ban, restclient.RestError)
+	GetBan(guildID Snowflake, userID Snowflake) (*Ban, restclient.RestError)
+	AddBan(guildID Snowflake, userID Snowflake, reason string, deleteMessageDays int) restclient.RestError
+	DeleteBan(guildID Snowflake, userID Snowflake) restclient.RestError
+
 	GetRoles(guildID Snowflake) ([]*Role, restclient.RestError)
 	CreateRole(guildID Snowflake, createRole CreateRole) (*Role, restclient.RestError)
 	UpdateRole(guildID Snowflake, roleID Snowflake, updateRole UpdateRole) (*Role, restclient.RestError)
