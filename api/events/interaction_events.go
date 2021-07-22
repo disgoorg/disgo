@@ -82,7 +82,7 @@ func (e *CommandEvent) CommandPath() string {
 }
 
 // Options returns the parsed api.Option which the api.Command got used with
-func (e *CommandEvent) Options() []*api.Option {
+func (e *CommandEvent) Options() []api.Option {
 	return e.CommandInteraction.Options()
 }
 
@@ -92,12 +92,12 @@ func (e *CommandEvent) Option(name string) *api.Option {
 	if len(options) == 0 {
 		return nil
 	}
-	return options[0]
+	return &options[0]
 }
 
 // OptionN returns Option(s) by name
-func (e *CommandEvent) OptionN(name string) []*api.Option {
-	options := make([]*api.Option, 0)
+func (e *CommandEvent) OptionN(name string) []api.Option {
+	options := make([]api.Option, 0)
 	for _, option := range e.Options() {
 		if option.Name == name {
 			options = append(options, option)
@@ -107,8 +107,8 @@ func (e *CommandEvent) OptionN(name string) []*api.Option {
 }
 
 // OptionsT returns Option(s) by api.CommandOptionType
-func (e *CommandEvent) OptionsT(optionType api.CommandOptionType) []*api.Option {
-	options := make([]*api.Option, 0)
+func (e *CommandEvent) OptionsT(optionType api.CommandOptionType) []api.Option {
+	options := make([]api.Option, 0)
 	for _, option := range e.Options() {
 		if option.Type == optionType {
 			options = append(options, option)

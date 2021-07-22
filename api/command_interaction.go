@@ -39,19 +39,19 @@ func (i *CommandInteraction) CommandPath() string {
 }
 
 // Options returns the parsed Option which the Command got used with
-func (i *CommandInteraction) Options() []*Option {
+func (i *CommandInteraction) Options() []Option {
 	return i.Data.Options
 }
 
 // CommandInteractionData is the command data payload
 type CommandInteractionData struct {
-	ID                  Snowflake    `json:"id"`
-	CommandName         string       `json:"name"`
-	SubCommandName      *string      `json:"-"`
-	SubCommandGroupName *string      `json:"-"`
-	Resolved            *Resolved    `json:"resolved,omitempty"`
-	RawOptions          []OptionData `json:"options,omitempty"`
-	Options             []*Option    `json:"-"`
+	ID                  Snowflake   `json:"id"`
+	CommandName         string      `json:"name"`
+	SubCommandName      *string     `json:"-"`
+	SubCommandGroupName *string     `json:"-"`
+	Resolved            *Resolved   `json:"resolved,omitempty"`
+	RawOptions          []RawOption `json:"options,omitempty"`
+	Options             []Option    `json:"-"`
 }
 
 // Resolved contains resolved mention data
@@ -62,12 +62,12 @@ type Resolved struct {
 	Channels map[Snowflake]*Channel `json:"channels,omitempty"`
 }
 
-// OptionData is used for options or subcommands in your slash commands
-type OptionData struct {
+// RawOption is used for unmarshalling Option
+type RawOption struct {
 	Name    string            `json:"name"`
 	Type    CommandOptionType `json:"type"`
 	Value   interface{}       `json:"value,omitempty"`
-	Options []OptionData      `json:"options,omitempty"`
+	Options []RawOption       `json:"options,omitempty"`
 }
 
 // Option holds info about an Option.Value

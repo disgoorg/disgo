@@ -184,7 +184,7 @@ type Message struct {
 	Type              MessageType         `json:"type"`
 	Flags             MessageFlags        `json:"flags"`
 	MessageReference  *MessageReference   `json:"message_reference,omitempty"`
-	Interaction       *MessageInteraction `json:"message_interaction,omitempty"`
+	Interaction       *MessageInteraction `json:"interaction,omitempty"`
 	WebhookID         *Snowflake          `json:"webhook_id,omitempty"`
 	Activity          *MessageActivity    `json:"activity,omitempty"`
 	Application       *MessageApplication `json:"application,omitempty"`
