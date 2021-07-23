@@ -44,17 +44,14 @@ func NewMessageCreateBuilder() *MessageCreateBuilder {
 
 // NewMessageCreateBuilderByMessage returns a new MessageCreateBuilder and takes an existing Message
 func NewMessageCreateBuilderByMessage(message *Message) *MessageCreateBuilder {
-	msg := MessageCreate{
-		TTS:             message.TTS,
-		Components:      message.Components,
-		Embeds:          message.Embeds,
-		AllowedMentions: &DefaultMessageAllowedMentions,
-	}
-	if message.Content != nil {
-		msg.Content = *message.Content
-	}
 	return &MessageCreateBuilder{
-		MessageCreate: msg,
+		MessageCreate: MessageCreate{
+			TTS:             message.TTS,
+			Components:      message.Components,
+			Embeds:          message.Embeds,
+			Content:         message.Content,
+			AllowedMentions: &DefaultMessageAllowedMentions,
+		},
 	}
 }
 
@@ -161,7 +158,7 @@ func (b *MessageCreateBuilder) SetFiles(files ...restclient.File) *MessageCreate
 }
 
 // SetFile sets the restclient.File at the index for this MessageCreate
-func (b *MessageCreateBuilder) SetFile(i int,  file restclient.File) *MessageCreateBuilder {
+func (b *MessageCreateBuilder) SetFile(i int, file restclient.File) *MessageCreateBuilder {
 	if len(b.Files) > i {
 		b.Files[i] = file
 	}

@@ -339,11 +339,11 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 	if event.Message.Author.IsBot {
 		return
 	}
-	if event.Message.Content == nil {
+	if event.Message.Content == "" {
 		return
 	}
 
-	switch *event.Message.Content {
+	switch event.Message.Content {
 	case "ping":
 		_, _ = event.Message.Reply(api.NewMessageCreateBuilder().SetContent("pong").SetAllowedMentions(&api.AllowedMentions{RepliedUser: false}).Build())
 
