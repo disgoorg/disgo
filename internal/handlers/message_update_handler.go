@@ -30,7 +30,7 @@ func (h *MessageUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager 
 		oldMessage = &*oldMessage
 	}
 
-	message = disgo.EntityBuilder().CreateMessage(message, api.CacheStrategyYes)
+	message = disgo.EntityBuilder().CreateMessage(nil, message, api.CacheStrategyYes)
 
 	genericMessageEvent := &events.GenericMessageEvent{
 		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),

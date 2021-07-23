@@ -73,7 +73,7 @@ func (b *EntityBuilderImpl) CreateGenericCommandInteraction(fullInteraction *api
 		}
 
 		for _, message := range resolved.Messages {
-			message = b.CreateMessage(message, updateCache)
+			message = b.CreateMessage(fullInteraction.GuildID, message, updateCache)
 		}
 	}
 
@@ -177,7 +177,7 @@ func (b *EntityBuilderImpl) CreateComponentInteraction(fullInteraction *api.Full
 
 	return &api.ComponentInteraction{
 		Interaction: interaction,
-		Message:     b.CreateMessage(fullInteraction.Message, updateCache),
+		Message:     b.CreateMessage(fullInteraction.GuildID, fullInteraction.Message, updateCache),
 		Data: &api.ComponentInteractionData{
 			ComponentType: data.ComponentType,
 			CustomID:      data.CustomID,
@@ -232,8 +232,12 @@ func (b *EntityBuilderImpl) CreateUser(user *api.User, updateCache api.CacheStra
 }
 
 // CreateMessage returns a new api.Message entity
-func (b *EntityBuilderImpl) CreateMessage(message *api.Message, updateCache api.CacheStrategy) *api.Message {
+func (b *EntityBuilderImpl) CreateMessage(guildID *api.Snowflake, message *api.Message, updateCache api.CacheStrategy) *api.Message {
 	message.Disgo = b.Disgo()
+
+	if guildID != nil {
+		message.GuildID = guildID
+	}
 
 	if message.Member != nil {
 		message.Member.User = message.Author

@@ -33,7 +33,7 @@ type EntityBuilder interface {
 
 	CreateUser(user *User, updateCache CacheStrategy) *User
 
-	CreateMessage(message *Message, updateCache CacheStrategy) *Message
+	CreateMessage(guildID *Snowflake, message *Message, updateCache CacheStrategy) *Message
 
 	CreateGuildTemplate(guildTemplate *GuildTemplate, updateCache CacheStrategy) *GuildTemplate
 	CreateGuild(fullGuild *FullGuild, updateCache CacheStrategy) *Guild

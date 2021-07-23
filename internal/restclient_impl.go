@@ -162,7 +162,7 @@ func (r *restClientImpl) GetMessage(channelID api.Snowflake, messageID api.Snowf
 
 	rErr = r.Do(compiledRoute, nil, &message)
 	if rErr == nil {
-		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(nil, message, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -181,7 +181,7 @@ func (r *restClientImpl) CreateMessage(channelID api.Snowflake, messageCreate ap
 
 	rErr = r.Do(compiledRoute, body, &message)
 	if rErr == nil {
-		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(nil, message, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -200,7 +200,7 @@ func (r *restClientImpl) UpdateMessage(channelID api.Snowflake, messageID api.Sn
 
 	rErr = r.Do(compiledRoute, body, &message)
 	if rErr == nil {
-		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(nil, message, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -242,7 +242,7 @@ func (r *restClientImpl) CrosspostMessage(channelID api.Snowflake, messageID api
 	}
 	rErr = r.Do(compiledRoute, nil, &message)
 	if rErr == nil {
-		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(nil, message, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -865,7 +865,7 @@ func (r *restClientImpl) UpdateInteractionResponse(applicationID api.Snowflake, 
 
 	rErr = r.Do(compiledRoute, body, &message)
 	if rErr == nil {
-		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(nil, message, api.CacheStrategyNoWs)
 	}
 	return
 }
@@ -893,7 +893,7 @@ func (r *restClientImpl) SendFollowupMessage(applicationID api.Snowflake, intera
 
 	rErr = r.Do(compiledRoute, body, &message)
 	if rErr == nil {
-		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(nil, message, api.CacheStrategyNoWs)
 	}
 
 	return
@@ -913,7 +913,7 @@ func (r *restClientImpl) UpdateFollowupMessage(applicationID api.Snowflake, inte
 
 	rErr = r.Do(compiledRoute, body, &message)
 	if rErr == nil {
-		message = r.Disgo().EntityBuilder().CreateMessage(message, api.CacheStrategyNoWs)
+		message = r.Disgo().EntityBuilder().CreateMessage(nil, message, api.CacheStrategyNoWs)
 	}
 
 	return

@@ -284,7 +284,7 @@ func (m *Message) URL() string {
 	} else {
 		guildID = m.GuildID.String()
 	}
-	return fmt.Sprintf("%s/%s/%s/%s/%s", restclient.Base, "channels", guildID, m.ChannelID, m.ID)
+	return fmt.Sprintf("%s%s/%s/%s/%s", restclient.Base, "channels", guildID, m.ChannelID, m.ID)
 }
 
 // Guild gets the guild_events the message_events was sent in
