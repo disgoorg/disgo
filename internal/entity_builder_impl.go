@@ -46,44 +46,124 @@ func (b EntityBuilderImpl) CreateInteraction(fullInteraction *api.FullInteractio
 	return interaction
 }
 
-// CreateCommandInteraction creates a api.CommandInteraction from the api.FullInteraction response
-func (b *EntityBuilderImpl) CreateCommandInteraction(fullInteraction *api.FullInteraction, interaction *api.Interaction, updateCache api.CacheStrategy) *api.CommandInteraction {
-	var data *api.CommandInteractionData
+// CreateGenericCommandInteraction creates a api.GenericCommandInteraction from the api.FullInteraction response
+func (b *EntityBuilderImpl) CreateGenericCommandInteraction(fullInteraction *api.FullInteraction, interaction *api.Interaction, updateCache api.CacheStrategy) *api.GenericCommandInteraction {
+	var data *api.GenericCommandInteractionData
 	err := json.Unmarshal(fullInteraction.Data, &data)
 	if err != nil {
-		b.Disgo().Logger().Errorf("error while unmarshalling api.CommandInteractionData: %s", err)
+		b.Disgo().Logger().Errorf("error while unmarshalling api.GenericCommandInteractionData: %s", err)
 	}
-
 	if data.Resolved != nil {
 		resolved := data.Resolved
-		if resolved.Users != nil {
-			for _, user := range resolved.Users {
-				user = b.CreateUser(user, updateCache)
-			}
+		for _, user := range resolved.Users {
+			user = b.CreateUser(user, updateCache)
 		}
-		if resolved.Members != nil {
-			for id, member := range resolved.Members {
-				member.User = resolved.Users[id]
-				member = b.CreateMember(member.GuildID, member, updateCache)
-			}
+
+		for id, member := range resolved.Members {
+			member.User = resolved.Users[id]
+			member = b.CreateMember(member.GuildID, member, updateCache)
 		}
-		if resolved.Roles != nil {
-			for _, role := range resolved.Roles {
-				role = b.CreateRole(role.GuildID, role, updateCache)
-			}
+
+		for _, role := range resolved.Roles {
+			role = b.CreateRole(role.GuildID, role, updateCache)
 		}
-		// TODO how do we cache partial channels?
-		/*if resolved.Channels != nil {
-			for _, channel := range resolved.Channels {
-				channel.Disgo = disgo
-				disgo.Cache().CacheChannel(channel)
-			}
-		}*/
+
+		for _, channel := range resolved.Channels {
+			channel.Disgo = b.Disgo()
+		}
+
+		for _, message := range resolved.Messages {
+			message = b.CreateMessage(message, updateCache)
+		}
 	}
 
-	return &api.CommandInteraction{
+	if data.TargetID == nil {
+		data.Type = api.CommandTypeSlashCommand
+	} else if _, ok := data.Resolved.Users[*data.TargetID]; ok {
+		data.Type = api.CommandTypeUserContext
+	} else if _, ok := data.Resolved.Messages[*data.TargetID]; ok {
+		data.Type = api.CommandTypeMessageContext
+	} else {
+		b.Disgo().Logger().Error("failed to guess which api.CommandType interaction is from")
+	}
+
+	return &api.GenericCommandInteraction{
 		Interaction: interaction,
 		Data:        data,
+	}
+}
+
+func (b *EntityBuilderImpl) CreateSlashCommandInteraction(fullInteraction *api.FullInteraction, interaction *api.GenericCommandInteraction) *api.SlashCommandInteraction {
+	var data *api.SlashCommandInteractionData
+	err := json.Unmarshal(fullInteraction.Data, &data)
+	if err != nil {
+		b.Disgo().Logger().Errorf("error while unmarshalling api.SlashCommandInteractionData: %s", err)
+	}
+
+	data.Resolved = interaction.Data.Resolved
+
+	options := data.RawOptions
+	var subCommandName *string
+	var subCommandGroupName *string
+	if len(options) == 1 {
+		option := options[0]
+		if option.Type == api.CommandOptionTypeSubCommandGroup {
+			subCommandGroupName = &option.Name
+			options = option.Options
+			option = option.Options[0]
+		}
+		if option.Type == api.CommandOptionTypeSubCommand {
+			subCommandName = &option.Name
+			options = option.Options
+		}
+	}
+
+	var newOptions []api.Option
+	for _, optionData := range options {
+		newOptions = append(newOptions, api.Option{
+			Resolved: data.Resolved,
+			Name:     optionData.Name,
+			Type:     optionData.Type,
+			Value:    optionData.Value,
+		})
+	}
+
+	data.Options = newOptions
+	data.SubCommandName = subCommandName
+	data.SubCommandGroupName = subCommandGroupName
+
+	return &api.SlashCommandInteraction{
+		GenericCommandInteraction: interaction,
+		Data:                      data,
+	}
+}
+
+func (b *EntityBuilderImpl) CreateGenericContextInteraction(fullInteraction *api.FullInteraction, interaction *api.GenericCommandInteraction) *api.GenericContextInteraction {
+	var data *api.GenericContextInteractionData
+	err := json.Unmarshal(fullInteraction.Data, &data)
+	if err != nil {
+		b.Disgo().Logger().Errorf("error while unmarshalling api.GenericContextInteractionData: %s", err)
+	}
+
+	data.Resolved = interaction.Data.Resolved
+
+	return &api.GenericContextInteraction{
+		GenericCommandInteraction: interaction,
+		Data:                      data,
+	}
+}
+
+func (b *EntityBuilderImpl) CreateUserContextInteraction(fullInteraction *api.FullInteraction, interaction *api.GenericContextInteraction) *api.UserContextInteraction {
+	return &api.UserContextInteraction{
+		GenericContextInteraction: interaction,
+		Data:                      &api.UserContextInteractionData{GenericContextInteractionData: interaction.Data},
+	}
+}
+
+func (b *EntityBuilderImpl) CreateMessageContextInteraction(fullInteraction *api.FullInteraction, interaction *api.GenericContextInteraction) *api.MessageContextInteraction {
+	return &api.MessageContextInteraction{
+		GenericContextInteraction: interaction,
+		Data:                      &api.MessageContextInteractionData{GenericContextInteractionData: interaction.Data},
 	}
 }
 

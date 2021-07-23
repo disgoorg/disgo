@@ -5,7 +5,7 @@ import (
 	"github.com/DisgoOrg/disgo/api/events"
 )
 
-// CommandUpdateHandler handles api.CommandCreateEvent
+// CommandUpdateHandler handles api.ApplicationCommandCreateEvent
 type CommandUpdateHandler struct{}
 
 // Event returns the raw gateway event Event
@@ -39,8 +39,8 @@ func (h CommandUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 		command = disgo.EntityBuilder().CreateGlobalCommand(command, api.CacheStrategyYes)
 	}
 
-	eventManager.Dispatch(&events.CommandUpdateEvent{
-		GenericCommandEvent: &events.GenericCommandEvent{
+	eventManager.Dispatch(&events.ApplicationCommandUpdateEvent{
+		GenericApplicationCommandEvent: &events.GenericApplicationCommandEvent{
 			GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 			Command:      command,
 		},

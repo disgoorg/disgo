@@ -37,42 +37,42 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceN
 
 	switch fullInteraction.Type {
 	case api.InteractionTypeCommand:
-		commandInteraction := disgo.EntityBuilder().CreateCommandInteraction(fullInteraction, interaction, api.CacheStrategyYes)
+		genericCommandInteraction := disgo.EntityBuilder().CreateGenericCommandInteraction(fullInteraction, interaction, api.CacheStrategyYes)
 
-		options := commandInteraction.Data.RawOptions
-		var subCommandName *string
-		var subCommandGroupName *string
-		if len(options) == 1 {
-			option := options[0]
-			if option.Type == api.CommandOptionTypeSubCommandGroup {
-				subCommandGroupName = &option.Name
-				options = option.Options
-				option = option.Options[0]
-			}
-			if option.Type == api.CommandOptionTypeSubCommand {
-				subCommandName = &option.Name
-				options = option.Options
-			}
+		genericCommandEvent := &events.GenericCommandEvent{
+			GenericInteractionEvent:   genericInteractionEvent,
+			GenericCommandInteraction: genericCommandInteraction,
 		}
 
-		var newOptions []api.Option
-		for _, optionData := range options {
-			newOptions = append(newOptions, api.Option{
-				Resolved: commandInteraction.Data.Resolved,
-				Name:     optionData.Name,
-				Type:     optionData.Type,
-				Value:    optionData.Value,
+		switch genericCommandInteraction.Data.Type {
+		case api.CommandTypeSlashCommand:
+			eventManager.Dispatch(&events.SlashCommandEvent{
+				GenericCommandEvent: genericCommandEvent,
+				CommandInteraction:  disgo.EntityBuilder().CreateSlashCommandInteraction(fullInteraction, genericCommandInteraction),
 			})
+
+		case api.CommandTypeUserContext, api.CommandTypeMessageContext:
+			genericContextInteraction := disgo.EntityBuilder().CreateGenericContextInteraction(fullInteraction, genericCommandInteraction)
+
+			genericContextEvent := &events.GenericContextEvent{
+				GenericCommandEvent:       genericCommandEvent,
+				GenericContextInteraction: genericContextInteraction,
+			}
+
+			switch genericCommandInteraction.Data.Type {
+			case api.CommandTypeUserContext:
+				eventManager.Dispatch(&events.UserContextEvent{
+					GenericContextEvent:    genericContextEvent,
+					UserContextInteraction: disgo.EntityBuilder().CreateUserContextInteraction(fullInteraction, genericContextInteraction),
+				})
+
+			case api.CommandTypeMessageContext:
+				eventManager.Dispatch(&events.MessageContextEvent{
+					GenericContextEvent:       genericContextEvent,
+					MessageContextInteraction: disgo.EntityBuilder().CreateMessageContextInteraction(fullInteraction, genericContextInteraction),
+				})
+			}
 		}
-
-		commandInteraction.Data.Options = newOptions
-		commandInteraction.Data.SubCommandName = subCommandName
-		commandInteraction.Data.SubCommandGroupName = subCommandGroupName
-
-		eventManager.Dispatch(&events.CommandEvent{
-			GenericInteractionEvent: genericInteractionEvent,
-			CommandInteraction:      commandInteraction,
-		})
 
 	case api.InteractionTypeComponent:
 		componentInteraction := disgo.EntityBuilder().CreateComponentInteraction(fullInteraction, interaction, api.CacheStrategyYes)
@@ -95,6 +95,5 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceN
 				SelectMenuInteraction: disgo.EntityBuilder().CreateSelectMenuInteraction(fullInteraction, componentInteraction),
 			})
 		}
-
 	}
 }

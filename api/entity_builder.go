@@ -16,7 +16,15 @@ type EntityBuilder interface {
 	Disgo() Disgo
 
 	CreateInteraction(fullInteraction *FullInteraction, c chan InteractionResponse, updateCache CacheStrategy) *Interaction
-	CreateCommandInteraction(fullInteraction *FullInteraction, interaction *Interaction, updateCache CacheStrategy) *CommandInteraction
+
+	CreateGenericCommandInteraction(fullInteraction *FullInteraction, interaction *Interaction, updateCache CacheStrategy) *GenericCommandInteraction
+
+	CreateSlashCommandInteraction(fullInteraction *FullInteraction, interaction *GenericCommandInteraction) *SlashCommandInteraction
+
+	CreateGenericContextInteraction(fullInteraction *FullInteraction, interaction *GenericCommandInteraction) *GenericContextInteraction
+	CreateUserContextInteraction(fullInteraction *FullInteraction, interaction *GenericContextInteraction) *UserContextInteraction
+	CreateMessageContextInteraction(fullInteraction *FullInteraction, interaction *GenericContextInteraction) *MessageContextInteraction
+
 	CreateComponentInteraction(fullInteraction *FullInteraction, interaction *Interaction, updateCache CacheStrategy) *ComponentInteraction
 	CreateButtonInteraction(fullInteraction *FullInteraction, componentInteraction *ComponentInteraction) *ButtonInteraction
 	CreateSelectMenuInteraction(fullInteraction *FullInteraction, componentInteraction *ComponentInteraction) *SelectMenuInteraction

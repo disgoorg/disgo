@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/DisgoOrg/restclient"
@@ -273,6 +274,17 @@ type MessageInteraction struct {
 	Type InteractionType `json:"type"`
 	Name string          `json:"name"`
 	User User            `json:"user"`
+}
+
+// URL returns a jump url for this message
+func (m *Message) URL() string {
+	var guildID string
+	if m.GuildID == nil {
+		guildID = "@me"
+	} else {
+		guildID = m.GuildID.String()
+	}
+	return fmt.Sprintf("%s/%s/%s/%s/%s", restclient.Base, "channels", guildID, m.ChannelID, m.ID)
 }
 
 // Guild gets the guild_events the message_events was sent in

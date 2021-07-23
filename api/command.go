@@ -4,12 +4,21 @@ import "errors"
 
 var errNoDisgoInstance = errors.New("no disgo instance injected")
 
+type CommandType int
+
+const (
+	CommandTypeSlashCommand CommandType = iota + 1
+	CommandTypeUserContext
+	CommandTypeMessageContext
+)
+
 // Command is the base "command" model that belongs to an application.
 type Command struct {
 	Disgo             Disgo
 	GuildPermissions  map[Snowflake]*GuildCommandPermissions
 	GuildID           *Snowflake      `json:"guild_id"`
 	ID                Snowflake       `json:"id,omitempty"`
+	Type              CommandType     `json:"type"`
 	ApplicationID     Snowflake       `json:"application_id,omitempty"`
 	Name              string          `json:"name"`
 	Description       string          `json:"description"`
@@ -33,6 +42,7 @@ func (c Command) FromGuild() bool {
 // ToCreate return the CommandCreate for this Command
 func (c *Command) ToCreate() CommandCreate {
 	return CommandCreate{
+		Type:              c.Type,
 		Name:              c.Name,
 		Description:       c.Description,
 		DefaultPermission: c.DefaultPermission,
@@ -115,10 +125,11 @@ func (c Command) Delete() error {
 	return c.Disgo.RestClient().DeleteGuildCommand(c.Disgo.ApplicationID(), *c.GuildID, c.ID)
 }
 
-// CommandCreate is used to create an Command. all fields are optional
+// CommandCreate is used to create a Command
 type CommandCreate struct {
-	Name              string          `json:"name,omitempty"`
-	Description       string          `json:"description,omitempty"`
+	Type              CommandType     `json:"type,omitempty"`
+	Name              string          `json:"name"`
+	Description       string          `json:"description"`
 	DefaultPermission bool            `json:"default_permission,omitempty"`
 	Options           []CommandOption `json:"options,omitempty"`
 }

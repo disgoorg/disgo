@@ -45,7 +45,7 @@ func main() {
 			OnRawGateway:         rawGatewayEventListener,
 			OnGuildAvailable:     guildAvailListener,
 			OnGuildMessageCreate: messageListener,
-			OnCommand:            commandListener,
+			OnSlashCommand:            commandListener,
 			OnButtonClick:        buttonClickListener,
 			OnSelectMenuSubmit:   selectMenuSubmitListener,
 		}).
@@ -223,7 +223,7 @@ func selectMenuSubmitListener(event *events.SelectMenuSubmitEvent) {
 	}
 }
 
-func commandListener(event *events.CommandEvent) {
+func commandListener(event *events.SlashCommandEvent) {
 	switch event.CommandName() {
 	case "eval":
 		go func() {
