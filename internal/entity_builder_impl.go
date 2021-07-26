@@ -281,6 +281,9 @@ func (b *EntityBuilderImpl) CreateRole(guildID api.Snowflake, role *api.Role, up
 	}
 	return role
 }
+func (b *EntityBuilderImpl) CreateAuditLog(auditLog *api.AuditLog, updateCache api.CacheStrategy) *api.AuditLog {
+
+}
 
 // CreateTextChannel returns a new api.TextChannel entity
 func (b *EntityBuilderImpl) CreateTextChannel(channel *api.Channel, updateCache api.CacheStrategy) *api.TextChannel {

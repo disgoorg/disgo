@@ -259,6 +259,10 @@ func (g *Guild) IconURL(size int) *string {
 	return &u
 }
 
+func (g *Guild) GetAuditLogs(userID Snowflake, actionType AuditLogEvent, before Snowflake, limit int) (*AuditLog, restclient.RestError) {
+	return g.Disgo.RestClient().GetAuditLog(g.ID, userID, actionType, before, limit)
+}
+
 // GetBans fetches all bans for this Guild
 func (g *Guild) GetBans() ([]Ban, restclient.RestError) {
 	return g.Disgo.RestClient().GetBans(g.ID)

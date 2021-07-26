@@ -62,7 +62,6 @@ type AuditLogChangeKey struct {
 // AuditLogEvent is an 8-bit unsigned integer representing an audit log event.
 type AuditLogEvent int
 
-// AuditLogEventGuildUpdate
 const (
 	AuditLogEventGuildUpdate AuditLogEvent = 1
 )
@@ -161,8 +160,13 @@ type AuditLogEntry struct {
 
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord API.
 type AuditLog struct {
-	Webhooks     []Webhook
-	Users        []User
-	Entries      []AuditLogEntry
-	Integrations []Integration
+	Disgo        Disgo           `json:"-"`
+	Webhooks     []*Webhook      `json:"webhooks"`
+	Users        []*User         `json:"users"`
+	Integrations []*Integration  `json:"integrations"`
+	Entries      []AuditLogEntry `json:"entries"`
+}
+
+func (l *AuditLog) Unmarshal(data []byte) error {
+
 }

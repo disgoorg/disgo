@@ -435,6 +435,31 @@ func (r *restClientImpl) MoveMember(guildID api.Snowflake, userID api.Snowflake,
 	return
 }
 
+func (r *restClientImpl) GetAuditLog(guildID api.Snowflake, userID api.Snowflake, actionType api.AuditLogEvent, before api.Snowflake, limit int) (auditLog *api.AuditLog, rErr restclient.RestError) {
+	values := restclient.QueryValues{}
+	if guildID != "" {
+		values["guild_id"] = guildID
+	}
+	if userID != "" {
+		values["user_id"] = userID
+	}
+	if actionType != 0 {
+		values["action_type"] = actionType
+	}
+	if before != "" {
+		values["before"] = guildID
+	}
+	if limit != 0 {
+		values["limit"] = limit
+	}
+	compiledRoute, err := restclient.GetAuditLogs.Compile(values, guildID)
+	if err != nil {
+		return nil, restclient.NewError(nil, err)
+	}
+	rErr = r.Do(compiledRoute, nil, &auditLog)
+	return
+}
+
 func (r *restClientImpl) GetBans(guildID api.Snowflake) (bans []api.Ban, rErr restclient.RestError) {
 	compiledRoute, err := restclient.GetBans.Compile(nil, guildID)
 	if err != nil {

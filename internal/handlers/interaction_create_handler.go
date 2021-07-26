@@ -55,9 +55,9 @@ func handleInteraction(disgo api.Disgo, eventManager api.EventManager, sequenceN
 			}
 		}
 
-		var newOptions []*api.Option
+		var newOptions []api.Option
 		for _, optionData := range options {
-			newOptions = append(newOptions, &api.Option{
+			newOptions = append(newOptions, api.Option{
 				Resolved: commandInteraction.Data.Resolved,
 				Name:     optionData.Name,
 				Type:     optionData.Type,

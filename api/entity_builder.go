@@ -35,6 +35,8 @@ type EntityBuilder interface {
 	CreateRole(guildID Snowflake, role *Role, updateCache CacheStrategy) *Role
 	CreateVoiceState(guildID Snowflake, voiceState *VoiceState, updateCache CacheStrategy) *VoiceState
 
+	CreateAuditLog(auditLog *AuditLog, updateCache CacheStrategy) *AuditLog
+
 	CreateTextChannel(channel *Channel, updateCache CacheStrategy) *TextChannel
 	CreateVoiceChannel(channel *Channel, updateCache CacheStrategy) *VoiceChannel
 	CreateStoreChannel(channel *Channel, updateCache CacheStrategy) *StoreChannel
