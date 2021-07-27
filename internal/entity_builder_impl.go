@@ -292,8 +292,6 @@ func (b *EntityBuilderImpl) CreateAuditLog(guildID api.Snowflake, auditLogFilter
 	return auditLog
 }
 
-}
-
 // CreateTextChannel returns a new api.TextChannel entity
 func (b *EntityBuilderImpl) CreateTextChannel(channel *api.Channel, updateCache api.CacheStrategy) *api.TextChannel {
 	channel.Disgo = b.Disgo()
