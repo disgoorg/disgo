@@ -282,6 +282,18 @@ func (b *EntityBuilderImpl) CreateRole(guildID api.Snowflake, role *api.Role, up
 	return role
 }
 
+func (b *EntityBuilderImpl) CreateIntegration(guildID api.Snowflake, integration *api.Integration, updateCache api.CacheStrategy) *api.Integration {
+	integration.Disgo = b.Disgo()
+	integration.GuildID = guildID
+
+	integration.User = b.CreateUser(integration.User, updateCache)
+
+	if integration.Application != nil {
+		integration.Application.Bot = b.CreateUser(integration.Application.Bot, updateCache)
+	}
+	return integration
+}
+
 // CreateTextChannel returns a new api.TextChannel entity
 func (b *EntityBuilderImpl) CreateTextChannel(channel *api.Channel, updateCache api.CacheStrategy) *api.TextChannel {
 	channel.Disgo = b.Disgo()

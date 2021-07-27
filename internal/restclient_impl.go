@@ -435,6 +435,28 @@ func (r *restClientImpl) MoveMember(guildID api.Snowflake, userID api.Snowflake,
 	return
 }
 
+func (r *restClientImpl) GetIntegrations(guildID api.Snowflake) (integrations []*api.Integration, rErr restclient.RestError) {
+	compiledRoute, err := restclient.GetIntegrations.Compile(nil, guildID)
+	if err != nil {
+		return nil, restclient.NewError(nil, err)
+	}
+	rErr = r.Do(compiledRoute, nil, &integrations)
+	if rErr == nil {
+		for _, integration := range integrations {
+			integration = r.Disgo().EntityBuilder().CreateIntegration(guildID, integration, api.CacheStrategyNoWs)
+		}
+	}
+	return
+}
+
+func (r *restClientImpl) DeleteIntegration(guildID api.Snowflake, integrationID api.Snowflake) restclient.RestError {
+	compiledRoute, err := restclient.DeleteIntegration.Compile(nil, guildID, integrationID)
+	if err != nil {
+		return restclient.NewError(nil, err)
+	}
+	return r.Do(compiledRoute, nil, nil)
+}
+
 func (r *restClientImpl) GetBans(guildID api.Snowflake) (bans []api.Ban, rErr restclient.RestError) {
 	compiledRoute, err := restclient.GetBans.Compile(nil, guildID)
 	if err != nil {

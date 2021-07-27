@@ -259,6 +259,14 @@ func (g *Guild) IconURL(size int) *string {
 	return &u
 }
 
+func (g *Guild) GetIntegrations() ([]*Integration, restclient.RestError) {
+	return g.Disgo.RestClient().GetIntegrations(g.ID)
+}
+
+func (g *Guild) DeleteIntegration(integrationID Snowflake) restclient.RestError {
+	return g.Disgo.RestClient().DeleteIntegration(g.ID, integrationID)
+}
+
 // GetBans fetches all bans for this Guild
 func (g *Guild) GetBans() ([]Ban, restclient.RestError) {
 	return g.Disgo.RestClient().GetBans(g.ID)
