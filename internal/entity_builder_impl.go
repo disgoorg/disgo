@@ -281,7 +281,16 @@ func (b *EntityBuilderImpl) CreateRole(guildID api.Snowflake, role *api.Role, up
 	}
 	return role
 }
-func (b *EntityBuilderImpl) CreateAuditLog(auditLog *api.AuditLog, updateCache api.CacheStrategy) *api.AuditLog {
+func (b *EntityBuilderImpl) CreateAuditLog(guildID api.Snowflake, auditLogFilterOptions api.AuditLogFilterOptions, auditLog *api.AuditLog, updateCache api.CacheStrategy) *api.AuditLog {
+	auditLog.Disgo = b.Disgo()
+	auditLog.GuildID = guildID
+	auditLog.AuditLogFilterOptions = auditLogFilterOptions
+
+	for _, user := range auditLog.Users {
+		user = b.CreateUser(user, updateCache)
+	}
+	return auditLog
+}
 
 }
 

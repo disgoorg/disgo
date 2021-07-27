@@ -1,5 +1,11 @@
 package api
 
+import (
+	"encoding/json"
+
+	"github.com/DisgoOrg/restclient"
+)
+
 // AuditLogChangeKey (https://discord.com/developers/docs/resources/audit-log#audit-log-change-object-audit-log-change-key) is data representing changes values/settings in an audit log.
 type AuditLogChangeKey struct {
 	Name                        *string                     `json:"name"`
@@ -157,16 +163,56 @@ type AuditLogEntry struct {
 	Options    *OptionalAuditLogEntryInfo `json:"options"`
 	Reason     *string                    `json:"reason"`
 }
+type AuditLogFilterOptions struct {
+	UserID     Snowflake
+	ActionType AuditLogEvent
+	Before     Snowflake
+	Limit      int
+}
 
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord API.
 type AuditLog struct {
-	Disgo        Disgo           `json:"-"`
-	Webhooks     []*Webhook      `json:"webhooks"`
-	Users        []*User         `json:"users"`
-	Integrations []*Integration  `json:"integrations"`
-	Entries      []AuditLogEntry `json:"entries"`
+	Disgo                 Disgo                      `json:"-"`
+	GuildID               Snowflake                  `json:"-"`
+	AuditLogFilterOptions AuditLogFilterOptions      `json:"-"`
+	Webhooks              map[Snowflake]*Webhook     `json:"webhooks"`
+	Users                 map[Snowflake]*User        `json:"users"`
+	Integrations          map[Snowflake]*Integration `json:"integrations"`
+	Entries               []AuditLogEntry            `json:"entries"`
 }
 
-func (l *AuditLog) Unmarshal(data []byte) error {
+func (l *AuditLog) Unmarshal(data []byte) (err error) {
+	var i *struct {
+		Webhooks     []*Webhook      `json:"webhooks"`
+		Users        []*User         `json:"users"`
+		Integrations []*Integration  `json:"integrations"`
+		Entries      []AuditLogEntry `json:"entries"`
+	}
 
+	if err = json.Unmarshal(data, &i); err != nil {
+		return
+	}
+
+	for _, webhook := range i.Webhooks {
+		l.Webhooks[webhook.ID] = webhook
+	}
+
+	for _, user := range i.Users {
+		l.Users[user.ID] = user
+	}
+
+	for _, integration := range i.Integrations {
+		l.Integrations[integration.ID] = integration
+	}
+
+	l.Entries = i.Entries
+	return
+}
+
+func (l *AuditLog) Before() (*AuditLog, restclient.RestError) {
+	before := Snowflake("")
+	if len(l.Entries) > 0 {
+		before = l.Entries[len(l.Entries)-1].ID
+	}
+	return l.Disgo.RestClient().GetAuditLog(l.GuildID, l.AuditLogFilterOptions.UserID, l.AuditLogFilterOptions.ActionType, before, l.AuditLogFilterOptions.Limit)
 }
