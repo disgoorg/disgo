@@ -259,6 +259,7 @@ func (g *Guild) IconURL(size int) *string {
 	return &u
 }
 
+// GetAuditLogs gets AuditLog(s) for this Guild
 func (g *Guild) GetAuditLogs(userID Snowflake, actionType AuditLogEvent, before Snowflake, limit int) (*AuditLog, restclient.RestError) {
 	return g.Disgo.RestClient().GetAuditLog(g.ID, userID, actionType, before, limit)
 }

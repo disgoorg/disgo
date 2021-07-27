@@ -68,6 +68,7 @@ type AuditLogChangeKey struct {
 // AuditLogEvent is an 8-bit unsigned integer representing an audit log event.
 type AuditLogEvent int
 
+// AuditLogEventGuildUpdate ...
 const (
 	AuditLogEventGuildUpdate AuditLogEvent = 1
 )
@@ -163,6 +164,8 @@ type AuditLogEntry struct {
 	Options    *OptionalAuditLogEntryInfo `json:"options"`
 	Reason     *string                    `json:"reason"`
 }
+
+// AuditLogFilterOptions fields used to filter audit-log retrieving
 type AuditLogFilterOptions struct {
 	UserID     Snowflake
 	ActionType AuditLogEvent
@@ -181,6 +184,7 @@ type AuditLog struct {
 	Entries               []AuditLogEntry            `json:"entries"`
 }
 
+// Unmarshal unmarshals a AuditLog
 func (l *AuditLog) Unmarshal(data []byte) (err error) {
 	var i *struct {
 		Webhooks     []*Webhook      `json:"webhooks"`
@@ -209,6 +213,7 @@ func (l *AuditLog) Unmarshal(data []byte) (err error) {
 	return
 }
 
+// Before gets new AuditLog(s) from Discord before the last one
 func (l *AuditLog) Before() (*AuditLog, restclient.RestError) {
 	before := Snowflake("")
 	if len(l.Entries) > 0 {

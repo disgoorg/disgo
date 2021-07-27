@@ -281,6 +281,8 @@ func (b *EntityBuilderImpl) CreateRole(guildID api.Snowflake, role *api.Role, up
 	}
 	return role
 }
+
+// CreateAuditLog returns a new api.AuditLog entity
 func (b *EntityBuilderImpl) CreateAuditLog(guildID api.Snowflake, auditLogFilterOptions api.AuditLogFilterOptions, auditLog *api.AuditLog, updateCache api.CacheStrategy) *api.AuditLog {
 	auditLog.Disgo = b.Disgo()
 	auditLog.GuildID = guildID
