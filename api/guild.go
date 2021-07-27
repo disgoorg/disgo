@@ -259,6 +259,16 @@ func (g *Guild) IconURL(size int) *string {
 	return &u
 }
 
+// GetIntegrations gets all Integration(s) from the Guild. Requires PermissionManageServer
+func (g *Guild) GetIntegrations() ([]*Integration, restclient.RestError) {
+	return g.Disgo.RestClient().GetIntegrations(g.ID)
+}
+
+// DeleteIntegration deletes a specific Integration from the Guild. Requires PermissionManageServer
+func (g *Guild) DeleteIntegration(integrationID Snowflake) restclient.RestError {
+	return g.Disgo.RestClient().DeleteIntegration(g.ID, integrationID)
+}
+
 // GetBans fetches all bans for this Guild
 func (g *Guild) GetBans() ([]Ban, restclient.RestError) {
 	return g.Disgo.RestClient().GetBans(g.ID)
