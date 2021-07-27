@@ -161,7 +161,7 @@ func (b *MessageCreateBuilder) SetFiles(files ...restclient.File) *MessageCreate
 }
 
 // SetFile sets the restclient.File at the index for this MessageCreate
-func (b *MessageCreateBuilder) SetFile(i int,  file restclient.File) *MessageCreateBuilder {
+func (b *MessageCreateBuilder) SetFile(i int, file restclient.File) *MessageCreateBuilder {
 	if len(b.Files) > i {
 		b.Files[i] = file
 	}

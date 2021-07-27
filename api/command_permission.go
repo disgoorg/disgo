@@ -2,7 +2,7 @@ package api
 
 // GuildCommandPermissions holds all permissions for a Command
 type GuildCommandPermissions struct {
-	Disgo         Disgo
+	Disgo         Disgo               `json:"-"`
 	ID            Snowflake           `json:"id"`
 	ApplicationID Snowflake           `json:"application_id"`
 	GuildID       Snowflake           `json:"guild_id"`
