@@ -162,7 +162,7 @@ type MessageSticker struct {
 
 // Message is a struct for messages sent in discord text-based channels
 type Message struct {
-	Disgo             Disgo
+	Disgo             Disgo               `json:"-"`
 	ID                Snowflake           `json:"id"`
 	GuildID           *Snowflake          `json:"guild_id"`
 	Reactions         []MessageReaction   `json:"reactions"`

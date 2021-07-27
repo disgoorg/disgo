@@ -22,7 +22,7 @@ const (
 
 // Channel is a generic discord channel object
 type Channel struct {
-	Disgo            Disgo
+	Disgo            Disgo        `json:"-"`
 	ID               Snowflake    `json:"id"`
 	Name             *string      `json:"name,omitempty"`
 	Type             ChannelType  `json:"type"`

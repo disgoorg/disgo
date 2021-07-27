@@ -10,7 +10,7 @@ import (
 
 // User is a struct for interacting with discord's users
 type User struct {
-	Disgo         Disgo
+	Disgo         Disgo     `json:"-"`
 	ID            Snowflake `json:"id"`
 	Username      string    `json:"username"`
 	Discriminator string    `json:"discriminator"`

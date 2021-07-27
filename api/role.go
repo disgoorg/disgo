@@ -4,8 +4,8 @@ import "github.com/DisgoOrg/restclient"
 
 // Role is a Guild Role object
 type Role struct {
-	Disgo       Disgo
-	GuildID     Snowflake
+	Disgo       Disgo       `json:"-"`
+	GuildID     Snowflake   `json:"-"`
 	ID          Snowflake   `json:"id"`
 	Name        string      `json:"name"`
 	Color       int         `json:"color"`

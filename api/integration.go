@@ -18,6 +18,7 @@ type IntegrationApplication struct {
 
 // Integration (https://discord.com/developers/docs/resources/guild#integration-object)
 type Integration struct {
+	Disgo             Disgo                   `json:"-"`
 	ID                Snowflake               `json:"id"`
 	Name              string                  `json:"name"`
 	Type              string                  `json:"type"`
