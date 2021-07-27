@@ -457,6 +457,14 @@ func (r *restClientImpl) GetAuditLog(guildID api.Snowflake, userID api.Snowflake
 		return nil, restclient.NewError(nil, err)
 	}
 	rErr = r.Do(compiledRoute, nil, &auditLog)
+	if rErr == nil {
+		auditLog = r.Disgo().EntityBuilder().CreateAuditLog(guildID, api.AuditLogFilterOptions{
+			UserID:     userID,
+			ActionType: actionType,
+			Before:     before,
+			Limit:      limit,
+		}, auditLog, api.CacheStrategyNoWs)
+	}
 	return
 }
 
