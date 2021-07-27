@@ -282,6 +282,7 @@ func (b *EntityBuilderImpl) CreateRole(guildID api.Snowflake, role *api.Role, up
 	return role
 }
 
+// CreateIntegration returns a new api.Integration entity
 func (b *EntityBuilderImpl) CreateIntegration(guildID api.Snowflake, integration *api.Integration, updateCache api.CacheStrategy) *api.Integration {
 	integration.Disgo = b.Disgo()
 	integration.GuildID = guildID

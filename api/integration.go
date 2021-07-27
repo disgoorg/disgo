@@ -39,10 +39,12 @@ type Integration struct {
 	Application       *IntegrationApplication `json:"application"`
 }
 
+// Guild returns the Guild the Integration belongs to
 func (i *Integration) Guild() *Guild {
 	return i.Disgo.Cache().Guild(i.GuildID)
 }
 
+// Member returns the Member the Integration uses
 func (i *Integration) Member() *Member {
 	if i.User == nil {
 		return nil
@@ -50,6 +52,7 @@ func (i *Integration) Member() *Member {
 	return i.Disgo.Cache().Member(i.GuildID, i.User.ID)
 }
 
+// Role returns the Subscriber Role the Integration uses
 func (i *Integration) Role() *Role {
 	if i.RoleID == nil {
 		return nil
@@ -57,12 +60,15 @@ func (i *Integration) Role() *Role {
 	return i.Disgo.Cache().Role(*i.RoleID)
 }
 
+// Delete deletes the Integration from the Guild
 func (i *Integration) Delete() restclient.RestError {
 	return i.Disgo.RestClient().DeleteIntegration(i.GuildID, i.ID)
 }
 
+// IntegrationType the type of Integration
 type IntegrationType string
 
+// all IntegrationType(s)
 const (
 	IntegrationTypeTwitch  IntegrationType = "twitch"
 	IntegrationTypeYouTube IntegrationType = "youtube"
