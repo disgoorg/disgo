@@ -26,8 +26,8 @@ type AuditLogChangeKey struct {
 	ExplicitContentFilterLevel  *ExplicitContentFilterLevel `json:"explicit_content_filter"`
 	DefaultMessageNotifications *MessageNotifications       `json:"default_message_notifications"`
 	VanityURLCode               *string                     `json:"vanity_url_code"`
-	Add                         []Role                      `json:"$add"`
-	Remove                      []Role                      `json:"$remove"`
+	Add                         []PartialRole               `json:"$add"`
+	Remove                      []PartialRole               `json:"$remove"`
 	PruneDeleteDays             *int                        `json:"prune_delete_days"`
 	WidgetEnabled               *bool                       `json:"widget_enabled"`
 	WidgetChannelID             *string                     `json:"widget_channel_id"`
