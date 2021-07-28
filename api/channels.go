@@ -124,3 +124,10 @@ type TextChannel struct {
 type StoreChannel struct {
 	GuildChannel
 }
+
+// PartialChannel contains basic info about a Channel
+type PartialChannel struct {
+	ID   Snowflake   `json:"id"`
+	Type ChannelType `json:"type"`
+	Name *string     `json:"name,omitempty"`
+}

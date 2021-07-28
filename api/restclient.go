@@ -56,6 +56,7 @@ type RestClient interface {
 	AddMemberRole(guildID Snowflake, userID Snowflake, roleID Snowflake) restclient.RestError
 	RemoveMemberRole(guildID Snowflake, userID Snowflake, roleID Snowflake) restclient.RestError
 
+	GetAuditLog(guildID Snowflake, userID Snowflake, actionType AuditLogEvent, before Snowflake, limit int) (*AuditLog, restclient.RestError)
 	GetIntegrations(guildID Snowflake) ([]*Integration, restclient.RestError)
 	DeleteIntegration(guildID Snowflake, integrationID Snowflake) restclient.RestError
 
