@@ -115,7 +115,7 @@ func (c Command) Delete() error {
 	return c.Disgo.RestClient().DeleteGuildCommand(c.Disgo.ApplicationID(), *c.GuildID, c.ID)
 }
 
-// CommandCreate is used to create an Command. all fields are optional
+// CommandCreate is used to create a Command. all fields are optional
 type CommandCreate struct {
 	Name              string          `json:"name,omitempty"`
 	Description       string          `json:"description,omitempty"`

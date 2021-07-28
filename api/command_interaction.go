@@ -88,6 +88,16 @@ func (o Option) Integer() int {
 	return o.Value.(int)
 }
 
+// Float returns the Option.Value as float64
+func (o Option) Float() float64 {
+	return o.Value.(float64)
+}
+
+// Float32 returns the Option.Value as float32
+func (o Option) Float32() float32 {
+	return o.Value.(float32)
+}
+
 // Bool returns the Option.Value as bool
 func (o Option) Bool() bool {
 	return o.Value.(bool)
