@@ -37,7 +37,7 @@ func (h *CommandCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager 
 		command = disgo.EntityBuilder().CreateGlobalCommand(command, cacheStrategy)
 	}
 
-	eventManager.Dispatch(events.CommandCreateEvent{
+	eventManager.Dispatch(&events.CommandCreateEvent{
 		GenericCommandEvent: &events.GenericCommandEvent{
 			GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 			Command:      command,
