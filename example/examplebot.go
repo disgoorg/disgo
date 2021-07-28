@@ -21,7 +21,7 @@ const red = 16711680
 const orange = 16562691
 const green = 65280
 
-var token = os.Getenv("token")
+var token = os.Getenv("disgo_test_token")
 var guildID = api.Snowflake(os.Getenv("guild_id"))
 var adminRoleID = api.Snowflake(os.Getenv("admin_role_id"))
 var testRoleID = api.Snowflake(os.Getenv("test_role_id"))
