@@ -78,6 +78,7 @@ type UpdateRolePosition struct {
 	Position *int      `json:"position"`
 }
 
+// PartialRole holds basic info about a Role
 type PartialRole struct {
 	ID   Snowflake `json:"id"`
 	Name string    `json:"name"`
