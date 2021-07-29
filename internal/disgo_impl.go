@@ -145,7 +145,7 @@ func (d *DisgoImpl) SetVoiceDispatchInterceptor(voiceDispatchInterceptor api.Voi
 	d.voiceDispatchInterceptor = voiceDispatchInterceptor
 }
 
-// AudioController returns the api.AudioController which can be used to connect/reconnect/disconnect to/fom a api.VoiceChannel
+// AudioController returns the api.AudioController which can be used to connect/reconnect/disconnect to/fom an api.VoiceChannel
 func (d *DisgoImpl) AudioController() api.AudioController {
 	return d.audioController
 }
@@ -177,7 +177,7 @@ func (d *DisgoImpl) ApplicationID() api.Snowflake {
 	return d.applicationID
 }
 
-// SelfUser returns a api.SelfUser for the client, if available
+// SelfUser returns an api.SelfUser for the client, if available
 func (d *DisgoImpl) SelfUser() *api.SelfUser {
 	return d.selfUser
 }
@@ -262,12 +262,12 @@ func (d *DisgoImpl) SetGuildCommands(guildID api.Snowflake, commands ...api.Comm
 	return d.RestClient().SetGuildCommands(d.ApplicationID(), guildID, commands...)
 }
 
-// GetGuildCommandsPermissions returns the api.GuildCommandPermissions for a all api.Command(s) in a api.Guild
+// GetGuildCommandsPermissions returns the api.GuildCommandPermissions for a all api.Command(s) in an api.Guild
 func (d *DisgoImpl) GetGuildCommandsPermissions(guildID api.Snowflake) ([]*api.GuildCommandPermissions, restclient.RestError) {
 	return d.RestClient().GetGuildCommandsPermissions(d.ApplicationID(), guildID)
 }
 
-// GetGuildCommandPermissions returns the api.GuildCommandPermissions for a specific api.Command in a api.Guild
+// GetGuildCommandPermissions returns the api.GuildCommandPermissions for a specific api.Command in an api.Guild
 func (d *DisgoImpl) GetGuildCommandPermissions(guildID api.Snowflake, commandID api.Snowflake) (*api.GuildCommandPermissions, restclient.RestError) {
 	return d.RestClient().GetGuildCommandPermissions(d.ApplicationID(), guildID, commandID)
 }
@@ -282,12 +282,12 @@ func (d *DisgoImpl) SetGuildCommandPermissions(guildID api.Snowflake, commandID 
 	return d.RestClient().SetGuildCommandPermissions(d.ApplicationID(), guildID, commandID, permissions)
 }
 
-// GetTemplate gets a api.GuildTemplate by it's code
+// GetTemplate gets an api.GuildTemplate by it's code
 func (d *DisgoImpl) GetTemplate(code string) (*api.GuildTemplate, restclient.RestError) {
 	return d.RestClient().GetGuildTemplate(code)
 }
 
-// CreateGuildFromTemplate creates an api.Guild using a api.Template code
+// CreateGuildFromTemplate creates an api.Guild using an api.Template code
 func (d *DisgoImpl) CreateGuildFromTemplate(templateCode string, createGuildFromTemplate api.CreateGuildFromTemplate) (*api.Guild, restclient.RestError) {
 	return d.RestClient().CreateGuildFromTemplate(templateCode, createGuildFromTemplate)
 }

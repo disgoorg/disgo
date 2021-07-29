@@ -8,7 +8,7 @@ import (
 // CommandCreateHandler handles api.CommandCreateEvent
 type CommandCreateHandler struct{}
 
-// Event returns the raw gateway event Event
+// Event returns the raw gateway api.GatewayEventType
 func (h *CommandCreateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventCommandCreate
 }

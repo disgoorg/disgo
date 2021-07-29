@@ -8,7 +8,7 @@ import (
 // ChannelDeleteHandler handles api.GatewayEventChannelDelete
 type ChannelDeleteHandler struct{}
 
-// Event returns the raw gateway event Event
+// Event returns the api.GatewayEventType
 func (h *ChannelDeleteHandler) Event() api.GatewayEventType {
 	return api.GatewayEventChannelDelete
 }

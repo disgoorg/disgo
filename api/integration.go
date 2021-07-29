@@ -69,6 +69,7 @@ func (i *Integration) Delete() restclient.RestError {
 type IntegrationType string
 
 // all IntegrationType(s)
+//goland:noinspection GoUnusedConst
 const (
 	IntegrationTypeTwitch  IntegrationType = "twitch"
 	IntegrationTypeYouTube IntegrationType = "youtube"

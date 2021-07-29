@@ -8,7 +8,7 @@ import (
 // VoiceStateUpdateHandler handles api.GatewayEventVoiceStateUpdate
 type VoiceStateUpdateHandler struct{}
 
-// Event returns the raw gateway event Event
+// Event returns the api.GatewayEventType
 func (h *VoiceStateUpdateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventVoiceStateUpdate
 }
@@ -19,7 +19,7 @@ func (h *VoiceStateUpdateHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *VoiceStateUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+func (h *VoiceStateUpdateHandler) HandleGatewayEvent(disgo api.Disgo, _ api.EventManager, sequenceNumber int, i interface{}) {
 	voiceStateUpdate, ok := i.(*api.VoiceStateUpdateEvent)
 	if !ok {
 		return

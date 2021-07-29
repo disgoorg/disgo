@@ -153,7 +153,7 @@ func (e *GenericComponentEvent) Message() *api.Message {
 	return e.ComponentInteraction.Message
 }
 
-// ButtonClickEvent indicates that a api.Button was clicked
+// ButtonClickEvent indicates that an api.Button was clicked
 type ButtonClickEvent struct {
 	*GenericComponentEvent
 	ButtonInteraction *api.ButtonInteraction
@@ -164,7 +164,7 @@ func (e *ButtonClickEvent) Button() *api.Button {
 	return e.ButtonInteraction.Button()
 }
 
-// SelectMenuSubmitEvent indicates that a api.SelectMenu was submitted
+// SelectMenuSubmitEvent indicates that an api.SelectMenu was submitted
 type SelectMenuSubmitEvent struct {
 	*GenericComponentEvent
 	SelectMenuInteraction *api.SelectMenuInteraction

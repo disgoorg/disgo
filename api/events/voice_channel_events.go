@@ -10,18 +10,18 @@ type GenericVoiceChannelEvent struct {
 	VoiceChannel *api.VoiceChannel
 }
 
-// VoiceChannelCreateEvent indicates that a new api.VoiceChannel got created in a api.Guild
+// VoiceChannelCreateEvent indicates that a new api.VoiceChannel got created in an api.Guild
 type VoiceChannelCreateEvent struct {
 	*GenericVoiceChannelEvent
 }
 
-// VoiceChannelUpdateEvent indicates that a api.VoiceChannel got updated in a api.Guild
+// VoiceChannelUpdateEvent indicates that an api.VoiceChannel got updated in an api.Guild
 type VoiceChannelUpdateEvent struct {
 	*GenericVoiceChannelEvent
 	OldVoiceChannel *api.VoiceChannel
 }
 
-// VoiceChannelDeleteEvent indicates that a api.VoiceChannel got deleted in a api.Guild
+// VoiceChannelDeleteEvent indicates that an api.VoiceChannel got deleted in an api.Guild
 type VoiceChannelDeleteEvent struct {
 	*GenericVoiceChannelEvent
 }

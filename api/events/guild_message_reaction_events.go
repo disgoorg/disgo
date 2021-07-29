@@ -10,23 +10,23 @@ type GenericGuildMessageReactionEvent struct {
 	MessageReaction api.MessageReaction
 }
 
-// GuildMessageReactionAddEvent indicates that a api.Member added a api.MessageReaction to a api.Message in a api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)
+// GuildMessageReactionAddEvent indicates that an api.Member added an api.MessageReaction to an api.Message in an api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)
 type GuildMessageReactionAddEvent struct {
 	*GenericGuildMessageReactionEvent
 }
 
-// GuildMessageReactionRemoveEvent indicates that a api.Member removed a api.MessageReaction from a api.Message in a api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)
+// GuildMessageReactionRemoveEvent indicates that an api.Member removed an api.MessageReaction from an api.Message in an api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)
 type GuildMessageReactionRemoveEvent struct {
 	*GenericGuildMessageReactionEvent
 }
 
-// GuildMessageReactionRemoveEmojiEvent indicates someone removed all api.MessageReaction of a specific api.Emoji from a api.Message in a api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)
+// GuildMessageReactionRemoveEmojiEvent indicates someone removed all api.MessageReaction of a specific api.Emoji from an api.Message in an api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)
 type GuildMessageReactionRemoveEmojiEvent struct {
 	*GenericGuildMessageEvent
 	MessageReaction api.MessageReaction
 }
 
-// GuildMessageReactionRemoveAllEvent indicates someone removed all api.MessageReaction(s) from a api.Message in a api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)
+// GuildMessageReactionRemoveAllEvent indicates someone removed all api.MessageReaction(s) from an api.Message in an api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)
 type GuildMessageReactionRemoveAllEvent struct {
 	*GenericGuildMessageEvent
 }

@@ -27,28 +27,28 @@ type GuildUnavailableEvent struct {
 	*GenericGuildEvent
 }
 
-// GuildJoinEvent is called when the bot joins a api.Guild
+// GuildJoinEvent is called when the bot joins an api.Guild
 type GuildJoinEvent struct {
 	*GenericGuildEvent
 }
 
-// GuildLeaveEvent is called when the bot leaves a api.Guild
+// GuildLeaveEvent is called when the bot leaves an api.Guild
 type GuildLeaveEvent struct {
 	*GenericGuildEvent
 }
 
-// GuildReadyEvent is called when the loaded the api.Guild in login phase
+// GuildReadyEvent is called when the bot loaded the api.Guild in login phase
 type GuildReadyEvent struct {
 	*GenericGuildEvent
 }
 
-// GuildBanEvent is called when a api.Member/api.User is banned from the api.Guild
+// GuildBanEvent is called when an api.Member/api.User is banned from the api.Guild
 type GuildBanEvent struct {
 	*GenericGuildEvent
 	User *api.User
 }
 
-// GuildUnbanEvent is called when a api.Member/api.User is unbanned from the api.Guild
+// GuildUnbanEvent is called when an api.Member/api.User is unbanned from the api.Guild
 type GuildUnbanEvent struct {
 	*GenericGuildEvent
 	User *api.User

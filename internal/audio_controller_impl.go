@@ -8,7 +8,7 @@ func newAudioControllerImpl(disgo api.Disgo) api.AudioController {
 	return &AudioControllerImpl{disgo: disgo}
 }
 
-// AudioControllerImpl lets you Connect / Disconnect from a api.VoiceChannel
+// AudioControllerImpl lets you Connect / Disconnect from an api.VoiceChannel
 type AudioControllerImpl struct {
 	disgo api.Disgo
 }
@@ -18,7 +18,7 @@ func (c *AudioControllerImpl) Disgo() api.Disgo {
 	return c.disgo
 }
 
-// Connect sends a api.GatewayCommand to connect to a api.VoiceChannel
+// Connect sends an api.GatewayCommand to connect to an api.VoiceChannel
 func (c *AudioControllerImpl) Connect(guildID api.Snowflake, channelID api.Snowflake) error {
 	gateway, err := c.getGateway()
 	if err != nil {
@@ -30,7 +30,7 @@ func (c *AudioControllerImpl) Connect(guildID api.Snowflake, channelID api.Snowf
 	}))
 }
 
-// Disconnect sends a api.GatewayCommand to disconnect from a api.VoiceChannel
+// Disconnect sends an api.GatewayCommand to disconnect from an api.VoiceChannel
 func (c *AudioControllerImpl) Disconnect(guildID api.Snowflake) error {
 	gateway, err := c.getGateway()
 	if err != nil {

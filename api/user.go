@@ -64,6 +64,7 @@ func (u *User) OpenDMChannel() (*DMChannel, restclient.RestError) {
 type UserFlags int
 
 // All UserFlags
+//goland:noinspection GoUnusedConst
 const (
 	UserFlagDiscordEmployee UserFlags = 1 << iota
 	UserFlagPartneredServerOwner

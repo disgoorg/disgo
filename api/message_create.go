@@ -43,6 +43,7 @@ func NewMessageCreateBuilder() *MessageCreateBuilder {
 }
 
 // NewMessageCreateBuilderByMessage returns a new MessageCreateBuilder and takes an existing Message
+//goland:noinspection GoUnusedExportedFunction
 func NewMessageCreateBuilderByMessage(message *Message) *MessageCreateBuilder {
 	msg := MessageCreate{
 		TTS:             message.TTS,

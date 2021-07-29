@@ -4,6 +4,7 @@ package api
 type MemberCachePolicy func(*Member) bool
 
 // Default member cache policies
+//goland:noinspection GoUnusedGlobalVariable
 var (
 	MemberCachePolicyNone    MemberCachePolicy = func(_ *Member) bool { return false }
 	MemberCachePolicyAll     MemberCachePolicy = func(_ *Member) bool { return true }
@@ -29,6 +30,7 @@ func (p MemberCachePolicy) And(policy MemberCachePolicy) MemberCachePolicy {
 }
 
 // MemberCachePolicyAnyOf is a shorthand for MemberCachePolicy.Or(MemberCachePolicy).Or(MemberCachePolicy) etc.
+//goland:noinspection GoUnusedExportedFunction
 func MemberCachePolicyAnyOf(policy MemberCachePolicy, policies ...MemberCachePolicy) MemberCachePolicy {
 	for _, p := range policies {
 		policy = policy.Or(p)
@@ -37,6 +39,7 @@ func MemberCachePolicyAnyOf(policy MemberCachePolicy, policies ...MemberCachePol
 }
 
 // MemberCachePolicyAllOf is a shorthand for MemberCachePolicy.And(MemberCachePolicy).And(MemberCachePolicy) etc.
+//goland:noinspection GoUnusedExportedFunction
 func MemberCachePolicyAllOf(policy MemberCachePolicy, policies ...MemberCachePolicy) MemberCachePolicy {
 	for _, p := range policies {
 		policy = policy.And(p)

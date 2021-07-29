@@ -10,18 +10,18 @@ type GenericStoreChannelEvent struct {
 	StoreChannel *api.StoreChannel
 }
 
-// StoreChannelCreateEvent indicates that a new api.StoreChannel got created in a api.Guild
+// StoreChannelCreateEvent indicates that a new api.StoreChannel got created in an api.Guild
 type StoreChannelCreateEvent struct {
 	*GenericStoreChannelEvent
 }
 
-// StoreChannelUpdateEvent indicates that a api.StoreChannel got updated in a api.Guild
+// StoreChannelUpdateEvent indicates that an api.StoreChannel got updated in an api.Guild
 type StoreChannelUpdateEvent struct {
 	*GenericStoreChannelEvent
 	OldStoreChannel *api.StoreChannel
 }
 
-// StoreChannelDeleteEvent indicates that a api.StoreChannel got deleted in a api.Guild
+// StoreChannelDeleteEvent indicates that an api.StoreChannel got deleted in an api.Guild
 type StoreChannelDeleteEvent struct {
 	*GenericStoreChannelEvent
 }

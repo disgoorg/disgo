@@ -46,13 +46,13 @@ func (e GenericGuildInviteEvent) Category() *api.Category {
 	return e.Disgo().Cache().Category(e.ChannelID)
 }
 
-// GuildInviteCreateEvent is called upon creation of a new api.Invite in a api.Guild(requires api.GatewayIntentsGuildInvites)
+// GuildInviteCreateEvent is called upon creation of a new api.Invite in an api.Guild(requires api.GatewayIntentsGuildInvites)
 type GuildInviteCreateEvent struct {
 	*GenericGuildInviteEvent
 	Invite *api.Invite
 }
 
-// GuildInviteDeleteEvent is called upon deletion of a new api.Invite in a api.Guild(requires api.GatewayIntentsGuildInvites)
+// GuildInviteDeleteEvent is called upon deletion of a new api.Invite in an api.Guild(requires api.GatewayIntentsGuildInvites)
 type GuildInviteDeleteEvent struct {
 	*GenericGuildInviteEvent
 }

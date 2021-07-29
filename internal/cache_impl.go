@@ -531,7 +531,7 @@ func (c *CacheImpl) FindMembers(guildID api.Snowflake, check func(u *api.Member)
 	return members
 }
 
-// VoiceState returns a Member's api.VoiceState for a api.Guild
+// VoiceState returns a Member's api.VoiceState for an api.Guild
 func (c *CacheImpl) VoiceState(guildID api.Snowflake, userID api.Snowflake) *api.VoiceState {
 	if voiceStates, ok := c.voiceStates[guildID]; ok {
 		return voiceStates[userID]
@@ -553,12 +553,12 @@ func (c *CacheImpl) VoiceStates(guildID api.Snowflake) []*api.VoiceState {
 	return nil
 }
 
-// VoiceStateCache returns the api.VoiceState api.Cache of a api.Guild as a map
+// VoiceStateCache returns the api.VoiceState api.Cache of an api.Guild as a map
 func (c *CacheImpl) VoiceStateCache(guildID api.Snowflake) map[api.Snowflake]*api.VoiceState {
 	return c.voiceStates[guildID]
 }
 
-// CacheVoiceState adds a api.VoiceState from the api.Cache
+// CacheVoiceState adds an api.VoiceState from the api.Cache
 func (c *CacheImpl) CacheVoiceState(voiceState *api.VoiceState) *api.VoiceState {
 	// only cache voice states for ourself or member is cached & cache flag activated
 	if c.cacheFlags.Missing(api.CacheFlagVoiceState) && voiceState.UserID != c.disgo.ApplicationID() {
@@ -574,7 +574,7 @@ func (c *CacheImpl) CacheVoiceState(voiceState *api.VoiceState) *api.VoiceState 
 	return voiceState
 }
 
-// UncacheVoiceState removes a api.VoiceState from the api.Cache
+// UncacheVoiceState removes an api.VoiceState from the api.Cache
 func (c *CacheImpl) UncacheVoiceState(guildID api.Snowflake, userID api.Snowflake) {
 	delete(c.voiceStates[guildID], userID)
 }

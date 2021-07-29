@@ -28,51 +28,61 @@ func NewCommandOption(optionType CommandOptionType, name string, description str
 }
 
 // NewSubCommand creates a new CommandOption with CommandOptionTypeSubCommand
+//goland:noinspection GoUnusedExportedFunction
 func NewSubCommand(name string, description string, options ...CommandOption) CommandOption {
 	return NewCommandOption(CommandOptionTypeSubCommand, name, description, options...)
 }
 
 // NewSubCommandGroup creates a new CommandOption with CommandOptionTypeSubCommandGroup
+//goland:noinspection GoUnusedExportedFunction
 func NewSubCommandGroup(name string, description string, options ...CommandOption) CommandOption {
 	return NewCommandOption(CommandOptionTypeSubCommandGroup, name, description, options...)
 }
 
 // NewStringOption creates a new CommandOption with CommandOptionTypeSubCommand
+//goland:noinspection GoUnusedExportedFunction
 func NewStringOption(name string, description string, options ...CommandOption) CommandOption {
 	return NewCommandOption(CommandOptionTypeString, name, description, options...)
 }
 
 // NewIntegerOption creates a new CommandOption with CommandOptionTypeSubCommand
+//goland:noinspection GoUnusedExportedFunction
 func NewIntegerOption(name string, description string, options ...CommandOption) CommandOption {
 	return NewCommandOption(CommandOptionTypeInteger, name, description, options...)
 }
 
 // NewBooleanOption creates a new CommandOption with CommandOptionTypeSubCommand
+//goland:noinspection GoUnusedExportedFunction
 func NewBooleanOption(name string, description string, options ...CommandOption) CommandOption {
 	return NewCommandOption(CommandOptionTypeBoolean, name, description, options...)
 }
 
 // NewUserOption creates a new CommandOption with CommandOptionTypeSubCommand
+//goland:noinspection GoUnusedExportedFunction
 func NewUserOption(name string, description string, options ...CommandOption) CommandOption {
 	return NewCommandOption(CommandOptionTypeUser, name, description, options...)
 }
 
 // NewChannelOption creates a new CommandOption with CommandOptionTypeSubCommand
+//goland:noinspection GoUnusedExportedFunction
 func NewChannelOption(name string, description string, options ...CommandOption) CommandOption {
 	return NewCommandOption(CommandOptionTypeChannel, name, description, options...)
 }
 
 // NewRoleOption creates a new CommandOption with CommandOptionTypeRole
+//goland:noinspection GoUnusedExportedFunction
 func NewRoleOption(name string, description string, options ...CommandOption) CommandOption {
 	return NewCommandOption(CommandOptionTypeRole, name, description, options...)
 }
 
 // NewMentionableOption creates a new CommandOption with CommandOptionTypeUser or CommandOptionTypeRole
+//goland:noinspection GoUnusedExportedFunction
 func NewMentionableOption(name string, description string, options ...CommandOption) CommandOption {
 	return NewCommandOption(CommandOptionTypeMentionable, name, description, options...)
 }
 
 // NewNumberOption creates a new CommandOption with CommandOptionTypeNumber
+//goland:noinspection GoUnusedExportedFunction
 func NewNumberOption(name string, description string, options ...CommandOption) CommandOption {
 	return NewCommandOption(CommandOptionTypeNumber, name, description, options...)
 }

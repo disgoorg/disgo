@@ -10,18 +10,18 @@ type GenericCategoryEvent struct {
 	Category *api.Category
 }
 
-// CategoryCreateEvent indicates that a new api.Category got created in a api.Guild
+// CategoryCreateEvent indicates that a new api.Category got created in an api.Guild
 type CategoryCreateEvent struct {
 	*GenericCategoryEvent
 }
 
-// CategoryUpdateEvent indicates that a api.Category got updated in a api.Guild
+// CategoryUpdateEvent indicates that an api.Category got updated in an api.Guild
 type CategoryUpdateEvent struct {
 	*GenericCategoryEvent
 	OldCategory *api.Category
 }
 
-// CategoryDeleteEvent indicates that a api.Category got deleted in a api.Guild
+// CategoryDeleteEvent indicates that an api.Category got deleted in an api.Guild
 type CategoryDeleteEvent struct {
 	*GenericCategoryEvent
 }

@@ -13,7 +13,7 @@ type roleDeleteData struct {
 // GuildRoleDeleteHandler handles api.GuildRoleDeleteGatewayEvent
 type GuildRoleDeleteHandler struct{}
 
-// Event returns the raw gateway event Event
+// Event returns the api.GatewayEventType
 func (h *GuildRoleDeleteHandler) Event() api.GatewayEventType {
 	return api.GatewayEventGuildRoleDelete
 }

@@ -15,18 +15,18 @@ type DMChannelCreateEvent struct {
 	*GenericDMChannelEvent
 }
 
-// DMChannelUpdateEvent indicates that a api.DMChannel got updated
+// DMChannelUpdateEvent indicates that an api.DMChannel got updated
 type DMChannelUpdateEvent struct {
 	*GenericDMChannelEvent
 	OldDMChannel *api.DMChannel
 }
 
-// DMChannelDeleteEvent indicates that a api.DMChannel got deleted
+// DMChannelDeleteEvent indicates that an api.DMChannel got deleted
 type DMChannelDeleteEvent struct {
 	*GenericDMChannelEvent
 }
 
-// DMUserTypingEvent indicates that a api.User started typing in a api.DMChannel(requires api.GatewayIntentsDirectMessageTyping)
+// DMUserTypingEvent indicates that an api.User started typing in an api.DMChannel(requires api.GatewayIntentsDirectMessageTyping)
 type DMUserTypingEvent struct {
 	*GenericDMChannelEvent
 }

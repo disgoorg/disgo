@@ -10,18 +10,18 @@ type GenericEmoteEvent struct {
 	Emote *api.Emoji
 }
 
-// EmoteCreateEvent indicates that a new api.Emoji got created in a api.Guild(requires api.GatewayIntentsGuildEmojis)
+// EmoteCreateEvent indicates that a new api.Emoji got created in an api.Guild(requires api.GatewayIntentsGuildEmojis)
 type EmoteCreateEvent struct {
 	*GenericEmoteEvent
 }
 
-// EmoteUpdateEvent indicates that a api.Emoji got updated in a api.Guild(requires api.GatewayIntentsGuildEmojis)
+// EmoteUpdateEvent indicates that an api.Emoji got updated in an api.Guild(requires api.GatewayIntentsGuildEmojis)
 type EmoteUpdateEvent struct {
 	*GenericEmoteEvent
 	OldEmote *api.Emoji
 }
 
-// EmoteDeleteEvent indicates that a api.Emoji got deleted in a api.Guild(requires api.GatewayIntentsGuildEmojis)
+// EmoteDeleteEvent indicates that an api.Emoji got deleted in an api.Guild(requires api.GatewayIntentsGuildEmojis)
 type EmoteDeleteEvent struct {
 	*GenericEmoteEvent
 }

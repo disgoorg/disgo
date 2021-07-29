@@ -11,6 +11,7 @@ import (
 type PremiumTier int
 
 // Constants for PremiumTier
+//goland:noinspection GoUnusedConst
 const (
 	PremiumTierNone PremiumTier = iota
 	PremiumTier1
@@ -22,6 +23,7 @@ const (
 type SystemChannelFlag int
 
 // Constants for SystemChannelFlag
+//goland:noinspection GoUnusedConst
 const (
 	SystemChannelFlagSuppressJoinNotifications SystemChannelFlag = 1 << iota
 	SystemChannelFlagSuppressPremiumSubscriptions
@@ -31,6 +33,7 @@ const (
 type VerificationLevel int
 
 // Constants for VerificationLevel
+//goland:noinspection GoUnusedConst
 const (
 	VerificationLevelNone VerificationLevel = iota
 	VerificationLevelLow
@@ -43,6 +46,7 @@ const (
 type MessageNotifications int
 
 // Constants for MessageNotifications
+//goland:noinspection GoUnusedConst
 const (
 	MessageNotificationsAllMessages MessageNotifications = iota
 	MessageNotificationsOnlyMentions
@@ -52,6 +56,7 @@ const (
 type ExplicitContentFilterLevel int
 
 // Constants for ExplicitContentFilterLevel
+//goland:noinspection GoUnusedConst
 const (
 	ExplicitContentFilterLevelDisabled ExplicitContentFilterLevel = iota
 	ExplicitContentFilterLevelMembersWithoutRoles
@@ -62,6 +67,7 @@ const (
 type MFALevel int
 
 // Constants for MFALevel
+//goland:noinspection GoUnusedConst
 const (
 	MFALevelNone MFALevel = iota
 	MFALevelElevated
@@ -71,6 +77,7 @@ const (
 type GuildFeature string
 
 // Constants for GuildFeature
+//goland:noinspection GoUnusedConst
 const (
 	GuildFeatureInviteSplash                  GuildFeature = "INVITE_SPLASH"
 	GuildFeatureVipRegions                    GuildFeature = "VIP_REGIONS"
@@ -186,7 +193,7 @@ func (g *Guild) SelfMember() *Member {
 	return g.Disgo.Cache().Member(g.ID, g.Disgo.ClientID())
 }
 
-// Disconnect sends a api.GatewayCommand to disconnect from this Guild
+// Disconnect sends an api.GatewayCommand to disconnect from this Guild
 func (g *Guild) Disconnect() error {
 	return g.Disgo.AudioController().Disconnect(g.ID)
 }

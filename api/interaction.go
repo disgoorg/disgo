@@ -113,17 +113,17 @@ func (i *Interaction) DeleteOriginal() restclient.RestError {
 	return i.Disgo.RestClient().DeleteInteractionResponse(i.Disgo.ApplicationID(), i.Token)
 }
 
-// SendFollowup used to send a api.MessageCreate to an api.Interaction
+// SendFollowup used to send an api.MessageCreate to an api.Interaction
 func (i *Interaction) SendFollowup(messageCreate MessageCreate) (*Message, restclient.RestError) {
 	return i.Disgo.RestClient().SendFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageCreate)
 }
 
-// EditFollowup used to edit a api.Message from an api.Interaction
+// EditFollowup used to edit an api.Message from an api.Interaction
 func (i *Interaction) EditFollowup(messageID Snowflake, messageUpdate MessageUpdate) (*Message, restclient.RestError) {
 	return i.Disgo.RestClient().UpdateFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID, messageUpdate)
 }
 
-// DeleteFollowup used to delete a api.Message from an api.Interaction
+// DeleteFollowup used to delete an api.Message from an api.Interaction
 func (i *Interaction) DeleteFollowup(messageID Snowflake) restclient.RestError {
 	return i.Disgo.RestClient().DeleteFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID)
 }

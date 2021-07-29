@@ -6,6 +6,7 @@ import "time"
 type ActivityType int
 
 // Constants for activities
+//goland:noinspection GoUnusedConst
 const (
 	Game ActivityType = iota
 	Streaming

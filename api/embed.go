@@ -4,10 +4,11 @@ import (
 	"time"
 )
 
-// EmbedType is the type of an Embed
+// EmbedType is the type of Embed
 type EmbedType string
 
 // Constants for EmbedType
+//goland:noinspection GoUnusedConst
 const (
 	EmbedTypeRich    EmbedType = "rich"
 	EmbedTypeImage   EmbedType = "image"

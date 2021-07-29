@@ -12,6 +12,7 @@ import (
 type MessageType int
 
 // Constants for the MessageType
+//goland:noinspection GoUnusedConst
 const (
 	MessageTypeDefault MessageType = iota
 	MessageTypeRecipientAdd
@@ -40,6 +41,7 @@ const (
 type MessageFlags int64
 
 // Constants for MessageFlags
+//goland:noinspection GoUnusedConst
 const (
 	MessageFlagCrossposted MessageFlags = 1 << iota
 	MessageFlagIsCrosspost
@@ -117,6 +119,7 @@ type Attachment struct {
 type MessageActivityType int
 
 //Constants for MessageActivityType
+//goland:noinspection GoUnusedConst
 const (
 	MessageActivityTypeJoin MessageActivityType = iota + 1
 	MessageActivityTypeSpectate
@@ -140,10 +143,11 @@ type MessageApplication struct {
 	Name        string    `json:"name"`
 }
 
-// MessageStickerFormatType is the Format Type of a MessageSticker
+// MessageStickerFormatType is the Format type of MessageSticker
 type MessageStickerFormatType int
 
 // Constants for MessageStickerFormatType
+//goland:noinspection GoUnusedConst
 const (
 	MessageStickerFormatPNG MessageStickerFormatType = iota + 1
 	MessageStickerFormatAPNG

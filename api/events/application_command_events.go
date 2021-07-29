@@ -23,13 +23,13 @@ type CommandCreateEvent struct {
 	*GenericCommandEvent
 }
 
-// CommandUpdateEvent indicates that a api.Command got updated(this can come from any bot!)
+// CommandUpdateEvent indicates that an api.Command got updated(this can come from any bot!)
 type CommandUpdateEvent struct {
 	*GenericCommandEvent
 	OldCommand *api.Command
 }
 
-// CommandDeleteEvent indicates that a api.Command got deleted(this can come from any bot!)
+// CommandDeleteEvent indicates that an api.Command got deleted(this can come from any bot!)
 type CommandDeleteEvent struct {
 	*GenericCommandEvent
 }

@@ -4,6 +4,7 @@ package api
 type CacheFlags int
 
 // values for CacheFlags
+//goland:noinspection GoUnusedConst
 const (
 	CacheFlagsNone      CacheFlags = 0
 	CacheFlagDMChannels CacheFlags = 1 << iota

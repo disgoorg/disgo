@@ -48,6 +48,7 @@ type Gateway interface {
 type GatewayOp int
 
 // Constants for the gateway opcodes
+//goland:noinspection GoUnusedConst
 const (
 	OpDispatch GatewayOp = iota
 	OpHeartbeat
@@ -67,6 +68,7 @@ const (
 type GatewayEventType string
 
 // Constants for the gateway events
+//goland:noinspection GoUnusedConst
 const (
 	GatewayEventHello                         GatewayEventType = "HELLO"
 	GatewayEventReady                         GatewayEventType = "READY"

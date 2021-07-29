@@ -14,18 +14,18 @@ func (e GenericGuildChannelEvent) Guild() *api.Guild {
 	return e.Disgo().Cache().Guild(e.GuildID)
 }
 
-// GuildChannelCreateEvent indicates that a new api.GuildChannel got created in a api.Guild
+// GuildChannelCreateEvent indicates that a new api.GuildChannel got created in an api.Guild
 type GuildChannelCreateEvent struct {
 	*GenericGuildChannelEvent
 }
 
-// GuildChannelUpdateEvent indicates that a api.GuildChannel got updated in a api.Guild
+// GuildChannelUpdateEvent indicates that an api.GuildChannel got updated in an api.Guild
 type GuildChannelUpdateEvent struct {
 	*GenericGuildChannelEvent
 	OldGuildChannel *api.GuildChannel
 }
 
-// GuildChannelDeleteEvent indicates that a api.GuildChannel got deleted in a api.Guild
+// GuildChannelDeleteEvent indicates that an api.GuildChannel got deleted in an api.Guild
 type GuildChannelDeleteEvent struct {
 	*GenericGuildChannelEvent
 }

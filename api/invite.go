@@ -42,6 +42,7 @@ func (i *Invite) URL() string {
 type TargetType int
 
 // Constants for TargetType
+//goland:noinspection GoUnusedConst
 const (
 	TargetTypeStream TargetType = iota + 1
 	TargetTypeEmbeddedApplication

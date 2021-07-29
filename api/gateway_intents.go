@@ -4,6 +4,7 @@ package api
 type GatewayIntents int64
 
 // Constants for the different bit offsets of GatewayIntents
+//goland:noinspection GoUnusedConst
 const (
 	GatewayIntentGuilds GatewayIntents = 1 << iota
 	GatewayIntentGuildMembers

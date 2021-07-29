@@ -18,24 +18,24 @@ func (e GenericGuildMemberEvent) User() *api.User {
 	return e.Disgo().Cache().User(e.Member.User.ID)
 }
 
-// GuildMemberJoinEvent indicates that a api.Member joined the api.Guild
+// GuildMemberJoinEvent indicates that an api.Member joined the api.Guild
 type GuildMemberJoinEvent struct {
 	*GenericGuildMemberEvent
 }
 
-// GuildMemberUpdateEvent indicates that a api.Member updated
+// GuildMemberUpdateEvent indicates that an api.Member updated
 type GuildMemberUpdateEvent struct {
 	*GenericGuildMemberEvent
 	OldMember *api.Member
 }
 
-// GuildMemberLeaveEvent indicates that a api.Member left the api.Guild
+// GuildMemberLeaveEvent indicates that an api.Member left the api.Guild
 type GuildMemberLeaveEvent struct {
 	*GenericGuildMemberEvent
 	User *api.User
 }
 
-// GuildMemberTypingEvent indicates that a api.Member started typing in a api.TextChannel(requires api.GatewayIntentsGuildMessageTyping)
+// GuildMemberTypingEvent indicates that an api.Member started typing in an api.TextChannel(requires api.GatewayIntentsGuildMessageTyping)
 type GuildMemberTypingEvent struct {
 	*GenericGuildMemberEvent
 	ChannelID api.Snowflake

@@ -17,6 +17,7 @@ var ErrNoTimestampMatch = errors.New("no matching timestamp found in string")
 // TimestampFlag is used to determine how to display the Timestamp for the User in the client
 type TimestampFlag string
 
+//goland:noinspection GoUnusedConst
 const (
 	// TimestampFlagShortTime formats time as 16:20
 	TimestampFlagShortTime TimestampFlag = "t"
@@ -73,6 +74,7 @@ func ParseTimestamps(str string, n int) ([]Timestamp, error) {
 }
 
 // ParseTimestamp parses the first Timestamp found in the provided string
+//goland:noinspection GoUnusedExportedFunction
 func ParseTimestamp(str string) (*Timestamp, error) {
 	timestamps, err := ParseTimestamps(str, 1)
 	if err != nil {
@@ -83,6 +85,7 @@ func ParseTimestamp(str string) (*Timestamp, error) {
 }
 
 // NewTimestamp returns a new Timestamp with TimestampFlagShortDateTime & the given time.Time
+//goland:noinspection GoUnusedExportedFunction
 func NewTimestamp(time time.Time) Timestamp {
 	return NewTimestampF(TimestampFlagShortDateTime, time)
 }

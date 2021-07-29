@@ -10,23 +10,23 @@ type GenericDMMessageReactionEvent struct {
 	MessageReaction api.MessageReaction
 }
 
-// DMMessageReactionAddEvent indicates that a api.User added a api.MessageReaction to a api.Message in a api.DMChannel(requires the api.GatewayIntentsDirectMessageReactions)
+// DMMessageReactionAddEvent indicates that an api.User added an api.MessageReaction to an api.Message in an api.DMChannel(requires the api.GatewayIntentsDirectMessageReactions)
 type DMMessageReactionAddEvent struct {
 	*GenericDMMessageReactionEvent
 }
 
-// DMMessageReactionRemoveEvent indicates that a api.User removed a api.MessageReaction from a api.Message in a api.DMChannel(requires the api.GatewayIntentsDirectMessageReactions)
+// DMMessageReactionRemoveEvent indicates that an api.User removed an api.MessageReaction from an api.Message in an api.DMChannel(requires the api.GatewayIntentsDirectMessageReactions)
 type DMMessageReactionRemoveEvent struct {
 	*GenericDMMessageReactionEvent
 }
 
-// DMMessageReactionRemoveEmojiEvent indicates someone removed all api.MessageReaction of a specific api.Emoji from a api.Message in a api.DMChannel(requires the api.GatewayIntentsDirectMessageReactions)
+// DMMessageReactionRemoveEmojiEvent indicates someone removed all api.MessageReaction of a specific api.Emoji from an api.Message in an api.DMChannel(requires the api.GatewayIntentsDirectMessageReactions)
 type DMMessageReactionRemoveEmojiEvent struct {
 	*GenericDMMessageEvent
 	MessageReaction api.MessageReaction
 }
 
-// DMMessageReactionRemoveAllEvent indicates someone removed all api.MessageReaction(s) from a api.Message in a api.DMChannel(requires the api.GatewayIntentsDirectMessageReactions)
+// DMMessageReactionRemoveAllEvent indicates someone removed all api.MessageReaction(s) from an api.Message in an api.DMChannel(requires the api.GatewayIntentsDirectMessageReactions)
 type DMMessageReactionRemoveAllEvent struct {
 	*GenericDMMessageEvent
 }

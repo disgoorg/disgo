@@ -25,7 +25,6 @@ var token = os.Getenv("disgo_test_token")
 var guildID = api.Snowflake(os.Getenv("guild_id"))
 var adminRoleID = api.Snowflake(os.Getenv("admin_role_id"))
 var testRoleID = api.Snowflake(os.Getenv("test_role_id"))
-var emoteID = api.Snowflake(os.Getenv("test_emote_id"))
 
 var logger = logrus.New()
 var client = http.DefaultClient

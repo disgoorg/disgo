@@ -7,7 +7,7 @@ import (
 // InteractionCreateWebhookHandler handles api.InteractionCreateWebhookEvent
 type InteractionCreateWebhookHandler struct{}
 
-// Event returns the raw gateway event Event
+// Event returns the api.GatewayEventType
 func (h InteractionCreateWebhookHandler) Event() api.GatewayEventType {
 	return api.WebhookEventInteractionCreate
 }

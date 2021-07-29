@@ -8,7 +8,7 @@ import (
 // InteractionCreateHandler handles api.InteractionCreateGatewayEvent
 type InteractionCreateHandler struct{}
 
-// Event returns the raw gateway event Event
+// Event returns the api.GatewayEventType
 func (h InteractionCreateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventInteractionCreate
 }

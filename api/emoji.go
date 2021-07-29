@@ -1,11 +1,13 @@
 package api
 
 // NewEmote creates a new custom Emoji with the given parameters
+//goland:noinspection GoUnusedExportedFunction
 func NewEmote(name string, emoteID Snowflake, animated bool) *Emoji {
 	return &Emoji{Name: name, ID: emoteID, Animated: animated}
 }
 
 // NewEmoji creates a new emoji with the given unicode
+//goland:noinspection GoUnusedExportedFunction
 func NewEmoji(name string) *Emoji {
 	return &Emoji{Name: name}
 }
