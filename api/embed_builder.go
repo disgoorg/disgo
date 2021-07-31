@@ -20,7 +20,7 @@ func (b *EmbedBuilder) SetTitle(title string) *EmbedBuilder {
 
 // SetTitlef sets the title of the EmbedBuilder with format
 func (b *EmbedBuilder) SetTitlef(title string, a ...interface{}) *EmbedBuilder {
-	return b.SetTitle(fmt.Sprintf(title, a))
+	return b.SetTitle(fmt.Sprintf(title, a...))
 }
 
 // SetDescription sets the description of the EmbedBuilder
