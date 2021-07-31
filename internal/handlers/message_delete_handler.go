@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/api"
+	"github.com/DisgoOrg/disgo/api/events"
 )
 
 type messageDeletePayload struct {
@@ -25,5 +26,34 @@ func (h *MessageDeleteHandler) New() interface{} {
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *MessageDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
-	//payload, ok := i.(*api.messageDeletePayload)
+	payload, ok := i.(*messageDeletePayload)
+	if !ok {
+		return
+	}
+
+	genericMessageEvent := &events.GenericMessageEvent{
+		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+		MessageID:    payload.MessageID,
+		Message:      disgo.Cache().Message(payload.ChannelID, payload.MessageID),
+		ChannelID:    payload.ChannelID,
+	}
+
+	disgo.EventManager().Dispatch(&events.MessageDeleteEvent{
+		GenericMessageEvent: genericMessageEvent,
+	})
+
+	if payload.GuildID == nil {
+		disgo.EventManager().Dispatch(&events.DMMessageDeleteEvent{
+			GenericDMMessageEvent: &events.GenericDMMessageEvent{
+				GenericMessageEvent: genericMessageEvent,
+			},
+		})
+	} else {
+		disgo.EventManager().Dispatch(&events.GuildMessageDeleteEvent{
+			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
+				GenericMessageEvent: genericMessageEvent,
+				GuildID:             *payload.GuildID,
+			},
+		})
+	}
 }
