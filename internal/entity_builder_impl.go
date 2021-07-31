@@ -366,6 +366,31 @@ func (b *EntityBuilderImpl) CreateRole(guildID api.Snowflake, role *api.Role, up
 	return role
 }
 
+// CreateAuditLog returns a new api.AuditLog entity
+func (b *EntityBuilderImpl) CreateAuditLog(guildID api.Snowflake, auditLogFilterOptions api.AuditLogFilterOptions, auditLog *api.AuditLog, updateCache api.CacheStrategy) *api.AuditLog {
+	auditLog.Disgo = b.Disgo()
+	auditLog.GuildID = guildID
+	auditLog.AuditLogFilterOptions = auditLogFilterOptions
+
+	for _, user := range auditLog.Users {
+		user = b.CreateUser(user, updateCache)
+	}
+	return auditLog
+}
+
+// CreateIntegration returns a new api.Integration entity
+func (b *EntityBuilderImpl) CreateIntegration(guildID api.Snowflake, integration *api.Integration, updateCache api.CacheStrategy) *api.Integration {
+	integration.Disgo = b.Disgo()
+	integration.GuildID = guildID
+
+	integration.User = b.CreateUser(integration.User, updateCache)
+
+	if integration.Application != nil {
+		integration.Application.Bot = b.CreateUser(integration.Application.Bot, updateCache)
+	}
+	return integration
+}
+
 // CreateTextChannel returns a new api.TextChannel entity
 func (b *EntityBuilderImpl) CreateTextChannel(channel *api.Channel, updateCache api.CacheStrategy) *api.TextChannel {
 	channel.Disgo = b.Disgo()

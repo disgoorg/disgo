@@ -8,7 +8,7 @@ import (
 
 // GuildTemplate is a template used for copying guilds https://discord.com/developers/docs/resources/guild-template
 type GuildTemplate struct {
-	Disgo        Disgo
+	Disgo        Disgo        `json:"-"`
 	Code         string       `json:"code"`
 	Name         string       `json:"name"`
 	Description  *string      `json:"description,omitempty"`
@@ -19,7 +19,7 @@ type GuildTemplate struct {
 	UpdatedAt    time.Time    `json:"updated_at"`
 	GuildID      Snowflake    `json:"source_guild_id"`
 	PartialGuild PartialGuild `json:"serialized_source_guild"`
-	IsDirty       bool        `json:"is_dirty,omitempty"`
+	IsDirty      bool         `json:"is_dirty,omitempty"`
 }
 
 // Guild returns the full Guild of the GuildTemplate if in cache

@@ -9,34 +9,31 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/PaesslerAG/gval"
-	"github.com/sirupsen/logrus"
-
 	"github.com/DisgoOrg/disgo"
 	"github.com/DisgoOrg/disgo/api"
 	"github.com/DisgoOrg/disgo/api/events"
+	"github.com/DisgoOrg/log"
+	"github.com/PaesslerAG/gval"
 )
 
 const red = 16711680
 const orange = 16562691
 const green = 65280
 
-var token = os.Getenv("token")
+var token = os.Getenv("disgo_test_token")
 var guildID = api.Snowflake(os.Getenv("guild_id"))
 var adminRoleID = api.Snowflake(os.Getenv("admin_role_id"))
 var testRoleID = api.Snowflake(os.Getenv("test_role_id"))
 var emoteID = api.Snowflake(os.Getenv("test_emote_id"))
 
-var logger = logrus.New()
 var client = http.DefaultClient
 
 func main() {
-	logger.SetLevel(logrus.DebugLevel)
-	logger.Info("starting ExampleBot...")
-	logger.Infof("disgo %s", api.Version)
+	log.SetLevel(log.LevelDebug)
+	log.Info("starting ExampleBot...")
+	log.Infof("disgo %s", api.Version)
 
 	dgo, err := disgo.NewBuilder(token).
-		SetLogger(logger).
 		SetRawGatewayEventsEnabled(true).
 		SetHTTPClient(client).
 		SetGatewayIntents(api.GatewayIntentGuilds, api.GatewayIntentGuildMessages, api.GatewayIntentGuildMembers).
@@ -45,13 +42,13 @@ func main() {
 			OnRawGateway:         rawGatewayEventListener,
 			OnGuildAvailable:     guildAvailListener,
 			OnGuildMessageCreate: messageListener,
-			OnSlashCommand:            commandListener,
+			OnSlashCommand:       commandListener,
 			OnButtonClick:        buttonClickListener,
 			OnSelectMenuSubmit:   selectMenuSubmitListener,
 		}).
 		Build()
 	if err != nil {
-		logger.Fatalf("error while building disgo instance: %s", err)
+		log.Fatalf("error while building disgo instance: %s", err)
 		return
 	}
 
@@ -130,7 +127,7 @@ func main() {
 	// using the api.RestClient directly to avoid the guild needing to be cached
 	cmds, err := dgo.RestClient().SetGuildCommands(dgo.ApplicationID(), guildID, rawCmds...)
 	if err != nil {
-		logger.Errorf("error while registering guild commands: %s", err)
+		log.Errorf("error while registering guild commands: %s", err)
 	}
 
 	var cmdsPermissions []api.SetGuildCommandPermissions
@@ -159,24 +156,24 @@ func main() {
 		})
 	}
 	if _, err = dgo.RestClient().SetGuildCommandsPermissions(dgo.ApplicationID(), guildID, cmdsPermissions...); err != nil {
-		logger.Errorf("error while setting command permissions: %s", err)
+		log.Errorf("error while setting command permissions: %s", err)
 	}
 
 	err = dgo.Connect()
 	if err != nil {
-		logger.Fatalf("error while connecting to discord: %s", err)
+		log.Fatalf("error while connecting to discord: %s", err)
 	}
 
 	defer dgo.Close()
 
-	logger.Infof("ExampleBot is now running. Press CTRL-C to exit.")
+	log.Infof("ExampleBot is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-s
 }
 
 func guildAvailListener(event *events.GuildAvailableEvent) {
-	logger.Printf("guild loaded: %s", event.Guild.ID)
+	log.Infof("guild loaded: %s", event.Guild.ID)
 }
 
 func rawGatewayEventListener(event *events.RawGatewayEvent) {
@@ -213,7 +210,7 @@ func selectMenuSubmitListener(event *events.SelectMenuSubmitEvent) {
 	switch event.CustomID() {
 	case "test3":
 		if err := event.DeferEdit(); err != nil {
-			logger.Errorf("error sending interaction response: %s", err)
+			log.Errorf("error sending interaction response: %s", err)
 		}
 		_, _ = event.SendFollowup(api.NewMessageCreateBuilder().
 			SetEphemeral(true).
@@ -257,7 +254,7 @@ func commandListener(event *events.SlashCommandEvent) {
 					Build(),
 				)
 				if err != nil {
-					logger.Errorf("error sending interaction response: %s", err)
+					log.Errorf("error sending interaction response: %s", err)
 				}
 				return
 			}
@@ -271,7 +268,7 @@ func commandListener(event *events.SlashCommandEvent) {
 				Build(),
 			)
 			if err != nil {
-				logger.Errorf("error sending interaction response: %s", err)
+				log.Errorf("error sending interaction response: %s", err)
 			}
 		}()
 
@@ -302,7 +299,7 @@ func commandListener(event *events.SlashCommandEvent) {
 			).
 			Build(),
 		); err != nil {
-			logger.Errorf("error sending interaction response: %s", err)
+			log.Errorf("error sending interaction response: %s", err)
 		}
 
 	case "addrole":
@@ -354,7 +351,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 		go func() {
 			message, err := event.MessageChannel().SendMessage(api.NewMessageCreateBuilder().SetContent("test").Build())
 			if err != nil {
-				logger.Errorf("error while sending file: %s", err)
+				log.Errorf("error while sending file: %s", err)
 				return
 			}
 			time.Sleep(time.Second * 2)

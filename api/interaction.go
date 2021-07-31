@@ -33,17 +33,17 @@ const (
 
 // Interaction holds the general parameters of each Interaction
 type Interaction struct {
-	Disgo           Disgo
-	ResponseChannel chan InteractionResponse
-	Replied         bool
-	ID              Snowflake       `json:"id"`
-	Type            InteractionType `json:"type"`
-	GuildID         *Snowflake      `json:"guild_id,omitempty"`
-	ChannelID       *Snowflake      `json:"channel_id,omitempty"`
-	Member          *Member         `json:"member,omitempty"`
-	User            *User           `json:"User,omitempty"`
-	Token           string          `json:"token"`
-	Version         int             `json:"version"`
+	Disgo           Disgo                    `json:"-"`
+	ResponseChannel chan InteractionResponse `json:"-"`
+	Replied         bool                     `json:"-"`
+	ID              Snowflake                `json:"id"`
+	Type            InteractionType          `json:"type"`
+	GuildID         *Snowflake               `json:"guild_id,omitempty"`
+	ChannelID       *Snowflake               `json:"channel_id,omitempty"`
+	Member          *Member                  `json:"member,omitempty"`
+	User            *User                    `json:"User,omitempty"`
+	Token           string                   `json:"token"`
+	Version         int                      `json:"version"`
 }
 
 // InteractionResponse is how you answer interactions. If an answer is not sent within 3 seconds of receiving it, the interaction is failed, and you will be unable to respond to it.

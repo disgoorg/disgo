@@ -4,8 +4,8 @@ import "github.com/DisgoOrg/restclient"
 
 // Role is a Guild Role object
 type Role struct {
-	Disgo       Disgo
-	GuildID     Snowflake
+	Disgo       Disgo       `json:"-"`
+	GuildID     Snowflake   `json:"-"`
 	ID          Snowflake   `json:"id"`
 	Name        string      `json:"name"`
 	Color       int         `json:"color"`
@@ -76,4 +76,10 @@ type UpdateRole struct {
 type UpdateRolePosition struct {
 	ID       Snowflake `json:"id"`
 	Position *int      `json:"position"`
+}
+
+// PartialRole holds basic info about a Role
+type PartialRole struct {
+	ID   Snowflake `json:"id"`
+	Name string    `json:"name"`
 }

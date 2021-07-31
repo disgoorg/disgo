@@ -14,16 +14,16 @@ const (
 
 // Command is the base "command" model that belongs to an application.
 type Command struct {
-	Disgo             Disgo
-	GuildPermissions  map[Snowflake]*GuildCommandPermissions
-	GuildID           *Snowflake      `json:"guild_id"`
-	ID                Snowflake       `json:"id,omitempty"`
-	Type              CommandType     `json:"type"`
-	ApplicationID     Snowflake       `json:"application_id,omitempty"`
-	Name              string          `json:"name"`
-	Description       string          `json:"description"`
-	DefaultPermission bool            `json:"default_permission,omitempty"`
-	Options           []CommandOption `json:"options,omitempty"`
+	Disgo             Disgo                                  `json:"-"`
+	GuildPermissions  map[Snowflake]*GuildCommandPermissions `json:"-"`
+	GuildID           *Snowflake                             `json:"guild_id"`
+	ID                Snowflake                              `json:"id,omitempty"`
+	Type              CommandType                            `json:"type"`
+	ApplicationID     Snowflake                              `json:"application_id,omitempty"`
+	Name              string                                 `json:"name"`
+	Description       string                                 `json:"description"`
+	DefaultPermission bool                                   `json:"default_permission,omitempty"`
+	Options           []CommandOption                        `json:"options,omitempty"`
 }
 
 // Guild returns the Guild the Command is from from the Cache or nil if it is a global Command

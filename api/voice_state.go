@@ -9,7 +9,7 @@ type VoiceServerUpdate struct {
 
 // VoiceState from Discord
 type VoiceState struct {
-	Disgo         Disgo
+	Disgo         Disgo      `json:"-"`
 	GuildID       Snowflake  `json:"guild_id"`
 	ChannelID     *Snowflake `json:"channel_id"`
 	UserID        Snowflake  `json:"user_id"`

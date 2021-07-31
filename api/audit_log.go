@@ -1,5 +1,11 @@
 package api
 
+import (
+	"encoding/json"
+
+	"github.com/DisgoOrg/restclient"
+)
+
 // AuditLogChangeKey (https://discord.com/developers/docs/resources/audit-log#audit-log-change-object-audit-log-change-key) is data representing changes values/settings in an audit log.
 type AuditLogChangeKey struct {
 	Name                        *string                     `json:"name"`
@@ -20,8 +26,8 @@ type AuditLogChangeKey struct {
 	ExplicitContentFilterLevel  *ExplicitContentFilterLevel `json:"explicit_content_filter"`
 	DefaultMessageNotifications *MessageNotifications       `json:"default_message_notifications"`
 	VanityURLCode               *string                     `json:"vanity_url_code"`
-	Add                         []Role                      `json:"$add"`
-	Remove                      []Role                      `json:"$remove"`
+	Add                         []PartialRole               `json:"$add"`
+	Remove                      []PartialRole               `json:"$remove"`
 	PruneDeleteDays             *int                        `json:"prune_delete_days"`
 	WidgetEnabled               *bool                       `json:"widget_enabled"`
 	WidgetChannelID             *string                     `json:"widget_channel_id"`
@@ -62,7 +68,7 @@ type AuditLogChangeKey struct {
 // AuditLogEvent is an 8-bit unsigned integer representing an audit log event.
 type AuditLogEvent int
 
-// AuditLogEventGuildUpdate
+// AuditLogEventGuildUpdate ...
 const (
 	AuditLogEventGuildUpdate AuditLogEvent = 1
 )
@@ -159,10 +165,59 @@ type AuditLogEntry struct {
 	Reason     *string                    `json:"reason"`
 }
 
+// AuditLogFilterOptions fields used to filter audit-log retrieving
+type AuditLogFilterOptions struct {
+	UserID     Snowflake
+	ActionType AuditLogEvent
+	Before     Snowflake
+	Limit      int
+}
+
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord API.
 type AuditLog struct {
-	Webhooks     []Webhook
-	Users        []User
-	Entries      []AuditLogEntry
-	Integrations []Integration
+	Disgo                 Disgo                      `json:"-"`
+	GuildID               Snowflake                  `json:"-"`
+	AuditLogFilterOptions AuditLogFilterOptions      `json:"-"`
+	Webhooks              map[Snowflake]*Webhook     `json:"webhooks"`
+	Users                 map[Snowflake]*User        `json:"users"`
+	Integrations          map[Snowflake]*Integration `json:"integrations"`
+	Entries               []AuditLogEntry            `json:"entries"`
+}
+
+// Unmarshal unmarshals a AuditLog
+func (l *AuditLog) Unmarshal(data []byte) (err error) {
+	var i *struct {
+		Webhooks     []*Webhook      `json:"webhooks"`
+		Users        []*User         `json:"users"`
+		Integrations []*Integration  `json:"integrations"`
+		Entries      []AuditLogEntry `json:"entries"`
+	}
+
+	if err = json.Unmarshal(data, &i); err != nil {
+		return
+	}
+
+	for _, webhook := range i.Webhooks {
+		l.Webhooks[webhook.ID] = webhook
+	}
+
+	for _, user := range i.Users {
+		l.Users[user.ID] = user
+	}
+
+	for _, integration := range i.Integrations {
+		l.Integrations[integration.ID] = integration
+	}
+
+	l.Entries = i.Entries
+	return
+}
+
+// Before gets new AuditLog(s) from Discord before the last one
+func (l *AuditLog) Before() (*AuditLog, restclient.RestError) {
+	before := Snowflake("")
+	if len(l.Entries) > 0 {
+		before = l.Entries[len(l.Entries)-1].ID
+	}
+	return l.Disgo.RestClient().GetAuditLog(l.GuildID, l.AuditLogFilterOptions.UserID, l.AuditLogFilterOptions.ActionType, before, l.AuditLogFilterOptions.Limit)
 }

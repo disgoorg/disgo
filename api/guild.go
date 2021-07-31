@@ -130,8 +130,8 @@ type FullGuild struct {
 
 // Guild represents a discord Guild
 type Guild struct {
-	Disgo                       Disgo
-	Ready                       bool
+	Disgo                       Disgo                      `json:"-"`
+	Ready                       bool                       `json:"-"`
 	ID                          Snowflake                  `json:"id"`
 	Name                        string                     `json:"name"`
 	Icon                        *string                    `json:"icon"`
@@ -257,6 +257,21 @@ func (g *Guild) IconURL(size int) *string {
 	}
 	u := route.Route()
 	return &u
+}
+
+// GetAuditLogs gets AuditLog(s) for this Guild
+func (g *Guild) GetAuditLogs(userID Snowflake, actionType AuditLogEvent, before Snowflake, limit int) (*AuditLog, restclient.RestError) {
+	return g.Disgo.RestClient().GetAuditLog(g.ID, userID, actionType, before, limit)
+}
+
+// GetIntegrations gets all Integration(s) from the Guild. Requires PermissionManageServer
+func (g *Guild) GetIntegrations() ([]*Integration, restclient.RestError) {
+	return g.Disgo.RestClient().GetIntegrations(g.ID)
+}
+
+// DeleteIntegration deletes a specific Integration from the Guild. Requires PermissionManageServer
+func (g *Guild) DeleteIntegration(integrationID Snowflake) restclient.RestError {
+	return g.Disgo.RestClient().DeleteIntegration(g.ID, integrationID)
 }
 
 // GetBans fetches all bans for this Guild

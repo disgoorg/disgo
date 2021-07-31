@@ -8,7 +8,7 @@ import (
 
 // ExpandedInvite is a full Invite struct
 type ExpandedInvite struct {
-	Invite
+	*Invite
 	Uses      int       `json:"uses"`
 	MaxUses   int       `json:"max_uses"`
 	MaxAge    int       `json:"max_age"`
@@ -18,7 +18,7 @@ type ExpandedInvite struct {
 
 // Invite is a partial invite struct
 type Invite struct {
-	Disgo                    Disgo
+	Disgo                    Disgo         `json:"-"`
 	Code                     string        `json:"code"`
 	Guild                    *InviteGuild  `json:"guild"`
 	Channel                  InviteChannel `json:"channel"`

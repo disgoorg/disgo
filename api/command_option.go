@@ -14,6 +14,7 @@ const (
 	CommandOptionTypeChannel
 	CommandOptionTypeRole
 	CommandOptionTypeMentionable
+	CommandOptionTypeNumber
 )
 
 // NewCommandOption creates a new CommandOption with the provided params
@@ -71,6 +72,11 @@ func NewMentionableOption(name string, description string, options ...CommandOpt
 	return NewCommandOption(CommandOptionTypeMentionable, name, description, options...)
 }
 
+// NewNumberOption creates a new CommandOption with CommandOptionTypeNumber
+func NewNumberOption(name string, description string, options ...CommandOption) CommandOption {
+	return NewCommandOption(CommandOptionTypeNumber, name, description, options...)
+}
+
 // CommandOption are the arguments used in Command.Options
 type CommandOption struct {
 	Type        CommandOptionType `json:"type"`
@@ -81,12 +87,23 @@ type CommandOption struct {
 	Options     []CommandOption   `json:"options,omitempty"`
 }
 
-// AddChoice adds a new choice to the the CommandOption
+// AddChoice adds a new choice to the CommandOption. Value can either be a string, int or float
 func (o CommandOption) AddChoice(name string, value interface{}) CommandOption {
 	o.Choices = append(o.Choices, OptionChoice{
 		Name:  name,
 		Value: value,
 	})
+	return o
+}
+
+// AddChoices adds multiple choices to the CommandOption. Value can either be a string, int or float
+func (o CommandOption) AddChoices(choices map[string]interface{}) CommandOption {
+	for name, value := range choices {
+		o.Choices = append(o.Choices, OptionChoice{
+			Name:  name,
+			Value: value,
+		})
+	}
 	return o
 }
 
@@ -102,7 +119,7 @@ func (o CommandOption) SetRequired(required bool) CommandOption {
 	return o
 }
 
-// OptionChoice contains the data for a user using your command
+// OptionChoice contains the data for a user using your command. Value can either be a string, int or float
 type OptionChoice struct {
 	Name  string      `json:"name"`
 	Value interface{} `json:"value"`

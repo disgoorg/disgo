@@ -12,7 +12,7 @@ func NewEmoji(name string) *Emoji {
 
 // Emoji allows you to interact with emojis & emotes
 type Emoji struct {
-	Disgo    Disgo
+	Disgo    Disgo     `json:"-"`
 	GuildID  Snowflake `json:"guild_id,omitempty"`
 	Name     string    `json:"name,omitempty"`
 	ID       Snowflake `json:"id,omitempty"`

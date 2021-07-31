@@ -435,6 +435,61 @@ func (r *restClientImpl) MoveMember(guildID api.Snowflake, userID api.Snowflake,
 	return
 }
 
+func (r *restClientImpl) GetAuditLog(guildID api.Snowflake, userID api.Snowflake, actionType api.AuditLogEvent, before api.Snowflake, limit int) (auditLog *api.AuditLog, rErr restclient.RestError) {
+	values := restclient.QueryValues{}
+	if guildID != "" {
+		values["guild_id"] = guildID
+	}
+	if userID != "" {
+		values["user_id"] = userID
+	}
+	if actionType != 0 {
+		values["action_type"] = actionType
+	}
+	if before != "" {
+		values["before"] = guildID
+	}
+	if limit != 0 {
+		values["limit"] = limit
+	}
+	compiledRoute, err := restclient.GetAuditLogs.Compile(values, guildID)
+	if err != nil {
+		return nil, restclient.NewError(nil, err)
+	}
+	rErr = r.Do(compiledRoute, nil, &auditLog)
+	if rErr == nil {
+		auditLog = r.Disgo().EntityBuilder().CreateAuditLog(guildID, api.AuditLogFilterOptions{
+			UserID:     userID,
+			ActionType: actionType,
+			Before:     before,
+			Limit:      limit,
+		}, auditLog, api.CacheStrategyNoWs)
+	}
+	return
+}
+
+func (r *restClientImpl) GetIntegrations(guildID api.Snowflake) (integrations []*api.Integration, rErr restclient.RestError) {
+	compiledRoute, err := restclient.GetIntegrations.Compile(nil, guildID)
+	if err != nil {
+		return nil, restclient.NewError(nil, err)
+	}
+	rErr = r.Do(compiledRoute, nil, &integrations)
+	if rErr == nil {
+		for _, integration := range integrations {
+			integration = r.Disgo().EntityBuilder().CreateIntegration(guildID, integration, api.CacheStrategyNoWs)
+		}
+	}
+	return
+}
+
+func (r *restClientImpl) DeleteIntegration(guildID api.Snowflake, integrationID api.Snowflake) restclient.RestError {
+	compiledRoute, err := restclient.DeleteIntegration.Compile(nil, guildID, integrationID)
+	if err != nil {
+		return restclient.NewError(nil, err)
+	}
+	return r.Do(compiledRoute, nil, nil)
+}
+
 func (r *restClientImpl) GetBans(guildID api.Snowflake) (bans []api.Ban, rErr restclient.RestError) {
 	compiledRoute, err := restclient.GetBans.Compile(nil, guildID)
 	if err != nil {

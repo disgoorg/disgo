@@ -22,7 +22,7 @@ const (
 
 // Channel is a generic discord channel object
 type Channel struct {
-	Disgo            Disgo
+	Disgo            Disgo        `json:"-"`
 	ID               Snowflake    `json:"id"`
 	Name             *string      `json:"name,omitempty"`
 	Type             ChannelType  `json:"type"`
@@ -123,4 +123,11 @@ type TextChannel struct {
 // StoreChannel allows you to interact with discord's store channels
 type StoreChannel struct {
 	GuildChannel
+}
+
+// PartialChannel contains basic info about a Channel
+type PartialChannel struct {
+	ID   Snowflake   `json:"id"`
+	Type ChannelType `json:"type"`
+	Name *string     `json:"name,omitempty"`
 }
