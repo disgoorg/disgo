@@ -169,7 +169,6 @@ func (b *DisgoBuilderImpl) SetGateway(gateway api.Gateway) api.DisgoBuilder {
 func (b *DisgoBuilderImpl) Build() (api.Disgo, error) {
 
 	disgo := &DisgoImpl{
-		logger:                  b.logger,
 		rawGatewayEventsEnabled: b.rawGatewayEventsEnabled,
 	}
 	if b.token == "" {
@@ -185,6 +184,11 @@ func (b *DisgoBuilderImpl) Build() (api.Disgo, error) {
 
 	disgo.applicationID = *id
 	disgo.clientID = *id
+
+	if b.logger == nil {
+		b.logger = log.Default()
+	}
+	disgo.logger = b.logger
 
 	if b.gateway == nil {
 		b.gateway = newGatewayImpl(disgo)

@@ -6,6 +6,6 @@ replace github.com/DisgoOrg/disgo => ../
 
 require (
 	github.com/DisgoOrg/disgo v0.5.6
+	github.com/DisgoOrg/log v1.0.4
 	github.com/PaesslerAG/gval v1.1.1
-	github.com/sirupsen/logrus v1.8.1
 )

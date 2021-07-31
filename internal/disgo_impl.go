@@ -25,6 +25,10 @@ func New(token string, options api.Options) (api.Disgo, error) {
 		rawGatewayEventsEnabled: options.RawGatewayEventsEnabled,
 	}
 
+	if disgo.logger == nil {
+		disgo.logger = log.Default()
+	}
+
 	id, err := IDFromToken(token)
 	if err != nil {
 		disgo.Logger().Errorf("error while getting application id from BotToken: %s", err)
