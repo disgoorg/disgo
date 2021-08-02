@@ -12,7 +12,7 @@ const (
 	ButtonStyleLink
 )
 
-// NewButton creates a new Button with the provided parameters. Link Button(s) need an url and other Button(s) need a customID
+// NewButton creates a new Button with the provided parameters. Link Button(s) need a URL and other Button(s) need a customID
 func NewButton(style ButtonStyle, label string, customID string, url string, emoji *Emoji, disabled bool) Button {
 	return Button{
 		ComponentImpl: newComponentImpl(ComponentTypeButton),
@@ -107,7 +107,7 @@ func (b Button) WithLabel(label string) Button {
 	return b
 }
 
-// WithURL returns a new Button with the provided url
+// WithURL returns a new Button with the provided URL
 func (b Button) WithURL(url string) Button {
 	b.URL = url
 	return b
