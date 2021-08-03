@@ -69,11 +69,13 @@ type AuditLogChangeKey struct {
 type AuditLogEvent int
 
 // AuditLogEventGuildUpdate ...
+//goland:noinspection GoUnusedConst
 const (
 	AuditLogEventGuildUpdate AuditLogEvent = 1
 )
 
 // AuditLogEventChannelCreate
+//goland:noinspection GoUnusedConst
 const (
 	AuditLogEventChannelCreate AuditLogEvent = iota + 10
 	AuditLogEventChannelUpdate
@@ -84,6 +86,7 @@ const (
 )
 
 // AuditLogEventMemberKick
+//goland:noinspection GoUnusedConst
 const (
 	AuditLogEventMemberKick AuditLogEvent = iota + 20
 	AuditLogEventMemberPrune
@@ -97,6 +100,7 @@ const (
 )
 
 // AuditLogEventRoleCreate
+//goland:noinspection GoUnusedConst
 const (
 	AuditLogEventRoleCreate AuditLogEvent = iota + 30
 	AuditLogEventRoleUpdate
@@ -104,6 +108,7 @@ const (
 )
 
 // AuditLogEventInviteCreate
+//goland:noinspection GoUnusedConst
 const (
 	AuditLogEventInviteCreate AuditLogEvent = iota + 40
 	AuditLogEventInviteUpdate
@@ -111,6 +116,7 @@ const (
 )
 
 // AuditLogEventWebhookCreate
+//goland:noinspection GoUnusedConst
 const (
 	AuditLogEventWebhookCreate AuditLogEvent = iota + 50
 	AuditLogEventWebhookUpdate
@@ -118,6 +124,7 @@ const (
 )
 
 // AuditLogEventEmojiCreate
+//goland:noinspection GoUnusedConst
 const (
 	AuditLogEventEmojiCreate AuditLogEvent = iota + 60
 	AuditLogEventEmojiUpdate
@@ -125,6 +132,7 @@ const (
 )
 
 // AuditLogEventMessageDelete
+//goland:noinspection GoUnusedConst
 const (
 	AuditLogEventMessageDelete AuditLogEvent = iota + 72
 	AuditLogEventMessageBulkDelete
@@ -133,6 +141,7 @@ const (
 )
 
 // AuditLogEventIntegrationCreate
+//goland:noinspection GoUnusedConst
 const (
 	AuditLogEventIntegrationCreate AuditLogEvent = iota + 80
 	AuditLogEventIntegrationUpdate

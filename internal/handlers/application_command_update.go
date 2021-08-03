@@ -8,7 +8,7 @@ import (
 // CommandUpdateHandler handles api.CommandCreateEvent
 type CommandUpdateHandler struct{}
 
-// Event returns the raw gateway event Event
+// Event returns the api.GatewayEventType
 func (h CommandUpdateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventCommandUpdate
 }
@@ -44,7 +44,7 @@ func (h CommandUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager a
 			GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 			Command:      command,
 		},
-		// always nil for not our own commands
+		// this is always nil for not our own commands
 		OldCommand: oldCommand,
 	})
 }

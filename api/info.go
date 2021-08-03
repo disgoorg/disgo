@@ -5,17 +5,17 @@ import (
 	"strings"
 )
 
-// Github is the disgo github url
-const Github = "https://github.com/DisgoOrg/disgo"
+// GitHub is the Disgo GitHub URL
+const GitHub = "https://github.com/DisgoOrg/disgo"
 
-// Version returns the current used disgo version in the format vx.x.x
+// Version returns the current used Disgo version in the format vx.x.x
 var Version = getVersion()
 
 func getVersion() string {
 	bi, ok := debug.ReadBuildInfo()
 	if ok {
 		for _, dep := range bi.Deps {
-			if strings.Contains(Github, dep.Path) {
+			if strings.Contains(GitHub, dep.Path) {
 				return dep.Version
 			}
 		}

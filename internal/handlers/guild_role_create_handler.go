@@ -13,7 +13,7 @@ type roleCreateData struct {
 // GuildRoleCreateHandler handles api.GuildRoleCreateGatewayEvent
 type GuildRoleCreateHandler struct{}
 
-// Event returns the raw gateway event Event
+// Event returns the api.GatewayEventType
 func (h *GuildRoleCreateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventGuildRoleCreate
 }

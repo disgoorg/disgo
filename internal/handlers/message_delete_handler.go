@@ -14,7 +14,7 @@ type messageDeletePayload struct {
 // MessageDeleteHandler handles api.GatewayEventMessageDelete
 type MessageDeleteHandler struct{}
 
-// Event returns the raw gateway event Event
+// Event returns the api.GatewayEventType
 func (h *MessageDeleteHandler) Event() api.GatewayEventType {
 	return api.GatewayEventMessageDelete
 }

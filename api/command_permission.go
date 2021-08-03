@@ -15,6 +15,7 @@ type GuildCommandPermissions struct {
 type CommandPermissionType int
 
 // types of CommandPermissionType
+//goland:noinspection GoUnusedConst
 const (
 	CommandPermissionTypeRole = iota + 1
 	CommandPermissionTypeUser

@@ -10,23 +10,23 @@ type GenericTextChannelEvent struct {
 	TextChannel *api.TextChannel
 }
 
-// TextChannelCreateEvent indicates that a new api.TextChannel got created in a api.Guild
+// TextChannelCreateEvent indicates that a new api.TextChannel got created in an api.Guild
 type TextChannelCreateEvent struct {
 	*GenericTextChannelEvent
 }
 
-// TextChannelUpdateEvent indicates that a api.TextChannel got updated in a api.Guild
+// TextChannelUpdateEvent indicates that an api.TextChannel got updated in an api.Guild
 type TextChannelUpdateEvent struct {
 	*GenericTextChannelEvent
 	OldTextChannel *api.TextChannel
 }
 
-// TextChannelDeleteEvent indicates that a api.TextChannel got deleted in a api.Guild
+// TextChannelDeleteEvent indicates that an api.TextChannel got deleted in an api.Guild
 type TextChannelDeleteEvent struct {
 	*GenericTextChannelEvent
 }
 
-// WebhooksUpdateEvent indicates that a api.Webhook updated in this api.TextChannel
+// WebhooksUpdateEvent indicates that an api.Webhook updated in this api.TextChannel
 type WebhooksUpdateEvent struct {
 	*GenericTextChannelEvent
 }

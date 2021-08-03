@@ -13,7 +13,7 @@ type roleUpdateData struct {
 // GuildRoleUpdateHandler handles api.GuildRoleUpdateGatewayEvent
 type GuildRoleUpdateHandler struct{}
 
-// Event returns the raw gateway event Event
+// Event returns the api.GatewayEventType
 func (h *GuildRoleUpdateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventGuildRoleUpdate
 }

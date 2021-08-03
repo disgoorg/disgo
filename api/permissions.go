@@ -5,10 +5,11 @@ import (
 	"strconv"
 )
 
-// PermissionOverwriteType is the type of a PermissionOverwrite
+// PermissionOverwriteType is the type of PermissionOverwrite
 type PermissionOverwriteType int
 
 // Constants for PermissionOverwriteType
+//goland:noinspection GoUnusedConst
 const (
 	PermissionOverwriteTypeRole PermissionOverwriteType = iota
 	PermissionOverwriteTypeMember
@@ -26,6 +27,7 @@ type PermissionOverwrite struct {
 type Permissions int64
 
 // Constants for the different bit offsets of text channel permissions
+//goland:noinspection GoUnusedConst
 const (
 	PermissionSendMessages Permissions = 1 << (iota + 11)
 	PermissionSendTTSMessages
@@ -38,6 +40,7 @@ const (
 )
 
 // Constants for the different bit offsets of voice permissions
+//goland:noinspection GoUnusedConst
 const (
 	PermissionVoiceConnect Permissions = 1 << (iota + 20)
 	PermissionVoiceSpeak
@@ -49,6 +52,7 @@ const (
 )
 
 // Constants for general management.
+//goland:noinspection GoUnusedConst
 const (
 	PermissionChangeNickname Permissions = 1 << (iota + 26)
 	PermissionManageNicknames
@@ -59,6 +63,7 @@ const (
 )
 
 // Constants for the different bit offsets of general permissions
+//goland:noinspection GoUnusedConst
 const (
 	PermissionCreateInstantInvite Permissions = 1 << iota
 	PermissionKickMembers

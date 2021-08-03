@@ -8,7 +8,7 @@ import (
 // CommandDeleteHandler handles api.CommandCreateEvent
 type CommandDeleteHandler struct{}
 
-// Event returns the raw gateway event Event
+// Event returns the api.GatewayEventType
 func (h CommandDeleteHandler) Event() api.GatewayEventType {
 	return api.GatewayEventCommandDelete
 }

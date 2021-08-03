@@ -12,7 +12,7 @@ const (
 	ButtonStyleLink
 )
 
-// NewButton creates a new Button with the provided parameters. Link Button(s) need a url and other Button(s) need a customID
+// NewButton creates a new Button with the provided parameters. Link Button(s) need a URL and other Button(s) need a customID
 func NewButton(style ButtonStyle, label string, customID string, url string, emoji *Emoji, disabled bool) Button {
 	return Button{
 		ComponentImpl: newComponentImpl(ComponentTypeButton),
@@ -31,26 +31,30 @@ func NewPrimaryButton(label string, customID string, emoji *Emoji) Button {
 }
 
 // NewSecondaryButton creates a new Button with ButtonStyleSecondary & the provided parameters
+//goland:noinspection GoUnusedExportedFunction
 func NewSecondaryButton(label string, customID string, emoji *Emoji) Button {
 	return NewButton(ButtonStyleSecondary, label, customID, "", emoji, false)
 }
 
 // NewSuccessButton creates a new Button with ButtonStyleSuccess & the provided parameters
+//goland:noinspection GoUnusedExportedFunction
 func NewSuccessButton(label string, customID string, emoji *Emoji) Button {
 	return NewButton(ButtonStyleSuccess, label, customID, "", emoji, false)
 }
 
 // NewDangerButton creates a new Button with ButtonStyleDanger & the provided parameters
+//goland:noinspection GoUnusedExportedFunction
 func NewDangerButton(label string, customID string, emoji *Emoji) Button {
 	return NewButton(ButtonStyleDanger, label, customID, "", emoji, false)
 }
 
 // NewLinkButton creates a new link Button with ButtonStyleLink & the provided parameters
+//goland:noinspection GoUnusedExportedFunction
 func NewLinkButton(label string, url string, emoji *Emoji, disabled bool) Button {
 	return NewButton(ButtonStyleLink, label, "", url, emoji, disabled)
 }
 
-// Button can be attacked to all messages & be clicked by a User. If clicked it fires a events.ButtonClickEvent with the declared customID
+// Button can be attacked to all messages & be clicked by a User. If clicked it fires an events.ButtonClickEvent with the declared customID
 type Button struct {
 	ComponentImpl
 	Style    ButtonStyle `json:"style,omitempty"`
@@ -103,7 +107,7 @@ func (b Button) WithLabel(label string) Button {
 	return b
 }
 
-// WithURL returns a new Button with the provided url
+// WithURL returns a new Button with the provided URL
 func (b Button) WithURL(url string) Button {
 	b.URL = url
 	return b

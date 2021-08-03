@@ -109,7 +109,7 @@ type VoiceChannel struct {
 	GuildChannel
 }
 
-// Connect sends a api.GatewayCommand to connect to this VoiceChannel
+// Connect sends an api.GatewayCommand to connect to this VoiceChannel
 func (c *VoiceChannel) Connect() error {
 	return c.Disgo.AudioController().Connect(*c.GuildID, c.ID)
 }

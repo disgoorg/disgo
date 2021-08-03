@@ -4,6 +4,7 @@ package api
 type WebhookType int
 
 // Incoming
+//goland:noinspection GoUnusedConst
 const (
 	Incoming WebhookType = iota + 1
 	ChannelFollower

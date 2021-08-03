@@ -10,18 +10,18 @@ type GenericGuildVoiceEvent struct {
 	VoiceState *api.VoiceState
 }
 
-// GuildVoiceJoinEvent indicates that a api.Member joined a api.VoiceChannel(requires api.GatewayIntentsGuildVoiceStates)
+// GuildVoiceJoinEvent indicates that an api.Member joined an api.VoiceChannel(requires api.GatewayIntentsGuildVoiceStates)
 type GuildVoiceJoinEvent struct {
 	*GenericGuildVoiceEvent
 }
 
-// GuildVoiceUpdateEvent indicates that a api.Member moved a api.VoiceChannel(requires api.GatewayIntentsGuildVoiceStates)
+// GuildVoiceUpdateEvent indicates that an api.Member moved an api.VoiceChannel(requires api.GatewayIntentsGuildVoiceStates)
 type GuildVoiceUpdateEvent struct {
 	*GenericGuildVoiceEvent
 	OldVoiceState *api.VoiceState
 }
 
-// GuildVoiceLeaveEvent indicates that a api.Member left a api.VoiceChannel(requires api.GatewayIntentsGuildVoiceStates)
+// GuildVoiceLeaveEvent indicates that an api.Member left an api.VoiceChannel(requires api.GatewayIntentsGuildVoiceStates)
 type GuildVoiceLeaveEvent struct {
 	*GenericGuildVoiceEvent
 }

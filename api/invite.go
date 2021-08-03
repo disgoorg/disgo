@@ -29,7 +29,7 @@ type Invite struct {
 	ApproximateMemberCount   *int          `json:"approximate_member_count"`
 }
 
-// URL returns the invite url in format like https://discord.gg/{code}
+// URL returns the invite URL in format like https://discord.gg/{code}
 func (i *Invite) URL() string {
 	url, err := restclient.InviteURL.Compile(nil, i.Code)
 	if err != nil {
@@ -42,6 +42,7 @@ func (i *Invite) URL() string {
 type TargetType int
 
 // Constants for TargetType
+//goland:noinspection GoUnusedConst
 const (
 	TargetTypeStream TargetType = iota + 1
 	TargetTypeEmbeddedApplication

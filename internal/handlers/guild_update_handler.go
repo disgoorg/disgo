@@ -8,7 +8,7 @@ import (
 // GuildUpdateHandler handles api.GuildUpdateGatewayEvent
 type GuildUpdateHandler struct{}
 
-// Event returns the raw gateway event Event
+// Event returns the api.GatewayEventType
 func (h *GuildUpdateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventGuildUpdate
 }

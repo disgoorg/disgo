@@ -10,20 +10,20 @@ type GenericUserActivityEvent struct {
 	Member *api.Member
 }
 
-// UserActivityStartEvent indicates that a api.User started a new api.Activity(requires the api.GatewayIntentsGuildPresences)
+// UserActivityStartEvent indicates that an api.User started a new api.Activity(requires the api.GatewayIntentsGuildPresences)
 type UserActivityStartEvent struct {
 	*GenericUserActivityEvent
 	Activity *api.Activity
 }
 
-// UserActivityUpdateEvent indicates that a api.User's api.Activity(s) updated(requires the api.GatewayIntentsGuildPresences)
+// UserActivityUpdateEvent indicates that an api.User's api.Activity(s) updated(requires the api.GatewayIntentsGuildPresences)
 type UserActivityUpdateEvent struct {
 	*GenericUserActivityEvent
 	NewActivities *api.Activity
 	OldActivities *api.Activity
 }
 
-// UserActivityEndEvent indicates that a api.User ended a api.Activity(requires the api.GatewayIntentsGuildPresences)
+// UserActivityEndEvent indicates that an api.User ended an api.Activity(requires the api.GatewayIntentsGuildPresences)
 type UserActivityEndEvent struct {
 	*GenericUserActivityEvent
 	Activity *api.Activity

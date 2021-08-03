@@ -8,7 +8,7 @@ import (
 // ChannelCreateHandler handles api.GatewayEventChannelCreate
 type ChannelCreateHandler struct{}
 
-// Event returns the raw gateway event Event
+// Event returns the api.GatewayEventType
 func (h ChannelCreateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventChannelCreate
 }

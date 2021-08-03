@@ -8,7 +8,7 @@ import (
 // ReadyHandler handles api.ReadyGatewayEvent
 type ReadyHandler struct{}
 
-// Event returns the raw gateway event Event
+// Event returns the api.GatewayEventType
 func (h *ReadyHandler) Event() api.GatewayEventType {
 	return api.GatewayEventReady
 }
@@ -19,7 +19,7 @@ func (h *ReadyHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *ReadyHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+func (h *ReadyHandler) HandleGatewayEvent(disgo api.Disgo, _ api.EventManager, sequenceNumber int, i interface{}) {
 	readyEvent, ok := i.(*api.ReadyGatewayEvent)
 	if !ok {
 		return

@@ -140,7 +140,7 @@ func (r *restClientImpl) GetDMChannels() (dmChannels []*api.DMChannel, rErr rest
 	return
 }
 
-// CreateDMChannel opens a new api.DMChannel to a api.User
+// CreateDMChannel opens a new api.DMChannel to an api.User
 func (r *restClientImpl) CreateDMChannel(userID api.Snowflake) (channel *api.DMChannel, rErr restclient.RestError) {
 	compiledRoute, err := restclient.CreateDMChannel.Compile(nil)
 	if err != nil {
@@ -167,7 +167,7 @@ func (r *restClientImpl) GetMessage(channelID api.Snowflake, messageID api.Snowf
 	return
 }
 
-// CreateMessage lets you send a api.Message to a api.MessageChannel
+// CreateMessage lets you send an api.Message to an api.MessageChannel
 func (r *restClientImpl) CreateMessage(channelID api.Snowflake, messageCreate api.MessageCreate) (message *api.Message, rErr restclient.RestError) {
 	compiledRoute, err := restclient.CreateMessage.Compile(nil, channelID)
 	if err != nil {
@@ -186,7 +186,7 @@ func (r *restClientImpl) CreateMessage(channelID api.Snowflake, messageCreate ap
 	return
 }
 
-// UpdateMessage lets you edit a api.Message
+// UpdateMessage lets you edit an api.Message
 func (r *restClientImpl) UpdateMessage(channelID api.Snowflake, messageID api.Snowflake, messageUpdate api.MessageUpdate) (message *api.Message, rErr restclient.RestError) {
 	compiledRoute, err := restclient.UpdateMessage.Compile(nil, channelID, messageID)
 	if err != nil {
@@ -205,7 +205,7 @@ func (r *restClientImpl) UpdateMessage(channelID api.Snowflake, messageID api.Sn
 	return
 }
 
-// DeleteMessage lets you delete a api.Message
+// DeleteMessage lets you delete an api.Message
 func (r *restClientImpl) DeleteMessage(channelID api.Snowflake, messageID api.Snowflake) (rErr restclient.RestError) {
 	compiledRoute, err := restclient.DeleteMessage.Compile(nil, channelID, messageID)
 	if err != nil {
@@ -234,7 +234,7 @@ func (r *restClientImpl) BulkDeleteMessages(channelID api.Snowflake, messageIDs 
 	return
 }
 
-// CrosspostMessage lets you crosspost a api.Message in a channel with type api.ChannelTypeNews
+// CrosspostMessage lets you crosspost an api.Message in a channel with type api.ChannelTypeNews
 func (r *restClientImpl) CrosspostMessage(channelID api.Snowflake, messageID api.Snowflake) (message *api.Message, rErr restclient.RestError) {
 	compiledRoute, err := restclient.CrosspostMessage.Compile(nil, channelID, messageID)
 	if err != nil {
@@ -373,7 +373,7 @@ func (r *restClientImpl) AddMember(guildID api.Snowflake, userID api.Snowflake, 
 	return
 }
 
-// RemoveMember kicks a api.Member from the api.Guild. requires api.PermissionKickMembers
+// RemoveMember kicks an api.Member from the api.Guild. requires api.PermissionKickMembers
 func (r *restClientImpl) RemoveMember(guildID api.Snowflake, userID api.Snowflake, reason string) (rErr restclient.RestError) {
 	var params restclient.QueryValues
 	if reason != "" {
@@ -390,7 +390,7 @@ func (r *restClientImpl) RemoveMember(guildID api.Snowflake, userID api.Snowflak
 	return
 }
 
-// UpdateMember updates a api.Member
+// UpdateMember updates an api.Member
 func (r *restClientImpl) UpdateMember(guildID api.Snowflake, userID api.Snowflake, updateMember api.UpdateMember) (member *api.Member, rErr restclient.RestError) {
 	compiledRoute, err := restclient.UpdateMember.Compile(nil, guildID, userID)
 	if err != nil {
@@ -422,7 +422,7 @@ func (r *restClientImpl) UpdateSelfNick(guildID api.Snowflake, nick string) (new
 	return
 }
 
-// MoveMember moves/kicks the api.Member to/from a api.VoiceChannel
+// MoveMember moves/kicks the api.Member to/from an api.VoiceChannel
 func (r *restClientImpl) MoveMember(guildID api.Snowflake, userID api.Snowflake, channelID *api.Snowflake) (member *api.Member, rErr restclient.RestError) {
 	compiledRoute, err := restclient.UpdateMember.Compile(nil, guildID, userID)
 	if err != nil {
@@ -530,7 +530,7 @@ func (r *restClientImpl) DeleteBan(guildID api.Snowflake, userID api.Snowflake) 
 	return r.Do(compiledRoute, nil, nil)
 }
 
-// AddMemberRole adds a api.Role to a api.Member
+// AddMemberRole adds an api.Role to an api.Member
 func (r *restClientImpl) AddMemberRole(guildID api.Snowflake, userID api.Snowflake, roleID api.Snowflake) (rErr restclient.RestError) {
 	compiledRoute, err := restclient.AddMemberRole.Compile(nil, guildID, userID, roleID)
 	if err != nil {
@@ -546,7 +546,7 @@ func (r *restClientImpl) AddMemberRole(guildID api.Snowflake, userID api.Snowfla
 	return
 }
 
-// RemoveMemberRole removes a api.Role(s) from a api.Member
+// RemoveMemberRole removes an api.Role(s) from an api.Member
 func (r *restClientImpl) RemoveMemberRole(guildID api.Snowflake, userID api.Snowflake, roleID api.Snowflake) (rErr restclient.RestError) {
 	compiledRoute, err := restclient.RemoveMemberRole.Compile(nil, guildID, userID, roleID)
 	if err != nil {
@@ -567,7 +567,7 @@ func (r *restClientImpl) RemoveMemberRole(guildID api.Snowflake, userID api.Snow
 	return
 }
 
-// GetRoles fetches all api.Role(s) from a api.Guild
+// GetRoles fetches all api.Role(s) from an api.Guild
 func (r *restClientImpl) GetRoles(guildID api.Snowflake) (roles []*api.Role, rErr restclient.RestError) {
 	compiledRoute, err := restclient.GetRoles.Compile(nil, guildID)
 	if err != nil {
@@ -636,7 +636,7 @@ func (r *restClientImpl) DeleteRole(guildID api.Snowflake, roleID api.Snowflake)
 	return
 }
 
-// AddReaction lets you add a reaction to a api.Message
+// AddReaction lets you add a reaction to an api.Message
 func (r *restClientImpl) AddReaction(channelID api.Snowflake, messageID api.Snowflake, emoji string) restclient.RestError {
 	compiledRoute, err := restclient.AddReaction.Compile(nil, channelID, messageID, normalizeEmoji(emoji))
 	if err != nil {
@@ -645,7 +645,7 @@ func (r *restClientImpl) AddReaction(channelID api.Snowflake, messageID api.Snow
 	return r.Do(compiledRoute, nil, nil)
 }
 
-// RemoveOwnReaction lets you remove your own reaction from a api.Message
+// RemoveOwnReaction lets you remove your own reaction from an api.Message
 func (r *restClientImpl) RemoveOwnReaction(channelID api.Snowflake, messageID api.Snowflake, emoji string) restclient.RestError {
 	compiledRoute, err := restclient.RemoveOwnReaction.Compile(nil, channelID, messageID, normalizeEmoji(emoji))
 	if err != nil {
@@ -654,7 +654,7 @@ func (r *restClientImpl) RemoveOwnReaction(channelID api.Snowflake, messageID ap
 	return r.Do(compiledRoute, nil, nil)
 }
 
-// RemoveUserReaction lets you remove a specific reaction from a api.User from a api.Message
+// RemoveUserReaction lets you remove a specific reaction from an api.User from an api.Message
 func (r *restClientImpl) RemoveUserReaction(channelID api.Snowflake, messageID api.Snowflake, emoji string, userID api.Snowflake) restclient.RestError {
 	compiledRoute, err := restclient.RemoveUserReaction.Compile(nil, channelID, messageID, normalizeEmoji(emoji), userID)
 	if err != nil {
@@ -749,7 +749,7 @@ func (r *restClientImpl) DeleteGlobalCommand(applicationID api.Snowflake, comman
 	return
 }
 
-// GetGuildCommands gets you all api.Command(s) from a api.Guild
+// GetGuildCommands gets you all api.Command(s) from an api.Guild
 func (r *restClientImpl) GetGuildCommands(applicationID api.Snowflake, guildID api.Snowflake) (commands []*api.Command, rErr restclient.RestError) {
 	compiledRoute, err := restclient.GetGuildCommands.Compile(nil, applicationID, guildID)
 	if err != nil {
@@ -764,7 +764,7 @@ func (r *restClientImpl) GetGuildCommands(applicationID api.Snowflake, guildID a
 	return
 }
 
-// CreateGuildCommand lets you create a new api.Command in a api.Guild
+// CreateGuildCommand lets you create a new api.Command in an api.Guild
 func (r *restClientImpl) CreateGuildCommand(applicationID api.Snowflake, guildID api.Snowflake, command api.CommandCreate) (cmd *api.Command, rErr restclient.RestError) {
 	compiledRoute, err := restclient.CreateGuildCommand.Compile(nil, applicationID, guildID)
 	if err != nil {
@@ -777,7 +777,7 @@ func (r *restClientImpl) CreateGuildCommand(applicationID api.Snowflake, guildID
 	return
 }
 
-// SetGuildCommands lets you override all api.Command(s) in a api.Guild
+// SetGuildCommands lets you override all api.Command(s) in an api.Guild
 func (r *restClientImpl) SetGuildCommands(applicationID api.Snowflake, guildID api.Snowflake, commands ...api.CommandCreate) (cmds []*api.Command, rErr restclient.RestError) {
 	compiledRoute, err := restclient.SetGuildCommands.Compile(nil, applicationID, guildID)
 	if err != nil {
@@ -796,7 +796,7 @@ func (r *restClientImpl) SetGuildCommands(applicationID api.Snowflake, guildID a
 	return
 }
 
-// GetGuildCommand gets you a specific api.Command in a api.Guild
+// GetGuildCommand gets you a specific api.Command in an api.Guild
 func (r *restClientImpl) GetGuildCommand(applicationID api.Snowflake, guildID api.Snowflake, commandID api.Snowflake) (cmd *api.Command, rErr restclient.RestError) {
 	compiledRoute, err := restclient.GetGuildCommand.Compile(nil, applicationID, guildID, commandID)
 	if err != nil {
@@ -809,7 +809,7 @@ func (r *restClientImpl) GetGuildCommand(applicationID api.Snowflake, guildID ap
 	return
 }
 
-// UpdateGuildCommand lets you edit a specific api.Command in a api.Guild
+// UpdateGuildCommand lets you edit a specific api.Command in an api.Guild
 func (r *restClientImpl) UpdateGuildCommand(applicationID api.Snowflake, guildID api.Snowflake, commandID api.Snowflake, command api.CommandUpdate) (cmd *api.Command, rErr restclient.RestError) {
 	compiledRoute, err := restclient.UpdateGuildCommand.Compile(nil, applicationID, guildID, commandID)
 	if err != nil {
@@ -822,7 +822,7 @@ func (r *restClientImpl) UpdateGuildCommand(applicationID api.Snowflake, guildID
 	return
 }
 
-// DeleteGuildCommand lets you delete a specific api.Command in a api.Guild
+// DeleteGuildCommand lets you delete a specific api.Command in an api.Guild
 func (r *restClientImpl) DeleteGuildCommand(applicationID api.Snowflake, guildID api.Snowflake, commandID api.Snowflake) (rErr restclient.RestError) {
 	compiledRoute, err := restclient.DeleteGuildCommand.Compile(nil, applicationID, guildID, commandID)
 	if err != nil {
@@ -835,7 +835,7 @@ func (r *restClientImpl) DeleteGuildCommand(applicationID api.Snowflake, guildID
 	return
 }
 
-// GetGuildCommandsPermissions returns the api.CommandPermission for a all api.Command(s) in a api.Guild
+// GetGuildCommandsPermissions returns the api.CommandPermission for a all api.Command(s) in an api.Guild
 func (r *restClientImpl) GetGuildCommandsPermissions(applicationID api.Snowflake, guildID api.Snowflake) (cmdsPerms []*api.GuildCommandPermissions, rErr restclient.RestError) {
 	compiledRoute, err := restclient.GetGuildCommandPermissions.Compile(nil, applicationID, guildID)
 	if err != nil {
@@ -850,7 +850,7 @@ func (r *restClientImpl) GetGuildCommandsPermissions(applicationID api.Snowflake
 	return
 }
 
-// GetGuildCommandPermissions returns the api.CommandPermission for a specific api.Command in a api.Guild
+// GetGuildCommandPermissions returns the api.CommandPermission for a specific api.Command in an api.Guild
 func (r *restClientImpl) GetGuildCommandPermissions(applicationID api.Snowflake, guildID api.Snowflake, commandID api.Snowflake) (cmdPerms *api.GuildCommandPermissions, rErr restclient.RestError) {
 	compiledRoute, err := restclient.GetGuildCommandPermission.Compile(nil, applicationID, guildID, commandID)
 	if err != nil {

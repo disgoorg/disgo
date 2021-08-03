@@ -14,18 +14,18 @@ func (e GenericDMMessageEvent) DMChannel() *api.DMChannel {
 	return e.Disgo().Cache().DMChannel(e.ChannelID)
 }
 
-// DMMessageCreateEvent is called upon receiving a api.Message in a api.DMChannel(requires api.GatewayIntentsDirectMessages)
+// DMMessageCreateEvent is called upon receiving an api.Message in an api.DMChannel(requires api.GatewayIntentsDirectMessages)
 type DMMessageCreateEvent struct {
 	*GenericDMMessageEvent
 }
 
-// DMMessageUpdateEvent is called upon editing a api.Message in a api.DMChannel(requires api.GatewayIntentsDirectMessages)
+// DMMessageUpdateEvent is called upon editing an api.Message in an api.DMChannel(requires api.GatewayIntentsDirectMessages)
 type DMMessageUpdateEvent struct {
 	*GenericDMMessageEvent
 	OldMessage *api.Message
 }
 
-// DMMessageDeleteEvent is called upon deleting a api.Message in a api.DMChannel(requires api.GatewayIntentsDirectMessages)
+// DMMessageDeleteEvent is called upon deleting an api.Message in an api.DMChannel(requires api.GatewayIntentsDirectMessages)
 type DMMessageDeleteEvent struct {
 	*GenericDMMessageEvent
 }
