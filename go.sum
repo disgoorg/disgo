@@ -1,7 +1,7 @@
-github.com/DisgoOrg/log v1.0.4 h1:d8o2W3TcmADgYaOy+q1Nj7vbuAthSTi7K4TJlqDdeRY=
-github.com/DisgoOrg/log v1.0.4/go.mod h1:KFGKhBQr37d6rxZ7p2bmc8BEmDH8DZbtgdlJDSCsE7I=
-github.com/DisgoOrg/restclient v1.2.6 h1:hPW0GOS3LMzRaQMxWw1k2ZkzUYlMxcoos6yYbrRWfqU=
-github.com/DisgoOrg/restclient v1.2.6/go.mod h1:vq6NA8Gb07kgYtzpkYthjYsFGgqPro/VIHaSno8OR2w=
+github.com/DisgoOrg/log v1.1.0 h1:a6hLfVSDuTFJc5AKQ8FDYQ5TASnwk3tciUyXThm1CR4=
+github.com/DisgoOrg/log v1.1.0/go.mod h1:Qihgz6fax3JCfuO7vxVavL0LyHS0sUdQ9OmykQ2fiQs=
+github.com/DisgoOrg/restclient v1.2.7 h1:A8ltFP+8O2q9ZTk/vRmlQRvH2cbcnaacUV2uXWFcONQ=
+github.com/DisgoOrg/restclient v1.2.7/go.mod h1:2pc/htya/5kjxvWNYya98sb8B4mexobxmWvhTiWPt94=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/gorilla/mux v1.8.0 h1:i40aqfkR1h2SlN9hojwV5ZA91wcXFOvkdNIeFDP5koI=
