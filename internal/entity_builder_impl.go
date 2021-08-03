@@ -243,7 +243,6 @@ func (b *EntityBuilderImpl) CreateMember(guildID api.Snowflake, member *api.Memb
 func (b *EntityBuilderImpl) CreateVoiceState(guildID api.Snowflake, voiceState *api.VoiceState, updateCache api.CacheStrategy) *api.VoiceState {
 	voiceState.Disgo = b.Disgo()
 	voiceState.GuildID = guildID
-	b.Disgo().Logger().Infof("voiceState: %+v", voiceState)
 
 	if updateCache(b.Disgo()) {
 		return b.Disgo().Cache().CacheVoiceState(voiceState)
