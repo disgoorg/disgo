@@ -6,7 +6,8 @@ import "encoding/json"
 type EventManager interface {
 	Disgo() Disgo
 	Close()
-	AddEventListeners(eventListeners ...EventListener)
+	AddEventListeners(listeners ...EventListener)
+	RemoveEventListener(listeners ...EventListener)
 	Handle(eventType GatewayEventType, replyChannel chan InteractionResponse, sequenceNumber int, payload json.RawMessage)
 	Dispatch(event Event)
 }
