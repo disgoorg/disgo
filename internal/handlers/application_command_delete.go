@@ -9,17 +9,17 @@ import (
 type CommandDeleteHandler struct{}
 
 // Event returns the api.GatewayEventType
-func (h CommandDeleteHandler) Event() api.GatewayEventType {
+func (h *CommandDeleteHandler) Event() api.GatewayEventType {
 	return api.GatewayEventCommandDelete
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h CommandDeleteHandler) New() interface{} {
+func (h *CommandDeleteHandler) New() interface{} {
 	return &api.Command{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h CommandDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+func (h *CommandDeleteHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	command, ok := i.(*api.Command)
 	if !ok {
 		return

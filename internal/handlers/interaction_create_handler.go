@@ -9,17 +9,17 @@ import (
 type InteractionCreateHandler struct{}
 
 // Event returns the api.GatewayEventType
-func (h InteractionCreateHandler) Event() api.GatewayEventType {
+func (h *InteractionCreateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventInteractionCreate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h InteractionCreateHandler) New() interface{} {
+func (h *InteractionCreateHandler) New() interface{} {
 	return &api.FullInteraction{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h InteractionCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+func (h *InteractionCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	fullInteraction, ok := i.(*api.FullInteraction)
 	if !ok {
 		return
