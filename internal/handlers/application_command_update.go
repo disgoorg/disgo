@@ -9,17 +9,17 @@ import (
 type CommandUpdateHandler struct{}
 
 // Event returns the api.GatewayEventType
-func (h CommandUpdateHandler) Event() api.GatewayEventType {
+func (h *CommandUpdateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventCommandUpdate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h CommandUpdateHandler) New() interface{} {
+func (h *CommandUpdateHandler) New() interface{} {
 	return &api.Command{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h CommandUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+func (h *CommandUpdateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	command, ok := i.(*api.Command)
 	if !ok {
 		return

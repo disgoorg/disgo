@@ -9,17 +9,17 @@ import (
 type ChannelCreateHandler struct{}
 
 // Event returns the api.GatewayEventType
-func (h ChannelCreateHandler) Event() api.GatewayEventType {
+func (h *ChannelCreateHandler) Event() api.GatewayEventType {
 	return api.GatewayEventChannelCreate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h ChannelCreateHandler) New() interface{} {
+func (h *ChannelCreateHandler) New() interface{} {
 	return &api.Channel{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
+func (h *ChannelCreateHandler) HandleGatewayEvent(disgo api.Disgo, eventManager api.EventManager, sequenceNumber int, i interface{}) {
 	channel, ok := i.(*api.Channel)
 	if !ok {
 		return
