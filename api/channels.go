@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"errors"
 
 	"github.com/DisgoOrg/restclient"
@@ -41,6 +42,11 @@ type Channel struct {
 	ParentID         *Snowflake   `json:"parent_id,omitempty"`
 	Permissions      *Permissions `json:"permissions,omitempty"`
 	//LastPinTimestamp *time.Time  `json:"last_pin_timestamp,omitempty"`
+}
+
+// Mention returns the channel as a string
+func (c Channel) Mention() string {
+	return fmt.Sprintf("<#%s>", c.ID)
 }
 
 // MessageChannel is used for sending Message(s) to User(s)
