@@ -69,8 +69,18 @@ func (e *EventManagerImpl) Dispatch(event api.Event) {
 
 // AddEventListeners adds one or more api.EventListener(s) to the api.EventManager
 func (e *EventManagerImpl) AddEventListeners(listeners ...api.EventListener) {
+	e.listeners = append(e.listeners, listeners...)
+}
+
+// RemoveEventListener removes one or more api.EventListener(s) from the api.EventManager
+func (e *EventManagerImpl) RemoveEventListener(listeners ...api.EventListener) {
 	for _, listener := range listeners {
-		e.listeners = append(e.listeners, listener)
+		for i, l := range e.listeners {
+			if l == listener {
+				e.listeners = append(e.listeners[:i], e.listeners[i+1:]...)
+				break
+			}
+		}
 	}
 }
 
