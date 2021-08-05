@@ -84,6 +84,18 @@ func (e *EventManagerImpl) RemoveEventListener(listeners ...api.EventListener) {
 	}
 }
 
+// RemoveEventListener removes one or more api.EventListener(s) from the api.EventManager
+func (e *EventManagerImpl) RemoveEventListener(listeners ...api.EventListener) {
+	for _, listener := range listeners {
+		for i, l := range e.listeners {
+			if l == listener {
+				e.listeners = append(e.listeners[:i], e.listeners[i+1:]...)
+				break
+			}
+		}
+	}
+}
+
 // ListenEvents starts the event goroutine
 func (e *EventManagerImpl) ListenEvents() {
 	defer func() {
