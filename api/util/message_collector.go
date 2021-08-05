@@ -56,7 +56,7 @@ func (c *MessageCollector) OnEvent(e interface{}) {
 		c.Channel <- event.Message
 	} else if event, ok := e.(*events.GuildChannelDeleteEvent); ok && event.ChannelID == c.ChannelID {
 		c.Close()
-	} else if event, ok := e.(events.GuildVoiceLeaveEvent); ok && event.GuildID == c.GuildID {
+	} else if event, ok := e.(events.GuildLeaveEvent); ok && event.GuildID == c.GuildID {
 		c.Close()
 	}
 }
