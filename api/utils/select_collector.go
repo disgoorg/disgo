@@ -35,7 +35,7 @@ func NewSelectCollectorFromMessage(message *api.Message, filter SelectFilter) (c
 	return NewSelectCollector(message.Disgo, message.ChannelID, message.ID, *message.GuildID, filter)
 }
 
-// SelectFilter used to filter api.MessageReaction in a ReactionCollector
+// SelectFilter used to filter api.MessageReaction in a SelectCollector
 type SelectFilter func(reaction *api.SelectMenuInteraction) bool
 
 // SelectCollector used to collect api.SelectMenuInteraction(s) from an api.Message using a SelectFilter function
