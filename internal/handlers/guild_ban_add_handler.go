@@ -15,7 +15,7 @@ type GuildBanAddHandler struct{}
 
 // Event returns the api.GatewayEventType
 func (h *GuildBanAddHandler) Event() api.GatewayEventType {
-	return api.GatewayEventChannelUpdate
+	return api.GatewayEventGuildBanAdd
 }
 
 // New constructs a new payload receiver for the raw gateway event
