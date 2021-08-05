@@ -5,6 +5,7 @@ import (
 	"github.com/DisgoOrg/disgo/api/events"
 )
 
+// NewButtonCollector gives you a channel to receive on and a function to close the collector
 func NewButtonCollector(disgo api.Disgo, channelID api.Snowflake, guildID api.Snowflake, messageID api.Snowflake, filter ButtonFilter) (chan *api.ButtonInteraction, func()) {
 	ch := make(chan *api.ButtonInteraction)
 
@@ -34,8 +35,10 @@ func NewButtonCollectorFromMessage(message *api.Message, filter ButtonFilter) (c
 	return NewButtonCollector(message.Disgo, message.ChannelID, message.ID, *message.GuildID, filter)
 }
 
+// ButtonFilter used to filter api.ButtonInteraction for ButtonCollector
 type ButtonFilter func(reaction *api.ButtonInteraction) bool
 
+// ButtonCollector used to collect api.ButtonInteraction(s) from an api.Message using a ButtonFilter function
 type ButtonCollector struct {
 	Channel   chan *api.ButtonInteraction
 	Filter    ButtonFilter
@@ -45,7 +48,7 @@ type ButtonCollector struct {
 	MessageID api.Snowflake
 }
 
-// OnEvent used to get events for the MessageCollector
+// OnEvent used to get events for the ButtonCollector
 func (r *ButtonCollector) OnEvent(e interface{}) {
 	if event, ok := e.(*events.ButtonClickEvent); ok {
 		if !r.Filter(event.ButtonInteraction) {

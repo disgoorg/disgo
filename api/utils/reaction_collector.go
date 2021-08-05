@@ -5,6 +5,7 @@ import (
 	"github.com/DisgoOrg/disgo/api/events"
 )
 
+// NewReactionCollector gives you a channel to receive on and a function to close the collector
 func NewReactionCollector(disgo api.Disgo, channelID api.Snowflake, guildID api.Snowflake, messageID api.Snowflake, filter ReactionFilter) (chan *api.MessageReaction, func()) {
 	ch := make(chan *api.MessageReaction)
 
@@ -34,8 +35,10 @@ func NewReactionCollectorFromMessage(message *api.Message, filter ReactionFilter
 	return NewReactionCollector(message.Disgo, message.ChannelID, message.ID, *message.GuildID, filter)
 }
 
+// ReactionFilter used to filter api.MessageReaction in a ReactionCollector
 type ReactionFilter func(reaction *api.MessageReaction) bool
 
+// ReactionCollector used to collect api.MessageReaction(s) from an api.Message using a ReactionFilter function
 type ReactionCollector struct {
 	Channel   chan *api.MessageReaction
 	Filter    ReactionFilter
@@ -45,7 +48,7 @@ type ReactionCollector struct {
 	MessageID api.Snowflake
 }
 
-// OnEvent used to get events for the MessageCollector
+// OnEvent used to get events for the ReactionCollector
 func (r *ReactionCollector) OnEvent(e interface{}) {
 	if event, ok := e.(*events.MessageReactionAddEvent); ok {
 		if !r.Filter(&event.MessageReaction) {
