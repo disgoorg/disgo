@@ -22,6 +22,9 @@ func GetAllHandlers() []api.EventHandler {
 		&GuildMemberAddHandler{},
 		&GuildMemberRemoveHandler{},
 		&GuildMemberUpdateHandler{},
+		
+		&GuildBanAddHandler{},
+		&GuildBanRemoveHandler{},
 
 		&GuildRoleCreateHandler{},
 		&GuildRoleDeleteHandler{},
