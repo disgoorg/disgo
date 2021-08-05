@@ -48,7 +48,7 @@ type SelectCollector struct {
 	MessageID api.Snowflake
 }
 
-// OnEvent used to get events for the ReactionCollector
+// OnEvent used to get events for the SelectCollector
 func (r *SelectCollector) OnEvent(e interface{}) {
 	if event, ok := e.(*events.SelectMenuSubmitEvent); ok {
 		if !r.Filter(event.SelectMenuInteraction) {
