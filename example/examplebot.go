@@ -12,6 +12,7 @@ import (
 	"github.com/DisgoOrg/disgo"
 	"github.com/DisgoOrg/disgo/api"
 	"github.com/DisgoOrg/disgo/api/events"
+	"github.com/DisgoOrg/disgo/api/util"
 	"github.com/DisgoOrg/log"
 	"github.com/PaesslerAG/gval"
 )
@@ -46,6 +47,7 @@ func main() {
 			OnSelectMenuSubmit:   selectMenuSubmitListener,
 		}).
 		Build()
+
 	if err != nil {
 		log.Fatalf("error while building disgo instance: %s", err)
 		return
@@ -377,5 +379,30 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 				_ = event.Message.AddReaction("❌")
 			}
 		}()
+
+	case "repeat":
+		go func() {
+			ch, cls := util.NewMessageCollector(event.Disgo(), func(m *api.Message) bool {
+				return !m.Author.IsBot && m.ChannelID == event.ChannelID
+			})
+
+			var count = 0
+			for {
+				count++
+				if count >= 10 {
+					cls()
+					return
+				}
+
+				msg, ok := <-ch
+
+				if !ok {
+					return
+				}
+
+				_, _ = msg.Reply(api.NewMessageCreateBuilder().SetContentf("Content: %s, Count: %v", *msg.Content, count).Build())
+			}
+		}()
+
 	}
 }
