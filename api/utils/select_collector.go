@@ -49,18 +49,18 @@ type SelectCollector struct {
 }
 
 // OnEvent used to get events for the SelectCollector
-func (r *SelectCollector) OnEvent(e interface{}) {
+func (s *SelectCollector) OnEvent(e interface{}) {
 	if event, ok := e.(*events.SelectMenuSubmitEvent); ok {
-		if !r.Filter(event.SelectMenuInteraction) {
+		if !s.Filter(event.SelectMenuInteraction) {
 			return
 		}
 
-		r.Channel <- event.SelectMenuInteraction
-	} else if event, ok := e.(*events.GuildChannelDeleteEvent); ok && event.ChannelID == r.ChannelID {
-		r.Close()
-	} else if event, ok := e.(events.GuildLeaveEvent); ok && event.GuildID == r.GuildID {
-		r.Close()
-	} else if event, ok := e.(events.MessageDeleteEvent); ok && event.MessageID == r.MessageID {
-		r.Close()
+		s.Channel <- event.SelectMenuInteraction
+	} else if event, ok := e.(*events.GuildChannelDeleteEvent); ok && event.ChannelID == s.ChannelID {
+		s.Close()
+	} else if event, ok := e.(events.GuildLeaveEvent); ok && event.GuildID == s.GuildID {
+		s.Close()
+	} else if event, ok := e.(events.MessageDeleteEvent); ok && event.MessageID == s.MessageID {
+		s.Close()
 	}
 }
