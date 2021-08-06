@@ -181,6 +181,13 @@ type MessageSticker struct {
 	SortValue   int                      `json:"sort_value,omitempty"`
 }
 
+// UpdateMessageSticker is used to update a sticker in a Guild
+type UpdateMessageSticker struct {
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	Tags        string `json:"tags"`
+}
+
 // Tags is used to get the tags for a sticker
 func (m *MessageSticker) Tags() []string {
 	return strings.Split(*m.RawTags, " ")

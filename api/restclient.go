@@ -109,4 +109,8 @@ type RestClient interface {
 	SyncGuildTemplate(guildID Snowflake, templateCode string) (*GuildTemplate, restclient.RestError)
 	UpdateGuildTemplate(guildID Snowflake, templateCode string, updateGuildTemplate UpdateGuildTemplate) (*GuildTemplate, restclient.RestError)
 	DeleteGuildTemplate(guildID Snowflake, templateCode string) (*GuildTemplate, restclient.RestError)
+
+	DeleteGuildSticker(guildID Snowflake, stickerID Snowflake) restclient.RestError
+	UpdateGuildSticker(guildID Snowflake, stickerID Snowflake, updateMessageSticker UpdateMessageSticker) (*MessageSticker, restclient.RestError)
+	GetGuildStickers(guildID Snowflake) ([]*MessageSticker, restclient.RestError)
 }

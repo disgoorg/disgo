@@ -23,6 +23,18 @@ type restClientImpl struct {
 	disgo api.Disgo
 }
 
+func (r *restClientImpl) GetGuildStickers(guildID api.Snowflake) ([]*api.MessageSticker, restclient.RestError) {
+	panic("implement me")
+}
+
+func (r *restClientImpl) DeleteGuildSticker(guildID api.Snowflake, stickerID api.Snowflake) restclient.RestError {
+	panic("implement me")
+}
+
+func (r *restClientImpl) UpdateGuildSticker(guildID api.Snowflake, stickerID api.Snowflake, updateMessageSticker api.UpdateMessageSticker) (*api.MessageSticker, restclient.RestError) {
+	panic("implement me")
+}
+
 // Disgo returns the api.Disgo instance
 func (r *restClientImpl) Disgo() api.Disgo {
 	return r.disgo

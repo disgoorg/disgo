@@ -376,6 +376,21 @@ func (g *Guild) DeleteTemplate(code string) (*GuildTemplate, restclient.RestErro
 	return g.Disgo.RestClient().DeleteGuildTemplate(g.ID, code)
 }
 
+// UpdateSticker updates the MessageSticker with the given Snowflake id with the UpdateMessageSticker new sticker
+func (g *Guild) UpdateSticker(stickerID Snowflake, newSticker UpdateMessageSticker) (*MessageSticker, restclient.RestError) {
+	return g.Disgo.RestClient().UpdateGuildSticker(g.ID, stickerID, newSticker)
+}
+
+// DeleteSticker deletes the sticker with the given Snowflake id
+func (g *Guild) DeleteSticker(stickerID Snowflake) restclient.RestError {
+	return g.Disgo.RestClient().DeleteGuildSticker(g.ID, stickerID)
+}
+
+// GetStickers returns all the stickers for this Guild
+func (g *Guild) GetStickers() ([]*MessageSticker, restclient.RestError) {
+	return g.Disgo.RestClient().GetGuildStickers(g.ID)
+}
+
 // PartialGuild is returned on the restclient.GetGuilds route
 type PartialGuild struct {
 	ID          Snowflake      `json:"id"`
