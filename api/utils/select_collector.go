@@ -6,7 +6,7 @@ import (
 )
 
 // NewSelectCollector gives you a channel to receive on and a function to close the collector
-func NewSelectCollector(disgo api.Disgo, channelID api.Snowflake, guildID api.Snowflake, messageID api.Snowflake, filter SelectFilter) (chan *api.SelectMenuInteraction, func()) {
+func NewSelectMenuSubmitCollector(disgo api.Disgo, channelID api.Snowflake, guildID api.Snowflake, messageID api.Snowflake, filter SelectFilter) (chan *api.SelectMenuInteraction, func()) {
 	ch := make(chan *api.SelectMenuInteraction)
 
 	col := &SelectCollector{
@@ -31,7 +31,7 @@ func NewSelectCollector(disgo api.Disgo, channelID api.Snowflake, guildID api.Sn
 
 // NewSelectCollectorFromMessage is an overload of NewSelectCollector that takes an api.Message for information
 //goland:noinspection GoUnusedExportedFunction
-func NewSelectCollectorFromMessage(message *api.Message, filter SelectFilter) (chan *api.SelectMenuInteraction, func()) {
+func NewSelectMenuSubmitCollectorFromMessage(message *api.Message, filter SelectFilter) (chan *api.SelectMenuInteraction, func()) {
 	return NewSelectCollector(message.Disgo, message.ChannelID, message.ID, *message.GuildID, filter)
 }
 
@@ -39,7 +39,7 @@ func NewSelectCollectorFromMessage(message *api.Message, filter SelectFilter) (c
 type SelectFilter func(reaction *api.SelectMenuInteraction) bool
 
 // SelectCollector used to collect api.SelectMenuInteraction(s) from an api.Message using a SelectFilter function
-type SelectCollector struct {
+type SelectMenuSubmitCollector struct {
 	Channel   chan *api.SelectMenuInteraction
 	Filter    SelectFilter
 	Close     func()

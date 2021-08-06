@@ -6,7 +6,7 @@ import (
 )
 
 // NewReactionCollector gives you a channel to receive on and a function to close the collector
-func NewReactionCollector(disgo api.Disgo, channelID api.Snowflake, guildID api.Snowflake, messageID api.Snowflake, filter ReactionFilter) (chan *api.MessageReaction, func()) {
+func NewReactionAddCollector(disgo api.Disgo, channelID api.Snowflake, guildID api.Snowflake, messageID api.Snowflake, filter ReactionFilter) (chan *api.MessageReaction, func()) {
 	ch := make(chan *api.MessageReaction)
 
 	col := &ReactionCollector{
@@ -31,15 +31,15 @@ func NewReactionCollector(disgo api.Disgo, channelID api.Snowflake, guildID api.
 
 // NewReactionCollectorFromMessage is an overload of NewReactionCollector that takes an api.Message for information
 //goland:noinspection GoUnusedExportedFunction
-func NewReactionCollectorFromMessage(message *api.Message, filter ReactionFilter) (chan *api.MessageReaction, func()) {
+func NewReactionAddCollectorFromMessage(message *api.Message, filter ReactionFilter) (chan *api.MessageReaction, func()) {
 	return NewReactionCollector(message.Disgo, message.ChannelID, message.ID, *message.GuildID, filter)
 }
 
 // ReactionFilter used to filter api.MessageReaction in a ReactionCollector
-type ReactionFilter func(reaction *api.MessageReaction) bool
+type ReactionFilter func(reaction *events.MessageReactionAddEvent) bool
 
 // ReactionCollector used to collect api.MessageReaction(s) from an api.Message using a ReactionFilter function
-type ReactionCollector struct {
+type ReactionAddCollector struct {
 	Channel   chan *api.MessageReaction
 	Filter    ReactionFilter
 	Close     func()
