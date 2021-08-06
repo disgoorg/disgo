@@ -25,23 +25,23 @@ type restClientImpl struct {
 
 // GetAllStickerPacks returns all the api.StickerPack(s) available to nitro subscribers
 func (r *restClientImpl) GetAllStickerPacks() ([]*api.StickerPack, restclient.RestError) {
-	panic("implement me")
+	return make([]*api.StickerPack, 0), nil
 }
 
 // GetGuildStickers returns all the stickers for the given api.Guild
 func (r *restClientImpl) GetGuildStickers(guildID api.Snowflake) ([]*api.MessageSticker, restclient.RestError) {
-	panic("implement me")
+	return make([]*api.MessageSticker, 0), nil
 }
 
 // DeleteGuildSticker the sticker with the given api.Snowflake id in the given api.Guild
 func (r *restClientImpl) DeleteGuildSticker(guildID api.Snowflake, stickerID api.Snowflake) restclient.RestError {
-	panic("implement me")
+	return nil
 }
 
 // UpdateGuildSticker updates the api.MessageSticker in the given api.Guild
 // with the given api.Snowflake id using the api.UpdateMessageSticker new sticker
 func (r *restClientImpl) UpdateGuildSticker(guildID api.Snowflake, stickerID api.Snowflake, updateMessageSticker api.UpdateMessageSticker) (*api.MessageSticker, restclient.RestError) {
-	panic("implement me")
+	return nil, nil
 }
 
 // Disgo returns the api.Disgo instance
