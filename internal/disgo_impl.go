@@ -75,6 +75,11 @@ type DisgoImpl struct {
 	largeThreshold           int
 }
 
+// GetAllStickerPacks returns all the api.StickerPack(s) available to nitro subscribers
+func (d *DisgoImpl) GetAllStickerPacks() ([]*api.StickerPack, restclient.RestError) {
+	return make([]*api.StickerPack, 0), nil
+}
+
 // Logger returns the logger instance disgo uses
 func (d *DisgoImpl) Logger() log.Logger {
 	return d.logger

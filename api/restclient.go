@@ -113,4 +113,6 @@ type RestClient interface {
 	DeleteGuildSticker(guildID Snowflake, stickerID Snowflake) restclient.RestError
 	UpdateGuildSticker(guildID Snowflake, stickerID Snowflake, updateMessageSticker UpdateMessageSticker) (*MessageSticker, restclient.RestError)
 	GetGuildStickers(guildID Snowflake) ([]*MessageSticker, restclient.RestError)
+
+	GetAllStickerPacks() ([]*StickerPack, restclient.RestError)
 }

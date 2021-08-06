@@ -55,6 +55,8 @@ type Disgo interface {
 
 	GetTemplate(code string) (*GuildTemplate, restclient.RestError)
 	CreateGuildFromTemplate(templateCode string, createGuildFromTemplate CreateGuildFromTemplate) (*Guild, restclient.RestError)
+
+	GetAllStickerPacks() ([]*StickerPack, restclient.RestError)
 }
 
 // GetOS returns the simplified version of the operating system for sending to Discord in the IdentifyCommandDataProperties.OS payload
