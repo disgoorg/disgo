@@ -382,7 +382,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 
 	case "repeat":
 		go func() {
-			ch, cls := util.NewMessageCollector(event.Disgo(), func(m *api.Message) bool {
+			ch, cls := util.NewMessageCollectorFromChannel(event.MessageChannel(), func(m *api.Message) bool {
 				return !m.Author.IsBot && m.ChannelID == event.ChannelID
 			})
 

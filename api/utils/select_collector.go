@@ -5,11 +5,11 @@ import (
 	"github.com/DisgoOrg/disgo/api/events"
 )
 
-// NewSelectCollector gives you a channel to receive on and a function to close the collector
-func NewSelectCollector(disgo api.Disgo, channelID api.Snowflake, guildID api.Snowflake, messageID api.Snowflake, filter SelectFilter) (chan *api.SelectMenuInteraction, func()) {
+// NewSelectMenuSubmitCollector gives you a channel to receive on and a function to close the collector
+func NewSelectMenuSubmitCollector(disgo api.Disgo, channelID api.Snowflake, guildID api.Snowflake, messageID api.Snowflake, filter SelectFilter) (chan *api.SelectMenuInteraction, func()) {
 	ch := make(chan *api.SelectMenuInteraction)
 
-	col := &SelectCollector{
+	col := &SelectMenuSubmitCollector{
 		Filter:    filter,
 		Channel:   ch,
 		ChannelID: channelID,
@@ -29,17 +29,17 @@ func NewSelectCollector(disgo api.Disgo, channelID api.Snowflake, guildID api.Sn
 	return ch, cls
 }
 
-// NewSelectCollectorFromMessage is an overload of NewSelectCollector that takes an api.Message for information
+// NewSelectMenuSubmitCollectorFromMessage is an overload of NewSelectCollector that takes an api.Message for information
 //goland:noinspection GoUnusedExportedFunction
-func NewSelectCollectorFromMessage(message *api.Message, filter SelectFilter) (chan *api.SelectMenuInteraction, func()) {
-	return NewSelectCollector(message.Disgo, message.ChannelID, message.ID, *message.GuildID, filter)
+func NewSelectMenuSubmitCollectorFromMessage(message *api.Message, filter SelectFilter) (chan *api.SelectMenuInteraction, func()) {
+	return NewSelectMenuSubmitCollector(message.Disgo, message.ChannelID, message.ID, *message.GuildID, filter)
 }
 
 // SelectFilter used to filter api.MessageReaction in a SelectCollector
 type SelectFilter func(reaction *api.SelectMenuInteraction) bool
 
-// SelectCollector used to collect api.SelectMenuInteraction(s) from an api.Message using a SelectFilter function
-type SelectCollector struct {
+// SelectMenuSubmitCollector used to collect api.SelectMenuInteraction(s) from an api.Message using a SelectFilter function
+type SelectMenuSubmitCollector struct {
 	Channel   chan *api.SelectMenuInteraction
 	Filter    SelectFilter
 	Close     func()
@@ -49,7 +49,7 @@ type SelectCollector struct {
 }
 
 // OnEvent used to get events for the SelectCollector
-func (s *SelectCollector) OnEvent(e interface{}) {
+func (s *SelectMenuSubmitCollector) OnEvent(e interface{}) {
 	if event, ok := e.(*events.SelectMenuSubmitEvent); ok {
 		if !s.Filter(event.SelectMenuInteraction) {
 			return
