@@ -425,6 +425,26 @@ func (m *Message) SelectMenuByID(customID string) *SelectMenu {
 	return nil
 }
 
+func (m *Message) StickerByName(name string) *MessageSticker {
+	for _, sticker := range m.Stickers {
+		if sticker.Name == name {
+			return sticker
+		}
+	}
+
+	return nil
+}
+
+func (m *Message) StickerById(id Snowflake) *MessageSticker {
+	for _, sticker := range m.Stickers {
+		if sticker.ID == id {
+			return sticker
+		}
+	}
+
+	return nil
+}
+
 // IsEphemeral returns true if the Message has MessageFlagEphemeral
 func (m *Message) IsEphemeral() bool {
 	return m.Flags.Has(MessageFlagEphemeral)
