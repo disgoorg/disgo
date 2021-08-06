@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/DisgoOrg/restclient"
@@ -146,6 +147,16 @@ type MessageApplication struct {
 // MessageStickerFormatType is the Format type of MessageSticker
 type MessageStickerFormatType int
 
+// MessageStickerType is the Type of a MessageSticker
+type MessageStickerType int
+
+// Constants for MessageStickerType
+//goland:noinspection GoUnusedConst
+const (
+	MessageStickerTypeStandard = iota + 1
+	MessageStickerTypeGuild
+)
+
 // Constants for MessageStickerFormatType
 //goland:noinspection GoUnusedConst
 const (
@@ -156,12 +167,28 @@ const (
 
 // MessageSticker is a sticker sent with a Message
 type MessageSticker struct {
+	Disgo       Disgo                    `json:"-"`
 	ID          Snowflake                `json:"id"`
-	PackID      Snowflake                `json:"pack_id"`
+	PackID      Snowflake                `json:"pack_id,omitempty"`
+	GuildID     Snowflake                `json:"guild_id,omitempty"`
+	Uploader    User                     `json:"user,omitempty"`
 	Name        string                   `json:"name"`
-	Description string                   `json:"description"`
-	Tags        *string                  `json:"tags"`
+	Description string                   `json:"description,omitempty"`
+	RawTags     *string                  `json:"tags,omitempty"`
 	FormatType  MessageStickerFormatType `json:"format_type"`
+	Type        MessageStickerType       `json:"type,omitempty"`
+	Available   bool                     `json:"available,omitempty"`
+	SortValue   int                      `json:"sort_value,omitempty"`
+}
+
+// Tags is used to get the tags for a sticker
+func (m *MessageSticker) Tags() []string {
+	return strings.Split(*m.RawTags, " ")
+}
+
+// Guild is used to get the guild that created a sticker
+func (m *MessageSticker) Guild() *Guild {
+	return m.Disgo.Cache().Guild(m.GuildID)
 }
 
 // Message is a struct for messages sent in discord text-based channels
@@ -425,7 +452,7 @@ func (m *Message) SelectMenuByID(customID string) *SelectMenu {
 	return nil
 }
 
-// StickerByName returns the first sticker with the matching name, or nil
+// StickerByName is used to get the first sticker with the matching name, or nil
 func (m *Message) StickerByName(name string) *MessageSticker {
 	for _, sticker := range m.Stickers {
 		if sticker.Name == name {
@@ -436,7 +463,7 @@ func (m *Message) StickerByName(name string) *MessageSticker {
 	return nil
 }
 
-// StickerByID returns the sticker with the matching Snowflake id, or nil
+// StickerByID is used to get the sticker with the matching Snowflake id, or nil
 func (m *Message) StickerByID(id Snowflake) *MessageSticker {
 	for _, sticker := range m.Stickers {
 		if sticker.ID == id {
