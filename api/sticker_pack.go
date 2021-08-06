@@ -1,5 +1,6 @@
 package api
 
+// StickerPack is a collection of MessageSticker(s) (https://discord.com/developers/docs/resources/sticker#sticker-pack-object)
 type StickerPack struct {
 	ID             Snowflake         `json:"id"`
 	Stickers       []*MessageSticker `json:"stickers"`
