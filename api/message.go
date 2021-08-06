@@ -425,6 +425,7 @@ func (m *Message) SelectMenuByID(customID string) *SelectMenu {
 	return nil
 }
 
+// StickerByName returns the first sticker with the matching name, or nil
 func (m *Message) StickerByName(name string) *MessageSticker {
 	for _, sticker := range m.Stickers {
 		if sticker.Name == name {
@@ -435,7 +436,8 @@ func (m *Message) StickerByName(name string) *MessageSticker {
 	return nil
 }
 
-func (m *Message) StickerById(id Snowflake) *MessageSticker {
+// StickerByID returns the sticker with the matching Snowflake id, or nil
+func (m *Message) StickerByID(id Snowflake) *MessageSticker {
 	for _, sticker := range m.Stickers {
 		if sticker.ID == id {
 			return sticker
