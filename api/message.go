@@ -171,7 +171,7 @@ type MessageSticker struct {
 	ID          Snowflake                `json:"id"`
 	PackID      Snowflake                `json:"pack_id,omitempty"`
 	GuildID     Snowflake                `json:"guild_id,omitempty"`
-	Uploader    User                     `json:"user,omitempty"`
+	Uploader    *User                    `json:"user,omitempty"`
 	Name        string                   `json:"name"`
 	Description string                   `json:"description,omitempty"`
 	RawTags     *string                  `json:"tags,omitempty"`
