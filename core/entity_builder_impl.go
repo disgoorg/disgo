@@ -201,7 +201,7 @@ func (b *EntityBuilderImpl) CreateComponents(unmarshalComponents []discord.Unmar
 				UnmarshalComponent: component,
 			}
 			if len(component.Components) > 0 {
-				actionRow.Components = b.CreateComponents(unmarshalComponents, updateCache)
+				actionRow.Components = b.CreateComponents(component.Components, updateCache)
 			}
 			components[i] = actionRow
 

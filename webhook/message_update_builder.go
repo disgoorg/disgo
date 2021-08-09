@@ -1,16 +1,17 @@
-package core
+package webhook
 
 import (
 	"fmt"
 	"io"
 
+	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
 // MessageUpdateBuilder helper to build MessageUpdate easier
 type MessageUpdateBuilder struct {
 	discord.MessageUpdate
-	Components []Component
+	Components []core.Component
 }
 
 // NewMessageUpdateBuilder creates a new MessageUpdateBuilder to be built later
@@ -73,27 +74,27 @@ func (b *MessageUpdateBuilder) RemoveEmbed(i int) *MessageUpdateBuilder {
 }
 
 // SetActionRows sets the ActionRow(s) of the Message
-func (b *MessageUpdateBuilder) SetActionRows(actionRows ...ActionRow) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) SetActionRows(actionRows ...core.ActionRow) *MessageUpdateBuilder {
 	b.Components = actionRowsToComponents(actionRows)
 	return b
 }
 
-// SetActionRow sets the provided ActionRow at the index of Component(s)
-func (b *MessageUpdateBuilder) SetActionRow(i int, actionRow ActionRow) *MessageUpdateBuilder {
+// SetActionRow sets the provided ActionRow at the index of core.Component(s)
+func (b *MessageUpdateBuilder) SetActionRow(i int, actionRow core.ActionRow) *MessageUpdateBuilder {
 	if len(b.Components) > i {
 		b.Components[i] = actionRow
 	}
 	return b
 }
 
-// AddActionRow adds a new ActionRow with the provided Component(s) to the Message
-func (b *MessageUpdateBuilder) AddActionRow(components ...Component) *MessageUpdateBuilder {
-	b.Components = append(b.Components, NewActionRow(components...))
+// AddActionRow adds a new ActionRow with the provided core.Component(s) to the Message
+func (b *MessageUpdateBuilder) AddActionRow(components ...core.Component) *MessageUpdateBuilder {
+	b.Components = append(b.Components, core.NewActionRow(components...))
 	return b
 }
 
 // AddActionRows adds the ActionRow(s) to the Message
-func (b *MessageUpdateBuilder) AddActionRows(actionRows ...ActionRow) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) AddActionRows(actionRows ...core.ActionRow) *MessageUpdateBuilder {
 	b.Components = append(b.Components, actionRowsToComponents(actionRows)...)
 	return b
 }
@@ -108,7 +109,7 @@ func (b *MessageUpdateBuilder) RemoveActionRow(i int) *MessageUpdateBuilder {
 
 // ClearActionRows removes all the ActionRow(s) of the Message
 func (b *MessageUpdateBuilder) ClearActionRows() *MessageUpdateBuilder {
-	b.Components = []Component{}
+	b.Components = []core.Component{}
 	return b
 }
 

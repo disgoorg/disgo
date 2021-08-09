@@ -1,86 +1,49 @@
-package core
+package webhook
 
 import (
+	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 )
 
 type Message struct {
 	discord.Message
-	Disgo      Disgo
-	Member     *Member
-	Author     *User
-	Components []Component `json:"components"`
-}
-
-// Guild gets the guild_events the message_events was sent in
-func (m *Message) Guild() *Guild {
-	if m.GuildID == nil {
-		return nil
-	}
-	return m.Disgo.Cache().GuildCache().Get(*m.GuildID)
-}
-
-// Channel gets the channel the message_events was sent in
-func (m *Message) Channel() MessageChannel {
-	return m.Disgo.Cache().ChannelCache().MessageChannel(m.ChannelID)
-}
-
-// AddReactionByEmote allows you to add an Emoji to a message_events via reaction
-func (m *Message) AddReactionByEmote(emote Emoji) rest.Error {
-	return m.AddReaction(emote.Reaction())
-}
-
-// AddReaction allows you to add a reaction to a message_events from a string, for _examples a custom emoji ID, or a native emoji
-func (m *Message) AddReaction(emoji string) rest.Error {
-	return m.Disgo.RestServices().ChannelsService().AddReaction(m.ChannelID, m.ID, emoji)
+	WebhookClient Client
+	Components    []core.Component `json:"components"`
 }
 
 // Update allows you to edit an existing Message sent by you
 func (m *Message) Update(messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
-	message, err := m.Disgo.RestServices().ChannelsService().UpdateMessage(m.ChannelID, m.ID, messageUpdate)
+	message, err := m.WebhookClient.WebhookService().UpdateMessage(m.WebhookClient.ID(), m.WebhookClient.Token(), m.ID, messageUpdate)
 	if err != nil {
 		return nil, err
 	}
-	return m.Disgo.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
+	return m.WebhookClient.EntityBuilder().CreateMessage(*message), nil
 }
 
 // Delete allows you to edit an existing Message sent by you
 func (m *Message) Delete() rest.Error {
-	return m.Disgo.RestServices().ChannelsService().DeleteMessage(m.ChannelID, m.ID)
-}
-
-// Crosspost crossposts an existing message
-func (m *Message) Crosspost() (*Message, rest.Error) {
-	channel := m.Channel()
-	if channel != nil && channel.IsNewsChannel() {
-		return nil, rest.NewError(nil, discord.ErrChannelNotTypeNews)
-	}
-	message, err := m.Disgo.RestServices().ChannelsService().CrosspostMessage(m.ChannelID, m.ID)
-	if err != nil {
-		return nil, err
-	}
-	return m.Disgo.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
+	return m.WebhookClient.WebhookService().DeleteMessage(m.WebhookClient.ID(), m.WebhookClient.Token(), m.ID)
 }
 
 // Reply allows you to reply to an existing Message
 func (m *Message) Reply(messageCreate discord.MessageCreate) (*Message, rest.Error) {
 	messageCreate.MessageReference = &discord.MessageReference{MessageID: &m.ID}
-	message, err := m.Disgo.RestServices().ChannelsService().CreateMessage(m.ChannelID, messageCreate)
+	message, err := m.WebhookClient.CreateMessage(messageCreate)
 	if err != nil {
 		return nil, err
 	}
-	return m.Disgo.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
+	return m.WebhookClient.EntityBuilder().CreateMessage(*message), nil
 }
 
 // ActionRows returns all ActionRow(s) from this Message
-func (m *Message) ActionRows() []ActionRow {
+func (m *Message) ActionRows() []core.ActionRow {
 	if m.IsEphemeral() {
 		return nil
 	}
-	var actionRows []ActionRow
+	var actionRows []core.ActionRow
 	for _, component := range m.Components {
-		if actionRow, ok := component.(ActionRow); ok {
+		if actionRow, ok := component.(core.ActionRow); ok {
 			actionRows = append(actionRows, actionRow)
 		}
 	}
@@ -88,18 +51,18 @@ func (m *Message) ActionRows() []ActionRow {
 }
 
 // ComponentByID returns the first Component with the specific customID
-func (m *Message) ComponentByID(customID string) Component {
+func (m *Message) ComponentByID(customID string) core.Component {
 	if m.IsEphemeral() {
 		return nil
 	}
 	for _, actionRow := range m.ActionRows() {
 		for _, component := range actionRow.Components {
 			switch c := component.(type) {
-			case Button:
+			case core.Button:
 				if c.CustomID == customID {
 					return c
 				}
-			case SelectMenu:
+			case core.SelectMenu:
 				if c.CustomID == customID {
 					return c
 				}
@@ -112,14 +75,14 @@ func (m *Message) ComponentByID(customID string) Component {
 }
 
 // Buttons returns all Button(s) from this Message
-func (m *Message) Buttons() []Button {
+func (m *Message) Buttons() []core.Button {
 	if m.IsEphemeral() {
 		return nil
 	}
-	var buttons []Button
+	var buttons []core.Button
 	for _, actionRow := range m.ActionRows() {
 		for _, component := range actionRow.Components {
-			if button, ok := component.(Button); ok {
+			if button, ok := component.(core.Button); ok {
 				buttons = append(buttons, button)
 			}
 		}
@@ -128,7 +91,7 @@ func (m *Message) Buttons() []Button {
 }
 
 // ButtonByID returns a Button with the specific customID from this Message
-func (m *Message) ButtonByID(customID string) *Button {
+func (m *Message) ButtonByID(customID string) *core.Button {
 	if m.IsEphemeral() {
 		return nil
 	}
@@ -141,14 +104,14 @@ func (m *Message) ButtonByID(customID string) *Button {
 }
 
 // SelectMenus returns all SelectMenu(s) from this Message
-func (m *Message) SelectMenus() []SelectMenu {
+func (m *Message) SelectMenus() []core.SelectMenu {
 	if m.IsEphemeral() {
 		return nil
 	}
-	var selectMenus []SelectMenu
+	var selectMenus []core.SelectMenu
 	for _, actionRow := range m.ActionRows() {
 		for _, component := range actionRow.Components {
-			if selectMenu, ok := component.(SelectMenu); ok {
+			if selectMenu, ok := component.(core.SelectMenu); ok {
 				selectMenus = append(selectMenus, selectMenu)
 			}
 		}
@@ -157,7 +120,7 @@ func (m *Message) SelectMenus() []SelectMenu {
 }
 
 // SelectMenuByID returns a SelectMenu with the specific customID from this Message
-func (m *Message) SelectMenuByID(customID string) *SelectMenu {
+func (m *Message) SelectMenuByID(customID string) *core.SelectMenu {
 	if m.IsEphemeral() {
 		return nil
 	}

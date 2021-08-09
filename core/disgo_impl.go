@@ -44,6 +44,9 @@ func (d *DisgoImpl) Logger() log.Logger {
 
 // Close will clean up all disgo internals and close the discord connection safely
 func (d *DisgoImpl) Close() {
+	if d.HTTPClient() != nil {
+		d.HTTPClient().Close()
+	}
 	if d.RestServices() != nil {
 		d.RestServices().Close()
 	}

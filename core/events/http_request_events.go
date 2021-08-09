@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-// HTTPRequestEvent indicates a new http.Request was made and can be used to collect data of StatusCodes as an example
+// HTTPRequestEvent indicates a new http.Request was made and can be used to collect data of StatusCodes as an _examples
 type HTTPRequestEvent struct {
 	*GenericEvent
 	Request  *http.Request

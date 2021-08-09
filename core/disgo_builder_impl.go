@@ -48,7 +48,7 @@ type DisgoBuilderImpl struct {
 	entityBuilder   EntityBuilder
 }
 
-// SetLogger sets logger implementation disgo should use as an example logrus
+// SetLogger sets logger implementation disgo should use as an _examples logrus
 func (b *DisgoBuilderImpl) SetLogger(logger log.Logger) DisgoBuilder {
 	b.logger = logger
 	return b

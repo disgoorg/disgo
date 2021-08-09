@@ -11,6 +11,7 @@ import (
 
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/util"
+	"github.com/DisgoOrg/disgo/httpserver"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
@@ -42,6 +43,11 @@ func main() {
 		SetGatewayConfig(gateway.Config{
 			GatewayIntents: gateway.IntentGuilds | gateway.IntentGuildMessages | gateway.IntentGuildMembers,
 		}).
+		SetHTTPServerConfig(httpserver.Config{
+			URL:       "/interactions/callback",
+			Port:      ":80",
+			PublicKey: "your public key from the developer dashboard",
+		}).
 		SetCacheConfig(core.CacheConfig{
 			CacheFlags:        core.CacheFlagsDefault,
 			MemberCachePolicy: core.MemberCachePolicyAll,
@@ -57,7 +63,7 @@ func main() {
 		Build()
 
 	if err != nil {
-		log.Fatalf("error while building disgo instance: %s", err)
+		log.Fatal("error while building disgo instance: ", err)
 		return
 	}
 
