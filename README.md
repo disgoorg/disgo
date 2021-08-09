@@ -7,10 +7,12 @@
 
 <img align="right" src="/.github/discord_gopher.png" width=192 alt="discord gopher">
 
+
 # disgo
 
 disgo is a [Discord](https://discord.com/developers/docs/resources/webhook) API wrapper written
 in [Go](https://golang.org/) aimed to be consistent, modular, customizable and easy to use
+
 
 ## Summary
 
@@ -23,6 +25,7 @@ in [Go](https://golang.org/) aimed to be consistent, modular, customizable and e
 7. [Troubleshooting](#troubleshooting)
 8. [Contributing](#contributing)
 9. [License](#license)
+
 
 ### Features
 
@@ -52,9 +55,7 @@ go get github.com/DisgoOrg/disgo
 ```
 
 
-### building a disgo instance
-
-
+### Building a Disgo Instance
 
 ```go
 disgo, err := core.NewBuilder("token").
@@ -81,7 +82,9 @@ err := disgo.Connect()
 disgo.Start() 
 ```
 
+
 ### Ping Pong Example
+
 ```go
 package main
 
@@ -148,11 +151,11 @@ func guildMessageListener(event *events.GuildMessageCreateEvent) {
 }
 ```
 
+
 ### Logging
 
 disgo uses our own small [logging lib](https://github.com/DisgoOrg/log) which provides an [interface](https://github.com/DisgoOrg/log/blob/master/logger.go) you can implement.
 This lib also comes with a default logger which is interchangeable and based on the standard log package. You can read more about it [here](https://github.com/DisgoOrg/log)
-
 
 
 ## Documentation
@@ -163,6 +166,7 @@ Documentation is unfinished and can be found under
 * [![Discord Documentation](https://img.shields.io/badge/Discord%20Documentation-blue.svg)](https://discord.com/developers/docs)
 
 Wiki is currently under construction
+
 
 ## Examples
 
@@ -175,6 +179,7 @@ or in these projects:
 * [Reddit-Discord-Bot](https://github.com/TopiSenpai/Reddit-Discord-Bot)
 * [Kitsune-Bot](https://github.com/TopiSenpai/Kitsune-Bot)
 * [Uno-Bot](https://github.com/TopiSenpai/Uno-Bot)
+
 
 ## Related Projects
 
@@ -195,7 +200,7 @@ Being used in production by FredBoat, Dyno, LewdBot, and more.
 [disgolink](https://github.com/DisgoOrg/disgolink) Spotify integration. disgofy resolved Spotify urls to tracks/albums/playlists and lazy searches for them on YouTube
 
 
-### [dislog](https://github.com/DisgoOrg/dislog) 
+### [dislog](https://github.com/DisgoOrg/dislog)
 
 Discord webhook logger integration for [logrus](https://github.com/sirupsen/logrus)
 
