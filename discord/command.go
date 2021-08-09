@@ -39,6 +39,38 @@ type CommandOption struct {
 	Options     []CommandOption       `json:"options,omitempty"`
 }
 
+// AddChoice adds a new choice to the CommandOption. Value can either be a string, int or float
+func (o CommandOption) AddChoice(name string, value interface{}) CommandOption {
+	o.Choices = append(o.Choices, CommandOptionChoice{
+		Name:  name,
+		Value: value,
+	})
+	return o
+}
+
+// AddChoices adds multiple choices to the CommandOption. Value can either be a string, int or float
+func (o CommandOption) AddChoices(choices map[string]interface{}) CommandOption {
+	for name, value := range choices {
+		o.Choices = append(o.Choices, CommandOptionChoice{
+			Name:  name,
+			Value: value,
+		})
+	}
+	return o
+}
+
+// AddOptions adds multiple choices to the CommandOption
+func (o CommandOption) AddOptions(options ...CommandOption) CommandOption {
+	o.Options = append(o.Options, options...)
+	return o
+}
+
+// SetRequired sets if the CommandOption is required
+func (o CommandOption) SetRequired(required bool) CommandOption {
+	o.Required = required
+	return o
+}
+
 // CommandOptionChoice contains the data for a user using your command. Value can either be a string, int or float
 type CommandOptionChoice struct {
 	Name  string      `json:"name"`

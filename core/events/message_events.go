@@ -1,7 +1,7 @@
 package events
 
 import (
-	
+	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -14,8 +14,8 @@ type GenericMessageEvent struct {
 }
 
 // MessageChannel returns the api.MessageChannel where the GenericMessageEvent happened
-func (e *GenericMessageEvent) MessageChannel() *core.MessageChannel {
-	return e.Disgo().Cache().MessageChannel(e.ChannelID)
+func (e *GenericMessageEvent) MessageChannel() core.MessageChannel {
+	return e.Disgo().Cache().ChannelCache().MessageChannel(e.ChannelID)
 }
 
 // MessageDeleteEvent indicates that an api.Message got deleted

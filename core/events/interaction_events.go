@@ -1,7 +1,7 @@
 package events
 
 import (
-	
+	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -12,7 +12,7 @@ type GenericInteractionEvent struct {
 }
 
 // Respond replies to the api.Interaction with the provided api.InteractionResponse
-func (e GenericInteractionEvent) Respond(responseType core.InteractionResponseType, data interface{}) error {
+func (e GenericInteractionEvent) Respond(responseType discord.InteractionResponseType, data interface{}) error {
 	return e.Interaction.Respond(responseType, data)
 }
 
@@ -22,12 +22,12 @@ func (e GenericInteractionEvent) DeferReply(ephemeral bool) error {
 }
 
 // Reply replies to the api.Interaction with api.InteractionResponseTypeDeferredChannelMessageWithSource & api.MessageCreate
-func (e GenericInteractionEvent) Reply(messageCreate core.MessageCreate) error {
+func (e GenericInteractionEvent) Reply(messageCreate discord.MessageCreate) error {
 	return e.Interaction.Reply(messageCreate)
 }
 
 // EditOriginal edits the original api.InteractionResponse
-func (e GenericInteractionEvent) EditOriginal(messageUpdate core.MessageUpdate) (*core.Message, error) {
+func (e GenericInteractionEvent) EditOriginal(messageUpdate discord.MessageUpdate) (*core.Message, error) {
 	return e.Interaction.EditOriginal(messageUpdate)
 }
 
@@ -37,12 +37,12 @@ func (e GenericInteractionEvent) DeleteOriginal() error {
 }
 
 // SendFollowup used to send a followup api.MessageCreate to an api.Interaction
-func (e GenericInteractionEvent) SendFollowup(messageCreate core.MessageCreate) (*core.Message, error) {
+func (e GenericInteractionEvent) SendFollowup(messageCreate discord.MessageCreate) (*core.Message, error) {
 	return e.Interaction.SendFollowup(messageCreate)
 }
 
 // EditFollowup used to edit a followup api.Message from an api.Interaction
-func (e GenericInteractionEvent) EditFollowup(messageID discord.Snowflake, messageUpdate core.MessageUpdate) (*core.Message, error) {
+func (e GenericInteractionEvent) EditFollowup(messageID discord.Snowflake, messageUpdate discord.MessageUpdate) (*core.Message, error) {
 	return e.Interaction.EditFollowup(messageID, messageUpdate)
 }
 
@@ -83,12 +83,12 @@ func (e *CommandEvent) CommandPath() string {
 }
 
 // Options returns the parsed api.Option which the api.Command got used with
-func (e *CommandEvent) Options() []core.Option {
+func (e *CommandEvent) Options() []core.CommandOption {
 	return e.CommandInteraction.Options()
 }
 
 // Option returns an Option by name
-func (e *CommandEvent) Option(name string) *core.Option {
+func (e *CommandEvent) Option(name string) *core.CommandOption {
 	options := e.OptionN(name)
 	if len(options) == 0 {
 		return nil
@@ -97,8 +97,8 @@ func (e *CommandEvent) Option(name string) *core.Option {
 }
 
 // OptionN returns Option(s) by name
-func (e *CommandEvent) OptionN(name string) []core.Option {
-	options := make([]core.Option, 0)
+func (e *CommandEvent) OptionN(name string) []core.CommandOption {
+	options := make([]core.CommandOption, 0)
 	for _, option := range e.Options() {
 		if option.Name == name {
 			options = append(options, option)
@@ -108,8 +108,8 @@ func (e *CommandEvent) OptionN(name string) []core.Option {
 }
 
 // OptionsT returns Option(s) by api.CommandOptionType
-func (e *CommandEvent) OptionsT(optionType core.CommandOptionType) []core.Option {
-	options := make([]core.Option, 0)
+func (e *CommandEvent) OptionsT(optionType discord.CommandOptionType) []core.CommandOption {
+	options := make([]core.CommandOption, 0)
 	for _, option := range e.Options() {
 		if option.Type == optionType {
 			options = append(options, option)
@@ -130,7 +130,7 @@ func (e *GenericComponentEvent) DeferEdit() error {
 }
 
 // Edit replies to the api.ButtonInteraction with api.InteractionResponseTypeUpdateMessage & api.MessageUpdate which edits the original api.Message
-func (e *GenericComponentEvent) Edit(messageUpdate core.MessageUpdate) error {
+func (e *GenericComponentEvent) Edit(messageUpdate discord.MessageUpdate) error {
 	return e.ComponentInteraction.Edit(messageUpdate)
 }
 
@@ -140,7 +140,7 @@ func (e *GenericComponentEvent) CustomID() string {
 }
 
 // ComponentType returns the api.ComponentType from the called api.Component
-func (e *GenericComponentEvent) ComponentType() core.ComponentType {
+func (e *GenericComponentEvent) ComponentType() discord.ComponentType {
 	return e.ComponentInteraction.ComponentType()
 }
 
