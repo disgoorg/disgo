@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 )
 

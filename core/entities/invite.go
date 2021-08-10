@@ -1,14 +1,8 @@
 package entities
 
 import (
-	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/discord"
-	"time"
-
 	"github.com/DisgoOrg/restclient"
 )
-
-
 
 // URL returns the invite URL in format like https://discord.gg/{code}
 func (i *Invite) URL() string {

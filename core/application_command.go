@@ -4,7 +4,7 @@ import "github.com/DisgoOrg/disgo/discord"
 
 type ApplicationCommand struct {
 	discord.ApplicationCommand
-	Disgo            Disgo
+	Disgo Disgo
 	// TODO: should we cache command perms per guild? extra cache & cache flag?
 	//GuildPermissions map[discord.Snowflake]*GuildCommandPermissions
 }

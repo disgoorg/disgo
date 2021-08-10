@@ -2,15 +2,14 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 )
 
 type guildBanAddPayload struct {
 	GuildID discord.Snowflake `json:"guild_id"`
-	User    *discord.User    `json:"user"`
+	User    *discord.User     `json:"user"`
 }
 
 // GuildBanAddHandler handles api.GatewayEventGuildBanAdd

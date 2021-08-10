@@ -1,12 +1,8 @@
 package entities
 
 import (
-	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/restclient"
 )
-
-
 
 // Mention parses the Role as a Mention
 func (r *Role) Mention() string {
@@ -44,5 +40,3 @@ type RoleTag struct {
 	IntegrationID     *discord.Snowflake `json:"integration_id,omitempty"`
 	PremiumSubscriber bool               `json:"premium_subscriber"`
 }
-
-

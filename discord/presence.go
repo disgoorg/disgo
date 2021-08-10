@@ -2,10 +2,10 @@ package discord
 
 // Presence (https://discord.com/developers/docs/topics/gateway#presence-update)
 type Presence struct {
-	User       User       	`json:"user"`
-	GuildID    Snowflake   	`json:"guild_id"`
+	User       User         `json:"user"`
+	GuildID    Snowflake    `json:"guild_id"`
 	Status     OnlineStatus `json:"status"`
-	Activities []Activity 	`json:"activities"`
+	Activities []Activity   `json:"activities"`
 }
 
 // OnlineStatus (https://discord.com/developers/docs/topics/gateway#update-presence-status-types)

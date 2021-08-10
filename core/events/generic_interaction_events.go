@@ -50,4 +50,3 @@ func (e GenericInteractionEvent) EditFollowup(messageID discord.Snowflake, messa
 func (e GenericInteractionEvent) DeleteFollowup(messageID discord.Snowflake) error {
 	return e.Interaction.DeleteFollowup(messageID)
 }
-

@@ -168,9 +168,9 @@ var (
 // Webhooks
 //goland:noinspection GoUnusedGlobalVariable
 var (
-	GetWebhook             = NewAPIRoute(GET, "/webhooks/{webhook.id}")
-	UpdateWebhook          = NewAPIRoute(PATCH, "/webhooks/{webhook.id}")
-	DeleteWebhook          = NewAPIRoute(DELETE, "/webhooks/{webhook.id}")
+	GetWebhook    = NewAPIRoute(GET, "/webhooks/{webhook.id}")
+	UpdateWebhook = NewAPIRoute(PATCH, "/webhooks/{webhook.id}")
+	DeleteWebhook = NewAPIRoute(DELETE, "/webhooks/{webhook.id}")
 
 	GetWebhookWithToken    = NewAPIRoute(GET, "/webhooks/{webhook.id}/{webhook.token}")
 	UpdateWebhookWithToken = NewAPIRoute(PATCH, "/webhooks/{webhook.id}/{webhook.token}")

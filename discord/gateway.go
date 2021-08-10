@@ -5,9 +5,9 @@ type Gateway struct {
 }
 
 type GatewayBot struct {
-	Url               string `json:"url"`
-	Shards            int    `json:"shards"`
-	SessionStartLimit SessionStartLimit`json:"session_start_limit"`
+	Url               string            `json:"url"`
+	Shards            int               `json:"shards"`
+	SessionStartLimit SessionStartLimit `json:"session_start_limit"`
 }
 
 type SessionStartLimit struct {
