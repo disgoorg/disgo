@@ -1,7 +1,7 @@
 package events
 
 import (
-	
+	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -9,5 +9,5 @@ import (
 type GenericChannelEvent struct {
 	*GenericEvent
 	ChannelID discord.Snowflake
-	Channel   *core.Channel
+	Channel   core.Channel
 }

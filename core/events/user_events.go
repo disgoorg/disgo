@@ -1,7 +1,7 @@
 package events
 
 import (
-	
+	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -25,16 +25,16 @@ type UserTypingEvent struct {
 }
 
 // Channel returns the api.Channel the api.User started typing in
-func (e *UserTypingEvent) Channel() *core.Channel {
-	return e.Disgo().Cache().Channel(e.ChannelID)
+func (e *UserTypingEvent) Channel() core.Channel {
+	return e.Disgo().Cache().ChannelCache().Channel(e.ChannelID)
 }
 
 // DMChannel returns the api.DMChannel the api.User started typing in
-func (e *UserTypingEvent) DMChannel() *core.DMChannel {
-	return e.Disgo().Cache().DMChannel(e.ChannelID)
+func (e *UserTypingEvent) DMChannel() core.DMChannel {
+	return e.Disgo().Cache().DMChannelCache().Get(e.ChannelID)
 }
 
 // TextChannel returns the api.TextChannel the api.User started typing in
-func (e *UserTypingEvent) TextChannel() *core.TextChannel {
-	return e.Disgo().Cache().TextChannel(e.ChannelID)
+func (e *UserTypingEvent) TextChannel() core.TextChannel {
+	return e.Disgo().Cache().TextChannelCache().Get(e.ChannelID)
 }

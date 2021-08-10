@@ -1,7 +1,7 @@
 package events
 
 import (
-	
+	"github.com/DisgoOrg/disgo/core"
 )
 
 // GenericEmoteEvent is called upon receiving EmoteCreateEvent, EmoteUpdateEvent or EmoteDeleteEvent(requires api.GatewayIntentsGuildEmojis)

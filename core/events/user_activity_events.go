@@ -1,7 +1,8 @@
 package events
 
 import (
-	
+	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/discord"
 )
 
 // GenericUserActivityEvent is called upon receiving UserActivityStartEvent, UserActivityUpdateEvent or UserActivityEndEvent(requires the api.GatewayIntentsGuildPresences)
@@ -13,18 +14,18 @@ type GenericUserActivityEvent struct {
 // UserActivityStartEvent indicates that an api.User started a new api.Activity(requires the api.GatewayIntentsGuildPresences)
 type UserActivityStartEvent struct {
 	*GenericUserActivityEvent
-	Activity *core.Activity
+	Activity discord.Activity
 }
 
 // UserActivityUpdateEvent indicates that an api.User's api.Activity(s) updated(requires the api.GatewayIntentsGuildPresences)
 type UserActivityUpdateEvent struct {
 	*GenericUserActivityEvent
-	NewActivities *core.Activity
-	OldActivities *core.Activity
+	NewActivities discord.Activity
+	OldActivities discord.Activity
 }
 
 // UserActivityEndEvent indicates that an api.User ended an api.Activity(requires the api.GatewayIntentsGuildPresences)
 type UserActivityEndEvent struct {
 	*GenericUserActivityEvent
-	Activity *core.Activity
+	Activity discord.Activity
 }

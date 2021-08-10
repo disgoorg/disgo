@@ -1,12 +1,12 @@
 package events
 
 import (
-	
+	"github.com/DisgoOrg/disgo/core"
 )
 
 // SelfUpdateEvent is called when something about this api.User updates
 type SelfUpdateEvent struct {
 	*GenericEvent
-	Self    *core.User
-	OldSelf *core.User
+	SelfUser    *core.SelfUser
+	OldSelfUser *core.SelfUser
 }

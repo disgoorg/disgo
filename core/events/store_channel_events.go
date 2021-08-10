@@ -1,13 +1,13 @@
 package events
 
 import (
-	
+	"github.com/DisgoOrg/disgo/core"
 )
 
 // GenericStoreChannelEvent is called upon receiving StoreChannelCreateEvent, StoreChannelUpdateEvent or StoreChannelDeleteEvent
 type GenericStoreChannelEvent struct {
 	*GenericGuildChannelEvent
-	StoreChannel *core.StoreChannel
+	StoreChannel core.StoreChannel
 }
 
 // StoreChannelCreateEvent indicates that a new api.StoreChannel got created in an api.Guild
@@ -18,7 +18,7 @@ type StoreChannelCreateEvent struct {
 // StoreChannelUpdateEvent indicates that an api.StoreChannel got updated in an api.Guild
 type StoreChannelUpdateEvent struct {
 	*GenericStoreChannelEvent
-	OldStoreChannel *core.StoreChannel
+	OldStoreChannel core.StoreChannel
 }
 
 // StoreChannelDeleteEvent indicates that an api.StoreChannel got deleted in an api.Guild

@@ -1,7 +1,7 @@
 package events
 
 import (
-	
+	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -10,7 +10,7 @@ type GenericGuildMessageReactionEvent struct {
 	*GenericGuildMessageEvent
 	UserID          discord.Snowflake
 	Member          *core.Member
-	MessageReaction core.MessageReaction
+	MessageReaction discord.MessageReaction
 }
 
 // GuildMessageReactionAddEvent indicates that an api.Member added an api.MessageReaction to an api.Message in an api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)
@@ -26,7 +26,7 @@ type GuildMessageReactionRemoveEvent struct {
 // GuildMessageReactionRemoveEmojiEvent indicates someone removed all api.MessageReaction of a specific api.Emoji from an api.Message in an api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)
 type GuildMessageReactionRemoveEmojiEvent struct {
 	*GenericGuildMessageEvent
-	MessageReaction core.MessageReaction
+	MessageReaction discord.MessageReaction
 }
 
 // GuildMessageReactionRemoveAllEvent indicates someone removed all api.MessageReaction(s) from an api.Message in an api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)

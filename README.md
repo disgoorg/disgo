@@ -29,7 +29,7 @@ in [Go](https://golang.org/) aimed to be consistent, modular, customizable and e
 
 ### Features
 
-* Interactions over [HTTP](https://discord.com/developers/docs/interactions/slash-commands#receiving-an-interaction)
+* Interactions over [HTTP](https://discord.com/developers/docs/interactions/slash-commands#receiving-an-interaction) support
 * Full [Slash Commands](https://discord.com/developers/docs/interactions/slash-commands) support
 * Full [Message Components](https://discord.com/developers/docs/interactions/message-components) support
 * Full Rest API coverage
@@ -43,7 +43,7 @@ in [Go](https://golang.org/) aimed to be consistent, modular, customizable and e
 
 * [Voice](https://discord.com/developers/docs/resources/voice) support
 * [Sharding](https://discord.com/developers/docs/topics/gateway#sharding) support
-* [Threads](https://discord.com/developers/docs/topics/threads) Support
+* [Threads](https://discord.com/developers/docs/topics/threads) support
 * [OAuth2](https://discord.com/developers/docs/topics/oauth2) support
 
 ## Getting Started
@@ -175,7 +175,6 @@ You can find examples under [_examples](https://github.com/DisgoOrg/disgo/tree/m
 or in these projects:
 * [disgo-butler](https://github.com/DisgoOrg/disgo-butler)
 * [BansBot](https://github.com/Skye-31/BansBot)
-* [Kitsune-Bot](https://github.com/TopiSenpai/Kitsune-Bot)
 * [Reddit-Discord-Bot](https://github.com/TopiSenpai/Reddit-Discord-Bot)
 * [Kitsune-Bot](https://github.com/TopiSenpai/Kitsune-Bot)
 * [Uno-Bot](https://github.com/TopiSenpai/Uno-Bot)

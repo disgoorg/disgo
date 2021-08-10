@@ -1,13 +1,13 @@
 package events
 
 import (
-	
+	"github.com/DisgoOrg/disgo/core"
 )
 
 // GenericVoiceChannelEvent is called upon receiving VoiceChannelCreateEvent, VoiceChannelUpdateEvent or VoiceChannelDeleteEvent
 type GenericVoiceChannelEvent struct {
 	*GenericGuildChannelEvent
-	VoiceChannel *core.VoiceChannel
+	VoiceChannel core.VoiceChannel
 }
 
 // VoiceChannelCreateEvent indicates that a new api.VoiceChannel got created in an api.Guild
@@ -18,7 +18,7 @@ type VoiceChannelCreateEvent struct {
 // VoiceChannelUpdateEvent indicates that an api.VoiceChannel got updated in an api.Guild
 type VoiceChannelUpdateEvent struct {
 	*GenericVoiceChannelEvent
-	OldVoiceChannel *core.VoiceChannel
+	OldVoiceChannel core.VoiceChannel
 }
 
 // VoiceChannelDeleteEvent indicates that an api.VoiceChannel got deleted in an api.Guild

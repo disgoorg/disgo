@@ -182,6 +182,6 @@ func (e *SelectMenuSubmitEvent) Values() []string {
 }
 
 // SelectedOptions returns a slice of api.SelectOption(s) that were chosen in an api.SelectMenu
-func (e *SelectMenuSubmitEvent) SelectedOptions() []core.SelectOption {
+func (e *SelectMenuSubmitEvent) SelectedOptions() []discord.SelectOption {
 	return e.SelectMenuInteraction.SelectedOptions()
 }
