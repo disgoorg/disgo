@@ -11,7 +11,7 @@ type GenericApplicationCommandEvent struct {
 }
 
 // Guild returns the api.Guild the api.EventType got called or nil for global api.Command(s)
-func (e ApplicationCommandEvent) Guild() *core.Guild {
+func (e *GenericApplicationCommandEvent) Guild() *core.Guild {
 	if e.Command.GuildID == nil {
 		return nil
 	}
@@ -23,13 +23,13 @@ type ApplicationCommandCreateEvent struct {
 	*GenericApplicationCommandEvent
 }
 
-// ApplicationCommandUpdateEvent indicates that a api.Command got updated(this can come from any bot!)
+// ApplicationCommandUpdateEvent indicates that an api.Command got updated(this can come from any bot!)
 type ApplicationCommandUpdateEvent struct {
 	*GenericApplicationCommandEvent
-	OldCommand *api.Command
+	OldCommand *core.ApplicationCommand
 }
 
-// ApplicationCommandDeleteEvent indicates that a api.Command got deleted(this can come from any bot!)
+// ApplicationCommandDeleteEvent indicates that an api.Command got deleted(this can come from any bot!)
 type ApplicationCommandDeleteEvent struct {
 	*GenericApplicationCommandEvent
 }

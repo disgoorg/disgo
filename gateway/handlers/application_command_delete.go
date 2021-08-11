@@ -17,12 +17,12 @@ func (h *CommandDeleteHandler) EventType() gateway.EventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *CommandDeleteHandler) New() interface{} {
-	return &discord.ApplicationCommand{}
+	return discord.ApplicationCommand{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *CommandDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	command, ok := i.(*discord.ApplicationCommand)
+	command, ok := i.(discord.ApplicationCommand)
 	if !ok {
 		return
 	}
