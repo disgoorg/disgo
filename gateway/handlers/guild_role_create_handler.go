@@ -2,15 +2,14 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 )
 
 type roleCreateData struct {
 	GuildID discord.Snowflake `json:"guild_id"`
-	Role    *discord.Role    `json:"role"`
+	Role    *discord.Role     `json:"role"`
 }
 
 // GuildRoleCreateHandler handles api.GuildRoleCreateGatewayEvent

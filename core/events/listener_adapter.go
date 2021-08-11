@@ -1,8 +1,9 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/core"
 	"reflect"
+
+	"github.com/DisgoOrg/disgo/core"
 )
 
 // ListenerAdapter lets you override the handles for receiving events

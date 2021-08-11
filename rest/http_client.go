@@ -14,7 +14,6 @@ import (
 	"github.com/DisgoOrg/log"
 )
 
-
 // HTTPClient allows doing requests to different endpoints
 type HTTPClient interface {
 	Close()

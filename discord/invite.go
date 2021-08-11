@@ -14,9 +14,9 @@ const (
 type Invite struct {
 	Code                     string            `json:"code"`
 	Guild                    *InviteGuild      `json:"guild"`
-	Channel                  InviteChannel     `json:"channel"`
+	Channel                  PartialChannel    `json:"channel"`
 	Inviter                  *User             `json:"inviter"`
-	TargetUser               *InviteUser       `json:"target_user"`
+	TargetUser               *User             `json:"target_user"`
 	TargetType               *InviteTargetType `json:"target_user_type"`
 	ApproximatePresenceCount *int              `json:"approximate_presence_count"`
 	ApproximateMemberCount   *int              `json:"approximate_member_count"`
@@ -45,22 +45,7 @@ type InviteGuild struct {
 	VanityURLCode     *string           `json:"vanity_url_code"`
 }
 
-// InviteChannel is the Channel of an Invite
-type InviteChannel struct {
-	ID   string      `json:"id"`
-	Name string      `json:"name"`
-	Type ChannelType `json:"type"`
-}
-
-// InviteUser is the user who created an Invite
-type InviteUser struct {
-	ID            string `json:"id"`
-	Username      string `json:"username"`
-	Avatar        string `json:"avatar"`
-	Discriminator string `json:"discriminator"`
-}
-
-type CreateChannelInvite struct {
+type InviteCreate struct {
 	MaxAgree            int              `json:"max_agree,omitempty"`
 	MaxUses             int              `json:"max_uses,omitempty"`
 	Temporary           bool             `json:"temporary,omitempty"`

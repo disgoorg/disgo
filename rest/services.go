@@ -151,9 +151,9 @@ type InteractionService interface {
 type InviteService interface {
 	Service
 	GetInvite(code string) (*discord.Invite, Error)
-	CreateInvite(channelID discord.Snowflake, inviteCreate discord.CreateChannelInvite)
-	DeleteInvite(code string) Error
-	GetGuildInvite(guildID discord.Snowflake) Error
+	CreateInvite(channelID discord.Snowflake, inviteCreate discord.InviteCreate)
+	DeleteInvite(code string) (*discord.Invite, Error)
+	GetGuildInvites(guildID discord.Snowflake) ([]discord.Invite, Error)
 	GetChannelInvites(channelID discord.Snowflake) ([]discord.Invite, Error)
 }
 

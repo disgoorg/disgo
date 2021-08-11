@@ -56,5 +56,5 @@ type ChannelCreate struct {
 type PartialChannel struct {
 	ID   Snowflake   `json:"id"`
 	Type ChannelType `json:"type"`
-	Name *string     `json:"name,omitempty"`
+	Name string      `json:"name"`
 }

@@ -13,7 +13,7 @@ type EventManager interface {
 	Disgo() Disgo
 	Close()
 	AddEventListeners(eventListeners ...EventListener)
-	RemoveEventListener(eventListeners ...EventListener)
+	RemoveEventListeners(eventListeners ...EventListener)
 	HandleGateway(eventType gateway.EventType, sequenceNumber int, payload io.Reader)
 	HandleHTTP(eventType httpserver.EventType, replyChannel chan discord.InteractionResponse, payload io.Reader)
 	Dispatch(event Event)

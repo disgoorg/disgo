@@ -27,8 +27,8 @@ type IdentifyCommand struct {
 	Token          string                        `json:"token"`
 	Properties     IdentifyCommandDataProperties `json:"properties"`
 	Compress       bool                          `json:"compress,omitempty"`
-	LargeThreshold int     `json:"large_threshold,omitempty"`
-	GatewayIntents Intents `json:"intents"`
+	LargeThreshold int                           `json:"large_threshold,omitempty"`
+	GatewayIntents Intents                       `json:"intents"`
 	// Todo: Add presence property here, need presence methods/struct
 	// Todo: Add shard property here, need to discuss
 }
@@ -75,8 +75,8 @@ type UpdateVoiceStateCommand struct {
 
 // UpdateStatusCommand is used for updating Disgo's presence
 type UpdateStatusCommand struct {
-	Since      *int                `json:"since"`
+	Since      *int               `json:"since"`
 	Activities []discord.Activity `json:"activities"`
-	Status     bool                `json:"status"`
+	Status     bool               `json:"status"`
 	AFK        bool               `json:"afk"`
 }

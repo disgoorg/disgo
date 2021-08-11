@@ -27,6 +27,6 @@ type CommandPermission struct {
 
 // GuildCommandPermissionsSet is used to bulk overwrite all GuildCommandPermissions
 type GuildCommandPermissionsSet struct {
-	ID            Snowflake           `json:"id"`
-	Permissions   []CommandPermission `json:"permissions"`
+	ID          Snowflake           `json:"id"`
+	Permissions []CommandPermission `json:"permissions"`
 }

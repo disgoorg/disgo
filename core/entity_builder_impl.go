@@ -438,6 +438,23 @@ func (b *EntityBuilderImpl) CreateStageInstance(stageInstance discord.StageInsta
 	panic("implement me")
 }
 
+func (b *EntityBuilderImpl) CreateInvite(invite discord.Invite, updateCache CacheStrategy) *Invite {
+	coreInvite := &Invite{
+		Invite: invite,
+		Disgo:  b.disgo,
+	}
+
+	if invite.Inviter != nil {
+		coreInvite.Inviter = b.CreateUser(*invite.Inviter, updateCache)
+	}
+
+	if invite.TargetUser != nil {
+		coreInvite.TargetUser = b.CreateUser(*invite.TargetUser, updateCache)
+	}
+
+	return coreInvite
+}
+
 // CreateEmoji returns a new discord.Emoji entity
 func (b *EntityBuilderImpl) CreateEmoji(guildID discord.Snowflake, emoji discord.Emoji, updateCache CacheStrategy) *Emoji {
 	coreEmoji := &Emoji{

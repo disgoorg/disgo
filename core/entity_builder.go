@@ -48,5 +48,7 @@ type EntityBuilder interface {
 
 	CreateChannel(channel discord.Channel, updateCache CacheStrategy) Channel
 
+	CreateInvite(invite discord.Invite, updateCache CacheStrategy) *Invite
+
 	CreateEmoji(guildID discord.Snowflake, emoji discord.Emoji, updateCache CacheStrategy) *Emoji
 }

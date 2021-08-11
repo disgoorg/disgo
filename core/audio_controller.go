@@ -6,7 +6,6 @@ import (
 
 // errors returned when no gateway or ws conn exists
 
-
 // AudioController lets you Connect / Disconnect from a VoiceChannel
 type AudioController interface {
 	Disgo() Disgo

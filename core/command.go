@@ -87,5 +87,3 @@ func (c Command) Delete() error {
 	}
 	return c.Disgo.RestServices().DeleteGuildCommand(c.Disgo.ApplicationID(), *c.GuildID, c.ID)
 }
-
-

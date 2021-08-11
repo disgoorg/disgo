@@ -56,9 +56,6 @@ type SelectOption struct {
 	Emoji       *Emoji `json:"emoji,omitempty"`
 }
 
-
-
-
 // WithLabel returns a new SelectOption with the provided label
 func (o SelectOption) WithLabel(label string) SelectOption {
 	o.Label = label
