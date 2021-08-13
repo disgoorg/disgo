@@ -11,6 +11,7 @@ type Presence struct {
 // OnlineStatus (https://discord.com/developers/docs/topics/gateway#update-presence-status-types)
 type OnlineStatus string
 
+//goland:noinspection GoUnusedConst
 const (
 	OnlineStatusOnline    OnlineStatus = "online"
 	OnlineStatusDND       OnlineStatus = "dnd"

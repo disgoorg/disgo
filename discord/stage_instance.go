@@ -2,6 +2,7 @@ package discord
 
 type StagePrivacyLevel int
 
+//goland:noinspection GoUnusedConst
 const (
 	StagePrivacyLevelPublic StagePrivacyLevel = iota + 1
 	StagePrivacyLevelGuildOnly

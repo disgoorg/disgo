@@ -2,6 +2,7 @@ package rest
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -20,8 +21,8 @@ type HTTPClient interface {
 	Logger() log.Logger
 	HTTPClient() *http.Client
 	UserAgent() string
-	Do(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) Error
-	DoWithHeaders(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, customHeader http.Header) Error
+	Do(ctx context.Context, route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) Error
+	DoWithHeaders(ctx context.Context, route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, customHeader http.Header) Error
 }
 
 // NewHTTPClient constructs a new HTTPClient with the given http.Client, log.Logger & useragent
@@ -52,11 +53,11 @@ func (c *HTTPClientImpl) UserAgent() string {
 	return c.userAgent
 }
 
-func (c *HTTPClientImpl) Do(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) Error {
-	return c.DoWithHeaders(route, rqBody, rsBody, nil)
+func (c *HTTPClientImpl) Do(ctx context.Context, route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) Error {
+	return c.DoWithHeaders(ctx, route, rqBody, rsBody, nil)
 }
 
-func (c *HTTPClientImpl) DoWithHeaders(compiledRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, customHeader http.Header) Error {
+func (c *HTTPClientImpl) DoWithHeaders(ctx context.Context, compiledRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, customHeader http.Header) Error {
 	rqBuffer := &bytes.Buffer{}
 	var contentType string
 
