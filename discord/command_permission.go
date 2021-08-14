@@ -10,7 +10,7 @@ const (
 	CommandPermissionTypeUser
 )
 
-// GuildCommandPermissions holds all permissions for a Command
+// GuildCommandPermissions holds all permissions for a ApplicationCommand
 type GuildCommandPermissions struct {
 	ID            Snowflake           `json:"id"`
 	ApplicationID Snowflake           `json:"application_id"`
@@ -18,7 +18,7 @@ type GuildCommandPermissions struct {
 	Permissions   []CommandPermission `json:"permissions"`
 }
 
-// CommandPermission holds a User or Role and if they are allowed to use the Command
+// CommandPermission holds a User or Role and if they are allowed to use the ApplicationCommand
 type CommandPermission struct {
 	ID         Snowflake             `json:"id"`
 	Type       CommandPermissionType `json:"type"`

@@ -26,27 +26,36 @@ const (
 
 // UnmarshalInteraction is used for easier unmarshalling of different Interaction(s)
 type UnmarshalInteraction struct {
-	ID            Snowflake                `json:"id"`
-	ApplicationID Snowflake                `json:"application_id"`
-	Type          InteractionType          `json:"type"`
-	Data          UnmarshalInteractionData `json:"data,omitempty"`
-	GuildID       *Snowflake               `json:"guild_id,omitempty"`
-	ChannelID     *Snowflake               `json:"channel_id,omitempty"`
-	Member        *Member                  `json:"member,omitempty"`
-	User          User                     `json:"User,omitempty"`
-	Token         string                   `json:"token"`
-	Version       int                      `json:"version"`
-	Message       Message                  `json:"message,omitempty"`
+	ID            Snowflake                 `json:"id"`
+	ApplicationID Snowflake                 `json:"application_id"`
+	Type          InteractionType           `json:"type"`
+	Data          *UnmarshalInteractionData `json:"data,omitempty"`
+	GuildID       *Snowflake                `json:"guild_id,omitempty"`
+	ChannelID     *Snowflake                `json:"channel_id,omitempty"`
+	Member        *Member                   `json:"member,omitempty"`
+	User          User                      `json:"User,omitempty"`
+	Token         string                    `json:"token"`
+	Version       int                       `json:"version"`
+	Message       Message                   `json:"message,omitempty"`
 }
 
 type UnmarshalInteractionData struct {
-	ID            Snowflake         `json:"id"`
-	Name          string            `json:"name"`
-	Resolved      Resolved          `json:"resolved"`
-	Options       []UnmarshalOption `json:"options"`
-	ComponentType ComponentType     `json:"component_type"`
-	CustomID      string            `json:"custom_id"`
-	Values        []string          `json:"values"`
+	// Application Command Interactions
+	ID          Snowflake              `json:"id"`
+	CommandType ApplicationCommandType `json:"type"`
+	Name        string                 `json:"name"`
+	Resolved    Resolved               `json:"resolved"`
+
+	// Slash Command Interactions
+	Options []UnmarshalApplicationCommandOption `json:"options"`
+
+	// Context Command Interactions
+	TargetID Snowflake `json:"target_id"`
+
+	// Component Interactions
+	ComponentType ComponentType `json:"component_type"`
+	CustomID      string        `json:"custom_id"`
+	Values        []string      `json:"values"`
 }
 
 // Resolved contains resolved mention data
@@ -55,8 +64,11 @@ type Resolved struct {
 	Members  map[Snowflake]Member  `json:"members,omitempty"`
 	Roles    map[Snowflake]Role    `json:"roles,omitempty"`
 	Channels map[Snowflake]Channel `json:"channels,omitempty"`
+	Messages map[Snowflake]Message `json:"messages,omitempty"`
 }
 
+// to consider using them in Resolved
+/*
 type ResolvedMember struct {
 	GuildID      Snowflake   `json:"guild_id"`
 	User         User        `json:"user"`
@@ -72,13 +84,13 @@ type ResolvedChannel struct {
 	Name        string      `json:"name"`
 	Type        ChannelType `json:"type"`
 	Permissions Permissions `json:"permissions"`
-}
+}*/
 
-type UnmarshalOption struct {
-	Name    string            `json:"name"`
-	Type    CommandOptionType `json:"type"`
-	Value   interface{}       `json:"value"`
-	Options []UnmarshalOption `json:"options"`
+type UnmarshalApplicationCommandOption struct {
+	Name    string                              `json:"name"`
+	Type    ApplicationCommandOptionType        `json:"type"`
+	Value   interface{}                         `json:"value"`
+	Options []UnmarshalApplicationCommandOption `json:"options"`
 }
 
 // InteractionResponse is how you answer interactions. If an answer is not sent within 3 seconds of receiving it, the interaction is failed, and you will be unable to respond to it.
@@ -88,7 +100,7 @@ type InteractionResponse struct {
 }
 
 // ToBody returns the InteractionResponse ready for body
-func (r InteractionResponse) ToBody() (interface{}, error) {
+func (r *InteractionResponse) ToBody() (interface{}, error) {
 	if r.Data == nil {
 		return r, nil
 	}

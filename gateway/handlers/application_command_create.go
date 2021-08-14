@@ -7,7 +7,7 @@ import (
 	"github.com/DisgoOrg/disgo/gateway"
 )
 
-// CommandCreateHandler handles api.CommandCreateEvent
+// CommandCreateHandler handles api.ApplicationCommandCreateEvent
 type CommandCreateHandler struct{}
 
 // EventType returns the raw gateway api.GatewayEventType
@@ -17,12 +17,12 @@ func (h *CommandCreateHandler) EventType() gateway.EventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *CommandCreateHandler) New() interface{} {
-	return &discord.Command{}
+	return discord.ApplicationCommand{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *CommandCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	command, ok := i.(*discord.Command)
+	command, ok := i.(discord.ApplicationCommand)
 	if !ok {
 		return
 	}
@@ -32,17 +32,12 @@ func (h *CommandCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager
 	if command.ApplicationID == disgo.ApplicationID() {
 		cacheStrategy = core.CacheStrategyYes
 	}
+	coreCommand := disgo.EntityBuilder().CreateCommand(command, cacheStrategy)
 
-	if command.FromGuild() {
-		command = disgo.EntityBuilder().CreateGuildCommand(*command.GuildID, command, cacheStrategy)
-	} else {
-		command = disgo.EntityBuilder().CreateGlobalCommand(command, cacheStrategy)
-	}
-
-	eventManager.Dispatch(&events.CommandCreateEvent{
-		GenericCommandEvent: &events.GenericCommandEvent{
+	eventManager.Dispatch(&events.ApplicationCommandCreateEvent{
+		GenericApplicationCommandEvent: &events.GenericApplicationCommandEvent{
 			GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
-			Command:      command,
+			Command:      coreCommand,
 		},
 	})
 }

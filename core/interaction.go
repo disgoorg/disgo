@@ -48,8 +48,8 @@ func (i *Interaction) Reply(messageCreate discord.MessageCreate) rest.Error {
 	return i.Respond(discord.InteractionResponseTypeChannelMessageWithSource, messageCreate)
 }
 
-// EditOriginal edits the original InteractionResponse
-func (i *Interaction) EditOriginal(messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
+// UpdateOriginal edits the original InteractionResponse
+func (i *Interaction) UpdateOriginal(messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
 	message, err := i.Disgo.RestServices().InteractionService().UpdateInteractionResponse(i.Disgo.ApplicationID(), i.Token, messageUpdate)
 	if err != nil {
 
@@ -62,8 +62,8 @@ func (i *Interaction) DeleteOriginal() rest.Error {
 	return i.Disgo.RestServices().InteractionService().DeleteInteractionResponse(i.Disgo.ApplicationID(), i.Token)
 }
 
-// SendFollowup used to send an MessageCreate to an Interaction
-func (i *Interaction) SendFollowup(messageCreate discord.MessageCreate) (*Message, rest.Error) {
+// CreateFollowup is used to send an MessageCreate to an Interaction
+func (i *Interaction) CreateFollowup(messageCreate discord.MessageCreate) (*Message, rest.Error) {
 	message, err := i.Disgo.RestServices().InteractionService().CreateFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageCreate)
 	if err != nil {
 
@@ -71,8 +71,8 @@ func (i *Interaction) SendFollowup(messageCreate discord.MessageCreate) (*Messag
 	return i.Disgo.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-// EditFollowup used to edit a Message from an Interaction
-func (i *Interaction) EditFollowup(messageID discord.Snowflake, messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
+// UpdateFollowup is used to edit a Message from an Interaction
+func (i *Interaction) UpdateFollowup(messageID discord.Snowflake, messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
 	message, err := i.Disgo.RestServices().InteractionService().UpdateFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID, messageUpdate)
 	if err != nil {
 

@@ -247,8 +247,8 @@ func (c *GuildCacheImpl) UncacheGuild(guildID discord.Snowflake) {
 }
 
 /*
-globalCommands     map[discord.Snowflake]*entities.Command
-guildCommands      map[discord.Snowflake]map[discord.Snowflake]*entities.Command
+globalCommands     map[discord.Snowflake]*entities.ApplicationCommand
+guildCommands      map[discord.Snowflake]map[discord.Snowflake]*entities.ApplicationCommand
 users              map[discord.Snowflake]*entities.User
 guilds             map[discord.Snowflake]*entities.Guild
 members            map[discord.Snowflake]map[discord.Snowflake]*entities.Member
@@ -264,8 +264,8 @@ emotes             map[discord.Snowflake]map[discord.Snowflake]*entities.Emoji
 
 /*
 
-// Command returns an discord.Command from cache
-func (c *CacheImpl) Command(commandID discord.Snowflake) *entities.Command {
+// ApplicationCommand returns an discord.ApplicationCommand from cache
+func (c *CacheImpl) ApplicationCommand(commandID discord.Snowflake) *entities.ApplicationCommand {
 	if command, ok := c.globalCommands[commandID]; ok {
 		return command
 	}
@@ -278,22 +278,22 @@ func (c *CacheImpl) Command(commandID discord.Snowflake) *entities.Command {
 }
 
 // GuildCommandCache returns the cache of commands in a Guild
-func (c *CacheImpl) GuildCommandCache(guildID discord.Snowflake) map[discord.Snowflake]*entities.Command {
+func (c *CacheImpl) GuildCommandCache(guildID discord.Snowflake) map[discord.Snowflake]*entities.ApplicationCommand {
 	return c.guildCommands[guildID]
 }
 
-// AllGuildCommandCache returns the cache of all Guild Command(s)
-func (c *CacheImpl) AllGuildCommandCache() map[discord.Snowflake]map[discord.Snowflake]*entities.Command {
+// AllGuildCommandCache returns the cache of all Guild ApplicationCommand(s)
+func (c *CacheImpl) AllGuildCommandCache() map[discord.Snowflake]map[discord.Snowflake]*entities.ApplicationCommand {
 	return c.guildCommands
 }
 
-// GlobalCommandCache returns the cache of global Command(s)
-func (c *CacheImpl) GlobalCommandCache() map[discord.Snowflake]*entities.Command {
+// GlobalCommandCache returns the cache of global ApplicationCommand(s)
+func (c *CacheImpl) GlobalCommandCache() map[discord.Snowflake]*entities.ApplicationCommand {
 	return c.globalCommands
 }
 
 // CacheGlobalCommand adds a global command to the cache
-func (c *CacheImpl) CacheGlobalCommand(command *entities.Command) *entities.Command {
+func (c *CacheImpl) CacheGlobalCommand(command *entities.ApplicationCommand) *entities.ApplicationCommand {
 	if c.CacheFlags().Missing(CacheFlagCommands) {
 		return command
 	}
@@ -305,8 +305,8 @@ func (c *CacheImpl) CacheGlobalCommand(command *entities.Command) *entities.Comm
 	return command
 }
 
-// CacheGuildCommand adds a Guild Command to the cache
-func (c *CacheImpl) CacheGuildCommand(command *entities.Command) *entities.Command {
+// CacheGuildCommand adds a Guild ApplicationCommand to the cache
+func (c *CacheImpl) CacheGuildCommand(command *entities.ApplicationCommand) *entities.ApplicationCommand {
 	if c.CacheFlags().Missing(CacheFlagCommands) {
 		return command
 	}
@@ -320,7 +320,7 @@ func (c *CacheImpl) CacheGuildCommand(command *entities.Command) *entities.Comma
 	return command
 }
 
-// Uncache removes a global Command from the cache
+// Uncache removes a global ApplicationCommand from the cache
 func (c *CacheImpl) Uncache(commandID discord.Snowflake) {
 	if _, ok := c.globalCommands[commandID]; ok {
 		delete(c.globalCommands, commandID)
@@ -460,7 +460,7 @@ func (c *CacheImpl) CacheGuild(guild *entities.Guild) *entities.Guild {
 	}
 	// guild was not yet cached so cache it directly
 	c.guilds[guild.ID] = guild
-	c.guildCommands[guild.ID] = map[discord.Snowflake]*entities.Command{}
+	c.guildCommands[guild.ID] = map[discord.Snowflake]*entities.ApplicationCommand{}
 	c.members[guild.ID] = map[discord.Snowflake]*entities.Member{}
 	c.voiceStates[guild.ID] = map[discord.Snowflake]*entities.VoiceState{}
 	c.roles[guild.ID] = map[discord.Snowflake]*entities.Role{}

@@ -56,7 +56,7 @@ func main() {
 			OnRawGateway:         rawGatewayEventListener,
 			OnGuildAvailable:     guildAvailListener,
 			OnGuildMessageCreate: messageListener,
-			OnCommand:            commandListener,
+			OnSlashCommand:       commandListener,
 			OnButtonClick:        buttonClickListener,
 			OnSelectMenuSubmit:   selectMenuSubmitListener,
 		}).
@@ -67,12 +67,12 @@ func main() {
 		return
 	}
 
-	rawCmds := []discord.CommandCreate{
+	rawCmds := []discord.ApplicationCommandCreate{
 		{
 			Name:              "eval",
 			Description:       "runs some go code",
 			DefaultPermission: true,
-			Options: []discord.CommandOption{
+			Options: []discord.ApplicationCommandOption{
 				{
 					Type:        discord.CommandOptionTypeString,
 					Name:        "code",
@@ -90,7 +90,7 @@ func main() {
 			Name:              "say",
 			Description:       "says what you say",
 			DefaultPermission: true,
-			Options: []discord.CommandOption{
+			Options: []discord.ApplicationCommandOption{
 				{
 					Type:        discord.CommandOptionTypeString,
 					Name:        "message",
@@ -103,7 +103,7 @@ func main() {
 			Name:              "addrole",
 			Description:       "This command adds a role to a member",
 			DefaultPermission: true,
-			Options: []discord.CommandOption{
+			Options: []discord.ApplicationCommandOption{
 				{
 					Type:        discord.CommandOptionTypeUser,
 					Name:        "member",
@@ -122,7 +122,7 @@ func main() {
 			Name:              "removerole",
 			Description:       "This command removes a role from a member",
 			DefaultPermission: true,
-			Options: []discord.CommandOption{
+			Options: []discord.ApplicationCommandOption{
 				{
 					Type:        discord.CommandOptionTypeUser,
 					Name:        "member",
@@ -235,7 +235,7 @@ func selectMenuSubmitListener(event *events.SelectMenuSubmitEvent) {
 	}
 }
 
-func commandListener(event *events.CommandEvent) {
+func commandListener(event *events.SlashCommandEvent) {
 	switch event.CommandName() {
 	case "eval":
 		go func() {
@@ -351,11 +351,11 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 	if event.Message.Author.IsBot {
 		return
 	}
-	if event.Message.Content == nil {
+	if event.Message.Content == "" {
 		return
 	}
 
-	switch *event.Message.Content {
+	switch event.Message.Content {
 	case "ping":
 		_, _ = event.Message.Reply(core.NewMessageCreateBuilder().SetContent("pong").SetAllowedMentions(&discord.AllowedMentions{RepliedUser: false}).Build())
 

@@ -8,13 +8,13 @@ type ComponentInteraction struct {
 	Data    *ComponentInteractionData
 }
 
-// DeferEdit replies to the ComponentInteraction with InteractionResponseTypeDeferredUpdateMessage and cancels the loading state
-func (i *ComponentInteraction) DeferEdit() error {
+// DeferUpdate replies to the ComponentInteraction with discord.InteractionResponseTypeDeferredUpdateMessage and cancels the loading state
+func (i *ComponentInteraction) DeferUpdate() error {
 	return i.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil)
 }
 
-// Edit replies to the ComponentInteraction with InteractionResponseTypeUpdateMessage & MessageUpdate which edits the original Message
-func (i *ComponentInteraction) Edit(messageUpdate discord.MessageUpdate) error {
+// Update replies to the ComponentInteraction with discord.InteractionResponseTypeUpdateMessage & MessageUpdate which edits the original Message
+func (i *ComponentInteraction) Update(messageUpdate discord.MessageUpdate) error {
 	return i.Respond(discord.InteractionResponseTypeUpdateMessage, messageUpdate)
 }
 

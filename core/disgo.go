@@ -43,19 +43,19 @@ type Disgo interface {
 	EntityBuilder() EntityBuilder
 	AudioController() AudioController
 
-	GetCommand(commandID discord.Snowflake) (*Command, rest.Error)
-	GetCommands() ([]*Command, rest.Error)
-	CreateCommand(command discord.CommandCreate) (*Command, rest.Error)
-	EditCommand(commandID discord.Snowflake, command discord.CommandUpdate) (*Command, rest.Error)
+	GetCommand(commandID discord.Snowflake) (*ApplicationCommand, rest.Error)
+	GetCommands() ([]*ApplicationCommand, rest.Error)
+	CreateCommand(command discord.ApplicationCommandCreate) (*ApplicationCommand, rest.Error)
+	EditCommand(commandID discord.Snowflake, command discord.ApplicationCommandUpdate) (*ApplicationCommand, rest.Error)
 	DeleteCommand(commandID discord.Snowflake) rest.Error
-	SetCommands(commands ...discord.CommandCreate) ([]*Command, rest.Error)
+	SetCommands(commands ...discord.ApplicationCommandCreate) ([]*ApplicationCommand, rest.Error)
 
-	GetGuildCommand(guildID discord.Snowflake, commandID discord.Snowflake) (*Command, rest.Error)
-	GetGuildCommands(guildID discord.Snowflake) ([]*Command, rest.Error)
-	CreateGuildCommand(guildID discord.Snowflake, commandCreate discord.CommandCreate) (*Command, rest.Error)
-	EditGuildCommand(guildID discord.Snowflake, commandID discord.Snowflake, commandUpdate discord.CommandUpdate) (*Command, rest.Error)
+	GetGuildCommand(guildID discord.Snowflake, commandID discord.Snowflake) (*ApplicationCommand, rest.Error)
+	GetGuildCommands(guildID discord.Snowflake) ([]*ApplicationCommand, rest.Error)
+	CreateGuildCommand(guildID discord.Snowflake, commandCreate discord.ApplicationCommandCreate) (*ApplicationCommand, rest.Error)
+	EditGuildCommand(guildID discord.Snowflake, commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate) (*ApplicationCommand, rest.Error)
 	DeleteGuildCommand(guildID discord.Snowflake, commandID discord.Snowflake) rest.Error
-	SetGuildCommands(guildID discord.Snowflake, commandCreates ...discord.CommandCreate) ([]*Command, rest.Error)
+	SetGuildCommands(guildID discord.Snowflake, commandCreates ...discord.ApplicationCommandCreate) ([]*ApplicationCommand, rest.Error)
 
 	GetGuildCommandsPermissions(guildID discord.Snowflake) ([]*GuildCommandPermissions, rest.Error)
 	GetGuildCommandPermissions(guildID discord.Snowflake, commandID discord.Snowflake) (*GuildCommandPermissions, rest.Error)

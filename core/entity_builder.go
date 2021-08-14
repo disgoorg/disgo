@@ -20,7 +20,7 @@ type EntityBuilder interface {
 	Disgo() Disgo
 
 	CreateInteraction(unmarshalInteraction discord.UnmarshalInteraction, replyChannel chan discord.InteractionResponse, updateCache CacheStrategy) *Interaction
-	CreateCommandInteraction(interaction *Interaction, updateCache CacheStrategy) *CommandInteraction
+	CreateCommandInteraction(interaction *Interaction, updateCache CacheStrategy) *SlashCommandInteraction
 	CreateComponentInteraction(interaction *Interaction, updateCache CacheStrategy) *ComponentInteraction
 	CreateButtonInteraction(componentInteraction *ComponentInteraction) *ButtonInteraction
 	CreateSelectMenuInteraction(componentInteraction *ComponentInteraction) *SelectMenuInteraction
@@ -40,7 +40,7 @@ type EntityBuilder interface {
 	CreateBan(guildID discord.Snowflake, ban discord.Ban, updateCache CacheStrategy) *Ban
 	CreateVoiceState(guildID discord.Snowflake, voiceState discord.VoiceState, updateCache CacheStrategy) *VoiceState
 
-	CreateCommand(command discord.Command, updateCache CacheStrategy) *Command
+	CreateCommand(command discord.ApplicationCommand, updateCache CacheStrategy) *ApplicationCommand
 	CreateCommandPermissions(guildCommandPermissions discord.GuildCommandPermissions, updateCache CacheStrategy) *GuildCommandPermissions
 
 	CreateAuditLog(guildID discord.Snowflake, auditLog discord.AuditLog, filterOptions AuditLogFilterOptions, updateCache CacheStrategy) *AuditLog

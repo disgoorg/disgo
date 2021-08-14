@@ -43,20 +43,20 @@ type BaseCache interface {
 
 type GlobalCommandCache interface {
 	BaseCache
-	Get(commandID discord.Snowflake) *Command
-	GetAll() []*Command
-	GetCache() map[discord.Snowflake]*Command
-	Cache(command *Command) *Command
+	Get(commandID discord.Snowflake) *ApplicationCommand
+	GetAll() []*ApplicationCommand
+	GetCache() map[discord.Snowflake]*ApplicationCommand
+	Cache(command *ApplicationCommand) *ApplicationCommand
 	Uncache(commandID discord.Snowflake)
 }
 
 type GuildCommandCache interface {
 	BaseCache
-	Get(commandID discord.Snowflake) *Command
-	GetAll(guildID discord.Snowflake) []*Command
-	GetCache(guildID discord.Snowflake) map[discord.Snowflake]*Command
-	GetAllCache() map[discord.Snowflake]*Command
-	Cache(command *Command) *Command
+	Get(commandID discord.Snowflake) *ApplicationCommand
+	GetAll(guildID discord.Snowflake) []*ApplicationCommand
+	GetCache(guildID discord.Snowflake) map[discord.Snowflake]*ApplicationCommand
+	GetAllCache() map[discord.Snowflake]*ApplicationCommand
+	Cache(command *ApplicationCommand) *ApplicationCommand
 	Uncache(commandID discord.Snowflake)
 }
 

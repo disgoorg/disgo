@@ -7,7 +7,7 @@ import (
 	"github.com/DisgoOrg/disgo/gateway"
 )
 
-// CommandDeleteHandler handles api.CommandCreateEvent
+// CommandDeleteHandler handles api.ApplicationCommandCreateEvent
 type CommandDeleteHandler struct{}
 
 // EventType returns the api.GatewayEventType
@@ -17,12 +17,12 @@ func (h *CommandDeleteHandler) EventType() gateway.EventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *CommandDeleteHandler) New() interface{} {
-	return &discord.Command{}
+	return discord.ApplicationCommand{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *CommandDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	command, ok := i.(*discord.Command)
+	command, ok := i.(discord.ApplicationCommand)
 	if !ok {
 		return
 	}
@@ -38,8 +38,8 @@ func (h *CommandDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager
 		command = disgo.EntityBuilder().CreateGlobalCommand(command, core.CacheStrategyNo)
 	}
 
-	eventManager.Dispatch(&events.CommandDeleteEvent{
-		GenericCommandEvent: &events.GenericCommandEvent{
+	eventManager.Dispatch(&events.ApplicationCommandDeleteEvent{
+		GenericApplicationCommandEvent: &events.GenericApplicationCommandEvent{
 			GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 			Command:      command,
 		},

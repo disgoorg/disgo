@@ -15,9 +15,9 @@ type ListenerAdapter struct {
 	OnReadyEvent  func(event *ReadyEvent)
 
 	// api.Command Events
-	OnCommandCreate func(event *CommandCreateEvent)
-	OnCommandUpdate func(event *CommandUpdateEvent)
-	OnCommandDelete func(event *CommandDeleteEvent)
+	OnApplicationCommandCreate func(event *ApplicationCommandCreateEvent)
+	OnApplicationCommandUpdate func(event *ApplicationCommandUpdateEvent)
+	OnApplicationCommandDelete func(event *ApplicationCommandDeleteEvent)
 
 	// api.GuildChannel Events
 	OnGuildChannelCreate func(event *GuildChannelCreateEvent)
@@ -107,7 +107,9 @@ type ListenerAdapter struct {
 	OnRoleDelete func(event *RoleDeleteEvent)
 
 	// api.Interaction Events
-	OnCommand          func(event *CommandEvent)
+	OnSlashCommand     func(event *SlashCommandEvent)
+	OnUserCommand      func(event *UserCommandEvent)
+	OnMessageCommand   func(event *MessageCommandEvent)
 	OnButtonClick      func(event *ButtonClickEvent)
 	OnSelectMenuSubmit func(event *SelectMenuSubmitEvent)
 
@@ -157,17 +159,17 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// api.Command Events
-	case *CommandCreateEvent:
-		if listener := l.OnCommandCreate; listener != nil {
+	// api.ApplicationCommand Events
+	case *ApplicationCommandCreateEvent:
+		if listener := l.OnApplicationCommandCreate; listener != nil {
 			listener(e)
 		}
-	case *CommandUpdateEvent:
-		if listener := l.OnCommandUpdate; listener != nil {
+	case *ApplicationCommandUpdateEvent:
+		if listener := l.OnApplicationCommandUpdate; listener != nil {
 			listener(e)
 		}
-	case *CommandDeleteEvent:
-		if listener := l.OnCommandDelete; listener != nil {
+	case *ApplicationCommandDeleteEvent:
+		if listener := l.OnApplicationCommandDelete; listener != nil {
 			listener(e)
 		}
 
@@ -424,8 +426,16 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 
 	// Interaction Events
-	case *CommandEvent:
-		if listener := l.OnCommand; listener != nil {
+	case *SlashCommandEvent:
+		if listener := l.OnSlashCommand; listener != nil {
+			listener(e)
+		}
+	case *UserCommandEvent:
+		if listener := l.OnUserCommand; listener != nil {
+			listener(e)
+		}
+	case *MessageCommandEvent:
+		if listener := l.OnMessageCommand; listener != nil {
 			listener(e)
 		}
 	case *ButtonClickEvent:

@@ -180,8 +180,8 @@ func (g *Guild) DeleteIntegration(integrationID discord.Snowflake) rest.Error {
 	return g.Disgo.RestServices().GuildService().DeleteIntegration(g.ID, integrationID)
 }
 
-// GetGuildCommand fetches a specific Guild discord.Command
-func (g *Guild) GetGuildCommand(commandID discord.Snowflake) (*Command, rest.Error) {
+// GetGuildCommand fetches a specific Guild discord.ApplicationCommand
+func (g *Guild) GetGuildCommand(commandID discord.Snowflake) (*ApplicationCommand, rest.Error) {
 	command, err := g.Disgo.RestServices().ApplicationService().GetGuildCommand(g.Disgo.ApplicationID(), g.ID, commandID)
 	if err != nil {
 		return nil, err
@@ -189,21 +189,21 @@ func (g *Guild) GetGuildCommand(commandID discord.Snowflake) (*Command, rest.Err
 	return g.Disgo.EntityBuilder().CreateCommand(*command, CacheStrategyNoWs), nil
 }
 
-// GetGuildCommands fetches all Guild discord.Command(s)
-func (g *Guild) GetGuildCommands() ([]*Command, rest.Error) {
+// GetGuildCommands fetches all Guild discord.ApplicationCommand(s)
+func (g *Guild) GetGuildCommands() ([]*ApplicationCommand, rest.Error) {
 	cmds, err := g.Disgo.RestServices().ApplicationService().GetGuildCommands(g.Disgo.ApplicationID(), g.ID)
 	if err != nil {
 		return nil, err
 	}
-	commands := make([]*Command, len(cmds))
+	commands := make([]*ApplicationCommand, len(cmds))
 	for i, command := range cmds {
 		commands[i] = g.Disgo.EntityBuilder().CreateCommand(command, CacheStrategyNoWs)
 	}
 	return commands, nil
 }
 
-// CreateGuildCommand creates a new Guild discord.Command
-func (g *Guild) CreateGuildCommand(commandCreate discord.CommandCreate) (*Command, rest.Error) {
+// CreateGuildCommand creates a new Guild discord.ApplicationCommand
+func (g *Guild) CreateGuildCommand(commandCreate discord.ApplicationCommandCreate) (*ApplicationCommand, rest.Error) {
 	command, err := g.Disgo.RestServices().ApplicationService().CreateGuildCommand(g.Disgo.ApplicationID(), g.ID, commandCreate)
 	if err != nil {
 		return nil, err
@@ -211,8 +211,8 @@ func (g *Guild) CreateGuildCommand(commandCreate discord.CommandCreate) (*Comman
 	return g.Disgo.EntityBuilder().CreateCommand(*command, CacheStrategyNoWs), nil
 }
 
-// EditGuildCommand edits a specific Guild discord.Command
-func (g *Guild) EditGuildCommand(commandID discord.Snowflake, commandUpdate discord.CommandUpdate) (*Command, rest.Error) {
+// EditGuildCommand edits a specific Guild discord.ApplicationCommand
+func (g *Guild) EditGuildCommand(commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate) (*ApplicationCommand, rest.Error) {
 	command, err := g.Disgo.RestServices().ApplicationService().UpdateGuildCommand(g.Disgo.ApplicationID(), g.ID, commandID, commandUpdate)
 	if err != nil {
 		return nil, err
@@ -220,25 +220,25 @@ func (g *Guild) EditGuildCommand(commandID discord.Snowflake, commandUpdate disc
 	return g.Disgo.EntityBuilder().CreateCommand(*command, CacheStrategyNoWs), nil
 }
 
-// DeleteGuildCommand creates a new Guild discord.Command
+// DeleteGuildCommand creates a new Guild discord.ApplicationCommand
 func (g *Guild) DeleteGuildCommand(commandID discord.Snowflake) rest.Error {
 	return g.Disgo.RestServices().ApplicationService().DeleteGuildCommand(g.Disgo.ApplicationID(), g.ID, commandID)
 }
 
-// SetGuildCommands overrides all Guild discord.Command(s)
-func (g *Guild) SetGuildCommands(commandCreates ...discord.CommandCreate) ([]*Command, rest.Error) {
+// SetGuildCommands overrides all Guild discord.ApplicationCommand(s)
+func (g *Guild) SetGuildCommands(commandCreates ...discord.ApplicationCommandCreate) ([]*ApplicationCommand, rest.Error) {
 	cmds, err := g.Disgo.RestServices().ApplicationService().SetGuildCommands(g.Disgo.ApplicationID(), g.ID, commandCreates...)
 	if err != nil {
 		return nil, err
 	}
-	commands := make([]*Command, len(cmds))
+	commands := make([]*ApplicationCommand, len(cmds))
 	for i, command := range cmds {
 		commands[i] = g.Disgo.EntityBuilder().CreateCommand(command, CacheStrategyNoWs)
 	}
 	return commands, nil
 }
 
-// GetGuildCommandsPermissions returns the api.GuildCommandPermissions for a all discord.Command(s) in an api.Guild
+// GetGuildCommandsPermissions returns the api.GuildCommandPermissions for a all discord.ApplicationCommand(s) in an api.Guild
 func (g *Guild) GetGuildCommandsPermissions() ([]*GuildCommandPermissions, rest.Error) {
 	perms, err := g.Disgo.RestServices().ApplicationService().GetGuildCommandsPermissions(g.Disgo.ApplicationID(), g.ID)
 	if err != nil {
@@ -251,7 +251,7 @@ func (g *Guild) GetGuildCommandsPermissions() ([]*GuildCommandPermissions, rest.
 	return permissions, nil
 }
 
-// GetGuildCommandPermissions returns the api.GuildCommandPermissions for a specific discord.Command in an api.Guild
+// GetGuildCommandPermissions returns the api.GuildCommandPermissions for a specific discord.ApplicationCommand in an api.Guild
 func (g *Guild) GetGuildCommandPermissions(commandID discord.Snowflake) (*GuildCommandPermissions, rest.Error) {
 	permissions, err := g.Disgo.RestServices().ApplicationService().GetGuildCommandPermissions(g.Disgo.ApplicationID(), g.ID, commandID)
 	if err != nil {
@@ -260,7 +260,7 @@ func (g *Guild) GetGuildCommandPermissions(commandID discord.Snowflake) (*GuildC
 	return g.Disgo.EntityBuilder().CreateCommandPermissions(*permissions, CacheStrategyNoWs), nil
 }
 
-// SetGuildCommandsPermissions sets the discord.GuildCommandPermissions for all discord.Command(s)
+// SetGuildCommandsPermissions sets the discord.GuildCommandPermissions for all discord.ApplicationCommand(s)
 func (g *Guild) SetGuildCommandsPermissions(commandPermissions ...discord.GuildCommandPermissionsSet) ([]*GuildCommandPermissions, rest.Error) {
 	perms, err := g.Disgo.RestServices().ApplicationService().SetGuildCommandsPermissions(g.Disgo.ApplicationID(), g.ID, commandPermissions...)
 	if err != nil {
@@ -273,7 +273,7 @@ func (g *Guild) SetGuildCommandsPermissions(commandPermissions ...discord.GuildC
 	return permissions, nil
 }
 
-// SetGuildCommandPermissions sets the api.GuildCommandPermissions for a specific discord.Command
+// SetGuildCommandPermissions sets the api.GuildCommandPermissions for a specific discord.ApplicationCommand
 func (g *Guild) SetGuildCommandPermissions(commandID discord.Snowflake, permissions ...discord.CommandPermission) (*GuildCommandPermissions, rest.Error) {
 	perms, err := g.Disgo.RestServices().ApplicationService().SetGuildCommandPermissions(g.Disgo.ApplicationID(), g.ID, commandID, permissions...)
 	if err != nil {

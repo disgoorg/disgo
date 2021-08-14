@@ -41,11 +41,11 @@ func (b EntityBuilderImpl) CreateInteraction(unmarshalInteraction discord.Unmars
 	return coreInteraction
 }
 
-// CreateCommandInteraction creates a CommandInteraction from the discord.UnmarshalInteraction response
-func (b *EntityBuilderImpl) CreateCommandInteraction(interaction *Interaction, updateCache CacheStrategy) *CommandInteraction {
-	commandInteraction := &CommandInteraction{
+// CreateCommandInteraction creates a SlashCommandInteraction from the discord.UnmarshalInteraction response
+func (b *EntityBuilderImpl) CreateCommandInteraction(interaction *Interaction, updateCache CacheStrategy) *SlashCommandInteraction {
+	commandInteraction := &SlashCommandInteraction{
 		Interaction: interaction,
-		Data: &CommandInteractionData{
+		Data: &SlashCommandInteractionData{
 			InteractionData: interaction.Data,
 		},
 	}
@@ -67,9 +67,9 @@ func (b *EntityBuilderImpl) CreateCommandInteraction(interaction *Interaction, u
 		}
 	}
 
-	options := make([]CommandOption, len(unmarshalOptions))
+	options := make([]ApplicationCommandOption, len(unmarshalOptions))
 	for i, optionData := range options {
-		options[i] = CommandOption{
+		options[i] = ApplicationCommandOption{
 			Resolved: commandInteraction.Data.Resolved,
 			Name:     optionData.Name,
 			Type:     optionData.Type,
@@ -312,11 +312,11 @@ func (b *EntityBuilderImpl) CreateVoiceState(guildID discord.Snowflake, voiceSta
 	return coreState
 }
 
-// CreateCommand returns a new discord.Command entity
-func (b *EntityBuilderImpl) CreateCommand(command discord.Command, updateCache CacheStrategy) *Command {
-	coreCommand := &Command{
-		Command: command,
-		Disgo:   b.disgo,
+// CreateCommand returns a new discord.ApplicationCommand entity
+func (b *EntityBuilderImpl) CreateCommand(command discord.ApplicationCommand, updateCache CacheStrategy) *ApplicationCommand {
+	coreCommand := &ApplicationCommand{
+		ApplicationCommand: command,
+		Disgo:              b.disgo,
 	}
 	if updateCache(b.Disgo()) {
 		if command.GuildID == nil {

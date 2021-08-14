@@ -795,8 +795,8 @@ func (r *restClientImpl) RemoveUserReaction(channelID discord.Snowflake, message
 	return r.Do(compiledRoute, nil, nil)
 }
 
- GetGlobalCommands gets you all global api.Command(s)
-func (r *restClientImpl) GetGlobalCommands(applicationID discord.Snowflake) (commands []*discord.Command, rErr rest.Error) {
+ GetGlobalCommands gets you all global api.ApplicationCommand(s)
+func (r *restClientImpl) GetGlobalCommands(applicationID discord.Snowflake) (commands []*discord.ApplicationCommand, rErr rest.Error) {
 	compiledRoute, err := restclient.GetGlobalCommands.Compile(nil, applicationID)
 	if err != nil {
 		return nil, restclient.NewError(nil, err)
@@ -810,8 +810,8 @@ func (r *restClientImpl) GetGlobalCommands(applicationID discord.Snowflake) (com
 	return
 }
 
- GetGlobalCommand gets you a specific global global api.Command
-func (r *restClientImpl) GetGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake) (cmd *discord.Command, rErr rest.Error) {
+ GetGlobalCommand gets you a specific global global api.ApplicationCommand
+func (r *restClientImpl) GetGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake) (cmd *discord.ApplicationCommand, rErr rest.Error) {
 	compiledRoute, err := restclient.GetGlobalCommand.Compile(nil, applicationID, commandID)
 	if err != nil {
 		return nil, restclient.NewError(nil, err)
@@ -823,8 +823,8 @@ func (r *restClientImpl) GetGlobalCommand(applicationID discord.Snowflake, comma
 	return
 }
 
- CreateGlobalCommand lets you create a new global api.Command
-func (r *restClientImpl) CreateGlobalCommand(applicationID discord.Snowflake, command discord.CommandCreate) (cmd *discord.Command, rErr rest.Error) {
+ CreateGlobalCommand lets you create a new global api.ApplicationCommand
+func (r *restClientImpl) CreateGlobalCommand(applicationID discord.Snowflake, command discord.CommandCreate) (cmd *discord.ApplicationCommand, rErr rest.Error) {
 	compiledRoute, err := restclient.CreateGlobalCommand.Compile(nil, applicationID)
 	if err != nil {
 		return nil, restclient.NewError(nil, err)
@@ -836,8 +836,8 @@ func (r *restClientImpl) CreateGlobalCommand(applicationID discord.Snowflake, co
 	return
 }
 
- SetGlobalCommands lets you override all global api.Command
-func (r *restClientImpl) SetGlobalCommands(applicationID discord.Snowflake, commands ...discord.CommandCreate) (cmds []*discord.Command, rErr rest.Error) {
+ SetGlobalCommands lets you override all global api.ApplicationCommand
+func (r *restClientImpl) SetGlobalCommands(applicationID discord.Snowflake, commands ...discord.CommandCreate) (cmds []*discord.ApplicationCommand, rErr rest.Error) {
 	compiledRoute, err := restclient.SetGlobalCommands.Compile(nil, applicationID)
 	if err != nil {
 		return nil, restclient.NewError(nil, err)
@@ -855,8 +855,8 @@ func (r *restClientImpl) SetGlobalCommands(applicationID discord.Snowflake, comm
 	return
 }
 
- UpdateGlobalCommand lets you edit a specific global api.Command
-func (r *restClientImpl) UpdateGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake, command api.CommandUpdate) (cmd *api.Command, rErr rest.Error) {
+ UpdateGlobalCommand lets you edit a specific global api.ApplicationCommand
+func (r *restClientImpl) UpdateGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake, command api.CommandUpdate) (cmd *api.ApplicationCommand, rErr rest.Error) {
 	compiledRoute, err := restclient.UpdateGlobalCommand.Compile(nil, applicationID, commandID)
 	if err != nil {
 		return nil, restclient.NewError(nil, err)
@@ -868,7 +868,7 @@ func (r *restClientImpl) UpdateGlobalCommand(applicationID discord.Snowflake, co
 	return
 }
 
- DeleteGlobalCommand lets you delete a specific global api.Command
+ DeleteGlobalCommand lets you delete a specific global api.ApplicationCommand
 func (r *restClientImpl) DeleteGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake) (rErr rest.Error) {
 	compiledRoute, err := restclient.DeleteGlobalCommand.Compile(nil, applicationID, commandID)
 	if err != nil {
@@ -881,8 +881,8 @@ func (r *restClientImpl) DeleteGlobalCommand(applicationID discord.Snowflake, co
 	return
 }
 
- GetGuildCommands gets you all api.Command(s) from an api.Guild
-func (r *restClientImpl) GetGuildCommands(applicationID discord.Snowflake, guildID discord.Snowflake) (commands []*api.Command, rErr rest.Error) {
+ GetGuildCommands gets you all api.ApplicationCommand(s) from an api.Guild
+func (r *restClientImpl) GetGuildCommands(applicationID discord.Snowflake, guildID discord.Snowflake) (commands []*api.ApplicationCommand, rErr rest.Error) {
 	compiledRoute, err := restclient.GetGuildCommands.Compile(nil, applicationID, guildID)
 	if err != nil {
 		return nil, restclient.NewError(nil, err)
@@ -896,8 +896,8 @@ func (r *restClientImpl) GetGuildCommands(applicationID discord.Snowflake, guild
 	return
 }
 
- CreateGuildCommand lets you create a new api.Command in an api.Guild
-func (r *restClientImpl) CreateGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, command api.CommandCreate) (cmd *api.Command, rErr rest.Error) {
+ CreateGuildCommand lets you create a new api.ApplicationCommand in an api.Guild
+func (r *restClientImpl) CreateGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, command api.CommandCreate) (cmd *api.ApplicationCommand, rErr rest.Error) {
 	compiledRoute, err := restclient.CreateGuildCommand.Compile(nil, applicationID, guildID)
 	if err != nil {
 		return nil, restclient.NewError(nil, err)
@@ -909,8 +909,8 @@ func (r *restClientImpl) CreateGuildCommand(applicationID discord.Snowflake, gui
 	return
 }
 
- SetGuildCommands lets you override all api.Command(s) in an api.Guild
-func (r *restClientImpl) SetGuildCommands(applicationID discord.Snowflake, guildID discord.Snowflake, commands ...api.CommandCreate) (cmds []*api.Command, rErr rest.Error) {
+ SetGuildCommands lets you override all api.ApplicationCommand(s) in an api.Guild
+func (r *restClientImpl) SetGuildCommands(applicationID discord.Snowflake, guildID discord.Snowflake, commands ...api.CommandCreate) (cmds []*api.ApplicationCommand, rErr rest.Error) {
 	compiledRoute, err := restclient.SetGuildCommands.Compile(nil, applicationID, guildID)
 	if err != nil {
 		return nil, restclient.NewError(nil, err)
@@ -928,8 +928,8 @@ func (r *restClientImpl) SetGuildCommands(applicationID discord.Snowflake, guild
 	return
 }
 
- GetGuildCommand gets you a specific api.Command in an api.Guild
-func (r *restClientImpl) GetGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake) (cmd *api.Command, rErr rest.Error) {
+ GetGuildCommand gets you a specific api.ApplicationCommand in an api.Guild
+func (r *restClientImpl) GetGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake) (cmd *api.ApplicationCommand, rErr rest.Error) {
 	compiledRoute, err := restclient.GetGuildCommand.Compile(nil, applicationID, guildID, commandID)
 	if err != nil {
 		return nil, restclient.NewError(nil, err)
@@ -941,8 +941,8 @@ func (r *restClientImpl) GetGuildCommand(applicationID discord.Snowflake, guildI
 	return
 }
 
- UpdateGuildCommand lets you edit a specific api.Command in an api.Guild
-func (r *restClientImpl) UpdateGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake, command api.CommandUpdate) (cmd *api.Command, rErr rest.Error) {
+ UpdateGuildCommand lets you edit a specific api.ApplicationCommand in an api.Guild
+func (r *restClientImpl) UpdateGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake, command api.CommandUpdate) (cmd *api.ApplicationCommand, rErr rest.Error) {
 	compiledRoute, err := restclient.UpdateGuildCommand.Compile(nil, applicationID, guildID, commandID)
 	if err != nil {
 		return nil, restclient.NewError(nil, err)
@@ -954,7 +954,7 @@ func (r *restClientImpl) UpdateGuildCommand(applicationID discord.Snowflake, gui
 	return
 }
 
- DeleteGuildCommand lets you delete a specific api.Command in an api.Guild
+ DeleteGuildCommand lets you delete a specific api.ApplicationCommand in an api.Guild
 func (r *restClientImpl) DeleteGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake) (rErr rest.Error) {
 	compiledRoute, err := restclient.DeleteGuildCommand.Compile(nil, applicationID, guildID, commandID)
 	if err != nil {
@@ -967,7 +967,7 @@ func (r *restClientImpl) DeleteGuildCommand(applicationID discord.Snowflake, gui
 	return
 }
 
- GetGuildCommandsPermissions returns the api.CommandPermission for a all api.Command(s) in an api.Guild
+ GetGuildCommandsPermissions returns the api.CommandPermission for a all api.ApplicationCommand(s) in an api.Guild
 func (r *restClientImpl) GetGuildCommandsPermissions(applicationID discord.Snowflake, guildID discord.Snowflake) (cmdsPerms []*api.GuildCommandPermissions, rErr rest.Error) {
 	compiledRoute, err := restclient.GetGuildCommandPermissions.Compile(nil, applicationID, guildID)
 	if err != nil {
@@ -982,7 +982,7 @@ func (r *restClientImpl) GetGuildCommandsPermissions(applicationID discord.Snowf
 	return
 }
 
- GetGuildCommandPermissions returns the api.CommandPermission for a specific api.Command in an api.Guild
+ GetGuildCommandPermissions returns the api.CommandPermission for a specific api.ApplicationCommand in an api.Guild
 func (r *restClientImpl) GetGuildCommandPermissions(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake) (cmdPerms *api.GuildCommandPermissions, rErr rest.Error) {
 	compiledRoute, err := restclient.GetGuildCommandPermission.Compile(nil, applicationID, guildID, commandID)
 	if err != nil {
@@ -995,7 +995,7 @@ func (r *restClientImpl) GetGuildCommandPermissions(applicationID discord.Snowfl
 	return
 }
 
- SetGuildCommandsPermissions sets the api.GuildCommandPermissions for a all api.Command(s)
+ SetGuildCommandsPermissions sets the api.GuildCommandPermissions for a all api.ApplicationCommand(s)
 func (r *restClientImpl) SetGuildCommandsPermissions(applicationID discord.Snowflake, guildID discord.Snowflake, commandsPermissions ...api.SetGuildCommandPermissions) (cmdsPerms []*api.GuildCommandPermissions, rErr rest.Error) {
 	compiledRoute, err := restclient.SetGuildCommandsPermissions.Compile(nil, applicationID, guildID)
 	if err != nil {
@@ -1010,7 +1010,7 @@ func (r *restClientImpl) SetGuildCommandsPermissions(applicationID discord.Snowf
 	return
 }
 
- SetGuildCommandPermissions sets the api.GuildCommandPermissions for a specific api.Command
+ SetGuildCommandPermissions sets the api.GuildCommandPermissions for a specific api.ApplicationCommand
 func (r *restClientImpl) SetGuildCommandPermissions(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake, commandPermissions discord.SetGuildCommandPermissions) (cmdPerms *api.GuildCommandPermissions, rErr rest.Error) {
 	compiledRoute, err := restclient.SetGuildCommandPermissions.Compile(nil, applicationID, guildID, commandID)
 	if err != nil {

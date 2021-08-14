@@ -25,17 +25,18 @@ func NewMessageCreateBuilder() *MessageCreateBuilder {
 // NewMessageCreateBuilderByMessage returns a new MessageCreateBuilder and takes an existing Message
 //goland:noinspection GoUnusedExportedFunction
 func NewMessageCreateBuilderByMessage(message *Message) *MessageCreateBuilder {
-	msg := discord.MessageCreate{
-		TTS:             message.TTS,
-		Components:      message.Components,
-		Embeds:          message.Embeds,
-		AllowedMentions: &DefaultAllowedMentions,
-	}
+	content := ""
 	if message.Content != nil {
-		msg.Content = *message.Content
+		content = *message.Content
 	}
 	return &MessageCreateBuilder{
-		MessageCreate: msg,
+		MessageCreate: discord.MessageCreate{
+			Content:         content,
+			TTS:             message.TTS,
+			Embeds:          message.Embeds,
+			Components:      message.Components,
+			AllowedMentions: &DefaultAllowedMentions,
+		},
 	}
 }
 
@@ -81,7 +82,7 @@ func (b *MessageCreateBuilder) AddEmbeds(embeds ...discord.Embed) *MessageCreate
 	return b
 }
 
-// ClearEmbeds removes all of the embeds from the Message
+// ClearEmbeds removes all the embeds from the Message
 func (b *MessageCreateBuilder) ClearEmbeds() *MessageCreateBuilder {
 	b.Embeds = []discord.Embed{}
 	return b

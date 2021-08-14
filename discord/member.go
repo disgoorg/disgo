@@ -2,15 +2,16 @@ package discord
 
 // Member is a discord GuildMember
 type Member struct {
-	GuildID      Snowflake   `json:"guild_id"`
-	User         User        `json:"user"`
-	Nick         *string     `json:"nick"`
-	RoleIDs      []Snowflake `json:"roles,omitempty"`
-	JoinedAt     Time        `json:"joined_at"`
-	PremiumSince *Time       `json:"premium_since,omitempty"`
-	Deaf         bool        `json:"deaf,omitempty"`
-	Mute         bool        `json:"mute,omitempty"`
-	Pending      bool        `json:"pending"`
+	GuildID      Snowflake    `json:"guild_id"`
+	User         User         `json:"user"`
+	Nick         *string      `json:"nick"`
+	RoleIDs      []Snowflake  `json:"roles,omitempty"`
+	JoinedAt     Time         `json:"joined_at"`
+	PremiumSince *Time        `json:"premium_since,omitempty"`
+	Deaf         bool         `json:"deaf,omitempty"`
+	Mute         bool         `json:"mute,omitempty"`
+	Pending      bool         `json:"pending"`
+	Permissions  *Permissions `json:"permissions"` // only sent from slash commands
 }
 
 // MemberAdd is used to add a member via the oauth2 access token to a guild
