@@ -26,7 +26,7 @@ func (b EntityBuilderImpl) CreateInteraction(unmarshalInteraction discord.Unmars
 		ResponseChannel:      c,
 		Replied:              false,
 		Data: &InteractionData{
-			UnmarshalInteractionData: unmarshalInteraction.Data,
+			UnmarshalInteractionData: *unmarshalInteraction.Data,
 		},
 	}
 
@@ -41,45 +41,13 @@ func (b EntityBuilderImpl) CreateInteraction(unmarshalInteraction discord.Unmars
 	return coreInteraction
 }
 
-// CreateCommandInteraction creates a SlashCommandInteraction from the discord.UnmarshalInteraction response
-func (b *EntityBuilderImpl) CreateCommandInteraction(interaction *Interaction, updateCache CacheStrategy) *SlashCommandInteraction {
-	commandInteraction := &SlashCommandInteraction{
+func (b *EntityBuilderImpl) CreateApplicationCommandInteraction(interaction *Interaction, updateCache CacheStrategy) *ApplicationCommandInteraction {
+	commandInteraction := &ApplicationCommandInteraction{
 		Interaction: interaction,
-		Data: &SlashCommandInteractionData{
+		Data: &ApplicationCommandInteractionData{
 			InteractionData: interaction.Data,
 		},
 	}
-
-	var subCommandName *string
-	var subCommandGroupName *string
-
-	unmarshalOptions := commandInteraction.Data.InteractionData.UnmarshalInteractionData.Options
-	if len(unmarshalOptions) > 0 {
-		unmarshalOption := unmarshalOptions[0]
-		if unmarshalOption.Type == discord.CommandOptionTypeSubCommandGroup {
-			subCommandGroupName = &unmarshalOption.Name
-			unmarshalOptions = unmarshalOption.Options
-			unmarshalOption = unmarshalOption.Options[0]
-		}
-		if unmarshalOption.Type == discord.CommandOptionTypeSubCommand {
-			subCommandName = &unmarshalOption.Name
-			unmarshalOptions = unmarshalOption.Options
-		}
-	}
-
-	options := make([]ApplicationCommandOption, len(unmarshalOptions))
-	for i, optionData := range options {
-		options[i] = ApplicationCommandOption{
-			Resolved: commandInteraction.Data.Resolved,
-			Name:     optionData.Name,
-			Type:     optionData.Type,
-			Value:    optionData.Value,
-		}
-	}
-
-	commandInteraction.Data.Options = options
-	commandInteraction.Data.SubCommandName = subCommandName
-	commandInteraction.Data.SubCommandGroupName = subCommandGroupName
 
 	resolved := &Resolved{
 		Resolved: interaction.Data.Resolved,
@@ -87,6 +55,7 @@ func (b *EntityBuilderImpl) CreateCommandInteraction(interaction *Interaction, u
 		Members:  map[discord.Snowflake]*Member{},
 		Roles:    map[discord.Snowflake]*Role{},
 		Channels: map[discord.Snowflake]Channel{},
+		Messages: map[discord.Snowflake]*Message{},
 	}
 	for id, user := range interaction.Data.Resolved.Users {
 		resolved.Users[id] = b.CreateUser(user, updateCache)
@@ -106,9 +75,80 @@ func (b *EntityBuilderImpl) CreateCommandInteraction(interaction *Interaction, u
 		resolved.Channels[id] = b.CreateChannel(channel, updateCache)
 	}
 
+	for id, message := range interaction.Data.Resolved.Messages {
+		resolved.Messages[id] = b.CreateMessage(message, updateCache)
+	}
+
 	commandInteraction.Data.Resolved = resolved
 
 	return commandInteraction
+}
+func (b *EntityBuilderImpl) CreateSlashCommandInteraction(applicationInteraction *ApplicationCommandInteraction, _ CacheStrategy) *SlashCommandInteraction {
+	slashCommandInteraction := &SlashCommandInteraction{
+		ApplicationCommandInteraction: applicationInteraction,
+		Data: &SlashCommandInteractionData{
+			ApplicationCommandInteractionData: applicationInteraction.Data,
+		},
+	}
+
+	var subCommandName *string
+	var subCommandGroupName *string
+
+	unmarshalOptions := slashCommandInteraction.Data.UnmarshalInteractionData.Options
+	if len(unmarshalOptions) > 0 {
+		unmarshalOption := unmarshalOptions[0]
+		if unmarshalOption.Type == discord.CommandOptionTypeSubCommandGroup {
+			subCommandGroupName = &unmarshalOption.Name
+			unmarshalOptions = unmarshalOption.Options
+			unmarshalOption = unmarshalOption.Options[0]
+		}
+		if unmarshalOption.Type == discord.CommandOptionTypeSubCommand {
+			subCommandName = &unmarshalOption.Name
+			unmarshalOptions = unmarshalOption.Options
+		}
+	}
+
+	options := make([]ApplicationCommandOption, len(unmarshalOptions))
+	for i, optionData := range options {
+		options[i] = ApplicationCommandOption{
+			Resolved: slashCommandInteraction.Data.Resolved,
+			Name:     optionData.Name,
+			Type:     optionData.Type,
+			Value:    optionData.Value,
+		}
+	}
+
+	slashCommandInteraction.Data.Options = options
+	slashCommandInteraction.Data.SubCommandName = subCommandName
+	slashCommandInteraction.Data.SubCommandGroupName = subCommandGroupName
+
+	return slashCommandInteraction
+}
+
+func (b *EntityBuilderImpl) CreateContextCommandInteraction(applicationInteraction *ApplicationCommandInteraction, _ CacheStrategy) *ContextCommandInteraction {
+	return &ContextCommandInteraction{
+		ApplicationCommandInteraction: applicationInteraction,
+		Data: &ContextCommandInteractionData{
+			ApplicationCommandInteractionData: applicationInteraction.Data,
+		},
+	}
+}
+
+func (b *EntityBuilderImpl) CreateUserCommandInteraction(contextCommandInteraction *ContextCommandInteraction, updateCache CacheStrategy) *UserCommandInteraction {
+	return &UserCommandInteraction{
+		ContextCommandInteraction: contextCommandInteraction,
+		Data: &UserCommandInteractionData{
+			ContextCommandInteractionData: contextCommandInteraction.Data,
+		},
+	}
+}
+func (b *EntityBuilderImpl) CreateMessageCommandInteraction(contextCommandInteraction *ContextCommandInteraction, updateCache CacheStrategy) *MessageCommandInteraction {
+	return &MessageCommandInteraction{
+		ContextCommandInteraction: contextCommandInteraction,
+		Data: &MessageCommandInteractionData{
+			ContextCommandInteractionData: contextCommandInteraction.Data,
+		},
+	}
 }
 
 // CreateComponentInteraction creates a ComponentInteraction from the discord.UnmarshalInteraction response
@@ -335,11 +375,12 @@ func (b *EntityBuilderImpl) CreateCommandPermissions(guildCommandPermissions dis
 		Disgo:                   b.disgo,
 	}
 
-	if updateCache(b.Disgo()) && b.Disgo().Cache().CacheFlags().Has(CacheFlagCommandPermissions) {
+	// TODO: how do we cache those permissions?
+	/*if updateCache(b.Disgo()) && b.Disgo().Cache().CacheFlags().Has(CacheFlagCommandPermissions) {
 		if cmd := b.Disgo().Cache().GuildCommandCache().Get(guildCommandPermissions.ID); cmd != nil {
 			cmd.GuildPermissions[guildCommandPermissions.GuildID] = coreGuildCommandPermissions
 		}
-	}
+	}*/
 	return coreGuildCommandPermissions
 }
 

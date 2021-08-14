@@ -1,6 +1,8 @@
 package core
 
 import (
+	"context"
+
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 )
@@ -56,8 +58,8 @@ func (m *Member) IsOwner() bool {
 }
 
 // Update updates the Member
-func (m *Member) Update(updateGuildMember discord.MemberUpdate) (*Member, rest.Error) {
-	member, err := m.Disgo.RestServices().GuildService().UpdateMember(m.GuildID, m.User.ID, updateGuildMember)
+func (m *Member) Update(ctx context.Context, updateGuildMember discord.MemberUpdate) (*Member, rest.Error) {
+	member, err := m.Disgo.RestServices().GuildService().UpdateMember(ctx, m.GuildID, m.User.ID, updateGuildMember)
 	if err != nil {
 		return nil, err
 	}
@@ -65,23 +67,23 @@ func (m *Member) Update(updateGuildMember discord.MemberUpdate) (*Member, rest.E
 }
 
 // Kick kicks the Member from the Guild
-func (m *Member) Kick(reason string) rest.Error {
-	return m.Disgo.RestServices().GuildService().RemoveMember(m.GuildID, m.User.ID, reason)
+func (m *Member) Kick(ctx context.Context, reason string) rest.Error {
+	return m.Disgo.RestServices().GuildService().RemoveMember(ctx, m.GuildID, m.User.ID, reason)
 }
 
 // Ban bans the Member from the Guild
-func (m *Member) Ban(reason string, deleteMessageDays int) rest.Error {
-	return m.Disgo.RestServices().GuildService().AddBan(m.GuildID, m.User.ID, reason, deleteMessageDays)
+func (m *Member) Ban(ctx context.Context, reason string, deleteMessageDays int) rest.Error {
+	return m.Disgo.RestServices().GuildService().AddBan(ctx, m.GuildID, m.User.ID, reason, deleteMessageDays)
 }
 
 // Unban unbans the Member from the Guild
-func (m *Member) Unban() rest.Error {
-	return m.Disgo.RestServices().GuildService().DeleteBan(m.GuildID, m.User.ID)
+func (m *Member) Unban(ctx context.Context) rest.Error {
+	return m.Disgo.RestServices().GuildService().DeleteBan(ctx, m.GuildID, m.User.ID)
 }
 
 // Move moves/kicks the member to/from a voice channel
-func (m *Member) Move(channelID discord.Snowflake) (*Member, rest.Error) {
-	member, err := m.Disgo.RestServices().GuildService().UpdateMember(m.GuildID, m.User.ID, discord.MemberUpdate{ChannelID: &channelID})
+func (m *Member) Move(ctx context.Context, channelID discord.Snowflake) (*Member, rest.Error) {
+	member, err := m.Disgo.RestServices().GuildService().UpdateMember(ctx, m.GuildID, m.User.ID, discord.MemberUpdate{ChannelID: &channelID})
 	if err != nil {
 		return nil, err
 	}
@@ -89,13 +91,13 @@ func (m *Member) Move(channelID discord.Snowflake) (*Member, rest.Error) {
 }
 
 // AddRole adds a specific role the member
-func (m *Member) AddRole(roleID discord.Snowflake) rest.Error {
-	return m.Disgo.RestServices().GuildService().AddMemberRole(m.GuildID, m.User.ID, roleID)
+func (m *Member) AddRole(ctx context.Context, roleID discord.Snowflake) rest.Error {
+	return m.Disgo.RestServices().GuildService().AddMemberRole(ctx, m.GuildID, m.User.ID, roleID)
 }
 
 // RemoveRole removes a specific role the member
-func (m *Member) RemoveRole(roleID discord.Snowflake) rest.Error {
-	return m.Disgo.RestServices().GuildService().RemoveMemberRole(m.GuildID, m.User.ID, roleID)
+func (m *Member) RemoveRole(ctx context.Context, roleID discord.Snowflake) rest.Error {
+	return m.Disgo.RestServices().GuildService().RemoveMemberRole(ctx, m.GuildID, m.User.ID, roleID)
 }
 
 // GetMemberPermissions returns all Permissions from the provided Member

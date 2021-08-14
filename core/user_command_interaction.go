@@ -5,11 +5,11 @@ type UserCommandInteraction struct {
 	Data *UserCommandInteractionData `json:"data,omitempty"`
 }
 
-func (i *UserCommandInteraction) User() *User {
+func (i *UserCommandInteraction) TargetUser() *User {
 	return i.Resolved().Users[i.TargetID()]
 }
 
-func (i *UserCommandInteraction) Member() *Member {
+func (i *UserCommandInteraction) TargetMember() *Member {
 	return i.Resolved().Members[i.TargetID()]
 }
 

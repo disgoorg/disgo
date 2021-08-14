@@ -5,7 +5,7 @@ type MessageCommandInteraction struct {
 	Data *MessageCommandInteractionData `json:"data,omitempty"`
 }
 
-func (i *MessageCommandInteraction) Message() *Message {
+func (i *MessageCommandInteraction) TargetMessage() *Message {
 	return i.Resolved().Messages[i.TargetID()]
 }
 

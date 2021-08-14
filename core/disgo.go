@@ -1,6 +1,8 @@
 package core
 
 import (
+	"context"
+
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/httpserver"
@@ -43,28 +45,28 @@ type Disgo interface {
 	EntityBuilder() EntityBuilder
 	AudioController() AudioController
 
-	GetCommand(commandID discord.Snowflake) (*ApplicationCommand, rest.Error)
-	GetCommands() ([]*ApplicationCommand, rest.Error)
-	CreateCommand(command discord.ApplicationCommandCreate) (*ApplicationCommand, rest.Error)
-	EditCommand(commandID discord.Snowflake, command discord.ApplicationCommandUpdate) (*ApplicationCommand, rest.Error)
-	DeleteCommand(commandID discord.Snowflake) rest.Error
-	SetCommands(commands ...discord.ApplicationCommandCreate) ([]*ApplicationCommand, rest.Error)
+	GetCommand(ctx context.Context, commandID discord.Snowflake) (*ApplicationCommand, rest.Error)
+	GetCommands(ctx context.Context) ([]*ApplicationCommand, rest.Error)
+	CreateCommand(ctx context.Context, command discord.ApplicationCommandCreate) (*ApplicationCommand, rest.Error)
+	EditCommand(ctx context.Context, commandID discord.Snowflake, command discord.ApplicationCommandUpdate) (*ApplicationCommand, rest.Error)
+	DeleteCommand(ctx context.Context, commandID discord.Snowflake) rest.Error
+	SetCommands(ctx context.Context, commands ...discord.ApplicationCommandCreate) ([]*ApplicationCommand, rest.Error)
 
-	GetGuildCommand(guildID discord.Snowflake, commandID discord.Snowflake) (*ApplicationCommand, rest.Error)
-	GetGuildCommands(guildID discord.Snowflake) ([]*ApplicationCommand, rest.Error)
-	CreateGuildCommand(guildID discord.Snowflake, commandCreate discord.ApplicationCommandCreate) (*ApplicationCommand, rest.Error)
-	EditGuildCommand(guildID discord.Snowflake, commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate) (*ApplicationCommand, rest.Error)
-	DeleteGuildCommand(guildID discord.Snowflake, commandID discord.Snowflake) rest.Error
-	SetGuildCommands(guildID discord.Snowflake, commandCreates ...discord.ApplicationCommandCreate) ([]*ApplicationCommand, rest.Error)
+	GetGuildCommand(ctx context.Context, guildID discord.Snowflake, commandID discord.Snowflake) (*ApplicationCommand, rest.Error)
+	GetGuildCommands(ctx context.Context, guildID discord.Snowflake) ([]*ApplicationCommand, rest.Error)
+	CreateGuildCommand(ctx context.Context, guildID discord.Snowflake, commandCreate discord.ApplicationCommandCreate) (*ApplicationCommand, rest.Error)
+	EditGuildCommand(ctx context.Context, guildID discord.Snowflake, commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate) (*ApplicationCommand, rest.Error)
+	DeleteGuildCommand(ctx context.Context, guildID discord.Snowflake, commandID discord.Snowflake) rest.Error
+	SetGuildCommands(ctx context.Context, guildID discord.Snowflake, commandCreates ...discord.ApplicationCommandCreate) ([]*ApplicationCommand, rest.Error)
 
-	GetGuildCommandsPermissions(guildID discord.Snowflake) ([]*GuildCommandPermissions, rest.Error)
-	GetGuildCommandPermissions(guildID discord.Snowflake, commandID discord.Snowflake) (*GuildCommandPermissions, rest.Error)
-	SetGuildCommandsPermissions(guildID discord.Snowflake, commandPermissions ...discord.GuildCommandPermissionsSet) ([]*GuildCommandPermissions, rest.Error)
-	SetGuildCommandPermissions(guildID discord.Snowflake, commandID discord.Snowflake, permissions ...discord.CommandPermission) (*GuildCommandPermissions, rest.Error)
+	GetGuildCommandsPermissions(ctx context.Context, guildID discord.Snowflake) ([]*GuildCommandPermissions, rest.Error)
+	GetGuildCommandPermissions(ctx context.Context, guildID discord.Snowflake, commandID discord.Snowflake) (*GuildCommandPermissions, rest.Error)
+	SetGuildCommandsPermissions(ctx context.Context, guildID discord.Snowflake, commandPermissions ...discord.GuildCommandPermissionsSet) ([]*GuildCommandPermissions, rest.Error)
+	SetGuildCommandPermissions(ctx context.Context, guildID discord.Snowflake, commandID discord.Snowflake, permissions ...discord.CommandPermission) (*GuildCommandPermissions, rest.Error)
 
-	GetTemplate(templateCode string) (*GuildTemplate, rest.Error)
-	CreateGuildFromTemplate(templateCode string, createGuildFromTemplate discord.GuildFromTemplateCreate) (*Guild, rest.Error)
+	GetTemplate(ctx context.Context, templateCode string) (*GuildTemplate, rest.Error)
+	CreateGuildFromTemplate(ctx context.Context, templateCode string, createGuildFromTemplate discord.GuildFromTemplateCreate) (*Guild, rest.Error)
 
-	GetInvite(inviteCode string) (*Invite, rest.Error)
-	DeleteInvite(inviteCode string) (*Invite, rest.Error)
+	GetInvite(ctx context.Context, inviteCode string) (*Invite, rest.Error)
+	DeleteInvite(ctx context.Context, inviteCode string) (*Invite, rest.Error)
 }

@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/DisgoOrg/disgo/discord"
@@ -29,10 +30,10 @@ type MessageChannel interface {
 	Channel
 	LastMessageID() *discord.Snowflake
 	LastPinTimestamp() *discord.Time
-	CreateMessage(messageCreate discord.MessageCreate) (*Message, rest.Error)
-	UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate) (*Message, rest.Error)
-	DeleteMessage(messageID discord.Snowflake) rest.Error
-	BulkDeleteMessages(messageIDs ...discord.Snowflake) rest.Error
+	CreateMessage(ctx context.Context, messageCreate discord.MessageCreate) (*Message, rest.Error)
+	UpdateMessage(ctx context.Context, messageID discord.Snowflake, messageUpdate discord.MessageUpdate) (*Message, rest.Error)
+	DeleteMessage(ctx context.Context, messageID discord.Snowflake) rest.Error
+	BulkDeleteMessages(ctx context.Context, messageIDs ...discord.Snowflake) rest.Error
 }
 
 // DMChannel is used for interacting in private Message(s) with users
@@ -49,6 +50,7 @@ type GuildChannel interface {
 	ParentID() *discord.Snowflake
 	Parent() Category
 	Position() *int
+	Update(ctx context.Context, channelUpdate discord.ChannelUpdate) (GuildChannel, rest.Error)
 }
 
 // Category groups text & voice channels in servers together
@@ -74,7 +76,7 @@ type TextChannel interface {
 // NewsChannel allows you to interact with discord's text channels
 type NewsChannel interface {
 	TextChannel
-	CrosspostMessage(messageID discord.Snowflake) (*Message, rest.Error)
+	CrosspostMessage(ctx context.Context, messageID discord.Snowflake) (*Message, rest.Error)
 }
 
 // StoreChannel allows you to interact with discord's store channels
@@ -85,7 +87,7 @@ type StoreChannel interface {
 type StageChannel interface {
 	VoiceChannel
 	StageInstance() *StageInstance
-	CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate) (*StageInstance, rest.Error)
+	CreateStageInstance(ctx context.Context, stageInstanceCreate discord.StageInstanceCreate) (*StageInstance, rest.Error)
 	IsModerator(member *Member) bool
 }
 
@@ -164,8 +166,8 @@ func (c *channelImpl) LastPinTimestamp() *discord.Time {
 }
 
 // CreateMessage sends a Message to a TextChannel
-func (c *channelImpl) CreateMessage(messageCreate discord.MessageCreate) (*Message, rest.Error) {
-	message, err := c.Disgo().RestServices().ChannelsService().CreateMessage(c.ID(), messageCreate)
+func (c *channelImpl) CreateMessage(ctx context.Context, messageCreate discord.MessageCreate) (*Message, rest.Error) {
+	message, err := c.Disgo().RestServices().ChannelsService().CreateMessage(ctx, c.ID(), messageCreate)
 	if err != nil {
 		return nil, err
 	}
@@ -173,8 +175,8 @@ func (c *channelImpl) CreateMessage(messageCreate discord.MessageCreate) (*Messa
 }
 
 // UpdateMessage edits a Message in this TextChannel
-func (c *channelImpl) UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
-	message, err := c.Disgo().RestServices().ChannelsService().UpdateMessage(c.ID(), messageID, messageUpdate)
+func (c *channelImpl) UpdateMessage(ctx context.Context, messageID discord.Snowflake, messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
+	message, err := c.Disgo().RestServices().ChannelsService().UpdateMessage(ctx, c.ID(), messageID, messageUpdate)
 	if err != nil {
 		return nil, err
 	}
@@ -182,13 +184,13 @@ func (c *channelImpl) UpdateMessage(messageID discord.Snowflake, messageUpdate d
 }
 
 // DeleteMessage allows you to edit an existing Message sent by you
-func (c *channelImpl) DeleteMessage(messageID discord.Snowflake) rest.Error {
-	return c.Disgo().RestServices().ChannelsService().DeleteMessage(c.ID(), messageID)
+func (c *channelImpl) DeleteMessage(ctx context.Context, messageID discord.Snowflake) rest.Error {
+	return c.Disgo().RestServices().ChannelsService().DeleteMessage(ctx, c.ID(), messageID)
 }
 
 // BulkDeleteMessages allows you bulk delete Message(s)
-func (c *channelImpl) BulkDeleteMessages(messageIDs ...discord.Snowflake) rest.Error {
-	return c.Disgo().RestServices().ChannelsService().BulkDeleteMessages(c.ID(), messageIDs...)
+func (c *channelImpl) BulkDeleteMessages(ctx context.Context, messageIDs ...discord.Snowflake) rest.Error {
+	return c.Disgo().RestServices().ChannelsService().BulkDeleteMessages(ctx, c.ID(), messageIDs...)
 }
 
 var _ DMChannel = (*channelImpl)(nil)
@@ -232,6 +234,17 @@ func (c *channelImpl) Position() *int {
 	return c.Channel.Position
 }
 
+func (c *channelImpl) Update(ctx context.Context, channelUpdate discord.ChannelUpdate) (GuildChannel, rest.Error) {
+	if !c.IsGuildChannel() {
+		unsupported(c)
+	}
+	channel, err := c.Disgo().RestServices().ChannelsService().UpdateChannel(ctx, c.ID(), channelUpdate)
+	if err != nil {
+		return nil, err
+	}
+	return c.Disgo().EntityBuilder().CreateChannel(*channel, CacheStrategyNoWs).(GuildChannel), nil
+}
+
 var _ Category = (*channelImpl)(nil)
 var _ VoiceChannel = (*channelImpl)(nil)
 
@@ -264,8 +277,8 @@ func (c *channelImpl) Topic() *string {
 
 var _ NewsChannel = (*channelImpl)(nil)
 
-func (c *channelImpl) CrosspostMessage(messageID discord.Snowflake) (*Message, rest.Error) {
-	message, err := c.Disgo().RestServices().ChannelsService().CrosspostMessage(c.ID(), messageID)
+func (c *channelImpl) CrosspostMessage(ctx context.Context, messageID discord.Snowflake) (*Message, rest.Error) {
+	message, err := c.Disgo().RestServices().ChannelsService().CrosspostMessage(ctx, c.ID(), messageID)
 	if err != nil {
 		return nil, err
 	}
@@ -286,11 +299,11 @@ func (c *channelImpl) StageInstance() *StageInstance {
 	return c.Disgo().Cache().StageInstanceCache().Get(*c.stageInstanceID)
 }
 
-func (c *channelImpl) CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate) (*StageInstance, rest.Error) {
+func (c *channelImpl) CreateStageInstance(ctx context.Context, stageInstanceCreate discord.StageInstanceCreate) (*StageInstance, rest.Error) {
 	if !c.IsStageChannel() {
 		unsupported(c)
 	}
-	stageInstance, err := c.Disgo().RestServices().StageInstanceService().CreateStageInstance(stageInstanceCreate)
+	stageInstance, err := c.Disgo().RestServices().StageInstanceService().CreateStageInstance(ctx, stageInstanceCreate)
 	if err != nil {
 		return nil, err
 	}

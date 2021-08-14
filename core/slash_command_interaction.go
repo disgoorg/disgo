@@ -66,7 +66,7 @@ func (i *SlashCommandInteraction) OptionsT(optionType discord.ApplicationCommand
 }
 
 type SlashCommandInteractionData struct {
-	*InteractionData
+	*ApplicationCommandInteractionData
 	SubCommandName      *string
 	SubCommandGroupName *string
 	Options             []ApplicationCommandOption

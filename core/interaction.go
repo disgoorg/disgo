@@ -1,6 +1,8 @@
 package core
 
 import (
+	"context"
+
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 )
@@ -16,7 +18,7 @@ type Interaction struct {
 }
 
 // Respond responds to the Interaction with the provided InteractionResponse
-func (i *Interaction) Respond(responseType discord.InteractionResponseType, data interface{}) rest.Error {
+func (i *Interaction) Respond(ctx context.Context, responseType discord.InteractionResponseType, data interface{}) rest.Error {
 	response := discord.InteractionResponse{
 		Type: responseType,
 		Data: data,
@@ -31,26 +33,26 @@ func (i *Interaction) Respond(responseType discord.InteractionResponseType, data
 		return nil
 	}
 
-	return i.Disgo.RestServices().InteractionService().CreateInteractionResponse(i.ID, i.Token, response)
+	return i.Disgo.RestServices().InteractionService().CreateInteractionResponse(ctx, i.ID, i.Token, response)
 }
 
 // DeferReply replies to the Interaction with InteractionResponseTypeDeferredChannelMessageWithSource and shows a loading state
-func (i *Interaction) DeferReply(ephemeral bool) rest.Error {
+func (i *Interaction) DeferReply(ctx context.Context, ephemeral bool) rest.Error {
 	var messageCreate interface{}
 	if ephemeral {
 		messageCreate = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
 	}
-	return i.Respond(discord.InteractionResponseTypeDeferredChannelMessageWithSource, messageCreate)
+	return i.Respond(ctx, discord.InteractionResponseTypeDeferredChannelMessageWithSource, messageCreate)
 }
 
 // Reply replies to the Interaction with InteractionResponseTypeDeferredChannelMessageWithSource & MessageCreate
-func (i *Interaction) Reply(messageCreate discord.MessageCreate) rest.Error {
-	return i.Respond(discord.InteractionResponseTypeChannelMessageWithSource, messageCreate)
+func (i *Interaction) Reply(ctx context.Context, messageCreate discord.MessageCreate) rest.Error {
+	return i.Respond(ctx, discord.InteractionResponseTypeChannelMessageWithSource, messageCreate)
 }
 
 // UpdateOriginal edits the original InteractionResponse
-func (i *Interaction) UpdateOriginal(messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
-	message, err := i.Disgo.RestServices().InteractionService().UpdateInteractionResponse(i.Disgo.ApplicationID(), i.Token, messageUpdate)
+func (i *Interaction) UpdateOriginal(ctx context.Context, messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
+	message, err := i.Disgo.RestServices().InteractionService().UpdateInteractionResponse(ctx, i.Disgo.ApplicationID(), i.Token, messageUpdate)
 	if err != nil {
 
 	}
@@ -58,13 +60,13 @@ func (i *Interaction) UpdateOriginal(messageUpdate discord.MessageUpdate) (*Mess
 }
 
 // DeleteOriginal deletes the original InteractionResponse
-func (i *Interaction) DeleteOriginal() rest.Error {
-	return i.Disgo.RestServices().InteractionService().DeleteInteractionResponse(i.Disgo.ApplicationID(), i.Token)
+func (i *Interaction) DeleteOriginal(ctx context.Context, ) rest.Error {
+	return i.Disgo.RestServices().InteractionService().DeleteInteractionResponse(ctx, i.Disgo.ApplicationID(), i.Token)
 }
 
 // CreateFollowup is used to send an MessageCreate to an Interaction
-func (i *Interaction) CreateFollowup(messageCreate discord.MessageCreate) (*Message, rest.Error) {
-	message, err := i.Disgo.RestServices().InteractionService().CreateFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageCreate)
+func (i *Interaction) CreateFollowup(ctx context.Context, messageCreate discord.MessageCreate) (*Message, rest.Error) {
+	message, err := i.Disgo.RestServices().InteractionService().CreateFollowupMessage(ctx, i.Disgo.ApplicationID(), i.Token, messageCreate)
 	if err != nil {
 
 	}
@@ -72,8 +74,8 @@ func (i *Interaction) CreateFollowup(messageCreate discord.MessageCreate) (*Mess
 }
 
 // UpdateFollowup is used to edit a Message from an Interaction
-func (i *Interaction) UpdateFollowup(messageID discord.Snowflake, messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
-	message, err := i.Disgo.RestServices().InteractionService().UpdateFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID, messageUpdate)
+func (i *Interaction) UpdateFollowup(ctx context.Context, messageID discord.Snowflake, messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
+	message, err := i.Disgo.RestServices().InteractionService().UpdateFollowupMessage(ctx, i.Disgo.ApplicationID(), i.Token, messageID, messageUpdate)
 	if err != nil {
 
 	}
@@ -81,8 +83,8 @@ func (i *Interaction) UpdateFollowup(messageID discord.Snowflake, messageUpdate 
 }
 
 // DeleteFollowup used to delete a Message from an Interaction
-func (i *Interaction) DeleteFollowup(messageID discord.Snowflake) rest.Error {
-	return i.Disgo.RestServices().InteractionService().DeleteFollowupMessage(i.Disgo.ApplicationID(), i.Token, messageID)
+func (i *Interaction) DeleteFollowup(ctx context.Context, messageID discord.Snowflake) rest.Error {
+	return i.Disgo.RestServices().InteractionService().DeleteFollowupMessage(ctx, i.Disgo.ApplicationID(), i.Token, messageID)
 }
 
 // FromGateway returns is the Interaction came in via gateway.Gateway or httpserver.Server

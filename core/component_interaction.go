@@ -1,6 +1,10 @@
 package core
 
-import "github.com/DisgoOrg/disgo/discord"
+import (
+	"context"
+
+	"github.com/DisgoOrg/disgo/discord"
+)
 
 type ComponentInteraction struct {
 	*Interaction
@@ -9,13 +13,13 @@ type ComponentInteraction struct {
 }
 
 // DeferUpdate replies to the ComponentInteraction with discord.InteractionResponseTypeDeferredUpdateMessage and cancels the loading state
-func (i *ComponentInteraction) DeferUpdate() error {
-	return i.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil)
+func (i *ComponentInteraction) DeferUpdate(ctx context.Context, ) error {
+	return i.Respond(ctx, discord.InteractionResponseTypeDeferredUpdateMessage, nil)
 }
 
 // Update replies to the ComponentInteraction with discord.InteractionResponseTypeUpdateMessage & MessageUpdate which edits the original Message
-func (i *ComponentInteraction) Update(messageUpdate discord.MessageUpdate) error {
-	return i.Respond(discord.InteractionResponseTypeUpdateMessage, messageUpdate)
+func (i *ComponentInteraction) Update(ctx context.Context, messageUpdate discord.MessageUpdate) error {
+	return i.Respond(ctx, discord.InteractionResponseTypeUpdateMessage, messageUpdate)
 }
 
 // CustomID returns the Custom ID of the ComponentInteraction

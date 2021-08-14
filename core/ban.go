@@ -1,6 +1,8 @@
 package core
 
 import (
+	"context"
+
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 )
@@ -13,6 +15,6 @@ type Ban struct {
 	GuildID discord.Snowflake
 }
 
-func (b *Ban) Unban() rest.Error {
-	return b.Disgo.RestServices().GuildService().DeleteBan(b.GuildID, b.User.ID)
+func (b *Ban) Unban(ctx context.Context) rest.Error {
+	return b.Disgo.RestServices().GuildService().DeleteBan(ctx, b.GuildID, b.User.ID)
 }

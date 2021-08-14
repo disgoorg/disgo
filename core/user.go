@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
@@ -63,10 +64,11 @@ func (u *User) String() string {
 }
 
 // OpenDMChannel creates a DMChannel between the user and the Disgo client
-func (u *User) OpenDMChannel() (DMChannel, rest.Error) {
-	channel, err := u.Disgo.RestServices().UserService().CreateDMChannel(u.ID)
+func (u *User) OpenDMChannel(ctx context.Context, ) (DMChannel, rest.Error) {
+	channel, err := u.Disgo.RestServices().UserService().CreateDMChannel(ctx, u.ID)
 	if err != nil {
 		return nil, err
 	}
+	// TODO: should we cache it here? or do we get a gateway event?
 	return u.Disgo.EntityBuilder().CreateChannel(*channel, CacheStrategyYes).(DMChannel), nil
 }

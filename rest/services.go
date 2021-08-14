@@ -27,33 +27,33 @@ type Services interface {
 }
 
 type ApplicationService interface {
-	GetGlobalCommands(applicationID discord.Snowflake) ([]discord.ApplicationCommand, Error)
-	GetGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake) (*discord.ApplicationCommand, Error)
-	CreateGlobalCommand(applicationID discord.Snowflake, command discord.ApplicationCommandCreate) (*discord.ApplicationCommand, Error)
-	SetGlobalCommands(applicationID discord.Snowflake, commands ...discord.ApplicationCommandCreate) ([]discord.ApplicationCommand, Error)
-	UpdateGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake, command discord.ApplicationCommandUpdate) (*discord.ApplicationCommand, Error)
-	DeleteGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake) Error
+	GetGlobalCommands(ctx context.Context, applicationID discord.Snowflake) ([]discord.ApplicationCommand, Error)
+	GetGlobalCommand(ctx context.Context, applicationID discord.Snowflake, commandID discord.Snowflake) (*discord.ApplicationCommand, Error)
+	CreateGlobalCommand(ctx context.Context, applicationID discord.Snowflake, command discord.ApplicationCommandCreate) (*discord.ApplicationCommand, Error)
+	SetGlobalCommands(ctx context.Context, applicationID discord.Snowflake, commands ...discord.ApplicationCommandCreate) ([]discord.ApplicationCommand, Error)
+	UpdateGlobalCommand(ctx context.Context, applicationID discord.Snowflake, commandID discord.Snowflake, command discord.ApplicationCommandUpdate) (*discord.ApplicationCommand, Error)
+	DeleteGlobalCommand(ctx context.Context, applicationID discord.Snowflake, commandID discord.Snowflake) Error
 
-	GetGuildCommands(applicationID discord.Snowflake, guildID discord.Snowflake) ([]discord.ApplicationCommand, Error)
-	GetGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake) (*discord.ApplicationCommand, Error)
-	CreateGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, command discord.ApplicationCommandCreate) (*discord.ApplicationCommand, Error)
-	SetGuildCommands(applicationID discord.Snowflake, guildID discord.Snowflake, commands ...discord.ApplicationCommandCreate) ([]discord.ApplicationCommand, Error)
-	UpdateGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake, command discord.ApplicationCommandUpdate) (*discord.ApplicationCommand, Error)
-	DeleteGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake) Error
+	GetGuildCommands(ctx context.Context, applicationID discord.Snowflake, guildID discord.Snowflake) ([]discord.ApplicationCommand, Error)
+	GetGuildCommand(ctx context.Context, applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake) (*discord.ApplicationCommand, Error)
+	CreateGuildCommand(ctx context.Context, applicationID discord.Snowflake, guildID discord.Snowflake, command discord.ApplicationCommandCreate) (*discord.ApplicationCommand, Error)
+	SetGuildCommands(ctx context.Context, applicationID discord.Snowflake, guildID discord.Snowflake, commands ...discord.ApplicationCommandCreate) ([]discord.ApplicationCommand, Error)
+	UpdateGuildCommand(ctx context.Context, applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake, command discord.ApplicationCommandUpdate) (*discord.ApplicationCommand, Error)
+	DeleteGuildCommand(ctx context.Context, applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake) Error
 
-	GetGuildCommandsPermissions(applicationID discord.Snowflake, guildID discord.Snowflake) ([]discord.GuildCommandPermissions, Error)
-	GetGuildCommandPermissions(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake) (*discord.GuildCommandPermissions, Error)
-	SetGuildCommandsPermissions(applicationID discord.Snowflake, guildID discord.Snowflake, commandPermissions ...discord.GuildCommandPermissionsSet) ([]discord.GuildCommandPermissions, Error)
-	SetGuildCommandPermissions(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake, commandPermissions ...discord.CommandPermission) (*discord.GuildCommandPermissions, Error)
+	GetGuildCommandsPermissions(ctx context.Context, applicationID discord.Snowflake, guildID discord.Snowflake) ([]discord.GuildCommandPermissions, Error)
+	GetGuildCommandPermissions(ctx context.Context, applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake) (*discord.GuildCommandPermissions, Error)
+	SetGuildCommandsPermissions(ctx context.Context, applicationID discord.Snowflake, guildID discord.Snowflake, commandPermissions ...discord.GuildCommandPermissionsSet) ([]discord.GuildCommandPermissions, Error)
+	SetGuildCommandPermissions(ctx context.Context, applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake, commandPermissions ...discord.CommandPermission) (*discord.GuildCommandPermissions, Error)
 }
 
 type AuditLogService interface {
-	GetAuditLog(guildID discord.Snowflake, userID discord.Snowflake, actionType discord.AuditLogEvent, before discord.Snowflake, limit int) (*discord.AuditLog, Error)
+	GetAuditLog(ctx context.Context, guildID discord.Snowflake, userID discord.Snowflake, actionType discord.AuditLogEvent, before discord.Snowflake, limit int) (*discord.AuditLog, Error)
 }
 
 type GatewayService interface {
-	GetGateway() (*discord.Gateway, Error)
-	GetGatewayBot() (*discord.GatewayBot, Error)
+	GetGateway(ctx context.Context, ) (*discord.Gateway, Error)
+	GetGatewayBot(ctx context.Context, ) (*discord.GatewayBot, Error)
 }
 
 type ChannelsService interface {

@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"io/ioutil"
@@ -67,7 +68,7 @@ func (g *GatewayImpl) Open() error {
 
 	if g.url == nil {
 		g.Logger().Debug("gateway url empty, fetching...")
-		gatewayRs, err := g.restServices.GatewayService().GetGateway()
+		gatewayRs, err := g.restServices.GatewayService().GetGateway(context.TODO())
 		if err != nil {
 			return err
 		}

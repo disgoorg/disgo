@@ -20,7 +20,15 @@ type EntityBuilder interface {
 	Disgo() Disgo
 
 	CreateInteraction(unmarshalInteraction discord.UnmarshalInteraction, replyChannel chan discord.InteractionResponse, updateCache CacheStrategy) *Interaction
-	CreateCommandInteraction(interaction *Interaction, updateCache CacheStrategy) *SlashCommandInteraction
+
+	CreateApplicationCommandInteraction(interaction *Interaction, updateCache CacheStrategy) *ApplicationCommandInteraction
+
+	CreateSlashCommandInteraction(applicationInteraction *ApplicationCommandInteraction, updateCache CacheStrategy) *SlashCommandInteraction
+
+	CreateContextCommandInteraction(applicationInteraction *ApplicationCommandInteraction, updateCache CacheStrategy) *ContextCommandInteraction
+	CreateUserCommandInteraction(contextCommandInteraction *ContextCommandInteraction, updateCache CacheStrategy) *UserCommandInteraction
+	CreateMessageCommandInteraction(contextCommandInteraction *ContextCommandInteraction, updateCache CacheStrategy) *MessageCommandInteraction
+
 	CreateComponentInteraction(interaction *Interaction, updateCache CacheStrategy) *ComponentInteraction
 	CreateButtonInteraction(componentInteraction *ComponentInteraction) *ButtonInteraction
 	CreateSelectMenuInteraction(componentInteraction *ComponentInteraction) *SelectMenuInteraction
