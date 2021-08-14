@@ -30,9 +30,6 @@ func (i *ComponentInteraction) ComponentType() discord.ComponentType {
 
 // Component returns the Component which issued this ComponentInteraction. nil for ephemeral Message(s)
 func (i *ComponentInteraction) Component() Component {
-	if i.Message.IsEphemeral() {
-		return nil
-	}
 	return i.Message.ComponentByID(i.CustomID())
 }
 

@@ -1,6 +1,8 @@
 package core
 
 import (
+	"context"
+
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 )
@@ -27,18 +29,18 @@ func (m *Message) Channel() MessageChannel {
 }
 
 // AddReactionByEmote allows you to add an Emoji to a message_events via reaction
-func (m *Message) AddReactionByEmote(emote Emoji) rest.Error {
-	return m.AddReaction(emote.Reaction())
+func (m *Message) AddReactionByEmote(ctx context.Context, emote Emoji) rest.Error {
+	return m.AddReaction(ctx, emote.Reaction())
 }
 
 // AddReaction allows you to add a reaction to a message_events from a string, for _examples a custom emoji ID, or a native emoji
-func (m *Message) AddReaction(emoji string) rest.Error {
-	return m.Disgo.RestServices().ChannelsService().AddReaction(m.ChannelID, m.ID, emoji)
+func (m *Message) AddReaction(ctx context.Context, emoji string) rest.Error {
+	return m.Disgo.RestServices().ChannelsService().AddReaction(ctx, m.ChannelID, m.ID, emoji)
 }
 
 // Update allows you to edit an existing Message sent by you
-func (m *Message) Update(messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
-	message, err := m.Disgo.RestServices().ChannelsService().UpdateMessage(m.ChannelID, m.ID, messageUpdate)
+func (m *Message) Update(ctx context.Context, messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
+	message, err := m.Disgo.RestServices().ChannelsService().UpdateMessage(ctx, m.ChannelID, m.ID, messageUpdate)
 	if err != nil {
 		return nil, err
 	}
@@ -46,17 +48,17 @@ func (m *Message) Update(messageUpdate discord.MessageUpdate) (*Message, rest.Er
 }
 
 // Delete allows you to edit an existing Message sent by you
-func (m *Message) Delete() rest.Error {
-	return m.Disgo.RestServices().ChannelsService().DeleteMessage(m.ChannelID, m.ID)
+func (m *Message) Delete(ctx context.Context, ) rest.Error {
+	return m.Disgo.RestServices().ChannelsService().DeleteMessage(ctx, m.ChannelID, m.ID)
 }
 
 // Crosspost crossposts an existing message
-func (m *Message) Crosspost() (*Message, rest.Error) {
+func (m *Message) Crosspost(ctx context.Context, ) (*Message, rest.Error) {
 	channel := m.Channel()
 	if channel != nil && channel.IsNewsChannel() {
 		return nil, rest.NewError(nil, discord.ErrChannelNotTypeNews)
 	}
-	message, err := m.Disgo.RestServices().ChannelsService().CrosspostMessage(m.ChannelID, m.ID)
+	message, err := m.Disgo.RestServices().ChannelsService().CrosspostMessage(ctx, m.ChannelID, m.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -64,9 +66,9 @@ func (m *Message) Crosspost() (*Message, rest.Error) {
 }
 
 // Reply allows you to reply to an existing Message
-func (m *Message) Reply(messageCreate discord.MessageCreate) (*Message, rest.Error) {
+func (m *Message) Reply(ctx context.Context, messageCreate discord.MessageCreate) (*Message, rest.Error) {
 	messageCreate.MessageReference = &discord.MessageReference{MessageID: &m.ID}
-	message, err := m.Disgo.RestServices().ChannelsService().CreateMessage(m.ChannelID, messageCreate)
+	message, err := m.Disgo.RestServices().ChannelsService().CreateMessage(ctx, m.ChannelID, messageCreate)
 	if err != nil {
 		return nil, err
 	}
@@ -75,9 +77,6 @@ func (m *Message) Reply(messageCreate discord.MessageCreate) (*Message, rest.Err
 
 // ActionRows returns all ActionRow(s) from this Message
 func (m *Message) ActionRows() []ActionRow {
-	if m.IsEphemeral() {
-		return nil
-	}
 	var actionRows []ActionRow
 	for _, component := range m.Components {
 		if actionRow, ok := component.(ActionRow); ok {
@@ -89,9 +88,6 @@ func (m *Message) ActionRows() []ActionRow {
 
 // ComponentByID returns the first Component with the specific customID
 func (m *Message) ComponentByID(customID string) Component {
-	if m.IsEphemeral() {
-		return nil
-	}
 	for _, actionRow := range m.ActionRows() {
 		for _, component := range actionRow.Components {
 			switch c := component.(type) {
@@ -113,9 +109,6 @@ func (m *Message) ComponentByID(customID string) Component {
 
 // Buttons returns all Button(s) from this Message
 func (m *Message) Buttons() []Button {
-	if m.IsEphemeral() {
-		return nil
-	}
 	var buttons []Button
 	for _, actionRow := range m.ActionRows() {
 		for _, component := range actionRow.Components {
@@ -129,9 +122,6 @@ func (m *Message) Buttons() []Button {
 
 // ButtonByID returns a Button with the specific customID from this Message
 func (m *Message) ButtonByID(customID string) *Button {
-	if m.IsEphemeral() {
-		return nil
-	}
 	for _, button := range m.Buttons() {
 		if button.CustomID == customID {
 			return &button
@@ -142,9 +132,6 @@ func (m *Message) ButtonByID(customID string) *Button {
 
 // SelectMenus returns all SelectMenu(s) from this Message
 func (m *Message) SelectMenus() []SelectMenu {
-	if m.IsEphemeral() {
-		return nil
-	}
 	var selectMenus []SelectMenu
 	for _, actionRow := range m.ActionRows() {
 		for _, component := range actionRow.Components {
@@ -158,9 +145,6 @@ func (m *Message) SelectMenus() []SelectMenu {
 
 // SelectMenuByID returns a SelectMenu with the specific customID from this Message
 func (m *Message) SelectMenuByID(customID string) *SelectMenu {
-	if m.IsEphemeral() {
-		return nil
-	}
 	for _, selectMenu := range m.SelectMenus() {
 		if selectMenu.CustomID == customID {
 			return &selectMenu

@@ -1,5 +1,7 @@
 package core
 
+import "github.com/DisgoOrg/disgo/discord"
+
 type SelectMenuInteraction struct {
 	*ComponentInteraction
 	Data *SelectMenuInteractionData
@@ -7,9 +9,6 @@ type SelectMenuInteraction struct {
 
 // SelectMenu returns the SelectMenu which issued this SelectMenuInteraction. nil for ephemeral Message(s)
 func (i *SelectMenuInteraction) SelectMenu() *SelectMenu {
-	if i.Message.IsEphemeral() {
-		return nil
-	}
 	return i.Message.SelectMenuByID(i.CustomID())
 }
 
@@ -19,11 +18,8 @@ func (i *SelectMenuInteraction) Values() []string {
 }
 
 // SelectedOptions returns the selected SelectedOption(s)
-func (i *SelectMenuInteraction) SelectedOptions() []SelectOption {
-	if i.Message.IsEphemeral() {
-		return nil
-	}
-	options := make([]SelectOption, len(i.Values()))
+func (i *SelectMenuInteraction) SelectedOptions() []discord.SelectOption {
+	options := make([]discord.SelectOption, len(i.Values()))
 	for ii, option := range i.SelectMenu().Options {
 		for _, value := range i.Values() {
 			if value == option.Value {

@@ -1,6 +1,8 @@
 package webhook
 
 import (
+	"context"
+
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
@@ -13,34 +15,23 @@ type Message struct {
 }
 
 // Update allows you to edit an existing Message sent by you
-func (m *Message) Update(messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
-	message, err := m.WebhookClient.WebhookService().UpdateMessage(m.WebhookClient.ID(), m.WebhookClient.Token(), m.ID, messageUpdate)
-	if err != nil {
-		return nil, err
-	}
-	return m.WebhookClient.EntityBuilder().CreateMessage(*message), nil
+func (m *Message) Update(ctx context.Context, messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
+	return m.WebhookClient.UpdateMessage(ctx, m.ID, messageUpdate)
 }
 
 // Delete allows you to edit an existing Message sent by you
-func (m *Message) Delete() rest.Error {
-	return m.WebhookClient.WebhookService().DeleteMessage(m.WebhookClient.ID(), m.WebhookClient.Token(), m.ID)
+func (m *Message) Delete(ctx context.Context) rest.Error {
+	return m.WebhookClient.DeleteMessage(ctx, m.ID)
 }
 
 // Reply allows you to reply to an existing Message
-func (m *Message) Reply(messageCreate discord.MessageCreate) (*Message, rest.Error) {
+func (m *Message) Reply(ctx context.Context, messageCreate discord.MessageCreate) (*Message, rest.Error) {
 	messageCreate.MessageReference = &discord.MessageReference{MessageID: &m.ID}
-	message, err := m.WebhookClient.CreateMessage(messageCreate)
-	if err != nil {
-		return nil, err
-	}
-	return m.WebhookClient.EntityBuilder().CreateMessage(*message), nil
+	return m.WebhookClient.CreateMessage(ctx, messageCreate)
 }
 
 // ActionRows returns all ActionRow(s) from this Message
 func (m *Message) ActionRows() []core.ActionRow {
-	if m.IsEphemeral() {
-		return nil
-	}
 	var actionRows []core.ActionRow
 	for _, component := range m.Components {
 		if actionRow, ok := component.(core.ActionRow); ok {
@@ -52,9 +43,6 @@ func (m *Message) ActionRows() []core.ActionRow {
 
 // ComponentByID returns the first Component with the specific customID
 func (m *Message) ComponentByID(customID string) core.Component {
-	if m.IsEphemeral() {
-		return nil
-	}
 	for _, actionRow := range m.ActionRows() {
 		for _, component := range actionRow.Components {
 			switch c := component.(type) {
@@ -76,9 +64,6 @@ func (m *Message) ComponentByID(customID string) core.Component {
 
 // Buttons returns all Button(s) from this Message
 func (m *Message) Buttons() []core.Button {
-	if m.IsEphemeral() {
-		return nil
-	}
 	var buttons []core.Button
 	for _, actionRow := range m.ActionRows() {
 		for _, component := range actionRow.Components {
@@ -92,9 +77,6 @@ func (m *Message) Buttons() []core.Button {
 
 // ButtonByID returns a Button with the specific customID from this Message
 func (m *Message) ButtonByID(customID string) *core.Button {
-	if m.IsEphemeral() {
-		return nil
-	}
 	for _, button := range m.Buttons() {
 		if button.CustomID == customID {
 			return &button
@@ -105,9 +87,6 @@ func (m *Message) ButtonByID(customID string) *core.Button {
 
 // SelectMenus returns all SelectMenu(s) from this Message
 func (m *Message) SelectMenus() []core.SelectMenu {
-	if m.IsEphemeral() {
-		return nil
-	}
 	var selectMenus []core.SelectMenu
 	for _, actionRow := range m.ActionRows() {
 		for _, component := range actionRow.Components {
@@ -121,18 +100,10 @@ func (m *Message) SelectMenus() []core.SelectMenu {
 
 // SelectMenuByID returns a SelectMenu with the specific customID from this Message
 func (m *Message) SelectMenuByID(customID string) *core.SelectMenu {
-	if m.IsEphemeral() {
-		return nil
-	}
 	for _, selectMenu := range m.SelectMenus() {
 		if selectMenu.CustomID == customID {
 			return &selectMenu
 		}
 	}
 	return nil
-}
-
-// IsEphemeral returns true if the Message has MessageFlagEphemeral
-func (m *Message) IsEphemeral() bool {
-	return m.Flags.Has(discord.MessageFlagEphemeral)
 }
