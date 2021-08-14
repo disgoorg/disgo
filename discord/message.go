@@ -26,7 +26,10 @@ const (
 	MessageTypeGuildDiscoveryFinalWarning
 	MessageTypeThreadCreated
 	MessageTypeReply
-	MessageTypeCommand
+	MessageTypeSlashCommand
+	MessageTypeThreadStarterMessage
+	MessageTypeGuildInviteReminder
+	MessageTypeContextMenuCommand
 )
 
 // The MessageFlags of a Message
