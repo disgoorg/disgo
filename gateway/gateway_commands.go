@@ -17,6 +17,7 @@ func NewGatewayCommand(op Op, d interface{}) GatewayCommand {
 }
 
 // GatewayCommand object is used when sending data to discord's websocket, it's recommended that you don't use these
+//goland:noinspection GoNameStartsWithPackageName
 type GatewayCommand struct {
 	Packet
 	D interface{} `json:"d"`

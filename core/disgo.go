@@ -21,6 +21,8 @@ type Disgo interface {
 	SelfMember(guildID discord.Snowflake) *Member
 
 	EventManager() EventManager
+	AddEventListeners(eventListeners ...EventListener)
+	RemoveEventListeners(eventListeners ...EventListener)
 	RawEventsEnabled() bool
 	VoiceDispatchInterceptor() VoiceDispatchInterceptor
 	SetVoiceDispatchInterceptor(voiceInterceptor VoiceDispatchInterceptor)
@@ -62,4 +64,7 @@ type Disgo interface {
 
 	GetTemplate(templateCode string) (*GuildTemplate, rest.Error)
 	CreateGuildFromTemplate(templateCode string, createGuildFromTemplate discord.GuildFromTemplateCreate) (*Guild, rest.Error)
+
+	GetInvite(inviteCode string) (*Invite, rest.Error)
+	DeleteInvite(inviteCode string) (*Invite, rest.Error)
 }

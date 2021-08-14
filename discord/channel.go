@@ -16,6 +16,16 @@ const (
 	ChannelTypeStage
 )
 
+
+// VideoQualityMode https://discord.com/developers/docs/resources/channel#channel-object-video-quality-modes
+type VideoQualityMode int
+
+//goland:noinspection GoUnusedConst
+const (
+	VideoQualityModeAuto = iota + 1
+	VideoQualityModeFull
+)
+
 // Channel is a generic discord channel object
 type Channel struct {
 	ID                     Snowflake             `json:"id"`
@@ -52,9 +62,25 @@ type ChannelCreate struct {
 	NSFW                 bool                  `json:"nsfw,omitempty"`
 }
 
+type ChannelUpdate struct {
+	Name                       *string               `json:"name,omitempty"`
+	Type                       *ChannelType          `json:"type,omitempty"`
+	Position                   *int                  `json:"position,omitempty"`
+	Topic                      *string               `json:"topic,omitempty"`
+	NSFW                       *bool                 `json:"nsfw,omitempty"`
+	RateLimitPerUser           *int                  `json:"rate_limit_per_user,omitempty"`
+	Bitrate                    *int                  `json:"bitrate,omitempty"`
+	UserLimit                  *int                  `json:"user_limit,omitempty"`
+	PermissionOverwrites       []PermissionOverwrite `json:"permission_overwrites,omitempty"`
+	ParentID                   *Snowflake            `json:"parent_id,omitempty"`
+	RTCRegion                  *string               `json:"rtc_region"`
+	VideoQualityMode           *VideoQualityMode     `json:"video_quality_mode"`
+	DefaultAutoArchiveDuration *int                  `json:"default_auto_archive_duration"`
+}
+
 // PartialChannel contains basic info about a Channel
 type PartialChannel struct {
 	ID   Snowflake   `json:"id"`
 	Type ChannelType `json:"type"`
-	Name *string     `json:"name,omitempty"`
+	Name string      `json:"name"`
 }

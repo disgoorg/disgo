@@ -28,6 +28,12 @@ type Webhook struct {
 	URL           *string         `json:"url"`
 }
 
+// WebhookCreate is used to create a Webhook
+type WebhookCreate struct {
+	Name   string `json:"name"`
+	Avatar *Icon  `json:"avatar,omitempty"`
+}
+
 // WebhookUpdate is used to update a Webhook
 type WebhookUpdate struct {
 	Name   *string `json:"name,omitempty"`

@@ -99,6 +99,16 @@ func (d *DisgoImpl) EventManager() EventManager {
 	return d.eventManager
 }
 
+// AddEventListeners adds one or more EventListener(s) to the EventManager
+func (d *DisgoImpl) AddEventListeners(listeners ...EventListener) {
+	d.EventManager().AddEventListeners(listeners...)
+}
+
+// RemoveEventListeners removes one or more EventListener(s) from the EventManager
+func (d *DisgoImpl) RemoveEventListeners(listeners ...EventListener) {
+	d.EventManager().RemoveEventListeners(listeners...)
+}
+
 // RawEventsEnabled returns if the events.RawGatewayEvent is enabled/disabled
 func (d *DisgoImpl) RawEventsEnabled() bool {
 	return d.rawEventsEnabled
@@ -342,4 +352,20 @@ func (d *DisgoImpl) CreateGuildFromTemplate(templateCode string, createGuildFrom
 		return nil, err
 	}
 	return d.EntityBuilder().CreateGuild(*guild, CacheStrategyNoWs), nil
+}
+
+func (d *DisgoImpl) GetInvite(inviteCode string) (*Invite, rest.Error) {
+	invite, err := d.RestServices().InviteService().GetInvite(inviteCode)
+	if err != nil {
+		return nil, err
+	}
+	return d.EntityBuilder().CreateInvite(*invite, CacheStrategyNoWs), nil
+}
+
+func (d *DisgoImpl) DeleteInvite(inviteCode string) (*Invite, rest.Error) {
+	invite, err := d.RestServices().InviteService().DeleteInvite(inviteCode)
+	if err != nil {
+		return nil, err
+	}
+	return d.EntityBuilder().CreateInvite(*invite, CacheStrategyNoWs), nil
 }

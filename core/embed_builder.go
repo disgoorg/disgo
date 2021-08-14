@@ -150,14 +150,14 @@ func (b *EmbedBuilder) SetURL(url string) *EmbedBuilder {
 
 // AddField adds a field to the EmbedBuilder by name and value
 func (b *EmbedBuilder) AddField(name string, value string, inline bool) *EmbedBuilder {
-	b.Fields = append(b.Fields, &discord.EmbedField{name, value, &inline})
+	b.Fields = append(b.Fields, &discord.EmbedField{Name: name, Value: value, Inline: &inline})
 	return b
 }
 
 // SetField sets a field to the EmbedBuilder by name and value
 func (b *EmbedBuilder) SetField(i int, name string, value string, inline bool) *EmbedBuilder {
 	if len(b.Fields) > i {
-		b.Fields[i] = &discord.EmbedField{name, value, &inline}
+		b.Fields[i] = &discord.EmbedField{Name: name, Value: value, Inline: &inline}
 	}
 	return b
 }

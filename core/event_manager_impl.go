@@ -19,11 +19,9 @@ var _ EventManager = (*EventManagerImpl)(nil)
 
 func NewEventManager(disgo Disgo, listeners []EventListener) EventManager {
 	eventManager := &EventManagerImpl{
-		disgo:           disgo,
-		channel:         make(chan Event),
-		listeners:       listeners,
-		gatewayHandlers: GatewayEventHandlers,
-		httpHandlers:    HTTPEventHandlers,
+		disgo:     disgo,
+		channel:   make(chan Event),
+		listeners: listeners,
 	}
 
 	go eventManager.ListenEvents()
@@ -32,11 +30,9 @@ func NewEventManager(disgo Disgo, listeners []EventListener) EventManager {
 
 // EventManagerImpl is the implementation of api.EventManager
 type EventManagerImpl struct {
-	disgo           Disgo
-	listeners       []EventListener
-	gatewayHandlers map[gateway.EventType]GatewayEventHandler
-	httpHandlers    map[httpserver.EventType]HTTPEventHandler
-	channel         chan Event
+	disgo     Disgo
+	listeners []EventListener
+	channel   chan Event
 }
 
 // Disgo returns the api.Disgo instance used by the api.EventManager
@@ -52,7 +48,7 @@ func (e *EventManagerImpl) Close() {
 
 // HandleGateway calls the correct api.EventHandler
 func (e *EventManagerImpl) HandleGateway(name gateway.EventType, sequenceNumber int, payload io.Reader) {
-	if handler, ok := e.gatewayHandlers[name]; ok {
+	if handler, ok := GatewayEventHandlers[name]; ok {
 		eventPayload := handler.New()
 		if err := json.NewDecoder(payload).Decode(&eventPayload); err != nil {
 			e.disgo.Logger().Errorf("error while unmarshalling event. error: %s", err)
@@ -63,7 +59,7 @@ func (e *EventManagerImpl) HandleGateway(name gateway.EventType, sequenceNumber 
 
 // HandleHTTP calls the correct api.EventHandler
 func (e *EventManagerImpl) HandleHTTP(eventType httpserver.EventType, c chan discord.InteractionResponse, payload io.Reader) {
-	if handler, ok := e.httpHandlers[eventType]; ok {
+	if handler, ok := HTTPEventHandlers[eventType]; ok {
 		eventPayload := handler.New()
 		if err := json.NewDecoder(payload).Decode(&eventPayload); err != nil {
 			e.disgo.Logger().Errorf("error while unmarshalling httpserver event. error: %s", err)
@@ -86,8 +82,8 @@ func (e *EventManagerImpl) AddEventListeners(listeners ...EventListener) {
 	}
 }
 
-// RemoveEventListener removes one or more api.EventListener(s) from the api.EventManager
-func (e *EventManagerImpl) RemoveEventListener(listeners ...EventListener) {
+// RemoveEventListeners removes one or more api.EventListener(s) from the api.EventManager
+func (e *EventManagerImpl) RemoveEventListeners(listeners ...EventListener) {
 	for _, listener := range listeners {
 		for i, l := range e.listeners {
 			if l == listener {

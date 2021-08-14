@@ -198,21 +198,21 @@ var _ GuildChannel = (*channelImpl)(nil)
 // GuildID returns the channel's Guild ID
 func (c *channelImpl) GuildID() discord.Snowflake {
 	if !c.IsGuildChannel() || c.Channel.GuildID == nil {
-		panic("unsupported operation")
+		unsupported(c)
 	}
 	return *c.Channel.GuildID
 }
 
 func (c *channelImpl) Permissions() discord.Permissions {
 	if !c.IsGuildChannel() {
-		panic("unsupported operation")
+		unsupported(c)
 	}
 	return *c.Channel.InteractionPermissions
 }
 
 func (c *channelImpl) ParentID() *discord.Snowflake {
 	if !c.IsGuildChannel() {
-		panic("unsupported operation")
+		unsupported(c)
 	}
 	return c.Channel.ParentID
 }
@@ -226,7 +226,7 @@ func (c *channelImpl) Parent() Category {
 
 func (c *channelImpl) Position() *int {
 	if !c.IsGuildChannel() {
-		panic("unsupported operation")
+		unsupported(c)
 	}
 
 	return c.Channel.Position
@@ -278,7 +278,7 @@ var _ StageChannel = (*channelImpl)(nil)
 
 func (c *channelImpl) StageInstance() *StageInstance {
 	if !c.IsStageChannel() {
-		panic("unsupported operation")
+		unsupported(c)
 	}
 	if c.stageInstanceID == nil {
 		return nil
