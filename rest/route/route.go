@@ -24,6 +24,20 @@ func newRoute(baseRoute string, url string, queryParams []string) *Route {
 	}
 }
 
+// NewRoute generates a Route when given a URL
+func NewRoute(url string, queryParams ...string) *Route {
+	params := map[string]struct{}{}
+	for _, param := range queryParams {
+		params[param] = struct{}{}
+	}
+	return &Route{
+		baseRoute:     "",
+		route:         url,
+		queryParams:   params,
+		urlParamCount: countURLParams(url),
+	}
+}
+
 // Route the base struct for routes used in disgo
 type Route struct {
 	baseRoute     string
@@ -61,21 +75,12 @@ func (r *Route) Compile(queryValues QueryValues, args ...interface{}) (*Compiled
 		}
 	}
 
-	return &CompiledRoute{route: compiledRoute, queryParams: queryParamsStr}, nil
+	return &CompiledRoute{Route: r, route: compiledRoute, queryParams: queryParamsStr}, nil
 }
 
-// NewRoute generates a Route when given a URL
-func NewRoute(url string, queryParams ...string) *Route {
-	params := map[string]struct{}{}
-	for _, param := range queryParams {
-		params[param] = struct{}{}
-	}
-	return &Route{
-		baseRoute:     "",
-		route:         url,
-		queryParams:   params,
-		urlParamCount: countURLParams(url),
-	}
+// Route returns the request route
+func (r *Route) Route() string {
+	return r.route
 }
 
 func countURLParams(url string) int {
@@ -85,6 +90,7 @@ func countURLParams(url string) int {
 
 // CompiledRoute is Route compiled with all URL args
 type CompiledRoute struct {
+	*Route
 	route       string
 	queryParams string
 }
@@ -96,11 +102,6 @@ func (r *CompiledRoute) URL() string {
 		route += "?" + r.queryParams
 	}
 	return route
-}
-
-// Route returns the request route
-func (r *CompiledRoute) Route() string {
-	return r.route
 }
 
 // QueryParams returns the request query params
