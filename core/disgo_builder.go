@@ -6,6 +6,7 @@ import (
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/rest"
+	"github.com/DisgoOrg/disgo/rest/rate"
 	"github.com/DisgoOrg/log"
 )
 
@@ -15,6 +16,7 @@ type DisgoBuilder interface {
 
 	SetHTTPClient(httpClient *http.Client) DisgoBuilder
 	SetRestHTTPClient(restHTTPClient rest.HTTPClient) DisgoBuilder
+	SetRateLimiter(rateLimiter rate.RateLimiter) DisgoBuilder
 	SetRestServices(restServices rest.Services) DisgoBuilder
 
 	SetEventManager(eventManager EventManager) DisgoBuilder

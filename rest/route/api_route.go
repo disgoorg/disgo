@@ -10,26 +10,40 @@ import (
 
 const MajorParameters = "guild.id:channel.id:webhook.id:interaction.token"
 
-// NewAPIRoute generates a new discord api route struct
-func NewAPIRoute(method Method, url string, queryParams ...string) *APIRoute {
+func countURLParams(url string) int {
+	paramCount := strings.Count(url, "{")
+	return paramCount
+}
+
+// NewAPIRoute generates a new discord api path struct
+//goland:noinspection GoUnusedExportedFunction
+func NewAPIRoute(method Method, path string, queryParams ...string) *APIRoute {
 	params := map[string]struct{}{}
 	for _, param := range queryParams {
 		params[param] = struct{}{}
 	}
 
 	return &APIRoute{
-		baseRoute:     baseRoute,
-		route:         url,
+		basePath:      API,
+		path:          path,
 		queryParams:   params,
-		urlParamCount: countURLParams(url),
+		urlParamCount: countURLParams(path),
 		method:        method,
 	}
 }
 
+// NewCustomAPIRoute generates a new custom path struct
+//goland:noinspection GoUnusedExportedFunction
+func NewCustomAPIRoute(method Method, basePath string, path string, queryParams ...string) *APIRoute {
+	route := NewAPIRoute(method, path, queryParams...)
+	route.basePath = basePath
+	return route
+}
+
 // APIRoute is a basic struct containing Method and URL
 type APIRoute struct {
-	baseRoute     string
-	route         string
+	basePath      string
+	path          string
 	queryParams   map[string]struct{}
 	urlParamCount int
 	method        Method
@@ -40,21 +54,19 @@ func (r *APIRoute) Compile(queryValues QueryValues, params ...interface{}) (*Com
 	if len(params) != r.urlParamCount {
 		return nil, discord.ErrInvalidArgCount(len(params), r.urlParamCount)
 	}
-	route := r.route
-	var major []string
+	path := r.path
+	var majorParams []string
 	for _, param := range params {
-		start := strings.Index(route, "{")
-		end := strings.Index(route, "}")
-		paramName := route[start+1 : end-1]
+		start := strings.Index(path, "{")
+		end := strings.Index(path, "}")
+		paramName := path[start+1 : end-1]
 		paramValue := fmt.Sprint(param)
 		if strings.Contains(MajorParameters, paramName) {
-			major = append(major, paramName+"="+paramValue)
+			majorParams = append(majorParams, paramName+"="+paramValue)
 		}
-		route = route[:start] + paramValue + route[end+1:]
+		path = path[:start] + paramValue + path[end+1:]
 	}
 
-
-	compiledRoute := r.baseRoute + route
 	queryParamsStr := ""
 	if queryValues != nil {
 		query := url.Values{}
@@ -71,25 +83,39 @@ func (r *APIRoute) Compile(queryValues QueryValues, params ...interface{}) (*Com
 
 	return &CompiledAPIRoute{
 		APIRoute:    r,
-		route:       route,
+		path:        path,
 		queryParams: queryParamsStr,
+		majorParams: strings.Join(majorParams, ":"),
 	}, nil
 }
 
-// Method returns the request method used by the route
+// Method returns the request method used by the path
 func (r *APIRoute) Method() Method {
 	return r.method
+}
+
+// Path returns the request path used by the path
+func (r *APIRoute) Path() string {
+	return r.path
 }
 
 // CompiledAPIRoute is APIRoute compiled with all URL args
 type CompiledAPIRoute struct {
 	*APIRoute
-	route       string
+	path        string
 	queryParams string
-	major       string
+	majorParams string
 }
 
-// Method returns the request method used by the route
-func (r *CompiledAPIRoute) Method() Method {
-	return r.method
+// MajorParams returns the major parameter from the request
+func (r *CompiledAPIRoute) MajorParams() string {
+	return r.majorParams
+}
+
+func (r *CompiledAPIRoute) URL() string {
+	u := r.basePath + r.path
+	if r.queryParams != "" {
+		u += "?" + r.queryParams
+	}
+	return u
 }

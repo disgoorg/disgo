@@ -6,6 +6,7 @@ import (
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/httpserver"
+	"github.com/DisgoOrg/disgo/rest/rate"
 	"github.com/DisgoOrg/disgo/util"
 
 	"github.com/DisgoOrg/disgo/gateway"
@@ -26,6 +27,7 @@ type DisgoBuilderImpl struct {
 
 	httpClient     *http.Client
 	restHTTPClient rest.HTTPClient
+	rateLimiter    rate.RateLimiter
 	restServices   rest.Services
 
 	token string
@@ -63,6 +65,12 @@ func (b *DisgoBuilderImpl) SetHTTPClient(httpClient *http.Client) DisgoBuilder {
 // SetRestHTTPClient sets the rest.HTTPClient rest.Services uses
 func (b *DisgoBuilderImpl) SetRestHTTPClient(restHTTPClient rest.HTTPClient) DisgoBuilder {
 	b.restHTTPClient = restHTTPClient
+	return b
+}
+
+// SetRateLimiter sets the rate.RateLimiter the rest.HTTPClient uses
+func (b *DisgoBuilderImpl) SetRateLimiter(rateLimiter rate.RateLimiter) DisgoBuilder {
+	b.rateLimiter = rateLimiter
 	return b
 }
 
@@ -173,8 +181,12 @@ func (b *DisgoBuilderImpl) Build() (Disgo, error) {
 		b.httpClient = http.DefaultClient
 	}
 
+	if b.rateLimiter == nil {
+		b.rateLimiter = rate.NewRateLimiter(disgo.logger)
+	}
+
 	if b.restHTTPClient == nil {
-		b.restHTTPClient = rest.NewHTTPClient(b.logger, b.httpClient, "") //TODO: set useragent
+		b.restHTTPClient = rest.NewHTTPClient(b.logger, b.httpClient, b.rateLimiter, nil, "") //TODO: headers & user agent
 	}
 
 	if b.restServices == nil {

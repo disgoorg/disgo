@@ -1,18 +1,18 @@
 package rate
 
 import (
+	"context"
+	"errors"
 	"net/http"
-	"time"
 
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var MajorParameter = []string{"channel_id", "guild_id", "webhook_id/webhook_token"}
+var ErrCtxTimeout = errors.New("rate limit exceeds context deadline")
 
 //goland:noinspection GoNameStartsWithPackageName
 type RateLimiter interface {
-	Close(force bool)
-	IsRateLimited(route route.CompiledRoute) bool
-	GetRateLimit(route route.CompiledRoute) time.Duration
-	HandleResponse(response http.Response)
+	Close(ctx context.Context)
+	WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error
+	UnlockBucket(route *route.CompiledAPIRoute, headers http.Header) error
 }

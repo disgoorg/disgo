@@ -1,66 +1,179 @@
 package rate
 
 import (
+	"context"
+	"fmt"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 
 	"github.com/DisgoOrg/disgo/rest/route"
+	"github.com/DisgoOrg/log"
 )
 
-const UnlimitedBucket = "unlimited"
+// TODO: do we need some cleanup task?
+
+//goland:noinspection GoUnusedExportedFunction
+func NewRateLimiter(logger log.Logger) RateLimiter {
+	if logger == nil {
+		logger = log.Default()
+	}
+	return &RateLimiterImpl{
+		logger:  logger,
+		Hashes:  map[*route.APIRoute]routeHash{},
+		Buckets: map[hashMajor]*bucket{},
+	}
+}
 
 //goland:noinspection GoNameStartsWithPackageName
-type RateLimiterImpl struct {
-	Lock sync.Mutex
-	// Route -> Hash
-	Hashes map[*route.APIRoute]string
-	// Hash + Major Parameter -> Bucket
-	Buckets map[string]Bucket
-}
+type (
+	routeHash string
+	hashMajor string
 
-func (r *RateLimiterImpl) Close(force bool) {
+	RateLimiterImpl struct {
+		sync.Mutex
 
-}
+		logger log.Logger
 
-func (r *RateLimiterImpl) GetRateLimit(route *route.CompiledAPIRoute) time.Duration {
+		// Global Rate Limit
+		Global int64
 
-}
-
-func (r *RateLimiterImpl) GetRouteHash(route *route.APIRoute) string {
-	hash, ok := r.Hashes[route]
-	if !ok {
-		hash = UnlimitedBucket + "+" + route.Method().String() + "/" + route.Route.Route()
-		r.Hashes[route] = hash
+		// route.APIRoute -> Hash
+		Hashes map[*route.APIRoute]routeHash
+		// Hash + Major Parameter -> bucket
+		Buckets map[hashMajor]*bucket
 	}
-	return hash
+)
+
+func (r *RateLimiterImpl) Close(ctx context.Context) {
+	// TODO: wait for all buckets to unlock
 }
 
-func (r *RateLimiterImpl) GetBucket(route *route.CompiledAPIRoute) *Bucket {
-	bucket :=
+func (r *RateLimiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor {
+	hash, ok := r.Hashes[route.APIRoute]
+	if !ok {
+		// generate routeHash
+		hash = routeHash(route.Method().String() + "+" + route.Path())
+		r.Hashes[route.APIRoute] = hash
+	}
+	// return hashMajor
+	return hashMajor(string(hash) + "+" + route.MajorParams())
+}
+
+func (r *RateLimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *bucket {
+	hash := r.getRouteHash(route)
+
+	r.Lock()
+	defer r.Unlock()
+	b, ok := r.Buckets[hash]
+	if !ok {
+		if !create {
+			return nil
+		}
+
+		b = &bucket{
+			Remaining: 1,
+			Limit:     1,
+		}
+		r.Buckets[hash] = b
+	}
+	return b
+}
+
+func (r *RateLimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error {
+	bucket := r.getBucket(route, true)
+	bucket.Lock()
+
+	var until time.Time
+	now := time.Now()
+
+	if bucket.Remaining == 0 && bucket.Reset.After(now) {
+		until = bucket.Reset
+	} else {
+		until = time.Unix(0, r.Global)
+	}
+
+	if until.After(now) {
+		// TODO: do we want to return early when we know rate limit bigger than ctx deadline?
+		if deadline, ok := ctx.Deadline(); ok && until.After(deadline) {
+			return ErrCtxTimeout
+		}
+
+		select {
+		case <-ctx.Done():
+			bucket.Unlock()
+			return ctx.Err()
+		case <-time.After(until.Sub(now)):
+		}
+	}
 	return nil
 }
 
-func NewBucket(bucketID string) *Bucket {
-	return &Bucket{
-		ID:        bucketID,
-		Remaining: 1,
-		Limit:     1,
+func (r *RateLimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.Header) error {
+	bucket := r.getBucket(route, false)
+	if bucket == nil {
+		return nil
 	}
+	defer bucket.Unlock()
+
+	bucketID := headers.Get("X-RateLimit-bucket")
+
+	if bucketID != "" {
+		bucket.ID = bucketID
+	}
+
+	global := headers.Get("X-RateLimit-Global")
+
+	remaining := headers.Get("X-RateLimit-Remaining")
+	reset := headers.Get("X-RateLimit-Reset")
+	retryAfter := headers.Get("Retry-After")
+
+	switch {
+	case retryAfter != "":
+		i, err := strconv.Atoi(retryAfter)
+		if err != nil {
+			return fmt.Errorf("invalid retryAfter %s: %s", retryAfter, err)
+		}
+
+		at := time.Now().Add(time.Duration(i) * time.Second)
+
+		if global != "" {
+			r.Global = at.UnixNano()
+		} else {
+			bucket.Reset = at
+		}
+
+	case reset != "":
+		unix, err := strconv.ParseInt(reset, 10, 64)
+		if err != nil {
+			return fmt.Errorf("invalid reset %s: %s", reset, err)
+		}
+
+		bucket.Reset = time.Unix(unix, 0)
+	}
+
+	if remaining != "" {
+		u, err := strconv.Atoi(remaining)
+		if err != nil {
+			return fmt.Errorf("invalid remaining %s: %s", remaining, err)
+		}
+
+		bucket.Remaining = u
+	} else {
+		// Lower remaining one just to be safe
+		if bucket.Remaining > 0 {
+			bucket.Remaining--
+		}
+	}
+
+	return nil
 }
 
-type Bucket struct {
+type bucket struct {
 	sync.Mutex
-	RateLimiter RateLimiter
-	ID          string
-	Reset       int
-	Remaining   int
-	Limit       int
-}
-
-func (b *Bucket) Free(response *http.Response) {
-	remaining := response.Header.Get("X-RateLimit-Remaining")
-	reset := response.Header.Get("X-RateLimit-Reset")
-	global := response.Header.Get("X-RateLimit-Global")
-	resetAfter := response.Header.Get("X-RateLimit-Reset-After")
+	ID        string
+	Reset     time.Time
+	Remaining int
+	Limit     int
 }

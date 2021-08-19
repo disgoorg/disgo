@@ -7,19 +7,9 @@ import (
 )
 
 var (
-	TestRoute    = NewRoute("/channels/{channel.id}/messages/{message.id}/reactions/{emoji}/@me", "wait")
 	APITestRoute = NewAPIRoute(PUT, "/channels/{channel.id}/messages/{message.id}/reactions/{emoji}/@me", "wait")
 	CDNTestRoute = NewCDNRoute("/emojis/{emote.id}", []FileExtension{PNG, GIF}, "size")
 )
-
-func TestRoute_Compile(t *testing.T) {
-	queryParams := map[string]interface{}{
-		"wait": true,
-	}
-	compiledRoute, err := TestRoute.Compile(queryParams, "test1", "test2", "test3")
-	assert.NoError(t, err)
-	assert.Equal(t, "/channels/test1/messages/test2/reactions/test3/@me?wait=true", compiledRoute.URL())
-}
 
 func TestAPIRoute_Compile(t *testing.T) {
 	queryParams := map[string]interface{}{
@@ -41,9 +31,9 @@ func TestCDNRoute_Compile(t *testing.T) {
 }
 
 func TestCustomRoute_Compile(t *testing.T) {
-	testAPI := NewCustomRoute(GET, "https://test.de/{test}")
+	testAPI := NewCustomAPIRoute(GET, "https://test.de/", "test/{test}")
 
 	compiledRoute, err := testAPI.Compile(nil, "test")
 	assert.NoError(t, err)
-	assert.Equal(t, "https://test.de/test", compiledRoute.URL())
+	assert.Equal(t, "https://test.de/test/test", compiledRoute.URL())
 }
