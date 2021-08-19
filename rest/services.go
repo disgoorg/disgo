@@ -11,7 +11,7 @@ import (
 type Services interface {
 	Close()
 	Logger() log.Logger
-	HTTPClient() HTTPClient
+	HTTPClient() Client
 	ApplicationService() ApplicationService
 	AuditLogService() AuditLogService
 	GatewayService() GatewayService
@@ -26,7 +26,12 @@ type Services interface {
 	StageInstanceService() StageInstanceService
 }
 
+type Service interface {
+	RestClient() Client
+}
+
 type ApplicationService interface {
+	Service
 	GetGlobalCommands(ctx context.Context, applicationID discord.Snowflake) ([]discord.ApplicationCommand, Error)
 	GetGlobalCommand(ctx context.Context, applicationID discord.Snowflake, commandID discord.Snowflake) (*discord.ApplicationCommand, Error)
 	CreateGlobalCommand(ctx context.Context, applicationID discord.Snowflake, command discord.ApplicationCommandCreate) (*discord.ApplicationCommand, Error)
@@ -48,15 +53,18 @@ type ApplicationService interface {
 }
 
 type AuditLogService interface {
+	Service
 	GetAuditLog(ctx context.Context, guildID discord.Snowflake, userID discord.Snowflake, actionType discord.AuditLogEvent, before discord.Snowflake, limit int) (*discord.AuditLog, Error)
 }
 
 type GatewayService interface {
-	GetGateway(ctx context.Context, ) (*discord.Gateway, Error)
-	GetGatewayBot(ctx context.Context, ) (*discord.GatewayBot, Error)
+	Service
+	GetGateway(ctx context.Context) (*discord.Gateway, Error)
+	GetGatewayBot(ctx context.Context) (*discord.GatewayBot, Error)
 }
 
 type ChannelsService interface {
+	Service
 	GetChannel(ctx context.Context, channelID discord.Snowflake) (*discord.Channel, Error)
 	UpdateChannel(ctx context.Context, channelID discord.Snowflake, channelUpdate discord.ChannelUpdate) (*discord.Channel, Error)
 	DeleteChannel(ctx context.Context, channelID discord.Snowflake) Error
@@ -82,6 +90,7 @@ type ChannelsService interface {
 }
 
 type GuildService interface {
+	Service
 	GetGuild(ctx context.Context, guildID discord.Snowflake, withCounts bool) (*discord.Guild, Error)
 	GetGuildPreview(ctx context.Context, guildID discord.Snowflake) (*discord.GuildPreview, Error)
 	CreateGuild(ctx context.Context, guildCreate discord.GuildCreate) (*discord.Guild, Error)
@@ -126,6 +135,7 @@ type GuildService interface {
 }
 
 type InteractionService interface {
+	Service
 	CreateInteractionResponse(ctx context.Context, interactionID discord.Snowflake, interactionToken string, interactionResponse discord.InteractionResponse) Error
 	UpdateInteractionResponse(ctx context.Context, applicationID discord.Snowflake, interactionToken string, messageUpdate discord.MessageUpdate) (*discord.Message, Error)
 	DeleteInteractionResponse(ctx context.Context, applicationID discord.Snowflake, interactionToken string) Error
@@ -136,6 +146,7 @@ type InteractionService interface {
 }
 
 type InviteService interface {
+	Service
 	GetInvite(ctx context.Context, code string) (*discord.Invite, Error)
 	CreateInvite(ctx context.Context, channelID discord.Snowflake, inviteCreate discord.InviteCreate)
 	DeleteInvite(ctx context.Context, code string) (*discord.Invite, Error)
@@ -144,6 +155,7 @@ type InviteService interface {
 }
 
 type GuildTemplateService interface {
+	Service
 	GetGuildTemplate(ctx context.Context, templateCode string) (*discord.GuildTemplate, Error)
 	GetGuildTemplates(ctx context.Context, guildID discord.Snowflake) ([]discord.GuildTemplate, Error)
 	CreateGuildTemplate(ctx context.Context, guildID discord.Snowflake, guildTemplateCreate discord.GuildTemplateCreate) (*discord.GuildTemplate, Error)
@@ -154,6 +166,7 @@ type GuildTemplateService interface {
 }
 
 type UserService interface {
+	Service
 	GetUser(ctx context.Context, userID discord.Snowflake) (*discord.User, Error)
 	GetSelfUser(ctx context.Context) (*discord.SelfUser, Error)
 	UpdateSelfUser(ctx context.Context, updateSelfUser discord.UpdateSelfUser) (*discord.SelfUser, Error)
@@ -164,10 +177,12 @@ type UserService interface {
 }
 
 type VoiceService interface {
+	Service
 	GetVoiceRegions(ctx context.Context) []discord.VoiceRegion
 }
 
 type StageInstanceService interface {
+	Service
 	GetStageInstance(ctx context.Context, stageInstanceID discord.Snowflake) (*discord.StageInstance, Error)
 	CreateStageInstance(ctx context.Context, stageInstanceCreate discord.StageInstanceCreate) (*discord.StageInstance, Error)
 	UpdateStageInstance(ctx context.Context, stageInstanceID discord.Snowflake, stageInstanceUpdate discord.StageInstanceUpdate) (*discord.StageInstance, Error)
@@ -175,6 +190,7 @@ type StageInstanceService interface {
 }
 
 type WebhookService interface {
+	Service
 	GetWebhook(ctx context.Context, webhookID discord.Snowflake) (*discord.Webhook, Error)
 	UpdateWebhook(ctx context.Context, webhookID discord.Snowflake, webhookUpdate discord.WebhookUpdate) (*discord.Webhook, Error)
 	DeleteWebhook(ctx context.Context, webhookID discord.Snowflake) Error

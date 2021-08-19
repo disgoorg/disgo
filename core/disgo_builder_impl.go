@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 
@@ -25,10 +26,12 @@ func NewBuilder(token string) DisgoBuilder {
 type DisgoBuilderImpl struct {
 	logger log.Logger
 
-	httpClient     *http.Client
-	restHTTPClient rest.HTTPClient
-	rateLimiter    rate.RateLimiter
-	restServices   rest.Services
+	httpClient        *http.Client
+	restClient        rest.Client
+	restClientConfig  *rest.Config
+	rateLimiter       rate.RateLimiter
+	rateLimiterConfig *rate.Config
+	restServices      rest.Services
 
 	token string
 
@@ -56,21 +59,29 @@ func (b *DisgoBuilderImpl) SetLogger(logger log.Logger) DisgoBuilder {
 	return b
 }
 
-// SetHTTPClient sets the http.Client rest.HTTPClient uses
+// SetHTTPClient sets the http.Client rest.Client uses
 func (b *DisgoBuilderImpl) SetHTTPClient(httpClient *http.Client) DisgoBuilder {
 	b.httpClient = httpClient
 	return b
 }
 
-// SetRestHTTPClient sets the rest.HTTPClient rest.Services uses
-func (b *DisgoBuilderImpl) SetRestHTTPClient(restHTTPClient rest.HTTPClient) DisgoBuilder {
-	b.restHTTPClient = restHTTPClient
+// SetRestClient sets the rest.Client rest.Services uses
+func (b *DisgoBuilderImpl) SetRestClient(restClient rest.Client) DisgoBuilder {
+	b.restClient = restClient
+	return b
+}
+func (b *DisgoBuilderImpl) SetRestClientConfig(config rest.Config) DisgoBuilder {
+	b.restClientConfig = &config
 	return b
 }
 
-// SetRateLimiter sets the rate.RateLimiter the rest.HTTPClient uses
+// SetRateLimiter sets the rate.RateLimiter the rest.Client uses
 func (b *DisgoBuilderImpl) SetRateLimiter(rateLimiter rate.RateLimiter) DisgoBuilder {
 	b.rateLimiter = rateLimiter
+	return b
+}
+func (b *DisgoBuilderImpl) SetRateLimiterConfig(config rate.Config) DisgoBuilder {
+	b.rateLimiterConfig = &config
 	return b
 }
 
@@ -182,15 +193,27 @@ func (b *DisgoBuilderImpl) Build() (Disgo, error) {
 	}
 
 	if b.rateLimiter == nil {
-		b.rateLimiter = rate.NewRateLimiter(disgo.logger)
+		b.rateLimiter = rate.NewRateLimiter(disgo.logger, b.rateLimiterConfig)
 	}
 
-	if b.restHTTPClient == nil {
-		b.restHTTPClient = rest.NewHTTPClient(b.logger, b.httpClient, b.rateLimiter, nil, "") //TODO: headers & user agent
+	if b.restClientConfig == nil {
+		b.restClientConfig = &rest.DefaultConfig
+	}
+
+	if b.restClientConfig.Headers == nil {
+		b.restClientConfig.Headers = http.Header{}
+	}
+
+	if _, ok := b.restClientConfig.Headers["authorization"]; !ok {
+		b.restClientConfig.Headers["authorization"] = []string{fmt.Sprintf("Bot %s", b.token)}
+	}
+
+	if b.restClient == nil {
+		b.restClient = rest.NewClient(b.logger, b.httpClient, b.rateLimiter, b.restClientConfig)
 	}
 
 	if b.restServices == nil {
-		b.restServices = rest.NewServices(disgo.logger, b.restHTTPClient)
+		b.restServices = rest.NewServices(disgo.logger, b.restClient)
 	}
 	disgo.restServices = b.restServices
 

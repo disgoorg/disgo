@@ -7,7 +7,7 @@ var _ Component = (*ActionRow)(nil)
 // NewActionRow creates a new ActionRow holding th provided Component(s)
 func NewActionRow(components ...Component) ActionRow {
 	return ActionRow{
-		UnmarshalComponent: discord.UnmarshalComponent{
+		Component: discord.Component{
 			Type: discord.ComponentTypeActionRow,
 		},
 		Components: components,
@@ -15,13 +15,13 @@ func NewActionRow(components ...Component) ActionRow {
 }
 
 type ActionRow struct {
-	discord.UnmarshalComponent
+	discord.Component
 	Components []Component `json:"components"`
 }
 
 // Type returns the ComponentType of this Component
 func (r ActionRow) Type() discord.ComponentType {
-	return r.UnmarshalComponent.Type
+	return r.Component.Type
 }
 
 // SetComponents returns a new ActionRow with the provided Component(s)

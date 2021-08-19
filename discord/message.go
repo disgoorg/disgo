@@ -106,9 +106,9 @@ type Message struct {
 	Reactions         []MessageReaction    `json:"reactions"`
 	Attachments       []Attachment         `json:"attachments"`
 	TTS               bool                 `json:"tts"`
-	Embeds            []Embed              `json:"embeds,omitempty"`
-	Components        []UnmarshalComponent `json:"-"`
-	CreatedAt         Time                 `json:"timestamp"`
+	Embeds            []Embed     `json:"embeds,omitempty"`
+	Components        []Component `json:"-"`
+	CreatedAt         Time        `json:"timestamp"`
 	Mentions          []interface{}        `json:"mentions"`
 	MentionEveryone   bool                 `json:"mention_everyone"`
 	MentionRoles      []Role               `json:"mention_roles"`

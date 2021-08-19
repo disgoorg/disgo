@@ -150,33 +150,33 @@ func (b *EmbedBuilder) SetURL(url string) *EmbedBuilder {
 
 // AddField adds a field to the EmbedBuilder by name and value
 func (b *EmbedBuilder) AddField(name string, value string, inline bool) *EmbedBuilder {
-	b.Fields = append(b.Fields, &discord.EmbedField{Name: name, Value: value, Inline: &inline})
+	b.Fields = append(b.Fields, discord.EmbedField{Name: name, Value: value, Inline: &inline})
 	return b
 }
 
 // SetField sets a field to the EmbedBuilder by name and value
 func (b *EmbedBuilder) SetField(i int, name string, value string, inline bool) *EmbedBuilder {
 	if len(b.Fields) > i {
-		b.Fields[i] = &discord.EmbedField{Name: name, Value: value, Inline: &inline}
+		b.Fields[i] = discord.EmbedField{Name: name, Value: value, Inline: &inline}
 	}
 	return b
 }
 
 // AddFields adds multiple fields to the EmbedBuilder
-func (b *EmbedBuilder) AddFields(field *discord.EmbedField, fields ...*discord.EmbedField) *EmbedBuilder {
-	b.Fields = append(append(b.Fields, field), fields...)
+func (b *EmbedBuilder) AddFields(fields ...discord.EmbedField) *EmbedBuilder {
+	b.Fields = append(b.Fields, fields...)
 	return b
 }
 
 // SetFields sets fields of the EmbedBuilder
-func (b *EmbedBuilder) SetFields(fields ...*discord.EmbedField) *EmbedBuilder {
+func (b *EmbedBuilder) SetFields(fields ...discord.EmbedField) *EmbedBuilder {
 	b.Fields = fields
 	return b
 }
 
 // ClearFields removes all the fields from the EmbedBuilder
 func (b *EmbedBuilder) ClearFields() *EmbedBuilder {
-	b.Fields = []*discord.EmbedField{}
+	b.Fields = []discord.EmbedField{}
 	return b
 }
 

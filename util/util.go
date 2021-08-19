@@ -3,6 +3,7 @@ package util
 import (
 	"encoding/base64"
 	"runtime"
+	"runtime/debug"
 	"strings"
 
 	"github.com/DisgoOrg/disgo/discord"
@@ -36,4 +37,22 @@ func GetOS() string {
 		return "darwin"
 	}
 	return "linux"
+}
+
+// GitHub is the Disgo GitHub URL
+const GitHub = "https://github.com/DisgoOrg/disgo"
+
+// Version returns the current used Disgo version in the format vx.x.x
+var Version = getVersion()
+
+func getVersion() string {
+	bi, ok := debug.ReadBuildInfo()
+	if ok {
+		for _, dep := range bi.Deps {
+			if strings.Contains(GitHub, dep.Path) {
+				return dep.Version
+			}
+		}
+	}
+	return "unknown"
 }

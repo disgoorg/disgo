@@ -29,7 +29,7 @@ func (u *User) AvatarURL(size int) *string {
 	if err != nil {
 		return nil
 	}
-	url := compiledRoute.Route()
+	url := compiledRoute.URL()
 	return &url
 }
 
@@ -39,7 +39,7 @@ func (u *User) DefaultAvatarURL(size int) string {
 	if err != nil {
 		return ""
 	}
-	return compiledRoute.Route()
+	return compiledRoute.URL()
 }
 
 func (u *User) EffectiveAvatarURL(size int) string {

@@ -232,13 +232,13 @@ func (b *EntityBuilderImpl) CreateMessage(message discord.Message, updateCache C
 }
 
 // CreateComponents returns a new slice of Component entities
-func (b *EntityBuilderImpl) CreateComponents(unmarshalComponents []discord.UnmarshalComponent, updateCache CacheStrategy) []Component {
+func (b *EntityBuilderImpl) CreateComponents(unmarshalComponents []discord.Component, updateCache CacheStrategy) []Component {
 	components := make([]Component, len(unmarshalComponents))
 	for i, component := range unmarshalComponents {
 		switch component.Type {
 		case discord.ComponentTypeActionRow:
 			actionRow := ActionRow{
-				UnmarshalComponent: component,
+				Component: component,
 			}
 			if len(component.Components) > 0 {
 				actionRow.Components = b.CreateComponents(component.Components, updateCache)
@@ -247,12 +247,12 @@ func (b *EntityBuilderImpl) CreateComponents(unmarshalComponents []discord.Unmar
 
 		case discord.ComponentTypeButton:
 			components[i] = Button{
-				UnmarshalComponent: component,
+				Component: component,
 			}
 
 		case discord.ComponentTypeSelectMenu:
 			components[i] = SelectMenu{
-				UnmarshalComponent: component,
+				Component: component,
 			}
 		}
 	}

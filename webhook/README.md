@@ -24,12 +24,12 @@ send, edit and delete messages
 ```go
 client, err := webhook.New(nil, nil, nil, "webhook_id", "webhook_token")
 
-message, err := client.CreateContent("hello world!")
-message, err := client.CreateEmbeds(webhook.NewEmbedBuilder().
+message, err := client.CreateContent(context.ToDo(), "hello world!")
+message, err := client.CreateEmbeds(context.ToDo(), webhook.NewEmbedBuilder().
 	SetDescription("hello world!").
 	Build(),
 )
-message, err := client.CreateMessage(webhook.NewMessageCreateBuilder().
+message, err := client.CreateMessage(context.ToDo(), webhook.NewMessageCreateBuilder().
 	SetContent("hello world!").
 	Build(),
 )
@@ -40,12 +40,12 @@ message, err := client.CreateMessage(webhook.NewMessageCreateBuilder().
 ```go
 client, err := webhook.New(nil, nil, nil, "webhook_id", "webhook_token")
 
-message, err := client.UpdateContent("870741249114652722", "hello world!")
-message, err := client.UpdateEmbeds("870741249114652722", webhook.NewEmbedBuilder().
+message, err := client.UpdateContent(context.ToDo(), "870741249114652722", "hello world!")
+message, err := client.UpdateEmbeds(context.ToDo(), "870741249114652722", webhook.NewEmbedBuilder().
 	SetDescription("hello world!").
 	Build(),
 )
-message, err := client.UpdateMessage("870741249114652722", webhook.NewMessageUpdateBuilder().
+message, err := client.UpdateMessage(context.ToDo(), "870741249114652722", webhook.NewMessageUpdateBuilder().
 	SetContent("hello world!").
 	Build(), 
 )
@@ -56,5 +56,5 @@ message, err := client.UpdateMessage("870741249114652722", webhook.NewMessageUpd
 ```go
 client, err := webhook.New(nil, nil, nil, "webhook_id", "webhook_token")
 
-err := client.DeleteMessage("message_id")
+err := client.DeleteMessage(context.ToDo(), "message_id")
 ```

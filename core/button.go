@@ -6,7 +6,7 @@ import "github.com/DisgoOrg/disgo/discord"
 //goland:noinspection GoUnusedExportedFunction
 func NewButton(style discord.ButtonStyle, label string, customID string, url string, emoji *discord.Emoji, disabled bool) Button {
 	return Button{
-		UnmarshalComponent: discord.UnmarshalComponent{
+		Component: discord.Component{
 			Type:     discord.ComponentTypeButton,
 			Style:    style,
 			CustomID: customID,
@@ -50,12 +50,12 @@ func NewLinkButton(label string, url string, emoji *discord.Emoji) Button {
 
 // Button can be attacked to all messages & be clicked by a User. If clicked it fires an events.ButtonClickEvent with the declared customID
 type Button struct {
-	discord.UnmarshalComponent
+	discord.Component
 }
 
 // Type returns the ComponentType of this Component
 func (b Button) Type() discord.ComponentType {
-	return b.UnmarshalComponent.Type
+	return b.Component.Type
 }
 
 // AsDisabled returns a new Button but disabled

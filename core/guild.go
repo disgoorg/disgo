@@ -150,7 +150,7 @@ func (g *Guild) IconURL(size int) *string {
 	if err != nil {
 		return nil
 	}
-	u := compiledRoute.Route()
+	u := compiledRoute.URL()
 	return &u
 }
 

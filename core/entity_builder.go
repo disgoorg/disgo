@@ -37,7 +37,7 @@ type EntityBuilder interface {
 	CreateSelfUser(selfUser discord.SelfUser, updateCache CacheStrategy) *SelfUser
 
 	CreateMessage(message discord.Message, updateCache CacheStrategy) *Message
-	CreateComponents(components []discord.UnmarshalComponent, updateCache CacheStrategy) []Component
+	CreateComponents(components []discord.Component, updateCache CacheStrategy) []Component
 
 	CreateGuild(guild discord.Guild, updateCache CacheStrategy) *Guild
 	CreateGuildTemplate(guildTemplate discord.GuildTemplate, updateCache CacheStrategy) *GuildTemplate

@@ -29,7 +29,7 @@ type Disgo interface {
 	VoiceDispatchInterceptor() VoiceDispatchInterceptor
 	SetVoiceDispatchInterceptor(voiceInterceptor VoiceDispatchInterceptor)
 
-	HTTPClient() rest.HTTPClient
+	HTTPClient() rest.Client
 	RestServices() rest.Services
 
 	Gateway() gateway.Gateway

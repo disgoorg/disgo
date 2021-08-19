@@ -8,7 +8,7 @@ import (
 type EntityBuilder interface {
 	WebhookClient() Client
 	CreateMessage(message discord.Message) *Message
-	CreateComponents(unmarshalComponents []discord.UnmarshalComponent) []core.Component
+	CreateComponents(unmarshalComponents []discord.Component) []core.Component
 	CreateWebhook(webhook discord.Webhook) *Webhook
 }
 
@@ -37,13 +37,13 @@ func (b *EntityBuilderImpl) CreateMessage(message discord.Message) *Message {
 	return nil
 }
 
-func (b *EntityBuilderImpl) CreateComponents(unmarshalComponents []discord.UnmarshalComponent) []core.Component {
+func (b *EntityBuilderImpl) CreateComponents(unmarshalComponents []discord.Component) []core.Component {
 	components := make([]core.Component, len(unmarshalComponents))
 	for i, component := range unmarshalComponents {
 		switch component.Type {
 		case discord.ComponentTypeActionRow:
 			actionRow := core.ActionRow{
-				UnmarshalComponent: component,
+				Component: component,
 			}
 			if len(component.Components) > 0 {
 				actionRow.Components = b.CreateComponents(component.Components)
@@ -52,12 +52,12 @@ func (b *EntityBuilderImpl) CreateComponents(unmarshalComponents []discord.Unmar
 
 		case discord.ComponentTypeButton:
 			components[i] = core.Button{
-				UnmarshalComponent: component,
+				Component: component,
 			}
 
 		case discord.ComponentTypeSelectMenu:
 			components[i] = core.SelectMenu{
-				UnmarshalComponent: component,
+				Component: component,
 			}
 		}
 	}
