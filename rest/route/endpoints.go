@@ -1,5 +1,7 @@
 package route
 
+import "fmt"
+
 // Discord Endpoint Constants
 const (
 	APIVersion = "9"
@@ -249,8 +251,9 @@ var (
 )
 
 // Other
-//goland:noinspection GoUnusedGlobalVariable
+//goland:noinspection GoUnusedExportedFunction
 var (
-	GatewayURL = NewRoute(API+"/gateway", "v", "encoding", "compress")
-	InviteURL  = NewRoute("https://discord.gg/{code}")
+	InviteURL = func(code string) string {
+		return fmt.Sprintf("https://discord.gg/%s", code)
+	}
 )

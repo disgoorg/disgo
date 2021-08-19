@@ -28,7 +28,7 @@ type Embed struct {
 	Video       *EmbedResource `json:"video,omitempty"`
 	Provider    *EmbedProvider `json:"provider,omitempty"`
 	Author      *EmbedAuthor   `json:"author,omitempty"`
-	Fields      []*EmbedField  `json:"fields,omitempty"`
+	Fields      []EmbedField   `json:"fields,omitempty"`
 }
 
 // The EmbedResource of an Embed.Image/Embed.Thumbnail/Embed.Video

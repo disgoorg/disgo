@@ -2,6 +2,6 @@ package rest
 
 
 
-func NewWebhookService(client HTTPClient) WebhookService {
+func NewWebhookService(client Client) WebhookService {
 	return nil
 }

@@ -59,7 +59,7 @@ type ApplicationCommandOptionChoice struct {
 type ApplicationCommandCreate struct {
 	Type              ApplicationCommandType     `json:"type"`
 	Name              string                     `json:"name"`
-	Description       string                     `json:"description"`
+	Description       string                     `json:"description,omitempty"`
 	Options           []ApplicationCommandOption `json:"options,omitempty"`
 	DefaultPermission bool                       `json:"default_permission"`
 }

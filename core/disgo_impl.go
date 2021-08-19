@@ -22,7 +22,7 @@ type DisgoImpl struct {
 	clientID      discord.Snowflake
 	selfUser      *SelfUser
 
-	httpClient   rest.HTTPClient
+	httpClient   rest.Client
 	restServices rest.Services
 
 	eventManager             EventManager
@@ -126,7 +126,7 @@ func (d *DisgoImpl) SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDi
 	d.voiceDispatchInterceptor = voiceDispatchInterceptor
 }
 
-func (d *DisgoImpl) HTTPClient() rest.HTTPClient {
+func (d *DisgoImpl) HTTPClient() rest.Client {
 	return d.httpClient
 }
 func (d *DisgoImpl) RestServices() rest.Services {

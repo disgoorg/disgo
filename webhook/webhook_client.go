@@ -12,7 +12,7 @@ import (
 type Client interface {
 	Logger() log.Logger
 
-	HTTPClient() rest.HTTPClient
+	RestClient() rest.Client
 	WebhookService() rest.WebhookService
 	EntityBuilder() EntityBuilder
 

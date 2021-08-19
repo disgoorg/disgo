@@ -20,7 +20,7 @@ func (i *SelectMenuInteraction) Values() []string {
 // SelectedOptions returns the selected SelectedOption(s)
 func (i *SelectMenuInteraction) SelectedOptions() []discord.SelectOption {
 	options := make([]discord.SelectOption, len(i.Values()))
-	for ii, option := range i.SelectMenu().Options {
+	for ii, option := range i.SelectMenu().Component.Options {
 		for _, value := range i.Values() {
 			if value == option.Value {
 				options[ii] = option

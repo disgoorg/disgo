@@ -4,7 +4,7 @@ import "github.com/DisgoOrg/log"
 
 var _ Services = (*ServicesImpl)(nil)
 
-func NewServices(logger log.Logger, httpClient HTTPClient) Services {
+func NewServices(logger log.Logger, httpClient Client) Services {
 	return &ServicesImpl{
 		logger:               logger,
 		httpClient:           httpClient,
@@ -25,7 +25,7 @@ func NewServices(logger log.Logger, httpClient HTTPClient) Services {
 
 type ServicesImpl struct {
 	logger     log.Logger
-	httpClient HTTPClient
+	httpClient Client
 
 	applicationService   ApplicationService
 	auditLogService      AuditLogService
@@ -49,7 +49,7 @@ func (s *ServicesImpl) Logger() log.Logger {
 	return s.logger
 }
 
-func (s *ServicesImpl) HTTPClient() HTTPClient {
+func (s *ServicesImpl) HTTPClient() Client {
 	return s.httpClient
 }
 
@@ -162,7 +162,7 @@ func (r *restClientImpl) Disgo() core.Disgo {
 
  Close cleans up the httpserver managers connections
 func (r *restClientImpl) Close() {
-	r.HTTPClient().CloseIdleConnections()
+	r.Client().CloseIdleConnections()
 }
 
  DoWithHeaders executes a rest request with custom headers

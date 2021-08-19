@@ -17,11 +17,7 @@ type Invite struct {
 
 // URL returns the invite URL in format like https://discord.gg/{code}
 func (i *Invite) URL() string {
-	url, err := route.InviteURL.Compile(nil, i.Code)
-	if err != nil {
-		return ""
-	}
-	return url.Route()
+	return route.InviteURL(i.Code)
 }
 
 func (i *Invite) Delete(ctx context.Context) (*Invite, rest.Error) {
