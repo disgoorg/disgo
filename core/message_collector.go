@@ -1,25 +1,13 @@
-package util
+package core
 
 import (
-	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// NewMessageCollectorFromChannel is an overload of NewMessageCollector that takes an api.MessageChannel for information
-//goland:noinspection GoUnusedExportedFunction
-func NewMessageCollectorFromChannel(channel core.MessageChannel, filter MessageFilter) (chan *core.Message, func()) {
-	var guildID *discord.Snowflake = nil
-	if channel.IsTextChannel() {
-		id := channel.(core.TextChannel).GuildID()
-		guildID = &id
-	}
-	return NewMessageCollector(channel.Disgo(), channel.ID(), guildID, filter)
-}
-
 // NewMessageCollector gives you a channel to receive on and a function to close the collector
-func NewMessageCollector(disgo core.Disgo, channelID discord.Snowflake, guildID *discord.Snowflake, filter MessageFilter) (chan *core.Message, func()) {
-	ch := make(chan *core.Message)
+func NewMessageCollector(disgo Disgo, channelID discord.Snowflake, guildID *discord.Snowflake, filter MessageFilter) (chan *Message, func()) {
+	ch := make(chan *Message)
 
 	col := &MessageCollector{
 		Filter:    filter,
@@ -30,7 +18,7 @@ func NewMessageCollector(disgo core.Disgo, channelID discord.Snowflake, guildID 
 
 	cls := func() {
 		close(ch)
-		disgo.EventManager().RemoveEventListener(col)
+		disgo.EventManager().RemoveEventListeners(col)
 	}
 
 	col.Close = cls
@@ -41,13 +29,13 @@ func NewMessageCollector(disgo core.Disgo, channelID discord.Snowflake, guildID 
 }
 
 // MessageFilter used to filter api.Message(s) in a MessageCollector
-type MessageFilter func(msg *core.Message) bool
+type MessageFilter func(msg *Message) bool
 
 // MessageCollector collects api.Message(s) using a MessageFilter function
 type MessageCollector struct {
-	Filter    MessageFilter
-	Channel   chan *core.Message
-	Close     func()
+	Filter  MessageFilter
+	Channel chan *Message
+	Close   func()
 	ChannelID discord.Snowflake
 	GuildID   *discord.Snowflake
 }

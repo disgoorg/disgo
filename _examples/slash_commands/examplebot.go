@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/DisgoOrg/disgo/core"
-	cutil "github.com/DisgoOrg/disgo/core/util"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/util"
 
@@ -398,7 +397,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 
 	case "repeat":
 		go func() {
-			ch, cls := cutil.NewMessageCollector(event.Disgo(), event.ChannelID, &event.GuildID, func(m *core.Message) bool {
+			ch, cls := event.MessageChannel().CollectMessages(func(m *core.Message) bool {
 				return !m.Author.IsBot && m.ChannelID == event.ChannelID
 			})
 
