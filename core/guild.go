@@ -24,7 +24,7 @@ func (g *Guild) Update(ctx context.Context, updateGuild discord.GuildUpdate) (*G
 }
 
 // Delete deletes the current Guild
-func (g *Guild) Delete(ctx context.Context, ) rest.Error {
+func (g *Guild) Delete(ctx context.Context) rest.Error {
 	return g.Disgo.RestServices().GuildService().DeleteGuild(ctx, g.ID)
 }
 
@@ -67,7 +67,7 @@ func (g *Guild) SelfMember() *Member {
 }
 
 // Leave leaves the Guild
-func (g *Guild) Leave(ctx context.Context, ) rest.Error {
+func (g *Guild) Leave(ctx context.Context) rest.Error {
 	return g.Disgo.RestServices().UserService().LeaveGuild(ctx, g.ID)
 }
 
@@ -164,7 +164,7 @@ func (g *Guild) GetAuditLogs(ctx context.Context, filterOptions AuditLogFilterOp
 }
 
 // GetIntegrations gets all Integration(s) from the Guild. Requires PermissionManageServer
-func (g *Guild) GetIntegrations(ctx context.Context, ) ([]*Integration, rest.Error) {
+func (g *Guild) GetIntegrations(ctx context.Context) ([]*Integration, rest.Error) {
 	guildIntegrations, err := g.Disgo.RestServices().GuildService().GetIntegrations(ctx, g.ID)
 	if err != nil {
 		return nil, err
@@ -191,7 +191,7 @@ func (g *Guild) GetGuildCommand(ctx context.Context, commandID discord.Snowflake
 }
 
 // GetGuildCommands fetches all Guild discord.ApplicationCommand(s)
-func (g *Guild) GetGuildCommands(ctx context.Context, ) ([]*ApplicationCommand, rest.Error) {
+func (g *Guild) GetGuildCommands(ctx context.Context) ([]*ApplicationCommand, rest.Error) {
 	cmds, err := g.Disgo.RestServices().ApplicationService().GetGuildCommands(ctx, g.Disgo.ApplicationID(), g.ID)
 	if err != nil {
 		return nil, err
@@ -240,7 +240,7 @@ func (g *Guild) SetGuildCommands(ctx context.Context, commandCreates ...discord.
 }
 
 // GetGuildCommandsPermissions returns the api.GuildCommandPermissions for a all discord.ApplicationCommand(s) in an api.Guild
-func (g *Guild) GetGuildCommandsPermissions(ctx context.Context, ) ([]*GuildCommandPermissions, rest.Error) {
+func (g *Guild) GetGuildCommandsPermissions(ctx context.Context) ([]*GuildCommandPermissions, rest.Error) {
 	perms, err := g.Disgo.RestServices().ApplicationService().GetGuildCommandsPermissions(ctx, g.Disgo.ApplicationID(), g.ID)
 	if err != nil {
 		return nil, err
@@ -284,7 +284,7 @@ func (g *Guild) SetGuildCommandPermissions(ctx context.Context, commandID discor
 }
 
 // GetTemplates gets a specific GuildTemplate
-func (g *Guild) GetTemplates(ctx context.Context, ) ([]*GuildTemplate, rest.Error) {
+func (g *Guild) GetTemplates(ctx context.Context) ([]*GuildTemplate, rest.Error) {
 	guildTemplates, err := g.Disgo.RestServices().GuildTemplateService().GetGuildTemplates(ctx, g.ID)
 	if err != nil {
 		return nil, err

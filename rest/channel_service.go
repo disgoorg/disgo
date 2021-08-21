@@ -10,7 +10,6 @@ func NewChannelService(client Client) ChannelService {
 	return nil
 }
 
-
 type ChannelService interface {
 	Service
 	GetChannel(ctx context.Context, channelID discord.Snowflake) (*discord.Channel, Error)
@@ -36,4 +35,3 @@ type ChannelService interface {
 	RemoveOwnReaction(ctx context.Context, channelID discord.Snowflake, messageID discord.Snowflake, emoji string) Error
 	RemoveUserReaction(ctx context.Context, channelID discord.Snowflake, messageID discord.Snowflake, emoji string, userID discord.Snowflake) Error
 }
-

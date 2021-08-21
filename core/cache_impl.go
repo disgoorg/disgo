@@ -29,20 +29,20 @@ type CacheImpl struct {
 
 	config CacheConfig
 
-	userCache          UserCache
-	roleCache          RoleCache
-	memberCache        MemberCache
-	voiceStateCache    VoiceStateCache
-	messageCache       MessageCache
-	emojiCache         EmojiCache
-	guildCache         GuildCache
-	channelCache       ChannelCache
-	textChannelCache   TextChannelCache
-	voiceChannelCache  VoiceChannelCache
-	dmChannelCache     DMChannelCache
-	categoryCache      CategoryCache
-	storeChannelCache  StoreChannelCache
-	stageChannelCache  StageChannelCache
+	userCache         UserCache
+	roleCache         RoleCache
+	memberCache       MemberCache
+	voiceStateCache   VoiceStateCache
+	messageCache      MessageCache
+	emojiCache        EmojiCache
+	guildCache        GuildCache
+	channelCache      ChannelCache
+	textChannelCache  TextChannelCache
+	voiceChannelCache VoiceChannelCache
+	dmChannelCache    DMChannelCache
+	categoryCache     CategoryCache
+	storeChannelCache StoreChannelCache
+	stageChannelCache StageChannelCache
 }
 
 // Disgo returns the current api.Disgo instance

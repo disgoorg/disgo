@@ -101,34 +101,34 @@ func (f MessageFlags) Missing(bit MessageFlags) bool {
 
 // Message is a struct for messages sent in discord text-based channels
 type Message struct {
-	ID                Snowflake            `json:"id"`
-	GuildID           *Snowflake           `json:"guild_id"`
-	Reactions         []MessageReaction    `json:"reactions"`
-	Attachments       []Attachment         `json:"attachments"`
-	TTS               bool                 `json:"tts"`
-	Embeds            []Embed     `json:"embeds,omitempty"`
-	Components        []Component `json:"-"`
-	CreatedAt         Time        `json:"timestamp"`
-	Mentions          []interface{}        `json:"mentions"`
-	MentionEveryone   bool                 `json:"mention_everyone"`
-	MentionRoles      []Role               `json:"mention_roles"`
-	MentionChannels   []Channel            `json:"mention_channels"`
-	Pinned            bool                 `json:"pinned"`
-	EditedTimestamp   *Time                `json:"edited_timestamp"`
-	Author            User                 `json:"author"`
-	Member            *Member              `json:"member"`
-	Content           *string              `json:"content,omitempty"`
-	ChannelID         Snowflake            `json:"channel_id"`
-	Type              MessageType          `json:"type"`
-	Flags             MessageFlags         `json:"flags"`
-	MessageReference  *MessageReference    `json:"message_reference,omitempty"`
-	Interaction       *MessageInteraction  `json:"interaction,omitempty"`
-	WebhookID         *Snowflake           `json:"webhook_id,omitempty"`
-	Activity          *MessageActivity     `json:"activity,omitempty"`
-	Application       *MessageApplication  `json:"application,omitempty"`
-	Stickers          []Sticker            `json:"stickers,omitempty"`
-	ReferencedMessage *Message             `json:"referenced_message,omitempty"`
-	LastUpdated       *Time                `json:"last_updated,omitempty"`
+	ID                Snowflake           `json:"id"`
+	GuildID           *Snowflake          `json:"guild_id"`
+	Reactions         []MessageReaction   `json:"reactions"`
+	Attachments       []Attachment        `json:"attachments"`
+	TTS               bool                `json:"tts"`
+	Embeds            []Embed             `json:"embeds,omitempty"`
+	Components        []Component         `json:"-"`
+	CreatedAt         Time                `json:"timestamp"`
+	Mentions          []interface{}       `json:"mentions"`
+	MentionEveryone   bool                `json:"mention_everyone"`
+	MentionRoles      []Role              `json:"mention_roles"`
+	MentionChannels   []Channel           `json:"mention_channels"`
+	Pinned            bool                `json:"pinned"`
+	EditedTimestamp   *Time               `json:"edited_timestamp"`
+	Author            User                `json:"author"`
+	Member            *Member             `json:"member"`
+	Content           *string             `json:"content,omitempty"`
+	ChannelID         Snowflake           `json:"channel_id"`
+	Type              MessageType         `json:"type"`
+	Flags             MessageFlags        `json:"flags"`
+	MessageReference  *MessageReference   `json:"message_reference,omitempty"`
+	Interaction       *MessageInteraction `json:"interaction,omitempty"`
+	WebhookID         *Snowflake          `json:"webhook_id,omitempty"`
+	Activity          *MessageActivity    `json:"activity,omitempty"`
+	Application       *MessageApplication `json:"application,omitempty"`
+	Stickers          []Sticker           `json:"stickers,omitempty"`
+	ReferencedMessage *Message            `json:"referenced_message,omitempty"`
+	LastUpdated       *Time               `json:"last_updated,omitempty"`
 }
 
 // MessageReaction contains information about the reactions of a message_events

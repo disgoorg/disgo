@@ -48,12 +48,12 @@ func (m *Message) Update(ctx context.Context, messageUpdate discord.MessageUpdat
 }
 
 // Delete allows you to edit an existing Message sent by you
-func (m *Message) Delete(ctx context.Context, ) rest.Error {
+func (m *Message) Delete(ctx context.Context) rest.Error {
 	return m.Disgo.RestServices().ChannelsService().DeleteMessage(ctx, m.ChannelID, m.ID)
 }
 
 // Crosspost crossposts an existing message
-func (m *Message) Crosspost(ctx context.Context, ) (*Message, rest.Error) {
+func (m *Message) Crosspost(ctx context.Context) (*Message, rest.Error) {
 	channel := m.Channel()
 	if channel != nil && channel.IsNewsChannel() {
 		return nil, rest.NewError(nil, discord.ErrChannelNotTypeNews)

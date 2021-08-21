@@ -188,7 +188,7 @@ func (d *DisgoImpl) GetCommand(ctx context.Context, commandID discord.Snowflake)
 }
 
 // GetCommands fetches all global discord.ApplicationCommand(s)
-func (d *DisgoImpl) GetCommands(ctx context.Context, ) ([]*ApplicationCommand, rest.Error) {
+func (d *DisgoImpl) GetCommands(ctx context.Context) ([]*ApplicationCommand, rest.Error) {
 	cmds, err := d.RestServices().ApplicationService().GetGlobalCommands(ctx, d.ApplicationID())
 	if err != nil {
 		return nil, err

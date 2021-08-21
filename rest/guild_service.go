@@ -10,7 +10,6 @@ func NewGuildService(client Client) GuildService {
 	return nil
 }
 
-
 type GuildService interface {
 	Service
 	GetGuild(ctx context.Context, guildID discord.Snowflake, withCounts bool) (*discord.Guild, Error)

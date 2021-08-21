@@ -60,7 +60,7 @@ func (i *Interaction) UpdateOriginal(ctx context.Context, messageUpdate discord.
 }
 
 // DeleteOriginal deletes the original InteractionResponse
-func (i *Interaction) DeleteOriginal(ctx context.Context, ) rest.Error {
+func (i *Interaction) DeleteOriginal(ctx context.Context) rest.Error {
 	return i.Disgo.RestServices().InteractionService().DeleteInteractionResponse(ctx, i.Disgo.ApplicationID(), i.Token)
 }
 

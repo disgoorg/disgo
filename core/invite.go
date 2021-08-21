@@ -21,7 +21,7 @@ func (i *Invite) URL() string {
 }
 
 func (i *Invite) Delete(ctx context.Context) (*Invite, rest.Error) {
-	invite, err :=i.Disgo.RestServices().InviteService().DeleteInvite(ctx, i.Code)
+	invite, err := i.Disgo.RestServices().InviteService().DeleteInvite(ctx, i.Code)
 	if err != nil {
 		return nil, err
 	}

@@ -10,7 +10,6 @@ func NewInteractionService(client Client) InteractionService {
 	return nil
 }
 
-
 type InteractionService interface {
 	Service
 	CreateInteractionResponse(ctx context.Context, interactionID discord.Snowflake, interactionToken string, interactionResponse discord.InteractionResponse) Error

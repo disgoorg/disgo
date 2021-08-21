@@ -56,21 +56,21 @@ go get github.com/DisgoOrg/disgo
 
 ```go
 disgo, err := core.NewBuilder("token").
-    // set which gateway intents we should use
-    SetGatewayConfig(gateway.Config{
-            GatewayIntents: gateway.IntentGuilds | gateway.IntentGuildMessages,
-    }).
-    SetHTTPServerConfig(httpserver.Config{
-        URL:       "/interactions/callback",
-        Port:      ":443",
-        PublicKey: "your public key from the developer dashboard",
-    }).
-    // add our event listeners
-    AddEventListeners(&events.ListenerAdapter{
-        OnGuildMessageCreate: guildMessageListener,
-    }).
-    // build the disgo instance. This might return an error!
-    Build()
+// set which gateway intents we should use
+SetGatewayConfig(gateway.Config{
+GatewayIntents: gateway.IntentGuilds | gateway.IntentGuildMessages,
+}).
+SetHTTPServerConfig(httpserver.Config{
+URL:       "/interactions/callback",
+Port:      ":443",
+PublicKey: "your public key from the developer dashboard",
+}).
+// add our event listeners
+AddEventListeners(&events.ListenerAdapter{
+OnGuildMessageCreate: guildMessageListener,
+}).
+// build the disgo instance. This might return an error!
+Build()
 
 // connect to the gateway
 err := disgo.Connect()
@@ -98,15 +98,15 @@ import (
 func main() {
     // create a new builder
     disgo, err := core.NewBuilder("token").
-    	// set which gateway intents we should use
-        SetGatewayConfig(gateway.Config{
+            // set which gateway intents we should use
+            SetGatewayConfig(gateway.Config{
                 GatewayIntents: gateway.IntentGuilds | gateway.IntentGuildMessages,
-        }).
-    	// add our event listeners
-        AddEventListeners(&events.ListenerAdapter{
-            OnGuildMessageCreate: guildMessageListener,
-        }).
-    	// build the disgo instance. This might return an error!
+            }).
+            // add our event listeners
+            AddEventListeners(&events.ListenerAdapter{
+                OnGuildMessageCreate: guildMessageListener,
+            }).
+        // build the disgo instance. This might return an error!
         Build()
     if err != nil {
         log.Fatal("error while building disgo: ", err)
@@ -119,7 +119,7 @@ func main() {
     if err = disgo.Connect(); err != nil {
         log.Fatal("failed to connect to gateway: ", err)
     }
-    
+
     // block until we receive a stop signal
     s := make(chan os.Signal, 1)
     signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
@@ -136,7 +136,7 @@ func guildMessageListener(event *events.GuildMessageCreateEvent) {
 
     // check if message content is "ping"
     if *message.Content == "ping" {
-    	// reply to the message with pong
+        // reply to the message with pong
         if _, err := message.Reply(core.NewMessageCreateBuilder().
             SetContent("pong").
             Build(),

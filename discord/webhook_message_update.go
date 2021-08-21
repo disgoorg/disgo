@@ -17,4 +17,3 @@ func (m WebhookMessageUpdate) ToBody() (interface{}, error) {
 	}
 	return m, nil
 }
-

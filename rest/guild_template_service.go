@@ -10,7 +10,6 @@ func NewGuildTemplateService(client Client) GuildTemplateService {
 	return nil
 }
 
-
 type GuildTemplateService interface {
 	Service
 	GetGuildTemplate(ctx context.Context, templateCode string) (*discord.GuildTemplate, Error)

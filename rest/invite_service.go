@@ -10,7 +10,6 @@ func NewInviteService(client Client) InviteService {
 	return nil
 }
 
-
 type InviteService interface {
 	Service
 	GetInvite(ctx context.Context, code string) (*discord.Invite, Error)

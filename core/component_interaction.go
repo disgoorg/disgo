@@ -13,7 +13,7 @@ type ComponentInteraction struct {
 }
 
 // DeferUpdate replies to the ComponentInteraction with discord.InteractionResponseTypeDeferredUpdateMessage and cancels the loading state
-func (i *ComponentInteraction) DeferUpdate(ctx context.Context, ) error {
+func (i *ComponentInteraction) DeferUpdate(ctx context.Context) error {
 	return i.Respond(ctx, discord.InteractionResponseTypeDeferredUpdateMessage, nil)
 }
 

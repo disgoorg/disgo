@@ -34,7 +34,7 @@ func (e GenericInteractionEvent) UpdateOriginal(ctx context.Context, messageUpda
 }
 
 // DeleteOriginal deletes the original discord.InteractionResponse
-func (e GenericInteractionEvent) DeleteOriginal(ctx context.Context, ) error {
+func (e GenericInteractionEvent) DeleteOriginal(ctx context.Context) error {
 	return e.Interaction.DeleteOriginal(ctx)
 }
 

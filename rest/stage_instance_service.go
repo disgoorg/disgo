@@ -10,7 +10,6 @@ func NewStageInstanceService(client Client) StageInstanceService {
 	return nil
 }
 
-
 type StageInstanceService interface {
 	Service
 	GetStageInstance(ctx context.Context, stageInstanceID discord.Snowflake) (*discord.StageInstance, Error)
@@ -18,4 +17,3 @@ type StageInstanceService interface {
 	UpdateStageInstance(ctx context.Context, stageInstanceID discord.Snowflake, stageInstanceUpdate discord.StageInstanceUpdate) (*discord.StageInstance, Error)
 	DeleteStageInstance(ctx context.Context, stageInstanceID discord.Snowflake) Error
 }
-
