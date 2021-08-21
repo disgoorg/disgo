@@ -25,8 +25,6 @@ type CacheImpl struct {
 
 	config CacheConfig
 
-	globalCommandCache GlobalCommandCache
-	guildCommandCache  GuildCommandCache
 	userCache          UserCache
 	roleCache          RoleCache
 	memberCache        MemberCache
@@ -72,8 +70,6 @@ func (c CacheImpl) startCleanup(cleanupInterval time.Duration) {
 }
 
 func (c *CacheImpl) DoCleanup() {
-	c.globalCommandCache.DoCleanup()
-	c.guildCommandCache.DoCleanup()
 	c.userCache.DoCleanup()
 	c.roleCache.DoCleanup()
 	c.memberCache.DoCleanup()
@@ -247,8 +243,6 @@ func (c *GuildCacheImpl) UncacheGuild(guildID discord.Snowflake) {
 }
 
 /*
-globalCommands     map[discord.Snowflake]*entities.ApplicationCommand
-guildCommands      map[discord.Snowflake]map[discord.Snowflake]*entities.ApplicationCommand
 users              map[discord.Snowflake]*entities.User
 guilds             map[discord.Snowflake]*entities.Guild
 members            map[discord.Snowflake]map[discord.Snowflake]*entities.Member

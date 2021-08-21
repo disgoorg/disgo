@@ -10,8 +10,6 @@ type Cache interface {
 	DoCleanup()
 	CacheFlags() CacheFlags
 
-	GlobalCommandCache() GlobalCommandCache
-	GuildCommandCache() GuildCommandCache
 	UserCache() UserCache
 	RoleCache() RoleCache
 	MemberCache() MemberCache
@@ -39,25 +37,6 @@ type CacheConfig struct {
 type BaseCache interface {
 	Disgo() Disgo
 	DoCleanup()
-}
-
-type GlobalCommandCache interface {
-	BaseCache
-	Get(commandID discord.Snowflake) *ApplicationCommand
-	GetAll() []*ApplicationCommand
-	GetCache() map[discord.Snowflake]*ApplicationCommand
-	Cache(command *ApplicationCommand) *ApplicationCommand
-	Uncache(commandID discord.Snowflake)
-}
-
-type GuildCommandCache interface {
-	BaseCache
-	Get(commandID discord.Snowflake) *ApplicationCommand
-	GetAll(guildID discord.Snowflake) []*ApplicationCommand
-	GetCache(guildID discord.Snowflake) map[discord.Snowflake]*ApplicationCommand
-	GetAllCache() map[discord.Snowflake]*ApplicationCommand
-	Cache(command *ApplicationCommand) *ApplicationCommand
-	Uncache(commandID discord.Snowflake)
 }
 
 type UserCache interface {
