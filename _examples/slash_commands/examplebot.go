@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/core/collectors"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/util"
 
@@ -225,7 +226,7 @@ func buttonClickListener(event *events.ButtonClickEvent) {
 func selectMenuSubmitListener(event *events.SelectMenuSubmitEvent) {
 	switch event.CustomID() {
 	case "test3":
-		if err := event.DeferUpdate(); err != nil {
+		if err := event.DeferUpdate(context.Background()); err != nil {
 			log.Errorf("error sending interaction response: %s", err)
 		}
 		_, _ = event.CreateFollowup(context.Background(), core.NewMessageCreateBuilder().
@@ -247,7 +248,7 @@ func commandListener(event *events.SlashCommandEvent) {
 				AddField("Time", "...", true).
 				AddField("Code", "```go\n"+code+"\n```", false).
 				AddField("Output", "```\n...\n```", false)
-			_ = event.Reply(context.Background(), core.NewMessageCreateBuilder().SetEmbeds(embed.Build()).Build())
+			_ = event.Create(context.Background(), core.NewMessageCreateBuilder().SetEmbeds(embed.Build()).Build())
 
 			start := time.Now()
 			output, err := gval.Evaluate(code, map[string]interface{}{
@@ -289,7 +290,7 @@ func commandListener(event *events.SlashCommandEvent) {
 		}()
 
 	case "say":
-		_ = event.Reply(context.Background(), core.NewMessageCreateBuilder().
+		_ = event.Create(context.Background(), core.NewMessageCreateBuilder().
 			SetContent(event.Option("message").String()).
 			ClearAllowedMentions().
 			Build(),
@@ -297,7 +298,7 @@ func commandListener(event *events.SlashCommandEvent) {
 
 	case "test":
 		reader, _ := os.Open("gopher.png")
-		if err := event.Reply(context.Background(), core.NewMessageCreateBuilder().
+		if err := event.Create(context.Background(), core.NewMessageCreateBuilder().
 			SetContent("test message").
 			AddFile("gopher.png", reader).
 			AddActionRow(
@@ -323,11 +324,11 @@ func commandListener(event *events.SlashCommandEvent) {
 		role := event.Option("role").Role()
 
 		if err := event.Disgo().RestServices().GuildService().AddMemberRole(context.Background(), *event.Interaction.GuildID, user.ID, role.ID); err == nil {
-			_ = event.Reply(context.Background(), core.NewMessageCreateBuilder().AddEmbeds(
+			_ = event.Create(context.Background(), core.NewMessageCreateBuilder().AddEmbeds(
 				core.NewEmbedBuilder().SetColor(green).SetDescriptionf("Added %s to %s", role, user).Build(),
 			).Build())
 		} else {
-			_ = event.Reply(context.Background(), core.NewMessageCreateBuilder().AddEmbeds(
+			_ = event.Create(context.Background(), core.NewMessageCreateBuilder().AddEmbeds(
 				core.NewEmbedBuilder().SetColor(red).SetDescriptionf("Failed to add %s to %s", role, user).Build(),
 			).Build())
 		}
@@ -337,11 +338,11 @@ func commandListener(event *events.SlashCommandEvent) {
 		role := event.Option("role").Role()
 
 		if err := event.Disgo().RestServices().GuildService().RemoveMemberRole(context.Background(), *event.Interaction.GuildID, user.ID, role.ID); err == nil {
-			_ = event.Reply(context.Background(), core.NewMessageCreateBuilder().AddEmbeds(
+			_ = event.Create(context.Background(), core.NewMessageCreateBuilder().AddEmbeds(
 				core.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Removed %s from %s", role, user).Build(),
 			).Build())
 		} else {
-			_ = event.Reply(context.Background(), core.NewMessageCreateBuilder().AddEmbeds(
+			_ = event.Create(context.Background(), core.NewMessageCreateBuilder().AddEmbeds(
 				core.NewEmbedBuilder().SetColor(16711680).SetDescriptionf("Failed to remove %s from %s", role, user).Build(),
 			).Build())
 		}
@@ -397,7 +398,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 
 	case "repeat":
 		go func() {
-			ch, cls := event.MessageChannel().CollectMessages(func(m *core.Message) bool {
+			ch, cls := collectors.NewMessageCollectorByChannel(event.MessageChannel(), func(m *core.Message) bool {
 				return !m.Author.IsBot && m.ChannelID == event.ChannelID
 			})
 

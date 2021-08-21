@@ -35,7 +35,7 @@ type MessageChannel interface {
 	DeleteMessage(ctx context.Context, messageID discord.Snowflake) rest.Error
 	BulkDeleteMessages(ctx context.Context, messageIDs ...discord.Snowflake) rest.Error
 
-	CollectMessages(filter MessageFilter) (chan *Message, func())
+	//CollectMessages(filter collectors.MessageFilter) (chan *Message, func())
 }
 
 // DMChannel is used for interacting in private Message(s) with users
@@ -195,14 +195,14 @@ func (c *channelImpl) BulkDeleteMessages(ctx context.Context, messageIDs ...disc
 	return c.Disgo().RestServices().ChannelsService().BulkDeleteMessages(ctx, c.ID(), messageIDs...)
 }
 
-func (c *channelImpl) CollectMessages(filter MessageFilter) (chan *Message, func()) {
+/* func (c *channelImpl) CollectMessages(filter collectors.MessageFilter) (chan *Message, func()) {
 	var guildID *discord.Snowflake = nil
 	if c.IsTextChannel() {
 		id := c.GuildID()
 		guildID = &id
 	}
-	return NewMessageCollector(c.Disgo(), c.ID(), guildID, filter)
-}
+	return collectors.NewMessageCollector(c.Disgo(), c.ID(), guildID, filter)
+}*/
 
 var _ DMChannel = (*channelImpl)(nil)
 

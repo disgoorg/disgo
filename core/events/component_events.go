@@ -1,6 +1,8 @@
 package events
 
 import (
+	"context"
+
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 )
@@ -12,13 +14,13 @@ type GenericComponentEvent struct {
 }
 
 // DeferUpdate replies to the api.ButtonInteraction with api.InteractionResponseTypeDeferredUpdateMessage and cancels the loading state
-func (e *GenericComponentEvent) DeferUpdate() error {
-	return e.ComponentInteraction.DeferUpdate()
+func (e *GenericComponentEvent) DeferUpdate(ctx context.Context) error {
+	return e.ComponentInteraction.DeferUpdate(ctx)
 }
 
 // Update replies to the api.ButtonInteraction with api.InteractionResponseTypeUpdateMessage & api.MessageUpdate which edits the original api.Message
-func (e *GenericComponentEvent) Update(messageUpdate discord.MessageUpdate) error {
-	return e.ComponentInteraction.Update(messageUpdate)
+func (e *GenericComponentEvent) Update(ctx context.Context, messageUpdate discord.MessageUpdate) error {
+	return e.ComponentInteraction.Update(ctx, messageUpdate)
 }
 
 // CustomID returns the customID from the called api.Component

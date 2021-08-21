@@ -36,8 +36,8 @@ func (i *Interaction) Respond(ctx context.Context, responseType discord.Interact
 	return i.Disgo.RestServices().InteractionService().CreateInteractionResponse(ctx, i.ID, i.Token, response)
 }
 
-// DeferReply replies to the Interaction with InteractionResponseTypeDeferredChannelMessageWithSource and shows a loading state
-func (i *Interaction) DeferReply(ctx context.Context, ephemeral bool) rest.Error {
+// DeferCreate replies to the Interaction with discord.InteractionResponseTypeDeferredChannelMessageWithSource and shows a loading state
+func (i *Interaction) DeferCreate(ctx context.Context, ephemeral bool) rest.Error {
 	var messageCreate interface{}
 	if ephemeral {
 		messageCreate = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
@@ -45,8 +45,8 @@ func (i *Interaction) DeferReply(ctx context.Context, ephemeral bool) rest.Error
 	return i.Respond(ctx, discord.InteractionResponseTypeDeferredChannelMessageWithSource, messageCreate)
 }
 
-// Reply replies to the Interaction with InteractionResponseTypeDeferredChannelMessageWithSource & MessageCreate
-func (i *Interaction) Reply(ctx context.Context, messageCreate discord.MessageCreate) rest.Error {
+// Create replies to the Interaction with discord.InteractionResponseTypeChannelMessageWithSource & discord.MessageCreate
+func (i *Interaction) Create(ctx context.Context, messageCreate discord.MessageCreate) rest.Error {
 	return i.Respond(ctx, discord.InteractionResponseTypeChannelMessageWithSource, messageCreate)
 }
 

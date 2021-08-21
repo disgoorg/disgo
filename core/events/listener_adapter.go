@@ -14,11 +14,6 @@ type ListenerAdapter struct {
 	OnRawGateway  func(event *RawEvent)
 	OnReadyEvent  func(event *ReadyEvent)
 
-	// api.Command Events
-	OnApplicationCommandCreate func(event *ApplicationCommandCreateEvent)
-	OnApplicationCommandUpdate func(event *ApplicationCommandUpdateEvent)
-	OnApplicationCommandDelete func(event *ApplicationCommandDeleteEvent)
-
 	// api.GuildChannel Events
 	OnGuildChannelCreate func(event *GuildChannelCreateEvent)
 	OnGuildChannelUpdate func(event *GuildChannelUpdateEvent)
@@ -156,20 +151,6 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 	case *ReadyEvent:
 		if listener := l.OnReadyEvent; listener != nil {
-			listener(e)
-		}
-
-	// api.ApplicationCommand Events
-	case *ApplicationCommandCreateEvent:
-		if listener := l.OnApplicationCommandCreate; listener != nil {
-			listener(e)
-		}
-	case *ApplicationCommandUpdateEvent:
-		if listener := l.OnApplicationCommandUpdate; listener != nil {
-			listener(e)
-		}
-	case *ApplicationCommandDeleteEvent:
-		if listener := l.OnApplicationCommandDelete; listener != nil {
 			listener(e)
 		}
 
