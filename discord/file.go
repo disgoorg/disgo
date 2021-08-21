@@ -9,6 +9,10 @@ import (
 	"net/textproto"
 )
 
+type Payload interface {
+	ToBody() (interface{}, error)
+}
+
 // MultipartBuffer holds the Body & ContentType of the multipart body
 type MultipartBuffer struct {
 	Buffer      *bytes.Buffer

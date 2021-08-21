@@ -15,19 +15,13 @@ type Message struct {
 }
 
 // Update allows you to edit an existing Message sent by you
-func (m *Message) Update(ctx context.Context, messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
+func (m *Message) Update(ctx context.Context, messageUpdate discord.WebhookMessageUpdate) (*Message, rest.Error) {
 	return m.WebhookClient.UpdateMessage(ctx, m.ID, messageUpdate)
 }
 
 // Delete allows you to edit an existing Message sent by you
 func (m *Message) Delete(ctx context.Context) rest.Error {
 	return m.WebhookClient.DeleteMessage(ctx, m.ID)
-}
-
-// Reply allows you to reply to an existing Message
-func (m *Message) Reply(ctx context.Context, messageCreate discord.MessageCreate) (*Message, rest.Error) {
-	messageCreate.MessageReference = &discord.MessageReference{MessageID: &m.ID}
-	return m.WebhookClient.CreateMessage(ctx, messageCreate)
 }
 
 // ActionRows returns all ActionRow(s) from this Message

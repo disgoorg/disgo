@@ -17,14 +17,14 @@ import (
 	"github.com/DisgoOrg/log"
 )
 
-// Client allows doing requests to different endpoints
-type Client interface {
-	Close()
-	Logger() log.Logger
-	HTTPClient() *http.Client
-	RateLimiter() rate.RateLimiter
-	Config() Config
-	Do(ctx context.Context, route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) Error
+var DefaultConfig = Config{
+	Headers:   nil,
+	UserAgent: fmt.Sprintf("DiscordBot (%s, %s)", util.GitHub, util.Version),
+}
+
+type Config struct {
+	Headers   http.Header
+	UserAgent string
 }
 
 // NewClient constructs a new Client with the given http.Client, log.Logger & useragent
@@ -42,7 +42,7 @@ func NewClient(logger log.Logger, httpClient *http.Client, rateLimiter rate.Rate
 	if config == nil {
 		config = &DefaultConfig
 	}
-	return &HTTPClientImpl{
+	return &ClientImpl{
 		logger:      logger,
 		httpClient:  httpClient,
 		rateLimiter: rateLimiter,
@@ -50,44 +50,44 @@ func NewClient(logger log.Logger, httpClient *http.Client, rateLimiter rate.Rate
 	}
 }
 
-var DefaultConfig = Config{
-	Headers:   nil,
-	UserAgent: fmt.Sprintf("DiscordBot (%s, %s)", util.GitHub, util.Version),
+// Client allows doing requests to different endpoints
+type Client interface {
+	Close()
+	Logger() log.Logger
+	HTTPClient() *http.Client
+	RateLimiter() rate.RateLimiter
+	Config() Config
+	Do(ctx context.Context, route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) Error
 }
 
-type Config struct {
-	Headers   http.Header
-	UserAgent string
-}
-
-type HTTPClientImpl struct {
+type ClientImpl struct {
 	logger      log.Logger
 	config      Config
 	httpClient  *http.Client
 	rateLimiter rate.RateLimiter
 }
 
-func (c *HTTPClientImpl) Close() {
+func (c *ClientImpl) Close() {
 	c.httpClient.CloseIdleConnections()
 }
 
-func (c *HTTPClientImpl) Logger() log.Logger {
+func (c *ClientImpl) Logger() log.Logger {
 	return c.logger
 }
 
-func (c *HTTPClientImpl) HTTPClient() *http.Client {
+func (c *ClientImpl) HTTPClient() *http.Client {
 	return c.httpClient
 }
 
-func (c *HTTPClientImpl) RateLimiter() rate.RateLimiter {
+func (c *ClientImpl) RateLimiter() rate.RateLimiter {
 	return c.rateLimiter
 }
 
-func (c *HTTPClientImpl) Config() Config {
+func (c *ClientImpl) Config() Config {
 	return c.config
 }
 
-func (c *HTTPClientImpl) retry(ctx context.Context, cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, tries int) Error {
+func (c *ClientImpl) retry(ctx context.Context, cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, tries int) Error {
 	// wait for rate limits
 	err := c.rateLimiter.WaitBucket(ctx, cRoute)
 	if err != nil {
@@ -187,6 +187,6 @@ func (c *HTTPClientImpl) retry(ctx context.Context, cRoute *route.CompiledAPIRou
 	}
 }
 
-func (c *HTTPClientImpl) Do(ctx context.Context, cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) Error {
+func (c *ClientImpl) Do(ctx context.Context, cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) Error {
 	return c.retry(ctx, cRoute, rqBody, rsBody, 1)
 }

@@ -41,7 +41,7 @@ type BaseCache interface {
 
 type UserCache interface {
 	BaseCache
-	Get(discord.Snowflake) *User
+	Get(userID discord.Snowflake) *User
 	GetFirstByTag(string) *User
 	GetAllByName(string, bool) []*User
 	All() []*User
@@ -217,8 +217,8 @@ type StageInstanceCache interface {
 	GetByName(guildID discord.Snowflake, name string, ignoreCase bool) *StageInstance
 	GetAll() []StageInstance
 	GetCache() map[discord.Snowflake]map[discord.Snowflake]StageInstance
-	Cache(StageInstance) StageInstance
+	Cache(*StageInstance) *StageInstance
 	Uncache(discord.Snowflake, discord.Snowflake)
-	FindFirst(discord.Snowflake, func(StageInstance) bool) StageInstance
+	FindFirst(discord.Snowflake, func(StageInstance) bool) *StageInstance
 	FindAll(discord.Snowflake, func(StageInstance) bool) []StageInstance
 }

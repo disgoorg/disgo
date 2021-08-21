@@ -1,23 +1,24 @@
-package core
+package webhook
 
 import (
 	"fmt"
 	"io"
 
+	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
 // MessageCreateBuilder helper to build Message(s) easier
 type MessageCreateBuilder struct {
-	discord.MessageCreate
-	Components []Component
+	discord.WebhookMessageCreate
+	Components []core.Component
 }
 
 // NewMessageCreateBuilder creates a new MessageCreateBuilder to be built later
 //goland:noinspection GoUnusedExportedFunction
 func NewMessageCreateBuilder() *MessageCreateBuilder {
 	return &MessageCreateBuilder{
-		MessageCreate: discord.MessageCreate{
+		WebhookMessageCreate: discord.WebhookMessageCreate{
 			AllowedMentions: &DefaultAllowedMentions,
 		},
 	}
@@ -32,6 +33,16 @@ func (b *MessageCreateBuilder) SetContent(content string) *MessageCreateBuilder 
 // SetContentf sets content of the Message
 func (b *MessageCreateBuilder) SetContentf(content string, a ...interface{}) *MessageCreateBuilder {
 	return b.SetContent(fmt.Sprintf(content, a...))
+}
+
+func (b *MessageCreateBuilder) SetUsername(username string) *MessageCreateBuilder {
+	b.Username = username
+	return b
+}
+
+func (b *MessageCreateBuilder) SetAvatarURL(url string) *MessageCreateBuilder {
+	b.AvatarURL = url
+	return b
 }
 
 // SetTTS sets the text to speech of the Message
@@ -75,13 +86,13 @@ func (b *MessageCreateBuilder) RemoveEmbed(i int) *MessageCreateBuilder {
 }
 
 // SetActionRows sets the ActionRow(s) of the Message
-func (b *MessageCreateBuilder) SetActionRows(actionRows ...ActionRow) *MessageCreateBuilder {
+func (b *MessageCreateBuilder) SetActionRows(actionRows ...core.ActionRow) *MessageCreateBuilder {
 	b.Components = actionRowsToComponents(actionRows)
 	return b
 }
 
 // SetActionRow sets the provided ActionRow at the index of Component(s)
-func (b *MessageCreateBuilder) SetActionRow(i int, actionRow ActionRow) *MessageCreateBuilder {
+func (b *MessageCreateBuilder) SetActionRow(i int, actionRow core.ActionRow) *MessageCreateBuilder {
 	if len(b.Components) > i {
 		b.Components[i] = actionRow
 	}
@@ -89,13 +100,13 @@ func (b *MessageCreateBuilder) SetActionRow(i int, actionRow ActionRow) *Message
 }
 
 // AddActionRow adds a new ActionRow with the provided Component(s) to the Message
-func (b *MessageCreateBuilder) AddActionRow(components ...Component) *MessageCreateBuilder {
-	b.Components = append(b.Components, NewActionRow(components...))
+func (b *MessageCreateBuilder) AddActionRow(components ...core.Component) *MessageCreateBuilder {
+	b.Components = append(b.Components, core.NewActionRow(components...))
 	return b
 }
 
 // AddActionRows adds the ActionRow(s) to the Message
-func (b *MessageCreateBuilder) AddActionRows(actionRows ...ActionRow) *MessageCreateBuilder {
+func (b *MessageCreateBuilder) AddActionRows(actionRows ...core.ActionRow) *MessageCreateBuilder {
 	b.Components = append(b.Components, actionRowsToComponents(actionRows)...)
 	return b
 }
@@ -110,7 +121,7 @@ func (b *MessageCreateBuilder) RemoveActionRow(i int) *MessageCreateBuilder {
 
 // ClearActionRows removes all the ActionRow(s) of the Message
 func (b *MessageCreateBuilder) ClearActionRows() *MessageCreateBuilder {
-	b.Components = []Component{}
+	b.Components = []core.Component{}
 	return b
 }
 
@@ -169,62 +180,14 @@ func (b *MessageCreateBuilder) ClearAllowedMentions() *MessageCreateBuilder {
 	return b.SetAllowedMentions(nil)
 }
 
-// SetMessageReference allows you to specify a MessageReference to reply to
-func (b *MessageCreateBuilder) SetMessageReference(messageReference *discord.MessageReference) *MessageCreateBuilder {
-	b.MessageReference = messageReference
-	return b
-}
-
-// SetMessageReferenceByID allows you to specify a Message ID to reply to
-func (b *MessageCreateBuilder) SetMessageReferenceByID(messageID discord.Snowflake) *MessageCreateBuilder {
-	if b.MessageReference == nil {
-		b.MessageReference = &discord.MessageReference{}
-	}
-	b.MessageReference.MessageID = &messageID
-	return b
-}
-
-// SetFlags sets the message flags of the Message
-func (b *MessageCreateBuilder) SetFlags(flags discord.MessageFlags) *MessageCreateBuilder {
-	b.Flags = flags
-	return b
-}
-
-// AddFlags adds the MessageFlags of the Message
-func (b *MessageCreateBuilder) AddFlags(flags ...discord.MessageFlags) *MessageCreateBuilder {
-	b.Flags = b.Flags.Add(flags...)
-	return b
-}
-
-// RemoveFlags removes the MessageFlags of the Message
-func (b *MessageCreateBuilder) RemoveFlags(flags ...discord.MessageFlags) *MessageCreateBuilder {
-	b.Flags = b.Flags.Remove(flags...)
-	return b
-}
-
-// ClearFlags clears the MessageFlags of the Message
-func (b *MessageCreateBuilder) ClearFlags() *MessageCreateBuilder {
-	return b.SetFlags(discord.MessageFlagNone)
-}
-
-// SetEphemeral adds/removes MessageFlagEphemeral to the Message flags
-func (b *MessageCreateBuilder) SetEphemeral(ephemeral bool) *MessageCreateBuilder {
-	if ephemeral {
-		b.Flags = b.Flags.Add(discord.MessageFlagEphemeral)
-	} else {
-		b.Flags = b.Flags.Remove(discord.MessageFlagEphemeral)
-	}
-	return b
-}
-
 // Build builds the MessageCreateBuilder to a MessageCreate struct
-func (b *MessageCreateBuilder) Build() discord.MessageCreate {
-	b.MessageCreate.Components = b.Components
-	return b.MessageCreate
+func (b *MessageCreateBuilder) Build() discord.WebhookMessageCreate {
+	b.WebhookMessageCreate.Components = b.Components
+	return b.WebhookMessageCreate
 }
 
-func actionRowsToComponents(actionRows []ActionRow) []Component {
-	components := make([]Component, len(actionRows))
+func actionRowsToComponents(actionRows []core.ActionRow) []core.Component {
+	components := make([]core.Component, len(actionRows))
 	for i := range actionRows {
 		components[i] = components[i]
 	}

@@ -9,6 +9,10 @@ import (
 )
 
 func NewCache(disgo Disgo, config CacheConfig) Cache {
+	return nil
+}
+
+/*func NewCache(disgo Disgo, config CacheConfig) Cache {
 	cache := &CacheImpl{
 		disgo:  disgo,
 		quit:   make(chan struct{}),
@@ -16,7 +20,7 @@ func NewCache(disgo Disgo, config CacheConfig) Cache {
 	}
 	go cache.startCleanup(10 * time.Second)
 	return cache
-}
+}*/
 
 // CacheImpl is used for api.Disgo's api.Cache
 type CacheImpl struct {
@@ -178,7 +182,7 @@ func (c *MessageCacheImpl) Uncache(channelID discord.Snowflake, messageID discor
 	delete(c.messages[channelID], messageID)
 }
 
-var _ GuildCache = (*GuildCacheImpl)(nil)
+//var _ GuildCache = (*GuildCacheImpl)(nil)
 
 type GuildCacheImpl struct {
 	BaseCacheImpl

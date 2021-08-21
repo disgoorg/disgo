@@ -85,12 +85,12 @@ type UserCommandEvent struct {
 	UserCommandInteraction *core.UserCommandInteraction
 }
 
-func (i *UserCommandEvent) User() *core.User {
-	return i.UserCommandInteraction.User()
+func (i *UserCommandEvent) TargetUser() *core.User {
+	return i.UserCommandInteraction.TargetUser()
 }
 
-func (i *UserCommandEvent) Member() *core.Member {
-	return i.UserCommandInteraction.Member()
+func (i *UserCommandEvent) TargetMember() *core.Member {
+	return i.UserCommandInteraction.TargetMember()
 }
 
 type MessageCommandEvent struct {
@@ -98,6 +98,6 @@ type MessageCommandEvent struct {
 	MessageCommandInteraction *core.MessageCommandInteraction
 }
 
-func (i *MessageCommandEvent) Message() *core.Message {
-	return i.MessageCommandInteraction.Message()
+func (i *MessageCommandEvent) TargetMessage() *core.Message {
+	return i.MessageCommandInteraction.TargetMessage()
 }

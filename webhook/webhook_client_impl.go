@@ -16,7 +16,6 @@ func New(client *http.Client, restClient rest.Client, logger log.Logger, id disc
 		client = http.DefaultClient
 	}
 	if restClient == nil {
-		// TODO: user agent
 		config := &rest.DefaultConfig
 		config.Headers = http.Header{"authorization": []string{}}
 		restClient = rest.NewClient(logger, client, nil, config)
@@ -86,7 +85,7 @@ func (h *webhookClientImpl) DeleteWebhook(ctx context.Context) rest.Error {
 	return h.WebhookService().DeleteWebhookWithToken(ctx, h.id, h.token)
 }
 
-func (h *webhookClientImpl) CreateMessageInThread(ctx context.Context, messageCreate discord.MessageCreate, threadID discord.Snowflake) (*Message, rest.Error) {
+func (h *webhookClientImpl) CreateMessageInThread(ctx context.Context, messageCreate discord.WebhookMessageCreate, threadID discord.Snowflake) (*Message, rest.Error) {
 	message, err := h.WebhookService().CreateMessage(ctx, h.id, h.token, messageCreate, true, threadID)
 	if err != nil {
 		return nil, err
@@ -94,19 +93,19 @@ func (h *webhookClientImpl) CreateMessageInThread(ctx context.Context, messageCr
 	return h.EntityBuilder().CreateMessage(*message), nil
 }
 
-func (h *webhookClientImpl) CreateMessage(ctx context.Context, messageCreate discord.MessageCreate) (*Message, rest.Error) {
+func (h *webhookClientImpl) CreateMessage(ctx context.Context, messageCreate discord.WebhookMessageCreate) (*Message, rest.Error) {
 	return h.CreateMessageInThread(ctx, messageCreate, "")
 }
 
 func (h *webhookClientImpl) CreateContent(ctx context.Context, content string) (*Message, rest.Error) {
-	return h.CreateMessage(ctx, discord.MessageCreate{Content: content})
+	return h.CreateMessage(ctx, discord.WebhookMessageCreate{Content: content})
 }
 
 func (h *webhookClientImpl) CreateEmbeds(ctx context.Context, embeds ...discord.Embed) (*Message, rest.Error) {
-	return h.CreateMessage(ctx, discord.MessageCreate{Embeds: embeds})
+	return h.CreateMessage(ctx, discord.WebhookMessageCreate{Embeds: embeds})
 }
 
-func (h *webhookClientImpl) UpdateMessage(ctx context.Context, messageID discord.Snowflake, messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
+func (h *webhookClientImpl) UpdateMessage(ctx context.Context, messageID discord.Snowflake, messageUpdate discord.WebhookMessageUpdate) (*Message, rest.Error) {
 	message, err := h.WebhookService().UpdateMessage(ctx, h.id, h.token, messageID, messageUpdate)
 	if err != nil {
 		return nil, err
@@ -115,11 +114,11 @@ func (h *webhookClientImpl) UpdateMessage(ctx context.Context, messageID discord
 }
 
 func (h *webhookClientImpl) UpdateContent(ctx context.Context, messageID discord.Snowflake, content string) (*Message, rest.Error) {
-	return h.UpdateMessage(ctx, messageID, discord.MessageUpdate{Content: &content})
+	return h.UpdateMessage(ctx, messageID, discord.WebhookMessageUpdate{Content: &content})
 }
 
 func (h *webhookClientImpl) UpdateEmbeds(ctx context.Context, messageID discord.Snowflake, embeds ...discord.Embed) (*Message, rest.Error) {
-	return h.UpdateMessage(ctx, messageID, discord.MessageUpdate{Embeds: embeds})
+	return h.UpdateMessage(ctx, messageID, discord.WebhookMessageUpdate{Embeds: embeds})
 }
 
 func (h *webhookClientImpl) DeleteMessage(ctx context.Context, messageID discord.Snowflake) rest.Error {

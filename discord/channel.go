@@ -16,7 +16,6 @@ const (
 	ChannelTypeStage
 )
 
-
 // VideoQualityMode https://discord.com/developers/docs/resources/channel#channel-object-video-quality-modes
 type VideoQualityMode int
 
@@ -60,6 +59,10 @@ type ChannelCreate struct {
 	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID             Snowflake             `json:"parent_id,omitempty"`
 	NSFW                 bool                  `json:"nsfw,omitempty"`
+}
+
+type DMChannelCreate struct {
+	RecipientID Snowflake `json:"recipient_id"`
 }
 
 type ChannelUpdate struct {

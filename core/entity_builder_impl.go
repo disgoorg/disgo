@@ -354,18 +354,10 @@ func (b *EntityBuilderImpl) CreateVoiceState(guildID discord.Snowflake, voiceSta
 
 // CreateCommand returns a new discord.ApplicationCommand entity
 func (b *EntityBuilderImpl) CreateCommand(command discord.ApplicationCommand, updateCache CacheStrategy) *ApplicationCommand {
-	coreCommand := &ApplicationCommand{
+	return &ApplicationCommand{
 		ApplicationCommand: command,
 		Disgo:              b.disgo,
 	}
-	if updateCache(b.Disgo()) {
-		if command.GuildID == nil {
-			return b.Disgo().Cache().GlobalCommandCache().Cache(coreCommand)
-		} else {
-			return b.Disgo().Cache().GuildCommandCache().Cache(coreCommand)
-		}
-	}
-	return coreCommand
 }
 
 // CreateCommandPermissions returns a new discord.GuildCommandPermissions entity
