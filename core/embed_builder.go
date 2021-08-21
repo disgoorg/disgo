@@ -66,7 +66,7 @@ func (b *EmbedBuilder) SetAuthorName(name string) *EmbedBuilder {
 	return b
 }
 
-// SetAuthorURL sets the author of the EmbedBuilder with an URL
+// SetAuthorURL sets the author of the EmbedBuilder with a URL
 func (b *EmbedBuilder) SetAuthorURL(url string) *EmbedBuilder {
 	if b.Author == nil {
 		b.Author = &discord.EmbedAuthor{}

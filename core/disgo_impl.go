@@ -294,7 +294,7 @@ func (d *DisgoImpl) SetGuildCommands(ctx context.Context, guildID discord.Snowfl
 	return commands, nil
 }
 
-// GetGuildCommandsPermissions returns the api.GuildCommandPermissions for a all discord.ApplicationCommand(s) in an api.Guild
+// GetGuildCommandsPermissions returns the api.GuildCommandPermissions for an all discord.ApplicationCommand(s) in an api.Guild
 func (d *DisgoImpl) GetGuildCommandsPermissions(ctx context.Context, guildID discord.Snowflake) ([]*GuildCommandPermissions, rest.Error) {
 	perms, err := d.RestServices().ApplicationService().GetGuildCommandsPermissions(ctx, d.ApplicationID(), guildID)
 	if err != nil {

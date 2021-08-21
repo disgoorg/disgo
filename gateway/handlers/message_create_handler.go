@@ -10,7 +10,7 @@ import (
 // MessageCreateHandler handles api.GatewayEventMessageCreate
 type MessageCreateHandler struct{}
 
-// Event returns the api.GatewayEventType
+// EventType returns the api.GatewayEventType
 func (h *MessageCreateHandler) EventType() gateway.EventType {
 	return gateway.EventTypeMessageCreate
 }

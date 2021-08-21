@@ -10,7 +10,7 @@ import (
 // ChannelCreateHandler handles api.GatewayEventChannelCreate
 type ChannelCreateHandler struct{}
 
-// Event returns the api.GatewayEventType
+// EventType returns the api.GatewayEventType
 func (h *ChannelCreateHandler) EventType() gateway.EventType {
 	return gateway.EventTypeChannelCreate
 }
@@ -49,7 +49,7 @@ func (h *ChannelCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager
 		eventManager.Dispatch(&events.DMChannelCreateEvent{
 			GenericDMChannelEvent: &events.GenericDMChannelEvent{
 				GenericChannelEvent: genericChannelEvent,
-				DMChannel:           disgo.EntityBuilder().CreateDMChannel(channel, core.CacheStrategyYes),
+				DMChannel:           disgo.EntityBuilder().CreateChannel(channel, core.CacheStrategyYes).(core.DMChannel),
 			},
 		})
 
@@ -60,7 +60,7 @@ func (h *ChannelCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager
 		eventManager.Dispatch(&events.TextChannelCreateEvent{
 			GenericTextChannelEvent: &events.GenericTextChannelEvent{
 				GenericGuildChannelEvent: genericGuildChannelEvent,
-				TextChannel:              disgo.EntityBuilder().CreateTextChannel(channel, core.CacheStrategyYes),
+				TextChannel:              disgo.EntityBuilder().CreateChannel(channel, core.CacheStrategyYes).(core.TextChannel),
 			},
 		})
 
@@ -68,7 +68,7 @@ func (h *ChannelCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager
 		eventManager.Dispatch(&events.StoreChannelCreateEvent{
 			GenericStoreChannelEvent: &events.GenericStoreChannelEvent{
 				GenericGuildChannelEvent: genericGuildChannelEvent,
-				StoreChannel:             disgo.EntityBuilder().CreateStoreChannel(channel, core.CacheStrategyYes),
+				StoreChannel:             disgo.EntityBuilder().CreateChannel(channel, core.CacheStrategyYes).(core.StageChannel),
 			},
 		})
 
@@ -76,7 +76,7 @@ func (h *ChannelCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager
 		eventManager.Dispatch(&events.CategoryCreateEvent{
 			GenericCategoryEvent: &events.GenericCategoryEvent{
 				GenericGuildChannelEvent: genericGuildChannelEvent,
-				Category:                 disgo.EntityBuilder().CreateCategory(channel, core.CacheStrategyYes),
+				Category:                 disgo.EntityBuilder().CreateChannel(channel, core.CacheStrategyYes).(core.Category),
 			},
 		})
 
@@ -84,7 +84,7 @@ func (h *ChannelCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager
 		eventManager.Dispatch(&events.VoiceChannelCreateEvent{
 			GenericVoiceChannelEvent: &events.GenericVoiceChannelEvent{
 				GenericGuildChannelEvent: genericGuildChannelEvent,
-				VoiceChannel:             disgo.EntityBuilder().CreateVoiceChannel(channel, core.CacheStrategyYes),
+				VoiceChannel:             disgo.EntityBuilder().CreateChannel(channel, core.CacheStrategyYes).(core.VoiceChannel),
 			},
 		})
 

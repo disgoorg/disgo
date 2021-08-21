@@ -9,7 +9,7 @@ import (
 // VoiceServerUpdateHandler handles api.GatewayEventVoiceServerUpdate
 type VoiceServerUpdateHandler struct{}
 
-// Event returns the api.GatewayEventType
+// EventType returns the api.GatewayEventType
 func (h *VoiceServerUpdateHandler) EventType() gateway.EventType {
 	return gateway.EventTypeVoiceServerUpdate
 }

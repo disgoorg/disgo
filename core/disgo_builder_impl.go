@@ -65,7 +65,7 @@ func (b *DisgoBuilderImpl) SetHTTPClient(httpClient *http.Client) DisgoBuilder {
 	return b
 }
 
-// SetRestClient sets the rest.Client rest.Services uses
+// SetRestClient sets the rest.Client rest.Service uses
 func (b *DisgoBuilderImpl) SetRestClient(restClient rest.Client) DisgoBuilder {
 	b.restClient = restClient
 	return b

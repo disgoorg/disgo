@@ -10,7 +10,7 @@ import (
 // MessageUpdateHandler handles api.GatewayEventMessageUpdate
 type MessageUpdateHandler struct{}
 
-// Event returns the api.GatewayEventType
+// EventType returns the api.GatewayEventType
 func (h *MessageUpdateHandler) EventType() gateway.EventType {
 	return gateway.EventTypeMessageUpdate
 }

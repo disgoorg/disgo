@@ -10,28 +10,28 @@ import (
 // ChannelDeleteHandler handles api.GatewayEventChannelDelete
 type ChannelDeleteHandler struct{}
 
-// Event returns the api.GatewayEventType
+// EventType returns the api.GatewayEventType
 func (h *ChannelDeleteHandler) EventType() gateway.EventType {
 	return gateway.EventTypeChannelDelete
 }
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *ChannelDeleteHandler) New() interface{} {
-	return &discord.Channel{}
+	return discord.Channel{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *ChannelDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	channel, ok := i.(*discord.Channel)
+	deletedChannel, ok := i.(discord.Channel)
 	if !ok {
 		return
 	}
 
-	channel.Disgo = disgo
+	channel := disgo.EntityBuilder().CreateChannel(deletedChannel, core.CacheStrategyNo)
 
 	genericChannelEvent := &events.GenericChannelEvent{
 		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
-		ChannelID:    channel.ID,
+		ChannelID:    channel.ID(),
 		Channel:      channel,
 	}
 

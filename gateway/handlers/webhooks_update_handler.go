@@ -15,7 +15,7 @@ type webhooksUpdateData struct {
 // WebhooksUpdateHandler handles api.GatewayEventWebhooksUpdate
 type WebhooksUpdateHandler struct{}
 
-// Event returns the raw api.GatewayEventType
+// EventType returns the raw api.GatewayEventType
 func (h *WebhooksUpdateHandler) EventType() gateway.EventType {
 	return gateway.EventTypeWebhooksUpdate
 }

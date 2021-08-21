@@ -10,7 +10,7 @@ import (
 // GuildDeleteHandler handles api.GuildDeleteGatewayEvent
 type GuildDeleteHandler struct{}
 
-// Event returns the api.GatewayEventType
+// EventType returns the api.GatewayEventType
 func (h *GuildDeleteHandler) EventType() gateway.EventType {
 	return gateway.EventTypeGuildDelete
 }
