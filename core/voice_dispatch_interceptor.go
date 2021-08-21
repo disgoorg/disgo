@@ -15,7 +15,7 @@ func (u *VoiceServerUpdateEvent) Guild() *Guild {
 
 // VoiceStateUpdateEvent sent when someone joins/leaves/moves voice channels
 type VoiceStateUpdateEvent struct {
-	VoiceState
+	*VoiceState
 }
 
 // Guild returns the Guild for this VoiceStateUpdate from the Cache

@@ -25,8 +25,8 @@ func NewRateLimiter(logger log.Logger, config *Config) RateLimiter {
 	return &RateLimiterImpl{
 		logger:  logger,
 		config:  *config,
-		Hashes:  map[*route.APIRoute]routeHash{},
-		Buckets: map[hashMajor]*bucket{},
+		hashes:  map[*route.APIRoute]routeHash{},
+		buckets: map[hashMajor]*bucket{},
 	}
 }
 
@@ -41,13 +41,13 @@ type (
 		logger log.Logger
 		config Config
 
-		// Global Rate Limit
-		Global int64
+		// global Rate Limit
+		global int64
 
 		// route.APIRoute -> Hash
-		Hashes map[*route.APIRoute]routeHash
+		hashes map[*route.APIRoute]routeHash
 		// Hash + Major Parameter -> bucket
-		Buckets map[hashMajor]*bucket
+		buckets map[hashMajor]*bucket
 	}
 )
 
@@ -60,11 +60,11 @@ func (r *RateLimiterImpl) Config() Config {
 }
 
 func (r *RateLimiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor {
-	hash, ok := r.Hashes[route.APIRoute]
+	hash, ok := r.hashes[route.APIRoute]
 	if !ok {
 		// generate routeHash
 		hash = routeHash(route.Method().String() + "+" + route.Path())
-		r.Hashes[route.APIRoute] = hash
+		r.hashes[route.APIRoute] = hash
 	}
 	// return hashMajor
 	return hashMajor(string(hash) + "+" + route.MajorParams())
@@ -75,7 +75,7 @@ func (r *RateLimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) 
 
 	r.Lock()
 	defer r.Unlock()
-	b, ok := r.Buckets[hash]
+	b, ok := r.buckets[hash]
 	if !ok {
 		if !create {
 			return nil
@@ -85,22 +85,22 @@ func (r *RateLimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) 
 			Remaining: 1,
 			Limit:     1,
 		}
-		r.Buckets[hash] = b
+		r.buckets[hash] = b
 	}
 	return b
 }
 
 func (r *RateLimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error {
-	bucket := r.getBucket(route, true)
-	bucket.Lock()
+	b := r.getBucket(route, true)
+	b.Lock()
 
 	var until time.Time
 	now := time.Now()
 
-	if bucket.Remaining == 0 && bucket.Reset.After(now) {
-		until = bucket.Reset
+	if b.Remaining == 0 && b.Reset.After(now) {
+		until = b.Reset
 	} else {
-		until = time.Unix(0, r.Global)
+		until = time.Unix(0, r.global)
 	}
 
 	if until.After(now) {
@@ -111,7 +111,7 @@ func (r *RateLimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledA
 
 		select {
 		case <-ctx.Done():
-			bucket.Unlock()
+			b.Unlock()
 			return ctx.Err()
 		case <-time.After(until.Sub(now)):
 		}
@@ -120,19 +120,19 @@ func (r *RateLimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledA
 }
 
 func (r *RateLimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.Header) error {
-	bucket := r.getBucket(route, false)
-	if bucket == nil {
+	b := r.getBucket(route, false)
+	if b == nil {
 		return nil
 	}
-	defer bucket.Unlock()
+	defer b.Unlock()
 
-	bucketID := headers.Get("X-RateLimit-bucket")
+	bucketID := headers.Get("X-RateLimit-b")
 
 	if bucketID != "" {
-		bucket.ID = bucketID
+		b.ID = bucketID
 	}
 
-	global := headers.Get("X-RateLimit-Global")
+	global := headers.Get("X-RateLimit-global")
 
 	remaining := headers.Get("X-RateLimit-Remaining")
 	reset := headers.Get("X-RateLimit-Reset")
@@ -148,9 +148,9 @@ func (r *RateLimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers ht
 		at := time.Now().Add(time.Duration(i) * time.Second)
 
 		if global != "" {
-			r.Global = at.UnixNano()
+			r.global = at.UnixNano()
 		} else {
-			bucket.Reset = at
+			b.Reset = at
 		}
 
 	case reset != "":
@@ -159,7 +159,7 @@ func (r *RateLimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers ht
 			return fmt.Errorf("invalid reset %s: %s", reset, err)
 		}
 
-		bucket.Reset = time.Unix(unix, 0)
+		b.Reset = time.Unix(unix, 0)
 	}
 
 	if remaining != "" {
@@ -168,11 +168,11 @@ func (r *RateLimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers ht
 			return fmt.Errorf("invalid remaining %s: %s", remaining, err)
 		}
 
-		bucket.Remaining = u
+		b.Remaining = u
 	} else {
 		// Lower remaining one just to be safe
-		if bucket.Remaining > 0 {
-			bucket.Remaining--
+		if b.Remaining > 0 {
+			b.Remaining--
 		}
 	}
 

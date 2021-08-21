@@ -1,6 +1,6 @@
 # webhook
 
-[WebHook](https://discord.com/developers/docs/resources/webhook) module of [disgo](https://github.com/DisgoOrg/disgo)
+[Webhook](https://discord.com/developers/docs/resources/webhook) module of [disgo](https://github.com/DisgoOrg/disgo)
 
 ### Usage
 

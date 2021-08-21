@@ -6,6 +6,8 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
+bla
+
 func NewMessageCollectorByChannel(channel core.MessageChannel, filter MessageFilter) (chan *core.Message, func()) {
 	var guildID *discord.Snowflake  = nil
 	if guildChannel := channel.(core.GuildChannel); channel.IsGuildChannel() {
