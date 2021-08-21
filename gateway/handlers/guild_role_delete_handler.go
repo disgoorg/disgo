@@ -22,12 +22,12 @@ func (h *GuildRoleDeleteHandler) EventType() gateway.EventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *GuildRoleDeleteHandler) New() interface{} {
-	return &roleCreateData{}
+	return roleCreateData{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *GuildRoleDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	roleDeleteData, ok := i.(*roleDeleteData)
+	roleDeleteData, ok := i.(roleDeleteData)
 	if !ok {
 		return
 	}

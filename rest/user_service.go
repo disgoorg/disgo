@@ -9,6 +9,12 @@ import (
 
 var _ UserService = (*UserServiceImpl)(nil)
 
+func NewUserService(restClient Client) UserService {
+	return &UserServiceImpl{
+		restClient: restClient,
+	}
+}
+
 type UserService interface {
 	Service
 	GetUser(ctx context.Context, userID discord.Snowflake) (*discord.User, Error)
@@ -18,12 +24,6 @@ type UserService interface {
 	LeaveGuild(ctx context.Context, guildID discord.Snowflake) Error
 	GetDMChannels(ctx context.Context) ([]discord.Channel, Error)
 	CreateDMChannel(ctx context.Context, userID discord.Snowflake) (*discord.Channel, Error)
-}
-
-func NewUserService(restClient Client) UserService {
-	return &UserServiceImpl{
-		restClient: restClient,
-	}
 }
 
 type UserServiceImpl struct {

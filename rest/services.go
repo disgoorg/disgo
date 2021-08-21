@@ -10,18 +10,18 @@ func NewServices(logger log.Logger, restClient Client) Services {
 	return &ServicesImpl{
 		logger:               logger,
 		restClient:           restClient,
-		applicationService:   nil,
-		auditLogService:      nil,
-		gatewayService:       nil,
-		guildService:         nil,
-		channelsService:      nil,
-		interactionService:   nil,
-		inviteService:        nil,
-		guildTemplateService: nil,
+		applicationService:   NewApplicationService(restClient),
+		auditLogService:      NewAuditLogService(restClient),
+		gatewayService:       NewGatewayService(restClient),
+		guildService:         NewGuildService(restClient),
+		channelsService:      NewChannelService(restClient),
+		interactionService:   NewInteractionService(restClient),
+		inviteService:        NewInviteService(restClient),
+		guildTemplateService: NewGuildTemplateService(restClient),
 		userService:          NewUserService(restClient),
-		voiceService:         nil,
+		voiceService:         NewVoiceService(restClient),
 		webhookService:       NewWebhookService(restClient),
-		stageInstanceService: nil,
+		stageInstanceService: NewStageInstanceService(restClient),
 	}
 }
 
@@ -34,7 +34,7 @@ type Services interface {
 	AuditLogService() AuditLogService
 	GatewayService() GatewayService
 	GuildService() GuildService
-	ChannelsService() ChannelsService
+	ChannelService() ChannelService
 	InteractionService() InteractionService
 	InviteService() InviteService
 	GuildTemplateService() GuildTemplateService
@@ -42,10 +42,6 @@ type Services interface {
 	VoiceService() VoiceService
 	WebhookService() WebhookService
 	StageInstanceService() StageInstanceService
-}
-
-type Service interface {
-	RestClient() Client
 }
 
 type ServicesImpl struct {
@@ -56,7 +52,7 @@ type ServicesImpl struct {
 	auditLogService      AuditLogService
 	gatewayService       GatewayService
 	guildService         GuildService
-	channelsService      ChannelsService
+	channelsService      ChannelService
 	interactionService   InteractionService
 	inviteService        InviteService
 	guildTemplateService GuildTemplateService
@@ -81,36 +77,51 @@ func (s *ServicesImpl) RestClient() Client {
 func (s *ServicesImpl) ApplicationService() ApplicationService {
 	return s.applicationService
 }
+
 func (s *ServicesImpl) AuditLogService() AuditLogService {
 	return s.auditLogService
 }
+
 func (s *ServicesImpl) GatewayService() GatewayService {
 	return s.gatewayService
 }
+
 func (s *ServicesImpl) GuildService() GuildService {
 	return s.guildService
 }
-func (s *ServicesImpl) ChannelsService() ChannelsService {
+
+func (s *ServicesImpl) ChannelService() ChannelService {
 	return s.channelsService
 }
+
 func (s *ServicesImpl) InteractionService() InteractionService {
 	return s.interactionService
 }
+
 func (s *ServicesImpl) InviteService() InviteService {
 	return s.inviteService
 }
+
 func (s *ServicesImpl) GuildTemplateService() GuildTemplateService {
 	return s.guildTemplateService
 }
+
 func (s *ServicesImpl) UserService() UserService {
 	return s.userService
 }
+
 func (s *ServicesImpl) VoiceService() VoiceService {
 	return s.voiceService
 }
+
 func (s *ServicesImpl) WebhookService() WebhookService {
 	return s.webhookService
 }
+
 func (s *ServicesImpl) StageInstanceService() StageInstanceService {
 	return s.stageInstanceService
+}
+
+type Service interface {
+	RestClient() Client
 }
