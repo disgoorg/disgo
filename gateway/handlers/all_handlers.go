@@ -9,10 +9,6 @@ func init() {
 }
 
 var EventHandlers = []core.GatewayEventHandler{
-	&CommandCreateHandler{},
-	&CommandDeleteHandler{},
-	&CommandUpdateHandler{},
-
 	&ChannelCreateHandler{},
 	&ChannelDeleteHandler{},
 	&ChannelUpdateHandler{},
