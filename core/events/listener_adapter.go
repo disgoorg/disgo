@@ -14,7 +14,7 @@ type ListenerAdapter struct {
 	OnRawGateway  func(event *RawEvent)
 	OnReadyEvent  func(event *ReadyEvent)
 
-	// api.GuildChannel Events
+	// api.GetGuildChannel Events
 	OnGuildChannelCreate func(event *GuildChannelCreateEvent)
 	OnGuildChannelUpdate func(event *GuildChannelUpdateEvent)
 	OnGuildChannelDelete func(event *GuildChannelDeleteEvent)
@@ -67,7 +67,6 @@ type ListenerAdapter struct {
 	OnGuildLeave       func(event *GuildLeaveEvent)
 	OnGuildAvailable   func(event *GuildAvailableEvent)
 	OnGuildUnavailable func(event *GuildUnavailableEvent)
-	OnGuildReady       func(event *GuildReadyEvent)
 	OnGuildBan         func(event *GuildBanEvent)
 	OnGuildUnban       func(event *GuildUnbanEvent)
 
@@ -154,7 +153,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// api.GuildChannel Events
+	// api.GetGuildChannel Events
 	case *GuildChannelCreateEvent:
 		if listener := l.OnGuildChannelCreate; listener != nil {
 			listener(e)
@@ -307,10 +306,6 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 	case *GuildUnavailableEvent:
 		if listener := l.OnGuildUnavailable; listener != nil {
-			listener(e)
-		}
-	case *GuildReadyEvent:
-		if listener := l.OnGuildReady; listener != nil {
 			listener(e)
 		}
 	case *GuildBanEvent:

@@ -23,12 +23,12 @@ func (h *MessageDeleteHandler) EventType() gateway.EventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *MessageDeleteHandler) New() interface{} {
-	return &messageDeletePayload{}
+	return messageDeletePayload{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *MessageDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	payload, ok := i.(*messageDeletePayload)
+	payload, ok := i.(messageDeletePayload)
 	if !ok {
 		return
 	}
@@ -36,9 +36,11 @@ func (h *MessageDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager
 	genericMessageEvent := &events.GenericMessageEvent{
 		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 		MessageID:    payload.MessageID,
-		Message:      disgo.Cache().Message(payload.ChannelID, payload.MessageID),
+		Message:      disgo.Cache().MessageCache().GetCopy(payload.ChannelID, payload.MessageID),
 		ChannelID:    payload.ChannelID,
 	}
+
+	disgo.Cache().MessageCache().Uncache(payload.ChannelID, payload.MessageID)
 
 	disgo.EventManager().Dispatch(&events.MessageDeleteEvent{
 		GenericMessageEvent: genericMessageEvent,

@@ -16,12 +16,12 @@ func (h *VoiceServerUpdateHandler) EventType() gateway.EventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *VoiceServerUpdateHandler) New() interface{} {
-	return &discord.VoiceServerUpdate{}
+	return discord.VoiceServerUpdate{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *VoiceServerUpdateHandler) HandleGatewayEvent(disgo core.Disgo, _ core.EventManager, _ int, i interface{}) {
-	voiceServerUpdate, ok := i.(*discord.VoiceServerUpdate)
+	voiceServerUpdate, ok := i.(discord.VoiceServerUpdate)
 	if !ok {
 		return
 	}

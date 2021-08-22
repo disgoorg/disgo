@@ -136,6 +136,11 @@ type Guild struct {
 	Presences                   []Presence                 `json:"presences"`
 }
 
+type UnavailableGuild struct {
+	ID          Snowflake `json:"id"`
+	Unavailable bool      `json:"unavailable"`
+}
+
 // PartialGuild is returned on the restclient.GetGuilds route
 type PartialGuild struct {
 	ID          Snowflake      `json:"id"`

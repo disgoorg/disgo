@@ -122,7 +122,7 @@ func (i *Interaction) MessageChannel() MessageChannel {
 	if i.ChannelID == nil {
 		return nil
 	}
-	return i.Disgo.Cache().ChannelCache().MessageChannel(*i.ChannelID)
+	return i.Disgo.Cache().ChannelCache().GetMessageChannel(*i.ChannelID)
 }
 
 // TextChannel returns the TextChannel from the Cache
@@ -138,7 +138,7 @@ func (i *Interaction) GuildChannel() GuildChannel {
 	if i.ChannelID == nil {
 		return nil
 	}
-	return i.Disgo.Cache().ChannelCache().GuildChannel(*i.ChannelID)
+	return i.Disgo.Cache().ChannelCache().GetGuildChannel(*i.ChannelID)
 }
 
 type InteractionData struct {

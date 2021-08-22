@@ -9,7 +9,7 @@ import (
 
 type roleCreateData struct {
 	GuildID discord.Snowflake `json:"guild_id"`
-	Role    *discord.Role     `json:"role"`
+	Role    discord.Role      `json:"role"`
 }
 
 // GuildRoleCreateHandler handles api.GuildRoleCreateGatewayEvent
@@ -27,23 +27,19 @@ func (h *GuildRoleCreateHandler) New() interface{} {
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *GuildRoleCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	roleCreateData, ok := i.(*roleCreateData)
+	payload, ok := i.(roleCreateData)
 	if !ok {
 		return
 	}
-
-	guild := disgo.Cache().Guild(roleCreateData.GuildID)
-
-	role := disgo.EntityBuilder().CreateRole(roleCreateData.GuildID, roleCreateData.Role, core.CacheStrategyYes)
 
 	eventManager.Dispatch(&events.RoleCreateEvent{
 		GenericRoleEvent: &events.GenericRoleEvent{
 			GenericGuildEvent: &events.GenericGuildEvent{
 				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
-				Guild:        guild,
+				Guild:        disgo.Cache().GuildCache().Get(payload.GuildID),
 			},
-			RoleID: role.ID,
-			Role:   role,
+			RoleID: payload.Role.ID,
+			Role:   disgo.EntityBuilder().CreateRole(payload.GuildID, payload.Role, core.CacheStrategyYes),
 		},
 	})
 }

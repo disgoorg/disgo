@@ -17,20 +17,24 @@ func (h *ChannelUpdateHandler) EventType() gateway.EventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *ChannelUpdateHandler) New() interface{} {
-	return &discord.Channel{}
+	return discord.Channel{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *ChannelUpdateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	channel, ok := i.(*discord.Channel)
+	channel, ok := i.(discord.Channel)
 	if !ok {
 		return
 	}
 
+	oldCoreChannel := disgo.Cache().ChannelCache().GetChannelCopy(channel.ID)
+
+	coreChannel := disgo.EntityBuilder().CreateChannel(channel, core.CacheStrategyYes)
+
 	genericChannelEvent := &events.GenericChannelEvent{
 		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 		ChannelID:    channel.ID,
-		Channel:      channel,
+		Channel:      coreChannel,
 	}
 
 	var genericGuildChannelEvent *events.GenericGuildChannelEvent
@@ -38,89 +42,80 @@ func (h *ChannelUpdateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager
 		genericGuildChannelEvent = &events.GenericGuildChannelEvent{
 			GenericChannelEvent: genericChannelEvent,
 			GuildID:             *channel.GuildID,
-			GuildChannel: &core.GuildChannel{
-				Channel: *channel,
-			},
+			GuildChannel:        coreChannel.(core.GuildChannel),
 		}
 
 		eventManager.Dispatch(&events.GuildChannelUpdateEvent{
 			GenericGuildChannelEvent: genericGuildChannelEvent,
-			OldGuildChannel:          disgo.Cache().GuildChannel(channel.ID),
+			OldGuildChannel:          oldCoreChannel.(core.GuildChannel),
 		})
 	}
 
 	switch channel.Type {
 	case discord.ChannelTypeDM:
-		oldDMChannel := disgo.Cache().DMChannel(channel.ID)
-		if oldDMChannel != nil {
-			oldDMChannel = &*oldDMChannel
-		}
-
 		eventManager.Dispatch(&events.DMChannelUpdateEvent{
 			GenericDMChannelEvent: &events.GenericDMChannelEvent{
 				GenericChannelEvent: genericChannelEvent,
-				DMChannel:           disgo.EntityBuilder().CreateDMChannel(channel, core.CacheStrategyYes),
+				DMChannel:           coreChannel.(core.DMChannel),
 			},
-			OldDMChannel: oldDMChannel,
+			OldDMChannel: oldCoreChannel.(core.DMChannel),
 		})
 
 	case discord.ChannelTypeGroupDM:
 		disgo.Logger().Warnf("ChannelTypeGroupDM received what the hell discord")
 
-	case discord.ChannelTypeText, discord.ChannelTypeNews:
-		oldTextChannel := disgo.Cache().TextChannel(channel.ID)
-		if oldTextChannel != nil {
-			oldTextChannel = &*oldTextChannel
-		}
-
+	case discord.ChannelTypeText:
 		eventManager.Dispatch(&events.TextChannelUpdateEvent{
 			GenericTextChannelEvent: &events.GenericTextChannelEvent{
 				GenericGuildChannelEvent: genericGuildChannelEvent,
-				TextChannel:              disgo.EntityBuilder().CreateTextChannel(channel, core.CacheStrategyYes),
+				TextChannel:              coreChannel.(core.TextChannel),
 			},
-			OldTextChannel: oldTextChannel,
+			OldTextChannel: oldCoreChannel.(core.TextChannel),
+		})
+
+	case discord.ChannelTypeNews:
+		eventManager.Dispatch(&events.NewsChannelUpdateEvent{
+			GenericNewsChannelEvent: &events.GenericNewsChannelEvent{
+				GenericGuildChannelEvent: genericGuildChannelEvent,
+				NewsChannel:              coreChannel.(core.NewsChannel),
+			},
+			OldNewsChannel: oldCoreChannel.(core.NewsChannel),
 		})
 
 	case discord.ChannelTypeStore:
-		oldStoreChannel := disgo.Cache().StoreChannel(channel.ID)
-		if oldStoreChannel != nil {
-			oldStoreChannel = &*oldStoreChannel
-		}
-
 		eventManager.Dispatch(&events.StoreChannelUpdateEvent{
 			GenericStoreChannelEvent: &events.GenericStoreChannelEvent{
 				GenericGuildChannelEvent: genericGuildChannelEvent,
-				StoreChannel:             disgo.EntityBuilder().CreateStoreChannel(channel, core.CacheStrategyYes),
+				StoreChannel:             coreChannel.(core.StoreChannel),
 			},
-			OldStoreChannel: oldStoreChannel,
+			OldStoreChannel: oldCoreChannel.(core.StoreChannel),
 		})
 
 	case discord.ChannelTypeCategory:
-		oldCategory := disgo.Cache().Category(channel.ID)
-		if oldCategory != nil {
-			oldCategory = &*oldCategory
-		}
-
 		eventManager.Dispatch(&events.CategoryUpdateEvent{
 			GenericCategoryEvent: &events.GenericCategoryEvent{
 				GenericGuildChannelEvent: genericGuildChannelEvent,
-				Category:                 disgo.EntityBuilder().CreateCategory(channel, core.CacheStrategyYes),
+				Category:                 coreChannel.(core.Category),
 			},
-			OldCategory: oldCategory,
+			OldCategory: oldCoreChannel.(core.Category),
 		})
 
 	case discord.ChannelTypeVoice:
-		oldVoiceChannel := disgo.Cache().VoiceChannel(channel.ID)
-		if oldVoiceChannel != nil {
-			oldVoiceChannel = &*oldVoiceChannel
-		}
-
 		eventManager.Dispatch(&events.VoiceChannelUpdateEvent{
 			GenericVoiceChannelEvent: &events.GenericVoiceChannelEvent{
 				GenericGuildChannelEvent: genericGuildChannelEvent,
-				VoiceChannel:             disgo.EntityBuilder().CreateVoiceChannel(channel, core.CacheStrategyYes),
+				VoiceChannel:             coreChannel.(core.VoiceChannel),
 			},
-			OldVoiceChannel: oldVoiceChannel,
+			OldVoiceChannel: oldCoreChannel.(core.VoiceChannel),
+		})
+
+	case discord.ChannelTypeStage:
+		eventManager.Dispatch(&events.StageChannelUpdateEvent{
+			GenericStageChannelEvent: &events.GenericStageChannelEvent{
+				GenericGuildChannelEvent: genericGuildChannelEvent,
+				StageChannel:             coreChannel.(core.StageChannel),
+			},
+			OldStageChannel: oldCoreChannel.(core.StageChannel),
 		})
 
 	default:

@@ -9,7 +9,7 @@ import (
 
 type guildBanRemovePayload struct {
 	GuildID discord.Snowflake `json:"guild_id"`
-	User    *discord.User     `json:"user"`
+	User    discord.User      `json:"user"`
 }
 
 // GuildBanRemoveHandler handles api.GatewayEventGuildBanRemove
@@ -22,12 +22,12 @@ func (h *GuildBanRemoveHandler) EventType() gateway.EventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *GuildBanRemoveHandler) New() interface{} {
-	return &guildBanRemovePayload{}
+	return guildBanRemovePayload{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *GuildBanRemoveHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	payload, ok := i.(*guildBanRemovePayload)
+	payload, ok := i.(guildBanRemovePayload)
 	if !ok {
 		return
 	}
@@ -36,7 +36,7 @@ func (h *GuildBanRemoveHandler) HandleGatewayEvent(disgo core.Disgo, eventManage
 		GenericGuildEvent: &events.GenericGuildEvent{
 			GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 			GuildID:      payload.GuildID,
-			Guild:        disgo.Cache().Guild(payload.GuildID),
+			Guild:        disgo.Cache().GuildCache().Get(payload.GuildID),
 		},
 		User: disgo.EntityBuilder().CreateUser(payload.User, core.CacheStrategyNo),
 	})

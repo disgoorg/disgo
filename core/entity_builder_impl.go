@@ -83,7 +83,8 @@ func (b *EntityBuilderImpl) CreateApplicationCommandInteraction(interaction *Int
 
 	return commandInteraction
 }
-func (b *EntityBuilderImpl) CreateSlashCommandInteraction(applicationInteraction *ApplicationCommandInteraction, _ CacheStrategy) *SlashCommandInteraction {
+
+func (b *EntityBuilderImpl) CreateSlashCommandInteraction(applicationInteraction *ApplicationCommandInteraction) *SlashCommandInteraction {
 	slashCommandInteraction := &SlashCommandInteraction{
 		ApplicationCommandInteraction: applicationInteraction,
 		Data: &SlashCommandInteractionData{
@@ -125,7 +126,7 @@ func (b *EntityBuilderImpl) CreateSlashCommandInteraction(applicationInteraction
 	return slashCommandInteraction
 }
 
-func (b *EntityBuilderImpl) CreateContextCommandInteraction(applicationInteraction *ApplicationCommandInteraction, _ CacheStrategy) *ContextCommandInteraction {
+func (b *EntityBuilderImpl) CreateContextCommandInteraction(applicationInteraction *ApplicationCommandInteraction) *ContextCommandInteraction {
 	return &ContextCommandInteraction{
 		ApplicationCommandInteraction: applicationInteraction,
 		Data: &ContextCommandInteractionData{
@@ -134,7 +135,7 @@ func (b *EntityBuilderImpl) CreateContextCommandInteraction(applicationInteracti
 	}
 }
 
-func (b *EntityBuilderImpl) CreateUserCommandInteraction(contextCommandInteraction *ContextCommandInteraction, updateCache CacheStrategy) *UserCommandInteraction {
+func (b *EntityBuilderImpl) CreateUserCommandInteraction(contextCommandInteraction *ContextCommandInteraction) *UserCommandInteraction {
 	return &UserCommandInteraction{
 		ContextCommandInteraction: contextCommandInteraction,
 		Data: &UserCommandInteractionData{
@@ -142,7 +143,7 @@ func (b *EntityBuilderImpl) CreateUserCommandInteraction(contextCommandInteracti
 		},
 	}
 }
-func (b *EntityBuilderImpl) CreateMessageCommandInteraction(contextCommandInteraction *ContextCommandInteraction, updateCache CacheStrategy) *MessageCommandInteraction {
+func (b *EntityBuilderImpl) CreateMessageCommandInteraction(contextCommandInteraction *ContextCommandInteraction) *MessageCommandInteraction {
 	return &MessageCommandInteraction{
 		ContextCommandInteraction: contextCommandInteraction,
 		Data: &MessageCommandInteractionData{

@@ -17,22 +17,20 @@ func (h *MessageCreateHandler) EventType() gateway.EventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *MessageCreateHandler) New() interface{} {
-	return &discord.Message{}
+	return discord.Message{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *MessageCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	message, ok := i.(*discord.Message)
+	message, ok := i.(discord.Message)
 	if !ok {
 		return
 	}
 
-	message = disgo.EntityBuilder().CreateMessage(message, core.CacheStrategyYes)
-
 	genericMessageEvent := &events.GenericMessageEvent{
 		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 		MessageID:    message.ID,
-		Message:      message,
+		Message:      disgo.EntityBuilder().CreateMessage(message, core.CacheStrategyYes),
 		ChannelID:    message.ChannelID,
 	}
 

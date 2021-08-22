@@ -12,19 +12,19 @@ type GenericGuildInviteEvent struct {
 	ChannelID discord.Snowflake
 }
 
-// Channel returns the api.Channel the GenericGuildInviteEvent happened in(returns nil if the api.Channel is uncached or api.Cache is disabled)
+// Channel returns the api.GetChannel the GenericGuildInviteEvent happened in(returns nil if the api.GetChannel is uncached or api.Cache is disabled)
 func (e GenericGuildInviteEvent) Channel() core.Channel {
-	return e.Disgo().Cache().ChannelCache().Channel(e.ChannelID)
+	return e.Disgo().Cache().ChannelCache().GetChannel(e.ChannelID)
 }
 
-// GuildChannel returns the api.GuildChannel the GenericGuildInviteEvent happened in(returns nil if the api.GuildChannel is uncached or api.Cache is disabled)
+// GuildChannel returns the api.GetGuildChannel the GenericGuildInviteEvent happened in(returns nil if the api.GetGuildChannel is uncached or api.Cache is disabled)
 func (e GenericGuildInviteEvent) GuildChannel() core.GuildChannel {
-	return e.Disgo().Cache().ChannelCache().GuildChannel(e.ChannelID)
+	return e.Disgo().Cache().ChannelCache().GetGuildChannel(e.ChannelID)
 }
 
-// MessageChannel returns the api.MessageChannel the GenericGuildInviteEvent happened in(returns nil if the api.MessageChannel is uncached or api.Cache is disabled)
+// MessageChannel returns the api.GetMessageChannel the GenericGuildInviteEvent happened in(returns nil if the api.GetMessageChannel is uncached or api.Cache is disabled)
 func (e GenericGuildInviteEvent) MessageChannel() core.MessageChannel {
-	return e.Disgo().Cache().ChannelCache().MessageChannel(e.ChannelID)
+	return e.Disgo().Cache().ChannelCache().GetMessageChannel(e.ChannelID)
 }
 
 // TextChannel returns the api.TextChannel the GenericGuildInviteEvent happened in(returns nil if the api.TextChannel is uncached or api.CacheFlagTextChannels is disabled)

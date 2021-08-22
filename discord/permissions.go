@@ -15,7 +15,7 @@ const (
 	PermissionOverwriteTypeMember
 )
 
-// PermissionOverwrite is used to determine who can perform particular actions in a GuildChannel
+// PermissionOverwrite is used to determine who can perform particular actions in a GetGuildChannel
 type PermissionOverwrite struct {
 	ID    Snowflake               `json:"id"`
 	Type  PermissionOverwriteType `json:"type"`

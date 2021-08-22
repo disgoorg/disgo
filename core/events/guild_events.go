@@ -38,11 +38,6 @@ type GuildLeaveEvent struct {
 	*GenericGuildEvent
 }
 
-// GuildReadyEvent is called when the bot loaded the api.Guild in login phase
-type GuildReadyEvent struct {
-	*GenericGuildEvent
-}
-
 // GuildBanEvent is called when an api.Member/api.User is banned from the api.Guild
 type GuildBanEvent struct {
 	*GenericGuildEvent

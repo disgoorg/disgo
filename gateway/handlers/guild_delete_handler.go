@@ -17,35 +17,34 @@ func (h *GuildDeleteHandler) EventType() gateway.EventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *GuildDeleteHandler) New() interface{} {
-	return &discord.FullGuild{}
+	return discord.UnavailableGuild{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *GuildDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	fullGuild, ok := i.(*discord.FullGuild)
+	guild, ok := i.(discord.UnavailableGuild)
 	if !ok {
 		return
 	}
 
-	guild := disgo.EntityBuilder().CreateGuild(fullGuild, core.CacheStrategyNo)
+	if guild.Unavailable {
+		coreGuild := disgo.Cache().GuildCache().Get(guild.ID)
+		if coreGuild != nil {
+			coreGuild.Unavailable = true
+		}
+	}
 
 	genericGuildEvent := &events.GenericGuildEvent{
 		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
-		Guild:        guild,
+		Guild:        disgo.Cache().GuildCache().GetCopy(guild.ID),
 	}
 
 	if guild.Unavailable {
-		// set guild to unavailable for now
-		g := disgo.Cache().Guild(guild.ID)
-		if g != nil {
-			g.Unavailable = true
-		}
-
 		eventManager.Dispatch(&events.GuildUnavailableEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	} else {
-		disgo.Cache().UncacheGuild(guild.ID)
+		disgo.Cache().GuildCache().Uncache(guild.ID)
 
 		eventManager.Dispatch(&events.GuildLeaveEvent{
 			GenericGuildEvent: genericGuildEvent,

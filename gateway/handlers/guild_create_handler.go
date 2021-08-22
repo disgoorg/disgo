@@ -17,35 +17,26 @@ func (h *GuildCreateHandler) EventType() gateway.EventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *GuildCreateHandler) New() interface{} {
-	return &discord.FullGuild{}
+	return discord.Guild{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *GuildCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	fullGuild, ok := i.(*discord.FullGuild)
+	guild, ok := i.(discord.Guild)
 	if !ok {
 		return
 	}
 
-	oldGuild := disgo.Cache().Guild(fullGuild.ID)
+	oldCoreGuild := disgo.Cache().GuildCache().GetCopy(guild.ID)
 	wasUnavailable := true
-	if oldGuild != nil {
-		oldGuild = &*oldGuild
-		wasUnavailable = oldGuild.Unavailable
+	if oldCoreGuild != nil {
+		wasUnavailable = oldCoreGuild.Unavailable
 	}
-	guild := disgo.EntityBuilder().CreateGuild(fullGuild, core.CacheStrategyYes)
 
 	genericGuildEvent := &events.GenericGuildEvent{
 		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 		GuildID:      guild.ID,
-		Guild:        guild,
-	}
-
-	if !guild.Ready {
-		guild.Ready = true
-		eventManager.Dispatch(&events.GuildReadyEvent{
-			GenericGuildEvent: genericGuildEvent,
-		})
+		Guild:        disgo.EntityBuilder().CreateGuild(guild, core.CacheStrategyYes),
 	}
 
 	if wasUnavailable {

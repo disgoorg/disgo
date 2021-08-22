@@ -116,7 +116,7 @@ func (c *BaseCacheImpl) Disgo() Disgo {
 	return c.disgo
 }
 
-var _ MessageCache = (*MessageCacheImpl)(nil)
+//var _ MessageCache = (*MessageCacheImpl)(nil)
 
 type MessageCacheImpl struct {
 	BaseCacheImpl
@@ -525,7 +525,7 @@ func (c *CacheImpl) Messages(channelID discord.Snowflake) []*entities.Message {
 	return nil
 }
 
-// MessageCache returns the entire cache of Message(s) for a Channel
+// MessageCache returns the entire cache of Message(s) for a GetChannel
 func (c *CacheImpl) MessageCache(channelID discord.Snowflake) map[discord.Snowflake]*entities.Message {
 	return c.messages[channelID]
 }
@@ -837,61 +837,61 @@ func (c *CacheImpl) FindRoles(guildID discord.Snowflake, check func(u *entities.
 	return roles
 }
 
-// Channel returns a channel from any channel cache by ID
-func (c *CacheImpl) Channel(channelID discord.Snowflake) *entities.Channel {
+// GetChannel returns a channel from any channel cache by ID
+func (c *CacheImpl) GetChannel(channelID discord.Snowflake) *entities.GetChannel {
 	dmChannel := c.DMChannel(channelID)
 	if dmChannel != nil {
-		return &dmChannel.Channel
+		return &dmChannel.GetChannel
 	}
 	category := c.Category(channelID)
 	if category != nil {
-		return &category.Channel
+		return &category.GetChannel
 	}
 	textChannel := c.TextChannel(channelID)
 	if textChannel != nil {
-		return &textChannel.MessageChannel.Channel
+		return &textChannel.GetMessageChannel.GetChannel
 	}
 	voiceChannel := c.VoiceChannel(channelID)
 	if voiceChannel != nil {
-		return &voiceChannel.Channel
+		return &voiceChannel.GetChannel
 	}
 	storeChannel := c.StoreChannel(channelID)
 	if storeChannel != nil {
-		return &storeChannel.Channel
+		return &storeChannel.GetChannel
 	}
 	return nil
 }
 
-// MessageChannel returns a channel from dm or text channel cache by ID
-func (c *CacheImpl) MessageChannel(channelID discord.Snowflake) *entities.MessageChannel {
+// GetMessageChannel returns a channel from dm or text channel cache by ID
+func (c *CacheImpl) GetMessageChannel(channelID discord.Snowflake) *entities.GetMessageChannel {
 	dmChannel := c.DMChannel(channelID)
 	if dmChannel != nil {
-		return &dmChannel.MessageChannel
+		return &dmChannel.GetMessageChannel
 	}
 	textChannel := c.TextChannel(channelID)
 	if textChannel != nil {
-		return &textChannel.MessageChannel
+		return &textChannel.GetMessageChannel
 	}
 	return nil
 }
 
-// GuildChannel returns a channel from a guild by ID
-func (c *CacheImpl) GuildChannel(channelID discord.Snowflake) *entities.GuildChannel {
+// GetGuildChannel returns a channel from a guild by ID
+func (c *CacheImpl) GetGuildChannel(channelID discord.Snowflake) *entities.GetGuildChannel {
 	category := c.Category(channelID)
 	if category != nil {
-		return &category.GuildChannel
+		return &category.GetGuildChannel
 	}
 	textChannel := c.TextChannel(channelID)
 	if textChannel != nil {
-		return &textChannel.GuildChannel
+		return &textChannel.GetGuildChannel
 	}
 	voiceChannel := c.VoiceChannel(channelID)
 	if voiceChannel != nil {
-		return &voiceChannel.GuildChannel
+		return &voiceChannel.GetGuildChannel
 	}
 	storeChannel := c.StoreChannel(channelID)
 	if storeChannel != nil {
-		return &storeChannel.GuildChannel
+		return &storeChannel.GetGuildChannel
 	}
 	return nil
 }
@@ -979,7 +979,7 @@ func (c *CacheImpl) TextChannelsByName(guildID discord.Snowflake, name string, i
 		}
 		textChannels := make([]*entities.TextChannel, 1)
 		for _, channel := range guildTextChannels {
-			if ignoreCase && strings.ToLower(*channel.MessageChannel.Name) == name || !ignoreCase && *channel.MessageChannel.Name == name {
+			if ignoreCase && strings.ToLower(*channel.GetMessageChannel.Name) == name || !ignoreCase && *channel.GetMessageChannel.Name == name {
 				textChannels = append(textChannels, channel)
 			}
 		}
@@ -1028,12 +1028,12 @@ func (c *CacheImpl) CacheTextChannel(textChannel *entities.TextChannel) *entitie
 	if c.cacheFlags.Missing(CacheFlagTextChannels) {
 		return textChannel
 	}
-	if guildTextChannels, ok := c.textChannels[*textChannel.GuildChannel.GuildID]; ok {
-		if guildTextChannel, ok := guildTextChannels[textChannel.MessageChannel.ID]; ok {
+	if guildTextChannels, ok := c.textChannels[*textChannel.GetGuildChannel.GuildID]; ok {
+		if guildTextChannel, ok := guildTextChannels[textChannel.GetMessageChannel.ID]; ok {
 			*guildTextChannel = *textChannel
 			return guildTextChannel
 		}
-		guildTextChannels[textChannel.MessageChannel.ID] = textChannel
+		guildTextChannels[textChannel.GetMessageChannel.ID] = textChannel
 	}
 	return textChannel
 }

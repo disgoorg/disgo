@@ -24,9 +24,9 @@ type UserTypingEvent struct {
 	ChannelID discord.Snowflake
 }
 
-// Channel returns the api.Channel the api.User started typing in
+// Channel returns the api.GetChannel the api.User started typing in
 func (e *UserTypingEvent) Channel() core.Channel {
-	return e.Disgo().Cache().ChannelCache().Channel(e.ChannelID)
+	return e.Disgo().Cache().ChannelCache().GetChannel(e.ChannelID)
 }
 
 // DMChannel returns the api.DMChannel the api.User started typing in

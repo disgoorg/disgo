@@ -25,8 +25,3 @@ type TextChannelUpdateEvent struct {
 type TextChannelDeleteEvent struct {
 	*GenericTextChannelEvent
 }
-
-// WebhooksUpdateEvent indicates that an api.Webhook updated in this api.TextChannel
-type WebhooksUpdateEvent struct {
-	*GenericTextChannelEvent
-}

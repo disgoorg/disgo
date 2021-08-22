@@ -13,9 +13,9 @@ type GenericMessageEvent struct {
 	ChannelID discord.Snowflake
 }
 
-// MessageChannel returns the api.MessageChannel where the GenericMessageEvent happened
+// MessageChannel returns the api.GetMessageChannel where the GenericMessageEvent happened
 func (e *GenericMessageEvent) MessageChannel() core.MessageChannel {
-	return e.Disgo().Cache().ChannelCache().MessageChannel(e.ChannelID)
+	return e.Disgo().Cache().ChannelCache().GetMessageChannel(e.ChannelID)
 }
 
 // MessageDeleteEvent indicates that an api.Message got deleted

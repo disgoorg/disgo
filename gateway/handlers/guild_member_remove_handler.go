@@ -9,7 +9,7 @@ import (
 
 type guildMemberRemoveData struct {
 	GuildID discord.Snowflake `json:"guild_id"`
-	User    *discord.User     `json:"user"`
+	User    discord.User      `json:"user"`
 }
 
 // GuildMemberRemoveHandler handles api.GuildMemberRemoveGatewayEvent
@@ -22,31 +22,27 @@ func (h *GuildMemberRemoveHandler) EventType() gateway.EventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *GuildMemberRemoveHandler) New() interface{} {
-	return &guildMemberRemoveData{}
+	return guildMemberRemoveData{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *GuildMemberRemoveHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	memberData, ok := i.(*guildMemberRemoveData)
+	memberData, ok := i.(guildMemberRemoveData)
 	if !ok {
 		return
 	}
 
-	guild := disgo.Cache().Guild(memberData.GuildID)
-	if guild == nil {
-		// todo: replay event later. maybe guild is not cached yet but in a few seconds
-		return
-	}
-	memberData.User = disgo.EntityBuilder().CreateUser(memberData.User, core.CacheStrategyYes)
+	disgo.EntityBuilder().CreateUser(memberData.User, core.CacheStrategyYes)
 
-	member := disgo.Cache().Member(memberData.GuildID, memberData.User.ID)
-	disgo.Cache().UncacheMember(memberData.GuildID, memberData.User.ID)
+	member := disgo.Cache().MemberCache().GetCopy(memberData.GuildID, memberData.User.ID)
+
+	disgo.Cache().MemberCache().Uncache(memberData.GuildID, memberData.User.ID)
 
 	eventManager.Dispatch(&events.GuildMemberLeaveEvent{
 		GenericGuildMemberEvent: &events.GenericGuildMemberEvent{
 			GenericGuildEvent: &events.GenericGuildEvent{
 				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
-				Guild:        guild,
+				Guild:        disgo.Cache().GuildCache().Get(memberData.GuildID),
 			},
 			Member: member,
 		},

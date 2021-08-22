@@ -9,7 +9,7 @@ import (
 
 type roleUpdateData struct {
 	GuildID discord.Snowflake `json:"guild_id"`
-	Role    *discord.Role     `json:"role"`
+	Role    discord.Role      `json:"role"`
 }
 
 // GuildRoleUpdateHandler handles api.GuildRoleUpdateGatewayEvent
@@ -27,31 +27,21 @@ func (h *GuildRoleUpdateHandler) New() interface{} {
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *GuildRoleUpdateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	roleUpdateData, ok := i.(*roleUpdateData)
+	payload, ok := i.(roleUpdateData)
 	if !ok {
 		return
 	}
 
-	guild := disgo.Cache().Guild(roleUpdateData.GuildID)
-	if guild == nil {
-		// todo: replay event later. maybe guild is not cached yet but in a few seconds
-		return
-	}
-
-	oldRole := disgo.Cache().Role(roleUpdateData.Role.ID)
-	if oldRole != nil {
-		oldRole = &*oldRole
-	}
-	role := disgo.EntityBuilder().CreateRole(roleUpdateData.GuildID, roleUpdateData.Role, core.CacheStrategyYes)
+	oldRole := disgo.Cache().RoleCache().GetCopy(payload.Role.ID)
 
 	eventManager.Dispatch(&events.RoleUpdateEvent{
 		GenericRoleEvent: &events.GenericRoleEvent{
 			GenericGuildEvent: &events.GenericGuildEvent{
 				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
-				Guild:        guild,
+				Guild:        disgo.Cache().GuildCache().Get(payload.GuildID),
 			},
-			RoleID: roleUpdateData.Role.ID,
-			Role:   role,
+			RoleID: payload.Role.ID,
+			Role:   disgo.EntityBuilder().CreateRole(payload.GuildID, payload.Role, core.CacheStrategyYes),
 		},
 		OldRole: oldRole,
 	})

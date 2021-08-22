@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 )
@@ -22,28 +21,10 @@ func (h *WebhooksUpdateHandler) EventType() gateway.EventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *WebhooksUpdateHandler) New() interface{} {
-	return &webhooksUpdateData{}
+	return webhooksUpdateData{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *WebhooksUpdateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	webhooksUpdateData, ok := i.(*webhooksUpdateData)
-	if !ok {
-		return
-	}
 
-	eventManager.Dispatch(&events.WebhooksUpdateEvent{
-		GenericTextChannelEvent: &events.GenericTextChannelEvent{
-			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
-				GenericChannelEvent: &events.GenericChannelEvent{
-					GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
-					ChannelID:    webhooksUpdateData.ChannelID,
-					Channel:      disgo.Cache().Channel(webhooksUpdateData.ChannelID),
-				},
-				GuildID:      webhooksUpdateData.GuildID,
-				GuildChannel: disgo.Cache().GuildChannel(webhooksUpdateData.ChannelID),
-			},
-			TextChannel: disgo.Cache().TextChannel(webhooksUpdateData.ChannelID),
-		},
-	})
 }
