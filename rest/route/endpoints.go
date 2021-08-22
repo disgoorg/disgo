@@ -13,10 +13,16 @@ const (
 // Misc
 //goland:noinspection GoUnusedGlobalVariable
 var (
-	GetGateway        = NewAPIRoute(GET, "/gateway")
-	GetGatewayBot     = NewAPIRoute(GET, "/gateway/bot")
-	GetBotApplication = NewAPIRoute(GET, "/oauth2/applications/@me")
-	GetVoiceRegions   = NewAPIRoute(GET, "/voice/regions")
+	GetGateway      = NewAPIRoute(GET, "/gateway")
+	GetGatewayBot   = NewAPIRoute(GET, "/gateway/bot")
+	GetVoiceRegions = NewAPIRoute(GET, "/voice/regions")
+)
+
+// OAuth2
+//goland:noinspection GoUnusedGlobalVariable
+var (
+	GetBotApplicationInfo = NewAPIRoute(GET, "/oauth2/applications/@me")
+	GetAuthorizationInfo  = NewAPIRoute(GET, "/oauth2/@me")
 )
 
 // Users
@@ -213,8 +219,8 @@ var (
 	UpdateGuildCommand = NewAPIRoute(PATCH, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}")
 	DeleteGuildCommand = NewAPIRoute(DELETE, "/applications/{application.id}/guilds/{guild.id}/commands")
 
-	GetGuildCommandPermissions  = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/commands/permissions")
-	GetGuildCommandPermission   = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions")
+	GetGuildCommandsPermissions  = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/commands/permissions")
+	GetGuildCommandPermissions   = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions")
 	SetGuildCommandsPermissions = NewAPIRoute(PUT, "/applications/{application.id}/guilds/{guild.id}/commands/permissions")
 	SetGuildCommandPermissions  = NewAPIRoute(PUT, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions")
 
