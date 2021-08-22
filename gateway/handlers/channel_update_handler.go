@@ -4,15 +4,14 @@ import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway"
 )
 
 // ChannelUpdateHandler handles api.GatewayEventChannelUpdate
 type ChannelUpdateHandler struct{}
 
-// EventType returns the api.GatewayEventType
-func (h *ChannelUpdateHandler) EventType() gateway.EventType {
-	return gateway.EventTypeChannelUpdate
+// EventType returns the api.GatewayGatewayEventType
+func (h *ChannelUpdateHandler) EventType() discord.GatewayEventType {
+	return discord.GatewayEventTypeChannelUpdate
 }
 
 // New constructs a new payload receiver for the raw gateway event

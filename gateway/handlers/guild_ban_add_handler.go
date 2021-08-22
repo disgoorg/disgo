@@ -4,7 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway"
 )
 
 type guildBanAddPayload struct {
@@ -15,9 +14,9 @@ type guildBanAddPayload struct {
 // GuildBanAddHandler handles api.GatewayEventGuildBanAdd
 type GuildBanAddHandler struct{}
 
-// EventType returns the api.GatewayEventType
-func (h *GuildBanAddHandler) EventType() gateway.EventType {
-	return gateway.EventTypeGuildBanAdd
+// EventType returns the api.GatewayGatewayEventType
+func (h *GuildBanAddHandler) EventType() discord.GatewayEventType {
+	return discord.GatewayEventTypeGuildBanAdd
 }
 
 // New constructs a new payload receiver for the raw gateway event

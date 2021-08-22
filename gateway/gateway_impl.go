@@ -318,7 +318,7 @@ func (g *GatewayImpl) listen() {
 
 				g.Logger().Debugf("received: %s", *event.T)
 
-				if *event.T == EventTypeReady {
+				if *event.T == discord.GatewayEventTypeReady {
 					var readyEvent ReadyGatewayEvent
 					if err = g.parseEventToStruct(event, &readyEvent); err != nil {
 						g.Logger().Errorf("Error parsing ready event: %s", err)

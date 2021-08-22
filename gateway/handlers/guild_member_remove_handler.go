@@ -4,7 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway"
 )
 
 type guildMemberRemoveData struct {
@@ -15,9 +14,9 @@ type guildMemberRemoveData struct {
 // GuildMemberRemoveHandler handles api.GuildMemberRemoveGatewayEvent
 type GuildMemberRemoveHandler struct{}
 
-// EventType returns the api.GatewayEventType
-func (h *GuildMemberRemoveHandler) EventType() gateway.EventType {
-	return gateway.EventTypeGuildMemberRemove
+// EventType returns the api.GatewayGatewayEventType
+func (h *GuildMemberRemoveHandler) EventType() discord.GatewayEventType {
+	return discord.GatewayEventTypeGuildMemberRemove
 }
 
 // New constructs a new payload receiver for the raw gateway event

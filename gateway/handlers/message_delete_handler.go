@@ -4,7 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway"
 )
 
 type messageDeletePayload struct {
@@ -16,9 +15,9 @@ type messageDeletePayload struct {
 // MessageDeleteHandler handles api.GatewayEventMessageDelete
 type MessageDeleteHandler struct{}
 
-// EventType returns the api.GatewayEventType
-func (h *MessageDeleteHandler) EventType() gateway.EventType {
-	return gateway.EventTypeMessageDelete
+// EventType returns the api.GatewayGatewayEventType
+func (h *MessageDeleteHandler) EventType() discord.GatewayEventType {
+	return discord.GatewayEventTypeMessageDelete
 }
 
 // New constructs a new payload receiver for the raw gateway event

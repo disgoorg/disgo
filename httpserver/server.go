@@ -12,13 +12,8 @@ import (
 	"github.com/DisgoOrg/log"
 )
 
-type EventType string
 
-const (
-	EventTypeInteractionCreate EventType = "INTERACTION_CREATE"
-)
-
-type EventHandlerFunc func(eventType EventType, replyChan chan discord.InteractionResponse, payload io.Reader)
+type EventHandlerFunc func(gatewayEventType discord.GatewayEventType, responseChannel chan discord.InteractionResponse, payload io.Reader)
 
 type Config struct {
 	URL       string

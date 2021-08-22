@@ -224,8 +224,8 @@ func (b *DisgoBuilderImpl) Build() (Disgo, error) {
 
 	if b.gatewayConfig != nil {
 		if b.gateway == nil {
-			b.gateway = gateway.New(disgo.logger, b.restServices, b.token, *b.gatewayConfig, func(eventType gateway.EventType, sequenceNumber int, payload io.Reader) {
-				disgo.EventManager().HandleGateway(eventType, sequenceNumber, payload)
+			b.gateway = gateway.New(disgo.logger, b.restServices, b.token, *b.gatewayConfig, func(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader) {
+				disgo.EventManager().HandleGateway(gatewayEventType, sequenceNumber, payload)
 			})
 		}
 		disgo.gateway = b.gateway
@@ -233,8 +233,8 @@ func (b *DisgoBuilderImpl) Build() (Disgo, error) {
 
 	if b.httpServerConfig == nil {
 		if b.httpServer == nil {
-			b.httpServer = httpserver.New(disgo.logger, *b.httpServerConfig, func(eventType httpserver.EventType, replyChan chan discord.InteractionResponse, payload io.Reader) {
-				disgo.EventManager().HandleHTTP(eventType, replyChan, payload)
+			b.httpServer = httpserver.New(disgo.logger, *b.httpServerConfig, func(gatewayEventType discord.GatewayEventType, responseChannel chan discord.InteractionResponse, payload io.Reader) {
+				disgo.EventManager().HandleHTTP(gatewayEventType, responseChannel, payload)
 			})
 		}
 		disgo.httpServer = b.httpServer

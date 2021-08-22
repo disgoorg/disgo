@@ -4,8 +4,6 @@ import (
 	"io"
 
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway"
-	"github.com/DisgoOrg/disgo/httpserver"
 )
 
 // EventManager lets you listen for specific events triggered by raw gateway events
@@ -14,8 +12,8 @@ type EventManager interface {
 	Close()
 	AddEventListeners(eventListeners ...EventListener)
 	RemoveEventListeners(eventListeners ...EventListener)
-	HandleGateway(eventType gateway.EventType, sequenceNumber int, payload io.Reader)
-	HandleHTTP(eventType httpserver.EventType, responseChannel chan discord.InteractionResponse, payload io.Reader)
+	HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader)
+	HandleHTTP(gatewayEventType discord.GatewayEventType, responseChannel chan discord.InteractionResponse, payload io.Reader)
 	Dispatch(event Event)
 }
 
@@ -32,14 +30,14 @@ type Event interface {
 
 // GatewayEventHandler is used to handle Gateway Event(s)
 type GatewayEventHandler interface {
-	EventType() gateway.EventType
+	EventType() discord.GatewayEventType
 	New() interface{}
 	HandleGatewayEvent(disgo Disgo, eventManager EventManager, sequenceNumber int, payload interface{})
 }
 
 // HTTPEventHandler is used to handle HTTP EventType(s)
 type HTTPEventHandler interface {
-	EventType() httpserver.EventType
+	EventType() discord.GatewayEventType
 	New() interface{}
 	HandleHTTPEvent(disgo Disgo, eventManager EventManager, responseChannel chan discord.InteractionResponse, payload interface{})
 }

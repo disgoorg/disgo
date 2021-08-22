@@ -3,7 +3,6 @@ package handlers
 import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway"
 )
 
 type webhooksUpdateData struct {
@@ -14,9 +13,9 @@ type webhooksUpdateData struct {
 // WebhooksUpdateHandler handles api.GatewayEventWebhooksUpdate
 type WebhooksUpdateHandler struct{}
 
-// EventType returns the raw api.GatewayEventType
-func (h *WebhooksUpdateHandler) EventType() gateway.EventType {
-	return gateway.EventTypeWebhooksUpdate
+// EventType returns the raw api.GatewayGatewayEventType
+func (h *WebhooksUpdateHandler) EventType() discord.GatewayEventType {
+	return discord.GatewayEventTypeWebhooksUpdate
 }
 
 // New constructs a new payload receiver for the raw gateway event

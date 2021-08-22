@@ -4,15 +4,14 @@ import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway"
 )
 
 // VoiceStateUpdateHandler handles api.GatewayEventVoiceStateUpdate
 type VoiceStateUpdateHandler struct{}
 
 // EventType returns the gateway.EventType
-func (h *VoiceStateUpdateHandler) EventType() gateway.EventType {
-	return gateway.EventTypeVoiceStateUpdate
+func (h *VoiceStateUpdateHandler) EventType() discord.GatewayEventType {
+	return discord.GatewayEventTypeVoiceStateUpdate
 }
 
 // New constructs a new payload receiver for the raw gateway event

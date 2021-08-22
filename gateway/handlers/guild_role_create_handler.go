@@ -4,7 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway"
 )
 
 type roleCreateData struct {
@@ -15,9 +14,9 @@ type roleCreateData struct {
 // GuildRoleCreateHandler handles api.GuildRoleCreateGatewayEvent
 type GuildRoleCreateHandler struct{}
 
-// EventType returns the api.GatewayEventType
-func (h *GuildRoleCreateHandler) EventType() gateway.EventType {
-	return gateway.EventTypeGuildRoleCreate
+// EventType returns the api.GatewayGatewayEventType
+func (h *GuildRoleCreateHandler) EventType() discord.GatewayEventType {
+	return discord.GatewayEventTypeGuildRoleCreate
 }
 
 // New constructs a new payload receiver for the raw gateway event

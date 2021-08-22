@@ -6,13 +6,11 @@ import (
 	"runtime/debug"
 
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway"
-	"github.com/DisgoOrg/disgo/httpserver"
 )
 
 var (
-	GatewayEventHandlers = map[gateway.EventType]GatewayEventHandler{}
-	HTTPEventHandlers    = map[httpserver.EventType]HTTPEventHandler{}
+	GatewayEventHandlers = map[discord.GatewayEventType]GatewayEventHandler{}
+	HTTPEventHandlers    = map[discord.GatewayEventType]HTTPEventHandler{}
 )
 
 var _ EventManager = (*EventManagerImpl)(nil)
@@ -47,8 +45,8 @@ func (e *EventManagerImpl) Close() {
 }
 
 // HandleGateway calls the correct api.EventHandler
-func (e *EventManagerImpl) HandleGateway(name gateway.EventType, sequenceNumber int, payload io.Reader) {
-	if handler, ok := GatewayEventHandlers[name]; ok {
+func (e *EventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader) {
+	if handler, ok := GatewayEventHandlers[gatewayEventType]; ok {
 		eventPayload := handler.New()
 		if err := json.NewDecoder(payload).Decode(&eventPayload); err != nil {
 			e.disgo.Logger().Errorf("error while unmarshalling event. error: %s", err)
@@ -58,8 +56,8 @@ func (e *EventManagerImpl) HandleGateway(name gateway.EventType, sequenceNumber 
 }
 
 // HandleHTTP calls the correct api.EventHandler
-func (e *EventManagerImpl) HandleHTTP(eventType httpserver.EventType, c chan discord.InteractionResponse, payload io.Reader) {
-	if handler, ok := HTTPEventHandlers[eventType]; ok {
+func (e *EventManagerImpl) HandleHTTP(gatewayEventType discord.GatewayEventType, c chan discord.InteractionResponse, payload io.Reader) {
+	if handler, ok := HTTPEventHandlers[gatewayEventType]; ok {
 		eventPayload := handler.New()
 		if err := json.NewDecoder(payload).Decode(&eventPayload); err != nil {
 			e.disgo.Logger().Errorf("error while unmarshalling httpserver event. error: %s", err)

@@ -9,9 +9,9 @@ import (
 
 // Packet raw GatewayEvent type
 type Packet struct {
-	Op Op         `json:"op"`
-	S  *int       `json:"s,omitempty"`
-	T  *EventType `json:"t,omitempty"`
+	Op Op                        `json:"op"`
+	S  *int                      `json:"s,omitempty"`
+	T  *discord.GatewayEventType `json:"t,omitempty"`
 }
 
 // RawEvent specifies the data for the GatewayCommand payload that is being sent

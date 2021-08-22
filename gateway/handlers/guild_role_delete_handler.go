@@ -4,7 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway"
 )
 
 type roleDeleteData struct {
@@ -15,9 +14,9 @@ type roleDeleteData struct {
 // GuildRoleDeleteHandler handles api.GuildRoleDeleteGatewayEvent
 type GuildRoleDeleteHandler struct{}
 
-// EventType returns the api.GatewayEventType
-func (h *GuildRoleDeleteHandler) EventType() gateway.EventType {
-	return gateway.EventTypeGuildRoleDelete
+// EventType returns the api.GatewayGatewayEventType
+func (h *GuildRoleDeleteHandler) EventType() discord.GatewayEventType {
+	return discord.GatewayEventTypeGuildRoleDelete
 }
 
 // New constructs a new payload receiver for the raw gateway event

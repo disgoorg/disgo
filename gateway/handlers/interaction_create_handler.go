@@ -4,15 +4,14 @@ import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway"
 )
 
 // InteractionCreateHandler handles api.InteractionCreateGatewayEvent
 type InteractionCreateHandler struct{}
 
-// EventType returns the api.GatewayEventType
-func (h *InteractionCreateHandler) EventType() gateway.EventType {
-	return gateway.EventTypeInteractionCreate
+// EventType returns the api.GatewayGatewayEventType
+func (h *InteractionCreateHandler) EventType() discord.GatewayEventType {
+	return discord.GatewayEventTypeInteractionCreate
 }
 
 // New constructs a new payload receiver for the raw gateway event

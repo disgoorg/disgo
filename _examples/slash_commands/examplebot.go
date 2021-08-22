@@ -194,7 +194,7 @@ func guildAvailListener(event *events.GuildAvailableEvent) {
 }
 
 func rawGatewayEventListener(event *events.RawEvent) {
-	if event.Type == string(gateway.EventTypeInteractionCreate) {
+	if event.Type == string(discord.GatewayEventTypeInteractionCreate) {
 		println(string(event.RawPayload))
 	}
 }
