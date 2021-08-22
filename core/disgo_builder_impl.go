@@ -6,12 +6,10 @@ import (
 	"net/http"
 
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/httpserver"
-	"github.com/DisgoOrg/disgo/rest/rate"
-	"github.com/DisgoOrg/disgo/util"
-
 	"github.com/DisgoOrg/disgo/gateway"
+	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/rest"
+	"github.com/DisgoOrg/disgo/rest/rate"
 	"github.com/DisgoOrg/log"
 )
 
@@ -174,7 +172,7 @@ func (b *DisgoBuilderImpl) Build() (Disgo, error) {
 	}
 	disgo.token = b.token
 
-	id, err := util.IDFromToken(disgo.token)
+	id, err := IDFromToken(disgo.token)
 	if err != nil {
 		disgo.Logger().Errorf("error while getting application id from BotToken: %s", err)
 		return nil, err

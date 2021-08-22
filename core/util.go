@@ -1,4 +1,4 @@
-package util
+package core
 
 import (
 	"encoding/base64"
@@ -22,7 +22,3 @@ func IDFromToken(token string) (*discord.Snowflake, error) {
 	return &strID, nil
 }
 
-//goland:noinspection GoUnusedExportedFunction
-func NormalizeEmoji(emoji string) string {
-	return strings.Replace(emoji, "#", "%23", -1)
-}
