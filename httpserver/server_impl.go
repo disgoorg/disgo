@@ -52,7 +52,13 @@ func (w *ServerImpl) Config() Config {
 // Start makes the ServerImpl listen on the specified port and handle requests
 func (w *ServerImpl) Start() {
 	go func() {
-		if err := w.server.ListenAndServe(); err != nil {
+		var err error
+		if w.config.CertFile != "" && w.config.KeyFile != "" {
+			err = w.server.ListenAndServeTLS(w.config.CertFile, w.config.KeyFile)
+		} else {
+			err = w.server.ListenAndServe()
+		}
+		if err != nil {
 			w.logger.Errorf("error starting http server: %s", err)
 		}
 	}()

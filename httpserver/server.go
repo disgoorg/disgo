@@ -12,13 +12,20 @@ import (
 	"github.com/DisgoOrg/log"
 )
 
-
 type EventHandlerFunc func(gatewayEventType discord.GatewayEventType, responseChannel chan discord.InteractionResponse, payload io.Reader)
+
+//goland:noinspection GoUnusedGlobalVariable
+var DefaultConfig = Config{
+	URL:  "/interactions/callback",
+	Port: ":80",
+}
 
 type Config struct {
 	URL       string
 	Port      string
 	PublicKey string
+	CertFile string
+	KeyFile  string
 }
 
 // Server is used for receiving an Interaction over httpserver

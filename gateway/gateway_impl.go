@@ -114,13 +114,13 @@ func (g *GatewayImpl) Open() error {
 		return err
 	}
 
-	if event.Op != OpHello {
-		return discord.ErrUnexpectedGatewayOp(int(OpHello), int(event.Op))
+	if event.Op != discord.OpHello {
+		return discord.ErrUnexpectedGatewayOp(discord.OpHello, int(event.Op))
 	}
 
 	g.lastHeartbeatReceived = time.Now().UTC()
 
-	var eventData HelloGatewayEventData
+	var eventData discord.HelloGatewayEventData
 	if err = json.Unmarshal(event.D, &eventData); err != nil {
 		return err
 	}
@@ -131,7 +131,7 @@ func (g *GatewayImpl) Open() error {
 		g.status = StatusIdentifying
 		g.Logger().Infof("sending StatusIdentifying command...")
 		if err = g.Send(
-			NewGatewayCommand(OpIdentify, IdentifyCommand{
+			NewGatewayCommand(discord.OpIdentify, IdentifyCommand{
 				Token: g.token,
 				Properties: IdentifyCommandDataProperties{
 					OS:      g.config.OS,
@@ -148,7 +148,7 @@ func (g *GatewayImpl) Open() error {
 		g.status = StatusWaitingForReady
 	} else {
 		g.status = StatusResuming
-		cmd := NewGatewayCommand(OpResume, ResumeCommand{
+		cmd := NewGatewayCommand(discord.OpResume, ResumeCommand{
 			Token:     g.token,
 			SessionID: *g.sessionID,
 			Seq:       *g.lastSequenceReceived,
@@ -304,9 +304,8 @@ func (g *GatewayImpl) listen() {
 				g.Logger().Errorf("error while unpacking gateway event. error: %s", err)
 			}
 
-			switch op := event.Op; op {
-
-			case OpDispatch:
+			switch event.Op {
+			case discord.OpDispatch:
 				g.Logger().Debugf("received: OpDispatch")
 				if event.S != nil {
 					g.lastSequenceReceived = event.S
@@ -319,7 +318,7 @@ func (g *GatewayImpl) listen() {
 				g.Logger().Debugf("received: %s", *event.T)
 
 				if *event.T == discord.GatewayEventTypeReady {
-					var readyEvent ReadyGatewayEvent
+					var readyEvent discord.ReadyGatewayEvent
 					if err = g.parseEventToStruct(event, &readyEvent); err != nil {
 						g.Logger().Errorf("Error parsing ready event: %s", err)
 						continue
@@ -331,16 +330,16 @@ func (g *GatewayImpl) listen() {
 
 				g.eventHandlerFunc(*event.T, *event.S, bytes.NewBuffer(event.D))
 
-			case OpHeartbeat:
+			case discord.OpHeartbeat:
 				g.Logger().Debugf("received: OpHeartbeat")
 				g.sendHeartbeat()
 
-			case OpReconnect:
+			case discord.OpReconnect:
 				g.Logger().Debugf("received: OpReconnect")
 				g.closeWithCode(websocket.CloseServiceRestart)
 				g.reconnect(1 * time.Second)
 
-			case OpInvalidSession:
+			case discord.OpInvalidSession:
 				var canResume bool
 				if err = g.parseEventToStruct(event, &canResume); err != nil {
 					g.Logger().Errorf("Error parsing invalid session data: %s", err)
@@ -356,7 +355,7 @@ func (g *GatewayImpl) listen() {
 				}
 				g.reconnect(5 * time.Second)
 
-			case OpHeartbeatACK:
+			case discord.OpHeartbeatACK:
 				g.Logger().Debugf("received: OpHeartbeatACK")
 				g.lastHeartbeatReceived = time.Now().UTC()
 			}
@@ -366,7 +365,7 @@ func (g *GatewayImpl) listen() {
 	}
 }
 
-func (g *GatewayImpl) parseEventToStruct(event *RawEvent, v interface{}) error {
+func (g *GatewayImpl) parseEventToStruct(event *discord.RawEvent, v interface{}) error {
 	if err := json.Unmarshal(event.D, v); err != nil {
 		g.Logger().Errorf("error while unmarshalling event. error: %s", err)
 		return err
@@ -374,7 +373,7 @@ func (g *GatewayImpl) parseEventToStruct(event *RawEvent, v interface{}) error {
 	return nil
 }
 
-func (g *GatewayImpl) parseGatewayEvent(mt int, reader io.Reader) (*RawEvent, error) {
+func (g *GatewayImpl) parseGatewayEvent(mt int, reader io.Reader) (*discord.RawEvent, error) {
 	if mt == websocket.BinaryMessage {
 		return nil, discord.ErrGatewayCompressedData
 	}
@@ -384,7 +383,7 @@ func (g *GatewayImpl) parseGatewayEvent(mt int, reader io.Reader) (*RawEvent, er
 	}
 
 	decoder := json.NewDecoder(reader)
-	var event RawEvent
+	var event discord.RawEvent
 	if err := decoder.Decode(&event); err != nil {
 		g.Logger().Errorf("error decoding websocket message, %s", err)
 		return nil, err

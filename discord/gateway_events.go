@@ -1,17 +1,15 @@
-package gateway
+package discord
 
 import (
 	"encoding/json"
 	"time"
-
-	"github.com/DisgoOrg/disgo/discord"
 )
 
 // Packet raw GatewayEvent type
 type Packet struct {
-	Op Op                        `json:"op"`
-	S  *int                      `json:"s,omitempty"`
-	T  *discord.GatewayEventType `json:"t,omitempty"`
+	Op Op                `json:"op"`
+	S  *int              `json:"s,omitempty"`
+	T  *GatewayEventType `json:"t,omitempty"`
 }
 
 // RawEvent specifies the data for the GatewayCommand payload that is being sent
@@ -22,10 +20,10 @@ type RawEvent struct {
 
 // ReadyGatewayEvent is the event sent by discord when you successfully Identify
 type ReadyGatewayEvent struct {
-	Version   int              `json:"v"`
-	SelfUser  discord.SelfUser `json:"user"`
-	Guilds    []discord.Guild  `json:"guilds"`
-	SessionID string           `json:"session_id"`
+	Version   int      `json:"v"`
+	SelfUser  SelfUser `json:"user"`
+	Guilds    []Guild  `json:"guilds"`
+	SessionID string   `json:"session_id"`
 	Shard     *[2]int          `json:"shard,omitempty"`
 }
 

@@ -11,6 +11,7 @@ import (
 )
 
 // New returns a new Client
+//goland:noinspection GoUnusedExportedFunction
 func New(client *http.Client, restClient rest.Client, logger log.Logger, id discord.Snowflake, token string) Client {
 	if client == nil {
 		client = http.DefaultClient

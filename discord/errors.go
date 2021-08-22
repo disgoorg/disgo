@@ -44,6 +44,6 @@ func ErrFileExtensionNotSupported(fileExtension string) error {
 	return fmt.Errorf("provided file extension: %s is not supported by discord on this end", fileExtension)
 }
 
-func ErrUnexpectedGatewayOp(wOp int, rOp int) error {
+func ErrUnexpectedGatewayOp(wOp Op, rOp int) error {
 	return fmt.Errorf("expected op: %d, received: %d", wOp, rOp)
 }

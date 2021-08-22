@@ -14,14 +14,17 @@ func NewApplicationCommand(commandType discord.ApplicationCommandType, name stri
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func NewSlashCommand(name string, description string) *ApplicationCommandBuilder {
 	return NewApplicationCommand(discord.ApplicationCommandTypeSlash, name, description)
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func NewUserCommand(name string) *ApplicationCommandBuilder {
 	return NewApplicationCommand(discord.ApplicationCommandTypeUser, name, "")
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func NewMessageCommand(name string) *ApplicationCommandBuilder {
 	return NewApplicationCommand(discord.ApplicationCommandTypeMessage, name, "")
 }

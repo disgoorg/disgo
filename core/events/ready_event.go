@@ -1,11 +1,11 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/gateway"
+	"github.com/DisgoOrg/disgo/discord"
 )
 
 // ReadyEvent indicates we received the ReadyEvent from the api.Gateway
 type ReadyEvent struct {
 	*GenericEvent
-	*gateway.ReadyGatewayEvent
+	*discord.ReadyGatewayEvent
 }

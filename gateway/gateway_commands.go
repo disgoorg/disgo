@@ -5,9 +5,9 @@ import (
 )
 
 // NewGatewayCommand returns a new GatewayCommand struct with the given payload
-func NewGatewayCommand(op Op, d interface{}) GatewayCommand {
+func NewGatewayCommand(op discord.Op, d interface{}) GatewayCommand {
 	return GatewayCommand{
-		Packet: Packet{
+		Packet: discord.Packet{
 			Op: op,
 			S:  nil,
 			T:  nil,
@@ -19,7 +19,7 @@ func NewGatewayCommand(op Op, d interface{}) GatewayCommand {
 // GatewayCommand object is used when sending data to discord's websocket, it's recommended that you don't use these
 //goland:noinspection GoNameStartsWithPackageName
 type GatewayCommand struct {
-	Packet
+	discord.Packet
 	D interface{} `json:"d"`
 }
 
@@ -29,7 +29,7 @@ type IdentifyCommand struct {
 	Properties     IdentifyCommandDataProperties `json:"properties"`
 	Compress       bool                          `json:"compress,omitempty"`
 	LargeThreshold int                           `json:"large_threshold,omitempty"`
-	GatewayIntents Intents                       `json:"intents"`
+	GatewayIntents discord.GatewayIntents        `json:"intents"`
 	// Todo: Add presence property here, need presence methods/struct
 	// Todo: Add shard property here, need to discuss
 }

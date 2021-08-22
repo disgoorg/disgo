@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/log"
 )
 
@@ -35,9 +36,18 @@ const (
 	StatusResuming
 )
 
+//goland:noinspection GoUnusedGlobalVariable
+var DefaultConfig = Config{
+	LargeThreshold: 50,
+	GatewayIntents: discord.GatewayIntentsNonPrivileged,
+	OS:             info.OS,
+	Browser:        info.Name,
+	Device:         info.Name,
+}
+
 type Config struct {
 	LargeThreshold int
-	GatewayIntents Intents
+	GatewayIntents discord.GatewayIntents
 	OS             string
 	Browser        string
 	Device         string
@@ -55,25 +65,3 @@ type Gateway interface {
 	Send(command GatewayCommand) error
 	Latency() time.Duration
 }
-
-// Op are opcodes used by discord
-type Op int
-
-// Constants for the gateway opcodes
-//goland:noinspection GoUnusedConst
-const (
-	OpDispatch Op = iota
-	OpHeartbeat
-	OpIdentify
-	OpPresenceUpdate
-	OpVoiceStateUpdate
-	_
-	OpResume
-	OpReconnect
-	OpRequestGuildMembers
-	OpInvalidSession
-	OpHello
-	OpHeartbeatACK
-)
-
-

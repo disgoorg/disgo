@@ -12,11 +12,10 @@ import (
 
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/collectors"
-	"github.com/DisgoOrg/disgo/httpserver"
-	"github.com/DisgoOrg/disgo/util"
-
+	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
+	"github.com/DisgoOrg/disgo/httpserver"
 
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/log"
@@ -37,13 +36,13 @@ var client = http.DefaultClient
 func main() {
 	log.SetLevel(log.LevelDebug)
 	log.Info("starting ExampleBot...")
-	log.Infof("disgo %s", util.Version)
+	log.Infof("disgo %s", info.Version)
 
 	disgo, err := core.NewBuilder(token).
 		SetRawEventsEnabled(true).
 		SetHTTPClient(client).
 		SetGatewayConfig(gateway.Config{
-			GatewayIntents: gateway.IntentGuilds | gateway.IntentGuildMessages | gateway.IntentGuildMembers,
+			GatewayIntents: discord.GatewayIntentGuilds | discord.GatewayIntentGuildMessages | discord.GatewayIntentGuildMembers,
 		}).
 		SetHTTPServerConfig(httpserver.Config{
 			URL:       "/interactions/callback",

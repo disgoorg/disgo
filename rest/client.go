@@ -11,15 +11,15 @@ import (
 	"net/url"
 
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/disgo/rest/rate"
 	"github.com/DisgoOrg/disgo/rest/route"
-	"github.com/DisgoOrg/disgo/util"
 	"github.com/DisgoOrg/log"
 )
 
 var DefaultConfig = Config{
 	Headers:   nil,
-	UserAgent: fmt.Sprintf("DiscordBot (%s, %s)", util.GitHub, util.Version),
+	UserAgent: fmt.Sprintf("DiscordBot (%s, %s)", info.GitHub, info.Version),
 }
 
 type Config struct {

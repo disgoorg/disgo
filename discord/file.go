@@ -76,6 +76,7 @@ func partHeader(contentDisposition string, contentType string) textproto.MIMEHea
 }
 
 // NewFile returns a new File struct with the given name, io.Reader & FileFlags
+//goland:noinspection GoUnusedExportedFunction
 func NewFile(name string, reader io.Reader, flags ...FileFlags) *File {
 	return &File{
 		Name:   name,
