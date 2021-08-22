@@ -14,7 +14,7 @@ func NewServices(logger log.Logger, restClient Client) Services {
 		auditLogService:      NewAuditLogService(restClient),
 		gatewayService:       NewGatewayService(restClient),
 		guildService:         NewGuildService(restClient),
-		channelsService:      NewChannelService(restClient),
+		channelService:       NewChannelService(restClient),
 		interactionService:   NewInteractionService(restClient),
 		inviteService:        NewInviteService(restClient),
 		guildTemplateService: NewGuildTemplateService(restClient),
@@ -52,7 +52,7 @@ type ServicesImpl struct {
 	auditLogService      AuditLogService
 	gatewayService       GatewayService
 	guildService         GuildService
-	channelsService      ChannelService
+	channelService       ChannelService
 	interactionService   InteractionService
 	inviteService        InviteService
 	guildTemplateService GuildTemplateService
@@ -91,7 +91,7 @@ func (s *ServicesImpl) GuildService() GuildService {
 }
 
 func (s *ServicesImpl) ChannelService() ChannelService {
-	return s.channelsService
+	return s.channelService
 }
 
 func (s *ServicesImpl) InteractionService() InteractionService {

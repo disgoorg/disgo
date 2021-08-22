@@ -19,7 +19,7 @@ var (
 type EntityBuilder interface {
 	Disgo() Disgo
 
-	CreateInteraction(unmarshalInteraction discord.UnmarshalInteraction, replyChannel chan discord.InteractionResponse, updateCache CacheStrategy) *Interaction
+	CreateInteraction(unmarshalInteraction discord.UnmarshalInteraction, responseChannel chan discord.InteractionResponse, updateCache CacheStrategy) *Interaction
 
 	CreateApplicationCommandInteraction(interaction *Interaction, updateCache CacheStrategy) *ApplicationCommandInteraction
 

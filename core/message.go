@@ -35,12 +35,12 @@ func (m *Message) AddReactionByEmote(ctx context.Context, emote Emoji) rest.Erro
 
 // AddReaction allows you to add a reaction to a message_events from a string, for _examples a custom emoji ID, or a native emoji
 func (m *Message) AddReaction(ctx context.Context, emoji string) rest.Error {
-	return m.Disgo.RestServices().ChannelsService().AddReaction(ctx, m.ChannelID, m.ID, emoji)
+	return m.Disgo.RestServices().ChannelService().AddReaction(ctx, m.ChannelID, m.ID, emoji)
 }
 
 // Update allows you to edit an existing Message sent by you
 func (m *Message) Update(ctx context.Context, messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
-	message, err := m.Disgo.RestServices().ChannelsService().UpdateMessage(ctx, m.ChannelID, m.ID, messageUpdate)
+	message, err := m.Disgo.RestServices().ChannelService().UpdateMessage(ctx, m.ChannelID, m.ID, messageUpdate)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (m *Message) Update(ctx context.Context, messageUpdate discord.MessageUpdat
 
 // Delete allows you to edit an existing Message sent by you
 func (m *Message) Delete(ctx context.Context) rest.Error {
-	return m.Disgo.RestServices().ChannelsService().DeleteMessage(ctx, m.ChannelID, m.ID)
+	return m.Disgo.RestServices().ChannelService().DeleteMessage(ctx, m.ChannelID, m.ID)
 }
 
 // Crosspost crossposts an existing message
@@ -58,7 +58,7 @@ func (m *Message) Crosspost(ctx context.Context) (*Message, rest.Error) {
 	if channel != nil && channel.IsNewsChannel() {
 		return nil, rest.NewError(nil, discord.ErrChannelNotTypeNews)
 	}
-	message, err := m.Disgo.RestServices().ChannelsService().CrosspostMessage(ctx, m.ChannelID, m.ID)
+	message, err := m.Disgo.RestServices().ChannelService().CrosspostMessage(ctx, m.ChannelID, m.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (m *Message) Crosspost(ctx context.Context) (*Message, rest.Error) {
 // Reply allows you to reply to an existing Message
 func (m *Message) Reply(ctx context.Context, messageCreate discord.MessageCreate) (*Message, rest.Error) {
 	messageCreate.MessageReference = &discord.MessageReference{MessageID: &m.ID}
-	message, err := m.Disgo.RestServices().ChannelsService().CreateMessage(ctx, m.ChannelID, messageCreate)
+	message, err := m.Disgo.RestServices().ChannelService().CreateMessage(ctx, m.ChannelID, messageCreate)
 	if err != nil {
 		return nil, err
 	}

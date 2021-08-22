@@ -5,6 +5,7 @@ import (
 
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/rest"
 )
 
 // GenericInteractionEvent generic api.Interaction event
@@ -28,27 +29,32 @@ func (e GenericInteractionEvent) Create(ctx context.Context, messageCreate disco
 	return e.Interaction.Create(ctx, messageCreate)
 }
 
-// UpdateOriginal edits the original api.InteractionResponse
-func (e GenericInteractionEvent) UpdateOriginal(ctx context.Context, messageUpdate discord.MessageUpdate) (*core.Message, error) {
+// GetOriginal gets the original discord.InteractionResponse
+func (e GenericInteractionEvent) GetOriginal(ctx context.Context) (*core.Message, rest.Error) {
+	return e.Interaction.GetOriginal(ctx)
+}
+
+// UpdateOriginal edits the original discord.InteractionResponse
+func (e GenericInteractionEvent) UpdateOriginal(ctx context.Context, messageUpdate discord.MessageUpdate) (*core.Message, rest.Error) {
 	return e.Interaction.UpdateOriginal(ctx, messageUpdate)
 }
 
 // DeleteOriginal deletes the original discord.InteractionResponse
-func (e GenericInteractionEvent) DeleteOriginal(ctx context.Context) error {
+func (e GenericInteractionEvent) DeleteOriginal(ctx context.Context) rest.Error {
 	return e.Interaction.DeleteOriginal(ctx)
 }
 
 // CreateFollowup is used to send a followup discord.MessageCreate to an api.Interaction
-func (e GenericInteractionEvent) CreateFollowup(ctx context.Context, messageCreate discord.MessageCreate) (*core.Message, error) {
+func (e GenericInteractionEvent) CreateFollowup(ctx context.Context, messageCreate discord.MessageCreate) (*core.Message, rest.Error) {
 	return e.Interaction.CreateFollowup(ctx, messageCreate)
 }
 
 // UpdateFollowup is used to edit a followup discord.Message from an api.Interaction
-func (e GenericInteractionEvent) UpdateFollowup(ctx context.Context, messageID discord.Snowflake, messageUpdate discord.MessageUpdate) (*core.Message, error) {
+func (e GenericInteractionEvent) UpdateFollowup(ctx context.Context, messageID discord.Snowflake, messageUpdate discord.MessageUpdate) (*core.Message, rest.Error) {
 	return e.Interaction.UpdateFollowup(ctx, messageID, messageUpdate)
 }
 
 // DeleteFollowup used to delete a followup discord.Message from a core.Interaction
-func (e GenericInteractionEvent) DeleteFollowup(ctx context.Context, messageID discord.Snowflake) error {
+func (e GenericInteractionEvent) DeleteFollowup(ctx context.Context, messageID discord.Snowflake) rest.Error {
 	return e.Interaction.DeleteFollowup(ctx, messageID)
 }

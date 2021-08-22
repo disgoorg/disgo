@@ -169,7 +169,7 @@ func (c *channelImpl) LastPinTimestamp() *discord.Time {
 
 // CreateMessage sends a Message to a TextChannel
 func (c *channelImpl) CreateMessage(ctx context.Context, messageCreate discord.MessageCreate) (*Message, rest.Error) {
-	message, err := c.Disgo().RestServices().ChannelsService().CreateMessage(ctx, c.ID(), messageCreate)
+	message, err := c.Disgo().RestServices().ChannelService().CreateMessage(ctx, c.ID(), messageCreate)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +178,7 @@ func (c *channelImpl) CreateMessage(ctx context.Context, messageCreate discord.M
 
 // UpdateMessage edits a Message in this TextChannel
 func (c *channelImpl) UpdateMessage(ctx context.Context, messageID discord.Snowflake, messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
-	message, err := c.Disgo().RestServices().ChannelsService().UpdateMessage(ctx, c.ID(), messageID, messageUpdate)
+	message, err := c.Disgo().RestServices().ChannelService().UpdateMessage(ctx, c.ID(), messageID, messageUpdate)
 	if err != nil {
 		return nil, err
 	}
@@ -187,12 +187,12 @@ func (c *channelImpl) UpdateMessage(ctx context.Context, messageID discord.Snowf
 
 // DeleteMessage allows you to edit an existing Message sent by you
 func (c *channelImpl) DeleteMessage(ctx context.Context, messageID discord.Snowflake) rest.Error {
-	return c.Disgo().RestServices().ChannelsService().DeleteMessage(ctx, c.ID(), messageID)
+	return c.Disgo().RestServices().ChannelService().DeleteMessage(ctx, c.ID(), messageID)
 }
 
 // BulkDeleteMessages allows you bulk delete Message(s)
 func (c *channelImpl) BulkDeleteMessages(ctx context.Context, messageIDs ...discord.Snowflake) rest.Error {
-	return c.Disgo().RestServices().ChannelsService().BulkDeleteMessages(ctx, c.ID(), messageIDs...)
+	return c.Disgo().RestServices().ChannelService().BulkDeleteMessages(ctx, c.ID(), messageIDs...)
 }
 
 /* func (c *channelImpl) CollectMessages(filter collectors.MessageFilter) (chan *Message, func()) {
@@ -249,7 +249,7 @@ func (c *channelImpl) Update(ctx context.Context, channelUpdate discord.ChannelU
 	if !c.IsGuildChannel() {
 		unsupported(c)
 	}
-	channel, err := c.Disgo().RestServices().ChannelsService().UpdateChannel(ctx, c.ID(), channelUpdate)
+	channel, err := c.Disgo().RestServices().ChannelService().UpdateChannel(ctx, c.ID(), channelUpdate)
 	if err != nil {
 		return nil, err
 	}
@@ -289,7 +289,7 @@ func (c *channelImpl) Topic() *string {
 var _ NewsChannel = (*channelImpl)(nil)
 
 func (c *channelImpl) CrosspostMessage(ctx context.Context, messageID discord.Snowflake) (*Message, rest.Error) {
-	message, err := c.Disgo().RestServices().ChannelsService().CrosspostMessage(ctx, c.ID(), messageID)
+	message, err := c.Disgo().RestServices().ChannelService().CrosspostMessage(ctx, c.ID(), messageID)
 	if err != nil {
 		return nil, err
 	}

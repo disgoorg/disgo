@@ -13,7 +13,7 @@ type Interaction struct {
 	User            *User
 	Member          *Member
 	ResponseChannel chan discord.InteractionResponse
-	Replied         bool
+	Responded       bool
 	Data            *InteractionData
 }
 
@@ -23,10 +23,10 @@ func (i *Interaction) Respond(ctx context.Context, responseType discord.Interact
 		Type: responseType,
 		Data: data,
 	}
-	if i.Replied {
+	if i.Responded {
 		return rest.NewError(nil, discord.ErrInteractionAlreadyReplied)
 	}
-	i.Replied = true
+	i.Responded = true
 
 	if !i.FromGateway() {
 		i.ResponseChannel <- response
@@ -50,7 +50,16 @@ func (i *Interaction) Create(ctx context.Context, messageCreate discord.MessageC
 	return i.Respond(ctx, discord.InteractionResponseTypeChannelMessageWithSource, messageCreate)
 }
 
-// UpdateOriginal edits the original InteractionResponse
+// GetOriginal gets the original discord.InteractionResponse
+func (i *Interaction) GetOriginal(ctx context.Context) (*Message, rest.Error) {
+	message, err := i.Disgo.RestServices().InteractionService().GetInteractionResponse(ctx, i.Disgo.ApplicationID(), i.Token)
+	if err != nil {
+
+	}
+	return i.Disgo.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
+}
+
+// UpdateOriginal edits the original discord.InteractionResponse
 func (i *Interaction) UpdateOriginal(ctx context.Context, messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
 	message, err := i.Disgo.RestServices().InteractionService().UpdateInteractionResponse(ctx, i.Disgo.ApplicationID(), i.Token, messageUpdate)
 	if err != nil {
@@ -59,12 +68,12 @@ func (i *Interaction) UpdateOriginal(ctx context.Context, messageUpdate discord.
 	return i.Disgo.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-// DeleteOriginal deletes the original InteractionResponse
+// DeleteOriginal deletes the original discord.InteractionResponse
 func (i *Interaction) DeleteOriginal(ctx context.Context) rest.Error {
 	return i.Disgo.RestServices().InteractionService().DeleteInteractionResponse(ctx, i.Disgo.ApplicationID(), i.Token)
 }
 
-// CreateFollowup is used to send an MessageCreate to an Interaction
+// CreateFollowup is used to send an discord.MessageCreate to an Interaction
 func (i *Interaction) CreateFollowup(ctx context.Context, messageCreate discord.MessageCreate) (*Message, rest.Error) {
 	message, err := i.Disgo.RestServices().InteractionService().CreateFollowupMessage(ctx, i.Disgo.ApplicationID(), i.Token, messageCreate)
 	if err != nil {

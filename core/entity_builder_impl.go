@@ -24,7 +24,7 @@ func (b EntityBuilderImpl) CreateInteraction(unmarshalInteraction discord.Unmars
 		UnmarshalInteraction: unmarshalInteraction,
 		Disgo:                b.disgo,
 		ResponseChannel:      c,
-		Replied:              false,
+		Responded:            false,
 		Data: &InteractionData{
 			UnmarshalInteractionData: *unmarshalInteraction.Data,
 		},

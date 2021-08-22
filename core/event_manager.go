@@ -15,7 +15,7 @@ type EventManager interface {
 	AddEventListeners(eventListeners ...EventListener)
 	RemoveEventListeners(eventListeners ...EventListener)
 	HandleGateway(eventType gateway.EventType, sequenceNumber int, payload io.Reader)
-	HandleHTTP(eventType httpserver.EventType, replyChannel chan discord.InteractionResponse, payload io.Reader)
+	HandleHTTP(eventType httpserver.EventType, responseChannel chan discord.InteractionResponse, payload io.Reader)
 	Dispatch(event Event)
 }
 
@@ -41,5 +41,5 @@ type GatewayEventHandler interface {
 type HTTPEventHandler interface {
 	EventType() httpserver.EventType
 	New() interface{}
-	HandleHTTPEvent(disgo Disgo, eventManager EventManager, replyChannel chan discord.InteractionResponse, payload interface{})
+	HandleHTTPEvent(disgo Disgo, eventManager EventManager, responseChannel chan discord.InteractionResponse, payload interface{})
 }
