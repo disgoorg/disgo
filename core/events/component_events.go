@@ -1,10 +1,9 @@
 package events
 
 import (
-	"context"
-
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/rest"
 )
 
 // GenericComponentEvent generic api.ComponentInteraction event
@@ -15,7 +14,7 @@ type GenericComponentEvent struct {
 
 // DeferUpdate replies to the api.ButtonInteraction with api.InteractionResponseTypeDeferredUpdateMessage and cancels the loading state
 func (e *GenericComponentEvent) DeferUpdate(opts ...rest.RequestOpt) error {
-	return e.ComponentInteraction.DeferUpdate(ctx)
+	return e.ComponentInteraction.DeferUpdate(opts...)
 }
 
 // Update replies to the api.ButtonInteraction with api.InteractionResponseTypeUpdateMessage & api.MessageUpdate which edits the original api.Message

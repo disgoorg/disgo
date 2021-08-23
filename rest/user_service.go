@@ -1,8 +1,6 @@
 package rest
 
 import (
-	"context"
-
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest/route"
 )
@@ -18,11 +16,11 @@ func NewUserService(restClient Client) UserService {
 type UserService interface {
 	Service
 	GetUser(userID discord.Snowflake) (*discord.User, Error)
-	GetSelfUser(opts ...rest.RequestOpt) (*discord.SelfUser, Error)
+	GetSelfUser(opts ...RequestOpt) (*discord.SelfUser, Error)
 	UpdateSelfUser(updateSelfUser discord.UpdateSelfUser) (*discord.SelfUser, Error)
 	GetGuilds(before int, after int, limit int) ([]discord.PartialGuild, Error)
 	LeaveGuild(guildID discord.Snowflake) Error
-	GetDMChannels(opts ...rest.RequestOpt) ([]discord.Channel, Error)
+	GetDMChannels(opts ...RequestOpt) ([]discord.Channel, Error)
 	CreateDMChannel(userID discord.Snowflake) (*discord.Channel, Error)
 }
 
@@ -43,7 +41,7 @@ func (s *UserServiceImpl) GetUser(userID discord.Snowflake) (user *discord.User,
 	return
 }
 
-func (s *UserServiceImpl) GetSelfUser(opts ...rest.RequestOpt) (selfUser *discord.SelfUser, rErr Error) {
+func (s *UserServiceImpl) GetSelfUser(opts ...RequestOpt) (selfUser *discord.SelfUser, rErr Error) {
 	compiledRoute, err := route.GetSelfUser.Compile(nil)
 	if err != nil {
 		return nil, NewError(nil, err)
@@ -90,7 +88,7 @@ func (s *UserServiceImpl) LeaveGuild(guildID discord.Snowflake) Error {
 	return s.restClient.Do(compiledRoute, nil, nil)
 }
 
-func (s *UserServiceImpl) GetDMChannels(opts ...rest.RequestOpt) (channels []discord.Channel, rErr Error) {
+func (s *UserServiceImpl) GetDMChannels(opts ...RequestOpt) (channels []discord.Channel, rErr Error) {
 	compiledRoute, err := route.GetDMChannels.Compile(nil)
 	if err != nil {
 		return nil, NewError(nil, err)

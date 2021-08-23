@@ -1,8 +1,6 @@
 package rest
 
 import (
-	"context"
-
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -12,6 +10,6 @@ func NewGatewayService(client Client) GatewayService {
 
 type GatewayService interface {
 	Service
-	GetGateway(opts ...rest.RequestOpt) (*discord.Gateway, Error)
-	GetGatewayBot(opts ...rest.RequestOpt) (*discord.GatewayBot, Error)
+	GetGateway(opts ...RequestOpt) (*discord.Gateway, Error)
+	GetGatewayBot(opts ...RequestOpt) (*discord.GatewayBot, Error)
 }

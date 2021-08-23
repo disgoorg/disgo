@@ -1,8 +1,6 @@
 package core
 
 import (
-	"context"
-
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 )
@@ -21,7 +19,7 @@ func (i *StageInstance) Channel() StageChannel {
 }
 
 func (i *StageInstance) Update(stageInstanceUpdate discord.StageInstanceUpdate) (*StageInstance, rest.Error) {
-	stageInstance, err := i.Disgo.RestServices().StageInstanceService().UpdateStageInstance(i.ID, stageInstanceUpdate)
+	stageInstance, err := i.Disgo.RestServices().StageService().UpdateStageInstance(i.ID, stageInstanceUpdate)
 	if err != nil {
 		return nil, err
 	}
@@ -29,5 +27,5 @@ func (i *StageInstance) Update(stageInstanceUpdate discord.StageInstanceUpdate) 
 }
 
 func (i *StageInstance) Delete(opts ...rest.RequestOpt) rest.Error {
-	return i.Disgo.RestServices().StageInstanceService().DeleteStageInstance(i.ID)
+	return i.Disgo.RestServices().StageService().DeleteStageInstance(i.ID)
 }

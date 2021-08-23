@@ -8,7 +8,7 @@ type Cache interface {
 	Disgo() Disgo
 	Close()
 	DoCleanup()
-	CacheFlags() CacheFlags
+	Config() CacheConfig
 
 	UserCache() UserCache
 	RoleCache() RoleCache
@@ -26,12 +26,6 @@ type Cache interface {
 	StoreChannelCache() StoreChannelCache
 	StageChannelCache() StageChannelCache
 	StageInstanceCache() StageInstanceCache
-}
-
-type CacheConfig struct {
-	CacheFlags         CacheFlags
-	MemberCachePolicy  MemberCachePolicy
-	MessageCachePolicy MessageCachePolicy
 }
 
 type BaseCache interface {

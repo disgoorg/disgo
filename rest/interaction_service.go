@@ -1,8 +1,6 @@
 package rest
 
 import (
-	"context"
-
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest/route"
 )

@@ -278,34 +278,6 @@ func (b *EntityBuilderImpl) CreateGuild(guild discord.Guild, updateCache CacheSt
 		Guild: guild,
 		Disgo: b.disgo,
 	}
-	for _, channel := range guild.Channels {
-		channel.GuildID = &guild.ID
-		b.CreateChannel(channel, updateCache)
-	}
-
-	for _, role := range guild.Roles {
-		role.GuildID = guild.ID
-		b.CreateRole(guild.ID, role, updateCache)
-	}
-
-	for _, member := range guild.Members {
-		b.CreateMember(guild.ID, member, updateCache)
-	}
-
-	for _, voiceState := range guild.VoiceStates {
-		b.CreateVoiceState(guild.ID, voiceState, updateCache)
-	}
-
-	for _, emote := range guild.Emojis {
-		b.CreateEmoji(guild.ID, emote, updateCache)
-	}
-
-	// TODO: presence
-	/*for i := range fullGuild.Presences {
-		presence := fullGuild.Presences[i]
-		presence.Disgo = disgo
-		b.Disgo().Cache().CachePresence(presence)
-	}*/
 
 	if updateCache(b.Disgo()) {
 		return b.Disgo().Cache().GuildCache().Cache(coreGuild)

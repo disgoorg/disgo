@@ -12,7 +12,13 @@ import (
 
 var _ Server = (*ServerImpl)(nil)
 
-func New(logger log.Logger, config Config, eventHandler EventHandlerFunc) Server {
+func New(logger log.Logger, config *Config, eventHandler EventHandlerFunc) Server {
+	if logger == nil {
+		logger = log.Default()
+	}
+	if config == nil {
+		config = &DefaultConfig
+	}
 	hexDecodedKey, err := hex.DecodeString(config.PublicKey)
 	if err != nil {
 		logger.Errorf("error while decoding hex string: %s", err)
@@ -22,7 +28,7 @@ func New(logger log.Logger, config Config, eventHandler EventHandlerFunc) Server
 	return &ServerImpl{
 		logger:           logger,
 		publicKey:        hexDecodedKey,
-		config:           config,
+		config:           *config,
 		eventHandlerFunc: eventHandler,
 		server: &http.Server{
 			Addr:    config.Port,

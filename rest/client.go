@@ -10,43 +10,30 @@ import (
 	"net/url"
 
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/disgo/rest/rate"
 	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/log"
 )
 
-var DefaultConfig = Config{
-	Headers:   nil,
-	UserAgent: fmt.Sprintf("DiscordBot (%s, %s)", info.GitHub, info.Version),
-}
-
-type Config struct {
-	Headers   http.Header
-	UserAgent string
-}
-
-// NewClient constructs a new Client with the given http.Client, log.Logger & useragent
+// NewClient constructs a new Client with the given Config struct
 //goland:noinspection GoUnusedExportedFunction
-func NewClient(logger log.Logger, httpClient *http.Client, rateLimiter rate.RateLimiter, config *Config) Client {
-	if logger == nil {
-		logger = log.Default()
-	}
-	if httpClient == nil {
-		httpClient = http.DefaultClient
-	}
-	if rateLimiter == nil {
-		rateLimiter = rate.NewRateLimiter(logger, nil)
-	}
+func NewClient(config *Config) Client {
 	if config == nil {
 		config = &DefaultConfig
 	}
-	return &ClientImpl{
-		logger:      logger,
-		httpClient:  httpClient,
-		rateLimiter: rateLimiter,
-		config:      *config,
+	if config.Logger == nil {
+		config.Logger = log.Default()
 	}
+	if config.HTTPClient == nil {
+		config.HTTPClient = http.DefaultClient
+	}
+	if config.RateLimiterConfig == nil {
+		config.RateLimiterConfig = &rate.DefaultConfig
+	}
+	if config.RateLimiter == nil {
+		config.RateLimiter = rate.NewLimiter(config.Logger, config.RateLimiterConfig)
+	}
+	return &ClientImpl{config: *config}
 }
 
 // Client allows doing requests to different endpoints
@@ -54,32 +41,29 @@ type Client interface {
 	Close()
 	Logger() log.Logger
 	HTTPClient() *http.Client
-	RateLimiter() rate.RateLimiter
+	RateLimiter() rate.Limiter
 	Config() Config
 	Do(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) Error
 }
 
 type ClientImpl struct {
-	logger      log.Logger
-	config      Config
-	httpClient  *http.Client
-	rateLimiter rate.RateLimiter
+	config Config
 }
 
 func (c *ClientImpl) Close() {
-	c.httpClient.CloseIdleConnections()
+	c.config.HTTPClient.CloseIdleConnections()
 }
 
 func (c *ClientImpl) Logger() log.Logger {
-	return c.logger
+	return c.config.Logger
 }
 
 func (c *ClientImpl) HTTPClient() *http.Client {
-	return c.httpClient
+	return c.config.HTTPClient
 }
 
-func (c *ClientImpl) RateLimiter() rate.RateLimiter {
-	return c.rateLimiter
+func (c *ClientImpl) RateLimiter() rate.Limiter {
+	return c.config.RateLimiter
 }
 
 func (c *ClientImpl) Config() Config {
@@ -127,22 +111,24 @@ func (c *ClientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 		rq.Header.Set("Content-Type", contentType)
 	}
 
-	config := applyRequestOpts(RequestConfig{Request: rq}, opts)
+	config := &RequestConfig{Request: rq}
+	config.Apply(opts)
 
 	if config.Ctx != nil {
 		// wait for rate limits
-		err = c.rateLimiter.WaitBucket(config.Ctx, cRoute)
+		err = c.RateLimiter().WaitBucket(config.Ctx, cRoute)
 		if err != nil {
 			return NewError(nil, err)
 		}
+		rq = rq.WithContext(config.Ctx)
 	}
 
-	rs, err := c.httpClient.Do(config.Request)
+	rs, err := c.HTTPClient().Do(config.Request)
 	if err != nil {
 		return NewError(rs, err)
 	}
 
-	if err = c.rateLimiter.UnlockBucket(cRoute, rs.Header); err != nil {
+	if err = c.RateLimiter().UnlockBucket(cRoute, rs.Header); err != nil {
 		// TODO: should we maybe retry here?
 		return NewError(rs, err)
 	}

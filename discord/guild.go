@@ -128,12 +128,18 @@ type Guild struct {
 	ApproximateMemberCount      *int                       `json:"approximate_member_count"`
 	ApproximatePresenceCount    *int                       `json:"approximate_presence_count"`
 	WelcomeScreen               *GuildWelcomeScreen        `json:"welcome_screen"`
+	NSFWLevel                   NSFWLevel                  `json:"nsfw_level"`
+}
+
+type GatewayGuild struct {
+	Guild
 	Roles                       []Role                     `json:"roles"`
 	Emojis                      []Emoji                    `json:"emojis"`
 	Members                     []Member                   `json:"members"`
 	Channels                    []Channel                  `json:"channels"`
 	VoiceStates                 []VoiceState               `json:"voice_states"`
 	Presences                   []Presence                 `json:"presences"`
+	StageInstances              []StageInstance            `json:"stage_instances"`
 }
 
 type UnavailableGuild struct {
@@ -217,3 +223,12 @@ type GuildUpdate struct {
 	Features                        *[]GuildFeature             `json:"features,omitempty"`
 	Description                     *string                     `json:"description,omitempty"`
 }
+
+type NSFWLevel int
+
+const (
+	NSFWLevelDefault NSFWLevel = iota
+	NSFWLevelExplicit
+	NSFWLevelSafe
+	NSFWLevelAgeRestricted
+)

@@ -1,7 +1,6 @@
 package core
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/DisgoOrg/disgo/discord"
@@ -314,7 +313,7 @@ func (c *channelImpl) CreateStageInstance(stageInstanceCreate discord.StageInsta
 	if !c.IsStageChannel() {
 		unsupported(c)
 	}
-	stageInstance, err := c.Disgo().RestServices().StageInstanceService().CreateStageInstance(stageInstanceCreate)
+	stageInstance, err := c.Disgo().RestServices().StageService().CreateStageInstance(stageInstanceCreate)
 	if err != nil {
 		return nil, err
 	}

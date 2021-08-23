@@ -15,7 +15,6 @@ type Client interface {
 	EntityBuilder() EntityBuilder
 
 	DefaultAllowedMentions() *discord.AllowedMentions
-	SetDefaultAllowedMentions(allowedMentions *discord.AllowedMentions)
 
 	GetWebhook(opts ...rest.RequestOpt) (*Webhook, rest.Error)
 	UpdateWebhook(webhookUpdate discord.WebhookUpdate, opts ...rest.RequestOpt) (*Webhook, rest.Error)
@@ -29,7 +28,7 @@ type Client interface {
 	UpdateContent(messageID discord.Snowflake, content string, opts ...rest.RequestOpt) (*Message, rest.Error)
 	UpdateEmbeds(messageID discord.Snowflake, embeds []discord.Embed, opts ...rest.RequestOpt) (*Message, rest.Error)
 
-	DeleteMessage(id discord.Snowflake, opts ...rest.RequestOpt) rest.Error
+	DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) rest.Error
 
 	ID() discord.Snowflake
 	Token() string

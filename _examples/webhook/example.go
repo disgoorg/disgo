@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"net/http"
 	"os"
+	"time"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/info"
@@ -14,18 +16,20 @@ import (
 var (
 	webhookID    = discord.Snowflake(os.Getenv("webhook_id"))
 	webhookToken = os.Getenv("webhook_token")
+	logger       = log.Default()
+	httpClient   = http.DefaultClient
 )
 
 func main() {
-	log.SetLevel(log.LevelDebug)
-	log.Info("starting ExampleBot...")
-	log.Infof("disgo %s", info.Version)
+	logger.SetLevel(log.LevelDebug)
+	logger.Info("starting ExampleBot...")
+	logger.Infof("disgo %s", info.Version)
 
-	client := webhook.New(nil, nil, webhookID, webhookToken)
+	client := webhook.New(webhookID, webhookToken, webhook.WithLogger(logger), webhook.WithRestClientConfigOpts(rest.WithHTTPClient(httpClient)))
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 
-	_, _ = client.CreateMessage(webhook.NewMessageCreateBuilder().Build(), rest.WithCtx(ctx), rest.WithReason("this adds a reason header"))
+	_, _ = client.CreateMessage(webhook.NewMessageCreateBuilder().SetContent("test").Build(), rest.WithCtx(ctx), rest.WithReason("this adds a reason header"))
 
 	cancel()
 }

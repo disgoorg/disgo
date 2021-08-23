@@ -1,8 +1,6 @@
 package core
 
 import (
-	"context"
-
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/route"

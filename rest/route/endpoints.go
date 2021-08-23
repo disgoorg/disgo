@@ -91,6 +91,14 @@ var (
 	CreateGuildFromTemplate = NewAPIRoute(POST, "/guilds/templates/{template.code}")
 )
 
+// StageInstance
+var (
+	GetStageInstance    = NewAPIRoute(GET, "/stage-instances/{channel.id}")
+	CreateStageInstance = NewAPIRoute(POST, "/stage-instances")
+	UpdateStageInstance = NewAPIRoute(PATCH, "/stage-instances/{channel.id}")
+	DeleteStageInstance = NewAPIRoute(DELETE, "/stage-instances/{channel.id}")
+)
+
 // Roles
 //goland:noinspection GoUnusedGlobalVariable
 var (

@@ -1,8 +1,6 @@
 package rest
 
 import (
-	"context"
-
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -44,7 +42,7 @@ type GuildService interface {
 	GetIntegrations(guildID discord.Snowflake) ([]discord.Integration, Error)
 	DeleteIntegration(guildID discord.Snowflake, integrationID discord.Snowflake) Error
 
-	GetEmojis(opts ...rest.RequestOpt) ([]discord.Emoji, Error)
+	GetEmojis(opts ...RequestOpt) ([]discord.Emoji, Error)
 
 	GetGuildTemplate(templateCode string) (*discord.GuildTemplate, Error)
 	GetGuildTemplates(guildID discord.Snowflake) ([]discord.GuildTemplate, Error)

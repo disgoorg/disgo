@@ -2,7 +2,6 @@ package gateway
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"io"
 	"io/ioutil"
@@ -18,11 +17,18 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func New(logger log.Logger, restServices rest.Services, token string, config Config, eventHandlerFunc EventHandlerFunc) Gateway {
+func New(logger log.Logger, restServices rest.Services, token string, config *Config, eventHandlerFunc EventHandlerFunc) Gateway {
+	if logger == nil {
+		logger = log.Default()
+	}
+	if config == nil {
+		config = &DefaultConfig
+	}
+
 	return &GatewayImpl{
 		logger:           logger,
 		restServices:     restServices,
-		config:           config,
+		config:           *config,
 		token:            token,
 		eventHandlerFunc: eventHandlerFunc,
 		status:           StatusUnconnected,
@@ -68,7 +74,7 @@ func (g *GatewayImpl) Open() error {
 
 	if g.url == nil {
 		g.Logger().Debug("gateway url empty, fetching...")
-		gatewayRs, err := g.restServices.GatewayService().GetGateway(context.TODO())
+		gatewayRs, err := g.restServices.GatewayService().GetGateway()
 		if err != nil {
 			return err
 		}

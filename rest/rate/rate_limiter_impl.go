@@ -15,14 +15,14 @@ import (
 // TODO: do we need some cleanup task?
 
 //goland:noinspection GoUnusedExportedFunction
-func NewRateLimiter(logger log.Logger, config *Config) RateLimiter {
+func NewLimiter(logger log.Logger, config *Config) Limiter {
 	if logger == nil {
 		logger = log.Default()
 	}
 	if config == nil {
 		config = &DefaultConfig
 	}
-	return &RateLimiterImpl{
+	return &LimiterImpl{
 		logger:  logger,
 		config:  *config,
 		hashes:  map[*route.APIRoute]routeHash{},
@@ -35,7 +35,7 @@ type (
 	routeHash string
 	hashMajor string
 
-	RateLimiterImpl struct {
+	LimiterImpl struct {
 		sync.Mutex
 
 		logger log.Logger
@@ -51,15 +51,15 @@ type (
 	}
 )
 
-func (r *RateLimiterImpl) Close(ctx context.Context) {
+func (r *LimiterImpl) Close(ctx context.Context) {
 	// TODO: wait for all buckets to unlock
 }
 
-func (r *RateLimiterImpl) Config() Config {
+func (r *LimiterImpl) Config() Config {
 	return r.config
 }
 
-func (r *RateLimiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor {
+func (r *LimiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor {
 	hash, ok := r.hashes[route.APIRoute]
 	if !ok {
 		// generate routeHash
@@ -70,7 +70,7 @@ func (r *RateLimiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor 
 	return hashMajor(string(hash) + "+" + route.MajorParams())
 }
 
-func (r *RateLimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *bucket {
+func (r *LimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *bucket {
 	hash := r.getRouteHash(route)
 
 	r.Lock()
@@ -90,7 +90,7 @@ func (r *RateLimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) 
 	return b
 }
 
-func (r *RateLimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error {
+func (r *LimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error {
 	b := r.getBucket(route, true)
 	b.Lock()
 
@@ -119,7 +119,7 @@ func (r *RateLimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledA
 	return nil
 }
 
-func (r *RateLimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.Header) error {
+func (r *LimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.Header) error {
 	b := r.getBucket(route, false)
 	if b == nil {
 		return nil

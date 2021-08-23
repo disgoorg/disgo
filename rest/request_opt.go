@@ -10,32 +10,28 @@ type RequestConfig struct {
 	Ctx     context.Context
 }
 
-type RequestOpt func(config RequestConfig) RequestConfig
+type RequestOpt func(config *RequestConfig)
+
+func (c *RequestConfig) Apply(opts []RequestOpt) {
+	for _, opt := range opts {
+		opt(c)
+	}
+}
 
 func WithCtx(ctx context.Context) RequestOpt {
-	return func(config RequestConfig) RequestConfig {
+	return func(config *RequestConfig) {
 		config.Ctx = ctx
-		return config
 	}
 }
 
 func WithReason(reason string) RequestOpt {
-	return func(config RequestConfig) RequestConfig {
+	return func(config *RequestConfig) {
 		config.Request.Header.Set("X-Audit-Log-Reason", reason)
-		return config
 	}
 }
 
 func WithHeader(key string, value string) RequestOpt {
-	return func(config RequestConfig) RequestConfig {
+	return func(config *RequestConfig) {
 		config.Request.Header.Set(key, value)
-		return config
 	}
-}
-
-func applyRequestOpts(config RequestConfig, opts []RequestOpt) RequestConfig {
-	for _, opt := range opts {
-		config = opt(config)
-	}
-	return config
 }

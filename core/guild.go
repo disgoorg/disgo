@@ -1,7 +1,6 @@
 package core
 
 import (
-	"context"
 	"strings"
 
 	"github.com/DisgoOrg/disgo/discord"

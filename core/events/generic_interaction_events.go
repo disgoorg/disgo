@@ -1,8 +1,6 @@
 package events
 
 import (
-	"context"
-
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
@@ -31,7 +29,7 @@ func (e GenericInteractionEvent) Create(messageCreate discord.MessageCreate) err
 
 // GetOriginal gets the original discord.InteractionResponse
 func (e GenericInteractionEvent) GetOriginal(opts ...rest.RequestOpt) (*core.Message, rest.Error) {
-	return e.Interaction.GetOriginal(ctx)
+	return e.Interaction.GetOriginal(opts...)
 }
 
 // UpdateOriginal edits the original discord.InteractionResponse
@@ -41,7 +39,7 @@ func (e GenericInteractionEvent) UpdateOriginal(messageUpdate discord.MessageUpd
 
 // DeleteOriginal deletes the original discord.InteractionResponse
 func (e GenericInteractionEvent) DeleteOriginal(opts ...rest.RequestOpt) rest.Error {
-	return e.Interaction.DeleteOriginal(ctx)
+	return e.Interaction.DeleteOriginal(opts...)
 }
 
 // CreateFollowup is used to send a followup discord.MessageCreate to an api.Interaction

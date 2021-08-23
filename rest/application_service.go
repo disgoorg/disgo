@@ -1,8 +1,6 @@
 package rest
 
 import (
-	"context"
-
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest/route"
 )
@@ -15,8 +13,8 @@ func NewApplicationService(client Client) ApplicationService {
 
 type ApplicationService interface {
 	Service
-	GetBotApplicationInfo(opts ...rest.RequestOpt) (*discord.Application, Error)
-	GetAuthorizationInfo(opts ...rest.RequestOpt) (*discord.AuthorizationInformation, Error)
+	GetBotApplicationInfo(opts ...RequestOpt) (*discord.Application, Error)
+	GetAuthorizationInfo(opts ...RequestOpt) (*discord.AuthorizationInformation, Error)
 
 	GetGlobalCommands(applicationID discord.Snowflake) ([]discord.ApplicationCommand, Error)
 	GetGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake) (*discord.ApplicationCommand, Error)
@@ -46,7 +44,7 @@ func (s *ApplicationServiceImpl) RestClient() Client {
 	return s.restClient
 }
 
-func (s *ApplicationServiceImpl) GetBotApplicationInfo(opts ...rest.RequestOpt) (application *discord.Application, rErr Error) {
+func (s *ApplicationServiceImpl) GetBotApplicationInfo(opts ...RequestOpt) (application *discord.Application, rErr Error) {
 	compiledRoute, err := route.GetBotApplicationInfo.Compile(nil)
 	if err != nil {
 		return nil, NewError(nil, err)
@@ -55,7 +53,7 @@ func (s *ApplicationServiceImpl) GetBotApplicationInfo(opts ...rest.RequestOpt) 
 	return
 }
 
-func (s *ApplicationServiceImpl) GetAuthorizationInfo(opts ...rest.RequestOpt) (info *discord.AuthorizationInformation, rErr Error) {
+func (s *ApplicationServiceImpl) GetAuthorizationInfo(opts ...RequestOpt) (info *discord.AuthorizationInformation, rErr Error) {
 	compiledRoute, err := route.GetAuthorizationInfo.Compile(nil)
 	if err != nil {
 		return nil, NewError(nil, err)

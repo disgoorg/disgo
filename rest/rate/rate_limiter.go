@@ -18,8 +18,21 @@ type Config struct {
 	MaxRetries int
 }
 
-//goland:noinspection GoNameStartsWithPackageName
-type RateLimiter interface {
+type ConfigOpt func(config *Config)
+
+func (c *Config) Apply(opts []ConfigOpt) {
+	for _, opt := range opts {
+		opt(c)
+	}
+}
+
+func WithMaxRetries(maxRetries int) ConfigOpt {
+	return func(config *Config) {
+		config.MaxRetries = maxRetries
+	}
+}
+
+type Limiter interface {
 	Close(ctx context.Context)
 	Config() Config
 	WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error

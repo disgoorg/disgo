@@ -1,8 +1,6 @@
 package webhook
 
 import (
-	"context"
-
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 )
@@ -17,5 +15,5 @@ func (h *Webhook) Update(webhookUpdate discord.WebhookUpdate) (*Webhook, rest.Er
 }
 
 func (h *Webhook) Delete(opts ...rest.RequestOpt) rest.Error {
-	return h.WebhookClient.DeleteWebhook(ctx)
+	return h.WebhookClient.DeleteWebhook(opts...)
 }

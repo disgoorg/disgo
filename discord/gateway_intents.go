@@ -42,6 +42,9 @@ const (
 	GatewayIntentsAll = GatewayIntentsNonPrivileged |
 		GatewayIntentsPrivileged
 
+	GatewayIntentsDefault = GatewayIntentGuilds |
+		GatewayIntentGuildMessages
+
 	GatewayIntentsNone GatewayIntents = 0
 )
 
