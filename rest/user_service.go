@@ -17,13 +17,13 @@ func NewUserService(restClient Client) UserService {
 
 type UserService interface {
 	Service
-	GetUser(ctx context.Context, userID discord.Snowflake) (*discord.User, Error)
-	GetSelfUser(ctx context.Context) (*discord.SelfUser, Error)
-	UpdateSelfUser(ctx context.Context, updateSelfUser discord.UpdateSelfUser) (*discord.SelfUser, Error)
-	GetGuilds(ctx context.Context, before int, after int, limit int) ([]discord.PartialGuild, Error)
-	LeaveGuild(ctx context.Context, guildID discord.Snowflake) Error
-	GetDMChannels(ctx context.Context) ([]discord.Channel, Error)
-	CreateDMChannel(ctx context.Context, userID discord.Snowflake) (*discord.Channel, Error)
+	GetUser(userID discord.Snowflake) (*discord.User, Error)
+	GetSelfUser(opts ...rest.RequestOpt) (*discord.SelfUser, Error)
+	UpdateSelfUser(updateSelfUser discord.UpdateSelfUser) (*discord.SelfUser, Error)
+	GetGuilds(before int, after int, limit int) ([]discord.PartialGuild, Error)
+	LeaveGuild(guildID discord.Snowflake) Error
+	GetDMChannels(opts ...rest.RequestOpt) ([]discord.Channel, Error)
+	CreateDMChannel(userID discord.Snowflake) (*discord.Channel, Error)
 }
 
 type UserServiceImpl struct {
@@ -34,35 +34,35 @@ func (s *UserServiceImpl) RestClient() Client {
 	return s.restClient
 }
 
-func (s *UserServiceImpl) GetUser(ctx context.Context, userID discord.Snowflake) (user *discord.User, rErr Error) {
+func (s *UserServiceImpl) GetUser(userID discord.Snowflake) (user *discord.User, rErr Error) {
 	compiledRoute, err := route.GetUser.Compile(nil, userID)
 	if err != nil {
 		return nil, NewError(nil, err)
 	}
-	rErr = s.restClient.Do(ctx, compiledRoute, nil, &user)
+	rErr = s.restClient.Do(compiledRoute, nil, &user)
 	return
 }
 
-func (s *UserServiceImpl) GetSelfUser(ctx context.Context) (selfUser *discord.SelfUser, rErr Error) {
+func (s *UserServiceImpl) GetSelfUser(opts ...rest.RequestOpt) (selfUser *discord.SelfUser, rErr Error) {
 	compiledRoute, err := route.GetSelfUser.Compile(nil)
 	if err != nil {
 		return nil, NewError(nil, err)
 	}
-	rErr = s.restClient.Do(ctx, compiledRoute, nil, &selfUser)
+	rErr = s.restClient.Do(compiledRoute, nil, &selfUser)
 	return
 }
 
-func (s *UserServiceImpl) UpdateSelfUser(ctx context.Context, updateSelfUser discord.UpdateSelfUser) (selfUser *discord.SelfUser, rErr Error) {
+func (s *UserServiceImpl) UpdateSelfUser(updateSelfUser discord.UpdateSelfUser) (selfUser *discord.SelfUser, rErr Error) {
 	compiledRoute, err := route.GetSelfUser.Compile(nil)
 	if err != nil {
 		return nil, NewError(nil, err)
 	}
 	var user *discord.User
-	rErr = s.restClient.Do(ctx, compiledRoute, updateSelfUser, &user)
+	rErr = s.restClient.Do(compiledRoute, updateSelfUser, &user)
 	return
 }
 
-func (s *UserServiceImpl) GetGuilds(ctx context.Context, before int, after int, limit int) (guilds []discord.PartialGuild, rErr Error) {
+func (s *UserServiceImpl) GetGuilds(before int, after int, limit int) (guilds []discord.PartialGuild, rErr Error) {
 	queryParams := route.QueryValues{}
 	if before > 0 {
 		queryParams["before"] = before
@@ -78,34 +78,34 @@ func (s *UserServiceImpl) GetGuilds(ctx context.Context, before int, after int, 
 		return nil, NewError(nil, NewError(nil, err))
 	}
 
-	rErr = s.restClient.Do(ctx, compiledRoute, nil, &guilds)
+	rErr = s.restClient.Do(compiledRoute, nil, &guilds)
 	return
 }
 
-func (s *UserServiceImpl) LeaveGuild(ctx context.Context, guildID discord.Snowflake) Error {
+func (s *UserServiceImpl) LeaveGuild(guildID discord.Snowflake) Error {
 	compiledRoute, err := route.LeaveGuild.Compile(nil, guildID)
 	if err != nil {
 		return NewError(nil, err)
 	}
-	return s.restClient.Do(ctx, compiledRoute, nil, nil)
+	return s.restClient.Do(compiledRoute, nil, nil)
 }
 
-func (s *UserServiceImpl) GetDMChannels(ctx context.Context) (channels []discord.Channel, rErr Error) {
+func (s *UserServiceImpl) GetDMChannels(opts ...rest.RequestOpt) (channels []discord.Channel, rErr Error) {
 	compiledRoute, err := route.GetDMChannels.Compile(nil)
 	if err != nil {
 		return nil, NewError(nil, err)
 	}
 
-	rErr = s.restClient.Do(ctx, compiledRoute, nil, &channels)
+	rErr = s.restClient.Do(compiledRoute, nil, &channels)
 	return
 }
 
-func (s *UserServiceImpl) CreateDMChannel(ctx context.Context, userID discord.Snowflake) (channel *discord.Channel, rErr Error) {
+func (s *UserServiceImpl) CreateDMChannel(userID discord.Snowflake) (channel *discord.Channel, rErr Error) {
 	compiledRoute, err := route.CreateDMChannel.Compile(nil)
 	if err != nil {
 		return nil, NewError(nil, err)
 	}
 
-	rErr = s.restClient.Do(ctx, compiledRoute, discord.DMChannelCreate{RecipientID: userID}, &channel)
+	rErr = s.restClient.Do(compiledRoute, discord.DMChannelCreate{RecipientID: userID}, &channel)
 	return
 }

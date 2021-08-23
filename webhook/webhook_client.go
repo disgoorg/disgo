@@ -1,8 +1,6 @@
 package webhook
 
 import (
-	"context"
-
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/log"
@@ -19,19 +17,19 @@ type Client interface {
 	DefaultAllowedMentions() *discord.AllowedMentions
 	SetDefaultAllowedMentions(allowedMentions *discord.AllowedMentions)
 
-	GetWebhook(ctx context.Context) (*Webhook, rest.Error)
-	UpdateWebhook(ctx context.Context, webhookUpdate discord.WebhookUpdate) (*Webhook, rest.Error)
-	DeleteWebhook(ctx context.Context) rest.Error
+	GetWebhook(opts ...rest.RequestOpt) (*Webhook, rest.Error)
+	UpdateWebhook(webhookUpdate discord.WebhookUpdate, opts ...rest.RequestOpt) (*Webhook, rest.Error)
+	DeleteWebhook(opts ...rest.RequestOpt) rest.Error
 
-	CreateMessage(ctx context.Context, messageCreate discord.WebhookMessageCreate) (*Message, rest.Error)
-	CreateContent(ctx context.Context, content string) (*Message, rest.Error)
-	CreateEmbeds(ctx context.Context, embeds ...discord.Embed) (*Message, rest.Error)
+	CreateMessage(messageCreate discord.WebhookMessageCreate, opts ...rest.RequestOpt) (*Message, rest.Error)
+	CreateContent(content string, opts ...rest.RequestOpt) (*Message, rest.Error)
+	CreateEmbeds(embeds []discord.Embed, opts ...rest.RequestOpt) (*Message, rest.Error)
 
-	UpdateMessage(ctx context.Context, messageID discord.Snowflake, messageUpdate discord.WebhookMessageUpdate) (*Message, rest.Error)
-	UpdateContent(ctx context.Context, messageID discord.Snowflake, content string) (*Message, rest.Error)
-	UpdateEmbeds(ctx context.Context, messageID discord.Snowflake, embeds ...discord.Embed) (*Message, rest.Error)
+	UpdateMessage(messageID discord.Snowflake, messageUpdate discord.WebhookMessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error)
+	UpdateContent(messageID discord.Snowflake, content string, opts ...rest.RequestOpt) (*Message, rest.Error)
+	UpdateEmbeds(messageID discord.Snowflake, embeds []discord.Embed, opts ...rest.RequestOpt) (*Message, rest.Error)
 
-	DeleteMessage(ctx context.Context, id discord.Snowflake) rest.Error
+	DeleteMessage(id discord.Snowflake, opts ...rest.RequestOpt) rest.Error
 
 	ID() discord.Snowflake
 	Token() string

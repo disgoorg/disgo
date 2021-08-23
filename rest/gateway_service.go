@@ -12,6 +12,6 @@ func NewGatewayService(client Client) GatewayService {
 
 type GatewayService interface {
 	Service
-	GetGateway(ctx context.Context) (*discord.Gateway, Error)
-	GetGatewayBot(ctx context.Context) (*discord.GatewayBot, Error)
+	GetGateway(opts ...rest.RequestOpt) (*discord.Gateway, Error)
+	GetGatewayBot(opts ...rest.RequestOpt) (*discord.GatewayBot, Error)
 }

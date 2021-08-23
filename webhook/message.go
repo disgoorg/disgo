@@ -1,8 +1,6 @@
 package webhook
 
 import (
-	"context"
-
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
@@ -15,13 +13,13 @@ type Message struct {
 }
 
 // Update allows you to edit an existing Message sent by you
-func (m *Message) Update(ctx context.Context, messageUpdate discord.WebhookMessageUpdate) (*Message, rest.Error) {
-	return m.WebhookClient.UpdateMessage(ctx, m.ID, messageUpdate)
+func (m *Message) Update(messageUpdate discord.WebhookMessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error) {
+	return m.WebhookClient.UpdateMessage(m.ID, messageUpdate, opts...)
 }
 
 // Delete allows you to edit an existing Message sent by you
-func (m *Message) Delete(ctx context.Context) rest.Error {
-	return m.WebhookClient.DeleteMessage(ctx, m.ID)
+func (m *Message) Delete(opts ...rest.RequestOpt) rest.Error {
+	return m.WebhookClient.DeleteMessage(m.ID, opts...)
 }
 
 // ActionRows returns all ActionRow(s) from this Message

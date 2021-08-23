@@ -37,8 +37,8 @@ func (i *Integration) Role() *Role {
 }
 
 // Delete deletes the Integration from the Guild
-func (i *Integration) Delete(ctx context.Context) rest.Error {
-	return i.Disgo.RestServices().GuildService().DeleteIntegration(ctx, i.GuildID, i.ID)
+func (i *Integration) Delete(opts ...rest.RequestOpt) rest.Error {
+	return i.Disgo.RestServices().GuildService().DeleteIntegration(i.GuildID, i.ID)
 }
 
 type IntegrationApplication struct {

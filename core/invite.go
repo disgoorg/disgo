@@ -20,8 +20,8 @@ func (i *Invite) URL() string {
 	return route.InviteURL(i.Code)
 }
 
-func (i *Invite) Delete(ctx context.Context) (*Invite, rest.Error) {
-	invite, err := i.Disgo.RestServices().InviteService().DeleteInvite(ctx, i.Code)
+func (i *Invite) Delete(opts ...rest.RequestOpt) (*Invite, rest.Error) {
+	invite, err := i.Disgo.RestServices().InviteService().DeleteInvite(i.Code)
 	if err != nil {
 		return nil, err
 	}

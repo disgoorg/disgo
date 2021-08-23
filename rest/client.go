@@ -2,7 +2,6 @@ package rest
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -57,7 +56,7 @@ type Client interface {
 	HTTPClient() *http.Client
 	RateLimiter() rate.RateLimiter
 	Config() Config
-	Do(ctx context.Context, route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) Error
+	Do(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) Error
 }
 
 type ClientImpl struct {
@@ -87,15 +86,8 @@ func (c *ClientImpl) Config() Config {
 	return c.config
 }
 
-func (c *ClientImpl) retry(ctx context.Context, cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, tries int) Error {
-	// wait for rate limits
-	err := c.rateLimiter.WaitBucket(ctx, cRoute)
-	if err != nil {
-		return NewError(nil, err)
-	}
-
+func (c *ClientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, tries int, opts []RequestOpt) Error {
 	rqURL := cRoute.URL()
-
 	rqBuffer := &bytes.Buffer{}
 	var contentType string
 
@@ -135,7 +127,17 @@ func (c *ClientImpl) retry(ctx context.Context, cRoute *route.CompiledAPIRoute, 
 		rq.Header.Set("Content-Type", contentType)
 	}
 
-	rs, err := c.httpClient.Do(rq)
+	config := applyRequestOpts(RequestConfig{Request: rq}, opts)
+
+	if config.Ctx != nil {
+		// wait for rate limits
+		err = c.rateLimiter.WaitBucket(config.Ctx, cRoute)
+		if err != nil {
+			return NewError(nil, err)
+		}
+	}
+
+	rs, err := c.httpClient.Do(config.Request)
 	if err != nil {
 		return NewError(rs, err)
 	}
@@ -175,7 +177,7 @@ func (c *ClientImpl) retry(ctx context.Context, cRoute *route.CompiledAPIRoute, 
 		if tries >= c.RateLimiter().Config().MaxRetries {
 			return NewError(rs, discord.ErrRatelimited)
 		}
-		return c.retry(ctx, cRoute, rqBody, rsBody, tries+1)
+		return c.retry(cRoute, rqBody, rsBody, tries+1, opts)
 
 	case http.StatusUnauthorized:
 		c.Logger().Error(discord.ErrUnauthorized)
@@ -187,6 +189,6 @@ func (c *ClientImpl) retry(ctx context.Context, cRoute *route.CompiledAPIRoute, 
 	}
 }
 
-func (c *ClientImpl) Do(ctx context.Context, cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) Error {
-	return c.retry(ctx, cRoute, rqBody, rsBody, 1)
+func (c *ClientImpl) Do(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) Error {
+	return c.retry(cRoute, rqBody, rsBody, 1, opts)
 }

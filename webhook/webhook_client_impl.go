@@ -1,7 +1,6 @@
 package webhook
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/DisgoOrg/disgo/discord"
@@ -12,14 +11,11 @@ import (
 
 // New returns a new Client
 //goland:noinspection GoUnusedExportedFunction
-func New(client *http.Client, restClient rest.Client, logger log.Logger, id discord.Snowflake, token string) Client {
-	if client == nil {
-		client = http.DefaultClient
-	}
+func New(restClient rest.Client, logger log.Logger, id discord.Snowflake, token string) Client {
 	if restClient == nil {
 		config := &rest.DefaultConfig
 		config.Headers = http.Header{"authorization": []string{}}
-		restClient = rest.NewClient(logger, client, nil, config)
+		restClient = rest.NewClient(logger, nil, nil, config)
 	}
 	if logger == nil {
 		logger = log.Default()
@@ -66,64 +62,64 @@ func (h *webhookClientImpl) SetDefaultAllowedMentions(allowedMentions *discord.A
 	h.defaultAllowedMentions = allowedMentions
 }
 
-func (h *webhookClientImpl) GetWebhook(ctx context.Context) (*Webhook, rest.Error) {
-	webhook, err := h.WebhookService().GetWebhookWithToken(ctx, h.id, h.token)
+func (h *webhookClientImpl) GetWebhook(opts ...rest.RequestOpt) (*Webhook, rest.Error) {
+	webhook, err := h.WebhookService().GetWebhookWithToken(h.id, h.token, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return h.EntityBuilder().CreateWebhook(*webhook), nil
 }
 
-func (h *webhookClientImpl) UpdateWebhook(ctx context.Context, webhookUpdate discord.WebhookUpdate) (*Webhook, rest.Error) {
-	webhook, err := h.WebhookService().UpdateWebhookWithToken(ctx, h.id, h.token, webhookUpdate)
+func (h *webhookClientImpl) UpdateWebhook(webhookUpdate discord.WebhookUpdate, opts ...rest.RequestOpt) (*Webhook, rest.Error) {
+	webhook, err := h.WebhookService().UpdateWebhookWithToken(h.id, h.token, webhookUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return h.EntityBuilder().CreateWebhook(*webhook), nil
 }
 
-func (h *webhookClientImpl) DeleteWebhook(ctx context.Context) rest.Error {
-	return h.WebhookService().DeleteWebhookWithToken(ctx, h.id, h.token)
+func (h *webhookClientImpl) DeleteWebhook(opts ...rest.RequestOpt) rest.Error {
+	return h.WebhookService().DeleteWebhookWithToken(h.id, h.token)
 }
 
-func (h *webhookClientImpl) CreateMessageInThread(ctx context.Context, messageCreate discord.WebhookMessageCreate, threadID discord.Snowflake) (*Message, rest.Error) {
-	message, err := h.WebhookService().CreateMessage(ctx, h.id, h.token, messageCreate, true, threadID)
+func (h *webhookClientImpl) CreateMessageInThread(messageCreate discord.WebhookMessageCreate, threadID discord.Snowflake, opts ...rest.RequestOpt) (*Message, rest.Error) {
+	message, err := h.WebhookService().CreateMessage(h.id, h.token, messageCreate, true, threadID, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return h.EntityBuilder().CreateMessage(*message), nil
 }
 
-func (h *webhookClientImpl) CreateMessage(ctx context.Context, messageCreate discord.WebhookMessageCreate) (*Message, rest.Error) {
-	return h.CreateMessageInThread(ctx, messageCreate, "")
+func (h *webhookClientImpl) CreateMessage(messageCreate discord.WebhookMessageCreate, opts ...rest.RequestOpt) (*Message, rest.Error) {
+	return h.CreateMessageInThread(messageCreate, "", opts...)
 }
 
-func (h *webhookClientImpl) CreateContent(ctx context.Context, content string) (*Message, rest.Error) {
-	return h.CreateMessage(ctx, discord.WebhookMessageCreate{Content: content})
+func (h *webhookClientImpl) CreateContent(content string, opts ...rest.RequestOpt) (*Message, rest.Error) {
+	return h.CreateMessage(discord.WebhookMessageCreate{Content: content}, opts...)
 }
 
-func (h *webhookClientImpl) CreateEmbeds(ctx context.Context, embeds ...discord.Embed) (*Message, rest.Error) {
-	return h.CreateMessage(ctx, discord.WebhookMessageCreate{Embeds: embeds})
+func (h *webhookClientImpl) CreateEmbeds(embeds []discord.Embed, opts ...rest.RequestOpt) (*Message, rest.Error) {
+	return h.CreateMessage(discord.WebhookMessageCreate{Embeds: embeds}, opts...)
 }
 
-func (h *webhookClientImpl) UpdateMessage(ctx context.Context, messageID discord.Snowflake, messageUpdate discord.WebhookMessageUpdate) (*Message, rest.Error) {
-	message, err := h.WebhookService().UpdateMessage(ctx, h.id, h.token, messageID, messageUpdate)
+func (h *webhookClientImpl) UpdateMessage(messageID discord.Snowflake, messageUpdate discord.WebhookMessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error) {
+	message, err := h.WebhookService().UpdateMessage(h.id, h.token, messageID, messageUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return h.EntityBuilder().CreateMessage(*message), nil
 }
 
-func (h *webhookClientImpl) UpdateContent(ctx context.Context, messageID discord.Snowflake, content string) (*Message, rest.Error) {
-	return h.UpdateMessage(ctx, messageID, discord.WebhookMessageUpdate{Content: &content})
+func (h *webhookClientImpl) UpdateContent(messageID discord.Snowflake, content string, opts ...rest.RequestOpt) (*Message, rest.Error) {
+	return h.UpdateMessage(messageID, discord.WebhookMessageUpdate{Content: &content}, opts...)
 }
 
-func (h *webhookClientImpl) UpdateEmbeds(ctx context.Context, messageID discord.Snowflake, embeds ...discord.Embed) (*Message, rest.Error) {
-	return h.UpdateMessage(ctx, messageID, discord.WebhookMessageUpdate{Embeds: embeds})
+func (h *webhookClientImpl) UpdateEmbeds(messageID discord.Snowflake, embeds []discord.Embed, opts ...rest.RequestOpt) (*Message, rest.Error) {
+	return h.UpdateMessage(messageID, discord.WebhookMessageUpdate{Embeds: embeds}, opts...)
 }
 
-func (h *webhookClientImpl) DeleteMessage(ctx context.Context, messageID discord.Snowflake) rest.Error {
-	return h.WebhookService().DeleteMessage(ctx, h.id, h.token, messageID)
+func (h *webhookClientImpl) DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+	return h.WebhookService().DeleteMessage(h.id, h.token, messageID, opts...)
 }
 
 func (h *webhookClientImpl) ID() discord.Snowflake {

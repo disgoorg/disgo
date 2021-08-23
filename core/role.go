@@ -28,8 +28,8 @@ func (r *Role) Guild() *Guild {
 }
 
 // Update updates the Role with specific values
-func (r *Role) Update(ctx context.Context, roleUpdate discord.RoleUpdate) (*Role, rest.Error) {
-	role, err := r.Disgo.RestServices().GuildService().UpdateRole(ctx, r.GuildID, r.ID, roleUpdate)
+func (r *Role) Update(roleUpdate discord.RoleUpdate) (*Role, rest.Error) {
+	role, err := r.Disgo.RestServices().GuildService().UpdateRole(r.GuildID, r.ID, roleUpdate)
 	if err != nil {
 		return nil, err
 	}
@@ -37,8 +37,8 @@ func (r *Role) Update(ctx context.Context, roleUpdate discord.RoleUpdate) (*Role
 }
 
 // SetPosition sets the position of the Role
-func (r *Role) SetPosition(ctx context.Context, rolePositionUpdate discord.RolePositionUpdate) ([]*Role, rest.Error) {
-	roles, err := r.Disgo.RestServices().GuildService().UpdateRolePositions(ctx, r.GuildID, rolePositionUpdate)
+func (r *Role) SetPosition(rolePositionUpdate discord.RolePositionUpdate) ([]*Role, rest.Error) {
+	roles, err := r.Disgo.RestServices().GuildService().UpdateRolePositions(r.GuildID, rolePositionUpdate)
 	if err != nil {
 		return nil, err
 	}
@@ -50,6 +50,6 @@ func (r *Role) SetPosition(ctx context.Context, rolePositionUpdate discord.RoleP
 }
 
 // Delete deletes the Role
-func (r *Role) Delete(ctx context.Context) rest.Error {
-	return r.Disgo.RestServices().GuildService().DeleteRole(ctx, r.GuildID, r.ID)
+func (r *Role) Delete(opts ...rest.RequestOpt) rest.Error {
+	return r.Disgo.RestServices().GuildService().DeleteRole(r.GuildID, r.ID)
 }

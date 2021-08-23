@@ -12,5 +12,5 @@ func NewVoiceService(client Client) VoiceService {
 
 type VoiceService interface {
 	Service
-	GetVoiceRegions(ctx context.Context) []discord.VoiceRegion
+	GetVoiceRegions(opts ...rest.RequestOpt) []discord.VoiceRegion
 }

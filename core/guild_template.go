@@ -19,8 +19,8 @@ func (t *GuildTemplate) Guild() *Guild {
 }
 
 // Update updates the GuildTemplate with the provided UpdateGuildTemplate
-func (t *GuildTemplate) Update(ctx context.Context, guildTemplateUpdate discord.GuildTemplateUpdate) (*GuildTemplate, rest.Error) {
-	guildTemplate, err := t.Disgo.RestServices().GuildTemplateService().UpdateGuildTemplate(ctx, t.GuildID, t.Code, guildTemplateUpdate)
+func (t *GuildTemplate) Update(guildTemplateUpdate discord.GuildTemplateUpdate) (*GuildTemplate, rest.Error) {
+	guildTemplate, err := t.Disgo.RestServices().GuildTemplateService().UpdateGuildTemplate(t.GuildID, t.Code, guildTemplateUpdate)
 	if err != nil {
 		return nil, err
 	}
@@ -28,8 +28,8 @@ func (t *GuildTemplate) Update(ctx context.Context, guildTemplateUpdate discord.
 }
 
 // Sync updates the GuildTemplate with the provided UpdateGuildTemplate
-func (t *GuildTemplate) Sync(ctx context.Context) (*GuildTemplate, rest.Error) {
-	guildTemplate, err := t.Disgo.RestServices().GuildTemplateService().SyncGuildTemplate(ctx, t.GuildID, t.Code)
+func (t *GuildTemplate) Sync(opts ...rest.RequestOpt) (*GuildTemplate, rest.Error) {
+	guildTemplate, err := t.Disgo.RestServices().GuildTemplateService().SyncGuildTemplate(t.GuildID, t.Code)
 	if err != nil {
 		return nil, err
 	}
@@ -37,8 +37,8 @@ func (t *GuildTemplate) Sync(ctx context.Context) (*GuildTemplate, rest.Error) {
 }
 
 // Delete deletes the GuildTemplate
-func (t *GuildTemplate) Delete(ctx context.Context) (*GuildTemplate, rest.Error) {
-	guildTemplate, err := t.Disgo.RestServices().GuildTemplateService().DeleteGuildTemplate(ctx, t.GuildID, t.Code)
+func (t *GuildTemplate) Delete(opts ...rest.RequestOpt) (*GuildTemplate, rest.Error) {
+	guildTemplate, err := t.Disgo.RestServices().GuildTemplateService().DeleteGuildTemplate(t.GuildID, t.Code)
 	if err != nil {
 		return nil, err
 	}
