@@ -117,7 +117,7 @@ type Message struct {
 	EditedTimestamp   *Time               `json:"edited_timestamp"`
 	Author            User                `json:"author"`
 	Member            *Member             `json:"member"`
-	Content           *string             `json:"content,omitempty"`
+	Content           string              `json:"content,omitempty"`
 	ChannelID         Snowflake           `json:"channel_id"`
 	Type              MessageType         `json:"type"`
 	Flags             MessageFlags        `json:"flags"`

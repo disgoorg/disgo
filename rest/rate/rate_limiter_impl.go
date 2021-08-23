@@ -15,15 +15,14 @@ import (
 // TODO: do we need some cleanup task?
 
 //goland:noinspection GoUnusedExportedFunction
-func NewLimiter(logger log.Logger, config *Config) Limiter {
-	if logger == nil {
-		logger = log.Default()
-	}
+func NewLimiter(config *Config) Limiter {
 	if config == nil {
 		config = &DefaultConfig
 	}
+	if config.Logger == nil {
+		config.Logger = log.Default()
+	}
 	return &LimiterImpl{
-		logger:  logger,
 		config:  *config,
 		hashes:  map[*route.APIRoute]routeHash{},
 		buckets: map[hashMajor]*bucket{},
@@ -38,7 +37,6 @@ type (
 	LimiterImpl struct {
 		sync.Mutex
 
-		logger log.Logger
 		config Config
 
 		// global Rate Limit
@@ -50,6 +48,10 @@ type (
 		buckets map[hashMajor]*bucket
 	}
 )
+
+func (r *LimiterImpl) Logger() log.Logger {
+	return r.config.Logger
+}
 
 func (r *LimiterImpl) Close(ctx context.Context) {
 	// TODO: wait for all buckets to unlock

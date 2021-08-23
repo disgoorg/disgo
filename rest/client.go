@@ -31,7 +31,7 @@ func NewClient(config *Config) Client {
 		config.RateLimiterConfig = &rate.DefaultConfig
 	}
 	if config.RateLimiter == nil {
-		config.RateLimiter = rate.NewLimiter(config.Logger, config.RateLimiterConfig)
+		config.RateLimiter = rate.NewLimiter(config.RateLimiterConfig)
 	}
 	return &ClientImpl{config: *config}
 }
@@ -103,8 +103,13 @@ func (c *ClientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 		return NewError(nil, err)
 	}
 
+	// write all headers to the request
 	if headers := c.Config().Headers; headers != nil {
-		rq.Header = headers
+		for key, values := range headers {
+			for _, value := range values {
+				rq.Header.Add(key, value)
+			}
+		}
 	}
 	rq.Header.Set("User-Agent", c.Config().UserAgent)
 	if contentType != "" {

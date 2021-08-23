@@ -17,32 +17,29 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func New(logger log.Logger, restServices rest.Services, token string, config *Config, eventHandlerFunc EventHandlerFunc) Gateway {
-	if logger == nil {
-		logger = log.Default()
-	}
+func New(token string, eventHandlerFunc EventHandlerFunc, config *Config) Gateway {
 	if config == nil {
 		config = &DefaultConfig
 	}
+	if config.Logger == nil {
+		config.Logger = log.Default()
+	}
+	if config.RestServices == nil {
+		config.RestServices = rest.NewServices(config.Logger, nil)
+	}
+	config.Token = token
+	config.EventHandlerFunc = eventHandlerFunc
 
 	return &GatewayImpl{
-		logger:           logger,
-		restServices:     restServices,
-		config:           *config,
-		token:            token,
-		eventHandlerFunc: eventHandlerFunc,
-		status:           StatusUnconnected,
+		config: *config,
+		status: StatusUnconnected,
 	}
 }
 
 // GatewayImpl is what is used to connect to discord
 //goland:noinspection GoNameStartsWithPackageName
 type GatewayImpl struct {
-	logger                log.Logger
-	restServices          rest.Services
 	config                Config
-	token                 string
-	eventHandlerFunc      EventHandlerFunc
 	conn                  *websocket.Conn
 	quit                  chan struct{}
 	status                Status
@@ -55,7 +52,7 @@ type GatewayImpl struct {
 }
 
 func (g *GatewayImpl) Logger() log.Logger {
-	return g.logger
+	return g.config.Logger
 }
 
 func (g *GatewayImpl) Config() Config {
@@ -74,7 +71,7 @@ func (g *GatewayImpl) Open() error {
 
 	if g.url == nil {
 		g.Logger().Debug("gateway url empty, fetching...")
-		gatewayRs, err := g.restServices.GatewayService().GetGateway()
+		gatewayRs, err := g.config.RestServices.GatewayService().GetGateway()
 		if err != nil {
 			return err
 		}
@@ -138,7 +135,7 @@ func (g *GatewayImpl) Open() error {
 		g.Logger().Infof("sending StatusIdentifying command...")
 		if err = g.Send(
 			NewGatewayCommand(discord.OpIdentify, IdentifyCommand{
-				Token: g.token,
+				Token: g.config.Token,
 				Properties: IdentifyCommandDataProperties{
 					OS:      g.config.OS,
 					Browser: g.config.Browser,
@@ -155,7 +152,7 @@ func (g *GatewayImpl) Open() error {
 	} else {
 		g.status = StatusResuming
 		cmd := NewGatewayCommand(discord.OpResume, ResumeCommand{
-			Token:     g.token,
+			Token:     g.config.Token,
 			SessionID: *g.sessionID,
 			Seq:       *g.lastSequenceReceived,
 		})
@@ -334,7 +331,7 @@ func (g *GatewayImpl) listen() {
 					g.Logger().Info("ready event received")
 				}
 
-				g.eventHandlerFunc(*event.T, *event.S, bytes.NewBuffer(event.D))
+				g.config.EventHandlerFunc(*event.T, *event.S, bytes.NewBuffer(event.D))
 
 			case discord.OpHeartbeat:
 				g.Logger().Debugf("received: OpHeartbeat")

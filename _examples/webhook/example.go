@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/DisgoOrg/disgo/discord"
@@ -27,9 +29,17 @@ func main() {
 
 	client := webhook.New(webhookID, webhookToken, webhook.WithLogger(logger), webhook.WithRestClientConfigOpts(rest.WithHTTPClient(httpClient)))
 
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	ctx, _ := context.WithTimeout(context.Background(), 2*time.Minute)
 
-	_, _ = client.CreateMessage(webhook.NewMessageCreateBuilder().SetContent("test").Build(), rest.WithCtx(ctx), rest.WithReason("this adds a reason header"))
+	for i := 1; i < 10; i++ {
+		go send(ctx, client, i)
+	}
 
-	cancel()
+	s := make(chan os.Signal, 1)
+	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	<-s
+}
+
+func send(ctx context.Context, client webhook.Client, i int) {
+	_, _ = client.CreateMessage(webhook.NewMessageCreateBuilder().SetContentf("test %d", i).Build(), rest.WithCtx(ctx), rest.WithReason("this adds a reason header"))
 }

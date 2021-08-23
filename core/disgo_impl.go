@@ -409,7 +409,7 @@ func buildDisgoImpl(config DisgoConfig) (Disgo, error) {
 	}
 
 	if config.RateLimiter == nil {
-		config.RateLimiter = rate.NewLimiter(disgo.logger, config.RateLimiterConfig)
+		config.RateLimiter = rate.NewLimiter(config.RateLimiterConfig)
 	}
 
 	if config.RestClientConfig == nil {
@@ -439,16 +439,16 @@ func buildDisgoImpl(config DisgoConfig) (Disgo, error) {
 	disgo.eventManager = config.EventManager
 
 	if config.Gateway == nil {
-		config.Gateway = gateway.New(disgo.logger, config.RestServices, config.Token, config.GatewayConfig, func(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader) {
+		config.Gateway = gateway.New(config.Token, func(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader) {
 			disgo.EventManager().HandleGateway(gatewayEventType, sequenceNumber, payload)
-		})
+		}, config.GatewayConfig)
 	}
 	disgo.gateway = config.Gateway
 
 	if config.HTTPServer == nil {
-		config.HTTPServer = httpserver.New(disgo.logger, config.HTTPServerConfig, func(gatewayEventType discord.GatewayEventType, responseChannel chan discord.InteractionResponse, payload io.Reader) {
+		config.HTTPServer = httpserver.New(func(gatewayEventType discord.GatewayEventType, responseChannel chan discord.InteractionResponse, payload io.Reader) {
 			disgo.EventManager().HandleHTTP(gatewayEventType, responseChannel, payload)
-		})
+		}, config.HTTPServerConfig)
 	}
 	disgo.httpServer = config.HTTPServer
 

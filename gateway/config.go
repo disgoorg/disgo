@@ -3,6 +3,8 @@ package gateway
 import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/info"
+	"github.com/DisgoOrg/disgo/rest"
+	"github.com/DisgoOrg/log"
 )
 
 //goland:noinspection GoUnusedGlobalVariable
@@ -15,11 +17,15 @@ var DefaultConfig = Config{
 }
 
 type Config struct {
-	LargeThreshold int
-	GatewayIntents discord.GatewayIntents
-	OS             string
-	Browser        string
-	Device         string
+	Logger           log.Logger
+	RestServices     rest.Services
+	Token            string
+	EventHandlerFunc EventHandlerFunc
+	LargeThreshold   int
+	GatewayIntents   discord.GatewayIntents
+	OS               string
+	Browser          string
+	Device           string
 }
 
 type ConfigOpt func(config *Config)
