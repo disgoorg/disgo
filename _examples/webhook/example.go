@@ -31,7 +31,7 @@ func main() {
 
 	ctx, _ := context.WithTimeout(context.Background(), 2*time.Minute)
 
-	for i := 1; i < 10; i++ {
+	for i := 1; i <= 10; i++ {
 		go send(ctx, client, i)
 	}
 

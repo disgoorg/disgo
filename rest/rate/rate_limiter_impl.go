@@ -75,8 +75,12 @@ func (r *LimiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor {
 func (r *LimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *bucket {
 	hash := r.getRouteHash(route)
 
+	r.Logger().Debug("locking rate limiter")
 	r.Lock()
-	defer r.Unlock()
+	defer func() {
+		r.Logger().Debug("unlocking rate limiter")
+		r.Unlock()
+	}()
 	b, ok := r.buckets[hash]
 	if !ok {
 		if !create {
@@ -85,7 +89,8 @@ func (r *LimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *buc
 
 		b = &bucket{
 			Remaining: 1,
-			Limit:     1,
+			// we don't know the limit yet
+			Limit: -1,
 		}
 		r.buckets[hash] = b
 	}
@@ -94,6 +99,7 @@ func (r *LimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *buc
 
 func (r *LimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error {
 	b := r.getBucket(route, true)
+	r.Logger().Debugf("locking bucket: %+v", b)
 	b.Lock()
 
 	var until time.Time
@@ -126,19 +132,24 @@ func (r *LimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.H
 	if b == nil {
 		return nil
 	}
-	defer b.Unlock()
+	defer func() {
+		r.Logger().Debugf("unlocking bucket: %+v", b)
+		b.Unlock()
+	}()
 
-	bucketID := headers.Get("X-RateLimit-b")
+	bucketID := headers.Get("X-RateLimit-Bucket")
 
 	if bucketID != "" {
 		b.ID = bucketID
 	}
 
-	global := headers.Get("X-RateLimit-global")
-
+	global := headers.Get("X-RateLimit-Global")
 	remaining := headers.Get("X-RateLimit-Remaining")
+	limit := headers.Get("X-RateLimit-Limit")
 	reset := headers.Get("X-RateLimit-Reset")
 	retryAfter := headers.Get("Retry-After")
+
+	r.Logger().Debugf("headers: global %s, remaining: %s, limit: %s, reset: %s, retryAfter: %s", global, remaining, limit, reset, retryAfter)
 
 	switch {
 	case retryAfter != "":
@@ -156,12 +167,22 @@ func (r *LimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.H
 		}
 
 	case reset != "":
-		unix, err := strconv.ParseInt(reset, 10, 64)
+		unix, err := strconv.ParseFloat(reset, 64)
 		if err != nil {
 			return fmt.Errorf("invalid reset %s: %s", reset, err)
 		}
 
-		b.Reset = time.Unix(unix, 0)
+		sec := int64(unix)
+		b.Reset = time.Unix(sec, int64((unix-float64(sec))*float64(time.Second)))
+	}
+
+	if limit != "" {
+		u, err := strconv.Atoi(limit)
+		if err != nil {
+			return fmt.Errorf("invalid limit %s: %s", limit, err)
+		}
+
+		b.Limit = u
 	}
 
 	if remaining != "" {
