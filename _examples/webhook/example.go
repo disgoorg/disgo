@@ -27,7 +27,12 @@ func main() {
 	logger.Info("starting ExampleBot...")
 	logger.Infof("disgo %s", info.Version)
 
-	client := webhook.New(webhookID, webhookToken, webhook.WithLogger(logger), webhook.WithRestClientConfigOpts(rest.WithHTTPClient(httpClient)))
+	client := webhook.New(webhookID, webhookToken,
+		webhook.WithLogger(logger),
+		webhook.WithRestClientConfigOpts(
+			rest.WithHTTPClient(httpClient),
+		),
+	)
 
 	ctx, _ := context.WithTimeout(context.Background(), 2*time.Minute)
 
