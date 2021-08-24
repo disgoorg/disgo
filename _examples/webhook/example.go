@@ -46,7 +46,14 @@ func main() {
 }
 
 func send(ctx context.Context, client webhook.Client, i int) {
-	_, err := client.CreateMessage(webhook.NewMessageCreateBuilder().SetContentf("test %d", i).Build(), rest.WithCtx(ctx), rest.WithReason("this adds a reason header"), rest.WithDelay(2*time.Second))
+	_, err := client.CreateMessage(webhook.NewMessageCreateBuilder().SetContentf("test %d", i).Build(),
+		rest.WithCtx(ctx),
+		rest.WithReason("this adds a reason header"),
+		rest.WithDelay(2*time.Second),
+		rest.WithCheck(func() bool {
+			return false
+		}),
+	)
 	if err != nil {
 		logger.Errorf("error sending test %d: %s", i, err)
 	}
