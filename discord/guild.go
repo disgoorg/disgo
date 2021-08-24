@@ -133,13 +133,13 @@ type Guild struct {
 
 type GatewayGuild struct {
 	Guild
-	Roles                       []Role                     `json:"roles"`
-	Emojis                      []Emoji                    `json:"emojis"`
-	Members                     []Member                   `json:"members"`
-	Channels                    []Channel                  `json:"channels"`
-	VoiceStates                 []VoiceState               `json:"voice_states"`
-	Presences                   []Presence                 `json:"presences"`
-	StageInstances              []StageInstance            `json:"stage_instances"`
+	Roles          []Role          `json:"roles"`
+	Emojis         []Emoji         `json:"emojis"`
+	Members        []Member        `json:"members"`
+	Channels       []Channel       `json:"channels"`
+	VoiceStates    []VoiceState    `json:"voice_states"`
+	Presences      []Presence      `json:"presences"`
+	StageInstances []StageInstance `json:"stage_instances"`
 }
 
 type UnavailableGuild struct {

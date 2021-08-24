@@ -68,5 +68,3 @@ type Disgo interface {
 	GetInvite(inviteCode string, opts ...rest.RequestOpt) (*Invite, rest.Error)
 	DeleteInvite(inviteCode string, opts ...rest.RequestOpt) (*Invite, rest.Error)
 }
-
-
