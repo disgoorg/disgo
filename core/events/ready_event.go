@@ -7,5 +7,5 @@ import (
 // ReadyEvent indicates we received the ReadyEvent from the api.Gateway
 type ReadyEvent struct {
 	*GenericEvent
-	*discord.ReadyGatewayEvent
+	discord.ReadyGatewayEvent
 }

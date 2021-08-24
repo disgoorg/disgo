@@ -137,6 +137,10 @@ func (r *LimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.H
 		b.Unlock()
 	}()
 
+	// no headers provided means we can't update anything and just unlock it
+	if headers == nil {
+		return nil
+	}
 	bucketID := headers.Get("X-RateLimit-Bucket")
 
 	if bucketID != "" {

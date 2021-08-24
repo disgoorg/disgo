@@ -16,12 +16,12 @@ func (h *ReadyHandler) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *ReadyHandler) New() interface{} {
-	return &discord.ReadyGatewayEvent{}
+	return discord.ReadyGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *ReadyHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	readyEvent, ok := i.(*discord.ReadyGatewayEvent)
+	readyEvent, ok := i.(discord.ReadyGatewayEvent)
 	if !ok {
 		return
 	}

@@ -414,7 +414,7 @@ func (b *EntityBuilderImpl) CreateWebhook(guildID discord.Snowflake, webhook dis
 
 // CreateChannel returns a new Channel entity
 func (b *EntityBuilderImpl) CreateChannel(discordChannel discord.Channel, updateCache CacheStrategy) Channel {
-	channel := &channelImpl{
+	channel := &ChannelImpl{
 		Channel: discordChannel,
 		disgo:   b.disgo,
 	}

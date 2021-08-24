@@ -28,6 +28,12 @@ type GuildChannelUpdateEvent struct {
 	OldGuildChannel core.GuildChannel
 }
 
+type GuildChannelPinsUpdateEvent struct {
+	*GenericGuildChannelEvent
+	OldLastPinTimestamp *discord.Time
+	NewLastPinTimestamp *discord.Time
+}
+
 // GuildChannelDeleteEvent indicates that an api.GetGuildChannel got deleted in an api.Guild
 type GuildChannelDeleteEvent struct {
 	*GenericGuildChannelEvent

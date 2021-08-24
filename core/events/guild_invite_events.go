@@ -50,7 +50,7 @@ func (e GenericGuildInviteEvent) Category() core.Category {
 // GuildInviteCreateEvent is called upon creation of a new api.Invite in an api.Guild(requires api.GatewayIntentsGuildInvites)
 type GuildInviteCreateEvent struct {
 	*GenericGuildInviteEvent
-	Invite *discord.Invite
+	Invite *core.Invite
 }
 
 // GuildInviteDeleteEvent is called upon deletion of a new api.Invite in an api.Guild(requires api.GatewayIntentsGuildInvites)

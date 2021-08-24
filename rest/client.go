@@ -128,12 +128,6 @@ func (c *ClientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 		}
 	}
 
-	for _, check := range config.Checks {
-		if !check() {
-			return NewError(nil, discord.ErrCheckFailed)
-		}
-	}
-
 	if config.Ctx != nil {
 		// wait for rate limits
 		err = c.RateLimiter().WaitBucket(config.Ctx, cRoute)
@@ -141,6 +135,13 @@ func (c *ClientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 			return NewError(nil, err)
 		}
 		rq = rq.WithContext(config.Ctx)
+	}
+
+	for _, check := range config.Checks {
+		if !check() {
+			_ = c.RateLimiter().UnlockBucket(cRoute, nil)
+			return NewError(nil, discord.ErrCheckFailed)
+		}
 	}
 
 	rs, err := c.HTTPClient().Do(config.Request)
