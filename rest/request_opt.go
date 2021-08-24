@@ -3,12 +3,17 @@ package rest
 import (
 	"context"
 	"net/http"
+	"time"
 )
 
 type RequestConfig struct {
 	Request *http.Request
 	Ctx     context.Context
+	Checks  []Check
+	Delay   time.Duration
 }
+
+type Check func() bool
 
 type RequestOpt func(config *RequestConfig)
 
@@ -21,6 +26,18 @@ func (c *RequestConfig) Apply(opts []RequestOpt) {
 func WithCtx(ctx context.Context) RequestOpt {
 	return func(config *RequestConfig) {
 		config.Ctx = ctx
+	}
+}
+
+func WithCheck(check Check) RequestOpt {
+	return func(config *RequestConfig) {
+		config.Checks = append(config.Checks, check)
+	}
+}
+
+func WithDelay(delay time.Duration) RequestOpt {
+	return func(config *RequestConfig) {
+		config.Delay = delay
 	}
 }
 

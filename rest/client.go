@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest/rate"
@@ -118,6 +119,20 @@ func (c *ClientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 
 	config := &RequestConfig{Request: rq}
 	config.Apply(opts)
+
+	if config.Delay > 0 {
+		select {
+		case <-config.Ctx.Done():
+			return NewError(nil, config.Ctx.Err())
+		case <-time.After(config.Delay):
+		}
+	}
+
+	for _, check := range config.Checks {
+		if !check() {
+			return NewError(nil, discord.ErrCheckFailed)
+		}
+	}
 
 	if config.Ctx != nil {
 		// wait for rate limits
