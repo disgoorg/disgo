@@ -21,4 +21,3 @@ func IDFromToken(token string) (*discord.Snowflake, error) {
 	strID := discord.Snowflake(byteID)
 	return &strID, nil
 }
-

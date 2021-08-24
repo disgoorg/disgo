@@ -1,8 +1,6 @@
 package core
 
 import (
-	"context"
-
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 )
@@ -26,12 +24,12 @@ type AuditLogFilterOptions struct {
 }
 
 // Before gets new AuditLog(s) from Discord before the last one
-func (l *AuditLog) Before(ctx context.Context) (*AuditLog, rest.Error) {
+func (l *AuditLog) Before(opts ...rest.RequestOpt) (*AuditLog, rest.Error) {
 	before := discord.Snowflake("")
 	if len(l.Entries) > 0 {
 		before = l.Entries[len(l.Entries)-1].ID
 	}
-	auditLog, err := l.Disgo.RestServices().AuditLogService().GetAuditLog(ctx, l.GuildID, l.FilterOptions.UserID, l.FilterOptions.ActionType, before, l.FilterOptions.Limit)
+	auditLog, err := l.Disgo.RestServices().AuditLogService().GetAuditLog(l.GuildID, l.FilterOptions.UserID, l.FilterOptions.ActionType, before, l.FilterOptions.Limit, opts...)
 	if err != nil {
 		return nil, err
 	}

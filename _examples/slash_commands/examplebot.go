@@ -12,10 +12,10 @@ import (
 
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/collectors"
-	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/httpserver"
+	"github.com/DisgoOrg/disgo/info"
 
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/log"
@@ -141,7 +141,7 @@ func main() {
 	}
 
 	// using the discord.RestClient directly to avoid the guild needing to be cached
-	cmds, err := disgo.RestServices().ApplicationService().SetGuildCommands(context.Background(), disgo.ApplicationID(), guildID, rawCmds...)
+	cmds, err := disgo.RestServices().ApplicationService().SetGuildCommands(disgo.ApplicationID(), guildID, rawCmds...)
 	if err != nil {
 		log.Errorf("error while registering guild commands: %s", err)
 	}
@@ -171,7 +171,7 @@ func main() {
 			Permissions: []discord.CommandPermission{perms},
 		})
 	}
-	if _, err = disgo.SetGuildCommandsPermissions(context.Background(), guildID, cmdsPermissions...); err != nil {
+	if _, err = disgo.SetGuildCommandsPermissions(guildID, cmdsPermissions...); err != nil {
 		log.Errorf("error while setting command permissions: %s", err)
 	}
 
@@ -201,20 +201,20 @@ func rawGatewayEventListener(event *events.RawEvent) {
 func buttonClickListener(event *events.ButtonClickEvent) {
 	switch event.CustomID() {
 	case "test1":
-		_ = event.Respond(context.Background(), discord.InteractionResponseTypeChannelMessageWithSource,
+		_ = event.Respond(discord.InteractionResponseTypeChannelMessageWithSource,
 			core.NewMessageCreateBuilder().
 				SetContent(event.CustomID()).
 				Build(),
 		)
 
 	case "test2":
-		_ = event.Respond(context.Background(), discord.InteractionResponseTypeDeferredChannelMessageWithSource, nil)
+		_ = event.Respond(discord.InteractionResponseTypeDeferredChannelMessageWithSource, nil)
 
 	case "test3":
-		_ = event.Respond(context.Background(), discord.InteractionResponseTypeDeferredUpdateMessage, nil)
+		_ = event.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil)
 
 	case "test4":
-		_ = event.Respond(context.Background(), discord.InteractionResponseTypeUpdateMessage,
+		_ = event.Respond(discord.InteractionResponseTypeUpdateMessage,
 			core.NewMessageCreateBuilder().
 				SetContent(event.CustomID()).
 				Build(),
@@ -228,7 +228,7 @@ func selectMenuSubmitListener(event *events.SelectMenuSubmitEvent) {
 		if err := event.DeferUpdate(context.Background()); err != nil {
 			log.Errorf("error sending interaction response: %s", err)
 		}
-		_, _ = event.CreateFollowup(context.Background(), core.NewMessageCreateBuilder().
+		_, _ = event.CreateFollowup(core.NewMessageCreateBuilder().
 			SetEphemeral(true).
 			SetContentf("selected options: %s", event.Values()).
 			Build(),
@@ -247,7 +247,7 @@ func commandListener(event *events.SlashCommandEvent) {
 				AddField("Time", "...", true).
 				AddField("Code", "```go\n"+code+"\n```", false).
 				AddField("Output", "```\n...\n```", false)
-			_ = event.Create(context.Background(), core.NewMessageCreateBuilder().SetEmbeds(embed.Build()).Build())
+			_ = event.Create(core.NewMessageCreateBuilder().SetEmbeds(embed.Build()).Build())
 
 			start := time.Now()
 			output, err := gval.Evaluate(code, map[string]interface{}{
@@ -260,7 +260,7 @@ func commandListener(event *events.SlashCommandEvent) {
 			embed.SetField(1, "Time", strconv.Itoa(int(elapsed.Milliseconds()))+"ms", true)
 
 			if err != nil {
-				_, err = event.Interaction.UpdateOriginal(context.Background(), core.NewMessageUpdateBuilder().
+				_, err = event.Interaction.UpdateOriginal(core.NewMessageUpdateBuilder().
 					SetEmbeds(embed.
 						SetColor(red).
 						SetField(0, "Status", "Failed", true).
@@ -274,7 +274,7 @@ func commandListener(event *events.SlashCommandEvent) {
 				}
 				return
 			}
-			_, err = event.Interaction.UpdateOriginal(context.Background(), core.NewMessageUpdateBuilder().
+			_, err = event.Interaction.UpdateOriginal(core.NewMessageUpdateBuilder().
 				SetEmbeds(embed.
 					SetColor(green).
 					SetField(0, "Status", "Success", true).
@@ -289,7 +289,7 @@ func commandListener(event *events.SlashCommandEvent) {
 		}()
 
 	case "say":
-		_ = event.Create(context.Background(), core.NewMessageCreateBuilder().
+		_ = event.Create(core.NewMessageCreateBuilder().
 			SetContent(event.Option("message").String()).
 			ClearAllowedMentions().
 			Build(),
@@ -297,7 +297,7 @@ func commandListener(event *events.SlashCommandEvent) {
 
 	case "test":
 		reader, _ := os.Open("gopher.png")
-		if err := event.Create(context.Background(), core.NewMessageCreateBuilder().
+		if err := event.Create(core.NewMessageCreateBuilder().
 			SetContent("test message").
 			AddFile("gopher.png", reader).
 			AddActionRow(
@@ -322,12 +322,12 @@ func commandListener(event *events.SlashCommandEvent) {
 		user := event.Option("member").User()
 		role := event.Option("role").Role()
 
-		if err := event.Disgo().RestServices().GuildService().AddMemberRole(context.Background(), *event.Interaction.GuildID, user.ID, role.ID); err == nil {
-			_ = event.Create(context.Background(), core.NewMessageCreateBuilder().AddEmbeds(
+		if err := event.Disgo().RestServices().GuildService().AddMemberRole(*event.Interaction.GuildID, user.ID, role.ID); err == nil {
+			_ = event.Create(core.NewMessageCreateBuilder().AddEmbeds(
 				core.NewEmbedBuilder().SetColor(green).SetDescriptionf("Added %s to %s", role, user).Build(),
 			).Build())
 		} else {
-			_ = event.Create(context.Background(), core.NewMessageCreateBuilder().AddEmbeds(
+			_ = event.Create(core.NewMessageCreateBuilder().AddEmbeds(
 				core.NewEmbedBuilder().SetColor(red).SetDescriptionf("Failed to add %s to %s", role, user).Build(),
 			).Build())
 		}
@@ -336,12 +336,12 @@ func commandListener(event *events.SlashCommandEvent) {
 		user := event.Option("member").User()
 		role := event.Option("role").Role()
 
-		if err := event.Disgo().RestServices().GuildService().RemoveMemberRole(context.Background(), *event.Interaction.GuildID, user.ID, role.ID); err == nil {
-			_ = event.Create(context.Background(), core.NewMessageCreateBuilder().AddEmbeds(
+		if err := event.Disgo().RestServices().GuildService().RemoveMemberRole(*event.Interaction.GuildID, user.ID, role.ID); err == nil {
+			_ = event.Create(core.NewMessageCreateBuilder().AddEmbeds(
 				core.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Removed %s from %s", role, user).Build(),
 			).Build())
 		} else {
-			_ = event.Create(context.Background(), core.NewMessageCreateBuilder().AddEmbeds(
+			_ = event.Create(core.NewMessageCreateBuilder().AddEmbeds(
 				core.NewEmbedBuilder().SetColor(16711680).SetDescriptionf("Failed to remove %s from %s", role, user).Build(),
 			).Build())
 		}
@@ -358,14 +358,14 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 
 	switch *event.Message.Content {
 	case "ping":
-		_, _ = event.Message.Reply(context.Background(), core.NewMessageCreateBuilder().SetContent("pong").SetAllowedMentions(&discord.AllowedMentions{RepliedUser: false}).Build())
+		_, _ = event.Message.Reply(core.NewMessageCreateBuilder().SetContent("pong").SetAllowedMentions(&discord.AllowedMentions{RepliedUser: false}).Build())
 
 	case "pong":
-		_, _ = event.Message.Reply(context.Background(), core.NewMessageCreateBuilder().SetContent("ping").SetAllowedMentions(&discord.AllowedMentions{RepliedUser: false}).Build())
+		_, _ = event.Message.Reply(core.NewMessageCreateBuilder().SetContent("ping").SetAllowedMentions(&discord.AllowedMentions{RepliedUser: false}).Build())
 
 	case "test":
 		go func() {
-			message, err := event.MessageChannel().CreateMessage(context.Background(), core.NewMessageCreateBuilder().SetContent("test").Build())
+			message, err := event.MessageChannel().CreateMessage(core.NewMessageCreateBuilder().SetContent("test").Build())
 			if err != nil {
 				log.Errorf("error while sending file: %s", err)
 				return
@@ -373,25 +373,25 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 			time.Sleep(time.Second * 2)
 
 			embed := core.NewEmbedBuilder().SetDescription("edit").Build()
-			message, _ = message.Update(context.Background(), core.NewMessageUpdateBuilder().SetContent("edit").SetEmbeds(embed, embed).Build())
+			message, _ = message.Update(core.NewMessageUpdateBuilder().SetContent("edit").SetEmbeds(embed, embed).Build())
 
 			time.Sleep(time.Second * 2)
 
-			_, _ = message.Update(context.Background(), core.NewMessageUpdateBuilder().SetContent("").SetEmbeds(core.NewEmbedBuilder().SetDescription("edit2").Build()).Build())
+			_, _ = message.Update(core.NewMessageUpdateBuilder().SetContent("").SetEmbeds(core.NewEmbedBuilder().SetDescription("edit2").Build()).Build())
 		}()
 
 	case "dm":
 		go func() {
-			channel, err := event.Message.Author.OpenDMChannel(context.Background())
+			channel, err := event.Message.Author.OpenDMChannel()
 			if err != nil {
-				_ = event.Message.AddReaction(context.Background(), "❌")
+				_ = event.Message.AddReaction("❌")
 				return
 			}
-			_, err = channel.CreateMessage(context.Background(), core.NewMessageCreateBuilder().SetContent("helo").Build())
+			_, err = channel.CreateMessage(core.NewMessageCreateBuilder().SetContent("helo").Build())
 			if err == nil {
-				_ = event.Message.AddReaction(context.Background(), "✅")
+				_ = event.Message.AddReaction("✅")
 			} else {
-				_ = event.Message.AddReaction(context.Background(), "❌")
+				_ = event.Message.AddReaction("❌")
 			}
 		}()
 
@@ -415,7 +415,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 					return
 				}
 
-				_, _ = msg.Reply(context.Background(), core.NewMessageCreateBuilder().SetContentf("Content: %s, Count: %v", *msg.Content, count).Build())
+				_, _ = msg.Reply(core.NewMessageCreateBuilder().SetContentf("Content: %s, Count: %v", *msg.Content, count).Build())
 			}
 		}()
 

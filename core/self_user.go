@@ -1,8 +1,6 @@
 package core
 
 import (
-	"context"
-
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 )
@@ -14,8 +12,8 @@ type SelfUser struct {
 }
 
 // Update updates the SelfUser with the given payload
-func (u *SelfUser) Update(ctx context.Context, updateSelfUser discord.UpdateSelfUser) (*SelfUser, rest.Error) {
-	selfUser, err := u.Disgo.RestServices().UserService().UpdateSelfUser(ctx, updateSelfUser)
+func (u *SelfUser) Update(updateSelfUser discord.SelfUserUpdate, opts ...rest.RequestOpt) (*SelfUser, rest.Error) {
+	selfUser, err := u.Disgo.RestServices().UserService().UpdateSelfUser(updateSelfUser, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -23,6 +21,6 @@ func (u *SelfUser) Update(ctx context.Context, updateSelfUser discord.UpdateSelf
 }
 
 // OpenDMChannel creates a DMChannel between the user and the Disgo client
-func (u *SelfUser) OpenDMChannel(ctx context.Context) (DMChannel, rest.Error) {
+func (u *SelfUser) OpenDMChannel(_ ...rest.RequestOpt) (DMChannel, rest.Error) {
 	return nil, rest.NewError(nil, discord.ErrSelfDM)
 }

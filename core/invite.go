@@ -1,8 +1,6 @@
 package core
 
 import (
-	"context"
-
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/route"
@@ -20,8 +18,8 @@ func (i *Invite) URL() string {
 	return route.InviteURL(i.Code)
 }
 
-func (i *Invite) Delete(ctx context.Context) (*Invite, rest.Error) {
-	invite, err := i.Disgo.RestServices().InviteService().DeleteInvite(ctx, i.Code)
+func (i *Invite) Delete(opts ...rest.RequestOpt) (*Invite, rest.Error) {
+	invite, err := i.Disgo.RestServices().InviteService().DeleteInvite(i.Code, opts...)
 	if err != nil {
 		return nil, err
 	}

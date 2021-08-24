@@ -1,8 +1,6 @@
 package rest
 
 import (
-	"context"
-
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -12,5 +10,5 @@ func NewAuditLogService(client Client) AuditLogService {
 
 type AuditLogService interface {
 	Service
-	GetAuditLog(ctx context.Context, guildID discord.Snowflake, userID discord.Snowflake, actionType discord.AuditLogEvent, before discord.Snowflake, limit int) (*discord.AuditLog, Error)
+	GetAuditLog(guildID discord.Snowflake, userID discord.Snowflake, actionType discord.AuditLogEvent, before discord.Snowflake, limit int, opts ...RequestOpt) (*discord.AuditLog, Error)
 }

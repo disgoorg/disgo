@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/DisgoOrg/disgo/rest/route"
+	"github.com/DisgoOrg/log"
 )
 
 var ErrCtxTimeout = errors.New("rate limit exceeds context deadline")
@@ -15,11 +16,32 @@ var DefaultConfig = Config{
 }
 
 type Config struct {
+	Logger     log.Logger
 	MaxRetries int
 }
 
-//goland:noinspection GoNameStartsWithPackageName
-type RateLimiter interface {
+type ConfigOpt func(config *Config)
+
+func (c *Config) Apply(opts []ConfigOpt) {
+	for _, opt := range opts {
+		opt(c)
+	}
+}
+
+func WithLogger(logger log.Logger) ConfigOpt {
+	return func(config *Config) {
+		config.Logger = logger
+	}
+}
+
+func WithMaxRetries(maxRetries int) ConfigOpt {
+	return func(config *Config) {
+		config.MaxRetries = maxRetries
+	}
+}
+
+type Limiter interface {
+	Logger() log.Logger
 	Close(ctx context.Context)
 	Config() Config
 	WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error

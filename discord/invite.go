@@ -14,22 +14,19 @@ const (
 type Invite struct {
 	Code                     string            `json:"code"`
 	Guild                    *InviteGuild      `json:"guild"`
+	GuildID                  *Snowflake        `json:"guild_id"`
 	Channel                  PartialChannel    `json:"channel"`
+	ChannelID                Snowflake         `json:"channel_id"`
 	Inviter                  *User             `json:"inviter"`
 	TargetUser               *User             `json:"target_user"`
 	TargetType               *InviteTargetType `json:"target_user_type"`
 	ApproximatePresenceCount *int              `json:"approximate_presence_count"`
 	ApproximateMemberCount   *int              `json:"approximate_member_count"`
-}
-
-// ExpandedInvite is a full Invite struct
-type ExpandedInvite struct {
-	*Invite
-	Uses      int  `json:"uses"`
-	MaxUses   int  `json:"max_uses"`
-	MaxAge    int  `json:"max_age"`
-	Temporary bool `json:"temporary"`
-	CreatedAt Time `json:"created_at"`
+	Uses                     *int              `json:"uses"`
+	MaxUses                  *int              `json:"max_uses"`
+	MaxAge                   *int              `json:"max_age"`
+	Temporary                *bool             `json:"temporary"`
+	CreatedAt                *Time             `json:"created_at"`
 }
 
 // An InviteGuild is the Guild of an Invite

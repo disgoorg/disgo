@@ -59,7 +59,7 @@ func (r *APIRoute) Compile(queryValues QueryValues, params ...interface{}) (*Com
 	for _, param := range params {
 		start := strings.Index(path, "{")
 		end := strings.Index(path, "}")
-		paramName := path[start+1 : end-1]
+		paramName := path[start+1 : end]
 		paramValue := fmt.Sprint(param)
 		if strings.Contains(MajorParameters, paramName) {
 			majorParams = append(majorParams, paramName+"="+paramValue)

@@ -4,7 +4,7 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// errors returned when no gateway or ws conn exists
+// context support?
 
 // AudioController lets you Connect / Disconnect from a VoiceChannel
 type AudioController interface {

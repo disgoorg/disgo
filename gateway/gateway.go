@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/log"
 )
 
@@ -35,23 +34,6 @@ const (
 	StatusDisconnected
 	StatusResuming
 )
-
-//goland:noinspection GoUnusedGlobalVariable
-var DefaultConfig = Config{
-	LargeThreshold: 50,
-	GatewayIntents: discord.GatewayIntentsNonPrivileged,
-	OS:             info.OS,
-	Browser:        info.Name,
-	Device:         info.Name,
-}
-
-type Config struct {
-	LargeThreshold int
-	GatewayIntents discord.GatewayIntents
-	OS             string
-	Browser        string
-	Device         string
-}
 
 type EventHandlerFunc func(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader)
 

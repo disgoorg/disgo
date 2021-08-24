@@ -1,7 +1,6 @@
 package core
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/DisgoOrg/disgo/discord"
@@ -30,10 +29,10 @@ type MessageChannel interface {
 	Channel
 	LastMessageID() *discord.Snowflake
 	LastPinTimestamp() *discord.Time
-	CreateMessage(ctx context.Context, messageCreate discord.MessageCreate) (*Message, rest.Error)
-	UpdateMessage(ctx context.Context, messageID discord.Snowflake, messageUpdate discord.MessageUpdate) (*Message, rest.Error)
-	DeleteMessage(ctx context.Context, messageID discord.Snowflake) rest.Error
-	BulkDeleteMessages(ctx context.Context, messageIDs ...discord.Snowflake) rest.Error
+	CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, rest.Error)
+	UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error)
+	DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) rest.Error
+	BulkDeleteMessages(messageIDs []discord.Snowflake, opts ...rest.RequestOpt) rest.Error
 
 	//CollectMessages(filter collectors.MessageFilter) (chan *Message, func())
 }
@@ -52,7 +51,7 @@ type GuildChannel interface {
 	ParentID() *discord.Snowflake
 	Parent() Category
 	Position() *int
-	Update(ctx context.Context, channelUpdate discord.ChannelUpdate) (GuildChannel, rest.Error)
+	Update(channelUpdate discord.ChannelUpdate, opts ...rest.RequestOpt) (GuildChannel, rest.Error)
 }
 
 // Category groups text & voice channels in servers together
@@ -78,7 +77,7 @@ type TextChannel interface {
 // NewsChannel allows you to interact with discord's text channels
 type NewsChannel interface {
 	TextChannel
-	CrosspostMessage(ctx context.Context, messageID discord.Snowflake) (*Message, rest.Error)
+	CrosspostMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, rest.Error)
 }
 
 // StoreChannel allows you to interact with discord's store channels
@@ -89,87 +88,89 @@ type StoreChannel interface {
 type StageChannel interface {
 	VoiceChannel
 	StageInstance() *StageInstance
-	CreateStageInstance(ctx context.Context, stageInstanceCreate discord.StageInstanceCreate) (*StageInstance, rest.Error)
+	CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate, opts ...rest.RequestOpt) (*StageInstance, rest.Error)
+	UpdateStageInstance(stageInstanceUpdate discord.StageInstanceUpdate, opts ...rest.RequestOpt) (*StageInstance, rest.Error)
+	DeleteStageInstance(opts ...rest.RequestOpt) rest.Error
 	IsModerator(member *Member) bool
 }
 
-var _ Channel = (*channelImpl)(nil)
+var _ Channel = (*ChannelImpl)(nil)
 
-type channelImpl struct {
+type ChannelImpl struct {
 	discord.Channel
 	disgo           Disgo
 	stageInstanceID *discord.Snowflake
 }
 
-func (c *channelImpl) Guild() *Guild {
+func (c *ChannelImpl) Guild() *Guild {
 	return c.Disgo().Cache().GuildCache().Get(c.GuildID())
 }
 
-func (c *channelImpl) Disgo() Disgo {
+func (c *ChannelImpl) Disgo() Disgo {
 	return c.disgo
 }
 
-func (c *channelImpl) ID() discord.Snowflake {
+func (c *ChannelImpl) ID() discord.Snowflake {
 	return c.Channel.ID
 }
 
-func (c *channelImpl) Name() string {
+func (c *ChannelImpl) Name() string {
 	return *c.Channel.Name
 }
 
-func (c *channelImpl) Type() discord.ChannelType {
+func (c *ChannelImpl) Type() discord.ChannelType {
 	return c.Channel.Type
 }
 
-func (c *channelImpl) IsMessageChannel() bool {
+func (c *ChannelImpl) IsMessageChannel() bool {
 	return c.IsTextChannel() || c.IsNewsChannel() || c.IsDMChannel()
 }
 
-func (c *channelImpl) IsGuildChannel() bool {
+func (c *ChannelImpl) IsGuildChannel() bool {
 	return c.IsCategory() || c.IsNewsChannel() || c.IsTextChannel() || c.IsVoiceChannel()
 }
 
-func (c *channelImpl) IsDMChannel() bool {
+func (c *ChannelImpl) IsDMChannel() bool {
 	return c.Type() != discord.ChannelTypeDM
 }
 
-func (c *channelImpl) IsTextChannel() bool {
+func (c *ChannelImpl) IsTextChannel() bool {
 	return c.Type() != discord.ChannelTypeText
 }
 
-func (c *channelImpl) IsVoiceChannel() bool {
+func (c *ChannelImpl) IsVoiceChannel() bool {
 	return c.Type() != discord.ChannelTypeVoice
 }
 
-func (c *channelImpl) IsCategory() bool {
+func (c *ChannelImpl) IsCategory() bool {
 	return c.Type() != discord.ChannelTypeCategory
 }
 
-func (c *channelImpl) IsNewsChannel() bool {
+func (c *ChannelImpl) IsNewsChannel() bool {
 	return c.Type() != discord.ChannelTypeNews
 }
 
-func (c *channelImpl) IsStoreChannel() bool {
+func (c *ChannelImpl) IsStoreChannel() bool {
 	return c.Type() != discord.ChannelTypeStore
 }
 
-func (c *channelImpl) IsStageChannel() bool {
+func (c *ChannelImpl) IsStageChannel() bool {
 	return c.Type() != discord.ChannelTypeStage
 }
 
-var _ MessageChannel = (*channelImpl)(nil)
+var _ MessageChannel = (*ChannelImpl)(nil)
 
-func (c *channelImpl) LastMessageID() *discord.Snowflake {
+func (c *ChannelImpl) LastMessageID() *discord.Snowflake {
 	return c.Channel.LastMessageID
 }
 
-func (c *channelImpl) LastPinTimestamp() *discord.Time {
+func (c *ChannelImpl) LastPinTimestamp() *discord.Time {
 	return c.Channel.LastPinTimestamp
 }
 
 // CreateMessage sends a Message to a TextChannel
-func (c *channelImpl) CreateMessage(ctx context.Context, messageCreate discord.MessageCreate) (*Message, rest.Error) {
-	message, err := c.Disgo().RestServices().ChannelService().CreateMessage(ctx, c.ID(), messageCreate)
+func (c *ChannelImpl) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, rest.Error) {
+	message, err := c.Disgo().RestServices().ChannelService().CreateMessage(c.ID(), messageCreate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -177,8 +178,8 @@ func (c *channelImpl) CreateMessage(ctx context.Context, messageCreate discord.M
 }
 
 // UpdateMessage edits a Message in this TextChannel
-func (c *channelImpl) UpdateMessage(ctx context.Context, messageID discord.Snowflake, messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
-	message, err := c.Disgo().RestServices().ChannelService().UpdateMessage(ctx, c.ID(), messageID, messageUpdate)
+func (c *ChannelImpl) UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error) {
+	message, err := c.Disgo().RestServices().ChannelService().UpdateMessage(c.ID(), messageID, messageUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -186,13 +187,13 @@ func (c *channelImpl) UpdateMessage(ctx context.Context, messageID discord.Snowf
 }
 
 // DeleteMessage allows you to edit an existing Message sent by you
-func (c *channelImpl) DeleteMessage(ctx context.Context, messageID discord.Snowflake) rest.Error {
-	return c.Disgo().RestServices().ChannelService().DeleteMessage(ctx, c.ID(), messageID)
+func (c *ChannelImpl) DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+	return c.Disgo().RestServices().ChannelService().DeleteMessage(c.ID(), messageID, opts...)
 }
 
 // BulkDeleteMessages allows you bulk delete Message(s)
-func (c *channelImpl) BulkDeleteMessages(ctx context.Context, messageIDs ...discord.Snowflake) rest.Error {
-	return c.Disgo().RestServices().ChannelService().BulkDeleteMessages(ctx, c.ID(), messageIDs...)
+func (c *ChannelImpl) BulkDeleteMessages(messageIDs []discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+	return c.Disgo().RestServices().ChannelService().BulkDeleteMessages(c.ID(), messageIDs, opts...)
 }
 
 /* func (c *channelImpl) CollectMessages(filter collectors.MessageFilter) (chan *Message, func()) {
@@ -204,40 +205,40 @@ func (c *channelImpl) BulkDeleteMessages(ctx context.Context, messageIDs ...disc
 	return collectors.NewMessageCollector(c.Disgo(), c.ID(), guildID, filter)
 }*/
 
-var _ DMChannel = (*channelImpl)(nil)
+var _ DMChannel = (*ChannelImpl)(nil)
 
-var _ GuildChannel = (*channelImpl)(nil)
+var _ GuildChannel = (*ChannelImpl)(nil)
 
 // GuildID returns the channel's Guild ID
-func (c *channelImpl) GuildID() discord.Snowflake {
+func (c *ChannelImpl) GuildID() discord.Snowflake {
 	if !c.IsGuildChannel() || c.Channel.GuildID == nil {
 		unsupported(c)
 	}
 	return *c.Channel.GuildID
 }
 
-func (c *channelImpl) Permissions() discord.Permissions {
+func (c *ChannelImpl) Permissions() discord.Permissions {
 	if !c.IsGuildChannel() {
 		unsupported(c)
 	}
 	return *c.Channel.InteractionPermissions
 }
 
-func (c *channelImpl) ParentID() *discord.Snowflake {
+func (c *ChannelImpl) ParentID() *discord.Snowflake {
 	if !c.IsGuildChannel() {
 		unsupported(c)
 	}
 	return c.Channel.ParentID
 }
 
-func (c *channelImpl) Parent() Category {
+func (c *ChannelImpl) Parent() Category {
 	if c.ParentID() == nil {
 		return nil
 	}
 	return c.Disgo().Cache().CategoryCache().Get(*c.Channel.ParentID)
 }
 
-func (c *channelImpl) Position() *int {
+func (c *ChannelImpl) Position() *int {
 	if !c.IsGuildChannel() {
 		unsupported(c)
 	}
@@ -245,62 +246,62 @@ func (c *channelImpl) Position() *int {
 	return c.Channel.Position
 }
 
-func (c *channelImpl) Update(ctx context.Context, channelUpdate discord.ChannelUpdate) (GuildChannel, rest.Error) {
+func (c *ChannelImpl) Update(channelUpdate discord.ChannelUpdate, opts ...rest.RequestOpt) (GuildChannel, rest.Error) {
 	if !c.IsGuildChannel() {
 		unsupported(c)
 	}
-	channel, err := c.Disgo().RestServices().ChannelService().UpdateChannel(ctx, c.ID(), channelUpdate)
+	channel, err := c.Disgo().RestServices().ChannelService().UpdateChannel(c.ID(), channelUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return c.Disgo().EntityBuilder().CreateChannel(*channel, CacheStrategyNoWs).(GuildChannel), nil
 }
 
-var _ Category = (*channelImpl)(nil)
-var _ VoiceChannel = (*channelImpl)(nil)
+var _ Category = (*ChannelImpl)(nil)
+var _ VoiceChannel = (*ChannelImpl)(nil)
 
-func (c *channelImpl) Connect() error {
+func (c *ChannelImpl) Connect() error {
 	if !c.IsVoiceChannel() {
 		unsupported(c)
 	}
 	return c.Disgo().AudioController().Connect(c.GuildID(), c.ID())
 }
 
-func (c *channelImpl) Bitrate() int {
+func (c *ChannelImpl) Bitrate() int {
 	if !c.IsVoiceChannel() {
 		unsupported(c)
 	}
 	return *c.Channel.Bitrate
 }
 
-var _ TextChannel = (*channelImpl)(nil)
+var _ TextChannel = (*ChannelImpl)(nil)
 
-func (c *channelImpl) NSFW() bool {
+func (c *ChannelImpl) NSFW() bool {
 	if !c.IsTextChannel() {
 		unsupported(c)
 	}
 	return *c.Channel.NSFW
 }
 
-func (c *channelImpl) Topic() *string {
+func (c *ChannelImpl) Topic() *string {
 	return c.Channel.Topic
 }
 
-var _ NewsChannel = (*channelImpl)(nil)
+var _ NewsChannel = (*ChannelImpl)(nil)
 
-func (c *channelImpl) CrosspostMessage(ctx context.Context, messageID discord.Snowflake) (*Message, rest.Error) {
-	message, err := c.Disgo().RestServices().ChannelService().CrosspostMessage(ctx, c.ID(), messageID)
+func (c *ChannelImpl) CrosspostMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, rest.Error) {
+	message, err := c.Disgo().RestServices().ChannelService().CrosspostMessage(c.ID(), messageID, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return c.Disgo().EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-var _ StoreChannel = (*channelImpl)(nil)
+var _ StoreChannel = (*ChannelImpl)(nil)
 
-var _ StageChannel = (*channelImpl)(nil)
+var _ StageChannel = (*ChannelImpl)(nil)
 
-func (c *channelImpl) StageInstance() *StageInstance {
+func (c *ChannelImpl) StageInstance() *StageInstance {
 	if !c.IsStageChannel() {
 		unsupported(c)
 	}
@@ -310,24 +311,42 @@ func (c *channelImpl) StageInstance() *StageInstance {
 	return c.Disgo().Cache().StageInstanceCache().Get(*c.stageInstanceID)
 }
 
-func (c *channelImpl) CreateStageInstance(ctx context.Context, stageInstanceCreate discord.StageInstanceCreate) (*StageInstance, rest.Error) {
+func (c *ChannelImpl) CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate, opts ...rest.RequestOpt) (*StageInstance, rest.Error) {
 	if !c.IsStageChannel() {
 		unsupported(c)
 	}
-	stageInstance, err := c.Disgo().RestServices().StageInstanceService().CreateStageInstance(ctx, stageInstanceCreate)
+	stageInstance, err := c.Disgo().RestServices().StageService().CreateStageInstance(stageInstanceCreate, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return c.Disgo().EntityBuilder().CreateStageInstance(*stageInstance, CacheStrategyNoWs), nil
 }
 
-func (c *channelImpl) IsModerator(member *Member) bool {
+func (c *ChannelImpl) UpdateStageInstance(stageInstanceUpdate discord.StageInstanceUpdate, opts ...rest.RequestOpt) (*StageInstance, rest.Error) {
 	if !c.IsStageChannel() {
 		unsupported(c)
 	}
-	return true // TODO: actually check
+	stageInstance, err := c.Disgo().RestServices().StageService().UpdateStageInstance(c.ID(), stageInstanceUpdate, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return c.Disgo().EntityBuilder().CreateStageInstance(*stageInstance, CacheStrategyNoWs), nil
 }
 
-func unsupported(c *channelImpl) {
+func (c *ChannelImpl) DeleteStageInstance(opts ...rest.RequestOpt) rest.Error {
+	if !c.IsStageChannel() {
+		unsupported(c)
+	}
+	return c.Disgo().RestServices().StageService().DeleteStageInstance(c.ID(), opts...)
+}
+
+func (c *ChannelImpl) IsModerator(member *Member) bool {
+	if !c.IsStageChannel() {
+		unsupported(c)
+	}
+	return member.Permissions().Has(discord.PermissionsStageModerator)
+}
+
+func unsupported(c *ChannelImpl) {
 	panic(fmt.Sprintf("unsupported operation for '%d'", c.Type()))
 }

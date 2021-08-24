@@ -2,52 +2,39 @@ package rest
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/disgo/rest/rate"
 	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/log"
 )
 
-var DefaultConfig = Config{
-	Headers:   nil,
-	UserAgent: fmt.Sprintf("DiscordBot (%s, %s)", info.GitHub, info.Version),
-}
-
-type Config struct {
-	Headers   http.Header
-	UserAgent string
-}
-
-// NewClient constructs a new Client with the given http.Client, log.Logger & useragent
+// NewClient constructs a new Client with the given Config struct
 //goland:noinspection GoUnusedExportedFunction
-func NewClient(logger log.Logger, httpClient *http.Client, rateLimiter rate.RateLimiter, config *Config) Client {
-	if logger == nil {
-		logger = log.Default()
-	}
-	if httpClient == nil {
-		httpClient = http.DefaultClient
-	}
-	if rateLimiter == nil {
-		rateLimiter = rate.NewRateLimiter(logger, nil)
-	}
+func NewClient(config *Config) Client {
 	if config == nil {
 		config = &DefaultConfig
 	}
-	return &ClientImpl{
-		logger:      logger,
-		httpClient:  httpClient,
-		rateLimiter: rateLimiter,
-		config:      *config,
+	if config.Logger == nil {
+		config.Logger = log.Default()
 	}
+	if config.HTTPClient == nil {
+		config.HTTPClient = http.DefaultClient
+	}
+	if config.RateLimiterConfig == nil {
+		config.RateLimiterConfig = &rate.DefaultConfig
+	}
+	if config.RateLimiter == nil {
+		config.RateLimiter = rate.NewLimiter(config.RateLimiterConfig)
+	}
+	return &ClientImpl{config: *config}
 }
 
 // Client allows doing requests to different endpoints
@@ -55,47 +42,37 @@ type Client interface {
 	Close()
 	Logger() log.Logger
 	HTTPClient() *http.Client
-	RateLimiter() rate.RateLimiter
+	RateLimiter() rate.Limiter
 	Config() Config
-	Do(ctx context.Context, route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) Error
+	Do(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) Error
 }
 
 type ClientImpl struct {
-	logger      log.Logger
-	config      Config
-	httpClient  *http.Client
-	rateLimiter rate.RateLimiter
+	config Config
 }
 
 func (c *ClientImpl) Close() {
-	c.httpClient.CloseIdleConnections()
+	c.config.HTTPClient.CloseIdleConnections()
 }
 
 func (c *ClientImpl) Logger() log.Logger {
-	return c.logger
+	return c.config.Logger
 }
 
 func (c *ClientImpl) HTTPClient() *http.Client {
-	return c.httpClient
+	return c.config.HTTPClient
 }
 
-func (c *ClientImpl) RateLimiter() rate.RateLimiter {
-	return c.rateLimiter
+func (c *ClientImpl) RateLimiter() rate.Limiter {
+	return c.config.RateLimiter
 }
 
 func (c *ClientImpl) Config() Config {
 	return c.config
 }
 
-func (c *ClientImpl) retry(ctx context.Context, cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, tries int) Error {
-	// wait for rate limits
-	err := c.rateLimiter.WaitBucket(ctx, cRoute)
-	if err != nil {
-		return NewError(nil, err)
-	}
-
+func (c *ClientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, tries int, opts []RequestOpt) Error {
 	rqURL := cRoute.URL()
-
 	rqBuffer := &bytes.Buffer{}
 	var contentType string
 
@@ -127,20 +104,52 @@ func (c *ClientImpl) retry(ctx context.Context, cRoute *route.CompiledAPIRoute, 
 		return NewError(nil, err)
 	}
 
+	// write all headers to the request
 	if headers := c.Config().Headers; headers != nil {
-		rq.Header = headers
+		for key, values := range headers {
+			for _, value := range values {
+				rq.Header.Add(key, value)
+			}
+		}
 	}
 	rq.Header.Set("User-Agent", c.Config().UserAgent)
 	if contentType != "" {
 		rq.Header.Set("Content-Type", contentType)
 	}
 
-	rs, err := c.httpClient.Do(rq)
+	config := &RequestConfig{Request: rq}
+	config.Apply(opts)
+
+	if config.Delay > 0 {
+		select {
+		case <-config.Ctx.Done():
+			return NewError(nil, config.Ctx.Err())
+		case <-time.After(config.Delay):
+		}
+	}
+
+	if config.Ctx != nil {
+		// wait for rate limits
+		err = c.RateLimiter().WaitBucket(config.Ctx, cRoute)
+		if err != nil {
+			return NewError(nil, err)
+		}
+		rq = rq.WithContext(config.Ctx)
+	}
+
+	for _, check := range config.Checks {
+		if !check() {
+			_ = c.RateLimiter().UnlockBucket(cRoute, nil)
+			return NewError(nil, discord.ErrCheckFailed)
+		}
+	}
+
+	rs, err := c.HTTPClient().Do(config.Request)
 	if err != nil {
 		return NewError(rs, err)
 	}
 
-	if err = c.rateLimiter.UnlockBucket(cRoute, rs.Header); err != nil {
+	if err = c.RateLimiter().UnlockBucket(cRoute, rs.Header); err != nil {
 		// TODO: should we maybe retry here?
 		return NewError(rs, err)
 	}
@@ -175,7 +184,7 @@ func (c *ClientImpl) retry(ctx context.Context, cRoute *route.CompiledAPIRoute, 
 		if tries >= c.RateLimiter().Config().MaxRetries {
 			return NewError(rs, discord.ErrRatelimited)
 		}
-		return c.retry(ctx, cRoute, rqBody, rsBody, tries+1)
+		return c.retry(cRoute, rqBody, rsBody, tries+1, opts)
 
 	case http.StatusUnauthorized:
 		c.Logger().Error(discord.ErrUnauthorized)
@@ -187,6 +196,6 @@ func (c *ClientImpl) retry(ctx context.Context, cRoute *route.CompiledAPIRoute, 
 	}
 }
 
-func (c *ClientImpl) Do(ctx context.Context, cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}) Error {
-	return c.retry(ctx, cRoute, rqBody, rsBody, 1)
+func (c *ClientImpl) Do(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) Error {
+	return c.retry(cRoute, rqBody, rsBody, 1, opts)
 }

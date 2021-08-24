@@ -18,9 +18,11 @@ type DisgoBuilder interface {
 
 	SetRestClient(restHTTPClient rest.Client) DisgoBuilder
 	SetRestClientConfig(config rest.Config) DisgoBuilder
+	SetRestClientConfigOpts(opts ...rest.ConfigOpt) DisgoBuilder
 
-	SetRateLimiter(rateLimiter rate.RateLimiter) DisgoBuilder
+	SetRateLimiter(rateLimiter rate.Limiter) DisgoBuilder
 	SetRateLimiterConfig(config rate.Config) DisgoBuilder
+	SetRateLimiterConfigOpts(opts ...rate.ConfigOpt) DisgoBuilder
 
 	SetRestServices(restServices rest.Services) DisgoBuilder
 
@@ -31,12 +33,15 @@ type DisgoBuilder interface {
 
 	SetGateway(gateway gateway.Gateway) DisgoBuilder
 	SetGatewayConfig(config gateway.Config) DisgoBuilder
+	SetGatewayConfigOpts(opts ...gateway.ConfigOpt) DisgoBuilder
 
 	SetHTTPServer(httpServer httpserver.Server) DisgoBuilder
 	SetHTTPServerConfig(config httpserver.Config) DisgoBuilder
+	SetHTTPServerConfigOpts(opts ...httpserver.ConfigOpt) DisgoBuilder
 
 	SetCache(cache Cache) DisgoBuilder
 	SetCacheConfig(config CacheConfig) DisgoBuilder
+	SetCacheConfigOpts(opts ...CacheConfigOpt) DisgoBuilder
 
 	SetAudioController(audioController AudioController) DisgoBuilder
 	SetEntityBuilder(entityBuilder EntityBuilder) DisgoBuilder

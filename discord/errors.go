@@ -26,6 +26,8 @@ var (
 	ErrInteractionAlreadyReplied = errors.New("you already replied to this interaction")
 
 	ErrChannelNotTypeNews = errors.New("channel type is not 'NEWS'")
+
+	ErrCheckFailed = errors.New("check failed")
 )
 
 func ErrUnexpectedQueryParam(param string) error {

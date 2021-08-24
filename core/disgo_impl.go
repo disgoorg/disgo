@@ -1,9 +1,12 @@
 package core
 
 import (
-	"context"
+	"fmt"
+	"io"
+	"net/http"
 
 	"github.com/DisgoOrg/disgo/httpserver"
+	"github.com/DisgoOrg/disgo/rest/rate"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
@@ -12,6 +15,13 @@ import (
 )
 
 var _ Disgo = (*DisgoImpl)(nil)
+
+func NewDisgo(token string, opts ...DisgoOpt) (Disgo, error) {
+	config := &DisgoConfig{Token: token}
+	config.Apply(opts)
+
+	return buildDisgoImpl(*config)
+}
 
 // DisgoImpl is the main discord client
 type DisgoImpl struct {
@@ -179,8 +189,8 @@ func (d *DisgoImpl) AudioController() AudioController {
 }
 
 // GetCommand fetches a specific global discord.ApplicationCommand
-func (d *DisgoImpl) GetCommand(ctx context.Context, commandID discord.Snowflake) (*ApplicationCommand, rest.Error) {
-	command, err := d.RestServices().ApplicationService().GetGlobalCommand(ctx, d.ApplicationID(), commandID)
+func (d *DisgoImpl) GetCommand(commandID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error) {
+	command, err := d.RestServices().ApplicationService().GetGlobalCommand(d.ApplicationID(), commandID, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -188,8 +198,8 @@ func (d *DisgoImpl) GetCommand(ctx context.Context, commandID discord.Snowflake)
 }
 
 // GetCommands fetches all global discord.ApplicationCommand(s)
-func (d *DisgoImpl) GetCommands(ctx context.Context) ([]*ApplicationCommand, rest.Error) {
-	cmds, err := d.RestServices().ApplicationService().GetGlobalCommands(ctx, d.ApplicationID())
+func (d *DisgoImpl) GetCommands(opts ...rest.RequestOpt) ([]*ApplicationCommand, rest.Error) {
+	cmds, err := d.RestServices().ApplicationService().GetGlobalCommands(d.ApplicationID(), opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -201,8 +211,8 @@ func (d *DisgoImpl) GetCommands(ctx context.Context) ([]*ApplicationCommand, res
 }
 
 // CreateCommand creates a new global discord.ApplicationCommand
-func (d *DisgoImpl) CreateCommand(ctx context.Context, commandCreate discord.ApplicationCommandCreate) (*ApplicationCommand, rest.Error) {
-	command, err := d.RestServices().ApplicationService().CreateGlobalCommand(ctx, d.ApplicationID(), commandCreate)
+func (d *DisgoImpl) CreateCommand(commandCreate discord.ApplicationCommandCreate, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error) {
+	command, err := d.RestServices().ApplicationService().CreateGlobalCommand(d.ApplicationID(), commandCreate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -210,8 +220,8 @@ func (d *DisgoImpl) CreateCommand(ctx context.Context, commandCreate discord.App
 }
 
 // EditCommand edits a specific global discord.ApplicationCommand
-func (d *DisgoImpl) EditCommand(ctx context.Context, commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate) (*ApplicationCommand, rest.Error) {
-	command, err := d.RestServices().ApplicationService().UpdateGlobalCommand(ctx, d.ApplicationID(), commandID, commandUpdate)
+func (d *DisgoImpl) EditCommand(commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error) {
+	command, err := d.RestServices().ApplicationService().UpdateGlobalCommand(d.ApplicationID(), commandID, commandUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -219,13 +229,13 @@ func (d *DisgoImpl) EditCommand(ctx context.Context, commandID discord.Snowflake
 }
 
 // DeleteCommand creates a new global discord.ApplicationCommand
-func (d *DisgoImpl) DeleteCommand(ctx context.Context, commandID discord.Snowflake) rest.Error {
-	return d.RestServices().ApplicationService().DeleteGlobalCommand(ctx, d.ApplicationID(), commandID)
+func (d *DisgoImpl) DeleteCommand(commandID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+	return d.RestServices().ApplicationService().DeleteGlobalCommand(d.ApplicationID(), commandID, opts...)
 }
 
 // SetCommands overrides all global discord.ApplicationCommand(s)
-func (d *DisgoImpl) SetCommands(ctx context.Context, commandCreates ...discord.ApplicationCommandCreate) ([]*ApplicationCommand, rest.Error) {
-	cmds, err := d.RestServices().ApplicationService().SetGlobalCommands(ctx, d.ApplicationID(), commandCreates...)
+func (d *DisgoImpl) SetCommands(commandCreates []discord.ApplicationCommandCreate, opts ...rest.RequestOpt) ([]*ApplicationCommand, rest.Error) {
+	cmds, err := d.RestServices().ApplicationService().SetGlobalCommands(d.ApplicationID(), commandCreates, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -237,8 +247,8 @@ func (d *DisgoImpl) SetCommands(ctx context.Context, commandCreates ...discord.A
 }
 
 // GetGuildCommand fetches a specific Guild discord.ApplicationCommand
-func (d *DisgoImpl) GetGuildCommand(ctx context.Context, guildID discord.Snowflake, commandID discord.Snowflake) (*ApplicationCommand, rest.Error) {
-	command, err := d.RestServices().ApplicationService().GetGuildCommand(ctx, d.ApplicationID(), guildID, commandID)
+func (d *DisgoImpl) GetGuildCommand(guildID discord.Snowflake, commandID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error) {
+	command, err := d.RestServices().ApplicationService().GetGuildCommand(d.ApplicationID(), guildID, commandID, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -246,8 +256,8 @@ func (d *DisgoImpl) GetGuildCommand(ctx context.Context, guildID discord.Snowfla
 }
 
 // GetGuildCommands fetches all Guild discord.ApplicationCommand(s)
-func (d *DisgoImpl) GetGuildCommands(ctx context.Context, guildID discord.Snowflake) ([]*ApplicationCommand, rest.Error) {
-	cmds, err := d.RestServices().ApplicationService().GetGuildCommands(ctx, d.ApplicationID(), guildID)
+func (d *DisgoImpl) GetGuildCommands(guildID discord.Snowflake, opts ...rest.RequestOpt) ([]*ApplicationCommand, rest.Error) {
+	cmds, err := d.RestServices().ApplicationService().GetGuildCommands(d.ApplicationID(), guildID, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -259,8 +269,8 @@ func (d *DisgoImpl) GetGuildCommands(ctx context.Context, guildID discord.Snowfl
 }
 
 // CreateGuildCommand creates a new Guild discord.ApplicationCommand
-func (d *DisgoImpl) CreateGuildCommand(ctx context.Context, guildID discord.Snowflake, commandCreate discord.ApplicationCommandCreate) (*ApplicationCommand, rest.Error) {
-	command, err := d.RestServices().ApplicationService().CreateGuildCommand(ctx, d.ApplicationID(), guildID, commandCreate)
+func (d *DisgoImpl) CreateGuildCommand(guildID discord.Snowflake, commandCreate discord.ApplicationCommandCreate, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error) {
+	command, err := d.RestServices().ApplicationService().CreateGuildCommand(d.ApplicationID(), guildID, commandCreate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -268,8 +278,8 @@ func (d *DisgoImpl) CreateGuildCommand(ctx context.Context, guildID discord.Snow
 }
 
 // EditGuildCommand edits a specific Guild discord.ApplicationCommand
-func (d *DisgoImpl) EditGuildCommand(ctx context.Context, guildID discord.Snowflake, commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate) (*ApplicationCommand, rest.Error) {
-	command, err := d.RestServices().ApplicationService().UpdateGuildCommand(ctx, d.ApplicationID(), guildID, commandID, commandUpdate)
+func (d *DisgoImpl) EditGuildCommand(guildID discord.Snowflake, commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error) {
+	command, err := d.RestServices().ApplicationService().UpdateGuildCommand(d.ApplicationID(), guildID, commandID, commandUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -277,13 +287,13 @@ func (d *DisgoImpl) EditGuildCommand(ctx context.Context, guildID discord.Snowfl
 }
 
 // DeleteGuildCommand creates a new Guild discord.ApplicationCommand
-func (d *DisgoImpl) DeleteGuildCommand(ctx context.Context, guildID discord.Snowflake, commandID discord.Snowflake) rest.Error {
-	return d.RestServices().ApplicationService().DeleteGuildCommand(ctx, d.ApplicationID(), guildID, commandID)
+func (d *DisgoImpl) DeleteGuildCommand(guildID discord.Snowflake, commandID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+	return d.RestServices().ApplicationService().DeleteGuildCommand(d.ApplicationID(), guildID, commandID, opts...)
 }
 
 // SetGuildCommands overrides all Guild discord.ApplicationCommand(s)
-func (d *DisgoImpl) SetGuildCommands(ctx context.Context, guildID discord.Snowflake, commandCreates ...discord.ApplicationCommandCreate) ([]*ApplicationCommand, rest.Error) {
-	cmds, err := d.RestServices().ApplicationService().SetGuildCommands(ctx, d.ApplicationID(), guildID, commandCreates...)
+func (d *DisgoImpl) SetGuildCommands(guildID discord.Snowflake, commandCreates []discord.ApplicationCommandCreate, opts ...rest.RequestOpt) ([]*ApplicationCommand, rest.Error) {
+	cmds, err := d.RestServices().ApplicationService().SetGuildCommands(d.ApplicationID(), guildID, commandCreates, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -295,8 +305,8 @@ func (d *DisgoImpl) SetGuildCommands(ctx context.Context, guildID discord.Snowfl
 }
 
 // GetGuildCommandsPermissions returns the api.GuildCommandPermissions for an all discord.ApplicationCommand(s) in an api.Guild
-func (d *DisgoImpl) GetGuildCommandsPermissions(ctx context.Context, guildID discord.Snowflake) ([]*GuildCommandPermissions, rest.Error) {
-	perms, err := d.RestServices().ApplicationService().GetGuildCommandsPermissions(ctx, d.ApplicationID(), guildID)
+func (d *DisgoImpl) GetGuildCommandsPermissions(guildID discord.Snowflake, opts ...rest.RequestOpt) ([]*GuildCommandPermissions, rest.Error) {
+	perms, err := d.RestServices().ApplicationService().GetGuildCommandsPermissions(d.ApplicationID(), guildID, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -308,8 +318,8 @@ func (d *DisgoImpl) GetGuildCommandsPermissions(ctx context.Context, guildID dis
 }
 
 // GetGuildCommandPermissions returns the api.GuildCommandPermissions for a specific discord.ApplicationCommand in an api.Guild
-func (d *DisgoImpl) GetGuildCommandPermissions(ctx context.Context, guildID discord.Snowflake, commandID discord.Snowflake) (*GuildCommandPermissions, rest.Error) {
-	permissions, err := d.RestServices().ApplicationService().GetGuildCommandPermissions(ctx, d.ApplicationID(), guildID, commandID)
+func (d *DisgoImpl) GetGuildCommandPermissions(guildID discord.Snowflake, commandID discord.Snowflake, opts ...rest.RequestOpt) (*GuildCommandPermissions, rest.Error) {
+	permissions, err := d.RestServices().ApplicationService().GetGuildCommandPermissions(d.ApplicationID(), guildID, commandID, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -317,8 +327,8 @@ func (d *DisgoImpl) GetGuildCommandPermissions(ctx context.Context, guildID disc
 }
 
 // SetGuildCommandsPermissions sets the discord.GuildCommandPermissions for all discord.ApplicationCommand(s)
-func (d *DisgoImpl) SetGuildCommandsPermissions(ctx context.Context, guildID discord.Snowflake, commandPermissions ...discord.GuildCommandPermissionsSet) ([]*GuildCommandPermissions, rest.Error) {
-	perms, err := d.RestServices().ApplicationService().SetGuildCommandsPermissions(ctx, d.ApplicationID(), guildID, commandPermissions...)
+func (d *DisgoImpl) SetGuildCommandsPermissions(guildID discord.Snowflake, commandPermissions []discord.GuildCommandPermissionsSet, opts ...rest.RequestOpt) ([]*GuildCommandPermissions, rest.Error) {
+	perms, err := d.RestServices().ApplicationService().SetGuildCommandsPermissions(d.ApplicationID(), guildID, commandPermissions, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -330,8 +340,8 @@ func (d *DisgoImpl) SetGuildCommandsPermissions(ctx context.Context, guildID dis
 }
 
 // SetGuildCommandPermissions sets the api.GuildCommandPermissions for a specific discord.ApplicationCommand
-func (d *DisgoImpl) SetGuildCommandPermissions(ctx context.Context, guildID discord.Snowflake, commandID discord.Snowflake, permissions ...discord.CommandPermission) (*GuildCommandPermissions, rest.Error) {
-	perms, err := d.RestServices().ApplicationService().SetGuildCommandPermissions(ctx, d.ApplicationID(), guildID, commandID, permissions...)
+func (d *DisgoImpl) SetGuildCommandPermissions(guildID discord.Snowflake, commandID discord.Snowflake, permissions []discord.CommandPermission, opts ...rest.RequestOpt) (*GuildCommandPermissions, rest.Error) {
+	perms, err := d.RestServices().ApplicationService().SetGuildCommandPermissions(d.ApplicationID(), guildID, commandID, permissions, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -339,8 +349,8 @@ func (d *DisgoImpl) SetGuildCommandPermissions(ctx context.Context, guildID disc
 }
 
 // GetTemplate gets an api.GuildTemplate by its code
-func (d *DisgoImpl) GetTemplate(ctx context.Context, code string) (*GuildTemplate, rest.Error) {
-	guildTemplate, err := d.RestServices().GuildTemplateService().GetGuildTemplate(ctx, code)
+func (d *DisgoImpl) GetTemplate(code string, opts ...rest.RequestOpt) (*GuildTemplate, rest.Error) {
+	guildTemplate, err := d.RestServices().GuildTemplateService().GetGuildTemplate(code, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -348,26 +358,124 @@ func (d *DisgoImpl) GetTemplate(ctx context.Context, code string) (*GuildTemplat
 }
 
 // CreateGuildFromTemplate creates an api.Guild using an api.Template code
-func (d *DisgoImpl) CreateGuildFromTemplate(ctx context.Context, templateCode string, createGuildFromTemplate discord.GuildFromTemplateCreate) (*Guild, rest.Error) {
-	guild, err := d.RestServices().GuildTemplateService().CreateGuildFromTemplate(ctx, templateCode, createGuildFromTemplate)
+func (d *DisgoImpl) CreateGuildFromTemplate(templateCode string, createGuildFromTemplate discord.GuildFromTemplateCreate, opts ...rest.RequestOpt) (*Guild, rest.Error) {
+	guild, err := d.RestServices().GuildTemplateService().CreateGuildFromTemplate(templateCode, createGuildFromTemplate, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return d.EntityBuilder().CreateGuild(*guild, CacheStrategyNoWs), nil
 }
 
-func (d *DisgoImpl) GetInvite(ctx context.Context, inviteCode string) (*Invite, rest.Error) {
-	invite, err := d.RestServices().InviteService().GetInvite(ctx, inviteCode)
+func (d *DisgoImpl) GetInvite(inviteCode string, opts ...rest.RequestOpt) (*Invite, rest.Error) {
+	invite, err := d.RestServices().InviteService().GetInvite(inviteCode, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return d.EntityBuilder().CreateInvite(*invite, CacheStrategyNoWs), nil
 }
 
-func (d *DisgoImpl) DeleteInvite(ctx context.Context, inviteCode string) (*Invite, rest.Error) {
-	invite, err := d.RestServices().InviteService().DeleteInvite(ctx, inviteCode)
+func (d *DisgoImpl) DeleteInvite(inviteCode string, opts ...rest.RequestOpt) (*Invite, rest.Error) {
+	invite, err := d.RestServices().InviteService().DeleteInvite(inviteCode, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return d.EntityBuilder().CreateInvite(*invite, CacheStrategyNoWs), nil
+}
+
+func buildDisgoImpl(config DisgoConfig) (Disgo, error) {
+	disgo := &DisgoImpl{}
+
+	if config.Token == "" {
+		return nil, discord.ErrNoBotToken
+	}
+	disgo.token = config.Token
+
+	id, err := IDFromToken(disgo.token)
+	if err != nil {
+		disgo.Logger().Errorf("error while getting application id from BotToken: %s", err)
+		return nil, err
+	}
+	// TODO: figure out how we handle different application & client ids
+	disgo.applicationID = *id
+	disgo.clientID = *id
+
+	if config.Logger == nil {
+		config.Logger = log.Default()
+	}
+	disgo.logger = config.Logger
+
+	if config.HTTPClient == nil {
+		config.HTTPClient = http.DefaultClient
+	}
+
+	if config.RateLimiter == nil {
+		config.RateLimiter = rate.NewLimiter(config.RateLimiterConfig)
+	}
+
+	if config.RestClientConfig == nil {
+		config.RestClientConfig = &rest.DefaultConfig
+	}
+
+	if config.RestClientConfig.Headers == nil {
+		config.RestClientConfig.Headers = http.Header{}
+	}
+
+	if _, ok := config.RestClientConfig.Headers["authorization"]; !ok {
+		config.RestClientConfig.Headers["authorization"] = []string{fmt.Sprintf("Bot %s", config.Token)}
+	}
+
+	if config.RestClient == nil {
+		config.RestClient = rest.NewClient(config.RestClientConfig)
+	}
+
+	if config.RestServices == nil {
+		config.RestServices = rest.NewServices(disgo.logger, config.RestClient)
+	}
+	disgo.restServices = config.RestServices
+
+	if config.EventManager == nil {
+		config.EventManager = NewEventManager(disgo, config.EventListeners)
+	}
+	disgo.eventManager = config.EventManager
+
+	if config.Gateway == nil {
+		config.Gateway = gateway.New(config.Token, func(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader) {
+			disgo.EventManager().HandleGateway(gatewayEventType, sequenceNumber, payload)
+		}, config.GatewayConfig)
+	}
+	disgo.gateway = config.Gateway
+
+	if config.HTTPServer == nil {
+		config.HTTPServer = httpserver.New(func(gatewayEventType discord.GatewayEventType, responseChannel chan discord.InteractionResponse, payload io.Reader) {
+			disgo.EventManager().HandleHTTP(gatewayEventType, responseChannel, payload)
+		}, config.HTTPServerConfig)
+	}
+	disgo.httpServer = config.HTTPServer
+
+	if config.AudioController == nil {
+		config.AudioController = NewAudioController(disgo)
+	}
+	disgo.audioController = config.AudioController
+
+	if config.EntityBuilder == nil {
+		config.EntityBuilder = NewEntityBuilder(disgo)
+	}
+	disgo.entityBuilder = config.EntityBuilder
+
+	disgo.voiceDispatchInterceptor = config.VoiceDispatchInterceptor
+
+	if config.CacheConfig == nil {
+		config.CacheConfig = &CacheConfig{
+			CacheFlags:         CacheFlagsDefault,
+			MemberCachePolicy:  MemberCachePolicyDefault,
+			MessageCachePolicy: MessageCachePolicyDefault,
+		}
+	}
+
+	if config.Cache == nil {
+		config.Cache = NewCache(disgo, *config.CacheConfig)
+	}
+	disgo.cache = config.Cache
+
+	return disgo, nil
 }

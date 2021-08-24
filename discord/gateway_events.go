@@ -24,7 +24,7 @@ type ReadyGatewayEvent struct {
 	SelfUser  SelfUser `json:"user"`
 	Guilds    []Guild  `json:"guilds"`
 	SessionID string   `json:"session_id"`
-	Shard     *[2]int          `json:"shard,omitempty"`
+	Shard     *[2]int  `json:"shard,omitempty"`
 }
 
 // HelloGatewayEventData is sent when we connect to the gateway

@@ -12,36 +12,43 @@ import (
 
 var _ Server = (*ServerImpl)(nil)
 
-func New(logger log.Logger, config Config, eventHandler EventHandlerFunc) Server {
+func New(eventHandlerFunc EventHandlerFunc, config *Config) Server {
+	if config == nil {
+		config = &DefaultConfig
+	}
+	if config.Logger == nil {
+		config.Logger = log.Default()
+	}
+	config.EventHandlerFunc = eventHandlerFunc
+
 	hexDecodedKey, err := hex.DecodeString(config.PublicKey)
 	if err != nil {
-		logger.Errorf("error while decoding hex string: %s", err)
+		config.Logger.Errorf("error while decoding hex string: %s", err)
 	}
+
 	mux := http.NewServeMux()
-	mux.Handle(config.URL, &WebhookInteractionHandler{})
-	return &ServerImpl{
-		logger:           logger,
-		publicKey:        hexDecodedKey,
-		config:           config,
-		eventHandlerFunc: eventHandler,
+	server := &ServerImpl{
+		config:    *config,
+		publicKey: hexDecodedKey,
 		server: &http.Server{
 			Addr:    config.Port,
 			Handler: mux,
 		},
 	}
+
+	mux.Handle(config.URL, &WebhookInteractionHandler{server: server})
+	return server
 }
 
 // ServerImpl is used in Disgo's webhook server for interactions
 type ServerImpl struct {
-	logger           log.Logger
-	config           Config
-	publicKey        ed25519.PublicKey
-	server           *http.Server
-	eventHandlerFunc EventHandlerFunc
+	config    Config
+	publicKey ed25519.PublicKey
+	server    *http.Server
 }
 
 func (w *ServerImpl) Logger() log.Logger {
-	return w.logger
+	return w.config.Logger
 }
 
 // Config returns the Config
@@ -59,7 +66,7 @@ func (w *ServerImpl) Start() {
 			err = w.server.ListenAndServe()
 		}
 		if err != nil {
-			w.logger.Errorf("error starting http server: %s", err)
+			w.Logger().Errorf("error starting http server: %s", err)
 		}
 	}()
 }
@@ -82,7 +89,7 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	}
 
 	c := make(chan discord.InteractionResponse)
-	go h.server.eventHandlerFunc(discord.GatewayEventTypeInteractionCreate, c, r.Body)
+	go h.server.config.EventHandlerFunc(discord.GatewayEventTypeInteractionCreate, c, r.Body)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

@@ -15,15 +15,14 @@ import (
 // TODO: do we need some cleanup task?
 
 //goland:noinspection GoUnusedExportedFunction
-func NewRateLimiter(logger log.Logger, config *Config) RateLimiter {
-	if logger == nil {
-		logger = log.Default()
-	}
+func NewLimiter(config *Config) Limiter {
 	if config == nil {
 		config = &DefaultConfig
 	}
-	return &RateLimiterImpl{
-		logger:  logger,
+	if config.Logger == nil {
+		config.Logger = log.Default()
+	}
+	return &LimiterImpl{
 		config:  *config,
 		hashes:  map[*route.APIRoute]routeHash{},
 		buckets: map[hashMajor]*bucket{},
@@ -35,10 +34,9 @@ type (
 	routeHash string
 	hashMajor string
 
-	RateLimiterImpl struct {
+	LimiterImpl struct {
 		sync.Mutex
 
-		logger log.Logger
 		config Config
 
 		// global Rate Limit
@@ -51,15 +49,19 @@ type (
 	}
 )
 
-func (r *RateLimiterImpl) Close(ctx context.Context) {
+func (r *LimiterImpl) Logger() log.Logger {
+	return r.config.Logger
+}
+
+func (r *LimiterImpl) Close(ctx context.Context) {
 	// TODO: wait for all buckets to unlock
 }
 
-func (r *RateLimiterImpl) Config() Config {
+func (r *LimiterImpl) Config() Config {
 	return r.config
 }
 
-func (r *RateLimiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor {
+func (r *LimiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor {
 	hash, ok := r.hashes[route.APIRoute]
 	if !ok {
 		// generate routeHash
@@ -70,11 +72,15 @@ func (r *RateLimiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor 
 	return hashMajor(string(hash) + "+" + route.MajorParams())
 }
 
-func (r *RateLimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *bucket {
+func (r *LimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *bucket {
 	hash := r.getRouteHash(route)
 
+	r.Logger().Debug("locking rate limiter")
 	r.Lock()
-	defer r.Unlock()
+	defer func() {
+		r.Logger().Debug("unlocking rate limiter")
+		r.Unlock()
+	}()
 	b, ok := r.buckets[hash]
 	if !ok {
 		if !create {
@@ -83,15 +89,17 @@ func (r *RateLimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) 
 
 		b = &bucket{
 			Remaining: 1,
-			Limit:     1,
+			// we don't know the limit yet
+			Limit: -1,
 		}
 		r.buckets[hash] = b
 	}
 	return b
 }
 
-func (r *RateLimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error {
+func (r *LimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error {
 	b := r.getBucket(route, true)
+	r.Logger().Debugf("locking bucket: %+v", b)
 	b.Lock()
 
 	var until time.Time
@@ -119,24 +127,33 @@ func (r *RateLimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledA
 	return nil
 }
 
-func (r *RateLimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.Header) error {
+func (r *LimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.Header) error {
 	b := r.getBucket(route, false)
 	if b == nil {
 		return nil
 	}
-	defer b.Unlock()
+	defer func() {
+		r.Logger().Debugf("unlocking bucket: %+v", b)
+		b.Unlock()
+	}()
 
-	bucketID := headers.Get("X-RateLimit-b")
+	// no headers provided means we can't update anything and just unlock it
+	if headers == nil {
+		return nil
+	}
+	bucketID := headers.Get("X-RateLimit-Bucket")
 
 	if bucketID != "" {
 		b.ID = bucketID
 	}
 
-	global := headers.Get("X-RateLimit-global")
-
+	global := headers.Get("X-RateLimit-Global")
 	remaining := headers.Get("X-RateLimit-Remaining")
+	limit := headers.Get("X-RateLimit-Limit")
 	reset := headers.Get("X-RateLimit-Reset")
 	retryAfter := headers.Get("Retry-After")
+
+	r.Logger().Debugf("headers: global %s, remaining: %s, limit: %s, reset: %s, retryAfter: %s", global, remaining, limit, reset, retryAfter)
 
 	switch {
 	case retryAfter != "":
@@ -154,12 +171,22 @@ func (r *RateLimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers ht
 		}
 
 	case reset != "":
-		unix, err := strconv.ParseInt(reset, 10, 64)
+		unix, err := strconv.ParseFloat(reset, 64)
 		if err != nil {
 			return fmt.Errorf("invalid reset %s: %s", reset, err)
 		}
 
-		b.Reset = time.Unix(unix, 0)
+		sec := int64(unix)
+		b.Reset = time.Unix(sec, int64((unix-float64(sec))*float64(time.Second)))
+	}
+
+	if limit != "" {
+		u, err := strconv.Atoi(limit)
+		if err != nil {
+			return fmt.Errorf("invalid limit %s: %s", limit, err)
+		}
+
+		b.Limit = u
 	}
 
 	if remaining != "" {

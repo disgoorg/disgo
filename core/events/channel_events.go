@@ -11,3 +11,10 @@ type GenericChannelEvent struct {
 	ChannelID discord.Snowflake
 	Channel   core.Channel
 }
+
+type ChannelPinsUpdateEvent struct {
+	*GenericChannelEvent
+	GuildID             *discord.Snowflake
+	OldLastPinTimestamp *discord.Time
+	NewLastPinTimestamp *discord.Time
+}

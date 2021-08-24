@@ -1,8 +1,6 @@
 package core
 
 import (
-	"context"
-
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/httpserver"
@@ -45,28 +43,28 @@ type Disgo interface {
 	EntityBuilder() EntityBuilder
 	AudioController() AudioController
 
-	GetCommand(ctx context.Context, commandID discord.Snowflake) (*ApplicationCommand, rest.Error)
-	GetCommands(ctx context.Context) ([]*ApplicationCommand, rest.Error)
-	CreateCommand(ctx context.Context, command discord.ApplicationCommandCreate) (*ApplicationCommand, rest.Error)
-	EditCommand(ctx context.Context, commandID discord.Snowflake, command discord.ApplicationCommandUpdate) (*ApplicationCommand, rest.Error)
-	DeleteCommand(ctx context.Context, commandID discord.Snowflake) rest.Error
-	SetCommands(ctx context.Context, commands ...discord.ApplicationCommandCreate) ([]*ApplicationCommand, rest.Error)
+	GetCommand(commandID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error)
+	GetCommands(opts ...rest.RequestOpt) ([]*ApplicationCommand, rest.Error)
+	CreateCommand(command discord.ApplicationCommandCreate, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error)
+	EditCommand(commandID discord.Snowflake, command discord.ApplicationCommandUpdate, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error)
+	DeleteCommand(commandID discord.Snowflake, opts ...rest.RequestOpt) rest.Error
+	SetCommands(commands []discord.ApplicationCommandCreate, opts ...rest.RequestOpt) ([]*ApplicationCommand, rest.Error)
 
-	GetGuildCommand(ctx context.Context, guildID discord.Snowflake, commandID discord.Snowflake) (*ApplicationCommand, rest.Error)
-	GetGuildCommands(ctx context.Context, guildID discord.Snowflake) ([]*ApplicationCommand, rest.Error)
-	CreateGuildCommand(ctx context.Context, guildID discord.Snowflake, commandCreate discord.ApplicationCommandCreate) (*ApplicationCommand, rest.Error)
-	EditGuildCommand(ctx context.Context, guildID discord.Snowflake, commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate) (*ApplicationCommand, rest.Error)
-	DeleteGuildCommand(ctx context.Context, guildID discord.Snowflake, commandID discord.Snowflake) rest.Error
-	SetGuildCommands(ctx context.Context, guildID discord.Snowflake, commandCreates ...discord.ApplicationCommandCreate) ([]*ApplicationCommand, rest.Error)
+	GetGuildCommand(guildID discord.Snowflake, commandID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error)
+	GetGuildCommands(guildID discord.Snowflake, opts ...rest.RequestOpt) ([]*ApplicationCommand, rest.Error)
+	CreateGuildCommand(guildID discord.Snowflake, commandCreate discord.ApplicationCommandCreate, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error)
+	EditGuildCommand(guildID discord.Snowflake, commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error)
+	DeleteGuildCommand(guildID discord.Snowflake, commandID discord.Snowflake, opts ...rest.RequestOpt) rest.Error
+	SetGuildCommands(guildID discord.Snowflake, commandCreates []discord.ApplicationCommandCreate, opts ...rest.RequestOpt) ([]*ApplicationCommand, rest.Error)
 
-	GetGuildCommandsPermissions(ctx context.Context, guildID discord.Snowflake) ([]*GuildCommandPermissions, rest.Error)
-	GetGuildCommandPermissions(ctx context.Context, guildID discord.Snowflake, commandID discord.Snowflake) (*GuildCommandPermissions, rest.Error)
-	SetGuildCommandsPermissions(ctx context.Context, guildID discord.Snowflake, commandPermissions ...discord.GuildCommandPermissionsSet) ([]*GuildCommandPermissions, rest.Error)
-	SetGuildCommandPermissions(ctx context.Context, guildID discord.Snowflake, commandID discord.Snowflake, permissions ...discord.CommandPermission) (*GuildCommandPermissions, rest.Error)
+	GetGuildCommandsPermissions(guildID discord.Snowflake, opts ...rest.RequestOpt) ([]*GuildCommandPermissions, rest.Error)
+	GetGuildCommandPermissions(guildID discord.Snowflake, commandID discord.Snowflake, opts ...rest.RequestOpt) (*GuildCommandPermissions, rest.Error)
+	SetGuildCommandsPermissions(guildID discord.Snowflake, commandPermissions []discord.GuildCommandPermissionsSet, opts ...rest.RequestOpt) ([]*GuildCommandPermissions, rest.Error)
+	SetGuildCommandPermissions(guildID discord.Snowflake, commandID discord.Snowflake, permissions []discord.CommandPermission, opts ...rest.RequestOpt) (*GuildCommandPermissions, rest.Error)
 
-	GetTemplate(ctx context.Context, templateCode string) (*GuildTemplate, rest.Error)
-	CreateGuildFromTemplate(ctx context.Context, templateCode string, createGuildFromTemplate discord.GuildFromTemplateCreate) (*Guild, rest.Error)
+	GetTemplate(templateCode string, opts ...rest.RequestOpt) (*GuildTemplate, rest.Error)
+	CreateGuildFromTemplate(templateCode string, createGuildFromTemplate discord.GuildFromTemplateCreate, opts ...rest.RequestOpt) (*Guild, rest.Error)
 
-	GetInvite(ctx context.Context, inviteCode string) (*Invite, rest.Error)
-	DeleteInvite(ctx context.Context, inviteCode string) (*Invite, rest.Error)
+	GetInvite(inviteCode string, opts ...rest.RequestOpt) (*Invite, rest.Error)
+	DeleteInvite(inviteCode string, opts ...rest.RequestOpt) (*Invite, rest.Error)
 }

@@ -2,10 +2,15 @@ package main
 
 import (
 	"context"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/info"
+	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/webhook"
 	"github.com/DisgoOrg/log"
 )
@@ -13,18 +18,43 @@ import (
 var (
 	webhookID    = discord.Snowflake(os.Getenv("webhook_id"))
 	webhookToken = os.Getenv("webhook_token")
+	logger       = log.Default()
+	httpClient   = http.DefaultClient
 )
 
 func main() {
-	log.SetLevel(log.LevelDebug)
-	log.Info("starting ExampleBot...")
-	log.Infof("disgo %s", info.Version)
+	logger.SetLevel(log.LevelDebug)
+	logger.Info("starting ExampleBot...")
+	logger.Infof("disgo %s", info.Version)
 
-	client := webhook.New(nil, nil, nil, webhookID, webhookToken)
+	client := webhook.New(webhookID, webhookToken,
+		webhook.WithLogger(logger),
+		webhook.WithRestClientConfigOpts(
+			rest.WithHTTPClient(httpClient),
+		),
+	)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, _ := context.WithTimeout(context.Background(), 2*time.Minute)
 
-	_, _ = client.CreateMessage(ctx, webhook.NewMessageCreateBuilder().Build())
+	for i := 1; i <= 10; i++ {
+		go send(ctx, client, i)
+	}
 
-	cancel()
+	s := make(chan os.Signal, 1)
+	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	<-s
+}
+
+func send(ctx context.Context, client webhook.Client, i int) {
+	_, err := client.CreateMessage(webhook.NewMessageCreateBuilder().SetContentf("test %d", i).Build(),
+		rest.WithCtx(ctx),
+		rest.WithReason("this adds a reason header"),
+		rest.WithDelay(2*time.Second),
+		rest.WithCheck(func() bool {
+			return false
+		}),
+	)
+	if err != nil {
+		logger.Errorf("error sending test %d: %s", i, err)
+	}
 }

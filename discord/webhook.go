@@ -20,7 +20,7 @@ type Webhook struct {
 	ChannelID     Snowflake       `json:"channel_id"`
 	User          User            `json:"user"`
 	Name          string          `json:"name"`
-	Avatar        string          `json:"avatar"`
+	Avatar        *string         `json:"avatar"`
 	Token         *string         `json:"token"`
 	ApplicationID *Snowflake      `json:"application_id"`
 	SourceGuild   *PartialGuild   `json:"source_guild"`

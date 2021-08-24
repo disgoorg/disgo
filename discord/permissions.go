@@ -89,6 +89,7 @@ const (
 		PermissionAttachFiles |
 		PermissionReadMessageHistory |
 		PermissionMentionEveryone
+
 	PermissionsAllVoice = PermissionViewChannel |
 		PermissionVoiceConnect |
 		PermissionVoiceSpeak |
@@ -97,6 +98,7 @@ const (
 		PermissionVoiceMoveMembers |
 		PermissionVoiceUseVAD |
 		PermissionVoicePrioritySpeaker
+
 	PermissionsAllChannel = PermissionsAllText |
 		PermissionsAllVoice |
 		PermissionCreateInstantInvite |
@@ -104,6 +106,7 @@ const (
 		PermissionManageChannels |
 		PermissionAddReactions |
 		PermissionViewAuditLogs
+
 	PermissionsAll = PermissionsAllChannel |
 		PermissionKickMembers |
 		PermissionBanMembers |
@@ -111,6 +114,10 @@ const (
 		PermissionAdministrator |
 		PermissionManageWebhooks |
 		PermissionManageEmojis
+
+	PermissionsStageModerator = PermissionManageChannels |
+		PermissionVoiceMuteMembers |
+		PermissionVoiceMoveMembers
 
 	PermissionsNone Permissions = 0
 )

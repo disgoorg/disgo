@@ -21,7 +21,7 @@ func NewServices(logger log.Logger, restClient Client) Services {
 		userService:          NewUserService(restClient),
 		voiceService:         NewVoiceService(restClient),
 		webhookService:       NewWebhookService(restClient),
-		stageInstanceService: NewStageInstanceService(restClient),
+		stageService:         NewStageService(restClient),
 	}
 }
 
@@ -41,7 +41,7 @@ type Services interface {
 	UserService() UserService
 	VoiceService() VoiceService
 	WebhookService() WebhookService
-	StageInstanceService() StageInstanceService
+	StageService() StageService
 }
 
 type ServicesImpl struct {
@@ -59,7 +59,7 @@ type ServicesImpl struct {
 	userService          UserService
 	voiceService         VoiceService
 	webhookService       WebhookService
-	stageInstanceService StageInstanceService
+	stageService         StageService
 }
 
 func (s *ServicesImpl) Close() {
@@ -118,8 +118,8 @@ func (s *ServicesImpl) WebhookService() WebhookService {
 	return s.webhookService
 }
 
-func (s *ServicesImpl) StageInstanceService() StageInstanceService {
-	return s.stageInstanceService
+func (s *ServicesImpl) StageService() StageService {
+	return s.stageService
 }
 
 type Service interface {

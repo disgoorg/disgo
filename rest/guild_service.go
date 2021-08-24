@@ -1,8 +1,6 @@
 package rest
 
 import (
-	"context"
-
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -12,45 +10,45 @@ func NewGuildService(client Client) GuildService {
 
 type GuildService interface {
 	Service
-	GetGuild(ctx context.Context, guildID discord.Snowflake, withCounts bool) (*discord.Guild, Error)
-	GetGuildPreview(ctx context.Context, guildID discord.Snowflake) (*discord.GuildPreview, Error)
-	CreateGuild(ctx context.Context, guildCreate discord.GuildCreate) (*discord.Guild, Error)
-	UpdateGuild(ctx context.Context, guildID discord.Snowflake, guildUpdate discord.GuildUpdate) (*discord.Guild, Error)
-	DeleteGuild(ctx context.Context, guildID discord.Snowflake) Error
+	GetGuild(guildID discord.Snowflake, withCounts bool, opts ...RequestOpt) (*discord.Guild, Error)
+	GetGuildPreview(guildID discord.Snowflake, opts ...RequestOpt) (*discord.GuildPreview, Error)
+	CreateGuild(guildCreate discord.GuildCreate, opts ...RequestOpt) (*discord.Guild, Error)
+	UpdateGuild(guildID discord.Snowflake, guildUpdate discord.GuildUpdate, opts ...RequestOpt) (*discord.Guild, Error)
+	DeleteGuild(guildID discord.Snowflake, opts ...RequestOpt) Error
 
-	GetRoles(ctx context.Context, guildID discord.Snowflake) ([]discord.Role, Error)
-	CreateRole(ctx context.Context, guildID discord.Snowflake, createRole discord.RoleCreate) (*discord.Role, Error)
-	UpdateRole(ctx context.Context, guildID discord.Snowflake, roleID discord.Snowflake, roleUpdate discord.RoleUpdate) (*discord.Role, Error)
-	UpdateRolePositions(ctx context.Context, guildID discord.Snowflake, rolePositionUpdates ...discord.RolePositionUpdate) ([]discord.Role, Error)
-	DeleteRole(ctx context.Context, guildID discord.Snowflake, roleID discord.Snowflake) Error
+	GetRoles(guildID discord.Snowflake, opts ...RequestOpt) ([]discord.Role, Error)
+	CreateRole(guildID discord.Snowflake, createRole discord.RoleCreate, opts ...RequestOpt) (*discord.Role, Error)
+	UpdateRole(guildID discord.Snowflake, roleID discord.Snowflake, roleUpdate discord.RoleUpdate, opts ...RequestOpt) (*discord.Role, Error)
+	UpdateRolePositions(guildID discord.Snowflake, rolePositionUpdates []discord.RolePositionUpdate, opts ...RequestOpt) ([]discord.Role, Error)
+	DeleteRole(guildID discord.Snowflake, roleID discord.Snowflake, opts ...RequestOpt) Error
 
-	GetMember(ctx context.Context, guildID discord.Snowflake, userID discord.Snowflake) (*discord.Member, Error)
-	GetMembers(ctx context.Context, guildID discord.Snowflake) ([]discord.Member, Error)
-	SearchMembers(ctx context.Context, guildID discord.Snowflake, query string, limit int) ([]discord.Member, Error)
-	AddMember(ctx context.Context, guildID discord.Snowflake, userID discord.Snowflake, memberAdd discord.MemberAdd) (*discord.Member, Error)
-	RemoveMember(ctx context.Context, guildID discord.Snowflake, userID discord.Snowflake, reason string) Error
-	UpdateMember(ctx context.Context, guildID discord.Snowflake, userID discord.Snowflake, memberUpdate discord.MemberUpdate) (*discord.Member, Error)
-	MoveMember(ctx context.Context, guildID discord.Snowflake, userID discord.Snowflake, channelID *discord.Snowflake) (*discord.Member, Error)
-	AddMemberRole(ctx context.Context, guildID discord.Snowflake, userID discord.Snowflake, roleID discord.Snowflake) Error
-	RemoveMemberRole(ctx context.Context, guildID discord.Snowflake, userID discord.Snowflake, roleID discord.Snowflake) Error
+	GetMember(guildID discord.Snowflake, userID discord.Snowflake, opts ...RequestOpt) (*discord.Member, Error)
+	GetMembers(guildID discord.Snowflake, opts ...RequestOpt) ([]discord.Member, Error)
+	SearchMembers(guildID discord.Snowflake, query string, limit int, opts ...RequestOpt) ([]discord.Member, Error)
+	AddMember(guildID discord.Snowflake, userID discord.Snowflake, memberAdd discord.MemberAdd, opts ...RequestOpt) (*discord.Member, Error)
+	RemoveMember(guildID discord.Snowflake, userID discord.Snowflake, opts ...RequestOpt) Error
+	UpdateMember(guildID discord.Snowflake, userID discord.Snowflake, memberUpdate discord.MemberUpdate, opts ...RequestOpt) (*discord.Member, Error)
+	MoveMember(guildID discord.Snowflake, userID discord.Snowflake, channelID *discord.Snowflake, opts ...RequestOpt) (*discord.Member, Error)
+	AddMemberRole(guildID discord.Snowflake, userID discord.Snowflake, roleID discord.Snowflake, opts ...RequestOpt) Error
+	RemoveMemberRole(guildID discord.Snowflake, userID discord.Snowflake, roleID discord.Snowflake, opts ...RequestOpt) Error
 
-	UpdateSelfNick(ctx context.Context, guildID discord.Snowflake, nick string) (*string, Error)
+	UpdateSelfNick(guildID discord.Snowflake, nick string, opts ...RequestOpt) (*string, Error)
 
-	GetBans(ctx context.Context, guildID discord.Snowflake) ([]discord.Ban, Error)
-	GetBan(ctx context.Context, guildID discord.Snowflake, userID discord.Snowflake) (*discord.Ban, Error)
-	AddBan(ctx context.Context, guildID discord.Snowflake, userID discord.Snowflake, reason string, deleteMessageDays int) Error
-	DeleteBan(ctx context.Context, guildID discord.Snowflake, userID discord.Snowflake) Error
+	GetBans(guildID discord.Snowflake, opts ...RequestOpt) ([]discord.Ban, Error)
+	GetBan(guildID discord.Snowflake, userID discord.Snowflake, opts ...RequestOpt) (*discord.Ban, Error)
+	AddBan(guildID discord.Snowflake, userID discord.Snowflake, deleteMessageDays int, opts ...RequestOpt) Error
+	DeleteBan(guildID discord.Snowflake, userID discord.Snowflake, opts ...RequestOpt) Error
 
-	GetIntegrations(ctx context.Context, guildID discord.Snowflake) ([]discord.Integration, Error)
-	DeleteIntegration(ctx context.Context, guildID discord.Snowflake, integrationID discord.Snowflake) Error
+	GetIntegrations(guildID discord.Snowflake, opts ...RequestOpt) ([]discord.Integration, Error)
+	DeleteIntegration(guildID discord.Snowflake, integrationID discord.Snowflake, opts ...RequestOpt) Error
 
-	GetEmojis(ctx context.Context) ([]discord.Emoji, Error)
+	GetEmojis(opts ...RequestOpt) ([]discord.Emoji, Error)
 
-	GetGuildTemplate(ctx context.Context, templateCode string) (*discord.GuildTemplate, Error)
-	GetGuildTemplates(ctx context.Context, guildID discord.Snowflake) ([]discord.GuildTemplate, Error)
-	CreateGuildTemplate(ctx context.Context, guildID discord.Snowflake, createGuildTemplate discord.GuildTemplateCreate) (*discord.GuildTemplate, Error)
-	CreateGuildFromTemplate(ctx context.Context, templateCode string, createGuildFromTemplate discord.GuildFromTemplateCreate) (*discord.Guild, Error)
-	SyncGuildTemplate(ctx context.Context, guildID discord.Snowflake, templateCode string) (*discord.GuildTemplate, Error)
-	UpdateGuildTemplate(ctx context.Context, guildID discord.Snowflake, templateCode string, updateGuildTemplate discord.GuildTemplateUpdate) (*discord.GuildTemplate, Error)
-	DeleteGuildTemplate(ctx context.Context, guildID discord.Snowflake, templateCode string) (*discord.GuildTemplate, Error)
+	GetGuildTemplate(templateCode string, opts ...RequestOpt) (*discord.GuildTemplate, Error)
+	GetGuildTemplates(guildID discord.Snowflake, opts ...RequestOpt) ([]discord.GuildTemplate, Error)
+	CreateGuildTemplate(guildID discord.Snowflake, createGuildTemplate discord.GuildTemplateCreate, opts ...RequestOpt) (*discord.GuildTemplate, Error)
+	CreateGuildFromTemplate(templateCode string, createGuildFromTemplate discord.GuildFromTemplateCreate, opts ...RequestOpt) (*discord.Guild, Error)
+	SyncGuildTemplate(guildID discord.Snowflake, templateCode string, opts ...RequestOpt) (*discord.GuildTemplate, Error)
+	UpdateGuildTemplate(guildID discord.Snowflake, templateCode string, updateGuildTemplate discord.GuildTemplateUpdate, opts ...RequestOpt) (*discord.GuildTemplate, Error)
+	DeleteGuildTemplate(guildID discord.Snowflake, templateCode string, opts ...RequestOpt) (*discord.GuildTemplate, Error)
 }

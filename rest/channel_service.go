@@ -1,8 +1,6 @@
 package rest
 
 import (
-	"context"
-
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -12,26 +10,26 @@ func NewChannelService(client Client) ChannelService {
 
 type ChannelService interface {
 	Service
-	GetChannel(ctx context.Context, channelID discord.Snowflake) (*discord.Channel, Error)
-	UpdateChannel(ctx context.Context, channelID discord.Snowflake, channelUpdate discord.ChannelUpdate) (*discord.Channel, Error)
-	DeleteChannel(ctx context.Context, channelID discord.Snowflake) Error
+	GetChannel(channelID discord.Snowflake, opts ...RequestOpt) (*discord.Channel, Error)
+	UpdateChannel(channelID discord.Snowflake, channelUpdate discord.ChannelUpdate, opts ...RequestOpt) (*discord.Channel, Error)
+	DeleteChannel(channelID discord.Snowflake, opts ...RequestOpt) Error
 
-	GetWebhooks(ctx context.Context, channelID discord.Snowflake) ([]discord.Webhook, Error)
-	CreateWebhook(ctx context.Context, channelID discord.Snowflake, update discord.WebhookCreate) (*discord.Webhook, Error)
+	GetWebhooks(channelID discord.Snowflake, opts ...RequestOpt) ([]discord.Webhook, Error)
+	CreateWebhook(channelID discord.Snowflake, update discord.WebhookCreate, opts ...RequestOpt) (*discord.Webhook, Error)
 
-	UpdatePermissionOverride(ctx context.Context, channelID discord.Snowflake, overwriteID discord.Snowflake, permissionOverwrite discord.PermissionOverwriteUpdate) Error
-	DeletePermissionOverride(ctx context.Context, channelID discord.Snowflake, overwriteID discord.Snowflake) Error
+	UpdatePermissionOverride(channelID discord.Snowflake, overwriteID discord.Snowflake, permissionOverwrite discord.PermissionOverwriteUpdate, opts ...RequestOpt) Error
+	DeletePermissionOverride(channelID discord.Snowflake, overwriteID discord.Snowflake, opts ...RequestOpt) Error
 
-	SendTyping(ctx context.Context, channelID discord.Snowflake) Error
+	SendTyping(channelID discord.Snowflake, opts ...RequestOpt) Error
 
-	GetMessage(ctx context.Context, channelID discord.Snowflake, messageID discord.Snowflake) (*discord.Message, Error)
-	CreateMessage(ctx context.Context, channelID discord.Snowflake, message discord.MessageCreate) (*discord.Message, Error)
-	UpdateMessage(ctx context.Context, channelID discord.Snowflake, messageID discord.Snowflake, messageUpdate discord.MessageUpdate) (*discord.Message, Error)
-	DeleteMessage(ctx context.Context, channelID discord.Snowflake, messageID discord.Snowflake) Error
-	BulkDeleteMessages(ctx context.Context, channelID discord.Snowflake, messageIDs ...discord.Snowflake) Error
-	CrosspostMessage(ctx context.Context, channelID discord.Snowflake, messageID discord.Snowflake) (*discord.Message, Error)
+	GetMessage(channelID discord.Snowflake, messageID discord.Snowflake, opts ...RequestOpt) (*discord.Message, Error)
+	CreateMessage(channelID discord.Snowflake, message discord.MessageCreate, opts ...RequestOpt) (*discord.Message, Error)
+	UpdateMessage(channelID discord.Snowflake, messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (*discord.Message, Error)
+	DeleteMessage(channelID discord.Snowflake, messageID discord.Snowflake, opts ...RequestOpt) Error
+	BulkDeleteMessages(channelID discord.Snowflake, messageIDs []discord.Snowflake, opts ...RequestOpt) Error
+	CrosspostMessage(channelID discord.Snowflake, messageID discord.Snowflake, opts ...RequestOpt) (*discord.Message, Error)
 
-	AddReaction(ctx context.Context, channelID discord.Snowflake, messageID discord.Snowflake, emoji string) Error
-	RemoveOwnReaction(ctx context.Context, channelID discord.Snowflake, messageID discord.Snowflake, emoji string) Error
-	RemoveUserReaction(ctx context.Context, channelID discord.Snowflake, messageID discord.Snowflake, emoji string, userID discord.Snowflake) Error
+	AddReaction(channelID discord.Snowflake, messageID discord.Snowflake, emoji string, opts ...RequestOpt) Error
+	RemoveOwnReaction(channelID discord.Snowflake, messageID discord.Snowflake, emoji string, opts ...RequestOpt) Error
+	RemoveUserReaction(channelID discord.Snowflake, messageID discord.Snowflake, emoji string, userID discord.Snowflake, opts ...RequestOpt) Error
 }
