@@ -18,8 +18,8 @@ func (e *GenericComponentEvent) DeferUpdate(opts ...rest.RequestOpt) error {
 }
 
 // Update replies to the api.ButtonInteraction with api.InteractionResponseTypeUpdateMessage & api.MessageUpdate which edits the original api.Message
-func (e *GenericComponentEvent) Update(messageUpdate discord.MessageUpdate) error {
-	return e.ComponentInteraction.Update(messageUpdate)
+func (e *GenericComponentEvent) Update(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
+	return e.ComponentInteraction.Update(messageUpdate, opts...)
 }
 
 // CustomID returns the customID from the called api.Component
