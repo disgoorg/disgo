@@ -10,11 +10,11 @@ func NewGuildTemplateService(client Client) GuildTemplateService {
 
 type GuildTemplateService interface {
 	Service
-	GetGuildTemplate(templateCode string) (*discord.GuildTemplate, Error)
-	GetGuildTemplates(guildID discord.Snowflake) ([]discord.GuildTemplate, Error)
-	CreateGuildTemplate(guildID discord.Snowflake, guildTemplateCreate discord.GuildTemplateCreate) (*discord.GuildTemplate, Error)
-	CreateGuildFromTemplate(templateCode string, createGuildFromTemplate discord.GuildFromTemplateCreate) (*discord.Guild, Error)
-	SyncGuildTemplate(guildID discord.Snowflake, templateCode string) (*discord.GuildTemplate, Error)
-	UpdateGuildTemplate(guildID discord.Snowflake, templateCode string, guildTemplateUpdate discord.GuildTemplateUpdate) (*discord.GuildTemplate, Error)
-	DeleteGuildTemplate(guildID discord.Snowflake, templateCode string) (*discord.GuildTemplate, Error)
+	GetGuildTemplate(templateCode string, opts ...RequestOpt) (*discord.GuildTemplate, Error)
+	GetGuildTemplates(guildID discord.Snowflake, opts ...RequestOpt) ([]discord.GuildTemplate, Error)
+	CreateGuildTemplate(guildID discord.Snowflake, guildTemplateCreate discord.GuildTemplateCreate, opts ...RequestOpt) (*discord.GuildTemplate, Error)
+	CreateGuildFromTemplate(templateCode string, createGuildFromTemplate discord.GuildFromTemplateCreate, opts ...RequestOpt) (*discord.Guild, Error)
+	SyncGuildTemplate(guildID discord.Snowflake, templateCode string, opts ...RequestOpt) (*discord.GuildTemplate, Error)
+	UpdateGuildTemplate(guildID discord.Snowflake, templateCode string, guildTemplateUpdate discord.GuildTemplateUpdate, opts ...RequestOpt) (*discord.GuildTemplate, Error)
+	DeleteGuildTemplate(guildID discord.Snowflake, templateCode string, opts ...RequestOpt) (*discord.GuildTemplate, Error)
 }

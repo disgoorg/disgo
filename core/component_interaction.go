@@ -13,12 +13,12 @@ type ComponentInteraction struct {
 
 // DeferUpdate replies to the ComponentInteraction with discord.InteractionResponseTypeDeferredUpdateMessage and cancels the loading state
 func (i *ComponentInteraction) DeferUpdate(opts ...rest.RequestOpt) error {
-	return i.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil)
+	return i.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil, opts...)
 }
 
 // Update replies to the ComponentInteraction with discord.InteractionResponseTypeUpdateMessage & MessageUpdate which edits the original Message
-func (i *ComponentInteraction) Update(messageUpdate discord.MessageUpdate) error {
-	return i.Respond(discord.InteractionResponseTypeUpdateMessage, messageUpdate)
+func (i *ComponentInteraction) Update(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
+	return i.Respond(discord.InteractionResponseTypeUpdateMessage, messageUpdate, opts...)
 }
 
 // CustomID returns the Custom ID of the ComponentInteraction

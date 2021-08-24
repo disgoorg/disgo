@@ -12,7 +12,7 @@ type SelfUser struct {
 }
 
 // Update updates the SelfUser with the given payload
-func (u *SelfUser) Update(updateSelfUser discord.UpdateSelfUser) (*SelfUser, rest.Error) {
+func (u *SelfUser) Update(updateSelfUser discord.SelfUserUpdate) (*SelfUser, rest.Error) {
 	selfUser, err := u.Disgo.RestServices().UserService().UpdateSelfUser(updateSelfUser)
 	if err != nil {
 		return nil, err

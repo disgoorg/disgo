@@ -11,8 +11,8 @@ type SelfUser struct {
 	PremiumType *int    `json:"premium_type"`
 }
 
-// UpdateSelfUser is the payload used to update the SelfUser
-type UpdateSelfUser struct {
+// SelfUserUpdate is the payload used to update the SelfUser
+type SelfUserUpdate struct {
 	Username string `json:"username"`
 	Avatar   Icon   `json:"avatar"`
 }

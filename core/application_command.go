@@ -42,14 +42,14 @@ func (c *ApplicationCommand) ToCreate() discord.ApplicationCommandCreate {
 }
 
 // Update updates the current ApplicationCommand with the given fields
-func (c *ApplicationCommand) Update(commandUpdate discord.ApplicationCommandUpdate) (*ApplicationCommand, error) {
+func (c *ApplicationCommand) Update(commandUpdate discord.ApplicationCommandUpdate, opts ...rest.RequestOpt) (*ApplicationCommand, error) {
 	var command *discord.ApplicationCommand
 	var err error
 	if c.GuildID == nil {
-		command, err = c.Disgo.RestServices().ApplicationService().UpdateGlobalCommand(c.Disgo.ApplicationID(), c.ID, commandUpdate)
+		command, err = c.Disgo.RestServices().ApplicationService().UpdateGlobalCommand(c.Disgo.ApplicationID(), c.ID, commandUpdate, opts...)
 
 	} else {
-		command, err = c.Disgo.RestServices().ApplicationService().UpdateGuildCommand(c.Disgo.ApplicationID(), *c.GuildID, c.ID, commandUpdate)
+		command, err = c.Disgo.RestServices().ApplicationService().UpdateGuildCommand(c.Disgo.ApplicationID(), *c.GuildID, c.ID, commandUpdate, opts...)
 	}
 	if err != nil {
 		return nil, err
@@ -58,8 +58,8 @@ func (c *ApplicationCommand) Update(commandUpdate discord.ApplicationCommandUpda
 }
 
 // SetPermissions sets the GuildCommandPermissions for a specific Guild. this overrides all existing CommandPermission(s). thx discord for that
-func (c *ApplicationCommand) SetPermissions(guildID discord.Snowflake, commandPermissions ...discord.CommandPermission) (*GuildCommandPermissions, error) {
-	permissions, err := c.Disgo.RestServices().ApplicationService().SetGuildCommandPermissions(c.Disgo.ApplicationID(), guildID, c.ID, commandPermissions...)
+func (c *ApplicationCommand) SetPermissions(guildID discord.Snowflake, commandPermissions []discord.CommandPermission, opts ...rest.RequestOpt) (*GuildCommandPermissions, error) {
+	permissions, err := c.Disgo.RestServices().ApplicationService().SetGuildCommandPermissions(c.Disgo.ApplicationID(), guildID, c.ID, commandPermissions, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,8 +67,8 @@ func (c *ApplicationCommand) SetPermissions(guildID discord.Snowflake, commandPe
 }
 
 // GetPermissions fetched the GuildCommandPermissions for a specific Guild from discord
-func (c *ApplicationCommand) GetPermissions(guildID discord.Snowflake) (*GuildCommandPermissions, error) {
-	permissions, err := c.Disgo.RestServices().ApplicationService().GetGuildCommandPermissions(c.Disgo.ApplicationID(), guildID, c.ID)
+func (c *ApplicationCommand) GetPermissions(guildID discord.Snowflake, opts ...rest.RequestOpt) (*GuildCommandPermissions, error) {
+	permissions, err := c.Disgo.RestServices().ApplicationService().GetGuildCommandPermissions(c.Disgo.ApplicationID(), guildID, c.ID, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,5 +80,5 @@ func (c *ApplicationCommand) Delete(opts ...rest.RequestOpt) error {
 	if c.GuildID == nil {
 		return c.Disgo.RestServices().ApplicationService().DeleteGlobalCommand(c.Disgo.ApplicationID(), c.ID)
 	}
-	return c.Disgo.RestServices().ApplicationService().DeleteGuildCommand(c.Disgo.ApplicationID(), *c.GuildID, c.ID)
+	return c.Disgo.RestServices().ApplicationService().DeleteGuildCommand(c.Disgo.ApplicationID(), *c.GuildID, c.ID, opts...)
 }

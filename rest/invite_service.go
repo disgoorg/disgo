@@ -10,9 +10,9 @@ func NewInviteService(client Client) InviteService {
 
 type InviteService interface {
 	Service
-	GetInvite(code string) (*discord.Invite, Error)
-	CreateInvite(channelID discord.Snowflake, inviteCreate discord.InviteCreate)
-	DeleteInvite(code string) (*discord.Invite, Error)
-	GetGuildInvites(guildID discord.Snowflake) ([]discord.Invite, Error)
-	GetChannelInvites(channelID discord.Snowflake) ([]discord.Invite, Error)
+	GetInvite(code string, opts ...RequestOpt) (*discord.Invite, Error)
+	CreateInvite(channelID discord.Snowflake, inviteCreate discord.InviteCreate, opts ...RequestOpt) (discord.Invite, Error)
+	DeleteInvite(code string, opts ...RequestOpt) (*discord.Invite, Error)
+	GetGuildInvites(guildID discord.Snowflake, opts ...RequestOpt) ([]discord.Invite, Error)
+	GetChannelInvites(channelID discord.Snowflake, opts ...RequestOpt) ([]discord.Invite, Error)
 }
