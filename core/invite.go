@@ -19,7 +19,7 @@ func (i *Invite) URL() string {
 }
 
 func (i *Invite) Delete(opts ...rest.RequestOpt) (*Invite, rest.Error) {
-	invite, err := i.Disgo.RestServices().InviteService().DeleteInvite(i.Code)
+	invite, err := i.Disgo.RestServices().InviteService().DeleteInvite(i.Code, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -11,10 +11,10 @@ func NewStageService(client Client) StageService {
 
 type StageService interface {
 	Service
-	GetStageInstance(stageInstanceID discord.Snowflake, opts ...RequestOpt) (*discord.StageInstance, Error)
+	GetStageInstance(channelID discord.Snowflake, opts ...RequestOpt) (*discord.StageInstance, Error)
 	CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate, opts ...RequestOpt) (*discord.StageInstance, Error)
-	UpdateStageInstance(stageInstanceID discord.Snowflake, stageInstanceUpdate discord.StageInstanceUpdate, opts ...RequestOpt) (*discord.StageInstance, Error)
-	DeleteStageInstance(stageInstanceID discord.Snowflake, opts ...RequestOpt) Error
+	UpdateStageInstance(channelID discord.Snowflake, stageInstanceUpdate discord.StageInstanceUpdate, opts ...RequestOpt) (*discord.StageInstance, Error)
+	DeleteStageInstance(channelID discord.Snowflake, opts ...RequestOpt) Error
 }
 
 type StageServiceImpl struct {
@@ -43,8 +43,8 @@ func (s *StageServiceImpl) CreateStageInstance(stageInstanceCreate discord.Stage
 	return
 }
 
-func (s *StageServiceImpl) UpdateStageInstance(stageInstanceID discord.Snowflake, stageInstanceUpdate discord.StageInstanceUpdate, opts ...RequestOpt) (stageInstance *discord.StageInstance, rErr Error) {
-	compiledRoute, err := route.UpdateStageInstance.Compile(nil, stageInstanceID)
+func (s *StageServiceImpl) UpdateStageInstance(channelID discord.Snowflake, stageInstanceUpdate discord.StageInstanceUpdate, opts ...RequestOpt) (stageInstance *discord.StageInstance, rErr Error) {
+	compiledRoute, err := route.UpdateStageInstance.Compile(nil, channelID)
 	if err != nil {
 		return nil, NewError(nil, err)
 	}
@@ -52,8 +52,8 @@ func (s *StageServiceImpl) UpdateStageInstance(stageInstanceID discord.Snowflake
 	return
 }
 
-func (s *StageServiceImpl) DeleteStageInstance(stageInstanceID discord.Snowflake, opts ...RequestOpt) Error {
-	compiledRoute, err := route.DeleteStageInstance.Compile(nil, stageInstanceID)
+func (s *StageServiceImpl) DeleteStageInstance(channelID discord.Snowflake, opts ...RequestOpt) Error {
+	compiledRoute, err := route.DeleteStageInstance.Compile(nil, channelID)
 	if err != nil {
 		return NewError(nil, err)
 	}

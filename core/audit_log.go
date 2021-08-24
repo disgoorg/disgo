@@ -29,7 +29,7 @@ func (l *AuditLog) Before(opts ...rest.RequestOpt) (*AuditLog, rest.Error) {
 	if len(l.Entries) > 0 {
 		before = l.Entries[len(l.Entries)-1].ID
 	}
-	auditLog, err := l.Disgo.RestServices().AuditLogService().GetAuditLog(l.GuildID, l.FilterOptions.UserID, l.FilterOptions.ActionType, before, l.FilterOptions.Limit)
+	auditLog, err := l.Disgo.RestServices().AuditLogService().GetAuditLog(l.GuildID, l.FilterOptions.UserID, l.FilterOptions.ActionType, before, l.FilterOptions.Limit, opts...)
 	if err != nil {
 		return nil, err
 	}

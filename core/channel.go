@@ -29,10 +29,10 @@ type MessageChannel interface {
 	Channel
 	LastMessageID() *discord.Snowflake
 	LastPinTimestamp() *discord.Time
-	CreateMessage(messageCreate discord.MessageCreate) (*Message, rest.Error)
-	UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate) (*Message, rest.Error)
-	DeleteMessage(messageID discord.Snowflake) rest.Error
-	BulkDeleteMessages(messageIDs ...discord.Snowflake) rest.Error
+	CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, rest.Error)
+	UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error)
+	DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) rest.Error
+	BulkDeleteMessages(messageIDs []discord.Snowflake, opts ...rest.RequestOpt) rest.Error
 
 	//CollectMessages(filter collectors.MessageFilter) (chan *Message, func())
 }
@@ -51,7 +51,7 @@ type GuildChannel interface {
 	ParentID() *discord.Snowflake
 	Parent() Category
 	Position() *int
-	Update(channelUpdate discord.ChannelUpdate) (GuildChannel, rest.Error)
+	Update(channelUpdate discord.ChannelUpdate, opts ...rest.RequestOpt) (GuildChannel, rest.Error)
 }
 
 // Category groups text & voice channels in servers together
@@ -77,7 +77,7 @@ type TextChannel interface {
 // NewsChannel allows you to interact with discord's text channels
 type NewsChannel interface {
 	TextChannel
-	CrosspostMessage(messageID discord.Snowflake) (*Message, rest.Error)
+	CrosspostMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, rest.Error)
 }
 
 // StoreChannel allows you to interact with discord's store channels
@@ -88,7 +88,9 @@ type StoreChannel interface {
 type StageChannel interface {
 	VoiceChannel
 	StageInstance() *StageInstance
-	CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate) (*StageInstance, rest.Error)
+	CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate, opts ...rest.RequestOpt) (*StageInstance, rest.Error)
+	UpdateStageInstance(stageInstanceUpdate discord.StageInstanceUpdate, opts ...rest.RequestOpt) (*StageInstance, rest.Error)
+	DeleteStageInstance(opts ...rest.RequestOpt) rest.Error
 	IsModerator(member *Member) bool
 }
 
@@ -167,8 +169,8 @@ func (c *channelImpl) LastPinTimestamp() *discord.Time {
 }
 
 // CreateMessage sends a Message to a TextChannel
-func (c *channelImpl) CreateMessage(messageCreate discord.MessageCreate) (*Message, rest.Error) {
-	message, err := c.Disgo().RestServices().ChannelService().CreateMessage(c.ID(), messageCreate)
+func (c *channelImpl) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, rest.Error) {
+	message, err := c.Disgo().RestServices().ChannelService().CreateMessage(c.ID(), messageCreate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -176,8 +178,8 @@ func (c *channelImpl) CreateMessage(messageCreate discord.MessageCreate) (*Messa
 }
 
 // UpdateMessage edits a Message in this TextChannel
-func (c *channelImpl) UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
-	message, err := c.Disgo().RestServices().ChannelService().UpdateMessage(c.ID(), messageID, messageUpdate)
+func (c *channelImpl) UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error) {
+	message, err := c.Disgo().RestServices().ChannelService().UpdateMessage(c.ID(), messageID, messageUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -185,13 +187,13 @@ func (c *channelImpl) UpdateMessage(messageID discord.Snowflake, messageUpdate d
 }
 
 // DeleteMessage allows you to edit an existing Message sent by you
-func (c *channelImpl) DeleteMessage(messageID discord.Snowflake) rest.Error {
-	return c.Disgo().RestServices().ChannelService().DeleteMessage(c.ID(), messageID)
+func (c *channelImpl) DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+	return c.Disgo().RestServices().ChannelService().DeleteMessage(c.ID(), messageID, opts...)
 }
 
 // BulkDeleteMessages allows you bulk delete Message(s)
-func (c *channelImpl) BulkDeleteMessages(messageIDs ...discord.Snowflake) rest.Error {
-	return c.Disgo().RestServices().ChannelService().BulkDeleteMessages(c.ID(), messageIDs...)
+func (c *channelImpl) BulkDeleteMessages(messageIDs []discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+	return c.Disgo().RestServices().ChannelService().BulkDeleteMessages(c.ID(), messageIDs, opts...)
 }
 
 /* func (c *channelImpl) CollectMessages(filter collectors.MessageFilter) (chan *Message, func()) {
@@ -244,11 +246,11 @@ func (c *channelImpl) Position() *int {
 	return c.Channel.Position
 }
 
-func (c *channelImpl) Update(channelUpdate discord.ChannelUpdate) (GuildChannel, rest.Error) {
+func (c *channelImpl) Update(channelUpdate discord.ChannelUpdate, opts ...rest.RequestOpt) (GuildChannel, rest.Error) {
 	if !c.IsGuildChannel() {
 		unsupported(c)
 	}
-	channel, err := c.Disgo().RestServices().ChannelService().UpdateChannel(c.ID(), channelUpdate)
+	channel, err := c.Disgo().RestServices().ChannelService().UpdateChannel(c.ID(), channelUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -287,8 +289,8 @@ func (c *channelImpl) Topic() *string {
 
 var _ NewsChannel = (*channelImpl)(nil)
 
-func (c *channelImpl) CrosspostMessage(messageID discord.Snowflake) (*Message, rest.Error) {
-	message, err := c.Disgo().RestServices().ChannelService().CrosspostMessage(c.ID(), messageID)
+func (c *channelImpl) CrosspostMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, rest.Error) {
+	message, err := c.Disgo().RestServices().ChannelService().CrosspostMessage(c.ID(), messageID, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -309,22 +311,40 @@ func (c *channelImpl) StageInstance() *StageInstance {
 	return c.Disgo().Cache().StageInstanceCache().Get(*c.stageInstanceID)
 }
 
-func (c *channelImpl) CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate) (*StageInstance, rest.Error) {
+func (c *channelImpl) CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate, opts ...rest.RequestOpt) (*StageInstance, rest.Error) {
 	if !c.IsStageChannel() {
 		unsupported(c)
 	}
-	stageInstance, err := c.Disgo().RestServices().StageService().CreateStageInstance(stageInstanceCreate)
+	stageInstance, err := c.Disgo().RestServices().StageService().CreateStageInstance(stageInstanceCreate, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return c.Disgo().EntityBuilder().CreateStageInstance(*stageInstance, CacheStrategyNoWs), nil
 }
 
+func (c *channelImpl) UpdateStageInstance(stageInstanceUpdate discord.StageInstanceUpdate, opts ...rest.RequestOpt) (*StageInstance, rest.Error) {
+	if !c.IsStageChannel() {
+		unsupported(c)
+	}
+	stageInstance, err := c.Disgo().RestServices().StageService().UpdateStageInstance(c.ID(), stageInstanceUpdate, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return c.Disgo().EntityBuilder().CreateStageInstance(*stageInstance, CacheStrategyNoWs), nil
+}
+
+func (c *channelImpl) DeleteStageInstance(opts ...rest.RequestOpt) rest.Error {
+	if !c.IsStageChannel() {
+		unsupported(c)
+	}
+	return c.Disgo().RestServices().StageService().DeleteStageInstance(c.ID(), opts...)
+}
+
 func (c *channelImpl) IsModerator(member *Member) bool {
 	if !c.IsStageChannel() {
 		unsupported(c)
 	}
-	return true // TODO: actually check
+	return member.Permissions().Has(discord.PermissionsStageModerator)
 }
 
 func unsupported(c *channelImpl) {

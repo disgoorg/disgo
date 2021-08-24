@@ -14,5 +14,5 @@ type Ban struct {
 }
 
 func (b *Ban) Unban(opts ...rest.RequestOpt) rest.Error {
-	return b.Disgo.RestServices().GuildService().DeleteBan(b.GuildID, b.User.ID)
+	return b.Disgo.RestServices().GuildService().DeleteBan(b.GuildID, b.User.ID, opts...)
 }

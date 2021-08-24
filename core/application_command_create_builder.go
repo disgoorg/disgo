@@ -29,6 +29,8 @@ func NewMessageCommand(name string) *ApplicationCommandBuilder {
 	return NewApplicationCommand(discord.ApplicationCommandTypeMessage, name, "")
 }
 
+// TODO: complete this?
+
 type ApplicationCommandBuilder struct {
 	discord.ApplicationCommandCreate
 }

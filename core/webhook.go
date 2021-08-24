@@ -7,3 +7,5 @@ type Webhook struct {
 	Disgo   Disgo
 	GuildID discord.Snowflake
 }
+
+// TODO: add update/delete

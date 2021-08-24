@@ -64,7 +64,7 @@ func (u *User) String() string {
 
 // OpenDMChannel creates a DMChannel between the user and the Disgo client
 func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (DMChannel, rest.Error) {
-	channel, err := u.Disgo.RestServices().UserService().CreateDMChannel(u.ID)
+	channel, err := u.Disgo.RestServices().UserService().CreateDMChannel(u.ID, opts...)
 	if err != nil {
 		return nil, err
 	}

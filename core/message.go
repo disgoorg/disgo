@@ -27,18 +27,18 @@ func (m *Message) Channel() MessageChannel {
 }
 
 // AddReactionByEmote allows you to add an Emoji to a message_events via reaction
-func (m *Message) AddReactionByEmote(emote Emoji) rest.Error {
-	return m.AddReaction(emote.Reaction())
+func (m *Message) AddReactionByEmote(emote Emoji, opts ...rest.RequestOpt) rest.Error {
+	return m.AddReaction(emote.Reaction(), opts...)
 }
 
 // AddReaction allows you to add a reaction to a message_events from a string, for _examples a custom emoji ID, or a native emoji
-func (m *Message) AddReaction(emoji string) rest.Error {
-	return m.Disgo.RestServices().ChannelService().AddReaction(m.ChannelID, m.ID, emoji)
+func (m *Message) AddReaction(emoji string, opts ...rest.RequestOpt) rest.Error {
+	return m.Disgo.RestServices().ChannelService().AddReaction(m.ChannelID, m.ID, emoji, opts...)
 }
 
 // Update allows you to edit an existing Message sent by you
-func (m *Message) Update(messageUpdate discord.MessageUpdate) (*Message, rest.Error) {
-	message, err := m.Disgo.RestServices().ChannelService().UpdateMessage(m.ChannelID, m.ID, messageUpdate)
+func (m *Message) Update(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error) {
+	message, err := m.Disgo.RestServices().ChannelService().UpdateMessage(m.ChannelID, m.ID, messageUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (m *Message) Update(messageUpdate discord.MessageUpdate) (*Message, rest.Er
 
 // Delete allows you to edit an existing Message sent by you
 func (m *Message) Delete(opts ...rest.RequestOpt) rest.Error {
-	return m.Disgo.RestServices().ChannelService().DeleteMessage(m.ChannelID, m.ID)
+	return m.Disgo.RestServices().ChannelService().DeleteMessage(m.ChannelID, m.ID, opts...)
 }
 
 // Crosspost crossposts an existing message
@@ -56,7 +56,7 @@ func (m *Message) Crosspost(opts ...rest.RequestOpt) (*Message, rest.Error) {
 	if channel != nil && channel.IsNewsChannel() {
 		return nil, rest.NewError(nil, discord.ErrChannelNotTypeNews)
 	}
-	message, err := m.Disgo.RestServices().ChannelService().CrosspostMessage(m.ChannelID, m.ID)
+	message, err := m.Disgo.RestServices().ChannelService().CrosspostMessage(m.ChannelID, m.ID, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -64,9 +64,9 @@ func (m *Message) Crosspost(opts ...rest.RequestOpt) (*Message, rest.Error) {
 }
 
 // Reply allows you to reply to an existing Message
-func (m *Message) Reply(messageCreate discord.MessageCreate) (*Message, rest.Error) {
+func (m *Message) Reply(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, rest.Error) {
 	messageCreate.MessageReference = &discord.MessageReference{MessageID: &m.ID}
-	message, err := m.Disgo.RestServices().ChannelService().CreateMessage(m.ChannelID, messageCreate)
+	message, err := m.Disgo.RestServices().ChannelService().CreateMessage(m.ChannelID, messageCreate, opts...)
 	if err != nil {
 		return nil, err
 	}
