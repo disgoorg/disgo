@@ -19,7 +19,6 @@ var DefaultConfig = Config{
 type Config struct {
 	Logger           log.Logger
 	RestServices     rest.Services
-	Token            string
 	EventHandlerFunc EventHandlerFunc
 	LargeThreshold   int
 	GatewayIntents   discord.GatewayIntents

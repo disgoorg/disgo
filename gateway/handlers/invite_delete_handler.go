@@ -26,8 +26,8 @@ func (h *InviteDeleteHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *InviteDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	payload, ok := i.(inviteDeletePayload)
+func (h *InviteDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+	payload, ok := v.(inviteDeletePayload)
 	if !ok {
 		return
 	}

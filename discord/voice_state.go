@@ -2,7 +2,7 @@ package discord
 
 // VoiceState from Discord
 type VoiceState struct {
-	GuildID                 *Snowflake `json:"guild_id,omitempty"`
+	GuildID                 Snowflake  `json:"guild_id,omitempty"`
 	ChannelID               *Snowflake `json:"channel_id"`
 	UserID                  Snowflake  `json:"user_id"`
 	Member                  *Member    `json:"member,omitempty"`

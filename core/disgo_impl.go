@@ -164,8 +164,12 @@ func (d *DisgoImpl) HTTPServer() httpserver.Server {
 }
 
 // Start starts the interaction webhook server
-func (d *DisgoImpl) Start() {
+func (d *DisgoImpl) Start() error {
+	if d.HTTPServer() == nil {
+
+	}
 	d.HTTPServer().Start()
+	return nil
 }
 
 // HasHTTPServer returns whether Disgo has an active httpserver.Server
@@ -438,16 +442,16 @@ func buildDisgoImpl(config DisgoConfig) (Disgo, error) {
 	}
 	disgo.eventManager = config.EventManager
 
-	if config.Gateway == nil {
+	if config.Gateway == nil && config.GatewayConfig != nil {
 		config.Gateway = gateway.New(config.Token, func(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader) {
 			disgo.EventManager().HandleGateway(gatewayEventType, sequenceNumber, payload)
 		}, config.GatewayConfig)
 	}
 	disgo.gateway = config.Gateway
 
-	if config.HTTPServer == nil {
-		config.HTTPServer = httpserver.New(func(gatewayEventType discord.GatewayEventType, responseChannel chan discord.InteractionResponse, payload io.Reader) {
-			disgo.EventManager().HandleHTTP(gatewayEventType, responseChannel, payload)
+	if config.HTTPServer == nil && config.HTTPServerConfig != nil {
+		config.HTTPServer = httpserver.New(func(responseChannel chan discord.InteractionResponse, payload io.Reader) {
+			disgo.EventManager().HandleHTTP(responseChannel, payload)
 		}, config.HTTPServerConfig)
 	}
 	disgo.httpServer = config.HTTPServer

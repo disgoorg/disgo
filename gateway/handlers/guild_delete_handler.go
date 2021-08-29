@@ -20,8 +20,8 @@ func (h *GuildDeleteHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *GuildDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	guild, ok := i.(discord.UnavailableGuild)
+func (h *GuildDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+	guild, ok := v.(discord.UnavailableGuild)
 	if !ok {
 		return
 	}

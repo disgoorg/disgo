@@ -25,8 +25,8 @@ func (h *GuildRoleCreateHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *GuildRoleCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	payload, ok := i.(roleCreateData)
+func (h *GuildRoleCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+	payload, ok := v.(roleCreateData)
 	if !ok {
 		return
 	}

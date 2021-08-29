@@ -20,8 +20,8 @@ func (h *GuildUpdateHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *GuildUpdateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	guild, ok := i.(discord.Guild)
+func (h *GuildUpdateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+	guild, ok := v.(discord.Guild)
 	if !ok {
 		return
 	}

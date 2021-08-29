@@ -20,10 +20,7 @@ func (s *VoiceState) Deaf() bool {
 
 // Guild returns the Guild of this VoiceState from the Cache
 func (s *VoiceState) Guild() *Guild {
-	if s.GuildID == nil {
-		return nil
-	}
-	return s.Disgo.Cache().GuildCache().Get(*s.GuildID)
+	return s.Disgo.Cache().GuildCache().Get(s.GuildID)
 }
 
 // VoiceChannel returns the VoiceChannel of this VoiceState from the Cache

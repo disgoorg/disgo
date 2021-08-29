@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	GatewayEventHandlers = map[discord.GatewayEventType]GatewayEventHandler{}
-	HTTPEventHandlers    = map[discord.GatewayEventType]HTTPEventHandler{}
+	GatewayEventHandlers   = map[discord.GatewayEventType]GatewayEventHandler{}
+	HTTPServerEventHandler HTTPEventHandler
 )
 
 var _ EventManager = (*EventManagerImpl)(nil)
@@ -45,25 +45,23 @@ func (e *EventManagerImpl) Close() {
 }
 
 // HandleGateway calls the correct api.EventHandler
-func (e *EventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader) {
+func (e *EventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) {
 	if handler, ok := GatewayEventHandlers[gatewayEventType]; ok {
-		eventPayload := handler.New()
-		if err := json.NewDecoder(payload).Decode(&eventPayload); err != nil {
+		v := handler.New()
+		if err := json.NewDecoder(reader).Decode(&v); err != nil {
 			e.disgo.Logger().Errorf("error while unmarshalling event. error: %s", err)
 		}
-		handler.HandleGatewayEvent(e.disgo, e, sequenceNumber, eventPayload)
+		handler.HandleGatewayEvent(e.disgo, e, sequenceNumber, v)
 	}
 }
 
 // HandleHTTP calls the correct api.EventHandler
-func (e *EventManagerImpl) HandleHTTP(gatewayEventType discord.GatewayEventType, c chan discord.InteractionResponse, payload io.Reader) {
-	if handler, ok := HTTPEventHandlers[gatewayEventType]; ok {
-		eventPayload := handler.New()
-		if err := json.NewDecoder(payload).Decode(&eventPayload); err != nil {
-			e.disgo.Logger().Errorf("error while unmarshalling httpserver event. error: %s", err)
-		}
-		handler.HandleHTTPEvent(e.disgo, e, c, eventPayload)
+func (e *EventManagerImpl) HandleHTTP(c chan discord.InteractionResponse, reader io.Reader) {
+	v := HTTPServerEventHandler.New()
+	if err := json.NewDecoder(reader).Decode(&v); err != nil {
+		e.disgo.Logger().Errorf("error while unmarshalling httpserver event. error: %s", err)
 	}
+	HTTPServerEventHandler.HandleHTTPEvent(e.disgo, e, c, v)
 }
 
 // Dispatch dispatches a new event to the client

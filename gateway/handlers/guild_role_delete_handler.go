@@ -25,8 +25,8 @@ func (h *GuildRoleDeleteHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *GuildRoleDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	payload, ok := i.(roleDeleteData)
+func (h *GuildRoleDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+	payload, ok := v.(roleDeleteData)
 	if !ok {
 		return
 	}

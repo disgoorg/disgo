@@ -51,9 +51,9 @@ type ListenerAdapter struct {
 	OnVoiceChannelDelete func(event *VoiceChannelDeleteEvent)
 
 	// api.Emoji Events
-	OnEmoteCreate func(event *EmoteCreateEvent)
-	OnEmoteUpdate func(event *EmoteUpdateEvent)
-	OnEmoteDelete func(event *EmoteDeleteEvent)
+	OnEmojiCreate func(event *EmojiCreateEvent)
+	OnEmojiUpdate func(event *EmojiUpdateEvent)
+	OnEmojiDelete func(event *EmojiDeleteEvent)
 
 	// api.GatewayStatus Events
 	OnConnected    func(event *ConnectedEvent)
@@ -255,21 +255,21 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// api.emote Events
-	case *EmoteCreateEvent:
-		if listener := l.OnEmoteCreate; listener != nil {
+	// core.Emoji Events
+	case *EmojiCreateEvent:
+		if listener := l.OnEmojiCreate; listener != nil {
 			listener(e)
 		}
-	case *EmoteUpdateEvent:
-		if listener := l.OnEmoteUpdate; listener != nil {
+	case *EmojiUpdateEvent:
+		if listener := l.OnEmojiUpdate; listener != nil {
 			listener(e)
 		}
-	case *EmoteDeleteEvent:
-		if listener := l.OnEmoteDelete; listener != nil {
+	case *EmojiDeleteEvent:
+		if listener := l.OnEmojiDelete; listener != nil {
 			listener(e)
 		}
 
-	// api.GatewayStatus Events
+	// gateway.GatewayStatus Events
 	case *ConnectedEvent:
 		if listener := l.OnConnected; listener != nil {
 			listener(e)
@@ -287,7 +287,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// api.Guild Events
+	// core.Guild Events
 	case *GuildJoinEvent:
 		if listener := l.OnGuildJoin; listener != nil {
 			listener(e)

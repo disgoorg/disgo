@@ -12,7 +12,7 @@ import (
 	"github.com/DisgoOrg/log"
 )
 
-type EventHandlerFunc func(gatewayEventType discord.GatewayEventType, responseChannel chan discord.InteractionResponse, payload io.Reader)
+type EventHandlerFunc func(responseChannel chan discord.InteractionResponse, payload io.Reader)
 
 // Server is used for receiving an Interaction over httpserver
 type Server interface {

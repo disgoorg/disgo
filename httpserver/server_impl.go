@@ -89,7 +89,7 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	}
 
 	c := make(chan discord.InteractionResponse)
-	go h.server.config.EventHandlerFunc(discord.GatewayEventTypeInteractionCreate, c, r.Body)
+	go h.server.config.EventHandlerFunc(c, r.Body)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

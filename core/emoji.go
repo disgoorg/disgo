@@ -27,7 +27,7 @@ func NewEmoji(name string) *Emoji {
 type Emoji struct {
 	discord.Emoji
 	Disgo   Disgo
-	GuildID discord.Snowflake
+	//GuildID discord.Snowflake
 }
 
 // Guild returns the Guild of the Emoji from the Cache

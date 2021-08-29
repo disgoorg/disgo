@@ -30,8 +30,8 @@ func (h *TypingStartHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *TypingStartHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	payload, ok := i.(typingStartPayload)
+func (h *TypingStartHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+	payload, ok := v.(typingStartPayload)
 	if !ok {
 		return
 	}

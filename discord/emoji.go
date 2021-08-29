@@ -2,8 +2,14 @@ package discord
 
 // Emoji allows you to interact with emojis & emotes
 type Emoji struct {
-	GuildID  Snowflake `json:"guild_id,omitempty"`
-	Name     string    `json:"name,omitempty"`
-	ID       Snowflake `json:"id,omitempty"`
-	Animated bool      `json:"animated,omitempty"`
+	ID            Snowflake   `json:"id,omitempty"`
+	Name          string      `json:"name,omitempty"` // may be empty for deleted emojis
+	Roles         []Snowflake `json:"roles,omitempty"`
+	Creator       *User       `json:"creator,omitempty"`
+	RequireColons bool        `json:"require_colons,omitempty"`
+	Managed       bool        `json:"managed,omitempty"`
+	Animated      bool        `json:"animated,omitempty"`
+	Available     bool        `json:"available,omitempty"`
+
+	GuildID Snowflake `json:"guild_id,omitempty"`
 }

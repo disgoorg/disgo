@@ -20,8 +20,8 @@ func (h *InteractionCreateHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *InteractionCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	unmarshalInteraction, ok := i.(discord.UnmarshalInteraction)
+func (h *InteractionCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+	unmarshalInteraction, ok := v.(discord.UnmarshalInteraction)
 	if !ok {
 		return
 	}

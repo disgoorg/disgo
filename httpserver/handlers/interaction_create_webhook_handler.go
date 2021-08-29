@@ -6,6 +6,10 @@ import (
 	"github.com/DisgoOrg/disgo/gateway/handlers"
 )
 
+func init() {
+	core.HTTPServerEventHandler = &InteractionCreateWebhookHandler{}
+}
+
 // InteractionCreateWebhookHandler handles api.InteractionCreateWebhookEvent
 type InteractionCreateWebhookHandler struct{}
 
@@ -20,8 +24,8 @@ func (h *InteractionCreateWebhookHandler) New() interface{} {
 }
 
 // HandleHTTPEvent handles the specific raw gateway event
-func (h *InteractionCreateWebhookHandler) HandleHTTPEvent(disgo core.Disgo, eventManager core.EventManager, c chan discord.InteractionResponse, i interface{}) {
-	unmarshalInteraction, ok := i.(discord.UnmarshalInteraction)
+func (h *InteractionCreateWebhookHandler) HandleHTTPEvent(disgo core.Disgo, eventManager core.EventManager, c chan discord.InteractionResponse, v interface{}) {
+	unmarshalInteraction, ok := v.(discord.UnmarshalInteraction)
 	if !ok {
 		return
 	}

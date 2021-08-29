@@ -25,8 +25,8 @@ func (h *GuildBanAddHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *GuildBanAddHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	payload, ok := i.(guildBanAddPayload)
+func (h *GuildBanAddHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+	payload, ok := v.(guildBanAddPayload)
 	if !ok {
 		return
 	}

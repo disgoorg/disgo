@@ -25,8 +25,8 @@ func (h *GuildMemberRemoveHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *GuildMemberRemoveHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	memberData, ok := i.(guildMemberRemoveData)
+func (h *GuildMemberRemoveHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+	memberData, ok := v.(guildMemberRemoveData)
 	if !ok {
 		return
 	}

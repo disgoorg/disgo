@@ -26,8 +26,8 @@ func (h *ChannelPinsUpdateHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *ChannelPinsUpdateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	payload, ok := i.(channelPinsUpdatePayload)
+func (h *ChannelPinsUpdateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+	payload, ok := v.(channelPinsUpdatePayload)
 	if !ok {
 		return
 	}

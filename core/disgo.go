@@ -35,7 +35,7 @@ type Disgo interface {
 	HasGateway() bool
 
 	HTTPServer() httpserver.Server
-	Start()
+	Start() error
 	HasHTTPServer() bool
 
 	Cache() Cache

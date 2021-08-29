@@ -20,18 +20,12 @@ type VoiceStateUpdateEvent struct {
 
 // Guild returns the Guild for this VoiceStateUpdate from the Cache
 func (u *VoiceStateUpdateEvent) Guild() *Guild {
-	if u.GuildID == nil {
-		return nil
-	}
-	return u.Disgo.Cache().GuildCache().Get(*u.GuildID)
+	return u.VoiceState.Guild()
 }
 
 // VoiceChannel returns the VoiceChannel for this VoiceStateUpdate from the Cache
 func (u *VoiceStateUpdateEvent) VoiceChannel() VoiceChannel {
-	if u.ChannelID == nil {
-		return nil
-	}
-	return u.Disgo.Cache().VoiceChannelCache().Get(*u.ChannelID)
+	return u.VoiceState.VoiceChannel()
 }
 
 // VoiceDispatchInterceptor lets you listen to VoiceServerUpdate & VoiceStateUpdate

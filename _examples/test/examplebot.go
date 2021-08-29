@@ -1,9 +1,7 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"net/http"
 	"os"
 	"os/signal"
 	"strconv"
@@ -14,7 +12,6 @@ import (
 	"github.com/DisgoOrg/disgo/core/collectors"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
-	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/info"
 
 	"github.com/DisgoOrg/disgo/core/events"
@@ -31,23 +28,15 @@ var guildID = discord.Snowflake(os.Getenv("guild_id"))
 var adminRoleID = discord.Snowflake(os.Getenv("admin_role_id"))
 var testRoleID = discord.Snowflake(os.Getenv("test_role_id"))
 
-var client = http.DefaultClient
-
 func main() {
 	log.SetLevel(log.LevelDebug)
-	log.Info("starting ExampleBot...")
-	log.Infof("disgo %s", info.Version)
+	log.Info("starting example...")
+	log.Infof("disgo version: %s", info.Version)
 
 	disgo, err := core.NewBuilder(token).
 		SetRawEventsEnabled(true).
-		SetHTTPClient(client).
 		SetGatewayConfig(gateway.Config{
 			GatewayIntents: discord.GatewayIntentGuilds | discord.GatewayIntentGuildMessages | discord.GatewayIntentGuildMembers,
-		}).
-		SetHTTPServerConfig(httpserver.Config{
-			URL:       "/interactions/callback",
-			Port:      ":80",
-			PublicKey: "your public key from the developer dashboard",
 		}).
 		SetCacheConfig(core.CacheConfig{
 			CacheFlags:        core.CacheFlagsDefault,
@@ -68,82 +57,9 @@ func main() {
 		return
 	}
 
-	rawCmds := []discord.ApplicationCommandCreate{
-		{
-			Name:              "eval",
-			Description:       "runs some go code",
-			DefaultPermission: true,
-			Options: []discord.ApplicationCommandOption{
-				{
-					Type:        discord.CommandOptionTypeString,
-					Name:        "code",
-					Description: "the code to eval",
-					Required:    true,
-				},
-			},
-		},
-		{
-			Name:              "test",
-			Description:       "test test test test test test",
-			DefaultPermission: true,
-		},
-		{
-			Name:              "say",
-			Description:       "says what you say",
-			DefaultPermission: true,
-			Options: []discord.ApplicationCommandOption{
-				{
-					Type:        discord.CommandOptionTypeString,
-					Name:        "message",
-					Description: "What to say",
-					Required:    true,
-				},
-			},
-		},
-		{
-			Name:              "addrole",
-			Description:       "This command adds a role to a member",
-			DefaultPermission: true,
-			Options: []discord.ApplicationCommandOption{
-				{
-					Type:        discord.CommandOptionTypeUser,
-					Name:        "member",
-					Description: "The member to add a role to",
-					Required:    true,
-				},
-				{
-					Type:        discord.CommandOptionTypeRole,
-					Name:        "role",
-					Description: "The role to add to a member",
-					Required:    true,
-				},
-			},
-		},
-		{
-			Name:              "removerole",
-			Description:       "This command removes a role from a member",
-			DefaultPermission: true,
-			Options: []discord.ApplicationCommandOption{
-				{
-					Type:        discord.CommandOptionTypeUser,
-					Name:        "member",
-					Description: "The member to removes a role from",
-					Required:    true,
-				},
-				{
-					Type:        discord.CommandOptionTypeRole,
-					Name:        "role",
-					Description: "The role to removes from a member",
-					Required:    true,
-				},
-			},
-		},
-	}
-
-	// using the discord.RestClient directly to avoid the guild needing to be cached
-	cmds, err := disgo.RestServices().ApplicationService().SetGuildCommands(disgo.ApplicationID(), guildID, rawCmds...)
+	cmds, err := disgo.SetGuildCommands(guildID, commands)
 	if err != nil {
-		log.Errorf("error while registering guild commands: %s", err)
+		log.Fatalf("error while registering guild commands: %s", err)
 	}
 
 	var cmdsPermissions []discord.GuildCommandPermissionsSet
@@ -171,8 +87,8 @@ func main() {
 			Permissions: []discord.CommandPermission{perms},
 		})
 	}
-	if _, err = disgo.SetGuildCommandsPermissions(guildID, cmdsPermissions...); err != nil {
-		log.Errorf("error while setting command permissions: %s", err)
+	if _, err = disgo.SetGuildCommandsPermissions(guildID, cmdsPermissions); err != nil {
+		log.Fatalf("error while setting command permissions: %s", err)
 	}
 
 	err = disgo.Connect()
@@ -193,7 +109,7 @@ func guildAvailListener(event *events.GuildAvailableEvent) {
 }
 
 func rawGatewayEventListener(event *events.RawEvent) {
-	if event.Type == string(discord.GatewayEventTypeInteractionCreate) {
+	if event.Type == discord.GatewayEventTypeInteractionCreate || event.Type == discord.GatewayEventTypeGuildEmojisUpdate {
 		println(string(event.RawPayload))
 	}
 }
@@ -225,7 +141,7 @@ func buttonClickListener(event *events.ButtonClickEvent) {
 func selectMenuSubmitListener(event *events.SelectMenuSubmitEvent) {
 	switch event.CustomID() {
 	case "test3":
-		if err := event.DeferUpdate(context.Background()); err != nil {
+		if err := event.DeferUpdate(); err != nil {
 			log.Errorf("error sending interaction response: %s", err)
 		}
 		_, _ = event.CreateFollowup(core.NewMessageCreateBuilder().
@@ -352,11 +268,8 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 	if event.Message.Author.IsBot {
 		return
 	}
-	if event.Message.Content == nil {
-		return
-	}
 
-	switch *event.Message.Content {
+	switch event.Message.Content {
 	case "ping":
 		_, _ = event.Message.Reply(core.NewMessageCreateBuilder().SetContent("pong").SetAllowedMentions(&discord.AllowedMentions{RepliedUser: false}).Build())
 
@@ -415,7 +328,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 					return
 				}
 
-				_, _ = msg.Reply(core.NewMessageCreateBuilder().SetContentf("Content: %s, Count: %v", *msg.Content, count).Build())
+				_, _ = msg.Reply(core.NewMessageCreateBuilder().SetContentf("Content: %s, Count: %v", msg.Content, count).Build())
 			}
 		}()
 

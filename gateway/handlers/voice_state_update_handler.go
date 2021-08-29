@@ -20,13 +20,13 @@ func (h *VoiceStateUpdateHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *VoiceStateUpdateHandler) HandleGatewayEvent(disgo core.Disgo, _ core.EventManager, sequenceNumber int, i interface{}) {
-	discordVoiceState, ok := i.(discord.VoiceState)
+func (h *VoiceStateUpdateHandler) HandleGatewayEvent(disgo core.Disgo, _ core.EventManager, sequenceNumber int, v interface{}) {
+	discordVoiceState, ok := v.(discord.VoiceState)
 	if !ok {
 		return
 	}
 
-	oldVoiceState := disgo.Cache().VoiceStateCache().Get(*discordVoiceState.GuildID, discordVoiceState.UserID)
+	oldVoiceState := disgo.Cache().VoiceStateCache().Get(discordVoiceState.GuildID, discordVoiceState.UserID)
 	if oldVoiceState != nil {
 		oldVoiceState = &*oldVoiceState
 	}
@@ -34,7 +34,7 @@ func (h *VoiceStateUpdateHandler) HandleGatewayEvent(disgo core.Disgo, _ core.Ev
 	if discordVoiceState.Member != nil {
 		member = disgo.EntityBuilder().CreateMember(discordVoiceState.Member.GuildID, *discordVoiceState.Member, core.CacheStrategyYes)
 	}
-	voiceState := disgo.EntityBuilder().CreateVoiceState(*discordVoiceState.GuildID, discordVoiceState, core.CacheStrategyYes)
+	voiceState := disgo.EntityBuilder().CreateVoiceState(discordVoiceState.GuildID, discordVoiceState, core.CacheStrategyYes)
 
 	// voice state update for ourselves received
 	// execute voice VoiceDispatchInterceptor.OnVoiceStateUpdate

@@ -19,8 +19,8 @@ func (h *VoiceServerUpdateHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *VoiceServerUpdateHandler) HandleGatewayEvent(disgo core.Disgo, _ core.EventManager, _ int, i interface{}) {
-	voiceServerUpdate, ok := i.(discord.VoiceServerUpdate)
+func (h *VoiceServerUpdateHandler) HandleGatewayEvent(disgo core.Disgo, _ core.EventManager, _ int, v interface{}) {
+	voiceServerUpdate, ok := v.(discord.VoiceServerUpdate)
 	if !ok {
 		return
 	}

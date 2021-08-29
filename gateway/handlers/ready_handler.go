@@ -20,8 +20,8 @@ func (h *ReadyHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *ReadyHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, i interface{}) {
-	readyEvent, ok := i.(discord.ReadyGatewayEvent)
+func (h *ReadyHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+	readyEvent, ok := v.(discord.ReadyGatewayEvent)
 	if !ok {
 		return
 	}

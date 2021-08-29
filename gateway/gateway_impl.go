@@ -27,11 +27,11 @@ func New(token string, eventHandlerFunc EventHandlerFunc, config *Config) Gatewa
 	if config.RestServices == nil {
 		config.RestServices = rest.NewServices(config.Logger, nil)
 	}
-	config.Token = token
 	config.EventHandlerFunc = eventHandlerFunc
 
 	return &GatewayImpl{
 		config: *config,
+		token:  token,
 		status: StatusUnconnected,
 	}
 }
@@ -40,6 +40,7 @@ func New(token string, eventHandlerFunc EventHandlerFunc, config *Config) Gatewa
 //goland:noinspection GoNameStartsWithPackageName
 type GatewayImpl struct {
 	config                Config
+	token                 string
 	conn                  *websocket.Conn
 	quit                  chan struct{}
 	status                Status
@@ -135,7 +136,7 @@ func (g *GatewayImpl) Open() error {
 		g.Logger().Infof("sending StatusIdentifying command...")
 		if err = g.Send(
 			NewGatewayCommand(discord.OpIdentify, IdentifyCommand{
-				Token: g.config.Token,
+				Token: g.token,
 				Properties: IdentifyCommandDataProperties{
 					OS:      g.config.OS,
 					Browser: g.config.Browser,
@@ -152,7 +153,7 @@ func (g *GatewayImpl) Open() error {
 	} else {
 		g.status = StatusResuming
 		cmd := NewGatewayCommand(discord.OpResume, ResumeCommand{
-			Token:     g.config.Token,
+			Token:     g.token,
 			SessionID: *g.sessionID,
 			Seq:       *g.lastSequenceReceived,
 		})
