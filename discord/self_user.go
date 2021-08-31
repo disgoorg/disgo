@@ -14,5 +14,5 @@ type SelfUser struct {
 // SelfUserUpdate is the payload used to update the SelfUser
 type SelfUserUpdate struct {
 	Username string `json:"username"`
-	Avatar   Icon   `json:"avatar"`
+	Avatar   *Icon  `json:"avatar"`
 }

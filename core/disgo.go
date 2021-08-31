@@ -15,6 +15,7 @@ type Disgo interface {
 
 	Token() string
 	ApplicationID() discord.Snowflake
+	SetApplicationID(applicationID discord.Snowflake)
 	ClientID() discord.Snowflake
 	SelfUser() *SelfUser
 	SetSelfUser(selfUser *SelfUser)

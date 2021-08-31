@@ -3,8 +3,9 @@ package httpserver
 import (
 	"crypto/ed25519"
 	"encoding/hex"
-	"encoding/json"
 	"net/http"
+
+	"github.com/DisgoOrg/disgo/json"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/log"

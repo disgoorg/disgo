@@ -2,11 +2,12 @@ package discord
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"mime/multipart"
 	"net/textproto"
+
+	"github.com/DisgoOrg/disgo/json"
 )
 
 type Payload interface {

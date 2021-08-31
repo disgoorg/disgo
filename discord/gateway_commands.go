@@ -1,16 +1,10 @@
-package gateway
-
-import (
-	"github.com/DisgoOrg/disgo/discord"
-)
+package discord
 
 // NewGatewayCommand returns a new GatewayCommand struct with the given payload
-func NewGatewayCommand(op discord.Op, d interface{}) GatewayCommand {
+func NewGatewayCommand(op Op, d interface{}) GatewayCommand {
 	return GatewayCommand{
-		Packet: discord.Packet{
+		GatewayPayload: GatewayPayload{
 			Op: op,
-			S:  nil,
-			T:  nil,
 		},
 		D: d,
 	}
@@ -19,7 +13,7 @@ func NewGatewayCommand(op discord.Op, d interface{}) GatewayCommand {
 // GatewayCommand object is used when sending data to discord's websocket, it's recommended that you don't use these
 //goland:noinspection GoNameStartsWithPackageName
 type GatewayCommand struct {
-	discord.Packet
+	GatewayPayload
 	D interface{} `json:"d"`
 }
 
@@ -29,7 +23,7 @@ type IdentifyCommand struct {
 	Properties     IdentifyCommandDataProperties `json:"properties"`
 	Compress       bool                          `json:"compress,omitempty"`
 	LargeThreshold int                           `json:"large_threshold,omitempty"`
-	GatewayIntents discord.GatewayIntents        `json:"intents"`
+	GatewayIntents GatewayIntents                `json:"intents"`
 	// Todo: Add presence property here, need presence methods/struct
 	// Todo: Add shard property here, need to discuss
 }
@@ -58,26 +52,26 @@ type HeartbeatCommand struct {
 // RequestGuildMembersCommand is used for fetching all of the members of a guild_events. It is recommended you have a strict
 // member caching policy when using this.
 type RequestGuildMembersCommand struct {
-	GuildID   discord.Snowflake   `json:"guild_id"`
-	Query     string              `json:"query"` //If specified, user_ids must not be entered
-	Limit     int                 `json:"limit"` //Must be >=1 if query/user_ids is used, otherwise 0
-	Presences bool                `json:"presences,omitempty"`
-	UserIDs   []discord.Snowflake `json:"user_ids"`        //If specified, query must not be entered
-	Nonce     string              `json:"nonce,omitempty"` //All responses are hashed with this nonce, optional
+	GuildID   Snowflake   `json:"guild_id"`
+	Query     string      `json:"query"` //If specified, user_ids must not be entered
+	Limit     int         `json:"limit"` //Must be >=1 if query/user_ids is used, otherwise 0
+	Presences bool        `json:"presences,omitempty"`
+	UserIDs   []Snowflake `json:"user_ids"`        //If specified, query must not be entered
+	Nonce     string      `json:"nonce,omitempty"` //All responses are hashed with this nonce, optional
 }
 
 // UpdateVoiceStateCommand is used for updating the bots voice state in a guild_events
 type UpdateVoiceStateCommand struct {
-	GuildID   discord.Snowflake  `json:"guild_id"`
-	ChannelID *discord.Snowflake `json:"channel_id"`
-	SelfMute  bool               `json:"self_mute"`
-	SelfDeaf  bool               `json:"self_deaf"`
+	GuildID   Snowflake  `json:"guild_id"`
+	ChannelID *Snowflake `json:"channel_id"`
+	SelfMute  bool       `json:"self_mute"`
+	SelfDeaf  bool       `json:"self_deaf"`
 }
 
 // UpdateStatusCommand is used for updating Disgo's presence
 type UpdateStatusCommand struct {
-	Since      *int               `json:"since"`
-	Activities []discord.Activity `json:"activities"`
-	Status     bool               `json:"status"`
-	AFK        bool               `json:"afk"`
+	Since      *int       `json:"since"`
+	Activities []Activity `json:"activities"`
+	Status     bool       `json:"status"`
+	AFK        bool       `json:"afk"`
 }

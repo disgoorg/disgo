@@ -1,9 +1,10 @@
 package core
 
 import (
-	"encoding/json"
 	"io"
 	"runtime/debug"
+
+	"github.com/DisgoOrg/disgo/json"
 
 	"github.com/DisgoOrg/disgo/discord"
 )

@@ -21,6 +21,11 @@ type Application struct {
 	Flags               ApplicationFlags `json:"flags,omitempty"`
 }
 
+type PartialApplication struct {
+	ID    Snowflake        `json:"id"`
+	Flags ApplicationFlags `json:"flags"`
+}
+
 type AuthorizationInformation struct {
 	Application Application        `json:"application"`
 	Scopes      []ApplicationScope `json:"scopes"`

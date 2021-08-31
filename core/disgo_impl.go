@@ -86,6 +86,11 @@ func (d *DisgoImpl) ApplicationID() discord.Snowflake {
 	return d.applicationID
 }
 
+// SetApplicationID sets the current application id
+func (d *DisgoImpl) SetApplicationID(applicationID discord.Snowflake) {
+	d.applicationID = applicationID
+}
+
 // ClientID returns the current user id
 func (d *DisgoImpl) ClientID() discord.Snowflake {
 	return d.clientID

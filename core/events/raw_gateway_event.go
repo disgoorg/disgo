@@ -1,7 +1,7 @@
 package events
 
 import (
-	"encoding/json"
+	"github.com/DisgoOrg/disgo/json"
 
 	"github.com/DisgoOrg/disgo/discord"
 )

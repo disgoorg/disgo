@@ -26,7 +26,7 @@ func NewEmoji(name string) *Emoji {
 
 type Emoji struct {
 	discord.Emoji
-	Disgo   Disgo
+	Disgo Disgo
 	//GuildID discord.Snowflake
 }
 

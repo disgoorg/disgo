@@ -16,15 +16,17 @@ func (h *ReadyHandler) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *ReadyHandler) New() interface{} {
-	return discord.ReadyGatewayEvent{}
+	return discord.GatewayEventReady{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *ReadyHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
-	readyEvent, ok := v.(discord.ReadyGatewayEvent)
+	readyEvent, ok := v.(discord.GatewayEventReady)
 	if !ok {
 		return
 	}
+
+	disgo.SetApplicationID(readyEvent.Application.ID)
 
 	disgo.EntityBuilder().CreateSelfUser(readyEvent.SelfUser, core.CacheStrategyYes)
 
@@ -34,7 +36,7 @@ func (h *ReadyHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.Ev
 
 	eventManager.Dispatch(&events.ReadyEvent{
 		GenericEvent:      events.NewGenericEvent(disgo, sequenceNumber),
-		ReadyGatewayEvent: readyEvent,
+		GatewayEventReady: readyEvent,
 	})
 
 }

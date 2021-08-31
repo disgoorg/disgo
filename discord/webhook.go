@@ -37,5 +37,5 @@ type WebhookCreate struct {
 // WebhookUpdate is used to update a Webhook
 type WebhookUpdate struct {
 	Name   *string `json:"name,omitempty"`
-	Avatar Icon    `json:"avatar,omitempty"`
+	Avatar *Icon   `json:"avatar,omitempty"`
 }

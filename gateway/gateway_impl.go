@@ -2,7 +2,6 @@ package gateway
 
 import (
 	"bytes"
-	"encoding/json"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -10,6 +9,7 @@ import (
 	"time"
 
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/json"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/log"
@@ -124,7 +124,7 @@ func (g *GatewayImpl) Open() error {
 
 	g.lastHeartbeatReceived = time.Now().UTC()
 
-	var eventData discord.HelloGatewayEventData
+	var eventData discord.GatewayEventHello
 	if err = json.Unmarshal(event.D, &eventData); err != nil {
 		return err
 	}
@@ -135,14 +135,14 @@ func (g *GatewayImpl) Open() error {
 		g.status = StatusIdentifying
 		g.Logger().Infof("sending StatusIdentifying command...")
 		if err = g.Send(
-			NewGatewayCommand(discord.OpIdentify, IdentifyCommand{
+			discord.NewGatewayCommand(discord.OpIdentify, discord.IdentifyCommand{
 				Token: g.token,
-				Properties: IdentifyCommandDataProperties{
+				Properties: discord.IdentifyCommandDataProperties{
 					OS:      g.config.OS,
 					Browser: g.config.Browser,
 					Device:  g.config.Device,
 				},
-				Compress:       false,
+				Compress:       false, // TODO: compress support
 				LargeThreshold: g.config.LargeThreshold,
 				GatewayIntents: g.config.GatewayIntents,
 			}),
@@ -152,7 +152,7 @@ func (g *GatewayImpl) Open() error {
 		g.status = StatusWaitingForReady
 	} else {
 		g.status = StatusResuming
-		cmd := NewGatewayCommand(discord.OpResume, ResumeCommand{
+		cmd := discord.NewGatewayCommand(discord.OpResume, discord.ResumeCommand{
 			Token:     g.token,
 			SessionID: *g.sessionID,
 			Seq:       *g.lastSequenceReceived,
@@ -183,7 +183,7 @@ func (g *GatewayImpl) Status() Status {
 }
 
 // Send sends a payload to the Gateway
-func (g *GatewayImpl) Send(command GatewayCommand) error {
+func (g *GatewayImpl) Send(command discord.GatewayCommand) error {
 	return g.conn.WriteJSON(command)
 }
 
@@ -258,6 +258,7 @@ func (g *GatewayImpl) heartbeat() {
 
 func (g *GatewayImpl) sendHeartbeat() {
 	g.Logger().Debug("sending heartbeat...")
+	// TODO: check this
 	/*
 		heartbeatEvent := &events.HeartbeatEvent{
 			GenericEvent: events.NewGenericEvent(g.Disgo(), 0),
@@ -311,19 +312,19 @@ func (g *GatewayImpl) listen() {
 			switch event.Op {
 			case discord.OpDispatch:
 				g.Logger().Debugf("received: OpDispatch")
-				if event.S != nil {
-					g.lastSequenceReceived = event.S
+				if event.S != 0 {
+					g.lastSequenceReceived = &event.S
 				}
-				if event.T == nil {
+				if event.T == "" {
 					g.Logger().Errorf("received event without T. payload: %+v", event)
 					continue
 				}
 
-				g.Logger().Debugf("received: %s", *event.T)
+				g.Logger().Debugf("received: %s", event.T)
 
-				if *event.T == discord.GatewayEventTypeReady {
-					var readyEvent discord.ReadyGatewayEvent
-					if err = g.parseEventToStruct(event, &readyEvent); err != nil {
+				if event.T == discord.GatewayEventTypeReady {
+					var readyEvent discord.GatewayEventReady
+					if err = json.Unmarshal(event.D, &readyEvent); err != nil {
 						g.Logger().Errorf("Error parsing ready event: %s", err)
 						continue
 					}
@@ -332,7 +333,7 @@ func (g *GatewayImpl) listen() {
 					g.Logger().Info("ready event received")
 				}
 
-				g.config.EventHandlerFunc(*event.T, *event.S, bytes.NewBuffer(event.D))
+				g.config.EventHandlerFunc(event.T, event.S, bytes.NewBuffer(event.D))
 
 			case discord.OpHeartbeat:
 				g.Logger().Debugf("received: OpHeartbeat")
@@ -345,7 +346,7 @@ func (g *GatewayImpl) listen() {
 
 			case discord.OpInvalidSession:
 				var canResume bool
-				if err = g.parseEventToStruct(event, &canResume); err != nil {
+				if err = json.Unmarshal(event.D, &canResume); err != nil {
 					g.Logger().Errorf("Error parsing invalid session data: %s", err)
 				}
 				g.Logger().Debugf("received: OpInvalidSession, canResume: %b", canResume)
@@ -363,21 +364,11 @@ func (g *GatewayImpl) listen() {
 				g.Logger().Debugf("received: OpHeartbeatACK")
 				g.lastHeartbeatReceived = time.Now().UTC()
 			}
-
 		}
-
 	}
 }
 
-func (g *GatewayImpl) parseEventToStruct(event *discord.RawEvent, v interface{}) error {
-	if err := json.Unmarshal(event.D, v); err != nil {
-		g.Logger().Errorf("error while unmarshalling event. error: %s", err)
-		return err
-	}
-	return nil
-}
-
-func (g *GatewayImpl) parseGatewayEvent(mt int, reader io.Reader) (*discord.RawEvent, error) {
+func (g *GatewayImpl) parseGatewayEvent(mt int, reader io.Reader) (*discord.GatewayPayload, error) {
 	if mt == websocket.BinaryMessage {
 		return nil, discord.ErrGatewayCompressedData
 	}
@@ -387,7 +378,7 @@ func (g *GatewayImpl) parseGatewayEvent(mt int, reader io.Reader) (*discord.RawE
 	}
 
 	decoder := json.NewDecoder(reader)
-	var event discord.RawEvent
+	var event discord.GatewayPayload
 	if err := decoder.Decode(&event); err != nil {
 		g.Logger().Errorf("error decoding websocket message, %s", err)
 		return nil, err

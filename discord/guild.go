@@ -188,13 +188,12 @@ type GuildPreview struct {
 // GuildCreate is the payload used to create a Guild
 type GuildCreate struct {
 	Name                            string                     `json:"name"`
-	Region                          string                     `json:"region,omitempty"`
-	Icon                            string                     `json:"icon,omitempty"`
+	Icon                            *Icon                      `json:"icon,omitempty"`
 	VerificationLevel               VerificationLevel          `json:"verification_level,omitempty"`
 	DefaultMessageNotificationLevel MessageNotifications       `json:"default_message_notification_level"`
 	ExplicitContentFilterLevel      ExplicitContentFilterLevel `json:"explicit_content_filter_level"`
-	Roles                           []RoleCreate               `json:"roles,omitempty"`
-	Channels                        []ChannelCreate            `json:"channels,omitempty"`
+	Roles                           []GuildCreateRole          `json:"roles,omitempty"`
+	Channels                        []GuildCreateChannel       `json:"channels,omitempty"`
 	AFKChannelID                    Snowflake                  `json:"afk_channel_id,omitempty"`
 	AFKTimeout                      int                        `json:"afk_timeout,omitempty"`
 	SystemChannelID                 Snowflake                  `json:"system_channel_id,omitempty"`
@@ -204,7 +203,6 @@ type GuildCreate struct {
 // GuildUpdate is the payload used to update a Guild
 type GuildUpdate struct {
 	Name                            *string                     `json:"name,omitempty"`
-	Region                          *string                     `json:"region,omitempty"`
 	VerificationLevel               *VerificationLevel          `json:"verification_level,omitempty"`
 	DefaultMessageNotificationLevel *MessageNotifications       `json:"default_message_notification_level,omitempty"`
 	ExplicitContentFilterLevel      *ExplicitContentFilterLevel `json:"explicit_content_filter_level,omitempty"`
@@ -212,15 +210,15 @@ type GuildUpdate struct {
 	AFKTimeout                      *int                        `json:"afk_timeout,omitempty"`
 	Icon                            *string                     `json:"icon,omitempty"`
 	OwnerID                         *Snowflake                  `json:"owner_id,omitempty"`
-	Splash                          Icon                        `json:"splash,omitempty"`
-	DiscoverySplash                 Icon                        `json:"discovery_splash,omitempty"`
-	Banner                          Icon                        `json:"banner,omitempty"`
+	Splash                          *Icon                       `json:"splash,omitempty"`
+	DiscoverySplash                 *Icon                       `json:"discovery_splash,omitempty"`
+	Banner                          *Icon                       `json:"banner,omitempty"`
 	SystemChannelID                 *Snowflake                  `json:"system_channel_id,omitempty"`
 	SystemChannelFlags              *SystemChannelFlag          `json:"system_channel_flags,omitempty"`
 	RulesChannelID                  *Snowflake                  `json:"rules_channel_id,omitempty"`
 	PublicUpdatesChannelID          *Snowflake                  `json:"public_updates_channel_id,omitempty"`
 	PreferredLocale                 *string                     `json:"preferred_locale,omitempty"`
-	Features                        *[]GuildFeature             `json:"features,omitempty"`
+	Features                        []GuildFeature              `json:"features,omitempty"`
 	Description                     *string                     `json:"description,omitempty"`
 }
 
@@ -232,3 +230,14 @@ const (
 	NSFWLevelSafe
 	NSFWLevelAgeRestricted
 )
+
+type GuildCreateRole struct {
+	RoleCreate
+	ID int `json:"id,omitempty"`
+}
+
+type GuildCreateChannel struct {
+	ChannelCreate
+	ID       int `json:"id,omitempty"`
+	ParentID int `json:"parent_id,omitempty"`
+}

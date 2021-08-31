@@ -1,8 +1,9 @@
 package discord
 
 import (
-	"encoding/json"
 	"strconv"
+
+	"github.com/DisgoOrg/disgo/json"
 )
 
 // PermissionOverwriteType is the type of PermissionOverwrite
@@ -124,14 +125,7 @@ const (
 
 // MarshalJSON marshals permissions into a string
 func (p Permissions) MarshalJSON() ([]byte, error) {
-	strPermissions := strconv.FormatInt(int64(p), 10)
-
-	jsonValue, err := json.Marshal(strPermissions)
-	if err != nil {
-		return nil, err
-	}
-
-	return jsonValue, nil
+	return json.Marshal(strconv.FormatInt(int64(p), 10))
 }
 
 // UnmarshalJSON unmarshalls permissions into an int64

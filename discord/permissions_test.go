@@ -1,8 +1,9 @@
 package discord
 
 import (
-	"encoding/json"
 	"testing"
+
+	"github.com/DisgoOrg/disgo/json"
 
 	"github.com/stretchr/testify/assert"
 )

@@ -25,7 +25,7 @@ func (c *AudioControllerImpl) Connect(guildID discord.Snowflake, channelID disco
 	if err != nil {
 		return err
 	}
-	return gw.Send(gateway.NewGatewayCommand(discord.OpVoiceStateUpdate, gateway.UpdateVoiceStateCommand{
+	return gw.Send(discord.NewGatewayCommand(discord.OpVoiceStateUpdate, discord.UpdateVoiceStateCommand{
 		GuildID:   guildID,
 		ChannelID: &channelID,
 	}))
@@ -37,7 +37,7 @@ func (c *AudioControllerImpl) Disconnect(guildID discord.Snowflake) error {
 	if err != nil {
 		return err
 	}
-	return gw.Send(gateway.NewGatewayCommand(discord.OpVoiceStateUpdate, gateway.UpdateVoiceStateCommand{
+	return gw.Send(discord.NewGatewayCommand(discord.OpVoiceStateUpdate, discord.UpdateVoiceStateCommand{
 		GuildID:   guildID,
 		ChannelID: nil,
 	}))
