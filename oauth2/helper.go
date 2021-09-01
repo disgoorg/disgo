@@ -11,7 +11,7 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func randStr(n int) string {
+func RandStr(n int) string {
 	b := make([]rune, n)
 	for i := range b {
 		b[i] = letters[rand.Intn(len(letters))]

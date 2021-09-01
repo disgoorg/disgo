@@ -20,7 +20,7 @@ type Client interface {
 	SessionController() SessionController
 
 	GenerateAuthorizationURL(redirectURI string, scopes ...discord.ApplicationScope) string
-	StartSession(code string, state string, identifier string, scopes ...discord.ApplicationScope) Session
+	StartSession(code string, state string, identifier string, opts ...rest.RequestOpt) (Session, rest.Error)
 
 	GetUser(session Session, opts ...rest.RequestOpt) (*User, rest.Error)
 	GetGuilds(session Session, opts ...rest.RequestOpt) ([]*Guild, rest.Error)
@@ -73,7 +73,8 @@ func (c *clientImpl) GenerateAuthorizationURL(redirectURI string, scopes ...disc
 	compiledRoute, _ := route.Authorize.Compile(values)
 	return compiledRoute.URL()
 }
-func (c *clientImpl) StartSession(code string, state string, identifier string, scopes discord.ApplicationScope, opts ...rest.RequestOpt) (Session, rest.Error) {
+
+func (c *clientImpl) StartSession(code string, state string, identifier string, opts ...rest.RequestOpt) (Session, rest.Error) {
 	redirectURI := c.StateController().ConsumeState(state)
 	if redirectURI == nil {
 		return nil, rest.NewError(nil, ErrStateNotFound)
@@ -93,6 +94,7 @@ func (c *clientImpl) GetUser(session Session, opts ...rest.RequestOpt) (*User, r
 	}
 	return c.EntityBuilder().CreateUser(*user), nil
 }
+
 func (c *clientImpl) GetGuilds(session Session, opts ...rest.RequestOpt) ([]*Guild, rest.Error) {
 	partialGuilds, err := c.OAuth2Service().GetCurrentUserGuilds(session.AccessToken(), opts...)
 	if err != nil {
