@@ -196,11 +196,11 @@ func (b *EntityBuilderImpl) CreateUser(user discord.User, updateCache CacheStrat
 }
 
 // CreateSelfUser returns a new SelfUser entity
-func (b *EntityBuilderImpl) CreateSelfUser(selfUser discord.SelfUser, updateCache CacheStrategy) *SelfUser {
+func (b *EntityBuilderImpl) CreateSelfUser(selfUser discord.OAuth2User, updateCache CacheStrategy) *SelfUser {
 	coreSelfUser := &SelfUser{
-		SelfUser: selfUser,
-		Disgo:    b.disgo,
-		User:     b.CreateUser(selfUser.User, updateCache),
+		OAuth2User: selfUser,
+		Disgo:      b.disgo,
+		User:       b.CreateUser(selfUser.User, updateCache),
 	}
 	b.Disgo().SetSelfUser(coreSelfUser)
 	return coreSelfUser

@@ -11,6 +11,7 @@ func NewServices(logger log.Logger, restClient Client) Services {
 		logger:               logger,
 		restClient:           restClient,
 		applicationService:   NewApplicationService(restClient),
+		oauth2Service:        NewOAuth2Service(restClient),
 		auditLogService:      NewAuditLogService(restClient),
 		gatewayService:       NewGatewayService(restClient),
 		guildService:         NewGuildService(restClient),
@@ -31,6 +32,7 @@ type Services interface {
 	Logger() log.Logger
 	RestClient() Client
 	ApplicationService() ApplicationService
+	OAuth2Service() OAuth2Service
 	AuditLogService() AuditLogService
 	GatewayService() GatewayService
 	GuildService() GuildService
@@ -49,6 +51,7 @@ type ServicesImpl struct {
 	restClient Client
 
 	applicationService   ApplicationService
+	oauth2Service        OAuth2Service
 	auditLogService      AuditLogService
 	gatewayService       GatewayService
 	guildService         GuildService
@@ -76,6 +79,10 @@ func (s *ServicesImpl) RestClient() Client {
 
 func (s *ServicesImpl) ApplicationService() ApplicationService {
 	return s.applicationService
+}
+
+func (s *ServicesImpl) OAuth2Service() OAuth2Service {
+	return s.oauth2Service
 }
 
 func (s *ServicesImpl) AuditLogService() AuditLogService {

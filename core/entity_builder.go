@@ -34,7 +34,7 @@ type EntityBuilder interface {
 	CreateSelectMenuInteraction(componentInteraction *ComponentInteraction) *SelectMenuInteraction
 
 	CreateUser(user discord.User, updateCache CacheStrategy) *User
-	CreateSelfUser(selfUser discord.SelfUser, updateCache CacheStrategy) *SelfUser
+	CreateSelfUser(selfUser discord.OAuth2User, updateCache CacheStrategy) *SelfUser
 
 	CreateMessage(message discord.Message, updateCache CacheStrategy) *Message
 	CreateComponents(components []discord.Component, updateCache CacheStrategy) []Component

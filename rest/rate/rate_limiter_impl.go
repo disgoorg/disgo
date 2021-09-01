@@ -65,7 +65,7 @@ func (r *LimiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor {
 	hash, ok := r.hashes[route.APIRoute]
 	if !ok {
 		// generate routeHash
-		hash = routeHash(route.Method().String() + "+" + route.Path())
+		hash = routeHash(route.APIRoute.Method().String() + "+" + route.APIRoute.Path())
 		r.hashes[route.APIRoute] = hash
 	}
 	// return hashMajor

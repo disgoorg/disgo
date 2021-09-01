@@ -11,8 +11,6 @@ import (
 //goland:noinspection GoUnusedExportedFunction
 func New(id discord.Snowflake, token string, opts ...ConfigOpt) Client {
 	config := &DefaultConfig
-	config.ID = id
-	config.Token = token
 	config.Apply(opts)
 
 	if config.Logger == nil {
@@ -29,7 +27,10 @@ func New(id discord.Snowflake, token string, opts ...ConfigOpt) Client {
 		config.DefaultAllowedMentions = &DefaultAllowedMentions
 	}
 
-	webhookClient := &webhookClientImpl{}
+	webhookClient := &webhookClientImpl{
+		id: id,
+		token: token,
+	}
 
 	if config.EntityBuilder == nil {
 		config.EntityBuilder = NewEntityBuilder(webhookClient)
@@ -40,6 +41,8 @@ func New(id discord.Snowflake, token string, opts ...ConfigOpt) Client {
 }
 
 type webhookClientImpl struct {
+	id discord.Snowflake
+	token string
 	config Config
 }
 
@@ -121,10 +124,10 @@ func (h *webhookClientImpl) DeleteMessage(messageID discord.Snowflake, opts ...r
 }
 
 func (h *webhookClientImpl) ID() discord.Snowflake {
-	return h.config.ID
+	return h.id
 }
 func (h *webhookClientImpl) Token() string {
-	return h.config.Token
+	return h.token
 }
 
 func (h *webhookClientImpl) URL() string {

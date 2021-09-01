@@ -16,9 +16,9 @@ type GatewayPayload struct {
 
 // GatewayEventReady is the event sent by discord when you successfully Identify
 type GatewayEventReady struct {
-	Version     int                `json:"v"`
-	SelfUser    SelfUser           `json:"user"`
-	Guilds      []Guild            `json:"guilds"`
+	Version  int        `json:"v"`
+	SelfUser OAuth2User `json:"user"`
+	Guilds   []Guild    `json:"guilds"`
 	SessionID   string             `json:"session_id"`
 	Shard       [2]int             `json:"shard,omitempty"`
 	Application PartialApplication `json:"application"`

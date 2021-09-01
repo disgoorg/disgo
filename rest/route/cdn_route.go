@@ -9,7 +9,7 @@ import (
 )
 
 // NewCDNRoute generates a new discord cdn path struct
-func NewCDNRoute(url string, supportedFileExtensions []FileExtension, queryParams ...string) *CDNRoute {
+func NewCDNRoute(path string, supportedFileExtensions []FileExtension, queryParams ...string) *CDNRoute {
 	queryParams = append(queryParams, "size", "v")
 
 	params := map[string]struct{}{}
@@ -18,15 +18,25 @@ func NewCDNRoute(url string, supportedFileExtensions []FileExtension, queryParam
 	}
 
 	return &CDNRoute{
-		path:                    url,
+		basePath:                CDN,
+		path:                    path,
 		queryParams:             params,
-		urlParamCount:           countURLParams(url),
+		urlParamCount:           countURLParams(path),
 		supportedFileExtensions: supportedFileExtensions,
 	}
 }
 
+// NewCustomCDNRoute generates a new custom cdn path struct
+//goland:noinspection GoUnusedExportedFunction
+func NewCustomCDNRoute(basePath string, path string, supportedFileExtensions []FileExtension, queryParams ...string) *CDNRoute {
+	route := NewCDNRoute(path, supportedFileExtensions, queryParams...)
+	route.basePath = basePath
+	return route
+}
+
 // CDNRoute is a path for interacting with images hosted on discord's CDN
 type CDNRoute struct {
+	basePath                string
 	path                    string
 	queryParams             map[string]struct{}
 	urlParamCount           int
@@ -89,13 +99,13 @@ func (r *CDNRoute) Path() string {
 
 // CompiledCDNRoute is CDNRoute compiled with all URL args
 type CompiledCDNRoute struct {
-	*CDNRoute
+	CDNRoute    *CDNRoute
 	path        string
 	queryParams string
 }
 
 func (r *CompiledCDNRoute) URL() string {
-	u := CDN + r.path
+	u := r.CDNRoute.basePath + r.path
 	if r.queryParams != "" {
 		u += "?" + r.queryParams
 	}

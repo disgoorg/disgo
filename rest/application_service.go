@@ -13,8 +13,6 @@ func NewApplicationService(client Client) ApplicationService {
 
 type ApplicationService interface {
 	Service
-	GetBotApplicationInfo(opts ...RequestOpt) (*discord.Application, Error)
-	GetAuthorizationInfo(opts ...RequestOpt) (*discord.AuthorizationInformation, Error)
 
 	GetGlobalCommands(applicationID discord.Snowflake, opts ...RequestOpt) ([]discord.ApplicationCommand, Error)
 	GetGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake, opts ...RequestOpt) (*discord.ApplicationCommand, Error)
@@ -42,24 +40,6 @@ type ApplicationServiceImpl struct {
 
 func (s *ApplicationServiceImpl) RestClient() Client {
 	return s.restClient
-}
-
-func (s *ApplicationServiceImpl) GetBotApplicationInfo(opts ...RequestOpt) (application *discord.Application, rErr Error) {
-	compiledRoute, err := route.GetBotApplicationInfo.Compile(nil)
-	if err != nil {
-		return nil, NewError(nil, err)
-	}
-	rErr = s.restClient.Do(compiledRoute, nil, &application, opts...)
-	return
-}
-
-func (s *ApplicationServiceImpl) GetAuthorizationInfo(opts ...RequestOpt) (info *discord.AuthorizationInformation, rErr Error) {
-	compiledRoute, err := route.GetAuthorizationInfo.Compile(nil)
-	if err != nil {
-		return nil, NewError(nil, err)
-	}
-	rErr = s.restClient.Do(compiledRoute, nil, &info, opts...)
-	return
 }
 
 func (s *ApplicationServiceImpl) GetGlobalCommands(applicationID discord.Snowflake, opts ...RequestOpt) (commands []discord.ApplicationCommand, rErr Error) {

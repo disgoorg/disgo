@@ -1,24 +1,30 @@
 package discord
 
+import (
+	"fmt"
+	"strings"
+)
+
 type Application struct {
-	ID                  Snowflake        `json:"id"`
-	Name                string           `json:"name"`
-	Icon                *string          `json:"icon,omitempty"`
-	Description         string           `json:"description"`
-	RPCOrigins          []string         `json:"rpc_origins"`
-	BotPublic           bool             `json:"bot_public"`
-	BotRequireCodeGrant bool             `json:"bot_require_code_grant"`
-	TermsOfServiceURL   *string          `json:"terms_of_service_url,omitempty"`
-	PrivacyPolicyURL    *string          `json:"privacy_policy_url,omitempty"`
-	Owner               *User            `json:"owner,omitempty"`
-	Summary             string           `json:"summary"`
-	VerifyKey           string           `json:"verify_key"`
-	Team                *Team            `json:"team,omitempty"`
-	GuildID             *Snowflake       `json:"guild_id,omitempty"`
-	PrimarySkuID        *Snowflake       `json:"primary_sku_id,omitempty"`
-	Slug                *string          `json:"slug,omitempty"`
-	CoverImage          *string          `json:"cover_image,omitempty"`
-	Flags               ApplicationFlags `json:"flags,omitempty"`
+	ID                  Snowflake  `json:"id"`
+	Name                string     `json:"name"`
+	Icon                *string    `json:"icon,omitempty"`
+	Description         string     `json:"description"`
+	RPCOrigins          []string   `json:"rpc_origins"`
+	BotPublic           bool       `json:"bot_public"`
+	BotRequireCodeGrant bool       `json:"bot_require_code_grant"`
+	TermsOfServiceURL   *string    `json:"terms_of_service_url,omitempty"`
+	PrivacyPolicyURL    *string    `json:"privacy_policy_url,omitempty"`
+	Owner               *User      `json:"owner,omitempty"`
+	Summary             string     `json:"summary"`
+	VerifyKey           string     `json:"verify_key"`
+	Team                *Team      `json:"team,omitempty"`
+	GuildID             *Snowflake `json:"guild_id,omitempty"`
+	PrimarySkuID        *Snowflake `json:"primary_sku_id,omitempty"`
+	Slug                *string    `json:"slug,omitempty"`
+	CoverImage          *string    `json:"cover_image,omitempty"`
+	// Flags are not present in the /oauth2/applications/@me route
+	//Flags               ApplicationFlags `json:"flags,omitempty"`
 }
 
 type PartialApplication struct {
@@ -66,10 +72,51 @@ const (
 	ApplicationScopeApplicationsBuildsUpload   ApplicationScope = "applications.builds.upload"
 )
 
+func (s ApplicationScope) String() string {
+	return string(s)
+}
+
+const ScopeSeparator = "%20"
+
+func JoinScopes(scopes ...ApplicationScope) string {
+	var joinedScopes string
+	for i, scope := range scopes {
+		if i > 0 {
+			joinedScopes += ScopeSeparator
+		}
+		joinedScopes += scope.String()
+	}
+	return joinedScopes
+}
+
+func SplitScopes(joinedScopes string) []ApplicationScope {
+	var scopes []ApplicationScope
+	for _, scope := range strings.Split(joinedScopes, ScopeSeparator) {
+		scopes = append(scopes, ApplicationScope(scope))
+	}
+	return scopes
+}
+
+type TokenType string
+
+//goland:noinspection GoUnusedConst
+const (
+	TokenTypeBearer TokenType = "Bearer"
+	TokenTypeBot    TokenType = "Bot"
+)
+
+func (t TokenType) String() string {
+	return string(t)
+}
+
+func (t TokenType) Apply(token string) string {
+	return fmt.Sprintf("%s %s", t.String(), token)
+}
+
 // ApplicationFlags (https://discord.com/developers/docs/resources/application#application-object-application-flags)
 type ApplicationFlags int
 
-//goland:noinspection GoUnusedConst,GoUnusedConst,GoUnusedConst,GoUnusedConst,GoUnusedConst,GoUnusedConst
+//goland:noinspection GoUnusedConst
 const (
 	ApplicationFlagGatewayPresence = 1 << (iota + 12)
 	ApplicationFlagGatewayPresenceLimited

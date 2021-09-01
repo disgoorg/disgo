@@ -6,7 +6,7 @@ import (
 )
 
 type SelfUser struct {
-	discord.SelfUser
+	discord.OAuth2User
 	Disgo Disgo
 	User  *User
 }

@@ -16,8 +16,8 @@ func NewUserService(restClient Client) UserService {
 type UserService interface {
 	Service
 	GetUser(userID discord.Snowflake, opts ...RequestOpt) (*discord.User, Error)
-	GetSelfUser(opts ...RequestOpt) (*discord.SelfUser, Error)
-	UpdateSelfUser(selfUserUpdate discord.SelfUserUpdate, opts ...RequestOpt) (*discord.SelfUser, Error)
+	GetSelfUser(opts ...RequestOpt) (*discord.OAuth2User, Error)
+	UpdateSelfUser(selfUserUpdate discord.SelfUserUpdate, opts ...RequestOpt) (*discord.OAuth2User, Error)
 	GetGuilds(before int, after int, limit int, opts ...RequestOpt) ([]discord.PartialGuild, Error)
 	LeaveGuild(guildID discord.Snowflake, opts ...RequestOpt) Error
 	GetDMChannels(opts ...RequestOpt) ([]discord.Channel, Error)
@@ -41,8 +41,8 @@ func (s *UserServiceImpl) GetUser(userID discord.Snowflake, opts ...RequestOpt) 
 	return
 }
 
-func (s *UserServiceImpl) GetSelfUser(opts ...RequestOpt) (selfUser *discord.SelfUser, rErr Error) {
-	compiledRoute, err := route.GetSelfUser.Compile(nil)
+func (s *UserServiceImpl) GetSelfUser(opts ...RequestOpt) (selfUser *discord.OAuth2User, rErr Error) {
+	compiledRoute, err := route.GetCurrentUser.Compile(nil)
 	if err != nil {
 		return nil, NewError(nil, err)
 	}
@@ -50,8 +50,8 @@ func (s *UserServiceImpl) GetSelfUser(opts ...RequestOpt) (selfUser *discord.Sel
 	return
 }
 
-func (s *UserServiceImpl) UpdateSelfUser(updateSelfUser discord.SelfUserUpdate, opts ...RequestOpt) (selfUser *discord.SelfUser, rErr Error) {
-	compiledRoute, err := route.GetSelfUser.Compile(nil)
+func (s *UserServiceImpl) UpdateSelfUser(updateSelfUser discord.SelfUserUpdate, opts ...RequestOpt) (selfUser *discord.OAuth2User, rErr Error) {
+	compiledRoute, err := route.UpdateSelfUser.Compile(nil)
 	if err != nil {
 		return nil, NewError(nil, err)
 	}
@@ -71,7 +71,7 @@ func (s *UserServiceImpl) GetGuilds(before int, after int, limit int, opts ...Re
 	if limit > 0 {
 		queryParams["limit"] = limit
 	}
-	compiledRoute, err := route.GetGuilds.Compile(queryParams)
+	compiledRoute, err := route.GetCurrentUserGuilds.Compile(queryParams)
 	if err != nil {
 		return nil, NewError(nil, NewError(nil, err))
 	}

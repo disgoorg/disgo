@@ -32,3 +32,20 @@ type User struct {
 	System        bool      `json:"system"`
 	PublicFlags   UserFlags `json:"public_flags"`
 }
+
+// OAuth2User represents a full User returned by the oauth2 endpoints
+type OAuth2User struct {
+	User
+	MfaEnabled  *bool   `json:"mfa_enabled"`
+	Locale      *string `json:"locale"`
+	Verified    *bool   `json:"verified"`
+	Email       *string `json:"email"`
+	Flags       *int    `json:"flags"`
+	PremiumType *int    `json:"premium_type"`
+}
+
+// SelfUserUpdate is the payload used to update the OAuth2User
+type SelfUserUpdate struct {
+	Username string `json:"username"`
+	Avatar   *Icon  `json:"avatar"`
+}

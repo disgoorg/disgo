@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 
@@ -106,7 +105,7 @@ func (d *DisgoImpl) SetSelfUser(selfUser *SelfUser) {
 	d.selfUser = selfUser
 }
 
-// SelfMember returns an api.SelfUser for the client, if available
+// SelfMember returns an api.OAuth2User for the client, if available
 func (d *DisgoImpl) SelfMember(guildID discord.Snowflake) *Member {
 	return d.Cache().MemberCache().Get(guildID, d.clientID)
 }
@@ -430,7 +429,7 @@ func buildDisgoImpl(config DisgoConfig) (Disgo, error) {
 	}
 
 	if _, ok := config.RestClientConfig.Headers["authorization"]; !ok {
-		config.RestClientConfig.Headers["authorization"] = []string{fmt.Sprintf("Bot %s", config.Token)}
+		config.RestClientConfig.Headers["authorization"] = []string{discord.TokenTypeBot.Apply(config.Token)}
 	}
 
 	if config.RestClient == nil {

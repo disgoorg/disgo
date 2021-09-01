@@ -1,7 +1,5 @@
 package route
 
-import "fmt"
-
 // Discord Endpoint Constants
 const (
 	APIVersion = "9"
@@ -23,18 +21,20 @@ var (
 var (
 	GetBotApplicationInfo = NewAPIRoute(GET, "/oauth2/applications/@me")
 	GetAuthorizationInfo  = NewAPIRoute(GET, "/oauth2/@me")
+	Authorize             = NewRoute("/oauth2/authorize", "client_id", "redirect_uri", "response_type", "scope", "state")
+	Token                 = NewAPIRoute(POST, "/oauth2/token", "client_id", "redirect_uri", "grant_type", "code", "client_secret", "scope")
 )
 
 // Users
 //goland:noinspection GoUnusedGlobalVariable
 var (
-	GetUser         = NewAPIRoute(GET, "/users/{user.id}")
-	GetSelfUser     = NewAPIRoute(GET, "/users/@me")
-	UpdateSelfUser  = NewAPIRoute(PATCH, "/users/@me")
-	GetGuilds       = NewAPIRoute(GET, "/users/@me/guilds", "before", "after", "limit")
-	LeaveGuild      = NewAPIRoute(DELETE, "/users/@me/guilds/{guild.id}")
-	GetDMChannels   = NewAPIRoute(GET, "/users/@me/channels")
-	CreateDMChannel = NewAPIRoute(POST, "/users/@me/channels")
+	GetUser              = NewAPIRoute(GET, "/users/{user.id}")
+	GetCurrentUser       = NewAPIRoute(GET, "/users/@me")
+	UpdateSelfUser       = NewAPIRoute(PATCH, "/users/@me")
+	GetCurrentUserGuilds = NewAPIRoute(GET, "/users/@me/guilds", "before", "after", "limit")
+	LeaveGuild           = NewAPIRoute(DELETE, "/users/@me/guilds/{guild.id}")
+	GetDMChannels        = NewAPIRoute(GET, "/users/@me/channels")
+	CreateDMChannel      = NewAPIRoute(POST, "/users/@me/channels")
 )
 
 // Guilds
@@ -266,9 +266,7 @@ var (
 )
 
 // Other
-//goland:noinspection GoUnusedExportedFunction
+//goland:noinspection GoUnusedGlobalVariable
 var (
-	InviteURL = func(code string) string {
-		return fmt.Sprintf("https://discord.gg/%s", code)
-	}
+	InviteURL = NewCustomRoute("https://discord.gg", "/{code}")
 )

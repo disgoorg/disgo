@@ -100,7 +100,7 @@ func (c *ClientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 		c.Logger().Debugf("request to %s, body: %s", rqURL, string(body))
 	}
 
-	rq, err := http.NewRequest(cRoute.Method().String(), rqURL, rqBuffer)
+	rq, err := http.NewRequest(cRoute.APIRoute.Method().String(), rqURL, rqBuffer)
 	if err != nil {
 		return NewError(nil, err)
 	}

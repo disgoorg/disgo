@@ -8,13 +8,6 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-const MajorParameters = "guild.id:channel.id:webhook.id:interaction.token"
-
-func countURLParams(url string) int {
-	paramCount := strings.Count(url, "{")
-	return paramCount
-}
-
 // NewAPIRoute generates a new discord api path struct
 //goland:noinspection GoUnusedExportedFunction
 func NewAPIRoute(method Method, path string, queryParams ...string) *APIRoute {
@@ -101,7 +94,7 @@ func (r *APIRoute) Path() string {
 
 // CompiledAPIRoute is APIRoute compiled with all URL args
 type CompiledAPIRoute struct {
-	*APIRoute
+	APIRoute    *APIRoute
 	path        string
 	queryParams string
 	majorParams string
@@ -113,7 +106,7 @@ func (r *CompiledAPIRoute) MajorParams() string {
 }
 
 func (r *CompiledAPIRoute) URL() string {
-	u := r.basePath + r.path
+	u := r.APIRoute.basePath + r.path
 	if r.queryParams != "" {
 		u += "?" + r.queryParams
 	}
