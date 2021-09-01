@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/info"
+	"github.com/DisgoOrg/disgo/json"
 	"github.com/DisgoOrg/disgo/oauth2"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/log"
@@ -18,8 +20,6 @@ var (
 	logger       = log.Default()
 	httpClient   = http.DefaultClient
 	client       oauth2.Client
-
-	sessions = map[string]oauth2.Session{}
 )
 
 func main() {
@@ -39,19 +39,35 @@ func main() {
 func handleRoot(w http.ResponseWriter, r *http.Request) {
 	var body string
 	cookie, err := r.Cookie("token")
-	if err != nil {
-		body = `<button href="/login">login</button>`
-	} else {
-
+	if err == nil {
+		session := client.SessionController().GetSession(cookie.Value)
+		if session != nil {
+			var user *oauth2.User
+			user, err = client.GetUser(session)
+			if err != nil {
+				writeError(w, "error while starting session", err)
+				return
+			}
+			var userJSON []byte
+			userJSON, err = json.MarshalIndent(user, "<br />", "&ensp;")
+			if err != nil {
+				writeError(w, "error while starting session", err)
+				return
+			}
+			body = fmt.Sprintf("user:<br />%s", userJSON)
+		}
 	}
-	w.Header().Set("Content-Type", "text/html")
+	if body == "" {
+		body = `<button><a href="/login">login</a></button>`
+	}
+	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
 	_, _ = w.Write([]byte(body))
 }
 
 func handleLogin(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, client.GenerateAuthorizationURL(baseURL+"/trylogin"), http.StatusMovedPermanently)
+	http.Redirect(w, r, client.GenerateAuthorizationURL(baseURL+"/trylogin", discord.ApplicationScopeIdentify, discord.ApplicationScopeGuilds, discord.ApplicationScopeEmail, discord.ApplicationScopeConnections), http.StatusMovedPermanently)
 }
 
 func handleTryLogin(w http.ResponseWriter, r *http.Request) {
@@ -61,13 +77,18 @@ func handleTryLogin(w http.ResponseWriter, r *http.Request) {
 		state = query.Get("state")
 	)
 	if code != "" && state != "" {
-		session, err := client.StartSession(code, state, oauth2.RandStr(32))
+		identifier := oauth2.RandStr(32)
+		_, err := client.StartSession(code, state, identifier)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte("error while getting session: " + err.Error()))
+			writeError(w, "error while starting session", err)
 			return
 		}
-		client.
+		http.SetCookie(w, &http.Cookie{Name: "token", Value: identifier})
 	}
-	http.Redirect(w, r, "/", http.StatusMovedPermanently)
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+}
+
+func writeError(w http.ResponseWriter, text string, err error) {
+	w.WriteHeader(http.StatusInternalServerError)
+	_, _ = w.Write([]byte(text + ": " + err.Error()))
 }

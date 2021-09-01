@@ -33,7 +33,32 @@ func New(id discord.Snowflake, secret string, opts ...ConfigOpt) Client {
 	config := &DefaultConfig
 	config.Apply(opts)
 
-	return &clientImpl{id: id, secret: secret, config: *config}
+	if config.Logger == nil {
+		config.Logger = log.Default()
+	}
+
+	if config.RestClient == nil {
+		config.RestClient = rest.NewClient(config.RestClientConfig)
+	}
+	if config.OAuth2Service == nil {
+		config.OAuth2Service = rest.NewOAuth2Service(config.RestClient)
+	}
+	if config.SessionController == nil {
+		config.SessionController = NewSessionController()
+	}
+	if config.StateController == nil {
+		config.StateController = NewStateController()
+	}
+
+	client := &clientImpl{id: id, secret: secret}
+
+	if config.EntityBuilder == nil {
+		config.EntityBuilder = NewEntityBuilder(client)
+	}
+
+	client.config = *config
+
+	return client
 }
 
 type clientImpl struct {

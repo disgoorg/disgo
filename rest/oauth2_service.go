@@ -1,6 +1,8 @@
 package rest
 
 import (
+	"net/url"
+
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest/route"
 )
@@ -74,25 +76,25 @@ func (s *OAuth2ServiceImpl) GetCurrentUser(token string, opts ...RequestOpt) (us
 }
 
 func (s *OAuth2ServiceImpl) exchangeAccessToken(clientID discord.Snowflake, clientSecret string, grantType discord.GrantType, codeOrRefreshToken string, redirectURI string, opts ...RequestOpt) (exchange *discord.AccessTokenExchange, rErr Error) {
-	values := map[string]interface{}{
-		"client_id":     clientID,
-		"client_secret": clientSecret,
-		"grant_type":    grantType,
+	values := url.Values{
+		"client_id":     []string{clientID.String()},
+		"client_secret": []string{clientSecret},
+		"grant_type":    []string{grantType.String()},
 	}
 	switch grantType {
 	case discord.GrantTypeAuthorizationCode:
-		values["code"] = codeOrRefreshToken
-		values["redirect_uri"] = redirectURI
+		values["code"] = []string{codeOrRefreshToken}
+		values["redirect_uri"] = []string{redirectURI}
 
 	case discord.GrantTypeRefreshToken:
-		values["refresh_token"] = codeOrRefreshToken
+		values["refresh_token"] = []string{codeOrRefreshToken}
 	}
-	compiledRoute, err := route.Token.Compile(values)
+	compiledRoute, err := route.Token.Compile(nil)
 	if err != nil {
 		return nil, NewError(nil, err)
 	}
 
-	rErr = s.restClient.Do(compiledRoute, nil, &exchange, opts...)
+	rErr = s.restClient.Do(compiledRoute, values, &exchange, opts...)
 	return
 }
 

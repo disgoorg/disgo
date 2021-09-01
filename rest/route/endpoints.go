@@ -22,7 +22,7 @@ var (
 	GetBotApplicationInfo = NewAPIRoute(GET, "/oauth2/applications/@me")
 	GetAuthorizationInfo  = NewAPIRoute(GET, "/oauth2/@me")
 	Authorize             = NewRoute("/oauth2/authorize", "client_id", "redirect_uri", "response_type", "scope", "state")
-	Token                 = NewAPIRoute(POST, "/oauth2/token", "client_id", "redirect_uri", "grant_type", "code", "client_secret", "scope")
+	Token                 = NewAPIRoute(POST, "/oauth2/token")
 )
 
 // Users

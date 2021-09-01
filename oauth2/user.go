@@ -4,5 +4,5 @@ import "github.com/DisgoOrg/disgo/discord"
 
 type User struct {
 	discord.OAuth2User
-	Client Client
+	Client Client `json:"-"`
 }

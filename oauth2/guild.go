@@ -4,5 +4,5 @@ import "github.com/DisgoOrg/disgo/discord"
 
 type Guild struct {
 	discord.PartialGuild
-	Client Client
+	Client Client `json:"-"`
 }

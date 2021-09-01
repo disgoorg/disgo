@@ -16,7 +16,7 @@ type stateControllerImpl struct {
 }
 
 func (c *stateControllerImpl) GenerateNewState(redirectURI string) string {
-	state := randStr(32)
+	state := RandStr(32)
 	c.states[state] = redirectURI
 	return state
 }

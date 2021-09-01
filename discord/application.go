@@ -76,7 +76,7 @@ func (s ApplicationScope) String() string {
 	return string(s)
 }
 
-const ScopeSeparator = "%20"
+const ScopeSeparator = " "
 
 func JoinScopes(scopes ...ApplicationScope) string {
 	var joinedScopes string
