@@ -38,10 +38,6 @@ func ErrInvalidArgCount(argCount int, paramCount int) error {
 	return fmt.Errorf("invalid amount of arguments received. expected: %d, received: %d", argCount, paramCount)
 }
 
-func ErrUnexpectedMessageType(mt int) error {
-	return fmt.Errorf("recieved unexpected message type: %d", mt)
-}
-
 func ErrFileExtensionNotSupported(fileExtension string) error {
 	return fmt.Errorf("provided file extension: %s is not supported by discord on this end", fileExtension)
 }

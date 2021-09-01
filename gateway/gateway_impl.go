@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"bytes"
+	"compress/zlib"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -80,6 +81,9 @@ func (g *GatewayImpl) Open() error {
 	}
 
 	gatewayURL := *g.url + "?v=" + route.APIVersion + "&encoding=json"
+	if g.config.CompressType != discord.CompressTypeNone {
+		gatewayURL += "&compress=" + g.config.CompressType.String()
+	}
 	var rs *http.Response
 	var err error
 	g.conn, rs, err = websocket.DefaultDialer.Dial(gatewayURL, nil)
@@ -142,7 +146,6 @@ func (g *GatewayImpl) Open() error {
 					Browser: g.config.Browser,
 					Device:  g.config.Device,
 				},
-				Compress:       false, // TODO: compress support
 				LargeThreshold: g.config.LargeThreshold,
 				GatewayIntents: g.config.GatewayIntents,
 			}),
@@ -370,11 +373,12 @@ func (g *GatewayImpl) listen() {
 
 func (g *GatewayImpl) parseGatewayEvent(mt int, reader io.Reader) (*discord.GatewayPayload, error) {
 	if mt == websocket.BinaryMessage {
-		return nil, discord.ErrGatewayCompressedData
-	}
-
-	if mt != websocket.TextMessage {
-		return nil, discord.ErrUnexpectedMessageType(mt)
+		readCloser, err := zlib.NewReader(reader)
+		if err != nil {
+			return nil, err
+		}
+		defer readCloser.Close()
+		reader = readCloser
 	}
 
 	decoder := json.NewDecoder(reader)
