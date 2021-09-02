@@ -24,7 +24,7 @@ var (
 
 func main() {
 	logger.SetLevel(log.LevelDebug)
-	logger.Info("starting ExampleBot...")
+	logger.Info("starting example...")
 	logger.Infof("disgo %s", info.Version)
 
 	client := webhook.New(webhookID, webhookToken,
@@ -50,9 +50,6 @@ func send(ctx context.Context, client webhook.Client, i int) {
 		rest.WithCtx(ctx),
 		rest.WithReason("this adds a reason header"),
 		rest.WithDelay(2*time.Second),
-		rest.WithCheck(func() bool {
-			return false
-		}),
 	)
 	if err != nil {
 		logger.Errorf("error sending test %d: %s", i, err)
