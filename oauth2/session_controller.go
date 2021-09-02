@@ -24,6 +24,7 @@ type sessionControllerImpl struct {
 func (c *sessionControllerImpl) GetSession(identifier string) Session {
 	return c.sessions[identifier]
 }
+
 func (c *sessionControllerImpl) CreateSession(identifier string, accessToken string, refreshToken string, scopes []discord.ApplicationScope, tokenType discord.TokenType, expiration time.Time) Session {
 	session := &sessionImpl{
 		accessToken:  accessToken,

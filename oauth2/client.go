@@ -1,12 +1,18 @@
 package oauth2
 
 import (
+	"errors"
 	"time"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/log"
+)
+
+var (
+	ErrStateNotFound      = errors.New("state could not be found")
+	ErrAccessTokenExpired = errors.New("access token expired. refresh the session")
 )
 
 // Client lets you edit/send WebhookMessage(s) or update/delete the Webhook
@@ -21,6 +27,7 @@ type Client interface {
 
 	GenerateAuthorizationURL(redirectURI string, scopes ...discord.ApplicationScope) string
 	StartSession(code string, state string, identifier string, opts ...rest.RequestOpt) (Session, rest.Error)
+	RefreshSession(code string, state string, identifier string, opts ...rest.RequestOpt) (Session, rest.Error)
 
 	GetUser(session Session, opts ...rest.RequestOpt) (*User, rest.Error)
 	GetGuilds(session Session, opts ...rest.RequestOpt) ([]*Guild, rest.Error)
@@ -112,7 +119,18 @@ func (c *clientImpl) StartSession(code string, state string, identifier string, 
 	return c.SessionController().CreateSession(identifier, exchange.AccessToken, exchange.RefreshToken, discord.SplitScopes(exchange.Scope), exchange.TokenType, time.Now().Add(exchange.ExpiresIn*time.Second)), nil
 }
 
+func (c *clientImpl) RefreshSession(identifier string, session Session, opts ...rest.RequestOpt) (Session, rest.Error) {
+	exchange, err := c.OAuth2Service().RefreshAccessToken(c.ID(), c.Secret(), session.RefreshToken(), opts...)
+	if err != nil {
+		return nil, err
+	}
+	return c.SessionController().CreateSession(identifier, exchange.AccessToken, exchange.RefreshToken, discord.SplitScopes(exchange.Scope), exchange.TokenType, time.Now().Add(exchange.ExpiresIn*time.Second)), nil
+}
+
 func (c *clientImpl) GetUser(session Session, opts ...rest.RequestOpt) (*User, rest.Error) {
+	if session.Expiration().Before(time.Now()) {
+		return nil, rest.NewError(nil, ErrAccessTokenExpired)
+	}
 	user, err := c.OAuth2Service().GetCurrentUser(session.AccessToken(), opts...)
 	if err != nil {
 		return nil, err
@@ -121,6 +139,9 @@ func (c *clientImpl) GetUser(session Session, opts ...rest.RequestOpt) (*User, r
 }
 
 func (c *clientImpl) GetGuilds(session Session, opts ...rest.RequestOpt) ([]*Guild, rest.Error) {
+	if session.Expiration().Before(time.Now()) {
+		return nil, rest.NewError(nil, ErrAccessTokenExpired)
+	}
 	partialGuilds, err := c.OAuth2Service().GetCurrentUserGuilds(session.AccessToken(), opts...)
 	if err != nil {
 		return nil, err

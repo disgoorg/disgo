@@ -43,4 +43,3 @@ const (
 func (f FileExtension) String() string {
 	return string(f)
 }
-
