@@ -27,7 +27,7 @@ type Client interface {
 
 	GenerateAuthorizationURL(redirectURI string, scopes ...discord.ApplicationScope) string
 	StartSession(code string, state string, identifier string, opts ...rest.RequestOpt) (Session, rest.Error)
-	RefreshSession(code string, state string, identifier string, opts ...rest.RequestOpt) (Session, rest.Error)
+	RefreshSession(identifier string, session Session, opts ...rest.RequestOpt) (Session, rest.Error)
 
 	GetUser(session Session, opts ...rest.RequestOpt) (*User, rest.Error)
 	GetGuilds(session Session, opts ...rest.RequestOpt) ([]*Guild, rest.Error)

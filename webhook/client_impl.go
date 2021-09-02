@@ -28,7 +28,7 @@ func New(id discord.Snowflake, token string, opts ...ConfigOpt) Client {
 	}
 
 	webhookClient := &webhookClientImpl{
-		id: id,
+		id:    id,
 		token: token,
 	}
 
@@ -41,8 +41,8 @@ func New(id discord.Snowflake, token string, opts ...ConfigOpt) Client {
 }
 
 type webhookClientImpl struct {
-	id discord.Snowflake
-	token string
+	id     discord.Snowflake
+	token  string
 	config Config
 }
 
