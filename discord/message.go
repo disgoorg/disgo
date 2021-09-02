@@ -102,6 +102,10 @@ type MessageInteraction struct {
 	User User            `json:"user"`
 }
 
+type MessageBulkDelete struct {
+	Messages []Snowflake `json:"message s"`
+}
+
 // The MessageFlags of a Message
 type MessageFlags int64
 

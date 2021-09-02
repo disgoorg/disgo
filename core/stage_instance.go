@@ -19,7 +19,7 @@ func (i *StageInstance) Channel() StageChannel {
 }
 
 func (i *StageInstance) Update(stageInstanceUpdate discord.StageInstanceUpdate, opts ...rest.RequestOpt) (*StageInstance, rest.Error) {
-	stageInstance, err := i.Disgo.RestServices().StageService().UpdateStageInstance(i.ID, stageInstanceUpdate, opts...)
+	stageInstance, err := i.Disgo.RestServices().StageInstanceService().UpdateStageInstance(i.ID, stageInstanceUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -27,5 +27,5 @@ func (i *StageInstance) Update(stageInstanceUpdate discord.StageInstanceUpdate, 
 }
 
 func (i *StageInstance) Delete(opts ...rest.RequestOpt) rest.Error {
-	return i.Disgo.RestServices().StageService().DeleteStageInstance(i.ID, opts...)
+	return i.Disgo.RestServices().StageInstanceService().DeleteStageInstance(i.ID, opts...)
 }

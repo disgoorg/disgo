@@ -7,8 +7,8 @@ import (
 
 var _ WebhookService = (*WebhookServiceImpl)(nil)
 
-func NewWebhookService(client Client) WebhookService {
-	return &WebhookServiceImpl{restClient: client}
+func NewWebhookService(restClient Client) WebhookService {
+	return &WebhookServiceImpl{restClient: restClient}
 }
 
 type WebhookService interface {

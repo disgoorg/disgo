@@ -18,7 +18,6 @@ type Config struct {
 	OAuth2Service     rest.OAuth2Service
 	SessionController SessionController
 	StateController   StateController
-	EntityBuilder     EntityBuilder
 }
 
 type ConfigOpt func(config *Config)
@@ -68,11 +67,5 @@ func WithSessionController(sessionController SessionController) ConfigOpt {
 func WithStateController(stateController StateController) ConfigOpt {
 	return func(config *Config) {
 		config.StateController = stateController
-	}
-}
-
-func WithEntityBuilder(entityBuilder EntityBuilder) ConfigOpt {
-	return func(config *Config) {
-		config.EntityBuilder = entityBuilder
 	}
 }

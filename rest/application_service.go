@@ -7,13 +7,12 @@ import (
 
 var _ ApplicationService = (*ApplicationServiceImpl)(nil)
 
-func NewApplicationService(client Client) ApplicationService {
-	return &ApplicationServiceImpl{restClient: client}
+func NewApplicationService(restClient Client) ApplicationService {
+	return &ApplicationServiceImpl{restClient: restClient}
 }
 
 type ApplicationService interface {
 	Service
-
 	GetGlobalCommands(applicationID discord.Snowflake, opts ...RequestOpt) ([]discord.ApplicationCommand, Error)
 	GetGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake, opts ...RequestOpt) (*discord.ApplicationCommand, Error)
 	CreateGlobalCommand(applicationID discord.Snowflake, commandCreate discord.ApplicationCommandCreate, opts ...RequestOpt) (*discord.ApplicationCommand, Error)

@@ -8,6 +8,7 @@ type AccessTokenExchange struct {
 	ExpiresIn    time.Duration `json:"expires_in"`
 	RefreshToken string        `json:"refresh_token"`
 	Scope        string        `json:"scope"`
+	Webhook      *Webhook      `json:"webhook"`
 }
 
 type GrantType string

@@ -315,7 +315,7 @@ func (c *ChannelImpl) CreateStageInstance(stageInstanceCreate discord.StageInsta
 	if !c.IsStageChannel() {
 		unsupported(c)
 	}
-	stageInstance, err := c.Disgo().RestServices().StageService().CreateStageInstance(stageInstanceCreate, opts...)
+	stageInstance, err := c.Disgo().RestServices().StageInstanceService().CreateStageInstance(stageInstanceCreate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -326,7 +326,7 @@ func (c *ChannelImpl) UpdateStageInstance(stageInstanceUpdate discord.StageInsta
 	if !c.IsStageChannel() {
 		unsupported(c)
 	}
-	stageInstance, err := c.Disgo().RestServices().StageService().UpdateStageInstance(c.ID(), stageInstanceUpdate, opts...)
+	stageInstance, err := c.Disgo().RestServices().StageInstanceService().UpdateStageInstance(c.ID(), stageInstanceUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -337,7 +337,7 @@ func (c *ChannelImpl) DeleteStageInstance(opts ...rest.RequestOpt) rest.Error {
 	if !c.IsStageChannel() {
 		unsupported(c)
 	}
-	return c.Disgo().RestServices().StageService().DeleteStageInstance(c.ID(), opts...)
+	return c.Disgo().RestServices().StageInstanceService().DeleteStageInstance(c.ID(), opts...)
 }
 
 func (c *ChannelImpl) IsModerator(member *Member) bool {

@@ -78,15 +78,12 @@ func (s ApplicationScope) String() string {
 
 const ScopeSeparator = " "
 
-func JoinScopes(scopes ...ApplicationScope) string {
-	var joinedScopes string
+func JoinScopes(scopes []ApplicationScope) string {
+	strScopes := make([]string, len(scopes))
 	for i, scope := range scopes {
-		if i > 0 {
-			joinedScopes += ScopeSeparator
-		}
-		joinedScopes += scope.String()
+		strScopes[i] = scope.String()
 	}
-	return joinedScopes
+	return strings.Join(strScopes, ScopeSeparator)
 }
 
 func SplitScopes(joinedScopes string) []ApplicationScope {
@@ -95,6 +92,15 @@ func SplitScopes(joinedScopes string) []ApplicationScope {
 		scopes = append(scopes, ApplicationScope(scope))
 	}
 	return scopes
+}
+
+func HasScope(scope ApplicationScope, scopes ...ApplicationScope) bool {
+	for _, s := range scopes {
+		if s == scope {
+			return true
+		}
+	}
+	return false
 }
 
 type TokenType string

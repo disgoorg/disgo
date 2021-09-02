@@ -14,7 +14,7 @@ var (
 type RawMessage = json.RawMessage
 
 type Unmarshaler interface {
-	UnmarshalJSON([]byte) error
+	UnmarshalJSON(data []byte) error
 }
 
 type Marshaler interface {

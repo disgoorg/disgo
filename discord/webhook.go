@@ -15,17 +15,16 @@ const (
 type Webhook struct {
 	ID            Snowflake       `json:"id"`
 	Type          WebhookType     `json:"type"`
-	Username      Snowflake       `json:"username"`
 	GuildID       *Snowflake      `json:"guild_id"`
 	ChannelID     Snowflake       `json:"channel_id"`
-	User          User            `json:"user"`
-	Name          string          `json:"name"`
+	User          *User           `json:"user"`
+	Name          *string         `json:"name"`
 	Avatar        *string         `json:"avatar"`
-	Token         *string         `json:"token"`
+	Token         string          `json:"token,omitempty"`
 	ApplicationID *Snowflake      `json:"application_id"`
 	SourceGuild   *PartialGuild   `json:"source_guild"`
 	SourceChannel *PartialChannel `json:"source_channel"`
-	URL           *string         `json:"url"`
+	URL           string          `json:"url,omitempty"`
 }
 
 // WebhookCreate is used to create a Webhook

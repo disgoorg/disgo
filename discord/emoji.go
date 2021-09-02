@@ -13,3 +13,14 @@ type Emoji struct {
 
 	GuildID Snowflake `json:"guild_id,omitempty"`
 }
+
+type EmojiCreate struct {
+	Name  string      `json:"name"`
+	Image *Icon       `json:"image"`
+	Roles []Snowflake `json:"roles,omitempty"`
+}
+
+type EmojiUpdate struct {
+	Name  string      `json:"name,omitempty"`
+	Roles []Snowflake `json:"roles,omitempty"`
+}

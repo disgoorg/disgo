@@ -3,14 +3,14 @@
 [![Go Version](https://img.shields.io/github/go-mod/go-version/DisgoOrg/disgo)](https://golang.org/doc/devel/release.html)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/DisgoOrg/disgo/blob/master/LICENSE)
 [![Disgo Version](https://img.shields.io/github/v/tag/DisgoOrg/disgo?label=release)](https://github.com/DisgoOrg/disgo/releases/latest)
-[![Disgo Discord](https://img.shields.io/discord/817327181659111454?color=%231081c1&label=discord)](https://discord.gg/TewhTfDpvW)
+[![Disgo Discord](https://discord.com/api/guilds/817327181659111454/widget.png)](https://discord.gg/TewhTfDpvW)
 
 <img align="right" src="/.github/discord_gopher.png" width=192 alt="discord gopher">
 
 # disgo
 
-disgo is a [Discord](https://discord.com/developers/docs/resources/webhook) API wrapper written
-in [Go](https://golang.org/) aimed to be consistent, modular, customizable and easy to use
+disgo is a [Discord](https://discord.com) API wrapper written in [Go](https://golang.org/) aimed to be consistent,
+modular, customizable and easy to use
 
 ## Summary
 
@@ -26,23 +26,23 @@ in [Go](https://golang.org/) aimed to be consistent, modular, customizable and e
 
 ### Features
 
-* Interactions over [HTTP](https://discord.com/developers/docs/interactions/slash-commands#receiving-an-interaction)
-  support
-* Full [Slash Commands](https://discord.com/developers/docs/interactions/slash-commands) support
-* Full [Message Components](https://discord.com/developers/docs/interactions/message-components) support
 * Full Rest API coverage
+* [Application Commands](https://discord.com/developers/docs/interactions/application-commands) support
+* [Message Components](https://discord.com/developers/docs/interactions/message-components) support
 * [Gateway](https://discord.com/developers/docs/topics/gateway) support
-* Full [Stage Instance](https://discord.com/developers/docs/resources/stage-instance) support
+* [HTTP Interactions](https://discord.com/developers/docs/interactions/slash-commands#receiving-an-interaction) support
+* [Stage Instance](https://discord.com/developers/docs/resources/stage-instance) support
 * [Guild Template](https://discord.com/developers/docs/resources/guild-template) support
 * [RateLimit](https://discord.com/developers/docs/topics/rate-limits) handling
 * [Webhook](https://discord.com/developers/docs/resources/webhook) support
+* [OAuth2](https://discord.com/developers/docs/topics/oauth2) support
 
 ### Missing Features
 
 * [Voice](https://discord.com/developers/docs/resources/voice) support
+* [Sticker](https://discord.com/developers/docs/resources/sticker) support
 * [Sharding](https://discord.com/developers/docs/topics/gateway#sharding) support
 * [Threads](https://discord.com/developers/docs/topics/threads) support
-* [OAuth2](https://discord.com/developers/docs/topics/oauth2) support
 
 ## Getting Started
 

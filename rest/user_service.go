@@ -8,9 +8,7 @@ import (
 var _ UserService = (*UserServiceImpl)(nil)
 
 func NewUserService(restClient Client) UserService {
-	return &UserServiceImpl{
-		restClient: restClient,
-	}
+	return &UserServiceImpl{restClient: restClient}
 }
 
 type UserService interface {

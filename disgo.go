@@ -10,6 +10,7 @@ import (
 	_ "github.com/DisgoOrg/disgo/httpserver"
 	_ "github.com/DisgoOrg/disgo/httpserver/handlers"
 	_ "github.com/DisgoOrg/disgo/info"
+	_ "github.com/DisgoOrg/disgo/json"
 	_ "github.com/DisgoOrg/disgo/oauth2"
 	_ "github.com/DisgoOrg/disgo/rest"
 	_ "github.com/DisgoOrg/disgo/rest/rate"

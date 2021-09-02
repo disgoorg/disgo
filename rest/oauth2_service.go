@@ -7,8 +7,10 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-func NewOAuth2Service(client Client) OAuth2Service {
-	return &OAuth2ServiceImpl{restClient: client}
+var _ OAuth2Service = (*OAuth2ServiceImpl)(nil)
+
+func NewOAuth2Service(restClient Client) OAuth2Service {
+	return &OAuth2ServiceImpl{restClient: restClient}
 }
 
 type OAuth2Service interface {
@@ -18,6 +20,7 @@ type OAuth2Service interface {
 
 	GetCurrentUserGuilds(token string, opts ...RequestOpt) ([]discord.PartialGuild, Error)
 	GetCurrentUser(token string, opts ...RequestOpt) (*discord.OAuth2User, Error)
+	GetCurrentUserConnections(token string, opts ...RequestOpt) ([]discord.Connection, Error)
 
 	GetAccessToken(clientID discord.Snowflake, clientSecret string, code string, redirectURI string, opts ...RequestOpt) (*discord.AccessTokenExchange, Error)
 	RefreshAccessToken(clientID discord.Snowflake, clientSecret string, refreshToken string, opts ...RequestOpt) (*discord.AccessTokenExchange, Error)
@@ -57,9 +60,7 @@ func (s *OAuth2ServiceImpl) GetCurrentUserGuilds(token string, opts ...RequestOp
 		return nil, NewError(nil, NewError(nil, err))
 	}
 
-	opts = append(opts, WithHeader("authorization", discord.TokenTypeBearer.Apply(token)))
-
-	rErr = s.restClient.Do(compiledRoute, nil, &guilds, opts...)
+	rErr = s.restClient.Do(compiledRoute, nil, &guilds, append(opts, WithHeader("authorization", discord.TokenTypeBearer.Apply(token)))...)
 	return
 }
 
@@ -69,9 +70,17 @@ func (s *OAuth2ServiceImpl) GetCurrentUser(token string, opts ...RequestOpt) (us
 		return nil, NewError(nil, err)
 	}
 
-	opts = append(opts, WithHeader("authorization", discord.TokenTypeBearer.Apply(token)))
+	rErr = s.restClient.Do(compiledRoute, nil, &user, append(opts, WithHeader("authorization", discord.TokenTypeBearer.Apply(token)))...)
+	return
+}
 
-	rErr = s.restClient.Do(compiledRoute, nil, &user, opts...)
+func (s *OAuth2ServiceImpl) GetCurrentUserConnections(token string, opts ...RequestOpt) (connections []discord.Connection, rErr Error) {
+	compiledRoute, err := route.GetCurrentUserConnections.Compile(nil)
+	if err != nil {
+		return nil, NewError(nil, err)
+	}
+
+	rErr = s.restClient.Do(compiledRoute, nil, &connections, append(opts, WithHeader("authorization", discord.TokenTypeBearer.Apply(token)))...)
 	return
 }
 

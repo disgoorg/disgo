@@ -7,8 +7,8 @@ import (
 
 var _ InteractionService = (*InteractionServiceImpl)(nil)
 
-func NewInteractionService(client Client) InteractionService {
-	return &InteractionServiceImpl{restClient: client}
+func NewInteractionService(restClient Client) InteractionService {
+	return &InteractionServiceImpl{restClient: restClient}
 }
 
 type InteractionService interface {
