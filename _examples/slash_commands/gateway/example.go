@@ -8,7 +8,7 @@ import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/httpserver"
+	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/log"
 )
@@ -42,10 +42,8 @@ func main() {
 	log.Infof("disgo version: %s", info.Version)
 
 	disgo, err := core.NewBuilder(token).
-		SetHTTPServerConfig(httpserver.Config{
-			URL:       "/interactions/callback",
-			Port:      ":80",
-			PublicKey: publicKey,
+		SetGatewayConfig(gateway.Config{
+			GatewayIntents: discord.GatewayIntentsNone,
 		}).
 		AddEventListeners(&events.ListenerAdapter{
 			OnSlashCommand: commandListener,
@@ -64,9 +62,9 @@ func main() {
 		log.Fatalf("error while registering commands: %s", err)
 	}
 
-	err = disgo.Start()
+	err = disgo.Connect()
 	if err != nil {
-		log.Fatalf("error while starting http server: %s", err)
+		log.Fatalf("error while connecting to gateway: %s", err)
 	}
 
 	log.Infof("example is now running. Press CTRL-C to exit.")
