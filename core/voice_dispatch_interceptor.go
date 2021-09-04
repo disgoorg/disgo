@@ -8,9 +8,9 @@ type VoiceServerUpdateEvent struct {
 	Disgo Disgo
 }
 
-// Guild returns the Guild for this VoiceServerUpdate from the Cache
+// Guild returns the Guild for this VoiceServerUpdate from the Caches
 func (u *VoiceServerUpdateEvent) Guild() *Guild {
-	return u.Disgo.Cache().GuildCache().Get(u.GuildID)
+	return u.Disgo.Caches().GuildCache().Get(u.GuildID)
 }
 
 // VoiceStateUpdateEvent sent when someone joins/leaves/moves voice channels
@@ -18,12 +18,12 @@ type VoiceStateUpdateEvent struct {
 	*VoiceState
 }
 
-// Guild returns the Guild for this VoiceStateUpdate from the Cache
+// Guild returns the Guild for this VoiceStateUpdate from the Caches
 func (u *VoiceStateUpdateEvent) Guild() *Guild {
 	return u.VoiceState.Guild()
 }
 
-// VoiceChannel returns the VoiceChannel for this VoiceStateUpdate from the Cache
+// VoiceChannel returns the VoiceChannel for this VoiceStateUpdate from the Caches
 func (u *VoiceStateUpdateEvent) VoiceChannel() VoiceChannel {
 	return u.VoiceState.VoiceChannel()
 }

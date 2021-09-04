@@ -31,12 +31,12 @@ func (h *GuildEmojisUpdateHandler) HandleGatewayEvent(disgo core.Disgo, eventMan
 		return
 	}
 
-	if disgo.Cache().Config().CacheFlags.Missing(core.CacheFlagEmotes) {
+	if disgo.Caches().Config().CacheFlags.Missing(core.CacheFlagEmotes) {
 		return
 	}
 
 	var (
-		emojiCache    = disgo.Cache().EmojiCache().EmojiCache(payload.GuildID)
+		emojiCache    = disgo.Caches().EmojiCache().EmojiCache(payload.GuildID)
 		oldEmojis     map[discord.Snowflake]*core.Emoji
 		newEmojis     map[discord.Snowflake]*core.Emoji
 		updatedEmojis map[discord.Snowflake]*core.Emoji
@@ -60,13 +60,13 @@ func (h *GuildEmojisUpdateHandler) HandleGatewayEvent(disgo core.Disgo, eventMan
 	}
 
 	for emojiID := range oldEmojis {
-		disgo.Cache().EmojiCache().Uncache(payload.GuildID, emojiID)
+		disgo.Caches().EmojiCache().Uncache(payload.GuildID, emojiID)
 	}
 
 	genericGuildEvent := &events.GenericGuildEvent{
 		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 		GuildID:      payload.GuildID,
-		Guild:        disgo.Cache().GuildCache().Get(payload.GuildID),
+		Guild:        disgo.Caches().GuildCache().Get(payload.GuildID),
 	}
 
 	for _, emoji := range newEmojis {

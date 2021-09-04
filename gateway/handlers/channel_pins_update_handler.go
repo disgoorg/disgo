@@ -32,7 +32,7 @@ func (h *ChannelPinsUpdateHandler) HandleGatewayEvent(disgo core.Disgo, eventMan
 		return
 	}
 
-	channel := disgo.Cache().ChannelCache().GetMessageChannel(payload.ChannelID).(*core.ChannelImpl)
+	channel := disgo.Caches().ChannelCache().GetMessageChannel(payload.ChannelID).(*core.ChannelImpl)
 	oldTime := channel.LastPinTimestamp()
 	channel.Channel.LastPinTimestamp = payload.LastPinTimestamp
 

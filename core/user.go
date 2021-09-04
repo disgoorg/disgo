@@ -68,6 +68,6 @@ func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (DMChannel, rest.Error) {
 	if err != nil {
 		return nil, err
 	}
-	// TODO: should we cache it here? or do we get a gateway event?
+	// TODO: should we caches it here? or do we get a gateway event?
 	return u.Disgo.EntityBuilder().CreateChannel(*channel, CacheStrategyYes).(DMChannel), nil
 }

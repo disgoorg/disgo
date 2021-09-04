@@ -31,7 +31,7 @@ func (h *InviteCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager 
 			GenericGuildEvent: &events.GenericGuildEvent{
 				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 				GuildID:      *invite.GuildID,
-				Guild:        disgo.Cache().GuildCache().Get(*invite.GuildID),
+				Guild:        disgo.Caches().GuildCache().Get(*invite.GuildID),
 			},
 			Code:      invite.Code,
 			ChannelID: invite.ChannelID,

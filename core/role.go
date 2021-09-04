@@ -20,9 +20,9 @@ func (r *Role) String() string {
 	return r.Mention()
 }
 
-// Guild returns the Guild of this role from the Cache
+// Guild returns the Guild of this role from the Caches
 func (r *Role) Guild() *Guild {
-	return r.Disgo.Cache().GuildCache().Get(r.GuildID)
+	return r.Disgo.Caches().GuildCache().Get(r.GuildID)
 }
 
 // Update updates the Role with specific values

@@ -26,7 +26,7 @@ func (h *VoiceStateUpdateHandler) HandleGatewayEvent(disgo core.Disgo, _ core.Ev
 		return
 	}
 
-	oldVoiceState := disgo.Cache().VoiceStateCache().Get(discordVoiceState.GuildID, discordVoiceState.UserID)
+	oldVoiceState := disgo.Caches().VoiceStateCache().Get(discordVoiceState.GuildID, discordVoiceState.UserID)
 	if oldVoiceState != nil {
 		oldVoiceState = &*oldVoiceState
 	}

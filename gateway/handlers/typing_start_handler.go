@@ -62,7 +62,7 @@ func (h *TypingStartHandler) HandleGatewayEvent(disgo core.Disgo, eventManager c
 				GenericGuildEvent: &events.GenericGuildEvent{
 					GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 					GuildID:      *payload.GuildID,
-					Guild:        disgo.Cache().GuildCache().Get(*payload.GuildID),
+					Guild:        disgo.Caches().GuildCache().Get(*payload.GuildID),
 				},
 				Member: disgo.EntityBuilder().CreateMember(*payload.GuildID, *payload.Member, core.CacheStrategyYes),
 			},

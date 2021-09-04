@@ -11,11 +11,11 @@ type StageInstance struct {
 }
 
 func (i *StageInstance) Guild() *Guild {
-	return i.Disgo.Cache().GuildCache().Get(i.GuildID)
+	return i.Disgo.Caches().GuildCache().Get(i.GuildID)
 }
 
 func (i *StageInstance) Channel() StageChannel {
-	return i.Disgo.Cache().StageChannelCache().Get(i.ChannelID)
+	return i.Disgo.Caches().StageChannelCache().Get(i.ChannelID)
 }
 
 func (i *StageInstance) Update(stageInstanceUpdate discord.StageInstanceUpdate, opts ...rest.RequestOpt) (*StageInstance, rest.Error) {

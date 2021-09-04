@@ -26,7 +26,7 @@ func (h *ChannelUpdateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager
 		return
 	}
 
-	oldCoreChannel := disgo.Cache().ChannelCache().GetChannelCopy(channel.ID)
+	oldCoreChannel := disgo.Caches().ChannelCache().GetChannelCopy(channel.ID)
 
 	coreChannel := disgo.EntityBuilder().CreateChannel(channel, core.CacheStrategyYes)
 

@@ -31,13 +31,13 @@ func (h *GuildRoleUpdateHandler) HandleGatewayEvent(disgo core.Disgo, eventManag
 		return
 	}
 
-	oldRole := disgo.Cache().RoleCache().GetCopy(payload.Role.ID)
+	oldRole := disgo.Caches().RoleCache().GetCopy(payload.Role.ID)
 
 	eventManager.Dispatch(&events.RoleUpdateEvent{
 		GenericRoleEvent: &events.GenericRoleEvent{
 			GenericGuildEvent: &events.GenericGuildEvent{
 				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
-				Guild:        disgo.Cache().GuildCache().Get(payload.GuildID),
+				Guild:        disgo.Caches().GuildCache().Get(payload.GuildID),
 			},
 			RoleID: payload.Role.ID,
 			Role:   disgo.EntityBuilder().CreateRole(payload.GuildID, payload.Role, core.CacheStrategyYes),

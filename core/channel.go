@@ -103,7 +103,7 @@ type ChannelImpl struct {
 }
 
 func (c *ChannelImpl) Guild() *Guild {
-	return c.Disgo().Cache().GuildCache().Get(c.GuildID())
+	return c.Disgo().Caches().GuildCache().Get(c.GuildID())
 }
 
 func (c *ChannelImpl) Disgo() Disgo {
@@ -235,7 +235,7 @@ func (c *ChannelImpl) Parent() Category {
 	if c.ParentID() == nil {
 		return nil
 	}
-	return c.Disgo().Cache().CategoryCache().Get(*c.Channel.ParentID)
+	return c.Disgo().Caches().CategoryCache().Get(*c.Channel.ParentID)
 }
 
 func (c *ChannelImpl) Position() *int {
@@ -308,7 +308,7 @@ func (c *ChannelImpl) StageInstance() *StageInstance {
 	if c.stageInstanceID == nil {
 		return nil
 	}
-	return c.Disgo().Cache().StageInstanceCache().Get(*c.stageInstanceID)
+	return c.Disgo().Caches().StageInstanceCache().Get(*c.stageInstanceID)
 }
 
 func (c *ChannelImpl) CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate, opts ...rest.RequestOpt) (*StageInstance, rest.Error) {

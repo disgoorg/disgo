@@ -14,7 +14,7 @@ type GenericGuildChannelEvent struct {
 
 // Guild returns the cached api.Guild the event happened in
 func (e GenericGuildChannelEvent) Guild() *core.Guild {
-	return e.Disgo().Cache().GuildCache().Get(e.GuildID)
+	return e.Disgo().Caches().GuildCache().Get(e.GuildID)
 }
 
 // GuildChannelCreateEvent indicates that a new api.GetGuildChannel got created in an api.Guild

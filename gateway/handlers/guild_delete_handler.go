@@ -27,7 +27,7 @@ func (h *GuildDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager c
 	}
 
 	if guild.Unavailable {
-		coreGuild := disgo.Cache().GuildCache().Get(guild.ID)
+		coreGuild := disgo.Caches().GuildCache().Get(guild.ID)
 		if coreGuild != nil {
 			coreGuild.Unavailable = true
 		}
@@ -35,7 +35,7 @@ func (h *GuildDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager c
 
 	genericGuildEvent := &events.GenericGuildEvent{
 		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
-		Guild:        disgo.Cache().GuildCache().GetCopy(guild.ID),
+		Guild:        disgo.Caches().GuildCache().GetCopy(guild.ID),
 	}
 
 	if guild.Unavailable {
@@ -43,7 +43,7 @@ func (h *GuildDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager c
 			GenericGuildEvent: genericGuildEvent,
 		})
 	} else {
-		disgo.Cache().GuildCache().Uncache(guild.ID)
+		disgo.Caches().GuildCache().Uncache(guild.ID)
 
 		eventManager.Dispatch(&events.GuildLeaveEvent{
 			GenericGuildEvent: genericGuildEvent,

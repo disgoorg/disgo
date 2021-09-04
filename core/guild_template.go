@@ -11,9 +11,9 @@ type GuildTemplate struct {
 	Creator *User
 }
 
-// Guild returns the full Guild of the GuildTemplate if in cache
+// Guild returns the full Guild of the GuildTemplate if in caches
 func (t *GuildTemplate) Guild() *Guild {
-	return t.Disgo.Cache().GuildCache().Get(t.GuildID)
+	return t.Disgo.Caches().GuildCache().Get(t.GuildID)
 }
 
 // Update updates the GuildTemplate with the provided UpdateGuildTemplate

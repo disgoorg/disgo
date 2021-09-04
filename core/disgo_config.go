@@ -35,7 +35,7 @@ type DisgoConfig struct {
 	HTTPServer       httpserver.Server
 	HTTPServerConfig *httpserver.Config
 
-	Cache       Cache
+	Caches      Caches
 	CacheConfig *CacheConfig
 
 	AudioController AudioController
@@ -184,9 +184,9 @@ func WithHTTPServerConfigOpts(opts ...httpserver.ConfigOpt) DisgoOpt {
 	}
 }
 
-func WithCache(cache Cache) DisgoOpt {
+func WithCaches(caches Caches) DisgoOpt {
 	return func(config *DisgoConfig) {
-		config.Cache = cache
+		config.Caches = caches
 	}
 }
 

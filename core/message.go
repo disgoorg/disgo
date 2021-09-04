@@ -18,12 +18,12 @@ func (m *Message) Guild() *Guild {
 	if m.GuildID == nil {
 		return nil
 	}
-	return m.Disgo.Cache().GuildCache().Get(*m.GuildID)
+	return m.Disgo.Caches().GuildCache().Get(*m.GuildID)
 }
 
 // Channel gets the channel the message_events was sent in
 func (m *Message) Channel() MessageChannel {
-	return m.Disgo.Cache().ChannelCache().GetMessageChannel(m.ChannelID)
+	return m.Disgo.Caches().ChannelCache().GetMessageChannel(m.ChannelID)
 }
 
 // AddReactionByEmote allows you to add an Emoji to a message_events via reaction

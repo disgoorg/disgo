@@ -26,7 +26,7 @@ func (h *MessageUpdateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager
 		return
 	}
 
-	oldCoreMessage := disgo.Cache().MessageCache().GetCopy(message.ChannelID, message.ID)
+	oldCoreMessage := disgo.Caches().MessageCache().GetCopy(message.ChannelID, message.ID)
 
 	genericMessageEvent := &events.GenericMessageEvent{
 		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),

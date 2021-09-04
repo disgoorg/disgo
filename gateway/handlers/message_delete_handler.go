@@ -35,11 +35,11 @@ func (h *MessageDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager
 	genericMessageEvent := &events.GenericMessageEvent{
 		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 		MessageID:    payload.MessageID,
-		Message:      disgo.Cache().MessageCache().GetCopy(payload.ChannelID, payload.MessageID),
+		Message:      disgo.Caches().MessageCache().GetCopy(payload.ChannelID, payload.MessageID),
 		ChannelID:    payload.ChannelID,
 	}
 
-	disgo.Cache().MessageCache().Uncache(payload.ChannelID, payload.MessageID)
+	disgo.Caches().MessageCache().Uncache(payload.ChannelID, payload.MessageID)
 
 	disgo.EventManager().Dispatch(&events.MessageDeleteEvent{
 		GenericMessageEvent: genericMessageEvent,

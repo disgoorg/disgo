@@ -49,7 +49,7 @@ func (h *ChannelDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager
 
 	switch channel.Type {
 	case discord.ChannelTypeDM:
-		disgo.Cache().DMChannelCache().Uncache(channel.ID)
+		disgo.Caches().DMChannelCache().Uncache(channel.ID)
 
 		eventManager.Dispatch(&events.DMChannelCreateEvent{
 			GenericDMChannelEvent: &events.GenericDMChannelEvent{
@@ -62,7 +62,7 @@ func (h *ChannelDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager
 		disgo.Logger().Warnf("ChannelTypeGroupDM received what the hell discord")
 
 	case discord.ChannelTypeText:
-		disgo.Cache().TextChannelCache().Uncache(*channel.GuildID, channel.ID)
+		disgo.Caches().TextChannelCache().Uncache(*channel.GuildID, channel.ID)
 
 		eventManager.Dispatch(&events.TextChannelCreateEvent{
 			GenericTextChannelEvent: &events.GenericTextChannelEvent{
@@ -72,7 +72,7 @@ func (h *ChannelDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager
 		})
 
 	case discord.ChannelTypeNews:
-		disgo.Cache().NewsChannelCache().Uncache(*channel.GuildID, channel.ID)
+		disgo.Caches().NewsChannelCache().Uncache(*channel.GuildID, channel.ID)
 
 		eventManager.Dispatch(&events.NewsChannelCreateEvent{
 			GenericNewsChannelEvent: &events.GenericNewsChannelEvent{
@@ -82,7 +82,7 @@ func (h *ChannelDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager
 		})
 
 	case discord.ChannelTypeStore:
-		disgo.Cache().StoreChannelCache().Uncache(*channel.GuildID, channel.ID)
+		disgo.Caches().StoreChannelCache().Uncache(*channel.GuildID, channel.ID)
 
 		eventManager.Dispatch(&events.StoreChannelCreateEvent{
 			GenericStoreChannelEvent: &events.GenericStoreChannelEvent{
@@ -92,7 +92,7 @@ func (h *ChannelDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager
 		})
 
 	case discord.ChannelTypeCategory:
-		disgo.Cache().CategoryCache().Uncache(*channel.GuildID, channel.ID)
+		disgo.Caches().CategoryCache().Uncache(*channel.GuildID, channel.ID)
 
 		eventManager.Dispatch(&events.CategoryCreateEvent{
 			GenericCategoryEvent: &events.GenericCategoryEvent{
@@ -102,7 +102,7 @@ func (h *ChannelDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager
 		})
 
 	case discord.ChannelTypeVoice:
-		disgo.Cache().VoiceChannelCache().Uncache(*channel.GuildID, channel.ID)
+		disgo.Caches().VoiceChannelCache().Uncache(*channel.GuildID, channel.ID)
 
 		eventManager.Dispatch(&events.VoiceChannelCreateEvent{
 			GenericVoiceChannelEvent: &events.GenericVoiceChannelEvent{

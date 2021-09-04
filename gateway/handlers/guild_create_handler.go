@@ -26,7 +26,7 @@ func (h *GuildCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager c
 		return
 	}
 
-	oldCoreGuild := disgo.Cache().GuildCache().GetCopy(guild.ID)
+	oldCoreGuild := disgo.Caches().GuildCache().GetCopy(guild.ID)
 	wasUnavailable := true
 	if oldCoreGuild != nil {
 		wasUnavailable = oldCoreGuild.Unavailable

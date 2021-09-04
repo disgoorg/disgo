@@ -35,7 +35,7 @@ func (h *GuildBanAddHandler) HandleGatewayEvent(disgo core.Disgo, eventManager c
 		GenericGuildEvent: &events.GenericGuildEvent{
 			GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 			GuildID:      payload.GuildID,
-			Guild:        disgo.Cache().GuildCache().Get(payload.GuildID),
+			Guild:        disgo.Caches().GuildCache().Get(payload.GuildID),
 		},
 		User: disgo.EntityBuilder().CreateUser(payload.User, core.CacheStrategyNo),
 	})

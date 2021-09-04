@@ -8,7 +8,7 @@ import (
 type ApplicationCommand struct {
 	discord.ApplicationCommand
 	Disgo Disgo
-	// TODO: should we cache command perms per guild? extra cache & cache flag?
+	// TODO: should we caches command perms per guild? extra caches & caches flag?
 	//GuildPermissions map[discord.Snowflake]*GuildCommandPermissions
 }
 
@@ -17,12 +17,12 @@ type GuildCommandPermissions struct {
 	Disgo Disgo
 }
 
-// Guild returns the Guild the ApplicationCommand is from the Cache or nil if it is a global ApplicationCommand
+// Guild returns the Guild the ApplicationCommand is from the Caches or nil if it is a global ApplicationCommand
 func (c *ApplicationCommand) Guild() *Guild {
 	if c.GuildID == nil {
 		return nil
 	}
-	return c.Disgo.Cache().GuildCache().Get(*c.GuildID)
+	return c.Disgo.Caches().GuildCache().Get(*c.GuildID)
 }
 
 // IsGlobal returns true if this is a global ApplicationCommand and false for a guild ApplicationCommand

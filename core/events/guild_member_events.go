@@ -11,12 +11,12 @@ type GenericGuildMemberEvent struct {
 	Member *core.Member
 }
 
-// User gets the api.User form the api.Cache
+// User gets the api.User form the api.Caches
 func (e GenericGuildMemberEvent) User() *core.User {
 	if e.Member == nil {
 		return nil
 	}
-	return e.Disgo().Cache().UserCache().Get(e.Member.User.ID)
+	return e.Disgo().Caches().UserCache().Get(e.Member.User.ID)
 }
 
 // GuildMemberJoinEvent indicates that an api.Member joined the api.Guild
@@ -44,5 +44,5 @@ type GuildMemberTypingEvent struct {
 
 // TextChannel returns the api.TextChannel the GuildMemberTypingEvent happened in
 func (e GuildMemberTypingEvent) TextChannel() core.TextChannel {
-	return e.Disgo().Cache().TextChannelCache().Get(e.ChannelID)
+	return e.Disgo().Caches().TextChannelCache().Get(e.ChannelID)
 }

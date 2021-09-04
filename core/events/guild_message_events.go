@@ -13,12 +13,12 @@ type GenericGuildMessageEvent struct {
 
 // Guild returns the api.Guild the GenericGuildMessageEvent happened in
 func (e GenericGuildMessageEvent) Guild() *core.Guild {
-	return e.Disgo().Cache().GuildCache().Get(e.GuildID)
+	return e.Disgo().Caches().GuildCache().Get(e.GuildID)
 }
 
-// TextChannel returns the api.TextChannel from the api.Cache
+// TextChannel returns the api.TextChannel from the api.Caches
 func (e GenericGuildMessageEvent) TextChannel() core.TextChannel {
-	return e.Disgo().Cache().TextChannelCache().Get(e.ChannelID)
+	return e.Disgo().Caches().TextChannelCache().Get(e.ChannelID)
 }
 
 // GuildMessageCreateEvent is called upon receiving an api.Message in an api.DMChannel

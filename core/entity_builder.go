@@ -8,14 +8,14 @@ import (
 // gateway, you'll receive the event shortly afterwards if you have the correct GatewayIntents.
 type CacheStrategy func(disgo Disgo) bool
 
-// Default cache strategy choices
+// Default caches strategy choices
 var (
 	CacheStrategyYes  CacheStrategy = func(_ Disgo) bool { return true }
 	CacheStrategyNo   CacheStrategy = func(_ Disgo) bool { return true }
 	CacheStrategyNoWs CacheStrategy = func(disgo Disgo) bool { return disgo.HasGateway() }
 )
 
-// EntityBuilder is used to create structs for disgo's cache
+// EntityBuilder is used to create structs for disgo's caches
 type EntityBuilder interface {
 	Disgo() Disgo
 

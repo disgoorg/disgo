@@ -4,7 +4,7 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-type Cache interface {
+type Caches interface {
 	Disgo() Disgo
 	Close()
 	DoCleanup()
@@ -110,17 +110,6 @@ type EmojiCache interface {
 	AllEmojiCache() map[discord.Snowflake]map[discord.Snowflake]*Emoji
 	Cache(*Emoji) *Emoji
 	Uncache(guildID discord.Snowflake, emojiID discord.Snowflake)
-}
-
-type GuildCache interface {
-	BaseCache
-	Get(id discord.Snowflake) *Guild
-	GetCopy(id discord.Snowflake) *Guild
-	GetByName(string, bool) []*Guild
-	GetAll() []*Guild
-	GetCache() map[discord.Snowflake]*Guild
-	Cache(*Guild) *Guild
-	Uncache(discord.Snowflake)
 }
 
 type ChannelCache interface {

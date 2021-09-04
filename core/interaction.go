@@ -99,44 +99,44 @@ func (i *Interaction) FromGateway() bool {
 	return i.ResponseChannel == nil
 }
 
-// Guild returns the Guild from the Cache
+// Guild returns the Guild from the Caches
 func (i *Interaction) Guild() *Guild {
 	if i.GuildID == nil {
 		return nil
 	}
-	return i.Disgo.Cache().GuildCache().Get(*i.GuildID)
+	return i.Disgo.Caches().GuildCache().Get(*i.GuildID)
 }
 
-// DMChannel returns the DMChannel from the Cache
+// DMChannel returns the DMChannel from the Caches
 func (i *Interaction) DMChannel() DMChannel {
 	if i.ChannelID == nil {
 		return nil
 	}
-	return i.Disgo.Cache().DMChannelCache().Get(*i.ChannelID)
+	return i.Disgo.Caches().DMChannelCache().Get(*i.ChannelID)
 }
 
-// MessageChannel returns the MessageChannel from the Cache
+// MessageChannel returns the MessageChannel from the Caches
 func (i *Interaction) MessageChannel() MessageChannel {
 	if i.ChannelID == nil {
 		return nil
 	}
-	return i.Disgo.Cache().ChannelCache().GetMessageChannel(*i.ChannelID)
+	return i.Disgo.Caches().ChannelCache().GetMessageChannel(*i.ChannelID)
 }
 
-// TextChannel returns the TextChannel from the Cache
+// TextChannel returns the TextChannel from the Caches
 func (i *Interaction) TextChannel() TextChannel {
 	if i.ChannelID == nil {
 		return nil
 	}
-	return i.Disgo.Cache().TextChannelCache().Get(*i.ChannelID)
+	return i.Disgo.Caches().TextChannelCache().Get(*i.ChannelID)
 }
 
-// GuildChannel returns the GuildChannel from the Cache
+// GuildChannel returns the GuildChannel from the Caches
 func (i *Interaction) GuildChannel() GuildChannel {
 	if i.ChannelID == nil {
 		return nil
 	}
-	return i.Disgo.Cache().ChannelCache().GetGuildChannel(*i.ChannelID)
+	return i.Disgo.Caches().ChannelCache().GetGuildChannel(*i.ChannelID)
 }
 
 type InteractionData struct {

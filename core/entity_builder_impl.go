@@ -190,7 +190,7 @@ func (b *EntityBuilderImpl) CreateUser(user discord.User, updateCache CacheStrat
 		Disgo: b.disgo,
 	}
 	if updateCache(b.Disgo()) {
-		return b.Disgo().Cache().UserCache().Cache(coreUser)
+		return b.Disgo().Caches().UserCache().Cache(coreUser)
 	}
 	return coreUser
 }
@@ -214,7 +214,7 @@ func (b *EntityBuilderImpl) CreateMessage(message discord.Message, updateCache C
 	}
 
 	if message.Member != nil {
-		coreMsg.Member.Member.User = message.Author // set the underlying discord data which is stored in cache
+		coreMsg.Member.Member.User = message.Author // set the underlying discord data which is stored in caches
 		coreMsg.Member = b.CreateMember(*message.GuildID, *message.Member, updateCache)
 		coreMsg.Author = coreMsg.Member.User
 	} else {
@@ -225,9 +225,9 @@ func (b *EntityBuilderImpl) CreateMessage(message discord.Message, updateCache C
 		coreMsg.Components = b.CreateComponents(message.Components, updateCache)
 	}
 
-	// TODO: should we cache mentioned users, members, etc?
+	// TODO: should we caches mentioned users, members, etc?
 	if updateCache(b.Disgo()) {
-		return b.Disgo().Cache().MessageCache().Cache(coreMsg)
+		return b.Disgo().Caches().MessageCache().Cache(coreMsg)
 	}
 	return coreMsg
 }
@@ -280,7 +280,7 @@ func (b *EntityBuilderImpl) CreateGuild(guild discord.Guild, updateCache CacheSt
 	}
 
 	if updateCache(b.Disgo()) {
-		return b.Disgo().Cache().GuildCache().Cache(coreGuild)
+		return b.Disgo().Caches().GuildCache().Cache(coreGuild)
 	}
 	return coreGuild
 }
@@ -295,7 +295,7 @@ func (b *EntityBuilderImpl) CreateMember(guildID discord.Snowflake, member disco
 	coreMember.GuildID = guildID
 	coreMember.User = b.CreateUser(member.User, updateCache)
 	if updateCache(b.Disgo()) {
-		return b.Disgo().Cache().MemberCache().Cache(coreMember)
+		return b.Disgo().Caches().MemberCache().Cache(coreMember)
 	}
 	return coreMember
 }
@@ -320,7 +320,7 @@ func (b *EntityBuilderImpl) CreateVoiceState(guildID discord.Snowflake, voiceSta
 	}
 
 	if updateCache(b.Disgo()) {
-		return b.Disgo().Cache().VoiceStateCache().Cache(coreState)
+		return b.Disgo().Caches().VoiceStateCache().Cache(coreState)
 	}
 	return coreState
 }
@@ -340,9 +340,9 @@ func (b *EntityBuilderImpl) CreateCommandPermissions(guildCommandPermissions dis
 		Disgo:                   b.disgo,
 	}
 
-	// TODO: how do we cache those permissions?
-	/*if updateCache(b.Disgo()) && b.Disgo().Cache().CacheFlags().Has(CacheFlagCommandPermissions) {
-		if cmd := b.Disgo().Cache().GuildCommandCache().Get(guildCommandPermissions.ID); cmd != nil {
+	// TODO: how do we caches those permissions?
+	/*if updateCache(b.Disgo()) && b.Disgo().Caches().CacheFlags().Has(CacheFlagCommandPermissions) {
+		if cmd := b.Disgo().Caches().GuildCommandCache().Get(guildCommandPermissions.ID); cmd != nil {
 			cmd.GuildPermissions[guildCommandPermissions.GuildID] = coreGuildCommandPermissions
 		}
 	}*/
@@ -358,7 +358,7 @@ func (b *EntityBuilderImpl) CreateRole(guildID discord.Snowflake, role discord.R
 	coreRole.GuildID = guildID
 
 	if updateCache(b.Disgo()) {
-		return b.Disgo().Cache().RoleCache().Cache(coreRole)
+		return b.Disgo().Caches().RoleCache().Cache(coreRole)
 	}
 	return coreRole
 }
@@ -421,19 +421,19 @@ func (b *EntityBuilderImpl) CreateChannel(discordChannel discord.Channel, update
 	if updateCache(b.Disgo()) {
 		switch channel.Type() {
 		case discord.ChannelTypeText:
-			return b.Disgo().Cache().TextChannelCache().Cache(channel)
+			return b.Disgo().Caches().TextChannelCache().Cache(channel)
 		case discord.ChannelTypeCategory:
-			return b.Disgo().Cache().CategoryCache().Cache(channel)
+			return b.Disgo().Caches().CategoryCache().Cache(channel)
 		case discord.ChannelTypeDM:
-			return b.Disgo().Cache().DMChannelCache().Cache(channel)
+			return b.Disgo().Caches().DMChannelCache().Cache(channel)
 		case discord.ChannelTypeNews:
-			return b.Disgo().Cache().NewsChannelCache().Cache(channel)
+			return b.Disgo().Caches().NewsChannelCache().Cache(channel)
 		case discord.ChannelTypeStore:
-			return b.Disgo().Cache().StoreChannelCache().Cache(channel)
+			return b.Disgo().Caches().StoreChannelCache().Cache(channel)
 		case discord.ChannelTypeStage:
-			return b.Disgo().Cache().StageChannelCache().Cache(channel)
+			return b.Disgo().Caches().StageChannelCache().Cache(channel)
 		case discord.ChannelTypeVoice:
-			return b.Disgo().Cache().VoiceChannelCache().Cache(channel)
+			return b.Disgo().Caches().VoiceChannelCache().Cache(channel)
 		}
 	}
 	return channel
@@ -474,7 +474,7 @@ func (b *EntityBuilderImpl) CreateEmoji(guildID discord.Snowflake, emoji discord
 	coreEmoji.GuildID = guildID
 
 	if updateCache(b.Disgo()) {
-		return b.Disgo().Cache().EmojiCache().Cache(coreEmoji)
+		return b.Disgo().Caches().EmojiCache().Cache(coreEmoji)
 	}
 	return coreEmoji
 }

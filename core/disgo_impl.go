@@ -42,7 +42,7 @@ type DisgoImpl struct {
 
 	httpServer httpserver.Server
 
-	cache Cache
+	caches Caches
 
 	entityBuilder   EntityBuilder
 	audioController AudioController
@@ -70,8 +70,8 @@ func (d *DisgoImpl) Close() {
 	if d.EventManager() != nil {
 		d.EventManager().Close()
 	}
-	if d.Cache() != nil {
-		d.Cache().Close()
+	if d.Caches() != nil {
+		d.Caches().Close()
 	}
 }
 
@@ -107,7 +107,7 @@ func (d *DisgoImpl) SetSelfUser(selfUser *SelfUser) {
 
 // SelfMember returns an api.OAuth2User for the client, if available
 func (d *DisgoImpl) SelfMember(guildID discord.Snowflake) *Member {
-	return d.Cache().MemberCache().Get(guildID, d.clientID)
+	return d.Caches().MemberCache().Get(guildID, d.clientID)
 }
 
 // EventManager returns the api.EventManager
@@ -157,7 +157,7 @@ func (d *DisgoImpl) Connect() error {
 	return d.Gateway().Open()
 }
 
-// HasGateway returns whether api.Disgo has an active gateway.Gateway connection
+// HasGateway returns whether api.disgo has an active gateway.Gateway connection
 func (d *DisgoImpl) HasGateway() bool {
 	return d.gateway != nil
 }
@@ -181,9 +181,9 @@ func (d *DisgoImpl) HasHTTPServer() bool {
 	return d.httpServer != nil
 }
 
-// Cache returns the entity api.Cache used by disgo
-func (d *DisgoImpl) Cache() Cache {
-	return d.cache
+// Caches returns the entity api.Caches used by disgo
+func (d *DisgoImpl) Caches() Caches {
+	return d.caches
 }
 
 // EntityBuilder returns the api.EntityBuilder
@@ -480,10 +480,10 @@ func buildDisgoImpl(config DisgoConfig) (Disgo, error) {
 		}
 	}
 
-	if config.Cache == nil {
-		config.Cache = NewCache(disgo, *config.CacheConfig)
+	if config.Caches == nil {
+		//config.Caches = NewCache(disgo, *config.CacheConfig)
 	}
-	disgo.cache = config.Cache
+	disgo.caches = config.Caches
 
 	return disgo, nil
 }

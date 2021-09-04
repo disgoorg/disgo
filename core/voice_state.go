@@ -18,15 +18,15 @@ func (s *VoiceState) Deaf() bool {
 	return s.GuildDeaf || s.SelfDeaf
 }
 
-// Guild returns the Guild of this VoiceState from the Cache
+// Guild returns the Guild of this VoiceState from the Caches
 func (s *VoiceState) Guild() *Guild {
-	return s.Disgo.Cache().GuildCache().Get(s.GuildID)
+	return s.Disgo.Caches().GuildCache().Get(s.GuildID)
 }
 
-// VoiceChannel returns the VoiceChannel of this VoiceState from the Cache
+// VoiceChannel returns the VoiceChannel of this VoiceState from the Caches
 func (s *VoiceState) VoiceChannel() VoiceChannel {
 	if s.ChannelID == nil {
 		return nil
 	}
-	return s.Disgo.Cache().VoiceChannelCache().Get(*s.ChannelID)
+	return s.Disgo.Caches().VoiceChannelCache().Get(*s.ChannelID)
 }

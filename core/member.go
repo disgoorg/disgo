@@ -22,16 +22,16 @@ func (m *Member) Permissions() discord.Permissions {
 // Roles return all Role(s)the Member has
 func (m *Member) Roles() []*Role {
 	var roles []*Role
-	allRoles := m.Disgo.Cache().RoleCache().RoleCache(m.GuildID)
+	allRoles := m.Disgo.Caches().RoleCache().RoleCache(m.GuildID)
 	for _, roleID := range m.RoleIDs {
 		roles = append(roles, allRoles[roleID])
 	}
 	return roles
 }
 
-// VoiceState returns the VoiceState for this Member from the Cache(requires CacheFlagVoiceState and GatewayIntentsGuildVoiceStates)
+// VoiceState returns the VoiceState for this Member from the Caches(requires CacheFlagVoiceState and GatewayIntentsGuildVoiceStates)
 func (m *Member) VoiceState() *VoiceState {
-	return m.Disgo.Cache().VoiceStateCache().Get(m.GuildID, m.User.ID)
+	return m.Disgo.Caches().VoiceStateCache().Get(m.GuildID, m.User.ID)
 }
 
 // EffectiveName returns either the nickname or username depending on if the user has a nickname
@@ -42,9 +42,9 @@ func (m *Member) EffectiveName() string {
 	return m.User.Username
 }
 
-// Guild returns the members guild from the cache
+// Guild returns the members guild from the caches
 func (m *Member) Guild() *Guild {
-	return m.Disgo.Cache().GuildCache().Get(m.GuildID)
+	return m.Disgo.Caches().GuildCache().Get(m.GuildID)
 }
 
 // IsOwner returns whether the member is the owner of the guild_events that it belongs to

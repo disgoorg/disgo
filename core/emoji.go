@@ -30,9 +30,9 @@ type Emoji struct {
 	//GuildID discord.Snowflake
 }
 
-// Guild returns the Guild of the Emoji from the Cache
+// Guild returns the Guild of the Emoji from the Caches
 func (e *Emoji) Guild() *Guild {
-	return e.Disgo.Cache().GuildCache().Get(e.GuildID)
+	return e.Disgo.Caches().GuildCache().Get(e.GuildID)
 }
 
 // Mention returns the string used to send the Emoji

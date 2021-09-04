@@ -15,7 +15,7 @@ type Integration struct {
 
 // Guild returns the Guild the Integration belongs to
 func (i *Integration) Guild() *Guild {
-	return i.Disgo.Cache().GuildCache().Get(i.GuildID)
+	return i.Disgo.Caches().GuildCache().Get(i.GuildID)
 }
 
 // Member returns the Member the Integration uses
@@ -23,7 +23,7 @@ func (i *Integration) Member() *Member {
 	if i.User == nil {
 		return nil
 	}
-	return i.Disgo.Cache().MemberCache().Get(i.GuildID, i.User.ID)
+	return i.Disgo.Caches().MemberCache().Get(i.GuildID, i.User.ID)
 }
 
 // Role returns the Subscriber Role the Integration uses
@@ -31,7 +31,7 @@ func (i *Integration) Role() *Role {
 	if i.RoleID == nil {
 		return nil
 	}
-	return i.Disgo.Cache().RoleCache().Get(*i.RoleID)
+	return i.Disgo.Caches().RoleCache().Get(*i.RoleID)
 }
 
 // Delete deletes the Integration from the Guild

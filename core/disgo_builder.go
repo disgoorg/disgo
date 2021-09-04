@@ -39,7 +39,7 @@ type DisgoBuilder interface {
 	SetHTTPServerConfig(config httpserver.Config) DisgoBuilder
 	SetHTTPServerConfigOpts(opts ...httpserver.ConfigOpt) DisgoBuilder
 
-	SetCache(cache Cache) DisgoBuilder
+	SetCache(cache Caches) DisgoBuilder
 	SetCacheConfig(config CacheConfig) DisgoBuilder
 	SetCacheConfigOpts(opts ...CacheConfigOpt) DisgoBuilder
 

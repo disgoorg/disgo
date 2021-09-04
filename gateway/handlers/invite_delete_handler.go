@@ -37,7 +37,7 @@ func (h *InviteDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager 
 			GenericGuildEvent: &events.GenericGuildEvent{
 				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
 				GuildID:      *payload.GuildID,
-				Guild:        disgo.Cache().GuildCache().Get(*payload.GuildID),
+				Guild:        disgo.Caches().GuildCache().Get(*payload.GuildID),
 			},
 			Code:      payload.Code,
 			ChannelID: payload.ChannelID,

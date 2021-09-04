@@ -41,5 +41,5 @@ type DMUserTypingEvent struct {
 
 // DMChannel returns the core.DMChannel the DMUserTypingEvent happened in
 func (e DMUserTypingEvent) DMChannel() core.DMChannel {
-	return e.Disgo().Cache().DMChannelCache().Get(e.ChannelID)
+	return e.Disgo().Caches().DMChannelCache().Get(e.ChannelID)
 }

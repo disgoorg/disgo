@@ -39,7 +39,7 @@ type Disgo interface {
 	Start() error
 	HasHTTPServer() bool
 
-	Cache() Cache
+	Caches() Caches
 
 	EntityBuilder() EntityBuilder
 	AudioController() AudioController

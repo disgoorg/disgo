@@ -33,15 +33,15 @@ func (h *GuildMemberRemoveHandler) HandleGatewayEvent(disgo core.Disgo, eventMan
 
 	disgo.EntityBuilder().CreateUser(memberData.User, core.CacheStrategyYes)
 
-	member := disgo.Cache().MemberCache().GetCopy(memberData.GuildID, memberData.User.ID)
+	member := disgo.Caches().MemberCache().GetCopy(memberData.GuildID, memberData.User.ID)
 
-	disgo.Cache().MemberCache().Uncache(memberData.GuildID, memberData.User.ID)
+	disgo.Caches().MemberCache().Uncache(memberData.GuildID, memberData.User.ID)
 
 	eventManager.Dispatch(&events.GuildMemberLeaveEvent{
 		GenericGuildMemberEvent: &events.GenericGuildMemberEvent{
 			GenericGuildEvent: &events.GenericGuildEvent{
 				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
-				Guild:        disgo.Cache().GuildCache().Get(memberData.GuildID),
+				Guild:        disgo.Caches().GuildCache().Get(memberData.GuildID),
 			},
 			Member: member,
 		},

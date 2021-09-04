@@ -7,7 +7,7 @@ import (
 // MessageCachePolicy can be used to define your own policy for caching messages
 type MessageCachePolicy func(*Message) bool
 
-// Default member cache policies
+// Default member caches policies
 //goland:noinspection GoUnusedConst
 var (
 	MessageCachePolicyNone    MessageCachePolicy = func(_ *Message) bool { return false }

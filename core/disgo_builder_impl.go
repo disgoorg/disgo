@@ -130,9 +130,9 @@ func (b *DisgoBuilderImpl) SetHTTPServerConfigOpts(opts ...httpserver.ConfigOpt)
 	return b
 }
 
-// SetCache lets you inject your own api.Cache
-func (b *DisgoBuilderImpl) SetCache(cache Cache) DisgoBuilder {
-	b.Cache = cache
+// SetCache lets you inject your own api.Caches
+func (b *DisgoBuilderImpl) SetCache(cache Caches) DisgoBuilder {
+	b.Caches = cache
 	return b
 }
 

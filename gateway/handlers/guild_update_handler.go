@@ -26,7 +26,7 @@ func (h *GuildUpdateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager c
 		return
 	}
 
-	oldCoreGuild := disgo.Cache().GuildCache().GetCopy(guild.ID)
+	oldCoreGuild := disgo.Caches().GuildCache().GetCopy(guild.ID)
 
 	eventManager.Dispatch(&events.GuildUpdateEvent{
 		GenericGuildEvent: &events.GenericGuildEvent{
