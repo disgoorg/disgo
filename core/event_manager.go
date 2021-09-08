@@ -8,7 +8,7 @@ import (
 
 // EventManager lets you listen for specific events triggered by raw gateway events
 type EventManager interface {
-	Disgo() Disgo
+	Bot() *Bot
 	Close()
 	AddEventListeners(eventListeners ...EventListener)
 	RemoveEventListeners(eventListeners ...EventListener)
@@ -24,7 +24,7 @@ type EventListener interface {
 
 // Event the basic interface each event implement
 type Event interface {
-	Disgo() Disgo
+	Bot() *Bot
 	SequenceNumber() int
 }
 
@@ -32,12 +32,11 @@ type Event interface {
 type GatewayEventHandler interface {
 	EventType() discord.GatewayEventType
 	New() interface{}
-	HandleGatewayEvent(disgo Disgo, eventManager EventManager, sequenceNumber int, v interface{})
+	HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{})
 }
 
-// HTTPEventHandler is used to handle HTTP EventType(s)
-type HTTPEventHandler interface {
-	EventType() discord.GatewayEventType
+// HTTPServerEventHandler is used to handle HTTP Event(s)
+type HTTPServerEventHandler interface {
 	New() interface{}
-	HandleHTTPEvent(disgo Disgo, eventManager EventManager, responseChannel chan discord.InteractionResponse, v interface{})
+	HandleHTTPEvent(bot *Bot, responseChannel chan discord.InteractionResponse, v interface{})
 }

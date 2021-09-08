@@ -8,7 +8,7 @@ import (
 
 type Invite struct {
 	discord.Invite
-	Disgo      Disgo
+	Bot        *Bot
 	Inviter    *User
 	TargetUser *User
 }
@@ -20,9 +20,9 @@ func (i *Invite) URL() string {
 }
 
 func (i *Invite) Delete(opts ...rest.RequestOpt) (*Invite, rest.Error) {
-	invite, err := i.Disgo.RestServices().InviteService().DeleteInvite(i.Code, opts...)
+	invite, err := i.Bot.RestServices.InviteService().DeleteInvite(i.Code, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return i.Disgo.EntityBuilder().CreateInvite(*invite, CacheStrategyNo), nil
+	return i.Bot.EntityBuilder.CreateInvite(*invite, CacheStrategyNo), nil
 }

@@ -3,7 +3,7 @@ package core
 // MemberCachePolicy can be used to define your own policy for caching members
 type MemberCachePolicy func(*Member) bool
 
-// Default member cache policies
+// Default member caches policies
 //goland:noinspection GoUnusedGlobalVariable
 var (
 	MemberCachePolicyNone    MemberCachePolicy = func(_ *Member) bool { return false }

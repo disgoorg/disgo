@@ -7,38 +7,47 @@ import (
 
 type GuildTemplate struct {
 	discord.GuildTemplate
-	Disgo   Disgo
+	Bot     *Bot
 	Creator *User
 }
 
-// Guild returns the full Guild of the GuildTemplate if in cache
+// Guild returns the full Guild of the GuildTemplate if in caches
 func (t *GuildTemplate) Guild() *Guild {
-	return t.Disgo.Cache().GuildCache().Get(t.GuildID)
+	return t.Bot.Caches.GuildCache().Get(t.GuildID)
 }
 
 // Update updates the GuildTemplate with the provided UpdateGuildTemplate
 func (t *GuildTemplate) Update(guildTemplateUpdate discord.GuildTemplateUpdate, opts ...rest.RequestOpt) (*GuildTemplate, rest.Error) {
-	guildTemplate, err := t.Disgo.RestServices().GuildTemplateService().UpdateGuildTemplate(t.GuildID, t.Code, guildTemplateUpdate, opts...)
+	guildTemplate, err := t.Bot.RestServices.GuildTemplateService().UpdateGuildTemplate(t.GuildID, t.Code, guildTemplateUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return t.Disgo.EntityBuilder().CreateGuildTemplate(*guildTemplate, CacheStrategyNoWs), nil
+	return t.Bot.EntityBuilder.CreateGuildTemplate(*guildTemplate, CacheStrategyNoWs), nil
 }
 
 // Sync updates the GuildTemplate with the provided UpdateGuildTemplate
 func (t *GuildTemplate) Sync(opts ...rest.RequestOpt) (*GuildTemplate, rest.Error) {
-	guildTemplate, err := t.Disgo.RestServices().GuildTemplateService().SyncGuildTemplate(t.GuildID, t.Code, opts...)
+	guildTemplate, err := t.Bot.RestServices.GuildTemplateService().SyncGuildTemplate(t.GuildID, t.Code, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return t.Disgo.EntityBuilder().CreateGuildTemplate(*guildTemplate, CacheStrategyNoWs), nil
+	return t.Bot.EntityBuilder.CreateGuildTemplate(*guildTemplate, CacheStrategyNoWs), nil
 }
 
 // Delete deletes the GuildTemplate
 func (t *GuildTemplate) Delete(opts ...rest.RequestOpt) (*GuildTemplate, rest.Error) {
-	guildTemplate, err := t.Disgo.RestServices().GuildTemplateService().DeleteGuildTemplate(t.GuildID, t.Code, opts...)
+	guildTemplate, err := t.Bot.RestServices.GuildTemplateService().DeleteGuildTemplate(t.GuildID, t.Code, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return t.Disgo.EntityBuilder().CreateGuildTemplate(*guildTemplate, CacheStrategyNoWs), nil
+	return t.Bot.EntityBuilder.CreateGuildTemplate(*guildTemplate, CacheStrategyNoWs), nil
+}
+
+// CreateGuild creates a Guild from this GuildTemplate
+func (t *GuildTemplate) CreateGuild(createGuildFromTemplate discord.GuildFromTemplateCreate, opts ...rest.RequestOpt) (*Guild, rest.Error) {
+	guild, err := t.Bot.RestServices.GuildTemplateService().CreateGuildFromTemplate(t.Code, createGuildFromTemplate, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return t.Bot.EntityBuilder.CreateGuild(*guild, CacheStrategyNoWs), nil
 }

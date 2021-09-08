@@ -1,8 +1,9 @@
 package discord
 
 import (
-	"errors"
 	"fmt"
+
+	"github.com/pkg/errors"
 )
 
 //goland:noinspection GoUnusedGlobalVariable

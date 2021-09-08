@@ -6,7 +6,6 @@ import (
 	"syscall"
 
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
@@ -14,9 +13,8 @@ import (
 )
 
 var (
-	token     = os.Getenv("disgo_token")
-	publicKey = os.Getenv("disgo_public_key")
-	guildID   = discord.Snowflake(os.Getenv("disgo_guild_id"))
+	token   = os.Getenv("disgo_token")
+	guildID = discord.Snowflake(os.Getenv("disgo_guild_id"))
 
 	commands = []discord.ApplicationCommandCreate{
 		{
@@ -24,7 +22,7 @@ var (
 			Name:              "say",
 			Description:       "says what you say",
 			DefaultPermission: true,
-			Options: []discord.ApplicationCommandOption{
+			Options: []discord.SlashCommandOption{
 				{
 					Type:        discord.CommandOptionTypeString,
 					Name:        "message",
@@ -41,11 +39,14 @@ func main() {
 	log.Info("starting example...")
 	log.Infof("disgo version: %s", info.Version)
 
-	disgo, err := core.NewBuilder(token).
+	disgo, err := core.NewBotBuilder(token).
 		SetGatewayConfig(gateway.Config{
 			GatewayIntents: discord.GatewayIntentsNone,
 		}).
-		AddEventListeners(&events.ListenerAdapter{
+		SetCacheConfig(core.CacheConfig{
+			CacheFlags: core.CacheFlagsDefault,
+		}).
+		AddEventListeners(&core.ListenerAdapter{
 			OnSlashCommand: commandListener,
 		}).
 		Build()
@@ -73,11 +74,14 @@ func main() {
 	<-s
 }
 
-func commandListener(event *events.SlashCommandEvent) {
-	if event.CommandName() == "say" {
-		_ = event.Create(core.NewMessageCreateBuilder().
+func commandListener(event *core.SlashCommandEvent) {
+	if event.CommandName == "say" {
+		err := event.Create(core.NewMessageCreateBuilder().
 			SetContent(event.Option("message").String()).
 			Build(),
 		)
+		if err != nil {
+			event.Bot().Logger.Error("error on sending response: ", err)
+		}
 	}
 }

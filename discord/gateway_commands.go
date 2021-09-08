@@ -28,17 +28,6 @@ type IdentifyCommand struct {
 	// Todo: Add shard property here, need to discuss
 }
 
-type CompressType string
-
-const (
-	CompressTypeZLib CompressType = "zlib-stream"
-	CompressTypeNone CompressType = ""
-)
-
-func (t CompressType) String() string {
-	return string(t)
-}
-
 // IdentifyCommandDataProperties is used for specifying to discord which library and OS the bot is using, is
 // automatically handled by the library and should rarely be used.
 type IdentifyCommandDataProperties struct {
@@ -79,7 +68,7 @@ type UpdateVoiceStateCommand struct {
 	SelfDeaf  bool       `json:"self_deaf"`
 }
 
-// UpdateStatusCommand is used for updating Disgo's presence
+// UpdateStatusCommand is used for updating Bot's presence
 type UpdateStatusCommand struct {
 	Since      *int       `json:"since"`
 	Activities []Activity `json:"activities"`

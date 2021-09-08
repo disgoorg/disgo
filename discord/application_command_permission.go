@@ -1,32 +1,32 @@
 package discord
 
-// CommandPermissionType is the type of the CommandPermission
-type CommandPermissionType int
+// ApplicationCommandPermissionType is the type of the ApplicationCommandPermission
+type ApplicationCommandPermissionType int
 
-// types of CommandPermissionType
+// types of ApplicationCommandPermissionType
 //goland:noinspection GoUnusedConst
 const (
-	CommandPermissionTypeRole = iota + 1
-	CommandPermissionTypeUser
+	ApplicationCommandPermissionTypeRole = iota + 1
+	ApplicationCommandPermissionTypeUser
 )
 
-// GuildCommandPermissions holds all permissions for a ApplicationCommand
-type GuildCommandPermissions struct {
-	ID            Snowflake           `json:"id"`
-	ApplicationID Snowflake           `json:"application_id"`
-	GuildID       Snowflake           `json:"guild_id"`
-	Permissions   []CommandPermission `json:"permissions"`
+// ApplicationCommandPermissions holds all permissions for a ApplicationCommand
+type ApplicationCommandPermissions struct {
+	ID            Snowflake                      `json:"id"`
+	ApplicationID Snowflake                      `json:"application_id"`
+	GuildID       Snowflake                      `json:"guild_id"`
+	Permissions   []ApplicationCommandPermission `json:"permissions"`
 }
 
-// CommandPermission holds a User or Role and if they are allowed to use the ApplicationCommand
-type CommandPermission struct {
-	ID         Snowflake             `json:"id"`
-	Type       CommandPermissionType `json:"type"`
-	Permission bool                  `json:"permission"`
+// ApplicationCommandPermission holds a User or Role and if they are allowed to use the ApplicationCommand
+type ApplicationCommandPermission struct {
+	ID         Snowflake                        `json:"id"`
+	Type       ApplicationCommandPermissionType `json:"type"`
+	Permission bool                             `json:"permission"`
 }
 
-// GuildCommandPermissionsSet is used to bulk overwrite all GuildCommandPermissions
-type GuildCommandPermissionsSet struct {
-	ID          Snowflake           `json:"id"`
-	Permissions []CommandPermission `json:"permissions"`
+// ApplicationCommandPermissionsSet is used to bulk overwrite all ApplicationCommandPermissions
+type ApplicationCommandPermissionsSet struct {
+	ID          Snowflake                      `json:"id"`
+	Permissions []ApplicationCommandPermission `json:"permissions"`
 }

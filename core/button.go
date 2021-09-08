@@ -1,6 +1,10 @@
 package core
 
-import "github.com/DisgoOrg/disgo/discord"
+import (
+	"github.com/DisgoOrg/disgo/discord"
+)
+
+var _ Component = (*Button)(nil)
 
 // NewButton creates a new Button with the provided parameters. Link Button(s) need a URL and other Button(s) need a customID
 //goland:noinspection GoUnusedExportedFunction
@@ -51,6 +55,7 @@ func NewLinkButton(label string, url string, emoji *discord.Emoji) Button {
 // Button can be attacked to all messages & be clicked by a User. If clicked it fires an events.ButtonClickEvent with the declared customID
 type Button struct {
 	discord.Component
+	Emoji *Emoji `json:"emoji"`
 }
 
 // Type returns the ComponentType of this Component
@@ -58,15 +63,15 @@ func (b Button) Type() discord.ComponentType {
 	return b.Component.Type
 }
 
-// AsDisabled returns a new Button but disabled
-func (b Button) AsDisabled() Button {
+// AsEnabled returns a new Button but enabled
+func (b Button) AsEnabled() Button {
 	b.Disabled = true
 	return b
 }
 
-// AsEnabled returns a new Button but enabled
-func (b Button) AsEnabled() Button {
-	b.Disabled = true
+// AsDisabled returns a new Button but disabled
+func (b Button) AsDisabled() Button {
+	b.Disabled = false
 	return b
 }
 
@@ -77,7 +82,7 @@ func (b Button) WithDisabled(disabled bool) Button {
 }
 
 // WithEmoji returns a new Button with the provided Emoji
-func (b Button) WithEmoji(emoji *discord.Emoji) Button {
+func (b Button) WithEmoji(emoji *Emoji) Button {
 	b.Emoji = emoji
 	return b
 }

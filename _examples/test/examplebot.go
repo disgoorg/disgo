@@ -9,12 +9,9 @@ import (
 	"time"
 
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/core/collectors"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
-
-	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/log"
 	"github.com/PaesslerAG/gval"
 )
@@ -23,26 +20,27 @@ const red = 16711680
 const orange = 16562691
 const green = 65280
 
-var token = os.Getenv("disgo_test_token")
-var guildID = discord.Snowflake(os.Getenv("guild_id"))
-var adminRoleID = discord.Snowflake(os.Getenv("admin_role_id"))
-var testRoleID = discord.Snowflake(os.Getenv("test_role_id"))
+var token = os.Getenv("disgo_token")
+var guildID = discord.Snowflake(os.Getenv("disgo_guild_id"))
+var adminRoleID = discord.Snowflake(os.Getenv("disgo_admin_role_id"))
+var testRoleID = discord.Snowflake(os.Getenv("disgo_test_role_id"))
 
 func main() {
 	log.SetLevel(log.LevelDebug)
 	log.Info("starting example...")
 	log.Infof("disgo version: %s", info.Version)
 
-	disgo, err := core.NewBuilder(token).
+	disgo, err := core.NewBotBuilder(token).
 		SetRawEventsEnabled(true).
 		SetGatewayConfig(gateway.Config{
 			GatewayIntents: discord.GatewayIntentGuilds | discord.GatewayIntentGuildMessages | discord.GatewayIntentGuildMembers,
+			Compress:       true,
 		}).
 		SetCacheConfig(core.CacheConfig{
 			CacheFlags:        core.CacheFlagsDefault,
 			MemberCachePolicy: core.MemberCachePolicyAll,
 		}).
-		AddEventListeners(&events.ListenerAdapter{
+		AddEventListeners(&core.ListenerAdapter{
 			OnRawGateway:         rawGatewayEventListener,
 			OnGuildAvailable:     guildAvailListener,
 			OnGuildMessageCreate: messageListener,
@@ -62,29 +60,29 @@ func main() {
 		log.Fatalf("error while registering guild commands: %s", err)
 	}
 
-	var cmdsPermissions []discord.GuildCommandPermissionsSet
+	var cmdsPermissions []discord.ApplicationCommandPermissionsSet
 	for _, cmd := range cmds {
-		var perms discord.CommandPermission
+		var perms discord.ApplicationCommandPermission
 		if cmd.Name == "eval" {
-			perms = discord.CommandPermission{
+			perms = discord.ApplicationCommandPermission{
 				ID:         adminRoleID,
-				Type:       discord.CommandPermissionTypeRole,
+				Type:       discord.ApplicationCommandPermissionTypeRole,
 				Permission: true,
 			}
 		} else {
-			perms = discord.CommandPermission{
+			perms = discord.ApplicationCommandPermission{
 				ID:         testRoleID,
-				Type:       discord.CommandPermissionTypeRole,
+				Type:       discord.ApplicationCommandPermissionTypeRole,
 				Permission: true,
 			}
-			cmdsPermissions = append(cmdsPermissions, discord.GuildCommandPermissionsSet{
+			cmdsPermissions = append(cmdsPermissions, discord.ApplicationCommandPermissionsSet{
 				ID:          cmd.ID,
-				Permissions: []discord.CommandPermission{perms},
+				Permissions: []discord.ApplicationCommandPermission{perms},
 			})
 		}
-		cmdsPermissions = append(cmdsPermissions, discord.GuildCommandPermissionsSet{
+		cmdsPermissions = append(cmdsPermissions, discord.ApplicationCommandPermissionsSet{
 			ID:          cmd.ID,
-			Permissions: []discord.CommandPermission{perms},
+			Permissions: []discord.ApplicationCommandPermission{perms},
 		})
 	}
 	if _, err = disgo.SetGuildCommandsPermissions(guildID, cmdsPermissions); err != nil {
@@ -104,22 +102,22 @@ func main() {
 	<-s
 }
 
-func guildAvailListener(event *events.GuildAvailableEvent) {
+func guildAvailListener(event *core.GuildAvailableEvent) {
 	log.Infof("guild loaded: %s", event.Guild.ID)
 }
 
-func rawGatewayEventListener(event *events.RawEvent) {
+func rawGatewayEventListener(event *core.RawEvent) {
 	if event.Type == discord.GatewayEventTypeInteractionCreate || event.Type == discord.GatewayEventTypeGuildEmojisUpdate {
 		println(string(event.RawPayload))
 	}
 }
 
-func buttonClickListener(event *events.ButtonClickEvent) {
-	switch event.CustomID() {
+func buttonClickListener(event *core.ButtonClickEvent) {
+	switch event.CustomID {
 	case "test1":
 		_ = event.Respond(discord.InteractionResponseTypeChannelMessageWithSource,
 			core.NewMessageCreateBuilder().
-				SetContent(event.CustomID()).
+				SetContent(event.CustomID).
 				Build(),
 		)
 
@@ -132,28 +130,28 @@ func buttonClickListener(event *events.ButtonClickEvent) {
 	case "test4":
 		_ = event.Respond(discord.InteractionResponseTypeUpdateMessage,
 			core.NewMessageCreateBuilder().
-				SetContent(event.CustomID()).
+				SetContent(event.CustomID).
 				Build(),
 		)
 	}
 }
 
-func selectMenuSubmitListener(event *events.SelectMenuSubmitEvent) {
-	switch event.CustomID() {
+func selectMenuSubmitListener(event *core.SelectMenuSubmitEvent) {
+	switch event.CustomID {
 	case "test3":
 		if err := event.DeferUpdate(); err != nil {
 			log.Errorf("error sending interaction response: %s", err)
 		}
 		_, _ = event.CreateFollowup(core.NewMessageCreateBuilder().
 			SetEphemeral(true).
-			SetContentf("selected options: %s", event.Values()).
+			SetContentf("selected options: %s", event.Values).
 			Build(),
 		)
 	}
 }
 
-func commandListener(event *events.SlashCommandEvent) {
-	switch event.CommandName() {
+func commandListener(event *core.SlashCommandEvent) {
+	switch event.CommandName {
 	case "eval":
 		go func() {
 			code := event.Option("code").String()
@@ -167,8 +165,7 @@ func commandListener(event *events.SlashCommandEvent) {
 
 			start := time.Now()
 			output, err := gval.Evaluate(code, map[string]interface{}{
-				"disgo": event.Disgo(),
-				"dgo":   event.Disgo(),
+				"bot":   event.Bot(),
 				"event": event,
 			})
 
@@ -176,7 +173,7 @@ func commandListener(event *events.SlashCommandEvent) {
 			embed.SetField(1, "Time", strconv.Itoa(int(elapsed.Milliseconds()))+"ms", true)
 
 			if err != nil {
-				_, err = event.Interaction.UpdateOriginal(core.NewMessageUpdateBuilder().
+				_, err = event.UpdateOriginal(core.NewMessageUpdateBuilder().
 					SetEmbeds(embed.
 						SetColor(red).
 						SetField(0, "Status", "Failed", true).
@@ -190,7 +187,7 @@ func commandListener(event *events.SlashCommandEvent) {
 				}
 				return
 			}
-			_, err = event.Interaction.UpdateOriginal(core.NewMessageUpdateBuilder().
+			_, err = event.UpdateOriginal(core.NewMessageUpdateBuilder().
 				SetEmbeds(embed.
 					SetColor(green).
 					SetField(0, "Status", "Success", true).
@@ -224,9 +221,9 @@ func commandListener(event *events.SlashCommandEvent) {
 			).
 			AddActionRow(
 				core.NewSelectMenu("test3", "test", 1, 1,
-					core.NewSelectOption("test1", "1"),
-					core.NewSelectOption("test2", "2"),
-					core.NewSelectOption("test3", "3"),
+					core.NewSelectMenuOption("test1", "1"),
+					core.NewSelectMenuOption("test2", "2"),
+					core.NewSelectMenuOption("test3", "3"),
 				),
 			).
 			Build(),
@@ -238,7 +235,7 @@ func commandListener(event *events.SlashCommandEvent) {
 		user := event.Option("member").User()
 		role := event.Option("role").Role()
 
-		if err := event.Disgo().RestServices().GuildService().AddMemberRole(*event.Interaction.GuildID, user.ID, role.ID); err == nil {
+		if err := event.Bot().RestServices.GuildService().AddMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
 			_ = event.Create(core.NewMessageCreateBuilder().AddEmbeds(
 				core.NewEmbedBuilder().SetColor(green).SetDescriptionf("Added %s to %s", role, user).Build(),
 			).Build())
@@ -252,7 +249,7 @@ func commandListener(event *events.SlashCommandEvent) {
 		user := event.Option("member").User()
 		role := event.Option("role").Role()
 
-		if err := event.Disgo().RestServices().GuildService().RemoveMemberRole(*event.Interaction.GuildID, user.ID, role.ID); err == nil {
+		if err := event.Bot().RestServices.GuildService().RemoveMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
 			_ = event.Create(core.NewMessageCreateBuilder().AddEmbeds(
 				core.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Removed %s from %s", role, user).Build(),
 			).Build())
@@ -264,7 +261,7 @@ func commandListener(event *events.SlashCommandEvent) {
 	}
 }
 
-func messageListener(event *events.GuildMessageCreateEvent) {
+func messageListener(event *core.GuildMessageCreateEvent) {
 	if event.Message.Author.IsBot {
 		return
 	}
@@ -278,7 +275,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 
 	case "test":
 		go func() {
-			message, err := event.MessageChannel().CreateMessage(core.NewMessageCreateBuilder().SetContent("test").Build())
+			message, err := event.Channel().CreateMessage(core.NewMessageCreateBuilder().SetContent("test").Build())
 			if err != nil {
 				log.Errorf("error while sending file: %s", err)
 				return
@@ -310,7 +307,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 
 	case "repeat":
 		go func() {
-			ch, cls := collectors.NewMessageCollectorByChannel(event.MessageChannel(), func(m *core.Message) bool {
+			ch, cls := core.NewMessageCollectorByChannel(event.Channel(), func(m *core.Message) bool {
 				return !m.Author.IsBot && m.ChannelID == event.ChannelID
 			})
 

@@ -7,7 +7,6 @@ import (
 	"syscall"
 
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
@@ -25,11 +24,11 @@ func main() {
 	logger.Info("starting example...")
 	logger.Infof("disgo version: %s", info.Version)
 
-	disgo, err := core.NewDisgo(token,
+	disgo, err := core.NewBot(token,
 		core.WithLogger(logger),
 		core.WithHTTPClient(httpClient),
 		core.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
-		core.WithEventListeners(&events.ListenerAdapter{
+		core.WithEventListeners(&core.ListenerAdapter{
 			OnMessageCreate: onMessageCreate,
 		}),
 	)
@@ -49,6 +48,6 @@ func main() {
 	<-s
 }
 
-func onMessageCreate(event *events.MessageCreateEvent) {
-	event.Message.Reply(core.NewMessageCreateBuilder().SetContent(event.Message.Content).Build())
+func onMessageCreate(event *core.MessageCreateEvent) {
+	_, _ = event.Message.Reply(core.NewMessageCreateBuilder().SetContent(event.Message.Content).Build())
 }

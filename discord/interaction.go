@@ -24,22 +24,22 @@ const (
 	InteractionResponseTypeUpdateMessage
 )
 
-// UnmarshalInteraction is used for easier unmarshalling of different Interaction(s)
-type UnmarshalInteraction struct {
-	ID            Snowflake                 `json:"id"`
-	ApplicationID Snowflake                 `json:"application_id"`
-	Type          InteractionType           `json:"type"`
-	Data          *UnmarshalInteractionData `json:"data,omitempty"`
-	GuildID       *Snowflake                `json:"guild_id,omitempty"`
-	ChannelID     *Snowflake                `json:"channel_id,omitempty"`
-	Member        *Member                   `json:"member,omitempty"`
-	User          User                      `json:"User,omitempty"`
-	Token         string                    `json:"token"`
-	Version       int                       `json:"version"`
-	Message       Message                   `json:"message,omitempty"`
+// Interaction is used for easier unmarshalling of different Interaction(s)
+type Interaction struct {
+	ID            Snowflake        `json:"id"`
+	ApplicationID Snowflake        `json:"application_id"`
+	Type          InteractionType  `json:"type"`
+	Data          *InteractionData `json:"data,omitempty"`
+	GuildID       *Snowflake       `json:"guild_id,omitempty"`
+	ChannelID     *Snowflake       `json:"channel_id,omitempty"`
+	Member        *Member          `json:"member,omitempty"`
+	User          User             `json:"User,omitempty"`
+	Token         string           `json:"token"`
+	Version       int              `json:"version"`
+	Message       Message          `json:"message,omitempty"`
 }
 
-type UnmarshalInteractionData struct {
+type InteractionData struct {
 	// Application Command Interactions
 	ID          Snowflake              `json:"id"`
 	CommandType ApplicationCommandType `json:"type"`
@@ -47,7 +47,7 @@ type UnmarshalInteractionData struct {
 	Resolved    Resolved               `json:"resolved"`
 
 	// Slash Command Interactions
-	Options []UnmarshalApplicationCommandOption `json:"options"`
+	Options []UnmarshalSlashCommandOption `json:"options"`
 
 	// Context Command Interactions
 	TargetID Snowflake `json:"target_id"`
@@ -86,11 +86,11 @@ type ResolvedChannel struct {
 	Permissions Permissions `json:"permissions"`
 }*/
 
-type UnmarshalApplicationCommandOption struct {
-	Name    string                              `json:"name"`
-	Type    ApplicationCommandOptionType        `json:"type"`
-	Value   interface{}                         `json:"value"`
-	Options []UnmarshalApplicationCommandOption `json:"options"`
+type UnmarshalSlashCommandOption struct {
+	Name    string                        `json:"name"`
+	Type    SlashCommandOptionType        `json:"type"`
+	Value   interface{}                   `json:"value"`
+	Options []UnmarshalSlashCommandOption `json:"options"`
 }
 
 // InteractionResponse is how you answer interactions. If an answer is not sent within 3 seconds of receiving it, the interaction is failed, and you will be unable to respond to it.

@@ -24,7 +24,7 @@ func main() {
 	logger.Info("starting example...")
 	logger.Infof("disgo version: %s", info.Version)
 
-	disgo, err := core.NewBuilder(token).
+	disgo, err := core.NewBotBuilder(token).
 		SetLogger(logger).
 		SetHTTPClient(httpClient).
 		SetGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentsDefault)).

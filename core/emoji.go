@@ -26,13 +26,12 @@ func NewEmoji(name string) *Emoji {
 
 type Emoji struct {
 	discord.Emoji
-	Disgo Disgo
-	//GuildID discord.Snowflake
+	Bot *Bot
 }
 
-// Guild returns the Guild of the Emoji from the Cache
+// Guild returns the Guild of the Emoji from the Caches
 func (e *Emoji) Guild() *Guild {
-	return e.Disgo.Cache().GuildCache().Get(e.GuildID)
+	return e.Bot.Caches.GuildCache().Get(e.GuildID)
 }
 
 // Mention returns the string used to send the Emoji

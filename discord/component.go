@@ -28,23 +28,23 @@ type Component struct {
 	Type ComponentType `json:"type"`
 
 	// Button && SelectMenu
-	CustomID string `json:"custom_id"`
+	CustomID string `json:"custom_id,omitempty"`
 
 	// Button
-	Style    ButtonStyle `json:"style"`
-	Label    string      `json:"label"`
-	Emoji    *Emoji      `json:"emoji"`
-	URL      string      `json:"url"`
-	Disabled bool        `json:"disabled"`
+	Style    ButtonStyle `json:"style,omitempty"`
+	Label    string      `json:"label,omitempty"`
+	Emoji    *Emoji      `json:"emoji,omitempty"`
+	URL      string      `json:"url,omitempty"`
+	Disabled bool        `json:"disabled,omitempty"`
 
 	// ActionRow
-	Components []Component `json:"components"`
+	Components []Component `json:"components,omitempty"`
 
 	// SelectMenu
-	Placeholder string         `json:"placeholder"`
-	MinValues   int            `json:"min_values"`
-	MaxValues   int            `json:"max_values"`
-	Options     []SelectOption `json:"options"`
+	Placeholder string         `json:"placeholder,omitempty"`
+	MinValues   int            `json:"min_values,omitempty"`
+	MaxValues   int            `json:"max_values,omitempty"`
+	Options     []SelectOption `json:"options,omitempty"`
 }
 
 // SelectOption represents an option in a SelectMenu
@@ -52,6 +52,6 @@ type SelectOption struct {
 	Label       string `json:"label"`
 	Value       string `json:"value"`
 	Description string `json:"description,omitempty"`
-	Default     bool   `json:"default,omitempty"`
 	Emoji       *Emoji `json:"emoji,omitempty"`
+	Default     bool   `json:"default,omitempty"`
 }

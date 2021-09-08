@@ -1,6 +1,8 @@
 package core
 
-import "github.com/DisgoOrg/disgo/discord"
+import (
+	"github.com/DisgoOrg/disgo/discord"
+)
 
 var _ Component = (*ActionRow)(nil)
 

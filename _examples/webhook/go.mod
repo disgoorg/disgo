@@ -1,6 +1,6 @@
 module github.com/DisgoOrg/disgo/_examples/webhook
 
-go 1.17
+
 
 replace github.com/DisgoOrg/disgo => ../../
 

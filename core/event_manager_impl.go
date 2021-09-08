@@ -9,67 +9,69 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-var (
-	GatewayEventHandlers   = map[discord.GatewayEventType]GatewayEventHandler{}
-	HTTPServerEventHandler HTTPEventHandler
-)
-
 var _ EventManager = (*EventManagerImpl)(nil)
 
-func NewEventManager(disgo Disgo, listeners []EventListener) EventManager {
-	eventManager := &EventManagerImpl{
-		disgo:     disgo,
-		channel:   make(chan Event),
-		listeners: listeners,
+func NewEventManager(bot *Bot, listeners []EventListener) EventManager {
+	return &EventManagerImpl{
+		gatewayEventHandlers:   GetGatewayHandlers(),
+		httpServerEventHandler: &InteractionCreateHTTPServerHandler{},
+		bot:                    bot,
+		listeners:              listeners,
 	}
-
-	go eventManager.ListenEvents()
-	return eventManager
 }
 
 // EventManagerImpl is the implementation of api.EventManager
 type EventManagerImpl struct {
-	disgo     Disgo
-	listeners []EventListener
-	channel   chan Event
+	gatewayEventHandlers   map[discord.GatewayEventType]GatewayEventHandler
+	httpServerEventHandler HTTPServerEventHandler
+	bot                    *Bot
+	listeners              []EventListener
 }
 
-// Disgo returns the api.Disgo instance used by the api.EventManager
-func (e *EventManagerImpl) Disgo() Disgo {
-	return e.disgo
+// Bot returns the api.Bot instance used by the api.EventManager
+func (e *EventManagerImpl) Bot() *Bot {
+	return e.bot
 }
 
 // Close closes all goroutines created by the api.EventManager
 func (e *EventManagerImpl) Close() {
-	e.Disgo().Logger().Info("closing eventManager goroutines...")
-	close(e.channel)
+	e.Bot().Logger.Info("closing eventManager goroutines...")
 }
 
 // HandleGateway calls the correct api.EventHandler
 func (e *EventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) {
-	if handler, ok := GatewayEventHandlers[gatewayEventType]; ok {
+	if handler, ok := e.gatewayEventHandlers[gatewayEventType]; ok {
 		v := handler.New()
 		if err := json.NewDecoder(reader).Decode(&v); err != nil {
-			e.disgo.Logger().Errorf("error while unmarshalling event. error: %s", err)
+			e.Bot().Logger.Error("error while unmarshalling event. error: ", err)
 		}
-		handler.HandleGatewayEvent(e.disgo, e, sequenceNumber, v)
+		handler.HandleGatewayEvent(e.Bot(), sequenceNumber, v)
+	} else {
+		e.Bot().Logger.Warnf("no handler for gateway event '%s' found", gatewayEventType)
 	}
 }
 
 // HandleHTTP calls the correct api.EventHandler
 func (e *EventManagerImpl) HandleHTTP(c chan discord.InteractionResponse, reader io.Reader) {
-	v := HTTPServerEventHandler.New()
+	v := e.httpServerEventHandler.New()
 	if err := json.NewDecoder(reader).Decode(&v); err != nil {
-		e.disgo.Logger().Errorf("error while unmarshalling httpserver event. error: %s", err)
+		e.Bot().Logger.Error("error while unmarshalling httpserver event. error: ", err)
 	}
-	HTTPServerEventHandler.HandleHTTPEvent(e.disgo, e, c, v)
+	e.httpServerEventHandler.HandleHTTPEvent(e.Bot(), c, v)
 }
 
 // Dispatch dispatches a new event to the client
 func (e *EventManagerImpl) Dispatch(event Event) {
-	go func() {
-		e.channel <- event
+	defer func() {
+		if r := recover(); r != nil {
+			e.Bot().Logger.Panicf("recovered from listener panic error: %s", r)
+			debug.PrintStack()
+			return
+		}
 	}()
+	for _, listener := range e.listeners {
+		go listener.OnEvent(event)
+	}
 }
 
 // AddEventListeners adds one or more api.EventListener(s) to the api.EventManager
@@ -87,28 +89,6 @@ func (e *EventManagerImpl) RemoveEventListeners(listeners ...EventListener) {
 				e.listeners = append(e.listeners[:i], e.listeners[i+1:]...)
 				break
 			}
-		}
-	}
-}
-
-// ListenEvents starts the event goroutine
-func (e *EventManagerImpl) ListenEvents() {
-	defer func() {
-		if r := recover(); r != nil {
-			e.Disgo().Logger().Panicf("recovered event listen goroutine error: %s", r)
-			debug.PrintStack()
-			e.ListenEvents()
-			return
-		}
-		e.Disgo().Logger().Infof("closed event goroutine")
-	}()
-	for {
-		event, ok := <-e.channel
-		if !ok {
-			return
-		}
-		for _, listener := range e.listeners {
-			listener.OnEvent(event)
 		}
 	}
 }

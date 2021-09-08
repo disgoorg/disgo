@@ -8,39 +8,45 @@ type CacheFlags int
 const (
 	CacheFlagsNone  CacheFlags = 0
 	CacheFlagGuilds CacheFlags = 1 << iota
-	CacheFlagDMChannels
-	CacheFlagCategories
+
 	CacheFlagTextChannels
+	CacheFlagDMChannels
 	CacheFlagVoiceChannels
+	CacheFlagCategories
+	CacheFlagNewsChannels
 	CacheFlagStoreChannels
+	CacheFlagStageChannels
+
 	CacheFlagRoles
 	CacheFlagRoleTags
-	CacheFlagEmotes
-	CacheFlagVoiceState
-	CacheFlagCommands
-	CacheFlagCommandPermissions
 
-	CacheFlagsChannels = CacheFlagDMChannels |
-		CacheFlagCategories |
-		CacheFlagTextChannels |
+	CacheFlagEmojis
+
+	CacheFlagVoiceStates
+
+	CacheFlagStageInstances
+
+	CacheFlagsChannels = CacheFlagTextChannels |
+		CacheFlagDMChannels |
 		CacheFlagVoiceChannels |
-		CacheFlagStoreChannels
+		CacheFlagCategories |
+		CacheFlagNewsChannels |
+		CacheFlagStoreChannels |
+		CacheFlagStageChannels
 
 	CacheFlagsDefault = CacheFlagsChannels |
 		CacheFlagRoles |
-		CacheFlagEmotes
+		CacheFlagEmojis |
+		CacheFlagVoiceStates
 
 	CacheFlagsFullRoles = CacheFlagRoles |
 		CacheFlagRoleTags
 
-	CacheFlagsFullCommands = CacheFlagCommands |
-		CacheFlagCommandPermissions
-
 	CacheFlagsAll = CacheFlagsChannels |
 		CacheFlagsFullRoles |
-		CacheFlagEmotes |
-		CacheFlagVoiceState |
-		CacheFlagsFullCommands
+		CacheFlagEmojis |
+		CacheFlagVoiceStates |
+		CacheFlagStageInstances
 )
 
 // Add allows you to add multiple bits together, producing a new bit

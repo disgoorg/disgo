@@ -12,7 +12,7 @@ import (
 
 type User struct {
 	discord.User
-	Disgo Disgo
+	Bot *Bot
 }
 
 // AvatarURL returns the Avatar URL of the User
@@ -24,7 +24,7 @@ func (u *User) AvatarURL(size int) *string {
 	if strings.HasPrefix(*u.Avatar, "a_") {
 		format = route.GIF
 	}
-	compiledRoute, err := route.UserAvatar.Compile(nil, format, size, u.ID.String(), *u.Avatar)
+	compiledRoute, err := route.UserAvatar.Compile(nil, format, size, u.ID, *u.Avatar)
 	if err != nil {
 		return nil
 	}
@@ -49,7 +49,7 @@ func (u *User) EffectiveAvatarURL(size int) string {
 }
 
 // Mention returns the user as a mention
-func (u *User) Mention() string {
+func (u *User) String() string {
 	return "<@" + u.ID.String() + ">"
 }
 
@@ -58,16 +58,12 @@ func (u *User) Tag() string {
 	return fmt.Sprintf("%s#%s", u.Username, u.Discriminator)
 }
 
-func (u *User) String() string {
-	return u.Mention()
-}
-
 // OpenDMChannel creates a DMChannel between the user and the Disgo client
-func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (DMChannel, rest.Error) {
-	channel, err := u.Disgo.RestServices().UserService().CreateDMChannel(u.ID, opts...)
+func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (*Channel, rest.Error) {
+	channel, err := u.Bot.RestServices.UserService().CreateDMChannel(u.ID, opts...)
 	if err != nil {
 		return nil, err
 	}
-	// TODO: should we cache it here? or do we get a gateway event?
-	return u.Disgo.EntityBuilder().CreateChannel(*channel, CacheStrategyYes).(DMChannel), nil
+	// TODO: should we caches it here? or do we get a gateway event?
+	return u.Bot.EntityBuilder.CreateChannel(*channel, CacheStrategyYes), nil
 }

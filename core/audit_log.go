@@ -7,12 +7,16 @@ import (
 
 type AuditLog struct {
 	discord.AuditLog
-	Disgo         Disgo
+	Bot           *Bot
 	GuildID       discord.Snowflake
 	Users         map[discord.Snowflake]*User
 	Integrations  map[discord.Snowflake]*Integration
 	Webhooks      map[discord.Snowflake]*Webhook
 	FilterOptions AuditLogFilterOptions
+}
+
+func (l *AuditLog) Guild() *Guild {
+	return l.Bot.Caches.GuildCache().Get(l.GuildID)
 }
 
 // AuditLogFilterOptions fields used to filter audit-log retrieving
@@ -29,9 +33,9 @@ func (l *AuditLog) Before(opts ...rest.RequestOpt) (*AuditLog, rest.Error) {
 	if len(l.Entries) > 0 {
 		before = l.Entries[len(l.Entries)-1].ID
 	}
-	auditLog, err := l.Disgo.RestServices().AuditLogService().GetAuditLog(l.GuildID, l.FilterOptions.UserID, l.FilterOptions.ActionType, before, l.FilterOptions.Limit, opts...)
+	auditLog, err := l.Bot.RestServices.AuditLogService().GetAuditLog(l.GuildID, l.FilterOptions.UserID, l.FilterOptions.ActionType, before, l.FilterOptions.Limit, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return l.Disgo.EntityBuilder().CreateAuditLog(l.GuildID, *auditLog, l.FilterOptions, CacheStrategyNoWs), nil
+	return l.Bot.EntityBuilder.CreateAuditLog(l.GuildID, *auditLog, l.FilterOptions, CacheStrategyNoWs), nil
 }

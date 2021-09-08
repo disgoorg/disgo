@@ -8,7 +8,7 @@ import (
 
 type Message struct {
 	discord.Message
-	WebhookClient Client
+	WebhookClient *Client
 	Components    []core.Component `json:"components"`
 }
 

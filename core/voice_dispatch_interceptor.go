@@ -5,27 +5,17 @@ import "github.com/DisgoOrg/disgo/discord"
 // VoiceServerUpdateEvent sent when a guilds voice server is updated
 type VoiceServerUpdateEvent struct {
 	discord.VoiceServerUpdate
-	Disgo Disgo
+	Bot *Bot
 }
 
-// Guild returns the Guild for this VoiceServerUpdate from the Cache
+// Guild returns the Guild for this VoiceServerUpdate from the Caches
 func (u *VoiceServerUpdateEvent) Guild() *Guild {
-	return u.Disgo.Cache().GuildCache().Get(u.GuildID)
+	return u.Bot.Caches.GuildCache().Get(u.GuildID)
 }
 
 // VoiceStateUpdateEvent sent when someone joins/leaves/moves voice channels
 type VoiceStateUpdateEvent struct {
 	*VoiceState
-}
-
-// Guild returns the Guild for this VoiceStateUpdate from the Cache
-func (u *VoiceStateUpdateEvent) Guild() *Guild {
-	return u.VoiceState.Guild()
-}
-
-// VoiceChannel returns the VoiceChannel for this VoiceStateUpdate from the Cache
-func (u *VoiceStateUpdateEvent) VoiceChannel() VoiceChannel {
-	return u.VoiceState.VoiceChannel()
 }
 
 // VoiceDispatchInterceptor lets you listen to VoiceServerUpdate & VoiceStateUpdate

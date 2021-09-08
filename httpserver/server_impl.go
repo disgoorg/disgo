@@ -41,7 +41,7 @@ func New(eventHandlerFunc EventHandlerFunc, config *Config) Server {
 	return server
 }
 
-// ServerImpl is used in Disgo's webhook server for interactions
+// ServerImpl is used in Bot's webhook server for interactions
 type ServerImpl struct {
 	config    Config
 	publicKey ed25519.PublicKey

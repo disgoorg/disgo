@@ -43,7 +43,7 @@ type Route struct {
 // Compile returns a CompiledRoute
 func (r *Route) Compile(queryValues QueryValues, params ...interface{}) (*CompiledRoute, error) {
 	if len(params) != r.urlParamCount {
-		return nil, discord.ErrInvalidArgCount(len(params), r.urlParamCount)
+		return nil, discord.ErrInvalidArgCount(r.urlParamCount, len(params))
 	}
 	path := r.path
 	for _, param := range params {

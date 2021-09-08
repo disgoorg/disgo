@@ -2,14 +2,10 @@ package core
 
 type ButtonInteraction struct {
 	*ComponentInteraction
-	Data *ButtonInteractionData
 }
 
-// Button returns the Button which issued this ButtonInteraction. nil for ephemeral Message(s)
-func (i *ButtonInteraction) Button() *Button {
-	return i.Message.ButtonByID(i.CustomID())
-}
-
-type ButtonInteractionData struct {
-	*ComponentInteractionData
+// Button returns the Button which issued this ButtonInteraction
+func (i *ButtonInteraction) Button() Button {
+	// this should never be nil
+	return *i.Message.ButtonByID(i.CustomID)
 }

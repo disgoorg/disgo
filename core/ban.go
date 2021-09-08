@@ -8,11 +8,11 @@ import (
 // Ban represents a banned User from a Guild (https://discord.com/developers/docs/resources/guild#ban-object)
 type Ban struct {
 	discord.Ban
-	Disgo   Disgo
+	Bot     *Bot
 	User    *User
 	GuildID discord.Snowflake
 }
 
 func (b *Ban) Unban(opts ...rest.RequestOpt) rest.Error {
-	return b.Disgo.RestServices().GuildService().DeleteBan(b.GuildID, b.User.ID, opts...)
+	return b.Bot.RestServices.GuildService().DeleteBan(b.GuildID, b.User.ID, opts...)
 }

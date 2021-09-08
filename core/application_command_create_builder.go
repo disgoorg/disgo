@@ -2,7 +2,7 @@ package core
 
 import "github.com/DisgoOrg/disgo/discord"
 
-func NewApplicationCommand(commandType discord.ApplicationCommandType, name string, description string, options ...discord.ApplicationCommandOption) *ApplicationCommandBuilder {
+func NewApplicationCommand(commandType discord.ApplicationCommandType, name string, description string, options ...discord.SlashCommandOption) *ApplicationCommandBuilder {
 	return &ApplicationCommandBuilder{
 		ApplicationCommandCreate: discord.ApplicationCommandCreate{
 			Type:              commandType,

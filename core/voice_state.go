@@ -4,7 +4,7 @@ import "github.com/DisgoOrg/disgo/discord"
 
 type VoiceState struct {
 	discord.VoiceState
-	Disgo  Disgo
+	Bot    *Bot
 	Member *Member
 }
 
@@ -18,15 +18,15 @@ func (s *VoiceState) Deaf() bool {
 	return s.GuildDeaf || s.SelfDeaf
 }
 
-// Guild returns the Guild of this VoiceState from the Cache
+// Guild returns the Guild of this VoiceState from the Caches
 func (s *VoiceState) Guild() *Guild {
-	return s.Disgo.Cache().GuildCache().Get(s.GuildID)
+	return s.Bot.Caches.GuildCache().Get(s.GuildID)
 }
 
-// VoiceChannel returns the VoiceChannel of this VoiceState from the Cache
-func (s *VoiceState) VoiceChannel() VoiceChannel {
+// VoiceChannel returns the VoiceChannel of this VoiceState from the Caches
+func (s *VoiceState) VoiceChannel() *Channel {
 	if s.ChannelID == nil {
 		return nil
 	}
-	return s.Disgo.Cache().VoiceChannelCache().Get(*s.ChannelID)
+	return s.Bot.Caches.ChannelCache().Get(*s.ChannelID)
 }
