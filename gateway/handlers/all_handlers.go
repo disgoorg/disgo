@@ -3,6 +3,7 @@ package handlers
 import "github.com/DisgoOrg/disgo/core"
 
 func init() {
+	println("registering handlers...")
 	for _, handler := range EventHandlers {
 		core.GatewayEventHandlers[handler.EventType()] = handler
 	}

@@ -18,15 +18,19 @@ var _ EventManager = (*EventManagerImpl)(nil)
 
 func NewEventManager(bot *Bot, listeners []EventListener) EventManager {
 	return &EventManagerImpl{
-		bot:       bot,
-		listeners: listeners,
+		gatewayEventHandlers:   GatewayEventHandlers,
+		httpServerEventHandler: HTTPServerEventHandler,
+		bot:                    bot,
+		listeners:              listeners,
 	}
 }
 
 // EventManagerImpl is the implementation of api.EventManager
 type EventManagerImpl struct {
-	bot       *Bot
-	listeners []EventListener
+	gatewayEventHandlers   map[discord.GatewayEventType]GatewayEventHandler
+	httpServerEventHandler HTTPEventHandler
+	bot                    *Bot
+	listeners              []EventListener
 }
 
 // Bot returns the api.Bot instance used by the api.EventManager
@@ -42,7 +46,7 @@ func (e *EventManagerImpl) Close() {
 // HandleGateway calls the correct api.EventHandler
 func (e *EventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) {
 	println("handling event")
-	if handler, ok := GatewayEventHandlers[gatewayEventType]; ok {
+	if handler, ok := e.gatewayEventHandlers[gatewayEventType]; ok {
 		v := handler.New()
 		if err := json.NewDecoder(reader).Decode(&v); err != nil {
 			e.Bot().Logger.Error("error while unmarshalling event. error: ", err)
@@ -55,11 +59,11 @@ func (e *EventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventTy
 
 // HandleHTTP calls the correct api.EventHandler
 func (e *EventManagerImpl) HandleHTTP(c chan discord.InteractionResponse, reader io.Reader) {
-	v := HTTPServerEventHandler.New()
+	v := e.httpServerEventHandler.New()
 	if err := json.NewDecoder(reader).Decode(&v); err != nil {
 		e.Bot().Logger.Error("error while unmarshalling httpserver event. error: ", err)
 	}
-	HTTPServerEventHandler.HandleHTTPEvent(e.Bot(), c, v)
+	e.httpServerEventHandler.HandleHTTPEvent(e.Bot(), c, v)
 }
 
 // Dispatch dispatches a new event to the client
