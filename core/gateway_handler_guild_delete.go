@@ -4,10 +4,10 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// GuildDeleteHandler handles api.GuildDeleteGatewayEvent
+// GuildDeleteHandler handles core.GuildDeleteGatewayEvent
 type GuildDeleteHandler struct{}
 
-// EventType returns the api.GatewayGatewayEventType
+// EventType returns the core.GatewayGatewayEventType
 func (h *GuildDeleteHandler) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildDelete
 }

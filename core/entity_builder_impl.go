@@ -4,24 +4,24 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-var _ EntityBuilder = (*EntityBuilderImpl)(nil)
+var _ EntityBuilder = (*entityBuilderImpl)(nil)
 
 func NewEntityBuilder(bot *Bot) EntityBuilder {
-	return &EntityBuilderImpl{bot: bot}
+	return &entityBuilderImpl{bot: bot}
 }
 
-// EntityBuilderImpl is used for creating structs used by Disgo
-type EntityBuilderImpl struct {
+// entityBuilderImpl is used for creating structs used by Disgo
+type entityBuilderImpl struct {
 	bot *Bot
 }
 
 // Bot returns the discord.Bot client
-func (b *EntityBuilderImpl) Bot() *Bot {
+func (b *entityBuilderImpl) Bot() *Bot {
 	return b.bot
 }
 
 // CreateInteraction creates an Interaction from the discord.Interaction response
-func (b EntityBuilderImpl) CreateInteraction(interaction discord.Interaction, c chan discord.InteractionResponse, updateCache CacheStrategy) *Interaction {
+func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c chan discord.InteractionResponse, updateCache CacheStrategy) *Interaction {
 	coreInteraction := &Interaction{
 		Interaction:     interaction,
 		Bot:             b.Bot(),
@@ -40,7 +40,7 @@ func (b EntityBuilderImpl) CreateInteraction(interaction discord.Interaction, c 
 	return coreInteraction
 }
 
-func (b *EntityBuilderImpl) CreateApplicationCommandInteraction(interaction *Interaction, updateCache CacheStrategy) *ApplicationCommandInteraction {
+func (b *entityBuilderImpl) CreateApplicationCommandInteraction(interaction *Interaction, updateCache CacheStrategy) *ApplicationCommandInteraction {
 	commandInteraction := &ApplicationCommandInteraction{
 		Interaction: interaction,
 		ApplicationCommandInteractionData: ApplicationCommandInteractionData{
@@ -82,7 +82,7 @@ func (b *EntityBuilderImpl) CreateApplicationCommandInteraction(interaction *Int
 	return commandInteraction
 }
 
-func (b *EntityBuilderImpl) CreateSlashCommandInteraction(applicationInteraction *ApplicationCommandInteraction) *SlashCommandInteraction {
+func (b *entityBuilderImpl) CreateSlashCommandInteraction(applicationInteraction *ApplicationCommandInteraction) *SlashCommandInteraction {
 	slashCommandInteraction := &SlashCommandInteraction{
 		ApplicationCommandInteraction: applicationInteraction,
 	}
@@ -115,7 +115,7 @@ func (b *EntityBuilderImpl) CreateSlashCommandInteraction(applicationInteraction
 	return slashCommandInteraction
 }
 
-func (b *EntityBuilderImpl) CreateContextCommandInteraction(applicationInteraction *ApplicationCommandInteraction) *ContextCommandInteraction {
+func (b *entityBuilderImpl) CreateContextCommandInteraction(applicationInteraction *ApplicationCommandInteraction) *ContextCommandInteraction {
 	return &ContextCommandInteraction{
 		ApplicationCommandInteraction: applicationInteraction,
 		ContextCommandInteractionData: ContextCommandInteractionData{
@@ -124,19 +124,19 @@ func (b *EntityBuilderImpl) CreateContextCommandInteraction(applicationInteracti
 	}
 }
 
-func (b *EntityBuilderImpl) CreateUserCommandInteraction(contextCommandInteraction *ContextCommandInteraction) *UserCommandInteraction {
+func (b *entityBuilderImpl) CreateUserCommandInteraction(contextCommandInteraction *ContextCommandInteraction) *UserCommandInteraction {
 	return &UserCommandInteraction{
 		ContextCommandInteraction: contextCommandInteraction,
 	}
 }
-func (b *EntityBuilderImpl) CreateMessageCommandInteraction(contextCommandInteraction *ContextCommandInteraction) *MessageCommandInteraction {
+func (b *entityBuilderImpl) CreateMessageCommandInteraction(contextCommandInteraction *ContextCommandInteraction) *MessageCommandInteraction {
 	return &MessageCommandInteraction{
 		ContextCommandInteraction: contextCommandInteraction,
 	}
 }
 
 // CreateComponentInteraction creates a ComponentInteraction from the discord.Interaction response
-func (b *EntityBuilderImpl) CreateComponentInteraction(interaction *Interaction, updateCache CacheStrategy) *ComponentInteraction {
+func (b *entityBuilderImpl) CreateComponentInteraction(interaction *Interaction, updateCache CacheStrategy) *ComponentInteraction {
 	return &ComponentInteraction{
 		Interaction: interaction,
 		Message:     b.CreateMessage(interaction.Message, updateCache),
@@ -144,14 +144,14 @@ func (b *EntityBuilderImpl) CreateComponentInteraction(interaction *Interaction,
 }
 
 // CreateButtonInteraction creates a ButtonInteraction from the discord.Interaction response
-func (b *EntityBuilderImpl) CreateButtonInteraction(componentInteraction *ComponentInteraction) *ButtonInteraction {
+func (b *entityBuilderImpl) CreateButtonInteraction(componentInteraction *ComponentInteraction) *ButtonInteraction {
 	return &ButtonInteraction{
 		ComponentInteraction: componentInteraction,
 	}
 }
 
 // CreateSelectMenuInteraction creates a SelectMenuInteraction from the discord.Interaction response
-func (b *EntityBuilderImpl) CreateSelectMenuInteraction(componentInteraction *ComponentInteraction) *SelectMenuInteraction {
+func (b *entityBuilderImpl) CreateSelectMenuInteraction(componentInteraction *ComponentInteraction) *SelectMenuInteraction {
 	return &SelectMenuInteraction{
 		ComponentInteraction: componentInteraction,
 		SelectMenuInteractionData: SelectMenuInteractionData{
@@ -161,7 +161,7 @@ func (b *EntityBuilderImpl) CreateSelectMenuInteraction(componentInteraction *Co
 }
 
 // CreateUser returns a new User entity
-func (b *EntityBuilderImpl) CreateUser(user discord.User, updateCache CacheStrategy) *User {
+func (b *entityBuilderImpl) CreateUser(user discord.User, updateCache CacheStrategy) *User {
 	coreUser := &User{
 		User: user,
 		Bot:  b.Bot(),
@@ -173,7 +173,7 @@ func (b *EntityBuilderImpl) CreateUser(user discord.User, updateCache CacheStrat
 }
 
 // CreateSelfUser returns a new SelfUser entity
-func (b *EntityBuilderImpl) CreateSelfUser(selfUser discord.OAuth2User, updateCache CacheStrategy) *SelfUser {
+func (b *entityBuilderImpl) CreateSelfUser(selfUser discord.OAuth2User, updateCache CacheStrategy) *SelfUser {
 	coreSelfUser := &SelfUser{
 		OAuth2User: selfUser,
 		Bot:        b.Bot(),
@@ -184,7 +184,7 @@ func (b *EntityBuilderImpl) CreateSelfUser(selfUser discord.OAuth2User, updateCa
 }
 
 // CreateMessage returns a new discord.Message entity
-func (b *EntityBuilderImpl) CreateMessage(message discord.Message, updateCache CacheStrategy) *Message {
+func (b *entityBuilderImpl) CreateMessage(message discord.Message, updateCache CacheStrategy) *Message {
 	coreMsg := &Message{
 		Message: message,
 		Bot:     b.Bot(),
@@ -210,7 +210,7 @@ func (b *EntityBuilderImpl) CreateMessage(message discord.Message, updateCache C
 }
 
 // CreateComponents returns a new slice of Component entities
-func (b *EntityBuilderImpl) CreateComponents(unmarshalComponents []discord.Component, updateCache CacheStrategy) []Component {
+func (b *entityBuilderImpl) CreateComponents(unmarshalComponents []discord.Component, updateCache CacheStrategy) []Component {
 	components := make([]Component, len(unmarshalComponents))
 	for i, component := range unmarshalComponents {
 		switch component.Type {
@@ -238,7 +238,7 @@ func (b *EntityBuilderImpl) CreateComponents(unmarshalComponents []discord.Compo
 }
 
 // CreateGuildTemplate returns a new discord.GuildTemplate entity
-func (b *EntityBuilderImpl) CreateGuildTemplate(guildTemplate discord.GuildTemplate, updateCache CacheStrategy) *GuildTemplate {
+func (b *entityBuilderImpl) CreateGuildTemplate(guildTemplate discord.GuildTemplate, updateCache CacheStrategy) *GuildTemplate {
 	coreTemplate := &GuildTemplate{
 		GuildTemplate: guildTemplate,
 	}
@@ -250,7 +250,7 @@ func (b *EntityBuilderImpl) CreateGuildTemplate(guildTemplate discord.GuildTempl
 }
 
 // CreateGuild returns a new discord.Guild entity
-func (b *EntityBuilderImpl) CreateGuild(guild discord.Guild, updateCache CacheStrategy) *Guild {
+func (b *entityBuilderImpl) CreateGuild(guild discord.Guild, updateCache CacheStrategy) *Guild {
 	coreGuild := &Guild{
 		Guild: guild,
 		Bot:   b.Bot(),
@@ -263,7 +263,7 @@ func (b *EntityBuilderImpl) CreateGuild(guild discord.Guild, updateCache CacheSt
 }
 
 // CreateMember returns a new discord.Member entity
-func (b *EntityBuilderImpl) CreateMember(guildID discord.Snowflake, member discord.Member, updateCache CacheStrategy) *Member {
+func (b *entityBuilderImpl) CreateMember(guildID discord.Snowflake, member discord.Member, updateCache CacheStrategy) *Member {
 	coreMember := &Member{
 		Member: member,
 		Bot:    b.Bot(),
@@ -277,7 +277,7 @@ func (b *EntityBuilderImpl) CreateMember(guildID discord.Snowflake, member disco
 	return coreMember
 }
 
-func (b *EntityBuilderImpl) CreateBan(guildID discord.Snowflake, ban discord.Ban, updateCache CacheStrategy) *Ban {
+func (b *entityBuilderImpl) CreateBan(guildID discord.Snowflake, ban discord.Ban, updateCache CacheStrategy) *Ban {
 	return &Ban{
 		Ban:     ban,
 		Bot:     b.Bot(),
@@ -287,7 +287,7 @@ func (b *EntityBuilderImpl) CreateBan(guildID discord.Snowflake, ban discord.Ban
 }
 
 // CreateVoiceState returns a new discord.VoiceState entity
-func (b *EntityBuilderImpl) CreateVoiceState(guildID discord.Snowflake, voiceState discord.VoiceState, updateCache CacheStrategy) *VoiceState {
+func (b *entityBuilderImpl) CreateVoiceState(guildID discord.Snowflake, voiceState discord.VoiceState, updateCache CacheStrategy) *VoiceState {
 	coreState := &VoiceState{
 		VoiceState: voiceState,
 		Bot:        b.Bot(),
@@ -303,7 +303,7 @@ func (b *EntityBuilderImpl) CreateVoiceState(guildID discord.Snowflake, voiceSta
 }
 
 // CreateApplicationCommand returns a new discord.ApplicationCommand entity
-func (b *EntityBuilderImpl) CreateApplicationCommand(command discord.ApplicationCommand) *ApplicationCommand {
+func (b *entityBuilderImpl) CreateApplicationCommand(command discord.ApplicationCommand) *ApplicationCommand {
 	return &ApplicationCommand{
 		ApplicationCommand: command,
 		Bot:                b.Bot(),
@@ -311,7 +311,7 @@ func (b *EntityBuilderImpl) CreateApplicationCommand(command discord.Application
 }
 
 // CreateApplicationCommandPermissions returns a new discord.ApplicationCommandPermissions entity
-func (b *EntityBuilderImpl) CreateApplicationCommandPermissions(guildCommandPermissions discord.ApplicationCommandPermissions) *ApplicationCommandPermissions {
+func (b *entityBuilderImpl) CreateApplicationCommandPermissions(guildCommandPermissions discord.ApplicationCommandPermissions) *ApplicationCommandPermissions {
 	coreGuildCommandPermissions := &ApplicationCommandPermissions{
 		ApplicationCommandPermissions: guildCommandPermissions,
 		Bot:                           b.Bot(),
@@ -321,7 +321,7 @@ func (b *EntityBuilderImpl) CreateApplicationCommandPermissions(guildCommandPerm
 }
 
 // CreateRole returns a new discord.Role entity
-func (b *EntityBuilderImpl) CreateRole(guildID discord.Snowflake, role discord.Role, updateCache CacheStrategy) *Role {
+func (b *entityBuilderImpl) CreateRole(guildID discord.Snowflake, role discord.Role, updateCache CacheStrategy) *Role {
 	coreRole := &Role{
 		Role: role,
 	}
@@ -335,7 +335,7 @@ func (b *EntityBuilderImpl) CreateRole(guildID discord.Snowflake, role discord.R
 }
 
 // CreateAuditLog returns a new discord.AuditLog entity
-func (b *EntityBuilderImpl) CreateAuditLog(guildID discord.Snowflake, auditLog discord.AuditLog, filterOptions AuditLogFilterOptions, updateCache CacheStrategy) *AuditLog {
+func (b *entityBuilderImpl) CreateAuditLog(guildID discord.Snowflake, auditLog discord.AuditLog, filterOptions AuditLogFilterOptions, updateCache CacheStrategy) *AuditLog {
 	coreAuditLog := &AuditLog{
 		AuditLog:      auditLog,
 		Bot:           b.Bot(),
@@ -355,7 +355,7 @@ func (b *EntityBuilderImpl) CreateAuditLog(guildID discord.Snowflake, auditLog d
 }
 
 // CreateIntegration returns a new discord.Integration entity
-func (b *EntityBuilderImpl) CreateIntegration(guildID discord.Snowflake, integration discord.Integration, updateCache CacheStrategy) *Integration {
+func (b *entityBuilderImpl) CreateIntegration(guildID discord.Snowflake, integration discord.Integration, updateCache CacheStrategy) *Integration {
 	coreIntegration := &Integration{
 		Integration: integration,
 		Bot:         b.Bot(),
@@ -374,7 +374,7 @@ func (b *EntityBuilderImpl) CreateIntegration(guildID discord.Snowflake, integra
 }
 
 // CreateWebhook returns a new Webhook entity
-func (b *EntityBuilderImpl) CreateWebhook(webhook discord.Webhook) *Webhook {
+func (b *entityBuilderImpl) CreateWebhook(webhook discord.Webhook) *Webhook {
 	coreWebhook := &Webhook{
 		Webhook: webhook,
 		Bot:     b.Bot(),
@@ -383,7 +383,7 @@ func (b *EntityBuilderImpl) CreateWebhook(webhook discord.Webhook) *Webhook {
 }
 
 // CreateChannel returns a new Channel entity
-func (b *EntityBuilderImpl) CreateChannel(discordChannel discord.Channel, updateCache CacheStrategy) *Channel {
+func (b *entityBuilderImpl) CreateChannel(discordChannel discord.Channel, updateCache CacheStrategy) *Channel {
 	channel := &Channel{
 		Channel: discordChannel,
 		Bot:     b.Bot(),
@@ -394,11 +394,11 @@ func (b *EntityBuilderImpl) CreateChannel(discordChannel discord.Channel, update
 	return channel
 }
 
-func (b *EntityBuilderImpl) CreateStageInstance(stageInstance discord.StageInstance, updateCache CacheStrategy) *StageInstance {
+func (b *entityBuilderImpl) CreateStageInstance(stageInstance discord.StageInstance, updateCache CacheStrategy) *StageInstance {
 	return &StageInstance{StageInstance: stageInstance, Bot: b.Bot()}
 }
 
-func (b *EntityBuilderImpl) CreateInvite(invite discord.Invite, updateCache CacheStrategy) *Invite {
+func (b *entityBuilderImpl) CreateInvite(invite discord.Invite, updateCache CacheStrategy) *Invite {
 	coreInvite := &Invite{
 		Invite: invite,
 		Bot:    b.Bot(),
@@ -416,7 +416,7 @@ func (b *EntityBuilderImpl) CreateInvite(invite discord.Invite, updateCache Cach
 }
 
 // CreateEmoji returns a new discord.Emoji entity
-func (b *EntityBuilderImpl) CreateEmoji(guildID discord.Snowflake, emoji discord.Emoji, updateCache CacheStrategy) *Emoji {
+func (b *entityBuilderImpl) CreateEmoji(guildID discord.Snowflake, emoji discord.Emoji, updateCache CacheStrategy) *Emoji {
 	coreEmoji := &Emoji{
 		Emoji: emoji,
 		Bot:   b.Bot(),

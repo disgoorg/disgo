@@ -4,7 +4,7 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// VoiceStateUpdateHandler handles api.GatewayEventVoiceStateUpdate
+// VoiceStateUpdateHandler handles core.GatewayEventVoiceStateUpdate
 type VoiceStateUpdateHandler struct{}
 
 // EventType returns the gateway.EventType

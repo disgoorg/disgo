@@ -66,7 +66,7 @@ func (b *Bot) Close() {
 	}
 }
 
-// SelfMember returns an api.OAuth2User for the client, if available
+// SelfMember returns an core.OAuth2User for the client, if available
 func (b *Bot) SelfMember(guildID discord.Snowflake) *Member {
 	return b.Caches.MemberCache().Get(guildID, b.ClientID)
 }
@@ -86,7 +86,7 @@ func (b *Bot) Connect() error {
 	return b.Gateway.Open()
 }
 
-// HasGateway returns whether api.disgo has an active gateway.Gateway connection
+// HasGateway returns whether core.disgo has an active gateway.Gateway connection
 func (b *Bot) HasGateway() bool {
 	return b.Gateway != nil
 }
@@ -221,7 +221,7 @@ func (b *Bot) SetGuildCommands(guildID discord.Snowflake, commandCreates []disco
 	return commands, nil
 }
 
-// GetGuildCommandsPermissions returns the api.ApplicationCommandPermissions for an all discord.ApplicationCommand(s) in an api.Guild
+// GetGuildCommandsPermissions returns the core.ApplicationCommandPermissions for an all discord.ApplicationCommand(s) in an core.Guild
 func (b *Bot) GetGuildCommandsPermissions(guildID discord.Snowflake, opts ...rest.RequestOpt) ([]*ApplicationCommandPermissions, rest.Error) {
 	perms, err := b.RestServices.ApplicationService().GetGuildCommandsPermissions(b.ApplicationID, guildID, opts...)
 	if err != nil {
@@ -234,7 +234,7 @@ func (b *Bot) GetGuildCommandsPermissions(guildID discord.Snowflake, opts ...res
 	return permissions, nil
 }
 
-// GetGuildCommandPermissions returns the api.ApplicationCommandPermissions for a specific discord.ApplicationCommand in an api.Guild
+// GetGuildCommandPermissions returns the core.ApplicationCommandPermissions for a specific discord.ApplicationCommand in an core.Guild
 func (b *Bot) GetGuildCommandPermissions(guildID discord.Snowflake, commandID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, rest.Error) {
 	permissions, err := b.RestServices.ApplicationService().GetGuildCommandPermissions(b.ApplicationID, guildID, commandID, opts...)
 	if err != nil {
@@ -256,7 +256,7 @@ func (b *Bot) SetGuildCommandsPermissions(guildID discord.Snowflake, commandPerm
 	return permissions, nil
 }
 
-// SetGuildCommandPermissions sets the api.ApplicationCommandPermissions for a specific discord.ApplicationCommand
+// SetGuildCommandPermissions sets the core.ApplicationCommandPermissions for a specific discord.ApplicationCommand
 func (b *Bot) SetGuildCommandPermissions(guildID discord.Snowflake, commandID discord.Snowflake, permissions []discord.ApplicationCommandPermission, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, rest.Error) {
 	perms, err := b.RestServices.ApplicationService().SetGuildCommandPermissions(b.ApplicationID, guildID, commandID, permissions, opts...)
 	if err != nil {
@@ -265,7 +265,7 @@ func (b *Bot) SetGuildCommandPermissions(guildID discord.Snowflake, commandID di
 	return b.EntityBuilder.CreateApplicationCommandPermissions(*perms), nil
 }
 
-// GetTemplate gets an api.GuildTemplate by its code
+// GetTemplate gets an core.GuildTemplate by its code
 func (b *Bot) GetTemplate(code string, opts ...rest.RequestOpt) (*GuildTemplate, rest.Error) {
 	guildTemplate, err := b.RestServices.GuildTemplateService().GetGuildTemplate(code, opts...)
 	if err != nil {
@@ -274,7 +274,7 @@ func (b *Bot) GetTemplate(code string, opts ...rest.RequestOpt) (*GuildTemplate,
 	return b.EntityBuilder.CreateGuildTemplate(*guildTemplate, CacheStrategyNoWs), nil
 }
 
-// CreateGuildFromTemplate creates an api.Guild using an api.Template code
+// CreateGuildFromTemplate creates an core.Guild using an core.Template code
 func (b *Bot) CreateGuildFromTemplate(templateCode string, createGuildFromTemplate discord.GuildFromTemplateCreate, opts ...rest.RequestOpt) (*Guild, rest.Error) {
 	guild, err := b.RestServices.GuildTemplateService().CreateGuildFromTemplate(templateCode, createGuildFromTemplate, opts...)
 	if err != nil {

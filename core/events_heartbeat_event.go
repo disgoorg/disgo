@@ -2,7 +2,7 @@ package core
 
 import "time"
 
-// HeartbeatEvent is called upon sending a heartbeat to the api.Gateway
+// HeartbeatEvent is called upon sending a heartbeat to the core.Gateway
 type HeartbeatEvent struct {
 	*GenericEvent
 	NewPing time.Duration

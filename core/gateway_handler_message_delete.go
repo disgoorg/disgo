@@ -10,10 +10,10 @@ type messageDeletePayload struct {
 	ChannelID discord.Snowflake  `json:"channel_id"`
 }
 
-// MessageDeleteHandler handles api.GatewayEventMessageDelete
+// MessageDeleteHandler handles core.GatewayEventMessageDelete
 type MessageDeleteHandler struct{}
 
-// EventType returns the api.GatewayGatewayEventType
+// EventType returns the core.GatewayGatewayEventType
 func (h *MessageDeleteHandler) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeMessageDelete
 }

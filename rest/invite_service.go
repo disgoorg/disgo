@@ -5,10 +5,10 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ InviteService = (*InviteServiceImpl)(nil)
+var _ InviteService = (*inviteServiceImpl)(nil)
 
 func NewInviteService(restClient Client) InviteService {
-	return &InviteServiceImpl{restClient: restClient}
+	return &inviteServiceImpl{restClient: restClient}
 }
 
 type InviteService interface {
@@ -20,15 +20,15 @@ type InviteService interface {
 	GetChannelInvites(channelID discord.Snowflake, opts ...RequestOpt) ([]discord.Invite, Error)
 }
 
-type InviteServiceImpl struct {
+type inviteServiceImpl struct {
 	restClient Client
 }
 
-func (s *InviteServiceImpl) RestClient() Client {
+func (s *inviteServiceImpl) RestClient() Client {
 	return s.restClient
 }
 
-func (s *InviteServiceImpl) GetInvite(code string, opts ...RequestOpt) (invite *discord.Invite, rErr Error) {
+func (s *inviteServiceImpl) GetInvite(code string, opts ...RequestOpt) (invite *discord.Invite, rErr Error) {
 	compiledRoute, err := route.GetInvite.Compile(nil, code)
 	if err != nil {
 		return nil, NewError(nil, err)
@@ -37,7 +37,7 @@ func (s *InviteServiceImpl) GetInvite(code string, opts ...RequestOpt) (invite *
 	return
 }
 
-func (s *InviteServiceImpl) CreateInvite(channelID discord.Snowflake, inviteCreate discord.InviteCreate, opts ...RequestOpt) (invite *discord.Invite, rErr Error) {
+func (s *inviteServiceImpl) CreateInvite(channelID discord.Snowflake, inviteCreate discord.InviteCreate, opts ...RequestOpt) (invite *discord.Invite, rErr Error) {
 	compiledRoute, err := route.CreateInvite.Compile(nil, channelID)
 	if err != nil {
 		return nil, NewError(nil, err)
@@ -46,7 +46,7 @@ func (s *InviteServiceImpl) CreateInvite(channelID discord.Snowflake, inviteCrea
 	return
 }
 
-func (s *InviteServiceImpl) DeleteInvite(code string, opts ...RequestOpt) (invite *discord.Invite, rErr Error) {
+func (s *inviteServiceImpl) DeleteInvite(code string, opts ...RequestOpt) (invite *discord.Invite, rErr Error) {
 	compiledRoute, err := route.DeleteInvite.Compile(nil, code)
 	if err != nil {
 		return nil, NewError(nil, err)
@@ -55,7 +55,7 @@ func (s *InviteServiceImpl) DeleteInvite(code string, opts ...RequestOpt) (invit
 	return
 }
 
-func (s *InviteServiceImpl) GetGuildInvites(guildID discord.Snowflake, opts ...RequestOpt) (invites []discord.Invite, rErr Error) {
+func (s *inviteServiceImpl) GetGuildInvites(guildID discord.Snowflake, opts ...RequestOpt) (invites []discord.Invite, rErr Error) {
 	compiledRoute, err := route.GetGuildInvites.Compile(nil, guildID)
 	if err != nil {
 		return nil, NewError(nil, err)
@@ -64,7 +64,7 @@ func (s *InviteServiceImpl) GetGuildInvites(guildID discord.Snowflake, opts ...R
 	return
 }
 
-func (s *InviteServiceImpl) GetChannelInvites(channelID discord.Snowflake, opts ...RequestOpt) (invites []discord.Invite, rErr Error) {
+func (s *inviteServiceImpl) GetChannelInvites(channelID discord.Snowflake, opts ...RequestOpt) (invites []discord.Invite, rErr Error) {
 	compiledRoute, err := route.GetChannelInvites.Compile(nil, channelID)
 	if err != nil {
 		return nil, NewError(nil, err)

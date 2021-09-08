@@ -9,10 +9,10 @@ type guildBanAddPayload struct {
 	User    discord.User      `json:"user"`
 }
 
-// GuildBanAddHandler handles api.GatewayEventGuildBanAdd
+// GuildBanAddHandler handles core.GatewayEventGuildBanAdd
 type GuildBanAddHandler struct{}
 
-// EventType returns the api.GatewayGatewayEventType
+// EventType returns the core.GatewayGatewayEventType
 func (h *GuildBanAddHandler) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildBanAdd
 }

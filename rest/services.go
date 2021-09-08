@@ -4,13 +4,13 @@ import (
 	"github.com/DisgoOrg/log"
 )
 
-var _ Services = (*ServicesImpl)(nil)
+var _ Services = (*servicesImpl)(nil)
 
 func NewServices(logger log.Logger, restClient Client) Services {
 	if restClient == nil {
 		restClient = NewClient(&DefaultConfig)
 	}
-	return &ServicesImpl{
+	return &servicesImpl{
 		logger:               logger,
 		restClient:           restClient,
 		applicationService:   NewApplicationService(restClient),
@@ -37,7 +37,7 @@ type Services interface {
 	RestClient() Client
 	ApplicationService() ApplicationService
 	OAuth2Service() OAuth2Service
-	AuditLogService() AuditLogService
+	AuditLogService() auditLogService
 	GatewayService() GatewayService
 	GuildService() GuildService
 	ChannelService() ChannelService
@@ -51,13 +51,13 @@ type Services interface {
 	EmojiService() EmojiService
 }
 
-type ServicesImpl struct {
+type servicesImpl struct {
 	logger     log.Logger
 	restClient Client
 
 	applicationService   ApplicationService
 	oauth2Service        OAuth2Service
-	auditLogService      AuditLogService
+	auditLogService      auditLogService
 	gatewayService       GatewayService
 	guildService         GuildService
 	channelService       ChannelService
@@ -71,71 +71,71 @@ type ServicesImpl struct {
 	emojiService         EmojiService
 }
 
-func (s *ServicesImpl) Close() {
+func (s *servicesImpl) Close() {
 	s.restClient.Close()
 }
 
-func (s *ServicesImpl) Logger() log.Logger {
+func (s *servicesImpl) Logger() log.Logger {
 	return s.logger
 }
 
-func (s *ServicesImpl) RestClient() Client {
+func (s *servicesImpl) RestClient() Client {
 	return s.restClient
 }
 
-func (s *ServicesImpl) ApplicationService() ApplicationService {
+func (s *servicesImpl) ApplicationService() ApplicationService {
 	return s.applicationService
 }
 
-func (s *ServicesImpl) OAuth2Service() OAuth2Service {
+func (s *servicesImpl) OAuth2Service() OAuth2Service {
 	return s.oauth2Service
 }
 
-func (s *ServicesImpl) AuditLogService() AuditLogService {
+func (s *servicesImpl) AuditLogService() auditLogService {
 	return s.auditLogService
 }
 
-func (s *ServicesImpl) GatewayService() GatewayService {
+func (s *servicesImpl) GatewayService() GatewayService {
 	return s.gatewayService
 }
 
-func (s *ServicesImpl) GuildService() GuildService {
+func (s *servicesImpl) GuildService() GuildService {
 	return s.guildService
 }
 
-func (s *ServicesImpl) ChannelService() ChannelService {
+func (s *servicesImpl) ChannelService() ChannelService {
 	return s.channelService
 }
 
-func (s *ServicesImpl) InteractionService() InteractionService {
+func (s *servicesImpl) InteractionService() InteractionService {
 	return s.interactionService
 }
 
-func (s *ServicesImpl) InviteService() InviteService {
+func (s *servicesImpl) InviteService() InviteService {
 	return s.inviteService
 }
 
-func (s *ServicesImpl) GuildTemplateService() GuildTemplateService {
+func (s *servicesImpl) GuildTemplateService() GuildTemplateService {
 	return s.guildTemplateService
 }
 
-func (s *ServicesImpl) UserService() UserService {
+func (s *servicesImpl) UserService() UserService {
 	return s.userService
 }
 
-func (s *ServicesImpl) VoiceService() VoiceService {
+func (s *servicesImpl) VoiceService() VoiceService {
 	return s.voiceService
 }
 
-func (s *ServicesImpl) WebhookService() WebhookService {
+func (s *servicesImpl) WebhookService() WebhookService {
 	return s.webhookService
 }
 
-func (s *ServicesImpl) StageInstanceService() StageInstanceService {
+func (s *servicesImpl) StageInstanceService() StageInstanceService {
 	return s.stageInstanceService
 }
 
-func (s *ServicesImpl) EmojiService() EmojiService {
+func (s *servicesImpl) EmojiService() EmojiService {
 	return s.emojiService
 }
 

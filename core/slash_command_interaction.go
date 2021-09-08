@@ -39,7 +39,7 @@ func (i *SlashCommandInteraction) OptionN(name string) []SlashCommandOption {
 	return options
 }
 
-// OptionsT returns Option(s) by api.CommandOptionType
+// OptionsT returns Option(s) by core.CommandOptionType
 func (i *SlashCommandInteraction) OptionsT(optionType discord.SlashCommandOptionType) []SlashCommandOption {
 	options := make([]SlashCommandOption, 0)
 	for _, option := range i.Options {

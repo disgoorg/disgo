@@ -9,10 +9,10 @@ type roleDeleteData struct {
 	RoleID  discord.Snowflake `json:"role_id"`
 }
 
-// GuildRoleDeleteHandler handles api.GuildRoleDeleteGatewayEvent
+// GuildRoleDeleteHandler handles core.GuildRoleDeleteGatewayEvent
 type GuildRoleDeleteHandler struct{}
 
-// EventType returns the api.GatewayGatewayEventType
+// EventType returns the core.GatewayGatewayEventType
 func (h *GuildRoleDeleteHandler) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildRoleDelete
 }

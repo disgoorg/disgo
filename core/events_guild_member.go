@@ -4,36 +4,36 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// GenericGuildMemberEvent generic api.Member event
+// GenericGuildMemberEvent generic core.Member event
 type GenericGuildMemberEvent struct {
 	*GenericGuildEvent
 	Member *Member
 }
 
-// GuildMemberJoinEvent indicates that an api.Member joined the api.Guild
+// GuildMemberJoinEvent indicates that an core.Member joined the core.Guild
 type GuildMemberJoinEvent struct {
 	*GenericGuildMemberEvent
 }
 
-// GuildMemberUpdateEvent indicates that an api.Member updated
+// GuildMemberUpdateEvent indicates that an core.Member updated
 type GuildMemberUpdateEvent struct {
 	*GenericGuildMemberEvent
 	OldMember *Member
 }
 
-// GuildMemberLeaveEvent indicates that an api.Member left the api.Guild
+// GuildMemberLeaveEvent indicates that an core.Member left the core.Guild
 type GuildMemberLeaveEvent struct {
 	*GenericGuildMemberEvent
 	User *User
 }
 
-// GuildMemberTypingEvent indicates that an api.Member started typing in an api.TextChannel(requires api.GatewayIntentsGuildMessageTyping)
+// GuildMemberTypingEvent indicates that an core.Member started typing in an core.TextChannel(requires core.GatewayIntentsGuildMessageTyping)
 type GuildMemberTypingEvent struct {
 	*GenericGuildMemberEvent
 	ChannelID discord.Snowflake
 }
 
-// TextChannel returns the api.TextChannel the GuildMemberTypingEvent happened in
+// TextChannel returns the core.TextChannel the GuildMemberTypingEvent happened in
 func (e GuildMemberTypingEvent) TextChannel() *Channel {
 	return e.Bot().Caches.ChannelCache().Get(e.ChannelID)
 }

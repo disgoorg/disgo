@@ -9,27 +9,29 @@ import (
 
 // AudioController lets you Connect / Disconnect from a VoiceChannel
 type AudioController interface {
+	// Bot returns the core.Bot instance
 	Bot() *Bot
+
+	// Connect sends an core.GatewayCommand to connect to an core.VoiceChannel
 	Connect(guildID discord.Snowflake, channelID discord.Snowflake) error
+
+	// Disconnect sends an core.GatewayCommand to disconnect from an core.VoiceChannel
 	Disconnect(guildID discord.Snowflake) error
 }
 
 func NewAudioController(bot *Bot) AudioController {
-	return &AudioControllerImpl{bot: bot}
+	return &audioControllerImpl{bot: bot}
 }
 
-// AudioControllerImpl lets you Connect / Disconnect from an api.VoiceChannel
-type AudioControllerImpl struct {
+type audioControllerImpl struct {
 	bot *Bot
 }
 
-// Bot returns the api.Bot instance
-func (c *AudioControllerImpl) Bot() *Bot {
+func (c *audioControllerImpl) Bot() *Bot {
 	return c.bot
 }
 
-// Connect sends an api.GatewayCommand to connect to an api.VoiceChannel
-func (c *AudioControllerImpl) Connect(guildID discord.Snowflake, channelID discord.Snowflake) error {
+func (c *audioControllerImpl) Connect(guildID discord.Snowflake, channelID discord.Snowflake) error {
 	gw, err := c.getGateway()
 	if err != nil {
 		return err
@@ -40,8 +42,7 @@ func (c *AudioControllerImpl) Connect(guildID discord.Snowflake, channelID disco
 	}))
 }
 
-// Disconnect sends an api.GatewayCommand to disconnect from an api.VoiceChannel
-func (c *AudioControllerImpl) Disconnect(guildID discord.Snowflake) error {
+func (c *audioControllerImpl) Disconnect(guildID discord.Snowflake) error {
 	gw, err := c.getGateway()
 	if err != nil {
 		return err
@@ -52,7 +53,7 @@ func (c *AudioControllerImpl) Disconnect(guildID discord.Snowflake) error {
 	}))
 }
 
-func (c *AudioControllerImpl) getGateway() (gateway.Gateway, error) {
+func (c *audioControllerImpl) getGateway() (gateway.Gateway, error) {
 	if c.Bot().Gateway == nil {
 		return nil, discord.ErrNoGateway
 	}

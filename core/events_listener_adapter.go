@@ -12,34 +12,34 @@ type ListenerAdapter struct {
 	OnRawGateway  func(event *RawEvent)
 	OnReadyEvent  func(event *ReadyEvent)
 
-	// api.GetGuildChannel Events
+	// core.GetGuildChannel Events
 	OnGuildChannelCreate func(event *GuildChannelCreateEvent)
 	OnGuildChannelUpdate func(event *GuildChannelUpdateEvent)
 	OnGuildChannelDelete func(event *GuildChannelDeleteEvent)
 
-	// api.DMChannel Events
+	// core.DMChannel Events
 	OnDMChannelCreate func(event *DMChannelCreateEvent)
 	OnDMChannelUpdate func(event *DMChannelUpdateEvent)
 	OnDMChannelDelete func(event *DMChannelDeleteEvent)
 
-	// api.DMChannel Reaction Events
+	// core.DMChannel Reaction Events
 	OnDMMessageReactionAdd         func(event *DMMessageReactionAddEvent)
 	OnDMMessageReactionRemove      func(event *DMMessageReactionRemoveEvent)
 	OnDMMessageReactionRemoveEmoji func(event *DMMessageReactionRemoveEmojiEvent)
 	OnDMMessageReactionRemoveAll   func(event *DMMessageReactionRemoveAllEvent)
 
-	// api.Emoji Events
+	// core.Emoji Events
 	OnEmojiCreate func(event *EmojiCreateEvent)
 	OnEmojiUpdate func(event *EmojiUpdateEvent)
 	OnEmojiDelete func(event *EmojiDeleteEvent)
 
-	// api.GatewayStatus Events
+	// core.GatewayStatus Events
 	OnConnected    func(event *ConnectedEvent)
 	OnReconnected  func(event *ReconnectedEvent)
 	OnResumed      func(event *ResumedEvent)
 	OnDisconnected func(event *DisconnectedEvent)
 
-	// api.Guild Events
+	// core.Guild Events
 	OnGuildJoin        func(event *GuildJoinEvent)
 	OnGuildUpdate      func(event *GuildUpdateEvent)
 	OnGuildLeave       func(event *GuildLeaveEvent)
@@ -48,49 +48,49 @@ type ListenerAdapter struct {
 	OnGuildBan         func(event *GuildBanEvent)
 	OnGuildUnban       func(event *GuildUnbanEvent)
 
-	// api.Guild api.Invite Events
+	// core.Guild core.Invite Events
 	OnGuildInviteCreate func(event *GuildInviteCreateEvent)
 	OnGuildInviteDelete func(event *GuildInviteDeleteEvent)
 
-	// api.Guild api.Member Events
+	// core.Guild core.Member Events
 	OnGuildMemberJoin   func(event *GuildMemberJoinEvent)
 	OnGuildMemberUpdate func(event *GuildMemberUpdateEvent)
 	OnGuildMemberLeave  func(event *GuildMemberLeaveEvent)
 
-	// api.Guild api.Message Events
+	// core.Guild core.Message Events
 	OnGuildMessageCreate func(event *GuildMessageCreateEvent)
 	OnGuildMessageUpdate func(event *GuildMessageUpdateEvent)
 	OnGuildMessageDelete func(event *GuildMessageDeleteEvent)
 
-	// api.Guild api.Message Reaction Events
+	// core.Guild core.Message Reaction Events
 	OnGuildMessageReactionAdd         func(event *GuildMessageReactionAddEvent)
 	OnGuildMessageReactionRemove      func(event *GuildMessageReactionRemoveEvent)
 	OnGuildMessageReactionRemoveEmoji func(event *GuildMessageReactionRemoveEmojiEvent)
 	OnGuildMessageReactionRemoveAll   func(event *GuildMessageReactionRemoveAllEvent)
 
-	// api.Guild Voice Events
+	// core.Guild Voice Events
 	OnGuildVoiceUpdate func(event *GuildVoiceUpdateEvent)
 	OnGuildVoiceJoin   func(event *GuildVoiceJoinEvent)
 	OnGuildVoiceLeave  func(event *GuildVoiceLeaveEvent)
 
-	// api.Guild api.Role Events
+	// core.Guild core.Role Events
 	OnRoleCreate func(event *RoleCreateEvent)
 	OnRoleUpdate func(event *RoleUpdateEvent)
 	OnRoleDelete func(event *RoleDeleteEvent)
 
-	// api.Interaction Events
+	// core.Interaction Events
 	OnSlashCommand     func(event *SlashCommandEvent)
 	OnUserCommand      func(event *UserCommandEvent)
 	OnMessageCommand   func(event *MessageCommandEvent)
 	OnButtonClick      func(event *ButtonClickEvent)
 	OnSelectMenuSubmit func(event *SelectMenuSubmitEvent)
 
-	// api.Message Events
+	// core.Message Events
 	OnMessageCreate func(event *MessageCreateEvent)
 	OnMessageUpdate func(event *MessageUpdateEvent)
 	OnMessageDelete func(event *MessageDeleteEvent)
 
-	// api.Message Reaction Events
+	// core.Message Reaction Events
 	OnMessageReactionAdd         func(event *MessageReactionAddEvent)
 	OnMessageReactionRemove      func(event *MessageReactionRemoveEvent)
 	OnMessageReactionRemoveEmoji func(event *MessageReactionRemoveEmojiEvent)
@@ -99,13 +99,13 @@ type ListenerAdapter struct {
 	// Self Events
 	OnSelfUpdate func(event *SelfUpdateEvent)
 
-	// api.User Events
+	// core.User Events
 	OnUserUpdate      func(event *UserUpdateEvent)
 	OnUserTyping      func(event *UserTypingEvent)
 	OnGuildUserTyping func(event *GuildMemberTypingEvent)
 	OnDMUserTyping    func(event *DMChannelUserTypingEvent)
 
-	// api.User api.Activity Events
+	// core.User core.Activity Events
 	OnUserActivityStart  func(event *UserActivityStartEvent)
 	OnUserActivityUpdate func(event *UserActivityUpdateEvent)
 	OnUserActivityEnd    func(event *UserActivityEndEvent)
@@ -131,7 +131,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// api.GetGuildChannel Events
+	// core.GetGuildChannel Events
 	case *GuildChannelCreateEvent:
 		if listener := l.OnGuildChannelCreate; listener != nil {
 			listener(e)
@@ -145,7 +145,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// api.DMChannel Events// api.Category Events
+	// core.DMChannel Events// core.Category Events
 	case *DMChannelCreateEvent:
 		if listener := l.OnDMChannelCreate; listener != nil {
 			listener(e)
@@ -159,7 +159,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// api.DMChannel Events// api.Category Events
+	// core.DMChannel Events// core.Category Events
 	case *DMMessageReactionAddEvent:
 		if listener := l.OnDMMessageReactionAdd; listener != nil {
 			listener(e)
@@ -239,7 +239,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// api.Guild api.Invite Events
+	// core.Guild core.Invite Events
 	case *GuildInviteCreateEvent:
 		if listener := l.OnGuildInviteCreate; listener != nil {
 			listener(e)
@@ -249,7 +249,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// api.Member Events
+	// core.Member Events
 	case *GuildMemberJoinEvent:
 		if listener := l.OnGuildMemberJoin; listener != nil {
 			listener(e)
@@ -263,7 +263,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// api.Guild api.Message Events
+	// core.Guild core.Message Events
 	case *GuildMessageCreateEvent:
 		if listener := l.OnGuildMessageCreate; listener != nil {
 			listener(e)
@@ -277,7 +277,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// api.Guild api.Message Reaction Events
+	// core.Guild core.Message Reaction Events
 	case *GuildMessageReactionAddEvent:
 		if listener := l.OnGuildMessageReactionAdd; listener != nil {
 			listener(e)
@@ -295,7 +295,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// api.Guild Voice Events
+	// core.Guild Voice Events
 	case *GuildVoiceUpdateEvent:
 		if listener := l.OnGuildVoiceUpdate; listener != nil {
 			listener(e)
@@ -309,7 +309,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// api.Guild api.Role Events
+	// core.Guild core.Role Events
 	case *RoleCreateEvent:
 		if listener := l.OnRoleCreate; listener != nil {
 			listener(e)
@@ -345,7 +345,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// api.Message Events
+	// core.Message Events
 	case *MessageCreateEvent:
 		if listener := l.OnMessageCreate; listener != nil {
 			listener(e)
@@ -359,7 +359,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// api.Message Reaction Events
+	// core.Message Reaction Events
 	case *MessageReactionAddEvent:
 		if listener := l.OnMessageReactionAdd; listener != nil {
 			listener(e)
@@ -383,7 +383,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// api.User Events
+	// core.User Events
 	case *UserUpdateEvent:
 		if listener := l.OnUserUpdate; listener != nil {
 			listener(e)
@@ -401,7 +401,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// api.User api.Activity Events
+	// core.User core.Activity Events
 	case *UserActivityStartEvent:
 		if listener := l.OnUserActivityStart; listener != nil {
 			listener(e)

@@ -4,10 +4,10 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// GuildMemberAddHandler handles api.GuildMemberAddGatewayEvent
+// GuildMemberAddHandler handles core.GuildMemberAddGatewayEvent
 type GuildMemberAddHandler struct{}
 
-// EventType returns the api.GatewayGatewayEventType
+// EventType returns the core.GatewayGatewayEventType
 func (h *GuildMemberAddHandler) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildMemberAdd
 }

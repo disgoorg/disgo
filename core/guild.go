@@ -243,7 +243,7 @@ func (g *Guild) SetGuildCommands(commandCreates []discord.ApplicationCommandCrea
 	return commands, nil
 }
 
-// GetGuildCommandsPermissions returns the api.ApplicationCommandPermissions for a all discord.ApplicationCommand(s) in an api.Guild
+// GetGuildCommandsPermissions returns the core.ApplicationCommandPermissions for a all discord.ApplicationCommand(s) in an core.Guild
 func (g *Guild) GetGuildCommandsPermissions(opts ...rest.RequestOpt) ([]*ApplicationCommandPermissions, rest.Error) {
 	perms, err := g.Bot.RestServices.ApplicationService().GetGuildCommandsPermissions(g.Bot.ApplicationID, g.ID, opts...)
 	if err != nil {
@@ -256,7 +256,7 @@ func (g *Guild) GetGuildCommandsPermissions(opts ...rest.RequestOpt) ([]*Applica
 	return permissions, nil
 }
 
-// GetGuildCommandPermissions returns the api.ApplicationCommandPermissions for a specific discord.ApplicationCommand in an api.Guild
+// GetGuildCommandPermissions returns the core.ApplicationCommandPermissions for a specific discord.ApplicationCommand in an core.Guild
 func (g *Guild) GetGuildCommandPermissions(commandID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, rest.Error) {
 	permissions, err := g.Bot.RestServices.ApplicationService().GetGuildCommandPermissions(g.Bot.ApplicationID, g.ID, commandID, opts...)
 	if err != nil {
@@ -278,7 +278,7 @@ func (g *Guild) SetGuildCommandsPermissions(commandPermissions []discord.Applica
 	return permissions, nil
 }
 
-// SetGuildCommandPermissions sets the api.ApplicationCommandPermissions for a specific discord.ApplicationCommand
+// SetGuildCommandPermissions sets the core.ApplicationCommandPermissions for a specific discord.ApplicationCommand
 func (g *Guild) SetGuildCommandPermissions(commandID discord.Snowflake, permissions []discord.ApplicationCommandPermission, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, rest.Error) {
 	perms, err := g.Bot.RestServices.ApplicationService().SetGuildCommandPermissions(g.Bot.ApplicationID, g.ID, commandID, permissions, opts...)
 	if err != nil {

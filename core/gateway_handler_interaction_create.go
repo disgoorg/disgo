@@ -4,10 +4,10 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// InteractionCreateGatewayHandler handles api.InteractionCreateGatewayEvent
+// InteractionCreateGatewayHandler handles core.InteractionCreateGatewayEvent
 type InteractionCreateGatewayHandler struct{}
 
-// EventType returns the api.GatewayGatewayEventType
+// EventType returns the core.GatewayGatewayEventType
 func (h *InteractionCreateGatewayHandler) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeInteractionCreate
 }

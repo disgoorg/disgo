@@ -12,7 +12,7 @@ type guildEmojisUpdatePayload struct {
 // GuildEmojisUpdateHandler handles discord.GatewayEventTypeGuildEmojisUpdate
 type GuildEmojisUpdateHandler struct{}
 
-// EventType returns the api.GatewayGatewayEventType
+// EventType returns the core.GatewayGatewayEventType
 func (h *GuildEmojisUpdateHandler) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildEmojisUpdate
 }

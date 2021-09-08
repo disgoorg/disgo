@@ -9,10 +9,10 @@ type webhooksUpdateData struct {
 	ChannelID discord.Snowflake `json:"channel_id"`
 }
 
-// WebhooksUpdateHandler handles api.GatewayEventWebhooksUpdate
+// WebhooksUpdateHandler handles core.GatewayEventWebhooksUpdate
 type WebhooksUpdateHandler struct{}
 
-// EventType returns the raw api.GatewayGatewayEventType
+// EventType returns the raw core.GatewayGatewayEventType
 func (h *WebhooksUpdateHandler) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeWebhooksUpdate
 }

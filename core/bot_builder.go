@@ -10,14 +10,14 @@ import (
 	"github.com/DisgoOrg/log"
 )
 
-// NewBotBuilder returns a new api.BotBuilder instance
+// NewBotBuilder returns a new core.BotBuilder instance
 func NewBotBuilder(token string) *BotBuilder {
 	return &BotBuilder{
 		Token: token,
 	}
 }
 
-// BotBuilder implementation of the api.BotBuilder interface
+// BotBuilder implementation of the core.BotBuilder interface
 type BotBuilder struct {
 	Token string
 	BotConfig
@@ -65,19 +65,19 @@ func (b *BotBuilder) SetRateLimiterConfigOpts(opts ...rate.ConfigOpt) *BotBuilde
 	return b
 }
 
-// SetRestServices lets you inject your own api.Services
+// SetRestServices lets you inject your own core.Services
 func (b *BotBuilder) SetRestServices(restServices rest.Services) *BotBuilder {
 	b.RestServices = restServices
 	return b
 }
 
-// SetEventManager lets you inject your own api.EventManager
+// SetEventManager lets you inject your own core.EventManager
 func (b *BotBuilder) SetEventManager(eventManager EventManager) *BotBuilder {
 	b.EventManager = eventManager
 	return b
 }
 
-// AddEventListeners lets you add an api.EventListener to your api.EventManager
+// AddEventListeners lets you add an core.EventListener to your core.EventManager
 func (b *BotBuilder) AddEventListeners(eventListeners ...EventListener) *BotBuilder {
 	for _, eventListener := range eventListeners {
 		b.EventListeners = append(b.EventListeners, eventListener)
@@ -91,13 +91,13 @@ func (b *BotBuilder) SetRawEventsEnabled(enabled bool) *BotBuilder {
 	return b
 }
 
-// SetVoiceDispatchInterceptor sets the api.VoiceDispatchInterceptor
+// SetVoiceDispatchInterceptor sets the core.VoiceDispatchInterceptor
 func (b *BotBuilder) SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor) *BotBuilder {
 	b.VoiceDispatchInterceptor = voiceDispatchInterceptor
 	return b
 }
 
-// SetGateway lets you inject your own api.Gateway
+// SetGateway lets you inject your own core.Gateway
 func (b *BotBuilder) SetGateway(gateway gateway.Gateway) *BotBuilder {
 	b.Gateway = gateway
 	return b
@@ -114,13 +114,13 @@ func (b *BotBuilder) SetGatewayConfigOpts(opts ...gateway.ConfigOpt) *BotBuilder
 	return b
 }
 
-// SetHTTPServer lets you inject your own api.EventManager
+// SetHTTPServer lets you inject your own core.EventManager
 func (b *BotBuilder) SetHTTPServer(httpServer httpserver.Server) *BotBuilder {
 	b.HTTPServer = httpServer
 	return b
 }
 
-// SetHTTPServerConfig sets the default api.Server properties
+// SetHTTPServerConfig sets the default core.Server properties
 func (b *BotBuilder) SetHTTPServerConfig(config httpserver.Config) *BotBuilder {
 	b.HTTPServerConfig = &config
 	return b
@@ -131,7 +131,7 @@ func (b *BotBuilder) SetHTTPServerConfigOpts(opts ...httpserver.ConfigOpt) *BotB
 	return b
 }
 
-// SetCache lets you inject your own api.Caches
+// SetCache lets you inject your own core.Caches
 func (b *BotBuilder) SetCache(cache Caches) *BotBuilder {
 	b.Caches = cache
 	return b
@@ -148,19 +148,19 @@ func (b *BotBuilder) SetCacheConfigOpts(opts ...CacheConfigOpt) *BotBuilder {
 	return b
 }
 
-// SetAudioController lets you inject your own api.AudioController
+// SetAudioController lets you inject your own core.AudioController
 func (b *BotBuilder) SetAudioController(audioController AudioController) *BotBuilder {
 	b.AudioController = audioController
 	return b
 }
 
-// SetEntityBuilder lets you inject your own api.EntityBuilder
+// SetEntityBuilder lets you inject your own core.EntityBuilder
 func (b *BotBuilder) SetEntityBuilder(entityBuilder EntityBuilder) *BotBuilder {
 	b.EntityBuilder = entityBuilder
 	return b
 }
 
-// Build builds your api.Bot instance
+// Build builds your core.Bot instance
 func (b *BotBuilder) Build() (*Bot, error) {
 	return buildBot(b.Token, b.BotConfig)
 }

@@ -33,7 +33,7 @@ func TestCDNRoute_Compile(t *testing.T) {
 func TestCustomRoute_Compile(t *testing.T) {
 	testAPI := NewCustomAPIRoute(GET, "https://test.de/", "test/{test}")
 
-	compiledRoute, err := testAPI.Compile(nil, "test")
+	compiledRoute, err := testcore.Compile(nil, "test")
 	assert.NoError(t, err)
 	assert.Equal(t, "https://test.de/test/test", compiledRoute.URL())
 }

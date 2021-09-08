@@ -5,10 +5,10 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ StageInstanceService = (*StageInstanceServiceImpl)(nil)
+var _ StageInstanceService = (*stageInstanceServiceImpl)(nil)
 
 func NewStageInstanceService(restClient Client) StageInstanceService {
-	return &StageInstanceServiceImpl{restClient: restClient}
+	return &stageInstanceServiceImpl{restClient: restClient}
 }
 
 type StageInstanceService interface {
@@ -19,15 +19,15 @@ type StageInstanceService interface {
 	DeleteStageInstance(channelID discord.Snowflake, opts ...RequestOpt) Error
 }
 
-type StageInstanceServiceImpl struct {
+type stageInstanceServiceImpl struct {
 	restClient Client
 }
 
-func (s *StageInstanceServiceImpl) RestClient() Client {
+func (s *stageInstanceServiceImpl) RestClient() Client {
 	return s.restClient
 }
 
-func (s *StageInstanceServiceImpl) GetStageInstance(channelID discord.Snowflake, opts ...RequestOpt) (stageInstance *discord.StageInstance, rErr Error) {
+func (s *stageInstanceServiceImpl) GetStageInstance(channelID discord.Snowflake, opts ...RequestOpt) (stageInstance *discord.StageInstance, rErr Error) {
 	compiledRoute, err := route.GetStageInstance.Compile(nil, channelID)
 	if err != nil {
 		return nil, NewError(nil, err)
@@ -36,7 +36,7 @@ func (s *StageInstanceServiceImpl) GetStageInstance(channelID discord.Snowflake,
 	return
 }
 
-func (s *StageInstanceServiceImpl) CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate, opts ...RequestOpt) (stageInstance *discord.StageInstance, rErr Error) {
+func (s *stageInstanceServiceImpl) CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate, opts ...RequestOpt) (stageInstance *discord.StageInstance, rErr Error) {
 	compiledRoute, err := route.CreateStageInstance.Compile(nil)
 	if err != nil {
 		return nil, NewError(nil, err)
@@ -45,7 +45,7 @@ func (s *StageInstanceServiceImpl) CreateStageInstance(stageInstanceCreate disco
 	return
 }
 
-func (s *StageInstanceServiceImpl) UpdateStageInstance(channelID discord.Snowflake, stageInstanceUpdate discord.StageInstanceUpdate, opts ...RequestOpt) (stageInstance *discord.StageInstance, rErr Error) {
+func (s *stageInstanceServiceImpl) UpdateStageInstance(channelID discord.Snowflake, stageInstanceUpdate discord.StageInstanceUpdate, opts ...RequestOpt) (stageInstance *discord.StageInstance, rErr Error) {
 	compiledRoute, err := route.UpdateStageInstance.Compile(nil, channelID)
 	if err != nil {
 		return nil, NewError(nil, err)
@@ -54,7 +54,7 @@ func (s *StageInstanceServiceImpl) UpdateStageInstance(channelID discord.Snowfla
 	return
 }
 
-func (s *StageInstanceServiceImpl) DeleteStageInstance(channelID discord.Snowflake, opts ...RequestOpt) Error {
+func (s *stageInstanceServiceImpl) DeleteStageInstance(channelID discord.Snowflake, opts ...RequestOpt) Error {
 	compiledRoute, err := route.DeleteStageInstance.Compile(nil, channelID)
 	if err != nil {
 		return NewError(nil, err)

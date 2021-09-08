@@ -4,10 +4,10 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// ChannelCreateHandler handles api.GatewayEventChannelCreate
+// ChannelCreateHandler handles core.GatewayEventChannelCreate
 type ChannelCreateHandler struct{}
 
-// EventType returns the api.GatewayGatewayEventType
+// EventType returns the core.GatewayGatewayEventType
 func (h *ChannelCreateHandler) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeChannelCreate
 }

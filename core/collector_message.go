@@ -32,10 +32,10 @@ func NewMessageCollector(disgo *Bot, channelID discord.Snowflake, guildID *disco
 	return ch, cls
 }
 
-// MessageFilter used to filter api.Message(s) in a MessageCollector
+// MessageFilter used to filter core.Message(s) in a MessageCollector
 type MessageFilter func(message *Message) bool
 
-// MessageCollector collects api.Message(s) using a MessageFilter function
+// MessageCollector collects core.Message(s) using a MessageFilter function
 type MessageCollector struct {
 	Filter    MessageFilter
 	Channel   chan *Message

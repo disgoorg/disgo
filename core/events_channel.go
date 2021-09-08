@@ -4,7 +4,7 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// GenericChannelEvent is called upon receiving any api.GetChannel api.EventType
+// GenericChannelEvent is called upon receiving any core.GetChannel core.EventType
 type GenericChannelEvent struct {
 	*GenericEvent
 	ChannelID discord.Snowflake

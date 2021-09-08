@@ -9,12 +9,12 @@ type GenericDMChannelEvent struct {
 	*GenericChannelEvent
 }
 
-// DMChannelCreateEvent indicates that a new api.DMChannel got created
+// DMChannelCreateEvent indicates that a new core.DMChannel got created
 type DMChannelCreateEvent struct {
 	*GenericDMChannelEvent
 }
 
-// DMChannelUpdateEvent indicates that an api.DMChannel got updated
+// DMChannelUpdateEvent indicates that an core.DMChannel got updated
 type DMChannelUpdateEvent struct {
 	*GenericDMChannelEvent
 	OldChannel *Channel
@@ -26,12 +26,12 @@ type DMChannelPinsUpdateEvent struct {
 	NewLastPinTimestamp *discord.Time
 }
 
-// DMChannelDeleteEvent indicates that an api.DMChannel got deleted
+// DMChannelDeleteEvent indicates that an core.DMChannel got deleted
 type DMChannelDeleteEvent struct {
 	*GenericDMChannelEvent
 }
 
-// DMChannelUserTypingEvent indicates that an api.User started typing in an api.DMChannel(requires api.GatewayIntentsDirectMessageTyping)
+// DMChannelUserTypingEvent indicates that an core.User started typing in an core.DMChannel(requires core.GatewayIntentsDirectMessageTyping)
 type DMChannelUserTypingEvent struct {
 	*GenericUserEvent
 	ChannelID discord.Snowflake

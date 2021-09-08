@@ -7,7 +7,7 @@ import (
 // InviteCreateHandler handles discord.GatewayEventTypeInviteDelete
 type InviteCreateHandler struct{}
 
-// EventType returns the api.GatewayGatewayEventType
+// EventType returns the core.GatewayGatewayEventType
 func (h *InviteCreateHandler) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeInviteDelete
 }

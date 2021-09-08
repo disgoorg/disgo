@@ -10,17 +10,17 @@ type GenericGuildChannelEvent struct {
 	GuildID discord.Snowflake
 }
 
-// Guild returns the cached api.Guild the event happened in
+// Guild returns the cached core.Guild the event happened in
 func (e GenericGuildChannelEvent) Guild() *Guild {
 	return e.Bot().Caches.GuildCache().Get(e.GuildID)
 }
 
-// GuildChannelCreateEvent indicates that a new api.GetGuildChannel got created in an api.Guild
+// GuildChannelCreateEvent indicates that a new core.GetGuildChannel got created in an core.Guild
 type GuildChannelCreateEvent struct {
 	*GenericGuildChannelEvent
 }
 
-// GuildChannelUpdateEvent indicates that an api.GetGuildChannel got updated in an api.Guild
+// GuildChannelUpdateEvent indicates that an core.GetGuildChannel got updated in an core.Guild
 type GuildChannelUpdateEvent struct {
 	*GenericGuildChannelEvent
 	OldChannel *Channel
@@ -32,7 +32,7 @@ type GuildChannelPinsUpdateEvent struct {
 	NewLastPinTimestamp *discord.Time
 }
 
-// GuildChannelDeleteEvent indicates that an api.GetGuildChannel got deleted in an api.Guild
+// GuildChannelDeleteEvent indicates that an core.GetGuildChannel got deleted in an core.Guild
 type GuildChannelDeleteEvent struct {
 	*GenericGuildChannelEvent
 }

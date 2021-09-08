@@ -12,23 +12,23 @@ type GenericGuildMessageReactionEvent struct {
 	MessageReaction discord.MessageReaction
 }
 
-// GuildMessageReactionAddEvent indicates that an api.Member added an api.MessageReaction to an api.Message in an api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)
+// GuildMessageReactionAddEvent indicates that an core.Member added an core.MessageReaction to an core.Message in an core.TextChannel(requires the core.GatewayIntentsGuildMessageReactions)
 type GuildMessageReactionAddEvent struct {
 	*GenericGuildMessageReactionEvent
 }
 
-// GuildMessageReactionRemoveEvent indicates that an api.Member removed an api.MessageReaction from an api.Message in an api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)
+// GuildMessageReactionRemoveEvent indicates that an core.Member removed an core.MessageReaction from an core.Message in an core.TextChannel(requires the core.GatewayIntentsGuildMessageReactions)
 type GuildMessageReactionRemoveEvent struct {
 	*GenericGuildMessageReactionEvent
 }
 
-// GuildMessageReactionRemoveEmojiEvent indicates someone removed all api.MessageReaction of a specific api.Emoji from an api.Message in an api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)
+// GuildMessageReactionRemoveEmojiEvent indicates someone removed all core.MessageReaction of a specific core.Emoji from an core.Message in an core.TextChannel(requires the core.GatewayIntentsGuildMessageReactions)
 type GuildMessageReactionRemoveEmojiEvent struct {
 	*GenericGuildMessageEvent
 	MessageReaction discord.MessageReaction
 }
 
-// GuildMessageReactionRemoveAllEvent indicates someone removed all api.MessageReaction(s) from an api.Message in an api.TextChannel(requires the api.GatewayIntentsGuildMessageReactions)
+// GuildMessageReactionRemoveAllEvent indicates someone removed all core.MessageReaction(s) from an core.Message in an core.TextChannel(requires the core.GatewayIntentsGuildMessageReactions)
 type GuildMessageReactionRemoveAllEvent struct {
 	*GenericGuildMessageEvent
 }

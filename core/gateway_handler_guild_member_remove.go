@@ -9,10 +9,10 @@ type guildMemberRemoveData struct {
 	User    discord.User      `json:"user"`
 }
 
-// GuildMemberRemoveHandler handles api.GuildMemberRemoveGatewayEvent
+// GuildMemberRemoveHandler handles core.GuildMemberRemoveGatewayEvent
 type GuildMemberRemoveHandler struct{}
 
-// EventType returns the api.GatewayGatewayEventType
+// EventType returns the core.GatewayGatewayEventType
 func (h *GuildMemberRemoveHandler) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildMemberRemove
 }

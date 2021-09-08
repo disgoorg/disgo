@@ -9,10 +9,10 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-var _ EventManager = (*EventManagerImpl)(nil)
+var _ EventManager = (*eventManagerImpl)(nil)
 
 func NewEventManager(bot *Bot, listeners []EventListener) EventManager {
-	return &EventManagerImpl{
+	return &eventManagerImpl{
 		gatewayEventHandlers:   GetGatewayHandlers(),
 		httpServerEventHandler: &InteractionCreateHTTPServerHandler{},
 		bot:                    bot,
@@ -20,26 +20,26 @@ func NewEventManager(bot *Bot, listeners []EventListener) EventManager {
 	}
 }
 
-// EventManagerImpl is the implementation of api.EventManager
-type EventManagerImpl struct {
+// eventManagerImpl is the implementation of core.EventManager
+type eventManagerImpl struct {
 	gatewayEventHandlers   map[discord.GatewayEventType]GatewayEventHandler
 	httpServerEventHandler HTTPServerEventHandler
 	bot                    *Bot
 	listeners              []EventListener
 }
 
-// Bot returns the api.Bot instance used by the api.EventManager
-func (e *EventManagerImpl) Bot() *Bot {
+// Bot returns the core.Bot instance used by the core.EventManager
+func (e *eventManagerImpl) Bot() *Bot {
 	return e.bot
 }
 
-// Close closes all goroutines created by the api.EventManager
-func (e *EventManagerImpl) Close() {
+// Close closes all goroutines created by the core.EventManager
+func (e *eventManagerImpl) Close() {
 	e.Bot().Logger.Info("closing eventManager goroutines...")
 }
 
-// HandleGateway calls the correct api.EventHandler
-func (e *EventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) {
+// HandleGateway calls the correct core.EventHandler
+func (e *eventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) {
 	if handler, ok := e.gatewayEventHandlers[gatewayEventType]; ok {
 		v := handler.New()
 		if err := json.NewDecoder(reader).Decode(&v); err != nil {
@@ -51,8 +51,8 @@ func (e *EventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventTy
 	}
 }
 
-// HandleHTTP calls the correct api.EventHandler
-func (e *EventManagerImpl) HandleHTTP(c chan discord.InteractionResponse, reader io.Reader) {
+// HandleHTTP calls the correct core.EventHandler
+func (e *eventManagerImpl) HandleHTTP(c chan discord.InteractionResponse, reader io.Reader) {
 	v := e.httpServerEventHandler.New()
 	if err := json.NewDecoder(reader).Decode(&v); err != nil {
 		e.Bot().Logger.Error("error while unmarshalling httpserver event. error: ", err)
@@ -61,7 +61,7 @@ func (e *EventManagerImpl) HandleHTTP(c chan discord.InteractionResponse, reader
 }
 
 // Dispatch dispatches a new event to the client
-func (e *EventManagerImpl) Dispatch(event Event) {
+func (e *eventManagerImpl) Dispatch(event Event) {
 	defer func() {
 		if r := recover(); r != nil {
 			e.Bot().Logger.Panicf("recovered from listener panic error: %s", r)
@@ -74,15 +74,15 @@ func (e *EventManagerImpl) Dispatch(event Event) {
 	}
 }
 
-// AddEventListeners adds one or more api.EventListener(s) to the api.EventManager
-func (e *EventManagerImpl) AddEventListeners(listeners ...EventListener) {
+// AddEventListeners adds one or more core.EventListener(s) to the core.EventManager
+func (e *eventManagerImpl) AddEventListeners(listeners ...EventListener) {
 	for _, listener := range listeners {
 		e.listeners = append(e.listeners, listener)
 	}
 }
 
-// RemoveEventListeners removes one or more api.EventListener(s) from the api.EventManager
-func (e *EventManagerImpl) RemoveEventListeners(listeners ...EventListener) {
+// RemoveEventListeners removes one or more core.EventListener(s) from the core.EventManager
+func (e *eventManagerImpl) RemoveEventListeners(listeners ...EventListener) {
 	for _, listener := range listeners {
 		for i, l := range e.listeners {
 			if l == listener {

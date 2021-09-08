@@ -4,10 +4,10 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// MessageUpdateHandler handles api.GatewayEventMessageUpdate
+// MessageUpdateHandler handles core.GatewayEventMessageUpdate
 type MessageUpdateHandler struct{}
 
-// EventType returns the api.GatewayGatewayEventType
+// EventType returns the core.GatewayGatewayEventType
 func (h *MessageUpdateHandler) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeMessageUpdate
 }

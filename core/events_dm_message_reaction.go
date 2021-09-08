@@ -4,7 +4,7 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// GenericDMMessageReactionEvent is called upon receiving DMMessageReactionAddEvent or DMMessageReactionRemoveEvent(requires the api.GatewayIntentsDirectMessageReactions)
+// GenericDMMessageReactionEvent is called upon receiving DMMessageReactionAddEvent or DMMessageReactionRemoveEvent(requires the core.GatewayIntentsDirectMessageReactions)
 type GenericDMMessageReactionEvent struct {
 	*GenericGuildMessageEvent
 	UserID          discord.Snowflake
@@ -12,23 +12,23 @@ type GenericDMMessageReactionEvent struct {
 	MessageReaction discord.MessageReaction
 }
 
-// DMMessageReactionAddEvent indicates that an api.User added an api.MessageReaction to an api.Message in an api.DMChannel(requires the api.GatewayIntentsDirectMessageReactions)
+// DMMessageReactionAddEvent indicates that an core.User added an core.MessageReaction to an core.Message in an core.DMChannel(requires the core.GatewayIntentsDirectMessageReactions)
 type DMMessageReactionAddEvent struct {
 	*GenericDMMessageReactionEvent
 }
 
-// DMMessageReactionRemoveEvent indicates that an api.User removed an api.MessageReaction from an api.Message in an api.DMChannel(requires the api.GatewayIntentsDirectMessageReactions)
+// DMMessageReactionRemoveEvent indicates that an core.User removed an core.MessageReaction from an core.Message in an core.DMChannel(requires the core.GatewayIntentsDirectMessageReactions)
 type DMMessageReactionRemoveEvent struct {
 	*GenericDMMessageReactionEvent
 }
 
-// DMMessageReactionRemoveEmojiEvent indicates someone removed all api.MessageReaction of a specific api.Emoji from an api.Message in an api.DMChannel(requires the api.GatewayIntentsDirectMessageReactions)
+// DMMessageReactionRemoveEmojiEvent indicates someone removed all core.MessageReaction of a specific core.Emoji from an core.Message in an core.DMChannel(requires the core.GatewayIntentsDirectMessageReactions)
 type DMMessageReactionRemoveEmojiEvent struct {
 	*GenericDMMessageEvent
 	MessageReaction discord.MessageReaction
 }
 
-// DMMessageReactionRemoveAllEvent indicates someone removed all api.MessageReaction(s) from an api.Message in an api.DMChannel(requires the api.GatewayIntentsDirectMessageReactions)
+// DMMessageReactionRemoveAllEvent indicates someone removed all core.MessageReaction(s) from an core.Message in an core.DMChannel(requires the core.GatewayIntentsDirectMessageReactions)
 type DMMessageReactionRemoveAllEvent struct {
 	*GenericDMMessageEvent
 }

@@ -17,7 +17,7 @@ type typingStartPayload struct {
 // TypingStartHandler handles discord.GatewayEventTypeInviteDelete
 type TypingStartHandler struct{}
 
-// EventType returns the api.GatewayGatewayEventType
+// EventType returns the core.GatewayGatewayEventType
 func (h *TypingStartHandler) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeTypingStart
 }

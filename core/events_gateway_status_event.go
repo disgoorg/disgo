@@ -10,22 +10,22 @@ type GenericGatewayStatusEvent struct {
 	Status gateway.Status
 }
 
-// ConnectedEvent indicates disgo connected to the api.Gateway
+// ConnectedEvent indicates disgo connected to the core.Gateway
 type ConnectedEvent struct {
 	*GenericGatewayStatusEvent
 }
 
-// ReconnectedEvent indicates disgo reconnected to the api.Gateway
+// ReconnectedEvent indicates disgo reconnected to the core.Gateway
 type ReconnectedEvent struct {
 	*GenericGatewayStatusEvent
 }
 
-// ResumedEvent indicates disgo resumed to the api.Gateway
+// ResumedEvent indicates disgo resumed to the core.Gateway
 type ResumedEvent struct {
 	*GenericGatewayStatusEvent
 }
 
-// DisconnectedEvent indicates disgo disconnected to the api.Gateway
+// DisconnectedEvent indicates disgo disconnected to the core.Gateway
 type DisconnectedEvent struct {
 	*GenericGatewayStatusEvent
 }

@@ -35,7 +35,7 @@ func NewClient(config *Config) Client {
 	if config.RateLimiter == nil {
 		config.RateLimiter = rate.NewLimiter(config.RateLimiterConfig)
 	}
-	return &ClientImpl{config: *config}
+	return &clientImpl{config: *config}
 }
 
 // Client allows doing requests to different endpoints
@@ -48,31 +48,31 @@ type Client interface {
 	Do(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) Error
 }
 
-type ClientImpl struct {
+type clientImpl struct {
 	config Config
 }
 
-func (c *ClientImpl) Close() {
+func (c *clientImpl) Close() {
 	c.config.HTTPClient.CloseIdleConnections()
 }
 
-func (c *ClientImpl) Logger() log.Logger {
+func (c *clientImpl) Logger() log.Logger {
 	return c.config.Logger
 }
 
-func (c *ClientImpl) HTTPClient() *http.Client {
+func (c *clientImpl) HTTPClient() *http.Client {
 	return c.config.HTTPClient
 }
 
-func (c *ClientImpl) RateLimiter() rate.Limiter {
+func (c *clientImpl) RateLimiter() rate.Limiter {
 	return c.config.RateLimiter
 }
 
-func (c *ClientImpl) Config() Config {
+func (c *clientImpl) Config() Config {
 	return c.config
 }
 
-func (c *ClientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, tries int, opts []RequestOpt) Error {
+func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, tries int, opts []RequestOpt) Error {
 	rqURL := cRoute.URL()
 	rqBuffer := &bytes.Buffer{}
 	var contentType string
@@ -197,6 +197,6 @@ func (c *ClientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 	}
 }
 
-func (c *ClientImpl) Do(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) Error {
+func (c *clientImpl) Do(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) Error {
 	return c.retry(cRoute, rqBody, rsBody, 1, opts)
 }

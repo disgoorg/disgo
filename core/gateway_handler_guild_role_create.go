@@ -9,10 +9,10 @@ type roleCreateData struct {
 	Role    discord.Role      `json:"role"`
 }
 
-// GuildRoleCreateHandler handles api.GuildRoleCreateGatewayEvent
+// GuildRoleCreateHandler handles core.GuildRoleCreateGatewayEvent
 type GuildRoleCreateHandler struct{}
 
-// EventType returns the api.GatewayGatewayEventType
+// EventType returns the core.GatewayGatewayEventType
 func (h *GuildRoleCreateHandler) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildRoleCreate
 }

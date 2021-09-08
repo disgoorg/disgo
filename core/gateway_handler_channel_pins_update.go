@@ -10,10 +10,10 @@ type channelPinsUpdatePayload struct {
 	LastPinTimestamp *discord.Time      `json:"last_pin_timestamp"`
 }
 
-// ChannelPinsUpdateHandler handles api.GatewayEventChannelUpdate
+// ChannelPinsUpdateHandler handles core.GatewayEventChannelUpdate
 type ChannelPinsUpdateHandler struct{}
 
-// EventType returns the api.GatewayGatewayEventType
+// EventType returns the core.GatewayGatewayEventType
 func (h *ChannelPinsUpdateHandler) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeChannelPinsUpdate
 }

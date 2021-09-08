@@ -12,23 +12,23 @@ type GenericReactionEvents struct {
 	MessageReaction discord.MessageReaction
 }
 
-// MessageReactionAddEvent indicates that an api.User added an api.MessageReaction to an api.Message in an api.GetChannel(this+++ requires the api.GatewayIntentsGuildMessageReactions and/or api.GatewayIntentsDirectMessageReactions)
+// MessageReactionAddEvent indicates that an core.User added an core.MessageReaction to an core.Message in an core.GetChannel(this+++ requires the core.GatewayIntentsGuildMessageReactions and/or core.GatewayIntentsDirectMessageReactions)
 type MessageReactionAddEvent struct {
 	*GenericReactionEvents
 }
 
-// MessageReactionRemoveEvent indicates that an api.User removed an api.MessageReaction from an api.Message in an api.GetChannel(requires the api.GatewayIntentsGuildMessageReactions and/or api.GatewayIntentsDirectMessageReactions)
+// MessageReactionRemoveEvent indicates that an core.User removed an core.MessageReaction from an core.Message in an core.GetChannel(requires the core.GatewayIntentsGuildMessageReactions and/or core.GatewayIntentsDirectMessageReactions)
 type MessageReactionRemoveEvent struct {
 	*GenericReactionEvents
 }
 
-// MessageReactionRemoveEmojiEvent indicates someone removed all api.MessageReaction of a specific api.Emoji from an api.Message in an api.GetChannel(requires the api.GatewayIntentsGuildMessageReactions and/or api.GatewayIntentsDirectMessageReactions)
+// MessageReactionRemoveEmojiEvent indicates someone removed all core.MessageReaction of a specific core.Emoji from an core.Message in an core.GetChannel(requires the core.GatewayIntentsGuildMessageReactions and/or core.GatewayIntentsDirectMessageReactions)
 type MessageReactionRemoveEmojiEvent struct {
 	*GenericMessageEvent
 	MessageReaction discord.MessageReaction
 }
 
-// MessageReactionRemoveAllEvent indicates someone removed all api.MessageReaction(s) from an api.Message in an api.GetChannel(requires the api.GatewayIntentsGuildMessageReactions and/or api.GatewayIntentsDirectMessageReactionss)
+// MessageReactionRemoveAllEvent indicates someone removed all core.MessageReaction(s) from an core.Message in an core.GetChannel(requires the core.GatewayIntentsGuildMessageReactions and/or core.GatewayIntentsDirectMessageReactionss)
 type MessageReactionRemoveAllEvent struct {
 	*GenericMessageEvent
 }

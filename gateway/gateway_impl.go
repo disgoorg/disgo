@@ -33,16 +33,16 @@ func New(token string, eventHandlerFunc EventHandlerFunc, config *Config) Gatewa
 	}
 	config.EventHandlerFunc = eventHandlerFunc
 
-	return &GatewayImpl{
+	return &gatewayImpl{
 		config: *config,
 		token:  token,
 		status: StatusUnconnected,
 	}
 }
 
-// GatewayImpl is what is used to connect to discord
+// gatewayImpl is what is used to connect to discord
 //goland:noinspection GoNameStartsWithPackageName
-type GatewayImpl struct {
+type gatewayImpl struct {
 	config                Config
 	token                 string
 	conn                  *websocket.Conn
@@ -56,16 +56,16 @@ type GatewayImpl struct {
 	url                   *string
 }
 
-func (g *GatewayImpl) Logger() log.Logger {
+func (g *gatewayImpl) Logger() log.Logger {
 	return g.config.Logger
 }
 
-func (g *GatewayImpl) Config() Config {
+func (g *gatewayImpl) Config() Config {
 	return g.config
 }
 
 // Open initializes the client and connection to discord
-func (g *GatewayImpl) Open() error {
+func (g *gatewayImpl) Open() error {
 	if g.lastSequenceReceived == nil || g.sessionID == nil {
 		g.status = StatusConnecting
 	} else {
@@ -120,26 +120,26 @@ func (g *GatewayImpl) Open() error {
 }
 
 // Close cleans up the gateway internals
-func (g *GatewayImpl) Close() {
+func (g *gatewayImpl) Close() {
 	g.closeWithCode(websocket.CloseNormalClosure)
 }
 
 // Status returns the gateway connection status
-func (g *GatewayImpl) Status() Status {
+func (g *gatewayImpl) Status() Status {
 	return g.status
 }
 
 // Send sends a payload to the Gateway
-func (g *GatewayImpl) Send(command discord.GatewayCommand) error {
+func (g *gatewayImpl) Send(command discord.GatewayCommand) error {
 	return g.conn.WriteJSON(command)
 }
 
-// Latency returns the api.Gateway latency
-func (g *GatewayImpl) Latency() time.Duration {
+// Latency returns the core.Gateway latency
+func (g *gatewayImpl) Latency() time.Duration {
 	return g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
 }
 
-func (g *GatewayImpl) reconnect(delay time.Duration) {
+func (g *gatewayImpl) reconnect(delay time.Duration) {
 	go func() {
 		time.Sleep(delay)
 
@@ -156,7 +156,7 @@ func (g *GatewayImpl) reconnect(delay time.Duration) {
 	}()
 }
 
-func (g *GatewayImpl) closeWithCode(code int) {
+func (g *gatewayImpl) closeWithCode(code int) {
 	if g.quit != nil {
 		g.Logger().Info("closing gateway goroutines...")
 		close(g.quit)
@@ -180,7 +180,7 @@ func (g *GatewayImpl) closeWithCode(code int) {
 	}
 }
 
-func (g *GatewayImpl) heartbeat() {
+func (g *gatewayImpl) heartbeat() {
 	defer func() {
 		if r := recover(); r != nil {
 			g.Logger().Panicf("recovered heartbeat goroutine error: %s", r)
@@ -203,7 +203,7 @@ func (g *GatewayImpl) heartbeat() {
 	}
 }
 
-func (g *GatewayImpl) sendHeartbeat() {
+func (g *gatewayImpl) sendHeartbeat() {
 	g.Logger().Debug("sending heartbeat...")
 	// TODO: check this
 	/*
@@ -223,7 +223,7 @@ func (g *GatewayImpl) sendHeartbeat() {
 	//g.Bot().EventManager().Dispatch(heartbeatEvent)*/
 }
 
-func (g *GatewayImpl) listen() {
+func (g *gatewayImpl) listen() {
 	defer func() {
 		if r := recover(); r != nil {
 			g.Logger().Panicf("recovered listen goroutine error: %s", r)
@@ -364,7 +364,7 @@ func (g *GatewayImpl) listen() {
 	}
 }
 
-func (g *GatewayImpl) parseGatewayEvent(mt int, reader io.Reader) (*discord.GatewayPayload, error) {
+func (g *gatewayImpl) parseGatewayEvent(mt int, reader io.Reader) (*discord.GatewayPayload, error) {
 	if mt == websocket.BinaryMessage {
 		g.Logger().Debug("binary message received. decompressing...")
 		readCloser, err := zlib.NewReader(reader)

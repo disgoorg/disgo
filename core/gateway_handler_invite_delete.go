@@ -10,10 +10,10 @@ type inviteDeletePayload struct {
 	Code      string             `json:"code"`
 }
 
-// InviteDeleteHandler handles api.GatewayEventChannelCreate
+// InviteDeleteHandler handles core.GatewayEventChannelCreate
 type InviteDeleteHandler struct{}
 
-// EventType returns the api.GatewayGatewayEventType
+// EventType returns the core.GatewayGatewayEventType
 func (h *InviteDeleteHandler) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeInviteCreate
 }

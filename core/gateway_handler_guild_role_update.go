@@ -9,10 +9,10 @@ type roleUpdateData struct {
 	Role    discord.Role      `json:"role"`
 }
 
-// GuildRoleUpdateHandler handles api.GuildRoleUpdateGatewayEvent
+// GuildRoleUpdateHandler handles core.GuildRoleUpdateGatewayEvent
 type GuildRoleUpdateHandler struct{}
 
-// EventType returns the api.GatewayGatewayEventType
+// EventType returns the core.GatewayGatewayEventType
 func (h *GuildRoleUpdateHandler) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildRoleUpdate
 }

@@ -11,7 +11,7 @@ import (
 	"github.com/DisgoOrg/log"
 )
 
-var _ Server = (*ServerImpl)(nil)
+var _ Server = (*serverImpl)(nil)
 
 func New(eventHandlerFunc EventHandlerFunc, config *Config) Server {
 	if config == nil {
@@ -28,7 +28,7 @@ func New(eventHandlerFunc EventHandlerFunc, config *Config) Server {
 	}
 
 	mux := http.NewServeMux()
-	server := &ServerImpl{
+	server := &serverImpl{
 		config:    *config,
 		publicKey: hexDecodedKey,
 		server: &http.Server{
@@ -41,24 +41,24 @@ func New(eventHandlerFunc EventHandlerFunc, config *Config) Server {
 	return server
 }
 
-// ServerImpl is used in Bot's webhook server for interactions
-type ServerImpl struct {
+// serverImpl is used in Bot's webhook server for interactions
+type serverImpl struct {
 	config    Config
 	publicKey ed25519.PublicKey
 	server    *http.Server
 }
 
-func (w *ServerImpl) Logger() log.Logger {
+func (w *serverImpl) Logger() log.Logger {
 	return w.config.Logger
 }
 
 // Config returns the Config
-func (w *ServerImpl) Config() Config {
+func (w *serverImpl) Config() Config {
 	return w.config
 }
 
-// Start makes the ServerImpl listen on the specified port and handle requests
-func (w *ServerImpl) Start() {
+// Start makes the serverImpl listen on the specified port and handle requests
+func (w *serverImpl) Start() {
 	go func() {
 		var err error
 		if w.config.CertFile != "" && w.config.KeyFile != "" {
@@ -72,15 +72,15 @@ func (w *ServerImpl) Start() {
 	}()
 }
 
-// Close shuts down the ServerImpl
-func (w *ServerImpl) Close() {
+// Close shuts down the serverImpl
+func (w *serverImpl) Close() {
 	if err := w.server.Close(); err != nil {
 		w.Logger().Errorf("error while shutting down http server: %s", err)
 	}
 }
 
 type WebhookInteractionHandler struct {
-	server *ServerImpl
+	server *serverImpl
 }
 
 func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
