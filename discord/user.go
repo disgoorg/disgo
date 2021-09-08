@@ -29,7 +29,7 @@ type User struct {
 	Discriminator string    `json:"discriminator"`
 	Avatar        *string   `json:"avatar"`
 	IsBot         bool      `json:"bot"`
-	System        bool      `json:"system"`
+	IsSystem      bool      `json:"system"`
 	PublicFlags   UserFlags `json:"public_flags"`
 }
 

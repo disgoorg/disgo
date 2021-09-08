@@ -4,6 +4,8 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/pkg/errors"
+
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/httpserver"
@@ -13,10 +15,10 @@ import (
 )
 
 func NewBot(token string, opts ...BotConfigOpt) (*Bot, error) {
-	config := &BotConfig{Token: token}
+	config := &BotConfig{}
 	config.Apply(opts)
 
-	return buildBot(*config)
+	return buildBot(token, *config)
 }
 
 // Bot is the main discord client
@@ -297,19 +299,18 @@ func (b *Bot) DeleteInvite(inviteCode string, opts ...rest.RequestOpt) (*Invite,
 	return b.EntityBuilder.CreateInvite(*invite, CacheStrategyNoWs), nil
 }
 
-func buildBot(config BotConfig) (*Bot, error) {
-	bot := &Bot{}
-
-	if config.Token == "" {
+func buildBot(token string, config BotConfig) (*Bot, error) {
+	if token == "" {
 		return nil, discord.ErrNoBotToken
 	}
-	bot.Token = config.Token
-
-	id, err := IDFromToken(bot.Token)
+	id, err := IDFromToken(token)
 	if err != nil {
-		bot.Logger.Errorf("error while getting application id from BotToken: %s", err)
-		return nil, err
+		return nil, errors.Wrap(err, "error while getting application id from BotToken")
 	}
+	bot := &Bot{
+		Token: token,
+	}
+
 	// TODO: figure out how we handle different application & client ids
 	bot.ApplicationID = *id
 	bot.ClientID = *id
@@ -336,7 +337,7 @@ func buildBot(config BotConfig) (*Bot, error) {
 	}
 
 	if _, ok := config.RestClientConfig.Headers["authorization"]; !ok {
-		config.RestClientConfig.Headers["authorization"] = []string{discord.TokenTypeBot.Apply(config.Token)}
+		config.RestClientConfig.Headers["authorization"] = []string{discord.TokenTypeBot.Apply(token)}
 	}
 
 	if config.RestClient == nil {
@@ -357,7 +358,7 @@ func buildBot(config BotConfig) (*Bot, error) {
 		if config.RestServices == nil {
 			config.RestServices = bot.RestServices
 		}
-		config.Gateway = gateway.New(config.Token, func(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader) {
+		config.Gateway = gateway.New(token, func(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader) {
 			bot.EventManager.HandleGateway(gatewayEventType, sequenceNumber, payload)
 		}, config.GatewayConfig)
 	}

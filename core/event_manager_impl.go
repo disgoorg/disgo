@@ -9,17 +9,12 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-var (
-	GatewayEventHandlers   = map[discord.GatewayEventType]GatewayEventHandler{}
-	HTTPServerEventHandler HTTPEventHandler
-)
-
 var _ EventManager = (*EventManagerImpl)(nil)
 
 func NewEventManager(bot *Bot, listeners []EventListener) EventManager {
 	return &EventManagerImpl{
-		gatewayEventHandlers:   GatewayEventHandlers,
-		httpServerEventHandler: HTTPServerEventHandler,
+		gatewayEventHandlers:   GetGatewayHandlers(),
+		httpServerEventHandler: &InteractionCreateHTTPServerHandler{},
 		bot:                    bot,
 		listeners:              listeners,
 	}
@@ -28,7 +23,7 @@ func NewEventManager(bot *Bot, listeners []EventListener) EventManager {
 // EventManagerImpl is the implementation of api.EventManager
 type EventManagerImpl struct {
 	gatewayEventHandlers   map[discord.GatewayEventType]GatewayEventHandler
-	httpServerEventHandler HTTPEventHandler
+	httpServerEventHandler HTTPServerEventHandler
 	bot                    *Bot
 	listeners              []EventListener
 }
@@ -45,7 +40,6 @@ func (e *EventManagerImpl) Close() {
 
 // HandleGateway calls the correct api.EventHandler
 func (e *EventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) {
-	println("handling event")
 	if handler, ok := e.gatewayEventHandlers[gatewayEventType]; ok {
 		v := handler.New()
 		if err := json.NewDecoder(reader).Decode(&v); err != nil {
@@ -68,20 +62,16 @@ func (e *EventManagerImpl) HandleHTTP(c chan discord.InteractionResponse, reader
 
 // Dispatch dispatches a new event to the client
 func (e *EventManagerImpl) Dispatch(event Event) {
-	println("called")
-	go func() {
-		defer func() {
-			if r := recover(); r != nil {
-				e.Bot().Logger.Panicf("recovered from listener panic error: %s", r)
-				debug.PrintStack()
-				return
-			}
-		}()
-		for i, listener := range e.listeners {
-			println("listener index: ", i)
-			listener.OnEvent(event)
+	defer func() {
+		if r := recover(); r != nil {
+			e.Bot().Logger.Panicf("recovered from listener panic error: %s", r)
+			debug.PrintStack()
+			return
 		}
 	}()
+	for _, listener := range e.listeners {
+		go listener.OnEvent(event)
+	}
 }
 
 // AddEventListeners adds one or more api.EventListener(s) to the api.EventManager

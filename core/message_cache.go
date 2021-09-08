@@ -30,6 +30,9 @@ type (
 )
 
 func NewMessageCache(messageCachePolicy MessageCachePolicy) MessageCache {
+	if messageCachePolicy == nil {
+		messageCachePolicy = MessageCachePolicyDefault
+	}
 	return &messageCacheImpl{
 		messageCachePolicy: messageCachePolicy,
 		messages:           map[discord.Snowflake]map[discord.Snowflake]*Message{},
@@ -44,7 +47,10 @@ func (c *messageCacheImpl) Get(channelID discord.Snowflake, messageID discord.Sn
 }
 
 func (c *messageCacheImpl) GetCopy(channelID discord.Snowflake, messageID discord.Snowflake) *Message {
-	return &*c.Get(channelID, messageID)
+	if message := c.Get(channelID, messageID); message != nil {
+		return &*message
+	}
+	return nil
 }
 
 func (c *messageCacheImpl) Set(message *Message) *Message {

@@ -44,7 +44,10 @@ func (c *roleCacheImpl) Get(guildID discord.Snowflake, roleID discord.Snowflake)
 }
 
 func (c *roleCacheImpl) GetCopy(guildID discord.Snowflake, roleID discord.Snowflake) *Role {
-	return &*c.Get(guildID, roleID)
+	if role := c.Get(guildID, roleID); role != nil {
+		return &*role
+	}
+	return nil
 }
 
 func (c *roleCacheImpl) Set(role *Role) *Role {

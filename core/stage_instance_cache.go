@@ -38,7 +38,10 @@ func (c *stageInstanceCacheImpl) Get(stageInstanceID discord.Snowflake) *StageIn
 }
 
 func (c *stageInstanceCacheImpl) GetCopy(stageInstanceID discord.Snowflake) *StageInstance {
-	return &*c.Get(stageInstanceID)
+	if stageInstance := c.Get(stageInstanceID); stageInstance != nil {
+		return &*stageInstance
+	}
+	return nil
 }
 
 func (c *stageInstanceCacheImpl) Set(stageInstance *StageInstance) *StageInstance {

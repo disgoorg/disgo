@@ -102,7 +102,7 @@ func (b *EntityBuilderImpl) CreateSlashCommandInteraction(applicationInteraction
 	}
 
 	options := make([]SlashCommandOption, len(unmarshalOptions))
-	for i, optionData := range options {
+	for i, optionData := range unmarshalOptions {
 		options[i] = SlashCommandOption{
 			Resolved: slashCommandInteraction.Resolved,
 			Name:     optionData.Name,
@@ -191,7 +191,7 @@ func (b *EntityBuilderImpl) CreateMessage(message discord.Message, updateCache C
 	}
 
 	if message.Member != nil {
-		coreMsg.Member.Member.User = message.Author // set the underlying discord data which is stored in caches
+		message.Member.User = message.Author // set the underlying discord data which is stored in caches
 		coreMsg.Member = b.CreateMember(*message.GuildID, *message.Member, updateCache)
 		coreMsg.Author = coreMsg.Member.User
 	} else {

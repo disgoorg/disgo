@@ -38,7 +38,10 @@ func (c *guildCacheImpl) Get(guildID discord.Snowflake) *Guild {
 }
 
 func (c *guildCacheImpl) GetCopy(guildID discord.Snowflake) *Guild {
-	return &*c.Get(guildID)
+	if guild := c.Get(guildID); guild != nil {
+		return &*guild
+	}
+	return nil
 }
 
 func (c *guildCacheImpl) Set(guild *Guild) *Guild {

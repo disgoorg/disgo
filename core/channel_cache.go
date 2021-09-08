@@ -35,11 +35,16 @@ func (c *channelCacheImpl) Get(channelID discord.Snowflake) *Channel {
 }
 
 func (c *channelCacheImpl) GetCopy(channelID discord.Snowflake) *Channel {
-	return &*c.Get(channelID)
+	if channel := c.Get(channelID); channel != nil {
+		return &*channel
+	}
+	return nil
 }
 
 func (c *channelCacheImpl) Set(channel *Channel) *Channel {
-	// TODO: check cache flags for specific channel
+	if c.cacheFlags.Missing(getCacheFLagForChannelType(channel.Type)) {
+		return channel
+	}
 	ch, ok := c.channels[channel.ID]
 	if ok {
 		*ch = *channel
@@ -84,4 +89,25 @@ func (c *channelCacheImpl) FindAll(channelFindFunc ChannelFindFunc) []*Channel {
 		}
 	}
 	return channels
+}
+
+func getCacheFLagForChannelType(channelType discord.ChannelType) CacheFlags {
+	switch channelType {
+	case discord.ChannelTypeText:
+		return CacheFlagTextChannels
+	case discord.ChannelTypeDM:
+		return CacheFlagTextChannels
+	case discord.ChannelTypeVoice:
+		return CacheFlagTextChannels
+	case discord.ChannelTypeCategory:
+		return CacheFlagTextChannels
+	case discord.ChannelTypeNews:
+		return CacheFlagTextChannels
+	case discord.ChannelTypeStore:
+		return CacheFlagTextChannels
+	case discord.ChannelTypeStage:
+		return CacheFlagTextChannels
+	default:
+		return CacheFlagsNone
+	}
 }

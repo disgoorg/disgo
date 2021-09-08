@@ -57,7 +57,7 @@ type SlashCommandOptionChoice struct {
 
 // ApplicationCommandCreate is used to create a ApplicationCommand. all fields are optional
 type ApplicationCommandCreate struct {
-	Type              ApplicationCommandType `json:"type"`
+	Type              ApplicationCommandType `json:"type,omitempty"`
 	Name              string                 `json:"name"`
 	Description       string                 `json:"description,omitempty"`
 	Options           []SlashCommandOption   `json:"options,omitempty"`

@@ -11,7 +11,7 @@ import (
 var DefaultConfig = Config{
 	LargeThreshold: 50,
 	GatewayIntents: discord.GatewayIntentsDefault,
-	CompressType:   discord.CompressTypeZLib,
+	Compress:       true,
 	OS:             info.OS,
 	Browser:        info.Name,
 	Device:         info.Name,
@@ -23,7 +23,7 @@ type Config struct {
 	EventHandlerFunc EventHandlerFunc
 	LargeThreshold   int
 	GatewayIntents   discord.GatewayIntents
-	CompressType     discord.CompressType
+	Compress         bool
 	OS               string
 	Browser          string
 	Device           string
@@ -53,9 +53,9 @@ func WithGatewayIntents(gatewayIntents ...discord.GatewayIntents) ConfigOpt {
 	}
 }
 
-func WithCompressType(compressType discord.CompressType) ConfigOpt {
+func WithCompress(compress bool) ConfigOpt {
 	return func(config *Config) {
-		config.CompressType = compressType
+		config.Compress = compress
 	}
 }
 

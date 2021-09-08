@@ -56,6 +56,13 @@ func (c *Channel) IsStageChannel() bool {
 	return c.Type != discord.ChannelTypeStage
 }
 
+func (c *Channel) CollectMessages(filter MessageFilter) (chan *Message, func()) {
+	if !c.IsMessageChannel() {
+		unsupported(c)
+	}
+	return NewMessageCollectorByChannel(c, filter)
+}
+
 // CreateMessage sends a Message to a TextChannel
 func (c *Channel) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, rest.Error) {
 	message, err := c.Bot.RestServices.ChannelService().CreateMessage(c.ID, messageCreate, opts...)

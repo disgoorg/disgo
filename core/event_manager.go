@@ -35,8 +35,8 @@ type GatewayEventHandler interface {
 	HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{})
 }
 
-// HTTPEventHandler is used to handle HTTP Event(s)
-type HTTPEventHandler interface {
+// HTTPServerEventHandler is used to handle HTTP Event(s)
+type HTTPServerEventHandler interface {
 	New() interface{}
 	HandleHTTPEvent(bot *Bot, responseChannel chan discord.InteractionResponse, v interface{})
 }

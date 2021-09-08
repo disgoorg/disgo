@@ -11,7 +11,6 @@ import (
 )
 
 type BotConfig struct {
-	Token  string
 	Logger log.Logger
 
 	HTTPClient *http.Client
@@ -96,6 +95,9 @@ func WithRestClientConfig(restClientConfig rest.Config) BotConfigOpt {
 
 func WithRestClientConfigOpts(opts ...rest.ConfigOpt) BotConfigOpt {
 	return func(config *BotConfig) {
+		if config.RestClientConfig == nil {
+			config.RestClientConfig = &rest.DefaultConfig
+		}
 		config.RestClientConfig.Apply(opts)
 	}
 }
@@ -114,6 +116,9 @@ func WithRateLimiterConfig(rateLimiterConfig rate.Config) BotConfigOpt {
 
 func WithRateLimiterConfigOpts(opts ...rate.ConfigOpt) BotConfigOpt {
 	return func(config *BotConfig) {
+		if config.RateLimiterConfig == nil {
+			config.RateLimiterConfig = &rate.DefaultConfig
+		}
 		config.RateLimiterConfig.Apply(opts)
 	}
 }
@@ -162,6 +167,9 @@ func WithGatewayConfig(gatewayConfig gateway.Config) BotConfigOpt {
 
 func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) BotConfigOpt {
 	return func(config *BotConfig) {
+		if config.GatewayConfig == nil {
+			config.GatewayConfig = &gateway.DefaultConfig
+		}
 		config.GatewayConfig.Apply(opts)
 	}
 }
@@ -180,6 +188,9 @@ func WithHTTPServerConfig(httpServerConfig httpserver.Config) BotConfigOpt {
 
 func WithHTTPServerConfigOpts(opts ...httpserver.ConfigOpt) BotConfigOpt {
 	return func(config *BotConfig) {
+		if config.HTTPServerConfig == nil {
+			config.HTTPServerConfig = &httpserver.DefaultConfig
+		}
 		config.HTTPServerConfig.Apply(opts)
 	}
 }
@@ -198,6 +209,9 @@ func WithCacheConfig(cacheConfig CacheConfig) BotConfigOpt {
 
 func WithCacheConfigOpts(opts ...CacheConfigOpt) BotConfigOpt {
 	return func(config *BotConfig) {
+		if config.CacheConfig == nil {
+			config.CacheConfig = &DefaultConfig
+		}
 		config.CacheConfig.Apply(opts)
 	}
 }

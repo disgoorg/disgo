@@ -8,26 +8,36 @@ type CacheFlags int
 const (
 	CacheFlagsNone  CacheFlags = 0
 	CacheFlagGuilds CacheFlags = 1 << iota
-	CacheFlagDMChannels
-	CacheFlagCategories
+
 	CacheFlagTextChannels
+	CacheFlagDMChannels
 	CacheFlagVoiceChannels
+	CacheFlagCategories
+	CacheFlagNewsChannels
 	CacheFlagStoreChannels
+	CacheFlagStageChannels
+
 	CacheFlagRoles
 	CacheFlagRoleTags
+
 	CacheFlagEmojis
+
 	CacheFlagVoiceStates
+
 	CacheFlagStageInstances
 
-	CacheFlagsChannels = CacheFlagDMChannels |
-		CacheFlagCategories |
-		CacheFlagTextChannels |
+	CacheFlagsChannels = CacheFlagTextChannels |
+		CacheFlagDMChannels |
 		CacheFlagVoiceChannels |
-		CacheFlagStoreChannels
+		CacheFlagCategories |
+		CacheFlagNewsChannels |
+		CacheFlagStoreChannels |
+		CacheFlagStageChannels
 
 	CacheFlagsDefault = CacheFlagsChannels |
 		CacheFlagRoles |
-		CacheFlagEmojis
+		CacheFlagEmojis |
+		CacheFlagVoiceStates
 
 	CacheFlagsFullRoles = CacheFlagRoles |
 		CacheFlagRoleTags

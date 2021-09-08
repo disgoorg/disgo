@@ -2,8 +2,9 @@ package rate
 
 import (
 	"context"
-	"errors"
 	"net/http"
+
+	"github.com/pkg/errors"
 
 	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/log"

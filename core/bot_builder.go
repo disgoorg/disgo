@@ -13,12 +13,13 @@ import (
 // NewBotBuilder returns a new api.BotBuilder instance
 func NewBotBuilder(token string) *BotBuilder {
 	return &BotBuilder{
-		BotConfig: BotConfig{Token: token},
+		Token: token,
 	}
 }
 
 // BotBuilder implementation of the api.BotBuilder interface
 type BotBuilder struct {
+	Token string
 	BotConfig
 }
 
@@ -161,5 +162,5 @@ func (b *BotBuilder) SetEntityBuilder(entityBuilder EntityBuilder) *BotBuilder {
 
 // Build builds your api.Bot instance
 func (b *BotBuilder) Build() (*Bot, error) {
-	return buildBot(b.BotConfig)
+	return buildBot(b.Token, b.BotConfig)
 }

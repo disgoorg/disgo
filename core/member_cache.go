@@ -30,6 +30,9 @@ type (
 )
 
 func NewMemberCache(memberCachePolicy MemberCachePolicy) MemberCache {
+	if memberCachePolicy == nil {
+		memberCachePolicy = MemberCachePolicyDefault
+	}
 	return &memberCacheImpl{
 		memberCachePolicy: memberCachePolicy,
 		members:           map[discord.Snowflake]map[discord.Snowflake]*Member{},
@@ -44,7 +47,10 @@ func (c *memberCacheImpl) Get(guildID discord.Snowflake, userID discord.Snowflak
 }
 
 func (c *memberCacheImpl) GetCopy(guildID discord.Snowflake, userID discord.Snowflake) *Member {
-	return &*c.Get(guildID, userID)
+	if member := c.Get(guildID, userID); member != nil {
+		return &*member
+	}
+	return nil
 }
 
 func (c *memberCacheImpl) Set(member *Member) *Member {

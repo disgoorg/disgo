@@ -9,12 +9,9 @@ import (
 	"time"
 
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/core/collectors"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
-
-	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/log"
 	"github.com/PaesslerAG/gval"
 )
@@ -23,10 +20,10 @@ const red = 16711680
 const orange = 16562691
 const green = 65280
 
-var token = os.Getenv("disgo_test_token")
-var guildID = discord.Snowflake(os.Getenv("guild_id"))
-var adminRoleID = discord.Snowflake(os.Getenv("admin_role_id"))
-var testRoleID = discord.Snowflake(os.Getenv("test_role_id"))
+var token = os.Getenv("disgo_token")
+var guildID = discord.Snowflake(os.Getenv("disgo_guild_id"))
+var adminRoleID = discord.Snowflake(os.Getenv("disgo_admin_role_id"))
+var testRoleID = discord.Snowflake(os.Getenv("disgo_test_role_id"))
 
 func main() {
 	log.SetLevel(log.LevelDebug)
@@ -37,12 +34,13 @@ func main() {
 		SetRawEventsEnabled(true).
 		SetGatewayConfig(gateway.Config{
 			GatewayIntents: discord.GatewayIntentGuilds | discord.GatewayIntentGuildMessages | discord.GatewayIntentGuildMembers,
+			Compress:       true,
 		}).
 		SetCacheConfig(core.CacheConfig{
 			CacheFlags:        core.CacheFlagsDefault,
 			MemberCachePolicy: core.MemberCachePolicyAll,
 		}).
-		AddEventListeners(&events.ListenerAdapter{
+		AddEventListeners(&core.ListenerAdapter{
 			OnRawGateway:         rawGatewayEventListener,
 			OnGuildAvailable:     guildAvailListener,
 			OnGuildMessageCreate: messageListener,
@@ -104,17 +102,17 @@ func main() {
 	<-s
 }
 
-func guildAvailListener(event *events.GuildAvailableEvent) {
+func guildAvailListener(event *core.GuildAvailableEvent) {
 	log.Infof("guild loaded: %s", event.Guild.ID)
 }
 
-func rawGatewayEventListener(event *events.RawEvent) {
+func rawGatewayEventListener(event *core.RawEvent) {
 	if event.Type == discord.GatewayEventTypeInteractionCreate || event.Type == discord.GatewayEventTypeGuildEmojisUpdate {
 		println(string(event.RawPayload))
 	}
 }
 
-func buttonClickListener(event *events.ButtonClickEvent) {
+func buttonClickListener(event *core.ButtonClickEvent) {
 	switch event.CustomID {
 	case "test1":
 		_ = event.Respond(discord.InteractionResponseTypeChannelMessageWithSource,
@@ -138,7 +136,7 @@ func buttonClickListener(event *events.ButtonClickEvent) {
 	}
 }
 
-func selectMenuSubmitListener(event *events.SelectMenuSubmitEvent) {
+func selectMenuSubmitListener(event *core.SelectMenuSubmitEvent) {
 	switch event.CustomID {
 	case "test3":
 		if err := event.DeferUpdate(); err != nil {
@@ -152,7 +150,7 @@ func selectMenuSubmitListener(event *events.SelectMenuSubmitEvent) {
 	}
 }
 
-func commandListener(event *events.SlashCommandEvent) {
+func commandListener(event *core.SlashCommandEvent) {
 	switch event.CommandName {
 	case "eval":
 		go func() {
@@ -263,7 +261,7 @@ func commandListener(event *events.SlashCommandEvent) {
 	}
 }
 
-func messageListener(event *events.GuildMessageCreateEvent) {
+func messageListener(event *core.GuildMessageCreateEvent) {
 	if event.Message.Author.IsBot {
 		return
 	}
@@ -277,7 +275,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 
 	case "test":
 		go func() {
-			message, err := event.MessageChannel().CreateMessage(core.NewMessageCreateBuilder().SetContent("test").Build())
+			message, err := event.Channel().CreateMessage(core.NewMessageCreateBuilder().SetContent("test").Build())
 			if err != nil {
 				log.Errorf("error while sending file: %s", err)
 				return
@@ -309,7 +307,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 
 	case "repeat":
 		go func() {
-			ch, cls := collectors.NewMessageCollectorByChannel(event.MessageChannel(), func(m *core.Message) bool {
+			ch, cls := core.NewMessageCollectorByChannel(event.Channel(), func(m *core.Message) bool {
 				return !m.Author.IsBot && m.ChannelID == event.ChannelID
 			})
 

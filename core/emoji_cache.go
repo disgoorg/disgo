@@ -44,7 +44,10 @@ func (c *emojiCacheImpl) Get(guildID discord.Snowflake, emojiID discord.Snowflak
 }
 
 func (c *emojiCacheImpl) GetCopy(guildID discord.Snowflake, emojiID discord.Snowflake) *Emoji {
-	return &*c.Get(guildID, emojiID)
+	if emoji := c.Get(guildID, emojiID); emoji != nil {
+		return &*emoji
+	}
+	return nil
 }
 
 func (c *emojiCacheImpl) Set(emoji *Emoji) *Emoji {

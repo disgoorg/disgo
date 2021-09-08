@@ -47,7 +47,7 @@ type InteractionData struct {
 	Resolved    Resolved               `json:"resolved"`
 
 	// Slash Command Interactions
-	Options []UnmarshalApplicationCommandOption `json:"options"`
+	Options []UnmarshalSlashCommandOption `json:"options"`
 
 	// Context Command Interactions
 	TargetID Snowflake `json:"target_id"`
@@ -86,11 +86,11 @@ type ResolvedChannel struct {
 	Permissions Permissions `json:"permissions"`
 }*/
 
-type UnmarshalApplicationCommandOption struct {
-	Name    string                              `json:"name"`
-	Type    SlashCommandOptionType              `json:"type"`
-	Value   interface{}                         `json:"value"`
-	Options []UnmarshalApplicationCommandOption `json:"options"`
+type UnmarshalSlashCommandOption struct {
+	Name    string                        `json:"name"`
+	Type    SlashCommandOptionType        `json:"type"`
+	Value   interface{}                   `json:"value"`
+	Options []UnmarshalSlashCommandOption `json:"options"`
 }
 
 // InteractionResponse is how you answer interactions. If an answer is not sent within 3 seconds of receiving it, the interaction is failed, and you will be unable to respond to it.

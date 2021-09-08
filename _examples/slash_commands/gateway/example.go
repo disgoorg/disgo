@@ -6,10 +6,8 @@ import (
 	"syscall"
 
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
-	_ "github.com/DisgoOrg/disgo/gateway/handlers"
 	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/log"
 )
@@ -43,11 +41,13 @@ func main() {
 
 	disgo, err := core.NewBotBuilder(token).
 		SetGatewayConfig(gateway.Config{
-			GatewayIntents: discord.GatewayIntentGuildMessages,
+			GatewayIntents: discord.GatewayIntentsNone,
 		}).
-		AddEventListeners(&events.ListenerAdapter{
+		SetCacheConfig(core.CacheConfig{
+			CacheFlags: core.CacheFlagsDefault,
+		}).
+		AddEventListeners(&core.ListenerAdapter{
 			OnSlashCommand: commandListener,
-			OnMessageCreate: messageCreateListener,
 		}).
 		Build()
 
@@ -58,10 +58,10 @@ func main() {
 
 	defer disgo.Close()
 
-	/*_, err = disgo.SetGuildCommands(guildID, commands)
+	_, err = disgo.SetGuildCommands(guildID, commands)
 	if err != nil {
 		log.Fatalf("error while registering commands: %s", err)
-	}*/
+	}
 
 	err = disgo.Connect()
 	if err != nil {
@@ -74,7 +74,7 @@ func main() {
 	<-s
 }
 
-func commandListener(event *events.SlashCommandEvent) {
+func commandListener(event *core.SlashCommandEvent) {
 	if event.CommandName == "say" {
 		err := event.Create(core.NewMessageCreateBuilder().
 			SetContent(event.Option("message").String()).
@@ -83,16 +83,5 @@ func commandListener(event *events.SlashCommandEvent) {
 		if err != nil {
 			event.Bot().Logger.Error("error on sending response: ", err)
 		}
-	}
-}
-
-func messageCreateListener(event *events.MessageCreateEvent) {
-	println("AQHHH")
-	if event.Message.Author.IsBot {
-		return
-	}
-	_, err := event.MessageChannel().CreateMessage(core.NewMessageCreateBuilder().SetContent(event.Message.Content).Build())
-	if err != nil {
-		event.Bot().Logger.Error("error on sending response: ", err)
 	}
 }

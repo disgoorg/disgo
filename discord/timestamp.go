@@ -1,11 +1,12 @@
 package discord
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // PatternTimestampFlag the regexp.Regexp to parse a Timestamp from a Message

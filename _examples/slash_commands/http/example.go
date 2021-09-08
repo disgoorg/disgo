@@ -6,7 +6,6 @@ import (
 	"syscall"
 
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/info"
@@ -47,7 +46,7 @@ func main() {
 			Port:      ":80",
 			PublicKey: publicKey,
 		}).
-		AddEventListeners(&events.ListenerAdapter{
+		AddEventListeners(&core.ListenerAdapter{
 			OnSlashCommand: commandListener,
 		}).
 		Build()
@@ -75,7 +74,7 @@ func main() {
 	<-s
 }
 
-func commandListener(event *events.SlashCommandEvent) {
+func commandListener(event *core.SlashCommandEvent) {
 	if event.CommandName == "say" {
 		_ = event.Create(core.NewMessageCreateBuilder().
 			SetContent(event.Option("message").String()).

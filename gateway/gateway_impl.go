@@ -14,9 +14,12 @@ import (
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/log"
+	"github.com/pkg/errors"
 
 	"github.com/gorilla/websocket"
 )
+
+var ZLibSuffix = []byte{0, 0, 255, 255}
 
 func New(token string, eventHandlerFunc EventHandlerFunc, config *Config) Gateway {
 	if config == nil {
@@ -81,9 +84,6 @@ func (g *GatewayImpl) Open() error {
 	}
 
 	gatewayURL := *g.url + "?v=" + route.APIVersion + "&encoding=json"
-	if g.config.CompressType != discord.CompressTypeNone {
-		gatewayURL += "&compress=" + g.config.CompressType.String()
-	}
 	var rs *http.Response
 	var err error
 	g.conn, rs, err = websocket.DefaultDialer.Dial(gatewayURL, nil)
@@ -112,64 +112,8 @@ func (g *GatewayImpl) Open() error {
 
 	g.status = StatusWaitingForHello
 
-	mt, reader, err := g.conn.NextReader()
-	if err != nil {
-		return err
-	}
-
-	event, err := g.parseGatewayEvent(mt, reader)
-	if err != nil {
-		return err
-	}
-
-	if event.Op != discord.OpHello {
-		return discord.ErrUnexpectedGatewayOp(discord.OpHello, int(event.Op))
-	}
-
-	g.lastHeartbeatReceived = time.Now().UTC()
-
-	var eventData discord.GatewayEventHello
-	if err = json.Unmarshal(event.D, &eventData); err != nil {
-		return err
-	}
-
-	g.heartbeatInterval = eventData.HeartbeatInterval * time.Millisecond
-
-	if g.lastSequenceReceived == nil || g.sessionID == nil {
-		g.status = StatusIdentifying
-		g.Logger().Infof("sending StatusIdentifying command...")
-		if err = g.Send(
-			discord.NewGatewayCommand(discord.OpIdentify, discord.IdentifyCommand{
-				Token: g.token,
-				Properties: discord.IdentifyCommandDataProperties{
-					OS:      g.config.OS,
-					Browser: g.config.Browser,
-					Device:  g.config.Device,
-				},
-				LargeThreshold: g.config.LargeThreshold,
-				GatewayIntents: g.config.GatewayIntents,
-			}),
-		); err != nil {
-			return err
-		}
-		g.status = StatusWaitingForReady
-	} else {
-		g.status = StatusResuming
-		cmd := discord.NewGatewayCommand(discord.OpResume, discord.ResumeCommand{
-			Token:     g.token,
-			SessionID: *g.sessionID,
-			Seq:       *g.lastSequenceReceived,
-		})
-		g.Logger().Infof("sending StatusResuming command...")
-
-		if err = g.Send(cmd); err != nil {
-			return err
-		}
-	}
-
 	g.quit = make(chan struct{})
 
-	go g.heartbeat()
 	go g.listen()
 
 	return nil
@@ -310,9 +254,58 @@ func (g *GatewayImpl) listen() {
 			event, err := g.parseGatewayEvent(mt, reader)
 			if err != nil {
 				g.Logger().Errorf("error while unpacking gateway event. error: %s", err)
+				continue
+			}
+
+			if event == nil {
+				continue
 			}
 
 			switch event.Op {
+			case discord.OpHello:
+				g.lastHeartbeatReceived = time.Now().UTC()
+
+				var eventData discord.GatewayEventHello
+				if err = json.Unmarshal(event.D, &eventData); err != nil {
+					g.Logger().Error("error parsing op hello payload data: ", err)
+				}
+
+				g.heartbeatInterval = eventData.HeartbeatInterval * time.Millisecond
+
+				if g.lastSequenceReceived == nil || g.sessionID == nil {
+					g.status = StatusIdentifying
+					g.Logger().Infof("sending StatusIdentifying command...")
+					if err = g.Send(
+						discord.NewGatewayCommand(discord.OpIdentify, discord.IdentifyCommand{
+							Token: g.token,
+							Properties: discord.IdentifyCommandDataProperties{
+								OS:      g.config.OS,
+								Browser: g.config.Browser,
+								Device:  g.config.Device,
+							},
+							Compress:       g.config.Compress,
+							LargeThreshold: g.config.LargeThreshold,
+							GatewayIntents: g.config.GatewayIntents,
+						}),
+					); err != nil {
+						g.Logger().Error("error sending identify payload: ", err)
+					}
+					g.status = StatusWaitingForReady
+				} else {
+					g.status = StatusResuming
+					cmd := discord.NewGatewayCommand(discord.OpResume, discord.ResumeCommand{
+						Token:     g.token,
+						SessionID: *g.sessionID,
+						Seq:       *g.lastSequenceReceived,
+					})
+					g.Logger().Infof("sending StatusResuming command...")
+
+					if err = g.Send(cmd); err != nil {
+						g.Logger().Error("error sending resume payload: ", err)
+					}
+				}
+				go g.heartbeat()
+
 			case discord.OpDispatch:
 				g.Logger().Debugf("received: OpDispatch")
 				if event.S != 0 {
@@ -373,9 +366,10 @@ func (g *GatewayImpl) listen() {
 
 func (g *GatewayImpl) parseGatewayEvent(mt int, reader io.Reader) (*discord.GatewayPayload, error) {
 	if mt == websocket.BinaryMessage {
+		g.Logger().Debug("binary message received. decompressing...")
 		readCloser, err := zlib.NewReader(reader)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed to decompress zlib")
 		}
 		defer readCloser.Close()
 		reader = readCloser

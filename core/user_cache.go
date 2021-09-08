@@ -35,7 +35,10 @@ func (c *userCacheImpl) Get(userID discord.Snowflake) *User {
 }
 
 func (c *userCacheImpl) GetCopy(userID discord.Snowflake) *User {
-	return &*c.Get(userID)
+	if user := c.Get(userID); user != nil {
+		return &*user
+	}
+	return nil
 }
 
 func (c *userCacheImpl) Set(user *User) *User {
