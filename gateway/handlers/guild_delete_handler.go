@@ -20,32 +20,32 @@ func (h *GuildDeleteHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *GuildDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+func (h *GuildDeleteHandler) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	guild, ok := v.(discord.UnavailableGuild)
 	if !ok {
 		return
 	}
 
 	if guild.Unavailable {
-		coreGuild := disgo.Caches().GuildCache().Get(guild.ID)
+		coreGuild := bot.Caches.GuildCache().Get(guild.ID)
 		if coreGuild != nil {
 			coreGuild.Unavailable = true
 		}
 	}
 
 	genericGuildEvent := &events.GenericGuildEvent{
-		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
-		Guild:        disgo.Caches().GuildCache().GetCopy(guild.ID),
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+		Guild:        bot.Caches.GuildCache().GetCopy(guild.ID),
 	}
 
 	if guild.Unavailable {
-		eventManager.Dispatch(&events.GuildUnavailableEvent{
+		bot.EventManager.Dispatch(&events.GuildUnavailableEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	} else {
-		disgo.Caches().GuildCache().Uncache(guild.ID)
+		bot.Caches.GuildCache().Remove(guild.ID)
 
-		eventManager.Dispatch(&events.GuildLeaveEvent{
+		bot.EventManager.Dispatch(&events.GuildLeaveEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	}

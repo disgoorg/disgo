@@ -1,27 +1,21 @@
 package core
 
-import "github.com/DisgoOrg/disgo/discord"
-
 type SelectMenuInteraction struct {
 	*ComponentInteraction
-	Data *SelectMenuInteractionData
+	SelectMenuInteractionData
 }
 
-// SelectMenu returns the SelectMenu which issued this SelectMenuInteraction. nil for ephemeral Message(s)
-func (i *SelectMenuInteraction) SelectMenu() *SelectMenu {
-	return i.Message.SelectMenuByID(i.CustomID())
+// SelectMenu returns the SelectMenu which issued this SelectMenuInteraction
+func (i *SelectMenuInteraction) SelectMenu() SelectMenu {
+	// this should never be nil
+	return *i.Message.SelectMenuByID(i.CustomID)
 }
 
-// Values returns the selected values
-func (i *SelectMenuInteraction) Values() []string {
-	return i.Data.Values
-}
-
-// SelectedOptions returns the selected SelectedOption(s)
-func (i *SelectMenuInteraction) SelectedOptions() []discord.SelectOption {
-	options := make([]discord.SelectOption, len(i.Values()))
-	for ii, option := range i.SelectMenu().Component.Options {
-		for _, value := range i.Values() {
+// SelectedOptions returns the selected SelectMenuOption(s)
+func (i *SelectMenuInteraction) SelectedOptions() []SelectMenuOption {
+	options := make([]SelectMenuOption, len(i.Values))
+	for ii, option := range i.SelectMenu().Options {
+		for _, value := range i.Values {
 			if value == option.Value {
 				options[ii] = option
 				break
@@ -32,5 +26,5 @@ func (i *SelectMenuInteraction) SelectedOptions() []discord.SelectOption {
 }
 
 type SelectMenuInteractionData struct {
-	*ComponentInteractionData
+	Values []string
 }

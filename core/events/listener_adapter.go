@@ -19,11 +19,6 @@ type ListenerAdapter struct {
 	OnGuildChannelUpdate func(event *GuildChannelUpdateEvent)
 	OnGuildChannelDelete func(event *GuildChannelDeleteEvent)
 
-	// api.Category Events
-	OnCategoryCreate func(event *CategoryCreateEvent)
-	OnCategoryUpdate func(event *CategoryUpdateEvent)
-	OnCategoryDelete func(event *CategoryDeleteEvent)
-
 	// api.DMChannel Events
 	OnDMChannelCreate func(event *DMChannelCreateEvent)
 	OnDMChannelUpdate func(event *DMChannelUpdateEvent)
@@ -34,21 +29,6 @@ type ListenerAdapter struct {
 	OnDMMessageReactionRemove      func(event *DMMessageReactionRemoveEvent)
 	OnDMMessageReactionRemoveEmoji func(event *DMMessageReactionRemoveEmojiEvent)
 	OnDMMessageReactionRemoveAll   func(event *DMMessageReactionRemoveAllEvent)
-
-	// api.StoreChannel Events
-	OnStoreChannelCreate func(event *StoreChannelCreateEvent)
-	OnStoreChannelUpdate func(event *StoreChannelUpdateEvent)
-	OnStoreChannelDelete func(event *StoreChannelDeleteEvent)
-
-	// api.TextChannel Events
-	OnTextChannelCreate func(event *TextChannelCreateEvent)
-	OnTextChannelUpdate func(event *TextChannelUpdateEvent)
-	OnTextChannelDelete func(event *TextChannelDeleteEvent)
-
-	// api.VoiceChannel Events
-	OnVoiceChannelCreate func(event *VoiceChannelCreateEvent)
-	OnVoiceChannelUpdate func(event *VoiceChannelUpdateEvent)
-	OnVoiceChannelDelete func(event *VoiceChannelDeleteEvent)
 
 	// api.Emoji Events
 	OnEmojiCreate func(event *EmojiCreateEvent)
@@ -125,7 +105,7 @@ type ListenerAdapter struct {
 	OnUserUpdate      func(event *UserUpdateEvent)
 	OnUserTyping      func(event *UserTypingEvent)
 	OnGuildUserTyping func(event *GuildMemberTypingEvent)
-	OnDMUserTyping    func(event *DMUserTypingEvent)
+	OnDMUserTyping    func(event *DMChannelUserTypingEvent)
 
 	// api.User api.Activity Events
 	OnUserActivityStart  func(event *UserActivityStartEvent)
@@ -135,6 +115,7 @@ type ListenerAdapter struct {
 
 // OnEvent is getting called everytime we receive an event
 func (l ListenerAdapter) OnEvent(event interface{}) {
+	println("HELO")
 	switch e := event.(type) {
 	case *HeartbeatEvent:
 		if listener := l.OnHeartbeat; listener != nil {
@@ -167,20 +148,6 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// api.Category Events
-	case *CategoryCreateEvent:
-		if listener := l.OnCategoryCreate; listener != nil {
-			listener(e)
-		}
-	case *CategoryUpdateEvent:
-		if listener := l.OnCategoryUpdate; listener != nil {
-			listener(e)
-		}
-	case *CategoryDeleteEvent:
-		if listener := l.OnCategoryDelete; listener != nil {
-			listener(e)
-		}
-
 	// api.DMChannel Events// api.Category Events
 	case *DMChannelCreateEvent:
 		if listener := l.OnDMChannelCreate; listener != nil {
@@ -210,48 +177,6 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 	case *DMMessageReactionRemoveAllEvent:
 		if listener := l.OnDMMessageReactionRemoveAll; listener != nil {
-			listener(e)
-		}
-
-	// api.StoreChannel Events
-	case *StoreChannelCreateEvent:
-		if listener := l.OnStoreChannelCreate; listener != nil {
-			listener(e)
-		}
-	case *StoreChannelUpdateEvent:
-		if listener := l.OnStoreChannelUpdate; listener != nil {
-			listener(e)
-		}
-	case *StoreChannelDeleteEvent:
-		if listener := l.OnStoreChannelDelete; listener != nil {
-			listener(e)
-		}
-
-	// api.TextChannel Events
-	case *TextChannelCreateEvent:
-		if listener := l.OnTextChannelCreate; listener != nil {
-			listener(e)
-		}
-	case *TextChannelUpdateEvent:
-		if listener := l.OnTextChannelUpdate; listener != nil {
-			listener(e)
-		}
-	case *TextChannelDeleteEvent:
-		if listener := l.OnTextChannelDelete; listener != nil {
-			listener(e)
-		}
-
-	// api.VoiceChannel Events
-	case *VoiceChannelCreateEvent:
-		if listener := l.OnVoiceChannelCreate; listener != nil {
-			listener(e)
-		}
-	case *VoiceChannelUpdateEvent:
-		if listener := l.OnVoiceChannelUpdate; listener != nil {
-			listener(e)
-		}
-	case *VoiceChannelDeleteEvent:
-		if listener := l.OnVoiceChannelDelete; listener != nil {
 			listener(e)
 		}
 
@@ -474,7 +399,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		if listener := l.OnGuildUserTyping; listener != nil {
 			listener(e)
 		}
-	case *DMUserTypingEvent:
+	case *DMChannelUserTypingEvent:
 		if listener := l.OnDMUserTyping; listener != nil {
 			listener(e)
 		}
@@ -494,6 +419,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 
 	default:
+		println("OUF")
 		if e, ok := e.(core.Event); ok {
 			var name string
 			if t := reflect.TypeOf(e); t.Kind() == reflect.Ptr {
@@ -501,7 +427,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			} else {
 				name = t.Name()
 			}
-			e.Disgo().Logger().Errorf("unexpected event received: \"%s\", event: \"%#e\"", name, event)
+			e.Bot().Logger.Errorf("unexpected event received: \"%s\", event: \"%#e\"", name, event)
 		}
 	}
 }

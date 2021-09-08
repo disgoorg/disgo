@@ -7,7 +7,7 @@ import (
 
 type Integration struct {
 	discord.Integration
-	Disgo       Disgo
+	Bot         *Bot
 	GuildID     discord.Snowflake
 	User        *User
 	Application *IntegrationApplication
@@ -15,7 +15,7 @@ type Integration struct {
 
 // Guild returns the Guild the Integration belongs to
 func (i *Integration) Guild() *Guild {
-	return i.Disgo.Caches().GuildCache().Get(i.GuildID)
+	return i.Bot.Caches.GuildCache().Get(i.GuildID)
 }
 
 // Member returns the Member the Integration uses
@@ -23,7 +23,7 @@ func (i *Integration) Member() *Member {
 	if i.User == nil {
 		return nil
 	}
-	return i.Disgo.Caches().MemberCache().Get(i.GuildID, i.User.ID)
+	return i.Bot.Caches.MemberCache().Get(i.GuildID, i.User.ID)
 }
 
 // Role returns the Subscriber Role the Integration uses
@@ -31,12 +31,12 @@ func (i *Integration) Role() *Role {
 	if i.RoleID == nil {
 		return nil
 	}
-	return i.Disgo.Caches().RoleCache().Get(*i.RoleID)
+	return i.Bot.Caches.RoleCache().Get(i.GuildID, *i.RoleID)
 }
 
 // Delete deletes the Integration from the Guild
 func (i *Integration) Delete(opts ...rest.RequestOpt) rest.Error {
-	return i.Disgo.RestServices().GuildService().DeleteIntegration(i.GuildID, i.ID, opts...)
+	return i.Bot.RestServices.GuildService().DeleteIntegration(i.GuildID, i.ID, opts...)
 }
 
 type IntegrationApplication struct {

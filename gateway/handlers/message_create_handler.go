@@ -20,31 +20,31 @@ func (h *MessageCreateHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *MessageCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+func (h *MessageCreateHandler) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	message, ok := v.(discord.Message)
 	if !ok {
 		return
 	}
 
 	genericMessageEvent := &events.GenericMessageEvent{
-		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 		MessageID:    message.ID,
-		Message:      disgo.EntityBuilder().CreateMessage(message, core.CacheStrategyYes),
+		Message:      bot.EntityBuilder.CreateMessage(message, core.CacheStrategyYes),
 		ChannelID:    message.ChannelID,
 	}
 
-	eventManager.Dispatch(&events.MessageCreateEvent{
+	bot.EventManager.Dispatch(&events.MessageCreateEvent{
 		GenericMessageEvent: genericMessageEvent,
 	})
 
 	if message.GuildID == nil {
-		eventManager.Dispatch(&events.DMMessageCreateEvent{
+		bot.EventManager.Dispatch(&events.DMMessageCreateEvent{
 			GenericDMMessageEvent: &events.GenericDMMessageEvent{
 				GenericMessageEvent: genericMessageEvent,
 			},
 		})
 	} else {
-		eventManager.Dispatch(&events.GuildMessageCreateEvent{
+		bot.EventManager.Dispatch(&events.GuildMessageCreateEvent{
 			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
 				GenericMessageEvent: genericMessageEvent,
 				GuildID:             *message.GuildID,

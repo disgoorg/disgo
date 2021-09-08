@@ -14,13 +14,8 @@ type GenericMessageEvent struct {
 }
 
 // MessageChannel returns the api.GetMessageChannel where the GenericMessageEvent happened
-func (e *GenericMessageEvent) MessageChannel() core.MessageChannel {
-	return e.Disgo().Caches().ChannelCache().GetMessageChannel(e.ChannelID)
-}
-
-// MessageDeleteEvent indicates that an api.Message got deleted
-type MessageDeleteEvent struct {
-	*GenericMessageEvent
+func (e *GenericMessageEvent) MessageChannel() *core.Channel {
+	return e.Bot().Caches.ChannelCache().Get(e.ChannelID)
 }
 
 // MessageCreateEvent indicates that an api.Message got received
@@ -32,4 +27,9 @@ type MessageCreateEvent struct {
 type MessageUpdateEvent struct {
 	*GenericMessageEvent
 	OldMessage *core.Message
+}
+
+// MessageDeleteEvent indicates that an api.Message got deleted
+type MessageDeleteEvent struct {
+	*GenericMessageEvent
 }

@@ -26,33 +26,33 @@ func (h *MessageDeleteHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *MessageDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+func (h *MessageDeleteHandler) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload, ok := v.(messageDeletePayload)
 	if !ok {
 		return
 	}
 
 	genericMessageEvent := &events.GenericMessageEvent{
-		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 		MessageID:    payload.MessageID,
-		Message:      disgo.Caches().MessageCache().GetCopy(payload.ChannelID, payload.MessageID),
+		Message:      bot.Caches.MessageCache().GetCopy(payload.ChannelID, payload.MessageID),
 		ChannelID:    payload.ChannelID,
 	}
 
-	disgo.Caches().MessageCache().Uncache(payload.ChannelID, payload.MessageID)
+	bot.Caches.MessageCache().Remove(payload.ChannelID, payload.MessageID)
 
-	disgo.EventManager().Dispatch(&events.MessageDeleteEvent{
+	bot.EventManager.Dispatch(&events.MessageDeleteEvent{
 		GenericMessageEvent: genericMessageEvent,
 	})
 
 	if payload.GuildID == nil {
-		disgo.EventManager().Dispatch(&events.DMMessageDeleteEvent{
+		bot.EventManager.Dispatch(&events.DMMessageDeleteEvent{
 			GenericDMMessageEvent: &events.GenericDMMessageEvent{
 				GenericMessageEvent: genericMessageEvent,
 			},
 		})
 	} else {
-		disgo.EventManager().Dispatch(&events.GuildMessageDeleteEvent{
+		bot.EventManager.Dispatch(&events.GuildMessageDeleteEvent{
 			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
 				GenericMessageEvent: genericMessageEvent,
 				GuildID:             *payload.GuildID,

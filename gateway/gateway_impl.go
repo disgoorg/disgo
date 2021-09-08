@@ -106,7 +106,7 @@ func (g *GatewayImpl) Open() error {
 	}
 
 	g.conn.SetCloseHandler(func(code int, error string) error {
-		g.Logger().Infof("connection to websocket closedwith code: %d, error: %s", code, error)
+		g.Logger().Infof("connection to websocket closed with code: %d, error: %s", code, error)
 		return nil
 	})
 
@@ -264,19 +264,19 @@ func (g *GatewayImpl) sendHeartbeat() {
 	// TODO: check this
 	/*
 		heartbeatEvent := &events.HeartbeatEvent{
-			GenericEvent: events.NewGenericEvent(g.Disgo(), 0),
+			GenericEvent: events.NewGenericEvent(g.Bot(), 0),
 			OldPing:      g.Latency(),
-		}
+		}*/
 
-		if err := g.Send(NewGatewayCommand(OpHeartbeat, g.lastSequenceReceived)); err != nil {
-			g.Logger().Errorf("failed to send heartbeat with error: %s", err)
-			g.closeWithCode(websocket.CloseServiceRestart)
-			g.reconnect(1 * time.Second)
-		}
-		g.lastHeartbeatSent = time.Now().UTC()
+	if err := g.Send(discord.NewGatewayCommand(discord.OpHeartbeat, g.lastSequenceReceived)); err != nil {
+		g.Logger().Errorf("failed to send heartbeat with error: %s", err)
+		g.closeWithCode(websocket.CloseServiceRestart)
+		g.reconnect(1 * time.Second)
+	}
+	g.lastHeartbeatSent = time.Now().UTC()
 
-		heartbeatEvent.NewPing = g.Latency()
-		g.Disgo().EventManager().Dispatch(heartbeatEvent)*/
+	//heartbeatEvent.NewPing = g.Latency()
+	//g.Bot().EventManager().Dispatch(heartbeatEvent)*/
 }
 
 func (g *GatewayImpl) listen() {

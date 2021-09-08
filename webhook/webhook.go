@@ -7,7 +7,7 @@ import (
 
 type Webhook struct {
 	discord.Webhook
-	WebhookClient Client
+	WebhookClient *Client
 }
 
 func (h *Webhook) Update(webhookUpdate discord.WebhookUpdate, opts ...rest.RequestOpt) (*Webhook, rest.Error) {

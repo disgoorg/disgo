@@ -20,98 +20,30 @@ func (h *ChannelDeleteHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *ChannelDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+func (h *ChannelDeleteHandler) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	channel, ok := v.(discord.Channel)
 	if !ok {
 		return
 	}
 
-	coreChannel := disgo.EntityBuilder().CreateChannel(channel, core.CacheStrategyNo)
-
 	genericChannelEvent := &events.GenericChannelEvent{
-		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 		ChannelID:    channel.ID,
-		Channel:      coreChannel,
+		Channel:      bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyNo),
 	}
 
-	var genericGuildChannelEvent *events.GenericGuildChannelEvent
 	if channel.GuildID != nil {
-		genericGuildChannelEvent = &events.GenericGuildChannelEvent{
-			GenericChannelEvent: genericChannelEvent,
-			GuildID:             *channel.GuildID,
-			GuildChannel:        coreChannel.(core.GuildChannel),
-		}
-
-		eventManager.Dispatch(&events.GuildChannelDeleteEvent{
-			GenericGuildChannelEvent: genericGuildChannelEvent,
+		bot.EventManager.Dispatch(&events.GuildChannelDeleteEvent{
+			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
+				GenericChannelEvent: genericChannelEvent,
+				GuildID:             *channel.GuildID,
+			},
 		})
-	}
-
-	switch channel.Type {
-	case discord.ChannelTypeDM:
-		disgo.Caches().DMChannelCache().Uncache(channel.ID)
-
-		eventManager.Dispatch(&events.DMChannelCreateEvent{
+	} else {
+		bot.EventManager.Dispatch(&events.DMChannelDeleteEvent{
 			GenericDMChannelEvent: &events.GenericDMChannelEvent{
 				GenericChannelEvent: genericChannelEvent,
-				DMChannel:           coreChannel.(core.DMChannel),
 			},
 		})
-
-	case discord.ChannelTypeGroupDM:
-		disgo.Logger().Warnf("ChannelTypeGroupDM received what the hell discord")
-
-	case discord.ChannelTypeText:
-		disgo.Caches().TextChannelCache().Uncache(*channel.GuildID, channel.ID)
-
-		eventManager.Dispatch(&events.TextChannelCreateEvent{
-			GenericTextChannelEvent: &events.GenericTextChannelEvent{
-				GenericGuildChannelEvent: genericGuildChannelEvent,
-				TextChannel:              coreChannel.(core.TextChannel),
-			},
-		})
-
-	case discord.ChannelTypeNews:
-		disgo.Caches().NewsChannelCache().Uncache(*channel.GuildID, channel.ID)
-
-		eventManager.Dispatch(&events.NewsChannelCreateEvent{
-			GenericNewsChannelEvent: &events.GenericNewsChannelEvent{
-				GenericGuildChannelEvent: genericGuildChannelEvent,
-				NewsChannel:              coreChannel.(core.NewsChannel),
-			},
-		})
-
-	case discord.ChannelTypeStore:
-		disgo.Caches().StoreChannelCache().Uncache(*channel.GuildID, channel.ID)
-
-		eventManager.Dispatch(&events.StoreChannelCreateEvent{
-			GenericStoreChannelEvent: &events.GenericStoreChannelEvent{
-				GenericGuildChannelEvent: genericGuildChannelEvent,
-				StoreChannel:             coreChannel.(core.StoreChannel),
-			},
-		})
-
-	case discord.ChannelTypeCategory:
-		disgo.Caches().CategoryCache().Uncache(*channel.GuildID, channel.ID)
-
-		eventManager.Dispatch(&events.CategoryCreateEvent{
-			GenericCategoryEvent: &events.GenericCategoryEvent{
-				GenericGuildChannelEvent: genericGuildChannelEvent,
-				Category:                 coreChannel.(core.Category),
-			},
-		})
-
-	case discord.ChannelTypeVoice:
-		disgo.Caches().VoiceChannelCache().Uncache(*channel.GuildID, channel.ID)
-
-		eventManager.Dispatch(&events.VoiceChannelCreateEvent{
-			GenericVoiceChannelEvent: &events.GenericVoiceChannelEvent{
-				GenericGuildChannelEvent: genericGuildChannelEvent,
-				VoiceChannel:             coreChannel.(core.VoiceChannel),
-			},
-		})
-
-	default:
-		disgo.Logger().Warnf("unknown channel type received: %d", channel.Type)
 	}
 }

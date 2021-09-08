@@ -10,8 +10,8 @@ type GenericDMMessageEvent struct {
 }
 
 // DMChannel returns the api.DMChannel where the GenericDMMessageEvent happened
-func (e GenericDMMessageEvent) DMChannel() core.DMChannel {
-	return e.Disgo().Caches().DMChannelCache().Get(e.ChannelID)
+func (e GenericDMMessageEvent) DMChannel() *core.Channel {
+	return e.Bot().Caches.ChannelCache().Get(e.ChannelID)
 }
 
 // DMMessageCreateEvent is called upon receiving an api.Message in an api.DMChannel(requires api.GatewayIntentsDirectMessages)

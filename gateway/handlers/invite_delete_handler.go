@@ -26,18 +26,18 @@ func (h *InviteDeleteHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *InviteDeleteHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+func (h *InviteDeleteHandler) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload, ok := v.(inviteDeletePayload)
 	if !ok {
 		return
 	}
 
-	eventManager.Dispatch(&events.GuildInviteDeleteEvent{
+	bot.EventManager.Dispatch(&events.GuildInviteDeleteEvent{
 		GenericGuildInviteEvent: &events.GenericGuildInviteEvent{
 			GenericGuildEvent: &events.GenericGuildEvent{
-				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				GuildID:      *payload.GuildID,
-				Guild:        disgo.Caches().GuildCache().Get(*payload.GuildID),
+				Guild:        bot.Caches.GuildCache().Get(*payload.GuildID),
 			},
 			Code:      payload.Code,
 			ChannelID: payload.ChannelID,

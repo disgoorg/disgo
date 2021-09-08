@@ -20,22 +20,22 @@ func (h *InviteCreateHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *InviteCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+func (h *InviteCreateHandler) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	invite, ok := v.(discord.Invite)
 	if !ok {
 		return
 	}
 
-	eventManager.Dispatch(&events.GuildInviteCreateEvent{
+	bot.EventManager.Dispatch(&events.GuildInviteCreateEvent{
 		GenericGuildInviteEvent: &events.GenericGuildInviteEvent{
 			GenericGuildEvent: &events.GenericGuildEvent{
-				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				GuildID:      *invite.GuildID,
-				Guild:        disgo.Caches().GuildCache().Get(*invite.GuildID),
+				Guild:        bot.Caches.GuildCache().Get(*invite.GuildID),
 			},
 			Code:      invite.Code,
 			ChannelID: invite.ChannelID,
 		},
-		Invite: disgo.EntityBuilder().CreateInvite(invite, core.CacheStrategyYes),
+		Invite: bot.EntityBuilder.CreateInvite(invite, core.CacheStrategyYes),
 	})
 }

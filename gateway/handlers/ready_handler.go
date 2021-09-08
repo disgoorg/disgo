@@ -20,22 +20,22 @@ func (h *ReadyHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *ReadyHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+func (h *ReadyHandler) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	readyEvent, ok := v.(discord.GatewayEventReady)
 	if !ok {
 		return
 	}
 
-	disgo.SetApplicationID(readyEvent.Application.ID)
+	bot.ApplicationID = readyEvent.Application.ID
 
-	disgo.EntityBuilder().CreateSelfUser(readyEvent.SelfUser, core.CacheStrategyYes)
+	bot.EntityBuilder.CreateSelfUser(readyEvent.SelfUser, core.CacheStrategyYes)
 
 	for _, guild := range readyEvent.Guilds {
-		disgo.EntityBuilder().CreateGuild(guild, core.CacheStrategyYes)
+		bot.EntityBuilder.CreateGuild(guild, core.CacheStrategyYes)
 	}
 
-	eventManager.Dispatch(&events.ReadyEvent{
-		GenericEvent:      events.NewGenericEvent(disgo, sequenceNumber),
+	bot.EventManager.Dispatch(&events.ReadyEvent{
+		GenericEvent:      events.NewGenericEvent(bot, sequenceNumber),
 		GatewayEventReady: readyEvent,
 	})
 

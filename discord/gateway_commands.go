@@ -79,7 +79,7 @@ type UpdateVoiceStateCommand struct {
 	SelfDeaf  bool       `json:"self_deaf"`
 }
 
-// UpdateStatusCommand is used for updating Disgo's presence
+// UpdateStatusCommand is used for updating Bot's presence
 type UpdateStatusCommand struct {
 	Since      *int       `json:"since"`
 	Activities []Activity `json:"activities"`

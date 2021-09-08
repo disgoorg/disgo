@@ -19,16 +19,16 @@ func (h *VoiceServerUpdateHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *VoiceServerUpdateHandler) HandleGatewayEvent(disgo core.Disgo, _ core.EventManager, _ int, v interface{}) {
+func (h *VoiceServerUpdateHandler) HandleGatewayEvent(bot *core.Bot, _ int, v interface{}) {
 	voiceServerUpdate, ok := v.(discord.VoiceServerUpdate)
 	if !ok {
 		return
 	}
 
-	if interceptor := disgo.VoiceDispatchInterceptor(); interceptor != nil {
+	if interceptor := bot.VoiceDispatchInterceptor; interceptor != nil {
 		interceptor.OnVoiceServerUpdate(&core.VoiceServerUpdateEvent{
 			VoiceServerUpdate: voiceServerUpdate,
-			Disgo:             disgo,
+			Bot:               bot,
 		})
 	}
 }

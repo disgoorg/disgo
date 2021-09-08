@@ -4,8 +4,7 @@ import "github.com/DisgoOrg/disgo/discord"
 
 type Webhook struct {
 	discord.Webhook
-	Disgo   Disgo
-	GuildID discord.Snowflake
+	Bot *Bot
 }
 
 // TODO: add update/delete

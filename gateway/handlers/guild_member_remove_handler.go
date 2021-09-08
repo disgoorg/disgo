@@ -25,23 +25,23 @@ func (h *GuildMemberRemoveHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *GuildMemberRemoveHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+func (h *GuildMemberRemoveHandler) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	memberData, ok := v.(guildMemberRemoveData)
 	if !ok {
 		return
 	}
 
-	disgo.EntityBuilder().CreateUser(memberData.User, core.CacheStrategyYes)
+	bot.EntityBuilder.CreateUser(memberData.User, core.CacheStrategyYes)
 
-	member := disgo.Caches().MemberCache().GetCopy(memberData.GuildID, memberData.User.ID)
+	member := bot.Caches.MemberCache().GetCopy(memberData.GuildID, memberData.User.ID)
 
-	disgo.Caches().MemberCache().Uncache(memberData.GuildID, memberData.User.ID)
+	bot.Caches.MemberCache().Remove(memberData.GuildID, memberData.User.ID)
 
-	eventManager.Dispatch(&events.GuildMemberLeaveEvent{
+	bot.EventManager.Dispatch(&events.GuildMemberLeaveEvent{
 		GenericGuildMemberEvent: &events.GenericGuildMemberEvent{
 			GenericGuildEvent: &events.GenericGuildEvent{
-				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
-				Guild:        disgo.Caches().GuildCache().Get(memberData.GuildID),
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+				Guild:        bot.Caches.GuildCache().Get(memberData.GuildID),
 			},
 			Member: member,
 		},

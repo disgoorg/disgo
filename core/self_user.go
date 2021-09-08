@@ -7,20 +7,20 @@ import (
 
 type SelfUser struct {
 	discord.OAuth2User
-	Disgo Disgo
-	User  *User
+	Bot  *Bot
+	User *User
 }
 
 // Update updates the SelfUser with the given payload
 func (u *SelfUser) Update(updateSelfUser discord.SelfUserUpdate, opts ...rest.RequestOpt) (*SelfUser, rest.Error) {
-	selfUser, err := u.Disgo.RestServices().UserService().UpdateSelfUser(updateSelfUser, opts...)
+	selfUser, err := u.Bot.RestServices.UserService().UpdateSelfUser(updateSelfUser, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return u.Disgo.EntityBuilder().CreateSelfUser(*selfUser, CacheStrategyNoWs), nil
+	return u.Bot.EntityBuilder.CreateSelfUser(*selfUser, CacheStrategyNoWs), nil
 }
 
 // OpenDMChannel creates a DMChannel between the user and the Disgo client
-func (u *SelfUser) OpenDMChannel(_ ...rest.RequestOpt) (DMChannel, rest.Error) {
+func (u *SelfUser) OpenDMChannel(_ ...rest.RequestOpt) (*Channel, rest.Error) {
 	return nil, rest.NewError(nil, discord.ErrSelfDM)
 }

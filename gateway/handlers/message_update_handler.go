@@ -20,33 +20,33 @@ func (h *MessageUpdateHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *MessageUpdateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+func (h *MessageUpdateHandler) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	message, ok := v.(discord.Message)
 	if !ok {
 		return
 	}
 
-	oldCoreMessage := disgo.Caches().MessageCache().GetCopy(message.ChannelID, message.ID)
+	oldCoreMessage := bot.Caches.MessageCache().GetCopy(message.ChannelID, message.ID)
 
 	genericMessageEvent := &events.GenericMessageEvent{
-		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
-		Message:      disgo.EntityBuilder().CreateMessage(message, core.CacheStrategyYes),
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+		Message:      bot.EntityBuilder.CreateMessage(message, core.CacheStrategyYes),
 	}
 
-	eventManager.Dispatch(&events.MessageUpdateEvent{
+	bot.EventManager.Dispatch(&events.MessageUpdateEvent{
 		GenericMessageEvent: genericMessageEvent,
 		OldMessage:          oldCoreMessage,
 	})
 
 	if message.GuildID == nil {
-		eventManager.Dispatch(&events.DMMessageUpdateEvent{
+		bot.EventManager.Dispatch(&events.DMMessageUpdateEvent{
 			GenericDMMessageEvent: &events.GenericDMMessageEvent{
 				GenericMessageEvent: genericMessageEvent,
 			},
 			OldMessage: oldCoreMessage,
 		})
 	} else {
-		eventManager.Dispatch(&events.GuildMessageUpdateEvent{
+		bot.EventManager.Dispatch(&events.GuildMessageUpdateEvent{
 			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
 				GenericMessageEvent: genericMessageEvent,
 				GuildID:             *message.GuildID,

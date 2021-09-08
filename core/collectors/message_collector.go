@@ -6,34 +6,30 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-func NewMessageCollectorByChannel(channel core.MessageChannel, filter MessageFilter) (chan *core.Message, func()) {
+func NewMessageCollectorByChannel(channel *core.Channel, filter MessageFilter) (chan *core.Message, func()) {
 	var guildID *discord.Snowflake = nil
-	if guildChannel := channel.(core.GuildChannel); channel.IsGuildChannel() {
-		id := guildChannel.GuildID()
-		guildID = &id
+	if guildChannel := channel; channel.IsGuildChannel() {
+		guildID = guildChannel.GuildID
 	}
-	return NewMessageCollector(channel.Disgo(), channel.ID(), guildID, filter)
+	return NewMessageCollector(channel.Bot, channel.ID, guildID, filter)
 }
 
 // NewMessageCollector gives you a channel to receive on and a function to close the collector
-func NewMessageCollector(disgo core.Disgo, channelID discord.Snowflake, guildID *discord.Snowflake, filter MessageFilter) (chan *core.Message, func()) {
+func NewMessageCollector(disgo *core.Bot, channelID discord.Snowflake, guildID *discord.Snowflake, filter MessageFilter) (chan *core.Message, func()) {
 	ch := make(chan *core.Message)
 
-	col := &MessageCollector{
+	collector := &MessageCollector{
 		Filter:    filter,
 		Channel:   ch,
 		ChannelID: channelID,
 		GuildID:   guildID,
 	}
-
 	cls := func() {
 		close(ch)
-		disgo.EventManager().RemoveEventListeners(col)
+		disgo.EventManager.RemoveEventListeners(collector)
 	}
-
-	col.Close = cls
-
-	disgo.EventManager().AddEventListeners(col)
+	collector.Close = cls
+	disgo.EventManager.AddEventListeners(collector)
 
 	return ch, cls
 }
@@ -52,15 +48,21 @@ type MessageCollector struct {
 
 // OnEvent used to get events for the MessageCollector
 func (c *MessageCollector) OnEvent(e interface{}) {
-	if event, ok := e.(*events.MessageCreateEvent); ok {
+	switch event := e.(type) {
+	case *events.MessageCreateEvent:
 		if !c.Filter(event.Message) {
 			return
 		}
-
 		c.Channel <- event.Message
-	} else if event, ok := e.(*events.GuildChannelDeleteEvent); ok && event.ChannelID == c.ChannelID {
-		c.Close()
-	} else if event, ok := e.(events.GuildLeaveEvent); ok && c.GuildID != nil && event.GuildID == *c.GuildID {
-		c.Close()
+
+	case *events.GuildChannelDeleteEvent:
+		if event.ChannelID == c.ChannelID {
+			c.Close()
+		}
+
+	case *events.GuildLeaveEvent:
+		if c.GuildID != nil && event.GuildID == *c.GuildID {
+			c.Close()
+		}
 	}
 }

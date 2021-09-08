@@ -7,7 +7,7 @@ var commands = []discord.ApplicationCommandCreate{
 		Name:              "eval",
 		Description:       "runs some go code",
 		DefaultPermission: true,
-		Options: []discord.ApplicationCommandOption{
+		Options: []discord.SlashCommandOption{
 			{
 				Type:        discord.CommandOptionTypeString,
 				Name:        "code",
@@ -25,7 +25,7 @@ var commands = []discord.ApplicationCommandCreate{
 		Name:              "say",
 		Description:       "says what you say",
 		DefaultPermission: true,
-		Options: []discord.ApplicationCommandOption{
+		Options: []discord.SlashCommandOption{
 			{
 				Type:        discord.CommandOptionTypeString,
 				Name:        "message",
@@ -38,7 +38,7 @@ var commands = []discord.ApplicationCommandCreate{
 		Name:              "addrole",
 		Description:       "This command adds a role to a member",
 		DefaultPermission: true,
-		Options: []discord.ApplicationCommandOption{
+		Options: []discord.SlashCommandOption{
 			{
 				Type:        discord.CommandOptionTypeUser,
 				Name:        "member",
@@ -57,7 +57,7 @@ var commands = []discord.ApplicationCommandCreate{
 		Name:              "removerole",
 		Description:       "This command removes a role from a member",
 		DefaultPermission: true,
-		Options: []discord.ApplicationCommandOption{
+		Options: []discord.SlashCommandOption{
 			{
 				Type:        discord.CommandOptionTypeUser,
 				Name:        "member",

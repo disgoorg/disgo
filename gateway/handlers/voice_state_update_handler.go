@@ -20,40 +20,38 @@ func (h *VoiceStateUpdateHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *VoiceStateUpdateHandler) HandleGatewayEvent(disgo core.Disgo, _ core.EventManager, sequenceNumber int, v interface{}) {
+func (h *VoiceStateUpdateHandler) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	discordVoiceState, ok := v.(discord.VoiceState)
 	if !ok {
 		return
 	}
 
-	oldVoiceState := disgo.Caches().VoiceStateCache().Get(discordVoiceState.GuildID, discordVoiceState.UserID)
-	if oldVoiceState != nil {
-		oldVoiceState = &*oldVoiceState
-	}
+	oldVoiceState := bot.Caches.VoiceStateCache().GetCopy(discordVoiceState.GuildID, discordVoiceState.UserID)
+
 	var member *core.Member
 	if discordVoiceState.Member != nil {
-		member = disgo.EntityBuilder().CreateMember(discordVoiceState.Member.GuildID, *discordVoiceState.Member, core.CacheStrategyYes)
+		member = bot.EntityBuilder.CreateMember(discordVoiceState.Member.GuildID, *discordVoiceState.Member, core.CacheStrategyYes)
 	}
-	voiceState := disgo.EntityBuilder().CreateVoiceState(discordVoiceState.GuildID, discordVoiceState, core.CacheStrategyYes)
+	voiceState := bot.EntityBuilder.CreateVoiceState(discordVoiceState.GuildID, discordVoiceState, core.CacheStrategyYes)
 
 	// voice state update for ourselves received
 	// execute voice VoiceDispatchInterceptor.OnVoiceStateUpdate
-	if disgo.ClientID() == discordVoiceState.UserID {
-		if interceptor := disgo.VoiceDispatchInterceptor(); interceptor != nil {
+	if bot.ClientID == discordVoiceState.UserID {
+		if interceptor := bot.VoiceDispatchInterceptor; interceptor != nil {
 			interceptor.OnVoiceStateUpdate(&core.VoiceStateUpdateEvent{VoiceState: voiceState})
 		}
 	}
 
 	guild := voiceState.Guild()
 	if guild == nil {
-		disgo.Logger().Warnf("received guild voice state update for unknown guild: %s", discordVoiceState.GuildID)
+		bot.Logger.Warnf("received guild voice state update for unknown guild: %s", discordVoiceState.GuildID)
 		return
 	}
 
 	genericGuildVoiceEvent := &events.GenericGuildVoiceEvent{
 		GenericGuildMemberEvent: &events.GenericGuildMemberEvent{
 			GenericGuildEvent: &events.GenericGuildEvent{
-				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				Guild:        guild,
 			},
 			Member: member,
@@ -62,12 +60,12 @@ func (h *VoiceStateUpdateHandler) HandleGatewayEvent(disgo core.Disgo, _ core.Ev
 	}
 
 	if (oldVoiceState == nil || oldVoiceState.ChannelID == nil) && discordVoiceState.ChannelID != nil {
-		disgo.EventManager().Dispatch(&events.GuildVoiceJoinEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent})
+		bot.EventManager.Dispatch(&events.GuildVoiceJoinEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent})
 	} else if oldVoiceState != nil && oldVoiceState.ChannelID != nil && discordVoiceState.ChannelID == nil {
-		disgo.EventManager().Dispatch(&events.GuildVoiceLeaveEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent})
+		bot.EventManager.Dispatch(&events.GuildVoiceLeaveEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent})
 	} else if oldVoiceState != nil && oldVoiceState.ChannelID != nil && discordVoiceState.ChannelID != nil {
-		disgo.EventManager().Dispatch(&events.GuildVoiceUpdateEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent, OldVoiceState: oldVoiceState})
+		bot.EventManager.Dispatch(&events.GuildVoiceUpdateEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent, OldVoiceState: oldVoiceState})
 	} else {
-		disgo.Logger().Warnf("could not decide which GuildVoiceEvent to fire")
+		bot.Logger.Warnf("could not decide which GuildVoiceEvent to fire")
 	}
 }

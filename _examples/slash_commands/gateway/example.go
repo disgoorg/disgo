@@ -9,14 +9,14 @@ import (
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
+	_ "github.com/DisgoOrg/disgo/gateway/handlers"
 	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/log"
 )
 
 var (
-	token     = os.Getenv("disgo_token")
-	publicKey = os.Getenv("disgo_public_key")
-	guildID   = discord.Snowflake(os.Getenv("disgo_guild_id"))
+	token   = os.Getenv("disgo_token")
+	guildID = discord.Snowflake(os.Getenv("disgo_guild_id"))
 
 	commands = []discord.ApplicationCommandCreate{
 		{
@@ -24,7 +24,7 @@ var (
 			Name:              "say",
 			Description:       "says what you say",
 			DefaultPermission: true,
-			Options: []discord.ApplicationCommandOption{
+			Options: []discord.SlashCommandOption{
 				{
 					Type:        discord.CommandOptionTypeString,
 					Name:        "message",
@@ -41,12 +41,13 @@ func main() {
 	log.Info("starting example...")
 	log.Infof("disgo version: %s", info.Version)
 
-	disgo, err := core.NewBuilder(token).
+	disgo, err := core.NewBotBuilder(token).
 		SetGatewayConfig(gateway.Config{
-			GatewayIntents: discord.GatewayIntentsNone,
+			GatewayIntents: discord.GatewayIntentGuildMessages,
 		}).
 		AddEventListeners(&events.ListenerAdapter{
 			OnSlashCommand: commandListener,
+			OnMessageCreate: messageCreateListener,
 		}).
 		Build()
 
@@ -57,10 +58,10 @@ func main() {
 
 	defer disgo.Close()
 
-	_, err = disgo.SetGuildCommands(guildID, commands)
+	/*_, err = disgo.SetGuildCommands(guildID, commands)
 	if err != nil {
 		log.Fatalf("error while registering commands: %s", err)
-	}
+	}*/
 
 	err = disgo.Connect()
 	if err != nil {
@@ -74,10 +75,24 @@ func main() {
 }
 
 func commandListener(event *events.SlashCommandEvent) {
-	if event.CommandName() == "say" {
-		_ = event.Create(core.NewMessageCreateBuilder().
+	if event.CommandName == "say" {
+		err := event.Create(core.NewMessageCreateBuilder().
 			SetContent(event.Option("message").String()).
 			Build(),
 		)
+		if err != nil {
+			event.Bot().Logger.Error("error on sending response: ", err)
+		}
+	}
+}
+
+func messageCreateListener(event *events.MessageCreateEvent) {
+	println("AQHHH")
+	if event.Message.Author.IsBot {
+		return
+	}
+	_, err := event.MessageChannel().CreateMessage(core.NewMessageCreateBuilder().SetContent(event.Message.Content).Build())
+	if err != nil {
+		event.Bot().Logger.Error("error on sending response: ", err)
 	}
 }

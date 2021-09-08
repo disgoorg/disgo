@@ -26,44 +26,38 @@ func (h *ChannelPinsUpdateHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *ChannelPinsUpdateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+func (h *ChannelPinsUpdateHandler) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload, ok := v.(channelPinsUpdatePayload)
 	if !ok {
 		return
 	}
 
-	channel := disgo.Caches().ChannelCache().GetMessageChannel(payload.ChannelID).(*core.ChannelImpl)
-	oldTime := channel.LastPinTimestamp()
-	channel.Channel.LastPinTimestamp = payload.LastPinTimestamp
+	channel := bot.Caches.ChannelCache().Get(payload.ChannelID)
+	var oldTime *discord.Time
+	if channel != nil {
+		oldTime = channel.LastPinTimestamp
+		channel.LastPinTimestamp = payload.LastPinTimestamp
+	}
 
 	genericChannelEvent := &events.GenericChannelEvent{
-		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 		ChannelID:    payload.ChannelID,
 		Channel:      channel,
 	}
 
-	eventManager.Dispatch(&events.ChannelPinsUpdateEvent{
-		GenericChannelEvent: genericChannelEvent,
-		GuildID:             payload.GuildID,
-		OldLastPinTimestamp: oldTime,
-		NewLastPinTimestamp: payload.LastPinTimestamp,
-	})
-
 	if payload.GuildID == nil {
-		eventManager.Dispatch(&events.DMChannelPinsUpdateEvent{
+		bot.EventManager.Dispatch(&events.DMChannelPinsUpdateEvent{
 			GenericDMChannelEvent: &events.GenericDMChannelEvent{
 				GenericChannelEvent: genericChannelEvent,
-				DMChannel:           channel,
 			},
 			OldLastPinTimestamp: oldTime,
 			NewLastPinTimestamp: payload.LastPinTimestamp,
 		})
 	} else {
-		eventManager.Dispatch(&events.GuildChannelPinsUpdateEvent{
+		bot.EventManager.Dispatch(&events.GuildChannelPinsUpdateEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
 				GenericChannelEvent: genericChannelEvent,
 				GuildID:             *payload.GuildID,
-				GuildChannel:        channel,
 			},
 			OldLastPinTimestamp: oldTime,
 			NewLastPinTimestamp: payload.LastPinTimestamp,

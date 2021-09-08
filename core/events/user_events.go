@@ -25,16 +25,6 @@ type UserTypingEvent struct {
 }
 
 // Channel returns the api.GetChannel the api.User started typing in
-func (e *UserTypingEvent) Channel() core.Channel {
-	return e.Disgo().Caches().ChannelCache().GetChannel(e.ChannelID)
-}
-
-// DMChannel returns the api.DMChannel the api.User started typing in
-func (e *UserTypingEvent) DMChannel() core.DMChannel {
-	return e.Disgo().Caches().DMChannelCache().Get(e.ChannelID)
-}
-
-// TextChannel returns the api.TextChannel the api.User started typing in
-func (e *UserTypingEvent) TextChannel() core.TextChannel {
-	return e.Disgo().Caches().TextChannelCache().Get(e.ChannelID)
+func (e *UserTypingEvent) Channel() *core.Channel {
+	return e.Bot().Caches.ChannelCache().Get(e.ChannelID)
 }

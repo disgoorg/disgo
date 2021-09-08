@@ -24,7 +24,7 @@ var (
 			Name:              "say",
 			Description:       "says what you say",
 			DefaultPermission: true,
-			Options: []discord.ApplicationCommandOption{
+			Options: []discord.SlashCommandOption{
 				{
 					Type:        discord.CommandOptionTypeString,
 					Name:        "message",
@@ -41,7 +41,7 @@ func main() {
 	log.Info("starting example...")
 	log.Infof("disgo version: %s", info.Version)
 
-	disgo, err := core.NewBuilder(token).
+	disgo, err := core.NewBotBuilder(token).
 		SetHTTPServerConfig(httpserver.Config{
 			URL:       "/interactions/callback",
 			Port:      ":80",
@@ -76,7 +76,7 @@ func main() {
 }
 
 func commandListener(event *events.SlashCommandEvent) {
-	if event.CommandName() == "say" {
+	if event.CommandName == "say" {
 		_ = event.Create(core.NewMessageCreateBuilder().
 			SetContent(event.Option("message").String()).
 			Build(),

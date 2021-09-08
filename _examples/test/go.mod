@@ -1,6 +1,6 @@
 module github.com/DisgoOrg/disgo/_examples/slash_commands
 
-go 1.17
+
 
 replace github.com/DisgoOrg/disgo => ../../
 

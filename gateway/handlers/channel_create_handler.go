@@ -20,86 +20,30 @@ func (h *ChannelCreateHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *ChannelCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+func (h *ChannelCreateHandler) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	channel, ok := v.(discord.Channel)
 	if !ok {
 		return
 	}
 
-	coreChannel := disgo.EntityBuilder().CreateChannel(channel, core.CacheStrategyYes)
-
 	genericChannelEvent := &events.GenericChannelEvent{
-		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 		ChannelID:    channel.ID,
+		Channel:      bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes),
 	}
 
-	var genericGuildChannelEvent *events.GenericGuildChannelEvent
 	if channel.GuildID != nil {
-		genericGuildChannelEvent = &events.GenericGuildChannelEvent{
-			GuildID:             *channel.GuildID,
-			GenericChannelEvent: genericChannelEvent,
-			GuildChannel:        coreChannel.(core.GuildChannel),
-		}
-
-		eventManager.Dispatch(&events.GuildChannelCreateEvent{
-			GenericGuildChannelEvent: genericGuildChannelEvent,
+		bot.EventManager.Dispatch(&events.GuildChannelCreateEvent{
+			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
+				GuildID:             *channel.GuildID,
+				GenericChannelEvent: genericChannelEvent,
+			},
 		})
-	}
-
-	switch channel.Type {
-	case discord.ChannelTypeDM:
-		eventManager.Dispatch(&events.DMChannelCreateEvent{
+	} else {
+		bot.EventManager.Dispatch(&events.DMChannelCreateEvent{
 			GenericDMChannelEvent: &events.GenericDMChannelEvent{
 				GenericChannelEvent: genericChannelEvent,
-				DMChannel:           coreChannel.(core.DMChannel),
 			},
 		})
-
-	case discord.ChannelTypeGroupDM:
-		disgo.Logger().Warnf("ChannelTypeGroupDM received what the hell discord")
-
-	case discord.ChannelTypeText:
-		eventManager.Dispatch(&events.TextChannelCreateEvent{
-			GenericTextChannelEvent: &events.GenericTextChannelEvent{
-				GenericGuildChannelEvent: genericGuildChannelEvent,
-				TextChannel:              coreChannel.(core.TextChannel),
-			},
-		})
-
-	case discord.ChannelTypeNews:
-		eventManager.Dispatch(&events.NewsChannelCreateEvent{
-			GenericNewsChannelEvent: &events.GenericNewsChannelEvent{
-				GenericGuildChannelEvent: genericGuildChannelEvent,
-				NewsChannel:              coreChannel.(core.NewsChannel),
-			},
-		})
-
-	case discord.ChannelTypeStore:
-		eventManager.Dispatch(&events.StoreChannelCreateEvent{
-			GenericStoreChannelEvent: &events.GenericStoreChannelEvent{
-				GenericGuildChannelEvent: genericGuildChannelEvent,
-				StoreChannel:             coreChannel.(core.StageChannel),
-			},
-		})
-
-	case discord.ChannelTypeCategory:
-		eventManager.Dispatch(&events.CategoryCreateEvent{
-			GenericCategoryEvent: &events.GenericCategoryEvent{
-				GenericGuildChannelEvent: genericGuildChannelEvent,
-				Category:                 coreChannel.(core.Category),
-			},
-		})
-
-	case discord.ChannelTypeVoice:
-		eventManager.Dispatch(&events.VoiceChannelCreateEvent{
-			GenericVoiceChannelEvent: &events.GenericVoiceChannelEvent{
-				GenericGuildChannelEvent: genericGuildChannelEvent,
-				VoiceChannel:             coreChannel.(core.VoiceChannel),
-			},
-		})
-
-	default:
-		disgo.Logger().Warnf("unknown channel type received: %d", channel.Type)
 	}
-
 }

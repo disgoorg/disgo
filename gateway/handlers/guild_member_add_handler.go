@@ -20,19 +20,19 @@ func (h *GuildMemberAddHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *GuildMemberAddHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+func (h *GuildMemberAddHandler) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	member, ok := v.(discord.Member)
 	if !ok {
 		return
 	}
 
-	eventManager.Dispatch(&events.GuildMemberJoinEvent{
+	bot.EventManager.Dispatch(&events.GuildMemberJoinEvent{
 		GenericGuildMemberEvent: &events.GenericGuildMemberEvent{
 			GenericGuildEvent: &events.GenericGuildEvent{
-				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
-				Guild:        disgo.Caches().GuildCache().Get(member.GuildID),
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+				Guild:        bot.Caches.GuildCache().Get(member.GuildID),
 			},
-			Member: disgo.EntityBuilder().CreateMember(member.GuildID, member, core.CacheStrategyYes),
+			Member: bot.EntityBuilder.CreateMember(member.GuildID, member, core.CacheStrategyYes),
 		},
 	})
 }

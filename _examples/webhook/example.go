@@ -45,7 +45,7 @@ func main() {
 	<-s
 }
 
-func send(ctx context.Context, client webhook.Client, i int) {
+func send(ctx context.Context, client *webhook.Client, i int) {
 	_, err := client.CreateMessage(webhook.NewMessageCreateBuilder().SetContentf("test %d", i).Build(),
 		rest.WithCtx(ctx),
 		rest.WithReason("this adds a reason header"),

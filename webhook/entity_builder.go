@@ -6,30 +6,30 @@ import (
 )
 
 type EntityBuilder interface {
-	WebhookClient() Client
+	WebhookClient() *Client
 	CreateMessage(message discord.Message) *Message
 	CreateComponents(unmarshalComponents []discord.Component) []core.Component
 	CreateWebhook(webhook discord.Webhook) *Webhook
 }
 
-func NewEntityBuilder(webhookClient Client) EntityBuilder {
+func NewEntityBuilder(webhookClient *Client) EntityBuilder {
 	return &EntityBuilderImpl{
 		webhookClient: webhookClient,
 	}
 }
 
 type EntityBuilderImpl struct {
-	webhookClient Client
+	webhookClient *Client
 }
 
-func (b *EntityBuilderImpl) WebhookClient() Client {
+func (b *EntityBuilderImpl) WebhookClient() *Client {
 	return b.webhookClient
 }
 
 func (b *EntityBuilderImpl) CreateMessage(message discord.Message) *Message {
 	webhookMessage := &Message{
 		Message:       message,
-		WebhookClient: b.webhookClient,
+		WebhookClient: b.WebhookClient(),
 	}
 	if len(message.Components) > 0 {
 		webhookMessage.Components = b.CreateComponents(message.Components)
@@ -65,5 +65,8 @@ func (b *EntityBuilderImpl) CreateComponents(unmarshalComponents []discord.Compo
 }
 
 func (b *EntityBuilderImpl) CreateWebhook(webhook discord.Webhook) *Webhook {
-	return nil
+	return &Webhook{
+		Webhook:       webhook,
+		WebhookClient: b.WebhookClient(),
+	}
 }

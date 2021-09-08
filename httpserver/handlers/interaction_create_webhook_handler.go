@@ -10,22 +10,19 @@ func init() {
 	core.HTTPServerEventHandler = &InteractionCreateWebhookHandler{}
 }
 
+var _ core.HTTPEventHandler = (*InteractionCreateWebhookHandler)(nil)
+
 // InteractionCreateWebhookHandler handles api.InteractionCreateWebhookEvent
 type InteractionCreateWebhookHandler struct{}
 
-// EventType returns the discord.GatewayEventType
-func (h *InteractionCreateWebhookHandler) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypeInteractionCreate
-}
-
 // New constructs a new payload receiver for the raw gateway event
 func (h *InteractionCreateWebhookHandler) New() interface{} {
-	return discord.UnmarshalInteraction{}
+	return discord.Interaction{}
 }
 
 // HandleHTTPEvent handles the specific raw gateway event
-func (h *InteractionCreateWebhookHandler) HandleHTTPEvent(disgo core.Disgo, eventManager core.EventManager, c chan discord.InteractionResponse, v interface{}) {
-	unmarshalInteraction, ok := v.(discord.UnmarshalInteraction)
+func (h *InteractionCreateWebhookHandler) HandleHTTPEvent(bot *core.Bot, c chan discord.InteractionResponse, v interface{}) {
+	unmarshalInteraction, ok := v.(discord.Interaction)
 	if !ok {
 		return
 	}
@@ -33,11 +30,11 @@ func (h *InteractionCreateWebhookHandler) HandleHTTPEvent(disgo core.Disgo, even
 	// we just want to pong all pings
 	// no need for any event
 	if unmarshalInteraction.Type == discord.InteractionTypePing {
-		disgo.Logger().Debugf("received interaction ping")
+		bot.Logger.Debugf("received interaction ping")
 		c <- discord.InteractionResponse{
 			Type: discord.InteractionResponseTypePong,
 		}
 		return
 	}
-	handlers.HandleInteraction(disgo, eventManager, -1, c, unmarshalInteraction)
+	handlers.HandleInteraction(bot, -1, c, unmarshalInteraction)
 }

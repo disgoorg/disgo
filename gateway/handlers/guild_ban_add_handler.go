@@ -25,18 +25,18 @@ func (h *GuildBanAddHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *GuildBanAddHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+func (h *GuildBanAddHandler) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload, ok := v.(guildBanAddPayload)
 	if !ok {
 		return
 	}
 
-	eventManager.Dispatch(&events.GuildBanEvent{
+	bot.EventManager.Dispatch(&events.GuildBanEvent{
 		GenericGuildEvent: &events.GenericGuildEvent{
-			GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 			GuildID:      payload.GuildID,
-			Guild:        disgo.Caches().GuildCache().Get(payload.GuildID),
+			Guild:        bot.Caches.GuildCache().Get(payload.GuildID),
 		},
-		User: disgo.EntityBuilder().CreateUser(payload.User, core.CacheStrategyNo),
+		User: bot.EntityBuilder.CreateUser(payload.User, core.CacheStrategyNo),
 	})
 }

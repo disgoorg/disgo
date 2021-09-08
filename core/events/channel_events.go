@@ -9,12 +9,5 @@ import (
 type GenericChannelEvent struct {
 	*GenericEvent
 	ChannelID discord.Snowflake
-	Channel   core.Channel
-}
-
-type ChannelPinsUpdateEvent struct {
-	*GenericChannelEvent
-	GuildID             *discord.Snowflake
-	OldLastPinTimestamp *discord.Time
-	NewLastPinTimestamp *discord.Time
+	Channel   *core.Channel
 }

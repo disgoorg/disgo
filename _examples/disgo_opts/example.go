@@ -25,7 +25,7 @@ func main() {
 	logger.Info("starting example...")
 	logger.Infof("disgo version: %s", info.Version)
 
-	disgo, err := core.NewDisgo(token,
+	disgo, err := core.NewBot(token,
 		core.WithLogger(logger),
 		core.WithHTTPClient(httpClient),
 		core.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
@@ -50,5 +50,5 @@ func main() {
 }
 
 func onMessageCreate(event *events.MessageCreateEvent) {
-	event.Message.Reply(core.NewMessageCreateBuilder().SetContent(event.Message.Content).Build())
+	_, _ = event.Message.Reply(core.NewMessageCreateBuilder().SetContent(event.Message.Content).Build())
 }

@@ -25,22 +25,22 @@ func (h *GuildRoleUpdateHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *GuildRoleUpdateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+func (h *GuildRoleUpdateHandler) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload, ok := v.(roleUpdateData)
 	if !ok {
 		return
 	}
 
-	oldRole := disgo.Caches().RoleCache().GetCopy(payload.Role.ID)
+	oldRole := bot.Caches.RoleCache().GetCopy(payload.GuildID, payload.Role.ID)
 
-	eventManager.Dispatch(&events.RoleUpdateEvent{
+	bot.EventManager.Dispatch(&events.RoleUpdateEvent{
 		GenericRoleEvent: &events.GenericRoleEvent{
 			GenericGuildEvent: &events.GenericGuildEvent{
-				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
-				Guild:        disgo.Caches().GuildCache().Get(payload.GuildID),
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+				Guild:        bot.Caches.GuildCache().Get(payload.GuildID),
 			},
 			RoleID: payload.Role.ID,
-			Role:   disgo.EntityBuilder().CreateRole(payload.GuildID, payload.Role, core.CacheStrategyYes),
+			Role:   bot.EntityBuilder.CreateRole(payload.GuildID, payload.Role, core.CacheStrategyYes),
 		},
 		OldRole: oldRole,
 	})

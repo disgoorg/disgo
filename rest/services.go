@@ -7,6 +7,9 @@ import (
 var _ Services = (*ServicesImpl)(nil)
 
 func NewServices(logger log.Logger, restClient Client) Services {
+	if restClient == nil {
+		restClient = NewClient(&DefaultConfig)
+	}
 	return &ServicesImpl{
 		logger:               logger,
 		restClient:           restClient,

@@ -45,7 +45,7 @@ type APIRoute struct {
 // Compile returns a CompiledAPIRoute
 func (r *APIRoute) Compile(queryValues QueryValues, params ...interface{}) (*CompiledAPIRoute, error) {
 	if len(params) != r.urlParamCount {
-		return nil, discord.ErrInvalidArgCount(len(params), r.urlParamCount)
+		return nil, discord.ErrInvalidArgCount(r.urlParamCount, len(params))
 	}
 	path := r.path
 	var majorParams []string

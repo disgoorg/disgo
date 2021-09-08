@@ -33,7 +33,7 @@ func main() {
 	log.Info("starting example...")
 	log.Infof("disgo version: %s", info.Version)
 
-	disgo, err := core.NewBuilder(token).
+	disgo, err := core.NewBotBuilder(token).
 		SetRawEventsEnabled(true).
 		SetGatewayConfig(gateway.Config{
 			GatewayIntents: discord.GatewayIntentGuilds | discord.GatewayIntentGuildMessages | discord.GatewayIntentGuildMembers,
@@ -62,29 +62,29 @@ func main() {
 		log.Fatalf("error while registering guild commands: %s", err)
 	}
 
-	var cmdsPermissions []discord.GuildCommandPermissionsSet
+	var cmdsPermissions []discord.ApplicationCommandPermissionsSet
 	for _, cmd := range cmds {
-		var perms discord.CommandPermission
+		var perms discord.ApplicationCommandPermission
 		if cmd.Name == "eval" {
-			perms = discord.CommandPermission{
+			perms = discord.ApplicationCommandPermission{
 				ID:         adminRoleID,
-				Type:       discord.CommandPermissionTypeRole,
+				Type:       discord.ApplicationCommandPermissionTypeRole,
 				Permission: true,
 			}
 		} else {
-			perms = discord.CommandPermission{
+			perms = discord.ApplicationCommandPermission{
 				ID:         testRoleID,
-				Type:       discord.CommandPermissionTypeRole,
+				Type:       discord.ApplicationCommandPermissionTypeRole,
 				Permission: true,
 			}
-			cmdsPermissions = append(cmdsPermissions, discord.GuildCommandPermissionsSet{
+			cmdsPermissions = append(cmdsPermissions, discord.ApplicationCommandPermissionsSet{
 				ID:          cmd.ID,
-				Permissions: []discord.CommandPermission{perms},
+				Permissions: []discord.ApplicationCommandPermission{perms},
 			})
 		}
-		cmdsPermissions = append(cmdsPermissions, discord.GuildCommandPermissionsSet{
+		cmdsPermissions = append(cmdsPermissions, discord.ApplicationCommandPermissionsSet{
 			ID:          cmd.ID,
-			Permissions: []discord.CommandPermission{perms},
+			Permissions: []discord.ApplicationCommandPermission{perms},
 		})
 	}
 	if _, err = disgo.SetGuildCommandsPermissions(guildID, cmdsPermissions); err != nil {
@@ -115,11 +115,11 @@ func rawGatewayEventListener(event *events.RawEvent) {
 }
 
 func buttonClickListener(event *events.ButtonClickEvent) {
-	switch event.CustomID() {
+	switch event.CustomID {
 	case "test1":
 		_ = event.Respond(discord.InteractionResponseTypeChannelMessageWithSource,
 			core.NewMessageCreateBuilder().
-				SetContent(event.CustomID()).
+				SetContent(event.CustomID).
 				Build(),
 		)
 
@@ -132,28 +132,28 @@ func buttonClickListener(event *events.ButtonClickEvent) {
 	case "test4":
 		_ = event.Respond(discord.InteractionResponseTypeUpdateMessage,
 			core.NewMessageCreateBuilder().
-				SetContent(event.CustomID()).
+				SetContent(event.CustomID).
 				Build(),
 		)
 	}
 }
 
 func selectMenuSubmitListener(event *events.SelectMenuSubmitEvent) {
-	switch event.CustomID() {
+	switch event.CustomID {
 	case "test3":
 		if err := event.DeferUpdate(); err != nil {
 			log.Errorf("error sending interaction response: %s", err)
 		}
 		_, _ = event.CreateFollowup(core.NewMessageCreateBuilder().
 			SetEphemeral(true).
-			SetContentf("selected options: %s", event.Values()).
+			SetContentf("selected options: %s", event.Values).
 			Build(),
 		)
 	}
 }
 
 func commandListener(event *events.SlashCommandEvent) {
-	switch event.CommandName() {
+	switch event.CommandName {
 	case "eval":
 		go func() {
 			code := event.Option("code").String()
@@ -167,8 +167,7 @@ func commandListener(event *events.SlashCommandEvent) {
 
 			start := time.Now()
 			output, err := gval.Evaluate(code, map[string]interface{}{
-				"disgo": event.Disgo(),
-				"dgo":   event.Disgo(),
+				"bot":   event.Bot(),
 				"event": event,
 			})
 
@@ -176,7 +175,7 @@ func commandListener(event *events.SlashCommandEvent) {
 			embed.SetField(1, "Time", strconv.Itoa(int(elapsed.Milliseconds()))+"ms", true)
 
 			if err != nil {
-				_, err = event.Interaction.UpdateOriginal(core.NewMessageUpdateBuilder().
+				_, err = event.UpdateOriginal(core.NewMessageUpdateBuilder().
 					SetEmbeds(embed.
 						SetColor(red).
 						SetField(0, "Status", "Failed", true).
@@ -190,7 +189,7 @@ func commandListener(event *events.SlashCommandEvent) {
 				}
 				return
 			}
-			_, err = event.Interaction.UpdateOriginal(core.NewMessageUpdateBuilder().
+			_, err = event.UpdateOriginal(core.NewMessageUpdateBuilder().
 				SetEmbeds(embed.
 					SetColor(green).
 					SetField(0, "Status", "Success", true).
@@ -224,9 +223,9 @@ func commandListener(event *events.SlashCommandEvent) {
 			).
 			AddActionRow(
 				core.NewSelectMenu("test3", "test", 1, 1,
-					core.NewSelectOption("test1", "1"),
-					core.NewSelectOption("test2", "2"),
-					core.NewSelectOption("test3", "3"),
+					core.NewSelectMenuOption("test1", "1"),
+					core.NewSelectMenuOption("test2", "2"),
+					core.NewSelectMenuOption("test3", "3"),
 				),
 			).
 			Build(),
@@ -238,7 +237,7 @@ func commandListener(event *events.SlashCommandEvent) {
 		user := event.Option("member").User()
 		role := event.Option("role").Role()
 
-		if err := event.Disgo().RestServices().GuildService().AddMemberRole(*event.Interaction.GuildID, user.ID, role.ID); err == nil {
+		if err := event.Bot().RestServices.GuildService().AddMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
 			_ = event.Create(core.NewMessageCreateBuilder().AddEmbeds(
 				core.NewEmbedBuilder().SetColor(green).SetDescriptionf("Added %s to %s", role, user).Build(),
 			).Build())
@@ -252,7 +251,7 @@ func commandListener(event *events.SlashCommandEvent) {
 		user := event.Option("member").User()
 		role := event.Option("role").Role()
 
-		if err := event.Disgo().RestServices().GuildService().RemoveMemberRole(*event.Interaction.GuildID, user.ID, role.ID); err == nil {
+		if err := event.Bot().RestServices.GuildService().RemoveMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
 			_ = event.Create(core.NewMessageCreateBuilder().AddEmbeds(
 				core.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Removed %s from %s", role, user).Build(),
 			).Build())

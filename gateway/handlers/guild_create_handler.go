@@ -20,58 +20,58 @@ func (h *GuildCreateHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *GuildCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+func (h *GuildCreateHandler) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	guild, ok := v.(discord.GatewayGuild)
 	if !ok {
 		return
 	}
 
-	oldCoreGuild := disgo.Caches().GuildCache().GetCopy(guild.ID)
+	oldCoreGuild := bot.Caches.GuildCache().GetCopy(guild.ID)
 	wasUnavailable := true
 	if oldCoreGuild != nil {
 		wasUnavailable = oldCoreGuild.Unavailable
 	}
 
 	genericGuildEvent := &events.GenericGuildEvent{
-		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 		GuildID:      guild.ID,
-		Guild:        disgo.EntityBuilder().CreateGuild(guild.Guild, core.CacheStrategyYes),
+		Guild:        bot.EntityBuilder.CreateGuild(guild.Guild, core.CacheStrategyYes),
 	}
 
 	for _, channel := range guild.Channels {
 		channel.GuildID = &guild.ID
-		disgo.EntityBuilder().CreateChannel(channel, core.CacheStrategyYes)
+		bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes)
 	}
 
 	for _, role := range guild.Roles {
 		role.GuildID = guild.ID
-		disgo.EntityBuilder().CreateRole(guild.ID, role, core.CacheStrategyYes)
+		bot.EntityBuilder.CreateRole(guild.ID, role, core.CacheStrategyYes)
 	}
 
 	for _, member := range guild.Members {
-		disgo.EntityBuilder().CreateMember(guild.ID, member, core.CacheStrategyYes)
+		bot.EntityBuilder.CreateMember(guild.ID, member, core.CacheStrategyYes)
 	}
 
 	for _, voiceState := range guild.VoiceStates {
-		disgo.EntityBuilder().CreateVoiceState(guild.ID, voiceState, core.CacheStrategyYes)
+		bot.EntityBuilder.CreateVoiceState(guild.ID, voiceState, core.CacheStrategyYes)
 	}
 
 	for _, emote := range guild.Emojis {
-		disgo.EntityBuilder().CreateEmoji(guild.ID, emote, core.CacheStrategyYes)
+		bot.EntityBuilder.CreateEmoji(guild.ID, emote, core.CacheStrategyYes)
 	}
 
 	for _, stageInstance := range guild.StageInstances {
-		disgo.EntityBuilder().CreateStageInstance(stageInstance, core.CacheStrategyYes)
+		bot.EntityBuilder.CreateStageInstance(stageInstance, core.CacheStrategyYes)
 	}
 
 	// TODO: presence
 
 	if wasUnavailable {
-		eventManager.Dispatch(&events.GuildAvailableEvent{
+		bot.EventManager.Dispatch(&events.GuildAvailableEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	} else {
-		eventManager.Dispatch(&events.GuildJoinEvent{
+		bot.EventManager.Dispatch(&events.GuildJoinEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	}

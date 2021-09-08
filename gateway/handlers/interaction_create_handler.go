@@ -16,83 +16,67 @@ func (h *InteractionCreateHandler) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *InteractionCreateHandler) New() interface{} {
-	return discord.UnmarshalInteraction{}
+	return discord.Interaction{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *InteractionCreateHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
-	unmarshalInteraction, ok := v.(discord.UnmarshalInteraction)
+func (h *InteractionCreateHandler) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+	interaction, ok := v.(discord.Interaction)
 	if !ok {
 		return
 	}
-	HandleInteraction(disgo, eventManager, sequenceNumber, nil, unmarshalInteraction)
+	HandleInteraction(bot, sequenceNumber, nil, interaction)
 }
 
-func HandleInteraction(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, c chan discord.InteractionResponse, unmarshalInteraction discord.UnmarshalInteraction) {
-	interaction := disgo.EntityBuilder().CreateInteraction(unmarshalInteraction, c, core.CacheStrategyYes)
+func HandleInteraction(bot *core.Bot, sequenceNumber int, c chan discord.InteractionResponse, interaction discord.Interaction) {
+	coreInteraction := bot.EntityBuilder.CreateInteraction(interaction, c, core.CacheStrategyYes)
 
-	genericInteractionEvent := &events.GenericInteractionEvent{
-		GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
-		Interaction:  interaction,
-	}
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
-	switch unmarshalInteraction.Type {
+	switch interaction.Type {
 	case discord.InteractionTypeCommand:
-		applicationCommandInteraction := disgo.EntityBuilder().CreateApplicationCommandInteraction(interaction, core.CacheStrategyYes)
-		applicationCommandEvent := &events.ApplicationCommandEvent{
-			GenericInteractionEvent:       genericInteractionEvent,
-			ApplicationCommandInteraction: applicationCommandInteraction,
-		}
+		applicationCommandInteraction := bot.EntityBuilder.CreateApplicationCommandInteraction(coreInteraction, core.CacheStrategyYes)
 
-		switch unmarshalInteraction.Data.CommandType {
+		switch interaction.Data.CommandType {
 		case discord.ApplicationCommandTypeSlash:
-			eventManager.Dispatch(&events.SlashCommandEvent{
-				ApplicationCommandEvent: applicationCommandEvent,
-				SlashCommandInteraction: disgo.EntityBuilder().CreateSlashCommandInteraction(applicationCommandInteraction),
+			bot.EventManager.Dispatch(&events.SlashCommandEvent{
+				GenericEvent:            genericEvent,
+				SlashCommandInteraction: bot.EntityBuilder.CreateSlashCommandInteraction(applicationCommandInteraction),
 			})
 
 		case discord.ApplicationCommandTypeUser, discord.ApplicationCommandTypeMessage:
-			contextCommandInteraction := disgo.EntityBuilder().CreateContextCommandInteraction(applicationCommandInteraction)
-			contextCommandEvent := &events.ContextCommandEvent{
-				ApplicationCommandEvent:   applicationCommandEvent,
-				ContextCommandInteraction: contextCommandInteraction,
-			}
+			contextCommandInteraction := bot.EntityBuilder.CreateContextCommandInteraction(applicationCommandInteraction)
 
-			switch unmarshalInteraction.Data.CommandType {
+			switch interaction.Data.CommandType {
 			case discord.ApplicationCommandTypeUser:
-				eventManager.Dispatch(&events.UserCommandEvent{
-					ContextCommandEvent:    contextCommandEvent,
-					UserCommandInteraction: disgo.EntityBuilder().CreateUserCommandInteraction(contextCommandInteraction),
+				bot.EventManager.Dispatch(&events.UserCommandEvent{
+					GenericEvent:           genericEvent,
+					UserCommandInteraction: bot.EntityBuilder.CreateUserCommandInteraction(contextCommandInteraction),
 				})
 
 			case discord.ApplicationCommandTypeMessage:
-				eventManager.Dispatch(&events.MessageCommandEvent{
-					ContextCommandEvent:       contextCommandEvent,
-					MessageCommandInteraction: disgo.EntityBuilder().CreateMessageCommandInteraction(contextCommandInteraction),
+				bot.EventManager.Dispatch(&events.MessageCommandEvent{
+					GenericEvent:              genericEvent,
+					MessageCommandInteraction: bot.EntityBuilder.CreateMessageCommandInteraction(contextCommandInteraction),
 				})
 			}
 		}
 
 	case discord.InteractionTypeComponent:
-		componentInteraction := disgo.EntityBuilder().CreateComponentInteraction(interaction, core.CacheStrategyYes)
-		genericComponentEvent := &events.GenericComponentEvent{
-			GenericInteractionEvent: genericInteractionEvent,
-			ComponentInteraction:    componentInteraction,
-		}
+		componentInteraction := bot.EntityBuilder.CreateComponentInteraction(coreInteraction, core.CacheStrategyYes)
 
-		switch unmarshalInteraction.Data.ComponentType {
+		switch interaction.Data.ComponentType {
 		case discord.ComponentTypeButton:
-			eventManager.Dispatch(&events.ButtonClickEvent{
-				GenericComponentEvent: genericComponentEvent,
-				ButtonInteraction:     disgo.EntityBuilder().CreateButtonInteraction(componentInteraction),
+			bot.EventManager.Dispatch(&events.ButtonClickEvent{
+				GenericEvent:      genericEvent,
+				ButtonInteraction: bot.EntityBuilder.CreateButtonInteraction(componentInteraction),
 			})
 
 		case discord.ComponentTypeSelectMenu:
-			eventManager.Dispatch(&events.SelectMenuSubmitEvent{
-				GenericComponentEvent: genericComponentEvent,
-				SelectMenuInteraction: disgo.EntityBuilder().CreateSelectMenuInteraction(componentInteraction),
+			bot.EventManager.Dispatch(&events.SelectMenuSubmitEvent{
+				GenericEvent:          genericEvent,
+				SelectMenuInteraction: bot.EntityBuilder.CreateSelectMenuInteraction(componentInteraction),
 			})
 		}
-
 	}
 }

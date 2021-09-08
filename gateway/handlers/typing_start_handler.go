@@ -30,17 +30,17 @@ func (h *TypingStartHandler) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *TypingStartHandler) HandleGatewayEvent(disgo core.Disgo, eventManager core.EventManager, sequenceNumber int, v interface{}) {
+func (h *TypingStartHandler) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload, ok := v.(typingStartPayload)
 	if !ok {
 		return
 	}
 
-	user := disgo.EntityBuilder().CreateUser(payload.User, core.CacheStrategyYes)
+	user := bot.EntityBuilder.CreateUser(payload.User, core.CacheStrategyYes)
 
-	eventManager.Dispatch(&events.UserTypingEvent{
+	bot.EventManager.Dispatch(&events.UserTypingEvent{
 		GenericUserEvent: &events.GenericUserEvent{
-			GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 			UserID:       payload.UserID,
 			User:         user,
 		},
@@ -48,23 +48,23 @@ func (h *TypingStartHandler) HandleGatewayEvent(disgo core.Disgo, eventManager c
 	})
 
 	if payload.GuildID == nil {
-		eventManager.Dispatch(&events.DMUserTypingEvent{
+		bot.EventManager.Dispatch(&events.DMChannelUserTypingEvent{
 			GenericUserEvent: &events.GenericUserEvent{
-				GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				User:         user,
 				UserID:       payload.UserID,
 			},
 			ChannelID: payload.ChannelID,
 		})
 	} else {
-		eventManager.Dispatch(&events.GuildMemberTypingEvent{
+		bot.EventManager.Dispatch(&events.GuildMemberTypingEvent{
 			GenericGuildMemberEvent: &events.GenericGuildMemberEvent{
 				GenericGuildEvent: &events.GenericGuildEvent{
-					GenericEvent: events.NewGenericEvent(disgo, sequenceNumber),
+					GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 					GuildID:      *payload.GuildID,
-					Guild:        disgo.Caches().GuildCache().Get(*payload.GuildID),
+					Guild:        bot.Caches.GuildCache().Get(*payload.GuildID),
 				},
-				Member: disgo.EntityBuilder().CreateMember(*payload.GuildID, *payload.Member, core.CacheStrategyYes),
+				Member: bot.EntityBuilder.CreateMember(*payload.GuildID, *payload.Member, core.CacheStrategyYes),
 			},
 		})
 	}
