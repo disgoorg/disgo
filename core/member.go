@@ -13,10 +13,14 @@ type Member struct {
 
 // Permissions returns the Permissions the Member has in the Guild
 func (m *Member) Permissions() discord.Permissions {
-	if m.Member.Permissions != nil {
+	/*if m.Member.Permissions != nil {
 		return *m.Member.Permissions
-	}
+	}*/
 	return GetMemberPermissions(m)
+}
+
+func (m *Member) ChannelPermissions(channel *Channel) discord.Permissions {
+	return GetMemberPermissionsInChannel(channel, m)
 }
 
 // Roles return all Role(s)the Member has
@@ -92,22 +96,4 @@ func (m *Member) AddRole(roleID discord.Snowflake, opts ...rest.RequestOpt) rest
 // RemoveRole removes a specific role the member
 func (m *Member) RemoveRole(roleID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
 	return m.Bot.RestServices.GuildService().RemoveMemberRole(m.GuildID, m.User.ID, roleID, opts...)
-}
-
-// GetMemberPermissions returns all Permissions from the provided Member
-func GetMemberPermissions(member *Member) discord.Permissions {
-	if member.IsOwner() {
-		return discord.PermissionsAll
-	}
-	if guild := member.Guild(); guild != nil {
-		var permissions discord.Permissions
-		for _, role := range member.Roles() {
-			permissions = permissions.Add(role.Permissions)
-			if permissions.Has(discord.PermissionAdministrator) {
-				return discord.PermissionsAll
-			}
-		}
-		return permissions
-	}
-	return discord.PermissionsNone
 }

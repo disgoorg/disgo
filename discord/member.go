@@ -11,7 +11,7 @@ type Member struct {
 	Deaf         bool         `json:"deaf,omitempty"`
 	Mute         bool         `json:"mute,omitempty"`
 	Pending      bool         `json:"pending"`
-	Permissions  *Permissions `json:"permissions"` // only sent from slash commands
+	Permissions  *Permissions `json:"permissions"` // only sent from slash commands & should not be cached
 }
 
 // MemberAdd is used to add a member via the oauth2 access token to a guild

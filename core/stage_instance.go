@@ -19,11 +19,23 @@ func (i *StageInstance) Channel() *Channel {
 }
 
 func (i *StageInstance) GetSpeakers() []*Member {
-	return nil // TODO
+	var speakers []*Member
+	for _, member := range i.Channel().Members() {
+		if member.VoiceState() != nil && !member.VoiceState().Suppress {
+			speakers = append(speakers)
+		}
+	}
+	return speakers
 }
 
-func (i *StageInstance) GetAudience() []*Member {
-	return nil // TODO
+func (i *StageInstance) GetListeners() []*Member {
+	var listeners []*Member
+	for _, member := range i.Channel().Members() {
+		if member.VoiceState() != nil && member.VoiceState().Suppress {
+			listeners = append(listeners)
+		}
+	}
+	return listeners
 }
 
 func (s *VoiceState) UpdateVoiceState(suppress *discord.OptionalBool, requestToSpeak *discord.OptionalTime, opts ...rest.RequestOpt) rest.Error {

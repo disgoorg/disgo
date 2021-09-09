@@ -9,15 +9,67 @@ import (
 
 type Channel struct {
 	discord.Channel
-	Bot             *Bot
-	StageInstanceID *discord.Snowflake
+	Bot                *Bot
+	StageInstanceID    *discord.Snowflake
+	ConnectedMemberIDs map[discord.Snowflake]struct{}
 }
 
 func (c *Channel) Guild() *Guild {
 	if !c.IsGuildChannel() {
-		unsupported(c)
+		unsupportedChannelType(c)
 	}
 	return c.Bot.Caches.GuildCache().Get(*c.GuildID)
+}
+
+func (c *Channel) Channels() []*Channel {
+	if !c.IsCategory() {
+		unsupportedChannelType(c)
+	}
+	return c.Bot.Caches.ChannelCache().FindAll(func(channel *Channel) bool {
+		return channel.ParentID != nil && *channel.ParentID == c.ID
+	})
+}
+
+func (c *Channel) Members() []*Member {
+	if c.IsStoreChannel() {
+		unsupportedChannelType(c)
+	}
+	var members []*Member
+	if c.IsCategory() {
+		memberIds := make(map[discord.Snowflake]struct{})
+		for _, channel := range c.Channels() {
+			if channel.IsStoreChannel() {
+				continue
+			}
+			for _, member := range channel.Members() {
+				if _, ok := memberIds[member.ID]; ok {
+					continue
+				}
+				members = append(members, member)
+				memberIds[member.ID] = struct{}{}
+			}
+		}
+		return members
+	} else if c.IsTextChannel() || c.IsNewsChannel() {
+		members = c.Bot.Caches.MemberCache().FindAll(func(member *Member) bool {
+			return member.ChannelPermissions(c).Has(discord.PermissionViewChannel)
+		})
+	} else if c.IsVoiceChannel() || c.IsStageChannel() {
+		members = c.Bot.Caches.MemberCache().FindAll(func(member *Member) bool {
+			_, ok := c.ConnectedMemberIDs[member.ID]
+			return ok
+		})
+	}
+	return members
+}
+
+func (c *Channel) PermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake) *discord.PermissionOverwrite {
+	for _, overwrite := range c.PermissionOverwrites {
+		if overwrite.Type == overwriteType && overwrite.ID == id {
+			return &overwrite
+		}
+	}
+	return nil
 }
 
 func (c *Channel) IsMessageChannel() bool {
@@ -58,7 +110,7 @@ func (c *Channel) IsStageChannel() bool {
 
 func (c *Channel) CollectMessages(filter MessageFilter) (chan *Message, func()) {
 	if !c.IsMessageChannel() {
-		unsupported(c)
+		unsupportedChannelType(c)
 	}
 	return NewMessageCollectorByChannel(c, filter)
 }
@@ -100,7 +152,7 @@ func (c *Channel) Parent() *Channel {
 
 func (c *Channel) Update(channelUpdate discord.ChannelUpdate, opts ...rest.RequestOpt) (*Channel, rest.Error) {
 	if !c.IsGuildChannel() {
-		unsupported(c)
+		unsupportedChannelType(c)
 	}
 	channel, err := c.Bot.RestServices.ChannelService().UpdateChannel(c.ID, channelUpdate, opts...)
 	if err != nil {
@@ -111,7 +163,7 @@ func (c *Channel) Update(channelUpdate discord.ChannelUpdate, opts ...rest.Reque
 
 func (c *Channel) Connect() error {
 	if !c.IsVoiceChannel() {
-		unsupported(c)
+		unsupportedChannelType(c)
 	}
 	return c.Bot.AudioController.Connect(*c.GuildID, c.ID)
 }
@@ -126,7 +178,7 @@ func (c *Channel) CrosspostMessage(messageID discord.Snowflake, opts ...rest.Req
 
 func (c *Channel) StageInstance() *StageInstance {
 	if !c.IsStageChannel() {
-		unsupported(c)
+		unsupportedChannelType(c)
 	}
 	if c.StageInstanceID == nil {
 		return nil
@@ -136,7 +188,7 @@ func (c *Channel) StageInstance() *StageInstance {
 
 func (c *Channel) CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate, opts ...rest.RequestOpt) (*StageInstance, rest.Error) {
 	if !c.IsStageChannel() {
-		unsupported(c)
+		unsupportedChannelType(c)
 	}
 	stageInstance, err := c.Bot.RestServices.StageInstanceService().CreateStageInstance(stageInstanceCreate, opts...)
 	if err != nil {
@@ -147,7 +199,7 @@ func (c *Channel) CreateStageInstance(stageInstanceCreate discord.StageInstanceC
 
 func (c *Channel) UpdateStageInstance(stageInstanceUpdate discord.StageInstanceUpdate, opts ...rest.RequestOpt) (*StageInstance, rest.Error) {
 	if !c.IsStageChannel() {
-		unsupported(c)
+		unsupportedChannelType(c)
 	}
 	stageInstance, err := c.Bot.RestServices.StageInstanceService().UpdateStageInstance(c.ID, stageInstanceUpdate, opts...)
 	if err != nil {
@@ -158,18 +210,18 @@ func (c *Channel) UpdateStageInstance(stageInstanceUpdate discord.StageInstanceU
 
 func (c *Channel) DeleteStageInstance(opts ...rest.RequestOpt) rest.Error {
 	if !c.IsStageChannel() {
-		unsupported(c)
+		unsupportedChannelType(c)
 	}
 	return c.Bot.RestServices.StageInstanceService().DeleteStageInstance(c.ID, opts...)
 }
 
 func (c *Channel) IsModerator(member *Member) bool {
 	if !c.IsStageChannel() {
-		unsupported(c)
+		unsupportedChannelType(c)
 	}
 	return member.Permissions().Has(discord.PermissionsStageModerator)
 }
 
-func unsupported(c *Channel) {
-	panic(fmt.Sprintf("unsupported operation for '%d'", c.Type))
+func unsupportedChannelType(c *Channel) {
+	panic(fmt.Sprintf("unsupportedChannelType operation for '%d'", c.Type))
 }
