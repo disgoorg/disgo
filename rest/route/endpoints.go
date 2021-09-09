@@ -90,6 +90,9 @@ var (
 	UpdateGuildTemplate     = NewAPIRoute(PATCH, "/guilds/{guild.id}/templates/{template.code}")
 	DeleteGuildTemplate     = NewAPIRoute(DELETE, "/guilds/{guild.id}/templates/{template.code}")
 	CreateGuildFromTemplate = NewAPIRoute(POST, "/guilds/templates/{template.code}")
+
+	UpdateCurrentUserVoiceState = NewAPIRoute(PATCH, "/guilds/{guild.id}/voice-states/@me")
+	UpdateUserVoiceState        = NewAPIRoute(PATCH, "/guilds/{guild.id}/voice-states/{user.id}")
 )
 
 // StageInstance

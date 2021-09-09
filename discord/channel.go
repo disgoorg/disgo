@@ -74,7 +74,7 @@ type ChannelUpdate struct {
 	RateLimitPerUser           *int                  `json:"rate_limit_per_user,omitempty"`
 	Bitrate                    *int                  `json:"bitrate,omitempty"`
 	UserLimit                  *int                  `json:"user_limit,omitempty"`
-	PermissionOverwrites       []PermissionOverwrite `json:"permission_overwrites,omitempty"`
+	PermissionOverwrites       *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID                   *Snowflake            `json:"parent_id,omitempty"`
 	RTCRegion                  *string               `json:"rtc_region"`
 	VideoQualityMode           *VideoQualityMode     `json:"video_quality_mode"`

@@ -16,3 +16,9 @@ type VoiceState struct {
 	Suppress                bool       `json:"suppress"`
 	RequestToSpeakTimestamp Time       `json:"request_to_speak_timestamp"`
 }
+
+type UserVoiceStateUpdate struct {
+	ChannelID               Snowflake     `json:"channel_id"`
+	Suppress                *OptionalBool `json:"suppress,omitempty"`
+	RequestToSpeakTimestamp *OptionalTime `json:"request_to_speak_timestamp,omitempty"`
+}

@@ -1,6 +1,9 @@
 package core
 
-import "github.com/DisgoOrg/disgo/discord"
+import (
+	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/rest"
+)
 
 type VoiceState struct {
 	discord.VoiceState
@@ -29,4 +32,15 @@ func (s *VoiceState) VoiceChannel() *Channel {
 		return nil
 	}
 	return s.Bot.Caches.ChannelCache().Get(*s.ChannelID)
+}
+
+func (s *VoiceState) Update(suppress *discord.OptionalBool, requestToSpeak *discord.OptionalTime, opts ...rest.RequestOpt) rest.Error {
+	if s.ChannelID == nil {
+		return rest.NewError(nil, discord.ErrMemberMustBeConnectedToChannel)
+	}
+	userVoiceUpdate := discord.UserVoiceStateUpdate{ChannelID: *s.ChannelID, Suppress: suppress, RequestToSpeakTimestamp: requestToSpeak}
+	if s.UserID == s.Bot.ClientID {
+		return s.Bot.RestServices.GuildService().UpdateCurrentUserVoiceState(s.GuildID, userVoiceUpdate, opts...)
+	}
+	return s.Bot.RestServices.GuildService().UpdateUserVoiceState(s.GuildID, s.UserID, userVoiceUpdate, opts...)
 }

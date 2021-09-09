@@ -73,6 +73,11 @@ type ListenerAdapter struct {
 	OnGuildVoiceJoin   func(event *GuildVoiceJoinEvent)
 	OnGuildVoiceLeave  func(event *GuildVoiceLeaveEvent)
 
+	// core.Guild core.StageInstance Events
+	OnStageInstanceCreate func(event *StageInstanceCreateEvent)
+	OnStageInstanceUpdate func(event *StageInstanceUpdateEvent)
+	OnStageInstanceDelete func(event *StageInstanceDeleteEvent)
+
 	// core.Guild core.Role Events
 	OnRoleCreate func(event *RoleCreateEvent)
 	OnRoleUpdate func(event *RoleUpdateEvent)
@@ -306,6 +311,20 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 	case *GuildVoiceLeaveEvent:
 		if listener := l.OnGuildVoiceLeave; listener != nil {
+			listener(e)
+		}
+
+	// core.Guild core.StageInstance Events
+	case *StageInstanceCreateEvent:
+		if listener := l.OnStageInstanceCreate; listener != nil {
+			listener(e)
+		}
+	case *StageInstanceUpdateEvent:
+		if listener := l.OnStageInstanceUpdate; listener != nil {
+			listener(e)
+		}
+	case *StageInstanceDeleteEvent:
+		if listener := l.OnStageInstanceDelete; listener != nil {
 			listener(e)
 		}
 

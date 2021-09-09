@@ -18,6 +18,21 @@ func (i *StageInstance) Channel() *Channel {
 	return i.Bot.Caches.ChannelCache().Get(i.ChannelID)
 }
 
+func (i *StageInstance) GetSpeakers() []*Member {
+	return nil // TODO
+}
+
+func (i *StageInstance) GetAudience() []*Member {
+	return nil // TODO
+}
+
+func (s *VoiceState) UpdateVoiceState(suppress *discord.OptionalBool, requestToSpeak *discord.OptionalTime, opts ...rest.RequestOpt) rest.Error {
+	if s.ChannelID == nil {
+		return rest.NewError(nil, discord.ErrMemberMustBeConnectedToChannel)
+	}
+	return s.Bot.RestServices.GuildService().UpdateCurrentUserVoiceState(s.GuildID, discord.UserVoiceStateUpdate{ChannelID: *s.ChannelID, Suppress: suppress, RequestToSpeakTimestamp: requestToSpeak}, opts...)
+}
+
 func (i *StageInstance) Update(stageInstanceUpdate discord.StageInstanceUpdate, opts ...rest.RequestOpt) (*StageInstance, rest.Error) {
 	stageInstance, err := i.Bot.RestServices.StageInstanceService().UpdateStageInstance(i.ID, stageInstanceUpdate, opts...)
 	if err != nil {

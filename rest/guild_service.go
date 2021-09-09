@@ -43,6 +43,9 @@ type GuildService interface {
 
 	GetIntegrations(guildID discord.Snowflake, opts ...RequestOpt) ([]discord.Integration, Error)
 	DeleteIntegration(guildID discord.Snowflake, integrationID discord.Snowflake, opts ...RequestOpt) Error
+
+	UpdateCurrentUserVoiceState(guildID discord.Snowflake, currentUserVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) Error
+	UpdateUserVoiceState(guildID discord.Snowflake, userID discord.Snowflake, userVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) Error
 }
 
 type guildServiceImpl struct {
@@ -288,4 +291,20 @@ func (s *guildServiceImpl) GetEmojis(guildID discord.Snowflake, opts ...RequestO
 	}
 	rErr = s.restClient.Do(compiledRoute, nil, &emojis, opts...)
 	return
+}
+
+func (s *guildServiceImpl) UpdateCurrentUserVoiceState(guildID discord.Snowflake, currentUserVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) Error {
+	compiledRoute, err := route.UpdateCurrentUserVoiceState.Compile(nil, guildID)
+	if err != nil {
+		return NewError(nil, err)
+	}
+	return s.restClient.Do(compiledRoute, currentUserVoiceStateUpdate, nil, opts...)
+}
+
+func (s *guildServiceImpl) UpdateUserVoiceState(guildID discord.Snowflake, userID discord.Snowflake, userVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) Error {
+	compiledRoute, err := route.UpdateUserVoiceState.Compile(nil, guildID, userID)
+	if err != nil {
+		return NewError(nil, err)
+	}
+	return s.restClient.Do(compiledRoute, userVoiceStateUpdate, nil, opts...)
 }

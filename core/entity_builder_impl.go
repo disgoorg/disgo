@@ -395,7 +395,17 @@ func (b *entityBuilderImpl) CreateChannel(discordChannel discord.Channel, update
 }
 
 func (b *entityBuilderImpl) CreateStageInstance(stageInstance discord.StageInstance, updateCache CacheStrategy) *StageInstance {
-	return &StageInstance{StageInstance: stageInstance, Bot: b.Bot()}
+
+	coreStageInstance := &StageInstance{StageInstance: stageInstance, Bot: b.Bot()}
+
+	if channel := b.Bot().Caches.ChannelCache().Get(stageInstance.ChannelID); channel != nil {
+		channel.StageInstanceID = &stageInstance.ID
+	}
+
+	if updateCache(b.Bot()) {
+		return b.Bot().Caches.StageInstanceCache().Set(coreStageInstance)
+	}
+	return coreStageInstance
 }
 
 func (b *entityBuilderImpl) CreateInvite(invite discord.Invite, updateCache CacheStrategy) *Invite {

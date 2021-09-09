@@ -29,6 +29,8 @@ var (
 	ErrChannelNotTypeNews = errors.New("channel type is not 'NEWS'")
 
 	ErrCheckFailed = errors.New("check failed")
+
+	ErrMemberMustBeConnectedToChannel = errors.New("the member must be connected to the channel")
 )
 
 func ErrUnexpectedQueryParam(param string) error {
