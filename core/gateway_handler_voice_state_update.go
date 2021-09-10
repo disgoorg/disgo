@@ -29,23 +29,15 @@ func (h *VoiceStateUpdateHandler) HandleGatewayEvent(bot *Bot, sequenceNumber in
 	}
 	voiceState := bot.EntityBuilder.CreateVoiceState(discordVoiceState.GuildID, discordVoiceState, CacheStrategyYes)
 
-	if oldVoiceState != nil { // TODO: change tis check as initially is nil
-		// make sure we know who is connected to which channel
-		if oldVoiceState.ChannelID != nil && voiceState.ChannelID == nil {
-			if channel := bot.Caches.ChannelCache().Get(*oldVoiceState.ChannelID); channel != nil {
-				delete(channel.ConnectedMemberIDs, voiceState.UserID)
-			}
-		} else if oldVoiceState.ChannelID == nil && voiceState.ChannelID != nil {
-			if channel := bot.Caches.ChannelCache().Get(*voiceState.ChannelID); channel != nil {
-				channel.ConnectedMemberIDs[voiceState.UserID] = struct{}{}
-			}
-		} else if oldVoiceState.ChannelID != nil && voiceState.ChannelID != nil && *oldVoiceState.ChannelID != *voiceState.ChannelID {
-			if channel := bot.Caches.ChannelCache().Get(*oldVoiceState.ChannelID); channel != nil {
-				delete(channel.ConnectedMemberIDs, voiceState.UserID)
-			}
-			if channel := bot.Caches.ChannelCache().Get(*voiceState.ChannelID); channel != nil {
-				channel.ConnectedMemberIDs[voiceState.UserID] = struct{}{}
-			}
+	if oldVoiceState != nil && oldVoiceState.ChannelID != nil {
+		if channel := bot.Caches.ChannelCache().Get(*oldVoiceState.ChannelID); channel != nil {
+			delete(channel.ConnectedMemberIDs, voiceState.UserID)
+		}
+	}
+
+	if voiceState.ChannelID != nil {
+		if channel := bot.Caches.ChannelCache().Get(*voiceState.ChannelID); channel != nil {
+			channel.ConnectedMemberIDs[voiceState.UserID] = struct{}{}
 		}
 	}
 
