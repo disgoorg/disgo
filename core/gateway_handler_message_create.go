@@ -4,21 +4,21 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// MessageCreateHandler handles core.GatewayEventMessageCreate
-type MessageCreateHandler struct{}
+// gatewayHandlerMessageCreate handles core.GatewayEventMessageCreate
+type gatewayHandlerMessageCreate struct{}
 
 // EventType returns the core.GatewayGatewayEventType
-func (h *MessageCreateHandler) EventType() discord.GatewayEventType {
+func (h *gatewayHandlerMessageCreate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeMessageCreate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *MessageCreateHandler) New() interface{} {
+func (h *gatewayHandlerMessageCreate) New() interface{} {
 	return &discord.Message{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *MessageCreateHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerMessageCreate) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
 	message := *v.(*discord.Message)
 
 	genericMessageEvent := &GenericMessageEvent{

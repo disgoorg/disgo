@@ -10,21 +10,21 @@ type inviteDeletePayload struct {
 	Code      string             `json:"code"`
 }
 
-// InviteDeleteHandler handles core.GatewayEventChannelCreate
-type InviteDeleteHandler struct{}
+// gatewayHandlerInviteDelete handles core.GatewayEventChannelCreate
+type gatewayHandlerInviteDelete struct{}
 
 // EventType returns the core.GatewayGatewayEventType
-func (h *InviteDeleteHandler) EventType() discord.GatewayEventType {
+func (h *gatewayHandlerInviteDelete) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeInviteCreate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *InviteDeleteHandler) New() interface{} {
+func (h *gatewayHandlerInviteDelete) New() interface{} {
 	return &inviteDeletePayload{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *InviteDeleteHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerInviteDelete) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*inviteDeletePayload)
 
 	bot.EventManager.Dispatch(&GuildInviteDeleteEvent{

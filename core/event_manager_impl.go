@@ -14,7 +14,7 @@ var _ EventManager = (*eventManagerImpl)(nil)
 func NewEventManager(bot *Bot, listeners []EventListener) EventManager {
 	return &eventManagerImpl{
 		gatewayEventHandlers:   GetGatewayHandlers(),
-		httpServerEventHandler: &InteractionCreateHTTPServerHandler{},
+		httpServerEventHandler: &httpserverHandlerInteractionCreate{},
 		bot:                    bot,
 		listeners:              listeners,
 	}

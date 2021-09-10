@@ -9,21 +9,21 @@ type roleCreateData struct {
 	Role    discord.Role      `json:"role"`
 }
 
-// GuildRoleCreateHandler handles core.GuildRoleCreateGatewayEvent
-type GuildRoleCreateHandler struct{}
+// gatewayHandlerGuildRoleCreate handles core.GuildRoleCreateGatewayEvent
+type gatewayHandlerGuildRoleCreate struct{}
 
 // EventType returns the core.GatewayGatewayEventType
-func (h *GuildRoleCreateHandler) EventType() discord.GatewayEventType {
+func (h *gatewayHandlerGuildRoleCreate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildRoleCreate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *GuildRoleCreateHandler) New() interface{} {
+func (h *gatewayHandlerGuildRoleCreate) New() interface{} {
 	return &roleCreateData{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *GuildRoleCreateHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerGuildRoleCreate) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*roleCreateData)
 
 	bot.EventManager.Dispatch(&RoleCreateEvent{

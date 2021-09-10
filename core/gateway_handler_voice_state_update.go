@@ -4,21 +4,21 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// VoiceStateUpdateHandler handles core.GatewayEventVoiceStateUpdate
-type VoiceStateUpdateHandler struct{}
+// gatewayHandlerVoiceStateUpdate handles core.GatewayEventVoiceStateUpdate
+type gatewayHandlerVoiceStateUpdate struct{}
 
 // EventType returns the gateway.EventType
-func (h *VoiceStateUpdateHandler) EventType() discord.GatewayEventType {
+func (h *gatewayHandlerVoiceStateUpdate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeVoiceStateUpdate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *VoiceStateUpdateHandler) New() interface{} {
+func (h *gatewayHandlerVoiceStateUpdate) New() interface{} {
 	return &discord.VoiceState{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *VoiceStateUpdateHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
 	voiceState := *v.(*discord.VoiceState)
 
 	oldVoiceState := bot.Caches.VoiceStateCache().GetCopy(voiceState.GuildID, voiceState.UserID)

@@ -4,21 +4,21 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// ReadyHandler handles discord.GatewayEventTypeReady
-type ReadyHandler struct{}
+// gatewayHandlerReady handles discord.GatewayEventTypeReady
+type gatewayHandlerReady struct{}
 
 // EventType returns the gateway.EventType
-func (h *ReadyHandler) EventType() discord.GatewayEventType {
+func (h *gatewayHandlerReady) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeReady
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *ReadyHandler) New() interface{} {
+func (h *gatewayHandlerReady) New() interface{} {
 	return &discord.GatewayEventReady{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *ReadyHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerReady) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
 	readyEvent := *v.(*discord.GatewayEventReady)
 
 	bot.ApplicationID = readyEvent.Application.ID

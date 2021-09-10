@@ -9,21 +9,21 @@ type roleDeleteData struct {
 	RoleID  discord.Snowflake `json:"role_id"`
 }
 
-// GuildRoleDeleteHandler handles core.GuildRoleDeleteGatewayEvent
-type GuildRoleDeleteHandler struct{}
+// gatewayHandlerGuildRoleDelete handles core.GuildRoleDeleteGatewayEvent
+type gatewayHandlerGuildRoleDelete struct{}
 
 // EventType returns the core.GatewayGatewayEventType
-func (h *GuildRoleDeleteHandler) EventType() discord.GatewayEventType {
+func (h *gatewayHandlerGuildRoleDelete) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildRoleDelete
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *GuildRoleDeleteHandler) New() interface{} {
+func (h *gatewayHandlerGuildRoleDelete) New() interface{} {
 	return &roleCreateData{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *GuildRoleDeleteHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerGuildRoleDelete) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*roleDeleteData)
 
 	role := bot.Caches.RoleCache().GetCopy(payload.GuildID, payload.RoleID)

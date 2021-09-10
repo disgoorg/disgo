@@ -9,21 +9,21 @@ type guildBanAddPayload struct {
 	User    discord.User      `json:"user"`
 }
 
-// GuildBanAddHandler handles core.GatewayEventGuildBanAdd
-type GuildBanAddHandler struct{}
+// gatewayHandlerGuildBanAdd handles core.GatewayEventGuildBanAdd
+type gatewayHandlerGuildBanAdd struct{}
 
 // EventType returns the core.GatewayGatewayEventType
-func (h *GuildBanAddHandler) EventType() discord.GatewayEventType {
+func (h *gatewayHandlerGuildBanAdd) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildBanAdd
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *GuildBanAddHandler) New() interface{} {
+func (h *gatewayHandlerGuildBanAdd) New() interface{} {
 	return &guildBanAddPayload{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *GuildBanAddHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerGuildBanAdd) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*guildBanAddPayload)
 
 	bot.EventManager.Dispatch(&GuildBanEvent{

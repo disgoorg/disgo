@@ -4,21 +4,21 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// GuildMemberAddHandler handles core.GuildMemberAddGatewayEvent
-type GuildMemberAddHandler struct{}
+// gatewayHandlerGuildMemberAdd handles core.GuildMemberAddGatewayEvent
+type gatewayHandlerGuildMemberAdd struct{}
 
 // EventType returns the core.GatewayGatewayEventType
-func (h *GuildMemberAddHandler) EventType() discord.GatewayEventType {
+func (h *gatewayHandlerGuildMemberAdd) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildMemberAdd
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *GuildMemberAddHandler) New() interface{} {
+func (h *gatewayHandlerGuildMemberAdd) New() interface{} {
 	return &discord.Member{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *GuildMemberAddHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerGuildMemberAdd) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
 	member := *v.(*discord.Member)
 
 	bot.EventManager.Dispatch(&GuildMemberJoinEvent{

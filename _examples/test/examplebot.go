@@ -16,16 +16,21 @@ import (
 	"github.com/PaesslerAG/gval"
 )
 
-const red = 16711680
-const orange = 16562691
-const green = 65280
+const (
+	red    = 16711680
+	orange = 16562691
+	green  = 65280
+)
 
-var token = os.Getenv("disgo_token")
-var guildID = discord.Snowflake(os.Getenv("disgo_guild_id"))
-var adminRoleID = discord.Snowflake(os.Getenv("disgo_admin_role_id"))
-var testRoleID = discord.Snowflake(os.Getenv("disgo_test_role_id"))
+var (
+	token       = os.Getenv("disgo_token")
+	guildID     = discord.Snowflake(os.Getenv("disgo_guild_id"))
+	adminRoleID = discord.Snowflake(os.Getenv("disgo_admin_role_id"))
+	testRoleID  = discord.Snowflake(os.Getenv("disgo_test_role_id"))
+)
 
 func main() {
+	log.SetDefault(log.New(log.LstdFlags | log.Lshortfile))
 	log.SetLevel(log.LevelDebug)
 	log.Info("starting example...")
 	log.Infof("disgo version: %s", info.Version)

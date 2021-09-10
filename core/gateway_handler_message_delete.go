@@ -10,21 +10,21 @@ type messageDeletePayload struct {
 	ChannelID discord.Snowflake  `json:"channel_id"`
 }
 
-// MessageDeleteHandler handles core.GatewayEventMessageDelete
-type MessageDeleteHandler struct{}
+// gatewayHandlerMessageDelete handles core.GatewayEventMessageDelete
+type gatewayHandlerMessageDelete struct{}
 
 // EventType returns the core.GatewayGatewayEventType
-func (h *MessageDeleteHandler) EventType() discord.GatewayEventType {
+func (h *gatewayHandlerMessageDelete) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeMessageDelete
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *MessageDeleteHandler) New() interface{} {
+func (h *gatewayHandlerMessageDelete) New() interface{} {
 	return &messageDeletePayload{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *MessageDeleteHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerMessageDelete) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*messageDeletePayload)
 
 	genericMessageEvent := &GenericMessageEvent{

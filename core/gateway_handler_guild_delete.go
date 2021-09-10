@@ -4,21 +4,21 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// GuildDeleteHandler handles core.GuildDeleteGatewayEvent
-type GuildDeleteHandler struct{}
+// gatewayHandlerGuildDelete handles core.GuildDeleteGatewayEvent
+type gatewayHandlerGuildDelete struct{}
 
 // EventType returns the core.GatewayGatewayEventType
-func (h *GuildDeleteHandler) EventType() discord.GatewayEventType {
+func (h *gatewayHandlerGuildDelete) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildDelete
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *GuildDeleteHandler) New() interface{} {
+func (h *gatewayHandlerGuildDelete) New() interface{} {
 	return &discord.UnavailableGuild{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *GuildDeleteHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerGuildDelete) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
 	guild := *v.(*discord.UnavailableGuild)
 
 	if guild.Unavailable {

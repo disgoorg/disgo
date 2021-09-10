@@ -9,21 +9,21 @@ type guildMemberRemoveData struct {
 	User    discord.User      `json:"user"`
 }
 
-// GuildMemberRemoveHandler handles core.GuildMemberRemoveGatewayEvent
-type GuildMemberRemoveHandler struct{}
+// gatewayHandlerGuildMemberRemove handles core.GuildMemberRemoveGatewayEvent
+type gatewayHandlerGuildMemberRemove struct{}
 
 // EventType returns the core.GatewayGatewayEventType
-func (h *GuildMemberRemoveHandler) EventType() discord.GatewayEventType {
+func (h *gatewayHandlerGuildMemberRemove) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildMemberRemove
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *GuildMemberRemoveHandler) New() interface{} {
+func (h *gatewayHandlerGuildMemberRemove) New() interface{} {
 	return &guildMemberRemoveData{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *GuildMemberRemoveHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerGuildMemberRemove) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
 	memberData := *v.(*guildMemberRemoveData)
 
 	bot.EntityBuilder.CreateUser(memberData.User, CacheStrategyYes)

@@ -4,21 +4,21 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// ChannelDeleteHandler handles core.GatewayEventChannelDelete
-type ChannelDeleteHandler struct{}
+// gatewayHandlerChannelDelete handles core.GatewayEventChannelDelete
+type gatewayHandlerChannelDelete struct{}
 
 // EventType returns the core.GatewayGatewayEventType
-func (h *ChannelDeleteHandler) EventType() discord.GatewayEventType {
+func (h *gatewayHandlerChannelDelete) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeChannelDelete
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *ChannelDeleteHandler) New() interface{} {
+func (h *gatewayHandlerChannelDelete) New() interface{} {
 	return &discord.Channel{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *ChannelDeleteHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerChannelDelete) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
 	channel := *v.(*discord.Channel)
 
 	genericChannelEvent := &GenericChannelEvent{

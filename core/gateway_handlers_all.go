@@ -13,35 +13,46 @@ func GetGatewayHandlers() map[discord.GatewayEventType]GatewayEventHandler {
 }
 
 var EventHandlers = []GatewayEventHandler{
-	&ChannelCreateHandler{},
-	&ChannelDeleteHandler{},
-	&ChannelUpdateHandler{},
+	&gatewayHandlerChannelCreat{},
+	&gatewayHandlerChannelDelete{},
+	&gatewayHandlerChannelUpdate{},
 
-	&GuildCreateHandler{},
-	&GuildDeleteHandler{},
-	&GuildUpdateHandler{},
+	&gatewayHandlerGuildCreate{},
+	&gatewayHandlerGuildDelete{},
+	&gatewayHandlerGuildUpdate{},
 
-	&GuildMemberAddHandler{},
-	&GuildMemberRemoveHandler{},
-	&GuildMemberUpdateHandler{},
+	&gatewayHandlerGuildMemberAdd{},
+	&gatewayHandlerGuildMemberRemove{},
+	&gatewayHandlerGuildMemberUpdate{},
 
-	&GuildBanAddHandler{},
-	&GuildBanRemoveHandler{},
+	&gatewayHandlerGuildBanAdd{},
+	&gatewayHandlerGuildBanRemove{},
 
-	&GuildRoleCreateHandler{},
-	&GuildRoleDeleteHandler{},
-	&GuildRoleUpdateHandler{},
+	&gatewayHandlerGuildRoleCreate{},
+	&gatewayHandlerGuildRoleDelete{},
+	&gatewayHandlerGuildRoleUpdate{},
 
-	&WebhooksUpdateHandler{},
+	&gatewayHandlerGuildEmojisUpdate{},
 
-	&InteractionCreateGatewayHandler{},
+	&gatewayHandlerInviteCreate{},
+	&gatewayHandlerInviteDelete{},
 
-	&MessageCreateHandler{},
-	&MessageUpdateHandler{},
-	&MessageDeleteHandler{},
+	&gatewayHandlerStageInstanceCreate{},
+	&gatewayHandlerStageInstanceUpdate{},
+	&gatewayHandlerStageInstanceDelete{},
 
-	&ReadyHandler{},
+	&gatewayHandlerWebhooksUpdate{},
 
-	&VoiceServerUpdateHandler{},
-	&VoiceStateUpdateHandler{},
+	&gatewayHandlerInteractionCreate{},
+
+	&gatewayHandlerTypingStart{},
+
+	&gatewayHandlerMessageCreate{},
+	&gatewayHandlerMessageUpdate{},
+	&gatewayHandlerMessageDelete{},
+
+	&gatewayHandlerReady{},
+
+	&gatewayHandlerVoiceServerUpdate{},
+	&gatewayHandlerVoiceStateUpdate{},
 }

@@ -9,21 +9,21 @@ type guildEmojisUpdatePayload struct {
 	Emojis  []discord.Emoji   `json:"emojis"`
 }
 
-// GuildEmojisUpdateHandler handles discord.GatewayEventTypeGuildEmojisUpdate
-type GuildEmojisUpdateHandler struct{}
+// gatewayHandlerGuildEmojisUpdate handles discord.GatewayEventTypeGuildEmojisUpdate
+type gatewayHandlerGuildEmojisUpdate struct{}
 
 // EventType returns the core.GatewayGatewayEventType
-func (h *GuildEmojisUpdateHandler) EventType() discord.GatewayEventType {
+func (h *gatewayHandlerGuildEmojisUpdate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildEmojisUpdate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *GuildEmojisUpdateHandler) New() interface{} {
+func (h *gatewayHandlerGuildEmojisUpdate) New() interface{} {
 	return &guildEmojisUpdatePayload{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *GuildEmojisUpdateHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*guildEmojisUpdatePayload)
 
 	if bot.Caches.Config().CacheFlags.Missing(CacheFlagEmojis) {

@@ -9,20 +9,20 @@ type webhooksUpdateData struct {
 	ChannelID discord.Snowflake `json:"channel_id"`
 }
 
-// WebhooksUpdateHandler handles core.GatewayEventWebhooksUpdate
-type WebhooksUpdateHandler struct{}
+// gatewayHandlerWebhooksUpdate handles core.GatewayEventWebhooksUpdate
+type gatewayHandlerWebhooksUpdate struct{}
 
 // EventType returns the raw core.GatewayGatewayEventType
-func (h *WebhooksUpdateHandler) EventType() discord.GatewayEventType {
+func (h *gatewayHandlerWebhooksUpdate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeWebhooksUpdate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *WebhooksUpdateHandler) New() interface{} {
+func (h *gatewayHandlerWebhooksUpdate) New() interface{} {
 	return &webhooksUpdateData{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *WebhooksUpdateHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerWebhooksUpdate) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
 
 }

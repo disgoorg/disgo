@@ -10,21 +10,21 @@ type channelPinsUpdatePayload struct {
 	LastPinTimestamp *discord.Time      `json:"last_pin_timestamp"`
 }
 
-// ChannelPinsUpdateHandler handles core.GatewayEventChannelUpdate
-type ChannelPinsUpdateHandler struct{}
+// gatewayHandlerChannelPinsUpdate handles core.GatewayEventChannelUpdate
+type gatewayHandlerChannelPinsUpdate struct{}
 
 // EventType returns the core.GatewayGatewayEventType
-func (h *ChannelPinsUpdateHandler) EventType() discord.GatewayEventType {
+func (h *gatewayHandlerChannelPinsUpdate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeChannelPinsUpdate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *ChannelPinsUpdateHandler) New() interface{} {
+func (h *gatewayHandlerChannelPinsUpdate) New() interface{} {
 	return &channelPinsUpdatePayload{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *ChannelPinsUpdateHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerChannelPinsUpdate) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*channelPinsUpdatePayload)
 
 	channel := bot.Caches.ChannelCache().Get(payload.ChannelID)

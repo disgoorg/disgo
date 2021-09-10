@@ -4,21 +4,21 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// MessageUpdateHandler handles core.GatewayEventMessageUpdate
-type MessageUpdateHandler struct{}
+// gatewayHandlerMessageUpdate handles core.GatewayEventMessageUpdate
+type gatewayHandlerMessageUpdate struct{}
 
 // EventType returns the core.GatewayGatewayEventType
-func (h *MessageUpdateHandler) EventType() discord.GatewayEventType {
+func (h *gatewayHandlerMessageUpdate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeMessageUpdate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *MessageUpdateHandler) New() interface{} {
+func (h *gatewayHandlerMessageUpdate) New() interface{} {
 	return &discord.Message{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *MessageUpdateHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
 	message := *v.(*discord.Message)
 
 	oldCoreMessage := bot.Caches.MessageCache().GetCopy(message.ChannelID, message.ID)

@@ -4,21 +4,21 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// InteractionCreateGatewayHandler handles core.InteractionCreateGatewayEvent
-type InteractionCreateGatewayHandler struct{}
+// gatewayHandlerInteractionCreate handles core.InteractionCreateGatewayEvent
+type gatewayHandlerInteractionCreate struct{}
 
 // EventType returns the core.GatewayGatewayEventType
-func (h *InteractionCreateGatewayHandler) EventType() discord.GatewayEventType {
+func (h *gatewayHandlerInteractionCreate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeInteractionCreate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *InteractionCreateGatewayHandler) New() interface{} {
+func (h *gatewayHandlerInteractionCreate) New() interface{} {
 	return &discord.Interaction{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *InteractionCreateGatewayHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerInteractionCreate) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
 	interaction := *v.(*discord.Interaction)
 
 	HandleInteraction(bot, sequenceNumber, nil, interaction)

@@ -13,6 +13,12 @@ const (
 	ChannelTypeCategory
 	ChannelTypeNews
 	ChannelTypeStore
+	_
+	_
+	_
+	_
+	_
+	_
 	ChannelTypeStage
 )
 

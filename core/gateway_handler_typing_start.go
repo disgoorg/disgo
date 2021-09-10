@@ -14,21 +14,21 @@ type typingStartPayload struct {
 	User discord.User
 }
 
-// TypingStartHandler handles discord.GatewayEventTypeInviteDelete
-type TypingStartHandler struct{}
+// gatewayHandlerTypingStart handles discord.GatewayEventTypeInviteDelete
+type gatewayHandlerTypingStart struct{}
 
 // EventType returns the core.GatewayGatewayEventType
-func (h *TypingStartHandler) EventType() discord.GatewayEventType {
+func (h *gatewayHandlerTypingStart) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeTypingStart
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *TypingStartHandler) New() interface{} {
+func (h *gatewayHandlerTypingStart) New() interface{} {
 	return &typingStartPayload{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *TypingStartHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerTypingStart) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*typingStartPayload)
 
 	user := bot.EntityBuilder.CreateUser(payload.User, CacheStrategyYes)
