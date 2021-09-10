@@ -67,13 +67,10 @@ func (h *VoiceStateUpdateHandler) HandleGatewayEvent(bot *Bot, sequenceNumber in
 	}
 
 	if oldVoiceState != nil && oldVoiceState.ChannelID != nil && voiceState.ChannelID != nil {
-		println("voice update")
 		bot.EventManager.Dispatch(&GuildVoiceUpdateEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent, OldVoiceState: oldVoiceState})
 	} else if (oldVoiceState == nil || oldVoiceState.ChannelID == nil) && voiceState.ChannelID != nil {
-		println("voice join")
 		bot.EventManager.Dispatch(&GuildVoiceJoinEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent})
 	} else if voiceState.ChannelID == nil {
-		println("voice leave")
 		bot.EventManager.Dispatch(&GuildVoiceLeaveEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent, OldVoiceState: oldVoiceState})
 	}  else {
 		bot.Logger.Warnf("could not decide which GuildVoiceEvent to fire")
