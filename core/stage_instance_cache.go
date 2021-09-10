@@ -39,13 +39,14 @@ func (c *stageInstanceCacheImpl) Get(stageInstanceID discord.Snowflake) *StageIn
 
 func (c *stageInstanceCacheImpl) GetCopy(stageInstanceID discord.Snowflake) *StageInstance {
 	if stageInstance := c.Get(stageInstanceID); stageInstance != nil {
-		return &*stageInstance
+		st := *stageInstance
+		return &st
 	}
 	return nil
 }
 
 func (c *stageInstanceCacheImpl) Set(stageInstance *StageInstance) *StageInstance {
-	if !c.cacheFlags.Missing(CacheFlagStageInstances) {
+	if c.cacheFlags.Missing(CacheFlagStageInstances) {
 		return stageInstance
 	}
 	stI, ok := c.stageInstances[stageInstance.ID]

@@ -48,7 +48,8 @@ func (c *messageCacheImpl) Get(channelID discord.Snowflake, messageID discord.Sn
 
 func (c *messageCacheImpl) GetCopy(channelID discord.Snowflake, messageID discord.Snowflake) *Message {
 	if message := c.Get(channelID, messageID); message != nil {
-		return &*message
+		me := *message
+		return &me
 	}
 	return nil
 }

@@ -48,7 +48,11 @@ func (h *GuildCreateHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v 
 	}
 
 	for _, voiceState := range guild.VoiceStates {
-		bot.EntityBuilder.CreateVoiceState(guild.ID, voiceState, CacheStrategyYes)
+		voiceState.GuildID = guild.ID // populate unset field
+		vs := bot.EntityBuilder.CreateVoiceState(voiceState, CacheStrategyYes)
+		if channel := vs.Channel(); channel != nil {
+			channel.ConnectedMemberIDs[voiceState.UserID] = struct{}{}
+		}
 	}
 
 	for _, emote := range guild.Emojis {

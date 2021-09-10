@@ -26,8 +26,8 @@ func (s *VoiceState) Guild() *Guild {
 	return s.Bot.Caches.GuildCache().Get(s.GuildID)
 }
 
-// VoiceChannel returns the VoiceChannel of this VoiceState from the Caches
-func (s *VoiceState) VoiceChannel() *Channel {
+// Channel returns the Channel of this VoiceState from the Caches
+func (s *VoiceState) Channel() *Channel {
 	if s.ChannelID == nil {
 		return nil
 	}

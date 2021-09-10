@@ -48,7 +48,8 @@ func (c *memberCacheImpl) Get(guildID discord.Snowflake, userID discord.Snowflak
 
 func (c *memberCacheImpl) GetCopy(guildID discord.Snowflake, userID discord.Snowflake) *Member {
 	if member := c.Get(guildID, userID); member != nil {
-		return &*member
+		m := *member
+		return &m
 	}
 	return nil
 }

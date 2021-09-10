@@ -2,20 +2,25 @@ package discord
 
 import (
 	"bytes"
+	"strconv"
 	"time"
 )
 
-var emptyJSONString = []byte(`""`)
+var (
+	emptyJSONString = []byte(`""`)
+	nullJSONString  = []byte(`null`)
+)
 
 type Time struct {
 	time.Time
 }
 
 func (t *Time) UnmarshalJSON(data []byte) error {
-	if bytes.Equal(emptyJSONString, data) {
+	if bytes.Equal(emptyJSONString, data) || bytes.Equal(nullJSONString, data) {
 		return nil
 	}
-	tt, err := time.Parse(time.RFC3339, string(data[1:len(data)-1]))
+	str, _ := strconv.Unquote(string(data))
+	tt, err := time.Parse(time.RFC3339, str)
 	if err != nil {
 		return err
 	}

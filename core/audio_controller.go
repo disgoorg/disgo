@@ -7,15 +7,15 @@ import (
 
 // context support?
 
-// AudioController lets you Connect / Disconnect from a VoiceChannel
+// AudioController lets you Connect / Disconnect from a Channel
 type AudioController interface {
 	// Bot returns the core.Bot instance
 	Bot() *Bot
 
-	// Connect sends an core.GatewayCommand to connect to an core.VoiceChannel
+	// Connect sends an core.GatewayCommand to connect to an core.Channel
 	Connect(guildID discord.Snowflake, channelID discord.Snowflake) error
 
-	// Disconnect sends an core.GatewayCommand to disconnect from an core.VoiceChannel
+	// Disconnect sends an core.GatewayCommand to disconnect from an core.Channel
 	Disconnect(guildID discord.Snowflake) error
 }
 

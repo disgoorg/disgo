@@ -45,13 +45,14 @@ func (c *voiceStateCacheImpl) Get(guildID discord.Snowflake, userID discord.Snow
 
 func (c *voiceStateCacheImpl) GetCopy(guildID discord.Snowflake, userID discord.Snowflake) *VoiceState {
 	if voiceState := c.Get(guildID, userID); voiceState != nil {
-		return &*voiceState
+		vs := *voiceState
+		return &vs
 	}
 	return nil
 }
 
 func (c *voiceStateCacheImpl) Set(voiceState *VoiceState) *VoiceState {
-	if !c.cacheFlags.Missing(CacheFlagVoiceStates) {
+	if c.cacheFlags.Missing(CacheFlagVoiceStates) {
 		return voiceState
 	}
 	if _, ok := c.voiceStates[voiceState.GuildID]; !ok {

@@ -44,7 +44,7 @@ type EntityBuilder interface {
 	CreateRole(guildID discord.Snowflake, role discord.Role, updateCache CacheStrategy) *Role
 	CreateMember(guildID discord.Snowflake, member discord.Member, updateCache CacheStrategy) *Member
 	CreateBan(guildID discord.Snowflake, ban discord.Ban, updateCache CacheStrategy) *Ban
-	CreateVoiceState(guildID discord.Snowflake, voiceState discord.VoiceState, updateCache CacheStrategy) *VoiceState
+	CreateVoiceState(voiceState discord.VoiceState, updateCache CacheStrategy) *VoiceState
 
 	CreateApplicationCommand(command discord.ApplicationCommand) *ApplicationCommand
 	CreateApplicationCommandPermissions(guildCommandPermissions discord.ApplicationCommandPermissions) *ApplicationCommandPermissions

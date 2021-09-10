@@ -33,7 +33,7 @@ func main() {
 	disgo, err := core.NewBotBuilder(token).
 		SetRawEventsEnabled(true).
 		SetGatewayConfig(gateway.Config{
-			GatewayIntents: discord.GatewayIntentGuilds | discord.GatewayIntentGuildMessages | discord.GatewayIntentGuildMembers,
+			GatewayIntents: discord.GatewayIntentGuilds | discord.GatewayIntentGuildMessages | discord.GatewayIntentGuildMembers | discord.GatewayIntentGuildVoiceStates,
 			Compress:       true,
 		}).
 		SetCacheConfig(core.CacheConfig{

@@ -39,7 +39,8 @@ func (h *GuildEmojisUpdateHandler) HandleGatewayEvent(bot *Bot, sequenceNumber i
 
 	oldEmojis = make(map[discord.Snowflake]*Emoji, len(emojiCache))
 	for key, value := range emojiCache {
-		oldEmojis[key] = &*value
+		va := *value
+		oldEmojis[key] = &va
 	}
 
 	for _, current := range payload.Emojis {

@@ -26,7 +26,7 @@ const (
 
 	CacheFlagStageInstances
 
-	CacheFlagsChannels = CacheFlagTextChannels |
+	CacheFlagsAllChannels = CacheFlagTextChannels |
 		CacheFlagDMChannels |
 		CacheFlagVoiceChannels |
 		CacheFlagCategories |
@@ -34,7 +34,8 @@ const (
 		CacheFlagStoreChannels |
 		CacheFlagStageChannels
 
-	CacheFlagsDefault = CacheFlagsChannels |
+	CacheFlagsDefault = CacheFlagGuilds |
+		CacheFlagsAllChannels |
 		CacheFlagRoles |
 		CacheFlagEmojis |
 		CacheFlagVoiceStates
@@ -42,7 +43,7 @@ const (
 	CacheFlagsFullRoles = CacheFlagRoles |
 		CacheFlagRoleTags
 
-	CacheFlagsAll = CacheFlagsChannels |
+	CacheFlagsAll = CacheFlagsAllChannels |
 		CacheFlagsFullRoles |
 		CacheFlagEmojis |
 		CacheFlagVoiceStates |

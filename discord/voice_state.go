@@ -14,7 +14,7 @@ type VoiceState struct {
 	SelfStream              bool       `json:"self_stream"`
 	SelfVideo               bool       `json:"self_video"`
 	Suppress                bool       `json:"suppress"`
-	RequestToSpeakTimestamp Time       `json:"request_to_speak_timestamp"`
+	RequestToSpeakTimestamp *Time      `json:"request_to_speak_timestamp"`
 }
 
 type UserVoiceStateUpdate struct {

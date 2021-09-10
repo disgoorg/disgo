@@ -287,13 +287,13 @@ func (b *entityBuilderImpl) CreateBan(guildID discord.Snowflake, ban discord.Ban
 }
 
 // CreateVoiceState returns a new discord.VoiceState entity
-func (b *entityBuilderImpl) CreateVoiceState(guildID discord.Snowflake, voiceState discord.VoiceState, updateCache CacheStrategy) *VoiceState {
+func (b *entityBuilderImpl) CreateVoiceState(voiceState discord.VoiceState, updateCache CacheStrategy) *VoiceState {
 	coreState := &VoiceState{
 		VoiceState: voiceState,
 		Bot:        b.Bot(),
 	}
 	if voiceState.Member != nil {
-		coreState.Member = b.CreateMember(guildID, *voiceState.Member, updateCache)
+		coreState.Member = b.CreateMember(voiceState.GuildID, *voiceState.Member, updateCache)
 	}
 
 	if updateCache(b.Bot()) {
@@ -383,15 +383,18 @@ func (b *entityBuilderImpl) CreateWebhook(webhook discord.Webhook) *Webhook {
 }
 
 // CreateChannel returns a new Channel entity
-func (b *entityBuilderImpl) CreateChannel(discordChannel discord.Channel, updateCache CacheStrategy) *Channel {
-	channel := &Channel{
-		Channel: discordChannel,
+func (b *entityBuilderImpl) CreateChannel(channel discord.Channel, updateCache CacheStrategy) *Channel {
+	coreChannel := &Channel{
+		Channel: channel,
 		Bot:     b.Bot(),
 	}
-	if updateCache(b.Bot()) {
-		return b.Bot().Caches.ChannelCache().Set(channel)
+	if channel.Type == discord.ChannelTypeVoice || channel.Type == discord.ChannelTypeStage {
+		coreChannel.ConnectedMemberIDs = map[discord.Snowflake]struct{}{}
 	}
-	return channel
+	if updateCache(b.Bot()) {
+		return b.Bot().Caches.ChannelCache().Set(coreChannel)
+	}
+	return coreChannel
 }
 
 func (b *entityBuilderImpl) CreateStageInstance(stageInstance discord.StageInstance, updateCache CacheStrategy) *StageInstance {

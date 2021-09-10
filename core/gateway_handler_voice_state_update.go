@@ -19,39 +19,39 @@ func (h *VoiceStateUpdateHandler) New() interface{} {
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *VoiceStateUpdateHandler) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
-	discordVoiceState := *v.(*discord.VoiceState)
+	voiceState := *v.(*discord.VoiceState)
 
-	oldVoiceState := bot.Caches.VoiceStateCache().GetCopy(discordVoiceState.GuildID, discordVoiceState.UserID)
+	oldVoiceState := bot.Caches.VoiceStateCache().GetCopy(voiceState.GuildID, voiceState.UserID)
 
 	var member *Member
-	if discordVoiceState.Member != nil {
-		member = bot.EntityBuilder.CreateMember(discordVoiceState.Member.GuildID, *discordVoiceState.Member, CacheStrategyYes)
+	if voiceState.Member != nil {
+		member = bot.EntityBuilder.CreateMember(voiceState.Member.GuildID, *voiceState.Member, CacheStrategyYes)
 	}
-	voiceState := bot.EntityBuilder.CreateVoiceState(discordVoiceState.GuildID, discordVoiceState, CacheStrategyYes)
+	coreVoiceState := bot.EntityBuilder.CreateVoiceState(voiceState, CacheStrategyYes)
 
 	if oldVoiceState != nil && oldVoiceState.ChannelID != nil {
 		if channel := bot.Caches.ChannelCache().Get(*oldVoiceState.ChannelID); channel != nil {
-			delete(channel.ConnectedMemberIDs, voiceState.UserID)
+			delete(channel.ConnectedMemberIDs, coreVoiceState.UserID)
 		}
 	}
 
-	if voiceState.ChannelID != nil {
-		if channel := bot.Caches.ChannelCache().Get(*voiceState.ChannelID); channel != nil {
-			channel.ConnectedMemberIDs[voiceState.UserID] = struct{}{}
+	if coreVoiceState.ChannelID != nil {
+		if channel := bot.Caches.ChannelCache().Get(*coreVoiceState.ChannelID); channel != nil {
+			channel.ConnectedMemberIDs[coreVoiceState.UserID] = struct{}{}
 		}
 	}
 
 	// voice state update for ourselves received
 	// execute voice VoiceDispatchInterceptor.OnVoiceStateUpdate
-	if bot.ClientID == discordVoiceState.UserID {
+	if bot.ClientID == voiceState.UserID {
 		if interceptor := bot.VoiceDispatchInterceptor; interceptor != nil {
-			interceptor.OnVoiceStateUpdate(&VoiceStateUpdateEvent{VoiceState: voiceState})
+			interceptor.OnVoiceStateUpdate(&VoiceStateUpdateEvent{VoiceState: coreVoiceState})
 		}
 	}
 
-	guild := voiceState.Guild()
+	guild := coreVoiceState.Guild()
 	if guild == nil {
-		bot.Logger.Warnf("received guild voice state update for unknown guild: %s", discordVoiceState.GuildID)
+		bot.Logger.Warnf("received guild voice state update for unknown guild: %s", voiceState.GuildID)
 		return
 	}
 
@@ -63,16 +63,19 @@ func (h *VoiceStateUpdateHandler) HandleGatewayEvent(bot *Bot, sequenceNumber in
 			},
 			Member: member,
 		},
-		VoiceState: voiceState,
+		VoiceState: coreVoiceState,
 	}
 
-	if (oldVoiceState == nil || oldVoiceState.ChannelID == nil) && discordVoiceState.ChannelID != nil {
-		bot.EventManager.Dispatch(&GuildVoiceJoinEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent})
-	} else if oldVoiceState != nil && oldVoiceState.ChannelID != nil && discordVoiceState.ChannelID == nil {
-		bot.EventManager.Dispatch(&GuildVoiceLeaveEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent})
-	} else if oldVoiceState != nil && oldVoiceState.ChannelID != nil && discordVoiceState.ChannelID != nil {
+	if oldVoiceState != nil && oldVoiceState.ChannelID != nil && voiceState.ChannelID != nil {
+		println("voice update")
 		bot.EventManager.Dispatch(&GuildVoiceUpdateEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent, OldVoiceState: oldVoiceState})
-	} else {
+	} else if (oldVoiceState == nil || oldVoiceState.ChannelID == nil) && voiceState.ChannelID != nil {
+		println("voice join")
+		bot.EventManager.Dispatch(&GuildVoiceJoinEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent})
+	} else if voiceState.ChannelID == nil {
+		println("voice leave")
+		bot.EventManager.Dispatch(&GuildVoiceLeaveEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent, OldVoiceState: oldVoiceState})
+	}  else {
 		bot.Logger.Warnf("could not decide which GuildVoiceEvent to fire")
 	}
 }

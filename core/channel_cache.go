@@ -36,7 +36,8 @@ func (c *channelCacheImpl) Get(channelID discord.Snowflake) *Channel {
 
 func (c *channelCacheImpl) GetCopy(channelID discord.Snowflake) *Channel {
 	if channel := c.Get(channelID); channel != nil {
-		return &*channel
+		ch := *channel
+		return &ch
 	}
 	return nil
 }
