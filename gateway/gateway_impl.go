@@ -46,7 +46,7 @@ type gatewayImpl struct {
 	config                Config
 	token                 string
 	conn                  *websocket.Conn
-	quit                  chan struct{}
+	heartbeatChan         chan struct{}
 	status                Status
 	heartbeatInterval     time.Duration
 	lastHeartbeatSent     time.Time
@@ -112,8 +112,6 @@ func (g *gatewayImpl) Open() error {
 
 	g.status = StatusWaitingForHello
 
-	g.quit = make(chan struct{})
-
 	go g.listen()
 
 	return nil
@@ -157,10 +155,10 @@ func (g *gatewayImpl) reconnect(delay time.Duration) {
 }
 
 func (g *gatewayImpl) closeWithCode(code int) {
-	if g.quit != nil {
+	if g.heartbeatChan != nil {
 		g.Logger().Info("closing gateway goroutines...")
-		close(g.quit)
-		g.quit = nil
+		close(g.heartbeatChan)
+		g.heartbeatChan = nil
 		g.Logger().Info("closed gateway goroutines")
 	}
 	if g.conn != nil {
@@ -196,7 +194,7 @@ func (g *gatewayImpl) heartbeat() {
 		select {
 		case <-ticker.C:
 			g.sendHeartbeat()
-		case <-g.quit:
+		case <-g.heartbeatChan:
 			ticker.Stop()
 			return
 		}
@@ -235,132 +233,128 @@ func (g *gatewayImpl) listen() {
 	}()
 
 	for {
-		select {
-		case <-g.quit:
-			g.Logger().Infof("existed listen routine")
+		if g.conn == nil {
 			return
-		default:
-			if g.conn == nil {
-				return
-			}
-			mt, reader, err := g.conn.NextReader()
-			if err != nil {
-				g.Logger().Errorf("error while reading from ws. error: %s", err)
-				g.closeWithCode(websocket.CloseServiceRestart)
-				g.reconnect(1 * time.Second)
-				return
+		}
+		mt, reader, err := g.conn.NextReader()
+		if err != nil {
+			g.Logger().Errorf("error while reading from ws. error: %s", err)
+			g.closeWithCode(websocket.CloseServiceRestart)
+			g.reconnect(1 * time.Second)
+			return
+		}
+
+		event, err := g.parseGatewayEvent(mt, reader)
+		if err != nil {
+			g.Logger().Errorf("error while unpacking gateway event. error: %s", err)
+			continue
+		}
+
+		if event == nil {
+			continue
+		}
+
+		switch event.Op {
+		case discord.OpHello:
+			g.lastHeartbeatReceived = time.Now().UTC()
+
+			var eventData discord.GatewayEventHello
+			if err = json.Unmarshal(event.D, &eventData); err != nil {
+				g.Logger().Error("error parsing op hello payload data: ", err)
 			}
 
-			event, err := g.parseGatewayEvent(mt, reader)
-			if err != nil {
-				g.Logger().Errorf("error while unpacking gateway event. error: %s", err)
+			g.heartbeatInterval = eventData.HeartbeatInterval * time.Millisecond
+
+			if g.lastSequenceReceived == nil || g.sessionID == nil {
+				g.status = StatusIdentifying
+				g.Logger().Infof("sending StatusIdentifying command...")
+				if err = g.Send(
+					discord.NewGatewayCommand(discord.OpIdentify, discord.IdentifyCommand{
+						Token: g.token,
+						Properties: discord.IdentifyCommandDataProperties{
+							OS:      g.config.OS,
+							Browser: g.config.Browser,
+							Device:  g.config.Device,
+						},
+						Compress:       g.config.Compress,
+						LargeThreshold: g.config.LargeThreshold,
+						GatewayIntents: g.config.GatewayIntents,
+					}),
+				); err != nil {
+					g.Logger().Error("error sending identify payload: ", err)
+				}
+				g.status = StatusWaitingForReady
+			} else {
+				g.status = StatusResuming
+				cmd := discord.NewGatewayCommand(discord.OpResume, discord.ResumeCommand{
+					Token:     g.token,
+					SessionID: *g.sessionID,
+					Seq:       *g.lastSequenceReceived,
+				})
+				g.Logger().Infof("sending StatusResuming command...")
+
+				if err = g.Send(cmd); err != nil {
+					g.Logger().Error("error sending resume payload: ", err)
+				}
+			}
+			g.heartbeatChan = make(chan struct{})
+			go g.heartbeat()
+
+		case discord.OpDispatch:
+			g.Logger().Debug("received: OpDispatch")
+			if event.S != 0 {
+				g.lastSequenceReceived = &event.S
+			}
+			if event.T == "" {
+				g.Logger().Errorf("received event without T. payload: %+v", event)
 				continue
 			}
 
-			if event == nil {
-				continue
-			}
+			g.Logger().Debugf("received: '%s', data: %s", event.T, string(event.D))
 
-			switch event.Op {
-			case discord.OpHello:
-				g.lastHeartbeatReceived = time.Now().UTC()
-
-				var eventData discord.GatewayEventHello
-				if err = json.Unmarshal(event.D, &eventData); err != nil {
-					g.Logger().Error("error parsing op hello payload data: ", err)
-				}
-
-				g.heartbeatInterval = eventData.HeartbeatInterval * time.Millisecond
-
-				if g.lastSequenceReceived == nil || g.sessionID == nil {
-					g.status = StatusIdentifying
-					g.Logger().Infof("sending StatusIdentifying command...")
-					if err = g.Send(
-						discord.NewGatewayCommand(discord.OpIdentify, discord.IdentifyCommand{
-							Token: g.token,
-							Properties: discord.IdentifyCommandDataProperties{
-								OS:      g.config.OS,
-								Browser: g.config.Browser,
-								Device:  g.config.Device,
-							},
-							Compress:       g.config.Compress,
-							LargeThreshold: g.config.LargeThreshold,
-							GatewayIntents: g.config.GatewayIntents,
-						}),
-					); err != nil {
-						g.Logger().Error("error sending identify payload: ", err)
-					}
-					g.status = StatusWaitingForReady
-				} else {
-					g.status = StatusResuming
-					cmd := discord.NewGatewayCommand(discord.OpResume, discord.ResumeCommand{
-						Token:     g.token,
-						SessionID: *g.sessionID,
-						Seq:       *g.lastSequenceReceived,
-					})
-					g.Logger().Infof("sending StatusResuming command...")
-
-					if err = g.Send(cmd); err != nil {
-						g.Logger().Error("error sending resume payload: ", err)
-					}
-				}
-				go g.heartbeat()
-
-			case discord.OpDispatch:
-				g.Logger().Debug("received: OpDispatch")
-				if event.S != 0 {
-					g.lastSequenceReceived = &event.S
-				}
-				if event.T == "" {
-					g.Logger().Errorf("received event without T. payload: %+v", event)
+			if event.T == discord.GatewayEventTypeReady {
+				var readyEvent discord.GatewayEventReady
+				if err = json.Unmarshal(event.D, &readyEvent); err != nil {
+					g.Logger().Errorf("Error parsing ready event: %s", err)
 					continue
 				}
-
-				g.Logger().Debugf("received: '%s', data: %s", event.T, string(event.D))
-
-				if event.T == discord.GatewayEventTypeReady {
-					var readyEvent discord.GatewayEventReady
-					if err = json.Unmarshal(event.D, &readyEvent); err != nil {
-						g.Logger().Errorf("Error parsing ready event: %s", err)
-						continue
-					}
-					g.sessionID = &readyEvent.SessionID
-					g.status = StatusWaitingForGuilds
-					g.Logger().Info("ready event received")
-				}
-
-				g.config.EventHandlerFunc(event.T, event.S, bytes.NewBuffer(event.D))
-
-			case discord.OpHeartbeat:
-				g.Logger().Debugf("received: OpHeartbeat")
-				g.sendHeartbeat()
-
-			case discord.OpReconnect:
-				g.Logger().Debugf("received: OpReconnect")
-				g.closeWithCode(websocket.CloseServiceRestart)
-				g.reconnect(1 * time.Second)
-
-			case discord.OpInvalidSession:
-				var canResume bool
-				if err = json.Unmarshal(event.D, &canResume); err != nil {
-					g.Logger().Errorf("Error parsing invalid session data: %s", err)
-				}
-				g.Logger().Debugf("received: OpInvalidSession, canResume: %b", canResume)
-				if canResume {
-					g.closeWithCode(websocket.CloseServiceRestart)
-				} else {
-					g.Close()
-					// clear reconnect info
-					g.sessionID = nil
-					g.lastSequenceReceived = nil
-				}
-				g.reconnect(5 * time.Second)
-
-			case discord.OpHeartbeatACK:
-				g.Logger().Debugf("received: OpHeartbeatACK")
-				g.lastHeartbeatReceived = time.Now().UTC()
+				g.sessionID = &readyEvent.SessionID
+				g.status = StatusWaitingForGuilds
+				g.Logger().Info("ready event received")
 			}
+
+			g.config.EventHandlerFunc(event.T, event.S, bytes.NewBuffer(event.D))
+
+		case discord.OpHeartbeat:
+			g.Logger().Debugf("received: OpHeartbeat")
+			g.sendHeartbeat()
+
+		case discord.OpReconnect:
+			g.Logger().Debugf("received: OpReconnect")
+			g.closeWithCode(websocket.CloseServiceRestart)
+			g.reconnect(1 * time.Second)
+
+		case discord.OpInvalidSession:
+			var canResume bool
+			if err = json.Unmarshal(event.D, &canResume); err != nil {
+				g.Logger().Errorf("Error parsing invalid session data: %s", err)
+			}
+			g.Logger().Debugf("received: OpInvalidSession, canResume: %b", canResume)
+			if canResume {
+				g.closeWithCode(websocket.CloseServiceRestart)
+			} else {
+				g.Close()
+				// clear reconnect info
+				g.sessionID = nil
+				g.lastSequenceReceived = nil
+			}
+			g.reconnect(5 * time.Second)
+
+		case discord.OpHeartbeatACK:
+			g.Logger().Debugf("received: OpHeartbeatACK")
+			g.lastHeartbeatReceived = time.Now().UTC()
 		}
+
 	}
 }
 
