@@ -189,7 +189,7 @@ func (b *MessageCreateBuilder) Build() discord.WebhookMessageCreate {
 func actionRowsToComponents(actionRows []core.ActionRow) []core.Component {
 	components := make([]core.Component, len(actionRows))
 	for i := range actionRows {
-		components[i] = components[i]
+		components[i] = actionRows[i]
 	}
 	return components
 }

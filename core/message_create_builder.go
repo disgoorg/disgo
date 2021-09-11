@@ -226,7 +226,7 @@ func (b *MessageCreateBuilder) Build() discord.MessageCreate {
 func actionRowsToComponents(actionRows []ActionRow) []Component {
 	components := make([]Component, len(actionRows))
 	for i := range actionRows {
-		components[i] = components[i]
+		components[i] = actionRows[i]
 	}
 	return components
 }
