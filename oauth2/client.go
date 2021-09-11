@@ -94,7 +94,7 @@ func (c *Client) GetUser(session Session, opts ...rest.RequestOpt) (*discord.OAu
 	return c.OAuth2Service.GetCurrentUser(session.AccessToken(), opts...)
 }
 
-func (c *Client) GetGuilds(session Session, opts ...rest.RequestOpt) ([]discord.PartialGuild, rest.Error) {
+func (c *Client) GetGuilds(session Session, opts ...rest.RequestOpt) ([]discord.OAuth2Guild, rest.Error) {
 	if session.Expiration().Before(time.Now()) {
 		return nil, rest.NewError(nil, ErrAccessTokenExpired)
 	}

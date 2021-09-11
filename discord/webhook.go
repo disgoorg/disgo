@@ -13,18 +13,29 @@ const (
 
 // Webhook (https://discord.com/developers/docs/resources/webhook) is a way to post messages to Discord using the Discord API which do not require bot authentication or use.
 type Webhook struct {
-	ID            Snowflake       `json:"id"`
-	Type          WebhookType     `json:"type"`
-	GuildID       *Snowflake      `json:"guild_id"`
-	ChannelID     Snowflake       `json:"channel_id"`
-	User          *User           `json:"user"`
-	Name          *string         `json:"name"`
-	Avatar        *string         `json:"avatar"`
-	Token         string          `json:"token,omitempty"`
-	ApplicationID *Snowflake      `json:"application_id"`
-	SourceGuild   *PartialGuild   `json:"source_guild"`
-	SourceChannel *PartialChannel `json:"source_channel"`
-	URL           string          `json:"url,omitempty"`
+	ID            Snowflake             `json:"id"`
+	Type          WebhookType           `json:"type"`
+	GuildID       *Snowflake            `json:"guild_id"`
+	ChannelID     *Snowflake            `json:"channel_id"`
+	User          *User                 `json:"user"`
+	Name          *string               `json:"name"`
+	Avatar        *string               `json:"avatar"`
+	Token         string                `json:"token,omitempty"`
+	ApplicationID *Snowflake            `json:"application_id"`
+	SourceGuild   *WebhookSourceGuild   `json:"source_guild"`
+	SourceChannel *WebhookSourceChannel `json:"source_channel"`
+	URL           string                `json:"url,omitempty"`
+}
+
+type WebhookSourceGuild struct {
+	ID   Snowflake `json:"id"`
+	Name string    `json:"name"`
+	Icon *string   `json:"icon"`
+}
+
+type WebhookSourceChannel struct {
+	ID   Snowflake `json:"id"`
+	Name string    `json:"name"`
 }
 
 // WebhookCreate is used to create a Webhook

@@ -10,7 +10,8 @@ import (
 
 type Guild struct {
 	discord.Guild
-	Bot *Bot
+	Bot         *Bot
+	Unavailable bool
 }
 
 // Update updates the current Guild

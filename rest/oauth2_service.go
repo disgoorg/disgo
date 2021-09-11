@@ -18,7 +18,7 @@ type OAuth2Service interface {
 	GetBotApplicationInfo(opts ...RequestOpt) (*discord.Application, Error)
 	GetAuthorizationInfo(opts ...RequestOpt) (*discord.AuthorizationInformation, Error)
 
-	GetCurrentUserGuilds(token string, opts ...RequestOpt) ([]discord.PartialGuild, Error)
+	GetCurrentUserGuilds(token string, opts ...RequestOpt) ([]discord.OAuth2Guild, Error)
 	GetCurrentUser(token string, opts ...RequestOpt) (*discord.OAuth2User, Error)
 	GetCurrentUserConnections(token string, opts ...RequestOpt) ([]discord.Connection, Error)
 
@@ -52,7 +52,7 @@ func (s *oAuth2ServiceImpl) GetAuthorizationInfo(opts ...RequestOpt) (info *disc
 	return
 }
 
-func (s *oAuth2ServiceImpl) GetCurrentUserGuilds(token string, opts ...RequestOpt) (guilds []discord.PartialGuild, rErr Error) {
+func (s *oAuth2ServiceImpl) GetCurrentUserGuilds(token string, opts ...RequestOpt) (guilds []discord.OAuth2Guild, rErr Error) {
 	queryParams := route.QueryValues{}
 
 	compiledRoute, err := route.GetCurrentUserGuilds.Compile(queryParams)

@@ -123,7 +123,7 @@ type AuditLogChangeKey struct {
 	MFALevel                    *MFALevel                   `json:"mfa_level"`
 	VerificationLevel           *VerificationLevel          `json:"verification_level"`
 	ExplicitContentFilterLevel  *ExplicitContentFilterLevel `json:"explicit_content_filter"`
-	DefaultMessageNotifications *MessageNotifications       `json:"default_message_notifications"`
+	DefaultMessageNotifications *MessageNotificationsLevel  `json:"default_message_notifications"`
 	VanityURLCode               *string                     `json:"vanity_url_code"`
 	Add                         []PartialRole               `json:"$add"`
 	Remove                      []PartialRole               `json:"$remove"`

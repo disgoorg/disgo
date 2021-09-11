@@ -1,6 +1,10 @@
 package main
 
-import "github.com/DisgoOrg/disgo/discord"
+import (
+	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/log"
+)
 
 var commands = []discord.ApplicationCommandCreate{
 	{
@@ -77,4 +81,40 @@ var commands = []discord.ApplicationCommandCreate{
 			},
 		},
 	},
+}
+
+func registerCommands(bot *core.Bot) {
+	cmds, err := bot.SetGuildCommands(guildID, commands)
+	if err != nil {
+		log.Fatalf("error while registering guild commands: %s", err)
+	}
+
+	var cmdsPermissions []discord.ApplicationCommandPermissionsSet
+	for _, cmd := range cmds {
+		var perms discord.ApplicationCommandPermission
+		if cmd.Name == "eval" {
+			perms = discord.ApplicationCommandPermission{
+				ID:         adminRoleID,
+				Type:       discord.ApplicationCommandPermissionTypeRole,
+				Permission: true,
+			}
+		} else {
+			perms = discord.ApplicationCommandPermission{
+				ID:         testRoleID,
+				Type:       discord.ApplicationCommandPermissionTypeRole,
+				Permission: true,
+			}
+			cmdsPermissions = append(cmdsPermissions, discord.ApplicationCommandPermissionsSet{
+				ID:          cmd.ID,
+				Permissions: []discord.ApplicationCommandPermission{perms},
+			})
+		}
+		cmdsPermissions = append(cmdsPermissions, discord.ApplicationCommandPermissionsSet{
+			ID:          cmd.ID,
+			Permissions: []discord.ApplicationCommandPermission{perms},
+		})
+	}
+	if _, err = bot.SetGuildCommandsPermissions(guildID, cmdsPermissions); err != nil {
+		log.Fatalf("error while setting command permissions: %s", err)
+	}
 }

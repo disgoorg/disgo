@@ -307,7 +307,7 @@ func (g *gatewayImpl) listen() {
 				go g.heartbeat()
 
 			case discord.OpDispatch:
-				g.Logger().Debugf("received: OpDispatch")
+				g.Logger().Debug("received: OpDispatch")
 				if event.S != 0 {
 					g.lastSequenceReceived = &event.S
 				}
@@ -316,7 +316,7 @@ func (g *gatewayImpl) listen() {
 					continue
 				}
 
-				g.Logger().Debugf("received: %s", event.T)
+				g.Logger().Debugf("received: '%s', data: %s", event.T, string(event.D))
 
 				if event.T == discord.GatewayEventTypeReady {
 					var readyEvent discord.GatewayEventReady

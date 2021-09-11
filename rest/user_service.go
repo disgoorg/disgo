@@ -16,7 +16,7 @@ type UserService interface {
 	GetUser(userID discord.Snowflake, opts ...RequestOpt) (*discord.User, Error)
 	GetSelfUser(opts ...RequestOpt) (*discord.OAuth2User, Error)
 	UpdateSelfUser(selfUserUpdate discord.SelfUserUpdate, opts ...RequestOpt) (*discord.OAuth2User, Error)
-	GetGuilds(before int, after int, limit int, opts ...RequestOpt) ([]discord.PartialGuild, Error)
+	GetGuilds(before int, after int, limit int, opts ...RequestOpt) ([]discord.OAuth2Guild, Error)
 	LeaveGuild(guildID discord.Snowflake, opts ...RequestOpt) Error
 	GetDMChannels(opts ...RequestOpt) ([]discord.Channel, Error)
 	CreateDMChannel(userID discord.Snowflake, opts ...RequestOpt) (*discord.Channel, Error)
@@ -58,7 +58,7 @@ func (s *userServiceImpl) UpdateSelfUser(updateSelfUser discord.SelfUserUpdate, 
 	return
 }
 
-func (s *userServiceImpl) GetGuilds(before int, after int, limit int, opts ...RequestOpt) (guilds []discord.PartialGuild, rErr Error) {
+func (s *userServiceImpl) GetGuilds(before int, after int, limit int, opts ...RequestOpt) (guilds []discord.OAuth2Guild, rErr Error) {
 	queryParams := route.QueryValues{}
 	if before > 0 {
 		queryParams["before"] = before
