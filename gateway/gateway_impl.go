@@ -246,7 +246,7 @@ func (g *gatewayImpl) listen() {
 
 		event, err := g.parseGatewayEvent(mt, reader)
 		if err != nil {
-			g.Logger().Errorf("error while unpacking gateway event. error: %s", err)
+			g.Logger().Error("error while unpacking gateway event. error: ", err)
 			continue
 		}
 
