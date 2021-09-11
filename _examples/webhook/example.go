@@ -30,6 +30,7 @@ func main() {
 
 	// send 10 messages with the webhook
 	for i := 1; i <= 10; i++ {
+		wg.Add(1)
 		go send(&wg, client, i)
 	}
 
@@ -40,7 +41,6 @@ func main() {
 
 // send(s) a message to the webhook
 func send(wg *sync.WaitGroup, client *webhook.Client, i int) {
-	wg.Add(1)
 	defer wg.Done()
 
 	if _, err := client.CreateMessage(webhook.NewMessageCreateBuilder().
