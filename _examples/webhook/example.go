@@ -1,11 +1,8 @@
 package main
 
 import (
-	"context"
-	"net/http"
 	"os"
-	"os/signal"
-	"syscall"
+	"sync"
 	"time"
 
 	"github.com/DisgoOrg/disgo/discord"
@@ -16,42 +13,42 @@ import (
 )
 
 var (
-	webhookID    = discord.Snowflake(os.Getenv("webhook_id"))
+	webhookID    = os.Getenv("webhook_id")
 	webhookToken = os.Getenv("webhook_token")
-	logger       = log.Default()
-	httpClient   = http.DefaultClient
 )
 
 func main() {
-	logger.SetLevel(log.LevelDebug)
-	logger.Info("starting example...")
-	logger.Infof("disgo %s", info.Version)
+	log.SetLevel(log.LevelDebug)
+	log.Info("starting webhook example...")
+	log.Info("disgo ", info.Version)
 
-	client := webhook.New(webhookID, webhookToken,
-		webhook.WithLogger(logger),
-		webhook.WithRestClientConfigOpts(
-			rest.WithHTTPClient(httpClient),
-		),
-	)
+	// construct new webhook client
+	client := webhook.NewClient(discord.Snowflake(webhookID), webhookToken)
 
-	ctx, _ := context.WithTimeout(context.Background(), 2*time.Minute)
+	// new sync.WaitGroup to await all messages to be sent before shutting down
+	var wg sync.WaitGroup
 
+	// send 10 messages with the webhook
 	for i := 1; i <= 10; i++ {
-		go send(ctx, client, i)
+		go send(&wg, client, i)
 	}
 
-	s := make(chan os.Signal, 1)
-	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
-	<-s
+	// wait for all messages to be sent
+	wg.Wait()
+	log.Info("existing webhook example...")
 }
 
-func send(ctx context.Context, client *webhook.Client, i int) {
-	_, err := client.CreateMessage(webhook.NewMessageCreateBuilder().SetContentf("test %d", i).Build(),
-		rest.WithCtx(ctx),
-		rest.WithReason("this adds a reason header"),
+// send(s) a message to the webhook
+func send(wg *sync.WaitGroup, client *webhook.Client, i int) {
+	wg.Add(1)
+	defer wg.Done()
+
+	if _, err := client.CreateMessage(webhook.NewMessageCreateBuilder().
+		SetContentf("test %d", i).
+		Build(),
+		// delay each request by 2 seconds
 		rest.WithDelay(2*time.Second),
-	)
-	if err != nil {
-		logger.Errorf("error sending test %d: %s", i, err)
+	); err != nil {
+		log.Errorf("error sending message %d: %s", i, err)
 	}
 }

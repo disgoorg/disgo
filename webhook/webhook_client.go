@@ -15,9 +15,9 @@ var DefaultAllowedMentions = discord.AllowedMentions{
 	RepliedUser: true,
 }
 
-// New returns a new Client
+// NewClient returns a new Client
 //goland:noinspection GoUnusedExportedFunction
-func New(id discord.Snowflake, token string, opts ...ConfigOpt) *Client {
+func NewClient(id discord.Snowflake, token string, opts ...ConfigOpt) *Client {
 	config := &DefaultConfig
 	config.Apply(opts)
 

@@ -129,14 +129,13 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 		}
 	}
 
-	if config.Ctx != nil {
-		// wait for rate limits
-		err = c.RateLimiter().WaitBucket(config.Ctx, cRoute)
-		if err != nil {
-			return NewError(nil, err)
-		}
-		rq = rq.WithContext(config.Ctx)
+	// wait for rate limits
+	err = c.RateLimiter().WaitBucket(config.Ctx, cRoute)
+	if err != nil {
+		return NewError(nil, err)
 	}
+	rq = rq.WithContext(config.Ctx)
+
 
 	for _, check := range config.Checks {
 		if !check() {

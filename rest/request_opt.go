@@ -21,6 +21,9 @@ func (c *RequestConfig) Apply(opts []RequestOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
+	if c.Ctx == nil {
+		c.Ctx = context.TODO()
+	}
 }
 
 func WithCtx(ctx context.Context) RequestOpt {
