@@ -51,51 +51,37 @@ const (
 )
 
 // Add allows you to add multiple bits together, producing a new bit
-func (c CacheFlags) Add(bits ...CacheFlags) CacheFlags {
-	total := CacheFlags(0)
+func (f CacheFlags) Add(bits ...CacheFlags) CacheFlags {
 	for _, bit := range bits {
-		total |= bit
+		f |= bit
 	}
-	c |= total
-	return c
+	return f
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
-func (c CacheFlags) Remove(bits ...CacheFlags) CacheFlags {
-	total := CacheFlags(0)
+func (f CacheFlags) Remove(bits ...CacheFlags) CacheFlags {
 	for _, bit := range bits {
-		total |= bit
+		f &^= bit
 	}
-	c &^= total
-	return c
+	return f
 }
 
-// HasAll will ensure that the bit includes all the bits entered
-func (c CacheFlags) HasAll(bits ...CacheFlags) bool {
+// Has will ensure that the bit includes all the bits entered
+func (f CacheFlags) Has(bits ...CacheFlags) bool {
 	for _, bit := range bits {
-		if !c.Has(bit) {
+		if (f & bit) != bit {
 			return false
 		}
 	}
 	return true
 }
 
-// Has will check whether the Bit contains another bit
-func (c CacheFlags) Has(bit CacheFlags) bool {
-	return (c & bit) == bit
-}
-
-// MissingAny will check whether the bit is missing any one of the bits
-func (c CacheFlags) MissingAny(bits ...CacheFlags) bool {
+// Missing will check whether the bit is missing any one of the bits
+func (f CacheFlags) Missing(bits ...CacheFlags) bool {
 	for _, bit := range bits {
-		if !c.Has(bit) {
+		if (f & bit) != bit {
 			return true
 		}
 	}
 	return false
-}
-
-// Missing will do the inverse of Bit.Has
-func (c CacheFlags) Missing(bit CacheFlags) bool {
-	return !c.Has(bit)
 }

@@ -21,7 +21,7 @@ func (b *entityBuilderImpl) Bot() *Bot {
 }
 
 // CreateInteraction creates an Interaction from the discord.Interaction response
-func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c chan discord.InteractionResponse, updateCache CacheStrategy) *Interaction {
+func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c chan<- discord.InteractionResponse, updateCache CacheStrategy) *Interaction {
 	coreInteraction := &Interaction{
 		Interaction:     interaction,
 		Bot:             b.Bot(),
@@ -101,16 +101,16 @@ func (b *entityBuilderImpl) CreateSlashCommandInteraction(applicationInteraction
 		}
 	}
 
-	options := make([]SlashCommandOption, len(unmarshalOptions))
-	for i, optionData := range unmarshalOptions {
-		options[i] = SlashCommandOption{
+	optionMap := make(map[string]SlashCommandOption, len(unmarshalOptions))
+	for _, option := range unmarshalOptions {
+		optionMap[option.Name] = SlashCommandOption{
 			Resolved: slashCommandInteraction.Resolved,
-			Name:     optionData.Name,
-			Type:     optionData.Type,
-			Value:    optionData.Value,
+			Name:     option.Name,
+			Type:     option.Type,
+			Value:    option.Value,
 		}
 	}
-	slashCommandInteraction.Options = options
+	slashCommandInteraction.Options = optionMap
 
 	return slashCommandInteraction
 }

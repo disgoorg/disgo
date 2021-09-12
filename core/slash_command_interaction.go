@@ -19,30 +19,34 @@ func (i *SlashCommandInteraction) CommandPath() string {
 	return path
 }
 
-// Option returns an Option by name
-func (i *SlashCommandInteraction) Option(name string) *SlashCommandOption {
-	options := i.OptionN(name)
-	if len(options) == 0 {
-		return nil
-	}
-	return &options[0]
+type SlashCommandInteractionData struct {
+	SubCommandName      *string
+	SubCommandGroupName *string
+	Options             OptionsMap
 }
 
-// OptionN returns Option(s) by name
-func (i *SlashCommandInteraction) OptionN(name string) []SlashCommandOption {
-	options := make([]SlashCommandOption, 0)
-	for _, option := range i.Options {
-		if option.Name == name {
-			options = append(options, option)
-		}
+type OptionsMap map[string]SlashCommandOption
+
+func (m OptionsMap) Get(name string) *SlashCommandOption {
+	if option, ok := m[name]; ok {
+		return &option
+	}
+	return nil
+}
+
+func (m OptionsMap) GetAll() []SlashCommandOption {
+	options := make([]SlashCommandOption, len(m))
+	i := 0
+	for _, option := range m {
+		options[i] = option
+		i++
 	}
 	return options
 }
 
-// OptionsT returns Option(s) by core.CommandOptionType
-func (i *SlashCommandInteraction) OptionsT(optionType discord.SlashCommandOptionType) []SlashCommandOption {
-	options := make([]SlashCommandOption, 0)
-	for _, option := range i.Options {
+func (m OptionsMap) GetByType(optionType discord.SlashCommandOptionType) []SlashCommandOption {
+	var options []SlashCommandOption
+	for _, option := range m {
 		if option.Type == optionType {
 			options = append(options, option)
 		}
@@ -50,10 +54,23 @@ func (i *SlashCommandInteraction) OptionsT(optionType discord.SlashCommandOption
 	return options
 }
 
-type SlashCommandInteractionData struct {
-	SubCommandName      *string
-	SubCommandGroupName *string
-	Options             []SlashCommandOption
+func (m OptionsMap) Find(optionFindFunc func(option SlashCommandOption) bool) *SlashCommandOption {
+	for _, option := range m {
+		if optionFindFunc(option) {
+			return &option
+		}
+	}
+	return nil
+}
+
+func (m OptionsMap) FindAll(optionFindFunc func(option SlashCommandOption) bool) []SlashCommandOption {
+	var options []SlashCommandOption
+	for _, option := range m {
+		if optionFindFunc(option) {
+			options = append(options, option)
+		}
+	}
+	return options
 }
 
 // SlashCommandOption holds info about an SlashCommandOption.Value

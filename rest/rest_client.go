@@ -136,7 +136,6 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 	}
 	rq = rq.WithContext(config.Ctx)
 
-
 	for _, check := range config.Checks {
 		if !check() {
 			_ = c.RateLimiter().UnlockBucket(cRoute, nil)

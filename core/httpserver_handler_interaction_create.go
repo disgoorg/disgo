@@ -15,7 +15,7 @@ func (h *httpserverHandlerInteractionCreate) New() interface{} {
 }
 
 // HandleHTTPEvent handles the specific raw gateway event
-func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(bot *Bot, c chan discord.InteractionResponse, v interface{}) {
+func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(bot *Bot, c chan<- discord.InteractionResponse, v interface{}) {
 	unmarshalInteraction := *v.(*discord.Interaction)
 
 	// we just want to pong all pings

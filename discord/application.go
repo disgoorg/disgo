@@ -133,53 +133,39 @@ const (
 )
 
 // Add allows you to add multiple bits together, producing a new bit
-func (p ApplicationFlags) Add(bits ...ApplicationFlags) ApplicationFlags {
-	total := ApplicationFlags(0)
+func (f ApplicationFlags) Add(bits ...ApplicationFlags) ApplicationFlags {
 	for _, bit := range bits {
-		total |= bit
+		f |= bit
 	}
-	p |= total
-	return p
+	return f
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
-func (p ApplicationFlags) Remove(bits ...ApplicationFlags) ApplicationFlags {
-	total := ApplicationFlags(0)
+func (f ApplicationFlags) Remove(bits ...ApplicationFlags) ApplicationFlags {
 	for _, bit := range bits {
-		total |= bit
+		f &^= bit
 	}
-	p &^= total
-	return p
+	return f
 }
 
-// HasAll will ensure that the bit includes all the bits entered
-func (p ApplicationFlags) HasAll(bits ...ApplicationFlags) bool {
+// Has will ensure that the bit includes all the bits entered
+func (f ApplicationFlags) Has(bits ...ApplicationFlags) bool {
 	for _, bit := range bits {
-		if !p.Has(bit) {
+		if (f & bit) != bit {
 			return false
 		}
 	}
 	return true
 }
 
-// Has will check whether the Bit contains another bit
-func (p ApplicationFlags) Has(bit ApplicationFlags) bool {
-	return (p & bit) == bit
-}
-
-// MissingAny will check whether the bit is missing any one of the bits
-func (p ApplicationFlags) MissingAny(bits ...ApplicationFlags) bool {
+// Missing will check whether the bit is missing any one of the bits
+func (f ApplicationFlags) Missing(bits ...ApplicationFlags) bool {
 	for _, bit := range bits {
-		if !p.Has(bit) {
+		if (f & bit) != bit {
 			return true
 		}
 	}
 	return false
-}
-
-// Missing will do the inverse of Bit.Has
-func (p ApplicationFlags) Missing(bit ApplicationFlags) bool {
-	return !p.Has(bit)
 }
 
 type Team struct {

@@ -1,6 +1,7 @@
 package discord
 
 import (
+	"bytes"
 	"strconv"
 
 	"github.com/DisgoOrg/disgo/json"
@@ -129,67 +130,52 @@ func (p Permissions) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON unmarshalls permissions into an int64
-func (p *Permissions) UnmarshalJSON(b []byte) error {
-	var strPermissions string
-	err := json.Unmarshal(b, &strPermissions)
-	if err != nil {
-		return err
+func (p *Permissions) UnmarshalJSON(data []byte) error {
+	if bytes.Equal(emptyJSONString, data) || bytes.Equal(nullJSONString, data) {
+		return nil
 	}
 
-	intPermissions, err := strconv.Atoi(strPermissions)
+	str, _ := strconv.Unquote(string(data))
+	perms, err := strconv.ParseInt(str, 10, 64)
 	if err != nil {
 		return err
 	}
-	*p = Permissions(intPermissions)
+	*p = Permissions(perms)
 	return nil
 }
 
 // Add allows you to add multiple bits together, producing a new bit
 func (p Permissions) Add(bits ...Permissions) Permissions {
-	total := Permissions(0)
 	for _, bit := range bits {
-		total |= bit
+		p |= bit
 	}
-	p |= total
 	return p
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
 func (p Permissions) Remove(bits ...Permissions) Permissions {
-	total := Permissions(0)
 	for _, bit := range bits {
-		total |= bit
+		p &^= bit
 	}
-	p &^= total
 	return p
 }
 
-// HasAll will ensure that the bit includes all of the bits entered
-func (p Permissions) HasAll(bits ...Permissions) bool {
+// Has will ensure that the bit includes all the bits entered
+func (p Permissions) Has(bits ...Permissions) bool {
 	for _, bit := range bits {
-		if !p.Has(bit) {
+		if (p & bit) != bit {
 			return false
 		}
 	}
 	return true
 }
 
-// Has will check whether the Bit contains another bit
-func (p Permissions) Has(bit Permissions) bool {
-	return (p & bit) == bit
-}
-
-// MissingAny will check whether the bit is missing any one of the bits
-func (p Permissions) MissingAny(bits ...Permissions) bool {
+// Missing will check whether the bit is missing any one of the bits
+func (p Permissions) Missing(bits ...Permissions) bool {
 	for _, bit := range bits {
-		if !p.Has(bit) {
+		if (p & bit) != bit {
 			return true
 		}
 	}
 	return false
-}
-
-// Missing will do the inverse of Bit.Has
-func (p Permissions) Missing(bit Permissions) bool {
-	return !p.Has(bit)
 }

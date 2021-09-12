@@ -24,7 +24,7 @@ func (h *gatewayHandlerInteractionCreate) HandleGatewayEvent(bot *Bot, sequenceN
 	HandleInteraction(bot, sequenceNumber, nil, interaction)
 }
 
-func HandleInteraction(bot *Bot, sequenceNumber int, c chan discord.InteractionResponse, interaction discord.Interaction) {
+func HandleInteraction(bot *Bot, sequenceNumber int, c chan<- discord.InteractionResponse, interaction discord.Interaction) {
 	coreInteraction := bot.EntityBuilder.CreateInteraction(interaction, c, CacheStrategyYes)
 
 	genericEvent := NewGenericEvent(bot, sequenceNumber)

@@ -13,11 +13,11 @@ import (
 )
 
 func getListener() *core.ListenerAdapter {
-	return  &core.ListenerAdapter{
+	return &core.ListenerAdapter{
 		OnRawGateway:         rawGatewayEventListener,
 		OnGuildAvailable:     guildAvailListener,
 		OnGuildMessageCreate: messageListener,
-		OnSlashCommand:       commandListener,
+		OnSlashCommand:       slashCommandListener,
 		OnButtonClick:        buttonClickListener,
 		OnSelectMenuSubmit:   selectMenuSubmitListener,
 	}
@@ -71,11 +71,11 @@ func selectMenuSubmitListener(event *core.SelectMenuSubmitEvent) {
 	}
 }
 
-func commandListener(event *core.SlashCommandEvent) {
+func slashCommandListener(event *core.SlashCommandEvent) {
 	switch event.CommandName {
 	case "eval":
 		go func() {
-			code := event.Option("code").String()
+			code := event.Options["code"].String()
 			embed := core.NewEmbedBuilder().
 				SetColor(orange).
 				AddField("Status", "...", true).
@@ -124,7 +124,7 @@ func commandListener(event *core.SlashCommandEvent) {
 
 	case "say":
 		_ = event.Create(core.NewMessageCreateBuilder().
-			SetContent(event.Option("message").String()).
+			SetContent(event.Options["message"].String()).
 			ClearAllowedMentions().
 			Build(),
 		)
@@ -153,8 +153,8 @@ func commandListener(event *core.SlashCommandEvent) {
 		}
 
 	case "addrole":
-		user := event.Option("member").User()
-		role := event.Option("role").Role()
+		user := event.Options["member"].User()
+		role := event.Options["role"].Role()
 
 		if err := event.Bot().RestServices.GuildService().AddMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
 			_ = event.Create(core.NewMessageCreateBuilder().AddEmbeds(
@@ -167,8 +167,8 @@ func commandListener(event *core.SlashCommandEvent) {
 		}
 
 	case "removerole":
-		user := event.Option("member").User()
-		role := event.Option("role").Role()
+		user := event.Options["member"].User()
+		role := event.Options["role"].Role()
 
 		if err := event.Bot().RestServices.GuildService().RemoveMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
 			_ = event.Create(core.NewMessageCreateBuilder().AddEmbeds(
@@ -252,4 +252,3 @@ func messageListener(event *core.GuildMessageCreateEvent) {
 
 	}
 }
-

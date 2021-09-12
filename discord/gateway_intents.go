@@ -48,51 +48,37 @@ const (
 )
 
 // Add allows you to add multiple bits together, producing a new bit
-func (p GatewayIntents) Add(bits ...GatewayIntents) GatewayIntents {
-	total := GatewayIntents(0)
+func (i GatewayIntents) Add(bits ...GatewayIntents) GatewayIntents {
 	for _, bit := range bits {
-		total |= bit
+		i |= bit
 	}
-	p |= total
-	return p
+	return i
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
-func (p GatewayIntents) Remove(bits ...GatewayIntents) GatewayIntents {
-	total := GatewayIntents(0)
+func (i GatewayIntents) Remove(bits ...GatewayIntents) GatewayIntents {
 	for _, bit := range bits {
-		total |= bit
+		i &^= bit
 	}
-	p &^= total
-	return p
+	return i
 }
 
-// HasAll will ensure that the bit includes all of the bits entered
-func (p GatewayIntents) HasAll(bits ...GatewayIntents) bool {
+// Has will ensure that the bit includes all the bits entered
+func (i GatewayIntents) Has(bits ...GatewayIntents) bool {
 	for _, bit := range bits {
-		if !p.Has(bit) {
+		if (i & bit) != bit {
 			return false
 		}
 	}
 	return true
 }
 
-// Has will check whether the Bit contains another bit
-func (p GatewayIntents) Has(bit GatewayIntents) bool {
-	return (p & bit) == bit
-}
-
-// MissingAny will check whether the bit is missing any one of the bits
-func (p GatewayIntents) MissingAny(bits ...GatewayIntents) bool {
+// Missing will check whether the bit is missing any one of the bits
+func (i GatewayIntents) Missing(bits ...GatewayIntents) bool {
 	for _, bit := range bits {
-		if !p.Has(bit) {
+		if (i & bit) != bit {
 			return true
 		}
 	}
 	return false
-}
-
-// Missing will do the inverse of Bit.Has
-func (p GatewayIntents) Missing(bit GatewayIntents) bool {
-	return !p.Has(bit)
 }

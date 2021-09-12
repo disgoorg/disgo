@@ -19,7 +19,7 @@ var (
 type EntityBuilder interface {
 	Bot() *Bot
 
-	CreateInteraction(unmarshalInteraction discord.Interaction, responseChannel chan discord.InteractionResponse, updateCache CacheStrategy) *Interaction
+	CreateInteraction(unmarshalInteraction discord.Interaction, responseChannel chan<- discord.InteractionResponse, updateCache CacheStrategy) *Interaction
 
 	CreateApplicationCommandInteraction(interaction *Interaction, updateCache CacheStrategy) *ApplicationCommandInteraction
 	CreateSlashCommandInteraction(applicationInteraction *ApplicationCommandInteraction) *SlashCommandInteraction

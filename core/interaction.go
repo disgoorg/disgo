@@ -10,7 +10,7 @@ type Interaction struct {
 	Bot             *Bot
 	User            *User
 	Member          *Member
-	ResponseChannel chan discord.InteractionResponse
+	ResponseChannel chan<- discord.InteractionResponse
 	Responded       bool
 }
 

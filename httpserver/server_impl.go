@@ -89,13 +89,13 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	c := make(chan discord.InteractionResponse)
-	go h.server.config.EventHandlerFunc(c, r.Body)
+	responseChannel := make(chan discord.InteractionResponse, 1)
+	h.server.config.EventHandlerFunc(responseChannel, r.Body)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	err := json.NewEncoder(w).Encode(<-c)
+	err := json.NewEncoder(w).Encode(<-responseChannel)
 	if err != nil {
 		h.server.Logger().Errorf("error writing body: %s", err)
 	}

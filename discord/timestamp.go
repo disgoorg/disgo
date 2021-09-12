@@ -9,52 +9,52 @@ import (
 	"github.com/pkg/errors"
 )
 
-// PatternTimestampFlag the regexp.Regexp to parse a Timestamp from a Message
-var PatternTimestampFlag = regexp.MustCompile("<t:(?P<time>-?\\d{1,17})(?::(?P<format>[tTdDfFR]))?>")
+// PatternTimestampStyle the regexp.Regexp to parse a Timestamp from a Message
+var PatternTimestampStyle = regexp.MustCompile("<t:(?P<time>-?\\d{1,17})(?::(?P<format>[tTdDfFR]))?>")
 
 // ErrNoTimestampMatch is returned when no valid Timestamp is found in the Message
 var ErrNoTimestampMatch = errors.New("no matching timestamp found in string")
 
-// TimestampFlag is used to determine how to display the Timestamp for the User in the client
-type TimestampFlag string
+// TimestampStyle is used to determine how to display the Timestamp for the User in the client
+type TimestampStyle string
 
 //goland:noinspection GoUnusedConst
 const (
-	// TimestampFlagShortTime formats time as 16:20
-	TimestampFlagShortTime TimestampFlag = "t"
+	// TimestampStyleShortTime formats time as 16:20
+	TimestampStyleShortTime TimestampStyle = "t"
 
-	// TimestampFlagLongTime formats time as 16:20:30
-	TimestampFlagLongTime TimestampFlag = "T"
+	// TimestampStyleLongTime formats time as 16:20:30
+	TimestampStyleLongTime TimestampStyle = "T"
 
-	// TimestampFlagShortDate formats time as 20/04/2021
-	TimestampFlagShortDate TimestampFlag = "d"
+	// TimestampStyleShortDate formats time as 20/04/2021
+	TimestampStyleShortDate TimestampStyle = "d"
 
-	// TimestampFlagLongDate formats time as 20 April 2021
-	TimestampFlagLongDate TimestampFlag = "D"
+	// TimestampStyleLongDate formats time as 20 April 2021
+	TimestampStyleLongDate TimestampStyle = "D"
 
-	// TimestampFlagShortDateTime formats time as 20 April 2021 16:20
-	TimestampFlagShortDateTime TimestampFlag = "f"
+	// TimestampStyleShortDateTime formats time as 20 April 2021 16:20
+	TimestampStyleShortDateTime TimestampStyle = "f"
 
-	// TimestampFlagLongDateTime formats time as Tuesday, 20 April 2021 16:20
-	TimestampFlagLongDateTime TimestampFlag = "F"
+	// TimestampStyleLongDateTime formats time as Tuesday, 20 April 2021 16:20
+	TimestampStyleLongDateTime TimestampStyle = "F"
 
-	// TimestampFlagRelative formats time as 2 months ago
-	TimestampFlagRelative TimestampFlag = "R"
+	// TimestampStyleRelative formats time as 2 months ago
+	TimestampStyleRelative TimestampStyle = "R"
 )
 
 // FormatTime returns the time.Time formatted as markdown string
-func (f TimestampFlag) FormatTime(time time.Time) string {
+func (f TimestampStyle) FormatTime(time time.Time) string {
 	return f.Format(time.Unix())
 }
 
 // Format returns the seconds formatted as markdown string
-func (f TimestampFlag) Format(seconds int64) string {
+func (f TimestampStyle) Format(seconds int64) string {
 	return fmt.Sprintf("<t:%d:%s>", seconds, f)
 }
 
 // ParseTimestamps parses all Timestamp(s) found in the provided string
 func ParseTimestamps(str string, n int) ([]Timestamp, error) {
-	matches := PatternTimestampFlag.FindAllStringSubmatch(str, n)
+	matches := PatternTimestampStyle.FindAllStringSubmatch(str, n)
 	if matches == nil {
 		return nil, ErrNoTimestampMatch
 	}
@@ -63,12 +63,12 @@ func ParseTimestamps(str string, n int) ([]Timestamp, error) {
 	for i, match := range matches {
 		unix, _ := strconv.Atoi(match[1])
 
-		flag := TimestampFlagShortDateTime
+		style := TimestampStyleShortDateTime
 		if len(match) > 2 {
-			flag = TimestampFlag(match[2])
+			style = TimestampStyle(match[2])
 		}
 
-		timestamps[i] = NewTimestampF(flag, time.Unix(int64(unix), 0))
+		timestamps[i] = NewTimestamp(style, time.Unix(int64(unix), 0))
 	}
 
 	return timestamps, nil
@@ -85,17 +85,11 @@ func ParseTimestamp(str string) (*Timestamp, error) {
 	return &timestamps[0], nil
 }
 
-// NewTimestamp returns a new Timestamp with TimestampFlagShortDateTime & the given time.Time
-//goland:noinspection GoUnusedExportedFunction
-func NewTimestamp(time time.Time) Timestamp {
-	return NewTimestampF(TimestampFlagShortDateTime, time)
-}
-
-// NewTimestampF returns a new Timestamp with the given TimestampFlag & time.Time
-func NewTimestampF(flag TimestampFlag, time time.Time) Timestamp {
+// NewTimestamp returns a new Timestamp with the given TimestampStyle & time.Time
+func NewTimestamp(style TimestampStyle, time time.Time) Timestamp {
 	return Timestamp{
-		TimestampFlag: flag,
-		Time:          time,
+		TimestampStyle: style,
+		Time:           time,
 	}
 }
 
@@ -104,7 +98,7 @@ var _ fmt.Stringer = (*Timestamp)(nil)
 // Timestamp represents a timestamp markdown object https://discord.com/developers/docs/reference#message-formatting
 type Timestamp struct {
 	time.Time
-	TimestampFlag TimestampFlag
+	TimestampStyle TimestampStyle
 }
 
 // String returns the Timestamp as markdown
@@ -114,10 +108,10 @@ func (t Timestamp) String() string {
 
 // Format returns the Timestamp as markdown
 func (t Timestamp) Format() string {
-	return t.TimestampFlag.Format(t.Unix())
+	return t.TimestampStyle.Format(t.Unix())
 }
 
-// FormatWith returns the Timestamp as markdown with the given TimestampFlag
-func (t Timestamp) FormatWith(format TimestampFlag) string {
-	return format.Format(t.Unix())
+// FormatWith returns the Timestamp as markdown with the given TimestampStyle
+func (t Timestamp) FormatWith(style TimestampStyle) string {
+	return style.Format(t.Unix())
 }
