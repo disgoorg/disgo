@@ -1,8 +1,11 @@
 package httpserver
 
 import (
+	"bytes"
 	"crypto/ed25519"
 	"encoding/hex"
+	"io"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/DisgoOrg/disgo/json"
@@ -86,11 +89,20 @@ type WebhookInteractionHandler struct {
 func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if ok := Verify(h.server.Logger(), r, h.server.publicKey); !ok {
 		w.WriteHeader(http.StatusUnauthorized)
+		data, _ := ioutil.ReadAll(r.Body)
+		h.server.Logger().Debug("received http interaction with invalid signature. body: ", string(data))
 		return
 	}
 
+	defer r.Body.Close()
+	var body *bytes.Buffer
+
+	data, _ := ioutil.ReadAll(io.TeeReader(r.Body, body))
+
+	h.server.Logger().Debug("received http interaction. body: ", string(data))
+
 	responseChannel := make(chan discord.InteractionResponse, 1)
-	h.server.config.EventHandlerFunc(responseChannel, r.Body)
+	h.server.config.EventHandlerFunc(responseChannel, body)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
