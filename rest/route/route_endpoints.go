@@ -273,4 +273,5 @@ var (
 //goland:noinspection GoUnusedGlobalVariable
 var (
 	InviteURL = NewCustomRoute("https://discord.gg", "/{code}")
+	WebhookURL = NewCustomRoute("https://discord.com", "/api/webhooks/{webhook.id}/{webhook.token}")
 )
