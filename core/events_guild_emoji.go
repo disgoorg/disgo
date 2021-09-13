@@ -1,23 +1,23 @@
 package core
 
-// GenericStickerEvent is called upon receiving StickerCreateEvent, StickerUpdateEvent or StickerDeleteEvent(requires core.GatewayIntentsGuildStickers)
-type GenericStickerEvent struct {
+// GenericEmojiEvent is called upon receiving EmojiCreateEvent, EmojiUpdateEvent or EmojiDeleteEvent(requires core.GatewayIntentsGuildEmojis)
+type GenericEmojiEvent struct {
 	*GenericGuildEvent
-	Sticker *Sticker
+	Emoji *Emoji
 }
 
-// StickerCreateEvent indicates that a new core.Sticker got created in a core.Guild(requires core.GatewayIntentsGuildStickers)
-type StickerCreateEvent struct {
-	*GenericStickerEvent
+// EmojiCreateEvent indicates that a new core.Emoji got created in an core.Guild(requires core.GatewayIntentsGuildEmojis)
+type EmojiCreateEvent struct {
+	*GenericEmojiEvent
 }
 
-// StickerUpdateEvent indicates that a core.Sticker got updated in a core.Guild(requires core.GatewayIntentsGuildStickers)
-type StickerUpdateEvent struct {
-	*GenericStickerEvent
-	OldSticker *Sticker
+// EmojiUpdateEvent indicates that an core.Emoji got updated in an core.Guild(requires core.GatewayIntentsGuildEmojis)
+type EmojiUpdateEvent struct {
+	*GenericEmojiEvent
+	OldEmoji *Emoji
 }
 
-// StickerDeleteEvent indicates that a core.Sticker got deleted in a core.Guild(requires core.GatewayIntentsGuildStickers)
-type StickerDeleteEvent struct {
-	*GenericStickerEvent
+// EmojiDeleteEvent indicates that an core.Emoji got deleted in an core.Guild(requires core.GatewayIntentsGuildEmojis)
+type EmojiDeleteEvent struct {
+	*GenericEmojiEvent
 }
