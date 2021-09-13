@@ -1,10 +1,6 @@
 name: Go
 
-on:
-    push:
-        branches: [ master, development ]
-    pull_request:
-        branches: [ master, development ]
+on: [push, pull_request]
 
 jobs:
 
