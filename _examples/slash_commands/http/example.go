@@ -38,7 +38,7 @@ var (
 func main() {
 	log.SetLevel(log.LevelDebug)
 	log.Info("starting example...")
-	log.Info("disgo version: ", info.Version)
+	log.Infof("disgo version: %s", info.Version)
 
 	disgo, err := core.NewBotBuilder(token).
 		SetHTTPServerConfig(httpserver.Config{
@@ -76,11 +76,9 @@ func main() {
 
 func commandListener(event *core.SlashCommandEvent) {
 	if event.CommandName == "say" {
-		if err := event.Create(core.NewMessageCreateBuilder().
-			SetContent(event.Options["message"].String()).
+		_ = event.Create(core.NewMessageCreateBuilder().
+			SetContent(event.Option("message").String()).
 			Build(),
-		); err != nil {
-			log.Error("error sending interaction response: ", err)
-		}
+		)
 	}
 }
