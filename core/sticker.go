@@ -41,5 +41,8 @@ func (s *Sticker) Update(stickerUpdate discord.StickerUpdate, opts ...rest.Reque
 }
 
 func (s *Sticker) Delete(opts ...rest.RequestOpt) rest.Error {
+	if s.Type != discord.StickerTypeGuild {
+		return rest.NewError(nil, discord.ErrStickerTypeGuild)
+	}
 	return s.Bot.RestServices.StickerService().DeleteGuildSticker(*s.GuildID, s.ID, opts...)
 }
