@@ -14,7 +14,7 @@ jobs:
                 with:
                     go-version: 1.17
 
-            -   name: Build
+            -   name: go build
                 run: go build -v ./...
 
     govet:
@@ -27,7 +27,7 @@ jobs:
                 with:
                     go-version: 1.17
 
-            -   name: Build
+            -   name: go vet
                 run: go vet -v ./...
 
     gotest:
@@ -40,15 +40,10 @@ jobs:
                 with:
                     go-version: 1.17
 
-            -   name: Test
+            -   name: go test
                 env:
                     token: ${{ secrets.TOKEN }}
                 run: go test -v ./...
-
-            -   name: Lint
-                uses: Jerome1337/golint-action@v1.0.2
-                with:
-                    golint-path: './...'
 
     golint:
         runs-on: ubuntu-latest
@@ -60,7 +55,7 @@ jobs:
                 with:
                     go-version: 1.17
 
-            -   name: Lint
+            -   name: golint
                 uses: Jerome1337/golint-action@v1.0.2
                 with:
                     golint-path: './...'
