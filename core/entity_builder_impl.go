@@ -29,7 +29,7 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 		Responded:       false,
 	}
 
-	if coreInteraction.Member != nil {
+	if interaction.Member != nil {
 		coreInteraction.Member.Member.User = interaction.User // fuck u discord why not give the user here
 		coreInteraction.Member = b.CreateMember(*interaction.GuildID, *interaction.Member, updateCache)
 		coreInteraction.User = coreInteraction.Member.User

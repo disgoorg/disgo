@@ -143,6 +143,18 @@ func (c *Channel) BulkDeleteMessages(messageIDs []discord.Snowflake, opts ...res
 	return c.Bot.RestServices.ChannelService().BulkDeleteMessages(c.ID, messageIDs, opts...)
 }
 
+// GetMessage allows you bulk delete Message(s)
+func (c *Channel) GetMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, rest.Error) {
+	if !c.IsMessageChannel() {
+		unsupportedChannelType(c)
+	}
+	message, err := c.Bot.RestServices.ChannelService().GetMessage(c.ID, messageID, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return c.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
+}
+
 func (c *Channel) Parent() *Channel {
 	if c.ParentID == nil {
 		return nil
