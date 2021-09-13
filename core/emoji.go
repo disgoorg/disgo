@@ -1,6 +1,9 @@
 package core
 
-import "github.com/DisgoOrg/disgo/discord"
+import (
+	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/rest/route"
+)
 
 // NewEmote creates a new custom Emoji with the given parameters
 //goland:noinspection GoUnusedExportedFunction
@@ -27,6 +30,15 @@ func NewEmoji(name string) *Emoji {
 type Emoji struct {
 	discord.Emoji
 	Bot *Bot
+}
+
+func (e *Emoji) URL(size int) string {
+	fileExtension := route.PNG
+	if e.Animated {
+		fileExtension = route.PNG
+	}
+	compiledRoute, _ := route.CustomEmoji.Compile(nil, fileExtension, size, e.ID)
+	return compiledRoute.URL()
 }
 
 // Guild returns the Guild of the Emoji from the Caches

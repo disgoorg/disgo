@@ -115,13 +115,13 @@ func (b *MessageUpdateBuilder) ClearActionRows() *MessageUpdateBuilder {
 }
 
 // SetFiles sets the restclient.File(s) for this MessageCreate
-func (b *MessageUpdateBuilder) SetFiles(files ...discord.File) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) SetFiles(files ...*discord.File) *MessageUpdateBuilder {
 	b.Files = files
 	return b
 }
 
 // SetFile sets the restclient.File at the index for this MessageCreate
-func (b *MessageUpdateBuilder) SetFile(i int, file discord.File) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) SetFile(i int, file *discord.File) *MessageUpdateBuilder {
 	if len(b.Files) > i {
 		b.Files[i] = file
 	}
@@ -129,24 +129,20 @@ func (b *MessageUpdateBuilder) SetFile(i int, file discord.File) *MessageUpdateB
 }
 
 // AddFiles adds the restclient.File(s) to the MessageCreate
-func (b *MessageUpdateBuilder) AddFiles(files ...discord.File) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) AddFiles(files ...*discord.File) *MessageUpdateBuilder {
 	b.Files = append(b.Files, files...)
 	return b
 }
 
 // AddFile adds a restclient.File to the MessageCreate
 func (b *MessageUpdateBuilder) AddFile(name string, reader io.Reader, flags ...discord.FileFlags) *MessageUpdateBuilder {
-	b.Files = append(b.Files, discord.File{
-		Name:   name,
-		Reader: reader,
-		Flags:  discord.FileFlagNone.Add(flags...),
-	})
+	b.Files = append(b.Files, discord.NewFile(name, reader, flags...))
 	return b
 }
 
 // ClearFiles removes all files of this MessageCreate
 func (b *MessageUpdateBuilder) ClearFiles() *MessageUpdateBuilder {
-	b.Files = []discord.File{}
+	b.Files = []*discord.File{}
 	return b
 }
 

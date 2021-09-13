@@ -188,6 +188,9 @@ func messageListener(event *core.GuildMessageCreateEvent) {
 	}
 
 	switch event.Message.Content {
+	case "party":
+		_, _ = event.Message.Reply(core.NewMessageCreateBuilder().AddStickers("886756806888673321").SetAllowedMentions(&discord.AllowedMentions{RepliedUser: false}).Build())
+
 	case "ping":
 		_, _ = event.Message.Reply(core.NewMessageCreateBuilder().SetContent("pong").SetAllowedMentions(&discord.AllowedMentions{RepliedUser: false}).Build())
 

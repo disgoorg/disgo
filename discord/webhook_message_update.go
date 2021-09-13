@@ -6,7 +6,7 @@ type WebhookMessageUpdate struct {
 	Embeds          []Embed          `json:"embeds,omitempty"`
 	Components      interface{}      `json:"components,omitempty"`
 	Attachments     []Attachment     `json:"attachments,omitempty"`
-	Files           []File           `json:"-"`
+	Files           []*File          `json:"-"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
 }
 

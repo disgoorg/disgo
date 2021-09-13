@@ -129,7 +129,12 @@ func (s *channelServiceImpl) CreateMessage(channelID discord.Snowflake, messageC
 	if err != nil {
 		return nil, NewError(nil, err)
 	}
-	rErr = s.restClient.Do(compiledRoute, messageCreate, &message, opts...)
+	body, err := messageCreate.ToBody()
+	if err != nil {
+		rErr = NewError(nil, err)
+		return
+	}
+	rErr = s.restClient.Do(compiledRoute, body, &message, opts...)
 	return
 }
 
@@ -138,7 +143,12 @@ func (s *channelServiceImpl) UpdateMessage(channelID discord.Snowflake, messageI
 	if err != nil {
 		return nil, NewError(nil, err)
 	}
-	rErr = s.restClient.Do(compiledRoute, messageUpdate, &message, opts...)
+	body, err := messageUpdate.ToBody()
+	if err != nil {
+		rErr = NewError(nil, err)
+		return
+	}
+	rErr = s.restClient.Do(compiledRoute, body, &message, opts...)
 	return
 }
 

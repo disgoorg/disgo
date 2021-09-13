@@ -33,6 +33,7 @@ var EventHandlers = []GatewayEventHandler{
 	&gatewayHandlerGuildRoleUpdate{},
 
 	&gatewayHandlerGuildEmojisUpdate{},
+	&gatewayHandlerGuildStickersUpdate{},
 
 	&gatewayHandlerInviteCreate{},
 	&gatewayHandlerInviteDelete{},

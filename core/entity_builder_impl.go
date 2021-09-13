@@ -129,6 +129,7 @@ func (b *entityBuilderImpl) CreateUserCommandInteraction(contextCommandInteracti
 		ContextCommandInteraction: contextCommandInteraction,
 	}
 }
+
 func (b *entityBuilderImpl) CreateMessageCommandInteraction(contextCommandInteraction *ContextCommandInteraction) *MessageCommandInteraction {
 	return &MessageCommandInteraction{
 		ContextCommandInteraction: contextCommandInteraction,
@@ -444,4 +445,42 @@ func (b *entityBuilderImpl) CreateEmoji(guildID discord.Snowflake, emoji discord
 		return b.Bot().Caches.EmojiCache().Set(coreEmoji)
 	}
 	return coreEmoji
+}
+
+func (b *entityBuilderImpl) CreateStickerPack(stickerPack discord.StickerPack, updateCache CacheStrategy) *StickerPack {
+	coreStickerPack := &StickerPack{
+		StickerPack: stickerPack,
+		Bot:         b.Bot(),
+		Stickers:    make([]*Sticker, len(stickerPack.Stickers)),
+	}
+	for i, sticker := range stickerPack.Stickers {
+		coreStickerPack.Stickers[i] = b.CreateSticker(sticker, updateCache)
+	}
+
+	return coreStickerPack
+}
+
+// CreateSticker returns a new discord.Sticker entity
+func (b *entityBuilderImpl) CreateSticker(sticker discord.Sticker, updateCache CacheStrategy) *Sticker {
+	coreSticker := &Sticker{
+		Sticker: sticker,
+		Bot:     b.Bot(),
+	}
+
+	if sticker.User != nil {
+		coreSticker.User = b.Bot().EntityBuilder.CreateUser(*sticker.User, CacheStrategyNo)
+	}
+
+	if updateCache(b.Bot()) {
+		return b.Bot().Caches.StickerCache().Set(coreSticker)
+	}
+	return coreSticker
+}
+
+// CreateMessageSticker returns a new discord.Sticker entity
+func (b *entityBuilderImpl) CreateMessageSticker(messageSticker discord.MessageSticker) *MessageSticker {
+	return &MessageSticker{
+		MessageSticker: messageSticker,
+		Bot:            b.Bot(),
+	}
 }

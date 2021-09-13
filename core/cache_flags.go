@@ -21,6 +21,7 @@ const (
 	CacheFlagRoleTags
 
 	CacheFlagEmojis
+	CacheFlagStickers
 
 	CacheFlagVoiceStates
 
@@ -38,6 +39,7 @@ const (
 		CacheFlagsAllChannels |
 		CacheFlagRoles |
 		CacheFlagEmojis |
+		CacheFlagStickers |
 		CacheFlagVoiceStates
 
 	CacheFlagsFullRoles = CacheFlagRoles |
@@ -46,6 +48,7 @@ const (
 	CacheFlagsAll = CacheFlagsAllChannels |
 		CacheFlagsFullRoles |
 		CacheFlagEmojis |
+		CacheFlagStickers |
 		CacheFlagVoiceStates |
 		CacheFlagStageInstances
 )

@@ -58,10 +58,10 @@ func (c *emojiCacheImpl) Set(emoji *Emoji) *Emoji {
 	if _, ok := c.emojis[emoji.GuildID]; !ok {
 		c.emojis[emoji.GuildID] = map[discord.Snowflake]*Emoji{}
 	}
-	rol, ok := c.emojis[emoji.GuildID][emoji.ID]
+	em, ok := c.emojis[emoji.GuildID][emoji.ID]
 	if ok {
-		*rol = *emoji
-		return rol
+		*em = *emoji
+		return em
 	}
 	c.emojis[emoji.GuildID][emoji.ID] = emoji
 

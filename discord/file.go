@@ -22,7 +22,7 @@ type MultipartBuffer struct {
 
 // PayloadWithFiles returns the given payload as multipart body with all files in it
 //goland:noinspection GoUnusedExportedFunction
-func PayloadWithFiles(v interface{}, files ...File) (buffer *MultipartBuffer, err error) {
+func PayloadWithFiles(v interface{}, files ...*File) (buffer *MultipartBuffer, err error) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 	writer.FormDataContentType()

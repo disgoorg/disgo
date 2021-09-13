@@ -57,6 +57,9 @@ type EntityBuilder interface {
 	CreateInvite(invite discord.Invite, updateCache CacheStrategy) *Invite
 
 	CreateEmoji(guildID discord.Snowflake, emoji discord.Emoji, updateCache CacheStrategy) *Emoji
+	CreateStickerPack(stickerPack discord.StickerPack, updateCache CacheStrategy) *StickerPack
+	CreateSticker(sticker discord.Sticker, updateCache CacheStrategy) *Sticker
+	CreateMessageSticker(sticker discord.MessageSticker) *MessageSticker
 
 	CreateWebhook(webhook discord.Webhook) *Webhook
 }

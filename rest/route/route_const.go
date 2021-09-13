@@ -33,11 +33,12 @@ type FileExtension string
 
 // The available FileExtension(s)
 const (
-	PNG   FileExtension = "png"
-	JPEG  FileExtension = "jpg"
-	WEBP  FileExtension = "webp"
-	GIF   FileExtension = "gif"
-	BLANK FileExtension = ""
+	PNG    FileExtension = "png"
+	JPEG   FileExtension = "jpg"
+	WebP   FileExtension = "webp"
+	GIF    FileExtension = "gif"
+	Lottie FileExtension = "json"
+	BLANK  FileExtension = ""
 )
 
 func (f FileExtension) String() string {
