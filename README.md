@@ -56,21 +56,21 @@ go get github.com/DisgoOrg/disgo
 
 ```go
 disgo, err := core.NewBuilder("token").
-// set which gateway intents we should use
-SetGatewayConfig(gateway.Config{
-GatewayIntents: gateway.IntentGuilds | gateway.IntentGuildMessages,
-}).
-SetHTTPServerConfig(httpserver.Config{
-URL:       "/interactions/callback",
-Port:      ":443",
-PublicKey: "your public key from the developer dashboard",
-}).
-// add our event listeners
-AddEventListeners(&events.ListenerAdapter{
-OnGuildMessageCreate: guildMessageListener,
-}).
-// build the disgo instance. This might return an error!
-Build()
+    // set which gateway intents we should use
+    SetGatewayConfig(gateway.Config{
+        GatewayIntents: gateway.IntentGuilds | gateway.IntentGuildMessages,
+    }).
+    SetHTTPServerConfig(httpserver.Config{
+        URL:       "/interactions/callback",
+		Port:      ":443",
+        PublicKey: "your public key from the developer dashboard",
+    }).
+    // add our event listeners
+    AddEventListeners(&events.ListenerAdapter{
+        OnGuildMessageCreate: guildMessageListener,
+    }).
+    // build the disgo instance. This might return an error!
+    Build()
 
 // connect to the gateway
 err := disgo.Connect()
@@ -97,15 +97,15 @@ import (
 
 func main() {
     // create a new builder
-    disgo, err := core.NewBuilder("token").
-            // set which gateway intents we should use
-            SetGatewayConfig(gateway.Config{
-                GatewayIntents: gateway.IntentGuilds | gateway.IntentGuildMessages,
-            }).
-            // add our event listeners
-            AddEventListeners(&events.ListenerAdapter{
-                OnGuildMessageCreate: guildMessageListener,
-            }).
+    disgo, err := core.NewBuilder("token"). 
+		// set which gateway intents we should use
+        SetGatewayConfig(gateway.Config{
+            GatewayIntents: gateway.IntentGuilds | gateway.IntentGuildMessages,
+        }).
+        // add our event listeners
+        AddEventListeners(&events.ListenerAdapter{
+            OnGuildMessageCreate: guildMessageListener,
+        }).
         // build the disgo instance. This might return an error!
         Build()
     if err != nil {
