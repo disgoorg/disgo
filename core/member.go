@@ -11,12 +11,17 @@ type Member struct {
 	Bot *Bot
 }
 
-// Permissions returns the Permissions the Member has in the Guild
+// Permissions returns the calculated Permissions the Member has in the Guild
 func (m *Member) Permissions() discord.Permissions {
-	/*if m.Member.Permissions != nil {
-		return *m.Member.Permissions
-	}*/
 	return GetMemberPermissions(m)
+}
+
+// InteractionPermissions returns the Permissions the Member has in this Channel for this Interaction
+func (m *Member) InteractionPermissions() discord.Permissions {
+	if m.Member.Permissions != nil {
+		return *m.Member.Permissions
+	}
+	return discord.PermissionsNone
 }
 
 func (m *Member) ChannelPermissions(channel *Channel) discord.Permissions {
