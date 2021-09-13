@@ -34,7 +34,7 @@ func (b *entityBuilderImpl) CreateMessage(message discord.Message) *Message {
 	if len(message.Components) > 0 {
 		webhookMessage.Components = b.CreateComponents(message.Components)
 	}
-	return nil
+	return webhookMessage
 }
 
 func (b *entityBuilderImpl) CreateComponents(unmarshalComponents []discord.Component) []core.Component {
