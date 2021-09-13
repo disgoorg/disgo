@@ -5,7 +5,7 @@ type Sticker struct {
 	ID          Snowflake         `json:"id"`
 	PackID      *Snowflake        `json:"pack_id"`
 	Name        string            `json:"name"`
-	Description string            `json:"description"`
+	Description *string           `json:"description"`
 	Tags        string            `json:"tags"`
 	Type        StickerType       `json:"type"`
 	FormatType  StickerFormatType `json:"format_type"`
@@ -36,13 +36,13 @@ const (
 
 type StickerCreate struct {
 	Name        string `json:"name"`
-	Description string `json:"description"`
+	Description string `json:"description,omitempty"`
 	Tags        string `json:"tags"`
 	File        *File  `json:"-"`
 }
 
 // ToBody returns the MessageCreate ready for body
-func (c StickerCreate) ToBody() (interface{}, error) {
+func (c *StickerCreate) ToBody() (interface{}, error) {
 	if c.File != nil {
 		return PayloadWithFiles(c, c.File)
 	}
@@ -50,7 +50,7 @@ func (c StickerCreate) ToBody() (interface{}, error) {
 }
 
 type StickerUpdate struct {
-	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Tags        *string `json:"tags,omitempty"`
+	Name        *string         `json:"name,omitempty"`
+	Description *OptionalString `json:"description,omitempty"`
+	Tags        *string         `json:"tags,omitempty"`
 }
