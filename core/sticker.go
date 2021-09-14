@@ -33,7 +33,7 @@ func (s *Sticker) Update(stickerUpdate discord.StickerUpdate, opts ...rest.Reque
 		return nil, rest.NewError(nil, discord.ErrStickerTypeGuild)
 	}
 
-	sticker, err := s.Bot.RestServices.StickerService().UpdateGuildSticker(*s.GuildID, s.ID, stickerUpdate, opts...)
+	sticker, err := s.Bot.RestServices.StickerService().UpdateSticker(*s.GuildID, s.ID, stickerUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -44,5 +44,5 @@ func (s *Sticker) Delete(opts ...rest.RequestOpt) rest.Error {
 	if s.Type != discord.StickerTypeGuild {
 		return rest.NewError(nil, discord.ErrStickerTypeGuild)
 	}
-	return s.Bot.RestServices.StickerService().DeleteGuildSticker(*s.GuildID, s.ID, opts...)
+	return s.Bot.RestServices.StickerService().DeleteSticker(*s.GuildID, s.ID, opts...)
 }

@@ -14,10 +14,10 @@ func NewStickerService(restClient Client) StickerService {
 type StickerService interface {
 	GetNitroStickerPacks(opts ...RequestOpt) ([]discord.StickerPack, Error)
 	GetSticker(stickerID discord.Snowflake, opts ...RequestOpt) (*discord.Sticker, Error)
-	GetGuildStickers(guildID discord.Snowflake, opts ...RequestOpt) ([]discord.Sticker, Error)
-	CreateGuildSticker(guildID discord.Snowflake, createSticker discord.StickerCreate, opts ...RequestOpt) (*discord.Sticker, Error)
-	UpdateGuildSticker(guildID discord.Snowflake, stickerID discord.Snowflake, stickerUpdate discord.StickerUpdate, opts ...RequestOpt) (*discord.Sticker, Error)
-	DeleteGuildSticker(guildID discord.Snowflake, stickerID discord.Snowflake, opts ...RequestOpt) Error
+	GetStickers(guildID discord.Snowflake, opts ...RequestOpt) ([]discord.Sticker, Error)
+	CreateSticker(guildID discord.Snowflake, createSticker discord.StickerCreate, opts ...RequestOpt) (*discord.Sticker, Error)
+	UpdateSticker(guildID discord.Snowflake, stickerID discord.Snowflake, stickerUpdate discord.StickerUpdate, opts ...RequestOpt) (*discord.Sticker, Error)
+	DeleteSticker(guildID discord.Snowflake, stickerID discord.Snowflake, opts ...RequestOpt) Error
 }
 
 type stickerServiceImpl struct {
@@ -50,7 +50,7 @@ func (s *stickerServiceImpl) GetSticker(stickerID discord.Snowflake, opts ...Req
 	return
 }
 
-func (s *stickerServiceImpl) GetGuildStickers(guildID discord.Snowflake, opts ...RequestOpt) (stickers []discord.Sticker, rErr Error) {
+func (s *stickerServiceImpl) GetStickers(guildID discord.Snowflake, opts ...RequestOpt) (stickers []discord.Sticker, rErr Error) {
 	compiledRoute, err := route.GetGuildStickers.Compile(nil, guildID)
 	if err != nil {
 		return nil, NewError(nil, err)
@@ -59,7 +59,7 @@ func (s *stickerServiceImpl) GetGuildStickers(guildID discord.Snowflake, opts ..
 	return
 }
 
-func (s *stickerServiceImpl) CreateGuildSticker(guildID discord.Snowflake, createSticker discord.StickerCreate, opts ...RequestOpt) (sticker *discord.Sticker, rErr Error) {
+func (s *stickerServiceImpl) CreateSticker(guildID discord.Snowflake, createSticker discord.StickerCreate, opts ...RequestOpt) (sticker *discord.Sticker, rErr Error) {
 	compiledRoute, err := route.CreateGuildSticker.Compile(nil, guildID)
 	if err != nil {
 		return nil, NewError(nil, err)
@@ -74,7 +74,7 @@ func (s *stickerServiceImpl) CreateGuildSticker(guildID discord.Snowflake, creat
 	return
 }
 
-func (s *stickerServiceImpl) UpdateGuildSticker(guildID discord.Snowflake, stickerID discord.Snowflake, stickerUpdate discord.StickerUpdate, opts ...RequestOpt) (sticker *discord.Sticker, rErr Error) {
+func (s *stickerServiceImpl) UpdateSticker(guildID discord.Snowflake, stickerID discord.Snowflake, stickerUpdate discord.StickerUpdate, opts ...RequestOpt) (sticker *discord.Sticker, rErr Error) {
 	compiledRoute, err := route.UpdateGuildSticker.Compile(nil, guildID, stickerID)
 	if err != nil {
 		return nil, NewError(nil, err)
@@ -83,7 +83,7 @@ func (s *stickerServiceImpl) UpdateGuildSticker(guildID discord.Snowflake, stick
 	return
 }
 
-func (s *stickerServiceImpl) DeleteGuildSticker(guildID discord.Snowflake, stickerID discord.Snowflake, opts ...RequestOpt) Error {
+func (s *stickerServiceImpl) DeleteSticker(guildID discord.Snowflake, stickerID discord.Snowflake, opts ...RequestOpt) Error {
 	compiledRoute, err := route.DeleteGuildSticker.Compile(nil, guildID, stickerID)
 	if err != nil {
 		return NewError(nil, err)

@@ -66,6 +66,52 @@ func (g *Guild) RoleCache() map[discord.Snowflake]*Role {
 	return g.Bot.Caches.RoleCache().GuildCache(g.ID)
 }
 
+// CreateEmoji allows you to create a new Emoji
+func (g *Guild) CreateEmoji(emojiCreate discord.EmojiCreate, opts ...rest.RequestOpt) (*Emoji, rest.Error) {
+	emoji, err := g.Bot.RestServices.EmojiService().CreateEmoji(g.ID, emojiCreate, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return g.Bot.EntityBuilder.CreateEmoji(g.ID, *emoji, CacheStrategyNoWs), nil
+}
+
+// UpdateEmoji allows you to update an Emoji
+func (g *Guild) UpdateEmoji(emojiUpdate discord.EmojiUpdate, opts ...rest.RequestOpt) (*Emoji, rest.Error) {
+	emoji, err := g.Bot.RestServices.EmojiService().UpdateEmoji(g.ID, emojiUpdate, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return g.Bot.EntityBuilder.CreateEmoji(g.ID, *emoji, CacheStrategyNoWs), nil
+}
+
+// DeleteEmoji allows you to delete an Emoji
+func (g *Guild) DeleteEmoji(emojiID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+	return g.Bot.RestServices.EmojiService().DeleteEmoji(g.ID, emojiID, opts...)
+}
+
+// CreateSticker allows you to create a new Sticker
+func (g *Guild) CreateSticker(stickerCreate discord.StickerCreate, opts ...rest.RequestOpt) (*Sticker, rest.Error) {
+	sticker, err := g.Bot.RestServices.StickerService().CreateSticker(g.ID, stickerCreate, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return g.Bot.EntityBuilder.CreateSticker(*sticker, CacheStrategyNoWs), nil
+}
+
+// UpdateSticker allows you to update a Sticker
+func (g *Guild) UpdateSticker(stickerID discord.Snowflake, stickerUpdate discord.StickerUpdate, opts ...rest.RequestOpt) (*Sticker, rest.Error) {
+	sticker, err := g.Bot.RestServices.StickerService().UpdateSticker(g.ID, stickerID, stickerUpdate, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return g.Bot.EntityBuilder.CreateSticker(*sticker, CacheStrategyNoWs), nil
+}
+
+// DeleteSticker allows you to delete a Sticker
+func (g *Guild) DeleteSticker(stickerID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+	return g.Bot.RestServices.StickerService().DeleteSticker(g.ID, stickerID, opts...)
+}
+
 // SelfMember returns the Member for the current logged-in User for this Guild
 func (g *Guild) SelfMember() *Member {
 	return g.Bot.Caches.MemberCache().Get(g.ID, g.Bot.ClientID)
