@@ -48,7 +48,7 @@ func main() {
 		return
 	}
 
-	//registerCommands(bot)
+	registerCommands(bot)
 
 	err = bot.Connect()
 	if err != nil {

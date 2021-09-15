@@ -41,12 +41,13 @@ type ApplicationCommand struct {
 
 // SlashCommandOption are the arguments used in ApplicationCommand.Options
 type SlashCommandOption struct {
-	Type        SlashCommandOptionType     `json:"type"`
-	Name        string                     `json:"name"`
-	Description string                     `json:"description"`
-	Required    bool                       `json:"required,omitempty"`
-	Choices     []SlashCommandOptionChoice `json:"choices,omitempty"`
-	Options     []SlashCommandOption       `json:"options,omitempty"`
+	Type         SlashCommandOptionType     `json:"type"`
+	Name         string                     `json:"name"`
+	Description  string                     `json:"description"`
+	Required     bool                       `json:"required,omitempty"`
+	Choices      []SlashCommandOptionChoice `json:"choices,omitempty"`
+	Options      []SlashCommandOption       `json:"options,omitempty"`
+	ChannelTypes []ChannelType              `json:"channel_types"`
 }
 
 // SlashCommandOptionChoice contains the data for a user using your command. Value can either be a string, int, float or boolean
