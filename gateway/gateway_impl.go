@@ -11,7 +11,6 @@ import (
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/json"
-	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/log"
 	"github.com/pkg/errors"
@@ -19,17 +18,12 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var ZLibSuffix = []byte{0, 0, 255, 255}
-
 func New(token string, eventHandlerFunc EventHandlerFunc, config *Config) Gateway {
 	if config == nil {
 		config = &DefaultConfig
 	}
 	if config.Logger == nil {
 		config.Logger = log.Default()
-	}
-	if config.RestServices == nil {
-		config.RestServices = rest.NewServices(config.Logger, nil)
 	}
 	config.EventHandlerFunc = eventHandlerFunc
 
@@ -53,7 +47,6 @@ type gatewayImpl struct {
 	lastHeartbeatReceived time.Time
 	sessionID             *string
 	lastSequenceReceived  *int
-	url                   *string
 }
 
 func (g *gatewayImpl) Logger() log.Logger {
@@ -74,16 +67,7 @@ func (g *gatewayImpl) Open() error {
 
 	g.Logger().Info("starting ws...")
 
-	if g.url == nil {
-		g.Logger().Debug("gateway url empty, fetching...")
-		gatewayRs, err := g.config.RestServices.GatewayService().GetGateway()
-		if err != nil {
-			return err
-		}
-		g.url = &gatewayRs.URL
-	}
-
-	gatewayURL := *g.url + "?v=" + route.APIVersion + "&encoding=json"
+	gatewayURL := g.config.GatewayURL + "?v=" + route.APIVersion + "&encoding=json"
 	var rs *http.Response
 	var err error
 	g.conn, rs, err = websocket.DefaultDialer.Dial(gatewayURL, nil)
@@ -94,7 +78,6 @@ func (g *gatewayImpl) Open() error {
 			body, err = ioutil.ReadAll(rs.Body)
 			if err != nil {
 				g.Logger().Errorf("error while reading response body: %s", err)
-				g.url = nil
 				return err
 			}
 		} else {

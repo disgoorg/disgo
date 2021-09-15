@@ -3,7 +3,6 @@ package gateway
 import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/info"
-	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/log"
 )
 
@@ -19,10 +18,12 @@ var DefaultConfig = Config{
 
 type Config struct {
 	Logger           log.Logger
-	RestServices     rest.Services
+	GatewayURL       string
 	EventHandlerFunc EventHandlerFunc
 	LargeThreshold   int
 	GatewayIntents   discord.GatewayIntents
+	ShardID          int
+	ShardCount       int
 	Compress         bool
 	OS               string
 	Browser          string

@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/DisgoOrg/disgo/sharding"
 	"github.com/pkg/errors"
 
 	"github.com/DisgoOrg/disgo/discord"
@@ -37,7 +38,7 @@ type Bot struct {
 	RawEventsEnabled         bool
 	VoiceDispatchInterceptor VoiceDispatchInterceptor
 
-	Gateway gateway.Gateway
+	ShardManager sharding.ShardManager
 
 	HTTPServer httpserver.Server
 
@@ -58,8 +59,8 @@ func (b *Bot) Close() {
 	if b.HTTPServer != nil {
 		b.HTTPServer.Close()
 	}
-	if b.Gateway != nil {
-		b.Gateway.Close()
+	if b.ShardManager != nil {
+		b.ShardManager.Close()
 	}
 	if b.EventManager != nil {
 		b.EventManager.Close()
@@ -83,12 +84,12 @@ func (b *Bot) RemoveEventListeners(listeners ...EventListener) {
 
 // Connect opens the gateway connection to discord
 func (b *Bot) Connect() error {
-	return b.Gateway.Open()
+	return b.ShardManager.Open()
 }
 
 // HasGateway returns whether core.disgo has an active gateway.Gateway connection
 func (b *Bot) HasGateway() bool {
-	return b.Gateway != nil
+	return b.ShardManager != nil
 }
 
 // Start starts the interaction webhook server

@@ -7,6 +7,7 @@ import (
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/rate"
+	"github.com/DisgoOrg/disgo/sharding"
 	"github.com/DisgoOrg/log"
 )
 
@@ -28,8 +29,10 @@ type BotConfig struct {
 	RawEventsEnabled         bool
 	VoiceDispatchInterceptor VoiceDispatchInterceptor
 
-	Gateway       gateway.Gateway
-	GatewayConfig *gateway.Config
+	ShardManager       sharding.ShardManager
+	ShardManagerConfig *sharding.Config
+	GatewayConfig      *gateway.Config
+	GatewayFunc        func(config gateway.Config) gateway.Gateway
 
 	HTTPServer       httpserver.Server
 	HTTPServerConfig *httpserver.Config
