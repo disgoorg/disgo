@@ -16,7 +16,7 @@ type EmojiService interface {
 	GetEmojis(guildID discord.Snowflake, opts ...RequestOpt) ([]discord.Emoji, Error)
 	GetEmoji(guildID discord.Snowflake, emojiID discord.Snowflake, opts ...RequestOpt) (*discord.Emoji, Error)
 	CreateEmoji(guildID discord.Snowflake, emojiCreate discord.EmojiCreate, opts ...RequestOpt) (*discord.Emoji, Error)
-	UpdateEmoji(guildID discord.Snowflake, emojiUpdate discord.EmojiUpdate, opts ...RequestOpt) (*discord.Emoji, Error)
+	UpdateEmoji(guildID discord.Snowflake, emojiID discord.Snowflake, emojiUpdate discord.EmojiUpdate, opts ...RequestOpt) (*discord.Emoji, Error)
 	DeleteEmoji(guildID discord.Snowflake, emojiID discord.Snowflake, opts ...RequestOpt) Error
 }
 
@@ -55,8 +55,8 @@ func (s *emojiServiceImpl) CreateEmoji(guildID discord.Snowflake, emojiCreate di
 	return
 }
 
-func (s *emojiServiceImpl) UpdateEmoji(guildID discord.Snowflake, emojiUpdate discord.EmojiUpdate, opts ...RequestOpt) (emoji *discord.Emoji, rErr Error) {
-	compiledRoute, err := route.UpdateEmoji.Compile(nil, guildID)
+func (s *emojiServiceImpl) UpdateEmoji(guildID discord.Snowflake, emojiID discord.Snowflake, emojiUpdate discord.EmojiUpdate, opts ...RequestOpt) (emoji *discord.Emoji, rErr Error) {
+	compiledRoute, err := route.UpdateEmoji.Compile(nil, guildID, emojiID)
 	if err != nil {
 		return nil, NewError(nil, err)
 	}

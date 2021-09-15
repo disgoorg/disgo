@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
@@ -44,6 +45,18 @@ func (e *Emoji) URL(size int) string {
 // Guild returns the Guild of the Emoji from the Caches
 func (e *Emoji) Guild() *Guild {
 	return e.Bot.Caches.GuildCache().Get(e.GuildID)
+}
+
+func (e *Emoji) Update(emojiUpdate discord.EmojiUpdate, opts ...rest.RequestOpt) (*Emoji, rest.Error) {
+	emoji, err := e.Bot.RestServices.EmojiService().UpdateEmoji(e.GuildID, e.ID, emojiUpdate)
+	if err != nil {
+		return nil, err
+	}
+	return e.Bot.EntityBuilder.CreateEmoji(e.GuildID, *emoji, CacheStrategyNoWs), nil
+}
+
+func (e *Emoji) Delete(opts ...rest.RequestOpt) rest.Error {
+	return e.Bot.RestServices.EmojiService().DeleteEmoji(e.GuildID, e.ID)
 }
 
 // Mention returns the string used to send the Emoji
