@@ -41,11 +41,11 @@ type WebhookSourceChannel struct {
 // WebhookCreate is used to create a Webhook
 type WebhookCreate struct {
 	Name   string `json:"name"`
-	Avatar *Icon  `json:"avatar,omitempty"`
+	Avatar Icon   `json:"avatar,omitempty"`
 }
 
 // WebhookUpdate is used to update a Webhook
 type WebhookUpdate struct {
-	Name   *string `json:"name,omitempty"`
-	Avatar *Icon   `json:"avatar,omitempty"`
+	Name   *string       `json:"name,omitempty"`
+	Avatar *OptionalIcon `json:"avatar,omitempty"`
 }

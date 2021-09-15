@@ -3,6 +3,7 @@ package core
 import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
+	"github.com/DisgoOrg/disgo/rest/route"
 )
 
 type Role struct {
@@ -12,6 +13,15 @@ type Role struct {
 
 func (r *Role) String() string {
 	return "<@&" + r.ID.String() + ">"
+}
+
+func (r *Role) IconURL(size int) *string {
+	if r.Icon == nil {
+		return nil
+	}
+	compiledRoute, _ := route.RoleIcon.Compile(nil, route.PNG, size, r.ID, *r.Icon)
+	url := compiledRoute.URL()
+	return &url
 }
 
 // Guild returns the Guild of this role from the Caches

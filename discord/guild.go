@@ -87,6 +87,7 @@ const (
 	GuildFeatureWelcomeScreenEnabled          GuildFeature = "WELCOME_SCREEN_ENABLED"
 	GuildFeatureMemberVerificationGateEnabled GuildFeature = "MEMBER_VERIFICATION_GATE_ENABLED"
 	GuildFeaturePreviewEnabled                GuildFeature = "PREVIEW_ENABLED"
+	GuildFeatureRoleIcons                     GuildFeature = "ROLE_ICONS"
 )
 
 // Guild represents a discord Guild
@@ -191,7 +192,7 @@ type GuildPreview struct {
 // GuildCreate is the payload used to create a Guild
 type GuildCreate struct {
 	Name                            string                     `json:"name"`
-	Icon                            *Icon                      `json:"icon,omitempty"`
+	Icon                            Icon                       `json:"icon,omitempty"`
 	VerificationLevel               VerificationLevel          `json:"verification_level,omitempty"`
 	DefaultMessageNotificationLevel MessageNotificationsLevel  `json:"default_message_notification_level"`
 	ExplicitContentFilterLevel      ExplicitContentFilterLevel `json:"explicit_content_filter_level"`
@@ -213,9 +214,9 @@ type GuildUpdate struct {
 	AFKTimeout                      *int                        `json:"afk_timeout,omitempty"`
 	Icon                            *string                     `json:"icon,omitempty"`
 	OwnerID                         *Snowflake                  `json:"owner_id,omitempty"`
-	Splash                          *Icon                       `json:"splash,omitempty"`
-	DiscoverySplash                 *Icon                       `json:"discovery_splash,omitempty"`
-	Banner                          *Icon                       `json:"banner,omitempty"`
+	Splash                          *OptionalIcon               `json:"splash,omitempty"`
+	DiscoverySplash                 *OptionalIcon               `json:"discovery_splash,omitempty"`
+	Banner                          *OptionalIcon               `json:"banner,omitempty"`
 	SystemChannelID                 *Snowflake                  `json:"system_channel_id,omitempty"`
 	SystemChannelFlags              *SystemChannelFlags         `json:"system_channel_flags,omitempty"`
 	RulesChannelID                  *Snowflake                  `json:"rules_channel_id,omitempty"`

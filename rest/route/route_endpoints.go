@@ -267,6 +267,8 @@ var (
 	GuildDiscoverySplash = NewCDNRoute("/discovery-splashes/{guild.id}/{guild.discovery.splash.hash}", PNG, JPEG, WebP)
 	GuildBanner          = NewCDNRoute("/banners/{guild.id}/{guild.banner.hash}", PNG, JPEG, WebP)
 
+	RoleIcon = NewCDNRoute("/role-icons/{role.id}/{role.icon.hash}", PNG, JPEG)
+
 	UserBanner        = NewCDNRoute("/banners/{user.id}/{user.banner.hash}", PNG, JPEG, WebP, GIF)
 	UserAvatar        = NewCDNRoute("/avatars/{user.id}/{user.avatar.hash}", PNG, JPEG, WebP, GIF)
 	DefaultUserAvatar = NewCDNRoute("/embed/avatars/{user.discriminator%5}", PNG)
@@ -288,6 +290,6 @@ var (
 // Other
 //goland:noinspection GoUnusedGlobalVariable
 var (
-	InviteURL = NewCustomRoute("https://discord.gg", "/{code}")
+	InviteURL  = NewCustomRoute("https://discord.gg", "/{code}")
 	WebhookURL = NewCustomRoute("https://discord.com", "/api/webhooks/{webhook.id}/{webhook.token}")
 )
