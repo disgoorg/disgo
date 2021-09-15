@@ -4,7 +4,7 @@ import "time"
 
 type OptionalBool *bool
 
-func NewBool(b bool) *OptionalBool {
+func NewOptionalBool(b bool) *OptionalBool {
 	ob := OptionalBool(&b)
 	return &ob
 }
@@ -16,7 +16,7 @@ func NewNullBool() *OptionalBool {
 
 type OptionalString *string
 
-func NewString(str string) *OptionalString {
+func NewOptionalString(str string) *OptionalString {
 	ostr := OptionalString(&str)
 	return &ostr
 }
@@ -28,7 +28,7 @@ func NewNullString() *OptionalString {
 
 type OptionalTime *Time
 
-func NewTime(time time.Time) *OptionalTime {
+func NewOptionalTime(time time.Time) *OptionalTime {
 	ot := OptionalTime(&Time{Time: time})
 	return &ot
 }
@@ -36,4 +36,16 @@ func NewTime(time time.Time) *OptionalTime {
 func NewNullTime() *OptionalTime {
 	ot := OptionalTime(nil)
 	return &ot
+}
+
+type OptionalIcon *Icon
+
+func NewOptionalIcon(icon Icon) *OptionalIcon {
+	oi := OptionalIcon(&icon)
+	return &oi
+}
+
+func NewNullIcon() *OptionalIcon {
+	oi := OptionalIcon(nil)
+	return &oi
 }

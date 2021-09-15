@@ -16,7 +16,7 @@ type Emoji struct {
 
 type EmojiCreate struct {
 	Name  string      `json:"name"`
-	Image *Icon       `json:"image"`
+	Image Icon        `json:"image"`
 	Roles []Snowflake `json:"roles,omitempty"`
 }
 

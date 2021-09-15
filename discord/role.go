@@ -10,6 +10,7 @@ type Role struct {
 	Position    int         `json:"position"`
 	Permissions Permissions `json:"permissions"`
 	Managed     bool        `json:"managed"`
+	Icon        *string     `json:"icon"`
 	Mentionable bool        `json:"mentionable"`
 	Tags        *RoleTag    `json:"tags,omitempty"`
 }
@@ -27,16 +28,18 @@ type RoleCreate struct {
 	Permissions Permissions `json:"permissions,omitempty"`
 	Color       int         `json:"color,omitempty"`
 	Hoist       bool        `json:"hoist,omitempty"`
+	Icon        Icon        `json:"icon,omitempty"`
 	Mentionable bool        `json:"mentionable,omitempty"`
 }
 
 // RoleUpdate is the payload to update a Role
 type RoleUpdate struct {
-	Name        *string      `json:"name"`
-	Permissions *Permissions `json:"permissions"`
-	Color       *int         `json:"color"`
-	Hoist       *bool        `json:"hoist"`
-	Mentionable *bool        `json:"mentionable"`
+	Name        *string       `json:"name"`
+	Permissions *Permissions  `json:"permissions"`
+	Color       *int          `json:"color"`
+	Hoist       *bool         `json:"hoist"`
+	Icon        *OptionalIcon `json:"icon,omitempty"`
+	Mentionable *bool         `json:"mentionable"`
 }
 
 // RolePositionUpdate is the payload to update a Role(s) position
