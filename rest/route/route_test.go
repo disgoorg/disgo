@@ -8,7 +8,7 @@ import (
 
 var (
 	APITestRoute = NewAPIRoute(PUT, "/channels/{channel.id}/messages/{message.id}/reactions/{emoji}/@me", "wait")
-	CDNTestRoute = NewCDNRoute("/emojis/{emote.id}", []FileExtension{PNG, GIF}, "size")
+	CDNTestRoute = NewCDNRoute("/emojis/{emote.id}", PNG, GIF)
 )
 
 func TestAPIRoute_Compile(t *testing.T) {

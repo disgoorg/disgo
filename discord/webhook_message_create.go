@@ -7,7 +7,7 @@ type WebhookMessageCreate struct {
 	TTS             bool             `json:"tts,omitempty"`
 	Embeds          []Embed          `json:"embeds,omitempty"`
 	Components      interface{}      `json:"components,omitempty"`
-	Files           []File           `json:"-"`
+	Files           []*File          `json:"-"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
 }
 

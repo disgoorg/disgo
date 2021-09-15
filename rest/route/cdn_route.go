@@ -9,8 +9,8 @@ import (
 )
 
 // NewCDNRoute generates a new discord cdn path struct
-func NewCDNRoute(path string, supportedFileExtensions []FileExtension, queryParams ...string) *CDNRoute {
-	queryParams = append(queryParams, "size", "v")
+func NewCDNRoute(path string, supportedFileExtensions ...FileExtension) *CDNRoute {
+	queryParams := []string{"size", "v"}
 
 	params := map[string]struct{}{}
 	for _, param := range queryParams {
@@ -28,8 +28,8 @@ func NewCDNRoute(path string, supportedFileExtensions []FileExtension, queryPara
 
 // NewCustomCDNRoute generates a new custom cdn path struct
 //goland:noinspection GoUnusedExportedFunction
-func NewCustomCDNRoute(basePath string, path string, supportedFileExtensions []FileExtension, queryParams ...string) *CDNRoute {
-	route := NewCDNRoute(path, supportedFileExtensions, queryParams...)
+func NewCustomCDNRoute(basePath string, path string, supportedFileExtensions ...FileExtension) *CDNRoute {
+	route := NewCDNRoute(path, supportedFileExtensions...)
 	route.basePath = basePath
 	return route
 }

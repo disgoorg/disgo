@@ -265,7 +265,7 @@ func (b *Bot) SetGuildCommandPermissions(guildID discord.Snowflake, commandID di
 	return b.EntityBuilder.CreateApplicationCommandPermissions(*perms), nil
 }
 
-// GetTemplate gets an core.GuildTemplate by its code
+// GetTemplate gets a core.GuildTemplate by its code
 func (b *Bot) GetTemplate(code string, opts ...rest.RequestOpt) (*GuildTemplate, rest.Error) {
 	guildTemplate, err := b.RestServices.GuildTemplateService().GetGuildTemplate(code, opts...)
 	if err != nil {
@@ -274,7 +274,7 @@ func (b *Bot) GetTemplate(code string, opts ...rest.RequestOpt) (*GuildTemplate,
 	return b.EntityBuilder.CreateGuildTemplate(*guildTemplate, CacheStrategyNoWs), nil
 }
 
-// CreateGuildFromTemplate creates an core.Guild using an core.Template code
+// CreateGuildFromTemplate creates a core.Guild using a core.GuildTemplate code
 func (b *Bot) CreateGuildFromTemplate(templateCode string, createGuildFromTemplate discord.GuildFromTemplateCreate, opts ...rest.RequestOpt) (*Guild, rest.Error) {
 	guild, err := b.RestServices.GuildTemplateService().CreateGuildFromTemplate(templateCode, createGuildFromTemplate, opts...)
 	if err != nil {
@@ -297,6 +297,26 @@ func (b *Bot) DeleteInvite(inviteCode string, opts ...rest.RequestOpt) (*Invite,
 		return nil, err
 	}
 	return b.EntityBuilder.CreateInvite(*invite, CacheStrategyNoWs), nil
+}
+
+func (b *Bot) GetNitroStickerPacks(opts ...rest.RequestOpt) ([]*StickerPack, rest.Error) {
+	stickerPacks, err := b.RestServices.StickerService().GetNitroStickerPacks(opts...)
+	if err != nil {
+		return nil, err
+	}
+	coreStickerPacks := make([]*StickerPack, len(stickerPacks))
+	for i, stickerPack := range stickerPacks {
+		coreStickerPacks[i] = b.EntityBuilder.CreateStickerPack(stickerPack, CacheStrategyNoWs)
+	}
+	return coreStickerPacks, nil
+}
+
+func (b *Bot) GetSticker(stickerID discord.Snowflake, opts ...rest.RequestOpt) (*Sticker, rest.Error) {
+	sticker, err := b.RestServices.StickerService().GetSticker(stickerID, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return b.EntityBuilder.CreateSticker(*sticker, CacheStrategyNoWs), nil
 }
 
 func buildBot(token string, config BotConfig) (*Bot, error) {

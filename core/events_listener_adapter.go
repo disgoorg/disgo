@@ -33,7 +33,12 @@ type ListenerAdapter struct {
 	OnEmojiUpdate func(event *EmojiUpdateEvent)
 	OnEmojiDelete func(event *EmojiDeleteEvent)
 
-	// core.GatewayStatus Events
+	// core.Sticker Events
+	OnStickerCreate func(event *StickerCreateEvent)
+	OnStickerUpdate func(event *StickerUpdateEvent)
+	OnStickerDelete func(event *StickerDeleteEvent)
+
+	// gateway.Status Events
 	OnConnected    func(event *ConnectedEvent)
 	OnReconnected  func(event *ReconnectedEvent)
 	OnResumed      func(event *ResumedEvent)
@@ -193,6 +198,20 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 	case *EmojiDeleteEvent:
 		if listener := l.OnEmojiDelete; listener != nil {
+			listener(e)
+		}
+
+	// core.Sticker Events
+	case *StickerCreateEvent:
+		if listener := l.OnStickerCreate; listener != nil {
+			listener(e)
+		}
+	case *StickerUpdateEvent:
+		if listener := l.OnStickerUpdate; listener != nil {
+			listener(e)
+		}
+	case *StickerDeleteEvent:
+		if listener := l.OnStickerDelete; listener != nil {
 			listener(e)
 		}
 

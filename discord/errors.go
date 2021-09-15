@@ -31,6 +31,8 @@ var (
 	ErrCheckFailed = errors.New("check failed")
 
 	ErrMemberMustBeConnectedToChannel = errors.New("the member must be connected to the channel")
+
+	ErrStickerTypeGuild = errors.New("sticker type must be of type StickerTypeGuild")
 )
 
 func ErrUnexpectedQueryParam(param string) error {

@@ -235,5 +235,5 @@ func (c *Channel) IsModerator(member *Member) bool {
 }
 
 func unsupportedChannelType(c *Channel) {
-	panic(fmt.Sprintf("unsupportedChannelType operation for '%d'", c.Type))
+	panic(fmt.Sprintf("unsupported ChannelType operation for '%d'", c.Type))
 }

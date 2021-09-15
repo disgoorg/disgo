@@ -27,6 +27,7 @@ func NewServices(logger log.Logger, restClient Client) Services {
 		webhookService:       NewWebhookService(restClient),
 		stageInstanceService: NewStageInstanceService(restClient),
 		emojiService:         NewEmojiService(restClient),
+		stickerService:       NewStickerService(restClient),
 	}
 }
 
@@ -49,6 +50,7 @@ type Services interface {
 	WebhookService() WebhookService
 	StageInstanceService() StageInstanceService
 	EmojiService() EmojiService
+	StickerService() StickerService
 }
 
 type servicesImpl struct {
@@ -69,6 +71,7 @@ type servicesImpl struct {
 	webhookService       WebhookService
 	stageInstanceService StageInstanceService
 	emojiService         EmojiService
+	stickerService       StickerService
 }
 
 func (s *servicesImpl) Close() {
@@ -137,6 +140,10 @@ func (s *servicesImpl) StageInstanceService() StageInstanceService {
 
 func (s *servicesImpl) EmojiService() EmojiService {
 	return s.emojiService
+}
+
+func (s *servicesImpl) StickerService() StickerService {
+	return s.stickerService
 }
 
 type Service interface {

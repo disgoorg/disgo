@@ -24,6 +24,7 @@ const (
 	GatewayEventTypeGuildBanAdd                   GatewayEventType = "GUILD_BAN_ADD"
 	GatewayEventTypeGuildBanRemove                GatewayEventType = "GUILD_BAN_REMOVE"
 	GatewayEventTypeGuildEmojisUpdate             GatewayEventType = "GUILD_EMOJIS_UPDATE"
+	GatewayEventTypeGuildStickersUpdate           GatewayEventType = "GUILD_STICKERS_UPDATE"
 	GatewayEventTypeGuildIntegrationsUpdate       GatewayEventType = "GUILD_INTEGRATIONS_UPDATE"
 	GatewayEventTypeGuildMemberAdd                GatewayEventType = "GUILD_MEMBER_ADD"
 	GatewayEventTypeGuildMemberRemove             GatewayEventType = "GUILD_MEMBER_REMOVE"

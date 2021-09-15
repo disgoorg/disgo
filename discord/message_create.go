@@ -7,7 +7,8 @@ type MessageCreate struct {
 	TTS              bool              `json:"tts,omitempty"`
 	Embeds           []Embed           `json:"embeds,omitempty"`
 	Components       interface{}       `json:"components,omitempty"`
-	Files            []File            `json:"-"`
+	StickerIDs       []Snowflake       `json:"sticker_ids"`
+	Files            []*File           `json:"-"`
 	AllowedMentions  *AllowedMentions  `json:"allowed_mentions,omitempty"`
 	MessageReference *MessageReference `json:"message_reference,omitempty"`
 	Flags            MessageFlags      `json:"flags,omitempty"`
