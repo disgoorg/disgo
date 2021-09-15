@@ -76,8 +76,8 @@ func (g *Guild) CreateEmoji(emojiCreate discord.EmojiCreate, opts ...rest.Reques
 }
 
 // UpdateEmoji allows you to update an Emoji
-func (g *Guild) UpdateEmoji(emojiUpdate discord.EmojiUpdate, opts ...rest.RequestOpt) (*Emoji, rest.Error) {
-	emoji, err := g.Bot.RestServices.EmojiService().UpdateEmoji(g.ID, emojiUpdate, opts...)
+func (g *Guild) UpdateEmoji(emojiID discord.Snowflake, emojiUpdate discord.EmojiUpdate, opts ...rest.RequestOpt) (*Emoji, rest.Error) {
+	emoji, err := g.Bot.RestServices.EmojiService().UpdateEmoji(g.ID, emojiID, emojiUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
