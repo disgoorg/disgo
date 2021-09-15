@@ -161,7 +161,7 @@ type AuditLogChangeKey struct {
 	ExpireBehavior              *int                        `json:"expire_behavior"`
 	ExpireGracePeriod           *int                        `json:"expire_grace_period"`
 	UserLimit                   *int                        `json:"user_limit"`
-	PrivacyLevel                *int                        `json:"privacy_level"`
+	PrivacyLevel                *StagePrivacyLevel          `json:"privacy_level"`
 }
 
 // OptionalAuditLogEntryInfo (https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object-optional-audit-entry-info)
