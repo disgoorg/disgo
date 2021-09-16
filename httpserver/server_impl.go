@@ -97,7 +97,6 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	defer r.Body.Close()
 
 	body := &bytes.Buffer{}
-
 	data, _ := ioutil.ReadAll(io.TeeReader(r.Body, body))
 
 	h.server.Logger().Debug("received http interaction. body: ", string(data))

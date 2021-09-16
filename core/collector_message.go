@@ -4,7 +4,7 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-func NewMessageCollectorByChannel(channel *Channel, filter MessageFilter) (chan *Message, func()) {
+func NewMessageCollectorByChannel(channel *Channel, filter MessageFilter) (<-chan *Message, func()) {
 	var guildID *discord.Snowflake = nil
 	if guildChannel := channel; channel.IsGuildChannel() {
 		guildID = guildChannel.GuildID
@@ -13,7 +13,7 @@ func NewMessageCollectorByChannel(channel *Channel, filter MessageFilter) (chan 
 }
 
 // NewMessageCollector gives you a channel to receive on and a function to close the collector
-func NewMessageCollector(disgo *Bot, channelID discord.Snowflake, guildID *discord.Snowflake, filter MessageFilter) (chan *Message, func()) {
+func NewMessageCollector(disgo *Bot, channelID discord.Snowflake, guildID *discord.Snowflake, filter MessageFilter) (<-chan *Message, func()) {
 	ch := make(chan *Message)
 
 	collector := &MessageCollector{
@@ -38,7 +38,7 @@ type MessageFilter func(message *Message) bool
 // MessageCollector collects core.Message(s) using a MessageFilter function
 type MessageCollector struct {
 	Filter    MessageFilter
-	Channel   chan *Message
+	Channel   chan<- *Message
 	Close     func()
 	ChannelID discord.Snowflake
 	GuildID   *discord.Snowflake

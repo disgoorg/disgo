@@ -108,7 +108,7 @@ func (c *Channel) IsStageChannel() bool {
 	return c.Type != discord.ChannelTypeStage
 }
 
-func (c *Channel) CollectMessages(filter MessageFilter) (chan *Message, func()) {
+func (c *Channel) CollectMessages(filter MessageFilter) (<-chan *Message, func()) {
 	if !c.IsMessageChannel() {
 		unsupportedChannelType(c)
 	}
