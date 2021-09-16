@@ -133,20 +133,8 @@ func slashCommandListener(event *core.SlashCommandEvent) {
 		reader, _ := os.Open("gopher.png")
 		if err := event.Create(core.NewMessageCreateBuilder().
 			SetContent("test message").
+			SetEphemeral(true).
 			AddFile("gopher.png", reader).
-			AddActionRow(
-				core.NewPrimaryButton("test1", "test1", nil),
-				core.NewPrimaryButton("test2", "test2", nil),
-				core.NewPrimaryButton("test3", "test3", nil),
-				core.NewPrimaryButton("test4", "test4", nil),
-			).
-			AddActionRow(
-				core.NewSelectMenu("test3", "test", 1, 1,
-					core.NewSelectMenuOption("test1", "1"),
-					core.NewSelectMenuOption("test2", "2"),
-					core.NewSelectMenuOption("test3", "3"),
-				),
-			).
 			Build(),
 		); err != nil {
 			log.Errorf("error sending interaction response: %s", err)
