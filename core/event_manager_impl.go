@@ -2,7 +2,7 @@ package core
 
 import (
 	"io"
-	"runtime/debug"
+	"runtime"
 
 	"github.com/DisgoOrg/disgo/json"
 
@@ -62,15 +62,30 @@ func (e *eventManagerImpl) HandleHTTP(responseChannel chan<- discord.Interaction
 
 // Dispatch dispatches a new event to the client
 func (e *eventManagerImpl) Dispatch(event Event) {
-	defer func() {
-		if r := recover(); r != nil {
-			e.Bot().Logger.Panicf("recovered from listener panic error: %s", r)
-			debug.PrintStack()
-			return
-		}
-	}()
-	for _, listener := range e.listeners {
-		go listener.OnEvent(event)
+	for i := range e.listeners {
+		listener := e.listeners[i]
+		go func() {
+			defer func() {
+				if r := recover(); r != nil {
+					file := "???"
+					line := 0
+					_, file, line, _ = runtime.Caller(2)
+
+					short := file
+					for li := len(file) - 1; li > 0; li-- {
+						if file[li] == '/' {
+							short = file[li+1:]
+							break
+						}
+					}
+					file = short
+
+					e.Bot().Logger.Errorf("recovered from event listener at %s:%d panic: %s", file, line, r)
+					return
+				}
+			}()
+			listener.OnEvent(event)
+		}()
 	}
 }
 

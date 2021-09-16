@@ -188,6 +188,9 @@ func messageListener(event *core.GuildMessageCreateEvent) {
 	}
 
 	switch event.Message.Content {
+	case "panic":
+		panic("panic in the disco")
+
 	case "party":
 		_, _ = event.Message.Reply(core.NewMessageCreateBuilder().AddStickers("886756806888673321").SetAllowedMentions(&discord.AllowedMentions{RepliedUser: false}).Build())
 

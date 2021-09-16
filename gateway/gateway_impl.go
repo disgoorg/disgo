@@ -6,7 +6,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"runtime/debug"
 	"time"
 
 	"github.com/DisgoOrg/disgo/discord"
@@ -162,16 +161,7 @@ func (g *gatewayImpl) closeWithCode(code int) {
 }
 
 func (g *gatewayImpl) heartbeat() {
-	defer func() {
-		if r := recover(); r != nil {
-			g.Logger().Panicf("recovered heartbeat goroutine error: %s", r)
-			debug.PrintStack()
-			g.heartbeat()
-			return
-		}
-		g.Logger().Info("shut down heartbeat goroutine")
-	}()
-
+	defer g.Logger().Debug("exiting heartbeat goroutine...")
 	ticker := time.NewTicker(g.heartbeatInterval)
 	for {
 		select {
@@ -205,16 +195,7 @@ func (g *gatewayImpl) sendHeartbeat() {
 }
 
 func (g *gatewayImpl) listen() {
-	defer func() {
-		if r := recover(); r != nil {
-			g.Logger().Panicf("recovered listen goroutine error: %s", r)
-			debug.PrintStack()
-			g.listen()
-			return
-		}
-		g.Logger().Info("shut down listen goroutine")
-	}()
-
+	defer g.Logger().Debug("exiting listen goroutine...")
 	for {
 		if g.conn == nil {
 			return

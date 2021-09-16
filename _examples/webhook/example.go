@@ -20,7 +20,7 @@ var (
 func main() {
 	log.SetLevel(log.LevelDebug)
 	log.Info("starting webhook example...")
-	log.Info("disgo ", info.Version)
+	log.Info("disgo version: ", info.Version)
 
 	// construct new webhook client
 	client := webhook.NewClient(discord.Snowflake(webhookID), webhookToken)

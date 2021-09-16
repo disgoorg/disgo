@@ -77,7 +77,7 @@ func main() {
 func commandListener(event *core.SlashCommandEvent) {
 	if event.CommandName == "say" {
 		err := event.Create(core.NewMessageCreateBuilder().
-			SetContent(event.Option("message").String()).
+			SetContent(event.Options["message"].String()).
 			Build(),
 		)
 		if err != nil {
