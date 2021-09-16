@@ -19,7 +19,7 @@ type ShardManager interface {
 }
 
 func ShardForGuild(guildID discord.Snowflake, shardCount int) int {
-	return (guildID.Int64() >> int64(22)) % shardCount
+	return int((guildID.Int64() >> int64(22)) % int64(shardCount))
 }
 
 func ShardRateLimitKey(shardID int, maxConcurrency int) int {
