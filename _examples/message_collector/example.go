@@ -23,7 +23,7 @@ func main() {
 	log.Infof("disgo version: %s", info.Version)
 
 	disgo, err := core.NewBot(token,
-		core.WithGatewayConfigOpts(gateway.WithCompressType(discord.CompressTypeNone), gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
+		core.WithGatewayConfigOpts(gateway.WithCompress(true), gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
 		core.WithEventListeners(&core.ListenerAdapter{
 			OnMessageCreate: onMessageCreate,
 		}),
