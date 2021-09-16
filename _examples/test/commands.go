@@ -26,15 +26,6 @@ var commands = []discord.ApplicationCommandCreate{
 		Name:              "test",
 		Description:       "test test test test test test",
 		DefaultPermission: true,
-		Options: []discord.SlashCommandOption{
-			{
-				Type:         discord.CommandOptionTypeChannel,
-				Name:         "channel",
-				Description:  "channel todo whatever",
-				Required:     true,
-				ChannelTypes: []discord.ChannelType{discord.ChannelTypeCategory},
-			},
-		},
 	},
 	{
 		Type:              discord.ApplicationCommandTypeSlash,
