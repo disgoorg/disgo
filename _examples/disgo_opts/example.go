@@ -22,12 +22,13 @@ var (
 func main() {
 	logger.SetLevel(log.LevelDebug)
 	logger.Info("starting example...")
-	logger.Infof("disgo version: %s", info.Version)
+	logger.Info("disgo version: ", info.Version)
 
 	disgo, err := core.NewBot(token,
 		core.WithLogger(logger),
 		core.WithHTTPClient(httpClient),
 		core.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
+		core.WithCacheConfig(core.CacheConfig{CacheFlags: core.CacheFlagsDefault}),
 		core.WithEventListeners(&core.ListenerAdapter{
 			OnMessageCreate: onMessageCreate,
 		}),
