@@ -2,7 +2,7 @@ package core
 
 import (
 	"io"
-	"runtime"
+	"runtime/debug"
 
 	"github.com/DisgoOrg/disgo/json"
 
@@ -67,20 +67,8 @@ func (e *eventManagerImpl) Dispatch(event Event) {
 		go func() {
 			defer func() {
 				if r := recover(); r != nil {
-					file := "???"
-					line := 0
-					_, file, line, _ = runtime.Caller(2)
-
-					short := file
-					for li := len(file) - 1; li > 0; li-- {
-						if file[li] == '/' {
-							short = file[li+1:]
-							break
-						}
-					}
-					file = short
-
-					e.Bot().Logger.Errorf("recovered from event listener at %s:%d panic: %s", file, line, r)
+					e.Bot().Logger.Error("recovered from panic in event listener")
+					debug.PrintStack()
 					return
 				}
 			}()
