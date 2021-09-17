@@ -375,13 +375,10 @@ func buildBot(token string, config BotConfig) (*Bot, error) {
 	}
 	bot.EventManager = config.EventManager
 
-	if config.Gateway == nil && config.GatewayConfig != nil {
-		if config.RestServices == nil {
-			config.RestServices = bot.RestServices
+	if config.ShardManagerConfig == nil && config.GatewayConfig != nil {
+		if config.ShardManager == nil {
+			config.ShardManager = sharding.NewShardManager(config.ShardManagerConfig)
 		}
-		config.Gateway = gateway.New(token, func(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader) {
-			bot.EventManager.HandleGateway(gatewayEventType, sequenceNumber, payload)
-		}, config.GatewayConfig)
 	}
 	bot.Gateway = config.Gateway
 

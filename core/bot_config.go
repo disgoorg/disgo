@@ -32,7 +32,6 @@ type BotConfig struct {
 	ShardManager       sharding.ShardManager
 	ShardManagerConfig *sharding.Config
 	GatewayConfig      *gateway.Config
-	GatewayFunc        func(config gateway.Config) gateway.Gateway
 
 	HTTPServer       httpserver.Server
 	HTTPServerConfig *httpserver.Config
@@ -156,9 +155,21 @@ func WithVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchIntercep
 	}
 }
 
-func WithGateway(gateway gateway.Gateway) BotConfigOpt {
+func WithShardManagerConfigOpts(opts ...sharding.ConfigOpt) BotConfigOpt {
 	return func(config *BotConfig) {
-		config.Gateway = gateway
+		if config.ShardManagerConfig == nil {
+			config.ShardManagerConfig = &sharding.DefaultConfig
+		}
+		config.ShardManagerConfig.Apply(opts)
+	}
+}
+
+func WithGatewayFunc(gatewayCreateFunc func() gateway.Gateway) BotConfigOpt {
+	return func(config *BotConfig) {
+		if config.ShardManagerConfig == nil {
+
+		}
+		config.ShardManagerConfig.GatewayCreateFunc = gatewayCreateFunc
 	}
 }
 

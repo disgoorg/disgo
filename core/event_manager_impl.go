@@ -69,7 +69,7 @@ func (e *eventManagerImpl) Dispatch(event Event) {
 				if r := recover(); r != nil {
 					file := "???"
 					line := 0
-					_, file, line, _ = runtime.Caller(2)
+					_, file, line, _ = runtime.Caller(0)
 
 					short := file
 					for li := len(file) - 1; li > 0; li-- {

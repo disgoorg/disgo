@@ -7,7 +7,7 @@ import (
 
 type ShardManager interface {
 	Close()
-	Open() error
+	Open() []error
 
 	StartShard(shardID int) error
 	StopShard(shardID int)
