@@ -1,10 +1,14 @@
 package sharding
 
-import "github.com/DisgoOrg/disgo/gateway"
+import (
+	"github.com/DisgoOrg/disgo/gateway"
+	"github.com/DisgoOrg/log"
+)
 
 type Config struct {
-	Shards           []int
-	ShardCount       int
-	Gateway          func() gateway.Gateway
-	EventHandlerFunc gateway.EventHandlerFunc
+	Logger            log.Logger
+	Shards            []int
+	ShardCount        int
+	GatewayCreateFunc func() gateway.Gateway
+	EventHandlerFunc  gateway.EventHandlerFunc
 }
