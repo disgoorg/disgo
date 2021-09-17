@@ -67,7 +67,7 @@ func (e *eventManagerImpl) Dispatch(event Event) {
 		go func() {
 			defer func() {
 				if r := recover(); r != nil {
-					e.Bot().Logger.Error("recovered from panic in event listener")
+					e.Bot().Logger.Error("recovered from panic in event listener: ", r)
 					debug.PrintStack()
 					return
 				}
