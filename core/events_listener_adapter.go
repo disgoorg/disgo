@@ -22,6 +22,11 @@ type ListenerAdapter struct {
 	OnDMChannelUpdate func(event *DMChannelUpdateEvent)
 	OnDMChannelDelete func(event *DMChannelDeleteEvent)
 
+	// core.DMChannel Message Events
+	OnDMMessageCreate func(event *DMMessageCreateEvent)
+	OnDMMessageUpdate func(event *DMMessageUpdateEvent)
+	OnDMMessageDelete func(event *DMMessageDeleteEvent)
+
 	// core.DMChannel Reaction Events
 	OnDMMessageReactionAdd         func(event *DMMessageReactionAddEvent)
 	OnDMMessageReactionRemove      func(event *DMMessageReactionRemoveEvent)
@@ -155,7 +160,7 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// core.DMChannel Events// core.Category Events
+	// core.DMChannel Events
 	case *DMChannelCreateEvent:
 		if listener := l.OnDMChannelCreate; listener != nil {
 			listener(e)
@@ -166,6 +171,20 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 	case *DMChannelDeleteEvent:
 		if listener := l.OnDMChannelDelete; listener != nil {
+			listener(e)
+		}
+
+	// core.DMChannel Message Events
+	case *DMMessageCreateEvent:
+		if listener := l.OnDMMessageCreate; listener != nil {
+			listener(e)
+		}
+	case *DMMessageUpdateEvent:
+		if listener := l.OnDMMessageUpdate; listener != nil {
+			listener(e)
+		}
+	case *DMMessageDeleteEvent:
+		if listener := l.OnDMMessageDelete; listener != nil {
 			listener(e)
 		}
 
