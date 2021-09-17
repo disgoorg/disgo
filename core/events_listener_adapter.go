@@ -454,7 +454,6 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 
 	default:
-		println("OUF")
 		if e, ok := e.(Event); ok {
 			var name string
 			if t := reflect.TypeOf(e); t.Kind() == reflect.Ptr {
