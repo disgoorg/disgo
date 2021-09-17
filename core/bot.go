@@ -363,9 +363,10 @@ func buildBot(token string, config BotConfig) (*Bot, error) {
 	if config.RestClient == nil {
 		config.RestClient = rest.NewClient(config.RestClientConfig)
 	}
+	bot.RestClient = config.RestClient
 
 	if config.RestServices == nil {
-		config.RestServices = rest.NewServices(bot.Logger, config.RestClient)
+		config.RestServices = rest.NewServices(bot.Logger, bot.RestClient)
 	}
 	bot.RestServices = config.RestServices
 
