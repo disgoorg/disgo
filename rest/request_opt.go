@@ -2,6 +2,7 @@ package rest
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 )
@@ -53,5 +54,13 @@ func WithReason(reason string) RequestOpt {
 func WithHeader(key string, value string) RequestOpt {
 	return func(config *RequestConfig) {
 		config.Request.Header.Set(key, value)
+	}
+}
+
+func WithQueryParam(param string, value interface{}) RequestOpt {
+	return func(config *RequestConfig) {
+		values :=  config.Request.URL.Query()
+		values.Add(param, fmt.Sprint(value))
+		config.Request.URL.RawQuery = values.Encode()
 	}
 }

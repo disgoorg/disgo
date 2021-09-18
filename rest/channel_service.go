@@ -26,6 +26,7 @@ type ChannelService interface {
 	SendTyping(channelID discord.Snowflake, opts ...RequestOpt) Error
 
 	GetMessage(channelID discord.Snowflake, messageID discord.Snowflake, opts ...RequestOpt) (*discord.Message, Error)
+	GetMessages(channelID discord.Snowflake, around discord.Snowflake, before discord.Snowflake, after discord.Snowflake, limit int, opts ...RequestOpt) ([]discord.Message, Error)
 	CreateMessage(channelID discord.Snowflake, messageCreate discord.MessageCreate, opts ...RequestOpt) (*discord.Message, Error)
 	UpdateMessage(channelID discord.Snowflake, messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (*discord.Message, Error)
 	DeleteMessage(channelID discord.Snowflake, messageID discord.Snowflake, opts ...RequestOpt) Error
@@ -121,6 +122,28 @@ func (s *channelServiceImpl) GetMessage(channelID discord.Snowflake, messageID d
 		return nil, NewError(nil, err)
 	}
 	rErr = s.restClient.Do(compiledRoute, nil, &message, opts...)
+	return
+}
+
+func (s *channelServiceImpl) GetMessages(channelID discord.Snowflake, around discord.Snowflake, before discord.Snowflake, after discord.Snowflake, limit int, opts ...RequestOpt) (messages []discord.Message, rErr Error) {
+	values := route.QueryValues{}
+	if around != "" {
+		values["around"] = around
+	}
+	if before != "" {
+		values["before"] = before
+	}
+	if after != "" {
+		values["after"] = after
+	}
+	if limit != 0 {
+		values["limit"] = limit
+	}
+	compiledRoute, err := route.GetMessages.Compile(nil, channelID)
+	if err != nil {
+		return nil, NewError(nil, err)
+	}
+	rErr = s.restClient.Do(compiledRoute, nil, &messages, opts...)
 	return
 }
 
