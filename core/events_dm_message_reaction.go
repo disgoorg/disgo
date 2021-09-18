@@ -28,7 +28,7 @@ type DMMessageReactionRemoveEvent struct {
 // DMMessageReactionRemoveEmojiEvent indicates someone removed all core.MessageReaction of a specific core.Emoji from an core.Message in an core.DMChannel(requires the core.GatewayIntentsDirectMessageReactions)
 type DMMessageReactionRemoveEmojiEvent struct {
 	*GenericDMMessageEvent
-	MessageReaction discord.MessageReaction
+	Emoji discord.ReactionEmoji
 }
 
 // DMMessageReactionRemoveAllEvent indicates someone removed all core.MessageReaction(s) from an core.Message in an core.DMChannel(requires the core.GatewayIntentsDirectMessageReactions)

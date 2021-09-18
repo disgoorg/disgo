@@ -25,7 +25,7 @@ type GuildMessageReactionRemoveEvent struct {
 // GuildMessageReactionRemoveEmojiEvent indicates someone removed all core.MessageReaction of a specific core.Emoji from an core.Message in an core.TextChannel(requires the core.GatewayIntentsGuildMessageReactions)
 type GuildMessageReactionRemoveEmojiEvent struct {
 	*GenericGuildMessageEvent
-	MessageReaction discord.MessageReaction
+	Emoji discord.ReactionEmoji
 }
 
 // GuildMessageReactionRemoveAllEvent indicates someone removed all core.MessageReaction(s) from an core.Message in an core.TextChannel(requires the core.GatewayIntentsGuildMessageReactions)

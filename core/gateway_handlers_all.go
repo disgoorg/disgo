@@ -54,6 +54,8 @@ var EventHandlers = []GatewayEventHandler{
 
 	&gatewayHandlerMessageReactionAdd{},
 	&gatewayHandlerMessageReactionRemove{},
+	&gatewayHandlerMessageReactionRemoveAll{},
+	&gatewayHandlerMessageReactionRemoveEmoji{},
 
 	&gatewayHandlerReady{},
 
