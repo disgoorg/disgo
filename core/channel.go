@@ -115,8 +115,11 @@ func (c *Channel) CollectMessages(filter MessageFilter) (<-chan *Message, func()
 	return NewMessageCollectorByChannel(c, filter)
 }
 
-// CreateMessage sends a Message to a TextChannel
+// CreateMessage sends a Message to a Channel
 func (c *Channel) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, rest.Error) {
+	if !c.IsMessageChannel() {
+		unsupportedChannelType(c)
+	}
 	message, err := c.Bot.RestServices.ChannelService().CreateMessage(c.ID, messageCreate, opts...)
 	if err != nil {
 		return nil, err
@@ -124,8 +127,11 @@ func (c *Channel) CreateMessage(messageCreate discord.MessageCreate, opts ...res
 	return c.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-// UpdateMessage edits a Message in this TextChannel
+// UpdateMessage edits a Message in this Channel
 func (c *Channel) UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error) {
+	if !c.IsMessageChannel() {
+		unsupportedChannelType(c)
+	}
 	message, err := c.Bot.RestServices.ChannelService().UpdateMessage(c.ID, messageID, messageUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -135,15 +141,21 @@ func (c *Channel) UpdateMessage(messageID discord.Snowflake, messageUpdate disco
 
 // DeleteMessage allows you to edit an existing Message sent by you
 func (c *Channel) DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+	if !c.IsMessageChannel() {
+		unsupportedChannelType(c)
+	}
 	return c.Bot.RestServices.ChannelService().DeleteMessage(c.ID, messageID, opts...)
 }
 
 // BulkDeleteMessages allows you bulk delete Message(s)
 func (c *Channel) BulkDeleteMessages(messageIDs []discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+	if !c.IsMessageChannel() {
+		unsupportedChannelType(c)
+	}
 	return c.Bot.RestServices.ChannelService().BulkDeleteMessages(c.ID, messageIDs, opts...)
 }
 
-// GetMessage allows you bulk delete Message(s)
+// GetMessage gets a Message from the Channel
 func (c *Channel) GetMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, rest.Error) {
 	if !c.IsMessageChannel() {
 		unsupportedChannelType(c)
@@ -153,6 +165,22 @@ func (c *Channel) GetMessage(messageID discord.Snowflake, opts ...rest.RequestOp
 		return nil, err
 	}
 	return c.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
+}
+
+// GetMessages gets multiple Message(s) from the Channel
+func (c *Channel) GetMessages(around discord.Snowflake, before discord.Snowflake, after discord.Snowflake, limit int, opts ...rest.RequestOpt) ([]*Message, rest.Error) {
+	if !c.IsMessageChannel() {
+		unsupportedChannelType(c)
+	}
+	messages, err := c.Bot.RestServices.ChannelService().GetMessages(c.ID, around, before, after, limit, opts...)
+	if err != nil {
+		return nil, err
+	}
+	coreMessages := make([]*Message, len(messages))
+	for i, message := range messages {
+		coreMessages[i] = c.Bot.EntityBuilder.CreateMessage(message, CacheStrategyNoWs)
+	}
+	return coreMessages, nil
 }
 
 func (c *Channel) Parent() *Channel {
