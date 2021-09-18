@@ -59,7 +59,7 @@ type Message struct {
 	WebhookID         *Snowflake          `json:"webhook_id,omitempty"`
 	Activity          *MessageActivity    `json:"activity,omitempty"`
 	Application       *MessageApplication `json:"application,omitempty"`
-	Stickers          []MessageSticker    `json:"stickers_items,omitempty"`
+	Stickers          []MessageSticker    `json:"sticker_items,omitempty"`
 	ReferencedMessage *Message            `json:"referenced_message,omitempty"`
 	LastUpdated       *Time               `json:"last_updated,omitempty"`
 }
