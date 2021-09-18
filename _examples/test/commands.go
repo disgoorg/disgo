@@ -24,8 +24,16 @@ var commands = []discord.ApplicationCommandCreate{
 	{
 		Type:              discord.ApplicationCommandTypeSlash,
 		Name:              "test",
-		Description:       "test test test test test test",
+		Description:       "test",
 		DefaultPermission: true,
+		Options: []discord.SlashCommandOption{
+			{
+				Type:        discord.CommandOptionTypeBoolean,
+				Name:        "ephemeral",
+				Description: "ephemeral",
+				Required:    true,
+			},
+		},
 	},
 	{
 		Type:              discord.ApplicationCommandTypeSlash,
@@ -37,6 +45,12 @@ var commands = []discord.ApplicationCommandCreate{
 				Type:        discord.CommandOptionTypeString,
 				Name:        "message",
 				Description: "What to say",
+				Required:    true,
+			},
+			{
+				Type:        discord.CommandOptionTypeBoolean,
+				Name:        "ephemeral",
+				Description: "ephemeral",
 				Required:    true,
 			},
 		},

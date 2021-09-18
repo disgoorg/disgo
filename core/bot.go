@@ -31,7 +31,6 @@ type Bot struct {
 
 	Logger log.Logger
 
-	RestClient   rest.Client
 	RestServices rest.Services
 
 	EventManager             EventManager
@@ -50,9 +49,6 @@ type Bot struct {
 
 // Close will clean up all disgo internals and close the discord connection safely
 func (b *Bot) Close() {
-	if b.RestClient != nil {
-		b.RestClient.Close()
-	}
 	if b.RestServices != nil {
 		b.RestServices.Close()
 	}

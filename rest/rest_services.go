@@ -1,6 +1,8 @@
 package rest
 
 import (
+	"net/http"
+
 	"github.com/DisgoOrg/log"
 )
 
@@ -36,6 +38,7 @@ type Services interface {
 	Close()
 	Logger() log.Logger
 	RestClient() Client
+	HTTPClient() *http.Client
 	ApplicationService() ApplicationService
 	OAuth2Service() OAuth2Service
 	AuditLogService() auditLogService
@@ -84,6 +87,10 @@ func (s *servicesImpl) Logger() log.Logger {
 
 func (s *servicesImpl) RestClient() Client {
 	return s.restClient
+}
+
+func (s *servicesImpl) HTTPClient() *http.Client {
+	return s.RestClient().HTTPClient()
 }
 
 func (s *servicesImpl) ApplicationService() ApplicationService {
