@@ -21,7 +21,9 @@ func (h *gatewayHandlerMessageReactionRemoveEmoji) HandleGatewayEvent(bot *Bot, 
 
 	genericMessageEvent := &GenericMessageEvent{
 		GenericEvent: NewGenericEvent(bot, sequenceNumber),
+		MessageID:    messageReaction.MessageID,
 		Message:      bot.Caches.MessageCache().Get(messageReaction.ChannelID, messageReaction.MessageID),
+		ChannelID:    messageReaction.ChannelID,
 	}
 	bot.EventManager.Dispatch(&MessageReactionRemoveEmojiEvent{
 		GenericMessageEvent: genericMessageEvent,

@@ -21,7 +21,9 @@ func (h *gatewayHandlerMessageReactionRemove) HandleGatewayEvent(bot *Bot, seque
 
 	genericMessageEvent := &GenericMessageEvent{
 		GenericEvent: NewGenericEvent(bot, sequenceNumber),
+		MessageID:    messageReaction.MessageID,
 		Message:      bot.Caches.MessageCache().Get(messageReaction.ChannelID, messageReaction.MessageID),
+		ChannelID:    messageReaction.ChannelID,
 	}
 	bot.EventManager.Dispatch(&MessageReactionRemoveEvent{
 		GenericReactionEvent: &GenericReactionEvent{
