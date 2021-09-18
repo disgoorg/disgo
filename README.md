@@ -36,11 +36,11 @@ modular, customizable and easy to use
 * [RateLimit](https://discord.com/developers/docs/topics/rate-limits) handling
 * [Webhook](https://discord.com/developers/docs/resources/webhook) support
 * [OAuth2](https://discord.com/developers/docs/topics/oauth2) support
+* * [Sticker](https://discord.com/developers/docs/resources/sticker) support
 
 ### Missing Features
 
 * [Voice](https://discord.com/developers/docs/resources/voice) support
-* [Sticker](https://discord.com/developers/docs/resources/sticker) support
 * [Sharding](https://discord.com/developers/docs/topics/gateway#sharding) support
 * [Threads](https://discord.com/developers/docs/topics/threads) support
 
