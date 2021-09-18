@@ -7,9 +7,9 @@ import (
 // GenericGuildMessageReactionEvent is called upon receiving DMMessageReactionAddEvent or DMMessageReactionRemoveEvent
 type GenericGuildMessageReactionEvent struct {
 	*GenericGuildMessageEvent
-	UserID          discord.Snowflake
-	Member          *Member
-	MessageReaction discord.MessageReaction
+	UserID discord.Snowflake
+	Member *Member
+	Emoji  discord.ReactionEmoji
 }
 
 // GuildMessageReactionAddEvent indicates that an core.Member added an core.MessageReaction to an core.Message in an core.TextChannel(requires the core.GatewayIntentsGuildMessageReactions)

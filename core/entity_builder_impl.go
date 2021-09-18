@@ -203,6 +203,14 @@ func (b *entityBuilderImpl) CreateMessage(message discord.Message, updateCache C
 		coreMsg.Components = b.CreateComponents(message.Components, updateCache)
 	}
 
+	if len(message.Stickers) > 0 {
+		coreMsg.Stickers = make([]*MessageSticker, len(message.Stickers))
+	}
+
+	for i, sticker := range message.Stickers {
+		coreMsg.Stickers[i] = b.CreateMessageSticker(sticker)
+	}
+
 	// TODO: should we caches mentioned users, members, etc?
 	if updateCache(b.Bot()) {
 		return b.Bot().Caches.MessageCache().Set(coreMsg)

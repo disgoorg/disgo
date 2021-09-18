@@ -52,6 +52,9 @@ var EventHandlers = []GatewayEventHandler{
 	&gatewayHandlerMessageUpdate{},
 	&gatewayHandlerMessageDelete{},
 
+	&gatewayHandlerMessageReactionAdd{},
+	&gatewayHandlerMessageReactionRemove{},
+
 	&gatewayHandlerReady{},
 
 	&gatewayHandlerVoiceServerUpdate{},

@@ -6,10 +6,13 @@ import (
 
 // GenericDMMessageReactionEvent is called upon receiving DMMessageReactionAddEvent or DMMessageReactionRemoveEvent(requires the core.GatewayIntentsDirectMessageReactions)
 type GenericDMMessageReactionEvent struct {
-	*GenericGuildMessageEvent
-	UserID          discord.Snowflake
-	User            User
-	MessageReaction discord.MessageReaction
+	*GenericDMMessageEvent
+	UserID discord.Snowflake
+	Emoji  discord.ReactionEmoji
+}
+
+func (e *GenericDMMessageReactionEvent) User() *User {
+	return e.Bot().Caches.UserCache().Get(e.UserID)
 }
 
 // DMMessageReactionAddEvent indicates that an core.User added an core.MessageReaction to an core.Message in an core.DMChannel(requires the core.GatewayIntentsDirectMessageReactions)

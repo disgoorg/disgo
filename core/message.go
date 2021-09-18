@@ -11,6 +11,7 @@ type Message struct {
 	Member     *Member
 	Author     *User
 	Components []Component
+	Stickers   []*MessageSticker
 }
 
 // Guild gets the guild_events the message_events was sent in
