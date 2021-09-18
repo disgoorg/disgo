@@ -36,7 +36,7 @@ modular, customizable and easy to use
 * [RateLimit](https://discord.com/developers/docs/topics/rate-limits) handling
 * [Webhook](https://discord.com/developers/docs/resources/webhook) support
 * [OAuth2](https://discord.com/developers/docs/topics/oauth2) support
-* * [Sticker](https://discord.com/developers/docs/resources/sticker) support
+* [Sticker](https://discord.com/developers/docs/resources/sticker) support
 
 ### Missing Features
 
