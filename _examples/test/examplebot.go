@@ -41,7 +41,7 @@ func main() {
 			CacheFlags:        core.CacheFlagsDefault,
 			MemberCachePolicy: core.MemberCachePolicyAll,
 		}).
-		AddEventListeners(getListener()).
+		AddEventListeners(listener).
 		Build()
 	if err != nil {
 		log.Fatal("error while building bot instance: ", err)

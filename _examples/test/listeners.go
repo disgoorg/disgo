@@ -12,15 +12,13 @@ import (
 	"github.com/PaesslerAG/gval"
 )
 
-func getListener() *core.ListenerAdapter {
-	return &core.ListenerAdapter{
-		OnRawGateway:         rawGatewayEventListener,
-		OnGuildAvailable:     guildAvailListener,
-		OnGuildMessageCreate: messageListener,
-		OnSlashCommand:       slashCommandListener,
-		OnButtonClick:        buttonClickListener,
-		OnSelectMenuSubmit:   selectMenuSubmitListener,
-	}
+var listener = &core.ListenerAdapter{
+	OnRawGateway:         rawGatewayEventListener,
+	OnGuildAvailable:     guildAvailListener,
+	OnGuildMessageCreate: messageListener,
+	OnSlashCommand:       slashCommandListener,
+	OnButtonClick:        buttonClickListener,
+	OnSelectMenuSubmit:   selectMenuSubmitListener,
 }
 
 func rawGatewayEventListener(event *core.RawEvent) {
