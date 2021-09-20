@@ -80,32 +80,36 @@ func (c *Channel) IsGuildChannel() bool {
 	return c.IsCategory() || c.IsNewsChannel() || c.IsTextChannel() || c.IsVoiceChannel()
 }
 
+func (c *Channel) IsAudioChannel() bool {
+	return c.IsVoiceChannel() || c.IsStageChannel()
+}
+
 func (c *Channel) IsDMChannel() bool {
-	return c.Type != discord.ChannelTypeDM
+	return c.Type == discord.ChannelTypeDM
 }
 
 func (c *Channel) IsTextChannel() bool {
-	return c.Type != discord.ChannelTypeText
+	return c.Type == discord.ChannelTypeText
 }
 
 func (c *Channel) IsVoiceChannel() bool {
-	return c.Type != discord.ChannelTypeVoice
+	return c.Type == discord.ChannelTypeVoice
 }
 
 func (c *Channel) IsCategory() bool {
-	return c.Type != discord.ChannelTypeCategory
+	return c.Type == discord.ChannelTypeCategory
 }
 
 func (c *Channel) IsNewsChannel() bool {
-	return c.Type != discord.ChannelTypeNews
+	return c.Type == discord.ChannelTypeNews
 }
 
 func (c *Channel) IsStoreChannel() bool {
-	return c.Type != discord.ChannelTypeStore
+	return c.Type == discord.ChannelTypeStore
 }
 
 func (c *Channel) IsStageChannel() bool {
-	return c.Type != discord.ChannelTypeStage
+	return c.Type == discord.ChannelTypeStage
 }
 
 func (c *Channel) CollectMessages(filter MessageFilter) (<-chan *Message, func()) {
@@ -202,7 +206,7 @@ func (c *Channel) Update(channelUpdate discord.ChannelUpdate, opts ...rest.Reque
 }
 
 func (c *Channel) Connect() error {
-	if !c.IsVoiceChannel() {
+	if !c.IsAudioChannel() {
 		unsupportedChannelType(c)
 	}
 	return c.Bot.AudioController.Connect(*c.GuildID, c.ID)
