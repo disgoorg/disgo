@@ -42,34 +42,46 @@ func (b *MessageUpdateBuilder) ClearContent() *MessageUpdateBuilder {
 
 // SetEmbeds sets the Embed(s) of the Message
 func (b *MessageUpdateBuilder) SetEmbeds(embeds ...discord.Embed) *MessageUpdateBuilder {
-	b.Embeds = embeds
+	if b.Embeds == nil {
+		b.Embeds = new([]discord.Embed)
+	}
+	*b.Embeds = embeds
 	return b
 }
 
 // SetEmbed sets the provided Embed at the index of the Message
 func (b *MessageUpdateBuilder) SetEmbed(i int, embed discord.Embed) *MessageUpdateBuilder {
-	if len(b.Embeds) > i {
-		b.Embeds[i] = embed
+	if b.Embeds == nil {
+		b.Embeds = new([]discord.Embed)
+	}
+	if len(*b.Embeds) > i {
+		(*b.Embeds)[i] = embed
 	}
 	return b
 }
 
 // AddEmbeds adds multiple embeds to the Message
 func (b *MessageUpdateBuilder) AddEmbeds(embeds ...discord.Embed) *MessageUpdateBuilder {
-	b.Embeds = append(b.Embeds, embeds...)
+	if b.Embeds == nil {
+		b.Embeds = new([]discord.Embed)
+	}
+	*b.Embeds = append(*b.Embeds, embeds...)
 	return b
 }
 
 // ClearEmbeds removes all the embeds from the Message
 func (b *MessageUpdateBuilder) ClearEmbeds() *MessageUpdateBuilder {
-	b.Embeds = []discord.Embed{}
+	b.Embeds = &[]discord.Embed{}
 	return b
 }
 
 // RemoveEmbed removes an embed from the Message
 func (b *MessageUpdateBuilder) RemoveEmbed(i int) *MessageUpdateBuilder {
-	if len(b.Embeds) > i {
-		b.Embeds = append(b.Embeds[:i], b.Embeds[i+1:]...)
+	if b.Embeds == nil {
+		b.Embeds = new([]discord.Embed)
+	}
+	if len(*b.Embeds) > i {
+		*b.Embeds = append((*b.Embeds)[:i], (*b.Embeds)[i+1:]...)
 	}
 	return b
 }
@@ -156,16 +168,20 @@ func (b *MessageUpdateBuilder) RemoveFiles(i int) *MessageUpdateBuilder {
 
 // RetainAttachments removes all Attachment(s) from this Message except the ones provided
 func (b *MessageUpdateBuilder) RetainAttachments(attachments ...discord.Attachment) *MessageUpdateBuilder {
-	b.Attachments = append(b.Attachments, attachments...)
+	if b.Attachments == nil {
+		b.Attachments = new([]discord.Attachment)
+	}
+	*b.Attachments = append(*b.Attachments, attachments...)
 	return b
 }
 
 // RetainAttachmentsByID removes all Attachment(s) from this Message except the ones provided
 func (b *MessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...discord.Snowflake) *MessageUpdateBuilder {
+	if b.Attachments == nil {
+		b.Attachments = new([]discord.Attachment)
+	}
 	for _, attachmentID := range attachmentIDs {
-		b.Attachments = append(b.Attachments, discord.Attachment{
-			ID: attachmentID,
-		})
+		*b.Attachments = append(*b.Attachments, discord.Attachment{ID: attachmentID})
 	}
 	return b
 }
@@ -183,6 +199,11 @@ func (b *MessageUpdateBuilder) ClearAllowedMentions() *MessageUpdateBuilder {
 
 // Build builds the MessageUpdateBuilder to a MessageUpdate struct
 func (b *MessageUpdateBuilder) Build() discord.WebhookMessageUpdate {
-	b.WebhookMessageUpdate.Components = b.Components
+	if b.Components != nil {
+		if b.WebhookMessageUpdate.Components == nil {
+			b.WebhookMessageUpdate.Components = new(interface{})
+		}
+		*b.WebhookMessageUpdate.Components = b.Components
+	}
 	return b.WebhookMessageUpdate
 }
