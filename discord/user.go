@@ -28,6 +28,8 @@ type User struct {
 	Username      string    `json:"username"`
 	Discriminator string    `json:"discriminator"`
 	Avatar        *string   `json:"avatar"`
+	Banner        *string   `json:"banner"`
+	AccentColor   *int      `json:"accent_color"`
 	IsBot         bool      `json:"bot"`
 	IsSystem      bool      `json:"system"`
 	PublicFlags   UserFlags `json:"public_flags"`
