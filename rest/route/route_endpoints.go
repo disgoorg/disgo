@@ -273,6 +273,8 @@ var (
 	UserAvatar        = NewCDNRoute("/avatars/{user.id}/{user.avatar.hash}", PNG, JPEG, WebP, GIF)
 	DefaultUserAvatar = NewCDNRoute("/embed/avatars/{user.discriminator%5}", PNG)
 
+	MemberAvatar = NewCDNRoute("/guilds/{guild.id}/users/{user.id}/avatars/{member.avatar.hash}", PNG, JPEG, WebP, GIF)
+
 	ApplicationIcon  = NewCDNRoute("/app-icons/{application.id}/{icon.hash}", PNG, JPEG, WebP)
 	ApplicationCover = NewCDNRoute("/app-assets/{application.id}/{cover.image.hash}", PNG, JPEG, WebP)
 	ApplicationAsset = NewCDNRoute("/app-assets/{application.id}/{asset.id}", PNG, JPEG, WebP)

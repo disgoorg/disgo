@@ -3,6 +3,7 @@ package core
 import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
+	"github.com/DisgoOrg/disgo/rest/route"
 )
 
 type Member struct {
@@ -62,6 +63,11 @@ func (m *Member) IsOwner() bool {
 		return guild.OwnerID == m.ID
 	}
 	return false
+}
+
+// AvatarURL returns the Avatar URL of the Member for this guild
+func (m *Member) AvatarURL(size int) *string {
+	return m.getAssetURL(route.MemberAvatar, m.Avatar, size)
 }
 
 // Update updates the Member
