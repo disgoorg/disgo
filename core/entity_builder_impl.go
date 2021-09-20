@@ -139,7 +139,11 @@ func (b *entityBuilderImpl) CreateMessageCommandInteraction(contextCommandIntera
 func (b *entityBuilderImpl) CreateComponentInteraction(interaction *Interaction, updateCache CacheStrategy) *ComponentInteraction {
 	return &ComponentInteraction{
 		Interaction: interaction,
-		Message:     b.CreateMessage(interaction.Message, updateCache),
+		ComponentInteractionData: ComponentInteractionData{
+			ComponentType: interaction.Data.ComponentType,
+			CustomID:      interaction.Data.CustomID,
+		},
+		Message: b.CreateMessage(interaction.Message, updateCache),
 	}
 }
 
