@@ -30,11 +30,10 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 	}
 
 	if interaction.Member != nil {
-		interaction.Member.User = interaction.User // fuck u discord why not give the user here
 		coreInteraction.Member = b.CreateMember(*interaction.GuildID, *interaction.Member, updateCache)
 		coreInteraction.User = coreInteraction.Member.User
 	} else {
-		coreInteraction.User = b.CreateUser(interaction.User, updateCache)
+		coreInteraction.User = b.CreateUser(*interaction.User, updateCache)
 	}
 
 	return coreInteraction
@@ -140,7 +139,11 @@ func (b *entityBuilderImpl) CreateMessageCommandInteraction(contextCommandIntera
 func (b *entityBuilderImpl) CreateComponentInteraction(interaction *Interaction, updateCache CacheStrategy) *ComponentInteraction {
 	return &ComponentInteraction{
 		Interaction: interaction,
-		Message:     b.CreateMessage(interaction.Message, updateCache),
+		ComponentInteractionData: ComponentInteractionData{
+			ComponentType: interaction.Data.ComponentType,
+			CustomID:      interaction.Data.CustomID,
+		},
+		Message: b.CreateMessage(interaction.Message, updateCache),
 	}
 }
 

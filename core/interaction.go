@@ -5,6 +5,7 @@ import (
 	"github.com/DisgoOrg/disgo/rest"
 )
 
+// Interaction represents a generic Interaction received from discord
 type Interaction struct {
 	discord.Interaction
 	Bot             *Bot

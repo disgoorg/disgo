@@ -33,7 +33,7 @@ type Interaction struct {
 	GuildID       *Snowflake       `json:"guild_id,omitempty"`
 	ChannelID     *Snowflake       `json:"channel_id,omitempty"`
 	Member        *Member          `json:"member,omitempty"`
-	User          User             `json:"User,omitempty"`
+	User          *User            `json:"user,omitempty"`
 	Token         string           `json:"token"`
 	Version       int              `json:"version"`
 	Message       Message          `json:"message,omitempty"`
