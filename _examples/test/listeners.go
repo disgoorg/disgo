@@ -130,9 +130,9 @@ func slashCommandListener(event *core.SlashCommandEvent) {
 
 	case "test":
 		reader, _ := os.Open("gopher.png")
-		if err := event.Create(core.NewMessageCreateBuilder().
+		_ = event.DeferCreate(event.Options["ephemeral"].Bool())
+		if _, err := event.UpdateOriginal(core.NewMessageUpdateBuilder().
 			SetContent("test message").
-			SetEphemeral(event.Options["ephemeral"].Bool()).
 			AddFile("gopher.png", reader).
 			Build(),
 		); err != nil {
