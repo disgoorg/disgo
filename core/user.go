@@ -48,6 +48,23 @@ func (u *User) EffectiveAvatarURL(size int) string {
 	return *u.AvatarURL(size)
 }
 
+// BannerURL returns the Banner URL of the User
+func (u *User) BannerURL(size int) *string {
+	if u.Banner == nil {
+		return nil
+	}
+	format := route.PNG
+	if strings.HasPrefix(*u.Banner, "a_") {
+		format = route.GIF
+	}
+	compiledRoute, err := route.UserBanner.Compile(nil, format, size, u.ID, *u.Banner)
+	if err != nil {
+		return nil
+	}
+	url := compiledRoute.URL()
+	return &url
+}
+
 // Mention returns the user as a mention
 func (u *User) String() string {
 	return "<@" + u.ID.String() + ">"
