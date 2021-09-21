@@ -7,8 +7,8 @@ import (
 
 //goland:noinspection GoUnusedGlobalVariable
 var DefaultConfig = Config{
-	Logger   :         log.Default(),
-	Shards            : []int{0},
+	Logger:     log.Default(),
+	Shards:     []int{0},
 	ShardCount: 1,
 	GatewayCreateFunc: func(token string, eventHandlerFunc gateway.EventHandlerFunc, config *gateway.Config) gateway.Gateway {
 		return gateway.New(token, eventHandlerFunc, config)
@@ -21,7 +21,7 @@ type Config struct {
 	Shards            []int
 	ShardCount        int
 	GatewayCreateFunc func(token string, eventHandlerFunc gateway.EventHandlerFunc, config *gateway.Config) gateway.Gateway
-	GatewayConfig *gateway.Config
+	GatewayConfig     *gateway.Config
 }
 
 type ConfigOpt func(config *Config)
