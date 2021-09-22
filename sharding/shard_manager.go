@@ -3,14 +3,16 @@ package sharding
 import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
+	"github.com/DisgoOrg/disgo/sharding/rate"
 )
 
 type ShardManager interface {
 	Close()
 	Open() []error
+	RateLimiter() rate.Limiter
 
 	OpenShard(shardID int) error
-	ReopenShard(shardID int)
+	ReopenShard(shardID int) error
 	CloseShard(shardID int)
 
 	GetGuildShard(guildId discord.Snowflake) gateway.Gateway

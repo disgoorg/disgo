@@ -23,9 +23,9 @@ type IdentifyCommand struct {
 	Properties     IdentifyCommandDataProperties `json:"properties"`
 	Compress       bool                          `json:"compress,omitempty"`
 	LargeThreshold int                           `json:"large_threshold,omitempty"`
+	Shard          [2]int                        `json:"shard,omitempty"`
 	GatewayIntents GatewayIntents                `json:"intents"`
 	// Todo: Add presence property here, need presence methods/struct
-	// Todo: Add shard property here, need to discuss
 }
 
 // IdentifyCommandDataProperties is used for specifying to discord which library and OS the bot is using, is

@@ -3,6 +3,7 @@ package gateway
 import (
 	"bytes"
 	"compress/zlib"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -17,7 +18,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func New(token string, eventHandlerFunc EventHandlerFunc, config *Config) Gateway {
+func New(token string, url string, shardID int, shardCount int, eventHandlerFunc EventHandlerFunc, config *Config) Gateway {
 	if config == nil {
 		config = &DefaultConfig
 	}
@@ -27,9 +28,12 @@ func New(token string, eventHandlerFunc EventHandlerFunc, config *Config) Gatewa
 	config.EventHandlerFunc = eventHandlerFunc
 
 	return &gatewayImpl{
-		config: *config,
-		token:  token,
-		status: StatusUnconnected,
+		config:     *config,
+		token:      token,
+		url:        url,
+		shardID:    shardID,
+		shardCount: shardCount,
+		status:     StatusUnconnected,
 	}
 }
 
@@ -38,6 +42,9 @@ func New(token string, eventHandlerFunc EventHandlerFunc, config *Config) Gatewa
 type gatewayImpl struct {
 	config                Config
 	token                 string
+	url                   string
+	shardID               int
+	shardCount            int
 	conn                  *websocket.Conn
 	heartbeatChan         chan struct{}
 	status                Status
@@ -66,7 +73,7 @@ func (g *gatewayImpl) Open() error {
 
 	g.Logger().Info("starting ws...")
 
-	gatewayURL := g.config.GatewayURL + "?v=" + route.APIVersion + "&encoding=json"
+	gatewayURL := g.url + "?v=" + route.APIVersion + "&encoding=json"
 	var rs *http.Response
 	var err error
 	g.conn, rs, err = websocket.DefaultDialer.Dial(gatewayURL, nil)
@@ -152,11 +159,13 @@ func (g *gatewayImpl) closeWithCode(code int) {
 		// TODO: Wait for Discord to actually close the connection.
 		time.Sleep(1 * time.Second)
 
-		err = g.conn.Close()
-		if err != nil {
-			g.Logger().Errorf("error closing conn: %s", err)
+		if g.conn != nil {
+			err = g.conn.Close()
+			if err != nil {
+				g.Logger().Errorf("error closing conn: %s", err)
+			}
+			g.conn = nil
 		}
-		g.conn = nil
 	}
 }
 
@@ -232,18 +241,25 @@ func (g *gatewayImpl) listen() {
 			if g.lastSequenceReceived == nil || g.sessionID == nil {
 				g.status = StatusIdentifying
 				g.Logger().Infof("sending StatusIdentifying command...")
+
+				identify := discord.IdentifyCommand{
+					Token: g.token,
+					Properties: discord.IdentifyCommandDataProperties{
+						OS:      g.config.OS,
+						Browser: g.config.Browser,
+						Device:  g.config.Device,
+					},
+					Compress:       g.config.Compress,
+					LargeThreshold: g.config.LargeThreshold,
+					GatewayIntents: g.config.GatewayIntents,
+				}
+				if g.shardCount > 1 {
+					identify.Shard = [2]int{g.shardID, g.shardCount}
+				}
+
+				fmt.Printf("\n\n%+v\n\n", identify)
 				if err = g.Send(
-					discord.NewGatewayCommand(discord.OpIdentify, discord.IdentifyCommand{
-						Token: g.token,
-						Properties: discord.IdentifyCommandDataProperties{
-							OS:      g.config.OS,
-							Browser: g.config.Browser,
-							Device:  g.config.Device,
-						},
-						Compress:       g.config.Compress,
-						LargeThreshold: g.config.LargeThreshold,
-						GatewayIntents: g.config.GatewayIntents,
-					}),
+					discord.NewGatewayCommand(discord.OpIdentify, identify),
 				); err != nil {
 					g.Logger().Error("error sending identify payload: ", err)
 				}

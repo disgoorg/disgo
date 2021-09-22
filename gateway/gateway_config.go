@@ -18,12 +18,9 @@ var DefaultConfig = Config{
 
 type Config struct {
 	Logger           log.Logger
-	GatewayURL       string
 	EventHandlerFunc EventHandlerFunc
 	LargeThreshold   int
 	GatewayIntents   discord.GatewayIntents
-	ShardID          int
-	ShardCount       int
 	Compress         bool
 	OS               string
 	Browser          string

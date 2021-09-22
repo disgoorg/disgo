@@ -8,7 +8,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/rate"
@@ -79,7 +78,7 @@ func (b *Bot) RemoveEventListeners(listeners ...EventListener) {
 }
 
 // Connect opens the gateway connection to discord
-func (b *Bot) Connect() error {
+func (b *Bot) Connect() []error {
 	return b.ShardManager.Open()
 }
 
@@ -371,12 +370,21 @@ func buildBot(token string, config BotConfig) (*Bot, error) {
 	}
 	bot.EventManager = config.EventManager
 
-	if config.ShardManagerConfig == nil && config.GatewayConfig != nil {
+	if config.ShardManager == nil && config.ShardManagerConfig != nil {
 		if config.ShardManager == nil {
-			config.ShardManager = sharding.NewShardManager(config.ShardManagerConfig)
+			config.ShardManager = sharding.NewShardManager(
+				token,
+				func() string {
+					rs, _ := bot.RestServices.GatewayService().GetGateway()
+					return rs.URL
+				},
+				func(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader) {
+					bot.EventManager.HandleGateway(gatewayEventType, sequenceNumber, payload)
+				},
+				config.ShardManagerConfig)
 		}
 	}
-	bot.Gateway = config.Gateway
+	bot.ShardManager = config.ShardManager
 
 	if config.HTTPServer == nil && config.HTTPServerConfig != nil {
 		config.HTTPServer = httpserver.New(func(responseChannel chan<- discord.InteractionResponse, payload io.Reader) {

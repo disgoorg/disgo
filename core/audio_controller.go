@@ -32,7 +32,7 @@ func (c *audioControllerImpl) Bot() *Bot {
 }
 
 func (c *audioControllerImpl) Connect(guildID discord.Snowflake, channelID discord.Snowflake) error {
-	gw, err := c.getGateway()
+	gw, err := c.getGateway(guildID)
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func (c *audioControllerImpl) Connect(guildID discord.Snowflake, channelID disco
 }
 
 func (c *audioControllerImpl) Disconnect(guildID discord.Snowflake) error {
-	gw, err := c.getGateway()
+	gw, err := c.getGateway(guildID)
 	if err != nil {
 		return err
 	}
@@ -53,12 +53,17 @@ func (c *audioControllerImpl) Disconnect(guildID discord.Snowflake) error {
 	}))
 }
 
-func (c *audioControllerImpl) getGateway() (gateway.Gateway, error) {
-	if c.Bot().Gateway == nil {
+func (c *audioControllerImpl) getGateway(guildID discord.Snowflake) (gateway.Gateway, error) {
+	if c.Bot().ShardManager == nil {
 		return nil, discord.ErrNoGateway
 	}
-	if !c.Bot().Gateway.Status().IsConnected() {
+	shard := c.Bot().ShardManager.GetGuildShard(guildID)
+	if shard == nil {
+		// TODO: other error
 		return nil, discord.ErrNoGatewayConn
 	}
-	return c.Bot().Gateway, nil
+	if !shard.Status().IsConnected() {
+		return nil, discord.ErrNoGatewayConn
+	}
+	return shard, nil
 }

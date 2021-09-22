@@ -1,4 +1,4 @@
-package sharding
+package rate
 
 import (
 	"context"
@@ -8,39 +8,48 @@ import (
 	"github.com/DisgoOrg/log"
 )
 
-var _ ShardManager = (*shardRateLimiterImpl)(nil)
+var _ Limiter = (*limiterImpl)(nil)
 
-func NewShardRateLimiter() ShardRateLimiter {
-	return &shardRateLimiterImpl{}
+func NewLimiter(config *Config) Limiter {
+	if config == nil {
+		config = &DefaultConfig
+	}
+	if config.Logger == nil {
+		config.Logger = log.Default()
+	}
+	return &limiterImpl{
+		buckets: map[int]*bucket{},
+		config:  *config,
+	}
 }
 
-type shardRateLimiterImpl struct {
+type limiterImpl struct {
 	sync.Mutex
 
 	buckets map[int]*bucket
-	config  RateLimitConfig
+	config  Config
 }
 
-func (r *shardRateLimiterImpl) Logger() log.Logger {
-
+func (r *limiterImpl) Logger() log.Logger {
+	return r.config.Logger
 }
 
-func (r *shardRateLimiterImpl) Close(ctx context.Context) {
-
-}
-
-func (r *shardRateLimiterImpl) Config() Config {
+func (r *limiterImpl) Close(ctx context.Context) {
 
 }
 
-func (r *shardRateLimiterImpl) getBucket(shardID int, create bool) *bucket {
+func (r *limiterImpl) Config() Config {
+	return r.config
+}
+
+func (r *limiterImpl) getBucket(shardID int, create bool) *bucket {
 	r.Logger().Debug("locking shard rate limiter")
 	r.Lock()
 	defer func() {
 		r.Logger().Debug("unlocking shard rate limiter")
 		r.Unlock()
 	}()
-	key := ShardRateLimitKey(shardID, r.config.MaxConcurrency)
+	key := ShardMaxConcurrencyKey(shardID, r.config.MaxConcurrency)
 	b, ok := r.buckets[key]
 	if !ok {
 		if !create {
@@ -53,7 +62,7 @@ func (r *shardRateLimiterImpl) getBucket(shardID int, create bool) *bucket {
 	return b
 }
 
-func (r *shardRateLimiterImpl) WaitBucket(ctx context.Context, shardID int) error {
+func (r *limiterImpl) WaitBucket(ctx context.Context, shardID int) error {
 	b := r.getBucket(shardID, true)
 	r.Logger().Debugf("locking bucket: %+v", b)
 	b.Lock()
@@ -80,10 +89,10 @@ func (r *shardRateLimiterImpl) WaitBucket(ctx context.Context, shardID int) erro
 	return nil
 }
 
-func (r *shardRateLimiterImpl) UnlockBucket(shardID int) error {
+func (r *limiterImpl) UnlockBucket(shardID int) {
 	b := r.getBucket(shardID, false)
 	if b == nil {
-		return nil
+		return
 	}
 	defer func() {
 		r.Logger().Debugf("unlocking bucket: %+v", b)
@@ -91,7 +100,6 @@ func (r *shardRateLimiterImpl) UnlockBucket(shardID int) error {
 	}()
 
 	b.Reset = time.Now().Add(5 * time.Second)
-	return nil
 }
 
 type bucket struct {

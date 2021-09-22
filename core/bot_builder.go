@@ -3,10 +3,10 @@ package core
 import (
 	"net/http"
 
-	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/rate"
+	"github.com/DisgoOrg/disgo/sharding"
 	"github.com/DisgoOrg/log"
 )
 
@@ -97,20 +97,20 @@ func (b *BotBuilder) SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceD
 	return b
 }
 
-// SetGateway lets you inject your own core.Gateway
-func (b *BotBuilder) SetGateway(gateway gateway.Gateway) *BotBuilder {
-	b.Gateway = gateway
+// SetShardManager lets you inject your own sharding.ShardManager
+func (b *BotBuilder) SetShardManager(shardManager sharding.ShardManager) *BotBuilder {
+	b.ShardManager = shardManager
 	return b
 }
 
-// SetGatewayConfig sets the gateway.Config the gateway.Gateway uses
-func (b *BotBuilder) SetGatewayConfig(gatewayConfig gateway.Config) *BotBuilder {
-	b.GatewayConfig = &gatewayConfig
+// SetShardManagerConfig sets the sharding.Config the sharding.ShardManager uses
+func (b *BotBuilder) SetShardManagerConfig(shardManagerConfig sharding.Config) *BotBuilder {
+	b.ShardManagerConfig = &shardManagerConfig
 	return b
 }
 
-func (b *BotBuilder) SetGatewayConfigOpts(opts ...gateway.ConfigOpt) *BotBuilder {
-	b.GatewayConfig.Apply(opts)
+func (b *BotBuilder) SetGatewayConfigOpts(opts ...sharding.ConfigOpt) *BotBuilder {
+	b.ShardManagerConfig.Apply(opts)
 	return b
 }
 

@@ -3,7 +3,6 @@ package core
 import (
 	"net/http"
 
-	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/rate"
@@ -31,7 +30,6 @@ type BotConfig struct {
 
 	ShardManager       sharding.ShardManager
 	ShardManagerConfig *sharding.Config
-	GatewayConfig      *gateway.Config
 
 	HTTPServer       httpserver.Server
 	HTTPServerConfig *httpserver.Config
@@ -65,10 +63,10 @@ func WithLogger(logger log.Logger) BotConfigOpt {
 		}
 		config.RateLimiterConfig.Logger = logger
 
-		if config.GatewayConfig == nil {
-			config.GatewayConfig = &gateway.DefaultConfig
+		if config.ShardManagerConfig == nil {
+			config.ShardManagerConfig = &sharding.DefaultConfig
 		}
-		config.GatewayConfig.Logger = logger
+		config.ShardManagerConfig.Logger = logger
 
 		if config.HTTPServerConfig == nil {
 			config.HTTPServerConfig = &httpserver.DefaultConfig
@@ -161,30 +159,6 @@ func WithShardManagerConfigOpts(opts ...sharding.ConfigOpt) BotConfigOpt {
 			config.ShardManagerConfig = &sharding.DefaultConfig
 		}
 		config.ShardManagerConfig.Apply(opts)
-	}
-}
-
-func WithGatewayFunc(gatewayCreateFunc func() gateway.Gateway) BotConfigOpt {
-	return func(config *BotConfig) {
-		if config.ShardManagerConfig == nil {
-
-		}
-		config.ShardManagerConfig.GatewayCreateFunc = gatewayCreateFunc
-	}
-}
-
-func WithGatewayConfig(gatewayConfig gateway.Config) BotConfigOpt {
-	return func(config *BotConfig) {
-		config.GatewayConfig = &gatewayConfig
-	}
-}
-
-func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) BotConfigOpt {
-	return func(config *BotConfig) {
-		if config.GatewayConfig == nil {
-			config.GatewayConfig = &gateway.DefaultConfig
-		}
-		config.GatewayConfig.Apply(opts)
 	}
 }
 
