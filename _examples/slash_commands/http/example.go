@@ -23,7 +23,7 @@ var (
 			Name:              "say",
 			Description:       "says what you say",
 			DefaultPermission: true,
-			Options: []discord.SlashCommandOption{
+			Options: []discord.ApplicationCommandOption{
 				{
 					Type:        discord.CommandOptionTypeString,
 					Name:        "message",

@@ -34,20 +34,20 @@ func guildAvailListener(event *core.GuildAvailableEvent) {
 func buttonClickListener(event *core.ButtonClickEvent) {
 	switch event.CustomID {
 	case "test1":
-		_ = event.Respond(discord.InteractionResponseTypeChannelMessageWithSource,
+		_ = event.Respond(discord.InteractionCallbackTypeChannelMessageWithSource,
 			core.NewMessageCreateBuilder().
 				SetContent(event.CustomID).
 				Build(),
 		)
 
 	case "test2":
-		_ = event.Respond(discord.InteractionResponseTypeDeferredChannelMessageWithSource, nil)
+		_ = event.Respond(discord.InteractionCallbackTypeDeferredChannelMessageWithSource, nil)
 
 	case "test3":
-		_ = event.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil)
+		_ = event.Respond(discord.InteractionCallbackTypeDeferredUpdateMessage, nil)
 
 	case "test4":
-		_ = event.Respond(discord.InteractionResponseTypeUpdateMessage,
+		_ = event.Respond(discord.InteractionCallbackTypeUpdateMessage,
 			core.NewMessageCreateBuilder().
 				SetContent(event.CustomID).
 				Build(),
