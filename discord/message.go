@@ -40,7 +40,7 @@ type Message struct {
 	Attachments       []Attachment        `json:"attachments"`
 	TTS               bool                `json:"tts"`
 	Embeds            []Embed             `json:"embeds,omitempty"`
-	Components        []Component         `json:"-"`
+	Components        []Component         `json:"components,omitempty"`
 	CreatedAt         Time                `json:"timestamp"`
 	Mentions          []interface{}       `json:"mentions"`
 	MentionEveryone   bool                `json:"mention_everyone"`

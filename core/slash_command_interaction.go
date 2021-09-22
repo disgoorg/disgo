@@ -25,17 +25,17 @@ type SlashCommandInteractionData struct {
 	Options             OptionsMap
 }
 
-type OptionsMap map[string]SlashCommandOption
+type OptionsMap map[string]ApplicationCommandOption
 
-func (m OptionsMap) Get(name string) *SlashCommandOption {
+func (m OptionsMap) Get(name string) *ApplicationCommandOption {
 	if option, ok := m[name]; ok {
 		return &option
 	}
 	return nil
 }
 
-func (m OptionsMap) GetAll() []SlashCommandOption {
-	options := make([]SlashCommandOption, len(m))
+func (m OptionsMap) GetAll() []ApplicationCommandOption {
+	options := make([]ApplicationCommandOption, len(m))
 	i := 0
 	for _, option := range m {
 		options[i] = option
@@ -44,17 +44,13 @@ func (m OptionsMap) GetAll() []SlashCommandOption {
 	return options
 }
 
-func (m OptionsMap) GetByType(optionType discord.SlashCommandOptionType) []SlashCommandOption {
-	var options []SlashCommandOption
-	for _, option := range m {
-		if option.Type == optionType {
-			options = append(options, option)
-		}
-	}
-	return options
+func (m OptionsMap) GetByType(optionType discord.ApplicationCommandOptionType) []ApplicationCommandOption {
+	return m.FindAll(func(option ApplicationCommandOption) bool {
+		return option.Type == optionType
+	})
 }
 
-func (m OptionsMap) Find(optionFindFunc func(option SlashCommandOption) bool) *SlashCommandOption {
+func (m OptionsMap) Find(optionFindFunc func(option ApplicationCommandOption) bool) *ApplicationCommandOption {
 	for _, option := range m {
 		if optionFindFunc(option) {
 			return &option
@@ -63,8 +59,8 @@ func (m OptionsMap) Find(optionFindFunc func(option SlashCommandOption) bool) *S
 	return nil
 }
 
-func (m OptionsMap) FindAll(optionFindFunc func(option SlashCommandOption) bool) []SlashCommandOption {
-	var options []SlashCommandOption
+func (m OptionsMap) FindAll(optionFindFunc func(option ApplicationCommandOption) bool) []ApplicationCommandOption {
+	var options []ApplicationCommandOption
 	for _, option := range m {
 		if optionFindFunc(option) {
 			options = append(options, option)
@@ -73,60 +69,60 @@ func (m OptionsMap) FindAll(optionFindFunc func(option SlashCommandOption) bool)
 	return options
 }
 
-// SlashCommandOption holds info about an SlashCommandOption.Value
-type SlashCommandOption struct {
+// ApplicationCommandOption holds info about an ApplicationCommandOption.Value
+type ApplicationCommandOption struct {
 	Resolved *Resolved
 	Name     string
-	Type     discord.SlashCommandOptionType
+	Type     discord.ApplicationCommandOptionType
 	Value    interface{}
 }
 
-// String returns the SlashCommandOption.Value as string
-func (o SlashCommandOption) String() string {
+// String returns the ApplicationCommandOption.Value as string
+func (o ApplicationCommandOption) String() string {
 	return o.Value.(string)
 }
 
-// Int returns the SlashCommandOption.Value as int
-func (o SlashCommandOption) Int() int {
+// Int returns the ApplicationCommandOption.Value as int
+func (o ApplicationCommandOption) Int() int {
 	return o.Value.(int)
 }
 
-// Float64 returns the SlashCommandOption.Value as float64
-func (o SlashCommandOption) Float64() float64 {
+// Float64 returns the ApplicationCommandOption.Value as float64
+func (o ApplicationCommandOption) Float64() float64 {
 	return o.Value.(float64)
 }
 
-// Float32 returns the SlashCommandOption.Value as float32
-func (o SlashCommandOption) Float32() float32 {
+// Float32 returns the ApplicationCommandOption.Value as float32
+func (o ApplicationCommandOption) Float32() float32 {
 	return o.Value.(float32)
 }
 
-// Bool returns the SlashCommandOption.Value as bool
-func (o SlashCommandOption) Bool() bool {
+// Bool returns the ApplicationCommandOption.Value as bool
+func (o ApplicationCommandOption) Bool() bool {
 	return o.Value.(bool)
 }
 
-// Snowflake returns the SlashCommandOption.Value as Snowflake
-func (o SlashCommandOption) Snowflake() discord.Snowflake {
+// Snowflake returns the ApplicationCommandOption.Value as Snowflake
+func (o ApplicationCommandOption) Snowflake() discord.Snowflake {
 	return discord.Snowflake(o.String())
 }
 
-// User returns the SlashCommandOption.Value as User
-func (o SlashCommandOption) User() *User {
+// User returns the ApplicationCommandOption.Value as User
+func (o ApplicationCommandOption) User() *User {
 	return o.Resolved.Users[o.Snowflake()]
 }
 
-// Member returns the SlashCommandOption.Value as Member
-func (o SlashCommandOption) Member() *Member {
+// Member returns the ApplicationCommandOption.Value as Member
+func (o ApplicationCommandOption) Member() *Member {
 	return o.Resolved.Members[o.Snowflake()]
 }
 
-// Role returns the SlashCommandOption.Value as Role
-func (o SlashCommandOption) Role() *Role {
+// Role returns the ApplicationCommandOption.Value as Role
+func (o ApplicationCommandOption) Role() *Role {
 	return o.Resolved.Roles[o.Snowflake()]
 }
 
-// Channel returns the SlashCommandOption.Value as Channel
-func (o SlashCommandOption) Channel() *Channel {
+// Channel returns the ApplicationCommandOption.Value as Channel
+func (o ApplicationCommandOption) Channel() *Channel {
 	return o.Resolved.Channels[o.Snowflake()]
 }

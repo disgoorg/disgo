@@ -107,7 +107,7 @@ func (h *Client) UpdateContent(messageID discord.Snowflake, content string, opts
 }
 
 func (h *Client) UpdateEmbeds(messageID discord.Snowflake, embeds []discord.Embed, opts ...rest.RequestOpt) (*Message, rest.Error) {
-	return h.UpdateMessage(messageID, discord.WebhookMessageUpdate{Embeds: embeds}, opts...)
+	return h.UpdateMessage(messageID, discord.WebhookMessageUpdate{Embeds: &embeds}, opts...)
 }
 
 func (h *Client) DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {

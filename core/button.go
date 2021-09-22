@@ -65,13 +65,13 @@ func (b Button) Type() discord.ComponentType {
 
 // AsEnabled returns a new Button but enabled
 func (b Button) AsEnabled() Button {
-	b.Disabled = true
+	b.Disabled = false
 	return b
 }
 
 // AsDisabled returns a new Button but disabled
 func (b Button) AsDisabled() Button {
-	b.Disabled = false
+	b.Disabled = true
 	return b
 }
 

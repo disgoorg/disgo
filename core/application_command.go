@@ -8,7 +8,7 @@ import (
 type ApplicationCommand struct {
 	discord.ApplicationCommand
 	Bot     *Bot
-	Options []SlashCommandOption
+	Options []ApplicationCommandOption
 }
 
 // Guild returns the Guild the ApplicationCommand is from the Caches or nil if it is a global ApplicationCommand

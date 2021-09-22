@@ -22,7 +22,7 @@ type EntityBuilder interface {
 	CreateInteraction(unmarshalInteraction discord.Interaction, responseChannel chan<- discord.InteractionResponse, updateCache CacheStrategy) *Interaction
 
 	CreateApplicationCommandInteraction(interaction *Interaction, updateCache CacheStrategy) *ApplicationCommandInteraction
-	CreateSlashCommandInteraction(applicationInteraction *ApplicationCommandInteraction) *SlashCommandInteraction
+	CreateSlashCommandInteraction(applicationCommandInteraction *ApplicationCommandInteraction) *SlashCommandInteraction
 	CreateContextCommandInteraction(applicationInteraction *ApplicationCommandInteraction) *ContextCommandInteraction
 	CreateUserCommandInteraction(contextCommandInteraction *ContextCommandInteraction) *UserCommandInteraction
 	CreateMessageCommandInteraction(contextCommandInteraction *ContextCommandInteraction) *MessageCommandInteraction

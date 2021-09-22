@@ -26,7 +26,7 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 		Interaction:     interaction,
 		Bot:             b.Bot(),
 		ResponseChannel: c,
-		Responded:       false,
+		Acknowledged:    false,
 	}
 
 	if interaction.Member != nil {
@@ -81,28 +81,28 @@ func (b *entityBuilderImpl) CreateApplicationCommandInteraction(interaction *Int
 	return commandInteraction
 }
 
-func (b *entityBuilderImpl) CreateSlashCommandInteraction(applicationInteraction *ApplicationCommandInteraction) *SlashCommandInteraction {
+func (b *entityBuilderImpl) CreateSlashCommandInteraction(applicationCommandInteraction *ApplicationCommandInteraction) *SlashCommandInteraction {
 	slashCommandInteraction := &SlashCommandInteraction{
-		ApplicationCommandInteraction: applicationInteraction,
+		ApplicationCommandInteraction: applicationCommandInteraction,
 	}
 
 	unmarshalOptions := slashCommandInteraction.Data.Options
 	if len(unmarshalOptions) > 0 {
 		unmarshalOption := unmarshalOptions[0]
-		if unmarshalOption.Type == discord.CommandOptionTypeSubCommandGroup {
+		if unmarshalOption.Type == discord.ApplicationCommandOptionTypeSubCommandGroup {
 			slashCommandInteraction.SubCommandGroupName = &unmarshalOption.Name
 			unmarshalOptions = unmarshalOption.Options
 			unmarshalOption = unmarshalOption.Options[0]
 		}
-		if unmarshalOption.Type == discord.CommandOptionTypeSubCommand {
+		if unmarshalOption.Type == discord.ApplicationCommandOptionTypeSubCommand {
 			slashCommandInteraction.SubCommandName = &unmarshalOption.Name
 			unmarshalOptions = unmarshalOption.Options
 		}
 	}
 
-	optionMap := make(map[string]SlashCommandOption, len(unmarshalOptions))
+	optionMap := make(map[string]ApplicationCommandOption, len(unmarshalOptions))
 	for _, option := range unmarshalOptions {
-		optionMap[option.Name] = SlashCommandOption{
+		optionMap[option.Name] = ApplicationCommandOption{
 			Resolved: slashCommandInteraction.Resolved,
 			Name:     option.Name,
 			Type:     option.Type,
