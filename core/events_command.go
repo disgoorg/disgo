@@ -10,6 +10,15 @@ func (e *SlashCommandEvent) Bot() *Bot {
 	return e.bot
 }
 
+type ApplicationCommandAutocompleteEvent struct {
+	*GenericEvent
+	*ApplicationCommandAutocompleteInteraction
+}
+
+func (e *ApplicationCommandAutocompleteEvent) Bot() *Bot {
+	return e.bot
+}
+
 type UserCommandEvent struct {
 	*GenericEvent
 	*UserCommandInteraction

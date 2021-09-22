@@ -30,6 +30,12 @@ func HandleInteraction(bot *Bot, sequenceNumber int, c chan<- discord.Interactio
 	genericEvent := NewGenericEvent(bot, sequenceNumber)
 
 	switch interaction.Type {
+	case discord.InteractionTypeApplicationCommandAutoComplete:
+		bot.EventManager.Dispatch(&ApplicationCommandAutocompleteEvent{
+			GenericEvent: genericEvent,
+			ApplicationCommandAutocompleteInteraction: bot.EntityBuilder.CreateApplicationCommandAutocompleteInteraction(bot.EntityBuilder.CreateSlashCommandInteraction(bot.EntityBuilder.CreateApplicationCommandInteraction(coreInteraction, CacheStrategyYes))),
+		})
+
 	case discord.InteractionTypeCommand:
 		applicationCommandInteraction := bot.EntityBuilder.CreateApplicationCommandInteraction(coreInteraction, CacheStrategyYes)
 

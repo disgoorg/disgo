@@ -8,6 +8,7 @@ const (
 	InteractionTypePing InteractionType = iota + 1
 	InteractionTypeCommand
 	InteractionTypeComponent
+	InteractionTypeApplicationCommandAutoComplete
 )
 
 // InteractionCallbackType indicates the type of slash command response, whether it's responding immediately or deferring to edit your response later
@@ -22,6 +23,7 @@ const (
 	InteractionCallbackTypeDeferredChannelMessageWithSource
 	InteractionCallbackTypeDeferredUpdateMessage
 	InteractionCallbackTypeUpdateMessage
+	InteractionCallbackTypeApplicationCommandAutoCompleteResult
 )
 
 // Interaction is used for easier unmarshalling of different Interaction(s)
@@ -91,6 +93,7 @@ type ReceivedApplicationCommandOption struct {
 	Type    ApplicationCommandOptionType       `json:"type"`
 	Value   interface{}                        `json:"value,omitempty"`
 	Options []ReceivedApplicationCommandOption `json:"options,omitempty"`
+	Focused bool                               `json:"focused,omitempty"`
 }
 
 // InteractionResponse is how you answer interactions. If an answer is not sent within 3 seconds of receiving it, the interaction is failed, and you will be unable to respond to it.
@@ -115,4 +118,8 @@ func (r *InteractionResponse) ToBody() (interface{}, error) {
 		}
 	}
 	return r, nil
+}
+
+type ApplicationCommandAutoCompleteResult struct {
+	Choices []ApplicationCommandOptionChoice `json:"choices"`
 }

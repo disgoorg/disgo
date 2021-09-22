@@ -48,6 +48,7 @@ type ApplicationCommandOption struct {
 	Choices      []ApplicationCommandOptionChoice `json:"choices,omitempty"`
 	Options      []ApplicationCommandOption       `json:"options,omitempty"`
 	ChannelTypes []ChannelType                    `json:"channel_types"`
+	Autocomplete bool                             `json:"autocomplete,omitempty"`
 }
 
 // ApplicationCommandOptionChoice contains the data for a user using your command. Value can either be a string, int, float or boolean

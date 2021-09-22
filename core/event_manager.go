@@ -13,7 +13,7 @@ type EventManager interface {
 	AddEventListeners(eventListeners ...EventListener)
 	RemoveEventListeners(eventListeners ...EventListener)
 	HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader)
-	HandleHTTP(responseChannel chan<- discord.InteractionResponse, payload io.Reader)
+	HandleHTTP(callbackChannel chan<- discord.InteractionResponse, payload io.Reader)
 	Dispatch(event Event)
 }
 
@@ -38,5 +38,5 @@ type GatewayEventHandler interface {
 // HTTPServerEventHandler is used to handle HTTP Event(s)
 type HTTPServerEventHandler interface {
 	New() interface{}
-	HandleHTTPEvent(bot *Bot, responseChannel chan<- discord.InteractionResponse, v interface{})
+	HandleHTTPEvent(bot *Bot, callbackChannel chan<- discord.InteractionResponse, v interface{})
 }

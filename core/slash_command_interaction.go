@@ -75,6 +75,7 @@ type ApplicationCommandOption struct {
 	Name     string
 	Type     discord.ApplicationCommandOptionType
 	Value    interface{}
+	Focused  bool
 }
 
 // String returns the ApplicationCommandOption.Value as string

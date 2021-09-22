@@ -52,12 +52,12 @@ func (e *eventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventTy
 }
 
 // HandleHTTP calls the correct core.EventHandler
-func (e *eventManagerImpl) HandleHTTP(responseChannel chan<- discord.InteractionResponse, reader io.Reader) {
+func (e *eventManagerImpl) HandleHTTP(callbackChannel chan<- discord.InteractionResponse, reader io.Reader) {
 	v := e.httpServerEventHandler.New()
 	if err := json.NewDecoder(reader).Decode(&v); err != nil {
 		e.Bot().Logger.Error("error while unmarshalling httpserver event. error: ", err)
 	}
-	e.httpServerEventHandler.HandleHTTPEvent(e.Bot(), responseChannel, v)
+	e.httpServerEventHandler.HandleHTTPEvent(e.Bot(), callbackChannel, v)
 }
 
 // Dispatch dispatches a new event to the client

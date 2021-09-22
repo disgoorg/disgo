@@ -107,11 +107,18 @@ func (b *entityBuilderImpl) CreateSlashCommandInteraction(applicationCommandInte
 			Name:     option.Name,
 			Type:     option.Type,
 			Value:    option.Value,
+			Focused:  option.Focused,
 		}
 	}
 	slashCommandInteraction.Options = optionMap
 
 	return slashCommandInteraction
+}
+
+func (b *entityBuilderImpl) CreateApplicationCommandAutocompleteInteraction(slashCommandInteraction *SlashCommandInteraction) *ApplicationCommandAutocompleteInteraction {
+	return &ApplicationCommandAutocompleteInteraction{
+		SlashCommandInteraction: slashCommandInteraction,
+	}
 }
 
 func (b *entityBuilderImpl) CreateContextCommandInteraction(applicationInteraction *ApplicationCommandInteraction) *ContextCommandInteraction {

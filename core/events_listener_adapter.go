@@ -94,11 +94,12 @@ type ListenerAdapter struct {
 	OnRoleDelete func(event *RoleDeleteEvent)
 
 	// core.Interaction Events
-	OnSlashCommand     func(event *SlashCommandEvent)
-	OnUserCommand      func(event *UserCommandEvent)
-	OnMessageCommand   func(event *MessageCommandEvent)
-	OnButtonClick      func(event *ButtonClickEvent)
-	OnSelectMenuSubmit func(event *SelectMenuSubmitEvent)
+	OnSlashCommand                   func(event *SlashCommandEvent)
+	OnApplicationCommandAutocomplete func(event *ApplicationCommandAutocompleteEvent)
+	OnUserCommand                    func(event *UserCommandEvent)
+	OnMessageCommand                 func(event *MessageCommandEvent)
+	OnButtonClick                    func(event *ButtonClickEvent)
+	OnSelectMenuSubmit               func(event *SelectMenuSubmitEvent)
 
 	// core.Message Events
 	OnMessageCreate func(event *MessageCreateEvent)
@@ -383,6 +384,10 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 	// Interaction Events
 	case *SlashCommandEvent:
 		if listener := l.OnSlashCommand; listener != nil {
+			listener(e)
+		}
+	case *ApplicationCommandAutocompleteEvent:
+		if listener := l.OnApplicationCommandAutocomplete; listener != nil {
 			listener(e)
 		}
 	case *UserCommandEvent:
