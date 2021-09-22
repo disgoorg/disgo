@@ -9,28 +9,6 @@ import (
 var commands = []discord.ApplicationCommandCreate{
 	{
 		Type:              discord.ApplicationCommandTypeSlash,
-		Name:              "autocomplete",
-		Description:       "autocomplete",
-		DefaultPermission: true,
-		Options: []discord.ApplicationCommandOption{
-			{
-				Type:         discord.ApplicationCommandOptionTypeString,
-				Name:         "group",
-				Description:  "group",
-				Required:     true,
-				Autocomplete: true,
-			},
-			{
-				Type:         discord.ApplicationCommandOptionTypeString,
-				Name:         "value",
-				Description:  "value",
-				Required:     true,
-				Autocomplete: true,
-			},
-		},
-	},
-	{
-		Type:              discord.ApplicationCommandTypeSlash,
 		Name:              "eval",
 		Description:       "runs some go code",
 		DefaultPermission: true,

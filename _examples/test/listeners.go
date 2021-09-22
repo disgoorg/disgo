@@ -1,8 +1,6 @@
 package main
 
 import (
-	_ "embed"
-	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -12,38 +10,15 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/log"
 	"github.com/PaesslerAG/gval"
-	"github.com/lithammer/fuzzysearch/fuzzy"
 )
-
-var (
-	//go:embed data.json
-	rawData []byte
-
-	autocompleteData   map[string][]string
-	autocompleteGroups []string
-)
-
-func init() {
-	err := json.Unmarshal(rawData, &autocompleteData)
-	if err != nil {
-		log.Error("failed to parse rawData: ", err)
-	}
-	autocompleteGroups = make([]string, len(autocompleteData))
-	i := 0
-	for group := range autocompleteData {
-		autocompleteGroups[i] = group
-		i++
-	}
-}
 
 var listener = &core.ListenerAdapter{
-	OnRawGateway:                     rawGatewayEventListener,
-	OnGuildAvailable:                 guildAvailListener,
-	OnGuildMessageCreate:             messageListener,
-	OnSlashCommand:                   slashCommandListener,
-	OnApplicationCommandAutocomplete: applicationCommandAutocompleteListener,
-	OnButtonClick:                    buttonClickListener,
-	OnSelectMenuSubmit:               selectMenuSubmitListener,
+	OnRawGateway:         rawGatewayEventListener,
+	OnGuildAvailable:     guildAvailListener,
+	OnGuildMessageCreate: messageListener,
+	OnSlashCommand:       slashCommandListener,
+	OnButtonClick:        buttonClickListener,
+	OnSelectMenuSubmit:   selectMenuSubmitListener,
 }
 
 func rawGatewayEventListener(event *core.RawEvent) {
@@ -94,47 +69,8 @@ func selectMenuSubmitListener(event *core.SelectMenuSubmitEvent) {
 	}
 }
 
-func applicationCommandAutocompleteListener(event *core.ApplicationCommandAutocompleteEvent) {
-	switch event.CommandName {
-	case "autocomplete":
-		go func() {
-			focused := event.GetFocusedOption()
-			var targets []string
-			if focused.Name == "group" {
-				targets = autocompleteGroups
-			} else {
-				targets = autocompleteData[event.Options["group"].String()]
-			}
-			result := fuzzy.FindFold(focused.String(), targets)
-
-			if focused.String() != "" {
-				if len(result) > 24 {
-					result = result[:24]
-				}
-				result = append([]string{focused.String()}, result...)
-			} else if len(result) > 25 {
-				result = result[:25]
-			}
-
-			choices := make([]discord.ApplicationCommandOptionChoice, len(result))
-			for i, value := range result {
-				choices[i] = discord.ApplicationCommandOptionChoice{
-					Name:  value,
-					Value: value,
-				}
-			}
-			if err := event.Result(choices); err != nil {
-				event.Bot().Logger.Error("failed to return autocomplete choices: ", err)
-			}
-		}()
-	}
-}
-
 func slashCommandListener(event *core.SlashCommandEvent) {
 	switch event.CommandName {
-	case "autocomplete":
-		_ = event.Create(core.NewMessageCreateBuilder().SetContentf("you selected `%v` of group `%v`", event.Options["value"].String(), event.Options["group"].String()).Build())
-
 	case "eval":
 		go func() {
 			code := event.Options["code"].String()
