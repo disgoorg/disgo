@@ -106,14 +106,24 @@ func applicationCommandAutocompleteListener(event *core.ApplicationCommandAutoco
 				targets = autocompleteData[event.Options["group"].String()]
 			}
 			result := fuzzy.FindFold(focused.String(), targets)
-			if len(result) > 25 {
+
+			if focused.String() != "" {
+				if len(result) > 24 {
+					result = result[:24]
+				}
+				result = append([]string{focused.String()}, result...)
+			} else if len(result) > 25 {
 				result = result[:25]
 			}
-			choices := make(map[string]interface{}, len(result))
-			for _, value := range result {
-				choices[value] = value
+
+			choices := make([]discord.ApplicationCommandOptionChoice, len(result))
+			for i, value := range result {
+				choices[i] = discord.ApplicationCommandOptionChoice{
+					Name:  value,
+					Value: value,
+				}
 			}
-			if err := event.ResultMap(choices); err != nil {
+			if err := event.Result(choices); err != nil {
 				event.Bot().Logger.Error("failed to return autocomplete choices: ", err)
 			}
 		}()
