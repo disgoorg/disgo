@@ -381,8 +381,8 @@ func buildBot(token string, config BotConfig) (*Bot, error) {
 	bot.Gateway = config.Gateway
 
 	if config.HTTPServer == nil && config.HTTPServerConfig != nil {
-		config.HTTPServer = httpserver.New(func(callbackChannel chan<- discord.InteractionResponse, payload io.Reader) {
-			bot.EventManager.HandleHTTP(callbackChannel, payload)
+		config.HTTPServer = httpserver.New(func(responseChannel chan<- discord.InteractionResponse, payload io.Reader) {
+			bot.EventManager.HandleHTTP(responseChannel, payload)
 		}, config.HTTPServerConfig)
 	}
 	bot.HTTPServer = config.HTTPServer
