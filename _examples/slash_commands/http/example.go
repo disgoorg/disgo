@@ -60,12 +60,12 @@ func main() {
 
 	_, err = disgo.SetGuildCommands(guildID, commands)
 	if err != nil {
-		log.Fatalf("error while registering commands: %s", err)
+		log.Fatal("error while registering commands: ", err)
 	}
 
-	err = disgo.Start()
+	err = disgo.StartHTTPServer()
 	if err != nil {
-		log.Fatalf("error while starting http server: %s", err)
+		log.Fatal("error while starting http server: ", err)
 	}
 
 	log.Infof("example is now running. Press CTRL-C to exit.")

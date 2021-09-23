@@ -46,7 +46,7 @@ func main() {
 
 	defer disgo.Close()
 
-	if errs := disgo.Connect(); errs != nil {
+	if errs := disgo.ConnectShardManager(); errs != nil {
 		log.Fatal("error while connecting to gateway: ", errs)
 	}
 

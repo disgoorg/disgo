@@ -1,17 +1,33 @@
 package core
 
 import (
+	"context"
 	"io"
 	"net/http"
 
+	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/sharding"
+	"github.com/DisgoOrg/disgo/sharding/rate"
 	"github.com/pkg/errors"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/rest"
-	"github.com/DisgoOrg/disgo/rest/rate"
+	rrate "github.com/DisgoOrg/disgo/rest/rate"
 	"github.com/DisgoOrg/log"
+)
+
+var (
+	defaultGatewayEventHandleFunc = func(bot *Bot) gateway.EventHandlerFunc {
+		return func(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader) {
+			bot.EventManager.HandleGateway(gatewayEventType, sequenceNumber, payload)
+		}
+	}
+	defaultHTTPServerEventHandleFunc = func(bot *Bot) httpserver.EventHandlerFunc {
+		return func(responseChannel chan<- discord.InteractionResponse, payload io.Reader) {
+			bot.EventManager.HandleHTTP(responseChannel, payload)
+		}
+	}
 )
 
 func NewBot(token string, opts ...BotConfigOpt) (*Bot, error) {
@@ -37,6 +53,7 @@ type Bot struct {
 	VoiceDispatchInterceptor VoiceDispatchInterceptor
 
 	ShardManager sharding.ShardManager
+	Gateway      gateway.Gateway
 
 	HTTPServer httpserver.Server
 
@@ -51,18 +68,21 @@ func (b *Bot) Close() {
 	if b.RestServices != nil {
 		b.RestServices.Close()
 	}
-	if b.HTTPServer != nil {
-		b.HTTPServer.Close()
+	if b.Gateway != nil {
+		b.Gateway.Close()
 	}
 	if b.ShardManager != nil {
 		b.ShardManager.Close()
+	}
+	if b.HTTPServer != nil {
+		b.HTTPServer.Close()
 	}
 	if b.EventManager != nil {
 		b.EventManager.Close()
 	}
 }
 
-// SelfMember returns an core.OAuth2User for the client, if available
+// SelfMember returns a core.OAuth2User for the client, if available
 func (b *Bot) SelfMember(guildID discord.Snowflake) *Member {
 	return b.Caches.MemberCache().Get(guildID, b.ClientID)
 }
@@ -77,20 +97,43 @@ func (b *Bot) RemoveEventListeners(listeners ...EventListener) {
 	b.EventManager.RemoveEventListeners(listeners...)
 }
 
-// Connect opens the gateway connection to discord
-func (b *Bot) Connect() []error {
-	return b.ShardManager.Open()
+// ConnectGateway opens the gateway connection to discord
+func (b *Bot) ConnectGateway() error {
+	return b.ConnectGatewayContext(context.Background())
+}
+
+func (b *Bot) ConnectGatewayContext(ctx context.Context) error {
+	if b.Gateway == nil {
+		return discord.ErrNoGateway
+	}
+	return b.Gateway.OpenContext(ctx)
+}
+
+// ConnectShardManager opens the gateway connection to discord
+func (b *Bot) ConnectShardManager() []error {
+	return b.ConnectShardManagerContext(context.Background())
+}
+
+func (b *Bot) ConnectShardManagerContext(ctx context.Context) []error {
+	if b.ShardManager == nil {
+		return []error{discord.ErrNoShardManager}
+	}
+	return b.ShardManager.OpenContext(ctx)
 }
 
 // HasGateway returns whether core.disgo has an active gateway.Gateway connection
 func (b *Bot) HasGateway() bool {
+	return b.Gateway != nil
+}
+
+func (b *Bot) HasShardManager() bool {
 	return b.ShardManager != nil
 }
 
-// Start starts the interaction webhook server
-func (b *Bot) Start() error {
+// StartHTTPServer starts the interaction webhook server
+func (b *Bot) StartHTTPServer() error {
 	if b.HTTPServer == nil {
-
+		return discord.ErrNoHTTPServer
 	}
 	b.HTTPServer.Start()
 	return nil
@@ -340,23 +383,33 @@ func buildBot(token string, config BotConfig) (*Bot, error) {
 		config.HTTPClient = http.DefaultClient
 	}
 
-	if config.RateLimiter == nil {
-		config.RateLimiter = rate.NewLimiter(config.RateLimiterConfig)
-	}
-
-	if config.RestClientConfig == nil {
-		config.RestClientConfig = &rest.DefaultConfig
-	}
-
-	if config.RestClientConfig.Headers == nil {
-		config.RestClientConfig.Headers = http.Header{}
-	}
-
-	if _, ok := config.RestClientConfig.Headers["authorization"]; !ok {
-		config.RestClientConfig.Headers["authorization"] = []string{discord.TokenTypeBot.Apply(token)}
-	}
-
 	if config.RestClient == nil {
+		if config.RestClientConfig.RateLimiterConfig == nil {
+			if config.RateLimiterConfig == nil {
+				config.RateLimiterConfig = &rrate.DefaultConfig
+			}
+
+			if config.RateLimiterConfig != nil && config.RateLimiterConfig.Logger == nil {
+				config.RateLimiterConfig.Logger = config.Logger
+			}
+			config.RestClientConfig.RateLimiterConfig = config.RateLimiterConfig
+		}
+
+		if config.RestClientConfig == nil {
+			config.RestClientConfig = &rest.DefaultConfig
+		}
+
+		if config.RestClientConfig.Logger == nil {
+			config.RestClientConfig.Logger = config.Logger
+		}
+
+		if config.RestClientConfig.Headers == nil {
+			config.RestClientConfig.Headers = http.Header{}
+		}
+
+		if _, ok := config.RestClientConfig.Headers["authorization"]; !ok {
+			config.RestClientConfig.Headers["authorization"] = []string{discord.TokenTypeBot.Apply(token)}
+		}
 		config.RestClient = rest.NewClient(config.RestClientConfig)
 	}
 
@@ -370,26 +423,52 @@ func buildBot(token string, config BotConfig) (*Bot, error) {
 	}
 	bot.EventManager = config.EventManager
 
+	if config.Gateway == nil && config.GatewayConfig != nil {
+		var gatewayRs *discord.Gateway
+		gatewayRs, err = bot.RestServices.GatewayService().GetGateway()
+		if err != nil {
+			return nil, err
+		}
+		config.Gateway = gateway.New(token, gatewayRs.URL, 0, 0, defaultGatewayEventHandleFunc(bot), config.GatewayConfig)
+	}
+	bot.Gateway = config.Gateway
+
 	if config.ShardManager == nil && config.ShardManagerConfig != nil {
+		var gatewayBotRs *discord.GatewayBot
+		gatewayBotRs, err = bot.RestServices.GatewayService().GetGatewayBot()
+		if err != nil {
+			return nil, err
+		}
+
+		if config.ShardManagerConfig.RateLimiterConfig == nil {
+			config.ShardManagerConfig.RateLimiterConfig = &rate.DefaultConfig
+		}
+		if config.ShardManagerConfig.RateLimiterConfig.Logger == nil {
+			config.ShardManagerConfig.RateLimiterConfig.Logger = config.Logger
+		}
+		if config.ShardManagerConfig.RateLimiterConfig.MaxConcurrency == 0 {
+			config.ShardManagerConfig.RateLimiterConfig.MaxConcurrency = gatewayBotRs.SessionStartLimit.MaxConcurrency
+		}
+
+		// apply recommended shard count
+		if !config.ShardManagerConfig.CustomShards {
+			config.ShardManagerConfig.ShardCount = gatewayBotRs.Shards
+			config.ShardManagerConfig.Shards = sharding.NewIntSet()
+			for i := 0; i < gatewayBotRs.Shards; i++ {
+				config.ShardManagerConfig.Shards.Add(i)
+			}
+		}
 		if config.ShardManager == nil {
-			config.ShardManager = sharding.NewShardManager(
-				token,
-				func() string {
-					rs, _ := bot.RestServices.GatewayService().GetGateway()
-					return rs.URL
-				},
-				func(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader) {
-					bot.EventManager.HandleGateway(gatewayEventType, sequenceNumber, payload)
-				},
-				config.ShardManagerConfig)
+			config.ShardManager = sharding.New(token, gatewayBotRs.URL, defaultGatewayEventHandleFunc(bot), config.ShardManagerConfig)
 		}
 	}
 	bot.ShardManager = config.ShardManager
 
 	if config.HTTPServer == nil && config.HTTPServerConfig != nil {
-		config.HTTPServer = httpserver.New(func(responseChannel chan<- discord.InteractionResponse, payload io.Reader) {
-			bot.EventManager.HandleHTTP(responseChannel, payload)
-		}, config.HTTPServerConfig)
+		if config.HTTPServerConfig.Logger == nil {
+			config.HTTPServerConfig.Logger = config.Logger
+		}
+		config.HTTPServer = httpserver.New(defaultHTTPServerEventHandleFunc(bot), config.HTTPServerConfig)
 	}
 	bot.HTTPServer = config.HTTPServer
 

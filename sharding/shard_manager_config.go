@@ -8,9 +8,7 @@ import (
 
 //goland:noinspection GoUnusedGlobalVariable
 var DefaultConfig = Config{
-	Logger:     log.Default(),
-	Shards:     NewIntSet(0),
-	ShardCount: 1,
+	CustomShards: false,
 	GatewayCreateFunc: func(token string, url string, shardID int, shardCount int, eventHandlerFunc gateway.EventHandlerFunc, config *gateway.Config) gateway.Gateway {
 		return gateway.New(token, url, shardID, shardCount, eventHandlerFunc, config)
 	},
@@ -20,6 +18,7 @@ var DefaultConfig = Config{
 
 type Config struct {
 	Logger            log.Logger
+	CustomShards      bool
 	Shards            *IntSet
 	ShardCount        int
 	GatewayCreateFunc func(token string, url string, shardID int, shardCount int, eventHandlerFunc gateway.EventHandlerFunc, config *gateway.Config) gateway.Gateway
@@ -44,6 +43,7 @@ func WithLogger(logger log.Logger) ConfigOpt {
 
 func WithShards(shards ...int) ConfigOpt {
 	return func(config *Config) {
+		config.CustomShards = true
 		if config.Shards == nil {
 			config.Shards = NewIntSet(shards...)
 		}
@@ -55,6 +55,7 @@ func WithShards(shards ...int) ConfigOpt {
 
 func WithShardCount(shardCount int) ConfigOpt {
 	return func(config *Config) {
+		config.CustomShards = true
 		config.ShardCount = shardCount
 	}
 }

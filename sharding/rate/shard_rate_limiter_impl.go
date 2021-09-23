@@ -17,6 +17,9 @@ func NewLimiter(config *Config) Limiter {
 	if config.Logger == nil {
 		config.Logger = log.Default()
 	}
+	if config.StartupDelay == 0 {
+		config.StartupDelay = 5
+	}
 	return &limiterImpl{
 		buckets: map[int]*bucket{},
 		config:  *config,

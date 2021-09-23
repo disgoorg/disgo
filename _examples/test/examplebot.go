@@ -9,7 +9,6 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
-	"github.com/DisgoOrg/disgo/sharding"
 	"github.com/DisgoOrg/log"
 )
 
@@ -34,10 +33,7 @@ func main() {
 
 	bot, err := core.NewBotBuilder(token).
 		SetRawEventsEnabled(true).
-		SetShardMangerConfigOpts(sharding.WithGatewayConfig(gateway.Config{
-			GatewayIntents: discord.GatewayIntentsAll,
-			Compress:       true,
-		})).
+		SetGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentsAll)).
 		SetCacheConfig(core.CacheConfig{
 			CacheFlags:        core.CacheFlagsDefault,
 			MemberCachePolicy: core.MemberCachePolicyAll,
@@ -51,7 +47,7 @@ func main() {
 
 	registerCommands(bot)
 
-	if errs := bot.Connect(); errs != nil {
+	if err = bot.ConnectGateway(); err != nil {
 		log.Fatal("error while connecting to discord: ", err)
 	}
 

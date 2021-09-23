@@ -5,13 +5,14 @@ import (
 )
 
 var DefaultConfig = Config{
-	Logger:         log.Default(),
 	MaxConcurrency: 1,
+	StartupDelay:   5,
 }
 
 type Config struct {
 	Logger         log.Logger
 	MaxConcurrency int
+	StartupDelay   int
 }
 
 type ConfigOpt func(config *Config)
@@ -31,5 +32,11 @@ func WithLogger(logger log.Logger) ConfigOpt {
 func WithMaxConcurrency(maxConcurrency int) ConfigOpt {
 	return func(config *Config) {
 		config.MaxConcurrency = maxConcurrency
+	}
+}
+
+func WithStartupDelay(startupDelay int) ConfigOpt {
+	return func(config *Config) {
+		config.StartupDelay = startupDelay
 	}
 }

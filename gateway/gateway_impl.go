@@ -257,7 +257,7 @@ func (g *gatewayImpl) listen() {
 					GatewayIntents: g.config.GatewayIntents,
 				}
 				if g.shardCount > 1 {
-					identify.Shard = [2]int{g.shardID, g.shardCount}
+					identify.Shard = []int{g.shardID, g.shardCount}
 				}
 
 				if err = g.Send(

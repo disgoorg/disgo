@@ -3,6 +3,7 @@ package core
 import (
 	"net/http"
 
+	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/rate"
@@ -94,6 +95,23 @@ func (b *BotBuilder) SetRawEventsEnabled(enabled bool) *BotBuilder {
 // SetVoiceDispatchInterceptor sets the core.VoiceDispatchInterceptor
 func (b *BotBuilder) SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor) *BotBuilder {
 	b.VoiceDispatchInterceptor = voiceDispatchInterceptor
+	return b
+}
+
+// SetGateway lets you inject your own sharding.Gateway
+func (b *BotBuilder) SetGateway(gateway gateway.Gateway) *BotBuilder {
+	b.Gateway = gateway
+	return b
+}
+
+// SetGatewayConfig sets the sharding.Config the sharding.Gateway uses
+func (b *BotBuilder) SetGatewayConfig(gatewayConfig gateway.Config) *BotBuilder {
+	b.GatewayConfig = &gatewayConfig
+	return b
+}
+
+func (b *BotBuilder) SetGatewayConfigOpts(opts ...gateway.ConfigOpt) *BotBuilder {
+	b.GatewayConfig.Apply(opts)
 	return b
 }
 

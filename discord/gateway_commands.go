@@ -23,7 +23,7 @@ type IdentifyCommand struct {
 	Properties     IdentifyCommandDataProperties `json:"properties"`
 	Compress       bool                          `json:"compress,omitempty"`
 	LargeThreshold int                           `json:"large_threshold,omitempty"`
-	Shard          [2]int                        `json:"shard,omitempty"`
+	Shard          []int                         `json:"shard,omitempty"`
 	GatewayIntents GatewayIntents                `json:"intents"`
 	// Todo: Add presence property here, need presence methods/struct
 }

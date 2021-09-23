@@ -9,7 +9,6 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
-	"github.com/DisgoOrg/disgo/sharding"
 	"github.com/DisgoOrg/log"
 )
 
@@ -41,9 +40,9 @@ func main() {
 	log.Infof("disgo version: %s", info.Version)
 
 	disgo, err := core.NewBotBuilder(token).
-		SetShardMangerConfigOpts(sharding.WithGatewayConfig(gateway.Config{
+		SetGatewayConfig(gateway.Config{
 			GatewayIntents: discord.GatewayIntentsNone,
-		})).
+		}).
 		SetCacheConfig(core.CacheConfig{
 			CacheFlags: core.CacheFlagsDefault,
 		}).
@@ -64,8 +63,8 @@ func main() {
 		log.Fatal("error while registering commands: ", err)
 	}
 
-	if errs := disgo.Connect(); errs != nil {
-		log.Fatal("error while connecting to gateway: ", errs)
+	if err = disgo.ConnectGateway(); err != nil {
+		log.Fatal("error while connecting to gateway: ", err)
 	}
 
 	log.Infof("example is now running. Press CTRL-C to exit.")

@@ -3,6 +3,7 @@ package core
 import (
 	"net/http"
 
+	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/rate"
@@ -28,6 +29,9 @@ type BotConfig struct {
 	RawEventsEnabled         bool
 	VoiceDispatchInterceptor VoiceDispatchInterceptor
 
+	Gateway       gateway.Gateway
+	GatewayConfig *gateway.Config
+
 	ShardManager       sharding.ShardManager
 	ShardManagerConfig *sharding.Config
 
@@ -52,26 +56,6 @@ func (c *BotConfig) Apply(opts []BotConfigOpt) {
 func WithLogger(logger log.Logger) BotConfigOpt {
 	return func(config *BotConfig) {
 		config.Logger = logger
-
-		if config.RestClientConfig == nil {
-			config.RestClientConfig = &rest.DefaultConfig
-		}
-		config.RestClientConfig.Logger = logger
-
-		if config.RateLimiterConfig == nil {
-			config.RateLimiterConfig = &rate.DefaultConfig
-		}
-		config.RateLimiterConfig.Logger = logger
-
-		if config.ShardManagerConfig == nil {
-			config.ShardManagerConfig = &sharding.DefaultConfig
-		}
-		config.ShardManagerConfig.Logger = logger
-
-		if config.HTTPServerConfig == nil {
-			config.HTTPServerConfig = &httpserver.DefaultConfig
-		}
-		config.HTTPServerConfig.Logger = logger
 	}
 }
 
@@ -150,6 +134,39 @@ func WithRawEventsEnabled() BotConfigOpt {
 func WithVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor) BotConfigOpt {
 	return func(config *BotConfig) {
 		config.VoiceDispatchInterceptor = voiceDispatchInterceptor
+	}
+}
+
+func WithGateway(gateway gateway.Gateway) BotConfigOpt {
+	return func(config *BotConfig) {
+		config.Gateway = gateway
+	}
+}
+
+func WithGatewayConfig(gatewayConfig gateway.Config) BotConfigOpt {
+	return func(config *BotConfig) {
+		config.GatewayConfig = &gatewayConfig
+	}
+}
+
+func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) BotConfigOpt {
+	return func(config *BotConfig) {
+		if config.GatewayConfig == nil {
+			config.GatewayConfig = &gateway.DefaultConfig
+		}
+		config.GatewayConfig.Apply(opts)
+	}
+}
+
+func WithShardManager(shardManager sharding.ShardManager) BotConfigOpt {
+	return func(config *BotConfig) {
+		config.ShardManager = shardManager
+	}
+}
+
+func WithShardManagerConfig(shardManagerConfig sharding.Config) BotConfigOpt {
+	return func(config *BotConfig) {
+		config.ShardManagerConfig = &shardManagerConfig
 	}
 }
 

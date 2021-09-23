@@ -10,7 +10,6 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
-	"github.com/DisgoOrg/disgo/sharding"
 	"github.com/DisgoOrg/log"
 )
 
@@ -28,7 +27,7 @@ func main() {
 	disgo, err := core.NewBot(token,
 		core.WithLogger(logger),
 		core.WithHTTPClient(httpClient),
-		core.WithShardManagerConfigOpts(sharding.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages))),
+		core.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
 		core.WithCacheConfig(core.CacheConfig{CacheFlags: core.CacheFlagsDefault}),
 		core.WithEventListeners(&core.ListenerAdapter{
 			OnMessageCreate: onMessageCreate,
@@ -40,7 +39,7 @@ func main() {
 
 	defer disgo.Close()
 
-	if errs := disgo.Connect(); errs != nil {
+	if err = disgo.ConnectGateway(); err != nil {
 		log.Fatal("errors while connecting to gateway: ", err)
 	}
 

@@ -12,7 +12,7 @@ import (
 
 var _ ShardManager = (*shardManagerImpl)(nil)
 
-func NewShardManager(token string, gatewayURLFunc func() string, eventHandlerFunc gateway.EventHandlerFunc, config *Config) ShardManager {
+func New(token string, gatewayURL string, eventHandlerFunc gateway.EventHandlerFunc, config *Config) ShardManager {
 	if config.Logger == nil {
 		config.Logger = log.Default()
 	}
@@ -36,7 +36,7 @@ func NewShardManager(token string, gatewayURLFunc func() string, eventHandlerFun
 	return &shardManagerImpl{
 		shards:           NewShardsMap(),
 		token:            token,
-		gatewayURL:       gatewayURLFunc(),
+		gatewayURL:       gatewayURL,
 		eventHandlerFunc: eventHandlerFunc,
 		config:           *config,
 	}

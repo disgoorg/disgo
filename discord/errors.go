@@ -13,9 +13,13 @@ var (
 	ErrBadRequest   = errors.New("bad request")
 	ErrRatelimited  = errors.New("received error 429")
 
-	ErrNoGateway             = errors.New("no gateway configured")
-	ErrNoGatewayConn         = errors.New("gateway is not connected")
-	ErrGatewayCompressedData = errors.New("disgo does not currently support compressed gateway data")
+	ErrNoGatewayOrShardManager = errors.New("no gatrway or shard manager configured")
+	ErrNoShardManager          = errors.New("no shard manager configured")
+	ErrNoGateway               = errors.New("no gateway configured")
+	ErrShardNotConnected       = errors.New("shard is not connected")
+	ErrShardNotFound           = errors.New("shard not found in shard manager")
+	ErrGatewayCompressedData   = errors.New("disgo does not currently support compressed gateway data")
+	ErrNoHTTPServer            = errors.New("no http server configured")
 
 	ErrNoDisgoInstance = errors.New("no disgo instance injected")
 
