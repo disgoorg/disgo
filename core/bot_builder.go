@@ -109,7 +109,7 @@ func (b *BotBuilder) SetShardManagerConfig(shardManagerConfig sharding.Config) *
 	return b
 }
 
-func (b *BotBuilder) SetGatewayConfigOpts(opts ...sharding.ConfigOpt) *BotBuilder {
+func (b *BotBuilder) SetShardMangerConfigOpts(opts ...sharding.ConfigOpt) *BotBuilder {
 	b.ShardManagerConfig.Apply(opts)
 	return b
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
+	"github.com/DisgoOrg/disgo/sharding"
 	"github.com/DisgoOrg/log"
 )
 
@@ -23,19 +24,22 @@ func main() {
 	log.Infof("disgo version: %s", info.Version)
 
 	disgo, err := core.NewBot(token,
-		core.WithGatewayConfigOpts(gateway.WithCompress(true), gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
+		core.WithShardManagerConfigOpts(sharding.WithGatewayConfigOpts(
+			gateway.WithCompress(true),
+			gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
+		),
 		core.WithEventListeners(&core.ListenerAdapter{
 			OnMessageCreate: onMessageCreate,
 		}),
 	)
 	if err != nil {
-		log.Fatalf("error while building bot: %s", err)
+		log.Fatal("error while building bot: ", err)
 	}
 
 	defer disgo.Close()
 
-	if err = disgo.Connect(); err != nil {
-		log.Fatalf("error while connecting to gateway: %s", err)
+	if errs := disgo.Connect(); errs != nil {
+		log.Fatal("error while connecting to gateway: ", err)
 	}
 
 	log.Infof("example is now running. Press CTRL-C to exit.")

@@ -25,7 +25,7 @@ var (
 			DefaultPermission: true,
 			Options: []discord.ApplicationCommandOption{
 				{
-					Type:        discord.CommandOptionTypeString,
+					Type:        discord.ApplicationCommandOptionTypeString,
 					Name:        "message",
 					Description: "What to say",
 					Required:    true,

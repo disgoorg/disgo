@@ -9,6 +9,7 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
+	"github.com/DisgoOrg/disgo/sharding"
 	"github.com/DisgoOrg/log"
 )
 
@@ -24,7 +25,7 @@ var (
 			DefaultPermission: true,
 			Options: []discord.ApplicationCommandOption{
 				{
-					Type:        discord.CommandOptionTypeString,
+					Type:        discord.ApplicationCommandOptionTypeString,
 					Name:        "message",
 					Description: "What to say",
 					Required:    true,
@@ -40,9 +41,9 @@ func main() {
 	log.Infof("disgo version: %s", info.Version)
 
 	disgo, err := core.NewBotBuilder(token).
-		SetGatewayConfig(gateway.Config{
+		SetShardMangerConfigOpts(sharding.WithGatewayConfig(gateway.Config{
 			GatewayIntents: discord.GatewayIntentsNone,
-		}).
+		})).
 		SetCacheConfig(core.CacheConfig{
 			CacheFlags: core.CacheFlagsDefault,
 		}).
@@ -60,12 +61,11 @@ func main() {
 
 	_, err = disgo.SetGuildCommands(guildID, commands)
 	if err != nil {
-		log.Fatalf("error while registering commands: %s", err)
+		log.Fatal("error while registering commands: ", err)
 	}
 
-	err = disgo.Connect()
-	if err != nil {
-		log.Fatalf("error while connecting to gateway: %s", err)
+	if errs := disgo.Connect(); errs != nil {
+		log.Fatal("error while connecting to gateway: ", errs)
 	}
 
 	log.Infof("example is now running. Press CTRL-C to exit.")
