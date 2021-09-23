@@ -3,7 +3,7 @@ package gateway
 import (
 	"bytes"
 	"compress/zlib"
-	"fmt"
+	"context"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -65,6 +65,11 @@ func (g *gatewayImpl) Config() Config {
 
 // Open initializes the client and connection to discord
 func (g *gatewayImpl) Open() error {
+	return g.OpenContext(context.Background())
+}
+
+// OpenContext initializes the client and connection to discord and takes a context.Context
+func (g *gatewayImpl) OpenContext(ctx context.Context) error {
 	if g.lastSequenceReceived == nil || g.sessionID == nil {
 		g.status = StatusConnecting
 	} else {
@@ -76,7 +81,7 @@ func (g *gatewayImpl) Open() error {
 	gatewayURL := g.url + "?v=" + route.APIVersion + "&encoding=json"
 	var rs *http.Response
 	var err error
-	g.conn, rs, err = websocket.DefaultDialer.Dial(gatewayURL, nil)
+	g.conn, rs, err = websocket.DefaultDialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
 		g.Close()
 		var body []byte
@@ -159,13 +164,11 @@ func (g *gatewayImpl) closeWithCode(code int) {
 		// TODO: Wait for Discord to actually close the connection.
 		time.Sleep(1 * time.Second)
 
-		if g.conn != nil {
-			err = g.conn.Close()
-			if err != nil {
-				g.Logger().Errorf("error closing conn: %s", err)
-			}
-			g.conn = nil
+		err = g.conn.Close()
+		if err != nil {
+			g.Logger().Errorf("error closing conn: %s", err)
 		}
+		g.conn = nil
 	}
 }
 
@@ -257,7 +260,6 @@ func (g *gatewayImpl) listen() {
 					identify.Shard = [2]int{g.shardID, g.shardCount}
 				}
 
-				fmt.Printf("\n\n%+v\n\n", identify)
 				if err = g.Send(
 					discord.NewGatewayCommand(discord.OpIdentify, identify),
 				); err != nil {

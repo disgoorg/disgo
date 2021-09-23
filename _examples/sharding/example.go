@@ -10,6 +10,7 @@ import (
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/disgo/sharding"
+	"github.com/DisgoOrg/disgo/sharding/rate"
 	"github.com/DisgoOrg/log"
 )
 
@@ -29,6 +30,9 @@ func main() {
 			sharding.WithGatewayConfigOpts(
 				gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages),
 				gateway.WithCompress(true),
+			),
+			sharding.WithRateLimiterConfigOpt(
+				rate.WithMaxConcurrency(2),
 			),
 		),
 		core.WithCacheConfig(core.CacheConfig{CacheFlags: core.CacheFlagsDefault}),
