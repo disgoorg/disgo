@@ -1,7 +1,7 @@
 package discord
 
 // NewGatewayCommand returns a new GatewayCommand struct with the given payload
-func NewGatewayCommand(op Op, d interface{}) GatewayCommand {
+func NewGatewayCommand(op GatewayOpcode, d interface{}) GatewayCommand {
 	return GatewayCommand{
 		GatewayPayload: GatewayPayload{
 			Op: op,
