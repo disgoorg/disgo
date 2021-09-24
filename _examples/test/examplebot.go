@@ -33,10 +33,7 @@ func main() {
 
 	bot, err := core.NewBotBuilder(token).
 		SetRawEventsEnabled(true).
-		SetGatewayConfig(gateway.Config{
-			GatewayIntents: discord.GatewayIntentsAll,
-			Compress:       true,
-		}).
+		SetGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentsAll)).
 		SetCacheConfig(core.CacheConfig{
 			CacheFlags:        core.CacheFlagsDefault,
 			MemberCachePolicy: core.MemberCachePolicyAll,
@@ -50,14 +47,13 @@ func main() {
 
 	registerCommands(bot)
 
-	err = bot.Connect()
-	if err != nil {
-		log.Fatalf("error while connecting to discord: %s", err)
+	if err = bot.ConnectGateway(); err != nil {
+		log.Fatal("error while connecting to discord: ", err)
 	}
 
 	defer bot.Close()
 
-	log.Infof("ExampleBot is now running. Press CTRL-C to exit.")
+	log.Info("ExampleBot is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-s

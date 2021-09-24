@@ -1,6 +1,7 @@
 package gateway
 
 import (
+	"context"
 	"io"
 	"time"
 
@@ -42,6 +43,7 @@ type Gateway interface {
 	Logger() log.Logger
 	Config() Config
 	Open() error
+	OpenContext(ctx context.Context) error
 	Close()
 	Status() Status
 	Send(command discord.GatewayCommand) error

@@ -37,11 +37,6 @@ func (c *Config) Apply(opts []ConfigOpt) {
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
-
-		if config.RateLimiterConfig == nil {
-			config.RateLimiterConfig = &rate.DefaultConfig
-		}
-		config.RateLimiterConfig.Logger = logger
 	}
 }
 

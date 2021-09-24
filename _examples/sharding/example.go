@@ -1,7 +1,6 @@
 package main
 
 import (
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -10,24 +9,32 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
+	"github.com/DisgoOrg/disgo/sharding"
+	"github.com/DisgoOrg/disgo/sharding/rate"
 	"github.com/DisgoOrg/log"
 )
 
 var (
-	token      = os.Getenv("token")
-	logger     = log.Default()
-	httpClient = http.DefaultClient
+	token = os.Getenv("disgo_token")
 )
 
 func main() {
-	logger.SetLevel(log.LevelDebug)
-	logger.Info("starting example...")
-	logger.Info("disgo version: ", info.Version)
+	log.SetLevel(log.LevelInfo)
+	log.Info("starting example...")
+	log.Info("disgo version: ", info.Version)
 
 	disgo, err := core.NewBot(token,
-		core.WithLogger(logger),
-		core.WithHTTPClient(httpClient),
-		core.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
+		core.WithShardManagerConfigOpts(
+			sharding.WithShards(0, 1, 2),
+			sharding.WithShardCount(3),
+			sharding.WithGatewayConfigOpts(
+				gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages),
+				gateway.WithCompress(true),
+			),
+			sharding.WithRateLimiterConfigOpt(
+				rate.WithMaxConcurrency(2),
+			),
+		),
 		core.WithCacheConfig(core.CacheConfig{CacheFlags: core.CacheFlagsDefault}),
 		core.WithEventListeners(&core.ListenerAdapter{
 			OnMessageCreate: onMessageCreate,
@@ -39,8 +46,8 @@ func main() {
 
 	defer disgo.Close()
 
-	if err = disgo.ConnectGateway(); err != nil {
-		log.Fatal("errors while connecting to gateway: ", err)
+	if errs := disgo.ConnectShardManager(); errs != nil {
+		log.Fatal("error while connecting to gateway: ", errs)
 	}
 
 	log.Infof("example is now running. Press CTRL-C to exit.")
@@ -50,5 +57,8 @@ func main() {
 }
 
 func onMessageCreate(event *core.MessageCreateEvent) {
+	if event.Message.Author.IsBot {
+		return
+	}
 	_, _ = event.Message.Reply(core.NewMessageCreateBuilder().SetContent(event.Message.Content).Build())
 }

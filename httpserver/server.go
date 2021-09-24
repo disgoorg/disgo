@@ -17,6 +17,7 @@ type EventHandlerFunc func(responseChannel chan<- discord.InteractionResponse, p
 // Server is used for receiving an Interaction over httpserver
 type Server interface {
 	Logger() log.Logger
+	PublicKey() ed25519.PublicKey
 	Config() Config
 	Start()
 	Close()

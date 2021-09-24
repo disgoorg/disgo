@@ -21,8 +21,8 @@ import "github.com/DisgoOrg/disgo/webhook"
 client := webhook.NewClient(discord.Snowflake(webhookID), webhookToken)
 ```
 
-`webhook.NewClient` takes a vararg of type `webhook.ConfigOpt` as third argument which lets you pass additional optional parameter as a custom logger, rest client etc
-
+`webhook.NewClient` takes a vararg of type `webhook.ConfigOpt` as third argument which lets you pass additional optional
+parameter as a custom logger, rest client etc
 
 ### Optional Arguments
 

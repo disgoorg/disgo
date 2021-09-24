@@ -1,6 +1,10 @@
 package httpserver
 
-import "github.com/DisgoOrg/log"
+import (
+	"net/http"
+
+	"github.com/DisgoOrg/log"
+)
 
 //goland:noinspection GoUnusedGlobalVariable
 var DefaultConfig = Config{
@@ -10,6 +14,8 @@ var DefaultConfig = Config{
 
 type Config struct {
 	Logger           log.Logger
+	HTTPServer       *http.Server
+	ServeMux         *http.ServeMux
 	EventHandlerFunc EventHandlerFunc
 	URL              string
 	Port             string
@@ -29,6 +35,18 @@ func (c *Config) Apply(opts []ConfigOpt) {
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
+	}
+}
+
+func WithHTTPServer(httpServer *http.Server) ConfigOpt {
+	return func(config *Config) {
+		config.HTTPServer = httpServer
+	}
+}
+
+func WithServeMux(serveMux *http.ServeMux) ConfigOpt {
+	return func(config *Config) {
+		config.ServeMux = serveMux
 	}
 }
 

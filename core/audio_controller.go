@@ -5,17 +5,15 @@ import (
 	"github.com/DisgoOrg/disgo/gateway"
 )
 
-// context support?
-
 // AudioController lets you Connect / Disconnect from a Channel
 type AudioController interface {
 	// Bot returns the core.Bot instance
 	Bot() *Bot
 
-	// Connect sends an core.GatewayCommand to connect to an core.Channel
+	// Connect sends a discord.GatewayCommand to connect to a Channel
 	Connect(guildID discord.Snowflake, channelID discord.Snowflake) error
 
-	// Disconnect sends an core.GatewayCommand to disconnect from an core.Channel
+	// Disconnect sends a discord.GatewayCommand to disconnect from a Channel
 	Disconnect(guildID discord.Snowflake) error
 }
 
@@ -32,33 +30,41 @@ func (c *audioControllerImpl) Bot() *Bot {
 }
 
 func (c *audioControllerImpl) Connect(guildID discord.Snowflake, channelID discord.Snowflake) error {
-	gw, err := c.getGateway()
+	shard, err := c.getShard(guildID)
 	if err != nil {
 		return err
 	}
-	return gw.Send(discord.NewGatewayCommand(discord.OpVoiceStateUpdate, discord.UpdateVoiceStateCommand{
+	return shard.Send(discord.NewGatewayCommand(discord.GatewayOpcodeVoiceStateUpdate, discord.UpdateVoiceStateCommand{
 		GuildID:   guildID,
 		ChannelID: &channelID,
 	}))
 }
 
 func (c *audioControllerImpl) Disconnect(guildID discord.Snowflake) error {
-	gw, err := c.getGateway()
+	shard, err := c.getShard(guildID)
 	if err != nil {
 		return err
 	}
-	return gw.Send(discord.NewGatewayCommand(discord.OpVoiceStateUpdate, discord.UpdateVoiceStateCommand{
+	return shard.Send(discord.NewGatewayCommand(discord.GatewayOpcodeVoiceStateUpdate, discord.UpdateVoiceStateCommand{
 		GuildID:   guildID,
 		ChannelID: nil,
 	}))
 }
 
-func (c *audioControllerImpl) getGateway() (gateway.Gateway, error) {
-	if c.Bot().Gateway == nil {
-		return nil, discord.ErrNoGateway
+func (c *audioControllerImpl) getShard(guildID discord.Snowflake) (gateway.Gateway, error) {
+	var shard gateway.Gateway
+	if c.Bot().HasGateway() {
+		shard = c.Bot().Gateway
+	} else if c.Bot().HasShardManager() {
+		shard = c.Bot().ShardManager.GetGuildShard(guildID)
+	} else {
+		return nil, discord.ErrNoGatewayOrShardManager
 	}
-	if !c.Bot().Gateway.Status().IsConnected() {
-		return nil, discord.ErrNoGatewayConn
+	if shard == nil {
+		return nil, discord.ErrShardNotFound
 	}
-	return c.Bot().Gateway, nil
+	if !shard.Status().IsConnected() {
+		return nil, discord.ErrShardNotConnected
+	}
+	return shard, nil
 }
