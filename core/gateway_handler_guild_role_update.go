@@ -4,11 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-type roleUpdateData struct {
-	GuildID discord.Snowflake `json:"guild_id"`
-	Role    discord.Role      `json:"role"`
-}
-
 // gatewayHandlerGuildRoleUpdate handles core.GuildRoleUpdateGatewayEvent
 type gatewayHandlerGuildRoleUpdate struct{}
 
@@ -19,12 +14,12 @@ func (h *gatewayHandlerGuildRoleUpdate) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerGuildRoleUpdate) New() interface{} {
-	return &roleUpdateData{}
+	return &discord.GuildRoleUpdateGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerGuildRoleUpdate) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
-	payload := *v.(*roleUpdateData)
+	payload := *v.(*discord.GuildRoleUpdateGatewayEvent)
 
 	oldRole := bot.Caches.RoleCache().GetCopy(payload.GuildID, payload.Role.ID)
 

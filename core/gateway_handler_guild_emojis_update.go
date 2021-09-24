@@ -4,11 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-type guildEmojisUpdatePayload struct {
-	GuildID discord.Snowflake `json:"guild_id"`
-	Emojis  []discord.Emoji   `json:"emojis"`
-}
-
 // gatewayHandlerGuildEmojisUpdate handles discord.GatewayEventTypeGuildEmojisUpdate
 type gatewayHandlerGuildEmojisUpdate struct{}
 
@@ -19,12 +14,12 @@ func (h *gatewayHandlerGuildEmojisUpdate) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerGuildEmojisUpdate) New() interface{} {
-	return &guildEmojisUpdatePayload{}
+	return &discord.GuildEmojisUpdateGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
-	payload := *v.(*guildEmojisUpdatePayload)
+	payload := *v.(*discord.GuildEmojisUpdateGatewayEvent)
 
 	if bot.Caches.Config().CacheFlags.Missing(CacheFlagEmojis) {
 		return

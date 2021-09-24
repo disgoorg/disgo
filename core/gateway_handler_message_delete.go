@@ -4,12 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-type messageDeletePayload struct {
-	MessageID discord.Snowflake  `json:"id"`
-	GuildID   *discord.Snowflake `json:"guild_id,omitempty"`
-	ChannelID discord.Snowflake  `json:"channel_id"`
-}
-
 // gatewayHandlerMessageDelete handles core.GatewayEventMessageDelete
 type gatewayHandlerMessageDelete struct{}
 

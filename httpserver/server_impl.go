@@ -36,7 +36,7 @@ func New(eventHandlerFunc EventHandlerFunc, config *Config) Server {
 
 	if config.HTTPServer == nil {
 		config.HTTPServer = &http.Server{
-			Addr:    config.Port,
+			Addr: config.Port,
 		}
 	}
 	if config.HTTPServer.Handler == nil {
@@ -81,7 +81,7 @@ func (s *serverImpl) Start() {
 			err = s.server.ListenAndServe()
 		}
 		if err != nil {
-			s.Logger().Errorf("error starting http server: %s", err)
+			s.Logger().Error("error starting http server: ", err)
 		}
 	}()
 }
@@ -89,14 +89,13 @@ func (s *serverImpl) Start() {
 // Close shuts down the serverImpl
 func (s *serverImpl) Close() {
 	if err := s.server.Close(); err != nil {
-		s.Logger().Errorf("error while shutting down http server: %s", err)
+		s.Logger().Error("error while shutting down http server: ", err)
 	}
 }
 
 type WebhookInteractionHandler struct {
 	server Server
 }
-
 
 func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if ok := Verify(h.server.Logger(), r, h.server.PublicKey()); !ok {

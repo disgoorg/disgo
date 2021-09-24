@@ -4,15 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-type typingStartPayload struct {
-	ChannelID discord.Snowflake
-	GuildID   *discord.Snowflake
-	UserID    discord.Snowflake
-	Timestamp discord.Time
-	Member    *discord.Member
-	User      discord.User
-}
-
 // gatewayHandlerTypingStart handles discord.GatewayEventTypeInviteDelete
 type gatewayHandlerTypingStart struct{}
 
@@ -23,12 +14,12 @@ func (h *gatewayHandlerTypingStart) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerTypingStart) New() interface{} {
-	return &typingStartPayload{}
+	return &discord.TypingStartGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerTypingStart) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
-	payload := *v.(*typingStartPayload)
+	payload := *v.(*discord.TypingStartGatewayEvent)
 
 	user := bot.EntityBuilder.CreateUser(payload.User, CacheStrategyYes)
 

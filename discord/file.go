@@ -102,52 +102,38 @@ const (
 	FileFlagNone    FileFlags = 0
 )
 
-// Add allows you to add multiple FileFlags together, producing a new FileFlags
-func (f FileFlags) Add(flags ...FileFlags) FileFlags {
-	total := FileFlags(0)
-	for _, flag := range flags {
-		total |= flag
+// Add allows you to add multiple bits together, producing a new bit
+func (f FileFlags) Add(bits ...FileFlags) FileFlags {
+	for _, bit := range bits {
+		f |= bit
 	}
-	f |= total
 	return f
 }
 
-// Remove allows you to subtract multiple FileFlags from the first, producing a new FileFlags
-func (f FileFlags) Remove(flags ...FileFlags) FileFlags {
-	total := FileFlags(0)
-	for _, flag := range flags {
-		total |= flag
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (f FileFlags) Remove(bits ...FileFlags) FileFlags {
+	for _, bit := range bits {
+		f &^= bit
 	}
-	f &^= total
 	return f
 }
 
-// HasAll will ensure that the FileFlags includes all of the FileFlags(s) entered
-func (f FileFlags) HasAll(flags ...FileFlags) bool {
-	for _, flag := range flags {
-		if !f.Has(flag) {
+// Has will ensure that the bit includes all the bits entered
+func (f FileFlags) Has(bits ...FileFlags) bool {
+	for _, bit := range bits {
+		if (f & bit) != bit {
 			return false
 		}
 	}
 	return true
 }
 
-// Has will check whether the FileFlags contains another FileFlags
-func (f FileFlags) Has(flag FileFlags) bool {
-	return (f & flag) == flag
-}
-
-// MissingAny will check whether the FileFlags is missing any one of the FileFlags
-func (f FileFlags) MissingAny(flags ...FileFlags) bool {
-	for _, flag := range flags {
-		if !f.Has(flag) {
+// Missing will check whether the bit is missing any one of the bits
+func (f FileFlags) Missing(bits ...FileFlags) bool {
+	for _, bit := range bits {
+		if (f & bit) != bit {
 			return true
 		}
 	}
 	return false
-}
-
-// Missing will do the inverse of FileFlags.Has
-func (f FileFlags) Missing(flag FileFlags) bool {
-	return !f.Has(flag)
 }

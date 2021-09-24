@@ -4,11 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-type roleCreateData struct {
-	GuildID discord.Snowflake `json:"guild_id"`
-	Role    discord.Role      `json:"role"`
-}
-
 // gatewayHandlerGuildRoleCreate handles core.GuildRoleCreateGatewayEvent
 type gatewayHandlerGuildRoleCreate struct{}
 
@@ -19,12 +14,12 @@ func (h *gatewayHandlerGuildRoleCreate) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerGuildRoleCreate) New() interface{} {
-	return &roleCreateData{}
+	return &discord.GuildRoleCreateGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerGuildRoleCreate) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
-	payload := *v.(*roleCreateData)
+	payload := *v.(*discord.GuildRoleCreateGatewayEvent)
 
 	bot.EventManager.Dispatch(&RoleCreateEvent{
 		GenericRoleEvent: &GenericRoleEvent{

@@ -4,11 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-type guildMemberRemoveData struct {
-	GuildID discord.Snowflake `json:"guild_id"`
-	User    discord.User      `json:"user"`
-}
-
 // gatewayHandlerGuildMemberRemove handles core.GuildMemberRemoveGatewayEvent
 type gatewayHandlerGuildMemberRemove struct{}
 
@@ -19,12 +14,12 @@ func (h *gatewayHandlerGuildMemberRemove) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerGuildMemberRemove) New() interface{} {
-	return &guildMemberRemoveData{}
+	return &discord.GuildMemberRemoveGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerGuildMemberRemove) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
-	memberData := *v.(*guildMemberRemoveData)
+	memberData := *v.(*discord.GuildMemberRemoveGatewayEvent)
 
 	bot.EntityBuilder.CreateUser(memberData.User, CacheStrategyYes)
 

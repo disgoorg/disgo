@@ -4,11 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-type guildStickersUpdatePayload struct {
-	GuildID  discord.Snowflake `json:"guild_id"`
-	Stickers []discord.Sticker `json:"stickers"`
-}
-
 // gatewayHandlerGuildStickersUpdate handles discord.GatewayEventTypeGuildStickersUpdate
 type gatewayHandlerGuildStickersUpdate struct{}
 
@@ -19,12 +14,12 @@ func (h *gatewayHandlerGuildStickersUpdate) EventType() discord.GatewayEventType
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerGuildStickersUpdate) New() interface{} {
-	return &guildStickersUpdatePayload{}
+	return &discord.GuildStickersUpdateGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
-	payload := *v.(*guildStickersUpdatePayload)
+	payload := *v.(*discord.GuildStickersUpdateGatewayEvent)
 
 	if bot.Caches.Config().CacheFlags.Missing(CacheFlagStickers) {
 		return
