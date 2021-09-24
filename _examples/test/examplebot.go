@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"os"
 	"os/signal"
 	"syscall"
@@ -23,6 +24,9 @@ var (
 	guildID     = discord.Snowflake(os.Getenv("disgo_guild_id"))
 	adminRoleID = discord.Snowflake(os.Getenv("disgo_admin_role_id"))
 	testRoleID  = discord.Snowflake(os.Getenv("disgo_test_role_id"))
+
+	//go:embed gopher.png
+	gopher []byte
 )
 
 func main() {

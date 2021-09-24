@@ -1,8 +1,8 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
-	"os"
 	"strconv"
 	"time"
 
@@ -129,11 +129,10 @@ func slashCommandListener(event *core.SlashCommandEvent) {
 		)
 
 	case "test":
-		reader, _ := os.Open("gopher.png")
 		_ = event.DeferCreate(event.Options["ephemeral"].Bool())
 		if _, err := event.UpdateOriginal(core.NewMessageUpdateBuilder().
 			SetContent("test message").
-			AddFile("gopher.png", reader).
+			AddFile("gopher.png", bytes.NewBuffer(gopher)).
 			Build(),
 		); err != nil {
 			log.Errorf("error sending interaction response: %s", err)
