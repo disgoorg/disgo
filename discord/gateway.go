@@ -38,6 +38,15 @@ type GuildEmojisUpdateGatewayEvent struct {
 	Emojis  []Emoji   `json:"emojis"`
 }
 
+type GuildStickersUpdateGatewayEvent struct {
+	GuildID  Snowflake `json:"guild_id"`
+	Stickers []Sticker `json:"stickers"`
+}
+
+type GuildIntegrationsUpdateGatewayEvent struct {
+	GuildID  Snowflake `json:"guild_id"`
+}
+
 type GuildMemberRemoveGatewayEvent struct {
 	GuildID Snowflake `json:"guild_id"`
 	User    User      `json:"user"`
@@ -56,11 +65,6 @@ type GuildRoleDeleteGatewayEvent struct {
 type GuildRoleUpdateGatewayEvent struct {
 	GuildID Snowflake `json:"guild_id"`
 	Role    Role      `json:"role"`
-}
-
-type GuildStickersUpdateGatewayEvent struct {
-	GuildID  Snowflake `json:"guild_id"`
-	Stickers []Sticker `json:"stickers"`
 }
 
 type InviteDeleteGatewayEvent struct {
@@ -87,4 +91,8 @@ type TypingStartGatewayEvent struct {
 type WebhooksUpdateGatewayEvent struct {
 	GuildID   Snowflake `json:"guild_id"`
 	ChannelID Snowflake `json:"channel_id"`
+}
+
+type InvalidSessionGatewayEvent struct {
+	bool
 }

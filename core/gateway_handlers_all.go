@@ -13,53 +13,72 @@ func GetGatewayHandlers() map[discord.GatewayEventType]GatewayEventHandler {
 }
 
 var EventHandlers = []GatewayEventHandler{
+	&gatewayHandlerReady{},
+	&gatewayHandlerResumed{},
+	&gatewayHandlerInvalidSession{},
+
 	&gatewayHandlerChannelCreat{},
-	&gatewayHandlerChannelDelete{},
 	&gatewayHandlerChannelUpdate{},
+	&gatewayHandlerChannelDelete{},
+	&gatewayHandlerChannelPinsUpdate{},
+
+	// &gatewayHandlerThreadCreate{},
+	// &gatewayHandlerThreadUpdate{},
+	// &gatewayHandlerThreadDelete{},
+	// &gatewayHandlerThreadListSync{},
+	// &gatewayHandlerThreadMemberUpdate{},
+	// &gatewayHandlerThreadMembersUpdate{},
 
 	&gatewayHandlerGuildCreate{},
-	&gatewayHandlerGuildDelete{},
 	&gatewayHandlerGuildUpdate{},
-
-	&gatewayHandlerGuildMemberAdd{},
-	&gatewayHandlerGuildMemberRemove{},
-	&gatewayHandlerGuildMemberUpdate{},
+	&gatewayHandlerGuildDelete{},
 
 	&gatewayHandlerGuildBanAdd{},
 	&gatewayHandlerGuildBanRemove{},
 
-	&gatewayHandlerGuildRoleCreate{},
-	&gatewayHandlerGuildRoleDelete{},
-	&gatewayHandlerGuildRoleUpdate{},
-
 	&gatewayHandlerGuildEmojisUpdate{},
 	&gatewayHandlerGuildStickersUpdate{},
+	&gatewayHandlerGuildIntegrationsUpdate{},
+
+	&gatewayHandlerGuildMemberAdd{},
+	&gatewayHandlerGuildMemberRemove{},
+	&gatewayHandlerGuildMemberUpdate{},
+	// &gatewayHandlerGuildMemberChunk{},
+
+	&gatewayHandlerGuildRoleCreate{},
+	&gatewayHandlerGuildRoleUpdate{},
+	&gatewayHandlerGuildRoleDelete{},
+
+	// &gatewayHandlerIntegrationCreate{},
+	// &gatewayHandlerIntegrationUpdate{},
+	// &gatewayHandlerIntegrationDelete{},
+
+	&gatewayHandlerInteractionCreate{},
 
 	&gatewayHandlerInviteCreate{},
 	&gatewayHandlerInviteDelete{},
 
-	&gatewayHandlerStageInstanceCreate{},
-	&gatewayHandlerStageInstanceUpdate{},
-	&gatewayHandlerStageInstanceDelete{},
-
-	&gatewayHandlerWebhooksUpdate{},
-
-	&gatewayHandlerInteractionCreate{},
-
-	&gatewayHandlerTypingStart{},
-
 	&gatewayHandlerMessageCreate{},
 	&gatewayHandlerMessageUpdate{},
 	&gatewayHandlerMessageDelete{},
-	&gatewayHandlerChannelPinsUpdate{},
+	// &gatewayHandlerMessageDeleteBulk{},
 
 	&gatewayHandlerMessageReactionAdd{},
 	&gatewayHandlerMessageReactionRemove{},
 	&gatewayHandlerMessageReactionRemoveAll{},
 	&gatewayHandlerMessageReactionRemoveEmoji{},
 
-	&gatewayHandlerReady{},
+	// &gatewayHandlerPresenceUpdate{},
 
-	&gatewayHandlerVoiceServerUpdate{},
+	&gatewayHandlerStageInstanceCreate{},
+	&gatewayHandlerStageInstanceDelete{},
+	&gatewayHandlerStageInstanceUpdate{},
+
+	&gatewayHandlerTypingStart{},
+	// &gatewayHandlerUserUpdate{},
+
 	&gatewayHandlerVoiceStateUpdate{},
+	&gatewayHandlerVoiceServerUpdate{},
+
+	&gatewayHandlerWebhooksUpdate{},
 }
