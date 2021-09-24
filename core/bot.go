@@ -6,14 +6,14 @@ import (
 	"net/http"
 
 	"github.com/DisgoOrg/disgo/gateway"
+	rrate "github.com/DisgoOrg/disgo/rest/rate"
 	"github.com/DisgoOrg/disgo/sharding"
-	"github.com/DisgoOrg/disgo/sharding/rate"
+	srate "github.com/DisgoOrg/disgo/sharding/rate"
 	"github.com/pkg/errors"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/rest"
-	rrate "github.com/DisgoOrg/disgo/rest/rate"
 	"github.com/DisgoOrg/log"
 )
 
@@ -384,31 +384,24 @@ func buildBot(token string, config BotConfig) (*Bot, error) {
 	}
 
 	if config.RestClient == nil {
-		if config.RestClientConfig.RateLimiterConfig == nil {
-			if config.RateLimiterConfig == nil {
-				config.RateLimiterConfig = &rrate.DefaultConfig
-			}
-
-			if config.RateLimiterConfig != nil && config.RateLimiterConfig.Logger == nil {
-				config.RateLimiterConfig.Logger = config.Logger
-			}
-			config.RestClientConfig.RateLimiterConfig = config.RateLimiterConfig
-		}
-
 		if config.RestClientConfig == nil {
 			config.RestClientConfig = &rest.DefaultConfig
 		}
-
 		if config.RestClientConfig.Logger == nil {
 			config.RestClientConfig.Logger = config.Logger
 		}
-
 		if config.RestClientConfig.Headers == nil {
 			config.RestClientConfig.Headers = http.Header{}
 		}
-
 		if _, ok := config.RestClientConfig.Headers["authorization"]; !ok {
 			config.RestClientConfig.Headers["authorization"] = []string{discord.TokenTypeBot.Apply(token)}
+		}
+
+		if config.RestClientConfig.RateLimiterConfig == nil {
+			config.RestClientConfig.RateLimiterConfig = &rrate.DefaultConfig
+		}
+		if config.RestClientConfig.RateLimiterConfig.Logger == nil {
+			config.RestClientConfig.RateLimiterConfig.Logger = config.Logger
 		}
 		config.RestClient = rest.NewClient(config.RestClientConfig)
 	}
@@ -441,7 +434,7 @@ func buildBot(token string, config BotConfig) (*Bot, error) {
 		}
 
 		if config.ShardManagerConfig.RateLimiterConfig == nil {
-			config.ShardManagerConfig.RateLimiterConfig = &rate.DefaultConfig
+			config.ShardManagerConfig.RateLimiterConfig = &srate.DefaultConfig
 		}
 		if config.ShardManagerConfig.RateLimiterConfig.Logger == nil {
 			config.ShardManagerConfig.RateLimiterConfig.Logger = config.Logger

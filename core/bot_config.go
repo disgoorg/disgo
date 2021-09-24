@@ -6,7 +6,6 @@ import (
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/rest"
-	"github.com/DisgoOrg/disgo/rest/rate"
 	"github.com/DisgoOrg/disgo/sharding"
 	"github.com/DisgoOrg/log"
 )
@@ -14,15 +13,10 @@ import (
 type BotConfig struct {
 	Logger log.Logger
 
-	HTTPClient *http.Client
-
+	HTTPClient       *http.Client
 	RestClient       rest.Client
 	RestClientConfig *rest.Config
-
-	RateLimiter       rate.Limiter
-	RateLimiterConfig *rate.Config
-
-	RestServices rest.Services
+	RestServices     rest.Services
 
 	EventManager             EventManager
 	EventListeners           []EventListener
@@ -83,27 +77,6 @@ func WithRestClientConfigOpts(opts ...rest.ConfigOpt) BotConfigOpt {
 			config.RestClientConfig = &rest.DefaultConfig
 		}
 		config.RestClientConfig.Apply(opts)
-	}
-}
-
-func WithRateLimiter(rateLimiter rate.Limiter) BotConfigOpt {
-	return func(config *BotConfig) {
-		config.RateLimiter = rateLimiter
-	}
-}
-
-func WithRateLimiterConfig(rateLimiterConfig rate.Config) BotConfigOpt {
-	return func(config *BotConfig) {
-		config.RateLimiterConfig = &rateLimiterConfig
-	}
-}
-
-func WithRateLimiterConfigOpts(opts ...rate.ConfigOpt) BotConfigOpt {
-	return func(config *BotConfig) {
-		if config.RateLimiterConfig == nil {
-			config.RateLimiterConfig = &rate.DefaultConfig
-		}
-		config.RateLimiterConfig.Apply(opts)
 	}
 }
 
@@ -215,7 +188,7 @@ func WithCacheConfig(cacheConfig CacheConfig) BotConfigOpt {
 func WithCacheConfigOpts(opts ...CacheConfigOpt) BotConfigOpt {
 	return func(config *BotConfig) {
 		if config.CacheConfig == nil {
-			config.CacheConfig = &DefaultConfig
+			config.CacheConfig = &DefaultCacheConfig
 		}
 		config.CacheConfig.Apply(opts)
 	}

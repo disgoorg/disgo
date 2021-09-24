@@ -10,8 +10,7 @@ type typingStartPayload struct {
 	UserID    discord.Snowflake
 	Timestamp discord.Time
 	Member    *discord.Member
-	// TODO: check if we get user somewhere
-	User discord.User
+	User      discord.User
 }
 
 // gatewayHandlerTypingStart handles discord.GatewayEventTypeInviteDelete
