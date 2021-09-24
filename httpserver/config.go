@@ -1,6 +1,10 @@
 package httpserver
 
-import "github.com/DisgoOrg/log"
+import (
+	"net/http"
+
+	"github.com/DisgoOrg/log"
+)
 
 //goland:noinspection GoUnusedGlobalVariable
 var DefaultConfig = Config{
@@ -10,6 +14,7 @@ var DefaultConfig = Config{
 
 type Config struct {
 	Logger           log.Logger
+	HTTPServer       *http.Server
 	EventHandlerFunc EventHandlerFunc
 	URL              string
 	Port             string
