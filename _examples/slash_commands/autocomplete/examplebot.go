@@ -61,7 +61,7 @@ func main() {
 
 	registerCommands(bot)
 
-	err = bot.Connect()
+	err = bot.ConnectGateway()
 	if err != nil {
 		log.Fatalf("error while connecting to discord: %s", err)
 	}
@@ -87,7 +87,7 @@ func applicationCommandAutocompleteListener(event *core.ApplicationCommandAutoco
 			}
 			result := fuzzy.FindFold(focused.String(), targets)
 
-			if focused.String() != "" {
+			if focused.Name != "group" && focused.String() != "" {
 				if len(result) > 24 {
 					result = result[:24]
 				}
