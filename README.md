@@ -27,21 +27,21 @@ modular, customizable and easy to use
 ### Features
 
 * Full Rest API coverage
+* [Gateway](https://discord.com/developers/docs/topics/gateway) support
+* [Sharding](https://discord.com/developers/docs/topics/gateway#sharding) support
+* [HTTP Interactions](https://discord.com/developers/docs/interactions/slash-commands#receiving-an-interaction) support
 * [Application Commands](https://discord.com/developers/docs/interactions/application-commands) support
 * [Message Components](https://discord.com/developers/docs/interactions/message-components) support
-* [Gateway](https://discord.com/developers/docs/topics/gateway) support
-* [HTTP Interactions](https://discord.com/developers/docs/interactions/slash-commands#receiving-an-interaction) support
 * [Stage Instance](https://discord.com/developers/docs/resources/stage-instance) support
 * [Guild Template](https://discord.com/developers/docs/resources/guild-template) support
+* [Sticker](https://discord.com/developers/docs/resources/sticker) support
 * [RateLimit](https://discord.com/developers/docs/topics/rate-limits) handling
 * [Webhook](https://discord.com/developers/docs/resources/webhook) support
 * [OAuth2](https://discord.com/developers/docs/topics/oauth2) support
-* [Sticker](https://discord.com/developers/docs/resources/sticker) support
 
 ### Missing Features
 
 * [Voice](https://discord.com/developers/docs/resources/voice) support
-* [Sharding](https://discord.com/developers/docs/topics/gateway#sharding) support
 * [Threads](https://discord.com/developers/docs/topics/threads) support
 
 ## Getting Started
