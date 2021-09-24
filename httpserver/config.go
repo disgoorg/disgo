@@ -37,6 +37,12 @@ func WithLogger(logger log.Logger) ConfigOpt {
 	}
 }
 
+func WithHTTPServer(httpServer *http.Server) ConfigOpt {
+	return func(config *Config) {
+		config.HTTPServer = httpServer
+	}
+}
+
 func WithURL(url string) ConfigOpt {
 	return func(config *Config) {
 		config.URL = url
