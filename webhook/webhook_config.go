@@ -8,7 +8,6 @@ import (
 
 //goland:noinspection GoUnusedGlobalVariable
 var DefaultConfig = Config{
-	Logger:                 log.Default(),
 	RestClientConfig:       &rest.DefaultConfig,
 	DefaultAllowedMentions: &DefaultAllowedMentions,
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/rest"
-	"github.com/DisgoOrg/disgo/rest/rate"
+	"github.com/DisgoOrg/disgo/sharding"
 	"github.com/DisgoOrg/log"
 )
 
@@ -46,22 +46,10 @@ func (b *BotBuilder) SetRestClientConfig(config rest.Config) *BotBuilder {
 }
 
 func (b *BotBuilder) SetRestClientConfigOpts(opts ...rest.ConfigOpt) *BotBuilder {
+	if b.RestClientConfig == nil {
+		b.RestClientConfig = &rest.DefaultConfig
+	}
 	b.RestClientConfig.Apply(opts)
-	return b
-}
-
-// SetRateLimiter sets the rate.Limiter the rest.Client uses
-func (b *BotBuilder) SetRateLimiter(rateLimiter rate.Limiter) *BotBuilder {
-	b.RateLimiter = rateLimiter
-	return b
-}
-func (b *BotBuilder) SetRateLimiterConfig(config rate.Config) *BotBuilder {
-	b.RateLimiterConfig = &config
-	return b
-}
-
-func (b *BotBuilder) SetRateLimiterConfigOpts(opts ...rate.ConfigOpt) *BotBuilder {
-	b.RateLimiterConfig.Apply(opts)
 	return b
 }
 
@@ -97,20 +85,43 @@ func (b *BotBuilder) SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceD
 	return b
 }
 
-// SetGateway lets you inject your own core.Gateway
+// SetGateway lets you inject your own sharding.Gateway
 func (b *BotBuilder) SetGateway(gateway gateway.Gateway) *BotBuilder {
 	b.Gateway = gateway
 	return b
 }
 
-// SetGatewayConfig sets the gateway.Config the gateway.Gateway uses
+// SetGatewayConfig sets the sharding.Config the sharding.Gateway uses
 func (b *BotBuilder) SetGatewayConfig(gatewayConfig gateway.Config) *BotBuilder {
 	b.GatewayConfig = &gatewayConfig
 	return b
 }
 
 func (b *BotBuilder) SetGatewayConfigOpts(opts ...gateway.ConfigOpt) *BotBuilder {
+	if b.GatewayConfig == nil {
+		b.GatewayConfig = &gateway.DefaultConfig
+	}
 	b.GatewayConfig.Apply(opts)
+	return b
+}
+
+// SetShardManager lets you inject your own sharding.ShardManager
+func (b *BotBuilder) SetShardManager(shardManager sharding.ShardManager) *BotBuilder {
+	b.ShardManager = shardManager
+	return b
+}
+
+// SetShardManagerConfig sets the sharding.Config the sharding.ShardManager uses
+func (b *BotBuilder) SetShardManagerConfig(shardManagerConfig sharding.Config) *BotBuilder {
+	b.ShardManagerConfig = &shardManagerConfig
+	return b
+}
+
+func (b *BotBuilder) SetShardMangerConfigOpts(opts ...sharding.ConfigOpt) *BotBuilder {
+	if b.ShardManagerConfig == nil {
+		b.ShardManagerConfig = &sharding.DefaultConfig
+	}
+	b.ShardManagerConfig.Apply(opts)
 	return b
 }
 
@@ -127,6 +138,9 @@ func (b *BotBuilder) SetHTTPServerConfig(config httpserver.Config) *BotBuilder {
 }
 
 func (b *BotBuilder) SetHTTPServerConfigOpts(opts ...httpserver.ConfigOpt) *BotBuilder {
+	if b.HTTPServerConfig == nil {
+		b.HTTPServerConfig = &httpserver.DefaultConfig
+	}
 	b.HTTPServerConfig.Apply(opts)
 	return b
 }
@@ -144,6 +158,9 @@ func (b *BotBuilder) SetCacheConfig(config CacheConfig) *BotBuilder {
 }
 
 func (b *BotBuilder) SetCacheConfigOpts(opts ...CacheConfigOpt) *BotBuilder {
+	if b.CacheConfig == nil {
+		b.CacheConfig = &DefaultCacheConfig
+	}
 	b.CacheConfig.Apply(opts)
 	return b
 }

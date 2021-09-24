@@ -1,7 +1,7 @@
 package core
 
 //goland:noinspection GoUnusedGlobalVariable
-var DefaultConfig = CacheConfig{
+var DefaultCacheConfig = CacheConfig{
 	CacheFlags:         CacheFlagsDefault,
 	MemberCachePolicy:  MemberCachePolicyDefault,
 	MessageCachePolicy: MessageCachePolicyDefault,
