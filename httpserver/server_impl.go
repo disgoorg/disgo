@@ -40,11 +40,13 @@ func New(eventHandlerFunc EventHandlerFunc, config *Config) Server {
 		}
 	}
 	if config.HTTPServer.Handler == nil {
-		mux :=http.NewServeMux()
-		mux.Handle(config.URL, &WebhookInteractionHandler{server: server})
-		config.HTTPServer.Handler = mux
+		if config.ServeMux == nil {
+			config.ServeMux = http.NewServeMux()
+		}
+		config.ServeMux.Handle(config.URL, &WebhookInteractionHandler{server: server})
+		config.HTTPServer.Handler = config.ServeMux
 	}
-	server.config =    *config
+	server.config = *config
 	return server
 }
 

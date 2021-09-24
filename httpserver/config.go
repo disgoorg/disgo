@@ -15,6 +15,7 @@ var DefaultConfig = Config{
 type Config struct {
 	Logger           log.Logger
 	HTTPServer       *http.Server
+	ServeMux         *http.ServeMux
 	EventHandlerFunc EventHandlerFunc
 	URL              string
 	Port             string
@@ -40,6 +41,12 @@ func WithLogger(logger log.Logger) ConfigOpt {
 func WithHTTPServer(httpServer *http.Server) ConfigOpt {
 	return func(config *Config) {
 		config.HTTPServer = httpServer
+	}
+}
+
+func WithServeMux(serveMux *http.ServeMux) ConfigOpt {
+	return func(config *Config) {
+		config.ServeMux = serveMux
 	}
 }
 
