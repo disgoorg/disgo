@@ -55,28 +55,31 @@ go get github.com/DisgoOrg/disgo
 ### Building a Disgo Instance
 
 ```go
-disgo, err := core.NewBuilder("token").
+disgo, err := core.NewBot(os.Getenv("token"),
     // set which gateway intents we should use
-    SetGatewayConfig(gateway.Config{
-        GatewayIntents: gateway.IntentGuilds | gateway.IntentGuildMessages,
-    }).
-    SetHTTPServerConfig(httpserver.Config{
-        URL:       "/interactions/callback",
-		Port:      ":443",
-        PublicKey: "your public key from the developer dashboard",
-    }).
+    core.WithGatewayConfigOpts(
+        gateway.WithGatewayIntents(
+            discord.GatewayIntentGuilds,
+            discord.GatewayIntentGuildMessages,
+            discord.GatewayIntentDirectMessages,
+        ),
+    ),
+    core.WithCacheConfigOpts(
+		core.WithCacheFlags(core.CacheFlagsDefault),
+    ),
     // add our event listeners
-    AddEventListeners(&events.ListenerAdapter{
-        OnGuildMessageCreate: guildMessageListener,
-    }).
-    // build the disgo instance. This might return an error!
-    Build()
+    core.WithEventListeners(&core.ListenerAdapter{
+        OnMessageCreate: onMessageCreate,
+    }),
+)
+if err != nil {
+    log.Fatal("error while building disgo: ", err)
+}
 
 // connect to the gateway
-err := disgo.Connect()
-
-// optionally start the http server for interactions
-disgo.Start() 
+if err := disgo.ConnectGateway(); err != nil {
+    log.Fatal("error while connecting to the gateway: ", err)
+}
 ```
 
 ### Ping Pong Example
@@ -90,60 +93,37 @@ import (
     "syscall"
 
     "github.com/DisgoOrg/disgo/core"
-    "github.com/DisgoOrg/disgo/core/events"
+    "github.com/DisgoOrg/disgo/discord"
     "github.com/DisgoOrg/disgo/gateway"
     "github.com/DisgoOrg/log"
 )
 
 func main() {
-    // create a new builder
-    disgo, err := core.NewBuilder("token"). 
-		// set which gateway intents we should use
-        SetGatewayConfig(gateway.Config{
-            GatewayIntents: gateway.IntentGuilds | gateway.IntentGuildMessages,
-        }).
-        // add our event listeners
-        AddEventListeners(&events.ListenerAdapter{
-            OnGuildMessageCreate: guildMessageListener,
-        }).
-        // build the disgo instance. This might return an error!
-        Build()
+    disgo, err := core.NewBot(os.Getenv("token"),
+        core.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
+        core.WithCacheConfig(core.CacheConfig{CacheFlags: core.CacheFlagsDefault}),
+        core.WithEventListeners(&core.ListenerAdapter{
+            OnMessageCreate: onMessageCreate,
+        }),
+    )
     if err != nil {
         log.Fatal("error while building disgo: ", err)
     }
 
-    // clean exit disgo 
     defer disgo.Close()
 
-    // connect to the gateway to receive events from discord
-    if err = disgo.Connect(); err != nil {
-        log.Fatal("failed to connect to gateway: ", err)
+    if err = disgo.ConnectGateway(); err != nil {
+        log.Fatal("errors while connecting to gateway: ", err)
     }
 
-    // block until we receive a stop signal
+    log.Infof("example is now running. Press CTRL-C to exit.")
     s := make(chan os.Signal, 1)
     signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
     <-s
 }
 
-// define event listener function to get message create events
-func guildMessageListener(event *events.GuildMessageCreateEvent) {
-    message := event.Message
-    // check if message author is bot or content is nil
-    if message.Author.IsBot || message.Content == nil {
-        return
-    }
-
-    // check if message content is "ping"
-    if *message.Content == "ping" {
-        // reply to the message with pong
-        if _, err := message.Reply(core.NewMessageCreateBuilder().
-            SetContent("pong").
-            Build(),
-        ); err != nil {
-            log.Error("failed to reply to ping: ", err)
-        }
-    }
+func onMessageCreate(event *core.MessageCreateEvent) {
+    _, _ = event.Message.Reply(core.NewMessageCreateBuilder().SetContent(event.Message.Content).Build())
 }
 ```
 
