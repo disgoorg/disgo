@@ -5,14 +5,14 @@ import (
 )
 
 func GetGatewayHandlers() map[discord.GatewayEventType]GatewayEventHandler {
-	handlers := make(map[discord.GatewayEventType]GatewayEventHandler, len(EventHandlers))
-	for _, handler := range EventHandlers {
+	handlers := make(map[discord.GatewayEventType]GatewayEventHandler, len(AllEventHandlers))
+	for _, handler := range AllEventHandlers {
 		handlers[handler.EventType()] = handler
 	}
 	return handlers
 }
 
-var EventHandlers = []GatewayEventHandler{
+var AllEventHandlers = []GatewayEventHandler{
 	&gatewayHandlerReady{},
 	&gatewayHandlerResumed{},
 	&gatewayHandlerInvalidSession{},
