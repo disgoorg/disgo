@@ -12,22 +12,22 @@ type ListenerAdapter struct {
 	OnRawGateway  func(event *RawEvent)
 	OnReadyEvent  func(event *ReadyEvent)
 
-	// core.GetGuildChannel Events
+	// core.Channel Events
 	OnGuildChannelCreate func(event *GuildChannelCreateEvent)
 	OnGuildChannelUpdate func(event *GuildChannelUpdateEvent)
 	OnGuildChannelDelete func(event *GuildChannelDeleteEvent)
 
-	// core.DMChannel Events
+	// core.Channel Events
 	OnDMChannelCreate func(event *DMChannelCreateEvent)
 	OnDMChannelUpdate func(event *DMChannelUpdateEvent)
 	OnDMChannelDelete func(event *DMChannelDeleteEvent)
 
-	// core.DMChannel Message Events
+	// core.Channel Message Events
 	OnDMMessageCreate func(event *DMMessageCreateEvent)
 	OnDMMessageUpdate func(event *DMMessageUpdateEvent)
 	OnDMMessageDelete func(event *DMMessageDeleteEvent)
 
-	// core.DMChannel Reaction Events
+	// core.Channel Reaction Events
 	OnDMMessageReactionAdd         func(event *DMMessageReactionAddEvent)
 	OnDMMessageReactionRemove      func(event *DMMessageReactionRemoveEvent)
 	OnDMMessageReactionRemoveEmoji func(event *DMMessageReactionRemoveEmojiEvent)
@@ -43,11 +43,11 @@ type ListenerAdapter struct {
 	OnStickerUpdate func(event *StickerUpdateEvent)
 	OnStickerDelete func(event *StickerDeleteEvent)
 
-	// gateway.Status Events
-	OnConnected    func(event *ConnectedEvent)
-	OnReconnected  func(event *ReconnectedEvent)
-	OnResumed      func(event *ResumedEvent)
-	OnDisconnected func(event *DisconnectedEvent)
+	// gateway status Events
+	OnReady          func(event *ReadyEvent)
+	OnResumed        func(event *ResumedEvent)
+	OnInvalidSession func(event *InvalidSessionEvent)
+	OnDisconnected   func(event *DisconnectedEvent)
 
 	// core.Guild Events
 	OnGuildJoin        func(event *GuildJoinEvent)
@@ -125,6 +125,13 @@ type ListenerAdapter struct {
 	OnUserActivityStart  func(event *UserActivityStartEvent)
 	OnUserActivityUpdate func(event *UserActivityUpdateEvent)
 	OnUserActivityEnd    func(event *UserActivityEndEvent)
+
+	OnIntegrationCreate       func(event *IntegrationCreateEvent)
+	OnIntegrationUpdate       func(event *IntegrationUpdateEvent)
+	OnIntegrationDelete       func(event *IntegrationDeleteEvent)
+	OnGuildIntegrationsUpdate func(event *GuildIntegrationsUpdateEvent)
+
+	OnGuildWebhooksUpdate func(event *WebhooksUpdateEvent)
 }
 
 // OnEvent is getting called everytime we receive an event
@@ -140,10 +147,6 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 	case *RawEvent:
 		if listener := l.OnRawGateway; listener != nil {
-			listener(e)
-		}
-	case *ReadyEvent:
-		if listener := l.OnReadyEvent; listener != nil {
 			listener(e)
 		}
 
@@ -235,17 +238,17 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
-	// gateway.GatewayStatus Events
-	case *ConnectedEvent:
-		if listener := l.OnConnected; listener != nil {
-			listener(e)
-		}
-	case *ReconnectedEvent:
-		if listener := l.OnReconnected; listener != nil {
+	// gateway Status Events
+	case *ReadyEvent:
+		if listener := l.OnReady; listener != nil {
 			listener(e)
 		}
 	case *ResumedEvent:
 		if listener := l.OnResumed; listener != nil {
+			listener(e)
+		}
+	case *InvalidSessionEvent:
+		if listener := l.OnInvalidSession; listener != nil {
 			listener(e)
 		}
 	case *DisconnectedEvent:
@@ -474,6 +477,29 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 	case *UserActivityEndEvent:
 		if listener := l.OnUserActivityEnd; listener != nil {
+			listener(e)
+		}
+
+	// Integration Events
+	case *IntegrationCreateEvent:
+		if listener := l.OnIntegrationCreate; listener != nil {
+			listener(e)
+		}
+	case *IntegrationUpdateEvent:
+		if listener := l.OnIntegrationUpdate; listener != nil {
+			listener(e)
+		}
+	case *IntegrationDeleteEvent:
+		if listener := l.OnIntegrationDelete; listener != nil {
+			listener(e)
+		}
+	case *GuildIntegrationsUpdateEvent:
+		if listener := l.OnGuildIntegrationsUpdate; listener != nil {
+			listener(e)
+		}
+
+	case *WebhooksUpdateEvent:
+		if listener := l.OnGuildWebhooksUpdate; listener != nil {
 			listener(e)
 		}
 

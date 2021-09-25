@@ -5,60 +5,80 @@ import (
 )
 
 func GetGatewayHandlers() map[discord.GatewayEventType]GatewayEventHandler {
-	handlers := make(map[discord.GatewayEventType]GatewayEventHandler, len(EventHandlers))
-	for _, handler := range EventHandlers {
+	handlers := make(map[discord.GatewayEventType]GatewayEventHandler, len(AllEventHandlers))
+	for _, handler := range AllEventHandlers {
 		handlers[handler.EventType()] = handler
 	}
 	return handlers
 }
 
-var EventHandlers = []GatewayEventHandler{
+var AllEventHandlers = []GatewayEventHandler{
+	&gatewayHandlerReady{},
+	&gatewayHandlerResumed{},
+	&gatewayHandlerInvalidSession{},
+
 	&gatewayHandlerChannelCreat{},
-	&gatewayHandlerChannelDelete{},
 	&gatewayHandlerChannelUpdate{},
+	&gatewayHandlerChannelDelete{},
+	&gatewayHandlerChannelPinsUpdate{},
+
+	// &gatewayHandlerThreadCreate{},
+	// &gatewayHandlerThreadUpdate{},
+	// &gatewayHandlerThreadDelete{},
+	// &gatewayHandlerThreadListSync{},
+	// &gatewayHandlerThreadMemberUpdate{},
+	// &gatewayHandlerThreadMembersUpdate{},
 
 	&gatewayHandlerGuildCreate{},
-	&gatewayHandlerGuildDelete{},
 	&gatewayHandlerGuildUpdate{},
-
-	&gatewayHandlerGuildMemberAdd{},
-	&gatewayHandlerGuildMemberRemove{},
-	&gatewayHandlerGuildMemberUpdate{},
+	&gatewayHandlerGuildDelete{},
 
 	&gatewayHandlerGuildBanAdd{},
 	&gatewayHandlerGuildBanRemove{},
 
-	&gatewayHandlerGuildRoleCreate{},
-	&gatewayHandlerGuildRoleDelete{},
-	&gatewayHandlerGuildRoleUpdate{},
-
 	&gatewayHandlerGuildEmojisUpdate{},
 	&gatewayHandlerGuildStickersUpdate{},
+	&gatewayHandlerGuildIntegrationsUpdate{},
+
+	&gatewayHandlerGuildMemberAdd{},
+	&gatewayHandlerGuildMemberRemove{},
+	&gatewayHandlerGuildMemberUpdate{},
+	// &gatewayHandlerGuildMemberChunk{},
+
+	&gatewayHandlerGuildRoleCreate{},
+	&gatewayHandlerGuildRoleUpdate{},
+	&gatewayHandlerGuildRoleDelete{},
+
+	&gatewayHandlerIntegrationCreate{},
+	&gatewayHandlerIntegrationUpdate{},
+	&gatewayHandlerIntegrationDelete{},
+
+	&gatewayHandlerInteractionCreate{},
 
 	&gatewayHandlerInviteCreate{},
 	&gatewayHandlerInviteDelete{},
 
-	&gatewayHandlerStageInstanceCreate{},
-	&gatewayHandlerStageInstanceUpdate{},
-	&gatewayHandlerStageInstanceDelete{},
-
-	&gatewayHandlerWebhooksUpdate{},
-
-	&gatewayHandlerInteractionCreate{},
-
-	&gatewayHandlerTypingStart{},
-
 	&gatewayHandlerMessageCreate{},
 	&gatewayHandlerMessageUpdate{},
 	&gatewayHandlerMessageDelete{},
+	// &gatewayHandlerMessageDeleteBulk{},
 
 	&gatewayHandlerMessageReactionAdd{},
 	&gatewayHandlerMessageReactionRemove{},
 	&gatewayHandlerMessageReactionRemoveAll{},
 	&gatewayHandlerMessageReactionRemoveEmoji{},
 
-	&gatewayHandlerReady{},
+	// &gatewayHandlerPresenceUpdate{},
 
-	&gatewayHandlerVoiceServerUpdate{},
+	&gatewayHandlerStageInstanceCreate{},
+	&gatewayHandlerStageInstanceDelete{},
+	&gatewayHandlerStageInstanceUpdate{},
+
+	&gatewayHandlerTypingStart{},
+	// &gatewayHandlerUserUpdate{},
+
 	&gatewayHandlerVoiceStateUpdate{},
+	&gatewayHandlerVoiceServerUpdate{},
+
+	&gatewayHandlerWebhooksUpdate{},
 }

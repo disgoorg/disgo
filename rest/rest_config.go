@@ -60,6 +60,9 @@ func WithRateLimiterConfig(rateLimiterConfig rate.Config) ConfigOpt {
 
 func WithRateLimiterConfigOpts(opts ...rate.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
+		if config.RateLimiterConfig == nil {
+			config.RateLimiterConfig = &rate.DefaultConfig
+		}
 		config.RateLimiterConfig.Apply(opts)
 	}
 }

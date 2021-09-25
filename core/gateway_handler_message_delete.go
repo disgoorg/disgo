@@ -4,12 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-type messageDeletePayload struct {
-	MessageID discord.Snowflake  `json:"id"`
-	GuildID   *discord.Snowflake `json:"guild_id,omitempty"`
-	ChannelID discord.Snowflake  `json:"channel_id"`
-}
-
 // gatewayHandlerMessageDelete handles core.GatewayEventMessageDelete
 type gatewayHandlerMessageDelete struct{}
 
@@ -20,12 +14,12 @@ func (h *gatewayHandlerMessageDelete) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerMessageDelete) New() interface{} {
-	return &messageDeletePayload{}
+	return &discord.MessageDeleteGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerMessageDelete) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
-	payload := *v.(*messageDeletePayload)
+	payload := *v.(*discord.MessageDeleteGatewayEvent)
 
 	genericMessageEvent := &GenericMessageEvent{
 		GenericEvent: NewGenericEvent(bot, sequenceNumber),

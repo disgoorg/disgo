@@ -6,11 +6,11 @@ import (
 	"sync"
 )
 
-func NewIntSet(is ...int) *IntSet {
+func NewIntSet(ints ...int) *IntSet {
 	set := &IntSet{
-		Set: make(map[int]struct{}, len(is)),
+		Set: make(map[int]struct{}, len(ints)),
 	}
-	for _, i := range is {
+	for _, i := range ints {
 		set.Set[i] = struct{}{}
 	}
 	return set

@@ -53,7 +53,7 @@ func Verify(logger log.Logger, r *http.Request, key ed25519.PublicKey) bool {
 	defer func() {
 		err = r.Body.Close()
 		if err != nil {
-			logger.Errorf("error while closing request body: %s", err)
+			logger.Error("error while closing request body: ", err)
 		}
 	}()
 	var body bytes.Buffer

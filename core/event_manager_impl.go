@@ -42,8 +42,10 @@ func (e *eventManagerImpl) Close() {
 func (e *eventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) {
 	if handler, ok := e.gatewayEventHandlers[gatewayEventType]; ok {
 		v := handler.New()
-		if err := json.NewDecoder(reader).Decode(&v); err != nil {
-			e.Bot().Logger.Errorf("error while unmarshalling event '%s'. error: %s", gatewayEventType, err.Error())
+		if v != nil {
+			if err := json.NewDecoder(reader).Decode(&v); err != nil {
+				e.Bot().Logger.Errorf("error while unmarshalling event '%s'. error: %s", gatewayEventType, err.Error())
+			}
 		}
 		handler.HandleGatewayEvent(e.Bot(), sequenceNumber, v)
 	} else {

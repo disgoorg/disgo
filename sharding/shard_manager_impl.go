@@ -64,7 +64,7 @@ func (m *shardManagerImpl) Open() []error {
 }
 
 func (m *shardManagerImpl) OpenContext(ctx context.Context) []error {
-	m.Logger().Infof("opening %v shards...", m.config.Shards)
+	m.Logger().Infof("opening %s shards...", m.config.Shards)
 	var wg sync.WaitGroup
 	var errs []error
 	var errsMu sync.Mutex
