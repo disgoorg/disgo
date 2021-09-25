@@ -23,6 +23,16 @@ type ChannelPinsUpdateGatewayEvent struct {
 	LastPinTimestamp *Time      `json:"last_pin_timestamp"`
 }
 
+type GuildMembersChunkGatewayEvent struct {
+	GuildID    Snowflake   `json:"guild_id"`
+	Members    []Member    `json:"members"`
+	ChunkIndex int         `json:"chunk_index"`
+	ChunkCount int         `json:"chunk_count"`
+	NotFound   []Snowflake `json:"not_found"`
+	Presences  []Presence  `json:"presences"`
+	Nonce      string      `json:"nonce"`
+}
+
 type GuildBanAddGatewayEvent struct {
 	GuildID Snowflake `json:"guild_id"`
 	User    User      `json:"user"`
@@ -74,9 +84,15 @@ type InviteDeleteGatewayEvent struct {
 }
 
 type MessageDeleteGatewayEvent struct {
-	MessageID Snowflake  `json:"id"`
-	GuildID   *Snowflake `json:"guild_id,omitempty"`
+	ID        Snowflake  `json:"id"`
 	ChannelID Snowflake  `json:"channel_id"`
+	GuildID   *Snowflake `json:"guild_id,omitempty"`
+}
+
+type MessageDeleteBulkGatewayEvent struct {
+	IDs       []Snowflake `json:"id"`
+	ChannelID Snowflake   `json:"channel_id"`
+	GuildID   *Snowflake  `json:"guild_id,omitempty"`
 }
 
 type TypingStartGatewayEvent struct {

@@ -1,4 +1,4 @@
-package oauth2
+package helpers
 
 import (
 	"math/rand"

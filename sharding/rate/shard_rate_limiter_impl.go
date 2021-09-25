@@ -60,7 +60,9 @@ func (r *limiterImpl) getBucket(shardID int, create bool) *bucket {
 			return nil
 		}
 
-		b = &bucket{}
+		b = &bucket{
+			Key: key,
+		}
 		r.buckets[key] = b
 	}
 	return b
@@ -105,10 +107,11 @@ func (r *limiterImpl) UnlockBucket(shardID int) {
 		b.Unlock()
 	}()
 
-	b.Reset = time.Now().Add(5 * time.Second)
+	b.Reset = time.Now().Add(time.Duration(r.config.StartupDelay) * time.Second)
 }
 
 type bucket struct {
 	csync.Mutex
+	Key   int
 	Reset time.Time
 }
