@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/DisgoOrg/log"
+	"github.com/sasha-s/go-csync"
 )
 
 var _ Limiter = (*limiterImpl)(nil)
@@ -67,8 +68,10 @@ func (r *limiterImpl) getBucket(shardID int, create bool) *bucket {
 
 func (r *limiterImpl) WaitBucket(ctx context.Context, shardID int) error {
 	b := r.getBucket(shardID, true)
-	r.Logger().Debugf("locking bucket: %+v", b)
-	b.Lock()
+	r.Logger().Debugf("locking shard bucket: %+v", b)
+	if err := b.CLock(ctx); err != nil {
+		return err
+	}
 
 	var until time.Time
 	now := time.Now()
@@ -79,7 +82,7 @@ func (r *limiterImpl) WaitBucket(ctx context.Context, shardID int) error {
 
 	if until.After(now) {
 		if deadline, ok := ctx.Deadline(); ok && until.After(deadline) {
-			return ErrCtxTimeout
+			return context.DeadlineExceeded
 		}
 
 		select {
@@ -98,7 +101,7 @@ func (r *limiterImpl) UnlockBucket(shardID int) {
 		return
 	}
 	defer func() {
-		r.Logger().Debugf("unlocking bucket: %+v", b)
+		r.Logger().Debugf("unlocking shard bucket: %+v", b)
 		b.Unlock()
 	}()
 
@@ -106,6 +109,6 @@ func (r *limiterImpl) UnlockBucket(shardID int) {
 }
 
 type bucket struct {
-	sync.Mutex
+	csync.Mutex
 	Reset time.Time
 }

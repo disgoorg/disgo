@@ -5,12 +5,8 @@ import (
 	"net/http"
 
 	"github.com/DisgoOrg/disgo/rest/route"
-	"github.com/pkg/errors"
-
 	"github.com/DisgoOrg/log"
 )
-
-var ErrCtxTimeout = errors.New("rate limit exceeds context deadline")
 
 type Limiter interface {
 	Logger() log.Logger

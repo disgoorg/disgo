@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/gateway/rate"
 	"github.com/DisgoOrg/disgo/json"
 	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/log"
@@ -18,12 +19,20 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+var _ Gateway = (*gatewayImpl)(nil)
+
 func New(token string, url string, shardID int, shardCount int, eventHandlerFunc EventHandlerFunc, config *Config) Gateway {
 	if config == nil {
 		config = &DefaultConfig
 	}
 	if config.Logger == nil {
 		config.Logger = log.Default()
+	}
+	if config.RateLimiterConfig == nil {
+		config.RateLimiterConfig = &rate.DefaultConfig
+	}
+	if config.RateLimiter == nil {
+		config.RateLimiter = rate.NewLimiter(config.RateLimiterConfig)
 	}
 	config.EventHandlerFunc = eventHandlerFunc
 
@@ -116,7 +125,16 @@ func (g *gatewayImpl) Status() Status {
 }
 
 func (g *gatewayImpl) Send(command discord.GatewayCommand) error {
-	return g.conn.WriteJSON(command)
+	return g.SendContext(context.Background(), command)
+}
+
+func (g *gatewayImpl) SendContext(ctx context.Context, command discord.GatewayCommand) error {
+	if err := g.config.RateLimiter.Wait(ctx); err != nil {
+		return err
+	}
+	err := g.conn.WriteJSON(command)
+	g.config.RateLimiter.Unlock()
+	return err
 }
 
 func (g *gatewayImpl) Latency() time.Duration {
@@ -252,9 +270,7 @@ func (g *gatewayImpl) listen() {
 					identify.Shard = []int{g.shardID, g.shardCount}
 				}
 
-				if err = g.Send(
-					discord.NewGatewayCommand(discord.GatewayOpcodeIdentify, identify),
-				); err != nil {
+				if err = g.Send(discord.NewGatewayCommand(discord.GatewayOpcodeIdentify, identify)); err != nil {
 					g.Logger().Error("error sending identify payload: ", err)
 				}
 				g.status = StatusWaitingForReady
@@ -280,7 +296,7 @@ func (g *gatewayImpl) listen() {
 				g.lastSequenceReceived = &event.S
 			}
 			if event.T == "" {
-				g.Logger().Errorf("received event without T. payload: %+v", event)
+				g.Logger().Error("received event without T. payload: ", event)
 				continue
 			}
 

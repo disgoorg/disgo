@@ -47,6 +47,9 @@ func WithRestClientConfig(restConfig rest.Config) ConfigOpt {
 
 func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
+		if config.RestClientConfig == nil {
+			config.RestClientConfig = &rest.DefaultConfig
+		}
 		config.RestClientConfig.Apply(opts)
 	}
 }

@@ -47,5 +47,6 @@ type Gateway interface {
 	Close()
 	Status() Status
 	Send(command discord.GatewayCommand) error
+	SendContext(ctx context.Context, command discord.GatewayCommand) error
 	Latency() time.Duration
 }
