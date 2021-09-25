@@ -10,8 +10,7 @@ Import the package into your project.
 import "github.com/DisgoOrg/disgo/webhook"
 ```
 
-Create a new Webhook by `webhook_id` and `webhook_token`. (*This WebhookClient should be created once as it holds
-important state*)
+Create a new Webhook by `webhook_id` and `webhook_token`. (*This WebhookClient should be created once as it holds important state*)
 
 ```go
 package main
@@ -21,8 +20,7 @@ import "github.com/DisgoOrg/disgo/webhook"
 client := webhook.NewClient(discord.Snowflake(webhookID), webhookToken)
 ```
 
-`webhook.NewClient` takes a vararg of type `webhook.ConfigOpt` as third argument which lets you pass additional optional
-parameter as a custom logger, rest client etc
+`webhook.NewClient` takes a vararg of type `webhook.ConfigOpt` as third argument which lets you pass additional optional parameter as a custom logger, rest client etc
 
 ### Optional Arguments
 
@@ -101,8 +99,8 @@ or deleted
 package main
 
 import (
-    "github.com/DisgoOrg/disgo/core"
-    "github.com/DisgoOrg/disgo/webhook"
+	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/webhook"
 )
 
 client := webhook.NewClient(discord.Snowflake(webhookID), webhookToken)

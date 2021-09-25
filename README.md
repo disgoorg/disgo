@@ -9,8 +9,7 @@
 
 # disgo
 
-disgo is a [Discord](https://discord.com) API wrapper written in [Go](https://golang.org/) aimed to be consistent,
-modular, customizable and easy to use
+disgo is a [Discord](https://discord.com) API wrapper written in [Go](https://golang.org/) aimed to be consistent, modular, customizable and easy to use
 
 ## Summary
 
@@ -129,10 +128,7 @@ func onMessageCreate(event *core.MessageCreateEvent) {
 
 ### Logging
 
-disgo uses our own small [logging lib](https://github.com/DisgoOrg/log) which provides
-an [interface](https://github.com/DisgoOrg/log/blob/master/logger.go) you can implement. This lib also comes with a
-default logger which is interchangeable and based on the standard log package. You can read more about
-it [here](https://github.com/DisgoOrg/log)
+disgo uses our own small [logging lib](https://github.com/DisgoOrg/log) which provides an [interface](https://github.com/DisgoOrg/log/blob/master/logger.go) you can implement. This lib also comes with a default logger which is interchangeable and based on the standard log package. You can read more about it [here](https://github.com/DisgoOrg/log)
 
 ## Documentation
 
@@ -159,20 +155,17 @@ or in these projects:
 
 ### [Lavalink](https://github.com/freyacodes/Lavalink)
 
-Standalone audio sending node based on Lavaplayer and JDA-Audio. Allows for sending audio without it ever reaching any
-of your shards.
+Standalone audio sending node based on Lavaplayer and JDA-Audio. Allows for sending audio without it ever reaching any of your shards.
 
 Being used in production by FredBoat, Dyno, LewdBot, and more.
 
 ### [disgolink](https://github.com/DisgoOrg/disgolink)
 
-[Lavalink Client](https://github.com/freyacodes/Lavalink) which can be used to communicate with LavaLink to play/search
-tracks
+[Lavalink Client](https://github.com/freyacodes/Lavalink) which can be used to communicate with LavaLink to play/search tracks
 
 ### [disgofy](https://github.com/DisgoOrg/disgofy)
 
-[disgolink](https://github.com/DisgoOrg/disgolink) Spotify integration. disgofy resolved Spotify urls to
-tracks/albums/playlists and lazy searches for them on YouTube
+[disgolink](https://github.com/DisgoOrg/disgolink) Spotify integration. disgofy resolved Spotify urls to tracks/albums/playlists and lazy searches for them on YouTube
 
 ### [dislog](https://github.com/DisgoOrg/dislog)
 
@@ -188,13 +181,11 @@ For help feel free to open an issues or reach out on [Discord](https://discord.g
 
 ## Contributing
 
-Contributions are welcomed but for bigger changes please first reach out via [Discord](https://discord.gg/TewhTfDpvW) or
-create an issue to discuss your intentions and ideas.
+Contributions are welcomed but for bigger changes please first reach out via [Discord](https://discord.gg/TewhTfDpvW) or create an issue to discuss your intentions and ideas.
 
 ## License
 
-Distributed under
-the [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/DisgoOrg/disgo/blob/master/LICENSE)
+Distributed under the [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/DisgoOrg/disgo/blob/master/LICENSE)
 . See LICENSE for more information.
 
 
