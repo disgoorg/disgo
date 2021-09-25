@@ -125,8 +125,12 @@ type ListenerAdapter struct {
 	OnUserActivityUpdate func(event *UserActivityUpdateEvent)
 	OnUserActivityEnd    func(event *UserActivityEndEvent)
 
+	OnIntegrationCreate       func(event *IntegrationCreateEvent)
+	OnIntegrationUpdate       func(event *IntegrationUpdateEvent)
+	OnIntegrationDelete       func(event *IntegrationDeleteEvent)
 	OnGuildIntegrationsUpdate func(event *GuildIntegrationsUpdateEvent)
-	OnGuildWebhooksUpdate     func(event *WebhooksUpdateEvent)
+
+	OnGuildWebhooksUpdate func(event *WebhooksUpdateEvent)
 }
 
 // OnEvent is getting called everytime we receive an event
@@ -471,10 +475,24 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 			listener(e)
 		}
 
+	// Integration Events
+	case *IntegrationCreateEvent:
+		if listener := l.OnIntegrationCreate; listener != nil {
+			listener(e)
+		}
+	case *IntegrationUpdateEvent:
+		if listener := l.OnIntegrationUpdate; listener != nil {
+			listener(e)
+		}
+	case *IntegrationDeleteEvent:
+		if listener := l.OnIntegrationDelete; listener != nil {
+			listener(e)
+		}
 	case *GuildIntegrationsUpdateEvent:
 		if listener := l.OnGuildIntegrationsUpdate; listener != nil {
 			listener(e)
 		}
+
 	case *WebhooksUpdateEvent:
 		if listener := l.OnGuildWebhooksUpdate; listener != nil {
 			listener(e)

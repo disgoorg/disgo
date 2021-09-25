@@ -44,7 +44,7 @@ type GuildStickersUpdateGatewayEvent struct {
 }
 
 type GuildIntegrationsUpdateGatewayEvent struct {
-	GuildID  Snowflake `json:"guild_id"`
+	GuildID Snowflake `json:"guild_id"`
 }
 
 type GuildMemberRemoveGatewayEvent struct {
@@ -95,4 +95,20 @@ type WebhooksUpdateGatewayEvent struct {
 
 type InvalidSessionGatewayEvent struct {
 	bool
+}
+
+type IntegrationCreateGatewayEvent struct {
+	Integration
+	GuildID Snowflake `json:"guild_id"`
+}
+
+type IntegrationUpdateGatewayEvent struct {
+	Integration
+	GuildID Snowflake `json:"guild_id"`
+}
+
+type IntegrationDeleteGatewayEvent struct {
+	ID            Snowflake `json:"id"`
+	GuildID       Snowflake `json:"guild_id"`
+	ApplicationID Snowflake `json:"application_id"`
 }

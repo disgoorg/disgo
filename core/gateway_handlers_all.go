@@ -49,9 +49,9 @@ var AllEventHandlers = []GatewayEventHandler{
 	&gatewayHandlerGuildRoleUpdate{},
 	&gatewayHandlerGuildRoleDelete{},
 
-	// &gatewayHandlerIntegrationCreate{},
-	// &gatewayHandlerIntegrationUpdate{},
-	// &gatewayHandlerIntegrationDelete{},
+	&gatewayHandlerIntegrationCreate{},
+	&gatewayHandlerIntegrationUpdate{},
+	&gatewayHandlerIntegrationDelete{},
 
 	&gatewayHandlerInteractionCreate{},
 
