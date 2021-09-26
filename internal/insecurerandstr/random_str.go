@@ -1,4 +1,5 @@
-package helpers
+// Package insecurerandstr is not secure
+package insecurerandstr
 
 import (
 	"math/rand"
