@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/DisgoOrg/disgo/internal/helpers"
+
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/disgo/json"
@@ -90,7 +92,7 @@ func handleTryLogin(w http.ResponseWriter, r *http.Request) {
 		state = query.Get("state")
 	)
 	if code != "" && state != "" {
-		identifier := oauth2.RandStr(32)
+		identifier := helpers.RandStr(32)
 		_, webhook, err := client.StartSession(code, state, identifier)
 		if err != nil {
 			writeError(w, "error while starting session", err)

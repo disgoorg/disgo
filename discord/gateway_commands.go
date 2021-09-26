@@ -49,15 +49,15 @@ type HeartbeatCommand struct {
 	D *int `json:"d"`
 }
 
-// RequestGuildMembersCommand is used for fetching all of the members of a guild_events. It is recommended you have a strict
+// RequestGuildMembersCommand is used for fetching all the members of a guild_events. It is recommended you have a strict
 // member caching policy when using this.
 type RequestGuildMembersCommand struct {
 	GuildID   Snowflake   `json:"guild_id"`
-	Query     string      `json:"query"` //If specified, user_ids must not be entered
-	Limit     int         `json:"limit"` //Must be >=1 if query/user_ids is used, otherwise 0
+	Query     *string     `json:"query,omitempty"` //If specified, user_ids must not be entered
+	Limit     *int        `json:"limit,omitempty"` //Must be >=1 if query/user_ids is used, otherwise 0
 	Presences bool        `json:"presences,omitempty"`
-	UserIDs   []Snowflake `json:"user_ids"`        //If specified, query must not be entered
-	Nonce     string      `json:"nonce,omitempty"` //All responses are hashed with this nonce, optional
+	UserIDs   []Snowflake `json:"user_ids,omitempty"` //If specified, query must not be entered
+	Nonce     string      `json:"nonce,omitempty"`    //All responses are hashed with this nonce, optional
 }
 
 // UpdateVoiceStateCommand is used for updating the bots voice state in a guild_events

@@ -10,14 +10,14 @@ import (
 	"github.com/DisgoOrg/log"
 )
 
-// NewBotBuilder returns a new core.BotBuilder instance
+// NewBotBuilder returns a new BotBuilder instance
 func NewBotBuilder(token string) *BotBuilder {
 	return &BotBuilder{
 		Token: token,
 	}
 }
 
-// BotBuilder implementation of the core.BotBuilder interface
+// BotBuilder implementation of the BotBuilder interface
 type BotBuilder struct {
 	Token string
 	BotConfig
@@ -53,19 +53,19 @@ func (b *BotBuilder) SetRestClientConfigOpts(opts ...rest.ConfigOpt) *BotBuilder
 	return b
 }
 
-// SetRestServices lets you inject your own core.Services
+// SetRestServices lets you inject your own Services
 func (b *BotBuilder) SetRestServices(restServices rest.Services) *BotBuilder {
 	b.RestServices = restServices
 	return b
 }
 
-// SetEventManager lets you inject your own core.EventManager
+// SetEventManager lets you inject your own EventManager
 func (b *BotBuilder) SetEventManager(eventManager EventManager) *BotBuilder {
 	b.EventManager = eventManager
 	return b
 }
 
-// AddEventListeners lets you add an core.EventListener to your core.EventManager
+// AddEventListeners lets you add an EventListener to your EventManager
 func (b *BotBuilder) AddEventListeners(eventListeners ...EventListener) *BotBuilder {
 	for _, eventListener := range eventListeners {
 		b.EventListeners = append(b.EventListeners, eventListener)
@@ -79,7 +79,7 @@ func (b *BotBuilder) SetRawEventsEnabled(enabled bool) *BotBuilder {
 	return b
 }
 
-// SetVoiceDispatchInterceptor sets the core.VoiceDispatchInterceptor
+// SetVoiceDispatchInterceptor sets the VoiceDispatchInterceptor
 func (b *BotBuilder) SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor) *BotBuilder {
 	b.VoiceDispatchInterceptor = voiceDispatchInterceptor
 	return b
@@ -125,13 +125,13 @@ func (b *BotBuilder) SetShardMangerConfigOpts(opts ...sharding.ConfigOpt) *BotBu
 	return b
 }
 
-// SetHTTPServer lets you inject your own core.EventManager
+// SetHTTPServer lets you inject your own EventManager
 func (b *BotBuilder) SetHTTPServer(httpServer httpserver.Server) *BotBuilder {
 	b.HTTPServer = httpServer
 	return b
 }
 
-// SetHTTPServerConfig sets the default core.Server properties
+// SetHTTPServerConfig sets the default Server properties
 func (b *BotBuilder) SetHTTPServerConfig(config httpserver.Config) *BotBuilder {
 	b.HTTPServerConfig = &config
 	return b
@@ -145,7 +145,7 @@ func (b *BotBuilder) SetHTTPServerConfigOpts(opts ...httpserver.ConfigOpt) *BotB
 	return b
 }
 
-// SetCache lets you inject your own core.Caches
+// SetCache lets you inject your own Caches
 func (b *BotBuilder) SetCache(cache Caches) *BotBuilder {
 	b.Caches = cache
 	return b
@@ -165,19 +165,25 @@ func (b *BotBuilder) SetCacheConfigOpts(opts ...CacheConfigOpt) *BotBuilder {
 	return b
 }
 
-// SetAudioController lets you inject your own core.AudioController
+// SetAudioController lets you inject your own AudioController
 func (b *BotBuilder) SetAudioController(audioController AudioController) *BotBuilder {
 	b.AudioController = audioController
 	return b
 }
 
-// SetEntityBuilder lets you inject your own core.EntityBuilder
+// SetMembersChunkingManager lets you inject your own MembersChunkingManager
+func (b *BotBuilder) SetMembersChunkingManager(membersChunkingManager MembersChunkingManager) *BotBuilder {
+	b.MembersChunkingManager = membersChunkingManager
+	return b
+}
+
+// SetEntityBuilder lets you inject your own EntityBuilder
 func (b *BotBuilder) SetEntityBuilder(entityBuilder EntityBuilder) *BotBuilder {
 	b.EntityBuilder = entityBuilder
 	return b
 }
 
-// Build builds your core.Bot instance
+// Build builds your Bot instance
 func (b *BotBuilder) Build() (*Bot, error) {
 	return buildBot(b.Token, b.BotConfig)
 }

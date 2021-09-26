@@ -35,8 +35,9 @@ type BotConfig struct {
 	Caches      Caches
 	CacheConfig *CacheConfig
 
-	AudioController AudioController
-	EntityBuilder   EntityBuilder
+	AudioController        AudioController
+	EntityBuilder          EntityBuilder
+	MembersChunkingManager MembersChunkingManager
 }
 
 type BotConfigOpt func(config *BotConfig)
@@ -194,14 +195,20 @@ func WithCacheConfigOpts(opts ...CacheConfigOpt) BotConfigOpt {
 	}
 }
 
+func WithEntityBuilder(entityBuilder EntityBuilder) BotConfigOpt {
+	return func(config *BotConfig) {
+		config.EntityBuilder = entityBuilder
+	}
+}
+
 func WithAudioController(audioController AudioController) BotConfigOpt {
 	return func(config *BotConfig) {
 		config.AudioController = audioController
 	}
 }
 
-func WithEntityBuilder(entityBuilder EntityBuilder) BotConfigOpt {
+func WithMembersChunkingManager(membersChunkingManager MembersChunkingManager) BotConfigOpt {
 	return func(config *BotConfig) {
-		config.EntityBuilder = entityBuilder
+		config.MembersChunkingManager = membersChunkingManager
 	}
 }

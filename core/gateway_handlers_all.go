@@ -43,7 +43,7 @@ var AllEventHandlers = []GatewayEventHandler{
 	&gatewayHandlerGuildMemberAdd{},
 	&gatewayHandlerGuildMemberRemove{},
 	&gatewayHandlerGuildMemberUpdate{},
-	// &gatewayHandlerGuildMemberChunk{},
+	&gatewayHandlerGuildMembersChunk{},
 
 	&gatewayHandlerGuildRoleCreate{},
 	&gatewayHandlerGuildRoleUpdate{},
@@ -61,7 +61,7 @@ var AllEventHandlers = []GatewayEventHandler{
 	&gatewayHandlerMessageCreate{},
 	&gatewayHandlerMessageUpdate{},
 	&gatewayHandlerMessageDelete{},
-	// &gatewayHandlerMessageDeleteBulk{},
+	&gatewayHandlerMessageDeleteBulk{},
 
 	&gatewayHandlerMessageReactionAdd{},
 	&gatewayHandlerMessageReactionRemove{},
@@ -75,7 +75,7 @@ var AllEventHandlers = []GatewayEventHandler{
 	&gatewayHandlerStageInstanceUpdate{},
 
 	&gatewayHandlerTypingStart{},
-	// &gatewayHandlerUserUpdate{},
+	&gatewayHandlerUserUpdate{},
 
 	&gatewayHandlerVoiceStateUpdate{},
 	&gatewayHandlerVoiceServerUpdate{},

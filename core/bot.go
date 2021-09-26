@@ -59,8 +59,9 @@ type Bot struct {
 
 	Caches Caches
 
-	EntityBuilder   EntityBuilder
-	AudioController AudioController
+	EntityBuilder          EntityBuilder
+	AudioController        AudioController
+	MembersChunkingManager MembersChunkingManager
 }
 
 // Close will clean up all disgo internals and close the discord connection safely
@@ -469,6 +470,11 @@ func buildBot(token string, config BotConfig) (*Bot, error) {
 		config.AudioController = NewAudioController(bot)
 	}
 	bot.AudioController = config.AudioController
+
+	if config.MembersChunkingManager == nil {
+		config.MembersChunkingManager = NewMembersChunkingManager(bot)
+	}
+	bot.MembersChunkingManager = config.MembersChunkingManager
 
 	if config.EntityBuilder == nil {
 		config.EntityBuilder = NewEntityBuilder(bot)
