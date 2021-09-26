@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/internal/helpers"
+	"github.com/DisgoOrg/disgo/internal/insecurerandstr"
 )
 
 var _ MembersChunkingManager = (*membersChunkingManagerImpl)(nil)
@@ -80,7 +80,7 @@ func (m *membersChunkingManagerImpl) HandleChunk(payload discord.GuildMembersChu
 func (m *membersChunkingManagerImpl) requestGuildMembers(command discord.RequestGuildMembersCommand, memberFilterFunc func(member *Member) bool) (<-chan *Member, func()) {
 	var nonce string
 	for {
-		nonce = helpers.RandStr(32)
+		nonce = insecurerandstr.RandStr(32)
 		m.RLock()
 		_, ok := m.chunkingRequests[nonce]
 		m.RUnlock()
