@@ -1,0 +1,51 @@
+package discord
+
+import "time"
+
+type OptionalBool *bool
+
+func NewOptionalBool(b bool) *OptionalBool {
+	ob := OptionalBool(&b)
+	return &ob
+}
+
+func NewNullBool() *OptionalBool {
+	ob := OptionalBool(nil)
+	return &ob
+}
+
+type OptionalString *string
+
+func NewOptionalString(str string) *OptionalString {
+	ostr := OptionalString(&str)
+	return &ostr
+}
+
+func NewNullString() *OptionalString {
+	ostr := OptionalString(nil)
+	return &ostr
+}
+
+type OptionalTime *Time
+
+func NewOptionalTime(time time.Time) *OptionalTime {
+	ot := OptionalTime(&Time{Time: time})
+	return &ot
+}
+
+func NewNullTime() *OptionalTime {
+	ot := OptionalTime(nil)
+	return &ot
+}
+
+type OptionalIcon *Icon
+
+func NewOptionalIcon(icon Icon) *OptionalIcon {
+	oi := OptionalIcon(&icon)
+	return &oi
+}
+
+func NewNullIcon() *OptionalIcon {
+	oi := OptionalIcon(nil)
+	return &oi
+}

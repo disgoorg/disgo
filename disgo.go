@@ -1,18 +1,17 @@
 package disgo
 
 import (
-	"github.com/DisgoOrg/disgo/api"
-	"github.com/DisgoOrg/disgo/internal"
+	_ "github.com/DisgoOrg/disgo/core"
+	_ "github.com/DisgoOrg/disgo/discord"
+	_ "github.com/DisgoOrg/disgo/gateway"
+	_ "github.com/DisgoOrg/disgo/httpserver"
+	_ "github.com/DisgoOrg/disgo/info"
+	_ "github.com/DisgoOrg/disgo/json"
+	_ "github.com/DisgoOrg/disgo/oauth2"
+	_ "github.com/DisgoOrg/disgo/rest"
+	_ "github.com/DisgoOrg/disgo/rest/rate"
+	_ "github.com/DisgoOrg/disgo/rest/route"
+	_ "github.com/DisgoOrg/disgo/sharding"
+	_ "github.com/DisgoOrg/disgo/sharding/rate"
+	_ "github.com/DisgoOrg/disgo/webhook"
 )
-
-// New Initialises a new Disgo client
-//goland:noinspection GoUnusedExportedFunction
-func New(token string, options api.Options) (api.Disgo, error) {
-	return internal.New(token, options)
-}
-
-// NewBuilder creates an api.DisgoBuilder for the client
-//goland:noinspection GoUnusedExportedFunction
-func NewBuilder(token string) api.DisgoBuilder {
-	return internal.NewBuilder(token)
-}
