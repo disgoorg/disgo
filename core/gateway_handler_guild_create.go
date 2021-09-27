@@ -63,7 +63,9 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *Bot, sequenceNumber 
 		bot.EntityBuilder.CreateStageInstance(stageInstance, CacheStrategyYes)
 	}
 
-	// TODO: presence
+	for _, presence := range guild.Presences {
+		bot.EntityBuilder.CreatePresence(presence, CacheStrategyYes)
+	}
 
 	if wasUnavailable {
 		bot.EventManager.Dispatch(&GuildAvailableEvent{

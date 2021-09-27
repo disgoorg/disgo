@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/google/go-cmp/cmp"
 )
 
 // gatewayHandlerGuildStickersUpdate handles discord.GatewayEventTypeGuildStickersUpdate
@@ -42,7 +43,7 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *Bot, sequenc
 		sticker, ok := stickerCache[current.ID]
 		if ok {
 			delete(oldStickers, current.ID)
-			if isStickerUpdated(sticker, current) {
+			if !cmp.Equal(sticker, current) {
 				updatedStickers[current.ID] = bot.EntityBuilder.CreateSticker(current, CacheStrategyYes)
 			}
 		} else {
@@ -87,61 +88,4 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *Bot, sequenc
 		})
 	}
 
-}
-
-func isStickerUpdated(oldSticker *Sticker, nSticker discord.Sticker) bool {
-	oSticker := oldSticker.Sticker
-	if oSticker.Name != nSticker.Name {
-		return true
-	}
-	if oSticker.Description != nSticker.Description {
-		var (
-			oDescrp string
-			nDescrp string
-		)
-		if oSticker.Description != nil {
-			oDescrp = *oSticker.Description
-		}
-		if nSticker.Description != nil {
-			nDescrp = *nSticker.Description
-		}
-		if oDescrp != nDescrp {
-			return true
-		}
-	}
-	if oSticker.Tags != nSticker.Tags {
-		return true
-	}
-	if oSticker.Available != nSticker.Available {
-		var (
-			oAvail bool
-			nAvail bool
-		)
-		if oSticker.Available != nil {
-			oAvail = *oSticker.Available
-		}
-		if nSticker.Available != nil {
-			nAvail = *nSticker.Available
-		}
-		if oAvail != nAvail {
-			return true
-		}
-	}
-	if oSticker.SortValue != nSticker.SortValue {
-		var (
-			oSV int
-			nSV int
-		)
-		if oSticker.SortValue != nil {
-			oSV = *oSticker.SortValue
-		}
-		if nSticker.SortValue != nil {
-			nSV = *nSticker.SortValue
-		}
-		if oSV != nSV {
-			return true
-		}
-	}
-
-	return false
 }

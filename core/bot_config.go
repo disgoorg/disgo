@@ -19,9 +19,7 @@ type BotConfig struct {
 	RestServices     rest.Services
 
 	EventManager             EventManager
-	EventListeners           []EventListener
-	RawEventsEnabled         bool
-	VoiceDispatchInterceptor VoiceDispatchInterceptor
+	EventManagerConfig *EventManagerConfig
 
 	Gateway       gateway.Gateway
 	GatewayConfig *gateway.Config
@@ -95,19 +93,28 @@ func WithEventManager(eventManager EventManager) BotConfigOpt {
 
 func WithEventListeners(listeners ...EventListener) BotConfigOpt {
 	return func(config *BotConfig) {
-		config.EventListeners = append(config.EventListeners, listeners...)
+		if config.EventManagerConfig == nil {
+			config.EventManagerConfig = &DefaultEventManagerConfig
+		}
+		config.EventManagerConfig.EventListeners = append(config.EventManagerConfig.EventListeners, listeners...)
 	}
 }
 
 func WithRawEventsEnabled() BotConfigOpt {
 	return func(config *BotConfig) {
-		config.RawEventsEnabled = true
+		if config.EventManagerConfig == nil {
+			config.EventManagerConfig = &DefaultEventManagerConfig
+		}
+		config.EventManagerConfig.RawEventsEnabled = true
 	}
 }
 
 func WithVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor) BotConfigOpt {
 	return func(config *BotConfig) {
-		config.VoiceDispatchInterceptor = voiceDispatchInterceptor
+		if config.EventManagerConfig == nil {
+			config.EventManagerConfig = &DefaultEventManagerConfig
+		}
+		config.EventManagerConfig.VoiceDispatchInterceptor = voiceDispatchInterceptor
 	}
 }
 

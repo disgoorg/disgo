@@ -68,7 +68,7 @@ var AllEventHandlers = []GatewayEventHandler{
 	&gatewayHandlerMessageReactionRemoveAll{},
 	&gatewayHandlerMessageReactionRemoveEmoji{},
 
-	// &gatewayHandlerPresenceUpdate{},
+	&gatewayHandlerPresenceUpdate{},
 
 	&gatewayHandlerStageInstanceCreate{},
 	&gatewayHandlerStageInstanceDelete{},

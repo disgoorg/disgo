@@ -48,9 +48,7 @@ type Bot struct {
 
 	RestServices rest.Services
 
-	EventManager             EventManager
-	RawEventsEnabled         bool
-	VoiceDispatchInterceptor VoiceDispatchInterceptor
+	EventManager EventManager
 
 	ShardManager sharding.ShardManager
 	Gateway      gateway.Gateway
@@ -129,6 +127,24 @@ func (b *Bot) HasGateway() bool {
 
 func (b *Bot) HasShardManager() bool {
 	return b.ShardManager != nil
+}
+
+func (b *Bot) SetPresence(presenceUpdate discord.PresenceUpdate) error {
+	if !b.HasGateway() {
+		return discord.ErrNoGateway
+	}
+	return b.Gateway.Send(discord.NewGatewayCommand(discord.GatewayOpcodePresenceUpdate, presenceUpdate))
+}
+
+func (b *Bot) SetPresenceForShard(shardId int, presenceUpdate discord.PresenceUpdate) error {
+	if !b.HasShardManager() {
+		return discord.ErrNoShardManager
+	}
+	shard := b.ShardManager.Shard(shardId)
+	if shard == nil {
+		return discord.ErrShardNotFound
+	}
+	return shard.Send(discord.NewGatewayCommand(discord.GatewayOpcodePresenceUpdate, presenceUpdate))
 }
 
 // StartHTTPServer starts the interaction webhook server
@@ -413,7 +429,10 @@ func buildBot(token string, config BotConfig) (*Bot, error) {
 	bot.RestServices = config.RestServices
 
 	if config.EventManager == nil {
-		config.EventManager = NewEventManager(bot, config.EventListeners)
+		if config.EventManagerConfig == nil {
+			config.EventManagerConfig = &DefaultEventManagerConfig
+		}
+		config.EventManager = NewEventManager(bot, config.EventManagerConfig)
 	}
 	bot.EventManager = config.EventManager
 
@@ -480,8 +499,6 @@ func buildBot(token string, config BotConfig) (*Bot, error) {
 		config.EntityBuilder = NewEntityBuilder(bot)
 	}
 	bot.EntityBuilder = config.EntityBuilder
-
-	bot.VoiceDispatchInterceptor = config.VoiceDispatchInterceptor
 
 	if config.CacheConfig == nil {
 		config.CacheConfig = &CacheConfig{
