@@ -36,7 +36,8 @@ func (l *limiterImpl) Logger() log.Logger {
 }
 
 func (l *limiterImpl) Close(ctx context.Context) {
-	// TODO: wait for all buckets to unlock
+	_ = l.CLock(ctx)
+	l.Unlock()
 }
 
 func (l *limiterImpl) Config() Config {
