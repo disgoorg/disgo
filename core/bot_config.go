@@ -6,30 +6,26 @@ import (
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/rest"
-	"github.com/DisgoOrg/disgo/rest/rate"
+	"github.com/DisgoOrg/disgo/sharding"
 	"github.com/DisgoOrg/log"
 )
 
 type BotConfig struct {
 	Logger log.Logger
 
-	HTTPClient *http.Client
-
+	HTTPClient       *http.Client
 	RestClient       rest.Client
 	RestClientConfig *rest.Config
-
-	RateLimiter       rate.Limiter
-	RateLimiterConfig *rate.Config
-
-	RestServices rest.Services
+	RestServices     rest.Services
 
 	EventManager             EventManager
-	EventListeners           []EventListener
-	RawEventsEnabled         bool
-	VoiceDispatchInterceptor VoiceDispatchInterceptor
+	EventManagerConfig *EventManagerConfig
 
 	Gateway       gateway.Gateway
 	GatewayConfig *gateway.Config
+
+	ShardManager       sharding.ShardManager
+	ShardManagerConfig *sharding.Config
 
 	HTTPServer       httpserver.Server
 	HTTPServerConfig *httpserver.Config
@@ -37,8 +33,9 @@ type BotConfig struct {
 	Caches      Caches
 	CacheConfig *CacheConfig
 
-	AudioController AudioController
-	EntityBuilder   EntityBuilder
+	AudioController        AudioController
+	EntityBuilder          EntityBuilder
+	MembersChunkingManager MembersChunkingManager
 }
 
 type BotConfigOpt func(config *BotConfig)
@@ -52,26 +49,6 @@ func (c *BotConfig) Apply(opts []BotConfigOpt) {
 func WithLogger(logger log.Logger) BotConfigOpt {
 	return func(config *BotConfig) {
 		config.Logger = logger
-
-		if config.RestClientConfig == nil {
-			config.RestClientConfig = &rest.DefaultConfig
-		}
-		config.RestClientConfig.Logger = logger
-
-		if config.RateLimiterConfig == nil {
-			config.RateLimiterConfig = &rate.DefaultConfig
-		}
-		config.RateLimiterConfig.Logger = logger
-
-		if config.GatewayConfig == nil {
-			config.GatewayConfig = &gateway.DefaultConfig
-		}
-		config.GatewayConfig.Logger = logger
-
-		if config.HTTPServerConfig == nil {
-			config.HTTPServerConfig = &httpserver.DefaultConfig
-		}
-		config.HTTPServerConfig.Logger = logger
 	}
 }
 
@@ -102,27 +79,6 @@ func WithRestClientConfigOpts(opts ...rest.ConfigOpt) BotConfigOpt {
 	}
 }
 
-func WithRateLimiter(rateLimiter rate.Limiter) BotConfigOpt {
-	return func(config *BotConfig) {
-		config.RateLimiter = rateLimiter
-	}
-}
-
-func WithRateLimiterConfig(rateLimiterConfig rate.Config) BotConfigOpt {
-	return func(config *BotConfig) {
-		config.RateLimiterConfig = &rateLimiterConfig
-	}
-}
-
-func WithRateLimiterConfigOpts(opts ...rate.ConfigOpt) BotConfigOpt {
-	return func(config *BotConfig) {
-		if config.RateLimiterConfig == nil {
-			config.RateLimiterConfig = &rate.DefaultConfig
-		}
-		config.RateLimiterConfig.Apply(opts)
-	}
-}
-
 func WithRestServices(restServices rest.Services) BotConfigOpt {
 	return func(config *BotConfig) {
 		config.RestServices = restServices
@@ -137,19 +93,28 @@ func WithEventManager(eventManager EventManager) BotConfigOpt {
 
 func WithEventListeners(listeners ...EventListener) BotConfigOpt {
 	return func(config *BotConfig) {
-		config.EventListeners = append(config.EventListeners, listeners...)
+		if config.EventManagerConfig == nil {
+			config.EventManagerConfig = &DefaultEventManagerConfig
+		}
+		config.EventManagerConfig.EventListeners = append(config.EventManagerConfig.EventListeners, listeners...)
 	}
 }
 
 func WithRawEventsEnabled() BotConfigOpt {
 	return func(config *BotConfig) {
-		config.RawEventsEnabled = true
+		if config.EventManagerConfig == nil {
+			config.EventManagerConfig = &DefaultEventManagerConfig
+		}
+		config.EventManagerConfig.RawEventsEnabled = true
 	}
 }
 
 func WithVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor) BotConfigOpt {
 	return func(config *BotConfig) {
-		config.VoiceDispatchInterceptor = voiceDispatchInterceptor
+		if config.EventManagerConfig == nil {
+			config.EventManagerConfig = &DefaultEventManagerConfig
+		}
+		config.EventManagerConfig.VoiceDispatchInterceptor = voiceDispatchInterceptor
 	}
 }
 
@@ -171,6 +136,27 @@ func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) BotConfigOpt {
 			config.GatewayConfig = &gateway.DefaultConfig
 		}
 		config.GatewayConfig.Apply(opts)
+	}
+}
+
+func WithShardManager(shardManager sharding.ShardManager) BotConfigOpt {
+	return func(config *BotConfig) {
+		config.ShardManager = shardManager
+	}
+}
+
+func WithShardManagerConfig(shardManagerConfig sharding.Config) BotConfigOpt {
+	return func(config *BotConfig) {
+		config.ShardManagerConfig = &shardManagerConfig
+	}
+}
+
+func WithShardManagerConfigOpts(opts ...sharding.ConfigOpt) BotConfigOpt {
+	return func(config *BotConfig) {
+		if config.ShardManagerConfig == nil {
+			config.ShardManagerConfig = &sharding.DefaultConfig
+		}
+		config.ShardManagerConfig.Apply(opts)
 	}
 }
 
@@ -210,9 +196,15 @@ func WithCacheConfig(cacheConfig CacheConfig) BotConfigOpt {
 func WithCacheConfigOpts(opts ...CacheConfigOpt) BotConfigOpt {
 	return func(config *BotConfig) {
 		if config.CacheConfig == nil {
-			config.CacheConfig = &DefaultConfig
+			config.CacheConfig = &DefaultCacheConfig
 		}
 		config.CacheConfig.Apply(opts)
+	}
+}
+
+func WithEntityBuilder(entityBuilder EntityBuilder) BotConfigOpt {
+	return func(config *BotConfig) {
+		config.EntityBuilder = entityBuilder
 	}
 }
 
@@ -222,8 +214,8 @@ func WithAudioController(audioController AudioController) BotConfigOpt {
 	}
 }
 
-func WithEntityBuilder(entityBuilder EntityBuilder) BotConfigOpt {
+func WithMembersChunkingManager(membersChunkingManager MembersChunkingManager) BotConfigOpt {
 	return func(config *BotConfig) {
-		config.EntityBuilder = entityBuilder
+		config.MembersChunkingManager = membersChunkingManager
 	}
 }

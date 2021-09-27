@@ -22,9 +22,9 @@ var (
 			Name:              "say",
 			Description:       "says what you say",
 			DefaultPermission: true,
-			Options: []discord.SlashCommandOption{
+			Options: []discord.ApplicationCommandOption{
 				{
-					Type:        discord.CommandOptionTypeString,
+					Type:        discord.ApplicationCommandOptionTypeString,
 					Name:        "message",
 					Description: "What to say",
 					Required:    true,
@@ -60,12 +60,11 @@ func main() {
 
 	_, err = disgo.SetGuildCommands(guildID, commands)
 	if err != nil {
-		log.Fatalf("error while registering commands: %s", err)
+		log.Fatal("error while registering commands: ", err)
 	}
 
-	err = disgo.Connect()
-	if err != nil {
-		log.Fatalf("error while connecting to gateway: %s", err)
+	if err = disgo.ConnectGateway(); err != nil {
+		log.Fatal("error while connecting to gateway: ", err)
 	}
 
 	log.Infof("example is now running. Press CTRL-C to exit.")

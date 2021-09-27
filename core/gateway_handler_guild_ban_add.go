@@ -4,11 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-type guildBanAddPayload struct {
-	GuildID discord.Snowflake `json:"guild_id"`
-	User    discord.User      `json:"user"`
-}
-
 // gatewayHandlerGuildBanAdd handles core.GatewayEventGuildBanAdd
 type gatewayHandlerGuildBanAdd struct{}
 
@@ -19,12 +14,12 @@ func (h *gatewayHandlerGuildBanAdd) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerGuildBanAdd) New() interface{} {
-	return &guildBanAddPayload{}
+	return &discord.GuildBanAddGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerGuildBanAdd) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
-	payload := *v.(*guildBanAddPayload)
+	payload := *v.(*discord.GuildBanAddGatewayEvent)
 
 	bot.EventManager.Dispatch(&GuildBanEvent{
 		GenericGuildEvent: &GenericGuildEvent{

@@ -23,7 +23,7 @@ func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(bot *Bot, c chan<- 
 	if unmarshalInteraction.Type == discord.InteractionTypePing {
 		bot.Logger.Info("received http interaction ping. responding with pong")
 		c <- discord.InteractionResponse{
-			Type: discord.InteractionResponseTypePong,
+			Type: discord.InteractionCallbackTypePong,
 		}
 		return
 	}

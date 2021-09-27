@@ -10,6 +10,7 @@ import (
 
 	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/log"
+	"github.com/sasha-s/go-csync"
 )
 
 // TODO: do we need some cleanup task?
@@ -49,39 +50,49 @@ type (
 	}
 )
 
-func (r *limiterImpl) Logger() log.Logger {
-	return r.config.Logger
+func (l *limiterImpl) Logger() log.Logger {
+	return l.config.Logger
 }
 
-func (r *limiterImpl) Close(ctx context.Context) {
-	// TODO: wait for all buckets to unlock
+func (l *limiterImpl) Close(ctx context.Context) {
+	var wg sync.WaitGroup
+	for _, b := range l.buckets {
+		wg.Add(1)
+		b := b
+		go func() {
+			_ = b.CLock(ctx)
+			b.Unlock()
+			wg.Done()
+		}()
+	}
+	wg.Wait()
 }
 
-func (r *limiterImpl) Config() Config {
-	return r.config
+func (l *limiterImpl) Config() Config {
+	return l.config
 }
 
-func (r *limiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor {
-	hash, ok := r.hashes[route.APIRoute]
+func (l *limiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor {
+	hash, ok := l.hashes[route.APIRoute]
 	if !ok {
 		// generate routeHash
 		hash = routeHash(route.APIRoute.Method().String() + "+" + route.APIRoute.Path())
-		r.hashes[route.APIRoute] = hash
+		l.hashes[route.APIRoute] = hash
 	}
 	// return hashMajor
 	return hashMajor(string(hash) + "+" + route.MajorParams())
 }
 
-func (r *limiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *bucket {
-	hash := r.getRouteHash(route)
+func (l *limiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *bucket {
+	hash := l.getRouteHash(route)
 
-	r.Logger().Debug("locking rate limiter")
-	r.Lock()
+	l.Logger().Debug("locking rest rate limiter")
+	l.Lock()
 	defer func() {
-		r.Logger().Debug("unlocking rate limiter")
-		r.Unlock()
+		l.Logger().Debug("unlocking rest rate limiter")
+		l.Unlock()
 	}()
-	b, ok := r.buckets[hash]
+	b, ok := l.buckets[hash]
 	if !ok {
 		if !create {
 			return nil
@@ -92,15 +103,17 @@ func (r *limiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *buc
 			// we don't know the limit yet
 			Limit: -1,
 		}
-		r.buckets[hash] = b
+		l.buckets[hash] = b
 	}
 	return b
 }
 
-func (r *limiterImpl) WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error {
-	b := r.getBucket(route, true)
-	r.Logger().Debugf("locking bucket: %+v", b)
-	b.Lock()
+func (l *limiterImpl) WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error {
+	b := l.getBucket(route, true)
+	l.Logger().Debugf("locking rest bucket: %+v", b)
+	if err := b.CLock(ctx); err != nil {
+		return err
+	}
 
 	var until time.Time
 	now := time.Now()
@@ -108,13 +121,13 @@ func (r *limiterImpl) WaitBucket(ctx context.Context, route *route.CompiledAPIRo
 	if b.Remaining == 0 && b.Reset.After(now) {
 		until = b.Reset
 	} else {
-		until = time.Unix(0, r.global)
+		until = time.Unix(0, l.global)
 	}
 
 	if until.After(now) {
 		// TODO: do we want to return early when we know rate limit bigger than ctx deadline?
 		if deadline, ok := ctx.Deadline(); ok && until.After(deadline) {
-			return ErrCtxTimeout
+			return context.DeadlineExceeded
 		}
 
 		select {
@@ -127,13 +140,13 @@ func (r *limiterImpl) WaitBucket(ctx context.Context, route *route.CompiledAPIRo
 	return nil
 }
 
-func (r *limiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.Header) error {
-	b := r.getBucket(route, false)
+func (l *limiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.Header) error {
+	b := l.getBucket(route, false)
 	if b == nil {
 		return nil
 	}
 	defer func() {
-		r.Logger().Debugf("unlocking bucket: %+v", b)
+		l.Logger().Debugf("unlocking rest bucket: %+v", b)
 		b.Unlock()
 	}()
 
@@ -153,7 +166,7 @@ func (r *limiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.H
 	reset := headers.Get("X-RateLimit-Reset")
 	retryAfter := headers.Get("Retry-After")
 
-	r.Logger().Debugf("headers: global %s, remaining: %s, limit: %s, reset: %s, retryAfter: %s", global, remaining, limit, reset, retryAfter)
+	l.Logger().Debugf("headers: global %s, remaining: %s, limit: %s, reset: %s, retryAfter: %s", global, remaining, limit, reset, retryAfter)
 
 	switch {
 	case retryAfter != "":
@@ -165,7 +178,7 @@ func (r *limiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.H
 		at := time.Now().Add(time.Duration(i) * time.Second)
 
 		if global != "" {
-			r.global = at.UnixNano()
+			l.global = at.UnixNano()
 		} else {
 			b.Reset = at
 		}
@@ -207,7 +220,7 @@ func (r *limiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.H
 }
 
 type bucket struct {
-	sync.Mutex
+	csync.Mutex
 	ID        string
 	Reset     time.Time
 	Remaining int

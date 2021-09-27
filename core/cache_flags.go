@@ -9,6 +9,8 @@ const (
 	CacheFlagsNone  CacheFlags = 0
 	CacheFlagGuilds CacheFlags = 1 << iota
 
+	CacheFlagPresences
+
 	CacheFlagTextChannels
 	CacheFlagDMChannels
 	CacheFlagVoiceChannels
@@ -50,7 +52,8 @@ const (
 		CacheFlagEmojis |
 		CacheFlagStickers |
 		CacheFlagVoiceStates |
-		CacheFlagStageInstances
+		CacheFlagStageInstances |
+		CacheFlagPresences
 )
 
 // Add allows you to add multiple bits together, producing a new bit

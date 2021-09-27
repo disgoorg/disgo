@@ -179,9 +179,7 @@ func (b *MessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...discord.Sn
 		b.Attachments = new([]discord.Attachment)
 	}
 	for _, attachmentID := range attachmentIDs {
-		*b.Attachments = append(*b.Attachments, discord.Attachment{
-			ID: attachmentID,
-		})
+		*b.Attachments = append(*b.Attachments, discord.Attachment{ID: attachmentID})
 	}
 	return b
 }
@@ -223,7 +221,7 @@ func (b *MessageUpdateBuilder) ClearFlags() *MessageUpdateBuilder {
 // Build builds the MessageUpdateBuilder to a MessageUpdate struct
 func (b *MessageUpdateBuilder) Build() discord.MessageUpdate {
 	if b.Components != nil {
-		if *b.MessageUpdate.Components == nil {
+		if b.MessageUpdate.Components == nil {
 			b.MessageUpdate.Components = new(interface{})
 		}
 		*b.MessageUpdate.Components = b.Components

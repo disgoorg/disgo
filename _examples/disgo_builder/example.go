@@ -34,13 +34,13 @@ func main() {
 		}).
 		Build()
 	if err != nil {
-		log.Fatalf("error while building disgo: %s", err)
+		log.Fatal("error while building disgo: ", err)
 	}
 
 	defer disgo.Close()
 
-	if err = disgo.Connect(); err != nil {
-		log.Fatalf("error while connecting to gateway: %s", err)
+	if err = disgo.ConnectGateway(); err != nil {
+		log.Fatal("error while connecting to gateway: ", err)
 	}
 
 	log.Infof("example is now running. Press CTRL-C to exit.")

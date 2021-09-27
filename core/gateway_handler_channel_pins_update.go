@@ -4,12 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-type channelPinsUpdatePayload struct {
-	GuildID          *discord.Snowflake `json:"guild_id"`
-	ChannelID        discord.Snowflake  `json:"channel_id"`
-	LastPinTimestamp *discord.Time      `json:"last_pin_timestamp"`
-}
-
 // gatewayHandlerChannelPinsUpdate handles core.GatewayEventChannelUpdate
 type gatewayHandlerChannelPinsUpdate struct{}
 
@@ -20,12 +14,12 @@ func (h *gatewayHandlerChannelPinsUpdate) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerChannelPinsUpdate) New() interface{} {
-	return &channelPinsUpdatePayload{}
+	return &discord.ChannelPinsUpdateGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerChannelPinsUpdate) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
-	payload := *v.(*channelPinsUpdatePayload)
+	payload := *v.(*discord.ChannelPinsUpdateGatewayEvent)
 
 	channel := bot.Caches.ChannelCache().Get(payload.ChannelID)
 	var oldTime *discord.Time

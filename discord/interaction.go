@@ -10,18 +10,18 @@ const (
 	InteractionTypeComponent
 )
 
-// InteractionResponseType indicates the type of slash command response, whether it's responding immediately or deferring to edit your response later
-type InteractionResponseType int
+// InteractionCallbackType indicates the type of slash command response, whether it's responding immediately or deferring to edit your response later
+type InteractionCallbackType int
 
-// Constants for the InteractionResponseType(s)
+// Constants for the InteractionCallbackType(s)
 const (
-	InteractionResponseTypePong InteractionResponseType = iota + 1
+	InteractionCallbackTypePong InteractionCallbackType = iota + 1
 	_
 	_
-	InteractionResponseTypeChannelMessageWithSource
-	InteractionResponseTypeDeferredChannelMessageWithSource
-	InteractionResponseTypeDeferredUpdateMessage
-	InteractionResponseTypeUpdateMessage
+	InteractionCallbackTypeChannelMessageWithSource
+	InteractionCallbackTypeDeferredChannelMessageWithSource
+	InteractionCallbackTypeDeferredUpdateMessage
+	InteractionCallbackTypeUpdateMessage
 )
 
 // Interaction is used for easier unmarshalling of different Interaction(s)
@@ -33,7 +33,7 @@ type Interaction struct {
 	GuildID       *Snowflake       `json:"guild_id,omitempty"`
 	ChannelID     *Snowflake       `json:"channel_id,omitempty"`
 	Member        *Member          `json:"member,omitempty"`
-	User          User             `json:"User,omitempty"`
+	User          *User            `json:"user,omitempty"`
 	Token         string           `json:"token"`
 	Version       int              `json:"version"`
 	Message       Message          `json:"message,omitempty"`
@@ -47,7 +47,7 @@ type InteractionData struct {
 	Resolved    Resolved               `json:"resolved"`
 
 	// Slash Command Interactions
-	Options []UnmarshalSlashCommandOption `json:"options"`
+	Options []ReceivedApplicationCommandOption `json:"options"`
 
 	// Context Command Interactions
 	TargetID Snowflake `json:"target_id"`
@@ -86,16 +86,16 @@ type ResolvedChannel struct {
 	Permissions Permissions `json:"permissions"`
 }*/
 
-type UnmarshalSlashCommandOption struct {
-	Name    string                        `json:"name"`
-	Type    SlashCommandOptionType        `json:"type"`
-	Value   interface{}                   `json:"value"`
-	Options []UnmarshalSlashCommandOption `json:"options"`
+type ReceivedApplicationCommandOption struct {
+	Name    string                             `json:"name"`
+	Type    ApplicationCommandOptionType       `json:"type"`
+	Value   interface{}                        `json:"value,omitempty"`
+	Options []ReceivedApplicationCommandOption `json:"options,omitempty"`
 }
 
 // InteractionResponse is how you answer interactions. If an answer is not sent within 3 seconds of receiving it, the interaction is failed, and you will be unable to respond to it.
 type InteractionResponse struct {
-	Type InteractionResponseType `json:"type"`
+	Type InteractionCallbackType `json:"type"`
 	Data interface{}             `json:"data,omitempty"`
 }
 

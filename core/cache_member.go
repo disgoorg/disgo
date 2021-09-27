@@ -55,7 +55,8 @@ func (c *memberCacheImpl) GetCopy(guildID discord.Snowflake, userID discord.Snow
 }
 
 func (c *memberCacheImpl) Set(member *Member) *Member {
-	if !c.memberCachePolicy(member) {
+	// always cache self members
+	if !c.memberCachePolicy(member) && member.ID != member.Bot.ClientID {
 		return member
 	}
 	if _, ok := c.members[member.GuildID]; !ok {

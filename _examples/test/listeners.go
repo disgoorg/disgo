@@ -1,8 +1,8 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
-	"os"
 	"strconv"
 	"time"
 
@@ -22,7 +22,7 @@ var listener = &core.ListenerAdapter{
 }
 
 func rawGatewayEventListener(event *core.RawEvent) {
-	if event.Type == discord.GatewayEventTypeInteractionCreate || event.Type == discord.GatewayEventTypeGuildEmojisUpdate {
+	if event.Type == discord.GatewayEventTypePresenceUpdate  {
 		println(string(event.RawPayload))
 	}
 }
@@ -34,20 +34,20 @@ func guildAvailListener(event *core.GuildAvailableEvent) {
 func buttonClickListener(event *core.ButtonClickEvent) {
 	switch event.CustomID {
 	case "test1":
-		_ = event.Respond(discord.InteractionResponseTypeChannelMessageWithSource,
+		_ = event.Respond(discord.InteractionCallbackTypeChannelMessageWithSource,
 			core.NewMessageCreateBuilder().
 				SetContent(event.CustomID).
 				Build(),
 		)
 
 	case "test2":
-		_ = event.Respond(discord.InteractionResponseTypeDeferredChannelMessageWithSource, nil)
+		_ = event.Respond(discord.InteractionCallbackTypeDeferredChannelMessageWithSource, nil)
 
 	case "test3":
-		_ = event.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil)
+		_ = event.Respond(discord.InteractionCallbackTypeDeferredUpdateMessage, nil)
 
 	case "test4":
-		_ = event.Respond(discord.InteractionResponseTypeUpdateMessage,
+		_ = event.Respond(discord.InteractionCallbackTypeUpdateMessage,
 			core.NewMessageCreateBuilder().
 				SetContent(event.CustomID).
 				Build(),
@@ -129,11 +129,10 @@ func slashCommandListener(event *core.SlashCommandEvent) {
 		)
 
 	case "test":
-		reader, _ := os.Open("gopher.png")
-		if err := event.Create(core.NewMessageCreateBuilder().
+		_ = event.DeferCreate(event.Options["ephemeral"].Bool())
+		if _, err := event.UpdateOriginal(core.NewMessageUpdateBuilder().
 			SetContent("test message").
-			SetEphemeral(event.Options["ephemeral"].Bool()).
-			AddFile("gopher.png", reader).
+			AddFile("gopher.png", bytes.NewBuffer(gopher)).
 			Build(),
 		); err != nil {
 			log.Errorf("error sending interaction response: %s", err)

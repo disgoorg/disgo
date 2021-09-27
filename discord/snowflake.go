@@ -23,9 +23,18 @@ func (s Snowflake) String() string {
 	return string(s)
 }
 
+// Int64 returns the int64 representation of the Snowflake
+func (s Snowflake) Int64() int64 {
+	snowflake, err := strconv.ParseInt(s.String(), 10, 64)
+	if err != nil {
+		panic(err.Error())
+	}
+	return snowflake
+}
+
 // Deconstruct returns DeconstructedSnowflake (https://discord.com/developers/docs/reference#snowflakes-snowflake-id-format-structure-left-to-right)
 func (s Snowflake) Deconstruct() DeconstructedSnowflake {
-	snowflake, _ := strconv.ParseInt(s.String(), 10, 64)
+	snowflake := s.Int64()
 	return DeconstructedSnowflake{
 		Timestamp: time.Unix(0, ((snowflake>>22)+Epoch)*1_000_000),
 		WorkerID:  (snowflake & 0x3E0000) >> 17,

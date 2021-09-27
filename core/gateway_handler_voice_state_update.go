@@ -44,7 +44,7 @@ func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(bot *Bot, sequenceNu
 	// voice state update for ourselves received
 	// execute voice VoiceDispatchInterceptor.OnVoiceStateUpdate
 	if bot.ClientID == voiceState.UserID {
-		if interceptor := bot.VoiceDispatchInterceptor; interceptor != nil {
+		if interceptor := bot.EventManager.Config().VoiceDispatchInterceptor; interceptor != nil {
 			interceptor.OnVoiceStateUpdate(&VoiceStateUpdateEvent{VoiceState: coreVoiceState})
 		}
 	}

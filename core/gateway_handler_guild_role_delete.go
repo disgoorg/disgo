@@ -4,11 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-type roleDeleteData struct {
-	GuildID discord.Snowflake `json:"guild_id"`
-	RoleID  discord.Snowflake `json:"role_id"`
-}
-
 // gatewayHandlerGuildRoleDelete handles core.GuildRoleDeleteGatewayEvent
 type gatewayHandlerGuildRoleDelete struct{}
 
@@ -19,12 +14,12 @@ func (h *gatewayHandlerGuildRoleDelete) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerGuildRoleDelete) New() interface{} {
-	return &roleCreateData{}
+	return &discord.GuildRoleDeleteGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerGuildRoleDelete) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
-	payload := *v.(*roleDeleteData)
+	payload := *v.(*discord.GuildRoleDeleteGatewayEvent)
 
 	role := bot.Caches.RoleCache().GetCopy(payload.GuildID, payload.RoleID)
 

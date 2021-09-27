@@ -1,4 +1,5 @@
-package oauth2
+// Package insecurerandstr is not secure
+package insecurerandstr
 
 import (
 	"math/rand"

@@ -4,12 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-type inviteDeletePayload struct {
-	ChannelID discord.Snowflake  `json:"channel_id"`
-	GuildID   *discord.Snowflake `json:"guild_id"`
-	Code      string             `json:"code"`
-}
-
 // gatewayHandlerInviteDelete handles core.GatewayEventChannelCreate
 type gatewayHandlerInviteDelete struct{}
 
@@ -20,12 +14,12 @@ func (h *gatewayHandlerInviteDelete) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerInviteDelete) New() interface{} {
-	return &inviteDeletePayload{}
+	return &discord.InviteDeleteGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerInviteDelete) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
-	payload := *v.(*inviteDeletePayload)
+	payload := *v.(*discord.InviteDeleteGatewayEvent)
 
 	bot.EventManager.Dispatch(&GuildInviteDeleteEvent{
 		GenericGuildInviteEvent: &GenericGuildInviteEvent{

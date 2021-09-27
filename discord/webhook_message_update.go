@@ -3,9 +3,9 @@ package discord
 // WebhookMessageUpdate is used to edit a Message
 type WebhookMessageUpdate struct {
 	Content         *string          `json:"content,omitempty"`
-	Embeds          []Embed          `json:"embeds,omitempty"`
-	Components      interface{}      `json:"components,omitempty"`
-	Attachments     []Attachment     `json:"attachments,omitempty"`
+	Embeds          *[]Embed         `json:"embeds,omitempty"`
+	Components      *interface{}     `json:"components,omitempty"`
+	Attachments     *[]Attachment    `json:"attachments,omitempty"`
 	Files           []*File          `json:"-"`
 	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
 }

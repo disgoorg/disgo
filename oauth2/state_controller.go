@@ -1,5 +1,7 @@
 package oauth2
 
+import "github.com/DisgoOrg/disgo/internal/insecurerandstr"
+
 var _ StateController = (*stateControllerImpl)(nil)
 
 type StateController interface {
@@ -16,7 +18,7 @@ type stateControllerImpl struct {
 }
 
 func (c *stateControllerImpl) GenerateNewState(redirectURI string) string {
-	state := RandStr(32)
+	state := insecurerandstr.RandStr(32)
 	c.states[state] = redirectURI
 	return state
 }

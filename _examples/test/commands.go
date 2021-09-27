@@ -12,9 +12,9 @@ var commands = []discord.ApplicationCommandCreate{
 		Name:              "eval",
 		Description:       "runs some go code",
 		DefaultPermission: true,
-		Options: []discord.SlashCommandOption{
+		Options: []discord.ApplicationCommandOption{
 			{
-				Type:        discord.CommandOptionTypeString,
+				Type:        discord.ApplicationCommandOptionTypeString,
 				Name:        "code",
 				Description: "the code to eval",
 				Required:    true,
@@ -26,9 +26,9 @@ var commands = []discord.ApplicationCommandCreate{
 		Name:              "test",
 		Description:       "test",
 		DefaultPermission: true,
-		Options: []discord.SlashCommandOption{
+		Options: []discord.ApplicationCommandOption{
 			{
-				Type:        discord.CommandOptionTypeBoolean,
+				Type:        discord.ApplicationCommandOptionTypeBoolean,
 				Name:        "ephemeral",
 				Description: "ephemeral",
 				Required:    true,
@@ -40,15 +40,15 @@ var commands = []discord.ApplicationCommandCreate{
 		Name:              "say",
 		Description:       "says what you say",
 		DefaultPermission: true,
-		Options: []discord.SlashCommandOption{
+		Options: []discord.ApplicationCommandOption{
 			{
-				Type:        discord.CommandOptionTypeString,
+				Type:        discord.ApplicationCommandOptionTypeString,
 				Name:        "message",
 				Description: "What to say",
 				Required:    true,
 			},
 			{
-				Type:        discord.CommandOptionTypeBoolean,
+				Type:        discord.ApplicationCommandOptionTypeBoolean,
 				Name:        "ephemeral",
 				Description: "ephemeral",
 				Required:    true,
@@ -60,15 +60,15 @@ var commands = []discord.ApplicationCommandCreate{
 		Name:              "addrole",
 		Description:       "This command adds a role to a member",
 		DefaultPermission: true,
-		Options: []discord.SlashCommandOption{
+		Options: []discord.ApplicationCommandOption{
 			{
-				Type:        discord.CommandOptionTypeUser,
+				Type:        discord.ApplicationCommandOptionTypeUser,
 				Name:        "member",
 				Description: "The member to add a role to",
 				Required:    true,
 			},
 			{
-				Type:        discord.CommandOptionTypeRole,
+				Type:        discord.ApplicationCommandOptionTypeRole,
 				Name:        "role",
 				Description: "The role to add to a member",
 				Required:    true,
@@ -80,15 +80,15 @@ var commands = []discord.ApplicationCommandCreate{
 		Name:              "removerole",
 		Description:       "This command removes a role from a member",
 		DefaultPermission: true,
-		Options: []discord.SlashCommandOption{
+		Options: []discord.ApplicationCommandOption{
 			{
-				Type:        discord.CommandOptionTypeUser,
+				Type:        discord.ApplicationCommandOptionTypeUser,
 				Name:        "member",
 				Description: "The member to removes a role from",
 				Required:    true,
 			},
 			{
-				Type:        discord.CommandOptionTypeRole,
+				Type:        discord.ApplicationCommandOptionTypeRole,
 				Name:        "role",
 				Description: "The role to removes from a member",
 				Required:    true,

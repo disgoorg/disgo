@@ -7,7 +7,6 @@ import (
 
 //goland:noinspection GoUnusedGlobalVariable
 var DefaultConfig = Config{
-	Logger:           log.Default(),
 	RestClientConfig: &rest.DefaultConfig,
 }
 
@@ -48,6 +47,9 @@ func WithRestClientConfig(restConfig rest.Config) ConfigOpt {
 
 func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
+		if config.RestClientConfig == nil {
+			config.RestClientConfig = &rest.DefaultConfig
+		}
 		config.RestClientConfig.Apply(opts)
 	}
 }

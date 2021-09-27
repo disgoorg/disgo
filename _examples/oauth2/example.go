@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/info"
@@ -14,6 +16,7 @@ import (
 )
 
 var (
+	letters      = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	clientID     = discord.Snowflake(os.Getenv("client_id"))
 	clientSecret = os.Getenv("client_secret")
 	baseURL      = os.Getenv("base_url")
@@ -23,6 +26,8 @@ var (
 )
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	logger.SetLevel(log.LevelDebug)
 	logger.Info("starting example...")
 	logger.Infof("disgo %s", info.Version)
@@ -90,7 +95,7 @@ func handleTryLogin(w http.ResponseWriter, r *http.Request) {
 		state = query.Get("state")
 	)
 	if code != "" && state != "" {
-		identifier := oauth2.RandStr(32)
+		identifier := randStr(32)
 		_, webhook, err := client.StartSession(code, state, identifier)
 		if err != nil {
 			writeError(w, "error while starting session", err)
@@ -105,4 +110,12 @@ func handleTryLogin(w http.ResponseWriter, r *http.Request) {
 func writeError(w http.ResponseWriter, text string, err error) {
 	w.WriteHeader(http.StatusInternalServerError)
 	_, _ = w.Write([]byte(text + ": " + err.Error()))
+}
+
+func randStr(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
 }

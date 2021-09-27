@@ -59,7 +59,7 @@ func WithHeader(key string, value string) RequestOpt {
 
 func WithQueryParam(param string, value interface{}) RequestOpt {
 	return func(config *RequestConfig) {
-		values :=  config.Request.URL.Query()
+		values := config.Request.URL.Query()
 		values.Add(param, fmt.Sprint(value))
 		config.Request.URL.RawQuery = values.Encode()
 	}

@@ -4,12 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-type messageDeletePayload struct {
-	MessageID discord.Snowflake  `json:"id"`
-	GuildID   *discord.Snowflake `json:"guild_id,omitempty"`
-	ChannelID discord.Snowflake  `json:"channel_id"`
-}
-
 // gatewayHandlerMessageDelete handles core.GatewayEventMessageDelete
 type gatewayHandlerMessageDelete struct{}
 
@@ -20,27 +14,31 @@ func (h *gatewayHandlerMessageDelete) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerMessageDelete) New() interface{} {
-	return &messageDeletePayload{}
+	return &discord.MessageDeleteGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerMessageDelete) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
-	payload := *v.(*messageDeletePayload)
+	payload := *v.(*discord.MessageDeleteGatewayEvent)
 
+	handleMessageDelete(bot, sequenceNumber, payload.ID, payload.ChannelID, payload.GuildID)
+}
+
+func handleMessageDelete(bot *Bot, sequenceNumber int, messageID discord.Snowflake, channelID discord.Snowflake, guildID *discord.Snowflake) {
 	genericMessageEvent := &GenericMessageEvent{
 		GenericEvent: NewGenericEvent(bot, sequenceNumber),
-		MessageID:    payload.MessageID,
-		Message:      bot.Caches.MessageCache().GetCopy(payload.ChannelID, payload.MessageID),
-		ChannelID:    payload.ChannelID,
+		MessageID:    messageID,
+		Message:      bot.Caches.MessageCache().GetCopy(channelID, messageID),
+		ChannelID:    channelID,
 	}
 
-	bot.Caches.MessageCache().Remove(payload.ChannelID, payload.MessageID)
+	bot.Caches.MessageCache().Remove(channelID, messageID)
 
 	bot.EventManager.Dispatch(&MessageDeleteEvent{
 		GenericMessageEvent: genericMessageEvent,
 	})
 
-	if payload.GuildID == nil {
+	if guildID == nil {
 		bot.EventManager.Dispatch(&DMMessageDeleteEvent{
 			GenericDMMessageEvent: &GenericDMMessageEvent{
 				GenericMessageEvent: genericMessageEvent,
@@ -50,7 +48,7 @@ func (h *gatewayHandlerMessageDelete) HandleGatewayEvent(bot *Bot, sequenceNumbe
 		bot.EventManager.Dispatch(&GuildMessageDeleteEvent{
 			GenericGuildMessageEvent: &GenericGuildMessageEvent{
 				GenericMessageEvent: genericMessageEvent,
-				GuildID:             *payload.GuildID,
+				GuildID:             *guildID,
 			},
 		})
 	}
