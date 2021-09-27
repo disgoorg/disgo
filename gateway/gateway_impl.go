@@ -129,12 +129,19 @@ func (g *gatewayImpl) Send(command discord.GatewayCommand) error {
 }
 
 func (g *gatewayImpl) SendContext(ctx context.Context, command discord.GatewayCommand) error {
+	if g.conn == nil {
+		return discord.ErrShardNotConnected
+	}
 	if err := g.config.RateLimiter.Wait(ctx); err != nil {
 		return err
 	}
-	err := g.conn.WriteJSON(command)
-	g.config.RateLimiter.Unlock()
-	return err
+	defer g.config.RateLimiter.Unlock()
+	data, err := json.Marshal(command)
+	if err != nil {
+		return err
+	}
+	g.Logger().Debug("sending gateway command: ", string(data))
+	return g.conn.WriteMessage(websocket.TextMessage, data)
 }
 
 func (g *gatewayImpl) Latency() time.Duration {
@@ -265,6 +272,7 @@ func (g *gatewayImpl) listen() {
 					Compress:       g.config.Compress,
 					LargeThreshold: g.config.LargeThreshold,
 					GatewayIntents: g.config.GatewayIntents,
+					Presence:       g.config.Presence,
 				}
 				if g.shardCount > 1 {
 					identify.Shard = []int{g.shardID, g.shardCount}

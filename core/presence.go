@@ -1,6 +1,10 @@
 package core
 
-import "github.com/DisgoOrg/disgo/discord"
+import (
+	"time"
+
+	"github.com/DisgoOrg/disgo/discord"
+)
 
 type Presence struct {
 	discord.Presence
@@ -17,4 +21,51 @@ func (p *Presence) Member() *Member {
 
 func (p *Presence) Guild() *Guild {
 	return p.Bot.Caches.GuildCache().Get(p.GuildID)
+}
+
+func NewPresence(activityType discord.ActivityType, name string, url string, status discord.OnlineStatus, afk bool) discord.PresenceUpdate {
+	var since *int64
+	if status == discord.OnlineStatusIdle {
+		unix := time.Now().Unix()
+		since = &unix
+	}
+
+	var activities []discord.Activity
+	if name != "" {
+		activity := discord.Activity{
+			Name: name,
+			Type: activityType,
+		}
+		if activityType == discord.ActivityTypeStreaming && url != "" {
+			activity.URL = &url
+		}
+		activities = append(activities, activity)
+	}
+
+	return discord.PresenceUpdate{
+		Since:      since,
+		Activities: activities,
+		Status:     status,
+		AFK:        afk,
+	}
+}
+
+func NewGamePresence(name string, status discord.OnlineStatus, afk bool) discord.PresenceUpdate {
+	return NewPresence(discord.ActivityTypeGame, name, "", status, afk)
+}
+
+func NewStreamingPresence(name string, url string, status discord.OnlineStatus, afk bool) discord.PresenceUpdate {
+	return NewPresence(discord.ActivityTypeStreaming, name, url, status, afk)
+}
+
+func NewListeningPresence(name string, status discord.OnlineStatus, afk bool) discord.PresenceUpdate {
+	return NewPresence(discord.ActivityTypeListening, name, "", status, afk)
+}
+
+func NewWatchingPresence(name string, status discord.OnlineStatus, afk bool) discord.PresenceUpdate {
+	return NewPresence(discord.ActivityTypeWatching, name, "", status, afk)
+}
+
+func NewCompetingPresence(name string, status discord.OnlineStatus, afk bool) discord.PresenceUpdate {
+	return NewPresence(discord.ActivityTypeCompeting, name, "", status, afk)
 }

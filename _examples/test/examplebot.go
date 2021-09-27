@@ -37,11 +37,14 @@ func main() {
 
 	bot, err := core.NewBotBuilder(token).
 		SetRawEventsEnabled(true).
-		SetGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentsAll)).
-		SetCacheConfig(core.CacheConfig{
-			CacheFlags:        core.CacheFlagsAll,
-			MemberCachePolicy: core.MemberCachePolicyAll,
-		}).
+		SetGatewayConfigOpts(
+			gateway.WithGatewayIntents(discord.GatewayIntentsAll),
+			gateway.WithPresence(core.NewListeningPresence("your bullshit", discord.OnlineStatusOnline, false)),
+		).
+		SetCacheConfigOpts(
+			core.WithCacheFlags(core.CacheFlagsAll),
+			core.WithMemberCachePolicy(core.MemberCachePolicyAll),
+		).
 		AddEventListeners(listener).
 		Build()
 	if err != nil {

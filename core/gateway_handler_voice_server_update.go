@@ -21,7 +21,7 @@ func (h *gatewayHandlerVoiceServerUpdate) New() interface{} {
 func (h *gatewayHandlerVoiceServerUpdate) HandleGatewayEvent(bot *Bot, _ int, v interface{}) {
 	voiceServerUpdate := *v.(*discord.VoiceServerUpdate)
 
-	if interceptor := bot.VoiceDispatchInterceptor; interceptor != nil {
+	if interceptor := bot.EventManager.Config().VoiceDispatchInterceptor; interceptor != nil {
 		interceptor.OnVoiceServerUpdate(&VoiceServerUpdateEvent{
 			VoiceServerUpdate: voiceServerUpdate,
 			Bot:               bot,

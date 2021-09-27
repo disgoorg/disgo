@@ -19,32 +19,6 @@ var listener = &core.ListenerAdapter{
 	OnSlashCommand:       slashCommandListener,
 	OnButtonClick:        buttonClickListener,
 	OnSelectMenuSubmit:   selectMenuSubmitListener,
-
-	OnUserStatusUpdate:       userStatusUpdate,
-	OnUserClientStatusUpdate: userClientStatusUpdate,
-	OnUserActivityStart:      userActivityStart,
-	OnUserActivityUpdate:     userActivityUpdate,
-	OnUserActivityStop:       userActivityStop,
-}
-
-func userStatusUpdate(event *core.UserStatusUpdateEvent) {
-	log.Infof("UserStatusUpdateEvent: %+v", event)
-}
-
-func userClientStatusUpdate(event *core.UserClientStatusUpdateEvent) {
-	log.Infof("UserClientStatusUpdateEvent: %+v", event)
-}
-
-func userActivityStart(event *core.UserActivityStartEvent) {
-	log.Infof("UserActivityStartEvent: %+v", event)
-}
-
-func userActivityUpdate(event *core.UserActivityUpdateEvent) {
-	log.Infof("UserActivityUpdateEvent: %+v", event)
-}
-
-func userActivityStop(event *core.UserActivityStopEvent) {
-	log.Infof("UserActivityStopEvent: %+v", event)
 }
 
 func rawGatewayEventListener(event *core.RawEvent) {
