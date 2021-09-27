@@ -25,6 +25,7 @@ type Config struct {
 	Compress          bool
 	RateLimiter       rate.Limiter
 	RateLimiterConfig *rate.Config
+	Presence          *discord.PresenceUpdate
 	OS                string
 	Browser           string
 	Device            string
@@ -78,6 +79,12 @@ func WithRateLimiterConfigOpts(opts ...rate.ConfigOpt) ConfigOpt {
 			config.RateLimiterConfig = &rate.DefaultConfig
 		}
 		config.RateLimiterConfig.Apply(opts)
+	}
+}
+
+func WithPresence(presence discord.PresenceUpdate) ConfigOpt {
+	return func(config *Config) {
+		config.Presence = &presence
 	}
 }
 

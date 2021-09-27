@@ -22,7 +22,7 @@ var listener = &core.ListenerAdapter{
 }
 
 func rawGatewayEventListener(event *core.RawEvent) {
-	if event.Type == discord.GatewayEventTypeInteractionCreate || event.Type == discord.GatewayEventTypeGuildEmojisUpdate {
+	if event.Type == discord.GatewayEventTypePresenceUpdate  {
 		println(string(event.RawPayload))
 	}
 }

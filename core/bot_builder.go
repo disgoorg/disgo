@@ -67,21 +67,30 @@ func (b *BotBuilder) SetEventManager(eventManager EventManager) *BotBuilder {
 
 // AddEventListeners lets you add an EventListener to your EventManager
 func (b *BotBuilder) AddEventListeners(eventListeners ...EventListener) *BotBuilder {
+	if b.EventManagerConfig == nil {
+		b.EventManagerConfig = &DefaultEventManagerConfig
+	}
 	for _, eventListener := range eventListeners {
-		b.EventListeners = append(b.EventListeners, eventListener)
+		b.EventManagerConfig.EventListeners = append(b.EventManagerConfig.EventListeners, eventListener)
 	}
 	return b
 }
 
 // SetRawEventsEnabled enables/disables the events.RawGatewayEvent
 func (b *BotBuilder) SetRawEventsEnabled(enabled bool) *BotBuilder {
-	b.RawEventsEnabled = enabled
+	if b.EventManagerConfig == nil {
+		b.EventManagerConfig = &DefaultEventManagerConfig
+	}
+	b.EventManagerConfig.RawEventsEnabled = enabled
 	return b
 }
 
 // SetVoiceDispatchInterceptor sets the VoiceDispatchInterceptor
 func (b *BotBuilder) SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor) *BotBuilder {
-	b.VoiceDispatchInterceptor = voiceDispatchInterceptor
+	if b.EventManagerConfig == nil {
+		b.EventManagerConfig = &DefaultEventManagerConfig
+	}
+	b.EventManagerConfig.VoiceDispatchInterceptor = voiceDispatchInterceptor
 	return b
 }
 

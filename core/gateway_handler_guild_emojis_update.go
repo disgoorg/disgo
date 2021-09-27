@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/google/go-cmp/cmp"
 )
 
 // gatewayHandlerGuildEmojisUpdate handles discord.GatewayEventTypeGuildEmojisUpdate
@@ -42,7 +43,7 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot *Bot, sequenceN
 		emoji, ok := emojiCache[current.ID]
 		if ok {
 			delete(oldEmojis, current.ID)
-			if isEmojiUpdated(emoji, current) {
+			if !cmp.Equal(emoji, current) {
 				updatedEmojis[current.ID] = bot.EntityBuilder.CreateEmoji(payload.GuildID, current, CacheStrategyYes)
 			}
 		} else {
@@ -87,9 +88,4 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot *Bot, sequenceN
 		})
 	}
 
-}
-
-func isEmojiUpdated(oldEmoji *Emoji, newEmoji discord.Emoji) bool {
-	// TODO: actual check here
-	return false
 }

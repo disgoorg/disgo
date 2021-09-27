@@ -6,6 +6,7 @@ type Caches interface {
 	UserCache() UserCache
 	RoleCache() RoleCache
 	MemberCache() MemberCache
+	PresenceCache() PresenceCache
 	VoiceStateCache() VoiceStateCache
 	MessageCache() MessageCache
 	EmojiCache() EmojiCache
@@ -22,6 +23,7 @@ func NewCaches(config CacheConfig) Caches {
 		userCache:          NewUserCache(config.CacheFlags),
 		roleCache:          NewRoleCache(config.CacheFlags),
 		memberCache:        NewMemberCache(config.MemberCachePolicy),
+		presenceCache:      NewPresenceCache(config.CacheFlags),
 		voiceStateCache:    NewVoiceStateCache(config.CacheFlags),
 		messageCache:       NewMessageCache(config.MessageCachePolicy),
 		emojiCache:         NewEmojiCache(config.CacheFlags),
@@ -38,6 +40,7 @@ type cachesImpl struct {
 	userCache          UserCache
 	roleCache          RoleCache
 	memberCache        MemberCache
+	presenceCache      PresenceCache
 	voiceStateCache    VoiceStateCache
 	messageCache       MessageCache
 	emojiCache         EmojiCache
@@ -61,6 +64,10 @@ func (c *cachesImpl) RoleCache() RoleCache {
 
 func (c *cachesImpl) MemberCache() MemberCache {
 	return c.memberCache
+}
+
+func (c *cachesImpl) PresenceCache() PresenceCache {
+	return c.presenceCache
 }
 
 func (c *cachesImpl) VoiceStateCache() VoiceStateCache {

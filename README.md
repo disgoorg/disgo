@@ -63,6 +63,7 @@ disgo, err := core.NewBot(os.Getenv("token"),
             discord.GatewayIntentDirectMessages,
         ),
     ),
+	// set what to cache
     core.WithCacheConfigOpts(
 		core.WithCacheFlags(core.CacheFlagsDefault),
     ),
@@ -81,7 +82,7 @@ if err := disgo.ConnectGateway(); err != nil {
 }
 ```
 
-### Ping Pong Example
+### Full Ping Pong Example
 
 ```go
 package main
@@ -100,7 +101,7 @@ import (
 func main() {
     disgo, err := core.NewBot(os.Getenv("token"),
         core.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
-        core.WithCacheConfig(core.CacheConfig{CacheFlags: core.CacheFlagsDefault}),
+        core.WithCacheConfigOpts(core.WithCacheFlags(core.CacheFlagGuilds)),
         core.WithEventListeners(&core.ListenerAdapter{
             OnMessageCreate: onMessageCreate,
         }),
@@ -115,7 +116,7 @@ func main() {
         log.Fatal("errors while connecting to gateway: ", err)
     }
 
-    log.Infof("example is now running. Press CTRL-C to exit.")
+    log.Info("example is now running. Press CTRL-C to exit.")
     s := make(chan os.Signal, 1)
     signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
     <-s

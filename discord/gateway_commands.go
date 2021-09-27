@@ -25,6 +25,7 @@ type IdentifyCommand struct {
 	LargeThreshold int                           `json:"large_threshold,omitempty"`
 	Shard          []int                         `json:"shard,omitempty"`
 	GatewayIntents GatewayIntents                `json:"intents"`
+	Presence       *PresenceUpdate               `json:"presence,omitempty"`
 	// Todo: Add presence property here, need presence methods/struct
 }
 

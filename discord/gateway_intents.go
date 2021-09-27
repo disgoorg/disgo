@@ -9,7 +9,7 @@ const (
 	GatewayIntentGuilds GatewayIntents = 1 << iota
 	GatewayIntentGuildMembers
 	GatewayIntentGuildBans
-	GatewayIntentGuildEmojis
+	GatewayIntentGuildEmojisAndStickers
 	GatewayIntentGuildIntegrations
 	GatewayIntentGuildWebhooks
 	GatewayIntentGuildInvites
@@ -22,9 +22,26 @@ const (
 	GatewayIntentDirectMessageReactions
 	GatewayIntentDirectMessageTyping
 
+	GatewayIntentsGuild = GatewayIntentGuilds |
+		GatewayIntentGuildMembers |
+		GatewayIntentGuildBans |
+		GatewayIntentGuildEmojisAndStickers |
+		GatewayIntentGuildIntegrations |
+		GatewayIntentGuildWebhooks |
+		GatewayIntentGuildInvites |
+		GatewayIntentGuildVoiceStates |
+		GatewayIntentGuildPresences |
+		GatewayIntentGuildMessages |
+		GatewayIntentGuildMessageReactions |
+		GatewayIntentGuildMessageTyping
+
+	GatewayIntentsDirectMessage = GatewayIntentDirectMessages |
+		GatewayIntentDirectMessageReactions |
+		GatewayIntentDirectMessageTyping
+
 	GatewayIntentsNonPrivileged = GatewayIntentGuilds |
 		GatewayIntentGuildBans |
-		GatewayIntentGuildEmojis |
+		GatewayIntentGuildEmojisAndStickers |
 		GatewayIntentGuildIntegrations |
 		GatewayIntentGuildWebhooks |
 		GatewayIntentGuildInvites |
