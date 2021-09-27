@@ -39,7 +39,7 @@ func main() {
 		SetRawEventsEnabled(true).
 		SetGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentsAll)).
 		SetCacheConfig(core.CacheConfig{
-			CacheFlags:        core.CacheFlagsDefault,
+			CacheFlags:        core.CacheFlagsAll,
 			MemberCachePolicy: core.MemberCachePolicyAll,
 		}).
 		AddEventListeners(listener).

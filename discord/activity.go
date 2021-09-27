@@ -22,6 +22,7 @@ const (
 
 // Activity represents the fields of a user's presence
 type Activity struct {
+	ID            string              `json:"id"`
 	Name          string              `json:"name"`
 	Type          ActivityType        `json:"type"`
 	URL           *string             `json:"url"`
@@ -36,6 +37,7 @@ type Activity struct {
 	Secrets       *ActivitySecrets    `json:"secrets,omitempty"`
 	Instance      *bool               `json:"instance,omitempty"`
 	Flags         int                 `json:"flags,omitempty"`
+	Buttons       []ActivityButton    `json:"buttons"`
 }
 
 func (a *Activity) UnmarshalJSON(data []byte) error {
@@ -111,6 +113,11 @@ func (a Activity) MarshalJSON() ([]byte, error) {
 		CreatedAt:     a.CreatedAt.UnixNano() / int64(time.Millisecond),
 	}
 	return json.Marshal(v)
+}
+
+type ActivityButton struct {
+	Label string `json:"label"`
+	URL   string `json:"url"`
 }
 
 // ActivityTimestamps represents when a user started and ended their activity

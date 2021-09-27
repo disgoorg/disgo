@@ -4,27 +4,34 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// GenericUserActivityEvent is called upon receiving UserActivityStartEvent, UserActivityUpdateEvent or UserActivityEndEvent(requires the core.GatewayIntentsGuildPresences)
 type GenericUserActivityEvent struct {
-	*GenericGuildMemberEvent
-	Member *Member
+	*GenericEvent
+	UserID   discord.Snowflake
+	GuildID  discord.Snowflake
+	Activity discord.Activity
 }
 
-// UserActivityStartEvent indicates that an core.User started a new core.Activity(requires the core.GatewayIntentsGuildPresences)
+func (g *GenericUserActivityEvent) User() *User {
+	return g.Bot().Caches.UserCache().Get(g.UserID)
+}
+
+func (g *GenericUserActivityEvent) Member() *Member {
+	return g.Bot().Caches.MemberCache().Get(g.GuildID, g.UserID)
+}
+
+func (g *GenericUserActivityEvent) Guild() *Guild {
+	return g.Bot().Caches.GuildCache().Get(g.UserID)
+}
+
 type UserActivityStartEvent struct {
 	*GenericUserActivityEvent
-	Activity discord.Activity
 }
 
-// UserActivityUpdateEvent indicates that an core.User's core.Activity(s) updated(requires the core.GatewayIntentsGuildPresences)
 type UserActivityUpdateEvent struct {
 	*GenericUserActivityEvent
-	NewActivities discord.Activity
-	OldActivities discord.Activity
+	OldActivity discord.Activity
 }
 
-// UserActivityEndEvent indicates that an core.User ended an core.Activity(requires the core.GatewayIntentsGuildPresences)
-type UserActivityEndEvent struct {
+type UserActivityStopEvent struct {
 	*GenericUserActivityEvent
-	Activity discord.Activity
 }
