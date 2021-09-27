@@ -52,7 +52,7 @@ func (i *Interaction) Create(messageCreate discord.MessageCreate, opts ...rest.R
 func (i *Interaction) GetOriginal(opts ...rest.RequestOpt) (*Message, rest.Error) {
 	message, err := i.Bot.RestServices.InteractionService().GetInteractionResponse(i.Bot.ApplicationID, i.Token, opts...)
 	if err != nil {
-
+		return nil, err
 	}
 	return i.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
@@ -61,7 +61,7 @@ func (i *Interaction) GetOriginal(opts ...rest.RequestOpt) (*Message, rest.Error
 func (i *Interaction) UpdateOriginal(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error) {
 	message, err := i.Bot.RestServices.InteractionService().UpdateInteractionResponse(i.Bot.ApplicationID, i.Token, messageUpdate, opts...)
 	if err != nil {
-
+		return nil, err
 	}
 	return i.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
@@ -75,7 +75,7 @@ func (i *Interaction) DeleteOriginal(opts ...rest.RequestOpt) rest.Error {
 func (i *Interaction) CreateFollowup(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, rest.Error) {
 	message, err := i.Bot.RestServices.InteractionService().CreateFollowupMessage(i.Bot.ApplicationID, i.Token, messageCreate, opts...)
 	if err != nil {
-
+		return nil, err
 	}
 	return i.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
@@ -84,7 +84,7 @@ func (i *Interaction) CreateFollowup(messageCreate discord.MessageCreate, opts .
 func (i *Interaction) UpdateFollowup(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error) {
 	message, err := i.Bot.RestServices.InteractionService().UpdateFollowupMessage(i.Bot.ApplicationID, i.Token, messageID, messageUpdate, opts...)
 	if err != nil {
-
+		return nil, err
 	}
 	return i.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
