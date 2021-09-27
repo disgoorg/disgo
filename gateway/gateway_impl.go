@@ -167,10 +167,9 @@ func (g *gatewayImpl) reconnect(delay time.Duration) {
 
 func (g *gatewayImpl) closeWithCode(code int) {
 	if g.heartbeatChan != nil {
-		g.Logger().Info("closing gateway goroutines...")
+		g.Logger().Info("closing heartbeat goroutines...")
 		close(g.heartbeatChan)
 		g.heartbeatChan = nil
-		g.Logger().Info("closed gateway goroutines")
 	}
 	if g.conn != nil {
 		err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, ""))
@@ -231,9 +230,33 @@ func (g *gatewayImpl) listen() {
 		}
 		mt, reader, err := g.conn.NextReader()
 		if err != nil {
-			g.Logger().Error("error while reading from ws. error: ", err)
-			g.closeWithCode(websocket.CloseServiceRestart)
-			g.reconnect(1 * time.Second)
+			reconnect := true
+			if closeError, ok := err.(*websocket.CloseError); ok {
+				switch discord.GatewayCloseEventCode(closeError.Code) {
+				case discord.GatewayCloseEventCodeUnknownError:
+					g.Logger().Errorf("unknown close code: %d error: %s", closeError.Code, closeError.Text)
+
+				case discord.GatewayCloseEventCodeRateLimited:
+					g.Logger().Error("sent too much gateway commands. discord disconnects us now")
+
+				case discord.GatewayCloseEventCodeInvalidShard:
+					reconnect = false
+
+				case discord.GatewayCloseEventCodeInvalidIntents:
+
+
+				case discord.GatewayCloseEventCodeDisallowedIntents:
+
+
+				case discord.GatewayCloseEventCodeInvalidSeq:
+					g.lastSequenceReceived = nil
+
+				}
+			}
+
+			if reconnect {
+				g.reconnect(1 * time.Second)
+			}
 			return
 		}
 
