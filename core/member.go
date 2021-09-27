@@ -1,8 +1,11 @@
 package core
 
 import (
+	"strings"
+
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
+	"github.com/DisgoOrg/disgo/rest/route"
 )
 
 type Member struct {
@@ -62,6 +65,23 @@ func (m *Member) IsOwner() bool {
 		return guild.OwnerID == m.ID
 	}
 	return false
+}
+
+// AvatarURL returns the Avatar URL of the Member for this guild
+func (m *Member) AvatarURL(size int) *string {
+	if m.Avatar == nil {
+		return nil
+	}
+	format := route.PNG
+	if strings.HasPrefix(*m.Avatar, "a_") {
+		format = route.GIF
+	}
+	compiledRoute, err := route.MemberAvatar.Compile(nil, format, size, m.GuildID, m.ID, *m.Avatar)
+	if err != nil {
+		return nil
+	}
+	url := compiledRoute.URL()
+	return &url
 }
 
 // Update updates the Member
