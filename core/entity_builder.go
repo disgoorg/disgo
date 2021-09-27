@@ -28,8 +28,11 @@ type EntityBuilder interface {
 	CreateInteraction(unmarshalInteraction discord.Interaction, responseChannel chan<- discord.InteractionResponse, updateCache CacheStrategy) *Interaction
 
 	CreateApplicationCommandInteraction(interaction *Interaction, updateCache CacheStrategy) *ApplicationCommandInteraction
-	CreateSlashCommandInteraction(applicationCommandInteraction *ApplicationCommandInteraction) *SlashCommandInteraction
-	CreateApplicationCommandAutocompleteInteraction(slashCommandInteraction *SlashCommandInteraction) *ApplicationCommandAutocompleteInteraction
+
+	CreateApplicationCommandOptionsInteraction(applicationCommandInteraction *ApplicationCommandInteraction) *ApplicationCommandOptionsInteraction
+	CreateSlashCommandInteraction(applicationCommandOptionsInteraction *ApplicationCommandOptionsInteraction) *SlashCommandInteraction
+	CreateApplicationCommandAutocompleteInteraction(applicationCommandOptionsInteraction *ApplicationCommandOptionsInteraction) *ApplicationCommandAutocompleteInteraction
+
 	CreateContextCommandInteraction(applicationInteraction *ApplicationCommandInteraction) *ContextCommandInteraction
 	CreateUserCommandInteraction(contextCommandInteraction *ContextCommandInteraction) *UserCommandInteraction
 	CreateMessageCommandInteraction(contextCommandInteraction *ContextCommandInteraction) *MessageCommandInteraction
@@ -143,21 +146,20 @@ func (b *entityBuilderImpl) CreateApplicationCommandInteraction(interaction *Int
 	return commandInteraction
 }
 
-func (b *entityBuilderImpl) CreateSlashCommandInteraction(applicationCommandInteraction *ApplicationCommandInteraction) *SlashCommandInteraction {
-	slashCommandInteraction := &SlashCommandInteraction{
+func (b *entityBuilderImpl) CreateApplicationCommandOptionsInteraction(applicationCommandInteraction *ApplicationCommandInteraction) *ApplicationCommandOptionsInteraction {
+	applicationCommandOptionsInteraction := &ApplicationCommandOptionsInteraction{
 		ApplicationCommandInteraction: applicationCommandInteraction,
 	}
-
-	unmarshalOptions := slashCommandInteraction.Data.Options
+	unmarshalOptions := applicationCommandOptionsInteraction.Data.Options
 	if len(unmarshalOptions) > 0 {
 		unmarshalOption := unmarshalOptions[0]
 		if unmarshalOption.Type == discord.ApplicationCommandOptionTypeSubCommandGroup {
-			slashCommandInteraction.SubCommandGroupName = &unmarshalOption.Name
+			applicationCommandOptionsInteraction.SubCommandGroupName = &unmarshalOption.Name
 			unmarshalOptions = unmarshalOption.Options
 			unmarshalOption = unmarshalOption.Options[0]
 		}
 		if unmarshalOption.Type == discord.ApplicationCommandOptionTypeSubCommand {
-			slashCommandInteraction.SubCommandName = &unmarshalOption.Name
+			applicationCommandOptionsInteraction.SubCommandName = &unmarshalOption.Name
 			unmarshalOptions = unmarshalOption.Options
 		}
 	}
@@ -165,21 +167,33 @@ func (b *entityBuilderImpl) CreateSlashCommandInteraction(applicationCommandInte
 	optionMap := make(map[string]ApplicationCommandOption, len(unmarshalOptions))
 	for _, option := range unmarshalOptions {
 		optionMap[option.Name] = ApplicationCommandOption{
-			Resolved: slashCommandInteraction.Resolved,
+			Resolved: applicationCommandOptionsInteraction.Resolved,
 			Name:     option.Name,
 			Type:     option.Type,
 			Value:    option.Value,
 			Focused:  option.Focused,
 		}
 	}
-	slashCommandInteraction.Options = optionMap
+	applicationCommandOptionsInteraction.Options = optionMap
 
-	return slashCommandInteraction
+	return applicationCommandOptionsInteraction
 }
 
-func (b *entityBuilderImpl) CreateApplicationCommandAutocompleteInteraction(slashCommandInteraction *SlashCommandInteraction) *ApplicationCommandAutocompleteInteraction {
+func (b *entityBuilderImpl) CreateSlashCommandInteraction(applicationCommandOptionsInteraction *ApplicationCommandOptionsInteraction) *SlashCommandInteraction {
+	return &SlashCommandInteraction{
+		ApplicationCommandOptionsInteraction: applicationCommandOptionsInteraction,
+		CreateInteractionResponses: CreateInteractionResponses{
+			applicationCommandOptionsInteraction.Interaction,
+		},
+	}
+}
+
+func (b *entityBuilderImpl) CreateApplicationCommandAutocompleteInteraction(applicationCommandOptionsInteraction *ApplicationCommandOptionsInteraction) *ApplicationCommandAutocompleteInteraction {
 	return &ApplicationCommandAutocompleteInteraction{
-		SlashCommandInteraction: slashCommandInteraction,
+		ApplicationCommandOptionsInteraction: applicationCommandOptionsInteraction,
+		AutoCompleteInteractionResponses: AutoCompleteInteractionResponses{
+			applicationCommandOptionsInteraction.Interaction,
+		},
 	}
 }
 
@@ -188,6 +202,9 @@ func (b *entityBuilderImpl) CreateContextCommandInteraction(applicationInteracti
 		ApplicationCommandInteraction: applicationInteraction,
 		ContextCommandInteractionData: ContextCommandInteractionData{
 			TargetID: applicationInteraction.Data.TargetID,
+		},
+		CreateInteractionResponses: CreateInteractionResponses{
+			Interaction: applicationInteraction.Interaction,
 		},
 	}
 }
@@ -213,6 +230,12 @@ func (b *entityBuilderImpl) CreateComponentInteraction(interaction *Interaction,
 			CustomID:      interaction.Data.CustomID,
 		},
 		Message: b.CreateMessage(interaction.Message, updateCache),
+		CreateInteractionResponses: CreateInteractionResponses{
+			Interaction: interaction,
+		},
+		UpdateInteractionResponses: UpdateInteractionResponses{
+			Interaction: interaction,
+		},
 	}
 }
 

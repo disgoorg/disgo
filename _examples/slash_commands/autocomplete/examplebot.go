@@ -78,7 +78,7 @@ func applicationCommandAutocompleteListener(event *core.ApplicationCommandAutoco
 	switch event.CommandName {
 	case "autocomplete":
 		go func() {
-			focused := event.GetFocusedOption()
+			focused := event.FocusedOption()
 			var targets []string
 			if focused.Name == "group" {
 				targets = autocompleteGroups

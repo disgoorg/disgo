@@ -7,18 +7,10 @@ import (
 
 type ComponentInteraction struct {
 	*Interaction
+	CreateInteractionResponses
+	UpdateInteractionResponses
 	ComponentInteractionData
 	Message *Message
-}
-
-// DeferUpdate replies to the ComponentInteraction with discord.InteractionCallbackTypeDeferredUpdateMessage and cancels the loading state
-func (i *ComponentInteraction) DeferUpdate(opts ...rest.RequestOpt) rest.Error {
-	return i.Respond(discord.InteractionCallbackTypeDeferredUpdateMessage, nil, opts...)
-}
-
-// Update replies to the ComponentInteraction with discord.InteractionCallbackTypeUpdateMessage & discord.MessageUpdate which edits the original Message
-func (i *ComponentInteraction) Update(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) rest.Error {
-	return i.Respond(discord.InteractionCallbackTypeUpdateMessage, messageUpdate, opts...)
 }
 
 // Component returns the Component which issued this ComponentInteraction
