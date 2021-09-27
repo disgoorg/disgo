@@ -84,6 +84,13 @@ func (m *Member) AvatarURL(size int) *string {
 	return &url
 }
 
+func (m *Member) EffectiveAvatarURL(size int) string {
+	if m.Avatar == nil {
+		return m.User.EffectiveAvatarURL(size)
+	}
+	return *m.AvatarURL(size)
+}
+
 // Update updates the Member
 func (m *Member) Update(updateGuildMember discord.MemberUpdate, opts ...rest.RequestOpt) (*Member, rest.Error) {
 	member, err := m.Bot.RestServices.GuildService().UpdateMember(m.GuildID, m.User.ID, updateGuildMember, opts...)
