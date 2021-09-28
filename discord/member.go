@@ -5,6 +5,7 @@ type Member struct {
 	GuildID      Snowflake    `json:"guild_id"`
 	User         User         `json:"user"`
 	Nick         *string      `json:"nick"`
+	Avatar       *string      `json:"avatar"`
 	RoleIDs      []Snowflake  `json:"roles,omitempty"`
 	JoinedAt     Time         `json:"joined_at"`
 	PremiumSince *Time        `json:"premium_since,omitempty"`

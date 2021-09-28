@@ -39,6 +39,7 @@ type EventManager interface {
 	Close()
 	Config() EventManagerConfig
 
+	SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor)
 	AddEventListeners(eventListeners ...EventListener)
 	RemoveEventListeners(eventListeners ...EventListener)
 	HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader)
@@ -90,6 +91,10 @@ func (e *eventManagerImpl) Close() {
 
 func (e *eventManagerImpl) Config() EventManagerConfig {
 	return e.config
+}
+
+func (e *eventManagerImpl) SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor) {
+	e.config.VoiceDispatchInterceptor = voiceDispatchInterceptor
 }
 
 func (e *eventManagerImpl) handleRaw(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) io.Reader {
