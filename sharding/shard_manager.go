@@ -5,13 +5,13 @@ import (
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
-	"github.com/DisgoOrg/disgo/sharding/rate"
+	"github.com/DisgoOrg/disgo/sharding/srate"
 	"github.com/DisgoOrg/log"
 )
 
 type ShardManager interface {
 	Logger() log.Logger
-	RateLimiter() rate.Limiter
+	RateLimiter() srate.Limiter
 
 	Open() []error
 	OpenContext(ctx context.Context) []error

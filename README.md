@@ -54,31 +54,23 @@ go get github.com/DisgoOrg/disgo
 ### Building a Disgo Instance
 
 ```go
-disgo, err := core.NewBot(os.Getenv("token"),
-    // set which gateway intents we should use
-    core.WithGatewayConfigOpts(
-        gateway.WithGatewayIntents(
-            discord.GatewayIntentGuilds,
-            discord.GatewayIntentGuildMessages,
-            discord.GatewayIntentDirectMessages,
-        ),
-    ),
-	// set what to cache
-    core.WithCacheConfigOpts(
-		core.WithCacheFlags(core.CacheFlagsDefault),
-    ),
-    // add our event listeners
-    core.WithEventListeners(&core.ListenerAdapter{
-        OnMessageCreate: onMessageCreate,
-    }),
+import (
+	"github.com/DisgoOrg/disgo/bot"
+	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/gateway"
+)
+
+disgo, err := bot.New("token",
+	bot.WithGatewayOpts(
+		gateway.WithGatewayIntents(
+			discord.GatewayIntentGuilds,
+			discord.GatewayIntentGuildMessages,
+			discord.GatewayIntentDirectMessages,
+		),
+	),
 )
 if err != nil {
-    log.Fatal("error while building disgo: ", err)
-}
-
-// connect to the gateway
-if err := disgo.ConnectGateway(); err != nil {
-    log.Fatal("error while connecting to the gateway: ", err)
+	// do something with the error
 }
 ```
 
@@ -88,43 +80,60 @@ if err := disgo.ConnectGateway(); err != nil {
 package main
 
 import (
-    "os"
-    "os/signal"
-    "syscall"
+	"os"
+	"os/signal"
+	"syscall"
 
-    "github.com/DisgoOrg/disgo/core"
-    "github.com/DisgoOrg/disgo/discord"
-    "github.com/DisgoOrg/disgo/gateway"
-    "github.com/DisgoOrg/log"
+	"github.com/DisgoOrg/disgo/bot"
+	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/events"
+	"github.com/DisgoOrg/disgo/gateway"
+	"github.com/DisgoOrg/log"
 )
 
 func main() {
-    disgo, err := core.NewBot(os.Getenv("token"),
-        core.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
-        core.WithCacheConfigOpts(core.WithCacheFlags(core.CacheFlagGuilds)),
-        core.WithEventListeners(&core.ListenerAdapter{
-            OnMessageCreate: onMessageCreate,
-        }),
-    )
-    if err != nil {
-        log.Fatal("error while building disgo: ", err)
-    }
+	disgo, err := bot.New(os.Getenv("token"),
+		bot.WithGatewayOpts(
+			gateway.WithGatewayIntents(
+				discord.GatewayIntentGuilds,
+				discord.GatewayIntentGuildMessages,
+				discord.GatewayIntentDirectMessages,
+			),
+		),
+		bot.WithCacheOpts(core.WithCacheFlags(core.CacheFlagsDefault)),
+		bot.WithEventListeners(&events.ListenerAdapter{
+			OnMessageCreate: onMessageCreate,
+		}),
+	)
+	if err != nil {
+		log.Fatal("error while building disgo: ", err)
+	}
 
-    defer disgo.Close()
+	defer disgo.Close()
 
-    if err = disgo.ConnectGateway(); err != nil {
-        log.Fatal("errors while connecting to gateway: ", err)
-    }
+	if err = disgo.ConnectGateway(); err != nil {
+		log.Fatal("errors while connecting to gateway: ", err)
+	}
 
-    log.Info("example is now running. Press CTRL-C to exit.")
-    s := make(chan os.Signal, 1)
-    signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
-    <-s
+	log.Info("example is now running. Press CTRL-C to exit.")
+	s := make(chan os.Signal, 1)
+	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	<-s
 }
 
-func onMessageCreate(event *core.MessageCreateEvent) {
-    _, _ = event.Message.Reply(core.NewMessageCreateBuilder().SetContent(event.Message.Content).Build())
+func onMessageCreate(event *events.MessageCreateEvent) {
+	var message string
+	if event.Message.Content == "ping" {
+		message = "pong"
+	} else if event.Message.Content == "pong" {
+		message = "ping"
+	}
+	if message != "" {
+		_, _ = event.Message.Reply(core.NewMessageCreateBuilder().SetContent(message).Build())
+	}
 }
+
 ```
 
 ### Logging

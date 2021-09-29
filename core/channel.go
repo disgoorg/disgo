@@ -112,11 +112,14 @@ func (c *Channel) IsStageChannel() bool {
 	return c.Type == discord.ChannelTypeStage
 }
 
+// MessageFilter used to filter Message(s) in a MessageCollector
+type MessageFilter func(message *Message) bool
+
 func (c *Channel) CollectMessages(filter MessageFilter) (<-chan *Message, func()) {
 	if !c.IsMessageChannel() {
 		unsupportedChannelType(c)
 	}
-	return NewMessageCollectorByChannel(c, filter)
+	return c.Bot.EventManager.Config().NewMessageCollector(c, filter)
 }
 
 // CreateMessage sends a Message to a Channel

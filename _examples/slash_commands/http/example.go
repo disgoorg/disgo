@@ -5,6 +5,9 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/DisgoOrg/disgo/bot"
+	"github.com/DisgoOrg/disgo/events"
+
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/httpserver"
@@ -40,17 +43,16 @@ func main() {
 	log.Info("starting example...")
 	log.Info("disgo version: ", info.Version)
 
-	disgo, err := core.NewBotBuilder(token).
-		SetHTTPServerConfig(httpserver.Config{
-			URL:       "/interactions/callback",
-			Port:      ":80",
-			PublicKey: publicKey,
-		}).
-		AddEventListeners(&core.ListenerAdapter{
+	disgo, err := bot.New(token,
+		bot.WithHTTPServerOpts(
+			httpserver.WithURL("/interactions/callback"),
+			httpserver.WithPort(":80"),
+			httpserver.WithPublicKey(publicKey),
+		),
+		bot.WithEventListeners(&events.ListenerAdapter{
 			OnSlashCommand: commandListener,
-		}).
-		Build()
-
+		}),
+	)
 	if err != nil {
 		log.Fatal("error while building disgo instance: ", err)
 		return
@@ -74,7 +76,7 @@ func main() {
 	<-s
 }
 
-func commandListener(event *core.SlashCommandEvent) {
+func commandListener(event *events.SlashCommandEvent) {
 	if event.CommandName == "say" {
 		if err := event.Create(core.NewMessageCreateBuilder().
 			SetContent(event.Options["message"].String()).

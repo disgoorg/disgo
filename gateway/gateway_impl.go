@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway/rate"
+	"github.com/DisgoOrg/disgo/gateway/grate"
 	"github.com/DisgoOrg/disgo/json"
 	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/log"
@@ -29,10 +29,10 @@ func New(token string, url string, shardID int, shardCount int, eventHandlerFunc
 		config.Logger = log.Default()
 	}
 	if config.RateLimiterConfig == nil {
-		config.RateLimiterConfig = &rate.DefaultConfig
+		config.RateLimiterConfig = &grate.DefaultConfig
 	}
 	if config.RateLimiter == nil {
-		config.RateLimiter = rate.NewLimiter(config.RateLimiterConfig)
+		config.RateLimiter = grate.NewLimiter(config.RateLimiterConfig)
 	}
 	config.EventHandlerFunc = eventHandlerFunc
 
