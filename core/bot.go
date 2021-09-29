@@ -120,15 +120,17 @@ func (b *Bot) ConnectShardManagerContext(ctx context.Context) []error {
 	return b.ShardManager.OpenContext(ctx)
 }
 
-// HasGateway returns whether core.disgo has an active gateway.Gateway connection
+// HasGateway returns whether this Bot has an active gateway.Gateway connection
 func (b *Bot) HasGateway() bool {
 	return b.Gateway != nil
 }
 
+// HasShardManager returns whether this Bot is sharded
 func (b *Bot) HasShardManager() bool {
 	return b.ShardManager != nil
 }
 
+// SetPresence sets the Presence of this Bot
 func (b *Bot) SetPresence(presenceUpdate discord.PresenceUpdate) error {
 	if !b.HasGateway() {
 		return discord.ErrNoGateway
@@ -136,6 +138,7 @@ func (b *Bot) SetPresence(presenceUpdate discord.PresenceUpdate) error {
 	return b.Gateway.Send(discord.NewGatewayCommand(discord.GatewayOpcodePresenceUpdate, presenceUpdate))
 }
 
+// SetPresenceForShard sets the Presence of this Bot for the provided shard
 func (b *Bot) SetPresenceForShard(shardId int, presenceUpdate discord.PresenceUpdate) error {
 	if !b.HasShardManager() {
 		return discord.ErrNoShardManager
@@ -161,7 +164,7 @@ func (b *Bot) HasHTTPServer() bool {
 	return b.HTTPServer != nil
 }
 
-// GetCommand fetches a specific global discord.ApplicationCommand
+// GetCommand fetches a specific global ApplicationCommand
 func (b *Bot) GetCommand(commandID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error) {
 	command, err := b.RestServices.ApplicationService().GetGlobalCommand(b.ApplicationID, commandID, opts...)
 	if err != nil {
@@ -170,7 +173,7 @@ func (b *Bot) GetCommand(commandID discord.Snowflake, opts ...rest.RequestOpt) (
 	return b.EntityBuilder.CreateApplicationCommand(*command), nil
 }
 
-// GetCommands fetches all global discord.ApplicationCommand(s)
+// GetCommands fetches all global ApplicationCommand(s)
 func (b *Bot) GetCommands(opts ...rest.RequestOpt) ([]*ApplicationCommand, rest.Error) {
 	cmds, err := b.RestServices.ApplicationService().GetGlobalCommands(b.ApplicationID, opts...)
 	if err != nil {
@@ -183,7 +186,7 @@ func (b *Bot) GetCommands(opts ...rest.RequestOpt) ([]*ApplicationCommand, rest.
 	return commands, nil
 }
 
-// CreateCommand creates a new global discord.ApplicationCommand
+// CreateCommand creates a new global ApplicationCommand
 func (b *Bot) CreateCommand(commandCreate discord.ApplicationCommandCreate, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error) {
 	command, err := b.RestServices.ApplicationService().CreateGlobalCommand(b.ApplicationID, commandCreate, opts...)
 	if err != nil {
@@ -192,7 +195,7 @@ func (b *Bot) CreateCommand(commandCreate discord.ApplicationCommandCreate, opts
 	return b.EntityBuilder.CreateApplicationCommand(*command), nil
 }
 
-// EditCommand edits a specific global discord.ApplicationCommand
+// EditCommand edits a specific global ApplicationCommand
 func (b *Bot) EditCommand(commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error) {
 	command, err := b.RestServices.ApplicationService().UpdateGlobalCommand(b.ApplicationID, commandID, commandUpdate, opts...)
 	if err != nil {
@@ -201,12 +204,12 @@ func (b *Bot) EditCommand(commandID discord.Snowflake, commandUpdate discord.App
 	return b.EntityBuilder.CreateApplicationCommand(*command), nil
 }
 
-// DeleteCommand creates a new global discord.ApplicationCommand
+// DeleteCommand creates a new global ApplicationCommand
 func (b *Bot) DeleteCommand(commandID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
 	return b.RestServices.ApplicationService().DeleteGlobalCommand(b.ApplicationID, commandID, opts...)
 }
 
-// SetCommands overrides all global discord.ApplicationCommand(s)
+// SetCommands overrides all global ApplicationCommand(s)
 func (b *Bot) SetCommands(commandCreates []discord.ApplicationCommandCreate, opts ...rest.RequestOpt) ([]*ApplicationCommand, rest.Error) {
 	cmds, err := b.RestServices.ApplicationService().SetGlobalCommands(b.ApplicationID, commandCreates, opts...)
 	if err != nil {
@@ -219,7 +222,7 @@ func (b *Bot) SetCommands(commandCreates []discord.ApplicationCommandCreate, opt
 	return commands, nil
 }
 
-// GetGuildCommand fetches a specific Guild discord.ApplicationCommand
+// GetGuildCommand fetches a specific Guild ApplicationCommand
 func (b *Bot) GetGuildCommand(guildID discord.Snowflake, commandID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error) {
 	command, err := b.RestServices.ApplicationService().GetGuildCommand(b.ApplicationID, guildID, commandID, opts...)
 	if err != nil {
@@ -228,7 +231,7 @@ func (b *Bot) GetGuildCommand(guildID discord.Snowflake, commandID discord.Snowf
 	return b.EntityBuilder.CreateApplicationCommand(*command), nil
 }
 
-// GetGuildCommands fetches all Guild discord.ApplicationCommand(s)
+// GetGuildCommands fetches all Guild ApplicationCommand(s)
 func (b *Bot) GetGuildCommands(guildID discord.Snowflake, opts ...rest.RequestOpt) ([]*ApplicationCommand, rest.Error) {
 	cmds, err := b.RestServices.ApplicationService().GetGuildCommands(b.ApplicationID, guildID, opts...)
 	if err != nil {
@@ -241,7 +244,7 @@ func (b *Bot) GetGuildCommands(guildID discord.Snowflake, opts ...rest.RequestOp
 	return commands, nil
 }
 
-// CreateGuildCommand creates a new Guild discord.ApplicationCommand
+// CreateGuildCommand creates a new Guild ApplicationCommand
 func (b *Bot) CreateGuildCommand(guildID discord.Snowflake, commandCreate discord.ApplicationCommandCreate, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error) {
 	command, err := b.RestServices.ApplicationService().CreateGuildCommand(b.ApplicationID, guildID, commandCreate, opts...)
 	if err != nil {
@@ -250,7 +253,7 @@ func (b *Bot) CreateGuildCommand(guildID discord.Snowflake, commandCreate discor
 	return b.EntityBuilder.CreateApplicationCommand(*command), nil
 }
 
-// EditGuildCommand edits a specific Guild discord.ApplicationCommand
+// EditGuildCommand edits a specific Guild ApplicationCommand
 func (b *Bot) EditGuildCommand(guildID discord.Snowflake, commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error) {
 	command, err := b.RestServices.ApplicationService().UpdateGuildCommand(b.ApplicationID, guildID, commandID, commandUpdate, opts...)
 	if err != nil {
@@ -259,12 +262,12 @@ func (b *Bot) EditGuildCommand(guildID discord.Snowflake, commandID discord.Snow
 	return b.EntityBuilder.CreateApplicationCommand(*command), nil
 }
 
-// DeleteGuildCommand creates a new Guild discord.ApplicationCommand
+// DeleteGuildCommand creates a new Guild ApplicationCommand
 func (b *Bot) DeleteGuildCommand(guildID discord.Snowflake, commandID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
 	return b.RestServices.ApplicationService().DeleteGuildCommand(b.ApplicationID, guildID, commandID, opts...)
 }
 
-// SetGuildCommands overrides all Guild discord.ApplicationCommand(s)
+// SetGuildCommands overrides all Guild ApplicationCommand(s)
 func (b *Bot) SetGuildCommands(guildID discord.Snowflake, commandCreates []discord.ApplicationCommandCreate, opts ...rest.RequestOpt) ([]*ApplicationCommand, rest.Error) {
 	cmds, err := b.RestServices.ApplicationService().SetGuildCommands(b.ApplicationID, guildID, commandCreates, opts...)
 	if err != nil {
@@ -277,7 +280,7 @@ func (b *Bot) SetGuildCommands(guildID discord.Snowflake, commandCreates []disco
 	return commands, nil
 }
 
-// GetGuildCommandsPermissions returns the core.ApplicationCommandPermissions for an all discord.ApplicationCommand(s) in an core.Guild
+// GetGuildCommandsPermissions returns the ApplicationCommandPermissions for all ApplicationCommand(s) in the specified Guild
 func (b *Bot) GetGuildCommandsPermissions(guildID discord.Snowflake, opts ...rest.RequestOpt) ([]*ApplicationCommandPermissions, rest.Error) {
 	perms, err := b.RestServices.ApplicationService().GetGuildCommandsPermissions(b.ApplicationID, guildID, opts...)
 	if err != nil {
@@ -290,7 +293,7 @@ func (b *Bot) GetGuildCommandsPermissions(guildID discord.Snowflake, opts ...res
 	return permissions, nil
 }
 
-// GetGuildCommandPermissions returns the core.ApplicationCommandPermissions for a specific discord.ApplicationCommand in an core.Guild
+// GetGuildCommandPermissions returns the ApplicationCommandPermissions for a specific ApplicationCommand in a Guild
 func (b *Bot) GetGuildCommandPermissions(guildID discord.Snowflake, commandID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, rest.Error) {
 	permissions, err := b.RestServices.ApplicationService().GetGuildCommandPermissions(b.ApplicationID, guildID, commandID, opts...)
 	if err != nil {
@@ -299,7 +302,7 @@ func (b *Bot) GetGuildCommandPermissions(guildID discord.Snowflake, commandID di
 	return b.EntityBuilder.CreateApplicationCommandPermissions(*permissions), nil
 }
 
-// SetGuildCommandsPermissions sets the discord.ApplicationCommandPermissions for all discord.ApplicationCommand(s)
+// SetGuildCommandsPermissions sets the ApplicationCommandPermissions for all ApplicationCommand(s)
 func (b *Bot) SetGuildCommandsPermissions(guildID discord.Snowflake, commandPermissions []discord.ApplicationCommandPermissionsSet, opts ...rest.RequestOpt) ([]*ApplicationCommandPermissions, rest.Error) {
 	perms, err := b.RestServices.ApplicationService().SetGuildCommandsPermissions(b.ApplicationID, guildID, commandPermissions, opts...)
 	if err != nil {
@@ -312,7 +315,7 @@ func (b *Bot) SetGuildCommandsPermissions(guildID discord.Snowflake, commandPerm
 	return permissions, nil
 }
 
-// SetGuildCommandPermissions sets the core.ApplicationCommandPermissions for a specific discord.ApplicationCommand
+// SetGuildCommandPermissions sets the ApplicationCommandPermissions for a specific ApplicationCommand
 func (b *Bot) SetGuildCommandPermissions(guildID discord.Snowflake, commandID discord.Snowflake, permissions []discord.ApplicationCommandPermission, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, rest.Error) {
 	perms, err := b.RestServices.ApplicationService().SetGuildCommandPermissions(b.ApplicationID, guildID, commandID, permissions, opts...)
 	if err != nil {
@@ -321,7 +324,7 @@ func (b *Bot) SetGuildCommandPermissions(guildID discord.Snowflake, commandID di
 	return b.EntityBuilder.CreateApplicationCommandPermissions(*perms), nil
 }
 
-// GetTemplate gets a core.GuildTemplate by its code
+// GetTemplate gets a GuildTemplate by its code
 func (b *Bot) GetTemplate(code string, opts ...rest.RequestOpt) (*GuildTemplate, rest.Error) {
 	guildTemplate, err := b.RestServices.GuildTemplateService().GetGuildTemplate(code, opts...)
 	if err != nil {
@@ -330,7 +333,7 @@ func (b *Bot) GetTemplate(code string, opts ...rest.RequestOpt) (*GuildTemplate,
 	return b.EntityBuilder.CreateGuildTemplate(*guildTemplate, CacheStrategyNoWs), nil
 }
 
-// CreateGuildFromTemplate creates a core.Guild using a core.GuildTemplate code
+// CreateGuildFromTemplate creates a Guild using a GuildTemplate code
 func (b *Bot) CreateGuildFromTemplate(templateCode string, createGuildFromTemplate discord.GuildFromTemplateCreate, opts ...rest.RequestOpt) (*Guild, rest.Error) {
 	guild, err := b.RestServices.GuildTemplateService().CreateGuildFromTemplate(templateCode, createGuildFromTemplate, opts...)
 	if err != nil {
@@ -339,6 +342,7 @@ func (b *Bot) CreateGuildFromTemplate(templateCode string, createGuildFromTempla
 	return b.EntityBuilder.CreateGuild(*guild, CacheStrategyNoWs), nil
 }
 
+// GetInvite gets an Invite by its code
 func (b *Bot) GetInvite(inviteCode string, opts ...rest.RequestOpt) (*Invite, rest.Error) {
 	invite, err := b.RestServices.InviteService().GetInvite(inviteCode, opts...)
 	if err != nil {
@@ -347,6 +351,7 @@ func (b *Bot) GetInvite(inviteCode string, opts ...rest.RequestOpt) (*Invite, re
 	return b.EntityBuilder.CreateInvite(*invite, CacheStrategyNoWs), nil
 }
 
+// DeleteInvite deletes an Invite by its code
 func (b *Bot) DeleteInvite(inviteCode string, opts ...rest.RequestOpt) (*Invite, rest.Error) {
 	invite, err := b.RestServices.InviteService().DeleteInvite(inviteCode, opts...)
 	if err != nil {
@@ -355,6 +360,7 @@ func (b *Bot) DeleteInvite(inviteCode string, opts ...rest.RequestOpt) (*Invite,
 	return b.EntityBuilder.CreateInvite(*invite, CacheStrategyNoWs), nil
 }
 
+// GetNitroStickerPacks returns the nitro discord.StickerPacks
 func (b *Bot) GetNitroStickerPacks(opts ...rest.RequestOpt) ([]*StickerPack, rest.Error) {
 	stickerPacks, err := b.RestServices.StickerService().GetNitroStickerPacks(opts...)
 	if err != nil {
@@ -367,6 +373,7 @@ func (b *Bot) GetNitroStickerPacks(opts ...rest.RequestOpt) ([]*StickerPack, res
 	return coreStickerPacks, nil
 }
 
+// GetSticker gets a Sticker by its id
 func (b *Bot) GetSticker(stickerID discord.Snowflake, opts ...rest.RequestOpt) (*Sticker, rest.Error) {
 	sticker, err := b.RestServices.StickerService().GetSticker(stickerID, opts...)
 	if err != nil {

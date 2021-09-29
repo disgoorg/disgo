@@ -23,23 +23,25 @@ type BotBuilder struct {
 	BotConfig
 }
 
-// SetLogger sets logger implementation disgo should use as an _examples logrus
+// SetLogger sets the logger implementation disgo should use as a logger
 func (b *BotBuilder) SetLogger(logger log.Logger) *BotBuilder {
 	b.Logger = logger
 	return b
 }
 
-// SetHTTPClient sets the http.Client rest.Client uses
+// SetHTTPClient sets the http.Client the rest.Client should use
 func (b *BotBuilder) SetHTTPClient(httpClient *http.Client) *BotBuilder {
 	b.HTTPClient = httpClient
 	return b
 }
 
-// SetRestClient sets the rest.Client rest.Service uses
+// SetRestClient sets the rest.Client the rest.Service should use
 func (b *BotBuilder) SetRestClient(restClient rest.Client) *BotBuilder {
 	b.RestClient = restClient
 	return b
 }
+
+// SetRestClientConfig sets the rest.Config the rest.Client should use
 func (b *BotBuilder) SetRestClientConfig(config rest.Config) *BotBuilder {
 	b.RestClientConfig = &config
 	return b
@@ -76,7 +78,7 @@ func (b *BotBuilder) AddEventListeners(eventListeners ...EventListener) *BotBuil
 	return b
 }
 
-// SetRawEventsEnabled enables/disables the events.RawGatewayEvent
+// SetRawEventsEnabled enables/disables the RawEvent
 func (b *BotBuilder) SetRawEventsEnabled(enabled bool) *BotBuilder {
 	if b.EventManagerConfig == nil {
 		b.EventManagerConfig = &DefaultEventManagerConfig
@@ -94,13 +96,13 @@ func (b *BotBuilder) SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceD
 	return b
 }
 
-// SetGateway lets you inject your own sharding.Gateway
+// SetGateway lets you inject your own gateway.Gateway
 func (b *BotBuilder) SetGateway(gateway gateway.Gateway) *BotBuilder {
 	b.Gateway = gateway
 	return b
 }
 
-// SetGatewayConfig sets the sharding.Config the sharding.Gateway uses
+// SetGatewayConfig sets the gateway.Config the gateway.Gateway should use
 func (b *BotBuilder) SetGatewayConfig(gatewayConfig gateway.Config) *BotBuilder {
 	b.GatewayConfig = &gatewayConfig
 	return b
@@ -120,7 +122,7 @@ func (b *BotBuilder) SetShardManager(shardManager sharding.ShardManager) *BotBui
 	return b
 }
 
-// SetShardManagerConfig sets the sharding.Config the sharding.ShardManager uses
+// SetShardManagerConfig sets the sharding.Config the sharding.ShardManager should use
 func (b *BotBuilder) SetShardManagerConfig(shardManagerConfig sharding.Config) *BotBuilder {
 	b.ShardManagerConfig = &shardManagerConfig
 	return b
@@ -140,7 +142,7 @@ func (b *BotBuilder) SetHTTPServer(httpServer httpserver.Server) *BotBuilder {
 	return b
 }
 
-// SetHTTPServerConfig sets the default Server properties
+// SetHTTPServerConfig sets the default httpserver.Server properties
 func (b *BotBuilder) SetHTTPServerConfig(config httpserver.Config) *BotBuilder {
 	b.HTTPServerConfig = &config
 	return b

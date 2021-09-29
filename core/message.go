@@ -14,7 +14,7 @@ type Message struct {
 	Stickers   []*MessageSticker
 }
 
-// Guild gets the guild_events the message_events was sent in
+// Guild returns the Guild this Message was sent in
 func (m *Message) Guild() *Guild {
 	if m.GuildID == nil {
 		return nil
@@ -22,22 +22,22 @@ func (m *Message) Guild() *Guild {
 	return m.Bot.Caches.GuildCache().Get(*m.GuildID)
 }
 
-// Channel gets the channel the message_events was sent in
+// Channel returns the Channel this Message was sent in
 func (m *Message) Channel() *Channel {
 	return m.Bot.Caches.ChannelCache().Get(m.ChannelID)
 }
 
-// AddReactionByEmote allows you to add an Emoji to a message_events via reaction
+// AddReactionByEmote adds a reaction to the Message with the specified Emoji
 func (m *Message) AddReactionByEmote(emote Emoji, opts ...rest.RequestOpt) rest.Error {
 	return m.AddReaction(emote.Reaction(), opts...)
 }
 
-// AddReaction allows you to add a reaction to a message_events from a string, for _examples a custom emoji ID, or a native emoji
+// AddReaction adds a reaction to the Message with the specified string containing a custom emoji ID or a native emoji unicode
 func (m *Message) AddReaction(emoji string, opts ...rest.RequestOpt) rest.Error {
 	return m.Bot.RestServices.ChannelService().AddReaction(m.ChannelID, m.ID, emoji, opts...)
 }
 
-// Update allows you to edit an existing Message sent by you
+// Update edits the Message with the content provided in discord.MessageUpdate
 func (m *Message) Update(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error) {
 	message, err := m.Bot.RestServices.ChannelService().UpdateMessage(m.ChannelID, m.ID, messageUpdate, opts...)
 	if err != nil {
@@ -46,12 +46,12 @@ func (m *Message) Update(messageUpdate discord.MessageUpdate, opts ...rest.Reque
 	return m.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-// Delete allows you to edit an existing Message sent by you
+// Delete deletes this Message
 func (m *Message) Delete(opts ...rest.RequestOpt) rest.Error {
 	return m.Bot.RestServices.ChannelService().DeleteMessage(m.ChannelID, m.ID, opts...)
 }
 
-// Crosspost crossposts an existing message
+// Crosspost crossposts this Message
 func (m *Message) Crosspost(opts ...rest.RequestOpt) (*Message, rest.Error) {
 	channel := m.Channel()
 	if channel != nil && channel.IsNewsChannel() {
@@ -64,7 +64,7 @@ func (m *Message) Crosspost(opts ...rest.RequestOpt) (*Message, rest.Error) {
 	return m.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-// Reply allows you to reply to an existing Message
+// Reply replies to this Message
 func (m *Message) Reply(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, rest.Error) {
 	messageCreate.MessageReference = &discord.MessageReference{MessageID: &m.ID}
 	message, err := m.Bot.RestServices.ChannelService().CreateMessage(m.ChannelID, messageCreate, opts...)

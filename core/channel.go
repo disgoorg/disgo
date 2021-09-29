@@ -14,6 +14,7 @@ type Channel struct {
 	ConnectedMemberIDs map[discord.Snowflake]struct{}
 }
 
+// Guild returns the Guild this Channel is in
 func (c *Channel) Guild() *Guild {
 	if !c.IsGuildChannel() {
 		unsupportedChannelType(c)
@@ -30,6 +31,7 @@ func (c *Channel) Channels() []*Channel {
 	})
 }
 
+// Members returns the Members that can see this Channel
 func (c *Channel) Members() []*Member {
 	if c.IsStoreChannel() {
 		unsupportedChannelType(c)
@@ -72,42 +74,52 @@ func (c *Channel) PermissionOverwrite(overwriteType discord.PermissionOverwriteT
 	return nil
 }
 
+// IsMessageChannel returns whether this channel can be written into
 func (c *Channel) IsMessageChannel() bool {
 	return c.IsTextChannel() || c.IsNewsChannel() || c.IsDMChannel()
 }
 
+// IsGuildChannel returns whether this channel is from a Guild
 func (c *Channel) IsGuildChannel() bool {
 	return c.IsCategory() || c.IsNewsChannel() || c.IsTextChannel() || c.IsVoiceChannel()
 }
 
+// IsAudioChannel returns whether this channel is a voice/stage channel
 func (c *Channel) IsAudioChannel() bool {
 	return c.IsVoiceChannel() || c.IsStageChannel()
 }
 
+// IsDMChannel returns whether this channel is a direct/private message channel
 func (c *Channel) IsDMChannel() bool {
 	return c.Type == discord.ChannelTypeDM
 }
 
+// IsTextChannel returns whether this channel is a text channel
 func (c *Channel) IsTextChannel() bool {
 	return c.Type == discord.ChannelTypeText
 }
 
+// IsVoiceChannel returns whether this channel is a voice channel
 func (c *Channel) IsVoiceChannel() bool {
 	return c.Type == discord.ChannelTypeVoice
 }
 
+// IsCategory returns whether this channel is a category
 func (c *Channel) IsCategory() bool {
 	return c.Type == discord.ChannelTypeCategory
 }
 
+// IsNewsChannel returns whether this channel is a news channel
 func (c *Channel) IsNewsChannel() bool {
 	return c.Type == discord.ChannelTypeNews
 }
 
+// IsStoreChannel returns whether this channel is a store channel
 func (c *Channel) IsStoreChannel() bool {
 	return c.Type == discord.ChannelTypeStore
 }
 
+// IsStageChannel returns whether this channel is a stage channel
 func (c *Channel) IsStageChannel() bool {
 	return c.Type == discord.ChannelTypeStage
 }
@@ -119,7 +131,7 @@ func (c *Channel) CollectMessages(filter MessageFilter) (<-chan *Message, func()
 	return NewMessageCollectorByChannel(c, filter)
 }
 
-// CreateMessage sends a Message to a Channel
+// CreateMessage sends a Message to this channel
 func (c *Channel) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, rest.Error) {
 	if !c.IsMessageChannel() {
 		unsupportedChannelType(c)
@@ -131,7 +143,7 @@ func (c *Channel) CreateMessage(messageCreate discord.MessageCreate, opts ...res
 	return c.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-// UpdateMessage edits a Message in this Channel
+// UpdateMessage edits a Message in this channel
 func (c *Channel) UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error) {
 	if !c.IsMessageChannel() {
 		unsupportedChannelType(c)
@@ -143,7 +155,7 @@ func (c *Channel) UpdateMessage(messageID discord.Snowflake, messageUpdate disco
 	return c.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-// DeleteMessage allows you to edit an existing Message sent by you
+// DeleteMessage deletes a Message from this channel
 func (c *Channel) DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
 	if !c.IsMessageChannel() {
 		unsupportedChannelType(c)
@@ -159,7 +171,7 @@ func (c *Channel) BulkDeleteMessages(messageIDs []discord.Snowflake, opts ...res
 	return c.Bot.RestServices.ChannelService().BulkDeleteMessages(c.ID, messageIDs, opts...)
 }
 
-// GetMessage gets a Message from the Channel
+// GetMessage gets a Message from this channel
 func (c *Channel) GetMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, rest.Error) {
 	if !c.IsMessageChannel() {
 		unsupportedChannelType(c)
@@ -171,7 +183,7 @@ func (c *Channel) GetMessage(messageID discord.Snowflake, opts ...rest.RequestOp
 	return c.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-// GetMessages gets multiple Message(s) from the Channel
+// GetMessages gets multiple Message(s) from this channel
 func (c *Channel) GetMessages(around discord.Snowflake, before discord.Snowflake, after discord.Snowflake, limit int, opts ...rest.RequestOpt) ([]*Message, rest.Error) {
 	if !c.IsMessageChannel() {
 		unsupportedChannelType(c)
@@ -187,6 +199,7 @@ func (c *Channel) GetMessages(around discord.Snowflake, before discord.Snowflake
 	return coreMessages, nil
 }
 
+// Parent returns the parent/category Channel
 func (c *Channel) Parent() *Channel {
 	if c.ParentID == nil {
 		return nil
@@ -194,6 +207,7 @@ func (c *Channel) Parent() *Channel {
 	return c.Bot.Caches.ChannelCache().Get(*c.Channel.ParentID)
 }
 
+// Update updates this channel with the properties provided in discord.ChannelUpdate
 func (c *Channel) Update(channelUpdate discord.ChannelUpdate, opts ...rest.RequestOpt) (*Channel, rest.Error) {
 	if !c.IsGuildChannel() {
 		unsupportedChannelType(c)
@@ -205,6 +219,7 @@ func (c *Channel) Update(channelUpdate discord.ChannelUpdate, opts ...rest.Reque
 	return c.Bot.EntityBuilder.CreateChannel(*channel, CacheStrategyNoWs), nil
 }
 
+// Connect will attempt to connect this Bot to this (audio) channel
 func (c *Channel) Connect() error {
 	if !c.IsAudioChannel() {
 		unsupportedChannelType(c)
@@ -212,6 +227,7 @@ func (c *Channel) Connect() error {
 	return c.Bot.AudioController.Connect(*c.GuildID, c.ID)
 }
 
+// CrosspostMessage will crosspost a Message with the provided ID
 func (c *Channel) CrosspostMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, rest.Error) {
 	message, err := c.Bot.RestServices.ChannelService().CrosspostMessage(c.ID, messageID, opts...)
 	if err != nil {
@@ -220,6 +236,7 @@ func (c *Channel) CrosspostMessage(messageID discord.Snowflake, opts ...rest.Req
 	return c.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
+// StageInstance returns the StageInstance or nil if this is not a stage channel
 func (c *Channel) StageInstance() *StageInstance {
 	if !c.IsStageChannel() {
 		unsupportedChannelType(c)
@@ -259,6 +276,7 @@ func (c *Channel) DeleteStageInstance(opts ...rest.RequestOpt) rest.Error {
 	return c.Bot.RestServices.StageInstanceService().DeleteStageInstance(c.ID, opts...)
 }
 
+// IsModerator returns whether the provided Member can moderate this stage channel
 func (c *Channel) IsModerator(member *Member) bool {
 	if !c.IsStageChannel() {
 		unsupportedChannelType(c)

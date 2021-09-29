@@ -14,61 +14,62 @@ func NewCommandOption(optionType discord.ApplicationCommandOptionType, name stri
 	}
 }
 
-// NewSubCommand creates a new ApplicationCommandOption with CommandOptionTypeSubCommand
+// NewSubCommand creates a new ApplicationCommandOption with the discord.ApplicationCommandOptionTypeSubCommand type
 //goland:noinspection GoUnusedExportedFunction
 func NewSubCommand(name string, description string, options ...discord.ApplicationCommandOption) *ApplicationCommandOptionBuilder {
 	return NewCommandOption(discord.ApplicationCommandOptionTypeSubCommand, name, description, options...)
 }
 
-// NewSubCommandGroup creates a new ApplicationCommandOption with CommandOptionTypeSubCommandGroup
+// NewSubCommandGroup creates a new ApplicationCommandOption with the discord.ApplicationCommandOptionTypeSubCommandGroup type
 //goland:noinspection GoUnusedExportedFunction
 func NewSubCommandGroup(name string, description string, options ...discord.ApplicationCommandOption) *ApplicationCommandOptionBuilder {
 	return NewCommandOption(discord.ApplicationCommandOptionTypeSubCommandGroup, name, description, options...)
 }
 
-// NewStringOption creates a new ApplicationCommandOption with CommandOptionTypeSubCommand
+// NewStringOption creates a new ApplicationCommandOption with the discord.ApplicationCommandOptionTypeString type
 //goland:noinspection GoUnusedExportedFunction
 func NewStringOption(name string, description string) *ApplicationCommandOptionBuilder {
 	return NewCommandOption(discord.ApplicationCommandOptionTypeString, name, description)
 }
 
-// NewIntegerOption creates a new ApplicationCommandOption with CommandOptionTypeSubCommand
+// NewIntegerOption creates a new ApplicationCommandOption with the discord.ApplicationCommandOptionTypeInteger type
 //goland:noinspection GoUnusedExportedFunction
 func NewIntegerOption(name string, description string) *ApplicationCommandOptionBuilder {
 	return NewCommandOption(discord.ApplicationCommandOptionTypeInteger, name, description)
 }
 
-// NewBooleanOption creates a new ApplicationCommandOption with CommandOptionTypeSubCommand
+// NewBooleanOption creates a new ApplicationCommandOption with the discord.ApplicationCommandOptionTypeBoolean type
 //goland:noinspection GoUnusedExportedFunction
 func NewBooleanOption(name string, description string) *ApplicationCommandOptionBuilder {
 	return NewCommandOption(discord.ApplicationCommandOptionTypeBoolean, name, description)
 }
 
-// NewUserOption creates a new ApplicationCommandOption with CommandOptionTypeSubCommand
+// NewUserOption creates a new ApplicationCommandOption with the discord.ApplicationCommandOptionTypeUser type
 //goland:noinspection GoUnusedExportedFunction
 func NewUserOption(name string, description string) *ApplicationCommandOptionBuilder {
 	return NewCommandOption(discord.ApplicationCommandOptionTypeUser, name, description)
 }
 
-// NewChannelOption creates a new ApplicationCommandOption with CommandOptionTypeSubCommand
+// NewChannelOption creates a new ApplicationCommandOption with the discord.ApplicationCommandOptionTypeChannel type
 //goland:noinspection GoUnusedExportedFunction
 func NewChannelOption(name string, description string) *ApplicationCommandOptionBuilder {
 	return NewCommandOption(discord.ApplicationCommandOptionTypeChannel, name, description)
 }
 
-// NewRoleOption creates a new ApplicationCommandOption with CommandOptionTypeRole
+// NewRoleOption creates a new ApplicationCommandOption with the discord.ApplicationCommandOptionTypeRole type
 //goland:noinspection GoUnusedExportedFunction
 func NewRoleOption(name string, description string) *ApplicationCommandOptionBuilder {
 	return NewCommandOption(discord.ApplicationCommandOptionTypeRole, name, description)
 }
 
-// NewMentionableOption creates a new ApplicationCommandOption with CommandOptionTypeUser or CommandOptionTypeRole
+// NewMentionableOption creates a new ApplicationCommandOption with the discord.ApplicationCommandOptionTypeMentionable type.
+// Such option can accept types discord.ApplicationCommandOptionTypeUser and discord.ApplicationCommandOptionTypeRole
 //goland:noinspection GoUnusedExportedFunction
 func NewMentionableOption(name string, description string) *ApplicationCommandOptionBuilder {
 	return NewCommandOption(discord.ApplicationCommandOptionTypeMentionable, name, description)
 }
 
-// NewNumberOption creates a new ApplicationCommandOption with CommandOptionTypeNumber
+// NewNumberOption creates a new ApplicationCommandOption with the discord.ApplicationCommandOptionTypeNumber type
 //goland:noinspection GoUnusedExportedFunction
 func NewNumberOption(name string, description string) *ApplicationCommandOptionBuilder {
 	return NewCommandOption(discord.ApplicationCommandOptionTypeNumber, name, description)
@@ -78,7 +79,7 @@ type ApplicationCommandOptionBuilder struct {
 	discord.ApplicationCommandOption
 }
 
-// AddChoice adds a new choice to the ApplicationCommandOption. Value can either be a string, int or float
+// AddChoice adds a new choice for the ApplicationCommandOption. Value can be a string, int or float
 func (b *ApplicationCommandOptionBuilder) AddChoice(name string, value interface{}) *ApplicationCommandOptionBuilder {
 	b.Choices = append(b.Choices, discord.ApplicationCommandOptionChoice{
 		Name:  name,
@@ -87,7 +88,7 @@ func (b *ApplicationCommandOptionBuilder) AddChoice(name string, value interface
 	return b
 }
 
-// AddChoices adds multiple choices to the ApplicationCommandOption. Value can either be a string, int or float
+// AddChoices adds multiple choices for the ApplicationCommandOption. Value can be a string, int or float
 func (b *ApplicationCommandOptionBuilder) AddChoices(choices map[string]interface{}) *ApplicationCommandOptionBuilder {
 	for name, value := range choices {
 		b.Choices = append(b.Choices, discord.ApplicationCommandOptionChoice{
@@ -98,7 +99,7 @@ func (b *ApplicationCommandOptionBuilder) AddChoices(choices map[string]interfac
 	return b
 }
 
-// AddOption adds a new discord.ApplicationCommandOption
+// AddOption adds a new ApplicationCommandOption
 func (b *ApplicationCommandOptionBuilder) AddOption(optionType discord.ApplicationCommandOptionType, name string, description string) *ApplicationCommandOptionBuilder {
 	b.Options = append(b.Options, discord.ApplicationCommandOption{
 		Type:        optionType,
@@ -108,7 +109,7 @@ func (b *ApplicationCommandOptionBuilder) AddOption(optionType discord.Applicati
 	return b
 }
 
-// AddOptions adds multiple choices to the ApplicationCommandOption
+// AddOptions adds multiple ApplicationCommandOption
 func (b *ApplicationCommandOptionBuilder) AddOptions(options ...discord.ApplicationCommandOption) *ApplicationCommandOptionBuilder {
 	b.Options = append(b.Options, options...)
 	return b
@@ -120,7 +121,7 @@ func (b *ApplicationCommandOptionBuilder) SetRequired(required bool) *Applicatio
 	return b
 }
 
-// Build builds the ApplicationCommandOptionBuilder to discord.ApplicationCommandOption
+// Build builds the ApplicationCommandOptionBuilder, returning a discord.ApplicationCommandOption object
 func (b *ApplicationCommandOptionBuilder) Build() discord.ApplicationCommandOption {
 	return b.ApplicationCommandOption
 }

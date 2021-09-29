@@ -6,7 +6,7 @@ import (
 
 var _ Component = (*ActionRow)(nil)
 
-// NewActionRow creates a new ActionRow holding th provided Component(s)
+// NewActionRow creates a new ActionRow holding the provided Component(s)
 func NewActionRow(components ...Component) ActionRow {
 	return ActionRow{
 		Component: discord.Component{
@@ -21,18 +21,18 @@ type ActionRow struct {
 	Components []Component `json:"components"`
 }
 
-// Type returns the ComponentType of this Component
+// Type returns the discord.ComponentType of this Component
 func (r ActionRow) Type() discord.ComponentType {
 	return r.Component.Type
 }
 
-// SetComponents returns a new ActionRow with the provided Component(s)
+// SetComponents replaces the Components in this ActionRow, returning the updated ActionRow object
 func (r ActionRow) SetComponents(components ...Component) ActionRow {
 	r.Components = components
 	return r
 }
 
-// SetComponent returns a new ActionRow with the Component which has the customID replaced
+// SetComponent replaces the Component bound to the provided customID, returning the updated ActionRow object
 func (r ActionRow) SetComponent(customID string, component Component) ActionRow {
 	for i, c := range r.Components {
 		switch com := c.(type) {
@@ -53,13 +53,13 @@ func (r ActionRow) SetComponent(customID string, component Component) ActionRow 
 	return r
 }
 
-// AddComponents returns a new ActionRow with the provided Component(s) added
+// AddComponents adds the provided Components to this ActionRow, returning the updated ActionRow object
 func (r ActionRow) AddComponents(components ...Component) ActionRow {
 	r.Components = append(r.Components, components...)
 	return r
 }
 
-// RemoveComponent returns a new ActionRow with the provided Component at the index removed
+// RemoveComponent removes the Component at the provided index, returning the updated ActionRow object
 func (r ActionRow) RemoveComponent(index int) ActionRow {
 	if len(r.Components) > index {
 		r.Components = append(r.Components[:index], r.Components[index+1:]...)

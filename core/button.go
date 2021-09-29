@@ -22,43 +22,43 @@ func NewButton(style discord.ButtonStyle, label string, customID string, url str
 	}
 }
 
-// NewPrimaryButton creates a new Button with ButtonStylePrimary & the provided parameters
+// NewPrimaryButton creates a new Button with discord.ButtonStylePrimary & the provided parameters
 //goland:noinspection GoUnusedExportedFunction
 func NewPrimaryButton(label string, customID string, emoji *discord.Emoji) Button {
 	return NewButton(discord.ButtonStylePrimary, label, customID, "", emoji, false)
 }
 
-// NewSecondaryButton creates a new Button with ButtonStyleSecondary & the provided parameters
+// NewSecondaryButton creates a new Button with discord.ButtonStyleSecondary & the provided parameters
 //goland:noinspection GoUnusedExportedFunction
 func NewSecondaryButton(label string, customID string, emoji *discord.Emoji) Button {
 	return NewButton(discord.ButtonStyleSecondary, label, customID, "", emoji, false)
 }
 
-// NewSuccessButton creates a new Button with ButtonStyleSuccess & the provided parameters
+// NewSuccessButton creates a new Button with discord.ButtonStyleSuccess & the provided parameters
 //goland:noinspection GoUnusedExportedFunction
 func NewSuccessButton(label string, customID string, emoji *discord.Emoji) Button {
 	return NewButton(discord.ButtonStyleSuccess, label, customID, "", emoji, false)
 }
 
-// NewDangerButton creates a new Button with ButtonStyleDanger & the provided parameters
+// NewDangerButton creates a new Button with discord.ButtonStyleDanger & the provided parameters
 //goland:noinspection GoUnusedExportedFunction
 func NewDangerButton(label string, customID string, emoji *discord.Emoji) Button {
 	return NewButton(discord.ButtonStyleDanger, label, customID, "", emoji, false)
 }
 
-// NewLinkButton creates a new link Button with ButtonStyleLink & the provided parameters
+// NewLinkButton creates a new link Button with discord.ButtonStyleLink & the provided parameters
 //goland:noinspection GoUnusedExportedFunction
 func NewLinkButton(label string, url string, emoji *discord.Emoji) Button {
 	return NewButton(discord.ButtonStyleLink, label, "", url, emoji, false)
 }
 
-// Button can be attacked to all messages & be clicked by a User. If clicked it fires an events.ButtonClickEvent with the declared customID
+// Button can be attached to all messages & be clicked by a User. If clicked it fires a ButtonClickEvent with the declared customID
 type Button struct {
 	discord.Component
 	Emoji *Emoji `json:"emoji"`
 }
 
-// Type returns the ComponentType of this Component
+// Type returns the discord.ComponentType of this Component
 func (b Button) Type() discord.ComponentType {
 	return b.Component.Type
 }
@@ -93,7 +93,7 @@ func (b Button) WithCustomID(customID string) Button {
 	return b
 }
 
-// WithStyle returns a new Button with the provided style
+// WithStyle returns a new Button with the provided discord.ButtonStyle
 func (b Button) WithStyle(style discord.ButtonStyle) Button {
 	b.Style = style
 	return b

@@ -14,7 +14,7 @@ type ApplicationCommandInteractionData struct {
 	Resolved    *Resolved
 }
 
-// Resolved contains resolved mention data
+// Resolved contains resolved entity data
 type Resolved struct {
 	Users    map[discord.Snowflake]*User
 	Members  map[discord.Snowflake]*Member
