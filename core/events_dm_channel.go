@@ -9,12 +9,12 @@ type GenericDMChannelEvent struct {
 	*GenericChannelEvent
 }
 
-// DMChannelCreateEvent indicates that a new core.DMChannel got created
+// DMChannelCreateEvent indicates that a Channel got created
 type DMChannelCreateEvent struct {
 	*GenericDMChannelEvent
 }
 
-// DMChannelUpdateEvent indicates that an core.DMChannel got updated
+// DMChannelUpdateEvent indicates that a Channel got updated
 type DMChannelUpdateEvent struct {
 	*GenericDMChannelEvent
 	OldChannel *Channel
@@ -26,18 +26,19 @@ type DMChannelPinsUpdateEvent struct {
 	NewLastPinTimestamp *discord.Time
 }
 
-// DMChannelDeleteEvent indicates that an core.DMChannel got deleted
+// DMChannelDeleteEvent indicates that a Channel got deleted
 type DMChannelDeleteEvent struct {
 	*GenericDMChannelEvent
 }
 
-// DMChannelUserTypingEvent indicates that an core.User started typing in an core.DMChannel(requires core.GatewayIntentsDirectMessageTyping)
+// DMChannelUserTypingEvent indicates that a core.User started typing in a Channel (requires discord.GatewayIntentDirectMessageTyping)
 type DMChannelUserTypingEvent struct {
 	*GenericUserEvent
 	ChannelID discord.Snowflake
 }
 
-// DMChannel returns the core.DMChannel the DMChannelUserTypingEvent happened in
+// DMChannel returns the Channel the DMChannelUserTypingEvent happened in.
+// This will only check cached channels!
 func (e DMChannelUserTypingEvent) DMChannel() *Channel {
 	return e.Bot().Caches.ChannelCache().Get(e.ChannelID)
 }

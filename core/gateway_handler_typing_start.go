@@ -7,7 +7,7 @@ import (
 // gatewayHandlerTypingStart handles discord.GatewayEventTypeInviteDelete
 type gatewayHandlerTypingStart struct{}
 
-// EventType returns the core.GatewayGatewayEventType
+// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerTypingStart) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeTypingStart
 }

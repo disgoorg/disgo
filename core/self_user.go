@@ -11,7 +11,7 @@ type SelfUser struct {
 	User *User
 }
 
-// Update updates the SelfUser with the given payload
+// Update updates the SelfUser with the properties provided in discord.SelfUserUpdate
 func (u *SelfUser) Update(updateSelfUser discord.SelfUserUpdate, opts ...rest.RequestOpt) (*SelfUser, rest.Error) {
 	selfUser, err := u.Bot.RestServices.UserService().UpdateSelfUser(updateSelfUser, opts...)
 	if err != nil {
@@ -20,7 +20,7 @@ func (u *SelfUser) Update(updateSelfUser discord.SelfUserUpdate, opts ...rest.Re
 	return u.Bot.EntityBuilder.CreateSelfUser(*selfUser, CacheStrategyNoWs), nil
 }
 
-// OpenDMChannel creates a DMChannel between the user and the Disgo client
+// OpenDMChannel creates a Channel between the user and the Bot
 func (u *SelfUser) OpenDMChannel(_ ...rest.RequestOpt) (*Channel, rest.Error) {
 	return nil, rest.NewError(nil, discord.ErrSelfDM)
 }

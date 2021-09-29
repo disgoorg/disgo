@@ -6,7 +6,7 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// RawEvent is called for any core.GatewayGatewayEventType we receive if enabled in the core.BotBuilder/core.Options
+// RawEvent is called for any discord.GatewayEventType we receive if enabled in the core.BotBuilder/core.BotConfig
 type RawEvent struct {
 	*GenericEvent
 	Type       discord.GatewayEventType

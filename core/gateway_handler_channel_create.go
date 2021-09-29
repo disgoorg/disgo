@@ -4,21 +4,21 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// gatewayHandlerChannelCreat handles core.GatewayEventChannelCreate
-type gatewayHandlerChannelCreat struct{}
+// gatewayHandlerChannelCreate handles discord.GatewayEventTypeChannelCreate
+type gatewayHandlerChannelCreate struct{}
 
-// EventType returns the core.GatewayGatewayEventType
-func (h *gatewayHandlerChannelCreat) EventType() discord.GatewayEventType {
+// EventType returns the discord.GatewayEventType
+func (h *gatewayHandlerChannelCreate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeChannelCreate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerChannelCreat) New() interface{} {
+func (h *gatewayHandlerChannelCreate) New() interface{} {
 	return &discord.Channel{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerChannelCreat) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerChannelCreate) HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{}) {
 	channel := *v.(*discord.Channel)
 
 	genericChannelEvent := &GenericChannelEvent{

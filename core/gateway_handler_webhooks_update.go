@@ -4,10 +4,10 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// gatewayHandlerWebhooksUpdate handles core.GatewayEventWebhooksUpdate
+// gatewayHandlerWebhooksUpdate handles discord.GatewayEventTypeWebhooksUpdate
 type gatewayHandlerWebhooksUpdate struct{}
 
-// EventType returns the raw core.GatewayGatewayEventType
+// EventType returns the raw discord.GatewayEventType
 func (h *gatewayHandlerWebhooksUpdate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeWebhooksUpdate
 }

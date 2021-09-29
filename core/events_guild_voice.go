@@ -6,18 +6,18 @@ type GenericGuildVoiceEvent struct {
 	VoiceState *VoiceState
 }
 
-// GuildVoiceJoinEvent indicates that a core.Member joined a core.Channel(requires core.GatewayIntentsGuildVoiceStates)
+// GuildVoiceJoinEvent indicates that a core.Member joined a Channel (requires discord.GatewayIntentGuildVoiceStates)
 type GuildVoiceJoinEvent struct {
 	*GenericGuildVoiceEvent
 }
 
-// GuildVoiceUpdateEvent indicates that a core.Member moved a core.Channel(requires core.GatewayIntentsGuildVoiceStates)
+// GuildVoiceUpdateEvent indicates that a core.Member updated their VoiceState (requires discord.GatewayIntentGuildVoiceStates)
 type GuildVoiceUpdateEvent struct {
 	*GenericGuildVoiceEvent
 	OldVoiceState *VoiceState
 }
 
-// GuildVoiceLeaveEvent indicates that a core.Member left a core.Channel(requires core.GatewayIntentsGuildVoiceStates)
+// GuildVoiceLeaveEvent indicates that a core.Member left a Channel (requires discord.GatewayIntentGuildVoiceStates)
 type GuildVoiceLeaveEvent struct {
 	*GenericGuildVoiceEvent
 	OldVoiceState *VoiceState

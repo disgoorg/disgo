@@ -94,12 +94,13 @@ func (i *Interaction) DeleteFollowup(messageID discord.Snowflake, opts ...rest.R
 	return i.Bot.RestServices.InteractionService().DeleteFollowupMessage(i.Bot.ApplicationID, i.Token, messageID, opts...)
 }
 
-// FromGateway returns is the Interaction came in via gateway.Gateway or httpserver.Server
+// FromGateway returns whether the Interaction was sent via gateway.Gateway or httpserver.Server
 func (i *Interaction) FromGateway() bool {
 	return i.ResponseChannel == nil
 }
 
-// Guild returns the Guild from the Caches
+// Guild returns the Guild this Interaction happened in.
+// This will only check cached guilds.
 func (i *Interaction) Guild() *Guild {
 	if i.GuildID == nil {
 		return nil
@@ -107,7 +108,8 @@ func (i *Interaction) Guild() *Guild {
 	return i.Bot.Caches.GuildCache().Get(*i.GuildID)
 }
 
-// Channel returns the Channel from the Caches
+// Channel returns the Channel this Interaction happened in.
+// This will only check cached channels.
 func (i *Interaction) Channel() *Channel {
 	if i.ChannelID == nil {
 		return nil

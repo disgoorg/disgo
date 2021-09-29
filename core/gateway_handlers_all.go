@@ -17,7 +17,7 @@ var AllEventHandlers = []GatewayEventHandler{
 	&gatewayHandlerResumed{},
 	&gatewayHandlerInvalidSession{},
 
-	&gatewayHandlerChannelCreat{},
+	&gatewayHandlerChannelCreate{},
 	&gatewayHandlerChannelUpdate{},
 	&gatewayHandlerChannelDelete{},
 	&gatewayHandlerChannelPinsUpdate{},

@@ -10,30 +10,31 @@ type GenericGuildMemberEvent struct {
 	Member *Member
 }
 
-// GuildMemberJoinEvent indicates that an core.Member joined the core.Guild
+// GuildMemberJoinEvent indicates that a core.Member joined a core.Guild
 type GuildMemberJoinEvent struct {
 	*GenericGuildMemberEvent
 }
 
-// GuildMemberUpdateEvent indicates that an core.Member updated
+// GuildMemberUpdateEvent indicates that a core.Member has updated
 type GuildMemberUpdateEvent struct {
 	*GenericGuildMemberEvent
 	OldMember *Member
 }
 
-// GuildMemberLeaveEvent indicates that an core.Member left the core.Guild
+// GuildMemberLeaveEvent indicates that a core.Member left a core.Guild
 type GuildMemberLeaveEvent struct {
 	*GenericGuildMemberEvent
 	User *User
 }
 
-// GuildMemberTypingEvent indicates that an core.Member started typing in an core.TextChannel(requires core.GatewayIntentsGuildMessageTyping)
+// GuildMemberTypingEvent indicates that a core.Member started typing in a Channel (requires discord.GatewayIntentGuildMessageTyping)
 type GuildMemberTypingEvent struct {
 	*GenericGuildMemberEvent
 	ChannelID discord.Snowflake
 }
 
-// TextChannel returns the core.TextChannel the GuildMemberTypingEvent happened in
+// TextChannel returns the Channel the GuildMemberTypingEvent happened in.
+// This will only check cached channels!
 func (e GuildMemberTypingEvent) TextChannel() *Channel {
 	return e.Bot().Caches.ChannelCache().Get(e.ChannelID)
 }

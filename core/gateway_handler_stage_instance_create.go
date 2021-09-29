@@ -2,7 +2,7 @@ package core
 
 import "github.com/DisgoOrg/disgo/discord"
 
-// gatewayHandlerStageInstanceCreate handles core.GatewayEventMessageCreate
+// gatewayHandlerStageInstanceCreate handles discord.GatewayEventTypeStageInstanceCreate
 type gatewayHandlerStageInstanceCreate struct{}
 
 // EventType returns the discord.GatewayEventTypeStageInstanceCreate

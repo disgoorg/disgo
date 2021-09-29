@@ -13,12 +13,14 @@ type Integration struct {
 	Application *IntegrationApplication
 }
 
-// Guild returns the Guild the Integration belongs to
+// Guild returns the Guild the Integration belongs to.
+// This will only check cached guilds!
 func (i *Integration) Guild() *Guild {
 	return i.Bot.Caches.GuildCache().Get(i.GuildID)
 }
 
-// Member returns the Member the Integration uses
+// Member returns the Member the Integration uses.
+// This will only check cached members!
 func (i *Integration) Member() *Member {
 	if i.User == nil {
 		return nil
@@ -26,7 +28,8 @@ func (i *Integration) Member() *Member {
 	return i.Bot.Caches.MemberCache().Get(i.GuildID, i.User.ID)
 }
 
-// Role returns the Subscriber Role the Integration uses
+// Role returns the Subscriber Role the Integration uses.
+// This will only check cached roles!
 func (i *Integration) Role() *Role {
 	if i.RoleID == nil {
 		return nil

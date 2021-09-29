@@ -11,22 +11,24 @@ type VoiceState struct {
 	Member *Member
 }
 
-// Mute returns if the Member is muted
+// Mute returns whether the Member is muted
 func (s *VoiceState) Mute() bool {
 	return s.GuildMute || s.SelfMute
 }
 
-// Deaf returns if the Member is deafened
+// Deaf returns whether the Member is deafened
 func (s *VoiceState) Deaf() bool {
 	return s.GuildDeaf || s.SelfDeaf
 }
 
-// Guild returns the Guild of this VoiceState from the Caches
+// Guild returns the Guild of this VoiceState.
+// This will only check cached guilds!
 func (s *VoiceState) Guild() *Guild {
 	return s.Bot.Caches.GuildCache().Get(s.GuildID)
 }
 
-// Channel returns the Channel of this VoiceState from the Caches
+// Channel returns the Channel of this VoiceState.
+// This will only check cached channels!
 func (s *VoiceState) Channel() *Channel {
 	if s.ChannelID == nil {
 		return nil

@@ -55,6 +55,7 @@ func (e *Emoji) Update(emojiUpdate discord.EmojiUpdate, opts ...rest.RequestOpt)
 	return e.Bot.EntityBuilder.CreateEmoji(e.GuildID, *emoji, CacheStrategyNoWs), nil
 }
 
+// Delete deletes this Emoji
 func (e *Emoji) Delete(opts ...rest.RequestOpt) rest.Error {
 	return e.Bot.RestServices.EmojiService().DeleteEmoji(e.GuildID, e.ID)
 }

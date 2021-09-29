@@ -15,11 +15,12 @@ type User struct {
 	Bot *Bot
 }
 
-// AvatarURL returns the Avatar URL of the User
+// AvatarURL returns the Avatar URL of this User
 func (u *User) AvatarURL(size int) *string {
 	return u.getAssetURL(route.UserAvatar, u.Avatar, size)
 }
 
+// DefaultAvatarURL returns the default avatar URL of this User
 func (u *User) DefaultAvatarURL(size int) string {
 	discriminator, _ := strconv.Atoi(u.Discriminator)
 	compiledRoute, err := route.DefaultUserAvatar.Compile(nil, route.PNG, size, discriminator%5)
@@ -29,6 +30,7 @@ func (u *User) DefaultAvatarURL(size int) string {
 	return compiledRoute.URL()
 }
 
+// EffectiveAvatarURL returns either this User avatar or default avatar depending on if this User has one
 func (u *User) EffectiveAvatarURL(size int) string {
 	if u.Avatar == nil {
 		return u.DefaultAvatarURL(size)
@@ -36,17 +38,17 @@ func (u *User) EffectiveAvatarURL(size int) string {
 	return *u.AvatarURL(size)
 }
 
-// BannerURL returns the Banner URL of the User
+// BannerURL returns the Banner URL of this User
 func (u *User) BannerURL(size int) *string {
 	return u.getAssetURL(route.UserBanner, u.Banner, size)
 }
 
-// Mention returns the user as a mention
+// String returns this User as a mention
 func (u *User) String() string {
 	return "<@" + u.ID.String() + ">"
 }
 
-// Tag returns the user's Username and Discriminator
+// Tag returns this User's Username and Discriminator in Username#Discriminator format
 func (u *User) Tag() string {
 	return fmt.Sprintf("%s#%s", u.Username, u.Discriminator)
 }
@@ -67,7 +69,7 @@ func (u *User) getAssetURL(cdnRoute *route.CDNRoute, assetId *string, size int) 
 	return &url
 }
 
-// OpenDMChannel creates a DMChannel between the user and the Disgo client
+// OpenDMChannel creates a DMChannel between this User and the Bot
 func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (*Channel, rest.Error) {
 	channel, err := u.Bot.RestServices.UserService().CreateDMChannel(u.ID, opts...)
 	if err != nil {

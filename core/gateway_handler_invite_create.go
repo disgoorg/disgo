@@ -4,12 +4,12 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// gatewayHandlerInviteCreate handles discord.GatewayEventTypeInviteDelete
+// gatewayHandlerInviteCreate handles discord.GatewayEventTypeInviteCreate
 type gatewayHandlerInviteCreate struct{}
 
-// EventType returns the core.GatewayGatewayEventType
+// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerInviteCreate) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypeInviteDelete
+	return discord.GatewayEventTypeInviteCreate
 }
 
 // New constructs a new payload receiver for the raw gateway event

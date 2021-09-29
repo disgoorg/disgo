@@ -22,18 +22,18 @@ func NewMessageUpdateBuilder() *MessageUpdateBuilder {
 	}
 }
 
-// SetContent sets content of the Message
+// SetContent sets the content of the Message
 func (b *MessageUpdateBuilder) SetContent(content string) *MessageUpdateBuilder {
 	b.Content = &content
 	return b
 }
 
-// SetContentf sets content of the Message
+// SetContentf sets the content of the Message
 func (b *MessageUpdateBuilder) SetContentf(content string, a ...interface{}) *MessageUpdateBuilder {
 	return b.SetContent(fmt.Sprintf(content, a...))
 }
 
-// ClearContent removes content of the Message
+// ClearContent removes the content of the Message
 func (b *MessageUpdateBuilder) ClearContent() *MessageUpdateBuilder {
 	return b.SetContent("")
 }
@@ -110,7 +110,7 @@ func (b *MessageUpdateBuilder) AddActionRows(actionRows ...ActionRow) *MessageUp
 	return b
 }
 
-// RemoveActionRow removes a ActionRow from the Message
+// RemoveActionRow removes an ActionRow from the Message
 func (b *MessageUpdateBuilder) RemoveActionRow(i int) *MessageUpdateBuilder {
 	if len(b.Components) > i {
 		b.Components = append(b.Components[:i], b.Components[i+1:]...)
@@ -124,13 +124,13 @@ func (b *MessageUpdateBuilder) ClearActionRows() *MessageUpdateBuilder {
 	return b
 }
 
-// SetFiles sets the restclient.File(s) for this MessageCreate
+// SetFiles sets the discord.File(s) for this Message
 func (b *MessageUpdateBuilder) SetFiles(files ...*discord.File) *MessageUpdateBuilder {
 	b.Files = files
 	return b
 }
 
-// SetFile sets the restclient.File at the index for this MessageCreate
+// SetFile sets the discord.File at the index for this Message
 func (b *MessageUpdateBuilder) SetFile(i int, file *discord.File) *MessageUpdateBuilder {
 	if len(b.Files) > i {
 		b.Files[i] = file
@@ -138,25 +138,25 @@ func (b *MessageUpdateBuilder) SetFile(i int, file *discord.File) *MessageUpdate
 	return b
 }
 
-// AddFiles adds the restclient.File(s) to the MessageCreate
+// AddFiles adds the discord.File(s) to the Message
 func (b *MessageUpdateBuilder) AddFiles(files ...*discord.File) *MessageUpdateBuilder {
 	b.Files = append(b.Files, files...)
 	return b
 }
 
-// AddFile adds a restclient.File to the MessageCreate
+// AddFile adds a discord.File to the Message
 func (b *MessageUpdateBuilder) AddFile(name string, reader io.Reader, flags ...discord.FileFlags) *MessageUpdateBuilder {
 	b.Files = append(b.Files, discord.NewFile(name, reader, flags...))
 	return b
 }
 
-// ClearFiles removes all files of this MessageCreate
+// ClearFiles removes discord.File(s) of the Message
 func (b *MessageUpdateBuilder) ClearFiles() *MessageUpdateBuilder {
 	b.Files = []*discord.File{}
 	return b
 }
 
-// RemoveFiles removes the file at this index
+// RemoveFiles removes the discord.File at this index
 func (b *MessageUpdateBuilder) RemoveFiles(i int) *MessageUpdateBuilder {
 	if len(b.Files) > i {
 		b.Files = append(b.Files[:i], b.Files[i+1:]...)
@@ -164,7 +164,7 @@ func (b *MessageUpdateBuilder) RemoveFiles(i int) *MessageUpdateBuilder {
 	return b
 }
 
-// RetainAttachments removes all Attachment(s) from this Message except the ones provided
+// RetainAttachments removes all discord.Attachment(s) from this Message except the ones provided
 func (b *MessageUpdateBuilder) RetainAttachments(attachments ...discord.Attachment) *MessageUpdateBuilder {
 	if b.Attachments == nil {
 		b.Attachments = new([]discord.Attachment)
@@ -173,7 +173,7 @@ func (b *MessageUpdateBuilder) RetainAttachments(attachments ...discord.Attachme
 	return b
 }
 
-// RetainAttachmentsByID removes all Attachment(s) from this Message except the ones provided
+// RetainAttachmentsByID removes all discord.Attachment(s) from this Message except the ones provided
 func (b *MessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...discord.Snowflake) *MessageUpdateBuilder {
 	if b.Attachments == nil {
 		b.Attachments = new([]discord.Attachment)
@@ -184,41 +184,41 @@ func (b *MessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...discord.Sn
 	return b
 }
 
-// SetAllowedMentions sets the AllowedMentions of the Message
+// SetAllowedMentions sets the discord.AllowedMentions of the Message
 func (b *MessageUpdateBuilder) SetAllowedMentions(allowedMentions *discord.AllowedMentions) *MessageUpdateBuilder {
 	b.AllowedMentions = allowedMentions
 	return b
 }
 
-// ClearAllowedMentions clears the allowed mentions of the Message
+// ClearAllowedMentions clears the discord.AllowedMentions of the Message
 func (b *MessageUpdateBuilder) ClearAllowedMentions() *MessageUpdateBuilder {
 	return b.SetAllowedMentions(nil)
 }
 
-// SetFlags sets the message flags of the Message
+// SetFlags sets the discord.MessageFlags of the Message
 func (b *MessageUpdateBuilder) SetFlags(flags discord.MessageFlags) *MessageUpdateBuilder {
 	*b.Flags = flags
 	return b
 }
 
-// AddFlags adds the MessageFlags of the Message
+// AddFlags adds the discord.MessageFlags of the Message
 func (b *MessageUpdateBuilder) AddFlags(flags ...discord.MessageFlags) *MessageUpdateBuilder {
 	*b.Flags = b.Flags.Add(flags...)
 	return b
 }
 
-// RemoveFlags removes the MessageFlags of the Message
+// RemoveFlags removes the discord.MessageFlags of the Message
 func (b *MessageUpdateBuilder) RemoveFlags(flags ...discord.MessageFlags) *MessageUpdateBuilder {
 	*b.Flags = b.Flags.Remove(flags...)
 	return b
 }
 
-// ClearFlags clears the MessageFlags of the Message
+// ClearFlags clears the discord.MessageFlags of the Message
 func (b *MessageUpdateBuilder) ClearFlags() *MessageUpdateBuilder {
 	return b.SetFlags(discord.MessageFlagNone)
 }
 
-// Build builds the MessageUpdateBuilder to a MessageUpdate struct
+// Build builds the MessageUpdateBuilder to a discord.MessageUpdate struct
 func (b *MessageUpdateBuilder) Build() discord.MessageUpdate {
 	if b.Components != nil {
 		if b.MessageUpdate.Components == nil {

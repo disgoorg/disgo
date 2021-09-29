@@ -6,7 +6,7 @@ import (
 
 var _ HTTPServerEventHandler = (*httpserverHandlerInteractionCreate)(nil)
 
-// httpserverHandlerInteractionCreate handles core.InteractionCreateWebhookEvent
+// httpserverHandlerInteractionCreate handles core.InteractionCreateWebhookEvent // TODO wtf is this
 type httpserverHandlerInteractionCreate struct{}
 
 // New constructs a new payload receiver for the raw gateway event

@@ -11,19 +11,20 @@ type GenericUserEvent struct {
 	User   *User
 }
 
-// UserUpdateEvent  indicates that an core.User updated
+// UserUpdateEvent indicates that a core.User has updated
 type UserUpdateEvent struct {
 	*GenericUserEvent
 	OldUser *User
 }
 
-// UserTypingEvent indicates that an core.User started typing in an core.DMChannel or core.TextChannel(requires the core.GatewayIntentsDirectMessageTyping and/or core.GatewayIntentsGuildMessageTyping)
+// UserTypingEvent indicates that a core.User started typing in a Channel (requires the discord.GatewayIntentDirectMessageTyping and/or discord.GatewayIntentGuildMessageTyping)
 type UserTypingEvent struct {
 	*GenericUserEvent
 	ChannelID discord.Snowflake
 }
 
-// Channel returns the core.GetChannel the core.User started typing in
+// Channel returns the Channel the core.User started typing in.
+// This will only check cached channels!
 func (e *UserTypingEvent) Channel() *Channel {
 	return e.Bot().Caches.ChannelCache().Get(e.ChannelID)
 }

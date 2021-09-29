@@ -12,23 +12,24 @@ type GenericMessageEvent struct {
 	ChannelID discord.Snowflake
 }
 
-// Channel returns the core.Channel where the GenericMessageEvent happened
+// Channel returns the core.Channel the GenericMessageEvent happened in.
+// This will only check cached channels!
 func (e *GenericMessageEvent) Channel() *Channel {
 	return e.Bot().Caches.ChannelCache().Get(e.ChannelID)
 }
 
-// MessageCreateEvent indicates that an core.Message got received
+// MessageCreateEvent indicates that a core.Message got created
 type MessageCreateEvent struct {
 	*GenericMessageEvent
 }
 
-// MessageUpdateEvent indicates that an core.Message got update
+// MessageUpdateEvent indicates that a core.Message got updated
 type MessageUpdateEvent struct {
 	*GenericMessageEvent
 	OldMessage *Message
 }
 
-// MessageDeleteEvent indicates that an core.Message got deleted
+// MessageDeleteEvent indicates that a core.Message got deleted
 type MessageDeleteEvent struct {
 	*GenericMessageEvent
 }

@@ -11,6 +11,7 @@ type Webhook struct {
 	Bot *Bot
 }
 
+// URL returns the URL of this Webhook
 func (h *Webhook) URL() string {
 	if h.Type != discord.WebhookTypeIncoming {
 		return ""
@@ -19,6 +20,7 @@ func (h *Webhook) URL() string {
 	return compiledRoute.URL()
 }
 
+// Update updates this Webhook with the properties provided in discord.WebhookUpdate
 func (h *Webhook) Update(webhookUpdate discord.WebhookUpdate, opts ...rest.RequestOpt) (*Webhook, rest.Error) {
 	webhook, err := h.Bot.RestServices.WebhookService().UpdateWebhook(h.ID, webhookUpdate, opts...)
 	if err != nil {
@@ -27,6 +29,7 @@ func (h *Webhook) Update(webhookUpdate discord.WebhookUpdate, opts ...rest.Reque
 	return h.Bot.EntityBuilder.CreateWebhook(*webhook), nil
 }
 
+// Delete deletes this Webhook
 func (h *Webhook) Delete(opts ...rest.RequestOpt) rest.Error {
 	return h.Bot.RestServices.WebhookService().DeleteWebhook(h.ID, opts...)
 }

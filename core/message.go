@@ -14,7 +14,8 @@ type Message struct {
 	Stickers   []*MessageSticker
 }
 
-// Guild returns the Guild this Message was sent in
+// Guild returns the Guild this Message was sent in.
+// This will only check cached guilds!
 func (m *Message) Guild() *Guild {
 	if m.GuildID == nil {
 		return nil
@@ -23,21 +24,22 @@ func (m *Message) Guild() *Guild {
 }
 
 // Channel returns the Channel this Message was sent in
+// This will only check cached channels!
 func (m *Message) Channel() *Channel {
 	return m.Bot.Caches.ChannelCache().Get(m.ChannelID)
 }
 
-// AddReactionByEmote adds a reaction to the Message with the specified Emoji
+// AddReactionByEmote adds a reaction to this Message with the specified Emoji
 func (m *Message) AddReactionByEmote(emote Emoji, opts ...rest.RequestOpt) rest.Error {
 	return m.AddReaction(emote.Reaction(), opts...)
 }
 
-// AddReaction adds a reaction to the Message with the specified string containing a custom emoji ID or a native emoji unicode
+// AddReaction adds a reaction to this Message with the specified string containing a custom emoji ID or a native emoji unicode
 func (m *Message) AddReaction(emoji string, opts ...rest.RequestOpt) rest.Error {
 	return m.Bot.RestServices.ChannelService().AddReaction(m.ChannelID, m.ID, emoji, opts...)
 }
 
-// Update edits the Message with the content provided in discord.MessageUpdate
+// Update edits this Message with the content provided in discord.MessageUpdate
 func (m *Message) Update(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error) {
 	message, err := m.Bot.RestServices.ChannelService().UpdateMessage(m.ChannelID, m.ID, messageUpdate, opts...)
 	if err != nil {

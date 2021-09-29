@@ -23,18 +23,18 @@ func NewMessageCreateBuilder() *MessageCreateBuilder {
 	}
 }
 
-// SetContent sets content of the Message
+// SetContent sets the content of the Message
 func (b *MessageCreateBuilder) SetContent(content string) *MessageCreateBuilder {
 	b.Content = content
 	return b
 }
 
-// SetContentf sets content of the Message
+// SetContentf sets the content of the Message but with format
 func (b *MessageCreateBuilder) SetContentf(content string, a ...interface{}) *MessageCreateBuilder {
 	return b.SetContent(fmt.Sprintf(content, a...))
 }
 
-// SetTTS sets the text to speech of the Message
+// SetTTS sets whether the Message should be text to speech
 func (b *MessageCreateBuilder) SetTTS(tts bool) *MessageCreateBuilder {
 	b.TTS = tts
 	return b
@@ -100,7 +100,7 @@ func (b *MessageCreateBuilder) AddActionRows(actionRows ...ActionRow) *MessageCr
 	return b
 }
 
-// RemoveActionRow removes a ActionRow from the Message
+// RemoveActionRow removes an ActionRow from the Message
 func (b *MessageCreateBuilder) RemoveActionRow(i int) *MessageCreateBuilder {
 	if len(b.Components) > i {
 		b.Components = append(b.Components[:i], b.Components[i+1:]...)
@@ -114,28 +114,31 @@ func (b *MessageCreateBuilder) ClearActionRows() *MessageCreateBuilder {
 	return b
 }
 
+// AddStickers adds provided stickers to the Message
 func (b *MessageCreateBuilder) AddStickers(stickerIds ...discord.Snowflake) *MessageCreateBuilder {
 	b.StickerIDs = append(b.StickerIDs, stickerIds...)
 	return b
 }
 
+// SetStickers sets the stickers of the Message
 func (b *MessageCreateBuilder) SetStickers(stickerIds ...discord.Snowflake) *MessageCreateBuilder {
 	b.StickerIDs = stickerIds
 	return b
 }
 
+// ClearStickers removes all Sticker(s) from the Message
 func (b *MessageCreateBuilder) ClearStickers() *MessageCreateBuilder {
 	b.StickerIDs = []discord.Snowflake{}
 	return b
 }
 
-// SetFiles sets the File(s) for this MessageCreate
+// SetFiles sets the File(s) for this Message
 func (b *MessageCreateBuilder) SetFiles(files ...*discord.File) *MessageCreateBuilder {
 	b.Files = files
 	return b
 }
 
-// SetFile sets the File at the index for this MessageCreate
+// SetFile sets the File at the index for the Message
 func (b *MessageCreateBuilder) SetFile(i int, file *discord.File) *MessageCreateBuilder {
 	if len(b.Files) > i {
 		b.Files[i] = file
@@ -143,25 +146,25 @@ func (b *MessageCreateBuilder) SetFile(i int, file *discord.File) *MessageCreate
 	return b
 }
 
-// AddFiles adds the File(s) to the MessageCreate
+// AddFiles adds the discord.File(s) to the Message
 func (b *MessageCreateBuilder) AddFiles(files ...*discord.File) *MessageCreateBuilder {
 	b.Files = append(b.Files, files...)
 	return b
 }
 
-// AddFile adds a File to the MessageCreate
+// AddFile adds a discord.File to the Message
 func (b *MessageCreateBuilder) AddFile(name string, reader io.Reader, flags ...discord.FileFlags) *MessageCreateBuilder {
 	b.Files = append(b.Files, discord.NewFile(name, reader, flags...))
 	return b
 }
 
-// ClearFiles removes all files of this MessageCreate
+// ClearFiles removes all discord.File(s) of the Message
 func (b *MessageCreateBuilder) ClearFiles() *MessageCreateBuilder {
 	b.Files = []*discord.File{}
 	return b
 }
 
-// RemoveFiles removes the file at this index
+// RemoveFiles removes the discord.File at this index
 func (b *MessageCreateBuilder) RemoveFiles(i int) *MessageCreateBuilder {
 	if len(b.Files) > i {
 		b.Files = append(b.Files[:i], b.Files[i+1:]...)
@@ -169,18 +172,18 @@ func (b *MessageCreateBuilder) RemoveFiles(i int) *MessageCreateBuilder {
 	return b
 }
 
-// SetAllowedMentions sets the AllowedMentions of the Message
+// SetAllowedMentions sets the discord.AllowedMentions of the Message
 func (b *MessageCreateBuilder) SetAllowedMentions(allowedMentions *discord.AllowedMentions) *MessageCreateBuilder {
 	b.AllowedMentions = allowedMentions
 	return b
 }
 
-// ClearAllowedMentions clears the allowed mentions of the Message
+// ClearAllowedMentions clears the discord.AllowedMentions of the Message
 func (b *MessageCreateBuilder) ClearAllowedMentions() *MessageCreateBuilder {
 	return b.SetAllowedMentions(nil)
 }
 
-// SetMessageReference allows you to specify a MessageReference to reply to
+// SetMessageReference allows you to specify a discord.MessageReference to reply to
 func (b *MessageCreateBuilder) SetMessageReference(messageReference *discord.MessageReference) *MessageCreateBuilder {
 	b.MessageReference = messageReference
 	return b
@@ -195,30 +198,30 @@ func (b *MessageCreateBuilder) SetMessageReferenceByID(messageID discord.Snowfla
 	return b
 }
 
-// SetFlags sets the message flags of the Message
+// SetFlags sets the discord.MessageFlags of the Message
 func (b *MessageCreateBuilder) SetFlags(flags discord.MessageFlags) *MessageCreateBuilder {
 	b.Flags = flags
 	return b
 }
 
-// AddFlags adds the MessageFlags of the Message
+// AddFlags adds the discord.MessageFlags of the Message
 func (b *MessageCreateBuilder) AddFlags(flags ...discord.MessageFlags) *MessageCreateBuilder {
 	b.Flags = b.Flags.Add(flags...)
 	return b
 }
 
-// RemoveFlags removes the MessageFlags of the Message
+// RemoveFlags removes the discord.MessageFlags of the Message
 func (b *MessageCreateBuilder) RemoveFlags(flags ...discord.MessageFlags) *MessageCreateBuilder {
 	b.Flags = b.Flags.Remove(flags...)
 	return b
 }
 
-// ClearFlags clears the MessageFlags of the Message
+// ClearFlags clears the discord.MessageFlags of the Message
 func (b *MessageCreateBuilder) ClearFlags() *MessageCreateBuilder {
 	return b.SetFlags(discord.MessageFlagNone)
 }
 
-// SetEphemeral adds/removes MessageFlagEphemeral to the Message flags
+// SetEphemeral adds/removes discord.MessageFlagEphemeral to the Message flags
 func (b *MessageCreateBuilder) SetEphemeral(ephemeral bool) *MessageCreateBuilder {
 	if ephemeral {
 		b.Flags = b.Flags.Add(discord.MessageFlagEphemeral)
@@ -228,7 +231,7 @@ func (b *MessageCreateBuilder) SetEphemeral(ephemeral bool) *MessageCreateBuilde
 	return b
 }
 
-// Build builds the MessageCreateBuilder to a MessageCreate struct
+// Build builds the MessageCreateBuilder to a discord.MessageCreate struct
 func (b *MessageCreateBuilder) Build() discord.MessageCreate {
 	b.MessageCreate.Components = b.Components
 	return b.MessageCreate

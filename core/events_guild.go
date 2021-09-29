@@ -27,23 +27,23 @@ type GuildUnavailableEvent struct {
 	*GenericGuildEvent
 }
 
-// GuildJoinEvent is called when the bot joins an core.Guild
+// GuildJoinEvent is called when the bot joins a core.Guild
 type GuildJoinEvent struct {
 	*GenericGuildEvent
 }
 
-// GuildLeaveEvent is called when the bot leaves an core.Guild
+// GuildLeaveEvent is called when the bot leaves a core.Guild
 type GuildLeaveEvent struct {
 	*GenericGuildEvent
 }
 
-// GuildBanEvent is called when an core.Member/core.User is banned from the core.Guild
+// GuildBanEvent is called when a core.Member/core.User is banned from a core.Guild
 type GuildBanEvent struct {
 	*GenericGuildEvent
 	User *User
 }
 
-// GuildUnbanEvent is called when an core.Member/core.User is unbanned from the core.Guild
+// GuildUnbanEvent is called when a core.Member/core.User is unbanned from a core.Guild
 type GuildUnbanEvent struct {
 	*GenericGuildEvent
 	User *User

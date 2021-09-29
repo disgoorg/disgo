@@ -4,10 +4,10 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// gatewayHandlerGuildBanRemove handles core.GatewayEventGuildBanRemove
+// gatewayHandlerGuildBanRemove handles discord.GatewayEventTypeGuildBanRemove
 type gatewayHandlerGuildBanRemove struct{}
 
-// EventType returns the core.GatewayGatewayEventType
+// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerGuildBanRemove) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildBanRemove
 }

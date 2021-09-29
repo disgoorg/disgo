@@ -10,14 +10,19 @@ type StageInstance struct {
 	Bot *Bot
 }
 
+// Guild returns the Guild this StageInstance belongs to.
+// This will only check cached guilds!
 func (i *StageInstance) Guild() *Guild {
 	return i.Bot.Caches.GuildCache().Get(i.GuildID)
 }
 
+// Channel returns the Channel this StageInstance belongs to.
+// This will only check cached channels!
 func (i *StageInstance) Channel() *Channel {
 	return i.Bot.Caches.ChannelCache().Get(i.ChannelID)
 }
 
+// GetSpeakers returns the Member(s) that can speak in this StageInstance
 func (i *StageInstance) GetSpeakers() []*Member {
 	var speakers []*Member
 	for _, member := range i.Channel().Members() {
@@ -28,6 +33,7 @@ func (i *StageInstance) GetSpeakers() []*Member {
 	return speakers
 }
 
+// GetListeners returns the Member(s) that cannot speak in this StageInstance
 func (i *StageInstance) GetListeners() []*Member {
 	var listeners []*Member
 	for _, member := range i.Channel().Members() {
@@ -53,6 +59,7 @@ func (i *StageInstance) Update(stageInstanceUpdate discord.StageInstanceUpdate, 
 	return i.Bot.EntityBuilder.CreateStageInstance(*stageInstance, CacheStrategyNoWs), nil
 }
 
+// Delete deletes this StageInstance
 func (i *StageInstance) Delete(opts ...rest.RequestOpt) rest.Error {
 	return i.Bot.RestServices.StageInstanceService().DeleteStageInstance(i.ID, opts...)
 }
