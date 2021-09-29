@@ -9,6 +9,7 @@ import (
 	"github.com/DisgoOrg/log"
 )
 
+// Config lets you configure your Bot instance
 type Config struct {
 	Logger log.Logger
 
@@ -44,24 +45,29 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	}
 }
 
+// WithLogger lets you inject your own logger implementing log.Logger
+//goland:noinspection GoUnusedExportedFunction
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRestClient(restClient rest.Client) ConfigOpt {
 	return func(config *Config) {
 		config.RestClient = restClient
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRestClientConfig(restClientConfig rest.Config) ConfigOpt {
 	return func(config *Config) {
 		config.RestClientConfig = &restClientConfig
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRestClientOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		if config.RestClientConfig == nil {
@@ -71,18 +77,21 @@ func WithRestClientOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRestServices(restServices rest.Services) ConfigOpt {
 	return func(config *Config) {
 		config.RestServices = restServices
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithEventManager(eventManager core.EventManager) ConfigOpt {
 	return func(config *Config) {
 		config.EventManager = eventManager
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithEventListeners(listeners ...core.EventListener) ConfigOpt {
 	return func(config *Config) {
 		if config.EventManagerConfig == nil {
@@ -92,6 +101,7 @@ func WithEventListeners(listeners ...core.EventListener) ConfigOpt {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRawEventsEnabled() ConfigOpt {
 	return func(config *Config) {
 		if config.EventManagerConfig == nil {
@@ -101,6 +111,7 @@ func WithRawEventsEnabled() ConfigOpt {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithVoiceDispatchInterceptor(voiceDispatchInterceptor core.VoiceDispatchInterceptor) ConfigOpt {
 	return func(config *Config) {
 		if config.EventManagerConfig == nil {
@@ -110,18 +121,21 @@ func WithVoiceDispatchInterceptor(voiceDispatchInterceptor core.VoiceDispatchInt
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithGateway(gateway gateway.Gateway) ConfigOpt {
 	return func(config *Config) {
 		config.Gateway = gateway
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithGatewayConfig(gatewayConfig gateway.Config) ConfigOpt {
 	return func(config *Config) {
 		config.GatewayConfig = &gatewayConfig
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithGatewayOpts(opts ...gateway.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		if config.GatewayConfig == nil {
@@ -131,18 +145,21 @@ func WithGatewayOpts(opts ...gateway.ConfigOpt) ConfigOpt {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithShardManager(shardManager sharding.ShardManager) ConfigOpt {
 	return func(config *Config) {
 		config.ShardManager = shardManager
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithShardManagerConfig(shardManagerConfig sharding.Config) ConfigOpt {
 	return func(config *Config) {
 		config.ShardManagerConfig = &shardManagerConfig
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithShardManagerOpts(opts ...sharding.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		if config.ShardManagerConfig == nil {
@@ -152,18 +169,21 @@ func WithShardManagerOpts(opts ...sharding.ConfigOpt) ConfigOpt {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithHTTPServer(httpServer httpserver.Server) ConfigOpt {
 	return func(config *Config) {
 		config.HTTPServer = httpServer
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithHTTPServerConfig(httpServerConfig httpserver.Config) ConfigOpt {
 	return func(config *Config) {
 		config.HTTPServerConfig = &httpServerConfig
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithHTTPServerOpts(opts ...httpserver.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		if config.HTTPServerConfig == nil {
@@ -173,18 +193,21 @@ func WithHTTPServerOpts(opts ...httpserver.ConfigOpt) ConfigOpt {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithCaches(caches core.Caches) ConfigOpt {
 	return func(config *Config) {
 		config.Caches = caches
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithCacheConfig(cacheConfig core.CacheConfig) ConfigOpt {
 	return func(config *Config) {
 		config.CacheConfig = &cacheConfig
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithCacheOpts(opts ...core.CacheConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		if config.CacheConfig == nil {
@@ -194,18 +217,21 @@ func WithCacheOpts(opts ...core.CacheConfigOpt) ConfigOpt {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithEntityBuilder(entityBuilder core.EntityBuilder) ConfigOpt {
 	return func(config *Config) {
 		config.EntityBuilder = entityBuilder
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithAudioController(audioController core.AudioController) ConfigOpt {
 	return func(config *Config) {
 		config.AudioController = audioController
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithMembersChunkingManager(membersChunkingManager core.MembersChunkingManager) ConfigOpt {
 	return func(config *Config) {
 		config.MembersChunkingManager = membersChunkingManager

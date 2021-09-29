@@ -29,28 +29,28 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
-		if config.RestClientConfig == nil {
-			config.RestClientConfig = &rest.DefaultConfig
-		}
-		config.RestClientConfig.Logger = logger
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRestClient(restClient rest.Client) ConfigOpt {
 	return func(config *Config) {
 		config.RestClient = restClient
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRestClientConfig(restConfig rest.Config) ConfigOpt {
 	return func(config *Config) {
 		config.RestClientConfig = &restConfig
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		if config.RestClientConfig == nil {
@@ -60,18 +60,21 @@ func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithWebhookService(webhookService rest.WebhookService) ConfigOpt {
 	return func(config *Config) {
 		config.WebhookService = webhookService
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithEntityBuilder(entityBuilder EntityBuilder) ConfigOpt {
 	return func(config *Config) {
 		config.EntityBuilder = entityBuilder
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithDefaultAllowedMentions(allowedMentions discord.AllowedMentions) ConfigOpt {
 	return func(config *Config) {
 		config.DefaultAllowedMentions = &allowedMentions
