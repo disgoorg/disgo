@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/DisgoOrg/disgo/bot"
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
@@ -35,30 +36,30 @@ func main() {
 	log.Info("starting example...")
 	log.Infof("bot version: %s", info.Version)
 
-	bot, err := core.NewBotBuilder(token).
-		SetRawEventsEnabled(true).
-		SetGatewayConfigOpts(
+	disgo, err := bot.New(token,
+		bot.WithRawEventsEnabled(),
+		bot.WithGatewayOpts(
 			gateway.WithGatewayIntents(discord.GatewayIntentsAll),
 			gateway.WithPresence(core.NewListeningPresence("your bullshit", discord.OnlineStatusOnline, false)),
-		).
-		SetCacheConfigOpts(
+		),
+		bot.WithCacheOpts(
 			core.WithCacheFlags(core.CacheFlagsAll),
 			core.WithMemberCachePolicy(core.MemberCachePolicyAll),
-		).
-		AddEventListeners(listener).
-		Build()
+		),
+		bot.WithEventListeners(listener),
+	)
 	if err != nil {
 		log.Fatal("error while building bot instance: ", err)
 		return
 	}
 
-	registerCommands(bot)
+	registerCommands(disgo)
 
-	if err = bot.ConnectGateway(); err != nil {
+	if err = disgo.ConnectGateway(); err != nil {
 		log.Fatal("error while connecting to discord: ", err)
 	}
 
-	defer bot.Close()
+	defer disgo.Close()
 
 	log.Info("ExampleBot is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)

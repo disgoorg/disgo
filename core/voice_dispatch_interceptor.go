@@ -1,6 +1,8 @@
 package core
 
-import "github.com/DisgoOrg/disgo/discord"
+import (
+	"github.com/DisgoOrg/disgo/discord"
+)
 
 // VoiceServerUpdateEvent is sent when a guilds voice server is updated
 type VoiceServerUpdateEvent struct {

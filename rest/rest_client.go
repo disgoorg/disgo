@@ -12,8 +12,8 @@ import (
 	"github.com/DisgoOrg/disgo/json"
 
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/rest/rate"
 	"github.com/DisgoOrg/disgo/rest/route"
+	"github.com/DisgoOrg/disgo/rest/rrate"
 	"github.com/DisgoOrg/log"
 )
 
@@ -30,10 +30,10 @@ func NewClient(config *Config) Client {
 		config.HTTPClient = http.DefaultClient
 	}
 	if config.RateLimiterConfig == nil {
-		config.RateLimiterConfig = &rate.DefaultConfig
+		config.RateLimiterConfig = &rrate.DefaultConfig
 	}
 	if config.RateLimiter == nil {
-		config.RateLimiter = rate.NewLimiter(config.RateLimiterConfig)
+		config.RateLimiter = rrate.NewLimiter(config.RateLimiterConfig)
 	}
 	return &clientImpl{config: *config}
 }
@@ -43,7 +43,7 @@ type Client interface {
 	Close()
 	Logger() log.Logger
 	HTTPClient() *http.Client
-	RateLimiter() rate.Limiter
+	RateLimiter() rrate.Limiter
 	Config() Config
 	Do(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) Error
 }
@@ -64,7 +64,7 @@ func (c *clientImpl) HTTPClient() *http.Client {
 	return c.config.HTTPClient
 }
 
-func (c *clientImpl) RateLimiter() rate.Limiter {
+func (c *clientImpl) RateLimiter() rrate.Limiter {
 	return c.config.RateLimiter
 }
 
@@ -129,7 +129,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 		}
 	}
 
-	// wait for rate limits
+	// wait for srate limits
 	err = c.RateLimiter().WaitBucket(config.Ctx, cRoute)
 	if err != nil {
 		return NewError(nil, err)
