@@ -33,9 +33,9 @@ func HandleInteraction(bot *core.Bot, sequenceNumber int, c chan<- discord.Inter
 
 	switch interaction.Type {
 	case discord.InteractionTypeApplicationCommandAutoComplete:
-		bot.EventManager.Dispatch(&ApplicationCommandAutocompleteEvent{
+		bot.EventManager.Dispatch(&events.ApplicationCommandAutocompleteEvent{
 			GenericEvent: genericEvent,
-			ApplicationCommandAutocompleteInteraction: bot.EntityBuilder.CreateApplicationCommandAutocompleteInteraction(bot.EntityBuilder.CreateApplicationCommandOptionsInteraction(bot.EntityBuilder.CreateApplicationCommandInteraction(coreInteraction, CacheStrategyYes))),
+			ApplicationCommandAutocompleteInteraction: bot.EntityBuilder.CreateApplicationCommandAutocompleteInteraction(bot.EntityBuilder.CreateApplicationCommandOptionsInteraction(bot.EntityBuilder.CreateApplicationCommandInteraction(coreInteraction, core.CacheStrategyYes))),
 		})
 
 	case discord.InteractionTypeCommand:

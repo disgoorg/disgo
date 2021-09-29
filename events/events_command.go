@@ -7,37 +7,36 @@ import (
 // SlashCommandEvent indicates that a slash core.ApplicationCommand was run
 type SlashCommandEvent struct {
 	*GenericEvent
-	*SlashCommandInteraction
+	*core.SlashCommandInteraction
 }
 
-func (e *SlashCommandEvent) Bot() *Bot {
+func (e *SlashCommandEvent) Bot() *core.Bot {
 	return e.bot
 }
 
 type ApplicationCommandAutocompleteEvent struct {
 	*GenericEvent
-	*ApplicationCommandAutocompleteInteraction
+	*core.ApplicationCommandAutocompleteInteraction
 }
 
-func (e *ApplicationCommandAutocompleteEvent) Bot() *Bot {
+func (e *ApplicationCommandAutocompleteEvent) Bot() *core.Bot {
 	return e.bot
 }
 
 type UserCommandEvent struct {
 	*GenericEvent
-	*UserCommandInteraction
+	*core.UserCommandInteraction
 }
 
-func (e *UserCommandEvent) Bot() *Bot {
+func (e *UserCommandEvent) Bot() *core.Bot {
 	return e.bot
 }
 
 type MessageCommandEvent struct {
 	*GenericEvent
-	*MessageCommandInteraction
+	*core.MessageCommandInteraction
 }
 
-func (e *MessageCommandEvent) Bot() *Bot {
+func (e *MessageCommandEvent) Bot() *core.Bot {
 	return e.bot
 }
-
