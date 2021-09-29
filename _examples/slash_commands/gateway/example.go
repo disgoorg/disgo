@@ -5,6 +5,9 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/DisgoOrg/disgo/bot"
+	"github.com/DisgoOrg/disgo/events"
+
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
@@ -39,18 +42,13 @@ func main() {
 	log.Info("starting example...")
 	log.Infof("disgo version: %s", info.Version)
 
-	disgo, err := core.NewBotBuilder(token).
-		SetGatewayConfig(gateway.Config{
-			GatewayIntents: discord.GatewayIntentsNone,
-		}).
-		SetCacheConfig(core.CacheConfig{
-			CacheFlags: core.CacheFlagsDefault,
-		}).
-		AddEventListeners(&core.ListenerAdapter{
+	disgo, err := bot.New(token,
+		bot.WithGatewayOpts(gateway.WithGatewayIntents(discord.GatewayIntentsNone)),
+		bot.WithCacheOpts(core.WithCacheFlags(core.CacheFlagsDefault)),
+		bot.WithEventListeners(&events.ListenerAdapter{
 			OnSlashCommand: commandListener,
-		}).
-		Build()
-
+		}),
+	)
 	if err != nil {
 		log.Fatal("error while building disgo instance: ", err)
 		return
@@ -73,7 +71,7 @@ func main() {
 	<-s
 }
 
-func commandListener(event *core.SlashCommandEvent) {
+func commandListener(event *events.SlashCommandEvent) {
 	if event.CommandName == "say" {
 		err := event.Create(core.NewMessageCreateBuilder().
 			SetContent(event.Options["message"].String()).
