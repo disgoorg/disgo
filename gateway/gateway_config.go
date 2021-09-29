@@ -2,7 +2,7 @@ package gateway
 
 import (
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway/rate"
+	"github.com/DisgoOrg/disgo/gateway/grate"
 	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/log"
 )
@@ -23,8 +23,8 @@ type Config struct {
 	LargeThreshold    int
 	GatewayIntents    discord.GatewayIntents
 	Compress          bool
-	RateLimiter       rate.Limiter
-	RateLimiterConfig *rate.Config
+	RateLimiter       grate.Limiter
+	RateLimiterConfig *grate.Config
 	Presence          *discord.PresenceUpdate
 	OS                string
 	Browser           string
@@ -61,22 +61,22 @@ func WithCompress(compress bool) ConfigOpt {
 	}
 }
 
-func WithRateLimiter(rateLimiter rate.Limiter) ConfigOpt {
+func WithRateLimiter(rateLimiter grate.Limiter) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiter = rateLimiter
 	}
 }
 
-func WithRateLimiterConfig(rateLimiterConfig rate.Config) ConfigOpt {
+func WithRateLimiterConfig(rateLimiterConfig grate.Config) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiterConfig = &rateLimiterConfig
 	}
 }
 
-func WithRateLimiterConfigOpts(opts ...rate.ConfigOpt) ConfigOpt {
+func WithRateLimiterConfigOpts(opts ...grate.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		if config.RateLimiterConfig == nil {
-			config.RateLimiterConfig = &rate.DefaultConfig
+			config.RateLimiterConfig = &grate.DefaultConfig
 		}
 		config.RateLimiterConfig.Apply(opts)
 	}

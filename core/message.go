@@ -156,3 +156,8 @@ func (m *Message) SelectMenuByID(customID string) *SelectMenu {
 func (m *Message) IsEphemeral() bool {
 	return m.Flags.Has(discord.MessageFlagEphemeral)
 }
+
+// IsWebhookMessage returns true if the Message was sent by a Webhook
+func (m *Message) IsWebhookMessage() bool {
+	return m.WebhookID != nil
+}

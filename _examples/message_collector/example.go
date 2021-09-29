@@ -6,6 +6,10 @@ import (
 	"strconv"
 	"syscall"
 
+	"github.com/DisgoOrg/disgo/bot"
+
+	"github.com/DisgoOrg/disgo/events"
+
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
@@ -22,9 +26,9 @@ func main() {
 	log.Info("starting example...")
 	log.Infof("disgo version: %s", info.Version)
 
-	disgo, err := core.NewBot(token,
-		core.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
-		core.WithEventListeners(&core.ListenerAdapter{
+	disgo, err := bot.New(token,
+		bot.WithGatewayOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
+		bot.WithEventListeners(&events.ListenerAdapter{
 			OnMessageCreate: onMessageCreate,
 		}),
 	)
@@ -44,7 +48,7 @@ func main() {
 	<-s
 }
 
-func onMessageCreate(event *core.MessageCreateEvent) {
+func onMessageCreate(event *events.MessageCreateEvent) {
 	if event.Message.Author.IsBot || event.Message.Author.IsSystem {
 		return
 	}

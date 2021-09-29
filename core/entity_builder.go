@@ -108,6 +108,7 @@ func (b *entityBuilderImpl) CreateApplicationCommandInteraction(interaction *Int
 	commandInteraction := &ApplicationCommandInteraction{
 		Interaction: interaction,
 		ApplicationCommandInteractionData: ApplicationCommandInteractionData{
+			CommandID:   interaction.Data.ID,
 			CommandName: interaction.Data.Name,
 		},
 	}

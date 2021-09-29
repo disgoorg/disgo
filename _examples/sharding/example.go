@@ -5,12 +5,16 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/DisgoOrg/disgo/bot"
+
+	"github.com/DisgoOrg/disgo/events"
+
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/disgo/sharding"
-	"github.com/DisgoOrg/disgo/sharding/rate"
+	"github.com/DisgoOrg/disgo/sharding/srate"
 	"github.com/DisgoOrg/log"
 )
 
@@ -23,8 +27,8 @@ func main() {
 	log.Info("starting example...")
 	log.Info("disgo version: ", info.Version)
 
-	disgo, err := core.NewBot(token,
-		core.WithShardManagerConfigOpts(
+	disgo, err := bot.New(token,
+		bot.WithShardManagerOpts(
 			sharding.WithShards(0, 1, 2),
 			sharding.WithShardCount(3),
 			sharding.WithGatewayConfigOpts(
@@ -32,11 +36,11 @@ func main() {
 				gateway.WithCompress(true),
 			),
 			sharding.WithRateLimiterConfigOpt(
-				rate.WithMaxConcurrency(2),
+				srate.WithMaxConcurrency(2),
 			),
 		),
-		core.WithCacheConfig(core.CacheConfig{CacheFlags: core.CacheFlagsDefault}),
-		core.WithEventListeners(&core.ListenerAdapter{
+		bot.WithCacheOpts(core.WithCacheFlags(core.CacheFlagsDefault)),
+		bot.WithEventListeners(&events.ListenerAdapter{
 			OnMessageCreate: onMessageCreate,
 		}),
 	)
@@ -56,7 +60,7 @@ func main() {
 	<-s
 }
 
-func onMessageCreate(event *core.MessageCreateEvent) {
+func onMessageCreate(event *events.MessageCreateEvent) {
 	if event.Message.Author.IsBot {
 		return
 	}

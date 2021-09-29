@@ -1,21 +1,26 @@
 package core
 
 import (
-	"bytes"
 	"io"
-	"io/ioutil"
 	"runtime/debug"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/json"
 )
 
-var DefaultEventManagerConfig = EventManagerConfig{}
+var (
+	DefaultEventManagerConfig = EventManagerConfig{}
+)
 
 type EventManagerConfig struct {
 	EventListeners           []EventListener
 	VoiceDispatchInterceptor VoiceDispatchInterceptor
 	RawEventsEnabled         bool
+
+	GatewayHandlers   map[discord.GatewayEventType]GatewayEventHandler
+	HTTPServerHandler HTTPServerEventHandler
+
+	NewMessageCollector func(channel *Channel, filter MessageFilter) (<-chan *Message, func())
 }
 
 var _ EventManager = (*eventManagerImpl)(nil)
@@ -26,10 +31,8 @@ func NewEventManager(bot *Bot, config *EventManagerConfig) EventManager {
 	}
 
 	return &eventManagerImpl{
-		gatewayEventHandlers:   GetGatewayHandlers(),
-		httpServerEventHandler: &httpserverHandlerInteractionCreate{},
-		bot:                    bot,
-		config:                 *config,
+		bot:    bot,
+		config: *config,
 	}
 }
 
@@ -39,6 +42,7 @@ type EventManager interface {
 	Close()
 	Config() EventManagerConfig
 
+	SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor)
 	AddEventListeners(eventListeners ...EventListener)
 	RemoveEventListeners(eventListeners ...EventListener)
 	HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader)
@@ -72,10 +76,8 @@ type HTTPServerEventHandler interface {
 
 // eventManagerImpl is the implementation of core.EventManager
 type eventManagerImpl struct {
-	gatewayEventHandlers   map[discord.GatewayEventType]GatewayEventHandler
-	httpServerEventHandler HTTPServerEventHandler
-	bot                    *Bot
-	config                 EventManagerConfig
+	bot    *Bot
+	config EventManagerConfig
 }
 
 // Bot returns the core.Bot instance used by the core.EventManager
@@ -92,29 +94,14 @@ func (e *eventManagerImpl) Config() EventManagerConfig {
 	return e.config
 }
 
-func (e *eventManagerImpl) handleRaw(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) io.Reader {
-	if e.config.RawEventsEnabled {
-		var buf bytes.Buffer
-		data, err := ioutil.ReadAll(io.TeeReader(reader, &buf))
-		if err != nil {
-			e.Bot().Logger.Error("error reading raw payload from event")
-		}
-		e.Dispatch(&RawEvent{
-			GenericEvent: NewGenericEvent(e.Bot(), sequenceNumber),
-			Type:         gatewayEventType,
-			RawPayload:   data,
-		})
-
-		return &buf
-	}
-	return reader
+func (e *eventManagerImpl) SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor) {
+	e.config.VoiceDispatchInterceptor = voiceDispatchInterceptor
 }
 
 // HandleGateway calls the correct core.EventHandler
 func (e *eventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) {
-	reader = e.handleRaw(gatewayEventType, sequenceNumber, reader)
 
-	if handler, ok := e.gatewayEventHandlers[gatewayEventType]; ok {
+	if handler, ok := e.config.GatewayHandlers[gatewayEventType]; ok {
 		v := handler.New()
 		if v != nil {
 			if err := json.NewDecoder(reader).Decode(&v); err != nil {
@@ -129,13 +116,11 @@ func (e *eventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventTy
 
 // HandleHTTP calls the correct core.EventHandler
 func (e *eventManagerImpl) HandleHTTP(responseChannel chan<- discord.InteractionResponse, reader io.Reader) {
-	reader = e.handleRaw(discord.GatewayEventTypeInteractionCreate, -1, reader)
-
-	v := e.httpServerEventHandler.New()
+	v := e.config.HTTPServerHandler.New()
 	if err := json.NewDecoder(reader).Decode(&v); err != nil {
 		e.Bot().Logger.Error("error while unmarshalling httpserver event. error: ", err)
 	}
-	e.httpServerEventHandler.HandleHTTPEvent(e.Bot(), responseChannel, v)
+	e.config.HTTPServerHandler.HandleHTTPEvent(e.Bot(), responseChannel, v)
 }
 
 // Dispatch dispatches a new event to the client

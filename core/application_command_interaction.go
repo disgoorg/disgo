@@ -9,6 +9,7 @@ type ApplicationCommandInteraction struct {
 
 // ApplicationCommandInteractionData is the command data payload
 type ApplicationCommandInteractionData struct {
+	CommandID   discord.Snowflake
 	CommandName string
 	Resolved    *Resolved
 }
