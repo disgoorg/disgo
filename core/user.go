@@ -3,7 +3,6 @@ package core
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
@@ -54,19 +53,7 @@ func (u *User) Tag() string {
 }
 
 func (u *User) getAssetURL(cdnRoute *route.CDNRoute, assetId *string, size int) *string {
-	if assetId == nil {
-		return nil
-	}
-	format := route.PNG
-	if strings.HasPrefix(*assetId, "a_") {
-		format = route.GIF
-	}
-	compiledRoute, err := cdnRoute.Compile(nil, format, size, u.ID, *assetId)
-	if err != nil {
-		return nil
-	}
-	url := compiledRoute.URL()
-	return &url
+	return discord.FormatAssetURL(cdnRoute, u.ID, assetId, size)
 }
 
 // OpenDMChannel creates a DMChannel between this User and the Bot
