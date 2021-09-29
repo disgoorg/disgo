@@ -5,6 +5,7 @@ import (
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
+	"github.com/DisgoOrg/disgo/rest/route"
 )
 
 type Channel struct {
@@ -257,6 +258,12 @@ func (c *Channel) DeleteStageInstance(opts ...rest.RequestOpt) rest.Error {
 		unsupportedChannelType(c)
 	}
 	return c.Bot.RestServices.StageInstanceService().DeleteStageInstance(c.ID, opts...)
+}
+
+// GetIconURL returns the Icon URL of this channel.
+// This will be nil for every discord.ChannelType except discord.ChannelTypeGroupDM
+func (c *Channel) GetIconURL(size int) *string {
+	return discord.FormatAssetURL(route.ChannelIcon, c.ID, c.Icon, size)
 }
 
 func (c *Channel) IsModerator(member *Member) bool {

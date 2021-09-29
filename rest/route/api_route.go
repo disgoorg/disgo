@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
-
-	"github.com/DisgoOrg/disgo/discord"
 )
 
 // NewAPIRoute generates a new discord api path struct
@@ -45,7 +43,7 @@ type APIRoute struct {
 // Compile returns a CompiledAPIRoute
 func (r *APIRoute) Compile(queryValues QueryValues, params ...interface{}) (*CompiledAPIRoute, error) {
 	if len(params) != r.urlParamCount {
-		return nil, discord.ErrInvalidArgCount(r.urlParamCount, len(params))
+		return nil, ErrInvalidArgCount(r.urlParamCount, len(params))
 	}
 	path := r.path
 	var majorParams []string
@@ -65,7 +63,7 @@ func (r *APIRoute) Compile(queryValues QueryValues, params ...interface{}) (*Com
 		query := url.Values{}
 		for param, value := range queryValues {
 			if _, ok := r.queryParams[param]; !ok {
-				return nil, discord.ErrUnexpectedQueryParam(param)
+				return nil, ErrUnexpectedQueryParam(param)
 			}
 			query.Add(param, fmt.Sprint(value))
 		}
