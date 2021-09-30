@@ -8,11 +8,21 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
+var _ Mentionable = (*Channel)(nil)
+
 type Channel struct {
 	discord.Channel
 	Bot                *Bot
 	StageInstanceID    *discord.Snowflake
 	ConnectedMemberIDs map[discord.Snowflake]struct{}
+}
+
+func (c *Channel) String() string {
+	return fmt.Sprintf("<#%s>", c.ID)
+}
+
+func (c *Channel) Mention() string {
+	return c.String()
 }
 
 func (c *Channel) Guild() *Guild {
