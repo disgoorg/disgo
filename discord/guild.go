@@ -192,10 +192,10 @@ type GuildPreview struct {
 // GuildCreate is the payload used to create a Guild
 type GuildCreate struct {
 	Name                            string                     `json:"name"`
-	Icon                            Icon                       `json:"icon,omitempty"`
+	Icon                            *Icon                      `json:"icon,omitempty"`
 	VerificationLevel               VerificationLevel          `json:"verification_level,omitempty"`
-	DefaultMessageNotificationLevel MessageNotificationsLevel  `json:"default_message_notification_level"`
-	ExplicitContentFilterLevel      ExplicitContentFilterLevel `json:"explicit_content_filter_level"`
+	DefaultMessageNotificationLevel MessageNotificationsLevel  `json:"default_message_notification_level,omitempty"`
+	ExplicitContentFilterLevel      ExplicitContentFilterLevel `json:"explicit_content_filter_level,omitempty"`
 	Roles                           []GuildCreateRole          `json:"roles,omitempty"`
 	Channels                        []GuildCreateChannel       `json:"channels,omitempty"`
 	AFKChannelID                    Snowflake                  `json:"afk_channel_id,omitempty"`
@@ -206,7 +206,7 @@ type GuildCreate struct {
 
 // GuildUpdate is the payload used to update a Guild
 type GuildUpdate struct {
-	Name                            *string                     `json:"name,omitempty"`
+	Name                            string                      `json:"name,omitempty"`
 	VerificationLevel               *VerificationLevel          `json:"verification_level,omitempty"`
 	DefaultMessageNotificationLevel *MessageNotificationsLevel  `json:"default_message_notification_level,omitempty"`
 	ExplicitContentFilterLevel      *ExplicitContentFilterLevel `json:"explicit_content_filter_level,omitempty"`
