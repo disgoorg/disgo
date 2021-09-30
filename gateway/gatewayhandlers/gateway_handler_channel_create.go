@@ -6,21 +6,21 @@ import (
 	"github.com/DisgoOrg/disgo/events"
 )
 
-// gatewayHandlerChannelCreat handles core.GatewayEventChannelCreate
-type gatewayHandlerChannelCreat struct{}
+// gatewayHandlerChannelCreate handles core.GatewayEventChannelCreate
+type gatewayHandlerChannelCreate struct{}
 
 // EventType returns the core.GatewayGatewayEventType
-func (h *gatewayHandlerChannelCreat) EventType() discord.GatewayEventType {
+func (h *gatewayHandlerChannelCreate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeChannelCreate
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerChannelCreat) New() interface{} {
+func (h *gatewayHandlerChannelCreate) New() interface{} {
 	return &discord.Channel{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerChannelCreat) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerChannelCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	channel := *v.(*discord.Channel)
 
 	genericChannelEvent := &events.GenericChannelEvent{
@@ -29,10 +29,10 @@ func (h *gatewayHandlerChannelCreat) HandleGatewayEvent(bot *core.Bot, sequenceN
 		Channel:      bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes),
 	}
 
-	if channel.GuildID != nil {
+	if channel.GuildID != "" {
 		bot.EventManager.Dispatch(&events.GuildChannelCreateEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
-				GuildID:             *channel.GuildID,
+				GuildID:             channel.GuildID,
 				GenericChannelEvent: genericChannelEvent,
 			},
 		})

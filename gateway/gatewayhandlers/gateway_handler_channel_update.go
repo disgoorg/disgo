@@ -31,11 +31,11 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 		Channel:      bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyNo),
 	}
 
-	if channel.GuildID != nil {
+	if channel.GuildID != "" {
 		bot.EventManager.Dispatch(&events.GuildChannelUpdateEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
 				GenericChannelEvent: genericChannelEvent,
-				GuildID:             *channel.GuildID,
+				GuildID:             channel.GuildID,
 			},
 			OldChannel: oldCoreChannel,
 		})

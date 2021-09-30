@@ -19,7 +19,7 @@ func (c *Channel) Guild() *Guild {
 	if !c.IsGuildChannel() {
 		unsupportedChannelType(c)
 	}
-	return c.Bot.Caches.GuildCache().Get(*c.GuildID)
+	return c.Bot.Caches.GuildCache().Get(c.GuildID)
 }
 
 func (c *Channel) Channels() []*Channel {
@@ -213,7 +213,7 @@ func (c *Channel) Connect() error {
 	if !c.IsAudioChannel() {
 		unsupportedChannelType(c)
 	}
-	return c.Bot.AudioController.Connect(*c.GuildID, c.ID)
+	return c.Bot.AudioController.Connect(c.GuildID, c.ID)
 }
 
 func (c *Channel) CrosspostMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, rest.Error) {

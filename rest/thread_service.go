@@ -81,7 +81,7 @@ func (s *threadServiceImpl) AddThreadMember(threadID discord.Snowflake, userID d
 }
 
 func (s *threadServiceImpl) RemoveThreadMember(threadID discord.Snowflake, userID discord.Snowflake, opts ...RequestOpt) Error {
-	compiledRoute, err := route.RemoveThreadMember.Compile(nil, threadID)
+	compiledRoute, err := route.RemoveThreadMember.Compile(nil, threadID, userID)
 	if err != nil {
 		return NewError(nil, err)
 	}

@@ -36,7 +36,7 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 	}
 
 	for _, channel := range guild.Channels {
-		channel.GuildID = &guild.ID
+		channel.GuildID = guild.ID
 		bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes)
 	}
 

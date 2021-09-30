@@ -9,7 +9,7 @@ import (
 func NewMessageCollectorByChannel(channel *core.Channel, filter core.MessageFilter) (<-chan *core.Message, func()) {
 	var guildID *discord.Snowflake = nil
 	if guildChannel := channel; channel.IsGuildChannel() {
-		guildID = guildChannel.GuildID
+		guildID = &guildChannel.GuildID
 	}
 	return NewMessageCollector(channel.Bot, channel.ID, guildID, filter)
 }
