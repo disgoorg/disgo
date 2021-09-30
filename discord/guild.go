@@ -155,7 +155,7 @@ type UnavailableGuild struct {
 type OAuth2Guild struct {
 	ID          Snowflake      `json:"id"`
 	Name        string         `json:"name"`
-	Icon        string         `json:"icon"`
+	Icon        *string        `json:"icon"`
 	Owner       bool           `json:"owner"`
 	Permissions Permissions    `json:"permissions"`
 	Features    []GuildFeature `json:"features"`
@@ -212,7 +212,7 @@ type GuildUpdate struct {
 	ExplicitContentFilterLevel      *ExplicitContentFilterLevel `json:"explicit_content_filter_level,omitempty"`
 	AFKChannelID                    *Snowflake                  `json:"afk_channel_id,omitempty"`
 	AFKTimeout                      *int                        `json:"afk_timeout,omitempty"`
-	Icon                            *string                     `json:"icon,omitempty"`
+	Icon                            *OptionalIcon               `json:"icon,omitempty"`
 	OwnerID                         *Snowflake                  `json:"owner_id,omitempty"`
 	Splash                          *OptionalIcon               `json:"splash,omitempty"`
 	DiscoverySplash                 *OptionalIcon               `json:"discovery_splash,omitempty"`
