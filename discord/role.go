@@ -11,6 +11,7 @@ type Role struct {
 	Permissions Permissions `json:"permissions"`
 	Managed     bool        `json:"managed"`
 	Icon        *string     `json:"icon"`
+	Emoji       *string     `json:"unicode_emoji"`
 	Mentionable bool        `json:"mentionable"`
 	Tags        *RoleTag    `json:"tags,omitempty"`
 }
@@ -28,7 +29,8 @@ type RoleCreate struct {
 	Permissions Permissions `json:"permissions,omitempty"`
 	Color       int         `json:"color,omitempty"`
 	Hoist       bool        `json:"hoist,omitempty"`
-	Icon        Icon        `json:"icon,omitempty"`
+	Icon        *Icon       `json:"icon,omitempty"`
+	Emoji       *string     `json:"unicode_emoji,omitempty"`
 	Mentionable bool        `json:"mentionable,omitempty"`
 }
 
@@ -39,6 +41,7 @@ type RoleUpdate struct {
 	Color       *int          `json:"color"`
 	Hoist       *bool         `json:"hoist"`
 	Icon        *OptionalIcon `json:"icon,omitempty"`
+	Emoji       *string       `json:"unicode_emoji,omitempty"`
 	Mentionable *bool         `json:"mentionable"`
 }
 
