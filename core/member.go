@@ -8,6 +8,8 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
+var _ Mentionable = (*Member)(nil)
+
 type Member struct {
 	discord.Member
 	*User

@@ -6,7 +6,7 @@ import (
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
-	"github.com/DisgoOrg/disgo/sharding/rate"
+	"github.com/DisgoOrg/disgo/sharding/srate"
 	"github.com/DisgoOrg/log"
 )
 
@@ -31,7 +31,7 @@ func New(token string, gatewayURL string, eventHandlerFunc gateway.EventHandlerF
 		}
 	}
 	if config.RateLimiter == nil {
-		config.RateLimiter = rate.NewLimiter(&rate.DefaultConfig)
+		config.RateLimiter = srate.NewLimiter(&srate.DefaultConfig)
 	}
 	return &shardManagerImpl{
 		shards:           NewShardsMap(),
@@ -55,7 +55,7 @@ func (m *shardManagerImpl) Logger() log.Logger {
 	return m.config.Logger
 }
 
-func (m *shardManagerImpl) RateLimiter() rate.Limiter {
+func (m *shardManagerImpl) RateLimiter() srate.Limiter {
 	return m.config.RateLimiter
 }
 

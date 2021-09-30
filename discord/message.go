@@ -64,12 +64,32 @@ type Message struct {
 	LastUpdated       *Time               `json:"last_updated,omitempty"`
 }
 
+type MessageSticker struct {
+	ID         Snowflake         `json:"id"`
+	Name       string            `json:"name"`
+	FormatType StickerFormatType `json:"format_type"`
+}
+
 // MessageReaction contains information about the reactions of a message_events
 type MessageReaction struct {
 	Count int   `json:"count"`
 	Me    bool  `json:"me"`
 	Emoji Emoji `json:"emoji"`
 }
+
+// MessageActivityType is the type of MessageActivity https://discord.com/developers/docs/resources/channel#message-object-message-activity-types
+type MessageActivityType int
+
+//Constants for MessageActivityType
+//goland:noinspection GoUnusedConst
+const (
+	MessageActivityTypeJoin MessageActivityType = iota + 1
+	MessageActivityTypeSpectate
+	MessageActivityTypeListen
+	_
+	MessageActivityTypeJoinRequest
+)
+
 
 //MessageActivity is used for rich presence-related chat embeds in a Message
 type MessageActivity struct {

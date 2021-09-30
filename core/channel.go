@@ -5,13 +5,24 @@ import (
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
+	"github.com/DisgoOrg/disgo/rest/route"
 )
+
+var _ Mentionable = (*Channel)(nil)
 
 type Channel struct {
 	discord.Channel
 	Bot                *Bot
 	StageInstanceID    *discord.Snowflake
 	ConnectedMemberIDs map[discord.Snowflake]struct{}
+}
+
+func (c *Channel) String() string {
+	return fmt.Sprintf("<#%s>", c.ID)
+}
+
+func (c *Channel) Mention() string {
+	return c.String()
 }
 
 func (c *Channel) Guild() *Guild {
@@ -112,11 +123,14 @@ func (c *Channel) IsStageChannel() bool {
 	return c.Type == discord.ChannelTypeStage
 }
 
+// MessageFilter used to filter Message(s) in a MessageCollector
+type MessageFilter func(message *Message) bool
+
 func (c *Channel) CollectMessages(filter MessageFilter) (<-chan *Message, func()) {
 	if !c.IsMessageChannel() {
 		unsupportedChannelType(c)
 	}
-	return NewMessageCollectorByChannel(c, filter)
+	return c.Bot.EventManager.Config().NewMessageCollector(c, filter)
 }
 
 // CreateMessage sends a Message to a Channel
@@ -257,6 +271,12 @@ func (c *Channel) DeleteStageInstance(opts ...rest.RequestOpt) rest.Error {
 		unsupportedChannelType(c)
 	}
 	return c.Bot.RestServices.StageInstanceService().DeleteStageInstance(c.ID, opts...)
+}
+
+// GetIconURL returns the Icon URL of this channel.
+// This will be nil for every discord.ChannelType except discord.ChannelTypeGroupDM
+func (c *Channel) GetIconURL(size int) *string {
+	return discord.FormatAssetURL(route.ChannelIcon, c.ID, c.Icon, size)
 }
 
 func (c *Channel) IsModerator(member *Member) bool {
