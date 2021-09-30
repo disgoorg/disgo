@@ -146,9 +146,11 @@ var (
 	GetThreadMembers        = NewAPIRoute(GET, "/channels/{channel.id}/thread-members")
 
 	GetActiveThreads                = NewAPIRoute(GET, "/channels/{channel.id}/threads/active")
-	GetArchivedPublicThreads        = NewAPIRoute(GET, "/channels/{channel.id}/threads/archived/public")
-	GetArchivedPrivateThreads       = NewAPIRoute(GET, "/channels/{channel.id}/threads/archived/private")
-	GetJoinedAchievedPrivateThreads = NewAPIRoute(GET, "/channels/{channel.id}/users/@me/threads/archived/private")
+	GetArchivedPublicThreads        = NewAPIRoute(GET, "/channels/{channel.id}/threads/archived/public", "before", "limit")
+	GetArchivedPrivateThreads       = NewAPIRoute(GET, "/channels/{channel.id}/threads/archived/private", "before", "limit")
+	GetJoinedAchievedPrivateThreads = NewAPIRoute(GET, "/channels/{channel.id}/users/@me/threads/archived/private", "before", "limit")
+
+	GetActiveGuildThreads = NewAPIRoute(GET, "/guilds/{guild.id}/threads/active")
 )
 
 // Messages

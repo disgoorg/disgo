@@ -10,20 +10,20 @@ type ChannelType int
 // Channel constants
 //goland:noinspection GoUnusedConst
 const (
-	ChannelTypeText ChannelType = iota
+	ChannelTypeGuildText ChannelType = iota
 	ChannelTypeDM
-	ChannelTypeVoice
+	ChannelTypeGuildVoice
 	ChannelTypeGroupDM
-	ChannelTypeCategory
-	ChannelTypeNews
-	ChannelTypeStore
+	ChannelTypeGuildCategory
+	ChannelTypeGuildNews
+	ChannelTypeGuildStore
 	_
 	_
 	_
-	_
-	_
-	_
-	ChannelTypeStage
+	ChannelTypeGuildNewsThread
+	ChannelTypeGuildPublicThread
+	ChannelTypeGuildPrivateThread
+	ChannelTypeGuildStageVoice
 )
 
 // VideoQualityMode https://discord.com/developers/docs/resources/channel#channel-object-video-quality-modes
@@ -37,26 +37,49 @@ const (
 
 // Channel is a generic discord channel object
 type Channel struct {
-	ID                     Snowflake             `json:"id"`
-	Name                   *string               `json:"name,omitempty"`
-	Type                   ChannelType           `json:"type"`
-	LastMessageID          *Snowflake            `json:"last_message_id,omitempty"`
-	GuildID                *Snowflake            `json:"guild_id,omitempty"`
-	Position               *int                  `json:"position,omitempty"`
-	PermissionOverwrites   []PermissionOverwrite `json:"permission_overwrites"`
-	Topic                  *string               `json:"topic,omitempty"`
-	NSFW                   *bool                 `json:"nsfw,omitempty"`
-	Bitrate                *int                  `json:"bitrate,omitempty"`
-	UserLimit              *int                  `json:"user_limit,omitempty"`
-	RateLimitPerUser       *int                  `json:"rate_limit_per_user,omitempty"`
-	Recipients             []*User               `json:"recipients,omitempty"`
-	Icon                   *string               `json:"icon,omitempty"`
-	OwnerID                *Snowflake            `json:"owner_id,omitempty"`
-	ApplicationID          *Snowflake            `json:"application_id,omitempty"`
-	ParentID               *Snowflake            `json:"parent_id,omitempty"`
-	InteractionPermissions *Permissions          `json:"permissions,omitempty"`
-	LastPinTimestamp       *Time                 `json:"last_pin_timestamp,omitempty"`
+	ID                         Snowflake             `json:"id"`
+	Type                       ChannelType           `json:"type"`
+	GuildID                    Snowflake             `json:"guild_id,omitempty"`
+	Position                   int                   `json:"position,omitempty"`
+	PermissionOverwrites       []PermissionOverwrite `json:"permission_overwrites"`
+	Name                       string                `json:"name,omitempty"`
+	Topic                      *string               `json:"topic,omitempty"`
+	NSFW                       bool                  `json:"nsfw,omitempty"`
+	LastMessageID              *Snowflake            `json:"last_message_id,omitempty"`
+	Bitrate                    int                   `json:"bitrate,omitempty"`
+	UserLimit                  int                   `json:"user_limit,omitempty"`
+	RateLimitPerUser           int                   `json:"rate_limit_per_user,omitempty"`
+	Recipients                 []User                `json:"recipients,omitempty"`
+	Icon                       *string               `json:"icon,omitempty"`
+	OwnerID                    Snowflake             `json:"owner_id,omitempty"`
+	ApplicationID              Snowflake             `json:"application_id,omitempty"`
+	ParentID                   *Snowflake            `json:"parent_id,omitempty"`
+	LastPinTimestamp           *Time                 `json:"last_pin_timestamp,omitempty"`
+	RTCRegion                  string                `json:"rtc_region"`
+	VideoQualityMode           VideoQualityMode      `json:"video_quality_mode"`
+	MessageCount               int                   `json:"message_count"`
+	MemberCount                int                   `json:"member_count"`
+	ThreadMetadata             ThreadMetadata        `json:"thread_metadata"`
+	DefaultAutoArchiveDuration AutoArchiveDuration   `json:"default_auto_archive_duration"`
+	InteractionPermissions     Permissions           `json:"permissions,omitempty"`
 }
+
+type ThreadMetadata struct {
+	Archived            bool
+	AutoArchiveDuration AutoArchiveDuration
+	ArchiveTimestamp    Time
+	Locked              bool
+	Invitable           bool
+}
+
+type AutoArchiveDuration int
+
+const (
+	AutoArchiveDuration1h  AutoArchiveDuration = 60
+	AutoArchiveDuration24h AutoArchiveDuration = 1440
+	AutoArchiveDuration3d  AutoArchiveDuration = 4320
+	AutoArchiveDuration1w  AutoArchiveDuration = 10080
+)
 
 type ChannelCreate struct {
 	Name                 string                `json:"name"`

@@ -90,27 +90,27 @@ func (c *Channel) IsDMChannel() bool {
 }
 
 func (c *Channel) IsTextChannel() bool {
-	return c.Type == discord.ChannelTypeText
+	return c.Type == discord.ChannelTypeGuildText
 }
 
 func (c *Channel) IsVoiceChannel() bool {
-	return c.Type == discord.ChannelTypeVoice
+	return c.Type == discord.ChannelTypeGuildVoice
 }
 
 func (c *Channel) IsCategory() bool {
-	return c.Type == discord.ChannelTypeCategory
+	return c.Type == discord.ChannelTypeGuildCategory
 }
 
 func (c *Channel) IsNewsChannel() bool {
-	return c.Type == discord.ChannelTypeNews
+	return c.Type == discord.ChannelTypeGuildNews
 }
 
 func (c *Channel) IsStoreChannel() bool {
-	return c.Type == discord.ChannelTypeStore
+	return c.Type == discord.ChannelTypeGuildStore
 }
 
 func (c *Channel) IsStageChannel() bool {
-	return c.Type == discord.ChannelTypeStage
+	return c.Type == discord.ChannelTypeGuildStageVoice
 }
 
 // MessageFilter used to filter Message(s) in a MessageCollector

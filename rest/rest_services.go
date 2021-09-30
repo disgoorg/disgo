@@ -21,6 +21,7 @@ func NewServices(logger log.Logger, restClient Client) Services {
 		gatewayService:       NewGatewayService(restClient),
 		guildService:         NewGuildService(restClient),
 		channelService:       NewChannelService(restClient),
+		threadService:        NewThreadService(restClient),
 		interactionService:   NewInteractionService(restClient),
 		inviteService:        NewInviteService(restClient),
 		guildTemplateService: NewGuildTemplateService(restClient),
@@ -45,6 +46,7 @@ type Services interface {
 	GatewayService() GatewayService
 	GuildService() GuildService
 	ChannelService() ChannelService
+	ThreadService() ThreadService
 	InteractionService() InteractionService
 	InviteService() InviteService
 	GuildTemplateService() GuildTemplateService
@@ -66,6 +68,7 @@ type servicesImpl struct {
 	gatewayService       GatewayService
 	guildService         GuildService
 	channelService       ChannelService
+	threadService        ThreadService
 	interactionService   InteractionService
 	inviteService        InviteService
 	guildTemplateService GuildTemplateService
@@ -115,6 +118,10 @@ func (s *servicesImpl) GuildService() GuildService {
 
 func (s *servicesImpl) ChannelService() ChannelService {
 	return s.channelService
+}
+
+func (s *servicesImpl) ThreadService() ThreadService {
+	return s.threadService
 }
 
 func (s *servicesImpl) InteractionService() InteractionService {

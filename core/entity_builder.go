@@ -474,7 +474,7 @@ func (b *entityBuilderImpl) CreateChannel(channel discord.Channel, updateCache C
 		Channel: channel,
 		Bot:     b.Bot(),
 	}
-	if channel.Type == discord.ChannelTypeVoice || channel.Type == discord.ChannelTypeStage {
+	if channel.Type == discord.ChannelTypeGuildVoice || channel.Type == discord.ChannelTypeGuildStageVoice {
 		coreChannel.ConnectedMemberIDs = map[discord.Snowflake]struct{}{}
 	}
 	if updateCache(b.Bot()) {

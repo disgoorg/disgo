@@ -6,6 +6,7 @@ type Caches interface {
 	UserCache() UserCache
 	RoleCache() RoleCache
 	MemberCache() MemberCache
+	ThreadMemberCache() ThreadMemberCache
 	PresenceCache() PresenceCache
 	VoiceStateCache() VoiceStateCache
 	MessageCache() MessageCache
@@ -23,6 +24,7 @@ func NewCaches(config CacheConfig) Caches {
 		userCache:          NewUserCache(config.CacheFlags),
 		roleCache:          NewRoleCache(config.CacheFlags),
 		memberCache:        NewMemberCache(config.MemberCachePolicy),
+		threadMemberCache:  NewThreadMemberCache(config.CacheFlags),
 		presenceCache:      NewPresenceCache(config.CacheFlags),
 		voiceStateCache:    NewVoiceStateCache(config.CacheFlags),
 		messageCache:       NewMessageCache(config.MessageCachePolicy),
@@ -40,6 +42,7 @@ type cachesImpl struct {
 	userCache          UserCache
 	roleCache          RoleCache
 	memberCache        MemberCache
+	threadMemberCache  ThreadMemberCache
 	presenceCache      PresenceCache
 	voiceStateCache    VoiceStateCache
 	messageCache       MessageCache
@@ -64,6 +67,10 @@ func (c *cachesImpl) RoleCache() RoleCache {
 
 func (c *cachesImpl) MemberCache() MemberCache {
 	return c.memberCache
+}
+
+func (c *cachesImpl) ThreadMemberCache() ThreadMemberCache {
+	return c.threadMemberCache
 }
 
 func (c *cachesImpl) PresenceCache() PresenceCache {

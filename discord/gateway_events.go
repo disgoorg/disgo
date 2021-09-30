@@ -29,6 +29,47 @@ type GatewayEventHello struct {
 	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
 }
 
+type GatewayEventThreadCreate struct {
+	Channel
+	ThreadMember ThreadMember `json:"thread_member"`
+}
+
+type GatewayEventThreadUpdate struct {
+	Channel
+}
+
+type GatewayEventThreadDelete struct {
+	ID       Snowflake   `json:"id"`
+	GuildID  Snowflake   `json:"guild_id"`
+	ParentID Snowflake   `json:"parent_id"`
+	Type     ChannelType `json:"type"`
+}
+
+type GatewayEventThreadListSync struct {
+	GuildID    Snowflake      `json:"guild_id"`
+	ChannelIDs []Snowflake    `json:"channel_ids"`
+	Threads    []Channel      `json:"threads"`
+	Members    []ThreadMember `json:"members"`
+}
+
+type GatewayEventThreadMemberUpdate struct {
+	ThreadMember
+}
+
+type GatewayEventThreadMembersUpdate struct {
+	ID               Snowflake                   `json:"id"`
+	GuildID          Snowflake                   `json:"guild_id"`
+	MemberCount      int                         `json:"member_count"`
+	AddedMembers     []ThreadMembersUpdateMember `json:"added_members"`
+	RemovedMemberIDs []Snowflake                 `json:"removed_member_ids"`
+}
+
+type ThreadMembersUpdateMember struct {
+	ThreadMember
+	Member
+	Presence
+}
+
 type GatewayEventMessageReactionAdd struct {
 	UserID    Snowflake     `json:"user_id"`
 	ChannelID Snowflake     `json:"channel_id"`
