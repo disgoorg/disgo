@@ -9,9 +9,20 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
+var _ Mentionable = (*User)(nil)
+
+
 type User struct {
 	discord.User
 	Bot *Bot
+}
+
+func (u *User) String() string {
+	return fmt.Sprintf("<@%s>", u.ID)
+}
+
+func (u *User) Mention() string {
+	return u.String()
 }
 
 // AvatarURL returns the Avatar URL of the User
@@ -38,11 +49,6 @@ func (u *User) EffectiveAvatarURL(size int) string {
 // BannerURL returns the Banner URL of the User
 func (u *User) BannerURL(size int) *string {
 	return u.getAssetURL(route.UserBanner, u.Banner, size)
-}
-
-// Mention returns the user as a mention
-func (u *User) String() string {
-	return "<@" + u.ID.String() + ">"
 }
 
 // Tag returns the user's Username and Discriminator
