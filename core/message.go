@@ -14,6 +14,14 @@ type Message struct {
 	Stickers   []*MessageSticker
 }
 
+func (m *Message) CreateThread(threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (*Channel, rest.Error) {
+	channel, err := m.Bot.RestServices.ThreadService().CreateThreadWithMessage(m.ChannelID, m.ID, threadCreateWithMessage, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return m.Bot.EntityBuilder.CreateChannel(*channel, CacheStrategyNo), nil
+}
+
 // Guild gets the guild_events the message_events was sent in
 func (m *Message) Guild() *Guild {
 	if m.GuildID == nil {

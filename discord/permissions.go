@@ -66,8 +66,16 @@ const (
 	PermissionManageNicknames
 	PermissionManageRoles
 	PermissionManageWebhooks
-	PermissionManageEmojis
+	PermissionManageEmojisAndStickers
 	PermissionUseApplicationCommands
+	PermissionRequestToSpeak
+	_
+	PermissionManageThreads
+	PermissionCreatePublicThread
+	PermissionCreatePrivateThread
+	PermissionUseExternalStickers
+	PermissionSendMessagesInThreads
+	PermissionStartEmbeddedActivities
 )
 
 // Constants for the different bit offsets of general permissions
@@ -92,6 +100,11 @@ const (
 		PermissionReadMessageHistory |
 		PermissionMentionEveryone
 
+	PermissionsAllThread = PermissionManageThreads |
+		PermissionCreatePublicThread |
+		PermissionCreatePrivateThread |
+		PermissionSendMessagesInThreads
+
 	PermissionsAllVoice = PermissionViewChannel |
 		PermissionVoiceConnect |
 		PermissionVoiceSpeak |
@@ -102,6 +115,7 @@ const (
 		PermissionVoicePrioritySpeaker
 
 	PermissionsAllChannel = PermissionsAllText |
+		PermissionsAllThread |
 		PermissionsAllVoice |
 		PermissionCreateInstantInvite |
 		PermissionManageRoles |
@@ -115,7 +129,7 @@ const (
 		PermissionManageServer |
 		PermissionAdministrator |
 		PermissionManageWebhooks |
-		PermissionManageEmojis
+		PermissionManageEmojisAndStickers
 
 	PermissionsStageModerator = PermissionManageChannels |
 		PermissionVoiceMuteMembers |

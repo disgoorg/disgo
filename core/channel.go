@@ -88,7 +88,7 @@ func (c *Channel) IsMessageChannel() bool {
 }
 
 func (c *Channel) IsGuildChannel() bool {
-	return c.IsCategory() || c.IsNewsChannel() || c.IsTextChannel() || c.IsVoiceChannel()
+	return c.IsCategory() || c.IsNewsChannel() || c.IsTextChannel() || c.IsVoiceChannel() || c.IsThread()
 }
 
 func (c *Channel) IsAudioChannel() bool {
@@ -121,6 +121,56 @@ func (c *Channel) IsStoreChannel() bool {
 
 func (c *Channel) IsStageChannel() bool {
 	return c.Type == discord.ChannelTypeGuildStageVoice
+}
+
+func (c *Channel) IsThread() bool {
+	return c.IsNewsThread() || c.IsPublicThread() || c.IsPrivateThread()
+}
+
+func (c *Channel) IsNewsThread() bool {
+	return c.Type == discord.ChannelTypeGuildNewsThread
+}
+func (c *Channel) IsPublicThread() bool {
+	return c.Type == discord.ChannelTypeGuildPublicThread
+}
+func (c *Channel) IsPrivateThread() bool {
+	return c.Type == discord.ChannelTypeGuildPrivateThread
+}
+
+func (c *Channel) CreateThread(threadCreate discord.ThreadCreate, opts ...rest.RequestOpt) (*Channel, rest.Error) {
+	if !c.IsTextChannel() || !c.IsNewsChannel() {
+		unsupportedChannelType(c)
+	}
+	channel, err := c.Bot.RestServices.ThreadService().CreateThread(c.ID, threadCreate, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return c.Bot.EntityBuilder.CreateChannel(*channel, CacheStrategyNo), nil
+}
+
+func (c *Channel) CreateThreadWithMessage(messageID discord.Snowflake, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (*Channel, rest.Error) {
+	if !c.IsTextChannel() || !c.IsNewsChannel() {
+		unsupportedChannelType(c)
+	}
+	channel, err := c.Bot.RestServices.ThreadService().CreateThreadWithMessage(c.ID, messageID, threadCreateWithMessage, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return c.Bot.EntityBuilder.CreateChannel(*channel, CacheStrategyNo), nil
+}
+
+func (c *Channel) ThreadMembers() []*ThreadMember {
+	if !c.IsThread() {
+		unsupportedChannelType(c)
+	}
+	return c.Bot.Caches.ThreadMemberCache().ThreadAll(c.ID)
+}
+
+func (c *Channel) ThreadMembersCache() map[discord.Snowflake]*ThreadMember {
+	if !c.IsThread() {
+		unsupportedChannelType(c)
+	}
+	return c.Bot.Caches.ThreadMemberCache().ThreadCache(c.ID)
 }
 
 // MessageFilter used to filter Message(s) in a MessageCollector
@@ -202,6 +252,9 @@ func (c *Channel) GetMessages(around discord.Snowflake, before discord.Snowflake
 }
 
 func (c *Channel) Parent() *Channel {
+	if c.IsGuildChannel() {
+		unsupportedChannelType(c)
+	}
 	if c.ParentID == nil {
 		return nil
 	}

@@ -134,14 +134,14 @@ type Guild struct {
 
 type GatewayGuild struct {
 	Guild
-	JoinedAt    Time         `json:"joined_at"`
-	Large       bool         `json:"large"`
-	Unavailable bool         `json:"unavailable"`
-	MemberCount int          `json:"member_count"`
-	VoiceStates []VoiceState `json:"voice_states"`
-	Members     []Member     `json:"members"`
-	Channels    []Channel    `json:"channels"`
-	// threads
+	JoinedAt       Time            `json:"joined_at"`
+	Large          bool            `json:"large"`
+	Unavailable    bool            `json:"unavailable"`
+	MemberCount    int             `json:"member_count"`
+	VoiceStates    []VoiceState    `json:"voice_states"`
+	Members        []Member        `json:"members"`
+	Channels       []Channel       `json:"channels"`
+	Threads        []Channel       `json:"threads"`
 	Presences      []Presence      `json:"presences"`
 	StageInstances []StageInstance `json:"stage_instances"`
 }

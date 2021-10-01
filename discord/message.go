@@ -62,6 +62,7 @@ type Message struct {
 	Stickers          []MessageSticker    `json:"sticker_items,omitempty"`
 	ReferencedMessage *Message            `json:"referenced_message,omitempty"`
 	LastUpdated       *Time               `json:"last_updated,omitempty"`
+	Thread            Thread              `json:"thread,omitempty"`
 }
 
 type MessageSticker struct {
@@ -89,7 +90,6 @@ const (
 	_
 	MessageActivityTypeJoinRequest
 )
-
 
 //MessageActivity is used for rich presence-related chat embeds in a Message
 type MessageActivity struct {
