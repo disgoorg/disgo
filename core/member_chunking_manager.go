@@ -7,16 +7,16 @@ import (
 	"github.com/DisgoOrg/disgo/internal/insecurerandstr"
 )
 
-var _ MembersChunkingManager = (*membersChunkingManagerImpl)(nil)
+var _ MemberChunkingManager = (*memberChunkingManagerImpl)(nil)
 
-func NewMembersChunkingManager(bot *Bot) MembersChunkingManager {
-	return &membersChunkingManagerImpl{
+func NewMemberChunkingManager(bot *Bot) MemberChunkingManager {
+	return &memberChunkingManagerImpl{
 		chunkingRequests: map[string]*chunkingRequest{},
 		bot:              bot,
 	}
 }
 
-type MembersChunkingManager interface {
+type MemberChunkingManager interface {
 	Bot() *Bot
 	HandleChunk(payload discord.GuildMembersChunkGatewayEvent)
 
@@ -33,17 +33,17 @@ type chunkingRequest struct {
 	returnChan chan<- *Member
 }
 
-type membersChunkingManagerImpl struct {
+type memberChunkingManagerImpl struct {
 	sync.RWMutex
 	chunkingRequests map[string]*chunkingRequest
 
 	bot *Bot
 }
 
-func (m *membersChunkingManagerImpl) Bot() *Bot {
+func (m *memberChunkingManagerImpl) Bot() *Bot {
 	return m.bot
 }
-func (m *membersChunkingManagerImpl) HandleChunk(payload discord.GuildMembersChunkGatewayEvent) {
+func (m *memberChunkingManagerImpl) HandleChunk(payload discord.GuildMembersChunkGatewayEvent) {
 	request, ok := m.chunkingRequests[payload.Nonce]
 	if !ok {
 		m.Bot().Logger.Warn("received unknown member chunk event")
@@ -77,7 +77,7 @@ func (m *membersChunkingManagerImpl) HandleChunk(payload discord.GuildMembersChu
 	}
 }
 
-func (m *membersChunkingManagerImpl) requestGuildMembers(command discord.RequestGuildMembersCommand, memberFilterFunc func(member *Member) bool) (<-chan *Member, func()) {
+func (m *memberChunkingManagerImpl) requestGuildMembers(command discord.RequestGuildMembersCommand, memberFilterFunc func(member *Member) bool) (<-chan *Member, func()) {
 	var nonce string
 	for {
 		nonce = insecurerandstr.RandStr(32)
@@ -110,7 +110,7 @@ func (m *membersChunkingManagerImpl) requestGuildMembers(command discord.Request
 	}
 }
 
-func (m *membersChunkingManagerImpl) LoadMembers(guildID discord.Snowflake, presences bool, userIDs ...discord.Snowflake) (<-chan *Member, func()) {
+func (m *memberChunkingManagerImpl) LoadMembers(guildID discord.Snowflake, presences bool, userIDs ...discord.Snowflake) (<-chan *Member, func()) {
 	return m.requestGuildMembers(discord.RequestGuildMembersCommand{
 		GuildID:   guildID,
 		Presences: presences,
@@ -118,7 +118,7 @@ func (m *membersChunkingManagerImpl) LoadMembers(guildID discord.Snowflake, pres
 	}, nil)
 }
 
-func (m *membersChunkingManagerImpl) FindMembers(guildID discord.Snowflake, presences bool, memberFindFunc func(member *Member) bool) (<-chan *Member, func()) {
+func (m *memberChunkingManagerImpl) FindMembers(guildID discord.Snowflake, presences bool, memberFindFunc func(member *Member) bool) (<-chan *Member, func()) {
 	query := ""
 	limit := 0
 	return m.requestGuildMembers(discord.RequestGuildMembersCommand{
@@ -129,7 +129,7 @@ func (m *membersChunkingManagerImpl) FindMembers(guildID discord.Snowflake, pres
 	}, memberFindFunc)
 }
 
-func (m *membersChunkingManagerImpl) SearchMembers(guildID discord.Snowflake, presences bool, query string, limit int) (<-chan *Member, func()) {
+func (m *memberChunkingManagerImpl) SearchMembers(guildID discord.Snowflake, presences bool, query string, limit int) (<-chan *Member, func()) {
 	return m.requestGuildMembers(discord.RequestGuildMembersCommand{
 		GuildID:   guildID,
 		Query:     &query,

@@ -149,10 +149,10 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 	}
 	bot.AudioController = config.AudioController
 
-	if config.MembersChunkingManager == nil {
-		config.MembersChunkingManager = core.NewMembersChunkingManager(bot)
+	if config.MemberChunkingManager == nil {
+		config.MemberChunkingManager = core.NewMemberChunkingManager(bot)
 	}
-	bot.MembersChunkingManager = config.MembersChunkingManager
+	bot.MemberChunkingManager = config.MemberChunkingManager
 
 	if config.EntityBuilder == nil {
 		config.EntityBuilder = core.NewEntityBuilder(bot)

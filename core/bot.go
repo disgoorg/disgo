@@ -33,7 +33,7 @@ type Bot struct {
 
 	EntityBuilder          EntityBuilder
 	AudioController        AudioController
-	MembersChunkingManager MembersChunkingManager
+	MemberChunkingManager MemberChunkingManager
 }
 
 // Close will clean up all disgo internals and close the discord connection safely

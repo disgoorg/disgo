@@ -18,11 +18,17 @@ type (
 
 		FindFirst(guildFindFunc GuildFindFunc) *Guild
 		FindAll(guildFindFunc GuildFindFunc) []*Guild
+
+		SetUnavailable(guildID discord.Snowflake)
+		SetAvailable(guildID discord.Snowflake)
+		IsUnavailable(guildID discord.Snowflake) bool
+		GetUnavailableGuilds() []discord.Snowflake
 	}
 
 	guildCacheImpl struct {
 		cacheFlags CacheFlags
 		guilds     map[discord.Snowflake]*Guild
+		unavailableGuilds map[discord.Snowflake]struct{}
 	}
 )
 
@@ -30,6 +36,7 @@ func NewGuildCache(cacheFlags CacheFlags) GuildCache {
 	return &guildCacheImpl{
 		cacheFlags: cacheFlags,
 		guilds:     map[discord.Snowflake]*Guild{},
+		unavailableGuilds: map[discord.Snowflake]struct{}{},
 	}
 }
 
@@ -91,6 +98,32 @@ func (c *guildCacheImpl) FindAll(guildFindFunc GuildFindFunc) []*Guild {
 		if guildFindFunc(gui) {
 			guilds = append(guilds, gui)
 		}
+	}
+	return guilds
+}
+
+func (c *guildCacheImpl) SetUnavailable(id discord.Snowflake) {
+	if _, ok := c.guilds[id]; ok {
+		c.Remove(id)
+	}
+	c.unavailableGuilds[id] = struct{}{}
+	id
+
+func (c *guildCacheImpl) SetAvailable(guildID discord.Snowflake) {
+	delete(c.unavailableGuilds, guildID)
+}
+
+func (c *guildCacheImpl) IsUnavailable(guildID discord.Snowflake) bool {
+	_, ok := c.unavailableGuilds[guildID]
+	return ok
+}
+
+func (c *guildCacheImpl) GetUnavailableGuilds() []discord.Snowflake {
+	guilds := make([]discord.Snowflake, len(c.unavailableGuilds))
+	var i int
+	for guildID := range c.unavailableGuilds {
+		guilds[i] = guildID
+		i++
 	}
 	return guilds
 }
