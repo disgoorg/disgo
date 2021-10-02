@@ -14,12 +14,7 @@ type Status int
 
 // IsConnected returns whether you can send payloads to the Gateway
 func (s Status) IsConnected() bool {
-	switch s {
-	case StatusWaitingForGuilds, StatusReady:
-		return true
-	default:
-		return false
-	}
+	return s == StatusReady
 }
 
 // Indicates how far along the client is to connecting
@@ -30,7 +25,6 @@ const (
 	StatusIdentifying
 	StatusWaitingForHello
 	StatusWaitingForReady
-	StatusWaitingForGuilds
 	StatusReady
 	StatusDisconnected
 	StatusResuming
@@ -45,6 +39,7 @@ type Gateway interface {
 	Open() error
 	OpenContext(ctx context.Context) error
 	Close()
+	CloseWithCode(code int)
 	Status() Status
 	Send(command discord.GatewayCommand) error
 	SendContext(ctx context.Context, command discord.GatewayCommand) error

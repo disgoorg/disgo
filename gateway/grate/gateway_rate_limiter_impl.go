@@ -45,7 +45,7 @@ func (l *limiterImpl) Config() Config {
 }
 
 func (l *limiterImpl) Wait(ctx context.Context) error {
-	l.Logger().Debug("locking gateway srate limiter")
+	l.Logger().Debug("locking gateway rate limiter")
 	if err := l.CLock(ctx); err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (l *limiterImpl) Wait(ctx context.Context) error {
 }
 
 func (l *limiterImpl) Unlock() {
-	l.Logger().Debug("unlocking gateway srate limiter")
+	l.Logger().Debug("unlocking gateway rate limiter")
 	now := time.Now()
 	if l.reset.Before(now) {
 		l.reset = now.Add(time.Minute)
