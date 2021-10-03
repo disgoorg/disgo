@@ -77,13 +77,12 @@ func (g *gatewayImpl) Open() error {
 }
 
 func (g *gatewayImpl) OpenContext(ctx context.Context) error {
+	g.Logger().Info("opening gateway connection to shard ", g.shardID)
 	if g.lastSequenceReceived == nil || g.sessionID == nil {
 		g.status = StatusConnecting
 	} else {
 		g.status = StatusReconnecting
 	}
-
-	g.Logger().Info("starting ws...")
 
 	gatewayURL := g.url + "?v=" + route.APIVersion + "&encoding=json"
 	var rs *http.Response
@@ -106,10 +105,7 @@ func (g *gatewayImpl) OpenContext(ctx context.Context) error {
 		return err
 	}
 
-	g.conn.SetCloseHandler(func(code int, error string) error {
-		g.Logger().Infof("connection to websocket closed with code: %d, error: %s", code, error)
-		return nil
-	})
+	//g.conn.SetCloseHandler(nil)
 
 	g.status = StatusWaitingForHello
 
@@ -123,19 +119,17 @@ func (g *gatewayImpl) Close() {
 }
 
 func (g *gatewayImpl) CloseWithCode(code int) {
+	g.Logger().Infof("closing gateway connection for shard %d with code: %d", g.shardID, code)
 	if g.heartbeatChan != nil {
-		g.Logger().Info("closing heartbeat goroutines...")
+		g.Logger().Debug("closing heartbeat goroutines...")
 		close(g.heartbeatChan)
 		g.heartbeatChan = nil
 	}
 	if g.conn != nil {
 		err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, ""))
-		if err != nil {
-			g.Logger().Error("error writing close code: ", err)
+		if err != nil && err != websocket.ErrCloseSent {
+			g.Logger().Error("error writing close code. error: ", err)
 		}
-
-		// TODO: Wait for Discord to actually close the connection.
-		time.Sleep(1 * time.Second)
 
 		err = g.conn.Close()
 		if err != nil {
@@ -199,10 +193,8 @@ func (g *gatewayImpl) heartbeat() {
 		select {
 		case <-ticker.C:
 			g.sendHeartbeat()
-		case _, ok := <-g.heartbeatChan:
-			if !ok {
-				ticker.Stop()
-			}
+		case <-g.heartbeatChan:
+			ticker.Stop()
 			return
 		}
 	}
@@ -211,7 +203,7 @@ func (g *gatewayImpl) heartbeat() {
 func (g *gatewayImpl) sendHeartbeat() {
 	g.Logger().Debug("sending heartbeat...")
 
-	if err := g.Send(discord.NewGatewayCommand(discord.GatewayOpcodeHeartbeat, g.lastSequenceReceived)); err != nil {
+	if err := g.Send(discord.NewGatewayCommand(discord.GatewayOpcodeHeartbeat, g.lastSequenceReceived)); err != nil && err != discord.ErrShardNotConnected {
 		g.Logger().Error("failed to send heartbeat with error: ", err)
 		g.CloseWithCode(websocket.CloseServiceRestart)
 		go g.reconnect(0, 1*time.Second)
@@ -270,6 +262,8 @@ func (g *gatewayImpl) listen() {
 
 			if reconnect {
 				go g.reconnect(0, 1*time.Second)
+			} else {
+				g.Close()
 			}
 			return
 		}
@@ -361,7 +355,7 @@ func (g *gatewayImpl) listen() {
 		case discord.GatewayOpcodeReconnect:
 			g.Logger().Debug("received: OpcodeReconnect")
 			g.CloseWithCode(websocket.CloseServiceRestart)
-			g.reconnect(0, 1*time.Second)
+			go g.reconnect(0, 1*time.Second)
 
 		case discord.GatewayOpcodeInvalidSession:
 			var canResume bool

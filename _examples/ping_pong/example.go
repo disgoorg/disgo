@@ -14,6 +14,9 @@ import (
 )
 
 func main() {
+	log.SetLevel(log.LevelDebug)
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	disgo, err := bot.New(os.Getenv("token"),
 		bot.WithGatewayOpts(
 			gateway.WithGatewayIntents(
