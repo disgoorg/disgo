@@ -11,7 +11,6 @@ import (
 
 var _ Mentionable = (*User)(nil)
 
-
 type User struct {
 	discord.User
 	Bot *Bot

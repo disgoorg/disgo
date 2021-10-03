@@ -10,7 +10,6 @@ import (
 
 var _ Mentionable = (*Role)(nil)
 
-
 type Role struct {
 	discord.Role
 	Bot *Bot

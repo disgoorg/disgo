@@ -90,7 +90,6 @@ const (
 	MessageActivityTypeJoinRequest
 )
 
-
 //MessageActivity is used for rich presence-related chat embeds in a Message
 type MessageActivity struct {
 	Type    MessageActivityType `json:"type"`
