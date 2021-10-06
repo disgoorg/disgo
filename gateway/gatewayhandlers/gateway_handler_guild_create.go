@@ -78,7 +78,14 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 				GenericEvent: events.NewGenericEvent(bot, -1),
 			})
 		}
-		go bot.MemberChunkingManager.LoadAllMembers(payload.ID, true)
+		if bot.MemberChunkingManager.MemberChunkingFilter()(payload.ID) {
+			go func() {
+				if err := bot.MemberChunkingManager.LoadAllMembers(payload.ID, true); err != nil {
+					bot.Logger.Error("failed to chunk guild on ready. error: ", err)
+				}
+			}()
+		}
+
 	} else if wasUnavailable {
 		bot.Caches.GuildCache().SetAvailable(payload.ID)
 		bot.EventManager.Dispatch(&events.GuildAvailableEvent{

@@ -103,6 +103,19 @@ func (b *Bot) HasShardManager() bool {
 	return b.ShardManager != nil
 }
 
+func (b *Bot) Shard(guildID discord.Snowflake) (gateway.Gateway, error) {
+	if b.HasGateway() {
+		return b.Gateway, nil
+	} else if b.HasShardManager() {
+		shard := b.ShardManager.GetGuildShard(guildID)
+		if shard == nil {
+			return nil, discord.ErrShardNotFound
+		}
+		return shard, nil
+	}
+	return nil, discord.ErrNoGatewayOrShardManager
+}
+
 func (b *Bot) SetPresence(presenceUpdate discord.PresenceUpdate) error {
 	if !b.HasGateway() {
 		return discord.ErrNoGateway

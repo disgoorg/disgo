@@ -34,6 +34,7 @@ type Config struct {
 	AudioController       core.AudioController
 	EntityBuilder         core.EntityBuilder
 	MemberChunkingManager core.MemberChunkingManager
+	MemberChunkingFilter  *core.MemberChunkingFilter
 }
 
 type ConfigOpt func(config *Config)
@@ -209,5 +210,11 @@ func WithAudioController(audioController core.AudioController) ConfigOpt {
 func WithMemberChunkingManager(memberChunkingManager core.MemberChunkingManager) ConfigOpt {
 	return func(config *Config) {
 		config.MemberChunkingManager = memberChunkingManager
+	}
+}
+
+func WithMemberChunkingFilter(memberChunkingFilter core.MemberChunkingFilter) ConfigOpt {
+	return func(config *Config) {
+		config.MemberChunkingFilter = &memberChunkingFilter
 	}
 }

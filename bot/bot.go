@@ -150,7 +150,10 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 	bot.AudioController = config.AudioController
 
 	if config.MemberChunkingManager == nil {
-		config.MemberChunkingManager = core.NewMemberChunkingManager(bot)
+		if config.MemberChunkingFilter == nil {
+			config.MemberChunkingFilter = &core.MemberChunkingFilterNone
+		}
+		config.MemberChunkingManager = core.NewMemberChunkingManager(bot, *config.MemberChunkingFilter)
 	}
 	bot.MemberChunkingManager = config.MemberChunkingManager
 

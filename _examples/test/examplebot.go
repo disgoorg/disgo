@@ -46,6 +46,7 @@ func main() {
 			core.WithCacheFlags(core.CacheFlagsAll),
 			core.WithMemberCachePolicy(core.MemberCachePolicyAll),
 		),
+		bot.WithMemberChunkingFilter(core.MemberChunkingFilterAll),
 		bot.WithEventListeners(listener),
 	)
 	if err != nil {
