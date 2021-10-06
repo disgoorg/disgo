@@ -20,6 +20,7 @@ type MemberChunkingManager interface {
 	Bot() *Bot
 	HandleChunk(payload discord.GuildMembersChunkGatewayEvent)
 
+	LoadAllMembers(guildID discord.Snowflake, presences bool)
 	LoadMembers(guildID discord.Snowflake, presences bool, userIDs ...discord.Snowflake) (<-chan *Member, func())
 	FindMembers(guildID discord.Snowflake, presences bool, memberFilterFunc func(member *Member) bool) (<-chan *Member, func())
 	SearchMembers(guildID discord.Snowflake, presences bool, query string, limit int) (<-chan *Member, func())
@@ -46,7 +47,7 @@ func (m *memberChunkingManagerImpl) Bot() *Bot {
 func (m *memberChunkingManagerImpl) HandleChunk(payload discord.GuildMembersChunkGatewayEvent) {
 	request, ok := m.chunkingRequests[payload.Nonce]
 	if !ok {
-		m.Bot().Logger.Warn("received unknown member chunk event")
+		m.Bot().Logger.Debug("received unknown member chunk event: ", payload)
 		return
 	}
 
@@ -56,28 +57,31 @@ func (m *memberChunkingManagerImpl) HandleChunk(payload discord.GuildMembersChun
 			continue
 		}
 		request.Lock()
-		if request.returnChan == nil {
-			// channel is nil anyway abort all member parsing/sending
-			request.Unlock()
-			return
+		if request.returnChan != nil {
+			request.returnChan <- coreMember
 		}
-		request.returnChan <- coreMember
 		request.Unlock()
 	}
 
 	// all chunks sent cleanup
 	if payload.ChunkIndex == payload.ChunkCount-1 {
+		cleanupRequest(m, request)
+	}
+}
+
+func cleanupRequest(m *memberChunkingManagerImpl, request *chunkingRequest) {
+	if request.returnChan != nil {
 		request.Lock()
 		close(request.returnChan)
 		request.returnChan = nil
 		request.Unlock()
-		m.Lock()
-		delete(m.chunkingRequests, payload.Nonce)
-		m.Unlock()
 	}
+	m.Lock()
+	delete(m.chunkingRequests, request.Nonce)
+	m.Unlock()
 }
 
-func (m *memberChunkingManagerImpl) requestGuildMembers(command discord.RequestGuildMembersCommand, memberFilterFunc func(member *Member) bool) (<-chan *Member, func()) {
+func (m *memberChunkingManagerImpl) requestGuildMembers(command discord.RequestGuildMembersCommand, memberFilterFunc func(member *Member) bool, returnChan chan *Member) (<-chan *Member, func()) {
 	var nonce string
 	for {
 		nonce = insecurerandstr.RandStr(32)
@@ -89,10 +93,9 @@ func (m *memberChunkingManagerImpl) requestGuildMembers(command discord.RequestG
 		}
 	}
 	command.Nonce = nonce
-	returnChan := make(chan *Member)
 	request := &chunkingRequest{
 		RequestGuildMembersCommand: command,
-		memberFilterFunc:           nil,
+		memberFilterFunc:           memberFilterFunc,
 		returnChan:                 returnChan,
 	}
 
@@ -100,14 +103,19 @@ func (m *memberChunkingManagerImpl) requestGuildMembers(command discord.RequestG
 	m.chunkingRequests[nonce] = request
 	m.Unlock()
 	return returnChan, func() {
-		request.Lock()
-		close(request.returnChan)
-		request.returnChan = nil
-		request.Unlock()
-		m.Lock()
-		delete(m.chunkingRequests, nonce)
-		m.Unlock()
+		cleanupRequest(m, request)
 	}
+}
+
+func (m *memberChunkingManagerImpl) LoadAllMembers(guildID discord.Snowflake, presences bool) {
+	query := ""
+	limit := 0
+	m.requestGuildMembers(discord.RequestGuildMembersCommand{
+		GuildID:   guildID,
+		Query:     &query,
+		Limit:     &limit,
+		Presences: presences,
+	}, nil, nil)
 }
 
 func (m *memberChunkingManagerImpl) LoadMembers(guildID discord.Snowflake, presences bool, userIDs ...discord.Snowflake) (<-chan *Member, func()) {
@@ -115,7 +123,7 @@ func (m *memberChunkingManagerImpl) LoadMembers(guildID discord.Snowflake, prese
 		GuildID:   guildID,
 		Presences: presences,
 		UserIDs:   userIDs,
-	}, nil)
+	}, nil, make(chan *Member))
 }
 
 func (m *memberChunkingManagerImpl) FindMembers(guildID discord.Snowflake, presences bool, memberFindFunc func(member *Member) bool) (<-chan *Member, func()) {
@@ -126,7 +134,7 @@ func (m *memberChunkingManagerImpl) FindMembers(guildID discord.Snowflake, prese
 		Query:     &query,
 		Limit:     &limit,
 		Presences: presences,
-	}, memberFindFunc)
+	}, memberFindFunc, make(chan *Member))
 }
 
 func (m *memberChunkingManagerImpl) SearchMembers(guildID discord.Snowflake, presences bool, query string, limit int) (<-chan *Member, func()) {
@@ -135,5 +143,5 @@ func (m *memberChunkingManagerImpl) SearchMembers(guildID discord.Snowflake, pre
 		Query:     &query,
 		Limit:     &limit,
 		Presences: presences,
-	}, nil)
+	}, nil, make(chan *Member))
 }
