@@ -31,8 +31,8 @@ type Bot struct {
 
 	Caches Caches
 
-	EntityBuilder          EntityBuilder
-	AudioController        AudioController
+	EntityBuilder         EntityBuilder
+	AudioController       AudioController
 	MemberChunkingManager MemberChunkingManager
 }
 

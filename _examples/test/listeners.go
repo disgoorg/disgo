@@ -16,23 +16,18 @@ import (
 )
 
 var listener = &events.ListenerAdapter{
-	OnRawGateway:         rawGatewayEventListener,
-	OnGuildAvailable:     guildAvailListener,
 	OnGuildMessageCreate: messageListener,
 	OnSlashCommand:       slashCommandListener,
 	OnButtonClick:        buttonClickListener,
 	OnSelectMenuSubmit:   selectMenuSubmitListener,
+	OnGuildReady: func(event *events.GuildReadyEvent) {
+		event.Bot().Logger.Info("GuildReadyEvent: ", *event)
+	},
+	OnGuildsReady: func(event *events.GuildsReadyEvent) {
+		event.Bot().Logger.Info("GuildsReadyEvent")
+	},
 }
 
-func rawGatewayEventListener(event *events.RawEvent) {
-	if event.Type == discord.GatewayEventTypePresenceUpdate {
-		println(string(event.RawPayload))
-	}
-}
-
-func guildAvailListener(event *events.GuildAvailableEvent) {
-	log.Infof("guild loaded: %s", event.Guild.ID)
-}
 
 func buttonClickListener(event *events.ButtonClickEvent) {
 	switch event.CustomID {

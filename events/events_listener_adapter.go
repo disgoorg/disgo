@@ -57,6 +57,8 @@ type ListenerAdapter struct {
 	OnGuildLeave       func(event *GuildLeaveEvent)
 	OnGuildAvailable   func(event *GuildAvailableEvent)
 	OnGuildUnavailable func(event *GuildUnavailableEvent)
+	OnGuildReady       func(event *GuildReadyEvent)
+	OnGuildsReady      func(event *GuildsReadyEvent)
 	OnGuildBan         func(event *GuildBanEvent)
 	OnGuildUnban       func(event *GuildUnbanEvent)
 
@@ -279,6 +281,14 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 	case *GuildUnavailableEvent:
 		if listener := l.OnGuildUnavailable; listener != nil {
+			listener(e)
+		}
+	case *GuildReadyEvent:
+		if listener := l.OnGuildReady; listener != nil {
+			listener(e)
+		}
+	case *GuildsReadyEvent:
+		if listener := l.OnGuildsReady; listener != nil {
 			listener(e)
 		}
 	case *GuildBanEvent:

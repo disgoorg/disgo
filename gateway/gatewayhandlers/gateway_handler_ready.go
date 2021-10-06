@@ -28,7 +28,7 @@ func (h *gatewayHandlerReady) HandleGatewayEvent(bot *core.Bot, sequenceNumber i
 	bot.EntityBuilder.CreateSelfUser(readyEvent.SelfUser, core.CacheStrategyYes)
 
 	for _, guild := range readyEvent.Guilds {
-		bot.EntityBuilder.CreateGuild(guild, core.CacheStrategyYes)
+		bot.Caches.GuildCache().SetUnready(guild.ID)
 	}
 
 	bot.EventManager.Dispatch(&events.ReadyEvent{

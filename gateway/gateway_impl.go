@@ -321,7 +321,7 @@ func (g *gatewayImpl) listen() {
 				g.Logger().Info("ready event received")
 			}
 
-			g.config.EventHandlerFunc(event.T, event.S, bytes.NewBuffer(event.D))
+			go g.config.EventHandlerFunc(event.T, event.S, bytes.NewBuffer(event.D))
 
 		case discord.GatewayOpcodeHeartbeat:
 			g.Logger().Debug("received: OpcodeHeartbeat")

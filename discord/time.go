@@ -8,7 +8,7 @@ import (
 	"github.com/DisgoOrg/disgo/json"
 )
 
-const TimeFormat = "2006-01-02T15:04:05.000000+00:00"
+const TimeFormat = "2006-01-02T15:04:05+00:00"
 
 var (
 	emptyJSONString = []byte(`""`)
@@ -20,7 +20,6 @@ var _ json.Unmarshaler = (*Time)(nil)
 type Time struct {
 	time.Time
 }
-
 
 func (t *Time) UnmarshalJSON(data []byte) error {
 	if bytes.Equal(emptyJSONString, data) {

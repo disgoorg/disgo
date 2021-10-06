@@ -31,8 +31,8 @@ type Config struct {
 	Caches      core.Caches
 	CacheConfig *core.CacheConfig
 
-	AudioController        core.AudioController
-	EntityBuilder          core.EntityBuilder
+	AudioController       core.AudioController
+	EntityBuilder         core.EntityBuilder
 	MemberChunkingManager core.MemberChunkingManager
 }
 
