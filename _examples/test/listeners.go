@@ -127,7 +127,10 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 		)
 
 	case "test":
-		_ = event.DeferCreate(event.Options["ephemeral"].Bool())
+		go func() {
+			_ = event.DeferCreate(true)
+			event.Guild().Load
+		}()
 		if _, err := event.UpdateOriginal(core.NewMessageUpdateBuilder().
 			SetContent("test message").
 			AddFile("gopher.png", bytes.NewBuffer(gopher)).

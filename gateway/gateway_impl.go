@@ -124,17 +124,31 @@ func (g *gatewayImpl) Status() Status {
 	return g.status
 }
 
-func (g *gatewayImpl) Send(command discord.GatewayCommand) error {
-	return g.SendContext(context.Background(), command)
-}
-
-func (g *gatewayImpl) SendContext(ctx context.Context, command discord.GatewayCommand) error {
+func (g *gatewayImpl) Send(command discord.GatewayCommand, opts ...TaskOpt) error {
 	if g.conn == nil {
 		return discord.ErrShardNotConnected
 	}
-	if err := g.config.RateLimiter.Wait(ctx); err != nil {
+	config := &TaskConfig{}
+	config.Apply(opts)
+
+	if config.Delay > 0 {
+		select {
+		case <-config.Ctx.Done():
+			return config.Ctx.Err()
+		case <-time.After(config.Delay):
+		}
+	}
+
+	if err := g.config.RateLimiter.Wait(config.Ctx); err != nil {
 		return err
 	}
+
+	for _, check := range config.Checks {
+		if !check() {
+			return discord.ErrCheckFailed
+		}
+	}
+
 	defer g.config.RateLimiter.Unlock()
 	data, err := json.Marshal(command)
 	if err != nil {

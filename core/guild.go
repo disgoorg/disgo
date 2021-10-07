@@ -124,6 +124,11 @@ func (g *Guild) Disconnect() error {
 	return g.Bot.AudioController.Disconnect(g.ID)
 }
 
+// LoadMembers loads the Member(s) of the provided User IDs
+func (g *Guild) LoadMembers(userIds ...discord.Snowflake) (<-chan *Member, func(), error) {
+	return g.Bot.MemberChunkingManager.LoadMembers(g.ID, userIds...)
+}
+
 // GetMember returns the specific Member for this Guild
 func (g *Guild) GetMember(userID discord.Snowflake) *Member {
 	return g.Bot.Caches.MemberCache().Get(g.ID, userID)

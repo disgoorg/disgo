@@ -129,7 +129,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 		}
 	}
 
-	// wait for srate limits
+	// wait for rate limits
 	err = c.RateLimiter().WaitBucket(config.Ctx, cRoute)
 	if err != nil {
 		return NewError(nil, err)
