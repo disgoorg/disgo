@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"strconv"
 	"time"
@@ -129,15 +128,15 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 	case "test":
 		go func() {
 			_ = event.DeferCreate(true)
-			event.Guild().Load
+			members, err := event.Guild().LoadAllMembers()
+			if err != nil {
+				_, _ = event.UpdateOriginal(core.NewMessageUpdateBuilder().SetContentf("failed to load members. error: %s", err).Build())
+			}
+			_, _ = event.UpdateOriginal(core.NewMessageUpdateBuilder().
+				SetContentf("loaded %d members", len(members)).
+				Build(),
+			)
 		}()
-		if _, err := event.UpdateOriginal(core.NewMessageUpdateBuilder().
-			SetContent("test message").
-			AddFile("gopher.png", bytes.NewBuffer(gopher)).
-			Build(),
-		); err != nil {
-			log.Errorf("error sending interaction response: %s", err)
-		}
 
 	case "addrole":
 		user := event.Options["member"].User()

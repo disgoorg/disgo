@@ -72,26 +72,26 @@ func (b *Bot) RemoveEventListeners(listeners ...EventListener) {
 
 // ConnectGateway opens the gateway connection to discord
 func (b *Bot) ConnectGateway() error {
-	return b.ConnectGatewayContext(context.Background())
+	return b.ConnectGatewayCtx(context.Background())
 }
 
-func (b *Bot) ConnectGatewayContext(ctx context.Context) error {
+func (b *Bot) ConnectGatewayCtx(ctx context.Context) error {
 	if b.Gateway == nil {
 		return discord.ErrNoGateway
 	}
-	return b.Gateway.OpenContext(ctx)
+	return b.Gateway.OpenCtx(ctx)
 }
 
 // ConnectShardManager opens the gateway connection to discord
 func (b *Bot) ConnectShardManager() []error {
-	return b.ConnectShardManagerContext(context.Background())
+	return b.ConnectShardManagerCtx(context.Background())
 }
 
-func (b *Bot) ConnectShardManagerContext(ctx context.Context) []error {
+func (b *Bot) ConnectShardManagerCtx(ctx context.Context) []error {
 	if b.ShardManager == nil {
 		return []error{discord.ErrNoShardManager}
 	}
-	return b.ShardManager.OpenContext(ctx)
+	return b.ShardManager.OpenCtx(ctx)
 }
 
 // HasGateway returns whether core.disgo has an active gateway.Gateway connection

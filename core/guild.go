@@ -1,6 +1,8 @@
 package core
 
 import (
+	"context"
+
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/route"
@@ -124,9 +126,44 @@ func (g *Guild) Disconnect() error {
 	return g.Bot.AudioController.Disconnect(g.ID)
 }
 
-// LoadMembers loads the Member(s) of the provided User IDs
-func (g *Guild) LoadMembers(userIds ...discord.Snowflake) (<-chan *Member, func(), error) {
-	return g.Bot.MemberChunkingManager.LoadMembers(g.ID, userIds...)
+
+func (g *Guild) LoadMembers(userIDs ...discord.Snowflake) ([]*Member, error) {
+	return g.Bot.MemberChunkingManager.LoadMembers(g.ID, userIDs...)
+}
+func (g *Guild) SearchMembers(query string, limit int) ([]*Member, error) {
+	return g.Bot.MemberChunkingManager.SearchMembers(g.ID, query, limit)
+}
+func (g *Guild) LoadAllMembers() ([]*Member, error) {
+	return g.Bot.MemberChunkingManager.LoadAllMembers(g.ID)
+}
+func (g *Guild) FindMembers(memberFilterFunc func(member *Member) bool) ([]*Member, error) {
+	return g.Bot.MemberChunkingManager.FindMembers(g.ID, memberFilterFunc)
+}
+
+func (g *Guild) LoadMembersCtx(ctx context.Context, userIDs ...discord.Snowflake) ([]*Member, error) {
+	return g.Bot.MemberChunkingManager.LoadMembersCtx(ctx, g.ID, userIDs...)
+}
+func (g *Guild) SearchMembersCtx(ctx context.Context, query string, limit int) ([]*Member, error) {
+	return g.Bot.MemberChunkingManager.SearchMembersCtx(ctx, g.ID, query, limit)
+}
+func (g *Guild) LoadAllMembersCtx(ctx context.Context) ([]*Member, error) {
+	return g.Bot.MemberChunkingManager.LoadAllMembersCtx(ctx, g.ID)
+}
+func (g *Guild) FindMembersCtx(ctx context.Context, memberFilterFunc func(member *Member) bool) ([]*Member, error) {
+	return g.Bot.MemberChunkingManager.FindMembersCtx(ctx, g.ID, memberFilterFunc)
+}
+
+func (g *Guild) LoadMembersChan(userIDs []discord.Snowflake) (<-chan *Member, func(), error) {
+	return g.Bot.MemberChunkingManager.LoadMembersChan(g.ID, userIDs...)
+}
+func (g *Guild) SearchMembersChan(query string, limit int) (<-chan *Member, func(), error) {
+	return g.Bot.MemberChunkingManager.SearchMembersChan(g.ID, query, limit)
+}
+func (g *Guild) LoadAllMembersChan() (<-chan *Member, func(), error) {
+	return g.Bot.MemberChunkingManager.LoadAllMembersChan(g.ID)
+}
+func (g *Guild) FindMembersChan(memberFilterFunc func(member *Member) bool) (<-chan *Member, func(), error) {
+	return g.Bot.MemberChunkingManager.FindMembersChan(g.ID, memberFilterFunc)
 }
 
 // GetMember returns the specific Member for this Guild

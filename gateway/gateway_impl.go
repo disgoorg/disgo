@@ -71,10 +71,10 @@ func (g *gatewayImpl) Config() Config {
 }
 
 func (g *gatewayImpl) Open() error {
-	return g.OpenContext(context.Background())
+	return g.OpenCtx(context.Background())
 }
 
-func (g *gatewayImpl) OpenContext(ctx context.Context) error {
+func (g *gatewayImpl) OpenCtx(ctx context.Context) error {
 	if g.lastSequenceReceived == nil || g.sessionID == nil {
 		g.status = StatusConnecting
 	} else {
@@ -124,29 +124,17 @@ func (g *gatewayImpl) Status() Status {
 	return g.status
 }
 
-func (g *gatewayImpl) Send(command discord.GatewayCommand, opts ...TaskOpt) error {
+func (g *gatewayImpl) Send(command discord.GatewayCommand) error {
+	return g.SendCtx(context.Background(), command)
+}
+
+func (g *gatewayImpl) SendCtx(ctx context.Context, command discord.GatewayCommand) error {
 	if g.conn == nil {
 		return discord.ErrShardNotConnected
 	}
-	config := &TaskConfig{}
-	config.Apply(opts)
 
-	if config.Delay > 0 {
-		select {
-		case <-config.Ctx.Done():
-			return config.Ctx.Err()
-		case <-time.After(config.Delay):
-		}
-	}
-
-	if err := g.config.RateLimiter.Wait(config.Ctx); err != nil {
+	if err := g.config.RateLimiter.Wait(ctx); err != nil {
 		return err
-	}
-
-	for _, check := range config.Checks {
-		if !check() {
-			return discord.ErrCheckFailed
-		}
 	}
 
 	defer g.config.RateLimiter.Unlock()
