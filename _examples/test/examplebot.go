@@ -39,7 +39,7 @@ func main() {
 	disgo, err := bot.New(token,
 		bot.WithRawEventsEnabled(),
 		bot.WithGatewayOpts(
-			gateway.WithGatewayIntents(discord.GatewayIntentGuilds),
+			gateway.WithGatewayIntents(discord.GatewayIntentGuilds|discord.GatewayIntentGuildMembers),
 			gateway.WithPresence(core.NewListeningPresence("your bullshit", discord.OnlineStatusOnline, false)),
 		),
 		bot.WithCacheOpts(

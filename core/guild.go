@@ -126,7 +126,6 @@ func (g *Guild) Disconnect() error {
 	return g.Bot.AudioController.Disconnect(g.ID)
 }
 
-
 func (g *Guild) LoadMembers(userIDs ...discord.Snowflake) ([]*Member, error) {
 	return g.Bot.MemberChunkingManager.LoadMembers(g.ID, userIDs...)
 }

@@ -44,7 +44,7 @@ type chunkingRequest struct {
 	sync.Mutex
 	nonce string
 
-	memberChan chan<- *Member
+	memberChan       chan<- *Member
 	memberFilterFunc func(member *Member) bool
 
 	chunks int
@@ -87,14 +87,14 @@ func (m *memberChunkingManagerImpl) HandleChunk(payload discord.GuildMembersChun
 	}
 
 	// all chunks sent cleanup
-	if request.chunks == payload.ChunkCount {
-		cleanupRequest2(m, request)
+	if request.chunks == payload.ChunkCount-1 {
+		cleanupRequest(m, request)
 		return
 	}
 	request.chunks++
 }
 
-func cleanupRequest2(m *memberChunkingManagerImpl, request *chunkingRequest) {
+func cleanupRequest(m *memberChunkingManagerImpl, request *chunkingRequest) {
 	close(request.memberChan)
 	m.chunkingRequestsMu.Lock()
 	delete(m.chunkingRequests, request.nonce)
@@ -123,8 +123,8 @@ func (m *memberChunkingManagerImpl) requestGuildMembersChan(ctx context.Context,
 	}
 	memberChan := make(chan *Member)
 	request := &chunkingRequest{
-		nonce:      nonce,
-		memberChan: memberChan,
+		nonce:            nonce,
+		memberChan:       memberChan,
 		memberFilterFunc: memberFilterFunc,
 	}
 
@@ -142,7 +142,7 @@ func (m *memberChunkingManagerImpl) requestGuildMembersChan(ctx context.Context,
 	}
 
 	return memberChan, func() {
-		cleanupRequest2(m, request)
+		cleanupRequest(m, request)
 	}, shard.SendCtx(ctx, discord.NewGatewayCommand(discord.GatewayOpcodeRequestGuildMembers, command))
 }
 

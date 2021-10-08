@@ -19,14 +19,7 @@ var listener = &events.ListenerAdapter{
 	OnSlashCommand:       slashCommandListener,
 	OnButtonClick:        buttonClickListener,
 	OnSelectMenuSubmit:   selectMenuSubmitListener,
-	OnGuildReady: func(event *events.GuildReadyEvent) {
-		event.Bot().Logger.Info("GuildReadyEvent: ", *event)
-	},
-	OnGuildsReady: func(event *events.GuildsReadyEvent) {
-		event.Bot().Logger.Info("GuildsReadyEvent")
-	},
 }
-
 
 func buttonClickListener(event *events.ButtonClickEvent) {
 	switch event.CustomID {

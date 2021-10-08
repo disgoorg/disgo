@@ -14,7 +14,7 @@ var (
 	ErrRatelimited  = errors.New("received error 429")
 
 	ErrNoGatewayOrShardManager = errors.New("no gateway or shard manager configured")
-	ErrNoGuildMembersIntent = errors.New("this operation requires the GUILD_MEMBERS intent")
+	ErrNoGuildMembersIntent    = errors.New("this operation requires the GUILD_MEMBERS intent")
 	ErrNoShardManager          = errors.New("no shard manager configured")
 	ErrNoGateway               = errors.New("no gateway configured")
 	ErrShardNotConnected       = errors.New("shard is not connected")

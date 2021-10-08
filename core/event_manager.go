@@ -16,7 +16,7 @@ type EventManagerConfig struct {
 	EventListeners           []EventListener
 	VoiceDispatchInterceptor VoiceDispatchInterceptor
 	RawEventsEnabled         bool
-	GoOnEvent             bool
+	AsyncEventsEnabled       bool
 
 	GatewayHandlers   map[discord.GatewayEventType]GatewayEventHandler
 	HTTPServerHandler HTTPServerEventHandler
@@ -127,12 +127,23 @@ func (e *eventManagerImpl) HandleHTTP(responseChannel chan<- discord.Interaction
 func (e *eventManagerImpl) Dispatch(event Event) {
 	defer func() {
 		if r := recover(); r != nil {
-			e.Bot().Logger.Error("recovered from panic in event listener: ", r)
-			debug.PrintStack()
+			e.Bot().Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
 			return
 		}
 	}()
 	for i := range e.config.EventListeners {
+		if e.Config().AsyncEventsEnabled {
+			go func() {
+				defer func() {
+					if r := recover(); r != nil {
+						e.Bot().Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
+						return
+					}
+				}()
+				e.config.EventListeners[i].OnEvent(event)
+			}()
+			continue
+		}
 		e.config.EventListeners[i].OnEvent(event)
 	}
 }

@@ -102,6 +102,15 @@ func WithRawEventsEnabled() ConfigOpt {
 	}
 }
 
+func WithAsyncEventsEnabled() ConfigOpt {
+	return func(config *Config) {
+		if config.EventManagerConfig == nil {
+			config.EventManagerConfig = &core.DefaultEventManagerConfig
+		}
+		config.EventManagerConfig.AsyncEventsEnabled = true
+	}
+}
+
 func WithVoiceDispatchInterceptor(voiceDispatchInterceptor core.VoiceDispatchInterceptor) ConfigOpt {
 	return func(config *Config) {
 		if config.EventManagerConfig == nil {
