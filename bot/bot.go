@@ -159,11 +159,10 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 	}
 	bot.EntityBuilder = config.EntityBuilder
 
-	if config.CacheConfig == nil {
-		config.CacheConfig = &core.DefaultCacheConfig
-	}
-
 	if config.Caches == nil {
+		if config.CacheConfig == nil {
+			config.CacheConfig = &core.DefaultCacheConfig
+		}
 		config.Caches = core.NewCaches(*config.CacheConfig)
 	}
 	bot.Caches = config.Caches
