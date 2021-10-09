@@ -55,15 +55,19 @@ func (m *shardManagerImpl) Logger() log.Logger {
 	return m.config.Logger
 }
 
+func (m *shardManagerImpl) Config() Config {
+	return m.config
+}
+
 func (m *shardManagerImpl) RateLimiter() srate.Limiter {
 	return m.config.RateLimiter
 }
 
 func (m *shardManagerImpl) Open() []error {
-	return m.OpenContext(context.Background())
+	return m.OpenCtx(context.Background())
 }
 
-func (m *shardManagerImpl) OpenContext(ctx context.Context) []error {
+func (m *shardManagerImpl) OpenCtx(ctx context.Context) []error {
 	m.Logger().Infof("opening %s shards...", m.config.Shards)
 	var wg sync.WaitGroup
 	var errs []error
@@ -119,22 +123,22 @@ func (m *shardManagerImpl) Close() {
 }
 
 func (m *shardManagerImpl) OpenShard(shardID int) error {
-	return m.OpenShardContext(context.Background(), shardID)
+	return m.OpenShardCtx(context.Background(), shardID)
 }
 
-func (m *shardManagerImpl) OpenShardContext(ctx context.Context, shardID int) error {
+func (m *shardManagerImpl) OpenShardCtx(ctx context.Context, shardID int) error {
 	m.Logger().Infof("opening shard %d...", shardID)
 	shard := m.config.GatewayCreateFunc(m.token, m.gatewayURL, shardID, m.config.ShardCount, m.eventHandlerFunc, m.config.GatewayConfig)
 	m.config.Shards.Add(shardID)
 	m.shards.Set(shardID, shard)
-	return shard.OpenContext(ctx)
+	return shard.OpenCtx(ctx)
 }
 
 func (m *shardManagerImpl) ReopenShard(shardID int) error {
-	return m.ReopenShardContext(context.Background(), shardID)
+	return m.ReopenShardCtx(context.Background(), shardID)
 }
 
-func (m *shardManagerImpl) ReopenShardContext(ctx context.Context, shardID int) error {
+func (m *shardManagerImpl) ReopenShardCtx(ctx context.Context, shardID int) error {
 	m.Logger().Infof("reopening shard %d...", shardID)
 	shard := m.shards.Get(shardID)
 	if shard == nil {
@@ -142,7 +146,7 @@ func (m *shardManagerImpl) ReopenShardContext(ctx context.Context, shardID int) 
 		return nil
 	}
 	shard.Close()
-	return shard.OpenContext(ctx)
+	return shard.OpenCtx(ctx)
 }
 
 func (m *shardManagerImpl) CloseShard(shardID int) {

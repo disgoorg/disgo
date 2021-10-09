@@ -21,7 +21,6 @@ type Time struct {
 	time.Time
 }
 
-
 func (t *Time) UnmarshalJSON(data []byte) error {
 	if bytes.Equal(emptyJSONString, data) {
 		return nil
