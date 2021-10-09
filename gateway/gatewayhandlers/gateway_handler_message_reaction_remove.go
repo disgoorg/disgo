@@ -28,6 +28,7 @@ func (h *gatewayHandlerMessageReactionRemove) HandleGatewayEvent(bot *core.Bot, 
 		MessageID:    messageReaction.MessageID,
 		Message:      bot.Caches.MessageCache().Get(messageReaction.ChannelID, messageReaction.MessageID),
 		ChannelID:    messageReaction.ChannelID,
+		GuildID:      messageReaction.GuildID,
 	}
 	bot.EventManager.Dispatch(&events.MessageReactionRemoveEvent{
 		GenericReactionEvent: &events.GenericReactionEvent{
@@ -55,7 +56,6 @@ func (h *gatewayHandlerMessageReactionRemove) HandleGatewayEvent(bot *core.Bot, 
 					GuildID:             *messageReaction.GuildID,
 				},
 				UserID: messageReaction.UserID,
-				Member: bot.Caches.MemberCache().Get(*messageReaction.GuildID, messageReaction.UserID),
 				Emoji:  messageReaction.Emoji,
 			},
 		})

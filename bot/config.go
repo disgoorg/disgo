@@ -19,6 +19,9 @@ type Config struct {
 	EventManager       core.EventManager
 	EventManagerConfig *core.EventManagerConfig
 
+	Collectors       core.Collectors
+	CollectorsConfig *core.CollectorsConfig
+
 	Gateway       gateway.Gateway
 	GatewayConfig *gateway.Config
 
@@ -98,6 +101,18 @@ func WithRawEventsEnabled() ConfigOpt {
 			config.EventManagerConfig = &core.DefaultEventManagerConfig
 		}
 		config.EventManagerConfig.RawEventsEnabled = true
+	}
+}
+
+func WithCollectors(collectors core.Collectors) ConfigOpt {
+	return func(config *Config) {
+		config.Collectors = collectors
+	}
+}
+
+func WithCollectorsConfig(collectorsConfig core.CollectorsConfig) ConfigOpt {
+	return func(config *Config) {
+		config.CollectorsConfig = &collectorsConfig
 	}
 }
 

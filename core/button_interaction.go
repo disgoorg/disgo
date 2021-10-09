@@ -2,6 +2,9 @@ package core
 
 import "github.com/DisgoOrg/disgo/rest"
 
+// ButtonInteractionFilter used to filter ButtonInteraction(s) in a collectors.ButtonClickCollector
+type ButtonInteractionFilter func(buttonInteraction *ButtonInteraction) bool
+
 type ButtonInteraction struct {
 	*ComponentInteraction
 }

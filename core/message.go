@@ -5,6 +5,9 @@ import (
 	"github.com/DisgoOrg/disgo/rest"
 )
 
+// MessageFilter used to filter Message(s) in a collectors.MessageCollector
+type MessageFilter func(message *Message) bool
+
 type Message struct {
 	discord.Message
 	Bot        *Bot
@@ -160,4 +163,27 @@ func (m *Message) IsEphemeral() bool {
 // IsWebhookMessage returns true if the Message was sent by a Webhook
 func (m *Message) IsWebhookMessage() bool {
 	return m.WebhookID != nil
+}
+
+// MessageReactionAddFilter used to filter MessageReactionAddEvent in a collectors.MessageReactionAddCollector
+type MessageReactionAddFilter func(e *MessageReactionAdd) bool
+
+type MessageReactionAdd struct {
+	UserID    discord.Snowflake
+	ChannelID discord.Snowflake
+	MessageID discord.Snowflake
+	GuildID   *discord.Snowflake
+	Member    *Member
+	Emoji     discord.ReactionEmoji
+}
+
+// MessageReactionRemoveFilter used to filter MessageReactionRemoveEvent in a collectors.MessageReactionRemoveCollector
+type MessageReactionRemoveFilter func(e *MessageReactionRemove) bool
+
+type MessageReactionRemove struct {
+	UserID    discord.Snowflake
+	ChannelID discord.Snowflake
+	MessageID discord.Snowflake
+	GuildID   *discord.Snowflake
+	Emoji     discord.ReactionEmoji
 }

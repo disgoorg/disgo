@@ -1,5 +1,7 @@
 package core
 
+type UserCommandInteractionFilter func(userCommandInteraction *UserCommandInteraction) bool
+
 type UserCommandInteraction struct {
 	*ContextCommandInteraction
 }

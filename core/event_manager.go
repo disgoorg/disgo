@@ -13,13 +13,11 @@ var (
 )
 
 type EventManagerConfig struct {
-	EventListeners           []EventListener
-	RawEventsEnabled         bool
+	EventListeners   []EventListener
+	RawEventsEnabled bool
 
 	GatewayHandlers   map[discord.GatewayEventType]GatewayEventHandler
 	HTTPServerHandler HTTPServerEventHandler
-
-	NewMessageCollector func(channel *Channel, filter MessageFilter) (<-chan *Message, func())
 }
 
 var _ EventManager = (*eventManagerImpl)(nil)
