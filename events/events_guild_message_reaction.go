@@ -9,13 +9,21 @@ import (
 type GenericGuildMessageReactionEvent struct {
 	*GenericGuildMessageEvent
 	UserID discord.Snowflake
-	Member *core.Member
 	Emoji  discord.ReactionEmoji
+}
+
+func (e *GenericGuildMessageReactionEvent) User() *core.User {
+	return e.Bot().Caches.UserCache().Get(e.UserID)
+}
+
+func (e *GenericGuildMessageReactionEvent) Member() *core.Member {
+	return e.Bot().Caches.MemberCache().Get(e.GuildID, e.UserID)
 }
 
 // GuildMessageReactionAddEvent indicates that an core.Member added an core.MessageReaction to an core.Message in an core.TextChannel(requires the core.GatewayIntentsGuildMessageReactions)
 type GuildMessageReactionAddEvent struct {
 	*GenericGuildMessageReactionEvent
+	Member *core.Member
 }
 
 // GuildMessageReactionRemoveEvent indicates that an core.Member removed an core.MessageReaction from an core.Message in an core.TextChannel(requires the core.GatewayIntentsGuildMessageReactions)
