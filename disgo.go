@@ -13,6 +13,7 @@ import (
 	_ "github.com/DisgoOrg/disgo/httpserver/httpserverhandlers"
 	_ "github.com/DisgoOrg/disgo/info"
 	_ "github.com/DisgoOrg/disgo/internal/insecurerandstr"
+	_ "github.com/DisgoOrg/disgo/internal/tokenhelper"
 	_ "github.com/DisgoOrg/disgo/json"
 	_ "github.com/DisgoOrg/disgo/oauth2"
 	_ "github.com/DisgoOrg/disgo/rest"
