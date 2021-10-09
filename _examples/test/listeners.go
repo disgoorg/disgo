@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/DisgoOrg/disgo/collectors"
 	"github.com/DisgoOrg/disgo/events"
 
 	"github.com/DisgoOrg/disgo/core"
@@ -121,7 +120,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 	case "test":
 		go func() {
 			_ = event.DeferCreate(true)
-			members, err := event.Guild().LoadAllMembers()
+			members, err := event.Guild().RequestMembersWithQuery("", 0)
 			if err != nil {
 				_, _ = event.UpdateOriginal(core.NewMessageUpdateBuilder().SetContentf("failed to load members. error: %s", err).Build())
 			}
@@ -213,7 +212,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 
 	case "repeat":
 		go func() {
-			ch, cls := collectors.NewMessageCollectorByChannel(event.Channel(), func(m *core.Message) bool {
+			ch, cls := event.Bot().Collectors.NewMessageCollector(func(m *core.Message) bool {
 				return !m.Author.IsBot && m.ChannelID == event.ChannelID
 			})
 

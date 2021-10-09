@@ -126,43 +126,40 @@ func (g *Guild) Disconnect() error {
 	return g.Bot.AudioController.Disconnect(g.ID)
 }
 
-func (g *Guild) LoadMembers(userIDs ...discord.Snowflake) ([]*Member, error) {
-	return g.Bot.MemberChunkingManager.LoadMembers(g.ID, userIDs...)
-}
-func (g *Guild) SearchMembers(query string, limit int) ([]*Member, error) {
-	return g.Bot.MemberChunkingManager.SearchMembers(g.ID, query, limit)
-}
-func (g *Guild) LoadAllMembers() ([]*Member, error) {
-	return g.Bot.MemberChunkingManager.LoadAllMembers(g.ID)
-}
-func (g *Guild) FindMembers(memberFilterFunc func(member *Member) bool) ([]*Member, error) {
-	return g.Bot.MemberChunkingManager.FindMembers(g.ID, memberFilterFunc)
+func (g *Guild) RequestMembers(userIDs ...discord.Snowflake) ([]*Member, error) {
+	return g.Bot.MemberChunkingManager.RequestMembers(g.ID, userIDs...)
 }
 
-func (g *Guild) LoadMembersCtx(ctx context.Context, userIDs ...discord.Snowflake) ([]*Member, error) {
-	return g.Bot.MemberChunkingManager.LoadMembersCtx(ctx, g.ID, userIDs...)
-}
-func (g *Guild) SearchMembersCtx(ctx context.Context, query string, limit int) ([]*Member, error) {
-	return g.Bot.MemberChunkingManager.SearchMembersCtx(ctx, g.ID, query, limit)
-}
-func (g *Guild) LoadAllMembersCtx(ctx context.Context) ([]*Member, error) {
-	return g.Bot.MemberChunkingManager.LoadAllMembersCtx(ctx, g.ID)
-}
-func (g *Guild) FindMembersCtx(ctx context.Context, memberFilterFunc func(member *Member) bool) ([]*Member, error) {
-	return g.Bot.MemberChunkingManager.FindMembersCtx(ctx, g.ID, memberFilterFunc)
+func (g *Guild) RequestMembersWithQuery(query string, limit int) ([]*Member, error) {
+	return g.Bot.MemberChunkingManager.RequestMembersWithQuery(g.ID, query, limit)
 }
 
-func (g *Guild) LoadMembersChan(userIDs []discord.Snowflake) (<-chan *Member, func(), error) {
-	return g.Bot.MemberChunkingManager.LoadMembersChan(g.ID, userIDs...)
+func (g *Guild) RequestMembersWithFilter(memberFilterFunc func(member *Member) bool) ([]*Member, error) {
+	return g.Bot.MemberChunkingManager.RequestMembersWithFilter(g.ID, memberFilterFunc)
 }
-func (g *Guild) SearchMembersChan(query string, limit int) (<-chan *Member, func(), error) {
-	return g.Bot.MemberChunkingManager.SearchMembersChan(g.ID, query, limit)
+
+func (g *Guild) RequestMembersCtx(ctx context.Context, userIDs ...discord.Snowflake) ([]*Member, error) {
+	return g.Bot.MemberChunkingManager.RequestMembersCtx(ctx, g.ID, userIDs...)
 }
-func (g *Guild) LoadAllMembersChan() (<-chan *Member, func(), error) {
-	return g.Bot.MemberChunkingManager.LoadAllMembersChan(g.ID)
+
+func (g *Guild) RequestMembersWithQueryCtx(ctx context.Context, query string, limit int) ([]*Member, error) {
+	return g.Bot.MemberChunkingManager.RequestMembersWithQueryCtx(ctx, g.ID, query, limit)
 }
-func (g *Guild) FindMembersChan(memberFilterFunc func(member *Member) bool) (<-chan *Member, func(), error) {
-	return g.Bot.MemberChunkingManager.FindMembersChan(g.ID, memberFilterFunc)
+
+func (g *Guild) RequestMembersWithFilterCtx(ctx context.Context, memberFilterFunc func(member *Member) bool) ([]*Member, error) {
+	return g.Bot.MemberChunkingManager.RequestMembersWithFilterCtx(ctx, g.ID, memberFilterFunc)
+}
+
+func (g *Guild) RequestMembersChan(userIDs []discord.Snowflake) (<-chan *Member, func(), error) {
+	return g.Bot.MemberChunkingManager.RequestMembersChan(g.ID, userIDs...)
+}
+
+func (g *Guild) RequestMembersWithQueryChan(query string, limit int) (<-chan *Member, func(), error) {
+	return g.Bot.MemberChunkingManager.RequestMembersWithQueryChan(g.ID, query, limit)
+}
+
+func (g *Guild) RequestMembersWithFilterChan(memberFilterFunc func(member *Member) bool) (<-chan *Member, func(), error) {
+	return g.Bot.MemberChunkingManager.RequestMembersWithFilterChan(g.ID, memberFilterFunc)
 }
 
 // GetMember returns the specific Member for this Guild
