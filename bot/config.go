@@ -101,15 +101,6 @@ func WithRawEventsEnabled() ConfigOpt {
 	}
 }
 
-func WithVoiceDispatchInterceptor(voiceDispatchInterceptor core.VoiceDispatchInterceptor) ConfigOpt {
-	return func(config *Config) {
-		if config.EventManagerConfig == nil {
-			config.EventManagerConfig = &core.DefaultEventManagerConfig
-		}
-		config.EventManagerConfig.VoiceDispatchInterceptor = voiceDispatchInterceptor
-	}
-}
-
 func WithGateway(gateway gateway.Gateway) ConfigOpt {
 	return func(config *Config) {
 		config.Gateway = gateway

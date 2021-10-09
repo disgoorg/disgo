@@ -14,7 +14,6 @@ var (
 
 type EventManagerConfig struct {
 	EventListeners           []EventListener
-	VoiceDispatchInterceptor VoiceDispatchInterceptor
 	RawEventsEnabled         bool
 
 	GatewayHandlers   map[discord.GatewayEventType]GatewayEventHandler
@@ -42,7 +41,6 @@ type EventManager interface {
 	Close()
 	Config() EventManagerConfig
 
-	SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor)
 	AddEventListeners(eventListeners ...EventListener)
 	RemoveEventListeners(eventListeners ...EventListener)
 	HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader)
@@ -92,10 +90,6 @@ func (e *eventManagerImpl) Close() {
 
 func (e *eventManagerImpl) Config() EventManagerConfig {
 	return e.config
-}
-
-func (e *eventManagerImpl) SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor) {
-	e.config.VoiceDispatchInterceptor = voiceDispatchInterceptor
 }
 
 // HandleGateway calls the correct core.EventHandler
