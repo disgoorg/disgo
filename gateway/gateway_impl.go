@@ -299,7 +299,7 @@ func (g *gatewayImpl) listen() {
 					SessionID: *g.sessionID,
 					Seq:       *g.lastSequenceReceived,
 				})
-				g.Logger().Infof("[%d/%d] sending StatusResuming command...")
+				g.Logger().Infof("[%d/%d] sending StatusResuming command...", g.shardID, g.shardCount)
 
 				if err = g.Send(cmd); err != nil {
 					g.Logger().Errorf("[%d/%d] error sending resume payload: ", g.shardID, g.shardCount, err)
