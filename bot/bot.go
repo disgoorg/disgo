@@ -88,12 +88,17 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 			config.EventManagerConfig = &core.DefaultEventManagerConfig
 		}
 
-		if config.EventManagerConfig.NewMessageCollector == nil {
-			config.EventManagerConfig.NewMessageCollector = collectors.NewMessageCollectorByChannel
-		}
 		config.EventManager = core.NewEventManager(bot, config.EventManagerConfig)
 	}
 	bot.EventManager = config.EventManager
+
+	if config.Collectors == nil {
+		if config.CollectorsConfig == nil {
+			config.CollectorsConfig = &collectors.DefaultConfig
+		}
+		config.Collectors = core.NewCollectors(bot, *config.CollectorsConfig)
+	}
+	bot.Collectors = config.Collectors
 
 	if config.Gateway == nil && config.GatewayConfig != nil {
 		var gatewayRs *discord.Gateway

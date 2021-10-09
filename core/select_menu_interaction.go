@@ -2,6 +2,9 @@ package core
 
 import "github.com/DisgoOrg/disgo/rest"
 
+// SelectMenuInteractionFilter used to filter SelectMenuInteraction(s) in a collectors.SelectMenuSubmitCollector
+type SelectMenuInteractionFilter func(selectMenuInteraction *SelectMenuInteraction) bool
+
 type SelectMenuInteraction struct {
 	*ComponentInteraction
 	SelectMenuInteractionData

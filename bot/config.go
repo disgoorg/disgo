@@ -19,6 +19,9 @@ type Config struct {
 	EventManager       core.EventManager
 	EventManagerConfig *core.EventManagerConfig
 
+	Collectors       core.Collectors
+	CollectorsConfig *core.CollectorsConfig
+
 	Gateway       gateway.Gateway
 	GatewayConfig *gateway.Config
 
@@ -111,12 +114,15 @@ func WithAsyncEventsEnabled() ConfigOpt {
 	}
 }
 
-func WithVoiceDispatchInterceptor(voiceDispatchInterceptor core.VoiceDispatchInterceptor) ConfigOpt {
+func WithCollectors(collectors core.Collectors) ConfigOpt {
 	return func(config *Config) {
-		if config.EventManagerConfig == nil {
-			config.EventManagerConfig = &core.DefaultEventManagerConfig
-		}
-		config.EventManagerConfig.VoiceDispatchInterceptor = voiceDispatchInterceptor
+		config.Collectors = collectors
+	}
+}
+
+func WithCollectorsConfig(collectorsConfig core.CollectorsConfig) ConfigOpt {
+	return func(config *Config) {
+		config.CollectorsConfig = &collectorsConfig
 	}
 }
 

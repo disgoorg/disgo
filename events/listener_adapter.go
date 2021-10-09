@@ -83,9 +83,11 @@ type ListenerAdapter struct {
 	OnGuildMessageReactionRemoveAll   func(event *GuildMessageReactionRemoveAllEvent)
 
 	// Guild Voice Events
-	OnGuildVoiceUpdate func(event *GuildVoiceUpdateEvent)
-	OnGuildVoiceJoin   func(event *GuildVoiceJoinEvent)
-	OnGuildVoiceLeave  func(event *GuildVoiceLeaveEvent)
+	OnVoiceServerUpdate     func(event *VoiceServerUpdateEvent)
+	OnGuildVoiceStateUpdate func(event *GuildVoiceStateUpdateEvent)
+	OnGuildVoiceJoin        func(event *GuildVoiceJoinEvent)
+	OnGuildVoiceMove        func(event *GuildVoiceMoveEvent)
+	OnGuildVoiceLeave       func(event *GuildVoiceLeaveEvent)
 
 	// Guild StageInstance Events
 	OnStageInstanceCreate func(event *StageInstanceCreateEvent)
@@ -357,12 +359,20 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 
 	// Guild Voice Events
-	case *GuildVoiceUpdateEvent:
-		if listener := l.OnGuildVoiceUpdate; listener != nil {
+	case *VoiceServerUpdateEvent:
+		if listener := l.OnVoiceServerUpdate; listener != nil {
+			listener(e)
+		}
+	case *GuildVoiceStateUpdateEvent:
+		if listener := l.OnGuildVoiceStateUpdate; listener != nil {
 			listener(e)
 		}
 	case *GuildVoiceJoinEvent:
 		if listener := l.OnGuildVoiceJoin; listener != nil {
+			listener(e)
+		}
+	case *GuildVoiceMoveEvent:
+		if listener := l.OnGuildVoiceMove; listener != nil {
 			listener(e)
 		}
 	case *GuildVoiceLeaveEvent:

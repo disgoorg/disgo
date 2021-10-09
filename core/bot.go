@@ -23,6 +23,7 @@ type Bot struct {
 	RestServices rest.Services
 
 	EventManager EventManager
+	Collectors   Collectors
 
 	ShardManager sharding.ShardManager
 	Gateway      gateway.Gateway
