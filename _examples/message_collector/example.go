@@ -54,17 +54,18 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 	}
 	if event.Message.Content == "start" {
 		go func() {
-			ch, cls := event.Channel().CollectMessages(func(message *core.Message) bool {
+			ch, cls := event.Bot().Collectors.NewMessageCollector(func(message *core.Message) bool {
 				return message.ChannelID == event.ChannelID && message.Author.ID == event.Message.Author.ID && message.Content != ""
 			})
 			i := 1
 			str := ">>> "
 			for message := range ch {
-				if i > 3 {
+				str += strconv.Itoa(i) + ". " + message.Content + "\n\n"
+
+				if i == 3 {
 					cls()
 					_, _ = message.Channel().CreateMessage(core.NewMessageCreateBuilder().SetContent(str).Build())
 				}
-				str += strconv.Itoa(i) + ". " + message.Content + "\n\n"
 				i++
 			}
 		}()
