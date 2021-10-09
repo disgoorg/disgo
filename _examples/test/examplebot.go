@@ -31,7 +31,7 @@ var (
 )
 
 func main() {
-	log.SetDefault(log.New(log.LstdFlags | log.Lshortfile))
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetLevel(log.LevelDebug)
 	log.Info("starting example...")
 	log.Infof("bot version: %s", info.Version)

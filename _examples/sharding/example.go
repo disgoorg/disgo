@@ -22,6 +22,7 @@ var (
 )
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetLevel(log.LevelInfo)
 	log.Info("starting example...")
 	log.Info("disgo version: ", info.Version)
