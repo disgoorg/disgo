@@ -5,14 +5,14 @@ import (
 	"net/http"
 
 	"github.com/DisgoOrg/disgo/info"
-	"github.com/DisgoOrg/disgo/rest/rate"
+	"github.com/DisgoOrg/disgo/rest/rrate"
 	"github.com/DisgoOrg/log"
 )
 
 //goland:noinspection GoUnusedGlobalVariable
 var DefaultConfig = Config{
 	HTTPClient:        http.DefaultClient,
-	RateLimiterConfig: &rate.DefaultConfig,
+	RateLimiterConfig: &rrate.DefaultConfig,
 	Headers:           http.Header{},
 	UserAgent:         fmt.Sprintf("DiscordBot (%s, %s)", info.GitHub, info.Version),
 }
@@ -20,8 +20,8 @@ var DefaultConfig = Config{
 type Config struct {
 	Logger            log.Logger
 	HTTPClient        *http.Client
-	RateLimiter       rate.Limiter
-	RateLimiterConfig *rate.Config
+	RateLimiter       rrate.Limiter
+	RateLimiterConfig *rrate.Config
 	Headers           http.Header
 	UserAgent         string
 }
@@ -37,11 +37,6 @@ func (c *Config) Apply(opts []ConfigOpt) {
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
-
-		if config.RateLimiterConfig == nil {
-			config.RateLimiterConfig = &rate.DefaultConfig
-		}
-		config.RateLimiterConfig.Logger = logger
 	}
 }
 
@@ -51,20 +46,23 @@ func WithHTTPClient(httpClient *http.Client) ConfigOpt {
 	}
 }
 
-func WithRateLimiter(rateLimiter rate.Limiter) ConfigOpt {
+func WithRateLimiter(rateLimiter rrate.Limiter) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiter = rateLimiter
 	}
 }
 
-func WithRateLimiterConfig(rateLimiterConfig rate.Config) ConfigOpt {
+func WithRateLimiterConfig(rateLimiterConfig rrate.Config) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiterConfig = &rateLimiterConfig
 	}
 }
 
-func WithRateLimiterConfigOpts(opts ...rate.ConfigOpt) ConfigOpt {
+func WithRateLimiterConfigOpts(opts ...rrate.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
+		if config.RateLimiterConfig == nil {
+			config.RateLimiterConfig = &rrate.DefaultConfig
+		}
 		config.RateLimiterConfig.Apply(opts)
 	}
 }

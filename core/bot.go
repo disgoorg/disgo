@@ -1,25 +1,15 @@
 package core
 
 import (
-	"io"
-	"net/http"
-
-	"github.com/pkg/errors"
+	"context"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/rest"
-	"github.com/DisgoOrg/disgo/rest/rate"
+	"github.com/DisgoOrg/disgo/sharding"
 	"github.com/DisgoOrg/log"
 )
-
-func NewBot(token string, opts ...BotConfigOpt) (*Bot, error) {
-	config := &BotConfig{}
-	config.Apply(opts)
-
-	return buildBot(token, *config)
-}
 
 // Bot is the main discord client
 type Bot struct {
@@ -32,18 +22,18 @@ type Bot struct {
 
 	RestServices rest.Services
 
-	EventManager             EventManager
-	RawEventsEnabled         bool
-	VoiceDispatchInterceptor VoiceDispatchInterceptor
+	EventManager EventManager
 
-	Gateway gateway.Gateway
+	ShardManager sharding.ShardManager
+	Gateway      gateway.Gateway
 
 	HTTPServer httpserver.Server
 
 	Caches Caches
 
-	EntityBuilder   EntityBuilder
-	AudioController AudioController
+	EntityBuilder          EntityBuilder
+	AudioController        AudioController
+	MembersChunkingManager MembersChunkingManager
 }
 
 // Close will clean up all disgo internals and close the discord connection safely
@@ -51,18 +41,21 @@ func (b *Bot) Close() {
 	if b.RestServices != nil {
 		b.RestServices.Close()
 	}
-	if b.HTTPServer != nil {
-		b.HTTPServer.Close()
-	}
 	if b.Gateway != nil {
 		b.Gateway.Close()
+	}
+	if b.ShardManager != nil {
+		b.ShardManager.Close()
+	}
+	if b.HTTPServer != nil {
+		b.HTTPServer.Close()
 	}
 	if b.EventManager != nil {
 		b.EventManager.Close()
 	}
 }
 
-// SelfMember returns an core.OAuth2User for the client, if available
+// SelfMember returns a core.OAuth2User for the client, if available
 func (b *Bot) SelfMember(guildID discord.Snowflake) *Member {
 	return b.Caches.MemberCache().Get(guildID, b.ClientID)
 }
@@ -77,9 +70,28 @@ func (b *Bot) RemoveEventListeners(listeners ...EventListener) {
 	b.EventManager.RemoveEventListeners(listeners...)
 }
 
-// Connect opens the gateway connection to discord
-func (b *Bot) Connect() error {
-	return b.Gateway.Open()
+// ConnectGateway opens the gateway connection to discord
+func (b *Bot) ConnectGateway() error {
+	return b.ConnectGatewayContext(context.Background())
+}
+
+func (b *Bot) ConnectGatewayContext(ctx context.Context) error {
+	if b.Gateway == nil {
+		return discord.ErrNoGateway
+	}
+	return b.Gateway.OpenContext(ctx)
+}
+
+// ConnectShardManager opens the gateway connection to discord
+func (b *Bot) ConnectShardManager() []error {
+	return b.ConnectShardManagerContext(context.Background())
+}
+
+func (b *Bot) ConnectShardManagerContext(ctx context.Context) []error {
+	if b.ShardManager == nil {
+		return []error{discord.ErrNoShardManager}
+	}
+	return b.ShardManager.OpenContext(ctx)
 }
 
 // HasGateway returns whether core.disgo has an active gateway.Gateway connection
@@ -87,10 +99,32 @@ func (b *Bot) HasGateway() bool {
 	return b.Gateway != nil
 }
 
-// Start starts the interaction webhook server
-func (b *Bot) Start() error {
-	if b.HTTPServer == nil {
+func (b *Bot) HasShardManager() bool {
+	return b.ShardManager != nil
+}
 
+func (b *Bot) SetPresence(presenceUpdate discord.PresenceUpdate) error {
+	if !b.HasGateway() {
+		return discord.ErrNoGateway
+	}
+	return b.Gateway.Send(discord.NewGatewayCommand(discord.GatewayOpcodePresenceUpdate, presenceUpdate))
+}
+
+func (b *Bot) SetPresenceForShard(shardId int, presenceUpdate discord.PresenceUpdate) error {
+	if !b.HasShardManager() {
+		return discord.ErrNoShardManager
+	}
+	shard := b.ShardManager.Shard(shardId)
+	if shard == nil {
+		return discord.ErrShardNotFound
+	}
+	return shard.Send(discord.NewGatewayCommand(discord.GatewayOpcodePresenceUpdate, presenceUpdate))
+}
+
+// StartHTTPServer starts the interaction webhook server
+func (b *Bot) StartHTTPServer() error {
+	if b.HTTPServer == nil {
+		return discord.ErrNoHTTPServer
 	}
 	b.HTTPServer.Start()
 	return nil
@@ -313,104 +347,4 @@ func (b *Bot) GetSticker(stickerID discord.Snowflake, opts ...rest.RequestOpt) (
 		return nil, err
 	}
 	return b.EntityBuilder.CreateSticker(*sticker, CacheStrategyNoWs), nil
-}
-
-func buildBot(token string, config BotConfig) (*Bot, error) {
-	if token == "" {
-		return nil, discord.ErrNoBotToken
-	}
-	id, err := IDFromToken(token)
-	if err != nil {
-		return nil, errors.Wrap(err, "error while getting application id from BotToken")
-	}
-	bot := &Bot{
-		Token: token,
-	}
-
-	// TODO: figure out how we handle different application & client ids
-	bot.ApplicationID = *id
-	bot.ClientID = *id
-
-	if config.Logger == nil {
-		config.Logger = log.Default()
-	}
-	bot.Logger = config.Logger
-
-	if config.HTTPClient == nil {
-		config.HTTPClient = http.DefaultClient
-	}
-
-	if config.RateLimiter == nil {
-		config.RateLimiter = rate.NewLimiter(config.RateLimiterConfig)
-	}
-
-	if config.RestClientConfig == nil {
-		config.RestClientConfig = &rest.DefaultConfig
-	}
-
-	if config.RestClientConfig.Headers == nil {
-		config.RestClientConfig.Headers = http.Header{}
-	}
-
-	if _, ok := config.RestClientConfig.Headers["authorization"]; !ok {
-		config.RestClientConfig.Headers["authorization"] = []string{discord.TokenTypeBot.Apply(token)}
-	}
-
-	if config.RestClient == nil {
-		config.RestClient = rest.NewClient(config.RestClientConfig)
-	}
-
-	if config.RestServices == nil {
-		config.RestServices = rest.NewServices(bot.Logger, config.RestClient)
-	}
-	bot.RestServices = config.RestServices
-
-	if config.EventManager == nil {
-		config.EventManager = NewEventManager(bot, config.EventListeners)
-	}
-	bot.EventManager = config.EventManager
-
-	if config.Gateway == nil && config.GatewayConfig != nil {
-		if config.RestServices == nil {
-			config.RestServices = bot.RestServices
-		}
-		config.Gateway = gateway.New(token, func(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader) {
-			bot.EventManager.HandleGateway(gatewayEventType, sequenceNumber, payload)
-		}, config.GatewayConfig)
-	}
-	bot.Gateway = config.Gateway
-
-	if config.HTTPServer == nil && config.HTTPServerConfig != nil {
-		config.HTTPServer = httpserver.New(func(responseChannel chan<- discord.InteractionResponse, payload io.Reader) {
-			bot.EventManager.HandleHTTP(responseChannel, payload)
-		}, config.HTTPServerConfig)
-	}
-	bot.HTTPServer = config.HTTPServer
-
-	if config.AudioController == nil {
-		config.AudioController = NewAudioController(bot)
-	}
-	bot.AudioController = config.AudioController
-
-	if config.EntityBuilder == nil {
-		config.EntityBuilder = NewEntityBuilder(bot)
-	}
-	bot.EntityBuilder = config.EntityBuilder
-
-	bot.VoiceDispatchInterceptor = config.VoiceDispatchInterceptor
-
-	if config.CacheConfig == nil {
-		config.CacheConfig = &CacheConfig{
-			CacheFlags:         CacheFlagsDefault,
-			MemberCachePolicy:  MemberCachePolicyDefault,
-			MessageCachePolicy: MessageCachePolicyDefault,
-		}
-	}
-
-	if config.Caches == nil {
-		config.Caches = NewCaches(*config.CacheConfig)
-	}
-	bot.Caches = config.Caches
-
-	return bot, nil
 }

@@ -5,6 +5,9 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/DisgoOrg/disgo/bot"
+	"github.com/DisgoOrg/disgo/events"
+
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/httpserver"
@@ -23,9 +26,9 @@ var (
 			Name:              "say",
 			Description:       "says what you say",
 			DefaultPermission: true,
-			Options: []discord.SlashCommandOption{
+			Options: []discord.ApplicationCommandOption{
 				{
-					Type:        discord.CommandOptionTypeString,
+					Type:        discord.ApplicationCommandOptionTypeString,
 					Name:        "message",
 					Description: "What to say",
 					Required:    true,
@@ -40,17 +43,16 @@ func main() {
 	log.Info("starting example...")
 	log.Info("disgo version: ", info.Version)
 
-	disgo, err := core.NewBotBuilder(token).
-		SetHTTPServerConfig(httpserver.Config{
-			URL:       "/interactions/callback",
-			Port:      ":80",
-			PublicKey: publicKey,
-		}).
-		AddEventListeners(&core.ListenerAdapter{
+	disgo, err := bot.New(token,
+		bot.WithHTTPServerOpts(
+			httpserver.WithURL("/interactions/callback"),
+			httpserver.WithPort(":80"),
+			httpserver.WithPublicKey(publicKey),
+		),
+		bot.WithEventListeners(&events.ListenerAdapter{
 			OnSlashCommand: commandListener,
-		}).
-		Build()
-
+		}),
+	)
 	if err != nil {
 		log.Fatal("error while building disgo instance: ", err)
 		return
@@ -60,12 +62,12 @@ func main() {
 
 	_, err = disgo.SetGuildCommands(guildID, commands)
 	if err != nil {
-		log.Fatalf("error while registering commands: %s", err)
+		log.Fatal("error while registering commands: ", err)
 	}
 
-	err = disgo.Start()
+	err = disgo.StartHTTPServer()
 	if err != nil {
-		log.Fatalf("error while starting http server: %s", err)
+		log.Fatal("error while starting http server: ", err)
 	}
 
 	log.Infof("example is now running. Press CTRL-C to exit.")
@@ -74,7 +76,7 @@ func main() {
 	<-s
 }
 
-func commandListener(event *core.SlashCommandEvent) {
+func commandListener(event *events.SlashCommandEvent) {
 	if event.CommandName == "say" {
 		if err := event.Create(core.NewMessageCreateBuilder().
 			SetContent(event.Options["message"].String()).

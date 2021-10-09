@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
-
-	"github.com/DisgoOrg/disgo/discord"
 )
 
 // NewRoute generates a new discord path struct
@@ -43,7 +41,7 @@ type Route struct {
 // Compile returns a CompiledRoute
 func (r *Route) Compile(queryValues QueryValues, params ...interface{}) (*CompiledRoute, error) {
 	if len(params) != r.urlParamCount {
-		return nil, discord.ErrInvalidArgCount(r.urlParamCount, len(params))
+		return nil, ErrInvalidArgCount(r.urlParamCount, len(params))
 	}
 	path := r.path
 	for _, param := range params {
@@ -57,7 +55,7 @@ func (r *Route) Compile(queryValues QueryValues, params ...interface{}) (*Compil
 		query := url.Values{}
 		for param, value := range queryValues {
 			if _, ok := r.queryParams[param]; !ok {
-				return nil, discord.ErrUnexpectedQueryParam(param)
+				return nil, ErrUnexpectedQueryParam(param)
 			}
 			query.Add(param, fmt.Sprint(value))
 		}

@@ -12,19 +12,19 @@ type Interaction struct {
 	User            *User
 	Member          *Member
 	ResponseChannel chan<- discord.InteractionResponse
-	Responded       bool
+	Acknowledged    bool
 }
 
 // Respond responds to the Interaction with the provided discord.InteractionResponse
-func (i *Interaction) Respond(responseType discord.InteractionResponseType, data interface{}, opts ...rest.RequestOpt) rest.Error {
+func (i *Interaction) Respond(callbackType discord.InteractionCallbackType, callbackData interface{}, opts ...rest.RequestOpt) rest.Error {
 	response := discord.InteractionResponse{
-		Type: responseType,
-		Data: data,
+		Type: callbackType,
+		Data: callbackData,
 	}
-	if i.Responded {
+	if i.Acknowledged {
 		return rest.NewError(nil, discord.ErrInteractionAlreadyReplied)
 	}
-	i.Responded = true
+	i.Acknowledged = true
 
 	if !i.FromGateway() {
 		i.ResponseChannel <- response
@@ -34,25 +34,25 @@ func (i *Interaction) Respond(responseType discord.InteractionResponseType, data
 	return i.Bot.RestServices.InteractionService().CreateInteractionResponse(i.ID, i.Token, response, opts...)
 }
 
-// DeferCreate replies to the Interaction with discord.InteractionResponseTypeDeferredChannelMessageWithSource and shows a loading state
+// DeferCreate replies to the Interaction with discord.InteractionCallbackTypeDeferredChannelMessageWithSource and shows a loading state
 func (i *Interaction) DeferCreate(ephemeral bool, opts ...rest.RequestOpt) rest.Error {
 	var messageCreate interface{}
 	if ephemeral {
 		messageCreate = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
 	}
-	return i.Respond(discord.InteractionResponseTypeDeferredChannelMessageWithSource, messageCreate, opts...)
+	return i.Respond(discord.InteractionCallbackTypeDeferredChannelMessageWithSource, messageCreate, opts...)
 }
 
-// Create replies to the Interaction with discord.InteractionResponseTypeChannelMessageWithSource & discord.MessageCreate
+// Create replies to the Interaction with discord.InteractionCallbackTypeChannelMessageWithSource & discord.MessageCreate
 func (i *Interaction) Create(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) rest.Error {
-	return i.Respond(discord.InteractionResponseTypeChannelMessageWithSource, messageCreate, opts...)
+	return i.Respond(discord.InteractionCallbackTypeChannelMessageWithSource, messageCreate, opts...)
 }
 
 // GetOriginal gets the original discord.InteractionResponse
 func (i *Interaction) GetOriginal(opts ...rest.RequestOpt) (*Message, rest.Error) {
 	message, err := i.Bot.RestServices.InteractionService().GetInteractionResponse(i.Bot.ApplicationID, i.Token, opts...)
 	if err != nil {
-
+		return nil, err
 	}
 	return i.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
@@ -61,7 +61,7 @@ func (i *Interaction) GetOriginal(opts ...rest.RequestOpt) (*Message, rest.Error
 func (i *Interaction) UpdateOriginal(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error) {
 	message, err := i.Bot.RestServices.InteractionService().UpdateInteractionResponse(i.Bot.ApplicationID, i.Token, messageUpdate, opts...)
 	if err != nil {
-
+		return nil, err
 	}
 	return i.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
@@ -75,7 +75,7 @@ func (i *Interaction) DeleteOriginal(opts ...rest.RequestOpt) rest.Error {
 func (i *Interaction) CreateFollowup(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, rest.Error) {
 	message, err := i.Bot.RestServices.InteractionService().CreateFollowupMessage(i.Bot.ApplicationID, i.Token, messageCreate, opts...)
 	if err != nil {
-
+		return nil, err
 	}
 	return i.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
@@ -84,7 +84,7 @@ func (i *Interaction) CreateFollowup(messageCreate discord.MessageCreate, opts .
 func (i *Interaction) UpdateFollowup(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error) {
 	message, err := i.Bot.RestServices.InteractionService().UpdateFollowupMessage(i.Bot.ApplicationID, i.Token, messageID, messageUpdate, opts...)
 	if err != nil {
-
+		return nil, err
 	}
 	return i.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }

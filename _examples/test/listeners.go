@@ -1,10 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
-	"os"
 	"strconv"
 	"time"
+
+	"github.com/DisgoOrg/disgo/collectors"
+	"github.com/DisgoOrg/disgo/events"
 
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
@@ -12,7 +15,7 @@ import (
 	"github.com/PaesslerAG/gval"
 )
 
-var listener = &core.ListenerAdapter{
+var listener = &events.ListenerAdapter{
 	OnRawGateway:         rawGatewayEventListener,
 	OnGuildAvailable:     guildAvailListener,
 	OnGuildMessageCreate: messageListener,
@@ -21,33 +24,33 @@ var listener = &core.ListenerAdapter{
 	OnSelectMenuSubmit:   selectMenuSubmitListener,
 }
 
-func rawGatewayEventListener(event *core.RawEvent) {
-	if event.Type == discord.GatewayEventTypeInteractionCreate || event.Type == discord.GatewayEventTypeGuildEmojisUpdate {
+func rawGatewayEventListener(event *events.RawEvent) {
+	if event.Type == discord.GatewayEventTypePresenceUpdate {
 		println(string(event.RawPayload))
 	}
 }
 
-func guildAvailListener(event *core.GuildAvailableEvent) {
+func guildAvailListener(event *events.GuildAvailableEvent) {
 	log.Infof("guild loaded: %s", event.Guild.ID)
 }
 
-func buttonClickListener(event *core.ButtonClickEvent) {
+func buttonClickListener(event *events.ButtonClickEvent) {
 	switch event.CustomID {
 	case "test1":
-		_ = event.Respond(discord.InteractionResponseTypeChannelMessageWithSource,
+		_ = event.Respond(discord.InteractionCallbackTypeChannelMessageWithSource,
 			core.NewMessageCreateBuilder().
 				SetContent(event.CustomID).
 				Build(),
 		)
 
 	case "test2":
-		_ = event.Respond(discord.InteractionResponseTypeDeferredChannelMessageWithSource, nil)
+		_ = event.Respond(discord.InteractionCallbackTypeDeferredChannelMessageWithSource, nil)
 
 	case "test3":
-		_ = event.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil)
+		_ = event.Respond(discord.InteractionCallbackTypeDeferredUpdateMessage, nil)
 
 	case "test4":
-		_ = event.Respond(discord.InteractionResponseTypeUpdateMessage,
+		_ = event.Respond(discord.InteractionCallbackTypeUpdateMessage,
 			core.NewMessageCreateBuilder().
 				SetContent(event.CustomID).
 				Build(),
@@ -55,7 +58,7 @@ func buttonClickListener(event *core.ButtonClickEvent) {
 	}
 }
 
-func selectMenuSubmitListener(event *core.SelectMenuSubmitEvent) {
+func selectMenuSubmitListener(event *events.SelectMenuSubmitEvent) {
 	switch event.CustomID {
 	case "test3":
 		if err := event.DeferUpdate(); err != nil {
@@ -69,7 +72,7 @@ func selectMenuSubmitListener(event *core.SelectMenuSubmitEvent) {
 	}
 }
 
-func slashCommandListener(event *core.SlashCommandEvent) {
+func slashCommandListener(event *events.SlashCommandEvent) {
 	switch event.CommandName {
 	case "eval":
 		go func() {
@@ -129,11 +132,10 @@ func slashCommandListener(event *core.SlashCommandEvent) {
 		)
 
 	case "test":
-		reader, _ := os.Open("gopher.png")
 		_ = event.DeferCreate(event.Options["ephemeral"].Bool())
 		if _, err := event.UpdateOriginal(core.NewMessageUpdateBuilder().
 			SetContent("test message").
-			AddFile("gopher.png", reader).
+			AddFile("gopher.png", bytes.NewBuffer(gopher)).
 			Build(),
 		); err != nil {
 			log.Errorf("error sending interaction response: %s", err)
@@ -169,7 +171,7 @@ func slashCommandListener(event *core.SlashCommandEvent) {
 	}
 }
 
-func messageListener(event *core.GuildMessageCreateEvent) {
+func messageListener(event *events.GuildMessageCreateEvent) {
 	if event.Message.Author.IsBot {
 		return
 	}
@@ -221,7 +223,7 @@ func messageListener(event *core.GuildMessageCreateEvent) {
 
 	case "repeat":
 		go func() {
-			ch, cls := core.NewMessageCollectorByChannel(event.Channel(), func(m *core.Message) bool {
+			ch, cls := collectors.NewMessageCollectorByChannel(event.Channel(), func(m *core.Message) bool {
 				return !m.Author.IsBot && m.ChannelID == event.ChannelID
 			})
 

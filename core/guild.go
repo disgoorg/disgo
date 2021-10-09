@@ -1,8 +1,6 @@
 package core
 
 import (
-	"strings"
-
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/route"
@@ -189,20 +187,7 @@ func (g *Guild) GetBan(userID discord.Snowflake, opts ...rest.RequestOpt) (*Ban,
 
 // IconURL returns the Icon of a Guild
 func (g *Guild) IconURL(size int) *string {
-	if g.Icon == nil {
-		return nil
-	}
-	animated := strings.HasPrefix(*g.Icon, "a_")
-	format := route.PNG
-	if animated {
-		format = route.GIF
-	}
-	compiledRoute, err := route.GuildIcon.Compile(nil, format, size, g.ID.String(), *g.Icon)
-	if err != nil {
-		return nil
-	}
-	u := compiledRoute.URL()
-	return &u
+	return discord.FormatAssetURL(route.GuildIcon, g.ID, g.Icon, size)
 }
 
 // GetAuditLogs gets AuditLog(s) for this Guild

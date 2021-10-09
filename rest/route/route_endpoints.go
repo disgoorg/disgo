@@ -210,8 +210,8 @@ var (
 	CreateWebhookMessage       = NewAPIRoute(POST, "/webhooks/{webhook.id}/{webhook.token}", "wait", "thread_id")
 	CreateWebhookMessageSlack  = NewAPIRoute(POST, "/webhooks/{webhook.id}/{webhook.token}/slack", "wait")
 	CreateWebhookMessageGitHub = NewAPIRoute(POST, "/webhooks/{webhook.id}/{webhook.token}/github", "wait")
-	UpdateWebhookMessage       = NewAPIRoute(POST, "/webhooks/{webhook.id}/{webhook.token}/messages/{message.id}")
-	DeleteWebhookMessage       = NewAPIRoute(POST, "/webhooks/{webhook.id}/{webhook.token}/messages/{message.id}")
+	UpdateWebhookMessage       = NewAPIRoute(PATCH, "/webhooks/{webhook.id}/{webhook.token}/messages/{message.id}")
+	DeleteWebhookMessage       = NewAPIRoute(DELETE, "/webhooks/{webhook.id}/{webhook.token}/messages/{message.id}")
 )
 
 // Invites
@@ -272,6 +272,10 @@ var (
 	UserBanner        = NewCDNRoute("/banners/{user.id}/{user.banner.hash}", PNG, JPEG, WebP, GIF)
 	UserAvatar        = NewCDNRoute("/avatars/{user.id}/{user.avatar.hash}", PNG, JPEG, WebP, GIF)
 	DefaultUserAvatar = NewCDNRoute("/embed/avatars/{user.discriminator%5}", PNG)
+
+	ChannelIcon = NewCDNRoute("/channel-icons/{channel.id}/{channel.icon.hash}", PNG, JPEG, WebP)
+
+	MemberAvatar = NewCDNRoute("/guilds/{guild.id}/users/{user.id}/avatars/{member.avatar.hash}", PNG, JPEG, WebP, GIF)
 
 	ApplicationIcon  = NewCDNRoute("/app-icons/{application.id}/{icon.hash}", PNG, JPEG, WebP)
 	ApplicationCover = NewCDNRoute("/app-assets/{application.id}/{cover.image.hash}", PNG, JPEG, WebP)

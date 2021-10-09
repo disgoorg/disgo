@@ -30,22 +30,23 @@ func (t IconType) GetHeader() string {
 var _ json.Marshaler = (*Icon)(nil)
 var _ fmt.Stringer = (*Icon)(nil)
 
-func NewIcon(iconType IconType, reader io.Reader) (Icon, error) {
+func NewIcon(iconType IconType, reader io.Reader) (*Icon, error) {
 	data, err := ioutil.ReadAll(reader)
 	if err != nil {
-		return Icon{}, err
+		return nil, err
 	}
-
 	return NewIconRaw(iconType, data), nil
 }
 
-func NewIconRaw(iconType IconType, data []byte) Icon {
-	return Icon{Type: iconType, Data: base64.StdEncoding.EncodeToString(data)}
+func NewIconRaw(iconType IconType, src []byte) *Icon {
+	var data []byte
+	base64.StdEncoding.Encode(data, src)
+	return &Icon{Type: iconType, Data: data}
 }
 
 type Icon struct {
 	Type IconType
-	Data string
+	Data []byte
 }
 
 func (i Icon) MarshalJSON() ([]byte, error) {
@@ -53,8 +54,8 @@ func (i Icon) MarshalJSON() ([]byte, error) {
 }
 
 func (i Icon) String() string {
-	if i.Data == "" {
+	if len(i.Data) == 0 {
 		return ""
 	}
-	return i.Type.GetHeader() + "," + i.Data
+	return i.Type.GetHeader() + "," + string(i.Data)
 }

@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
-
-	"github.com/DisgoOrg/disgo/discord"
 )
 
 // NewCDNRoute generates a new discord cdn path struct
@@ -52,7 +50,7 @@ func (r *CDNRoute) Compile(queryValues QueryValues, fileExtension FileExtension,
 		}
 	}
 	if !supported {
-		return nil, discord.ErrFileExtensionNotSupported(fileExtension.String())
+		return nil, ErrFileExtensionNotSupported(fileExtension.String())
 	}
 	if queryValues == nil {
 		queryValues = QueryValues{}
@@ -76,7 +74,7 @@ func (r *CDNRoute) Compile(queryValues QueryValues, fileExtension FileExtension,
 		query := url.Values{}
 		for param, value := range queryValues {
 			if _, ok := r.queryParams[param]; !ok {
-				return nil, discord.ErrUnexpectedQueryParam(param)
+				return nil, ErrUnexpectedQueryParam(param)
 			}
 			query.Add(param, fmt.Sprint(value))
 		}

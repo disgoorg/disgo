@@ -2,8 +2,8 @@ package gateway
 
 import (
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/gateway/grate"
 	"github.com/DisgoOrg/disgo/info"
-	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/log"
 )
 
@@ -18,15 +18,17 @@ var DefaultConfig = Config{
 }
 
 type Config struct {
-	Logger           log.Logger
-	RestServices     rest.Services
-	EventHandlerFunc EventHandlerFunc
-	LargeThreshold   int
-	GatewayIntents   discord.GatewayIntents
-	Compress         bool
-	OS               string
-	Browser          string
-	Device           string
+	Logger            log.Logger
+	EventHandlerFunc  EventHandlerFunc
+	LargeThreshold    int
+	GatewayIntents    discord.GatewayIntents
+	Compress          bool
+	RateLimiter       grate.Limiter
+	RateLimiterConfig *grate.Config
+	Presence          *discord.PresenceUpdate
+	OS                string
+	Browser           string
+	Device            string
 }
 
 type ConfigOpt func(config *Config)
@@ -56,6 +58,33 @@ func WithGatewayIntents(gatewayIntents ...discord.GatewayIntents) ConfigOpt {
 func WithCompress(compress bool) ConfigOpt {
 	return func(config *Config) {
 		config.Compress = compress
+	}
+}
+
+func WithRateLimiter(rateLimiter grate.Limiter) ConfigOpt {
+	return func(config *Config) {
+		config.RateLimiter = rateLimiter
+	}
+}
+
+func WithRateLimiterConfig(rateLimiterConfig grate.Config) ConfigOpt {
+	return func(config *Config) {
+		config.RateLimiterConfig = &rateLimiterConfig
+	}
+}
+
+func WithRateLimiterConfigOpts(opts ...grate.ConfigOpt) ConfigOpt {
+	return func(config *Config) {
+		if config.RateLimiterConfig == nil {
+			config.RateLimiterConfig = &grate.DefaultConfig
+		}
+		config.RateLimiterConfig.Apply(opts)
+	}
+}
+
+func WithPresence(presence discord.PresenceUpdate) ConfigOpt {
+	return func(config *Config) {
+		config.Presence = &presence
 	}
 }
 
