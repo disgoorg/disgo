@@ -24,10 +24,10 @@ type (
 		FindFirst(guildFindFunc GuildFindFunc) *Guild
 		FindAll(guildFindFunc GuildFindFunc) []*Guild
 
-		SetReady(guildID discord.Snowflake)
-		SetUnready(guildID discord.Snowflake)
-		IsUnready(guildID discord.Snowflake) bool
-		UnreadyGuilds() []discord.Snowflake
+		SetReady(shardID int, guildID discord.Snowflake)
+		SetUnready(shardID int, guildID discord.Snowflake)
+		IsUnready(shardID int, guildID discord.Snowflake) bool
+		UnreadyGuilds(shardID int) []discord.Snowflake
 
 		SetUnavailable(guildID discord.Snowflake)
 		SetAvailable(guildID discord.Snowflake)
@@ -41,7 +41,7 @@ type (
 		guilds     map[discord.Snowflake]*Guild
 
 		unreadyGuildsMu sync.RWMutex
-		unreadyGuilds   map[discord.Snowflake]struct{}
+		unreadyGuilds   map[int]map[discord.Snowflake]struct{}
 
 		unavailableGuildsMu sync.RWMutex
 		unavailableGuilds   map[discord.Snowflake]struct{}
@@ -52,7 +52,7 @@ func NewGuildCache(cacheFlags CacheFlags) GuildCache {
 	return &guildCacheImpl{
 		cacheFlags:        cacheFlags,
 		guilds:            map[discord.Snowflake]*Guild{},
-		unreadyGuilds:     map[discord.Snowflake]struct{}{},
+		unreadyGuilds:     map[int]map[discord.Snowflake]struct{}{},
 		unavailableGuilds: map[discord.Snowflake]struct{}{},
 	}
 }
@@ -131,31 +131,43 @@ func (c *guildCacheImpl) FindAll(guildFindFunc GuildFindFunc) []*Guild {
 	return guilds
 }
 
-func (c *guildCacheImpl) SetReady(guildID discord.Snowflake) {
+func (c *guildCacheImpl) SetReady(shardID int, guildID discord.Snowflake) {
 	c.unreadyGuildsMu.Lock()
 	defer c.unreadyGuildsMu.Unlock()
-	delete(c.unreadyGuilds, guildID)
+	if _, ok := c.unreadyGuilds[shardID]; !ok {
+		return
+	}
+	delete(c.unreadyGuilds[shardID], guildID)
 }
 
-func (c *guildCacheImpl) SetUnready(guildID discord.Snowflake) {
+func (c *guildCacheImpl) SetUnready(shardID int, guildID discord.Snowflake) {
 	c.unreadyGuildsMu.Lock()
 	defer c.unreadyGuildsMu.Unlock()
-	c.unreadyGuilds[guildID] = struct{}{}
+	if _, ok := c.unreadyGuilds[shardID]; !ok {
+		c.unreadyGuilds[shardID] = map[discord.Snowflake]struct{}{}
+	}
+	c.unreadyGuilds[shardID][guildID] = struct{}{}
 }
 
-func (c *guildCacheImpl) IsUnready(guildID discord.Snowflake) bool {
+func (c *guildCacheImpl) IsUnready(shardID int, guildID discord.Snowflake) bool {
 	c.unreadyGuildsMu.RLock()
 	defer c.unreadyGuildsMu.RUnlock()
-	_, ok := c.unreadyGuilds[guildID]
+	if _, ok := c.unreadyGuilds[shardID]; !ok {
+		return false
+	}
+	_, ok := c.unreadyGuilds[shardID][guildID]
 	return ok
 }
 
-func (c *guildCacheImpl) UnreadyGuilds() []discord.Snowflake {
+func (c *guildCacheImpl) UnreadyGuilds(shardID int) []discord.Snowflake {
 	c.unreadyGuildsMu.RLock()
 	defer c.unreadyGuildsMu.RUnlock()
-	guilds := make([]discord.Snowflake, len(c.unreadyGuilds))
+	if _, ok := c.unreadyGuilds[shardID]; !ok {
+		return nil
+	}
+	guilds := make([]discord.Snowflake, len(c.unreadyGuilds[shardID]))
 	var i int
-	for guildID := range c.unreadyGuilds {
+	for guildID := range c.unreadyGuilds[shardID] {
 		guilds[i] = guildID
 		i++
 	}

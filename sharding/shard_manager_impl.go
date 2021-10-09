@@ -55,6 +55,10 @@ func (m *shardManagerImpl) Logger() log.Logger {
 	return m.config.Logger
 }
 
+func (m *shardManagerImpl) Config() Config {
+	return m.config
+}
+
 func (m *shardManagerImpl) RateLimiter() srate.Limiter {
 	return m.config.RateLimiter
 }

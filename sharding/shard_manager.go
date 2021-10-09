@@ -11,6 +11,7 @@ import (
 
 type ShardManager interface {
 	Logger() log.Logger
+	Config() Config
 	RateLimiter() srate.Limiter
 
 	Open() []error

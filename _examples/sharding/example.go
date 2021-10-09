@@ -14,7 +14,6 @@ import (
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/disgo/sharding"
-	"github.com/DisgoOrg/disgo/sharding/srate"
 	"github.com/DisgoOrg/log"
 )
 
@@ -35,13 +34,16 @@ func main() {
 				gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages),
 				gateway.WithCompress(true),
 			),
-			sharding.WithRateLimiterConfigOpt(
-				srate.WithMaxConcurrency(2),
-			),
 		),
 		bot.WithCacheOpts(core.WithCacheFlags(core.CacheFlagsDefault)),
 		bot.WithEventListeners(&events.ListenerAdapter{
 			OnMessageCreate: onMessageCreate,
+			OnGuildReady: func(event *events.GuildReadyEvent) {
+				log.Infof("guild %s ready", event.GuildID)
+			},
+			OnGuildsReady: func(event *events.GuildsReadyEvent) {
+				log.Infof("guilds on shard %d ready", event.ShardID)
+			},
 		}),
 	)
 	if err != nil {

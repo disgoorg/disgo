@@ -20,7 +20,7 @@ type GatewayEventReady struct {
 	SelfUser    OAuth2User         `json:"user"`
 	Guilds      []UnavailableGuild `json:"guilds"`
 	SessionID   string             `json:"session_id"`
-	Shard       [2]int             `json:"shard,omitempty"`
+	Shard       []int             `json:"shard,omitempty"`
 	Application PartialApplication `json:"application"`
 }
 

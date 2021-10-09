@@ -23,7 +23,10 @@ func (h *gatewayHandlerGuildCreate) New() interface{} {
 func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.GatewayGuild)
 
-	wasUnready := bot.Caches.GuildCache().IsUnready(payload.ID)
+	shard, _ := bot.Shard(payload.ID)
+	shardID := shard.ShardID()
+
+	wasUnready := bot.Caches.GuildCache().IsUnready(shardID, payload.ID)
 	wasUnavailable := bot.Caches.GuildCache().IsUnavailable(payload.ID)
 
 	guild := bot.EntityBuilder.CreateGuild(payload.Guild, core.CacheStrategyYes)
@@ -69,13 +72,14 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 	}
 
 	if wasUnready {
-		bot.Caches.GuildCache().SetReady(payload.ID)
+		bot.Caches.GuildCache().SetReady(shardID, payload.ID)
 		bot.EventManager.Dispatch(&events.GuildReadyEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
-		if len(bot.Caches.GuildCache().UnreadyGuilds()) == 0 {
+		if len(bot.Caches.GuildCache().UnreadyGuilds(shardID)) == 0 {
 			bot.EventManager.Dispatch(&events.GuildsReadyEvent{
 				GenericEvent: events.NewGenericEvent(bot, -1),
+				ShardID:      shardID,
 			})
 		}
 		if bot.MemberChunkingManager.MemberChunkingFilter()(payload.ID) {

@@ -42,6 +42,8 @@ type EventHandlerFunc func(gatewayEventType discord.GatewayEventType, sequenceNu
 type Gateway interface {
 	Logger() log.Logger
 	Config() Config
+	ShardID() int
+	ShardCount() int
 	Open() error
 	OpenCtx(ctx context.Context) error
 	Close()

@@ -27,8 +27,13 @@ func (h *gatewayHandlerReady) HandleGatewayEvent(bot *core.Bot, sequenceNumber i
 
 	bot.EntityBuilder.CreateSelfUser(readyEvent.SelfUser, core.CacheStrategyYes)
 
+	var shardID int
+	if readyEvent.Shard != nil {
+		shardID = readyEvent.Shard[0]
+	}
+
 	for _, guild := range readyEvent.Guilds {
-		bot.Caches.GuildCache().SetUnready(guild.ID)
+		bot.Caches.GuildCache().SetUnready(shardID, guild.ID)
 	}
 
 	bot.EventManager.Dispatch(&events.ReadyEvent{
