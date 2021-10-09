@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"strconv"
 	"syscall"
+	"time"
 
 	"github.com/DisgoOrg/disgo/bot"
 
@@ -59,16 +61,24 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 			})
 			i := 1
 			str := ">>> "
-			for message := range ch {
-				str += strconv.Itoa(i) + ". " + message.Content + "\n\n"
+			ctx, clsCtx := context.WithTimeout(context.Background(), 20*time.Second)
+			defer clsCtx()
+			for {
+				select {
+				case <-ctx.Done():
+					_, _ = event.Channel().CreateMessage(core.NewMessageCreateBuilder().SetContent("cancelled").Build())
+					return
 
-				if i == 3 {
-					cls()
-					_, _ = message.Channel().CreateMessage(core.NewMessageCreateBuilder().SetContent(str).Build())
+				case message := <-ch:
+					str += strconv.Itoa(i) + ". " + message.Content + "\n\n"
+
+					if i == 3 {
+						cls()
+						_, _ = message.Channel().CreateMessage(core.NewMessageCreateBuilder().SetContent(str).Build())
+					}
+					i++
 				}
-				i++
 			}
 		}()
-
 	}
 }
