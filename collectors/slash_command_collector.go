@@ -5,7 +5,6 @@ import (
 	"github.com/DisgoOrg/disgo/events"
 )
 
-
 // NewSlashCommandCollector gives you a channel to receive on and a function to close the collector
 //goland:noinspection GoUnusedExportedFunction
 func NewSlashCommandCollector(disgo *core.Bot, filter core.SlashCommandInteractionFilter) (<-chan *core.SlashCommandInteraction, func()) {
@@ -29,7 +28,7 @@ func NewSlashCommandCollector(disgo *core.Bot, filter core.SlashCommandInteracti
 type SlashCommandCollector struct {
 	Filter core.SlashCommandInteractionFilter
 	Chan   chan<- *core.SlashCommandInteraction
-	Close     func()
+	Close  func()
 }
 
 // OnEvent used to get events for the ButtonCollector

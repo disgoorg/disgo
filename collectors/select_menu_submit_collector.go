@@ -10,7 +10,7 @@ func NewSelectMenuSubmitCollector(disgo *core.Bot, filter core.SelectMenuInterac
 	ch := make(chan *core.SelectMenuInteraction)
 
 	collector := &SelectMenuSubmitCollector{
-		Filter:    filter,
+		Filter: filter,
 		Chan:   ch,
 	}
 	cls := func() {
@@ -25,9 +25,9 @@ func NewSelectMenuSubmitCollector(disgo *core.Bot, filter core.SelectMenuInterac
 
 // SelectMenuSubmitCollector used to collect core.SelectMenuInteraction(s) from a core.Message using a core.SelectMenuInteractionFilter function
 type SelectMenuSubmitCollector struct {
-	Filter    core.SelectMenuInteractionFilter
+	Filter core.SelectMenuInteractionFilter
 	Chan   chan<- *core.SelectMenuInteraction
-	Close     func()
+	Close  func()
 }
 
 // OnEvent used to get events for the SelectMenuSubmitCollector

@@ -35,7 +35,7 @@ func (i *Integration) Role() *Role {
 }
 
 // Delete deletes the Integration from the Guild
-func (i *Integration) Delete(opts ...rest.RequestOpt) rest.Error {
+func (i *Integration) Delete(opts ...rest.RequestOpt) error {
 	return i.Bot.RestServices.GuildService().DeleteIntegration(i.GuildID, i.ID, opts...)
 }
 

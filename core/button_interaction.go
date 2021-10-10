@@ -16,6 +16,6 @@ func (i *ButtonInteraction) Button() Button {
 }
 
 // UpdateButton updates the clicked Button with a new Button
-func (i *ButtonInteraction) UpdateButton(button Button, opts ...rest.RequestOpt) rest.Error {
+func (i *ButtonInteraction) UpdateButton(button Button, opts ...rest.RequestOpt) error {
 	return i.UpdateComponent(button, opts...)
 }

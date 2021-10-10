@@ -31,17 +31,17 @@ func (m *Message) Channel() *Channel {
 }
 
 // AddReactionByEmote allows you to add an Emoji to a message_events via reaction
-func (m *Message) AddReactionByEmote(emote Emoji, opts ...rest.RequestOpt) rest.Error {
+func (m *Message) AddReactionByEmote(emote Emoji, opts ...rest.RequestOpt) error {
 	return m.AddReaction(emote.Reaction(), opts...)
 }
 
 // AddReaction allows you to add a reaction to a message_events from a string, for _examples a custom emoji ID, or a native emoji
-func (m *Message) AddReaction(emoji string, opts ...rest.RequestOpt) rest.Error {
+func (m *Message) AddReaction(emoji string, opts ...rest.RequestOpt) error {
 	return m.Bot.RestServices.ChannelService().AddReaction(m.ChannelID, m.ID, emoji, opts...)
 }
 
 // Update allows you to edit an existing Message sent by you
-func (m *Message) Update(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error) {
+func (m *Message) Update(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
 	message, err := m.Bot.RestServices.ChannelService().UpdateMessage(m.ChannelID, m.ID, messageUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -50,12 +50,12 @@ func (m *Message) Update(messageUpdate discord.MessageUpdate, opts ...rest.Reque
 }
 
 // Delete allows you to edit an existing Message sent by you
-func (m *Message) Delete(opts ...rest.RequestOpt) rest.Error {
+func (m *Message) Delete(opts ...rest.RequestOpt) error {
 	return m.Bot.RestServices.ChannelService().DeleteMessage(m.ChannelID, m.ID, opts...)
 }
 
 // Crosspost crossposts an existing message
-func (m *Message) Crosspost(opts ...rest.RequestOpt) (*Message, rest.Error) {
+func (m *Message) Crosspost(opts ...rest.RequestOpt) (*Message, error) {
 	channel := m.Channel()
 	if channel != nil && channel.IsNewsChannel() {
 		return nil, rest.NewError(nil, discord.ErrChannelNotTypeNews)
@@ -68,7 +68,7 @@ func (m *Message) Crosspost(opts ...rest.RequestOpt) (*Message, rest.Error) {
 }
 
 // Reply allows you to reply to an existing Message
-func (m *Message) Reply(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, rest.Error) {
+func (m *Message) Reply(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
 	messageCreate.MessageReference = &discord.MessageReference{MessageID: &m.ID}
 	message, err := m.Bot.RestServices.ChannelService().CreateMessage(m.ChannelID, messageCreate, opts...)
 	if err != nil {

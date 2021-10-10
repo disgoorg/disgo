@@ -60,7 +60,7 @@ func (u *User) getAssetURL(cdnRoute *route.CDNRoute, assetId *string, size int) 
 }
 
 // OpenDMChannel creates a DMChannel between the user and the Disgo client
-func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (*Channel, rest.Error) {
+func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (*Channel, error) {
 	channel, err := u.Bot.RestServices.UserService().CreateDMChannel(u.ID, opts...)
 	if err != nil {
 		return nil, err

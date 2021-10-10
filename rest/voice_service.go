@@ -13,7 +13,7 @@ func NewVoiceService(restClient Client) VoiceService {
 
 type VoiceService interface {
 	Service
-	GetVoiceRegions(opts ...RequestOpt) ([]discord.VoiceRegion, Error)
+	GetVoiceRegions(opts ...RequestOpt) ([]discord.VoiceRegion, error)
 }
 
 type voiceServiceImpl struct {
@@ -24,12 +24,12 @@ func (s *voiceServiceImpl) RestClient() Client {
 	return s.restClient
 }
 
-func (s *voiceServiceImpl) GetVoiceRegions(opts ...RequestOpt) (regions []discord.VoiceRegion, rErr Error) {
-	compiledRoute, err := route.GetVoiceRegions.Compile(nil)
+func (s *voiceServiceImpl) GetVoiceRegions(opts ...RequestOpt) (regions []discord.VoiceRegion, err error) {
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.GetVoiceRegions.Compile(nil)
 	if err != nil {
-		rErr = NewError(nil, err)
 		return
 	}
-	rErr = s.restClient.Do(compiledRoute, nil, &regions, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &regions, opts...)
 	return
 }

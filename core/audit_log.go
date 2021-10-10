@@ -28,7 +28,7 @@ type AuditLogFilterOptions struct {
 }
 
 // Before gets new AuditLog(s) from Discord before the last one
-func (l *AuditLog) Before(opts ...rest.RequestOpt) (*AuditLog, rest.Error) {
+func (l *AuditLog) Before(opts ...rest.RequestOpt) (*AuditLog, error) {
 	before := discord.Snowflake("")
 	if len(l.Entries) > 0 {
 		before = l.Entries[len(l.Entries)-1].ID

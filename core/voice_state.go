@@ -34,7 +34,7 @@ func (s *VoiceState) Channel() *Channel {
 	return s.Bot.Caches.ChannelCache().Get(*s.ChannelID)
 }
 
-func (s *VoiceState) Update(suppress *discord.OptionalBool, requestToSpeak *discord.OptionalTime, opts ...rest.RequestOpt) rest.Error {
+func (s *VoiceState) Update(suppress *discord.OptionalBool, requestToSpeak *discord.OptionalTime, opts ...rest.RequestOpt) error {
 	if s.ChannelID == nil {
 		return rest.NewError(nil, discord.ErrMemberMustBeConnectedToChannel)
 	}

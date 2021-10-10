@@ -1,41 +1,59 @@
 package rest
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
 
-var _ Error = (*errorImpl)(nil)
-var _ error = (*errorImpl)(nil)
+	"github.com/pkg/errors"
+)
+
+var _ error = (*Error)(nil)
+
+var (
+	ErrTooManyRequests = ErrStatusCode(http.StatusTooManyRequests)
+	ErrBadGateway      = ErrStatusCode(http.StatusBadGateway)
+	ErrBadRequest      = ErrStatusCode(http.StatusBadRequest)
+	ErrUnauthorized    = ErrStatusCode(http.StatusUnauthorized)
+)
+
+func ErrStatusCode(statusCode int) error {
+	return NewErrorStatus(statusCode, errors.New(""))
+}
 
 // Error holds the http.Response & an error related to a REST request
-type Error interface {
-	error
-	Response() *http.Response
+type Error struct {
+	StatusCode int
+	Err        error
 }
 
 // NewError returns a new Error with the given http.Response & error
 //goland:noinspection GoUnusedExportedFunction
-func NewError(response *http.Response, err error) Error {
-	return &errorImpl{
-		err:      err,
-		response: response,
+func NewError(rs *http.Response, err error) error {
+	return &Error{
+		StatusCode: rs.StatusCode,
+		Err:        err,
 	}
 }
 
-type errorImpl struct {
-	err      error
-	response *http.Response
+func NewErrorStatus(statusCode int, err error) error {
+	return &Error{
+		StatusCode: statusCode,
+		Err:        err,
+	}
 }
 
-// Error returns the specific error message
-func (r *errorImpl) Error() string {
-	return r.err.Error()
+func (e Error) Is(target error) bool {
+	err, ok := target.(*Error)
+	if !ok {
+		return false
+	}
+	return err.StatusCode == e.StatusCode
 }
 
-// Error returns the specific error message
-func (r *errorImpl) String() string {
-	return r.err.Error()
+func (e Error) Error() string {
+	return fmt.Sprintf("status %d: err %v", e.StatusCode, e.Err)
 }
 
-// Response returns the http.Response. May be nil depending on what broke during the request
-func (r *errorImpl) Response() *http.Response {
-	return r.response
+func (e Error) String() string {
+	return e.Error()
 }

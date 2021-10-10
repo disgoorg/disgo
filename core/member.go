@@ -94,7 +94,7 @@ func (m *Member) EffectiveAvatarURL(size int) string {
 }
 
 // Update updates the Member
-func (m *Member) Update(updateGuildMember discord.MemberUpdate, opts ...rest.RequestOpt) (*Member, rest.Error) {
+func (m *Member) Update(updateGuildMember discord.MemberUpdate, opts ...rest.RequestOpt) (*Member, error) {
 	member, err := m.Bot.RestServices.GuildService().UpdateMember(m.GuildID, m.User.ID, updateGuildMember, opts...)
 	if err != nil {
 		return nil, err
@@ -103,31 +103,31 @@ func (m *Member) Update(updateGuildMember discord.MemberUpdate, opts ...rest.Req
 }
 
 // Move moves/kicks the member to/from a voice channel
-func (m *Member) Move(channelID discord.Snowflake, opts ...rest.RequestOpt) (*Member, rest.Error) {
+func (m *Member) Move(channelID discord.Snowflake, opts ...rest.RequestOpt) (*Member, error) {
 	return m.Update(discord.MemberUpdate{ChannelID: &channelID}, opts...)
 }
 
 // Kick kicks the Member from the Guild
-func (m *Member) Kick(opts ...rest.RequestOpt) rest.Error {
+func (m *Member) Kick(opts ...rest.RequestOpt) error {
 	return m.Bot.RestServices.GuildService().RemoveMember(m.GuildID, m.User.ID, opts...)
 }
 
 // Ban bans the Member from the Guild
-func (m *Member) Ban(deleteMessageDays int, opts ...rest.RequestOpt) rest.Error {
+func (m *Member) Ban(deleteMessageDays int, opts ...rest.RequestOpt) error {
 	return m.Bot.RestServices.GuildService().AddBan(m.GuildID, m.User.ID, deleteMessageDays, opts...)
 }
 
 // Unban unbans the Member from the Guild
-func (m *Member) Unban(opts ...rest.RequestOpt) rest.Error {
+func (m *Member) Unban(opts ...rest.RequestOpt) error {
 	return m.Bot.RestServices.GuildService().DeleteBan(m.GuildID, m.User.ID, opts...)
 }
 
 // AddRole adds a specific role the member
-func (m *Member) AddRole(roleID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+func (m *Member) AddRole(roleID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return m.Bot.RestServices.GuildService().AddMemberRole(m.GuildID, m.User.ID, roleID, opts...)
 }
 
 // RemoveRole removes a specific role the member
-func (m *Member) RemoveRole(roleID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+func (m *Member) RemoveRole(roleID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return m.Bot.RestServices.GuildService().RemoveMemberRole(m.GuildID, m.User.ID, roleID, opts...)
 }

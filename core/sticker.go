@@ -28,7 +28,7 @@ func (s *Sticker) Guild() *Guild {
 	return s.Bot.Caches.GuildCache().Get(*s.GuildID)
 }
 
-func (s *Sticker) Update(stickerUpdate discord.StickerUpdate, opts ...rest.RequestOpt) (*Sticker, rest.Error) {
+func (s *Sticker) Update(stickerUpdate discord.StickerUpdate, opts ...rest.RequestOpt) (*Sticker, error) {
 	if s.Type != discord.StickerTypeGuild {
 		return nil, rest.NewError(nil, discord.ErrStickerTypeGuild)
 	}
@@ -40,7 +40,7 @@ func (s *Sticker) Update(stickerUpdate discord.StickerUpdate, opts ...rest.Reque
 	return s.Bot.EntityBuilder.CreateSticker(*sticker, CacheStrategyNoWs), nil
 }
 
-func (s *Sticker) Delete(opts ...rest.RequestOpt) rest.Error {
+func (s *Sticker) Delete(opts ...rest.RequestOpt) error {
 	if s.Type != discord.StickerTypeGuild {
 		return rest.NewError(nil, discord.ErrStickerTypeGuild)
 	}
