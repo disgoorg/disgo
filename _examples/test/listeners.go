@@ -1,12 +1,10 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"strconv"
 	"time"
 
-	"github.com/DisgoOrg/disgo/collectors"
 	"github.com/DisgoOrg/disgo/events"
 
 	"github.com/DisgoOrg/disgo/core"
@@ -16,22 +14,10 @@ import (
 )
 
 var listener = &events.ListenerAdapter{
-	OnRawGateway:         rawGatewayEventListener,
-	OnGuildAvailable:     guildAvailListener,
 	OnGuildMessageCreate: messageListener,
 	OnSlashCommand:       slashCommandListener,
 	OnButtonClick:        buttonClickListener,
 	OnSelectMenuSubmit:   selectMenuSubmitListener,
-}
-
-func rawGatewayEventListener(event *events.RawEvent) {
-	if event.Type == discord.GatewayEventTypePresenceUpdate {
-		println(string(event.RawPayload))
-	}
-}
-
-func guildAvailListener(event *events.GuildAvailableEvent) {
-	log.Infof("guild loaded: %s", event.Guild.ID)
 }
 
 func buttonClickListener(event *events.ButtonClickEvent) {
@@ -132,14 +118,17 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 		)
 
 	case "test":
-		_ = event.DeferCreate(event.Options["ephemeral"].Bool())
-		if _, err := event.UpdateOriginal(core.NewMessageUpdateBuilder().
-			SetContent("test message").
-			AddFile("gopher.png", bytes.NewBuffer(gopher)).
-			Build(),
-		); err != nil {
-			log.Errorf("error sending interaction response: %s", err)
-		}
+		go func() {
+			_ = event.DeferCreate(true)
+			members, err := event.Guild().RequestMembersWithQuery("", 0)
+			if err != nil {
+				_, _ = event.UpdateOriginal(core.NewMessageUpdateBuilder().SetContentf("failed to load members. error: %s", err).Build())
+			}
+			_, _ = event.UpdateOriginal(core.NewMessageUpdateBuilder().
+				SetContentf("loaded %d members", len(members)).
+				Build(),
+			)
+		}()
 
 	case "addrole":
 		user := event.Options["member"].User()
@@ -223,7 +212,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 
 	case "repeat":
 		go func() {
-			ch, cls := collectors.NewMessageCollectorByChannel(event.Channel(), func(m *core.Message) bool {
+			ch, cls := event.Bot().Collectors.NewMessageCollector(func(m *core.Message) bool {
 				return !m.Author.IsBot && m.ChannelID == event.ChannelID
 			})
 

@@ -19,7 +19,7 @@ func (h *Webhook) URL() string {
 	return compiledRoute.URL()
 }
 
-func (h *Webhook) Update(webhookUpdate discord.WebhookUpdate, opts ...rest.RequestOpt) (*Webhook, rest.Error) {
+func (h *Webhook) Update(webhookUpdate discord.WebhookUpdate, opts ...rest.RequestOpt) (*Webhook, error) {
 	webhook, err := h.Bot.RestServices.WebhookService().UpdateWebhook(h.ID, webhookUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -27,6 +27,6 @@ func (h *Webhook) Update(webhookUpdate discord.WebhookUpdate, opts ...rest.Reque
 	return h.Bot.EntityBuilder.CreateWebhook(*webhook), nil
 }
 
-func (h *Webhook) Delete(opts ...rest.RequestOpt) rest.Error {
+func (h *Webhook) Delete(opts ...rest.RequestOpt) error {
 	return h.Bot.RestServices.WebhookService().DeleteWebhook(h.ID, opts...)
 }

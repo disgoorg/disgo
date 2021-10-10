@@ -31,7 +31,7 @@ type Activity struct {
 	Secrets       *ActivitySecrets    `json:"secrets,omitempty"`
 	Instance      *bool               `json:"instance,omitempty"`
 	Flags         int                 `json:"flags,omitempty"`
-	Buttons       []ActivityButton    `json:"buttons"`
+	Buttons       []string            `json:"buttons"`
 }
 
 type ActivityButton struct {

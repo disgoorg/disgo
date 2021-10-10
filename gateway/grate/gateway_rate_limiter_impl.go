@@ -59,7 +59,7 @@ func (l *limiterImpl) Wait(ctx context.Context) error {
 	}
 
 	if until.After(now) {
-		// TODO: do we want to return early when we know srate limit bigger than ctx deadline?
+		// TODO: do we want to return early when we know rate limit bigger than ctx deadline?
 		if deadline, ok := ctx.Deadline(); ok && until.After(deadline) {
 			return context.DeadlineExceeded
 		}

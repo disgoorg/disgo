@@ -26,14 +26,6 @@ var commands = []discord.ApplicationCommandCreate{
 		Name:              "test",
 		Description:       "test",
 		DefaultPermission: true,
-		Options: []discord.ApplicationCommandOption{
-			{
-				Type:        discord.ApplicationCommandOptionTypeBoolean,
-				Name:        "ephemeral",
-				Description: "ephemeral",
-				Required:    true,
-			},
-		},
 	},
 	{
 		Type:              discord.ApplicationCommandTypeSlash,
