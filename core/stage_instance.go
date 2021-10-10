@@ -40,7 +40,7 @@ func (i *StageInstance) GetListeners() []*Member {
 
 func (s *VoiceState) UpdateVoiceState(suppress *discord.OptionalBool, requestToSpeak *discord.OptionalTime, opts ...rest.RequestOpt) error {
 	if s.ChannelID == nil {
-		return rest.NewError(nil, discord.ErrMemberMustBeConnectedToChannel)
+		return discord.ErrMemberMustBeConnectedToChannel
 	}
 	return s.Bot.RestServices.GuildService().UpdateCurrentUserVoiceState(s.GuildID, discord.UserVoiceStateUpdate{ChannelID: *s.ChannelID, Suppress: suppress, RequestToSpeakTimestamp: requestToSpeak}, opts...)
 }

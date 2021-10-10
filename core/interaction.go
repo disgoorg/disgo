@@ -22,7 +22,7 @@ func (i *Interaction) Respond(callbackType discord.InteractionCallbackType, call
 		Data: callbackData,
 	}
 	if i.Acknowledged {
-		return rest.NewError(nil, discord.ErrInteractionAlreadyReplied)
+		return discord.ErrInteractionAlreadyReplied
 	}
 	i.Acknowledged = true
 

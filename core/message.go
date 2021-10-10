@@ -58,7 +58,7 @@ func (m *Message) Delete(opts ...rest.RequestOpt) error {
 func (m *Message) Crosspost(opts ...rest.RequestOpt) (*Message, error) {
 	channel := m.Channel()
 	if channel != nil && channel.IsNewsChannel() {
-		return nil, rest.NewError(nil, discord.ErrChannelNotTypeNews)
+		return nil, discord.ErrChannelNotTypeNews
 	}
 	message, err := m.Bot.RestServices.ChannelService().CrosspostMessage(m.ChannelID, m.ID, opts...)
 	if err != nil {

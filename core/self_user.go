@@ -22,5 +22,5 @@ func (u *SelfUser) Update(updateSelfUser discord.SelfUserUpdate, opts ...rest.Re
 
 // OpenDMChannel creates a DMChannel between the user and the Disgo client
 func (u *SelfUser) OpenDMChannel(_ ...rest.RequestOpt) (*Channel, error) {
-	return nil, rest.NewError(nil, discord.ErrSelfDM)
+	return nil, discord.ErrSelfDM
 }

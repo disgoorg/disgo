@@ -36,7 +36,7 @@ func (s *VoiceState) Channel() *Channel {
 
 func (s *VoiceState) Update(suppress *discord.OptionalBool, requestToSpeak *discord.OptionalTime, opts ...rest.RequestOpt) error {
 	if s.ChannelID == nil {
-		return rest.NewError(nil, discord.ErrMemberMustBeConnectedToChannel)
+		return discord.ErrMemberMustBeConnectedToChannel
 	}
 	userVoiceUpdate := discord.UserVoiceStateUpdate{ChannelID: *s.ChannelID, Suppress: suppress, RequestToSpeakTimestamp: requestToSpeak}
 	if s.UserID == s.Bot.ClientID {
