@@ -47,7 +47,7 @@ func (e *Emoji) Guild() *Guild {
 	return e.Bot.Caches.GuildCache().Get(e.GuildID)
 }
 
-func (e *Emoji) Update(emojiUpdate discord.EmojiUpdate, opts ...rest.RequestOpt) (*Emoji, rest.Error) {
+func (e *Emoji) Update(emojiUpdate discord.EmojiUpdate, opts ...rest.RequestOpt) (*Emoji, error) {
 	emoji, err := e.Bot.RestServices.EmojiService().UpdateEmoji(e.GuildID, e.ID, emojiUpdate)
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func (e *Emoji) Update(emojiUpdate discord.EmojiUpdate, opts ...rest.RequestOpt)
 	return e.Bot.EntityBuilder.CreateEmoji(e.GuildID, *emoji, CacheStrategyNoWs), nil
 }
 
-func (e *Emoji) Delete(opts ...rest.RequestOpt) rest.Error {
+func (e *Emoji) Delete(opts ...rest.RequestOpt) error {
 	return e.Bot.RestServices.EmojiService().DeleteEmoji(e.GuildID, e.ID)
 }
 

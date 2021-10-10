@@ -17,7 +17,7 @@ func (t *GuildTemplate) Guild() *Guild {
 }
 
 // Update updates the GuildTemplate with the provided UpdateGuildTemplate
-func (t *GuildTemplate) Update(guildTemplateUpdate discord.GuildTemplateUpdate, opts ...rest.RequestOpt) (*GuildTemplate, rest.Error) {
+func (t *GuildTemplate) Update(guildTemplateUpdate discord.GuildTemplateUpdate, opts ...rest.RequestOpt) (*GuildTemplate, error) {
 	guildTemplate, err := t.Bot.RestServices.GuildTemplateService().UpdateGuildTemplate(t.GuildID, t.Code, guildTemplateUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -26,7 +26,7 @@ func (t *GuildTemplate) Update(guildTemplateUpdate discord.GuildTemplateUpdate, 
 }
 
 // Sync updates the GuildTemplate with the provided UpdateGuildTemplate
-func (t *GuildTemplate) Sync(opts ...rest.RequestOpt) (*GuildTemplate, rest.Error) {
+func (t *GuildTemplate) Sync(opts ...rest.RequestOpt) (*GuildTemplate, error) {
 	guildTemplate, err := t.Bot.RestServices.GuildTemplateService().SyncGuildTemplate(t.GuildID, t.Code, opts...)
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func (t *GuildTemplate) Sync(opts ...rest.RequestOpt) (*GuildTemplate, rest.Erro
 }
 
 // Delete deletes the GuildTemplate
-func (t *GuildTemplate) Delete(opts ...rest.RequestOpt) (*GuildTemplate, rest.Error) {
+func (t *GuildTemplate) Delete(opts ...rest.RequestOpt) (*GuildTemplate, error) {
 	guildTemplate, err := t.Bot.RestServices.GuildTemplateService().DeleteGuildTemplate(t.GuildID, t.Code, opts...)
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func (t *GuildTemplate) Delete(opts ...rest.RequestOpt) (*GuildTemplate, rest.Er
 }
 
 // CreateGuild creates a Guild from this GuildTemplate
-func (t *GuildTemplate) CreateGuild(createGuildFromTemplate discord.GuildFromTemplateCreate, opts ...rest.RequestOpt) (*Guild, rest.Error) {
+func (t *GuildTemplate) CreateGuild(createGuildFromTemplate discord.GuildFromTemplateCreate, opts ...rest.RequestOpt) (*Guild, error) {
 	guild, err := t.Bot.RestServices.GuildTemplateService().CreateGuildFromTemplate(t.Code, createGuildFromTemplate, opts...)
 	if err != nil {
 		return nil, err

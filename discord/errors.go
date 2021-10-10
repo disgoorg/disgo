@@ -8,10 +8,10 @@ import (
 
 //goland:noinspection GoUnusedGlobalVariable
 var (
-	ErrBadGateway   = errors.New("bad gateway could not reach destination")
-	ErrUnauthorized = errors.New("not authorized for this endpoint")
-	ErrBadRequest   = errors.New("bad request")
-	ErrRatelimited  = errors.New("received error 429")
+	ErrBadGateway      = errors.New("bad gateway could not reach destination")
+	ErrUnauthorized    = errors.New("not authorized for this endpoint")
+	ErrBadRequest      = errors.New("bad request")
+	ErrTooManyRequests = errors.New("too many requests")
 
 	ErrNoGatewayOrShardManager = errors.New("no gateway or shard manager configured")
 	ErrNoGuildMembersIntent    = errors.New("this operation requires the GUILD_MEMBERS intent")

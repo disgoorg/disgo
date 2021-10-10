@@ -5,7 +5,6 @@ import (
 	"github.com/DisgoOrg/disgo/events"
 )
 
-
 // NewMessageCommandCollector gives you a channel to receive on and a function to close the collector
 //goland:noinspection GoUnusedExportedFunction
 func NewMessageCommandCollector(disgo *core.Bot, filter core.MessageCommandInteractionFilter) (<-chan *core.MessageCommandInteraction, func()) {
@@ -29,7 +28,7 @@ func NewMessageCommandCollector(disgo *core.Bot, filter core.MessageCommandInter
 type MessageCommandCollector struct {
 	Filter core.MessageCommandInteractionFilter
 	Chan   chan<- *core.MessageCommandInteraction
-	Close     func()
+	Close  func()
 }
 
 // OnEvent used to get events for the ButtonCollector

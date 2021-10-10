@@ -14,7 +14,7 @@ type Guild struct {
 }
 
 // Update updates the current Guild
-func (g *Guild) Update(updateGuild discord.GuildUpdate, opts ...rest.RequestOpt) (*Guild, rest.Error) {
+func (g *Guild) Update(updateGuild discord.GuildUpdate, opts ...rest.RequestOpt) (*Guild, error) {
 	guild, err := g.Bot.RestServices.GuildService().UpdateGuild(g.ID, updateGuild, opts...)
 	if err != nil {
 		return nil, err
@@ -23,7 +23,7 @@ func (g *Guild) Update(updateGuild discord.GuildUpdate, opts ...rest.RequestOpt)
 }
 
 // Delete deletes the current Guild
-func (g *Guild) Delete(opts ...rest.RequestOpt) rest.Error {
+func (g *Guild) Delete(opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.GuildService().DeleteGuild(g.ID, opts...)
 }
 
@@ -33,7 +33,7 @@ func (g *Guild) PublicRole() *Role {
 }
 
 // CreateRole allows you to create a new Role
-func (g *Guild) CreateRole(roleCreate discord.RoleCreate, opts ...rest.RequestOpt) (*Role, rest.Error) {
+func (g *Guild) CreateRole(roleCreate discord.RoleCreate, opts ...rest.RequestOpt) (*Role, error) {
 	role, err := g.Bot.RestServices.GuildService().CreateRole(g.ID, roleCreate, opts...)
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (g *Guild) CreateRole(roleCreate discord.RoleCreate, opts ...rest.RequestOp
 }
 
 // UpdateRole allows you to update a Role
-func (g *Guild) UpdateRole(roleID discord.Snowflake, roleUpdate discord.RoleUpdate, opts ...rest.RequestOpt) (*Role, rest.Error) {
+func (g *Guild) UpdateRole(roleID discord.Snowflake, roleUpdate discord.RoleUpdate, opts ...rest.RequestOpt) (*Role, error) {
 	role, err := g.Bot.RestServices.GuildService().UpdateRole(g.ID, roleID, roleUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (g *Guild) UpdateRole(roleID discord.Snowflake, roleUpdate discord.RoleUpda
 }
 
 // DeleteRole allows you to delete a Role
-func (g *Guild) DeleteRole(roleID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+func (g *Guild) DeleteRole(roleID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.GuildService().DeleteRole(g.ID, roleID, opts...)
 }
 
@@ -66,7 +66,7 @@ func (g *Guild) RoleCache() map[discord.Snowflake]*Role {
 }
 
 // CreateEmoji allows you to create a new Emoji
-func (g *Guild) CreateEmoji(emojiCreate discord.EmojiCreate, opts ...rest.RequestOpt) (*Emoji, rest.Error) {
+func (g *Guild) CreateEmoji(emojiCreate discord.EmojiCreate, opts ...rest.RequestOpt) (*Emoji, error) {
 	emoji, err := g.Bot.RestServices.EmojiService().CreateEmoji(g.ID, emojiCreate, opts...)
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func (g *Guild) CreateEmoji(emojiCreate discord.EmojiCreate, opts ...rest.Reques
 }
 
 // UpdateEmoji allows you to update an Emoji
-func (g *Guild) UpdateEmoji(emojiID discord.Snowflake, emojiUpdate discord.EmojiUpdate, opts ...rest.RequestOpt) (*Emoji, rest.Error) {
+func (g *Guild) UpdateEmoji(emojiID discord.Snowflake, emojiUpdate discord.EmojiUpdate, opts ...rest.RequestOpt) (*Emoji, error) {
 	emoji, err := g.Bot.RestServices.EmojiService().UpdateEmoji(g.ID, emojiID, emojiUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -84,12 +84,12 @@ func (g *Guild) UpdateEmoji(emojiID discord.Snowflake, emojiUpdate discord.Emoji
 }
 
 // DeleteEmoji allows you to delete an Emoji
-func (g *Guild) DeleteEmoji(emojiID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+func (g *Guild) DeleteEmoji(emojiID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.EmojiService().DeleteEmoji(g.ID, emojiID, opts...)
 }
 
 // CreateSticker allows you to create a new Sticker
-func (g *Guild) CreateSticker(stickerCreate discord.StickerCreate, opts ...rest.RequestOpt) (*Sticker, rest.Error) {
+func (g *Guild) CreateSticker(stickerCreate discord.StickerCreate, opts ...rest.RequestOpt) (*Sticker, error) {
 	sticker, err := g.Bot.RestServices.StickerService().CreateSticker(g.ID, stickerCreate, opts...)
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func (g *Guild) CreateSticker(stickerCreate discord.StickerCreate, opts ...rest.
 }
 
 // UpdateSticker allows you to update a Sticker
-func (g *Guild) UpdateSticker(stickerID discord.Snowflake, stickerUpdate discord.StickerUpdate, opts ...rest.RequestOpt) (*Sticker, rest.Error) {
+func (g *Guild) UpdateSticker(stickerID discord.Snowflake, stickerUpdate discord.StickerUpdate, opts ...rest.RequestOpt) (*Sticker, error) {
 	sticker, err := g.Bot.RestServices.StickerService().UpdateSticker(g.ID, stickerID, stickerUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -107,7 +107,7 @@ func (g *Guild) UpdateSticker(stickerID discord.Snowflake, stickerUpdate discord
 }
 
 // DeleteSticker allows you to delete a Sticker
-func (g *Guild) DeleteSticker(stickerID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+func (g *Guild) DeleteSticker(stickerID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.StickerService().DeleteSticker(g.ID, stickerID, opts...)
 }
 
@@ -117,7 +117,7 @@ func (g *Guild) SelfMember() *Member {
 }
 
 // Leave leaves the Guild
-func (g *Guild) Leave(opts ...rest.RequestOpt) rest.Error {
+func (g *Guild) Leave(opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.UserService().LeaveGuild(g.ID, opts...)
 }
 
@@ -168,7 +168,7 @@ func (g *Guild) GetMember(userID discord.Snowflake) *Member {
 }
 
 // AddMember adds a member to the Guild with the oauth2 access token
-func (g *Guild) AddMember(userID discord.Snowflake, memberAdd discord.MemberAdd, opts ...rest.RequestOpt) (*Member, rest.Error) {
+func (g *Guild) AddMember(userID discord.Snowflake, memberAdd discord.MemberAdd, opts ...rest.RequestOpt) (*Member, error) {
 	member, err := g.Bot.RestServices.GuildService().AddMember(g.ID, userID, memberAdd, opts...)
 	if err != nil {
 		return nil, err
@@ -177,7 +177,7 @@ func (g *Guild) AddMember(userID discord.Snowflake, memberAdd discord.MemberAdd,
 }
 
 // UpdateMember updates an existing member of the Guild
-func (g *Guild) UpdateMember(userID discord.Snowflake, memberUpdate discord.MemberUpdate, opts ...rest.RequestOpt) (*Member, rest.Error) {
+func (g *Guild) UpdateMember(userID discord.Snowflake, memberUpdate discord.MemberUpdate, opts ...rest.RequestOpt) (*Member, error) {
 	member, err := g.Bot.RestServices.GuildService().UpdateMember(g.ID, userID, memberUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -186,22 +186,22 @@ func (g *Guild) UpdateMember(userID discord.Snowflake, memberUpdate discord.Memb
 }
 
 // KickMember kicks an existing member from the Guild
-func (g *Guild) KickMember(userID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+func (g *Guild) KickMember(userID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.GuildService().RemoveMember(g.ID, userID, opts...)
 }
 
 // BanMember bans a Member from the Guild
-func (g *Guild) BanMember(userID discord.Snowflake, deleteMessageDays int, opts ...rest.RequestOpt) rest.Error {
+func (g *Guild) BanMember(userID discord.Snowflake, deleteMessageDays int, opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.GuildService().AddBan(g.ID, userID, deleteMessageDays, opts...)
 }
 
 // UnbanMember unbans a Member from the Guild
-func (g *Guild) UnbanMember(userID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+func (g *Guild) UnbanMember(userID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.GuildService().DeleteBan(g.ID, userID, opts...)
 }
 
 // GetBans fetches all bans for this Guild
-func (g *Guild) GetBans(opts ...rest.RequestOpt) ([]*Ban, rest.Error) {
+func (g *Guild) GetBans(opts ...rest.RequestOpt) ([]*Ban, error) {
 	guildBans, err := g.Bot.RestServices.GuildService().GetBans(g.ID, opts...)
 	if err != nil {
 		return nil, err
@@ -214,7 +214,7 @@ func (g *Guild) GetBans(opts ...rest.RequestOpt) ([]*Ban, rest.Error) {
 }
 
 // GetBan fetches a ban for a User for this Guild
-func (g *Guild) GetBan(userID discord.Snowflake, opts ...rest.RequestOpt) (*Ban, rest.Error) {
+func (g *Guild) GetBan(userID discord.Snowflake, opts ...rest.RequestOpt) (*Ban, error) {
 	ban, err := g.Bot.RestServices.GuildService().GetBan(g.ID, userID, opts...)
 	if err != nil {
 		return nil, err
@@ -228,7 +228,7 @@ func (g *Guild) IconURL(size int) *string {
 }
 
 // GetAuditLogs gets AuditLog(s) for this Guild
-func (g *Guild) GetAuditLogs(filterOptions AuditLogFilterOptions, opts ...rest.RequestOpt) (*AuditLog, rest.Error) {
+func (g *Guild) GetAuditLogs(filterOptions AuditLogFilterOptions, opts ...rest.RequestOpt) (*AuditLog, error) {
 	auditLog, err := g.Bot.RestServices.AuditLogService().GetAuditLog(g.ID, filterOptions.UserID, filterOptions.ActionType, filterOptions.Before, filterOptions.Limit, opts...)
 	if err != nil {
 		return nil, err
@@ -237,7 +237,7 @@ func (g *Guild) GetAuditLogs(filterOptions AuditLogFilterOptions, opts ...rest.R
 }
 
 // GetIntegrations gets all Integration(s) from the Guild. Requires PermissionManageServer
-func (g *Guild) GetIntegrations(opts ...rest.RequestOpt) ([]*Integration, rest.Error) {
+func (g *Guild) GetIntegrations(opts ...rest.RequestOpt) ([]*Integration, error) {
 	guildIntegrations, err := g.Bot.RestServices.GuildService().GetIntegrations(g.ID, opts...)
 	if err != nil {
 		return nil, err
@@ -250,12 +250,12 @@ func (g *Guild) GetIntegrations(opts ...rest.RequestOpt) ([]*Integration, rest.E
 }
 
 // DeleteIntegration deletes a specific Integration from the Guild. Requires PermissionManageServer
-func (g *Guild) DeleteIntegration(integrationID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+func (g *Guild) DeleteIntegration(integrationID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.GuildService().DeleteIntegration(g.ID, integrationID, opts...)
 }
 
 // GetGuildCommand fetches a specific Guild discord.ApplicationCommand
-func (g *Guild) GetGuildCommand(commandID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error) {
+func (g *Guild) GetGuildCommand(commandID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommand, error) {
 	command, err := g.Bot.RestServices.ApplicationService().GetGuildCommand(g.Bot.ApplicationID, g.ID, commandID, opts...)
 	if err != nil {
 		return nil, err
@@ -264,7 +264,7 @@ func (g *Guild) GetGuildCommand(commandID discord.Snowflake, opts ...rest.Reques
 }
 
 // GetGuildCommands fetches all Guild discord.ApplicationCommand(s)
-func (g *Guild) GetGuildCommands(opts ...rest.RequestOpt) ([]*ApplicationCommand, rest.Error) {
+func (g *Guild) GetGuildCommands(opts ...rest.RequestOpt) ([]*ApplicationCommand, error) {
 	cmds, err := g.Bot.RestServices.ApplicationService().GetGuildCommands(g.Bot.ApplicationID, g.ID, opts...)
 	if err != nil {
 		return nil, err
@@ -277,7 +277,7 @@ func (g *Guild) GetGuildCommands(opts ...rest.RequestOpt) ([]*ApplicationCommand
 }
 
 // CreateGuildCommand creates a new Guild discord.ApplicationCommand
-func (g *Guild) CreateGuildCommand(commandCreate discord.ApplicationCommandCreate, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error) {
+func (g *Guild) CreateGuildCommand(commandCreate discord.ApplicationCommandCreate, opts ...rest.RequestOpt) (*ApplicationCommand, error) {
 	command, err := g.Bot.RestServices.ApplicationService().CreateGuildCommand(g.Bot.ApplicationID, g.ID, commandCreate, opts...)
 	if err != nil {
 		return nil, err
@@ -286,7 +286,7 @@ func (g *Guild) CreateGuildCommand(commandCreate discord.ApplicationCommandCreat
 }
 
 // UpdateGuildCommand edits a specific Guild discord.ApplicationCommand
-func (g *Guild) UpdateGuildCommand(commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate, opts ...rest.RequestOpt) (*ApplicationCommand, rest.Error) {
+func (g *Guild) UpdateGuildCommand(commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate, opts ...rest.RequestOpt) (*ApplicationCommand, error) {
 	command, err := g.Bot.RestServices.ApplicationService().UpdateGuildCommand(g.Bot.ApplicationID, g.ID, commandID, commandUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -295,12 +295,12 @@ func (g *Guild) UpdateGuildCommand(commandID discord.Snowflake, commandUpdate di
 }
 
 // DeleteGuildCommand creates a new Guild discord.ApplicationCommand
-func (g *Guild) DeleteGuildCommand(commandID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+func (g *Guild) DeleteGuildCommand(commandID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.ApplicationService().DeleteGuildCommand(g.Bot.ApplicationID, g.ID, commandID, opts...)
 }
 
 // SetGuildCommands overrides all Guild discord.ApplicationCommand(s)
-func (g *Guild) SetGuildCommands(commandCreates []discord.ApplicationCommandCreate, opts ...rest.RequestOpt) ([]*ApplicationCommand, rest.Error) {
+func (g *Guild) SetGuildCommands(commandCreates []discord.ApplicationCommandCreate, opts ...rest.RequestOpt) ([]*ApplicationCommand, error) {
 	cmds, err := g.Bot.RestServices.ApplicationService().SetGuildCommands(g.Bot.ApplicationID, g.ID, commandCreates, opts...)
 	if err != nil {
 		return nil, err
@@ -313,7 +313,7 @@ func (g *Guild) SetGuildCommands(commandCreates []discord.ApplicationCommandCrea
 }
 
 // GetGuildCommandsPermissions returns the core.ApplicationCommandPermissions for a all discord.ApplicationCommand(s) in an core.Guild
-func (g *Guild) GetGuildCommandsPermissions(opts ...rest.RequestOpt) ([]*ApplicationCommandPermissions, rest.Error) {
+func (g *Guild) GetGuildCommandsPermissions(opts ...rest.RequestOpt) ([]*ApplicationCommandPermissions, error) {
 	perms, err := g.Bot.RestServices.ApplicationService().GetGuildCommandsPermissions(g.Bot.ApplicationID, g.ID, opts...)
 	if err != nil {
 		return nil, err
@@ -326,7 +326,7 @@ func (g *Guild) GetGuildCommandsPermissions(opts ...rest.RequestOpt) ([]*Applica
 }
 
 // GetGuildCommandPermissions returns the core.ApplicationCommandPermissions for a specific discord.ApplicationCommand in an core.Guild
-func (g *Guild) GetGuildCommandPermissions(commandID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, rest.Error) {
+func (g *Guild) GetGuildCommandPermissions(commandID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
 	permissions, err := g.Bot.RestServices.ApplicationService().GetGuildCommandPermissions(g.Bot.ApplicationID, g.ID, commandID, opts...)
 	if err != nil {
 		return nil, err
@@ -335,7 +335,7 @@ func (g *Guild) GetGuildCommandPermissions(commandID discord.Snowflake, opts ...
 }
 
 // SetGuildCommandsPermissions sets the discord.ApplicationCommandPermissions for all discord.ApplicationCommand(s)
-func (g *Guild) SetGuildCommandsPermissions(commandPermissions []discord.ApplicationCommandPermissionsSet, opts ...rest.RequestOpt) ([]*ApplicationCommandPermissions, rest.Error) {
+func (g *Guild) SetGuildCommandsPermissions(commandPermissions []discord.ApplicationCommandPermissionsSet, opts ...rest.RequestOpt) ([]*ApplicationCommandPermissions, error) {
 	perms, err := g.Bot.RestServices.ApplicationService().SetGuildCommandsPermissions(g.Bot.ApplicationID, g.ID, commandPermissions, opts...)
 	if err != nil {
 		return nil, err
@@ -348,7 +348,7 @@ func (g *Guild) SetGuildCommandsPermissions(commandPermissions []discord.Applica
 }
 
 // SetGuildCommandPermissions sets the core.ApplicationCommandPermissions for a specific discord.ApplicationCommand
-func (g *Guild) SetGuildCommandPermissions(commandID discord.Snowflake, permissions []discord.ApplicationCommandPermission, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, rest.Error) {
+func (g *Guild) SetGuildCommandPermissions(commandID discord.Snowflake, permissions []discord.ApplicationCommandPermission, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
 	perms, err := g.Bot.RestServices.ApplicationService().SetGuildCommandPermissions(g.Bot.ApplicationID, g.ID, commandID, permissions, opts...)
 	if err != nil {
 		return nil, err
@@ -357,7 +357,7 @@ func (g *Guild) SetGuildCommandPermissions(commandID discord.Snowflake, permissi
 }
 
 // GetTemplates gets a specific GuildTemplate
-func (g *Guild) GetTemplates(opts ...rest.RequestOpt) ([]*GuildTemplate, rest.Error) {
+func (g *Guild) GetTemplates(opts ...rest.RequestOpt) ([]*GuildTemplate, error) {
 	guildTemplates, err := g.Bot.RestServices.GuildTemplateService().GetGuildTemplates(g.ID, opts...)
 	if err != nil {
 		return nil, err
@@ -370,7 +370,7 @@ func (g *Guild) GetTemplates(opts ...rest.RequestOpt) ([]*GuildTemplate, rest.Er
 }
 
 // CreateTemplate creates a new GuildTemplate
-func (g *Guild) CreateTemplate(guildTemplateCreate discord.GuildTemplateCreate, opts ...rest.RequestOpt) (*GuildTemplate, rest.Error) {
+func (g *Guild) CreateTemplate(guildTemplateCreate discord.GuildTemplateCreate, opts ...rest.RequestOpt) (*GuildTemplate, error) {
 	guildTemplate, err := g.Bot.RestServices.GuildTemplateService().CreateGuildTemplate(g.ID, guildTemplateCreate, opts...)
 	if err != nil {
 		return nil, err
@@ -379,7 +379,7 @@ func (g *Guild) CreateTemplate(guildTemplateCreate discord.GuildTemplateCreate, 
 }
 
 // SyncTemplate syncs the current Guild status to an existing GuildTemplate
-func (g *Guild) SyncTemplate(templateCode string, opts ...rest.RequestOpt) (*GuildTemplate, rest.Error) {
+func (g *Guild) SyncTemplate(templateCode string, opts ...rest.RequestOpt) (*GuildTemplate, error) {
 	guildTemplate, err := g.Bot.RestServices.GuildTemplateService().SyncGuildTemplate(g.ID, templateCode, opts...)
 	if err != nil {
 		return nil, err
@@ -388,7 +388,7 @@ func (g *Guild) SyncTemplate(templateCode string, opts ...rest.RequestOpt) (*Gui
 }
 
 // UpdateTemplate updates a specific GuildTemplate
-func (g *Guild) UpdateTemplate(templateCode string, guildTemplateUpdate discord.GuildTemplateUpdate, opts ...rest.RequestOpt) (*GuildTemplate, rest.Error) {
+func (g *Guild) UpdateTemplate(templateCode string, guildTemplateUpdate discord.GuildTemplateUpdate, opts ...rest.RequestOpt) (*GuildTemplate, error) {
 	guildTemplate, err := g.Bot.RestServices.GuildTemplateService().UpdateGuildTemplate(g.ID, templateCode, guildTemplateUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -397,7 +397,7 @@ func (g *Guild) UpdateTemplate(templateCode string, guildTemplateUpdate discord.
 }
 
 // DeleteTemplate deletes a specific GuildTemplate
-func (g *Guild) DeleteTemplate(templateCode string, opts ...rest.RequestOpt) (*GuildTemplate, rest.Error) {
+func (g *Guild) DeleteTemplate(templateCode string, opts ...rest.RequestOpt) (*GuildTemplate, error) {
 	guildTemplate, err := g.Bot.RestServices.GuildTemplateService().DeleteGuildTemplate(g.ID, templateCode, opts...)
 	if err != nil {
 		return nil, err

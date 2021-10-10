@@ -17,7 +17,7 @@ func (i *SelectMenuInteraction) SelectMenu() SelectMenu {
 }
 
 // UpdateSelectMenu updates the used SelectMenu with a new SelectMenu
-func (i *SelectMenuInteraction) UpdateSelectMenu(selectMenu SelectMenu, opts ...rest.RequestOpt) rest.Error {
+func (i *SelectMenuInteraction) UpdateSelectMenu(selectMenu SelectMenu, opts ...rest.RequestOpt) error {
 	return i.UpdateComponent(selectMenu, opts...)
 }
 

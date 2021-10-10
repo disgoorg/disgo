@@ -19,7 +19,7 @@ func (i *Invite) URL() string {
 	return compiledRoute.URL()
 }
 
-func (i *Invite) Delete(opts ...rest.RequestOpt) (*Invite, rest.Error) {
+func (i *Invite) Delete(opts ...rest.RequestOpt) (*Invite, error) {
 	invite, err := i.Bot.RestServices.InviteService().DeleteInvite(i.Code, opts...)
 	if err != nil {
 		return nil, err

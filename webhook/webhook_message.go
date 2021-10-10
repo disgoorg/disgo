@@ -13,12 +13,12 @@ type Message struct {
 }
 
 // Update allows you to edit an existing Message sent by you
-func (m *Message) Update(messageUpdate discord.WebhookMessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error) {
+func (m *Message) Update(messageUpdate discord.WebhookMessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
 	return m.WebhookClient.UpdateMessage(m.ID, messageUpdate, opts...)
 }
 
 // Delete allows you to edit an existing Message sent by you
-func (m *Message) Delete(opts ...rest.RequestOpt) rest.Error {
+func (m *Message) Delete(opts ...rest.RequestOpt) error {
 	return m.WebhookClient.DeleteMessage(m.ID, opts...)
 }
 

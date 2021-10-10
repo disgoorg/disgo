@@ -10,10 +10,10 @@ type Webhook struct {
 	WebhookClient *Client
 }
 
-func (h *Webhook) Update(webhookUpdate discord.WebhookUpdate, opts ...rest.RequestOpt) (*Webhook, rest.Error) {
+func (h *Webhook) Update(webhookUpdate discord.WebhookUpdate, opts ...rest.RequestOpt) (*Webhook, error) {
 	return h.WebhookClient.UpdateWebhook(webhookUpdate, opts...)
 }
 
-func (h *Webhook) Delete(opts ...rest.RequestOpt) rest.Error {
+func (h *Webhook) Delete(opts ...rest.RequestOpt) error {
 	return h.WebhookClient.DeleteWebhook(opts...)
 }
