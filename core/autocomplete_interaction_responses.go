@@ -9,11 +9,11 @@ type AutoCompleteInteractionResponses struct {
 	*Interaction
 }
 
-func (e *AutoCompleteInteractionResponses) Result(choices []discord.ApplicationCommandOptionChoice, opts ...rest.RequestOpt) rest.Error {
+func (e *AutoCompleteInteractionResponses) Result(choices []discord.ApplicationCommandOptionChoice, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeApplicationCommandAutoCompleteResult, discord.ApplicationCommandAutoCompleteResult{Choices: choices}, opts...)
 }
 
-func (e *AutoCompleteInteractionResponses) ResultMap(resultMap map[string]interface{}, opts ...rest.RequestOpt) rest.Error {
+func (e *AutoCompleteInteractionResponses) ResultMap(resultMap map[string]interface{}, opts ...rest.RequestOpt) error {
 	choices := make([]discord.ApplicationCommandOptionChoice, len(resultMap))
 	i := 0
 	for name, value := range resultMap {
