@@ -21,13 +21,12 @@ func (s Status) IsConnected() bool {
 const (
 	StatusUnconnected Status = iota
 	StatusConnecting
-	StatusReconnecting
-	StatusIdentifying
 	StatusWaitingForHello
+	StatusIdentifying
+	StatusResuming
 	StatusWaitingForReady
 	StatusReady
 	StatusDisconnected
-	StatusResuming
 )
 
 type EventHandlerFunc func(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader)

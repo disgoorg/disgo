@@ -100,11 +100,10 @@ func (g *gatewayImpl) Open() error {
 
 func (g *gatewayImpl) OpenCtx(ctx context.Context) error {
 	g.Logger().Info(g.formatLogs("opening gateway connection"))
-	if g.lastSequenceReceived == nil || g.sessionID == nil {
-		g.status = StatusConnecting
-	} else {
-		g.status = StatusReconnecting
+	if g.conn != nil {
+		return discord.ErrGatewayAlreadyConnected
 	}
+	g.status = StatusConnecting
 
 	gatewayURL := g.url + "?v=" + route.APIVersion + "&encoding=json"
 	var rs *http.Response
@@ -198,12 +197,11 @@ func (g *gatewayImpl) reconnect(try int, delay time.Duration) {
 	}
 	time.Sleep(delay)
 
-	if g.Status() == StatusConnecting || g.Status() == StatusReconnecting {
-		g.Logger().Error(g.formatLogs("tried to reconnect gateway while connecting/reconnecting"))
-		return
-	}
 	g.Logger().Info(g.formatLogs("reconnecting gateway..."))
 	if err := g.Open(); err != nil {
+		if err == discord.ErrGatewayAlreadyConnected {
+			return
+		}
 		g.Logger().Error(g.formatLogs("failed to reconnect gateway. error: ", err))
 		g.status = StatusDisconnected
 		g.reconnect(try+1, delay*2)
@@ -213,12 +211,12 @@ func (g *gatewayImpl) reconnect(try int, delay time.Duration) {
 func (g *gatewayImpl) heartbeat() {
 	defer g.Logger().Debug(g.formatLogs("exiting heartbeat goroutine..."))
 	ticker := time.NewTicker(g.heartbeatInterval)
+	defer ticker.Stop()
 	for {
 		select {
 		case <-ticker.C:
 			g.sendHeartbeat()
 		case <-g.heartbeatChan:
-			ticker.Stop()
 			return
 		}
 	}
