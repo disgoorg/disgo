@@ -54,7 +54,6 @@ func (s *IntSet) String() string {
 	builder.WriteString("[")
 	s.RLock()
 	for i := range s.Set {
-		builder.WriteString("")
 		builder.WriteString(strconv.Itoa(i))
 		if i < len(s.Set)-1 {
 			builder.WriteString(", ")
