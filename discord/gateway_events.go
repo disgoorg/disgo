@@ -18,9 +18,9 @@ type GatewayPayload struct {
 type GatewayEventReady struct {
 	Version     int                `json:"v"`
 	SelfUser    OAuth2User         `json:"user"`
-	Guilds      []Guild            `json:"guilds"`
+	Guilds      []UnavailableGuild `json:"guilds"`
 	SessionID   string             `json:"session_id"`
-	Shard       [2]int             `json:"shard,omitempty"`
+	Shard       []int              `json:"shard,omitempty"`
 	Application PartialApplication `json:"application"`
 }
 

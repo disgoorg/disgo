@@ -15,7 +15,7 @@ func TestIcon_MarshalJSON(t *testing.T) {
 	v := iconTest{
 		Icon: &Icon{
 			Type: IconTypeJPEG,
-			Data: "data",
+			Data: []byte("data"),
 		},
 	}
 

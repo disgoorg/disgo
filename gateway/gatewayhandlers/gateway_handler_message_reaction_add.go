@@ -28,6 +28,11 @@ func (h *gatewayHandlerMessageReactionAdd) HandleGatewayEvent(bot *core.Bot, seq
 		MessageID:    messageReaction.MessageID,
 		Message:      bot.Caches.MessageCache().Get(messageReaction.ChannelID, messageReaction.MessageID),
 		ChannelID:    messageReaction.ChannelID,
+		GuildID:      messageReaction.GuildID,
+	}
+	var member *core.Member
+	if messageReaction.Member != nil {
+		member = bot.EntityBuilder.CreateMember(*messageReaction.GuildID, *messageReaction.Member, core.CacheStrategyYes)
 	}
 	bot.EventManager.Dispatch(&events.MessageReactionAddEvent{
 		GenericReactionEvent: &events.GenericReactionEvent{
@@ -35,6 +40,7 @@ func (h *gatewayHandlerMessageReactionAdd) HandleGatewayEvent(bot *core.Bot, seq
 			UserID:              messageReaction.UserID,
 			Emoji:               messageReaction.Emoji,
 		},
+		Member: member,
 	})
 
 	if messageReaction.GuildID == nil {
@@ -55,9 +61,9 @@ func (h *gatewayHandlerMessageReactionAdd) HandleGatewayEvent(bot *core.Bot, seq
 					GuildID:             *messageReaction.GuildID,
 				},
 				UserID: messageReaction.UserID,
-				Member: bot.EntityBuilder.CreateMember(*messageReaction.GuildID, *messageReaction.Member, core.CacheStrategyYes),
 				Emoji:  messageReaction.Emoji,
 			},
+			Member: member,
 		})
 	}
 }

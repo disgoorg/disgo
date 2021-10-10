@@ -13,14 +13,12 @@ var (
 )
 
 type EventManagerConfig struct {
-	EventListeners           []EventListener
-	VoiceDispatchInterceptor VoiceDispatchInterceptor
-	RawEventsEnabled         bool
+	EventListeners     []EventListener
+	RawEventsEnabled   bool
+	AsyncEventsEnabled bool
 
 	GatewayHandlers   map[discord.GatewayEventType]GatewayEventHandler
 	HTTPServerHandler HTTPServerEventHandler
-
-	NewMessageCollector func(channel *Channel, filter MessageFilter) (<-chan *Message, func())
 }
 
 var _ EventManager = (*eventManagerImpl)(nil)
@@ -42,7 +40,6 @@ type EventManager interface {
 	Close()
 	Config() EventManagerConfig
 
-	SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor)
 	AddEventListeners(eventListeners ...EventListener)
 	RemoveEventListeners(eventListeners ...EventListener)
 	HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader)
@@ -94,13 +91,8 @@ func (e *eventManagerImpl) Config() EventManagerConfig {
 	return e.config
 }
 
-func (e *eventManagerImpl) SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor) {
-	e.config.VoiceDispatchInterceptor = voiceDispatchInterceptor
-}
-
 // HandleGateway calls the correct core.EventHandler
 func (e *eventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) {
-
 	if handler, ok := e.config.GatewayHandlers[gatewayEventType]; ok {
 		v := handler.New()
 		if v != nil {
@@ -125,18 +117,26 @@ func (e *eventManagerImpl) HandleHTTP(responseChannel chan<- discord.Interaction
 
 // Dispatch dispatches a new event to the client
 func (e *eventManagerImpl) Dispatch(event Event) {
+	defer func() {
+		if r := recover(); r != nil {
+			e.Bot().Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
+			return
+		}
+	}()
 	for i := range e.config.EventListeners {
-		listener := e.config.EventListeners[i]
-		go func() {
-			defer func() {
-				if r := recover(); r != nil {
-					e.Bot().Logger.Error("recovered from panic in event listener: ", r)
-					debug.PrintStack()
-					return
-				}
+		if e.Config().AsyncEventsEnabled {
+			go func() {
+				defer func() {
+					if r := recover(); r != nil {
+						e.Bot().Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
+						return
+					}
+				}()
+				e.config.EventListeners[i].OnEvent(event)
 			}()
-			listener.OnEvent(event)
-		}()
+			continue
+		}
+		e.config.EventListeners[i].OnEvent(event)
 	}
 }
 

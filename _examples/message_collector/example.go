@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"strconv"
 	"syscall"
+	"time"
 
 	"github.com/DisgoOrg/disgo/bot"
 
@@ -54,20 +56,29 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 	}
 	if event.Message.Content == "start" {
 		go func() {
-			ch, cls := event.Channel().CollectMessages(func(message *core.Message) bool {
+			ch, cls := event.Bot().Collectors.NewMessageCollector(func(message *core.Message) bool {
 				return message.ChannelID == event.ChannelID && message.Author.ID == event.Message.Author.ID && message.Content != ""
 			})
 			i := 1
 			str := ">>> "
-			for message := range ch {
-				if i > 3 {
-					cls()
-					_, _ = message.Channel().CreateMessage(core.NewMessageCreateBuilder().SetContent(str).Build())
+			ctx, clsCtx := context.WithTimeout(context.Background(), 20*time.Second)
+			defer clsCtx()
+			for {
+				select {
+				case <-ctx.Done():
+					_, _ = event.Channel().CreateMessage(core.NewMessageCreateBuilder().SetContent("cancelled").Build())
+					return
+
+				case message := <-ch:
+					str += strconv.Itoa(i) + ". " + message.Content + "\n\n"
+
+					if i == 3 {
+						cls()
+						_, _ = message.Channel().CreateMessage(core.NewMessageCreateBuilder().SetContent(str).Build())
+					}
+					i++
 				}
-				str += strconv.Itoa(i) + ". " + message.Content + "\n\n"
-				i++
 			}
 		}()
-
 	}
 }

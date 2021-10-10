@@ -45,7 +45,7 @@ type Client interface {
 	HTTPClient() *http.Client
 	RateLimiter() rrate.Limiter
 	Config() Config
-	Do(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) Error
+	Do(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) error
 }
 
 type clientImpl struct {
@@ -72,7 +72,7 @@ func (c *clientImpl) Config() Config {
 	return c.config
 }
 
-func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, tries int, opts []RequestOpt) Error {
+func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, tries int, opts []RequestOpt) error {
 	rqURL := cRoute.URL()
 	rqBuffer := &bytes.Buffer{}
 	var contentType string
@@ -93,7 +93,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 			buffer = &bytes.Buffer{}
 			err := json.NewEncoder(buffer).Encode(rqBody)
 			if err != nil {
-				return NewError(nil, err)
+				return err
 			}
 		}
 		body, _ := ioutil.ReadAll(io.TeeReader(buffer, rqBuffer))
@@ -102,7 +102,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 
 	rq, err := http.NewRequest(cRoute.APIRoute.Method().String(), rqURL, rqBuffer)
 	if err != nil {
-		return NewError(nil, err)
+		return err
 	}
 
 	// write all headers to the request
@@ -124,33 +124,33 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 	if config.Delay > 0 {
 		select {
 		case <-config.Ctx.Done():
-			return NewError(nil, config.Ctx.Err())
+			return config.Ctx.Err()
 		case <-time.After(config.Delay):
 		}
 	}
 
-	// wait for srate limits
+	// wait for rate limits
 	err = c.RateLimiter().WaitBucket(config.Ctx, cRoute)
 	if err != nil {
-		return NewError(nil, err)
+		return err
 	}
 	rq = rq.WithContext(config.Ctx)
 
 	for _, check := range config.Checks {
 		if !check() {
 			_ = c.RateLimiter().UnlockBucket(cRoute, nil)
-			return NewError(nil, discord.ErrCheckFailed)
+			return discord.ErrCheckFailed
 		}
 	}
 
 	rs, err := c.HTTPClient().Do(config.Request)
 	if err != nil {
-		return NewError(rs, err)
+		return err
 	}
 
 	if err = c.RateLimiter().UnlockBucket(cRoute, rs.Header); err != nil {
 		// TODO: should we maybe retry here?
-		return NewError(rs, err)
+		return err
 	}
 
 	if rs.Body != nil {
@@ -179,9 +179,9 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 		return NewError(rs, discord.ErrBadRequest)
 
 	case http.StatusTooManyRequests:
-		c.Logger().Error(discord.ErrRatelimited)
+		c.Logger().Error(discord.ErrTooManyRequests)
 		if tries >= c.RateLimiter().Config().MaxRetries {
-			return NewError(rs, discord.ErrRatelimited)
+			return NewError(rs, discord.ErrTooManyRequests)
 		}
 		return c.retry(cRoute, rqBody, rsBody, tries+1, opts)
 
@@ -191,10 +191,10 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 
 	default:
 		body, _ := ioutil.ReadAll(rq.Body)
-		return NewError(rs, fmt.Errorf("request to %s failed. statuscode: %d, body: %s", rq.URL, rs.StatusCode, body))
+		return NewError(rs, fmt.Errorf("request to %s failed. , body: %s", rq.URL, string(body)))
 	}
 }
 
-func (c *clientImpl) Do(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) Error {
+func (c *clientImpl) Do(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) error {
 	return c.retry(cRoute, rqBody, rsBody, 1, opts)
 }

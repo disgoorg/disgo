@@ -13,7 +13,7 @@ func NewAuditLogService(restClient Client) auditLogService {
 
 type auditLogService interface {
 	Service
-	GetAuditLog(guildID discord.Snowflake, userID discord.Snowflake, actionType discord.AuditLogEvent, before discord.Snowflake, limit int, opts ...RequestOpt) (*discord.AuditLog, Error)
+	GetAuditLog(guildID discord.Snowflake, userID discord.Snowflake, actionType discord.AuditLogEvent, before discord.Snowflake, limit int, opts ...RequestOpt) (*discord.AuditLog, error)
 }
 
 type AuditLogServiceImpl struct {
@@ -24,7 +24,7 @@ func (s *AuditLogServiceImpl) RestClient() Client {
 	return s.restClient
 }
 
-func (s *AuditLogServiceImpl) GetAuditLog(guildID discord.Snowflake, userID discord.Snowflake, actionType discord.AuditLogEvent, before discord.Snowflake, limit int, opts ...RequestOpt) (auditLog *discord.AuditLog, rErr Error) {
+func (s *AuditLogServiceImpl) GetAuditLog(guildID discord.Snowflake, userID discord.Snowflake, actionType discord.AuditLogEvent, before discord.Snowflake, limit int, opts ...RequestOpt) (auditLog *discord.AuditLog, err error) {
 	values := route.QueryValues{}
 	if userID != "" {
 		values["user_id"] = userID
@@ -38,10 +38,11 @@ func (s *AuditLogServiceImpl) GetAuditLog(guildID discord.Snowflake, userID disc
 	if limit != 0 {
 		values["limit"] = limit
 	}
-	compiledRoute, err := route.GetAuditLogs.Compile(values, guildID)
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.GetAuditLogs.Compile(values, guildID)
 	if err != nil {
-		return nil, NewError(nil, err)
+		return
 	}
-	rErr = s.restClient.Do(compiledRoute, nil, &auditLog, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &auditLog, opts...)
 	return
 }

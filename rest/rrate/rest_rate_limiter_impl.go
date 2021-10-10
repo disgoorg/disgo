@@ -86,10 +86,10 @@ func (l *limiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor {
 func (l *limiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *bucket {
 	hash := l.getRouteHash(route)
 
-	l.Logger().Debug("locking rest srate limiter")
+	l.Logger().Debug("locking rest rate limiter")
 	l.Lock()
 	defer func() {
-		l.Logger().Debug("unlocking rest srate limiter")
+		l.Logger().Debug("unlocking rest rate limiter")
 		l.Unlock()
 	}()
 	b, ok := l.buckets[hash]

@@ -13,6 +13,6 @@ type Ban struct {
 	GuildID discord.Snowflake
 }
 
-func (b *Ban) Unban(opts ...rest.RequestOpt) rest.Error {
+func (b *Ban) Unban(opts ...rest.RequestOpt) error {
 	return b.Bot.RestServices.GuildService().DeleteBan(b.GuildID, b.User.ID, opts...)
 }

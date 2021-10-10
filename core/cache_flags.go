@@ -47,7 +47,8 @@ const (
 	CacheFlagsFullRoles = CacheFlagRoles |
 		CacheFlagRoleTags
 
-	CacheFlagsAll = CacheFlagsAllChannels |
+	CacheFlagsAll = CacheFlagGuilds |
+		CacheFlagsAllChannels |
 		CacheFlagsFullRoles |
 		CacheFlagEmojis |
 		CacheFlagStickers |
