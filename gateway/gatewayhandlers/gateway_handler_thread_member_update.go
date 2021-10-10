@@ -16,6 +16,6 @@ func (h *gatewayHandlerThreadMemberUpdate) New() interface{} {
 }
 
 func (h *gatewayHandlerThreadMemberUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
-	payload := *v.(*discord.GatewayEventThreadMemberUpdate)
+	_ = *v.(*discord.GatewayEventThreadMemberUpdate)
 
 }

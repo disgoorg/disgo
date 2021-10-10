@@ -137,7 +137,7 @@ func (c *Channel) IsPrivateThread() bool {
 	return c.Type == discord.ChannelTypeGuildPrivateThread
 }
 
-func (c *Channel) CreateThread(threadCreate discord.ThreadCreate, opts ...rest.RequestOpt) (*Channel, rest.Error) {
+func (c *Channel) CreateThread(threadCreate discord.ThreadCreate, opts ...rest.RequestOpt) (*Channel, error) {
 	if !c.IsTextChannel() || !c.IsNewsChannel() {
 		unsupportedChannelType(c)
 	}
@@ -148,7 +148,7 @@ func (c *Channel) CreateThread(threadCreate discord.ThreadCreate, opts ...rest.R
 	return c.Bot.EntityBuilder.CreateChannel(*channel, CacheStrategyNo), nil
 }
 
-func (c *Channel) CreateThreadWithMessage(messageID discord.Snowflake, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (*Channel, rest.Error) {
+func (c *Channel) CreateThreadWithMessage(messageID discord.Snowflake, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (*Channel, error) {
 	if !c.IsTextChannel() || !c.IsNewsChannel() {
 		unsupportedChannelType(c)
 	}

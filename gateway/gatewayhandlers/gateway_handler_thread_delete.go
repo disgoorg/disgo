@@ -16,6 +16,6 @@ func (h *gatewayHandlerThreadDelete) New() interface{} {
 }
 
 func (h *gatewayHandlerThreadDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
-	payload := *v.(*discord.GatewayEventThreadDelete)
+	_ = *v.(*discord.GatewayEventThreadDelete)
 
 }

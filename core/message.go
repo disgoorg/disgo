@@ -17,7 +17,7 @@ type Message struct {
 	Stickers   []*MessageSticker
 }
 
-func (m *Message) CreateThread(threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (*Channel, rest.Error) {
+func (m *Message) CreateThread(threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (*Channel, error) {
 	channel, err := m.Bot.RestServices.ThreadService().CreateThreadWithMessage(m.ChannelID, m.ID, threadCreateWithMessage, opts...)
 	if err != nil {
 		return nil, err

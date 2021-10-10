@@ -16,6 +16,6 @@ func (h *gatewayHandlerThreadCreate) New() interface{} {
 }
 
 func (h *gatewayHandlerThreadCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
-	thread := *v.(*discord.Channel)
+	_ = *v.(*discord.Channel)
 
 }
