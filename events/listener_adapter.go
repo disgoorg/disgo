@@ -57,6 +57,8 @@ type ListenerAdapter struct {
 	OnGuildLeave       func(event *GuildLeaveEvent)
 	OnGuildAvailable   func(event *GuildAvailableEvent)
 	OnGuildUnavailable func(event *GuildUnavailableEvent)
+	OnGuildReady       func(event *GuildReadyEvent)
+	OnGuildsReady      func(event *GuildsReadyEvent)
 	OnGuildBan         func(event *GuildBanEvent)
 	OnGuildUnban       func(event *GuildUnbanEvent)
 
@@ -81,9 +83,11 @@ type ListenerAdapter struct {
 	OnGuildMessageReactionRemoveAll   func(event *GuildMessageReactionRemoveAllEvent)
 
 	// Guild Voice Events
-	OnGuildVoiceUpdate func(event *GuildVoiceUpdateEvent)
-	OnGuildVoiceJoin   func(event *GuildVoiceJoinEvent)
-	OnGuildVoiceLeave  func(event *GuildVoiceLeaveEvent)
+	OnVoiceServerUpdate     func(event *VoiceServerUpdateEvent)
+	OnGuildVoiceStateUpdate func(event *GuildVoiceStateUpdateEvent)
+	OnGuildVoiceJoin        func(event *GuildVoiceJoinEvent)
+	OnGuildVoiceMove        func(event *GuildVoiceMoveEvent)
+	OnGuildVoiceLeave       func(event *GuildVoiceLeaveEvent)
 
 	// Guild StageInstance Events
 	OnStageInstanceCreate func(event *StageInstanceCreateEvent)
@@ -282,6 +286,14 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		if listener := l.OnGuildUnavailable; listener != nil {
 			listener(e)
 		}
+	case *GuildReadyEvent:
+		if listener := l.OnGuildReady; listener != nil {
+			listener(e)
+		}
+	case *GuildsReadyEvent:
+		if listener := l.OnGuildsReady; listener != nil {
+			listener(e)
+		}
 	case *GuildBanEvent:
 		if listener := l.OnGuildBan; listener != nil {
 			listener(e)
@@ -348,12 +360,20 @@ func (l ListenerAdapter) OnEvent(event interface{}) {
 		}
 
 	// Guild Voice Events
-	case *GuildVoiceUpdateEvent:
-		if listener := l.OnGuildVoiceUpdate; listener != nil {
+	case *VoiceServerUpdateEvent:
+		if listener := l.OnVoiceServerUpdate; listener != nil {
+			listener(e)
+		}
+	case *GuildVoiceStateUpdateEvent:
+		if listener := l.OnGuildVoiceStateUpdate; listener != nil {
 			listener(e)
 		}
 	case *GuildVoiceJoinEvent:
 		if listener := l.OnGuildVoiceJoin; listener != nil {
+			listener(e)
+		}
+	case *GuildVoiceMoveEvent:
+		if listener := l.OnGuildVoiceMove; listener != nil {
 			listener(e)
 		}
 	case *GuildVoiceLeaveEvent:

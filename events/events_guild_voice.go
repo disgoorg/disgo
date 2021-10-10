@@ -1,11 +1,20 @@
 package events
 
-import "github.com/DisgoOrg/disgo/core"
+import (
+	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/discord"
+)
 
-// GenericGuildVoiceEvent is called upon receiving GuildVoiceJoinEvent, GuildVoiceUpdateEvent, GuildVoiceLeaveEvent
+// GenericGuildVoiceEvent is called upon receiving GuildVoiceJoinEvent, GuildVoiceMoveEvent, GuildVoiceLeaveEvent
 type GenericGuildVoiceEvent struct {
 	*GenericGuildMemberEvent
 	VoiceState *core.VoiceState
+}
+
+// GuildVoiceStateUpdateEvent indicates that the core.VoiceState of a core.Member has updated(requires core.GatewayIntentsGuildVoiceStates)
+type GuildVoiceStateUpdateEvent struct {
+	*GenericGuildVoiceEvent
+	OldVoiceState *core.VoiceState
 }
 
 // GuildVoiceJoinEvent indicates that a core.Member joined a core.Channel(requires core.GatewayIntentsGuildVoiceStates)
@@ -13,8 +22,8 @@ type GuildVoiceJoinEvent struct {
 	*GenericGuildVoiceEvent
 }
 
-// GuildVoiceUpdateEvent indicates that a core.Member moved a core.Channel(requires core.GatewayIntentsGuildVoiceStates)
-type GuildVoiceUpdateEvent struct {
+// GuildVoiceMoveEvent indicates that a core.Member moved a core.Channel(requires core.GatewayIntentsGuildVoiceStates)
+type GuildVoiceMoveEvent struct {
 	*GenericGuildVoiceEvent
 	OldVoiceState *core.VoiceState
 }
@@ -23,4 +32,9 @@ type GuildVoiceUpdateEvent struct {
 type GuildVoiceLeaveEvent struct {
 	*GenericGuildVoiceEvent
 	OldVoiceState *core.VoiceState
+}
+
+type VoiceServerUpdateEvent struct {
+	*GenericGuildEvent
+	discord.VoiceServerUpdate
 }

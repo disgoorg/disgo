@@ -21,55 +21,77 @@ func (h *gatewayHandlerGuildCreate) New() interface{} {
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
-	guild := *v.(*discord.GatewayGuild)
+	payload := *v.(*discord.GatewayGuild)
 
-	oldCoreGuild := bot.Caches.GuildCache().GetCopy(guild.ID)
-	wasUnavailable := true
-	if oldCoreGuild != nil {
-		wasUnavailable = oldCoreGuild.Unavailable
-	}
+	shard, _ := bot.Shard(payload.ID)
+	shardID := shard.ShardID()
 
-	genericGuildEvent := &events.GenericGuildEvent{
-		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-		GuildID:      guild.ID,
-		Guild:        bot.EntityBuilder.CreateGuild(guild.Guild, core.CacheStrategyYes),
-	}
+	wasUnready := bot.Caches.GuildCache().IsUnready(shardID, payload.ID)
+	wasUnavailable := bot.Caches.GuildCache().IsUnavailable(payload.ID)
 
-	for _, channel := range guild.Channels {
-		channel.GuildID = &guild.ID
+	guild := bot.EntityBuilder.CreateGuild(payload.Guild, core.CacheStrategyYes)
+
+	for _, channel := range payload.Channels {
+		channel.GuildID = &payload.ID
 		bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes)
 	}
 
-	for _, role := range guild.Roles {
-		role.GuildID = guild.ID
-		bot.EntityBuilder.CreateRole(guild.ID, role, core.CacheStrategyYes)
+	for _, role := range payload.Roles {
+		role.GuildID = payload.ID
+		bot.EntityBuilder.CreateRole(payload.ID, role, core.CacheStrategyYes)
 	}
 
-	for _, member := range guild.Members {
-		bot.EntityBuilder.CreateMember(guild.ID, member, core.CacheStrategyYes)
+	for _, member := range payload.Members {
+		bot.EntityBuilder.CreateMember(payload.ID, member, core.CacheStrategyYes)
 	}
 
-	for _, voiceState := range guild.VoiceStates {
-		voiceState.GuildID = guild.ID // populate unset field
+	for _, voiceState := range payload.VoiceStates {
+		voiceState.GuildID = payload.ID // populate unset field
 		vs := bot.EntityBuilder.CreateVoiceState(voiceState, core.CacheStrategyYes)
 		if channel := vs.Channel(); channel != nil {
 			channel.ConnectedMemberIDs[voiceState.UserID] = struct{}{}
 		}
 	}
 
-	for _, emote := range guild.Emojis {
-		bot.EntityBuilder.CreateEmoji(guild.ID, emote, core.CacheStrategyYes)
+	for _, emote := range payload.Emojis {
+		bot.EntityBuilder.CreateEmoji(payload.ID, emote, core.CacheStrategyYes)
 	}
 
-	for _, stageInstance := range guild.StageInstances {
+	for _, stageInstance := range payload.StageInstances {
 		bot.EntityBuilder.CreateStageInstance(stageInstance, core.CacheStrategyYes)
 	}
 
-	for _, presence := range guild.Presences {
+	for _, presence := range payload.Presences {
 		bot.EntityBuilder.CreatePresence(presence, core.CacheStrategyYes)
 	}
 
-	if wasUnavailable {
+	genericGuildEvent := &events.GenericGuildEvent{
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+		GuildID:      payload.ID,
+		Guild:        guild,
+	}
+
+	if wasUnready {
+		bot.Caches.GuildCache().SetReady(shardID, payload.ID)
+		bot.EventManager.Dispatch(&events.GuildReadyEvent{
+			GenericGuildEvent: genericGuildEvent,
+		})
+		if len(bot.Caches.GuildCache().UnreadyGuilds(shardID)) == 0 {
+			bot.EventManager.Dispatch(&events.GuildsReadyEvent{
+				GenericEvent: events.NewGenericEvent(bot, -1),
+				ShardID:      shardID,
+			})
+		}
+		if bot.MemberChunkingManager.MemberChunkingFilter()(payload.ID) {
+			go func() {
+				if _, err := bot.MemberChunkingManager.RequestMembersWithQuery(payload.ID, "", 0); err != nil {
+					bot.Logger.Error("failed to chunk guild on guild_create. error: ", err)
+				}
+			}()
+		}
+
+	} else if wasUnavailable {
+		bot.Caches.GuildCache().SetAvailable(payload.ID)
 		bot.EventManager.Dispatch(&events.GuildAvailableEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})

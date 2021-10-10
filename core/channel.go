@@ -5,13 +5,24 @@ import (
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
+	"github.com/DisgoOrg/disgo/rest/route"
 )
+
+var _ Mentionable = (*Channel)(nil)
 
 type Channel struct {
 	discord.Channel
 	Bot                *Bot
 	StageInstanceID    *discord.Snowflake
 	ConnectedMemberIDs map[discord.Snowflake]struct{}
+}
+
+func (c *Channel) String() string {
+	return fmt.Sprintf("<#%s>", c.ID)
+}
+
+func (c *Channel) Mention() string {
+	return c.String()
 }
 
 func (c *Channel) Guild() *Guild {
@@ -112,18 +123,8 @@ func (c *Channel) IsStageChannel() bool {
 	return c.Type == discord.ChannelTypeStage
 }
 
-// MessageFilter used to filter Message(s) in a MessageCollector
-type MessageFilter func(message *Message) bool
-
-func (c *Channel) CollectMessages(filter MessageFilter) (<-chan *Message, func()) {
-	if !c.IsMessageChannel() {
-		unsupportedChannelType(c)
-	}
-	return c.Bot.EventManager.Config().NewMessageCollector(c, filter)
-}
-
 // CreateMessage sends a Message to a Channel
-func (c *Channel) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, rest.Error) {
+func (c *Channel) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
 	if !c.IsMessageChannel() {
 		unsupportedChannelType(c)
 	}
@@ -135,7 +136,7 @@ func (c *Channel) CreateMessage(messageCreate discord.MessageCreate, opts ...res
 }
 
 // UpdateMessage edits a Message in this Channel
-func (c *Channel) UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error) {
+func (c *Channel) UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
 	if !c.IsMessageChannel() {
 		unsupportedChannelType(c)
 	}
@@ -147,7 +148,7 @@ func (c *Channel) UpdateMessage(messageID discord.Snowflake, messageUpdate disco
 }
 
 // DeleteMessage allows you to edit an existing Message sent by you
-func (c *Channel) DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+func (c *Channel) DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) error {
 	if !c.IsMessageChannel() {
 		unsupportedChannelType(c)
 	}
@@ -155,7 +156,7 @@ func (c *Channel) DeleteMessage(messageID discord.Snowflake, opts ...rest.Reques
 }
 
 // BulkDeleteMessages allows you bulk delete Message(s)
-func (c *Channel) BulkDeleteMessages(messageIDs []discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+func (c *Channel) BulkDeleteMessages(messageIDs []discord.Snowflake, opts ...rest.RequestOpt) error {
 	if !c.IsMessageChannel() {
 		unsupportedChannelType(c)
 	}
@@ -163,7 +164,7 @@ func (c *Channel) BulkDeleteMessages(messageIDs []discord.Snowflake, opts ...res
 }
 
 // GetMessage gets a Message from the Channel
-func (c *Channel) GetMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, rest.Error) {
+func (c *Channel) GetMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
 	if !c.IsMessageChannel() {
 		unsupportedChannelType(c)
 	}
@@ -175,7 +176,7 @@ func (c *Channel) GetMessage(messageID discord.Snowflake, opts ...rest.RequestOp
 }
 
 // GetMessages gets multiple Message(s) from the Channel
-func (c *Channel) GetMessages(around discord.Snowflake, before discord.Snowflake, after discord.Snowflake, limit int, opts ...rest.RequestOpt) ([]*Message, rest.Error) {
+func (c *Channel) GetMessages(around discord.Snowflake, before discord.Snowflake, after discord.Snowflake, limit int, opts ...rest.RequestOpt) ([]*Message, error) {
 	if !c.IsMessageChannel() {
 		unsupportedChannelType(c)
 	}
@@ -197,7 +198,7 @@ func (c *Channel) Parent() *Channel {
 	return c.Bot.Caches.ChannelCache().Get(*c.Channel.ParentID)
 }
 
-func (c *Channel) Update(channelUpdate discord.ChannelUpdate, opts ...rest.RequestOpt) (*Channel, rest.Error) {
+func (c *Channel) Update(channelUpdate discord.ChannelUpdate, opts ...rest.RequestOpt) (*Channel, error) {
 	if !c.IsGuildChannel() {
 		unsupportedChannelType(c)
 	}
@@ -215,7 +216,7 @@ func (c *Channel) Connect() error {
 	return c.Bot.AudioController.Connect(*c.GuildID, c.ID)
 }
 
-func (c *Channel) CrosspostMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, rest.Error) {
+func (c *Channel) CrosspostMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
 	message, err := c.Bot.RestServices.ChannelService().CrosspostMessage(c.ID, messageID, opts...)
 	if err != nil {
 		return nil, err
@@ -233,7 +234,7 @@ func (c *Channel) StageInstance() *StageInstance {
 	return c.Bot.Caches.StageInstanceCache().Get(*c.StageInstanceID)
 }
 
-func (c *Channel) CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate, opts ...rest.RequestOpt) (*StageInstance, rest.Error) {
+func (c *Channel) CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate, opts ...rest.RequestOpt) (*StageInstance, error) {
 	if !c.IsStageChannel() {
 		unsupportedChannelType(c)
 	}
@@ -244,7 +245,7 @@ func (c *Channel) CreateStageInstance(stageInstanceCreate discord.StageInstanceC
 	return c.Bot.EntityBuilder.CreateStageInstance(*stageInstance, CacheStrategyNoWs), nil
 }
 
-func (c *Channel) UpdateStageInstance(stageInstanceUpdate discord.StageInstanceUpdate, opts ...rest.RequestOpt) (*StageInstance, rest.Error) {
+func (c *Channel) UpdateStageInstance(stageInstanceUpdate discord.StageInstanceUpdate, opts ...rest.RequestOpt) (*StageInstance, error) {
 	if !c.IsStageChannel() {
 		unsupportedChannelType(c)
 	}
@@ -255,11 +256,17 @@ func (c *Channel) UpdateStageInstance(stageInstanceUpdate discord.StageInstanceU
 	return c.Bot.EntityBuilder.CreateStageInstance(*stageInstance, CacheStrategyNoWs), nil
 }
 
-func (c *Channel) DeleteStageInstance(opts ...rest.RequestOpt) rest.Error {
+func (c *Channel) DeleteStageInstance(opts ...rest.RequestOpt) error {
 	if !c.IsStageChannel() {
 		unsupportedChannelType(c)
 	}
 	return c.Bot.RestServices.StageInstanceService().DeleteStageInstance(c.ID, opts...)
+}
+
+// GetIconURL returns the Icon URL of this channel.
+// This will be nil for every discord.ChannelType except discord.ChannelTypeGroupDM
+func (c *Channel) GetIconURL(size int) *string {
+	return discord.FormatAssetURL(route.ChannelIcon, c.ID, c.Icon, size)
 }
 
 func (c *Channel) IsModerator(member *Member) bool {

@@ -19,6 +19,9 @@ type Config struct {
 	EventManager       core.EventManager
 	EventManagerConfig *core.EventManagerConfig
 
+	Collectors       core.Collectors
+	CollectorsConfig *core.CollectorsConfig
+
 	Gateway       gateway.Gateway
 	GatewayConfig *gateway.Config
 
@@ -31,9 +34,10 @@ type Config struct {
 	Caches      core.Caches
 	CacheConfig *core.CacheConfig
 
-	AudioController        core.AudioController
-	EntityBuilder          core.EntityBuilder
-	MembersChunkingManager core.MembersChunkingManager
+	AudioController       core.AudioController
+	EntityBuilder         core.EntityBuilder
+	MemberChunkingManager core.MemberChunkingManager
+	MemberChunkingFilter  *core.MemberChunkingFilter
 }
 
 type ConfigOpt func(config *Config)
@@ -101,12 +105,24 @@ func WithRawEventsEnabled() ConfigOpt {
 	}
 }
 
-func WithVoiceDispatchInterceptor(voiceDispatchInterceptor core.VoiceDispatchInterceptor) ConfigOpt {
+func WithAsyncEventsEnabled() ConfigOpt {
 	return func(config *Config) {
 		if config.EventManagerConfig == nil {
 			config.EventManagerConfig = &core.DefaultEventManagerConfig
 		}
-		config.EventManagerConfig.VoiceDispatchInterceptor = voiceDispatchInterceptor
+		config.EventManagerConfig.AsyncEventsEnabled = true
+	}
+}
+
+func WithCollectors(collectors core.Collectors) ConfigOpt {
+	return func(config *Config) {
+		config.Collectors = collectors
+	}
+}
+
+func WithCollectorsConfig(collectorsConfig core.CollectorsConfig) ConfigOpt {
+	return func(config *Config) {
+		config.CollectorsConfig = &collectorsConfig
 	}
 }
 
@@ -206,8 +222,14 @@ func WithAudioController(audioController core.AudioController) ConfigOpt {
 	}
 }
 
-func WithMembersChunkingManager(membersChunkingManager core.MembersChunkingManager) ConfigOpt {
+func WithMemberChunkingManager(memberChunkingManager core.MemberChunkingManager) ConfigOpt {
 	return func(config *Config) {
-		config.MembersChunkingManager = membersChunkingManager
+		config.MemberChunkingManager = memberChunkingManager
+	}
+}
+
+func WithMemberChunkingFilter(memberChunkingFilter core.MemberChunkingFilter) ConfigOpt {
+	return func(config *Config) {
+		config.MemberChunkingFilter = &memberChunkingFilter
 	}
 }

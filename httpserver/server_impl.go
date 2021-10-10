@@ -39,6 +39,8 @@ func New(eventHandlerFunc EventHandlerFunc, config *Config) Server {
 			Addr: config.Port,
 		}
 	}
+	server.server = config.HTTPServer
+
 	if config.HTTPServer.Handler == nil {
 		if config.ServeMux == nil {
 			config.ServeMux = http.NewServeMux()

@@ -31,7 +31,7 @@ var (
 )
 
 func main() {
-	log.SetDefault(log.New(log.LstdFlags | log.Lshortfile))
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetLevel(log.LevelDebug)
 	log.Info("starting example...")
 	log.Infof("bot version: %s", info.Version)
@@ -39,13 +39,14 @@ func main() {
 	disgo, err := bot.New(token,
 		bot.WithRawEventsEnabled(),
 		bot.WithGatewayOpts(
-			gateway.WithGatewayIntents(discord.GatewayIntentsAll),
+			gateway.WithGatewayIntents(discord.GatewayIntentGuilds|discord.GatewayIntentGuildMembers),
 			gateway.WithPresence(core.NewListeningPresence("your bullshit", discord.OnlineStatusOnline, false)),
 		),
 		bot.WithCacheOpts(
 			core.WithCacheFlags(core.CacheFlagsAll),
 			core.WithMemberCachePolicy(core.MemberCachePolicyAll),
 		),
+		bot.WithMemberChunkingFilter(core.MemberChunkingFilterAll),
 		bot.WithEventListeners(listener),
 	)
 	if err != nil {

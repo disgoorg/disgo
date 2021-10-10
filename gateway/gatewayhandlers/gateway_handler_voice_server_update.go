@@ -3,6 +3,7 @@ package gatewayhandlers
 import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/events"
 )
 
 // gatewayHandlerVoiceServerUpdate handles core.GatewayEventVoiceServerUpdate
@@ -19,13 +20,13 @@ func (h *gatewayHandlerVoiceServerUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerVoiceServerUpdate) HandleGatewayEvent(bot *core.Bot, _ int, v interface{}) {
+func (h *gatewayHandlerVoiceServerUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	voiceServerUpdate := *v.(*discord.VoiceServerUpdate)
 
-	if interceptor := bot.EventManager.Config().VoiceDispatchInterceptor; interceptor != nil {
-		interceptor.OnVoiceServerUpdate(&core.VoiceServerUpdateEvent{
-			VoiceServerUpdate: voiceServerUpdate,
-			Bot:               bot,
-		})
-	}
+	bot.EventManager.Dispatch(&events.VoiceServerUpdateEvent{
+		GenericGuildEvent: &events.GenericGuildEvent{
+			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+			Guild:        bot.Caches.GuildCache().Get(voiceServerUpdate.GuildID),
+		},
+	})
 }

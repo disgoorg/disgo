@@ -1,5 +1,7 @@
 package core
 
+type MessageCommandInteractionFilter func(messageCommandInteraction *MessageCommandInteraction) bool
+
 type MessageCommandInteraction struct {
 	*ContextCommandInteraction
 }

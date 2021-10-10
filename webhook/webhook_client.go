@@ -54,7 +54,7 @@ type Client struct {
 	Config
 }
 
-func (h *Client) GetWebhook(opts ...rest.RequestOpt) (*Webhook, rest.Error) {
+func (h *Client) GetWebhook(opts ...rest.RequestOpt) (*Webhook, error) {
 	webhook, err := h.WebhookService.GetWebhookWithToken(h.ID, h.Token, opts...)
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func (h *Client) GetWebhook(opts ...rest.RequestOpt) (*Webhook, rest.Error) {
 	return h.EntityBuilder.CreateWebhook(*webhook), nil
 }
 
-func (h *Client) UpdateWebhook(webhookUpdate discord.WebhookUpdate, opts ...rest.RequestOpt) (*Webhook, rest.Error) {
+func (h *Client) UpdateWebhook(webhookUpdate discord.WebhookUpdate, opts ...rest.RequestOpt) (*Webhook, error) {
 	webhook, err := h.WebhookService.UpdateWebhookWithToken(h.ID, h.Token, webhookUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -70,11 +70,11 @@ func (h *Client) UpdateWebhook(webhookUpdate discord.WebhookUpdate, opts ...rest
 	return h.EntityBuilder.CreateWebhook(*webhook), nil
 }
 
-func (h *Client) DeleteWebhook(opts ...rest.RequestOpt) rest.Error {
+func (h *Client) DeleteWebhook(opts ...rest.RequestOpt) error {
 	return h.WebhookService.DeleteWebhookWithToken(h.ID, h.Token, opts...)
 }
 
-func (h *Client) CreateMessageInThread(messageCreate discord.WebhookMessageCreate, threadID discord.Snowflake, opts ...rest.RequestOpt) (*Message, rest.Error) {
+func (h *Client) CreateMessageInThread(messageCreate discord.WebhookMessageCreate, threadID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
 	message, err := h.WebhookService.CreateMessage(h.ID, h.Token, messageCreate, true, threadID, opts...)
 	if err != nil {
 		return nil, err
@@ -82,19 +82,19 @@ func (h *Client) CreateMessageInThread(messageCreate discord.WebhookMessageCreat
 	return h.EntityBuilder.CreateMessage(*message), nil
 }
 
-func (h *Client) CreateMessage(messageCreate discord.WebhookMessageCreate, opts ...rest.RequestOpt) (*Message, rest.Error) {
+func (h *Client) CreateMessage(messageCreate discord.WebhookMessageCreate, opts ...rest.RequestOpt) (*Message, error) {
 	return h.CreateMessageInThread(messageCreate, "", opts...)
 }
 
-func (h *Client) CreateContent(content string, opts ...rest.RequestOpt) (*Message, rest.Error) {
+func (h *Client) CreateContent(content string, opts ...rest.RequestOpt) (*Message, error) {
 	return h.CreateMessage(discord.WebhookMessageCreate{Content: content}, opts...)
 }
 
-func (h *Client) CreateEmbeds(embeds []discord.Embed, opts ...rest.RequestOpt) (*Message, rest.Error) {
+func (h *Client) CreateEmbeds(embeds []discord.Embed, opts ...rest.RequestOpt) (*Message, error) {
 	return h.CreateMessage(discord.WebhookMessageCreate{Embeds: embeds}, opts...)
 }
 
-func (h *Client) UpdateMessage(messageID discord.Snowflake, messageUpdate discord.WebhookMessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error) {
+func (h *Client) UpdateMessage(messageID discord.Snowflake, messageUpdate discord.WebhookMessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
 	message, err := h.WebhookService.UpdateMessage(h.ID, h.Token, messageID, messageUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -102,15 +102,15 @@ func (h *Client) UpdateMessage(messageID discord.Snowflake, messageUpdate discor
 	return h.EntityBuilder.CreateMessage(*message), nil
 }
 
-func (h *Client) UpdateContent(messageID discord.Snowflake, content string, opts ...rest.RequestOpt) (*Message, rest.Error) {
+func (h *Client) UpdateContent(messageID discord.Snowflake, content string, opts ...rest.RequestOpt) (*Message, error) {
 	return h.UpdateMessage(messageID, discord.WebhookMessageUpdate{Content: &content}, opts...)
 }
 
-func (h *Client) UpdateEmbeds(messageID discord.Snowflake, embeds []discord.Embed, opts ...rest.RequestOpt) (*Message, rest.Error) {
+func (h *Client) UpdateEmbeds(messageID discord.Snowflake, embeds []discord.Embed, opts ...rest.RequestOpt) (*Message, error) {
 	return h.UpdateMessage(messageID, discord.WebhookMessageUpdate{Embeds: &embeds}, opts...)
 }
 
-func (h *Client) DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) rest.Error {
+func (h *Client) DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return h.WebhookService.DeleteMessage(h.ID, h.Token, messageID, opts...)
 }
 

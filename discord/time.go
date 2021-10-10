@@ -4,35 +4,47 @@ import (
 	"bytes"
 	"strconv"
 	"time"
+
+	"github.com/DisgoOrg/disgo/json"
 )
+
+const TimeFormat = "2006-01-02T15:04:05+00:00"
 
 var (
 	emptyJSONString = []byte(`""`)
-	nullJSONString  = []byte(`null`)
 )
+
+var _ json.Marshaler = (*Time)(nil)
+var _ json.Unmarshaler = (*Time)(nil)
 
 type Time struct {
 	time.Time
 }
 
 func (t *Time) UnmarshalJSON(data []byte) error {
-	if bytes.Equal(emptyJSONString, data) || bytes.Equal(nullJSONString, data) {
+	if bytes.Equal(emptyJSONString, data) {
 		return nil
 	}
+
 	str, _ := strconv.Unquote(string(data))
-	tt, err := time.Parse(time.RFC3339, str)
+	parsed, err := time.Parse(TimeFormat, str)
 	if err != nil {
 		return err
 	}
-	t.Time = tt
+
+	t.Time = parsed
 	return nil
 }
 
-func (t *Time) MarshalJSON() ([]byte, error) {
+func (t Time) MarshalJSON() ([]byte, error) {
 	var parsed string
 	if !t.IsZero() {
-		parsed = t.Time.Format(time.RFC3339)
+		parsed = t.String()
 	}
 
 	return []byte(`"` + parsed + `"`), nil
+}
+
+func (t Time) String() string {
+	return t.Format(TimeFormat)
 }

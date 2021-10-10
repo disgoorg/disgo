@@ -38,14 +38,14 @@ func (i *StageInstance) GetListeners() []*Member {
 	return listeners
 }
 
-func (s *VoiceState) UpdateVoiceState(suppress *discord.OptionalBool, requestToSpeak *discord.OptionalTime, opts ...rest.RequestOpt) rest.Error {
+func (s *VoiceState) UpdateVoiceState(suppress *discord.OptionalBool, requestToSpeak *discord.OptionalTime, opts ...rest.RequestOpt) error {
 	if s.ChannelID == nil {
-		return rest.NewError(nil, discord.ErrMemberMustBeConnectedToChannel)
+		return discord.ErrMemberMustBeConnectedToChannel
 	}
 	return s.Bot.RestServices.GuildService().UpdateCurrentUserVoiceState(s.GuildID, discord.UserVoiceStateUpdate{ChannelID: *s.ChannelID, Suppress: suppress, RequestToSpeakTimestamp: requestToSpeak}, opts...)
 }
 
-func (i *StageInstance) Update(stageInstanceUpdate discord.StageInstanceUpdate, opts ...rest.RequestOpt) (*StageInstance, rest.Error) {
+func (i *StageInstance) Update(stageInstanceUpdate discord.StageInstanceUpdate, opts ...rest.RequestOpt) (*StageInstance, error) {
 	stageInstance, err := i.Bot.RestServices.StageInstanceService().UpdateStageInstance(i.ID, stageInstanceUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -53,6 +53,6 @@ func (i *StageInstance) Update(stageInstanceUpdate discord.StageInstanceUpdate, 
 	return i.Bot.EntityBuilder.CreateStageInstance(*stageInstance, CacheStrategyNoWs), nil
 }
 
-func (i *StageInstance) Delete(opts ...rest.RequestOpt) rest.Error {
+func (i *StageInstance) Delete(opts ...rest.RequestOpt) error {
 	return i.Bot.RestServices.StageInstanceService().DeleteStageInstance(i.ID, opts...)
 }

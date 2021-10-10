@@ -62,10 +62,10 @@ func (c *Client) GenerateAuthorizationURL(redirectURI string, scopes ...discord.
 	return compiledRoute.URL()
 }
 
-func (c *Client) StartSession(code string, state string, identifier string, opts ...rest.RequestOpt) (Session, *discord.Webhook, rest.Error) {
+func (c *Client) StartSession(code string, state string, identifier string, opts ...rest.RequestOpt) (Session, *discord.Webhook, error) {
 	redirectURI := c.StateController.ConsumeState(state)
 	if redirectURI == nil {
-		return nil, nil, rest.NewError(nil, ErrStateNotFound)
+		return nil, nil, ErrStateNotFound
 	}
 	exchange, err := c.OAuth2Service.GetAccessToken(c.ID, c.Secret, code, *redirectURI, opts...)
 	if err != nil {
@@ -75,7 +75,7 @@ func (c *Client) StartSession(code string, state string, identifier string, opts
 	return c.SessionController.CreateSession(identifier, exchange.AccessToken, exchange.RefreshToken, discord.SplitScopes(exchange.Scope), exchange.TokenType, time.Now().Add(exchange.ExpiresIn*time.Second)), exchange.Webhook, nil
 }
 
-func (c *Client) RefreshSession(identifier string, session Session, opts ...rest.RequestOpt) (Session, rest.Error) {
+func (c *Client) RefreshSession(identifier string, session Session, opts ...rest.RequestOpt) (Session, error) {
 	exchange, err := c.OAuth2Service.RefreshAccessToken(c.ID, c.Secret, session.RefreshToken(), opts...)
 	if err != nil {
 		return nil, err
@@ -83,34 +83,34 @@ func (c *Client) RefreshSession(identifier string, session Session, opts ...rest
 	return c.SessionController.CreateSession(identifier, exchange.AccessToken, exchange.RefreshToken, discord.SplitScopes(exchange.Scope), exchange.TokenType, time.Now().Add(exchange.ExpiresIn*time.Second)), nil
 }
 
-func (c *Client) GetUser(session Session, opts ...rest.RequestOpt) (*discord.OAuth2User, rest.Error) {
+func (c *Client) GetUser(session Session, opts ...rest.RequestOpt) (*discord.OAuth2User, error) {
 	if session.Expiration().Before(time.Now()) {
-		return nil, rest.NewError(nil, ErrAccessTokenExpired)
+		return nil, ErrAccessTokenExpired
 	}
 	if !discord.HasScope(discord.ApplicationScopeIdentify, session.Scopes()...) {
-		return nil, rest.NewError(nil, ErrMissingOAuth2Scope(discord.ApplicationScopeIdentify))
+		return nil, ErrMissingOAuth2Scope(discord.ApplicationScopeIdentify)
 	}
 
 	return c.OAuth2Service.GetCurrentUser(session.AccessToken(), opts...)
 }
 
-func (c *Client) GetGuilds(session Session, opts ...rest.RequestOpt) ([]discord.OAuth2Guild, rest.Error) {
+func (c *Client) GetGuilds(session Session, opts ...rest.RequestOpt) ([]discord.OAuth2Guild, error) {
 	if session.Expiration().Before(time.Now()) {
-		return nil, rest.NewError(nil, ErrAccessTokenExpired)
+		return nil, ErrAccessTokenExpired
 	}
 	if !discord.HasScope(discord.ApplicationScopeGuilds, session.Scopes()...) {
-		return nil, rest.NewError(nil, ErrMissingOAuth2Scope(discord.ApplicationScopeGuilds))
+		return nil, ErrMissingOAuth2Scope(discord.ApplicationScopeGuilds)
 	}
 
 	return c.OAuth2Service.GetCurrentUserGuilds(session.AccessToken(), opts...)
 }
 
-func (c *Client) GetConnections(session Session, opts ...rest.RequestOpt) ([]discord.Connection, rest.Error) {
+func (c *Client) GetConnections(session Session, opts ...rest.RequestOpt) ([]discord.Connection, error) {
 	if session.Expiration().Before(time.Now()) {
-		return nil, rest.NewError(nil, ErrAccessTokenExpired)
+		return nil, ErrAccessTokenExpired
 	}
 	if !discord.HasScope(discord.ApplicationScopeConnections, session.Scopes()...) {
-		return nil, rest.NewError(nil, ErrMissingOAuth2Scope(discord.ApplicationScopeConnections))
+		return nil, ErrMissingOAuth2Scope(discord.ApplicationScopeConnections)
 	}
 
 	return c.OAuth2Service.GetCurrentUserConnections(session.AccessToken(), opts...)

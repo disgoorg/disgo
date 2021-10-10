@@ -5,6 +5,9 @@ import (
 	"github.com/DisgoOrg/disgo/rest"
 )
 
+// MessageFilter used to filter Message(s) in a collectors.MessageCollector
+type MessageFilter func(message *Message) bool
+
 type Message struct {
 	discord.Message
 	Bot        *Bot
@@ -28,17 +31,17 @@ func (m *Message) Channel() *Channel {
 }
 
 // AddReactionByEmote allows you to add an Emoji to a message_events via reaction
-func (m *Message) AddReactionByEmote(emote Emoji, opts ...rest.RequestOpt) rest.Error {
+func (m *Message) AddReactionByEmote(emote Emoji, opts ...rest.RequestOpt) error {
 	return m.AddReaction(emote.Reaction(), opts...)
 }
 
 // AddReaction allows you to add a reaction to a message_events from a string, for _examples a custom emoji ID, or a native emoji
-func (m *Message) AddReaction(emoji string, opts ...rest.RequestOpt) rest.Error {
+func (m *Message) AddReaction(emoji string, opts ...rest.RequestOpt) error {
 	return m.Bot.RestServices.ChannelService().AddReaction(m.ChannelID, m.ID, emoji, opts...)
 }
 
 // Update allows you to edit an existing Message sent by you
-func (m *Message) Update(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, rest.Error) {
+func (m *Message) Update(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
 	message, err := m.Bot.RestServices.ChannelService().UpdateMessage(m.ChannelID, m.ID, messageUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -47,15 +50,15 @@ func (m *Message) Update(messageUpdate discord.MessageUpdate, opts ...rest.Reque
 }
 
 // Delete allows you to edit an existing Message sent by you
-func (m *Message) Delete(opts ...rest.RequestOpt) rest.Error {
+func (m *Message) Delete(opts ...rest.RequestOpt) error {
 	return m.Bot.RestServices.ChannelService().DeleteMessage(m.ChannelID, m.ID, opts...)
 }
 
 // Crosspost crossposts an existing message
-func (m *Message) Crosspost(opts ...rest.RequestOpt) (*Message, rest.Error) {
+func (m *Message) Crosspost(opts ...rest.RequestOpt) (*Message, error) {
 	channel := m.Channel()
 	if channel != nil && channel.IsNewsChannel() {
-		return nil, rest.NewError(nil, discord.ErrChannelNotTypeNews)
+		return nil, discord.ErrChannelNotTypeNews
 	}
 	message, err := m.Bot.RestServices.ChannelService().CrosspostMessage(m.ChannelID, m.ID, opts...)
 	if err != nil {
@@ -65,7 +68,7 @@ func (m *Message) Crosspost(opts ...rest.RequestOpt) (*Message, rest.Error) {
 }
 
 // Reply allows you to reply to an existing Message
-func (m *Message) Reply(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, rest.Error) {
+func (m *Message) Reply(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
 	messageCreate.MessageReference = &discord.MessageReference{MessageID: &m.ID}
 	message, err := m.Bot.RestServices.ChannelService().CreateMessage(m.ChannelID, messageCreate, opts...)
 	if err != nil {
@@ -160,4 +163,27 @@ func (m *Message) IsEphemeral() bool {
 // IsWebhookMessage returns true if the Message was sent by a Webhook
 func (m *Message) IsWebhookMessage() bool {
 	return m.WebhookID != nil
+}
+
+// MessageReactionAddFilter used to filter MessageReactionAddEvent in a collectors.MessageReactionAddCollector
+type MessageReactionAddFilter func(e *MessageReactionAdd) bool
+
+type MessageReactionAdd struct {
+	UserID    discord.Snowflake
+	ChannelID discord.Snowflake
+	MessageID discord.Snowflake
+	GuildID   *discord.Snowflake
+	Member    *Member
+	Emoji     discord.ReactionEmoji
+}
+
+// MessageReactionRemoveFilter used to filter MessageReactionRemoveEvent in a collectors.MessageReactionRemoveCollector
+type MessageReactionRemoveFilter func(e *MessageReactionRemove) bool
+
+type MessageReactionRemove struct {
+	UserID    discord.Snowflake
+	ChannelID discord.Snowflake
+	MessageID discord.Snowflake
+	GuildID   *discord.Snowflake
+	Emoji     discord.ReactionEmoji
 }

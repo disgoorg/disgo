@@ -3,16 +3,25 @@ package core
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
+var _ Mentionable = (*User)(nil)
+
 type User struct {
 	discord.User
 	Bot *Bot
+}
+
+func (u *User) String() string {
+	return fmt.Sprintf("<@%s>", u.ID)
+}
+
+func (u *User) Mention() string {
+	return u.String()
 }
 
 // AvatarURL returns the Avatar URL of the User
@@ -41,34 +50,17 @@ func (u *User) BannerURL(size int) *string {
 	return u.getAssetURL(route.UserBanner, u.Banner, size)
 }
 
-// Mention returns the user as a mention
-func (u *User) String() string {
-	return "<@" + u.ID.String() + ">"
-}
-
 // Tag returns the user's Username and Discriminator
 func (u *User) Tag() string {
 	return fmt.Sprintf("%s#%s", u.Username, u.Discriminator)
 }
 
 func (u *User) getAssetURL(cdnRoute *route.CDNRoute, assetId *string, size int) *string {
-	if assetId == nil {
-		return nil
-	}
-	format := route.PNG
-	if strings.HasPrefix(*assetId, "a_") {
-		format = route.GIF
-	}
-	compiledRoute, err := cdnRoute.Compile(nil, format, size, u.ID, *assetId)
-	if err != nil {
-		return nil
-	}
-	url := compiledRoute.URL()
-	return &url
+	return discord.FormatAssetURL(cdnRoute, u.ID, assetId, size)
 }
 
 // OpenDMChannel creates a DMChannel between the user and the Disgo client
-func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (*Channel, rest.Error) {
+func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (*Channel, error) {
 	channel, err := u.Bot.RestServices.UserService().CreateDMChannel(u.ID, opts...)
 	if err != nil {
 		return nil, err
