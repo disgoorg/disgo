@@ -53,13 +53,7 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 	}
 	if event.Message.Content == "test" {
 		_, _ = event.Message.Reply(core.NewMessageCreateBuilder().
-			SetActionRows(discord.ActionRow{
-				discord.Button{
-					CustomID: "danger",
-					Style:    discord.ButtonStyleDanger,
-					Label:    "danger",
-				},
-			}).
+			SetActionRows(discord.NewActionRow(discord.NewDangerButton("danger", "danger"))).
 			Build(),
 		)
 	}
