@@ -89,7 +89,7 @@ func (b *MessageCreateBuilder) SetActionRow(i int, actionRow discord.ActionRow) 
 
 // AddActionRow adds a new ActionRow with the provided Component(s) to the Message
 func (b *MessageCreateBuilder) AddActionRow(components ...discord.Component) *MessageCreateBuilder {
-	//b.Components = append(b.Components, NewActionRow(components...))
+	b.Components = append(b.Components, discord.NewActionRow(components...))
 	return b
 }
 
@@ -218,18 +218,13 @@ func (b *MessageCreateBuilder) ClearFlags() *MessageCreateBuilder {
 }
 
 // SetEphemeral adds/removes MessageFlagEphemeral to the Message flags
-func (b *MessageCreateBuilder) SetEphemeral(ephemeral bool) *MessageCreateBuilder {
-	if ephemeral {
-		b.Flags = b.Flags.Add(discord.MessageFlagEphemeral)
-	} else {
-		b.Flags = b.Flags.Remove(discord.MessageFlagEphemeral)
-	}
+func (b *MessageCreateBuilder) SetEphemeral() *MessageCreateBuilder {
+	b.Flags = b.Flags.Add(discord.MessageFlagEphemeral)
 	return b
 }
 
 // Build builds the MessageCreateBuilder to a MessageCreate struct
 func (b *MessageCreateBuilder) Build() discord.MessageCreate {
-	b.MessageCreate.Components = b.Components
 	return b.MessageCreate
 }
 
