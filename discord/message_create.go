@@ -6,7 +6,7 @@ type MessageCreate struct {
 	Content          string            `json:"content,omitempty"`
 	TTS              bool              `json:"tts,omitempty"`
 	Embeds           []Embed           `json:"embeds,omitempty"`
-	Components       interface{}       `json:"components,omitempty"`
+	Components       []Component       `json:"components,omitempty"`
 	StickerIDs       []Snowflake       `json:"sticker_ids,omitempty"`
 	Files            []*File           `json:"-"`
 	AllowedMentions  *AllowedMentions  `json:"allowed_mentions,omitempty"`

@@ -10,7 +10,6 @@ import (
 // MessageUpdateBuilder helper to build MessageUpdate easier
 type MessageUpdateBuilder struct {
 	discord.MessageUpdate
-	Components []Component
 }
 
 // NewMessageUpdateBuilder creates a new MessageUpdateBuilder to be built later
@@ -85,42 +84,43 @@ func (b *MessageUpdateBuilder) RemoveEmbed(i int) *MessageUpdateBuilder {
 }
 
 // SetActionRows sets the ActionRow(s) of the Message
-func (b *MessageUpdateBuilder) SetActionRows(actionRows ...ActionRow) *MessageUpdateBuilder {
-	b.Components = actionRowsToComponents(actionRows)
+func (b *MessageUpdateBuilder) SetActionRows(actionRows ...discord.ActionRow) *MessageUpdateBuilder {
+	components := actionRowsToComponents(actionRows)
+	b.Components = &components
 	return b
 }
 
 // SetActionRow sets the provided ActionRow at the index of Component(s)
-func (b *MessageUpdateBuilder) SetActionRow(i int, actionRow ActionRow) *MessageUpdateBuilder {
-	if len(b.Components) > i {
-		b.Components[i] = actionRow
+func (b *MessageUpdateBuilder) SetActionRow(i int, actionRow discord.ActionRow) *MessageUpdateBuilder {
+	if len(*b.Components) > i {
+		(*b.Components)[i] = actionRow
 	}
 	return b
 }
 
 // AddActionRow adds a new ActionRow with the provided Component(s) to the Message
-func (b *MessageUpdateBuilder) AddActionRow(components ...Component) *MessageUpdateBuilder {
-	b.Components = append(b.Components, NewActionRow(components...))
+func (b *MessageUpdateBuilder) AddActionRow(components ...discord.Component) *MessageUpdateBuilder {
+	//*b.Components = append(*b.Components, NewActionRow(components...))
 	return b
 }
 
 // AddActionRows adds the ActionRow(s) to the Message
-func (b *MessageUpdateBuilder) AddActionRows(actionRows ...ActionRow) *MessageUpdateBuilder {
-	b.Components = append(b.Components, actionRowsToComponents(actionRows)...)
+func (b *MessageUpdateBuilder) AddActionRows(actionRows ...discord.ActionRow) *MessageUpdateBuilder {
+	*b.Components = append(*b.Components, actionRowsToComponents(actionRows)...)
 	return b
 }
 
 // RemoveActionRow removes a ActionRow from the Message
 func (b *MessageUpdateBuilder) RemoveActionRow(i int) *MessageUpdateBuilder {
-	if len(b.Components) > i {
-		b.Components = append(b.Components[:i], b.Components[i+1:]...)
+	if len(*b.Components) > i {
+		*b.Components = append((*b.Components)[:i], (*b.Components)[i+1:]...)
 	}
 	return b
 }
 
 // ClearActionRows removes all the ActionRow(s) of the Message
 func (b *MessageUpdateBuilder) ClearActionRows() *MessageUpdateBuilder {
-	b.Components = []Component{}
+	b.Components = &[]discord.Component{}
 	return b
 }
 
@@ -220,11 +220,5 @@ func (b *MessageUpdateBuilder) ClearFlags() *MessageUpdateBuilder {
 
 // Build builds the MessageUpdateBuilder to a MessageUpdate struct
 func (b *MessageUpdateBuilder) Build() discord.MessageUpdate {
-	if b.Components != nil {
-		if b.MessageUpdate.Components == nil {
-			b.MessageUpdate.Components = new(interface{})
-		}
-		*b.MessageUpdate.Components = b.Components
-	}
 	return b.MessageUpdate
 }

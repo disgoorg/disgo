@@ -13,7 +13,6 @@ type Message struct {
 	Bot        *Bot
 	Member     *Member
 	Author     *User
-	Components []Component
 	Stickers   []*MessageSticker
 }
 
@@ -78,10 +77,10 @@ func (m *Message) Reply(messageCreate discord.MessageCreate, opts ...rest.Reques
 }
 
 // ActionRows returns all ActionRow(s) from this Message
-func (m *Message) ActionRows() []ActionRow {
-	var actionRows []ActionRow
+func (m *Message) ActionRows() []discord.ActionRow {
+	var actionRows []discord.ActionRow
 	for _, component := range m.Components {
-		if actionRow, ok := component.(ActionRow); ok {
+		if actionRow, ok := component.(discord.ActionRow); ok {
 			actionRows = append(actionRows, actionRow)
 		}
 	}
@@ -89,15 +88,15 @@ func (m *Message) ActionRows() []ActionRow {
 }
 
 // ComponentByID returns the first Component with the specific customID
-func (m *Message) ComponentByID(customID string) Component {
+func (m *Message) ComponentByID(customID string) discord.Component {
 	for _, actionRow := range m.ActionRows() {
-		for _, component := range actionRow.Components {
+		for _, component := range actionRow {
 			switch c := component.(type) {
-			case Button:
+			case discord.Button:
 				if c.CustomID == customID {
 					return c
 				}
-			case SelectMenu:
+			case discord.SelectMenu:
 				if c.CustomID == customID {
 					return c
 				}
@@ -110,11 +109,11 @@ func (m *Message) ComponentByID(customID string) Component {
 }
 
 // Buttons returns all Button(s) from this Message
-func (m *Message) Buttons() []Button {
-	var buttons []Button
+func (m *Message) Buttons() []discord.Button {
+	var buttons []discord.Button
 	for _, actionRow := range m.ActionRows() {
-		for _, component := range actionRow.Components {
-			if button, ok := component.(Button); ok {
+		for _, component := range actionRow {
+			if button, ok := component.(discord.Button); ok {
 				buttons = append(buttons, button)
 			}
 		}
@@ -123,7 +122,7 @@ func (m *Message) Buttons() []Button {
 }
 
 // ButtonByID returns a Button with the specific customID from this Message
-func (m *Message) ButtonByID(customID string) *Button {
+func (m *Message) ButtonByID(customID string) *discord.Button {
 	for _, button := range m.Buttons() {
 		if button.CustomID == customID {
 			return &button
@@ -133,11 +132,11 @@ func (m *Message) ButtonByID(customID string) *Button {
 }
 
 // SelectMenus returns all SelectMenu(s) from this Message
-func (m *Message) SelectMenus() []SelectMenu {
-	var selectMenus []SelectMenu
+func (m *Message) SelectMenus() []discord.SelectMenu {
+	var selectMenus []discord.SelectMenu
 	for _, actionRow := range m.ActionRows() {
-		for _, component := range actionRow.Components {
-			if selectMenu, ok := component.(SelectMenu); ok {
+		for _, component := range actionRow {
+			if selectMenu, ok := component.(discord.SelectMenu); ok {
 				selectMenus = append(selectMenus, selectMenu)
 			}
 		}
@@ -146,7 +145,7 @@ func (m *Message) SelectMenus() []SelectMenu {
 }
 
 // SelectMenuByID returns a SelectMenu with the specific customID from this Message
-func (m *Message) SelectMenuByID(customID string) *SelectMenu {
+func (m *Message) SelectMenuByID(customID string) *discord.SelectMenu {
 	for _, selectMenu := range m.SelectMenus() {
 		if selectMenu.CustomID == customID {
 			return &selectMenu

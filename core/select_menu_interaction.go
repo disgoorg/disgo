@@ -1,6 +1,9 @@
 package core
 
-import "github.com/DisgoOrg/disgo/rest"
+import (
+	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/rest"
+)
 
 // SelectMenuInteractionFilter used to filter SelectMenuInteraction(s) in a collectors.SelectMenuSubmitCollector
 type SelectMenuInteractionFilter func(selectMenuInteraction *SelectMenuInteraction) bool
@@ -11,19 +14,19 @@ type SelectMenuInteraction struct {
 }
 
 // SelectMenu returns the SelectMenu which issued this SelectMenuInteraction
-func (i *SelectMenuInteraction) SelectMenu() SelectMenu {
+func (i *SelectMenuInteraction) SelectMenu() discord.SelectMenu {
 	// this should never be nil
 	return *i.Message.SelectMenuByID(i.CustomID)
 }
 
 // UpdateSelectMenu updates the used SelectMenu with a new SelectMenu
-func (i *SelectMenuInteraction) UpdateSelectMenu(selectMenu SelectMenu, opts ...rest.RequestOpt) error {
+func (i *SelectMenuInteraction) UpdateSelectMenu(selectMenu discord.SelectMenu, opts ...rest.RequestOpt) error {
 	return i.UpdateComponent(selectMenu, opts...)
 }
 
 // SelectedOptions returns the selected SelectMenuOption(s)
-func (i *SelectMenuInteraction) SelectedOptions() []SelectMenuOption {
-	options := make([]SelectMenuOption, len(i.Values))
+func (i *SelectMenuInteraction) SelectedOptions() []discord.SelectMenuOption {
+	options := make([]discord.SelectMenuOption, len(i.Values))
 	for ii, option := range i.SelectMenu().Options {
 		for _, value := range i.Values {
 			if value == option.Value {

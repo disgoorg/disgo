@@ -22,12 +22,12 @@ func (i *ComponentInteraction) Update(messageUpdate discord.MessageUpdate, opts 
 }
 
 // Component returns the Component which issued this ComponentInteraction
-func (i *ComponentInteraction) Component() Component {
+func (i *ComponentInteraction) Component() discord.Component {
 	// this should never be nil
 	return i.Message.ComponentByID(i.CustomID)
 }
 
-func (i *ComponentInteraction) UpdateComponent(component Component, opts ...rest.RequestOpt) error {
+func (i *ComponentInteraction) UpdateComponent(component discord.Component, opts ...rest.RequestOpt) error {
 	actionRows := i.Message.ActionRows()
 	for _, actionRow := range actionRows {
 		actionRow = actionRow.SetComponent(i.CustomID, component)

@@ -4,14 +4,12 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
 // MessageCreateBuilder helper to build Message(s) easier
 type MessageCreateBuilder struct {
 	discord.WebhookMessageCreate
-	Components []core.Component
 }
 
 // NewMessageCreateBuilder creates a new MessageCreateBuilder to be built later
@@ -86,13 +84,13 @@ func (b *MessageCreateBuilder) RemoveEmbed(i int) *MessageCreateBuilder {
 }
 
 // SetActionRows sets the ActionRow(s) of the Message
-func (b *MessageCreateBuilder) SetActionRows(actionRows ...core.ActionRow) *MessageCreateBuilder {
+func (b *MessageCreateBuilder) SetActionRows(actionRows ...discord.ActionRow) *MessageCreateBuilder {
 	b.Components = actionRowsToComponents(actionRows)
 	return b
 }
 
 // SetActionRow sets the provided ActionRow at the index of Component(s)
-func (b *MessageCreateBuilder) SetActionRow(i int, actionRow core.ActionRow) *MessageCreateBuilder {
+func (b *MessageCreateBuilder) SetActionRow(i int, actionRow discord.ActionRow) *MessageCreateBuilder {
 	if len(b.Components) > i {
 		b.Components[i] = actionRow
 	}
@@ -100,13 +98,13 @@ func (b *MessageCreateBuilder) SetActionRow(i int, actionRow core.ActionRow) *Me
 }
 
 // AddActionRow adds a new ActionRow with the provided Component(s) to the Message
-func (b *MessageCreateBuilder) AddActionRow(components ...core.Component) *MessageCreateBuilder {
-	b.Components = append(b.Components, core.NewActionRow(components...))
+func (b *MessageCreateBuilder) AddActionRow(components ...discord.Component) *MessageCreateBuilder {
+	//b.Components = append(b.Components, discord.NewActionRow(components...))
 	return b
 }
 
 // AddActionRows adds the ActionRow(s) to the Message
-func (b *MessageCreateBuilder) AddActionRows(actionRows ...core.ActionRow) *MessageCreateBuilder {
+func (b *MessageCreateBuilder) AddActionRows(actionRows ...discord.ActionRow) *MessageCreateBuilder {
 	b.Components = append(b.Components, actionRowsToComponents(actionRows)...)
 	return b
 }
@@ -121,7 +119,7 @@ func (b *MessageCreateBuilder) RemoveActionRow(i int) *MessageCreateBuilder {
 
 // ClearActionRows removes all the ActionRow(s) of the Message
 func (b *MessageCreateBuilder) ClearActionRows() *MessageCreateBuilder {
-	b.Components = []core.Component{}
+	b.Components = []discord.Component{}
 	return b
 }
 
@@ -182,8 +180,8 @@ func (b *MessageCreateBuilder) Build() discord.WebhookMessageCreate {
 	return b.WebhookMessageCreate
 }
 
-func actionRowsToComponents(actionRows []core.ActionRow) []core.Component {
-	components := make([]core.Component, len(actionRows))
+func actionRowsToComponents(actionRows []discord.ActionRow) []discord.Component {
+	components := make([]discord.Component, len(actionRows))
 	for i := range actionRows {
 		components[i] = actionRows[i]
 	}

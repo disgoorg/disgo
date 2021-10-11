@@ -42,7 +42,6 @@ type EntityBuilder interface {
 	CreatePresence(presence discord.Presence, updateCache CacheStrategy) *Presence
 
 	CreateMessage(message discord.Message, updateCache CacheStrategy) *Message
-	CreateComponents(components []discord.Component, updateCache CacheStrategy) []Component
 
 	CreateGuild(guild discord.Guild, updateCache CacheStrategy) *Guild
 	CreateGuildTemplate(guildTemplate discord.GuildTemplate, updateCache CacheStrategy) *GuildTemplate
@@ -276,10 +275,6 @@ func (b *entityBuilderImpl) CreateMessage(message discord.Message, updateCache C
 		coreMsg.Author = b.CreateUser(message.Author, updateCache)
 	}
 
-	if len(message.Components) > 0 {
-		coreMsg.Components = b.CreateComponents(message.Components, updateCache)
-	}
-
 	if len(message.Stickers) > 0 {
 		coreMsg.Stickers = make([]*MessageSticker, len(message.Stickers))
 	}
@@ -293,34 +288,6 @@ func (b *entityBuilderImpl) CreateMessage(message discord.Message, updateCache C
 		return b.Bot().Caches.MessageCache().Set(coreMsg)
 	}
 	return coreMsg
-}
-
-// CreateComponents returns a new slice of Component entities
-func (b *entityBuilderImpl) CreateComponents(unmarshalComponents []discord.Component, updateCache CacheStrategy) []Component {
-	components := make([]Component, len(unmarshalComponents))
-	for i, component := range unmarshalComponents {
-		switch component.Type {
-		case discord.ComponentTypeActionRow:
-			actionRow := ActionRow{
-				Component: component,
-			}
-			if len(component.Components) > 0 {
-				actionRow.Components = b.CreateComponents(component.Components, updateCache)
-			}
-			components[i] = actionRow
-
-		case discord.ComponentTypeButton:
-			components[i] = Button{
-				Component: component,
-			}
-
-		case discord.ComponentTypeSelectMenu:
-			components[i] = SelectMenu{
-				Component: component,
-			}
-		}
-	}
-	return components
 }
 
 // CreateGuildTemplate returns a new discord.GuildTemplate entity
