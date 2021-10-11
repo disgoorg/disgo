@@ -35,7 +35,7 @@ func HandleInteraction(bot *core.Bot, sequenceNumber int, c chan<- discord.Inter
 	case discord.InteractionTypeApplicationCommandAutoComplete:
 		bot.EventManager.Dispatch(&events.ApplicationCommandAutocompleteEvent{
 			GenericEvent: genericEvent,
-			ApplicationCommandAutocompleteInteraction: bot.EntityBuilder.CreateApplicationCommandAutocompleteInteraction(bot.EntityBuilder.CreateApplicationCommandOptionsInteraction(bot.EntityBuilder.CreateApplicationCommandInteraction(coreInteraction, core.CacheStrategyYes))),
+			ApplicationCommandAutocompleteInteraction: bot.EntityBuilder.CreateApplicationCommandAutocompleteInteraction(coreInteraction, core.CacheStrategyYes),
 		})
 
 	case discord.InteractionTypeCommand:
@@ -45,7 +45,7 @@ func HandleInteraction(bot *core.Bot, sequenceNumber int, c chan<- discord.Inter
 		case discord.ApplicationCommandTypeSlash:
 			bot.EventManager.Dispatch(&events.SlashCommandEvent{
 				GenericEvent:            genericEvent,
-				SlashCommandInteraction: bot.EntityBuilder.CreateSlashCommandInteraction(bot.EntityBuilder.CreateApplicationCommandOptionsInteraction(applicationCommandInteraction)),
+				SlashCommandInteraction: bot.EntityBuilder.CreateSlashCommandInteraction(applicationCommandInteraction),
 			})
 
 		case discord.ApplicationCommandTypeUser, discord.ApplicationCommandTypeMessage:

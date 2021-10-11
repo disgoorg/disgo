@@ -16,10 +16,10 @@ type Interaction struct {
 }
 
 // Respond responds to the Interaction with the provided discord.InteractionResponse
-func (i *Interaction) Respond(callbackType discord.InteractionCallbackType, callbackData interface{}, opts ...rest.RequestOpt) error {
+func (i *Interaction) Respond(callbackType discord.InteractionCallbackType, data interface{}, opts ...rest.RequestOpt) error {
 	response := discord.InteractionResponse{
 		Type: callbackType,
-		Data: callbackData,
+		Data: data,
 	}
 	if i.Acknowledged {
 		return discord.ErrInteractionAlreadyReplied
@@ -53,4 +53,21 @@ func (i *Interaction) Channel() *Channel {
 		return nil
 	}
 	return i.Bot.Caches.ChannelCache().Get(*i.ChannelID)
+}
+
+type ApplicationCommandInteraction struct {
+	*Interaction
+	CreateInteractionResponses
+	CommandID   discord.Snowflake
+	CommandName string
+	Resolved    *Resolved
+}
+
+// Resolved contains resolved mention data
+type Resolved struct {
+	Users    map[discord.Snowflake]*User
+	Members  map[discord.Snowflake]*Member
+	Roles    map[discord.Snowflake]*Role
+	Channels map[discord.Snowflake]*Channel
+	Messages map[discord.Snowflake]*Message
 }

@@ -6,8 +6,10 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/DisgoOrg/disgo/bot"
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/events"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/disgo/json"
@@ -43,30 +45,30 @@ func main() {
 		i++
 	}
 
-	bot, err := core.NewBotBuilder(token).
-		SetRawEventsEnabled(true).
-		SetGatewayConfig(gateway.Config{
-			GatewayIntents: discord.GatewayIntentsNone,
-			Compress:       true,
-		}).
-		AddEventListeners(&core.ListenerAdapter{
+	disgo, err := bot.New(token,
+		bot.WithRawEventsEnabled(),
+		bot.WithGatewayOpts(
+			gateway.WithGatewayIntents(discord.GatewayIntentsNone),
+			gateway.WithCompress(true),
+		),
+		bot.WithEventListeners(&events.ListenerAdapter{
 			OnSlashCommand:                   slashCommandListener,
 			OnApplicationCommandAutocomplete: applicationCommandAutocompleteListener,
-		}).
-		Build()
+		}),
+	)
 	if err != nil {
 		log.Fatal("error while building bot instance: ", err)
 		return
 	}
 
-	registerCommands(bot)
+	registerCommands(disgo)
 
-	err = bot.ConnectGateway()
+	err = disgo.ConnectGateway()
 	if err != nil {
 		log.Fatalf("error while connecting to discord: %s", err)
 	}
 
-	defer bot.Close()
+	defer disgo.Close()
 
 	log.Infof("ExampleBot is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
@@ -74,7 +76,7 @@ func main() {
 	<-s
 }
 
-func applicationCommandAutocompleteListener(event *core.ApplicationCommandAutocompleteEvent) {
+func applicationCommandAutocompleteListener(event *events.ApplicationCommandAutocompleteEvent) {
 	switch event.CommandName {
 	case "autocomplete":
 		go func() {
@@ -110,7 +112,7 @@ func applicationCommandAutocompleteListener(event *core.ApplicationCommandAutoco
 	}
 }
 
-func slashCommandListener(event *core.SlashCommandEvent) {
+func slashCommandListener(event *events.SlashCommandEvent) {
 	switch event.CommandName {
 	case "autocomplete":
 		_ = event.Create(core.NewMessageCreateBuilder().SetContentf("you selected `%v` of group `%v`", event.Options["value"].String(), event.Options["group"].String()).Build())
