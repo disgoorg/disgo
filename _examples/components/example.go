@@ -28,7 +28,22 @@ func main() {
 	disgo, err := bot.New(token,
 		bot.WithGatewayOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
 		bot.WithEventListeners(&events.ListenerAdapter{
-			OnMessageCreate: onMessageCreate,
+			OnMessageCreate: func(event *events.MessageCreateEvent) {
+				if event.Message.Author.IsBot || event.Message.Author.IsSystem {
+					return
+				}
+				if event.Message.Content == "test" {
+					_, _ = event.Message.Reply(core.NewMessageCreateBuilder().
+						SetActionRows(discord.NewActionRow(discord.NewDangerButton("danger", "danger"))).
+						Build(),
+					)
+				}
+			},
+			OnButtonClick: func(event *events.ButtonClickEvent) {
+				if event.CustomID == "danger" {
+					_ = event.Create(core.NewMessageCreateBuilder().SetEphemeral(true).SetContent("Ey that was danger").Build())
+				}
+			},
 		}),
 	)
 	if err != nil {
@@ -45,16 +60,4 @@ func main() {
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-s
-}
-
-func onMessageCreate(event *events.MessageCreateEvent) {
-	if event.Message.Author.IsBot || event.Message.Author.IsSystem {
-		return
-	}
-	if event.Message.Content == "test" {
-		_, _ = event.Message.Reply(core.NewMessageCreateBuilder().
-			SetActionRows(discord.NewActionRow(discord.NewDangerButton("danger", "danger"))).
-			Build(),
-		)
-	}
 }
