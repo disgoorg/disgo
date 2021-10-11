@@ -119,8 +119,8 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 	}
 }
 
-func registerCommands(bot *core.Bot) {
-	if _, err := bot.SetGuildCommands(guildID, []discord.ApplicationCommandCreate{
+func registerCommands(disgo *core.Bot) {
+	if _, err := disgo.SetGuildCommands(guildID, []discord.ApplicationCommandCreate{
 		{
 			Type:              discord.ApplicationCommandTypeSlash,
 			Name:              "autocomplete",
