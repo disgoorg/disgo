@@ -40,7 +40,7 @@ var commands = []discord.ApplicationCommandCreate{
 				Required:    true,
 			},
 			{
-				Type:        discord.ApplicationCommandOptionTypeBoolean,
+				Type:        discord.ApplicationCommandOptionTypeBool,
 				Name:        "ephemeral",
 				Description: "ephemeral",
 				Required:    true,
