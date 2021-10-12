@@ -78,8 +78,8 @@ func (m *Message) UnmarshalJSON(b []byte) error {
 
 	if len(message.Components) > 0 {
 		m.Components = make([]Component, len(message.Components))
-		for i := range message.Components {
-			m.Components[i] = message.Components[i].Component
+		for i, component := range message.Components {
+			m.Components[i] = component.Component
 		}
 	}
 

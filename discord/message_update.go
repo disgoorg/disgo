@@ -11,6 +11,10 @@ type MessageUpdate struct {
 	Flags           *MessageFlags    `json:"flags,omitempty"`
 }
 
+func (_ MessageUpdate) dataType() dataType {
+	return dataTypeMessageUpdate
+}
+
 // ToBody returns the MessageUpdate ready for body
 func (m MessageUpdate) ToBody() (interface{}, error) {
 	if len(m.Files) > 0 {

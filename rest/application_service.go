@@ -47,7 +47,14 @@ func (s *applicationServiceImpl) GetGlobalCommands(applicationID discord.Snowfla
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &commands, opts...)
+	var unmarshalCommands []discord.UnmarshalApplicationCommand
+	err = s.restClient.Do(compiledRoute, nil, &unmarshalCommands, opts...)
+	if err == nil {
+		commands = make([]discord.ApplicationCommand, len(unmarshalCommands))
+		for i, command := range unmarshalCommands {
+			commands[i] = command.ApplicationCommand
+		}
+	}
 	return
 }
 
@@ -57,7 +64,11 @@ func (s *applicationServiceImpl) GetGlobalCommand(applicationID discord.Snowflak
 	if err != nil {
 		return
 	}
+	var unmarshalCommand discord.UnmarshalApplicationCommand
 	err = s.restClient.Do(compiledRoute, nil, &command, opts...)
+	if err == nil {
+		command = &unmarshalCommand.ApplicationCommand
+	}
 	return
 }
 
@@ -67,7 +78,11 @@ func (s *applicationServiceImpl) CreateGlobalCommand(applicationID discord.Snowf
 	if err != nil {
 		return
 	}
+	var unmarshalCommand discord.UnmarshalApplicationCommand
 	err = s.restClient.Do(compiledRoute, commandCreate, &command, opts...)
+	if err == nil {
+		command = &unmarshalCommand.ApplicationCommand
+	}
 	return
 }
 
@@ -77,7 +92,14 @@ func (s *applicationServiceImpl) SetGlobalCommands(applicationID discord.Snowfla
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, commandCreates, &commands, opts...)
+	var unmarshalCommands []discord.UnmarshalApplicationCommand
+	err = s.restClient.Do(compiledRoute, commandCreates, &unmarshalCommands, opts...)
+	if err == nil {
+		commands = make([]discord.ApplicationCommand, len(unmarshalCommands))
+		for i, command := range unmarshalCommands {
+			commands[i] = command.ApplicationCommand
+		}
+	}
 	return
 }
 
@@ -87,7 +109,11 @@ func (s *applicationServiceImpl) UpdateGlobalCommand(applicationID discord.Snowf
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, commandUpdate, &command, opts...)
+	var unmarshalCommand discord.UnmarshalApplicationCommand
+	err = s.restClient.Do(compiledRoute, commandUpdate, &unmarshalCommand, opts...)
+	if err == nil {
+		command = &unmarshalCommand.ApplicationCommand
+	}
 	return
 }
 
@@ -99,13 +125,20 @@ func (s *applicationServiceImpl) DeleteGlobalCommand(applicationID discord.Snowf
 	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
-func (s *applicationServiceImpl) GetGuildCommands(applicationID discord.Snowflake, guildID discord.Snowflake, opts ...RequestOpt) (command []discord.ApplicationCommand, err error) {
+func (s *applicationServiceImpl) GetGuildCommands(applicationID discord.Snowflake, guildID discord.Snowflake, opts ...RequestOpt) (commands []discord.ApplicationCommand, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetGuildCommands.Compile(nil, applicationID, guildID)
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &command, opts...)
+	var unmarshalCommands []discord.UnmarshalApplicationCommand
+	err = s.restClient.Do(compiledRoute, nil, &unmarshalCommands, opts...)
+	if err == nil {
+		commands = make([]discord.ApplicationCommand, len(unmarshalCommands))
+		for i, command := range unmarshalCommands {
+			commands[i] = command.ApplicationCommand
+		}
+	}
 	return
 }
 
@@ -115,7 +148,11 @@ func (s *applicationServiceImpl) GetGuildCommand(applicationID discord.Snowflake
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &command, opts...)
+	var unmarshalCommand discord.UnmarshalApplicationCommand
+	err = s.restClient.Do(compiledRoute, nil, &unmarshalCommand, opts...)
+	if err == nil {
+		command = &unmarshalCommand.ApplicationCommand
+	}
 	return
 }
 
@@ -125,7 +162,11 @@ func (s *applicationServiceImpl) CreateGuildCommand(applicationID discord.Snowfl
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, commandCreate, &command, opts...)
+	var unmarshalCommand discord.UnmarshalApplicationCommand
+	err = s.restClient.Do(compiledRoute, commandCreate, &unmarshalCommand, opts...)
+	if err == nil {
+		command = &unmarshalCommand.ApplicationCommand
+	}
 	return
 }
 
@@ -135,7 +176,14 @@ func (s *applicationServiceImpl) SetGuildCommands(applicationID discord.Snowflak
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, commandCreates, &commands, opts...)
+	var unmarshalCommands []discord.UnmarshalApplicationCommand
+	err = s.restClient.Do(compiledRoute, commandCreates, &unmarshalCommands, opts...)
+	if err == nil {
+		commands = make([]discord.ApplicationCommand, len(unmarshalCommands))
+		for i, command := range unmarshalCommands {
+			commands[i] = command.ApplicationCommand
+		}
+	}
 	return
 }
 
@@ -145,7 +193,11 @@ func (s *applicationServiceImpl) UpdateGuildCommand(applicationID discord.Snowfl
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, commandUpdate, &command, opts...)
+	var unmarshalCommand discord.UnmarshalApplicationCommand
+	err = s.restClient.Do(compiledRoute, commandUpdate, &unmarshalCommand, opts...)
+	if err == nil {
+		command = &unmarshalCommand.ApplicationCommand
+	}
 	return
 }
 

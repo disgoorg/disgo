@@ -20,11 +20,11 @@ type ApplicationCommand interface {
 	Type() ApplicationCommandType
 }
 
-type unmarshalApplicationCommand struct {
+type UnmarshalApplicationCommand struct {
 	ApplicationCommand
 }
 
-func (u *unmarshalApplicationCommand) UnmarshalJSON(data []byte) error {
+func (u *UnmarshalApplicationCommand) UnmarshalJSON(data []byte) error {
 	var aType struct {
 		Type ApplicationCommandType `json:"type"`
 	}
@@ -43,14 +43,17 @@ func (u *unmarshalApplicationCommand) UnmarshalJSON(data []byte) error {
 		v := SlashCommand{}
 		err = json.Unmarshal(data, &v)
 		applicationCommand = v
+
 	case ApplicationCommandTypeUser:
 		v := UserCommand{}
 		err = json.Unmarshal(data, &v)
 		applicationCommand = v
+
 	case ApplicationCommandTypeMessage:
 		v := MessageCommand{}
 		err = json.Unmarshal(data, &v)
 		applicationCommand = v
+
 	default:
 		return fmt.Errorf("unkown application command with type %d received", aType.Type)
 	}

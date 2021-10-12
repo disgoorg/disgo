@@ -9,19 +9,24 @@ import (
 type SelectMenuInteractionFilter func(selectMenuInteraction *SelectMenuInteraction) bool
 
 type SelectMenuInteraction struct {
-	*ComponentInteraction
-	SelectMenuInteractionData
+	discord.SelectMenuInteraction
+	RespondInteraction
+	FollowupInteraction
+	UpdateInteraction
+	Message  *Message
+	CustomID string
+	Values []string
+}
+
+// UpdateSelectMenu updates the used SelectMenu with a new SelectMenu
+func (i *SelectMenuInteraction) UpdateSelectMenu(selectMenu discord.SelectMenu, opts ...rest.RequestOpt) error {
+	return i.UpdateComponent(selectMenu, opts...)
 }
 
 // SelectMenu returns the SelectMenu which issued this SelectMenuInteraction
 func (i *SelectMenuInteraction) SelectMenu() discord.SelectMenu {
 	// this should never be nil
 	return *i.Message.SelectMenuByID(i.CustomID)
-}
-
-// UpdateSelectMenu updates the used SelectMenu with a new SelectMenu
-func (i *SelectMenuInteraction) UpdateSelectMenu(selectMenu discord.SelectMenu, opts ...rest.RequestOpt) error {
-	return i.UpdateComponent(selectMenu, opts...)
 }
 
 // SelectedOptions returns the selected SelectMenuOption(s)
@@ -38,7 +43,4 @@ func (i *SelectMenuInteraction) SelectedOptions() []discord.SelectMenuOption {
 	return options
 }
 
-// SelectMenuInteractionData is data specifically from the SelectMenuInteraction
-type SelectMenuInteractionData struct {
-	Values []string
-}
+

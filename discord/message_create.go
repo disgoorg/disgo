@@ -14,6 +14,10 @@ type MessageCreate struct {
 	Flags            MessageFlags      `json:"flags,omitempty"`
 }
 
+func (_ MessageCreate) dataType() dataType {
+	return dataTypeMessageCreate
+}
+
 // ToBody returns the MessageCreate ready for body
 func (m MessageCreate) ToBody() (interface{}, error) {
 	if len(m.Files) > 0 {

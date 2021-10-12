@@ -52,7 +52,9 @@ type EntityBuilder interface {
 	CreateBan(guildID discord.Snowflake, ban discord.Ban, updateCache CacheStrategy) *Ban
 	CreateVoiceState(voiceState discord.VoiceState, updateCache CacheStrategy) *VoiceState
 
-	CreateApplicationCommand(command discord.ApplicationCommand) *ApplicationCommand
+	CreateSlashCommand(slashCommand discord.SlashCommand) *SlashCommand
+	CreateUserCommand(userCommand discord.UserCommand) *UserCommand
+	CreateMessageCommand(messageCommand discord.MessageCommand) *MessageCommand
 	CreateApplicationCommandPermissions(guildCommandPermissions discord.ApplicationCommandPermissions) *ApplicationCommandPermissions
 
 	CreateAuditLog(guildID discord.Snowflake, auditLog discord.AuditLog, filterOptions AuditLogFilterOptions, updateCache CacheStrategy) *AuditLog

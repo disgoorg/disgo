@@ -262,16 +262,16 @@ func (_ ApplicationCommandOptionFloat) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeFloat
 }
 
-type applicationCommandOptionTypeChoice int
+type choiceType int
 
 const (
-	applicationCommandOptionTypeChoiceInt = iota
-	applicationCommandOptionTypeChoiceString
-	applicationCommandOptionTypeChoiceFloat
+	choiceTypeInt = iota
+	choiceTypeString
+	choiceTypeFloat
 )
 
 type ApplicationCommandOptionChoice interface {
-	choiceType() applicationCommandOptionTypeChoice
+	choiceType() choiceType
 }
 
 type ApplicationCommandOptionChoiceInt struct {
@@ -279,8 +279,8 @@ type ApplicationCommandOptionChoiceInt struct {
 	Value int    `json:"value"`
 }
 
-func (_ ApplicationCommandOptionChoiceInt) choiceType() applicationCommandOptionTypeChoice {
-	return applicationCommandOptionTypeChoiceInt
+func (_ ApplicationCommandOptionChoiceInt) choiceType() choiceType {
+	return choiceTypeInt
 }
 
 type ApplicationCommandOptionChoiceString struct {
@@ -288,8 +288,8 @@ type ApplicationCommandOptionChoiceString struct {
 	Value string `json:"value"`
 }
 
-func (_ ApplicationCommandOptionChoiceString) choiceType() applicationCommandOptionTypeChoice {
-	return applicationCommandOptionTypeChoiceString
+func (_ ApplicationCommandOptionChoiceString) choiceType() choiceType {
+	return choiceTypeString
 }
 
 type ApplicationCommandOptionChoiceFloat struct {
@@ -297,6 +297,6 @@ type ApplicationCommandOptionChoiceFloat struct {
 	Value float64 `json:"value"`
 }
 
-func (_ ApplicationCommandOptionChoiceFloat) choiceType() applicationCommandOptionTypeChoice {
-	return applicationCommandOptionTypeChoiceFloat
+func (_ ApplicationCommandOptionChoiceFloat) choiceType() choiceType {
+	return choiceTypeFloat
 }

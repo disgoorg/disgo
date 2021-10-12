@@ -9,16 +9,21 @@ import (
 type ButtonInteractionFilter func(buttonInteraction *ButtonInteraction) bool
 
 type ButtonInteraction struct {
-	*ComponentInteraction
+	discord.ButtonInteraction
+	RespondInteraction
+	FollowupInteraction
+	UpdateInteraction
+	Message  *Message
+	CustomID string
+}
+
+// UpdateButton updates the clicked Button with a new Button
+func (i *ButtonInteraction) UpdateButton(button discord.Button, opts ...rest.RequestOpt) error {
+	return i.UpdateComponent(button, opts...)
 }
 
 // Button returns the Button which issued this ButtonInteraction
 func (i *ButtonInteraction) Button() discord.Button {
 	// this should never be nil
 	return *i.Message.ButtonByID(i.CustomID)
-}
-
-// UpdateButton updates the clicked Button with a new Button
-func (i *ButtonInteraction) UpdateButton(button discord.Button, opts ...rest.RequestOpt) error {
-	return i.UpdateComponent(button, opts...)
 }

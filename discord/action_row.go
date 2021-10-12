@@ -30,9 +30,11 @@ func (r *ActionRow) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	*r = make([]Component, len(actionRow.Components))
-	for i, component := range actionRow.Components {
-		(*r)[i] = component.Component
+	if len(actionRow.Components) > 0 {
+		*r = make([]Component, len(actionRow.Components))
+		for i, component := range actionRow.Components {
+			(*r)[i] = component.Component
+		}
 	}
 
 	return nil
