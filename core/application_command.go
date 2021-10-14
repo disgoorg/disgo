@@ -40,7 +40,7 @@ func (c *SlashCommand) ToCreate() discord.SlashCommandCreate {
 
 // Update updates the current ApplicationCommand with the given fields
 func (c *SlashCommand) Update(commandUpdate discord.SlashCommandUpdate, opts ...rest.RequestOpt) (*SlashCommand, error) {
-	var command *discord.ApplicationCommand
+	var command discord.ApplicationCommand
 	var err error
 	if c.GuildID == nil {
 		command, err = c.Bot.RestServices.ApplicationService().UpdateGlobalCommand(c.Bot.ApplicationID, c.ID, commandUpdate, opts...)
@@ -51,7 +51,7 @@ func (c *SlashCommand) Update(commandUpdate discord.SlashCommandUpdate, opts ...
 	if err != nil {
 		return nil, err
 	}
-	return c.Bot.EntityBuilder.CreateSlashCommand((*command).(discord.SlashCommand)), nil
+	return c.Bot.EntityBuilder.CreateApplicationCommand(command).(*SlashCommand), nil
 }
 
 // SetPermissions sets the ApplicationCommandPermissions for a specific Guild. this overrides all existing ApplicationCommandPermission(s). thx discord for that
@@ -108,7 +108,7 @@ func (c *UserCommand) ToCreate() discord.UserCommandCreate {
 
 // Update updates the current ApplicationCommand with the given fields
 func (c *UserCommand) Update(commandUpdate discord.UserCommandUpdate, opts ...rest.RequestOpt) (*UserCommand, error) {
-	var command *discord.ApplicationCommand
+	var command discord.ApplicationCommand
 	var err error
 	if c.GuildID == nil {
 		command, err = c.Bot.RestServices.ApplicationService().UpdateGlobalCommand(c.Bot.ApplicationID, c.ID, commandUpdate, opts...)
@@ -119,7 +119,7 @@ func (c *UserCommand) Update(commandUpdate discord.UserCommandUpdate, opts ...re
 	if err != nil {
 		return nil, err
 	}
-	return c.Bot.EntityBuilder.CreateUserCommand((*command).(discord.UserCommand)), nil
+	return c.Bot.EntityBuilder.CreateApplicationCommand(command).(*UserCommand), nil
 }
 
 // SetPermissions sets the ApplicationCommandPermissions for a specific Guild. this overrides all existing ApplicationCommandPermission(s). thx discord for that
@@ -176,7 +176,7 @@ func (c *MessageCommand) ToCreate() discord.MessageCommandCreate {
 
 // Update updates the current ApplicationCommand with the given fields
 func (c *MessageCommand) Update(commandUpdate discord.MessageCommandUpdate, opts ...rest.RequestOpt) (*MessageCommand, error) {
-	var command *discord.ApplicationCommand
+	var command discord.ApplicationCommand
 	var err error
 	if c.GuildID == nil {
 		command, err = c.Bot.RestServices.ApplicationService().UpdateGlobalCommand(c.Bot.ApplicationID, c.ID, commandUpdate, opts...)
@@ -187,7 +187,7 @@ func (c *MessageCommand) Update(commandUpdate discord.MessageCommandUpdate, opts
 	if err != nil {
 		return nil, err
 	}
-	return c.Bot.EntityBuilder.CreateMessageCommand((*command).(discord.MessageCommand)), nil
+	return c.Bot.EntityBuilder.CreateApplicationCommand(command).(*MessageCommand), nil
 }
 
 // SetPermissions sets the ApplicationCommandPermissions for a specific Guild. this overrides all existing ApplicationCommandPermission(s). thx discord for that

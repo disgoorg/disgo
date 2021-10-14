@@ -25,17 +25,7 @@ func NewEntityBuilder(bot *Bot) EntityBuilder {
 type EntityBuilder interface {
 	Bot() *Bot
 
-	CreateInteraction(unmarshalInteraction discord.Interaction, responseChannel chan<- discord.InteractionResponse, updateCache CacheStrategy) *Interaction
-
-	CreateApplicationCommandInteraction(interaction *Interaction, updateCache CacheStrategy) *ApplicationCommandInteraction
-	CreateSlashCommandInteraction(applicationCommandInteraction *ApplicationCommandInteraction) *SlashCommandInteraction
-	CreateContextCommandInteraction(applicationInteraction *ApplicationCommandInteraction) *ContextCommandInteraction
-	CreateUserCommandInteraction(contextCommandInteraction *ContextCommandInteraction) *UserCommandInteraction
-	CreateMessageCommandInteraction(contextCommandInteraction *ContextCommandInteraction) *MessageCommandInteraction
-
-	CreateComponentInteraction(interaction *Interaction, updateCache CacheStrategy) *ComponentInteraction
-	CreateButtonInteraction(componentInteraction *ComponentInteraction) *ButtonInteraction
-	CreateSelectMenuInteraction(componentInteraction *ComponentInteraction) *SelectMenuInteraction
+	CreateInteraction(interaction discord.Interaction, responseChannel chan<- discord.InteractionResponse, updateCache CacheStrategy) Interaction
 
 	CreateUser(user discord.User, updateCache CacheStrategy) *User
 	CreateSelfUser(selfUser discord.OAuth2User, updateCache CacheStrategy) *SelfUser
@@ -52,9 +42,7 @@ type EntityBuilder interface {
 	CreateBan(guildID discord.Snowflake, ban discord.Ban, updateCache CacheStrategy) *Ban
 	CreateVoiceState(voiceState discord.VoiceState, updateCache CacheStrategy) *VoiceState
 
-	CreateSlashCommand(slashCommand discord.SlashCommand) *SlashCommand
-	CreateUserCommand(userCommand discord.UserCommand) *UserCommand
-	CreateMessageCommand(messageCommand discord.MessageCommand) *MessageCommand
+	CreateApplicationCommand(applicationCommand discord.ApplicationCommand) ApplicationCommand
 	CreateApplicationCommandPermissions(guildCommandPermissions discord.ApplicationCommandPermissions) *ApplicationCommandPermissions
 
 	CreateAuditLog(guildID discord.Snowflake, auditLog discord.AuditLog, filterOptions AuditLogFilterOptions, updateCache CacheStrategy) *AuditLog
@@ -84,11 +72,14 @@ func (b *entityBuilderImpl) Bot() *Bot {
 
 // CreateInteraction creates an Interaction from the discord.Interaction response
 func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c chan<- discord.InteractionResponse, updateCache CacheStrategy) *Interaction {
-	coreInteraction := &Interaction{
-		Interaction:     interaction,
+	interactionData := InteractionData{
 		Bot:             b.Bot(),
 		ResponseChannel: c,
-		Acknowledged:    false,
+	}
+
+	switch i := interaction.(type) {
+	case AutocompleteInteraction:
+		i.
 	}
 
 	if interaction.Member != nil {
@@ -97,6 +88,17 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 	} else {
 		coreInteraction.User = b.CreateUser(*interaction.User, updateCache)
 	}
+
+
+
+	coreInteraction := &Interaction{
+		Interaction:     interaction,
+		Bot:             b.Bot(),
+		ResponseChannel: c,
+		Acknowledged:    false,
+	}
+
+
 
 	return coreInteraction
 }
@@ -358,10 +360,28 @@ func (b *entityBuilderImpl) CreateVoiceState(voiceState discord.VoiceState, upda
 }
 
 // CreateApplicationCommand returns a new discord.ApplicationCommand entity
-func (b *entityBuilderImpl) CreateApplicationCommand(command discord.ApplicationCommand) *ApplicationCommand {
-	return &ApplicationCommand{
-		ApplicationCommand: command,
-		Bot:                b.Bot(),
+func (b *entityBuilderImpl) CreateApplicationCommand(applicationCommand discord.ApplicationCommand) ApplicationCommand {
+	switch c := applicationCommand.(type) {
+	case discord.SlashCommand:
+		return SlashCommand{
+			SlashCommand: c,
+			Bot:          b.Bot(),
+		}
+
+	case discord.UserCommand:
+		return UserCommand{
+			UserCommand: c,
+			Bot:          b.Bot(),
+		}
+
+	case discord.MessageCommand:
+		return MessageCommand{
+			MessageCommand: c,
+			Bot:          b.Bot(),
+		}
+	default:
+		b.Bot().Logger.Error("")
+		return nil
 	}
 }
 

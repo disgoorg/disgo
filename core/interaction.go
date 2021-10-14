@@ -28,8 +28,8 @@ type ComponentInteraction interface {
 
 type RespondInteraction struct {
 	InteractionData
-	id              func() discord.Snowflake
-	token           func() string
+	id    func() discord.Snowflake
+	token func() string
 }
 
 // Respond responds to the Interaction with the provided discord.InteractionResponse
@@ -121,6 +121,30 @@ func (i *UpdateInteraction) UpdateComponent(component discord.Component, opts ..
 	}
 
 	return i.Update(NewMessageUpdateBuilder().SetActionRows(actionRows...).Build(), opts...)
+}
+
+type ResultInteraction struct {
+	RespondInteraction
+	id            func() discord.Snowflake
+	token         func() string
+	applicationID func() discord.Snowflake
+}
+
+func (i *ResultInteraction) Result(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
+	return i.Respond(discord.InteractionCallbackTypeAutocompleteResult, discord.AutocompleteResult{Choices: choices}, opts...)
+}
+
+func (i *ResultInteraction) ResultMap(resultMap map[string]string, opts ...rest.RequestOpt) error {
+	choices := make([]discord.AutocompleteChoice, len(resultMap))
+	ii := 0
+	for name, value := range resultMap {
+		choices[ii] = discord.AutocompleteChoice{
+			Name:  name,
+			Value: value,
+		}
+		ii++
+	}
+	return i.Result(choices, opts...)
 }
 
 type FollowupInteraction struct {

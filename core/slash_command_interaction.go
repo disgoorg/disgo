@@ -13,8 +13,8 @@ type SlashCommandInteraction struct {
 	CommandName         string
 	SubCommandName      *string
 	SubCommandGroupName *string
-	Resolved            SlashCommandResolved
-	Options             OptionsMap
+	Resolved SlashCommandResolved
+	Options  SlashCommandOptionsMap
 }
 
 // CommandPath returns the ApplicationCommand path
@@ -50,16 +50,16 @@ type SlashCommandResolved struct {
 	Channels map[discord.Snowflake]*Channel
 }
 
-type OptionsMap map[string]SlashCommandOption
+type SlashCommandOptionsMap map[string]SlashCommandOption
 
-func (m OptionsMap) Get(name string) *SlashCommandOption {
+func (m SlashCommandOptionsMap) Get(name string) SlashCommandOption {
 	if option, ok := m[name]; ok {
-		return &option
+		return option
 	}
 	return nil
 }
 
-func (m OptionsMap) GetAll() []SlashCommandOption {
+func (m SlashCommandOptionsMap) GetAll() []SlashCommandOption {
 	options := make([]SlashCommandOption, len(m))
 	i := 0
 	for _, option := range m {
@@ -69,22 +69,22 @@ func (m OptionsMap) GetAll() []SlashCommandOption {
 	return options
 }
 
-func (m OptionsMap) GetByType(optionType discord.ApplicationCommandOptionType) []SlashCommandOption {
+func (m SlashCommandOptionsMap) GetByType(optionType discord.ApplicationCommandOptionType) []SlashCommandOption {
 	return m.FindAll(func(option SlashCommandOption) bool {
 		return option.Type() == optionType
 	})
 }
 
-func (m OptionsMap) Find(optionFindFunc func(option SlashCommandOption) bool) *SlashCommandOption {
+func (m SlashCommandOptionsMap) Find(optionFindFunc func(option SlashCommandOption) bool) SlashCommandOption {
 	for _, option := range m {
 		if optionFindFunc(option) {
-			return &option
+			return option
 		}
 	}
 	return nil
 }
 
-func (m OptionsMap) FindAll(optionFindFunc func(option SlashCommandOption) bool) []SlashCommandOption {
+func (m SlashCommandOptionsMap) FindAll(optionFindFunc func(option SlashCommandOption) bool) []SlashCommandOption {
 	var options []SlashCommandOption
 	for _, option := range m {
 		if optionFindFunc(option) {

@@ -14,22 +14,22 @@ func NewApplicationService(restClient Client) ApplicationService {
 type ApplicationService interface {
 	Service
 	GetGlobalCommands(applicationID discord.Snowflake, opts ...RequestOpt) ([]discord.ApplicationCommand, error)
-	GetGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake, opts ...RequestOpt) (*discord.ApplicationCommand, error)
-	CreateGlobalCommand(applicationID discord.Snowflake, commandCreate discord.ApplicationCommandCreate, opts ...RequestOpt) (*discord.ApplicationCommand, error)
+	GetGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake, opts ...RequestOpt) (discord.ApplicationCommand, error)
+	CreateGlobalCommand(applicationID discord.Snowflake, commandCreate discord.ApplicationCommandCreate, opts ...RequestOpt) (discord.ApplicationCommand, error)
 	SetGlobalCommands(applicationID discord.Snowflake, commandCreates []discord.ApplicationCommandCreate, opts ...RequestOpt) ([]discord.ApplicationCommand, error)
-	UpdateGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate, opts ...RequestOpt) (*discord.ApplicationCommand, error)
+	UpdateGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate, opts ...RequestOpt) (discord.ApplicationCommand, error)
 	DeleteGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake, opts ...RequestOpt) error
 
 	GetGuildCommands(applicationID discord.Snowflake, guildID discord.Snowflake, opts ...RequestOpt) ([]discord.ApplicationCommand, error)
-	GetGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake, opts ...RequestOpt) (*discord.ApplicationCommand, error)
-	CreateGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, command discord.ApplicationCommandCreate, opts ...RequestOpt) (*discord.ApplicationCommand, error)
+	GetGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake, opts ...RequestOpt) (discord.ApplicationCommand, error)
+	CreateGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, command discord.ApplicationCommandCreate, opts ...RequestOpt) (discord.ApplicationCommand, error)
 	SetGuildCommands(applicationID discord.Snowflake, guildID discord.Snowflake, commands []discord.ApplicationCommandCreate, opts ...RequestOpt) ([]discord.ApplicationCommand, error)
-	UpdateGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake, command discord.ApplicationCommandUpdate, opts ...RequestOpt) (*discord.ApplicationCommand, error)
+	UpdateGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake, command discord.ApplicationCommandUpdate, opts ...RequestOpt) (discord.ApplicationCommand, error)
 	DeleteGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake, opts ...RequestOpt) error
 
-	GetGuildCommandsPermissions(applicationID discord.Snowflake, guildID discord.Snowflake, opts ...RequestOpt) ([]discord.ApplicationCommandPermissions, error)
+	GetGuildCommandsPermissions(applicationID discord.Snowflake, guildID discord.Snowflake, opts ...RequestOpt) ([]*discord.ApplicationCommandPermissions, error)
 	GetGuildCommandPermissions(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake, opts ...RequestOpt) (*discord.ApplicationCommandPermissions, error)
-	SetGuildCommandsPermissions(applicationID discord.Snowflake, guildID discord.Snowflake, commandPermissions []discord.ApplicationCommandPermissionsSet, opts ...RequestOpt) ([]discord.ApplicationCommandPermissions, error)
+	SetGuildCommandsPermissions(applicationID discord.Snowflake, guildID discord.Snowflake, commandPermissions []discord.ApplicationCommandPermissionsSet, opts ...RequestOpt) ([]*discord.ApplicationCommandPermissions, error)
 	SetGuildCommandPermissions(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake, commandPermissions []discord.ApplicationCommandPermission, opts ...RequestOpt) (*discord.ApplicationCommandPermissions, error)
 }
 
@@ -58,7 +58,7 @@ func (s *applicationServiceImpl) GetGlobalCommands(applicationID discord.Snowfla
 	return
 }
 
-func (s *applicationServiceImpl) GetGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake, opts ...RequestOpt) (command *discord.ApplicationCommand, err error) {
+func (s *applicationServiceImpl) GetGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake, opts ...RequestOpt) (command discord.ApplicationCommand, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetGlobalCommand.Compile(nil, applicationID, commandID)
 	if err != nil {
@@ -67,12 +67,12 @@ func (s *applicationServiceImpl) GetGlobalCommand(applicationID discord.Snowflak
 	var unmarshalCommand discord.UnmarshalApplicationCommand
 	err = s.restClient.Do(compiledRoute, nil, &command, opts...)
 	if err == nil {
-		command = &unmarshalCommand.ApplicationCommand
+		command = unmarshalCommand.ApplicationCommand
 	}
 	return
 }
 
-func (s *applicationServiceImpl) CreateGlobalCommand(applicationID discord.Snowflake, commandCreate discord.ApplicationCommandCreate, opts ...RequestOpt) (command *discord.ApplicationCommand, err error) {
+func (s *applicationServiceImpl) CreateGlobalCommand(applicationID discord.Snowflake, commandCreate discord.ApplicationCommandCreate, opts ...RequestOpt) (command discord.ApplicationCommand, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateGlobalCommand.Compile(nil, applicationID)
 	if err != nil {
@@ -81,7 +81,7 @@ func (s *applicationServiceImpl) CreateGlobalCommand(applicationID discord.Snowf
 	var unmarshalCommand discord.UnmarshalApplicationCommand
 	err = s.restClient.Do(compiledRoute, commandCreate, &command, opts...)
 	if err == nil {
-		command = &unmarshalCommand.ApplicationCommand
+		command = unmarshalCommand.ApplicationCommand
 	}
 	return
 }
@@ -103,7 +103,7 @@ func (s *applicationServiceImpl) SetGlobalCommands(applicationID discord.Snowfla
 	return
 }
 
-func (s *applicationServiceImpl) UpdateGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate, opts ...RequestOpt) (command *discord.ApplicationCommand, err error) {
+func (s *applicationServiceImpl) UpdateGlobalCommand(applicationID discord.Snowflake, commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate, opts ...RequestOpt) (command discord.ApplicationCommand, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.UpdateGlobalCommand.Compile(nil, applicationID, commandID)
 	if err != nil {
@@ -112,7 +112,7 @@ func (s *applicationServiceImpl) UpdateGlobalCommand(applicationID discord.Snowf
 	var unmarshalCommand discord.UnmarshalApplicationCommand
 	err = s.restClient.Do(compiledRoute, commandUpdate, &unmarshalCommand, opts...)
 	if err == nil {
-		command = &unmarshalCommand.ApplicationCommand
+		command = unmarshalCommand.ApplicationCommand
 	}
 	return
 }
@@ -142,7 +142,7 @@ func (s *applicationServiceImpl) GetGuildCommands(applicationID discord.Snowflak
 	return
 }
 
-func (s *applicationServiceImpl) GetGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake, opts ...RequestOpt) (command *discord.ApplicationCommand, err error) {
+func (s *applicationServiceImpl) GetGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake, opts ...RequestOpt) (command discord.ApplicationCommand, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetGuildCommand.Compile(nil, applicationID, guildID, commandID)
 	if err != nil {
@@ -151,12 +151,12 @@ func (s *applicationServiceImpl) GetGuildCommand(applicationID discord.Snowflake
 	var unmarshalCommand discord.UnmarshalApplicationCommand
 	err = s.restClient.Do(compiledRoute, nil, &unmarshalCommand, opts...)
 	if err == nil {
-		command = &unmarshalCommand.ApplicationCommand
+		command = unmarshalCommand.ApplicationCommand
 	}
 	return
 }
 
-func (s *applicationServiceImpl) CreateGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, commandCreate discord.ApplicationCommandCreate, opts ...RequestOpt) (command *discord.ApplicationCommand, err error) {
+func (s *applicationServiceImpl) CreateGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, commandCreate discord.ApplicationCommandCreate, opts ...RequestOpt) (command discord.ApplicationCommand, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateGuildCommand.Compile(nil, applicationID, guildID)
 	if err != nil {
@@ -165,7 +165,7 @@ func (s *applicationServiceImpl) CreateGuildCommand(applicationID discord.Snowfl
 	var unmarshalCommand discord.UnmarshalApplicationCommand
 	err = s.restClient.Do(compiledRoute, commandCreate, &unmarshalCommand, opts...)
 	if err == nil {
-		command = &unmarshalCommand.ApplicationCommand
+		command = unmarshalCommand.ApplicationCommand
 	}
 	return
 }
@@ -187,7 +187,7 @@ func (s *applicationServiceImpl) SetGuildCommands(applicationID discord.Snowflak
 	return
 }
 
-func (s *applicationServiceImpl) UpdateGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate, opts ...RequestOpt) (command *discord.ApplicationCommand, err error) {
+func (s *applicationServiceImpl) UpdateGuildCommand(applicationID discord.Snowflake, guildID discord.Snowflake, commandID discord.Snowflake, commandUpdate discord.ApplicationCommandUpdate, opts ...RequestOpt) (command discord.ApplicationCommand, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.UpdateGuildCommand.Compile(nil, applicationID, guildID, commandID)
 	if err != nil {
@@ -196,7 +196,7 @@ func (s *applicationServiceImpl) UpdateGuildCommand(applicationID discord.Snowfl
 	var unmarshalCommand discord.UnmarshalApplicationCommand
 	err = s.restClient.Do(compiledRoute, commandUpdate, &unmarshalCommand, opts...)
 	if err == nil {
-		command = &unmarshalCommand.ApplicationCommand
+		command = unmarshalCommand.ApplicationCommand
 	}
 	return
 }
@@ -209,7 +209,7 @@ func (s *applicationServiceImpl) DeleteGuildCommand(applicationID discord.Snowfl
 	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
-func (s *applicationServiceImpl) GetGuildCommandsPermissions(applicationID discord.Snowflake, guildID discord.Snowflake, opts ...RequestOpt) (commandsPerms []discord.ApplicationCommandPermissions, err error) {
+func (s *applicationServiceImpl) GetGuildCommandsPermissions(applicationID discord.Snowflake, guildID discord.Snowflake, opts ...RequestOpt) (commandsPerms []*discord.ApplicationCommandPermissions, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetGuildCommandPermissions.Compile(nil, applicationID, guildID)
 	if err != nil {
@@ -229,7 +229,7 @@ func (s *applicationServiceImpl) GetGuildCommandPermissions(applicationID discor
 	return
 }
 
-func (s *applicationServiceImpl) SetGuildCommandsPermissions(applicationID discord.Snowflake, guildID discord.Snowflake, commandPermissions []discord.ApplicationCommandPermissionsSet, opts ...RequestOpt) (commandsPerms []discord.ApplicationCommandPermissions, err error) {
+func (s *applicationServiceImpl) SetGuildCommandsPermissions(applicationID discord.Snowflake, guildID discord.Snowflake, commandPermissions []discord.ApplicationCommandPermissionsSet, opts ...RequestOpt) (commandsPerms []*discord.ApplicationCommandPermissions, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.SetGuildCommandsPermissions.Compile(nil, applicationID, guildID)
 	if err != nil {
