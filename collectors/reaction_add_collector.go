@@ -31,7 +31,7 @@ type MessageReactionAddCollector struct {
 }
 
 // OnEvent used to get events for the ReactionCollector
-func (c *MessageReactionAddCollector) OnEvent(e interface{}) {
+func (c *MessageReactionAddCollector) OnEvent(e core.Event) {
 	if event, ok := e.(*events.MessageReactionAddEvent); ok {
 		messageReactionAdd := &core.MessageReactionAdd{
 			UserID:    event.UserID,

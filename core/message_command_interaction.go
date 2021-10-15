@@ -6,13 +6,12 @@ type MessageCommandInteractionFilter func(messageCommandInteraction *MessageComm
 
 type MessageCommandInteraction struct {
 	discord.MessageCommandInteraction
-	InteractionData
-	CommandID           discord.Snowflake
-	CommandName         string
-	SubCommandName      *string
-	SubCommandGroupName *string
-	Resolved            MessageCommandResolved
-	TargetID            discord.Snowflake
+	CreateInteraction
+	FollowupInteraction
+	CommandID   discord.Snowflake
+	CommandName string
+	Resolved    *MessageCommandResolved
+	TargetID    discord.Snowflake
 }
 
 func (i *MessageCommandInteraction) TargetMessage() *Message {

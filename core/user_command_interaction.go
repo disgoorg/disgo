@@ -6,8 +6,12 @@ type UserCommandInteractionFilter func(userCommandInteraction *UserCommandIntera
 
 type UserCommandInteraction struct {
 	discord.UserCommandInteraction
-	InteractionData
-	UserCommandInteractionData
+	CreateInteraction
+	FollowupInteraction
+	CommandID   discord.Snowflake
+	CommandName string
+	Resolved    *UserCommandResolved
+	TargetID    discord.Snowflake
 }
 
 func (i *UserCommandInteraction) TargetUser() *User {
@@ -16,15 +20,6 @@ func (i *UserCommandInteraction) TargetUser() *User {
 
 func (i *UserCommandInteraction) TargetMember() *Member {
 	return i.Resolved.Members[i.TargetID]
-}
-
-type UserCommandInteractionData struct {
-	CommandID           discord.Snowflake
-	CommandName         string
-	SubCommandName      *string
-	SubCommandGroupName *string
-	Resolved            UserCommandResolved
-	TargetID            discord.Snowflake
 }
 
 type UserCommandResolved struct {

@@ -10,12 +10,11 @@ type SelectMenuInteractionFilter func(selectMenuInteraction *SelectMenuInteracti
 
 type SelectMenuInteraction struct {
 	discord.SelectMenuInteraction
-	RespondInteraction
 	FollowupInteraction
 	UpdateInteraction
 	Message  *Message
 	CustomID string
-	Values []string
+	Values   []string
 }
 
 // UpdateSelectMenu updates the used SelectMenu with a new SelectMenu
@@ -42,5 +41,3 @@ func (i *SelectMenuInteraction) SelectedOptions() []discord.SelectMenuOption {
 	}
 	return options
 }
-
-

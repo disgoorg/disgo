@@ -15,12 +15,13 @@ type SlashCommandCreate struct {
 }
 
 func (c SlashCommandCreate) MarshalJSON() ([]byte, error) {
+	type slashCommandCreate SlashCommandCreate
 	v := struct {
 		Type ApplicationCommandType `json:"type"`
-		ApplicationCommandCreate
+		slashCommandCreate
 	}{
 		Type:                     c.Type(),
-		ApplicationCommandCreate: c,
+		slashCommandCreate: slashCommandCreate(c),
 	}
 	return json.Marshal(v)
 }
@@ -35,13 +36,14 @@ type UserCommandCreate struct {
 }
 
 func (c UserCommandCreate) MarshalJSON() ([]byte, error) {
+	type userCommandCreate UserCommandCreate
 	v := struct {
 		Type        ApplicationCommandType `json:"type"`
 		Description string                 `json:"description"`
-		ApplicationCommandCreate
+		userCommandCreate
 	}{
 		Type:                     c.Type(),
-		ApplicationCommandCreate: c,
+		userCommandCreate: userCommandCreate(c),
 	}
 	return json.Marshal(v)
 }
@@ -56,13 +58,14 @@ type MessageCommandCreate struct {
 }
 
 func (c MessageCommandCreate) MarshalJSON() ([]byte, error) {
+	type messageCommandCreate MessageCommandCreate
 	v := struct {
 		Type        ApplicationCommandType `json:"type"`
 		Description string                 `json:"description"`
-		ApplicationCommandCreate
+		messageCommandCreate
 	}{
 		Type:                     c.Type(),
-		ApplicationCommandCreate: c,
+		messageCommandCreate: messageCommandCreate(c),
 	}
 	return json.Marshal(v)
 }

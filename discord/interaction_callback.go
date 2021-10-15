@@ -21,6 +21,14 @@ type InteractionResponse struct {
 	Data InteractionCallbackData `json:"data,omitempty"`
 }
 
+// ToBody returns the InteractionResponse ready for body
+func (r InteractionResponse) ToBody() (interface{}, error) {
+	if r.Data == nil {
+		return r, nil
+	}
+	return r.Data.ToResponseBody(r)
+}
+
 type dataType int
 
 const (
@@ -31,13 +39,5 @@ const (
 
 type InteractionCallbackData interface {
 	dataType() dataType
-	ToBody() (interface{}, error)
-}
-
-// ToBody returns the InteractionResponse ready for body
-func (r *InteractionResponse) ToBody() (interface{}, error) {
-	if r.Data == nil {
-		return r, nil
-	}
-	return r.ToBody()
+	ToResponseBody(response InteractionResponse) (interface{}, error)
 }

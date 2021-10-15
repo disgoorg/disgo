@@ -16,14 +16,12 @@ func (h *gatewayHandlerInteractionCreate) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerInteractionCreate) New() interface{} {
-	return &discord.Interaction{}
+	return &discord.UnmarshalInteraction{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerInteractionCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
-	interaction := *v.(*discord.Interaction)
-
-	HandleInteraction(bot, sequenceNumber, nil, interaction)
+	HandleInteraction(bot, sequenceNumber, nil, (*v.(*discord.UnmarshalInteraction)).Interaction)
 }
 
 func HandleInteraction(bot *core.Bot, sequenceNumber int, c chan<- discord.InteractionResponse, interaction discord.Interaction) {
@@ -31,50 +29,57 @@ func HandleInteraction(bot *core.Bot, sequenceNumber int, c chan<- discord.Inter
 
 	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
-	switch interaction.Type {
-	case discord.InteractionTypeCommand:
-		applicationCommandInteraction := bot.EntityBuilder.CreateApplicationCommandInteraction(coreInteraction, core.CacheStrategyYes)
+	switch i := coreInteraction.(type) {
+	case *core.AutocompleteInteraction:
+		bot.EventManager.Dispatch(&events.AutocompleteEvent{
+			GenericEvent:            genericEvent,
+			AutocompleteInteraction: i,
+		})
 
-		switch interaction.Data.CommandType {
-		case discord.ApplicationCommandTypeSlash:
+	case core.ApplicationCommandInteraction:
+		switch ii := i.(type) {
+		case *core.SlashCommandInteraction:
 			bot.EventManager.Dispatch(&events.SlashCommandEvent{
-				GenericEvent:            genericEvent,
-				SlashCommandInteraction: bot.EntityBuilder.CreateSlashCommandInteraction(applicationCommandInteraction),
+				GenericEvent:           genericEvent,
+				SlashCommandInteraction: ii,
 			})
 
-		case discord.ApplicationCommandTypeUser, discord.ApplicationCommandTypeMessage:
-			contextCommandInteraction := bot.EntityBuilder.CreateContextCommandInteraction(applicationCommandInteraction)
+		case *core.UserCommandInteraction:
+			bot.EventManager.Dispatch(&events.UserCommandEvent{
+				GenericEvent:           genericEvent,
+				UserCommandInteraction: ii,
+			})
 
-			switch interaction.Data.CommandType {
-			case discord.ApplicationCommandTypeUser:
-				bot.EventManager.Dispatch(&events.UserCommandEvent{
-					GenericEvent:           genericEvent,
-					UserCommandInteraction: bot.EntityBuilder.CreateUserCommandInteraction(contextCommandInteraction),
-				})
+		case *core.MessageCommandInteraction:
+			bot.EventManager.Dispatch(&events.MessageCommandEvent{
+				GenericEvent:              genericEvent,
+				MessageCommandInteraction: ii,
+			})
 
-			case discord.ApplicationCommandTypeMessage:
-				bot.EventManager.Dispatch(&events.MessageCommandEvent{
-					GenericEvent:              genericEvent,
-					MessageCommandInteraction: bot.EntityBuilder.CreateMessageCommandInteraction(contextCommandInteraction),
-				})
-			}
+		default:
+			bot.Logger.Errorf("unknown application command interaction with type %d received", ii.ApplicationCommandType())
 		}
 
-	case discord.InteractionTypeComponent:
-		componentInteraction := bot.EntityBuilder.CreateComponentInteraction(coreInteraction, core.CacheStrategyYes)
 
-		switch interaction.Data.ComponentType {
-		case discord.ComponentTypeButton:
+	case core.ComponentInteraction:
+		switch ii := i.(type) {
+		case *core.ButtonInteraction:
 			bot.EventManager.Dispatch(&events.ButtonClickEvent{
 				GenericEvent:      genericEvent,
-				ButtonInteraction: bot.EntityBuilder.CreateButtonInteraction(componentInteraction),
+				ButtonInteraction: ii,
 			})
 
-		case discord.ComponentTypeSelectMenu:
+		case *core.SelectMenuInteraction:
 			bot.EventManager.Dispatch(&events.SelectMenuSubmitEvent{
 				GenericEvent:          genericEvent,
-				SelectMenuInteraction: bot.EntityBuilder.CreateSelectMenuInteraction(componentInteraction),
+				SelectMenuInteraction:ii,
 			})
+
+		default:
+			bot.Logger.Errorf("unknown component interaction with type %d received", ii.ComponentType())
 		}
+
+	default:
+		bot.Logger.Errorf("unknown interaction with type %d received", interaction.Type())
 	}
 }

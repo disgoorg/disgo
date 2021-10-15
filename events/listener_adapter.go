@@ -143,7 +143,7 @@ type ListenerAdapter struct {
 }
 
 // OnEvent is getting called everytime we receive an event
-func (l ListenerAdapter) OnEvent(event interface{}) {
+func (l ListenerAdapter) OnEvent(event core.Event) {
 	switch e := event.(type) {
 	case *HeartbeatEvent:
 		if listener := l.OnHeartbeat; listener != nil {

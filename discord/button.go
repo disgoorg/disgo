@@ -69,12 +69,13 @@ type Button struct {
 }
 
 func (b Button) MarshalJSON() ([]byte, error) {
+	type button Button
 	v := struct {
 		Type ComponentType `json:"type"`
-		Button
+		button
 	}{
 		Type:   b.Type(),
-		Button: b,
+		button: button(b),
 	}
 	return json.Marshal(v)
 }

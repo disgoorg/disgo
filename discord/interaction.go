@@ -29,7 +29,10 @@ type UnmarshalInteraction struct {
 func (i *UnmarshalInteraction) UnmarshalJSON(data []byte) error {
 	var iType struct {
 		Type InteractionType `json:"type"`
-		Data json.RawMessage `json:"data"`
+		Data struct{
+			ApplicationCommandType ApplicationCommandType `json:"type"`
+			ComponentType ComponentType `json:"component_type"`
+		} `json:"data"`
 	}
 
 	if err := json.Unmarshal(data, &iType); err != nil {
@@ -48,15 +51,8 @@ func (i *UnmarshalInteraction) UnmarshalJSON(data []byte) error {
 		interaction = v
 
 	case InteractionTypeApplicationCommand:
-		var cType struct {
-			Type ApplicationCommandType `json:"type"`
-		}
 
-		if err = json.Unmarshal(iType.Data, &cType); err != nil {
-			return err
-		}
-
-		switch cType.Type {
+		switch iType.Data.ApplicationCommandType {
 		case ApplicationCommandTypeSlash:
 			v := SlashCommandInteraction{}
 			err = json.Unmarshal(data, &v)
@@ -77,15 +73,7 @@ func (i *UnmarshalInteraction) UnmarshalJSON(data []byte) error {
 		}
 
 	case InteractionTypeComponent:
-		var cType struct {
-			Type ComponentType `json:"component_type"`
-		}
-
-		if err = json.Unmarshal(iType.Data, &cType); err != nil {
-			return err
-		}
-
-		switch cType.Type {
+		switch iType.Data.ComponentType {
 		case ComponentTypeButton:
 			v := ButtonInteraction{}
 			err = json.Unmarshal(data, &v)
@@ -152,8 +140,8 @@ type SlashCommandInteraction struct {
 }
 
 type SlashCommandInteractionData struct {
-	ID          Snowflake            `json:"id"`
-	CommandName string               `json:"name"`
+	CommandID   Snowflake `json:"id"`
+	CommandName string    `json:"name"`
 	Resolved    SlashCommandResolved `json:"resolved"`
 	Options     []SlashCommandOption `json:"options"`
 }
@@ -166,8 +154,9 @@ type SlashCommandResolved struct {
 }
 
 func (d *SlashCommandInteractionData) UnmarshalJSON(data []byte) error {
+	type slashCommandInteractionData SlashCommandInteractionData
 	var iData struct {
-		SlashCommandInteractionData
+		slashCommandInteractionData
 		Options []unmarshalSlashCommandOption `json:"options"`
 	}
 
@@ -181,6 +170,8 @@ func (d *SlashCommandInteractionData) UnmarshalJSON(data []byte) error {
 			d.Options[i] = option.SlashCommandOption
 		}
 	}
+
+	*d = SlashCommandInteractionData(iData.slashCommandInteractionData)
 
 	return nil
 }
@@ -211,14 +202,15 @@ type UserCommandInteraction struct {
 }
 
 type UserCommandInteractionData struct {
-	ID          Snowflake           `json:"id"`
-	CommandName string              `json:"name"`
+	CommandID   Snowflake `json:"id"`
+	CommandName string    `json:"name"`
 	Resolved    UserCommandResolved `json:"resolved"`
 	TargetID    Snowflake           `json:"target_id"`
 }
 
 type UserCommandResolved struct {
 	Users map[Snowflake]User `json:"users,omitempty"`
+	Members map[Snowflake]Member `json:"members,omitempty"`
 }
 
 func (_ UserCommandInteraction) Type() InteractionType {
@@ -247,8 +239,8 @@ type MessageCommandInteraction struct {
 }
 
 type MessageCommandInteractionData struct {
-	ID          Snowflake              `json:"id"`
-	CommandName string                 `json:"name"`
+	CommandID   Snowflake `json:"id"`
+	CommandName string    `json:"name"`
 	Resolved    MessageCommandResolved `json:"resolved"`
 	TargetID    Snowflake              `json:"target_id"`
 }
@@ -320,7 +312,7 @@ type SelectMenuInteraction struct {
 
 type SelectMenuInteractionData struct {
 	CustomID string `json:"custom_id"`
-	Values   string `json:"values"`
+	Values   []string `json:"values"`
 }
 
 func (_ SelectMenuInteraction) Type() InteractionType {
@@ -352,14 +344,15 @@ func (_ AutocompleteInteraction) Type() InteractionType {
 }
 
 type AutocompleteInteractionData struct {
-	ID      Snowflake            `json:"id"`
-	Name    string               `json:"name"`
-	Options []AutocompleteOption `json:"options"`
+	CommandID   Snowflake            `json:"id"`
+	CommandName string               `json:"name"`
+	Options     []AutocompleteOption `json:"options"`
 }
 
 func (d *AutocompleteInteractionData) UnmarshalJSON(data []byte) error {
+	type autocompleteInteractionData AutocompleteInteractionData
 	var iData struct {
-		AutocompleteInteractionData
+		autocompleteInteractionData
 		Options []unmarshalAutocompleteOption `json:"options"`
 	}
 
@@ -373,6 +366,8 @@ func (d *AutocompleteInteractionData) UnmarshalJSON(data []byte) error {
 			d.Options[i] = option.AutocompleteOption
 		}
 	}
+
+	*d = AutocompleteInteractionData(iData.autocompleteInteractionData)
 
 	return nil
 }
@@ -390,8 +385,8 @@ type ResolvedMember struct {
 }
 
 type ResolvedChannel struct {
-	ID          Snowflake   `json:"id"`
-	Name        string      `json:"name"`
+	CommandID          Snowflake   `json:"id"`
+	CommandName        string      `json:"name"`
 	Type        ChannelType `json:"type"`
 	Permissions Permissions `json:"permissions"`
 }*/

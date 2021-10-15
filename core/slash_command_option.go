@@ -57,7 +57,7 @@ func (o SlashCommandOptionRole) Role() *Role {
 }
 
 type SlashCommandOptionMentionable struct {
-	discord.SlashCommandOptionRole
+	discord.SlashCommandOptionMentionable
 	Resolved *SlashCommandResolved
 }
 

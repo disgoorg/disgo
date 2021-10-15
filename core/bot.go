@@ -273,12 +273,12 @@ func (b *Bot) GetGuildCommandsPermissions(guildID discord.Snowflake, opts ...res
 	}
 	permissions := make([]*ApplicationCommandPermissions, len(perms))
 	for i, permission := range perms {
-		permissions[i] = b.EntityBuilder.CreateApplicationCommandPermissions(*permission)
+		permissions[i] = b.EntityBuilder.CreateApplicationCommandPermissions(permission)
 	}
 	return permissions, nil
 }
 
-// GetGuildCommandPermissions returns the core.ApplicationCommandPermissions for a specific discord.ApplicationCommand in an core.Guild
+// GetGuildCommandPermissions returns the core.ApplicationCommandPermissions for a specific discord.ApplicationCommand in a core.Guild
 func (b *Bot) GetGuildCommandPermissions(guildID discord.Snowflake, commandID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
 	permissions, err := b.RestServices.ApplicationService().GetGuildCommandPermissions(b.ApplicationID, guildID, commandID, opts...)
 	if err != nil {
@@ -295,7 +295,7 @@ func (b *Bot) SetGuildCommandsPermissions(guildID discord.Snowflake, commandPerm
 	}
 	permissions := make([]*ApplicationCommandPermissions, len(perms))
 	for i, permission := range perms {
-		permissions[i] = b.EntityBuilder.CreateApplicationCommandPermissions(*permission)
+		permissions[i] = b.EntityBuilder.CreateApplicationCommandPermissions(permission)
 	}
 	return permissions, nil
 }

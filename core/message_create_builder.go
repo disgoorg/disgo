@@ -185,7 +185,7 @@ func (b *MessageCreateBuilder) SetMessageReference(messageReference *discord.Mes
 	return b
 }
 
-// SetMessageReferenceByID allows you to specify a Message ID to reply to
+// SetMessageReferenceByID allows you to specify a Message CommandID to reply to
 func (b *MessageCreateBuilder) SetMessageReferenceByID(messageID discord.Snowflake) *MessageCreateBuilder {
 	if b.MessageReference == nil {
 		b.MessageReference = &discord.MessageReference{}
@@ -218,8 +218,12 @@ func (b *MessageCreateBuilder) ClearFlags() *MessageCreateBuilder {
 }
 
 // SetEphemeral adds/removes MessageFlagEphemeral to the Message flags
-func (b *MessageCreateBuilder) SetEphemeral() *MessageCreateBuilder {
-	b.Flags = b.Flags.Add(discord.MessageFlagEphemeral)
+func (b *MessageCreateBuilder) SetEphemeral(ephemeral bool) *MessageCreateBuilder {
+	if ephemeral {
+		b.Flags = b.Flags.Add(discord.MessageFlagEphemeral)
+	} else {
+		b.Flags = b.Flags.Remove(discord.MessageFlagEphemeral)
+	}
 	return b
 }
 

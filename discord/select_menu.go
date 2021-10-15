@@ -26,12 +26,13 @@ type SelectMenu struct {
 }
 
 func (m SelectMenu) MarshalJSON() ([]byte, error) {
+	type selectMenu SelectMenu
 	v := struct {
 		Type ComponentType `json:"type"`
-		SelectMenu
+		selectMenu
 	}{
 		Type:       m.Type(),
-		SelectMenu: m,
+		selectMenu: selectMenu(m),
 	}
 	return json.Marshal(v)
 }

@@ -62,7 +62,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 	switch event.CommandName {
 	case "eval":
 		go func() {
-			code := event.Options["code"].String()
+			code := event.Options["code"].(core.SlashCommandOptionString).Value
 			embed := core.NewEmbedBuilder().
 				SetColor(orange).
 				AddField("Status", "...", true).
@@ -111,8 +111,8 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 
 	case "say":
 		_ = event.Create(core.NewMessageCreateBuilder().
-			SetContent(event.Options["message"].String()).
-			SetEphemeral(event.Options["ephemeral"].Bool()).
+			SetContent(event.Options["message"].(core.SlashCommandOptionString).Value).
+			SetEphemeral(event.Options["ephemeral"].(core.SlashCommandOptionBool).Value).
 			ClearAllowedMentions().
 			Build(),
 		)
@@ -131,8 +131,8 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 		}()
 
 	case "addrole":
-		user := event.Options["member"].User()
-		role := event.Options["role"].Role()
+		user := event.Options["member"].(core.SlashCommandOptionUser).User()
+		role := event.Options["role"].(core.SlashCommandOptionRole).Role()
 
 		if err := event.Bot().RestServices.GuildService().AddMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
 			_ = event.Create(core.NewMessageCreateBuilder().AddEmbeds(
@@ -145,8 +145,8 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 		}
 
 	case "removerole":
-		user := event.Options["member"].User()
-		role := event.Options["role"].Role()
+		user := event.Options["member"].(core.SlashCommandOptionUser).User()
+		role := event.Options["role"].(core.SlashCommandOptionRole).Role()
 
 		if err := event.Bot().RestServices.GuildService().RemoveMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
 			_ = event.Create(core.NewMessageCreateBuilder().AddEmbeds(

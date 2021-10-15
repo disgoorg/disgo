@@ -10,10 +10,10 @@ type MessageFilter func(message *Message) bool
 
 type Message struct {
 	discord.Message
-	Bot        *Bot
-	Member     *Member
-	Author     *User
-	Stickers   []*MessageSticker
+	Bot      *Bot
+	Member   *Member
+	Author   *User
+	Stickers []*MessageSticker
 }
 
 // Guild gets the guild_events the message_events was sent in
@@ -34,7 +34,7 @@ func (m *Message) AddReactionByEmote(emote Emoji, opts ...rest.RequestOpt) error
 	return m.AddReaction(emote.Reaction(), opts...)
 }
 
-// AddReaction allows you to add a reaction to a message_events from a string, for _examples a custom emoji ID, or a native emoji
+// AddReaction allows you to add a reaction to a message_events from a string, for _examples a custom emoji CommandID, or a native emoji
 func (m *Message) AddReaction(emoji string, opts ...rest.RequestOpt) error {
 	return m.Bot.RestServices.ChannelService().AddReaction(m.ChannelID, m.ID, emoji, opts...)
 }

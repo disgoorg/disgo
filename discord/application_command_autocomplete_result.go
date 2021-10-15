@@ -8,7 +8,7 @@ func (_ AutocompleteResult) dataType() dataType {
 	return dataTypeAutocompleteResult
 }
 
-func (m AutocompleteResult) ToBody() (interface{}, error) {
+func (m AutocompleteResult) ToResponseBody(_ InteractionResponse) (interface{}, error) {
 	return m, nil
 }
 

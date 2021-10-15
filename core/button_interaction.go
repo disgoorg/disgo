@@ -10,7 +10,6 @@ type ButtonInteractionFilter func(buttonInteraction *ButtonInteraction) bool
 
 type ButtonInteraction struct {
 	discord.ButtonInteraction
-	RespondInteraction
 	FollowupInteraction
 	UpdateInteraction
 	Message  *Message

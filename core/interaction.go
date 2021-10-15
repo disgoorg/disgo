@@ -28,8 +28,8 @@ type ComponentInteraction interface {
 
 type RespondInteraction struct {
 	InteractionData
-	id    func() discord.Snowflake
-	token func() string
+	id    discord.Snowflake
+	token string
 }
 
 // Respond responds to the Interaction with the provided discord.InteractionResponse
@@ -48,14 +48,12 @@ func (i *RespondInteraction) Respond(callbackType discord.InteractionCallbackTyp
 		return nil
 	}
 
-	return i.Bot.RestServices.InteractionService().CreateInteractionResponse(i.id(), i.token(), response, opts...)
+	return i.Bot.RestServices.InteractionService().CreateInteractionResponse(i.id, i.token, response, opts...)
 }
 
 type CreateInteraction struct {
 	RespondInteraction
-	id            func() discord.Snowflake
-	token         func() string
-	applicationID func() discord.Snowflake
+	applicationID discord.Snowflake
 }
 
 // DeferCreate replies to the Interaction with discord.InteractionCallbackTypeDeferredChannelMessageWithSource and shows a loading state
@@ -74,7 +72,7 @@ func (i *CreateInteraction) Create(messageCreate discord.MessageCreate, opts ...
 
 // GetOriginal gets the original discord.InteractionResponse
 func (i *CreateInteraction) GetOriginal(opts ...rest.RequestOpt) (*Message, error) {
-	message, err := i.Bot.RestServices.InteractionService().GetInteractionResponse(i.applicationID(), i.token(), opts...)
+	message, err := i.Bot.RestServices.InteractionService().GetInteractionResponse(i.applicationID, i.token, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +81,7 @@ func (i *CreateInteraction) GetOriginal(opts ...rest.RequestOpt) (*Message, erro
 
 // UpdateOriginal edits the original discord.InteractionResponse
 func (i *CreateInteraction) UpdateOriginal(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := i.Bot.RestServices.InteractionService().UpdateInteractionResponse(i.applicationID(), i.token(), messageUpdate, opts...)
+	message, err := i.Bot.RestServices.InteractionService().UpdateInteractionResponse(i.applicationID, i.token, messageUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -92,16 +90,13 @@ func (i *CreateInteraction) UpdateOriginal(messageUpdate discord.MessageUpdate, 
 
 // DeleteOriginal deletes the original discord.InteractionResponse
 func (i *CreateInteraction) DeleteOriginal(opts ...rest.RequestOpt) error {
-	return i.Bot.RestServices.InteractionService().DeleteInteractionResponse(i.applicationID(), i.token(), opts...)
+	return i.Bot.RestServices.InteractionService().DeleteInteractionResponse(i.applicationID, i.token, opts...)
 }
 
 type UpdateInteraction struct {
 	RespondInteraction
-	id            func() discord.Snowflake
-	token         func() string
-	applicationID func() discord.Snowflake
-	message       func() *Message
-	customID      func() string
+	message  *Message
+	customID string
 }
 
 // DeferUpdate replies to the ComponentInteraction with discord.InteractionCallbackTypeDeferredUpdateMessage and cancels the loading state
@@ -115,9 +110,9 @@ func (i *UpdateInteraction) Update(messageUpdate discord.MessageUpdate, opts ...
 }
 
 func (i *UpdateInteraction) UpdateComponent(component discord.Component, opts ...rest.RequestOpt) error {
-	actionRows := i.message().ActionRows()
+	actionRows := i.message.ActionRows()
 	for _, actionRow := range actionRows {
-		actionRow = actionRow.SetComponent(i.customID(), component)
+		actionRow = actionRow.SetComponent(i.customID, component)
 	}
 
 	return i.Update(NewMessageUpdateBuilder().SetActionRows(actionRows...).Build(), opts...)
@@ -125,9 +120,7 @@ func (i *UpdateInteraction) UpdateComponent(component discord.Component, opts ..
 
 type ResultInteraction struct {
 	RespondInteraction
-	id            func() discord.Snowflake
-	token         func() string
-	applicationID func() discord.Snowflake
+	applicationID discord.Snowflake
 }
 
 func (i *ResultInteraction) Result(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
@@ -149,14 +142,14 @@ func (i *ResultInteraction) ResultMap(resultMap map[string]string, opts ...rest.
 
 type FollowupInteraction struct {
 	InteractionData
-	id            func() discord.Snowflake
-	token         func() string
-	applicationID func() discord.Snowflake
+	id            discord.Snowflake
+	token         string
+	applicationID discord.Snowflake
 }
 
 // CreateFollowup is used to send a discord.MessageCreate to an Interaction
 func (i *FollowupInteraction) CreateFollowup(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := i.Bot.RestServices.InteractionService().CreateFollowupMessage(i.applicationID(), i.token(), messageCreate, opts...)
+	message, err := i.Bot.RestServices.InteractionService().CreateFollowupMessage(i.applicationID, i.token, messageCreate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +158,7 @@ func (i *FollowupInteraction) CreateFollowup(messageCreate discord.MessageCreate
 
 // UpdateFollowup is used to edit a Message from an Interaction
 func (i *FollowupInteraction) UpdateFollowup(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := i.Bot.RestServices.InteractionService().UpdateFollowupMessage(i.applicationID(), i.token(), messageID, messageUpdate, opts...)
+	message, err := i.Bot.RestServices.InteractionService().UpdateFollowupMessage(i.applicationID, i.token, messageID, messageUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -174,5 +167,5 @@ func (i *FollowupInteraction) UpdateFollowup(messageID discord.Snowflake, messag
 
 // DeleteFollowup used to delete a Message from an Interaction
 func (i *FollowupInteraction) DeleteFollowup(messageID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return i.Bot.RestServices.InteractionService().DeleteFollowupMessage(i.applicationID(), i.token(), messageID, opts...)
+	return i.Bot.RestServices.InteractionService().DeleteFollowupMessage(i.applicationID, i.token, messageID, opts...)
 }

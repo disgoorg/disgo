@@ -87,6 +87,29 @@ func (c SlashCommand) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v)
 }
 
+func (c *SlashCommand) UnmarshalJSON(data []byte) error {
+	type slashCommand SlashCommand
+	var sc struct {
+		slashCommand
+		Options           []UnmarshalApplicationCommandOption `json:"options,omitempty"`
+	}
+
+	if err := json.Unmarshal(data, &sc); err != nil {
+		return err
+	}
+
+	if len(sc.Options) > 0 {
+		c.Options = make([]ApplicationCommandOption, len(sc.Options))
+		for i := range sc.Options {
+			c.Options[i] = sc.Options[i]
+		}
+	}
+
+	*c = SlashCommand(sc.slashCommand)
+
+	return nil
+}
+
 func (_ SlashCommand) Type() ApplicationCommandType {
 	return ApplicationCommandTypeSlash
 }

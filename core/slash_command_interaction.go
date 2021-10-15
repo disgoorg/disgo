@@ -6,15 +6,14 @@ type SlashCommandInteractionFilter func(slashCommandInteraction *SlashCommandInt
 
 type SlashCommandInteraction struct {
 	discord.SlashCommandInteraction
-	RespondInteraction
 	CreateInteraction
 	FollowupInteraction
 	CommandID           discord.Snowflake
 	CommandName         string
 	SubCommandName      *string
 	SubCommandGroupName *string
-	Resolved SlashCommandResolved
-	Options  SlashCommandOptionsMap
+	Resolved            *SlashCommandResolved
+	Options             SlashCommandOptionsMap
 }
 
 // CommandPath returns the ApplicationCommand path

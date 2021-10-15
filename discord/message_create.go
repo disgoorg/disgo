@@ -25,3 +25,10 @@ func (m MessageCreate) ToBody() (interface{}, error) {
 	}
 	return m, nil
 }
+
+func (m MessageCreate) ToResponseBody(response InteractionResponse) (interface{}, error) {
+	if len(m.Files) > 0 {
+		return PayloadWithFiles(response, m.Files...)
+	}
+	return m, nil
+}

@@ -4,6 +4,15 @@ import (
 	"github.com/DisgoOrg/disgo/core"
 )
 
+type AutocompleteEvent struct {
+	*GenericEvent
+	*core.AutocompleteInteraction
+}
+
+func (e *AutocompleteEvent) Bot() *core.Bot {
+	return e.bot
+}
+
 // SlashCommandEvent indicates that a slash core.ApplicationCommand was run
 type SlashCommandEvent struct {
 	*GenericEvent

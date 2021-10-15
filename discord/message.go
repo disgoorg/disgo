@@ -66,22 +66,25 @@ type Message struct {
 	LastUpdated       *Time               `json:"last_updated,omitempty"`
 }
 
-func (m *Message) UnmarshalJSON(b []byte) error {
-	var message struct {
-		*Message
+func (m *Message) UnmarshalJSON(data []byte) error {
+	type message Message
+	var msg struct {
+		message
 		Components []unmarshalComponent `json:"components"`
 	}
 
-	if err := json.Unmarshal(b, &message); err != nil {
+	if err := json.Unmarshal(data, &msg); err != nil {
 		return err
 	}
 
-	if len(message.Components) > 0 {
-		m.Components = make([]Component, len(message.Components))
-		for i, component := range message.Components {
-			m.Components[i] = component.Component
+	if len(msg.Components) > 0 {
+		m.Components = make([]Component, len(msg.Components))
+		for i := range msg.Components {
+			m.Components[i] = msg.Components[i]
 		}
 	}
+
+	*m = Message(msg.message)
 
 	return nil
 }
