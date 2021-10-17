@@ -58,6 +58,202 @@ func (m SlashCommandOptionsMap) Get(name string) SlashCommandOption {
 	return nil
 }
 
+func (m SlashCommandOptionsMap) StringOption(name string) *SlashCommandOptionString {
+	option := m.Get(name)
+	if option == nil {
+		return nil
+	}
+	if opt, ok := option.(SlashCommandOptionString); ok {
+		return &opt
+	}
+	return nil
+}
+
+func (m SlashCommandOptionsMap) String(name string) *string {
+	option := m.StringOption(name)
+	if option == nil {
+		return nil
+	}
+	return &option.Value
+}
+
+func (m SlashCommandOptionsMap) IntOption(name string) *SlashCommandOptionInt {
+	option := m.Get(name)
+	if option == nil {
+		return nil
+	}
+	if opt, ok := option.(SlashCommandOptionInt); ok {
+		return &opt
+	}
+	return nil
+}
+
+func (m SlashCommandOptionsMap) Int(name string) *int {
+	option := m.IntOption(name)
+	if option == nil {
+		return nil
+	}
+	return &option.Value
+}
+
+func (m SlashCommandOptionsMap) BoolOption(name string) *SlashCommandOptionBool {
+	option := m.Get(name)
+	if option == nil {
+		return nil
+	}
+	if opt, ok := option.(SlashCommandOptionBool); ok {
+		return &opt
+	}
+	return nil
+}
+
+func (m SlashCommandOptionsMap) Bool(name string) *bool {
+	option := m.BoolOption(name)
+	if option == nil {
+		return nil
+	}
+	return &option.Value
+}
+
+func (m SlashCommandOptionsMap) UserOption(name string) *SlashCommandOptionUser {
+	option := m.Get(name)
+	if option == nil {
+		return nil
+	}
+	if opt, ok := option.(SlashCommandOptionUser); ok {
+		return &opt
+	}
+	return nil
+}
+
+func (m SlashCommandOptionsMap) User(name string) *User {
+	option := m.Get(name)
+	if option == nil {
+		return nil
+	}
+	switch opt := option.(type) {
+	case SlashCommandOptionUser:
+		return opt.User()
+	case SlashCommandOptionMentionable:
+		return opt.User()
+	default:
+		return nil
+	}
+}
+
+func (m SlashCommandOptionsMap) Member(name string) *Member {
+	option := m.Get(name)
+	if option == nil {
+		return nil
+	}
+	switch opt := option.(type) {
+	case SlashCommandOptionUser:
+		return opt.Member()
+	case SlashCommandOptionMentionable:
+		return opt.Member()
+	default:
+		return nil
+	}
+}
+
+func (m SlashCommandOptionsMap) ChannelOption(name string) *SlashCommandOptionChannel {
+	option := m.Get(name)
+	if option == nil {
+		return nil
+	}
+	if opt, ok := option.(SlashCommandOptionChannel); ok {
+		return &opt
+	}
+	return nil
+}
+
+func (m SlashCommandOptionsMap) Channel(name string) *Channel {
+	option := m.ChannelOption(name)
+	if option == nil {
+		return nil
+	}
+	return option.Channel()
+}
+
+func (m SlashCommandOptionsMap) RoleOption(name string) *SlashCommandOptionRole {
+	option := m.Get(name)
+	if option == nil {
+		return nil
+	}
+	if opt, ok := option.(SlashCommandOptionRole); ok {
+		return &opt
+	}
+	return nil
+}
+
+func (m SlashCommandOptionsMap) Role(name string) *Role {
+	option := m.Get(name)
+	if option == nil {
+		return nil
+	}
+	switch opt := option.(type) {
+	case SlashCommandOptionRole:
+		return opt.Role()
+	case SlashCommandOptionMentionable:
+		return opt.Role()
+	default:
+		return nil
+	}
+}
+
+func (m SlashCommandOptionsMap) MentionableOption(name string) *SlashCommandOptionMentionable {
+	option := m.Get(name)
+	if option == nil {
+		return nil
+	}
+	if opt, ok := option.(SlashCommandOptionMentionable); ok {
+		return &opt
+	}
+	return nil
+}
+
+func (m SlashCommandOptionsMap) Snowflake(name string) *discord.Snowflake {
+	option := m.Get(name)
+	if option == nil {
+		return nil
+	}
+	switch opt := option.(type) {
+	case SlashCommandOptionChannel:
+		return &opt.Value
+
+	case SlashCommandOptionRole:
+		return &opt.Value
+
+	case SlashCommandOptionUser:
+		return &opt.Value
+
+	case SlashCommandOptionMentionable:
+		return &opt.Value
+
+	default:
+		return nil
+	}
+}
+
+func (m SlashCommandOptionsMap) FloatOption(name string) *SlashCommandOptionFloat {
+	option := m.Get(name)
+	if option == nil {
+		return nil
+	}
+	if opt, ok := option.(SlashCommandOptionFloat); ok {
+		return &opt
+	}
+	return nil
+}
+
+func (m SlashCommandOptionsMap) Float(name string) *float64 {
+	option := m.FloatOption(name)
+	if option == nil {
+		return nil
+	}
+	return &option.Value
+}
+
 func (m SlashCommandOptionsMap) GetAll() []SlashCommandOption {
 	options := make([]SlashCommandOption, len(m))
 	i := 0

@@ -38,6 +38,10 @@ func (o SlashCommandOptionUser) User() *User {
 	return o.Resolved.Users[o.Value]
 }
 
+func (o SlashCommandOptionUser) Member() *Member {
+	return o.Resolved.Members[o.Value]
+}
+
 type SlashCommandOptionChannel struct {
 	discord.SlashCommandOptionChannel
 	Resolved *SlashCommandResolved
@@ -63,6 +67,10 @@ type SlashCommandOptionMentionable struct {
 
 func (o SlashCommandOptionMentionable) User() *User {
 	return o.Resolved.Users[o.Value]
+}
+
+func (o SlashCommandOptionMentionable) Member() *Member {
+	return o.Resolved.Members[o.Value]
 }
 
 func (o SlashCommandOptionMentionable) Role() *Role {
