@@ -10,8 +10,9 @@ type ButtonInteractionFilter func(buttonInteraction *ButtonInteraction) bool
 
 type ButtonInteraction struct {
 	discord.ButtonInteraction
-	FollowupInteraction
+	CreateInteraction
 	UpdateInteraction
+	FollowupInteraction
 	Message  *Message
 	CustomID string
 }

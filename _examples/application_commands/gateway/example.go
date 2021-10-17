@@ -21,123 +21,16 @@ var (
 
 	commands = []discord.ApplicationCommandCreate{
 		discord.SlashCommandCreate{
-			Name:              "root-command",
-			Description:       "root command",
+			Name:              "say",
+			Description:       "says what you say",
 			DefaultPermission: true,
 			Options: []discord.ApplicationCommandOption{
-				discord.ApplicationCommandOptionSubCommandGroup{
-					Name:        "sub-command-group",
-					Description: "sub command group",
-					Options: []discord.ApplicationCommandOptionSubCommand{
-						{
-							Name:        "sub-command",
-							Description: "sub command",
-							Options: []discord.ApplicationCommandOption{
-								discord.ApplicationCommandOptionString{
-									Name:        "string",
-									Description: "string option",
-									Required:    false,
-									Choices: []discord.ApplicationCommandOptionChoiceString{
-										{
-											Name:  "0",
-											Value: "0",
-										},
-										{
-											Name:  "1",
-											Value: "1",
-										},
-									},
-									Autocomplete: false,
-								},
-								discord.ApplicationCommandOptionString{
-									Name:         "string",
-									Description:  "string option",
-									Required:     false,
-									Autocomplete: true,
-								},
-								discord.ApplicationCommandOptionInt{
-									Name:        "int",
-									Description: "int option",
-									Required:    false,
-									Choices: []discord.ApplicationCommandOptionChoiceInt{
-										{
-											Name:  "0",
-											Value: 0,
-										},
-										{
-											Name:  "1",
-											Value: 0,
-										},
-									},
-									Autocomplete: false,
-								},
-								discord.ApplicationCommandOptionInt{
-									Name:         "int",
-									Description:  "int option",
-									Required:     false,
-									Autocomplete: true,
-								},
-								discord.ApplicationCommandOptionBool{
-									Name:        "bool",
-									Description: "bool option",
-									Required:    false,
-								},
-								discord.ApplicationCommandOptionUser{
-									Name:        "user",
-									Description: "user option",
-									Required:    false,
-								},
-								discord.ApplicationCommandOptionChannel{
-									Name:         "channel",
-									Description:  "channel option",
-									Required:     false,
-									ChannelTypes: []discord.ChannelType{discord.ChannelTypeText},
-								},
-								discord.ApplicationCommandOptionRole{
-									Name:        "role",
-									Description: "role option",
-									Required:    false,
-								},
-								discord.ApplicationCommandOptionMentionable{
-									Name:        "mentionable",
-									Description: "mentionable option",
-									Required:    false,
-								},
-								discord.ApplicationCommandOptionFloat{
-									Name:        "float",
-									Description: "float option",
-									Required:    false,
-									Choices: []discord.ApplicationCommandOptionChoiceFloat{
-										{
-											Name:  "1.1",
-											Value: 1.1,
-										},
-										{
-											Name:  "2.1",
-											Value: 2.1,
-										},
-									},
-									Autocomplete: false,
-								},
-								discord.ApplicationCommandOptionFloat{
-									Name:         "float",
-									Description:  "float option",
-									Required:     false,
-									Autocomplete: true,
-								},
-							},
-						},
-					},
+				discord.ApplicationCommandOptionString{
+					Name:        "message",
+					Description: "What to say",
+					Required:    true,
 				},
 			},
-		},
-		discord.UserCommandCreate{
-			Name:              "test",
-			DefaultPermission: true,
-		},
-		discord.MessageCommandCreate{
-			Name:              "test",
-			DefaultPermission: true,
 		},
 	}
 )
@@ -179,7 +72,7 @@ func main() {
 func commandListener(event *events.SlashCommandEvent) {
 	if event.CommandName == "say" {
 		err := event.Create(core.NewMessageCreateBuilder().
-			SetContent(event.Options["message"].String()).
+			SetContent(*event.Options.String("message")).
 			Build(),
 		)
 		if err != nil {

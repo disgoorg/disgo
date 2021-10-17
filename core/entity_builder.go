@@ -346,22 +346,29 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 	case discord.ButtonInteraction:
 		interactionData.Member, interactionData.User = b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
 		message := b.CreateMessage(i.Message, updateCache)
+
+		respondInteraction := RespondInteraction{
+			InteractionData: interactionData,
+			id:              i.ID,
+			token:           i.Token,
+		}
+
 		buttonInteraction := &ButtonInteraction{
 			ButtonInteraction: i,
+			CreateInteraction: CreateInteraction{
+				RespondInteraction: respondInteraction,
+				applicationID:      i.ApplicationID,
+			},
+			UpdateInteraction: UpdateInteraction{
+				RespondInteraction: respondInteraction,
+				message:            message,
+				customID:           i.Data.CustomID,
+			},
 			FollowupInteraction: FollowupInteraction{
 				InteractionData: interactionData,
 				id:              i.ID,
 				token:           i.Token,
 				applicationID:   i.ApplicationID,
-			},
-			UpdateInteraction: UpdateInteraction{
-				RespondInteraction: RespondInteraction{
-					InteractionData: interactionData,
-					id:              i.ID,
-					token:           i.Token,
-				},
-				message:  message,
-				customID: i.Data.CustomID,
 			},
 			Message:  message,
 			CustomID: i.Data.CustomID,
@@ -371,22 +378,29 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 	case discord.SelectMenuInteraction:
 		interactionData.Member, interactionData.User = b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
 		message := b.CreateMessage(i.Message, updateCache)
+
+		respondInteraction := RespondInteraction{
+			InteractionData: interactionData,
+			id:              i.ID,
+			token:           i.Token,
+		}
+
 		selectMenuInteraction := &SelectMenuInteraction{
 			SelectMenuInteraction: i,
+			CreateInteraction: CreateInteraction{
+				RespondInteraction: respondInteraction,
+				applicationID:      i.ApplicationID,
+			},
+			UpdateInteraction: UpdateInteraction{
+				RespondInteraction: respondInteraction,
+				message:            message,
+				customID:           i.Data.CustomID,
+			},
 			FollowupInteraction: FollowupInteraction{
 				InteractionData: interactionData,
 				id:              i.ID,
 				token:           i.Token,
 				applicationID:   i.ApplicationID,
-			},
-			UpdateInteraction: UpdateInteraction{
-				RespondInteraction: RespondInteraction{
-					InteractionData: interactionData,
-					id:              i.ID,
-					token:           i.Token,
-				},
-				message:  message,
-				customID: i.Data.CustomID,
 			},
 			Message:  message,
 			CustomID: i.Data.CustomID,

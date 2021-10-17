@@ -10,8 +10,9 @@ type SelectMenuInteractionFilter func(selectMenuInteraction *SelectMenuInteracti
 
 type SelectMenuInteraction struct {
 	discord.SelectMenuInteraction
-	FollowupInteraction
+	CreateInteraction
 	UpdateInteraction
+	FollowupInteraction
 	Message  *Message
 	CustomID string
 	Values   []string
