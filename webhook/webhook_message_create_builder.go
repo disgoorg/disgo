@@ -99,7 +99,7 @@ func (b *MessageCreateBuilder) SetActionRow(i int, actionRow discord.ActionRow) 
 
 // AddActionRow adds a new ActionRow with the provided Component(s) to the Message
 func (b *MessageCreateBuilder) AddActionRow(components ...discord.Component) *MessageCreateBuilder {
-	//b.Components = append(b.Components, discord.NewActionRow(components...))
+	b.Components = append(b.Components, discord.NewActionRow(components...))
 	return b
 }
 
