@@ -5,9 +5,7 @@ import "github.com/DisgoOrg/disgo/discord"
 type SlashCommandInteractionFilter func(slashCommandInteraction *SlashCommandInteraction) bool
 
 type SlashCommandInteraction struct {
-	discord.SlashCommandInteraction
-	CreateInteraction
-	FollowupInteraction
+	*InteractionFields
 	CommandID           discord.Snowflake
 	CommandName         string
 	SubCommandName      *string
@@ -18,7 +16,7 @@ type SlashCommandInteraction struct {
 
 // CommandPath returns the ApplicationCommand path
 func (i *SlashCommandInteraction) CommandPath() string {
-	path := i.Data.CommandName
+	path := i.CommandName
 	if name := i.SubCommandName; name != nil {
 		path += "/" + *name
 	}

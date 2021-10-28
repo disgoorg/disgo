@@ -24,6 +24,39 @@ const (
 	ApplicationCommandOptionTypeFloat
 )
 
+var applicationCommandOptions = map[ApplicationCommandOptionType]func() ApplicationCommandOption{
+	ApplicationCommandOptionTypeSubCommand: func() ApplicationCommandOption {
+		return &ApplicationCommandOptionSubCommand{}
+	},
+	ApplicationCommandOptionTypeSubCommandGroup: func() ApplicationCommandOption {
+		return &ApplicationCommandOptionSubCommandGroup{}
+	},
+	ApplicationCommandOptionTypeString: func() ApplicationCommandOption {
+		return &ApplicationCommandOptionString{}
+	},
+	ApplicationCommandOptionTypeInt: func() ApplicationCommandOption {
+		return &ApplicationCommandOptionInt{}
+	},
+	ApplicationCommandOptionTypeBool: func() ApplicationCommandOption {
+		return &ApplicationCommandOptionBool{}
+	},
+	ApplicationCommandOptionTypeUser: func() ApplicationCommandOption {
+		return &ApplicationCommandOptionUser{}
+	},
+	ApplicationCommandOptionTypeChannel: func() ApplicationCommandOption {
+		return &ApplicationCommandOptionChannel{}
+	},
+	ApplicationCommandOptionTypeRole: func() ApplicationCommandOption {
+		return &ApplicationCommandOptionRole{}
+	},
+	ApplicationCommandOptionTypeMentionable: func() ApplicationCommandOption {
+		return &ApplicationCommandOptionMentionable{}
+	},
+	ApplicationCommandOptionTypeFloat: func() ApplicationCommandOption {
+		return &ApplicationCommandOptionFloat{}
+	},
+}
+
 type ApplicationCommandOption interface {
 	json.Marshaler
 	Type() ApplicationCommandOptionType
@@ -34,78 +67,26 @@ type UnmarshalApplicationCommandOption struct {
 }
 
 func (u *UnmarshalApplicationCommandOption) UnmarshalJSON(data []byte) error {
-	var aType struct {
+	var oType struct {
 		Type ApplicationCommandOptionType `json:"type"`
 	}
 
-	if err := json.Unmarshal(data, &aType); err != nil {
+	if err := json.Unmarshal(data, &oType); err != nil {
 		return err
 	}
 
-	var (
-		applicationCommandOption ApplicationCommandOption
-		err                error
-	)
-
-	switch aType.Type {
-	case ApplicationCommandOptionTypeSubCommand:
-		v := ApplicationCommandOptionSubCommand{}
-		err = json.Unmarshal(data, &v)
-		applicationCommandOption = v
-
-	case ApplicationCommandOptionTypeSubCommandGroup:
-		v := ApplicationCommandOptionSubCommandGroup{}
-		err = json.Unmarshal(data, &v)
-		applicationCommandOption = v
-
-	case ApplicationCommandOptionTypeString:
-		v := ApplicationCommandOptionString{}
-		err = json.Unmarshal(data, &v)
-		applicationCommandOption = v
-
-	case ApplicationCommandOptionTypeInt:
-		v := ApplicationCommandOptionInt{}
-		err = json.Unmarshal(data, &v)
-		applicationCommandOption = v
-
-	case ApplicationCommandOptionTypeBool:
-		v := ApplicationCommandOptionBool{}
-		err = json.Unmarshal(data, &v)
-		applicationCommandOption = v
-
-	case ApplicationCommandOptionTypeUser:
-		v := ApplicationCommandOptionUser{}
-		err = json.Unmarshal(data, &v)
-		applicationCommandOption = v
-
-	case ApplicationCommandOptionTypeChannel:
-		v := ApplicationCommandOptionChannel{}
-		err = json.Unmarshal(data, &v)
-		applicationCommandOption = v
-
-	case ApplicationCommandOptionTypeRole:
-		v := ApplicationCommandOptionRole{}
-		err = json.Unmarshal(data, &v)
-		applicationCommandOption = v
-
-	case ApplicationCommandOptionTypeMentionable:
-		v := ApplicationCommandOptionMentionable{}
-		err = json.Unmarshal(data, &v)
-		applicationCommandOption = v
-
-	case ApplicationCommandOptionTypeFloat:
-		v := ApplicationCommandOptionFloat{}
-		err = json.Unmarshal(data, &v)
-		applicationCommandOption = v
-
-	default:
-		return fmt.Errorf("unkown application command option with type %d received", aType.Type)
+	fn, ok := applicationCommandOptions[oType.Type]
+	if !ok {
+		return fmt.Errorf("unkown application command option with type %d received", oType.Type)
 	}
-	if err != nil {
+
+	v := fn()
+
+	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
 
-	u.ApplicationCommandOption = applicationCommandOption
+	u.ApplicationCommandOption = v
 	return nil
 }
 
@@ -123,7 +104,7 @@ func (o ApplicationCommandOptionSubCommand) MarshalJSON() ([]byte, error) {
 		Type ApplicationCommandOptionType `json:"type"`
 		applicationCommandOptionSubCommand
 	}{
-		Type:                     o.Type(),
+		Type:                               o.Type(),
 		applicationCommandOptionSubCommand: applicationCommandOptionSubCommand(o),
 	}
 	return json.Marshal(v)
@@ -147,7 +128,7 @@ func (o ApplicationCommandOptionSubCommandGroup) MarshalJSON() ([]byte, error) {
 		Type ApplicationCommandOptionType `json:"type"`
 		applicationCommandOptionSubCommandGroup
 	}{
-		Type:                     o.Type(),
+		Type:                                    o.Type(),
 		applicationCommandOptionSubCommandGroup: applicationCommandOptionSubCommandGroup(o),
 	}
 	return json.Marshal(v)
@@ -173,7 +154,7 @@ func (o ApplicationCommandOptionString) MarshalJSON() ([]byte, error) {
 		Type ApplicationCommandOptionType `json:"type"`
 		applicationCommandOptionString
 	}{
-		Type:                     o.Type(),
+		Type:                           o.Type(),
 		applicationCommandOptionString: applicationCommandOptionString(o),
 	}
 	return json.Marshal(v)
@@ -199,7 +180,7 @@ func (o ApplicationCommandOptionInt) MarshalJSON() ([]byte, error) {
 		Type ApplicationCommandOptionType `json:"type"`
 		applicationCommandOptionInt
 	}{
-		Type:                     o.Type(),
+		Type:                        o.Type(),
 		applicationCommandOptionInt: applicationCommandOptionInt(o),
 	}
 	return json.Marshal(v)
@@ -223,7 +204,7 @@ func (o ApplicationCommandOptionBool) MarshalJSON() ([]byte, error) {
 		Type ApplicationCommandOptionType `json:"type"`
 		applicationCommandOptionBool
 	}{
-		Type:                     o.Type(),
+		Type:                         o.Type(),
 		applicationCommandOptionBool: applicationCommandOptionBool(o),
 	}
 	return json.Marshal(v)
@@ -247,7 +228,7 @@ func (o ApplicationCommandOptionUser) MarshalJSON() ([]byte, error) {
 		Type ApplicationCommandOptionType `json:"type"`
 		applicationCommandOptionUser
 	}{
-		Type:                     o.Type(),
+		Type:                         o.Type(),
 		applicationCommandOptionUser: applicationCommandOptionUser(o),
 	}
 	return json.Marshal(v)
@@ -272,7 +253,7 @@ func (o ApplicationCommandOptionChannel) MarshalJSON() ([]byte, error) {
 		Type ApplicationCommandOptionType `json:"type"`
 		applicationCommandOptionChannel
 	}{
-		Type:                     o.Type(),
+		Type:                            o.Type(),
 		applicationCommandOptionChannel: applicationCommandOptionChannel(o),
 	}
 	return json.Marshal(v)
@@ -296,7 +277,7 @@ func (o ApplicationCommandOptionRole) MarshalJSON() ([]byte, error) {
 		Type ApplicationCommandOptionType `json:"type"`
 		applicationCommandOptionRole
 	}{
-		Type:                     o.Type(),
+		Type:                         o.Type(),
 		applicationCommandOptionRole: applicationCommandOptionRole(o),
 	}
 	return json.Marshal(v)
@@ -320,7 +301,7 @@ func (o ApplicationCommandOptionMentionable) MarshalJSON() ([]byte, error) {
 		Type ApplicationCommandOptionType `json:"type"`
 		applicationCommandOptionMentionable
 	}{
-		Type:                     o.Type(),
+		Type:                                o.Type(),
 		applicationCommandOptionMentionable: applicationCommandOptionMentionable(o),
 	}
 	return json.Marshal(v)
@@ -346,7 +327,7 @@ func (o ApplicationCommandOptionFloat) MarshalJSON() ([]byte, error) {
 		Type ApplicationCommandOptionType `json:"type"`
 		applicationCommandOptionFloat
 	}{
-		Type:                     o.Type(),
+		Type:                          o.Type(),
 		applicationCommandOptionFloat: applicationCommandOptionFloat(o),
 	}
 	return json.Marshal(v)
@@ -356,16 +337,8 @@ func (_ ApplicationCommandOptionFloat) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeFloat
 }
 
-type choiceType int
-
-const (
-	choiceTypeInt = iota
-	choiceTypeString
-	choiceTypeFloat
-)
-
 type ApplicationCommandOptionChoice interface {
-	choiceType() choiceType
+	choice()
 }
 
 type ApplicationCommandOptionChoiceInt struct {
@@ -373,24 +346,18 @@ type ApplicationCommandOptionChoiceInt struct {
 	Value int    `json:"value"`
 }
 
-func (_ ApplicationCommandOptionChoiceInt) choiceType() choiceType {
-	return choiceTypeInt
-}
+func (_ ApplicationCommandOptionChoiceInt) choice() {}
 
 type ApplicationCommandOptionChoiceString struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
 
-func (_ ApplicationCommandOptionChoiceString) choiceType() choiceType {
-	return choiceTypeString
-}
+func (_ ApplicationCommandOptionChoiceString) choice() {}
 
 type ApplicationCommandOptionChoiceFloat struct {
 	Name  string  `json:"name"`
 	Value float64 `json:"value"`
 }
 
-func (_ ApplicationCommandOptionChoiceFloat) choiceType() choiceType {
-	return choiceTypeFloat
-}
+func (_ ApplicationCommandOptionChoiceFloat) choice() {}

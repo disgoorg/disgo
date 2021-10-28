@@ -80,6 +80,6 @@ func HandleInteraction(bot *core.Bot, sequenceNumber int, c chan<- discord.Inter
 		}
 
 	default:
-		bot.Logger.Errorf("unknown interaction with type %d received", interaction.Type())
+		bot.Logger.Errorf("unknown interaction with type %d received", interaction.InteractionType())
 	}
 }

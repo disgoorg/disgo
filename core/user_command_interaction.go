@@ -5,9 +5,7 @@ import "github.com/DisgoOrg/disgo/discord"
 type UserCommandInteractionFilter func(userCommandInteraction *UserCommandInteraction) bool
 
 type UserCommandInteraction struct {
-	discord.UserCommandInteraction
-	CreateInteraction
-	FollowupInteraction
+	*InteractionFields
 	CommandID   discord.Snowflake
 	CommandName string
 	Resolved    *UserCommandResolved

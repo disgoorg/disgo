@@ -8,18 +8,30 @@ import (
 // ButtonInteractionFilter used to filter ButtonInteraction(s) in a collectors.ButtonClickCollector
 type ButtonInteractionFilter func(buttonInteraction *ButtonInteraction) bool
 
+var _ Interaction = (*ButtonInteraction)(nil)
+var _ ComponentInteraction = (*ButtonInteraction)(nil)
+
 type ButtonInteraction struct {
-	discord.ButtonInteraction
-	CreateInteraction
-	UpdateInteraction
-	FollowupInteraction
+	*InteractionFields
 	Message  *Message
 	CustomID string
 }
 
+func (i *ButtonInteraction) InteractionType() discord.InteractionType {
+	return discord.InteractionTypeComponent
+}
+
+func (i *ButtonInteraction) ComponentType() discord.ComponentType {
+	return discord.ComponentTypeButton
+}
+
+func (i *ButtonInteraction) Respond(callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
+	return respond(i.InteractionFields, callbackType, callbackData, opts...)
+}
+
 // UpdateButton updates the clicked Button with a new Button
 func (i *ButtonInteraction) UpdateButton(button discord.Button, opts ...rest.RequestOpt) error {
-	return i.UpdateComponent(button, opts...)
+	return updateComponent(i.InteractionFields, i.Message, i.CustomID, button, opts...)
 }
 
 // Button returns the Button which issued this ButtonInteraction

@@ -6,6 +6,39 @@ import (
 	"github.com/DisgoOrg/disgo/json"
 )
 
+var autocompleteOptions = map[ApplicationCommandOptionType]func() AutocompleteOption{
+	ApplicationCommandOptionTypeSubCommand: func() AutocompleteOption {
+		return &AutocompleteOptionSubCommand{}
+	},
+	ApplicationCommandOptionTypeSubCommandGroup: func() AutocompleteOption {
+		return &AutocompleteOptionSubCommandGroup{}
+	},
+	ApplicationCommandOptionTypeString: func() AutocompleteOption {
+		return &AutocompleteOptionString{}
+	},
+	ApplicationCommandOptionTypeInt: func() AutocompleteOption {
+		return &AutocompleteOptionInt{}
+	},
+	ApplicationCommandOptionTypeBool: func() AutocompleteOption {
+		return &AutocompleteOptionBool{}
+	},
+	ApplicationCommandOptionTypeUser: func() AutocompleteOption {
+		return &AutocompleteOptionUser{}
+	},
+	ApplicationCommandOptionTypeChannel: func() AutocompleteOption {
+		return &AutocompleteOptionChannel{}
+	},
+	ApplicationCommandOptionTypeRole: func() AutocompleteOption {
+		return &AutocompleteOptionRole{}
+	},
+	ApplicationCommandOptionTypeMentionable: func() AutocompleteOption {
+		return &AutocompleteOptionMentionable{}
+	},
+	ApplicationCommandOptionTypeFloat: func() AutocompleteOption {
+		return &AutocompleteOptionFloat{}
+	},
+}
+
 type AutocompleteOption interface {
 	Type() ApplicationCommandOptionType
 }
@@ -23,70 +56,18 @@ func (o unmarshalAutocompleteOption) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	var (
-		autocompleteOption AutocompleteOption
-		err                error
-	)
-
-	switch oType.Type {
-	case ApplicationCommandOptionTypeSubCommand:
-		v := AutocompleteOptionSubCommand{}
-		err = json.Unmarshal(data, &v)
-		autocompleteOption = v
-
-	case ApplicationCommandOptionTypeSubCommandGroup:
-		v := AutocompleteOptionSubCommandGroup{}
-		err = json.Unmarshal(data, &v)
-		autocompleteOption = v
-
-	case ApplicationCommandOptionTypeString:
-		v := AutocompleteOptionString{}
-		err = json.Unmarshal(data, &v)
-		autocompleteOption = v
-
-	case ApplicationCommandOptionTypeInt:
-		v := AutocompleteOptionInt{}
-		err = json.Unmarshal(data, &v)
-		autocompleteOption = v
-
-	case ApplicationCommandOptionTypeBool:
-		v := AutocompleteOptionBool{}
-		err = json.Unmarshal(data, &v)
-		autocompleteOption = v
-
-	case ApplicationCommandOptionTypeUser:
-		v := AutocompleteOptionUser{}
-		err = json.Unmarshal(data, &v)
-		autocompleteOption = v
-
-	case ApplicationCommandOptionTypeChannel:
-		v := AutocompleteOptionChannel{}
-		err = json.Unmarshal(data, &v)
-		autocompleteOption = v
-
-	case ApplicationCommandOptionTypeRole:
-		v := AutocompleteOptionRole{}
-		err = json.Unmarshal(data, &v)
-		autocompleteOption = v
-
-	case ApplicationCommandOptionTypeMentionable:
-		v := AutocompleteOptionMentionable{}
-		err = json.Unmarshal(data, &v)
-		autocompleteOption = v
-
-	case ApplicationCommandOptionTypeFloat:
-		v := AutocompleteOptionFloat{}
-		err = json.Unmarshal(data, &v)
-		autocompleteOption = v
-
-	default:
+	fn, ok := autocompleteOptions[oType.Type]
+	if !ok {
 		return fmt.Errorf("unkown application command autocomplete option with type %d received", oType.Type)
 	}
-	if err != nil {
+
+	v := fn()
+
+	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
 
-	o.AutocompleteOption = autocompleteOption
+	o.AutocompleteOption = v
 	return nil
 }
 

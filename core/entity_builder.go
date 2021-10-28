@@ -410,7 +410,7 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 		coreInteraction = selectMenuInteraction
 
 	default:
-		b.Bot().Logger.Error("unknown interaction type %d received", interaction.Type())
+		b.Bot().Logger.Error("unknown interaction type %d received", interaction.InteractionType())
 		return nil
 	}
 

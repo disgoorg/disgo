@@ -3,8 +3,7 @@ package core
 import "github.com/DisgoOrg/disgo/discord"
 
 type AutocompleteInteraction struct {
-	discord.AutocompleteInteraction
-	ResultInteraction
+	*InteractionFields
 	CommandID           discord.Snowflake
 	CommandName         string
 	SubCommandName      *string
@@ -14,7 +13,7 @@ type AutocompleteInteraction struct {
 
 // CommandPath returns the ApplicationCommand path
 func (i *AutocompleteInteraction) CommandPath() string {
-	path := i.Data.CommandName
+	path := i.CommandName
 	if name := i.SubCommandName; name != nil {
 		path += "/" + *name
 	}
