@@ -137,7 +137,7 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 				name = o.Name
 
 			default:
-				b.Bot().Logger.Errorf("unknown application command autocomplete option with type %d received", option.Type)
+				b.Bot().Logger.Errorf("unknown application command autocomplete option with type %d received", option.Type())
 				continue
 			}
 			autocompleteInteraction.Options[name] = option
@@ -246,7 +246,7 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 				}
 
 			default:
-				b.Bot().Logger.Errorf("unknown application command autocomplete option with type %d received", option.Type)
+				b.Bot().Logger.Errorf("unknown application command autocomplete option with type %d received", option.Type())
 				continue
 			}
 		}
@@ -492,7 +492,7 @@ func (b *entityBuilderImpl) CreateApplicationCommand(applicationCommand discord.
 			Bot:            b.Bot(),
 		}
 	default:
-		b.Bot().Logger.Error("")
+		b.Bot().Logger.Error("unknown application command type %d received", applicationCommand.Type())
 		return nil
 	}
 }
