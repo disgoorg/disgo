@@ -5,6 +5,8 @@ import (
 	"github.com/DisgoOrg/disgo/rest"
 )
 
+type InteractionFilter func(interaction Interaction) bool
+
 // Interaction represents a generic Interaction received from discord
 type Interaction interface {
 	discord.Interaction
@@ -19,10 +21,14 @@ type InteractionFields struct {
 	Acknowledged    bool
 }
 
+type ApplicationCommandInteractionFilter func(interaction Interaction) bool
+
 // ApplicationCommandInteraction represents a generic ApplicationCommand Interaction received from discord
 type ApplicationCommandInteraction interface {
 	discord.ApplicationCommandInteraction
 }
+
+type ComponentInteractionFilter func(interaction Interaction) bool
 
 // ComponentInteraction represents a generic discord.Component Interaction received from discord
 type ComponentInteraction interface {

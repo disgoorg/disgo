@@ -5,6 +5,8 @@ import (
 	"github.com/DisgoOrg/disgo/rest"
 )
 
+type AutocompleteInteractionFilter func(autocompleteInteraction *AutocompleteInteraction) bool
+
 type AutocompleteInteraction struct {
 	*InteractionFields
 	CommandID           discord.Snowflake
