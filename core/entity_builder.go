@@ -475,19 +475,19 @@ func (b *entityBuilderImpl) CreateVoiceState(voiceState discord.VoiceState, upda
 func (b *entityBuilderImpl) CreateApplicationCommand(applicationCommand discord.ApplicationCommand) ApplicationCommand {
 	switch c := applicationCommand.(type) {
 	case discord.SlashCommand:
-		return SlashCommand{
+		return &SlashCommand{
 			SlashCommand: c,
 			Bot:          b.Bot(),
 		}
 
 	case discord.UserCommand:
-		return UserCommand{
+		return &UserCommand{
 			UserCommand: c,
 			Bot:         b.Bot(),
 		}
 
 	case discord.MessageCommand:
-		return MessageCommand{
+		return &MessageCommand{
 			MessageCommand: c,
 			Bot:            b.Bot(),
 		}

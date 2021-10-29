@@ -11,8 +11,7 @@ type ListenerAdapter struct {
 	// Other events
 	OnHeartbeat   func(event *HeartbeatEvent)
 	OnHTTPRequest func(event *HTTPRequestEvent)
-	OnRawGateway  func(event *RawEvent)
-	OnReadyEvent  func(event *ReadyEvent)
+	OnRaw         func(event *RawEvent)
 
 	// Channel Events
 	OnGuildChannelCreate func(event *GuildChannelCreateEvent)
@@ -100,11 +99,15 @@ type ListenerAdapter struct {
 	OnRoleDelete func(event *RoleDeleteEvent)
 
 	// Interaction Events
-	OnSlashCommand     func(event *SlashCommandEvent)
-	OnUserCommand      func(event *UserCommandEvent)
-	OnMessageCommand   func(event *MessageCommandEvent)
-	OnButtonClick      func(event *ButtonClickEvent)
-	OnSelectMenuSubmit func(event *SelectMenuSubmitEvent)
+	OnInteractionCreate                   func(event *InteractionCreateEvent)
+	OnApplicationCommandInteractionCreate func(event *ApplicationCommandInteractionCreateEvent)
+	OnSlashCommand                        func(event *SlashCommandEvent)
+	OnUserCommand                         func(event *UserCommandEvent)
+	OnMessageCommand                      func(event *MessageCommandEvent)
+	OnComponentInteractionCreate          func(event *ComponentInteractionCreateEvent)
+	OnButtonClick                         func(event *ButtonClickEvent)
+	OnSelectMenuSubmit                    func(event *SelectMenuSubmitEvent)
+	OnAutocomplete                        func(event *AutocompleteEvent)
 
 	// Message Events
 	OnMessageCreate func(event *MessageCreateEvent)
@@ -154,7 +157,7 @@ func (l ListenerAdapter) OnEvent(event core.Event) {
 			listener(e)
 		}
 	case *RawEvent:
-		if listener := l.OnRawGateway; listener != nil {
+		if listener := l.OnRaw; listener != nil {
 			listener(e)
 		}
 
@@ -409,6 +412,14 @@ func (l ListenerAdapter) OnEvent(event core.Event) {
 		}
 
 	// Interaction Events
+	case *InteractionCreateEvent:
+		if listener := l.OnInteractionCreate; listener != nil {
+			listener(e)
+		}
+	case *ApplicationCommandInteractionCreateEvent:
+		if listener := l.OnApplicationCommandInteractionCreate; listener != nil {
+			listener(e)
+		}
 	case *SlashCommandEvent:
 		if listener := l.OnSlashCommand; listener != nil {
 			listener(e)
@@ -421,12 +432,20 @@ func (l ListenerAdapter) OnEvent(event core.Event) {
 		if listener := l.OnMessageCommand; listener != nil {
 			listener(e)
 		}
+	case *ComponentInteractionCreateEvent:
+		if listener := l.OnComponentInteractionCreate; listener != nil {
+			listener(e)
+		}
 	case *ButtonClickEvent:
 		if listener := l.OnButtonClick; listener != nil {
 			listener(e)
 		}
 	case *SelectMenuSubmitEvent:
 		if listener := l.OnSelectMenuSubmit; listener != nil {
+			listener(e)
+		}
+	case *AutocompleteEvent:
+		if listener := l.OnAutocomplete; listener != nil {
 			listener(e)
 		}
 

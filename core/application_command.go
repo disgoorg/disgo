@@ -9,6 +9,20 @@ type ApplicationCommand interface {
 	discord.ApplicationCommand
 }
 
+type ApplicationCommands []ApplicationCommand
+
+func (c ApplicationCommands) GetSlashCommand(i int) *SlashCommand {
+	return c[i].(*SlashCommand)
+}
+
+func (c ApplicationCommands) GetUserCommand(i int) *UserCommand {
+	return c[i].(*UserCommand)
+}
+
+func (c ApplicationCommands) GetMessageCommand(i int) *MessageCommand {
+	return c[i].(*MessageCommand)
+}
+
 type SlashCommand struct {
 	discord.SlashCommand
 	Bot *Bot

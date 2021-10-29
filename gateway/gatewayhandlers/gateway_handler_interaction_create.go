@@ -29,18 +29,22 @@ func HandleInteraction(bot *core.Bot, sequenceNumber int, c chan<- discord.Inter
 
 	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
+	bot.EventManager.Dispatch(&events.InteractionCreateEvent{
+		GenericEvent: genericEvent,
+		Interaction:  coreInteraction,
+	})
+
 	switch i := coreInteraction.(type) {
-	case *core.AutocompleteInteraction:
-		bot.EventManager.Dispatch(&events.AutocompleteEvent{
-			GenericEvent:            genericEvent,
-			AutocompleteInteraction: i,
+	case core.ApplicationCommandInteraction:
+		bot.EventManager.Dispatch(&events.ApplicationCommandInteractionCreateEvent{
+			GenericEvent:                  genericEvent,
+			ApplicationCommandInteraction: i,
 		})
 
-	case core.ApplicationCommandInteraction:
 		switch ii := i.(type) {
 		case *core.SlashCommandInteraction:
 			bot.EventManager.Dispatch(&events.SlashCommandEvent{
-				GenericEvent:           genericEvent,
+				GenericEvent:            genericEvent,
 				SlashCommandInteraction: ii,
 			})
 
@@ -60,8 +64,12 @@ func HandleInteraction(bot *core.Bot, sequenceNumber int, c chan<- discord.Inter
 			bot.Logger.Errorf("unknown application command interaction with type %d received", ii.ApplicationCommandType())
 		}
 
-
 	case core.ComponentInteraction:
+		bot.EventManager.Dispatch(&events.ComponentInteractionCreateEvent{
+			GenericEvent:         genericEvent,
+			ComponentInteraction: i,
+		})
+
 		switch ii := i.(type) {
 		case *core.ButtonInteraction:
 			bot.EventManager.Dispatch(&events.ButtonClickEvent{
@@ -72,12 +80,18 @@ func HandleInteraction(bot *core.Bot, sequenceNumber int, c chan<- discord.Inter
 		case *core.SelectMenuInteraction:
 			bot.EventManager.Dispatch(&events.SelectMenuSubmitEvent{
 				GenericEvent:          genericEvent,
-				SelectMenuInteraction:ii,
+				SelectMenuInteraction: ii,
 			})
 
 		default:
 			bot.Logger.Errorf("unknown component interaction with type %d received", ii.ComponentType())
 		}
+
+	case *core.AutocompleteInteraction:
+		bot.EventManager.Dispatch(&events.AutocompleteEvent{
+			GenericEvent:            genericEvent,
+			AutocompleteInteraction: i,
+		})
 
 	default:
 		bot.Logger.Errorf("unknown interaction with type %d received", interaction.InteractionType())
