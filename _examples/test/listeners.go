@@ -23,23 +23,21 @@ var listener = &events.ListenerAdapter{
 func buttonClickListener(event *events.ButtonClickEvent) {
 	switch event.CustomID {
 	case "test1":
-		_ = event.Respond(discord.InteractionCallbackTypeChannelMessageWithSource,
-			core.NewMessageCreateBuilder().
-				SetContent(event.CustomID).
-				Build(),
+		_ = event.Create(core.NewMessageCreateBuilder().
+			SetContent(event.CustomID).
+			Build(),
 		)
 
 	case "test2":
-		_ = event.Respond(discord.InteractionCallbackTypeDeferredChannelMessageWithSource, nil)
+		_ = event.DeferCreate(false)
 
 	case "test3":
-		_ = event.Respond(discord.InteractionCallbackTypeDeferredUpdateMessage, nil)
+		_ = event.DeferUpdate()
 
 	case "test4":
-		_ = event.Respond(discord.InteractionCallbackTypeUpdateMessage,
-			core.NewMessageCreateBuilder().
-				SetContent(event.CustomID).
-				Build(),
+		_ = event.Update(core.NewMessageUpdateBuilder().
+			SetContent(event.CustomID).
+			Build(),
 		)
 	}
 }

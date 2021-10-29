@@ -88,15 +88,13 @@ func registerCommands(bot *core.Bot) {
 		var perms discord.ApplicationCommandPermission
 		if c, ok := cmd.(core.SlashCommand); ok {
 			if c.Name == "eval" {
-				perms = discord.ApplicationCommandPermission{
+				perms = discord.ApplicationCommandPermissionRole{
 					ID:         adminRoleID,
-					Type:       discord.ApplicationCommandPermissionTypeRole,
 					Permission: true,
 				}
 			} else {
-				perms = discord.ApplicationCommandPermission{
+				perms = discord.ApplicationCommandPermissionUser{
 					ID:         testRoleID,
-					Type:       discord.ApplicationCommandPermissionTypeRole,
 					Permission: true,
 				}
 				cmdsPermissions = append(cmdsPermissions, discord.ApplicationCommandPermissionsSet{
