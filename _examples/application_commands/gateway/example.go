@@ -20,14 +20,12 @@ var (
 	guildID = discord.Snowflake(os.Getenv("disgo_guild_id"))
 
 	commands = []discord.ApplicationCommandCreate{
-		{
-			Type:              discord.ApplicationCommandTypeSlash,
+		discord.SlashCommandCreate{
 			Name:              "say",
 			Description:       "says what you say",
 			DefaultPermission: true,
 			Options: []discord.ApplicationCommandOption{
-				{
-					Type:        discord.ApplicationCommandOptionTypeString,
+				discord.ApplicationCommandOptionString{
 					Name:        "message",
 					Description: "What to say",
 					Required:    true,
@@ -74,7 +72,7 @@ func main() {
 func commandListener(event *events.SlashCommandEvent) {
 	if event.CommandName == "say" {
 		err := event.Create(core.NewMessageCreateBuilder().
-			SetContent(event.Options["message"].String()).
+			SetContent(*event.Options.String("message")).
 			Build(),
 		)
 		if err != nil {

@@ -32,7 +32,7 @@ type MessageCommandCollector struct {
 }
 
 // OnEvent used to get events for the ButtonCollector
-func (c *MessageCommandCollector) OnEvent(e interface{}) {
+func (c *MessageCommandCollector) OnEvent(e core.Event) {
 	if event, ok := e.(*events.MessageCommandEvent); ok {
 		if !c.Filter(event.MessageCommandInteraction) {
 			return

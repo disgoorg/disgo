@@ -23,23 +23,21 @@ var listener = &events.ListenerAdapter{
 func buttonClickListener(event *events.ButtonClickEvent) {
 	switch event.CustomID {
 	case "test1":
-		_ = event.Respond(discord.InteractionCallbackTypeChannelMessageWithSource,
-			core.NewMessageCreateBuilder().
-				SetContent(event.CustomID).
-				Build(),
+		_ = event.Create(core.NewMessageCreateBuilder().
+			SetContent(event.CustomID).
+			Build(),
 		)
 
 	case "test2":
-		_ = event.Respond(discord.InteractionCallbackTypeDeferredChannelMessageWithSource, nil)
+		_ = event.DeferCreate(false)
 
 	case "test3":
-		_ = event.Respond(discord.InteractionCallbackTypeDeferredUpdateMessage, nil)
+		_ = event.DeferUpdate()
 
 	case "test4":
-		_ = event.Respond(discord.InteractionCallbackTypeUpdateMessage,
-			core.NewMessageCreateBuilder().
-				SetContent(event.CustomID).
-				Build(),
+		_ = event.Update(core.NewMessageUpdateBuilder().
+			SetContent(event.CustomID).
+			Build(),
 		)
 	}
 }
@@ -62,7 +60,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 	switch event.CommandName {
 	case "eval":
 		go func() {
-			code := event.Options["code"].String()
+			code := *event.Options.String("code")
 			embed := core.NewEmbedBuilder().
 				SetColor(orange).
 				AddField("Status", "...", true).
@@ -111,8 +109,8 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 
 	case "say":
 		_ = event.Create(core.NewMessageCreateBuilder().
-			SetContent(event.Options["message"].String()).
-			SetEphemeral(event.Options["ephemeral"].Bool()).
+			SetContent(*event.Options.String("message")).
+			SetEphemeral(*event.Options.Bool("ephemeral")).
 			ClearAllowedMentions().
 			Build(),
 		)
@@ -131,8 +129,8 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 		}()
 
 	case "addrole":
-		user := event.Options["member"].User()
-		role := event.Options["role"].Role()
+		user := event.Options.User("member")
+		role := event.Options.Role("role")
 
 		if err := event.Bot().RestServices.GuildService().AddMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
 			_ = event.Create(core.NewMessageCreateBuilder().AddEmbeds(
@@ -145,8 +143,8 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 		}
 
 	case "removerole":
-		user := event.Options["member"].User()
-		role := event.Options["role"].Role()
+		user := event.Options.User("member")
+		role := event.Options.Role("role")
 
 		if err := event.Bot().RestServices.GuildService().RemoveMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
 			_ = event.Create(core.NewMessageCreateBuilder().AddEmbeds(

@@ -25,9 +25,6 @@ var (
 	guildID     = discord.Snowflake(os.Getenv("disgo_guild_id"))
 	adminRoleID = discord.Snowflake(os.Getenv("disgo_admin_role_id"))
 	testRoleID  = discord.Snowflake(os.Getenv("disgo_test_role_id"))
-
-	//go:embed gopher.png
-	gopher []byte
 )
 
 func main() {
@@ -37,16 +34,16 @@ func main() {
 	log.Infof("bot version: %s", info.Version)
 
 	disgo, err := bot.New(token,
-		bot.WithRawEventsEnabled(),
+		//bot.WithRawEventsEnabled(),
 		bot.WithGatewayOpts(
-			gateway.WithGatewayIntents(discord.GatewayIntentGuilds|discord.GatewayIntentGuildMembers),
+			gateway.WithGatewayIntents(discord.GatewayIntentGuilds),
 			gateway.WithPresence(core.NewListeningPresence("your bullshit", discord.OnlineStatusOnline, false)),
 		),
 		bot.WithCacheOpts(
 			core.WithCacheFlags(core.CacheFlagsAll),
 			core.WithMemberCachePolicy(core.MemberCachePolicyAll),
 		),
-		bot.WithMemberChunkingFilter(core.MemberChunkingFilterAll),
+		bot.WithMemberChunkingFilter(core.MemberChunkingFilterNone),
 		bot.WithEventListeners(listener),
 	)
 	if err != nil {

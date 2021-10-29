@@ -1,5 +1,11 @@
 package discord
 
+import (
+	"fmt"
+
+	"github.com/DisgoOrg/disgo/json"
+)
+
 type ApplicationCommandType int
 
 //goland:noinspection GoUnusedConst
@@ -9,66 +15,149 @@ const (
 	ApplicationCommandTypeMessage
 )
 
-// ApplicationCommandOptionType specifies the type of the arguments used in ApplicationCommand.Options
-type ApplicationCommandOptionType int
+type ApplicationCommand interface {
+	json.Marshaler
+	Type() ApplicationCommandType
+}
 
-// Constants for each slash command option type
-//goland:noinspection GoUnusedConst
-const (
-	ApplicationCommandOptionTypeSubCommand ApplicationCommandOptionType = iota + 1
-	ApplicationCommandOptionTypeSubCommandGroup
-	ApplicationCommandOptionTypeString
-	ApplicationCommandOptionTypeInteger
-	ApplicationCommandOptionTypeBoolean
-	ApplicationCommandOptionTypeUser
-	ApplicationCommandOptionTypeChannel
-	ApplicationCommandOptionTypeRole
-	ApplicationCommandOptionTypeMentionable
-	ApplicationCommandOptionTypeNumber
-)
+type UnmarshalApplicationCommand struct {
+	ApplicationCommand
+}
 
-// ApplicationCommand is the base "command" model that belongs to an application.
-type ApplicationCommand struct {
+func (u *UnmarshalApplicationCommand) UnmarshalJSON(data []byte) error {
+	var aType struct {
+		Type ApplicationCommandType `json:"type"`
+	}
+
+	if err := json.Unmarshal(data, &aType); err != nil {
+		return err
+	}
+
+	var (
+		applicationCommand ApplicationCommand
+		err                error
+	)
+
+	switch aType.Type {
+	case ApplicationCommandTypeSlash:
+		v := SlashCommand{}
+		err = json.Unmarshal(data, &v)
+		applicationCommand = v
+
+	case ApplicationCommandTypeUser:
+		v := UserCommand{}
+		err = json.Unmarshal(data, &v)
+		applicationCommand = v
+
+	case ApplicationCommandTypeMessage:
+		v := MessageCommand{}
+		err = json.Unmarshal(data, &v)
+		applicationCommand = v
+
+	default:
+		return fmt.Errorf("unkown application command with type %d received", aType.Type)
+	}
+	if err != nil {
+		return err
+	}
+
+	u.ApplicationCommand = applicationCommand
+	return nil
+}
+
+type SlashCommand struct {
 	ID                Snowflake                  `json:"id"`
-	Type              ApplicationCommandType     `json:"type"`
 	ApplicationID     Snowflake                  `json:"application_id"`
 	GuildID           *Snowflake                 `json:"guild_id,omitempty"`
 	Name              string                     `json:"name"`
 	Description       string                     `json:"description,omitempty"`
 	Options           []ApplicationCommandOption `json:"options,omitempty"`
 	DefaultPermission bool                       `json:"default_permission,omitempty"`
+	Version           Snowflake                  `json:"version"`
 }
 
-// ApplicationCommandOption are the arguments used in ApplicationCommand.Options
-type ApplicationCommandOption struct {
-	Type         ApplicationCommandOptionType     `json:"type"`
-	Name         string                           `json:"name"`
-	Description  string                           `json:"description"`
-	Required     bool                             `json:"required,omitempty"`
-	Choices      []ApplicationCommandOptionChoice `json:"choices,omitempty"`
-	Options      []ApplicationCommandOption       `json:"options,omitempty"`
-	ChannelTypes []ChannelType                    `json:"channel_types"`
+func (c SlashCommand) MarshalJSON() ([]byte, error) {
+	v := struct {
+		Type ApplicationCommandType `json:"type"`
+		ApplicationCommand
+	}{
+		Type:               c.Type(),
+		ApplicationCommand: c,
+	}
+	return json.Marshal(v)
 }
 
-// ApplicationCommandOptionChoice contains the data for a user using your command. Value can either be a string, int, float or boolean
-type ApplicationCommandOptionChoice struct {
-	Name  string      `json:"name"`
-	Value interface{} `json:"value"`
+func (c *SlashCommand) UnmarshalJSON(data []byte) error {
+	type slashCommand SlashCommand
+	var sc struct {
+		slashCommand
+		Options           []UnmarshalApplicationCommandOption `json:"options,omitempty"`
+	}
+
+	if err := json.Unmarshal(data, &sc); err != nil {
+		return err
+	}
+
+	if len(sc.Options) > 0 {
+		c.Options = make([]ApplicationCommandOption, len(sc.Options))
+		for i := range sc.Options {
+			c.Options[i] = sc.Options[i]
+		}
+	}
+
+	*c = SlashCommand(sc.slashCommand)
+
+	return nil
 }
 
-// ApplicationCommandCreate is used to create a ApplicationCommand. all fields are optional
-type ApplicationCommandCreate struct {
-	Type              ApplicationCommandType     `json:"type,omitempty"`
-	Name              string                     `json:"name"`
-	Description       string                     `json:"description,omitempty"`
-	Options           []ApplicationCommandOption `json:"options,omitempty"`
-	DefaultPermission bool                       `json:"default_permission"`
+func (_ SlashCommand) Type() ApplicationCommandType {
+	return ApplicationCommandTypeSlash
 }
 
-// ApplicationCommandUpdate is used to update an existing ApplicationCommand. all fields are optional
-type ApplicationCommandUpdate struct {
-	Name              *string                     `json:"name,omitempty"`
-	Description       *string                     `json:"description,omitempty"`
-	Options           *[]ApplicationCommandOption `json:"options,omitempty"`
-	DefaultPermission *bool                       `json:"default_permission,omitempty"`
+type UserCommand struct {
+	ID                Snowflake  `json:"id"`
+	ApplicationID     Snowflake  `json:"application_id"`
+	GuildID           *Snowflake `json:"guild_id,omitempty"`
+	Name              string     `json:"name"`
+	DefaultPermission bool       `json:"default_permission,omitempty"`
+	Version           Snowflake  `json:"version"`
+}
+
+func (c UserCommand) MarshalJSON() ([]byte, error) {
+	v := struct {
+		Type ApplicationCommandType `json:"type"`
+		ApplicationCommand
+	}{
+		Type:               c.Type(),
+		ApplicationCommand: c,
+	}
+	return json.Marshal(v)
+}
+
+func (c UserCommand) Type() ApplicationCommandType {
+	return ApplicationCommandTypeUser
+}
+
+type MessageCommand struct {
+	ID                Snowflake  `json:"id"`
+	ApplicationID     Snowflake  `json:"application_id"`
+	GuildID           *Snowflake `json:"guild_id,omitempty"`
+	Name              string     `json:"name"`
+	DefaultPermission bool       `json:"default_permission,omitempty"`
+	Version           Snowflake  `json:"version"`
+}
+
+func (c MessageCommand) MarshalJSON() ([]byte, error) {
+	v := struct {
+		Type ApplicationCommandType `json:"type"`
+		ApplicationCommand
+	}{
+		Type:               c.Type(),
+		ApplicationCommand: c,
+	}
+	return json.Marshal(v)
+}
+
+func (_ MessageCommand) Type() ApplicationCommandType {
+	return ApplicationCommandTypeMessage
 }

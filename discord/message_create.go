@@ -6,7 +6,7 @@ type MessageCreate struct {
 	Content          string            `json:"content,omitempty"`
 	TTS              bool              `json:"tts,omitempty"`
 	Embeds           []Embed           `json:"embeds,omitempty"`
-	Components       interface{}       `json:"components,omitempty"`
+	Components       []Component       `json:"components,omitempty"`
 	StickerIDs       []Snowflake       `json:"sticker_ids,omitempty"`
 	Files            []*File           `json:"-"`
 	AllowedMentions  *AllowedMentions  `json:"allowed_mentions,omitempty"`
@@ -14,10 +14,19 @@ type MessageCreate struct {
 	Flags            MessageFlags      `json:"flags,omitempty"`
 }
 
+func (_ MessageCreate) interactionCallbackData() {}
+
 // ToBody returns the MessageCreate ready for body
 func (m MessageCreate) ToBody() (interface{}, error) {
 	if len(m.Files) > 0 {
 		return PayloadWithFiles(m, m.Files...)
+	}
+	return m, nil
+}
+
+func (m MessageCreate) ToResponseBody(response InteractionResponse) (interface{}, error) {
+	if len(m.Files) > 0 {
+		return PayloadWithFiles(response, m.Files...)
 	}
 	return m, nil
 }

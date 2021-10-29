@@ -32,7 +32,7 @@ type ButtonClickCollector struct {
 }
 
 // OnEvent used to get events for the ButtonCollector
-func (c *ButtonClickCollector) OnEvent(e interface{}) {
+func (c *ButtonClickCollector) OnEvent(e core.Event) {
 	if event, ok := e.(*events.ButtonClickEvent); ok {
 		if !c.Filter(event.ButtonInteraction) {
 			return
