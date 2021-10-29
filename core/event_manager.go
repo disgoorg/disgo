@@ -49,7 +49,7 @@ type EventManager interface {
 
 // EventListener is used to create new EventListener to listen to events
 type EventListener interface {
-	OnEvent(event interface{})
+	OnEvent(event Event)
 }
 
 // Event the basic interface each event implement

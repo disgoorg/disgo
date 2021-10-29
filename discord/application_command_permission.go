@@ -1,5 +1,7 @@
 package discord
 
+import "github.com/DisgoOrg/disgo/json"
+
 // ApplicationCommandPermissionType is the type of the ApplicationCommandPermission
 type ApplicationCommandPermissionType int
 
@@ -19,10 +21,51 @@ type ApplicationCommandPermissions struct {
 }
 
 // ApplicationCommandPermission holds a User or Role and if they are allowed to use the ApplicationCommand
-type ApplicationCommandPermission struct {
-	ID         Snowflake                        `json:"id"`
-	Type       ApplicationCommandPermissionType `json:"type"`
-	Permission bool                             `json:"permission"`
+type ApplicationCommandPermission interface {
+	json.Marshaler
+	Type() ApplicationCommandPermissionType
+}
+
+type ApplicationCommandPermissionUser struct {
+	ID         Snowflake `json:"id"`
+	Permission bool      `json:"permission"`
+}
+
+func (p ApplicationCommandPermissionUser) MarshalJSON() ([]byte, error) {
+	type applicationCommandPermissionUser ApplicationCommandPermissionUser
+	v := struct {
+		Type ApplicationCommandPermissionType `json:"type"`
+		applicationCommandPermissionUser
+	}{
+		Type:                             p.Type(),
+		applicationCommandPermissionUser: applicationCommandPermissionUser(p),
+	}
+	return json.Marshal(v)
+}
+
+func (p ApplicationCommandPermissionUser) Type() ApplicationCommandPermissionType {
+	return ApplicationCommandPermissionTypeUser
+}
+
+type ApplicationCommandPermissionRole struct {
+	ID         Snowflake `json:"id"`
+	Permission bool      `json:"permission"`
+}
+
+func (p ApplicationCommandPermissionRole) MarshalJSON() ([]byte, error) {
+	type applicationCommandPermissionRole ApplicationCommandPermissionRole
+	v := struct {
+		Type ApplicationCommandPermissionType `json:"type"`
+		applicationCommandPermissionRole
+	}{
+		Type:                             p.Type(),
+		applicationCommandPermissionRole: applicationCommandPermissionRole(p),
+	}
+	return json.Marshal(v)
+}
+
+func (p ApplicationCommandPermissionRole) Type() ApplicationCommandPermissionType {
+	return ApplicationCommandPermissionTypeRole
 }
 
 // ApplicationCommandPermissionsSet is used to bulk overwrite all ApplicationCommandPermissions

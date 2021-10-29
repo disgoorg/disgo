@@ -10,7 +10,7 @@ var Epoch int64 = 1420070400000
 // Snowflake is a general utility class around discord's IDs
 type Snowflake string
 
-// DeconstructedSnowflake contains the properties used by Discord for each ID
+// DeconstructedSnowflake contains the properties used by Discord for each CommandID
 type DeconstructedSnowflake struct {
 	Time      time.Time
 	WorkerID  int64

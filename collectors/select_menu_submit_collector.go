@@ -31,7 +31,7 @@ type SelectMenuSubmitCollector struct {
 }
 
 // OnEvent used to get events for the SelectMenuSubmitCollector
-func (c *SelectMenuSubmitCollector) OnEvent(e interface{}) {
+func (c *SelectMenuSubmitCollector) OnEvent(e core.Event) {
 	if event, ok := e.(*events.SelectMenuSubmitEvent); ok {
 		if !c.Filter(event.SelectMenuInteraction) {
 			return

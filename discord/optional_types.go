@@ -26,6 +26,18 @@ func NewNullString() *OptionalString {
 	return &ostr
 }
 
+type OptionalInt *int
+
+func NewOptionalInt(int int) *OptionalInt {
+	oint := OptionalInt(&int)
+	return &oint
+}
+
+func NewNullInt() *OptionalInt {
+	oint := OptionalInt(nil)
+	return &oint
+}
+
 type OptionalTime *Time
 
 func NewOptionalTime(time time.Time) *OptionalTime {

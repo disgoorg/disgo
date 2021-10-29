@@ -32,7 +32,7 @@ type SlashCommandCollector struct {
 }
 
 // OnEvent used to get events for the ButtonCollector
-func (c *SlashCommandCollector) OnEvent(e interface{}) {
+func (c *SlashCommandCollector) OnEvent(e core.Event) {
 	if event, ok := e.(*events.SlashCommandEvent); ok {
 		if !c.Filter(event.SlashCommandInteraction) {
 			return
