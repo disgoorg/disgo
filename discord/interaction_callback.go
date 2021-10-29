@@ -23,21 +23,16 @@ type InteractionResponse struct {
 
 // ToBody returns the InteractionResponse ready for body
 func (r InteractionResponse) ToBody() (interface{}, error) {
-	if r.Data == nil {
-		return r, nil
+	if v, ok := r.Data.(InteractionResponseCreator); ok {
+		return v.ToResponseBody(r)
 	}
-	return r.Data.ToResponseBody(r)
+	return r, nil
 }
 
-type dataType int
-
-const (
-	dataTypeMessageCreate = iota
-	dataTypeMessageUpdate
-	dataTypeAutocompleteResult
-)
-
 type InteractionCallbackData interface {
-	dataType() dataType
+	interactionCallbackData()
+}
+
+type InteractionResponseCreator interface {
 	ToResponseBody(response InteractionResponse) (interface{}, error)
 }

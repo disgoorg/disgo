@@ -11,9 +11,7 @@ type MessageUpdate struct {
 	Flags           *MessageFlags    `json:"flags,omitempty"`
 }
 
-func (_ MessageUpdate) dataType() dataType {
-	return dataTypeMessageUpdate
-}
+func (_ MessageUpdate) interactionCallbackData() {}
 
 // ToBody returns the MessageUpdate ready for body
 func (m MessageUpdate) ToBody() (interface{}, error) {

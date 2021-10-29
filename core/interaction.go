@@ -101,11 +101,37 @@ func result(fields *InteractionFields, choices []discord.AutocompleteChoice, opt
 	return respond(fields, discord.InteractionCallbackTypeAutocompleteResult, discord.AutocompleteResult{Choices: choices}, opts...)
 }
 
-func resultMap(fields *InteractionFields, resultMap map[string]string, opts ...rest.RequestOpt) error {
+func resultMapString(fields *InteractionFields, resultMap map[string]string, opts ...rest.RequestOpt) error {
 	choices := make([]discord.AutocompleteChoice, len(resultMap))
 	ii := 0
 	for name, value := range resultMap {
-		choices[ii] = discord.AutocompleteChoice{
+		choices[ii] = discord.AutocompleteChoiceString{
+			Name:  name,
+			Value: value,
+		}
+		ii++
+	}
+	return result(fields, choices, opts...)
+}
+
+func resultMapInt(fields *InteractionFields, resultMap map[string]int, opts ...rest.RequestOpt) error {
+	choices := make([]discord.AutocompleteChoice, len(resultMap))
+	ii := 0
+	for name, value := range resultMap {
+		choices[ii] = discord.AutocompleteChoiceInt{
+			Name:  name,
+			Value: value,
+		}
+		ii++
+	}
+	return result(fields, choices, opts...)
+}
+
+func resultMapFloat(fields *InteractionFields, resultMap map[string]float64, opts ...rest.RequestOpt) error {
+	choices := make([]discord.AutocompleteChoice, len(resultMap))
+	ii := 0
+	for name, value := range resultMap {
+		choices[ii] = discord.AutocompleteChoiceFloat{
 			Name:  name,
 			Value: value,
 		}

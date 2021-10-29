@@ -38,6 +38,30 @@ func (i *SelectMenuInteraction) DeferCreate(ephemeral bool, opts ...rest.Request
 	return deferCreate(i.InteractionFields, ephemeral, opts...)
 }
 
+func (i *SelectMenuInteraction) GetOriginal(opts ...rest.RequestOpt) (*Message, error) {
+	return getOriginal(i.InteractionFields, opts...)
+}
+
+func (i *SelectMenuInteraction) UpdateOriginal(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
+	return updateOriginal(i.InteractionFields, messageUpdate, opts...)
+}
+
+func (i *SelectMenuInteraction) DeleteOriginal(opts ...rest.RequestOpt) error {
+	return deleteOriginal(i.InteractionFields, opts...)
+}
+
+func (i *SelectMenuInteraction) CreateFollowup(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
+	return createFollowup(i.InteractionFields, messageCreate, opts...)
+}
+
+func (i *SelectMenuInteraction) UpdateFollowup(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
+	return updateFollowup(i.InteractionFields, messageID, messageUpdate, opts...)
+}
+
+func (i *SelectMenuInteraction) DeleteFollowup(messageID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return deleteFollowup(i.InteractionFields, messageID, opts...)
+}
+
 func (i *SelectMenuInteraction) Update(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
 	return update(i.InteractionFields, messageUpdate, opts...)
 }

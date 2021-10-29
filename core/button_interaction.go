@@ -37,6 +37,30 @@ func (i *ButtonInteraction) DeferCreate(ephemeral bool, opts ...rest.RequestOpt)
 	return deferCreate(i.InteractionFields, ephemeral, opts...)
 }
 
+func (i *ButtonInteraction) GetOriginal(opts ...rest.RequestOpt) (*Message, error) {
+	return getOriginal(i.InteractionFields, opts...)
+}
+
+func (i *ButtonInteraction) UpdateOriginal(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
+	return updateOriginal(i.InteractionFields, messageUpdate, opts...)
+}
+
+func (i *ButtonInteraction) DeleteOriginal(opts ...rest.RequestOpt) error {
+	return deleteOriginal(i.InteractionFields, opts...)
+}
+
+func (i *ButtonInteraction) CreateFollowup(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
+	return createFollowup(i.InteractionFields, messageCreate, opts...)
+}
+
+func (i *ButtonInteraction) UpdateFollowup(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
+	return updateFollowup(i.InteractionFields, messageID, messageUpdate, opts...)
+}
+
+func (i *ButtonInteraction) DeleteFollowup(messageID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return deleteFollowup(i.InteractionFields, messageID, opts...)
+}
+
 func (i *ButtonInteraction) Update(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
 	return update(i.InteractionFields, messageUpdate, opts...)
 }

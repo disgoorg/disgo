@@ -14,9 +14,7 @@ type MessageCreate struct {
 	Flags            MessageFlags      `json:"flags,omitempty"`
 }
 
-func (_ MessageCreate) dataType() dataType {
-	return dataTypeMessageCreate
-}
+func (_ MessageCreate) interactionCallbackData() {}
 
 // ToBody returns the MessageCreate ready for body
 func (m MessageCreate) ToBody() (interface{}, error) {

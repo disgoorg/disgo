@@ -1,6 +1,9 @@
 package core
 
-import "github.com/DisgoOrg/disgo/discord"
+import (
+	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/rest"
+)
 
 type SlashCommandInteractionFilter func(slashCommandInteraction *SlashCommandInteraction) bool
 
@@ -20,6 +23,42 @@ func (i *SlashCommandInteraction) InteractionType() discord.InteractionType {
 
 func (i *SlashCommandInteraction) ApplicationCommandType() discord.ApplicationCommandType {
 	return discord.ApplicationCommandTypeSlash
+}
+
+func (i *SlashCommandInteraction) Respond(callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
+	return respond(i.InteractionFields, callbackType, callbackData, opts...)
+}
+
+func (i *SlashCommandInteraction) Create(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
+	return create(i.InteractionFields, messageCreate, opts...)
+}
+
+func (i *SlashCommandInteraction) DeferCreate(ephemeral bool, opts ...rest.RequestOpt) error {
+	return deferCreate(i.InteractionFields, ephemeral, opts...)
+}
+
+func (i *SlashCommandInteraction) GetOriginal(opts ...rest.RequestOpt) (*Message, error) {
+	return getOriginal(i.InteractionFields, opts...)
+}
+
+func (i *SlashCommandInteraction) UpdateOriginal(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
+	return updateOriginal(i.InteractionFields, messageUpdate, opts...)
+}
+
+func (i *SlashCommandInteraction) DeleteOriginal(opts ...rest.RequestOpt) error {
+	return deleteOriginal(i.InteractionFields, opts...)
+}
+
+func (i *SlashCommandInteraction) CreateFollowup(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
+	return createFollowup(i.InteractionFields, messageCreate, opts...)
+}
+
+func (i *SlashCommandInteraction) UpdateFollowup(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
+	return updateFollowup(i.InteractionFields, messageID, messageUpdate, opts...)
+}
+
+func (i *SlashCommandInteraction) DeleteFollowup(messageID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return deleteFollowup(i.InteractionFields, messageID, opts...)
 }
 
 // CommandPath returns the ApplicationCommand path

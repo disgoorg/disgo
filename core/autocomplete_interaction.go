@@ -1,6 +1,9 @@
 package core
 
-import "github.com/DisgoOrg/disgo/discord"
+import (
+	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/rest"
+)
 
 type AutocompleteInteraction struct {
 	*InteractionFields
@@ -13,6 +16,26 @@ type AutocompleteInteraction struct {
 
 func (i *AutocompleteInteraction) InteractionType() discord.InteractionType {
 	return discord.InteractionTypeAutocomplete
+}
+
+func (i *AutocompleteInteraction) Respond(callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
+	return respond(i.InteractionFields, callbackType, callbackData, opts...)
+}
+
+func (i *AutocompleteInteraction) Result(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
+	return result(i.InteractionFields, choices, opts...)
+}
+
+func (i *AutocompleteInteraction) ResultMapString(resultMap map[string]string, opts ...rest.RequestOpt) error {
+	return resultMapString(i.InteractionFields, resultMap, opts...)
+}
+
+func (i *AutocompleteInteraction) ResultMapInt(resultMap map[string]int, opts ...rest.RequestOpt) error {
+	return resultMapInt(i.InteractionFields, resultMap, opts...)
+}
+
+func (i *AutocompleteInteraction) ResultMapFloat(resultMap map[string]float64, opts ...rest.RequestOpt) error {
+	return resultMapFloat(i.InteractionFields, resultMap, opts...)
 }
 
 // CommandPath returns the ApplicationCommand path
