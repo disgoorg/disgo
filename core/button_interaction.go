@@ -29,6 +29,22 @@ func (i *ButtonInteraction) Respond(callbackType discord.InteractionCallbackType
 	return respond(i.InteractionFields, callbackType, callbackData, opts...)
 }
 
+func (i *ButtonInteraction) Create(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
+	return create(i.InteractionFields, messageCreate, opts...)
+}
+
+func (i *ButtonInteraction) DeferCreate(ephemeral bool, opts ...rest.RequestOpt) error {
+	return deferCreate(i.InteractionFields, ephemeral, opts...)
+}
+
+func (i *ButtonInteraction) Update(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
+	return update(i.InteractionFields, messageUpdate, opts...)
+}
+
+func (i *ButtonInteraction) DeferUpdate(opts ...rest.RequestOpt) error {
+	return deferUpdate(i.InteractionFields, opts...)
+}
+
 // UpdateButton updates the clicked Button with a new Button
 func (i *ButtonInteraction) UpdateButton(button discord.Button, opts ...rest.RequestOpt) error {
 	return updateComponent(i.InteractionFields, i.Message, i.CustomID, button, opts...)

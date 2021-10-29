@@ -12,6 +12,14 @@ type UserCommandInteraction struct {
 	TargetID    discord.Snowflake
 }
 
+func (i *UserCommandInteraction) InteractionType() discord.InteractionType {
+	return discord.InteractionTypeApplicationCommand
+}
+
+func (i *UserCommandInteraction) ApplicationCommandType() discord.ApplicationCommandType {
+	return discord.ApplicationCommandTypeUser
+}
+
 func (i *UserCommandInteraction) TargetUser() *User {
 	return i.Resolved.Users[i.TargetID]
 }

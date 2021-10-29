@@ -11,6 +11,10 @@ type AutocompleteInteraction struct {
 	Options             AutocompleteOptionsMap
 }
 
+func (i *AutocompleteInteraction) InteractionType() discord.InteractionType {
+	return discord.InteractionTypeAutocomplete
+}
+
 // CommandPath returns the ApplicationCommand path
 func (i *AutocompleteInteraction) CommandPath() string {
 	path := i.CommandName

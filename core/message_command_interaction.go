@@ -12,6 +12,14 @@ type MessageCommandInteraction struct {
 	TargetID    discord.Snowflake
 }
 
+func (i *MessageCommandInteraction) InteractionType() discord.InteractionType {
+	return discord.InteractionTypeApplicationCommand
+}
+
+func (i *MessageCommandInteraction) ApplicationCommandType() discord.ApplicationCommandType {
+	return discord.ApplicationCommandTypeMessage
+}
+
 func (i *MessageCommandInteraction) TargetMessage() *Message {
 	return i.Resolved.Messages[i.TargetID]
 }

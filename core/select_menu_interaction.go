@@ -8,41 +8,47 @@ import (
 // SelectMenuInteractionFilter used to filter SelectMenuInteraction(s) in a collectors.SelectMenuSubmitCollector
 type SelectMenuInteractionFilter func(selectMenuInteraction *SelectMenuInteraction) bool
 
+var _ Interaction = (*SelectMenuInteraction)(nil)
+var _ ComponentInteraction = (*SelectMenuInteraction)(nil)
+
 type SelectMenuInteraction struct {
-	discord.SelectMenuInteraction
-	Bot             *Bot
-	User            *User
-	Member          *Member
-	ResponseChannel chan<- discord.InteractionResponse
-	Acknowledged    bool
+	*InteractionFields
 	Message         *Message
 	CustomID        string
 	Values          []string
 }
 
+func (i *SelectMenuInteraction) InteractionType() discord.InteractionType {
+	return discord.InteractionTypeComponent
+}
+
+func (i *SelectMenuInteraction) ComponentType() discord.ComponentType {
+	return discord.ComponentTypeSelectMenu
+}
+
 func (i *SelectMenuInteraction) Respond(callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
-	return respond(i.Bot, i.ID, i.Token, i.ResponseChannel, &i.Acknowledged, callbackType, callbackData, opts...)
+	return respond(i.InteractionFields, callbackType, callbackData, opts...)
 }
 
 func (i *SelectMenuInteraction) Create(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
-	return create(i.Bot, i.ID, i.Token, i.ResponseChannel, &i.Acknowledged, messageCreate, opts...)
+	return create(i.InteractionFields, messageCreate, opts...)
 }
 
 func (i *SelectMenuInteraction) DeferCreate(ephemeral bool, opts ...rest.RequestOpt) error {
-	return deferCreate(i.Bot, i.ID, i.Token, i.ResponseChannel, &i.Acknowledged, ephemeral, opts...)
+	return deferCreate(i.InteractionFields, ephemeral, opts...)
 }
 
 func (i *SelectMenuInteraction) Update(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
-	return update(i.Bot, i.ID, i.Token, i.ResponseChannel, &i.Acknowledged, messageUpdate, opts...)
+	return update(i.InteractionFields, messageUpdate, opts...)
 }
 
 func (i *SelectMenuInteraction) DeferUpdate(opts ...rest.RequestOpt) error {
-	return deferUpdate(i.Bot, i.ID, i.Token, i.ResponseChannel, &i.Acknowledged, opts...)
+	return deferUpdate(i.InteractionFields, opts...)
 }
 
 // UpdateSelectMenu updates the used SelectMenu with a new SelectMenu
 func (i *SelectMenuInteraction) UpdateSelectMenu(selectMenu discord.SelectMenu, opts ...rest.RequestOpt) error {
-	return updateComponent(i.Bot, i.ID, i.Token, i.ResponseChannel, &i.Acknowledged, i.Message, i.CustomID, selectMenu, opts...)
+	return updateComponent(i.InteractionFields, i.Message, i.CustomID, selectMenu, opts...)
 }
 
 // SelectMenu returns the SelectMenu which issued this SelectMenuInteraction

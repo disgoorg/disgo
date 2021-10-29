@@ -14,6 +14,14 @@ type SlashCommandInteraction struct {
 	Options             SlashCommandOptionsMap
 }
 
+func (i *SlashCommandInteraction) InteractionType() discord.InteractionType {
+	return discord.InteractionTypeApplicationCommand
+}
+
+func (i *SlashCommandInteraction) ApplicationCommandType() discord.ApplicationCommandType {
+	return discord.ApplicationCommandTypeSlash
+}
+
 // CommandPath returns the ApplicationCommand path
 func (i *SlashCommandInteraction) CommandPath() string {
 	path := i.CommandName
