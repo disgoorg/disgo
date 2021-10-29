@@ -7,80 +7,68 @@ import (
 )
 
 var commands = []discord.ApplicationCommandCreate{
-	{
-		Type:              discord.ApplicationCommandTypeSlash,
+	discord.SlashCommandCreate{
 		Name:              "eval",
 		Description:       "runs some go code",
 		DefaultPermission: true,
 		Options: []discord.ApplicationCommandOption{
-			{
-				Type:        discord.ApplicationCommandOptionTypeString,
+			discord.ApplicationCommandOptionString{
 				Name:        "code",
 				Description: "the code to eval",
 				Required:    true,
 			},
 		},
 	},
-	{
-		Type:              discord.ApplicationCommandTypeSlash,
+	discord.SlashCommandCreate{
 		Name:              "test",
 		Description:       "test",
 		DefaultPermission: true,
 	},
-	{
-		Type:              discord.ApplicationCommandTypeSlash,
+	discord.SlashCommandCreate{
 		Name:              "say",
 		Description:       "says what you say",
 		DefaultPermission: true,
 		Options: []discord.ApplicationCommandOption{
-			{
-				Type:        discord.ApplicationCommandOptionTypeString,
+			discord.ApplicationCommandOptionString{
 				Name:        "message",
 				Description: "What to say",
 				Required:    true,
 			},
-			{
-				Type:        discord.ApplicationCommandOptionTypeBoolean,
+			discord.ApplicationCommandOptionBool{
 				Name:        "ephemeral",
 				Description: "ephemeral",
 				Required:    true,
 			},
 		},
 	},
-	{
-		Type:              discord.ApplicationCommandTypeSlash,
+	discord.SlashCommandCreate{
 		Name:              "addrole",
 		Description:       "This command adds a role to a member",
 		DefaultPermission: true,
 		Options: []discord.ApplicationCommandOption{
-			{
-				Type:        discord.ApplicationCommandOptionTypeUser,
+			discord.ApplicationCommandOptionUser{
 				Name:        "member",
 				Description: "The member to add a role to",
 				Required:    true,
 			},
-			{
-				Type:        discord.ApplicationCommandOptionTypeRole,
+			discord.ApplicationCommandOptionRole{
 				Name:        "role",
 				Description: "The role to add to a member",
 				Required:    true,
 			},
 		},
 	},
-	{
-		Type:              discord.ApplicationCommandTypeSlash,
+	discord.SlashCommandCreate{
 		Name:              "removerole",
 		Description:       "This command removes a role from a member",
 		DefaultPermission: true,
 		Options: []discord.ApplicationCommandOption{
-			{
-				Type:        discord.ApplicationCommandOptionTypeUser,
+			discord.ApplicationCommandOptionUser{
 				Name:        "member",
 				Description: "The member to removes a role from",
 				Required:    true,
 			},
-			{
-				Type:        discord.ApplicationCommandOptionTypeRole,
+			discord.ApplicationCommandOptionRole{
 				Name:        "role",
 				Description: "The role to removes from a member",
 				Required:    true,
@@ -98,27 +86,27 @@ func registerCommands(bot *core.Bot) {
 	var cmdsPermissions []discord.ApplicationCommandPermissionsSet
 	for _, cmd := range cmds {
 		var perms discord.ApplicationCommandPermission
-		if cmd.Name == "eval" {
-			perms = discord.ApplicationCommandPermission{
-				ID:         adminRoleID,
-				Type:       discord.ApplicationCommandPermissionTypeRole,
-				Permission: true,
-			}
-		} else {
-			perms = discord.ApplicationCommandPermission{
-				ID:         testRoleID,
-				Type:       discord.ApplicationCommandPermissionTypeRole,
-				Permission: true,
+		if c, ok := cmd.(core.SlashCommand); ok {
+			if c.Name == "eval" {
+				perms = discord.ApplicationCommandPermissionRole{
+					ID:         adminRoleID,
+					Permission: true,
+				}
+			} else {
+				perms = discord.ApplicationCommandPermissionUser{
+					ID:         testRoleID,
+					Permission: true,
+				}
+				cmdsPermissions = append(cmdsPermissions, discord.ApplicationCommandPermissionsSet{
+					ID:          c.ID,
+					Permissions: []discord.ApplicationCommandPermission{perms},
+				})
 			}
 			cmdsPermissions = append(cmdsPermissions, discord.ApplicationCommandPermissionsSet{
-				ID:          cmd.ID,
+				ID:          c.ID,
 				Permissions: []discord.ApplicationCommandPermission{perms},
 			})
 		}
-		cmdsPermissions = append(cmdsPermissions, discord.ApplicationCommandPermissionsSet{
-			ID:          cmd.ID,
-			Permissions: []discord.ApplicationCommandPermission{perms},
-		})
 	}
 	if _, err = bot.SetGuildCommandsPermissions(guildID, cmdsPermissions); err != nil {
 		log.Fatalf("error while setting command permissions: %s", err)

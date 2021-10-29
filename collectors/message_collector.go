@@ -31,7 +31,7 @@ type MessageCollector struct {
 }
 
 // OnEvent used to get events for the MessageCollector
-func (c *MessageCollector) OnEvent(e interface{}) {
+func (c *MessageCollector) OnEvent(e core.Event) {
 	if event, ok := e.(*events.MessageCreateEvent); ok {
 		if !c.Filter(event.Message) {
 			return

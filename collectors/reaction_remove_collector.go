@@ -31,7 +31,7 @@ type MessageReactionRemoveCollector struct {
 }
 
 // OnEvent used to get events for the ReactionCollector
-func (c *MessageReactionRemoveCollector) OnEvent(e interface{}) {
+func (c *MessageReactionRemoveCollector) OnEvent(e core.Event) {
 	if event, ok := e.(*events.MessageReactionRemoveEvent); ok {
 		messageReactionRemove := &core.MessageReactionRemove{
 			UserID:    event.UserID,

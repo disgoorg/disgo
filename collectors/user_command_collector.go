@@ -32,7 +32,7 @@ type UserCommandCollector struct {
 }
 
 // OnEvent used to get events for the ButtonCollector
-func (c *UserCommandCollector) OnEvent(e interface{}) {
+func (c *UserCommandCollector) OnEvent(e core.Event) {
 	if event, ok := e.(*events.UserCommandEvent); ok {
 		if !c.Filter(event.UserCommandInteraction) {
 			return

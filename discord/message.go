@@ -1,5 +1,7 @@
 package discord
 
+import "github.com/DisgoOrg/disgo/json"
+
 // The MessageType indicates the Message type
 type MessageType int
 
@@ -62,6 +64,29 @@ type Message struct {
 	Stickers          []MessageSticker    `json:"sticker_items,omitempty"`
 	ReferencedMessage *Message            `json:"referenced_message,omitempty"`
 	LastUpdated       *Time               `json:"last_updated,omitempty"`
+}
+
+func (m *Message) UnmarshalJSON(data []byte) error {
+	type message Message
+	var msg struct {
+		message
+		Components []unmarshalComponent `json:"components"`
+	}
+
+	if err := json.Unmarshal(data, &msg); err != nil {
+		return err
+	}
+
+	if len(msg.Components) > 0 {
+		m.Components = make([]Component, len(msg.Components))
+		for i := range msg.Components {
+			m.Components[i] = msg.Components[i]
+		}
+	}
+
+	*m = Message(msg.message)
+
+	return nil
 }
 
 type MessageSticker struct {

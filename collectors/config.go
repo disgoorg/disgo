@@ -3,12 +3,16 @@ package collectors
 import "github.com/DisgoOrg/disgo/core"
 
 var DefaultConfig = core.CollectorsConfig{
-	NewButtonClickCollectorFunc:           NewButtonClickCollector,
-	NewMessageCollectorFunc:               NewMessageCollector,
-	NewMessageCommandCollectorFunc:        NewMessageCommandCollector,
-	NewMessageReactionAddCollectorFunc:    NewMessageReactionAddCollector,
-	NewMessageReactionRemoveCollectorFunc: NewMessageReactionRemoveCollector,
-	NewSelectMenuSubmitCollectorFunc:      NewSelectMenuSubmitCollector,
-	NewSlashCommandCollectorFunc:          NewSlashCommandCollector,
-	NewUserCommandCollectorFunc:           NewUserCommandCollector,
+	NewMessageCollectorFunc:                       NewMessageCollector,
+	NewMessageReactionAddCollectorFunc:            NewMessageReactionAddCollector,
+	NewMessageReactionRemoveCollectorFunc:         NewMessageReactionRemoveCollector,
+	NewInteractionCollectorFunc:                   NewInteractionCollector,
+	NewApplicationCommandInteractionCollectorFunc: NewApplicationCommandInteractionCollector,
+	NewSlashCommandCollectorFunc:                  NewSlashCommandCollector,
+	NewMessageCommandCollectorFunc:                NewMessageCommandCollector,
+	NewUserCommandCollectorFunc:                   NewUserCommandCollector,
+	NewComponentInteractionCollectorFunc:          NewComponentInteractionCollector,
+	NewButtonClickCollectorFunc:                   NewButtonClickCollector,
+	NewSelectMenuSubmitCollectorFunc:              NewSelectMenuSubmitCollector,
+	NewAutocompleteCollectorFunc:                  NewAutocompleteCollector,
 }
