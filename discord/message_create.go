@@ -28,5 +28,5 @@ func (m MessageCreate) ToResponseBody(response InteractionResponse) (interface{}
 	if len(m.Files) > 0 {
 		return PayloadWithFiles(response, m.Files...)
 	}
-	return m, nil
+	return response, nil
 }
