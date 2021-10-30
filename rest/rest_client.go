@@ -2,7 +2,6 @@ package rest
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -10,6 +9,7 @@ import (
 	"time"
 
 	"github.com/DisgoOrg/disgo/json"
+	"github.com/pkg/errors"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest/route"
@@ -75,6 +75,7 @@ func (c *clientImpl) Config() Config {
 func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, tries int, opts []RequestOpt) error {
 	rqURL := cRoute.URL()
 	rqBuffer := &bytes.Buffer{}
+	var rawRqBody []byte
 	var contentType string
 
 	if rqBody != nil {
@@ -96,8 +97,8 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 				return err
 			}
 		}
-		body, _ := ioutil.ReadAll(io.TeeReader(buffer, rqBuffer))
-		c.Logger().Debugf("request to %s, body: %s", rqURL, string(body))
+		rawRqBody, _ = ioutil.ReadAll(io.TeeReader(buffer, rqBuffer))
+		c.Logger().Debugf("request to %s, body: %s", rqURL, string(rawRqBody))
 	}
 
 	rq, err := http.NewRequest(cRoute.APIRoute.Method().String(), rqURL, rqBuffer)
@@ -132,7 +133,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 	// wait for rate limits
 	err = c.RateLimiter().WaitBucket(config.Ctx, cRoute)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error locking bucket in rest client")
 	}
 	rq = rq.WithContext(config.Ctx)
 
@@ -145,53 +146,48 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 
 	rs, err := c.HTTPClient().Do(config.Request)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error doing request in rest client")
 	}
 
 	if err = c.RateLimiter().UnlockBucket(cRoute, rs.Header); err != nil {
 		// TODO: should we maybe retry here?
-		return err
+		return errors.Wrap(err, "error unlocking bucket in rest client")
 	}
 
+	var rawRsBody []byte
 	if rs.Body != nil {
 		buffer := &bytes.Buffer{}
-		body, _ := ioutil.ReadAll(io.TeeReader(rs.Body, buffer))
+		rawRsBody, _ = ioutil.ReadAll(io.TeeReader(rs.Body, buffer))
 		rs.Body = ioutil.NopCloser(buffer)
-		c.Logger().Debugf("response from %s, code %d, body: %s", rqURL, rs.StatusCode, string(body))
+		c.Logger().Debugf("response from %s, code %d, body: %s", rqURL, rs.StatusCode, string(rawRsBody))
 	}
 
 	switch rs.StatusCode {
 	case http.StatusOK, http.StatusCreated, http.StatusNoContent:
 		if rsBody != nil && rs.Body != nil {
 			if err = json.NewDecoder(rs.Body).Decode(rsBody); err != nil {
-				c.Logger().Errorf("error unmarshalling response. error: %s", err)
-				return NewError(rs, err)
+				wErr := errors.Wrap(err, "error unmarshalling response body")
+				c.Logger().Error(wErr)
+				return NewErrorErr(rq, rawRqBody, rs, rawRqBody, wErr)
 			}
 		}
 		return nil
 
-	case http.StatusBadGateway:
-		c.Logger().Error(discord.ErrBadGateway)
-		return NewError(rs, discord.ErrBadGateway)
-
-	case http.StatusBadRequest:
-		c.Logger().Error(discord.ErrBadRequest)
-		return NewError(rs, discord.ErrBadRequest)
+	case http.StatusBadGateway, http.StatusUnauthorized:
+		return NewError(rq, rawRqBody, rs, rawRqBody)
 
 	case http.StatusTooManyRequests:
-		c.Logger().Error(discord.ErrTooManyRequests)
 		if tries >= c.RateLimiter().Config().MaxRetries {
-			return NewError(rs, discord.ErrTooManyRequests)
+			return NewError(rq, rawRqBody, rs, rawRqBody)
 		}
 		return c.retry(cRoute, rqBody, rsBody, tries+1, opts)
 
-	case http.StatusUnauthorized:
-		c.Logger().Error(discord.ErrUnauthorized)
-		return NewError(rs, discord.ErrUnauthorized)
-
 	default:
-		body, _ := ioutil.ReadAll(rq.Body)
-		return NewError(rs, fmt.Errorf("request to %s failed. , body: %s", rq.URL, string(body)))
+		var v discord.APIError
+		if err = json.NewDecoder(rq.Body).Decode(&v); err != nil {
+			return errors.Wrap(err, "error unmarshalling response body")
+		}
+		return NewErrorAPIErr(rq, rawRqBody, rs, rawRqBody, v)
 	}
 }
 
