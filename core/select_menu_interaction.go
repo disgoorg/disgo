@@ -13,9 +13,9 @@ var _ ComponentInteraction = (*SelectMenuInteraction)(nil)
 
 type SelectMenuInteraction struct {
 	*InteractionFields
-	Message         *Message
-	CustomID        string
-	Values          []string
+	Message  *Message
+	CustomID string
+	Values   []string
 }
 
 func (i *SelectMenuInteraction) InteractionType() discord.InteractionType {

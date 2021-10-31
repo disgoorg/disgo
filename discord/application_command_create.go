@@ -20,7 +20,7 @@ func (c SlashCommandCreate) MarshalJSON() ([]byte, error) {
 		Type ApplicationCommandType `json:"type"`
 		slashCommandCreate
 	}{
-		Type:                     c.Type(),
+		Type:               c.Type(),
 		slashCommandCreate: slashCommandCreate(c),
 	}
 	return json.Marshal(v)
@@ -42,7 +42,7 @@ func (c UserCommandCreate) MarshalJSON() ([]byte, error) {
 		Description string                 `json:"description"`
 		userCommandCreate
 	}{
-		Type:                     c.Type(),
+		Type:              c.Type(),
 		userCommandCreate: userCommandCreate(c),
 	}
 	return json.Marshal(v)
@@ -64,7 +64,7 @@ func (c MessageCommandCreate) MarshalJSON() ([]byte, error) {
 		Description string                 `json:"description"`
 		messageCommandCreate
 	}{
-		Type:                     c.Type(),
+		Type:                 c.Type(),
 		messageCommandCreate: messageCommandCreate(c),
 	}
 	return json.Marshal(v)

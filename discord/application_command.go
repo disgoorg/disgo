@@ -82,7 +82,7 @@ func (c SlashCommand) MarshalJSON() ([]byte, error) {
 		Type ApplicationCommandType `json:"type"`
 		slashCommand
 	}{
-		Type:               c.Type(),
+		Type:         c.Type(),
 		slashCommand: slashCommand(c),
 	}
 	return json.Marshal(v)
@@ -92,7 +92,7 @@ func (c *SlashCommand) UnmarshalJSON(data []byte) error {
 	type slashCommand SlashCommand
 	var sc struct {
 		slashCommand
-		Options           []UnmarshalApplicationCommandOption `json:"options,omitempty"`
+		Options []UnmarshalApplicationCommandOption `json:"options,omitempty"`
 	}
 
 	if err := json.Unmarshal(data, &sc); err != nil {
@@ -130,7 +130,7 @@ func (c UserCommand) MarshalJSON() ([]byte, error) {
 		Type ApplicationCommandType `json:"type"`
 		userCommand
 	}{
-		Type:               c.Type(),
+		Type:        c.Type(),
 		userCommand: userCommand(c),
 	}
 	return json.Marshal(v)
@@ -155,7 +155,7 @@ func (c MessageCommand) MarshalJSON() ([]byte, error) {
 		Type ApplicationCommandType `json:"type"`
 		messageCommand
 	}{
-		Type:               c.Type(),
+		Type:           c.Type(),
 		messageCommand: messageCommand(c),
 	}
 	return json.Marshal(v)
