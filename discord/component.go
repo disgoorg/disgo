@@ -42,15 +42,15 @@ func (u *unmarshalComponent) UnmarshalJSON(data []byte) error {
 
 	switch cType.Type {
 	case ComponentTypeActionRow:
-		v := ActionRow{}
+		v := ActionRowComponent{}
 		err = json.Unmarshal(data, &v)
 		component = v
 	case ComponentTypeButton:
-		v := Button{}
+		v := ButtonComponent{}
 		err = json.Unmarshal(data, &v)
 		component = v
 	case ComponentTypeSelectMenu:
-		v := SelectMenu{}
+		v := SelectMenuComponent{}
 		err = json.Unmarshal(data, &v)
 		component = v
 	default:

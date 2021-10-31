@@ -33,13 +33,13 @@ type ComponentInteractionCreateEvent struct {
 	core.ComponentInteraction
 }
 
-// ButtonClickEvent indicates that a core.Button was clicked
+// ButtonClickEvent indicates that a core.ButtonComponent was clicked
 type ButtonClickEvent struct {
 	*GenericEvent
 	*core.ButtonInteraction
 }
 
-// SelectMenuSubmitEvent indicates that a core.SelectMenu was submitted
+// SelectMenuSubmitEvent indicates that a core.SelectMenuComponent was submitted
 type SelectMenuSubmitEvent struct {
 	*GenericEvent
 	*core.SelectMenuInteraction

@@ -121,6 +121,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 			members, err := event.Guild().RequestMembersWithQuery("", 0)
 			if err != nil {
 				_, _ = event.UpdateOriginal(core.NewMessageUpdateBuilder().SetContentf("failed to load members. error: %s", err).Build())
+				return
 			}
 			_, _ = event.UpdateOriginal(core.NewMessageUpdateBuilder().
 				SetContentf("loaded %d members", len(members)).

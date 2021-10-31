@@ -25,7 +25,7 @@ func (o unmarshalSlashCommandOption) UnmarshalJSON(data []byte) error {
 
 	var (
 		slashCommandOption SlashCommandOption
-		err                              error
+		err                error
 	)
 
 	switch oType.Type {
@@ -93,8 +93,8 @@ func (o unmarshalSlashCommandOption) UnmarshalJSON(data []byte) error {
 var _ SlashCommandOption = (*SlashCommandOptionSubCommand)(nil)
 
 type SlashCommandOptionSubCommand struct {
-	Name        string                             `json:"name"`
-	Description string                             `json:"description"`
+	Name        string               `json:"name"`
+	Description string               `json:"description"`
 	Options     []SlashCommandOption `json:"options,omitempty"`
 }
 
@@ -105,8 +105,8 @@ func (_ SlashCommandOptionSubCommand) Type() ApplicationCommandOptionType {
 var _ SlashCommandOption = (*SlashCommandOptionSubCommandGroup)(nil)
 
 type SlashCommandOptionSubCommandGroup struct {
-	Name        string                                       `json:"name"`
-	Description string                                       `json:"description"`
+	Name        string                         `json:"name"`
+	Description string                         `json:"description"`
 	Options     []SlashCommandOptionSubCommand `json:"options,omitempty"`
 }
 

@@ -69,13 +69,13 @@ func (i *ButtonInteraction) DeferUpdate(opts ...rest.RequestOpt) error {
 	return deferUpdate(i.InteractionFields, opts...)
 }
 
-// UpdateButton updates the clicked Button with a new Button
-func (i *ButtonInteraction) UpdateButton(button discord.Button, opts ...rest.RequestOpt) error {
+// UpdateButton updates the clicked ButtonComponent with a new ButtonComponent
+func (i *ButtonInteraction) UpdateButton(button discord.ButtonComponent, opts ...rest.RequestOpt) error {
 	return updateComponent(i.InteractionFields, i.Message, i.CustomID, button, opts...)
 }
 
-// Button returns the Button which issued this ButtonInteraction
-func (i *ButtonInteraction) Button() discord.Button {
+// ButtonComponent returns the ButtonComponent which issued this ButtonInteraction
+func (i *ButtonInteraction) ButtonComponent() discord.ButtonComponent {
 	// this should never be nil
 	return *i.Message.ButtonByID(i.CustomID)
 }

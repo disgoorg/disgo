@@ -2,13 +2,13 @@ package discord
 
 // MessageUpdate is used to edit a Message
 type MessageUpdate struct {
-	Content         *string          `json:"content,omitempty"`
-	Embeds          *[]Embed         `json:"embeds,omitempty"`
-	Components      *[]Component     `json:"components,omitempty"`
-	Attachments     *[]Attachment    `json:"attachments,omitempty"`
-	Files           []*File          `json:"-"`
-	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
-	Flags           *MessageFlags    `json:"flags,omitempty"`
+	Content         *string               `json:"content,omitempty"`
+	Embeds          *[]Embed              `json:"embeds,omitempty"`
+	Components      *[]ActionRowComponent `json:"components,omitempty"`
+	Attachments     *[]Attachment         `json:"attachments,omitempty"`
+	Files           []*File               `json:"-"`
+	AllowedMentions *AllowedMentions      `json:"allowed_mentions,omitempty"`
+	Flags           *MessageFlags         `json:"flags,omitempty"`
 }
 
 func (_ MessageUpdate) interactionCallbackData() {}
@@ -25,5 +25,5 @@ func (m MessageUpdate) ToResponseBody(response InteractionResponse) (interface{}
 	if len(m.Files) > 0 {
 		return PayloadWithFiles(response, m.Files...)
 	}
-	return m, nil
+	return response, nil
 }

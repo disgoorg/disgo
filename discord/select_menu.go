@@ -2,9 +2,9 @@ package discord
 
 import "github.com/DisgoOrg/disgo/json"
 
-// NewSelectMenu builds a new SelectMenu from the provided values
-func NewSelectMenu(customID string, placeholder string, minValues OptionalInt, maxValues int, disabled bool, options ...SelectMenuOption) SelectMenu {
-	return SelectMenu{
+// NewSelectMenu builds a new SelectMenuComponent from the provided values
+func NewSelectMenu(customID string, placeholder string, minValues OptionalInt, maxValues int, disabled bool, options ...SelectMenuOption) SelectMenuComponent {
+	return SelectMenuComponent{
 		CustomID:    customID,
 		Placeholder: placeholder,
 		MinValues:   minValues,
@@ -14,9 +14,9 @@ func NewSelectMenu(customID string, placeholder string, minValues OptionalInt, m
 	}
 }
 
-var _ Component = (*SelectMenu)(nil)
+var _ Component = (*SelectMenuComponent)(nil)
 
-type SelectMenu struct {
+type SelectMenuComponent struct {
 	CustomID    string             `json:"custom_id"`
 	Placeholder string             `json:"placeholder,omitempty"`
 	MinValues   OptionalInt        `json:"min_values,omitempty"`
@@ -25,8 +25,8 @@ type SelectMenu struct {
 	Options     []SelectMenuOption `json:"options,omitempty"`
 }
 
-func (m SelectMenu) MarshalJSON() ([]byte, error) {
-	type selectMenu SelectMenu
+func (m SelectMenuComponent) MarshalJSON() ([]byte, error) {
+	type selectMenu SelectMenuComponent
 	v := struct {
 		Type ComponentType `json:"type"`
 		selectMenu
@@ -37,48 +37,48 @@ func (m SelectMenu) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v)
 }
 
-func (_ SelectMenu) Type() ComponentType {
+func (_ SelectMenuComponent) Type() ComponentType {
 	return ComponentTypeSelectMenu
 }
 
-// WithCustomID returns a new SelectMenu with the provided customID
-func (m SelectMenu) WithCustomID(customID string) SelectMenu {
+// WithCustomID returns a new SelectMenuComponent with the provided customID
+func (m SelectMenuComponent) WithCustomID(customID string) SelectMenuComponent {
 	m.CustomID = customID
 	return m
 }
 
-// WithPlaceholder returns a new SelectMenu with the provided placeholder
-func (m SelectMenu) WithPlaceholder(placeholder string) SelectMenu {
+// WithPlaceholder returns a new SelectMenuComponent with the provided placeholder
+func (m SelectMenuComponent) WithPlaceholder(placeholder string) SelectMenuComponent {
 	m.Placeholder = placeholder
 	return m
 }
 
-// WithMinValues returns a new SelectMenu with the provided minValue
-func (m SelectMenu) WithMinValues(minValue OptionalInt) SelectMenu {
+// WithMinValues returns a new SelectMenuComponent with the provided minValue
+func (m SelectMenuComponent) WithMinValues(minValue OptionalInt) SelectMenuComponent {
 	m.MinValues = minValue
 	return m
 }
 
-// WithMaxValues returns a new SelectMenu with the provided maxValue
-func (m SelectMenu) WithMaxValues(maxValue int) SelectMenu {
+// WithMaxValues returns a new SelectMenuComponent with the provided maxValue
+func (m SelectMenuComponent) WithMaxValues(maxValue int) SelectMenuComponent {
 	m.MaxValues = maxValue
 	return m
 }
 
-// SetOptions returns a new SelectMenu with the provided SelectMenuOption(s)
-func (m SelectMenu) SetOptions(options ...SelectMenuOption) SelectMenu {
+// SetOptions returns a new SelectMenuComponent with the provided SelectMenuOption(s)
+func (m SelectMenuComponent) SetOptions(options ...SelectMenuOption) SelectMenuComponent {
 	m.Options = options
 	return m
 }
 
-// AddOptions returns a new SelectMenu with the provided SelectMenuOption(s) added
-func (m SelectMenu) AddOptions(options ...SelectMenuOption) SelectMenu {
+// AddOptions returns a new SelectMenuComponent with the provided SelectMenuOption(s) added
+func (m SelectMenuComponent) AddOptions(options ...SelectMenuOption) SelectMenuComponent {
 	m.Options = append(m.Options, options...)
 	return m
 }
 
-// SetOption returns a new SelectMenu with the SelectMenuOption which has the value replaced
-func (m SelectMenu) SetOption(value string, option SelectMenuOption) SelectMenu {
+// SetOption returns a new SelectMenuComponent with the SelectMenuOption which has the value replaced
+func (m SelectMenuComponent) SetOption(value string, option SelectMenuOption) SelectMenuComponent {
 	for i, o := range m.Options {
 		if o.Value == value {
 			m.Options[i] = option
@@ -88,8 +88,8 @@ func (m SelectMenu) SetOption(value string, option SelectMenuOption) SelectMenu 
 	return m
 }
 
-// RemoveOption returns a new SelectMenu with the provided SelectMenuOption at the index removed
-func (m SelectMenu) RemoveOption(index int) SelectMenu {
+// RemoveOption returns a new SelectMenuComponent with the provided SelectMenuOption at the index removed
+func (m SelectMenuComponent) RemoveOption(index int) SelectMenuComponent {
 	if len(m.Options) > index {
 		m.Options = append(m.Options[:index], m.Options[index+1:]...)
 	}
@@ -104,7 +104,7 @@ func NewSelectMenuOption(label string, value string) SelectMenuOption {
 	}
 }
 
-// SelectMenuOption represents an option in a SelectMenu
+// SelectMenuOption represents an option in a SelectMenuComponent
 type SelectMenuOption struct {
 	Label       string          `json:"label"`
 	Value       string          `json:"value"`

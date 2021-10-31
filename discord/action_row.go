@@ -2,15 +2,15 @@ package discord
 
 import "github.com/DisgoOrg/disgo/json"
 
-var _ Component = (*ActionRow)(nil)
+var _ Component = (*ActionRowComponent)(nil)
 
-func NewActionRow(components ...Component) ActionRow {
+func NewActionRow(components ...Component) ActionRowComponent {
 	return components
 }
 
-type ActionRow []Component
+type ActionRowComponent []Component
 
-func (r ActionRow) MarshalJSON() ([]byte, error) {
+func (r ActionRowComponent) MarshalJSON() ([]byte, error) {
 	v := struct {
 		Type       ComponentType `json:"type"`
 		Components []Component   `json:"components"`
@@ -21,7 +21,7 @@ func (r ActionRow) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v)
 }
 
-func (r *ActionRow) UnmarshalJSON(data []byte) error {
+func (r *ActionRowComponent) UnmarshalJSON(data []byte) error {
 	var actionRow struct {
 		Components []unmarshalComponent `json:"components"`
 	}
@@ -40,26 +40,26 @@ func (r *ActionRow) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (_ ActionRow) Type() ComponentType {
+func (_ ActionRowComponent) Type() ComponentType {
 	return ComponentTypeActionRow
 }
 
-// SetComponents returns a new ActionRow with the provided Component(s)
-func (r *ActionRow) SetComponents(components ...Component) ActionRow {
+// SetComponents returns a new ActionRowComponent with the provided Component(s)
+func (r *ActionRowComponent) SetComponents(components ...Component) ActionRowComponent {
 	*r = components
 	return *r
 }
 
-// SetComponent returns a new ActionRow with the Component which has the customID replaced
-func (r *ActionRow) SetComponent(customID string, component Component) ActionRow {
+// SetComponent returns a new ActionRowComponent with the Component which has the customID replaced
+func (r *ActionRowComponent) SetComponent(customID string, component Component) ActionRowComponent {
 	for i, c := range *r {
 		switch com := c.(type) {
-		case Button:
+		case ButtonComponent:
 			if com.CustomID == customID {
 				(*r)[i] = component
 				break
 			}
-		case SelectMenu:
+		case SelectMenuComponent:
 			if com.CustomID == customID {
 				(*r)[i] = component
 				break
@@ -71,14 +71,14 @@ func (r *ActionRow) SetComponent(customID string, component Component) ActionRow
 	return *r
 }
 
-// AddComponents returns a new ActionRow with the provided Component(s) added
-func (r *ActionRow) AddComponents(components ...Component) ActionRow {
+// AddComponents returns a new ActionRowComponent with the provided Component(s) added
+func (r *ActionRowComponent) AddComponents(components ...Component) ActionRowComponent {
 	*r = append(*r, components...)
 	return *r
 }
 
-// RemoveComponent returns a new ActionRow with the provided Component at the index removed
-func (r *ActionRow) RemoveComponent(index int) ActionRow {
+// RemoveComponent returns a new ActionRowComponent with the provided Component at the index removed
+func (r *ActionRowComponent) RemoveComponent(index int) ActionRowComponent {
 	if len(*r) > index {
 		*r = append((*r)[:index], (*r)[index+1:]...)
 	}

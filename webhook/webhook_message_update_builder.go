@@ -84,19 +84,19 @@ func (b *MessageUpdateBuilder) RemoveEmbed(i int) *MessageUpdateBuilder {
 	return b
 }
 
-// SetActionRows sets the ActionRow(s) of the Message
-func (b *MessageUpdateBuilder) SetActionRows(actionRows ...discord.ActionRow) *MessageUpdateBuilder {
+// SetActionRows sets the discord.ActionRowComponent(s) of the Message
+func (b *MessageUpdateBuilder) SetActionRows(actionRows ...discord.ActionRowComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]discord.Component)
+		b.Components = new([]discord.ActionRowComponent)
 	}
-	*b.Components = actionRowsToComponents(actionRows)
+	*b.Components = actionRows
 	return b
 }
 
-// SetActionRow sets the provided ActionRow at the index of Component(s)
-func (b *MessageUpdateBuilder) SetActionRow(i int, actionRow discord.ActionRow) *MessageUpdateBuilder {
+// SetActionRow sets the provided discord.ActionRowComponent at the index of discord.Component(s)
+func (b *MessageUpdateBuilder) SetActionRow(i int, actionRow discord.ActionRowComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]discord.Component)
+		b.Components = new([]discord.ActionRowComponent)
 	}
 	if len(*b.Components) > i {
 		(*b.Components)[i] = actionRow
@@ -104,28 +104,28 @@ func (b *MessageUpdateBuilder) SetActionRow(i int, actionRow discord.ActionRow) 
 	return b
 }
 
-// AddActionRow adds a new ActionRow with the provided Component(s) to the Message
+// AddActionRow adds a new discord.ActionRowComponent with the provided discord.Component(s) to the Message
 func (b *MessageUpdateBuilder) AddActionRow(components ...discord.Component) *MessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]discord.Component)
+		b.Components = new([]discord.ActionRowComponent)
 	}
-	*b.Components = append(*b.Components, discord.NewActionRow(components...))
+	*b.Components = append(*b.Components, components)
 	return b
 }
 
-// AddActionRows adds the ActionRow(s) to the Message
-func (b *MessageUpdateBuilder) AddActionRows(actionRows ...discord.ActionRow) *MessageUpdateBuilder {
+// AddActionRows adds the discord.ActionRowComponent(s) to the Message
+func (b *MessageUpdateBuilder) AddActionRows(actionRows ...discord.ActionRowComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]discord.Component)
+		b.Components = new([]discord.ActionRowComponent)
 	}
-	*b.Components = append(*b.Components, actionRowsToComponents(actionRows)...)
+	*b.Components = append(*b.Components, actionRows...)
 	return b
 }
 
-// RemoveActionRow removes a ActionRow from the Message
+// RemoveActionRow removes a discord.ActionRowComponent from the Message
 func (b *MessageUpdateBuilder) RemoveActionRow(i int) *MessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]discord.Component)
+		b.Components = new([]discord.ActionRowComponent)
 	}
 	if len(*b.Components) > i {
 		*b.Components = append((*b.Components)[:i], (*b.Components)[i+1:]...)
@@ -133,19 +133,19 @@ func (b *MessageUpdateBuilder) RemoveActionRow(i int) *MessageUpdateBuilder {
 	return b
 }
 
-// ClearActionRows removes all the ActionRow(s) of the Message
+// ClearActionRows removes all the discord.ActionRowComponent(s) of the Message
 func (b *MessageUpdateBuilder) ClearActionRows() *MessageUpdateBuilder {
-	b.Components = &[]discord.Component{}
+	b.Components = &[]discord.ActionRowComponent{}
 	return b
 }
 
-// SetFiles sets the restclient.File(s) for this MessageCreate
+// SetFiles sets the new discord.File(s) for this discord.MessageUpdate
 func (b *MessageUpdateBuilder) SetFiles(files ...*discord.File) *MessageUpdateBuilder {
 	b.Files = files
 	return b
 }
 
-// SetFile sets the restclient.File at the index for this MessageCreate
+// SetFile sets the new discord.File at the index for this discord.MessageUpdate
 func (b *MessageUpdateBuilder) SetFile(i int, file *discord.File) *MessageUpdateBuilder {
 	if len(b.Files) > i {
 		b.Files[i] = file
@@ -153,26 +153,26 @@ func (b *MessageUpdateBuilder) SetFile(i int, file *discord.File) *MessageUpdate
 	return b
 }
 
-// AddFiles adds the restclient.File(s) to the MessageCreate
+// AddFiles adds the new discord.File(s) to the discord.MessageUpdate
 func (b *MessageUpdateBuilder) AddFiles(files ...*discord.File) *MessageUpdateBuilder {
 	b.Files = append(b.Files, files...)
 	return b
 }
 
-// AddFile adds a restclient.File to the MessageCreate
+// AddFile adds a new discord.File to the discord.MessageUpdate
 func (b *MessageUpdateBuilder) AddFile(name string, reader io.Reader, flags ...discord.FileFlags) *MessageUpdateBuilder {
 	b.Files = append(b.Files, discord.NewFile(name, reader, flags...))
 	return b
 }
 
-// ClearFiles removes all files of this MessageCreate
+// ClearFiles removes all new discord.File(s) of this discord.MessageUpdate
 func (b *MessageUpdateBuilder) ClearFiles() *MessageUpdateBuilder {
 	b.Files = []*discord.File{}
 	return b
 }
 
-// RemoveFiles removes the file at this index
-func (b *MessageUpdateBuilder) RemoveFiles(i int) *MessageUpdateBuilder {
+// RemoveFile removes the new discord.File at this index
+func (b *MessageUpdateBuilder) RemoveFile(i int) *MessageUpdateBuilder {
 	if len(b.Files) > i {
 		b.Files = append(b.Files[:i], b.Files[i+1:]...)
 	}
