@@ -84,8 +84,8 @@ func (b *MessageUpdateBuilder) RemoveEmbed(i int) *MessageUpdateBuilder {
 	return b
 }
 
-// SetActionRows sets the ActionRow(s) of the Message
-func (b *MessageUpdateBuilder) SetActionRows(actionRows ...discord.ActionRow) *MessageUpdateBuilder {
+// SetActionRows sets the ActionRowComponent(s) of the Message
+func (b *MessageUpdateBuilder) SetActionRows(actionRows ...discord.ActionRowComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
 		b.Components = new([]discord.Component)
 	}
@@ -93,8 +93,8 @@ func (b *MessageUpdateBuilder) SetActionRows(actionRows ...discord.ActionRow) *M
 	return b
 }
 
-// SetActionRow sets the provided ActionRow at the index of Component(s)
-func (b *MessageUpdateBuilder) SetActionRow(i int, actionRow discord.ActionRow) *MessageUpdateBuilder {
+// SetActionRow sets the provided ActionRowComponent at the index of Component(s)
+func (b *MessageUpdateBuilder) SetActionRow(i int, actionRow discord.ActionRowComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
 		b.Components = new([]discord.Component)
 	}
@@ -104,7 +104,7 @@ func (b *MessageUpdateBuilder) SetActionRow(i int, actionRow discord.ActionRow) 
 	return b
 }
 
-// AddActionRow adds a new ActionRow with the provided Component(s) to the Message
+// AddActionRow adds a new ActionRowComponent with the provided Component(s) to the Message
 func (b *MessageUpdateBuilder) AddActionRow(components ...discord.Component) *MessageUpdateBuilder {
 	if b.Components == nil {
 		b.Components = new([]discord.Component)
@@ -113,8 +113,8 @@ func (b *MessageUpdateBuilder) AddActionRow(components ...discord.Component) *Me
 	return b
 }
 
-// AddActionRows adds the ActionRow(s) to the Message
-func (b *MessageUpdateBuilder) AddActionRows(actionRows ...discord.ActionRow) *MessageUpdateBuilder {
+// AddActionRows adds the ActionRowComponent(s) to the Message
+func (b *MessageUpdateBuilder) AddActionRows(actionRows ...discord.ActionRowComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
 		b.Components = new([]discord.Component)
 	}
@@ -122,7 +122,7 @@ func (b *MessageUpdateBuilder) AddActionRows(actionRows ...discord.ActionRow) *M
 	return b
 }
 
-// RemoveActionRow removes a ActionRow from the Message
+// RemoveActionRow removes a ActionRowComponent from the Message
 func (b *MessageUpdateBuilder) RemoveActionRow(i int) *MessageUpdateBuilder {
 	if b.Components == nil {
 		b.Components = new([]discord.Component)
@@ -133,7 +133,7 @@ func (b *MessageUpdateBuilder) RemoveActionRow(i int) *MessageUpdateBuilder {
 	return b
 }
 
-// ClearActionRows removes all the ActionRow(s) of the Message
+// ClearActionRows removes all the ActionRowComponent(s) of the Message
 func (b *MessageUpdateBuilder) ClearActionRows() *MessageUpdateBuilder {
 	b.Components = &[]discord.Component{}
 	return b

@@ -70,13 +70,13 @@ func (i *SelectMenuInteraction) DeferUpdate(opts ...rest.RequestOpt) error {
 	return deferUpdate(i.InteractionFields, opts...)
 }
 
-// UpdateSelectMenu updates the used SelectMenu with a new SelectMenu
-func (i *SelectMenuInteraction) UpdateSelectMenu(selectMenu discord.SelectMenu, opts ...rest.RequestOpt) error {
+// UpdateSelectMenu updates the used SelectMenuComponent with a new SelectMenuComponent
+func (i *SelectMenuInteraction) UpdateSelectMenu(selectMenu discord.SelectMenuComponent, opts ...rest.RequestOpt) error {
 	return updateComponent(i.InteractionFields, i.Message, i.CustomID, selectMenu, opts...)
 }
 
-// SelectMenu returns the SelectMenu which issued this SelectMenuInteraction
-func (i *SelectMenuInteraction) SelectMenu() discord.SelectMenu {
+// SelectMenuComponent returns the SelectMenuComponent which issued this SelectMenuInteraction
+func (i *SelectMenuInteraction) SelectMenuComponent() discord.SelectMenuComponent {
 	// this should never be nil
 	return *i.Message.SelectMenuByID(i.CustomID)
 }
@@ -84,7 +84,7 @@ func (i *SelectMenuInteraction) SelectMenu() discord.SelectMenu {
 // SelectedOptions returns the selected SelectMenuOption(s)
 func (i *SelectMenuInteraction) SelectedOptions() []discord.SelectMenuOption {
 	options := make([]discord.SelectMenuOption, len(i.Values))
-	for ii, option := range i.SelectMenu().Options {
+	for ii, option := range i.SelectMenuComponent().Options {
 		for _, value := range i.Values {
 			if value == option.Value {
 				options[ii] = option

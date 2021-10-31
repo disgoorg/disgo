@@ -73,33 +73,33 @@ func (b *MessageCreateBuilder) RemoveEmbed(i int) *MessageCreateBuilder {
 	return b
 }
 
-// SetActionRows sets the ActionRow(s) of the Message
-func (b *MessageCreateBuilder) SetActionRows(actionRows ...discord.ActionRow) *MessageCreateBuilder {
+// SetActionRows sets the ActionRowComponent(s) of the Message
+func (b *MessageCreateBuilder) SetActionRows(actionRows ...discord.ActionRowComponent) *MessageCreateBuilder {
 	b.Components = actionRowsToComponents(actionRows)
 	return b
 }
 
-// SetActionRow sets the provided ActionRow at the index of Component(s)
-func (b *MessageCreateBuilder) SetActionRow(i int, actionRow discord.ActionRow) *MessageCreateBuilder {
+// SetActionRow sets the provided ActionRowComponent at the index of Component(s)
+func (b *MessageCreateBuilder) SetActionRow(i int, actionRow discord.ActionRowComponent) *MessageCreateBuilder {
 	if len(b.Components) > i {
 		b.Components[i] = actionRow
 	}
 	return b
 }
 
-// AddActionRow adds a new ActionRow with the provided Component(s) to the Message
+// AddActionRow adds a new ActionRowComponent with the provided Component(s) to the Message
 func (b *MessageCreateBuilder) AddActionRow(components ...discord.Component) *MessageCreateBuilder {
 	b.Components = append(b.Components, discord.NewActionRow(components...))
 	return b
 }
 
-// AddActionRows adds the ActionRow(s) to the Message
-func (b *MessageCreateBuilder) AddActionRows(actionRows ...discord.ActionRow) *MessageCreateBuilder {
+// AddActionRows adds the ActionRowComponent(s) to the Message
+func (b *MessageCreateBuilder) AddActionRows(actionRows ...discord.ActionRowComponent) *MessageCreateBuilder {
 	b.Components = append(b.Components, actionRowsToComponents(actionRows)...)
 	return b
 }
 
-// RemoveActionRow removes a ActionRow from the Message
+// RemoveActionRow removes a ActionRowComponent from the Message
 func (b *MessageCreateBuilder) RemoveActionRow(i int) *MessageCreateBuilder {
 	if len(b.Components) > i {
 		b.Components = append(b.Components[:i], b.Components[i+1:]...)
@@ -107,7 +107,7 @@ func (b *MessageCreateBuilder) RemoveActionRow(i int) *MessageCreateBuilder {
 	return b
 }
 
-// ClearActionRows removes all the ActionRow(s) of the Message
+// ClearActionRows removes all the ActionRowComponent(s) of the Message
 func (b *MessageCreateBuilder) ClearActionRows() *MessageCreateBuilder {
 	b.Components = []discord.Component{}
 	return b
@@ -232,7 +232,7 @@ func (b *MessageCreateBuilder) Build() discord.MessageCreate {
 	return b.MessageCreate
 }
 
-func actionRowsToComponents(actionRows []discord.ActionRow) []discord.Component {
+func actionRowsToComponents(actionRows []discord.ActionRowComponent) []discord.Component {
 	components := make([]discord.Component, len(actionRows))
 	for i := range actionRows {
 		components[i] = actionRows[i]
