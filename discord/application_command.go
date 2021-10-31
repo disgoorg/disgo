@@ -77,12 +77,13 @@ type SlashCommand struct {
 }
 
 func (c SlashCommand) MarshalJSON() ([]byte, error) {
+	type slashCommand SlashCommand
 	v := struct {
 		Type ApplicationCommandType `json:"type"`
-		ApplicationCommand
+		slashCommand
 	}{
 		Type:               c.Type(),
-		ApplicationCommand: c,
+		slashCommand: slashCommand(c),
 	}
 	return json.Marshal(v)
 }
@@ -124,12 +125,13 @@ type UserCommand struct {
 }
 
 func (c UserCommand) MarshalJSON() ([]byte, error) {
+	type userCommand UserCommand
 	v := struct {
 		Type ApplicationCommandType `json:"type"`
-		ApplicationCommand
+		userCommand
 	}{
 		Type:               c.Type(),
-		ApplicationCommand: c,
+		userCommand: userCommand(c),
 	}
 	return json.Marshal(v)
 }
@@ -148,12 +150,13 @@ type MessageCommand struct {
 }
 
 func (c MessageCommand) MarshalJSON() ([]byte, error) {
+	type messageCommand MessageCommand
 	v := struct {
 		Type ApplicationCommandType `json:"type"`
-		ApplicationCommand
+		messageCommand
 	}{
 		Type:               c.Type(),
-		ApplicationCommand: c,
+		messageCommand: messageCommand(c),
 	}
 	return json.Marshal(v)
 }
