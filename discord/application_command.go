@@ -15,6 +15,18 @@ const (
 	ApplicationCommandTypeMessage
 )
 
+var applicationCommands = map[ApplicationCommandType]func() ApplicationCommand{
+	ApplicationCommandTypeSlash: func() ApplicationCommand {
+		return &SlashCommand{}
+	},
+	ApplicationCommandTypeUser: func() ApplicationCommand {
+		return &UserCommand{}
+	},
+	ApplicationCommandTypeMessage: func() ApplicationCommand {
+		return &MessageCommand{}
+	},
+}
+
 type ApplicationCommand interface {
 	json.Marshaler
 	Type() ApplicationCommandType
@@ -33,35 +45,19 @@ func (u *UnmarshalApplicationCommand) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	var (
-		applicationCommand ApplicationCommand
-		err                error
-	)
 
-	switch aType.Type {
-	case ApplicationCommandTypeSlash:
-		v := SlashCommand{}
-		err = json.Unmarshal(data, &v)
-		applicationCommand = v
-
-	case ApplicationCommandTypeUser:
-		v := UserCommand{}
-		err = json.Unmarshal(data, &v)
-		applicationCommand = v
-
-	case ApplicationCommandTypeMessage:
-		v := MessageCommand{}
-		err = json.Unmarshal(data, &v)
-		applicationCommand = v
-
-	default:
+	fn, ok := applicationCommands[aType.Type]
+	if !ok {
 		return fmt.Errorf("unkown application command with type %d received", aType.Type)
 	}
-	if err != nil {
+
+	v := fn()
+
+	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
 
-	u.ApplicationCommand = applicationCommand
+	u.ApplicationCommand = v
 	return nil
 }
 

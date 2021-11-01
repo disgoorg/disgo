@@ -8,38 +8,156 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ Mentionable = (*Channel)(nil)
-
-type Channel struct {
+type Channel interface {
 	discord.Channel
+}
+
+type GuildTextChannel struct {
+	discord.GuildTextChannel
+	Bot *Bot
+}
+
+func (c *GuildTextChannel) String() string {
+	return channelMention(c.ID)
+}
+
+func (c *GuildTextChannel) Guild() *Guild {
+	return channelGuild(c.Bot, c.GuildID)
+}
+
+type DMChannel struct {
+	discord.DMChannel
+	Bot *Bot
+}
+
+func (c *DMChannel) String() string {
+	return channelMention(c.ID)
+}
+
+type GuildVoiceChannel struct {
+	discord.GuildVoiceChannel
 	Bot                *Bot
-	StageInstanceID    *discord.Snowflake
 	ConnectedMemberIDs map[discord.Snowflake]struct{}
 }
 
-func (c *Channel) String() string {
-	return fmt.Sprintf("<#%s>", c.ID)
+func (c *GuildVoiceChannel) String() string {
+	return channelMention(c.ID)
 }
 
-func (c *Channel) Mention() string {
-	return c.String()
+func (c *GuildVoiceChannel) Guild() *Guild {
+	return channelGuild(c.Bot, c.GuildID)
 }
 
-func (c *Channel) Guild() *Guild {
-	if !c.IsGuildChannel() {
-		unsupportedChannelType(c)
-	}
-	return c.Bot.Caches.GuildCache().Get(c.GuildID)
+type GroupDMChannel struct {
+	discord.GroupDMChannel
+	Bot *Bot
 }
 
-func (c *Channel) Channels() []*Channel {
-	if !c.IsCategory() {
-		unsupportedChannelType(c)
-	}
-	return c.Bot.Caches.ChannelCache().FindAll(func(channel *Channel) bool {
+func (c *GroupDMChannel) String() string {
+	return channelMention(c.ID)
+}
+
+type GuildCategoryChannel struct {
+	discord.GuildCategoryChannel
+	Bot *Bot
+}
+
+func (c *GuildCategoryChannel) String() string {
+	return channelMention(c.ID)
+}
+
+func (c *GuildCategoryChannel) Guild() *Guild {
+	return channelGuild(c.Bot, c.GuildID)
+}
+
+func (c *GuildCategoryChannel) Channels() []Channel {
+	return c.Bot.Caches.ChannelCache().FindAll(func(channel Channel) bool {
 		return channel.ParentID != nil && *channel.ParentID == c.ID
 	})
 }
+
+type GuildNewsChannel struct {
+	discord.GuildNewsChannel
+	Bot *Bot
+}
+
+func (c *GuildNewsChannel) String() string {
+	return channelMention(c.ID)
+}
+
+func (c *GuildNewsChannel) Guild() *Guild {
+	return channelGuild(c.Bot, c.GuildID)
+}
+
+type GuildStoreChannel struct {
+	discord.GuildStoreChannel
+	Bot *Bot
+}
+
+func (c *GuildStoreChannel) String() string {
+	return channelMention(c.ID)
+}
+
+func (c *GuildStoreChannel) Guild() *Guild {
+	return channelGuild(c.Bot, c.GuildID)
+}
+
+type GuildNewsThread struct {
+	discord.GuildNewsThread
+	Bot *Bot
+}
+
+func (c *GuildNewsThread) String() string {
+	return channelMention(c.ID)
+}
+
+func (c *GuildNewsThread) Guild() *Guild {
+	return channelGuild(c.Bot, c.GuildID)
+}
+
+type GuildPublicThread struct {
+	discord.GuildNewsThread
+	Bot *Bot
+}
+
+func (c *GuildPublicThread) String() string {
+	return channelMention(c.ID)
+}
+
+func (c *GuildPublicThread) Guild() *Guild {
+	return channelGuild(c.Bot, c.GuildID)
+}
+
+type GuildPrivateThread struct {
+	discord.GuildNewsThread
+	Bot *Bot
+}
+
+func (c *GuildPrivateThread) String() string {
+	return channelMention(c.ID)
+}
+
+func (c *GuildPrivateThread) Guild() *Guild {
+	return channelGuild(c.Bot, c.GuildID)
+}
+
+type GuildStageVoiceChannel struct {
+	discord.GuildNewsThread
+	Bot                *Bot
+	StageInstance      *StageInstance
+	ConnectedMemberIDs map[discord.Snowflake]struct{}
+}
+
+func (c *GuildStageVoiceChannel) String() string {
+	return channelMention(c.ID)
+}
+
+func (c *GuildStageVoiceChannel) Guild() *Guild {
+	return channelGuild(c.Bot, c.GuildID)
+}
+
+//--------------------------------------------
+
 
 func (c *Channel) Members() []*Member {
 	if c.IsStoreChannel() {
@@ -331,4 +449,12 @@ func (c *Channel) IsModerator(member *Member) bool {
 
 func unsupportedChannelType(c *Channel) {
 	panic(fmt.Sprintf("unsupported ChannelType operation for '%d'", c.Type))
+}
+
+func channelMention(id discord.Snowflake) string {
+	return fmt.Sprintf("<#%s>", id)
+}
+
+func channelGuild(bot *Bot, guildID discord.Snowflake) *Guild {
+	return bot.Caches.GuildCache().Get(guildID)
 }

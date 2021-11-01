@@ -1,6 +1,8 @@
 package discord
 
-import "time"
+import (
+	"time"
+)
 
 type OptionalBool *bool
 
