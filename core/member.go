@@ -29,7 +29,7 @@ func (m *Member) InteractionPermissions() discord.Permissions {
 	return discord.PermissionsNone
 }
 
-func (m *Member) ChannelPermissions(channel *Channel) discord.Permissions {
+func (m *Member) ChannelPermissions(channel Channel) discord.Permissions {
 	return GetMemberPermissionsInChannel(channel, m)
 }
 

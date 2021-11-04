@@ -13,8 +13,8 @@ func NewThreadService(restClient Client) ThreadService {
 
 type ThreadService interface {
 	Service
-	CreateThreadWithMessage(channelID discord.Snowflake, messageID discord.Snowflake, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...RequestOpt) (thread *discord.Channel, err error)
-	CreateThread(channelID discord.Snowflake, threadCreate discord.ThreadCreate, opts ...RequestOpt) (thread *discord.Channel, err error)
+	CreateThreadWithMessage(channelID discord.Snowflake, messageID discord.Snowflake, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...RequestOpt) (thread discord.GuildThread, err error)
+	CreateThread(channelID discord.Snowflake, threadCreate discord.ThreadCreate, opts ...RequestOpt) (thread discord.GuildThread, err error)
 	JoinThread(threadID discord.Snowflake, opts ...RequestOpt) error
 	LeaveThread(threadID discord.Snowflake, opts ...RequestOpt) error
 	AddThreadMember(threadID discord.Snowflake, userID discord.Snowflake, opts ...RequestOpt) error
@@ -38,23 +38,31 @@ func (s *threadServiceImpl) RestClient() Client {
 	return s.restClient
 }
 
-func (s *threadServiceImpl) CreateThreadWithMessage(channelID discord.Snowflake, messageID discord.Snowflake, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...RequestOpt) (thread *discord.Channel, err error) {
+func (s *threadServiceImpl) CreateThreadWithMessage(channelID discord.Snowflake, messageID discord.Snowflake, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...RequestOpt) (thread discord.GuildThread, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateThreadWithMessage.Compile(nil, channelID, messageID)
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, threadCreateWithMessage, &thread, opts...)
+	var channel discord.UnmarshalChannel
+	err = s.restClient.Do(compiledRoute, threadCreateWithMessage, &channel, opts...)
+	if err == nil {
+		thread = channel.Channel.(discord.GuildThread)
+	}
 	return
 }
 
-func (s *threadServiceImpl) CreateThread(channelID discord.Snowflake, threadCreate discord.ThreadCreate, opts ...RequestOpt) (thread *discord.Channel, err error) {
+func (s *threadServiceImpl) CreateThread(channelID discord.Snowflake, threadCreate discord.ThreadCreate, opts ...RequestOpt) (thread discord.GuildThread, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateThread.Compile(nil, channelID)
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, threadCreate, &thread, opts...)
+	var channel discord.UnmarshalChannel
+	err = s.restClient.Do(compiledRoute, threadCreate, &channel, opts...)
+	if err == nil {
+		thread = channel.Channel.(discord.GuildThread)
+	}
 	return
 }
 

@@ -22,10 +22,7 @@ func GetMemberPermissions(member *Member) discord.Permissions {
 	return permissions
 }
 
-func GetMemberPermissionsInChannel(channel *Channel, member *Member) discord.Permissions {
-	if !channel.IsGuildChannel() {
-		unsupportedChannelType(channel)
-	}
+func GetMemberPermissionsInChannel(channel discord.GuildChannel, member *Member) discord.Permissions {
 	if channel.GuildID != member.GuildID {
 		panic("channel and member need to be part of the same guild")
 	}

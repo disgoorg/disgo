@@ -13,8 +13,8 @@ func NewChannelService(restClient Client) ChannelService {
 
 type ChannelService interface {
 	Service
-	GetChannel(channelID discord.Snowflake, opts ...RequestOpt) (*discord.Channel, error)
-	UpdateChannel(channelID discord.Snowflake, channelUpdate discord.ChannelUpdate, opts ...RequestOpt) (*discord.Channel, error)
+	GetChannel(channelID discord.Snowflake, opts ...RequestOpt) (discord.Channel, error)
+	UpdateChannel(channelID discord.Snowflake, channelUpdate discord.ChannelUpdate, opts ...RequestOpt) (discord.Channel, error)
 	DeleteChannel(channelID discord.Snowflake, opts ...RequestOpt) error
 
 	GetWebhooks(channelID discord.Snowflake, opts ...RequestOpt) ([]discord.Webhook, error)
@@ -48,23 +48,31 @@ func (s *channelServiceImpl) RestClient() Client {
 	return s.restClient
 }
 
-func (s *channelServiceImpl) GetChannel(channelID discord.Snowflake, opts ...RequestOpt) (channel *discord.Channel, err error) {
+func (s *channelServiceImpl) GetChannel(channelID discord.Snowflake, opts ...RequestOpt) (channel discord.Channel, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetChannel.Compile(nil, channelID)
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &channel, opts...)
+	var ch discord.UnmarshalChannel
+	err = s.restClient.Do(compiledRoute, nil, &ch, opts...)
+	if err == nil {
+		channel = ch.Channel
+	}
 	return
 }
 
-func (s *channelServiceImpl) UpdateChannel(channelID discord.Snowflake, channelUpdate discord.ChannelUpdate, opts ...RequestOpt) (channel *discord.Channel, err error) {
+func (s *channelServiceImpl) UpdateChannel(channelID discord.Snowflake, channelUpdate discord.ChannelUpdate, opts ...RequestOpt) (channel discord.Channel, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.UpdateChannel.Compile(nil, channelID)
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, channelUpdate, &channel, opts...)
+	var ch discord.UnmarshalChannel
+	err = s.restClient.Do(compiledRoute, channelUpdate, &ch, opts...)
+	if err == nil {
+		channel = ch.Channel
+	}
 	return
 }
 

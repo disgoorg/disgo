@@ -1,10 +1,5 @@
 package discord
 
-type Thread struct {
-	Channel
-	ThreadMember
-}
-
 type ThreadMember struct {
 	ID            Snowflake         `json:"id"`
 	UserID        Snowflake         `json:"user_id"`

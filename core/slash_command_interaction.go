@@ -82,7 +82,7 @@ func (i *SlashCommandInteraction) Guild() *Guild {
 }
 
 // Channel returns the Channel from the Caches
-func (i *SlashCommandInteraction) Channel() *Channel {
+func (i *SlashCommandInteraction) Channel() Channel {
 	return i.Bot.Caches.ChannelCache().Get(i.ChannelID)
 }
 
@@ -91,7 +91,7 @@ type SlashCommandResolved struct {
 	Users    map[discord.Snowflake]*User
 	Members  map[discord.Snowflake]*Member
 	Roles    map[discord.Snowflake]*Role
-	Channels map[discord.Snowflake]*Channel
+	Channels map[discord.Snowflake]Channel
 }
 
 type SlashCommandOptionsMap map[string]SlashCommandOption

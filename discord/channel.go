@@ -335,6 +335,7 @@ type GuildStoreChannel struct {
 	PermissionOverwrites   []PermissionOverwrite `json:"permission_overwrites"`
 	Name                   string                `json:"name"`
 	NSFW                   bool                  `json:"nsfw,omitempty"`
+	ParentID               *Snowflake            `json:"parent_id"`
 	InteractionPermissions Permissions           `json:"permissions,omitempty"`
 }
 

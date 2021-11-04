@@ -13,7 +13,7 @@ type ThreadCreate struct {
 }
 
 type GetThreads struct {
-	Threads []Channel `json:"threads"`
+	Threads []GuildThread `json:"threads"`
 	Members []Member  `json:"members"`
 	HasMore bool      `json:"has_more"`
 }

@@ -48,7 +48,7 @@ type EntityBuilder interface {
 	CreateAuditLog(guildID discord.Snowflake, auditLog discord.AuditLog, filterOptions AuditLogFilterOptions, updateCache CacheStrategy) *AuditLog
 	CreateIntegration(guildID discord.Snowflake, integration discord.Integration, updateCache CacheStrategy) *Integration
 
-	CreateChannel(channel discord.Channel, updateCache CacheStrategy) *Channel
+	CreateChannel(channel discord.Channel, updateCache CacheStrategy) discord.Channel
 
 	CreateInvite(invite discord.Invite, updateCache CacheStrategy) *Invite
 
@@ -159,7 +159,7 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 			Users:    map[discord.Snowflake]*User{},
 			Members:  map[discord.Snowflake]*Member{},
 			Roles:    map[discord.Snowflake]*Role{},
-			Channels: map[discord.Snowflake]*Channel{},
+			Channels: map[discord.Snowflake]Channel{},
 		}
 		slashCommandInteraction.Resolved = resolved
 		for id, user := range i.Data.Resolved.Users {
@@ -570,12 +570,12 @@ func (b *entityBuilderImpl) CreateWebhook(webhook discord.Webhook) *Webhook {
 }
 
 // CreateChannel returns a new Channel entity
-func (b *entityBuilderImpl) CreateChannel(channel discord.Channel, updateCache CacheStrategy) *Channel {
+func (b *entityBuilderImpl) CreateChannel(channel discord.Channel, updateCache CacheStrategy) discord.Channel {
 	coreChannel := &Channel{
 		Channel: channel,
 		Bot:     b.Bot(),
 	}
-	if channel.Type == discord.ChannelTypeGuildVoice || channel.Type == discord.ChannelTypeGuildStageVoice {
+	if channel.Type() == discord.ChannelTypeGuildVoice || channel.Type == discord.ChannelTypeGuildStageVoice {
 		coreChannel.ConnectedMemberIDs = map[discord.Snowflake]struct{}{}
 	}
 	if updateCache(b.Bot()) {
@@ -589,7 +589,9 @@ func (b *entityBuilderImpl) CreateStageInstance(stageInstance discord.StageInsta
 	coreStageInstance := &StageInstance{StageInstance: stageInstance, Bot: b.Bot()}
 
 	if channel := b.Bot().Caches.ChannelCache().Get(stageInstance.ChannelID); channel != nil {
-		channel.StageInstanceID = &stageInstance.ID
+		if ch, ok := channel.(*GuildStageVoiceChannel); ok {
+			ch.StageInstanceID = &stageInstance.ID
+		}
 	}
 
 	if updateCache(b.Bot()) {
