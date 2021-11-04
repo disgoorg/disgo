@@ -64,19 +64,22 @@ type Message struct {
 	Stickers          []MessageSticker    `json:"sticker_items,omitempty"`
 	ReferencedMessage *Message            `json:"referenced_message,omitempty"`
 	LastUpdated       *Time               `json:"last_updated,omitempty"`
-	Thread            Thread              `json:"thread,omitempty"`
+	Thread            GuildThread         `json:"thread,omitempty"`
 }
 
 func (m *Message) UnmarshalJSON(data []byte) error {
 	type message Message
 	var msg struct {
-		message
 		Components []unmarshalComponent `json:"components"`
+		Thread     *UnmarshalChannel    `json:"thread"`
+		message
 	}
 
 	if err := json.Unmarshal(data, &msg); err != nil {
 		return err
 	}
+
+	*m = Message(msg.message)
 
 	if len(msg.Components) > 0 {
 		m.Components = make([]Component, len(msg.Components))
@@ -85,7 +88,9 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 		}
 	}
 
-	*m = Message(msg.message)
+	if msg.Thread != nil {
+		m.Thread = msg.Thread.Channel.(GuildThread)
+	}
 
 	return nil
 }

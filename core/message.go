@@ -16,12 +16,12 @@ type Message struct {
 	Stickers []*MessageSticker
 }
 
-func (m *Message) CreateThread(threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (*Channel, error) {
+func (m *Message) CreateThread(threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (GuildThread, error) {
 	channel, err := m.Bot.RestServices.ThreadService().CreateThreadWithMessage(m.ChannelID, m.ID, threadCreateWithMessage, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return m.Bot.EntityBuilder.CreateChannel(*channel, CacheStrategyNo), nil
+	return m.Bot.EntityBuilder.CreateChannel(channel.(discord.Channel), CacheStrategyNo).(GuildThread), nil
 }
 
 // Guild gets the guild_events the message_events was sent in
@@ -33,7 +33,7 @@ func (m *Message) Guild() *Guild {
 }
 
 // Channel gets the channel the message_events was sent in
-func (m *Message) Channel() *Channel {
+func (m *Message) Channel() Channel {
 	return m.Bot.Caches.ChannelCache().Get(m.ChannelID)
 }
 
@@ -64,7 +64,7 @@ func (m *Message) Delete(opts ...rest.RequestOpt) error {
 // Crosspost crossposts an existing message
 func (m *Message) Crosspost(opts ...rest.RequestOpt) (*Message, error) {
 	channel := m.Channel()
-	if channel != nil && channel.IsNewsChannel() {
+	if channel != nil && channel.Type() == discord.ChannelTypeGuildNews {
 		return nil, discord.ErrChannelNotTypeNews
 	}
 	message, err := m.Bot.RestServices.ChannelService().CrosspostMessage(m.ChannelID, m.ID, opts...)

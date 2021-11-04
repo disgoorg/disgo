@@ -145,6 +145,22 @@ type GuildTextChannel struct {
 	InteractionPermissions     Permissions           `json:"permissions,omitempty"`
 }
 
+func (c *GuildTextChannel) UnmarshalJSON(data []byte) error {
+	type guildTextChannel GuildTextChannel
+	var v struct {
+		PermissionOverwrites []UnmarshalPermissionOverwrite `json:"permission_overwrites"`
+		guildTextChannel
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*c = GuildTextChannel(v.guildTextChannel)
+	c.PermissionOverwrites = parsePermissionOverwrites(v.PermissionOverwrites)
+	return nil
+}
+
 func (c GuildTextChannel) MarshalJSON() ([]byte, error) {
 	type guildTextChannel GuildTextChannel
 	return json.Marshal(struct {
@@ -212,6 +228,22 @@ type GuildVoiceChannel struct {
 	InteractionPermissions Permissions           `json:"permissions,omitempty"`
 }
 
+func (c *GuildVoiceChannel) UnmarshalJSON(data []byte) error {
+	type guildVoiceChannel GuildVoiceChannel
+	var v struct {
+		PermissionOverwrites []UnmarshalPermissionOverwrite `json:"permission_overwrites"`
+		guildVoiceChannel
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*c = GuildVoiceChannel(v.guildVoiceChannel)
+	c.PermissionOverwrites = parsePermissionOverwrites(v.PermissionOverwrites)
+	return nil
+}
+
 func (c GuildVoiceChannel) MarshalJSON() ([]byte, error) {
 	type guildVoiceChannel GuildVoiceChannel
 	return json.Marshal(struct {
@@ -274,6 +306,22 @@ type GuildCategoryChannel struct {
 	InteractionPermissions Permissions           `json:"permissions,omitempty"`
 }
 
+func (c *GuildCategoryChannel) UnmarshalJSON(data []byte) error {
+	type guildCategoryChannel GuildCategoryChannel
+	var v struct {
+		PermissionOverwrites []UnmarshalPermissionOverwrite `json:"permission_overwrites"`
+		guildCategoryChannel
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*c = GuildCategoryChannel(v.guildCategoryChannel)
+	c.PermissionOverwrites = parsePermissionOverwrites(v.PermissionOverwrites)
+	return nil
+}
+
 func (c GuildCategoryChannel) MarshalJSON() ([]byte, error) {
 	type guildCategoryChannel GuildCategoryChannel
 	return json.Marshal(struct {
@@ -311,6 +359,22 @@ type GuildNewsChannel struct {
 	InteractionPermissions     Permissions           `json:"permissions,omitempty"`
 }
 
+func (c *GuildNewsChannel) UnmarshalJSON(data []byte) error {
+	type guildNewsChannel GuildNewsChannel
+	var v struct {
+		PermissionOverwrites []UnmarshalPermissionOverwrite `json:"permission_overwrites"`
+		guildNewsChannel
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*c = GuildNewsChannel(v.guildNewsChannel)
+	c.PermissionOverwrites = parsePermissionOverwrites(v.PermissionOverwrites)
+	return nil
+}
+
 func (c GuildNewsChannel) MarshalJSON() ([]byte, error) {
 	type guildNewsChannel GuildNewsChannel
 	return json.Marshal(struct {
@@ -337,6 +401,22 @@ type GuildStoreChannel struct {
 	NSFW                   bool                  `json:"nsfw,omitempty"`
 	ParentID               *Snowflake            `json:"parent_id"`
 	InteractionPermissions Permissions           `json:"permissions,omitempty"`
+}
+
+func (c *GuildStoreChannel) UnmarshalJSON(data []byte) error {
+	type guildStoreChannel GuildStoreChannel
+	var v struct {
+		PermissionOverwrites []UnmarshalPermissionOverwrite `json:"permission_overwrites"`
+		guildStoreChannel
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*c = GuildStoreChannel(v.guildStoreChannel)
+	c.PermissionOverwrites = parsePermissionOverwrites(v.PermissionOverwrites)
+	return nil
 }
 
 func (c GuildStoreChannel) MarshalJSON() ([]byte, error) {
@@ -466,6 +546,22 @@ type GuildStageVoiceChannel struct {
 	InteractionPermissions Permissions           `json:"permissions,omitempty"`
 }
 
+func (c *GuildStageVoiceChannel) UnmarshalJSON(data []byte) error {
+	type guildStageVoiceChannel GuildStageVoiceChannel
+	var v struct {
+		PermissionOverwrites []UnmarshalPermissionOverwrite `json:"permission_overwrites"`
+		guildStageVoiceChannel
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*c = GuildStageVoiceChannel(v.guildStageVoiceChannel)
+	c.PermissionOverwrites = parsePermissionOverwrites(v.PermissionOverwrites)
+	return nil
+}
+
 func (c GuildStageVoiceChannel) MarshalJSON() ([]byte, error) {
 	type guildStageVoiceChannel GuildStageVoiceChannel
 	return json.Marshal(struct {
@@ -523,4 +619,12 @@ type PartialChannel struct {
 // This will be nil for every discord.ChannelType except discord.ChannelTypeGroupDM
 func (c *PartialChannel) GetIconURL(size int) *string {
 	return FormatAssetURL(route.ChannelIcon, c.ID, c.Icon, size)
+}
+
+func parsePermissionOverwrites(unmarshalOverwrites []UnmarshalPermissionOverwrite) []PermissionOverwrite {
+	overwrites := make([]PermissionOverwrite, len(unmarshalOverwrites))
+	for i := range unmarshalOverwrites {
+		overwrites[i] = unmarshalOverwrites[i].PermissionOverwrite
+	}
+	return overwrites
 }

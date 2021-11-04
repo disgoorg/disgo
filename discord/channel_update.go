@@ -1,7 +1,6 @@
 package discord
 
 type ChannelUpdate interface {
-	Type() ChannelType
 	channelUpdate()
 }
 
@@ -97,7 +96,3 @@ type GuildStageVoiceChannelUpdate struct {
 }
 
 func (_ GuildStageVoiceChannelUpdate) channelUpdate() {}
-
-func (_ GuildStageVoiceChannelUpdate) Type() ChannelType {
-	return ChannelTypeGuildStageVoice
-}

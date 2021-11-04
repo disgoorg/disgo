@@ -61,7 +61,7 @@ func (i *AutocompleteInteraction) Guild() *Guild {
 }
 
 // Channel returns the Channel from the Caches
-func (i *AutocompleteInteraction) Channel() *Channel {
+func (i *AutocompleteInteraction) Channel() Channel {
 	return i.Bot.Caches.ChannelCache().Get(i.ChannelID)
 }
 
