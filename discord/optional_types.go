@@ -63,3 +63,15 @@ func NewNullIcon() *OptionalIcon {
 	oi := OptionalIcon(nil)
 	return &oi
 }
+
+type OptionalFloat *float64
+
+func NewOptionalFloat(float float64) *OptionalFloat {
+	ofloat := OptionalFloat(&float)
+	return &ofloat
+}
+
+func NewNullFloat() *OptionalFloat {
+	ofloat := OptionalFloat(nil)
+	return &ofloat
+}
