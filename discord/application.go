@@ -6,25 +6,24 @@ import (
 )
 
 type Application struct {
-	ID                  Snowflake  `json:"id"`
-	Name                string     `json:"name"`
-	Icon                *string    `json:"icon,omitempty"`
-	Description         string     `json:"description"`
-	RPCOrigins          []string   `json:"rpc_origins"`
-	BotPublic           bool       `json:"bot_public"`
-	BotRequireCodeGrant bool       `json:"bot_require_code_grant"`
-	TermsOfServiceURL   *string    `json:"terms_of_service_url,omitempty"`
-	PrivacyPolicyURL    *string    `json:"privacy_policy_url,omitempty"`
-	Owner               *User      `json:"owner,omitempty"`
-	Summary             string     `json:"summary"`
-	VerifyKey           string     `json:"verify_key"`
-	Team                *Team      `json:"team,omitempty"`
-	GuildID             *Snowflake `json:"guild_id,omitempty"`
-	PrimarySkuID        *Snowflake `json:"primary_sku_id,omitempty"`
-	Slug                *string    `json:"slug,omitempty"`
-	CoverImage          *string    `json:"cover_image,omitempty"`
-	// Flags are not present in the /oauth2/applications/@me route
-	//Flags               ApplicationFlags `json:"flags,omitempty"`
+	ID                  Snowflake        `json:"id"`
+	Name                string           `json:"name"`
+	Icon                *string          `json:"icon,omitempty"`
+	Description         string           `json:"description"`
+	RPCOrigins          []string         `json:"rpc_origins"`
+	BotPublic           bool             `json:"bot_public"`
+	BotRequireCodeGrant bool             `json:"bot_require_code_grant"`
+	TermsOfServiceURL   *string          `json:"terms_of_service_url,omitempty"`
+	PrivacyPolicyURL    *string          `json:"privacy_policy_url,omitempty"`
+	Owner               *User            `json:"owner,omitempty"`
+	Summary             string           `json:"summary"`
+	VerifyKey           string           `json:"verify_key"`
+	Team                *Team            `json:"team,omitempty"`
+	GuildID             *Snowflake       `json:"guild_id,omitempty"`
+	PrimarySkuID        *Snowflake       `json:"primary_sku_id,omitempty"`
+	Slug                *string          `json:"slug,omitempty"`
+	CoverImage          *string          `json:"cover_image,omitempty"`
+	Flags               ApplicationFlags `json:"flags,omitempty"`
 }
 
 type PartialApplication struct {
