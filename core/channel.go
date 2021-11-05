@@ -954,3 +954,135 @@ func updateChannel(bot *Bot, channelID discord.Snowflake, channelUpdate discord.
 func deleteChannel(bot *Bot, channelID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return bot.RestServices.ChannelService().DeleteChannel(channelID, opts...)
 }
+
+func ChannelID(channel Channel) discord.Snowflake {
+	if channel == nil {
+		return ""
+	}
+	switch ch := channel.(type) {
+	case *GuildTextChannel:
+		return ch.ID
+
+	case *DMChannel:
+		return ch.ID
+
+	case *GuildVoiceChannel:
+		return ch.ID
+
+	case *GroupDMChannel:
+		return ch.ID
+
+	case *GuildCategoryChannel:
+		return ch.ID
+
+	case *GuildNewsChannel:
+		return ch.ID
+
+	case *GuildStoreChannel:
+		return ch.ID
+
+	case *GuildNewsThread:
+		return ch.ID
+
+	case *GuildPrivateThread:
+		return ch.ID
+
+	case *GuildPublicThread:
+		return ch.ID
+
+	case *GuildStageVoiceChannel:
+		return ch.ID
+
+	default:
+		panic("unknown channel type")
+	}
+}
+
+func GuildID(channel GuildChannel) discord.Snowflake {
+	if channel == nil {
+		return ""
+	}
+	switch ch := channel.(type) {
+	case *GuildTextChannel:
+		return ch.GuildID
+
+	case *GuildVoiceChannel:
+		return ch.GuildID
+
+	case *GuildCategoryChannel:
+		return ch.GuildID
+
+	case *GuildNewsChannel:
+		return ch.GuildID
+
+	case *GuildStoreChannel:
+		return ch.GuildID
+
+	case *GuildNewsThread:
+		return ch.GuildID
+
+	case *GuildPrivateThread:
+		return ch.GuildID
+
+	case *GuildPublicThread:
+		return ch.GuildID
+
+	case *GuildStageVoiceChannel:
+		return ch.GuildID
+
+	default:
+		panic("unknown channel type")
+	}
+}
+
+func PermissionOverwrite(channel GuildChannel, overwriteType discord.PermissionOverwriteType, id discord.Snowflake) discord.PermissionOverwrite {
+	if channel == nil {
+		return nil
+	}
+	var overwrites []discord.PermissionOverwrite
+	switch ch := channel.(type) {
+	case *GuildTextChannel:
+		overwrites = ch.PermissionOverwrites
+
+	case *GuildVoiceChannel:
+		overwrites = ch.PermissionOverwrites
+
+	case *GuildNewsChannel:
+		overwrites = ch.PermissionOverwrites
+
+	case *GuildStoreChannel:
+		overwrites = ch.PermissionOverwrites
+
+	case *GuildNewsThread:
+		overwrites = ch.Parent().PermissionOverwrites
+
+	case *GuildPrivateThread:
+		overwrites = ch.Parent().PermissionOverwrites
+
+	case *GuildPublicThread:
+		overwrites = ch.Parent().PermissionOverwrites
+
+	case *GuildStageVoiceChannel:
+		overwrites = ch.PermissionOverwrites
+
+	default:
+		panic("unknown channel type")
+	}
+	return getPermissionOverwrite(overwrites, overwriteType, id)
+}
+
+func RolePermissionOverwrite(channel GuildChannel, id discord.Snowflake) *discord.RolePermissionOverwrite {
+	if overwrite := PermissionOverwrite(channel, discord.PermissionOverwriteTypeRole, id); overwrite != nil {
+		o := overwrite.(discord.RolePermissionOverwrite)
+		return &o
+	}
+	return nil
+}
+
+func MemberPermissionOverwrite(channel GuildChannel, id discord.Snowflake) *discord.MemberPermissionOverwrite {
+	if overwrite := PermissionOverwrite(channel, discord.PermissionOverwriteTypeMember, id); overwrite != nil {
+		o := overwrite.(discord.MemberPermissionOverwrite)
+		return &o
+	}
+	return nil
+}

@@ -47,7 +47,7 @@ type SlashCommandOptionChannel struct {
 	Resolved *SlashCommandResolved
 }
 
-func (o SlashCommandOptionChannel) Channel() *Channel {
+func (o SlashCommandOptionChannel) Channel() Channel {
 	return o.Resolved.Channels[o.Value]
 }
 

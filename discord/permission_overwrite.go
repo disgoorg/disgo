@@ -18,10 +18,10 @@ const (
 
 var permissionOverwrites = map[PermissionOverwriteType]func() PermissionOverwrite{
 	PermissionOverwriteTypeRole: func() PermissionOverwrite {
-		return &RolePermissionOverwrite{}
+		return RolePermissionOverwrite{}
 	},
 	PermissionOverwriteTypeMember: func() PermissionOverwrite {
-		return &MemberPermissionOverwrite{}
+		return MemberPermissionOverwrite{}
 	},
 }
 
@@ -93,18 +93,18 @@ func (o MemberPermissionOverwrite) ID() Snowflake {
 	return o.UserID
 }
 
-func (u MemberPermissionOverwrite) MarshalJSON() ([]byte, error) {
+func (o MemberPermissionOverwrite) MarshalJSON() ([]byte, error) {
 	type memberPermissionOverwrite MemberPermissionOverwrite
 	return json.Marshal(struct {
 		Type PermissionOverwriteType
 		memberPermissionOverwrite
 	}{
-		Type:                      u.Type(),
-		memberPermissionOverwrite: memberPermissionOverwrite(u),
+		Type:                      o.Type(),
+		memberPermissionOverwrite: memberPermissionOverwrite(o),
 	})
 }
 
-func (_ MemberPermissionOverwrite) Type() PermissionOverwriteType {
+func (o MemberPermissionOverwrite) Type() PermissionOverwriteType {
 	return PermissionOverwriteTypeMember
 }
 

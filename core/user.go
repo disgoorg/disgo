@@ -60,11 +60,11 @@ func (u *User) getAssetURL(cdnRoute *route.CDNRoute, assetId *string, size int) 
 }
 
 // OpenDMChannel creates a DMChannel between the user and the Disgo client
-func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (*Channel, error) {
+func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (*DMChannel, error) {
 	channel, err := u.Bot.RestServices.UserService().CreateDMChannel(u.ID, opts...)
 	if err != nil {
 		return nil, err
 	}
 	// TODO: should we caches it here? or do we get a gateway event?
-	return u.Bot.EntityBuilder.CreateChannel(*channel, CacheStrategyYes), nil
+	return u.Bot.EntityBuilder.CreateChannel(*channel, CacheStrategyYes).(*DMChannel), nil
 }

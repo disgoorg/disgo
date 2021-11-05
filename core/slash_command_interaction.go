@@ -212,7 +212,7 @@ func (m SlashCommandOptionsMap) ChannelOption(name string) *SlashCommandOptionCh
 	return nil
 }
 
-func (m SlashCommandOptionsMap) Channel(name string) *Channel {
+func (m SlashCommandOptionsMap) Channel(name string) Channel {
 	option := m.ChannelOption(name)
 	if option == nil {
 		return nil

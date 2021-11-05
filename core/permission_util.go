@@ -23,7 +23,8 @@ func GetMemberPermissions(member *Member) discord.Permissions {
 }
 
 func GetMemberPermissionsInChannel(channel discord.GuildChannel, member *Member) discord.Permissions {
-	if channel.GuildID != member.GuildID {
+	guildID := GuildID(channel)
+	if guildID != member.GuildID {
 		panic("channel and member need to be part of the same guild")
 	}
 
@@ -39,7 +40,7 @@ func GetMemberPermissionsInChannel(channel discord.GuildChannel, member *Member)
 		allowRaw discord.Permissions
 		denyRaw  discord.Permissions
 	)
-	if overwrite := channel.PermissionOverwrite(discord.PermissionOverwriteTypeRole, channel.GuildID); overwrite != nil {
+	if overwrite := RolePermissionOverwrite(channel, guildID); overwrite != nil {
 		allowRaw = overwrite.Allow
 		denyRaw = overwrite.Deny
 	}
@@ -49,11 +50,11 @@ func GetMemberPermissionsInChannel(channel discord.GuildChannel, member *Member)
 		denyRole  discord.Permissions
 	)
 	for _, roleID := range member.RoleIDs {
-		if roleID == channel.GuildID {
+		if roleID == guildID {
 			continue
 		}
 
-		overwrite := channel.PermissionOverwrite(discord.PermissionOverwriteTypeRole, roleID)
+		overwrite := RolePermissionOverwrite(channel, roleID)
 		if overwrite == nil {
 			break
 		}
@@ -64,7 +65,7 @@ func GetMemberPermissionsInChannel(channel discord.GuildChannel, member *Member)
 	allowRaw = (allowRaw & (denyRole - 1)) | allowRole
 	denyRaw = (denyRaw & (allowRole - 1)) | denyRole
 
-	if overwrite := channel.PermissionOverwrite(discord.PermissionOverwriteTypeMember, member.ID); overwrite != nil {
+	if overwrite := MemberPermissionOverwrite(channel, member.ID); overwrite != nil {
 		allowRaw = (allowRaw & (overwrite.Deny - 1)) | overwrite.Allow
 		denyRaw = (denyRaw & (overwrite.Allow - 1)) | overwrite.Deny
 	}

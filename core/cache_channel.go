@@ -1,6 +1,8 @@
 package core
 
 import (
+	"unsafe"
+
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -46,12 +48,50 @@ func (c *channelCacheImpl) Set(channel Channel) Channel {
 	if c.cacheFlags.Missing(getCacheFLagForChannelType(channel.Type())) {
 		return channel
 	}
-	ch, ok := c.channels[channel.ID]
+	cID := ChannelID(channel)
+	ch, ok := c.channels[cID]
 	if ok {
-		*ch = *channel
+		switch chl := channel.(type) {
+		case *GuildTextChannel:
+			ptr := unsafe.Pointer(ch)
+			*ptr = *chl
+
+		case *DMChannel:
+			return ch.ID
+
+		case *GuildVoiceChannel:
+			return ch.ID
+
+		case *GroupDMChannel:
+			return ch.ID
+
+		case *GuildCategoryChannel:
+			return ch.ID
+
+		case *GuildNewsChannel:
+			return ch.ID
+
+		case *GuildStoreChannel:
+			return ch.ID
+
+		case *GuildNewsThread:
+			return ch.ID
+
+		case *GuildPrivateThread:
+			return ch.ID
+
+		case *GuildPublicThread:
+			return ch.ID
+
+		case *GuildStageVoiceChannel:
+			return ch.ID
+
+		default:
+			panic("unknown channel type")
+		}
 		return ch
 	}
-	c.channels[channel.ID] = channel
+	c.channels[cID] = channel
 	return channel
 }
 

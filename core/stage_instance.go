@@ -14,13 +14,20 @@ func (i *StageInstance) Guild() *Guild {
 	return i.Bot.Caches.GuildCache().Get(i.GuildID)
 }
 
-func (i *StageInstance) Channel() *Channel {
-	return i.Bot.Caches.ChannelCache().Get(i.ChannelID)
+func (i *StageInstance) Channel() *GuildStageVoiceChannel {
+	if ch := i.Bot.Caches.ChannelCache().Get(i.ChannelID); ch != nil {
+		return ch.(*GuildStageVoiceChannel)
+	}
+	return nil
 }
 
 func (i *StageInstance) GetSpeakers() []*Member {
+	ch := i.Channel()
+	if ch == nil {
+		return nil
+	}
 	var speakers []*Member
-	for _, member := range i.Channel().Members() {
+	for _, member := range ch.Members() {
 		if member.VoiceState() != nil && !member.VoiceState().Suppress {
 			speakers = append(speakers)
 		}
@@ -29,8 +36,12 @@ func (i *StageInstance) GetSpeakers() []*Member {
 }
 
 func (i *StageInstance) GetListeners() []*Member {
+	ch := i.Channel()
+	if ch == nil {
+		return nil
+	}
 	var listeners []*Member
-	for _, member := range i.Channel().Members() {
+	for _, member := range ch.Members() {
 		if member.VoiceState() != nil && member.VoiceState().Suppress {
 			listeners = append(listeners)
 		}

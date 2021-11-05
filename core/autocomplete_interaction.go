@@ -183,7 +183,7 @@ func (m AutocompleteOptionsMap) ChannelOption(name string) *SlashCommandOptionCh
 	return nil
 }
 
-func (m AutocompleteOptionsMap) Channel(name string) *Channel {
+func (m AutocompleteOptionsMap) Channel(name string) Channel {
 	option := m.ChannelOption(name)
 	if option == nil {
 		return nil
