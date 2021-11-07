@@ -160,7 +160,7 @@ func (d *SlashCommandInteractionData) UnmarshalJSON(data []byte) error {
 	type slashCommandInteractionData SlashCommandInteractionData
 	var iData struct {
 		slashCommandInteractionData
-		Options []unmarshalSlashCommandOption `json:"options"`
+		Options []UnmarshalSlashCommandOption `json:"options"`
 	}
 
 	if err := json.Unmarshal(data, &iData); err != nil {
@@ -321,7 +321,7 @@ func (d *AutocompleteInteractionData) UnmarshalJSON(data []byte) error {
 	type autocompleteInteractionData AutocompleteInteractionData
 	var iData struct {
 		autocompleteInteractionData
-		Options []unmarshalAutocompleteOption `json:"options"`
+		Options []UnmarshalAutocompleteOption `json:"options"`
 	}
 
 	if err := json.Unmarshal(data, &iData); err != nil {

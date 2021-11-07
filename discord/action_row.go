@@ -23,7 +23,7 @@ func (r ActionRowComponent) MarshalJSON() ([]byte, error) {
 
 func (r *ActionRowComponent) UnmarshalJSON(data []byte) error {
 	var actionRow struct {
-		Components []unmarshalComponent `json:"components"`
+		Components []UnmarshalComponent `json:"components"`
 	}
 
 	if err := json.Unmarshal(data, &actionRow); err != nil {

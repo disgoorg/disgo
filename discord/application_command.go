@@ -18,6 +18,7 @@ const (
 type ApplicationCommand interface {
 	json.Marshaler
 	Type() ApplicationCommandType
+	applicationCommand()
 }
 
 type UnmarshalApplicationCommand struct {
@@ -115,6 +116,8 @@ func (_ SlashCommand) Type() ApplicationCommandType {
 	return ApplicationCommandTypeSlash
 }
 
+func (_ SlashCommand) applicationCommand() {}
+
 type UserCommand struct {
 	ID                Snowflake  `json:"id"`
 	ApplicationID     Snowflake  `json:"application_id"`
@@ -140,6 +143,8 @@ func (c UserCommand) Type() ApplicationCommandType {
 	return ApplicationCommandTypeUser
 }
 
+func (_ UserCommand) applicationCommand() {}
+
 type MessageCommand struct {
 	ID                Snowflake  `json:"id"`
 	ApplicationID     Snowflake  `json:"application_id"`
@@ -164,3 +169,5 @@ func (c MessageCommand) MarshalJSON() ([]byte, error) {
 func (_ MessageCommand) Type() ApplicationCommandType {
 	return ApplicationCommandTypeMessage
 }
+
+func (_ MessageCommand) applicationCommand() {}

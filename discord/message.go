@@ -70,7 +70,7 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 	type message Message
 	var msg struct {
 		message
-		Components []unmarshalComponent `json:"components"`
+		Components []UnmarshalComponent `json:"components"`
 	}
 
 	if err := json.Unmarshal(data, &msg); err != nil {
