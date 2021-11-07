@@ -10,11 +10,11 @@ type SlashCommandOption interface {
 	Type() ApplicationCommandOptionType
 }
 
-type unmarshalSlashCommandOption struct {
+type UnmarshalSlashCommandOption struct {
 	SlashCommandOption
 }
 
-func (o unmarshalSlashCommandOption) UnmarshalJSON(data []byte) error {
+func (o UnmarshalSlashCommandOption) UnmarshalJSON(data []byte) error {
 	var oType struct {
 		Type ApplicationCommandOptionType `json:"type"`
 	}

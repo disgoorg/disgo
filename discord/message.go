@@ -70,7 +70,7 @@ type Message struct {
 func (m *Message) UnmarshalJSON(data []byte) error {
 	type message Message
 	var msg struct {
-		Components []unmarshalComponent `json:"components"`
+		Components []UnmarshalComponent `json:"components"`
 		Thread     *UnmarshalChannel    `json:"thread"`
 		message
 	}

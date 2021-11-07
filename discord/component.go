@@ -22,11 +22,11 @@ type Component interface {
 	Type() ComponentType
 }
 
-type unmarshalComponent struct {
+type UnmarshalComponent struct {
 	Component
 }
 
-func (u *unmarshalComponent) UnmarshalJSON(data []byte) error {
+func (u *UnmarshalComponent) UnmarshalJSON(data []byte) error {
 	var cType struct {
 		Type ComponentType `json:"type"`
 	}

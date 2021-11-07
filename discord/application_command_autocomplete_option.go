@@ -43,11 +43,11 @@ type AutocompleteOption interface {
 	Type() ApplicationCommandOptionType
 }
 
-type unmarshalAutocompleteOption struct {
+type UnmarshalAutocompleteOption struct {
 	AutocompleteOption
 }
 
-func (o unmarshalAutocompleteOption) UnmarshalJSON(data []byte) error {
+func (o UnmarshalAutocompleteOption) UnmarshalJSON(data []byte) error {
 	var oType struct {
 		Type ApplicationCommandOptionType `json:"type"`
 	}
