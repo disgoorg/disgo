@@ -9,5 +9,5 @@ import (
 type GenericChannelEvent struct {
 	*GenericEvent
 	ChannelID discord.Snowflake
-	Channel   *core.Channel
+	Channel   core.Channel
 }

@@ -32,12 +32,12 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 	guild := bot.EntityBuilder.CreateGuild(payload.Guild, core.CacheStrategyYes)
 
 	for _, channel := range payload.Channels {
-		channel.GuildID = payload.ID
+		setGuildID(channel, payload.ID)
 		bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes)
 	}
 
 	for _, thread := range payload.Threads {
-		thread.GuildID = guild.ID
+		setGuildID(thread, payload.ID)
 		bot.EntityBuilder.CreateChannel(thread, core.CacheStrategyYes)
 	}
 
@@ -54,7 +54,11 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 		voiceState.GuildID = payload.ID // populate unset field
 		vs := bot.EntityBuilder.CreateVoiceState(voiceState, core.CacheStrategyYes)
 		if channel := vs.Channel(); channel != nil {
-			channel.ConnectedMemberIDs[voiceState.UserID] = struct{}{}
+			if ch, ok := channel.(*core.GuildVoiceChannel); ok {
+				ch.ConnectedMemberIDs[voiceState.UserID] = struct{}{}
+			} else if ch, ok := channel.(*core.GuildStageVoiceChannel); ok {
+				ch.ConnectedMemberIDs[voiceState.UserID] = struct{}{}
+			}
 		}
 	}
 
@@ -104,5 +108,36 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 		bot.EventManager.Dispatch(&events.GuildJoinEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
+	}
+}
+
+func setGuildID(channel discord.GuildChannel, guildID discord.Snowflake) {
+	switch ch := channel.(type) {
+	case discord.GuildTextChannel:
+		ch.GuildID = guildID
+
+	case discord.GuildVoiceChannel:
+		ch.GuildID = guildID
+
+	case discord.GuildCategoryChannel:
+		ch.GuildID = guildID
+
+	case discord.GuildNewsChannel:
+		ch.GuildID = guildID
+
+	case discord.GuildStoreChannel:
+		ch.GuildID = guildID
+
+	case discord.GuildNewsThread:
+		ch.GuildID = guildID
+
+	case discord.GuildPrivateThread:
+		ch.GuildID = guildID
+
+	case discord.GuildPublicThread:
+		ch.GuildID = guildID
+
+	case discord.GuildStageVoiceChannel:
+		ch.GuildID = guildID
 	}
 }

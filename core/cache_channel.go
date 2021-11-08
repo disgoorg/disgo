@@ -1,8 +1,6 @@
 package core
 
 import (
-	"unsafe"
-
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -38,8 +36,8 @@ func (c *channelCacheImpl) Get(channelID discord.Snowflake) Channel {
 
 func (c *channelCacheImpl) GetCopy(channelID discord.Snowflake) Channel {
 	if channel := c.Get(channelID); channel != nil {
-		ch := channel
-		return ch
+		ch := &channel
+		return *ch
 	}
 	return nil
 }
@@ -51,44 +49,7 @@ func (c *channelCacheImpl) Set(channel Channel) Channel {
 	cID := ChannelID(channel)
 	ch, ok := c.channels[cID]
 	if ok {
-		switch chl := channel.(type) {
-		case *GuildTextChannel:
-			ptr := unsafe.Pointer(ch)
-			*ptr = *chl
-
-		case *DMChannel:
-			return ch.ID
-
-		case *GuildVoiceChannel:
-			return ch.ID
-
-		case *GroupDMChannel:
-			return ch.ID
-
-		case *GuildCategoryChannel:
-			return ch.ID
-
-		case *GuildNewsChannel:
-			return ch.ID
-
-		case *GuildStoreChannel:
-			return ch.ID
-
-		case *GuildNewsThread:
-			return ch.ID
-
-		case *GuildPrivateThread:
-			return ch.ID
-
-		case *GuildPublicThread:
-			return ch.ID
-
-		case *GuildStageVoiceChannel:
-			return ch.ID
-
-		default:
-			panic("unknown channel type")
-		}
+		ch = ch.set(channel)
 		return ch
 	}
 	c.channels[cID] = channel

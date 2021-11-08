@@ -18,7 +18,7 @@ type DMChannelCreateEvent struct {
 // DMChannelUpdateEvent indicates that an core.DMChannel got updated
 type DMChannelUpdateEvent struct {
 	*GenericDMChannelEvent
-	OldChannel *core.Channel
+	OldChannel core.Channel
 }
 
 type DMChannelPinsUpdateEvent struct {
@@ -39,6 +39,9 @@ type DMChannelUserTypingEvent struct {
 }
 
 // DMChannel returns the core.DMChannel the DMChannelUserTypingEvent happened in
-func (e DMChannelUserTypingEvent) DMChannel() *core.Channel {
-	return e.Bot().Caches.ChannelCache().Get(e.ChannelID)
+func (e DMChannelUserTypingEvent) DMChannel() *core.DMChannel {
+	if ch := e.Bot().Caches.ChannelCache().Get(e.ChannelID); ch != nil {
+		return ch.(*core.DMChannel)
+	}
+	return nil
 }

@@ -16,23 +16,24 @@ func (h *gatewayHandlerChannelCreate) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerChannelCreate) New() interface{} {
-	return &discord.Channel{}
+	return &discord.UnmarshalChannel{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerChannelCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
-	channel := *v.(*discord.Channel)
+	channel := v.(*discord.UnmarshalChannel).Channel
+	channelID := discord.ChannelID(channel)
 
 	genericChannelEvent := &events.GenericChannelEvent{
 		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-		ChannelID:    channel.ID,
+		ChannelID:    channelID,
 		Channel:      bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes),
 	}
 
-	if channel.GuildID != "" {
+	if ch, ok := channel.(discord.GuildChannel); ok {
 		bot.EventManager.Dispatch(&events.GuildChannelCreateEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
-				GuildID:             channel.GuildID,
+				GuildID:             discord.GuildID(ch),
 				GenericChannelEvent: genericChannelEvent,
 			},
 		})

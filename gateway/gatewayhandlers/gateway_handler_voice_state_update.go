@@ -33,13 +33,22 @@ func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(bot *core.Bot, seque
 
 	if oldVoiceState != nil && oldVoiceState.ChannelID != nil {
 		if channel := bot.Caches.ChannelCache().Get(*oldVoiceState.ChannelID); channel != nil {
-			delete(channel.ConnectedMemberIDs, coreVoiceState.UserID)
+			if ch, ok := channel.(*core.GuildVoiceChannel); ok {
+				delete(ch.ConnectedMemberIDs, coreVoiceState.UserID)
+			} else if ch, ok := channel.(*core.GuildStageVoiceChannel); ok {
+				delete(ch.ConnectedMemberIDs, coreVoiceState.UserID)
+			}
 		}
 	}
 
 	if coreVoiceState.ChannelID != nil {
 		if channel := bot.Caches.ChannelCache().Get(*coreVoiceState.ChannelID); channel != nil {
-			channel.ConnectedMemberIDs[coreVoiceState.UserID] = struct{}{}
+			if ch, ok := channel.(*core.GuildVoiceChannel); ok {
+				ch.ConnectedMemberIDs[coreVoiceState.UserID] = struct{}{}
+			} else if ch, ok := channel.(*core.GuildStageVoiceChannel); ok {
+				ch.ConnectedMemberIDs[coreVoiceState.UserID] = struct{}{}
+			}
+
 		}
 	}
 

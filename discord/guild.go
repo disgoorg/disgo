@@ -1,5 +1,7 @@
 package discord
 
+import "github.com/DisgoOrg/disgo/json"
+
 // PremiumTier tells you the boost level of a Guild
 type PremiumTier int
 
@@ -140,10 +142,33 @@ type GatewayGuild struct {
 	MemberCount    int             `json:"member_count"`
 	VoiceStates    []VoiceState    `json:"voice_states"`
 	Members        []Member        `json:"members"`
-	Channels       []Channel       `json:"channels"`
-	Threads        []Channel       `json:"threads"`
+	Channels       []GuildChannel  `json:"channels"`
+	Threads        []GuildThread   `json:"threads"`
 	Presences      []Presence      `json:"presences"`
 	StageInstances []StageInstance `json:"stage_instances"`
+}
+
+func (g *GatewayGuild) UnmarshalJSON(data []byte) error {
+	type gatewayGuild GatewayGuild
+	var v struct {
+		Channels []UnmarshalChannel `json:"channels"`
+		Threads  []UnmarshalChannel `json:"threads"`
+		gatewayGuild
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	g.Channels = make([]GuildChannel, len(v.Channels))
+	for i := range v.Channels {
+		g.Channels[i] = v.Channels[i].Channel.(GuildChannel)
+	}
+
+	g.Threads = make([]GuildThread, len(v.Threads))
+	for i := range v.Channels {
+		g.Threads[i] = v.Threads[i].Channel.(GuildThread)
+	}
+
+	return nil
 }
 
 type UnavailableGuild struct {

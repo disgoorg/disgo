@@ -25,6 +25,9 @@ type UserTypingEvent struct {
 }
 
 // Channel returns the core.GetChannel the core.User started typing in
-func (e *UserTypingEvent) Channel() *core.Channel {
-	return e.Bot().Caches.ChannelCache().Get(e.ChannelID)
+func (e *UserTypingEvent) Channel() *core.DMChannel {
+	if ch := e.Bot().Caches.ChannelCache().Get(e.ChannelID); ch != nil {
+		return ch.(*core.DMChannel)
+	}
+	return nil
 }

@@ -12,9 +12,12 @@ type GenericGuildInviteEvent struct {
 	ChannelID discord.Snowflake
 }
 
-// Channel returns the core.GetChannel the GenericGuildInviteEvent happened in(returns nil if the core.GetChannel is uncached or core.Caches is disabled)
-func (e GenericGuildInviteEvent) Channel() *core.Channel {
-	return e.Bot().Caches.ChannelCache().Get(e.ChannelID)
+// Channel returns the core.GuildChannel the GenericGuildInviteEvent happened in(returns nil if the core.GetChannel is uncached or core.Caches is disabled)
+func (e GenericGuildInviteEvent) Channel() core.GuildChannel {
+	if ch := e.Bot().Caches.ChannelCache().Get(e.ChannelID); ch != nil {
+		return ch.(core.GuildChannel)
+	}
+	return nil
 }
 
 // GuildInviteCreateEvent is called upon creation of a new core.Invite in an core.Guild(requires core.GatewayIntentsGuildInvites)

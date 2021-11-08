@@ -11,31 +11,67 @@ import (
 
 type Channel interface {
 	discord.Channel
+	set(channel Channel) Channel
 }
 
 type GuildChannel interface {
+	Channel
 	discord.GuildChannel
+	Guild() *Guild
+}
+
+type GuildPermissionChannel interface {
+	GuildChannel
+
+	PermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake) discord.PermissionOverwrite
+	RolePermissionOverwrite(id discord.Snowflake) *discord.RolePermissionOverwrite
+	MemberPermissionOverwrite(id discord.Snowflake) *discord.MemberPermissionOverwrite
+	SetPermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error
+	UpdatePermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error
+	DeletePermissionOverwrite(id discord.Snowflake, opts ...rest.RequestOpt) error
 }
 
 type MessageChannel interface {
+	Channel
 	discord.MessageChannel
+
+	GetMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error)
+	GetMessages(around discord.Snowflake, before discord.Snowflake, after discord.Snowflake, limit int, opts ...rest.RequestOpt) ([]*Message, error)
+	CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error)
+	UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error)
+	DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) error
+	BulkDeleteMessages(messageIDs []discord.Snowflake, opts ...rest.RequestOpt) error
 }
 
 type GuildMessageChannel interface {
+	Channel
 	discord.GuildMessageChannel
 }
 
 type GuildThread interface {
+	Channel
 	discord.GuildThread
 }
 
 type AudioChannel interface {
+	Channel
 	discord.AudioChannel
 }
 
 type GuildTextChannel struct {
 	discord.GuildTextChannel
 	Bot *Bot
+}
+
+func (c *GuildTextChannel) set(channel Channel) Channel {
+	switch ch := channel.(type) {
+	case *GuildTextChannel:
+		*c = *ch
+		return c
+
+	default:
+		return c
+	}
 }
 
 func (c *GuildTextChannel) String() string {
@@ -128,10 +164,25 @@ func (c *GuildTextChannel) Members() []*Member {
 	})
 }
 
+var (
+	_ MessageChannel = (*DMChannel)(nil)
+)
+
 type DMChannel struct {
 	discord.DMChannel
 	Bot          *Bot
 	RecipientIDs []discord.Snowflake
+}
+
+func (c *DMChannel) set(channel Channel) Channel {
+	switch ch := channel.(type) {
+	case *DMChannel:
+		*c = *ch
+		return c
+
+	default:
+		return c
+	}
 }
 
 func (c *DMChannel) String() string {
@@ -170,6 +221,17 @@ type GuildVoiceChannel struct {
 	discord.GuildVoiceChannel
 	Bot                *Bot
 	ConnectedMemberIDs map[discord.Snowflake]struct{}
+}
+
+func (c *GuildVoiceChannel) set(channel Channel) Channel {
+	switch ch := channel.(type) {
+	case *GuildVoiceChannel:
+		*c = *ch
+		return c
+
+	default:
+		return c
+	}
 }
 
 func (c *GuildVoiceChannel) String() string {
@@ -240,6 +302,17 @@ type GroupDMChannel struct {
 	RecipientIDs []discord.Snowflake
 }
 
+func (c *GroupDMChannel) set(channel Channel) Channel {
+	switch ch := channel.(type) {
+	case *GroupDMChannel:
+		*c = *ch
+		return c
+
+	default:
+		return c
+	}
+}
+
 func (c *GroupDMChannel) String() string {
 	return channelMention(c.ID)
 }
@@ -264,6 +337,17 @@ func (c *GroupDMChannel) GetIconURL(size int) *string {
 type GuildCategoryChannel struct {
 	discord.GuildCategoryChannel
 	Bot *Bot
+}
+
+func (c *GuildCategoryChannel) set(channel Channel) Channel {
+	switch ch := channel.(type) {
+	case *GuildCategoryChannel:
+		*c = *ch
+		return c
+
+	default:
+		return c
+	}
 }
 
 func (c *GuildCategoryChannel) String() string {
@@ -353,6 +437,17 @@ func (c *GuildCategoryChannel) Members() []*Member {
 type GuildNewsChannel struct {
 	discord.GuildNewsChannel
 	Bot *Bot
+}
+
+func (c *GuildNewsChannel) set(channel Channel) Channel {
+	switch ch := channel.(type) {
+	case *GuildNewsChannel:
+		*c = *ch
+		return c
+
+	default:
+		return c
+	}
 }
 
 func (c *GuildNewsChannel) String() string {
@@ -452,6 +547,17 @@ type GuildStoreChannel struct {
 	Bot *Bot
 }
 
+func (c *GuildStoreChannel) set(channel Channel) Channel {
+	switch ch := channel.(type) {
+	case *GuildStoreChannel:
+		*c = *ch
+		return c
+
+	default:
+		return c
+	}
+}
+
 func (c *GuildStoreChannel) String() string {
 	return channelMention(c.ID)
 }
@@ -506,6 +612,17 @@ func (c *GuildStoreChannel) Parent() *GuildCategoryChannel {
 type GuildNewsThread struct {
 	discord.GuildNewsThread
 	Bot *Bot
+}
+
+func (c *GuildNewsThread) set(channel Channel) Channel {
+	switch ch := channel.(type) {
+	case *GuildNewsThread:
+		*c = *ch
+		return c
+
+	default:
+		return c
+	}
 }
 
 func (c *GuildNewsThread) String() string {
@@ -570,9 +687,25 @@ func (c *GuildNewsThread) ThreadMembersCache() map[discord.Snowflake]*ThreadMemb
 	return c.Bot.Caches.ThreadMemberCache().ThreadCache(c.ID)
 }
 
+var (
+	_ GuildThread  = (*GuildPublicThread)(nil)
+	_ GuildChannel = (*GuildPublicThread)(nil)
+)
+
 type GuildPublicThread struct {
-	discord.GuildNewsThread
+	discord.GuildPublicThread
 	Bot *Bot
+}
+
+func (c *GuildPublicThread) set(channel Channel) Channel {
+	switch ch := channel.(type) {
+	case *GuildPublicThread:
+		*c = *ch
+		return c
+
+	default:
+		return c
+	}
 }
 
 func (c *GuildPublicThread) String() string {
@@ -638,8 +771,19 @@ func (c *GuildPublicThread) ThreadMembersCache() map[discord.Snowflake]*ThreadMe
 }
 
 type GuildPrivateThread struct {
-	discord.GuildNewsThread
+	discord.GuildPrivateThread
 	Bot *Bot
+}
+
+func (c *GuildPrivateThread) set(channel Channel) Channel {
+	switch ch := channel.(type) {
+	case *GuildPrivateThread:
+		*c = *ch
+		return c
+
+	default:
+		return c
+	}
 }
 
 func (c *GuildPrivateThread) String() string {
@@ -709,6 +853,17 @@ type GuildStageVoiceChannel struct {
 	Bot                *Bot
 	StageInstanceID    *discord.Snowflake
 	ConnectedMemberIDs map[discord.Snowflake]struct{}
+}
+
+func (c *GuildStageVoiceChannel) set(channel Channel) Channel {
+	switch ch := channel.(type) {
+	case *GuildStageVoiceChannel:
+		*c = *ch
+		return c
+
+	default:
+		return c
+	}
 }
 
 func (c *GuildStageVoiceChannel) String() string {
@@ -883,20 +1038,20 @@ func channelGuild(bot *Bot, guildID discord.Snowflake) *Guild {
 	return bot.Caches.GuildCache().Get(guildID)
 }
 
-func createThread(bot *Bot, channelID discord.Snowflake, threadCreate discord.ThreadCreate, opts ...rest.RequestOpt) (discord.GuildThread, error) {
+func createThread(bot *Bot, channelID discord.Snowflake, threadCreate discord.ThreadCreate, opts ...rest.RequestOpt) (GuildThread, error) {
 	channel, err := bot.RestServices.ThreadService().CreateThread(channelID, threadCreate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return bot.EntityBuilder.CreateChannel(channel, CacheStrategyNo).(discord.GuildThread), nil
+	return bot.EntityBuilder.CreateChannel(channel, CacheStrategyNo).(GuildThread), nil
 }
 
-func createThreadWithMessage(bot *Bot, channelID discord.Snowflake, messageID discord.Snowflake, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (discord.GuildThread, error) {
+func createThreadWithMessage(bot *Bot, channelID discord.Snowflake, messageID discord.Snowflake, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (GuildThread, error) {
 	channel, err := bot.RestServices.ThreadService().CreateThreadWithMessage(channelID, messageID, threadCreateWithMessage, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return bot.EntityBuilder.CreateChannel(channel, CacheStrategyNo).(discord.GuildThread), nil
+	return bot.EntityBuilder.CreateChannel(channel, CacheStrategyNo).(GuildThread), nil
 }
 
 func createMessage(bot *Bot, channelID discord.Snowflake, messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
@@ -1069,6 +1224,34 @@ func PermissionOverwrite(channel GuildChannel, overwriteType discord.PermissionO
 		panic("unknown channel type")
 	}
 	return getPermissionOverwrite(overwrites, overwriteType, id)
+}
+
+func LastPinTimestamp(channel MessageChannel) *discord.Time {
+	if channel == nil {
+		return nil
+	}
+	switch ch := channel.(type) {
+	case *GuildTextChannel:
+		return ch.LastPinTimestamp
+
+	case *DMChannel:
+		return ch.LastPinTimestamp
+
+	case *GuildNewsChannel:
+		return ch.LastPinTimestamp
+
+	case *GuildNewsThread:
+		return ch.LastPinTimestamp
+
+	case *GuildPrivateThread:
+		return ch.LastPinTimestamp
+
+	case *GuildPublicThread:
+		return ch.LastPinTimestamp
+
+	default:
+		panic("unknown channel type")
+	}
 }
 
 func RolePermissionOverwrite(channel GuildChannel, id discord.Snowflake) *discord.RolePermissionOverwrite {

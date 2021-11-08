@@ -34,7 +34,10 @@ type GuildMemberTypingEvent struct {
 	ChannelID discord.Snowflake
 }
 
-// TextChannel returns the core.TextChannel the GuildMemberTypingEvent happened in
-func (e GuildMemberTypingEvent) TextChannel() *core.Channel {
-	return e.Bot().Caches.ChannelCache().Get(e.ChannelID)
+// MessageChannel returns the core.GuildTextChannel the GuildMemberTypingEvent happened in
+func (e GuildMemberTypingEvent) MessageChannel() core.GuildMessageChannel {
+	if ch := e.Bot().Caches.ChannelCache().Get(e.ChannelID); ch != nil {
+		return ch.(core.GuildMessageChannel)
+	}
+	return nil
 }

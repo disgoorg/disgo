@@ -24,7 +24,7 @@ type GuildChannelCreateEvent struct {
 // GuildChannelUpdateEvent indicates that an core.GetGuildChannel got updated in an core.Guild
 type GuildChannelUpdateEvent struct {
 	*GenericGuildChannelEvent
-	OldChannel *core.Channel
+	OldChannel core.Channel
 }
 
 type GuildChannelPinsUpdateEvent struct {

@@ -12,10 +12,10 @@ func (h *gatewayHandlerThreadUpdate) EventType() discord.GatewayEventType {
 }
 
 func (h *gatewayHandlerThreadUpdate) New() interface{} {
-	return &discord.Channel{}
+	return &discord.UnmarshalChannel{}
 }
 
 func (h *gatewayHandlerThreadUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
-	_ = *v.(*discord.Channel)
+	_ = v.(*discord.UnmarshalChannel).Channel
 
 }

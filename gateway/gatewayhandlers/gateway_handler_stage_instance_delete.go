@@ -26,7 +26,9 @@ func (h *gatewayHandlerStageInstanceDelete) HandleGatewayEvent(bot *core.Bot, se
 	bot.Caches.StageInstanceCache().Remove(stageInstance.ID)
 
 	if channel := bot.Caches.ChannelCache().Get(stageInstance.ChannelID); channel != nil {
-		channel.StageInstanceID = nil
+		if sCh, ok := channel.(*core.GuildStageVoiceChannel); ok {
+			sCh.StageInstanceID = nil
+		}
 	}
 
 	bot.EventManager.Dispatch(&events.StageInstanceDeleteEvent{
