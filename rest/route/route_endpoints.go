@@ -273,7 +273,8 @@ var (
 	UserAvatar        = NewCDNRoute("/avatars/{user.id}/{user.avatar.hash}", PNG, JPEG, WebP, GIF)
 	DefaultUserAvatar = NewCDNRoute("/embed/avatars/{user.discriminator%5}", PNG)
 
-	ChannelIcon = NewCDNRoute("/channel-icons/{channel.id}/{channel.icon.hash}", PNG, JPEG, WebP)
+	ChannelIcon   = NewCDNRoute("/channel-icons/{channel.id}/{channel.icon.hash}", PNG, JPEG, WebP)
+	ChannelBanner = NewCDNRoute("/channel-banners/{channel.id}/{channel.banner.hash}", PNG, JPEG) // TODO revisit once the docs PR is merged.
 
 	MemberAvatar = NewCDNRoute("/guilds/{guild.id}/users/{user.id}/avatars/{member.avatar.hash}", PNG, JPEG, WebP, GIF)
 

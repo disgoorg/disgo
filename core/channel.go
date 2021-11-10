@@ -269,6 +269,11 @@ func (c *Channel) GetIconURL(size int) *string {
 	return discord.FormatAssetURL(route.ChannelIcon, c.ID, c.Icon, size)
 }
 
+// GetBannerUrl returns the Banner URL of this channel.
+func (c *Channel) GetBannerUrl(size int) *string {
+	return discord.FormatAssetURL(route.ChannelBanner, c.ID, c.Icon, size)
+}
+
 func (c *Channel) IsModerator(member *Member) bool {
 	if !c.IsStageChannel() {
 		unsupportedChannelType(c)

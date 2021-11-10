@@ -51,6 +51,7 @@ type Channel struct {
 	RateLimitPerUser       *int                  `json:"rate_limit_per_user,omitempty"`
 	Recipients             []*User               `json:"recipients,omitempty"`
 	Icon                   *string               `json:"icon,omitempty"`
+	Banner                 *string               `json:"banner,omitempty"`
 	OwnerID                *Snowflake            `json:"owner_id,omitempty"`
 	ApplicationID          *Snowflake            `json:"application_id,omitempty"`
 	ParentID               *Snowflake            `json:"parent_id,omitempty"`
@@ -89,6 +90,7 @@ type ChannelUpdate struct {
 	RTCRegion                  *string                `json:"rtc_region"`
 	VideoQualityMode           *VideoQualityMode      `json:"video_quality_mode"`
 	DefaultAutoArchiveDuration *int                   `json:"default_auto_archive_duration"`
+	Banner                     *OptionalIcon          `json:"banner,omitempty"` // TODO revisit once the docs PR is merged.
 }
 
 // PartialChannel contains basic info about a Channel

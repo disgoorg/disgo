@@ -88,6 +88,7 @@ const (
 	GuildFeatureMemberVerificationGateEnabled GuildFeature = "MEMBER_VERIFICATION_GATE_ENABLED"
 	GuildFeaturePreviewEnabled                GuildFeature = "PREVIEW_ENABLED"
 	GuildFeatureRoleIcons                     GuildFeature = "ROLE_ICONS"
+	GuildFeatureChannelBanner                 GuildFeature = "CHANNEL_BANNER"
 )
 
 // Guild represents a discord Guild
