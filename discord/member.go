@@ -12,7 +12,7 @@ type Member struct {
 	Deaf          bool         `json:"deaf,omitempty"`
 	Mute          bool         `json:"mute,omitempty"`
 	Pending       bool         `json:"pending"`
-	TimedOutUntil Time         `json:"communication_disabled_until"`
+	TimedOutUntil *Time        `json:"communication_disabled_until"`
 	Permissions   *Permissions `json:"permissions"` // only sent from slash commands & should not be cached
 }
 
