@@ -270,7 +270,7 @@ func (c *Channel) GetIconURL(size int) *string {
 }
 
 // GetBannerUrl returns the Banner URL of this channel.
-func (c *Channel) GetBannerUrl(size int) *string {
+func (c *Channel) GetBannerURL(size int) *string {
 	return discord.FormatAssetURL(route.ChannelBanner, c.ID, c.Banner, size)
 }
 
