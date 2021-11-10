@@ -265,7 +265,7 @@ var (
 	GuildIcon            = NewCDNRoute("/icons/{guild.id}/{guild.icon.hash}", PNG, JPEG, WebP, GIF)
 	GuildSplash          = NewCDNRoute("/splashes/{guild.id}/{guild.splash.hash}", PNG, JPEG, WebP)
 	GuildDiscoverySplash = NewCDNRoute("/discovery-splashes/{guild.id}/{guild.discovery.splash.hash}", PNG, JPEG, WebP)
-	GuildBanner          = NewCDNRoute("/banners/{guild.id}/{guild.banner.hash}", PNG, JPEG, WebP)
+	GuildBanner          = NewCDNRoute("/banners/{guild.id}/{guild.banner.hash}", PNG, JPEG, WebP, GIF)
 
 	RoleIcon = NewCDNRoute("/role-icons/{role.id}/{role.icon.hash}", PNG, JPEG)
 
