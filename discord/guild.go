@@ -225,7 +225,7 @@ type GuildUpdate struct {
 	PreferredLocale                 *string                     `json:"preferred_locale,omitempty"`
 	Features                        []GuildFeature              `json:"features,omitempty"`
 	Description                     *string                     `json:"description,omitempty"`
-	BoostProgressBarEnabled         bool                        `json:"premium_progress_bar_enabled"`
+	BoostProgressBarEnabled         *bool                       `json:"premium_progress_bar_enabled,omitempty"`
 }
 
 type NSFWLevel int
