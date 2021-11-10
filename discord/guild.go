@@ -126,6 +126,7 @@ type Guild struct {
 	MaxVideoChannelUsers        int                        `json:"max_video_channel_users"`
 	WelcomeScreen               WelcomeScreen              `json:"welcome_screen"`
 	NSFWLevel                   NSFWLevel                  `json:"nsfw_level"`
+	BoostProgressBarEnabled     bool                       `json:"premium_progress_bar_enabled"`
 	// stickers
 
 	// only over GET /guilds/{guild.id}
@@ -225,6 +226,7 @@ type GuildUpdate struct {
 	PreferredLocale                 *string                     `json:"preferred_locale,omitempty"`
 	Features                        []GuildFeature              `json:"features,omitempty"`
 	Description                     *string                     `json:"description,omitempty"`
+	BoostProgressBarEnabled         *bool                       `json:"premium_progress_bar_enabled,omitempty"`
 }
 
 type NSFWLevel int
