@@ -39,8 +39,8 @@ type GuildVoiceChannelUpdate struct {
 func (_ GuildVoiceChannelUpdate) channelUpdate() {}
 
 type GroupDMChannelUpdate struct {
-	Name *string       `json:"name,omitempty"`
-	Icon *OptionalIcon `json:"icon,omitempty"`
+	Name *string   `json:"name,omitempty"`
+	Icon *NullIcon `json:"icon,omitempty"`
 }
 
 func (_ GroupDMChannelUpdate) channelUpdate() {}

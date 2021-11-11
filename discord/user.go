@@ -48,6 +48,6 @@ type OAuth2User struct {
 
 // SelfUserUpdate is the payload used to update the OAuth2User
 type SelfUserUpdate struct {
-	Username string        `json:"username"`
-	Avatar   *OptionalIcon `json:"avatar"`
+	Username string    `json:"username"`
+	Avatar   *NullIcon `json:"avatar"`
 }

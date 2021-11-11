@@ -74,12 +74,12 @@ func (m AutocompleteOptionsMap) Get(name string) discord.AutocompleteOption {
 	return nil
 }
 
-func (m AutocompleteOptionsMap) StringOption(name string) *SlashCommandOptionString {
+func (m AutocompleteOptionsMap) StringOption(name string) *discord.AutocompleteOptionString {
 	option := m.Get(name)
 	if option == nil {
 		return nil
 	}
-	if opt, ok := option.(SlashCommandOptionString); ok {
+	if opt, ok := option.(discord.AutocompleteOptionString); ok {
 		return &opt
 	}
 	return nil
@@ -93,12 +93,12 @@ func (m AutocompleteOptionsMap) String(name string) *string {
 	return &option.Value
 }
 
-func (m AutocompleteOptionsMap) IntOption(name string) *SlashCommandOptionInt {
+func (m AutocompleteOptionsMap) IntOption(name string) *discord.AutocompleteOptionInt {
 	option := m.Get(name)
 	if option == nil {
 		return nil
 	}
-	if opt, ok := option.(SlashCommandOptionInt); ok {
+	if opt, ok := option.(discord.AutocompleteOptionInt); ok {
 		return &opt
 	}
 	return nil
@@ -112,12 +112,12 @@ func (m AutocompleteOptionsMap) Int(name string) *int {
 	return &option.Value
 }
 
-func (m AutocompleteOptionsMap) BoolOption(name string) *SlashCommandOptionBool {
+func (m AutocompleteOptionsMap) BoolOption(name string) *discord.AutocompleteOptionBool {
 	option := m.Get(name)
 	if option == nil {
 		return nil
 	}
-	if opt, ok := option.(SlashCommandOptionBool); ok {
+	if opt, ok := option.(discord.AutocompleteOptionBool); ok {
 		return &opt
 	}
 	return nil
@@ -131,98 +131,45 @@ func (m AutocompleteOptionsMap) Bool(name string) *bool {
 	return &option.Value
 }
 
-func (m AutocompleteOptionsMap) UserOption(name string) *SlashCommandOptionUser {
+func (m AutocompleteOptionsMap) UserOption(name string) *discord.AutocompleteOptionUser {
 	option := m.Get(name)
 	if option == nil {
 		return nil
 	}
-	if opt, ok := option.(SlashCommandOptionUser); ok {
+	if opt, ok := option.(discord.AutocompleteOptionUser); ok {
 		return &opt
 	}
 	return nil
 }
 
-func (m AutocompleteOptionsMap) User(name string) *User {
+func (m AutocompleteOptionsMap) ChannelOption(name string) *discord.AutocompleteOptionChannel {
 	option := m.Get(name)
 	if option == nil {
 		return nil
 	}
-	switch opt := option.(type) {
-	case SlashCommandOptionUser:
-		return opt.User()
-	case SlashCommandOptionMentionable:
-		return opt.User()
-	default:
-		return nil
-	}
-}
-
-func (m AutocompleteOptionsMap) Member(name string) *Member {
-	option := m.Get(name)
-	if option == nil {
-		return nil
-	}
-	switch opt := option.(type) {
-	case SlashCommandOptionUser:
-		return opt.Member()
-	case SlashCommandOptionMentionable:
-		return opt.Member()
-	default:
-		return nil
-	}
-}
-
-func (m AutocompleteOptionsMap) ChannelOption(name string) *SlashCommandOptionChannel {
-	option := m.Get(name)
-	if option == nil {
-		return nil
-	}
-	if opt, ok := option.(SlashCommandOptionChannel); ok {
+	if opt, ok := option.(discord.AutocompleteOptionChannel); ok {
 		return &opt
 	}
 	return nil
 }
 
-func (m AutocompleteOptionsMap) Channel(name string) Channel {
-	option := m.ChannelOption(name)
-	if option == nil {
-		return nil
-	}
-	return option.Channel()
-}
-
-func (m AutocompleteOptionsMap) RoleOption(name string) *SlashCommandOptionRole {
+func (m AutocompleteOptionsMap) RoleOption(name string) *discord.AutocompleteOptionRole {
 	option := m.Get(name)
 	if option == nil {
 		return nil
 	}
-	if opt, ok := option.(SlashCommandOptionRole); ok {
+	if opt, ok := option.(discord.AutocompleteOptionRole); ok {
 		return &opt
 	}
 	return nil
 }
 
-func (m AutocompleteOptionsMap) Role(name string) *Role {
+func (m AutocompleteOptionsMap) MentionableOption(name string) *discord.AutocompleteOptionMentionable {
 	option := m.Get(name)
 	if option == nil {
 		return nil
 	}
-	switch opt := option.(type) {
-	case SlashCommandOptionRole:
-		return opt.Role()
-	case SlashCommandOptionMentionable:
-		return opt.Role()
-	default:
-		return nil
-	}
-}
-
-func (m AutocompleteOptionsMap) MentionableOption(name string) *SlashCommandOptionMentionable {
-	option := m.Get(name)
-	if option == nil {
-		return nil
-	}
-	if opt, ok := option.(SlashCommandOptionMentionable); ok {
+	if opt, ok := option.(discord.AutocompleteOptionMentionable); ok {
 		return &opt
 	}
 	return nil
@@ -234,16 +181,16 @@ func (m AutocompleteOptionsMap) Snowflake(name string) *discord.Snowflake {
 		return nil
 	}
 	switch opt := option.(type) {
-	case SlashCommandOptionChannel:
+	case discord.AutocompleteOptionChannel:
 		return &opt.Value
 
-	case SlashCommandOptionRole:
+	case discord.AutocompleteOptionRole:
 		return &opt.Value
 
-	case SlashCommandOptionUser:
+	case discord.AutocompleteOptionUser:
 		return &opt.Value
 
-	case SlashCommandOptionMentionable:
+	case discord.AutocompleteOptionMentionable:
 		return &opt.Value
 
 	default:
@@ -251,12 +198,12 @@ func (m AutocompleteOptionsMap) Snowflake(name string) *discord.Snowflake {
 	}
 }
 
-func (m AutocompleteOptionsMap) FloatOption(name string) *SlashCommandOptionFloat {
+func (m AutocompleteOptionsMap) FloatOption(name string) *discord.AutocompleteOptionFloat {
 	option := m.Get(name)
 	if option == nil {
 		return nil
 	}
-	if opt, ok := option.(SlashCommandOptionFloat); ok {
+	if opt, ok := option.(discord.AutocompleteOptionFloat); ok {
 		return &opt
 	}
 	return nil
@@ -306,50 +253,11 @@ func (m AutocompleteOptionsMap) FindAll(optionFindFunc func(option discord.Autoc
 }
 
 func (m AutocompleteOptionsMap) Focused(name string) bool {
-	option := m.Get(name)
-	switch o := option.(type) {
-	case discord.AutocompleteOptionString:
-		return o.Focused
-	case discord.AutocompleteOptionInt:
-		return o.Focused
-	case discord.AutocompleteOptionBool:
-		return o.Focused
-	case discord.AutocompleteOptionUser:
-		return o.Focused
-	case discord.AutocompleteOptionChannel:
-		return o.Focused
-	case discord.AutocompleteOptionRole:
-		return o.Focused
-	case discord.AutocompleteOptionMentionable:
-		return o.Focused
-	case discord.AutocompleteOptionFloat:
-		return o.Focused
-	default:
-		return false
-	}
+	return m.Get(name).Focused()
 }
 
 func (m AutocompleteOptionsMap) FocusedOption() discord.AutocompleteOption {
 	return m.Find(func(option discord.AutocompleteOption) bool {
-		switch o := option.(type) {
-		case discord.AutocompleteOptionString:
-			return o.Focused
-		case discord.AutocompleteOptionInt:
-			return o.Focused
-		case discord.AutocompleteOptionBool:
-			return o.Focused
-		case discord.AutocompleteOptionUser:
-			return o.Focused
-		case discord.AutocompleteOptionChannel:
-			return o.Focused
-		case discord.AutocompleteOptionRole:
-			return o.Focused
-		case discord.AutocompleteOptionMentionable:
-			return o.Focused
-		case discord.AutocompleteOptionFloat:
-			return o.Focused
-		default:
-			return false
-		}
+		return option.Focused()
 	})
 }

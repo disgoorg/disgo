@@ -49,7 +49,7 @@ func (i *StageInstance) GetListeners() []*Member {
 	return listeners
 }
 
-func (s *VoiceState) UpdateVoiceState(suppress *discord.OptionalBool, requestToSpeak *discord.OptionalTime, opts ...rest.RequestOpt) error {
+func (s *VoiceState) UpdateVoiceState(suppress *bool, requestToSpeak *discord.NullTime, opts ...rest.RequestOpt) error {
 	if s.ChannelID == nil {
 		return discord.ErrMemberMustBeConnectedToChannel
 	}

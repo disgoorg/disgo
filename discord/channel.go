@@ -207,7 +207,7 @@ func (c DMChannel) MarshalJSON() ([]byte, error) {
 func (_ DMChannel) Type() ChannelType {
 	return ChannelTypeGuildText
 }
-func (_ DMChannel) channel() {}
+func (_ DMChannel) channel()        {}
 func (_ DMChannel) messageChannel() {}
 
 var (
@@ -261,7 +261,7 @@ func (c GuildVoiceChannel) MarshalJSON() ([]byte, error) {
 func (_ GuildVoiceChannel) Type() ChannelType {
 	return ChannelTypeGuildText
 }
-func (_ GuildVoiceChannel) channel() {}
+func (_ GuildVoiceChannel) channel()      {}
 func (_ GuildVoiceChannel) guildChannel() {}
 func (_ GuildVoiceChannel) audioChannel() {}
 
@@ -294,7 +294,7 @@ func (c GroupDMChannel) MarshalJSON() ([]byte, error) {
 func (_ GroupDMChannel) Type() ChannelType {
 	return ChannelTypeGuildText
 }
-func (_ GroupDMChannel) channel() {}
+func (_ GroupDMChannel) channel()        {}
 func (_ GroupDMChannel) messageChannel() {}
 
 var (
@@ -341,7 +341,7 @@ func (c GuildCategoryChannel) MarshalJSON() ([]byte, error) {
 func (_ GuildCategoryChannel) Type() ChannelType {
 	return ChannelTypeGuildCategory
 }
-func (_ GuildCategoryChannel) channel() {}
+func (_ GuildCategoryChannel) channel()      {}
 func (_ GuildCategoryChannel) guildChannel() {}
 
 var (
@@ -395,7 +395,7 @@ func (c GuildNewsChannel) MarshalJSON() ([]byte, error) {
 func (_ GuildNewsChannel) Type() ChannelType {
 	return ChannelTypeGuildNews
 }
-func (_ GuildNewsChannel) channel()   {}
+func (_ GuildNewsChannel) channel()        {}
 func (_ GuildNewsChannel) guildChannel()   {}
 func (_ GuildNewsChannel) messageChannel() {}
 
@@ -440,7 +440,7 @@ func (c GuildStoreChannel) MarshalJSON() ([]byte, error) {
 func (_ GuildStoreChannel) Type() ChannelType {
 	return ChannelTypeGuildStore
 }
-func (_ GuildStoreChannel) channel() {}
+func (_ GuildStoreChannel) channel()      {}
 func (_ GuildStoreChannel) guildChannel() {}
 
 type GuildNewsThread struct {
@@ -471,7 +471,7 @@ func (c GuildNewsThread) MarshalJSON() ([]byte, error) {
 func (_ GuildNewsThread) Type() ChannelType {
 	return ChannelTypeGuildNewsThread
 }
-func (_ GuildNewsThread) channel()   {}
+func (_ GuildNewsThread) channel()        {}
 func (_ GuildNewsThread) guildChannel()   {}
 func (_ GuildNewsThread) messageChannel() {}
 func (_ GuildNewsThread) guildThread()    {}
@@ -504,7 +504,7 @@ func (c GuildPublicThread) MarshalJSON() ([]byte, error) {
 func (_ GuildPublicThread) Type() ChannelType {
 	return ChannelTypeGuildPublicThread
 }
-func (_ GuildPublicThread) channel()   {}
+func (_ GuildPublicThread) channel()        {}
 func (_ GuildPublicThread) guildChannel()   {}
 func (_ GuildPublicThread) messageChannel() {}
 func (_ GuildPublicThread) guildThread()    {}
@@ -537,7 +537,7 @@ func (c GuildPrivateThread) MarshalJSON() ([]byte, error) {
 func (_ GuildPrivateThread) Type() ChannelType {
 	return ChannelTypeGuildPrivateThread
 }
-func (_ GuildPrivateThread) channel()   {}
+func (_ GuildPrivateThread) channel()        {}
 func (_ GuildPrivateThread) guildChannel()   {}
 func (_ GuildPrivateThread) messageChannel() {}
 func (_ GuildPrivateThread) guildThread()    {}
@@ -587,7 +587,7 @@ func (c GuildStageVoiceChannel) MarshalJSON() ([]byte, error) {
 func (_ GuildStageVoiceChannel) Type() ChannelType {
 	return ChannelTypeGuildStageVoice
 }
-func (_ GuildStageVoiceChannel) channel() {}
+func (_ GuildStageVoiceChannel) channel()      {}
 func (_ GuildStageVoiceChannel) guildChannel() {}
 func (_ GuildStageVoiceChannel) audioChannel() {}
 

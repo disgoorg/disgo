@@ -21,6 +21,8 @@ type SlashCommandOptionString struct {
 	Resolved *SlashCommandResolved
 }
 
+// TODO: add methods for resolving options
+
 type SlashCommandOptionInt struct {
 	discord.SlashCommandOptionInt
 }

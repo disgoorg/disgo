@@ -15,21 +15,10 @@ const (
 	ApplicationCommandTypeMessage
 )
 
-var applicationCommands = map[ApplicationCommandType]func() ApplicationCommand{
-	ApplicationCommandTypeSlash: func() ApplicationCommand {
-		return &SlashCommand{}
-	},
-	ApplicationCommandTypeUser: func() ApplicationCommand {
-		return &UserCommand{}
-	},
-	ApplicationCommandTypeMessage: func() ApplicationCommand {
-		return &MessageCommand{}
-	},
-}
-
 type ApplicationCommand interface {
 	json.Marshaler
 	Type() ApplicationCommandType
+	ID() Snowflake
 	applicationCommand()
 }
 
@@ -38,32 +27,51 @@ type UnmarshalApplicationCommand struct {
 }
 
 func (u *UnmarshalApplicationCommand) UnmarshalJSON(data []byte) error {
-	var aType struct {
+	var cType struct {
 		Type ApplicationCommandType `json:"type"`
 	}
 
-	if err := json.Unmarshal(data, &aType); err != nil {
+	if err := json.Unmarshal(data, &cType); err != nil {
 		return err
 	}
 
+	var (
+		applicationCommand ApplicationCommand
+		err                error
+	)
 
-	fn, ok := applicationCommands[aType.Type]
-	if !ok {
-		return fmt.Errorf("unkown application command with type %d received", aType.Type)
+	switch cType.Type {
+	case ApplicationCommandTypeSlash:
+		var v SlashCommand
+		err = json.Unmarshal(data, &v)
+		applicationCommand = v
+
+	case ApplicationCommandTypeUser:
+		var v UserCommand
+		err = json.Unmarshal(data, &v)
+		applicationCommand = v
+
+	case ApplicationCommandTypeMessage:
+		var v MessageCommand
+		err = json.Unmarshal(data, &v)
+		applicationCommand = v
+
+	default:
+		err = fmt.Errorf("unkown application command with type %d received", cType.Type)
 	}
 
-	v := fn()
-
-	if err := json.Unmarshal(data, &v); err != nil {
+	if err != nil {
 		return err
 	}
 
-	u.ApplicationCommand = v
+	u.ApplicationCommand = applicationCommand
 	return nil
 }
 
+var _ ApplicationCommand = (*SlashCommand)(nil)
+
 type SlashCommand struct {
-	ID                Snowflake                  `json:"id"`
+	CommandID         Snowflake                  `json:"id"`
 	ApplicationID     Snowflake                  `json:"application_id"`
 	GuildID           *Snowflake                 `json:"guild_id,omitempty"`
 	Name              string                     `json:"name"`
@@ -75,37 +83,39 @@ type SlashCommand struct {
 
 func (c SlashCommand) MarshalJSON() ([]byte, error) {
 	type slashCommand SlashCommand
-	v := struct {
+	return json.Marshal(struct {
 		Type ApplicationCommandType `json:"type"`
 		slashCommand
 	}{
 		Type:         c.Type(),
 		slashCommand: slashCommand(c),
-	}
-	return json.Marshal(v)
+	})
 }
 
 func (c *SlashCommand) UnmarshalJSON(data []byte) error {
 	type slashCommand SlashCommand
 	var sc struct {
-		slashCommand
 		Options []UnmarshalApplicationCommandOption `json:"options,omitempty"`
+		slashCommand
 	}
 
 	if err := json.Unmarshal(data, &sc); err != nil {
 		return err
 	}
 
+	*c = SlashCommand(sc.slashCommand)
+
 	if len(sc.Options) > 0 {
 		c.Options = make([]ApplicationCommandOption, len(sc.Options))
 		for i := range sc.Options {
-			c.Options[i] = sc.Options[i]
+			c.Options[i] = sc.Options[i].ApplicationCommandOption
 		}
 	}
-
-	*c = SlashCommand(sc.slashCommand)
-
 	return nil
+}
+
+func (c SlashCommand) ID() Snowflake {
+	return c.CommandID
 }
 
 func (_ SlashCommand) Type() ApplicationCommandType {
@@ -114,8 +124,10 @@ func (_ SlashCommand) Type() ApplicationCommandType {
 
 func (_ SlashCommand) applicationCommand() {}
 
+var _ ApplicationCommand = (*UserCommand)(nil)
+
 type UserCommand struct {
-	ID                Snowflake  `json:"id"`
+	CommandID         Snowflake  `json:"id"`
 	ApplicationID     Snowflake  `json:"application_id"`
 	GuildID           *Snowflake `json:"guild_id,omitempty"`
 	Name              string     `json:"name"`
@@ -125,14 +137,17 @@ type UserCommand struct {
 
 func (c UserCommand) MarshalJSON() ([]byte, error) {
 	type userCommand UserCommand
-	v := struct {
+	return json.Marshal(struct {
 		Type ApplicationCommandType `json:"type"`
 		userCommand
 	}{
 		Type:        c.Type(),
 		userCommand: userCommand(c),
-	}
-	return json.Marshal(v)
+	})
+}
+
+func (c UserCommand) ID() Snowflake {
+	return c.CommandID
 }
 
 func (c UserCommand) Type() ApplicationCommandType {
@@ -141,8 +156,10 @@ func (c UserCommand) Type() ApplicationCommandType {
 
 func (_ UserCommand) applicationCommand() {}
 
+var _ ApplicationCommand = (*MessageCommand)(nil)
+
 type MessageCommand struct {
-	ID                Snowflake  `json:"id"`
+	CommandID         Snowflake  `json:"id"`
 	ApplicationID     Snowflake  `json:"application_id"`
 	GuildID           *Snowflake `json:"guild_id,omitempty"`
 	Name              string     `json:"name"`
@@ -152,14 +169,17 @@ type MessageCommand struct {
 
 func (c MessageCommand) MarshalJSON() ([]byte, error) {
 	type messageCommand MessageCommand
-	v := struct {
+	return json.Marshal(struct {
 		Type ApplicationCommandType `json:"type"`
 		messageCommand
 	}{
 		Type:           c.Type(),
 		messageCommand: messageCommand(c),
-	}
-	return json.Marshal(v)
+	})
+}
+
+func (c MessageCommand) ID() Snowflake {
+	return c.CommandID
 }
 
 func (_ MessageCommand) Type() ApplicationCommandType {

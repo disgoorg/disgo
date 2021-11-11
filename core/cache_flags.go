@@ -6,7 +6,6 @@ type CacheFlags int
 // values for CacheFlags
 //goland:noinspection GoUnusedConst
 const (
-	CacheFlagsNone  CacheFlags = 0
 	CacheFlagGuilds CacheFlags = 1 << iota
 
 	CacheFlagPresences
@@ -28,6 +27,8 @@ const (
 	CacheFlagVoiceStates
 
 	CacheFlagStageInstances
+
+	CacheFlagsNone CacheFlags = 0
 
 	CacheFlagsAllChannels = CacheFlagTextChannels |
 		CacheFlagDMChannels |

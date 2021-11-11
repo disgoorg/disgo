@@ -10,18 +10,17 @@ func NewActionRow(components ...Component) ActionRowComponent {
 
 type ActionRowComponent []Component
 
-func (r ActionRowComponent) MarshalJSON() ([]byte, error) {
-	v := struct {
+func (c ActionRowComponent) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
 		Type       ComponentType `json:"type"`
 		Components []Component   `json:"components"`
 	}{
-		Type:       r.Type(),
-		Components: r,
-	}
-	return json.Marshal(v)
+		Type:       c.Type(),
+		Components: c,
+	})
 }
 
-func (r *ActionRowComponent) UnmarshalJSON(data []byte) error {
+func (c *ActionRowComponent) UnmarshalJSON(data []byte) error {
 	var actionRow struct {
 		Components []UnmarshalComponent `json:"components"`
 	}
@@ -31,56 +30,58 @@ func (r *ActionRowComponent) UnmarshalJSON(data []byte) error {
 	}
 
 	if len(actionRow.Components) > 0 {
-		*r = make([]Component, len(actionRow.Components))
+		*c = make([]Component, len(actionRow.Components))
 		for i, component := range actionRow.Components {
-			(*r)[i] = component.Component
+			(*c)[i] = component.Component
 		}
 	}
 
 	return nil
 }
 
-func (_ ActionRowComponent) Type() ComponentType {
+func (c ActionRowComponent) Type() ComponentType {
 	return ComponentTypeActionRow
 }
 
+func (c ActionRowComponent) component() {}
+
 // SetComponents returns a new ActionRowComponent with the provided Component(s)
-func (r *ActionRowComponent) SetComponents(components ...Component) ActionRowComponent {
-	*r = components
-	return *r
+func (c ActionRowComponent) SetComponents(components ...Component) ActionRowComponent {
+	return components
 }
 
 // SetComponent returns a new ActionRowComponent with the Component which has the customID replaced
-func (r *ActionRowComponent) SetComponent(customID string, component Component) ActionRowComponent {
-	for i, c := range *r {
-		switch com := c.(type) {
+func (c ActionRowComponent) SetComponent(customID string, component Component) ActionRowComponent {
+	for i, cc := range c {
+		switch com := cc.(type) {
 		case ButtonComponent:
 			if com.CustomID == customID {
-				(*r)[i] = component
+				c[i] = component
 				break
 			}
+
 		case SelectMenuComponent:
 			if com.CustomID == customID {
-				(*r)[i] = component
+				c[i] = component
 				break
 			}
+
 		default:
 			continue
 		}
 	}
-	return *r
+	return c
 }
 
 // AddComponents returns a new ActionRowComponent with the provided Component(s) added
-func (r *ActionRowComponent) AddComponents(components ...Component) ActionRowComponent {
-	*r = append(*r, components...)
-	return *r
+func (c ActionRowComponent) AddComponents(components ...Component) ActionRowComponent {
+	return append(c, components...)
 }
 
 // RemoveComponent returns a new ActionRowComponent with the provided Component at the index removed
-func (r *ActionRowComponent) RemoveComponent(index int) ActionRowComponent {
-	if len(*r) > index {
-		*r = append((*r)[:index], (*r)[index+1:]...)
+func (c ActionRowComponent) RemoveComponent(index int) ActionRowComponent {
+	if len(c) > index {
+		return append(c[:index], c[index+1:]...)
 	}
-	return *r
+	return c
 }

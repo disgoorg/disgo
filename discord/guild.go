@@ -159,13 +159,16 @@ func (g *GatewayGuild) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
+
+	*g = GatewayGuild(v.gatewayGuild)
+
 	g.Channels = make([]GuildChannel, len(v.Channels))
 	for i := range v.Channels {
 		g.Channels[i] = v.Channels[i].Channel.(GuildChannel)
 	}
 
 	g.Threads = make([]GuildThread, len(v.Threads))
-	for i := range v.Channels {
+	for i := range v.Threads {
 		g.Threads[i] = v.Threads[i].Channel.(GuildThread)
 	}
 
@@ -238,11 +241,11 @@ type GuildUpdate struct {
 	ExplicitContentFilterLevel      *ExplicitContentFilterLevel `json:"explicit_content_filter_level,omitempty"`
 	AFKChannelID                    *Snowflake                  `json:"afk_channel_id,omitempty"`
 	AFKTimeout                      *int                        `json:"afk_timeout,omitempty"`
-	Icon                            *OptionalIcon               `json:"icon,omitempty"`
+	Icon                            *NullIcon                   `json:"icon,omitempty"`
 	OwnerID                         *Snowflake                  `json:"owner_id,omitempty"`
-	Splash                          *OptionalIcon               `json:"splash,omitempty"`
-	DiscoverySplash                 *OptionalIcon               `json:"discovery_splash,omitempty"`
-	Banner                          *OptionalIcon               `json:"banner,omitempty"`
+	Splash                          *NullIcon                   `json:"splash,omitempty"`
+	DiscoverySplash                 *NullIcon                   `json:"discovery_splash,omitempty"`
+	Banner                          *NullIcon                   `json:"banner,omitempty"`
 	SystemChannelID                 *Snowflake                  `json:"system_channel_id,omitempty"`
 	SystemChannelFlags              *SystemChannelFlags         `json:"system_channel_flags,omitempty"`
 	RulesChannelID                  *Snowflake                  `json:"rules_channel_id,omitempty"`

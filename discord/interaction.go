@@ -149,34 +149,34 @@ type SlashCommandInteractionData struct {
 	Options     []SlashCommandOption `json:"options"`
 }
 
-type SlashCommandResolved struct {
-	Users    map[Snowflake]User    `json:"users,omitempty"`
-	Members  map[Snowflake]Member  `json:"members,omitempty"`
-	Roles    map[Snowflake]Role    `json:"roles,omitempty"`
-	Channels map[Snowflake]Channel `json:"channels,omitempty"`
-}
-
 func (d *SlashCommandInteractionData) UnmarshalJSON(data []byte) error {
 	type slashCommandInteractionData SlashCommandInteractionData
 	var iData struct {
-		slashCommandInteractionData
 		Options []UnmarshalSlashCommandOption `json:"options"`
+		slashCommandInteractionData
 	}
 
 	if err := json.Unmarshal(data, &iData); err != nil {
 		return err
 	}
 
+	*d = SlashCommandInteractionData(iData.slashCommandInteractionData)
+
 	if len(iData.Options) > 0 {
 		d.Options = make([]SlashCommandOption, len(iData.Options))
-		for i, option := range iData.Options {
-			d.Options[i] = option.SlashCommandOption
+		for i := range iData.Options {
+			d.Options[i] = iData.Options[i].SlashCommandOption
 		}
 	}
 
-	*d = SlashCommandInteractionData(iData.slashCommandInteractionData)
-
 	return nil
+}
+
+type SlashCommandResolved struct {
+	Users    map[Snowflake]User    `json:"users,omitempty"`
+	Members  map[Snowflake]Member  `json:"members,omitempty"`
+	Roles    map[Snowflake]Role    `json:"roles,omitempty"`
+	Channels map[Snowflake]Channel `json:"channels,omitempty"`
 }
 
 func (_ SlashCommandInteraction) InteractionType() InteractionType {

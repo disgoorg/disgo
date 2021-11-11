@@ -1,6 +1,8 @@
 package core
 
 import (
+	"fmt"
+
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -95,7 +97,7 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 		if len(unmarshalOptions) > 0 {
 			unmarshalOption := unmarshalOptions[0]
 			if option, ok := unmarshalOption.(discord.AutocompleteOptionSubCommandGroup); ok {
-				autocompleteInteraction.SubCommandGroupName = &option.Name
+				autocompleteInteraction.SubCommandGroupName = &option.GroupName
 				unmarshalOptions = make([]discord.AutocompleteOption, len(option.Options))
 				for i := range option.Options {
 					unmarshalOptions[i] = option.Options[i]
@@ -103,44 +105,14 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 				unmarshalOption = option.Options[0]
 			}
 			if option, ok := unmarshalOption.(discord.AutocompleteOptionSubCommand); ok {
-				autocompleteInteraction.SubCommandName = &option.Name
+				autocompleteInteraction.SubCommandName = &option.CommandName
 				unmarshalOptions = option.Options
 			}
 		}
 
 		autocompleteInteraction.Options = make(map[string]discord.AutocompleteOption, len(unmarshalOptions))
 		for _, option := range unmarshalOptions {
-			var name string
-			switch o := option.(type) {
-			case discord.AutocompleteOptionString:
-				name = o.Name
-
-			case discord.AutocompleteOptionInt:
-				name = o.Name
-
-			case discord.AutocompleteOptionBool:
-				name = o.Name
-
-			case discord.AutocompleteOptionUser:
-				name = o.Name
-
-			case discord.AutocompleteOptionChannel:
-				name = o.Name
-
-			case discord.AutocompleteOptionRole:
-				name = o.Name
-
-			case discord.AutocompleteOptionMentionable:
-				name = o.Name
-
-			case discord.AutocompleteOptionFloat:
-				name = o.Name
-
-			default:
-				b.Bot().Logger.Errorf("unknown application command autocomplete option with type %d received", option.Type())
-				continue
-			}
-			autocompleteInteraction.Options[name] = option
+			autocompleteInteraction.Options[option.Name()] = option
 		}
 
 		return autocompleteInteraction
@@ -184,64 +156,65 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 		if len(unmarshalOptions) > 0 {
 			unmarshalOption := unmarshalOptions[0]
 			if option, ok := unmarshalOption.(discord.SlashCommandOptionSubCommandGroup); ok {
-				slashCommandInteraction.SubCommandGroupName = &option.Name
+				slashCommandInteraction.SubCommandGroupName = &option.OptionName
 				unmarshalOptions = make([]discord.SlashCommandOption, len(option.Options))
-				for i := range option.Options {
-					unmarshalOptions[i] = option.Options[i]
+				for ii := range option.Options {
+					unmarshalOptions[ii] = option.Options[ii]
 				}
 				unmarshalOption = option.Options[0]
 			}
 			if option, ok := unmarshalOption.(discord.SlashCommandOptionSubCommand); ok {
-				slashCommandInteraction.SubCommandName = &option.Name
+				slashCommandInteraction.SubCommandName = &option.OptionName
 				unmarshalOptions = option.Options
 			}
 		}
 
 		slashCommandInteraction.Options = make(map[string]SlashCommandOption, len(unmarshalOptions))
 		for _, option := range unmarshalOptions {
+			var slashCommandOption SlashCommandOption
 			switch o := option.(type) {
 			case discord.SlashCommandOptionString:
-				slashCommandInteraction.Options[o.Name] = SlashCommandOptionString{
+				slashCommandOption = SlashCommandOptionString{
 					SlashCommandOptionString: o,
 					Resolved:                 resolved,
 				}
 
 			case discord.SlashCommandOptionInt:
-				slashCommandInteraction.Options[o.Name] = SlashCommandOptionInt{
+				slashCommandOption = SlashCommandOptionInt{
 					SlashCommandOptionInt: o,
 				}
 
 			case discord.SlashCommandOptionBool:
-				slashCommandInteraction.Options[o.Name] = SlashCommandOptionBool{
+				slashCommandOption = SlashCommandOptionBool{
 					SlashCommandOptionBool: o,
 				}
 
 			case discord.SlashCommandOptionUser:
-				slashCommandInteraction.Options[o.Name] = SlashCommandOptionUser{
+				slashCommandOption = SlashCommandOptionUser{
 					SlashCommandOptionUser: o,
 					Resolved:               resolved,
 				}
 
 			case discord.SlashCommandOptionChannel:
-				slashCommandInteraction.Options[o.Name] = SlashCommandOptionChannel{
+				slashCommandOption = SlashCommandOptionChannel{
 					SlashCommandOptionChannel: o,
 					Resolved:                  resolved,
 				}
 
 			case discord.SlashCommandOptionRole:
-				slashCommandInteraction.Options[o.Name] = SlashCommandOptionRole{
+				slashCommandOption = SlashCommandOptionRole{
 					SlashCommandOptionRole: o,
 					Resolved:               resolved,
 				}
 
 			case discord.SlashCommandOptionMentionable:
-				slashCommandInteraction.Options[o.Name] = SlashCommandOptionMentionable{
+				slashCommandOption = SlashCommandOptionMentionable{
 					SlashCommandOptionMentionable: o,
 					Resolved:                      resolved,
 				}
 
 			case discord.SlashCommandOptionFloat:
-				slashCommandInteraction.Options[o.Name] = SlashCommandOptionFloat{
+				slashCommandOption = SlashCommandOptionFloat{
 					SlashCommandOptionFloat: o,
 				}
 
@@ -249,7 +222,10 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 				b.Bot().Logger.Errorf("unknown application command autocomplete option with type %d received", option.Type())
 				continue
 			}
+			slashCommandInteraction.Options[option.Name()] = slashCommandOption
 		}
+
+		fmt.Printf("options: %+v\n", slashCommandInteraction.Options)
 
 		return slashCommandInteraction
 
@@ -492,7 +468,7 @@ func (b *entityBuilderImpl) CreateApplicationCommand(applicationCommand discord.
 			Bot:            b.Bot(),
 		}
 	default:
-		b.Bot().Logger.Error("unknown application command type %d received", applicationCommand.Type())
+		b.Bot().Logger.Errorf("unknown application command type %d received", applicationCommand.Type())
 		return nil
 	}
 }
@@ -573,70 +549,70 @@ func (b *entityBuilderImpl) CreateWebhook(webhook discord.Webhook) *Webhook {
 func (b *entityBuilderImpl) CreateChannel(channel discord.Channel, updateCache CacheStrategy) Channel {
 	var c Channel
 	switch ch := channel.(type) {
-	case discord.GuildTextChannel:
+	case *discord.GuildTextChannel:
 		c = &GuildTextChannel{
-			GuildTextChannel: ch,
+			GuildTextChannel: *ch,
 			Bot:              b.Bot(),
 		}
 
-	case discord.DMChannel:
+	case *discord.DMChannel:
 		c = &DMChannel{
-			DMChannel: ch,
+			DMChannel: *ch,
 			Bot:       b.Bot(),
 		}
 
-	case discord.GuildVoiceChannel:
+	case *discord.GuildVoiceChannel:
 		c = &GuildVoiceChannel{
-			GuildVoiceChannel:  ch,
+			GuildVoiceChannel:  *ch,
 			Bot:                b.Bot(),
 			ConnectedMemberIDs: map[discord.Snowflake]struct{}{},
 		}
 
-	case discord.GroupDMChannel:
+	case *discord.GroupDMChannel:
 		c = &GroupDMChannel{
-			GroupDMChannel: ch,
+			GroupDMChannel: *ch,
 			Bot:            b.Bot(),
 		}
 
-	case discord.GuildCategoryChannel:
+	case *discord.GuildCategoryChannel:
 		c = &GuildCategoryChannel{
-			GuildCategoryChannel: ch,
+			GuildCategoryChannel: *ch,
 			Bot:                  b.Bot(),
 		}
 
-	case discord.GuildNewsChannel:
+	case *discord.GuildNewsChannel:
 		c = &GuildNewsChannel{
-			GuildNewsChannel: ch,
+			GuildNewsChannel: *ch,
 			Bot:              b.Bot(),
 		}
 
-	case discord.GuildStoreChannel:
+	case *discord.GuildStoreChannel:
 		c = &GuildStoreChannel{
-			GuildStoreChannel: ch,
+			GuildStoreChannel: *ch,
 			Bot:               b.Bot(),
 		}
 
-	case discord.GuildNewsThread:
+	case *discord.GuildNewsThread:
 		c = &GuildNewsThread{
-			GuildNewsThread: ch,
+			GuildNewsThread: *ch,
 			Bot:             b.Bot(),
 		}
 
-	case discord.GuildPrivateThread:
+	case *discord.GuildPrivateThread:
 		c = &GuildPrivateThread{
-			GuildPrivateThread: ch,
+			GuildPrivateThread: *ch,
 			Bot:                b.Bot(),
 		}
 
-	case discord.GuildPublicThread:
+	case *discord.GuildPublicThread:
 		c = &GuildPublicThread{
-			GuildPublicThread: ch,
+			GuildPublicThread: *ch,
 			Bot:               b.Bot(),
 		}
 
-	case discord.GuildStageVoiceChannel:
+	case *discord.GuildStageVoiceChannel:
 		c = &GuildStageVoiceChannel{
-			GuildStageVoiceChannel: ch,
+			GuildStageVoiceChannel: *ch,
 			Bot:                    b.Bot(),
 			StageInstanceID:        nil,
 			ConnectedMemberIDs:     map[discord.Snowflake]struct{}{},

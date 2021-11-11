@@ -184,8 +184,8 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 
 	default:
 		var v discord.APIError
-		if err = json.NewDecoder(rq.Body).Decode(&v); err != nil {
-			return errors.Wrap(err, "error unmarshalling response body")
+		if err = json.NewDecoder(rs.Body).Decode(&v); err != nil {
+			return errors.Wrap(err, "error unmarshalling error response body")
 		}
 		return NewErrorAPIErr(rq, rawRqBody, rs, rawRqBody, v)
 	}

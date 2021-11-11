@@ -18,10 +18,10 @@ const (
 
 var permissionOverwrites = map[PermissionOverwriteType]func() PermissionOverwrite{
 	PermissionOverwriteTypeRole: func() PermissionOverwrite {
-		return RolePermissionOverwrite{}
+		return &RolePermissionOverwrite{}
 	},
 	PermissionOverwriteTypeMember: func() PermissionOverwrite {
-		return MemberPermissionOverwrite{}
+		return &MemberPermissionOverwrite{}
 	},
 }
 

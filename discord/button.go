@@ -68,66 +68,67 @@ type ButtonComponent struct {
 	Disabled bool            `json:"disabled,omitempty"`
 }
 
-func (b ButtonComponent) MarshalJSON() ([]byte, error) {
-	type button ButtonComponent
-	v := struct {
+func (c ButtonComponent) MarshalJSON() ([]byte, error) {
+	type buttonComponent ButtonComponent
+	return json.Marshal(struct {
 		Type ComponentType `json:"type"`
-		button
+		buttonComponent
 	}{
-		Type:   b.Type(),
-		button: button(b),
-	}
-	return json.Marshal(v)
+		Type:            c.Type(),
+		buttonComponent: buttonComponent(c),
+	})
 }
 
-func (_ ButtonComponent) Type() ComponentType {
+func (c ButtonComponent) Type() ComponentType {
 	return ComponentTypeButton
 }
 
+func (c ButtonComponent) component() {}
+
 // AsEnabled returns a new ButtonComponent but enabled
-func (b ButtonComponent) AsEnabled() ButtonComponent {
-	b.Disabled = false
-	return b
+func (c ButtonComponent) AsEnabled() ButtonComponent {
+	c.Disabled = false
+	return c
 }
 
 // AsDisabled returns a new ButtonComponent but disabled
-func (b ButtonComponent) AsDisabled() ButtonComponent {
-	b.Disabled = true
-	return b
+func (c ButtonComponent) AsDisabled() ButtonComponent {
+	c.Disabled = true
+	return c
 }
 
 // WithDisabled returns a new ButtonComponent but disabled/enabled
-func (b ButtonComponent) WithDisabled(disabled bool) ButtonComponent {
-	b.Disabled = disabled
-	return b
+func (c ButtonComponent) WithDisabled(disabled bool) ButtonComponent {
+	c.Disabled = disabled
+	return c
 }
 
 // WithEmoji returns a new ButtonComponent with the provided Emoji
-func (b ButtonComponent) WithEmoji(emoji ComponentEmoji) ButtonComponent {
-	b.Emoji = &emoji
-	return b
+func (c ButtonComponent) WithEmoji(emoji ComponentEmoji) ButtonComponent {
+	c.Emoji = &emoji
+	return c
 }
 
 // WithCustomID returns a new ButtonComponent with the provided custom id
-func (b ButtonComponent) WithCustomID(customID string) ButtonComponent {
-	b.CustomID = customID
-	return b
+func (c ButtonComponent) WithCustomID(customID string) ButtonComponent {
+	c.CustomID = customID
+	return c
 }
 
 // WithStyle returns a new ButtonComponent with the provided style
-func (b ButtonComponent) WithStyle(style ButtonStyle) ButtonComponent {
-	b.Style = style
-	return b
+func (c ButtonComponent) WithStyle(style ButtonStyle) ButtonComponent {
+	c.Style = style
+	return c
 }
 
 // WithLabel returns a new ButtonComponent with the provided label
-func (b ButtonComponent) WithLabel(label string) ButtonComponent {
-	b.Label = label
-	return b
+func (c ButtonComponent) WithLabel(label string) ButtonComponent {
+	c.Label = label
+	return c
 }
 
 // WithURL returns a new ButtonComponent with the provided URL
-func (b ButtonComponent) WithURL(url string) ButtonComponent {
-	b.URL = url
-	return b
+func (c ButtonComponent) WithURL(url string) ButtonComponent {
+	c.URL = url
+	return c
 }

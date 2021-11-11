@@ -8,13 +8,15 @@ import (
 
 type SlashCommandOption interface {
 	Type() ApplicationCommandOptionType
+	Name() string
+	slashCommandOption()
 }
 
 type UnmarshalSlashCommandOption struct {
 	SlashCommandOption
 }
 
-func (o UnmarshalSlashCommandOption) UnmarshalJSON(data []byte) error {
+func (o *UnmarshalSlashCommandOption) UnmarshalJSON(data []byte) error {
 	var oType struct {
 		Type ApplicationCommandOptionType `json:"type"`
 	}
@@ -93,19 +95,47 @@ func (o UnmarshalSlashCommandOption) UnmarshalJSON(data []byte) error {
 var _ SlashCommandOption = (*SlashCommandOptionSubCommand)(nil)
 
 type SlashCommandOptionSubCommand struct {
-	Name        string               `json:"name"`
+	OptionName  string               `json:"name"`
 	Description string               `json:"description"`
 	Options     []SlashCommandOption `json:"options,omitempty"`
+}
+
+func (o *SlashCommandOptionSubCommand) UnmarshalJSON(data []byte) error {
+	type slashCommandOptionSubCommand SlashCommandOptionSubCommand
+	var v struct {
+		Options []UnmarshalSlashCommandOption `json:"options"`
+		slashCommandOptionSubCommand
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*o = SlashCommandOptionSubCommand(v.slashCommandOptionSubCommand)
+
+	if len(v.Options) > 0 {
+		o.Options = make([]SlashCommandOption, len(v.Options))
+		for i := range v.Options {
+			o.Options[i] = v.Options[i].SlashCommandOption
+		}
+	}
+
+	return nil
 }
 
 func (_ SlashCommandOptionSubCommand) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeSubCommand
 }
 
+func (o SlashCommandOptionSubCommand) Name() string {
+	return o.OptionName
+}
+
+func (_ SlashCommandOptionSubCommand) slashCommandOption() {}
+
 var _ SlashCommandOption = (*SlashCommandOptionSubCommandGroup)(nil)
 
 type SlashCommandOptionSubCommandGroup struct {
-	Name        string                         `json:"name"`
+	OptionName  string                         `json:"name"`
 	Description string                         `json:"description"`
 	Options     []SlashCommandOptionSubCommand `json:"options,omitempty"`
 }
@@ -114,90 +144,144 @@ func (_ SlashCommandOptionSubCommandGroup) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeSubCommandGroup
 }
 
+func (o SlashCommandOptionSubCommandGroup) Name() string {
+	return o.OptionName
+}
+
+func (_ SlashCommandOptionSubCommandGroup) slashCommandOption() {}
+
 var _ SlashCommandOption = (*SlashCommandOptionString)(nil)
 
 type SlashCommandOptionString struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	OptionName string `json:"name"`
+	Value      string `json:"value"`
 }
 
 func (_ SlashCommandOptionString) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeString
 }
 
+func (o SlashCommandOptionString) Name() string {
+	return o.OptionName
+}
+
+func (_ SlashCommandOptionString) slashCommandOption() {}
+
 var _ SlashCommandOption = (*SlashCommandOptionInt)(nil)
 
 type SlashCommandOptionInt struct {
-	Name  string `json:"name"`
-	Value int    `json:"value"`
+	OptionName string `json:"name"`
+	Value      int    `json:"value"`
 }
 
 func (_ SlashCommandOptionInt) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeInt
 }
 
+func (o SlashCommandOptionInt) Name() string {
+	return o.OptionName
+}
+
+func (_ SlashCommandOptionInt) slashCommandOption() {}
+
 var _ SlashCommandOption = (*SlashCommandOptionBool)(nil)
 
 type SlashCommandOptionBool struct {
-	Name  string `json:"name"`
-	Value bool   `json:"value"`
+	OptionName string `json:"name"`
+	Value      bool   `json:"value"`
 }
 
 func (_ SlashCommandOptionBool) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeBool
 }
 
+func (o SlashCommandOptionBool) Name() string {
+	return o.OptionName
+}
+
+func (_ SlashCommandOptionBool) slashCommandOption() {}
+
 var _ SlashCommandOption = (*SlashCommandOptionUser)(nil)
 
 type SlashCommandOptionUser struct {
-	Name  string    `json:"name"`
-	Value Snowflake `json:"value"`
+	OptionName string    `json:"name"`
+	Value      Snowflake `json:"value"`
 }
 
 func (_ SlashCommandOptionUser) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeUser
 }
 
+func (o SlashCommandOptionUser) Name() string {
+	return o.OptionName
+}
+
+func (_ SlashCommandOptionUser) slashCommandOption() {}
+
 var _ SlashCommandOption = (*SlashCommandOptionChannel)(nil)
 
 type SlashCommandOptionChannel struct {
-	Name  string    `json:"name"`
-	Value Snowflake `json:"value"`
+	OptionName string    `json:"name"`
+	Value      Snowflake `json:"value"`
 }
 
 func (_ SlashCommandOptionChannel) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeChannel
 }
 
+func (o SlashCommandOptionChannel) Name() string {
+	return o.OptionName
+}
+
+func (_ SlashCommandOptionChannel) slashCommandOption() {}
+
 var _ SlashCommandOption = (*SlashCommandOptionRole)(nil)
 
 type SlashCommandOptionRole struct {
-	Name  string    `json:"name"`
-	Value Snowflake `json:"value"`
+	OptionName string    `json:"name"`
+	Value      Snowflake `json:"value"`
 }
 
 func (_ SlashCommandOptionRole) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeRole
 }
 
+func (o SlashCommandOptionRole) Name() string {
+	return o.OptionName
+}
+
+func (_ SlashCommandOptionRole) slashCommandOption() {}
+
 var _ SlashCommandOption = (*SlashCommandOptionMentionable)(nil)
 
 type SlashCommandOptionMentionable struct {
-	Name  string    `json:"name"`
-	Value Snowflake `json:"value"`
+	OptionName string    `json:"name"`
+	Value      Snowflake `json:"value"`
 }
 
 func (_ SlashCommandOptionMentionable) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeMentionable
 }
 
+func (o SlashCommandOptionMentionable) Name() string {
+	return o.OptionName
+}
+
+func (_ SlashCommandOptionMentionable) slashCommandOption() {}
+
 var _ SlashCommandOption = (*SlashCommandOptionFloat)(nil)
 
 type SlashCommandOptionFloat struct {
-	Name  string  `json:"name"`
-	Value float64 `json:"value"`
+	OptionName string  `json:"name"`
+	Value      float64 `json:"value"`
 }
 
 func (_ SlashCommandOptionFloat) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeFloat
 }
+
+func (o SlashCommandOptionFloat) Name() string {
+	return o.OptionName
+}
+
+func (_ SlashCommandOptionFloat) slashCommandOption() {}

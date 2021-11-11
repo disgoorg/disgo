@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/DisgoOrg/disgo/discord"
@@ -62,11 +61,10 @@ func (e Error) Error() string {
 	if e.Err != nil {
 		return e.Err.Error()
 	}
-	var status int
 	if e.Response != nil {
-		status = e.Response.StatusCode
+		return e.Response.Status
 	}
-	return fmt.Sprintf("status %d: err %v", status, e.Err)
+	return "unknown error"
 }
 
 func (e Error) String() string {
