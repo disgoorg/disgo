@@ -29,42 +29,6 @@ const (
 	ChannelTypeGuildStageVoice
 )
 
-var channels = map[ChannelType]func() Channel{
-	ChannelTypeGuildText: func() Channel {
-		return &GuildTextChannel{}
-	},
-	ChannelTypeDM: func() Channel {
-		return &DMChannel{}
-	},
-	ChannelTypeGuildVoice: func() Channel {
-		return &GuildVoiceChannel{}
-	},
-	ChannelTypeGroupDM: func() Channel {
-		return &GroupDMChannel{}
-	},
-	ChannelTypeGuildCategory: func() Channel {
-		return &GuildCategoryChannel{}
-	},
-	ChannelTypeGuildNews: func() Channel {
-		return &GuildNewsChannel{}
-	},
-	ChannelTypeGuildStore: func() Channel {
-		return &GuildStoreChannel{}
-	},
-	ChannelTypeGuildNewsThread: func() Channel {
-		return &GuildNewsThread{}
-	},
-	ChannelTypeGuildPublicThread: func() Channel {
-		return &GuildPublicThread{}
-	},
-	ChannelTypeGuildPrivateThread: func() Channel {
-		return &GuildPrivateThread{}
-	},
-	ChannelTypeGuildStageVoice: func() Channel {
-		return &GuildStageVoiceChannel{}
-	},
-}
-
 type Channel interface {
 	json.Marshaler
 	Type() ChannelType
@@ -111,18 +75,76 @@ func (u *UnmarshalChannel) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	fn, ok := channels[cType.Type]
-	if !ok {
-		return fmt.Errorf("unkown channel with type %d received", cType.Type)
+	var (
+		channel Channel
+		err    error
+	)
+
+	switch cType.Type {
+	case ChannelTypeGuildText:
+		var v GuildTextChannel
+		err = json.Unmarshal(data, &v)
+		channel = v
+
+	case ChannelTypeDM:
+		var v DMChannel
+		err = json.Unmarshal(data, &v)
+		channel = v
+
+	case ChannelTypeGuildVoice:
+		var v GuildVoiceChannel
+		err = json.Unmarshal(data, &v)
+		channel = v
+
+	case ChannelTypeGroupDM:
+		var v GroupDMChannel
+		err = json.Unmarshal(data, &v)
+		channel = v
+
+	case ChannelTypeGuildCategory:
+		var v GuildCategoryChannel
+		err = json.Unmarshal(data, &v)
+		channel = v
+
+	case ChannelTypeGuildNews:
+		var v GuildNewsChannel
+		err = json.Unmarshal(data, &v)
+		channel = v
+
+	case ChannelTypeGuildStore:
+		var v GuildStoreChannel
+		err = json.Unmarshal(data, &v)
+		channel = v
+
+	case ChannelTypeGuildNewsThread:
+		var v GuildNewsThread
+		err = json.Unmarshal(data, &v)
+		channel = v
+
+	case ChannelTypeGuildPublicThread:
+		var v GuildPublicThread
+		err = json.Unmarshal(data, &v)
+		channel = v
+
+	case ChannelTypeGuildPrivateThread:
+		var v GuildPrivateThread
+		err = json.Unmarshal(data, &v)
+		channel = v
+
+	case ChannelTypeGuildStageVoice:
+		var v GuildStageVoiceChannel
+		err = json.Unmarshal(data, &v)
+		channel = v
+
+	default:
+		err = fmt.Errorf("unkown channel with type %d received", cType.Type)
 	}
 
-	v := fn()
-
-	if err := json.Unmarshal(data, &v); err != nil {
+	if err != nil {
 		return err
 	}
 
-	u.Channel = v
+	u.Channel = channel
 	return nil
 }
 
