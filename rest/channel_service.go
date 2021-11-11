@@ -5,7 +5,10 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ ChannelService = (*channelServiceImpl)(nil)
+var (
+	_ Service        = (*channelServiceImpl)(nil)
+	_ ChannelService = (*channelServiceImpl)(nil)
+)
 
 func NewChannelService(restClient Client) ChannelService {
 	return &channelServiceImpl{restClient: restClient}

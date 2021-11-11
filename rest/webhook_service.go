@@ -5,7 +5,10 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ WebhookService = (*webhookServiceImpl)(nil)
+var (
+	_ Service        = (*webhookServiceImpl)(nil)
+	_ WebhookService = (*webhookServiceImpl)(nil)
+)
 
 func NewWebhookService(restClient Client) WebhookService {
 	return &webhookServiceImpl{restClient: restClient}

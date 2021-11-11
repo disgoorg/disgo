@@ -15,13 +15,11 @@ type Channel interface {
 }
 
 type GuildChannel interface {
-	Channel
 	discord.GuildChannel
 	Guild() *Guild
-}
 
-type GuildPermissionChannel interface {
-	GuildChannel
+	UpdateGuildChannel(channelID discord.Snowflake, guildChannelUpdate discord.GuildChannelUpdate, opts ...rest.RequestOpt) (discord.GuildChannel, error)
+	Delete(channelID discord.Snowflake, opts ...rest.RequestOpt) error
 
 	PermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake) discord.PermissionOverwrite
 	RolePermissionOverwrite(id discord.Snowflake) *discord.RolePermissionOverwrite
@@ -32,8 +30,9 @@ type GuildPermissionChannel interface {
 }
 
 type MessageChannel interface {
-	Channel
 	discord.MessageChannel
+
+	SendTyping(opts ...rest.RequestOpt) error
 
 	GetMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error)
 	GetMessages(around discord.Snowflake, before discord.Snowflake, after discord.Snowflake, limit int, opts ...rest.RequestOpt) ([]*Message, error)
@@ -41,21 +40,36 @@ type MessageChannel interface {
 	UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error)
 	DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) error
 	BulkDeleteMessages(messageIDs []discord.Snowflake, opts ...rest.RequestOpt) error
+
+	AddReaction(messageID discord.Snowflake, emoji string, opts ...rest.RequestOpt) error
+	RemoveOwnReaction(messageID discord.Snowflake, emoji string, opts ...rest.RequestOpt) error
+	RemoveUserReaction(messageID discord.Snowflake, emoji string, userID discord.Snowflake, opts ...rest.RequestOpt) error
+	RemoveAllReactions(messageID discord.Snowflake, opts ...rest.RequestOpt) error
+	RemoveAllReactionsForEmoji(messageID discord.Snowflake, emoji string, opts ...rest.RequestOpt) error
 }
 
 type GuildMessageChannel interface {
-	Channel
 	discord.GuildMessageChannel
+
+	GetWebhooks(opts ...rest.RequestOpt) ([]discord.Webhook, error)
+	CreateWebhook(webhookCreate discord.WebhookCreate, opts ...rest.RequestOpt) (*discord.Webhook, error)
+	DeleteWebhook(webhookID discord.Snowflake, opts ...rest.RequestOpt) error
+
+	GetThreads() []GuildThread
+	CreateThread(theadCreate discord.ThreadCreate, opts ...rest.RequestOpt) (GuildThread, error)
 }
 
 type GuildThread interface {
-	Channel
 	discord.GuildThread
+
+	ParentMessageChannel() GuildMessageChannel
 }
 
 type AudioChannel interface {
-	Channel
 	discord.AudioChannel
+
+	Connect() error
+	Members() []*Member
 }
 
 type GuildTextChannel struct {

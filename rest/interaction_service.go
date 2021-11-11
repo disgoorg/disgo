@@ -5,7 +5,10 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ InteractionService = (*interactionServiceImpl)(nil)
+var (
+	_ Service = (*interactionServiceImpl)(nil)
+	_ InteractionService = (*interactionServiceImpl)(nil)
+)
 
 func NewInteractionService(restClient Client) InteractionService {
 	return &interactionServiceImpl{restClient: restClient}

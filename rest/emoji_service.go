@@ -5,7 +5,10 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ EmojiService = (*emojiServiceImpl)(nil)
+var (
+	_ Service      = (*emojiServiceImpl)(nil)
+	_ EmojiService = (*emojiServiceImpl)(nil)
+)
 
 func NewEmojiService(restClient Client) EmojiService {
 	return &emojiServiceImpl{restClient: restClient}

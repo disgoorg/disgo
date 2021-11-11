@@ -5,7 +5,10 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ StickerService = (*stickerServiceImpl)(nil)
+var (
+	_ Service = (*stickerServiceImpl)(nil)
+	_ StickerService = (*stickerServiceImpl)(nil)
+)
 
 func NewStickerService(restClient Client) StickerService {
 	return &stickerServiceImpl{restClient: restClient}

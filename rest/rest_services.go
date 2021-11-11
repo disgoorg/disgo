@@ -42,7 +42,7 @@ type Services interface {
 	HTTPClient() *http.Client
 	ApplicationService() ApplicationService
 	OAuth2Service() OAuth2Service
-	AuditLogService() auditLogService
+	AuditLogService() AuditLogService
 	GatewayService() GatewayService
 	GuildService() GuildService
 	ChannelService() ChannelService
@@ -63,9 +63,9 @@ type servicesImpl struct {
 	restClient Client
 
 	applicationService   ApplicationService
-	oauth2Service        OAuth2Service
-	auditLogService      auditLogService
-	gatewayService       GatewayService
+	oauth2Service   OAuth2Service
+	auditLogService AuditLogService
+	gatewayService  GatewayService
 	guildService         GuildService
 	channelService       ChannelService
 	threadService        ThreadService
@@ -104,7 +104,7 @@ func (s *servicesImpl) OAuth2Service() OAuth2Service {
 	return s.oauth2Service
 }
 
-func (s *servicesImpl) AuditLogService() auditLogService {
+func (s *servicesImpl) AuditLogService() AuditLogService {
 	return s.auditLogService
 }
 

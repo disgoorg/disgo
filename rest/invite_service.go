@@ -5,7 +5,10 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ InviteService = (*inviteServiceImpl)(nil)
+var (
+	_ Service = (*inviteServiceImpl)(nil)
+	_ InviteService = (*inviteServiceImpl)(nil)
+)
 
 func NewInviteService(restClient Client) InviteService {
 	return &inviteServiceImpl{restClient: restClient}

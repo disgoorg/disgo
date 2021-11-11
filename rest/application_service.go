@@ -5,7 +5,10 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ ApplicationService = (*applicationServiceImpl)(nil)
+var (
+	_ Service            = (*applicationServiceImpl)(nil)
+	_ ApplicationService = (*applicationServiceImpl)(nil)
+)
 
 func NewApplicationService(restClient Client) ApplicationService {
 	return &applicationServiceImpl{restClient: restClient}

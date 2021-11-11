@@ -5,7 +5,10 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ ThreadService = (*threadServiceImpl)(nil)
+var (
+	_ Service = (*threadServiceImpl)(nil)
+	_ ThreadService = (*threadServiceImpl)(nil)
+)
 
 func NewThreadService(restClient Client) ThreadService {
 	return &threadServiceImpl{restClient: restClient}

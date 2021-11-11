@@ -5,7 +5,10 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ VoiceService = (*voiceServiceImpl)(nil)
+var (
+	_ Service = (*voiceServiceImpl)(nil)
+	_ VoiceService = (*voiceServiceImpl)(nil)
+)
 
 func NewVoiceService(restClient Client) VoiceService {
 	return &voiceServiceImpl{restClient: restClient}

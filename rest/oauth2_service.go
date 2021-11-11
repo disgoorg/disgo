@@ -7,7 +7,10 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ OAuth2Service = (*oAuth2ServiceImpl)(nil)
+var (
+	_ Service = (*oAuth2ServiceImpl)(nil)
+	_ OAuth2Service = (*oAuth2ServiceImpl)(nil)
+)
 
 func NewOAuth2Service(restClient Client) OAuth2Service {
 	return &oAuth2ServiceImpl{restClient: restClient}

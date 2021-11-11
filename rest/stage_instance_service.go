@@ -5,7 +5,10 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ StageInstanceService = (*stageInstanceServiceImpl)(nil)
+var (
+	_ Service = (*stageInstanceServiceImpl)(nil)
+	_ StageInstanceService = (*stageInstanceServiceImpl)(nil)
+)
 
 func NewStageInstanceService(restClient Client) StageInstanceService {
 	return &stageInstanceServiceImpl{restClient: restClient}
