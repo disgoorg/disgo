@@ -75,12 +75,12 @@ func (c *GuildTextChannel) set(channel Channel) Channel {
 }
 
 func (c *GuildTextChannel) String() string {
-	return channelMention(c.ID)
+	return channelMention(c.ID())
 }
 
 // Update updates the GuildNewsChannel which can return either a GuildNewsChannel or a GuildTextChannel
 func (c *GuildTextChannel) Update(channelUpdate discord.GuildTextChannelUpdate, opts ...rest.RequestOpt) (GuildChannel, error) {
-	channel, err := updateChannel(c.Bot, c.ID, channelUpdate, opts...)
+	channel, err := updateChannel(c.Bot, c.ID(), channelUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (c *GuildTextChannel) Update(channelUpdate discord.GuildTextChannelUpdate, 
 }
 
 func (c *GuildTextChannel) Delete(opts ...rest.RequestOpt) error {
-	return deleteChannel(c.Bot, c.ID, opts...)
+	return deleteChannel(c.Bot, c.ID(), opts...)
 }
 
 func (c *GuildTextChannel) PermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake) discord.PermissionOverwrite {
@@ -104,51 +104,51 @@ func (c *GuildTextChannel) MemberPermissionOverwrite(id discord.Snowflake) *disc
 }
 
 func (c *GuildTextChannel) SetPermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
-	return setPermissionOverwrite(c.Bot, c.ID, overwriteType, id, allow, deny, opts...)
+	return setPermissionOverwrite(c.Bot, c.ID(), overwriteType, id, allow, deny, opts...)
 }
 
 func (c *GuildTextChannel) UpdatePermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
-	return updatePermissionOverwrite(c.Bot, c.ID, c.PermissionOverwrites, overwriteType, id, allow, deny, opts...)
+	return updatePermissionOverwrite(c.Bot, c.ID(), c.PermissionOverwrites, overwriteType, id, allow, deny, opts...)
 }
 
 func (c *GuildTextChannel) DeletePermissionOverwrite(id discord.Snowflake, opts ...rest.RequestOpt) error {
-	return deletePermissionOverwrite(c.Bot, c.ID, id, opts...)
+	return deletePermissionOverwrite(c.Bot, c.ID(), id, opts...)
 }
 
 func (c *GuildTextChannel) CreateThread(threadCreate discord.ThreadCreate, opts ...rest.RequestOpt) (GuildThread, error) {
-	return createThread(c.Bot, c.ID, threadCreate, opts...)
+	return createThread(c.Bot, c.ID(), threadCreate, opts...)
 }
 
 func (c *GuildTextChannel) CreateThreadWithMessage(messageID discord.Snowflake, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (GuildThread, error) {
-	return createThreadWithMessage(c.Bot, c.ID, messageID, threadCreateWithMessage, opts...)
+	return createThreadWithMessage(c.Bot, c.ID(), messageID, threadCreateWithMessage, opts...)
 }
 
 func (c *GuildTextChannel) GetMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
-	return getMessage(c.Bot, c.ID, messageID, opts...)
+	return getMessage(c.Bot, c.ID(), messageID, opts...)
 }
 
 func (c *GuildTextChannel) GetMessages(around discord.Snowflake, before discord.Snowflake, after discord.Snowflake, limit int, opts ...rest.RequestOpt) ([]*Message, error) {
-	return getMessages(c.Bot, c.ID, around, before, after, limit, opts...)
+	return getMessages(c.Bot, c.ID(), around, before, after, limit, opts...)
 }
 
 func (c *GuildTextChannel) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
-	return createMessage(c.Bot, c.ID, messageCreate, opts...)
+	return createMessage(c.Bot, c.ID(), messageCreate, opts...)
 }
 
 func (c *GuildTextChannel) UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
-	return updateMessage(c.Bot, c.ID, messageID, messageUpdate, opts...)
+	return updateMessage(c.Bot, c.ID(), messageID, messageUpdate, opts...)
 }
 
 func (c *GuildTextChannel) DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return deleteMessage(c.Bot, c.ID, messageID, opts...)
+	return deleteMessage(c.Bot, c.ID(), messageID, opts...)
 }
 
 func (c *GuildTextChannel) BulkDeleteMessages(messageIDs []discord.Snowflake, opts ...rest.RequestOpt) error {
-	return bulkDeleteMessages(c.Bot, c.ID, messageIDs, opts...)
+	return bulkDeleteMessages(c.Bot, c.ID(), messageIDs, opts...)
 }
 
 func (c *GuildTextChannel) Guild() *Guild {
-	return channelGuild(c.Bot, c.GuildID)
+	return channelGuild(c.Bot, c.GuildID())
 }
 
 func (c *GuildTextChannel) Parent() *GuildCategoryChannel {
@@ -186,35 +186,35 @@ func (c *DMChannel) set(channel Channel) Channel {
 }
 
 func (c *DMChannel) String() string {
-	return channelMention(c.ID)
+	return channelMention(c.ID())
 }
 
 func (c *DMChannel) Delete(opts ...rest.RequestOpt) error {
-	return deleteChannel(c.Bot, c.ID, opts...)
+	return deleteChannel(c.Bot, c.ID(), opts...)
 }
 
 func (c *DMChannel) GetMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
-	return getMessage(c.Bot, c.ID, messageID, opts...)
+	return getMessage(c.Bot, c.ID(), messageID, opts...)
 }
 
 func (c *DMChannel) GetMessages(around discord.Snowflake, before discord.Snowflake, after discord.Snowflake, limit int, opts ...rest.RequestOpt) ([]*Message, error) {
-	return getMessages(c.Bot, c.ID, around, before, after, limit, opts...)
+	return getMessages(c.Bot, c.ID(), around, before, after, limit, opts...)
 }
 
 func (c *DMChannel) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
-	return createMessage(c.Bot, c.ID, messageCreate, opts...)
+	return createMessage(c.Bot, c.ID(), messageCreate, opts...)
 }
 
 func (c *DMChannel) UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
-	return updateMessage(c.Bot, c.ID, messageID, messageUpdate, opts...)
+	return updateMessage(c.Bot, c.ID(), messageID, messageUpdate, opts...)
 }
 
 func (c *DMChannel) DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return deleteMessage(c.Bot, c.ID, messageID, opts...)
+	return deleteMessage(c.Bot, c.ID(), messageID, opts...)
 }
 
 func (c *DMChannel) BulkDeleteMessages(messageIDs []discord.Snowflake, opts ...rest.RequestOpt) error {
-	return bulkDeleteMessages(c.Bot, c.ID, messageIDs, opts...)
+	return bulkDeleteMessages(c.Bot, c.ID(), messageIDs, opts...)
 }
 
 type GuildVoiceChannel struct {
@@ -235,11 +235,11 @@ func (c *GuildVoiceChannel) set(channel Channel) Channel {
 }
 
 func (c *GuildVoiceChannel) String() string {
-	return channelMention(c.ID)
+	return channelMention(c.ID())
 }
 
 func (c *GuildVoiceChannel) Update(channelUpdate discord.GuildVoiceChannelUpdate, opts ...rest.RequestOpt) (*GuildVoiceChannel, error) {
-	channel, err := updateChannel(c.Bot, c.ID, channelUpdate, opts...)
+	channel, err := updateChannel(c.Bot, c.ID(), channelUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -247,7 +247,7 @@ func (c *GuildVoiceChannel) Update(channelUpdate discord.GuildVoiceChannelUpdate
 }
 
 func (c *GuildVoiceChannel) Delete(opts ...rest.RequestOpt) error {
-	return deleteChannel(c.Bot, c.ID, opts...)
+	return deleteChannel(c.Bot, c.ID(), opts...)
 }
 
 func (c *GuildVoiceChannel) PermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake) discord.PermissionOverwrite {
@@ -263,19 +263,19 @@ func (c *GuildVoiceChannel) MemberPermissionOverwrite(id discord.Snowflake) *dis
 }
 
 func (c *GuildVoiceChannel) SetPermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
-	return setPermissionOverwrite(c.Bot, c.ID, overwriteType, id, allow, deny, opts...)
+	return setPermissionOverwrite(c.Bot, c.ID(), overwriteType, id, allow, deny, opts...)
 }
 
 func (c *GuildVoiceChannel) UpdatePermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
-	return updatePermissionOverwrite(c.Bot, c.ID, c.PermissionOverwrites, overwriteType, id, allow, deny, opts...)
+	return updatePermissionOverwrite(c.Bot, c.ID(), c.PermissionOverwrites, overwriteType, id, allow, deny, opts...)
 }
 
 func (c *GuildVoiceChannel) DeletePermissionOverwrite(id discord.Snowflake, opts ...rest.RequestOpt) error {
-	return deletePermissionOverwrite(c.Bot, c.ID, id, opts...)
+	return deletePermissionOverwrite(c.Bot, c.ID(), id, opts...)
 }
 
 func (c *GuildVoiceChannel) Guild() *Guild {
-	return channelGuild(c.Bot, c.GuildID)
+	return channelGuild(c.Bot, c.GuildID())
 }
 
 func (c *GuildVoiceChannel) Parent() *GuildCategoryChannel {
@@ -286,7 +286,7 @@ func (c *GuildVoiceChannel) Parent() *GuildCategoryChannel {
 }
 
 func (c *GuildVoiceChannel) Connect() error {
-	return c.Bot.AudioController.Connect(c.GuildID, c.ID)
+	return c.Bot.AudioController.Connect(c.GuildID(), c.ID())
 }
 
 func (c *GuildVoiceChannel) Members() []*Member {
@@ -314,11 +314,11 @@ func (c *GroupDMChannel) set(channel Channel) Channel {
 }
 
 func (c *GroupDMChannel) String() string {
-	return channelMention(c.ID)
+	return channelMention(c.ID())
 }
 
 func (c *GroupDMChannel) Update(channelUpdate discord.GroupDMChannelUpdate, opts ...rest.RequestOpt) (*GroupDMChannel, error) {
-	channel, err := updateChannel(c.Bot, c.ID, channelUpdate, opts...)
+	channel, err := updateChannel(c.Bot, c.ID(), channelUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -326,12 +326,12 @@ func (c *GroupDMChannel) Update(channelUpdate discord.GroupDMChannelUpdate, opts
 }
 
 func (c *GroupDMChannel) Delete(opts ...rest.RequestOpt) error {
-	return deleteChannel(c.Bot, c.ID, opts...)
+	return deleteChannel(c.Bot, c.ID(), opts...)
 }
 
 // GetIconURL returns the Icon URL of this channel.
 func (c *GroupDMChannel) GetIconURL(size int) *string {
-	return discord.FormatAssetURL(route.ChannelIcon, c.ID, c.Icon, size)
+	return discord.FormatAssetURL(route.ChannelIcon, c.ID(), c.Icon, size)
 }
 
 type GuildCategoryChannel struct {
@@ -351,11 +351,11 @@ func (c *GuildCategoryChannel) set(channel Channel) Channel {
 }
 
 func (c *GuildCategoryChannel) String() string {
-	return channelMention(c.ID)
+	return channelMention(c.ChannelID)
 }
 
 func (c *GuildCategoryChannel) Update(channelUpdate discord.GuildCategoryChannelUpdate, opts ...rest.RequestOpt) (*GuildCategoryChannel, error) {
-	channel, err := updateChannel(c.Bot, c.ID, channelUpdate, opts...)
+	channel, err := updateChannel(c.Bot, c.ChannelID, channelUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -363,7 +363,7 @@ func (c *GuildCategoryChannel) Update(channelUpdate discord.GuildCategoryChannel
 }
 
 func (c *GuildCategoryChannel) Delete(opts ...rest.RequestOpt) error {
-	return deleteChannel(c.Bot, c.ID, opts...)
+	return deleteChannel(c.Bot, c.ChannelID, opts...)
 }
 
 func (c *GuildCategoryChannel) PermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake) discord.PermissionOverwrite {
@@ -379,26 +379,26 @@ func (c *GuildCategoryChannel) MemberPermissionOverwrite(id discord.Snowflake) *
 }
 
 func (c *GuildCategoryChannel) SetPermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
-	return setPermissionOverwrite(c.Bot, c.ID, overwriteType, id, allow, deny, opts...)
+	return setPermissionOverwrite(c.Bot, c.ChannelID, overwriteType, id, allow, deny, opts...)
 }
 
 func (c *GuildCategoryChannel) UpdatePermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
-	return updatePermissionOverwrite(c.Bot, c.ID, c.PermissionOverwrites, overwriteType, id, allow, deny, opts...)
+	return updatePermissionOverwrite(c.Bot, c.ChannelID, c.PermissionOverwrites, overwriteType, id, allow, deny, opts...)
 }
 
 func (c *GuildCategoryChannel) DeletePermissionOverwrite(id discord.Snowflake, opts ...rest.RequestOpt) error {
-	return deletePermissionOverwrite(c.Bot, c.ID, id, opts...)
+	return deletePermissionOverwrite(c.Bot, c.ChannelID, id, opts...)
 }
 
 func (c *GuildCategoryChannel) Guild() *Guild {
-	return channelGuild(c.Bot, c.GuildID)
+	return channelGuild(c.Bot, c.GuildID())
 }
 
 func (c *GuildCategoryChannel) Channels() []GuildChannel {
 	channels := c.Bot.Caches.ChannelCache().FindAll(func(channel Channel) bool {
 		switch ch := channel.(type) {
 		case *GuildTextChannel:
-			return ch.ParentID != nil && *ch.ParentID == c.ID
+			return ch.ParentID != nil && *ch.ParentID == c.ChannelID
 
 		default:
 			return false
@@ -451,12 +451,12 @@ func (c *GuildNewsChannel) set(channel Channel) Channel {
 }
 
 func (c *GuildNewsChannel) String() string {
-	return channelMention(c.ID)
+	return channelMention(c.ID())
 }
 
 // Update updates the GuildNewsChannel which can return either a GuildNewsChannel or a GuildTextChannel
 func (c *GuildNewsChannel) Update(channelUpdate discord.GuildNewsChannelUpdate, opts ...rest.RequestOpt) (GuildChannel, error) {
-	channel, err := updateChannel(c.Bot, c.ID, channelUpdate, opts...)
+	channel, err := updateChannel(c.Bot, c.ID(), channelUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -464,7 +464,7 @@ func (c *GuildNewsChannel) Update(channelUpdate discord.GuildNewsChannelUpdate, 
 }
 
 func (c *GuildNewsChannel) Delete(opts ...rest.RequestOpt) error {
-	return deleteChannel(c.Bot, c.ID, opts...)
+	return deleteChannel(c.Bot, c.ID(), opts...)
 }
 
 func (c *GuildNewsChannel) PermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake) discord.PermissionOverwrite {
@@ -480,51 +480,51 @@ func (c *GuildNewsChannel) MemberPermissionOverwrite(id discord.Snowflake) *disc
 }
 
 func (c *GuildNewsChannel) SetPermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
-	return setPermissionOverwrite(c.Bot, c.ID, overwriteType, id, allow, deny, opts...)
+	return setPermissionOverwrite(c.Bot, c.ID(), overwriteType, id, allow, deny, opts...)
 }
 
 func (c *GuildNewsChannel) UpdatePermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
-	return updatePermissionOverwrite(c.Bot, c.ID, c.PermissionOverwrites, overwriteType, id, allow, deny, opts...)
+	return updatePermissionOverwrite(c.Bot, c.ID(), c.PermissionOverwrites, overwriteType, id, allow, deny, opts...)
 }
 
 func (c *GuildNewsChannel) DeletePermissionOverwrite(id discord.Snowflake, opts ...rest.RequestOpt) error {
-	return deletePermissionOverwrite(c.Bot, c.ID, id, opts...)
+	return deletePermissionOverwrite(c.Bot, c.ID(), id, opts...)
 }
 
 func (c *GuildNewsChannel) CreateThread(threadCreate discord.ThreadCreate, opts ...rest.RequestOpt) (GuildThread, error) {
-	return createThread(c.Bot, c.ID, threadCreate, opts...)
+	return createThread(c.Bot, c.ID(), threadCreate, opts...)
 }
 
 func (c *GuildNewsChannel) CreateThreadWithMessage(messageID discord.Snowflake, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (GuildThread, error) {
-	return createThreadWithMessage(c.Bot, c.ID, messageID, threadCreateWithMessage, opts...)
+	return createThreadWithMessage(c.Bot, c.ID(), messageID, threadCreateWithMessage, opts...)
 }
 
 func (c *GuildNewsChannel) GetMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
-	return getMessage(c.Bot, c.ID, messageID, opts...)
+	return getMessage(c.Bot, c.ID(), messageID, opts...)
 }
 
 func (c *GuildNewsChannel) GetMessages(around discord.Snowflake, before discord.Snowflake, after discord.Snowflake, limit int, opts ...rest.RequestOpt) ([]*Message, error) {
-	return getMessages(c.Bot, c.ID, around, before, after, limit, opts...)
+	return getMessages(c.Bot, c.ID(), around, before, after, limit, opts...)
 }
 
 func (c *GuildNewsChannel) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
-	return createMessage(c.Bot, c.ID, messageCreate, opts...)
+	return createMessage(c.Bot, c.ID(), messageCreate, opts...)
 }
 
 func (c *GuildNewsChannel) UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
-	return updateMessage(c.Bot, c.ID, messageID, messageUpdate, opts...)
+	return updateMessage(c.Bot, c.ID(), messageID, messageUpdate, opts...)
 }
 
 func (c *GuildNewsChannel) DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return deleteMessage(c.Bot, c.ID, messageID, opts...)
+	return deleteMessage(c.Bot, c.ID(), messageID, opts...)
 }
 
 func (c *GuildNewsChannel) BulkDeleteMessages(messageIDs []discord.Snowflake, opts ...rest.RequestOpt) error {
-	return bulkDeleteMessages(c.Bot, c.ID, messageIDs, opts...)
+	return bulkDeleteMessages(c.Bot, c.ID(), messageIDs, opts...)
 }
 
 func (c *GuildNewsChannel) CrosspostMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := c.Bot.RestServices.ChannelService().CrosspostMessage(c.ID, messageID, opts...)
+	message, err := c.Bot.RestServices.ChannelService().CrosspostMessage(c.ID(), messageID, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -532,7 +532,7 @@ func (c *GuildNewsChannel) CrosspostMessage(messageID discord.Snowflake, opts ..
 }
 
 func (c *GuildNewsChannel) Guild() *Guild {
-	return channelGuild(c.Bot, c.GuildID)
+	return channelGuild(c.Bot, c.GuildID())
 }
 
 func (c *GuildNewsChannel) Parent() *GuildCategoryChannel {
@@ -559,11 +559,11 @@ func (c *GuildStoreChannel) set(channel Channel) Channel {
 }
 
 func (c *GuildStoreChannel) String() string {
-	return channelMention(c.ID)
+	return channelMention(c.ID())
 }
 
 func (c *GuildStoreChannel) Update(channelUpdate discord.GuildStoreChannelUpdate, opts ...rest.RequestOpt) (*GuildStoreChannel, error) {
-	channel, err := updateChannel(c.Bot, c.ID, channelUpdate, opts...)
+	channel, err := updateChannel(c.Bot, c.ID(), channelUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -571,7 +571,7 @@ func (c *GuildStoreChannel) Update(channelUpdate discord.GuildStoreChannelUpdate
 }
 
 func (c *GuildStoreChannel) Delete(opts ...rest.RequestOpt) error {
-	return deleteChannel(c.Bot, c.ID, opts...)
+	return deleteChannel(c.Bot, c.ID(), opts...)
 }
 
 func (c *GuildStoreChannel) PermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake) discord.PermissionOverwrite {
@@ -587,19 +587,19 @@ func (c *GuildStoreChannel) MemberPermissionOverwrite(id discord.Snowflake) *dis
 }
 
 func (c *GuildStoreChannel) SetPermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
-	return setPermissionOverwrite(c.Bot, c.ID, overwriteType, id, allow, deny, opts...)
+	return setPermissionOverwrite(c.Bot, c.ID(), overwriteType, id, allow, deny, opts...)
 }
 
 func (c *GuildStoreChannel) UpdatePermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
-	return updatePermissionOverwrite(c.Bot, c.ID, c.PermissionOverwrites, overwriteType, id, allow, deny, opts...)
+	return updatePermissionOverwrite(c.Bot, c.ID(), c.PermissionOverwrites, overwriteType, id, allow, deny, opts...)
 }
 
 func (c *GuildStoreChannel) DeletePermissionOverwrite(id discord.Snowflake, opts ...rest.RequestOpt) error {
-	return deletePermissionOverwrite(c.Bot, c.ID, id, opts...)
+	return deletePermissionOverwrite(c.Bot, c.ID(), id, opts...)
 }
 
 func (c *GuildStoreChannel) Guild() *Guild {
-	return channelGuild(c.Bot, c.GuildID)
+	return channelGuild(c.Bot, c.GuildID())
 }
 
 func (c *GuildStoreChannel) Parent() *GuildCategoryChannel {
@@ -626,11 +626,11 @@ func (c *GuildNewsThread) set(channel Channel) Channel {
 }
 
 func (c *GuildNewsThread) String() string {
-	return channelMention(c.ID)
+	return channelMention(c.ID())
 }
 
 func (c *GuildNewsThread) Update(channelUpdate discord.GuildNewsThreadUpdate, opts ...rest.RequestOpt) (*GuildNewsThread, error) {
-	channel, err := updateChannel(c.Bot, c.ID, channelUpdate, opts...)
+	channel, err := updateChannel(c.Bot, c.ID(), channelUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -638,35 +638,35 @@ func (c *GuildNewsThread) Update(channelUpdate discord.GuildNewsThreadUpdate, op
 }
 
 func (c *GuildNewsThread) Delete(opts ...rest.RequestOpt) error {
-	return deleteChannel(c.Bot, c.ID, opts...)
+	return deleteChannel(c.Bot, c.ID(), opts...)
 }
 
 func (c *GuildNewsThread) GetMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
-	return getMessage(c.Bot, c.ID, messageID, opts...)
+	return getMessage(c.Bot, c.ID(), messageID, opts...)
 }
 
 func (c *GuildNewsThread) GetMessages(around discord.Snowflake, before discord.Snowflake, after discord.Snowflake, limit int, opts ...rest.RequestOpt) ([]*Message, error) {
-	return getMessages(c.Bot, c.ID, around, before, after, limit, opts...)
+	return getMessages(c.Bot, c.ID(), around, before, after, limit, opts...)
 }
 
 func (c *GuildNewsThread) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
-	return createMessage(c.Bot, c.ID, messageCreate, opts...)
+	return createMessage(c.Bot, c.ID(), messageCreate, opts...)
 }
 
 func (c *GuildNewsThread) UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
-	return updateMessage(c.Bot, c.ID, messageID, messageUpdate, opts...)
+	return updateMessage(c.Bot, c.ID(), messageID, messageUpdate, opts...)
 }
 
 func (c *GuildNewsThread) DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return deleteMessage(c.Bot, c.ID, messageID, opts...)
+	return deleteMessage(c.Bot, c.ID(), messageID, opts...)
 }
 
 func (c *GuildNewsThread) BulkDeleteMessages(messageIDs []discord.Snowflake, opts ...rest.RequestOpt) error {
-	return bulkDeleteMessages(c.Bot, c.ID, messageIDs, opts...)
+	return bulkDeleteMessages(c.Bot, c.ID(), messageIDs, opts...)
 }
 
 func (c *GuildNewsThread) Guild() *Guild {
-	return channelGuild(c.Bot, c.GuildID)
+	return channelGuild(c.Bot, c.GuildID())
 }
 
 func (c *GuildNewsThread) Parent() *GuildNewsChannel {
@@ -680,11 +680,11 @@ func (c *GuildNewsThread) Members() []*Member {
 }
 
 func (c *GuildNewsThread) ThreadMembers() []*ThreadMember {
-	return c.Bot.Caches.ThreadMemberCache().ThreadAll(c.ID)
+	return c.Bot.Caches.ThreadMemberCache().ThreadAll(c.ID())
 }
 
 func (c *GuildNewsThread) ThreadMembersCache() map[discord.Snowflake]*ThreadMember {
-	return c.Bot.Caches.ThreadMemberCache().ThreadCache(c.ID)
+	return c.Bot.Caches.ThreadMemberCache().ThreadCache(c.ID())
 }
 
 var (
@@ -709,11 +709,11 @@ func (c *GuildPublicThread) set(channel Channel) Channel {
 }
 
 func (c *GuildPublicThread) String() string {
-	return channelMention(c.ID)
+	return channelMention(c.ID())
 }
 
 func (c *GuildPublicThread) Update(channelUpdate discord.GuildPublicThreadUpdate, opts ...rest.RequestOpt) (*GuildPublicThread, error) {
-	channel, err := updateChannel(c.Bot, c.ID, channelUpdate, opts...)
+	channel, err := updateChannel(c.Bot, c.ID(), channelUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -721,35 +721,35 @@ func (c *GuildPublicThread) Update(channelUpdate discord.GuildPublicThreadUpdate
 }
 
 func (c *GuildPublicThread) Delete(opts ...rest.RequestOpt) error {
-	return deleteChannel(c.Bot, c.ID, opts...)
+	return deleteChannel(c.Bot, c.ID(), opts...)
 }
 
 func (c *GuildPublicThread) GetMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
-	return getMessage(c.Bot, c.ID, messageID, opts...)
+	return getMessage(c.Bot, c.ID(), messageID, opts...)
 }
 
 func (c *GuildPublicThread) GetMessages(around discord.Snowflake, before discord.Snowflake, after discord.Snowflake, limit int, opts ...rest.RequestOpt) ([]*Message, error) {
-	return getMessages(c.Bot, c.ID, around, before, after, limit, opts...)
+	return getMessages(c.Bot, c.ID(), around, before, after, limit, opts...)
 }
 
 func (c *GuildPublicThread) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
-	return createMessage(c.Bot, c.ID, messageCreate, opts...)
+	return createMessage(c.Bot, c.ID(), messageCreate, opts...)
 }
 
 func (c *GuildPublicThread) UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
-	return updateMessage(c.Bot, c.ID, messageID, messageUpdate, opts...)
+	return updateMessage(c.Bot, c.ID(), messageID, messageUpdate, opts...)
 }
 
 func (c *GuildPublicThread) DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return deleteMessage(c.Bot, c.ID, messageID, opts...)
+	return deleteMessage(c.Bot, c.ID(), messageID, opts...)
 }
 
 func (c *GuildPublicThread) BulkDeleteMessages(messageIDs []discord.Snowflake, opts ...rest.RequestOpt) error {
-	return bulkDeleteMessages(c.Bot, c.ID, messageIDs, opts...)
+	return bulkDeleteMessages(c.Bot, c.ID(), messageIDs, opts...)
 }
 
 func (c *GuildPublicThread) Guild() *Guild {
-	return channelGuild(c.Bot, c.GuildID)
+	return channelGuild(c.Bot, c.GuildID())
 }
 
 func (c *GuildPublicThread) Parent() *GuildTextChannel {
@@ -763,11 +763,11 @@ func (c *GuildPublicThread) Members() []*Member {
 }
 
 func (c *GuildPublicThread) ThreadMembers() []*ThreadMember {
-	return c.Bot.Caches.ThreadMemberCache().ThreadAll(c.ID)
+	return c.Bot.Caches.ThreadMemberCache().ThreadAll(c.ID())
 }
 
 func (c *GuildPublicThread) ThreadMembersCache() map[discord.Snowflake]*ThreadMember {
-	return c.Bot.Caches.ThreadMemberCache().ThreadCache(c.ID)
+	return c.Bot.Caches.ThreadMemberCache().ThreadCache(c.ID())
 }
 
 type GuildPrivateThread struct {
@@ -787,11 +787,11 @@ func (c *GuildPrivateThread) set(channel Channel) Channel {
 }
 
 func (c *GuildPrivateThread) String() string {
-	return channelMention(c.ID)
+	return channelMention(c.ID())
 }
 
 func (c *GuildPrivateThread) Update(channelUpdate discord.GuildPrivateThreadUpdate, opts ...rest.RequestOpt) (*GuildStageVoiceChannel, error) {
-	channel, err := updateChannel(c.Bot, c.ID, channelUpdate, opts...)
+	channel, err := updateChannel(c.Bot, c.ID(), channelUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -799,35 +799,35 @@ func (c *GuildPrivateThread) Update(channelUpdate discord.GuildPrivateThreadUpda
 }
 
 func (c *GuildPrivateThread) Delete(opts ...rest.RequestOpt) error {
-	return deleteChannel(c.Bot, c.ID, opts...)
+	return deleteChannel(c.Bot, c.ID(), opts...)
 }
 
 func (c *GuildPrivateThread) GetMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
-	return getMessage(c.Bot, c.ID, messageID, opts...)
+	return getMessage(c.Bot, c.ID(), messageID, opts...)
 }
 
 func (c *GuildPrivateThread) GetMessages(around discord.Snowflake, before discord.Snowflake, after discord.Snowflake, limit int, opts ...rest.RequestOpt) ([]*Message, error) {
-	return getMessages(c.Bot, c.ID, around, before, after, limit, opts...)
+	return getMessages(c.Bot, c.ID(), around, before, after, limit, opts...)
 }
 
 func (c *GuildPrivateThread) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
-	return createMessage(c.Bot, c.ID, messageCreate, opts...)
+	return createMessage(c.Bot, c.ID(), messageCreate, opts...)
 }
 
 func (c *GuildPrivateThread) UpdateMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
-	return updateMessage(c.Bot, c.ID, messageID, messageUpdate, opts...)
+	return updateMessage(c.Bot, c.ID(), messageID, messageUpdate, opts...)
 }
 
 func (c *GuildPrivateThread) DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return deleteMessage(c.Bot, c.ID, messageID, opts...)
+	return deleteMessage(c.Bot, c.ID(), messageID, opts...)
 }
 
 func (c *GuildPrivateThread) BulkDeleteMessages(messageIDs []discord.Snowflake, opts ...rest.RequestOpt) error {
-	return bulkDeleteMessages(c.Bot, c.ID, messageIDs, opts...)
+	return bulkDeleteMessages(c.Bot, c.ID(), messageIDs, opts...)
 }
 
 func (c *GuildPrivateThread) Guild() *Guild {
-	return channelGuild(c.Bot, c.GuildID)
+	return channelGuild(c.Bot, c.GuildID())
 }
 
 func (c *GuildPrivateThread) Parent() *GuildTextChannel {
@@ -841,11 +841,11 @@ func (c *GuildPrivateThread) Members() []*Member {
 }
 
 func (c *GuildPrivateThread) ThreadMembers() []*ThreadMember {
-	return c.Bot.Caches.ThreadMemberCache().ThreadAll(c.ID)
+	return c.Bot.Caches.ThreadMemberCache().ThreadAll(c.ID())
 }
 
 func (c *GuildPrivateThread) ThreadMembersCache() map[discord.Snowflake]*ThreadMember {
-	return c.Bot.Caches.ThreadMemberCache().ThreadCache(c.ID)
+	return c.Bot.Caches.ThreadMemberCache().ThreadCache(c.ID())
 }
 
 type GuildStageVoiceChannel struct {
@@ -867,11 +867,11 @@ func (c *GuildStageVoiceChannel) set(channel Channel) Channel {
 }
 
 func (c *GuildStageVoiceChannel) String() string {
-	return channelMention(c.ID)
+	return channelMention(c.ID())
 }
 
 func (c *GuildStageVoiceChannel) Update(channelUpdate discord.GuildStageVoiceChannelUpdate, opts ...rest.RequestOpt) (*GuildStageVoiceChannel, error) {
-	channel, err := updateChannel(c.Bot, c.ID, channelUpdate, opts...)
+	channel, err := updateChannel(c.Bot, c.ID(), channelUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -879,7 +879,7 @@ func (c *GuildStageVoiceChannel) Update(channelUpdate discord.GuildStageVoiceCha
 }
 
 func (c *GuildStageVoiceChannel) Delete(opts ...rest.RequestOpt) error {
-	return deleteChannel(c.Bot, c.ID, opts...)
+	return deleteChannel(c.Bot, c.ID(), opts...)
 }
 
 func (c *GuildStageVoiceChannel) PermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake) discord.PermissionOverwrite {
@@ -895,19 +895,19 @@ func (c *GuildStageVoiceChannel) MemberPermissionOverwrite(id discord.Snowflake)
 }
 
 func (c *GuildStageVoiceChannel) SetPermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
-	return setPermissionOverwrite(c.Bot, c.ID, overwriteType, id, allow, deny, opts...)
+	return setPermissionOverwrite(c.Bot, c.ID(), overwriteType, id, allow, deny, opts...)
 }
 
 func (c *GuildStageVoiceChannel) UpdatePermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
-	return updatePermissionOverwrite(c.Bot, c.ID, c.PermissionOverwrites, overwriteType, id, allow, deny, opts...)
+	return updatePermissionOverwrite(c.Bot, c.ID(), c.PermissionOverwrites, overwriteType, id, allow, deny, opts...)
 }
 
 func (c *GuildStageVoiceChannel) DeletePermissionOverwrite(id discord.Snowflake, opts ...rest.RequestOpt) error {
-	return deletePermissionOverwrite(c.Bot, c.ID, id, opts...)
+	return deletePermissionOverwrite(c.Bot, c.ID(), id, opts...)
 }
 
 func (c *GuildStageVoiceChannel) Guild() *Guild {
-	return channelGuild(c.Bot, c.GuildID)
+	return channelGuild(c.Bot, c.GuildID())
 }
 
 func (c *GuildStageVoiceChannel) Parent() *GuildCategoryChannel {
@@ -918,7 +918,7 @@ func (c *GuildStageVoiceChannel) Parent() *GuildCategoryChannel {
 }
 
 func (c *GuildStageVoiceChannel) Connect() error {
-	return c.Bot.AudioController.Connect(c.GuildID, c.ID)
+	return c.Bot.AudioController.Connect(c.GuildID(), c.ID())
 }
 
 func (c *GuildStageVoiceChannel) Members() []*Member {
@@ -948,7 +948,7 @@ func (c *GuildStageVoiceChannel) CreateStageInstance(stageInstanceCreate discord
 }
 
 func (c *GuildStageVoiceChannel) UpdateStageInstance(stageInstanceUpdate discord.StageInstanceUpdate, opts ...rest.RequestOpt) (*StageInstance, error) {
-	stageInstance, err := c.Bot.RestServices.StageInstanceService().UpdateStageInstance(c.ID, stageInstanceUpdate, opts...)
+	stageInstance, err := c.Bot.RestServices.StageInstanceService().UpdateStageInstance(c.ID(), stageInstanceUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -956,7 +956,7 @@ func (c *GuildStageVoiceChannel) UpdateStageInstance(stageInstanceUpdate discord
 }
 
 func (c *GuildStageVoiceChannel) DeleteStageInstance(opts ...rest.RequestOpt) error {
-	return c.Bot.RestServices.StageInstanceService().DeleteStageInstance(c.ID, opts...)
+	return c.Bot.RestServices.StageInstanceService().DeleteStageInstance(c.ID(), opts...)
 }
 
 //--------------------------------------------
@@ -1108,86 +1108,6 @@ func updateChannel(bot *Bot, channelID discord.Snowflake, channelUpdate discord.
 
 func deleteChannel(bot *Bot, channelID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return bot.RestServices.ChannelService().DeleteChannel(channelID, opts...)
-}
-
-func ChannelID(channel Channel) discord.Snowflake {
-	if channel == nil {
-		return ""
-	}
-	switch ch := channel.(type) {
-	case *GuildTextChannel:
-		return ch.ID
-
-	case *DMChannel:
-		return ch.ID
-
-	case *GuildVoiceChannel:
-		return ch.ID
-
-	case *GroupDMChannel:
-		return ch.ID
-
-	case *GuildCategoryChannel:
-		return ch.ID
-
-	case *GuildNewsChannel:
-		return ch.ID
-
-	case *GuildStoreChannel:
-		return ch.ID
-
-	case *GuildNewsThread:
-		return ch.ID
-
-	case *GuildPrivateThread:
-		return ch.ID
-
-	case *GuildPublicThread:
-		return ch.ID
-
-	case *GuildStageVoiceChannel:
-		return ch.ID
-
-	default:
-		panic("unknown channel type")
-	}
-}
-
-func GuildID(channel GuildChannel) discord.Snowflake {
-	if channel == nil {
-		return ""
-	}
-	switch ch := channel.(type) {
-	case *GuildTextChannel:
-		return ch.GuildID
-
-	case *GuildVoiceChannel:
-		return ch.GuildID
-
-	case *GuildCategoryChannel:
-		return ch.GuildID
-
-	case *GuildNewsChannel:
-		return ch.GuildID
-
-	case *GuildStoreChannel:
-		return ch.GuildID
-
-	case *GuildNewsThread:
-		return ch.GuildID
-
-	case *GuildPrivateThread:
-		return ch.GuildID
-
-	case *GuildPublicThread:
-		return ch.GuildID
-
-	case *GuildStageVoiceChannel:
-		return ch.GuildID
-
-	default:
-		panic("unknown channel type")
-	}
 }
 
 func PermissionOverwrite(channel GuildChannel, overwriteType discord.PermissionOverwriteType, id discord.Snowflake) discord.PermissionOverwrite {

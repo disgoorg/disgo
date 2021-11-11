@@ -46,13 +46,12 @@ func (c *channelCacheImpl) Set(channel Channel) Channel {
 	if c.cacheFlags.Missing(getCacheFLagForChannelType(channel.Type())) {
 		return channel
 	}
-	cID := ChannelID(channel)
-	ch, ok := c.channels[cID]
+	ch, ok := c.channels[channel.ID()]
 	if ok {
 		ch = ch.set(channel)
 		return ch
 	}
-	c.channels[cID] = channel
+	c.channels[channel.ID()] = channel
 	return channel
 }
 

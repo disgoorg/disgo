@@ -114,30 +114,30 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 func setGuildID(channel discord.GuildChannel, guildID discord.Snowflake) {
 	switch ch := channel.(type) {
 	case discord.GuildTextChannel:
-		ch.GuildID = guildID
+		ch.ChannelGuildID = guildID
 
 	case discord.GuildVoiceChannel:
-		ch.GuildID = guildID
+		ch.ChannelGuildID = guildID
 
 	case discord.GuildCategoryChannel:
-		ch.GuildID = guildID
+		ch.ChannelGuildID = guildID
 
 	case discord.GuildNewsChannel:
-		ch.GuildID = guildID
+		ch.ChannelGuildID = guildID
 
 	case discord.GuildStoreChannel:
-		ch.GuildID = guildID
+		ch.ChannelGuildID = guildID
 
 	case discord.GuildNewsThread:
-		ch.GuildID = guildID
+		ch.ChannelGuildID = guildID
 
 	case discord.GuildPrivateThread:
-		ch.GuildID = guildID
+		ch.ChannelGuildID = guildID
 
 	case discord.GuildPublicThread:
-		ch.GuildID = guildID
+		ch.ChannelGuildID = guildID
 
 	case discord.GuildStageVoiceChannel:
-		ch.GuildID = guildID
+		ch.ChannelGuildID = guildID
 	}
 }

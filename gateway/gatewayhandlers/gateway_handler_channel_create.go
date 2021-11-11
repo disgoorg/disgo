@@ -22,18 +22,17 @@ func (h *gatewayHandlerChannelCreate) New() interface{} {
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerChannelCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	channel := v.(*discord.UnmarshalChannel).Channel
-	channelID := discord.ChannelID(channel)
 
 	genericChannelEvent := &events.GenericChannelEvent{
 		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-		ChannelID:    channelID,
+		ChannelID:    channel.ID(),
 		Channel:      bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes),
 	}
 
 	if ch, ok := channel.(discord.GuildChannel); ok {
 		bot.EventManager.Dispatch(&events.GuildChannelCreateEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
-				GuildID:             discord.GuildID(ch),
+				GuildID:             ch.GuildID(),
 				GenericChannelEvent: genericChannelEvent,
 			},
 		})
