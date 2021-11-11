@@ -83,48 +83,48 @@ func (b *MessageUpdateBuilder) RemoveEmbed(i int) *MessageUpdateBuilder {
 	return b
 }
 
-// SetActionRows sets the discord.ActionRowComponent(s) of the Message
-func (b *MessageUpdateBuilder) SetActionRows(actionRows ...discord.ActionRowComponent) *MessageUpdateBuilder {
+// SetContainerComponents sets the discord.ContainerComponent(s) of the Message
+func (b *MessageUpdateBuilder) SetContainerComponents(containerComponents ...discord.ContainerComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]discord.ActionRowComponent)
+		b.Components = new([]discord.ContainerComponent)
 	}
-	*b.Components = actionRows
+	*b.Components = containerComponents
 	return b
 }
 
-// SetActionRow sets the provided discord.ActionRowComponent at the index of discord.Component(s)
-func (b *MessageUpdateBuilder) SetActionRow(i int, actionRow discord.ActionRowComponent) *MessageUpdateBuilder {
+// SetContainerComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
+func (b *MessageUpdateBuilder) SetContainerComponent(i int, container discord.ContainerComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]discord.ActionRowComponent)
+		b.Components = new([]discord.ContainerComponent)
 	}
 	if len(*b.Components) > i {
-		(*b.Components)[i] = actionRow
+		(*b.Components)[i] = container
 	}
 	return b
 }
 
-// AddActionRow adds a new discord.ActionRowComponent with the provided discord.Component(s) to the Message
-func (b *MessageUpdateBuilder) AddActionRow(components ...discord.Component) *MessageUpdateBuilder {
+// AddActionRow adds a new discord.ActionRowComponent with the provided discord.InteractiveComponent(s) to the Message
+func (b *MessageUpdateBuilder) AddActionRow(components ...discord.InteractiveComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]discord.ActionRowComponent)
+		b.Components = new([]discord.ContainerComponent)
 	}
-	*b.Components = append(*b.Components, components)
+	*b.Components = append(*b.Components, discord.ActionRowComponent(components))
 	return b
 }
 
-// AddActionRows adds the discord.ActionRowComponent(s) to the Message
-func (b *MessageUpdateBuilder) AddActionRows(actionRows ...discord.ActionRowComponent) *MessageUpdateBuilder {
+// AddContainerComponents adds the discord.ContainerComponent(s) to the Message
+func (b *MessageUpdateBuilder) AddContainerComponents(containers ...discord.ContainerComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]discord.ActionRowComponent)
+		b.Components = new([]discord.ContainerComponent)
 	}
-	*b.Components = append(*b.Components, actionRows...)
+	*b.Components = append(*b.Components, containers...)
 	return b
 }
 
-// RemoveActionRow removes a discord.ActionRowComponent from the Message
-func (b *MessageUpdateBuilder) RemoveActionRow(i int) *MessageUpdateBuilder {
+// RemoveContainerComponent removes a discord.ContainerComponent from the Message
+func (b *MessageUpdateBuilder) RemoveContainerComponent(i int) *MessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]discord.ActionRowComponent)
+		return b
 	}
 	if len(*b.Components) > i {
 		*b.Components = append((*b.Components)[:i], (*b.Components)[i+1:]...)
@@ -132,9 +132,9 @@ func (b *MessageUpdateBuilder) RemoveActionRow(i int) *MessageUpdateBuilder {
 	return b
 }
 
-// ClearActionRows removes all the discord.ActionRowComponent(s) of the Message
-func (b *MessageUpdateBuilder) ClearActionRows() *MessageUpdateBuilder {
-	b.Components = &[]discord.ActionRowComponent{}
+// ClearContainerComponents removes all the discord.ContainerComponent(s) of the Message
+func (b *MessageUpdateBuilder) ClearContainerComponents() *MessageUpdateBuilder {
+	b.Components = &[]discord.ContainerComponent{}
 	return b
 }
 

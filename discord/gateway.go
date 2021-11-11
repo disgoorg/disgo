@@ -1,5 +1,7 @@
 package discord
 
+import "github.com/DisgoOrg/disgo/json"
+
 type Gateway struct {
 	URL string `json:"url"`
 }
@@ -118,9 +120,43 @@ type IntegrationCreateGatewayEvent struct {
 	GuildID Snowflake `json:"guild_id"`
 }
 
+func (e *IntegrationCreateGatewayEvent) UnmarshalJSON(data []byte) error {
+	type integrationCreateGatewayEvent IntegrationCreateGatewayEvent
+	var v struct {
+		UnmarshalIntegration
+		integrationCreateGatewayEvent
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*e = IntegrationCreateGatewayEvent(v.integrationCreateGatewayEvent)
+
+	e.Integration = v.UnmarshalIntegration.Integration
+	return nil
+}
+
 type IntegrationUpdateGatewayEvent struct {
 	Integration
 	GuildID Snowflake `json:"guild_id"`
+}
+
+func (e *IntegrationUpdateGatewayEvent) UnmarshalJSON(data []byte) error {
+	type integrationUpdateGatewayEvent IntegrationUpdateGatewayEvent
+	var v struct {
+		UnmarshalIntegration
+		integrationUpdateGatewayEvent
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*e = IntegrationUpdateGatewayEvent(v.integrationUpdateGatewayEvent)
+
+	e.Integration = v.UnmarshalIntegration.Integration
+	return nil
 }
 
 type IntegrationDeleteGatewayEvent struct {

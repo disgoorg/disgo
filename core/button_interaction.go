@@ -14,7 +14,7 @@ var _ ComponentInteraction = (*ButtonInteraction)(nil)
 type ButtonInteraction struct {
 	*InteractionFields
 	Message  *Message
-	CustomID string
+	CustomID discord.CustomID
 }
 
 func (i *ButtonInteraction) InteractionType() discord.InteractionType {

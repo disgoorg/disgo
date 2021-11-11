@@ -17,10 +17,28 @@ const (
 	ComponentTypeSelectMenu
 )
 
+type CustomID string
+
+func (c CustomID) String() string {
+	return string(c)
+}
+
 type Component interface {
 	json.Marshaler
 	Type() ComponentType
 	component()
+}
+
+type ContainerComponent interface {
+	Component
+	Components() []InteractiveComponent
+	containerComponent()
+}
+
+type InteractiveComponent interface {
+	Component
+	ID() CustomID
+	interactiveComponent()
 }
 
 type UnmarshalComponent struct {

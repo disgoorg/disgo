@@ -94,13 +94,19 @@ func update(fields *InteractionFields, messageUpdate discord.MessageUpdate, opts
 	return respond(fields, discord.InteractionCallbackTypeUpdateMessage, messageUpdate, opts...)
 }
 
-func updateComponent(fields *InteractionFields, message *Message, customID string, component discord.Component, opts ...rest.RequestOpt) error {
-	actionRows := message.ActionRows()
-	for _, actionRow := range actionRows {
-		actionRow = actionRow.SetComponent(customID, component)
+func updateComponent(fields *InteractionFields, message *Message, customID discord.CustomID, component discord.InteractiveComponent, opts ...rest.RequestOpt) error {
+	containerComponents := message.Components
+	for i := range containerComponents {
+		switch container := containerComponents[i].(type) {
+		case discord.ActionRowComponent:
+			container = container.UpdateComponent(customID, component)
+
+		default:
+			continue
+		}
 	}
 
-	return update(fields, NewMessageUpdateBuilder().SetActionRows(actionRows...).Build(), opts...)
+	return update(fields, NewMessageUpdateBuilder().SetContainerComponents(containerComponents...).Build(), opts...)
 }
 
 func result(fields *InteractionFields, choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {

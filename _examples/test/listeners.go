@@ -24,7 +24,7 @@ func buttonClickListener(event *events.ButtonClickEvent) {
 	switch event.CustomID {
 	case "test1":
 		_ = event.Create(core.NewMessageCreateBuilder().
-			SetContent(event.CustomID).
+			SetContent(event.CustomID.String()).
 			Build(),
 		)
 
@@ -36,7 +36,7 @@ func buttonClickListener(event *events.ButtonClickEvent) {
 
 	case "test4":
 		_ = event.Update(core.NewMessageUpdateBuilder().
-			SetContent(event.CustomID).
+			SetContent(event.CustomID.String()).
 			Build(),
 		)
 	}

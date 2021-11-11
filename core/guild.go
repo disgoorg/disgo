@@ -237,14 +237,14 @@ func (g *Guild) GetAuditLogs(filterOptions AuditLogFilterOptions, opts ...rest.R
 }
 
 // GetIntegrations gets all Integration(s) from the Guild. Requires PermissionManageServer
-func (g *Guild) GetIntegrations(opts ...rest.RequestOpt) ([]*Integration, error) {
+func (g *Guild) GetIntegrations(opts ...rest.RequestOpt) ([]Integration, error) {
 	guildIntegrations, err := g.Bot.RestServices.GuildService().GetIntegrations(g.ID, opts...)
 	if err != nil {
 		return nil, err
 	}
-	integrations := make([]*Integration, len(guildIntegrations))
-	for i, guildIntegration := range guildIntegrations {
-		integrations[i] = g.Bot.EntityBuilder.CreateIntegration(g.ID, guildIntegration, CacheStrategyNoWs)
+	integrations := make([]Integration, len(guildIntegrations))
+	for i := range guildIntegrations {
+		integrations[i] = g.Bot.EntityBuilder.CreateIntegration(g.ID, guildIntegrations[i], CacheStrategyNoWs)
 	}
 	return integrations, nil
 }

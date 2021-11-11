@@ -16,12 +16,12 @@ func (e *GenericIntegrationEvent) Guild() *core.Guild {
 
 type IntegrationCreateEvent struct {
 	*GenericIntegrationEvent
-	Integration *core.Integration
+	Integration core.Integration
 }
 
 type IntegrationUpdateEvent struct {
 	*GenericIntegrationEvent
-	Integration *core.Integration
+	Integration core.Integration
 }
 
 type IntegrationDeleteEvent struct {

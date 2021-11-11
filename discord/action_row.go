@@ -2,18 +2,21 @@ package discord
 
 import "github.com/DisgoOrg/disgo/json"
 
-var _ Component = (*ActionRowComponent)(nil)
+var (
+	_ Component          = (*ActionRowComponent)(nil)
+	_ ContainerComponent = (*ActionRowComponent)(nil)
+)
 
-func NewActionRow(components ...Component) ActionRowComponent {
+func NewActionRow(components ...InteractiveComponent) ActionRowComponent {
 	return components
 }
 
-type ActionRowComponent []Component
+type ActionRowComponent []InteractiveComponent
 
 func (c ActionRowComponent) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		Type       ComponentType `json:"type"`
-		Components []Component   `json:"components"`
+		Type       ComponentType          `json:"type"`
+		Components []InteractiveComponent `json:"components"`
 	}{
 		Type:       c.Type(),
 		Components: c,
@@ -30,9 +33,9 @@ func (c *ActionRowComponent) UnmarshalJSON(data []byte) error {
 	}
 
 	if len(actionRow.Components) > 0 {
-		*c = make([]Component, len(actionRow.Components))
+		*c = make([]InteractiveComponent, len(actionRow.Components))
 		for i, component := range actionRow.Components {
-			(*c)[i] = component.Component
+			(*c)[i] = component.Component.(InteractiveComponent)
 		}
 	}
 
@@ -43,38 +46,48 @@ func (c ActionRowComponent) Type() ComponentType {
 	return ComponentTypeActionRow
 }
 
-func (c ActionRowComponent) component() {}
+func (c ActionRowComponent) component()          {}
+func (c ActionRowComponent) containerComponent() {}
 
-// SetComponents returns a new ActionRowComponent with the provided Component(s)
-func (c ActionRowComponent) SetComponents(components ...Component) ActionRowComponent {
-	return components
+func (c ActionRowComponent) Components() []InteractiveComponent {
+	return c
 }
 
-// SetComponent returns a new ActionRowComponent with the Component which has the customID replaced
-func (c ActionRowComponent) SetComponent(customID string, component Component) ActionRowComponent {
+// Buttons returns all ButtonComponent(s) in the ActionRowComponent
+func (c ActionRowComponent) Buttons() []ButtonComponent {
+	var buttons []ButtonComponent
+	for i := range c {
+		if button, ok := c[i].(ButtonComponent); ok {
+			buttons = append(buttons, button)
+		}
+	}
+	return buttons
+}
+
+// SelectMenus returns all SelectMenuComponent(s) in the ActionRowComponent
+func (c ActionRowComponent) SelectMenus() []SelectMenuComponent {
+	var selectMenus []SelectMenuComponent
+	for i := range c {
+		if selectMenu, ok := c[i].(SelectMenuComponent); ok {
+			selectMenus = append(selectMenus, selectMenu)
+		}
+	}
+	return selectMenus
+}
+
+// UpdateComponent returns a new ActionRowComponent with the Component which has the customID replaced
+func (c ActionRowComponent) UpdateComponent(customID CustomID, component InteractiveComponent) ActionRowComponent {
 	for i, cc := range c {
-		switch com := cc.(type) {
-		case ButtonComponent:
-			if com.CustomID == customID {
-				c[i] = component
-				break
-			}
-
-		case SelectMenuComponent:
-			if com.CustomID == customID {
-				c[i] = component
-				break
-			}
-
-		default:
-			continue
+		if cc.ID() == customID {
+			c[i] = component
+			return c
 		}
 	}
 	return c
 }
 
 // AddComponents returns a new ActionRowComponent with the provided Component(s) added
-func (c ActionRowComponent) AddComponents(components ...Component) ActionRowComponent {
+func (c ActionRowComponent) AddComponents(components ...InteractiveComponent) ActionRowComponent {
 	return append(c, components...)
 }
 

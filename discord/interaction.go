@@ -263,7 +263,7 @@ type ButtonInteraction struct {
 }
 
 type ButtonInteractionData struct {
-	CustomID string `json:"custom_id"`
+	CustomID CustomID `json:"custom_id"`
 }
 
 func (_ ButtonInteraction) InteractionType() InteractionType {
@@ -286,7 +286,7 @@ type SelectMenuInteraction struct {
 }
 
 type SelectMenuInteractionData struct {
-	CustomID string   `json:"custom_id"`
+	CustomID CustomID `json:"custom_id"`
 	Values   []string `json:"values"`
 }
 

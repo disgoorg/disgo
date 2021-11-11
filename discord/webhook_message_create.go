@@ -6,7 +6,7 @@ type WebhookMessageCreate struct {
 	AvatarURL       string               `json:"avatar_url,omitempty"`
 	TTS             bool                 `json:"tts,omitempty"`
 	Embeds          []Embed              `json:"embeds,omitempty"`
-	Components      []ActionRowComponent `json:"components,omitempty"`
+	Components      []ContainerComponent `json:"components,omitempty"`
 	Files           []*File              `json:"-"`
 	AllowedMentions *AllowedMentions     `json:"allowed_mentions,omitempty"`
 }

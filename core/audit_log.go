@@ -10,7 +10,7 @@ type AuditLog struct {
 	Bot           *Bot
 	GuildID       discord.Snowflake
 	Users         map[discord.Snowflake]*User
-	Integrations  map[discord.Snowflake]*Integration
+	Integrations  map[discord.Snowflake]Integration
 	Webhooks      map[discord.Snowflake]*Webhook
 	FilterOptions AuditLogFilterOptions
 }

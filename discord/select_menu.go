@@ -3,7 +3,7 @@ package discord
 import "github.com/DisgoOrg/disgo/json"
 
 // NewSelectMenu builds a new SelectMenuComponent from the provided values
-func NewSelectMenu(customID string, placeholder string, minValues json.NullInt, maxValues json.NullInt, disabled bool, options ...SelectMenuOption) SelectMenuComponent {
+func NewSelectMenu(customID CustomID, placeholder string, minValues json.NullInt, maxValues json.NullInt, disabled bool, options ...SelectMenuOption) SelectMenuComponent {
 	return SelectMenuComponent{
 		CustomID:    customID,
 		Placeholder: placeholder,
@@ -17,7 +17,7 @@ func NewSelectMenu(customID string, placeholder string, minValues json.NullInt, 
 var _ Component = (*SelectMenuComponent)(nil)
 
 type SelectMenuComponent struct {
-	CustomID    string             `json:"custom_id"`
+	CustomID    CustomID           `json:"custom_id"`
 	Placeholder string             `json:"placeholder,omitempty"`
 	MinValues   json.NullInt       `json:"min_values,omitempty"`
 	MaxValues   json.NullInt       `json:"max_values,omitempty"`
@@ -40,10 +40,15 @@ func (c SelectMenuComponent) Type() ComponentType {
 	return ComponentTypeSelectMenu
 }
 
-func (c SelectMenuComponent) component() {}
+func (c SelectMenuComponent) ID() CustomID {
+	return c.CustomID
+}
+
+func (c SelectMenuComponent) component()            {}
+func (c SelectMenuComponent) interactiveComponent() {}
 
 // WithCustomID returns a new SelectMenuComponent with the provided customID
-func (c SelectMenuComponent) WithCustomID(customID string) SelectMenuComponent {
+func (c SelectMenuComponent) WithCustomID(customID CustomID) SelectMenuComponent {
 	c.CustomID = customID
 	return c
 }

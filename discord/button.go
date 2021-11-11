@@ -16,7 +16,7 @@ const (
 
 // NewButton creates a new ButtonComponent with the provided parameters. Link ButtonComponent(s) need a URL and other ButtonComponent(s) need a customID
 //goland:noinspection GoUnusedExportedFunction
-func NewButton(style ButtonStyle, label string, customID string, url string, emoji *ComponentEmoji, disabled bool) ButtonComponent {
+func NewButton(style ButtonStyle, label string, customID CustomID, url string, emoji *ComponentEmoji, disabled bool) ButtonComponent {
 	return ButtonComponent{
 		Style:    style,
 		CustomID: customID,
@@ -29,25 +29,25 @@ func NewButton(style ButtonStyle, label string, customID string, url string, emo
 
 // NewPrimaryButton creates a new ButtonComponent with ButtonStylePrimary & the provided parameters
 //goland:noinspection GoUnusedExportedFunction
-func NewPrimaryButton(label string, customID string) ButtonComponent {
+func NewPrimaryButton(label string, customID CustomID) ButtonComponent {
 	return NewButton(ButtonStylePrimary, label, customID, "", nil, false)
 }
 
 // NewSecondaryButton creates a new ButtonComponent with ButtonStyleSecondary & the provided parameters
 //goland:noinspection GoUnusedExportedFunction
-func NewSecondaryButton(label string, customID string) ButtonComponent {
+func NewSecondaryButton(label string, customID CustomID) ButtonComponent {
 	return NewButton(ButtonStyleSecondary, label, customID, "", nil, false)
 }
 
 // NewSuccessButton creates a new ButtonComponent with ButtonStyleSuccess & the provided parameters
 //goland:noinspection GoUnusedExportedFunction
-func NewSuccessButton(label string, customID string) ButtonComponent {
+func NewSuccessButton(label string, customID CustomID) ButtonComponent {
 	return NewButton(ButtonStyleSuccess, label, customID, "", nil, false)
 }
 
 // NewDangerButton creates a new ButtonComponent with ButtonStyleDanger & the provided parameters
 //goland:noinspection GoUnusedExportedFunction
-func NewDangerButton(label string, customID string) ButtonComponent {
+func NewDangerButton(label string, customID CustomID) ButtonComponent {
 	return NewButton(ButtonStyleDanger, label, customID, "", nil, false)
 }
 
@@ -57,10 +57,13 @@ func NewLinkButton(label string, url string) ButtonComponent {
 	return NewButton(ButtonStyleLink, label, "", url, nil, false)
 }
 
-var _ Component = (*ButtonComponent)(nil)
+var (
+	_ Component            = (*ButtonComponent)(nil)
+	_ InteractiveComponent = (*ButtonComponent)(nil)
+)
 
 type ButtonComponent struct {
-	CustomID string          `json:"custom_id"`
+	CustomID CustomID        `json:"custom_id"`
 	Style    ButtonStyle     `json:"style,omitempty"`
 	Label    string          `json:"label,omitempty"`
 	Emoji    *ComponentEmoji `json:"emoji,omitempty"`
@@ -83,7 +86,12 @@ func (c ButtonComponent) Type() ComponentType {
 	return ComponentTypeButton
 }
 
-func (c ButtonComponent) component() {}
+func (c ButtonComponent) ID() CustomID {
+	return c.CustomID
+}
+
+func (c ButtonComponent) component()            {}
+func (c ButtonComponent) interactiveComponent() {}
 
 // AsEnabled returns a new ButtonComponent but enabled
 func (c ButtonComponent) AsEnabled() ButtonComponent {
@@ -110,7 +118,7 @@ func (c ButtonComponent) WithEmoji(emoji ComponentEmoji) ButtonComponent {
 }
 
 // WithCustomID returns a new ButtonComponent with the provided custom id
-func (c ButtonComponent) WithCustomID(customID string) ButtonComponent {
+func (c ButtonComponent) WithCustomID(customID CustomID) ButtonComponent {
 	c.CustomID = customID
 	return c
 }

@@ -48,7 +48,7 @@ type EntityBuilder interface {
 	CreateApplicationCommandPermissions(guildCommandPermissions discord.ApplicationCommandPermissions) *ApplicationCommandPermissions
 
 	CreateAuditLog(guildID discord.Snowflake, auditLog discord.AuditLog, filterOptions AuditLogFilterOptions, updateCache CacheStrategy) *AuditLog
-	CreateIntegration(guildID discord.Snowflake, integration discord.Integration, updateCache CacheStrategy) *Integration
+	CreateIntegration(guildID discord.Snowflake, integration discord.Integration, updateCache CacheStrategy) Integration
 
 	CreateChannel(channel discord.Channel, updateCache CacheStrategy) Channel
 
@@ -509,7 +509,7 @@ func (b *entityBuilderImpl) CreateAuditLog(guildID discord.Snowflake, auditLog d
 		coreAuditLog.Users[user.ID] = b.CreateUser(user, updateCache)
 	}
 	for _, integration := range auditLog.Integrations {
-		coreAuditLog.Integrations[integration.ID] = b.CreateIntegration(guildID, integration, updateCache)
+		coreAuditLog.Integrations[integration.ID()] = b.CreateIntegration(guildID, integration, updateCache)
 	}
 	for _, webhook := range auditLog.Webhooks {
 		coreAuditLog.Webhooks[webhook.ID] = b.CreateWebhook(webhook)
@@ -518,21 +518,42 @@ func (b *entityBuilderImpl) CreateAuditLog(guildID discord.Snowflake, auditLog d
 }
 
 // CreateIntegration returns a new discord.Integration entity
-func (b *entityBuilderImpl) CreateIntegration(guildID discord.Snowflake, integration discord.Integration, updateCache CacheStrategy) *Integration {
-	coreIntegration := &Integration{
-		Integration: integration,
-		Bot:         b.Bot(),
-		GuildID:     guildID,
-	}
+func (b *entityBuilderImpl) CreateIntegration(guildID discord.Snowflake, integration discord.Integration, updateCache CacheStrategy) Integration {
+	var coreIntegration Integration
 
-	coreIntegration.User = b.CreateUser(*integration.User, updateCache)
-
-	if integration.Application != nil {
-		coreIntegration.Application = &IntegrationApplication{
-			IntegrationApplication: *integration.Application,
-			Bot:                    b.CreateUser(integration.Application.Bot, updateCache),
+	switch i := integration.(type) {
+	case discord.TwitchIntegration:
+		coreIntegration = &TwitchIntegration{
+			TwitchIntegration: i,
+			Bot:               b.Bot(),
+			GuildID:           guildID,
+			User:              b.CreateUser(i.User, updateCache),
 		}
+
+	case discord.YouTubeIntegration:
+		coreIntegration = &YouTubeIntegration{
+			YouTubeIntegration: i,
+			Bot:                b.Bot(),
+			GuildID:            guildID,
+			User:               b.CreateUser(i.User, updateCache),
+		}
+
+	case discord.BotIntegration:
+		coreIntegration = &BotIntegration{
+			BotIntegration: i,
+			Bot:            b.Bot(),
+			GuildID:        guildID,
+			Application: &IntegrationApplication{
+				IntegrationApplication: i.Application,
+				Bot:                    b.CreateUser(i.Application.Bot, updateCache),
+			},
+		}
+
+	default:
+		b.Bot().Logger.Errorf("unknown integration type %d received", integration.Type())
+		return nil
 	}
+
 	return coreIntegration
 }
 
@@ -549,70 +570,70 @@ func (b *entityBuilderImpl) CreateWebhook(webhook discord.Webhook) *Webhook {
 func (b *entityBuilderImpl) CreateChannel(channel discord.Channel, updateCache CacheStrategy) Channel {
 	var c Channel
 	switch ch := channel.(type) {
-	case *discord.GuildTextChannel:
+	case discord.GuildTextChannel:
 		c = &GuildTextChannel{
-			GuildTextChannel: *ch,
+			GuildTextChannel: ch,
 			Bot:              b.Bot(),
 		}
 
-	case *discord.DMChannel:
+	case discord.DMChannel:
 		c = &DMChannel{
-			DMChannel: *ch,
+			DMChannel: ch,
 			Bot:       b.Bot(),
 		}
 
-	case *discord.GuildVoiceChannel:
+	case discord.GuildVoiceChannel:
 		c = &GuildVoiceChannel{
-			GuildVoiceChannel:  *ch,
+			GuildVoiceChannel:  ch,
 			Bot:                b.Bot(),
 			ConnectedMemberIDs: map[discord.Snowflake]struct{}{},
 		}
 
-	case *discord.GroupDMChannel:
+	case discord.GroupDMChannel:
 		c = &GroupDMChannel{
-			GroupDMChannel: *ch,
+			GroupDMChannel: ch,
 			Bot:            b.Bot(),
 		}
 
-	case *discord.GuildCategoryChannel:
+	case discord.GuildCategoryChannel:
 		c = &GuildCategoryChannel{
-			GuildCategoryChannel: *ch,
+			GuildCategoryChannel: ch,
 			Bot:                  b.Bot(),
 		}
 
-	case *discord.GuildNewsChannel:
+	case discord.GuildNewsChannel:
 		c = &GuildNewsChannel{
-			GuildNewsChannel: *ch,
+			GuildNewsChannel: ch,
 			Bot:              b.Bot(),
 		}
 
-	case *discord.GuildStoreChannel:
+	case discord.GuildStoreChannel:
 		c = &GuildStoreChannel{
-			GuildStoreChannel: *ch,
+			GuildStoreChannel: ch,
 			Bot:               b.Bot(),
 		}
 
-	case *discord.GuildNewsThread:
+	case discord.GuildNewsThread:
 		c = &GuildNewsThread{
-			GuildNewsThread: *ch,
+			GuildNewsThread: ch,
 			Bot:             b.Bot(),
 		}
 
-	case *discord.GuildPrivateThread:
+	case discord.GuildPrivateThread:
 		c = &GuildPrivateThread{
-			GuildPrivateThread: *ch,
+			GuildPrivateThread: ch,
 			Bot:                b.Bot(),
 		}
 
-	case *discord.GuildPublicThread:
+	case discord.GuildPublicThread:
 		c = &GuildPublicThread{
-			GuildPublicThread: *ch,
+			GuildPublicThread: ch,
 			Bot:               b.Bot(),
 		}
 
-	case *discord.GuildStageVoiceChannel:
+	case discord.GuildStageVoiceChannel:
 		c = &GuildStageVoiceChannel{
-			GuildStageVoiceChannel: *ch,
+			GuildStageVoiceChannel: ch,
 			Bot:                    b.Bot(),
 			StageInstanceID:        nil,
 			ConnectedMemberIDs:     map[discord.Snowflake]struct{}{},

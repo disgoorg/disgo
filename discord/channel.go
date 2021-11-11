@@ -77,7 +77,7 @@ func (u *UnmarshalChannel) UnmarshalJSON(data []byte) error {
 
 	var (
 		channel Channel
-		err    error
+		err     error
 	)
 
 	switch cType.Type {

@@ -32,9 +32,9 @@ func (m *Message) Guild() *Guild {
 	return m.Bot.Caches.GuildCache().Get(*m.GuildID)
 }
 
-// Channel gets the channel the message_events was sent in
-func (m *Message) Channel() Channel {
-	return m.Bot.Caches.ChannelCache().Get(m.ChannelID)
+// Channel gets the MessageChannel the Message was sent in
+func (m *Message) Channel() MessageChannel {
+	return m.Bot.Caches.ChannelCache().Get(m.ChannelID).(MessageChannel)
 }
 
 // AddReactionByEmote allows you to add an Emoji to a message_events via reaction
@@ -84,32 +84,34 @@ func (m *Message) Reply(messageCreate discord.MessageCreate, opts ...rest.Reques
 	return m.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-// ActionRows returns all ActionRowComponent(s) from this Message
+// ActionRows returns all discord.ActionRowComponent(s) from this Message
 func (m *Message) ActionRows() []discord.ActionRowComponent {
 	var actionRows []discord.ActionRowComponent
-	for _, component := range m.Components {
-		if actionRow, ok := component.(discord.ActionRowComponent); ok {
+	for i := range m.Components {
+		if actionRow, ok := m.Components[i].(discord.ActionRowComponent); ok {
 			actionRows = append(actionRows, actionRow)
 		}
 	}
 	return actionRows
 }
 
-// ComponentByID returns the first Component with the specific customID
-func (m *Message) ComponentByID(customID string) discord.Component {
-	for _, actionRow := range m.ActionRows() {
-		for _, component := range actionRow {
-			switch c := component.(type) {
-			case discord.ButtonComponent:
-				if c.CustomID == customID {
-					return c
-				}
-			case discord.SelectMenuComponent:
-				if c.CustomID == customID {
-					return c
-				}
-			default:
-				continue
+// InteractiveComponents returns the discord.InteractiveComponent(s) from this Message
+func (m *Message) InteractiveComponents() []discord.InteractiveComponent {
+	var interactiveComponents []discord.InteractiveComponent
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			interactiveComponents = append(interactiveComponents, m.Components[i].Components()[ii])
+		}
+	}
+	return nil
+}
+
+// ComponentByID returns the discord.Component with the specific discord.CustomID
+func (m *Message) ComponentByID(customID discord.CustomID) discord.InteractiveComponent {
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if m.Components[i].Components()[ii].ID() == customID {
+				return m.Components[i].Components()[ii]
 			}
 		}
 	}
@@ -119,9 +121,9 @@ func (m *Message) ComponentByID(customID string) discord.Component {
 // Buttons returns all ButtonComponent(s) from this Message
 func (m *Message) Buttons() []discord.ButtonComponent {
 	var buttons []discord.ButtonComponent
-	for _, actionRow := range m.ActionRows() {
-		for _, component := range actionRow {
-			if button, ok := component.(discord.ButtonComponent); ok {
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if button, ok := m.Components[i].Components()[ii].(discord.ButtonComponent); ok {
 				buttons = append(buttons, button)
 			}
 		}
@@ -130,10 +132,12 @@ func (m *Message) Buttons() []discord.ButtonComponent {
 }
 
 // ButtonByID returns a ButtonComponent with the specific customID from this Message
-func (m *Message) ButtonByID(customID string) *discord.ButtonComponent {
-	for _, button := range m.Buttons() {
-		if button.CustomID == customID {
-			return &button
+func (m *Message) ButtonByID(customID discord.CustomID) *discord.ButtonComponent {
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if button, ok := m.Components[i].Components()[ii].(*discord.ButtonComponent); ok && button.ID() == customID {
+				return button
+			}
 		}
 	}
 	return nil
@@ -142,10 +146,10 @@ func (m *Message) ButtonByID(customID string) *discord.ButtonComponent {
 // SelectMenus returns all SelectMenuComponent(s) from this Message
 func (m *Message) SelectMenus() []discord.SelectMenuComponent {
 	var selectMenus []discord.SelectMenuComponent
-	for _, actionRow := range m.ActionRows() {
-		for _, component := range actionRow {
-			if selectMenu, ok := component.(discord.SelectMenuComponent); ok {
-				selectMenus = append(selectMenus, selectMenu)
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if button, ok := m.Components[i].Components()[ii].(discord.SelectMenuComponent); ok {
+				selectMenus = append(selectMenus, button)
 			}
 		}
 	}
@@ -153,10 +157,12 @@ func (m *Message) SelectMenus() []discord.SelectMenuComponent {
 }
 
 // SelectMenuByID returns a SelectMenuComponent with the specific customID from this Message
-func (m *Message) SelectMenuByID(customID string) *discord.SelectMenuComponent {
-	for _, selectMenu := range m.SelectMenus() {
-		if selectMenu.CustomID == customID {
-			return &selectMenu
+func (m *Message) SelectMenuByID(customID discord.CustomID) *discord.SelectMenuComponent {
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if button, ok := m.Components[i].Components()[ii].(*discord.SelectMenuComponent); ok && button.ID() == customID {
+				return button
+			}
 		}
 	}
 	return nil

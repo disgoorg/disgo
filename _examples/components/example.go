@@ -34,7 +34,7 @@ func main() {
 				}
 				if event.Message.Content == "test" {
 					_, _ = event.Message.Reply(core.NewMessageCreateBuilder().
-						SetActionRows(discord.NewActionRow(discord.NewDangerButton("danger", "danger"))).
+						AddActionRow(discord.NewDangerButton("danger", "danger")).
 						Build(),
 					)
 				}
