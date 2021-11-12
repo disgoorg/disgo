@@ -30,12 +30,34 @@ type GatewayEventHello struct {
 }
 
 type GatewayEventThreadCreate struct {
-	Channel
+	GuildThread
 	ThreadMember ThreadMember `json:"thread_member"`
 }
 
+func (e *GatewayEventThreadCreate) UnmarshalJSON(data []byte) error {
+	var v struct{
+		UnmarshalChannel
+		ThreadMember ThreadMember `json:"thread_member"`
+	}
+	if err := json.Unmarshal(data, &v);err != nil {
+		return err
+	}
+	e.GuildThread = v.UnmarshalChannel.Channel.(GuildThread)
+	e.ThreadMember = v.ThreadMember
+	return nil
+}
+
 type GatewayEventThreadUpdate struct {
-	Channel
+	GuildThread
+}
+
+func (e *GatewayEventThreadUpdate) UnmarshalJSON(data []byte) error {
+	var v UnmarshalChannel
+	if err := json.Unmarshal(data, &v);err != nil {
+		return err
+	}
+	e.GuildThread = v.Channel.(GuildThread)
+	return nil
 }
 
 type GatewayEventThreadDelete struct {

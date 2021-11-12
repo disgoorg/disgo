@@ -74,6 +74,7 @@ type GuildThread interface {
 	BaseGuildMessageChannel
 
 	ParentMessageChannel() GuildMessageChannel
+	ThreadMember() *ThreadMember
 	ThreadMembers() []*ThreadMember
 }
 
@@ -1019,6 +1020,10 @@ func (c *GuildNewsThread) Members() []*Member {
 	})
 }
 
+func (c *GuildNewsThread) ThreadMember() *ThreadMember {
+	return c.Bot.Caches.ThreadMemberCache().Get(c.ID(), c.Bot.ApplicationID)
+}
+
 func (c *GuildNewsThread) ThreadMembers() []*ThreadMember {
 	return c.Bot.Caches.ThreadMemberCache().ThreadAll(c.ID())
 }
@@ -1193,6 +1198,10 @@ func (c *GuildPublicThread) Members() []*Member {
 	})
 }
 
+func (c *GuildPublicThread) ThreadMember() *ThreadMember {
+	return c.Bot.Caches.ThreadMemberCache().Get(c.ID(), c.Bot.ApplicationID)
+}
+
 func (c *GuildPublicThread) ThreadMembers() []*ThreadMember {
 	return c.Bot.Caches.ThreadMemberCache().ThreadAll(c.ID())
 }
@@ -1365,6 +1374,10 @@ func (c *GuildPrivateThread) Members() []*Member {
 	return c.Bot.Caches.MemberCache().FindAll(func(member *Member) bool {
 		return member.ChannelPermissions(c).Has(discord.PermissionViewChannel)
 	})
+}
+
+func (c *GuildPrivateThread) ThreadMember() *ThreadMember {
+	return c.Bot.Caches.ThreadMemberCache().Get(c.ID(), c.Bot.ApplicationID)
 }
 
 func (c *GuildPrivateThread) ThreadMembers() []*ThreadMember {
