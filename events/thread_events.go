@@ -1,19 +1,39 @@
 package events
 
-type ThreadCreateEvent struct {
+import "github.com/DisgoOrg/disgo/core"
+
+type GenericThreadEvent struct {
 	*GenericGuildChannelEvent
+	Thread core.GuildThread
+}
+
+type ThreadCreateEvent struct {
+	*GenericThreadEvent
 }
 
 type ThreadUpdateEvent struct {
-	*GenericGuildChannelEvent
+	*GenericThreadEvent
+	OldThread core.GuildThread
 }
 
 type ThreadDeleteEvent struct {
-	*GenericGuildChannelEvent
+	*GenericThreadEvent
 }
 
-type ThreadJoinEvent struct {
+type GenericThreadMemberEvent struct {
+	*GenericThreadEvent
+	ThreadMember *core.ThreadMember
 }
 
-type ThreadLeaveEvent struct {
+type ThreadMemberJoinEvent struct {
+	*GenericThreadMemberEvent
+}
+
+type ThreadMemberUpdateEvent struct {
+	*GenericThreadMemberEvent
+	OldThreadMember *core.ThreadMember
+}
+
+type ThreadMemberLeaveEvent struct {
+	*GenericThreadMemberEvent
 }

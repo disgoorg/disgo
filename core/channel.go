@@ -74,6 +74,7 @@ type GuildThread interface {
 	BaseGuildMessageChannel
 
 	ParentMessageChannel() GuildMessageChannel
+	ThreadMembers() []*ThreadMember
 }
 
 type GuildAudioChannel interface {
