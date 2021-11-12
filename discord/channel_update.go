@@ -6,7 +6,7 @@ type ChannelUpdate interface {
 
 type GuildChannelUpdate interface {
 	ChannelUpdate
-	guildChannelCreate()
+	guildChannelUpdate()
 }
 
 type GuildTextChannelUpdate struct {
@@ -22,6 +22,7 @@ type GuildTextChannelUpdate struct {
 }
 
 func (_ GuildTextChannelUpdate) channelUpdate() {}
+func (_ GuildTextChannelUpdate) guildChannelUpdate() {}
 
 type GuildVoiceChannelUpdate struct {
 	Name                       *string                `json:"name,omitempty"`
@@ -37,6 +38,7 @@ type GuildVoiceChannelUpdate struct {
 }
 
 func (_ GuildVoiceChannelUpdate) channelUpdate() {}
+func (_ GuildVoiceChannelUpdate) guildChannelUpdate() {}
 
 type GroupDMChannelUpdate struct {
 	Name *string   `json:"name,omitempty"`
@@ -49,6 +51,8 @@ type GuildCategoryChannelUpdate struct {
 }
 
 func (_ GuildCategoryChannelUpdate) channelUpdate() {}
+func (_ GuildCategoryChannelUpdate) guildChannelUpdate() {}
+
 
 type GuildNewsChannelUpdate struct {
 	Name                       *string                `json:"name,omitempty"`
@@ -62,26 +66,31 @@ type GuildNewsChannelUpdate struct {
 }
 
 func (_ GuildNewsChannelUpdate) channelUpdate() {}
+func (_ GuildNewsChannelUpdate) guildChannelUpdate() {}
 
 type GuildStoreChannelUpdate struct {
 }
 
 func (_ GuildStoreChannelUpdate) channelUpdate() {}
+func (_ GuildStoreChannelUpdate) guildChannelUpdate() {}
 
 type GuildNewsThreadUpdate struct {
 }
 
 func (_ GuildNewsThreadUpdate) channelUpdate() {}
+func (_ GuildNewsThreadUpdate) guildChannelUpdate() {}
 
 type GuildPublicThreadUpdate struct {
 }
 
 func (_ GuildPublicThreadUpdate) channelUpdate() {}
+func (_ GuildPublicThreadUpdate) guildChannelUpdate() {}
 
 type GuildPrivateThreadUpdate struct {
 }
 
 func (_ GuildPrivateThreadUpdate) channelUpdate() {}
+func (_ GuildPrivateThreadUpdate) guildChannelUpdate() {}
 
 type GuildStageVoiceChannelUpdate struct {
 	Name                 *string                `json:"name,omitempty"`
@@ -96,3 +105,4 @@ type GuildStageVoiceChannelUpdate struct {
 }
 
 func (_ GuildStageVoiceChannelUpdate) channelUpdate() {}
+func (_ GuildStageVoiceChannelUpdate) guildChannelUpdate() {}

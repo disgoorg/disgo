@@ -41,6 +41,8 @@ type ChannelService interface {
 	RemoveUserReaction(channelID discord.Snowflake, messageID discord.Snowflake, emoji string, userID discord.Snowflake, opts ...RequestOpt) error
 	RemoveAllReactions(channelID discord.Snowflake, messageID discord.Snowflake, opts ...RequestOpt) error
 	RemoveAllReactionsForEmoji(channelID discord.Snowflake, messageID discord.Snowflake, emoji string, opts ...RequestOpt) error
+
+	// TODO: add missing endpoints
 }
 
 type channelServiceImpl struct {
@@ -235,7 +237,7 @@ func (s *channelServiceImpl) RemoveOwnReaction(channelID discord.Snowflake, mess
 }
 
 func (s *channelServiceImpl) RemoveUserReaction(channelID discord.Snowflake, messageID discord.Snowflake, emoji string, userID discord.Snowflake, opts ...RequestOpt) error {
-	compiledRoute, err := route.RemoveUserReaction.Compile(nil, channelID, messageID, emoji)
+	compiledRoute, err := route.RemoveUserReaction.Compile(nil, channelID, messageID, emoji, userID)
 	if err != nil {
 		return err
 	}

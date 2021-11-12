@@ -18,6 +18,8 @@ type (
 
 		FindFirst(channelFindFunc ChannelFindFunc) Channel
 		FindAll(channelFindFunc ChannelFindFunc) []Channel
+
+		ForAll(channelFunc func(channel Channel))
 	}
 
 	channelCacheImpl struct {
@@ -90,6 +92,12 @@ func (c *channelCacheImpl) FindAll(channelFindFunc ChannelFindFunc) []Channel {
 		}
 	}
 	return channels
+}
+
+func (c *channelCacheImpl) ForAll(channelFunc func(channel Channel)) {
+	for _, channel := range c.channels {
+		channelFunc(channel)
+	}
 }
 
 func getCacheFLagForChannelType(channelType discord.ChannelType) CacheFlags {
