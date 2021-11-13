@@ -22,15 +22,14 @@ type ThreadService interface {
 	LeaveThread(threadID discord.Snowflake, opts ...RequestOpt) error
 	AddThreadMember(threadID discord.Snowflake, userID discord.Snowflake, opts ...RequestOpt) error
 	RemoveThreadMember(threadID discord.Snowflake, userID discord.Snowflake, opts ...RequestOpt) error
+	GetThreadMember(threadID discord.Snowflake, userID discord.Snowflake, opts ...RequestOpt) (threadMember *discord.ThreadMember, err error)
 	GetThreadMembers(threadID discord.Snowflake, opts ...RequestOpt) (threadMembers []discord.ThreadMember, err error)
 
-	// GetActiveThreads will be removed in v10 in favor of GetActiveGuildThreads
-	GetActiveThreads(channelID discord.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
-	GetArchivedPublicThreads(channelID discord.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
-	GetArchivedPrivateThreads(channelID discord.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
-	GetJoinedAchievedPrivateThreads(channelID discord.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
+	GetPublicArchivedThreads(channelID discord.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
+	GetPrivateArchivedThreads(channelID discord.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
+	GetJoinedPrivateAchievedThreads(channelID discord.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
 
-	GetActiveGuildThreads(guildID discord.Snowflake, opts ...RequestOpt) (threads *discord.GetThreads, err error)
+	GetActiveGuildThreads(guildID discord.Snowflake, opts ...RequestOpt) (threads *discord.GetAllThreads, err error)
 }
 
 type threadServiceImpl struct {
@@ -101,17 +100,27 @@ func (s *threadServiceImpl) RemoveThreadMember(threadID discord.Snowflake, userI
 	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
+func (s *threadServiceImpl) GetThreadMember(threadID discord.Snowflake, userID discord.Snowflake, opts ...RequestOpt) (threadMember *discord.ThreadMember, err error) {
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.GetThreadMember.Compile(nil, threadID, userID)
+	if err != nil {
+		return nil, err
+	}
+	err = s.restClient.Do(compiledRoute, nil, &threadMember, opts...)
+	return
+}
+
 func (s *threadServiceImpl) GetThreadMembers(threadID discord.Snowflake, opts ...RequestOpt) (threadMembers []discord.ThreadMember, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetThreadMembers.Compile(nil, threadID)
 	if err != nil {
 		return nil, err
 	}
-	err = s.restClient.Do(compiledRoute, nil, threadMembers, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &threadMembers, opts...)
 	return
 }
 
-func (s *threadServiceImpl) GetActiveThreads(threadID discord.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
+func (s *threadServiceImpl) GetPublicArchivedThreads(channelID discord.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
 	queryValues := route.QueryValues{}
 	if !before.IsZero() {
 		queryValues["before"] = before
@@ -120,7 +129,7 @@ func (s *threadServiceImpl) GetActiveThreads(threadID discord.Snowflake, before 
 		queryValues["limit"] = limit
 	}
 	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetActiveThreads.Compile(queryValues, threadID)
+	compiledRoute, err = route.GetArchivedPublicThreads.Compile(queryValues, channelID)
 	if err != nil {
 		return
 	}
@@ -128,7 +137,7 @@ func (s *threadServiceImpl) GetActiveThreads(threadID discord.Snowflake, before 
 	return
 }
 
-func (s *threadServiceImpl) GetArchivedPublicThreads(threadID discord.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
+func (s *threadServiceImpl) GetPrivateArchivedThreads(channelID discord.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
 	queryValues := route.QueryValues{}
 	if !before.IsZero() {
 		queryValues["before"] = before
@@ -137,7 +146,7 @@ func (s *threadServiceImpl) GetArchivedPublicThreads(threadID discord.Snowflake,
 		queryValues["limit"] = limit
 	}
 	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetArchivedPublicThreads.Compile(queryValues, threadID)
+	compiledRoute, err = route.GetArchivedPrivateThreads.Compile(queryValues, channelID)
 	if err != nil {
 		return
 	}
@@ -145,7 +154,7 @@ func (s *threadServiceImpl) GetArchivedPublicThreads(threadID discord.Snowflake,
 	return
 }
 
-func (s *threadServiceImpl) GetArchivedPrivateThreads(threadID discord.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
+func (s *threadServiceImpl) GetJoinedPrivateAchievedThreads(channelID discord.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
 	queryValues := route.QueryValues{}
 	if !before.IsZero() {
 		queryValues["before"] = before
@@ -154,7 +163,7 @@ func (s *threadServiceImpl) GetArchivedPrivateThreads(threadID discord.Snowflake
 		queryValues["limit"] = limit
 	}
 	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetArchivedPrivateThreads.Compile(queryValues, threadID)
+	compiledRoute, err = route.GetJoinedAchievedPrivateThreads.Compile(queryValues, channelID)
 	if err != nil {
 		return
 	}
@@ -162,24 +171,7 @@ func (s *threadServiceImpl) GetArchivedPrivateThreads(threadID discord.Snowflake
 	return
 }
 
-func (s *threadServiceImpl) GetJoinedAchievedPrivateThreads(threadID discord.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
-	queryValues := route.QueryValues{}
-	if !before.IsZero() {
-		queryValues["before"] = before
-	}
-	if limit != 0 {
-		queryValues["limit"] = limit
-	}
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetJoinedAchievedPrivateThreads.Compile(queryValues, threadID)
-	if err != nil {
-		return
-	}
-	err = s.restClient.Do(compiledRoute, nil, &threads, opts...)
-	return
-}
-
-func (s *threadServiceImpl) GetActiveGuildThreads(guildID discord.Snowflake, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
+func (s *threadServiceImpl) GetActiveGuildThreads(guildID discord.Snowflake, opts ...RequestOpt) (threads *discord.GetAllThreads, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetActiveGuildThreads.Compile(nil, guildID)
 	if err != nil {

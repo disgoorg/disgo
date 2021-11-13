@@ -51,6 +51,7 @@ type EntityBuilder interface {
 	CreateIntegration(guildID discord.Snowflake, integration discord.Integration, updateCache CacheStrategy) Integration
 
 	CreateChannel(channel discord.Channel, updateCache CacheStrategy) Channel
+	CreateThreadMember(threadMember discord.ThreadMember, updateCache CacheStrategy) *ThreadMember
 
 	CreateInvite(invite discord.Invite, updateCache CacheStrategy) *Invite
 
@@ -647,6 +648,18 @@ func (b *entityBuilderImpl) CreateChannel(channel discord.Channel, updateCache C
 		return b.Bot().Caches.ChannelCache().Set(c)
 	}
 	return c
+}
+
+func (b *entityBuilderImpl) CreateThreadMember(threadMember discord.ThreadMember, updateCache CacheStrategy) *ThreadMember {
+	coreThreadMember := &ThreadMember{
+		ThreadMember: threadMember,
+		Bot:          b.Bot(),
+	}
+
+	if updateCache(b.Bot()) {
+		return b.Bot().Caches.ThreadMemberCache().Set(coreThreadMember)
+	}
+	return coreThreadMember
 }
 
 func (b *entityBuilderImpl) CreateStageInstance(stageInstance discord.StageInstance, updateCache CacheStrategy) *StageInstance {

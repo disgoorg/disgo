@@ -56,15 +56,15 @@ func (c *threadMemberCacheImpl) Set(threadMember *ThreadMember) *ThreadMember {
 	if c.cacheFlags.Missing(CacheFlagRoles) && threadMember.UserID != threadMember.Bot.ClientID {
 		return threadMember
 	}
-	if _, ok := c.threadMembers[threadMember.ID]; !ok {
-		c.threadMembers[threadMember.ID] = map[discord.Snowflake]*ThreadMember{}
+	if _, ok := c.threadMembers[threadMember.ThreadID]; !ok {
+		c.threadMembers[threadMember.ThreadID] = map[discord.Snowflake]*ThreadMember{}
 	}
-	rol, ok := c.threadMembers[threadMember.ID][threadMember.UserID]
+	rol, ok := c.threadMembers[threadMember.ThreadID][threadMember.UserID]
 	if ok {
 		*rol = *threadMember
 		return rol
 	}
-	c.threadMembers[threadMember.ID][threadMember.UserID] = threadMember
+	c.threadMembers[threadMember.ThreadID][threadMember.UserID] = threadMember
 
 	return threadMember
 }

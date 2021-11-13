@@ -66,7 +66,12 @@ type GuildMessageChannel interface {
 	DeleteWebhook(webhookID discord.Snowflake, opts ...rest.RequestOpt) error
 
 	Threads() []GuildThread
+	Thread(threadID discord.Snowflake) GuildThread
+
 	CreateThread(theadCreate discord.ThreadCreate, opts ...rest.RequestOpt) (GuildThread, error)
+	CreateThreadWithMessage(messageID discord.Snowflake, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (GuildThread, error)
+
+	GetPublicArchivedThreads(before discord.Time, limit int, opts ...rest.RequestOpt) ([]GuildThread, map[discord.Snowflake]*ThreadMember, bool, error)
 }
 
 type GuildThread interface {
@@ -74,8 +79,15 @@ type GuildThread interface {
 	BaseGuildMessageChannel
 
 	ParentMessageChannel() GuildMessageChannel
-	ThreadMember() *ThreadMember
+	SelfThreadMember() *ThreadMember
+	ThreadMember(userID discord.Snowflake) *ThreadMember
 	ThreadMembers() []*ThreadMember
+	Join(opts ...rest.RequestOpt) error
+	Leave(opts ...rest.RequestOpt) error
+	AddThreadMember(userID discord.Snowflake, opts ...rest.RequestOpt) error
+	RemoveThreadMember(userID discord.Snowflake, opts ...rest.RequestOpt) error
+	GetThreadMember(userID discord.Snowflake, opts ...rest.RequestOpt) (*ThreadMember, error)
+	GetThreadMembers(opts ...rest.RequestOpt) ([]*ThreadMember, error)
 }
 
 type GuildAudioChannel interface {
@@ -158,14 +170,6 @@ func (c *GuildTextChannel) DeletePermissionOverwrite(id discord.Snowflake, opts 
 	return deletePermissionOverwrite(c.Bot, c.ID(), id, opts...)
 }
 
-func (c *GuildTextChannel) CreateThread(threadCreate discord.ThreadCreate, opts ...rest.RequestOpt) (GuildThread, error) {
-	return createThread(c.Bot, c.ID(), threadCreate, opts...)
-}
-
-func (c *GuildTextChannel) CreateThreadWithMessage(messageID discord.Snowflake, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (GuildThread, error) {
-	return createThreadWithMessage(c.Bot, c.ID(), messageID, threadCreateWithMessage, opts...)
-}
-
 func (c *GuildTextChannel) GetMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
 	return getMessage(c.Bot, c.ID(), messageID, opts...)
 }
@@ -238,6 +242,13 @@ func (c *GuildTextChannel) Threads() []GuildThread {
 	return threads
 }
 
+func (c *GuildTextChannel) Thread(threadID discord.Snowflake) GuildThread {
+	if thread := c.Bot.Caches.ChannelCache().Get(threadID); thread != nil {
+		return thread.(GuildThread)
+	}
+	return nil
+}
+
 func (c *GuildTextChannel) PrivateThreads() []*GuildPrivateThread {
 	var threads []*GuildPrivateThread
 	c.Bot.Caches.ChannelCache().ForAll(func(channel Channel) {
@@ -256,6 +267,52 @@ func (c *GuildTextChannel) PublicThreads() []*GuildPublicThread {
 		}
 	})
 	return threads
+}
+
+func (c *GuildTextChannel) CreateThread(theadCreate discord.ThreadCreate, opts ...rest.RequestOpt) (GuildThread, error) {
+	return createThread(c.Bot, c.ID(), theadCreate, opts...)
+}
+
+func (c *GuildTextChannel) CreateThreadWithMessage(messageID discord.Snowflake, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (GuildThread, error) {
+	return createThreadWithMessage(c.Bot, c.ID(), messageID, threadCreateWithMessage, opts...)
+}
+
+func createThreadMembers(bot *Bot, members []discord.ThreadMember) map[discord.Snowflake]*ThreadMember {
+	threadMembers := make(map[discord.Snowflake]*ThreadMember, len(members))
+	for i := range members {
+		threadMembers[members[i].ThreadID] = bot.EntityBuilder.CreateThreadMember(members[i], CacheStrategyNo)
+	}
+	return threadMembers
+}
+
+func (c *GuildTextChannel) GetPublicArchivedThreads(before discord.Time, limit int, opts ...rest.RequestOpt) ([]GuildThread, map[discord.Snowflake]*ThreadMember, bool, error) {
+	return getPublicArchivedThreads(c.Bot, c.ID(), before, limit, opts...)
+}
+
+func createGuildPrivateThreads(bot *Bot, threads []discord.GuildThread) []*GuildPrivateThread {
+	privateThreads := make([]*GuildPrivateThread, len(threads))
+	for i := range threads {
+		privateThreads[i] = bot.EntityBuilder.CreateChannel(threads[i], CacheStrategyNo).(*GuildPrivateThread)
+	}
+	return privateThreads
+}
+
+func (c *GuildTextChannel) GetPrivateArchivedThreads(before discord.Time, limit int, opts ...rest.RequestOpt) ([]*GuildPrivateThread, map[discord.Snowflake]*ThreadMember, bool, error) {
+	getThreads, err := c.Bot.RestServices.ThreadService().GetPrivateArchivedThreads(c.ID(), before, limit, opts...)
+	if err != nil {
+		return nil, nil, false, err
+	}
+
+	return createGuildPrivateThreads(c.Bot, getThreads.Threads), createThreadMembers(c.Bot, getThreads.Members), getThreads.HasMore, nil
+}
+
+func (c *GuildTextChannel) GetJoinedPrivateAchievedThreads(before discord.Time, limit int, opts ...rest.RequestOpt) ([]*GuildPrivateThread, map[discord.Snowflake]*ThreadMember, bool, error) {
+	getThreads, err := c.Bot.RestServices.ThreadService().GetJoinedPrivateAchievedThreads(c.ID(), before, limit, opts...)
+	if err != nil {
+		return nil, nil, false, err
+	}
+
+	return createGuildPrivateThreads(c.Bot, getThreads.Threads), createThreadMembers(c.Bot, getThreads.Members), getThreads.HasMore, nil
 }
 
 func (c *GuildTextChannel) Guild() *Guild {
@@ -659,14 +716,6 @@ func (c *GuildNewsChannel) DeletePermissionOverwrite(id discord.Snowflake, opts 
 	return deletePermissionOverwrite(c.Bot, c.ID(), id, opts...)
 }
 
-func (c *GuildNewsChannel) CreateThread(threadCreate discord.ThreadCreate, opts ...rest.RequestOpt) (GuildThread, error) {
-	return createThread(c.Bot, c.ID(), threadCreate, opts...)
-}
-
-func (c *GuildNewsChannel) CreateThreadWithMessage(messageID discord.Snowflake, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (GuildThread, error) {
-	return createThreadWithMessage(c.Bot, c.ID(), messageID, threadCreateWithMessage, opts...)
-}
-
 func (c *GuildNewsChannel) GetMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
 	return getMessage(c.Bot, c.ID(), messageID, opts...)
 }
@@ -735,6 +784,65 @@ func (c *GuildNewsChannel) DeleteWebhook(webhookID discord.Snowflake, opts ...re
 	return deleteWebhook(c.Bot, webhookID, opts...)
 }
 
+func (c *GuildNewsChannel) Threads() []GuildThread {
+	var threads []GuildThread
+	c.Bot.Caches.ChannelCache().ForAll(func(channel Channel) {
+		if thread, ok := channel.(*GuildNewsThread); ok && thread.ParentID == c.ID() {
+			threads = append(threads, thread)
+		}
+	})
+	return threads
+}
+
+func (c *GuildNewsChannel) NewsThreads() []*GuildNewsThread {
+	var threads []*GuildNewsThread
+	c.Bot.Caches.ChannelCache().ForAll(func(channel Channel) {
+		if thread, ok := channel.(*GuildNewsThread); ok && thread.ParentID == c.ID() {
+			threads = append(threads, thread)
+		}
+	})
+	return threads
+}
+
+func (c *GuildNewsChannel) Thread(threadID discord.Snowflake) GuildThread {
+	if thread := c.Bot.Caches.ChannelCache().Get(threadID); thread != nil {
+		return thread.(GuildThread)
+	}
+	return nil
+}
+
+func (c *GuildNewsChannel) PrivateThreads() []*GuildPrivateThread {
+	var threads []*GuildPrivateThread
+	c.Bot.Caches.ChannelCache().ForAll(func(channel Channel) {
+		if thread, ok := channel.(*GuildPrivateThread); ok && thread.ParentID == c.ID() {
+			threads = append(threads, thread)
+		}
+	})
+	return threads
+}
+
+func (c *GuildNewsChannel) PublicThreads() []*GuildPublicThread {
+	var threads []*GuildPublicThread
+	c.Bot.Caches.ChannelCache().ForAll(func(channel Channel) {
+		if thread, ok := channel.(*GuildPublicThread); ok && thread.ParentID == c.ID() {
+			threads = append(threads, thread)
+		}
+	})
+	return threads
+}
+
+func (c *GuildNewsChannel) CreateThread(theadCreate discord.ThreadCreate, opts ...rest.RequestOpt) (GuildThread, error) {
+	return createThread(c.Bot, c.ID(), theadCreate, opts...)
+}
+
+func (c *GuildNewsChannel) CreateThreadWithMessage(messageID discord.Snowflake, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (GuildThread, error) {
+	return createThreadWithMessage(c.Bot, c.ID(), messageID, threadCreateWithMessage, opts...)
+}
+
+func (c *GuildNewsChannel) GetPublicArchivedThreads(before discord.Time, limit int, opts ...rest.RequestOpt) ([]GuildThread, map[discord.Snowflake]*ThreadMember, bool, error) {
+	return getPublicArchivedThreads(c.Bot, c.ID(), before, limit, opts...)
+}
+
 func (c *GuildNewsChannel) Guild() *Guild {
 	return channelGuild(c.Bot, c.GuildID())
 }
@@ -748,25 +856,6 @@ func (c *GuildNewsChannel) Parent() *GuildCategoryChannel {
 
 func (c *GuildNewsChannel) Members() []*Member {
 	return viewMembers(c.Bot, c)
-}
-
-func (c *GuildNewsChannel) Threads() []GuildThread {
-	newsThreads := c.NewsThreads()
-	threads := make([]GuildThread, len(newsThreads))
-	for i := range newsThreads {
-		threads[i] = newsThreads[i]
-	}
-	return threads
-}
-
-func (c *GuildNewsChannel) NewsThreads() []*GuildNewsThread {
-	var threads []*GuildNewsThread
-	c.Bot.Caches.ChannelCache().ForAll(func(channel Channel) {
-		if thread, ok := channel.(*GuildNewsThread); ok && thread.ParentID == c.ID() {
-			threads = append(threads, thread)
-		}
-	})
-	return threads
 }
 
 var (
@@ -1020,16 +1109,40 @@ func (c *GuildNewsThread) Members() []*Member {
 	})
 }
 
-func (c *GuildNewsThread) ThreadMember() *ThreadMember {
-	return c.Bot.Caches.ThreadMemberCache().Get(c.ID(), c.Bot.ApplicationID)
+func (c *GuildNewsThread) SelfThreadMember() *ThreadMember {
+	return c.ThreadMember(c.Bot.ApplicationID)
+}
+
+func (c *GuildNewsThread) ThreadMember(userID discord.Snowflake) *ThreadMember {
+	return c.Bot.Caches.ThreadMemberCache().Get(c.ID(), userID)
 }
 
 func (c *GuildNewsThread) ThreadMembers() []*ThreadMember {
 	return c.Bot.Caches.ThreadMemberCache().ThreadAll(c.ID())
 }
 
-func (c *GuildNewsThread) ThreadMembersCache() map[discord.Snowflake]*ThreadMember {
-	return c.Bot.Caches.ThreadMemberCache().ThreadCache(c.ID())
+func (c *GuildNewsThread) Join(opts ...rest.RequestOpt) error {
+	return join(c.Bot, c.ID(), opts...)
+}
+
+func (c *GuildNewsThread) Leave(opts ...rest.RequestOpt) error {
+	return leave(c.Bot, c.ID(), opts...)
+}
+
+func (c *GuildNewsThread) AddThreadMember(userID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return addThreadMember(c.Bot, c.ID(), userID, opts...)
+}
+
+func (c *GuildNewsThread) RemoveThreadMember(userID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return removeThreadMember(c.Bot, c.ID(), userID, opts...)
+}
+
+func (c *GuildNewsThread) GetThreadMember(userID discord.Snowflake, opts ...rest.RequestOpt) (*ThreadMember, error) {
+	return getThreadMember(c.Bot, c.ID(), userID, opts...)
+}
+
+func (c *GuildNewsThread) GetThreadMembers(opts ...rest.RequestOpt) ([]*ThreadMember, error) {
+	return getThreadMembers(c.Bot, c.ID(), opts...)
 }
 
 var (
@@ -1198,16 +1311,40 @@ func (c *GuildPublicThread) Members() []*Member {
 	})
 }
 
-func (c *GuildPublicThread) ThreadMember() *ThreadMember {
-	return c.Bot.Caches.ThreadMemberCache().Get(c.ID(), c.Bot.ApplicationID)
+func (c *GuildPublicThread) SelfThreadMember() *ThreadMember {
+	return c.ThreadMember(c.Bot.ApplicationID)
+}
+
+func (c *GuildPublicThread) ThreadMember(userID discord.Snowflake) *ThreadMember {
+	return c.Bot.Caches.ThreadMemberCache().Get(c.ID(), userID)
 }
 
 func (c *GuildPublicThread) ThreadMembers() []*ThreadMember {
 	return c.Bot.Caches.ThreadMemberCache().ThreadAll(c.ID())
 }
 
-func (c *GuildPublicThread) ThreadMembersCache() map[discord.Snowflake]*ThreadMember {
-	return c.Bot.Caches.ThreadMemberCache().ThreadCache(c.ID())
+func (c *GuildPublicThread) Join(opts ...rest.RequestOpt) error {
+	return join(c.Bot, c.ID(), opts...)
+}
+
+func (c *GuildPublicThread) Leave(opts ...rest.RequestOpt) error {
+	return leave(c.Bot, c.ID(), opts...)
+}
+
+func (c *GuildPublicThread) AddThreadMember(userID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return addThreadMember(c.Bot, c.ID(), userID, opts...)
+}
+
+func (c *GuildPublicThread) RemoveThreadMember(userID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return removeThreadMember(c.Bot, c.ID(), userID, opts...)
+}
+
+func (c *GuildPublicThread) GetThreadMember(userID discord.Snowflake, opts ...rest.RequestOpt) (*ThreadMember, error) {
+	return getThreadMember(c.Bot, c.ID(), userID, opts...)
+}
+
+func (c *GuildPublicThread) GetThreadMembers(opts ...rest.RequestOpt) ([]*ThreadMember, error) {
+	return getThreadMembers(c.Bot, c.ID(), opts...)
 }
 
 var (
@@ -1376,16 +1513,40 @@ func (c *GuildPrivateThread) Members() []*Member {
 	})
 }
 
-func (c *GuildPrivateThread) ThreadMember() *ThreadMember {
-	return c.Bot.Caches.ThreadMemberCache().Get(c.ID(), c.Bot.ApplicationID)
+func (c *GuildPrivateThread) SelfThreadMember() *ThreadMember {
+	return c.ThreadMember(c.Bot.ApplicationID)
+}
+
+func (c *GuildPrivateThread) ThreadMember(userID discord.Snowflake) *ThreadMember {
+	return c.Bot.Caches.ThreadMemberCache().Get(c.ID(), userID)
 }
 
 func (c *GuildPrivateThread) ThreadMembers() []*ThreadMember {
 	return c.Bot.Caches.ThreadMemberCache().ThreadAll(c.ID())
 }
 
-func (c *GuildPrivateThread) ThreadMembersCache() map[discord.Snowflake]*ThreadMember {
-	return c.Bot.Caches.ThreadMemberCache().ThreadCache(c.ID())
+func (c *GuildPrivateThread) Join(opts ...rest.RequestOpt) error {
+	return join(c.Bot, c.ID(), opts...)
+}
+
+func (c *GuildPrivateThread) Leave(opts ...rest.RequestOpt) error {
+	return leave(c.Bot, c.ID(), opts...)
+}
+
+func (c *GuildPrivateThread) AddThreadMember(userID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return addThreadMember(c.Bot, c.ID(), userID, opts...)
+}
+
+func (c *GuildPrivateThread) RemoveThreadMember(userID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return removeThreadMember(c.Bot, c.ID(), userID, opts...)
+}
+
+func (c *GuildPrivateThread) GetThreadMember(userID discord.Snowflake, opts ...rest.RequestOpt) (*ThreadMember, error) {
+	return getThreadMember(c.Bot, c.ID(), userID, opts...)
+}
+
+func (c *GuildPrivateThread) GetThreadMembers(opts ...rest.RequestOpt) ([]*ThreadMember, error) {
+	return getThreadMembers(c.Bot, c.ID(), opts...)
 }
 
 var (
@@ -1604,6 +1765,56 @@ func createThreadWithMessage(bot *Bot, channelID discord.Snowflake, messageID di
 		return nil, err
 	}
 	return bot.EntityBuilder.CreateChannel(channel, CacheStrategyNo).(GuildThread), nil
+}
+
+func join(bot *Bot, threadID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return bot.RestServices.ThreadService().JoinThread(threadID, opts...)
+}
+
+func leave(bot *Bot, threadID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return bot.RestServices.ThreadService().LeaveThread(threadID, opts...)
+}
+
+func addThreadMember(bot *Bot, threadID discord.Snowflake, userID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return bot.RestServices.ThreadService().AddThreadMember(threadID, userID, opts...)
+}
+
+func removeThreadMember(bot *Bot, threadID discord.Snowflake, userID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return bot.RestServices.ThreadService().RemoveThreadMember(threadID, userID, opts...)
+}
+
+func getThreadMember(bot *Bot, threadID discord.Snowflake, userID discord.Snowflake, opts ...rest.RequestOpt) (*ThreadMember, error) {
+	threadMember, err := bot.RestServices.ThreadService().GetThreadMember(threadID, userID, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return bot.EntityBuilder.CreateThreadMember(*threadMember, CacheStrategyNo), nil
+}
+
+func getThreadMembers(bot *Bot, threadID discord.Snowflake, opts ...rest.RequestOpt) ([]*ThreadMember, error) {
+	members, err := bot.RestServices.ThreadService().GetThreadMembers(threadID, opts...)
+	if err != nil {
+		return nil, err
+	}
+	threadMembers := make([]*ThreadMember, len(members))
+	for i := range members {
+		threadMembers[i] = bot.EntityBuilder.CreateThreadMember(members[i], CacheStrategyNo)
+	}
+	return threadMembers, nil
+}
+
+func getPublicArchivedThreads(bot *Bot, channelID discord.Snowflake, before discord.Time, limit int, opts ...rest.RequestOpt) ([]GuildThread, map[discord.Snowflake]*ThreadMember, bool, error) {
+	getThreads, err := bot.RestServices.ThreadService().GetPublicArchivedThreads(channelID, before, limit, opts...)
+	if err != nil {
+		return nil, nil, false, err
+	}
+
+	threads := make([]GuildThread, len(getThreads.Threads))
+	for i := range getThreads.Threads {
+		threads[i] = bot.EntityBuilder.CreateChannel(getThreads.Threads[i], CacheStrategyNo).(GuildThread)
+	}
+
+	return threads, createThreadMembers(bot, getThreads.Members), getThreads.HasMore, nil
 }
 
 func createMessage(bot *Bot, channelID discord.Snowflake, messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {

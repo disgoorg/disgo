@@ -15,7 +15,6 @@ type ThreadCreate interface {
 type GuildNewsThreadCreate struct {
 	Name                string              `json:"name"`
 	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration"`
-	Invitable           bool                `json:"invitable"`
 }
 
 func (c GuildNewsThreadCreate) MarshalJSON() ([]byte, error) {
@@ -36,7 +35,6 @@ func (_ GuildNewsThreadCreate) Type() ChannelType {
 type GuildPublicThreadCreate struct {
 	Name                string              `json:"name"`
 	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration"`
-	Invitable           bool                `json:"invitable"`
 }
 
 func (c GuildPublicThreadCreate) MarshalJSON() ([]byte, error) {
@@ -76,7 +74,12 @@ func (_ GuildPrivateThreadCreate) Type() ChannelType {
 }
 
 type GetThreads struct {
-	Threads []GuildThread `json:"threads"`
-	Members []Member      `json:"members"`
-	HasMore bool          `json:"has_more"`
+	Threads []GuildThread  `json:"threads"`
+	Members []ThreadMember `json:"members"`
+	HasMore bool           `json:"has_more"`
+}
+
+type GetAllThreads struct {
+	Threads []GuildThread  `json:"threads"`
+	Members []ThreadMember `json:"members"`
 }

@@ -143,6 +143,7 @@ var (
 	LeaveThread             = NewAPIRoute(DELETE, "/channels/{channel.id}/thread-members/@me")
 	AddThreadMember         = NewAPIRoute(PUT, "/channels/{channel.id}/thread-members/{user.id}")
 	RemoveThreadMember      = NewAPIRoute(DELETE, "/channels/{channel.id}/thread-members/{user.id}")
+	GetThreadMember         = NewAPIRoute(GET, "/channels/{channel.id}/thread-members/{user.id}")
 	GetThreadMembers        = NewAPIRoute(GET, "/channels/{channel.id}/thread-members")
 
 	GetActiveThreads                = NewAPIRoute(GET, "/channels/{channel.id}/threads/active")

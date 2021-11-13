@@ -37,7 +37,7 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 				GenericChannelEvent: genericChannelEvent,
 				GuildID:             ch.GuildID(),
 			},
-			OldChannel: oldCoreChannel,
+			OldChannel: oldCoreChannel.(core.GuildChannel),
 		})
 	} else {
 		bot.EventManager.Dispatch(&events.DMChannelUpdateEvent{
