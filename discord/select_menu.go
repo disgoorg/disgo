@@ -3,18 +3,19 @@ package discord
 import "github.com/DisgoOrg/disgo/json"
 
 // NewSelectMenu builds a new SelectMenuComponent from the provided values
-func NewSelectMenu(customID CustomID, placeholder string, minValues json.NullInt, maxValues json.NullInt, disabled bool, options ...SelectMenuOption) SelectMenuComponent {
+//goland:noinspection GoUnusedExportedFunction
+func NewSelectMenu(customID CustomID, placeholder string, options ...SelectMenuOption) SelectMenuComponent {
 	return SelectMenuComponent{
 		CustomID:    customID,
 		Placeholder: placeholder,
-		MinValues:   minValues,
-		MaxValues:   maxValues,
-		Disabled:    disabled,
 		Options:     options,
 	}
 }
 
-var _ Component = (*SelectMenuComponent)(nil)
+var (
+	_ Component            = (*SelectMenuComponent)(nil)
+	_ InteractiveComponent = (*SelectMenuComponent)(nil)
+)
 
 type SelectMenuComponent struct {
 	CustomID    CustomID           `json:"custom_id"`
@@ -71,15 +72,27 @@ func (c SelectMenuComponent) WithMaxValues(maxValue int) SelectMenuComponent {
 	return c
 }
 
-// SetOptions returns a new SelectMenuComponent with the provided SelectMenuOption(s)
-func (c SelectMenuComponent) SetOptions(options ...SelectMenuOption) SelectMenuComponent {
-	c.Options = options
+// AsEnabled returns a new SelectMenuComponent but enabled
+func (c SelectMenuComponent) AsEnabled() SelectMenuComponent {
+	c.Disabled = false
 	return c
 }
 
-// AddOptions returns a new SelectMenuComponent with the provided SelectMenuOption(s) added
-func (c SelectMenuComponent) AddOptions(options ...SelectMenuOption) SelectMenuComponent {
-	c.Options = append(c.Options, options...)
+// AsDisabled returns a new SelectMenuComponent but disabled
+func (c SelectMenuComponent) AsDisabled() SelectMenuComponent {
+	c.Disabled = true
+	return c
+}
+
+// WithDisabled returns a new SelectMenuComponent with the provided disabled
+func (c SelectMenuComponent) WithDisabled(disabled bool) SelectMenuComponent {
+	c.Disabled = disabled
+	return c
+}
+
+// SetOptions returns a new SelectMenuComponent with the provided SelectMenuOption(s)
+func (c SelectMenuComponent) SetOptions(options ...SelectMenuOption) SelectMenuComponent {
+	c.Options = options
 	return c
 }
 
@@ -94,6 +107,12 @@ func (c SelectMenuComponent) SetOption(value string, option SelectMenuOption) Se
 	return c
 }
 
+// AddOptions returns a new SelectMenuComponent with the provided SelectMenuOption(s) added
+func (c SelectMenuComponent) AddOptions(options ...SelectMenuOption) SelectMenuComponent {
+	c.Options = append(c.Options, options...)
+	return c
+}
+
 // RemoveOption returns a new SelectMenuComponent with the provided SelectMenuOption at the index removed
 func (c SelectMenuComponent) RemoveOption(index int) SelectMenuComponent {
 	if len(c.Options) > index {
@@ -103,6 +122,7 @@ func (c SelectMenuComponent) RemoveOption(index int) SelectMenuComponent {
 }
 
 // NewSelectMenuOption builds a new SelectMenuOption
+//goland:noinspection GoUnusedExportedFunction
 func NewSelectMenuOption(label string, value string) SelectMenuOption {
 	return SelectMenuOption{
 		Label: label,
@@ -137,14 +157,14 @@ func (o SelectMenuOption) WithDescription(description string) SelectMenuOption {
 	return o
 }
 
-// WithDefault returns a new SelectMenuOption as default/non-default
-func (o SelectMenuOption) WithDefault(defaultOption bool) SelectMenuOption {
-	o.Default = defaultOption
-	return o
-}
-
 // WithEmoji returns a new SelectMenuOption with the provided Emoji
 func (o SelectMenuOption) WithEmoji(emoji ComponentEmoji) SelectMenuOption {
 	o.Emoji = &emoji
+	return o
+}
+
+// WithDefault returns a new SelectMenuOption as default/non-default
+func (o SelectMenuOption) WithDefault(defaultOption bool) SelectMenuOption {
+	o.Default = defaultOption
 	return o
 }

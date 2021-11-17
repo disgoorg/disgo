@@ -255,6 +255,7 @@ var (
 	UpdateInteractionResponse = NewAPIRoute(PATCH, "/webhooks/{application.id}/{interaction.token}/messages/@original")
 	DeleteInteractionResponse = NewAPIRoute(DELETE, "/webhooks/{application.id}/{interaction.token}/messages/@original")
 
+	GetFollowupMessage    = NewAPIRoute(GET, "/webhooks/{application.id}/{interaction.token}")
 	CreateFollowupMessage = NewAPIRoute(POST, "/webhooks/{application.id}/{interaction.token}")
 	UpdateFollowupMessage = NewAPIRoute(PATCH, "/webhooks/{application.id}/{interaction.token}/messages/{message.id}")
 	DeleteFollowupMessage = NewAPIRoute(DELETE, "/webhooks/{application.id}/{interaction.token}/messages/{message.id}")

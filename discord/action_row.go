@@ -7,6 +7,7 @@ var (
 	_ ContainerComponent = (*ActionRowComponent)(nil)
 )
 
+//goland:noinspection GoUnusedExportedFunction
 func NewActionRow(components ...InteractiveComponent) ActionRowComponent {
 	return components
 }

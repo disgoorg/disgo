@@ -152,6 +152,14 @@ func resultMapFloat(fields *InteractionFields, resultMap map[string]float64, opt
 	return result(fields, choices, opts...)
 }
 
+func getFollowup(fields *InteractionFields, messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
+	message, err := fields.Bot.RestServices.InteractionService().GetFollowupMessage(fields.ApplicationID, fields.Token, messageID, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return fields.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
+}
+
 func createFollowup(fields *InteractionFields, messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
 	message, err := fields.Bot.RestServices.InteractionService().CreateFollowupMessage(fields.ApplicationID, fields.Token, messageCreate, opts...)
 	if err != nil {

@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	_ Service = (*interactionServiceImpl)(nil)
+	_ Service            = (*interactionServiceImpl)(nil)
 	_ InteractionService = (*interactionServiceImpl)(nil)
 )
 
@@ -21,6 +21,7 @@ type InteractionService interface {
 	UpdateInteractionResponse(applicationID discord.Snowflake, interactionToken string, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (*discord.Message, error)
 	DeleteInteractionResponse(applicationID discord.Snowflake, interactionToken string, opts ...RequestOpt) error
 
+	GetFollowupMessage(applicationID discord.Snowflake, interactionToken string, messageID discord.Snowflake, opts ...RequestOpt) (*discord.Message, error)
 	CreateFollowupMessage(applicationID discord.Snowflake, interactionToken string, messageCreate discord.MessageCreate, opts ...RequestOpt) (*discord.Message, error)
 	UpdateFollowupMessage(applicationID discord.Snowflake, interactionToken string, messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (*discord.Message, error)
 	DeleteFollowupMessage(applicationID discord.Snowflake, interactionToken string, messageID discord.Snowflake, opts ...RequestOpt) error
@@ -80,6 +81,17 @@ func (s *interactionServiceImpl) DeleteInteractionResponse(applicationID discord
 		return err
 	}
 	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+}
+
+func (s *interactionServiceImpl) GetFollowupMessage(applicationID discord.Snowflake, interactionToken string, messageID discord.Snowflake, opts ...RequestOpt) (message *discord.Message, err error) {
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.GetFollowupMessage.Compile(nil, applicationID, interactionToken, messageID)
+	if err != nil {
+		return
+	}
+
+	err = s.restClient.Do(compiledRoute, nil, &message, opts...)
+	return
 }
 
 func (s *interactionServiceImpl) CreateFollowupMessage(applicationID discord.Snowflake, interactionToken string, messageCreate discord.MessageCreate, opts ...RequestOpt) (message *discord.Message, err error) {

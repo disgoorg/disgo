@@ -49,6 +49,10 @@ func (i *ButtonInteraction) DeleteOriginal(opts ...rest.RequestOpt) error {
 	return deleteOriginal(i.InteractionFields, opts...)
 }
 
+func (i *ButtonInteraction) GetFollowup(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
+	return getFollowup(i.InteractionFields, messageID, opts...)
+}
+
 func (i *ButtonInteraction) CreateFollowup(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
 	return createFollowup(i.InteractionFields, messageCreate, opts...)
 }

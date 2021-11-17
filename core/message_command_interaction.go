@@ -47,6 +47,10 @@ func (i *MessageCommandInteraction) DeleteOriginal(opts ...rest.RequestOpt) erro
 	return deleteOriginal(i.InteractionFields, opts...)
 }
 
+func (i *MessageCommandInteraction) GetFollowup(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
+	return getFollowup(i.InteractionFields, messageID, opts...)
+}
+
 func (i *MessageCommandInteraction) CreateFollowup(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
 	return createFollowup(i.InteractionFields, messageCreate, opts...)
 }
