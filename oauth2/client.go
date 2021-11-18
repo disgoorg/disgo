@@ -62,7 +62,7 @@ func (c *Client) GenerateAuthorizationURL(redirectURI string, scopes ...discord.
 	return compiledRoute.URL()
 }
 
-func (c *Client) StartSession(code string, state string, identifier string, opts ...rest.RequestOpt) (Session, *discord.Webhook, error) {
+func (c *Client) StartSession(code string, state string, identifier string, opts ...rest.RequestOpt) (Session, discord.Webhook, error) {
 	redirectURI := c.StateController.ConsumeState(state)
 	if redirectURI == nil {
 		return nil, nil, ErrStateNotFound

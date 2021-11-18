@@ -61,8 +61,8 @@ type GuildMessageChannel interface {
 	discord.GuildMessageChannel
 	BaseGuildMessageChannel
 
-	GetWebhooks(opts ...rest.RequestOpt) ([]*Webhook, error)
-	CreateWebhook(webhookCreate discord.WebhookCreate, opts ...rest.RequestOpt) (*Webhook, error)
+	GetWebhooks(opts ...rest.RequestOpt) ([]Webhook, error)
+	CreateWebhook(webhookCreate discord.WebhookCreate, opts ...rest.RequestOpt) (Webhook, error)
 	DeleteWebhook(webhookID discord.Snowflake, opts ...rest.RequestOpt) error
 
 	Threads() []GuildThread
@@ -218,11 +218,11 @@ func (c *GuildTextChannel) RemoveAllReactionsForEmoji(messageID discord.Snowflak
 	return removeAllReactionsForEmoji(c.Bot, c.ID(), messageID, emoji, opts...)
 }
 
-func (c *GuildTextChannel) GetWebhooks(opts ...rest.RequestOpt) ([]*Webhook, error) {
+func (c *GuildTextChannel) GetWebhooks(opts ...rest.RequestOpt) ([]Webhook, error) {
 	return getWebhooks(c.Bot, c.ID(), opts...)
 }
 
-func (c *GuildTextChannel) CreateWebhook(webhookCreate discord.WebhookCreate, opts ...rest.RequestOpt) (*Webhook, error) {
+func (c *GuildTextChannel) CreateWebhook(webhookCreate discord.WebhookCreate, opts ...rest.RequestOpt) (Webhook, error) {
 	return createWebhook(c.Bot, c.ID(), webhookCreate, opts...)
 }
 
@@ -772,11 +772,11 @@ func (c *GuildNewsChannel) RemoveAllReactionsForEmoji(messageID discord.Snowflak
 	return removeAllReactionsForEmoji(c.Bot, c.ID(), messageID, emoji, opts...)
 }
 
-func (c *GuildNewsChannel) GetWebhooks(opts ...rest.RequestOpt) ([]*Webhook, error) {
+func (c *GuildNewsChannel) GetWebhooks(opts ...rest.RequestOpt) ([]Webhook, error) {
 	return getWebhooks(c.Bot, c.ID(), opts...)
 }
 
-func (c *GuildNewsChannel) CreateWebhook(webhookCreate discord.WebhookCreate, opts ...rest.RequestOpt) (*Webhook, error) {
+func (c *GuildNewsChannel) CreateWebhook(webhookCreate discord.WebhookCreate, opts ...rest.RequestOpt) (Webhook, error) {
 	return createWebhook(c.Bot, c.ID(), webhookCreate, opts...)
 }
 
@@ -1079,18 +1079,6 @@ func (c *GuildNewsThread) RemoveAllReactionsForEmoji(messageID discord.Snowflake
 	return removeAllReactionsForEmoji(c.Bot, c.ID(), messageID, emoji, opts...)
 }
 
-func (c *GuildNewsThread) GetWebhooks(opts ...rest.RequestOpt) ([]*Webhook, error) {
-	return getWebhooks(c.Bot, c.ID(), opts...)
-}
-
-func (c *GuildNewsThread) CreateWebhook(webhookCreate discord.WebhookCreate, opts ...rest.RequestOpt) (*Webhook, error) {
-	return createWebhook(c.Bot, c.ID(), webhookCreate, opts...)
-}
-
-func (c *GuildNewsThread) DeleteWebhook(webhookID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return deleteWebhook(c.Bot, webhookID, opts...)
-}
-
 func (c *GuildNewsThread) Guild() *Guild {
 	return channelGuild(c.Bot, c.GuildID())
 }
@@ -1281,18 +1269,6 @@ func (c *GuildPublicThread) RemoveAllReactionsForEmoji(messageID discord.Snowfla
 	return removeAllReactionsForEmoji(c.Bot, c.ID(), messageID, emoji, opts...)
 }
 
-func (c *GuildPublicThread) GetWebhooks(opts ...rest.RequestOpt) ([]*Webhook, error) {
-	return getWebhooks(c.Bot, c.ID(), opts...)
-}
-
-func (c *GuildPublicThread) CreateWebhook(webhookCreate discord.WebhookCreate, opts ...rest.RequestOpt) (*Webhook, error) {
-	return createWebhook(c.Bot, c.ID(), webhookCreate, opts...)
-}
-
-func (c *GuildPublicThread) DeleteWebhook(webhookID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return deleteWebhook(c.Bot, webhookID, opts...)
-}
-
 func (c *GuildPublicThread) Guild() *Guild {
 	return channelGuild(c.Bot, c.GuildID())
 }
@@ -1481,18 +1457,6 @@ func (c *GuildPrivateThread) RemoveAllReactions(messageID discord.Snowflake, opt
 
 func (c *GuildPrivateThread) RemoveAllReactionsForEmoji(messageID discord.Snowflake, emoji string, opts ...rest.RequestOpt) error {
 	return removeAllReactionsForEmoji(c.Bot, c.ID(), messageID, emoji, opts...)
-}
-
-func (c *GuildPrivateThread) GetWebhooks(opts ...rest.RequestOpt) ([]*Webhook, error) {
-	return getWebhooks(c.Bot, c.ID(), opts...)
-}
-
-func (c *GuildPrivateThread) CreateWebhook(webhookCreate discord.WebhookCreate, opts ...rest.RequestOpt) (*Webhook, error) {
-	return createWebhook(c.Bot, c.ID(), webhookCreate, opts...)
-}
-
-func (c *GuildPrivateThread) DeleteWebhook(webhookID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return deleteWebhook(c.Bot, webhookID, opts...)
 }
 
 func (c *GuildPrivateThread) Guild() *Guild {
@@ -1897,24 +1861,24 @@ func removeAllReactionsForEmoji(bot *Bot, channelID discord.Snowflake, messageID
 	return bot.RestServices.ChannelService().RemoveAllReactionsForEmoji(channelID, messageID, emoji, opts...)
 }
 
-func getWebhooks(bot *Bot, channelID discord.Snowflake, opts ...rest.RequestOpt) ([]*Webhook, error) {
+func getWebhooks(bot *Bot, channelID discord.Snowflake, opts ...rest.RequestOpt) ([]Webhook, error) {
 	webhooks, err := bot.RestServices.ChannelService().GetWebhooks(channelID, opts...)
 	if err != nil {
 		return nil, err
 	}
-	coreWebhooks := make([]*Webhook, len(webhooks))
+	coreWebhooks := make([]Webhook, len(webhooks))
 	for i := range webhooks {
-		coreWebhooks[i] = bot.EntityBuilder.CreateWebhook(webhooks[i])
+		coreWebhooks[i] = bot.EntityBuilder.CreateWebhook(webhooks[i], CacheStrategyNoWs)
 	}
 	return coreWebhooks, nil
 }
 
-func createWebhook(bot *Bot, channelID discord.Snowflake, webhookCreate discord.WebhookCreate, opts ...rest.RequestOpt) (*Webhook, error) {
+func createWebhook(bot *Bot, channelID discord.Snowflake, webhookCreate discord.WebhookCreate, opts ...rest.RequestOpt) (Webhook, error) {
 	webhook, err := bot.RestServices.ChannelService().CreateWebhook(channelID, webhookCreate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return bot.EntityBuilder.CreateWebhook(*webhook), nil
+	return bot.EntityBuilder.CreateWebhook(webhook, CacheStrategyNoWs), nil
 }
 
 func deleteWebhook(bot *Bot, webhookID discord.Snowflake, opts ...rest.RequestOpt) error {

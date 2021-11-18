@@ -59,7 +59,7 @@ func (h *Client) GetWebhook(opts ...rest.RequestOpt) (*Webhook, error) {
 	if err != nil {
 		return nil, err
 	}
-	return h.EntityBuilder.CreateWebhook(*webhook), nil
+	return h.EntityBuilder.CreateWebhook(webhook), nil
 }
 
 func (h *Client) UpdateWebhook(webhookUpdate discord.WebhookUpdate, opts ...rest.RequestOpt) (*Webhook, error) {
@@ -67,7 +67,7 @@ func (h *Client) UpdateWebhook(webhookUpdate discord.WebhookUpdate, opts ...rest
 	if err != nil {
 		return nil, err
 	}
-	return h.EntityBuilder.CreateWebhook(*webhook), nil
+	return h.EntityBuilder.CreateWebhook(webhook), nil
 }
 
 func (h *Client) DeleteWebhook(opts ...rest.RequestOpt) error {

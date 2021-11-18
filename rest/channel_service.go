@@ -21,7 +21,7 @@ type ChannelService interface {
 	DeleteChannel(channelID discord.Snowflake, opts ...RequestOpt) error
 
 	GetWebhooks(channelID discord.Snowflake, opts ...RequestOpt) ([]discord.Webhook, error)
-	CreateWebhook(channelID discord.Snowflake, webhookCreate discord.WebhookCreate, opts ...RequestOpt) (*discord.Webhook, error)
+	CreateWebhook(channelID discord.Snowflake, webhookCreate discord.WebhookCreate, opts ...RequestOpt) (discord.Webhook, error)
 
 	UpdatePermissionOverride(channelID discord.Snowflake, overwriteID discord.Snowflake, permissionOverwrite discord.PermissionOverwriteUpdate, opts ...RequestOpt) error
 	DeletePermissionOverride(channelID discord.Snowflake, overwriteID discord.Snowflake, opts ...RequestOpt) error
@@ -99,13 +99,18 @@ func (s *channelServiceImpl) GetWebhooks(channelID discord.Snowflake, opts ...Re
 	return
 }
 
-func (s *channelServiceImpl) CreateWebhook(channelID discord.Snowflake, webhookCreate discord.WebhookCreate, opts ...RequestOpt) (webhook *discord.Webhook, err error) {
+func (s *channelServiceImpl) CreateWebhook(channelID discord.Snowflake, webhookCreate discord.WebhookCreate, opts ...RequestOpt) (webhook discord.Webhook, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateWebhook.Compile(nil, channelID)
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, webhookCreate, &webhook, opts...)
+
+	var unmarshalWebhook discord.UnmarshalWebhook
+	err = s.restClient.Do(compiledRoute, webhookCreate, &unmarshalWebhook, opts...)
+	if err == nil {
+		webhook = unmarshalWebhook.Webhook
+	}
 	return
 }
 
