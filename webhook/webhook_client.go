@@ -7,14 +7,6 @@ import (
 	"github.com/DisgoOrg/log"
 )
 
-// DefaultAllowedMentions gives you the default AllowedMentions for a Message
-var DefaultAllowedMentions = discord.AllowedMentions{
-	Parse:       []discord.AllowedMentionType{discord.AllowedMentionTypeUsers, discord.AllowedMentionTypeRoles, discord.AllowedMentionTypeEveryone},
-	Roles:       []discord.Snowflake{},
-	Users:       []discord.Snowflake{},
-	RepliedUser: true,
-}
-
 // NewClient returns a new Client
 //goland:noinspection GoUnusedExportedFunction
 func NewClient(id discord.Snowflake, token string, opts ...ConfigOpt) *Client {
@@ -32,7 +24,7 @@ func NewClient(id discord.Snowflake, token string, opts ...ConfigOpt) *Client {
 		config.WebhookService = rest.NewWebhookService(config.RestClient)
 	}
 	if config.DefaultAllowedMentions == nil {
-		config.DefaultAllowedMentions = &DefaultAllowedMentions
+		config.DefaultAllowedMentions = &discord.DefaultAllowedMentions
 	}
 
 	webhookClient := &Client{

@@ -67,5 +67,5 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 	if event.Message.Author.IsBot {
 		return
 	}
-	_, _ = event.Message.Reply(core.NewMessageCreateBuilder().SetContent(event.Message.Content).Build())
+	_, _ = event.Message.Reply(discord.NewMessageCreateBuilder().SetContent(event.Message.Content).Build())
 }

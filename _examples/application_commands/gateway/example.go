@@ -71,7 +71,7 @@ func main() {
 
 func commandListener(event *events.SlashCommandEvent) {
 	if event.CommandName == "say" {
-		err := event.Create(core.NewMessageCreateBuilder().
+		err := event.Create(discord.NewMessageCreateBuilder().
 			SetContent(*event.Options.String("message")).
 			Build(),
 		)

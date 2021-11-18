@@ -106,7 +106,7 @@ func updateComponent(fields *InteractionFields, message *Message, customID disco
 		}
 	}
 
-	return update(fields, NewMessageUpdateBuilder().SetContainerComponents(containerComponents...).Build(), opts...)
+	return update(fields, discord.NewMessageUpdateBuilder().SetContainerComponents(containerComponents...).Build(), opts...)
 }
 
 func result(fields *InteractionFields, choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {

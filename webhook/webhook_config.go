@@ -9,7 +9,7 @@ import (
 //goland:noinspection GoUnusedGlobalVariable
 var DefaultConfig = Config{
 	RestClientConfig:       &rest.DefaultConfig,
-	DefaultAllowedMentions: &DefaultAllowedMentions,
+	DefaultAllowedMentions: &discord.DefaultAllowedMentions,
 }
 
 type Config struct {
