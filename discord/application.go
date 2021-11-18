@@ -16,7 +16,7 @@ type Application struct {
 	TermsOfServiceURL   *string             `json:"terms_of_service_url,omitempty"`
 	PrivacyPolicyURL    *string             `json:"privacy_policy_url,omitempty"`
 	InstallationParams  *InstallationParams `json:"install_params"`
-	Tags                *[]string           `json:"tags"`
+	Tags                []string            `json:"tags"`
 	Owner               *User               `json:"owner,omitempty"`
 	Summary             string              `json:"summary"`
 	VerifyKey           string              `json:"verify_key"`
