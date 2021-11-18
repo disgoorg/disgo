@@ -190,4 +190,11 @@ type WebhookCreate struct {
 type WebhookUpdate struct {
 	Name   *string   `json:"name,omitempty"`
 	Avatar *NullIcon `json:"avatar,omitempty"`
+	ChannelID *Snowflake `json:"channel_id"`
+}
+
+// WebhookUpdateWithToken is used to update a Webhook with the token
+type WebhookUpdateWithToken struct {
+	Name   *string   `json:"name,omitempty"`
+	Avatar *NullIcon `json:"avatar,omitempty"`
 }

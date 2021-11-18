@@ -6,11 +6,11 @@ import (
 )
 
 type Webhook struct {
-	discord.Webhook
+	discord.IncomingWebhook
 	WebhookClient *Client
 }
 
-func (h *Webhook) Update(webhookUpdate discord.WebhookUpdate, opts ...rest.RequestOpt) (*Webhook, error) {
+func (h *Webhook) Update(webhookUpdate discord.WebhookUpdateWithToken, opts ...rest.RequestOpt) (*Webhook, error) {
 	return h.WebhookClient.UpdateWebhook(webhookUpdate, opts...)
 }
 

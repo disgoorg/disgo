@@ -62,7 +62,7 @@ func (h *Client) GetWebhook(opts ...rest.RequestOpt) (*Webhook, error) {
 	return h.EntityBuilder.CreateWebhook(webhook), nil
 }
 
-func (h *Client) UpdateWebhook(webhookUpdate discord.WebhookUpdate, opts ...rest.RequestOpt) (*Webhook, error) {
+func (h *Client) UpdateWebhook(webhookUpdate discord.WebhookUpdateWithToken, opts ...rest.RequestOpt) (*Webhook, error) {
 	webhook, err := h.WebhookService.UpdateWebhookWithToken(h.ID, h.Token, webhookUpdate, opts...)
 	if err != nil {
 		return nil, err
