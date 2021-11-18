@@ -60,7 +60,7 @@ type EntityBuilder interface {
 	CreateSticker(sticker discord.Sticker, updateCache CacheStrategy) *Sticker
 	CreateMessageSticker(sticker discord.MessageSticker) *MessageSticker
 
-	CreateWebhook(webhook discord.Webhook) *Webhook
+	CreateWebhook(webhook discord.Webhook, updateCache CacheStrategy) Webhook
 }
 
 // entityBuilderImpl is used for creating structs used by Disgo
@@ -513,7 +513,7 @@ func (b *entityBuilderImpl) CreateAuditLog(guildID discord.Snowflake, auditLog d
 		coreAuditLog.Integrations[integration.ID()] = b.CreateIntegration(guildID, integration, updateCache)
 	}
 	for _, webhook := range auditLog.Webhooks {
-		coreAuditLog.Webhooks[webhook.ID] = b.CreateWebhook(webhook)
+		coreAuditLog.Webhooks[webhook.ID()] = b.CreateWebhook(webhook, updateCache)
 	}
 	return coreAuditLog
 }
@@ -559,11 +559,35 @@ func (b *entityBuilderImpl) CreateIntegration(guildID discord.Snowflake, integra
 }
 
 // CreateWebhook returns a new Webhook entity
-func (b *entityBuilderImpl) CreateWebhook(webhook discord.Webhook) *Webhook {
-	coreWebhook := &Webhook{
-		Webhook: webhook,
-		Bot:     b.Bot(),
+func (b *entityBuilderImpl) CreateWebhook(webhook discord.Webhook, updateCache CacheStrategy) Webhook {
+	var coreWebhook Webhook
+
+	switch w := webhook.(type) {
+	case discord.IncomingWebhook:
+		coreWebhook = &IncomingWebhook{
+			IncomingWebhook: w,
+			Bot:             b.Bot(),
+			User:            b.CreateUser(w.User, updateCache),
+		}
+
+	case discord.ChannelFollowerWebhook:
+		coreWebhook = &ChannelFollowerWebhook{
+			ChannelFollowerWebhook: w,
+			Bot:                    b.Bot(),
+			User:                   b.CreateUser(w.User, updateCache),
+		}
+
+	case discord.ApplicationWebhook:
+		coreWebhook = &ApplicationWebhook{
+			ApplicationWebhook: w,
+			Bot:                b.Bot(),
+		}
+
+	default:
+		b.Bot().Logger.Errorf("unknown webhook type %d received", webhook.Type())
+		return nil
 	}
+
 	return coreWebhook
 }
 
