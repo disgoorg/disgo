@@ -35,11 +35,11 @@ type GatewayEventThreadCreate struct {
 }
 
 func (e *GatewayEventThreadCreate) UnmarshalJSON(data []byte) error {
-	var v struct{
+	var v struct {
 		UnmarshalChannel
 		ThreadMember ThreadMember `json:"thread_member"`
 	}
-	if err := json.Unmarshal(data, &v);err != nil {
+	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
 	e.GuildThread = v.UnmarshalChannel.Channel.(GuildThread)
@@ -53,7 +53,7 @@ type GatewayEventThreadUpdate struct {
 
 func (e *GatewayEventThreadUpdate) UnmarshalJSON(data []byte) error {
 	var v UnmarshalChannel
-	if err := json.Unmarshal(data, &v);err != nil {
+	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
 	e.GuildThread = v.Channel.(GuildThread)
@@ -88,8 +88,8 @@ type GatewayEventThreadMembersUpdate struct {
 
 type ThreadMembersUpdateMember struct {
 	ThreadMember
-	Member
-	Presence
+	Member   Member    `json:"member"`
+	Presence *Presence `json:"presence"`
 }
 
 type GatewayEventMessageReactionAdd struct {

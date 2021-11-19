@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	_ Service = (*oAuth2ServiceImpl)(nil)
+	_ Service       = (*oAuth2ServiceImpl)(nil)
 	_ OAuth2Service = (*oAuth2ServiceImpl)(nil)
 )
 

@@ -188,8 +188,8 @@ type WebhookCreate struct {
 
 // WebhookUpdate is used to update a Webhook
 type WebhookUpdate struct {
-	Name   *string   `json:"name,omitempty"`
-	Avatar *NullIcon `json:"avatar,omitempty"`
+	Name      *string    `json:"name,omitempty"`
+	Avatar    *NullIcon  `json:"avatar,omitempty"`
 	ChannelID *Snowflake `json:"channel_id"`
 }
 

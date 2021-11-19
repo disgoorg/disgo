@@ -8,7 +8,6 @@ var DefaultAllowedMentions = AllowedMentions{
 	RepliedUser: true,
 }
 
-
 // AllowedMentions are used for avoiding mentioning users in Message and Interaction
 type AllowedMentions struct {
 	Parse       []AllowedMentionType `json:"parse"`

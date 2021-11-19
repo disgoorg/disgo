@@ -21,7 +21,7 @@ type GuildTextChannelUpdate struct {
 	DefaultAutoArchiveDuration *int                   `json:"default_auto_archive_duration,omitempty"`
 }
 
-func (_ GuildTextChannelUpdate) channelUpdate() {}
+func (_ GuildTextChannelUpdate) channelUpdate()      {}
 func (_ GuildTextChannelUpdate) guildChannelUpdate() {}
 
 type GuildVoiceChannelUpdate struct {
@@ -37,7 +37,7 @@ type GuildVoiceChannelUpdate struct {
 	DefaultAutoArchiveDuration *int                   `json:"default_auto_archive_duration"`
 }
 
-func (_ GuildVoiceChannelUpdate) channelUpdate() {}
+func (_ GuildVoiceChannelUpdate) channelUpdate()      {}
 func (_ GuildVoiceChannelUpdate) guildChannelUpdate() {}
 
 type GroupDMChannelUpdate struct {
@@ -50,9 +50,8 @@ func (_ GroupDMChannelUpdate) channelUpdate() {}
 type GuildCategoryChannelUpdate struct {
 }
 
-func (_ GuildCategoryChannelUpdate) channelUpdate() {}
+func (_ GuildCategoryChannelUpdate) channelUpdate()      {}
 func (_ GuildCategoryChannelUpdate) guildChannelUpdate() {}
-
 
 type GuildNewsChannelUpdate struct {
 	Name                       *string                `json:"name,omitempty"`
@@ -65,31 +64,31 @@ type GuildNewsChannelUpdate struct {
 	DefaultAutoArchiveDuration *int                   `json:"default_auto_archive_duration"`
 }
 
-func (_ GuildNewsChannelUpdate) channelUpdate() {}
+func (_ GuildNewsChannelUpdate) channelUpdate()      {}
 func (_ GuildNewsChannelUpdate) guildChannelUpdate() {}
 
 type GuildStoreChannelUpdate struct {
 }
 
-func (_ GuildStoreChannelUpdate) channelUpdate() {}
+func (_ GuildStoreChannelUpdate) channelUpdate()      {}
 func (_ GuildStoreChannelUpdate) guildChannelUpdate() {}
 
 type GuildNewsThreadUpdate struct {
 }
 
-func (_ GuildNewsThreadUpdate) channelUpdate() {}
+func (_ GuildNewsThreadUpdate) channelUpdate()      {}
 func (_ GuildNewsThreadUpdate) guildChannelUpdate() {}
 
 type GuildPublicThreadUpdate struct {
 }
 
-func (_ GuildPublicThreadUpdate) channelUpdate() {}
+func (_ GuildPublicThreadUpdate) channelUpdate()      {}
 func (_ GuildPublicThreadUpdate) guildChannelUpdate() {}
 
 type GuildPrivateThreadUpdate struct {
 }
 
-func (_ GuildPrivateThreadUpdate) channelUpdate() {}
+func (_ GuildPrivateThreadUpdate) channelUpdate()      {}
 func (_ GuildPrivateThreadUpdate) guildChannelUpdate() {}
 
 type GuildStageVoiceChannelUpdate struct {
@@ -104,5 +103,5 @@ type GuildStageVoiceChannelUpdate struct {
 	VideoQualityMode     *VideoQualityMode      `json:"video_quality_mode"`
 }
 
-func (_ GuildStageVoiceChannelUpdate) channelUpdate() {}
+func (_ GuildStageVoiceChannelUpdate) channelUpdate()      {}
 func (_ GuildStageVoiceChannelUpdate) guildChannelUpdate() {}

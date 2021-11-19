@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	_ Service = (*stickerServiceImpl)(nil)
+	_ Service        = (*stickerServiceImpl)(nil)
 	_ StickerService = (*stickerServiceImpl)(nil)
 )
 

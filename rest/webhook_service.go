@@ -49,8 +49,8 @@ func (s *webhookServiceImpl) GetWebhook(webhookID discord.Snowflake, opts ...Req
 	var unmarshalWebhook discord.UnmarshalWebhook
 	err = s.restClient.Do(compiledRoute, nil, &unmarshalWebhook, opts...)
 	if err == nil {
-        webhook = unmarshalWebhook.Webhook
-    }
+		webhook = unmarshalWebhook.Webhook
+	}
 	return
 }
 

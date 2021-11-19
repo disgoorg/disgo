@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	_ Service = (*stageInstanceServiceImpl)(nil)
+	_ Service              = (*stageInstanceServiceImpl)(nil)
 	_ StageInstanceService = (*stageInstanceServiceImpl)(nil)
 )
 

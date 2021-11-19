@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	_ Service = (*threadServiceImpl)(nil)
+	_ Service       = (*threadServiceImpl)(nil)
 	_ ThreadService = (*threadServiceImpl)(nil)
 )
 

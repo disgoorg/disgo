@@ -32,7 +32,7 @@ func (h *gatewayHandlerThreadCreate) HandleGatewayEvent(bot *core.Bot, sequenceN
 				GuildID: payload.GuildID(),
 				Channel: channel.(core.GuildChannel),
 			},
-			Thread:                   channel.(core.GuildThread),
+			Thread: channel.(core.GuildThread),
 		},
 	})
 }

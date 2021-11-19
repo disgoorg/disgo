@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	_ Service = (*guildServiceImpl)(nil)
+	_ Service      = (*guildServiceImpl)(nil)
 	_ GuildService = (*guildServiceImpl)(nil)
 )
 

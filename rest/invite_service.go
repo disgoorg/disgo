@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	_ Service = (*inviteServiceImpl)(nil)
+	_ Service       = (*inviteServiceImpl)(nil)
 	_ InviteService = (*inviteServiceImpl)(nil)
 )
 

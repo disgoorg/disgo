@@ -36,8 +36,8 @@ func (b *entityBuilderImpl) CreateMessage(message discord.Message) *Message {
 func (b *entityBuilderImpl) CreateWebhook(webhook discord.Webhook) *Webhook {
 	if w, ok := webhook.(discord.IncomingWebhook); ok {
 		return &Webhook{
-			IncomingWebhook:       w,
-			WebhookClient: b.WebhookClient(),
+			IncomingWebhook: w,
+			WebhookClient:   b.WebhookClient(),
 		}
 	}
 	panic(fmt.Sprintf("invalid webhook type %d received", webhook.Type()))

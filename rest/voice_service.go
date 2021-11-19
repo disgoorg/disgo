@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	_ Service = (*voiceServiceImpl)(nil)
+	_ Service      = (*voiceServiceImpl)(nil)
 	_ VoiceService = (*voiceServiceImpl)(nil)
 )
 

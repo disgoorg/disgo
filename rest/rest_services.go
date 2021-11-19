@@ -63,9 +63,9 @@ type servicesImpl struct {
 	restClient Client
 
 	applicationService   ApplicationService
-	oauth2Service   OAuth2Service
-	auditLogService AuditLogService
-	gatewayService  GatewayService
+	oauth2Service        OAuth2Service
+	auditLogService      AuditLogService
+	gatewayService       GatewayService
 	guildService         GuildService
 	channelService       ChannelService
 	threadService        ThreadService
