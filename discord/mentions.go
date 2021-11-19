@@ -4,6 +4,7 @@ import "regexp"
 
 type MentionType = *regexp.Regexp
 
+//goland:noinspection GoUnusedGlobalVariable
 var (
 	MentionTypeUser      = regexp.MustCompile("<@!?(\\d+)>")
 	MentionTypeRole      = regexp.MustCompile("<@&(\\d+)>")

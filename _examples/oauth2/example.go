@@ -38,7 +38,7 @@ func main() {
 	mux.HandleFunc("/", handleRoot)
 	mux.HandleFunc("/login", handleLogin)
 	mux.HandleFunc("/trylogin", handleTryLogin)
-	http.ListenAndServe(":6969", mux)
+	_ = http.ListenAndServe(":6969", mux)
 }
 
 func handleRoot(w http.ResponseWriter, r *http.Request) {

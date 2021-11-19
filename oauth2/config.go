@@ -27,24 +27,28 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRestClient(restClient rest.Client) ConfigOpt {
 	return func(config *Config) {
 		config.RestClient = restClient
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRestClientConfig(restConfig rest.Config) ConfigOpt {
 	return func(config *Config) {
 		config.RestClientConfig = &restConfig
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		if config.RestClientConfig == nil {
@@ -54,18 +58,21 @@ func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithOAuth2Service(oauth2service rest.OAuth2Service) ConfigOpt {
 	return func(config *Config) {
 		config.OAuth2Service = oauth2service
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithSessionController(sessionController SessionController) ConfigOpt {
 	return func(config *Config) {
 		config.SessionController = sessionController
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithStateController(stateController StateController) ConfigOpt {
 	return func(config *Config) {
 		config.StateController = stateController

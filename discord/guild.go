@@ -258,6 +258,7 @@ type GuildUpdate struct {
 
 type NSFWLevel int
 
+//goland:noinspection GoUnusedConst
 const (
 	NSFWLevelDefault NSFWLevel = iota
 	NSFWLevelExplicit

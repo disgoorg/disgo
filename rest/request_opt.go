@@ -27,36 +27,42 @@ func (c *RequestConfig) Apply(opts []RequestOpt) {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithCtx(ctx context.Context) RequestOpt {
 	return func(config *RequestConfig) {
 		config.Ctx = ctx
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithCheck(check Check) RequestOpt {
 	return func(config *RequestConfig) {
 		config.Checks = append(config.Checks, check)
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithDelay(delay time.Duration) RequestOpt {
 	return func(config *RequestConfig) {
 		config.Delay = delay
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithReason(reason string) RequestOpt {
 	return func(config *RequestConfig) {
 		config.Request.Header.Set("X-Audit-Log-Reason", reason)
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithHeader(key string, value string) RequestOpt {
 	return func(config *RequestConfig) {
 		config.Request.Header.Set(key, value)
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithQueryParam(param string, value interface{}) RequestOpt {
 	return func(config *RequestConfig) {
 		values := config.Request.URL.Query()

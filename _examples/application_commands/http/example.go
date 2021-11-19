@@ -74,9 +74,9 @@ func main() {
 }
 
 func commandListener(event *events.SlashCommandEvent) {
-	if event.CommandName == "say" {
+	if event.Data.CommandName == "say" {
 		if err := event.Create(discord.NewMessageCreateBuilder().
-			SetContent(*event.Options.String("message")).
+			SetContent(*event.Data.Options.String("message")).
 			Build(),
 		); err != nil {
 			log.Error("error sending interaction response: ", err)

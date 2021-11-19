@@ -35,12 +35,14 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithShards(shards ...int) ConfigOpt {
 	return func(config *Config) {
 		config.CustomShards = true
@@ -53,6 +55,7 @@ func WithShards(shards ...int) ConfigOpt {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithShardCount(shardCount int) ConfigOpt {
 	return func(config *Config) {
 		config.CustomShards = true
@@ -60,18 +63,21 @@ func WithShardCount(shardCount int) ConfigOpt {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithGatewayCreateFunc(gatewayCreateFunc func(token string, url string, shardID int, shardCount int, eventHandlerFunc gateway.EventHandlerFunc, config *gateway.Config) gateway.Gateway) ConfigOpt {
 	return func(config *Config) {
 		config.GatewayCreateFunc = gatewayCreateFunc
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithGatewayConfig(gatewayConfig gateway.Config) ConfigOpt {
 	return func(config *Config) {
 		config.GatewayConfig = &gatewayConfig
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		if config.GatewayConfig == nil {
@@ -81,18 +87,21 @@ func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) ConfigOpt {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRateLimiter(rateLimiter srate.Limiter) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiter = rateLimiter
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRateLimiterConfig(rateConfig srate.Config) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiterConfig = &rateConfig
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRateLimiterConfigOpt(opts ...srate.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		if config.RateLimiterConfig == nil {

@@ -21,12 +21,14 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithMaxRetries(maxRetries int) ConfigOpt {
 	return func(config *Config) {
 		config.MaxRetries = maxRetries

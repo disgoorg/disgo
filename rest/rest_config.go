@@ -34,30 +34,35 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithHTTPClient(httpClient *http.Client) ConfigOpt {
 	return func(config *Config) {
 		config.HTTPClient = httpClient
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRateLimiter(rateLimiter rrate.Limiter) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiter = rateLimiter
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRateLimiterConfig(rateLimiterConfig rrate.Config) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiterConfig = &rateLimiterConfig
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRateLimiterConfigOpts(opts ...rrate.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		if config.RateLimiterConfig == nil {
@@ -67,12 +72,14 @@ func WithRateLimiterConfigOpts(opts ...rrate.ConfigOpt) ConfigOpt {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithHeaders(headers http.Header) ConfigOpt {
 	return func(config *Config) {
 		config.Headers = headers
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithUserAgent(userAgent string) ConfigOpt {
 	return func(config *Config) {
 		config.UserAgent = userAgent

@@ -373,7 +373,9 @@ func (g *gatewayImpl) parseGatewayEvent(mt int, reader io.Reader) (*discord.Gate
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to decompress zlib")
 		}
-		defer readCloser.Close()
+		defer func() {
+			_ = readCloser.Close()
+		}()
 		reader = readCloser
 	}
 

@@ -48,7 +48,7 @@ func (e *Emoji) Guild() *Guild {
 }
 
 func (e *Emoji) Update(emojiUpdate discord.EmojiUpdate, opts ...rest.RequestOpt) (*Emoji, error) {
-	emoji, err := e.Bot.RestServices.EmojiService().UpdateEmoji(e.GuildID, e.ID, emojiUpdate)
+	emoji, err := e.Bot.RestServices.EmojiService().UpdateEmoji(e.GuildID, e.ID, emojiUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (e *Emoji) Update(emojiUpdate discord.EmojiUpdate, opts ...rest.RequestOpt)
 }
 
 func (e *Emoji) Delete(opts ...rest.RequestOpt) error {
-	return e.Bot.RestServices.EmojiService().DeleteEmoji(e.GuildID, e.ID)
+	return e.Bot.RestServices.EmojiService().DeleteEmoji(e.GuildID, e.ID, opts...)
 }
 
 // Mention returns the string used to send the Emoji
