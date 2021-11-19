@@ -1,9 +1,11 @@
 package events
 
-import "github.com/DisgoOrg/disgo/core"
+import (
+	"github.com/DisgoOrg/disgo/core"
+)
 
 type GenericStageInstanceEvent struct {
-	*GenericGuildChannelEvent
+	*GenericEvent
 	StageInstance *core.StageInstance
 }
 

@@ -10,7 +10,7 @@ import (
 // GenericDMChannelEvent is called upon receiving DMChannelCreateEvent, DMChannelUpdateEvent, DMChannelDeleteEvent or DMChannelUserTypingEvent
 type GenericDMChannelEvent struct {
 	*GenericEvent
-	Channel *core.DMChannel
+	Channel   *core.DMChannel
 	ChannelID discord.Snowflake
 }
 
@@ -34,7 +34,7 @@ type DMChannelDeleteEvent struct {
 type DMChannelUserTypingEvent struct {
 	*GenericEvent
 	ChannelID discord.Snowflake
-	UserID discord.Snowflake
+	UserID    discord.Snowflake
 	Timestamp time.Time
 }
 

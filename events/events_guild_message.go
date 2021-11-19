@@ -11,7 +11,7 @@ type GenericGuildMessageEvent struct {
 	MessageID discord.Snowflake
 	Message   *core.Message
 	ChannelID discord.Snowflake
-	GuildID discord.Snowflake
+	GuildID   discord.Snowflake
 }
 
 // Guild returns the core.Guild the GenericGuildMessageEvent happened in
@@ -26,7 +26,6 @@ func (e GenericGuildMessageEvent) Channel() core.GuildMessageChannel {
 	}
 	return nil
 }
-
 
 // GuildMessageCreateEvent is called upon receiving an core.Message in an core.DMChannel
 type GuildMessageCreateEvent struct {

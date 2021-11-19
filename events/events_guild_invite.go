@@ -8,7 +8,7 @@ import (
 // GenericGuildInviteEvent is called upon receiving GuildInviteCreateEvent or GuildInviteDeleteEvent(requires core.GatewayIntentsGuildInvites)
 type GenericGuildInviteEvent struct {
 	*GenericEvent
-	GuildID discord.Snowflake
+	GuildID   discord.Snowflake
 	ChannelID discord.Snowflake
 	Code      string
 }

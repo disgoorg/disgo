@@ -11,7 +11,7 @@ import (
 type GenericGuildMemberEvent struct {
 	*GenericEvent
 	GuildID discord.Snowflake
-	Member *core.Member
+	Member  *core.Member
 }
 
 // GuildMemberJoinEvent indicates that a core.Member joined the core.Guild
@@ -29,15 +29,15 @@ type GuildMemberUpdateEvent struct {
 type GuildMemberLeaveEvent struct {
 	*GenericEvent
 	GuildID discord.Snowflake
-	User *core.User
+	User    *core.User
 }
 
 // GuildMemberTypingEvent indicates that a core.Member started typing in a core.BaseGuildMessageChannel(requires discord.GatewayIntentGuildMessageTyping)
 type GuildMemberTypingEvent struct {
 	*GenericEvent
 	ChannelID discord.Snowflake
-	UserID discord.Snowflake
-	GuildID discord.Snowflake
+	UserID    discord.Snowflake
+	GuildID   discord.Snowflake
 	Timestamp time.Time
 }
 

@@ -9,8 +9,8 @@ import (
 type GenericGuildChannelEvent struct {
 	*GenericEvent
 	ChannelID discord.Snowflake
-	Channel core.GuildChannel
-	GuildID discord.Snowflake
+	Channel   core.GuildChannel
+	GuildID   discord.Snowflake
 }
 
 // Guild returns the cached core.Guild the event happened in

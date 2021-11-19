@@ -7,7 +7,7 @@ import (
 
 type GenericIntegrationEvent struct {
 	*GenericEvent
-	GuildID discord.Snowflake
+	GuildID     discord.Snowflake
 	Integration core.Integration
 }
 
@@ -27,7 +27,7 @@ type IntegrationUpdateEvent struct {
 type IntegrationDeleteEvent struct {
 	*GenericEvent
 	ID            discord.Snowflake
-	GuildID discord.Snowflake
+	GuildID       discord.Snowflake
 	ApplicationID *discord.Snowflake
 }
 

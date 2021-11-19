@@ -23,23 +23,29 @@ func (h *gatewayHandlerChannelCreate) New() interface{} {
 func (h *gatewayHandlerChannelCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	channel := v.(*discord.UnmarshalChannel).Channel
 
-	genericChannelEvent := &events.GenericChannelEvent{
-		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-		ChannelID:    channel.ID(),
-		Channel:      bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes),
-	}
-
 	if ch, ok := channel.(discord.GuildChannel); ok {
+		var guildChannel core.GuildChannel
+		if c, ok := bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes).(core.GuildChannel); ok {
+			guildChannel = c
+		}
 		bot.EventManager.Dispatch(&events.GuildChannelCreateEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+				ChannelID:    channel.ID(),
+				Channel:      guildChannel,
 				GuildID:             ch.GuildID(),
-				GenericChannelEvent: genericChannelEvent,
 			},
 		})
 	} else {
+		var dmChannel *core.DMChannel
+		if c, ok := bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes).(*core.DMChannel); ok {
+			dmChannel = c
+		}
 		bot.EventManager.Dispatch(&events.DMChannelCreateEvent{
 			GenericDMChannelEvent: &events.GenericDMChannelEvent{
-				GenericChannelEvent: genericChannelEvent,
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+				ChannelID:    channel.ID(),
+				Channel:      dmChannel,
 			},
 		})
 	}

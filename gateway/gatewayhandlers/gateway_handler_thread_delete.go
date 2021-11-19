@@ -21,23 +21,17 @@ func (h *gatewayHandlerThreadDelete) HandleGatewayEvent(bot *core.Bot, sequenceN
 
 	channel := bot.Caches.ChannelCache().GetCopy(payload.ID)
 	var thread core.GuildThread
-	if  {
-
+	if c, ok := channel.(core.GuildThread); ok {
+		thread = c
 	}
+
 	bot.EventManager.Dispatch(&events.ThreadDeleteEvent{
 		GenericThreadEvent: &events.GenericThreadEvent{
-			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
-				GenericChannelEvent: &events.GenericChannelEvent{
-					GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-					ChannelID:    payload.ID,
-					Channel:      channel,
-				},
-				GuildID: payload.GuildID(),
-				Channel: channel,
-			},
-			Thread: channel.(core.GuildThread),
+			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+			ThreadID:     payload.ID,
+			GuildID:      payload.GuildID,
+			ParentID:     payload.ParentID,
+			Thread:       thread,
 		},
-		ThreadID: payload.ID(),
-		ParentID: payload.ParentID,
 	})
 }

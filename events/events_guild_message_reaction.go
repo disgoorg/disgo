@@ -8,11 +8,11 @@ import (
 // GenericGuildMessageReactionEvent is called upon receiving DMMessageReactionAddEvent or DMMessageReactionRemoveEvent
 type GenericGuildMessageReactionEvent struct {
 	*GenericEvent
-	UserID discord.Snowflake
+	UserID    discord.Snowflake
 	ChannelID discord.Snowflake
 	MessageID discord.Snowflake
-	GuildID discord.Snowflake
-	Emoji  discord.ReactionEmoji
+	GuildID   discord.Snowflake
+	Emoji     discord.ReactionEmoji
 }
 
 func (e *GenericGuildMessageReactionEvent) User() *core.User {
@@ -39,8 +39,8 @@ type GuildMessageReactionRemoveEmojiEvent struct {
 	*GenericEvent
 	ChannelID discord.Snowflake
 	MessageID discord.Snowflake
-	GuildID discord.Snowflake
-	Emoji  discord.ReactionEmoji
+	GuildID   discord.Snowflake
+	Emoji     discord.ReactionEmoji
 }
 
 // GuildMessageReactionRemoveAllEvent indicates someone removed all core.MessageReaction(s) from an core.Message in an core.TextChannel(requires the core.GatewayIntentsGuildMessageReactions)
@@ -48,5 +48,5 @@ type GuildMessageReactionRemoveAllEvent struct {
 	*GenericEvent
 	ChannelID discord.Snowflake
 	MessageID discord.Snowflake
-	GuildID discord.Snowflake
+	GuildID   discord.Snowflake
 }

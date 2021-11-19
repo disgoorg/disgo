@@ -9,7 +9,7 @@ import (
 type GenericEmojiEvent struct {
 	*GenericEvent
 	GuildID discord.Snowflake
-	Emoji *core.Emoji
+	Emoji   *core.Emoji
 }
 
 // EmojiCreateEvent indicates that a new core.Emoji got created in an core.Guild(requires core.GatewayIntentsGuildEmojis)

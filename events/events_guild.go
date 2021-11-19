@@ -53,12 +53,12 @@ type GuildsReadyEvent struct {
 type GuildBanEvent struct {
 	*GenericEvent
 	GuildID discord.Snowflake
-	User *core.User
+	User    *core.User
 }
 
 // GuildUnbanEvent is called when a core.Member/core.User is unbanned from the core.Guild
 type GuildUnbanEvent struct {
 	*GenericEvent
 	GuildID discord.Snowflake
-	User *core.User
+	User    *core.User
 }

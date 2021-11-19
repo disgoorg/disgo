@@ -7,9 +7,9 @@ import (
 
 type GenericThreadEvent struct {
 	*GenericEvent
-	Thread core.GuildThread
+	Thread   core.GuildThread
 	ThreadID discord.Snowflake
-	GuildID discord.Snowflake
+	GuildID  discord.Snowflake
 	ParentID discord.Snowflake
 }
 
@@ -24,12 +24,18 @@ type ThreadUpdateEvent struct {
 
 type ThreadDeleteEvent struct {
 	*GenericThreadEvent
-	ThreadID discord.Snowflake
-	ParentID discord.Snowflake
+}
+
+type ThreadRevealEvent struct {
+	*GenericThreadEvent
+}
+
+type ThreadHideEvent struct {
+	*GenericThreadEvent
 }
 
 type GenericThreadMemberEvent struct {
-	*GenericThreadEvent
+	*GenericEvent
 	ThreadMember *core.ThreadMember
 }
 

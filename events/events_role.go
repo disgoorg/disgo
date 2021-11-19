@@ -7,23 +7,24 @@ import (
 
 // GenericRoleEvent generic core.Role event
 type GenericRoleEvent struct {
-	*GenericGuildEvent
+	*GenericEvent
+	GuildId discord.Snowflake
 	RoleID discord.Snowflake
 	Role   *core.Role
 }
 
-// RoleCreateEvent indicates that an core.Role got created
+// RoleCreateEvent indicates that a core.Role got created
 type RoleCreateEvent struct {
 	*GenericRoleEvent
 }
 
-// RoleUpdateEvent indicates that an core.Role got updated
+// RoleUpdateEvent indicates that a core.Role got updated
 type RoleUpdateEvent struct {
 	*GenericRoleEvent
 	OldRole *core.Role
 }
 
-// RoleDeleteEvent indicates that an core.Role got deleted
+// RoleDeleteEvent indicates that a core.Role got deleted
 type RoleDeleteEvent struct {
 	*GenericRoleEvent
 }

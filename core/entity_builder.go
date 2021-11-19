@@ -83,12 +83,11 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 
 	switch i := interaction.(type) {
 	case discord.AutocompleteInteraction:
-		interactionFields.InteractionFields = i.InteractionFields
 		interactionFields.Member, interactionFields.User = b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
 
 		autocompleteInteraction := &AutocompleteInteraction{
 			AutocompleteInteraction: i,
-			InteractionFields: interactionFields,
+			InteractionFields:       interactionFields,
 			Data: AutocompleteInteractionData{
 				AutocompleteInteractionData: i.Data,
 			},
@@ -119,12 +118,11 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 		return autocompleteInteraction
 
 	case discord.SlashCommandInteraction:
-		interactionFields.InteractionFields = i.InteractionFields
 		interactionFields.Member, interactionFields.User = b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
 
 		slashCommandInteraction := &SlashCommandInteraction{
 			SlashCommandInteraction: i,
-			InteractionFields: interactionFields,
+			InteractionFields:       interactionFields,
 			Data: SlashCommandInteractionData{
 				SlashCommandInteractionData: i.Data,
 			},
@@ -231,15 +229,14 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 		return slashCommandInteraction
 
 	case discord.UserCommandInteraction:
-		interactionFields.InteractionFields = i.InteractionFields
 		interactionFields.Member, interactionFields.User = b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
 
 		userCommandInteraction := &UserCommandInteraction{
 			UserCommandInteraction: i,
-			InteractionFields: interactionFields,
+			InteractionFields:      interactionFields,
 			Data: UserCommandInteractionData{
 				UserCommandInteractionData: i.Data,
-				Resolved:                   &UserCommandResolved{
+				Resolved: &UserCommandResolved{
 					Users:   map[discord.Snowflake]*User{},
 					Members: map[discord.Snowflake]*Member{},
 				},
@@ -259,12 +256,11 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 		return userCommandInteraction
 
 	case discord.MessageCommandInteraction:
-		interactionFields.InteractionFields = i.InteractionFields
 		interactionFields.Member, interactionFields.User = b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
 
 		messageCommandInteraction := &MessageCommandInteraction{
 			MessageCommandInteraction: i,
-			InteractionFields: interactionFields,
+			InteractionFields:         interactionFields,
 			Data: MessageCommandInteractionData{
 				MessageCommandInteractionData: i.Data,
 				Resolved: &MessageCommandResolved{
@@ -280,7 +276,6 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 		return messageCommandInteraction
 
 	case discord.ButtonInteraction:
-		interactionFields.InteractionFields = i.InteractionFields
 		interactionFields.Member, interactionFields.User = b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
 
 		message := b.CreateMessage(i.Message, updateCache)
@@ -292,15 +287,14 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 		}
 
 	case discord.SelectMenuInteraction:
-		interactionFields.InteractionFields = i.InteractionFields
 		interactionFields.Member, interactionFields.User = b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
 
 		message := b.CreateMessage(i.Message, updateCache)
 
 		return &SelectMenuInteraction{
 			SelectMenuInteraction: i,
-			InteractionFields: interactionFields,
-			Message:           message,
+			InteractionFields:     interactionFields,
+			Message:               message,
 		}
 
 	default:

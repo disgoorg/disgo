@@ -25,23 +25,23 @@ func (i *AutocompleteInteraction) InteractionType() discord.InteractionType {
 }
 
 func (i *AutocompleteInteraction) Respond(callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
-	return respond(i.InteractionFields, callbackType, callbackData, opts...)
+	return respond(i.InteractionFields, i.ID, i.Token, callbackType, callbackData, opts...)
 }
 
 func (i *AutocompleteInteraction) Result(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
-	return result(i.InteractionFields, choices, opts...)
+	return result(i.InteractionFields, i.ID, i.Token, choices, opts...)
 }
 
 func (i *AutocompleteInteraction) ResultMapString(resultMap map[string]string, opts ...rest.RequestOpt) error {
-	return resultMapString(i.InteractionFields, resultMap, opts...)
+	return resultMapString(i.InteractionFields, i.ID, i.Token, resultMap, opts...)
 }
 
 func (i *AutocompleteInteraction) ResultMapInt(resultMap map[string]int, opts ...rest.RequestOpt) error {
-	return resultMapInt(i.InteractionFields, resultMap, opts...)
+	return resultMapInt(i.InteractionFields, i.ID, i.Token, resultMap, opts...)
 }
 
 func (i *AutocompleteInteraction) ResultMapFloat(resultMap map[string]float64, opts ...rest.RequestOpt) error {
-	return resultMapFloat(i.InteractionFields, resultMap, opts...)
+	return resultMapFloat(i.InteractionFields, i.ID, i.Token, resultMap, opts...)
 }
 
 // CommandPath returns the ApplicationCommand path
@@ -58,15 +58,15 @@ func (i *AutocompleteInteraction) CommandPath() string {
 
 // Guild returns the Guild from the Caches
 func (i *AutocompleteInteraction) Guild() *Guild {
-	if i.InteractionFields.GuildID == nil {
+	if i.GuildID == nil {
 		return nil
 	}
-	return i.Bot.Caches.GuildCache().Get(*i.InteractionFields.GuildID)
+	return i.Bot.Caches.GuildCache().Get(*i.GuildID)
 }
 
 // Channel returns the Channel from the Caches
 func (i *AutocompleteInteraction) Channel() Channel {
-	return i.Bot.Caches.ChannelCache().Get(i.InteractionFields.ChannelID)
+	return i.Bot.Caches.ChannelCache().Get(i.ChannelID)
 }
 
 type AutocompleteOptionsMap map[string]discord.AutocompleteOption

@@ -8,10 +8,10 @@ import (
 // GenericDMMessageReactionEvent is called upon receiving DMMessageReactionAddEvent or DMMessageReactionRemoveEvent(requires the core.GatewayIntentsDirectMessageReactions)
 type GenericDMMessageReactionEvent struct {
 	*GenericEvent
-	UserID discord.Snowflake
+	UserID    discord.Snowflake
 	ChannelID discord.Snowflake
 	MessageID discord.Snowflake
-	Emoji  discord.ReactionEmoji
+	Emoji     discord.ReactionEmoji
 }
 
 func (e *GenericDMMessageReactionEvent) User() *core.User {
@@ -33,7 +33,7 @@ type DMMessageReactionRemoveEmojiEvent struct {
 	*GenericEvent
 	ChannelID discord.Snowflake
 	MessageID discord.Snowflake
-	Emoji  discord.ReactionEmoji
+	Emoji     discord.ReactionEmoji
 }
 
 // DMMessageReactionRemoveAllEvent indicates someone removed all core.MessageReaction(s) from an core.Message in an core.DMChannel(requires the core.GatewayIntentsDirectMessageReactions)
