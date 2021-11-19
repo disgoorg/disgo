@@ -51,6 +51,6 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 		message = "ping"
 	}
 	if message != "" {
-		_, _ = event.Message.Reply(core.NewMessageCreateBuilder().SetContent(message).Build())
+		_, _ = event.Message.Reply(discord.NewMessageCreateBuilder().SetContent(message).Build())
 	}
 }

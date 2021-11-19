@@ -1,6 +1,8 @@
 package webhook
 
 import (
+	"fmt"
+
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -32,8 +34,11 @@ func (b *entityBuilderImpl) CreateMessage(message discord.Message) *Message {
 }
 
 func (b *entityBuilderImpl) CreateWebhook(webhook discord.Webhook) *Webhook {
-	return &Webhook{
-		Webhook:       webhook,
-		WebhookClient: b.WebhookClient(),
+	if w, ok := webhook.(discord.IncomingWebhook); ok {
+		return &Webhook{
+			IncomingWebhook:       w,
+			WebhookClient: b.WebhookClient(),
+		}
 	}
+	panic(fmt.Sprintf("invalid webhook type %d received", webhook.Type()))
 }

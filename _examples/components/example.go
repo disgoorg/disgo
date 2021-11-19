@@ -6,8 +6,6 @@ import (
 	"syscall"
 
 	"github.com/DisgoOrg/disgo/bot"
-	"github.com/DisgoOrg/disgo/core"
-
 	"github.com/DisgoOrg/disgo/events"
 
 	"github.com/DisgoOrg/disgo/discord"
@@ -33,7 +31,7 @@ func main() {
 					return
 				}
 				if event.Message.Content == "test" {
-					_, _ = event.Message.Reply(core.NewMessageCreateBuilder().
+					_, _ = event.Message.Reply(discord.NewMessageCreateBuilder().
 						AddActionRow(discord.NewDangerButton("danger", "danger")).
 						Build(),
 					)
@@ -41,7 +39,7 @@ func main() {
 			},
 			OnButtonClick: func(event *events.ButtonClickEvent) {
 				if event.CustomID == "danger" {
-					_ = event.Create(core.NewMessageCreateBuilder().SetEphemeral(true).SetContent("Ey that was danger").Build())
+					_ = event.Create(discord.NewMessageCreateBuilder().SetEphemeral(true).SetContent("Ey that was danger").Build())
 				}
 			},
 		}),

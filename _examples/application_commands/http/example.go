@@ -8,7 +8,6 @@ import (
 	"github.com/DisgoOrg/disgo/bot"
 	"github.com/DisgoOrg/disgo/events"
 
-	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/info"
@@ -76,7 +75,7 @@ func main() {
 
 func commandListener(event *events.SlashCommandEvent) {
 	if event.CommandName == "say" {
-		if err := event.Create(core.NewMessageCreateBuilder().
+		if err := event.Create(discord.NewMessageCreateBuilder().
 			SetContent(*event.Options.String("message")).
 			Build(),
 		); err != nil {

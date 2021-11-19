@@ -1,9 +1,7 @@
-package core
+package discord
 
 import (
 	"fmt"
-
-	"github.com/DisgoOrg/disgo/discord"
 )
 
 // NewEmbedBuilder returns a new embed builder
@@ -13,7 +11,7 @@ func NewEmbedBuilder() *EmbedBuilder {
 
 // EmbedBuilder allows you to create embeds and use methods to set values
 type EmbedBuilder struct {
-	discord.Embed
+	Embed
 }
 
 // SetTitle sets the title of the EmbedBuilder
@@ -41,7 +39,7 @@ func (b *EmbedBuilder) SetDescriptionf(description string, a ...interface{}) *Em
 }
 
 // SetEmbedAuthor sets the author of the EmbedBuilder using an EmbedAuthor struct
-func (b *EmbedBuilder) SetEmbedAuthor(author *discord.EmbedAuthor) *EmbedBuilder {
+func (b *EmbedBuilder) SetEmbedAuthor(author *EmbedAuthor) *EmbedBuilder {
 	b.Author = author
 	return b
 }
@@ -49,7 +47,7 @@ func (b *EmbedBuilder) SetEmbedAuthor(author *discord.EmbedAuthor) *EmbedBuilder
 // SetAuthor sets the author of the EmbedBuilder without an Icon URL
 func (b *EmbedBuilder) SetAuthor(name string, url string, iconURL string) *EmbedBuilder {
 	if b.Author == nil {
-		b.Author = &discord.EmbedAuthor{}
+		b.Author = &EmbedAuthor{}
 	}
 	b.Author.Name = &name
 	b.Author.URL = &url
@@ -60,7 +58,7 @@ func (b *EmbedBuilder) SetAuthor(name string, url string, iconURL string) *Embed
 // SetAuthorName sets the author of the EmbedBuilder
 func (b *EmbedBuilder) SetAuthorName(name string) *EmbedBuilder {
 	if b.Author == nil {
-		b.Author = &discord.EmbedAuthor{}
+		b.Author = &EmbedAuthor{}
 	}
 	b.Author.Name = &name
 	return b
@@ -69,7 +67,7 @@ func (b *EmbedBuilder) SetAuthorName(name string) *EmbedBuilder {
 // SetAuthorURL sets the author of the EmbedBuilder with a URL
 func (b *EmbedBuilder) SetAuthorURL(url string) *EmbedBuilder {
 	if b.Author == nil {
-		b.Author = &discord.EmbedAuthor{}
+		b.Author = &EmbedAuthor{}
 	}
 	b.Author.URL = &url
 	return b
@@ -78,7 +76,7 @@ func (b *EmbedBuilder) SetAuthorURL(url string) *EmbedBuilder {
 // SetAuthorIcon sets the author of the EmbedBuilder with all properties
 func (b *EmbedBuilder) SetAuthorIcon(iconURL string) *EmbedBuilder {
 	if b.Author == nil {
-		b.Author = &discord.EmbedAuthor{}
+		b.Author = &EmbedAuthor{}
 	}
 	b.Author.IconURL = &iconURL
 	return b
@@ -91,7 +89,7 @@ func (b *EmbedBuilder) SetColor(color int) *EmbedBuilder {
 }
 
 // SetEmbedFooter sets the footer of the EmbedBuilder
-func (b *EmbedBuilder) SetEmbedFooter(footer *discord.EmbedFooter) *EmbedBuilder {
+func (b *EmbedBuilder) SetEmbedFooter(footer *EmbedFooter) *EmbedBuilder {
 	b.Footer = footer
 	return b
 }
@@ -99,7 +97,7 @@ func (b *EmbedBuilder) SetEmbedFooter(footer *discord.EmbedFooter) *EmbedBuilder
 // SetFooter sets the footer of the EmbedBuilder
 func (b *EmbedBuilder) SetFooter(text string, iconURL string) *EmbedBuilder {
 	if b.Footer == nil {
-		b.Footer = &discord.EmbedFooter{}
+		b.Footer = &EmbedFooter{}
 	}
 	b.Footer.Text = text
 	b.Footer.IconURL = &iconURL
@@ -109,7 +107,7 @@ func (b *EmbedBuilder) SetFooter(text string, iconURL string) *EmbedBuilder {
 // SetFooterText sets the footer of the EmbedBuilder by text
 func (b *EmbedBuilder) SetFooterText(text string) *EmbedBuilder {
 	if b.Footer == nil {
-		b.Footer = &discord.EmbedFooter{}
+		b.Footer = &EmbedFooter{}
 	}
 	b.Footer.Text = text
 	return b
@@ -118,7 +116,7 @@ func (b *EmbedBuilder) SetFooterText(text string) *EmbedBuilder {
 // SetFooterIcon sets the footer of the EmbedBuilder by iconURL
 func (b *EmbedBuilder) SetFooterIcon(iconURL string) *EmbedBuilder {
 	if b.Footer == nil {
-		b.Footer = &discord.EmbedFooter{}
+		b.Footer = &EmbedFooter{}
 	}
 	b.Footer.IconURL = &iconURL
 	return b
@@ -127,7 +125,7 @@ func (b *EmbedBuilder) SetFooterIcon(iconURL string) *EmbedBuilder {
 // SetImage sets the image of the EmbedBuilder
 func (b *EmbedBuilder) SetImage(url string) *EmbedBuilder {
 	if b.Image == nil {
-		b.Image = &discord.EmbedResource{}
+		b.Image = &EmbedResource{}
 	}
 	b.Image.URL = &url
 	return b
@@ -136,7 +134,7 @@ func (b *EmbedBuilder) SetImage(url string) *EmbedBuilder {
 // SetThumbnail sets the thumbnail of the EmbedBuilder
 func (b *EmbedBuilder) SetThumbnail(url string) *EmbedBuilder {
 	if b.Thumbnail == nil {
-		b.Thumbnail = &discord.EmbedResource{}
+		b.Thumbnail = &EmbedResource{}
 	}
 	b.Thumbnail.URL = &url
 	return b
@@ -150,33 +148,33 @@ func (b *EmbedBuilder) SetURL(url string) *EmbedBuilder {
 
 // AddField adds a field to the EmbedBuilder by name and value
 func (b *EmbedBuilder) AddField(name string, value string, inline bool) *EmbedBuilder {
-	b.Fields = append(b.Fields, discord.EmbedField{Name: name, Value: value, Inline: &inline})
+	b.Fields = append(b.Fields, EmbedField{Name: name, Value: value, Inline: &inline})
 	return b
 }
 
 // SetField sets a field to the EmbedBuilder by name and value
 func (b *EmbedBuilder) SetField(i int, name string, value string, inline bool) *EmbedBuilder {
 	if len(b.Fields) > i {
-		b.Fields[i] = discord.EmbedField{Name: name, Value: value, Inline: &inline}
+		b.Fields[i] = EmbedField{Name: name, Value: value, Inline: &inline}
 	}
 	return b
 }
 
 // AddFields adds multiple fields to the EmbedBuilder
-func (b *EmbedBuilder) AddFields(fields ...discord.EmbedField) *EmbedBuilder {
+func (b *EmbedBuilder) AddFields(fields ...EmbedField) *EmbedBuilder {
 	b.Fields = append(b.Fields, fields...)
 	return b
 }
 
 // SetFields sets fields of the EmbedBuilder
-func (b *EmbedBuilder) SetFields(fields ...discord.EmbedField) *EmbedBuilder {
+func (b *EmbedBuilder) SetFields(fields ...EmbedField) *EmbedBuilder {
 	b.Fields = fields
 	return b
 }
 
 // ClearFields removes all the fields from the EmbedBuilder
 func (b *EmbedBuilder) ClearFields() *EmbedBuilder {
-	b.Fields = []discord.EmbedField{}
+	b.Fields = []EmbedField{}
 	return b
 }
 
@@ -189,6 +187,6 @@ func (b *EmbedBuilder) RemoveField(i int) *EmbedBuilder {
 }
 
 // Build returns your built Embed
-func (b *EmbedBuilder) Build() discord.Embed {
+func (b *EmbedBuilder) Build() Embed {
 	return b.Embed
 }

@@ -1,21 +1,19 @@
-package core
+package discord
 
 import (
 	"fmt"
 	"io"
-
-	"github.com/DisgoOrg/disgo/discord"
 )
 
 // MessageUpdateBuilder helper to build MessageUpdate easier
 type MessageUpdateBuilder struct {
-	discord.MessageUpdate
+	MessageUpdate
 }
 
 // NewMessageUpdateBuilder creates a new MessageUpdateBuilder to be built later
 func NewMessageUpdateBuilder() *MessageUpdateBuilder {
 	return &MessageUpdateBuilder{
-		MessageUpdate: discord.MessageUpdate{
+		MessageUpdate: MessageUpdate{
 			AllowedMentions: &DefaultAllowedMentions,
 		},
 	}
@@ -38,18 +36,18 @@ func (b *MessageUpdateBuilder) ClearContent() *MessageUpdateBuilder {
 }
 
 // SetEmbeds sets the discord.Embed(s) of the Message
-func (b *MessageUpdateBuilder) SetEmbeds(embeds ...discord.Embed) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) SetEmbeds(embeds ...Embed) *MessageUpdateBuilder {
 	if b.Embeds == nil {
-		b.Embeds = new([]discord.Embed)
+		b.Embeds = new([]Embed)
 	}
 	*b.Embeds = embeds
 	return b
 }
 
 // SetEmbed sets the provided discord.Embed at the index of the Message
-func (b *MessageUpdateBuilder) SetEmbed(i int, embed discord.Embed) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) SetEmbed(i int, embed Embed) *MessageUpdateBuilder {
 	if b.Embeds == nil {
-		b.Embeds = new([]discord.Embed)
+		b.Embeds = new([]Embed)
 	}
 	if len(*b.Embeds) > i {
 		(*b.Embeds)[i] = embed
@@ -58,9 +56,9 @@ func (b *MessageUpdateBuilder) SetEmbed(i int, embed discord.Embed) *MessageUpda
 }
 
 // AddEmbeds adds multiple embeds to the Message
-func (b *MessageUpdateBuilder) AddEmbeds(embeds ...discord.Embed) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) AddEmbeds(embeds ...Embed) *MessageUpdateBuilder {
 	if b.Embeds == nil {
-		b.Embeds = new([]discord.Embed)
+		b.Embeds = new([]Embed)
 	}
 	*b.Embeds = append(*b.Embeds, embeds...)
 	return b
@@ -68,14 +66,14 @@ func (b *MessageUpdateBuilder) AddEmbeds(embeds ...discord.Embed) *MessageUpdate
 
 // ClearEmbeds removes all the embeds from the Message
 func (b *MessageUpdateBuilder) ClearEmbeds() *MessageUpdateBuilder {
-	b.Embeds = &[]discord.Embed{}
+	b.Embeds = &[]Embed{}
 	return b
 }
 
 // RemoveEmbed removes an embed from the Message
 func (b *MessageUpdateBuilder) RemoveEmbed(i int) *MessageUpdateBuilder {
 	if b.Embeds == nil {
-		b.Embeds = new([]discord.Embed)
+		b.Embeds = new([]Embed)
 	}
 	if len(*b.Embeds) > i {
 		*b.Embeds = append((*b.Embeds)[:i], (*b.Embeds)[i+1:]...)
@@ -84,18 +82,18 @@ func (b *MessageUpdateBuilder) RemoveEmbed(i int) *MessageUpdateBuilder {
 }
 
 // SetContainerComponents sets the discord.ContainerComponent(s) of the Message
-func (b *MessageUpdateBuilder) SetContainerComponents(containerComponents ...discord.ContainerComponent) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) SetContainerComponents(containerComponents ...ContainerComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]discord.ContainerComponent)
+		b.Components = new([]ContainerComponent)
 	}
 	*b.Components = containerComponents
 	return b
 }
 
 // SetContainerComponent sets the provided discord.InteractiveComponent at the index of discord.InteractiveComponent(s)
-func (b *MessageUpdateBuilder) SetContainerComponent(i int, container discord.ContainerComponent) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) SetContainerComponent(i int, container ContainerComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]discord.ContainerComponent)
+		b.Components = new([]ContainerComponent)
 	}
 	if len(*b.Components) > i {
 		(*b.Components)[i] = container
@@ -104,18 +102,18 @@ func (b *MessageUpdateBuilder) SetContainerComponent(i int, container discord.Co
 }
 
 // AddActionRow adds a new discord.ActionRowComponent with the provided discord.InteractiveComponent(s) to the Message
-func (b *MessageUpdateBuilder) AddActionRow(components ...discord.InteractiveComponent) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) AddActionRow(components ...InteractiveComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]discord.ContainerComponent)
+		b.Components = new([]ContainerComponent)
 	}
-	*b.Components = append(*b.Components, discord.ActionRowComponent(components))
+	*b.Components = append(*b.Components, ActionRowComponent(components))
 	return b
 }
 
 // AddContainerComponents adds the discord.ContainerComponent(s) to the Message
-func (b *MessageUpdateBuilder) AddContainerComponents(containers ...discord.ContainerComponent) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) AddContainerComponents(containers ...ContainerComponent) *MessageUpdateBuilder {
 	if b.Components == nil {
-		b.Components = new([]discord.ContainerComponent)
+		b.Components = new([]ContainerComponent)
 	}
 	*b.Components = append(*b.Components, containers...)
 	return b
@@ -134,18 +132,18 @@ func (b *MessageUpdateBuilder) RemoveContainerComponent(i int) *MessageUpdateBui
 
 // ClearContainerComponents removes all the discord.ContainerComponent(s) of the Message
 func (b *MessageUpdateBuilder) ClearContainerComponents() *MessageUpdateBuilder {
-	b.Components = &[]discord.ContainerComponent{}
+	b.Components = &[]ContainerComponent{}
 	return b
 }
 
 // SetFiles sets the new discord.File(s) for this discord.MessageUpdate
-func (b *MessageUpdateBuilder) SetFiles(files ...*discord.File) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) SetFiles(files ...*File) *MessageUpdateBuilder {
 	b.Files = files
 	return b
 }
 
 // SetFile sets the new discord.File at the index for this discord.MessageUpdate
-func (b *MessageUpdateBuilder) SetFile(i int, file *discord.File) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) SetFile(i int, file *File) *MessageUpdateBuilder {
 	if len(b.Files) > i {
 		b.Files[i] = file
 	}
@@ -153,20 +151,20 @@ func (b *MessageUpdateBuilder) SetFile(i int, file *discord.File) *MessageUpdate
 }
 
 // AddFiles adds the new discord.File(s) to the discord.MessageUpdate
-func (b *MessageUpdateBuilder) AddFiles(files ...*discord.File) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) AddFiles(files ...*File) *MessageUpdateBuilder {
 	b.Files = append(b.Files, files...)
 	return b
 }
 
 // AddFile adds a new discord.File to the discord.MessageUpdate
-func (b *MessageUpdateBuilder) AddFile(name string, reader io.Reader, flags ...discord.FileFlags) *MessageUpdateBuilder {
-	b.Files = append(b.Files, discord.NewFile(name, reader, flags...))
+func (b *MessageUpdateBuilder) AddFile(name string, reader io.Reader, flags ...FileFlags) *MessageUpdateBuilder {
+	b.Files = append(b.Files, NewFile(name, reader, flags...))
 	return b
 }
 
 // ClearFiles removes all new files of this discord.MessageUpdate
 func (b *MessageUpdateBuilder) ClearFiles() *MessageUpdateBuilder {
-	b.Files = []*discord.File{}
+	b.Files = []*File{}
 	return b
 }
 
@@ -179,27 +177,27 @@ func (b *MessageUpdateBuilder) RemoveFile(i int) *MessageUpdateBuilder {
 }
 
 // RetainAttachments removes all Attachment(s) from this Message except the ones provided
-func (b *MessageUpdateBuilder) RetainAttachments(attachments ...discord.Attachment) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) RetainAttachments(attachments ...Attachment) *MessageUpdateBuilder {
 	if b.Attachments == nil {
-		b.Attachments = new([]discord.Attachment)
+		b.Attachments = new([]Attachment)
 	}
 	*b.Attachments = append(*b.Attachments, attachments...)
 	return b
 }
 
 // RetainAttachmentsByID removes all Attachment(s) from this Message except the ones provided
-func (b *MessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...discord.Snowflake) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...Snowflake) *MessageUpdateBuilder {
 	if b.Attachments == nil {
-		b.Attachments = new([]discord.Attachment)
+		b.Attachments = new([]Attachment)
 	}
 	for _, attachmentID := range attachmentIDs {
-		*b.Attachments = append(*b.Attachments, discord.Attachment{ID: attachmentID})
+		*b.Attachments = append(*b.Attachments, Attachment{ID: attachmentID})
 	}
 	return b
 }
 
 // SetAllowedMentions sets the AllowedMentions of the Message
-func (b *MessageUpdateBuilder) SetAllowedMentions(allowedMentions *discord.AllowedMentions) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) SetAllowedMentions(allowedMentions *AllowedMentions) *MessageUpdateBuilder {
 	b.AllowedMentions = allowedMentions
 	return b
 }
@@ -210,27 +208,27 @@ func (b *MessageUpdateBuilder) ClearAllowedMentions() *MessageUpdateBuilder {
 }
 
 // SetFlags sets the message flags of the Message
-func (b *MessageUpdateBuilder) SetFlags(flags discord.MessageFlags) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) SetFlags(flags MessageFlags) *MessageUpdateBuilder {
 	if b.Flags == nil {
-		b.Flags = new(discord.MessageFlags)
+		b.Flags = new(MessageFlags)
 	}
 	*b.Flags = flags
 	return b
 }
 
 // AddFlags adds the MessageFlags of the Message
-func (b *MessageUpdateBuilder) AddFlags(flags ...discord.MessageFlags) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) AddFlags(flags ...MessageFlags) *MessageUpdateBuilder {
 	if b.Flags == nil {
-		b.Flags = new(discord.MessageFlags)
+		b.Flags = new(MessageFlags)
 	}
 	*b.Flags = b.Flags.Add(flags...)
 	return b
 }
 
 // RemoveFlags removes the MessageFlags of the Message
-func (b *MessageUpdateBuilder) RemoveFlags(flags ...discord.MessageFlags) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) RemoveFlags(flags ...MessageFlags) *MessageUpdateBuilder {
 	if b.Flags == nil {
-		b.Flags = new(discord.MessageFlags)
+		b.Flags = new(MessageFlags)
 	}
 	*b.Flags = b.Flags.Remove(flags...)
 	return b
@@ -238,10 +236,10 @@ func (b *MessageUpdateBuilder) RemoveFlags(flags ...discord.MessageFlags) *Messa
 
 // ClearFlags clears the MessageFlags of the Message
 func (b *MessageUpdateBuilder) ClearFlags() *MessageUpdateBuilder {
-	return b.SetFlags(discord.MessageFlagNone)
+	return b.SetFlags(MessageFlagNone)
 }
 
 // Build builds the MessageUpdateBuilder to a MessageUpdate struct
-func (b *MessageUpdateBuilder) Build() discord.MessageUpdate {
+func (b *MessageUpdateBuilder) Build() MessageUpdate {
 	return b.MessageUpdate
 }

@@ -71,7 +71,7 @@ var (
 	GetPruneMembersCount = NewAPIRoute(GET, "/guilds/{guild.id}/prune")
 	PruneMembers         = NewAPIRoute(POST, "/guilds/{guild.id}/prune")
 
-	GetAllWebhooks = NewAPIRoute(GET, "/guilds/{guild.id}/webhooks")
+	GetGuildWebhooks = NewAPIRoute(GET, "/guilds/{guild.id}/webhooks")
 
 	GetAuditLogs = NewAPIRoute(GET, "/guilds/{guild.id}/audit-logs", "user_id", "action_type", "before", "limit")
 
