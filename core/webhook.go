@@ -4,6 +4,7 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/route"
+	"github.com/DisgoOrg/disgo/webhook"
 )
 
 type Webhook interface {
@@ -22,15 +23,19 @@ func (h *IncomingWebhook) URL() string {
 }
 
 func (h *IncomingWebhook) Update(webhookUpdate discord.WebhookUpdate, opts ...rest.RequestOpt) (*IncomingWebhook, error) {
-	webhook, err := h.Bot.RestServices.WebhookService().UpdateWebhook(h.ID(), webhookUpdate, opts...)
+	wh, err := h.Bot.RestServices.WebhookService().UpdateWebhook(h.ID(), webhookUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return h.Bot.EntityBuilder.CreateWebhook(webhook, CacheStrategyNoWs).(*IncomingWebhook), nil
+	return h.Bot.EntityBuilder.CreateWebhook(wh, CacheStrategyNoWs).(*IncomingWebhook), nil
 }
 
 func (h *IncomingWebhook) Delete(opts ...rest.RequestOpt) error {
 	return h.Bot.RestServices.WebhookService().DeleteWebhook(h.ID(), opts...)
+}
+
+func (h *IncomingWebhook) NewWebhookClient(opts ...webhook.ConfigOpt) *webhook.Client {
+	return webhook.NewClient(h.ID(), h.Token, append(opts, webhook.WithRestClient(h.Bot.RestServices.RestClient()), webhook.WithLogger(h.Bot.Logger))...)
 }
 
 type ChannelFollowerWebhook struct {

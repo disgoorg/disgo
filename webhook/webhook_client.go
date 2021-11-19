@@ -17,10 +17,10 @@ func NewClient(id discord.Snowflake, token string, opts ...ConfigOpt) *Client {
 		config.Logger = log.Default()
 	}
 
-	if config.RestClient == nil {
-		config.RestClient = rest.NewClient(config.RestClientConfig)
-	}
 	if config.WebhookService == nil {
+		if config.RestClient == nil {
+			config.RestClient = rest.NewClient(config.RestClientConfig)
+		}
 		config.WebhookService = rest.NewWebhookService(config.RestClient)
 	}
 	if config.DefaultAllowedMentions == nil {

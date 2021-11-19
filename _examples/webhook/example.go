@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	webhookID    = os.Getenv("webhook_id")
+	webhookID    = discord.Snowflake(os.Getenv("webhook_id"))
 	webhookToken = os.Getenv("webhook_token")
 )
 
@@ -23,7 +23,7 @@ func main() {
 	log.Info("disgo version: ", info.Version)
 
 	// construct new webhook client
-	client := webhook.NewClient(discord.Snowflake(webhookID), webhookToken)
+	client := webhook.NewClient(webhookID, webhookToken)
 
 	// new sync.WaitGroup to await all messages to be sent before shutting down
 	var wg sync.WaitGroup
@@ -43,7 +43,7 @@ func main() {
 func send(wg *sync.WaitGroup, client *webhook.Client, i int) {
 	defer wg.Done()
 
-	if _, err := client.CreateMessage(discord.NewMessageCreateBuilder().
+	if _, err := client.CreateMessage(discord.NewWebhookMessageCreateBuilder().
 		SetContentf("test %d", i).
 		Build(),
 		// delay each request by 2 seconds
