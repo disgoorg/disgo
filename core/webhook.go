@@ -45,11 +45,11 @@ type ChannelFollowerWebhook struct {
 }
 
 func (h *ChannelFollowerWebhook) Update(webhookUpdate discord.WebhookUpdate, opts ...rest.RequestOpt) (*ChannelFollowerWebhook, error) {
-	webhook, err := h.Bot.RestServices.WebhookService().UpdateWebhook(h.ID(), webhookUpdate, opts...)
+	wh, err := h.Bot.RestServices.WebhookService().UpdateWebhook(h.ID(), webhookUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return h.Bot.EntityBuilder.CreateWebhook(webhook, CacheStrategyNoWs).(*ChannelFollowerWebhook), nil
+	return h.Bot.EntityBuilder.CreateWebhook(wh, CacheStrategyNoWs).(*ChannelFollowerWebhook), nil
 }
 
 func (h *ChannelFollowerWebhook) Delete(opts ...rest.RequestOpt) error {
