@@ -1,10 +1,14 @@
 package events
 
-import "github.com/DisgoOrg/disgo/core"
+import (
+	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/discord"
+)
 
 // GenericStickerEvent is called upon receiving StickerCreateEvent, StickerUpdateEvent or StickerDeleteEvent(requires core.GatewayIntentsGuildStickers)
 type GenericStickerEvent struct {
-	*GenericGuildEvent
+	*GenericEvent
+	GuildID discord.Snowflake
 	Sticker *core.Sticker
 }
 

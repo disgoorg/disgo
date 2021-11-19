@@ -7,7 +7,10 @@ import (
 
 // GenericGuildMessageEvent is called upon receiving GuildMessageCreateEvent, GuildMessageUpdateEvent or GuildMessageDeleteEvent
 type GenericGuildMessageEvent struct {
-	*GenericMessageEvent
+	*GenericEvent
+	MessageID discord.Snowflake
+	Message   *core.Message
+	ChannelID discord.Snowflake
 	GuildID discord.Snowflake
 }
 
@@ -15,6 +18,15 @@ type GenericGuildMessageEvent struct {
 func (e GenericGuildMessageEvent) Guild() *core.Guild {
 	return e.Bot().Caches.GuildCache().Get(e.GuildID)
 }
+
+// Channel returns the core.DMChannel where the GenericGuildMessageEvent happened
+func (e GenericGuildMessageEvent) Channel() core.GuildMessageChannel {
+	if ch := e.Bot().Caches.ChannelCache().Get(e.ChannelID); ch != nil {
+		return ch.(core.GuildMessageChannel)
+	}
+	return nil
+}
+
 
 // GuildMessageCreateEvent is called upon receiving an core.Message in an core.DMChannel
 type GuildMessageCreateEvent struct {

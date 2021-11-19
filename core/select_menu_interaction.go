@@ -12,10 +12,9 @@ var _ Interaction = (*SelectMenuInteraction)(nil)
 var _ ComponentInteraction = (*SelectMenuInteraction)(nil)
 
 type SelectMenuInteraction struct {
+	discord.SelectMenuInteraction
 	*InteractionFields
 	Message  *Message
-	CustomID discord.CustomID
-	Values   []string
 }
 
 func (i *SelectMenuInteraction) InteractionType() discord.InteractionType {
@@ -76,20 +75,20 @@ func (i *SelectMenuInteraction) DeferUpdate(opts ...rest.RequestOpt) error {
 
 // UpdateSelectMenu updates the used SelectMenuComponent with a new SelectMenuComponent
 func (i *SelectMenuInteraction) UpdateSelectMenu(selectMenu discord.SelectMenuComponent, opts ...rest.RequestOpt) error {
-	return updateComponent(i.InteractionFields, i.Message, i.CustomID, selectMenu, opts...)
+	return updateComponent(i.InteractionFields, i.Message, i.Data.CustomID, selectMenu, opts...)
 }
 
 // SelectMenuComponent returns the SelectMenuComponent which issued this SelectMenuInteraction
 func (i *SelectMenuInteraction) SelectMenuComponent() discord.SelectMenuComponent {
 	// this should never be nil
-	return *i.Message.SelectMenuByID(i.CustomID)
+	return *i.Message.SelectMenuByID(i.Data.CustomID)
 }
 
 // SelectedOptions returns the selected SelectMenuOption(s)
 func (i *SelectMenuInteraction) SelectedOptions() []discord.SelectMenuOption {
-	options := make([]discord.SelectMenuOption, len(i.Values))
+	options := make([]discord.SelectMenuOption, len(i.Data.Values))
 	for ii, option := range i.SelectMenuComponent().Options {
-		for _, value := range i.Values {
+		for _, value := range i.Data.Values {
 			if value == option.Value {
 				options[ii] = option
 				break

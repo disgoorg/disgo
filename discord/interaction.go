@@ -20,6 +20,7 @@ const (
 // Interaction is used for easier unmarshalling of different Interaction(s)
 type Interaction interface {
 	InteractionType() InteractionType
+	interaction()
 }
 
 type InteractionFields struct {
@@ -123,6 +124,8 @@ type PingInteraction struct {
 	Version       int       `json:"version"`
 }
 
+func (_ PingInteraction) interaction() {}
+
 func (_ PingInteraction) InteractionType() InteractionType {
 	return InteractionTypePing
 }
@@ -130,6 +133,7 @@ func (_ PingInteraction) InteractionType() InteractionType {
 type ApplicationCommandInteraction interface {
 	Interaction
 	ApplicationCommandType() ApplicationCommandType
+	applicationCommandInteraction()
 }
 
 var (
@@ -141,6 +145,9 @@ type SlashCommandInteraction struct {
 	InteractionFields
 	Data SlashCommandInteractionData `json:"data"`
 }
+
+func (_ SlashCommandInteraction) interaction() {}
+func (_ SlashCommandInteraction) applicationCommandInteraction() {}
 
 type SlashCommandInteractionData struct {
 	CommandID   Snowflake            `json:"id"`
@@ -192,6 +199,9 @@ var (
 	_ ApplicationCommandInteraction = (*UserCommandInteraction)(nil)
 )
 
+func (_ UserCommandInteraction) interaction() {}
+func (_ UserCommandInteraction) applicationCommandInteraction() {}
+
 type UserCommandInteraction struct {
 	InteractionFields
 	Data UserCommandInteractionData `json:"data"`
@@ -227,6 +237,9 @@ type MessageCommandInteraction struct {
 	Data MessageCommandInteractionData `json:"data"`
 }
 
+func (_ MessageCommandInteraction) interaction() {}
+func (_ MessageCommandInteraction) applicationCommandInteraction() {}
+
 type MessageCommandInteractionData struct {
 	CommandID   Snowflake              `json:"id"`
 	CommandName string                 `json:"name"`
@@ -249,6 +262,7 @@ func (_ MessageCommandInteraction) ApplicationCommandType() ApplicationCommandTy
 type ComponentInteraction interface {
 	Interaction
 	ComponentType() ComponentType
+	componentInteraction()
 }
 
 var (
@@ -265,6 +279,9 @@ type ButtonInteraction struct {
 type ButtonInteractionData struct {
 	CustomID CustomID `json:"custom_id"`
 }
+
+func (_ ButtonInteraction) interaction() {}
+func (_ ButtonInteraction) componentInteraction() {}
 
 func (_ ButtonInteraction) InteractionType() InteractionType {
 	return InteractionTypeComponent
@@ -290,6 +307,9 @@ type SelectMenuInteractionData struct {
 	Values   []string `json:"values"`
 }
 
+func (_ SelectMenuInteraction) interaction() {}
+func (_ SelectMenuInteraction) componentInteraction() {}
+
 func (_ SelectMenuInteraction) InteractionType() InteractionType {
 	return InteractionTypeComponent
 }
@@ -306,6 +326,8 @@ type AutocompleteInteraction struct {
 	InteractionFields
 	Data AutocompleteInteractionData `json:"data"`
 }
+
+func (_ AutocompleteInteraction) interaction() {}
 
 func (_ AutocompleteInteraction) InteractionType() InteractionType {
 	return InteractionTypeAutocomplete

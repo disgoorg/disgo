@@ -7,8 +7,11 @@ import (
 
 // GenericGuildMessageReactionEvent is called upon receiving DMMessageReactionAddEvent or DMMessageReactionRemoveEvent
 type GenericGuildMessageReactionEvent struct {
-	*GenericGuildMessageEvent
+	*GenericEvent
 	UserID discord.Snowflake
+	ChannelID discord.Snowflake
+	MessageID discord.Snowflake
+	GuildID discord.Snowflake
 	Emoji  discord.ReactionEmoji
 }
 
@@ -20,7 +23,7 @@ func (e *GenericGuildMessageReactionEvent) Member() *core.Member {
 	return e.Bot().Caches.MemberCache().Get(e.GuildID, e.UserID)
 }
 
-// GuildMessageReactionAddEvent indicates that an core.Member added an core.MessageReaction to an core.Message in an core.TextChannel(requires the core.GatewayIntentsGuildMessageReactions)
+// GuildMessageReactionAddEvent indicates that a core.Member added a discord.ReactionEmoji to a core.Message in a core.GuildMessageChannel(requires the discord.GatewayIntentGuildMessageReactions)
 type GuildMessageReactionAddEvent struct {
 	*GenericGuildMessageReactionEvent
 	Member *core.Member
@@ -33,11 +36,17 @@ type GuildMessageReactionRemoveEvent struct {
 
 // GuildMessageReactionRemoveEmojiEvent indicates someone removed all core.MessageReaction of a specific core.Emoji from an core.Message in an core.TextChannel(requires the core.GatewayIntentsGuildMessageReactions)
 type GuildMessageReactionRemoveEmojiEvent struct {
-	*GenericGuildMessageEvent
-	Emoji discord.ReactionEmoji
+	*GenericEvent
+	ChannelID discord.Snowflake
+	MessageID discord.Snowflake
+	GuildID discord.Snowflake
+	Emoji  discord.ReactionEmoji
 }
 
 // GuildMessageReactionRemoveAllEvent indicates someone removed all core.MessageReaction(s) from an core.Message in an core.TextChannel(requires the core.GatewayIntentsGuildMessageReactions)
 type GuildMessageReactionRemoveAllEvent struct {
-	*GenericGuildMessageEvent
+	*GenericEvent
+	ChannelID discord.Snowflake
+	MessageID discord.Snowflake
+	GuildID discord.Snowflake
 }

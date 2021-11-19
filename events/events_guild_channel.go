@@ -7,7 +7,8 @@ import (
 
 // GenericGuildChannelEvent is called upon receiving GuildChannelCreateEvent, GuildChannelUpdateEvent or GuildChannelDeleteEvent
 type GenericGuildChannelEvent struct {
-	*GenericChannelEvent
+	*GenericEvent
+	ChannelID discord.Snowflake
 	Channel core.GuildChannel
 	GuildID discord.Snowflake
 }
@@ -26,12 +27,6 @@ type GuildChannelCreateEvent struct {
 type GuildChannelUpdateEvent struct {
 	*GenericGuildChannelEvent
 	OldChannel core.GuildChannel
-}
-
-type GuildChannelPinsUpdateEvent struct {
-	*GenericGuildChannelEvent
-	OldLastPinTimestamp *discord.Time
-	NewLastPinTimestamp *discord.Time
 }
 
 // GuildChannelDeleteEvent indicates that an core.GetGuildChannel got deleted in an core.Guild

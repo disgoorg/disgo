@@ -1,43 +1,50 @@
 package events
 
 import (
+	"time"
+
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
 // GenericGuildMemberEvent generic core.Member event
 type GenericGuildMemberEvent struct {
-	*GenericGuildEvent
+	*GenericEvent
+	GuildID discord.Snowflake
 	Member *core.Member
 }
 
-// GuildMemberJoinEvent indicates that an core.Member joined the core.Guild
+// GuildMemberJoinEvent indicates that a core.Member joined the core.Guild
 type GuildMemberJoinEvent struct {
 	*GenericGuildMemberEvent
 }
 
-// GuildMemberUpdateEvent indicates that an core.Member updated
+// GuildMemberUpdateEvent indicates that a core.Member updated
 type GuildMemberUpdateEvent struct {
 	*GenericGuildMemberEvent
 	OldMember *core.Member
 }
 
-// GuildMemberLeaveEvent indicates that an core.Member left the core.Guild
+// GuildMemberLeaveEvent indicates that a core.Member left the core.Guild
 type GuildMemberLeaveEvent struct {
-	*GenericGuildMemberEvent
+	*GenericEvent
+	GuildID discord.Snowflake
 	User *core.User
 }
 
-// GuildMemberTypingEvent indicates that an core.Member started typing in an core.TextChannel(requires core.GatewayIntentsGuildMessageTyping)
+// GuildMemberTypingEvent indicates that a core.Member started typing in a core.BaseGuildMessageChannel(requires discord.GatewayIntentGuildMessageTyping)
 type GuildMemberTypingEvent struct {
-	*GenericGuildMemberEvent
+	*GenericEvent
 	ChannelID discord.Snowflake
+	UserID discord.Snowflake
+	GuildID discord.Snowflake
+	Timestamp time.Time
 }
 
-// MessageChannel returns the core.GuildTextChannel the GuildMemberTypingEvent happened in
-func (e GuildMemberTypingEvent) MessageChannel() core.GuildMessageChannel {
+// MessageChannel returns the core.BaseGuildMessageChannel the GuildMemberTypingEvent happened in
+func (e GuildMemberTypingEvent) MessageChannel() core.BaseGuildMessageChannel {
 	if ch := e.Bot().Caches.ChannelCache().Get(e.ChannelID); ch != nil {
-		return ch.(core.GuildMessageChannel)
+		return ch.(core.BaseGuildMessageChannel)
 	}
 	return nil
 }

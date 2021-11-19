@@ -7,7 +7,7 @@ import (
 
 // GenericGuildVoiceEvent is called upon receiving GuildVoiceJoinEvent, GuildVoiceMoveEvent, GuildVoiceLeaveEvent
 type GenericGuildVoiceEvent struct {
-	*GenericGuildMemberEvent
+	*GenericEvent
 	VoiceState *core.VoiceState
 }
 
@@ -35,6 +35,6 @@ type GuildVoiceLeaveEvent struct {
 }
 
 type VoiceServerUpdateEvent struct {
-	*GenericGuildEvent
-	discord.VoiceServerUpdate
+	*GenericEvent
+	VoiceServerUpdate discord.VoiceServerUpdate
 }

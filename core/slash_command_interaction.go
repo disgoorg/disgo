@@ -8,9 +8,13 @@ import (
 type SlashCommandInteractionFilter func(slashCommandInteraction *SlashCommandInteraction) bool
 
 type SlashCommandInteraction struct {
+	discord.SlashCommandInteraction
 	*InteractionFields
-	CommandID           discord.Snowflake
-	CommandName         string
+	Data SlashCommandInteractionData
+}
+
+type SlashCommandInteractionData struct {
+	discord.SlashCommandInteractionData
 	SubCommandName      *string
 	SubCommandGroupName *string
 	Resolved            *SlashCommandResolved
@@ -67,11 +71,11 @@ func (i *SlashCommandInteraction) DeleteFollowup(messageID discord.Snowflake, op
 
 // CommandPath returns the ApplicationCommand path
 func (i *SlashCommandInteraction) CommandPath() string {
-	path := i.CommandName
-	if name := i.SubCommandName; name != nil {
+	path := i.Data.CommandName
+	if name := i.Data.SubCommandName; name != nil {
 		path += "/" + *name
 	}
-	if name := i.SubCommandGroupName; name != nil {
+	if name := i.Data.SubCommandGroupName; name != nil {
 		path += "/" + *name
 	}
 	return path
@@ -79,15 +83,15 @@ func (i *SlashCommandInteraction) CommandPath() string {
 
 // Guild returns the Guild from the Caches
 func (i *SlashCommandInteraction) Guild() *Guild {
-	if i.GuildID == nil {
+	if i.InteractionFields.GuildID == nil {
 		return nil
 	}
-	return i.Bot.Caches.GuildCache().Get(*i.GuildID)
+	return i.Bot.Caches.GuildCache().Get(*i.InteractionFields.GuildID)
 }
 
 // Channel returns the Channel from the Caches
 func (i *SlashCommandInteraction) Channel() Channel {
-	return i.Bot.Caches.ChannelCache().Get(i.ChannelID)
+	return i.Bot.Caches.ChannelCache().Get(i.InteractionFields.ChannelID)
 }
 
 // SlashCommandResolved contains resolved mention data for SlashCommand(s)

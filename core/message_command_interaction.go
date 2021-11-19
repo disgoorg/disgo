@@ -8,11 +8,14 @@ import (
 type MessageCommandInteractionFilter func(messageCommandInteraction *MessageCommandInteraction) bool
 
 type MessageCommandInteraction struct {
+	discord.MessageCommandInteraction
 	*InteractionFields
-	CommandID   discord.Snowflake
-	CommandName string
+	Data MessageCommandInteractionData
+}
+
+type MessageCommandInteractionData struct {
+	discord.MessageCommandInteractionData
 	Resolved    *MessageCommandResolved
-	TargetID    discord.Snowflake
 }
 
 func (i *MessageCommandInteraction) InteractionType() discord.InteractionType {
@@ -64,7 +67,7 @@ func (i *MessageCommandInteraction) DeleteFollowup(messageID discord.Snowflake, 
 }
 
 func (i *MessageCommandInteraction) TargetMessage() *Message {
-	return i.Resolved.Messages[i.TargetID]
+	return i.Data.Resolved.Messages[i.Data.TargetID]
 }
 
 type MessageCommandResolved struct {

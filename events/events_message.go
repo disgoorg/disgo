@@ -30,18 +30,18 @@ func (e *GenericMessageEvent) Guild() *core.Guild {
 	return e.Bot().Caches.GuildCache().Get(*e.GuildID)
 }
 
-// MessageCreateEvent indicates that an core.Message got received
+// MessageCreateEvent indicates that a core.Message got received
 type MessageCreateEvent struct {
 	*GenericMessageEvent
 }
 
-// MessageUpdateEvent indicates that an core.Message got update
+// MessageUpdateEvent indicates that a core.Message got update
 type MessageUpdateEvent struct {
 	*GenericMessageEvent
 	OldMessage *core.Message
 }
 
-// MessageDeleteEvent indicates that an core.Message got deleted
+// MessageDeleteEvent indicates that a core.Message got deleted
 type MessageDeleteEvent struct {
 	*GenericMessageEvent
 }

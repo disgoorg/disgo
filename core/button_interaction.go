@@ -12,9 +12,9 @@ var _ Interaction = (*ButtonInteraction)(nil)
 var _ ComponentInteraction = (*ButtonInteraction)(nil)
 
 type ButtonInteraction struct {
+	discord.ButtonInteraction
 	*InteractionFields
 	Message  *Message
-	CustomID discord.CustomID
 }
 
 func (i *ButtonInteraction) InteractionType() discord.InteractionType {
@@ -75,11 +75,11 @@ func (i *ButtonInteraction) DeferUpdate(opts ...rest.RequestOpt) error {
 
 // UpdateButton updates the clicked ButtonComponent with a new ButtonComponent
 func (i *ButtonInteraction) UpdateButton(button discord.ButtonComponent, opts ...rest.RequestOpt) error {
-	return updateComponent(i.InteractionFields, i.Message, i.CustomID, button, opts...)
+	return updateComponent(i.InteractionFields, i.Message, i.Data.CustomID, button, opts...)
 }
 
 // ButtonComponent returns the ButtonComponent which issued this ButtonInteraction
 func (i *ButtonInteraction) ButtonComponent() discord.ButtonComponent {
 	// this should never be nil
-	return *i.Message.ButtonByID(i.CustomID)
+	return *i.Message.ButtonByID(i.Data.CustomID)
 }

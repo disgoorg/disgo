@@ -8,9 +8,13 @@ import (
 type AutocompleteInteractionFilter func(autocompleteInteraction *AutocompleteInteraction) bool
 
 type AutocompleteInteraction struct {
+	discord.AutocompleteInteraction
 	*InteractionFields
-	CommandID           discord.Snowflake
-	CommandName         string
+	Data AutocompleteInteractionData
+}
+
+type AutocompleteInteractionData struct {
+	discord.AutocompleteInteractionData
 	SubCommandName      *string
 	SubCommandGroupName *string
 	Options             AutocompleteOptionsMap
@@ -42,11 +46,11 @@ func (i *AutocompleteInteraction) ResultMapFloat(resultMap map[string]float64, o
 
 // CommandPath returns the ApplicationCommand path
 func (i *AutocompleteInteraction) CommandPath() string {
-	path := i.CommandName
-	if name := i.SubCommandName; name != nil {
+	path := i.Data.CommandName
+	if name := i.Data.SubCommandName; name != nil {
 		path += "/" + *name
 	}
-	if name := i.SubCommandGroupName; name != nil {
+	if name := i.Data.SubCommandGroupName; name != nil {
 		path += "/" + *name
 	}
 	return path
@@ -54,15 +58,15 @@ func (i *AutocompleteInteraction) CommandPath() string {
 
 // Guild returns the Guild from the Caches
 func (i *AutocompleteInteraction) Guild() *Guild {
-	if i.GuildID == nil {
+	if i.InteractionFields.GuildID == nil {
 		return nil
 	}
-	return i.Bot.Caches.GuildCache().Get(*i.GuildID)
+	return i.Bot.Caches.GuildCache().Get(*i.InteractionFields.GuildID)
 }
 
 // Channel returns the Channel from the Caches
 func (i *AutocompleteInteraction) Channel() Channel {
-	return i.Bot.Caches.ChannelCache().Get(i.ChannelID)
+	return i.Bot.Caches.ChannelCache().Get(i.InteractionFields.ChannelID)
 }
 
 type AutocompleteOptionsMap map[string]discord.AutocompleteOption

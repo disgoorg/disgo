@@ -7,29 +7,31 @@ import (
 
 type GenericIntegrationEvent struct {
 	*GenericEvent
-	GuildId discord.Snowflake
+	GuildID discord.Snowflake
+	Integration core.Integration
 }
 
 func (e *GenericIntegrationEvent) Guild() *core.Guild {
-	return e.Bot().Caches.GuildCache().Get(e.GuildId)
+	return e.Bot().Caches.GuildCache().Get(e.GuildID)
 }
 
 type IntegrationCreateEvent struct {
 	*GenericIntegrationEvent
-	Integration core.Integration
 }
 
 type IntegrationUpdateEvent struct {
 	*GenericIntegrationEvent
-	Integration core.Integration
+	OldIntegration core.Integration
 }
 
 type IntegrationDeleteEvent struct {
-	*GenericIntegrationEvent
+	*GenericEvent
 	ID            discord.Snowflake
-	ApplicationID discord.Snowflake
+	GuildID discord.Snowflake
+	ApplicationID *discord.Snowflake
 }
 
 type GuildIntegrationsUpdateEvent struct {
-	*GenericIntegrationEvent
+	*GenericEvent
+	GuildID discord.Snowflake
 }

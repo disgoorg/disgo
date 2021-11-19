@@ -1,10 +1,16 @@
 package events
 
-import "github.com/DisgoOrg/disgo/core"
+import (
+	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/discord"
+)
 
 type GenericThreadEvent struct {
-	*GenericGuildChannelEvent
+	*GenericEvent
 	Thread core.GuildThread
+	ThreadID discord.Snowflake
+	GuildID discord.Snowflake
+	ParentID discord.Snowflake
 }
 
 type ThreadCreateEvent struct {
@@ -18,6 +24,8 @@ type ThreadUpdateEvent struct {
 
 type ThreadDeleteEvent struct {
 	*GenericThreadEvent
+	ThreadID discord.Snowflake
+	ParentID discord.Snowflake
 }
 
 type GenericThreadMemberEvent struct {

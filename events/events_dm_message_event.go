@@ -1,14 +1,20 @@
 package events
 
-import "github.com/DisgoOrg/disgo/core"
+import (
+	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/discord"
+)
 
 // GenericDMMessageEvent is called upon receiving DMMessageCreateEvent, DMMessageUpdateEvent, DMMessageDeleteEvent, GenericDMMessageReactionEvent, DMMessageReactionAddEvent, DMMessageReactionRemoveEvent, DMMessageReactionRemoveEmojiEvent or DMMessageReactionRemoveAllEvent(requires core.GatewayIntentsDirectMessages)
 type GenericDMMessageEvent struct {
-	*GenericMessageEvent
+	*GenericEvent
+	MessageID discord.Snowflake
+	Message   *core.Message
+	ChannelID discord.Snowflake
 }
 
-// DMChannel returns the core.DMChannel where the GenericDMMessageEvent happened
-func (e GenericDMMessageEvent) DMChannel() *core.DMChannel {
+// Channel returns the core.DMChannel where the GenericDMMessageEvent happened
+func (e GenericDMMessageEvent) Channel() *core.DMChannel {
 	if ch := e.Bot().Caches.ChannelCache().Get(e.ChannelID); ch != nil {
 		return ch.(*core.DMChannel)
 	}

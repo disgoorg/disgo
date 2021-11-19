@@ -1,10 +1,14 @@
 package events
 
-import "github.com/DisgoOrg/disgo/core"
+import (
+	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/discord"
+)
 
 // GenericEmojiEvent is called upon receiving EmojiCreateEvent, EmojiUpdateEvent or EmojiDeleteEvent(requires core.GatewayIntentsGuildEmojis)
 type GenericEmojiEvent struct {
-	*GenericGuildEvent
+	*GenericEvent
+	GuildID discord.Snowflake
 	Emoji *core.Emoji
 }
 
