@@ -26,22 +26,24 @@ disgo is a [Discord](https://discord.com) API wrapper written in [Go](https://go
 ### Features
 
 * Full Rest API coverage
-* [Gateway](https://discord.com/developers/docs/topics/gateway) support
-* [Sharding](https://discord.com/developers/docs/topics/gateway#sharding) support
-* [HTTP Interactions](https://discord.com/developers/docs/interactions/slash-commands#receiving-an-interaction) support
-* [Application Commands](https://discord.com/developers/docs/interactions/application-commands) support
-* [Message Components](https://discord.com/developers/docs/interactions/message-components) support
-* [Stage Instance](https://discord.com/developers/docs/resources/stage-instance) support
-* [Guild Template](https://discord.com/developers/docs/resources/guild-template) support
-* [Sticker](https://discord.com/developers/docs/resources/sticker) support
-* [RateLimit](https://discord.com/developers/docs/topics/rate-limits) handling
-* [Webhook](https://discord.com/developers/docs/resources/webhook) support
-* [OAuth2](https://discord.com/developers/docs/topics/oauth2) support
+* [Gateway](https://discord.com/developers/docs/topics/gateway)
+* [Sharding](https://discord.com/developers/docs/topics/gateway#sharding)
+* [HTTP Interactions](https://discord.com/developers/docs/interactions/slash-commands#receiving-an-interaction)
+* [Application Commands](https://discord.com/developers/docs/interactions/application-commands)
+* [Message Components](https://discord.com/developers/docs/interactions/message-components)
+* [Stage Instance](https://discord.com/developers/docs/resources/stage-instance)
+* [Guild Template](https://discord.com/developers/docs/resources/guild-template)
+* [Sticker](https://discord.com/developers/docs/resources/sticker)
+* [RateLimit](https://discord.com/developers/docs/topics/rate-limits)
+* [Webhook](https://discord.com/developers/docs/resources/webhook)
+* [OAuth2](https://discord.com/developers/docs/topics/oauth2)
+* [Threads](https://discord.com/developers/docs/topics/threads)
 
 ### Missing Features
 
-* [Voice](https://discord.com/developers/docs/resources/voice) support
-* [Threads](https://discord.com/developers/docs/topics/threads) support
+* [Voice](https://discord.com/developers/docs/topics/voice-connections)
+* [RPC](https://discord.com/developers/docs/topics/rpc)
+* [Guild Scheduled Event](https://discord.com/developers/docs/resources/guild-scheduled-event)
 
 ## Getting Started
 
@@ -54,23 +56,24 @@ go get github.com/DisgoOrg/disgo
 ### Building a Disgo Instance
 
 ```go
+package main
+
 import (
 	"github.com/DisgoOrg/disgo/bot"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 )
 
-disgo, err := bot.New("token",
-	bot.WithGatewayOpts(
-		gateway.WithGatewayIntents(
-			discord.GatewayIntentGuilds,
-			discord.GatewayIntentGuildMessages,
-			discord.GatewayIntentDirectMessages,
+func main() {
+	disgo, err := bot.New("token",
+		bot.WithGatewayOpts(
+			gateway.WithGatewayIntents(
+				discord.GatewayIntentGuilds,
+				discord.GatewayIntentGuildMessages,
+				discord.GatewayIntentDirectMessages,
+			),
 		),
-	),
-)
-if err != nil {
-	// do something with the error
+	)
 }
 ```
 
@@ -101,7 +104,7 @@ func main() {
 				discord.GatewayIntentDirectMessages,
 			),
 		),
-		bot.WithCacheOpts(core.WithCacheFlags(core.CacheFlagsDefault)),
+		bot.WithCacheOpts(core.WithCacheFlags(core.CacheFlagsNone)),
 		bot.WithEventListeners(&events.ListenerAdapter{
 			OnMessageCreate: onMessageCreate,
 		}),
@@ -130,7 +133,7 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 		message = "ping"
 	}
 	if message != "" {
-		_, _ = event.Message.Reply(core.NewMessageCreateBuilder().SetContent(message).Build())
+		_, _ = event.Message.Reply(discord.NewMessageCreateBuilder().SetContent(message).Build())
 	}
 }
 
