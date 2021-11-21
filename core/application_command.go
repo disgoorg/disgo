@@ -19,7 +19,7 @@ func (c *SlashCommand) Guild() *Guild {
 	if c.GuildID == nil {
 		return nil
 	}
-	return c.Bot.Caches.GuildCache().Get(*c.GuildID)
+	return c.Bot.Caches.Guilds().Get(*c.GuildID)
 }
 
 // IsGlobal returns true if this is a global ApplicationCommand and false for a guild ApplicationCommand
@@ -90,7 +90,7 @@ func (c *UserCommand) Guild() *Guild {
 	if c.GuildID == nil {
 		return nil
 	}
-	return c.Bot.Caches.GuildCache().Get(*c.GuildID)
+	return c.Bot.Caches.Guilds().Get(*c.GuildID)
 }
 
 // IsGlobal returns true if this is a global ApplicationCommand and false for a guild ApplicationCommand
@@ -158,7 +158,7 @@ func (c *MessageCommand) Guild() *Guild {
 	if c.GuildID == nil {
 		return nil
 	}
-	return c.Bot.Caches.GuildCache().Get(*c.GuildID)
+	return c.Bot.Caches.Guilds().Get(*c.GuildID)
 }
 
 // IsGlobal returns true if this is a global ApplicationCommand and false for a guild ApplicationCommand

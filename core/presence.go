@@ -16,11 +16,11 @@ func (p *Presence) User() *User {
 }
 
 func (p *Presence) Member() *Member {
-	return p.Bot.Caches.MemberCache().Get(p.GuildID, p.PresenceUser.ID)
+	return p.Bot.Caches.Members().Get(p.GuildID, p.PresenceUser.ID)
 }
 
 func (p *Presence) Guild() *Guild {
-	return p.Bot.Caches.GuildCache().Get(p.GuildID)
+	return p.Bot.Caches.Guilds().Get(p.GuildID)
 }
 
 //goland:noinspection GoUnusedExportedFunction

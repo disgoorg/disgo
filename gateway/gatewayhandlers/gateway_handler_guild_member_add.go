@@ -23,6 +23,10 @@ func (h *gatewayHandlerGuildMemberAdd) New() interface{} {
 func (h *gatewayHandlerGuildMemberAdd) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.Member)
 
+	if guild := bot.Caches.Guilds().Get(payload.GuildID); guild != nil {
+		guild.ApproximateMemberCount++
+	}
+
 	bot.EventManager.Dispatch(&events.GuildMemberJoinEvent{
 		GenericGuildMemberEvent: &events.GenericGuildMemberEvent{
 			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),

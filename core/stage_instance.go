@@ -11,11 +11,11 @@ type StageInstance struct {
 }
 
 func (i *StageInstance) Guild() *Guild {
-	return i.Bot.Caches.GuildCache().Get(i.GuildID)
+	return i.Bot.Caches.Guilds().Get(i.GuildID)
 }
 
 func (i *StageInstance) Channel() *GuildStageVoiceChannel {
-	if ch := i.Bot.Caches.ChannelCache().Get(i.ChannelID); ch != nil {
+	if ch := i.Bot.Caches.Channels().Get(i.ChannelID); ch != nil {
 		return ch.(*GuildStageVoiceChannel)
 	}
 	return nil

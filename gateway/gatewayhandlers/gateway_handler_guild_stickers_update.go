@@ -29,7 +29,7 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, se
 	}
 
 	var (
-		stickerCache    = bot.Caches.StickerCache().GuildCache(payload.GuildID)
+		stickerCache    = bot.Caches.Stickers().GuildCache(payload.GuildID)
 		oldStickers     = map[discord.Snowflake]*core.Sticker{}
 		newStickers     = map[discord.Snowflake]*core.Sticker{}
 		updatedStickers = map[discord.Snowflake]*core.Sticker{}
@@ -54,7 +54,7 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, se
 	}
 
 	for stickerID := range oldStickers {
-		bot.Caches.StickerCache().Remove(payload.GuildID, stickerID)
+		bot.Caches.Stickers().Remove(payload.GuildID, stickerID)
 	}
 
 	for _, sticker := range newStickers {

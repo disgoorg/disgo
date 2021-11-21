@@ -23,7 +23,7 @@ func (h *gatewayHandlerChannelUpdate) New() interface{} {
 func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	channel := v.(*discord.UnmarshalChannel).Channel
 
-	oldChannel := bot.Caches.ChannelCache().GetCopy(channel.ID())
+	oldChannel := bot.Caches.Channels().GetCopy(channel.ID())
 
 	if ch, ok := channel.(discord.GuildChannel); ok {
 		var (
@@ -36,7 +36,7 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 		if c, ok := bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyNo).(core.GuildChannel); ok {
 			guildChannel = c
 		}
-		bot.Caches.ChannelCache().Remove(channel.ID())
+		bot.Caches.Channels().Remove(channel.ID())
 		bot.EventManager.Dispatch(&events.GuildChannelUpdateEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),

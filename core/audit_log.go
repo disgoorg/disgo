@@ -16,7 +16,7 @@ type AuditLog struct {
 }
 
 func (l *AuditLog) Guild() *Guild {
-	return l.Bot.Caches.GuildCache().Get(l.GuildID)
+	return l.Bot.Caches.Guilds().Get(l.GuildID)
 }
 
 // AuditLogFilterOptions fields used to filter audit-log retrieving

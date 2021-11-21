@@ -3,18 +3,18 @@ package core
 type Caches interface {
 	Config() CacheConfig
 
-	UserCache() UserCache
-	RoleCache() RoleCache
-	MemberCache() MemberCache
-	ThreadMemberCache() ThreadMemberCache
-	PresenceCache() PresenceCache
-	VoiceStateCache() VoiceStateCache
-	MessageCache() MessageCache
-	EmojiCache() EmojiCache
-	StickerCache() StickerCache
-	GuildCache() GuildCache
-	ChannelCache() ChannelCache
-	StageInstanceCache() StageInstanceCache
+	Users() UserCache
+	Roles() RoleCache
+	Members() MemberCache
+	ThreadMembers() ThreadMemberCache
+	Presences() PresenceCache
+	VoiceStates() VoiceStateCache
+	Messages() MessageCache
+	Emojis() EmojiCache
+	Stickers() StickerCache
+	Guilds() GuildCache
+	Channels() ChannelCache
+	StageInstances() StageInstanceCache
 }
 
 func NewCaches(config CacheConfig) Caches {
@@ -57,50 +57,50 @@ func (c *cachesImpl) Config() CacheConfig {
 	return c.config
 }
 
-func (c *cachesImpl) UserCache() UserCache {
+func (c *cachesImpl) Users() UserCache {
 	return c.userCache
 }
 
-func (c *cachesImpl) RoleCache() RoleCache {
+func (c *cachesImpl) Roles() RoleCache {
 	return c.roleCache
 }
 
-func (c *cachesImpl) MemberCache() MemberCache {
+func (c *cachesImpl) Members() MemberCache {
 	return c.memberCache
 }
 
-func (c *cachesImpl) ThreadMemberCache() ThreadMemberCache {
+func (c *cachesImpl) ThreadMembers() ThreadMemberCache {
 	return c.threadMemberCache
 }
 
-func (c *cachesImpl) PresenceCache() PresenceCache {
+func (c *cachesImpl) Presences() PresenceCache {
 	return c.presenceCache
 }
 
-func (c *cachesImpl) VoiceStateCache() VoiceStateCache {
+func (c *cachesImpl) VoiceStates() VoiceStateCache {
 	return c.voiceStateCache
 }
 
-func (c *cachesImpl) MessageCache() MessageCache {
+func (c *cachesImpl) Messages() MessageCache {
 	return c.messageCache
 }
 
-func (c *cachesImpl) EmojiCache() EmojiCache {
+func (c *cachesImpl) Emojis() EmojiCache {
 	return c.emojiCache
 }
 
-func (c *cachesImpl) StickerCache() StickerCache {
+func (c *cachesImpl) Stickers() StickerCache {
 	return c.stickerCache
 }
 
-func (c *cachesImpl) GuildCache() GuildCache {
+func (c *cachesImpl) Guilds() GuildCache {
 	return c.guildCache
 }
 
-func (c *cachesImpl) ChannelCache() ChannelCache {
+func (c *cachesImpl) Channels() ChannelCache {
 	return c.channelCache
 }
 
-func (c *cachesImpl) StageInstanceCache() StageInstanceCache {
+func (c *cachesImpl) StageInstances() StageInstanceCache {
 	return c.stageInstanceCache
 }

@@ -15,7 +15,7 @@ type GenericGuildInviteEvent struct {
 
 // Channel returns the core.GuildChannel the GenericGuildInviteEvent happened in(returns nil if the core.GetChannel is uncached or core.Caches is disabled)
 func (e GenericGuildInviteEvent) Channel() core.GuildChannel {
-	if ch := e.Bot().Caches.ChannelCache().Get(e.ChannelID); ch != nil {
+	if ch := e.Bot().Caches.Channels().Get(e.ChannelID); ch != nil {
 		return ch.(core.GuildChannel)
 	}
 	return nil

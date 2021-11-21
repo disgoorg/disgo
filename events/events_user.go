@@ -31,7 +31,7 @@ type UserTypingStartEvent struct {
 
 // Channel returns the core.GetChannel the core.User started typing in
 func (e *UserTypingStartEvent) Channel() core.MessageChannel {
-	if ch := e.Bot().Caches.ChannelCache().Get(e.ChannelID); ch != nil {
+	if ch := e.Bot().Caches.Channels().Get(e.ChannelID); ch != nil {
 		return ch.(core.MessageChannel)
 	}
 	return nil

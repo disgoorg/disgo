@@ -58,7 +58,7 @@ func (b *Bot) Close() {
 
 // SelfMember returns a core.OAuth2User for the client, if available
 func (b *Bot) SelfMember(guildID discord.Snowflake) *Member {
-	return b.Caches.MemberCache().Get(guildID, b.ClientID)
+	return b.Caches.Members().Get(guildID, b.ClientID)
 }
 
 // AddEventListeners adds one or more EventListener(s) to the EventManager

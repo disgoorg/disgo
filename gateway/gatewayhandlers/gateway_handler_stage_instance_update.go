@@ -23,7 +23,7 @@ func (h *gatewayHandlerStageInstanceUpdate) New() interface{} {
 func (h *gatewayHandlerStageInstanceUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	stageInstance := *v.(*discord.StageInstance)
 
-	oldStageInstance := bot.Caches.StageInstanceCache().GetCopy(stageInstance.ID)
+	oldStageInstance := bot.Caches.StageInstances().GetCopy(stageInstance.ID)
 
 	bot.EventManager.Dispatch(&events.StageInstanceUpdateEvent{
 		GenericStageInstanceEvent: &events.GenericStageInstanceEvent{

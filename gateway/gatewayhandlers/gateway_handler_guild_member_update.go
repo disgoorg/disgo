@@ -23,7 +23,7 @@ func (h *gatewayHandlerGuildMemberUpdate) New() interface{} {
 func (h *gatewayHandlerGuildMemberUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.Member)
 
-	oldCoreMember := bot.Caches.MemberCache().GetCopy(payload.GuildID, payload.User.ID)
+	oldCoreMember := bot.Caches.Members().GetCopy(payload.GuildID, payload.User.ID)
 
 	bot.EventManager.Dispatch(&events.GuildMemberUpdateEvent{
 		GenericGuildMemberEvent: &events.GenericGuildMemberEvent{

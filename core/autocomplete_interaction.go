@@ -61,12 +61,12 @@ func (i *AutocompleteInteraction) Guild() *Guild {
 	if i.GuildID == nil {
 		return nil
 	}
-	return i.Bot.Caches.GuildCache().Get(*i.GuildID)
+	return i.Bot.Caches.Guilds().Get(*i.GuildID)
 }
 
 // Channel returns the Channel from the Caches
 func (i *AutocompleteInteraction) Channel() Channel {
-	return i.Bot.Caches.ChannelCache().Get(i.ChannelID)
+	return i.Bot.Caches.Channels().Get(i.ChannelID)
 }
 
 type AutocompleteOptionsMap map[string]discord.AutocompleteOption

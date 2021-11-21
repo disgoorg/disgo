@@ -23,7 +23,7 @@ func (h *gatewayHandlerChannelPinsUpdate) New() interface{} {
 func (h *gatewayHandlerChannelPinsUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.ChannelPinsUpdateGatewayEvent)
 
-	channel := bot.Caches.ChannelCache().Get(payload.ChannelID)
+	channel := bot.Caches.Channels().Get(payload.ChannelID)
 	var oldTime *discord.Time
 	if channel != nil {
 		oldTime = core.LastPinTimestamp(channel.(core.MessageChannel))

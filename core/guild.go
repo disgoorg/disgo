@@ -29,7 +29,7 @@ func (g *Guild) Delete(opts ...rest.RequestOpt) error {
 
 // PublicRole returns the @everyone Role
 func (g *Guild) PublicRole() *Role {
-	return g.Bot.Caches.RoleCache().Get(g.ID, g.ID)
+	return g.Bot.Caches.Roles().Get(g.ID, g.ID)
 }
 
 // CreateRole allows you to create a new Role
@@ -57,12 +57,12 @@ func (g *Guild) DeleteRole(roleID discord.Snowflake, opts ...rest.RequestOpt) er
 
 // Roles return all Role(s) in this Guild
 func (g *Guild) Roles() []*Role {
-	return g.Bot.Caches.RoleCache().GuildAll(g.ID)
+	return g.Bot.Caches.Roles().GuildAll(g.ID)
 }
 
 // RoleCache return all Role(s) in this Guild
 func (g *Guild) RoleCache() map[discord.Snowflake]*Role {
-	return g.Bot.Caches.RoleCache().GuildCache(g.ID)
+	return g.Bot.Caches.Roles().GuildCache(g.ID)
 }
 
 // CreateEmoji allows you to create a new Emoji
@@ -113,7 +113,7 @@ func (g *Guild) DeleteSticker(stickerID discord.Snowflake, opts ...rest.RequestO
 
 // SelfMember returns the Member for the current logged-in User for this Guild
 func (g *Guild) SelfMember() *Member {
-	return g.Bot.Caches.MemberCache().Get(g.ID, g.Bot.ClientID)
+	return g.Bot.Caches.Members().Get(g.ID, g.Bot.ClientID)
 }
 
 // Leave leaves the Guild
@@ -164,7 +164,7 @@ func (g *Guild) RequestMembersWithFilterChan(memberFilterFunc func(member *Membe
 
 // GetMember returns the specific Member for this Guild
 func (g *Guild) GetMember(userID discord.Snowflake) *Member {
-	return g.Bot.Caches.MemberCache().Get(g.ID, userID)
+	return g.Bot.Caches.Members().Get(g.ID, userID)
 }
 
 // AddMember adds a member to the Guild with the oauth2 access token

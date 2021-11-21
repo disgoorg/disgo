@@ -34,7 +34,7 @@ func (m *Member) ChannelPermissions(channel GuildChannel) discord.Permissions {
 // Roles return all Role(s)the Member has
 func (m *Member) Roles() []*Role {
 	var roles []*Role
-	allRoles := m.Bot.Caches.RoleCache().GuildCache(m.GuildID)
+	allRoles := m.Bot.Caches.Roles().GuildCache(m.GuildID)
 	for _, roleID := range m.RoleIDs {
 		roles = append(roles, allRoles[roleID])
 	}
@@ -43,12 +43,12 @@ func (m *Member) Roles() []*Role {
 
 // VoiceState returns the VoiceState for this Member from the Caches(requires CacheFlagVoiceState and GatewayIntentsGuildVoiceStates)
 func (m *Member) VoiceState() *VoiceState {
-	return m.Bot.Caches.VoiceStateCache().Get(m.GuildID, m.User.ID)
+	return m.Bot.Caches.VoiceStates().Get(m.GuildID, m.User.ID)
 }
 
 // Guild returns the members guild from the caches
 func (m *Member) Guild() *Guild {
-	return m.Bot.Caches.GuildCache().Get(m.GuildID)
+	return m.Bot.Caches.Guilds().Get(m.GuildID)
 }
 
 // IsOwner returns whether the member is the owner of the guild_events that it belongs to

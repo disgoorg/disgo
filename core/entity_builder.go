@@ -320,7 +320,7 @@ func (b *entityBuilderImpl) CreateUser(user discord.User, updateCache CacheStrat
 		Bot:  b.Bot(),
 	}
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches.UserCache().Set(coreUser)
+		return b.Bot().Caches.Users().Set(coreUser)
 	}
 	return coreUser
 }
@@ -343,7 +343,7 @@ func (b *entityBuilderImpl) CreatePresence(presence discord.Presence, updateCach
 	}
 
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches.PresenceCache().Set(corePresence)
+		return b.Bot().Caches.Presences().Set(corePresence)
 	}
 	return corePresence
 }
@@ -373,7 +373,7 @@ func (b *entityBuilderImpl) CreateMessage(message discord.Message, updateCache C
 
 	// TODO: should we caches mentioned users, members, etc?
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches.MessageCache().Set(coreMsg)
+		return b.Bot().Caches.Messages().Set(coreMsg)
 	}
 	return coreMsg
 }
@@ -398,7 +398,7 @@ func (b *entityBuilderImpl) CreateGuild(guild discord.Guild, updateCache CacheSt
 	}
 
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches.GuildCache().Set(coreGuild)
+		return b.Bot().Caches.Guilds().Set(coreGuild)
 	}
 	return coreGuild
 }
@@ -413,7 +413,7 @@ func (b *entityBuilderImpl) CreateMember(guildID discord.Snowflake, member disco
 	coreMember.GuildID = guildID
 	coreMember.User = b.CreateUser(member.User, updateCache)
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches.MemberCache().Set(coreMember)
+		return b.Bot().Caches.Members().Set(coreMember)
 	}
 	return coreMember
 }
@@ -438,7 +438,7 @@ func (b *entityBuilderImpl) CreateVoiceState(voiceState discord.VoiceState, upda
 	}
 
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches.VoiceStateCache().Set(coreState)
+		return b.Bot().Caches.VoiceStates().Set(coreState)
 	}
 	return coreState
 }
@@ -488,7 +488,7 @@ func (b *entityBuilderImpl) CreateRole(guildID discord.Snowflake, role discord.R
 	coreRole.GuildID = guildID
 
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches.RoleCache().Set(coreRole)
+		return b.Bot().Caches.Roles().Set(coreRole)
 	}
 	return coreRole
 }
@@ -664,7 +664,7 @@ func (b *entityBuilderImpl) CreateChannel(channel discord.Channel, updateCache C
 	}
 
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches.ChannelCache().Set(c)
+		return b.Bot().Caches.Channels().Set(c)
 	}
 	return c
 }
@@ -676,7 +676,7 @@ func (b *entityBuilderImpl) CreateThreadMember(threadMember discord.ThreadMember
 	}
 
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches.ThreadMemberCache().Set(coreThreadMember)
+		return b.Bot().Caches.ThreadMembers().Set(coreThreadMember)
 	}
 	return coreThreadMember
 }
@@ -685,14 +685,14 @@ func (b *entityBuilderImpl) CreateStageInstance(stageInstance discord.StageInsta
 
 	coreStageInstance := &StageInstance{StageInstance: stageInstance, Bot: b.Bot()}
 
-	if channel := b.Bot().Caches.ChannelCache().Get(stageInstance.ChannelID); channel != nil {
+	if channel := b.Bot().Caches.Channels().Get(stageInstance.ChannelID); channel != nil {
 		if ch, ok := channel.(*GuildStageVoiceChannel); ok {
 			ch.StageInstanceID = &stageInstance.ID
 		}
 	}
 
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches.StageInstanceCache().Set(coreStageInstance)
+		return b.Bot().Caches.StageInstances().Set(coreStageInstance)
 	}
 	return coreStageInstance
 }
@@ -727,7 +727,7 @@ func (b *entityBuilderImpl) CreateEmoji(guildID discord.Snowflake, emoji discord
 	coreEmoji.GuildID = guildID
 
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches.EmojiCache().Set(coreEmoji)
+		return b.Bot().Caches.Emojis().Set(coreEmoji)
 	}
 	return coreEmoji
 }
@@ -757,7 +757,7 @@ func (b *entityBuilderImpl) CreateSticker(sticker discord.Sticker, updateCache C
 	}
 
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches.StickerCache().Set(coreSticker)
+		return b.Bot().Caches.Stickers().Set(coreSticker)
 	}
 	return coreSticker
 }

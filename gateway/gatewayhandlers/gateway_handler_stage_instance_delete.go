@@ -23,9 +23,9 @@ func (h *gatewayHandlerStageInstanceDelete) New() interface{} {
 func (h *gatewayHandlerStageInstanceDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.StageInstance)
 
-	bot.Caches.StageInstanceCache().Remove(payload.ID)
+	bot.Caches.StageInstances().Remove(payload.ID)
 
-	if channel := bot.Caches.ChannelCache().Get(payload.ChannelID); channel != nil {
+	if channel := bot.Caches.Channels().Get(payload.ChannelID); channel != nil {
 		if sCh, ok := channel.(*core.GuildStageVoiceChannel); ok {
 			sCh.StageInstanceID = nil
 		}

@@ -44,7 +44,7 @@ func (e *Emoji) URL(size int) string {
 
 // Guild returns the Guild of the Emoji from the Caches
 func (e *Emoji) Guild() *Guild {
-	return e.Bot.Caches.GuildCache().Get(e.GuildID)
+	return e.Bot.Caches.Guilds().Get(e.GuildID)
 }
 
 func (e *Emoji) Update(emojiUpdate discord.EmojiUpdate, opts ...rest.RequestOpt) (*Emoji, error) {

@@ -18,12 +18,12 @@ type TwitchIntegration struct {
 
 // Guild returns the Guild the Integration belongs to
 func (i *TwitchIntegration) Guild() *Guild {
-	return i.Bot.Caches.GuildCache().Get(i.GuildID)
+	return i.Bot.Caches.Guilds().Get(i.GuildID)
 }
 
 // Role returns the Subscriber Role the Integration uses
 func (i *TwitchIntegration) Role() *Role {
-	return i.Bot.Caches.RoleCache().Get(i.GuildID, i.RoleID)
+	return i.Bot.Caches.Roles().Get(i.GuildID, i.RoleID)
 }
 
 // Delete deletes the Integration from the Guild
@@ -40,12 +40,12 @@ type YouTubeIntegration struct {
 
 // Guild returns the Guild the Integration belongs to
 func (i *YouTubeIntegration) Guild() *Guild {
-	return i.Bot.Caches.GuildCache().Get(i.GuildID)
+	return i.Bot.Caches.Guilds().Get(i.GuildID)
 }
 
 // Role returns the Subscriber Role the Integration uses
 func (i *YouTubeIntegration) Role() *Role {
-	return i.Bot.Caches.RoleCache().Get(i.GuildID, i.RoleID)
+	return i.Bot.Caches.Roles().Get(i.GuildID, i.RoleID)
 }
 
 // Delete deletes the Integration from the Guild
@@ -62,7 +62,7 @@ type BotIntegration struct {
 
 // Guild returns the Guild the Integration belongs to
 func (i *BotIntegration) Guild() *Guild {
-	return i.Bot.Caches.GuildCache().Get(i.GuildID)
+	return i.Bot.Caches.Guilds().Get(i.GuildID)
 }
 
 // Delete deletes the Integration from the Guild

@@ -29,12 +29,12 @@ func (m *Message) Guild() *Guild {
 	if m.GuildID == nil {
 		return nil
 	}
-	return m.Bot.Caches.GuildCache().Get(*m.GuildID)
+	return m.Bot.Caches.Guilds().Get(*m.GuildID)
 }
 
 // Channel gets the MessageChannel the Message was sent in
 func (m *Message) Channel() MessageChannel {
-	channel := m.Bot.Caches.ChannelCache().Get(m.ChannelID)
+	channel := m.Bot.Caches.Channels().Get(m.ChannelID)
 	if channel != nil {
 		return channel.(MessageChannel)
 	}

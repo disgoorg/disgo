@@ -13,7 +13,7 @@ type GuildTemplate struct {
 
 // Guild returns the full Guild of the GuildTemplate if in caches
 func (t *GuildTemplate) Guild() *Guild {
-	return t.Bot.Caches.GuildCache().Get(t.GuildID)
+	return t.Bot.Caches.Guilds().Get(t.GuildID)
 }
 
 // Update updates the GuildTemplate with the provided UpdateGuildTemplate

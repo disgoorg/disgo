@@ -26,8 +26,8 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 	shard, _ := bot.Shard(payload.ID)
 	shardID := shard.ShardID()
 
-	wasUnready := bot.Caches.GuildCache().IsUnready(shardID, payload.ID)
-	wasUnavailable := bot.Caches.GuildCache().IsUnavailable(payload.ID)
+	wasUnready := bot.Caches.Guilds().IsUnready(shardID, payload.ID)
+	wasUnavailable := bot.Caches.Guilds().IsUnavailable(payload.ID)
 
 	guild := bot.EntityBuilder.CreateGuild(payload.Guild, core.CacheStrategyYes)
 
@@ -81,11 +81,11 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 	}
 
 	if wasUnready {
-		bot.Caches.GuildCache().SetReady(shardID, payload.ID)
+		bot.Caches.Guilds().SetReady(shardID, payload.ID)
 		bot.EventManager.Dispatch(&events.GuildReadyEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
-		if len(bot.Caches.GuildCache().UnreadyGuilds(shardID)) == 0 {
+		if len(bot.Caches.Guilds().UnreadyGuilds(shardID)) == 0 {
 			bot.EventManager.Dispatch(&events.GuildsReadyEvent{
 				GenericEvent: events.NewGenericEvent(bot, -1),
 				ShardID:      shardID,
@@ -100,7 +100,7 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 		}
 
 	} else if wasUnavailable {
-		bot.Caches.GuildCache().SetAvailable(payload.ID)
+		bot.Caches.Guilds().SetAvailable(payload.ID)
 		bot.EventManager.Dispatch(&events.GuildAvailableEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})

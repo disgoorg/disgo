@@ -12,7 +12,7 @@ type GenericIntegrationEvent struct {
 }
 
 func (e *GenericIntegrationEvent) Guild() *core.Guild {
-	return e.Bot().Caches.GuildCache().Get(e.GuildID)
+	return e.Bot().Caches.Guilds().Get(e.GuildID)
 }
 
 type IntegrationCreateEvent struct {

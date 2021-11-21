@@ -23,7 +23,7 @@ func (h *gatewayHandlerChannelDelete) New() interface{} {
 func (h *gatewayHandlerChannelDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload := v.(*discord.UnmarshalChannel).Channel
 
-	bot.Caches.ChannelCache().Remove(payload.ID())
+	bot.Caches.Channels().Remove(payload.ID())
 	channel := bot.EntityBuilder.CreateChannel(payload, core.CacheStrategyNo)
 
 	if ch, ok := channel.(core.GuildChannel); ok {

@@ -17,11 +17,11 @@ func (g *GenericUserActivityEvent) User() *core.User {
 }
 
 func (g *GenericUserActivityEvent) Member() *core.Member {
-	return g.Bot().Caches.MemberCache().Get(g.GuildID, g.UserID)
+	return g.Bot().Caches.Members().Get(g.GuildID, g.UserID)
 }
 
 func (g *GenericUserActivityEvent) Guild() *core.Guild {
-	return g.Bot().Caches.GuildCache().Get(g.UserID)
+	return g.Bot().Caches.Guilds().Get(g.UserID)
 }
 
 type UserActivityStartEvent struct {

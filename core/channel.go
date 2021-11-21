@@ -232,7 +232,7 @@ func (c *GuildTextChannel) DeleteWebhook(webhookID discord.Snowflake, opts ...re
 
 func (c *GuildTextChannel) Threads() []GuildThread {
 	var threads []GuildThread
-	c.Bot.Caches.ChannelCache().ForAll(func(channel Channel) {
+	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
 		if thread, ok := channel.(*GuildPrivateThread); ok && thread.ParentID == c.ID() {
 			threads = append(threads, thread)
 		} else if thread, ok := channel.(*GuildPublicThread); ok && thread.ParentID == c.ID() {
@@ -243,7 +243,7 @@ func (c *GuildTextChannel) Threads() []GuildThread {
 }
 
 func (c *GuildTextChannel) Thread(threadID discord.Snowflake) GuildThread {
-	if thread := c.Bot.Caches.ChannelCache().Get(threadID); thread != nil {
+	if thread := c.Bot.Caches.Channels().Get(threadID); thread != nil {
 		return thread.(GuildThread)
 	}
 	return nil
@@ -251,7 +251,7 @@ func (c *GuildTextChannel) Thread(threadID discord.Snowflake) GuildThread {
 
 func (c *GuildTextChannel) PrivateThreads() []*GuildPrivateThread {
 	var threads []*GuildPrivateThread
-	c.Bot.Caches.ChannelCache().ForAll(func(channel Channel) {
+	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
 		if thread, ok := channel.(*GuildPrivateThread); ok && thread.ParentID == c.ID() {
 			threads = append(threads, thread)
 		}
@@ -261,7 +261,7 @@ func (c *GuildTextChannel) PrivateThreads() []*GuildPrivateThread {
 
 func (c *GuildTextChannel) PublicThreads() []*GuildPublicThread {
 	var threads []*GuildPublicThread
-	c.Bot.Caches.ChannelCache().ForAll(func(channel Channel) {
+	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
 		if thread, ok := channel.(*GuildPublicThread); ok && thread.ParentID == c.ID() {
 			threads = append(threads, thread)
 		}
@@ -323,7 +323,7 @@ func (c *GuildTextChannel) Parent() *GuildCategoryChannel {
 	if c.ParentID == nil {
 		return nil
 	}
-	return c.Bot.Caches.ChannelCache().Get(*c.ParentID).(*GuildCategoryChannel)
+	return c.Bot.Caches.Channels().Get(*c.ParentID).(*GuildCategoryChannel)
 }
 
 func (c *GuildTextChannel) Members() []*Member {
@@ -484,7 +484,7 @@ func (c *GuildVoiceChannel) Parent() *GuildCategoryChannel {
 	if c.ParentID == nil {
 		return nil
 	}
-	return c.Bot.Caches.ChannelCache().Get(*c.ParentID).(*GuildCategoryChannel)
+	return c.Bot.Caches.Channels().Get(*c.ParentID).(*GuildCategoryChannel)
 }
 
 func (c *GuildVoiceChannel) Connect() error {
@@ -613,7 +613,7 @@ func (c *GuildCategoryChannel) Guild() *Guild {
 }
 
 func (c *GuildCategoryChannel) Channels() []GuildChannel {
-	channels := c.Bot.Caches.ChannelCache().FindAll(func(channel Channel) bool {
+	channels := c.Bot.Caches.Channels().FindAll(func(channel Channel) bool {
 		switch ch := channel.(type) {
 		case *GuildTextChannel:
 			return ch.ParentID != nil && *ch.ParentID == c.ChannelID
@@ -786,7 +786,7 @@ func (c *GuildNewsChannel) DeleteWebhook(webhookID discord.Snowflake, opts ...re
 
 func (c *GuildNewsChannel) Threads() []GuildThread {
 	var threads []GuildThread
-	c.Bot.Caches.ChannelCache().ForAll(func(channel Channel) {
+	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
 		if thread, ok := channel.(*GuildNewsThread); ok && thread.ParentID == c.ID() {
 			threads = append(threads, thread)
 		}
@@ -796,7 +796,7 @@ func (c *GuildNewsChannel) Threads() []GuildThread {
 
 func (c *GuildNewsChannel) NewsThreads() []*GuildNewsThread {
 	var threads []*GuildNewsThread
-	c.Bot.Caches.ChannelCache().ForAll(func(channel Channel) {
+	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
 		if thread, ok := channel.(*GuildNewsThread); ok && thread.ParentID == c.ID() {
 			threads = append(threads, thread)
 		}
@@ -805,7 +805,7 @@ func (c *GuildNewsChannel) NewsThreads() []*GuildNewsThread {
 }
 
 func (c *GuildNewsChannel) Thread(threadID discord.Snowflake) GuildThread {
-	if thread := c.Bot.Caches.ChannelCache().Get(threadID); thread != nil {
+	if thread := c.Bot.Caches.Channels().Get(threadID); thread != nil {
 		return thread.(GuildThread)
 	}
 	return nil
@@ -813,7 +813,7 @@ func (c *GuildNewsChannel) Thread(threadID discord.Snowflake) GuildThread {
 
 func (c *GuildNewsChannel) PrivateThreads() []*GuildPrivateThread {
 	var threads []*GuildPrivateThread
-	c.Bot.Caches.ChannelCache().ForAll(func(channel Channel) {
+	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
 		if thread, ok := channel.(*GuildPrivateThread); ok && thread.ParentID == c.ID() {
 			threads = append(threads, thread)
 		}
@@ -823,7 +823,7 @@ func (c *GuildNewsChannel) PrivateThreads() []*GuildPrivateThread {
 
 func (c *GuildNewsChannel) PublicThreads() []*GuildPublicThread {
 	var threads []*GuildPublicThread
-	c.Bot.Caches.ChannelCache().ForAll(func(channel Channel) {
+	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
 		if thread, ok := channel.(*GuildPublicThread); ok && thread.ParentID == c.ID() {
 			threads = append(threads, thread)
 		}
@@ -851,7 +851,7 @@ func (c *GuildNewsChannel) Parent() *GuildCategoryChannel {
 	if c.ParentID == nil {
 		return nil
 	}
-	return c.Bot.Caches.ChannelCache().Get(*c.ParentID).(*GuildCategoryChannel)
+	return c.Bot.Caches.Channels().Get(*c.ParentID).(*GuildCategoryChannel)
 }
 
 func (c *GuildNewsChannel) Members() []*Member {
@@ -936,7 +936,7 @@ func (c *GuildStoreChannel) Parent() *GuildCategoryChannel {
 	if c.ParentID == nil {
 		return nil
 	}
-	return c.Bot.Caches.ChannelCache().Get(*c.ParentID).(*GuildCategoryChannel)
+	return c.Bot.Caches.Channels().Get(*c.ParentID).(*GuildCategoryChannel)
 }
 
 func (c *GuildStoreChannel) Members() []*Member {
@@ -1084,15 +1084,15 @@ func (c *GuildNewsThread) Guild() *Guild {
 }
 
 func (c *GuildNewsThread) ParentMessageChannel() GuildMessageChannel {
-	return c.Bot.Caches.ChannelCache().Get(c.ParentID).(GuildMessageChannel)
+	return c.Bot.Caches.Channels().Get(c.ParentID).(GuildMessageChannel)
 }
 
 func (c *GuildNewsThread) Parent() *GuildNewsChannel {
-	return c.Bot.Caches.ChannelCache().Get(c.ParentID).(*GuildNewsChannel)
+	return c.Bot.Caches.Channels().Get(c.ParentID).(*GuildNewsChannel)
 }
 
 func (c *GuildNewsThread) Members() []*Member {
-	return c.Bot.Caches.MemberCache().FindAll(func(member *Member) bool {
+	return c.Bot.Caches.Members().FindAll(func(member *Member) bool {
 		return member.ChannelPermissions(c).Has(discord.PermissionViewChannel)
 	})
 }
@@ -1102,11 +1102,11 @@ func (c *GuildNewsThread) SelfThreadMember() *ThreadMember {
 }
 
 func (c *GuildNewsThread) ThreadMember(userID discord.Snowflake) *ThreadMember {
-	return c.Bot.Caches.ThreadMemberCache().Get(c.ID(), userID)
+	return c.Bot.Caches.ThreadMembers().Get(c.ID(), userID)
 }
 
 func (c *GuildNewsThread) ThreadMembers() []*ThreadMember {
-	return c.Bot.Caches.ThreadMemberCache().ThreadAll(c.ID())
+	return c.Bot.Caches.ThreadMembers().ThreadAll(c.ID())
 }
 
 func (c *GuildNewsThread) Join(opts ...rest.RequestOpt) error {
@@ -1274,15 +1274,15 @@ func (c *GuildPublicThread) Guild() *Guild {
 }
 
 func (c *GuildPublicThread) Parent() *GuildTextChannel {
-	return c.Bot.Caches.ChannelCache().Get(c.ParentID).(*GuildTextChannel)
+	return c.Bot.Caches.Channels().Get(c.ParentID).(*GuildTextChannel)
 }
 
 func (c *GuildPublicThread) ParentMessageChannel() GuildMessageChannel {
-	return c.Bot.Caches.ChannelCache().Get(c.ParentID).(GuildMessageChannel)
+	return c.Bot.Caches.Channels().Get(c.ParentID).(GuildMessageChannel)
 }
 
 func (c *GuildPublicThread) Members() []*Member {
-	return c.Bot.Caches.MemberCache().FindAll(func(member *Member) bool {
+	return c.Bot.Caches.Members().FindAll(func(member *Member) bool {
 		return member.ChannelPermissions(c).Has(discord.PermissionViewChannel)
 	})
 }
@@ -1292,11 +1292,11 @@ func (c *GuildPublicThread) SelfThreadMember() *ThreadMember {
 }
 
 func (c *GuildPublicThread) ThreadMember(userID discord.Snowflake) *ThreadMember {
-	return c.Bot.Caches.ThreadMemberCache().Get(c.ID(), userID)
+	return c.Bot.Caches.ThreadMembers().Get(c.ID(), userID)
 }
 
 func (c *GuildPublicThread) ThreadMembers() []*ThreadMember {
-	return c.Bot.Caches.ThreadMemberCache().ThreadAll(c.ID())
+	return c.Bot.Caches.ThreadMembers().ThreadAll(c.ID())
 }
 
 func (c *GuildPublicThread) Join(opts ...rest.RequestOpt) error {
@@ -1464,15 +1464,15 @@ func (c *GuildPrivateThread) Guild() *Guild {
 }
 
 func (c *GuildPrivateThread) Parent() *GuildTextChannel {
-	return c.Bot.Caches.ChannelCache().Get(c.ParentID).(*GuildTextChannel)
+	return c.Bot.Caches.Channels().Get(c.ParentID).(*GuildTextChannel)
 }
 
 func (c *GuildPrivateThread) ParentMessageChannel() GuildMessageChannel {
-	return c.Bot.Caches.ChannelCache().Get(c.ParentID).(GuildMessageChannel)
+	return c.Bot.Caches.Channels().Get(c.ParentID).(GuildMessageChannel)
 }
 
 func (c *GuildPrivateThread) Members() []*Member {
-	return c.Bot.Caches.MemberCache().FindAll(func(member *Member) bool {
+	return c.Bot.Caches.Members().FindAll(func(member *Member) bool {
 		return member.ChannelPermissions(c).Has(discord.PermissionViewChannel)
 	})
 }
@@ -1482,11 +1482,11 @@ func (c *GuildPrivateThread) SelfThreadMember() *ThreadMember {
 }
 
 func (c *GuildPrivateThread) ThreadMember(userID discord.Snowflake) *ThreadMember {
-	return c.Bot.Caches.ThreadMemberCache().Get(c.ID(), userID)
+	return c.Bot.Caches.ThreadMembers().Get(c.ID(), userID)
 }
 
 func (c *GuildPrivateThread) ThreadMembers() []*ThreadMember {
-	return c.Bot.Caches.ThreadMemberCache().ThreadAll(c.ID())
+	return c.Bot.Caches.ThreadMembers().ThreadAll(c.ID())
 }
 
 func (c *GuildPrivateThread) Join(opts ...rest.RequestOpt) error {
@@ -1594,7 +1594,7 @@ func (c *GuildStageVoiceChannel) Parent() *GuildCategoryChannel {
 	if c.ParentID == nil {
 		return nil
 	}
-	return c.Bot.Caches.ChannelCache().Get(*c.ParentID).(*GuildCategoryChannel)
+	return c.Bot.Caches.Channels().Get(*c.ParentID).(*GuildCategoryChannel)
 }
 
 func (c *GuildStageVoiceChannel) Connect() error {
@@ -1617,7 +1617,7 @@ func (c *GuildStageVoiceChannel) StageInstance() *StageInstance {
 	if c.StageInstanceID == nil {
 		return nil
 	}
-	return c.Bot.Caches.StageInstanceCache().Get(*c.StageInstanceID)
+	return c.Bot.Caches.StageInstances().Get(*c.StageInstanceID)
 }
 
 func (c *GuildStageVoiceChannel) CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate, opts ...rest.RequestOpt) (*StageInstance, error) {
@@ -1712,7 +1712,7 @@ func deletePermissionOverwrite(bot *Bot, channelID discord.Snowflake, id discord
 }
 
 func channelGuild(bot *Bot, guildID discord.Snowflake) *Guild {
-	return bot.Caches.GuildCache().Get(guildID)
+	return bot.Caches.Guilds().Get(guildID)
 }
 
 func createThread(bot *Bot, channelID discord.Snowflake, threadCreate discord.ThreadCreate, opts ...rest.RequestOpt) (GuildThread, error) {
@@ -1886,13 +1886,13 @@ func deleteWebhook(bot *Bot, webhookID discord.Snowflake, opts ...rest.RequestOp
 }
 
 func viewMembers(bot *Bot, guildChannel GuildChannel) []*Member {
-	return bot.Caches.MemberCache().FindAll(func(member *Member) bool {
+	return bot.Caches.Members().FindAll(func(member *Member) bool {
 		return member.ChannelPermissions(guildChannel).Has(discord.PermissionViewChannel)
 	})
 }
 
 func connectedMembers(bot *Bot, audioChannel GuildAudioChannel) []*Member {
-	return bot.Caches.MemberCache().FindAll(func(member *Member) bool {
+	return bot.Caches.Members().FindAll(func(member *Member) bool {
 		_, ok := audioChannel.connectedMembers()[member.User.ID]
 		return ok
 	})
