@@ -80,11 +80,17 @@ func (g *gatewayImpl) ShardCount() int {
 }
 
 func (g *gatewayImpl) formatLogsf(format string, a ...interface{}) string {
-	return fmt.Sprintf("[%d/%d] %s", g.shardID, g.shardCount, fmt.Sprintf(format, a...))
+	if g.shardCount > 1 {
+		return fmt.Sprintf("[%d/%d] %s", g.shardID, g.shardCount, fmt.Sprintf(format, a...))
+	}
+	return fmt.Sprintf(format, a...)
 }
 
 func (g *gatewayImpl) formatLogs(a ...interface{}) string {
-	return fmt.Sprintf("[%d/%d] %s", g.shardID, g.shardCount, fmt.Sprint(a...))
+	if g.shardCount > 1 {
+		return fmt.Sprintf("[%d/%d] %s", g.shardID, g.shardCount, fmt.Sprint(a...))
+	}
+	return fmt.Sprint(a...)
 }
 
 func (g *gatewayImpl) Open() error {
