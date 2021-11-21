@@ -26,11 +26,11 @@ func (c SlashCommandUpdate) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (_ SlashCommandUpdate) Type() ApplicationCommandType {
+func (SlashCommandUpdate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeSlash
 }
 
-func (_ SlashCommandUpdate) applicationCommandUpdate() {}
+func (SlashCommandUpdate) applicationCommandUpdate() {}
 
 type UserCommandUpdate struct {
 	Name              *string `json:"name"`
@@ -48,11 +48,11 @@ func (c UserCommandUpdate) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (_ UserCommandUpdate) Type() ApplicationCommandType {
+func (UserCommandUpdate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeUser
 }
 
-func (_ UserCommandUpdate) applicationCommandUpdate() {}
+func (UserCommandUpdate) applicationCommandUpdate() {}
 
 type MessageCommandUpdate struct {
 	Name              *string `json:"name"`
@@ -70,8 +70,8 @@ func (c MessageCommandUpdate) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (_ MessageCommandUpdate) Type() ApplicationCommandType {
+func (MessageCommandUpdate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeMessage
 }
 
-func (_ MessageCommandUpdate) applicationCommandUpdate() {}
+func (MessageCommandUpdate) applicationCommandUpdate() {}

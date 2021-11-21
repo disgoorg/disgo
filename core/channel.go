@@ -634,11 +634,11 @@ func (c *GuildCategoryChannel) Members() []*Member {
 	memberIds := make(map[discord.Snowflake]struct{})
 	for _, channel := range c.Channels() {
 		for _, member := range channel.Members() {
-			if _, ok := memberIds[member.ID]; ok {
+			if _, ok := memberIds[member.User.ID]; ok {
 				continue
 			}
 			members = append(members, member)
-			memberIds[member.ID] = struct{}{}
+			memberIds[member.User.ID] = struct{}{}
 		}
 	}
 	return members
@@ -1606,7 +1606,7 @@ func (c *GuildStageVoiceChannel) Members() []*Member {
 }
 
 func (c *GuildStageVoiceChannel) connectedMembers() map[discord.Snowflake]struct{} {
-	return c.connectedMembers()
+	return c.ConnectedMemberIDs
 }
 
 func (c *GuildStageVoiceChannel) IsModerator(member *Member) bool {
@@ -1893,7 +1893,7 @@ func viewMembers(bot *Bot, guildChannel GuildChannel) []*Member {
 
 func connectedMembers(bot *Bot, audioChannel GuildAudioChannel) []*Member {
 	return bot.Caches.MemberCache().FindAll(func(member *Member) bool {
-		_, ok := audioChannel.connectedMembers()[member.ID]
+		_, ok := audioChannel.connectedMembers()[member.User.ID]
 		return ok
 	})
 }

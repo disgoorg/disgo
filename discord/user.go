@@ -22,6 +22,8 @@ const (
 	UserFlagNone UserFlags = 0
 )
 
+var _ Mentionable = (*User)(nil)
+
 // User is a struct for interacting with discord's users
 type User struct {
 	ID            Snowflake `json:"id"`
@@ -33,6 +35,18 @@ type User struct {
 	IsBot         bool      `json:"bot"`
 	IsSystem      bool      `json:"system"`
 	PublicFlags   UserFlags `json:"public_flags"`
+}
+
+func (u User) String() string {
+	return userMention(u.ID)
+}
+
+func (u User) Mention() string {
+	return u.String()
+}
+
+func (u User) Tag() string {
+	return userTag(u.Username, u.Discriminator)
 }
 
 // OAuth2User represents a full User returned by the oauth2 endpoints

@@ -128,7 +128,7 @@ func (u RolePermissionOverwriteUpdate) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (_ RolePermissionOverwriteUpdate) Type() PermissionOverwriteType {
+func (RolePermissionOverwriteUpdate) Type() PermissionOverwriteType {
 	return PermissionOverwriteTypeRole
 }
 
@@ -148,6 +148,6 @@ func (u MemberPermissionOverwriteUpdate) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (_ MemberPermissionOverwriteUpdate) Type() PermissionOverwriteType {
+func (MemberPermissionOverwriteUpdate) Type() PermissionOverwriteType {
 	return PermissionOverwriteTypeMember
 }

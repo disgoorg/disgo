@@ -113,7 +113,7 @@ func (i TwitchIntegration) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (_ TwitchIntegration) Type() IntegrationType {
+func (TwitchIntegration) Type() IntegrationType {
 	return IntegrationTypeTwitch
 }
 
@@ -147,7 +147,7 @@ func (i YouTubeIntegration) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (_ YouTubeIntegration) Type() IntegrationType {
+func (YouTubeIntegration) Type() IntegrationType {
 	return IntegrationTypeTwitch
 }
 
@@ -174,7 +174,7 @@ func (i BotIntegration) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (_ BotIntegration) Type() IntegrationType {
+func (BotIntegration) Type() IntegrationType {
 	return IntegrationTypeBot
 }
 

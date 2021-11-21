@@ -118,11 +118,11 @@ func (c SlashCommand) ID() Snowflake {
 	return c.CommandID
 }
 
-func (_ SlashCommand) Type() ApplicationCommandType {
+func (SlashCommand) Type() ApplicationCommandType {
 	return ApplicationCommandTypeSlash
 }
 
-func (_ SlashCommand) applicationCommand() {}
+func (SlashCommand) applicationCommand() {}
 
 var _ ApplicationCommand = (*UserCommand)(nil)
 
@@ -154,7 +154,7 @@ func (c UserCommand) Type() ApplicationCommandType {
 	return ApplicationCommandTypeUser
 }
 
-func (_ UserCommand) applicationCommand() {}
+func (UserCommand) applicationCommand() {}
 
 var _ ApplicationCommand = (*MessageCommand)(nil)
 
@@ -182,8 +182,8 @@ func (c MessageCommand) ID() Snowflake {
 	return c.CommandID
 }
 
-func (_ MessageCommand) Type() ApplicationCommandType {
+func (MessageCommand) Type() ApplicationCommandType {
 	return ApplicationCommandTypeMessage
 }
 
-func (_ MessageCommand) applicationCommand() {}
+func (MessageCommand) applicationCommand() {}

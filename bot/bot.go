@@ -65,8 +65,8 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 		if config.RestClientConfig.Headers == nil {
 			config.RestClientConfig.Headers = http.Header{}
 		}
-		if _, ok := config.RestClientConfig.Headers["authorization"]; !ok {
-			config.RestClientConfig.Headers["authorization"] = []string{discord.TokenTypeBot.Apply(token)}
+		if _, ok := config.RestClientConfig.Headers["Authorization"]; !ok {
+			config.RestClientConfig.Headers["Authorization"] = []string{discord.TokenTypeBot.Apply(token)}
 		}
 
 		if config.RestClientConfig.RateLimiterConfig == nil {

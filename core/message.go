@@ -34,7 +34,11 @@ func (m *Message) Guild() *Guild {
 
 // Channel gets the MessageChannel the Message was sent in
 func (m *Message) Channel() MessageChannel {
-	return m.Bot.Caches.ChannelCache().Get(m.ChannelID).(MessageChannel)
+	channel := m.Bot.Caches.ChannelCache().Get(m.ChannelID)
+	if channel != nil {
+		return channel.(MessageChannel)
+	}
+	return nil
 }
 
 // AddReactionByEmote allows you to add an Emoji to a message_events via reaction
@@ -64,7 +68,7 @@ func (m *Message) Delete(opts ...rest.RequestOpt) error {
 // Crosspost crossposts an existing message
 func (m *Message) Crosspost(opts ...rest.RequestOpt) (*Message, error) {
 	channel := m.Channel()
-	if channel != nil && channel.Type() == discord.ChannelTypeGuildNews {
+	if channel != nil && channel.Type() != discord.ChannelTypeGuildNews {
 		return nil, discord.ErrChannelNotTypeNews
 	}
 	message, err := m.Bot.RestServices.ChannelService().CrosspostMessage(m.ChannelID, m.ID, opts...)
@@ -103,7 +107,7 @@ func (m *Message) InteractiveComponents() []discord.InteractiveComponent {
 			interactiveComponents = append(interactiveComponents, m.Components[i].Components()[ii])
 		}
 	}
-	return nil
+	return interactiveComponents
 }
 
 // ComponentByID returns the discord.Component with the specific discord.CustomID

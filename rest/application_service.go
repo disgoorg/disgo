@@ -95,7 +95,7 @@ func (s *applicationServiceImpl) SetGlobalCommands(applicationID discord.Snowfla
 	var unmarshalCommands []discord.UnmarshalApplicationCommand
 	err = s.restClient.Do(compiledRoute, commandCreates, &unmarshalCommands, opts...)
 	if err == nil {
-
+		commands = unmarshalApplicationCommandsToApplicationCommands(unmarshalCommands)
 	}
 	return
 }

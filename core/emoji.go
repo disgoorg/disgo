@@ -59,20 +59,6 @@ func (e *Emoji) Delete(opts ...rest.RequestOpt) error {
 	return e.Bot.RestServices.EmojiService().DeleteEmoji(e.GuildID, e.ID, opts...)
 }
 
-// Mention returns the string used to send the Emoji
-func (e *Emoji) Mention() string {
-	start := "<:"
-	if e.Animated {
-		start = "<a:"
-	}
-	return start + e.Name + ":" + e.ID.String() + ">"
-}
-
-// String formats the Emoji as string
-func (e *Emoji) String() string {
-	return e.Mention()
-}
-
 // Reaction returns the identifier used for adding and removing reactions for messages in discord
 func (e *Emoji) Reaction() string {
 	return ":" + e.Name + ":" + e.ID.String()

@@ -39,7 +39,7 @@ func (m *Message) InteractiveComponents() []discord.InteractiveComponent {
 			interactiveComponents = append(interactiveComponents, m.Components[i].Components()[ii])
 		}
 	}
-	return nil
+	return interactiveComponents
 }
 
 // ComponentByID returns the discord.Component with the specific discord.CustomID

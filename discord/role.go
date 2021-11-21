@@ -1,6 +1,10 @@
 package discord
 
-import "github.com/DisgoOrg/disgo/json"
+import (
+	"github.com/DisgoOrg/disgo/json"
+)
+
+var _ Mentionable = (*Role)(nil)
 
 // Role is a Guild Role object
 type Role struct {
@@ -16,6 +20,14 @@ type Role struct {
 	Emoji       *string     `json:"unicode_emoji"`
 	Mentionable bool        `json:"mentionable"`
 	Tags        *RoleTag    `json:"tags,omitempty"`
+}
+
+func (r Role) String() string {
+	return roleMention(r.ID)
+}
+
+func (r Role) Mention() string {
+	return r.String()
 }
 
 // RoleTag are tags a Role has

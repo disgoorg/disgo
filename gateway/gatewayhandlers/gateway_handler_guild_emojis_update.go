@@ -30,9 +30,9 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot *core.Bot, sequ
 
 	var (
 		emojiCache    = bot.Caches.EmojiCache().GuildCache(payload.GuildID)
-		oldEmojis     map[discord.Snowflake]*core.Emoji
-		newEmojis     map[discord.Snowflake]*core.Emoji
-		updatedEmojis map[discord.Snowflake]*core.Emoji
+		oldEmojis     = map[discord.Snowflake]*core.Emoji{}
+		newEmojis     = map[discord.Snowflake]*core.Emoji{}
+		updatedEmojis = map[discord.Snowflake]*core.Emoji{}
 	)
 
 	oldEmojis = make(map[discord.Snowflake]*core.Emoji, len(emojiCache))

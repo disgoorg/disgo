@@ -29,7 +29,7 @@ func (i *StageInstance) GetSpeakers() []*Member {
 	var speakers []*Member
 	for _, member := range ch.Members() {
 		if member.VoiceState() != nil && !member.VoiceState().Suppress {
-			speakers = append(speakers)
+			speakers = append(speakers, member)
 		}
 	}
 	return speakers
@@ -43,7 +43,7 @@ func (i *StageInstance) GetListeners() []*Member {
 	var listeners []*Member
 	for _, member := range ch.Members() {
 		if member.VoiceState() != nil && member.VoiceState().Suppress {
-			listeners = append(listeners)
+			listeners = append(listeners, member)
 		}
 	}
 	return listeners

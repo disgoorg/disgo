@@ -26,11 +26,11 @@ func (c SlashCommandCreate) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (_ SlashCommandCreate) Type() ApplicationCommandType {
+func (SlashCommandCreate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeSlash
 }
 
-func (_ SlashCommandCreate) applicationCommandCreate() {}
+func (SlashCommandCreate) applicationCommandCreate() {}
 
 type UserCommandCreate struct {
 	Name              string `json:"name"`
@@ -48,11 +48,11 @@ func (c UserCommandCreate) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (_ UserCommandCreate) Type() ApplicationCommandType {
+func (UserCommandCreate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeUser
 }
 
-func (_ UserCommandCreate) applicationCommandCreate() {}
+func (UserCommandCreate) applicationCommandCreate() {}
 
 type MessageCommandCreate struct {
 	Name              string `json:"name"`
@@ -70,8 +70,8 @@ func (c MessageCommandCreate) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (_ MessageCommandCreate) Type() ApplicationCommandType {
+func (MessageCommandCreate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeMessage
 }
 
-func (_ MessageCommandCreate) applicationCommandCreate() {}
+func (MessageCommandCreate) applicationCommandCreate() {}

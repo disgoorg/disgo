@@ -17,7 +17,7 @@ type UnmarshalAutocompleteOption struct {
 	AutocompleteOption
 }
 
-func (o UnmarshalAutocompleteOption) UnmarshalJSON(data []byte) error {
+func (o *UnmarshalAutocompleteOption) UnmarshalJSON(data []byte) error {
 	var oType struct {
 		Type ApplicationCommandOptionType `json:"type"`
 	}
@@ -102,7 +102,7 @@ type AutocompleteOptionSubCommand struct {
 	Options     []AutocompleteOption `json:"options,omitempty"`
 }
 
-func (_ AutocompleteOptionSubCommand) Type() ApplicationCommandOptionType {
+func (AutocompleteOptionSubCommand) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeSubCommand
 }
 
@@ -114,7 +114,7 @@ func (o AutocompleteOptionSubCommand) Focused() bool {
 	return false
 }
 
-func (_ AutocompleteOptionSubCommand) autocompleteOption() {}
+func (AutocompleteOptionSubCommand) autocompleteOption() {}
 
 var _ AutocompleteOption = (*AutocompleteOptionSubCommandGroup)(nil)
 
@@ -124,7 +124,7 @@ type AutocompleteOptionSubCommandGroup struct {
 	Options     []AutocompleteOptionSubCommand `json:"options,omitempty"`
 }
 
-func (_ AutocompleteOptionSubCommandGroup) Type() ApplicationCommandOptionType {
+func (AutocompleteOptionSubCommandGroup) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeSubCommandGroup
 }
 
@@ -136,7 +136,7 @@ func (o AutocompleteOptionSubCommandGroup) Focused() bool {
 	return false
 }
 
-func (_ AutocompleteOptionSubCommandGroup) autocompleteOption() {}
+func (AutocompleteOptionSubCommandGroup) autocompleteOption() {}
 
 var _ AutocompleteOption = (*AutocompleteOptionString)(nil)
 
@@ -146,7 +146,7 @@ type AutocompleteOptionString struct {
 	OptionFocused bool   `json:"focused"`
 }
 
-func (_ AutocompleteOptionString) Type() ApplicationCommandOptionType {
+func (AutocompleteOptionString) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeString
 }
 
@@ -158,7 +158,7 @@ func (o AutocompleteOptionString) Focused() bool {
 	return o.OptionFocused
 }
 
-func (_ AutocompleteOptionString) autocompleteOption() {}
+func (AutocompleteOptionString) autocompleteOption() {}
 
 var _ AutocompleteOption = (*AutocompleteOptionInt)(nil)
 
@@ -168,7 +168,7 @@ type AutocompleteOptionInt struct {
 	OptionFocused bool   `json:"focused"`
 }
 
-func (_ AutocompleteOptionInt) Type() ApplicationCommandOptionType {
+func (AutocompleteOptionInt) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeInt
 }
 
@@ -180,7 +180,7 @@ func (o AutocompleteOptionInt) Focused() bool {
 	return o.OptionFocused
 }
 
-func (_ AutocompleteOptionInt) autocompleteOption() {}
+func (AutocompleteOptionInt) autocompleteOption() {}
 
 var _ AutocompleteOption = (*AutocompleteOptionBool)(nil)
 
@@ -190,7 +190,7 @@ type AutocompleteOptionBool struct {
 	OptionFocused bool   `json:"focused"`
 }
 
-func (_ AutocompleteOptionBool) Type() ApplicationCommandOptionType {
+func (AutocompleteOptionBool) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeBool
 }
 
@@ -202,7 +202,7 @@ func (o AutocompleteOptionBool) Focused() bool {
 	return o.OptionFocused
 }
 
-func (_ AutocompleteOptionBool) autocompleteOption() {}
+func (AutocompleteOptionBool) autocompleteOption() {}
 
 var _ AutocompleteOption = (*AutocompleteOptionUser)(nil)
 
@@ -212,7 +212,7 @@ type AutocompleteOptionUser struct {
 	OptionFocused bool      `json:"focused"`
 }
 
-func (_ AutocompleteOptionUser) Type() ApplicationCommandOptionType {
+func (AutocompleteOptionUser) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeUser
 }
 
@@ -224,7 +224,7 @@ func (o AutocompleteOptionUser) Focused() bool {
 	return o.OptionFocused
 }
 
-func (_ AutocompleteOptionUser) autocompleteOption() {}
+func (AutocompleteOptionUser) autocompleteOption() {}
 
 var _ AutocompleteOption = (*AutocompleteOptionChannel)(nil)
 
@@ -234,7 +234,7 @@ type AutocompleteOptionChannel struct {
 	OptionFocused bool      `json:"focused"`
 }
 
-func (_ AutocompleteOptionChannel) Type() ApplicationCommandOptionType {
+func (AutocompleteOptionChannel) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeChannel
 }
 
@@ -246,7 +246,7 @@ func (o AutocompleteOptionChannel) Focused() bool {
 	return o.OptionFocused
 }
 
-func (_ AutocompleteOptionChannel) autocompleteOption() {}
+func (AutocompleteOptionChannel) autocompleteOption() {}
 
 var _ AutocompleteOption = (*AutocompleteOptionRole)(nil)
 
@@ -256,7 +256,7 @@ type AutocompleteOptionRole struct {
 	OptionFocused bool      `json:"focused"`
 }
 
-func (_ AutocompleteOptionRole) Type() ApplicationCommandOptionType {
+func (AutocompleteOptionRole) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeRole
 }
 
@@ -268,7 +268,7 @@ func (o AutocompleteOptionRole) Focused() bool {
 	return o.OptionFocused
 }
 
-func (_ AutocompleteOptionRole) autocompleteOption() {}
+func (AutocompleteOptionRole) autocompleteOption() {}
 
 var _ AutocompleteOption = (*AutocompleteOptionMentionable)(nil)
 
@@ -278,7 +278,7 @@ type AutocompleteOptionMentionable struct {
 	OptionFocused bool      `json:"focused"`
 }
 
-func (_ AutocompleteOptionMentionable) Type() ApplicationCommandOptionType {
+func (AutocompleteOptionMentionable) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeMentionable
 }
 
@@ -290,7 +290,7 @@ func (o AutocompleteOptionMentionable) Focused() bool {
 	return o.OptionFocused
 }
 
-func (_ AutocompleteOptionMentionable) autocompleteOption() {}
+func (AutocompleteOptionMentionable) autocompleteOption() {}
 
 var _ AutocompleteOption = (*AutocompleteOptionFloat)(nil)
 
@@ -300,7 +300,7 @@ type AutocompleteOptionFloat struct {
 	OptionFocused bool    `json:"focused"`
 }
 
-func (_ AutocompleteOptionFloat) Type() ApplicationCommandOptionType {
+func (AutocompleteOptionFloat) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeFloat
 }
 
@@ -312,4 +312,4 @@ func (o AutocompleteOptionFloat) Focused() bool {
 	return o.OptionFocused
 }
 
-func (_ AutocompleteOptionFloat) autocompleteOption() {}
+func (AutocompleteOptionFloat) autocompleteOption() {}

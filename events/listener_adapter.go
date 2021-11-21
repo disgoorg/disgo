@@ -553,14 +553,12 @@ func (l ListenerAdapter) OnEvent(event core.Event) {
 		}
 
 	default:
-		if e, ok := e.(core.Event); ok {
-			var name string
-			if t := reflect.TypeOf(e); t.Kind() == reflect.Ptr {
-				name = "*" + t.Elem().Name()
-			} else {
-				name = t.Name()
-			}
-			e.Bot().Logger.Errorf("unexpected event received: \"%s\", event: \"%#e\"", name, event)
+		var name string
+		if t := reflect.TypeOf(e); t.Kind() == reflect.Ptr {
+			name = "*" + t.Elem().Name()
+		} else {
+			name = t.Name()
 		}
+		e.Bot().Logger.Errorf("unexpected event received: \"%s\", event: \"%#e\"", name, event)
 	}
 }

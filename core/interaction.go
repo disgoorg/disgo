@@ -94,13 +94,14 @@ func update(fields *InteractionFields, applicationID discord.Snowflake, token st
 }
 
 func updateComponent(fields *InteractionFields, applicationID discord.Snowflake, token string, message *Message, customID discord.CustomID, component discord.InteractiveComponent, opts ...rest.RequestOpt) error {
-	containerComponents := message.Components
-	for i := range containerComponents {
+	containerComponents := make([]discord.ContainerComponent, len(message.Components))
+	for i := range message.Components {
 		switch container := containerComponents[i].(type) {
 		case discord.ActionRowComponent:
-			container = container.UpdateComponent(customID, component)
+			containerComponents[i] = container.UpdateComponent(customID, component)
 
 		default:
+			containerComponents[i] = container
 			continue
 		}
 	}

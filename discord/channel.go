@@ -256,7 +256,7 @@ func (c GuildTextChannel) Mention() string {
 	return channelMention(c.ID())
 }
 
-func (_ GuildTextChannel) Type() ChannelType {
+func (GuildTextChannel) Type() ChannelType {
 	return ChannelTypeGuildText
 }
 
@@ -272,11 +272,11 @@ func (c GuildTextChannel) GuildID() Snowflake {
 	return c.ChannelGuildID
 }
 
-func (_ GuildTextChannel) channel()                 {}
-func (_ GuildTextChannel) guildChannel()            {}
-func (_ GuildTextChannel) messageChannel()          {}
-func (_ GuildTextChannel) baseGuildMessageChannel() {}
-func (_ GuildTextChannel) guildMessageChannel()     {}
+func (GuildTextChannel) channel()                 {}
+func (GuildTextChannel) guildChannel()            {}
+func (GuildTextChannel) messageChannel()          {}
+func (GuildTextChannel) baseGuildMessageChannel() {}
+func (GuildTextChannel) guildMessageChannel()     {}
 
 var (
 	_ Channel        = (*DMChannel)(nil)
@@ -305,7 +305,7 @@ func (c DMChannel) String() string {
 	return channelString(c)
 }
 
-func (_ DMChannel) Type() ChannelType {
+func (DMChannel) Type() ChannelType {
 	return ChannelTypeGuildText
 }
 
@@ -317,8 +317,8 @@ func (c DMChannel) Name() string {
 	return ""
 }
 
-func (_ DMChannel) channel()        {}
-func (_ DMChannel) messageChannel() {}
+func (DMChannel) channel()        {}
+func (DMChannel) messageChannel() {}
 
 var (
 	_ Channel           = (*GuildVoiceChannel)(nil)
@@ -377,7 +377,7 @@ func (c GuildVoiceChannel) Mention() string {
 	return channelMention(c.ID())
 }
 
-func (_ GuildVoiceChannel) Type() ChannelType {
+func (GuildVoiceChannel) Type() ChannelType {
 	return ChannelTypeGuildText
 }
 
@@ -393,9 +393,9 @@ func (c GuildVoiceChannel) GuildID() Snowflake {
 	return c.ChannelGuildID
 }
 
-func (_ GuildVoiceChannel) channel()           {}
-func (_ GuildVoiceChannel) guildChannel()      {}
-func (_ GuildVoiceChannel) guildAudioChannel() {}
+func (GuildVoiceChannel) channel()           {}
+func (GuildVoiceChannel) guildChannel()      {}
+func (GuildVoiceChannel) guildAudioChannel() {}
 
 var (
 	_ Channel        = (*GroupDMChannel)(nil)
@@ -428,7 +428,7 @@ func (c GroupDMChannel) String() string {
 	return channelString(c)
 }
 
-func (_ GroupDMChannel) Type() ChannelType {
+func (GroupDMChannel) Type() ChannelType {
 	return ChannelTypeGuildText
 }
 func (c GroupDMChannel) ID() Snowflake {
@@ -439,8 +439,8 @@ func (c GroupDMChannel) Name() string {
 	return c.ChannelName
 }
 
-func (_ GroupDMChannel) channel()        {}
-func (_ GroupDMChannel) messageChannel() {}
+func (GroupDMChannel) channel()        {}
+func (GroupDMChannel) messageChannel() {}
 
 var (
 	_ Channel      = (*GuildCategoryChannel)(nil)
@@ -492,7 +492,7 @@ func (c GuildCategoryChannel) Mention() string {
 	return channelMention(c.ID())
 }
 
-func (_ GuildCategoryChannel) Type() ChannelType {
+func (GuildCategoryChannel) Type() ChannelType {
 	return ChannelTypeGuildCategory
 }
 
@@ -508,8 +508,8 @@ func (c GuildCategoryChannel) GuildID() Snowflake {
 	return c.ChannelGuildID
 }
 
-func (_ GuildCategoryChannel) channel()      {}
-func (_ GuildCategoryChannel) guildChannel() {}
+func (GuildCategoryChannel) channel()      {}
+func (GuildCategoryChannel) guildChannel() {}
 
 var (
 	_ Channel                 = (*GuildNewsChannel)(nil)
@@ -570,7 +570,7 @@ func (c GuildNewsChannel) Mention() string {
 	return channelMention(c.ID())
 }
 
-func (_ GuildNewsChannel) Type() ChannelType {
+func (GuildNewsChannel) Type() ChannelType {
 	return ChannelTypeGuildNews
 }
 
@@ -586,11 +586,11 @@ func (c GuildNewsChannel) GuildID() Snowflake {
 	return c.ChannelGuildID
 }
 
-func (_ GuildNewsChannel) channel()                 {}
-func (_ GuildNewsChannel) guildChannel()            {}
-func (_ GuildNewsChannel) messageChannel()          {}
-func (_ GuildNewsChannel) baseGuildMessageChannel() {}
-func (_ GuildNewsChannel) guildMessageChannel()     {}
+func (GuildNewsChannel) channel()                 {}
+func (GuildNewsChannel) guildChannel()            {}
+func (GuildNewsChannel) messageChannel()          {}
+func (GuildNewsChannel) baseGuildMessageChannel() {}
+func (GuildNewsChannel) guildMessageChannel()     {}
 
 var (
 	_ Channel      = (*GuildStoreChannel)(nil)
@@ -643,7 +643,7 @@ func (c GuildStoreChannel) Mention() string {
 	return channelMention(c.ID())
 }
 
-func (_ GuildStoreChannel) Type() ChannelType {
+func (GuildStoreChannel) Type() ChannelType {
 	return ChannelTypeGuildStore
 }
 
@@ -659,8 +659,8 @@ func (c GuildStoreChannel) GuildID() Snowflake {
 	return c.ChannelGuildID
 }
 
-func (_ GuildStoreChannel) channel()      {}
-func (_ GuildStoreChannel) guildChannel() {}
+func (GuildStoreChannel) channel()      {}
+func (GuildStoreChannel) guildChannel() {}
 
 var (
 	_ Channel                 = (*GuildNewsThread)(nil)
@@ -703,7 +703,7 @@ func (c GuildNewsThread) Mention() string {
 	return channelMention(c.ID())
 }
 
-func (_ GuildNewsThread) Type() ChannelType {
+func (GuildNewsThread) Type() ChannelType {
 	return ChannelTypeGuildNewsThread
 }
 
@@ -719,11 +719,11 @@ func (c GuildNewsThread) GuildID() Snowflake {
 	return c.ChannelGuildID
 }
 
-func (_ GuildNewsThread) channel()                 {}
-func (_ GuildNewsThread) guildChannel()            {}
-func (_ GuildNewsThread) messageChannel()          {}
-func (_ GuildNewsThread) baseGuildMessageChannel() {}
-func (_ GuildNewsThread) guildThread()             {}
+func (GuildNewsThread) channel()                 {}
+func (GuildNewsThread) guildChannel()            {}
+func (GuildNewsThread) messageChannel()          {}
+func (GuildNewsThread) baseGuildMessageChannel() {}
+func (GuildNewsThread) guildThread()             {}
 
 var (
 	_ Channel                 = (*GuildPublicThread)(nil)
@@ -766,7 +766,7 @@ func (c GuildPublicThread) Mention() string {
 	return channelMention(c.ID())
 }
 
-func (_ GuildPublicThread) Type() ChannelType {
+func (GuildPublicThread) Type() ChannelType {
 	return ChannelTypeGuildPublicThread
 }
 
@@ -782,11 +782,11 @@ func (c GuildPublicThread) GuildID() Snowflake {
 	return c.ChannelGuildID
 }
 
-func (_ GuildPublicThread) channel()                 {}
-func (_ GuildPublicThread) guildChannel()            {}
-func (_ GuildPublicThread) messageChannel()          {}
-func (_ GuildPublicThread) baseGuildMessageChannel() {}
-func (_ GuildPublicThread) guildThread()             {}
+func (GuildPublicThread) channel()                 {}
+func (GuildPublicThread) guildChannel()            {}
+func (GuildPublicThread) messageChannel()          {}
+func (GuildPublicThread) baseGuildMessageChannel() {}
+func (GuildPublicThread) guildThread()             {}
 
 var (
 	_ Channel                 = (*GuildPrivateThread)(nil)
@@ -829,7 +829,7 @@ func (c GuildPrivateThread) Mention() string {
 	return channelMention(c.ID())
 }
 
-func (_ GuildPrivateThread) Type() ChannelType {
+func (GuildPrivateThread) Type() ChannelType {
 	return ChannelTypeGuildPrivateThread
 }
 
@@ -845,11 +845,11 @@ func (c GuildPrivateThread) GuildID() Snowflake {
 	return c.ChannelGuildID
 }
 
-func (_ GuildPrivateThread) channel()                 {}
-func (_ GuildPrivateThread) guildChannel()            {}
-func (_ GuildPrivateThread) messageChannel()          {}
-func (_ GuildPrivateThread) baseGuildMessageChannel() {}
-func (_ GuildPrivateThread) guildThread()             {}
+func (GuildPrivateThread) channel()                 {}
+func (GuildPrivateThread) guildChannel()            {}
+func (GuildPrivateThread) messageChannel()          {}
+func (GuildPrivateThread) baseGuildMessageChannel() {}
+func (GuildPrivateThread) guildThread()             {}
 
 var (
 	_ Channel           = (*GuildStageVoiceChannel)(nil)
@@ -907,7 +907,7 @@ func (c GuildStageVoiceChannel) Mention() string {
 	return channelMention(c.ID())
 }
 
-func (_ GuildStageVoiceChannel) Type() ChannelType {
+func (GuildStageVoiceChannel) Type() ChannelType {
 	return ChannelTypeGuildStageVoice
 }
 
@@ -923,9 +923,9 @@ func (c GuildStageVoiceChannel) GuildID() Snowflake {
 	return c.ChannelGuildID
 }
 
-func (_ GuildStageVoiceChannel) channel()           {}
-func (_ GuildStageVoiceChannel) guildChannel()      {}
-func (_ GuildStageVoiceChannel) guildAudioChannel() {}
+func (GuildStageVoiceChannel) channel()           {}
+func (GuildStageVoiceChannel) guildChannel()      {}
+func (GuildStageVoiceChannel) guildAudioChannel() {}
 
 // VideoQualityMode https://com/developers/docs/resources/channel#channel-object-video-quality-modes
 type VideoQualityMode int

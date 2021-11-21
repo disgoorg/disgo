@@ -142,9 +142,7 @@ func (e *eventManagerImpl) Dispatch(event Event) {
 
 // AddEventListeners adds one or more core.EventListener(s) to the core.EventManager
 func (e *eventManagerImpl) AddEventListeners(listeners ...EventListener) {
-	for _, listener := range listeners {
-		e.config.EventListeners = append(e.config.EventListeners, listener)
-	}
+	e.config.EventListeners = append(e.config.EventListeners, listeners...)
 }
 
 // RemoveEventListeners removes one or more core.EventListener(s) from the core.EventManager

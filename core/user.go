@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/DisgoOrg/disgo/discord"
@@ -9,19 +8,10 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ Mentionable = (*User)(nil)
 
 type User struct {
 	discord.User
 	Bot *Bot
-}
-
-func (u *User) String() string {
-	return fmt.Sprintf("<@%s>", u.ID)
-}
-
-func (u *User) Mention() string {
-	return u.String()
 }
 
 // AvatarURL returns the Avatar URL of the User
@@ -48,11 +38,6 @@ func (u *User) EffectiveAvatarURL(size int) string {
 // BannerURL returns the Banner URL of the User
 func (u *User) BannerURL(size int) *string {
 	return u.getAssetURL(route.UserBanner, u.Banner, size)
-}
-
-// Tag returns the user's Username and Discriminator
-func (u *User) Tag() string {
-	return fmt.Sprintf("%s#%s", u.Username, u.Discriminator)
 }
 
 func (u *User) getAssetURL(cdnRoute *route.CDNRoute, assetId *string, size int) *string {

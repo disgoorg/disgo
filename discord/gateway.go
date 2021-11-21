@@ -128,10 +128,6 @@ type WebhooksUpdateGatewayEvent struct {
 	ChannelID Snowflake `json:"channel_id"`
 }
 
-type InvalidSessionGatewayEvent struct {
-	bool
-}
-
 type IntegrationCreateGatewayEvent struct {
 	Integration
 	GuildID Snowflake `json:"guild_id"`

@@ -29,7 +29,7 @@ type UnmarshalWebhook struct {
 	Webhook
 }
 
-func (w UnmarshalWebhook) UnmarshalJSON(data []byte) error {
+func (w *UnmarshalWebhook) UnmarshalJSON(data []byte) error {
 	var wType struct {
 		Type WebhookType `json:"type"`
 	}
@@ -95,11 +95,11 @@ func (w IncomingWebhook) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (_ IncomingWebhook) Type() WebhookType {
+func (IncomingWebhook) Type() WebhookType {
 	return WebhookTypeIncoming
 }
 
-func (_ IncomingWebhook) webhook() {}
+func (IncomingWebhook) webhook() {}
 
 func (w IncomingWebhook) ID() Snowflake {
 	return w.WebhookID
@@ -129,11 +129,11 @@ func (w ChannelFollowerWebhook) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (_ ChannelFollowerWebhook) Type() WebhookType {
+func (ChannelFollowerWebhook) Type() WebhookType {
 	return WebhookTypeChannelFollower
 }
 
-func (_ ChannelFollowerWebhook) webhook() {}
+func (ChannelFollowerWebhook) webhook() {}
 
 func (w ChannelFollowerWebhook) ID() Snowflake {
 	return w.WebhookID
@@ -159,11 +159,11 @@ func (w ApplicationWebhook) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (_ ApplicationWebhook) Type() WebhookType {
+func (ApplicationWebhook) Type() WebhookType {
 	return WebhookTypeApplication
 }
 
-func (_ ApplicationWebhook) webhook() {}
+func (ApplicationWebhook) webhook() {}
 
 func (w ApplicationWebhook) ID() Snowflake {
 	return w.WebhookID

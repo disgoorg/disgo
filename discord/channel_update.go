@@ -21,8 +21,8 @@ type GuildTextChannelUpdate struct {
 	DefaultAutoArchiveDuration *int                   `json:"default_auto_archive_duration,omitempty"`
 }
 
-func (_ GuildTextChannelUpdate) channelUpdate()      {}
-func (_ GuildTextChannelUpdate) guildChannelUpdate() {}
+func (GuildTextChannelUpdate) channelUpdate()      {}
+func (GuildTextChannelUpdate) guildChannelUpdate() {}
 
 type GuildVoiceChannelUpdate struct {
 	Name                       *string                `json:"name,omitempty"`
@@ -37,21 +37,21 @@ type GuildVoiceChannelUpdate struct {
 	DefaultAutoArchiveDuration *int                   `json:"default_auto_archive_duration"`
 }
 
-func (_ GuildVoiceChannelUpdate) channelUpdate()      {}
-func (_ GuildVoiceChannelUpdate) guildChannelUpdate() {}
+func (GuildVoiceChannelUpdate) channelUpdate()      {}
+func (GuildVoiceChannelUpdate) guildChannelUpdate() {}
 
 type GroupDMChannelUpdate struct {
 	Name *string   `json:"name,omitempty"`
 	Icon *NullIcon `json:"icon,omitempty"`
 }
 
-func (_ GroupDMChannelUpdate) channelUpdate() {}
+func (GroupDMChannelUpdate) channelUpdate() {}
 
 type GuildCategoryChannelUpdate struct {
 }
 
-func (_ GuildCategoryChannelUpdate) channelUpdate()      {}
-func (_ GuildCategoryChannelUpdate) guildChannelUpdate() {}
+func (GuildCategoryChannelUpdate) channelUpdate()      {}
+func (GuildCategoryChannelUpdate) guildChannelUpdate() {}
 
 type GuildNewsChannelUpdate struct {
 	Name                       *string                `json:"name,omitempty"`
@@ -64,32 +64,32 @@ type GuildNewsChannelUpdate struct {
 	DefaultAutoArchiveDuration *int                   `json:"default_auto_archive_duration"`
 }
 
-func (_ GuildNewsChannelUpdate) channelUpdate()      {}
-func (_ GuildNewsChannelUpdate) guildChannelUpdate() {}
+func (GuildNewsChannelUpdate) channelUpdate()      {}
+func (GuildNewsChannelUpdate) guildChannelUpdate() {}
 
 type GuildStoreChannelUpdate struct {
 }
 
-func (_ GuildStoreChannelUpdate) channelUpdate()      {}
-func (_ GuildStoreChannelUpdate) guildChannelUpdate() {}
+func (GuildStoreChannelUpdate) channelUpdate()      {}
+func (GuildStoreChannelUpdate) guildChannelUpdate() {}
 
 type GuildNewsThreadUpdate struct {
 }
 
-func (_ GuildNewsThreadUpdate) channelUpdate()      {}
-func (_ GuildNewsThreadUpdate) guildChannelUpdate() {}
+func (GuildNewsThreadUpdate) channelUpdate()      {}
+func (GuildNewsThreadUpdate) guildChannelUpdate() {}
 
 type GuildPublicThreadUpdate struct {
 }
 
-func (_ GuildPublicThreadUpdate) channelUpdate()      {}
-func (_ GuildPublicThreadUpdate) guildChannelUpdate() {}
+func (GuildPublicThreadUpdate) channelUpdate()      {}
+func (GuildPublicThreadUpdate) guildChannelUpdate() {}
 
 type GuildPrivateThreadUpdate struct {
 }
 
-func (_ GuildPrivateThreadUpdate) channelUpdate()      {}
-func (_ GuildPrivateThreadUpdate) guildChannelUpdate() {}
+func (GuildPrivateThreadUpdate) channelUpdate()      {}
+func (GuildPrivateThreadUpdate) guildChannelUpdate() {}
 
 type GuildStageVoiceChannelUpdate struct {
 	Name                 *string                `json:"name,omitempty"`
@@ -103,5 +103,5 @@ type GuildStageVoiceChannelUpdate struct {
 	VideoQualityMode     *VideoQualityMode      `json:"video_quality_mode"`
 }
 
-func (_ GuildStageVoiceChannelUpdate) channelUpdate()      {}
-func (_ GuildStageVoiceChannelUpdate) guildChannelUpdate() {}
+func (GuildStageVoiceChannelUpdate) channelUpdate()      {}
+func (GuildStageVoiceChannelUpdate) guildChannelUpdate() {}

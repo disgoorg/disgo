@@ -1,26 +1,14 @@
 package core
 
 import (
-	"fmt"
-
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ Mentionable = (*Role)(nil)
-
 type Role struct {
 	discord.Role
 	Bot *Bot
-}
-
-func (r *Role) String() string {
-	return fmt.Sprintf("<@&%s>", r.ID)
-}
-
-func (r *Role) Mention() string {
-	return r.String()
 }
 
 func (r *Role) IconURL(size int) *string {

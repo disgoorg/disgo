@@ -116,7 +116,7 @@ func (p ApplicationCommandPermissionUser) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (_ ApplicationCommandPermissionUser) Type() ApplicationCommandPermissionType {
+func (ApplicationCommandPermissionUser) Type() ApplicationCommandPermissionType {
 	return ApplicationCommandPermissionTypeUser
 }
 
@@ -124,7 +124,7 @@ func (p ApplicationCommandPermissionUser) ID() Snowflake {
 	return p.UserID
 }
 
-func (_ ApplicationCommandPermissionUser) applicationCommandPermission() {}
+func (ApplicationCommandPermissionUser) applicationCommandPermission() {}
 
 type ApplicationCommandPermissionRole struct {
 	RoleID     Snowflake `json:"id"`
@@ -142,7 +142,7 @@ func (p ApplicationCommandPermissionRole) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (_ ApplicationCommandPermissionRole) Type() ApplicationCommandPermissionType {
+func (ApplicationCommandPermissionRole) Type() ApplicationCommandPermissionType {
 	return ApplicationCommandPermissionTypeRole
 }
 
@@ -150,4 +150,4 @@ func (p ApplicationCommandPermissionRole) ID() Snowflake {
 	return p.RoleID
 }
 
-func (_ ApplicationCommandPermissionRole) applicationCommandPermission() {}
+func (ApplicationCommandPermissionRole) applicationCommandPermission() {}

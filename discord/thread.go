@@ -28,7 +28,7 @@ func (c GuildNewsThreadCreate) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (_ GuildNewsThreadCreate) Type() ChannelType {
+func (GuildNewsThreadCreate) Type() ChannelType {
 	return ChannelTypeGuildNewsThread
 }
 
@@ -48,7 +48,7 @@ func (c GuildPublicThreadCreate) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (_ GuildPublicThreadCreate) Type() ChannelType {
+func (GuildPublicThreadCreate) Type() ChannelType {
 	return ChannelTypeGuildPublicThread
 }
 
@@ -69,7 +69,7 @@ func (c GuildPrivateThreadCreate) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (_ GuildPrivateThreadCreate) Type() ChannelType {
+func (GuildPrivateThreadCreate) Type() ChannelType {
 	return ChannelTypeGuildPrivateThread
 }
 
