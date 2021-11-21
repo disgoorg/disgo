@@ -13,15 +13,16 @@ disgo is a [Discord](https://discord.com) API wrapper written in [Go](https://go
 
 ## Summary
 
-1. [Features](#features)
-2. [Missing Features](#missing-features)
-3. [Getting Started](#getting-started)
-4. [Documentation](#documentation)
-5. [Examples](#examples)
-6. [Related Projects](#related-projects)
-7. [Troubleshooting](#troubleshooting)
-8. [Contributing](#contributing)
-9. [License](#license)
+1.  [Features](#features)
+2.  [Missing Features](#missing-features)
+3.  [Getting Started](#getting-started)
+4.  [Documentation](#documentation)
+5.  [Examples](#examples)
+6.  [Related Projects](#related-projects)
+7.  [Why another library?](#why-another-library)
+8.  [Troubleshooting](#troubleshooting)
+9.  [Contributing](#contributing)
+10. [License](#license)
 
 ### Features
 
@@ -145,7 +146,7 @@ disgo uses our own small [logging lib](https://github.com/DisgoOrg/log) which pr
 
 ## Documentation
 
-Documentation is unfinished and can be found under
+Documentation is wip and can be found under
 
 * [![Go Reference](https://pkg.go.dev/badge/github.com/DisgoOrg/disgo.svg)](https://pkg.go.dev/github.com/DisgoOrg/disgo)
 * [![Discord Documentation](https://img.shields.io/badge/Discord%20Documentation-blue.svg)](https://discord.com/developers/docs)
