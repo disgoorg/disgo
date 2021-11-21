@@ -188,6 +188,14 @@ Discord webhook logger integration for [logrus](https://github.com/sirupsen/logr
 
 Command framework for disgo in [gorilla/mux](https://github.com/gorilla/mux) style
 
+## Why another library?
+
+[discordgo](https://github.com/bwmarrin/discordgo) is a great library, but it's super low level and pain
+[disgord](https://github.com/andersfylling/disgord) I don't like code gen magic
+[arikawa](https://github.com/diamondburned/arikawa) v3 rewrite looks promising but when I started with disgo v2 looked kinda bad
+
+disgo aims to be a high level library that is modular and not a pain to use.
+
 ## Troubleshooting
 
 For help feel free to open an issues or reach out on [Discord](https://discord.gg/TewhTfDpvW)
