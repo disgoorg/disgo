@@ -26,8 +26,8 @@ func (h *gatewayHandlerIntegrationUpdate) HandleGatewayEvent(bot *core.Bot, sequ
 	bot.EventManager.Dispatch(&events.IntegrationUpdateEvent{
 		GenericIntegrationEvent: &events.GenericIntegrationEvent{
 			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-			GuildId:      payload.GuildID,
+			GuildID:      payload.GuildID,
+			Integration:  bot.EntityBuilder.CreateIntegration(payload.GuildID, payload.Integration, core.CacheStrategyYes),
 		},
-		Integration: bot.EntityBuilder.CreateIntegration(payload.GuildID, payload.Integration, core.CacheStrategyYes),
 	})
 }

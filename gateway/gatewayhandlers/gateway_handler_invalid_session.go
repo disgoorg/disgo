@@ -23,6 +23,7 @@ func (h *gatewayHandlerInvalidSession) New() interface{} {
 func (h *gatewayHandlerInvalidSession) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	resumable := *v.(*bool)
 
+	// TODO: this should be used by the gateway
 	bot.EventManager.Dispatch(&events.InvalidSessionEvent{
 		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 		MayResume:    resumable,

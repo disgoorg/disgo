@@ -21,7 +21,6 @@ type IntegrationCreateEvent struct {
 
 type IntegrationUpdateEvent struct {
 	*GenericIntegrationEvent
-	OldIntegration core.Integration
 }
 
 type IntegrationDeleteEvent struct {

@@ -21,34 +21,45 @@ func (h *gatewayHandlerMessageUpdate) New() interface{} {
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
-	message := *v.(*discord.Message)
+	payload := *v.(*discord.Message)
 
-	oldCoreMessage := bot.Caches.MessageCache().GetCopy(message.ChannelID, message.ID)
+	oldMessage := bot.Caches.MessageCache().GetCopy(payload.ChannelID, payload.ID)
 
-	genericMessageEvent := &events.GenericMessageEvent{
-		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-		Message:      bot.EntityBuilder.CreateMessage(message, core.CacheStrategyYes),
-	}
+	message := bot.EntityBuilder.CreateMessage(payload, core.CacheStrategyYes)
+
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
 	bot.EventManager.Dispatch(&events.MessageUpdateEvent{
-		GenericMessageEvent: genericMessageEvent,
-		OldMessage:          oldCoreMessage,
+		GenericMessageEvent: &events.GenericMessageEvent{
+			GenericEvent: genericEvent,
+			MessageID:    payload.ID,
+			Message:      message,
+			ChannelID:    payload.ChannelID,
+			GuildID:      payload.GuildID,
+		},
+		OldMessage: oldMessage,
 	})
 
-	if message.GuildID == nil {
+	if payload.GuildID == nil {
 		bot.EventManager.Dispatch(&events.DMMessageUpdateEvent{
 			GenericDMMessageEvent: &events.GenericDMMessageEvent{
-				GenericMessageEvent: genericMessageEvent,
+				GenericEvent: genericEvent,
+				MessageID:    payload.ID,
+				Message:      message,
+				ChannelID:    payload.ChannelID,
 			},
-			OldMessage: oldCoreMessage,
+			OldMessage: oldMessage,
 		})
 	} else {
 		bot.EventManager.Dispatch(&events.GuildMessageUpdateEvent{
 			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
-				GenericMessageEvent: genericMessageEvent,
-				GuildID:             *message.GuildID,
+				GenericEvent: genericEvent,
+				MessageID:    payload.ID,
+				Message:      message,
+				ChannelID:    payload.ChannelID,
+				GuildID:      *payload.GuildID,
 			},
-			OldMessage: oldCoreMessage,
+			OldMessage: oldMessage,
 		})
 	}
 }

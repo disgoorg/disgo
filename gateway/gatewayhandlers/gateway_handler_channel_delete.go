@@ -21,34 +21,27 @@ func (h *gatewayHandlerChannelDelete) New() interface{} {
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerChannelDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
-	channel := v.(*discord.UnmarshalChannel).Channel
+	payload := v.(*discord.UnmarshalChannel).Channel
 
-	if ch, ok := channel.(discord.GuildChannel); ok {
-		var guildChannel core.GuildChannel
-		if c, ok := bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyNo).(core.GuildChannel); ok {
-			guildChannel = c
-		}
-		bot.Caches.ChannelCache().Remove(channel.ID())
+	bot.Caches.ChannelCache().Remove(payload.ID())
+	channel := bot.EntityBuilder.CreateChannel(payload, core.CacheStrategyNo)
+
+	if ch, ok := channel.(core.GuildChannel); ok {
 		bot.EventManager.Dispatch(&events.GuildChannelDeleteEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				ChannelID:    channel.ID(),
-				Channel:      guildChannel,
-				GuildID:             ch.GuildID(),
+				Channel:      ch,
+				GuildID:      ch.GuildID(),
 			},
 		})
-	} else {
-		var dmChannel *core.DMChannel
-		if c, ok := bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes).(*core.DMChannel); ok {
-			dmChannel = c
-		}
+	} else if ch, ok := channel.(*core.DMChannel); ok {
 		bot.EventManager.Dispatch(&events.DMChannelDeleteEvent{
 			GenericDMChannelEvent: &events.GenericDMChannelEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				ChannelID:    channel.ID(),
-				Channel:      dmChannel,
+				Channel:      ch,
 			},
 		})
 	}
-
 }

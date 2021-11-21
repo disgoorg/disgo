@@ -27,15 +27,9 @@ func (h *gatewayHandlerStageInstanceUpdate) HandleGatewayEvent(bot *core.Bot, se
 
 	bot.EventManager.Dispatch(&events.StageInstanceUpdateEvent{
 		GenericStageInstanceEvent: &events.GenericStageInstanceEvent{
-			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
-				GenericChannelEvent: &events.GenericChannelEvent{
-					GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-					ChannelID:    stageInstance.ChannelID,
-					Channel:      bot.Caches.ChannelCache().Get(stageInstance.ChannelID),
-				},
-				GuildID: stageInstance.GuildID,
-			},
-			StageInstance: bot.EntityBuilder.CreateStageInstance(stageInstance, core.CacheStrategyYes),
+			GenericEvent:    events.NewGenericEvent(bot, sequenceNumber),
+			StageInstanceID: stageInstance.ID,
+			StageInstance:   bot.EntityBuilder.CreateStageInstance(stageInstance, core.CacheStrategyYes),
 		},
 		OldStageInstance: oldStageInstance,
 	})

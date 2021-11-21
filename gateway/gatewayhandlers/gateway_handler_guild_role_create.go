@@ -25,12 +25,10 @@ func (h *gatewayHandlerGuildRoleCreate) HandleGatewayEvent(bot *core.Bot, sequen
 
 	bot.EventManager.Dispatch(&events.RoleCreateEvent{
 		GenericRoleEvent: &events.GenericRoleEvent{
-			GenericGuildEvent: &events.GenericGuildEvent{
-				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-				Guild:        bot.Caches.GuildCache().Get(payload.GuildID),
-			},
-			RoleID: payload.Role.ID,
-			Role:   bot.EntityBuilder.CreateRole(payload.GuildID, payload.Role, core.CacheStrategyYes),
+			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+			GuildID:      payload.GuildID,
+			RoleID:       payload.Role.ID,
+			Role:         bot.EntityBuilder.CreateRole(payload.GuildID, payload.Role, core.CacheStrategyYes),
 		},
 	})
 }

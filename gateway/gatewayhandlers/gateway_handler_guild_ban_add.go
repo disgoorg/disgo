@@ -24,11 +24,8 @@ func (h *gatewayHandlerGuildBanAdd) HandleGatewayEvent(bot *core.Bot, sequenceNu
 	payload := *v.(*discord.GuildBanAddGatewayEvent)
 
 	bot.EventManager.Dispatch(&events.GuildBanEvent{
-		GenericGuildEvent: &events.GenericGuildEvent{
-			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-			GuildID:      payload.GuildID,
-			Guild:        bot.Caches.GuildCache().Get(payload.GuildID),
-		},
-		User: bot.EntityBuilder.CreateUser(payload.User, core.CacheStrategyNo),
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+		GuildID:      payload.GuildID,
+		User:         bot.EntityBuilder.CreateUser(payload.User, core.CacheStrategyNo),
 	})
 }

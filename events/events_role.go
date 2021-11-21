@@ -8,8 +8,8 @@ import (
 // GenericRoleEvent generic core.Role event
 type GenericRoleEvent struct {
 	*GenericEvent
-	GuildId discord.Snowflake
-	RoleID discord.Snowflake
+	GuildID discord.Snowflake
+	RoleID  discord.Snowflake
 	Role   *core.Role
 }
 

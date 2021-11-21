@@ -30,19 +30,21 @@ type GuildMemberLeaveEvent struct {
 	*GenericEvent
 	GuildID discord.Snowflake
 	User    *core.User
+	Member  *core.Member
 }
 
-// GuildMemberTypingEvent indicates that a core.Member started typing in a core.BaseGuildMessageChannel(requires discord.GatewayIntentGuildMessageTyping)
-type GuildMemberTypingEvent struct {
+// GuildMemberTypingStartEvent indicates that a core.Member started typing in a core.BaseGuildMessageChannel(requires discord.GatewayIntentGuildMessageTyping)
+type GuildMemberTypingStartEvent struct {
 	*GenericEvent
 	ChannelID discord.Snowflake
 	UserID    discord.Snowflake
 	GuildID   discord.Snowflake
 	Timestamp time.Time
+	Member    *core.Member
 }
 
-// MessageChannel returns the core.BaseGuildMessageChannel the GuildMemberTypingEvent happened in
-func (e GuildMemberTypingEvent) MessageChannel() core.BaseGuildMessageChannel {
+// Channel returns the core.BaseGuildMessageChannel the GuildMemberTypingStartEvent happened in
+func (e GuildMemberTypingStartEvent) Channel() core.BaseGuildMessageChannel {
 	if ch := e.Bot().Caches.ChannelCache().Get(e.ChannelID); ch != nil {
 		return ch.(core.BaseGuildMessageChannel)
 	}

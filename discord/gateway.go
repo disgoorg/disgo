@@ -1,6 +1,10 @@
 package discord
 
-import "github.com/DisgoOrg/disgo/json"
+import (
+	"time"
+
+	"github.com/DisgoOrg/disgo/json"
+)
 
 type Gateway struct {
 	URL string `json:"url"`
@@ -101,9 +105,22 @@ type TypingStartGatewayEvent struct {
 	ChannelID Snowflake
 	GuildID   *Snowflake
 	UserID    Snowflake
-	Timestamp Time
+	Timestamp time.Time
 	Member    *Member
 	User      User
+}
+
+func (e *TypingStartGatewayEvent) UnmarshalJSON(data []byte) error {
+	type typingStartGatewayEvent TypingStartGatewayEvent
+    var v struct {
+        Timestamp int64 `json:"timestamp"`
+        typingStartGatewayEvent
+    }
+    if err := json.Unmarshal(data, &v); err != nil {
+        return err
+    }
+    e.Timestamp = time.Unix(v.Timestamp, 0)
+    return nil
 }
 
 type WebhooksUpdateGatewayEvent struct {
@@ -160,7 +177,7 @@ func (e *IntegrationUpdateGatewayEvent) UnmarshalJSON(data []byte) error {
 }
 
 type IntegrationDeleteGatewayEvent struct {
-	ID            Snowflake `json:"id"`
-	GuildID       Snowflake `json:"guild_id"`
-	ApplicationID Snowflake `json:"application_id"`
+	ID            Snowflake  `json:"id"`
+	GuildID       Snowflake  `json:"guild_id"`
+	ApplicationID *Snowflake `json:"application_id"`
 }

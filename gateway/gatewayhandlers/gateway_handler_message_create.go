@@ -21,30 +21,38 @@ func (h *gatewayHandlerMessageCreate) New() interface{} {
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerMessageCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
-	message := *v.(*discord.Message)
+	payload := *v.(*discord.Message)
 
-	genericMessageEvent := &events.GenericMessageEvent{
-		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-		MessageID:    message.ID,
-		Message:      bot.EntityBuilder.CreateMessage(message, core.CacheStrategyYes),
-		ChannelID:    message.ChannelID,
-	}
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
+	message := bot.EntityBuilder.CreateMessage(payload, core.CacheStrategyYes)
 
 	bot.EventManager.Dispatch(&events.MessageCreateEvent{
-		GenericMessageEvent: genericMessageEvent,
+		GenericMessageEvent: &events.GenericMessageEvent{
+			GenericEvent: genericEvent,
+			MessageID:    payload.ID,
+			Message:      message,
+			ChannelID:    payload.ChannelID,
+			GuildID:      payload.GuildID,
+		},
 	})
 
 	if message.GuildID == nil {
 		bot.EventManager.Dispatch(&events.DMMessageCreateEvent{
 			GenericDMMessageEvent: &events.GenericDMMessageEvent{
-				GenericMessageEvent: genericMessageEvent,
+				GenericEvent: genericEvent,
+				MessageID:    payload.ID,
+				Message:      message,
+				ChannelID:    payload.ChannelID,
 			},
 		})
 	} else {
 		bot.EventManager.Dispatch(&events.GuildMessageCreateEvent{
 			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
-				GenericMessageEvent: genericMessageEvent,
-				GuildID:             *message.GuildID,
+				GenericEvent: genericEvent,
+				MessageID:    payload.ID,
+				Message:      message,
+				ChannelID:    payload.ChannelID,
+				GuildID:      *payload.GuildID,
 			},
 		})
 	}

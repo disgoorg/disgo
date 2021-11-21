@@ -21,56 +21,57 @@ func (h *gatewayHandlerVoiceStateUpdate) New() interface{} {
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
-	voiceState := *v.(*discord.VoiceState)
+	payload := *v.(*discord.VoiceState)
 
-	oldVoiceState := bot.Caches.VoiceStateCache().GetCopy(voiceState.GuildID, voiceState.UserID)
+	oldVoiceState := bot.Caches.VoiceStateCache().GetCopy(payload.GuildID, payload.UserID)
 
-	var member *core.Member
-	if voiceState.Member != nil {
-		member = bot.EntityBuilder.CreateMember(voiceState.Member.GuildID, *voiceState.Member, core.CacheStrategyYes)
-	}
-	coreVoiceState := bot.EntityBuilder.CreateVoiceState(voiceState, core.CacheStrategyYes)
+	voiceState := bot.EntityBuilder.CreateVoiceState(payload, core.CacheStrategyYes)
 
 	if oldVoiceState != nil && oldVoiceState.ChannelID != nil {
 		if channel := bot.Caches.ChannelCache().Get(*oldVoiceState.ChannelID); channel != nil {
 			if ch, ok := channel.(*core.GuildVoiceChannel); ok {
-				delete(ch.ConnectedMemberIDs, coreVoiceState.UserID)
+				delete(ch.ConnectedMemberIDs, voiceState.UserID)
 			} else if ch, ok := channel.(*core.GuildStageVoiceChannel); ok {
-				delete(ch.ConnectedMemberIDs, coreVoiceState.UserID)
+				delete(ch.ConnectedMemberIDs, voiceState.UserID)
 			}
 		}
 	}
 
-	if coreVoiceState.ChannelID != nil {
-		if channel := bot.Caches.ChannelCache().Get(*coreVoiceState.ChannelID); channel != nil {
+	if voiceState.ChannelID != nil {
+		if channel := bot.Caches.ChannelCache().Get(*voiceState.ChannelID); channel != nil {
 			if ch, ok := channel.(*core.GuildVoiceChannel); ok {
-				ch.ConnectedMemberIDs[coreVoiceState.UserID] = struct{}{}
+				ch.ConnectedMemberIDs[voiceState.UserID] = struct{}{}
 			} else if ch, ok := channel.(*core.GuildStageVoiceChannel); ok {
-				ch.ConnectedMemberIDs[coreVoiceState.UserID] = struct{}{}
+				ch.ConnectedMemberIDs[voiceState.UserID] = struct{}{}
 			}
 
 		}
 	}
 
 	genericGuildVoiceEvent := &events.GenericGuildVoiceEvent{
-		GenericGuildMemberEvent: &events.GenericGuildMemberEvent{
-			GenericGuildEvent: &events.GenericGuildEvent{
-				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-				Guild:        coreVoiceState.Guild(),
-			},
-			Member: member,
-		},
-		VoiceState: coreVoiceState,
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+		VoiceState:   voiceState,
 	}
 
-	bot.EventManager.Dispatch(&events.GuildVoiceStateUpdateEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent, OldVoiceState: oldVoiceState})
+	bot.EventManager.Dispatch(&events.GuildVoiceStateUpdateEvent{
+		GenericGuildVoiceEvent: genericGuildVoiceEvent,
+		OldVoiceState:          oldVoiceState,
+	})
 
-	if oldVoiceState != nil && oldVoiceState.ChannelID != nil && voiceState.ChannelID != nil {
-		bot.EventManager.Dispatch(&events.GuildVoiceMoveEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent, OldVoiceState: oldVoiceState})
-	} else if (oldVoiceState == nil || oldVoiceState.ChannelID == nil) && voiceState.ChannelID != nil {
-		bot.EventManager.Dispatch(&events.GuildVoiceJoinEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent})
-	} else if voiceState.ChannelID == nil {
-		bot.EventManager.Dispatch(&events.GuildVoiceLeaveEvent{GenericGuildVoiceEvent: genericGuildVoiceEvent, OldVoiceState: oldVoiceState})
+	if oldVoiceState != nil && oldVoiceState.ChannelID != nil && payload.ChannelID != nil {
+		bot.EventManager.Dispatch(&events.GuildVoiceMoveEvent{
+			GenericGuildVoiceEvent: genericGuildVoiceEvent,
+			OldVoiceState:          oldVoiceState,
+		})
+	} else if (oldVoiceState == nil || oldVoiceState.ChannelID == nil) && payload.ChannelID != nil {
+		bot.EventManager.Dispatch(&events.GuildVoiceJoinEvent{
+			GenericGuildVoiceEvent: genericGuildVoiceEvent,
+		})
+	} else if payload.ChannelID == nil {
+		bot.EventManager.Dispatch(&events.GuildVoiceLeaveEvent{
+			GenericGuildVoiceEvent: genericGuildVoiceEvent,
+			OldVoiceState:          oldVoiceState,
+		})
 	} else {
 		bot.Logger.Warnf("could not decide which GuildVoiceEvent to fire")
 	}

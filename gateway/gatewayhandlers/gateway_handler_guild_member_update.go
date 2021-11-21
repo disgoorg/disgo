@@ -21,17 +21,15 @@ func (h *gatewayHandlerGuildMemberUpdate) New() interface{} {
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerGuildMemberUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
-	member := *v.(*discord.Member)
+	payload := *v.(*discord.Member)
 
-	oldCoreMember := bot.Caches.MemberCache().GetCopy(member.GuildID, member.User.ID)
+	oldCoreMember := bot.Caches.MemberCache().GetCopy(payload.GuildID, payload.User.ID)
 
 	bot.EventManager.Dispatch(&events.GuildMemberUpdateEvent{
 		GenericGuildMemberEvent: &events.GenericGuildMemberEvent{
-			GenericGuildEvent: &events.GenericGuildEvent{
-				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-				Guild:        bot.Caches.GuildCache().Get(member.GuildID),
-			},
-			Member: bot.EntityBuilder.CreateMember(member.GuildID, member, core.CacheStrategyYes),
+			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+			GuildID:      payload.GuildID,
+			Member:       bot.EntityBuilder.CreateMember(payload.GuildID, payload, core.CacheStrategyYes),
 		},
 		OldMember: oldCoreMember,
 	})

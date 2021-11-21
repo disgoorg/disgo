@@ -24,9 +24,7 @@ func (h *gatewayHandlerGuildIntegrationsUpdate) HandleGatewayEvent(bot *core.Bot
 	payload := *v.(*discord.GuildIntegrationsUpdateGatewayEvent)
 
 	bot.EventManager.Dispatch(&events.GuildIntegrationsUpdateEvent{
-		GenericIntegrationEvent: &events.GenericIntegrationEvent{
-			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-			GuildId:      payload.GuildID,
-		},
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+		GuildID:      payload.GuildID,
 	})
 }

@@ -23,28 +23,27 @@ func (h *gatewayHandlerMessageReactionRemoveAll) New() interface{} {
 func (h *gatewayHandlerMessageReactionRemoveAll) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	messageReaction := *v.(*discord.GatewayEventMessageReactionRemoveAll)
 
-	genericMessageEvent := &events.GenericMessageEvent{
-		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-		MessageID:    messageReaction.MessageID,
-		Message:      bot.Caches.MessageCache().Get(messageReaction.ChannelID, messageReaction.MessageID),
-		ChannelID:    messageReaction.ChannelID,
-	}
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
+
 	bot.EventManager.Dispatch(&events.MessageReactionRemoveAllEvent{
-		GenericMessageEvent: genericMessageEvent,
+		GenericEvent: genericEvent,
+		MessageID:    messageReaction.MessageID,
+		ChannelID:    messageReaction.ChannelID,
+		GuildID:      messageReaction.GuildID,
 	})
 
 	if messageReaction.GuildID == nil {
 		bot.EventManager.Dispatch(&events.DMMessageReactionRemoveAllEvent{
-			GenericDMMessageEvent: &events.GenericDMMessageEvent{
-				GenericMessageEvent: genericMessageEvent,
-			},
+			GenericEvent: genericEvent,
+			MessageID:    messageReaction.MessageID,
+			ChannelID:    messageReaction.ChannelID,
 		})
 	} else {
 		bot.EventManager.Dispatch(&events.GuildMessageReactionRemoveAllEvent{
-			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
-				GenericMessageEvent: genericMessageEvent,
-				GuildID:             *messageReaction.GuildID,
-			},
+			GenericEvent: genericEvent,
+			MessageID:    messageReaction.MessageID,
+			ChannelID:    messageReaction.ChannelID,
+			GuildID:      *messageReaction.GuildID,
 		})
 	}
 }

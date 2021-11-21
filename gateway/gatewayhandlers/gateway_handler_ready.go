@@ -24,8 +24,9 @@ func (h *gatewayHandlerReady) HandleGatewayEvent(bot *core.Bot, sequenceNumber i
 	readyEvent := *v.(*discord.GatewayEventReady)
 
 	bot.ApplicationID = readyEvent.Application.ID
+	bot.ClientID = readyEvent.User.ID
 
-	bot.EntityBuilder.CreateSelfUser(readyEvent.SelfUser, core.CacheStrategyYes)
+	bot.EntityBuilder.CreateSelfUser(readyEvent.User, core.CacheStrategyYes)
 
 	var shardID int
 	if readyEvent.Shard != nil {

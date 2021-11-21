@@ -21,33 +21,32 @@ func (h *gatewayHandlerMessageReactionRemoveEmoji) New() interface{} {
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerMessageReactionRemoveEmoji) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
-	messageReaction := *v.(*discord.GatewayEventMessageReactionRemoveEmoji)
+	payload := *v.(*discord.GatewayEventMessageReactionRemoveEmoji)
 
-	genericMessageEvent := &events.GenericMessageEvent{
-		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-		MessageID:    messageReaction.MessageID,
-		Message:      bot.Caches.MessageCache().Get(messageReaction.ChannelID, messageReaction.MessageID),
-		ChannelID:    messageReaction.ChannelID,
-	}
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
+
 	bot.EventManager.Dispatch(&events.MessageReactionRemoveEmojiEvent{
-		GenericMessageEvent: genericMessageEvent,
-		Emoji:               messageReaction.Emoji,
+		GenericEvent: genericEvent,
+		MessageID:    payload.MessageID,
+		ChannelID:    payload.ChannelID,
+		GuildID:      payload.GuildID,
+		Emoji:        payload.Emoji,
 	})
 
-	if messageReaction.GuildID == nil {
+	if payload.GuildID == nil {
 		bot.EventManager.Dispatch(&events.DMMessageReactionRemoveEmojiEvent{
-			GenericDMMessageEvent: &events.GenericDMMessageEvent{
-				GenericMessageEvent: genericMessageEvent,
-			},
-			Emoji: messageReaction.Emoji,
+			GenericEvent: genericEvent,
+			MessageID:    payload.MessageID,
+			ChannelID:    payload.ChannelID,
+			Emoji:        payload.Emoji,
 		})
 	} else {
 		bot.EventManager.Dispatch(&events.GuildMessageReactionRemoveEmojiEvent{
-			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
-				GenericMessageEvent: genericMessageEvent,
-				GuildID:             *messageReaction.GuildID,
-			},
-			Emoji: messageReaction.Emoji,
+			GenericEvent: genericEvent,
+			MessageID:    payload.MessageID,
+			ChannelID:    payload.ChannelID,
+			GuildID:      *payload.GuildID,
+			Emoji:        payload.Emoji,
 		})
 	}
 }

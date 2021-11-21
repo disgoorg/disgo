@@ -23,28 +23,47 @@ func (h *gatewayHandlerChannelUpdate) New() interface{} {
 func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	channel := v.(*discord.UnmarshalChannel).Channel
 
-	oldCoreChannel := bot.Caches.ChannelCache().GetCopy(channel.ID())
-
-	genericChannelEvent := &events.GenericChannelEvent{
-		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-		ChannelID:    channel.ID(),
-		Channel:      bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyNo),
-	}
+	oldChannel := bot.Caches.ChannelCache().GetCopy(channel.ID())
 
 	if ch, ok := channel.(discord.GuildChannel); ok {
+		var (
+			oldGuildChannel core.GuildChannel
+			guildChannel    core.GuildChannel
+		)
+		if c, ok := oldChannel.(core.GuildChannel); ok {
+			oldGuildChannel = c
+		}
+		if c, ok := bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyNo).(core.GuildChannel); ok {
+			guildChannel = c
+		}
+		bot.Caches.ChannelCache().Remove(channel.ID())
 		bot.EventManager.Dispatch(&events.GuildChannelUpdateEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
-				GenericChannelEvent: genericChannelEvent,
-				GuildID:             ch.GuildID(),
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+				ChannelID:    channel.ID(),
+				Channel:      guildChannel,
+				GuildID:      ch.GuildID(),
 			},
-			OldChannel: oldCoreChannel.(core.GuildChannel),
+			OldChannel: oldGuildChannel,
 		})
 	} else {
+		var (
+			oldDmChannel *core.DMChannel
+			dmChannel    *core.DMChannel
+		)
+		if c, ok := oldChannel.(*core.DMChannel); ok {
+			oldDmChannel = c
+		}
+		if c, ok := bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes).(*core.DMChannel); ok {
+			dmChannel = c
+		}
 		bot.EventManager.Dispatch(&events.DMChannelUpdateEvent{
 			GenericDMChannelEvent: &events.GenericDMChannelEvent{
-				GenericChannelEvent: genericChannelEvent,
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+				ChannelID:    channel.ID(),
+				Channel:      dmChannel,
 			},
-			OldChannel: oldCoreChannel,
+			OldChannel: oldDmChannel,
 		})
 	}
 }

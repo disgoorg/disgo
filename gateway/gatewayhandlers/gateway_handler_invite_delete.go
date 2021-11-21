@@ -25,13 +25,10 @@ func (h *gatewayHandlerInviteDelete) HandleGatewayEvent(bot *core.Bot, sequenceN
 
 	bot.EventManager.Dispatch(&events.GuildInviteDeleteEvent{
 		GenericGuildInviteEvent: &events.GenericGuildInviteEvent{
-			GenericGuildEvent: &events.GenericGuildEvent{
-				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-				GuildID:      *payload.GuildID,
-				Guild:        bot.Caches.GuildCache().Get(*payload.GuildID),
-			},
-			Code:      payload.Code,
-			ChannelID: payload.ChannelID,
+			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+			GuildID:      *payload.GuildID,
+			ChannelID:    payload.ChannelID,
+			Code:         payload.Code,
 		},
 	})
 }

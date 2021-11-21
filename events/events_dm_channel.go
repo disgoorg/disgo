@@ -7,7 +7,7 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// GenericDMChannelEvent is called upon receiving DMChannelCreateEvent, DMChannelUpdateEvent, DMChannelDeleteEvent or DMChannelUserTypingEvent
+// GenericDMChannelEvent is called upon receiving DMChannelCreateEvent, DMChannelUpdateEvent, DMChannelDeleteEvent or DMChannelUserTypingStartEvent
 type GenericDMChannelEvent struct {
 	*GenericEvent
 	Channel   *core.DMChannel
@@ -22,7 +22,7 @@ type DMChannelCreateEvent struct {
 // DMChannelUpdateEvent indicates that a core.DMChannel got updated
 type DMChannelUpdateEvent struct {
 	*GenericDMChannelEvent
-	OldChannel core.Channel
+	OldChannel *core.DMChannel
 }
 
 // DMChannelDeleteEvent indicates that a core.DMChannel got deleted
@@ -30,16 +30,23 @@ type DMChannelDeleteEvent struct {
 	*GenericDMChannelEvent
 }
 
-// DMChannelUserTypingEvent indicates that a core.User started typing in a core.DMChannel(requires discord.GatewayIntentDirectMessageTyping)
-type DMChannelUserTypingEvent struct {
+type DMChannelPinsUpdateEvent struct {
+	*GenericEvent
+	ChannelID           discord.Snowflake
+	NewLastPinTimestamp *discord.Time
+	OldLastPinTimestamp *discord.Time
+}
+
+// DMChannelUserTypingStartEvent indicates that a core.User started typing in a core.DMChannel(requires discord.GatewayIntentDirectMessageTyping)
+type DMChannelUserTypingStartEvent struct {
 	*GenericEvent
 	ChannelID discord.Snowflake
 	UserID    discord.Snowflake
 	Timestamp time.Time
 }
 
-// DMChannel returns the core.DMChannel the DMChannelUserTypingEvent happened in
-func (e DMChannelUserTypingEvent) DMChannel() *core.DMChannel {
+// Channel returns the core.DMChannel the DMChannelUserTypingStartEvent happened in
+func (e DMChannelUserTypingStartEvent) Channel() *core.DMChannel {
 	if ch := e.Bot().Caches.ChannelCache().Get(e.ChannelID); ch != nil {
 		return ch.(*core.DMChannel)
 	}

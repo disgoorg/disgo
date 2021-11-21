@@ -24,10 +24,8 @@ func (h *gatewayHandlerIntegrationDelete) HandleGatewayEvent(bot *core.Bot, sequ
 	payload := *v.(*discord.IntegrationDeleteGatewayEvent)
 
 	bot.EventManager.Dispatch(&events.IntegrationDeleteEvent{
-		GenericIntegrationEvent: &events.GenericIntegrationEvent{
-			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-			GuildId:      payload.GuildID,
-		},
+		GenericEvent:  events.NewGenericEvent(bot, sequenceNumber),
+		GuildID:       payload.GuildID,
 		ID:            payload.ID,
 		ApplicationID: payload.ApplicationID,
 	})

@@ -2,11 +2,13 @@ package events
 
 import (
 	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/discord"
 )
 
 type GenericStageInstanceEvent struct {
 	*GenericEvent
-	StageInstance *core.StageInstance
+	StageInstanceID discord.Snowflake
+	StageInstance   *core.StageInstance
 }
 
 type StageInstanceCreateEvent struct {

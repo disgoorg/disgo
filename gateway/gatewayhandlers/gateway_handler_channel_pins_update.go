@@ -51,26 +51,18 @@ func (h *gatewayHandlerChannelPinsUpdate) HandleGatewayEvent(bot *core.Bot, sequ
 		}
 	}
 
-	genericChannelEvent := &events.GenericChannelEvent{
-		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-		ChannelID:    payload.ChannelID,
-		Channel:      channel,
-	}
-
 	if payload.GuildID == nil {
 		bot.EventManager.Dispatch(&events.DMChannelPinsUpdateEvent{
-			GenericDMChannelEvent: &events.GenericDMChannelEvent{
-				GenericChannelEvent: genericChannelEvent,
-			},
+			GenericEvent:        events.NewGenericEvent(bot, sequenceNumber),
+			ChannelID:           payload.ChannelID,
 			OldLastPinTimestamp: oldTime,
 			NewLastPinTimestamp: payload.LastPinTimestamp,
 		})
 	} else {
 		bot.EventManager.Dispatch(&events.GuildChannelPinsUpdateEvent{
-			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
-				GenericChannelEvent: genericChannelEvent,
-				GuildID:             *payload.GuildID,
-			},
+			GenericEvent:        events.NewGenericEvent(bot, sequenceNumber),
+			GuildID:             *payload.GuildID,
+			ChannelID:           payload.ChannelID,
 			OldLastPinTimestamp: oldTime,
 			NewLastPinTimestamp: payload.LastPinTimestamp,
 		})

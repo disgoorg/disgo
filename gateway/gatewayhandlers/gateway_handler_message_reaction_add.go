@@ -21,47 +21,46 @@ func (h *gatewayHandlerMessageReactionAdd) New() interface{} {
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerMessageReactionAdd) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
-	messageReaction := *v.(*discord.GatewayEventMessageReactionAdd)
+	payload := *v.(*discord.GatewayEventMessageReactionAdd)
 
-	genericMessageEvent := &events.GenericMessageEvent{
-		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-		MessageID:    messageReaction.MessageID,
-		Message:      bot.Caches.MessageCache().Get(messageReaction.ChannelID, messageReaction.MessageID),
-		ChannelID:    messageReaction.ChannelID,
-		GuildID:      messageReaction.GuildID,
-	}
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
+
 	var member *core.Member
-	if messageReaction.Member != nil {
-		member = bot.EntityBuilder.CreateMember(*messageReaction.GuildID, *messageReaction.Member, core.CacheStrategyYes)
+	if payload.Member != nil {
+		member = bot.EntityBuilder.CreateMember(*payload.GuildID, *payload.Member, core.CacheStrategyYes)
 	}
+
 	bot.EventManager.Dispatch(&events.MessageReactionAddEvent{
 		GenericReactionEvent: &events.GenericReactionEvent{
-			GenericMessageEvent: genericMessageEvent,
-			UserID:              messageReaction.UserID,
-			Emoji:               messageReaction.Emoji,
+			GenericEvent: genericEvent,
+			MessageID:    payload.MessageID,
+			ChannelID:    payload.ChannelID,
+			GuildID:      payload.GuildID,
+			UserID:       payload.UserID,
+			Emoji:        payload.Emoji,
 		},
 		Member: member,
 	})
 
-	if messageReaction.GuildID == nil {
+	if payload.GuildID == nil {
 		bot.EventManager.Dispatch(&events.DMMessageReactionAddEvent{
 			GenericDMMessageReactionEvent: &events.GenericDMMessageReactionEvent{
-				GenericDMMessageEvent: &events.GenericDMMessageEvent{
-					GenericMessageEvent: genericMessageEvent,
-				},
-				UserID: messageReaction.UserID,
-				Emoji:  messageReaction.Emoji,
+				GenericEvent: genericEvent,
+				MessageID:    payload.MessageID,
+				ChannelID:    payload.ChannelID,
+				UserID:       payload.UserID,
+				Emoji:        payload.Emoji,
 			},
 		})
 	} else {
 		bot.EventManager.Dispatch(&events.GuildMessageReactionAddEvent{
 			GenericGuildMessageReactionEvent: &events.GenericGuildMessageReactionEvent{
-				GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
-					GenericMessageEvent: genericMessageEvent,
-					GuildID:             *messageReaction.GuildID,
-				},
-				UserID: messageReaction.UserID,
-				Emoji:  messageReaction.Emoji,
+				GenericEvent: genericEvent,
+				MessageID:    payload.MessageID,
+				ChannelID:    payload.ChannelID,
+				GuildID:      *payload.GuildID,
+				UserID:       payload.UserID,
+				Emoji:        payload.Emoji,
 			},
 			Member: member,
 		})

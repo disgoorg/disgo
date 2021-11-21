@@ -57,17 +57,12 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, se
 		bot.Caches.StickerCache().Remove(payload.GuildID, stickerID)
 	}
 
-	genericGuildEvent := &events.GenericGuildEvent{
-		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-		GuildID:      payload.GuildID,
-		Guild:        bot.Caches.GuildCache().Get(payload.GuildID),
-	}
-
 	for _, sticker := range newStickers {
 		bot.EventManager.Dispatch(&events.StickerCreateEvent{
 			GenericStickerEvent: &events.GenericStickerEvent{
-				GenericGuildEvent: genericGuildEvent,
-				Sticker:           sticker,
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+				GuildID:      payload.GuildID,
+				Sticker:      sticker,
 			},
 		})
 	}
@@ -75,8 +70,9 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, se
 	for _, sticker := range updatedStickers {
 		bot.EventManager.Dispatch(&events.StickerUpdateEvent{
 			GenericStickerEvent: &events.GenericStickerEvent{
-				GenericGuildEvent: genericGuildEvent,
-				Sticker:           sticker,
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+				GuildID:      payload.GuildID,
+				Sticker:      sticker,
 			},
 		})
 	}
@@ -84,8 +80,9 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, se
 	for _, sticker := range oldStickers {
 		bot.EventManager.Dispatch(&events.StickerDeleteEvent{
 			GenericStickerEvent: &events.GenericStickerEvent{
-				GenericGuildEvent: genericGuildEvent,
-				Sticker:           sticker,
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+				GuildID:      payload.GuildID,
+				Sticker:      sticker,
 			},
 		})
 	}

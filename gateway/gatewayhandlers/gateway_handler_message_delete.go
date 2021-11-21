@@ -27,30 +27,37 @@ func (h *gatewayHandlerMessageDelete) HandleGatewayEvent(bot *core.Bot, sequence
 }
 
 func handleMessageDelete(bot *core.Bot, sequenceNumber int, messageID discord.Snowflake, channelID discord.Snowflake, guildID *discord.Snowflake) {
-	genericMessageEvent := &events.GenericMessageEvent{
-		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-		MessageID:    messageID,
-		Message:      bot.Caches.MessageCache().GetCopy(channelID, messageID),
-		ChannelID:    channelID,
-	}
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
+	message := bot.Caches.MessageCache().GetCopy(channelID, messageID)
 	bot.Caches.MessageCache().Remove(channelID, messageID)
 
 	bot.EventManager.Dispatch(&events.MessageDeleteEvent{
-		GenericMessageEvent: genericMessageEvent,
+		GenericMessageEvent: &events.GenericMessageEvent{
+			GenericEvent: genericEvent,
+			MessageID:    messageID,
+			Message:      message,
+			ChannelID:    channelID,
+		},
 	})
 
 	if guildID == nil {
 		bot.EventManager.Dispatch(&events.DMMessageDeleteEvent{
 			GenericDMMessageEvent: &events.GenericDMMessageEvent{
-				GenericMessageEvent: genericMessageEvent,
+				GenericEvent: genericEvent,
+				MessageID:    messageID,
+				Message:      message,
+				ChannelID:    channelID,
 			},
 		})
 	} else {
 		bot.EventManager.Dispatch(&events.GuildMessageDeleteEvent{
 			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
-				GenericMessageEvent: genericMessageEvent,
-				GuildID:             *guildID,
+				GenericEvent: genericEvent,
+				MessageID:    messageID,
+				Message:      message,
+				ChannelID:    channelID,
+				GuildID:      *guildID,
 			},
 		})
 	}
