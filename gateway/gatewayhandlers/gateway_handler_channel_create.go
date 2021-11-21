@@ -33,7 +33,7 @@ func (h *gatewayHandlerChannelCreate) HandleGatewayEvent(bot *core.Bot, sequence
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				ChannelID:    channel.ID(),
 				Channel:      guildChannel,
-				GuildID:             ch.GuildID(),
+				GuildID:      ch.GuildID(),
 			},
 		})
 	} else {

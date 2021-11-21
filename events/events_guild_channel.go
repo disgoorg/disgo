@@ -36,8 +36,8 @@ type GuildChannelDeleteEvent struct {
 
 type GuildChannelPinsUpdateEvent struct {
 	*GenericEvent
-	GuildID          discord.Snowflake
-	ChannelID        discord.Snowflake
+	GuildID             discord.Snowflake
+	ChannelID           discord.Snowflake
 	NewLastPinTimestamp *discord.Time
 	OldLastPinTimestamp *discord.Time
 }

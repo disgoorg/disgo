@@ -112,15 +112,15 @@ type TypingStartGatewayEvent struct {
 
 func (e *TypingStartGatewayEvent) UnmarshalJSON(data []byte) error {
 	type typingStartGatewayEvent TypingStartGatewayEvent
-    var v struct {
-        Timestamp int64 `json:"timestamp"`
-        typingStartGatewayEvent
-    }
-    if err := json.Unmarshal(data, &v); err != nil {
-        return err
-    }
-    e.Timestamp = time.Unix(v.Timestamp, 0)
-    return nil
+	var v struct {
+		Timestamp int64 `json:"timestamp"`
+		typingStartGatewayEvent
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	e.Timestamp = time.Unix(v.Timestamp, 0)
+	return nil
 }
 
 type WebhooksUpdateGatewayEvent struct {

@@ -31,8 +31,8 @@ func (h *gatewayHandlerGuildRoleDelete) HandleGatewayEvent(bot *core.Bot, sequen
 		GenericRoleEvent: &events.GenericRoleEvent{
 			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 			GuildID:      payload.GuildID,
-			RoleID: payload.RoleID,
-			Role:   role,
+			RoleID:       payload.RoleID,
+			Role:         role,
 		},
 	})
 }

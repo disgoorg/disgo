@@ -8,7 +8,6 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-
 type User struct {
 	discord.User
 	Bot *Bot

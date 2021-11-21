@@ -33,9 +33,9 @@ func (h *gatewayHandlerStageInstanceDelete) HandleGatewayEvent(bot *core.Bot, se
 
 	bot.EventManager.Dispatch(&events.StageInstanceDeleteEvent{
 		GenericStageInstanceEvent: &events.GenericStageInstanceEvent{
-			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+			GenericEvent:    events.NewGenericEvent(bot, sequenceNumber),
 			StageInstanceID: payload.ID,
-			StageInstance: bot.EntityBuilder.CreateStageInstance(payload, core.CacheStrategyNo),
+			StageInstance:   bot.EntityBuilder.CreateStageInstance(payload, core.CacheStrategyNo),
 		},
 	})
 }

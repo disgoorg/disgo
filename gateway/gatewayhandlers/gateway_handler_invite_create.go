@@ -27,8 +27,8 @@ func (h *gatewayHandlerInviteCreate) HandleGatewayEvent(bot *core.Bot, sequenceN
 		GenericGuildInviteEvent: &events.GenericGuildInviteEvent{
 			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 			GuildID:      *invite.GuildID,
-			Code:      invite.Code,
-			ChannelID: invite.ChannelID,
+			Code:         invite.Code,
+			ChannelID:    invite.ChannelID,
 		},
 		Invite: bot.EntityBuilder.CreateInvite(invite, core.CacheStrategyYes),
 	})

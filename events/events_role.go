@@ -10,7 +10,7 @@ type GenericRoleEvent struct {
 	*GenericEvent
 	GuildID discord.Snowflake
 	RoleID  discord.Snowflake
-	Role   *core.Role
+	Role    *core.Role
 }
 
 // RoleCreateEvent indicates that a core.Role got created
