@@ -46,14 +46,7 @@ func (i *AutocompleteInteraction) ResultMapFloat(resultMap map[string]float64, o
 
 // CommandPath returns the ApplicationCommand path
 func (i *AutocompleteInteraction) CommandPath() string {
-	path := i.Data.CommandName
-	if name := i.Data.SubCommandName; name != nil {
-		path += "/" + *name
-	}
-	if name := i.Data.SubCommandGroupName; name != nil {
-		path += "/" + *name
-	}
-	return path
+	return commandPath(i.Data.CommandName, i.Data.SubCommandName,i.Data.SubCommandGroupName)
 }
 
 // Guild returns the Guild from the Caches

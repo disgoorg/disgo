@@ -233,9 +233,7 @@ func (c *GuildTextChannel) DeleteWebhook(webhookID discord.Snowflake, opts ...re
 func (c *GuildTextChannel) Threads() []GuildThread {
 	var threads []GuildThread
 	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
-		if thread, ok := channel.(*GuildPrivateThread); ok && thread.ParentID == c.ID() {
-			threads = append(threads, thread)
-		} else if thread, ok := channel.(*GuildPublicThread); ok && thread.ParentID == c.ID() {
+		if thread, ok := channel.(GuildThread); ok && thread.ParentID() == c.ID() {
 			threads = append(threads, thread)
 		}
 	})
@@ -243,8 +241,8 @@ func (c *GuildTextChannel) Threads() []GuildThread {
 }
 
 func (c *GuildTextChannel) Thread(threadID discord.Snowflake) GuildThread {
-	if thread := c.Bot.Caches.Channels().Get(threadID); thread != nil {
-		return thread.(GuildThread)
+	if thread, ok := c.Bot.Caches.Channels().Get(threadID).(GuildThread); ok {
+		return thread
 	}
 	return nil
 }
@@ -252,7 +250,7 @@ func (c *GuildTextChannel) Thread(threadID discord.Snowflake) GuildThread {
 func (c *GuildTextChannel) PrivateThreads() []*GuildPrivateThread {
 	var threads []*GuildPrivateThread
 	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
-		if thread, ok := channel.(*GuildPrivateThread); ok && thread.ParentID == c.ID() {
+		if thread, ok := channel.(*GuildPrivateThread); ok && thread.ParentID() == c.ID() {
 			threads = append(threads, thread)
 		}
 	})
@@ -262,7 +260,7 @@ func (c *GuildTextChannel) PrivateThreads() []*GuildPrivateThread {
 func (c *GuildTextChannel) PublicThreads() []*GuildPublicThread {
 	var threads []*GuildPublicThread
 	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
-		if thread, ok := channel.(*GuildPublicThread); ok && thread.ParentID == c.ID() {
+		if thread, ok := channel.(*GuildPublicThread); ok && thread.ParentID() == c.ID() {
 			threads = append(threads, thread)
 		}
 	})
@@ -787,7 +785,7 @@ func (c *GuildNewsChannel) DeleteWebhook(webhookID discord.Snowflake, opts ...re
 func (c *GuildNewsChannel) Threads() []GuildThread {
 	var threads []GuildThread
 	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
-		if thread, ok := channel.(*GuildNewsThread); ok && thread.ParentID == c.ID() {
+		if thread, ok := channel.(*GuildNewsThread); ok && thread.ParentID() == c.ID() {
 			threads = append(threads, thread)
 		}
 	})
@@ -797,7 +795,7 @@ func (c *GuildNewsChannel) Threads() []GuildThread {
 func (c *GuildNewsChannel) NewsThreads() []*GuildNewsThread {
 	var threads []*GuildNewsThread
 	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
-		if thread, ok := channel.(*GuildNewsThread); ok && thread.ParentID == c.ID() {
+		if thread, ok := channel.(*GuildNewsThread); ok && thread.ParentID() == c.ID() {
 			threads = append(threads, thread)
 		}
 	})
@@ -805,8 +803,8 @@ func (c *GuildNewsChannel) NewsThreads() []*GuildNewsThread {
 }
 
 func (c *GuildNewsChannel) Thread(threadID discord.Snowflake) GuildThread {
-	if thread := c.Bot.Caches.Channels().Get(threadID); thread != nil {
-		return thread.(GuildThread)
+	if thread, ok := c.Bot.Caches.Channels().Get(threadID).(GuildThread); ok {
+		return thread
 	}
 	return nil
 }
@@ -814,7 +812,7 @@ func (c *GuildNewsChannel) Thread(threadID discord.Snowflake) GuildThread {
 func (c *GuildNewsChannel) PrivateThreads() []*GuildPrivateThread {
 	var threads []*GuildPrivateThread
 	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
-		if thread, ok := channel.(*GuildPrivateThread); ok && thread.ParentID == c.ID() {
+		if thread, ok := channel.(*GuildPrivateThread); ok && thread.ParentID() == c.ID() {
 			threads = append(threads, thread)
 		}
 	})
@@ -824,7 +822,7 @@ func (c *GuildNewsChannel) PrivateThreads() []*GuildPrivateThread {
 func (c *GuildNewsChannel) PublicThreads() []*GuildPublicThread {
 	var threads []*GuildPublicThread
 	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
-		if thread, ok := channel.(*GuildPublicThread); ok && thread.ParentID == c.ID() {
+		if thread, ok := channel.(*GuildPublicThread); ok && thread.ParentID() == c.ID() {
 			threads = append(threads, thread)
 		}
 	})
@@ -1084,11 +1082,11 @@ func (c *GuildNewsThread) Guild() *Guild {
 }
 
 func (c *GuildNewsThread) ParentMessageChannel() GuildMessageChannel {
-	return c.Bot.Caches.Channels().Get(c.ParentID).(GuildMessageChannel)
+	return c.Bot.Caches.Channels().Get(c.ParentID()).(GuildMessageChannel)
 }
 
 func (c *GuildNewsThread) Parent() *GuildNewsChannel {
-	return c.Bot.Caches.Channels().Get(c.ParentID).(*GuildNewsChannel)
+	return c.Bot.Caches.Channels().Get(c.ParentID()).(*GuildNewsChannel)
 }
 
 func (c *GuildNewsThread) Members() []*Member {
@@ -1274,11 +1272,11 @@ func (c *GuildPublicThread) Guild() *Guild {
 }
 
 func (c *GuildPublicThread) Parent() *GuildTextChannel {
-	return c.Bot.Caches.Channels().Get(c.ParentID).(*GuildTextChannel)
+	return c.Bot.Caches.Channels().Get(c.ParentID()).(*GuildTextChannel)
 }
 
 func (c *GuildPublicThread) ParentMessageChannel() GuildMessageChannel {
-	return c.Bot.Caches.Channels().Get(c.ParentID).(GuildMessageChannel)
+	return c.Bot.Caches.Channels().Get(c.ParentID()).(GuildMessageChannel)
 }
 
 func (c *GuildPublicThread) Members() []*Member {
@@ -1464,11 +1462,11 @@ func (c *GuildPrivateThread) Guild() *Guild {
 }
 
 func (c *GuildPrivateThread) Parent() *GuildTextChannel {
-	return c.Bot.Caches.Channels().Get(c.ParentID).(*GuildTextChannel)
+	return c.Bot.Caches.Channels().Get(c.ParentID()).(*GuildTextChannel)
 }
 
 func (c *GuildPrivateThread) ParentMessageChannel() GuildMessageChannel {
-	return c.Bot.Caches.Channels().Get(c.ParentID).(GuildMessageChannel)
+	return c.Bot.Caches.Channels().Get(c.ParentID()).(GuildMessageChannel)
 }
 
 func (c *GuildPrivateThread) Members() []*Member {

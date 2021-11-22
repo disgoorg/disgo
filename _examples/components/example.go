@@ -5,8 +5,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/DisgoOrg/disgo/bot"
-	"github.com/DisgoOrg/disgo/events"
+	"github.com/DisgoOrg/disgo/core/bot"
+	"github.com/DisgoOrg/disgo/core/events"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
@@ -27,7 +27,7 @@ func main() {
 		bot.WithGatewayOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
 		bot.WithEventListeners(&events.ListenerAdapter{
 			OnMessageCreate: func(event *events.MessageCreateEvent) {
-				if event.Message.Author.IsBot || event.Message.Author.IsSystem {
+				if event.Message.Author.Bot || event.Message.Author.System {
 					return
 				}
 				if event.Message.Content == "test" {

@@ -13,15 +13,15 @@ disgo is a [Discord](https://discord.com) API wrapper written in [Go](https://go
 
 ## Summary
 
-1.  [Features](#features)
-2.  [Missing Features](#missing-features)
-3.  [Getting Started](#getting-started)
-4.  [Documentation](#documentation)
-5.  [Examples](#examples)
-6.  [Related Projects](#related-projects)
-7.  [Why another library?](#why-another-library)
-8.  [Troubleshooting](#troubleshooting)
-9.  [Contributing](#contributing)
+1. [Features](#features)
+2. [Missing Features](#missing-features)
+3. [Getting Started](#getting-started)
+4. [Documentation](#documentation)
+5. [Examples](#examples)
+6. [Related Projects](#related-projects)
+7. [Why another library?](#why-another-library)
+8. [Troubleshooting](#troubleshooting)
+9. [Contributing](#contributing)
 10. [License](#license)
 
 ### Features

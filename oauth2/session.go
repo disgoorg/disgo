@@ -14,6 +14,7 @@ type Session interface {
 	Scopes() []discord.ApplicationScope
 	TokenType() discord.TokenType
 	Expiration() time.Time
+	Webhook() *discord.IncomingWebhook
 }
 
 type sessionImpl struct {
@@ -22,20 +23,29 @@ type sessionImpl struct {
 	scopes       []discord.ApplicationScope
 	tokenType    discord.TokenType
 	expiration   time.Time
+	webhook      *discord.IncomingWebhook
 }
 
 func (s *sessionImpl) AccessToken() string {
 	return s.accessToken
 }
+
 func (s *sessionImpl) RefreshToken() string {
 	return s.refreshToken
 }
+
 func (s *sessionImpl) Scopes() []discord.ApplicationScope {
 	return s.scopes
 }
+
 func (s *sessionImpl) TokenType() discord.TokenType {
 	return s.tokenType
 }
+
 func (s *sessionImpl) Expiration() time.Time {
 	return s.expiration
+}
+
+func (s *sessionImpl) Webhook() *discord.IncomingWebhook {
+	return s.webhook
 }

@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/DisgoOrg/disgo/events"
+	"github.com/DisgoOrg/disgo/core/events"
 
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
@@ -160,7 +160,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 }
 
 func messageListener(event *events.GuildMessageCreateEvent) {
-	if event.Message.Author.IsBot {
+	if event.Message.Author.Bot {
 		return
 	}
 
@@ -212,7 +212,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 	case "repeat":
 		go func() {
 			ch, cls := event.Bot().Collectors.NewMessageCollector(func(m *core.Message) bool {
-				return !m.Author.IsBot && m.ChannelID == event.ChannelID
+				return !m.Author.Bot && m.ChannelID == event.ChannelID
 			})
 
 			var count = 0

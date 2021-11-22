@@ -5,15 +5,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/DisgoOrg/disgo/bot"
-
-	"github.com/DisgoOrg/disgo/events"
-
 	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/core/bot"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
+	"github.com/DisgoOrg/disgo/gateway/sharding"
 	"github.com/DisgoOrg/disgo/info"
-	"github.com/DisgoOrg/disgo/sharding"
 	"github.com/DisgoOrg/log"
 )
 
@@ -64,7 +62,7 @@ func main() {
 }
 
 func onMessageCreate(event *events.MessageCreateEvent) {
-	if event.Message.Author.IsBot {
+	if event.Message.Author.Bot {
 		return
 	}
 	_, _ = event.Message.Reply(discord.NewMessageCreateBuilder().SetContent(event.Message.Content).Build())

@@ -32,8 +32,8 @@ type User struct {
 	Avatar        *string   `json:"avatar"`
 	Banner        *string   `json:"banner"`
 	AccentColor   *int      `json:"accent_color"`
-	IsBot         bool      `json:"bot"`
-	IsSystem      bool      `json:"system"`
+	Bot           bool      `json:"bot"`
+	System        bool      `json:"system"`
 	PublicFlags   UserFlags `json:"public_flags"`
 }
 
@@ -52,13 +52,27 @@ func (u User) Tag() string {
 // OAuth2User represents a full User returned by the oauth2 endpoints
 type OAuth2User struct {
 	User
-	MfaEnabled  *bool   `json:"mfa_enabled"`
-	Locale      *string `json:"locale"`
-	Verified    *bool   `json:"verified"`
-	Email       *string `json:"email"`
-	Flags       *int    `json:"flags"`
-	PremiumType *int    `json:"premium_type"`
+	// Requires ApplicationScopeIdentify
+	MfaEnabled  bool        `json:"mfa_enabled"`
+	Locale      string      `json:"locale"`
+	Flags       UserFlags   `json:"flags"`
+	PremiumType PremiumType `json:"premium_type"`
+
+	// Requires ApplicationScopeEmail
+	Verified bool   `json:"verified"`
+	Email    string `json:"email"`
 }
+
+// PremiumType defines the different discord nitro tiers a user can have (https://discord.com/developers/docs/resources/user#user-object-premium-types)
+type PremiumType int
+
+// All PremiumType(s)
+//goland:noinspection GoUnusedConst
+const (
+	PremiumTypeNone PremiumType = iota
+	PremiumTypeNitroClassic
+	PremiumTypeNitro
+)
 
 // SelfUserUpdate is the payload used to update the OAuth2User
 type SelfUserUpdate struct {

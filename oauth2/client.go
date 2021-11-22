@@ -62,17 +62,17 @@ func (c *Client) GenerateAuthorizationURL(redirectURI string, scopes ...discord.
 	return compiledRoute.URL()
 }
 
-func (c *Client) StartSession(code string, state string, identifier string, opts ...rest.RequestOpt) (Session, discord.Webhook, error) {
+func (c *Client) StartSession(code string, state string, identifier string, opts ...rest.RequestOpt) (Session, error) {
 	redirectURI := c.StateController.ConsumeState(state)
 	if redirectURI == nil {
-		return nil, nil, ErrStateNotFound
+		return nil, ErrStateNotFound
 	}
 	exchange, err := c.OAuth2Service.GetAccessToken(c.ID, c.Secret, code, *redirectURI, opts...)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	return c.SessionController.CreateSession(identifier, exchange.AccessToken, exchange.RefreshToken, discord.SplitScopes(exchange.Scope), exchange.TokenType, time.Now().Add(exchange.ExpiresIn*time.Second)), exchange.Webhook, nil
+	return c.SessionController.CreateSessionFromExchange(identifier, *exchange), nil
 }
 
 func (c *Client) RefreshSession(identifier string, session Session, opts ...rest.RequestOpt) (Session, error) {
@@ -80,7 +80,7 @@ func (c *Client) RefreshSession(identifier string, session Session, opts ...rest
 	if err != nil {
 		return nil, err
 	}
-	return c.SessionController.CreateSession(identifier, exchange.AccessToken, exchange.RefreshToken, discord.SplitScopes(exchange.Scope), exchange.TokenType, time.Now().Add(exchange.ExpiresIn*time.Second)), nil
+	return c.SessionController.CreateSessionFromExchange(identifier, *exchange), nil
 }
 
 func (c *Client) GetUser(session Session, opts ...rest.RequestOpt) (*discord.OAuth2User, error) {

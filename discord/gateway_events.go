@@ -79,11 +79,11 @@ type GatewayEventThreadMemberUpdate struct {
 }
 
 type GatewayEventThreadMembersUpdate struct {
-	ID               Snowflake                   `json:"id"`
-	GuildID          Snowflake                   `json:"guild_id"`
-	MemberCount      int                         `json:"member_count"`
+	ID               Snowflake                  `json:"id"`
+	GuildID          Snowflake                  `json:"guild_id"`
+	MemberCount      int                        `json:"member_count"`
 	AddedMembers     []ThreadMembersAddedMember `json:"added_members"`
-	RemovedMemberIDs []Snowflake                 `json:"removed_member_ids"`
+	RemovedMemberIDs []Snowflake                `json:"removed_member_ids"`
 }
 
 type ThreadMembersAddedMember struct {

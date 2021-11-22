@@ -34,6 +34,17 @@ type ComponentInteraction interface {
 	discord.ComponentInteraction
 }
 
+func commandPath(commandName string, subCommandName *string, subCommandGroupName *string) string {
+	path := commandName
+	if name := subCommandName; name != nil {
+		path += "/" + *name
+	}
+	if name := subCommandGroupName; name != nil {
+		path += "/" + *name
+	}
+	return path
+}
+
 func respond(fields *InteractionFields, id discord.Snowflake, token string, callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
 	if fields.Acknowledged {
 		return discord.ErrInteractionAlreadyReplied

@@ -8,11 +8,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/DisgoOrg/disgo/bot"
-
-	"github.com/DisgoOrg/disgo/events"
-
 	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/core/bot"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
@@ -51,7 +49,7 @@ func main() {
 }
 
 func onMessageCreate(event *events.MessageCreateEvent) {
-	if event.Message.Author.IsBot || event.Message.Author.IsSystem {
+	if event.Message.Author.Bot || event.Message.Author.System {
 		return
 	}
 	if event.Message.Content == "start" {
