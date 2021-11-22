@@ -13,7 +13,7 @@ type UserStatusUpdateEvent struct {
 }
 
 func (g *UserStatusUpdateEvent) User() *core.User {
-	return g.Bot().Caches.UserCache().Get(g.UserID)
+	return g.Bot().Caches.Users().Get(g.UserID)
 }
 
 type UserClientStatusUpdateEvent struct {
@@ -24,5 +24,5 @@ type UserClientStatusUpdateEvent struct {
 }
 
 func (g *UserClientStatusUpdateEvent) User() *core.User {
-	return g.Bot().Caches.UserCache().Get(g.UserID)
+	return g.Bot().Caches.Users().Get(g.UserID)
 }

@@ -103,6 +103,7 @@ type GuildMessageChannel interface {
 
 type GuildThread interface {
 	BaseGuildMessageChannel
+	ParentID() Snowflake
 	guildThread()
 }
 
@@ -674,11 +675,12 @@ type GuildNewsThread struct {
 	ChannelID        Snowflake      `json:"id"`
 	ChannelGuildID   Snowflake      `json:"guild_id"`
 	ChannelName      string         `json:"name"`
+	NSFW             bool           `json:"nsfw"`
 	LastMessageID    Snowflake      `json:"last_message_id"`
 	LastPinTimestamp *Time          `json:"last_pin_timestamp"`
 	RateLimitPerUser int            `json:"rate_limit_per_user"`
 	OwnerID          Snowflake      `json:"owner_id"`
-	ParentID         Snowflake      `json:"parent_id"`
+	ParentChannelID  Snowflake      `json:"parent_id"`
 	MessageCount     int            `json:"message_count"`
 	MemberCount      int            `json:"member_count"`
 	ThreadMetadata   ThreadMetadata `json:"thread_metadata"`
@@ -711,6 +713,10 @@ func (c GuildNewsThread) ID() Snowflake {
 	return c.ChannelID
 }
 
+func (c GuildNewsThread) ParentID() Snowflake {
+	return c.ParentChannelID
+}
+
 func (c GuildNewsThread) Name() string {
 	return c.ChannelName
 }
@@ -737,11 +743,12 @@ type GuildPublicThread struct {
 	ChannelID        Snowflake      `json:"id"`
 	ChannelGuildID   Snowflake      `json:"guild_id"`
 	ChannelName      string         `json:"name"`
+	NSFW             bool           `json:"nsfw"`
 	LastMessageID    Snowflake      `json:"last_message_id"`
 	LastPinTimestamp *Time          `json:"last_pin_timestamp"`
 	RateLimitPerUser int            `json:"rate_limit_per_user"`
 	OwnerID          Snowflake      `json:"owner_id"`
-	ParentID         Snowflake      `json:"parent_id"`
+	ParentChannelID  Snowflake      `json:"parent_id"`
 	MessageCount     int            `json:"message_count"`
 	MemberCount      int            `json:"member_count"`
 	ThreadMetadata   ThreadMetadata `json:"thread_metadata"`
@@ -774,6 +781,10 @@ func (c GuildPublicThread) ID() Snowflake {
 	return c.ChannelID
 }
 
+func (c GuildPublicThread) ParentID() Snowflake {
+	return c.ParentChannelID
+}
+
 func (c GuildPublicThread) Name() string {
 	return c.ChannelName
 }
@@ -800,11 +811,12 @@ type GuildPrivateThread struct {
 	ChannelID        Snowflake      `json:"id"`
 	ChannelGuildID   Snowflake      `json:"guild_id"`
 	ChannelName      string         `json:"name"`
+	NSFW             bool           `json:"nsfw"`
 	LastMessageID    Snowflake      `json:"last_message_id"`
 	LastPinTimestamp *Time          `json:"last_pin_timestamp"`
 	RateLimitPerUser int            `json:"rate_limit_per_user"`
 	OwnerID          Snowflake      `json:"owner_id"`
-	ParentID         Snowflake      `json:"parent_id"`
+	ParentChannelID  Snowflake      `json:"parent_id"`
 	MessageCount     int            `json:"message_count"`
 	MemberCount      int            `json:"member_count"`
 	ThreadMetadata   ThreadMetadata `json:"thread_metadata"`
@@ -835,6 +847,10 @@ func (GuildPrivateThread) Type() ChannelType {
 
 func (c GuildPrivateThread) ID() Snowflake {
 	return c.ChannelID
+}
+
+func (c GuildPrivateThread) ParentID() Snowflake {
+	return c.ParentChannelID
 }
 
 func (c GuildPrivateThread) Name() string {

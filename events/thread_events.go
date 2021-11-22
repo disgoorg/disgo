@@ -36,10 +36,13 @@ type ThreadHideEvent struct {
 
 type GenericThreadMemberEvent struct {
 	*GenericEvent
-	ThreadMember *core.ThreadMember
+	GuildID        discord.Snowflake
+	ThreadID       discord.Snowflake
+	ThreadMemberID discord.Snowflake
+	ThreadMember   *core.ThreadMember
 }
 
-type ThreadMemberJoinEvent struct {
+type ThreadMemberAddEvent struct {
 	*GenericThreadMemberEvent
 }
 
@@ -48,6 +51,6 @@ type ThreadMemberUpdateEvent struct {
 	OldThreadMember *core.ThreadMember
 }
 
-type ThreadMemberLeaveEvent struct {
+type ThreadMemberRemoveEvent struct {
 	*GenericThreadMemberEvent
 }

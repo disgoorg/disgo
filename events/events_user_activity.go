@@ -13,7 +13,7 @@ type GenericUserActivityEvent struct {
 }
 
 func (g *GenericUserActivityEvent) User() *core.User {
-	return g.Bot().Caches.UserCache().Get(g.UserID)
+	return g.Bot().Caches.Users().Get(g.UserID)
 }
 
 func (g *GenericUserActivityEvent) Member() *core.Member {

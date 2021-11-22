@@ -15,7 +15,7 @@ type GenericDMMessageReactionEvent struct {
 }
 
 func (e *GenericDMMessageReactionEvent) User() *core.User {
-	return e.Bot().Caches.UserCache().Get(e.UserID)
+	return e.Bot().Caches.Users().Get(e.UserID)
 }
 
 // DMMessageReactionAddEvent indicates that an core.User added an core.MessageReaction to an core.Message in an core.DMChannel(requires the core.GatewayIntentsDirectMessageReactions)

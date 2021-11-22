@@ -12,7 +12,7 @@ type Presence struct {
 }
 
 func (p *Presence) User() *User {
-	return p.Bot.Caches.UserCache().Get(p.PresenceUser.ID)
+	return p.Bot.Caches.Users().Get(p.PresenceUser.ID)
 }
 
 func (p *Presence) Member() *Member {

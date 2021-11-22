@@ -22,7 +22,7 @@ func (r *Role) IconURL(size int) *string {
 
 // Guild returns the Guild of this role from the Caches
 func (r *Role) Guild() *Guild {
-	return r.Bot.Caches.GuildCache().Get(r.GuildID)
+	return r.Bot.Caches.Guilds().Get(r.GuildID)
 }
 
 // Update updates the Role with specific values

@@ -3,6 +3,7 @@ package gatewayhandlers
 import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/events"
 )
 
 type gatewayHandlerThreadUpdate struct{}
@@ -16,6 +17,23 @@ func (h *gatewayHandlerThreadUpdate) New() interface{} {
 }
 
 func (h *gatewayHandlerThreadUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
-	_ = v.(*discord.UnmarshalChannel).Channel
+	payload := v.(*discord.UnmarshalChannel).Channel
 
+	var oldThread core.GuildThread
+	if ch, ok := bot.Caches.Channels().Get(payload.ID()).(core.GuildThread); ok {
+		oldThread = ch
+	}
+
+	thread := bot.EntityBuilder.CreateChannel(payload, core.CacheStrategyYes).(core.GuildThread)
+
+	bot.EventManager.Dispatch(&events.ThreadUpdateEvent{
+		GenericThreadEvent: &events.GenericThreadEvent{
+			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+			Thread:       thread,
+			ThreadID:     thread.ID(),
+			GuildID:      thread.GuildID(),
+			ParentID:     thread.ParentID(),
+		},
+		OldThread: oldThread,
+	})
 }
