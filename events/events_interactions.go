@@ -49,3 +49,8 @@ type AutocompleteEvent struct {
 	*GenericEvent
 	*core.AutocompleteInteraction
 }
+
+type ModalSubmitEvent struct {
+	*GenericEvent
+	*core.ModalSubmitInteraction
+}
