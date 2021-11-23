@@ -17,14 +17,6 @@ type SelectMenuInteraction struct {
 	Message *Message
 }
 
-func (i *SelectMenuInteraction) InteractionType() discord.InteractionType {
-	return discord.InteractionTypeComponent
-}
-
-func (i *SelectMenuInteraction) ComponentType() discord.ComponentType {
-	return discord.ComponentTypeSelectMenu
-}
-
 func (i *SelectMenuInteraction) Respond(callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
 	return respond(i.InteractionFields, i.ID, i.Token, callbackType, callbackData, opts...)
 }

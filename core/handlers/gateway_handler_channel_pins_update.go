@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -52,15 +52,15 @@ func (h *gatewayHandlerChannelPinsUpdate) HandleGatewayEvent(bot *core.Bot, sequ
 	}
 
 	if payload.GuildID == nil {
-		bot.EventManager.Dispatch(&events2.DMChannelPinsUpdateEvent{
-			GenericEvent:        events2.NewGenericEvent(bot, sequenceNumber),
+		bot.EventManager.Dispatch(&events.DMChannelPinsUpdateEvent{
+			GenericEvent:        events.NewGenericEvent(bot, sequenceNumber),
 			ChannelID:           payload.ChannelID,
 			OldLastPinTimestamp: oldTime,
 			NewLastPinTimestamp: payload.LastPinTimestamp,
 		})
 	} else {
-		bot.EventManager.Dispatch(&events2.GuildChannelPinsUpdateEvent{
-			GenericEvent:        events2.NewGenericEvent(bot, sequenceNumber),
+		bot.EventManager.Dispatch(&events.GuildChannelPinsUpdateEvent{
+			GenericEvent:        events.NewGenericEvent(bot, sequenceNumber),
 			GuildID:             *payload.GuildID,
 			ChannelID:           payload.ChannelID,
 			OldLastPinTimestamp: oldTime,

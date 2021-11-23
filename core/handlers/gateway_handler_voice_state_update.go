@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -48,27 +48,27 @@ func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(bot *core.Bot, seque
 		}
 	}
 
-	genericGuildVoiceEvent := &events2.GenericGuildVoiceEvent{
-		GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+	genericGuildVoiceEvent := &events.GenericGuildVoiceEvent{
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 		VoiceState:   voiceState,
 	}
 
-	bot.EventManager.Dispatch(&events2.GuildVoiceStateUpdateEvent{
+	bot.EventManager.Dispatch(&events.GuildVoiceStateUpdateEvent{
 		GenericGuildVoiceEvent: genericGuildVoiceEvent,
 		OldVoiceState:          oldVoiceState,
 	})
 
 	if oldVoiceState != nil && oldVoiceState.ChannelID != nil && payload.ChannelID != nil {
-		bot.EventManager.Dispatch(&events2.GuildVoiceMoveEvent{
+		bot.EventManager.Dispatch(&events.GuildVoiceMoveEvent{
 			GenericGuildVoiceEvent: genericGuildVoiceEvent,
 			OldVoiceState:          oldVoiceState,
 		})
 	} else if (oldVoiceState == nil || oldVoiceState.ChannelID == nil) && payload.ChannelID != nil {
-		bot.EventManager.Dispatch(&events2.GuildVoiceJoinEvent{
+		bot.EventManager.Dispatch(&events.GuildVoiceJoinEvent{
 			GenericGuildVoiceEvent: genericGuildVoiceEvent,
 		})
 	} else if payload.ChannelID == nil {
-		bot.EventManager.Dispatch(&events2.GuildVoiceLeaveEvent{
+		bot.EventManager.Dispatch(&events.GuildVoiceLeaveEvent{
 			GenericGuildVoiceEvent: genericGuildVoiceEvent,
 			OldVoiceState:          oldVoiceState,
 		})

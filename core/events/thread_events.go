@@ -26,7 +26,7 @@ type ThreadDeleteEvent struct {
 	*GenericThreadEvent
 }
 
-type ThreadRevealEvent struct {
+type ThreadShowEvent struct {
 	*GenericThreadEvent
 }
 

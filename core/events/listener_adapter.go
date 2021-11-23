@@ -13,12 +13,24 @@ type ListenerAdapter struct {
 	OnHTTPRequest func(event *HTTPRequestEvent)
 	OnRaw         func(event *RawEvent)
 
+	// Thread Events
+	OnThreadCreate func(event *ThreadCreateEvent)
+	OnThreadUpdate func(event *ThreadUpdateEvent)
+	OnThreadDelete func(event *ThreadDeleteEvent)
+	OnThreadShow   func(event *ThreadShowEvent)
+	OnThreadHide   func(event *ThreadHideEvent)
+
+	// ThreadMember Events
+	OnThreadMemberAdd    func(event *ThreadMemberAddEvent)
+	OnThreadMemberUpdate func(event *ThreadMemberUpdateEvent)
+	OnThreadMemberRemove func(event *ThreadMemberRemoveEvent)
+
 	// Channel Events
 	OnGuildChannelCreate func(event *GuildChannelCreateEvent)
 	OnGuildChannelUpdate func(event *GuildChannelUpdateEvent)
 	OnGuildChannelDelete func(event *GuildChannelDeleteEvent)
 
-	// Channel Events
+	// DM Channel Events
 	OnDMChannelCreate func(event *DMChannelCreateEvent)
 	OnDMChannelUpdate func(event *DMChannelUpdateEvent)
 	OnDMChannelDelete func(event *DMChannelDeleteEvent)
@@ -161,7 +173,43 @@ func (l ListenerAdapter) OnEvent(event core.Event) {
 			listener(e)
 		}
 
-	// GetGuildChannel Events
+	// Thread Events
+	case *ThreadCreateEvent:
+		if listener := l.OnThreadCreate; listener != nil {
+			listener(e)
+		}
+	case *ThreadUpdateEvent:
+		if listener := l.OnThreadUpdate; listener != nil {
+			listener(e)
+		}
+	case *ThreadDeleteEvent:
+		if listener := l.OnThreadDelete; listener != nil {
+			listener(e)
+		}
+	case *ThreadShowEvent:
+		if listener := l.OnThreadShow; listener != nil {
+			listener(e)
+		}
+	case *ThreadHideEvent:
+		if listener := l.OnThreadHide; listener != nil {
+			listener(e)
+		}
+
+	// ThreadMember Events
+	case *ThreadMemberAddEvent:
+		if listener := l.OnThreadMemberAdd; listener != nil {
+			listener(e)
+		}
+	case *ThreadMemberUpdateEvent:
+		if listener := l.OnThreadMemberUpdate; listener != nil {
+			listener(e)
+		}
+	case *ThreadMemberRemoveEvent:
+		if listener := l.OnThreadMemberRemove; listener != nil {
+			listener(e)
+		}
+
+	// GuildChannel Events
 	case *GuildChannelCreateEvent:
 		if listener := l.OnGuildChannelCreate; listener != nil {
 			listener(e)

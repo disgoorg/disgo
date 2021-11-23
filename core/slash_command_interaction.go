@@ -65,7 +65,7 @@ func (i *SlashCommandInteraction) DeleteFollowup(messageID discord.Snowflake, op
 
 // CommandPath returns the ApplicationCommand path
 func (i *SlashCommandInteraction) CommandPath() string {
-	return commandPath(i.Data.CommandName, i.Data.SubCommandName,i.Data.SubCommandGroupName)
+	return commandPath(i.Data.CommandName, i.Data.SubCommandName, i.Data.SubCommandGroupName)
 }
 
 // Guild returns the Guild from the Caches

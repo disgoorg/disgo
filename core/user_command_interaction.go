@@ -18,14 +18,6 @@ type UserCommandInteractionData struct {
 	Resolved *UserCommandResolved
 }
 
-func (i *UserCommandInteraction) InteractionType() discord.InteractionType {
-	return discord.InteractionTypeApplicationCommand
-}
-
-func (i *UserCommandInteraction) ApplicationCommandType() discord.ApplicationCommandType {
-	return discord.ApplicationCommandTypeUser
-}
-
 func (i *UserCommandInteraction) Respond(callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
 	return respond(i.InteractionFields, i.ID, i.Token, callbackType, callbackData, opts...)
 }

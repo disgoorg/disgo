@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -27,35 +27,35 @@ func (h *gatewayHandlerInteractionCreate) HandleGatewayEvent(bot *core.Bot, sequ
 func HandleInteraction(bot *core.Bot, sequenceNumber int, c chan<- discord.InteractionResponse, interaction discord.Interaction) {
 	coreInteraction := bot.EntityBuilder.CreateInteraction(interaction, c, core.CacheStrategyYes)
 
-	genericEvent := events2.NewGenericEvent(bot, sequenceNumber)
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
-	bot.EventManager.Dispatch(&events2.InteractionCreateEvent{
+	bot.EventManager.Dispatch(&events.InteractionCreateEvent{
 		GenericEvent: genericEvent,
 		Interaction:  coreInteraction,
 	})
 
 	switch i := coreInteraction.(type) {
 	case core.ApplicationCommandInteraction:
-		bot.EventManager.Dispatch(&events2.ApplicationCommandInteractionCreateEvent{
+		bot.EventManager.Dispatch(&events.ApplicationCommandInteractionCreateEvent{
 			GenericEvent:                  genericEvent,
 			ApplicationCommandInteraction: i,
 		})
 
 		switch ii := i.(type) {
 		case *core.SlashCommandInteraction:
-			bot.EventManager.Dispatch(&events2.SlashCommandEvent{
+			bot.EventManager.Dispatch(&events.SlashCommandEvent{
 				GenericEvent:            genericEvent,
 				SlashCommandInteraction: ii,
 			})
 
 		case *core.UserCommandInteraction:
-			bot.EventManager.Dispatch(&events2.UserCommandEvent{
+			bot.EventManager.Dispatch(&events.UserCommandEvent{
 				GenericEvent:           genericEvent,
 				UserCommandInteraction: ii,
 			})
 
 		case *core.MessageCommandInteraction:
-			bot.EventManager.Dispatch(&events2.MessageCommandEvent{
+			bot.EventManager.Dispatch(&events.MessageCommandEvent{
 				GenericEvent:              genericEvent,
 				MessageCommandInteraction: ii,
 			})
@@ -65,20 +65,20 @@ func HandleInteraction(bot *core.Bot, sequenceNumber int, c chan<- discord.Inter
 		}
 
 	case core.ComponentInteraction:
-		bot.EventManager.Dispatch(&events2.ComponentInteractionCreateEvent{
+		bot.EventManager.Dispatch(&events.ComponentInteractionCreateEvent{
 			GenericEvent:         genericEvent,
 			ComponentInteraction: i,
 		})
 
 		switch ii := i.(type) {
 		case *core.ButtonInteraction:
-			bot.EventManager.Dispatch(&events2.ButtonClickEvent{
+			bot.EventManager.Dispatch(&events.ButtonClickEvent{
 				GenericEvent:      genericEvent,
 				ButtonInteraction: ii,
 			})
 
 		case *core.SelectMenuInteraction:
-			bot.EventManager.Dispatch(&events2.SelectMenuSubmitEvent{
+			bot.EventManager.Dispatch(&events.SelectMenuSubmitEvent{
 				GenericEvent:          genericEvent,
 				SelectMenuInteraction: ii,
 			})
@@ -88,7 +88,7 @@ func HandleInteraction(bot *core.Bot, sequenceNumber int, c chan<- discord.Inter
 		}
 
 	case *core.AutocompleteInteraction:
-		bot.EventManager.Dispatch(&events2.AutocompleteEvent{
+		bot.EventManager.Dispatch(&events.AutocompleteEvent{
 			GenericEvent:            genericEvent,
 			AutocompleteInteraction: i,
 		})

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -29,8 +29,8 @@ func (h *gatewayHandlerUserUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNum
 		oldSelfUser = &selfUser
 	}
 
-	bot.EventManager.Dispatch(&events2.SelfUpdateEvent{
-		GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+	bot.EventManager.Dispatch(&events.SelfUpdateEvent{
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 		SelfUser:     bot.EntityBuilder.CreateSelfUser(payload, core.CacheStrategyYes),
 		OldSelfUser:  oldSelfUser,
 	})

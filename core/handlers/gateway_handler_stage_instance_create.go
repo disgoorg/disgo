@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -23,9 +23,9 @@ func (h *gatewayHandlerStageInstanceCreate) New() interface{} {
 func (h *gatewayHandlerStageInstanceCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.StageInstance)
 
-	bot.EventManager.Dispatch(&events2.StageInstanceCreateEvent{
-		GenericStageInstanceEvent: &events2.GenericStageInstanceEvent{
-			GenericEvent:    events2.NewGenericEvent(bot, sequenceNumber),
+	bot.EventManager.Dispatch(&events.StageInstanceCreateEvent{
+		GenericStageInstanceEvent: &events.GenericStageInstanceEvent{
+			GenericEvent:    events.NewGenericEvent(bot, sequenceNumber),
 			StageInstanceID: payload.ID,
 			StageInstance:   bot.EntityBuilder.CreateStageInstance(payload, core.CacheStrategyYes),
 		},

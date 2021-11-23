@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -27,18 +27,18 @@ func (h *gatewayHandlerChannelDelete) HandleGatewayEvent(bot *core.Bot, sequence
 	channel := bot.EntityBuilder.CreateChannel(payload, core.CacheStrategyNo)
 
 	if ch, ok := channel.(core.GuildChannel); ok {
-		bot.EventManager.Dispatch(&events2.GuildChannelDeleteEvent{
-			GenericGuildChannelEvent: &events2.GenericGuildChannelEvent{
-				GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+		bot.EventManager.Dispatch(&events.GuildChannelDeleteEvent{
+			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				ChannelID:    channel.ID(),
 				Channel:      ch,
 				GuildID:      ch.GuildID(),
 			},
 		})
 	} else if ch, ok := channel.(*core.DMChannel); ok {
-		bot.EventManager.Dispatch(&events2.DMChannelDeleteEvent{
-			GenericDMChannelEvent: &events2.GenericDMChannelEvent{
-				GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+		bot.EventManager.Dispatch(&events.DMChannelDeleteEvent{
+			GenericDMChannelEvent: &events.GenericDMChannelEvent{
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				ChannelID:    channel.ID(),
 				Channel:      ch,
 			},

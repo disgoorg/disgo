@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -23,8 +23,8 @@ func (h *gatewayHandlerVoiceServerUpdate) New() interface{} {
 func (h *gatewayHandlerVoiceServerUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.VoiceServerUpdate)
 
-	bot.EventManager.Dispatch(&events2.VoiceServerUpdateEvent{
-		GenericEvent:      events2.NewGenericEvent(bot, sequenceNumber),
+	bot.EventManager.Dispatch(&events.VoiceServerUpdateEvent{
+		GenericEvent:      events.NewGenericEvent(bot, sequenceNumber),
 		VoiceServerUpdate: payload,
 	})
 }

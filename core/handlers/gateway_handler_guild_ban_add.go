@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -23,8 +23,8 @@ func (h *gatewayHandlerGuildBanAdd) New() interface{} {
 func (h *gatewayHandlerGuildBanAdd) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.GuildBanAddGatewayEvent)
 
-	bot.EventManager.Dispatch(&events2.GuildBanEvent{
-		GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+	bot.EventManager.Dispatch(&events.GuildBanEvent{
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 		GuildID:      payload.GuildID,
 		User:         bot.EntityBuilder.CreateUser(payload.User, core.CacheStrategyNo),
 	})

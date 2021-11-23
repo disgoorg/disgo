@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -29,17 +29,17 @@ func (h *gatewayHandlerGuildDelete) HandleGatewayEvent(bot *core.Bot, sequenceNu
 		bot.Caches.Guilds().SetUnavailable(payload.ID)
 	}
 
-	genericGuildEvent := &events2.GenericGuildEvent{
-		GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+	genericGuildEvent := &events.GenericGuildEvent{
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 		Guild:        guild,
 	}
 
 	if payload.Unavailable {
-		bot.EventManager.Dispatch(&events2.GuildUnavailableEvent{
+		bot.EventManager.Dispatch(&events.GuildUnavailableEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	} else {
-		bot.EventManager.Dispatch(&events2.GuildLeaveEvent{
+		bot.EventManager.Dispatch(&events.GuildLeaveEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	}

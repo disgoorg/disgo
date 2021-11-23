@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -19,7 +19,7 @@ func (h *gatewayHandlerThreadMembersUpdate) New() interface{} {
 func (h *gatewayHandlerThreadMembersUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.GatewayEventThreadMembersUpdate)
 
-	genericEvent := events2.NewGenericEvent(bot, sequenceNumber)
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
 	if channel := bot.Caches.Channels().Get(payload.ID); channel != nil {
 		switch thread := channel.(type) {
@@ -42,8 +42,8 @@ func (h *gatewayHandlerThreadMembersUpdate) HandleGatewayEvent(bot *core.Bot, se
 			bot.EntityBuilder.CreatePresence(*presence, core.CacheStrategyYes)
 		}
 
-		bot.EventManager.Dispatch(&events2.ThreadMemberAddEvent{
-			GenericThreadMemberEvent: &events2.GenericThreadMemberEvent{
+		bot.EventManager.Dispatch(&events.ThreadMemberAddEvent{
+			GenericThreadMemberEvent: &events.GenericThreadMemberEvent{
 				GenericEvent:   genericEvent,
 				GuildID:        payload.GuildID,
 				ThreadID:       payload.ID,
@@ -57,8 +57,8 @@ func (h *gatewayHandlerThreadMembersUpdate) HandleGatewayEvent(bot *core.Bot, se
 		threadMember := bot.Caches.ThreadMembers().GetCopy(payload.ID, payload.RemovedMemberIDs[i])
 		bot.Caches.ThreadMembers().Remove(payload.ID, payload.RemovedMemberIDs[i])
 
-		bot.EventManager.Dispatch(&events2.ThreadMemberRemoveEvent{
-			GenericThreadMemberEvent: &events2.GenericThreadMemberEvent{
+		bot.EventManager.Dispatch(&events.ThreadMemberRemoveEvent{
+			GenericThreadMemberEvent: &events.GenericThreadMemberEvent{
 				GenericEvent:   genericEvent,
 				GuildID:        payload.GuildID,
 				ThreadID:       payload.ID,

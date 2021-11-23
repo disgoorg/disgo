@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/google/go-cmp/cmp"
 )
@@ -58,9 +58,9 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, se
 	}
 
 	for _, sticker := range newStickers {
-		bot.EventManager.Dispatch(&events2.StickerCreateEvent{
-			GenericStickerEvent: &events2.GenericStickerEvent{
-				GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+		bot.EventManager.Dispatch(&events.StickerCreateEvent{
+			GenericStickerEvent: &events.GenericStickerEvent{
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				GuildID:      payload.GuildID,
 				Sticker:      sticker,
 			},
@@ -68,9 +68,9 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, se
 	}
 
 	for _, sticker := range updatedStickers {
-		bot.EventManager.Dispatch(&events2.StickerUpdateEvent{
-			GenericStickerEvent: &events2.GenericStickerEvent{
-				GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+		bot.EventManager.Dispatch(&events.StickerUpdateEvent{
+			GenericStickerEvent: &events.GenericStickerEvent{
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				GuildID:      payload.GuildID,
 				Sticker:      sticker,
 			},
@@ -78,9 +78,9 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, se
 	}
 
 	for _, sticker := range oldStickers {
-		bot.EventManager.Dispatch(&events2.StickerDeleteEvent{
-			GenericStickerEvent: &events2.GenericStickerEvent{
-				GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+		bot.EventManager.Dispatch(&events.StickerDeleteEvent{
+			GenericStickerEvent: &events.GenericStickerEvent{
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				GuildID:      payload.GuildID,
 				Sticker:      sticker,
 			},

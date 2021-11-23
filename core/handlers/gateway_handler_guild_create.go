@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -74,20 +74,20 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 		bot.EntityBuilder.CreatePresence(presence, core.CacheStrategyYes)
 	}
 
-	genericGuildEvent := &events2.GenericGuildEvent{
-		GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+	genericGuildEvent := &events.GenericGuildEvent{
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 		GuildID:      payload.ID,
 		Guild:        guild,
 	}
 
 	if wasUnready {
 		bot.Caches.Guilds().SetReady(shardID, payload.ID)
-		bot.EventManager.Dispatch(&events2.GuildReadyEvent{
+		bot.EventManager.Dispatch(&events.GuildReadyEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 		if len(bot.Caches.Guilds().UnreadyGuilds(shardID)) == 0 {
-			bot.EventManager.Dispatch(&events2.GuildsReadyEvent{
-				GenericEvent: events2.NewGenericEvent(bot, -1),
+			bot.EventManager.Dispatch(&events.GuildsReadyEvent{
+				GenericEvent: events.NewGenericEvent(bot, -1),
 				ShardID:      shardID,
 			})
 		}
@@ -101,11 +101,11 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 
 	} else if wasUnavailable {
 		bot.Caches.Guilds().SetAvailable(payload.ID)
-		bot.EventManager.Dispatch(&events2.GuildAvailableEvent{
+		bot.EventManager.Dispatch(&events.GuildAvailableEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	} else {
-		bot.EventManager.Dispatch(&events2.GuildJoinEvent{
+		bot.EventManager.Dispatch(&events.GuildJoinEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	}

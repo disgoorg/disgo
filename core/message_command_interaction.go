@@ -18,14 +18,6 @@ type MessageCommandInteractionData struct {
 	Resolved *MessageCommandResolved
 }
 
-func (i *MessageCommandInteraction) InteractionType() discord.InteractionType {
-	return discord.InteractionTypeApplicationCommand
-}
-
-func (i *MessageCommandInteraction) ApplicationCommandType() discord.ApplicationCommandType {
-	return discord.ApplicationCommandTypeMessage
-}
-
 func (i *MessageCommandInteraction) Respond(callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
 	return respond(i.InteractionFields, i.ID, i.Token, callbackType, callbackData, opts...)
 }

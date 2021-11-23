@@ -17,14 +17,6 @@ type ButtonInteraction struct {
 	Message *Message
 }
 
-func (i *ButtonInteraction) InteractionType() discord.InteractionType {
-	return discord.InteractionTypeComponent
-}
-
-func (i *ButtonInteraction) ComponentType() discord.ComponentType {
-	return discord.ComponentTypeButton
-}
-
 func (i *ButtonInteraction) Respond(callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
 	return respond(i.InteractionFields, i.ID, i.Token, callbackType, callbackData, opts...)
 }
