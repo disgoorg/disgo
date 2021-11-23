@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -33,8 +33,8 @@ func (h *gatewayHandlerGuildMemberRemove) HandleGatewayEvent(bot *core.Bot, sequ
 
 	user := bot.EntityBuilder.CreateUser(payload.User, core.CacheStrategyYes)
 
-	bot.EventManager.Dispatch(&events2.GuildMemberLeaveEvent{
-		GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+	bot.EventManager.Dispatch(&events.GuildMemberLeaveEvent{
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 		GuildID:      payload.GuildID,
 		User:         user,
 		Member:       member,

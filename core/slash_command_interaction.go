@@ -21,14 +21,6 @@ type SlashCommandInteractionData struct {
 	Options             SlashCommandOptionsMap
 }
 
-func (i *SlashCommandInteraction) InteractionType() discord.InteractionType {
-	return discord.InteractionTypeApplicationCommand
-}
-
-func (i *SlashCommandInteraction) ApplicationCommandType() discord.ApplicationCommandType {
-	return discord.ApplicationCommandTypeSlash
-}
-
 func (i *SlashCommandInteraction) Respond(callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
 	return respond(i.InteractionFields, i.ID, i.Token, callbackType, callbackData, opts...)
 }
@@ -71,7 +63,7 @@ func (i *SlashCommandInteraction) DeleteFollowup(messageID discord.Snowflake, op
 
 // CommandPath returns the ApplicationCommand path
 func (i *SlashCommandInteraction) CommandPath() string {
-	return commandPath(i.Data.CommandName, i.Data.SubCommandName,i.Data.SubCommandGroupName)
+	return commandPath(i.Data.CommandName, i.Data.SubCommandName, i.Data.SubCommandGroupName)
 }
 
 // Guild returns the Guild from the Caches

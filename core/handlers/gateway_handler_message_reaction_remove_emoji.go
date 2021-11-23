@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -23,9 +23,9 @@ func (h *gatewayHandlerMessageReactionRemoveEmoji) New() interface{} {
 func (h *gatewayHandlerMessageReactionRemoveEmoji) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.GatewayEventMessageReactionRemoveEmoji)
 
-	genericEvent := events2.NewGenericEvent(bot, sequenceNumber)
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
-	bot.EventManager.Dispatch(&events2.MessageReactionRemoveEmojiEvent{
+	bot.EventManager.Dispatch(&events.MessageReactionRemoveEmojiEvent{
 		GenericEvent: genericEvent,
 		MessageID:    payload.MessageID,
 		ChannelID:    payload.ChannelID,
@@ -34,14 +34,14 @@ func (h *gatewayHandlerMessageReactionRemoveEmoji) HandleGatewayEvent(bot *core.
 	})
 
 	if payload.GuildID == nil {
-		bot.EventManager.Dispatch(&events2.DMMessageReactionRemoveEmojiEvent{
+		bot.EventManager.Dispatch(&events.DMMessageReactionRemoveEmojiEvent{
 			GenericEvent: genericEvent,
 			MessageID:    payload.MessageID,
 			ChannelID:    payload.ChannelID,
 			Emoji:        payload.Emoji,
 		})
 	} else {
-		bot.EventManager.Dispatch(&events2.GuildMessageReactionRemoveEmojiEvent{
+		bot.EventManager.Dispatch(&events.GuildMessageReactionRemoveEmojiEvent{
 			GenericEvent: genericEvent,
 			MessageID:    payload.MessageID,
 			ChannelID:    payload.ChannelID,

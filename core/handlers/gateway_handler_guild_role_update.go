@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -25,9 +25,9 @@ func (h *gatewayHandlerGuildRoleUpdate) HandleGatewayEvent(bot *core.Bot, sequen
 
 	oldRole := bot.Caches.Roles().GetCopy(payload.GuildID, payload.Role.ID)
 
-	bot.EventManager.Dispatch(&events2.RoleUpdateEvent{
-		GenericRoleEvent: &events2.GenericRoleEvent{
-			GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+	bot.EventManager.Dispatch(&events.RoleUpdateEvent{
+		GenericRoleEvent: &events.GenericRoleEvent{
+			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 			GuildID:      payload.GuildID,
 			RoleID:       payload.Role.ID,
 			Role:         bot.EntityBuilder.CreateRole(payload.GuildID, payload.Role, core.CacheStrategyYes),

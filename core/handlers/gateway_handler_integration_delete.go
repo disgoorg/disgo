@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -23,8 +23,8 @@ func (h *gatewayHandlerIntegrationDelete) New() interface{} {
 func (h *gatewayHandlerIntegrationDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.IntegrationDeleteGatewayEvent)
 
-	bot.EventManager.Dispatch(&events2.IntegrationDeleteEvent{
-		GenericEvent:  events2.NewGenericEvent(bot, sequenceNumber),
+	bot.EventManager.Dispatch(&events.IntegrationDeleteEvent{
+		GenericEvent:  events.NewGenericEvent(bot, sequenceNumber),
 		GuildID:       payload.GuildID,
 		ID:            payload.ID,
 		ApplicationID: payload.ApplicationID,

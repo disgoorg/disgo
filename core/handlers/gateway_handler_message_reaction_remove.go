@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -23,10 +23,10 @@ func (h *gatewayHandlerMessageReactionRemove) New() interface{} {
 func (h *gatewayHandlerMessageReactionRemove) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.GatewayEventMessageReactionRemove)
 
-	genericEvent := events2.NewGenericEvent(bot, sequenceNumber)
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
-	bot.EventManager.Dispatch(&events2.MessageReactionRemoveEvent{
-		GenericReactionEvent: &events2.GenericReactionEvent{
+	bot.EventManager.Dispatch(&events.MessageReactionRemoveEvent{
+		GenericReactionEvent: &events.GenericReactionEvent{
 			GenericEvent: genericEvent,
 			MessageID:    payload.MessageID,
 			ChannelID:    payload.ChannelID,
@@ -37,8 +37,8 @@ func (h *gatewayHandlerMessageReactionRemove) HandleGatewayEvent(bot *core.Bot, 
 	})
 
 	if payload.GuildID == nil {
-		bot.EventManager.Dispatch(&events2.DMMessageReactionRemoveEvent{
-			GenericDMMessageReactionEvent: &events2.GenericDMMessageReactionEvent{
+		bot.EventManager.Dispatch(&events.DMMessageReactionRemoveEvent{
+			GenericDMMessageReactionEvent: &events.GenericDMMessageReactionEvent{
 				GenericEvent: genericEvent,
 				MessageID:    payload.MessageID,
 				ChannelID:    payload.ChannelID,
@@ -47,8 +47,8 @@ func (h *gatewayHandlerMessageReactionRemove) HandleGatewayEvent(bot *core.Bot, 
 			},
 		})
 	} else {
-		bot.EventManager.Dispatch(&events2.GuildMessageReactionRemoveEvent{
-			GenericGuildMessageReactionEvent: &events2.GenericGuildMessageReactionEvent{
+		bot.EventManager.Dispatch(&events.GuildMessageReactionRemoveEvent{
+			GenericGuildMessageReactionEvent: &events.GenericGuildMessageReactionEvent{
 				GenericEvent: genericEvent,
 				MessageID:    payload.MessageID,
 				ChannelID:    payload.ChannelID,

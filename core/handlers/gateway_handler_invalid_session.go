@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -24,8 +24,8 @@ func (h *gatewayHandlerInvalidSession) HandleGatewayEvent(bot *core.Bot, sequenc
 	resumable := *v.(*bool)
 
 	// TODO: this should be used by the gateway
-	bot.EventManager.Dispatch(&events2.InvalidSessionEvent{
-		GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+	bot.EventManager.Dispatch(&events.InvalidSessionEvent{
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 		MayResume:    resumable,
 	})
 

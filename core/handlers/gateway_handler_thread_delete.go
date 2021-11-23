@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -25,9 +25,9 @@ func (h *gatewayHandlerThreadDelete) HandleGatewayEvent(bot *core.Bot, sequenceN
 		thread = c
 	}
 
-	bot.EventManager.Dispatch(&events2.ThreadDeleteEvent{
-		GenericThreadEvent: &events2.GenericThreadEvent{
-			GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+	bot.EventManager.Dispatch(&events.ThreadDeleteEvent{
+		GenericThreadEvent: &events.GenericThreadEvent{
+			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 			ThreadID:     payload.ID,
 			GuildID:      payload.GuildID,
 			ParentID:     payload.ParentID,

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/google/go-cmp/cmp"
 )
@@ -28,7 +28,7 @@ func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(bot *core.Bot, sequenc
 
 	_ = bot.EntityBuilder.CreatePresence(payload, core.CacheStrategyYes)
 
-	genericEvent := events2.NewGenericEvent(bot, sequenceNumber)
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
 	var (
 		oldStatus       discord.OnlineStatus
@@ -43,7 +43,7 @@ func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(bot *core.Bot, sequenc
 	}
 
 	if oldStatus != payload.Status {
-		bot.EventManager.Dispatch(&events2.UserStatusUpdateEvent{
+		bot.EventManager.Dispatch(&events.UserStatusUpdateEvent{
 			GenericEvent: genericEvent,
 			UserID:       payload.PresenceUser.ID,
 			OldStatus:    oldStatus,
@@ -52,7 +52,7 @@ func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(bot *core.Bot, sequenc
 	}
 
 	if oldClientStatus == nil || oldClientStatus.Desktop != payload.ClientStatus.Desktop || oldClientStatus.Mobile != payload.ClientStatus.Mobile || oldClientStatus.Web != payload.ClientStatus.Web {
-		bot.EventManager.Dispatch(&events2.UserClientStatusUpdateEvent{
+		bot.EventManager.Dispatch(&events.UserClientStatusUpdateEvent{
 			GenericEvent:    genericEvent,
 			UserID:          payload.PresenceUser.ID,
 			OldClientStatus: oldClientStatus,
@@ -60,7 +60,7 @@ func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(bot *core.Bot, sequenc
 		})
 	}
 
-	genericUserActivityEvent := events2.GenericUserActivityEvent{
+	genericUserActivityEvent := events.GenericUserActivityEvent{
 		GenericEvent: genericEvent,
 		UserID:       payload.PresenceUser.ID,
 		GuildID:      payload.GuildID,
@@ -76,7 +76,7 @@ func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(bot *core.Bot, sequenc
 		}
 		if !found {
 			genericUserActivityEvent.Activity = oldActivity
-			bot.EventManager.Dispatch(&events2.UserActivityStopEvent{
+			bot.EventManager.Dispatch(&events.UserActivityStopEvent{
 				GenericUserActivityEvent: &genericUserActivityEvent,
 			})
 		}
@@ -92,7 +92,7 @@ func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(bot *core.Bot, sequenc
 		}
 		if !found {
 			genericUserActivityEvent.Activity = newActivity
-			bot.EventManager.Dispatch(&events2.UserActivityStartEvent{
+			bot.EventManager.Dispatch(&events.UserActivityStartEvent{
 				GenericUserActivityEvent: &genericUserActivityEvent,
 			})
 		}
@@ -108,7 +108,7 @@ func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(bot *core.Bot, sequenc
 		}
 		if oldActivity != nil && !cmp.Equal(*oldActivity, newActivity) {
 			genericUserActivityEvent.Activity = newActivity
-			bot.EventManager.Dispatch(&events2.UserActivityUpdateEvent{
+			bot.EventManager.Dispatch(&events.UserActivityUpdateEvent{
 				GenericUserActivityEvent: &genericUserActivityEvent,
 				OldActivity:              *oldActivity,
 			})

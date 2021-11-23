@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -27,10 +27,10 @@ func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 
 	message := bot.EntityBuilder.CreateMessage(payload, core.CacheStrategyYes)
 
-	genericEvent := events2.NewGenericEvent(bot, sequenceNumber)
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
-	bot.EventManager.Dispatch(&events2.MessageUpdateEvent{
-		GenericMessageEvent: &events2.GenericMessageEvent{
+	bot.EventManager.Dispatch(&events.MessageUpdateEvent{
+		GenericMessageEvent: &events.GenericMessageEvent{
 			GenericEvent: genericEvent,
 			MessageID:    payload.ID,
 			Message:      message,
@@ -41,8 +41,8 @@ func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 	})
 
 	if payload.GuildID == nil {
-		bot.EventManager.Dispatch(&events2.DMMessageUpdateEvent{
-			GenericDMMessageEvent: &events2.GenericDMMessageEvent{
+		bot.EventManager.Dispatch(&events.DMMessageUpdateEvent{
+			GenericDMMessageEvent: &events.GenericDMMessageEvent{
 				GenericEvent: genericEvent,
 				MessageID:    payload.ID,
 				Message:      message,
@@ -51,8 +51,8 @@ func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 			OldMessage: oldMessage,
 		})
 	} else {
-		bot.EventManager.Dispatch(&events2.GuildMessageUpdateEvent{
-			GenericGuildMessageEvent: &events2.GenericGuildMessageEvent{
+		bot.EventManager.Dispatch(&events.GuildMessageUpdateEvent{
+			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
 				GenericEvent: genericEvent,
 				MessageID:    payload.ID,
 				Message:      message,

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -27,13 +27,13 @@ func (h *gatewayHandlerMessageDelete) HandleGatewayEvent(bot *core.Bot, sequence
 }
 
 func handleMessageDelete(bot *core.Bot, sequenceNumber int, messageID discord.Snowflake, channelID discord.Snowflake, guildID *discord.Snowflake) {
-	genericEvent := events2.NewGenericEvent(bot, sequenceNumber)
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
 	message := bot.Caches.Messages().GetCopy(channelID, messageID)
 	bot.Caches.Messages().Remove(channelID, messageID)
 
-	bot.EventManager.Dispatch(&events2.MessageDeleteEvent{
-		GenericMessageEvent: &events2.GenericMessageEvent{
+	bot.EventManager.Dispatch(&events.MessageDeleteEvent{
+		GenericMessageEvent: &events.GenericMessageEvent{
 			GenericEvent: genericEvent,
 			MessageID:    messageID,
 			Message:      message,
@@ -42,8 +42,8 @@ func handleMessageDelete(bot *core.Bot, sequenceNumber int, messageID discord.Sn
 	})
 
 	if guildID == nil {
-		bot.EventManager.Dispatch(&events2.DMMessageDeleteEvent{
-			GenericDMMessageEvent: &events2.GenericDMMessageEvent{
+		bot.EventManager.Dispatch(&events.DMMessageDeleteEvent{
+			GenericDMMessageEvent: &events.GenericDMMessageEvent{
 				GenericEvent: genericEvent,
 				MessageID:    messageID,
 				Message:      message,
@@ -51,8 +51,8 @@ func handleMessageDelete(bot *core.Bot, sequenceNumber int, messageID discord.Sn
 			},
 		})
 	} else {
-		bot.EventManager.Dispatch(&events2.GuildMessageDeleteEvent{
-			GenericGuildMessageEvent: &events2.GenericGuildMessageEvent{
+		bot.EventManager.Dispatch(&events.GuildMessageDeleteEvent{
+			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
 				GenericEvent: genericEvent,
 				MessageID:    messageID,
 				Message:      message,

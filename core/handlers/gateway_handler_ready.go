@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -37,8 +37,8 @@ func (h *gatewayHandlerReady) HandleGatewayEvent(bot *core.Bot, sequenceNumber i
 		bot.Caches.Guilds().SetUnready(shardID, guild.ID)
 	}
 
-	bot.EventManager.Dispatch(&events2.ReadyEvent{
-		GenericEvent:      events2.NewGenericEvent(bot, sequenceNumber),
+	bot.EventManager.Dispatch(&events.ReadyEvent{
+		GenericEvent:      events.NewGenericEvent(bot, sequenceNumber),
 		GatewayEventReady: readyEvent,
 	})
 

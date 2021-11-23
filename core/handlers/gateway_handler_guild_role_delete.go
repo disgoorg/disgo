@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -27,9 +27,9 @@ func (h *gatewayHandlerGuildRoleDelete) HandleGatewayEvent(bot *core.Bot, sequen
 
 	bot.Caches.Roles().Remove(payload.GuildID, payload.RoleID)
 
-	bot.EventManager.Dispatch(&events2.RoleDeleteEvent{
-		GenericRoleEvent: &events2.GenericRoleEvent{
-			GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+	bot.EventManager.Dispatch(&events.RoleDeleteEvent{
+		GenericRoleEvent: &events.GenericRoleEvent{
+			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 			GuildID:      payload.GuildID,
 			RoleID:       payload.RoleID,
 			Role:         role,

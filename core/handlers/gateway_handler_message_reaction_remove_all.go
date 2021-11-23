@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -23,9 +23,9 @@ func (h *gatewayHandlerMessageReactionRemoveAll) New() interface{} {
 func (h *gatewayHandlerMessageReactionRemoveAll) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	messageReaction := *v.(*discord.GatewayEventMessageReactionRemoveAll)
 
-	genericEvent := events2.NewGenericEvent(bot, sequenceNumber)
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
-	bot.EventManager.Dispatch(&events2.MessageReactionRemoveAllEvent{
+	bot.EventManager.Dispatch(&events.MessageReactionRemoveAllEvent{
 		GenericEvent: genericEvent,
 		MessageID:    messageReaction.MessageID,
 		ChannelID:    messageReaction.ChannelID,
@@ -33,13 +33,13 @@ func (h *gatewayHandlerMessageReactionRemoveAll) HandleGatewayEvent(bot *core.Bo
 	})
 
 	if messageReaction.GuildID == nil {
-		bot.EventManager.Dispatch(&events2.DMMessageReactionRemoveAllEvent{
+		bot.EventManager.Dispatch(&events.DMMessageReactionRemoveAllEvent{
 			GenericEvent: genericEvent,
 			MessageID:    messageReaction.MessageID,
 			ChannelID:    messageReaction.ChannelID,
 		})
 	} else {
-		bot.EventManager.Dispatch(&events2.GuildMessageReactionRemoveAllEvent{
+		bot.EventManager.Dispatch(&events.GuildMessageReactionRemoveAllEvent{
 			GenericEvent: genericEvent,
 			MessageID:    messageReaction.MessageID,
 			ChannelID:    messageReaction.ChannelID,

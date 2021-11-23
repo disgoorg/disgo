@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/google/go-cmp/cmp"
 )
@@ -58,9 +58,9 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot *core.Bot, sequ
 	}
 
 	for _, emoji := range newEmojis {
-		bot.EventManager.Dispatch(&events2.EmojiCreateEvent{
-			GenericEmojiEvent: &events2.GenericEmojiEvent{
-				GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+		bot.EventManager.Dispatch(&events.EmojiCreateEvent{
+			GenericEmojiEvent: &events.GenericEmojiEvent{
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				GuildID:      payload.GuildID,
 				Emoji:        emoji,
 			},
@@ -68,9 +68,9 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot *core.Bot, sequ
 	}
 
 	for _, emoji := range updatedEmojis {
-		bot.EventManager.Dispatch(&events2.EmojiUpdateEvent{
-			GenericEmojiEvent: &events2.GenericEmojiEvent{
-				GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+		bot.EventManager.Dispatch(&events.EmojiUpdateEvent{
+			GenericEmojiEvent: &events.GenericEmojiEvent{
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				GuildID:      payload.GuildID,
 				Emoji:        emoji,
 			},
@@ -78,9 +78,9 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot *core.Bot, sequ
 	}
 
 	for _, emoji := range oldEmojis {
-		bot.EventManager.Dispatch(&events2.EmojiDeleteEvent{
-			GenericEmojiEvent: &events2.GenericEmojiEvent{
-				GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+		bot.EventManager.Dispatch(&events.EmojiDeleteEvent{
+			GenericEmojiEvent: &events.GenericEmojiEvent{
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				GuildID:      payload.GuildID,
 				Emoji:        emoji,
 			},

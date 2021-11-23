@@ -21,7 +21,7 @@ func (h *gatewayHandlerThreadListSync) HandleGatewayEvent(bot *core.Bot, sequenc
 
 	for i := range payload.Threads {
 		thread := bot.EntityBuilder.CreateChannel(payload.Threads[i], core.CacheStrategyYes).(core.GuildThread)
-		bot.EventManager.Dispatch(&events.ThreadRevealEvent{
+		bot.EventManager.Dispatch(&events.ThreadShowEvent{
 			GenericThreadEvent: &events.GenericThreadEvent{
 				Thread:   thread,
 				ThreadID: thread.ID(),

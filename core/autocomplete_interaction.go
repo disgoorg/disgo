@@ -20,10 +20,6 @@ type AutocompleteInteractionData struct {
 	Options             AutocompleteOptionsMap
 }
 
-func (i *AutocompleteInteraction) InteractionType() discord.InteractionType {
-	return discord.InteractionTypeAutocomplete
-}
-
 func (i *AutocompleteInteraction) Respond(callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
 	return respond(i.InteractionFields, i.ID, i.Token, callbackType, callbackData, opts...)
 }
@@ -46,7 +42,7 @@ func (i *AutocompleteInteraction) ResultMapFloat(resultMap map[string]float64, o
 
 // CommandPath returns the ApplicationCommand path
 func (i *AutocompleteInteraction) CommandPath() string {
-	return commandPath(i.Data.CommandName, i.Data.SubCommandName,i.Data.SubCommandGroupName)
+	return commandPath(i.Data.CommandName, i.Data.SubCommandName, i.Data.SubCommandGroupName)
 }
 
 // Guild returns the Guild from the Caches

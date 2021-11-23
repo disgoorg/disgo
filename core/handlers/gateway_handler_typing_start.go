@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -23,21 +23,21 @@ func (h *gatewayHandlerTypingStart) New() interface{} {
 func (h *gatewayHandlerTypingStart) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.TypingStartGatewayEvent)
 
-	bot.EventManager.Dispatch(&events2.UserTypingStartEvent{
-		GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+	bot.EventManager.Dispatch(&events.UserTypingStartEvent{
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 		UserID:       payload.UserID,
 		ChannelID:    payload.ChannelID,
 	})
 
 	if payload.GuildID == nil {
-		bot.EventManager.Dispatch(&events2.DMChannelUserTypingStartEvent{
-			GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+		bot.EventManager.Dispatch(&events.DMChannelUserTypingStartEvent{
+			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 			UserID:       payload.UserID,
 			ChannelID:    payload.ChannelID,
 		})
 	} else {
-		bot.EventManager.Dispatch(&events2.GuildMemberTypingStartEvent{
-			GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+		bot.EventManager.Dispatch(&events.GuildMemberTypingStartEvent{
+			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 			ChannelID:    payload.ChannelID,
 			UserID:       payload.UserID,
 			GuildID:      *payload.GuildID,

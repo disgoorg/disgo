@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -21,8 +21,8 @@ func (h *gatewayHandlerResumed) New() interface{} {
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerResumed) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, _ interface{}) {
-	bot.EventManager.Dispatch(&events2.ResumedEvent{
-		GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+	bot.EventManager.Dispatch(&events.ResumedEvent{
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 	})
 
 }

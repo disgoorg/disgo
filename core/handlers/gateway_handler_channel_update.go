@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -37,9 +37,9 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 			guildChannel = c
 		}
 		bot.Caches.Channels().Remove(channel.ID())
-		bot.EventManager.Dispatch(&events2.GuildChannelUpdateEvent{
-			GenericGuildChannelEvent: &events2.GenericGuildChannelEvent{
-				GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+		bot.EventManager.Dispatch(&events.GuildChannelUpdateEvent{
+			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				ChannelID:    channel.ID(),
 				Channel:      guildChannel,
 				GuildID:      ch.GuildID(),
@@ -57,9 +57,9 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 		if c, ok := bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes).(*core.DMChannel); ok {
 			dmChannel = c
 		}
-		bot.EventManager.Dispatch(&events2.DMChannelUpdateEvent{
-			GenericDMChannelEvent: &events2.GenericDMChannelEvent{
-				GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+		bot.EventManager.Dispatch(&events.DMChannelUpdateEvent{
+			GenericDMChannelEvent: &events.GenericDMChannelEvent{
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				ChannelID:    channel.ID(),
 				Channel:      dmChannel,
 			},

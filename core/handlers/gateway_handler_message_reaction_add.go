@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -23,15 +23,15 @@ func (h *gatewayHandlerMessageReactionAdd) New() interface{} {
 func (h *gatewayHandlerMessageReactionAdd) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.GatewayEventMessageReactionAdd)
 
-	genericEvent := events2.NewGenericEvent(bot, sequenceNumber)
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
 	var member *core.Member
 	if payload.Member != nil {
 		member = bot.EntityBuilder.CreateMember(*payload.GuildID, *payload.Member, core.CacheStrategyYes)
 	}
 
-	bot.EventManager.Dispatch(&events2.MessageReactionAddEvent{
-		GenericReactionEvent: &events2.GenericReactionEvent{
+	bot.EventManager.Dispatch(&events.MessageReactionAddEvent{
+		GenericReactionEvent: &events.GenericReactionEvent{
 			GenericEvent: genericEvent,
 			MessageID:    payload.MessageID,
 			ChannelID:    payload.ChannelID,
@@ -43,8 +43,8 @@ func (h *gatewayHandlerMessageReactionAdd) HandleGatewayEvent(bot *core.Bot, seq
 	})
 
 	if payload.GuildID == nil {
-		bot.EventManager.Dispatch(&events2.DMMessageReactionAddEvent{
-			GenericDMMessageReactionEvent: &events2.GenericDMMessageReactionEvent{
+		bot.EventManager.Dispatch(&events.DMMessageReactionAddEvent{
+			GenericDMMessageReactionEvent: &events.GenericDMMessageReactionEvent{
 				GenericEvent: genericEvent,
 				MessageID:    payload.MessageID,
 				ChannelID:    payload.ChannelID,
@@ -53,8 +53,8 @@ func (h *gatewayHandlerMessageReactionAdd) HandleGatewayEvent(bot *core.Bot, seq
 			},
 		})
 	} else {
-		bot.EventManager.Dispatch(&events2.GuildMessageReactionAddEvent{
-			GenericGuildMessageReactionEvent: &events2.GenericGuildMessageReactionEvent{
+		bot.EventManager.Dispatch(&events.GuildMessageReactionAddEvent{
+			GenericGuildMessageReactionEvent: &events.GenericGuildMessageReactionEvent{
 				GenericEvent: genericEvent,
 				MessageID:    payload.MessageID,
 				ChannelID:    payload.ChannelID,

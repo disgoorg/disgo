@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	events2 "github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 )
 
@@ -28,9 +28,9 @@ func (h *gatewayHandlerChannelCreate) HandleGatewayEvent(bot *core.Bot, sequence
 		if c, ok := bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes).(core.GuildChannel); ok {
 			guildChannel = c
 		}
-		bot.EventManager.Dispatch(&events2.GuildChannelCreateEvent{
-			GenericGuildChannelEvent: &events2.GenericGuildChannelEvent{
-				GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+		bot.EventManager.Dispatch(&events.GuildChannelCreateEvent{
+			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				ChannelID:    channel.ID(),
 				Channel:      guildChannel,
 				GuildID:      ch.GuildID(),
@@ -41,9 +41,9 @@ func (h *gatewayHandlerChannelCreate) HandleGatewayEvent(bot *core.Bot, sequence
 		if c, ok := bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes).(*core.DMChannel); ok {
 			dmChannel = c
 		}
-		bot.EventManager.Dispatch(&events2.DMChannelCreateEvent{
-			GenericDMChannelEvent: &events2.GenericDMChannelEvent{
-				GenericEvent: events2.NewGenericEvent(bot, sequenceNumber),
+		bot.EventManager.Dispatch(&events.DMChannelCreateEvent{
+			GenericDMChannelEvent: &events.GenericDMChannelEvent{
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				ChannelID:    channel.ID(),
 				Channel:      dmChannel,
 			},
