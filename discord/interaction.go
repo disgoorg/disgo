@@ -15,6 +15,7 @@ const (
 	InteractionTypeApplicationCommand
 	InteractionTypeComponent
 	InteractionTypeAutocomplete
+	InteractionTypeModalSubmit
 )
 
 // Interaction is used for easier unmarshalling of different Interaction(s)
@@ -381,6 +382,7 @@ func (d *AutocompleteInteractionData) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
+	*d = AutocompleteInteractionData(iData.autocompleteInteractionData)
 	if len(iData.Options) > 0 {
 		d.Options = make([]AutocompleteOption, len(iData.Options))
 		for i, option := range iData.Options {
@@ -388,7 +390,55 @@ func (d *AutocompleteInteractionData) UnmarshalJSON(data []byte) error {
 		}
 	}
 
-	*d = AutocompleteInteractionData(iData.autocompleteInteractionData)
+	return nil
+}
+
+var (
+	_ Interaction = (*ModalSubmitInteraction)(nil)
+)
+
+type ModalSubmitInteraction struct {
+	ID            Snowflake                  `json:"id"`
+	ApplicationID Snowflake                  `json:"application_id"`
+	Token         string                     `json:"token"`
+	Version       int                        `json:"version"`
+	GuildID       *Snowflake                 `json:"guild_id,omitempty"`
+	ChannelID     Snowflake                  `json:"channel_id"`
+	Member        *Member                    `json:"member,omitempty"`
+	User          *User                      `json:"user,omitempty"`
+	Data          ModalSubmitInteractionData `json:"data"`
+}
+
+func (ModalSubmitInteraction) interaction() {}
+
+func (ModalSubmitInteraction) InteractionType() InteractionType {
+	return InteractionTypeModalSubmit
+}
+
+type ModalSubmitInteractionData struct {
+	CustomID   CustomID                        `json:"custom_id"`
+	Components []ModalSubmitContainerComponent `json:"components"`
+}
+
+func (d *ModalSubmitInteractionData) Unmarshal(data []byte) error {
+	type modalSubmitInteractionData ModalSubmitInteractionData
+	var iData struct {
+		modalSubmitInteractionData
+		Components []UnmarshalModalSubmitComponent `json:"components"`
+	}
+
+	if err := json.Unmarshal(data, &iData); err != nil {
+		return err
+	}
+
+	*d = ModalSubmitInteractionData(iData.modalSubmitInteractionData)
+
+	if len(iData.Components) > 0 {
+		d.Components = make([]ModalSubmitContainerComponent, len(iData.Components))
+		for i := range iData.Components {
+			d.Components[i] = iData.Components[i].ModalSubmitComponent.(ModalSubmitContainerComponent)
+		}
+	}
 
 	return nil
 }

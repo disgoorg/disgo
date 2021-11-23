@@ -7,6 +7,8 @@ import (
 
 type SlashCommandInteractionFilter func(slashCommandInteraction *SlashCommandInteraction) bool
 
+var _ Interaction = (*SlashCommandInteraction)(nil)
+
 type SlashCommandInteraction struct {
 	discord.SlashCommandInteraction
 	*InteractionFields
@@ -19,14 +21,6 @@ type SlashCommandInteractionData struct {
 	SubCommandGroupName *string
 	Resolved            *SlashCommandResolved
 	Options             SlashCommandOptionsMap
-}
-
-func (i *SlashCommandInteraction) InteractionType() discord.InteractionType {
-	return discord.InteractionTypeApplicationCommand
-}
-
-func (i *SlashCommandInteraction) ApplicationCommandType() discord.ApplicationCommandType {
-	return discord.ApplicationCommandTypeSlash
 }
 
 func (i *SlashCommandInteraction) Respond(callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error {

@@ -13,6 +13,7 @@ const (
 	InteractionCallbackTypeDeferredUpdateMessage
 	InteractionCallbackTypeUpdateMessage
 	InteractionCallbackTypeAutocompleteResult
+	InteractionCallbackTypeModal
 )
 
 // InteractionResponse is how you answer interactions. If an answer is not sent within 3 seconds of receiving it, the interaction is failed, and you will be unable to respond to it.
@@ -36,3 +37,44 @@ type InteractionCallbackData interface {
 type InteractionResponseCreator interface {
 	ToResponseBody(response InteractionResponse) (interface{}, error)
 }
+
+type AutocompleteResult struct {
+	Choices []AutocompleteChoice `json:"choices"`
+}
+
+func (AutocompleteResult) interactionCallbackData() {}
+
+type AutocompleteChoice interface {
+	autoCompleteChoice()
+}
+
+type AutocompleteChoiceString struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+func (AutocompleteChoiceString) autoCompleteChoice() {}
+
+type AutocompleteChoiceInt struct {
+	Name  string `json:"name"`
+	Value int    `json:"value"`
+}
+
+func (AutocompleteChoiceInt) autoCompleteChoice() {}
+
+type AutocompleteChoiceFloat struct {
+	Name  string  `json:"name"`
+	Value float64 `json:"value"`
+}
+
+func (AutocompleteChoiceFloat) autoCompleteChoice() {}
+
+var _ InteractionCallbackData = (*Modal)(nil)
+
+type Modal struct {
+	CustomID   CustomID             `json:"custom_id"`
+	Title      string               `json:"title"`
+	Components []ContainerComponent `json:"components"`
+}
+
+func (m Modal) interactionCallbackData() {}
