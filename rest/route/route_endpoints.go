@@ -77,12 +77,21 @@ var (
 
 	GetGuildVoiceRegions = NewAPIRoute(GET, "/guilds/{guild.id}/regions")
 
+	UpdateCurrentUserVoiceState = NewAPIRoute(PATCH, "/guilds/{guild.id}/voice-states/@me")
+	UpdateUserVoiceState        = NewAPIRoute(PATCH, "/guilds/{guild.id}/voice-states/{user.id}")
+)
+
+// GuildIntegrations
+var (
 	GetIntegrations   = NewAPIRoute(GET, "/guilds/{guild.id}/integrations")
 	CreateIntegration = NewAPIRoute(POST, "/guilds/{guild.id}/integrations")
 	UpdateIntegration = NewAPIRoute(PATCH, "/guilds/{guild.id}/integrations/{integration.id}")
 	DeleteIntegration = NewAPIRoute(DELETE, "/guilds/{guild.id}/integrations/{integration.id}")
 	SyncIntegration   = NewAPIRoute(POST, "/guilds/{guild.id}/integrations/{integration.id}/sync")
+)
 
+// GuildTemplates
+var (
 	GetGuildTemplate        = NewAPIRoute(GET, "/guilds/templates/{template.code}")
 	GetGuildTemplates       = NewAPIRoute(GET, "/guilds/{guild.id}/templates")
 	CreateGuildTemplate     = NewAPIRoute(POST, "/guilds/{guild.id}/templates")
@@ -90,9 +99,17 @@ var (
 	UpdateGuildTemplate     = NewAPIRoute(PATCH, "/guilds/{guild.id}/templates/{template.code}")
 	DeleteGuildTemplate     = NewAPIRoute(DELETE, "/guilds/{guild.id}/templates/{template.code}")
 	CreateGuildFromTemplate = NewAPIRoute(POST, "/guilds/templates/{template.code}")
+)
 
-	UpdateCurrentUserVoiceState = NewAPIRoute(PATCH, "/guilds/{guild.id}/voice-states/@me")
-	UpdateUserVoiceState        = NewAPIRoute(PATCH, "/guilds/{guild.id}/voice-states/{user.id}")
+// GuildScheduledEvents
+var (
+	GetGuildScheduledEvents = NewAPIRoute(GET, "/guilds/{guild.id}/scheduled-events")
+	GetGuildScheduledEvent  = NewAPIRoute(GET, "/guilds/{guild.id}/scheduled-events/{guild_scheduled_event.id}")
+	CreateGuildScheduledEvent = NewAPIRoute(POST, "/guilds/{guild.id}/scheduled-events")
+	UpdateGuildScheduledEvent = NewAPIRoute(PATCH, "/guilds/{guild.id}/scheduled-events/{guild_scheduled_event.id}")
+	DeleteGuildScheduledEvent = NewAPIRoute(DELETE, "/guilds/{guild.id}/scheduled-events/{guild_scheduled_event.id}")
+
+	GetGuildScheduledEventUsers = NewAPIRoute(GET, "/guilds/{guild.id}/scheduled-events/{guild_scheduled_event.id}/users")
 )
 
 // StageInstance
@@ -104,7 +121,6 @@ var (
 )
 
 // Roles
-//goland:noinspection GoUnusedGlobalVariable
 var (
 	GetRoles            = NewAPIRoute(GET, "/guilds/{guild.id}/roles")
 	GetRole             = NewAPIRoute(GET, "/guilds/{guild.id}/roles/{role.id}")
@@ -116,7 +132,6 @@ var (
 )
 
 // Channels
-//goland:noinspection GoUnusedGlobalVariable
 var (
 	GetChannel    = NewAPIRoute(GET, "/channels/{channel.id}")
 	UpdateChannel = NewAPIRoute(PATCH, "/channels/{channel.id}")
@@ -135,7 +150,6 @@ var (
 )
 
 // Threads
-//goland:noinspection GoUnusedGlobalVariable
 var (
 	CreateThreadWithMessage = NewAPIRoute(POST, "/channels/{channel.id}/messages/{message.id}/threads")
 	CreateThread            = NewAPIRoute(POST, "/channels/{channel.id}/threads")
@@ -155,7 +169,6 @@ var (
 )
 
 // Messages
-//goland:noinspection GoUnusedGlobalVariable
 var (
 	GetMessages        = NewAPIRoute(GET, "/channels/{channel.id}/messages")
 	GetMessage         = NewAPIRoute(GET, "/channels/{channel.id}/messages/{message.id}")
@@ -179,7 +192,6 @@ var (
 )
 
 // Emojis
-//goland:noinspection GoUnusedGlobalVariable
 var (
 	GetEmojis   = NewAPIRoute(GET, "/guilds/{guild.id}/emojis")
 	GetEmoji    = NewAPIRoute(GET, "/guilds/{guild.id}/emojis/{emoji.id}")
@@ -189,7 +201,6 @@ var (
 )
 
 // Stickers
-//goland:noinspection GoUnusedGlobalVariable
 var (
 	GetNitroStickerPacks = NewAPIRoute(GET, "/sticker-packs")
 	GetSticker           = NewAPIRoute(GET, "/stickers/{sticker.id}")
@@ -200,7 +211,6 @@ var (
 )
 
 // Webhooks
-//goland:noinspection GoUnusedGlobalVariable
 var (
 	GetWebhook    = NewAPIRoute(GET, "/webhooks/{webhook.id}")
 	UpdateWebhook = NewAPIRoute(PATCH, "/webhooks/{webhook.id}")
@@ -218,7 +228,6 @@ var (
 )
 
 // Invites
-//goland:noinspection GoUnusedGlobalVariable
 var (
 	GetInvite    = NewAPIRoute(GET, "/invites/{code}")
 	CreateInvite = NewAPIRoute(POST, "/channels/{channel.id}/invites")
@@ -229,7 +238,6 @@ var (
 )
 
 // Interactions
-//goland:noinspection GoUnusedGlobalVariable
 var (
 	GetGlobalCommands   = NewAPIRoute(GET, "/applications/{application.id}/commands")
 	GetGlobalCommand    = NewAPIRoute(GET, "/applications/{application.id}/command/{command.id}")
@@ -262,7 +270,6 @@ var (
 )
 
 // CDN
-//goland:noinspection GoUnusedGlobalVariable
 var (
 	CustomEmoji = NewCDNRoute("/emojis/{emote.id}", PNG, GIF)
 
