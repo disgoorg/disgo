@@ -24,6 +24,7 @@ func (h *gatewayHandlerChannelDelete) HandleGatewayEvent(bot *core.Bot, sequence
 	payload := v.(*discord.UnmarshalChannel).Channel
 
 	bot.Caches.Channels().Remove(payload.ID())
+	bot.Caches.Members().RemoveAll(payload.ID())
 	channel := bot.EntityBuilder.CreateChannel(payload, core.CacheStrategyNo)
 
 	if ch, ok := channel.(core.GuildChannel); ok {

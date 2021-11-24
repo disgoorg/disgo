@@ -20,6 +20,8 @@ func (h *gatewayHandlerThreadDelete) HandleGatewayEvent(bot *core.Bot, sequenceN
 	payload := *v.(*discord.GatewayEventThreadDelete)
 
 	channel := bot.Caches.Channels().GetCopy(payload.ID)
+	bot.Caches.Channels().Remove(payload.ID)
+	bot.Caches.ThreadMembers().RemoveAll(payload.ID)
 	var thread core.GuildThread
 	if c, ok := channel.(core.GuildThread); ok {
 		thread = c

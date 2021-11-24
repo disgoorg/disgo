@@ -12,6 +12,7 @@ type (
 		GetCopy(threadID discord.Snowflake, userID discord.Snowflake) *ThreadMember
 		Set(threadMember *ThreadMember) *ThreadMember
 		Remove(threadID discord.Snowflake, userID discord.Snowflake)
+		RemoveAll(threadID discord.Snowflake)
 
 		Cache() map[discord.Snowflake]map[discord.Snowflake]*ThreadMember
 		All() map[discord.Snowflake][]*ThreadMember
@@ -74,6 +75,10 @@ func (c *threadMemberCacheImpl) Remove(threadID discord.Snowflake, userID discor
 		return
 	}
 	delete(c.threadMembers[threadID], userID)
+}
+
+func (c *threadMemberCacheImpl) RemoveAll(threadID discord.Snowflake) {
+	delete(c.threadMembers, threadID)
 }
 
 func (c *threadMemberCacheImpl) Cache() map[discord.Snowflake]map[discord.Snowflake]*ThreadMember {

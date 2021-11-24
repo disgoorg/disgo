@@ -12,6 +12,7 @@ type (
 		GetCopy(guildID discord.Snowflake, userID discord.Snowflake) *Member
 		Set(member *Member) *Member
 		Remove(guildID discord.Snowflake, userID discord.Snowflake)
+		RemoveAll(guildID discord.Snowflake)
 
 		Cache() map[discord.Snowflake]map[discord.Snowflake]*Member
 		All() map[discord.Snowflake][]*Member
@@ -77,6 +78,10 @@ func (c *memberCacheImpl) Remove(guildID discord.Snowflake, userID discord.Snowf
 		return
 	}
 	delete(c.members[guildID], userID)
+}
+
+func (c *memberCacheImpl) RemoveAll(guildID discord.Snowflake) {
+	delete(c.members, guildID)
 }
 
 func (c *memberCacheImpl) Cache() map[discord.Snowflake]map[discord.Snowflake]*Member {
