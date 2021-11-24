@@ -74,10 +74,6 @@ type GatewayEventThreadListSync struct {
 	Members    []ThreadMember `json:"members"`
 }
 
-type GatewayEventThreadMemberUpdate struct {
-	ThreadMember
-}
-
 type GatewayEventThreadMembersUpdate struct {
 	ID               Snowflake                  `json:"id"`
 	GuildID          Snowflake                  `json:"guild_id"`

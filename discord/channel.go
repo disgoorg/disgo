@@ -29,46 +29,6 @@ const (
 	ChannelTypeGuildStageVoice
 )
 
-func (t ChannelType) String() string {
-	switch t {
-	case ChannelTypeGuildText:
-		return "GuildTextChannel"
-
-	case ChannelTypeDM:
-		return "DMChannel"
-
-	case ChannelTypeGuildVoice:
-		return "GuildVoiceChannel"
-
-	case ChannelTypeGroupDM:
-		return "GroupDMChannel"
-
-	case ChannelTypeGuildCategory:
-		return "GuildCategoryChannel"
-
-	case ChannelTypeGuildNews:
-		return "GuildNewsChannel"
-
-	case ChannelTypeGuildStore:
-		return "GuildStoreChannel"
-
-	case ChannelTypeGuildNewsThread:
-		return "GuildNewsThread"
-
-	case ChannelTypeGuildPublicThread:
-		return "GuildPublicThread"
-
-	case ChannelTypeGuildPrivateThread:
-		return "GuildPrivateThread"
-
-	case ChannelTypeGuildStageVoice:
-		return "GuildStageVoiceChannel"
-
-	default:
-		return "unknown"
-	}
-}
-
 type Channel interface {
 	json.Marshaler
 	fmt.Stringer
@@ -993,5 +953,5 @@ func parsePermissionOverwrites(unmarshalOverwrites []UnmarshalPermissionOverwrit
 }
 
 func channelString(channel Channel) string {
-	return fmt.Sprintf("%s:%s(%s)", channel.Type().String(), channel.Name(), channel.ID())
+	return fmt.Sprintf("%d:%s(%s)", channel.Type(), channel.Name(), channel.ID())
 }
