@@ -62,7 +62,7 @@ func main() {
 }
 
 func onMessageCreate(event *events.MessageCreateEvent) {
-	if event.Message.Author.Bot {
+	if event.Message.Author.BotUser {
 		return
 	}
 	_, _ = event.Message.Reply(discord.NewMessageCreateBuilder().SetContent(event.Message.Content).Build())

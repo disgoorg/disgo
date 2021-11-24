@@ -3,9 +3,9 @@ package bot
 import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/gateway"
+	"github.com/DisgoOrg/disgo/gateway/sharding"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/rest"
-	"github.com/DisgoOrg/disgo/sharding"
 	"github.com/DisgoOrg/log"
 )
 

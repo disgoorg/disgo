@@ -96,12 +96,11 @@ func handleTryLogin(w http.ResponseWriter, r *http.Request) {
 	)
 	if code != "" && state != "" {
 		identifier := randStr(32)
-		_, webhook, err := client.StartSession(code, state, identifier)
+		_, err := client.StartSession(code, state, identifier)
 		if err != nil {
 			writeError(w, "error while starting session", err)
 			return
 		}
-		fmt.Printf("webhook: %+v", webhook)
 		http.SetCookie(w, &http.Cookie{Name: "token", Value: identifier})
 	}
 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)

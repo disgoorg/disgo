@@ -160,7 +160,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 }
 
 func messageListener(event *events.GuildMessageCreateEvent) {
-	if event.Message.Author.Bot {
+	if event.Message.Author.BotUser {
 		return
 	}
 
@@ -212,7 +212,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 	case "repeat":
 		go func() {
 			ch, cls := event.Bot().Collectors.NewMessageCollector(func(m *core.Message) bool {
-				return !m.Author.Bot && m.ChannelID == event.ChannelID
+				return !m.Author.BotUser && m.ChannelID == event.ChannelID
 			})
 
 			var count = 0
