@@ -32,7 +32,7 @@ type User struct {
 	Avatar        *string   `json:"avatar"`
 	Banner        *string   `json:"banner"`
 	AccentColor   *int      `json:"accent_color"`
-	Bot           bool      `json:"bot"`
+	BotUser       bool      `json:"bot"`
 	System        bool      `json:"system"`
 	PublicFlags   UserFlags `json:"public_flags"`
 }

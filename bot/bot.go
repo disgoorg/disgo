@@ -7,15 +7,14 @@ import (
 
 	"github.com/DisgoOrg/disgo/collectors"
 	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/core/handlers"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
-	"github.com/DisgoOrg/disgo/gateway/gatewayhandlers"
+	"github.com/DisgoOrg/disgo/gateway/sharding"
+	"github.com/DisgoOrg/disgo/gateway/sharding/srate"
 	"github.com/DisgoOrg/disgo/httpserver"
-	"github.com/DisgoOrg/disgo/httpserver/httpserverhandlers"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/rrate"
-	"github.com/DisgoOrg/disgo/sharding"
-	"github.com/DisgoOrg/disgo/sharding/srate"
 	"github.com/DisgoOrg/log"
 	"github.com/pkg/errors"
 )
@@ -25,10 +24,10 @@ func New(token string, opts ...ConfigOpt) (*core.Bot, error) {
 	config.Apply(opts)
 
 	if config.EventManagerConfig.GatewayHandlers == nil {
-		config.EventManagerConfig.GatewayHandlers = gatewayhandlers.GetGatewayHandlers()
+		config.EventManagerConfig.GatewayHandlers = handlers.GetGatewayHandlers()
 	}
 	if config.EventManagerConfig.HTTPServerHandler == nil {
-		config.EventManagerConfig.HTTPServerHandler = httpserverhandlers.GetHTTPServerHandler()
+		config.EventManagerConfig.HTTPServerHandler = handlers.GetHTTPServerHandler()
 	}
 
 	return buildBot(token, *config)
@@ -106,7 +105,7 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 		if err != nil {
 			return nil, err
 		}
-		config.Gateway = gateway.New(token, gatewayRs.URL, 0, 0, gatewayhandlers.DefaultGatewayEventHandler(bot), config.GatewayConfig)
+		config.Gateway = gateway.New(token, gatewayRs.URL, 0, 0, handlers.DefaultGatewayEventHandler(bot), config.GatewayConfig)
 	}
 	bot.Gateway = config.Gateway
 
@@ -136,7 +135,7 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 			}
 		}
 		if config.ShardManager == nil {
-			config.ShardManager = sharding.New(token, gatewayBotRs.URL, gatewayhandlers.DefaultGatewayEventHandler(bot), config.ShardManagerConfig)
+			config.ShardManager = sharding.New(token, gatewayBotRs.URL, handlers.DefaultGatewayEventHandler(bot), config.ShardManagerConfig)
 		}
 	}
 	bot.ShardManager = config.ShardManager
@@ -145,7 +144,7 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 		if config.HTTPServerConfig.Logger == nil {
 			config.HTTPServerConfig.Logger = config.Logger
 		}
-		config.HTTPServer = httpserver.New(httpserverhandlers.DefaultHTTPServerEventHandler(bot), config.HTTPServerConfig)
+		config.HTTPServer = httpserver.New(handlers.DefaultHTTPServerEventHandler(bot), config.HTTPServerConfig)
 	}
 	bot.HTTPServer = config.HTTPServer
 
