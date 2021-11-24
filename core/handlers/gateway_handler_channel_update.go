@@ -36,7 +36,7 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 		if c, ok := bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyNo).(core.GuildChannel); ok {
 			guildChannel = c
 		}
-		bot.Caches.Channels().Remove(channel.ID())
+
 		bot.EventManager.Dispatch(&events.GuildChannelUpdateEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
@@ -46,6 +46,22 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 			},
 			OldChannel: oldGuildChannel,
 		})
+
+		if guild := guildChannel.Guild(); guild != nil {
+			if guildMessageChannel, ok := guildChannel.(core.GuildMessageChannel); ok && guild.SelfMember().ChannelPermissions(guildChannel).Has(discord.PermissionViewChannel) {
+				for _, guildThread := range guildMessageChannel.Threads() {
+					bot.EventManager.Dispatch(&events.ThreadHideEvent{
+						GenericThreadEvent: &events.GenericThreadEvent{
+							GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+							Thread:       guildThread,
+							ThreadID:     guildThread.ID(),
+							GuildID:      guildThread.GuildID(),
+							ParentID:     guildThread.ParentID(),
+						},
+					})
+				}
+			}
+		}
 	} else {
 		var (
 			oldDmChannel *core.DMChannel
