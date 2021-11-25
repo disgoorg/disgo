@@ -23,6 +23,7 @@ type GuildService interface {
 	DeleteGuild(guildID discord.Snowflake, opts ...RequestOpt) error
 
 	GetRoles(guildID discord.Snowflake, opts ...RequestOpt) ([]discord.Role, error)
+	GetRole(guildID discord.Snowflake, roleID discord.Snowflake, opts ...RequestOpt) ([]discord.Role, error)
 	CreateRole(guildID discord.Snowflake, createRole discord.RoleCreate, opts ...RequestOpt) (*discord.Role, error)
 	UpdateRole(guildID discord.Snowflake, roleID discord.Snowflake, roleUpdate discord.RoleUpdate, opts ...RequestOpt) (*discord.Role, error)
 	UpdateRolePositions(guildID discord.Snowflake, rolePositionUpdates []discord.RolePositionUpdate, opts ...RequestOpt) ([]discord.Role, error)
@@ -119,6 +120,16 @@ func (s *guildServiceImpl) GetRoles(guildID discord.Snowflake, opts ...RequestOp
 		return
 	}
 	err = s.restClient.Do(compiledRoute, nil, &roles, opts...)
+	return
+}
+
+func (s *guildServiceImpl) GetRole(guildID discord.Snowflake, roleID discord.Snowflake, opts ...RequestOpt) (role []discord.Role, err error) {
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.GetRole.Compile(nil, guildID, roleID)
+	if err != nil {
+		return
+	}
+	err = s.restClient.Do(compiledRoute, nil, &role, opts...)
 	return
 }
 

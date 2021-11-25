@@ -9,7 +9,6 @@ const (
 )
 
 // Misc
-//goland:noinspection GoUnusedGlobalVariable
 var (
 	GetGateway      = NewAPIRoute(GET, "/gateway")
 	GetGatewayBot   = NewAPIRoute(GET, "/gateway/bot")
@@ -17,7 +16,6 @@ var (
 )
 
 // OAuth2
-//goland:noinspection GoUnusedGlobalVariable
 var (
 	GetBotApplicationInfo = NewAPIRoute(GET, "/oauth2/applications/@me")
 	GetAuthorizationInfo  = NewAPIRoute(GET, "/oauth2/@me")
@@ -26,7 +24,6 @@ var (
 )
 
 // Users
-//goland:noinspection GoUnusedGlobalVariable
 var (
 	GetUser                   = NewAPIRoute(GET, "/users/{user.id}")
 	GetCurrentUser            = NewAPIRoute(GET, "/users/@me")
@@ -39,7 +36,6 @@ var (
 )
 
 // Guilds
-//goland:noinspection GoUnusedGlobalVariable
 var (
 	GetGuild          = NewAPIRoute(GET, "/guilds/{guild.id}", "with_counts")
 	GetGuildPreview   = NewAPIRoute(GET, "/guilds/{guild.id}/preview")
@@ -125,7 +121,6 @@ var (
 	GetRoles            = NewAPIRoute(GET, "/guilds/{guild.id}/roles")
 	GetRole             = NewAPIRoute(GET, "/guilds/{guild.id}/roles/{role.id}")
 	CreateRole          = NewAPIRoute(POST, "/guilds/{guild.id}/roles")
-	UpdateRoles         = NewAPIRoute(PATCH, "/guilds/{guild.id}/roles")
 	UpdateRole          = NewAPIRoute(PATCH, "/guilds/{guild.id}/roles/{role.id}")
 	UpdateRolePositions = NewAPIRoute(PATCH, "/guilds/{guild.id}/roles")
 	DeleteRole          = NewAPIRoute(DELETE, "/guilds/{guild.id}/roles/{role.id}")
@@ -140,11 +135,10 @@ var (
 	GetChannelWebhooks = NewAPIRoute(GET, "/channels/{channel.id}/webhooks")
 	CreateWebhook      = NewAPIRoute(POST, "/channels/{channel.id}/webhooks")
 
-	GetPermissionOverrides   = NewAPIRoute(GET, "/channels/{channel.id}/permissions")
-	GetPermissionOverride    = NewAPIRoute(GET, "/channels/{channel.id}/permissions/{overwrite.id}")
-	CreatePermissionOverride = NewAPIRoute(PUT, "/channels/{channel.id}/permissions/{overwrite.id}")
-	UpdatePermissionOverride = NewAPIRoute(PUT, "/channels/{channel.id}/permissions/{overwrite.id}")
-	DeletePermissionOverride = NewAPIRoute(DELETE, "/channels/{channel.id}/permissions/{overwrite.id}")
+	GetPermissionOverwrites   = NewAPIRoute(GET, "/channels/{channel.id}/permissions")
+	GetPermissionOverwrite    = NewAPIRoute(GET, "/channels/{channel.id}/permissions/{overwrite.id}")
+	UpdatePermissionOverwrite = NewAPIRoute(PUT, "/channels/{channel.id}/permissions/{overwrite.id}")
+	DeletePermissionOverwrite = NewAPIRoute(DELETE, "/channels/{channel.id}/permissions/{overwrite.id}")
 
 	SendTyping = NewAPIRoute(POST, "/channels/{channel.id}/typing")
 )
@@ -160,7 +154,6 @@ var (
 	GetThreadMember         = NewAPIRoute(GET, "/channels/{channel.id}/thread-members/{user.id}")
 	GetThreadMembers        = NewAPIRoute(GET, "/channels/{channel.id}/thread-members")
 
-	GetActiveThreads                = NewAPIRoute(GET, "/channels/{channel.id}/threads/active")
 	GetArchivedPublicThreads        = NewAPIRoute(GET, "/channels/{channel.id}/threads/archived/public", "before", "limit")
 	GetArchivedPrivateThreads       = NewAPIRoute(GET, "/channels/{channel.id}/threads/archived/private", "before", "limit")
 	GetJoinedAchievedPrivateThreads = NewAPIRoute(GET, "/channels/{channel.id}/users/@me/threads/archived/private", "before", "limit")
@@ -177,13 +170,13 @@ var (
 	DeleteMessage      = NewAPIRoute(DELETE, "/channels/{channel.id}/messages/{message.id}")
 	BulkDeleteMessages = NewAPIRoute(POST, "/channels/{channel.id}/messages/bulk-delete")
 
-	GetPinnedMessages   = NewAPIRoute(GET, "/channels/{channel.id}/pins")
-	AddPinnedMessage    = NewAPIRoute(PUT, "/channels/{channel.id}/pins/{message.id}")
-	RemovePinnedMessage = NewAPIRoute(DELETE, "/channels/{channel.id}/pins/{message.id}")
+	GetPinnedMessages = NewAPIRoute(GET, "/channels/{channel.id}/pins")
+	PinMessage        = NewAPIRoute(PUT, "/channels/{channel.id}/pins/{message.id}")
+	UnpinMessage      = NewAPIRoute(DELETE, "/channels/{channel.id}/pins/{message.id}")
 
 	CrosspostMessage = NewAPIRoute(POST, "/channels/{channel.id}/messages/{message.id}/crosspost")
 
-	GetReactions               = NewAPIRoute(GET, "/channels/{channel.id}/messages/{message.id}/reactions/{emoji}")
+	GetReactions               = NewAPIRoute(GET, "/channels/{channel.id}/messages/{message.id}/reactions/{emoji}", "after", "limit")
 	AddReaction                = NewAPIRoute(PUT, "/channels/{channel.id}/messages/{message.id}/reactions/{emoji}/@me")
 	RemoveOwnReaction          = NewAPIRoute(DELETE, "/channels/{channel.id}/messages/{message.id}/reactions/{emoji}/@me")
 	RemoveUserReaction         = NewAPIRoute(DELETE, "/channels/{channel.id}/messages/{message.id}/reactions/{emoji}/{user.id}")
@@ -303,7 +296,6 @@ var (
 )
 
 // Other
-//goland:noinspection GoUnusedGlobalVariable
 var (
 	InviteURL  = NewCustomRoute("https://discord.gg", "/{code}")
 	WebhookURL = NewCustomRoute("https://discord.com", "/api/webhooks/{webhook.id}/{webhook.token}")

@@ -202,7 +202,7 @@ func (s *applicationServiceImpl) DeleteGuildCommand(applicationID discord.Snowfl
 
 func (s *applicationServiceImpl) GetGuildCommandsPermissions(applicationID discord.Snowflake, guildID discord.Snowflake, opts ...RequestOpt) (commandsPerms []discord.ApplicationCommandPermissions, err error) {
 	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetGuildCommandPermissions.Compile(nil, applicationID, guildID)
+	compiledRoute, err = route.GetGuildCommandsPermissions.Compile(nil, applicationID, guildID)
 	if err != nil {
 		return
 	}
