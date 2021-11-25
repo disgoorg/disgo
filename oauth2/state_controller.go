@@ -4,13 +4,23 @@ import "github.com/DisgoOrg/disgo/internal/insecurerandstr"
 
 var _ StateController = (*stateControllerImpl)(nil)
 
+// StateController is responsible for generating, storing and validating states
 type StateController interface {
+	// GenerateNewState generates a new random state to be used as a state
 	GenerateNewState(redirectURI string) string
+
+	// ConsumeState validates a state and returns the redirect url or nil if it is invalid
 	ConsumeState(state string) *string
 }
 
+// NewStateController returns a new empty StateController
 func NewStateController() StateController {
-	return &stateControllerImpl{states: map[string]string{}}
+	return NewStateControllerWithStates(map[string]string{})
+}
+
+// NewStateControllerWithStates returns a new StateController with the given states
+func NewStateControllerWithStates(states map[string]string) StateController {
+	return &stateControllerImpl{states: states}
 }
 
 type stateControllerImpl struct {

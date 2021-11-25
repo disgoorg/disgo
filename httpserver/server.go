@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"bytes"
+	"context"
 	"crypto/ed25519"
 	"encoding/hex"
 	"io"
@@ -20,11 +21,10 @@ type Server interface {
 	PublicKey() ed25519.PublicKey
 	Config() Config
 	Start()
-	Close()
+	Close(ctx context.Context)
 }
 
-// Verify implements the verification side of the discord interactions api signing algorithm, as documented here:
-// https://discord.com/developers/docs/interactions/slash-commands#security-and-authorization
+// Verify implements the verification side of the discord interactions api signing algorithm, as documented here: https://discord.com/developers/docs/interactions/slash-commands#security-and-authorization
 // Credit: https://github.com/bsdlp/discord-interactions-go/blob/main/interactions/verify.go
 func Verify(logger log.Logger, r *http.Request, key ed25519.PublicKey) bool {
 	var msg bytes.Buffer

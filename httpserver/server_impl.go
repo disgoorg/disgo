@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"bytes"
+	"context"
 	"crypto/ed25519"
 	"encoding/hex"
 	"io"
@@ -89,8 +90,8 @@ func (s *serverImpl) Start() {
 }
 
 // Close shuts down the serverImpl
-func (s *serverImpl) Close() {
-	if err := s.server.Close(); err != nil {
+func (s *serverImpl) Close(ctx context.Context) {
+	if err := s.server.Shutdown(ctx); err != nil {
 		s.Logger().Error("error while shutting down http server: ", err)
 	}
 }
