@@ -90,10 +90,8 @@ func (s *serverImpl) Start() {
 }
 
 // Close shuts down the serverImpl
-func (s *serverImpl) Close(ctx context.Context) {
-	if err := s.server.Shutdown(ctx); err != nil {
-		s.Logger().Error("error while shutting down http server: ", err)
-	}
+func (s *serverImpl) Close(ctx context.Context) error {
+	return s.server.Shutdown(ctx)
 }
 
 type WebhookInteractionHandler struct {

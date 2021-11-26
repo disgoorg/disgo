@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
@@ -55,7 +56,7 @@ func main() {
 		return
 	}
 
-	defer disgo.Close()
+	defer disgo.Close(context.TODO())
 
 	_, err = disgo.SetGuildCommands(guildID, commands)
 	if err != nil {

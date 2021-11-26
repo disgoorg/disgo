@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
@@ -49,10 +50,13 @@ func main() {
 		log.Fatalf("error while building disgo: %s", err)
 	}
 
-	defer disgo.Close()
+	defer func() {
+		err = disgo.Close(context.TODO())
+		log.Error("error while closing disgo: ", err)
+	}()
 
-	if errs := disgo.ConnectShardManager(); errs != nil {
-		log.Fatal("error while connecting to gateway: ", errs)
+	if err = disgo.ConnectShardManager(context.TODO()); err != nil {
+		log.Fatal("error while connecting to gateway: ", err)
 	}
 
 	log.Infof("example is now running. Press CTRL-C to exit.")

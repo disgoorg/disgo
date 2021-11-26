@@ -9,6 +9,7 @@ import (
 	"github.com/DisgoOrg/log"
 )
 
+// Config is the core.Bot config used to configure everything
 type Config struct {
 	Logger log.Logger
 

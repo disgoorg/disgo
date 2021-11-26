@@ -33,6 +33,9 @@ func NewClient(config *Config) Client {
 	if config.RateLimiterConfig == nil {
 		config.RateLimiterConfig = &rrate.DefaultConfig
 	}
+	if config.RateLimiterConfig.Logger == nil {
+		config.RateLimiterConfig.Logger = config.Logger
+	}
 	if config.RateLimiter == nil {
 		config.RateLimiter = rrate.NewLimiter(config.RateLimiterConfig)
 	}
