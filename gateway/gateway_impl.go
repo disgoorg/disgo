@@ -93,11 +93,7 @@ func (g *gatewayImpl) formatLogs(a ...interface{}) string {
 	return fmt.Sprint(a...)
 }
 
-func (g *gatewayImpl) Open() error {
-	return g.OpenCtx(context.Background())
-}
-
-func (g *gatewayImpl) OpenCtx(ctx context.Context) error {
+func (g *gatewayImpl) Open(ctx context.Context) error {
 	if g.lastSequenceReceived == nil || g.sessionID == nil {
 		g.status = StatusConnecting
 	} else {
@@ -139,8 +135,8 @@ func (g *gatewayImpl) OpenCtx(ctx context.Context) error {
 	return nil
 }
 
-func (g *gatewayImpl) Close() {
-	g.closeWithCode(websocket.CloseNormalClosure)
+func (g *gatewayImpl) Close(ctx context.Context) error {
+	return g.closeWithCode(ctx, websocket.CloseNormalClosure)
 }
 
 func (g *gatewayImpl) Status() Status {
@@ -173,7 +169,7 @@ func (g *gatewayImpl) Latency() time.Duration {
 	return g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
 }
 
-func (g *gatewayImpl) reconnect(delay time.Duration) {
+func (g *gatewayImpl) reconnect(ctx context.Context, delay time.Duration) {
 	go func() {
 		time.Sleep(delay)
 
@@ -182,15 +178,18 @@ func (g *gatewayImpl) reconnect(delay time.Duration) {
 			return
 		}
 		g.Logger().Info(g.formatLogs("reconnecting gateway..."))
-		if err := g.Open(); err != nil {
+		if err := g.Open(ctx); err != nil {
 			g.Logger().Error(g.formatLogs("failed to reconnect gateway: ", err))
 			g.status = StatusDisconnected
-			g.reconnect(delay * 2)
+			g.reconnect(ctx, delay * 2)
 		}
 	}()
 }
 
-func (g *gatewayImpl) closeWithCode(code int) {
+func (g *gatewayImpl) closeWithCode(ctx context.Context, code int) error {
+	if err := g.config.RateLimiter.Wait(ctx); err != nil {
+		return err
+	}
 	if g.heartbeatChan != nil {
 		g.Logger().Info(g.formatLogs("closing gateway goroutines..."))
 		close(g.heartbeatChan)
@@ -200,7 +199,7 @@ func (g *gatewayImpl) closeWithCode(code int) {
 	if g.conn != nil {
 		err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, ""))
 		if err != nil {
-			g.Logger().Error(g.formatLogs("error writing close code: ", err))
+			return errors.Wrap(err, "error writing close code")
 		}
 
 		// TODO: Wait for Discord to actually close the connection.
@@ -208,7 +207,7 @@ func (g *gatewayImpl) closeWithCode(code int) {
 
 		err = g.conn.Close()
 		if err != nil {
-			g.Logger().Error(g.formatLogs("error closing conn: ", err))
+			return errors.Wrap(err, "error closing websocket")
 		}
 		g.conn = nil
 	}

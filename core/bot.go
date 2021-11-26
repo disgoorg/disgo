@@ -38,9 +38,9 @@ type Bot struct {
 }
 
 // Close will clean up all disgo internals and close the discord connection safely
-func (b *Bot) Close() {
+func (b *Bot) Close(ctx context.Context) error{
 	if b.RestServices != nil {
-		b.RestServices.Close()
+		return b.RestServices.Close(ctx)
 	}
 	if b.Gateway != nil {
 		b.Gateway.Close()
