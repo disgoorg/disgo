@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/DisgoOrg/disgo/internal/merrors"
 	"github.com/DisgoOrg/log"
 	"github.com/sasha-s/go-csync"
 )
@@ -38,8 +39,23 @@ func (r *limiterImpl) Logger() log.Logger {
 	return r.config.Logger
 }
 
-func (r *limiterImpl) Close(ctx context.Context) {
+func (r *limiterImpl) Close(ctx context.Context) error {
+	var wg sync.WaitGroup
+	var errs merrors.Error
+	r.Lock()
 
+	for key := range r.buckets {
+		wg.Add(1)
+		bucket := r.buckets[key]
+		go func() {
+			defer wg.Done()
+			if err := bucket.CLock(ctx); err != nil {
+				errs.Add(err)
+			}
+			bucket.Unlock()
+		}()
+	}
+	return errs
 }
 
 func (r *limiterImpl) Config() Config {
