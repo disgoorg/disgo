@@ -106,6 +106,9 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 		if err != nil {
 			return nil, err
 		}
+		if config.GatewayConfig.Logger == nil {
+			config.GatewayConfig.Logger = bot.Logger
+		}
 		config.Gateway = gateway.New(token, gatewayRs.URL, 0, 0, gatewayhandlers.DefaultGatewayEventHandler(bot), config.GatewayConfig)
 	}
 	bot.Gateway = config.Gateway
