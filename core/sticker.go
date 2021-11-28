@@ -25,7 +25,7 @@ func (s *Sticker) Guild() *Guild {
 	if s.Type != discord.StickerTypeGuild {
 		return nil
 	}
-	return s.Bot.Caches.GuildCache().Get(*s.GuildID)
+	return s.Bot.Caches.Guilds().Get(*s.GuildID)
 }
 
 func (s *Sticker) Update(stickerUpdate discord.StickerUpdate, opts ...rest.RequestOpt) (*Sticker, error) {

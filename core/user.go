@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/DisgoOrg/disgo/discord"
@@ -9,19 +8,9 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ Mentionable = (*User)(nil)
-
 type User struct {
 	discord.User
 	Bot *Bot
-}
-
-func (u *User) String() string {
-	return fmt.Sprintf("<@%s>", u.ID)
-}
-
-func (u *User) Mention() string {
-	return u.String()
 }
 
 // AvatarURL returns the Avatar URL of the User
@@ -50,21 +39,16 @@ func (u *User) BannerURL(size int) *string {
 	return u.getAssetURL(route.UserBanner, u.Banner, size)
 }
 
-// Tag returns the user's Username and Discriminator
-func (u *User) Tag() string {
-	return fmt.Sprintf("%s#%s", u.Username, u.Discriminator)
-}
-
 func (u *User) getAssetURL(cdnRoute *route.CDNRoute, assetId *string, size int) *string {
 	return discord.FormatAssetURL(cdnRoute, u.ID, assetId, size)
 }
 
 // OpenDMChannel creates a DMChannel between the user and the Disgo client
-func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (*Channel, error) {
+func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (*DMChannel, error) {
 	channel, err := u.Bot.RestServices.UserService().CreateDMChannel(u.ID, opts...)
 	if err != nil {
 		return nil, err
 	}
 	// TODO: should we caches it here? or do we get a gateway event?
-	return u.Bot.EntityBuilder.CreateChannel(*channel, CacheStrategyYes), nil
+	return u.Bot.EntityBuilder.CreateChannel(*channel, CacheStrategyYes).(*DMChannel), nil
 }

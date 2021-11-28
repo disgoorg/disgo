@@ -1,14 +1,15 @@
 package main
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/DisgoOrg/disgo/bot"
 	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/core/bot"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/events"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/log"
 )
@@ -31,9 +32,9 @@ func main() {
 		log.Fatal("error while building disgo: ", err)
 	}
 
-	defer disgo.Close()
+	defer disgo.Close(context.TODO())
 
-	if err = disgo.ConnectGateway(); err != nil {
+	if err = disgo.ConnectGateway(context.TODO()); err != nil {
 		log.Fatal("errors while connecting to gateway: ", err)
 	}
 
@@ -51,6 +52,6 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 		message = "ping"
 	}
 	if message != "" {
-		_, _ = event.Message.Reply(core.NewMessageCreateBuilder().SetContent(message).Build())
+		_, _ = event.Message.Reply(discord.NewMessageCreateBuilder().SetContent(message).Build())
 	}
 }

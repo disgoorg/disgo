@@ -7,20 +7,31 @@ import (
 )
 
 type AccessTokenExchange struct {
-	AccessToken  string        `json:"access_token"`
-	TokenType    TokenType     `json:"token_type"`
-	ExpiresIn    time.Duration `json:"expires_in"`
-	RefreshToken string        `json:"refresh_token"`
-	Scope        string        `json:"scope"`
-	Webhook      *Webhook      `json:"webhook"`
+	AccessToken  string           `json:"access_token"`
+	TokenType    TokenType        `json:"token_type"`
+	ExpiresIn    time.Duration    `json:"expires_in"`
+	RefreshToken string           `json:"refresh_token"`
+	Scope        string           `json:"scope"`
+	Webhook      *IncomingWebhook `json:"webhook"`
 }
 
 func (e *AccessTokenExchange) UnmarshalJSON(data []byte) error {
-	err := json.Unmarshal(data, &e)
-	if err != nil {
+	type accessTokenExchange AccessTokenExchange
+	var v struct {
+		Webhook   *UnmarshalWebhook `json:"webhook"`
+		ExpiresIn int64             `json:"expires_in"`
+		accessTokenExchange
+	}
+	if err := json.Unmarshal(data, v); err != nil {
 		return err
 	}
-	e.ExpiresIn = e.ExpiresIn * time.Second
+
+	*e = AccessTokenExchange(v.accessTokenExchange)
+	e.ExpiresIn = time.Duration(v.ExpiresIn) * time.Second
+	if v.Webhook != nil {
+		webhook := v.Webhook.Webhook.(IncomingWebhook)
+		e.Webhook = &webhook
+	}
 	return nil
 }
 

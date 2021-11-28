@@ -19,29 +19,32 @@ disgo is a [Discord](https://discord.com) API wrapper written in [Go](https://go
 4. [Documentation](#documentation)
 5. [Examples](#examples)
 6. [Related Projects](#related-projects)
-7. [Troubleshooting](#troubleshooting)
-8. [Contributing](#contributing)
-9. [License](#license)
+7. [Why another library?](#why-another-library)
+8. [Troubleshooting](#troubleshooting)
+9. [Contributing](#contributing)
+10. [License](#license)
 
 ### Features
 
 * Full Rest API coverage
-* [Gateway](https://discord.com/developers/docs/topics/gateway) support
-* [Sharding](https://discord.com/developers/docs/topics/gateway#sharding) support
-* [HTTP Interactions](https://discord.com/developers/docs/interactions/slash-commands#receiving-an-interaction) support
-* [Application Commands](https://discord.com/developers/docs/interactions/application-commands) support
-* [Message Components](https://discord.com/developers/docs/interactions/message-components) support
-* [Stage Instance](https://discord.com/developers/docs/resources/stage-instance) support
-* [Guild Template](https://discord.com/developers/docs/resources/guild-template) support
-* [Sticker](https://discord.com/developers/docs/resources/sticker) support
-* [RateLimit](https://discord.com/developers/docs/topics/rate-limits) handling
-* [Webhook](https://discord.com/developers/docs/resources/webhook) support
-* [OAuth2](https://discord.com/developers/docs/topics/oauth2) support
+* [Gateway](https://discord.com/developers/docs/topics/gateway)
+* [Sharding](https://discord.com/developers/docs/topics/gateway#sharding)
+* [HTTP Interactions](https://discord.com/developers/docs/interactions/slash-commands#receiving-an-interaction)
+* [Application Commands](https://discord.com/developers/docs/interactions/application-commands)
+* [Message Components](https://discord.com/developers/docs/interactions/message-components)
+* [Stage Instance](https://discord.com/developers/docs/resources/stage-instance)
+* [Guild Template](https://discord.com/developers/docs/resources/guild-template)
+* [Sticker](https://discord.com/developers/docs/resources/sticker)
+* [RateLimit](https://discord.com/developers/docs/topics/rate-limits)
+* [Webhook](https://discord.com/developers/docs/resources/webhook)
+* [OAuth2](https://discord.com/developers/docs/topics/oauth2)
+* [Threads](https://discord.com/developers/docs/topics/threads)
 
 ### Missing Features
 
-* [Voice](https://discord.com/developers/docs/resources/voice) support
-* [Threads](https://discord.com/developers/docs/topics/threads) support
+* [Voice](https://discord.com/developers/docs/topics/voice-connections)
+* [RPC](https://discord.com/developers/docs/topics/rpc)
+* [Guild Scheduled Event](https://discord.com/developers/docs/resources/guild-scheduled-event)
 
 ## Getting Started
 
@@ -54,23 +57,24 @@ go get github.com/DisgoOrg/disgo
 ### Building a Disgo Instance
 
 ```go
+package main
+
 import (
-	"github.com/DisgoOrg/disgo/bot"
+	"github.com/DisgoOrg/disgo/core/bot"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 )
 
-disgo, err := bot.New("token",
-	bot.WithGatewayOpts(
-		gateway.WithGatewayIntents(
-			discord.GatewayIntentGuilds,
-			discord.GatewayIntentGuildMessages,
-			discord.GatewayIntentDirectMessages,
+func main() {
+	disgo, err := bot.New("token",
+		bot.WithGatewayOpts(
+			gateway.WithGatewayIntents(
+				discord.GatewayIntentGuilds,
+				discord.GatewayIntentGuildMessages,
+				discord.GatewayIntentDirectMessages,
+			),
 		),
-	),
-)
-if err != nil {
-	// do something with the error
+	)
 }
 ```
 
@@ -84,10 +88,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/DisgoOrg/disgo/bot"
 	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/core/bot"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/events"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/log"
 )
@@ -101,7 +105,7 @@ func main() {
 				discord.GatewayIntentDirectMessages,
 			),
 		),
-		bot.WithCacheOpts(core.WithCacheFlags(core.CacheFlagsDefault)),
+		bot.WithCacheOpts(core.WithCacheFlags(core.CacheFlagsNone)),
 		bot.WithEventListeners(&events.ListenerAdapter{
 			OnMessageCreate: onMessageCreate,
 		}),
@@ -130,7 +134,7 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 		message = "ping"
 	}
 	if message != "" {
-		_, _ = event.Message.Reply(core.NewMessageCreateBuilder().SetContent(message).Build())
+		_, _ = event.Message.Reply(discord.NewMessageCreateBuilder().SetContent(message).Build())
 	}
 }
 
@@ -142,7 +146,7 @@ disgo uses our own small [logging lib](https://github.com/DisgoOrg/log) which pr
 
 ## Documentation
 
-Documentation is unfinished and can be found under
+Documentation is wip and can be found under
 
 * [![Go Reference](https://pkg.go.dev/badge/github.com/DisgoOrg/disgo.svg)](https://pkg.go.dev/github.com/DisgoOrg/disgo)
 * [![Discord Documentation](https://img.shields.io/badge/Discord%20Documentation-blue.svg)](https://discord.com/developers/docs)
@@ -184,6 +188,14 @@ Discord webhook logger integration for [logrus](https://github.com/sirupsen/logr
 ### [disgommand](https://github.com/DisgoOrg/disgommand)
 
 Command framework for disgo in [gorilla/mux](https://github.com/gorilla/mux) style
+
+## Why another library?
+
+[discordgo](https://github.com/bwmarrin/discordgo) is a great library, but it's super low level and pain
+[disgord](https://github.com/andersfylling/disgord) I don't like code gen magic
+[arikawa](https://github.com/diamondburned/arikawa) v3 rewrite looks promising but when I started with disgo v2 looked kinda bad
+
+disgo aims to be a high level library that is modular and not a pain to use.
 
 ## Troubleshooting
 

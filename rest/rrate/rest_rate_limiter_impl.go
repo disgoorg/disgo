@@ -15,7 +15,7 @@ import (
 
 // TODO: do we need some cleanup task?
 
-//goland:noinspection GoUnusedExportedFunction
+// NewLimiter return a new default implementation of a rest rate limiter
 func NewLimiter(config *Config) Limiter {
 	if config == nil {
 		config = &DefaultConfig
@@ -30,7 +30,6 @@ func NewLimiter(config *Config) Limiter {
 	}
 }
 
-//goland:noinspection GoNameStartsWithPackageName
 type (
 	routeHash string
 	hashMajor string
@@ -54,11 +53,15 @@ func (l *limiterImpl) Logger() log.Logger {
 	return l.config.Logger
 }
 
+func (l *limiterImpl) Config() Config {
+	return l.config
+}
+
 func (l *limiterImpl) Close(ctx context.Context) {
 	var wg sync.WaitGroup
-	for _, b := range l.buckets {
+	for i := range l.buckets {
 		wg.Add(1)
-		b := b
+		b := l.buckets[i]
 		go func() {
 			_ = b.CLock(ctx)
 			b.Unlock()
@@ -66,10 +69,6 @@ func (l *limiterImpl) Close(ctx context.Context) {
 		}()
 	}
 	wg.Wait()
-}
-
-func (l *limiterImpl) Config() Config {
-	return l.config
 }
 
 func (l *limiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor {

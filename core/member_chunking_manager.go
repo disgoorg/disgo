@@ -213,5 +213,5 @@ func (m *memberChunkingManagerImpl) RequestAllMembersChan(guildID discord.Snowfl
 func (m *memberChunkingManagerImpl) RequestMembersWithFilterChan(guildID discord.Snowflake, memberFilterFunc func(member *Member) bool) (<-chan *Member, func(), error) {
 	query := ""
 	limit := 0
-	return m.requestGuildMembersChan(context.Background(), guildID, &query, &limit, nil, nil)
+	return m.requestGuildMembersChan(context.Background(), guildID, &query, &limit, nil, memberFilterFunc)
 }

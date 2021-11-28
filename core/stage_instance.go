@@ -11,34 +11,45 @@ type StageInstance struct {
 }
 
 func (i *StageInstance) Guild() *Guild {
-	return i.Bot.Caches.GuildCache().Get(i.GuildID)
+	return i.Bot.Caches.Guilds().Get(i.GuildID)
 }
 
-func (i *StageInstance) Channel() *Channel {
-	return i.Bot.Caches.ChannelCache().Get(i.ChannelID)
+func (i *StageInstance) Channel() *GuildStageVoiceChannel {
+	if ch := i.Bot.Caches.Channels().Get(i.ChannelID); ch != nil {
+		return ch.(*GuildStageVoiceChannel)
+	}
+	return nil
 }
 
 func (i *StageInstance) GetSpeakers() []*Member {
+	ch := i.Channel()
+	if ch == nil {
+		return nil
+	}
 	var speakers []*Member
-	for _, member := range i.Channel().Members() {
+	for _, member := range ch.Members() {
 		if member.VoiceState() != nil && !member.VoiceState().Suppress {
-			speakers = append(speakers)
+			speakers = append(speakers, member)
 		}
 	}
 	return speakers
 }
 
 func (i *StageInstance) GetListeners() []*Member {
+	ch := i.Channel()
+	if ch == nil {
+		return nil
+	}
 	var listeners []*Member
-	for _, member := range i.Channel().Members() {
+	for _, member := range ch.Members() {
 		if member.VoiceState() != nil && member.VoiceState().Suppress {
-			listeners = append(listeners)
+			listeners = append(listeners, member)
 		}
 	}
 	return listeners
 }
 
-func (s *VoiceState) UpdateVoiceState(suppress *discord.OptionalBool, requestToSpeak *discord.OptionalTime, opts ...rest.RequestOpt) error {
+func (s *VoiceState) UpdateVoiceState(suppress *bool, requestToSpeak *discord.NullTime, opts ...rest.RequestOpt) error {
 	if s.ChannelID == nil {
 		return discord.ErrMemberMustBeConnectedToChannel
 	}

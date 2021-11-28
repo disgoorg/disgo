@@ -2,26 +2,29 @@ package discord
 
 import "github.com/DisgoOrg/disgo/json"
 
-var _ Component = (*ActionRowComponent)(nil)
+var (
+	_ Component          = (*ActionRowComponent)(nil)
+	_ ContainerComponent = (*ActionRowComponent)(nil)
+)
 
-func NewActionRow(components ...Component) ActionRowComponent {
+//goland:noinspection GoUnusedExportedFunction
+func NewActionRow(components ...InteractiveComponent) ActionRowComponent {
 	return components
 }
 
-type ActionRowComponent []Component
+type ActionRowComponent []InteractiveComponent
 
-func (r ActionRowComponent) MarshalJSON() ([]byte, error) {
-	v := struct {
-		Type       ComponentType `json:"type"`
-		Components []Component   `json:"components"`
+func (c ActionRowComponent) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Type       ComponentType          `json:"type"`
+		Components []InteractiveComponent `json:"components"`
 	}{
-		Type:       r.Type(),
-		Components: r,
-	}
-	return json.Marshal(v)
+		Type:       c.Type(),
+		Components: c,
+	})
 }
 
-func (r *ActionRowComponent) UnmarshalJSON(data []byte) error {
+func (c *ActionRowComponent) UnmarshalJSON(data []byte) error {
 	var actionRow struct {
 		Components []UnmarshalComponent `json:"components"`
 	}
@@ -31,56 +34,68 @@ func (r *ActionRowComponent) UnmarshalJSON(data []byte) error {
 	}
 
 	if len(actionRow.Components) > 0 {
-		*r = make([]Component, len(actionRow.Components))
+		*c = make([]InteractiveComponent, len(actionRow.Components))
 		for i, component := range actionRow.Components {
-			(*r)[i] = component.Component
+			(*c)[i] = component.Component.(InteractiveComponent)
 		}
 	}
 
 	return nil
 }
 
-func (_ ActionRowComponent) Type() ComponentType {
+func (c ActionRowComponent) Type() ComponentType {
 	return ComponentTypeActionRow
 }
 
-// SetComponents returns a new ActionRowComponent with the provided Component(s)
-func (r *ActionRowComponent) SetComponents(components ...Component) ActionRowComponent {
-	*r = components
-	return *r
+func (c ActionRowComponent) component()          {}
+func (c ActionRowComponent) containerComponent() {}
+
+func (c ActionRowComponent) Components() []InteractiveComponent {
+	return c
 }
 
-// SetComponent returns a new ActionRowComponent with the Component which has the customID replaced
-func (r *ActionRowComponent) SetComponent(customID string, component Component) ActionRowComponent {
-	for i, c := range *r {
-		switch com := c.(type) {
-		case ButtonComponent:
-			if com.CustomID == customID {
-				(*r)[i] = component
-				break
-			}
-		case SelectMenuComponent:
-			if com.CustomID == customID {
-				(*r)[i] = component
-				break
-			}
-		default:
-			continue
+// Buttons returns all ButtonComponent(s) in the ActionRowComponent
+func (c ActionRowComponent) Buttons() []ButtonComponent {
+	var buttons []ButtonComponent
+	for i := range c {
+		if button, ok := c[i].(ButtonComponent); ok {
+			buttons = append(buttons, button)
 		}
 	}
-	return *r
+	return buttons
+}
+
+// SelectMenus returns all SelectMenuComponent(s) in the ActionRowComponent
+func (c ActionRowComponent) SelectMenus() []SelectMenuComponent {
+	var selectMenus []SelectMenuComponent
+	for i := range c {
+		if selectMenu, ok := c[i].(SelectMenuComponent); ok {
+			selectMenus = append(selectMenus, selectMenu)
+		}
+	}
+	return selectMenus
+}
+
+// UpdateComponent returns a new ActionRowComponent with the Component which has the customID replaced
+func (c ActionRowComponent) UpdateComponent(customID CustomID, component InteractiveComponent) ActionRowComponent {
+	for i, cc := range c {
+		if cc.ID() == customID {
+			c[i] = component
+			return c
+		}
+	}
+	return c
 }
 
 // AddComponents returns a new ActionRowComponent with the provided Component(s) added
-func (r *ActionRowComponent) AddComponents(components ...Component) ActionRowComponent {
-	*r = append(*r, components...)
-	return *r
+func (c ActionRowComponent) AddComponents(components ...InteractiveComponent) ActionRowComponent {
+	return append(c, components...)
 }
 
 // RemoveComponent returns a new ActionRowComponent with the provided Component at the index removed
-func (r *ActionRowComponent) RemoveComponent(index int) ActionRowComponent {
-	if len(*r) > index {
-		*r = append((*r)[:index], (*r)[index+1:]...)
+func (c ActionRowComponent) RemoveComponent(index int) ActionRowComponent {
+	if len(c) > index {
+		return append(c[:index], c[index+1:]...)
 	}
-	return *r
+	return c
 }
