@@ -1,8 +1,6 @@
 package events
 
 import (
-	"reflect"
-
 	"github.com/DisgoOrg/disgo/core"
 )
 
@@ -601,12 +599,6 @@ func (l ListenerAdapter) OnEvent(event core.Event) {
 		}
 
 	default:
-		var name string
-		if t := reflect.TypeOf(e); t.Kind() == reflect.Ptr {
-			name = "*" + t.Elem().Name()
-		} else {
-			name = t.Name()
-		}
-		e.Bot().Logger.Errorf("unexpected event received: \"%s\", event: \"%#e\"", name, event)
+		e.Bot().Logger.Errorf("unexpected event received: '%T', event: '%+v'", event, event)
 	}
 }

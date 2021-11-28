@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/DisgoOrg/disgo/collectors"
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/core/collectors"
 	"github.com/DisgoOrg/disgo/core/handlers"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
@@ -14,14 +14,19 @@ import (
 	"github.com/DisgoOrg/disgo/gateway/sharding/srate"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/rest"
-	"github.com/DisgoOrg/disgo/rest/rrate"
 	"github.com/DisgoOrg/log"
 	"github.com/pkg/errors"
 )
 
+// New creates a new core.Bot instance with the provided bot token & ConfigOpt(s)
+//goland:noinspection GoUnusedExportedFunction
 func New(token string, opts ...ConfigOpt) (*core.Bot, error) {
 	config := &Config{}
 	config.Apply(opts)
+
+	if config.EventManagerConfig == nil {
+		config.EventManagerConfig = &core.DefaultEventManagerConfig
+	}
 
 	if config.EventManagerConfig.GatewayHandlers == nil {
 		config.EventManagerConfig.GatewayHandlers = handlers.GetGatewayHandlers()
@@ -67,13 +72,6 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 		if _, ok := config.RestClientConfig.Headers["Authorization"]; !ok {
 			config.RestClientConfig.Headers["Authorization"] = []string{discord.TokenTypeBot.Apply(token)}
 		}
-
-		if config.RestClientConfig.RateLimiterConfig == nil {
-			config.RestClientConfig.RateLimiterConfig = &rrate.DefaultConfig
-		}
-		if config.RestClientConfig.RateLimiterConfig.Logger == nil {
-			config.RestClientConfig.RateLimiterConfig.Logger = config.Logger
-		}
 		config.RestClient = rest.NewClient(config.RestClientConfig)
 	}
 
@@ -104,6 +102,9 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 		gatewayRs, err = bot.RestServices.GatewayService().GetGateway()
 		if err != nil {
 			return nil, err
+		}
+		if config.GatewayConfig.Logger == nil {
+			config.GatewayConfig.Logger = bot.Logger
 		}
 		config.Gateway = gateway.New(token, gatewayRs.URL, 0, 0, handlers.DefaultGatewayEventHandler(bot), config.GatewayConfig)
 	}
