@@ -1,5 +1,7 @@
 package discord
 
+var _ Mentionable = (*Emoji)(nil)
+
 // Emoji allows you to interact with emojis & emotes
 type Emoji struct {
 	ID            Snowflake   `json:"id,omitempty"`
@@ -12,6 +14,19 @@ type Emoji struct {
 	Available     bool        `json:"available,omitempty"`
 
 	GuildID Snowflake `json:"guild_id,omitempty"`
+}
+
+// Mention returns the string used to send the Emoji
+func (e Emoji) Mention() string {
+	if e.Animated {
+		return animatedEmojiMention(e.ID, e.Name)
+	}
+	return emojiMention(e.ID, e.Name)
+}
+
+// String formats the Emoji as string
+func (e Emoji) String() string {
+	return e.Mention()
 }
 
 type EmojiCreate struct {

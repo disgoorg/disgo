@@ -13,14 +13,12 @@ var (
 )
 
 type EventManagerConfig struct {
-	EventListeners           []EventListener
-	VoiceDispatchInterceptor VoiceDispatchInterceptor
-	RawEventsEnabled         bool
+	EventListeners     []EventListener
+	RawEventsEnabled   bool
+	AsyncEventsEnabled bool
 
 	GatewayHandlers   map[discord.GatewayEventType]GatewayEventHandler
 	HTTPServerHandler HTTPServerEventHandler
-
-	NewMessageCollector func(channel *Channel, filter MessageFilter) (<-chan *Message, func())
 }
 
 var _ EventManager = (*eventManagerImpl)(nil)
@@ -39,10 +37,8 @@ func NewEventManager(bot *Bot, config *EventManagerConfig) EventManager {
 // EventManager lets you listen for specific events triggered by raw gateway events
 type EventManager interface {
 	Bot() *Bot
-	Close()
 	Config() EventManagerConfig
 
-	SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor)
 	AddEventListeners(eventListeners ...EventListener)
 	RemoveEventListeners(eventListeners ...EventListener)
 	HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader)
@@ -52,7 +48,7 @@ type EventManager interface {
 
 // EventListener is used to create new EventListener to listen to events
 type EventListener interface {
-	OnEvent(event interface{})
+	OnEvent(event Event)
 }
 
 // Event the basic interface each event implement
@@ -85,22 +81,12 @@ func (e *eventManagerImpl) Bot() *Bot {
 	return e.bot
 }
 
-// Close closes all goroutines created by the core.EventManager
-func (e *eventManagerImpl) Close() {
-	e.Bot().Logger.Info("closing eventManager goroutines...")
-}
-
 func (e *eventManagerImpl) Config() EventManagerConfig {
 	return e.config
 }
 
-func (e *eventManagerImpl) SetVoiceDispatchInterceptor(voiceDispatchInterceptor VoiceDispatchInterceptor) {
-	e.config.VoiceDispatchInterceptor = voiceDispatchInterceptor
-}
-
 // HandleGateway calls the correct core.EventHandler
 func (e *eventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) {
-
 	if handler, ok := e.config.GatewayHandlers[gatewayEventType]; ok {
 		v := handler.New()
 		if v != nil {
@@ -125,26 +111,32 @@ func (e *eventManagerImpl) HandleHTTP(responseChannel chan<- discord.Interaction
 
 // Dispatch dispatches a new event to the client
 func (e *eventManagerImpl) Dispatch(event Event) {
+	defer func() {
+		if r := recover(); r != nil {
+			e.Bot().Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
+			return
+		}
+	}()
 	for i := range e.config.EventListeners {
-		listener := e.config.EventListeners[i]
-		go func() {
-			defer func() {
-				if r := recover(); r != nil {
-					e.Bot().Logger.Error("recovered from panic in event listener: ", r)
-					debug.PrintStack()
-					return
-				}
+		if e.Config().AsyncEventsEnabled {
+			go func() {
+				defer func() {
+					if r := recover(); r != nil {
+						e.Bot().Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
+						return
+					}
+				}()
+				e.config.EventListeners[i].OnEvent(event)
 			}()
-			listener.OnEvent(event)
-		}()
+			continue
+		}
+		e.config.EventListeners[i].OnEvent(event)
 	}
 }
 
 // AddEventListeners adds one or more core.EventListener(s) to the core.EventManager
 func (e *eventManagerImpl) AddEventListeners(listeners ...EventListener) {
-	for _, listener := range listeners {
-		e.config.EventListeners = append(e.config.EventListeners, listener)
-	}
+	e.config.EventListeners = append(e.config.EventListeners, listeners...)
 }
 
 // RemoveEventListeners removes one or more core.EventListener(s) from the core.EventManager

@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/DisgoOrg/disgo/discord"
@@ -57,11 +56,11 @@ func (u *User) getAssetURL(cdnRoute *route.CDNRoute, assetId *string, size int) 
 }
 
 // OpenDMChannel creates a DMChannel between this User and the Bot
-func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (*Channel, rest.Error) {
+func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (*DMChannel, error) {
 	channel, err := u.Bot.RestServices.UserService().CreateDMChannel(u.ID, opts...)
 	if err != nil {
 		return nil, err
 	}
 	// TODO: should we caches it here? or do we get a gateway event?
-	return u.Bot.EntityBuilder.CreateChannel(*channel, CacheStrategyYes), nil
+	return u.Bot.EntityBuilder.CreateChannel(*channel, CacheStrategyYes).(*DMChannel), nil
 }

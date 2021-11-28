@@ -1,5 +1,11 @@
 package discord
 
+import (
+	"fmt"
+
+	"github.com/DisgoOrg/disgo/json"
+)
+
 // ComponentType defines different Component(s)
 type ComponentType int
 
@@ -11,47 +17,77 @@ const (
 	ComponentTypeSelectMenu
 )
 
-// ButtonStyle defines how the Button looks like (https://discord.com/assets/7bb017ce52cfd6575e21c058feb3883b.png)
-type ButtonStyle int
+type CustomID string
 
-// Supported ButtonStyle(s)
-const (
-	ButtonStylePrimary = iota + 1
-	ButtonStyleSecondary
-	ButtonStyleSuccess
-	ButtonStyleDanger
-	ButtonStyleLink
-)
-
-// Component is used for easier unmarshalling of different Component(s)
-type Component struct {
-	Type ComponentType `json:"type"`
-
-	// Button && SelectMenu
-	CustomID string `json:"custom_id,omitempty"`
-
-	// Button
-	Style    ButtonStyle `json:"style,omitempty"`
-	Label    string      `json:"label,omitempty"`
-	Emoji    *Emoji      `json:"emoji,omitempty"`
-	URL      string      `json:"url,omitempty"`
-	Disabled bool        `json:"disabled,omitempty"`
-
-	// ActionRow
-	Components []Component `json:"components,omitempty"`
-
-	// SelectMenu
-	Placeholder string         `json:"placeholder,omitempty"`
-	MinValues   int            `json:"min_values,omitempty"`
-	MaxValues   int            `json:"max_values,omitempty"`
-	Options     []SelectOption `json:"options,omitempty"`
+func (c CustomID) String() string {
+	return string(c)
 }
 
-// SelectOption represents an option in a SelectMenu
-type SelectOption struct {
-	Label       string `json:"label"`
-	Value       string `json:"value"`
-	Description string `json:"description,omitempty"`
-	Emoji       *Emoji `json:"emoji,omitempty"`
-	Default     bool   `json:"default,omitempty"`
+type Component interface {
+	json.Marshaler
+	Type() ComponentType
+	component()
+}
+
+type ContainerComponent interface {
+	Component
+	Components() []InteractiveComponent
+	containerComponent()
+}
+
+type InteractiveComponent interface {
+	Component
+	ID() CustomID
+	interactiveComponent()
+}
+
+type UnmarshalComponent struct {
+	Component
+}
+
+func (u *UnmarshalComponent) UnmarshalJSON(data []byte) error {
+	var cType struct {
+		Type ComponentType `json:"type"`
+	}
+
+	if err := json.Unmarshal(data, &cType); err != nil {
+		return err
+	}
+
+	var (
+		component Component
+		err       error
+	)
+
+	switch cType.Type {
+	case ComponentTypeActionRow:
+		v := ActionRowComponent{}
+		err = json.Unmarshal(data, &v)
+		component = v
+
+	case ComponentTypeButton:
+		v := ButtonComponent{}
+		err = json.Unmarshal(data, &v)
+		component = v
+
+	case ComponentTypeSelectMenu:
+		v := SelectMenuComponent{}
+		err = json.Unmarshal(data, &v)
+		component = v
+
+	default:
+		err = fmt.Errorf("unkown component with type %d received", cType.Type)
+	}
+	if err != nil {
+		return err
+	}
+
+	u.Component = component
+	return nil
+}
+
+type ComponentEmoji struct {
+	ID       Snowflake `json:"id,omitempty"`
+	Name     string    `json:"name,omitempty"`
+	Animated bool      `json:"animated,omitempty"`
 }

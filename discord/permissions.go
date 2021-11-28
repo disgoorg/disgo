@@ -7,30 +7,6 @@ import (
 	"github.com/DisgoOrg/disgo/json"
 )
 
-// PermissionOverwriteType is the type of PermissionOverwrite
-type PermissionOverwriteType int
-
-// Constants for PermissionOverwriteType
-//goland:noinspection GoUnusedConst
-const (
-	PermissionOverwriteTypeRole PermissionOverwriteType = iota
-	PermissionOverwriteTypeMember
-)
-
-// PermissionOverwrite is used to determine who can perform particular actions in a GetGuildChannel
-type PermissionOverwrite struct {
-	ID    Snowflake               `json:"id"`
-	Type  PermissionOverwriteType `json:"type"`
-	Allow Permissions             `json:"allow"`
-	Deny  Permissions             `json:"deny"`
-}
-
-type PermissionOverwriteUpdate struct {
-	Type  PermissionOverwriteType `json:"type"`
-	Allow Permissions             `json:"allow"`
-	Deny  Permissions             `json:"deny"`
-}
-
 // Permissions extends the Bit structure, and is used within roles and channels (https://discord.com/developers/docs/topics/permissions#permissions)
 type Permissions int64
 
@@ -66,8 +42,16 @@ const (
 	PermissionManageNicknames
 	PermissionManageRoles
 	PermissionManageWebhooks
-	PermissionManageEmojis
+	PermissionManageEmojisAndStickers
 	PermissionUseApplicationCommands
+	PermissionRequestToSpeak
+	_
+	PermissionManageThreads
+	PermissionCreatePublicThread
+	PermissionCreatePrivateThread
+	PermissionUseExternalStickers
+	PermissionSendMessagesInThreads
+	PermissionStartEmbeddedActivities
 )
 
 // Constants for the different bit offsets of general permissions
@@ -92,6 +76,11 @@ const (
 		PermissionReadMessageHistory |
 		PermissionMentionEveryone
 
+	PermissionsAllThread = PermissionManageThreads |
+		PermissionCreatePublicThread |
+		PermissionCreatePrivateThread |
+		PermissionSendMessagesInThreads
+
 	PermissionsAllVoice = PermissionViewChannel |
 		PermissionVoiceConnect |
 		PermissionVoiceSpeak |
@@ -102,6 +91,7 @@ const (
 		PermissionVoicePrioritySpeaker
 
 	PermissionsAllChannel = PermissionsAllText |
+		PermissionsAllThread |
 		PermissionsAllVoice |
 		PermissionCreateInstantInvite |
 		PermissionManageRoles |
@@ -115,7 +105,7 @@ const (
 		PermissionManageServer |
 		PermissionAdministrator |
 		PermissionManageWebhooks |
-		PermissionManageEmojis
+		PermissionManageEmojisAndStickers
 
 	PermissionsStageModerator = PermissionManageChannels |
 		PermissionVoiceMuteMembers |
@@ -131,7 +121,7 @@ func (p Permissions) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON unmarshalls permissions into an int64
 func (p *Permissions) UnmarshalJSON(data []byte) error {
-	if bytes.Equal(emptyJSONString, data) || bytes.Equal(nullJSONString, data) {
+	if bytes.Equal(emptyJSONString, data) {
 		return nil
 	}
 
@@ -140,6 +130,7 @@ func (p *Permissions) UnmarshalJSON(data []byte) error {
 	if err != nil {
 		return err
 	}
+
 	*p = Permissions(perms)
 	return nil
 }

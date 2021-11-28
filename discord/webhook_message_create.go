@@ -1,14 +1,14 @@
 package discord
 
 type WebhookMessageCreate struct {
-	Content         string           `json:"content,omitempty"`
-	Username        string           `json:"username,omitempty"`
-	AvatarURL       string           `json:"avatar_url,omitempty"`
-	TTS             bool             `json:"tts,omitempty"`
-	Embeds          []Embed          `json:"embeds,omitempty"`
-	Components      interface{}      `json:"components,omitempty"`
-	Files           []*File          `json:"-"`
-	AllowedMentions *AllowedMentions `json:"allowed_mentions,omitempty"`
+	Content         string               `json:"content,omitempty"`
+	Username        string               `json:"username,omitempty"`
+	AvatarURL       string               `json:"avatar_url,omitempty"`
+	TTS             bool                 `json:"tts,omitempty"`
+	Embeds          []Embed              `json:"embeds,omitempty"`
+	Components      []ContainerComponent `json:"components,omitempty"`
+	Files           []*File              `json:"-"`
+	AllowedMentions *AllowedMentions     `json:"allowed_mentions,omitempty"`
 }
 
 // ToBody returns the MessageCreate ready for body

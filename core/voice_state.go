@@ -24,21 +24,20 @@ func (s *VoiceState) Deaf() bool {
 // Guild returns the Guild of this VoiceState.
 // This will only check cached guilds!
 func (s *VoiceState) Guild() *Guild {
-	return s.Bot.Caches.GuildCache().Get(s.GuildID)
+	return s.Bot.Caches.Guilds().Get(s.GuildID)
 }
 
-// Channel returns the Channel of this VoiceState.
-// This will only check cached channels!
-func (s *VoiceState) Channel() *Channel {
+// Channel returns the Channel of this VoiceState from the Caches
+func (s *VoiceState) Channel() Channel {
 	if s.ChannelID == nil {
 		return nil
 	}
-	return s.Bot.Caches.ChannelCache().Get(*s.ChannelID)
+	return s.Bot.Caches.Channels().Get(*s.ChannelID)
 }
 
-func (s *VoiceState) Update(suppress *discord.OptionalBool, requestToSpeak *discord.OptionalTime, opts ...rest.RequestOpt) rest.Error {
+func (s *VoiceState) Update(suppress *bool, requestToSpeak *discord.NullTime, opts ...rest.RequestOpt) error {
 	if s.ChannelID == nil {
-		return rest.NewError(nil, discord.ErrMemberMustBeConnectedToChannel)
+		return discord.ErrMemberMustBeConnectedToChannel
 	}
 	userVoiceUpdate := discord.UserVoiceStateUpdate{ChannelID: *s.ChannelID, Suppress: suppress, RequestToSpeakTimestamp: requestToSpeak}
 	if s.UserID == s.Bot.ClientID {

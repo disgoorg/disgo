@@ -1,17 +1,25 @@
 package webhook
 
 import (
-	"github.com/DisgoOrg/disgo/core"
+	"fmt"
+
 	"github.com/DisgoOrg/disgo/discord"
 )
 
+// EntityBuilder is used to transform discord package entities into webhook package entities which hold a reference to the webhook client
 type EntityBuilder interface {
+	// WebhookClient returns the underlying webhook client used by this EntityBuilder
 	WebhookClient() *Client
+
+	// CreateMessage returns a new webhook.Message from the discord.Message
+
 	CreateMessage(message discord.Message) *Message
-	CreateComponents(unmarshalComponents []discord.Component) []core.Component
+
+	// CreateWebhook returns a new webhook.Webhook from the discord.Webhook
 	CreateWebhook(webhook discord.Webhook) *Webhook
 }
 
+// NewEntityBuilder returns a new default EntityBuilder
 func NewEntityBuilder(webhookClient *Client) EntityBuilder {
 	return &entityBuilderImpl{
 		webhookClient: webhookClient,
@@ -27,46 +35,18 @@ func (b *entityBuilderImpl) WebhookClient() *Client {
 }
 
 func (b *entityBuilderImpl) CreateMessage(message discord.Message) *Message {
-	webhookMessage := &Message{
+	return &Message{
 		Message:       message,
 		WebhookClient: b.WebhookClient(),
 	}
-	if len(message.Components) > 0 {
-		webhookMessage.Components = b.CreateComponents(message.Components)
-	}
-	return webhookMessage
-}
-
-func (b *entityBuilderImpl) CreateComponents(unmarshalComponents []discord.Component) []core.Component {
-	components := make([]core.Component, len(unmarshalComponents))
-	for i, component := range unmarshalComponents {
-		switch component.Type {
-		case discord.ComponentTypeActionRow:
-			actionRow := core.ActionRow{
-				Component: component,
-			}
-			if len(component.Components) > 0 {
-				actionRow.Components = b.CreateComponents(component.Components)
-			}
-			components[i] = actionRow
-
-		case discord.ComponentTypeButton:
-			components[i] = core.Button{
-				Component: component,
-			}
-
-		case discord.ComponentTypeSelectMenu:
-			components[i] = core.SelectMenu{
-				Component: component,
-			}
-		}
-	}
-	return components
 }
 
 func (b *entityBuilderImpl) CreateWebhook(webhook discord.Webhook) *Webhook {
-	return &Webhook{
-		Webhook:       webhook,
-		WebhookClient: b.WebhookClient(),
+	if w, ok := webhook.(discord.IncomingWebhook); ok {
+		return &Webhook{
+			IncomingWebhook: w,
+			WebhookClient:   b.WebhookClient(),
+		}
 	}
+	panic(fmt.Sprintf("invalid webhook type %d received", webhook.Type()))
 }

@@ -27,13 +27,13 @@ func (s *Sticker) Guild() *Guild {
 	if s.Type != discord.StickerTypeGuild {
 		return nil
 	}
-	return s.Bot.Caches.GuildCache().Get(*s.GuildID)
+	return s.Bot.Caches.Guilds().Get(*s.GuildID)
 }
 
 // Update updates this Sticker with the properties provided in discord.StickerUpdate
-func (s *Sticker) Update(stickerUpdate discord.StickerUpdate, opts ...rest.RequestOpt) (*Sticker, rest.Error) {
+func (s *Sticker) Update(stickerUpdate discord.StickerUpdate, opts ...rest.RequestOpt) (*Sticker, error) {
 	if s.Type != discord.StickerTypeGuild {
-		return nil, rest.NewError(nil, discord.ErrStickerTypeGuild)
+		return nil, discord.ErrStickerTypeGuild
 	}
 
 	sticker, err := s.Bot.RestServices.StickerService().UpdateSticker(*s.GuildID, s.ID, stickerUpdate, opts...)
@@ -44,9 +44,9 @@ func (s *Sticker) Update(stickerUpdate discord.StickerUpdate, opts ...rest.Reque
 }
 
 // Delete deletes this Sticker
-func (s *Sticker) Delete(opts ...rest.RequestOpt) rest.Error {
+func (s *Sticker) Delete(opts ...rest.RequestOpt) error {
 	if s.Type != discord.StickerTypeGuild {
-		return rest.NewError(nil, discord.ErrStickerTypeGuild)
+		return discord.ErrStickerTypeGuild
 	}
 	return s.Bot.RestServices.StickerService().DeleteSticker(*s.GuildID, s.ID, opts...)
 }

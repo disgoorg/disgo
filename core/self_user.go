@@ -12,7 +12,7 @@ type SelfUser struct {
 }
 
 // Update updates the SelfUser with the properties provided in discord.SelfUserUpdate
-func (u *SelfUser) Update(updateSelfUser discord.SelfUserUpdate, opts ...rest.RequestOpt) (*SelfUser, rest.Error) {
+func (u *SelfUser) Update(updateSelfUser discord.SelfUserUpdate, opts ...rest.RequestOpt) (*SelfUser, error) {
 	selfUser, err := u.Bot.RestServices.UserService().UpdateSelfUser(updateSelfUser, opts...)
 	if err != nil {
 		return nil, err
@@ -21,6 +21,6 @@ func (u *SelfUser) Update(updateSelfUser discord.SelfUserUpdate, opts ...rest.Re
 }
 
 // OpenDMChannel creates a Channel between the user and the Bot
-func (u *SelfUser) OpenDMChannel(_ ...rest.RequestOpt) (*Channel, rest.Error) {
-	return nil, rest.NewError(nil, discord.ErrSelfDM)
+func (u *SelfUser) OpenDMChannel(_ ...rest.RequestOpt) (*Channel, error) {
+	return nil, discord.ErrSelfDM
 }

@@ -52,16 +52,9 @@ func (c *audioControllerImpl) Disconnect(guildID discord.Snowflake) error {
 }
 
 func (c *audioControllerImpl) getShard(guildID discord.Snowflake) (gateway.Gateway, error) {
-	var shard gateway.Gateway
-	if c.Bot().HasGateway() {
-		shard = c.Bot().Gateway
-	} else if c.Bot().HasShardManager() {
-		shard = c.Bot().ShardManager.GetGuildShard(guildID)
-	} else {
-		return nil, discord.ErrNoGatewayOrShardManager
-	}
-	if shard == nil {
-		return nil, discord.ErrShardNotFound
+	shard, err := c.Bot().Shard(guildID)
+	if err != nil {
+		return nil, err
 	}
 	if !shard.Status().IsConnected() {
 		return nil, discord.ErrShardNotConnected

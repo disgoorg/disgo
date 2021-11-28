@@ -5,7 +5,10 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ WebhookService = (*webhookServiceImpl)(nil)
+var (
+	_ Service        = (*webhookServiceImpl)(nil)
+	_ WebhookService = (*webhookServiceImpl)(nil)
+)
 
 func NewWebhookService(restClient Client) WebhookService {
 	return &webhookServiceImpl{restClient: restClient}
@@ -13,19 +16,19 @@ func NewWebhookService(restClient Client) WebhookService {
 
 type WebhookService interface {
 	Service
-	GetWebhook(webhookID discord.Snowflake, opts ...RequestOpt) (*discord.Webhook, Error)
-	UpdateWebhook(webhookID discord.Snowflake, webhookUpdate discord.WebhookUpdate, opts ...RequestOpt) (*discord.Webhook, Error)
-	DeleteWebhook(webhookID discord.Snowflake, opts ...RequestOpt) Error
+	GetWebhook(webhookID discord.Snowflake, opts ...RequestOpt) (discord.Webhook, error)
+	UpdateWebhook(webhookID discord.Snowflake, webhookUpdate discord.WebhookUpdate, opts ...RequestOpt) (discord.Webhook, error)
+	DeleteWebhook(webhookID discord.Snowflake, opts ...RequestOpt) error
 
-	GetWebhookWithToken(webhookID discord.Snowflake, webhookToken string, opts ...RequestOpt) (*discord.Webhook, Error)
-	UpdateWebhookWithToken(webhookID discord.Snowflake, webhookToken string, webhookUpdate discord.WebhookUpdate, opts ...RequestOpt) (*discord.Webhook, Error)
-	DeleteWebhookWithToken(webhookID discord.Snowflake, webhookToken string, opts ...RequestOpt) Error
+	GetWebhookWithToken(webhookID discord.Snowflake, webhookToken string, opts ...RequestOpt) (discord.Webhook, error)
+	UpdateWebhookWithToken(webhookID discord.Snowflake, webhookToken string, webhookUpdate discord.WebhookUpdateWithToken, opts ...RequestOpt) (discord.Webhook, error)
+	DeleteWebhookWithToken(webhookID discord.Snowflake, webhookToken string, opts ...RequestOpt) error
 
-	CreateMessage(webhookID discord.Snowflake, webhookToken string, messageCreate discord.WebhookMessageCreate, wait bool, threadID discord.Snowflake, opts ...RequestOpt) (*discord.Message, Error)
-	CreateMessageSlack(webhookID discord.Snowflake, webhookToken string, messageCreate discord.Payload, wait bool, threadID discord.Snowflake, opts ...RequestOpt) (*discord.Message, Error)
-	CreateMessageGitHub(webhookID discord.Snowflake, webhookToken string, messageCreate discord.Payload, wait bool, threadID discord.Snowflake, opts ...RequestOpt) (*discord.Message, Error)
-	UpdateMessage(webhookID discord.Snowflake, webhookToken string, messageID discord.Snowflake, messageUpdate discord.WebhookMessageUpdate, opts ...RequestOpt) (*discord.Message, Error)
-	DeleteMessage(webhookID discord.Snowflake, webhookToken string, messageID discord.Snowflake, opts ...RequestOpt) Error
+	CreateMessage(webhookID discord.Snowflake, webhookToken string, messageCreate discord.WebhookMessageCreate, wait bool, threadID discord.Snowflake, opts ...RequestOpt) (*discord.Message, error)
+	CreateMessageSlack(webhookID discord.Snowflake, webhookToken string, messageCreate discord.Payload, wait bool, threadID discord.Snowflake, opts ...RequestOpt) (*discord.Message, error)
+	CreateMessageGitHub(webhookID discord.Snowflake, webhookToken string, messageCreate discord.Payload, wait bool, threadID discord.Snowflake, opts ...RequestOpt) (*discord.Message, error)
+	UpdateMessage(webhookID discord.Snowflake, webhookToken string, messageID discord.Snowflake, messageUpdate discord.WebhookMessageUpdate, opts ...RequestOpt) (*discord.Message, error)
+	DeleteMessage(webhookID discord.Snowflake, webhookToken string, messageID discord.Snowflake, opts ...RequestOpt) error
 }
 
 type webhookServiceImpl struct {
@@ -36,67 +39,87 @@ func (s *webhookServiceImpl) RestClient() Client {
 	return s.restClient
 }
 
-func (s *webhookServiceImpl) GetWebhook(webhookID discord.Snowflake, opts ...RequestOpt) (webhook *discord.Webhook, rErr Error) {
-	compiledRoute, err := route.GetWebhook.Compile(nil, webhookID)
+func (s *webhookServiceImpl) GetWebhook(webhookID discord.Snowflake, opts ...RequestOpt) (webhook discord.Webhook, err error) {
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.GetWebhook.Compile(nil, webhookID)
 	if err != nil {
-		rErr = NewError(nil, err)
 		return
 	}
-	rErr = s.restClient.Do(compiledRoute, nil, &webhook, opts...)
+
+	var unmarshalWebhook discord.UnmarshalWebhook
+	err = s.restClient.Do(compiledRoute, nil, &unmarshalWebhook, opts...)
+	if err == nil {
+		webhook = unmarshalWebhook.Webhook
+	}
 	return
 }
 
-func (s *webhookServiceImpl) UpdateWebhook(webhookID discord.Snowflake, webhookUpdate discord.WebhookUpdate, opts ...RequestOpt) (webhook *discord.Webhook, rErr Error) {
-	compiledRoute, err := route.UpdateWebhook.Compile(nil, webhookID)
+func (s *webhookServiceImpl) UpdateWebhook(webhookID discord.Snowflake, webhookUpdate discord.WebhookUpdate, opts ...RequestOpt) (webhook discord.Webhook, err error) {
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.UpdateWebhook.Compile(nil, webhookID)
 	if err != nil {
-		rErr = NewError(nil, err)
 		return
 	}
-	rErr = s.restClient.Do(compiledRoute, webhookUpdate, &webhook, opts...)
+
+	var unmarshalWebhook discord.UnmarshalWebhook
+	err = s.restClient.Do(compiledRoute, webhookUpdate, &unmarshalWebhook, opts...)
+	if err == nil {
+		webhook = unmarshalWebhook.Webhook
+	}
 	return
 }
 
-func (s *webhookServiceImpl) DeleteWebhook(webhookID discord.Snowflake, opts ...RequestOpt) (rErr Error) {
-	compiledRoute, err := route.DeleteWebhook.Compile(nil, webhookID)
+func (s *webhookServiceImpl) DeleteWebhook(webhookID discord.Snowflake, opts ...RequestOpt) (err error) {
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.DeleteWebhook.Compile(nil, webhookID)
 	if err != nil {
-		rErr = NewError(nil, err)
 		return
 	}
-	rErr = s.restClient.Do(compiledRoute, nil, nil, opts...)
+	err = s.restClient.Do(compiledRoute, nil, nil, opts...)
 	return
 }
 
-func (s *webhookServiceImpl) GetWebhookWithToken(webhookID discord.Snowflake, webhookToken string, opts ...RequestOpt) (webhook *discord.Webhook, rErr Error) {
-	compiledRoute, err := route.GetWebhookWithToken.Compile(nil, webhookID, webhookToken)
+func (s *webhookServiceImpl) GetWebhookWithToken(webhookID discord.Snowflake, webhookToken string, opts ...RequestOpt) (webhook discord.Webhook, err error) {
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.GetWebhookWithToken.Compile(nil, webhookID, webhookToken)
 	if err != nil {
-		rErr = NewError(nil, err)
 		return
 	}
-	rErr = s.restClient.Do(compiledRoute, nil, &webhook, opts...)
+
+	var unmarshalWebhook discord.UnmarshalWebhook
+	err = s.restClient.Do(compiledRoute, nil, &unmarshalWebhook, opts...)
+	if err == nil {
+		webhook = unmarshalWebhook.Webhook
+	}
 	return
 }
 
-func (s *webhookServiceImpl) UpdateWebhookWithToken(webhookID discord.Snowflake, webhookToken string, webhookUpdate discord.WebhookUpdate, opts ...RequestOpt) (webhook *discord.Webhook, rErr Error) {
-	compiledRoute, err := route.UpdateWebhookWithToken.Compile(nil, webhookID, webhookToken)
+func (s *webhookServiceImpl) UpdateWebhookWithToken(webhookID discord.Snowflake, webhookToken string, webhookUpdate discord.WebhookUpdateWithToken, opts ...RequestOpt) (webhook discord.Webhook, err error) {
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.UpdateWebhookWithToken.Compile(nil, webhookID, webhookToken)
 	if err != nil {
-		rErr = NewError(nil, err)
 		return
 	}
-	rErr = s.restClient.Do(compiledRoute, webhookUpdate, &webhook, opts...)
+
+	var unmarshalWebhook discord.UnmarshalWebhook
+	err = s.restClient.Do(compiledRoute, webhookUpdate, &unmarshalWebhook, opts...)
+	if err == nil {
+		webhook = unmarshalWebhook.Webhook
+	}
 	return
 }
 
-func (s *webhookServiceImpl) DeleteWebhookWithToken(webhookID discord.Snowflake, webhookToken string, opts ...RequestOpt) (rErr Error) {
-	compiledRoute, err := route.DeleteWebhookWithToken.Compile(nil, webhookID, webhookToken)
+func (s *webhookServiceImpl) DeleteWebhookWithToken(webhookID discord.Snowflake, webhookToken string, opts ...RequestOpt) (err error) {
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.DeleteWebhookWithToken.Compile(nil, webhookID, webhookToken)
 	if err != nil {
-		rErr = NewError(nil, err)
 		return
 	}
-	rErr = s.restClient.Do(compiledRoute, nil, nil, opts...)
+	err = s.restClient.Do(compiledRoute, nil, nil, opts...)
 	return
 }
 
-func (s *webhookServiceImpl) createMessage(webhookID discord.Snowflake, webhookToken string, messageCreate discord.Payload, wait bool, threadID discord.Snowflake, apiRoute *route.APIRoute, opts []RequestOpt) (message *discord.Message, rErr Error) {
+func (s *webhookServiceImpl) createMessage(webhookID discord.Snowflake, webhookToken string, messageCreate discord.Payload, wait bool, threadID discord.Snowflake, apiRoute *route.APIRoute, opts []RequestOpt) (message *discord.Message, err error) {
 	params := route.QueryValues{}
 	if wait {
 		params["wait"] = true
@@ -104,61 +127,59 @@ func (s *webhookServiceImpl) createMessage(webhookID discord.Snowflake, webhookT
 	if threadID != "" {
 		params["thread_id"] = threadID
 	}
-	compiledRoute, err := apiRoute.Compile(params, webhookID, webhookToken)
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = apiRoute.Compile(params, webhookID, webhookToken)
 	if err != nil {
-		rErr = NewError(nil, err)
 		return
 	}
 
 	body, err := messageCreate.ToBody()
 	if err != nil {
-		rErr = NewError(nil, err)
 		return
 	}
 
 	if wait {
-		rErr = s.restClient.Do(compiledRoute, body, &message, opts...)
+		err = s.restClient.Do(compiledRoute, body, &message, opts...)
 	} else {
-		rErr = s.restClient.Do(compiledRoute, body, nil, opts...)
+		err = s.restClient.Do(compiledRoute, body, nil, opts...)
 	}
 	return
 }
 
-func (s *webhookServiceImpl) CreateMessage(webhookID discord.Snowflake, webhookToken string, messageCreate discord.WebhookMessageCreate, wait bool, threadID discord.Snowflake, opts ...RequestOpt) (*discord.Message, Error) {
+func (s *webhookServiceImpl) CreateMessage(webhookID discord.Snowflake, webhookToken string, messageCreate discord.WebhookMessageCreate, wait bool, threadID discord.Snowflake, opts ...RequestOpt) (*discord.Message, error) {
 	return s.createMessage(webhookID, webhookToken, messageCreate, wait, threadID, route.CreateWebhookMessage, opts)
 }
 
-func (s *webhookServiceImpl) CreateMessageSlack(webhookID discord.Snowflake, webhookToken string, messageCreate discord.Payload, wait bool, threadID discord.Snowflake, opts ...RequestOpt) (*discord.Message, Error) {
+func (s *webhookServiceImpl) CreateMessageSlack(webhookID discord.Snowflake, webhookToken string, messageCreate discord.Payload, wait bool, threadID discord.Snowflake, opts ...RequestOpt) (*discord.Message, error) {
 	return s.createMessage(webhookID, webhookToken, messageCreate, wait, threadID, route.CreateWebhookMessageSlack, opts)
 }
 
-func (s *webhookServiceImpl) CreateMessageGitHub(webhookID discord.Snowflake, webhookToken string, messageCreate discord.Payload, wait bool, threadID discord.Snowflake, opts ...RequestOpt) (*discord.Message, Error) {
+func (s *webhookServiceImpl) CreateMessageGitHub(webhookID discord.Snowflake, webhookToken string, messageCreate discord.Payload, wait bool, threadID discord.Snowflake, opts ...RequestOpt) (*discord.Message, error) {
 	return s.createMessage(webhookID, webhookToken, messageCreate, wait, threadID, route.CreateWebhookMessageGitHub, opts)
 }
 
-func (s *webhookServiceImpl) UpdateMessage(webhookID discord.Snowflake, webhookToken string, messageID discord.Snowflake, messageUpdate discord.WebhookMessageUpdate, opts ...RequestOpt) (message *discord.Message, rErr Error) {
-	compiledRoute, err := route.UpdateWebhookMessage.Compile(nil, webhookID, webhookToken, messageID)
+func (s *webhookServiceImpl) UpdateMessage(webhookID discord.Snowflake, webhookToken string, messageID discord.Snowflake, messageUpdate discord.WebhookMessageUpdate, opts ...RequestOpt) (message *discord.Message, err error) {
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.UpdateWebhookMessage.Compile(nil, webhookID, webhookToken, messageID)
 	if err != nil {
-		rErr = NewError(nil, err)
 		return
 	}
 
 	body, err := messageUpdate.ToBody()
 	if err != nil {
-		rErr = NewError(nil, err)
 		return
 	}
 
-	rErr = s.restClient.Do(compiledRoute, body, &message, opts...)
+	err = s.restClient.Do(compiledRoute, body, &message, opts...)
 	return
 }
 
-func (s *webhookServiceImpl) DeleteMessage(webhookID discord.Snowflake, webhookToken string, messageID discord.Snowflake, opts ...RequestOpt) (rErr Error) {
-	compiledRoute, err := route.DeleteWebhookMessage.Compile(nil, webhookID, webhookToken, messageID)
+func (s *webhookServiceImpl) DeleteMessage(webhookID discord.Snowflake, webhookToken string, messageID discord.Snowflake, opts ...RequestOpt) (err error) {
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.DeleteWebhookMessage.Compile(nil, webhookID, webhookToken, messageID)
 	if err != nil {
-		rErr = NewError(nil, err)
 		return
 	}
-	rErr = s.restClient.Do(compiledRoute, nil, nil, opts...)
+	err = s.restClient.Do(compiledRoute, nil, nil, opts...)
 	return
 }

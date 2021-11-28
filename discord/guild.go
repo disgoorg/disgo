@@ -1,5 +1,7 @@
 package discord
 
+import "github.com/DisgoOrg/disgo/json"
+
 // PremiumTier tells you the boost level of a Guild
 type PremiumTier int
 
@@ -125,6 +127,7 @@ type Guild struct {
 	MaxVideoChannelUsers        int                        `json:"max_video_channel_users"`
 	WelcomeScreen               WelcomeScreen              `json:"welcome_screen"`
 	NSFWLevel                   NSFWLevel                  `json:"nsfw_level"`
+	BoostProgressBarEnabled     bool                       `json:"premium_progress_bar_enabled"`
 	// stickers
 
 	// only over GET /guilds/{guild.id}
@@ -134,16 +137,42 @@ type Guild struct {
 
 type GatewayGuild struct {
 	Guild
-	JoinedAt    Time         `json:"joined_at"`
-	Large       bool         `json:"large"`
-	Unavailable bool         `json:"unavailable"`
-	MemberCount int          `json:"member_count"`
-	VoiceStates []VoiceState `json:"voice_states"`
-	Members     []Member     `json:"members"`
-	Channels    []Channel    `json:"channels"`
-	// threads
+	JoinedAt       Time            `json:"joined_at"`
+	Large          bool            `json:"large"`
+	Unavailable    bool            `json:"unavailable"`
+	MemberCount    int             `json:"member_count"`
+	VoiceStates    []VoiceState    `json:"voice_states"`
+	Members        []Member        `json:"members"`
+	Channels       []GuildChannel  `json:"channels"`
+	Threads        []GuildThread   `json:"threads"`
 	Presences      []Presence      `json:"presences"`
 	StageInstances []StageInstance `json:"stage_instances"`
+}
+
+func (g *GatewayGuild) UnmarshalJSON(data []byte) error {
+	type gatewayGuild GatewayGuild
+	var v struct {
+		Channels []UnmarshalChannel `json:"channels"`
+		Threads  []UnmarshalChannel `json:"threads"`
+		gatewayGuild
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*g = GatewayGuild(v.gatewayGuild)
+
+	g.Channels = make([]GuildChannel, len(v.Channels))
+	for i := range v.Channels {
+		g.Channels[i] = v.Channels[i].Channel.(GuildChannel)
+	}
+
+	g.Threads = make([]GuildThread, len(v.Threads))
+	for i := range v.Threads {
+		g.Threads[i] = v.Threads[i].Channel.(GuildThread)
+	}
+
+	return nil
 }
 
 type UnavailableGuild struct {
@@ -155,7 +184,7 @@ type UnavailableGuild struct {
 type OAuth2Guild struct {
 	ID          Snowflake      `json:"id"`
 	Name        string         `json:"name"`
-	Icon        string         `json:"icon"`
+	Icon        *string        `json:"icon"`
 	Owner       bool           `json:"owner"`
 	Permissions Permissions    `json:"permissions"`
 	Features    []GuildFeature `json:"features"`
@@ -192,10 +221,10 @@ type GuildPreview struct {
 // GuildCreate is the payload used to create a Guild
 type GuildCreate struct {
 	Name                            string                     `json:"name"`
-	Icon                            Icon                       `json:"icon,omitempty"`
+	Icon                            *Icon                      `json:"icon,omitempty"`
 	VerificationLevel               VerificationLevel          `json:"verification_level,omitempty"`
-	DefaultMessageNotificationLevel MessageNotificationsLevel  `json:"default_message_notification_level"`
-	ExplicitContentFilterLevel      ExplicitContentFilterLevel `json:"explicit_content_filter_level"`
+	DefaultMessageNotificationLevel MessageNotificationsLevel  `json:"default_message_notification_level,omitempty"`
+	ExplicitContentFilterLevel      ExplicitContentFilterLevel `json:"explicit_content_filter_level,omitempty"`
 	Roles                           []GuildCreateRole          `json:"roles,omitempty"`
 	Channels                        []GuildCreateChannel       `json:"channels,omitempty"`
 	AFKChannelID                    Snowflake                  `json:"afk_channel_id,omitempty"`
@@ -206,17 +235,17 @@ type GuildCreate struct {
 
 // GuildUpdate is the payload used to update a Guild
 type GuildUpdate struct {
-	Name                            *string                     `json:"name,omitempty"`
+	Name                            string                      `json:"name,omitempty"`
 	VerificationLevel               *VerificationLevel          `json:"verification_level,omitempty"`
 	DefaultMessageNotificationLevel *MessageNotificationsLevel  `json:"default_message_notification_level,omitempty"`
 	ExplicitContentFilterLevel      *ExplicitContentFilterLevel `json:"explicit_content_filter_level,omitempty"`
 	AFKChannelID                    *Snowflake                  `json:"afk_channel_id,omitempty"`
 	AFKTimeout                      *int                        `json:"afk_timeout,omitempty"`
-	Icon                            *string                     `json:"icon,omitempty"`
+	Icon                            *NullIcon                   `json:"icon,omitempty"`
 	OwnerID                         *Snowflake                  `json:"owner_id,omitempty"`
-	Splash                          *OptionalIcon               `json:"splash,omitempty"`
-	DiscoverySplash                 *OptionalIcon               `json:"discovery_splash,omitempty"`
-	Banner                          *OptionalIcon               `json:"banner,omitempty"`
+	Splash                          *NullIcon                   `json:"splash,omitempty"`
+	DiscoverySplash                 *NullIcon                   `json:"discovery_splash,omitempty"`
+	Banner                          *NullIcon                   `json:"banner,omitempty"`
 	SystemChannelID                 *Snowflake                  `json:"system_channel_id,omitempty"`
 	SystemChannelFlags              *SystemChannelFlags         `json:"system_channel_flags,omitempty"`
 	RulesChannelID                  *Snowflake                  `json:"rules_channel_id,omitempty"`
@@ -224,10 +253,12 @@ type GuildUpdate struct {
 	PreferredLocale                 *string                     `json:"preferred_locale,omitempty"`
 	Features                        []GuildFeature              `json:"features,omitempty"`
 	Description                     *string                     `json:"description,omitempty"`
+	BoostProgressBarEnabled         *bool                       `json:"premium_progress_bar_enabled,omitempty"`
 }
 
 type NSFWLevel int
 
+//goland:noinspection GoUnusedConst
 const (
 	NSFWLevelDefault NSFWLevel = iota
 	NSFWLevelExplicit

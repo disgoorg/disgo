@@ -10,13 +10,13 @@ type AuditLog struct {
 	Bot           *Bot
 	GuildID       discord.Snowflake
 	Users         map[discord.Snowflake]*User
-	Integrations  map[discord.Snowflake]*Integration
-	Webhooks      map[discord.Snowflake]*Webhook
+	Integrations  map[discord.Snowflake]Integration
+	Webhooks      map[discord.Snowflake]Webhook
 	FilterOptions AuditLogFilterOptions
 }
 
 func (l *AuditLog) Guild() *Guild {
-	return l.Bot.Caches.GuildCache().Get(l.GuildID)
+	return l.Bot.Caches.Guilds().Get(l.GuildID)
 }
 
 // AuditLogFilterOptions fields used to filter audit-log retrieving
@@ -28,7 +28,7 @@ type AuditLogFilterOptions struct {
 }
 
 // Before gets new AuditLog(s) from Discord before the last one
-func (l *AuditLog) Before(opts ...rest.RequestOpt) (*AuditLog, rest.Error) {
+func (l *AuditLog) Before(opts ...rest.RequestOpt) (*AuditLog, error) {
 	before := discord.Snowflake("")
 	if len(l.Entries) > 0 {
 		before = l.Entries[len(l.Entries)-1].ID

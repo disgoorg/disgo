@@ -6,18 +6,21 @@ type CacheFlags int
 // values for CacheFlags
 //goland:noinspection GoUnusedConst
 const (
-	CacheFlagsNone  CacheFlags = 0
 	CacheFlagGuilds CacheFlags = 1 << iota
 
 	CacheFlagPresences
 
-	CacheFlagTextChannels
+	CacheFlagGuildTextChannels
 	CacheFlagDMChannels
-	CacheFlagVoiceChannels
-	CacheFlagCategories
-	CacheFlagNewsChannels
-	CacheFlagStoreChannels
-	CacheFlagStageChannels
+	CacheFlagGuildVoiceChannels
+	CacheFlagGroupDMChannels
+	CacheFlagGuildCategories
+	CacheFlagGuildNewsChannels
+	CacheFlagGuildStoreChannels
+	CacheFlagGuildNewsThreads
+	CacheFlagGuildPublicThreads
+	CacheFlagGuildPrivateThreads
+	CacheFlagGuildStageVoiceChannels
 
 	CacheFlagRoles
 	CacheFlagRoleTags
@@ -29,13 +32,23 @@ const (
 
 	CacheFlagStageInstances
 
-	CacheFlagsAllChannels = CacheFlagTextChannels |
+	CacheFlagsNone CacheFlags = 0
+
+	CacheFlagsAllChannels = CacheFlagGuildTextChannels |
 		CacheFlagDMChannels |
-		CacheFlagVoiceChannels |
-		CacheFlagCategories |
-		CacheFlagNewsChannels |
-		CacheFlagStoreChannels |
-		CacheFlagStageChannels
+		CacheFlagGuildVoiceChannels |
+		CacheFlagGroupDMChannels |
+		CacheFlagGuildCategories |
+		CacheFlagGuildNewsChannels |
+		CacheFlagGuildStoreChannels |
+		CacheFlagGuildNewsThreads |
+		CacheFlagGuildPublicThreads |
+		CacheFlagGuildPrivateThreads |
+		CacheFlagGuildStageVoiceChannels
+
+	CacheFlagsAllThreads = CacheFlagGuildNewsThreads |
+		CacheFlagGuildPublicThreads |
+		CacheFlagGuildPrivateThreads
 
 	CacheFlagsDefault = CacheFlagGuilds |
 		CacheFlagsAllChannels |
@@ -47,7 +60,8 @@ const (
 	CacheFlagsFullRoles = CacheFlagRoles |
 		CacheFlagRoleTags
 
-	CacheFlagsAll = CacheFlagsAllChannels |
+	CacheFlagsAll = CacheFlagGuilds |
+		CacheFlagsAllChannels |
 		CacheFlagsFullRoles |
 		CacheFlagEmojis |
 		CacheFlagStickers |

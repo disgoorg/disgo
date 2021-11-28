@@ -14,11 +14,11 @@ type GuildTemplate struct {
 // Guild returns the Guild this GuildTemplate is for.
 // This will only check cached guilds!
 func (t *GuildTemplate) Guild() *Guild {
-	return t.Bot.Caches.GuildCache().Get(t.GuildID)
+	return t.Bot.Caches.Guilds().Get(t.GuildID)
 }
 
-// Update updates the GuildTemplate with the properties provided in discord.GuildTemplateUpdate
-func (t *GuildTemplate) Update(guildTemplateUpdate discord.GuildTemplateUpdate, opts ...rest.RequestOpt) (*GuildTemplate, rest.Error) {
+// Update updates the GuildTemplate with the provided discord.UpdateGuildTemplate
+func (t *GuildTemplate) Update(guildTemplateUpdate discord.GuildTemplateUpdate, opts ...rest.RequestOpt) (*GuildTemplate, error) {
 	guildTemplate, err := t.Bot.RestServices.GuildTemplateService().UpdateGuildTemplate(t.GuildID, t.Code, guildTemplateUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -26,8 +26,8 @@ func (t *GuildTemplate) Update(guildTemplateUpdate discord.GuildTemplateUpdate, 
 	return t.Bot.EntityBuilder.CreateGuildTemplate(*guildTemplate, CacheStrategyNoWs), nil
 }
 
-// Sync syncs the GuildTemplate
-func (t *GuildTemplate) Sync(opts ...rest.RequestOpt) (*GuildTemplate, rest.Error) {
+// Sync updates the GuildTemplate with the provided discord.UpdateGuildTemplate
+func (t *GuildTemplate) Sync(opts ...rest.RequestOpt) (*GuildTemplate, error) {
 	guildTemplate, err := t.Bot.RestServices.GuildTemplateService().SyncGuildTemplate(t.GuildID, t.Code, opts...)
 	if err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func (t *GuildTemplate) Sync(opts ...rest.RequestOpt) (*GuildTemplate, rest.Erro
 }
 
 // Delete deletes the GuildTemplate
-func (t *GuildTemplate) Delete(opts ...rest.RequestOpt) (*GuildTemplate, rest.Error) {
+func (t *GuildTemplate) Delete(opts ...rest.RequestOpt) (*GuildTemplate, error) {
 	guildTemplate, err := t.Bot.RestServices.GuildTemplateService().DeleteGuildTemplate(t.GuildID, t.Code, opts...)
 	if err != nil {
 		return nil, err
@@ -44,8 +44,8 @@ func (t *GuildTemplate) Delete(opts ...rest.RequestOpt) (*GuildTemplate, rest.Er
 	return t.Bot.EntityBuilder.CreateGuildTemplate(*guildTemplate, CacheStrategyNoWs), nil
 }
 
-// CreateGuild creates a Guild from this GuildTemplate with the properties provided in discord.GuildFromTemplateCreate
-func (t *GuildTemplate) CreateGuild(createGuildFromTemplate discord.GuildFromTemplateCreate, opts ...rest.RequestOpt) (*Guild, rest.Error) {
+// CreateGuild creates a Guild from this discord.GuildTemplate
+func (t *GuildTemplate) CreateGuild(createGuildFromTemplate discord.GuildFromTemplateCreate, opts ...rest.RequestOpt) (*Guild, error) {
 	guild, err := t.Bot.RestServices.GuildTemplateService().CreateGuildFromTemplate(t.Code, createGuildFromTemplate, opts...)
 	if err != nil {
 		return nil, err

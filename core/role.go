@@ -11,11 +11,6 @@ type Role struct {
 	Bot *Bot
 }
 
-// String returns the mention format for this Role
-func (r *Role) String() string {
-	return "<@&" + r.ID.String() + ">"
-}
-
 func (r *Role) IconURL(size int) *string {
 	if r.Icon == nil {
 		return nil
@@ -28,11 +23,11 @@ func (r *Role) IconURL(size int) *string {
 // Guild returns the Guild this Role belongs to.
 // This will only check cached guilds!
 func (r *Role) Guild() *Guild {
-	return r.Bot.Caches.GuildCache().Get(r.GuildID)
+	return r.Bot.Caches.Guilds().Get(r.GuildID)
 }
 
 // Update updates this Role with the properties provided in discord.RoleUpdate
-func (r *Role) Update(roleUpdate discord.RoleUpdate, opts ...rest.RequestOpt) (*Role, rest.Error) {
+func (r *Role) Update(roleUpdate discord.RoleUpdate, opts ...rest.RequestOpt) (*Role, error) {
 	role, err := r.Bot.RestServices.GuildService().UpdateRole(r.GuildID, r.ID, roleUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -41,7 +36,7 @@ func (r *Role) Update(roleUpdate discord.RoleUpdate, opts ...rest.RequestOpt) (*
 }
 
 // SetPosition sets the position of this Role
-func (r *Role) SetPosition(rolePositionUpdate discord.RolePositionUpdate, opts ...rest.RequestOpt) ([]*Role, rest.Error) {
+func (r *Role) SetPosition(rolePositionUpdate discord.RolePositionUpdate, opts ...rest.RequestOpt) ([]*Role, error) {
 	roles, err := r.Bot.RestServices.GuildService().UpdateRolePositions(r.GuildID, []discord.RolePositionUpdate{rolePositionUpdate}, opts...)
 	if err != nil {
 		return nil, err
@@ -54,6 +49,6 @@ func (r *Role) SetPosition(rolePositionUpdate discord.RolePositionUpdate, opts .
 }
 
 // Delete deletes this Role
-func (r *Role) Delete(opts ...rest.RequestOpt) rest.Error {
+func (r *Role) Delete(opts ...rest.RequestOpt) error {
 	return r.Bot.RestServices.GuildService().DeleteRole(r.GuildID, r.ID, opts...)
 }

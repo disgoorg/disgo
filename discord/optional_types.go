@@ -1,51 +1,33 @@
 package discord
 
-import "time"
+import (
+	"time"
+)
 
-type OptionalBool *bool
+type NullTime *Time
 
-func NewOptionalBool(b bool) *OptionalBool {
-	ob := OptionalBool(&b)
-	return &ob
-}
-
-func NewNullBool() *OptionalBool {
-	ob := OptionalBool(nil)
-	return &ob
-}
-
-type OptionalString *string
-
-func NewOptionalString(str string) *OptionalString {
-	ostr := OptionalString(&str)
-	return &ostr
-}
-
-func NewNullString() *OptionalString {
-	ostr := OptionalString(nil)
-	return &ostr
-}
-
-type OptionalTime *Time
-
-func NewOptionalTime(time time.Time) *OptionalTime {
-	ot := OptionalTime(&Time{Time: time})
+//goland:noinspection GoUnusedExportedFunction
+func NewTime(time time.Time) *NullTime {
+	ot := NullTime(&Time{Time: time})
 	return &ot
 }
 
-func NewNullTime() *OptionalTime {
-	ot := OptionalTime(nil)
+//goland:noinspection GoUnusedExportedFunction
+func NewNullTime() *NullTime {
+	ot := NullTime(nil)
 	return &ot
 }
 
-type OptionalIcon *Icon
+type NullIcon *Icon
 
-func NewOptionalIcon(icon Icon) *OptionalIcon {
-	oi := OptionalIcon(&icon)
+//goland:noinspection GoUnusedExportedFunction
+func NewNIcon(icon Icon) *NullIcon {
+	oi := NullIcon(&icon)
 	return &oi
 }
 
-func NewNullIcon() *OptionalIcon {
-	oi := OptionalIcon(nil)
+//goland:noinspection GoUnusedExportedFunction
+func NewNullIcon() *NullIcon {
+	oi := NullIcon(nil)
 	return &oi
 }

@@ -1,16 +1,16 @@
 package main
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"strconv"
 	"syscall"
-
-	"github.com/DisgoOrg/disgo/bot"
-
-	"github.com/DisgoOrg/disgo/events"
+	"time"
 
 	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/core/bot"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
@@ -36,9 +36,9 @@ func main() {
 		log.Fatal("error while building bot: ", err)
 	}
 
-	defer disgo.Close()
+	defer disgo.Close(context.TODO())
 
-	if err = disgo.ConnectGateway(); err != nil {
+	if err = disgo.ConnectGateway(context.TODO()); err != nil {
 		log.Fatal("error while connecting to gateway: ", err)
 	}
 
@@ -49,25 +49,34 @@ func main() {
 }
 
 func onMessageCreate(event *events.MessageCreateEvent) {
-	if event.Message.Author.IsBot || event.Message.Author.IsSystem {
+	if event.Message.Author.BotUser || event.Message.Author.System {
 		return
 	}
 	if event.Message.Content == "start" {
 		go func() {
-			ch, cls := event.Channel().CollectMessages(func(message *core.Message) bool {
+			ch, cls := event.Bot().Collectors.NewMessageCollector(func(message *core.Message) bool {
 				return message.ChannelID == event.ChannelID && message.Author.ID == event.Message.Author.ID && message.Content != ""
 			})
 			i := 1
 			str := ">>> "
-			for message := range ch {
-				if i > 3 {
-					cls()
-					_, _ = message.Channel().CreateMessage(core.NewMessageCreateBuilder().SetContent(str).Build())
+			ctx, clsCtx := context.WithTimeout(context.Background(), 20*time.Second)
+			defer clsCtx()
+			for {
+				select {
+				case <-ctx.Done():
+					_, _ = event.Channel().CreateMessage(discord.NewMessageCreateBuilder().SetContent("cancelled").Build())
+					return
+
+				case message := <-ch:
+					str += strconv.Itoa(i) + ". " + message.Content + "\n\n"
+
+					if i == 3 {
+						cls()
+						_, _ = message.Channel().CreateMessage(discord.NewMessageCreateBuilder().SetContent(str).Build())
+					}
+					i++
 				}
-				str += strconv.Itoa(i) + ". " + message.Content + "\n\n"
-				i++
 			}
 		}()
-
 	}
 }

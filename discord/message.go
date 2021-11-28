@@ -1,5 +1,7 @@
 package discord
 
+import "github.com/DisgoOrg/disgo/json"
+
 // The MessageType indicates the Message type
 type MessageType int
 
@@ -34,34 +36,69 @@ const (
 
 // Message is a struct for messages sent in discord text-based channels
 type Message struct {
-	ID                Snowflake           `json:"id"`
-	GuildID           *Snowflake          `json:"guild_id"`
-	Reactions         []MessageReaction   `json:"reactions"`
-	Attachments       []Attachment        `json:"attachments"`
-	TTS               bool                `json:"tts"`
-	Embeds            []Embed             `json:"embeds,omitempty"`
-	Components        []Component         `json:"components,omitempty"`
-	CreatedAt         Time                `json:"timestamp"`
-	Mentions          []interface{}       `json:"mentions"`
-	MentionEveryone   bool                `json:"mention_everyone"`
-	MentionRoles      []Role              `json:"mention_roles"`
-	MentionChannels   []Channel           `json:"mention_channels"`
-	Pinned            bool                `json:"pinned"`
-	EditedTimestamp   *Time               `json:"edited_timestamp"`
-	Author            User                `json:"author"`
-	Member            *Member             `json:"member"`
-	Content           string              `json:"content,omitempty"`
-	ChannelID         Snowflake           `json:"channel_id"`
-	Type              MessageType         `json:"type"`
-	Flags             MessageFlags        `json:"flags"`
-	MessageReference  *MessageReference   `json:"message_reference,omitempty"`
-	Interaction       *MessageInteraction `json:"interaction,omitempty"`
-	WebhookID         *Snowflake          `json:"webhook_id,omitempty"`
-	Activity          *MessageActivity    `json:"activity,omitempty"`
-	Application       *MessageApplication `json:"application,omitempty"`
-	Stickers          []MessageSticker    `json:"sticker_items,omitempty"`
-	ReferencedMessage *Message            `json:"referenced_message,omitempty"`
-	LastUpdated       *Time               `json:"last_updated,omitempty"`
+	ID                Snowflake            `json:"id"`
+	GuildID           *Snowflake           `json:"guild_id"`
+	Reactions         []MessageReaction    `json:"reactions"`
+	Attachments       []Attachment         `json:"attachments"`
+	TTS               bool                 `json:"tts"`
+	Embeds            []Embed              `json:"embeds,omitempty"`
+	Components        []ContainerComponent `json:"components,omitempty"`
+	CreatedAt         Time                 `json:"timestamp"`
+	Mentions          []interface{}        `json:"mentions"`
+	MentionEveryone   bool                 `json:"mention_everyone"`
+	MentionRoles      []Role               `json:"mention_roles"`
+	MentionChannels   []Channel            `json:"mention_channels"`
+	Pinned            bool                 `json:"pinned"`
+	EditedTimestamp   *Time                `json:"edited_timestamp"`
+	Author            User                 `json:"author"`
+	Member            *Member              `json:"member"`
+	Content           string               `json:"content,omitempty"`
+	ChannelID         Snowflake            `json:"channel_id"`
+	Type              MessageType          `json:"type"`
+	Flags             MessageFlags         `json:"flags"`
+	MessageReference  *MessageReference    `json:"message_reference,omitempty"`
+	Interaction       *MessageInteraction  `json:"interaction,omitempty"`
+	WebhookID         *Snowflake           `json:"webhook_id,omitempty"`
+	Activity          *MessageActivity     `json:"activity,omitempty"`
+	Application       *MessageApplication  `json:"application,omitempty"`
+	Stickers          []MessageSticker     `json:"sticker_items,omitempty"`
+	ReferencedMessage *Message             `json:"referenced_message,omitempty"`
+	LastUpdated       *Time                `json:"last_updated,omitempty"`
+	Thread            GuildThread          `json:"thread,omitempty"`
+}
+
+func (m *Message) UnmarshalJSON(data []byte) error {
+	type message Message
+	var v struct {
+		Components []UnmarshalComponent `json:"components"`
+		Thread     *UnmarshalChannel    `json:"thread"`
+		message
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*m = Message(v.message)
+
+	if len(v.Components) > 0 {
+		m.Components = make([]ContainerComponent, len(v.Components))
+		for i := range v.Components {
+			m.Components[i] = v.Components[i].Component.(ContainerComponent)
+		}
+	}
+
+	if v.Thread != nil {
+		m.Thread = v.Thread.Channel.(GuildThread)
+	}
+
+	return nil
+}
+
+type MessageSticker struct {
+	ID         Snowflake         `json:"id"`
+	Name       string            `json:"name"`
+	FormatType StickerFormatType `json:"format_type"`
 }
 
 // MessageReaction contains information about the reactions of a message_events
@@ -70,6 +107,19 @@ type MessageReaction struct {
 	Me    bool  `json:"me"`
 	Emoji Emoji `json:"emoji"`
 }
+
+// MessageActivityType is the type of MessageActivity https://discord.com/developers/docs/resources/channel#message-object-message-activity-types
+type MessageActivityType int
+
+//Constants for MessageActivityType
+//goland:noinspection GoUnusedConst
+const (
+	MessageActivityTypeJoin MessageActivityType = iota + 1
+	MessageActivityTypeSpectate
+	MessageActivityTypeListen
+	_
+	MessageActivityTypeJoinRequest
+)
 
 //MessageActivity is used for rich presence-related chat embeds in a Message
 type MessageActivity struct {
