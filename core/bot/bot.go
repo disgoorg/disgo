@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/DisgoOrg/disgo/collectors"
 	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/core/collectors"
 	"github.com/DisgoOrg/disgo/core/handlers"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
