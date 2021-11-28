@@ -70,8 +70,27 @@ type GatewayEventThreadDelete struct {
 type GatewayEventThreadListSync struct {
 	GuildID    Snowflake      `json:"guild_id"`
 	ChannelIDs []Snowflake    `json:"channel_ids"`
-	Threads    []Channel      `json:"threads"`
+	Threads    []GuildThread  `json:"threads"`
 	Members    []ThreadMember `json:"members"`
+}
+
+func (e *GatewayEventThreadListSync) UnmarshalJSON(data []byte) error {
+	type gatewayEventThreadListSync GatewayEventThreadListSync
+	var v struct {
+		Threads []UnmarshalChannel `json:"threads"`
+		gatewayEventThreadListSync
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*e = GatewayEventThreadListSync(v.gatewayEventThreadListSync)
+	if len(v.Threads) > 0 {
+		e.Threads = make([]GuildThread, len(v.Threads))
+		for i := range v.Threads {
+			e.Threads[i] = v.Threads[i].Channel.(GuildThread)
+		}
+	}
+	return nil
 }
 
 type GatewayEventThreadMembersUpdate struct {

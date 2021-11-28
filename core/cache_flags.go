@@ -10,13 +10,17 @@ const (
 
 	CacheFlagPresences
 
-	CacheFlagTextChannels
+	CacheFlagGuildTextChannels
 	CacheFlagDMChannels
-	CacheFlagVoiceChannels
-	CacheFlagCategories
-	CacheFlagNewsChannels
-	CacheFlagStoreChannels
-	CacheFlagStageChannels
+	CacheFlagGuildVoiceChannels
+	CacheFlagGroupDMChannels
+	CacheFlagGuildCategories
+	CacheFlagGuildNewsChannels
+	CacheFlagGuildStoreChannels
+	CacheFlagGuildNewsThreads
+	CacheFlagGuildPublicThreads
+	CacheFlagGuildPrivateThreads
+	CacheFlagGuildStageVoiceChannels
 
 	CacheFlagRoles
 	CacheFlagRoleTags
@@ -30,13 +34,21 @@ const (
 
 	CacheFlagsNone CacheFlags = 0
 
-	CacheFlagsAllChannels = CacheFlagTextChannels |
+	CacheFlagsAllChannels = CacheFlagGuildTextChannels |
 		CacheFlagDMChannels |
-		CacheFlagVoiceChannels |
-		CacheFlagCategories |
-		CacheFlagNewsChannels |
-		CacheFlagStoreChannels |
-		CacheFlagStageChannels
+		CacheFlagGuildVoiceChannels |
+		CacheFlagGroupDMChannels |
+		CacheFlagGuildCategories |
+		CacheFlagGuildNewsChannels |
+		CacheFlagGuildStoreChannels |
+		CacheFlagGuildNewsThreads |
+		CacheFlagGuildPublicThreads |
+		CacheFlagGuildPrivateThreads |
+		CacheFlagGuildStageVoiceChannels
+
+	CacheFlagsAllThreads = CacheFlagGuildNewsThreads |
+		CacheFlagGuildPublicThreads |
+		CacheFlagGuildPrivateThreads
 
 	CacheFlagsDefault = CacheFlagGuilds |
 		CacheFlagsAllChannels |
