@@ -160,7 +160,6 @@ func resultMapFloat(fields *InteractionFields, applicationID discord.Snowflake, 
 		}
 		ii++
 	}
-	return i.Bot.Caches.GuildCache().Get(*i.GuildID)
 	return result(fields, applicationID, token, choices, opts...)
 }
 

@@ -41,16 +41,6 @@ func (u *User) BannerURL(size int) *string {
 	return u.getAssetURL(route.UserBanner, u.Banner, size)
 }
 
-// String returns this User as a mention
-func (u *User) String() string {
-	return "<@" + u.ID.String() + ">"
-}
-
-// Tag returns this User's Username and Discriminator in Username#Discriminator format
-func (u *User) Tag() string {
-	return fmt.Sprintf("%s#%s", u.Username, u.Discriminator)
-}
-
 func (u *User) getAssetURL(cdnRoute *route.CDNRoute, assetId *string, size int) *string {
 	return discord.FormatAssetURL(cdnRoute, u.ID, assetId, size)
 }

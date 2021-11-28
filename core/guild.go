@@ -89,7 +89,7 @@ func (g *Guild) DeleteEmoji(emojiID discord.Snowflake, opts ...rest.RequestOpt) 
 }
 
 // CreateSticker creates a new Sticker with the properties provided in discord.StickerCreate
-func (g *Guild) CreateSticker(stickerCreate discord.StickerCreate, opts ...rest.RequestOpt) (*Sticker, rest.Error) {
+func (g *Guild) CreateSticker(stickerCreate discord.StickerCreate, opts ...rest.RequestOpt) (*Sticker, error) {
 	sticker, err := g.Bot.RestServices.StickerService().CreateSticker(g.ID, stickerCreate, opts...)
 	if err != nil {
 		return nil, err

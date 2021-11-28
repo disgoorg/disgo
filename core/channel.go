@@ -172,15 +172,10 @@ func (c *GuildTextChannel) UpdatePermissionOverwrite(overwriteType discord.Permi
 	return updatePermissionOverwrite(c.Bot, c, overwriteType, id, allow, deny, opts...)
 }
 
-// MessageFilter used to filter Message(s) in a MessageCollector
-type MessageFilter func(message *Message) bool
 func (c *GuildTextChannel) DeletePermissionOverwrite(id discord.Snowflake, opts ...rest.RequestOpt) error {
 	return deletePermissionOverwrite(c.Bot, c.ID(), id, opts...)
 }
 
-func (c *Channel) CollectMessages(filter MessageFilter) (<-chan *Message, func()) {
-	if !c.IsMessageChannel() {
-		unsupportedChannelType(c)
 func (c *GuildTextChannel) GetMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
 	return getMessage(c.Bot, c.ID(), messageID, opts...)
 }

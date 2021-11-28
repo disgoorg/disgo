@@ -251,7 +251,6 @@ func WithAudioController(audioController core.AudioController) ConfigOpt {
 }
 
 //goland:noinspection GoUnusedExportedFunction
-func WithMembersChunkingManager(membersChunkingManager core.MembersChunkingManager) ConfigOpt {
 func WithMemberChunkingManager(memberChunkingManager core.MemberChunkingManager) ConfigOpt {
 	return func(config *Config) {
 		config.MemberChunkingManager = memberChunkingManager
