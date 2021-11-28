@@ -48,7 +48,7 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 		})
 
 		if guild := guildChannel.Guild(); guild != nil {
-			if guildMessageChannel, ok := guildChannel.(core.GuildMessageChannel); ok && guild.SelfMember().ChannelPermissions(guildChannel).Has(discord.PermissionViewChannel) {
+			if guildMessageChannel, ok := guildChannel.(core.GuildMessageChannel); ok && guild.SelfMember().ChannelPermissions(guildChannel).Missing(discord.PermissionViewChannel) {
 				for _, guildThread := range guildMessageChannel.Threads() {
 					bot.Caches.ThreadMembers().RemoveAll(guildThread.ID())
 					bot.Caches.Channels().Remove(guildThread.ID())

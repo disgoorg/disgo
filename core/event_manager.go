@@ -37,7 +37,6 @@ func NewEventManager(bot *Bot, config *EventManagerConfig) EventManager {
 // EventManager lets you listen for specific events triggered by raw gateway events
 type EventManager interface {
 	Bot() *Bot
-	Close()
 	Config() EventManagerConfig
 
 	AddEventListeners(eventListeners ...EventListener)
@@ -80,11 +79,6 @@ type eventManagerImpl struct {
 // Bot returns the core.Bot instance used by the core.EventManager
 func (e *eventManagerImpl) Bot() *Bot {
 	return e.bot
-}
-
-// Close closes all goroutines created by the core.EventManager
-func (e *eventManagerImpl) Close() {
-	e.Bot().Logger.Info("closing eventManager goroutines...")
 }
 
 func (e *eventManagerImpl) Config() EventManagerConfig {

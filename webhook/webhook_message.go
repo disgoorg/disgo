@@ -5,6 +5,7 @@ import (
 	"github.com/DisgoOrg/disgo/rest"
 )
 
+// Message represents a discord.Message which can be directly edited by the Client
 type Message struct {
 	discord.Message
 	WebhookClient *Client

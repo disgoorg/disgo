@@ -1,6 +1,8 @@
 package webhook
 
 import (
+	"context"
+
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/route"
@@ -40,12 +42,14 @@ func NewClient(id discord.Snowflake, token string, opts ...ConfigOpt) *Client {
 	return webhookClient
 }
 
+// Client is used to interact with the discord webhook api
 type Client struct {
 	ID    discord.Snowflake
 	Token string
 	Config
 }
 
+// GetWebhook fetches the current webhook from discord
 func (h *Client) GetWebhook(opts ...rest.RequestOpt) (*Webhook, error) {
 	webhook, err := h.WebhookService.GetWebhookWithToken(h.ID, h.Token, opts...)
 	if err != nil {
@@ -54,6 +58,7 @@ func (h *Client) GetWebhook(opts ...rest.RequestOpt) (*Webhook, error) {
 	return h.EntityBuilder.CreateWebhook(webhook), nil
 }
 
+// UpdateWebhook updates the current webhook
 func (h *Client) UpdateWebhook(webhookUpdate discord.WebhookUpdateWithToken, opts ...rest.RequestOpt) (*Webhook, error) {
 	webhook, err := h.WebhookService.UpdateWebhookWithToken(h.ID, h.Token, webhookUpdate, opts...)
 	if err != nil {
@@ -62,10 +67,12 @@ func (h *Client) UpdateWebhook(webhookUpdate discord.WebhookUpdateWithToken, opt
 	return h.EntityBuilder.CreateWebhook(webhook), nil
 }
 
+// DeleteWebhook deletes the current webhook
 func (h *Client) DeleteWebhook(opts ...rest.RequestOpt) error {
 	return h.WebhookService.DeleteWebhookWithToken(h.ID, h.Token, opts...)
 }
 
+// CreateMessageInThread creates a new Message in the provided thread
 func (h *Client) CreateMessageInThread(messageCreate discord.WebhookMessageCreate, threadID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
 	message, err := h.WebhookService.CreateMessage(h.ID, h.Token, messageCreate, true, threadID, opts...)
 	if err != nil {
@@ -74,18 +81,22 @@ func (h *Client) CreateMessageInThread(messageCreate discord.WebhookMessageCreat
 	return h.EntityBuilder.CreateMessage(*message), nil
 }
 
+// CreateMessage creates a new message from the discord.WebhookMessageCreate
 func (h *Client) CreateMessage(messageCreate discord.WebhookMessageCreate, opts ...rest.RequestOpt) (*Message, error) {
 	return h.CreateMessageInThread(messageCreate, "", opts...)
 }
 
+// CreateContent creates a new message from the provided content
 func (h *Client) CreateContent(content string, opts ...rest.RequestOpt) (*Message, error) {
 	return h.CreateMessage(discord.WebhookMessageCreate{Content: content}, opts...)
 }
 
+// CreateEmbeds creates a new message from the provided embeds
 func (h *Client) CreateEmbeds(embeds []discord.Embed, opts ...rest.RequestOpt) (*Message, error) {
 	return h.CreateMessage(discord.WebhookMessageCreate{Embeds: embeds}, opts...)
 }
 
+// UpdateMessage updates an already sent webhook message with the discord.WebhookMessageUpdate
 func (h *Client) UpdateMessage(messageID discord.Snowflake, messageUpdate discord.WebhookMessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
 	message, err := h.WebhookService.UpdateMessage(h.ID, h.Token, messageID, messageUpdate, opts...)
 	if err != nil {
@@ -94,19 +105,28 @@ func (h *Client) UpdateMessage(messageID discord.Snowflake, messageUpdate discor
 	return h.EntityBuilder.CreateMessage(*message), nil
 }
 
+// UpdateContent updates an already sent webhook message with the content
 func (h *Client) UpdateContent(messageID discord.Snowflake, content string, opts ...rest.RequestOpt) (*Message, error) {
 	return h.UpdateMessage(messageID, discord.WebhookMessageUpdate{Content: &content}, opts...)
 }
 
+// UpdateEmbeds updates an already sent webhook message with the embeds
 func (h *Client) UpdateEmbeds(messageID discord.Snowflake, embeds []discord.Embed, opts ...rest.RequestOpt) (*Message, error) {
 	return h.UpdateMessage(messageID, discord.WebhookMessageUpdate{Embeds: &embeds}, opts...)
 }
 
+// DeleteMessage deletes an already sent webhook message
 func (h *Client) DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return h.WebhookService.DeleteMessage(h.ID, h.Token, messageID, opts...)
 }
 
+// URL returns the full webhook URL
 func (h *Client) URL() string {
 	compiledRoute, _ := route.GetWebhook.Compile(nil, h.ID, h.Token)
 	return compiledRoute.URL()
+}
+
+// Close closes all connections the webhook client has open
+func (h *Client) Close(ctx context.Context) error {
+	return h.RestClient.Close(ctx)
 }

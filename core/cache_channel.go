@@ -103,19 +103,27 @@ func (c *channelCacheImpl) ForAll(channelFunc func(channel Channel)) {
 func getCacheFLagForChannelType(channelType discord.ChannelType) CacheFlags {
 	switch channelType {
 	case discord.ChannelTypeGuildText:
-		return CacheFlagTextChannels
+		return CacheFlagGuildTextChannels
 	case discord.ChannelTypeDM:
-		return CacheFlagTextChannels
+		return CacheFlagDMChannels
 	case discord.ChannelTypeGuildVoice:
-		return CacheFlagTextChannels
+		return CacheFlagGuildVoiceChannels
+	case discord.ChannelTypeGroupDM:
+		return CacheFlagGroupDMChannels
 	case discord.ChannelTypeGuildCategory:
-		return CacheFlagTextChannels
+		return CacheFlagGuildCategories
 	case discord.ChannelTypeGuildNews:
-		return CacheFlagTextChannels
+		return CacheFlagGuildNewsChannels
 	case discord.ChannelTypeGuildStore:
-		return CacheFlagTextChannels
+		return CacheFlagGuildStoreChannels
+	case discord.ChannelTypeGuildNewsThread:
+		return CacheFlagGuildNewsThreads
+	case discord.ChannelTypeGuildPublicThread:
+		return CacheFlagGuildPublicThreads
+	case discord.ChannelTypeGuildPrivateThread:
+		return CacheFlagGuildPrivateThreads
 	case discord.ChannelTypeGuildStageVoice:
-		return CacheFlagTextChannels
+		return CacheFlagGuildStageVoiceChannels
 	default:
 		return CacheFlagsNone
 	}

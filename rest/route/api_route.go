@@ -7,7 +7,6 @@ import (
 )
 
 // NewAPIRoute generates a new discord api path struct
-//goland:noinspection GoUnusedExportedFunction
 func NewAPIRoute(method Method, path string, queryParams ...string) *APIRoute {
 	params := map[string]struct{}{}
 	for _, param := range queryParams {
@@ -103,6 +102,7 @@ func (r *CompiledAPIRoute) MajorParams() string {
 	return r.majorParams
 }
 
+// URL returns the full URL for the request
 func (r *CompiledAPIRoute) URL() string {
 	u := r.APIRoute.basePath + r.path
 	if r.queryParams != "" {

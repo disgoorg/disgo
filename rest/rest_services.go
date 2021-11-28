@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/DisgoOrg/log"
@@ -8,6 +9,7 @@ import (
 
 var _ Services = (*servicesImpl)(nil)
 
+// NewServices returns a new default Services
 func NewServices(logger log.Logger, restClient Client) Services {
 	if restClient == nil {
 		restClient = NewClient(&DefaultConfig)
@@ -36,10 +38,10 @@ func NewServices(logger log.Logger, restClient Client) Services {
 
 // Services is a manager for all of disgo's HTTP requests
 type Services interface {
-	Close()
 	Logger() log.Logger
 	RestClient() Client
 	HTTPClient() *http.Client
+	Close(ctx context.Context) error
 	ApplicationService() ApplicationService
 	OAuth2Service() OAuth2Service
 	AuditLogService() AuditLogService
@@ -80,10 +82,6 @@ type servicesImpl struct {
 	stickerService       StickerService
 }
 
-func (s *servicesImpl) Close() {
-	s.restClient.Close()
-}
-
 func (s *servicesImpl) Logger() log.Logger {
 	return s.logger
 }
@@ -94,6 +92,10 @@ func (s *servicesImpl) RestClient() Client {
 
 func (s *servicesImpl) HTTPClient() *http.Client {
 	return s.RestClient().HTTPClient()
+}
+
+func (s *servicesImpl) Close(ctx context.Context) error {
+	return s.restClient.Close(ctx)
 }
 
 func (s *servicesImpl) ApplicationService() ApplicationService {

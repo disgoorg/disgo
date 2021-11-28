@@ -7,6 +7,7 @@ import (
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/gateway/sharding"
 	"github.com/DisgoOrg/disgo/httpserver"
+	"github.com/DisgoOrg/disgo/internal/merrors"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/log"
 )
@@ -38,22 +39,29 @@ type Bot struct {
 }
 
 // Close will clean up all disgo internals and close the discord connection safely
-func (b *Bot) Close() {
+func (b *Bot) Close(ctx context.Context) error {
+	var errs merrors.Error
 	if b.RestServices != nil {
-		b.RestServices.Close()
+		if err := b.RestServices.Close(ctx); err != nil {
+			errs.Add(err)
+		}
 	}
 	if b.Gateway != nil {
-		b.Gateway.Close()
+		if err := b.Gateway.Close(ctx); err != nil {
+			errs.Add(err)
+		}
 	}
 	if b.ShardManager != nil {
-		b.ShardManager.Close()
+		if err := b.ShardManager.Close(ctx); err != nil {
+			errs.Add(err)
+		}
 	}
 	if b.HTTPServer != nil {
-		b.HTTPServer.Close()
+		if err := b.HTTPServer.Close(ctx); err != nil {
+			errs.Add(err)
+		}
 	}
-	if b.EventManager != nil {
-		b.EventManager.Close()
-	}
+	return nil
 }
 
 // SelfMember returns a core.OAuth2User for the client, if available
@@ -72,27 +80,19 @@ func (b *Bot) RemoveEventListeners(listeners ...EventListener) {
 }
 
 // ConnectGateway opens the gateway connection to discord
-func (b *Bot) ConnectGateway() error {
-	return b.ConnectGatewayCtx(context.Background())
-}
-
-func (b *Bot) ConnectGatewayCtx(ctx context.Context) error {
+func (b *Bot) ConnectGateway(ctx context.Context) error {
 	if b.Gateway == nil {
 		return discord.ErrNoGateway
 	}
-	return b.Gateway.OpenCtx(ctx)
+	return b.Gateway.Open(ctx)
 }
 
 // ConnectShardManager opens the gateway connection to discord
-func (b *Bot) ConnectShardManager() []error {
-	return b.ConnectShardManagerCtx(context.Background())
-}
-
-func (b *Bot) ConnectShardManagerCtx(ctx context.Context) []error {
+func (b *Bot) ConnectShardManager(ctx context.Context) error {
 	if b.ShardManager == nil {
-		return []error{discord.ErrNoShardManager}
+		return discord.ErrNoShardManager
 	}
-	return b.ShardManager.OpenCtx(ctx)
+	return b.ShardManager.Open(ctx)
 }
 
 // HasGateway returns whether core.disgo has an active gateway.Gateway connection

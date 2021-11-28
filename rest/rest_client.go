@@ -2,6 +2,7 @@ package rest
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -32,6 +33,9 @@ func NewClient(config *Config) Client {
 	if config.RateLimiterConfig == nil {
 		config.RateLimiterConfig = &rrate.DefaultConfig
 	}
+	if config.RateLimiterConfig.Logger == nil {
+		config.RateLimiterConfig.Logger = config.Logger
+	}
 	if config.RateLimiter == nil {
 		config.RateLimiter = rrate.NewLimiter(config.RateLimiterConfig)
 	}
@@ -40,11 +44,21 @@ func NewClient(config *Config) Client {
 
 // Client allows doing requests to different endpoints
 type Client interface {
-	Close()
+	// Logger returns the logger the rest client uses
 	Logger() log.Logger
+
+	// HTTPClient returns the http.Client the rest client uses
 	HTTPClient() *http.Client
+
+	// RateLimiter returns the rrate.Limiter the rest client uses
 	RateLimiter() rrate.Limiter
+	// Config returns the Config the rest client uses
 	Config() Config
+
+	// Close closes the rest client and awaits all pending requests to finish. You can use a cancelling context to abort the waiting
+	Close(ctx context.Context) error
+
+	// Do makes a request to the given route and marshals the given interface{} as json and unmarshalls the response into the given interface
 	Do(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) error
 }
 
@@ -52,8 +66,9 @@ type clientImpl struct {
 	config Config
 }
 
-func (c *clientImpl) Close() {
+func (c *clientImpl) Close(_ context.Context) error {
 	c.config.HTTPClient.CloseIdleConnections()
+	return nil
 }
 
 func (c *clientImpl) Logger() log.Logger {
