@@ -65,6 +65,38 @@ func (g *Guild) RoleCache() map[discord.Snowflake]*Role {
 	return g.Bot.Caches.Roles().GuildCache(g.ID)
 }
 
+func (g *Guild) CreateGuildScheduledEvent(guildScheduledEventCreate discord.GuildScheduledEventCreate, opts ...rest.RequestOpt) (*GuildScheduledEvent, error) {
+	guildScheduledEvent, err := g.Bot.RestServices.GuildScheduledEventService().CreateGuildScheduledEvent(g.ID, guildScheduledEventCreate, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return g.Bot.EntityBuilder.CreateGuildScheduledEvent(*guildScheduledEvent, CacheStrategyNoWs), nil
+}
+
+func (g *Guild) UpdateGuildScheduledEvent(guildScheduledEventID discord.Snowflake, guildScheduledEventUpdate discord.GuildScheduledEventUpdate, opts ...rest.RequestOpt) (*GuildScheduledEvent, error) {
+	guildScheduledEvent, err := g.Bot.RestServices.GuildScheduledEventService().UpdateGuildScheduledEvent(g.ID, guildScheduledEventID, guildScheduledEventUpdate, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return g.Bot.EntityBuilder.CreateGuildScheduledEvent(*guildScheduledEvent, CacheStrategyNoWs), nil
+}
+
+func (g *Guild) DeleteGuildScheduledEvent(guildScheduledEventID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return g.Bot.RestServices.GuildScheduledEventService().DeleteGuildScheduledEvent(g.ID, guildScheduledEventID, opts...)
+}
+
+func (g *Guild) GetGuildScheduledEventUsers(guildScheduledEventID discord.Snowflake, limit int, withMember bool, before discord.Snowflake, after discord.Snowflake, opts ...rest.RequestOpt) ([]*GuildScheduledEventUser, error) {
+	users, err := g.Bot.RestServices.GuildScheduledEventService().GetGuildScheduledEventUsers(g.ID, guildScheduledEventID, limit, withMember, before, after, opts...)
+	if err != nil {
+		return nil, err
+	}
+	eventUsers := make([]*GuildScheduledEventUser, len(users))
+	for i := range users {
+		eventUsers[i] = g.Bot.EntityBuilder.CreateGuildScheduledEventUser(g.ID, users[i], CacheStrategyNoWs)
+	}
+	return eventUsers, nil
+}
+
 // CreateEmoji creates a new Emoji with the properties provided in discord.EmojiCreate
 func (g *Guild) CreateEmoji(emojiCreate discord.EmojiCreate, opts ...rest.RequestOpt) (*Emoji, error) {
 	emoji, err := g.Bot.RestServices.EmojiService().CreateEmoji(g.ID, emojiCreate, opts...)

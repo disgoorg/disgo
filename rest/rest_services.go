@@ -15,24 +15,25 @@ func NewServices(logger log.Logger, restClient Client) Services {
 		restClient = NewClient(&DefaultConfig)
 	}
 	return &servicesImpl{
-		logger:               logger,
-		restClient:           restClient,
-		applicationService:   NewApplicationService(restClient),
-		oauth2Service:        NewOAuth2Service(restClient),
-		auditLogService:      NewAuditLogService(restClient),
-		gatewayService:       NewGatewayService(restClient),
-		guildService:         NewGuildService(restClient),
-		channelService:       NewChannelService(restClient),
-		threadService:        NewThreadService(restClient),
-		interactionService:   NewInteractionService(restClient),
-		inviteService:        NewInviteService(restClient),
-		guildTemplateService: NewGuildTemplateService(restClient),
-		userService:          NewUserService(restClient),
-		voiceService:         NewVoiceService(restClient),
-		webhookService:       NewWebhookService(restClient),
-		stageInstanceService: NewStageInstanceService(restClient),
-		emojiService:         NewEmojiService(restClient),
-		stickerService:       NewStickerService(restClient),
+		logger:                     logger,
+		restClient:                 restClient,
+		applicationService:         NewApplicationService(restClient),
+		oauth2Service:              NewOAuth2Service(restClient),
+		auditLogService:            NewAuditLogService(restClient),
+		gatewayService:             NewGatewayService(restClient),
+		guildService:               NewGuildService(restClient),
+		channelService:             NewChannelService(restClient),
+		threadService:              NewThreadService(restClient),
+		interactionService:         NewInteractionService(restClient),
+		inviteService:              NewInviteService(restClient),
+		guildTemplateService:       NewGuildTemplateService(restClient),
+		userService:                NewUserService(restClient),
+		voiceService:               NewVoiceService(restClient),
+		webhookService:             NewWebhookService(restClient),
+		stageInstanceService:       NewStageInstanceService(restClient),
+		emojiService:               NewEmojiService(restClient),
+		stickerService:             NewStickerService(restClient),
+		guildScheduledEventService: NewGuildScheduledEventService(restClient),
 	}
 }
 
@@ -58,28 +59,30 @@ type Services interface {
 	StageInstanceService() StageInstanceService
 	EmojiService() EmojiService
 	StickerService() StickerService
+	GuildScheduledEventService() GuildScheduledEventService
 }
 
 type servicesImpl struct {
 	logger     log.Logger
 	restClient Client
 
-	applicationService   ApplicationService
-	oauth2Service        OAuth2Service
-	auditLogService      AuditLogService
-	gatewayService       GatewayService
-	guildService         GuildService
-	channelService       ChannelService
-	threadService        ThreadService
-	interactionService   InteractionService
-	inviteService        InviteService
-	guildTemplateService GuildTemplateService
-	userService          UserService
-	voiceService         VoiceService
-	webhookService       WebhookService
-	stageInstanceService StageInstanceService
-	emojiService         EmojiService
-	stickerService       StickerService
+	applicationService         ApplicationService
+	oauth2Service              OAuth2Service
+	auditLogService            AuditLogService
+	gatewayService             GatewayService
+	guildService               GuildService
+	channelService             ChannelService
+	threadService              ThreadService
+	interactionService         InteractionService
+	inviteService              InviteService
+	guildTemplateService       GuildTemplateService
+	userService                UserService
+	voiceService               VoiceService
+	webhookService             WebhookService
+	stageInstanceService       StageInstanceService
+	emojiService               EmojiService
+	stickerService             StickerService
+	guildScheduledEventService GuildScheduledEventService
 }
 
 func (s *servicesImpl) Logger() log.Logger {
@@ -160,6 +163,10 @@ func (s *servicesImpl) EmojiService() EmojiService {
 
 func (s *servicesImpl) StickerService() StickerService {
 	return s.stickerService
+}
+
+func (s *servicesImpl) GuildScheduledEventService() GuildScheduledEventService {
+	return s.guildScheduledEventService
 }
 
 type Service interface {

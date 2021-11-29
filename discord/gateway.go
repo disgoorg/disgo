@@ -83,6 +83,12 @@ type GuildRoleUpdateGatewayEvent struct {
 	Role    Role      `json:"role"`
 }
 
+type GuildScheduledEventUserEvent struct {
+	GuildScheduledEventID Snowflake `json:"guild_scheduled_event_id"`
+	UserID                Snowflake `json:"user_id"`
+	GuildID               Snowflake `json:"guild_id"`
+}
+
 type InviteDeleteGatewayEvent struct {
 	ChannelID Snowflake  `json:"channel_id"`
 	GuildID   *Snowflake `json:"guild_id"`
