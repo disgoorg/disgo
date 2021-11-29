@@ -39,6 +39,7 @@ type GuildScheduledEventUpdate struct {
 	ScheduledEndTime   *Time                       `json:"scheduled_end_time,omitempty"`
 	Description        *string                     `json:"description,omitempty"`
 	EntityType         *ScheduledEventEntityType   `json:"entity_type,omitempty"`
+	Status             *ScheduledEventStatus       `json:"status,omitempty"`
 }
 
 type GuildScheduledEventUser struct {

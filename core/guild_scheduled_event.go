@@ -23,8 +23,24 @@ func (e *GuildScheduledEvent) Delete(opts ...rest.RequestOpt) error {
 	return e.Bot.RestServices.GuildScheduledEventService().DeleteGuildScheduledEvent(e.GuildID, e.ID, opts...)
 }
 
+func (e *GuildScheduledEvent) AudioChannel() GuildAudioChannel {
+	if e.EntityType != discord.ScheduledEventEntityTypeVoice && e.EntityType != discord.ScheduledEventEntityTypeStageInstance {
+		return nil
+	}
+	if e.ChannelID == nil {
+		return nil
+	}
+	if ch := e.Bot.Caches.Channels().Get(*e.ChannelID); ch != nil {
+		return ch.(GuildAudioChannel)
+	}
+	return nil
+}
+
 func (e *GuildScheduledEvent) VoiceChannelEntity() *GuildVoiceChannel {
 	if e.EntityType != discord.ScheduledEventEntityTypeVoice {
+		return nil
+	}
+	if e.EntityID == nil {
 		return nil
 	}
 	if ch := e.Bot.Caches.Channels().Get(*e.EntityID); ch != nil {

@@ -25,7 +25,7 @@ func (h *gatewayHandlerGuildScheduledEventDelete) HandleGatewayEvent(bot *core.B
 
 	bot.Caches.GuildScheduledEvents().Remove(payload.ID)
 
-	bot.EventManager.Dispatch(events.GuildScheduledEventDeleteEvent{
+	bot.EventManager.Dispatch(&events.GuildScheduledEventDeleteEvent{
 		GenericGuildScheduledEventEvent: &events.GenericGuildScheduledEventEvent{
 			GenericEvent:        events.NewGenericEvent(bot, sequenceNumber),
 			GuildScheduledEvent: bot.EntityBuilder.CreateGuildScheduledEvent(payload, core.CacheStrategyNo),

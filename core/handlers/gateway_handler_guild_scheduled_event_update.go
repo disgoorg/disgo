@@ -25,7 +25,7 @@ func (h *gatewayHandlerGuildScheduledEventUpdate) HandleGatewayEvent(bot *core.B
 
 	oldGuildScheduledEvent := bot.Caches.GuildScheduledEvents().GetCopy(payload.ID)
 
-	bot.EventManager.Dispatch(events.GuildScheduledEventUpdateEvent{
+	bot.EventManager.Dispatch(&events.GuildScheduledEventUpdateEvent{
 		GenericGuildScheduledEventEvent: &events.GenericGuildScheduledEventEvent{
 			GenericEvent:        events.NewGenericEvent(bot, sequenceNumber),
 			GuildScheduledEvent: bot.EntityBuilder.CreateGuildScheduledEvent(payload, core.CacheStrategyYes),

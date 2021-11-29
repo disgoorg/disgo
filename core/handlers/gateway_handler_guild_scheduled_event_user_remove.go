@@ -23,7 +23,7 @@ func (h *gatewayHandlerGuildScheduledEventUserRemove) New() interface{} {
 func (h *gatewayHandlerGuildScheduledEventUserRemove) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.GuildScheduledEventUserEvent)
 
-	bot.EventManager.Dispatch(events.GuildScheduledEventUserRemoveEvent{
+	bot.EventManager.Dispatch(&events.GuildScheduledEventUserRemoveEvent{
 		GenericGuildScheduledEventUserEvent: &events.GenericGuildScheduledEventUserEvent{
 			GenericEvent:          events.NewGenericEvent(bot, sequenceNumber),
 			GuildScheduledEventID: payload.GuildScheduledEventID,
