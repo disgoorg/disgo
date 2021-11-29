@@ -70,6 +70,20 @@ func (i *SelectMenuInteraction) UpdateButton(button discord.SelectMenuComponent,
 	return updateComponent(i.InteractionFields, i.ID, i.Token, i.Message, i.Data.CustomID, button, opts...)
 }
 
+// SelectedOptions returns the selected discord.SelectMenuOption(s)
+func (i *SelectMenuInteraction) SelectedOptions() []discord.SelectMenuOption {
+	options := make([]discord.SelectMenuOption, len(i.Data.Values))
+	for ii, option := range i.SelectMenuComponent().Options {
+		for _, value := range i.Data.Values {
+			if value == option.Value {
+				options[ii] = option
+				break
+			}
+		}
+	}
+	return options
+}
+
 // SelectMenuComponent returns the SelectMenuComponent which issued this SelectMenuInteraction
 func (i *SelectMenuInteraction) SelectMenuComponent() discord.SelectMenuComponent {
 	// this should never be nil
