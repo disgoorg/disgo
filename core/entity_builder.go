@@ -37,6 +37,9 @@ type EntityBuilder interface {
 	CreateGuildTemplate(guildTemplate discord.GuildTemplate, updateCache CacheStrategy) *GuildTemplate
 	CreateStageInstance(stageInstance discord.StageInstance, updateCache CacheStrategy) *StageInstance
 
+	CreateGuildScheduledEvent(guildScheduledEvent discord.GuildScheduledEvent, updateCache CacheStrategy) *GuildScheduledEvent
+	CreateGuildScheduledEventUser(guildID discord.Snowflake, guildScheduledEventUser discord.GuildScheduledEventUser, updateCache CacheStrategy) *GuildScheduledEventUser
+
 	CreateRole(guildID discord.Snowflake, role discord.Role, updateCache CacheStrategy) *Role
 	CreateMember(guildID discord.Snowflake, member discord.Member, updateCache CacheStrategy) *Member
 	CreateBan(guildID discord.Snowflake, ban discord.Ban, updateCache CacheStrategy) *Ban
@@ -682,7 +685,6 @@ func (b *entityBuilderImpl) CreateThreadMember(threadMember discord.ThreadMember
 }
 
 func (b *entityBuilderImpl) CreateStageInstance(stageInstance discord.StageInstance, updateCache CacheStrategy) *StageInstance {
-
 	coreStageInstance := &StageInstance{StageInstance: stageInstance, Bot: b.Bot()}
 
 	if channel := b.Bot().Caches.Channels().Get(stageInstance.ChannelID); channel != nil {
@@ -695,6 +697,27 @@ func (b *entityBuilderImpl) CreateStageInstance(stageInstance discord.StageInsta
 		return b.Bot().Caches.StageInstances().Set(coreStageInstance)
 	}
 	return coreStageInstance
+}
+
+func (b *entityBuilderImpl) CreateGuildScheduledEvent(guildScheduledEvent discord.GuildScheduledEvent, updateCache CacheStrategy) *GuildScheduledEvent {
+	coreGuildScheduledEvent := &GuildScheduledEvent{GuildScheduledEvent: guildScheduledEvent, Bot: b.Bot()}
+
+	if updateCache(b.Bot()) {
+		return b.Bot().Caches.GuildScheduledEvents().Set(coreGuildScheduledEvent)
+	}
+	return coreGuildScheduledEvent
+}
+
+func (b *entityBuilderImpl) CreateGuildScheduledEventUser(guildID discord.Snowflake, guildScheduledEventUser discord.GuildScheduledEventUser, updateCache CacheStrategy) *GuildScheduledEventUser {
+	coreGuildScheduledEventUser := &GuildScheduledEventUser{
+		GuildScheduledEventUser: guildScheduledEventUser, Bot: b.Bot(),
+		User: b.CreateUser(guildScheduledEventUser.User, updateCache),
+	}
+	if guildScheduledEventUser.Member != nil {
+		coreGuildScheduledEventUser.Member = b.CreateMember(guildID, *guildScheduledEventUser.Member, updateCache)
+	}
+
+	return coreGuildScheduledEventUser
 }
 
 func (b *entityBuilderImpl) CreateInvite(invite discord.Invite, updateCache CacheStrategy) *Invite {

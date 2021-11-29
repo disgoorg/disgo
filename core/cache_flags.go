@@ -7,6 +7,7 @@ type CacheFlags int
 //goland:noinspection GoUnusedConst
 const (
 	CacheFlagGuilds CacheFlags = 1 << iota
+	CacheFlagGuildScheduledEvents
 
 	CacheFlagPresences
 

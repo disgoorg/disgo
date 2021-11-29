@@ -99,13 +99,13 @@ var (
 
 // GuildScheduledEvents
 var (
-	GetGuildScheduledEvents   = NewAPIRoute(GET, "/guilds/{guild.id}/scheduled-events")
-	GetGuildScheduledEvent    = NewAPIRoute(GET, "/guilds/{guild.id}/scheduled-events/{guild_scheduled_event.id}")
+	GetGuildScheduledEvents   = NewAPIRoute(GET, "/guilds/{guild.id}/scheduled-events", "with_user_count")
+	GetGuildScheduledEvent    = NewAPIRoute(GET, "/guilds/{guild.id}/scheduled-events/{guild_scheduled_event.id}", "with_user_count")
 	CreateGuildScheduledEvent = NewAPIRoute(POST, "/guilds/{guild.id}/scheduled-events")
 	UpdateGuildScheduledEvent = NewAPIRoute(PATCH, "/guilds/{guild.id}/scheduled-events/{guild_scheduled_event.id}")
 	DeleteGuildScheduledEvent = NewAPIRoute(DELETE, "/guilds/{guild.id}/scheduled-events/{guild_scheduled_event.id}")
 
-	GetGuildScheduledEventUsers = NewAPIRoute(GET, "/guilds/{guild.id}/scheduled-events/{guild_scheduled_event.id}/users")
+	GetGuildScheduledEventUsers = NewAPIRoute(GET, "/guilds/{guild.id}/scheduled-events/{guild_scheduled_event.id}/users", "limit", "with_member", "before", "after")
 )
 
 // StageInstance

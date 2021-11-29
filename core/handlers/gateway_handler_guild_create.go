@@ -66,8 +66,16 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 		bot.EntityBuilder.CreateEmoji(payload.ID, emote, core.CacheStrategyYes)
 	}
 
+	for _, sticker := range payload.Stickers {
+		bot.EntityBuilder.CreateSticker(sticker, core.CacheStrategyYes)
+	}
+
 	for _, stageInstance := range payload.StageInstances {
 		bot.EntityBuilder.CreateStageInstance(stageInstance, core.CacheStrategyYes)
+	}
+
+	for _, guildScheduledEvent := range payload.GuildScheduledEvents {
+		bot.EntityBuilder.CreateGuildScheduledEvent(guildScheduledEvent, core.CacheStrategyYes)
 	}
 
 	for _, presence := range payload.Presences {
