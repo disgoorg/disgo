@@ -108,6 +108,13 @@ type ListenerAdapter struct {
 	OnRoleUpdate func(event *RoleUpdateEvent)
 	OnRoleDelete func(event *RoleDeleteEvent)
 
+	// Guild Scheduled Events
+	OnGuildScheduledEventCreate     func(event *GuildScheduledEventCreateEvent)
+	OnGuildScheduledEventUpdate     func(event *GuildScheduledEventUpdateEvent)
+	OnGuildScheduledEventDelete     func(event *GuildScheduledEventDeleteEvent)
+	OnGuildScheduledEventUserAdd    func(event *GuildScheduledEventUserAddEvent)
+	OnGuildScheduledEventUserRemove func(event *GuildScheduledEventUserRemoveEvent)
+
 	// Interaction Events
 	OnInteractionCreate                   func(event *InteractionCreateEvent)
 	OnApplicationCommandInteractionCreate func(event *ApplicationCommandInteractionCreateEvent)
@@ -454,6 +461,28 @@ func (l ListenerAdapter) OnEvent(event core.Event) {
 		}
 	case *RoleDeleteEvent:
 		if listener := l.OnRoleDelete; listener != nil {
+			listener(e)
+		}
+
+	// Guild Scheduled Events
+	case *GuildScheduledEventCreateEvent:
+		if listener := l.OnGuildScheduledEventCreate; listener != nil {
+			listener(e)
+		}
+	case *GuildScheduledEventUpdateEvent:
+		if listener := l.OnGuildScheduledEventUpdate; listener != nil {
+			listener(e)
+		}
+	case *GuildScheduledEventDeleteEvent:
+		if listener := l.OnGuildScheduledEventDelete; listener != nil {
+			listener(e)
+		}
+	case *GuildScheduledEventUserAddEvent:
+		if listener := l.OnGuildScheduledEventUserAdd; listener != nil {
+			listener(e)
+		}
+	case *GuildScheduledEventUserRemoveEvent:
+		if listener := l.OnGuildScheduledEventUserRemove; listener != nil {
 			listener(e)
 		}
 
