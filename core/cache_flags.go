@@ -62,6 +62,7 @@ const (
 		CacheFlagRoleTags
 
 	CacheFlagsAll = CacheFlagGuilds |
+		CacheFlagGuildScheduledEvents |
 		CacheFlagsAllChannels |
 		CacheFlagsFullRoles |
 		CacheFlagEmojis |
