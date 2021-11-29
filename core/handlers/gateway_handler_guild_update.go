@@ -6,10 +6,10 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// gatewayHandlerGuildUpdate handles core.GuildUpdateGatewayEvent
+// gatewayHandlerGuildUpdate handles discord.GatewayEventTypeGuildUpdate
 type gatewayHandlerGuildUpdate struct{}
 
-// EventType returns the core.GatewayGatewayEventType
+// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerGuildUpdate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildUpdate
 }

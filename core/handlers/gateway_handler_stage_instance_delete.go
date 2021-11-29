@@ -9,7 +9,7 @@ import (
 // gatewayHandlerStageInstanceDelete handles discord.GatewayEventTypeStageInstanceDelete
 type gatewayHandlerStageInstanceDelete struct{}
 
-// EventType returns the core.GatewayGatewayEventType
+// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerStageInstanceDelete) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeStageInstanceDelete
 }

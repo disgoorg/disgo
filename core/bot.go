@@ -95,11 +95,12 @@ func (b *Bot) ConnectShardManager(ctx context.Context) error {
 	return b.ShardManager.Open(ctx)
 }
 
-// HasGateway returns whether core.disgo has an active gateway.Gateway connection
+// HasGateway returns whether this Bot has an active gateway.Gateway connection
 func (b *Bot) HasGateway() bool {
 	return b.Gateway != nil
 }
 
+// HasShardManager returns whether this Bot is sharded
 func (b *Bot) HasShardManager() bool {
 	return b.ShardManager != nil
 }
@@ -124,6 +125,7 @@ func (b *Bot) SetPresence(presenceUpdate discord.PresenceUpdate) error {
 	return b.Gateway.Send(discord.NewGatewayCommand(discord.GatewayOpcodePresenceUpdate, presenceUpdate))
 }
 
+// SetPresenceForShard sets the Presence of this Bot for the provided shard
 func (b *Bot) SetPresenceForShard(shardId int, presenceUpdate discord.PresenceUpdate) error {
 	if !b.HasShardManager() {
 		return discord.ErrNoShardManager

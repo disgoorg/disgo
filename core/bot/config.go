@@ -9,6 +9,7 @@ import (
 	"github.com/DisgoOrg/log"
 )
 
+// Config lets you configure your Bot instance
 // Config is the core.Bot config used to configure everything
 type Config struct {
 	Logger log.Logger
@@ -49,6 +50,7 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	}
 }
 
+// WithLogger lets you inject your own logger implementing log.Logger
 //goland:noinspection GoUnusedExportedFunction
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {

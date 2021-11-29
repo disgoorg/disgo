@@ -11,6 +11,8 @@ type WebhooksUpdateEvent struct {
 	ChannelID discord.Snowflake
 }
 
+// Guild returns the Guild the webhook was updated in.
+// This will only check cached guilds!
 func (e *WebhooksUpdateEvent) Guild() *core.Guild {
 	return e.Bot().Caches.Guilds().Get(e.GuildId)
 }
