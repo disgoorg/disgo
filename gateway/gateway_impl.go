@@ -33,6 +33,9 @@ func New(token string, url string, shardID int, shardCount int, eventHandlerFunc
 	if config.RateLimiterConfig == nil {
 		config.RateLimiterConfig = &grate.DefaultConfig
 	}
+	if config.RateLimiterConfig.Logger == nil {
+		config.RateLimiterConfig.Logger = config.Logger
+	}
 	if config.RateLimiter == nil {
 		config.RateLimiter = grate.NewLimiter(config.RateLimiterConfig)
 	}
@@ -94,11 +97,7 @@ func (g *gatewayImpl) formatLogs(a ...interface{}) string {
 	return fmt.Sprint(a...)
 }
 
-func (g *gatewayImpl) Open() error {
-	return g.OpenCtx(context.Background())
-}
-
-func (g *gatewayImpl) OpenCtx(ctx context.Context) error {
+func (g *gatewayImpl) Open(ctx context.Context) error {
 	g.Logger().Info(g.formatLogs("opening gateway connection"))
 	if g.conn != nil {
 		return discord.ErrGatewayAlreadyConnected
@@ -110,7 +109,9 @@ func (g *gatewayImpl) OpenCtx(ctx context.Context) error {
 	var err error
 	g.conn, rs, err = websocket.DefaultDialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
-		g.Close()
+		if err = g.Close(ctx); err != nil {
+			return err
+		}
 		var body []byte
 		if rs != nil && rs.Body != nil {
 			body, err = ioutil.ReadAll(rs.Body)
@@ -135,11 +136,11 @@ func (g *gatewayImpl) OpenCtx(ctx context.Context) error {
 	return nil
 }
 
-func (g *gatewayImpl) Close() {
-	g.CloseWithCode(websocket.CloseNormalClosure)
+func (g *gatewayImpl) Close(ctx context.Context) {
+	g.CloseWithCode(ctx, websocket.CloseNormalClosure)
 }
 
-func (g *gatewayImpl) CloseWithCode(code int) {
+func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int) {
 	g.Logger().Info(g.formatLogs("closing gateway connection with code: ", code))
 	if g.heartbeatChan != nil {
 		g.Logger().Debug(g.formatLogs("closing heartbeat goroutines..."))
@@ -206,6 +207,7 @@ func (g *gatewayImpl) reconnect(try int, delay time.Duration) {
 		g.status = StatusDisconnected
 		g.reconnect(try+1, delay*2)
 	}
+	return nil
 }
 
 func (g *gatewayImpl) heartbeat() {
@@ -387,7 +389,7 @@ func (g *gatewayImpl) listen() {
 			if canResume {
 				g.CloseWithCode(websocket.CloseServiceRestart)
 			} else {
-				g.Close()
+				_ = g.Close(context.TODO())
 				// clear reconnect info
 				g.sessionID = nil
 				g.lastSequenceReceived = nil
@@ -408,7 +410,9 @@ func (g *gatewayImpl) parseGatewayEvent(mt int, reader io.Reader) (*discord.Gate
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to decompress zlib")
 		}
-		defer readCloser.Close()
+		defer func() {
+			_ = readCloser.Close()
+		}()
 		reader = readCloser
 	}
 

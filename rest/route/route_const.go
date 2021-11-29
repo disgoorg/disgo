@@ -2,14 +2,14 @@ package route
 
 import "strings"
 
+// MajorParameters is a list of url parameters which decide in which bucket a route belongs (https://discord.com/developers/docs/topics/rate-limits#rate-limits)
 const MajorParameters = "guild.id:channel.id:webhook.id:interaction.token"
 
 func countURLParams(url string) int {
-	paramCount := strings.Count(url, "{")
-	return paramCount
+	return strings.Count(url, "{")
 }
 
-// Method is a HTTP request Method
+// Method is an HTTP request Method
 type Method string
 
 // HTTP Methods used by Discord
@@ -21,6 +21,7 @@ const (
 	PATCH  Method = "PATCH"
 )
 
+// String returns the string representation of the Method
 func (m Method) String() string {
 	return string(m)
 }
@@ -28,19 +29,19 @@ func (m Method) String() string {
 // QueryValues is used to supply query param value pairs to Route.Compile
 type QueryValues map[string]interface{}
 
-// FileExtension is the type of image on Discord's CDN
-type FileExtension string
+// ImageFormat is the type of image on Discord's CDN (https://discord.com/developers/docs/reference#image-formatting-image-formats)
+type ImageFormat string
 
-// The available FileExtension(s)
+// The available ImageFormat(s)
 const (
-	PNG    FileExtension = "png"
-	JPEG   FileExtension = "jpg"
-	WebP   FileExtension = "webp"
-	GIF    FileExtension = "gif"
-	Lottie FileExtension = "json"
-	BLANK  FileExtension = ""
+	PNG    ImageFormat = "png"
+	JPEG   ImageFormat = "jpg"
+	WebP   ImageFormat = "webp"
+	GIF    ImageFormat = "gif"
+	Lottie ImageFormat = "json"
+	BLANK  ImageFormat = ""
 )
 
-func (f FileExtension) String() string {
+func (f ImageFormat) String() string {
 	return string(f)
 }

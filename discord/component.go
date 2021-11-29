@@ -17,16 +17,35 @@ const (
 	ComponentTypeSelectMenu
 )
 
+type CustomID string
+
+func (c CustomID) String() string {
+	return string(c)
+}
+
 type Component interface {
 	json.Marshaler
 	Type() ComponentType
+	component()
 }
 
-type unmarshalComponent struct {
+type ContainerComponent interface {
+	Component
+	Components() []InteractiveComponent
+	containerComponent()
+}
+
+type InteractiveComponent interface {
+	Component
+	ID() CustomID
+	interactiveComponent()
+}
+
+type UnmarshalComponent struct {
 	Component
 }
 
-func (u *unmarshalComponent) UnmarshalJSON(data []byte) error {
+func (u *UnmarshalComponent) UnmarshalJSON(data []byte) error {
 	var cType struct {
 		Type ComponentType `json:"type"`
 	}
@@ -42,19 +61,22 @@ func (u *unmarshalComponent) UnmarshalJSON(data []byte) error {
 
 	switch cType.Type {
 	case ComponentTypeActionRow:
-		v := ActionRow{}
+		v := ActionRowComponent{}
 		err = json.Unmarshal(data, &v)
 		component = v
+
 	case ComponentTypeButton:
-		v := Button{}
+		v := ButtonComponent{}
 		err = json.Unmarshal(data, &v)
 		component = v
+
 	case ComponentTypeSelectMenu:
-		v := SelectMenu{}
+		v := SelectMenuComponent{}
 		err = json.Unmarshal(data, &v)
 		component = v
+
 	default:
-		return fmt.Errorf("unkown component with type %d received", cType.Type)
+		err = fmt.Errorf("unkown component with type %d received", cType.Type)
 	}
 	if err != nil {
 		return err

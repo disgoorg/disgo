@@ -10,13 +10,13 @@ type AuditLog struct {
 	Bot           *Bot
 	GuildID       discord.Snowflake
 	Users         map[discord.Snowflake]*User
-	Integrations  map[discord.Snowflake]*Integration
-	Webhooks      map[discord.Snowflake]*Webhook
+	Integrations  map[discord.Snowflake]Integration
+	Webhooks      map[discord.Snowflake]Webhook
 	FilterOptions AuditLogFilterOptions
 }
 
 func (l *AuditLog) Guild() *Guild {
-	return l.Bot.Caches.GuildCache().Get(l.GuildID)
+	return l.Bot.Caches.Guilds().Get(l.GuildID)
 }
 
 // AuditLogFilterOptions fields used to filter audit-log retrieving

@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/DisgoOrg/log"
@@ -8,6 +9,7 @@ import (
 
 var _ Services = (*servicesImpl)(nil)
 
+// NewServices returns a new default Services
 func NewServices(logger log.Logger, restClient Client) Services {
 	if restClient == nil {
 		restClient = NewClient(&DefaultConfig)
@@ -21,6 +23,7 @@ func NewServices(logger log.Logger, restClient Client) Services {
 		gatewayService:       NewGatewayService(restClient),
 		guildService:         NewGuildService(restClient),
 		channelService:       NewChannelService(restClient),
+		threadService:        NewThreadService(restClient),
 		interactionService:   NewInteractionService(restClient),
 		inviteService:        NewInviteService(restClient),
 		guildTemplateService: NewGuildTemplateService(restClient),
@@ -35,16 +38,17 @@ func NewServices(logger log.Logger, restClient Client) Services {
 
 // Services is a manager for all of disgo's HTTP requests
 type Services interface {
-	Close()
 	Logger() log.Logger
 	RestClient() Client
 	HTTPClient() *http.Client
+	Close(ctx context.Context) error
 	ApplicationService() ApplicationService
 	OAuth2Service() OAuth2Service
-	AuditLogService() auditLogService
+	AuditLogService() AuditLogService
 	GatewayService() GatewayService
 	GuildService() GuildService
 	ChannelService() ChannelService
+	ThreadService() ThreadService
 	InteractionService() InteractionService
 	InviteService() InviteService
 	GuildTemplateService() GuildTemplateService
@@ -62,10 +66,11 @@ type servicesImpl struct {
 
 	applicationService   ApplicationService
 	oauth2Service        OAuth2Service
-	auditLogService      auditLogService
+	auditLogService      AuditLogService
 	gatewayService       GatewayService
 	guildService         GuildService
 	channelService       ChannelService
+	threadService        ThreadService
 	interactionService   InteractionService
 	inviteService        InviteService
 	guildTemplateService GuildTemplateService
@@ -75,10 +80,6 @@ type servicesImpl struct {
 	stageInstanceService StageInstanceService
 	emojiService         EmojiService
 	stickerService       StickerService
-}
-
-func (s *servicesImpl) Close() {
-	s.restClient.Close()
 }
 
 func (s *servicesImpl) Logger() log.Logger {
@@ -93,6 +94,10 @@ func (s *servicesImpl) HTTPClient() *http.Client {
 	return s.RestClient().HTTPClient()
 }
 
+func (s *servicesImpl) Close(ctx context.Context) error {
+	return s.restClient.Close(ctx)
+}
+
 func (s *servicesImpl) ApplicationService() ApplicationService {
 	return s.applicationService
 }
@@ -101,7 +106,7 @@ func (s *servicesImpl) OAuth2Service() OAuth2Service {
 	return s.oauth2Service
 }
 
-func (s *servicesImpl) AuditLogService() auditLogService {
+func (s *servicesImpl) AuditLogService() AuditLogService {
 	return s.auditLogService
 }
 
@@ -115,6 +120,10 @@ func (s *servicesImpl) GuildService() GuildService {
 
 func (s *servicesImpl) ChannelService() ChannelService {
 	return s.channelService
+}
+
+func (s *servicesImpl) ThreadService() ThreadService {
+	return s.threadService
 }
 
 func (s *servicesImpl) InteractionService() InteractionService {

@@ -5,6 +5,7 @@ import "github.com/DisgoOrg/disgo/json"
 type ApplicationCommandCreate interface {
 	json.Marshaler
 	Type() ApplicationCommandType
+	applicationCommandCreate()
 }
 
 type SlashCommandCreate struct {
@@ -16,19 +17,20 @@ type SlashCommandCreate struct {
 
 func (c SlashCommandCreate) MarshalJSON() ([]byte, error) {
 	type slashCommandCreate SlashCommandCreate
-	v := struct {
+	return json.Marshal(struct {
 		Type ApplicationCommandType `json:"type"`
 		slashCommandCreate
 	}{
-		Type:                     c.Type(),
+		Type:               c.Type(),
 		slashCommandCreate: slashCommandCreate(c),
-	}
-	return json.Marshal(v)
+	})
 }
 
-func (_ SlashCommandCreate) Type() ApplicationCommandType {
+func (SlashCommandCreate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeSlash
 }
+
+func (SlashCommandCreate) applicationCommandCreate() {}
 
 type UserCommandCreate struct {
 	Name              string `json:"name"`
@@ -37,20 +39,20 @@ type UserCommandCreate struct {
 
 func (c UserCommandCreate) MarshalJSON() ([]byte, error) {
 	type userCommandCreate UserCommandCreate
-	v := struct {
-		Type        ApplicationCommandType `json:"type"`
-		Description string                 `json:"description"`
+	return json.Marshal(struct {
+		Type ApplicationCommandType `json:"type"`
 		userCommandCreate
 	}{
-		Type:                     c.Type(),
+		Type:              c.Type(),
 		userCommandCreate: userCommandCreate(c),
-	}
-	return json.Marshal(v)
+	})
 }
 
-func (_ UserCommandCreate) Type() ApplicationCommandType {
+func (UserCommandCreate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeUser
 }
+
+func (UserCommandCreate) applicationCommandCreate() {}
 
 type MessageCommandCreate struct {
 	Name              string `json:"name"`
@@ -59,17 +61,17 @@ type MessageCommandCreate struct {
 
 func (c MessageCommandCreate) MarshalJSON() ([]byte, error) {
 	type messageCommandCreate MessageCommandCreate
-	v := struct {
-		Type        ApplicationCommandType `json:"type"`
-		Description string                 `json:"description"`
+	return json.Marshal(struct {
+		Type ApplicationCommandType `json:"type"`
 		messageCommandCreate
 	}{
-		Type:                     c.Type(),
+		Type:                 c.Type(),
 		messageCommandCreate: messageCommandCreate(c),
-	}
-	return json.Marshal(v)
+	})
 }
 
-func (_ MessageCommandCreate) Type() ApplicationCommandType {
+func (MessageCommandCreate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeMessage
 }
+
+func (MessageCommandCreate) applicationCommandCreate() {}

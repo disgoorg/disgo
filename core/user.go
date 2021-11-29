@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/DisgoOrg/disgo/discord"
@@ -9,26 +8,17 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ Mentionable = (*User)(nil)
-
 type User struct {
 	discord.User
 	Bot *Bot
 }
 
-func (u *User) String() string {
-	return fmt.Sprintf("<@%s>", u.ID)
-}
-
-func (u *User) Mention() string {
-	return u.String()
-}
-
-// AvatarURL returns the Avatar URL of the User
+// AvatarURL returns the Avatar URL of this User
 func (u *User) AvatarURL(size int) *string {
 	return u.getAssetURL(route.UserAvatar, u.Avatar, size)
 }
 
+// DefaultAvatarURL returns the default avatar URL of this User
 func (u *User) DefaultAvatarURL(size int) string {
 	discriminator, _ := strconv.Atoi(u.Discriminator)
 	compiledRoute, err := route.DefaultUserAvatar.Compile(nil, route.PNG, size, discriminator%5)
@@ -38,6 +28,7 @@ func (u *User) DefaultAvatarURL(size int) string {
 	return compiledRoute.URL()
 }
 
+// EffectiveAvatarURL returns either this User avatar or default avatar depending on if this User has one
 func (u *User) EffectiveAvatarURL(size int) string {
 	if u.Avatar == nil {
 		return u.DefaultAvatarURL(size)
@@ -45,26 +36,21 @@ func (u *User) EffectiveAvatarURL(size int) string {
 	return *u.AvatarURL(size)
 }
 
-// BannerURL returns the Banner URL of the User
+// BannerURL returns the Banner URL of this User
 func (u *User) BannerURL(size int) *string {
 	return u.getAssetURL(route.UserBanner, u.Banner, size)
-}
-
-// Tag returns the user's Username and Discriminator
-func (u *User) Tag() string {
-	return fmt.Sprintf("%s#%s", u.Username, u.Discriminator)
 }
 
 func (u *User) getAssetURL(cdnRoute *route.CDNRoute, assetId *string, size int) *string {
 	return discord.FormatAssetURL(cdnRoute, u.ID, assetId, size)
 }
 
-// OpenDMChannel creates a DMChannel between the user and the Disgo client
-func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (*Channel, error) {
+// OpenDMChannel creates a DMChannel between this User and the Bot
+func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (*DMChannel, error) {
 	channel, err := u.Bot.RestServices.UserService().CreateDMChannel(u.ID, opts...)
 	if err != nil {
 		return nil, err
 	}
 	// TODO: should we caches it here? or do we get a gateway event?
-	return u.Bot.EntityBuilder.CreateChannel(*channel, CacheStrategyYes), nil
+	return u.Bot.EntityBuilder.CreateChannel(*channel, CacheStrategyYes).(*DMChannel), nil
 }

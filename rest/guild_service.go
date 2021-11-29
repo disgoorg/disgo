@@ -5,7 +5,10 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ GuildService = (*guildServiceImpl)(nil)
+var (
+	_ Service      = (*guildServiceImpl)(nil)
+	_ GuildService = (*guildServiceImpl)(nil)
+)
 
 func NewGuildService(restClient Client) GuildService {
 	return &guildServiceImpl{restClient: restClient}
@@ -20,6 +23,7 @@ type GuildService interface {
 	DeleteGuild(guildID discord.Snowflake, opts ...RequestOpt) error
 
 	GetRoles(guildID discord.Snowflake, opts ...RequestOpt) ([]discord.Role, error)
+	GetRole(guildID discord.Snowflake, roleID discord.Snowflake, opts ...RequestOpt) ([]discord.Role, error)
 	CreateRole(guildID discord.Snowflake, createRole discord.RoleCreate, opts ...RequestOpt) (*discord.Role, error)
 	UpdateRole(guildID discord.Snowflake, roleID discord.Snowflake, roleUpdate discord.RoleUpdate, opts ...RequestOpt) (*discord.Role, error)
 	UpdateRolePositions(guildID discord.Snowflake, rolePositionUpdates []discord.RolePositionUpdate, opts ...RequestOpt) ([]discord.Role, error)
@@ -43,6 +47,7 @@ type GuildService interface {
 
 	GetIntegrations(guildID discord.Snowflake, opts ...RequestOpt) ([]discord.Integration, error)
 	DeleteIntegration(guildID discord.Snowflake, integrationID discord.Snowflake, opts ...RequestOpt) error
+	GetWebhooks(guildID discord.Snowflake, opts ...RequestOpt) ([]discord.Webhook, error)
 
 	UpdateCurrentUserVoiceState(guildID discord.Snowflake, currentUserVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error
 	UpdateUserVoiceState(guildID discord.Snowflake, userID discord.Snowflake, userVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error
@@ -115,6 +120,16 @@ func (s *guildServiceImpl) GetRoles(guildID discord.Snowflake, opts ...RequestOp
 		return
 	}
 	err = s.restClient.Do(compiledRoute, nil, &roles, opts...)
+	return
+}
+
+func (s *guildServiceImpl) GetRole(guildID discord.Snowflake, roleID discord.Snowflake, opts ...RequestOpt) (role []discord.Role, err error) {
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.GetRole.Compile(nil, guildID, roleID)
+	if err != nil {
+		return
+	}
+	err = s.restClient.Do(compiledRoute, nil, &role, opts...)
 	return
 }
 
@@ -299,6 +314,16 @@ func (s *guildServiceImpl) DeleteIntegration(guildID discord.Snowflake, integrat
 		return err
 	}
 	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+}
+
+func (s *guildServiceImpl) GetWebhooks(guildID discord.Snowflake, opts ...RequestOpt) (webhooks []discord.Webhook, err error) {
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.GetGuildWebhooks.Compile(nil, guildID)
+	if err != nil {
+		return
+	}
+	err = s.restClient.Do(compiledRoute, nil, &webhooks, opts...)
+	return
 }
 
 func (s *guildServiceImpl) GetEmojis(guildID discord.Snowflake, opts ...RequestOpt) (emojis []discord.Emoji, err error) {

@@ -11,12 +11,13 @@ type GuildTemplate struct {
 	Creator *User
 }
 
-// Guild returns the full Guild of the GuildTemplate if in caches
+// Guild returns the Guild this GuildTemplate is for.
+// This will only check cached guilds!
 func (t *GuildTemplate) Guild() *Guild {
-	return t.Bot.Caches.GuildCache().Get(t.GuildID)
+	return t.Bot.Caches.Guilds().Get(t.GuildID)
 }
 
-// Update updates the GuildTemplate with the provided UpdateGuildTemplate
+// Update updates the GuildTemplate with the provided discord.UpdateGuildTemplate
 func (t *GuildTemplate) Update(guildTemplateUpdate discord.GuildTemplateUpdate, opts ...rest.RequestOpt) (*GuildTemplate, error) {
 	guildTemplate, err := t.Bot.RestServices.GuildTemplateService().UpdateGuildTemplate(t.GuildID, t.Code, guildTemplateUpdate, opts...)
 	if err != nil {
@@ -25,7 +26,7 @@ func (t *GuildTemplate) Update(guildTemplateUpdate discord.GuildTemplateUpdate, 
 	return t.Bot.EntityBuilder.CreateGuildTemplate(*guildTemplate, CacheStrategyNoWs), nil
 }
 
-// Sync updates the GuildTemplate with the provided UpdateGuildTemplate
+// Sync updates the GuildTemplate with the provided discord.UpdateGuildTemplate
 func (t *GuildTemplate) Sync(opts ...rest.RequestOpt) (*GuildTemplate, error) {
 	guildTemplate, err := t.Bot.RestServices.GuildTemplateService().SyncGuildTemplate(t.GuildID, t.Code, opts...)
 	if err != nil {
@@ -43,7 +44,7 @@ func (t *GuildTemplate) Delete(opts ...rest.RequestOpt) (*GuildTemplate, error) 
 	return t.Bot.EntityBuilder.CreateGuildTemplate(*guildTemplate, CacheStrategyNoWs), nil
 }
 
-// CreateGuild creates a Guild from this GuildTemplate
+// CreateGuild creates a Guild from this discord.GuildTemplate
 func (t *GuildTemplate) CreateGuild(createGuildFromTemplate discord.GuildFromTemplateCreate, opts ...rest.RequestOpt) (*Guild, error) {
 	guild, err := t.Bot.RestServices.GuildTemplateService().CreateGuildFromTemplate(t.Code, createGuildFromTemplate, opts...)
 	if err != nil {

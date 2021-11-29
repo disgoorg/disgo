@@ -1,5 +1,11 @@
 package discord
 
+import (
+	"fmt"
+
+	"github.com/DisgoOrg/disgo/json"
+)
+
 // IntegrationType the type of Integration
 type IntegrationType string
 
@@ -8,7 +14,7 @@ type IntegrationType string
 const (
 	IntegrationTypeTwitch  IntegrationType = "twitch"
 	IntegrationTypeYouTube IntegrationType = "youtube"
-	IntegrationTypeDiscord IntegrationType = "discord"
+	IntegrationTypeBot     IntegrationType = "discord"
 )
 
 // IntegrationAccount (https://discord.com/developers/docs/resources/guild#integration-account-object)
@@ -28,20 +34,150 @@ type IntegrationApplication struct {
 }
 
 // Integration (https://discord.com/developers/docs/resources/guild#integration-object)
-type Integration struct {
-	ID                Snowflake               `json:"id"`
-	Name              string                  `json:"name"`
-	Type              IntegrationType         `json:"type"`
-	Enabled           bool                    `json:"enabled"`
-	Syncing           *bool                   `json:"syncing"`
-	RoleID            *Snowflake              `json:"role_id"`
-	EnableEmoticons   *bool                   `json:"enable_emoticons"`
-	ExpireBehavior    *int                    `json:"expire_behavior"`
-	ExpireGracePeriod *int                    `json:"expire_grace_period"`
-	User              *User                   `json:"user"`
-	Account           IntegrationAccount      `json:"account"`
-	SyncedAt          *string                 `json:"synced_at"`
-	SubscriberCount   *int                    `json:"subscriber_account"`
-	Revoked           *bool                   `json:"revoked"`
-	Application       *IntegrationApplication `json:"application"`
+type Integration interface {
+	json.Marshaler
+	Type() IntegrationType
+	ID() Snowflake
+}
+
+type UnmarshalIntegration struct {
+	Integration
+}
+
+func (i *UnmarshalIntegration) UnmarshalJSON(data []byte) error {
+	var cType struct {
+		Type IntegrationType `json:"type"`
+	}
+
+	if err := json.Unmarshal(data, &cType); err != nil {
+		return err
+	}
+
+	var (
+		integration Integration
+		err         error
+	)
+
+	switch cType.Type {
+	case IntegrationTypeTwitch:
+		var v TwitchIntegration
+		err = json.Unmarshal(data, &v)
+		integration = v
+
+	case IntegrationTypeYouTube:
+		var v YouTubeIntegration
+		err = json.Unmarshal(data, &v)
+		integration = v
+
+	case IntegrationTypeBot:
+		var v BotIntegration
+		err = json.Unmarshal(data, &v)
+		integration = v
+
+	default:
+		err = fmt.Errorf("unkown integration with type %s received", cType.Type)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	i.Integration = integration
+	return nil
+}
+
+type TwitchIntegration struct {
+	IntegrationID     Snowflake          `json:"id"`
+	Name              string             `json:"name"`
+	Enabled           bool               `json:"enabled"`
+	Syncing           bool               `json:"syncing"`
+	RoleID            Snowflake          `json:"role_id"`
+	EnableEmoticons   bool               `json:"enable_emoticons"`
+	ExpireBehavior    int                `json:"expire_behavior"`
+	ExpireGracePeriod int                `json:"expire_grace_period"`
+	User              User               `json:"user"`
+	Account           IntegrationAccount `json:"account"`
+	SyncedAt          string             `json:"synced_at"`
+	SubscriberCount   int                `json:"subscriber_account"`
+	Revoked           bool               `json:"revoked"`
+}
+
+func (i TwitchIntegration) MarshalJSON() ([]byte, error) {
+	type twitchIntegration TwitchIntegration
+	return json.Marshal(struct {
+		Type IntegrationType `json:"type"`
+		twitchIntegration
+	}{
+		Type:              i.Type(),
+		twitchIntegration: twitchIntegration(i),
+	})
+}
+
+func (TwitchIntegration) Type() IntegrationType {
+	return IntegrationTypeTwitch
+}
+
+func (i TwitchIntegration) ID() Snowflake {
+	return i.IntegrationID
+}
+
+type YouTubeIntegration struct {
+	IntegrationID     Snowflake          `json:"id"`
+	Name              string             `json:"name"`
+	Enabled           bool               `json:"enabled"`
+	Syncing           bool               `json:"syncing"`
+	RoleID            Snowflake          `json:"role_id"`
+	ExpireBehavior    int                `json:"expire_behavior"`
+	ExpireGracePeriod int                `json:"expire_grace_period"`
+	User              User               `json:"user"`
+	Account           IntegrationAccount `json:"account"`
+	SyncedAt          string             `json:"synced_at"`
+	SubscriberCount   int                `json:"subscriber_account"`
+	Revoked           bool               `json:"revoked"`
+}
+
+func (i YouTubeIntegration) MarshalJSON() ([]byte, error) {
+	type youTubeIntegration YouTubeIntegration
+	return json.Marshal(struct {
+		Type IntegrationType `json:"type"`
+		youTubeIntegration
+	}{
+		Type:               i.Type(),
+		youTubeIntegration: youTubeIntegration(i),
+	})
+}
+
+func (YouTubeIntegration) Type() IntegrationType {
+	return IntegrationTypeTwitch
+}
+
+func (i YouTubeIntegration) ID() Snowflake {
+	return i.IntegrationID
+}
+
+type BotIntegration struct {
+	IntegrationID Snowflake              `json:"id"`
+	Name          string                 `json:"name"`
+	Enabled       bool                   `json:"enabled"`
+	Account       IntegrationAccount     `json:"account"`
+	Application   IntegrationApplication `json:"application"`
+}
+
+func (i BotIntegration) MarshalJSON() ([]byte, error) {
+	type botIntegration BotIntegration
+	return json.Marshal(struct {
+		Type IntegrationType `json:"type"`
+		botIntegration
+	}{
+		Type:           i.Type(),
+		botIntegration: botIntegration(i),
+	})
+}
+
+func (BotIntegration) Type() IntegrationType {
+	return IntegrationTypeBot
+}
+
+func (i BotIntegration) ID() Snowflake {
+	return i.IntegrationID
 }

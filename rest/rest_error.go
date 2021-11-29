@@ -1,59 +1,76 @@
 package rest
 
 import (
-	"fmt"
 	"net/http"
 
-	"github.com/pkg/errors"
+	"github.com/DisgoOrg/disgo/discord"
 )
 
 var _ error = (*Error)(nil)
 
-var (
-	ErrTooManyRequests = ErrStatusCode(http.StatusTooManyRequests)
-	ErrBadGateway      = ErrStatusCode(http.StatusBadGateway)
-	ErrBadRequest      = ErrStatusCode(http.StatusBadRequest)
-	ErrUnauthorized    = ErrStatusCode(http.StatusUnauthorized)
-)
-
-func ErrStatusCode(statusCode int) error {
-	return NewErrorStatus(statusCode, errors.New(""))
-}
-
 // Error holds the http.Response & an error related to a REST request
 type Error struct {
-	StatusCode int
-	Err        error
+	discord.APIError
+	Request  *http.Request
+	RqBody   []byte
+	Response *http.Response
+	RsBody   []byte
+	Err      error
 }
 
-// NewError returns a new Error with the given http.Response & error
-//goland:noinspection GoUnusedExportedFunction
-func NewError(rs *http.Response, err error) error {
+// NewErrorErr returns a new Error with the given http.Request, http.Response & error
+func NewErrorErr(rq *http.Request, rqBody []byte, rs *http.Response, rsBody []byte, err error) error {
 	return &Error{
-		StatusCode: rs.StatusCode,
-		Err:        err,
+		Request:  rq,
+		RqBody:   rqBody,
+		Response: rs,
+		RsBody:   rsBody,
+		Err:      err,
 	}
 }
 
-func NewErrorStatus(statusCode int, err error) error {
+// NewErrorAPIErr returns a new Error with the given http.Request, http.Response & discord.APIError
+func NewErrorAPIErr(rq *http.Request, rqBody []byte, rs *http.Response, rsBody []byte, apiError discord.APIError) error {
 	return &Error{
-		StatusCode: statusCode,
-		Err:        err,
+		APIError: apiError,
+		Request:  rq,
+		RqBody:   rqBody,
+		Response: rs,
+		RsBody:   rsBody,
 	}
 }
 
+// NewError returns a new Error with the given http.Request, http.Response
+func NewError(rq *http.Request, rqBody []byte, rs *http.Response, rsBody []byte) error {
+	return &Error{
+		Request:  rq,
+		RqBody:   rqBody,
+		Response: rs,
+		RsBody:   rsBody,
+	}
+}
+
+// Is returns true if the error is a discord.APIError 6 has the same StatusCode
 func (e Error) Is(target error) bool {
 	err, ok := target.(*Error)
 	if !ok {
 		return false
 	}
-	return err.StatusCode == e.StatusCode
+	return err.Response != nil && e.Response != nil && err.Response.StatusCode == e.Response.StatusCode
 }
 
+// Error returns the error formatted as string
 func (e Error) Error() string {
-	return fmt.Sprintf("status %d: err %v", e.StatusCode, e.Err)
+	if e.Err != nil {
+		return e.Err.Error()
+	}
+	if e.Response != nil {
+		return e.Response.Status
+	}
+	return "unknown error"
 }
 
+// Error returns the error formatted as string
 func (e Error) String() string {
 	return e.Error()
 }

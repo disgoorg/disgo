@@ -1,14 +1,13 @@
 package main
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/DisgoOrg/disgo/bot"
-	"github.com/DisgoOrg/disgo/core"
-
-	"github.com/DisgoOrg/disgo/events"
+	"github.com/DisgoOrg/disgo/core/bot"
+	"github.com/DisgoOrg/disgo/core/events"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
@@ -29,19 +28,19 @@ func main() {
 		bot.WithGatewayOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
 		bot.WithEventListeners(&events.ListenerAdapter{
 			OnMessageCreate: func(event *events.MessageCreateEvent) {
-				if event.Message.Author.IsBot || event.Message.Author.IsSystem {
+				if event.Message.Author.BotUser || event.Message.Author.System {
 					return
 				}
 				if event.Message.Content == "test" {
-					_, _ = event.Message.Reply(core.NewMessageCreateBuilder().
-						SetActionRows(discord.NewActionRow(discord.NewDangerButton("danger", "danger"))).
+					_, _ = event.Message.Reply(discord.NewMessageCreateBuilder().
+						AddActionRow(discord.NewDangerButton("danger", "danger")).
 						Build(),
 					)
 				}
 			},
 			OnButtonClick: func(event *events.ButtonClickEvent) {
-				if event.CustomID == "danger" {
-					_ = event.Create(core.NewMessageCreateBuilder().SetEphemeral(true).SetContent("Ey that was danger").Build())
+				if event.Data.CustomID == "danger" {
+					_ = event.Create(discord.NewMessageCreateBuilder().SetEphemeral(true).SetContent("Ey that was danger").Build())
 				}
 			},
 		}),
@@ -50,9 +49,9 @@ func main() {
 		log.Fatal("error while building bot: ", err)
 	}
 
-	defer disgo.Close()
+	defer disgo.Close(context.TODO())
 
-	if err = disgo.ConnectGateway(); err != nil {
+	if err = disgo.ConnectGateway(context.TODO()); err != nil {
 		log.Fatal("error while connecting to gateway: ", err)
 	}
 

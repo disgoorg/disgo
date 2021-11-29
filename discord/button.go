@@ -2,7 +2,7 @@ package discord
 
 import "github.com/DisgoOrg/disgo/json"
 
-// ButtonStyle defines how the Button looks like (https://discord.com/assets/7bb017ce52cfd6575e21c058feb3883b.png)
+// ButtonStyle defines how the ButtonComponent looks like (https://discord.com/assets/7bb017ce52cfd6575e21c058feb3883b.png)
 type ButtonStyle int
 
 // Supported ButtonStyle(s)
@@ -14,120 +14,127 @@ const (
 	ButtonStyleLink
 )
 
-// NewButton creates a new Button with the provided parameters. Link Button(s) need a URL and other Button(s) need a customID
+// NewButton creates a new ButtonComponent with the provided parameters. Link ButtonComponent(s) need a URL and other ButtonComponent(s) need a customID
 //goland:noinspection GoUnusedExportedFunction
-func NewButton(style ButtonStyle, label string, customID string, url string, emoji *ComponentEmoji, disabled bool) Button {
-	return Button{
+func NewButton(style ButtonStyle, label string, customID CustomID, url string) ButtonComponent {
+	return ButtonComponent{
 		Style:    style,
 		CustomID: customID,
 		URL:      url,
 		Label:    label,
-		Emoji:    emoji,
-		Disabled: disabled,
 	}
 }
 
-// NewPrimaryButton creates a new Button with ButtonStylePrimary & the provided parameters
+// NewPrimaryButton creates a new ButtonComponent with ButtonStylePrimary & the provided parameters
 //goland:noinspection GoUnusedExportedFunction
-func NewPrimaryButton(label string, customID string) Button {
-	return NewButton(ButtonStylePrimary, label, customID, "", nil, false)
+func NewPrimaryButton(label string, customID CustomID) ButtonComponent {
+	return NewButton(ButtonStylePrimary, label, customID, "")
 }
 
-// NewSecondaryButton creates a new Button with ButtonStyleSecondary & the provided parameters
+// NewSecondaryButton creates a new ButtonComponent with ButtonStyleSecondary & the provided parameters
 //goland:noinspection GoUnusedExportedFunction
-func NewSecondaryButton(label string, customID string) Button {
-	return NewButton(ButtonStyleSecondary, label, customID, "", nil, false)
+func NewSecondaryButton(label string, customID CustomID) ButtonComponent {
+	return NewButton(ButtonStyleSecondary, label, customID, "")
 }
 
-// NewSuccessButton creates a new Button with ButtonStyleSuccess & the provided parameters
+// NewSuccessButton creates a new ButtonComponent with ButtonStyleSuccess & the provided parameters
 //goland:noinspection GoUnusedExportedFunction
-func NewSuccessButton(label string, customID string) Button {
-	return NewButton(ButtonStyleSuccess, label, customID, "", nil, false)
+func NewSuccessButton(label string, customID CustomID) ButtonComponent {
+	return NewButton(ButtonStyleSuccess, label, customID, "")
 }
 
-// NewDangerButton creates a new Button with ButtonStyleDanger & the provided parameters
+// NewDangerButton creates a new ButtonComponent with ButtonStyleDanger & the provided parameters
 //goland:noinspection GoUnusedExportedFunction
-func NewDangerButton(label string, customID string) Button {
-	return NewButton(ButtonStyleDanger, label, customID, "", nil, false)
+func NewDangerButton(label string, customID CustomID) ButtonComponent {
+	return NewButton(ButtonStyleDanger, label, customID, "")
 }
 
-// NewLinkButton creates a new link Button with ButtonStyleLink & the provided parameters
+// NewLinkButton creates a new link ButtonComponent with ButtonStyleLink & the provided parameters
 //goland:noinspection GoUnusedExportedFunction
-func NewLinkButton(label string, url string) Button {
-	return NewButton(ButtonStyleLink, label, "", url, nil, false)
+func NewLinkButton(label string, url string) ButtonComponent {
+	return NewButton(ButtonStyleLink, label, "", url)
 }
 
-var _ Component = (*Button)(nil)
+var (
+	_ Component            = (*ButtonComponent)(nil)
+	_ InteractiveComponent = (*ButtonComponent)(nil)
+)
 
-type Button struct {
-	CustomID string          `json:"custom_id"`
-	Style    ButtonStyle     `json:"style,omitempty"`
+type ButtonComponent struct {
+	Style    ButtonStyle     `json:"style"`
 	Label    string          `json:"label,omitempty"`
 	Emoji    *ComponentEmoji `json:"emoji,omitempty"`
+	CustomID CustomID        `json:"custom_id,omitempty"`
 	URL      string          `json:"url,omitempty"`
 	Disabled bool            `json:"disabled,omitempty"`
 }
 
-func (b Button) MarshalJSON() ([]byte, error) {
-	type button Button
-	v := struct {
+func (c ButtonComponent) MarshalJSON() ([]byte, error) {
+	type buttonComponent ButtonComponent
+	return json.Marshal(struct {
 		Type ComponentType `json:"type"`
-		button
+		buttonComponent
 	}{
-		Type:   b.Type(),
-		button: button(b),
-	}
-	return json.Marshal(v)
+		Type:            c.Type(),
+		buttonComponent: buttonComponent(c),
+	})
 }
 
-func (_ Button) Type() ComponentType {
+func (c ButtonComponent) Type() ComponentType {
 	return ComponentTypeButton
 }
 
-// AsEnabled returns a new Button but enabled
-func (b Button) AsEnabled() Button {
-	b.Disabled = false
-	return b
+func (c ButtonComponent) ID() CustomID {
+	return c.CustomID
 }
 
-// AsDisabled returns a new Button but disabled
-func (b Button) AsDisabled() Button {
-	b.Disabled = true
-	return b
+func (c ButtonComponent) component()            {}
+func (c ButtonComponent) interactiveComponent() {}
+
+// WithStyle returns a new ButtonComponent with the provided style
+func (c ButtonComponent) WithStyle(style ButtonStyle) ButtonComponent {
+	c.Style = style
+	return c
 }
 
-// WithDisabled returns a new Button but disabled/enabled
-func (b Button) WithDisabled(disabled bool) Button {
-	b.Disabled = disabled
-	return b
+// WithLabel returns a new ButtonComponent with the provided label
+func (c ButtonComponent) WithLabel(label string) ButtonComponent {
+	c.Label = label
+	return c
 }
 
-// WithEmoji returns a new Button with the provided Emoji
-func (b Button) WithEmoji(emoji ComponentEmoji) Button {
-	b.Emoji = &emoji
-	return b
+// WithEmoji returns a new ButtonComponent with the provided Emoji
+func (c ButtonComponent) WithEmoji(emoji ComponentEmoji) ButtonComponent {
+	c.Emoji = &emoji
+	return c
 }
 
-// WithCustomID returns a new Button with the provided custom id
-func (b Button) WithCustomID(customID string) Button {
-	b.CustomID = customID
-	return b
+// WithCustomID returns a new ButtonComponent with the provided custom id
+func (c ButtonComponent) WithCustomID(customID CustomID) ButtonComponent {
+	c.CustomID = customID
+	return c
 }
 
-// WithStyle returns a new Button with the provided style
-func (b Button) WithStyle(style ButtonStyle) Button {
-	b.Style = style
-	return b
+// WithURL returns a new ButtonComponent with the provided URL
+func (c ButtonComponent) WithURL(url string) ButtonComponent {
+	c.URL = url
+	return c
 }
 
-// WithLabel returns a new Button with the provided label
-func (b Button) WithLabel(label string) Button {
-	b.Label = label
-	return b
+// AsEnabled returns a new ButtonComponent but enabled
+func (c ButtonComponent) AsEnabled() ButtonComponent {
+	c.Disabled = false
+	return c
 }
 
-// WithURL returns a new Button with the provided URL
-func (b Button) WithURL(url string) Button {
-	b.URL = url
-	return b
+// AsDisabled returns a new ButtonComponent but disabled
+func (c ButtonComponent) AsDisabled() ButtonComponent {
+	c.Disabled = true
+	return c
+}
+
+// WithDisabled returns a new ButtonComponent but disabled/enabled
+func (c ButtonComponent) WithDisabled(disabled bool) ButtonComponent {
+	c.Disabled = disabled
+	return c
 }

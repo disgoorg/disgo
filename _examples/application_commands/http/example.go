@@ -1,14 +1,14 @@
 package main
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/DisgoOrg/disgo/bot"
-	"github.com/DisgoOrg/disgo/events"
+	"github.com/DisgoOrg/disgo/core/bot"
+	"github.com/DisgoOrg/disgo/core/events"
 
-	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/info"
@@ -56,7 +56,7 @@ func main() {
 		return
 	}
 
-	defer disgo.Close()
+	defer disgo.Close(context.TODO())
 
 	_, err = disgo.SetGuildCommands(guildID, commands)
 	if err != nil {
@@ -75,9 +75,9 @@ func main() {
 }
 
 func commandListener(event *events.SlashCommandEvent) {
-	if event.CommandName == "say" {
-		if err := event.Create(core.NewMessageCreateBuilder().
-			SetContent(*event.Options.String("message")).
+	if event.Data.CommandName == "say" {
+		if err := event.Create(discord.NewMessageCreateBuilder().
+			SetContent(*event.Data.Options.String("message")).
 			Build(),
 		); err != nil {
 			log.Error("error sending interaction response: ", err)

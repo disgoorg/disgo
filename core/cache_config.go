@@ -21,6 +21,7 @@ func (c *CacheConfig) Apply(opts []CacheConfigOpt) {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithCacheFlags(cacheFlags ...CacheFlags) CacheConfigOpt {
 	return func(config *CacheConfig) {
 		var flags CacheFlags
@@ -31,12 +32,14 @@ func WithCacheFlags(cacheFlags ...CacheFlags) CacheConfigOpt {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithMemberCachePolicy(memberCachePolicy MemberCachePolicy) CacheConfigOpt {
 	return func(config *CacheConfig) {
 		config.MemberCachePolicy = memberCachePolicy
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithMessageCachePolicy(messageCachePolicy MessageCachePolicy) CacheConfigOpt {
 	return func(config *CacheConfig) {
 		config.MessageCachePolicy = messageCachePolicy
