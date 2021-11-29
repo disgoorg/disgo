@@ -5,8 +5,8 @@ import (
 	"github.com/DisgoOrg/disgo/rest"
 )
 
-// SelectMenuInteractionFilter used to filter SelectMenuInteraction(s) in a collectors.ButtonClickCollector
-type SelectMenuInteractionFilter func(SelectMenuInteraction *SelectMenuInteraction) bool
+// SelectMenuInteractionFilter used to filter SelectMenuInteraction(s) in a collectors.SelectMenuSubmitCollector
+type SelectMenuInteractionFilter func(selectMenuInteraction *SelectMenuInteraction) bool
 
 var _ Interaction = (*SelectMenuInteraction)(nil)
 var _ ComponentInteraction = (*SelectMenuInteraction)(nil)
@@ -62,15 +62,21 @@ func (i *SelectMenuInteraction) Update(messageUpdate discord.MessageUpdate, opts
 }
 
 func (i *SelectMenuInteraction) DeferUpdate(opts ...rest.RequestOpt) error {
-	return deferUpdate(i.InteractionFields, i.ID, i.Token, opts...)
+	return deferUpdate(i.InteractionFields, i.ApplicationID, i.Token, opts...)
 }
 
-// UpdateButton updates the clicked SelectMenuComponent with a new SelectMenuComponent
-func (i *SelectMenuInteraction) UpdateButton(button discord.SelectMenuComponent, opts ...rest.RequestOpt) error {
-	return updateComponent(i.InteractionFields, i.ID, i.Token, i.Message, i.Data.CustomID, button, opts...)
+// UpdateSelectMenu updates the used SelectMenuComponent with a new SelectMenuComponent
+func (i *SelectMenuInteraction) UpdateSelectMenu(selectMenu discord.SelectMenuComponent, opts ...rest.RequestOpt) error {
+	return updateComponent(i.InteractionFields, i.ApplicationID, i.Token, i.Message, i.Data.CustomID, selectMenu, opts...)
 }
 
-// SelectedOptions returns the selected discord.SelectMenuOption(s)
+// SelectMenuComponent returns the SelectMenuComponent which issued this SelectMenuInteraction
+func (i *SelectMenuInteraction) SelectMenuComponent() discord.SelectMenuComponent {
+	// this should never be nil
+	return *i.Message.SelectMenuByID(i.Data.CustomID)
+}
+
+// SelectedOptions returns the selected SelectMenuOption(s)
 func (i *SelectMenuInteraction) SelectedOptions() []discord.SelectMenuOption {
 	options := make([]discord.SelectMenuOption, len(i.Data.Values))
 	for ii, option := range i.SelectMenuComponent().Options {
@@ -82,10 +88,4 @@ func (i *SelectMenuInteraction) SelectedOptions() []discord.SelectMenuOption {
 		}
 	}
 	return options
-}
-
-// SelectMenuComponent returns the SelectMenuComponent which issued this SelectMenuInteraction
-func (i *SelectMenuInteraction) SelectMenuComponent() discord.SelectMenuComponent {
-	// this should never be nil
-	return *i.Message.SelectMenuByID(i.Data.CustomID)
 }
