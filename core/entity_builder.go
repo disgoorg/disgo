@@ -685,7 +685,10 @@ func (b *entityBuilderImpl) CreateThreadMember(threadMember discord.ThreadMember
 }
 
 func (b *entityBuilderImpl) CreateStageInstance(stageInstance discord.StageInstance, updateCache CacheStrategy) *StageInstance {
-	coreStageInstance := &StageInstance{StageInstance: stageInstance, Bot: b.Bot()}
+	coreStageInstance := &StageInstance{
+		StageInstance: stageInstance,
+		Bot:           b.Bot(),
+	}
 
 	if channel := b.Bot().Caches.Channels().Get(stageInstance.ChannelID); channel != nil {
 		if ch, ok := channel.(*GuildStageVoiceChannel); ok {
@@ -700,7 +703,11 @@ func (b *entityBuilderImpl) CreateStageInstance(stageInstance discord.StageInsta
 }
 
 func (b *entityBuilderImpl) CreateGuildScheduledEvent(guildScheduledEvent discord.GuildScheduledEvent, updateCache CacheStrategy) *GuildScheduledEvent {
-	coreGuildScheduledEvent := &GuildScheduledEvent{GuildScheduledEvent: guildScheduledEvent, Bot: b.Bot()}
+	coreGuildScheduledEvent := &GuildScheduledEvent{
+		GuildScheduledEvent: guildScheduledEvent,
+		Creator:             b.CreateUser(guildScheduledEvent.Creator, updateCache),
+		Bot:                 b.Bot(),
+	}
 
 	if updateCache(b.Bot()) {
 		return b.Bot().Caches.GuildScheduledEvents().Set(coreGuildScheduledEvent)

@@ -49,10 +49,10 @@ func (c *guildScheduledEventCacheImpl) Set(guildScheduledEvent *GuildScheduledEv
 	if c.cacheFlags.Missing(CacheFlagGuildScheduledEvents) {
 		return guildScheduledEvent
 	}
-	stI, ok := c.guildScheduledEvents[guildScheduledEvent.ID]
+	gse, ok := c.guildScheduledEvents[guildScheduledEvent.ID]
 	if ok {
-		*stI = *guildScheduledEvent
-		return stI
+		*gse = *guildScheduledEvent
+		return gse
 	}
 	c.guildScheduledEvents[guildScheduledEvent.ID] = guildScheduledEvent
 	return guildScheduledEvent
@@ -77,9 +77,9 @@ func (c *guildScheduledEventCacheImpl) All() []*GuildScheduledEvent {
 }
 
 func (c *guildScheduledEventCacheImpl) FindFirst(guildScheduledEventFindFunc GuildScheduledEventFindFunc) *GuildScheduledEvent {
-	for _, stI := range c.guildScheduledEvents {
-		if guildScheduledEventFindFunc(stI) {
-			return stI
+	for _, gse := range c.guildScheduledEvents {
+		if guildScheduledEventFindFunc(gse) {
+			return gse
 		}
 	}
 	return nil
@@ -87,9 +87,9 @@ func (c *guildScheduledEventCacheImpl) FindFirst(guildScheduledEventFindFunc Gui
 
 func (c *guildScheduledEventCacheImpl) FindAll(guildScheduledEventFindFunc GuildScheduledEventFindFunc) []*GuildScheduledEvent {
 	var guildScheduledEvents []*GuildScheduledEvent
-	for _, stI := range c.guildScheduledEvents {
-		if guildScheduledEventFindFunc(stI) {
-			guildScheduledEvents = append(guildScheduledEvents, stI)
+	for _, gse := range c.guildScheduledEvents {
+		if guildScheduledEventFindFunc(gse) {
+			guildScheduledEvents = append(guildScheduledEvents, gse)
 		}
 	}
 	return guildScheduledEvents

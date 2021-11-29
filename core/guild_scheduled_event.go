@@ -7,7 +7,8 @@ import (
 
 type GuildScheduledEvent struct {
 	discord.GuildScheduledEvent
-	Bot *Bot
+	Creator *User
+	Bot     *Bot
 }
 
 func (e *GuildScheduledEvent) Update(guildScheduledEventUpdate discord.GuildScheduledEventUpdate, opts ...rest.RequestOpt) (*GuildScheduledEvent, error) {
