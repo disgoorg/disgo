@@ -34,7 +34,7 @@ func (s *guildScheduledEventServiceImpl) RestClient() Client {
 }
 
 func (s *guildScheduledEventServiceImpl) GetGuildScheduledEvents(guildID discord.Snowflake, withUserCounts bool, opts ...RequestOpt) (guildScheduledEvents []discord.GuildScheduledEvent, err error) {
-	var queryValues route.QueryValues
+	queryValues := route.QueryValues{}
 	if withUserCounts {
 		queryValues["with_user_counts"] = true
 	}
@@ -48,7 +48,7 @@ func (s *guildScheduledEventServiceImpl) GetGuildScheduledEvents(guildID discord
 }
 
 func (s *guildScheduledEventServiceImpl) GetGuildScheduledEvent(guildID discord.Snowflake, guildScheduledEventID discord.Snowflake, withUserCounts bool, opts ...RequestOpt) (guildScheduledEvent *discord.GuildScheduledEvent, err error) {
-	var queryValues route.QueryValues
+	queryValues := route.QueryValues{}
 	if withUserCounts {
 		queryValues["with_user_counts"] = true
 	}
@@ -90,7 +90,7 @@ func (s *guildScheduledEventServiceImpl) DeleteGuildScheduledEvent(guildID disco
 }
 
 func (s *guildScheduledEventServiceImpl) GetGuildScheduledEventUsers(guildID discord.Snowflake, guildScheduledEventID discord.Snowflake, limit int, withMember bool, before discord.Snowflake, after discord.Snowflake, opts ...RequestOpt) (guildScheduledEventUsers []discord.GuildScheduledEventUser, err error) {
-	var queryValues route.QueryValues
+	queryValues := route.QueryValues{}
 	if limit > 0 {
 		queryValues["limit"] = limit
 	}
