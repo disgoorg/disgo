@@ -73,6 +73,12 @@ var AllEventHandlers = []core.GatewayEventHandler{
 	&gatewayHandlerGuildRoleUpdate{},
 	&gatewayHandlerGuildRoleDelete{},
 
+	&gatewayHandlerGuildScheduledEventCreate{},
+	&gatewayHandlerGuildScheduledEventUpdate{},
+	&gatewayHandlerGuildScheduledEventDelete{},
+	&gatewayHandlerGuildScheduledEventUserAdd{},
+	&gatewayHandlerGuildScheduledEventUserRemove{},
+
 	&gatewayHandlerIntegrationCreate{},
 	&gatewayHandlerIntegrationUpdate{},
 	&gatewayHandlerIntegrationDelete{},

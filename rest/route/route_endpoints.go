@@ -73,12 +73,21 @@ var (
 
 	GetGuildVoiceRegions = NewAPIRoute(GET, "/guilds/{guild.id}/regions")
 
+	UpdateCurrentUserVoiceState = NewAPIRoute(PATCH, "/guilds/{guild.id}/voice-states/@me")
+	UpdateUserVoiceState        = NewAPIRoute(PATCH, "/guilds/{guild.id}/voice-states/{user.id}")
+)
+
+// GuildIntegrations
+var (
 	GetIntegrations   = NewAPIRoute(GET, "/guilds/{guild.id}/integrations")
 	CreateIntegration = NewAPIRoute(POST, "/guilds/{guild.id}/integrations")
 	UpdateIntegration = NewAPIRoute(PATCH, "/guilds/{guild.id}/integrations/{integration.id}")
 	DeleteIntegration = NewAPIRoute(DELETE, "/guilds/{guild.id}/integrations/{integration.id}")
 	SyncIntegration   = NewAPIRoute(POST, "/guilds/{guild.id}/integrations/{integration.id}/sync")
+)
 
+// GuildTemplates
+var (
 	GetGuildTemplate        = NewAPIRoute(GET, "/guilds/templates/{template.code}")
 	GetGuildTemplates       = NewAPIRoute(GET, "/guilds/{guild.id}/templates")
 	CreateGuildTemplate     = NewAPIRoute(POST, "/guilds/{guild.id}/templates")
@@ -86,9 +95,17 @@ var (
 	UpdateGuildTemplate     = NewAPIRoute(PATCH, "/guilds/{guild.id}/templates/{template.code}")
 	DeleteGuildTemplate     = NewAPIRoute(DELETE, "/guilds/{guild.id}/templates/{template.code}")
 	CreateGuildFromTemplate = NewAPIRoute(POST, "/guilds/templates/{template.code}")
+)
 
-	UpdateCurrentUserVoiceState = NewAPIRoute(PATCH, "/guilds/{guild.id}/voice-states/@me")
-	UpdateUserVoiceState        = NewAPIRoute(PATCH, "/guilds/{guild.id}/voice-states/{user.id}")
+// GuildScheduledEvents
+var (
+	GetGuildScheduledEvents   = NewAPIRoute(GET, "/guilds/{guild.id}/scheduled-events", "with_user_count")
+	GetGuildScheduledEvent    = NewAPIRoute(GET, "/guilds/{guild.id}/scheduled-events/{guild_scheduled_event.id}", "with_user_count")
+	CreateGuildScheduledEvent = NewAPIRoute(POST, "/guilds/{guild.id}/scheduled-events")
+	UpdateGuildScheduledEvent = NewAPIRoute(PATCH, "/guilds/{guild.id}/scheduled-events/{guild_scheduled_event.id}")
+	DeleteGuildScheduledEvent = NewAPIRoute(DELETE, "/guilds/{guild.id}/scheduled-events/{guild_scheduled_event.id}")
+
+	GetGuildScheduledEventUsers = NewAPIRoute(GET, "/guilds/{guild.id}/scheduled-events/{guild_scheduled_event.id}/users", "limit", "with_member", "before", "after")
 )
 
 // StageInstance

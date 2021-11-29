@@ -15,42 +15,45 @@ type Caches interface {
 	Guilds() GuildCache
 	Channels() ChannelCache
 	StageInstances() StageInstanceCache
+	GuildScheduledEvents() GuildScheduledEventCache
 }
 
 func NewCaches(config CacheConfig) Caches {
 	return &cachesImpl{
 		config: config,
 
-		userCache:          NewUserCache(config.CacheFlags),
-		roleCache:          NewRoleCache(config.CacheFlags),
-		memberCache:        NewMemberCache(config.MemberCachePolicy),
-		threadMemberCache:  NewThreadMemberCache(config.CacheFlags),
-		presenceCache:      NewPresenceCache(config.CacheFlags),
-		voiceStateCache:    NewVoiceStateCache(config.CacheFlags),
-		messageCache:       NewMessageCache(config.MessageCachePolicy),
-		emojiCache:         NewEmojiCache(config.CacheFlags),
-		stickerCache:       NewStickerCache(config.CacheFlags),
-		guildCache:         NewGuildCache(config.CacheFlags),
-		channelCache:       NewChannelCache(config.CacheFlags),
-		stageInstanceCache: NewStageInstanceCache(config.CacheFlags),
+		userCache:                NewUserCache(config.CacheFlags),
+		roleCache:                NewRoleCache(config.CacheFlags),
+		memberCache:              NewMemberCache(config.MemberCachePolicy),
+		threadMemberCache:        NewThreadMemberCache(config.CacheFlags),
+		presenceCache:            NewPresenceCache(config.CacheFlags),
+		voiceStateCache:          NewVoiceStateCache(config.CacheFlags),
+		messageCache:             NewMessageCache(config.MessageCachePolicy),
+		emojiCache:               NewEmojiCache(config.CacheFlags),
+		stickerCache:             NewStickerCache(config.CacheFlags),
+		guildCache:               NewGuildCache(config.CacheFlags),
+		channelCache:             NewChannelCache(config.CacheFlags),
+		stageInstanceCache:       NewStageInstanceCache(config.CacheFlags),
+		guildScheduledEventCache: NewGuildScheduledEventCache(config.CacheFlags),
 	}
 }
 
 type cachesImpl struct {
 	config CacheConfig
 
-	userCache          UserCache
-	roleCache          RoleCache
-	memberCache        MemberCache
-	threadMemberCache  ThreadMemberCache
-	presenceCache      PresenceCache
-	voiceStateCache    VoiceStateCache
-	messageCache       MessageCache
-	emojiCache         EmojiCache
-	stickerCache       StickerCache
-	guildCache         GuildCache
-	channelCache       ChannelCache
-	stageInstanceCache StageInstanceCache
+	userCache                UserCache
+	roleCache                RoleCache
+	memberCache              MemberCache
+	threadMemberCache        ThreadMemberCache
+	presenceCache            PresenceCache
+	voiceStateCache          VoiceStateCache
+	messageCache             MessageCache
+	emojiCache               EmojiCache
+	stickerCache             StickerCache
+	guildCache               GuildCache
+	channelCache             ChannelCache
+	stageInstanceCache       StageInstanceCache
+	guildScheduledEventCache GuildScheduledEventCache
 }
 
 func (c *cachesImpl) Config() CacheConfig {
@@ -103,4 +106,8 @@ func (c *cachesImpl) Channels() ChannelCache {
 
 func (c *cachesImpl) StageInstances() StageInstanceCache {
 	return c.stageInstanceCache
+}
+
+func (c *cachesImpl) GuildScheduledEvents() GuildScheduledEventCache {
+	return c.guildScheduledEventCache
 }

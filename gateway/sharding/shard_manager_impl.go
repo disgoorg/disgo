@@ -120,7 +120,6 @@ func (m *shardManagerImpl) ReOpen(ctx context.Context) error {
 	return errs
 }
 
-
 func (m *shardManagerImpl) Close(ctx context.Context) error {
 	m.Logger().Infof("closing %v shards...", m.config.Shards)
 	var wg sync.WaitGroup

@@ -128,7 +128,7 @@ type Guild struct {
 	WelcomeScreen               WelcomeScreen              `json:"welcome_screen"`
 	NSFWLevel                   NSFWLevel                  `json:"nsfw_level"`
 	BoostProgressBarEnabled     bool                       `json:"premium_progress_bar_enabled"`
-	// stickers
+	Stickers                    []Sticker                  `json:"stickers"`
 
 	// only over GET /guilds/{guild.id}
 	ApproximateMemberCount   int `json:"approximate_member_count"`
@@ -137,16 +137,17 @@ type Guild struct {
 
 type GatewayGuild struct {
 	Guild
-	JoinedAt       Time            `json:"joined_at"`
-	Large          bool            `json:"large"`
-	Unavailable    bool            `json:"unavailable"`
-	MemberCount    int             `json:"member_count"`
-	VoiceStates    []VoiceState    `json:"voice_states"`
-	Members        []Member        `json:"members"`
-	Channels       []GuildChannel  `json:"channels"`
-	Threads        []GuildThread   `json:"threads"`
-	Presences      []Presence      `json:"presences"`
-	StageInstances []StageInstance `json:"stage_instances"`
+	JoinedAt             Time                  `json:"joined_at"`
+	Large                bool                  `json:"large"`
+	Unavailable          bool                  `json:"unavailable"`
+	MemberCount          int                   `json:"member_count"`
+	VoiceStates          []VoiceState          `json:"voice_states"`
+	Members              []Member              `json:"members"`
+	Channels             []GuildChannel        `json:"channels"`
+	Threads              []GuildThread         `json:"threads"`
+	Presences            []Presence            `json:"presences"`
+	StageInstances       []StageInstance       `json:"stage_instances"`
+	GuildScheduledEvents []GuildScheduledEvent `json:"guild_scheduled_events"`
 }
 
 func (g *GatewayGuild) UnmarshalJSON(data []byte) error {

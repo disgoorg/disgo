@@ -3,9 +3,10 @@ package merrors
 import "sync"
 
 var _ error = (*Error)(nil)
+
 type Error struct {
 	errs []error
-	mu *sync.Mutex
+	mu   *sync.Mutex
 }
 
 func (e Error) Error() string {
@@ -26,6 +27,3 @@ func (e *Error) Add(err error) {
 	defer e.mu.Unlock()
 	e.errs = append(e.errs, err)
 }
-
-
-
