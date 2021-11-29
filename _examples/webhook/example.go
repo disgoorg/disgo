@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"os"
 	"sync"
 	"time"
@@ -24,6 +25,7 @@ func main() {
 
 	// construct new webhook client
 	client := webhook.NewClient(webhookID, webhookToken)
+	defer client.Close(context.TODO())
 
 	// new sync.WaitGroup to await all messages to be sent before shutting down
 	var wg sync.WaitGroup

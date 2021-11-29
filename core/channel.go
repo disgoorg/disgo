@@ -151,11 +151,17 @@ func (c *GuildTextChannel) PermissionOverwrite(overwriteType discord.PermissionO
 }
 
 func (c *GuildTextChannel) RolePermissionOverwrite(id discord.Snowflake) *discord.RolePermissionOverwrite {
-	return getPermissionOverwrite(c, discord.PermissionOverwriteTypeRole, id).(*discord.RolePermissionOverwrite)
+	if overwrite := getPermissionOverwrite(c, discord.PermissionOverwriteTypeRole, id); overwrite != nil {
+		return overwrite.(*discord.RolePermissionOverwrite)
+	}
+	return nil
 }
 
 func (c *GuildTextChannel) MemberPermissionOverwrite(id discord.Snowflake) *discord.MemberPermissionOverwrite {
-	return getPermissionOverwrite(c, discord.PermissionOverwriteTypeMember, id).(*discord.MemberPermissionOverwrite)
+	if overwrite := getPermissionOverwrite(c, discord.PermissionOverwriteTypeMember, id); overwrite != nil {
+		return overwrite.(*discord.MemberPermissionOverwrite)
+	}
+	return nil
 }
 
 func (c *GuildTextChannel) SetPermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
@@ -1669,7 +1675,7 @@ func setPermissionOverwrite(bot *Bot, channelID discord.Snowflake, overwriteType
 	default:
 		return errors.New("unknown permission overwrite type")
 	}
-	return bot.RestServices.ChannelService().UpdatePermissionOverride(channelID, id, overwrite, opts...)
+	return bot.RestServices.ChannelService().UpdatePermissionOverwrite(channelID, id, overwrite, opts...)
 }
 
 func updatePermissionOverwrite(bot *Bot, channel GuildChannel, overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
@@ -1702,11 +1708,11 @@ func updatePermissionOverwrite(bot *Bot, channel GuildChannel, overwriteType dis
 		return errors.New("unknown permission overwrite type")
 	}
 
-	return bot.RestServices.ChannelService().UpdatePermissionOverride(channel.ID(), id, overwriteUpdate, opts...)
+	return bot.RestServices.ChannelService().UpdatePermissionOverwrite(channel.ID(), id, overwriteUpdate, opts...)
 }
 
 func deletePermissionOverwrite(bot *Bot, channelID discord.Snowflake, id discord.Snowflake, opts ...rest.RequestOpt) error {
-	return bot.RestServices.ChannelService().DeletePermissionOverride(channelID, id, opts...)
+	return bot.RestServices.ChannelService().DeletePermissionOverwrite(channelID, id, opts...)
 }
 
 func channelGuild(bot *Bot, guildID discord.Snowflake) *Guild {

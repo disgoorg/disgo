@@ -3,12 +3,14 @@ package bot
 import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/gateway"
-	sharding2 "github.com/DisgoOrg/disgo/gateway/sharding"
+	"github.com/DisgoOrg/disgo/gateway/sharding"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/log"
 )
 
+// Config lets you configure your Bot instance
+// Config is the core.Bot config used to configure everything
 type Config struct {
 	Logger log.Logger
 
@@ -25,8 +27,8 @@ type Config struct {
 	Gateway       gateway.Gateway
 	GatewayConfig *gateway.Config
 
-	ShardManager       sharding2.ShardManager
-	ShardManagerConfig *sharding2.Config
+	ShardManager       sharding.ShardManager
+	ShardManagerConfig *sharding.Config
 
 	HTTPServer       httpserver.Server
 	HTTPServerConfig *httpserver.Config
@@ -48,6 +50,7 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	}
 }
 
+// WithLogger lets you inject your own logger implementing log.Logger
 //goland:noinspection GoUnusedExportedFunction
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
@@ -162,24 +165,24 @@ func WithGatewayOpts(opts ...gateway.ConfigOpt) ConfigOpt {
 }
 
 //goland:noinspection GoUnusedExportedFunction
-func WithShardManager(shardManager sharding2.ShardManager) ConfigOpt {
+func WithShardManager(shardManager sharding.ShardManager) ConfigOpt {
 	return func(config *Config) {
 		config.ShardManager = shardManager
 	}
 }
 
 //goland:noinspection GoUnusedExportedFunction
-func WithShardManagerConfig(shardManagerConfig sharding2.Config) ConfigOpt {
+func WithShardManagerConfig(shardManagerConfig sharding.Config) ConfigOpt {
 	return func(config *Config) {
 		config.ShardManagerConfig = &shardManagerConfig
 	}
 }
 
 //goland:noinspection GoUnusedExportedFunction
-func WithShardManagerOpts(opts ...sharding2.ConfigOpt) ConfigOpt {
+func WithShardManagerOpts(opts ...sharding.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		if config.ShardManagerConfig == nil {
-			config.ShardManagerConfig = &sharding2.DefaultConfig
+			config.ShardManagerConfig = &sharding.DefaultConfig
 		}
 		config.ShardManagerConfig.Apply(opts)
 	}

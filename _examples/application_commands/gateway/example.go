@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
@@ -52,14 +53,14 @@ func main() {
 		return
 	}
 
-	defer disgo.Close()
+	defer disgo.Close(context.TODO())
 
 	_, err = disgo.SetGuildCommands(guildID, commands)
 	if err != nil {
 		log.Fatal("error while registering commands: ", err)
 	}
 
-	if err = disgo.ConnectGateway(); err != nil {
+	if err = disgo.ConnectGateway(context.TODO()); err != nil {
 		log.Fatal("error while connecting to gateway: ", err)
 	}
 

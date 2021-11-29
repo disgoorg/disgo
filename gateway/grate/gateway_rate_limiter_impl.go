@@ -35,9 +35,12 @@ func (l *limiterImpl) Logger() log.Logger {
 	return l.config.Logger
 }
 
-func (l *limiterImpl) Close(ctx context.Context) {
-	_ = l.CLock(ctx)
+func (l *limiterImpl) Close(ctx context.Context) error {
+	if err := l.CLock(ctx); err != nil {
+		return err
+	}
 	l.Unlock()
+	return nil
 }
 
 func (l *limiterImpl) Config() Config {

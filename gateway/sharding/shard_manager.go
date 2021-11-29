@@ -14,17 +14,13 @@ type ShardManager interface {
 	Config() Config
 	RateLimiter() srate.Limiter
 
-	Open() []error
-	OpenCtx(ctx context.Context) []error
-	Close()
+	Open(ctx context.Context) error
+	ReOpen(ctx context.Context) error
+	Close(ctx context.Context) error
 
-	OpenShard(shardID int) error
-	OpenShardCtx(ctx context.Context, shardID int) error
-
-	ReopenShard(shardID int) error
-	ReopenShardCtx(ctx context.Context, shardID int) error
-
-	CloseShard(shardID int)
+	OpenShard(ctx context.Context, shardID int) error
+	ReOpenShard(ctx context.Context, shardID int) error
+	CloseShard(ctx context.Context, shardID int) error
 
 	GetGuildShard(guildId discord.Snowflake) gateway.Gateway
 

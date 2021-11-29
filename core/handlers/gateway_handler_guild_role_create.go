@@ -6,10 +6,10 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// gatewayHandlerGuildRoleCreate handles core.GuildRoleCreateGatewayEvent
+// gatewayHandlerGuildRoleCreate handles discord.GatewayEventTypeGuildRoleCreate
 type gatewayHandlerGuildRoleCreate struct{}
 
-// EventType returns the core.GatewayGatewayEventType
+// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerGuildRoleCreate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildRoleCreate
 }

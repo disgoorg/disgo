@@ -5,11 +5,12 @@ import (
 	"github.com/DisgoOrg/log"
 )
 
-//goland:noinspection GoUnusedGlobalVariable
+// DefaultConfig is the configuration which is used by default
 var DefaultConfig = Config{
 	RestClientConfig: &rest.DefaultConfig,
 }
 
+// Config is the configuration for the OAuth2 client
 type Config struct {
 	Logger            log.Logger
 	RestClient        rest.Client
@@ -19,14 +20,17 @@ type Config struct {
 	StateController   StateController
 }
 
+// ConfigOpt can be used to supply optional parameters to New
 type ConfigOpt func(config *Config)
 
+// Apply applies the given ConfigOpt(s) to the Config
 func (c *Config) Apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
 }
 
+// WithLogger applies a custom logger to the OAuth2 client
 //goland:noinspection GoUnusedExportedFunction
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
@@ -34,6 +38,7 @@ func WithLogger(logger log.Logger) ConfigOpt {
 	}
 }
 
+// WithRestClient applies a custom rest.Client to the OAuth2 client
 //goland:noinspection GoUnusedExportedFunction
 func WithRestClient(restClient rest.Client) ConfigOpt {
 	return func(config *Config) {
@@ -41,6 +46,7 @@ func WithRestClient(restClient rest.Client) ConfigOpt {
 	}
 }
 
+// WithRestClientConfig applies a custom rest.Config to the OAuth2 client
 //goland:noinspection GoUnusedExportedFunction
 func WithRestClientConfig(restConfig rest.Config) ConfigOpt {
 	return func(config *Config) {
@@ -48,6 +54,7 @@ func WithRestClientConfig(restConfig rest.Config) ConfigOpt {
 	}
 }
 
+// WithRestClientConfigOpts applies rest.ConfigOpt for the rest.Client to the OAuth2 client
 //goland:noinspection GoUnusedExportedFunction
 func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
@@ -58,6 +65,7 @@ func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	}
 }
 
+// WithOAuth2Service applies a custom rest.OAuth2Service to the OAuth2 client
 //goland:noinspection GoUnusedExportedFunction
 func WithOAuth2Service(oauth2service rest.OAuth2Service) ConfigOpt {
 	return func(config *Config) {
@@ -65,6 +73,7 @@ func WithOAuth2Service(oauth2service rest.OAuth2Service) ConfigOpt {
 	}
 }
 
+// WithSessionController applies a custom SessionController to the OAuth2 client
 //goland:noinspection GoUnusedExportedFunction
 func WithSessionController(sessionController SessionController) ConfigOpt {
 	return func(config *Config) {
@@ -72,6 +81,7 @@ func WithSessionController(sessionController SessionController) ConfigOpt {
 	}
 }
 
+// WithStateController applies a custom StateController to the OAuth2 client
 //goland:noinspection GoUnusedExportedFunction
 func WithStateController(stateController StateController) ConfigOpt {
 	return func(config *Config) {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
@@ -31,9 +32,9 @@ func main() {
 		log.Fatal("error while building disgo: ", err)
 	}
 
-	defer disgo.Close()
+	defer disgo.Close(context.TODO())
 
-	if err = disgo.ConnectGateway(); err != nil {
+	if err = disgo.ConnectGateway(context.TODO()); err != nil {
 		log.Fatal("errors while connecting to gateway: ", err)
 	}
 

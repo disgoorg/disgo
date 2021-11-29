@@ -9,7 +9,7 @@ import (
 // gatewayHandlerGuildBanAdd handles discord.GatewayEventTypeIntegrationUpdate
 type gatewayHandlerIntegrationUpdate struct{}
 
-// EventType returns the core.GatewayGatewayEventType
+// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerIntegrationUpdate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeIntegrationUpdate
 }

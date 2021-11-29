@@ -5,7 +5,7 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// GenericGuildInviteEvent is called upon receiving GuildInviteCreateEvent or GuildInviteDeleteEvent(requires core.GatewayIntentsGuildInvites)
+// GenericGuildInviteEvent is called upon receiving GuildInviteCreateEvent or GuildInviteDeleteEvent (requires discord.GatewayIntentGuildInvites)
 type GenericGuildInviteEvent struct {
 	*GenericEvent
 	GuildID   discord.Snowflake
@@ -13,7 +13,7 @@ type GenericGuildInviteEvent struct {
 	Code      string
 }
 
-// Channel returns the core.GuildChannel the GenericGuildInviteEvent happened in(returns nil if the core.GetChannel is uncached or core.Caches is disabled)
+// Channel returns the Channel the GenericGuildInviteEvent happened in.
 func (e GenericGuildInviteEvent) Channel() core.GuildChannel {
 	if ch := e.Bot().Caches.Channels().Get(e.ChannelID); ch != nil {
 		return ch.(core.GuildChannel)
@@ -21,13 +21,13 @@ func (e GenericGuildInviteEvent) Channel() core.GuildChannel {
 	return nil
 }
 
-// GuildInviteCreateEvent is called upon creation of a new core.Invite in an core.Guild(requires core.GatewayIntentsGuildInvites)
+// GuildInviteCreateEvent is called upon creation of a new core.Invite in a core.Guild (requires discord.GatewayIntentGuildInvites)
 type GuildInviteCreateEvent struct {
 	*GenericGuildInviteEvent
 	Invite *core.Invite
 }
 
-// GuildInviteDeleteEvent is called upon deletion of a new core.Invite in an core.Guild(requires core.GatewayIntentsGuildInvites)
+// GuildInviteDeleteEvent is called upon deletion of a core.Invite in a core.Guild (requires discord.GatewayIntentGuildInvites)
 type GuildInviteDeleteEvent struct {
 	*GenericGuildInviteEvent
 }

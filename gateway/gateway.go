@@ -44,9 +44,8 @@ type Gateway interface {
 	Config() Config
 	ShardID() int
 	ShardCount() int
-	Open() error
-	OpenCtx(ctx context.Context) error
-	Close()
+	Open(ctx context.Context) error
+	Close(ctx context.Context) error
 	Status() Status
 	Send(command discord.GatewayCommand) error
 	SendCtx(ctx context.Context, command discord.GatewayCommand) error

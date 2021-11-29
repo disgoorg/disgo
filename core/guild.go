@@ -13,7 +13,7 @@ type Guild struct {
 	Bot *Bot
 }
 
-// Update updates the current Guild
+// Update updates the this Guild
 func (g *Guild) Update(updateGuild discord.GuildUpdate, opts ...rest.RequestOpt) (*Guild, error) {
 	guild, err := g.Bot.RestServices.GuildService().UpdateGuild(g.ID, updateGuild, opts...)
 	if err != nil {
@@ -22,7 +22,7 @@ func (g *Guild) Update(updateGuild discord.GuildUpdate, opts ...rest.RequestOpt)
 	return g.Bot.EntityBuilder.CreateGuild(*guild, CacheStrategyNoWs), nil
 }
 
-// Delete deletes the current Guild
+// Delete deletes the this Guild
 func (g *Guild) Delete(opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.GuildService().DeleteGuild(g.ID, opts...)
 }
@@ -32,7 +32,7 @@ func (g *Guild) PublicRole() *Role {
 	return g.Bot.Caches.Roles().Get(g.ID, g.ID)
 }
 
-// CreateRole allows you to create a new Role
+// CreateRole creates a new Role with the properties provided in discord.RoleCreate
 func (g *Guild) CreateRole(roleCreate discord.RoleCreate, opts ...rest.RequestOpt) (*Role, error) {
 	role, err := g.Bot.RestServices.GuildService().CreateRole(g.ID, roleCreate, opts...)
 	if err != nil {
@@ -41,7 +41,7 @@ func (g *Guild) CreateRole(roleCreate discord.RoleCreate, opts ...rest.RequestOp
 	return g.Bot.EntityBuilder.CreateRole(g.ID, *role, CacheStrategyNoWs), nil
 }
 
-// UpdateRole allows you to update a Role
+// UpdateRole updates a Role with the properties provided in discord.RoleUpdate
 func (g *Guild) UpdateRole(roleID discord.Snowflake, roleUpdate discord.RoleUpdate, opts ...rest.RequestOpt) (*Role, error) {
 	role, err := g.Bot.RestServices.GuildService().UpdateRole(g.ID, roleID, roleUpdate, opts...)
 	if err != nil {
@@ -50,22 +50,22 @@ func (g *Guild) UpdateRole(roleID discord.Snowflake, roleUpdate discord.RoleUpda
 	return g.Bot.EntityBuilder.CreateRole(g.ID, *role, CacheStrategyNoWs), nil
 }
 
-// DeleteRole allows you to delete a Role
+// DeleteRole deletes a Role
 func (g *Guild) DeleteRole(roleID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.GuildService().DeleteRole(g.ID, roleID, opts...)
 }
 
-// Roles return all Role(s) in this Guild
+// Roles returns all Role(s) in this Guild
 func (g *Guild) Roles() []*Role {
 	return g.Bot.Caches.Roles().GuildAll(g.ID)
 }
 
-// RoleCache return all Role(s) in this Guild
+// RoleCache returns all Role(s) in this Guild
 func (g *Guild) RoleCache() map[discord.Snowflake]*Role {
 	return g.Bot.Caches.Roles().GuildCache(g.ID)
 }
 
-// CreateEmoji allows you to create a new Emoji
+// CreateEmoji creates a new Emoji with the properties provided in discord.EmojiCreate
 func (g *Guild) CreateEmoji(emojiCreate discord.EmojiCreate, opts ...rest.RequestOpt) (*Emoji, error) {
 	emoji, err := g.Bot.RestServices.EmojiService().CreateEmoji(g.ID, emojiCreate, opts...)
 	if err != nil {
@@ -74,7 +74,7 @@ func (g *Guild) CreateEmoji(emojiCreate discord.EmojiCreate, opts ...rest.Reques
 	return g.Bot.EntityBuilder.CreateEmoji(g.ID, *emoji, CacheStrategyNoWs), nil
 }
 
-// UpdateEmoji allows you to update an Emoji
+// UpdateEmoji creates an Emoji with the properties provided in discord.EmojiUpdate
 func (g *Guild) UpdateEmoji(emojiID discord.Snowflake, emojiUpdate discord.EmojiUpdate, opts ...rest.RequestOpt) (*Emoji, error) {
 	emoji, err := g.Bot.RestServices.EmojiService().UpdateEmoji(g.ID, emojiID, emojiUpdate, opts...)
 	if err != nil {
@@ -83,12 +83,12 @@ func (g *Guild) UpdateEmoji(emojiID discord.Snowflake, emojiUpdate discord.Emoji
 	return g.Bot.EntityBuilder.CreateEmoji(g.ID, *emoji, CacheStrategyNoWs), nil
 }
 
-// DeleteEmoji allows you to delete an Emoji
+// DeleteEmoji deletes an Emoji
 func (g *Guild) DeleteEmoji(emojiID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.EmojiService().DeleteEmoji(g.ID, emojiID, opts...)
 }
 
-// CreateSticker allows you to create a new Sticker
+// CreateSticker creates a new Sticker with the properties provided in discord.StickerCreate
 func (g *Guild) CreateSticker(stickerCreate discord.StickerCreate, opts ...rest.RequestOpt) (*Sticker, error) {
 	sticker, err := g.Bot.RestServices.StickerService().CreateSticker(g.ID, stickerCreate, opts...)
 	if err != nil {
@@ -97,7 +97,7 @@ func (g *Guild) CreateSticker(stickerCreate discord.StickerCreate, opts ...rest.
 	return g.Bot.EntityBuilder.CreateSticker(*sticker, CacheStrategyNoWs), nil
 }
 
-// UpdateSticker allows you to update a Sticker
+// UpdateSticker updates a Sticker with the properties provided in discord.StickerCreate
 func (g *Guild) UpdateSticker(stickerID discord.Snowflake, stickerUpdate discord.StickerUpdate, opts ...rest.RequestOpt) (*Sticker, error) {
 	sticker, err := g.Bot.RestServices.StickerService().UpdateSticker(g.ID, stickerID, stickerUpdate, opts...)
 	if err != nil {
@@ -106,7 +106,7 @@ func (g *Guild) UpdateSticker(stickerID discord.Snowflake, stickerUpdate discord
 	return g.Bot.EntityBuilder.CreateSticker(*sticker, CacheStrategyNoWs), nil
 }
 
-// DeleteSticker allows you to delete a Sticker
+// DeleteSticker deletes a Sticker
 func (g *Guild) DeleteSticker(stickerID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.StickerService().DeleteSticker(g.ID, stickerID, opts...)
 }
@@ -116,12 +116,12 @@ func (g *Guild) SelfMember() *Member {
 	return g.Bot.Caches.Members().Get(g.ID, g.Bot.ClientID)
 }
 
-// Leave leaves the Guild
+// Leave leaves this Guild
 func (g *Guild) Leave(opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.UserService().LeaveGuild(g.ID, opts...)
 }
 
-// Disconnect sends an GatewayCommand to disconnect from this Guild
+// Disconnect sends a GatewayCommand to disconnect from this Guild
 func (g *Guild) Disconnect() error {
 	return g.Bot.AudioController.Disconnect(g.ID)
 }

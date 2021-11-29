@@ -13,11 +13,12 @@ type User struct {
 	Bot *Bot
 }
 
-// AvatarURL returns the Avatar URL of the User
+// AvatarURL returns the Avatar URL of this User
 func (u *User) AvatarURL(size int) *string {
 	return u.getAssetURL(route.UserAvatar, u.Avatar, size)
 }
 
+// DefaultAvatarURL returns the default avatar URL of this User
 func (u *User) DefaultAvatarURL(size int) string {
 	discriminator, _ := strconv.Atoi(u.Discriminator)
 	compiledRoute, err := route.DefaultUserAvatar.Compile(nil, route.PNG, size, discriminator%5)
@@ -27,6 +28,7 @@ func (u *User) DefaultAvatarURL(size int) string {
 	return compiledRoute.URL()
 }
 
+// EffectiveAvatarURL returns either this User avatar or default avatar depending on if this User has one
 func (u *User) EffectiveAvatarURL(size int) string {
 	if u.Avatar == nil {
 		return u.DefaultAvatarURL(size)
@@ -34,7 +36,7 @@ func (u *User) EffectiveAvatarURL(size int) string {
 	return *u.AvatarURL(size)
 }
 
-// BannerURL returns the Banner URL of the User
+// BannerURL returns the Banner URL of this User
 func (u *User) BannerURL(size int) *string {
 	return u.getAssetURL(route.UserBanner, u.Banner, size)
 }
@@ -43,7 +45,7 @@ func (u *User) getAssetURL(cdnRoute *route.CDNRoute, assetId *string, size int) 
 	return discord.FormatAssetURL(cdnRoute, u.ID, assetId, size)
 }
 
-// OpenDMChannel creates a DMChannel between the user and the Disgo client
+// OpenDMChannel creates a DMChannel between this User and the Bot
 func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (*DMChannel, error) {
 	channel, err := u.Bot.RestServices.UserService().CreateDMChannel(u.ID, opts...)
 	if err != nil {

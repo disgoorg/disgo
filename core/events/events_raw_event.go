@@ -29,7 +29,7 @@ func HandleRawEvent(bot *core.Bot, gatewayEventType discord.GatewayEventType, se
 	return reader
 }
 
-// RawEvent is called for any core.GatewayGatewayEventType we receive if enabled in the core.BotBuilder/core.Options
+// RawEvent is called for any discord.GatewayEventType we receive if enabled in the bot.Config
 type RawEvent struct {
 	*GenericEvent
 	Type       discord.GatewayEventType

@@ -21,6 +21,8 @@ func (s *Sticker) URL(size int) string {
 	return compiledRoute.URL()
 }
 
+// Guild returns the Guild this Sticker was created for or nil if this isn't a Guild-specific Sticker.
+// This will only check cached guilds!
 func (s *Sticker) Guild() *Guild {
 	if s.Type != discord.StickerTypeGuild {
 		return nil
@@ -28,6 +30,7 @@ func (s *Sticker) Guild() *Guild {
 	return s.Bot.Caches.Guilds().Get(*s.GuildID)
 }
 
+// Update updates this Sticker with the properties provided in discord.StickerUpdate
 func (s *Sticker) Update(stickerUpdate discord.StickerUpdate, opts ...rest.RequestOpt) (*Sticker, error) {
 	if s.Type != discord.StickerTypeGuild {
 		return nil, discord.ErrStickerTypeGuild
@@ -40,6 +43,7 @@ func (s *Sticker) Update(stickerUpdate discord.StickerUpdate, opts ...rest.Reque
 	return s.Bot.EntityBuilder.CreateSticker(*sticker, CacheStrategyNoWs), nil
 }
 
+// Delete deletes this Sticker
 func (s *Sticker) Delete(opts ...rest.RequestOpt) error {
 	if s.Type != discord.StickerTypeGuild {
 		return discord.ErrStickerTypeGuild

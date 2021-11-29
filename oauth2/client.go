@@ -12,6 +12,7 @@ import (
 	"github.com/DisgoOrg/log"
 )
 
+// errors returned by the OAuth2 client
 var (
 	ErrStateNotFound      = errors.New("state could not be found")
 	ErrAccessTokenExpired = errors.New("access token expired. refresh the session")
@@ -20,6 +21,7 @@ var (
 	}
 )
 
+// New returns a new OAuth2 client
 func New(id discord.Snowflake, secret string, opts ...ConfigOpt) *Client {
 	config := &DefaultConfig
 	config.Apply(opts)
@@ -44,12 +46,14 @@ func New(id discord.Snowflake, secret string, opts ...ConfigOpt) *Client {
 	return &Client{ID: id, Secret: secret, Config: *config}
 }
 
+// Client is an OAuth2 client
 type Client struct {
 	ID     discord.Snowflake
 	Secret string
 	Config
 }
 
+// GenerateAuthorizationURL generates an authorization URL with the given redirect URI & scopes, state is automatically generated
 func (c *Client) GenerateAuthorizationURL(redirectURI string, scopes ...discord.ApplicationScope) string {
 	values := route.QueryValues{
 		"client_id":     c.ID,
@@ -62,6 +66,7 @@ func (c *Client) GenerateAuthorizationURL(redirectURI string, scopes ...discord.
 	return compiledRoute.URL()
 }
 
+// StartSession starts a new session with the given authorization code & state
 func (c *Client) StartSession(code string, state string, identifier string, opts ...rest.RequestOpt) (Session, error) {
 	redirectURI := c.StateController.ConsumeState(state)
 	if redirectURI == nil {
@@ -75,6 +80,7 @@ func (c *Client) StartSession(code string, state string, identifier string, opts
 	return c.SessionController.CreateSessionFromExchange(identifier, *exchange), nil
 }
 
+// RefreshSession refreshes the given session with the refresh token
 func (c *Client) RefreshSession(identifier string, session Session, opts ...rest.RequestOpt) (Session, error) {
 	exchange, err := c.OAuth2Service.RefreshAccessToken(c.ID, c.Secret, session.RefreshToken(), opts...)
 	if err != nil {
@@ -83,6 +89,7 @@ func (c *Client) RefreshSession(identifier string, session Session, opts ...rest
 	return c.SessionController.CreateSessionFromExchange(identifier, *exchange), nil
 }
 
+// GetUser returns the discord.OAuth2User associated with the given session. Fields filled in the struct depend on the Session.Scopes
 func (c *Client) GetUser(session Session, opts ...rest.RequestOpt) (*discord.OAuth2User, error) {
 	if session.Expiration().Before(time.Now()) {
 		return nil, ErrAccessTokenExpired
@@ -94,6 +101,7 @@ func (c *Client) GetUser(session Session, opts ...rest.RequestOpt) (*discord.OAu
 	return c.OAuth2Service.GetCurrentUser(session.AccessToken(), opts...)
 }
 
+// GetGuilds returns the discord.OAuth2Guild(s) the user is a member of. This requires the discord.ApplicationScopeGuilds scope in the session
 func (c *Client) GetGuilds(session Session, opts ...rest.RequestOpt) ([]discord.OAuth2Guild, error) {
 	if session.Expiration().Before(time.Now()) {
 		return nil, ErrAccessTokenExpired
@@ -105,6 +113,7 @@ func (c *Client) GetGuilds(session Session, opts ...rest.RequestOpt) ([]discord.
 	return c.OAuth2Service.GetCurrentUserGuilds(session.AccessToken(), opts...)
 }
 
+// GetConnections returns the discord.Connection(s) the user has connected. This requires the discord.ApplicationScopeConnections scope in the session
 func (c *Client) GetConnections(session Session, opts ...rest.RequestOpt) ([]discord.Connection, error) {
 	if session.Expiration().Before(time.Now()) {
 		return nil, ErrAccessTokenExpired
