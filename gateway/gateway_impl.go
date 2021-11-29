@@ -109,9 +109,7 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 	var err error
 	g.conn, rs, err = websocket.DefaultDialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
-		if err = g.Close(ctx); err != nil {
-			return err
-		}
+		g.Close(ctx)
 		var body []byte
 		if rs != nil && rs.Body != nil {
 			body, err = ioutil.ReadAll(rs.Body)
@@ -142,11 +140,14 @@ func (g *gatewayImpl) Close(ctx context.Context) {
 
 func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int) {
 	g.Logger().Info(g.formatLogs("closing gateway connection with code: ", code))
+	_ = g.config.RateLimiter.Close(ctx)
+
 	if g.heartbeatChan != nil {
 		g.Logger().Debug(g.formatLogs("closing heartbeat goroutines..."))
 		close(g.heartbeatChan)
 		g.heartbeatChan = nil
 	}
+
 	if g.conn != nil {
 		err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, ""))
 		if err != nil && err != websocket.ErrCloseSent {
@@ -165,11 +166,7 @@ func (g *gatewayImpl) Status() Status {
 	return g.status
 }
 
-func (g *gatewayImpl) Send(command discord.GatewayCommand) error {
-	return g.SendCtx(context.Background(), command)
-}
-
-func (g *gatewayImpl) SendCtx(ctx context.Context, command discord.GatewayCommand) error {
+func (g *gatewayImpl) Send(ctx context.Context, command discord.GatewayCommand) error {
 	if g.conn == nil {
 		return discord.ErrShardNotConnected
 	}
@@ -191,21 +188,30 @@ func (g *gatewayImpl) Latency() time.Duration {
 	return g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
 }
 
-func (g *gatewayImpl) reconnect(try int, delay time.Duration) {
+func (g *gatewayImpl) ReOpen(ctx context.Context, delay time.Duration) error {
+	return g.reOpen(ctx, 1, delay)
+}
+
+func (g *gatewayImpl) reOpen(ctx context.Context, try int, delay time.Duration) error {
 	if try >= g.config.MaxReconnectTries {
-		g.Logger().Error(g.formatLogs("failed to reconnect. exceeded max reconnect tries of: ", g.config.MaxReconnectTries))
-		return
+		return errors.Errorf("failed to reconnect. exceeded max reconnect tries of %d reached", g.config.MaxReconnectTries)
 	}
-	time.Sleep(delay)
+	timer := time.NewTimer(delay)
+	select {
+	case <-ctx.Done():
+		timer.Stop()
+		return ctx.Err()
+	case <-timer.C:
+	}
 
 	g.Logger().Info(g.formatLogs("reconnecting gateway..."))
-	if err := g.Open(); err != nil {
+	if err := g.Open(ctx); err != nil {
 		if err == discord.ErrGatewayAlreadyConnected {
-			return
+			return err
 		}
 		g.Logger().Error(g.formatLogs("failed to reconnect gateway. error: ", err))
 		g.status = StatusDisconnected
-		g.reconnect(try+1, delay*2)
+		return g.reOpen(ctx, try+1, delay*2)
 	}
 	return nil
 }
@@ -227,10 +233,16 @@ func (g *gatewayImpl) heartbeat() {
 func (g *gatewayImpl) sendHeartbeat() {
 	g.Logger().Debug(g.formatLogs("sending heartbeat..."))
 
-	if err := g.Send(discord.NewGatewayCommand(discord.GatewayOpcodeHeartbeat, g.lastSequenceReceived)); err != nil && err != discord.ErrShardNotConnected {
+	ctx, cancel := context.WithTimeout(context.Background(), g.heartbeatInterval)
+	defer cancel()
+	if err := g.Send(ctx, discord.NewGatewayCommand(discord.GatewayOpcodeHeartbeat, g.lastSequenceReceived)); err != nil && err != discord.ErrShardNotConnected {
 		g.Logger().Error(g.formatLogs("failed to send heartbeat. error: ", err))
-		g.CloseWithCode(websocket.CloseServiceRestart)
-		go g.reconnect(0, 1*time.Second)
+		g.CloseWithCode(context.TODO(), websocket.CloseServiceRestart)
+		go func() {
+			if err = g.ReOpen(context.TODO(), 1*time.Second); err != nil {
+				g.Logger().Error(g.formatLogs(err))
+			}
+		}()
 		return
 	}
 	g.lastHeartbeatSent = time.Now().UTC()
@@ -285,9 +297,13 @@ func (g *gatewayImpl) listen() {
 			}
 
 			if reconnect {
-				go g.reconnect(0, 1*time.Second)
+				go func() {
+					if err = g.ReOpen(context.TODO(), 1*time.Second); err != nil {
+						g.Logger().Error(g.formatLogs(err))
+					}
+				}()
 			} else {
-				g.Close()
+				g.Close(context.TODO())
 			}
 			return
 		}
@@ -330,7 +346,7 @@ func (g *gatewayImpl) listen() {
 					identify.Shard = []int{g.shardID, g.shardCount}
 				}
 
-				if err = g.Send(discord.NewGatewayCommand(discord.GatewayOpcodeIdentify, identify)); err != nil {
+				if err = g.Send(context.TODO(), discord.NewGatewayCommand(discord.GatewayOpcodeIdentify, identify)); err != nil {
 					g.Logger().Error(g.formatLogs("error sending Identify command err: ", err))
 				}
 				g.status = StatusWaitingForReady
@@ -343,7 +359,7 @@ func (g *gatewayImpl) listen() {
 				}
 
 				g.Logger().Info(g.formatLogs("sending Resume command..."))
-				if err = g.Send(discord.NewGatewayCommand(discord.GatewayOpcodeResume, resume)); err != nil {
+				if err = g.Send(context.TODO(), discord.NewGatewayCommand(discord.GatewayOpcodeResume, resume)); err != nil {
 					g.Logger().Error(g.formatLogs("error sending resume command err: ", err))
 				}
 			}
@@ -377,8 +393,12 @@ func (g *gatewayImpl) listen() {
 
 		case discord.GatewayOpcodeReconnect:
 			g.Logger().Debug(g.formatLogs("received: OpcodeReconnect"))
-			g.CloseWithCode(websocket.CloseServiceRestart)
-			go g.reconnect(0, 1*time.Second)
+			g.CloseWithCode(context.TODO(), websocket.CloseServiceRestart)
+			go func() {
+				if err = g.ReOpen(context.TODO(), 1*time.Second); err != nil {
+					g.Logger().Error(g.formatLogs(err))
+				}
+			}()
 
 		case discord.GatewayOpcodeInvalidSession:
 			var canResume bool
@@ -387,14 +407,18 @@ func (g *gatewayImpl) listen() {
 			}
 			g.Logger().Debug(g.formatLogs("received: OpcodeInvalidSession, canResume: ", canResume))
 			if canResume {
-				g.CloseWithCode(websocket.CloseServiceRestart)
+				g.CloseWithCode(context.TODO(), websocket.CloseServiceRestart)
 			} else {
-				_ = g.Close(context.TODO())
+				g.Close(context.TODO())
 				// clear reconnect info
 				g.sessionID = nil
 				g.lastSequenceReceived = nil
 			}
-			go g.reconnect(0, 5*time.Second)
+			go func() {
+				if err = g.ReOpen(context.TODO(), 5*time.Second); err != nil {
+					g.Logger().Error(g.formatLogs(err))
+				}
+			}()
 
 		case discord.GatewayOpcodeHeartbeatACK:
 			g.Logger().Debug(g.formatLogs("received: OpcodeHeartbeatACK"))

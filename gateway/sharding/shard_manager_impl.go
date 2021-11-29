@@ -3,6 +3,7 @@ package sharding
 import (
 	"context"
 	"sync"
+	"time"
 
 	srate2 "github.com/DisgoOrg/disgo/gateway/sharding/srate"
 	"github.com/DisgoOrg/disgo/internal/merrors"
@@ -107,11 +108,9 @@ func (m *shardManagerImpl) ReOpen(ctx context.Context) error {
 		go func() {
 			defer wg.Done()
 			if shard != nil {
-				if err := shard.Close(ctx); err != nil {
-					errs.Add(err)
-				}
+				shard.Close(ctx)
 			}
-			if err := shard.Open(ctx); err != nil {
+			if err := shard.ReOpen(ctx, time.Second); err != nil {
 				errs.Add(err)
 			}
 		}()
@@ -120,11 +119,9 @@ func (m *shardManagerImpl) ReOpen(ctx context.Context) error {
 	return errs
 }
 
-
-func (m *shardManagerImpl) Close(ctx context.Context) error {
+func (m *shardManagerImpl) Close(ctx context.Context) {
 	m.Logger().Infof("closing %v shards...", m.config.Shards)
 	var wg sync.WaitGroup
-	var errs merrors.Error
 
 	for shardID := range m.shards.Shards {
 		m.config.Shards.Delete(shardID)
@@ -132,13 +129,10 @@ func (m *shardManagerImpl) Close(ctx context.Context) error {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			if err := shard.Close(ctx); err != nil {
-				errs.Add(err)
-			}
+			shard.Close(ctx)
 		}()
 	}
 	wg.Wait()
-	return errs
 }
 
 func (m *shardManagerImpl) OpenShard(ctx context.Context, shardID int) error {
@@ -156,20 +150,17 @@ func (m *shardManagerImpl) ReOpenShard(ctx context.Context, shardID int) error {
 		// TODO: should we start the shard if not already here?
 		return nil
 	}
-	if err := shard.Close(ctx); err != nil {
-		return err
-	}
-	return shard.Open(ctx)
+	shard.Close(ctx)
+	return shard.ReOpen(ctx, time.Second)
 }
 
-func (m *shardManagerImpl) CloseShard(ctx context.Context, shardID int) error {
+func (m *shardManagerImpl) CloseShard(ctx context.Context, shardID int) {
 	m.Logger().Infof("closing shard %d...", shardID)
 	m.config.Shards.Delete(shardID)
 	shard := m.shards.Delete(shardID)
 	if shard != nil {
-		return shard.Close(ctx)
+		shard.Close(ctx)
 	}
-	return nil
 }
 
 func (m *shardManagerImpl) GetGuildShard(guildId discord.Snowflake) gateway.Gateway {

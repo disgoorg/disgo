@@ -16,11 +16,11 @@ type ShardManager interface {
 
 	Open(ctx context.Context) error
 	ReOpen(ctx context.Context) error
-	Close(ctx context.Context) error
+	Close(ctx context.Context)
 
 	OpenShard(ctx context.Context, shardID int) error
 	ReOpenShard(ctx context.Context, shardID int) error
-	CloseShard(ctx context.Context, shardID int) error
+	CloseShard(ctx context.Context, shardID int)
 
 	GetGuildShard(guildId discord.Snowflake) gateway.Gateway
 

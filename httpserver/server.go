@@ -21,7 +21,7 @@ type Server interface {
 	PublicKey() ed25519.PublicKey
 	Config() Config
 	Start()
-	Close(ctx context.Context) error
+	Close(ctx context.Context)
 }
 
 // Verify implements the verification side of the discord interactions api signing algorithm, as documented here: https://discord.com/developers/docs/interactions/slash-commands#security-and-authorization

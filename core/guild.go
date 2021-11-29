@@ -121,9 +121,9 @@ func (g *Guild) Leave(opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.UserService().LeaveGuild(g.ID, opts...)
 }
 
-// Disconnect sends a GatewayCommand to disconnect from this Guild
-func (g *Guild) Disconnect() error {
-	return g.Bot.AudioController.Disconnect(g.ID)
+// Disconnect sends a discord.GatewayCommand to disconnect from this Guild
+func (g *Guild) Disconnect(ctx context.Context) error {
+	return g.Bot.AudioController.Disconnect(ctx, g.ID)
 }
 
 func (g *Guild) RequestMembers(userIDs ...discord.Snowflake) ([]*Member, error) {

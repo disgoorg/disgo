@@ -41,7 +41,7 @@ type Services interface {
 	Logger() log.Logger
 	RestClient() Client
 	HTTPClient() *http.Client
-	Close(ctx context.Context) error
+	Close(ctx context.Context)
 	ApplicationService() ApplicationService
 	OAuth2Service() OAuth2Service
 	AuditLogService() AuditLogService
@@ -94,8 +94,8 @@ func (s *servicesImpl) HTTPClient() *http.Client {
 	return s.RestClient().HTTPClient()
 }
 
-func (s *servicesImpl) Close(ctx context.Context) error {
-	return s.restClient.Close(ctx)
+func (s *servicesImpl) Close(ctx context.Context) {
+	s.restClient.Close(ctx)
 }
 
 func (s *servicesImpl) ApplicationService() ApplicationService {

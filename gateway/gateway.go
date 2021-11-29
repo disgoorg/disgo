@@ -38,10 +38,10 @@ type Gateway interface {
 	ShardID() int
 	ShardCount() int
 	Open(ctx context.Context) error
-	Close(ctx context.Context) error
-	CloseWithCode(ctx context.Context, code int) error
+	ReOpen(ctx context.Context, delay time.Duration) error
+	Close(ctx context.Context)
+	CloseWithCode(ctx context.Context, code int)
 	Status() Status
-	Send(command discord.GatewayCommand) error
-	SendCtx(ctx context.Context, command discord.GatewayCommand) error
+	Send(ctx context.Context, command discord.GatewayCommand) error
 	Latency() time.Duration
 }

@@ -7,7 +7,6 @@ import (
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/gateway/sharding"
 	"github.com/DisgoOrg/disgo/httpserver"
-	"github.com/DisgoOrg/disgo/internal/merrors"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/log"
 )
@@ -39,29 +38,19 @@ type Bot struct {
 }
 
 // Close will clean up all disgo internals and close the discord connection safely
-func (b *Bot) Close(ctx context.Context) error {
-	var errs merrors.Error
+func (b *Bot) Close(ctx context.Context) {
 	if b.RestServices != nil {
-		if err := b.RestServices.Close(ctx); err != nil {
-			errs.Add(err)
-		}
+		b.RestServices.Close(ctx)
 	}
 	if b.Gateway != nil {
-		if err := b.Gateway.Close(ctx); err != nil {
-			errs.Add(err)
-		}
+		b.Gateway.Close(ctx)
 	}
 	if b.ShardManager != nil {
-		if err := b.ShardManager.Close(ctx); err != nil {
-			errs.Add(err)
-		}
+		b.ShardManager.Close(ctx)
 	}
 	if b.HTTPServer != nil {
-		if err := b.HTTPServer.Close(ctx); err != nil {
-			errs.Add(err)
-		}
+		b.HTTPServer.Close(ctx)
 	}
-	return nil
 }
 
 // SelfMember returns a core.OAuth2User for the client, if available
@@ -118,15 +107,15 @@ func (b *Bot) Shard(guildID discord.Snowflake) (gateway.Gateway, error) {
 	return nil, discord.ErrNoGatewayOrShardManager
 }
 
-func (b *Bot) SetPresence(presenceUpdate discord.PresenceUpdate) error {
+func (b *Bot) SetPresence(ctx context.Context, presenceUpdate discord.PresenceUpdate) error {
 	if !b.HasGateway() {
 		return discord.ErrNoGateway
 	}
-	return b.Gateway.Send(discord.NewGatewayCommand(discord.GatewayOpcodePresenceUpdate, presenceUpdate))
+	return b.Gateway.Send(ctx, discord.NewGatewayCommand(discord.GatewayOpcodePresenceUpdate, presenceUpdate))
 }
 
 // SetPresenceForShard sets the Presence of this Bot for the provided shard
-func (b *Bot) SetPresenceForShard(shardId int, presenceUpdate discord.PresenceUpdate) error {
+func (b *Bot) SetPresenceForShard(ctx context.Context, shardId int, presenceUpdate discord.PresenceUpdate) error {
 	if !b.HasShardManager() {
 		return discord.ErrNoShardManager
 	}
@@ -134,7 +123,7 @@ func (b *Bot) SetPresenceForShard(shardId int, presenceUpdate discord.PresenceUp
 	if shard == nil {
 		return discord.ErrShardNotFound
 	}
-	return shard.Send(discord.NewGatewayCommand(discord.GatewayOpcodePresenceUpdate, presenceUpdate))
+	return shard.Send(ctx, discord.NewGatewayCommand(discord.GatewayOpcodePresenceUpdate, presenceUpdate))
 }
 
 // StartHTTPServer starts the interaction webhook server

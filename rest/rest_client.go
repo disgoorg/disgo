@@ -56,7 +56,7 @@ type Client interface {
 	Config() Config
 
 	// Close closes the rest client and awaits all pending requests to finish. You can use a cancelling context to abort the waiting
-	Close(ctx context.Context) error
+	Close(ctx context.Context)
 
 	// Do makes a request to the given route and marshals the given interface{} as json and unmarshalls the response into the given interface
 	Do(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) error
@@ -66,9 +66,9 @@ type clientImpl struct {
 	config Config
 }
 
-func (c *clientImpl) Close(_ context.Context) error {
+func (c *clientImpl) Close(ctx context.Context) {
+	c.config.RateLimiter.Close(ctx)
 	c.config.HTTPClient.CloseIdleConnections()
-	return nil
 }
 
 func (c *clientImpl) Logger() log.Logger {
