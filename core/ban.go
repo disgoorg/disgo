@@ -13,6 +13,7 @@ type Ban struct {
 	GuildID discord.Snowflake
 }
 
+// Unban unbans the User associated with this Ban from the Guild
 func (b *Ban) Unban(opts ...rest.RequestOpt) error {
 	return b.Bot.RestServices.GuildService().DeleteBan(b.GuildID, b.User.ID, opts...)
 }

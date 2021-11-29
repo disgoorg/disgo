@@ -6,10 +6,10 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// gatewayHandlerChannelDelete handles core.GatewayEventChannelDelete
+// gatewayHandlerChannelDelete handles discord.GatewayEventTypeChannelDelete
 type gatewayHandlerChannelDelete struct{}
 
-// EventType returns the core.GatewayGatewayEventType
+// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerChannelDelete) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeChannelDelete
 }

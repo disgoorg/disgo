@@ -174,7 +174,7 @@ func (c *MessageCommand) ToCreate() discord.MessageCommandCreate {
 	}
 }
 
-// Update updates the current ApplicationCommand with the given fields
+// Update updates the current ApplicationCommand with the given discord.ApplicationCommandUpdate
 func (c *MessageCommand) Update(commandUpdate discord.MessageCommandUpdate, opts ...rest.RequestOpt) (*MessageCommand, error) {
 	var command discord.ApplicationCommand
 	var err error

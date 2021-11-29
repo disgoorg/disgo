@@ -6,10 +6,10 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// gatewayHandlerGuildRoleDelete handles core.GuildRoleDeleteGatewayEvent
+// gatewayHandlerGuildRoleDelete handles discord.GatewayEventTypeGuildRoleDelete
 type gatewayHandlerGuildRoleDelete struct{}
 
-// EventType returns the core.GatewayGatewayEventType
+// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerGuildRoleDelete) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildRoleDelete
 }

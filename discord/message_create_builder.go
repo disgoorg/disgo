@@ -20,18 +20,18 @@ func NewMessageCreateBuilder() *MessageCreateBuilder {
 	}
 }
 
-// SetContent sets content of the Message
+// SetContent sets the content of the Message
 func (b *MessageCreateBuilder) SetContent(content string) *MessageCreateBuilder {
 	b.Content = content
 	return b
 }
 
-// SetContentf sets content of the Message
+// SetContentf sets the content of the Message but with format
 func (b *MessageCreateBuilder) SetContentf(content string, a ...interface{}) *MessageCreateBuilder {
 	return b.SetContent(fmt.Sprintf(content, a...))
 }
 
-// SetTTS sets the text to speech of the Message
+// SetTTS sets whether the Message should be text to speech
 func (b *MessageCreateBuilder) SetTTS(tts bool) *MessageCreateBuilder {
 	b.TTS = tts
 	return b
@@ -111,16 +111,19 @@ func (b *MessageCreateBuilder) ClearContainerComponents() *MessageCreateBuilder 
 	return b
 }
 
+// AddStickers adds provided stickers to the Message
 func (b *MessageCreateBuilder) AddStickers(stickerIds ...Snowflake) *MessageCreateBuilder {
 	b.StickerIDs = append(b.StickerIDs, stickerIds...)
 	return b
 }
 
+// SetStickers sets the stickers of the Message
 func (b *MessageCreateBuilder) SetStickers(stickerIds ...Snowflake) *MessageCreateBuilder {
 	b.StickerIDs = stickerIds
 	return b
 }
 
+// ClearStickers removes all Sticker(s) from the Message
 func (b *MessageCreateBuilder) ClearStickers() *MessageCreateBuilder {
 	b.StickerIDs = []Snowflake{}
 	return b
@@ -172,7 +175,7 @@ func (b *MessageCreateBuilder) SetAllowedMentions(allowedMentions *AllowedMentio
 	return b
 }
 
-// ClearAllowedMentions clears the allowed mentions of the Message
+// ClearAllowedMentions clears the discord.AllowedMentions of the Message
 func (b *MessageCreateBuilder) ClearAllowedMentions() *MessageCreateBuilder {
 	return b.SetAllowedMentions(nil)
 }
@@ -210,12 +213,12 @@ func (b *MessageCreateBuilder) RemoveFlags(flags ...MessageFlags) *MessageCreate
 	return b
 }
 
-// ClearFlags clears the MessageFlags of the Message
+// ClearFlags clears the discord.MessageFlags of the Message
 func (b *MessageCreateBuilder) ClearFlags() *MessageCreateBuilder {
 	return b.SetFlags(MessageFlagNone)
 }
 
-// SetEphemeral adds/removes MessageFlagEphemeral to the Message flags
+// SetEphemeral adds/removes discord.MessageFlagEphemeral to the Message flags
 func (b *MessageCreateBuilder) SetEphemeral(ephemeral bool) *MessageCreateBuilder {
 	if ephemeral {
 		b.Flags = b.Flags.Add(MessageFlagEphemeral)

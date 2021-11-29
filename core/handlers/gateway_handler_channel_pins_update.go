@@ -6,10 +6,10 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// gatewayHandlerChannelPinsUpdate handles core.GatewayEventChannelUpdate
+// gatewayHandlerChannelPinsUpdate handles discord.GatewayEventTypeChannelPinsUpdate
 type gatewayHandlerChannelPinsUpdate struct{}
 
-// EventType returns the core.GatewayGatewayEventType
+// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerChannelPinsUpdate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeChannelPinsUpdate
 }

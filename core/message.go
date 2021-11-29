@@ -24,7 +24,8 @@ func (m *Message) CreateThread(threadCreateWithMessage discord.ThreadCreateWithM
 	return m.Bot.EntityBuilder.CreateChannel(channel.(discord.Channel), CacheStrategyNo).(GuildThread), nil
 }
 
-// Guild gets the guild_events the message_events was sent in
+// Guild returns the Guild this Message was sent in.
+// This will only check cached guilds!
 func (m *Message) Guild() *Guild {
 	if m.GuildID == nil {
 		return nil
@@ -60,7 +61,7 @@ func (m *Message) Update(messageUpdate discord.MessageUpdate, opts ...rest.Reque
 	return m.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-// Delete allows you to edit an existing Message sent by you
+// Delete deletes this Message
 func (m *Message) Delete(opts ...rest.RequestOpt) error {
 	return m.Bot.RestServices.ChannelService().DeleteMessage(m.ChannelID, m.ID, opts...)
 }
@@ -78,7 +79,7 @@ func (m *Message) Crosspost(opts ...rest.RequestOpt) (*Message, error) {
 	return m.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-// Reply allows you to reply to an existing Message
+// Reply replies to this Message
 func (m *Message) Reply(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
 	messageCreate.MessageReference = &discord.MessageReference{MessageID: &m.ID}
 	message, err := m.Bot.RestServices.ChannelService().CreateMessage(m.ChannelID, messageCreate, opts...)

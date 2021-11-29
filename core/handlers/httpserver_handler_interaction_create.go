@@ -7,15 +7,12 @@ import (
 
 var _ core.HTTPServerEventHandler = (*httpserverHandlerInteractionCreate)(nil)
 
-// httpserverHandlerInteractionCreate handles core.InteractionCreateWebhookEvent
 type httpserverHandlerInteractionCreate struct{}
 
-// New constructs a new payload receiver for the raw gateway event
 func (h *httpserverHandlerInteractionCreate) New() interface{} {
 	return &discord.UnmarshalInteraction{}
 }
 
-// HandleHTTPEvent handles the specific raw gateway event
 func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(bot *core.Bot, c chan<- discord.InteractionResponse, v interface{}) {
 	interaction := (*v.(*discord.UnmarshalInteraction)).Interaction
 

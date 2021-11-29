@@ -10,7 +10,7 @@ type AudioController interface {
 	// Bot returns the core.Bot instance
 	Bot() *Bot
 
-	// Connect sends a discord.GatewayCommand to connect to a Channel
+	// Connect sends a discord.GatewayCommand to connect to the specified Channel
 	Connect(guildID discord.Snowflake, channelID discord.Snowflake) error
 
 	// Disconnect sends a discord.GatewayCommand to disconnect from a Channel

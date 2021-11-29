@@ -5,7 +5,7 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-// GenericDMMessageEvent is called upon receiving DMMessageCreateEvent, DMMessageUpdateEvent, DMMessageDeleteEvent, GenericDMMessageReactionEvent, DMMessageReactionAddEvent, DMMessageReactionRemoveEvent, DMMessageReactionRemoveEmojiEvent or DMMessageReactionRemoveAllEvent(requires core.GatewayIntentsDirectMessages)
+// GenericDMMessageEvent is called upon receiving DMMessageCreateEvent, DMMessageUpdateEvent, DMMessageDeleteEvent, GenericDMMessageReactionEvent, DMMessageReactionAddEvent, DMMessageReactionRemoveEvent, DMMessageReactionRemoveEmojiEvent or DMMessageReactionRemoveAllEvent (requires discord.GatewayIntentsDirectMessage)
 type GenericDMMessageEvent struct {
 	*GenericEvent
 	MessageID discord.Snowflake
@@ -13,7 +13,7 @@ type GenericDMMessageEvent struct {
 	ChannelID discord.Snowflake
 }
 
-// Channel returns the core.DMChannel where the GenericDMMessageEvent happened
+// Channel returns the Channel the GenericDMMessageEvent happened in
 func (e GenericDMMessageEvent) Channel() *core.DMChannel {
 	if ch := e.Bot().Caches.Channels().Get(e.ChannelID); ch != nil {
 		return ch.(*core.DMChannel)
@@ -21,18 +21,18 @@ func (e GenericDMMessageEvent) Channel() *core.DMChannel {
 	return nil
 }
 
-// DMMessageCreateEvent is called upon receiving an core.Message in an core.DMChannel(requires core.GatewayIntentsDirectMessages)
+// DMMessageCreateEvent is called upon receiving a core.Message in a Channel (requires discord.GatewayIntentsDirectMessage)
 type DMMessageCreateEvent struct {
 	*GenericDMMessageEvent
 }
 
-// DMMessageUpdateEvent is called upon editing an core.Message in an core.DMChannel(requires core.GatewayIntentsDirectMessages)
+// DMMessageUpdateEvent is called upon editing a core.Message in a Channel (requires discord.GatewayIntentsDirectMessage)
 type DMMessageUpdateEvent struct {
 	*GenericDMMessageEvent
 	OldMessage *core.Message
 }
 
-// DMMessageDeleteEvent is called upon deleting an core.Message in an core.DMChannel(requires core.GatewayIntentsDirectMessages)
+// DMMessageDeleteEvent is called upon deleting a core.Message in a Channel (requires discord.GatewayIntentsDirectMessage)
 type DMMessageDeleteEvent struct {
 	*GenericDMMessageEvent
 }

@@ -10,7 +10,7 @@ import (
 // gatewayHandlerGuildStickersUpdate handles discord.GatewayEventTypeGuildStickersUpdate
 type gatewayHandlerGuildStickersUpdate struct{}
 
-// EventType returns the core.GatewayGatewayEventType
+// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerGuildStickersUpdate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildStickersUpdate
 }
