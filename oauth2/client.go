@@ -54,13 +54,22 @@ type Client struct {
 }
 
 // GenerateAuthorizationURL generates an authorization URL with the given redirect URI & scopes, state is automatically generated
-func (c *Client) GenerateAuthorizationURL(redirectURI string, scopes ...discord.ApplicationScope) string {
+func (c *Client) GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID discord.Snowflake, disableGuildSelect bool, scopes ...discord.ApplicationScope) string {
 	values := route.QueryValues{
 		"client_id":     c.ID,
 		"redirect_uri":  redirectURI,
 		"response_type": "code",
 		"scope":         discord.JoinScopes(scopes),
 		"state":         c.StateController.GenerateNewState(redirectURI),
+	}
+	if permissions != discord.PermissionsNone {
+		values["permissions"] = permissions
+	}
+	if guildID != "" {
+		values["guild_id"] = guildID
+	}
+	if disableGuildSelect {
+		values["disable_guild_select"] = true
 	}
 	compiledRoute, _ := route.Authorize.Compile(values)
 	return compiledRoute.URL()

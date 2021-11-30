@@ -19,7 +19,7 @@ var (
 var (
 	GetBotApplicationInfo = NewAPIRoute(GET, "/oauth2/applications/@me")
 	GetAuthorizationInfo  = NewAPIRoute(GET, "/oauth2/@me")
-	Authorize             = NewRoute("/oauth2/authorize", "client_id", "redirect_uri", "response_type", "scope", "state")
+	Authorize             = NewRoute("/oauth2/authorize", "client_id", "permissions", "redirect_uri", "response_type", "scope", "state", "guild_id", "disable_guild_select")
 	Token                 = NewAPIRoute(POST, "/oauth2/token")
 )
 
