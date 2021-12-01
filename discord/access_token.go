@@ -21,7 +21,7 @@ func (e *AccessTokenExchange) UnmarshalJSON(data []byte) error {
 		ExpiresIn int64 `json:"expires_in"`
 		accessTokenExchange
 	}
-	if err := json.Unmarshal(data, v); err != nil {
+	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
 
