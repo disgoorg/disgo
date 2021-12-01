@@ -18,8 +18,7 @@ type AccessTokenExchange struct {
 func (e *AccessTokenExchange) UnmarshalJSON(data []byte) error {
 	type accessTokenExchange AccessTokenExchange
 	var v struct {
-		Webhook   *UnmarshalWebhook `json:"webhook"`
-		ExpiresIn int64             `json:"expires_in"`
+		ExpiresIn int64 `json:"expires_in"`
 		accessTokenExchange
 	}
 	if err := json.Unmarshal(data, v); err != nil {
@@ -28,10 +27,6 @@ func (e *AccessTokenExchange) UnmarshalJSON(data []byte) error {
 
 	*e = AccessTokenExchange(v.accessTokenExchange)
 	e.ExpiresIn = time.Duration(v.ExpiresIn) * time.Second
-	if v.Webhook != nil {
-		webhook := v.Webhook.Webhook.(IncomingWebhook)
-		e.Webhook = &webhook
-	}
 	return nil
 }
 
