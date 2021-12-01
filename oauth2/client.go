@@ -40,7 +40,7 @@ func New(id discord.Snowflake, secret string, opts ...ConfigOpt) *Client {
 		config.SessionController = NewSessionController()
 	}
 	if config.StateController == nil {
-		config.StateController = NewStateController()
+		config.StateController = NewStateController(config.StateControllerConfig)
 	}
 
 	return &Client{ID: id, Secret: secret, Config: *config}
@@ -53,26 +53,42 @@ type Client struct {
 	Config
 }
 
-// GenerateAuthorizationURL generates an authorization URL with the given redirect URI & scopes, state is automatically generated
-func (c *Client) GenerateAuthorizationURL(redirectURI string, scopes ...discord.ApplicationScope) string {
+// GenerateAuthorizationURL generates an authorization URL with the given redirect URI, permissions, guildID, disableGuildSelect & scopes, state is automatically generated
+func (c *Client) GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID discord.Snowflake, disableGuildSelect bool, scopes ...discord.ApplicationScope) string {
+	url, _ := c.GenerateAuthorizationURLState(redirectURI, permissions, guildID, disableGuildSelect, scopes...)
+	return url
+}
+
+// GenerateAuthorizationURLState generates an authorization URL with the given redirect URI, permissions, guildID, disableGuildSelect & scopes, state is automatically generated & returned
+func (c *Client) GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID discord.Snowflake, disableGuildSelect bool, scopes ...discord.ApplicationScope) (string, string) {
+	state := c.StateController.GenerateNewState(redirectURI)
 	values := route.QueryValues{
 		"client_id":     c.ID,
 		"redirect_uri":  redirectURI,
 		"response_type": "code",
 		"scope":         discord.JoinScopes(scopes),
-		"state":         c.StateController.GenerateNewState(redirectURI),
+		"state":         state,
+	}
+	if permissions != discord.PermissionsNone {
+		values["permissions"] = permissions
+	}
+	if guildID != "" {
+		values["guild_id"] = guildID
+	}
+	if disableGuildSelect {
+		values["disable_guild_select"] = true
 	}
 	compiledRoute, _ := route.Authorize.Compile(values)
-	return compiledRoute.URL()
+	return compiledRoute.URL(), state
 }
 
 // StartSession starts a new session with the given authorization code & state
 func (c *Client) StartSession(code string, state string, identifier string, opts ...rest.RequestOpt) (Session, error) {
 	redirectURI := c.StateController.ConsumeState(state)
-	if redirectURI == nil {
+	if redirectURI == "" {
 		return nil, ErrStateNotFound
 	}
-	exchange, err := c.OAuth2Service.GetAccessToken(c.ID, c.Secret, code, *redirectURI, opts...)
+	exchange, err := c.OAuth2Service.GetAccessToken(c.ID, c.Secret, code, redirectURI, opts...)
 	if err != nil {
 		return nil, err
 	}

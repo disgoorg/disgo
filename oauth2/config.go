@@ -12,12 +12,13 @@ var DefaultConfig = Config{
 
 // Config is the configuration for the OAuth2 client
 type Config struct {
-	Logger            log.Logger
-	RestClient        rest.Client
-	RestClientConfig  *rest.Config
-	OAuth2Service     rest.OAuth2Service
-	SessionController SessionController
-	StateController   StateController
+	Logger                log.Logger
+	RestClient            rest.Client
+	RestClientConfig      *rest.Config
+	OAuth2Service         rest.OAuth2Service
+	SessionController     SessionController
+	StateControllerConfig *StateControllerConfig
+	StateController       StateController
 }
 
 // ConfigOpt can be used to supply optional parameters to New
@@ -86,5 +87,24 @@ func WithSessionController(sessionController SessionController) ConfigOpt {
 func WithStateController(stateController StateController) ConfigOpt {
 	return func(config *Config) {
 		config.StateController = stateController
+	}
+}
+
+// WithStateControllerConfig applies a custom StateControllerConfig to the SessionController
+//goland:noinspection GoUnusedExportedFunction
+func WithStateControllerConfig(stateControllerConfig StateControllerConfig) ConfigOpt {
+	return func(config *Config) {
+		config.StateControllerConfig = &stateControllerConfig
+	}
+}
+
+// WithStateControllerOpts applies all StateControllerConfigOpt(s) to the StateController
+//goland:noinspection GoUnusedExportedFunction
+func WithStateControllerOpts(opts ...StateControllerConfigOpt) ConfigOpt {
+	return func(config *Config) {
+		if config.StateControllerConfig == nil {
+			config.StateControllerConfig = &DefaultStateControllerConfig
+		}
+		config.StateControllerConfig.Apply(opts)
 	}
 }
