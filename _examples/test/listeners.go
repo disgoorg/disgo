@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"strconv"
 	"time"
@@ -165,6 +166,9 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 	}
 
 	switch event.Message.Content {
+	case "gopher":
+		_, _ = event.Message.Reply(discord.NewMessageCreateBuilder().SetContent("gopher").AddFile("gopher.png", bytes.NewBuffer(gopher)).AddFile("gopher.png", bytes.NewBuffer(gopher)).Build())
+
 	case "panic":
 		panic("panic in the disco")
 

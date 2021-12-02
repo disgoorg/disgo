@@ -1,6 +1,8 @@
 package core
 
 import (
+	"context"
+
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/route"
@@ -94,7 +96,7 @@ type GuildAudioChannel interface {
 	discord.GuildAudioChannel
 	GuildChannel
 
-	Connect() error
+	Connect(ctx context.Context) error
 	connectedMembers() map[discord.Snowflake]struct{}
 }
 
@@ -491,8 +493,8 @@ func (c *GuildVoiceChannel) Parent() *GuildCategoryChannel {
 	return c.Bot.Caches.Channels().Get(*c.ParentID).(*GuildCategoryChannel)
 }
 
-func (c *GuildVoiceChannel) Connect() error {
-	return c.Bot.AudioController.Connect(c.GuildID(), c.ID())
+func (c *GuildVoiceChannel) Connect(ctx context.Context) error {
+	return c.Bot.AudioController.Connect(ctx, c.GuildID(), c.ID())
 }
 
 func (c *GuildVoiceChannel) Members() []*Member {
@@ -1601,8 +1603,8 @@ func (c *GuildStageVoiceChannel) Parent() *GuildCategoryChannel {
 	return c.Bot.Caches.Channels().Get(*c.ParentID).(*GuildCategoryChannel)
 }
 
-func (c *GuildStageVoiceChannel) Connect() error {
-	return c.Bot.AudioController.Connect(c.GuildID(), c.ID())
+func (c *GuildStageVoiceChannel) Connect(ctx context.Context) error {
+	return c.Bot.AudioController.Connect(ctx, c.GuildID(), c.ID())
 }
 
 func (c *GuildStageVoiceChannel) Members() []*Member {
