@@ -148,11 +148,7 @@ func (g *gatewayImpl) Status() Status {
 	return g.status
 }
 
-func (g *gatewayImpl) Send(command discord.GatewayCommand) error {
-	return g.SendCtx(context.Background(), command)
-}
-
-func (g *gatewayImpl) SendCtx(ctx context.Context, command discord.GatewayCommand) error {
+func (g *gatewayImpl) Send(ctx context.Context, command discord.GatewayCommand) error {
 	if g.conn == nil {
 		return discord.ErrShardNotConnected
 	}
@@ -236,7 +232,7 @@ func (g *gatewayImpl) heartbeat() {
 func (g *gatewayImpl) sendHeartbeat() {
 	g.Logger().Debugf(g.formatLogs("sending heartbeat..."))
 
-	if err := g.Send(discord.NewGatewayCommand(discord.GatewayOpcodeHeartbeat, g.lastSequenceReceived)); err != nil {
+	if err := g.Send(context.TODO(), discord.NewGatewayCommand(discord.GatewayOpcodeHeartbeat, g.lastSequenceReceived)); err != nil {
 		g.Logger().Error(g.formatLogs("failed to send heartbeat with error: ", err))
 		_ = g.closeWithCode(context.TODO(), websocket.CloseServiceRestart)
 		g.reconnect(context.TODO(), 1*time.Second)
@@ -299,7 +295,7 @@ func (g *gatewayImpl) listen() {
 					identify.Shard = []int{g.shardID, g.shardCount}
 				}
 
-				if err = g.Send(discord.NewGatewayCommand(discord.GatewayOpcodeIdentify, identify)); err != nil {
+				if err = g.Send(context.TODO(), discord.NewGatewayCommand(discord.GatewayOpcodeIdentify, identify)); err != nil {
 					g.Logger().Error(g.formatLogs("error sending identify payload. error: ", err))
 				}
 				g.status = StatusWaitingForReady
@@ -312,7 +308,7 @@ func (g *gatewayImpl) listen() {
 				})
 				g.Logger().Info(g.formatLogs("sending StatusResuming command..."))
 
-				if err = g.Send(cmd); err != nil {
+				if err = g.Send(context.TODO(), cmd); err != nil {
 					g.Logger().Error(g.formatLogs("error sending resume payload. error: ", err))
 				}
 			}
