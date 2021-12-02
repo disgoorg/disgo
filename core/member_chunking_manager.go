@@ -140,7 +140,7 @@ func (m *memberChunkingManagerImpl) requestGuildMembersChan(ctx context.Context,
 
 	return memberChan, func() {
 		cleanupRequest(m, request)
-	}, shard.SendCtx(ctx, discord.NewGatewayCommand(discord.GatewayOpcodeRequestGuildMembers, command))
+	}, shard.Send(ctx, discord.NewGatewayCommand(discord.GatewayOpcodeRequestGuildMembers, command))
 }
 
 func (m *memberChunkingManagerImpl) requestGuildMembers(ctx context.Context, guildID discord.Snowflake, query *string, limit *int, userIDs []discord.Snowflake, memberFilterFunc func(member *Member) bool) ([]*Member, error) {
