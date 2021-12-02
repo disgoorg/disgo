@@ -39,7 +39,7 @@ func (s *userServiceImpl) GetUser(userID discord.Snowflake, opts ...RequestOpt) 
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &user, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &user, opts...)
 	return
 }
 
@@ -49,7 +49,7 @@ func (s *userServiceImpl) GetSelfUser(opts ...RequestOpt) (selfUser *discord.OAu
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &selfUser, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &selfUser, opts...)
 	return
 }
 
@@ -60,7 +60,7 @@ func (s *userServiceImpl) UpdateSelfUser(updateSelfUser discord.SelfUserUpdate, 
 		return
 	}
 	var user *discord.User
-	err = s.restClient.Do(compiledRoute, updateSelfUser, &user, opts...)
+	err = s.restClient.DoBot(compiledRoute, updateSelfUser, &user, opts...)
 	return
 }
 
@@ -81,7 +81,7 @@ func (s *userServiceImpl) GetGuilds(before int, after int, limit int, opts ...Re
 		return
 	}
 
-	err = s.restClient.Do(compiledRoute, nil, &guilds, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &guilds, opts...)
 	return
 }
 
@@ -90,7 +90,7 @@ func (s *userServiceImpl) LeaveGuild(guildID discord.Snowflake, opts ...RequestO
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
 }
 
 func (s *userServiceImpl) GetDMChannels(opts ...RequestOpt) (channels []discord.Channel, err error) {
@@ -100,7 +100,7 @@ func (s *userServiceImpl) GetDMChannels(opts ...RequestOpt) (channels []discord.
 		return
 	}
 
-	err = s.restClient.Do(compiledRoute, nil, &channels, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &channels, opts...)
 	return
 }
 
@@ -111,6 +111,6 @@ func (s *userServiceImpl) CreateDMChannel(userID discord.Snowflake, opts ...Requ
 		return
 	}
 
-	err = s.restClient.Do(compiledRoute, discord.DMChannelCreate{RecipientID: userID}, &channel, opts...)
+	err = s.restClient.DoBot(compiledRoute, discord.DMChannelCreate{RecipientID: userID}, &channel, opts...)
 	return
 }

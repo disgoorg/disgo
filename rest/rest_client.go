@@ -58,8 +58,14 @@ type Client interface {
 	// Close closes the rest client and awaits all pending requests to finish. You can use a cancelling context to abort the waiting
 	Close(ctx context.Context) error
 
-	// Do makes a request to the given route and marshals the given interface{} as json and unmarshalls the response into the given interface
+	// Do makes a request to the given route.CompiledAPIRoute and marshals the given interface{} as json and unmarshalls the response into the given interface
 	Do(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) error
+
+	// DoBot calls Do but applies the bot token to the request
+	DoBot(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) error
+
+	// DoBearer calls Do but applies the bearer token to the request
+	DoBearer(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, bearerToken string, opts ...RequestOpt) error
 }
 
 type clientImpl struct {
@@ -121,14 +127,6 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 		return err
 	}
 
-	// write all headers to the request
-	if headers := c.Config().Headers; headers != nil {
-		for key, values := range headers {
-			for _, value := range values {
-				rq.Header.Add(key, value)
-			}
-		}
-	}
 	rq.Header.Set("User-Agent", c.Config().UserAgent)
 	if contentType != "" {
 		rq.Header.Set("Content-Type", contentType)
@@ -208,4 +206,24 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 
 func (c *clientImpl) Do(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) error {
 	return c.retry(cRoute, rqBody, rsBody, 1, opts)
+}
+
+func (c *clientImpl) DoBot(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) error {
+	return c.Do(cRoute, rqBody, rsBody, applyBotToken(c, opts)...)
+}
+
+func (c *clientImpl) DoBearer(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, bearerToken string, opts ...RequestOpt) error {
+	return c.Do(cRoute, rqBody, rsBody, applyBearerToken(bearerToken, opts)...)
+}
+
+func applyToken(tokenType discord.TokenType, token string, opts []RequestOpt) []RequestOpt {
+	return append(opts, WithHeader("authorization", tokenType.Apply(token)))
+}
+
+func applyBotToken(client Client, opts []RequestOpt) []RequestOpt {
+	return applyToken(discord.TokenTypeBot, client.Config().BotTokenFunc(), opts)
+}
+
+func applyBearerToken(bearerToken string, opts []RequestOpt) []RequestOpt {
+	return applyToken(discord.TokenTypeBearer, bearerToken, opts)
 }

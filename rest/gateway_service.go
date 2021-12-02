@@ -44,6 +44,6 @@ func (s *gatewayServiceImpl) GetGatewayBot(opts ...RequestOpt) (gatewayBot *disc
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &gatewayBot, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &gatewayBot, opts...)
 	return
 }

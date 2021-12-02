@@ -39,7 +39,7 @@ func (s *guildTemplateServiceImpl) GetGuildTemplate(templateCode string, opts ..
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &guildTemplate, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &guildTemplate, opts...)
 	return
 }
 
@@ -49,7 +49,7 @@ func (s *guildTemplateServiceImpl) GetGuildTemplates(guildID discord.Snowflake, 
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &guildTemplates, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &guildTemplates, opts...)
 	return
 }
 
@@ -59,7 +59,7 @@ func (s *guildTemplateServiceImpl) CreateGuildTemplate(guildID discord.Snowflake
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, guildTemplateCreate, &guildTemplate, opts...)
+	err = s.restClient.DoBot(compiledRoute, guildTemplateCreate, &guildTemplate, opts...)
 	return
 }
 
@@ -69,7 +69,7 @@ func (s *guildTemplateServiceImpl) CreateGuildFromTemplate(templateCode string, 
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, createGuildFromTemplate, &guild, opts...)
+	err = s.restClient.DoBot(compiledRoute, createGuildFromTemplate, &guild, opts...)
 	return
 }
 
@@ -79,7 +79,7 @@ func (s *guildTemplateServiceImpl) SyncGuildTemplate(guildID discord.Snowflake, 
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &guildTemplate, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &guildTemplate, opts...)
 	return
 }
 
@@ -89,7 +89,7 @@ func (s *guildTemplateServiceImpl) UpdateGuildTemplate(guildID discord.Snowflake
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, guildTemplateUpdate, &guildTemplate, opts...)
+	err = s.restClient.DoBot(compiledRoute, guildTemplateUpdate, &guildTemplate, opts...)
 	return
 }
 
@@ -99,6 +99,6 @@ func (s *guildTemplateServiceImpl) DeleteGuildTemplate(guildID discord.Snowflake
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &guildTemplate, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &guildTemplate, opts...)
 	return
 }

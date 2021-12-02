@@ -51,7 +51,7 @@ func (s *applicationServiceImpl) GetGlobalCommands(applicationID discord.Snowfla
 		return
 	}
 	var unmarshalCommands []discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, nil, &unmarshalCommands, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &unmarshalCommands, opts...)
 	if err == nil {
 		commands = unmarshalApplicationCommandsToApplicationCommands(unmarshalCommands)
 	}
@@ -65,7 +65,7 @@ func (s *applicationServiceImpl) GetGlobalCommand(applicationID discord.Snowflak
 		return
 	}
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, nil, &command, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &command, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -79,7 +79,7 @@ func (s *applicationServiceImpl) CreateGlobalCommand(applicationID discord.Snowf
 		return
 	}
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, commandCreate, &command, opts...)
+	err = s.restClient.DoBot(compiledRoute, commandCreate, &command, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -93,7 +93,7 @@ func (s *applicationServiceImpl) SetGlobalCommands(applicationID discord.Snowfla
 		return
 	}
 	var unmarshalCommands []discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, commandCreates, &unmarshalCommands, opts...)
+	err = s.restClient.DoBot(compiledRoute, commandCreates, &unmarshalCommands, opts...)
 	if err == nil {
 		commands = unmarshalApplicationCommandsToApplicationCommands(unmarshalCommands)
 	}
@@ -107,7 +107,7 @@ func (s *applicationServiceImpl) UpdateGlobalCommand(applicationID discord.Snowf
 		return
 	}
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, commandUpdate, &unmarshalCommand, opts...)
+	err = s.restClient.DoBot(compiledRoute, commandUpdate, &unmarshalCommand, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -119,7 +119,7 @@ func (s *applicationServiceImpl) DeleteGlobalCommand(applicationID discord.Snowf
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
 }
 
 func (s *applicationServiceImpl) GetGuildCommands(applicationID discord.Snowflake, guildID discord.Snowflake, opts ...RequestOpt) (commands []discord.ApplicationCommand, err error) {
@@ -129,7 +129,7 @@ func (s *applicationServiceImpl) GetGuildCommands(applicationID discord.Snowflak
 		return
 	}
 	var unmarshalCommands []discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, nil, &unmarshalCommands, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &unmarshalCommands, opts...)
 	if err == nil {
 		commands = unmarshalApplicationCommandsToApplicationCommands(unmarshalCommands)
 	}
@@ -143,7 +143,7 @@ func (s *applicationServiceImpl) GetGuildCommand(applicationID discord.Snowflake
 		return
 	}
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, nil, &unmarshalCommand, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &unmarshalCommand, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -157,7 +157,7 @@ func (s *applicationServiceImpl) CreateGuildCommand(applicationID discord.Snowfl
 		return
 	}
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, commandCreate, &unmarshalCommand, opts...)
+	err = s.restClient.DoBot(compiledRoute, commandCreate, &unmarshalCommand, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -171,7 +171,7 @@ func (s *applicationServiceImpl) SetGuildCommands(applicationID discord.Snowflak
 		return
 	}
 	var unmarshalCommands []discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, commandCreates, &unmarshalCommands, opts...)
+	err = s.restClient.DoBot(compiledRoute, commandCreates, &unmarshalCommands, opts...)
 	if err == nil {
 		commands = unmarshalApplicationCommandsToApplicationCommands(unmarshalCommands)
 	}
@@ -185,7 +185,7 @@ func (s *applicationServiceImpl) UpdateGuildCommand(applicationID discord.Snowfl
 		return
 	}
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, commandUpdate, &unmarshalCommand, opts...)
+	err = s.restClient.DoBot(compiledRoute, commandUpdate, &unmarshalCommand, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -197,7 +197,7 @@ func (s *applicationServiceImpl) DeleteGuildCommand(applicationID discord.Snowfl
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
 }
 
 func (s *applicationServiceImpl) GetGuildCommandsPermissions(applicationID discord.Snowflake, guildID discord.Snowflake, opts ...RequestOpt) (commandsPerms []discord.ApplicationCommandPermissions, err error) {
@@ -206,7 +206,7 @@ func (s *applicationServiceImpl) GetGuildCommandsPermissions(applicationID disco
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &commandsPerms, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &commandsPerms, opts...)
 	return
 }
 
@@ -216,7 +216,7 @@ func (s *applicationServiceImpl) GetGuildCommandPermissions(applicationID discor
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &commandPerms, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &commandPerms, opts...)
 	return
 }
 
@@ -226,7 +226,7 @@ func (s *applicationServiceImpl) SetGuildCommandsPermissions(applicationID disco
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, commandPermissions, &commandsPerms, opts...)
+	err = s.restClient.DoBot(compiledRoute, commandPermissions, &commandsPerms, opts...)
 	return
 }
 
@@ -236,7 +236,7 @@ func (s *applicationServiceImpl) SetGuildCommandPermissions(applicationID discor
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, commandPermissions, &commandPerms, opts...)
+	err = s.restClient.DoBot(compiledRoute, commandPermissions, &commandPerms, opts...)
 	return
 }
 

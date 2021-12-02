@@ -66,7 +66,7 @@ func (s *channelServiceImpl) GetChannel(channelID discord.Snowflake, opts ...Req
 		return
 	}
 	var ch discord.UnmarshalChannel
-	err = s.restClient.Do(compiledRoute, nil, &ch, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &ch, opts...)
 	if err == nil {
 		channel = ch.Channel
 	}
@@ -80,7 +80,7 @@ func (s *channelServiceImpl) UpdateChannel(channelID discord.Snowflake, channelU
 		return
 	}
 	var ch discord.UnmarshalChannel
-	err = s.restClient.Do(compiledRoute, channelUpdate, &ch, opts...)
+	err = s.restClient.DoBot(compiledRoute, channelUpdate, &ch, opts...)
 	if err == nil {
 		channel = ch.Channel
 	}
@@ -92,7 +92,7 @@ func (s *channelServiceImpl) DeleteChannel(channelID discord.Snowflake, opts ...
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
 }
 
 func (s *channelServiceImpl) GetWebhooks(channelID discord.Snowflake, opts ...RequestOpt) (webhooks []discord.Webhook, err error) {
@@ -101,7 +101,7 @@ func (s *channelServiceImpl) GetWebhooks(channelID discord.Snowflake, opts ...Re
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &webhooks, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &webhooks, opts...)
 	return
 }
 
@@ -113,7 +113,7 @@ func (s *channelServiceImpl) CreateWebhook(channelID discord.Snowflake, webhookC
 	}
 
 	var unmarshalWebhook discord.UnmarshalWebhook
-	err = s.restClient.Do(compiledRoute, webhookCreate, &unmarshalWebhook, opts...)
+	err = s.restClient.DoBot(compiledRoute, webhookCreate, &unmarshalWebhook, opts...)
 	if err == nil {
 		webhook = unmarshalWebhook.Webhook
 	}
@@ -126,7 +126,7 @@ func (s *channelServiceImpl) GetPermissionOverwrites(channelID discord.Snowflake
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &overwrites, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &overwrites, opts...)
 	return
 }
 
@@ -136,7 +136,7 @@ func (s *channelServiceImpl) GetPermissionOverwrite(channelID discord.Snowflake,
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &overwrite, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &overwrite, opts...)
 	return
 }
 
@@ -145,7 +145,7 @@ func (s *channelServiceImpl) UpdatePermissionOverwrite(channelID discord.Snowfla
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, permissionOverwrite, nil, opts...)
+	return s.restClient.DoBot(compiledRoute, permissionOverwrite, nil, opts...)
 }
 
 func (s *channelServiceImpl) DeletePermissionOverwrite(channelID discord.Snowflake, overwriteID discord.Snowflake, opts ...RequestOpt) error {
@@ -153,7 +153,7 @@ func (s *channelServiceImpl) DeletePermissionOverwrite(channelID discord.Snowfla
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
 }
 
 func (s *channelServiceImpl) SendTyping(channelID discord.Snowflake, opts ...RequestOpt) error {
@@ -161,7 +161,7 @@ func (s *channelServiceImpl) SendTyping(channelID discord.Snowflake, opts ...Req
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
 }
 
 func (s *channelServiceImpl) GetMessage(channelID discord.Snowflake, messageID discord.Snowflake, opts ...RequestOpt) (message *discord.Message, err error) {
@@ -170,7 +170,7 @@ func (s *channelServiceImpl) GetMessage(channelID discord.Snowflake, messageID d
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &message, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &message, opts...)
 	return
 }
 
@@ -193,7 +193,7 @@ func (s *channelServiceImpl) GetMessages(channelID discord.Snowflake, around dis
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &messages, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &messages, opts...)
 	return
 }
 
@@ -207,7 +207,7 @@ func (s *channelServiceImpl) CreateMessage(channelID discord.Snowflake, messageC
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, body, &message, opts...)
+	err = s.restClient.DoBot(compiledRoute, body, &message, opts...)
 	return
 }
 
@@ -221,7 +221,7 @@ func (s *channelServiceImpl) UpdateMessage(channelID discord.Snowflake, messageI
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, body, &message, opts...)
+	err = s.restClient.DoBot(compiledRoute, body, &message, opts...)
 	return
 }
 
@@ -230,7 +230,7 @@ func (s *channelServiceImpl) DeleteMessage(channelID discord.Snowflake, messageI
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
 }
 
 func (s *channelServiceImpl) BulkDeleteMessages(channelID discord.Snowflake, messageIDs []discord.Snowflake, opts ...RequestOpt) error {
@@ -238,7 +238,7 @@ func (s *channelServiceImpl) BulkDeleteMessages(channelID discord.Snowflake, mes
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, discord.MessageBulkDelete{Messages: messageIDs}, nil, opts...)
+	return s.restClient.DoBot(compiledRoute, discord.MessageBulkDelete{Messages: messageIDs}, nil, opts...)
 }
 
 func (s *channelServiceImpl) CrosspostMessage(channelID discord.Snowflake, messageID discord.Snowflake, opts ...RequestOpt) (message *discord.Message, err error) {
@@ -247,7 +247,7 @@ func (s *channelServiceImpl) CrosspostMessage(channelID discord.Snowflake, messa
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &message, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &message, opts...)
 	return
 }
 
@@ -257,7 +257,7 @@ func (s *channelServiceImpl) GetReactions(channelID discord.Snowflake, messageID
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &users, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &users, opts...)
 	return
 }
 
@@ -266,7 +266,7 @@ func (s *channelServiceImpl) AddReaction(channelID discord.Snowflake, messageID 
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
 }
 
 func (s *channelServiceImpl) RemoveOwnReaction(channelID discord.Snowflake, messageID discord.Snowflake, emoji string, opts ...RequestOpt) error {
@@ -274,7 +274,7 @@ func (s *channelServiceImpl) RemoveOwnReaction(channelID discord.Snowflake, mess
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
 }
 
 func (s *channelServiceImpl) RemoveUserReaction(channelID discord.Snowflake, messageID discord.Snowflake, emoji string, userID discord.Snowflake, opts ...RequestOpt) error {
@@ -282,7 +282,7 @@ func (s *channelServiceImpl) RemoveUserReaction(channelID discord.Snowflake, mes
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
 }
 
 func (s *channelServiceImpl) RemoveAllReactions(channelID discord.Snowflake, messageID discord.Snowflake, opts ...RequestOpt) error {
@@ -290,7 +290,7 @@ func (s *channelServiceImpl) RemoveAllReactions(channelID discord.Snowflake, mes
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
 }
 
 func (s *channelServiceImpl) RemoveAllReactionsForEmoji(channelID discord.Snowflake, messageID discord.Snowflake, emoji string, opts ...RequestOpt) error {
@@ -298,7 +298,7 @@ func (s *channelServiceImpl) RemoveAllReactionsForEmoji(channelID discord.Snowfl
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
 }
 
 func (s *channelServiceImpl) GetPinnedMessages(channelID discord.Snowflake, opts ...RequestOpt) (messages []discord.Message, err error) {
@@ -307,7 +307,7 @@ func (s *channelServiceImpl) GetPinnedMessages(channelID discord.Snowflake, opts
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &messages, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &messages, opts...)
 	return
 }
 
@@ -316,7 +316,7 @@ func (s *channelServiceImpl) PinMessage(channelID discord.Snowflake, messageID d
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
 }
 
 func (s *channelServiceImpl) UnpinMessage(channelID discord.Snowflake, messageID discord.Snowflake, opts ...RequestOpt) error {
@@ -324,5 +324,5 @@ func (s *channelServiceImpl) UnpinMessage(channelID discord.Snowflake, messageID
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
 }

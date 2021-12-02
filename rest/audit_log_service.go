@@ -46,6 +46,6 @@ func (s *AuditLogServiceImpl) GetAuditLog(guildID discord.Snowflake, userID disc
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &auditLog, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &auditLog, opts...)
 	return
 }

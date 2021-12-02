@@ -33,6 +33,6 @@ func (s *voiceServiceImpl) GetVoiceRegions(opts ...RequestOpt) (regions []discor
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &regions, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &regions, opts...)
 	return
 }

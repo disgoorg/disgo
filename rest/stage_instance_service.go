@@ -36,7 +36,7 @@ func (s *stageInstanceServiceImpl) GetStageInstance(guildID discord.Snowflake, o
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &stageInstance, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &stageInstance, opts...)
 	return
 }
 
@@ -46,7 +46,7 @@ func (s *stageInstanceServiceImpl) CreateStageInstance(stageInstanceCreate disco
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, stageInstanceCreate, &stageInstance, opts...)
+	err = s.restClient.DoBot(compiledRoute, stageInstanceCreate, &stageInstance, opts...)
 	return
 }
 
@@ -56,7 +56,7 @@ func (s *stageInstanceServiceImpl) UpdateStageInstance(guildID discord.Snowflake
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, stageInstanceUpdate, &stageInstance, opts...)
+	err = s.restClient.DoBot(compiledRoute, stageInstanceUpdate, &stageInstance, opts...)
 	return
 }
 
@@ -65,5 +65,5 @@ func (s *stageInstanceServiceImpl) DeleteStageInstance(guildID discord.Snowflake
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
 }

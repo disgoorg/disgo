@@ -3,6 +3,7 @@ package rest
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/disgo/rest/rrate"
@@ -11,9 +12,8 @@ import (
 
 // DefaultConfig is the configuration which is used by default
 var DefaultConfig = Config{
-	HTTPClient:        http.DefaultClient,
+	HTTPClient:        &http.Client{Timeout: 20*time.Second},
 	RateLimiterConfig: &rrate.DefaultConfig,
-	Headers:           http.Header{},
 	UserAgent:         fmt.Sprintf("DiscordBot (%s, %s)", info.GitHub, info.Version),
 }
 
@@ -23,7 +23,7 @@ type Config struct {
 	HTTPClient        *http.Client
 	RateLimiter       rrate.Limiter
 	RateLimiterConfig *rrate.Config
-	Headers           http.Header
+	BotTokenFunc      func() string
 	UserAgent         string
 }
 
@@ -80,11 +80,11 @@ func WithRateLimiterConfigOpts(opts ...rrate.ConfigOpt) ConfigOpt {
 	}
 }
 
-// WithHeaders adds a custom header to all requests
+// WithBotTokenFunc sets the function to get the bot token
 //goland:noinspection GoUnusedExportedFunction
-func WithHeaders(headers http.Header) ConfigOpt {
+func WithBotTokenFunc(botTokenFunc func() string) ConfigOpt {
 	return func(config *Config) {
-		config.Headers = headers
+		config.BotTokenFunc = botTokenFunc
 	}
 }
 

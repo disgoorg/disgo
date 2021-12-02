@@ -38,7 +38,7 @@ func (s *stickerServiceImpl) GetNitroStickerPacks(opts ...RequestOpt) (stickerPa
 		return
 	}
 	var stickerPacksRs discord.StickerPacks
-	err = s.restClient.Do(compiledRoute, nil, &stickerPacksRs, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &stickerPacksRs, opts...)
 	if err == nil {
 		stickerPacks = stickerPacksRs.StickerPacks
 	}
@@ -51,7 +51,7 @@ func (s *stickerServiceImpl) GetSticker(stickerID discord.Snowflake, opts ...Req
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &sticker, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &sticker, opts...)
 	return
 }
 
@@ -61,7 +61,7 @@ func (s *stickerServiceImpl) GetStickers(guildID discord.Snowflake, opts ...Requ
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &stickers, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &stickers, opts...)
 	return
 }
 
@@ -75,7 +75,7 @@ func (s *stickerServiceImpl) CreateSticker(guildID discord.Snowflake, createStic
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, body, &sticker, opts...)
+	err = s.restClient.DoBot(compiledRoute, body, &sticker, opts...)
 	return
 }
 
@@ -85,7 +85,7 @@ func (s *stickerServiceImpl) UpdateSticker(guildID discord.Snowflake, stickerID 
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, stickerUpdate, &sticker, opts...)
+	err = s.restClient.DoBot(compiledRoute, stickerUpdate, &sticker, opts...)
 	return
 }
 
@@ -94,5 +94,5 @@ func (s *stickerServiceImpl) DeleteSticker(guildID discord.Snowflake, stickerID 
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
 }

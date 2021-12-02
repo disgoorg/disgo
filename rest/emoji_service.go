@@ -37,7 +37,7 @@ func (s *emojiServiceImpl) GetEmojis(guildID discord.Snowflake, opts ...RequestO
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &emojis, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &emojis, opts...)
 	return
 }
 
@@ -47,7 +47,7 @@ func (s *emojiServiceImpl) GetEmoji(guildID discord.Snowflake, emojiID discord.S
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &emoji, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &emoji, opts...)
 	return
 }
 
@@ -57,7 +57,7 @@ func (s *emojiServiceImpl) CreateEmoji(guildID discord.Snowflake, emojiCreate di
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, emojiCreate, &emoji, opts...)
+	err = s.restClient.DoBot(compiledRoute, emojiCreate, &emoji, opts...)
 	return
 }
 
@@ -67,7 +67,7 @@ func (s *emojiServiceImpl) UpdateEmoji(guildID discord.Snowflake, emojiID discor
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, emojiUpdate, &emoji, opts...)
+	err = s.restClient.DoBot(compiledRoute, emojiUpdate, &emoji, opts...)
 	return
 }
 
@@ -76,5 +76,5 @@ func (s *emojiServiceImpl) DeleteEmoji(guildID discord.Snowflake, emojiID discor
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
 }

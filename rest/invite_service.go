@@ -37,7 +37,7 @@ func (s *inviteServiceImpl) GetInvite(code string, opts ...RequestOpt) (invite *
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &invite, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &invite, opts...)
 	return
 }
 
@@ -47,7 +47,7 @@ func (s *inviteServiceImpl) CreateInvite(channelID discord.Snowflake, inviteCrea
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, inviteCreate, &invite, opts...)
+	err = s.restClient.DoBot(compiledRoute, inviteCreate, &invite, opts...)
 	return
 }
 
@@ -57,7 +57,7 @@ func (s *inviteServiceImpl) DeleteInvite(code string, opts ...RequestOpt) (invit
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &invite, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &invite, opts...)
 	return
 }
 
@@ -67,7 +67,7 @@ func (s *inviteServiceImpl) GetGuildInvites(guildID discord.Snowflake, opts ...R
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &invites, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &invites, opts...)
 	return
 }
 
@@ -77,6 +77,6 @@ func (s *inviteServiceImpl) GetChannelInvites(channelID discord.Snowflake, opts 
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &invites, opts...)
+	err = s.restClient.DoBot(compiledRoute, nil, &invites, opts...)
 	return
 }
