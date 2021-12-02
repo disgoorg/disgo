@@ -60,12 +60,6 @@ type Client interface {
 
 	// Do makes a request to the given route.CompiledAPIRoute and marshals the given interface{} as json and unmarshalls the response into the given interface
 	Do(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) error
-
-	// DoBot calls Do but applies the bot token to the request
-	DoBot(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) error
-
-	// DoBearer calls Do but applies the bearer token to the request
-	DoBearer(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, bearerToken string, opts ...RequestOpt) error
 }
 
 type clientImpl struct {
@@ -130,6 +124,10 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 	rq.Header.Set("User-Agent", c.Config().UserAgent)
 	if contentType != "" {
 		rq.Header.Set("Content-Type", contentType)
+	}
+
+	if cRoute.APIRoute.NeedsAuth() {
+		rq.Header.Add("authorization", c.Config().BotTokenFunc())
 	}
 
 	config := &RequestConfig{Request: rq}
