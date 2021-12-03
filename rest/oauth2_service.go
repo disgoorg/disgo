@@ -19,11 +19,11 @@ func NewOAuth2Service(restClient Client) OAuth2Service {
 type OAuth2Service interface {
 	Service
 	GetBotApplicationInfo(opts ...RequestOpt) (*discord.Application, error)
-	GetAuthorizationInfo(opts ...RequestOpt) (*discord.AuthorizationInformation, error)
 
-	GetCurrentUserGuilds(token string, opts ...RequestOpt) ([]discord.OAuth2Guild, error)
-	GetCurrentUser(token string, opts ...RequestOpt) (*discord.OAuth2User, error)
-	GetCurrentUserConnections(token string, opts ...RequestOpt) ([]discord.Connection, error)
+	GetCurrentAuthorizationInfo(bearerToken string, opts ...RequestOpt) (*discord.AuthorizationInformation, error)
+	GetCurrentUser(bearerToken string, opts ...RequestOpt) (*discord.OAuth2User, error)
+	GetCurrentUserGuilds(bearerToken string, before discord.Snowflake, after discord.Snowflake, limit int, opts ...RequestOpt) ([]discord.OAuth2Guild, error)
+	GetCurrentUserConnections(bearerToken string, opts ...RequestOpt) ([]discord.Connection, error)
 
 	GetAccessToken(clientID discord.Snowflake, clientSecret string, code string, redirectURI string, opts ...RequestOpt) (*discord.AccessTokenExchange, error)
 	RefreshAccessToken(clientID discord.Snowflake, clientSecret string, refreshToken string, opts ...RequestOpt) (*discord.AccessTokenExchange, error)
@@ -31,6 +31,13 @@ type OAuth2Service interface {
 
 type oAuth2ServiceImpl struct {
 	restClient Client
+}
+
+func (s *oAuth2ServiceImpl) botOrBearerToken(bearerToken string, opts []RequestOpt) []RequestOpt {
+	if bearerToken == "" {
+		return applyBotToken(s.RestClient().Config().BotTokenFunc(), opts)
+	}
+	return applyBearerToken(bearerToken, opts)
 }
 
 func (s *oAuth2ServiceImpl) RestClient() Client {
@@ -47,18 +54,38 @@ func (s *oAuth2ServiceImpl) GetBotApplicationInfo(opts ...RequestOpt) (applicati
 	return
 }
 
-func (s *oAuth2ServiceImpl) GetAuthorizationInfo(opts ...RequestOpt) (info *discord.AuthorizationInformation, err error) {
+func (s *oAuth2ServiceImpl) GetCurrentAuthorizationInfo(bearerToken string, opts ...RequestOpt) (info *discord.AuthorizationInformation, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetAuthorizationInfo.Compile(nil)
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &info, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &info, applyBearerToken(bearerToken, opts)...)
 	return
 }
 
-func (s *oAuth2ServiceImpl) GetCurrentUserGuilds(token string, opts ...RequestOpt) (guilds []discord.OAuth2Guild, err error) {
+func (s *oAuth2ServiceImpl) GetCurrentUser(bearerToken string, opts ...RequestOpt) (user *discord.OAuth2User, err error) {
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.GetCurrentUser.Compile(nil)
+	if err != nil {
+		return
+	}
+
+	err = s.restClient.Do(compiledRoute, nil, &user, s.botOrBearerToken(bearerToken, opts)...)
+	return
+}
+
+func (s *oAuth2ServiceImpl) GetCurrentUserGuilds(bearerToken string, before discord.Snowflake, after discord.Snowflake, limit int, opts ...RequestOpt) (guilds []discord.OAuth2Guild, err error) {
 	queryParams := route.QueryValues{}
+	if before != "" {
+		queryParams["before"] = before
+	}
+	if after != "" {
+		queryParams["after"] = after
+	}
+	if limit != 0 {
+		queryParams["limit"] = limit
+	}
 
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetCurrentUserGuilds.Compile(queryParams)
@@ -66,29 +93,18 @@ func (s *oAuth2ServiceImpl) GetCurrentUserGuilds(token string, opts ...RequestOp
 		return
 	}
 
-	err = s.restClient.Do(compiledRoute, nil, &guilds, append(opts, WithHeader("authorization", discord.TokenTypeBearer.Apply(token)))...)
+	err = s.restClient.Do(compiledRoute, nil, &guilds, s.botOrBearerToken(bearerToken, opts)...)
 	return
 }
 
-func (s *oAuth2ServiceImpl) GetCurrentUser(token string, opts ...RequestOpt) (user *discord.OAuth2User, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetCurrentUser.Compile(nil)
-	if err != nil {
-		return
-	}
-
-	err = s.restClient.Do(compiledRoute, nil, &user, append(opts, WithHeader("authorization", discord.TokenTypeBearer.Apply(token)))...)
-	return
-}
-
-func (s *oAuth2ServiceImpl) GetCurrentUserConnections(token string, opts ...RequestOpt) (connections []discord.Connection, err error) {
+func (s *oAuth2ServiceImpl) GetCurrentUserConnections(bearerToken string, opts ...RequestOpt) (connections []discord.Connection, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetCurrentUserConnections.Compile(nil)
 	if err != nil {
 		return
 	}
 
-	err = s.restClient.Do(compiledRoute, nil, &connections, append(opts, WithHeader("authorization", discord.TokenTypeBearer.Apply(token)))...)
+	err = s.restClient.Do(compiledRoute, nil, &connections, s.botOrBearerToken(bearerToken, opts)...)
 	return
 }
 
