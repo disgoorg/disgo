@@ -500,15 +500,21 @@ func (b *entityBuilderImpl) CreateRole(guildID discord.Snowflake, role discord.R
 func (b *entityBuilderImpl) CreateAuditLog(guildID discord.Snowflake, auditLog discord.AuditLog, filterOptions AuditLogFilterOptions, updateCache CacheStrategy) *AuditLog {
 	coreAuditLog := &AuditLog{
 		AuditLog:      auditLog,
-		Bot:           b.Bot(),
 		GuildID:       guildID,
 		FilterOptions: filterOptions,
+		Bot:           b.Bot(),
 	}
-	for _, user := range auditLog.Users {
-		coreAuditLog.Users[user.ID] = b.CreateUser(user, updateCache)
+	for _, guildScheduledEvent := range auditLog.GuildScheduledEvents {
+		coreAuditLog.GuildScheduledEvents[guildScheduledEvent.ID] = b.CreateGuildScheduledEvent(guildScheduledEvent, updateCache)
 	}
 	for _, integration := range auditLog.Integrations {
 		coreAuditLog.Integrations[integration.ID()] = b.CreateIntegration(guildID, integration, updateCache)
+	}
+	for _, thread := range auditLog.Threads {
+		coreAuditLog.Threads[thread.ID()] = b.CreateChannel(thread, updateCache).(GuildThread)
+	}
+	for _, user := range auditLog.Users {
+		coreAuditLog.Users[user.ID] = b.CreateUser(user, updateCache)
 	}
 	for _, webhook := range auditLog.Webhooks {
 		coreAuditLog.Webhooks[webhook.ID()] = b.CreateWebhook(webhook, updateCache)
