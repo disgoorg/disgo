@@ -39,7 +39,6 @@ func GetGatewayHandlers() map[discord.GatewayEventType]core.GatewayEventHandler 
 var AllEventHandlers = []core.GatewayEventHandler{
 	&gatewayHandlerReady{},
 	&gatewayHandlerResumed{},
-	&gatewayHandlerInvalidSession{},
 
 	&gatewayHandlerChannelCreate{},
 	&gatewayHandlerChannelUpdate{},

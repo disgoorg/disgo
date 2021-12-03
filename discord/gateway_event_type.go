@@ -10,7 +10,6 @@ const (
 	GatewayEventTypeReady                         GatewayEventType = "READY"
 	GatewayEventTypeResumed                       GatewayEventType = "RESUMED"
 	GatewayEventTypeReconnect                     GatewayEventType = "RECONNECT"
-	GatewayEventTypeInvalidSession                GatewayEventType = "INVALID_SESSION"
 	GatewayEventTypeChannelCreate                 GatewayEventType = "CHANNEL_CREATE"
 	GatewayEventTypeChannelUpdate                 GatewayEventType = "CHANNEL_UPDATE"
 	GatewayEventTypeChannelDelete                 GatewayEventType = "CHANNEL_DELETE"

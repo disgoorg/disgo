@@ -151,12 +151,10 @@ func (m *shardManagerImpl) OpenShard(ctx context.Context, shardID int) error {
 func (m *shardManagerImpl) ReOpenShard(ctx context.Context, shardID int) error {
 	m.Logger().Infof("reopening shard %d...", shardID)
 	shard := m.shards.Get(shardID)
-	if shard == nil {
-		// TODO: should we start the shard if not already here?
-		return nil
-	}
-	if err := shard.Close(ctx); err != nil {
-		return err
+	if shard != nil {
+		if err := shard.Close(ctx); err != nil {
+			return err
+		}
 	}
 	return shard.Open(ctx)
 }
