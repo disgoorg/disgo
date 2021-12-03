@@ -18,9 +18,9 @@ var (
 // OAuth2
 var (
 	GetBotApplicationInfo = NewAPIRoute(GET, "/oauth2/applications/@me")
-	GetAuthorizationInfo  = NewAPIRoute(GET, "/oauth2/@me")
+	GetAuthorizationInfo  = NewAPIRouteNoAuth(GET, "/oauth2/@me")
 	Authorize             = NewRoute("/oauth2/authorize", "client_id", "permissions", "redirect_uri", "response_type", "scope", "state", "guild_id", "disable_guild_select")
-	Token                 = NewAPIRoute(POST, "/oauth2/token")
+	Token                 = NewAPIRouteNoAuth(POST, "/oauth2/token")
 )
 
 // Users
@@ -28,8 +28,8 @@ var (
 	GetUser                   = NewAPIRoute(GET, "/users/{user.id}")
 	GetCurrentUser            = NewAPIRoute(GET, "/users/@me")
 	UpdateSelfUser            = NewAPIRoute(PATCH, "/users/@me")
-	GetCurrentUserConnections = NewAPIRoute(GET, "/users/@me/connections")
-	GetCurrentUserGuilds      = NewAPIRoute(GET, "/users/@me/guilds", "before", "after", "limit")
+	GetCurrentUserConnections = NewAPIRouteNoAuth(GET, "/users/@me/connections")
+	GetCurrentUserGuilds      = NewAPIRouteNoAuth(GET, "/users/@me/guilds", "before", "after", "limit")
 	LeaveGuild                = NewAPIRoute(DELETE, "/users/@me/guilds/{guild.id}")
 	GetDMChannels             = NewAPIRoute(GET, "/users/@me/channels")
 	CreateDMChannel           = NewAPIRoute(POST, "/users/@me/channels")

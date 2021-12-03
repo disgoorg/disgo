@@ -47,7 +47,7 @@ func (s *webhookServiceImpl) GetWebhook(webhookID discord.Snowflake, opts ...Req
 	}
 
 	var unmarshalWebhook discord.UnmarshalWebhook
-	err = s.restClient.DoBot(compiledRoute, nil, &unmarshalWebhook, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &unmarshalWebhook, opts...)
 	if err == nil {
 		webhook = unmarshalWebhook.Webhook
 	}
@@ -62,7 +62,7 @@ func (s *webhookServiceImpl) UpdateWebhook(webhookID discord.Snowflake, webhookU
 	}
 
 	var unmarshalWebhook discord.UnmarshalWebhook
-	err = s.restClient.DoBot(compiledRoute, webhookUpdate, &unmarshalWebhook, opts...)
+	err = s.restClient.Do(compiledRoute, webhookUpdate, &unmarshalWebhook, opts...)
 	if err == nil {
 		webhook = unmarshalWebhook.Webhook
 	}
@@ -75,7 +75,7 @@ func (s *webhookServiceImpl) DeleteWebhook(webhookID discord.Snowflake, opts ...
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, nil, opts...)
+	err = s.restClient.Do(compiledRoute, nil, nil, opts...)
 	return
 }
 

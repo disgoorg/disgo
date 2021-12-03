@@ -47,7 +47,7 @@ func (s *threadServiceImpl) CreateThreadWithMessage(channelID discord.Snowflake,
 		return
 	}
 	var channel discord.UnmarshalChannel
-	err = s.restClient.DoBot(compiledRoute, threadCreateWithMessage, &channel, opts...)
+	err = s.restClient.Do(compiledRoute, threadCreateWithMessage, &channel, opts...)
 	if err == nil {
 		thread = channel.Channel.(discord.GuildThread)
 	}
@@ -61,7 +61,7 @@ func (s *threadServiceImpl) CreateThread(channelID discord.Snowflake, threadCrea
 		return
 	}
 	var channel discord.UnmarshalChannel
-	err = s.restClient.DoBot(compiledRoute, threadCreate, &channel, opts...)
+	err = s.restClient.Do(compiledRoute, threadCreate, &channel, opts...)
 	if err == nil {
 		thread = channel.Channel.(discord.GuildThread)
 	}
@@ -73,7 +73,7 @@ func (s *threadServiceImpl) JoinThread(threadID discord.Snowflake, opts ...Reque
 	if err != nil {
 		return err
 	}
-	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
+	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *threadServiceImpl) LeaveThread(threadID discord.Snowflake, opts ...RequestOpt) error {
@@ -81,7 +81,7 @@ func (s *threadServiceImpl) LeaveThread(threadID discord.Snowflake, opts ...Requ
 	if err != nil {
 		return err
 	}
-	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
+	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *threadServiceImpl) AddThreadMember(threadID discord.Snowflake, userID discord.Snowflake, opts ...RequestOpt) error {
@@ -89,7 +89,7 @@ func (s *threadServiceImpl) AddThreadMember(threadID discord.Snowflake, userID d
 	if err != nil {
 		return err
 	}
-	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
+	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *threadServiceImpl) RemoveThreadMember(threadID discord.Snowflake, userID discord.Snowflake, opts ...RequestOpt) error {
@@ -97,7 +97,7 @@ func (s *threadServiceImpl) RemoveThreadMember(threadID discord.Snowflake, userI
 	if err != nil {
 		return err
 	}
-	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
+	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *threadServiceImpl) GetThreadMember(threadID discord.Snowflake, userID discord.Snowflake, opts ...RequestOpt) (threadMember *discord.ThreadMember, err error) {
@@ -106,7 +106,7 @@ func (s *threadServiceImpl) GetThreadMember(threadID discord.Snowflake, userID d
 	if err != nil {
 		return nil, err
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &threadMember, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &threadMember, opts...)
 	return
 }
 
@@ -116,7 +116,7 @@ func (s *threadServiceImpl) GetThreadMembers(threadID discord.Snowflake, opts ..
 	if err != nil {
 		return nil, err
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &threadMembers, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &threadMembers, opts...)
 	return
 }
 
@@ -133,7 +133,7 @@ func (s *threadServiceImpl) GetPublicArchivedThreads(channelID discord.Snowflake
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &threads, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &threads, opts...)
 	return
 }
 
@@ -150,7 +150,7 @@ func (s *threadServiceImpl) GetPrivateArchivedThreads(channelID discord.Snowflak
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &threads, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &threads, opts...)
 	return
 }
 
@@ -167,7 +167,7 @@ func (s *threadServiceImpl) GetJoinedPrivateAchievedThreads(channelID discord.Sn
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &threads, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &threads, opts...)
 	return
 }
 
@@ -177,6 +177,6 @@ func (s *threadServiceImpl) GetActiveGuildThreads(guildID discord.Snowflake, opt
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &threads, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &threads, opts...)
 	return
 }

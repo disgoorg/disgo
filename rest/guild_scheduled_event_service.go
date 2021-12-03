@@ -43,7 +43,7 @@ func (s *guildScheduledEventServiceImpl) GetGuildScheduledEvents(guildID discord
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &guildScheduledEvents, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &guildScheduledEvents, opts...)
 	return
 }
 
@@ -57,7 +57,7 @@ func (s *guildScheduledEventServiceImpl) GetGuildScheduledEvent(guildID discord.
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &guildScheduledEvent, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &guildScheduledEvent, opts...)
 	return
 }
 
@@ -67,7 +67,7 @@ func (s *guildScheduledEventServiceImpl) CreateGuildScheduledEvent(guildID disco
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, guildScheduledEventCreate, &guildScheduledEvent, opts...)
+	err = s.restClient.Do(compiledRoute, guildScheduledEventCreate, &guildScheduledEvent, opts...)
 	return
 }
 
@@ -77,7 +77,7 @@ func (s *guildScheduledEventServiceImpl) UpdateGuildScheduledEvent(guildID disco
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, guildScheduledEventUpdate, &guildScheduledEvent, opts...)
+	err = s.restClient.Do(compiledRoute, guildScheduledEventUpdate, &guildScheduledEvent, opts...)
 	return
 }
 
@@ -86,7 +86,7 @@ func (s *guildScheduledEventServiceImpl) DeleteGuildScheduledEvent(guildID disco
 	if err != nil {
 		return err
 	}
-	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
+	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *guildScheduledEventServiceImpl) GetGuildScheduledEventUsers(guildID discord.Snowflake, guildScheduledEventID discord.Snowflake, limit int, withMember bool, before discord.Snowflake, after discord.Snowflake, opts ...RequestOpt) (guildScheduledEventUsers []discord.GuildScheduledEventUser, err error) {
@@ -109,6 +109,6 @@ func (s *guildScheduledEventServiceImpl) GetGuildScheduledEventUsers(guildID dis
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &guildScheduledEventUsers, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &guildScheduledEventUsers, opts...)
 	return
 }

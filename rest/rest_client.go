@@ -127,7 +127,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 	}
 
 	if cRoute.APIRoute.NeedsAuth() {
-		rq.Header.Add("authorization", c.Config().BotTokenFunc())
+		opts = applyBotToken(c.Config().BotTokenFunc(), opts)
 	}
 
 	config := &RequestConfig{Request: rq}
@@ -206,20 +206,12 @@ func (c *clientImpl) Do(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBo
 	return c.retry(cRoute, rqBody, rsBody, 1, opts)
 }
 
-func (c *clientImpl) DoBot(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) error {
-	return c.Do(cRoute, rqBody, rsBody, applyBotToken(c, opts)...)
-}
-
-func (c *clientImpl) DoBearer(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, bearerToken string, opts ...RequestOpt) error {
-	return c.Do(cRoute, rqBody, rsBody, applyBearerToken(bearerToken, opts)...)
-}
-
 func applyToken(tokenType discord.TokenType, token string, opts []RequestOpt) []RequestOpt {
 	return append(opts, WithHeader("authorization", tokenType.Apply(token)))
 }
 
-func applyBotToken(client Client, opts []RequestOpt) []RequestOpt {
-	return applyToken(discord.TokenTypeBot, client.Config().BotTokenFunc(), opts)
+func applyBotToken(botToken string, opts []RequestOpt) []RequestOpt {
+	return applyToken(discord.TokenTypeBot, botToken, opts)
 }
 
 func applyBearerToken(bearerToken string, opts []RequestOpt) []RequestOpt {

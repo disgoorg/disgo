@@ -71,7 +71,7 @@ func (s *guildServiceImpl) GetGuild(guildID discord.Snowflake, withCounts bool, 
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &guild, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &guild, opts...)
 	return
 }
 
@@ -81,7 +81,7 @@ func (s *guildServiceImpl) GetGuildPreview(guildID discord.Snowflake, opts ...Re
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &guildPreview, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &guildPreview, opts...)
 	return
 }
 
@@ -91,7 +91,7 @@ func (s *guildServiceImpl) CreateGuild(guildCreate discord.GuildCreate, opts ...
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, guildCreate, &guild, opts...)
+	err = s.restClient.Do(compiledRoute, guildCreate, &guild, opts...)
 	return
 }
 
@@ -101,7 +101,7 @@ func (s *guildServiceImpl) UpdateGuild(guildID discord.Snowflake, guildUpdate di
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, guildUpdate, &guild, opts...)
+	err = s.restClient.Do(compiledRoute, guildUpdate, &guild, opts...)
 	return
 }
 
@@ -110,7 +110,7 @@ func (s *guildServiceImpl) DeleteGuild(guildID discord.Snowflake, opts ...Reques
 	if err != nil {
 		return err
 	}
-	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
+	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *guildServiceImpl) GetRoles(guildID discord.Snowflake, opts ...RequestOpt) (roles []discord.Role, err error) {
@@ -119,7 +119,7 @@ func (s *guildServiceImpl) GetRoles(guildID discord.Snowflake, opts ...RequestOp
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &roles, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &roles, opts...)
 	return
 }
 
@@ -129,7 +129,7 @@ func (s *guildServiceImpl) GetRole(guildID discord.Snowflake, roleID discord.Sno
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &role, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &role, opts...)
 	return
 }
 
@@ -139,7 +139,7 @@ func (s *guildServiceImpl) CreateRole(guildID discord.Snowflake, createRole disc
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, createRole, &role, opts...)
+	err = s.restClient.Do(compiledRoute, createRole, &role, opts...)
 	return
 }
 
@@ -149,7 +149,7 @@ func (s *guildServiceImpl) UpdateRole(guildID discord.Snowflake, roleID discord.
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, roleUpdate, &role, opts...)
+	err = s.restClient.Do(compiledRoute, roleUpdate, &role, opts...)
 	return
 }
 
@@ -159,7 +159,7 @@ func (s *guildServiceImpl) UpdateRolePositions(guildID discord.Snowflake, rolePo
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, rolePositionUpdates, &roles, opts...)
+	err = s.restClient.Do(compiledRoute, rolePositionUpdates, &roles, opts...)
 	return
 }
 
@@ -168,7 +168,7 @@ func (s *guildServiceImpl) DeleteRole(guildID discord.Snowflake, roleID discord.
 	if err != nil {
 		return err
 	}
-	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
+	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *guildServiceImpl) GetMember(guildID discord.Snowflake, userID discord.Snowflake, opts ...RequestOpt) (member *discord.Member, err error) {
@@ -177,7 +177,7 @@ func (s *guildServiceImpl) GetMember(guildID discord.Snowflake, userID discord.S
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &member, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &member, opts...)
 	return
 }
 
@@ -187,7 +187,7 @@ func (s *guildServiceImpl) GetMembers(guildID discord.Snowflake, opts ...Request
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &members, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &members, opts...)
 	return
 }
 
@@ -204,7 +204,7 @@ func (s *guildServiceImpl) SearchMembers(guildID discord.Snowflake, query string
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &members, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &members, opts...)
 	return
 }
 
@@ -214,7 +214,7 @@ func (s *guildServiceImpl) AddMember(guildID discord.Snowflake, userID discord.S
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, memberAdd, &member, opts...)
+	err = s.restClient.Do(compiledRoute, memberAdd, &member, opts...)
 	return
 }
 
@@ -223,7 +223,7 @@ func (s *guildServiceImpl) RemoveMember(guildID discord.Snowflake, userID discor
 	if err != nil {
 		return err
 	}
-	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
+	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *guildServiceImpl) UpdateMember(guildID discord.Snowflake, userID discord.Snowflake, memberUpdate discord.MemberUpdate, opts ...RequestOpt) (member *discord.Member, err error) {
@@ -232,7 +232,7 @@ func (s *guildServiceImpl) UpdateMember(guildID discord.Snowflake, userID discor
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, memberUpdate, &member, opts...)
+	err = s.restClient.Do(compiledRoute, memberUpdate, &member, opts...)
 	return
 }
 
@@ -241,7 +241,7 @@ func (s *guildServiceImpl) AddMemberRole(guildID discord.Snowflake, userID disco
 	if err != nil {
 		return err
 	}
-	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
+	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *guildServiceImpl) RemoveMemberRole(guildID discord.Snowflake, userID discord.Snowflake, roleID discord.Snowflake, opts ...RequestOpt) error {
@@ -249,7 +249,7 @@ func (s *guildServiceImpl) RemoveMemberRole(guildID discord.Snowflake, userID di
 	if err != nil {
 		return err
 	}
-	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
+	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *guildServiceImpl) UpdateSelfNick(guildID discord.Snowflake, nick string, opts ...RequestOpt) (nickName *string, err error) {
@@ -258,7 +258,7 @@ func (s *guildServiceImpl) UpdateSelfNick(guildID discord.Snowflake, nick string
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, discord.SelfNickUpdate{Nick: nick}, nickName, opts...)
+	err = s.restClient.Do(compiledRoute, discord.SelfNickUpdate{Nick: nick}, nickName, opts...)
 	return
 }
 
@@ -268,7 +268,7 @@ func (s *guildServiceImpl) GetBans(guildID discord.Snowflake, opts ...RequestOpt
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &bans, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &bans, opts...)
 	return
 }
 
@@ -278,7 +278,7 @@ func (s *guildServiceImpl) GetBan(guildID discord.Snowflake, userID discord.Snow
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &ban, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &ban, opts...)
 	return
 }
 
@@ -287,7 +287,7 @@ func (s *guildServiceImpl) AddBan(guildID discord.Snowflake, userID discord.Snow
 	if err != nil {
 		return err
 	}
-	return s.restClient.DoBot(compiledRoute, discord.AddBan{DeleteMessageDays: deleteMessageDays}, nil, opts...)
+	return s.restClient.Do(compiledRoute, discord.AddBan{DeleteMessageDays: deleteMessageDays}, nil, opts...)
 }
 
 func (s *guildServiceImpl) DeleteBan(guildID discord.Snowflake, userID discord.Snowflake, opts ...RequestOpt) error {
@@ -295,7 +295,7 @@ func (s *guildServiceImpl) DeleteBan(guildID discord.Snowflake, userID discord.S
 	if err != nil {
 		return err
 	}
-	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
+	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *guildServiceImpl) GetIntegrations(guildID discord.Snowflake, opts ...RequestOpt) (integrations []discord.Integration, err error) {
@@ -304,7 +304,7 @@ func (s *guildServiceImpl) GetIntegrations(guildID discord.Snowflake, opts ...Re
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &integrations, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &integrations, opts...)
 	return
 }
 
@@ -313,7 +313,7 @@ func (s *guildServiceImpl) DeleteIntegration(guildID discord.Snowflake, integrat
 	if err != nil {
 		return err
 	}
-	return s.restClient.DoBot(compiledRoute, nil, nil, opts...)
+	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *guildServiceImpl) GetWebhooks(guildID discord.Snowflake, opts ...RequestOpt) (webhooks []discord.Webhook, err error) {
@@ -322,7 +322,7 @@ func (s *guildServiceImpl) GetWebhooks(guildID discord.Snowflake, opts ...Reques
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &webhooks, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &webhooks, opts...)
 	return
 }
 
@@ -332,7 +332,7 @@ func (s *guildServiceImpl) GetEmojis(guildID discord.Snowflake, opts ...RequestO
 	if err != nil {
 		return
 	}
-	err = s.restClient.DoBot(compiledRoute, nil, &emojis, opts...)
+	err = s.restClient.Do(compiledRoute, nil, &emojis, opts...)
 	return
 }
 
@@ -341,7 +341,7 @@ func (s *guildServiceImpl) UpdateCurrentUserVoiceState(guildID discord.Snowflake
 	if err != nil {
 		return err
 	}
-	return s.restClient.DoBot(compiledRoute, currentUserVoiceStateUpdate, nil, opts...)
+	return s.restClient.Do(compiledRoute, currentUserVoiceStateUpdate, nil, opts...)
 }
 
 func (s *guildServiceImpl) UpdateUserVoiceState(guildID discord.Snowflake, userID discord.Snowflake, userVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error {
@@ -349,5 +349,5 @@ func (s *guildServiceImpl) UpdateUserVoiceState(guildID discord.Snowflake, userI
 	if err != nil {
 		return err
 	}
-	return s.restClient.DoBot(compiledRoute, userVoiceStateUpdate, nil, opts...)
+	return s.restClient.Do(compiledRoute, userVoiceStateUpdate, nil, opts...)
 }
