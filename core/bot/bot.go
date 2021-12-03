@@ -66,7 +66,7 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 			config.RestClientConfig.Logger = config.Logger
 		}
 		if config.RestClientConfig.BotTokenFunc == nil {
-			config.RestClientConfig.BotTokenFunc = func() string {return bot.Token}
+			config.RestClientConfig.BotTokenFunc = func() string { return bot.Token }
 		}
 		config.RestClient = rest.NewClient(config.RestClientConfig)
 	}

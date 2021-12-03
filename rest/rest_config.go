@@ -12,7 +12,7 @@ import (
 
 // DefaultConfig is the configuration which is used by default
 var DefaultConfig = Config{
-	HTTPClient:        &http.Client{Timeout: 20*time.Second},
+	HTTPClient:        &http.Client{Timeout: 20 * time.Second},
 	RateLimiterConfig: &rrate.DefaultConfig,
 	UserAgent:         fmt.Sprintf("DiscordBot (%s, %s)", info.GitHub, info.Version),
 }

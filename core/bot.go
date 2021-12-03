@@ -118,7 +118,7 @@ func (b *Bot) Shard(guildID discord.Snowflake) (gateway.Gateway, error) {
 	return nil, discord.ErrNoGatewayOrShardManager
 }
 
-func (b *Bot) SetPresence(ctx context.Context, presenceUpdate discord.PresenceUpdate) error {
+func (b *Bot) SetPresence(ctx context.Context, presenceUpdate discord.UpdatePresenceCommandData) error {
 	if !b.HasGateway() {
 		return discord.ErrNoGateway
 	}
@@ -126,7 +126,7 @@ func (b *Bot) SetPresence(ctx context.Context, presenceUpdate discord.PresenceUp
 }
 
 // SetPresenceForShard sets the Presence of this Bot for the provided shard
-func (b *Bot) SetPresenceForShard(ctx context.Context, shardId int, presenceUpdate discord.PresenceUpdate) error {
+func (b *Bot) SetPresenceForShard(ctx context.Context, shardId int, presenceUpdate discord.UpdatePresenceCommandData) error {
 	if !b.HasShardManager() {
 		return discord.ErrNoShardManager
 	}

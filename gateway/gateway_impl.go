@@ -232,7 +232,7 @@ func (g *gatewayImpl) heartbeat() {
 func (g *gatewayImpl) sendHeartbeat() {
 	g.Logger().Debugf(g.formatLogs("sending heartbeat..."))
 
-	if err := g.Send(context.TODO(), discord.NewGatewayCommand(discord.GatewayOpcodeHeartbeat, g.lastSequenceReceived)); err != nil {
+	if err := g.Send(context.TODO(), discord.NewGatewayCommand(discord.GatewayOpcodeHeartbeat, discord.HeartbeatCommandData(*g.lastSequenceReceived))); err != nil {
 		g.Logger().Error(g.formatLogs("failed to send heartbeat with error: ", err))
 		_ = g.closeWithCode(context.TODO(), websocket.CloseServiceRestart)
 		g.reconnect(context.TODO(), 1*time.Second)
@@ -279,7 +279,7 @@ func (g *gatewayImpl) listen() {
 				g.status = StatusIdentifying
 				g.Logger().Info(g.formatLogs("sending StatusIdentifying command..."))
 
-				identify := discord.IdentifyCommand{
+				identify := discord.IdentifyCommandData{
 					Token: g.token,
 					Properties: discord.IdentifyCommandDataProperties{
 						OS:      g.config.OS,
@@ -301,7 +301,7 @@ func (g *gatewayImpl) listen() {
 				g.status = StatusWaitingForReady
 			} else {
 				g.status = StatusResuming
-				cmd := discord.NewGatewayCommand(discord.GatewayOpcodeResume, discord.ResumeCommand{
+				cmd := discord.NewGatewayCommand(discord.GatewayOpcodeResume, discord.ResumeCommandData{
 					Token:     g.token,
 					SessionID: *g.sessionID,
 					Seq:       *g.lastSequenceReceived,

@@ -13,13 +13,6 @@ type PresenceUser struct {
 	ID Snowflake `json:"id"`
 }
 
-type PresenceUpdate struct {
-	Since      *int64       `json:"since"`
-	Activities []Activity   `json:"activities"`
-	Status     OnlineStatus `json:"status"`
-	AFK        bool         `json:"afk"`
-}
-
 // OnlineStatus (https://discord.com/developers/docs/topics/gateway#update-presence-status-types)
 type OnlineStatus string
 

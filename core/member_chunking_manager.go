@@ -129,7 +129,7 @@ func (m *memberChunkingManagerImpl) requestGuildMembersChan(ctx context.Context,
 	m.chunkingRequests[nonce] = request
 	m.chunkingRequestsMu.Unlock()
 
-	command := discord.RequestGuildMembersCommand{
+	command := discord.RequestGuildMembersCommandData{
 		GuildID:   guildID,
 		Query:     query,
 		Limit:     limit,
