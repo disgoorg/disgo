@@ -3,7 +3,6 @@ package rest
 import (
 	"bytes"
 	"context"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -89,34 +88,30 @@ func (c *clientImpl) Config() Config {
 
 func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, tries int, opts []RequestOpt) error {
 	rqURL := cRoute.URL()
-	rqBuffer := &bytes.Buffer{}
 	var rawRqBody []byte
+	var err error
 	var contentType string
 
 	if rqBody != nil {
-		var buffer *bytes.Buffer
 		switch v := rqBody.(type) {
 		case *discord.MultipartBuffer:
 			contentType = v.ContentType
-			buffer = v.Buffer
+			rawRqBody = v.Buffer.Bytes()
 
 		case url.Values:
 			contentType = "application/x-www-form-urlencoded"
-			buffer = bytes.NewBufferString(v.Encode())
+			rawRqBody = []byte(v.Encode())
 
 		default:
 			contentType = "application/json"
-			buffer = &bytes.Buffer{}
-			err := json.NewEncoder(buffer).Encode(rqBody)
-			if err != nil {
-				return err
+			if rawRqBody, err = json.Marshal(rqBody); err != nil {
+				return errors.Wrap(err, "failed to marshal request body")
 			}
 		}
-		rawRqBody, _ = ioutil.ReadAll(io.TeeReader(buffer, rqBuffer))
 		c.Logger().Debugf("request to %s, body: %s", rqURL, string(rawRqBody))
 	}
 
-	rq, err := http.NewRequest(cRoute.APIRoute.Method().String(), rqURL, rqBuffer)
+	rq, err := http.NewRequest(cRoute.APIRoute.Method().String(), rqURL, bytes.NewReader(rawRqBody))
 	if err != nil {
 		return err
 	}
@@ -167,38 +162,38 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 
 	var rawRsBody []byte
 	if rs.Body != nil {
-		buffer := &bytes.Buffer{}
-		rawRsBody, _ = ioutil.ReadAll(io.TeeReader(rs.Body, buffer))
-		rs.Body = ioutil.NopCloser(buffer)
+		if rawRsBody, err = ioutil.ReadAll(rs.Body); err != nil {
+			return errors.Wrap(err, "error reading response body in rest client")
+		}
 		c.Logger().Debugf("response from %s, code %d, body: %s", rqURL, rs.StatusCode, string(rawRsBody))
 	}
 
 	switch rs.StatusCode {
 	case http.StatusOK, http.StatusCreated, http.StatusNoContent:
 		if rsBody != nil && rs.Body != nil {
-			if err = json.NewDecoder(rs.Body).Decode(rsBody); err != nil {
+			if err = json.Unmarshal(rawRsBody, rsBody); err != nil {
 				wErr := errors.Wrap(err, "error unmarshalling response body")
 				c.Logger().Error(wErr)
-				return NewErrorErr(rq, rawRqBody, rs, rawRqBody, wErr)
+				return NewErrorErr(rq, rawRqBody, rs, rawRsBody, wErr)
 			}
 		}
 		return nil
 
 	case http.StatusBadGateway, http.StatusUnauthorized:
-		return NewError(rq, rawRqBody, rs, rawRqBody)
+		return NewError(rq, rawRqBody, rs, rawRsBody)
 
 	case http.StatusTooManyRequests:
 		if tries >= c.RateLimiter().Config().MaxRetries {
-			return NewError(rq, rawRqBody, rs, rawRqBody)
+			return NewError(rq, rawRqBody, rs, rawRsBody)
 		}
 		return c.retry(cRoute, rqBody, rsBody, tries+1, opts)
 
 	default:
 		var v discord.APIError
-		if err = json.NewDecoder(rs.Body).Decode(&v); err != nil {
+		if err = json.Unmarshal(rawRsBody, &v); err != nil {
 			return errors.Wrap(err, "error unmarshalling error response body")
 		}
-		return NewErrorAPIErr(rq, rawRqBody, rs, rawRqBody, v)
+		return NewErrorAPIErr(rq, rawRqBody, rs, rawRsBody, v)
 	}
 }
 
