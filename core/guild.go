@@ -13,7 +13,7 @@ type Guild struct {
 	Bot *Bot
 }
 
-// Update updates the this Guild
+// Update updates this Guild
 func (g *Guild) Update(updateGuild discord.GuildUpdate, opts ...rest.RequestOpt) (*Guild, error) {
 	guild, err := g.Bot.RestServices.GuildService().UpdateGuild(g.ID, updateGuild, opts...)
 	if err != nil {
@@ -25,6 +25,29 @@ func (g *Guild) Update(updateGuild discord.GuildUpdate, opts ...rest.RequestOpt)
 // Delete deletes the this Guild
 func (g *Guild) Delete(opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.GuildService().DeleteGuild(g.ID, opts...)
+}
+
+// CreateChannel creates a new GuildChannel in this Guild
+func (g *Guild) CreateChannel(guildChannelCreate discord.GuildChannelCreate, opts ...rest.RequestOpt) (GuildChannel, error) {
+	channel, err := g.Bot.RestServices.GuildService().CreateChannel(g.ID, guildChannelCreate, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return g.Bot.EntityBuilder.CreateChannel(channel, CacheStrategyNoWs).(GuildChannel), nil
+}
+
+// UpdateChannel updates a GuildChannel in this Guild
+func (g *Guild) UpdateChannel(channelID discord.Snowflake, guildChannelUpdate discord.GuildChannelUpdate, opts ...rest.RequestOpt) (GuildChannel, error) {
+	channel, err := g.Bot.RestServices.ChannelService().UpdateChannel(channelID, guildChannelUpdate, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return g.Bot.EntityBuilder.CreateChannel(channel, CacheStrategyNoWs).(GuildChannel), nil
+}
+
+// DeleteChannel deletes a GuildChannel in this Guild
+func (g *Guild) DeleteChannel(channelID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return g.Bot.RestServices.ChannelService().DeleteChannel(channelID, opts...)
 }
 
 // PublicRole returns the @everyone Role

@@ -22,6 +22,8 @@ type GuildService interface {
 	UpdateGuild(guildID discord.Snowflake, guildUpdate discord.GuildUpdate, opts ...RequestOpt) (*discord.Guild, error)
 	DeleteGuild(guildID discord.Snowflake, opts ...RequestOpt) error
 
+	CreateChannel(guildID discord.Snowflake, guildChannelCreate discord.GuildChannelCreate, opts ...RequestOpt) (discord.GuildChannel, error)
+
 	GetRoles(guildID discord.Snowflake, opts ...RequestOpt) ([]discord.Role, error)
 	GetRole(guildID discord.Snowflake, roleID discord.Snowflake, opts ...RequestOpt) ([]discord.Role, error)
 	CreateRole(guildID discord.Snowflake, createRole discord.RoleCreate, opts ...RequestOpt) (*discord.Role, error)
@@ -111,6 +113,20 @@ func (s *guildServiceImpl) DeleteGuild(guildID discord.Snowflake, opts ...Reques
 		return err
 	}
 	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+}
+
+func (s *guildServiceImpl) CreateChannel(guildID discord.Snowflake, guildChannelCreate discord.GuildChannelCreate, opts ...RequestOpt) (guildChannel discord.GuildChannel, err error) {
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.CreateGuildChannel.Compile(nil, guildID)
+	if err != nil {
+		return
+	}
+	var ch discord.UnmarshalChannel
+	err = s.restClient.Do(compiledRoute, guildChannelCreate, &ch, opts...)
+	if err == nil {
+		guildChannel = ch.Channel.(discord.GuildChannel)
+	}
+	return
 }
 
 func (s *guildServiceImpl) GetRoles(guildID discord.Snowflake, opts ...RequestOpt) (roles []discord.Role, err error) {
