@@ -98,7 +98,12 @@ func (h *Client) CreateEmbeds(embeds []discord.Embed, opts ...rest.RequestOpt) (
 
 // UpdateMessage updates an already sent webhook message with the discord.WebhookMessageUpdate
 func (h *Client) UpdateMessage(messageID discord.Snowflake, messageUpdate discord.WebhookMessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := h.WebhookService.UpdateMessage(h.ID, h.Token, messageID, messageUpdate, opts...)
+	return h.UpdateMessageInThread(messageID, messageUpdate, "", opts...)
+}
+
+// UpdateMessageInThread updates an already sent webhook message with the discord.WebhookMessageUpdate in a thread
+func (h *Client) UpdateMessageInThread(messageID discord.Snowflake, messageUpdate discord.WebhookMessageUpdate, threadID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
+	message, err := h.WebhookService.UpdateMessage(h.ID, h.Token, messageID, messageUpdate, threadID, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +122,12 @@ func (h *Client) UpdateEmbeds(messageID discord.Snowflake, embeds []discord.Embe
 
 // DeleteMessage deletes an already sent webhook message
 func (h *Client) DeleteMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return h.WebhookService.DeleteMessage(h.ID, h.Token, messageID, opts...)
+	return h.DeleteMessageInThread(messageID, "", opts...)
+}
+
+// DeleteMessageInThread deletes an already sent webhook message in a thread
+func (h *Client) DeleteMessageInThread(messageID discord.Snowflake, threadID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return h.WebhookService.DeleteMessage(h.ID, h.Token, messageID, threadID, opts...)
 }
 
 // URL returns the full webhook URL

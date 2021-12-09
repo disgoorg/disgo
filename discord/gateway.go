@@ -108,12 +108,12 @@ type MessageDeleteBulkGatewayEvent struct {
 }
 
 type TypingStartGatewayEvent struct {
-	ChannelID Snowflake
-	GuildID   *Snowflake
-	UserID    Snowflake
-	Timestamp time.Time
-	Member    *Member
-	User      User
+	ChannelID Snowflake  `json:"channel_id"`
+	GuildID   *Snowflake `json:"guild_id,omitempty"`
+	UserID    Snowflake  `json:"user_id"`
+	Timestamp time.Time  `json:"timestamp"`
+	Member    *Member    `json:"member,omitempty"`
+	User      User       `json:"user"`
 }
 
 func (e *TypingStartGatewayEvent) UnmarshalJSON(data []byte) error {
@@ -125,6 +125,7 @@ func (e *TypingStartGatewayEvent) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
+	*e = TypingStartGatewayEvent(v.typingStartGatewayEvent)
 	e.Timestamp = time.Unix(v.Timestamp, 0)
 	return nil
 }

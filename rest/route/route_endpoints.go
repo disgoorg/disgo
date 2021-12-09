@@ -214,10 +214,10 @@ var (
 	DeleteWebhookWithToken = NewAPIRouteNoAuth(DELETE, "/webhooks/{webhook.id}/{webhook.token}")
 
 	CreateWebhookMessage       = NewAPIRouteNoAuth(POST, "/webhooks/{webhook.id}/{webhook.token}", "wait", "thread_id")
-	CreateWebhookMessageSlack  = NewAPIRouteNoAuth(POST, "/webhooks/{webhook.id}/{webhook.token}/slack", "wait")
-	CreateWebhookMessageGitHub = NewAPIRouteNoAuth(POST, "/webhooks/{webhook.id}/{webhook.token}/github", "wait")
-	UpdateWebhookMessage       = NewAPIRouteNoAuth(PATCH, "/webhooks/{webhook.id}/{webhook.token}/messages/{message.id}")
-	DeleteWebhookMessage       = NewAPIRouteNoAuth(DELETE, "/webhooks/{webhook.id}/{webhook.token}/messages/{message.id}")
+	CreateWebhookMessageSlack  = NewAPIRouteNoAuth(POST, "/webhooks/{webhook.id}/{webhook.token}/slack", "wait", "thread_id")
+	CreateWebhookMessageGitHub = NewAPIRouteNoAuth(POST, "/webhooks/{webhook.id}/{webhook.token}/github", "wait", "thread_id")
+	UpdateWebhookMessage       = NewAPIRouteNoAuth(PATCH, "/webhooks/{webhook.id}/{webhook.token}/messages/{message.id}", "thread_id")
+	DeleteWebhookMessage       = NewAPIRouteNoAuth(DELETE, "/webhooks/{webhook.id}/{webhook.token}/messages/{message.id}", "thread_id")
 )
 
 // Invites

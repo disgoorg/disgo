@@ -141,10 +141,10 @@ type ListenerAdapter struct {
 	OnSelfUpdate func(event *SelfUpdateEvent)
 
 	// User Events
-	OnUserUpdate      func(event *UserUpdateEvent)
-	OnUserTyping      func(event *UserTypingStartEvent)
-	OnGuildUserTyping func(event *GuildMemberTypingStartEvent)
-	OnDMUserTyping    func(event *DMChannelUserTypingStartEvent)
+	OnUserUpdate             func(event *UserUpdateEvent)
+	OnUserTypingStart        func(event *UserTypingStartEvent)
+	OnGuildMemberTypingStart func(event *GuildMemberTypingStartEvent)
+	OnDMUserTypingStart      func(event *DMUserTypingStartEvent)
 
 	// User Activity Events
 	OnUserActivityStart  func(event *UserActivityStartEvent)
@@ -568,15 +568,15 @@ func (l ListenerAdapter) OnEvent(event core.Event) {
 			listener(e)
 		}
 	case *UserTypingStartEvent:
-		if listener := l.OnUserTyping; listener != nil {
+		if listener := l.OnUserTypingStart; listener != nil {
 			listener(e)
 		}
 	case *GuildMemberTypingStartEvent:
-		if listener := l.OnGuildUserTyping; listener != nil {
+		if listener := l.OnGuildMemberTypingStart; listener != nil {
 			listener(e)
 		}
-	case *DMChannelUserTypingStartEvent:
-		if listener := l.OnDMUserTyping; listener != nil {
+	case *DMUserTypingStartEvent:
+		if listener := l.OnDMUserTypingStart; listener != nil {
 			listener(e)
 		}
 

@@ -364,3 +364,11 @@ func (b *Bot) GetSticker(stickerID discord.Snowflake, opts ...rest.RequestOpt) (
 	}
 	return b.EntityBuilder.CreateSticker(*sticker, CacheStrategyNoWs), nil
 }
+
+func (b *Bot) CreateDMChannel(userID discord.Snowflake, opts ...rest.RequestOpt) (*DMChannel, error) {
+	sticker, err := b.RestServices.UserService().CreateDMChannel(userID, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return b.EntityBuilder.CreateChannel(*sticker, CacheStrategyNoWs).(*DMChannel), nil
+}
