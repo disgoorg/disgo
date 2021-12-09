@@ -45,7 +45,7 @@ func (c *channelCacheImpl) GetCopy(channelID discord.Snowflake) Channel {
 }
 
 func (c *channelCacheImpl) Set(channel Channel) Channel {
-	if c.cacheFlags.Missing(getCacheFLagForChannelType(channel.Type())) {
+	if c.cacheFlags.Missing(getCacheFlagForChannelType(channel.Type())) {
 		return channel
 	}
 	ch, ok := c.channels[channel.ID()]
@@ -100,7 +100,7 @@ func (c *channelCacheImpl) ForAll(channelFunc func(channel Channel)) {
 	}
 }
 
-func getCacheFLagForChannelType(channelType discord.ChannelType) CacheFlags {
+func getCacheFlagForChannelType(channelType discord.ChannelType) CacheFlags {
 	switch channelType {
 	case discord.ChannelTypeGuildText:
 		return CacheFlagGuildTextChannels
