@@ -64,6 +64,16 @@ func (i *MessageCommandInteraction) TargetMessage() *Message {
 	return i.Data.Resolved.Messages[i.Data.TargetID]
 }
 
+// Guild returns the Guild from the Caches
+func (i *MessageCommandInteraction) Guild() *Guild {
+	return guild(i.InteractionFields, i.GuildID)
+}
+
+// Channel returns the Channel from the Caches
+func (i *MessageCommandInteraction) Channel() MessageChannel {
+	return channel(i.InteractionFields, i.ChannelID)
+}
+
 type MessageCommandResolved struct {
 	Messages map[discord.Snowflake]*Message
 }

@@ -188,3 +188,17 @@ func updateFollowup(fields *InteractionFields, applicationID discord.Snowflake, 
 func deleteFollowup(fields *InteractionFields, applicationID discord.Snowflake, token string, messageID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return fields.Bot.RestServices.InteractionService().DeleteFollowupMessage(applicationID, token, messageID, opts...)
 }
+
+func channel(fields *InteractionFields, channelID discord.Snowflake) MessageChannel {
+	if ch := fields.Bot.Caches.Channels().Get(channelID); ch != nil {
+		return ch.(MessageChannel)
+	}
+	return nil
+}
+
+func guild(fields *InteractionFields, guildID *discord.Snowflake) *Guild {
+	if guildID == nil {
+		return nil
+	}
+	return fields.Bot.Caches.Guilds().Get(*guildID)
+}

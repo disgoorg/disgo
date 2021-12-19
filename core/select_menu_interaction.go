@@ -91,3 +91,13 @@ func (i *SelectMenuInteraction) SelectedOptions() []discord.SelectMenuOption {
 	}
 	return options
 }
+
+// Guild returns the Guild from the Caches
+func (i *SelectMenuInteraction) Guild() *Guild {
+	return guild(i.InteractionFields, i.GuildID)
+}
+
+// Channel returns the Channel from the Caches
+func (i *SelectMenuInteraction) Channel() MessageChannel {
+	return channel(i.InteractionFields, i.ChannelID)
+}

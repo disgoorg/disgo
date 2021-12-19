@@ -68,6 +68,16 @@ func (i *UserCommandInteraction) TargetMember() *Member {
 	return i.Data.Resolved.Members[i.Data.TargetID]
 }
 
+// Guild returns the Guild from the Caches
+func (i *UserCommandInteraction) Guild() *Guild {
+	return guild(i.InteractionFields, i.GuildID)
+}
+
+// Channel returns the Channel from the Caches
+func (i *UserCommandInteraction) Channel() MessageChannel {
+	return channel(i.InteractionFields, i.ChannelID)
+}
+
 type UserCommandResolved struct {
 	Users   map[discord.Snowflake]*User
 	Members map[discord.Snowflake]*Member

@@ -49,15 +49,12 @@ func (i *AutocompleteInteraction) CommandPath() string {
 
 // Guild returns the Guild from the Caches
 func (i *AutocompleteInteraction) Guild() *Guild {
-	if i.GuildID == nil {
-		return nil
-	}
-	return i.Bot.Caches.Guilds().Get(*i.GuildID)
+	return guild(i.InteractionFields, i.GuildID)
 }
 
 // Channel returns the Channel from the Caches
-func (i *AutocompleteInteraction) Channel() Channel {
-	return i.Bot.Caches.Channels().Get(i.ChannelID)
+func (i *AutocompleteInteraction) Channel() MessageChannel {
+	return channel(i.InteractionFields, i.ChannelID)
 }
 
 type AutocompleteOptionsMap map[string]discord.AutocompleteOption
