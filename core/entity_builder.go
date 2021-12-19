@@ -78,19 +78,18 @@ func (b *entityBuilderImpl) Bot() *Bot {
 func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c chan<- discord.InteractionResponse, updateCache CacheStrategy) Interaction {
 	interactionFields := &InteractionFields{
 		Bot:             b.Bot(),
-		User:            nil,
-		Member:          nil,
 		ResponseChannel: c,
-		Acknowledged:    false,
 	}
 
 	switch i := interaction.(type) {
 	case discord.AutocompleteInteraction:
-		interactionFields.Member, interactionFields.User = b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
+		member, user := b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
 
 		autocompleteInteraction := &AutocompleteInteraction{
 			AutocompleteInteraction: i,
 			InteractionFields:       interactionFields,
+			User:                    user,
+			Member:                  member,
 			Data: AutocompleteInteractionData{
 				AutocompleteInteractionData: i.Data,
 			},
@@ -121,11 +120,13 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 		return autocompleteInteraction
 
 	case discord.SlashCommandInteraction:
-		interactionFields.Member, interactionFields.User = b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
+		member, user := b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
 
 		slashCommandInteraction := &SlashCommandInteraction{
 			SlashCommandInteraction: i,
 			InteractionFields:       interactionFields,
+			User:                    user,
+			Member:                  member,
 			Data: SlashCommandInteractionData{
 				SlashCommandInteractionData: i.Data,
 			},
@@ -138,22 +139,22 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 			Channels: map[discord.Snowflake]Channel{},
 		}
 		slashCommandInteraction.Data.Resolved = resolved
-		for id, user := range i.Data.Resolved.Users {
-			resolved.Users[id] = b.CreateUser(user, updateCache)
+		for id, u := range i.Data.Resolved.Users {
+			resolved.Users[id] = b.CreateUser(u, updateCache)
 		}
 
-		for id, member := range i.Data.Resolved.Members {
+		for id, m := range i.Data.Resolved.Members {
 			// discord omits the user field Oof
-			member.User = i.Data.Resolved.Users[id]
-			resolved.Members[id] = b.CreateMember(*i.GuildID, member, updateCache)
+			m.User = i.Data.Resolved.Users[id]
+			resolved.Members[id] = b.CreateMember(*i.GuildID, m, updateCache)
 		}
 
-		for id, role := range i.Data.Resolved.Roles {
-			resolved.Roles[id] = b.CreateRole(*i.GuildID, role, updateCache)
+		for id, r := range i.Data.Resolved.Roles {
+			resolved.Roles[id] = b.CreateRole(*i.GuildID, r, updateCache)
 		}
 
-		for id, channel := range i.Data.Resolved.Channels {
-			resolved.Channels[id] = b.CreateChannel(channel, updateCache)
+		for id, c := range i.Data.Resolved.Channels {
+			resolved.Channels[id] = b.CreateChannel(c, updateCache)
 		}
 
 		unmarshalOptions := i.Data.Options
@@ -232,11 +233,13 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 		return slashCommandInteraction
 
 	case discord.UserCommandInteraction:
-		interactionFields.Member, interactionFields.User = b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
+		member, user := b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
 
 		userCommandInteraction := &UserCommandInteraction{
 			UserCommandInteraction: i,
 			InteractionFields:      interactionFields,
+			User:                   user,
+			Member:                 member,
 			Data: UserCommandInteractionData{
 				UserCommandInteractionData: i.Data,
 				Resolved: &UserCommandResolved{
@@ -246,24 +249,26 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 			},
 		}
 
-		for id, user := range i.Data.Resolved.Users {
-			userCommandInteraction.Data.Resolved.Users[id] = b.CreateUser(user, updateCache)
+		for id, u := range i.Data.Resolved.Users {
+			userCommandInteraction.Data.Resolved.Users[id] = b.CreateUser(u, updateCache)
 		}
 
-		for id, member := range i.Data.Resolved.Members {
+		for id, m := range i.Data.Resolved.Members {
 			// discord omits the user field Oof
-			member.User = i.Data.Resolved.Users[id]
-			userCommandInteraction.Data.Resolved.Members[id] = b.CreateMember(*i.GuildID, member, updateCache)
+			m.User = i.Data.Resolved.Users[id]
+			userCommandInteraction.Data.Resolved.Members[id] = b.CreateMember(*i.GuildID, m, updateCache)
 		}
 
 		return userCommandInteraction
 
 	case discord.MessageCommandInteraction:
-		interactionFields.Member, interactionFields.User = b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
+		member, user := b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
 
 		messageCommandInteraction := &MessageCommandInteraction{
 			MessageCommandInteraction: i,
 			InteractionFields:         interactionFields,
+			User:                      user,
+			Member:                    member,
 			Data: MessageCommandInteractionData{
 				MessageCommandInteractionData: i.Data,
 				Resolved: &MessageCommandResolved{
@@ -279,24 +284,28 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 		return messageCommandInteraction
 
 	case discord.ButtonInteraction:
-		interactionFields.Member, interactionFields.User = b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
+		member, user := b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
 
 		message := b.CreateMessage(i.Message, updateCache)
 
 		return &ButtonInteraction{
 			ButtonInteraction: i,
 			InteractionFields: interactionFields,
+			User:              user,
+			Member:            member,
 			Message:           message,
 		}
 
 	case discord.SelectMenuInteraction:
-		interactionFields.Member, interactionFields.User = b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
+		member, user := b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
 
 		message := b.CreateMessage(i.Message, updateCache)
 
 		return &SelectMenuInteraction{
 			SelectMenuInteraction: i,
 			InteractionFields:     interactionFields,
+			User:                  user,
+			Member:                member,
 			Message:               message,
 		}
 

@@ -14,8 +14,6 @@ type Interaction interface {
 
 type InteractionFields struct {
 	Bot             *Bot
-	User            *User
-	Member          *Member
 	ResponseChannel chan<- discord.InteractionResponse
 	Acknowledged    bool
 }

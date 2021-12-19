@@ -14,6 +14,8 @@ var _ ComponentInteraction = (*ButtonInteraction)(nil)
 type ButtonInteraction struct {
 	discord.ButtonInteraction
 	*InteractionFields
+	User    *User
+	Member  *Member
 	Message *Message
 }
 

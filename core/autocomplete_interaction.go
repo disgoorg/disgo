@@ -10,7 +10,9 @@ type AutocompleteInteractionFilter func(autocompleteInteraction *AutocompleteInt
 type AutocompleteInteraction struct {
 	discord.AutocompleteInteraction
 	*InteractionFields
-	Data AutocompleteInteractionData
+	User   *User
+	Member *Member
+	Data   AutocompleteInteractionData
 }
 
 type AutocompleteInteractionData struct {

@@ -14,6 +14,8 @@ var _ ComponentInteraction = (*SelectMenuInteraction)(nil)
 type SelectMenuInteraction struct {
 	discord.SelectMenuInteraction
 	*InteractionFields
+	User    *User
+	Member  *Member
 	Message *Message
 }
 

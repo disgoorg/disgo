@@ -10,7 +10,9 @@ type MessageCommandInteractionFilter func(messageCommandInteraction *MessageComm
 type MessageCommandInteraction struct {
 	discord.MessageCommandInteraction
 	*InteractionFields
-	Data MessageCommandInteractionData
+	User   *User
+	Member *Member
+	Data   MessageCommandInteractionData
 }
 
 type MessageCommandInteractionData struct {

@@ -10,7 +10,9 @@ type SlashCommandInteractionFilter func(slashCommandInteraction *SlashCommandInt
 type SlashCommandInteraction struct {
 	discord.SlashCommandInteraction
 	*InteractionFields
-	Data SlashCommandInteractionData
+	User   *User
+	Member *Member
+	Data   SlashCommandInteractionData
 }
 
 type SlashCommandInteractionData struct {
