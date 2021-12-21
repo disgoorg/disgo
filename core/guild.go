@@ -13,7 +13,7 @@ type Guild struct {
 	Bot *Bot
 }
 
-// Update updates the current Guild
+// Update updates this Guild
 func (g *Guild) Update(updateGuild discord.GuildUpdate, opts ...rest.RequestOpt) (*Guild, error) {
 	guild, err := g.Bot.RestServices.GuildService().UpdateGuild(g.ID, updateGuild, opts...)
 	if err != nil {
@@ -22,17 +22,40 @@ func (g *Guild) Update(updateGuild discord.GuildUpdate, opts ...rest.RequestOpt)
 	return g.Bot.EntityBuilder.CreateGuild(*guild, CacheStrategyNoWs), nil
 }
 
-// Delete deletes the current Guild
+// Delete deletes the this Guild
 func (g *Guild) Delete(opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.GuildService().DeleteGuild(g.ID, opts...)
 }
 
-// PublicRole returns the @everyone Role
-func (g *Guild) PublicRole() *Role {
-	return g.Bot.Caches.RoleCache().Get(g.ID, g.ID)
+// CreateChannel creates a new GuildChannel in this Guild
+func (g *Guild) CreateChannel(guildChannelCreate discord.GuildChannelCreate, opts ...rest.RequestOpt) (GuildChannel, error) {
+	channel, err := g.Bot.RestServices.GuildService().CreateChannel(g.ID, guildChannelCreate, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return g.Bot.EntityBuilder.CreateChannel(channel, CacheStrategyNoWs).(GuildChannel), nil
 }
 
-// CreateRole allows you to create a new Role
+// UpdateChannel updates a GuildChannel in this Guild
+func (g *Guild) UpdateChannel(channelID discord.Snowflake, guildChannelUpdate discord.GuildChannelUpdate, opts ...rest.RequestOpt) (GuildChannel, error) {
+	channel, err := g.Bot.RestServices.ChannelService().UpdateChannel(channelID, guildChannelUpdate, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return g.Bot.EntityBuilder.CreateChannel(channel, CacheStrategyNoWs).(GuildChannel), nil
+}
+
+// DeleteChannel deletes a GuildChannel in this Guild
+func (g *Guild) DeleteChannel(channelID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return g.Bot.RestServices.ChannelService().DeleteChannel(channelID, opts...)
+}
+
+// PublicRole returns the @everyone Role
+func (g *Guild) PublicRole() *Role {
+	return g.Bot.Caches.Roles().Get(g.ID, g.ID)
+}
+
+// CreateRole creates a new Role with the properties provided in discord.RoleCreate
 func (g *Guild) CreateRole(roleCreate discord.RoleCreate, opts ...rest.RequestOpt) (*Role, error) {
 	role, err := g.Bot.RestServices.GuildService().CreateRole(g.ID, roleCreate, opts...)
 	if err != nil {
@@ -41,7 +64,7 @@ func (g *Guild) CreateRole(roleCreate discord.RoleCreate, opts ...rest.RequestOp
 	return g.Bot.EntityBuilder.CreateRole(g.ID, *role, CacheStrategyNoWs), nil
 }
 
-// UpdateRole allows you to update a Role
+// UpdateRole updates a Role with the properties provided in discord.RoleUpdate
 func (g *Guild) UpdateRole(roleID discord.Snowflake, roleUpdate discord.RoleUpdate, opts ...rest.RequestOpt) (*Role, error) {
 	role, err := g.Bot.RestServices.GuildService().UpdateRole(g.ID, roleID, roleUpdate, opts...)
 	if err != nil {
@@ -50,22 +73,54 @@ func (g *Guild) UpdateRole(roleID discord.Snowflake, roleUpdate discord.RoleUpda
 	return g.Bot.EntityBuilder.CreateRole(g.ID, *role, CacheStrategyNoWs), nil
 }
 
-// DeleteRole allows you to delete a Role
+// DeleteRole deletes a Role
 func (g *Guild) DeleteRole(roleID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.GuildService().DeleteRole(g.ID, roleID, opts...)
 }
 
-// Roles return all Role(s) in this Guild
+// Roles returns all Role(s) in this Guild
 func (g *Guild) Roles() []*Role {
-	return g.Bot.Caches.RoleCache().GuildAll(g.ID)
+	return g.Bot.Caches.Roles().GuildAll(g.ID)
 }
 
-// RoleCache return all Role(s) in this Guild
+// RoleCache returns all Role(s) in this Guild
 func (g *Guild) RoleCache() map[discord.Snowflake]*Role {
-	return g.Bot.Caches.RoleCache().GuildCache(g.ID)
+	return g.Bot.Caches.Roles().GuildCache(g.ID)
 }
 
-// CreateEmoji allows you to create a new Emoji
+func (g *Guild) CreateGuildScheduledEvent(guildScheduledEventCreate discord.GuildScheduledEventCreate, opts ...rest.RequestOpt) (*GuildScheduledEvent, error) {
+	guildScheduledEvent, err := g.Bot.RestServices.GuildScheduledEventService().CreateGuildScheduledEvent(g.ID, guildScheduledEventCreate, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return g.Bot.EntityBuilder.CreateGuildScheduledEvent(*guildScheduledEvent, CacheStrategyNoWs), nil
+}
+
+func (g *Guild) UpdateGuildScheduledEvent(guildScheduledEventID discord.Snowflake, guildScheduledEventUpdate discord.GuildScheduledEventUpdate, opts ...rest.RequestOpt) (*GuildScheduledEvent, error) {
+	guildScheduledEvent, err := g.Bot.RestServices.GuildScheduledEventService().UpdateGuildScheduledEvent(g.ID, guildScheduledEventID, guildScheduledEventUpdate, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return g.Bot.EntityBuilder.CreateGuildScheduledEvent(*guildScheduledEvent, CacheStrategyNoWs), nil
+}
+
+func (g *Guild) DeleteGuildScheduledEvent(guildScheduledEventID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return g.Bot.RestServices.GuildScheduledEventService().DeleteGuildScheduledEvent(g.ID, guildScheduledEventID, opts...)
+}
+
+func (g *Guild) GetGuildScheduledEventUsers(guildScheduledEventID discord.Snowflake, limit int, withMember bool, before discord.Snowflake, after discord.Snowflake, opts ...rest.RequestOpt) ([]*GuildScheduledEventUser, error) {
+	users, err := g.Bot.RestServices.GuildScheduledEventService().GetGuildScheduledEventUsers(g.ID, guildScheduledEventID, limit, withMember, before, after, opts...)
+	if err != nil {
+		return nil, err
+	}
+	eventUsers := make([]*GuildScheduledEventUser, len(users))
+	for i := range users {
+		eventUsers[i] = g.Bot.EntityBuilder.CreateGuildScheduledEventUser(g.ID, users[i], CacheStrategyNoWs)
+	}
+	return eventUsers, nil
+}
+
+// CreateEmoji creates a new Emoji with the properties provided in discord.EmojiCreate
 func (g *Guild) CreateEmoji(emojiCreate discord.EmojiCreate, opts ...rest.RequestOpt) (*Emoji, error) {
 	emoji, err := g.Bot.RestServices.EmojiService().CreateEmoji(g.ID, emojiCreate, opts...)
 	if err != nil {
@@ -74,7 +129,7 @@ func (g *Guild) CreateEmoji(emojiCreate discord.EmojiCreate, opts ...rest.Reques
 	return g.Bot.EntityBuilder.CreateEmoji(g.ID, *emoji, CacheStrategyNoWs), nil
 }
 
-// UpdateEmoji allows you to update an Emoji
+// UpdateEmoji creates an Emoji with the properties provided in discord.EmojiUpdate
 func (g *Guild) UpdateEmoji(emojiID discord.Snowflake, emojiUpdate discord.EmojiUpdate, opts ...rest.RequestOpt) (*Emoji, error) {
 	emoji, err := g.Bot.RestServices.EmojiService().UpdateEmoji(g.ID, emojiID, emojiUpdate, opts...)
 	if err != nil {
@@ -83,12 +138,12 @@ func (g *Guild) UpdateEmoji(emojiID discord.Snowflake, emojiUpdate discord.Emoji
 	return g.Bot.EntityBuilder.CreateEmoji(g.ID, *emoji, CacheStrategyNoWs), nil
 }
 
-// DeleteEmoji allows you to delete an Emoji
+// DeleteEmoji deletes an Emoji
 func (g *Guild) DeleteEmoji(emojiID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.EmojiService().DeleteEmoji(g.ID, emojiID, opts...)
 }
 
-// CreateSticker allows you to create a new Sticker
+// CreateSticker creates a new Sticker with the properties provided in discord.StickerCreate
 func (g *Guild) CreateSticker(stickerCreate discord.StickerCreate, opts ...rest.RequestOpt) (*Sticker, error) {
 	sticker, err := g.Bot.RestServices.StickerService().CreateSticker(g.ID, stickerCreate, opts...)
 	if err != nil {
@@ -97,7 +152,7 @@ func (g *Guild) CreateSticker(stickerCreate discord.StickerCreate, opts ...rest.
 	return g.Bot.EntityBuilder.CreateSticker(*sticker, CacheStrategyNoWs), nil
 }
 
-// UpdateSticker allows you to update a Sticker
+// UpdateSticker updates a Sticker with the properties provided in discord.StickerCreate
 func (g *Guild) UpdateSticker(stickerID discord.Snowflake, stickerUpdate discord.StickerUpdate, opts ...rest.RequestOpt) (*Sticker, error) {
 	sticker, err := g.Bot.RestServices.StickerService().UpdateSticker(g.ID, stickerID, stickerUpdate, opts...)
 	if err != nil {
@@ -106,24 +161,24 @@ func (g *Guild) UpdateSticker(stickerID discord.Snowflake, stickerUpdate discord
 	return g.Bot.EntityBuilder.CreateSticker(*sticker, CacheStrategyNoWs), nil
 }
 
-// DeleteSticker allows you to delete a Sticker
+// DeleteSticker deletes a Sticker
 func (g *Guild) DeleteSticker(stickerID discord.Snowflake, opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.StickerService().DeleteSticker(g.ID, stickerID, opts...)
 }
 
 // SelfMember returns the Member for the current logged-in User for this Guild
 func (g *Guild) SelfMember() *Member {
-	return g.Bot.Caches.MemberCache().Get(g.ID, g.Bot.ClientID)
+	return g.Bot.Caches.Members().Get(g.ID, g.Bot.ClientID)
 }
 
-// Leave leaves the Guild
+// Leave leaves this Guild
 func (g *Guild) Leave(opts ...rest.RequestOpt) error {
 	return g.Bot.RestServices.UserService().LeaveGuild(g.ID, opts...)
 }
 
-// Disconnect sends an GatewayCommand to disconnect from this Guild
-func (g *Guild) Disconnect() error {
-	return g.Bot.AudioController.Disconnect(g.ID)
+// Disconnect sends a GatewayCommand to disconnect from this Guild
+func (g *Guild) Disconnect(ctx context.Context) error {
+	return g.Bot.AudioController.Disconnect(ctx, g.ID)
 }
 
 func (g *Guild) RequestMembers(userIDs ...discord.Snowflake) ([]*Member, error) {
@@ -164,7 +219,7 @@ func (g *Guild) RequestMembersWithFilterChan(memberFilterFunc func(member *Membe
 
 // GetMember returns the specific Member for this Guild
 func (g *Guild) GetMember(userID discord.Snowflake) *Member {
-	return g.Bot.Caches.MemberCache().Get(g.ID, userID)
+	return g.Bot.Caches.Members().Get(g.ID, userID)
 }
 
 // AddMember adds a member to the Guild with the oauth2 access token
@@ -237,14 +292,14 @@ func (g *Guild) GetAuditLogs(filterOptions AuditLogFilterOptions, opts ...rest.R
 }
 
 // GetIntegrations gets all Integration(s) from the Guild. Requires PermissionManageServer
-func (g *Guild) GetIntegrations(opts ...rest.RequestOpt) ([]*Integration, error) {
+func (g *Guild) GetIntegrations(opts ...rest.RequestOpt) ([]Integration, error) {
 	guildIntegrations, err := g.Bot.RestServices.GuildService().GetIntegrations(g.ID, opts...)
 	if err != nil {
 		return nil, err
 	}
-	integrations := make([]*Integration, len(guildIntegrations))
-	for i, guildIntegration := range guildIntegrations {
-		integrations[i] = g.Bot.EntityBuilder.CreateIntegration(g.ID, guildIntegration, CacheStrategyNoWs)
+	integrations := make([]Integration, len(guildIntegrations))
+	for i := range guildIntegrations {
+		integrations[i] = g.Bot.EntityBuilder.CreateIntegration(g.ID, guildIntegrations[i], CacheStrategyNoWs)
 	}
 	return integrations, nil
 }

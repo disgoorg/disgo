@@ -20,7 +20,7 @@ func (s *MessageSticker) URL(size int) string {
 }
 
 func (s *MessageSticker) GetSticker() (*Sticker, error) {
-	coreSticker := s.Bot.Caches.StickerCache().FindFirst(func(sticker *Sticker) bool { return sticker.ID == s.ID })
+	coreSticker := s.Bot.Caches.Stickers().FindFirst(func(sticker *Sticker) bool { return sticker.ID == s.ID })
 	if coreSticker != nil {
 		return coreSticker, nil
 	}

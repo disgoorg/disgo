@@ -1,5 +1,7 @@
 package discord
 
+var _ Mentionable = (*Member)(nil)
+
 // Member is a discord GuildMember
 type Member struct {
 	GuildID       Snowflake    `json:"guild_id"`
@@ -14,6 +16,22 @@ type Member struct {
 	Pending       bool         `json:"pending"`
 	TimedOutUntil *Time        `json:"communication_disabled_until"`
 	Permissions   *Permissions `json:"permissions"` // only sent from slash commands & should not be cached
+}
+
+// EffectiveName returns either the nickname or username depending on if the user has a nickname
+func (m Member) EffectiveName() string {
+	if m.Nick != nil {
+		return *m.Nick
+	}
+	return m.User.Username
+}
+
+func (m Member) String() string {
+	return memberMention(m.User.ID)
+}
+
+func (m Member) Mention() string {
+	return m.String()
 }
 
 // MemberAdd is used to add a member via the oauth2 access token to a guild

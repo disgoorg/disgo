@@ -1,26 +1,14 @@
 package core
 
 import (
-	"fmt"
-
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ Mentionable = (*Role)(nil)
-
 type Role struct {
 	discord.Role
 	Bot *Bot
-}
-
-func (r *Role) String() string {
-	return fmt.Sprintf("<@&%s>", r.ID)
-}
-
-func (r *Role) Mention() string {
-	return r.String()
 }
 
 func (r *Role) IconURL(size int) *string {
@@ -32,12 +20,13 @@ func (r *Role) IconURL(size int) *string {
 	return &url
 }
 
-// Guild returns the Guild of this role from the Caches
+// Guild returns the Guild this Role belongs to.
+// This will only check cached guilds!
 func (r *Role) Guild() *Guild {
-	return r.Bot.Caches.GuildCache().Get(r.GuildID)
+	return r.Bot.Caches.Guilds().Get(r.GuildID)
 }
 
-// Update updates the Role with specific values
+// Update updates this Role with the properties provided in discord.RoleUpdate
 func (r *Role) Update(roleUpdate discord.RoleUpdate, opts ...rest.RequestOpt) (*Role, error) {
 	role, err := r.Bot.RestServices.GuildService().UpdateRole(r.GuildID, r.ID, roleUpdate, opts...)
 	if err != nil {
@@ -46,7 +35,7 @@ func (r *Role) Update(roleUpdate discord.RoleUpdate, opts ...rest.RequestOpt) (*
 	return r.Bot.EntityBuilder.CreateRole(r.GuildID, *role, CacheStrategyNoWs), nil
 }
 
-// SetPosition sets the position of the Role
+// SetPosition sets the position of this Role
 func (r *Role) SetPosition(rolePositionUpdate discord.RolePositionUpdate, opts ...rest.RequestOpt) ([]*Role, error) {
 	roles, err := r.Bot.RestServices.GuildService().UpdateRolePositions(r.GuildID, []discord.RolePositionUpdate{rolePositionUpdate}, opts...)
 	if err != nil {
@@ -59,7 +48,7 @@ func (r *Role) SetPosition(rolePositionUpdate discord.RolePositionUpdate, opts .
 	return coreRoles, nil
 }
 
-// Delete deletes the Role
+// Delete deletes this Role
 func (r *Role) Delete(opts ...rest.RequestOpt) error {
 	return r.Bot.RestServices.GuildService().DeleteRole(r.GuildID, r.ID, opts...)
 }

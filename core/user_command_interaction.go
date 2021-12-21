@@ -8,63 +8,74 @@ import (
 type UserCommandInteractionFilter func(userCommandInteraction *UserCommandInteraction) bool
 
 type UserCommandInteraction struct {
+	discord.UserCommandInteraction
 	*InteractionFields
-	CommandID   discord.Snowflake
-	CommandName string
-	Resolved    *UserCommandResolved
-	TargetID    discord.Snowflake
+	User   *User
+	Member *Member
+	Data   UserCommandInteractionData
 }
 
-func (i *UserCommandInteraction) InteractionType() discord.InteractionType {
-	return discord.InteractionTypeApplicationCommand
-}
-
-func (i *UserCommandInteraction) ApplicationCommandType() discord.ApplicationCommandType {
-	return discord.ApplicationCommandTypeUser
+type UserCommandInteractionData struct {
+	discord.UserCommandInteractionData
+	Resolved *UserCommandResolved
 }
 
 func (i *UserCommandInteraction) Respond(callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
-	return respond(i.InteractionFields, callbackType, callbackData, opts...)
+	return respond(i.InteractionFields, i.ID, i.Token, callbackType, callbackData, opts...)
 }
 
 func (i *UserCommandInteraction) Create(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
-	return create(i.InteractionFields, messageCreate, opts...)
+	return create(i.InteractionFields, i.ID, i.Token, messageCreate, opts...)
 }
 
 func (i *UserCommandInteraction) DeferCreate(ephemeral bool, opts ...rest.RequestOpt) error {
-	return deferCreate(i.InteractionFields, ephemeral, opts...)
+	return deferCreate(i.InteractionFields, i.ID, i.Token, ephemeral, opts...)
 }
 
 func (i *UserCommandInteraction) GetOriginal(opts ...rest.RequestOpt) (*Message, error) {
-	return getOriginal(i.InteractionFields, opts...)
+	return getOriginal(i.InteractionFields, i.ApplicationID, i.Token, opts...)
 }
 
 func (i *UserCommandInteraction) UpdateOriginal(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
-	return updateOriginal(i.InteractionFields, messageUpdate, opts...)
+	return updateOriginal(i.InteractionFields, i.ApplicationID, i.Token, messageUpdate, opts...)
 }
 
 func (i *UserCommandInteraction) DeleteOriginal(opts ...rest.RequestOpt) error {
-	return deleteOriginal(i.InteractionFields, opts...)
+	return deleteOriginal(i.InteractionFields, i.ApplicationID, i.Token, opts...)
+}
+
+func (i *UserCommandInteraction) GetFollowup(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
+	return getFollowup(i.InteractionFields, i.ApplicationID, i.Token, messageID, opts...)
 }
 
 func (i *UserCommandInteraction) CreateFollowup(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
-	return createFollowup(i.InteractionFields, messageCreate, opts...)
+	return createFollowup(i.InteractionFields, i.ApplicationID, i.Token, messageCreate, opts...)
 }
 
 func (i *UserCommandInteraction) UpdateFollowup(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
-	return updateFollowup(i.InteractionFields, messageID, messageUpdate, opts...)
+	return updateFollowup(i.InteractionFields, i.ApplicationID, i.Token, messageID, messageUpdate, opts...)
 }
 
 func (i *UserCommandInteraction) DeleteFollowup(messageID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return deleteFollowup(i.InteractionFields, messageID, opts...)
+	return deleteFollowup(i.InteractionFields, i.ApplicationID, i.Token, messageID, opts...)
 }
 
 func (i *UserCommandInteraction) TargetUser() *User {
-	return i.Resolved.Users[i.TargetID]
+	return i.Data.Resolved.Users[i.Data.TargetID]
 }
 
 func (i *UserCommandInteraction) TargetMember() *Member {
-	return i.Resolved.Members[i.TargetID]
+	return i.Data.Resolved.Members[i.Data.TargetID]
+}
+
+// Guild returns the Guild from the Caches
+func (i *UserCommandInteraction) Guild() *Guild {
+	return guild(i.InteractionFields, i.GuildID)
+}
+
+// Channel returns the Channel from the Caches
+func (i *UserCommandInteraction) Channel() MessageChannel {
+	return channel(i.InteractionFields, i.ChannelID)
 }
 
 type UserCommandResolved struct {

@@ -44,11 +44,11 @@ func (e *Emoji) URL(size int) string {
 
 // Guild returns the Guild of the Emoji from the Caches
 func (e *Emoji) Guild() *Guild {
-	return e.Bot.Caches.GuildCache().Get(e.GuildID)
+	return e.Bot.Caches.Guilds().Get(e.GuildID)
 }
 
 func (e *Emoji) Update(emojiUpdate discord.EmojiUpdate, opts ...rest.RequestOpt) (*Emoji, error) {
-	emoji, err := e.Bot.RestServices.EmojiService().UpdateEmoji(e.GuildID, e.ID, emojiUpdate)
+	emoji, err := e.Bot.RestServices.EmojiService().UpdateEmoji(e.GuildID, e.ID, emojiUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -56,21 +56,7 @@ func (e *Emoji) Update(emojiUpdate discord.EmojiUpdate, opts ...rest.RequestOpt)
 }
 
 func (e *Emoji) Delete(opts ...rest.RequestOpt) error {
-	return e.Bot.RestServices.EmojiService().DeleteEmoji(e.GuildID, e.ID)
-}
-
-// Mention returns the string used to send the Emoji
-func (e *Emoji) Mention() string {
-	start := "<:"
-	if e.Animated {
-		start = "<a:"
-	}
-	return start + e.Name + ":" + e.ID.String() + ">"
-}
-
-// String formats the Emoji as string
-func (e *Emoji) String() string {
-	return e.Mention()
+	return e.Bot.RestServices.EmojiService().DeleteEmoji(e.GuildID, e.ID, opts...)
 }
 
 // Reaction returns the identifier used for adding and removing reactions for messages in discord

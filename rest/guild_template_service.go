@@ -5,7 +5,10 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ GuildTemplateService = (*guildTemplateServiceImpl)(nil)
+var (
+	_ Service              = (*guildTemplateServiceImpl)(nil)
+	_ GuildTemplateService = (*guildTemplateServiceImpl)(nil)
+)
 
 func NewGuildTemplateService(restClient Client) GuildTemplateService {
 	return &guildTemplateServiceImpl{restClient: restClient}

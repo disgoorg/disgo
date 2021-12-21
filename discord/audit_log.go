@@ -1,5 +1,7 @@
 package discord
 
+import "github.com/DisgoOrg/disgo/json"
+
 // AuditLogEvent is an 8-bit unsigned integer representing an audit log event.
 type AuditLogEvent int
 
@@ -86,12 +88,75 @@ const (
 	AuditLogEventStageInstanceDelete
 )
 
+// AuditLogEventStickerCreate
+//goland:noinspection GoUnusedConst
+const (
+	AuditLogEventStickerCreate AuditLogEvent = iota + 90
+	AuditLogEventStickerUpdate
+	AuditLogEventStickerDelete
+)
+
+// AuditLogGuildScheduledEventCreate
+//goland:noinspection GoUnusedConst
+const (
+	AuditLogGuildScheduledEventCreate AuditLogEvent = iota + 100
+	AuditLogGuildScheduledEventUpdate
+	AuditLogGuildScheduledEventDelete
+)
+
+// AuditLogThreadCreate
+//goland:noinspection GoUnusedConst
+const (
+	AuditLogThreadCreate AuditLogEvent = iota + 100
+	AuditLogThreadUpdate
+	AuditLogThreadDelete
+)
+
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord
 type AuditLog struct {
-	Webhooks     []Webhook       `json:"webhooks"`
-	Users        []User          `json:"users"`
-	Integrations []Integration   `json:"integrations"`
-	Entries      []AuditLogEntry `json:"entries"`
+	Entries              []AuditLogEntry       `json:"entries"`
+	GuildScheduledEvents []GuildScheduledEvent `json:"guild_scheduled_events"`
+	Integrations         []Integration         `json:"integrations"`
+	Threads              []GuildThread         `json:"threads"`
+	Users                []User                `json:"users"`
+	Webhooks             []Webhook             `json:"webhooks"`
+}
+
+func (l *AuditLog) UnmarshalJSON(data []byte) error {
+	type auditLog AuditLog
+	var v struct {
+		Integrations []UnmarshalIntegration `json:"integrations"`
+		Threads      []UnmarshalChannel     `json:"threads"`
+		Webhooks     []UnmarshalWebhook     `json:"webhooks"`
+		auditLog
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*l = AuditLog(v.auditLog)
+
+	if v.Integrations != nil {
+		l.Integrations = make([]Integration, len(v.Integrations))
+		for i := range v.Integrations {
+			l.Integrations[i] = v.Integrations[i].Integration
+		}
+	}
+
+	if v.Threads != nil {
+		l.Threads = make([]GuildThread, len(v.Threads))
+		for i := range v.Integrations {
+			l.Threads[i] = v.Threads[i].Channel.(GuildThread)
+		}
+	}
+
+	if v.Webhooks != nil {
+		l.Webhooks = make([]Webhook, len(v.Webhooks))
+		for i := range v.Webhooks {
+			l.Webhooks[i] = v.Webhooks[i].Webhook
+		}
+	}
+
+	return nil
 }
 
 // AuditLogEntry (https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object)

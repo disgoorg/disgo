@@ -4,7 +4,7 @@ type AutocompleteResult struct {
 	Choices []AutocompleteChoice `json:"choices"`
 }
 
-func (_ AutocompleteResult) interactionCallbackData() {}
+func (AutocompleteResult) interactionCallbackData() {}
 
 type AutocompleteChoice interface {
 	autoCompleteChoice()
@@ -15,18 +15,18 @@ type AutocompleteChoiceString struct {
 	Value string `json:"value"`
 }
 
-func (_ AutocompleteChoiceString) autoCompleteChoice() {}
+func (AutocompleteChoiceString) autoCompleteChoice() {}
 
 type AutocompleteChoiceInt struct {
 	Name  string `json:"name"`
 	Value int    `json:"value"`
 }
 
-func (_ AutocompleteChoiceInt) autoCompleteChoice() {}
+func (AutocompleteChoiceInt) autoCompleteChoice() {}
 
 type AutocompleteChoiceFloat struct {
 	Name  string  `json:"name"`
 	Value float64 `json:"value"`
 }
 
-func (_ AutocompleteChoiceFloat) autoCompleteChoice() {}
+func (AutocompleteChoiceFloat) autoCompleteChoice() {}

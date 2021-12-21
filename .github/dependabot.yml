@@ -6,9 +6,3 @@ updates:
             interval: daily
         open-pull-requests-limit: 10
         target-branch: development
-    -   package-ecosystem: gomod
-        directory: "/example"
-        schedule:
-            interval: daily
-        open-pull-requests-limit: 10
-        target-branch: development
