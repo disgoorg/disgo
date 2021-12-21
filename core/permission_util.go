@@ -19,6 +19,9 @@ func GetMemberPermissions(member *Member) discord.Permissions {
 			return discord.PermissionsAll
 		}
 	}
+	if member.TimedOutUntil != nil {
+		permissions &= discord.PermissionViewChannel | discord.PermissionReadMessageHistory
+	}
 	return permissions
 }
 
