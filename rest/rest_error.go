@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/DisgoOrg/disgo/discord"
@@ -20,7 +19,6 @@ type Error struct {
 }
 
 // NewErrorErr returns a new Error with the given http.Request, http.Response & error
-//goland:noinspection GoUnusedExportedFunction
 func NewErrorErr(rq *http.Request, rqBody []byte, rs *http.Response, rsBody []byte, err error) error {
 	return &Error{
 		Request:  rq,
@@ -31,6 +29,7 @@ func NewErrorErr(rq *http.Request, rqBody []byte, rs *http.Response, rsBody []by
 	}
 }
 
+// NewErrorAPIErr returns a new Error with the given http.Request, http.Response & discord.APIError
 func NewErrorAPIErr(rq *http.Request, rqBody []byte, rs *http.Response, rsBody []byte, apiError discord.APIError) error {
 	return &Error{
 		APIError: apiError,
@@ -41,6 +40,7 @@ func NewErrorAPIErr(rq *http.Request, rqBody []byte, rs *http.Response, rsBody [
 	}
 }
 
+// NewError returns a new Error with the given http.Request, http.Response
 func NewError(rq *http.Request, rqBody []byte, rs *http.Response, rsBody []byte) error {
 	return &Error{
 		Request:  rq,
@@ -50,6 +50,7 @@ func NewError(rq *http.Request, rqBody []byte, rs *http.Response, rsBody []byte)
 	}
 }
 
+// Is returns true if the error is a discord.APIError 6 has the same StatusCode
 func (e Error) Is(target error) bool {
 	err, ok := target.(*Error)
 	if !ok {
@@ -58,17 +59,18 @@ func (e Error) Is(target error) bool {
 	return err.Response != nil && e.Response != nil && err.Response.StatusCode == e.Response.StatusCode
 }
 
+// Error returns the error formatted as string
 func (e Error) Error() string {
 	if e.Err != nil {
 		return e.Err.Error()
 	}
-	var status int
 	if e.Response != nil {
-		status = e.Response.StatusCode
+		return e.Response.Status
 	}
-	return fmt.Sprintf("status %d: err %v", status, e.Err)
+	return "unknown error"
 }
 
+// Error returns the error formatted as string
 func (e Error) String() string {
 	return e.Error()
 }

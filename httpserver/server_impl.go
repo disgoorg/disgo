@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"bytes"
+	"context"
 	"crypto/ed25519"
 	"encoding/hex"
 	"io"
@@ -89,10 +90,8 @@ func (s *serverImpl) Start() {
 }
 
 // Close shuts down the serverImpl
-func (s *serverImpl) Close() {
-	if err := s.server.Close(); err != nil {
-		s.Logger().Error("error while shutting down http server: ", err)
-	}
+func (s *serverImpl) Close(ctx context.Context) error {
+	return s.server.Shutdown(ctx)
 }
 
 type WebhookInteractionHandler struct {
@@ -107,7 +106,9 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	defer r.Body.Close()
+	defer func() {
+		_ = r.Body.Close()
+	}()
 
 	body := &bytes.Buffer{}
 	data, _ := ioutil.ReadAll(io.TeeReader(r.Body, body))

@@ -2,15 +2,11 @@ package discord
 
 import (
 	"fmt"
-	"regexp"
 	"strconv"
 	"time"
 
 	"github.com/pkg/errors"
 )
-
-// PatternTimestampStyle the regexp.Regexp to parse a Timestamp from a Message
-var PatternTimestampStyle = regexp.MustCompile("<t:(?P<time>-?\\d{1,17})(?::(?P<format>[tTdDfFR]))?>")
 
 // ErrNoTimestampMatch is returned when no valid Timestamp is found in the Message
 var ErrNoTimestampMatch = errors.New("no matching timestamp found in string")
@@ -20,6 +16,9 @@ type TimestampStyle string
 
 //goland:noinspection GoUnusedConst
 const (
+	// TimestampStyleNone formats as default
+	TimestampStyleNone TimestampStyle = ""
+
 	// TimestampStyleShortTime formats time as 16:20
 	TimestampStyleShortTime TimestampStyle = "t"
 
@@ -49,12 +48,15 @@ func (f TimestampStyle) FormatTime(time time.Time) string {
 
 // Format returns the seconds formatted as markdown string
 func (f TimestampStyle) Format(seconds int64) string {
-	return fmt.Sprintf("<t:%d:%s>", seconds, f)
+	if f == TimestampStyleNone {
+		return timestampMention(seconds)
+	}
+	return formattedTimestampMention(seconds, f)
 }
 
 // ParseTimestamps parses all Timestamp(s) found in the provided string
 func ParseTimestamps(str string, n int) ([]Timestamp, error) {
-	matches := PatternTimestampStyle.FindAllStringSubmatch(str, n)
+	matches := MentionTypeTimestamp.FindAllStringSubmatch(str, n)
 	if matches == nil {
 		return nil, ErrNoTimestampMatch
 	}

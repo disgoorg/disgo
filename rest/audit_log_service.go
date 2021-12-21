@@ -5,13 +5,16 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ auditLogService = (*AuditLogServiceImpl)(nil)
+var (
+	_ Service         = (*AuditLogServiceImpl)(nil)
+	_ AuditLogService = (*AuditLogServiceImpl)(nil)
+)
 
-func NewAuditLogService(restClient Client) auditLogService {
+func NewAuditLogService(restClient Client) AuditLogService {
 	return &AuditLogServiceImpl{restClient: restClient}
 }
 
-type auditLogService interface {
+type AuditLogService interface {
 	Service
 	GetAuditLog(guildID discord.Snowflake, userID discord.Snowflake, actionType discord.AuditLogEvent, before discord.Snowflake, limit int, opts ...RequestOpt) (*discord.AuditLog, error)
 }

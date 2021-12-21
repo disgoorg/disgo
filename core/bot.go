@@ -5,9 +5,10 @@ import (
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
+	"github.com/DisgoOrg/disgo/gateway/sharding"
 	"github.com/DisgoOrg/disgo/httpserver"
+	"github.com/DisgoOrg/disgo/internal/merrors"
 	"github.com/DisgoOrg/disgo/rest"
-	"github.com/DisgoOrg/disgo/sharding"
 	"github.com/DisgoOrg/log"
 )
 
@@ -38,27 +39,34 @@ type Bot struct {
 }
 
 // Close will clean up all disgo internals and close the discord connection safely
-func (b *Bot) Close() {
+func (b *Bot) Close(ctx context.Context) error {
+	var errs merrors.Error
 	if b.RestServices != nil {
-		b.RestServices.Close()
+		if err := b.RestServices.Close(ctx); err != nil {
+			errs.Add(err)
+		}
 	}
 	if b.Gateway != nil {
-		b.Gateway.Close()
+		if err := b.Gateway.Close(ctx); err != nil {
+			errs.Add(err)
+		}
 	}
 	if b.ShardManager != nil {
-		b.ShardManager.Close()
+		if err := b.ShardManager.Close(ctx); err != nil {
+			errs.Add(err)
+		}
 	}
 	if b.HTTPServer != nil {
-		b.HTTPServer.Close()
+		if err := b.HTTPServer.Close(ctx); err != nil {
+			errs.Add(err)
+		}
 	}
-	if b.EventManager != nil {
-		b.EventManager.Close()
-	}
+	return nil
 }
 
 // SelfMember returns a core.OAuth2User for the client, if available
 func (b *Bot) SelfMember(guildID discord.Snowflake) *Member {
-	return b.Caches.MemberCache().Get(guildID, b.ClientID)
+	return b.Caches.Members().Get(guildID, b.ClientID)
 }
 
 // AddEventListeners adds one or more EventListener(s) to the EventManager
@@ -72,34 +80,27 @@ func (b *Bot) RemoveEventListeners(listeners ...EventListener) {
 }
 
 // ConnectGateway opens the gateway connection to discord
-func (b *Bot) ConnectGateway() error {
-	return b.ConnectGatewayCtx(context.Background())
-}
-
-func (b *Bot) ConnectGatewayCtx(ctx context.Context) error {
+func (b *Bot) ConnectGateway(ctx context.Context) error {
 	if b.Gateway == nil {
 		return discord.ErrNoGateway
 	}
-	return b.Gateway.OpenCtx(ctx)
+	return b.Gateway.Open(ctx)
 }
 
 // ConnectShardManager opens the gateway connection to discord
-func (b *Bot) ConnectShardManager() []error {
-	return b.ConnectShardManagerCtx(context.Background())
-}
-
-func (b *Bot) ConnectShardManagerCtx(ctx context.Context) []error {
+func (b *Bot) ConnectShardManager(ctx context.Context) error {
 	if b.ShardManager == nil {
-		return []error{discord.ErrNoShardManager}
+		return discord.ErrNoShardManager
 	}
-	return b.ShardManager.OpenCtx(ctx)
+	return b.ShardManager.Open(ctx)
 }
 
-// HasGateway returns whether core.disgo has an active gateway.Gateway connection
+// HasGateway returns whether this Bot has an active gateway.Gateway connection
 func (b *Bot) HasGateway() bool {
 	return b.Gateway != nil
 }
 
+// HasShardManager returns whether this Bot is sharded
 func (b *Bot) HasShardManager() bool {
 	return b.ShardManager != nil
 }
@@ -117,14 +118,15 @@ func (b *Bot) Shard(guildID discord.Snowflake) (gateway.Gateway, error) {
 	return nil, discord.ErrNoGatewayOrShardManager
 }
 
-func (b *Bot) SetPresence(presenceUpdate discord.PresenceUpdate) error {
+func (b *Bot) SetPresence(ctx context.Context, presenceUpdate discord.UpdatePresenceCommandData) error {
 	if !b.HasGateway() {
 		return discord.ErrNoGateway
 	}
-	return b.Gateway.Send(discord.NewGatewayCommand(discord.GatewayOpcodePresenceUpdate, presenceUpdate))
+	return b.Gateway.Send(ctx, discord.NewGatewayCommand(discord.GatewayOpcodePresenceUpdate, presenceUpdate))
 }
 
-func (b *Bot) SetPresenceForShard(shardId int, presenceUpdate discord.PresenceUpdate) error {
+// SetPresenceForShard sets the Presence of this Bot for the provided shard
+func (b *Bot) SetPresenceForShard(ctx context.Context, shardId int, presenceUpdate discord.UpdatePresenceCommandData) error {
 	if !b.HasShardManager() {
 		return discord.ErrNoShardManager
 	}
@@ -132,7 +134,7 @@ func (b *Bot) SetPresenceForShard(shardId int, presenceUpdate discord.PresenceUp
 	if shard == nil {
 		return discord.ErrShardNotFound
 	}
-	return shard.Send(discord.NewGatewayCommand(discord.GatewayOpcodePresenceUpdate, presenceUpdate))
+	return shard.Send(ctx, discord.NewGatewayCommand(discord.GatewayOpcodePresenceUpdate, presenceUpdate))
 }
 
 // StartHTTPServer starts the interaction webhook server
@@ -361,4 +363,12 @@ func (b *Bot) GetSticker(stickerID discord.Snowflake, opts ...rest.RequestOpt) (
 		return nil, err
 	}
 	return b.EntityBuilder.CreateSticker(*sticker, CacheStrategyNoWs), nil
+}
+
+func (b *Bot) CreateDMChannel(userID discord.Snowflake, opts ...rest.RequestOpt) (*DMChannel, error) {
+	sticker, err := b.RestServices.UserService().CreateDMChannel(userID, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return b.EntityBuilder.CreateChannel(*sticker, CacheStrategyNoWs).(*DMChannel), nil
 }
