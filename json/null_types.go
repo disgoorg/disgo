@@ -1,5 +1,7 @@
 package json
 
+import "time"
+
 type NullBool *bool
 
 //goland:noinspection GoUnusedExportedFunction
@@ -53,5 +55,19 @@ func NewFloat(float float64) *NullFloat {
 //goland:noinspection GoUnusedExportedFunction
 func NewNullFloat() *NullFloat {
 	v := NullFloat(nil)
+	return &v
+}
+
+type NullTime *time.Time
+
+//goland:noinspection GoUnusedExportedFunction
+func NewTime(time time.Time) *NullTime {
+	v := NullTime(&time)
+	return &v
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func NewNullTime() *NullTime {
+	v := NullTime(nil)
 	return &v
 }
