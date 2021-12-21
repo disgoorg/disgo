@@ -129,7 +129,7 @@ func (m *memberChunkingManagerImpl) requestGuildMembersChan(ctx context.Context,
 	m.chunkingRequests[nonce] = request
 	m.chunkingRequestsMu.Unlock()
 
-	command := discord.RequestGuildMembersCommand{
+	command := discord.RequestGuildMembersCommandData{
 		GuildID:   guildID,
 		Query:     query,
 		Limit:     limit,
@@ -140,7 +140,7 @@ func (m *memberChunkingManagerImpl) requestGuildMembersChan(ctx context.Context,
 
 	return memberChan, func() {
 		cleanupRequest(m, request)
-	}, shard.SendCtx(ctx, discord.NewGatewayCommand(discord.GatewayOpcodeRequestGuildMembers, command))
+	}, shard.Send(ctx, discord.NewGatewayCommand(discord.GatewayOpcodeRequestGuildMembers, command))
 }
 
 func (m *memberChunkingManagerImpl) requestGuildMembers(ctx context.Context, guildID discord.Snowflake, query *string, limit *int, userIDs []discord.Snowflake, memberFilterFunc func(member *Member) bool) ([]*Member, error) {
@@ -213,5 +213,5 @@ func (m *memberChunkingManagerImpl) RequestAllMembersChan(guildID discord.Snowfl
 func (m *memberChunkingManagerImpl) RequestMembersWithFilterChan(guildID discord.Snowflake, memberFilterFunc func(member *Member) bool) (<-chan *Member, func(), error) {
 	query := ""
 	limit := 0
-	return m.requestGuildMembersChan(context.Background(), guildID, &query, &limit, nil, nil)
+	return m.requestGuildMembersChan(context.Background(), guildID, &query, &limit, nil, memberFilterFunc)
 }

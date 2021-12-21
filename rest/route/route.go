@@ -7,7 +7,6 @@ import (
 )
 
 // NewRoute generates a new discord path struct
-//goland:noinspection GoUnusedExportedFunction
 func NewRoute(path string, queryParams ...string) *Route {
 	params := map[string]struct{}{}
 	for _, param := range queryParams {
@@ -83,6 +82,7 @@ type CompiledRoute struct {
 	queryParams string
 }
 
+// URL returns the full URL of the CompiledRoute
 func (r *CompiledRoute) URL() string {
 	u := r.route.basePath + r.path
 	if r.queryParams != "" {

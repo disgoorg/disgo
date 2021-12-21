@@ -12,6 +12,7 @@ type (
 		GetCopy(guildID discord.Snowflake, userID discord.Snowflake) *Member
 		Set(member *Member) *Member
 		Remove(guildID discord.Snowflake, userID discord.Snowflake)
+		RemoveAll(guildID discord.Snowflake)
 
 		Cache() map[discord.Snowflake]map[discord.Snowflake]*Member
 		All() map[discord.Snowflake][]*Member
@@ -56,18 +57,18 @@ func (c *memberCacheImpl) GetCopy(guildID discord.Snowflake, userID discord.Snow
 
 func (c *memberCacheImpl) Set(member *Member) *Member {
 	// always cache self members
-	if !c.memberCachePolicy(member) && member.ID != member.Bot.ClientID {
+	if !c.memberCachePolicy(member) && member.User.ID != member.Bot.ClientID {
 		return member
 	}
 	if _, ok := c.members[member.GuildID]; !ok {
 		c.members[member.GuildID] = map[discord.Snowflake]*Member{}
 	}
-	rol, ok := c.members[member.GuildID][member.ID]
+	rol, ok := c.members[member.GuildID][member.User.ID]
 	if ok {
 		*rol = *member
 		return rol
 	}
-	c.members[member.GuildID][member.ID] = member
+	c.members[member.GuildID][member.User.ID] = member
 
 	return member
 }
@@ -77,6 +78,10 @@ func (c *memberCacheImpl) Remove(guildID discord.Snowflake, userID discord.Snowf
 		return
 	}
 	delete(c.members[guildID], userID)
+}
+
+func (c *memberCacheImpl) RemoveAll(guildID discord.Snowflake) {
+	delete(c.members, guildID)
 }
 
 func (c *memberCacheImpl) Cache() map[discord.Snowflake]map[discord.Snowflake]*Member {

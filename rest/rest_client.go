@@ -2,7 +2,7 @@ package rest
 
 import (
 	"bytes"
-	"io"
+	"context"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -32,6 +32,9 @@ func NewClient(config *Config) Client {
 	if config.RateLimiterConfig == nil {
 		config.RateLimiterConfig = &rrate.DefaultConfig
 	}
+	if config.RateLimiterConfig.Logger == nil {
+		config.RateLimiterConfig.Logger = config.Logger
+	}
 	if config.RateLimiter == nil {
 		config.RateLimiter = rrate.NewLimiter(config.RateLimiterConfig)
 	}
@@ -40,11 +43,21 @@ func NewClient(config *Config) Client {
 
 // Client allows doing requests to different endpoints
 type Client interface {
-	Close()
+	// Logger returns the logger the rest client uses
 	Logger() log.Logger
+
+	// HTTPClient returns the http.Client the rest client uses
 	HTTPClient() *http.Client
+
+	// RateLimiter returns the rrate.Limiter the rest client uses
 	RateLimiter() rrate.Limiter
+	// Config returns the Config the rest client uses
 	Config() Config
+
+	// Close closes the rest client and awaits all pending requests to finish. You can use a cancelling context to abort the waiting
+	Close(ctx context.Context) error
+
+	// Do makes a request to the given route.CompiledAPIRoute and marshals the given interface{} as json and unmarshalls the response into the given interface
 	Do(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) error
 }
 
@@ -52,8 +65,9 @@ type clientImpl struct {
 	config Config
 }
 
-func (c *clientImpl) Close() {
+func (c *clientImpl) Close(_ context.Context) error {
 	c.config.HTTPClient.CloseIdleConnections()
+	return nil
 }
 
 func (c *clientImpl) Logger() log.Logger {
@@ -74,49 +88,41 @@ func (c *clientImpl) Config() Config {
 
 func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, tries int, opts []RequestOpt) error {
 	rqURL := cRoute.URL()
-	rqBuffer := &bytes.Buffer{}
 	var rawRqBody []byte
+	var err error
 	var contentType string
 
 	if rqBody != nil {
-		var buffer *bytes.Buffer
 		switch v := rqBody.(type) {
 		case *discord.MultipartBuffer:
 			contentType = v.ContentType
-			buffer = v.Buffer
+			rawRqBody = v.Buffer.Bytes()
 
 		case url.Values:
 			contentType = "application/x-www-form-urlencoded"
-			buffer = bytes.NewBufferString(v.Encode())
+			rawRqBody = []byte(v.Encode())
 
 		default:
 			contentType = "application/json"
-			buffer = &bytes.Buffer{}
-			err := json.NewEncoder(buffer).Encode(rqBody)
-			if err != nil {
-				return err
+			if rawRqBody, err = json.Marshal(rqBody); err != nil {
+				return errors.Wrap(err, "failed to marshal request body")
 			}
 		}
-		rawRqBody, _ = ioutil.ReadAll(io.TeeReader(buffer, rqBuffer))
 		c.Logger().Debugf("request to %s, body: %s", rqURL, string(rawRqBody))
 	}
 
-	rq, err := http.NewRequest(cRoute.APIRoute.Method().String(), rqURL, rqBuffer)
+	rq, err := http.NewRequest(cRoute.APIRoute.Method().String(), rqURL, bytes.NewReader(rawRqBody))
 	if err != nil {
 		return err
 	}
 
-	// write all headers to the request
-	if headers := c.Config().Headers; headers != nil {
-		for key, values := range headers {
-			for _, value := range values {
-				rq.Header.Add(key, value)
-			}
-		}
-	}
 	rq.Header.Set("User-Agent", c.Config().UserAgent)
 	if contentType != "" {
 		rq.Header.Set("Content-Type", contentType)
+	}
+
+	if cRoute.APIRoute.NeedsAuth() {
+		opts = applyBotToken(c.Config().BotTokenFunc(), opts)
 	}
 
 	config := &RequestConfig{Request: rq}
@@ -156,41 +162,53 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 
 	var rawRsBody []byte
 	if rs.Body != nil {
-		buffer := &bytes.Buffer{}
-		rawRsBody, _ = ioutil.ReadAll(io.TeeReader(rs.Body, buffer))
-		rs.Body = ioutil.NopCloser(buffer)
+		if rawRsBody, err = ioutil.ReadAll(rs.Body); err != nil {
+			return errors.Wrap(err, "error reading response body in rest client")
+		}
 		c.Logger().Debugf("response from %s, code %d, body: %s", rqURL, rs.StatusCode, string(rawRsBody))
 	}
 
 	switch rs.StatusCode {
 	case http.StatusOK, http.StatusCreated, http.StatusNoContent:
 		if rsBody != nil && rs.Body != nil {
-			if err = json.NewDecoder(rs.Body).Decode(rsBody); err != nil {
+			if err = json.Unmarshal(rawRsBody, rsBody); err != nil {
 				wErr := errors.Wrap(err, "error unmarshalling response body")
 				c.Logger().Error(wErr)
-				return NewErrorErr(rq, rawRqBody, rs, rawRqBody, wErr)
+				return NewErrorErr(rq, rawRqBody, rs, rawRsBody, wErr)
 			}
 		}
 		return nil
 
 	case http.StatusBadGateway, http.StatusUnauthorized:
-		return NewError(rq, rawRqBody, rs, rawRqBody)
+		return NewError(rq, rawRqBody, rs, rawRsBody)
 
 	case http.StatusTooManyRequests:
 		if tries >= c.RateLimiter().Config().MaxRetries {
-			return NewError(rq, rawRqBody, rs, rawRqBody)
+			return NewError(rq, rawRqBody, rs, rawRsBody)
 		}
 		return c.retry(cRoute, rqBody, rsBody, tries+1, opts)
 
 	default:
 		var v discord.APIError
-		if err = json.NewDecoder(rq.Body).Decode(&v); err != nil {
-			return errors.Wrap(err, "error unmarshalling response body")
+		if err = json.Unmarshal(rawRsBody, &v); err != nil {
+			return errors.Wrap(err, "error unmarshalling error response body")
 		}
-		return NewErrorAPIErr(rq, rawRqBody, rs, rawRqBody, v)
+		return NewErrorAPIErr(rq, rawRqBody, rs, rawRsBody, v)
 	}
 }
 
 func (c *clientImpl) Do(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) error {
 	return c.retry(cRoute, rqBody, rsBody, 1, opts)
+}
+
+func applyToken(tokenType discord.TokenType, token string, opts []RequestOpt) []RequestOpt {
+	return append(opts, WithHeader("authorization", tokenType.Apply(token)))
+}
+
+func applyBotToken(botToken string, opts []RequestOpt) []RequestOpt {
+	return applyToken(discord.TokenTypeBot, botToken, opts)
+}
+
+func applyBearerToken(bearerToken string, opts []RequestOpt) []RequestOpt {
+	return applyToken(discord.TokenTypeBearer, bearerToken, opts)
 }

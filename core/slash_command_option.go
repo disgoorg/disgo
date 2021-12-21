@@ -1,6 +1,8 @@
 package core
 
-import "github.com/DisgoOrg/disgo/discord"
+import (
+	"github.com/DisgoOrg/disgo/discord"
+)
 
 type SlashCommandOption interface {
 	discord.SlashCommandOption
@@ -19,6 +21,60 @@ type SlashCommandOptionSubCommandGroup struct {
 type SlashCommandOptionString struct {
 	discord.SlashCommandOptionString
 	Resolved *SlashCommandResolved
+}
+
+func (o *SlashCommandOptionString) MentionedUsers() []*User {
+	matches := discord.MentionTypeUser.FindAllStringSubmatch(o.Value, -1)
+	users := make([]*User, len(matches))
+	if matches == nil {
+		return nil
+	}
+	for i := range matches {
+		users[i] = o.Resolved.Users[discord.Snowflake(matches[i][1])]
+	}
+	return users
+}
+
+func (o *SlashCommandOptionString) MentionedMembers() []*Member {
+	matches := discord.MentionTypeUser.FindAllStringSubmatch(o.Value, -1)
+	members := make([]*Member, len(matches))
+	if matches == nil {
+		return nil
+	}
+	for i := range matches {
+		if member, ok := o.Resolved.Members[discord.Snowflake(matches[i][1])]; ok {
+			members[i] = member
+		}
+	}
+	return members
+}
+
+func (o *SlashCommandOptionString) MentionedChannels() []Channel {
+	matches := discord.MentionTypeChannel.FindAllStringSubmatch(o.Value, -1)
+	channels := make([]Channel, len(matches))
+	if matches == nil {
+		return nil
+	}
+	for i := range matches {
+		if channel, ok := o.Resolved.Channels[discord.Snowflake(matches[i][1])]; ok {
+			channels[i] = channel
+		}
+	}
+	return channels
+}
+
+func (o *SlashCommandOptionString) MentionedRoles() []*Role {
+	matches := discord.MentionTypeRole.FindAllStringSubmatch(o.Value, -1)
+	roles := make([]*Role, len(matches))
+	if matches == nil {
+		return nil
+	}
+	for i := range matches {
+		if role, ok := o.Resolved.Roles[discord.Snowflake(matches[i][1])]; ok {
+			roles[i] = role
+		}
+	}
+	return roles
 }
 
 type SlashCommandOptionInt struct {
@@ -47,7 +103,7 @@ type SlashCommandOptionChannel struct {
 	Resolved *SlashCommandResolved
 }
 
-func (o SlashCommandOptionChannel) Channel() *Channel {
+func (o SlashCommandOptionChannel) Channel() Channel {
 	return o.Resolved.Channels[o.Value]
 }
 

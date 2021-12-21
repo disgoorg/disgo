@@ -9,7 +9,7 @@ func GetMemberPermissions(member *Member) discord.Permissions {
 	}
 
 	var permissions discord.Permissions
-	if publicRole := member.Bot.Caches.RoleCache().Get(member.GuildID, member.GuildID); publicRole != nil {
+	if publicRole := member.Bot.Caches.Roles().Get(member.GuildID, member.GuildID); publicRole != nil {
 		permissions = publicRole.Permissions
 	}
 
@@ -22,11 +22,8 @@ func GetMemberPermissions(member *Member) discord.Permissions {
 	return permissions
 }
 
-func GetMemberPermissionsInChannel(channel *Channel, member *Member) discord.Permissions {
-	if !channel.IsGuildChannel() {
-		unsupportedChannelType(channel)
-	}
-	if *channel.GuildID != member.GuildID {
+func GetMemberPermissionsInChannel(channel GuildChannel, member *Member) discord.Permissions {
+	if channel.GuildID() != member.GuildID {
 		panic("channel and member need to be part of the same guild")
 	}
 
@@ -42,7 +39,7 @@ func GetMemberPermissionsInChannel(channel *Channel, member *Member) discord.Per
 		allowRaw discord.Permissions
 		denyRaw  discord.Permissions
 	)
-	if overwrite := channel.PermissionOverwrite(discord.PermissionOverwriteTypeRole, *channel.GuildID); overwrite != nil {
+	if overwrite := channel.RolePermissionOverwrite(channel.GuildID()); overwrite != nil {
 		allowRaw = overwrite.Allow
 		denyRaw = overwrite.Deny
 	}
@@ -52,11 +49,11 @@ func GetMemberPermissionsInChannel(channel *Channel, member *Member) discord.Per
 		denyRole  discord.Permissions
 	)
 	for _, roleID := range member.RoleIDs {
-		if roleID == *channel.GuildID {
+		if roleID == channel.GuildID() {
 			continue
 		}
 
-		overwrite := channel.PermissionOverwrite(discord.PermissionOverwriteTypeRole, roleID)
+		overwrite := channel.RolePermissionOverwrite(roleID)
 		if overwrite == nil {
 			break
 		}
@@ -67,7 +64,7 @@ func GetMemberPermissionsInChannel(channel *Channel, member *Member) discord.Per
 	allowRaw = (allowRaw & (denyRole - 1)) | allowRole
 	denyRaw = (denyRaw & (allowRole - 1)) | denyRole
 
-	if overwrite := channel.PermissionOverwrite(discord.PermissionOverwriteTypeMember, member.ID); overwrite != nil {
+	if overwrite := channel.MemberPermissionOverwrite(member.User.ID); overwrite != nil {
 		allowRaw = (allowRaw & (overwrite.Deny - 1)) | overwrite.Allow
 		denyRaw = (denyRaw & (overwrite.Allow - 1)) | overwrite.Deny
 	}

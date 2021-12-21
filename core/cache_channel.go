@@ -5,53 +5,55 @@ import (
 )
 
 type (
-	ChannelFindFunc func(channel *Channel) bool
+	ChannelFindFunc func(channel Channel) bool
 
 	ChannelCache interface {
-		Get(channelID discord.Snowflake) *Channel
-		GetCopy(channelID discord.Snowflake) *Channel
-		Set(channel *Channel) *Channel
+		Get(channelID discord.Snowflake) Channel
+		GetCopy(channelID discord.Snowflake) Channel
+		Set(channel Channel) Channel
 		Remove(channelID discord.Snowflake)
 
-		Cache() map[discord.Snowflake]*Channel
-		All() []*Channel
+		Cache() map[discord.Snowflake]Channel
+		All() []Channel
 
-		FindFirst(channelFindFunc ChannelFindFunc) *Channel
-		FindAll(channelFindFunc ChannelFindFunc) []*Channel
+		FindFirst(channelFindFunc ChannelFindFunc) Channel
+		FindAll(channelFindFunc ChannelFindFunc) []Channel
+
+		ForAll(channelFunc func(channel Channel))
 	}
 
 	channelCacheImpl struct {
-		channels   map[discord.Snowflake]*Channel
+		channels   map[discord.Snowflake]Channel
 		cacheFlags CacheFlags
 	}
 )
 
 func NewChannelCache(cacheFlags CacheFlags) ChannelCache {
-	return &channelCacheImpl{channels: map[discord.Snowflake]*Channel{}, cacheFlags: cacheFlags}
+	return &channelCacheImpl{channels: map[discord.Snowflake]Channel{}, cacheFlags: cacheFlags}
 }
 
-func (c *channelCacheImpl) Get(channelID discord.Snowflake) *Channel {
+func (c *channelCacheImpl) Get(channelID discord.Snowflake) Channel {
 	return c.channels[channelID]
 }
 
-func (c *channelCacheImpl) GetCopy(channelID discord.Snowflake) *Channel {
+func (c *channelCacheImpl) GetCopy(channelID discord.Snowflake) Channel {
 	if channel := c.Get(channelID); channel != nil {
-		ch := *channel
-		return &ch
+		ch := &channel
+		return *ch
 	}
 	return nil
 }
 
-func (c *channelCacheImpl) Set(channel *Channel) *Channel {
-	if c.cacheFlags.Missing(getCacheFLagForChannelType(channel.Type)) {
+func (c *channelCacheImpl) Set(channel Channel) Channel {
+	if c.cacheFlags.Missing(getCacheFlagForChannelType(channel.Type())) {
 		return channel
 	}
-	ch, ok := c.channels[channel.ID]
+	ch, ok := c.channels[channel.ID()]
 	if ok {
-		*ch = *channel
+		ch = ch.set(channel)
 		return ch
 	}
-	c.channels[channel.ID] = channel
+	c.channels[channel.ID()] = channel
 	return channel
 }
 
@@ -59,12 +61,12 @@ func (c *channelCacheImpl) Remove(id discord.Snowflake) {
 	delete(c.channels, id)
 }
 
-func (c *channelCacheImpl) Cache() map[discord.Snowflake]*Channel {
+func (c *channelCacheImpl) Cache() map[discord.Snowflake]Channel {
 	return c.channels
 }
 
-func (c *channelCacheImpl) All() []*Channel {
-	channels := make([]*Channel, len(c.channels))
+func (c *channelCacheImpl) All() []Channel {
+	channels := make([]Channel, len(c.channels))
 	i := 0
 	for _, channel := range c.channels {
 		channels[i] = channel
@@ -73,7 +75,7 @@ func (c *channelCacheImpl) All() []*Channel {
 	return channels
 }
 
-func (c *channelCacheImpl) FindFirst(channelFindFunc ChannelFindFunc) *Channel {
+func (c *channelCacheImpl) FindFirst(channelFindFunc ChannelFindFunc) Channel {
 	for _, channel := range c.channels {
 		if channelFindFunc(channel) {
 			return channel
@@ -82,8 +84,8 @@ func (c *channelCacheImpl) FindFirst(channelFindFunc ChannelFindFunc) *Channel {
 	return nil
 }
 
-func (c *channelCacheImpl) FindAll(channelFindFunc ChannelFindFunc) []*Channel {
-	var channels []*Channel
+func (c *channelCacheImpl) FindAll(channelFindFunc ChannelFindFunc) []Channel {
+	var channels []Channel
 	for _, channel := range c.channels {
 		if channelFindFunc(channel) {
 			channels = append(channels, channel)
@@ -92,22 +94,36 @@ func (c *channelCacheImpl) FindAll(channelFindFunc ChannelFindFunc) []*Channel {
 	return channels
 }
 
-func getCacheFLagForChannelType(channelType discord.ChannelType) CacheFlags {
+func (c *channelCacheImpl) ForAll(channelFunc func(channel Channel)) {
+	for _, channel := range c.channels {
+		channelFunc(channel)
+	}
+}
+
+func getCacheFlagForChannelType(channelType discord.ChannelType) CacheFlags {
 	switch channelType {
-	case discord.ChannelTypeText:
-		return CacheFlagTextChannels
+	case discord.ChannelTypeGuildText:
+		return CacheFlagGuildTextChannels
 	case discord.ChannelTypeDM:
-		return CacheFlagTextChannels
-	case discord.ChannelTypeVoice:
-		return CacheFlagTextChannels
-	case discord.ChannelTypeCategory:
-		return CacheFlagTextChannels
-	case discord.ChannelTypeNews:
-		return CacheFlagTextChannels
-	case discord.ChannelTypeStore:
-		return CacheFlagTextChannels
-	case discord.ChannelTypeStage:
-		return CacheFlagTextChannels
+		return CacheFlagDMChannels
+	case discord.ChannelTypeGuildVoice:
+		return CacheFlagGuildVoiceChannels
+	case discord.ChannelTypeGroupDM:
+		return CacheFlagGroupDMChannels
+	case discord.ChannelTypeGuildCategory:
+		return CacheFlagGuildCategories
+	case discord.ChannelTypeGuildNews:
+		return CacheFlagGuildNewsChannels
+	case discord.ChannelTypeGuildStore:
+		return CacheFlagGuildStoreChannels
+	case discord.ChannelTypeGuildNewsThread:
+		return CacheFlagGuildNewsThreads
+	case discord.ChannelTypeGuildPublicThread:
+		return CacheFlagGuildPublicThreads
+	case discord.ChannelTypeGuildPrivateThread:
+		return CacheFlagGuildPrivateThreads
+	case discord.ChannelTypeGuildStageVoice:
+		return CacheFlagGuildStageVoiceChannels
 	default:
 		return CacheFlagsNone
 	}

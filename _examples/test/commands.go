@@ -75,6 +75,30 @@ var commands = []discord.ApplicationCommandCreate{
 			},
 		},
 	},
+	discord.SlashCommandCreate{
+		Name:              "root",
+		Description:       "root command",
+		DefaultPermission: true,
+		Options: []discord.ApplicationCommandOption{
+			discord.ApplicationCommandOptionSubCommandGroup{
+				Name:        "group",
+				Description: "group command",
+				Options: []discord.ApplicationCommandOptionSubCommand{
+					{
+						Name:        "sub",
+						Description: "sub command",
+						Options: []discord.ApplicationCommandOption{
+							discord.ApplicationCommandOptionString{
+								Name:        "test",
+								Description: "test",
+								Required:    true,
+							},
+						},
+					},
+				},
+			},
+		},
+	},
 }
 
 func registerCommands(bot *core.Bot) {
@@ -89,21 +113,21 @@ func registerCommands(bot *core.Bot) {
 		if c, ok := cmd.(core.SlashCommand); ok {
 			if c.Name == "eval" {
 				perms = discord.ApplicationCommandPermissionRole{
-					ID:         adminRoleID,
+					RoleID:     adminRoleID,
 					Permission: true,
 				}
 			} else {
-				perms = discord.ApplicationCommandPermissionUser{
-					ID:         testRoleID,
+				perms = discord.ApplicationCommandPermissionRole{
+					RoleID:     testRoleID,
 					Permission: true,
 				}
 				cmdsPermissions = append(cmdsPermissions, discord.ApplicationCommandPermissionsSet{
-					ID:          c.ID,
+					ID:          c.ID(),
 					Permissions: []discord.ApplicationCommandPermission{perms},
 				})
 			}
 			cmdsPermissions = append(cmdsPermissions, discord.ApplicationCommandPermissionsSet{
-				ID:          c.ID,
+				ID:          c.ID(),
 				Permissions: []discord.ApplicationCommandPermission{perms},
 			})
 		}

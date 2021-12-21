@@ -25,7 +25,7 @@ type Config struct {
 	Compress          bool
 	RateLimiter       grate.Limiter
 	RateLimiterConfig *grate.Config
-	Presence          *discord.PresenceUpdate
+	Presence          *discord.UpdatePresenceCommandData
 	OS                string
 	Browser           string
 	Device            string
@@ -39,12 +39,14 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithLargeThreshold(largeThreshold int) ConfigOpt {
 	return func(config *Config) {
 		config.LargeThreshold = largeThreshold
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithGatewayIntents(gatewayIntents ...discord.GatewayIntents) ConfigOpt {
 	return func(config *Config) {
 		var intents discord.GatewayIntents
@@ -55,24 +57,28 @@ func WithGatewayIntents(gatewayIntents ...discord.GatewayIntents) ConfigOpt {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithCompress(compress bool) ConfigOpt {
 	return func(config *Config) {
 		config.Compress = compress
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRateLimiter(rateLimiter grate.Limiter) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiter = rateLimiter
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRateLimiterConfig(rateLimiterConfig grate.Config) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiterConfig = &rateLimiterConfig
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithRateLimiterConfigOpts(opts ...grate.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		if config.RateLimiterConfig == nil {
@@ -82,24 +88,28 @@ func WithRateLimiterConfigOpts(opts ...grate.ConfigOpt) ConfigOpt {
 	}
 }
 
-func WithPresence(presence discord.PresenceUpdate) ConfigOpt {
+//goland:noinspection GoUnusedExportedFunction
+func WithPresence(presence discord.UpdatePresenceCommandData) ConfigOpt {
 	return func(config *Config) {
 		config.Presence = &presence
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithOS(os string) ConfigOpt {
 	return func(config *Config) {
 		config.OS = os
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithBrowser(browser string) ConfigOpt {
 	return func(config *Config) {
 		config.Browser = browser
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func WithDevice(device string) ConfigOpt {
 	return func(config *Config) {
 		config.Device = device
