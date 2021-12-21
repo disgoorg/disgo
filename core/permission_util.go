@@ -19,7 +19,7 @@ func GetMemberPermissions(member *Member) discord.Permissions {
 			return discord.PermissionsAll
 		}
 	}
-	if member.TimedOutUntil != nil {
+	if member.CommunicationDisabledUntil != nil {
 		permissions &= discord.PermissionViewChannel | discord.PermissionReadMessageHistory
 	}
 	return permissions
@@ -75,5 +75,8 @@ func GetMemberPermissionsInChannel(channel GuildChannel, member *Member) discord
 	permissions &= denyRaw - 1
 	permissions |= allowRaw
 
+	if member.CommunicationDisabledUntil != nil {
+		permissions &= discord.PermissionViewChannel | discord.PermissionReadMessageHistory
+	}
 	return permissions
 }
