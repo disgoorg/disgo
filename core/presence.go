@@ -11,19 +11,27 @@ type Presence struct {
 	Bot *Bot
 }
 
+// User returns the User this Presence belongs to.
+// This will only check cached users!
 func (p *Presence) User() *User {
-	return p.Bot.Caches.UserCache().Get(p.PresenceUser.ID)
+	return p.Bot.Caches.Users().Get(p.PresenceUser.ID)
 }
 
+// Member returns the Member this Presence belongs to.
+// This will only check cached members!
 func (p *Presence) Member() *Member {
-	return p.Bot.Caches.MemberCache().Get(p.GuildID, p.PresenceUser.ID)
+	return p.Bot.Caches.Members().Get(p.GuildID, p.PresenceUser.ID)
 }
 
+// Guild returns the Guild this Presence belongs to.
+// This will only check cached guilds!
 func (p *Presence) Guild() *Guild {
-	return p.Bot.Caches.GuildCache().Get(p.GuildID)
+	return p.Bot.Caches.Guilds().Get(p.GuildID)
 }
 
-func NewPresence(activityType discord.ActivityType, name string, url string, status discord.OnlineStatus, afk bool) discord.PresenceUpdate {
+// NewPresence creates a new Presence with the provided properties
+//goland:noinspection GoUnusedExportedFunction
+func NewPresence(activityType discord.ActivityType, name string, url string, status discord.OnlineStatus, afk bool) discord.UpdatePresenceCommandData {
 	var since *int64
 	if status == discord.OnlineStatusIdle {
 		unix := time.Now().Unix()
@@ -42,7 +50,7 @@ func NewPresence(activityType discord.ActivityType, name string, url string, sta
 		activities = append(activities, activity)
 	}
 
-	return discord.PresenceUpdate{
+	return discord.UpdatePresenceCommandData{
 		Since:      since,
 		Activities: activities,
 		Status:     status,
@@ -50,22 +58,32 @@ func NewPresence(activityType discord.ActivityType, name string, url string, sta
 	}
 }
 
-func NewGamePresence(name string, status discord.OnlineStatus, afk bool) discord.PresenceUpdate {
+// NewGamePresence creates a new Presence of type discord.ActivityTypeGame
+//goland:noinspection GoUnusedExportedFunction
+func NewGamePresence(name string, status discord.OnlineStatus, afk bool) discord.UpdatePresenceCommandData {
 	return NewPresence(discord.ActivityTypeGame, name, "", status, afk)
 }
 
-func NewStreamingPresence(name string, url string, status discord.OnlineStatus, afk bool) discord.PresenceUpdate {
+// NewStreamingPresence creates a new Presence of type discord.ActivityTypeStreaming
+//goland:noinspection GoUnusedExportedFunction
+func NewStreamingPresence(name string, url string, status discord.OnlineStatus, afk bool) discord.UpdatePresenceCommandData {
 	return NewPresence(discord.ActivityTypeStreaming, name, url, status, afk)
 }
 
-func NewListeningPresence(name string, status discord.OnlineStatus, afk bool) discord.PresenceUpdate {
+// NewListeningPresence creates a new Presence of type discord.ActivityTypeListening
+//goland:noinspection GoUnusedExportedFunction
+func NewListeningPresence(name string, status discord.OnlineStatus, afk bool) discord.UpdatePresenceCommandData {
 	return NewPresence(discord.ActivityTypeListening, name, "", status, afk)
 }
 
-func NewWatchingPresence(name string, status discord.OnlineStatus, afk bool) discord.PresenceUpdate {
+// NewWatchingPresence creates a new Presence of type discord.ActivityTypeWatching
+//goland:noinspection GoUnusedExportedFunction
+func NewWatchingPresence(name string, status discord.OnlineStatus, afk bool) discord.UpdatePresenceCommandData {
 	return NewPresence(discord.ActivityTypeWatching, name, "", status, afk)
 }
 
-func NewCompetingPresence(name string, status discord.OnlineStatus, afk bool) discord.PresenceUpdate {
+// NewCompetingPresence creates a new Presence of type discord.ActivityTypeCompeting
+//goland:noinspection GoUnusedExportedFunction
+func NewCompetingPresence(name string, status discord.OnlineStatus, afk bool) discord.UpdatePresenceCommandData {
 	return NewPresence(discord.ActivityTypeCompeting, name, "", status, afk)
 }

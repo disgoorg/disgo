@@ -7,16 +7,18 @@ import (
 
 type AuditLog struct {
 	discord.AuditLog
-	Bot           *Bot
-	GuildID       discord.Snowflake
-	Users         map[discord.Snowflake]*User
-	Integrations  map[discord.Snowflake]*Integration
-	Webhooks      map[discord.Snowflake]*Webhook
-	FilterOptions AuditLogFilterOptions
+	GuildScheduledEvents map[discord.Snowflake]*GuildScheduledEvent
+	Integrations         map[discord.Snowflake]Integration
+	Threads              map[discord.Snowflake]GuildThread
+	Users                map[discord.Snowflake]*User
+	Webhooks             map[discord.Snowflake]Webhook
+	GuildID              discord.Snowflake
+	FilterOptions        AuditLogFilterOptions
+	Bot                  *Bot
 }
 
 func (l *AuditLog) Guild() *Guild {
-	return l.Bot.Caches.GuildCache().Get(l.GuildID)
+	return l.Bot.Caches.Guilds().Get(l.GuildID)
 }
 
 // AuditLogFilterOptions fields used to filter audit-log retrieving

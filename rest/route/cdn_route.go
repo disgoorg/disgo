@@ -7,7 +7,7 @@ import (
 )
 
 // NewCDNRoute generates a new discord cdn path struct
-func NewCDNRoute(path string, supportedFileExtensions ...FileExtension) *CDNRoute {
+func NewCDNRoute(path string, supportedImageFormats ...ImageFormat) *CDNRoute {
 	queryParams := []string{"size", "v"}
 
 	params := map[string]struct{}{}
@@ -16,41 +16,41 @@ func NewCDNRoute(path string, supportedFileExtensions ...FileExtension) *CDNRout
 	}
 
 	return &CDNRoute{
-		basePath:                CDN,
-		path:                    path,
-		queryParams:             params,
-		urlParamCount:           countURLParams(path),
-		supportedFileExtensions: supportedFileExtensions,
+		basePath:              CDN,
+		path:                  path,
+		queryParams:           params,
+		urlParamCount:         countURLParams(path),
+		supportedImageFormats: supportedImageFormats,
 	}
 }
 
 // NewCustomCDNRoute generates a new custom cdn path struct
 //goland:noinspection GoUnusedExportedFunction
-func NewCustomCDNRoute(basePath string, path string, supportedFileExtensions ...FileExtension) *CDNRoute {
-	route := NewCDNRoute(path, supportedFileExtensions...)
+func NewCustomCDNRoute(basePath string, path string, supportedImageFormats ...ImageFormat) *CDNRoute {
+	route := NewCDNRoute(path, supportedImageFormats...)
 	route.basePath = basePath
 	return route
 }
 
 // CDNRoute is a path for interacting with images hosted on discord's CDN
 type CDNRoute struct {
-	basePath                string
-	path                    string
-	queryParams             map[string]struct{}
-	urlParamCount           int
-	supportedFileExtensions []FileExtension
+	basePath              string
+	path                  string
+	queryParams           map[string]struct{}
+	urlParamCount         int
+	supportedImageFormats []ImageFormat
 }
 
 // Compile builds a full request URL based on provided arguments
-func (r *CDNRoute) Compile(queryValues QueryValues, fileExtension FileExtension, size int, params ...interface{}) (*CompiledCDNRoute, error) {
+func (r *CDNRoute) Compile(queryValues QueryValues, imageFormat ImageFormat, size int, params ...interface{}) (*CompiledCDNRoute, error) {
 	supported := false
-	for _, supportedFileExtension := range r.supportedFileExtensions {
-		if supportedFileExtension == fileExtension {
+	for _, supportedFileExtension := range r.supportedImageFormats {
+		if supportedFileExtension == imageFormat {
 			supported = true
 		}
 	}
 	if !supported {
-		return nil, ErrFileExtensionNotSupported(fileExtension.String())
+		return nil, ErrImageFormatNotSupported(imageFormat)
 	}
 	if queryValues == nil {
 		queryValues = QueryValues{}
@@ -65,8 +65,8 @@ func (r *CDNRoute) Compile(queryValues QueryValues, fileExtension FileExtension,
 		path = path[:start] + paramValue + path[end+1:]
 	}
 
-	if fileExtension.String() != "" {
-		path += "." + fileExtension.String()
+	if imageFormat.String() != "" {
+		path += "." + imageFormat.String()
 	}
 
 	queryParamsStr := ""
@@ -102,6 +102,7 @@ type CompiledCDNRoute struct {
 	queryParams string
 }
 
+// URL returns the full URL for the resource
 func (r *CompiledCDNRoute) URL() string {
 	u := r.CDNRoute.basePath + r.path
 	if r.queryParams != "" {

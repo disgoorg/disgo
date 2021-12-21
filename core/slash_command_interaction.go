@@ -8,82 +8,74 @@ import (
 type SlashCommandInteractionFilter func(slashCommandInteraction *SlashCommandInteraction) bool
 
 type SlashCommandInteraction struct {
+	discord.SlashCommandInteraction
 	*InteractionFields
-	CommandID           discord.Snowflake
-	CommandName         string
+	User   *User
+	Member *Member
+	Data   SlashCommandInteractionData
+}
+
+type SlashCommandInteractionData struct {
+	discord.SlashCommandInteractionData
 	SubCommandName      *string
 	SubCommandGroupName *string
 	Resolved            *SlashCommandResolved
 	Options             SlashCommandOptionsMap
 }
 
-func (i *SlashCommandInteraction) InteractionType() discord.InteractionType {
-	return discord.InteractionTypeApplicationCommand
-}
-
-func (i *SlashCommandInteraction) ApplicationCommandType() discord.ApplicationCommandType {
-	return discord.ApplicationCommandTypeSlash
-}
-
 func (i *SlashCommandInteraction) Respond(callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
-	return respond(i.InteractionFields, callbackType, callbackData, opts...)
+	return respond(i.InteractionFields, i.ID, i.Token, callbackType, callbackData, opts...)
 }
 
 func (i *SlashCommandInteraction) Create(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
-	return create(i.InteractionFields, messageCreate, opts...)
+	return create(i.InteractionFields, i.ID, i.Token, messageCreate, opts...)
 }
 
 func (i *SlashCommandInteraction) DeferCreate(ephemeral bool, opts ...rest.RequestOpt) error {
-	return deferCreate(i.InteractionFields, ephemeral, opts...)
+	return deferCreate(i.InteractionFields, i.ID, i.Token, ephemeral, opts...)
 }
 
 func (i *SlashCommandInteraction) GetOriginal(opts ...rest.RequestOpt) (*Message, error) {
-	return getOriginal(i.InteractionFields, opts...)
+	return getOriginal(i.InteractionFields, i.ApplicationID, i.Token, opts...)
 }
 
 func (i *SlashCommandInteraction) UpdateOriginal(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
-	return updateOriginal(i.InteractionFields, messageUpdate, opts...)
+	return updateOriginal(i.InteractionFields, i.ApplicationID, i.Token, messageUpdate, opts...)
 }
 
 func (i *SlashCommandInteraction) DeleteOriginal(opts ...rest.RequestOpt) error {
-	return deleteOriginal(i.InteractionFields, opts...)
+	return deleteOriginal(i.InteractionFields, i.ApplicationID, i.Token, opts...)
+}
+
+func (i *SlashCommandInteraction) GetFollowup(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
+	return getFollowup(i.InteractionFields, i.ApplicationID, i.Token, messageID, opts...)
 }
 
 func (i *SlashCommandInteraction) CreateFollowup(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
-	return createFollowup(i.InteractionFields, messageCreate, opts...)
+	return createFollowup(i.InteractionFields, i.ApplicationID, i.Token, messageCreate, opts...)
 }
 
 func (i *SlashCommandInteraction) UpdateFollowup(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
-	return updateFollowup(i.InteractionFields, messageID, messageUpdate, opts...)
+	return updateFollowup(i.InteractionFields, i.ApplicationID, i.Token, messageID, messageUpdate, opts...)
 }
 
 func (i *SlashCommandInteraction) DeleteFollowup(messageID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return deleteFollowup(i.InteractionFields, messageID, opts...)
+	return deleteFollowup(i.InteractionFields, i.ApplicationID, i.Token, messageID, opts...)
 }
 
 // CommandPath returns the ApplicationCommand path
 func (i *SlashCommandInteraction) CommandPath() string {
-	path := i.CommandName
-	if name := i.SubCommandName; name != nil {
-		path += "/" + *name
-	}
-	if name := i.SubCommandGroupName; name != nil {
-		path += "/" + *name
-	}
-	return path
+	return commandPath(i.Data.CommandName, i.Data.SubCommandName, i.Data.SubCommandGroupName)
 }
 
 // Guild returns the Guild from the Caches
 func (i *SlashCommandInteraction) Guild() *Guild {
-	if i.GuildID == nil {
-		return nil
-	}
-	return i.Bot.Caches.GuildCache().Get(*i.GuildID)
+	return guild(i.InteractionFields, i.GuildID)
 }
 
 // Channel returns the Channel from the Caches
-func (i *SlashCommandInteraction) Channel() *Channel {
-	return i.Bot.Caches.ChannelCache().Get(i.ChannelID)
+func (i *SlashCommandInteraction) Channel() MessageChannel {
+	return channel(i.InteractionFields, i.ChannelID)
 }
 
 // SlashCommandResolved contains resolved mention data for SlashCommand(s)
@@ -91,7 +83,7 @@ type SlashCommandResolved struct {
 	Users    map[discord.Snowflake]*User
 	Members  map[discord.Snowflake]*Member
 	Roles    map[discord.Snowflake]*Role
-	Channels map[discord.Snowflake]*Channel
+	Channels map[discord.Snowflake]Channel
 }
 
 type SlashCommandOptionsMap map[string]SlashCommandOption
@@ -212,7 +204,7 @@ func (m SlashCommandOptionsMap) ChannelOption(name string) *SlashCommandOptionCh
 	return nil
 }
 
-func (m SlashCommandOptionsMap) Channel(name string) *Channel {
+func (m SlashCommandOptionsMap) Channel(name string) Channel {
 	option := m.ChannelOption(name)
 	if option == nil {
 		return nil

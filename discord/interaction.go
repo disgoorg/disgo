@@ -20,17 +20,7 @@ const (
 // Interaction is used for easier unmarshalling of different Interaction(s)
 type Interaction interface {
 	InteractionType() InteractionType
-}
-
-type InteractionFields struct {
-	ID            Snowflake  `json:"id"`
-	ApplicationID Snowflake  `json:"application_id"`
-	Token         string     `json:"token"`
-	Version       int        `json:"version"`
-	GuildID       *Snowflake `json:"guild_id,omitempty"`
-	ChannelID     Snowflake  `json:"channel_id"`
-	Member        *Member    `json:"member,omitempty"`
-	User          *User      `json:"user,omitempty"`
+	interaction()
 }
 
 type UnmarshalInteraction struct {
@@ -123,13 +113,16 @@ type PingInteraction struct {
 	Version       int       `json:"version"`
 }
 
-func (_ PingInteraction) InteractionType() InteractionType {
+func (PingInteraction) interaction() {}
+
+func (PingInteraction) InteractionType() InteractionType {
 	return InteractionTypePing
 }
 
 type ApplicationCommandInteraction interface {
 	Interaction
 	ApplicationCommandType() ApplicationCommandType
+	applicationCommandInteraction()
 }
 
 var (
@@ -138,15 +131,48 @@ var (
 )
 
 type SlashCommandInteraction struct {
-	InteractionFields
-	Data SlashCommandInteractionData `json:"data"`
+	ID            Snowflake                   `json:"id"`
+	ApplicationID Snowflake                   `json:"application_id"`
+	Token         string                      `json:"token"`
+	Version       int                         `json:"version"`
+	GuildID       *Snowflake                  `json:"guild_id,omitempty"`
+	ChannelID     Snowflake                   `json:"channel_id"`
+	Member        *Member                     `json:"member,omitempty"`
+	User          *User                       `json:"user,omitempty"`
+	Data          SlashCommandInteractionData `json:"data"`
 }
+
+func (SlashCommandInteraction) interaction()                   {}
+func (SlashCommandInteraction) applicationCommandInteraction() {}
 
 type SlashCommandInteractionData struct {
 	CommandID   Snowflake            `json:"id"`
 	CommandName string               `json:"name"`
 	Resolved    SlashCommandResolved `json:"resolved"`
 	Options     []SlashCommandOption `json:"options"`
+}
+
+func (d *SlashCommandInteractionData) UnmarshalJSON(data []byte) error {
+	type slashCommandInteractionData SlashCommandInteractionData
+	var iData struct {
+		Options []UnmarshalSlashCommandOption `json:"options"`
+		slashCommandInteractionData
+	}
+
+	if err := json.Unmarshal(data, &iData); err != nil {
+		return err
+	}
+
+	*d = SlashCommandInteractionData(iData.slashCommandInteractionData)
+
+	if len(iData.Options) > 0 {
+		d.Options = make([]SlashCommandOption, len(iData.Options))
+		for i := range iData.Options {
+			d.Options[i] = iData.Options[i].SlashCommandOption
+		}
+	}
+
+	return nil
 }
 
 type SlashCommandResolved struct {
@@ -156,34 +182,11 @@ type SlashCommandResolved struct {
 	Channels map[Snowflake]Channel `json:"channels,omitempty"`
 }
 
-func (d *SlashCommandInteractionData) UnmarshalJSON(data []byte) error {
-	type slashCommandInteractionData SlashCommandInteractionData
-	var iData struct {
-		slashCommandInteractionData
-		Options []UnmarshalSlashCommandOption `json:"options"`
-	}
-
-	if err := json.Unmarshal(data, &iData); err != nil {
-		return err
-	}
-
-	if len(iData.Options) > 0 {
-		d.Options = make([]SlashCommandOption, len(iData.Options))
-		for i, option := range iData.Options {
-			d.Options[i] = option.SlashCommandOption
-		}
-	}
-
-	*d = SlashCommandInteractionData(iData.slashCommandInteractionData)
-
-	return nil
-}
-
-func (_ SlashCommandInteraction) InteractionType() InteractionType {
+func (SlashCommandInteraction) InteractionType() InteractionType {
 	return InteractionTypeComponent
 }
 
-func (_ SlashCommandInteraction) ApplicationCommandType() ApplicationCommandType {
+func (SlashCommandInteraction) ApplicationCommandType() ApplicationCommandType {
 	return ApplicationCommandTypeSlash
 }
 
@@ -192,9 +195,19 @@ var (
 	_ ApplicationCommandInteraction = (*UserCommandInteraction)(nil)
 )
 
+func (UserCommandInteraction) interaction()                   {}
+func (UserCommandInteraction) applicationCommandInteraction() {}
+
 type UserCommandInteraction struct {
-	InteractionFields
-	Data UserCommandInteractionData `json:"data"`
+	ID            Snowflake                  `json:"id"`
+	ApplicationID Snowflake                  `json:"application_id"`
+	Token         string                     `json:"token"`
+	Version       int                        `json:"version"`
+	GuildID       *Snowflake                 `json:"guild_id,omitempty"`
+	ChannelID     Snowflake                  `json:"channel_id"`
+	Member        *Member                    `json:"member,omitempty"`
+	User          *User                      `json:"user,omitempty"`
+	Data          UserCommandInteractionData `json:"data"`
 }
 
 type UserCommandInteractionData struct {
@@ -209,11 +222,11 @@ type UserCommandResolved struct {
 	Members map[Snowflake]Member `json:"members,omitempty"`
 }
 
-func (_ UserCommandInteraction) InteractionType() InteractionType {
+func (UserCommandInteraction) InteractionType() InteractionType {
 	return InteractionTypeComponent
 }
 
-func (_ UserCommandInteraction) ApplicationCommandType() ApplicationCommandType {
+func (UserCommandInteraction) ApplicationCommandType() ApplicationCommandType {
 	return ApplicationCommandTypeUser
 }
 
@@ -223,9 +236,19 @@ var (
 )
 
 type MessageCommandInteraction struct {
-	InteractionFields
-	Data MessageCommandInteractionData `json:"data"`
+	ID            Snowflake                     `json:"id"`
+	ApplicationID Snowflake                     `json:"application_id"`
+	Token         string                        `json:"token"`
+	Version       int                           `json:"version"`
+	GuildID       *Snowflake                    `json:"guild_id,omitempty"`
+	ChannelID     Snowflake                     `json:"channel_id"`
+	Member        *Member                       `json:"member,omitempty"`
+	User          *User                         `json:"user,omitempty"`
+	Data          MessageCommandInteractionData `json:"data"`
 }
+
+func (MessageCommandInteraction) interaction()                   {}
+func (MessageCommandInteraction) applicationCommandInteraction() {}
 
 type MessageCommandInteractionData struct {
 	CommandID   Snowflake              `json:"id"`
@@ -238,17 +261,18 @@ type MessageCommandResolved struct {
 	Messages map[Snowflake]Message `json:"messages,omitempty"`
 }
 
-func (_ MessageCommandInteraction) InteractionType() InteractionType {
+func (MessageCommandInteraction) InteractionType() InteractionType {
 	return InteractionTypeComponent
 }
 
-func (_ MessageCommandInteraction) ApplicationCommandType() ApplicationCommandType {
+func (MessageCommandInteraction) ApplicationCommandType() ApplicationCommandType {
 	return ApplicationCommandTypeMessage
 }
 
 type ComponentInteraction interface {
 	Interaction
 	ComponentType() ComponentType
+	componentInteraction()
 }
 
 var (
@@ -257,20 +281,30 @@ var (
 )
 
 type ButtonInteraction struct {
-	InteractionFields
-	Data    ButtonInteractionData `json:"data"`
-	Message Message               `json:"message"`
+	ID            Snowflake             `json:"id"`
+	ApplicationID Snowflake             `json:"application_id"`
+	Token         string                `json:"token"`
+	Version       int                   `json:"version"`
+	GuildID       *Snowflake            `json:"guild_id,omitempty"`
+	ChannelID     Snowflake             `json:"channel_id"`
+	Member        *Member               `json:"member,omitempty"`
+	User          *User                 `json:"user,omitempty"`
+	Data          ButtonInteractionData `json:"data"`
+	Message       Message               `json:"message"`
 }
 
 type ButtonInteractionData struct {
-	CustomID string `json:"custom_id"`
+	CustomID CustomID `json:"custom_id"`
 }
 
-func (_ ButtonInteraction) InteractionType() InteractionType {
+func (ButtonInteraction) interaction()          {}
+func (ButtonInteraction) componentInteraction() {}
+
+func (ButtonInteraction) InteractionType() InteractionType {
 	return InteractionTypeComponent
 }
 
-func (_ ButtonInteraction) ComponentType() ComponentType {
+func (ButtonInteraction) ComponentType() ComponentType {
 	return ComponentTypeButton
 }
 
@@ -280,21 +314,31 @@ var (
 )
 
 type SelectMenuInteraction struct {
-	InteractionFields
-	Data    SelectMenuInteractionData `json:"data"`
-	Message Message                   `json:"message"`
+	ID            Snowflake                 `json:"id"`
+	ApplicationID Snowflake                 `json:"application_id"`
+	Token         string                    `json:"token"`
+	Version       int                       `json:"version"`
+	GuildID       *Snowflake                `json:"guild_id,omitempty"`
+	ChannelID     Snowflake                 `json:"channel_id"`
+	Member        *Member                   `json:"member,omitempty"`
+	User          *User                     `json:"user,omitempty"`
+	Data          SelectMenuInteractionData `json:"data"`
+	Message       Message                   `json:"message"`
 }
 
 type SelectMenuInteractionData struct {
-	CustomID string   `json:"custom_id"`
+	CustomID CustomID `json:"custom_id"`
 	Values   []string `json:"values"`
 }
 
-func (_ SelectMenuInteraction) InteractionType() InteractionType {
+func (SelectMenuInteraction) interaction()          {}
+func (SelectMenuInteraction) componentInteraction() {}
+
+func (SelectMenuInteraction) InteractionType() InteractionType {
 	return InteractionTypeComponent
 }
 
-func (_ SelectMenuInteraction) ComponentType() ComponentType {
+func (SelectMenuInteraction) ComponentType() ComponentType {
 	return ComponentTypeSelectMenu
 }
 
@@ -303,11 +347,20 @@ var (
 )
 
 type AutocompleteInteraction struct {
-	InteractionFields
-	Data AutocompleteInteractionData `json:"data"`
+	ID            Snowflake                   `json:"id"`
+	ApplicationID Snowflake                   `json:"application_id"`
+	Token         string                      `json:"token"`
+	Version       int                         `json:"version"`
+	GuildID       *Snowflake                  `json:"guild_id,omitempty"`
+	ChannelID     Snowflake                   `json:"channel_id"`
+	Member        *Member                     `json:"member,omitempty"`
+	User          *User                       `json:"user,omitempty"`
+	Data          AutocompleteInteractionData `json:"data"`
 }
 
-func (_ AutocompleteInteraction) InteractionType() InteractionType {
+func (AutocompleteInteraction) interaction() {}
+
+func (AutocompleteInteraction) InteractionType() InteractionType {
 	return InteractionTypeAutocomplete
 }
 

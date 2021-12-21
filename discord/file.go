@@ -22,27 +22,26 @@ type MultipartBuffer struct {
 
 // PayloadWithFiles returns the given payload as multipart body with all files in it
 //goland:noinspection GoUnusedExportedFunction
-func PayloadWithFiles(v interface{}, files ...*File) (buffer *MultipartBuffer, err error) {
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
+func PayloadWithFiles(v interface{}, files ...*File) (*MultipartBuffer, error) {
+	buffer := &bytes.Buffer{}
+	writer := multipart.NewWriter(buffer)
 	writer.FormDataContentType()
 	defer func() {
 		_ = writer.Close()
 	}()
 
-	var payload []byte
-	payload, err = json.Marshal(v)
+	payload, err := json.Marshal(v)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	part, err := writer.CreatePart(partHeader(`form-data; name="payload_json"`, "application/json"))
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	if _, err = part.Write(payload); err != nil {
-		return
+		return nil, err
 	}
 
 	for i, file := range files {
@@ -52,21 +51,20 @@ func PayloadWithFiles(v interface{}, files ...*File) (buffer *MultipartBuffer, e
 		} else {
 			name = file.Name
 		}
-		part, err = writer.CreatePart(partHeader(fmt.Sprintf(`form-data; name="file%d"; filename="%s"`, i, name), "application/octet-stream"))
+		part, err = writer.CreatePart(partHeader(fmt.Sprintf(`form-data; name="files[%d]"; filename="%s"`, i, name), "application/octet-stream"))
 		if err != nil {
-			return
+			return nil, err
 		}
 
 		if _, err = io.Copy(part, file.Reader); err != nil {
-			return
+			return nil, err
 		}
 	}
 
-	buffer = &MultipartBuffer{
-		Buffer:      body,
+	return &MultipartBuffer{
+		Buffer:      buffer,
 		ContentType: writer.FormDataContentType(),
-	}
-	return
+	}, nil
 }
 
 func partHeader(contentDisposition string, contentType string) textproto.MIMEHeader {

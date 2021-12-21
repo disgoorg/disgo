@@ -5,7 +5,10 @@ import (
 	"github.com/DisgoOrg/disgo/rest/route"
 )
 
-var _ GatewayService = (*gatewayServiceImpl)(nil)
+var (
+	_ Service        = (*gatewayServiceImpl)(nil)
+	_ GatewayService = (*gatewayServiceImpl)(nil)
+)
 
 func NewGatewayService(restClient Client) GatewayService {
 	return &gatewayServiceImpl{restClient: restClient}

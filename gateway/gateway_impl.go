@@ -32,6 +32,9 @@ func New(token string, url string, shardID int, shardCount int, eventHandlerFunc
 	if config.RateLimiterConfig == nil {
 		config.RateLimiterConfig = &grate.DefaultConfig
 	}
+	if config.RateLimiterConfig.Logger == nil {
+		config.RateLimiterConfig.Logger = config.Logger
+	}
 	if config.RateLimiter == nil {
 		config.RateLimiter = grate.NewLimiter(config.RateLimiterConfig)
 	}
@@ -80,18 +83,20 @@ func (g *gatewayImpl) ShardCount() int {
 }
 
 func (g *gatewayImpl) formatLogsf(format string, a ...interface{}) string {
-	return fmt.Sprintf("[%d/%d] %s", g.shardID, g.shardCount, fmt.Sprintf(format, a...))
+	if g.shardCount > 1 {
+		return fmt.Sprintf("[%d/%d] %s", g.shardID, g.shardCount, fmt.Sprintf(format, a...))
+	}
+	return fmt.Sprintf(format, a...)
 }
 
 func (g *gatewayImpl) formatLogs(a ...interface{}) string {
-	return fmt.Sprintf("[%d/%d] %s", g.shardID, g.shardCount, fmt.Sprint(a...))
+	if g.shardCount > 1 {
+		return fmt.Sprintf("[%d/%d] %s", g.shardID, g.shardCount, fmt.Sprint(a...))
+	}
+	return fmt.Sprint(a...)
 }
 
-func (g *gatewayImpl) Open() error {
-	return g.OpenCtx(context.Background())
-}
-
-func (g *gatewayImpl) OpenCtx(ctx context.Context) error {
+func (g *gatewayImpl) Open(ctx context.Context) error {
 	if g.lastSequenceReceived == nil || g.sessionID == nil {
 		g.status = StatusConnecting
 	} else {
@@ -105,7 +110,9 @@ func (g *gatewayImpl) OpenCtx(ctx context.Context) error {
 	var err error
 	g.conn, rs, err = websocket.DefaultDialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
-		g.Close()
+		if err = g.Close(ctx); err != nil {
+			return err
+		}
 		var body []byte
 		if rs != nil && rs.Body != nil {
 			body, err = ioutil.ReadAll(rs.Body)
@@ -133,19 +140,15 @@ func (g *gatewayImpl) OpenCtx(ctx context.Context) error {
 	return nil
 }
 
-func (g *gatewayImpl) Close() {
-	g.closeWithCode(websocket.CloseNormalClosure)
+func (g *gatewayImpl) Close(ctx context.Context) error {
+	return g.closeWithCode(ctx, websocket.CloseNormalClosure)
 }
 
 func (g *gatewayImpl) Status() Status {
 	return g.status
 }
 
-func (g *gatewayImpl) Send(command discord.GatewayCommand) error {
-	return g.SendCtx(context.Background(), command)
-}
-
-func (g *gatewayImpl) SendCtx(ctx context.Context, command discord.GatewayCommand) error {
+func (g *gatewayImpl) Send(ctx context.Context, command discord.GatewayCommand) error {
 	if g.conn == nil {
 		return discord.ErrShardNotConnected
 	}
@@ -167,7 +170,7 @@ func (g *gatewayImpl) Latency() time.Duration {
 	return g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
 }
 
-func (g *gatewayImpl) reconnect(delay time.Duration) {
+func (g *gatewayImpl) reconnect(ctx context.Context, delay time.Duration) {
 	go func() {
 		time.Sleep(delay)
 
@@ -176,15 +179,18 @@ func (g *gatewayImpl) reconnect(delay time.Duration) {
 			return
 		}
 		g.Logger().Info(g.formatLogs("reconnecting gateway..."))
-		if err := g.Open(); err != nil {
+		if err := g.Open(ctx); err != nil {
 			g.Logger().Error(g.formatLogs("failed to reconnect gateway: ", err))
 			g.status = StatusDisconnected
-			g.reconnect(delay * 2)
+			g.reconnect(ctx, delay*2)
 		}
 	}()
 }
 
-func (g *gatewayImpl) closeWithCode(code int) {
+func (g *gatewayImpl) closeWithCode(ctx context.Context, code int) error {
+	if err := g.config.RateLimiter.Wait(ctx); err != nil {
+		return err
+	}
 	if g.heartbeatChan != nil {
 		g.Logger().Info(g.formatLogs("closing gateway goroutines..."))
 		close(g.heartbeatChan)
@@ -194,7 +200,7 @@ func (g *gatewayImpl) closeWithCode(code int) {
 	if g.conn != nil {
 		err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, ""))
 		if err != nil {
-			g.Logger().Error(g.formatLogs("error writing close code: ", err))
+			return errors.Wrap(err, "error writing close code")
 		}
 
 		// TODO: Wait for Discord to actually close the connection.
@@ -202,10 +208,11 @@ func (g *gatewayImpl) closeWithCode(code int) {
 
 		err = g.conn.Close()
 		if err != nil {
-			g.Logger().Error(g.formatLogs("error closing conn: ", err))
+			return errors.Wrap(err, "error closing websocket")
 		}
 		g.conn = nil
 	}
+	return nil
 }
 
 func (g *gatewayImpl) heartbeat() {
@@ -225,10 +232,10 @@ func (g *gatewayImpl) heartbeat() {
 func (g *gatewayImpl) sendHeartbeat() {
 	g.Logger().Debugf(g.formatLogs("sending heartbeat..."))
 
-	if err := g.Send(discord.NewGatewayCommand(discord.GatewayOpcodeHeartbeat, g.lastSequenceReceived)); err != nil {
+	if err := g.Send(context.TODO(), discord.NewGatewayCommand(discord.GatewayOpcodeHeartbeat, discord.HeartbeatCommandData(*g.lastSequenceReceived))); err != nil {
 		g.Logger().Error(g.formatLogs("failed to send heartbeat with error: ", err))
-		g.closeWithCode(websocket.CloseServiceRestart)
-		g.reconnect(1 * time.Second)
+		_ = g.closeWithCode(context.TODO(), websocket.CloseServiceRestart)
+		g.reconnect(context.TODO(), 1*time.Second)
 	}
 	g.lastHeartbeatSent = time.Now().UTC()
 }
@@ -242,8 +249,8 @@ func (g *gatewayImpl) listen() {
 		mt, reader, err := g.conn.NextReader()
 		if err != nil {
 			g.Logger().Error(g.formatLogs("error while reading from ws. error: ", err))
-			g.closeWithCode(websocket.CloseServiceRestart)
-			g.reconnect(1 * time.Second)
+			_ = g.closeWithCode(context.TODO(), websocket.CloseServiceRestart)
+			g.reconnect(context.TODO(), 1*time.Second)
 			return
 		}
 
@@ -272,7 +279,7 @@ func (g *gatewayImpl) listen() {
 				g.status = StatusIdentifying
 				g.Logger().Info(g.formatLogs("sending StatusIdentifying command..."))
 
-				identify := discord.IdentifyCommand{
+				identify := discord.IdentifyCommandData{
 					Token: g.token,
 					Properties: discord.IdentifyCommandDataProperties{
 						OS:      g.config.OS,
@@ -288,20 +295,20 @@ func (g *gatewayImpl) listen() {
 					identify.Shard = []int{g.shardID, g.shardCount}
 				}
 
-				if err = g.Send(discord.NewGatewayCommand(discord.GatewayOpcodeIdentify, identify)); err != nil {
+				if err = g.Send(context.TODO(), discord.NewGatewayCommand(discord.GatewayOpcodeIdentify, identify)); err != nil {
 					g.Logger().Error(g.formatLogs("error sending identify payload. error: ", err))
 				}
 				g.status = StatusWaitingForReady
 			} else {
 				g.status = StatusResuming
-				cmd := discord.NewGatewayCommand(discord.GatewayOpcodeResume, discord.ResumeCommand{
+				cmd := discord.NewGatewayCommand(discord.GatewayOpcodeResume, discord.ResumeCommandData{
 					Token:     g.token,
 					SessionID: *g.sessionID,
 					Seq:       *g.lastSequenceReceived,
 				})
 				g.Logger().Info(g.formatLogs("sending StatusResuming command..."))
 
-				if err = g.Send(cmd); err != nil {
+				if err = g.Send(context.TODO(), cmd); err != nil {
 					g.Logger().Error(g.formatLogs("error sending resume payload. error: ", err))
 				}
 			}
@@ -339,8 +346,8 @@ func (g *gatewayImpl) listen() {
 
 		case discord.GatewayOpcodeReconnect:
 			g.Logger().Debug(g.formatLogs("received: OpcodeReconnect"))
-			g.closeWithCode(websocket.CloseServiceRestart)
-			g.reconnect(1 * time.Second)
+			_ = g.closeWithCode(context.TODO(), websocket.CloseServiceRestart)
+			g.reconnect(context.TODO(), 1*time.Second)
 
 		case discord.GatewayOpcodeInvalidSession:
 			var canResume bool
@@ -349,14 +356,14 @@ func (g *gatewayImpl) listen() {
 			}
 			g.Logger().Debug(g.formatLogs("received: OpcodeInvalidSession, canResume: ", canResume))
 			if canResume {
-				g.closeWithCode(websocket.CloseServiceRestart)
+				_ = g.closeWithCode(context.TODO(), websocket.CloseServiceRestart)
 			} else {
-				g.Close()
+				_ = g.Close(context.TODO())
 				// clear reconnect info
 				g.sessionID = nil
 				g.lastSequenceReceived = nil
 			}
-			g.reconnect(5 * time.Second)
+			g.reconnect(context.TODO(), 5*time.Second)
 
 		case discord.GatewayOpcodeHeartbeatACK:
 			g.Logger().Debug(g.formatLogs("received: OpcodeHeartbeatACK"))
@@ -373,7 +380,9 @@ func (g *gatewayImpl) parseGatewayEvent(mt int, reader io.Reader) (*discord.Gate
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to decompress zlib")
 		}
-		defer readCloser.Close()
+		defer func() {
+			_ = readCloser.Close()
+		}()
 		reader = readCloser
 	}
 

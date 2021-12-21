@@ -3,100 +3,126 @@ package discord
 import "github.com/DisgoOrg/disgo/json"
 
 // NewSelectMenu builds a new SelectMenuComponent from the provided values
-func NewSelectMenu(customID string, placeholder string, minValues OptionalInt, maxValues int, disabled bool, options ...SelectMenuOption) SelectMenuComponent {
+//goland:noinspection GoUnusedExportedFunction
+func NewSelectMenu(customID CustomID, placeholder string, options ...SelectMenuOption) SelectMenuComponent {
 	return SelectMenuComponent{
 		CustomID:    customID,
 		Placeholder: placeholder,
-		MinValues:   minValues,
-		MaxValues:   maxValues,
-		Disabled:    disabled,
 		Options:     options,
 	}
 }
 
-var _ Component = (*SelectMenuComponent)(nil)
+var (
+	_ Component            = (*SelectMenuComponent)(nil)
+	_ InteractiveComponent = (*SelectMenuComponent)(nil)
+)
 
 type SelectMenuComponent struct {
-	CustomID    string             `json:"custom_id"`
+	CustomID    CustomID           `json:"custom_id"`
 	Placeholder string             `json:"placeholder,omitempty"`
-	MinValues   OptionalInt        `json:"min_values,omitempty"`
-	MaxValues   int                `json:"max_values,omitempty"`
+	MinValues   json.NullInt       `json:"min_values,omitempty"`
+	MaxValues   json.NullInt       `json:"max_values,omitempty"`
 	Disabled    bool               `json:"disabled,omitempty"`
 	Options     []SelectMenuOption `json:"options,omitempty"`
 }
 
-func (m SelectMenuComponent) MarshalJSON() ([]byte, error) {
-	type selectMenu SelectMenuComponent
-	v := struct {
+func (c SelectMenuComponent) MarshalJSON() ([]byte, error) {
+	type selectMenuComponent SelectMenuComponent
+	return json.Marshal(struct {
 		Type ComponentType `json:"type"`
-		selectMenu
+		selectMenuComponent
 	}{
-		Type:       m.Type(),
-		selectMenu: selectMenu(m),
-	}
-	return json.Marshal(v)
+		Type:                c.Type(),
+		selectMenuComponent: selectMenuComponent(c),
+	})
 }
 
-func (_ SelectMenuComponent) Type() ComponentType {
+func (c SelectMenuComponent) Type() ComponentType {
 	return ComponentTypeSelectMenu
 }
 
+func (c SelectMenuComponent) ID() CustomID {
+	return c.CustomID
+}
+
+func (c SelectMenuComponent) component()            {}
+func (c SelectMenuComponent) interactiveComponent() {}
+
 // WithCustomID returns a new SelectMenuComponent with the provided customID
-func (m SelectMenuComponent) WithCustomID(customID string) SelectMenuComponent {
-	m.CustomID = customID
-	return m
+func (c SelectMenuComponent) WithCustomID(customID CustomID) SelectMenuComponent {
+	c.CustomID = customID
+	return c
 }
 
 // WithPlaceholder returns a new SelectMenuComponent with the provided placeholder
-func (m SelectMenuComponent) WithPlaceholder(placeholder string) SelectMenuComponent {
-	m.Placeholder = placeholder
-	return m
+func (c SelectMenuComponent) WithPlaceholder(placeholder string) SelectMenuComponent {
+	c.Placeholder = placeholder
+	return c
 }
 
 // WithMinValues returns a new SelectMenuComponent with the provided minValue
-func (m SelectMenuComponent) WithMinValues(minValue OptionalInt) SelectMenuComponent {
-	m.MinValues = minValue
-	return m
+func (c SelectMenuComponent) WithMinValues(minValue int) SelectMenuComponent {
+	c.MinValues = *json.NewInt(minValue)
+	return c
 }
 
 // WithMaxValues returns a new SelectMenuComponent with the provided maxValue
-func (m SelectMenuComponent) WithMaxValues(maxValue int) SelectMenuComponent {
-	m.MaxValues = maxValue
-	return m
+func (c SelectMenuComponent) WithMaxValues(maxValue int) SelectMenuComponent {
+	c.MaxValues = *json.NewInt(maxValue)
+	return c
+}
+
+// AsEnabled returns a new SelectMenuComponent but enabled
+func (c SelectMenuComponent) AsEnabled() SelectMenuComponent {
+	c.Disabled = false
+	return c
+}
+
+// AsDisabled returns a new SelectMenuComponent but disabled
+func (c SelectMenuComponent) AsDisabled() SelectMenuComponent {
+	c.Disabled = true
+	return c
+}
+
+// WithDisabled returns a new SelectMenuComponent with the provided disabled
+func (c SelectMenuComponent) WithDisabled(disabled bool) SelectMenuComponent {
+	c.Disabled = disabled
+	return c
 }
 
 // SetOptions returns a new SelectMenuComponent with the provided SelectMenuOption(s)
-func (m SelectMenuComponent) SetOptions(options ...SelectMenuOption) SelectMenuComponent {
-	m.Options = options
-	return m
-}
-
-// AddOptions returns a new SelectMenuComponent with the provided SelectMenuOption(s) added
-func (m SelectMenuComponent) AddOptions(options ...SelectMenuOption) SelectMenuComponent {
-	m.Options = append(m.Options, options...)
-	return m
+func (c SelectMenuComponent) SetOptions(options ...SelectMenuOption) SelectMenuComponent {
+	c.Options = options
+	return c
 }
 
 // SetOption returns a new SelectMenuComponent with the SelectMenuOption which has the value replaced
-func (m SelectMenuComponent) SetOption(value string, option SelectMenuOption) SelectMenuComponent {
-	for i, o := range m.Options {
+func (c SelectMenuComponent) SetOption(value string, option SelectMenuOption) SelectMenuComponent {
+	for i, o := range c.Options {
 		if o.Value == value {
-			m.Options[i] = option
+			c.Options[i] = option
 			break
 		}
 	}
-	return m
+	return c
+}
+
+// AddOptions returns a new SelectMenuComponent with the provided SelectMenuOption(s) added
+func (c SelectMenuComponent) AddOptions(options ...SelectMenuOption) SelectMenuComponent {
+	c.Options = append(c.Options, options...)
+	return c
 }
 
 // RemoveOption returns a new SelectMenuComponent with the provided SelectMenuOption at the index removed
-func (m SelectMenuComponent) RemoveOption(index int) SelectMenuComponent {
-	if len(m.Options) > index {
-		m.Options = append(m.Options[:index], m.Options[index+1:]...)
+func (c SelectMenuComponent) RemoveOption(index int) SelectMenuComponent {
+	if len(c.Options) > index {
+		c.Options = append(c.Options[:index], c.Options[index+1:]...)
 	}
-	return m
+	return c
 }
 
 // NewSelectMenuOption builds a new SelectMenuOption
+//goland:noinspection GoUnusedExportedFunction
 func NewSelectMenuOption(label string, value string) SelectMenuOption {
 	return SelectMenuOption{
 		Label: label,
@@ -131,14 +157,14 @@ func (o SelectMenuOption) WithDescription(description string) SelectMenuOption {
 	return o
 }
 
-// WithDefault returns a new SelectMenuOption as default/non-default
-func (o SelectMenuOption) WithDefault(defaultOption bool) SelectMenuOption {
-	o.Default = defaultOption
-	return o
-}
-
 // WithEmoji returns a new SelectMenuOption with the provided Emoji
 func (o SelectMenuOption) WithEmoji(emoji ComponentEmoji) SelectMenuOption {
 	o.Emoji = &emoji
+	return o
+}
+
+// WithDefault returns a new SelectMenuOption as default/non-default
+func (o SelectMenuOption) WithDefault(defaultOption bool) SelectMenuOption {
+	o.Default = defaultOption
 	return o
 }

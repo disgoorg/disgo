@@ -16,21 +16,21 @@ type SlashCommandUpdate struct {
 }
 
 func (c SlashCommandUpdate) MarshalJSON() ([]byte, error) {
-	v := struct {
+	type slashCommandUpdate SlashCommandUpdate
+	return json.Marshal(struct {
 		Type ApplicationCommandType `json:"type"`
-		ApplicationCommandUpdate
+		slashCommandUpdate
 	}{
-		Type:                     c.Type(),
-		ApplicationCommandUpdate: c,
-	}
-	return json.Marshal(v)
+		Type:               c.Type(),
+		slashCommandUpdate: slashCommandUpdate(c),
+	})
 }
 
-func (_ SlashCommandUpdate) Type() ApplicationCommandType {
+func (SlashCommandUpdate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeSlash
 }
 
-func (_ SlashCommandUpdate) applicationCommandUpdate() {}
+func (SlashCommandUpdate) applicationCommandUpdate() {}
 
 type UserCommandUpdate struct {
 	Name              *string `json:"name"`
@@ -38,21 +38,21 @@ type UserCommandUpdate struct {
 }
 
 func (c UserCommandUpdate) MarshalJSON() ([]byte, error) {
-	v := struct {
+	type userCommandUpdate UserCommandUpdate
+	return json.Marshal(struct {
 		Type ApplicationCommandType `json:"type"`
-		ApplicationCommandUpdate
+		userCommandUpdate
 	}{
-		Type:                     c.Type(),
-		ApplicationCommandUpdate: c,
-	}
-	return json.Marshal(v)
+		Type:              c.Type(),
+		userCommandUpdate: userCommandUpdate(c),
+	})
 }
 
-func (_ UserCommandUpdate) Type() ApplicationCommandType {
+func (UserCommandUpdate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeUser
 }
 
-func (_ UserCommandUpdate) applicationCommandUpdate() {}
+func (UserCommandUpdate) applicationCommandUpdate() {}
 
 type MessageCommandUpdate struct {
 	Name              *string `json:"name"`
@@ -60,18 +60,18 @@ type MessageCommandUpdate struct {
 }
 
 func (c MessageCommandUpdate) MarshalJSON() ([]byte, error) {
-	v := struct {
+	type messageCommandUpdate MessageCommandUpdate
+	return json.Marshal(struct {
 		Type ApplicationCommandType `json:"type"`
-		ApplicationCommandUpdate
+		messageCommandUpdate
 	}{
-		Type:                     c.Type(),
-		ApplicationCommandUpdate: c,
-	}
-	return json.Marshal(v)
+		Type:                 c.Type(),
+		messageCommandUpdate: messageCommandUpdate(c),
+	})
 }
 
-func (_ MessageCommandUpdate) Type() ApplicationCommandType {
+func (MessageCommandUpdate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeMessage
 }
 
-func (_ MessageCommandUpdate) applicationCommandUpdate() {}
+func (MessageCommandUpdate) applicationCommandUpdate() {}

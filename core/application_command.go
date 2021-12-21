@@ -9,20 +9,6 @@ type ApplicationCommand interface {
 	discord.ApplicationCommand
 }
 
-type ApplicationCommands []ApplicationCommand
-
-func (c ApplicationCommands) GetSlashCommand(i int) *SlashCommand {
-	return c[i].(*SlashCommand)
-}
-
-func (c ApplicationCommands) GetUserCommand(i int) *UserCommand {
-	return c[i].(*UserCommand)
-}
-
-func (c ApplicationCommands) GetMessageCommand(i int) *MessageCommand {
-	return c[i].(*MessageCommand)
-}
-
 type SlashCommand struct {
 	discord.SlashCommand
 	Bot *Bot
@@ -33,7 +19,7 @@ func (c *SlashCommand) Guild() *Guild {
 	if c.GuildID == nil {
 		return nil
 	}
-	return c.Bot.Caches.GuildCache().Get(*c.GuildID)
+	return c.Bot.Caches.Guilds().Get(*c.GuildID)
 }
 
 // IsGlobal returns true if this is a global ApplicationCommand and false for a guild ApplicationCommand
@@ -57,10 +43,10 @@ func (c *SlashCommand) Update(commandUpdate discord.SlashCommandUpdate, opts ...
 	var command discord.ApplicationCommand
 	var err error
 	if c.GuildID == nil {
-		command, err = c.Bot.RestServices.ApplicationService().UpdateGlobalCommand(c.Bot.ApplicationID, c.ID, commandUpdate, opts...)
+		command, err = c.Bot.RestServices.ApplicationService().UpdateGlobalCommand(c.Bot.ApplicationID, c.ID(), commandUpdate, opts...)
 
 	} else {
-		command, err = c.Bot.RestServices.ApplicationService().UpdateGuildCommand(c.Bot.ApplicationID, *c.GuildID, c.ID, commandUpdate, opts...)
+		command, err = c.Bot.RestServices.ApplicationService().UpdateGuildCommand(c.Bot.ApplicationID, *c.GuildID, c.ID(), commandUpdate, opts...)
 	}
 	if err != nil {
 		return nil, err
@@ -70,7 +56,7 @@ func (c *SlashCommand) Update(commandUpdate discord.SlashCommandUpdate, opts ...
 
 // SetPermissions sets the ApplicationCommandPermissions for a specific Guild. this overrides all existing ApplicationCommandPermission(s). thx discord for that
 func (c *SlashCommand) SetPermissions(guildID discord.Snowflake, commandPermissions []discord.ApplicationCommandPermission, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
-	permissions, err := c.Bot.RestServices.ApplicationService().SetGuildCommandPermissions(c.Bot.ApplicationID, guildID, c.ID, commandPermissions, opts...)
+	permissions, err := c.Bot.RestServices.ApplicationService().SetGuildCommandPermissions(c.Bot.ApplicationID, guildID, c.ID(), commandPermissions, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +65,7 @@ func (c *SlashCommand) SetPermissions(guildID discord.Snowflake, commandPermissi
 
 // GetPermissions fetched the ApplicationCommandPermissions for a specific Guild from discord
 func (c *SlashCommand) GetPermissions(guildID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
-	permissions, err := c.Bot.RestServices.ApplicationService().GetGuildCommandPermissions(c.Bot.ApplicationID, guildID, c.ID, opts...)
+	permissions, err := c.Bot.RestServices.ApplicationService().GetGuildCommandPermissions(c.Bot.ApplicationID, guildID, c.ID(), opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -89,9 +75,9 @@ func (c *SlashCommand) GetPermissions(guildID discord.Snowflake, opts ...rest.Re
 // Delete deletes the ApplicationCommand from discord
 func (c *SlashCommand) Delete(opts ...rest.RequestOpt) error {
 	if c.GuildID == nil {
-		return c.Bot.RestServices.ApplicationService().DeleteGlobalCommand(c.Bot.ApplicationID, c.ID)
+		return c.Bot.RestServices.ApplicationService().DeleteGlobalCommand(c.Bot.ApplicationID, c.ID())
 	}
-	return c.Bot.RestServices.ApplicationService().DeleteGuildCommand(c.Bot.ApplicationID, *c.GuildID, c.ID, opts...)
+	return c.Bot.RestServices.ApplicationService().DeleteGuildCommand(c.Bot.ApplicationID, *c.GuildID, c.ID(), opts...)
 }
 
 type UserCommand struct {
@@ -104,7 +90,7 @@ func (c *UserCommand) Guild() *Guild {
 	if c.GuildID == nil {
 		return nil
 	}
-	return c.Bot.Caches.GuildCache().Get(*c.GuildID)
+	return c.Bot.Caches.Guilds().Get(*c.GuildID)
 }
 
 // IsGlobal returns true if this is a global ApplicationCommand and false for a guild ApplicationCommand
@@ -125,10 +111,10 @@ func (c *UserCommand) Update(commandUpdate discord.UserCommandUpdate, opts ...re
 	var command discord.ApplicationCommand
 	var err error
 	if c.GuildID == nil {
-		command, err = c.Bot.RestServices.ApplicationService().UpdateGlobalCommand(c.Bot.ApplicationID, c.ID, commandUpdate, opts...)
+		command, err = c.Bot.RestServices.ApplicationService().UpdateGlobalCommand(c.Bot.ApplicationID, c.ID(), commandUpdate, opts...)
 
 	} else {
-		command, err = c.Bot.RestServices.ApplicationService().UpdateGuildCommand(c.Bot.ApplicationID, *c.GuildID, c.ID, commandUpdate, opts...)
+		command, err = c.Bot.RestServices.ApplicationService().UpdateGuildCommand(c.Bot.ApplicationID, *c.GuildID, c.ID(), commandUpdate, opts...)
 	}
 	if err != nil {
 		return nil, err
@@ -138,7 +124,7 @@ func (c *UserCommand) Update(commandUpdate discord.UserCommandUpdate, opts ...re
 
 // SetPermissions sets the ApplicationCommandPermissions for a specific Guild. this overrides all existing ApplicationCommandPermission(s). thx discord for that
 func (c *UserCommand) SetPermissions(guildID discord.Snowflake, commandPermissions []discord.ApplicationCommandPermission, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
-	permissions, err := c.Bot.RestServices.ApplicationService().SetGuildCommandPermissions(c.Bot.ApplicationID, guildID, c.ID, commandPermissions, opts...)
+	permissions, err := c.Bot.RestServices.ApplicationService().SetGuildCommandPermissions(c.Bot.ApplicationID, guildID, c.ID(), commandPermissions, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +133,7 @@ func (c *UserCommand) SetPermissions(guildID discord.Snowflake, commandPermissio
 
 // GetPermissions fetched the ApplicationCommandPermissions for a specific Guild from discord
 func (c *UserCommand) GetPermissions(guildID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
-	permissions, err := c.Bot.RestServices.ApplicationService().GetGuildCommandPermissions(c.Bot.ApplicationID, guildID, c.ID, opts...)
+	permissions, err := c.Bot.RestServices.ApplicationService().GetGuildCommandPermissions(c.Bot.ApplicationID, guildID, c.ID(), opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -157,9 +143,9 @@ func (c *UserCommand) GetPermissions(guildID discord.Snowflake, opts ...rest.Req
 // Delete deletes the ApplicationCommand from discord
 func (c *UserCommand) Delete(opts ...rest.RequestOpt) error {
 	if c.GuildID == nil {
-		return c.Bot.RestServices.ApplicationService().DeleteGlobalCommand(c.Bot.ApplicationID, c.ID)
+		return c.Bot.RestServices.ApplicationService().DeleteGlobalCommand(c.Bot.ApplicationID, c.ID())
 	}
-	return c.Bot.RestServices.ApplicationService().DeleteGuildCommand(c.Bot.ApplicationID, *c.GuildID, c.ID, opts...)
+	return c.Bot.RestServices.ApplicationService().DeleteGuildCommand(c.Bot.ApplicationID, *c.GuildID, c.ID(), opts...)
 }
 
 type MessageCommand struct {
@@ -172,7 +158,7 @@ func (c *MessageCommand) Guild() *Guild {
 	if c.GuildID == nil {
 		return nil
 	}
-	return c.Bot.Caches.GuildCache().Get(*c.GuildID)
+	return c.Bot.Caches.Guilds().Get(*c.GuildID)
 }
 
 // IsGlobal returns true if this is a global ApplicationCommand and false for a guild ApplicationCommand
@@ -188,15 +174,15 @@ func (c *MessageCommand) ToCreate() discord.MessageCommandCreate {
 	}
 }
 
-// Update updates the current ApplicationCommand with the given fields
+// Update updates the current ApplicationCommand with the given discord.ApplicationCommandUpdate
 func (c *MessageCommand) Update(commandUpdate discord.MessageCommandUpdate, opts ...rest.RequestOpt) (*MessageCommand, error) {
 	var command discord.ApplicationCommand
 	var err error
 	if c.GuildID == nil {
-		command, err = c.Bot.RestServices.ApplicationService().UpdateGlobalCommand(c.Bot.ApplicationID, c.ID, commandUpdate, opts...)
+		command, err = c.Bot.RestServices.ApplicationService().UpdateGlobalCommand(c.Bot.ApplicationID, c.ID(), commandUpdate, opts...)
 
 	} else {
-		command, err = c.Bot.RestServices.ApplicationService().UpdateGuildCommand(c.Bot.ApplicationID, *c.GuildID, c.ID, commandUpdate, opts...)
+		command, err = c.Bot.RestServices.ApplicationService().UpdateGuildCommand(c.Bot.ApplicationID, *c.GuildID, c.ID(), commandUpdate, opts...)
 	}
 	if err != nil {
 		return nil, err
@@ -206,7 +192,7 @@ func (c *MessageCommand) Update(commandUpdate discord.MessageCommandUpdate, opts
 
 // SetPermissions sets the ApplicationCommandPermissions for a specific Guild. this overrides all existing ApplicationCommandPermission(s). thx discord for that
 func (c *MessageCommand) SetPermissions(guildID discord.Snowflake, commandPermissions []discord.ApplicationCommandPermission, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
-	permissions, err := c.Bot.RestServices.ApplicationService().SetGuildCommandPermissions(c.Bot.ApplicationID, guildID, c.ID, commandPermissions, opts...)
+	permissions, err := c.Bot.RestServices.ApplicationService().SetGuildCommandPermissions(c.Bot.ApplicationID, guildID, c.ID(), commandPermissions, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +201,7 @@ func (c *MessageCommand) SetPermissions(guildID discord.Snowflake, commandPermis
 
 // GetPermissions fetched the ApplicationCommandPermissions for a specific Guild from discord
 func (c *MessageCommand) GetPermissions(guildID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
-	permissions, err := c.Bot.RestServices.ApplicationService().GetGuildCommandPermissions(c.Bot.ApplicationID, guildID, c.ID, opts...)
+	permissions, err := c.Bot.RestServices.ApplicationService().GetGuildCommandPermissions(c.Bot.ApplicationID, guildID, c.ID(), opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -225,7 +211,7 @@ func (c *MessageCommand) GetPermissions(guildID discord.Snowflake, opts ...rest.
 // Delete deletes the ApplicationCommand from discord
 func (c *MessageCommand) Delete(opts ...rest.RequestOpt) error {
 	if c.GuildID == nil {
-		return c.Bot.RestServices.ApplicationService().DeleteGlobalCommand(c.Bot.ApplicationID, c.ID)
+		return c.Bot.RestServices.ApplicationService().DeleteGlobalCommand(c.Bot.ApplicationID, c.ID())
 	}
-	return c.Bot.RestServices.ApplicationService().DeleteGuildCommand(c.Bot.ApplicationID, *c.GuildID, c.ID, opts...)
+	return c.Bot.RestServices.ApplicationService().DeleteGuildCommand(c.Bot.ApplicationID, *c.GuildID, c.ID(), opts...)
 }

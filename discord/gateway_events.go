@@ -17,7 +17,7 @@ type GatewayPayload struct {
 // GatewayEventReady is the event sent by discord when you successfully Identify
 type GatewayEventReady struct {
 	Version     int                `json:"v"`
-	SelfUser    OAuth2User         `json:"user"`
+	User        OAuth2User         `json:"user"`
 	Guilds      []UnavailableGuild `json:"guilds"`
 	SessionID   string             `json:"session_id"`
 	Shard       []int              `json:"shard,omitempty"`
@@ -27,6 +27,84 @@ type GatewayEventReady struct {
 // GatewayEventHello is sent when we connect to the gateway
 type GatewayEventHello struct {
 	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
+}
+
+type GatewayEventThreadCreate struct {
+	GuildThread
+	ThreadMember ThreadMember `json:"thread_member"`
+}
+
+func (e *GatewayEventThreadCreate) UnmarshalJSON(data []byte) error {
+	var v struct {
+		UnmarshalChannel
+		ThreadMember ThreadMember `json:"thread_member"`
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	e.GuildThread = v.UnmarshalChannel.Channel.(GuildThread)
+	e.ThreadMember = v.ThreadMember
+	return nil
+}
+
+type GatewayEventThreadUpdate struct {
+	GuildThread
+}
+
+func (e *GatewayEventThreadUpdate) UnmarshalJSON(data []byte) error {
+	var v UnmarshalChannel
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	e.GuildThread = v.Channel.(GuildThread)
+	return nil
+}
+
+type GatewayEventThreadDelete struct {
+	ID       Snowflake   `json:"id"`
+	GuildID  Snowflake   `json:"guild_id"`
+	ParentID Snowflake   `json:"parent_id"`
+	Type     ChannelType `json:"type"`
+}
+
+type GatewayEventThreadListSync struct {
+	GuildID    Snowflake      `json:"guild_id"`
+	ChannelIDs []Snowflake    `json:"channel_ids"`
+	Threads    []GuildThread  `json:"threads"`
+	Members    []ThreadMember `json:"members"`
+}
+
+func (e *GatewayEventThreadListSync) UnmarshalJSON(data []byte) error {
+	type gatewayEventThreadListSync GatewayEventThreadListSync
+	var v struct {
+		Threads []UnmarshalChannel `json:"threads"`
+		gatewayEventThreadListSync
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*e = GatewayEventThreadListSync(v.gatewayEventThreadListSync)
+	if len(v.Threads) > 0 {
+		e.Threads = make([]GuildThread, len(v.Threads))
+		for i := range v.Threads {
+			e.Threads[i] = v.Threads[i].Channel.(GuildThread)
+		}
+	}
+	return nil
+}
+
+type GatewayEventThreadMembersUpdate struct {
+	ID               Snowflake                  `json:"id"`
+	GuildID          Snowflake                  `json:"guild_id"`
+	MemberCount      int                        `json:"member_count"`
+	AddedMembers     []ThreadMembersAddedMember `json:"added_members"`
+	RemovedMemberIDs []Snowflake                `json:"removed_member_ids"`
+}
+
+type ThreadMembersAddedMember struct {
+	ThreadMember
+	Member   Member    `json:"member"`
+	Presence *Presence `json:"presence"`
 }
 
 type GatewayEventMessageReactionAdd struct {

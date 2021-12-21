@@ -1,13 +1,14 @@
 package main
 
 import (
+	"context"
 	_ "embed"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/DisgoOrg/disgo/bot"
 	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/core/bot"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
@@ -25,6 +26,9 @@ var (
 	guildID     = discord.Snowflake(os.Getenv("disgo_guild_id"))
 	adminRoleID = discord.Snowflake(os.Getenv("disgo_admin_role_id"))
 	testRoleID  = discord.Snowflake(os.Getenv("disgo_test_role_id"))
+
+	//go:embed gopher.png
+	gopher []byte
 )
 
 func main() {
@@ -36,7 +40,7 @@ func main() {
 	disgo, err := bot.New(token,
 		//bot.WithRawEventsEnabled(),
 		bot.WithGatewayOpts(
-			gateway.WithGatewayIntents(discord.GatewayIntentGuilds),
+			gateway.WithGatewayIntents(discord.GatewayIntentsAll),
 			gateway.WithPresence(core.NewListeningPresence("your bullshit", discord.OnlineStatusOnline, false)),
 		),
 		bot.WithCacheOpts(
@@ -53,11 +57,11 @@ func main() {
 
 	registerCommands(disgo)
 
-	if err = disgo.ConnectGateway(); err != nil {
+	if err = disgo.ConnectGateway(context.TODO()); err != nil {
 		log.Fatal("error while connecting to discord: ", err)
 	}
 
-	defer disgo.Close()
+	defer disgo.Close(context.TODO())
 
 	log.Info("ExampleBot is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)

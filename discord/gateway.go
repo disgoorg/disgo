@@ -1,5 +1,11 @@
 package discord
 
+import (
+	"time"
+
+	"github.com/DisgoOrg/disgo/json"
+)
+
 type Gateway struct {
 	URL string `json:"url"`
 }
@@ -77,6 +83,12 @@ type GuildRoleUpdateGatewayEvent struct {
 	Role    Role      `json:"role"`
 }
 
+type GuildScheduledEventUserEvent struct {
+	GuildScheduledEventID Snowflake `json:"guild_scheduled_event_id"`
+	UserID                Snowflake `json:"user_id"`
+	GuildID               Snowflake `json:"guild_id"`
+}
+
 type InviteDeleteGatewayEvent struct {
 	ChannelID Snowflake  `json:"channel_id"`
 	GuildID   *Snowflake `json:"guild_id"`
@@ -96,12 +108,26 @@ type MessageDeleteBulkGatewayEvent struct {
 }
 
 type TypingStartGatewayEvent struct {
-	ChannelID Snowflake
-	GuildID   *Snowflake
-	UserID    Snowflake
-	Timestamp Time
-	Member    *Member
-	User      User
+	ChannelID Snowflake  `json:"channel_id"`
+	GuildID   *Snowflake `json:"guild_id,omitempty"`
+	UserID    Snowflake  `json:"user_id"`
+	Timestamp time.Time  `json:"timestamp"`
+	Member    *Member    `json:"member,omitempty"`
+	User      User       `json:"user"`
+}
+
+func (e *TypingStartGatewayEvent) UnmarshalJSON(data []byte) error {
+	type typingStartGatewayEvent TypingStartGatewayEvent
+	var v struct {
+		Timestamp int64 `json:"timestamp"`
+		typingStartGatewayEvent
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*e = TypingStartGatewayEvent(v.typingStartGatewayEvent)
+	e.Timestamp = time.Unix(v.Timestamp, 0)
+	return nil
 }
 
 type WebhooksUpdateGatewayEvent struct {
@@ -109,13 +135,26 @@ type WebhooksUpdateGatewayEvent struct {
 	ChannelID Snowflake `json:"channel_id"`
 }
 
-type InvalidSessionGatewayEvent struct {
-	bool
-}
-
 type IntegrationCreateGatewayEvent struct {
 	Integration
 	GuildID Snowflake `json:"guild_id"`
+}
+
+func (e *IntegrationCreateGatewayEvent) UnmarshalJSON(data []byte) error {
+	type integrationCreateGatewayEvent IntegrationCreateGatewayEvent
+	var v struct {
+		UnmarshalIntegration
+		integrationCreateGatewayEvent
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*e = IntegrationCreateGatewayEvent(v.integrationCreateGatewayEvent)
+
+	e.Integration = v.UnmarshalIntegration.Integration
+	return nil
 }
 
 type IntegrationUpdateGatewayEvent struct {
@@ -123,8 +162,25 @@ type IntegrationUpdateGatewayEvent struct {
 	GuildID Snowflake `json:"guild_id"`
 }
 
+func (e *IntegrationUpdateGatewayEvent) UnmarshalJSON(data []byte) error {
+	type integrationUpdateGatewayEvent IntegrationUpdateGatewayEvent
+	var v struct {
+		UnmarshalIntegration
+		integrationUpdateGatewayEvent
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*e = IntegrationUpdateGatewayEvent(v.integrationUpdateGatewayEvent)
+
+	e.Integration = v.UnmarshalIntegration.Integration
+	return nil
+}
+
 type IntegrationDeleteGatewayEvent struct {
-	ID            Snowflake `json:"id"`
-	GuildID       Snowflake `json:"guild_id"`
-	ApplicationID Snowflake `json:"application_id"`
+	ID            Snowflake  `json:"id"`
+	GuildID       Snowflake  `json:"guild_id"`
+	ApplicationID *Snowflake `json:"application_id"`
 }

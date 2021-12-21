@@ -4,6 +4,7 @@ import "github.com/DisgoOrg/disgo/discord"
 
 type MemberChunkingFilter func(guildID discord.Snowflake) bool
 
+//goland:noinspection GoUnusedGlobalVariable
 var (
 	MemberChunkingFilterAll  MemberChunkingFilter = func(_ discord.Snowflake) bool { return true }
 	MemberChunkingFilterNone MemberChunkingFilter = func(_ discord.Snowflake) bool { return false }
