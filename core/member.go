@@ -2,6 +2,7 @@ package core
 
 import (
 	"strings"
+	"time"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
@@ -60,6 +61,11 @@ func (m *Member) IsOwner() bool {
 		return guild.OwnerID == m.User.ID
 	}
 	return false
+}
+
+// IsTimedOut returns whether this Member is timed out
+func (m *Member) IsTimedOut() bool {
+	return m.CommunicationDisabledUntil != nil && m.CommunicationDisabledUntil.After(time.Now())
 }
 
 // AvatarURL returns the Avatar URL of the Member for this guild
