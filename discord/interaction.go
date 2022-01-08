@@ -19,7 +19,7 @@ const (
 
 // Interaction is used for easier unmarshalling of different Interaction(s)
 type Interaction interface {
-	InteractionType() InteractionType
+	Type() InteractionType
 	interaction()
 }
 
@@ -52,41 +52,14 @@ func (i *UnmarshalInteraction) UnmarshalJSON(data []byte) error {
 		interaction = v
 
 	case InteractionTypeApplicationCommand:
-		switch iType.Data.ApplicationCommandType {
-		case ApplicationCommandTypeSlash:
-			v := SlashCommandInteraction{}
-			err = json.Unmarshal(data, &v)
-			interaction = v
-
-		case ApplicationCommandTypeUser:
-			v := UserCommandInteraction{}
-			err = json.Unmarshal(data, &v)
-			interaction = v
-
-		case ApplicationCommandTypeMessage:
-			v := MessageCommandInteraction{}
-			err = json.Unmarshal(data, &v)
-			interaction = v
-
-		default:
-			return fmt.Errorf("unkown application command interaction with type %d received", iType.Data.ApplicationCommandType)
-		}
+		v := ApplicationCommandInteraction{}
+		err = json.Unmarshal(data, &v)
+		interaction = v
 
 	case InteractionTypeComponent:
-		switch iType.Data.ComponentType {
-		case ComponentTypeButton:
-			v := ButtonInteraction{}
-			err = json.Unmarshal(data, &v)
-			interaction = v
-
-		case ComponentTypeSelectMenu:
-			v := SelectMenuInteraction{}
-			err = json.Unmarshal(data, &v)
-			interaction = v
-
-		default:
-			return fmt.Errorf("unkown component interaction with type %d received", iType.Data.ComponentType)
-		}
+		v := ComponentInteraction{}
+		err = json.Unmarshal(data, &v)
+		interaction = v
 
 	case InteractionTypeAutocomplete:
 		v := AutocompleteInteraction{}
@@ -115,41 +88,93 @@ type PingInteraction struct {
 
 func (PingInteraction) interaction() {}
 
-func (PingInteraction) InteractionType() InteractionType {
+func (PingInteraction) Type() InteractionType {
 	return InteractionTypePing
 }
 
-type ApplicationCommandInteraction interface {
-	Interaction
-	ApplicationCommandType() ApplicationCommandType
-	applicationCommandInteraction()
-}
-
 var (
-	_ Interaction                   = (*SlashCommandInteraction)(nil)
-	_ ApplicationCommandInteraction = (*SlashCommandInteraction)(nil)
+	_ Interaction = (*ApplicationCommandInteraction)(nil)
 )
 
-type SlashCommandInteraction struct {
-	ID            Snowflake                   `json:"id"`
-	ApplicationID Snowflake                   `json:"application_id"`
-	Token         string                      `json:"token"`
-	Version       int                         `json:"version"`
-	GuildID       *Snowflake                  `json:"guild_id,omitempty"`
-	ChannelID     Snowflake                   `json:"channel_id"`
-	Member        *Member                     `json:"member,omitempty"`
-	User          *User                       `json:"user,omitempty"`
-	Data          SlashCommandInteractionData `json:"data"`
+type ApplicationCommandInteraction struct {
+	ID            Snowflake                         `json:"id"`
+	ApplicationID Snowflake                         `json:"application_id"`
+	Token         string                            `json:"token"`
+	Version       int                               `json:"version"`
+	GuildID       *Snowflake                        `json:"guild_id,omitempty"`
+	ChannelID     Snowflake                         `json:"channel_id"`
+	Member        *Member                           `json:"member,omitempty"`
+	User          *User                             `json:"user,omitempty"`
+	Data          ApplicationCommandInteractionData `json:"data"`
 }
 
-func (SlashCommandInteraction) interaction()                   {}
-func (SlashCommandInteraction) applicationCommandInteraction() {}
+func (ApplicationCommandInteraction) interaction()                   {}
+func (ApplicationCommandInteraction) applicationCommandInteraction() {}
+func (ApplicationCommandInteraction) Type() InteractionType {
+	return InteractionTypeApplicationCommand
+}
+
+func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
+	type applicationCommandInteraction ApplicationCommandInteraction
+	var cType struct {
+		Data struct {
+			Type ApplicationCommandType `json:"type"`
+		} `json:"data"`
+		applicationCommandInteraction
+	}
+
+	if err := json.Unmarshal(data, &cType); err != nil {
+		return err
+	}
+
+	var (
+		interactionData ApplicationCommandInteractionData
+		err             error
+	)
+	switch cType.Type {
+	case ApplicationCommandTypeSlash:
+		v := SlashCommandInteractionData{}
+		err = json.Unmarshal(data, &v)
+		interactionData = v
+
+	case ApplicationCommandTypeUser:
+		v := UserCommandInteractionData{}
+		err = json.Unmarshal(data, &v)
+		interactionData = v
+
+	case ApplicationCommandTypeMessage:
+		v := MessageCommandInteractionData{}
+		err = json.Unmarshal(data, &v)
+		interactionData = v
+
+	default:
+		return fmt.Errorf("unkown application interaction data with type %d received", cType.Type)
+	}
+	if err != nil {
+		return err
+	}
+
+	*i = ApplicationCommandInteraction(cType.applicationCommandInteraction)
+
+	i.Data = interactionData
+	return nil
+}
+
+type ApplicationCommandInteractionData interface {
+	applicationCommandInteractionData()
+	Type() ApplicationCommandType
+}
 
 type SlashCommandInteractionData struct {
 	CommandID   Snowflake            `json:"id"`
 	CommandName string               `json:"name"`
 	Resolved    SlashCommandResolved `json:"resolved"`
 	Options     []SlashCommandOption `json:"options"`
+}
+
+func (SlashCommandInteractionData) applicationCommandInteractionData() {}
+func (SlashCommandInteractionData) Type() ApplicationCommandType {
+	return ApplicationCommandTypeSlash
 }
 
 func (d *SlashCommandInteractionData) UnmarshalJSON(data []byte) error {
@@ -182,33 +207,9 @@ type SlashCommandResolved struct {
 	Channels map[Snowflake]Channel `json:"channels,omitempty"`
 }
 
-func (SlashCommandInteraction) InteractionType() InteractionType {
-	return InteractionTypeComponent
-}
-
-func (SlashCommandInteraction) ApplicationCommandType() ApplicationCommandType {
-	return ApplicationCommandTypeSlash
-}
-
 var (
-	_ Interaction                   = (*UserCommandInteraction)(nil)
-	_ ApplicationCommandInteraction = (*UserCommandInteraction)(nil)
+	_ ApplicationCommandInteractionData = (*UserCommandInteractionData)(nil)
 )
-
-func (UserCommandInteraction) interaction()                   {}
-func (UserCommandInteraction) applicationCommandInteraction() {}
-
-type UserCommandInteraction struct {
-	ID            Snowflake                  `json:"id"`
-	ApplicationID Snowflake                  `json:"application_id"`
-	Token         string                     `json:"token"`
-	Version       int                        `json:"version"`
-	GuildID       *Snowflake                 `json:"guild_id,omitempty"`
-	ChannelID     Snowflake                  `json:"channel_id"`
-	Member        *Member                    `json:"member,omitempty"`
-	User          *User                      `json:"user,omitempty"`
-	Data          UserCommandInteractionData `json:"data"`
-}
 
 type UserCommandInteractionData struct {
 	CommandID   Snowflake           `json:"id"`
@@ -217,38 +218,19 @@ type UserCommandInteractionData struct {
 	TargetID    Snowflake           `json:"target_id"`
 }
 
+func (UserCommandInteractionData) applicationCommandInteractionData() {}
+func (UserCommandInteractionData) Type() ApplicationCommandType {
+	return ApplicationCommandTypeUser
+}
+
 type UserCommandResolved struct {
 	Users   map[Snowflake]User   `json:"users,omitempty"`
 	Members map[Snowflake]Member `json:"members,omitempty"`
 }
 
-func (UserCommandInteraction) InteractionType() InteractionType {
-	return InteractionTypeComponent
-}
-
-func (UserCommandInteraction) ApplicationCommandType() ApplicationCommandType {
-	return ApplicationCommandTypeUser
-}
-
 var (
-	_ Interaction                   = (*MessageCommandInteraction)(nil)
-	_ ApplicationCommandInteraction = (*MessageCommandInteraction)(nil)
+	_ ApplicationCommandInteractionData = (*MessageCommandInteractionData)(nil)
 )
-
-type MessageCommandInteraction struct {
-	ID            Snowflake                     `json:"id"`
-	ApplicationID Snowflake                     `json:"application_id"`
-	Token         string                        `json:"token"`
-	Version       int                           `json:"version"`
-	GuildID       *Snowflake                    `json:"guild_id,omitempty"`
-	ChannelID     Snowflake                     `json:"channel_id"`
-	Member        *Member                       `json:"member,omitempty"`
-	User          *User                         `json:"user,omitempty"`
-	Data          MessageCommandInteractionData `json:"data"`
-}
-
-func (MessageCommandInteraction) interaction()                   {}
-func (MessageCommandInteraction) applicationCommandInteraction() {}
 
 type MessageCommandInteractionData struct {
 	CommandID   Snowflake              `json:"id"`
@@ -257,88 +239,103 @@ type MessageCommandInteractionData struct {
 	TargetID    Snowflake              `json:"target_id"`
 }
 
+func (MessageCommandInteractionData) applicationCommandInteractionData() {}
+func (MessageCommandInteractionData) Type() ApplicationCommandType {
+	return ApplicationCommandTypeMessage
+}
+
 type MessageCommandResolved struct {
 	Messages map[Snowflake]Message `json:"messages,omitempty"`
 }
 
-func (MessageCommandInteraction) InteractionType() InteractionType {
+var (
+	_ Interaction = (*ComponentInteraction)(nil)
+)
+
+type ComponentInteraction struct {
+	ID            Snowflake                `json:"id"`
+	ApplicationID Snowflake                `json:"application_id"`
+	Token         string                   `json:"token"`
+	Version       int                      `json:"version"`
+	GuildID       *Snowflake               `json:"guild_id,omitempty"`
+	ChannelID     Snowflake                `json:"channel_id"`
+	Member        *Member                  `json:"member,omitempty"`
+	User          *User                    `json:"user,omitempty"`
+	Data          ComponentInteractionData `json:"data"`
+	Message       Message                  `json:"message"`
+}
+
+func (ComponentInteraction) interaction() {}
+func (ComponentInteraction) Type() InteractionType {
 	return InteractionTypeComponent
 }
 
-func (MessageCommandInteraction) ApplicationCommandType() ApplicationCommandType {
-	return ApplicationCommandTypeMessage
+func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
+	type componentInteraction ComponentInteraction
+	var cType struct {
+		Data struct {
+			Type ComponentType `json:"component_type"`
+		} `json:"data"`
+		componentInteraction
+	}
+
+	if err := json.Unmarshal(data, &cType); err != nil {
+		return err
+	}
+
+	var (
+		interactionData ComponentInteractionData
+		err             error
+	)
+	switch cType.Data.Type {
+	case ComponentTypeButton:
+		v := ButtonInteractionData{}
+		err = json.Unmarshal(data, &v)
+		interactionData = v
+
+	case ComponentTypeSelectMenu:
+		v := SelectMenuInteractionData{}
+		err = json.Unmarshal(data, &v)
+		interactionData = v
+
+	default:
+		return fmt.Errorf("unkown application interaction data with type %d received", cType.Data.Type)
+	}
+	if err != nil {
+		return err
+	}
+
+	*i = ComponentInteraction(cType.componentInteraction)
+
+	i.Data = interactionData
+	return nil
 }
 
-type ComponentInteraction interface {
-	Interaction
-	ComponentType() ComponentType
-	componentInteraction()
-}
-
-var (
-	_ Interaction          = (*ButtonInteraction)(nil)
-	_ ComponentInteraction = (*ButtonInteraction)(nil)
-)
-
-type ButtonInteraction struct {
-	ID            Snowflake             `json:"id"`
-	ApplicationID Snowflake             `json:"application_id"`
-	Token         string                `json:"token"`
-	Version       int                   `json:"version"`
-	GuildID       *Snowflake            `json:"guild_id,omitempty"`
-	ChannelID     Snowflake             `json:"channel_id"`
-	Member        *Member               `json:"member,omitempty"`
-	User          *User                 `json:"user,omitempty"`
-	Data          ButtonInteractionData `json:"data"`
-	Message       Message               `json:"message"`
+type ComponentInteractionData interface {
+	componentInteractionData()
+	Type() ComponentType
 }
 
 type ButtonInteractionData struct {
 	CustomID CustomID `json:"custom_id"`
 }
 
-func (ButtonInteraction) interaction()          {}
-func (ButtonInteraction) componentInteraction() {}
-
-func (ButtonInteraction) InteractionType() InteractionType {
-	return InteractionTypeComponent
-}
-
-func (ButtonInteraction) ComponentType() ComponentType {
+func (ButtonInteractionData) componentInteractionData() {}
+func (ButtonInteractionData) Type() ComponentType {
 	return ComponentTypeButton
 }
 
 var (
-	_ Interaction          = (*SelectMenuInteraction)(nil)
-	_ ComponentInteraction = (*SelectMenuInteraction)(nil)
+	_ ComponentInteractionData = (*SelectMenuInteractionData)(nil)
 )
-
-type SelectMenuInteraction struct {
-	ID            Snowflake                 `json:"id"`
-	ApplicationID Snowflake                 `json:"application_id"`
-	Token         string                    `json:"token"`
-	Version       int                       `json:"version"`
-	GuildID       *Snowflake                `json:"guild_id,omitempty"`
-	ChannelID     Snowflake                 `json:"channel_id"`
-	Member        *Member                   `json:"member,omitempty"`
-	User          *User                     `json:"user,omitempty"`
-	Data          SelectMenuInteractionData `json:"data"`
-	Message       Message                   `json:"message"`
-}
 
 type SelectMenuInteractionData struct {
 	CustomID CustomID `json:"custom_id"`
 	Values   []string `json:"values"`
 }
 
-func (SelectMenuInteraction) interaction()          {}
-func (SelectMenuInteraction) componentInteraction() {}
-
-func (SelectMenuInteraction) InteractionType() InteractionType {
-	return InteractionTypeComponent
-}
-
-func (SelectMenuInteraction) ComponentType() ComponentType {
+func (SelectMenuInteractionData) componentInteractionData() {}
+func (SelectMenuInteractionData) Type() ComponentType {
 	return ComponentTypeSelectMenu
 }
 
@@ -359,8 +356,7 @@ type AutocompleteInteraction struct {
 }
 
 func (AutocompleteInteraction) interaction() {}
-
-func (AutocompleteInteraction) InteractionType() InteractionType {
+func (AutocompleteInteraction) Type() InteractionType {
 	return InteractionTypeAutocomplete
 }
 
