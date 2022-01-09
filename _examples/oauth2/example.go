@@ -85,7 +85,7 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleLogin(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, client.GenerateAuthorizationURL(baseURL+"/trylogin", discord.ApplicationScopeIdentify, discord.ApplicationScopeGuilds, discord.ApplicationScopeEmail, discord.ApplicationScopeConnections, discord.ApplicationScopeWebhookIncoming), http.StatusMovedPermanently)
+	http.Redirect(w, r, client.GenerateAuthorizationURL(baseURL+"/trylogin", discord.PermissionsNone, "", false, discord.ApplicationScopeIdentify, discord.ApplicationScopeGuilds, discord.ApplicationScopeEmail, discord.ApplicationScopeConnections, discord.ApplicationScopeWebhookIncoming), http.StatusMovedPermanently)
 }
 
 func handleTryLogin(w http.ResponseWriter, r *http.Request) {

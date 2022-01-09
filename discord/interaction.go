@@ -23,17 +23,24 @@ type Interaction interface {
 	interaction()
 }
 
+type BaseInteraction struct {
+	ID            Snowflake  `json:"id"`
+	ApplicationID Snowflake  `json:"application_id"`
+	Token         string     `json:"token"`
+	Version       int        `json:"version"`
+	GuildID       *Snowflake `json:"guild_id,omitempty"`
+	ChannelID     Snowflake  `json:"channel_id"`
+	Member        *Member    `json:"member,omitempty"`
+	User          *User      `json:"user,omitempty"`
+}
+
 type UnmarshalInteraction struct {
 	Interaction
 }
 
 func (i *UnmarshalInteraction) UnmarshalJSON(data []byte) error {
 	var iType struct {
-		InteractionType InteractionType `json:"type"`
-		Data            struct {
-			ApplicationCommandType ApplicationCommandType `json:"type"`
-			ComponentType          ComponentType          `json:"component_type"`
-		} `json:"data"`
+		Type InteractionType `json:"type"`
 	}
 
 	if err := json.Unmarshal(data, &iType); err != nil {
@@ -45,7 +52,7 @@ func (i *UnmarshalInteraction) UnmarshalJSON(data []byte) error {
 		err         error
 	)
 
-	switch iType.InteractionType {
+	switch iType.Type {
 	case InteractionTypePing:
 		v := PingInteraction{}
 		err = json.Unmarshal(data, &v)
@@ -67,7 +74,7 @@ func (i *UnmarshalInteraction) UnmarshalJSON(data []byte) error {
 		interaction = v
 
 	default:
-		return fmt.Errorf("unkown interaction with type %d received", iType.InteractionType)
+		return fmt.Errorf("unkown interaction with type %d received", iType.Type)
 	}
 	if err != nil {
 		return err
@@ -87,7 +94,6 @@ type PingInteraction struct {
 }
 
 func (PingInteraction) interaction() {}
-
 func (PingInteraction) Type() InteractionType {
 	return InteractionTypePing
 }
@@ -97,15 +103,8 @@ var (
 )
 
 type ApplicationCommandInteraction struct {
-	ID            Snowflake                         `json:"id"`
-	ApplicationID Snowflake                         `json:"application_id"`
-	Token         string                            `json:"token"`
-	Version       int                               `json:"version"`
-	GuildID       *Snowflake                        `json:"guild_id,omitempty"`
-	ChannelID     Snowflake                         `json:"channel_id"`
-	Member        *Member                           `json:"member,omitempty"`
-	User          *User                             `json:"user,omitempty"`
-	Data          ApplicationCommandInteractionData `json:"data"`
+	BaseInteraction
+	Data ApplicationCommandInteractionData `json:"data"`
 }
 
 func (ApplicationCommandInteraction) interaction()                   {}
@@ -131,7 +130,7 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 		interactionData ApplicationCommandInteractionData
 		err             error
 	)
-	switch cType.Type {
+	switch cType.Data.Type {
 	case ApplicationCommandTypeSlash:
 		v := SlashCommandInteractionData{}
 		err = json.Unmarshal(data, &v)
@@ -148,7 +147,7 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 		interactionData = v
 
 	default:
-		return fmt.Errorf("unkown application interaction data with type %d received", cType.Type)
+		return fmt.Errorf("unkown application interaction data with type %d received", cType.Data.Type)
 	}
 	if err != nil {
 		return err
@@ -253,16 +252,9 @@ var (
 )
 
 type ComponentInteraction struct {
-	ID            Snowflake                `json:"id"`
-	ApplicationID Snowflake                `json:"application_id"`
-	Token         string                   `json:"token"`
-	Version       int                      `json:"version"`
-	GuildID       *Snowflake               `json:"guild_id,omitempty"`
-	ChannelID     Snowflake                `json:"channel_id"`
-	Member        *Member                  `json:"member,omitempty"`
-	User          *User                    `json:"user,omitempty"`
-	Data          ComponentInteractionData `json:"data"`
-	Message       Message                  `json:"message"`
+	BaseInteraction
+	Data    ComponentInteractionData `json:"data"`
+	Message Message                  `json:"message"`
 }
 
 func (ComponentInteraction) interaction() {}
@@ -299,7 +291,7 @@ func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
 		interactionData = v
 
 	default:
-		return fmt.Errorf("unkown application interaction data with type %d received", cType.Data.Type)
+		return fmt.Errorf("unkown component interaction data with type %d received", cType.Data.Type)
 	}
 	if err != nil {
 		return err
@@ -344,15 +336,8 @@ var (
 )
 
 type AutocompleteInteraction struct {
-	ID            Snowflake                   `json:"id"`
-	ApplicationID Snowflake                   `json:"application_id"`
-	Token         string                      `json:"token"`
-	Version       int                         `json:"version"`
-	GuildID       *Snowflake                  `json:"guild_id,omitempty"`
-	ChannelID     Snowflake                   `json:"channel_id"`
-	Member        *Member                     `json:"member,omitempty"`
-	User          *User                       `json:"user,omitempty"`
-	Data          AutocompleteInteractionData `json:"data"`
+	BaseInteraction
+	Data AutocompleteInteractionData `json:"data"`
 }
 
 func (AutocompleteInteraction) interaction() {}
