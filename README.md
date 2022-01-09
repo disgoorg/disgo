@@ -185,10 +185,6 @@ Being used in production by FredBoat, Dyno, LewdBot, and more.
 
 Discord webhook logger integration for [logrus](https://github.com/sirupsen/logrus)
 
-### [disgommand](https://github.com/DisgoOrg/disgommand)
-
-Command framework for disgo in [gorilla/mux](https://github.com/gorilla/mux) style
-
 ## Why another library?
 
 [discordgo](https://github.com/bwmarrin/discordgo) is a great library, but it's super low level and pain
