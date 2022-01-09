@@ -115,14 +115,18 @@ func (ApplicationCommandInteraction) Type() InteractionType {
 
 func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 	type applicationCommandInteraction ApplicationCommandInteraction
-	var cType struct {
-		Data struct {
-			Type ApplicationCommandType `json:"type"`
-		} `json:"data"`
+	var interaction struct {
+		Data json.RawMessage `json:"data"`
 		applicationCommandInteraction
 	}
 
-	if err := json.Unmarshal(data, &cType); err != nil {
+	if err := json.Unmarshal(data, &interaction); err != nil {
+		return err
+	}
+	var cType struct {
+		Type ApplicationCommandType `json:"type"`
+	}
+	if err := json.Unmarshal(interaction.Data, &cType); err != nil {
 		return err
 	}
 
@@ -130,30 +134,31 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 		interactionData ApplicationCommandInteractionData
 		err             error
 	)
-	switch cType.Data.Type {
+
+	switch cType.Type {
 	case ApplicationCommandTypeSlash:
 		v := SlashCommandInteractionData{}
-		err = json.Unmarshal(data, &v)
+		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
 	case ApplicationCommandTypeUser:
 		v := UserCommandInteractionData{}
-		err = json.Unmarshal(data, &v)
+		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
 	case ApplicationCommandTypeMessage:
 		v := MessageCommandInteractionData{}
-		err = json.Unmarshal(data, &v)
+		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
 	default:
-		return fmt.Errorf("unkown application interaction data with type %d received", cType.Data.Type)
+		return fmt.Errorf("unkown application interaction data with type %d received", cType.Type)
 	}
 	if err != nil {
 		return err
 	}
 
-	*i = ApplicationCommandInteraction(cType.applicationCommandInteraction)
+	*i = ApplicationCommandInteraction(interaction.applicationCommandInteraction)
 
 	i.Data = interactionData
 	return nil
@@ -264,14 +269,20 @@ func (ComponentInteraction) Type() InteractionType {
 
 func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
 	type componentInteraction ComponentInteraction
-	var cType struct {
-		Data struct {
-			Type ComponentType `json:"component_type"`
-		} `json:"data"`
+	var interaction struct {
+		Data json.RawMessage `json:"data"`
 		componentInteraction
 	}
 
-	if err := json.Unmarshal(data, &cType); err != nil {
+	if err := json.Unmarshal(data, &interaction); err != nil {
+		return err
+	}
+
+	var cType struct {
+		Type ComponentType `json:"component_type"`
+	}
+
+	if err := json.Unmarshal(interaction.Data, &cType); err != nil {
 		return err
 	}
 
@@ -279,25 +290,25 @@ func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
 		interactionData ComponentInteractionData
 		err             error
 	)
-	switch cType.Data.Type {
+	switch cType.Type {
 	case ComponentTypeButton:
 		v := ButtonInteractionData{}
-		err = json.Unmarshal(data, &v)
+		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
 	case ComponentTypeSelectMenu:
 		v := SelectMenuInteractionData{}
-		err = json.Unmarshal(data, &v)
+		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
 	default:
-		return fmt.Errorf("unkown component interaction data with type %d received", cType.Data.Type)
+		return fmt.Errorf("unkown component interaction data with type %d received", cType.Type)
 	}
 	if err != nil {
 		return err
 	}
 
-	*i = ComponentInteraction(cType.componentInteraction)
+	*i = ComponentInteraction(interaction.componentInteraction)
 
 	i.Data = interactionData
 	return nil
