@@ -107,8 +107,7 @@ type ApplicationCommandInteraction struct {
 	Data ApplicationCommandInteractionData `json:"data"`
 }
 
-func (ApplicationCommandInteraction) interaction()                   {}
-func (ApplicationCommandInteraction) applicationCommandInteraction() {}
+func (ApplicationCommandInteraction) interaction() {}
 func (ApplicationCommandInteraction) Type() InteractionType {
 	return InteractionTypeApplicationCommand
 }
