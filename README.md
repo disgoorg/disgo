@@ -177,10 +177,6 @@ Being used in production by FredBoat, Dyno, LewdBot, and more.
 
 [Lavalink Client](https://github.com/freyacodes/Lavalink) which can be used to communicate with LavaLink to play/search tracks
 
-### [disgofy](https://github.com/DisgoOrg/disgofy)
-
-[disgolink](https://github.com/DisgoOrg/disgolink) Spotify integration. disgofy resolved Spotify urls to tracks/albums/playlists and lazy searches for them on YouTube
-
 ### [dislog](https://github.com/DisgoOrg/dislog)
 
 Discord webhook logger integration for [logrus](https://github.com/sirupsen/logrus)
