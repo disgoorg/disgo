@@ -9,10 +9,14 @@ type ComponentInteractionFilter func(interaction *ComponentInteraction) bool
 
 // ComponentInteraction represents a generic ComponentInteraction received from discord
 type ComponentInteraction struct {
-	discord.ComponentInteraction
 	*ReplyInteraction
 	Data    ComponentInteractionData
 	Message *Message
+}
+
+func (i ComponentInteraction) interaction() {}
+func (i ComponentInteraction) Type() discord.InteractionType {
+	return discord.InteractionTypeComponent
 }
 
 func (i ComponentInteraction) ButtonInteractionData() *ButtonInteractionData {

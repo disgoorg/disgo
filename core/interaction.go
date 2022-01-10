@@ -14,7 +14,12 @@ type Interaction interface {
 }
 
 type BaseInteraction struct {
-	discord.BaseInteraction
+	ID              discord.Snowflake
+	ApplicationID   discord.Snowflake
+	Token           string
+	Version         int
+	GuildID         *discord.Snowflake
+	ChannelID       discord.Snowflake
 	Member          *Member
 	User            *User
 	ResponseChannel chan<- discord.InteractionResponse

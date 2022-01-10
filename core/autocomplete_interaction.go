@@ -8,9 +8,13 @@ import (
 type AutocompleteInteractionFilter func(autocompleteInteraction *AutocompleteInteraction) bool
 
 type AutocompleteInteraction struct {
-	discord.AutocompleteInteraction
 	*BaseInteraction
 	Data AutocompleteInteractionData
+}
+
+func (i AutocompleteInteraction) interaction() {}
+func (i AutocompleteInteraction) Type() discord.InteractionType {
+	return discord.InteractionTypeAutocomplete
 }
 
 func (i AutocompleteInteraction) Result(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {

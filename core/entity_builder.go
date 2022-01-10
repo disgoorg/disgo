@@ -77,10 +77,16 @@ func (b *entityBuilderImpl) Bot() *Bot {
 func (b *entityBuilderImpl) baseInteraction(baseInteraction discord.BaseInteraction, c chan<- discord.InteractionResponse, updateCache CacheStrategy) *BaseInteraction {
 	member, user := b.parseMemberOrUser(baseInteraction.GuildID, baseInteraction.Member, baseInteraction.User, updateCache)
 	return &BaseInteraction{
-		BaseInteraction: baseInteraction,
+		ID:              baseInteraction.ID,
+		ApplicationID:   baseInteraction.ApplicationID,
+		Token:           baseInteraction.Token,
+		Version:         baseInteraction.Version,
+		GuildID:         baseInteraction.GuildID,
+		ChannelID:       baseInteraction.ChannelID,
 		Member:          member,
 		User:            user,
 		ResponseChannel: c,
+		Acknowledged:    false,
 		Bot:             b.bot,
 	}
 }

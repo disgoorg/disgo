@@ -6,9 +6,13 @@ type ApplicationCommandInteractionFilter func(interaction *ApplicationCommandInt
 
 // ApplicationCommandInteraction represents a generic ApplicationCommandInteraction received from discord
 type ApplicationCommandInteraction struct {
-	discord.ApplicationCommandInteraction
 	*ReplyInteraction
 	Data ApplicationCommandInteractionData
+}
+
+func (i ApplicationCommandInteraction) interaction() {}
+func (i ApplicationCommandInteraction) Type() discord.InteractionType {
+	return discord.InteractionTypeApplicationCommand
 }
 
 func (i ApplicationCommandInteraction) SlashCommandInteractionData() *SlashCommandInteractionData {
