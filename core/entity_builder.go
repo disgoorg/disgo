@@ -231,16 +231,14 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 			interactionData = data
 		}
 		return &ApplicationCommandInteraction{
-			ApplicationCommandInteraction: i,
-			ReplyInteraction:              &ReplyInteraction{BaseInteraction: b.baseInteraction(i.BaseInteraction, c, updateCache)},
-			Data:                          interactionData,
+			ReplyInteraction: &ReplyInteraction{BaseInteraction: b.baseInteraction(i.BaseInteraction, c, updateCache)},
+			Data:             interactionData,
 		}
 
 	case discord.ComponentInteraction:
 		componentInteraction := &ComponentInteraction{
-			ComponentInteraction: i,
-			ReplyInteraction:     &ReplyInteraction{BaseInteraction: b.baseInteraction(i.BaseInteraction, c, updateCache)},
-			Message:              b.CreateMessage(i.Message, updateCache),
+			ReplyInteraction: &ReplyInteraction{BaseInteraction: b.baseInteraction(i.BaseInteraction, c, updateCache)},
+			Message:          b.CreateMessage(i.Message, updateCache),
 		}
 		switch d := i.Data.(type) {
 		case discord.ButtonInteractionData:
@@ -259,8 +257,7 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 
 	case discord.AutocompleteInteraction:
 		autocompleteInteraction := &AutocompleteInteraction{
-			AutocompleteInteraction: i,
-			BaseInteraction:         b.baseInteraction(i.BaseInteraction, c, updateCache),
+			BaseInteraction: b.baseInteraction(i.BaseInteraction, c, updateCache),
 			Data: AutocompleteInteractionData{
 				AutocompleteInteractionData: i.Data,
 			},

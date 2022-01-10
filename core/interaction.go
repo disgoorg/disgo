@@ -9,7 +9,8 @@ type InteractionFilter func(interaction Interaction) bool
 
 // Interaction represents a generic Interaction received from discord
 type Interaction interface {
-	discord.Interaction
+	Type() discord.InteractionType
+	interaction()
 	Respond(callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error
 }
 
