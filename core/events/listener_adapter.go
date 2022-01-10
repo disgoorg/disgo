@@ -116,15 +116,10 @@ type ListenerAdapter struct {
 	OnGuildScheduledEventUserRemove func(event *GuildScheduledEventUserRemoveEvent)
 
 	// Interaction Events
-	OnInteractionCreate                   func(event *InteractionCreateEvent)
-	OnApplicationCommandInteractionCreate func(event *ApplicationCommandInteractionCreateEvent)
-	OnSlashCommand                        func(event *SlashCommandEvent)
-	OnUserCommand                         func(event *UserCommandEvent)
-	OnMessageCommand                      func(event *MessageCommandEvent)
-	OnComponentInteractionCreate          func(event *ComponentInteractionCreateEvent)
-	OnButtonClick                         func(event *ButtonClickEvent)
-	OnSelectMenuSubmit                    func(event *SelectMenuSubmitEvent)
-	OnAutocomplete                        func(event *AutocompleteEvent)
+	OnInteraction                   func(event *InteractionEvent)
+	OnApplicationCommandInteraction func(event *ApplicationCommandInteractionEvent)
+	OnComponentInteraction          func(event *ComponentInteractionEvent)
+	OnAutocompleteInteraction       func(event *AutocompleteInteractionEvent)
 
 	// Message Events
 	OnMessageCreate func(event *MessageCreateEvent)
@@ -487,40 +482,20 @@ func (l ListenerAdapter) OnEvent(event core.Event) {
 		}
 
 	// Interaction Events
-	case *InteractionCreateEvent:
-		if listener := l.OnInteractionCreate; listener != nil {
+	case *InteractionEvent:
+		if listener := l.OnInteraction; listener != nil {
 			listener(e)
 		}
-	case *ApplicationCommandInteractionCreateEvent:
-		if listener := l.OnApplicationCommandInteractionCreate; listener != nil {
+	case *ApplicationCommandInteractionEvent:
+		if listener := l.OnApplicationCommandInteraction; listener != nil {
 			listener(e)
 		}
-	case *SlashCommandEvent:
-		if listener := l.OnSlashCommand; listener != nil {
+	case *ComponentInteractionEvent:
+		if listener := l.OnComponentInteraction; listener != nil {
 			listener(e)
 		}
-	case *UserCommandEvent:
-		if listener := l.OnUserCommand; listener != nil {
-			listener(e)
-		}
-	case *MessageCommandEvent:
-		if listener := l.OnMessageCommand; listener != nil {
-			listener(e)
-		}
-	case *ComponentInteractionCreateEvent:
-		if listener := l.OnComponentInteractionCreate; listener != nil {
-			listener(e)
-		}
-	case *ButtonClickEvent:
-		if listener := l.OnButtonClick; listener != nil {
-			listener(e)
-		}
-	case *SelectMenuSubmitEvent:
-		if listener := l.OnSelectMenuSubmit; listener != nil {
-			listener(e)
-		}
-	case *AutocompleteEvent:
-		if listener := l.OnAutocomplete; listener != nil {
+	case *AutocompleteInteractionEvent:
+		if listener := l.OnAutocompleteInteraction; listener != nil {
 			listener(e)
 		}
 
