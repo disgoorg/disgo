@@ -20,8 +20,8 @@ var (
 type SelectMenuComponent struct {
 	CustomID    CustomID           `json:"custom_id"`
 	Placeholder string             `json:"placeholder,omitempty"`
-	MinValues   json.NullInt       `json:"min_values,omitempty"`
-	MaxValues   json.NullInt       `json:"max_values,omitempty"`
+	MinValues   *int               `json:"min_values,omitempty"`
+	MaxValues   *int               `json:"max_values,omitempty"`
 	Disabled    bool               `json:"disabled,omitempty"`
 	Options     []SelectMenuOption `json:"options,omitempty"`
 }
@@ -62,13 +62,13 @@ func (c SelectMenuComponent) WithPlaceholder(placeholder string) SelectMenuCompo
 
 // WithMinValues returns a new SelectMenuComponent with the provided minValue
 func (c SelectMenuComponent) WithMinValues(minValue int) SelectMenuComponent {
-	c.MinValues = *json.NewInt(minValue)
+	c.MinValues = json.NewPtr(minValue)
 	return c
 }
 
 // WithMaxValues returns a new SelectMenuComponent with the provided maxValue
 func (c SelectMenuComponent) WithMaxValues(maxValue int) SelectMenuComponent {
-	c.MaxValues = *json.NewInt(maxValue)
+	c.MaxValues = json.NewPtr(maxValue)
 	return c
 }
 

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/json"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/route"
 )
@@ -34,9 +35,9 @@ func (m *Member) ChannelPermissions(channel GuildChannel) discord.Permissions {
 }
 
 // Roles return all Role(s)the Member has
-func (m *Member) Roles() []*Role {
-	var roles []*Role
-	allRoles := m.Bot.Caches.Roles().GuildCache(m.GuildID)
+func (m *Member) Roles() []Role {
+	var roles []Role
+	allRoles := m.Bot.Caches.Roles().GroupCache(m.GuildID)
 	for _, roleID := range m.RoleIDs {
 		roles = append(roles, allRoles[roleID])
 	}
@@ -45,19 +46,19 @@ func (m *Member) Roles() []*Role {
 
 // VoiceState returns the VoiceState for this Member.
 // This will only check cached voice states! (requires core.CacheFlagVoiceStates and discord.GatewayIntentGuildVoiceStates)
-func (m *Member) VoiceState() *VoiceState {
+func (m *Member) VoiceState() (VoiceState, bool) {
 	return m.Bot.Caches.VoiceStates().Get(m.GuildID, m.User.ID)
 }
 
 // Guild returns the Guild this Member is tied to.
 // This will only check cached guilds!
-func (m *Member) Guild() *Guild {
+func (m *Member) Guild() (Guild, bool) {
 	return m.Bot.Caches.Guilds().Get(m.GuildID)
 }
 
 // IsOwner returns whether this Member is the owner of the Guild
 func (m *Member) IsOwner() bool {
-	if guild := m.Guild(); guild != nil {
+	if guild, ok := m.Guild(); ok {
 		return guild.OwnerID == m.User.ID
 	}
 	return false
@@ -104,7 +105,7 @@ func (m *Member) Update(updateGuildMember discord.MemberUpdate, opts ...rest.Req
 
 // Move moves/kicks the member to/from a voice channel
 func (m *Member) Move(channelID discord.Snowflake, opts ...rest.RequestOpt) (*Member, error) {
-	return m.Update(discord.MemberUpdate{ChannelID: &channelID}, opts...)
+	return m.Update(discord.MemberUpdate{ChannelID: json.NewNullablePtr(channelID)}, opts...)
 }
 
 // Kick kicks this Member from the Guild

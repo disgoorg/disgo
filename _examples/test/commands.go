@@ -7,6 +7,7 @@ import (
 )
 
 var commands = []discord.ApplicationCommandCreate{
+
 	discord.SlashCommandCreate{
 		Name:              "eval",
 		Description:       "runs some go code",

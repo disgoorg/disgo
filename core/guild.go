@@ -80,12 +80,12 @@ func (g *Guild) DeleteRole(roleID discord.Snowflake, opts ...rest.RequestOpt) er
 
 // Roles returns all Role(s) in this Guild
 func (g *Guild) Roles() []*Role {
-	return g.Bot.Caches.Roles().GuildAll(g.ID)
+	return g.Bot.Caches.Roles().GroupAll(g.ID)
 }
 
 // RoleCache returns all Role(s) in this Guild
 func (g *Guild) RoleCache() map[discord.Snowflake]*Role {
-	return g.Bot.Caches.Roles().GuildCache(g.ID)
+	return g.Bot.Caches.Roles().GroupCache(g.ID)
 }
 
 func (g *Guild) CreateGuildScheduledEvent(guildScheduledEventCreate discord.GuildScheduledEventCreate, opts ...rest.RequestOpt) (*GuildScheduledEvent, error) {

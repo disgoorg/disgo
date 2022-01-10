@@ -17,7 +17,7 @@ type AuditLog struct {
 	Bot                  *Bot
 }
 
-func (l *AuditLog) Guild() *Guild {
+func (l *AuditLog) Guild() (Guild, bool) {
 	return l.Bot.Caches.Guilds().Get(l.GuildID)
 }
 

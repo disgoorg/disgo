@@ -41,8 +41,8 @@ func (GuildVoiceChannelUpdate) channelUpdate()      {}
 func (GuildVoiceChannelUpdate) guildChannelUpdate() {}
 
 type GroupDMChannelUpdate struct {
-	Name *string   `json:"name,omitempty"`
-	Icon *NullIcon `json:"icon,omitempty"`
+	Name *string `json:"name,omitempty"`
+	Icon *Icon   `json:"icon,omitempty"`
 }
 
 func (GroupDMChannelUpdate) channelUpdate() {}

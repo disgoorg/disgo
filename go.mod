@@ -1,6 +1,6 @@
 module github.com/DisgoOrg/disgo
 
-go 1.17
+go 1.18
 
 require (
 	github.com/DisgoOrg/log v1.1.2

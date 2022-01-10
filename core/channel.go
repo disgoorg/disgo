@@ -1491,7 +1491,7 @@ func (c *GuildPrivateThread) ThreadMember(userID discord.Snowflake) *ThreadMembe
 	return c.Bot.Caches.ThreadMembers().Get(c.ID(), userID)
 }
 
-func (c *GuildPrivateThread) ThreadMembers() []*ThreadMember {
+func (c *GuildPrivateThread) ThreadMembers() []ThreadMember {
 	return c.Bot.Caches.ThreadMembers().ThreadAll(c.ID())
 }
 
@@ -1511,7 +1511,7 @@ func (c *GuildPrivateThread) RemoveThreadMember(userID discord.Snowflake, opts .
 	return removeThreadMember(c.Bot, c.ID(), userID, opts...)
 }
 
-func (c *GuildPrivateThread) GetThreadMember(userID discord.Snowflake, opts ...rest.RequestOpt) (*ThreadMember, error) {
+func (c *GuildPrivateThread) GetThreadMember(userID discord.Snowflake, opts ...rest.RequestOpt) (ThreadMember, error) {
 	return getThreadMember(c.Bot, c.ID(), userID, opts...)
 }
 
@@ -1532,18 +1532,7 @@ type GuildStageVoiceChannel struct {
 	ConnectedMemberIDs map[discord.Snowflake]struct{}
 }
 
-func (c *GuildStageVoiceChannel) set(channel Channel) Channel {
-	switch ch := channel.(type) {
-	case *GuildStageVoiceChannel:
-		*c = *ch
-		return c
-
-	default:
-		return c
-	}
-}
-
-func (c *GuildStageVoiceChannel) UpdateGuildChannel(guildChannelUpdate discord.GuildChannelUpdate, opts ...rest.RequestOpt) (GuildChannel, error) {
+func (c GuildStageVoiceChannel) UpdateGuildChannel(guildChannelUpdate discord.GuildChannelUpdate, opts ...rest.RequestOpt) (GuildChannel, error) {
 	channel, err := updateChannel(c.Bot, c.ID(), guildChannelUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -1552,81 +1541,81 @@ func (c *GuildStageVoiceChannel) UpdateGuildChannel(guildChannelUpdate discord.G
 }
 
 // Update updates the GuildNewsChannel which can return either a GuildNewsChannel or a GuildTextChannel
-func (c *GuildStageVoiceChannel) Update(channelUpdate discord.GuildStageVoiceChannelUpdate, opts ...rest.RequestOpt) (*GuildStageVoiceChannel, error) {
+func (c GuildStageVoiceChannel) Update(channelUpdate discord.GuildStageVoiceChannelUpdate, opts ...rest.RequestOpt) (GuildStageVoiceChannel, error) {
 	channel, err := c.UpdateGuildChannel(channelUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return channel.(*GuildStageVoiceChannel), nil
+	return channel.(GuildStageVoiceChannel), nil
 }
 
-func (c *GuildStageVoiceChannel) Delete(opts ...rest.RequestOpt) error {
+func (c GuildStageVoiceChannel) Delete(opts ...rest.RequestOpt) error {
 	return deleteChannel(c.Bot, c.ID(), opts...)
 }
 
-func (c *GuildStageVoiceChannel) PermissionOverwrites() []discord.PermissionOverwrite {
+func (c GuildStageVoiceChannel) PermissionOverwrites() []discord.PermissionOverwrite {
 	return c.ChannelPermissionOverwrites
 }
 
-func (c *GuildStageVoiceChannel) PermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake) discord.PermissionOverwrite {
+func (c GuildStageVoiceChannel) PermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake) discord.PermissionOverwrite {
 	return getPermissionOverwrite(c, overwriteType, id)
 }
 
-func (c *GuildStageVoiceChannel) RolePermissionOverwrite(id discord.Snowflake) *discord.RolePermissionOverwrite {
+func (c GuildStageVoiceChannel) RolePermissionOverwrite(id discord.Snowflake) *discord.RolePermissionOverwrite {
 	return getPermissionOverwrite(c, discord.PermissionOverwriteTypeRole, id).(*discord.RolePermissionOverwrite)
 }
 
-func (c *GuildStageVoiceChannel) MemberPermissionOverwrite(id discord.Snowflake) *discord.MemberPermissionOverwrite {
+func (c GuildStageVoiceChannel) MemberPermissionOverwrite(id discord.Snowflake) *discord.MemberPermissionOverwrite {
 	return getPermissionOverwrite(c, discord.PermissionOverwriteTypeMember, id).(*discord.MemberPermissionOverwrite)
 }
 
-func (c *GuildStageVoiceChannel) SetPermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
+func (c GuildStageVoiceChannel) SetPermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
 	return setPermissionOverwrite(c.Bot, c.ID(), overwriteType, id, allow, deny, opts...)
 }
 
-func (c *GuildStageVoiceChannel) UpdatePermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
+func (c GuildStageVoiceChannel) UpdatePermissionOverwrite(overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
 	return updatePermissionOverwrite(c.Bot, c, overwriteType, id, allow, deny, opts...)
 }
 
-func (c *GuildStageVoiceChannel) DeletePermissionOverwrite(id discord.Snowflake, opts ...rest.RequestOpt) error {
+func (c GuildStageVoiceChannel) DeletePermissionOverwrite(id discord.Snowflake, opts ...rest.RequestOpt) error {
 	return deletePermissionOverwrite(c.Bot, c.ID(), id, opts...)
 }
 
-func (c *GuildStageVoiceChannel) Guild() *Guild {
+func (c GuildStageVoiceChannel) Guild() *Guild {
 	return channelGuild(c.Bot, c.GuildID())
 }
 
-func (c *GuildStageVoiceChannel) Parent() *GuildCategoryChannel {
+func (c GuildStageVoiceChannel) Parent() *GuildCategoryChannel {
 	if c.ParentID == nil {
 		return nil
 	}
 	return c.Bot.Caches.Channels().Get(*c.ParentID).(*GuildCategoryChannel)
 }
 
-func (c *GuildStageVoiceChannel) Connect(ctx context.Context) error {
+func (c GuildStageVoiceChannel) Connect(ctx context.Context) error {
 	return c.Bot.AudioController.Connect(ctx, c.GuildID(), c.ID())
 }
 
-func (c *GuildStageVoiceChannel) Members() []*Member {
+func (c GuildStageVoiceChannel) Members() []*Member {
 	return connectedMembers(c.Bot, c)
 }
 
-func (c *GuildStageVoiceChannel) connectedMembers() map[discord.Snowflake]struct{} {
+func (c GuildStageVoiceChannel) connectedMembers() map[discord.Snowflake]struct{} {
 	return c.ConnectedMemberIDs
 }
 
-func (c *GuildStageVoiceChannel) IsModerator(member *Member) bool {
+func (c GuildStageVoiceChannel) IsModerator(member *Member) bool {
 	return member.Permissions().Has(discord.PermissionsStageModerator)
 }
 
-func (c *GuildStageVoiceChannel) StageInstance() *StageInstance {
+func (c GuildStageVoiceChannel) StageInstance() *StageInstance {
 	if c.StageInstanceID == nil {
 		return nil
 	}
 	return c.Bot.Caches.StageInstances().Get(*c.StageInstanceID)
 }
 
-func (c *GuildStageVoiceChannel) CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate, opts ...rest.RequestOpt) (*StageInstance, error) {
+func (c GuildStageVoiceChannel) CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate, opts ...rest.RequestOpt) (*StageInstance, error) {
 	stageInstance, err := c.Bot.RestServices.StageInstanceService().CreateStageInstance(stageInstanceCreate, opts...)
 	if err != nil {
 		return nil, err
@@ -1634,7 +1623,7 @@ func (c *GuildStageVoiceChannel) CreateStageInstance(stageInstanceCreate discord
 	return c.Bot.EntityBuilder.CreateStageInstance(*stageInstance, CacheStrategyNoWs), nil
 }
 
-func (c *GuildStageVoiceChannel) UpdateStageInstance(stageInstanceUpdate discord.StageInstanceUpdate, opts ...rest.RequestOpt) (*StageInstance, error) {
+func (c GuildStageVoiceChannel) UpdateStageInstance(stageInstanceUpdate discord.StageInstanceUpdate, opts ...rest.RequestOpt) (*StageInstance, error) {
 	stageInstance, err := c.Bot.RestServices.StageInstanceService().UpdateStageInstance(c.ID(), stageInstanceUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -1642,7 +1631,7 @@ func (c *GuildStageVoiceChannel) UpdateStageInstance(stageInstanceUpdate discord
 	return c.Bot.EntityBuilder.CreateStageInstance(*stageInstance, CacheStrategyNoWs), nil
 }
 
-func (c *GuildStageVoiceChannel) DeleteStageInstance(opts ...rest.RequestOpt) error {
+func (c GuildStageVoiceChannel) DeleteStageInstance(opts ...rest.RequestOpt) error {
 	return c.Bot.RestServices.StageInstanceService().DeleteStageInstance(c.ID(), opts...)
 }
 

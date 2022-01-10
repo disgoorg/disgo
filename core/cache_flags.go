@@ -9,7 +9,11 @@ const (
 	CacheFlagGuilds CacheFlags = 1 << iota
 	CacheFlagGuildScheduledEvents
 
+	CacheFlagMembers
+	CacheFlagThreadMembers
+	CacheFlagUsers
 	CacheFlagPresences
+	CacheFlagMessages
 
 	CacheFlagGuildTextChannels
 	CacheFlagDMChannels

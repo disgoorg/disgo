@@ -9,8 +9,8 @@ var DefaultCacheConfig = CacheConfig{
 
 type CacheConfig struct {
 	CacheFlags         CacheFlags
-	MemberCachePolicy  MemberCachePolicy
-	MessageCachePolicy MessageCachePolicy
+	MemberCachePolicy  CachePolicy[Member]
+	MessageCachePolicy CachePolicy[Message]
 }
 
 type CacheConfigOpt func(config *CacheConfig)
@@ -33,14 +33,14 @@ func WithCacheFlags(cacheFlags ...CacheFlags) CacheConfigOpt {
 }
 
 //goland:noinspection GoUnusedExportedFunction
-func WithMemberCachePolicy(memberCachePolicy MemberCachePolicy) CacheConfigOpt {
+func WithMemberCachePolicy(memberCachePolicy CachePolicy[Member]) CacheConfigOpt {
 	return func(config *CacheConfig) {
 		config.MemberCachePolicy = memberCachePolicy
 	}
 }
 
 //goland:noinspection GoUnusedExportedFunction
-func WithMessageCachePolicy(messageCachePolicy MessageCachePolicy) CacheConfigOpt {
+func WithMessageCachePolicy(messageCachePolicy CachePolicy[Message]) CacheConfigOpt {
 	return func(config *CacheConfig) {
 		config.MessageCachePolicy = messageCachePolicy
 	}

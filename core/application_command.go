@@ -15,16 +15,15 @@ type SlashCommand struct {
 }
 
 // Guild returns the Guild the ApplicationCommand is from the Caches or nil if it is a global ApplicationCommand
-func (c *SlashCommand) Guild() *Guild {
-	if c.GuildID == nil {
-		return nil
+func (c *SlashCommand) Guild() (guild Guild, ok bool) {
+	if c.IsGlobal() {
+		return
 	}
 	return c.Bot.Caches.Guilds().Get(*c.GuildID)
 }
 
 // IsGlobal returns true if this is a global ApplicationCommand and false for a guild ApplicationCommand
 func (c *SlashCommand) IsGlobal() bool {
-
 	return c.GuildID == nil
 }
 
@@ -86,9 +85,9 @@ type UserCommand struct {
 }
 
 // Guild returns the Guild the ApplicationCommand is from the Caches or nil if it is a global ApplicationCommand
-func (c *UserCommand) Guild() *Guild {
-	if c.GuildID == nil {
-		return nil
+func (c *UserCommand) Guild() (guild Guild, ok bool) {
+	if c.IsGlobal() {
+		return
 	}
 	return c.Bot.Caches.Guilds().Get(*c.GuildID)
 }
@@ -154,9 +153,9 @@ type MessageCommand struct {
 }
 
 // Guild returns the Guild the ApplicationCommand is from the Caches or nil if it is a global ApplicationCommand
-func (c *MessageCommand) Guild() *Guild {
-	if c.GuildID == nil {
-		return nil
+func (c *MessageCommand) Guild() (guild Guild, ok bool) {
+	if c.IsGlobal() {
+		return
 	}
 	return c.Bot.Caches.Guilds().Get(*c.GuildID)
 }

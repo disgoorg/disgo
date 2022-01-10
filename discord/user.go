@@ -1,5 +1,7 @@
 package discord
 
+import "github.com/DisgoOrg/disgo/json"
+
 // UserFlags defines certain flags/badges a user can have (https://discord.com/developers/docs/resources/user#user-object-user-flags)
 type UserFlags int
 
@@ -76,6 +78,6 @@ const (
 
 // SelfUserUpdate is the payload used to update the OAuth2User
 type SelfUserUpdate struct {
-	Username string    `json:"username"`
-	Avatar   *NullIcon `json:"avatar"`
+	Username *string              `json:"username,omitempty"`
+	Avatar   *json.Nullable[Icon] `json:"avatar,omitempty"`
 }

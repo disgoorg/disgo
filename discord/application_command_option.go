@@ -218,8 +218,8 @@ type ApplicationCommandOptionInt struct {
 	Required     bool                                `json:"required,omitempty"`
 	Choices      []ApplicationCommandOptionChoiceInt `json:"choices,omitempty"`
 	Autocomplete bool                                `json:"autocomplete,omitempty"`
-	MinValue     *json.NullInt                       `json:"min_value,omitempty"`
-	MaxValue     *json.NullInt                       `json:"max_value,omitempty"`
+	MinValue     *int                                `json:"min_value,omitempty"`
+	MaxValue     *int                                `json:"max_value,omitempty"`
 }
 
 func (o ApplicationCommandOptionInt) MarshalJSON() ([]byte, error) {
@@ -373,8 +373,8 @@ type ApplicationCommandOptionFloat struct {
 	Required     bool                                  `json:"required,omitempty"`
 	Choices      []ApplicationCommandOptionChoiceFloat `json:"choices,omitempty"`
 	Autocomplete bool                                  `json:"autocomplete,omitempty"`
-	MinValue     *json.NullFloat                       `json:"min_value,omitempty"`
-	MaxValue     *json.NullFloat                       `json:"max_value,omitempty"`
+	MinValue     *float64                              `json:"min_value,omitempty"`
+	MaxValue     *float64                              `json:"max_value,omitempty"`
 }
 
 func (o ApplicationCommandOptionFloat) MarshalJSON() ([]byte, error) {

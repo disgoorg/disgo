@@ -1,6 +1,11 @@
 package discord
 
-import "github.com/DisgoOrg/disgo/json"
+import (
+	"strconv"
+	"strings"
+
+	"github.com/DisgoOrg/disgo/json"
+)
 
 // Sticker is a sticker sent with a Message
 type Sticker struct {
@@ -52,7 +57,13 @@ func (c *StickerCreate) ToBody() (interface{}, error) {
 }
 
 type StickerUpdate struct {
-	Name        *string          `json:"name,omitempty"`
-	Description *json.NullString `json:"description,omitempty"`
-	Tags        *string          `json:"tags,omitempty"`
+	Name        *string                `json:"name,omitempty"`
+	Description *json.Nullable[string] `json:"description,omitempty"`
+	Tags        *StickerTags           `json:"tags,omitempty"`
+}
+
+type StickerTags []string
+
+func (s StickerTags) MarshalJSON() ([]byte, error) {
+	return []byte(strconv.Quote(strings.Join(s, ","))), nil
 }

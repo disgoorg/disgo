@@ -24,7 +24,6 @@ type Bot struct {
 	RestServices rest.Services
 
 	EventManager EventManager
-	Collectors   Collectors
 
 	ShardManager sharding.ShardManager
 	Gateway      gateway.Gateway
@@ -65,8 +64,9 @@ func (b *Bot) Close(ctx context.Context) error {
 }
 
 // SelfMember returns a core.OAuth2User for the client, if available
-func (b *Bot) SelfMember(guildID discord.Snowflake) *Member {
-	return b.Caches.Members().Get(guildID, b.ClientID)
+func (b *Bot) SelfMember(guildID discord.Snowflake) Member {
+	member, _ := b.Caches.Members().Get(guildID, b.ClientID)
+	return member
 }
 
 // AddEventListeners adds one or more EventListener(s) to the EventManager

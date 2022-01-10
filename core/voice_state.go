@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/json"
 	"github.com/DisgoOrg/disgo/rest"
 )
 
@@ -38,7 +39,7 @@ func (s *VoiceState) Channel() GuildAudioChannel {
 	return nil
 }
 
-func (s *VoiceState) Update(suppress *bool, requestToSpeak *discord.NullTime, opts ...rest.RequestOpt) error {
+func (s *VoiceState) Update(suppress *bool, requestToSpeak *json.Nullable[discord.Time], opts ...rest.RequestOpt) error {
 	if s.ChannelID == nil {
 		return discord.ErrMemberMustBeConnectedToChannel
 	}

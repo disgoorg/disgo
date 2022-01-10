@@ -1,5 +1,7 @@
 package discord
 
+import "github.com/DisgoOrg/disgo/json"
+
 var _ Mentionable = (*Member)(nil)
 
 // Member is a discord GuildMember
@@ -45,12 +47,12 @@ type MemberAdd struct {
 
 // MemberUpdate is used to modify
 type MemberUpdate struct {
-	ChannelID                  *Snowflake  `json:"channel_id,omitempty"`
-	Nick                       *string     `json:"nick,omitempty"`
-	Roles                      []Snowflake `json:"roles,omitempty"`
-	Mute                       *bool       `json:"mute,omitempty"`
-	Deaf                       *bool       `json:"deaf,omitempty"`
-	CommunicationDisabledUntil *NullTime   `json:"communication_disabled_until,omitempty"`
+	ChannelID                  *json.Nullable[Snowflake] `json:"channel_id,omitempty"`
+	Nick                       *json.Nullable[string]    `json:"nick,omitempty"`
+	Roles                      *[]Snowflake              `json:"roles,omitempty"`
+	Mute                       *bool                     `json:"mute,omitempty"`
+	Deaf                       *bool                     `json:"deaf,omitempty"`
+	CommunicationDisabledUntil *json.Nullable[Time]      `json:"communication_disabled_until,omitempty"`
 }
 
 // SelfNickUpdate is used to update your own nick

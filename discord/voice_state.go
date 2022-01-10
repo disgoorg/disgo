@@ -1,5 +1,7 @@
 package discord
 
+import "github.com/DisgoOrg/disgo/json"
+
 // VoiceState from Discord
 type VoiceState struct {
 	GuildID                 Snowflake  `json:"guild_id,omitempty"`
@@ -18,7 +20,7 @@ type VoiceState struct {
 }
 
 type UserVoiceStateUpdate struct {
-	ChannelID               Snowflake `json:"channel_id"`
-	Suppress                *bool     `json:"suppress,omitempty"`
-	RequestToSpeakTimestamp *NullTime `json:"request_to_speak_timestamp,omitempty"`
+	ChannelID               Snowflake            `json:"channel_id"`
+	Suppress                *bool                `json:"suppress,omitempty"`
+	RequestToSpeakTimestamp *json.Nullable[Time] `json:"request_to_speak_timestamp,omitempty"`
 }

@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/json"
 	"github.com/DisgoOrg/disgo/rest"
 )
 
@@ -12,16 +13,15 @@ type StageInstance struct {
 
 // Guild returns the Guild this StageInstance belongs to.
 // This will only check cached guilds!
-func (i *StageInstance) Guild() *Guild {
+func (i *StageInstance) Guild() (Guild, bool) {
 	return i.Bot.Caches.Guilds().Get(i.GuildID)
 }
 
 // Channel returns the Channel this StageInstance belongs to.
-func (i *StageInstance) Channel() *GuildStageVoiceChannel {
-	if ch := i.Bot.Caches.Channels().Get(i.ChannelID); ch != nil {
-		return ch.(*GuildStageVoiceChannel)
-	}
-	return nil
+func (i *StageInstance) Channel() (GuildStageVoiceChannel, bool) {
+	ch, ok := i.Bot.Caches.Channels().Get(i.ChannelID)
+	return ch.(GuildStageVoiceChannel), ok
+
 }
 
 // GetSpeakers returns the Member(s) that can speak in this StageInstance
@@ -54,7 +54,7 @@ func (i *StageInstance) GetListeners() []*Member {
 	return listeners
 }
 
-func (s *VoiceState) UpdateVoiceState(suppress *bool, requestToSpeak *discord.NullTime, opts ...rest.RequestOpt) error {
+func (s *VoiceState) UpdateVoiceState(suppress *bool, requestToSpeak *json.Nullable[discord.Time], opts ...rest.RequestOpt) error {
 	if s.ChannelID == nil {
 		return discord.ErrMemberMustBeConnectedToChannel
 	}

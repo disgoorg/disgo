@@ -23,9 +23,9 @@ func (s *Sticker) URL(size int) string {
 
 // Guild returns the Guild this Sticker was created for or nil if this isn't a Guild-specific Sticker.
 // This will only check cached guilds!
-func (s *Sticker) Guild() *Guild {
+func (s *Sticker) Guild() (guild Guild, ok bool) {
 	if s.Type != discord.StickerTypeGuild {
-		return nil
+		return
 	}
 	return s.Bot.Caches.Guilds().Get(*s.GuildID)
 }

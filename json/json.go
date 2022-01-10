@@ -13,9 +13,7 @@ var (
 )
 
 type (
-	RawMessage = json.RawMessage
-
+	RawMessage  = json.RawMessage
 	Unmarshaler = json.Unmarshaler
-
-	Marshaler = json.Marshaler
+	Marshaler   = json.Marshaler
 )
