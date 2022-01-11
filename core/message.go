@@ -6,17 +6,17 @@ import (
 )
 
 // MessageFilter used to filter Message(s) in a collectors.MessageCollector
-type MessageFilter func(message *Message) bool
+type MessageFilter func(message Message) bool
 
 type Message struct {
 	discord.Message
 	Bot      Bot
-	Member   *Member
-	Author   *User
-	Stickers []*MessageSticker
+	Member   Member
+	Author   User
+	Stickers []MessageSticker
 }
 
-func (m *Message) CreateThread(threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (GuildThread, error) {
+func (m Message) CreateThread(threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (GuildThread, error) {
 	channel, err := m.Bot.RestServices().ThreadService().CreateThreadWithMessage(m.ChannelID, m.ID, threadCreateWithMessage, opts...)
 	if err != nil {
 		return nil, err
@@ -26,7 +26,7 @@ func (m *Message) CreateThread(threadCreateWithMessage discord.ThreadCreateWithM
 
 // Guild returns the Guild this Message was sent in.
 // This will only check cached guilds!
-func (m *Message) Guild() (Guild, bool) {
+func (m Message) Guild() (Guild, bool) {
 	if m.GuildID == nil {
 		return nil
 	}
@@ -34,7 +34,7 @@ func (m *Message) Guild() (Guild, bool) {
 }
 
 // Channel gets the MessageChannel the Message was sent in
-func (m *Message) Channel() MessageChannel {
+func (m Message) Channel() MessageChannel {
 	channel := m.Bot.Caches().Channels().Get(m.ChannelID)
 	if channel != nil {
 		return channel.(MessageChannel)
@@ -43,54 +43,54 @@ func (m *Message) Channel() MessageChannel {
 }
 
 // AddReactionByEmote allows you to add an Emoji to a message_events via reaction
-func (m *Message) AddReactionByEmote(emote Emoji, opts ...rest.RequestOpt) error {
+func (m Message) AddReactionByEmote(emote Emoji, opts ...rest.RequestOpt) error {
 	return m.AddReaction(emote.Reaction(), opts...)
 }
 
 // AddReaction allows you to add a reaction to a message_events from a string, for _examples a custom emoji CommandID, or a native emoji
-func (m *Message) AddReaction(emoji string, opts ...rest.RequestOpt) error {
+func (m Message) AddReaction(emoji string, opts ...rest.RequestOpt) error {
 	return m.Bot.RestServices().ChannelService().AddReaction(m.ChannelID, m.ID, emoji, opts...)
 }
 
 // Update allows you to edit an existing Message sent by you
-func (m *Message) Update(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
+func (m Message) Update(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (Message, error) {
 	message, err := m.Bot.RestServices().ChannelService().UpdateMessage(m.ChannelID, m.ID, messageUpdate, opts...)
 	if err != nil {
-		return nil, err
+		return Message{}, err
 	}
 	return m.Bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
 // Delete deletes this Message
-func (m *Message) Delete(opts ...rest.RequestOpt) error {
+func (m Message) Delete(opts ...rest.RequestOpt) error {
 	return m.Bot.RestServices().ChannelService().DeleteMessage(m.ChannelID, m.ID, opts...)
 }
 
 // Crosspost crossposts an existing message
-func (m *Message) Crosspost(opts ...rest.RequestOpt) (*Message, error) {
+func (m Message) Crosspost(opts ...rest.RequestOpt) (Message, error) {
 	channel := m.Channel()
 	if channel != nil && channel.Type() != discord.ChannelTypeGuildNews {
-		return nil, discord.ErrChannelNotTypeNews
+		return Message{}, discord.ErrChannelNotTypeNews
 	}
 	message, err := m.Bot.RestServices().ChannelService().CrosspostMessage(m.ChannelID, m.ID, opts...)
 	if err != nil {
-		return nil, err
+		return Message{}, err
 	}
 	return m.Bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
 // Reply replies to this Message
-func (m *Message) Reply(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
+func (m Message) Reply(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (Message, error) {
 	messageCreate.MessageReference = &discord.MessageReference{MessageID: &m.ID}
 	message, err := m.Bot.RestServices().ChannelService().CreateMessage(m.ChannelID, messageCreate, opts...)
 	if err != nil {
-		return nil, err
+		return Message{}, err
 	}
 	return m.Bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
 // ActionRows returns all discord.ActionRowComponent(s) from this Message
-func (m *Message) ActionRows() []discord.ActionRowComponent {
+func (m Message) ActionRows() []discord.ActionRowComponent {
 	var actionRows []discord.ActionRowComponent
 	for i := range m.Components {
 		if actionRow, ok := m.Components[i].(discord.ActionRowComponent); ok {
@@ -101,7 +101,7 @@ func (m *Message) ActionRows() []discord.ActionRowComponent {
 }
 
 // InteractiveComponents returns the discord.InteractiveComponent(s) from this Message
-func (m *Message) InteractiveComponents() []discord.InteractiveComponent {
+func (m Message) InteractiveComponents() []discord.InteractiveComponent {
 	var interactiveComponents []discord.InteractiveComponent
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
@@ -112,7 +112,7 @@ func (m *Message) InteractiveComponents() []discord.InteractiveComponent {
 }
 
 // ComponentByID returns the discord.Component with the specific discord.CustomID
-func (m *Message) ComponentByID(customID discord.CustomID) discord.InteractiveComponent {
+func (m Message) ComponentByID(customID discord.CustomID) discord.InteractiveComponent {
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
 			if m.Components[i].Components()[ii].ID() == customID {
@@ -124,7 +124,7 @@ func (m *Message) ComponentByID(customID discord.CustomID) discord.InteractiveCo
 }
 
 // Buttons returns all ButtonComponent(s) from this Message
-func (m *Message) Buttons() []discord.ButtonComponent {
+func (m Message) Buttons() []discord.ButtonComponent {
 	var buttons []discord.ButtonComponent
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
@@ -137,19 +137,19 @@ func (m *Message) Buttons() []discord.ButtonComponent {
 }
 
 // ButtonByID returns a ButtonComponent with the specific customID from this Message
-func (m *Message) ButtonByID(customID discord.CustomID) *discord.ButtonComponent {
+func (m Message) ButtonByID(customID discord.CustomID) (discord.ButtonComponent, bool) {
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
-			if button, ok := m.Components[i].Components()[ii].(*discord.ButtonComponent); ok && button.ID() == customID {
-				return button
+			if button, ok := m.Components[i].Components()[ii].(discord.ButtonComponent); ok && button.ID() == customID {
+				return button, true
 			}
 		}
 	}
-	return nil
+	return discord.ButtonComponent{}, false
 }
 
 // SelectMenus returns all SelectMenuComponent(s) from this Message
-func (m *Message) SelectMenus() []discord.SelectMenuComponent {
+func (m Message) SelectMenus() []discord.SelectMenuComponent {
 	var selectMenus []discord.SelectMenuComponent
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
@@ -162,29 +162,30 @@ func (m *Message) SelectMenus() []discord.SelectMenuComponent {
 }
 
 // SelectMenuByID returns a SelectMenuComponent with the specific customID from this Message
-func (m *Message) SelectMenuByID(customID discord.CustomID) *discord.SelectMenuComponent {
+func (m Message) SelectMenuByID(customID discord.CustomID) (discord.SelectMenuComponent, bool) {
 	for i := range m.Components {
-		for ii := range m.Components[i].Components() {
-			if button, ok := m.Components[i].Components()[ii].(*discord.SelectMenuComponent); ok && button.ID() == customID {
-				return button
+		components := m.Components[i].Components()
+		for ii := range components {
+			if button, ok := components[ii].(discord.SelectMenuComponent); ok && button.ID() == customID {
+				return button, true
 			}
 		}
 	}
-	return nil
+	return discord.SelectMenuComponent{}, false
 }
 
 // IsEphemeral returns true if the Message has MessageFlagEphemeral
-func (m *Message) IsEphemeral() bool {
+func (m Message) IsEphemeral() bool {
 	return m.Flags.Has(discord.MessageFlagEphemeral)
 }
 
 // IsWebhookMessage returns true if the Message was sent by a Webhook
-func (m *Message) IsWebhookMessage() bool {
+func (m Message) IsWebhookMessage() bool {
 	return m.WebhookID != nil
 }
 
 // MessageReactionAddFilter used to filter MessageReactionAddEvent in a collectors.MessageReactionAddCollector
-type MessageReactionAddFilter func(e *MessageReactionAdd) bool
+type MessageReactionAddFilter func(e MessageReactionAdd) bool
 
 type MessageReactionAdd struct {
 	UserID    discord.Snowflake
@@ -196,7 +197,7 @@ type MessageReactionAdd struct {
 }
 
 // MessageReactionRemoveFilter used to filter MessageReactionRemoveEvent in a collectors.MessageReactionRemoveCollector
-type MessageReactionRemoveFilter func(e *MessageReactionRemove) bool
+type MessageReactionRemoveFilter func(e MessageReactionRemove) bool
 
 type MessageReactionRemove struct {
 	UserID    discord.Snowflake

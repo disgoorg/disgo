@@ -5,8 +5,8 @@ import (
 )
 
 // NewGenericEvent constructs a new GenericEvent with the provided Bot instance
-func NewGenericEvent(bot core.Bot, sequenceNumber int) *GenericEvent {
-	return &GenericEvent{bot: bot, sequenceNumber: sequenceNumber}
+func NewGenericEvent(bot core.Bot, sequenceNumber int) GenericEvent {
+	return GenericEvent{bot: bot, sequenceNumber: sequenceNumber}
 }
 
 // GenericEvent the base event structure

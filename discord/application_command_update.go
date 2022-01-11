@@ -9,10 +9,10 @@ type ApplicationCommandUpdate interface {
 }
 
 type SlashCommandUpdate struct {
-	Name              *string                     `json:"name,omitempty"`
-	Description       *string                     `json:"description,omitempty"`
-	Options           *[]ApplicationCommandOption `json:"options,omitempty"`
-	DefaultPermission *bool                       `json:"default_permission,omitempty"`
+	Name              *string                                    `json:"name,omitempty"`
+	Description       *string                                    `json:"description,omitempty"`
+	Options           *json.Nullable[[]ApplicationCommandOption] `json:"options,omitempty"`
+	DefaultPermission *bool                                      `json:"default_permission,omitempty"`
 }
 
 func (c SlashCommandUpdate) MarshalJSON() ([]byte, error) {

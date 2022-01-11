@@ -27,39 +27,39 @@ type EntityBuilder interface {
 
 	CreateInteraction(interaction discord.Interaction, responseChannel chan<- discord.InteractionResponse, updateCache CacheStrategy) Interaction
 
-	CreateUser(user discord.User, updateCache CacheStrategy) *User
-	CreateSelfUser(selfUser discord.OAuth2User, updateCache CacheStrategy) *SelfUser
-	CreatePresence(presence discord.Presence, updateCache CacheStrategy) *Presence
+	CreateUser(user discord.User, updateCache CacheStrategy) User
+	CreateSelfUser(selfUser discord.OAuth2User, updateCache CacheStrategy) SelfUser
+	CreatePresence(presence discord.Presence, updateCache CacheStrategy) Presence
 
-	CreateMessage(message discord.Message, updateCache CacheStrategy) *Message
+	CreateMessage(message discord.Message, updateCache CacheStrategy) Message
 
-	CreateGuild(guild discord.Guild, updateCache CacheStrategy) *Guild
-	CreateGuildTemplate(guildTemplate discord.GuildTemplate, updateCache CacheStrategy) *GuildTemplate
-	CreateStageInstance(stageInstance discord.StageInstance, updateCache CacheStrategy) *StageInstance
+	CreateGuild(guild discord.Guild, updateCache CacheStrategy) Guild
+	CreateGuildTemplate(guildTemplate discord.GuildTemplate, updateCache CacheStrategy) GuildTemplate
+	CreateStageInstance(stageInstance discord.StageInstance, updateCache CacheStrategy) StageInstance
 
-	CreateGuildScheduledEvent(guildScheduledEvent discord.GuildScheduledEvent, updateCache CacheStrategy) *GuildScheduledEvent
-	CreateGuildScheduledEventUser(guildID discord.Snowflake, guildScheduledEventUser discord.GuildScheduledEventUser, updateCache CacheStrategy) *GuildScheduledEventUser
+	CreateGuildScheduledEvent(guildScheduledEvent discord.GuildScheduledEvent, updateCache CacheStrategy) GuildScheduledEvent
+	CreateGuildScheduledEventUser(guildID discord.Snowflake, guildScheduledEventUser discord.GuildScheduledEventUser, updateCache CacheStrategy) GuildScheduledEventUser
 
-	CreateRole(guildID discord.Snowflake, role discord.Role, updateCache CacheStrategy) *Role
-	CreateMember(guildID discord.Snowflake, member discord.Member, updateCache CacheStrategy) *Member
-	CreateBan(guildID discord.Snowflake, ban discord.Ban, updateCache CacheStrategy) *Ban
-	CreateVoiceState(voiceState discord.VoiceState, updateCache CacheStrategy) *VoiceState
+	CreateRole(guildID discord.Snowflake, role discord.Role, updateCache CacheStrategy) Role
+	CreateMember(guildID discord.Snowflake, member discord.Member, updateCache CacheStrategy) Member
+	CreateBan(guildID discord.Snowflake, ban discord.Ban, updateCache CacheStrategy) Ban
+	CreateVoiceState(voiceState discord.VoiceState, updateCache CacheStrategy) VoiceState
 
 	CreateApplicationCommand(applicationCommand discord.ApplicationCommand) ApplicationCommand
-	CreateApplicationCommandPermissions(guildCommandPermissions discord.ApplicationCommandPermissions) *ApplicationCommandPermissions
+	CreateApplicationCommandPermissions(guildCommandPermissions discord.ApplicationCommandPermissions) ApplicationCommandPermissions
 
-	CreateAuditLog(guildID discord.Snowflake, auditLog discord.AuditLog, filterOptions AuditLogFilterOptions, updateCache CacheStrategy) *AuditLog
+	CreateAuditLog(guildID discord.Snowflake, auditLog discord.AuditLog, filterOptions AuditLogFilterOptions, updateCache CacheStrategy) AuditLog
 	CreateIntegration(guildID discord.Snowflake, integration discord.Integration, updateCache CacheStrategy) Integration
 
 	CreateChannel(channel discord.Channel, updateCache CacheStrategy) Channel
-	CreateThreadMember(threadMember discord.ThreadMember, updateCache CacheStrategy) *ThreadMember
+	CreateThreadMember(threadMember discord.ThreadMember, updateCache CacheStrategy) ThreadMember
 
-	CreateInvite(invite discord.Invite, updateCache CacheStrategy) *Invite
+	CreateInvite(invite discord.Invite, updateCache CacheStrategy) Invite
 
-	CreateEmoji(guildID discord.Snowflake, emoji discord.Emoji, updateCache CacheStrategy) *Emoji
-	CreateStickerPack(stickerPack discord.StickerPack, updateCache CacheStrategy) *StickerPack
-	CreateSticker(sticker discord.Sticker, updateCache CacheStrategy) *Sticker
-	CreateMessageSticker(sticker discord.MessageSticker) *MessageSticker
+	CreateEmoji(guildID discord.Snowflake, emoji discord.Emoji, updateCache CacheStrategy) Emoji
+	CreateStickerPack(stickerPack discord.StickerPack, updateCache CacheStrategy) StickerPack
+	CreateSticker(sticker discord.Sticker, updateCache CacheStrategy) Sticker
+	CreateMessageSticker(sticker discord.MessageSticker) MessageSticker
 
 	CreateWebhook(webhook discord.Webhook, updateCache CacheStrategy) Webhook
 }
@@ -74,9 +74,9 @@ func (b *entityBuilderImpl) Bot() Bot {
 	return b.bot
 }
 
-func (b *entityBuilderImpl) baseInteraction(baseInteraction discord.BaseInteraction, c chan<- discord.InteractionResponse, updateCache CacheStrategy) *BaseInteraction {
+func (b *entityBuilderImpl) baseInteraction(baseInteraction discord.BaseInteraction, c chan<- discord.InteractionResponse, updateCache CacheStrategy) BaseInteraction {
 	member, user := b.parseMemberOrUser(baseInteraction.GuildID, baseInteraction.Member, baseInteraction.User, updateCache)
-	return &BaseInteraction{
+	return BaseInteraction{
 		ID:              baseInteraction.ID,
 		ApplicationID:   baseInteraction.ApplicationID,
 		Token:           baseInteraction.Token,
@@ -295,7 +295,7 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 	}
 }
 
-func (b *entityBuilderImpl) parseMemberOrUser(guildID *discord.Snowflake, member *discord.Member, user *discord.User, updateCache CacheStrategy) (rMember *Member, rUser *User) {
+func (b *entityBuilderImpl) parseMemberOrUser(guildID *discord.Snowflake, member *discord.Member, user *discord.User, updateCache CacheStrategy) (rMember Member, rUser User) {
 	if member != nil {
 		rMember = b.CreateMember(*guildID, *member, updateCache)
 		rUser = rMember.User
@@ -306,20 +306,20 @@ func (b *entityBuilderImpl) parseMemberOrUser(guildID *discord.Snowflake, member
 }
 
 // CreateUser returns a new User entity
-func (b *entityBuilderImpl) CreateUser(user discord.User, updateCache CacheStrategy) *User {
-	coreUser := &User{
+func (b *entityBuilderImpl) CreateUser(user discord.User, updateCache CacheStrategy) User {
+	coreUser := User{
 		User: user,
 		Bot:  b.Bot(),
 	}
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches().Users().Set(coreUser)
+		return b.Bot().Caches().Users().Put(coreUser)
 	}
 	return coreUser
 }
 
 // CreateSelfUser returns a new SelfUser entity
-func (b *entityBuilderImpl) CreateSelfUser(selfUser discord.OAuth2User, updateCache CacheStrategy) *SelfUser {
-	coreSelfUser := &SelfUser{
+func (b *entityBuilderImpl) CreateSelfUser(selfUser discord.OAuth2User, updateCache CacheStrategy) SelfUser {
+	coreSelfUser := SelfUser{
 		OAuth2User: selfUser,
 		Bot:        b.Bot(),
 		User:       b.CreateUser(selfUser.User, updateCache),
@@ -328,21 +328,21 @@ func (b *entityBuilderImpl) CreateSelfUser(selfUser discord.OAuth2User, updateCa
 	return coreSelfUser
 }
 
-func (b *entityBuilderImpl) CreatePresence(presence discord.Presence, updateCache CacheStrategy) *Presence {
+func (b *entityBuilderImpl) CreatePresence(presence discord.Presence, updateCache CacheStrategy) Presence {
 	corePresence := &Presence{
 		Presence: presence,
 		Bot:      b.Bot(),
 	}
 
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches().Presences().Set(corePresence)
+		return b.Bot().Caches().Presences().Put(corePresence)
 	}
 	return corePresence
 }
 
 // CreateMessage returns a new discord.Message entity
-func (b *entityBuilderImpl) CreateMessage(message discord.Message, updateCache CacheStrategy) *Message {
-	coreMsg := &Message{
+func (b *entityBuilderImpl) CreateMessage(message discord.Message, updateCache CacheStrategy) Message {
+	coreMsg := Message{
 		Message: message,
 		Bot:     b.Bot(),
 	}
@@ -365,14 +365,14 @@ func (b *entityBuilderImpl) CreateMessage(message discord.Message, updateCache C
 
 	// TODO: should we caches mentioned users, members, etc?
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches().Messages().Set(coreMsg)
+		return b.Bot().Caches().Messages().Put(coreMsg)
 	}
 	return coreMsg
 }
 
 // CreateGuildTemplate returns a new discord.GuildTemplate entity
-func (b *entityBuilderImpl) CreateGuildTemplate(guildTemplate discord.GuildTemplate, updateCache CacheStrategy) *GuildTemplate {
-	coreTemplate := &GuildTemplate{
+func (b *entityBuilderImpl) CreateGuildTemplate(guildTemplate discord.GuildTemplate, updateCache CacheStrategy) GuildTemplate {
+	coreTemplate := GuildTemplate{
 		GuildTemplate: guildTemplate,
 	}
 
@@ -390,7 +390,7 @@ func (b *entityBuilderImpl) CreateGuild(guild discord.Guild, updateCache CacheSt
 	}
 
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches().Guilds().Set(coreGuild)
+		return b.Bot().Caches().Guilds().Put(coreGuild)
 	}
 	return coreGuild
 }
@@ -405,7 +405,7 @@ func (b *entityBuilderImpl) CreateMember(guildID discord.Snowflake, member disco
 	coreMember.GuildID = guildID
 	coreMember.User = b.CreateUser(member.User, updateCache)
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches().Members().Set(coreMember)
+		return b.Bot().Caches().Members().Put(coreMember)
 	}
 	return coreMember
 }
@@ -430,7 +430,7 @@ func (b *entityBuilderImpl) CreateVoiceState(voiceState discord.VoiceState, upda
 	}
 
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches().VoiceStates().Set(coreState)
+		return b.Bot().Caches().VoiceStates().Put(coreState)
 	}
 	return coreState
 }
@@ -480,7 +480,7 @@ func (b *entityBuilderImpl) CreateRole(guildID discord.Snowflake, role discord.R
 	coreRole.GuildID = guildID
 
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches().Roles().Set(coreRole)
+		return b.Bot().Caches().Roles().Put(coreRole)
 	}
 	return coreRole
 }
@@ -662,7 +662,7 @@ func (b *entityBuilderImpl) CreateChannel(channel discord.Channel, updateCache C
 	}
 
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches().Channels().Set(c)
+		return b.Bot().Caches().Channels().Put(c)
 	}
 	return c
 }
@@ -674,7 +674,7 @@ func (b *entityBuilderImpl) CreateThreadMember(threadMember discord.ThreadMember
 	}
 
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches().ThreadMembers().Set(coreThreadMember)
+		return b.Bot().Caches().ThreadMembers().Put(coreThreadMember)
 	}
 	return coreThreadMember
 }
@@ -692,7 +692,7 @@ func (b *entityBuilderImpl) CreateStageInstance(stageInstance discord.StageInsta
 	}
 
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches().StageInstances().Set(coreStageInstance)
+		return b.Bot().Caches().StageInstances().Put(coreStageInstance)
 	}
 	return coreStageInstance
 }
@@ -705,7 +705,7 @@ func (b *entityBuilderImpl) CreateGuildScheduledEvent(guildScheduledEvent discor
 	}
 
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches().GuildScheduledEvents().Set(coreGuildScheduledEvent)
+		return b.Bot().Caches().GuildScheduledEvents().Put(coreGuildScheduledEvent)
 	}
 	return coreGuildScheduledEvent
 }
@@ -752,7 +752,7 @@ func (b *entityBuilderImpl) CreateEmoji(guildID discord.Snowflake, emoji discord
 	coreEmoji.GuildID = guildID
 
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches().Emojis().Set(coreEmoji)
+		return b.Bot().Caches().Emojis().Put(coreEmoji)
 	}
 	return coreEmoji
 }
@@ -771,8 +771,8 @@ func (b *entityBuilderImpl) CreateStickerPack(stickerPack discord.StickerPack, u
 }
 
 // CreateSticker returns a new discord.Sticker entity
-func (b *entityBuilderImpl) CreateSticker(sticker discord.Sticker, updateCache CacheStrategy) *Sticker {
-	coreSticker := &Sticker{
+func (b *entityBuilderImpl) CreateSticker(sticker discord.Sticker, updateCache CacheStrategy) Sticker {
+	coreSticker := Sticker{
 		Sticker: sticker,
 		Bot:     b.Bot(),
 	}
@@ -782,14 +782,14 @@ func (b *entityBuilderImpl) CreateSticker(sticker discord.Sticker, updateCache C
 	}
 
 	if updateCache(b.Bot()) {
-		return b.Bot().Caches().Stickers().Set(coreSticker)
+		return b.Bot().Caches().Stickers().Put(*sticker.GuildID, sticker.ID, coreSticker)
 	}
 	return coreSticker
 }
 
 // CreateMessageSticker returns a new discord.Sticker entity
-func (b *entityBuilderImpl) CreateMessageSticker(messageSticker discord.MessageSticker) *MessageSticker {
-	return &MessageSticker{
+func (b *entityBuilderImpl) CreateMessageSticker(messageSticker discord.MessageSticker) MessageSticker {
+	return MessageSticker{
 		MessageSticker: messageSticker,
 		Bot:            b.Bot(),
 	}

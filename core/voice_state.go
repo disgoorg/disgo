@@ -29,14 +29,14 @@ func (s *VoiceState) Guild() (Guild, bool) {
 }
 
 // Channel returns the Channel of this VoiceState from the Caches
-func (s *VoiceState) Channel() GuildAudioChannel {
+func (s *VoiceState) Channel() (GuildAudioChannel, bool) {
 	if s.ChannelID == nil {
-		return nil
+		return nil, false
 	}
 	if ch := s.Bot.Caches().Channels().Get(*s.ChannelID); ch != nil {
-		return ch.(GuildAudioChannel)
+		return ch.(GuildAudioChannel), true
 	}
-	return nil
+	return nil, false
 }
 
 func (s *VoiceState) Update(suppress *bool, requestToSpeak *json.Nullable[discord.Time], opts ...rest.RequestOpt) error {
@@ -44,7 +44,7 @@ func (s *VoiceState) Update(suppress *bool, requestToSpeak *json.Nullable[discor
 		return discord.ErrMemberMustBeConnectedToChannel
 	}
 	userVoiceUpdate := discord.UserVoiceStateUpdate{ChannelID: *s.ChannelID, Suppress: suppress, RequestToSpeakTimestamp: requestToSpeak}
-	if s.UserID == s.Bot.ClientID {
+	if s.UserID == s.Bot.ClientID() {
 		return s.Bot.RestServices().GuildService().UpdateCurrentUserVoiceState(s.GuildID, userVoiceUpdate, opts...)
 	}
 	return s.Bot.RestServices().GuildService().UpdateUserVoiceState(s.GuildID, s.UserID, userVoiceUpdate, opts...)

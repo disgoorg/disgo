@@ -8,7 +8,7 @@ import (
 )
 
 type GroupedCache[T any] interface {
-	RWLocker() rwsync.RWLocker
+	rwsync.RWLocker
 	Get(groupID discord.Snowflake, id discord.Snowflake) (T, bool)
 	Put(groupID discord.Snowflake, id discord.Snowflake, entity T) T
 	Remove(groupID discord.Snowflake, id discord.Snowflake) (T, bool)
@@ -29,7 +29,6 @@ func NewGroupedCache[T any](flags CacheFlags, neededFlags CacheFlags) GroupedCac
 	return &DefaultGroupedCache[T]{
 		flags:       flags,
 		neededFlags: neededFlags,
-		mu:          &sync.RWMutex{},
 		cache:       make(map[discord.Snowflake]map[discord.Snowflake]T),
 	}
 }
@@ -37,26 +36,21 @@ func NewGroupedCache[T any](flags CacheFlags, neededFlags CacheFlags) GroupedCac
 func NewGroupedCacheWithPolicy[T any](policy CachePolicy[T]) Cache[T] {
 	return &DefaultCache[T]{
 		policy:   policy,
-		mu:       &sync.RWMutex{},
 		entities: make(map[discord.Snowflake]T),
 	}
 }
 
 type DefaultGroupedCache[T any] struct {
+	sync.RWMutex
 	flags       CacheFlags
 	neededFlags CacheFlags
 	policy      CachePolicy[T]
-	mu          *sync.RWMutex
 	cache       map[discord.Snowflake]map[discord.Snowflake]T
 }
 
-func (c *DefaultGroupedCache[T]) RWLocker() rwsync.RWLocker {
-	return c.mu
-}
-
 func (c *DefaultGroupedCache[T]) Get(groupID discord.Snowflake, id discord.Snowflake) (entity T, ok bool) {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+	c.RLock()
+	defer c.RUnlock()
 
 	if guildEntities, ok := c.cache[groupID]; ok {
 		if entity, ok := guildEntities[id]; ok {
@@ -75,8 +69,8 @@ func (c *DefaultGroupedCache[T]) Put(groupID discord.Snowflake, id discord.Snowf
 	if c.policy != nil && !c.policy(entity) {
 		return entity
 	}
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.Lock()
+	defer c.Unlock()
 
 	if c.cache == nil {
 		c.cache = make(map[discord.Snowflake]map[discord.Snowflake]T)
@@ -94,8 +88,8 @@ func (c *DefaultGroupedCache[T]) Put(groupID discord.Snowflake, id discord.Snowf
 }
 
 func (c *DefaultGroupedCache[T]) Remove(groupID discord.Snowflake, id discord.Snowflake) (entity T, ok bool) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.Lock()
+	defer c.Unlock()
 
 	if guildEntities, ok := c.cache[groupID]; ok {
 		if entity, ok := guildEntities[id]; ok {
@@ -112,8 +106,8 @@ func (c *DefaultGroupedCache[T]) Cache() map[discord.Snowflake]map[discord.Snowf
 }
 
 func (c *DefaultGroupedCache[T]) All() map[discord.Snowflake][]T {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+	c.RLock()
+	defer c.RUnlock()
 
 	all := make(map[discord.Snowflake][]T)
 	for groupID, guildEntities := range c.cache {
@@ -127,8 +121,8 @@ func (c *DefaultGroupedCache[T]) All() map[discord.Snowflake][]T {
 }
 
 func (c *DefaultGroupedCache[T]) GroupCache(groupID discord.Snowflake) map[discord.Snowflake]T {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+	c.RLock()
+	defer c.RUnlock()
 
 	if guildEntities, ok := c.cache[groupID]; ok {
 		return guildEntities
@@ -138,8 +132,8 @@ func (c *DefaultGroupedCache[T]) GroupCache(groupID discord.Snowflake) map[disco
 }
 
 func (c *DefaultGroupedCache[T]) GroupAll(groupID discord.Snowflake) []T {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+	c.RLock()
+	defer c.RUnlock()
 
 	if guildEntities, ok := c.cache[groupID]; ok {
 		all := make([]T, 0, len(guildEntities))
@@ -154,8 +148,8 @@ func (c *DefaultGroupedCache[T]) GroupAll(groupID discord.Snowflake) []T {
 }
 
 func (c *DefaultGroupedCache[T]) FindFirst(cacheFindFunc CacheFindFunc[T]) (entity T) {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+	c.RLock()
+	defer c.RUnlock()
 
 	for _, guildEntities := range c.cache {
 		for _, entity = range guildEntities {
@@ -169,8 +163,8 @@ func (c *DefaultGroupedCache[T]) FindFirst(cacheFindFunc CacheFindFunc[T]) (enti
 }
 
 func (c *DefaultGroupedCache[T]) FindAll(cacheFindFunc CacheFindFunc[T]) []T {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+	c.RLock()
+	defer c.RUnlock()
 
 	all := make([]T, 0)
 	for _, guildEntities := range c.cache {

@@ -3,7 +3,6 @@ package disgo
 import (
 	_ "github.com/DisgoOrg/disgo/core"
 	_ "github.com/DisgoOrg/disgo/core/bot"
-	_ "github.com/DisgoOrg/disgo/core/collectors"
 	_ "github.com/DisgoOrg/disgo/core/events"
 	_ "github.com/DisgoOrg/disgo/core/handlers"
 	_ "github.com/DisgoOrg/disgo/discord"

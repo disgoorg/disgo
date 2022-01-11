@@ -30,7 +30,7 @@ func (s *gatewayServiceImpl) RestClient() Client {
 
 func (s *gatewayServiceImpl) GetGateway(opts ...RequestOpt) (gateway *discord.Gateway, err error) {
 	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetGateway.Compile(nil)
+	compiledRoute, err = route.GetGateway().Compile(nil)
 	if err != nil {
 		return
 	}

@@ -940,7 +940,7 @@ type PartialChannel struct {
 
 // GetIconURL returns the Icon URL of this channel.
 // This will be nil for every ChannelType except ChannelTypeGroupDM
-func (c *PartialChannel) GetIconURL(size int) *string {
+func (c PartialChannel) GetIconURL(size int) *string {
 	return FormatAssetURL(route.ChannelIcon, c.ID, c.Icon, size)
 }
 

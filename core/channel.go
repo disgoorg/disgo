@@ -1706,7 +1706,7 @@ func deletePermissionOverwrite(bot Bot, channelID discord.Snowflake, id discord.
 	return bot.RestServices().ChannelService().DeletePermissionOverwrite(channelID, id, opts...)
 }
 
-func channelGuild(bot Bot, guildID discord.Snowflake) *Guild {
+func channelGuild(bot Bot, guildID discord.Snowflake) (Guild, bool) {
 	return bot.Caches().Guilds().Get(guildID)
 }
 

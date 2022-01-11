@@ -4,7 +4,6 @@ import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
-	"github.com/google/go-cmp/cmp"
 )
 
 // gatewayHandlerGuildEmojisUpdate handles discord.GatewayEventTypeGuildEmojisUpdate
@@ -30,12 +29,12 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot core.Bot, seque
 
 	var (
 		emojiCache    = bot.Caches().Emojis().GroupCache(payload.GuildID)
-		oldEmojis     = map[discord.Snowflake]*core.Emoji{}
-		newEmojis     = map[discord.Snowflake]*core.Emoji{}
-		updatedEmojis = map[discord.Snowflake]*core.Emoji{}
+		oldEmojis     = map[discord.Snowflake]core.Emoji{}
+		newEmojis     = map[discord.Snowflake]core.Emoji{}
+		updatedEmojis = map[discord.Snowflake]core.Emoji{}
 	)
 
-	oldEmojis = make(map[discord.Snowflake]*core.Emoji, len(emojiCache))
+	oldEmojis = make(map[discord.Snowflake]core.Emoji, len(emojiCache))
 	for key, value := range emojiCache {
 		va := *value
 		oldEmojis[key] = &va
@@ -45,7 +44,7 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot core.Bot, seque
 		emoji, ok := emojiCache[current.ID]
 		if ok {
 			delete(oldEmojis, current.ID)
-			if !cmp.Equal(emoji, current) {
+			if !emojiEqual(emoji, current) {
 				updatedEmojis[current.ID] = bot.EntityBuilder().CreateEmoji(payload.GuildID, current, core.CacheStrategyYes)
 			}
 		} else {
@@ -58,8 +57,8 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot core.Bot, seque
 	}
 
 	for _, emoji := range newEmojis {
-		bot.EventManager().Dispatch(&events.EmojiCreateEvent{
-			GenericEmojiEvent: &events.GenericEmojiEvent{
+		bot.EventManager().Dispatch(events.EmojiCreateEvent{
+			GenericEmojiEvent: events.GenericEmojiEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				GuildID:      payload.GuildID,
 				Emoji:        emoji,
@@ -87,4 +86,13 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot core.Bot, seque
 		})
 	}
 
+}
+
+func emojiEqual(a core.Emoji, b core.Emoji) bool {
+	return a.ID == b.ID &&
+		a.GuildID == b.GuildID &&
+		a.Name == b.Name &&
+		a.Animated == b.Animated &&
+		a.Managed == b.Managed &&
+		a.RequireColons == b.RequireColons
 }
