@@ -21,6 +21,8 @@ type BaseInteraction struct {
 	Version         int
 	GuildID         *discord.Snowflake
 	ChannelID       discord.Snowflake
+	Locale          discord.Locale
+	GuildLocale     *discord.Locale
 	Member          *Member
 	User            *User
 	ResponseChannel chan<- discord.InteractionResponse

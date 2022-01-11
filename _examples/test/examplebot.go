@@ -23,7 +23,7 @@ const (
 
 var (
 	token       = os.Getenv("disgo_token")
-	guildID     = discord.Snowflake(os.Getenv("disgo_guild_id"))
+	guildID     = discord.Snowflake(os.Getenv("disgo_test_guild_id"))
 	adminRoleID = discord.Snowflake(os.Getenv("disgo_admin_role_id"))
 	testRoleID  = discord.Snowflake(os.Getenv("disgo_test_role_id"))
 

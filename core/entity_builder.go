@@ -83,6 +83,8 @@ func (b *entityBuilderImpl) baseInteraction(baseInteraction discord.BaseInteract
 		Version:         baseInteraction.Version,
 		GuildID:         baseInteraction.GuildID,
 		ChannelID:       baseInteraction.ChannelID,
+		Locale:          baseInteraction.Locale,
+		GuildLocale:     baseInteraction.GuildLocale,
 		Member:          member,
 		User:            user,
 		ResponseChannel: c,

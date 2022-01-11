@@ -8,6 +8,11 @@ import (
 
 var commands = []discord.ApplicationCommandCreate{
 	discord.SlashCommandCreate{
+		Name:              "locale",
+		Description:       "return the guild & your locale",
+		DefaultPermission: true,
+	},
+	discord.SlashCommandCreate{
 		Name:              "eval",
 		Description:       "runs some go code",
 		DefaultPermission: true,
