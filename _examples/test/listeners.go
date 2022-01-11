@@ -61,6 +61,15 @@ func componentListener(event *events.ComponentInteractionEvent) {
 func applicationCommandListener(event *events.ApplicationCommandInteractionEvent) {
 	data := event.SlashCommandInteractionData()
 	switch data.CommandName {
+	case "locale":
+		err := event.Create(discord.NewMessageCreateBuilder().
+			SetContentf("Guild Locale: %s\nLocale: %s", event.GuildLocale, event.Locale).
+			Build(),
+		)
+		if err != nil {
+			event.Bot().Logger.Error("error on sending response: ", err)
+		}
+
 	case "eval":
 		go func() {
 			code := *data.Options.String("code")

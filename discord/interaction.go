@@ -30,6 +30,8 @@ type BaseInteraction struct {
 	Version       int        `json:"version"`
 	GuildID       *Snowflake `json:"guild_id,omitempty"`
 	ChannelID     Snowflake  `json:"channel_id"`
+	Locale        Locale     `json:"locale"`
+	GuildLocale   *Locale    `json:"guild_locale,omitempty"`
 	Member        *Member    `json:"member,omitempty"`
 	User          *User      `json:"user,omitempty"`
 }
