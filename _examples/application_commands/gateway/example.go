@@ -45,7 +45,7 @@ func main() {
 		bot.WithGatewayOpts(gateway.WithGatewayIntents(discord.GatewayIntentsNone)),
 		bot.WithCacheOpts(core.WithCacheFlags(core.CacheFlagsDefault)),
 		bot.WithEventListeners(&events.ListenerAdapter{
-			OnSlashCommand: commandListener,
+			OnApplicationCommandInteraction: commandListener,
 		}),
 	)
 	if err != nil {
@@ -55,8 +55,7 @@ func main() {
 
 	defer disgo.Close(context.TODO())
 
-	_, err = disgo.SetGuildCommands(guildID, commands)
-	if err != nil {
+	if _, err = disgo.SetGuildCommands(guildID, commands); err != nil {
 		log.Fatal("error while registering commands: ", err)
 	}
 
@@ -70,10 +69,11 @@ func main() {
 	<-s
 }
 
-func commandListener(event *events.SlashCommandEvent) {
-	if event.Data.CommandName == "say" {
+func commandListener(event *events.ApplicationCommandInteractionEvent) {
+	data := event.SlashCommandInteractionData()
+	if data.CommandName == "say" {
 		err := event.Create(discord.NewMessageCreateBuilder().
-			SetContent(*event.Data.Options.String("message")).
+			SetContent(*data.Options.String("message")).
 			Build(),
 		)
 		if err != nil {

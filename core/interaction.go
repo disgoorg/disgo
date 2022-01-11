@@ -9,117 +9,74 @@ type InteractionFilter func(interaction Interaction) bool
 
 // Interaction represents a generic Interaction received from discord
 type Interaction interface {
-	discord.Interaction
+	Type() discord.InteractionType
+	interaction()
+	Respond(callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error
 }
 
-type InteractionFields struct {
-	Bot             Bot
+type BaseInteraction struct {
+	ID              discord.Snowflake
+	ApplicationID   discord.Snowflake
+	Token           string
+	Version         int
+	GuildID         *discord.Snowflake
+	ChannelID       discord.Snowflake
+	Locale          discord.Locale
+	GuildLocale     *discord.Locale
+	Member          *Member
+	User            *User
 	ResponseChannel chan<- discord.InteractionResponse
 	Acknowledged    bool
+	Bot             *Bot
 }
 
-type ApplicationCommandInteractionFilter func(interaction Interaction) bool
-
-// ApplicationCommandInteraction represents a generic ApplicationCommand Interaction received from discord
-type ApplicationCommandInteraction interface {
-	discord.ApplicationCommandInteraction
-}
-
-type ComponentInteractionFilter func(interaction Interaction) bool
-
-// ComponentInteraction represents a generic discord.Component Interaction received from discord
-type ComponentInteraction interface {
-	discord.ComponentInteraction
-}
-
-func commandPath(commandName string, subCommandName *string, subCommandGroupName *string) string {
-	path := commandName
-	if name := subCommandName; name != nil {
-		path += "/" + *name
-	}
-	if name := subCommandGroupName; name != nil {
-		path += "/" + *name
-	}
-	return path
-}
-
-func respond(fields *InteractionFields, id discord.Snowflake, token string, callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
-	if fields.Acknowledged {
+func (i *BaseInteraction) Respond(callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
+	if i.Acknowledged {
 		return discord.ErrInteractionAlreadyReplied
 	}
-	fields.Acknowledged = true
+	i.Acknowledged = true
 
 	response := discord.InteractionResponse{
 		Type: callbackType,
 		Data: callbackData,
 	}
 
-	if fields.ResponseChannel != nil {
-		fields.ResponseChannel <- response
+	if i.ResponseChannel != nil {
+		i.ResponseChannel <- response
 		return nil
 	}
 
-	return fields.Bot.RestServices().InteractionService().CreateInteractionResponse(id, token, response, opts...)
+	return i.Bot.RestServices.InteractionService().CreateInteractionResponse(i.ID, i.Token, response, opts...)
 }
 
-func deferCreate(fields *InteractionFields, id discord.Snowflake, token string, ephemeral bool, opts ...rest.RequestOpt) error {
-	var data discord.InteractionCallbackData
-	if ephemeral {
-		data = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
+// Guild returns the Guild from the Caches
+func (i *BaseInteraction) Guild() *Guild {
+	if i.GuildID == nil {
+		return nil
 	}
-	return respond(fields, id, token, discord.InteractionCallbackTypeDeferredChannelMessageWithSource, data, opts...)
+	return i.Bot.Caches.Guilds().Get(*i.GuildID)
 }
 
-func create(fields *InteractionFields, id discord.Snowflake, token string, messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
-	return respond(fields, id, token, discord.InteractionCallbackTypeChannelMessageWithSource, messageCreate, opts...)
-}
-
-func getOriginal(fields *InteractionFields, applicationID discord.Snowflake, token string, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := fields.Bot.RestServices().InteractionService().GetInteractionResponse(applicationID, token, opts...)
-	if err != nil {
-		return nil, err
+// Channel returns the Channel from the Caches
+func (i *BaseInteraction) Channel() MessageChannel {
+	if ch := i.Bot.Caches.Channels().Get(i.ChannelID); ch != nil {
+		return ch.(MessageChannel)
 	}
-	return fields.Bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
+	return nil
 }
 
-func updateOriginal(fields *InteractionFields, applicationID discord.Snowflake, token string, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := fields.Bot.RestServices().InteractionService().UpdateInteractionResponse(applicationID, token, messageUpdate, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return fields.Bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
-}
-
-func deleteOriginal(fields *InteractionFields, applicationID discord.Snowflake, token string, opts ...rest.RequestOpt) error {
-	return fields.Bot.RestServices().InteractionService().DeleteInteractionResponse(applicationID, token, opts...)
-}
-
-func deferUpdate(fields *InteractionFields, applicationID discord.Snowflake, token string, opts ...rest.RequestOpt) error {
-	return respond(fields, applicationID, token, discord.InteractionCallbackTypeDeferredUpdateMessage, nil, opts...)
-}
-
-func update(fields *InteractionFields, applicationID discord.Snowflake, token string, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
-	return respond(fields, applicationID, token, discord.InteractionCallbackTypeUpdateMessage, messageUpdate, opts...)
-}
-
-func updateComponent(fields *InteractionFields, applicationID discord.Snowflake, token string, message *Message, customID discord.CustomID, component discord.InteractiveComponent, opts ...rest.RequestOpt) error {
-	containerComponents := make([]discord.ContainerComponent, len(message.Components))
-	for i := range message.Components {
-		switch container := containerComponents[i].(type) {
-		case discord.ActionRowComponent:
-			containerComponents[i] = container.UpdateComponent(customID, component)
-
-		default:
-			containerComponents[i] = container
-			continue
-		}
-	}
-
-	return update(fields, applicationID, token, discord.NewMessageUpdateBuilder().SetContainerComponents(containerComponents...).Build(), opts...)
+type ReplyInteraction struct {
+	*BaseInteraction
 }
 
 func result(fields *InteractionFields, applicationID discord.Snowflake, token string, choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
 	return respond(fields, applicationID, token, discord.InteractionCallbackTypeAutocompleteResult, discord.AutocompleteResult{Choices: choices}, opts...)
+func (i ReplyInteraction) GetResponse(opts ...rest.RequestOpt) (*Message, error) {
+	message, err := i.Bot.RestServices.InteractionService().GetInteractionResponse(i.ApplicationID, i.Token, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return i.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
 func resultMapString(fields *InteractionFields, applicationID discord.Snowflake, token string, resultMap map[string]string, opts ...rest.RequestOpt) error {
@@ -131,74 +88,54 @@ func resultMapString(fields *InteractionFields, applicationID discord.Snowflake,
 			Value: value,
 		}
 		ii++
-	}
-	return result(fields, applicationID, token, choices, opts...)
-}
-
-func resultMapInt(fields *InteractionFields, applicationID discord.Snowflake, token string, resultMap map[string]int, opts ...rest.RequestOpt) error {
-	choices := make([]discord.AutocompleteChoice, len(resultMap))
-	ii := 0
-	for name, value := range resultMap {
-		choices[ii] = discord.AutocompleteChoiceInt{
-			Name:  name,
-			Value: value,
-		}
-		ii++
-	}
-	return result(fields, applicationID, token, choices, opts...)
-}
-
-func resultMapFloat(fields *InteractionFields, applicationID discord.Snowflake, token string, resultMap map[string]float64, opts ...rest.RequestOpt) error {
-	choices := make([]discord.AutocompleteChoice, len(resultMap))
-	ii := 0
-	for name, value := range resultMap {
-		choices[ii] = discord.AutocompleteChoiceFloat{
-			Name:  name,
-			Value: value,
-		}
-		ii++
-	}
-	return result(fields, applicationID, token, choices, opts...)
-}
-
-func getFollowup(fields *InteractionFields, applicationID discord.Snowflake, token string, messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := fields.Bot.RestServices().InteractionService().GetFollowupMessage(applicationID, token, messageID, opts...)
+func (i ReplyInteraction) UpdateResponse(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
+	message, err := i.Bot.RestServices.InteractionService().UpdateInteractionResponse(i.ApplicationID, i.Token, messageUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return fields.Bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
+	return i.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-func createFollowup(fields *InteractionFields, applicationID discord.Snowflake, token string, messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := fields.Bot.RestServices().InteractionService().CreateFollowupMessage(applicationID, token, messageCreate, opts...)
+func (i ReplyInteraction) DeleteResponse(opts ...rest.RequestOpt) error {
+	return i.Bot.RestServices.InteractionService().DeleteInteractionResponse(i.ApplicationID, i.Token, opts...)
+}
+
+func (i ReplyInteraction) Create(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
+	return i.Respond(discord.InteractionCallbackTypeChannelMessageWithSource, messageCreate, opts...)
+}
+
+func (i ReplyInteraction) DeferCreate(ephemeral bool, opts ...rest.RequestOpt) error {
+	var data discord.InteractionCallbackData
+	if ephemeral {
+		data = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
+	}
+	return i.Respond(discord.InteractionCallbackTypeDeferredChannelMessageWithSource, data, opts...)
+}
+
+func (i ReplyInteraction) GetFollowupMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
+	message, err := i.Bot.RestServices.InteractionService().GetFollowupMessage(i.ApplicationID, i.Token, messageID, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return fields.Bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
+	return i.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-func updateFollowup(fields *InteractionFields, applicationID discord.Snowflake, token string, messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := fields.Bot.RestServices().InteractionService().UpdateFollowupMessage(applicationID, token, messageID, messageUpdate, opts...)
+func (i ReplyInteraction) CreateFollowupMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
+	message, err := i.Bot.RestServices.InteractionService().CreateFollowupMessage(i.ApplicationID, i.Token, messageCreate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return fields.Bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
+	return i.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-func deleteFollowup(fields *InteractionFields, applicationID discord.Snowflake, token string, messageID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return fields.Bot.RestServices().InteractionService().DeleteFollowupMessage(applicationID, token, messageID, opts...)
-}
-
-func channel(fields *InteractionFields, channelID discord.Snowflake) MessageChannel {
-	if ch := fields.Bot.Caches().Channels().Get(channelID); ch != nil {
-		return ch.(MessageChannel)
+func (i ReplyInteraction) UpdateFollowupMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
+	message, err := i.Bot.RestServices.InteractionService().UpdateFollowupMessage(i.ApplicationID, i.Token, messageID, messageUpdate, opts...)
+	if err != nil {
+		return nil, err
 	}
-	return nil
+	return i.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-func guild(fields *InteractionFields, guildID *discord.Snowflake) *Guild {
-	if guildID == nil {
-		return nil
-	}
-	return fields.Bot.Caches().Guilds().Get(*guildID)
+func (i ReplyInteraction) DeleteFollowupMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return i.Bot.RestServices.InteractionService().DeleteFollowupMessage(i.ApplicationID, i.Token, messageID, opts...)
 }
