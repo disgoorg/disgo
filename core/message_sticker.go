@@ -7,7 +7,7 @@ import (
 
 type MessageSticker struct {
 	discord.MessageSticker
-	Bot *Bot
+	Bot Bot
 }
 
 func (s *MessageSticker) URL(size int) string {
@@ -20,14 +20,14 @@ func (s *MessageSticker) URL(size int) string {
 }
 
 func (s *MessageSticker) GetSticker() (*Sticker, error) {
-	coreSticker := s.Bot.Caches.Stickers().FindFirst(func(sticker *Sticker) bool { return sticker.ID == s.ID })
+	coreSticker := s.Bot.Caches().Stickers().FindFirst(func(sticker *Sticker) bool { return sticker.ID == s.ID })
 	if coreSticker != nil {
 		return coreSticker, nil
 	}
 
-	sticker, err := s.Bot.RestServices.StickerService().GetSticker(s.ID)
+	sticker, err := s.Bot.RestServices().StickerService().GetSticker(s.ID)
 	if err != nil {
 		return nil, err
 	}
-	return s.Bot.EntityBuilder.CreateSticker(*sticker, CacheStrategyNoWs), nil
+	return s.Bot.EntityBuilder().CreateSticker(*sticker, CacheStrategyNoWs), nil
 }

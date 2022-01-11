@@ -16,18 +16,18 @@ func (h *gatewayHandlerThreadDelete) New() interface{} {
 	return &discord.GatewayEventThreadDelete{}
 }
 
-func (h *gatewayHandlerThreadDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerThreadDelete) HandleGatewayEvent(bot core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.GatewayEventThreadDelete)
 
-	channel := bot.Caches.Channels().GetCopy(payload.ID)
-	bot.Caches.Channels().Remove(payload.ID)
-	bot.Caches.ThreadMembers().RemoveAll(payload.ID)
+	channel := bot.Caches().Channels().GetCopy(payload.ID)
+	bot.Caches().Channels().Remove(payload.ID)
+	bot.Caches().ThreadMembers().RemoveAll(payload.ID)
 	var thread core.GuildThread
 	if c, ok := channel.(core.GuildThread); ok {
 		thread = c
 	}
 
-	bot.EventManager.Dispatch(&events.ThreadDeleteEvent{
+	bot.EventManager().Dispatch(&events.ThreadDeleteEvent{
 		GenericThreadEvent: &events.GenericThreadEvent{
 			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 			ThreadID:     payload.ID,

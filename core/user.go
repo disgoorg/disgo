@@ -10,7 +10,7 @@ import (
 
 type User struct {
 	discord.User
-	Bot *Bot
+	Bot Bot
 }
 
 // AvatarURL returns the Avatar URL of this User
@@ -47,9 +47,9 @@ func (u *User) getAssetURL(cdnRoute *route.CDNRoute, assetId *string, size int) 
 
 // OpenDMChannel creates a DMChannel between this User and the Bot
 func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (*DMChannel, error) {
-	channel, err := u.Bot.RestServices.UserService().CreateDMChannel(u.ID, opts...)
+	channel, err := u.Bot.RestServices().UserService().CreateDMChannel(u.ID, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return u.Bot.EntityBuilder.CreateChannel(*channel, CacheStrategyNoWs).(*DMChannel), nil
+	return u.Bot.EntityBuilder().CreateChannel(*channel, CacheStrategyNoWs).(*DMChannel), nil
 }

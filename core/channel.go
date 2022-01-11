@@ -17,7 +17,7 @@ type Channel interface {
 type GuildChannel interface {
 	discord.GuildChannel
 	Channel
-	Guild() *Guild
+	Guild() (Guild, bool)
 
 	UpdateGuildChannel(guildChannelUpdate discord.GuildChannelUpdate, opts ...rest.RequestOpt) (GuildChannel, error)
 	Delete(opts ...rest.RequestOpt) error
@@ -109,7 +109,7 @@ var (
 
 type GuildTextChannel struct {
 	discord.GuildTextChannel
-	Bot *Bot
+	Bot Bot
 }
 
 func (c *GuildTextChannel) set(channel Channel) Channel {
@@ -240,7 +240,7 @@ func (c *GuildTextChannel) DeleteWebhook(webhookID discord.Snowflake, opts ...re
 
 func (c *GuildTextChannel) Threads() []GuildThread {
 	var threads []GuildThread
-	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
+	c.Bot.Caches().Channels().ForAll(func(channel Channel) {
 		if thread, ok := channel.(GuildThread); ok && thread.ParentID() == c.ID() {
 			threads = append(threads, thread)
 		}
@@ -249,7 +249,7 @@ func (c *GuildTextChannel) Threads() []GuildThread {
 }
 
 func (c *GuildTextChannel) Thread(threadID discord.Snowflake) GuildThread {
-	if thread, ok := c.Bot.Caches.Channels().Get(threadID).(GuildThread); ok {
+	if thread, ok := c.Bot.Caches().Channels().Get(threadID).(GuildThread); ok {
 		return thread
 	}
 	return nil
@@ -257,7 +257,7 @@ func (c *GuildTextChannel) Thread(threadID discord.Snowflake) GuildThread {
 
 func (c *GuildTextChannel) PrivateThreads() []*GuildPrivateThread {
 	var threads []*GuildPrivateThread
-	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
+	c.Bot.Caches().Channels().ForAll(func(channel Channel) {
 		if thread, ok := channel.(*GuildPrivateThread); ok && thread.ParentID() == c.ID() {
 			threads = append(threads, thread)
 		}
@@ -267,7 +267,7 @@ func (c *GuildTextChannel) PrivateThreads() []*GuildPrivateThread {
 
 func (c *GuildTextChannel) PublicThreads() []*GuildPublicThread {
 	var threads []*GuildPublicThread
-	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
+	c.Bot.Caches().Channels().ForAll(func(channel Channel) {
 		if thread, ok := channel.(*GuildPublicThread); ok && thread.ParentID() == c.ID() {
 			threads = append(threads, thread)
 		}
@@ -283,10 +283,10 @@ func (c *GuildTextChannel) CreateThreadWithMessage(messageID discord.Snowflake, 
 	return createThreadWithMessage(c.Bot, c.ID(), messageID, threadCreateWithMessage, opts...)
 }
 
-func createThreadMembers(bot *Bot, members []discord.ThreadMember) map[discord.Snowflake]*ThreadMember {
+func createThreadMembers(bot Bot, members []discord.ThreadMember) map[discord.Snowflake]*ThreadMember {
 	threadMembers := make(map[discord.Snowflake]*ThreadMember, len(members))
 	for i := range members {
-		threadMembers[members[i].ThreadID] = bot.EntityBuilder.CreateThreadMember(members[i], CacheStrategyNo)
+		threadMembers[members[i].ThreadID] = bot.EntityBuilder().CreateThreadMember(members[i], CacheStrategyNo)
 	}
 	return threadMembers
 }
@@ -295,16 +295,16 @@ func (c *GuildTextChannel) GetPublicArchivedThreads(before discord.Time, limit i
 	return getPublicArchivedThreads(c.Bot, c.ID(), before, limit, opts...)
 }
 
-func createGuildPrivateThreads(bot *Bot, threads []discord.GuildThread) []*GuildPrivateThread {
+func createGuildPrivateThreads(bot Bot, threads []discord.GuildThread) []*GuildPrivateThread {
 	privateThreads := make([]*GuildPrivateThread, len(threads))
 	for i := range threads {
-		privateThreads[i] = bot.EntityBuilder.CreateChannel(threads[i], CacheStrategyNo).(*GuildPrivateThread)
+		privateThreads[i] = bot.EntityBuilder().CreateChannel(threads[i], CacheStrategyNo).(*GuildPrivateThread)
 	}
 	return privateThreads
 }
 
 func (c *GuildTextChannel) GetPrivateArchivedThreads(before discord.Time, limit int, opts ...rest.RequestOpt) ([]*GuildPrivateThread, map[discord.Snowflake]*ThreadMember, bool, error) {
-	getThreads, err := c.Bot.RestServices.ThreadService().GetPrivateArchivedThreads(c.ID(), before, limit, opts...)
+	getThreads, err := c.Bot.RestServices().ThreadService().GetPrivateArchivedThreads(c.ID(), before, limit, opts...)
 	if err != nil {
 		return nil, nil, false, err
 	}
@@ -313,7 +313,7 @@ func (c *GuildTextChannel) GetPrivateArchivedThreads(before discord.Time, limit 
 }
 
 func (c *GuildTextChannel) GetJoinedPrivateAchievedThreads(before discord.Time, limit int, opts ...rest.RequestOpt) ([]*GuildPrivateThread, map[discord.Snowflake]*ThreadMember, bool, error) {
-	getThreads, err := c.Bot.RestServices.ThreadService().GetJoinedPrivateAchievedThreads(c.ID(), before, limit, opts...)
+	getThreads, err := c.Bot.RestServices().ThreadService().GetJoinedPrivateAchievedThreads(c.ID(), before, limit, opts...)
 	if err != nil {
 		return nil, nil, false, err
 	}
@@ -321,7 +321,7 @@ func (c *GuildTextChannel) GetJoinedPrivateAchievedThreads(before discord.Time, 
 	return createGuildPrivateThreads(c.Bot, getThreads.Threads), createThreadMembers(c.Bot, getThreads.Members), getThreads.HasMore, nil
 }
 
-func (c *GuildTextChannel) Guild() *Guild {
+func (c *GuildTextChannel) Guild() (Guild, bool) {
 	return channelGuild(c.Bot, c.GuildID())
 }
 
@@ -329,7 +329,7 @@ func (c *GuildTextChannel) Parent() *GuildCategoryChannel {
 	if c.ParentID == nil {
 		return nil
 	}
-	return c.Bot.Caches.Channels().Get(*c.ParentID).(*GuildCategoryChannel)
+	return c.Bot.Caches().Channels().Get(*c.ParentID).(*GuildCategoryChannel)
 }
 
 func (c *GuildTextChannel) Members() []*Member {
@@ -343,7 +343,7 @@ var (
 
 type DMChannel struct {
 	discord.DMChannel
-	Bot          *Bot
+	Bot          Bot
 	RecipientIDs []discord.Snowflake
 }
 
@@ -418,7 +418,7 @@ var (
 
 type GuildVoiceChannel struct {
 	discord.GuildVoiceChannel
-	Bot                *Bot
+	Bot                Bot
 	ConnectedMemberIDs map[discord.Snowflake]struct{}
 }
 
@@ -482,7 +482,7 @@ func (c *GuildVoiceChannel) DeletePermissionOverwrite(id discord.Snowflake, opts
 	return deletePermissionOverwrite(c.Bot, c.ID(), id, opts...)
 }
 
-func (c *GuildVoiceChannel) Guild() *Guild {
+func (c *GuildVoiceChannel) Guild() (Guild, bool) {
 	return channelGuild(c.Bot, c.GuildID())
 }
 
@@ -490,7 +490,7 @@ func (c *GuildVoiceChannel) Parent() *GuildCategoryChannel {
 	if c.ParentID == nil {
 		return nil
 	}
-	return c.Bot.Caches.Channels().Get(*c.ParentID).(*GuildCategoryChannel)
+	return c.Bot.Caches().Channels().Get(*c.ParentID).(*GuildCategoryChannel)
 }
 
 func (c *GuildVoiceChannel) Connect(ctx context.Context) error {
@@ -512,7 +512,7 @@ var (
 
 type GroupDMChannel struct {
 	discord.GroupDMChannel
-	Bot          *Bot
+	Bot          Bot
 	RecipientIDs []discord.Snowflake
 }
 
@@ -551,7 +551,7 @@ var (
 
 type GuildCategoryChannel struct {
 	discord.GuildCategoryChannel
-	Bot *Bot
+	Bot Bot
 }
 
 func (c *GuildCategoryChannel) set(channel Channel) Channel {
@@ -614,12 +614,12 @@ func (c *GuildCategoryChannel) DeletePermissionOverwrite(id discord.Snowflake, o
 	return deletePermissionOverwrite(c.Bot, c.ChannelID, id, opts...)
 }
 
-func (c *GuildCategoryChannel) Guild() *Guild {
+func (c *GuildCategoryChannel) Guild() (Guild, bool) {
 	return channelGuild(c.Bot, c.GuildID())
 }
 
 func (c *GuildCategoryChannel) Channels() []GuildChannel {
-	channels := c.Bot.Caches.Channels().FindAll(func(channel Channel) bool {
+	channels := c.Bot.Caches().Channels().FindAll(func(channel Channel) bool {
 		switch ch := channel.(type) {
 		case *GuildTextChannel:
 			return ch.ParentID != nil && *ch.ParentID == c.ChannelID
@@ -659,7 +659,7 @@ var (
 
 type GuildNewsChannel struct {
 	discord.GuildNewsChannel
-	Bot *Bot
+	Bot Bot
 }
 
 func (c *GuildNewsChannel) set(channel Channel) Channel {
@@ -747,11 +747,11 @@ func (c *GuildNewsChannel) BulkDeleteMessages(messageIDs []discord.Snowflake, op
 }
 
 func (c *GuildNewsChannel) CrosspostMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := c.Bot.RestServices.ChannelService().CrosspostMessage(c.ID(), messageID, opts...)
+	message, err := c.Bot.RestServices().ChannelService().CrosspostMessage(c.ID(), messageID, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return c.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
+	return c.Bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
 func (c *GuildNewsChannel) SendTyping(opts ...rest.RequestOpt) error {
@@ -792,7 +792,7 @@ func (c *GuildNewsChannel) DeleteWebhook(webhookID discord.Snowflake, opts ...re
 
 func (c *GuildNewsChannel) Threads() []GuildThread {
 	var threads []GuildThread
-	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
+	c.Bot.Caches().Channels().ForAll(func(channel Channel) {
 		if thread, ok := channel.(*GuildNewsThread); ok && thread.ParentID() == c.ID() {
 			threads = append(threads, thread)
 		}
@@ -802,7 +802,7 @@ func (c *GuildNewsChannel) Threads() []GuildThread {
 
 func (c *GuildNewsChannel) NewsThreads() []*GuildNewsThread {
 	var threads []*GuildNewsThread
-	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
+	c.Bot.Caches().Channels().ForAll(func(channel Channel) {
 		if thread, ok := channel.(*GuildNewsThread); ok && thread.ParentID() == c.ID() {
 			threads = append(threads, thread)
 		}
@@ -811,7 +811,7 @@ func (c *GuildNewsChannel) NewsThreads() []*GuildNewsThread {
 }
 
 func (c *GuildNewsChannel) Thread(threadID discord.Snowflake) GuildThread {
-	if thread, ok := c.Bot.Caches.Channels().Get(threadID).(GuildThread); ok {
+	if thread, ok := c.Bot.Caches().Channels().Get(threadID).(GuildThread); ok {
 		return thread
 	}
 	return nil
@@ -819,7 +819,7 @@ func (c *GuildNewsChannel) Thread(threadID discord.Snowflake) GuildThread {
 
 func (c *GuildNewsChannel) PrivateThreads() []*GuildPrivateThread {
 	var threads []*GuildPrivateThread
-	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
+	c.Bot.Caches().Channels().ForAll(func(channel Channel) {
 		if thread, ok := channel.(*GuildPrivateThread); ok && thread.ParentID() == c.ID() {
 			threads = append(threads, thread)
 		}
@@ -829,7 +829,7 @@ func (c *GuildNewsChannel) PrivateThreads() []*GuildPrivateThread {
 
 func (c *GuildNewsChannel) PublicThreads() []*GuildPublicThread {
 	var threads []*GuildPublicThread
-	c.Bot.Caches.Channels().ForAll(func(channel Channel) {
+	c.Bot.Caches().Channels().ForAll(func(channel Channel) {
 		if thread, ok := channel.(*GuildPublicThread); ok && thread.ParentID() == c.ID() {
 			threads = append(threads, thread)
 		}
@@ -849,7 +849,7 @@ func (c *GuildNewsChannel) GetPublicArchivedThreads(before discord.Time, limit i
 	return getPublicArchivedThreads(c.Bot, c.ID(), before, limit, opts...)
 }
 
-func (c *GuildNewsChannel) Guild() *Guild {
+func (c *GuildNewsChannel) Guild() (Guild, bool) {
 	return channelGuild(c.Bot, c.GuildID())
 }
 
@@ -857,7 +857,7 @@ func (c *GuildNewsChannel) Parent() *GuildCategoryChannel {
 	if c.ParentID == nil {
 		return nil
 	}
-	return c.Bot.Caches.Channels().Get(*c.ParentID).(*GuildCategoryChannel)
+	return c.Bot.Caches().Channels().Get(*c.ParentID).(*GuildCategoryChannel)
 }
 
 func (c *GuildNewsChannel) Members() []*Member {
@@ -871,7 +871,7 @@ var (
 
 type GuildStoreChannel struct {
 	discord.GuildStoreChannel
-	Bot *Bot
+	Bot Bot
 }
 
 func (c *GuildStoreChannel) set(channel Channel) Channel {
@@ -934,7 +934,7 @@ func (c *GuildStoreChannel) DeletePermissionOverwrite(id discord.Snowflake, opts
 	return deletePermissionOverwrite(c.Bot, c.ID(), id, opts...)
 }
 
-func (c *GuildStoreChannel) Guild() *Guild {
+func (c *GuildStoreChannel) Guild() (Guild, bool) {
 	return channelGuild(c.Bot, c.GuildID())
 }
 
@@ -942,7 +942,7 @@ func (c *GuildStoreChannel) Parent() *GuildCategoryChannel {
 	if c.ParentID == nil {
 		return nil
 	}
-	return c.Bot.Caches.Channels().Get(*c.ParentID).(*GuildCategoryChannel)
+	return c.Bot.Caches().Channels().Get(*c.ParentID).(*GuildCategoryChannel)
 }
 
 func (c *GuildStoreChannel) Members() []*Member {
@@ -959,7 +959,7 @@ var (
 
 type GuildNewsThread struct {
 	discord.GuildNewsThread
-	Bot *Bot
+	Bot Bot
 }
 
 func (c *GuildNewsThread) set(channel Channel) Channel {
@@ -1085,34 +1085,34 @@ func (c *GuildNewsThread) RemoveAllReactionsForEmoji(messageID discord.Snowflake
 	return removeAllReactionsForEmoji(c.Bot, c.ID(), messageID, emoji, opts...)
 }
 
-func (c *GuildNewsThread) Guild() *Guild {
+func (c *GuildNewsThread) Guild() (Guild, bool) {
 	return channelGuild(c.Bot, c.GuildID())
 }
 
 func (c *GuildNewsThread) ParentMessageChannel() GuildMessageChannel {
-	return c.Bot.Caches.Channels().Get(c.ParentID()).(GuildMessageChannel)
+	return c.Bot.Caches().Channels().Get(c.ParentID()).(GuildMessageChannel)
 }
 
 func (c *GuildNewsThread) Parent() *GuildNewsChannel {
-	return c.Bot.Caches.Channels().Get(c.ParentID()).(*GuildNewsChannel)
+	return c.Bot.Caches().Channels().Get(c.ParentID()).(*GuildNewsChannel)
 }
 
 func (c *GuildNewsThread) Members() []*Member {
-	return c.Bot.Caches.Members().FindAll(func(member *Member) bool {
+	return c.Bot.Caches().Members().FindAll(func(member *Member) bool {
 		return member.ChannelPermissions(c).Has(discord.PermissionViewChannel)
 	})
 }
 
 func (c *GuildNewsThread) SelfThreadMember() *ThreadMember {
-	return c.ThreadMember(c.Bot.ApplicationID)
+	return c.ThreadMember(c.Bot.ApplicationID())
 }
 
 func (c *GuildNewsThread) ThreadMember(userID discord.Snowflake) *ThreadMember {
-	return c.Bot.Caches.ThreadMembers().Get(c.ID(), userID)
+	return c.Bot.Caches().ThreadMembers().Get(c.ID(), userID)
 }
 
 func (c *GuildNewsThread) ThreadMembers() []*ThreadMember {
-	return c.Bot.Caches.ThreadMembers().ThreadAll(c.ID())
+	return c.Bot.Caches().ThreadMembers().ThreadAll(c.ID())
 }
 
 func (c *GuildNewsThread) Join(opts ...rest.RequestOpt) error {
@@ -1149,7 +1149,7 @@ var (
 
 type GuildPublicThread struct {
 	discord.GuildPublicThread
-	Bot *Bot
+	Bot Bot
 }
 
 func (c *GuildPublicThread) set(channel Channel) Channel {
@@ -1275,34 +1275,34 @@ func (c *GuildPublicThread) RemoveAllReactionsForEmoji(messageID discord.Snowfla
 	return removeAllReactionsForEmoji(c.Bot, c.ID(), messageID, emoji, opts...)
 }
 
-func (c *GuildPublicThread) Guild() *Guild {
+func (c *GuildPublicThread) Guild() (Guild, bool) {
 	return channelGuild(c.Bot, c.GuildID())
 }
 
 func (c *GuildPublicThread) Parent() *GuildTextChannel {
-	return c.Bot.Caches.Channels().Get(c.ParentID()).(*GuildTextChannel)
+	return c.Bot.Caches().Channels().Get(c.ParentID()).(*GuildTextChannel)
 }
 
 func (c *GuildPublicThread) ParentMessageChannel() GuildMessageChannel {
-	return c.Bot.Caches.Channels().Get(c.ParentID()).(GuildMessageChannel)
+	return c.Bot.Caches().Channels().Get(c.ParentID()).(GuildMessageChannel)
 }
 
 func (c *GuildPublicThread) Members() []*Member {
-	return c.Bot.Caches.Members().FindAll(func(member *Member) bool {
+	return c.Bot.Caches().Members().FindAll(func(member *Member) bool {
 		return member.ChannelPermissions(c).Has(discord.PermissionViewChannel)
 	})
 }
 
 func (c *GuildPublicThread) SelfThreadMember() *ThreadMember {
-	return c.ThreadMember(c.Bot.ApplicationID)
+	return c.ThreadMember(c.Bot.ApplicationID())
 }
 
 func (c *GuildPublicThread) ThreadMember(userID discord.Snowflake) *ThreadMember {
-	return c.Bot.Caches.ThreadMembers().Get(c.ID(), userID)
+	return c.Bot.Caches().ThreadMembers().Get(c.ID(), userID)
 }
 
 func (c *GuildPublicThread) ThreadMembers() []*ThreadMember {
-	return c.Bot.Caches.ThreadMembers().ThreadAll(c.ID())
+	return c.Bot.Caches().ThreadMembers().ThreadAll(c.ID())
 }
 
 func (c *GuildPublicThread) Join(opts ...rest.RequestOpt) error {
@@ -1339,7 +1339,7 @@ var (
 
 type GuildPrivateThread struct {
 	discord.GuildPrivateThread
-	Bot *Bot
+	Bot Bot
 }
 
 func (c *GuildPrivateThread) set(channel Channel) Channel {
@@ -1465,34 +1465,34 @@ func (c *GuildPrivateThread) RemoveAllReactionsForEmoji(messageID discord.Snowfl
 	return removeAllReactionsForEmoji(c.Bot, c.ID(), messageID, emoji, opts...)
 }
 
-func (c *GuildPrivateThread) Guild() *Guild {
+func (c *GuildPrivateThread) Guild() (Guild, bool) {
 	return channelGuild(c.Bot, c.GuildID())
 }
 
 func (c *GuildPrivateThread) Parent() *GuildTextChannel {
-	return c.Bot.Caches.Channels().Get(c.ParentID()).(*GuildTextChannel)
+	return c.Bot.Caches().Channels().Get(c.ParentID()).(*GuildTextChannel)
 }
 
 func (c *GuildPrivateThread) ParentMessageChannel() GuildMessageChannel {
-	return c.Bot.Caches.Channels().Get(c.ParentID()).(GuildMessageChannel)
+	return c.Bot.Caches().Channels().Get(c.ParentID()).(GuildMessageChannel)
 }
 
 func (c *GuildPrivateThread) Members() []*Member {
-	return c.Bot.Caches.Members().FindAll(func(member *Member) bool {
+	return c.Bot.Caches().Members().FindAll(func(member *Member) bool {
 		return member.ChannelPermissions(c).Has(discord.PermissionViewChannel)
 	})
 }
 
 func (c *GuildPrivateThread) SelfThreadMember() *ThreadMember {
-	return c.ThreadMember(c.Bot.ApplicationID)
+	return c.ThreadMember(c.Bot.ApplicationID())
 }
 
 func (c *GuildPrivateThread) ThreadMember(userID discord.Snowflake) *ThreadMember {
-	return c.Bot.Caches.ThreadMembers().Get(c.ID(), userID)
+	return c.Bot.Caches().ThreadMembers().Get(c.ID(), userID)
 }
 
 func (c *GuildPrivateThread) ThreadMembers() []ThreadMember {
-	return c.Bot.Caches.ThreadMembers().ThreadAll(c.ID())
+	return c.Bot.Caches().ThreadMembers().ThreadAll(c.ID())
 }
 
 func (c *GuildPrivateThread) Join(opts ...rest.RequestOpt) error {
@@ -1527,7 +1527,7 @@ var (
 
 type GuildStageVoiceChannel struct {
 	discord.GuildStageVoiceChannel
-	Bot                *Bot
+	Bot                Bot
 	StageInstanceID    *discord.Snowflake
 	ConnectedMemberIDs map[discord.Snowflake]struct{}
 }
@@ -1581,7 +1581,7 @@ func (c GuildStageVoiceChannel) DeletePermissionOverwrite(id discord.Snowflake, 
 	return deletePermissionOverwrite(c.Bot, c.ID(), id, opts...)
 }
 
-func (c GuildStageVoiceChannel) Guild() *Guild {
+func (c GuildStageVoiceChannel) Guild() (Guild, bool) {
 	return channelGuild(c.Bot, c.GuildID())
 }
 
@@ -1589,7 +1589,7 @@ func (c GuildStageVoiceChannel) Parent() *GuildCategoryChannel {
 	if c.ParentID == nil {
 		return nil
 	}
-	return c.Bot.Caches.Channels().Get(*c.ParentID).(*GuildCategoryChannel)
+	return c.Bot.Caches().Channels().Get(*c.ParentID).(*GuildCategoryChannel)
 }
 
 func (c GuildStageVoiceChannel) Connect(ctx context.Context) error {
@@ -1612,27 +1612,27 @@ func (c GuildStageVoiceChannel) StageInstance() *StageInstance {
 	if c.StageInstanceID == nil {
 		return nil
 	}
-	return c.Bot.Caches.StageInstances().Get(*c.StageInstanceID)
+	return c.Bot.Caches().StageInstances().Get(*c.StageInstanceID)
 }
 
 func (c GuildStageVoiceChannel) CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate, opts ...rest.RequestOpt) (*StageInstance, error) {
-	stageInstance, err := c.Bot.RestServices.StageInstanceService().CreateStageInstance(stageInstanceCreate, opts...)
+	stageInstance, err := c.Bot.RestServices().StageInstanceService().CreateStageInstance(stageInstanceCreate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return c.Bot.EntityBuilder.CreateStageInstance(*stageInstance, CacheStrategyNoWs), nil
+	return c.Bot.EntityBuilder().CreateStageInstance(*stageInstance, CacheStrategyNoWs), nil
 }
 
 func (c GuildStageVoiceChannel) UpdateStageInstance(stageInstanceUpdate discord.StageInstanceUpdate, opts ...rest.RequestOpt) (*StageInstance, error) {
-	stageInstance, err := c.Bot.RestServices.StageInstanceService().UpdateStageInstance(c.ID(), stageInstanceUpdate, opts...)
+	stageInstance, err := c.Bot.RestServices().StageInstanceService().UpdateStageInstance(c.ID(), stageInstanceUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return c.Bot.EntityBuilder.CreateStageInstance(*stageInstance, CacheStrategyNoWs), nil
+	return c.Bot.EntityBuilder().CreateStageInstance(*stageInstance, CacheStrategyNoWs), nil
 }
 
 func (c GuildStageVoiceChannel) DeleteStageInstance(opts ...rest.RequestOpt) error {
-	return c.Bot.RestServices.StageInstanceService().DeleteStageInstance(c.ID(), opts...)
+	return c.Bot.RestServices().StageInstanceService().DeleteStageInstance(c.ID(), opts...)
 }
 
 //--------------------------------------------
@@ -1646,7 +1646,7 @@ func getPermissionOverwrite(channel GuildChannel, overwriteType discord.Permissi
 	return nil
 }
 
-func setPermissionOverwrite(bot *Bot, channelID discord.Snowflake, overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
+func setPermissionOverwrite(bot Bot, channelID discord.Snowflake, overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
 	var overwrite discord.PermissionOverwrite
 	switch overwriteType {
 	case discord.PermissionOverwriteTypeRole:
@@ -1666,10 +1666,10 @@ func setPermissionOverwrite(bot *Bot, channelID discord.Snowflake, overwriteType
 	default:
 		return errors.New("unknown permission overwrite type")
 	}
-	return bot.RestServices.ChannelService().UpdatePermissionOverwrite(channelID, id, overwrite, opts...)
+	return bot.RestServices().ChannelService().UpdatePermissionOverwrite(channelID, id, overwrite, opts...)
 }
 
-func updatePermissionOverwrite(bot *Bot, channel GuildChannel, overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
+func updatePermissionOverwrite(bot Bot, channel GuildChannel, overwriteType discord.PermissionOverwriteType, id discord.Snowflake, allow discord.Permissions, deny discord.Permissions, opts ...rest.RequestOpt) error {
 	var overwriteUpdate discord.PermissionOverwriteUpdate
 	overwrite := getPermissionOverwrite(channel, overwriteType, id)
 	switch overwriteType {
@@ -1699,195 +1699,195 @@ func updatePermissionOverwrite(bot *Bot, channel GuildChannel, overwriteType dis
 		return errors.New("unknown permission overwrite type")
 	}
 
-	return bot.RestServices.ChannelService().UpdatePermissionOverwrite(channel.ID(), id, overwriteUpdate, opts...)
+	return bot.RestServices().ChannelService().UpdatePermissionOverwrite(channel.ID(), id, overwriteUpdate, opts...)
 }
 
-func deletePermissionOverwrite(bot *Bot, channelID discord.Snowflake, id discord.Snowflake, opts ...rest.RequestOpt) error {
-	return bot.RestServices.ChannelService().DeletePermissionOverwrite(channelID, id, opts...)
+func deletePermissionOverwrite(bot Bot, channelID discord.Snowflake, id discord.Snowflake, opts ...rest.RequestOpt) error {
+	return bot.RestServices().ChannelService().DeletePermissionOverwrite(channelID, id, opts...)
 }
 
-func channelGuild(bot *Bot, guildID discord.Snowflake) *Guild {
-	return bot.Caches.Guilds().Get(guildID)
+func channelGuild(bot Bot, guildID discord.Snowflake) *Guild {
+	return bot.Caches().Guilds().Get(guildID)
 }
 
-func createThread(bot *Bot, channelID discord.Snowflake, threadCreate discord.ThreadCreate, opts ...rest.RequestOpt) (GuildThread, error) {
-	channel, err := bot.RestServices.ThreadService().CreateThread(channelID, threadCreate, opts...)
+func createThread(bot Bot, channelID discord.Snowflake, threadCreate discord.ThreadCreate, opts ...rest.RequestOpt) (GuildThread, error) {
+	channel, err := bot.RestServices().ThreadService().CreateThread(channelID, threadCreate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return bot.EntityBuilder.CreateChannel(channel, CacheStrategyNo).(GuildThread), nil
+	return bot.EntityBuilder().CreateChannel(channel, CacheStrategyNo).(GuildThread), nil
 }
 
-func createThreadWithMessage(bot *Bot, channelID discord.Snowflake, messageID discord.Snowflake, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (GuildThread, error) {
-	channel, err := bot.RestServices.ThreadService().CreateThreadWithMessage(channelID, messageID, threadCreateWithMessage, opts...)
+func createThreadWithMessage(bot Bot, channelID discord.Snowflake, messageID discord.Snowflake, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (GuildThread, error) {
+	channel, err := bot.RestServices().ThreadService().CreateThreadWithMessage(channelID, messageID, threadCreateWithMessage, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return bot.EntityBuilder.CreateChannel(channel, CacheStrategyNo).(GuildThread), nil
+	return bot.EntityBuilder().CreateChannel(channel, CacheStrategyNo).(GuildThread), nil
 }
 
-func join(bot *Bot, threadID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return bot.RestServices.ThreadService().JoinThread(threadID, opts...)
+func join(bot Bot, threadID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return bot.RestServices().ThreadService().JoinThread(threadID, opts...)
 }
 
-func leave(bot *Bot, threadID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return bot.RestServices.ThreadService().LeaveThread(threadID, opts...)
+func leave(bot Bot, threadID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return bot.RestServices().ThreadService().LeaveThread(threadID, opts...)
 }
 
-func addThreadMember(bot *Bot, threadID discord.Snowflake, userID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return bot.RestServices.ThreadService().AddThreadMember(threadID, userID, opts...)
+func addThreadMember(bot Bot, threadID discord.Snowflake, userID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return bot.RestServices().ThreadService().AddThreadMember(threadID, userID, opts...)
 }
 
-func removeThreadMember(bot *Bot, threadID discord.Snowflake, userID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return bot.RestServices.ThreadService().RemoveThreadMember(threadID, userID, opts...)
+func removeThreadMember(bot Bot, threadID discord.Snowflake, userID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return bot.RestServices().ThreadService().RemoveThreadMember(threadID, userID, opts...)
 }
 
-func getThreadMember(bot *Bot, threadID discord.Snowflake, userID discord.Snowflake, opts ...rest.RequestOpt) (*ThreadMember, error) {
-	threadMember, err := bot.RestServices.ThreadService().GetThreadMember(threadID, userID, opts...)
+func getThreadMember(bot Bot, threadID discord.Snowflake, userID discord.Snowflake, opts ...rest.RequestOpt) (*ThreadMember, error) {
+	threadMember, err := bot.RestServices().ThreadService().GetThreadMember(threadID, userID, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return bot.EntityBuilder.CreateThreadMember(*threadMember, CacheStrategyNo), nil
+	return bot.EntityBuilder().CreateThreadMember(*threadMember, CacheStrategyNo), nil
 }
 
-func getThreadMembers(bot *Bot, threadID discord.Snowflake, opts ...rest.RequestOpt) ([]*ThreadMember, error) {
-	members, err := bot.RestServices.ThreadService().GetThreadMembers(threadID, opts...)
+func getThreadMembers(bot Bot, threadID discord.Snowflake, opts ...rest.RequestOpt) ([]*ThreadMember, error) {
+	members, err := bot.RestServices().ThreadService().GetThreadMembers(threadID, opts...)
 	if err != nil {
 		return nil, err
 	}
 	threadMembers := make([]*ThreadMember, len(members))
 	for i := range members {
-		threadMembers[i] = bot.EntityBuilder.CreateThreadMember(members[i], CacheStrategyNo)
+		threadMembers[i] = bot.EntityBuilder().CreateThreadMember(members[i], CacheStrategyNo)
 	}
 	return threadMembers, nil
 }
 
-func getPublicArchivedThreads(bot *Bot, channelID discord.Snowflake, before discord.Time, limit int, opts ...rest.RequestOpt) ([]GuildThread, map[discord.Snowflake]*ThreadMember, bool, error) {
-	getThreads, err := bot.RestServices.ThreadService().GetPublicArchivedThreads(channelID, before, limit, opts...)
+func getPublicArchivedThreads(bot Bot, channelID discord.Snowflake, before discord.Time, limit int, opts ...rest.RequestOpt) ([]GuildThread, map[discord.Snowflake]*ThreadMember, bool, error) {
+	getThreads, err := bot.RestServices().ThreadService().GetPublicArchivedThreads(channelID, before, limit, opts...)
 	if err != nil {
 		return nil, nil, false, err
 	}
 
 	threads := make([]GuildThread, len(getThreads.Threads))
 	for i := range getThreads.Threads {
-		threads[i] = bot.EntityBuilder.CreateChannel(getThreads.Threads[i], CacheStrategyNo).(GuildThread)
+		threads[i] = bot.EntityBuilder().CreateChannel(getThreads.Threads[i], CacheStrategyNo).(GuildThread)
 	}
 
 	return threads, createThreadMembers(bot, getThreads.Members), getThreads.HasMore, nil
 }
 
-func createMessage(bot *Bot, channelID discord.Snowflake, messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := bot.RestServices.ChannelService().CreateMessage(channelID, messageCreate, opts...)
+func createMessage(bot Bot, channelID discord.Snowflake, messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
+	message, err := bot.RestServices().ChannelService().CreateMessage(channelID, messageCreate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
+	return bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-func updateMessage(bot *Bot, channelID discord.Snowflake, messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := bot.RestServices.ChannelService().UpdateMessage(channelID, messageID, messageUpdate, opts...)
+func updateMessage(bot Bot, channelID discord.Snowflake, messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
+	message, err := bot.RestServices().ChannelService().UpdateMessage(channelID, messageID, messageUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
+	return bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-func deleteMessage(bot *Bot, channelID discord.Snowflake, messageID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return bot.RestServices.ChannelService().DeleteMessage(channelID, messageID, opts...)
+func deleteMessage(bot Bot, channelID discord.Snowflake, messageID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return bot.RestServices().ChannelService().DeleteMessage(channelID, messageID, opts...)
 }
 
-func bulkDeleteMessages(bot *Bot, channelID discord.Snowflake, messageIDs []discord.Snowflake, opts ...rest.RequestOpt) error {
-	return bot.RestServices.ChannelService().BulkDeleteMessages(channelID, messageIDs, opts...)
+func bulkDeleteMessages(bot Bot, channelID discord.Snowflake, messageIDs []discord.Snowflake, opts ...rest.RequestOpt) error {
+	return bot.RestServices().ChannelService().BulkDeleteMessages(channelID, messageIDs, opts...)
 }
 
-func sendTying(bot *Bot, channelID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return bot.RestServices.ChannelService().SendTyping(channelID, opts...)
+func sendTying(bot Bot, channelID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return bot.RestServices().ChannelService().SendTyping(channelID, opts...)
 }
 
-func getMessage(bot *Bot, channelID discord.Snowflake, messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := bot.RestServices.ChannelService().GetMessage(channelID, messageID, opts...)
+func getMessage(bot Bot, channelID discord.Snowflake, messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
+	message, err := bot.RestServices().ChannelService().GetMessage(channelID, messageID, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
+	return bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-func getMessages(bot *Bot, channelID discord.Snowflake, around discord.Snowflake, before discord.Snowflake, after discord.Snowflake, limit int, opts ...rest.RequestOpt) ([]*Message, error) {
-	messages, err := bot.RestServices.ChannelService().GetMessages(channelID, around, before, after, limit, opts...)
+func getMessages(bot Bot, channelID discord.Snowflake, around discord.Snowflake, before discord.Snowflake, after discord.Snowflake, limit int, opts ...rest.RequestOpt) ([]*Message, error) {
+	messages, err := bot.RestServices().ChannelService().GetMessages(channelID, around, before, after, limit, opts...)
 	if err != nil {
 		return nil, err
 	}
 	coreMessages := make([]*Message, len(messages))
 	for i, message := range messages {
-		coreMessages[i] = bot.EntityBuilder.CreateMessage(message, CacheStrategyNoWs)
+		coreMessages[i] = bot.EntityBuilder().CreateMessage(message, CacheStrategyNoWs)
 	}
 	return coreMessages, nil
 }
 
-func updateChannel(bot *Bot, channelID discord.Snowflake, channelUpdate discord.ChannelUpdate, opts ...rest.RequestOpt) (Channel, error) {
-	channel, err := bot.RestServices.ChannelService().UpdateChannel(channelID, channelUpdate, opts...)
+func updateChannel(bot Bot, channelID discord.Snowflake, channelUpdate discord.ChannelUpdate, opts ...rest.RequestOpt) (Channel, error) {
+	channel, err := bot.RestServices().ChannelService().UpdateChannel(channelID, channelUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return bot.EntityBuilder.CreateChannel(channel, CacheStrategyNoWs), nil
+	return bot.EntityBuilder().CreateChannel(channel, CacheStrategyNoWs), nil
 }
 
-func deleteChannel(bot *Bot, channelID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return bot.RestServices.ChannelService().DeleteChannel(channelID, opts...)
+func deleteChannel(bot Bot, channelID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return bot.RestServices().ChannelService().DeleteChannel(channelID, opts...)
 }
 
-func addReaction(bot *Bot, channelID discord.Snowflake, messageID discord.Snowflake, emoji string, opts ...rest.RequestOpt) error {
-	return bot.RestServices.ChannelService().AddReaction(channelID, messageID, emoji, opts...)
+func addReaction(bot Bot, channelID discord.Snowflake, messageID discord.Snowflake, emoji string, opts ...rest.RequestOpt) error {
+	return bot.RestServices().ChannelService().AddReaction(channelID, messageID, emoji, opts...)
 }
 
-func removeOwnReaction(bot *Bot, channelID discord.Snowflake, messageID discord.Snowflake, emoji string, opts ...rest.RequestOpt) error {
-	return bot.RestServices.ChannelService().RemoveOwnReaction(channelID, messageID, emoji, opts...)
+func removeOwnReaction(bot Bot, channelID discord.Snowflake, messageID discord.Snowflake, emoji string, opts ...rest.RequestOpt) error {
+	return bot.RestServices().ChannelService().RemoveOwnReaction(channelID, messageID, emoji, opts...)
 }
 
-func removeUserReaction(bot *Bot, channelID discord.Snowflake, messageID discord.Snowflake, emoji string, userID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return bot.RestServices.ChannelService().RemoveUserReaction(channelID, messageID, emoji, userID, opts...)
+func removeUserReaction(bot Bot, channelID discord.Snowflake, messageID discord.Snowflake, emoji string, userID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return bot.RestServices().ChannelService().RemoveUserReaction(channelID, messageID, emoji, userID, opts...)
 }
 
-func removeAllReactions(bot *Bot, channelID discord.Snowflake, messageID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return bot.RestServices.ChannelService().RemoveAllReactions(channelID, messageID, opts...)
+func removeAllReactions(bot Bot, channelID discord.Snowflake, messageID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return bot.RestServices().ChannelService().RemoveAllReactions(channelID, messageID, opts...)
 }
 
-func removeAllReactionsForEmoji(bot *Bot, channelID discord.Snowflake, messageID discord.Snowflake, emoji string, opts ...rest.RequestOpt) error {
-	return bot.RestServices.ChannelService().RemoveAllReactionsForEmoji(channelID, messageID, emoji, opts...)
+func removeAllReactionsForEmoji(bot Bot, channelID discord.Snowflake, messageID discord.Snowflake, emoji string, opts ...rest.RequestOpt) error {
+	return bot.RestServices().ChannelService().RemoveAllReactionsForEmoji(channelID, messageID, emoji, opts...)
 }
 
-func getWebhooks(bot *Bot, channelID discord.Snowflake, opts ...rest.RequestOpt) ([]Webhook, error) {
-	webhooks, err := bot.RestServices.ChannelService().GetWebhooks(channelID, opts...)
+func getWebhooks(bot Bot, channelID discord.Snowflake, opts ...rest.RequestOpt) ([]Webhook, error) {
+	webhooks, err := bot.RestServices().ChannelService().GetWebhooks(channelID, opts...)
 	if err != nil {
 		return nil, err
 	}
 	coreWebhooks := make([]Webhook, len(webhooks))
 	for i := range webhooks {
-		coreWebhooks[i] = bot.EntityBuilder.CreateWebhook(webhooks[i], CacheStrategyNoWs)
+		coreWebhooks[i] = bot.EntityBuilder().CreateWebhook(webhooks[i], CacheStrategyNoWs)
 	}
 	return coreWebhooks, nil
 }
 
-func createWebhook(bot *Bot, channelID discord.Snowflake, webhookCreate discord.WebhookCreate, opts ...rest.RequestOpt) (Webhook, error) {
-	webhook, err := bot.RestServices.ChannelService().CreateWebhook(channelID, webhookCreate, opts...)
+func createWebhook(bot Bot, channelID discord.Snowflake, webhookCreate discord.WebhookCreate, opts ...rest.RequestOpt) (Webhook, error) {
+	webhook, err := bot.RestServices().ChannelService().CreateWebhook(channelID, webhookCreate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return bot.EntityBuilder.CreateWebhook(webhook, CacheStrategyNoWs), nil
+	return bot.EntityBuilder().CreateWebhook(webhook, CacheStrategyNoWs), nil
 }
 
-func deleteWebhook(bot *Bot, webhookID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return bot.RestServices.WebhookService().DeleteWebhook(webhookID, opts...)
+func deleteWebhook(bot Bot, webhookID discord.Snowflake, opts ...rest.RequestOpt) error {
+	return bot.RestServices().WebhookService().DeleteWebhook(webhookID, opts...)
 }
 
-func viewMembers(bot *Bot, guildChannel GuildChannel) []*Member {
-	return bot.Caches.Members().FindAll(func(member *Member) bool {
+func viewMembers(bot Bot, guildChannel GuildChannel) []*Member {
+	return bot.Caches().Members().FindAll(func(member *Member) bool {
 		return member.ChannelPermissions(guildChannel).Has(discord.PermissionViewChannel)
 	})
 }
 
-func connectedMembers(bot *Bot, audioChannel GuildAudioChannel) []*Member {
-	return bot.Caches.Members().FindAll(func(member *Member) bool {
+func connectedMembers(bot Bot, audioChannel GuildAudioChannel) []*Member {
+	return bot.Caches().Members().FindAll(func(member *Member) bool {
 		_, ok := audioChannel.connectedMembers()[member.User.ID]
 		return ok
 	})

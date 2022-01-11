@@ -13,7 +13,7 @@ import (
 type Member struct {
 	discord.Member
 	User *User
-	Bot  *Bot
+	Bot  Bot
 }
 
 // Permissions returns the calculated Permissions the Member has in the Guild
@@ -37,7 +37,7 @@ func (m *Member) ChannelPermissions(channel GuildChannel) discord.Permissions {
 // Roles return all Role(s)the Member has
 func (m *Member) Roles() []Role {
 	var roles []Role
-	allRoles := m.Bot.Caches.Roles().GroupCache(m.GuildID)
+	allRoles := m.Bot.Caches().Roles().GroupCache(m.GuildID)
 	for _, roleID := range m.RoleIDs {
 		roles = append(roles, allRoles[roleID])
 	}
@@ -47,13 +47,13 @@ func (m *Member) Roles() []Role {
 // VoiceState returns the VoiceState for this Member.
 // This will only check cached voice states! (requires core.CacheFlagVoiceStates and discord.GatewayIntentGuildVoiceStates)
 func (m *Member) VoiceState() (VoiceState, bool) {
-	return m.Bot.Caches.VoiceStates().Get(m.GuildID, m.User.ID)
+	return m.Bot.Caches().VoiceStates().Get(m.GuildID, m.User.ID)
 }
 
 // Guild returns the Guild this Member is tied to.
 // This will only check cached guilds!
 func (m *Member) Guild() (Guild, bool) {
-	return m.Bot.Caches.Guilds().Get(m.GuildID)
+	return m.Bot.Caches().Guilds().Get(m.GuildID)
 }
 
 // IsOwner returns whether this Member is the owner of the Guild
@@ -96,11 +96,11 @@ func (m *Member) EffectiveAvatarURL(size int) string {
 
 // Update updates the Member with the properties provided in discord.MemberUpdate
 func (m *Member) Update(updateGuildMember discord.MemberUpdate, opts ...rest.RequestOpt) (*Member, error) {
-	member, err := m.Bot.RestServices.GuildService().UpdateMember(m.GuildID, m.User.ID, updateGuildMember, opts...)
+	member, err := m.Bot.RestServices().GuildService().UpdateMember(m.GuildID, m.User.ID, updateGuildMember, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return m.Bot.EntityBuilder.CreateMember(m.GuildID, *member, CacheStrategyNoWs), nil
+	return m.Bot.EntityBuilder().CreateMember(m.GuildID, *member, CacheStrategyNoWs), nil
 }
 
 // Move moves/kicks the member to/from a voice channel
@@ -110,25 +110,25 @@ func (m *Member) Move(channelID discord.Snowflake, opts ...rest.RequestOpt) (*Me
 
 // Kick kicks this Member from the Guild
 func (m *Member) Kick(opts ...rest.RequestOpt) error {
-	return m.Bot.RestServices.GuildService().RemoveMember(m.GuildID, m.User.ID, opts...)
+	return m.Bot.RestServices().GuildService().RemoveMember(m.GuildID, m.User.ID, opts...)
 }
 
 // Ban bans this Member from the Guild
 func (m *Member) Ban(deleteMessageDays int, opts ...rest.RequestOpt) error {
-	return m.Bot.RestServices.GuildService().AddBan(m.GuildID, m.User.ID, deleteMessageDays, opts...)
+	return m.Bot.RestServices().GuildService().AddBan(m.GuildID, m.User.ID, deleteMessageDays, opts...)
 }
 
 // Unban unbans this Member from the Guild
 func (m *Member) Unban(opts ...rest.RequestOpt) error {
-	return m.Bot.RestServices.GuildService().DeleteBan(m.GuildID, m.User.ID, opts...)
+	return m.Bot.RestServices().GuildService().DeleteBan(m.GuildID, m.User.ID, opts...)
 }
 
 // AddRole adds a specific Role the Member
 func (m *Member) AddRole(roleID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return m.Bot.RestServices.GuildService().AddMemberRole(m.GuildID, m.User.ID, roleID, opts...)
+	return m.Bot.RestServices().GuildService().AddMemberRole(m.GuildID, m.User.ID, roleID, opts...)
 }
 
 // RemoveRole removes a specific Role this Member
 func (m *Member) RemoveRole(roleID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return m.Bot.RestServices.GuildService().RemoveMemberRole(m.GuildID, m.User.ID, roleID, opts...)
+	return m.Bot.RestServices().GuildService().RemoveMemberRole(m.GuildID, m.User.ID, roleID, opts...)
 }

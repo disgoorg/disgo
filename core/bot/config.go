@@ -21,9 +21,6 @@ type Config struct {
 	EventManager       core.EventManager
 	EventManagerConfig *core.EventManagerConfig
 
-	Collectors       core.Collectors
-	CollectorsConfig *core.CollectorsConfig
-
 	Gateway       gateway.Gateway
 	GatewayConfig *gateway.Config
 
@@ -123,20 +120,6 @@ func WithAsyncEventsEnabled() ConfigOpt {
 			config.EventManagerConfig = &core.DefaultEventManagerConfig
 		}
 		config.EventManagerConfig.AsyncEventsEnabled = true
-	}
-}
-
-//goland:noinspection GoUnusedExportedFunction
-func WithCollectors(collectors core.Collectors) ConfigOpt {
-	return func(config *Config) {
-		config.Collectors = collectors
-	}
-}
-
-//goland:noinspection GoUnusedExportedFunction
-func WithCollectorsConfig(collectorsConfig core.CollectorsConfig) ConfigOpt {
-	return func(config *Config) {
-		config.CollectorsConfig = &collectorsConfig
 	}
 }
 

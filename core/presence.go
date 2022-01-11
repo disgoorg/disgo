@@ -8,25 +8,25 @@ import (
 
 type Presence struct {
 	discord.Presence
-	Bot *Bot
+	Bot Bot
 }
 
 // User returns the User this Presence belongs to.
 // This will only check cached users!
 func (p *Presence) User() *User {
-	return p.Bot.Caches.Users().Get(p.PresenceUser.ID)
+	return p.Bot.Caches().Users().Get(p.PresenceUser.ID)
 }
 
 // Member returns the Member this Presence belongs to.
 // This will only check cached members!
 func (p *Presence) Member() *Member {
-	return p.Bot.Caches.Members().Get(p.GuildID, p.PresenceUser.ID)
+	return p.Bot.Caches().Members().Get(p.GuildID, p.PresenceUser.ID)
 }
 
 // Guild returns the Guild this Presence belongs to.
 // This will only check cached guilds!
-func (p *Presence) Guild() *Guild {
-	return p.Bot.Caches.Guilds().Get(p.GuildID)
+func (p *Presence) Guild() (Guild, bool) {
+	return p.Bot.Caches().Guilds().Get(p.GuildID)
 }
 
 // NewPresence creates a new Presence with the provided properties

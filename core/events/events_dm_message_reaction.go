@@ -17,7 +17,7 @@ type GenericDMMessageReactionEvent struct {
 // User returns the User who owns the discord.MessageReaction.
 // This will only check cached users!
 func (e *GenericDMMessageReactionEvent) User() *core.User {
-	return e.Bot().Caches.Users().Get(e.UserID)
+	return e.Bot().Caches().Users().Get(e.UserID)
 }
 
 // DMMessageReactionAddEvent indicates that a core.User added a discord.MessageReaction to a core.Message in a Channel (requires the discord.GatewayIntentDirectMessageReactions)

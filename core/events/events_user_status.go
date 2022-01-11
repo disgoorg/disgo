@@ -16,7 +16,7 @@ type UserStatusUpdateEvent struct {
 // User returns the User that changed their Status.
 // This will only check cached users!
 func (g *UserStatusUpdateEvent) User() *core.User {
-	return g.Bot().Caches.Users().Get(g.UserID)
+	return g.Bot().Caches().Users().Get(g.UserID)
 }
 
 // UserClientStatusUpdateEvent generic client-specific Status event
@@ -30,5 +30,5 @@ type UserClientStatusUpdateEvent struct {
 // User returns the User that changed their Status.
 // This will only check cached users!
 func (g *UserClientStatusUpdateEvent) User() *core.User {
-	return g.Bot().Caches.Users().Get(g.UserID)
+	return g.Bot().Caches().Users().Get(g.UserID)
 }

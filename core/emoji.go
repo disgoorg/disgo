@@ -30,7 +30,7 @@ func NewEmoji(name string) *Emoji {
 
 type Emoji struct {
 	discord.Emoji
-	Bot *Bot
+	Bot Bot
 }
 
 func (e *Emoji) URL(size int) string {
@@ -43,20 +43,20 @@ func (e *Emoji) URL(size int) string {
 }
 
 // Guild returns the Guild of the Emoji from the Caches
-func (e *Emoji) Guild() *Guild {
-	return e.Bot.Caches.Guilds().Get(e.GuildID)
+func (e *Emoji) Guild() (Guild, bool) {
+	return e.Bot.Caches().Guilds().Get(e.GuildID)
 }
 
 func (e *Emoji) Update(emojiUpdate discord.EmojiUpdate, opts ...rest.RequestOpt) (*Emoji, error) {
-	emoji, err := e.Bot.RestServices.EmojiService().UpdateEmoji(e.GuildID, e.ID, emojiUpdate, opts...)
+	emoji, err := e.Bot.RestServices().EmojiService().UpdateEmoji(e.GuildID, e.ID, emojiUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return e.Bot.EntityBuilder.CreateEmoji(e.GuildID, *emoji, CacheStrategyNoWs), nil
+	return e.Bot.EntityBuilder().CreateEmoji(e.GuildID, *emoji, CacheStrategyNoWs), nil
 }
 
 func (e *Emoji) Delete(opts ...rest.RequestOpt) error {
-	return e.Bot.RestServices.EmojiService().DeleteEmoji(e.GuildID, e.ID, opts...)
+	return e.Bot.RestServices().EmojiService().DeleteEmoji(e.GuildID, e.ID, opts...)
 }
 
 // Reaction returns the identifier used for adding and removing reactions for messages in discord

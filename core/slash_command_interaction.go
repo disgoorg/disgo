@@ -69,7 +69,7 @@ func (i *SlashCommandInteraction) CommandPath() string {
 }
 
 // Guild returns the Guild from the Caches
-func (i *SlashCommandInteraction) Guild() *Guild {
+func (i *SlashCommandInteraction) Guild() (Guild, bool) {
 	return guild(i.InteractionFields, i.GuildID)
 }
 

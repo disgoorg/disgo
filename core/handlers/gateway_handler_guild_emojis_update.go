@@ -21,15 +21,15 @@ func (h *gatewayHandlerGuildEmojisUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.GuildEmojisUpdateGatewayEvent)
 
-	if bot.Caches.Config().CacheFlags.Missing(core.CacheFlagEmojis) {
+	if bot.Caches().Config().CacheFlags.Missing(core.CacheFlagEmojis) {
 		return
 	}
 
 	var (
-		emojiCache    = bot.Caches.Emojis().GroupCache(payload.GuildID)
+		emojiCache    = bot.Caches().Emojis().GroupCache(payload.GuildID)
 		oldEmojis     = map[discord.Snowflake]*core.Emoji{}
 		newEmojis     = map[discord.Snowflake]*core.Emoji{}
 		updatedEmojis = map[discord.Snowflake]*core.Emoji{}
@@ -46,19 +46,19 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot *core.Bot, sequ
 		if ok {
 			delete(oldEmojis, current.ID)
 			if !cmp.Equal(emoji, current) {
-				updatedEmojis[current.ID] = bot.EntityBuilder.CreateEmoji(payload.GuildID, current, core.CacheStrategyYes)
+				updatedEmojis[current.ID] = bot.EntityBuilder().CreateEmoji(payload.GuildID, current, core.CacheStrategyYes)
 			}
 		} else {
-			newEmojis[current.ID] = bot.EntityBuilder.CreateEmoji(payload.GuildID, current, core.CacheStrategyYes)
+			newEmojis[current.ID] = bot.EntityBuilder().CreateEmoji(payload.GuildID, current, core.CacheStrategyYes)
 		}
 	}
 
 	for emojiID := range oldEmojis {
-		bot.Caches.Emojis().Remove(payload.GuildID, emojiID)
+		bot.Caches().Emojis().Remove(payload.GuildID, emojiID)
 	}
 
 	for _, emoji := range newEmojis {
-		bot.EventManager.Dispatch(&events.EmojiCreateEvent{
+		bot.EventManager().Dispatch(&events.EmojiCreateEvent{
 			GenericEmojiEvent: &events.GenericEmojiEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				GuildID:      payload.GuildID,
@@ -68,7 +68,7 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot *core.Bot, sequ
 	}
 
 	for _, emoji := range updatedEmojis {
-		bot.EventManager.Dispatch(&events.EmojiUpdateEvent{
+		bot.EventManager().Dispatch(&events.EmojiUpdateEvent{
 			GenericEmojiEvent: &events.GenericEmojiEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				GuildID:      payload.GuildID,
@@ -78,7 +78,7 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot *core.Bot, sequ
 	}
 
 	for _, emoji := range oldEmojis {
-		bot.EventManager.Dispatch(&events.EmojiDeleteEvent{
+		bot.EventManager().Dispatch(&events.EmojiDeleteEvent{
 			GenericEmojiEvent: &events.GenericEmojiEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				GuildID:      payload.GuildID,

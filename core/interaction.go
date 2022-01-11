@@ -13,7 +13,7 @@ type Interaction interface {
 }
 
 type InteractionFields struct {
-	Bot             *Bot
+	Bot             Bot
 	ResponseChannel chan<- discord.InteractionResponse
 	Acknowledged    bool
 }
@@ -59,7 +59,7 @@ func respond(fields *InteractionFields, id discord.Snowflake, token string, call
 		return nil
 	}
 
-	return fields.Bot.RestServices.InteractionService().CreateInteractionResponse(id, token, response, opts...)
+	return fields.Bot.RestServices().InteractionService().CreateInteractionResponse(id, token, response, opts...)
 }
 
 func deferCreate(fields *InteractionFields, id discord.Snowflake, token string, ephemeral bool, opts ...rest.RequestOpt) error {
@@ -75,23 +75,23 @@ func create(fields *InteractionFields, id discord.Snowflake, token string, messa
 }
 
 func getOriginal(fields *InteractionFields, applicationID discord.Snowflake, token string, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := fields.Bot.RestServices.InteractionService().GetInteractionResponse(applicationID, token, opts...)
+	message, err := fields.Bot.RestServices().InteractionService().GetInteractionResponse(applicationID, token, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return fields.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
+	return fields.Bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
 func updateOriginal(fields *InteractionFields, applicationID discord.Snowflake, token string, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := fields.Bot.RestServices.InteractionService().UpdateInteractionResponse(applicationID, token, messageUpdate, opts...)
+	message, err := fields.Bot.RestServices().InteractionService().UpdateInteractionResponse(applicationID, token, messageUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return fields.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
+	return fields.Bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
 func deleteOriginal(fields *InteractionFields, applicationID discord.Snowflake, token string, opts ...rest.RequestOpt) error {
-	return fields.Bot.RestServices.InteractionService().DeleteInteractionResponse(applicationID, token, opts...)
+	return fields.Bot.RestServices().InteractionService().DeleteInteractionResponse(applicationID, token, opts...)
 }
 
 func deferUpdate(fields *InteractionFields, applicationID discord.Snowflake, token string, opts ...rest.RequestOpt) error {
@@ -162,35 +162,35 @@ func resultMapFloat(fields *InteractionFields, applicationID discord.Snowflake, 
 }
 
 func getFollowup(fields *InteractionFields, applicationID discord.Snowflake, token string, messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := fields.Bot.RestServices.InteractionService().GetFollowupMessage(applicationID, token, messageID, opts...)
+	message, err := fields.Bot.RestServices().InteractionService().GetFollowupMessage(applicationID, token, messageID, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return fields.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
+	return fields.Bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
 func createFollowup(fields *InteractionFields, applicationID discord.Snowflake, token string, messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := fields.Bot.RestServices.InteractionService().CreateFollowupMessage(applicationID, token, messageCreate, opts...)
+	message, err := fields.Bot.RestServices().InteractionService().CreateFollowupMessage(applicationID, token, messageCreate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return fields.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
+	return fields.Bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
 func updateFollowup(fields *InteractionFields, applicationID discord.Snowflake, token string, messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := fields.Bot.RestServices.InteractionService().UpdateFollowupMessage(applicationID, token, messageID, messageUpdate, opts...)
+	message, err := fields.Bot.RestServices().InteractionService().UpdateFollowupMessage(applicationID, token, messageID, messageUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return fields.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
+	return fields.Bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
 func deleteFollowup(fields *InteractionFields, applicationID discord.Snowflake, token string, messageID discord.Snowflake, opts ...rest.RequestOpt) error {
-	return fields.Bot.RestServices.InteractionService().DeleteFollowupMessage(applicationID, token, messageID, opts...)
+	return fields.Bot.RestServices().InteractionService().DeleteFollowupMessage(applicationID, token, messageID, opts...)
 }
 
 func channel(fields *InteractionFields, channelID discord.Snowflake) MessageChannel {
-	if ch := fields.Bot.Caches.Channels().Get(channelID); ch != nil {
+	if ch := fields.Bot.Caches().Channels().Get(channelID); ch != nil {
 		return ch.(MessageChannel)
 	}
 	return nil
@@ -200,5 +200,5 @@ func guild(fields *InteractionFields, guildID *discord.Snowflake) *Guild {
 	if guildID == nil {
 		return nil
 	}
-	return fields.Bot.Caches.Guilds().Get(*guildID)
+	return fields.Bot.Caches().Guilds().Get(*guildID)
 }

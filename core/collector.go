@@ -9,7 +9,7 @@ type Collector[T Event] interface {
 }
 
 // NewCollector gives you a channel to receive on and a function to close the collector
-func NewCollector[T Event](disgo *Bot, filter CollectorFilter[T]) (<-chan T, func()) {
+func NewCollector[T Event](disgo Bot, filter CollectorFilter[T]) (<-chan T, func()) {
 	ch := make(chan T)
 
 	collector := &defaultCollector[T]{
@@ -18,10 +18,10 @@ func NewCollector[T Event](disgo *Bot, filter CollectorFilter[T]) (<-chan T, fun
 	}
 	cls := func() {
 		close(ch)
-		disgo.EventManager.RemoveEventListeners(collector)
+		disgo.EventManager().RemoveEventListeners(collector)
 	}
 	collector.Close = cls
-	disgo.EventManager.AddEventListeners(collector)
+	disgo.EventManager().AddEventListeners(collector)
 
 	return ch, cls
 }

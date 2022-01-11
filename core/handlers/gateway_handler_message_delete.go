@@ -20,19 +20,19 @@ func (h *gatewayHandlerMessageDelete) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerMessageDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerMessageDelete) HandleGatewayEvent(bot core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.MessageDeleteGatewayEvent)
 
 	handleMessageDelete(bot, sequenceNumber, payload.ID, payload.ChannelID, payload.GuildID)
 }
 
-func handleMessageDelete(bot *core.Bot, sequenceNumber int, messageID discord.Snowflake, channelID discord.Snowflake, guildID *discord.Snowflake) {
+func handleMessageDelete(bot core.Bot, sequenceNumber int, messageID discord.Snowflake, channelID discord.Snowflake, guildID *discord.Snowflake) {
 	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
-	message := bot.Caches.Messages().GetCopy(channelID, messageID)
-	bot.Caches.Messages().Remove(channelID, messageID)
+	message := bot.Caches().Messages().GetCopy(channelID, messageID)
+	bot.Caches().Messages().Remove(channelID, messageID)
 
-	bot.EventManager.Dispatch(&events.MessageDeleteEvent{
+	bot.EventManager().Dispatch(&events.MessageDeleteEvent{
 		GenericMessageEvent: &events.GenericMessageEvent{
 			GenericEvent: genericEvent,
 			MessageID:    messageID,
@@ -42,7 +42,7 @@ func handleMessageDelete(bot *core.Bot, sequenceNumber int, messageID discord.Sn
 	})
 
 	if guildID == nil {
-		bot.EventManager.Dispatch(&events.DMMessageDeleteEvent{
+		bot.EventManager().Dispatch(&events.DMMessageDeleteEvent{
 			GenericDMMessageEvent: &events.GenericDMMessageEvent{
 				GenericEvent: genericEvent,
 				MessageID:    messageID,
@@ -51,7 +51,7 @@ func handleMessageDelete(bot *core.Bot, sequenceNumber int, messageID discord.Sn
 			},
 		})
 	} else {
-		bot.EventManager.Dispatch(&events.GuildMessageDeleteEvent{
+		bot.EventManager().Dispatch(&events.GuildMessageDeleteEvent{
 			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
 				GenericEvent: genericEvent,
 				MessageID:    messageID,

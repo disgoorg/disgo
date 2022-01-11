@@ -20,15 +20,15 @@ func (h *gatewayHandlerChannelDelete) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerChannelDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerChannelDelete) HandleGatewayEvent(bot core.Bot, sequenceNumber int, v interface{}) {
 	payload := v.(*discord.UnmarshalChannel).Channel
 
-	bot.Caches.Channels().Remove(payload.ID())
-	bot.Caches.Members().RemoveAll(payload.ID())
-	channel := bot.EntityBuilder.CreateChannel(payload, core.CacheStrategyNo)
+	bot.Caches().Channels().Remove(payload.ID())
+	bot.Caches().Members().RemoveAll(payload.ID())
+	channel := bot.EntityBuilder().CreateChannel(payload, core.CacheStrategyNo)
 
 	if ch, ok := channel.(core.GuildChannel); ok {
-		bot.EventManager.Dispatch(&events.GuildChannelDeleteEvent{
+		bot.EventManager().Dispatch(&events.GuildChannelDeleteEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				ChannelID:    channel.ID(),
@@ -37,7 +37,7 @@ func (h *gatewayHandlerChannelDelete) HandleGatewayEvent(bot *core.Bot, sequence
 			},
 		})
 	} else if ch, ok := channel.(*core.DMChannel); ok {
-		bot.EventManager.Dispatch(&events.DMChannelDeleteEvent{
+		bot.EventManager().Dispatch(&events.DMChannelDeleteEvent{
 			GenericDMChannelEvent: &events.GenericDMChannelEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				ChannelID:    channel.ID(),

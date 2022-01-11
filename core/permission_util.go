@@ -9,7 +9,7 @@ func GetMemberPermissions(member *Member) discord.Permissions {
 	}
 
 	var permissions discord.Permissions
-	if publicRole := member.Bot.Caches.Roles().Get(member.GuildID, member.GuildID); publicRole != nil {
+	if publicRole := member.Bot.Caches().Roles().Get(member.GuildID, member.GuildID); publicRole != nil {
 		permissions = publicRole.Permissions
 	}
 

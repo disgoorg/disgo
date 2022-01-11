@@ -8,18 +8,18 @@ import (
 
 type StageInstance struct {
 	discord.StageInstance
-	Bot *Bot
+	Bot Bot
 }
 
 // Guild returns the Guild this StageInstance belongs to.
 // This will only check cached guilds!
 func (i *StageInstance) Guild() (Guild, bool) {
-	return i.Bot.Caches.Guilds().Get(i.GuildID)
+	return i.Bot.Caches().Guilds().Get(i.GuildID)
 }
 
 // Channel returns the Channel this StageInstance belongs to.
 func (i *StageInstance) Channel() (GuildStageVoiceChannel, bool) {
-	ch, ok := i.Bot.Caches.Channels().Get(i.ChannelID)
+	ch, ok := i.Bot.Caches().Channels().Get(i.ChannelID)
 	return ch.(GuildStageVoiceChannel), ok
 
 }
@@ -58,18 +58,18 @@ func (s *VoiceState) UpdateVoiceState(suppress *bool, requestToSpeak *json.Nulla
 	if s.ChannelID == nil {
 		return discord.ErrMemberMustBeConnectedToChannel
 	}
-	return s.Bot.RestServices.GuildService().UpdateCurrentUserVoiceState(s.GuildID, discord.UserVoiceStateUpdate{ChannelID: *s.ChannelID, Suppress: suppress, RequestToSpeakTimestamp: requestToSpeak}, opts...)
+	return s.Bot.RestServices().GuildService().UpdateCurrentUserVoiceState(s.GuildID, discord.UserVoiceStateUpdate{ChannelID: *s.ChannelID, Suppress: suppress, RequestToSpeakTimestamp: requestToSpeak}, opts...)
 }
 
 func (i *StageInstance) Update(stageInstanceUpdate discord.StageInstanceUpdate, opts ...rest.RequestOpt) (*StageInstance, error) {
-	stageInstance, err := i.Bot.RestServices.StageInstanceService().UpdateStageInstance(i.ID, stageInstanceUpdate, opts...)
+	stageInstance, err := i.Bot.RestServices().StageInstanceService().UpdateStageInstance(i.ID, stageInstanceUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return i.Bot.EntityBuilder.CreateStageInstance(*stageInstance, CacheStrategyNoWs), nil
+	return i.Bot.EntityBuilder().CreateStageInstance(*stageInstance, CacheStrategyNoWs), nil
 }
 
 // Delete deletes this StageInstance
 func (i *StageInstance) Delete(opts ...rest.RequestOpt) error {
-	return i.Bot.RestServices.StageInstanceService().DeleteStageInstance(i.ID, opts...)
+	return i.Bot.RestServices().StageInstanceService().DeleteStageInstance(i.ID, opts...)
 }

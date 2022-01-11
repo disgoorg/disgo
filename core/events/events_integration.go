@@ -14,7 +14,7 @@ type GenericIntegrationEvent struct {
 // Guild returns the Guild this Integration was created in.
 // This will only check cached guilds!
 func (e *GenericIntegrationEvent) Guild() *core.Guild {
-	return e.Bot().Caches.Guilds().Get(e.GuildID)
+	return e.Bot().Caches().Guilds().Get(e.GuildID)
 }
 
 // IntegrationCreateEvent indicates that a new Integration was created in a Guild

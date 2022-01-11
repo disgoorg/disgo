@@ -10,32 +10,32 @@ type MessageFilter func(message *Message) bool
 
 type Message struct {
 	discord.Message
-	Bot      *Bot
+	Bot      Bot
 	Member   *Member
 	Author   *User
 	Stickers []*MessageSticker
 }
 
 func (m *Message) CreateThread(threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...rest.RequestOpt) (GuildThread, error) {
-	channel, err := m.Bot.RestServices.ThreadService().CreateThreadWithMessage(m.ChannelID, m.ID, threadCreateWithMessage, opts...)
+	channel, err := m.Bot.RestServices().ThreadService().CreateThreadWithMessage(m.ChannelID, m.ID, threadCreateWithMessage, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return m.Bot.EntityBuilder.CreateChannel(channel.(discord.Channel), CacheStrategyNo).(GuildThread), nil
+	return m.Bot.EntityBuilder().CreateChannel(channel.(discord.Channel), CacheStrategyNo).(GuildThread), nil
 }
 
 // Guild returns the Guild this Message was sent in.
 // This will only check cached guilds!
-func (m *Message) Guild() *Guild {
+func (m *Message) Guild() (Guild, bool) {
 	if m.GuildID == nil {
 		return nil
 	}
-	return m.Bot.Caches.Guilds().Get(*m.GuildID)
+	return m.Bot.Caches().Guilds().Get(*m.GuildID)
 }
 
 // Channel gets the MessageChannel the Message was sent in
 func (m *Message) Channel() MessageChannel {
-	channel := m.Bot.Caches.Channels().Get(m.ChannelID)
+	channel := m.Bot.Caches().Channels().Get(m.ChannelID)
 	if channel != nil {
 		return channel.(MessageChannel)
 	}
@@ -49,21 +49,21 @@ func (m *Message) AddReactionByEmote(emote Emoji, opts ...rest.RequestOpt) error
 
 // AddReaction allows you to add a reaction to a message_events from a string, for _examples a custom emoji CommandID, or a native emoji
 func (m *Message) AddReaction(emoji string, opts ...rest.RequestOpt) error {
-	return m.Bot.RestServices.ChannelService().AddReaction(m.ChannelID, m.ID, emoji, opts...)
+	return m.Bot.RestServices().ChannelService().AddReaction(m.ChannelID, m.ID, emoji, opts...)
 }
 
 // Update allows you to edit an existing Message sent by you
 func (m *Message) Update(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
-	message, err := m.Bot.RestServices.ChannelService().UpdateMessage(m.ChannelID, m.ID, messageUpdate, opts...)
+	message, err := m.Bot.RestServices().ChannelService().UpdateMessage(m.ChannelID, m.ID, messageUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return m.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
+	return m.Bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
 // Delete deletes this Message
 func (m *Message) Delete(opts ...rest.RequestOpt) error {
-	return m.Bot.RestServices.ChannelService().DeleteMessage(m.ChannelID, m.ID, opts...)
+	return m.Bot.RestServices().ChannelService().DeleteMessage(m.ChannelID, m.ID, opts...)
 }
 
 // Crosspost crossposts an existing message
@@ -72,21 +72,21 @@ func (m *Message) Crosspost(opts ...rest.RequestOpt) (*Message, error) {
 	if channel != nil && channel.Type() != discord.ChannelTypeGuildNews {
 		return nil, discord.ErrChannelNotTypeNews
 	}
-	message, err := m.Bot.RestServices.ChannelService().CrosspostMessage(m.ChannelID, m.ID, opts...)
+	message, err := m.Bot.RestServices().ChannelService().CrosspostMessage(m.ChannelID, m.ID, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return m.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
+	return m.Bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
 // Reply replies to this Message
 func (m *Message) Reply(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*Message, error) {
 	messageCreate.MessageReference = &discord.MessageReference{MessageID: &m.ID}
-	message, err := m.Bot.RestServices.ChannelService().CreateMessage(m.ChannelID, messageCreate, opts...)
+	message, err := m.Bot.RestServices().ChannelService().CreateMessage(m.ChannelID, messageCreate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return m.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
+	return m.Bot.EntityBuilder().CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
 // ActionRows returns all discord.ActionRowComponent(s) from this Message

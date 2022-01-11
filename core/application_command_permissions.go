@@ -6,7 +6,7 @@ import (
 
 type ApplicationCommandPermissions struct {
 	discord.ApplicationCommandPermissions
-	Bot *Bot
+	Bot Bot
 }
 
 // TODO: implement methods to update

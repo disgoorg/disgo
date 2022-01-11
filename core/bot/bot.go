@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/core/collectors"
 	"github.com/DisgoOrg/disgo/core/handlers"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
@@ -45,12 +44,12 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "error while getting application id from BotToken")
 	}
-	bot := &core.Bot{
+	bot := &core.BotImpl{
 		Token: token,
 	}
 
 	// TODO: figure out how we handle different application & client ids
-	bot.ApplicationID = *id
+	Bot.ApplicationID() = *id
 	bot.ClientID = *id
 
 	if config.Logger == nil {
@@ -85,17 +84,9 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 	}
 	bot.EventManager = config.EventManager
 
-	if config.Collectors == nil {
-		if config.CollectorsConfig == nil {
-			config.CollectorsConfig = &collectors.DefaultConfig
-		}
-		config.Collectors = core.NewCollectors(bot, *config.CollectorsConfig)
-	}
-	bot.Collectors = config.Collectors
-
 	if config.Gateway == nil && config.GatewayConfig != nil {
 		var gatewayRs *discord.Gateway
-		gatewayRs, err = bot.RestServices.GatewayService().GetGateway()
+		gatewayRs, err = bot.RestServices().GatewayService().GetGateway()
 		if err != nil {
 			return nil, err
 		}
@@ -108,7 +99,7 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 
 	if config.ShardManager == nil && config.ShardManagerConfig != nil {
 		var gatewayBotRs *discord.GatewayBot
-		gatewayBotRs, err = bot.RestServices.GatewayService().GetGatewayBot()
+		gatewayBotRs, err = bot.RestServices().GatewayService().GetGatewayBot()
 		if err != nil {
 			return nil, err
 		}

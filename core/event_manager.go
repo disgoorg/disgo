@@ -23,7 +23,7 @@ type EventManagerConfig struct {
 
 var _ EventManager = (*eventManagerImpl)(nil)
 
-func NewEventManager(bot *Bot, config *EventManagerConfig) EventManager {
+func NewEventManager(bot Bot, config *EventManagerConfig) EventManager {
 	if config == nil {
 		config = &DefaultEventManagerConfig
 	}
@@ -36,7 +36,7 @@ func NewEventManager(bot *Bot, config *EventManagerConfig) EventManager {
 
 // EventManager lets you listen for specific events triggered by raw gateway events
 type EventManager interface {
-	Bot() *Bot
+	Bot() Bot
 	Config() EventManagerConfig
 
 	AddEventListeners(eventListeners ...EventListener)
@@ -53,7 +53,7 @@ type EventListener interface {
 
 // Event the basic interface each event implement
 type Event interface {
-	Bot() *Bot
+	Bot() Bot
 	SequenceNumber() int
 }
 
@@ -61,23 +61,23 @@ type Event interface {
 type GatewayEventHandler interface {
 	EventType() discord.GatewayEventType
 	New() interface{}
-	HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{})
+	HandleGatewayEvent(bot Bot, sequenceNumber int, v interface{})
 }
 
 // HTTPServerEventHandler is used to handle HTTP Event(s)
 type HTTPServerEventHandler interface {
 	New() interface{}
-	HandleHTTPEvent(bot *Bot, responseChannel chan<- discord.InteractionResponse, v interface{})
+	HandleHTTPEvent(bot Bot, responseChannel chan<- discord.InteractionResponse, v interface{})
 }
 
 // eventManagerImpl is the implementation of core.EventManager
 type eventManagerImpl struct {
-	bot    *Bot
+	bot    Bot
 	config EventManagerConfig
 }
 
 // Bot returns the core.Bot instance used by the core.EventManager
-func (e *eventManagerImpl) Bot() *Bot {
+func (e *eventManagerImpl) Bot() Bot {
 	return e.bot
 }
 

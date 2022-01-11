@@ -45,7 +45,7 @@ type GuildMemberTypingStartEvent struct {
 
 // Channel returns the core.BaseGuildMessageChannel the GuildMemberTypingStartEvent happened in
 func (e GuildMemberTypingStartEvent) Channel() core.BaseGuildMessageChannel {
-	if ch := e.Bot().Caches.Channels().Get(e.ChannelID); ch != nil {
+	if ch := e.Bot().Caches().Channels().Get(e.ChannelID); ch != nil {
 		return ch.(core.BaseGuildMessageChannel)
 	}
 	return nil

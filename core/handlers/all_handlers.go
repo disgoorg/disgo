@@ -10,9 +10,9 @@ import (
 	"github.com/DisgoOrg/disgo/httpserver"
 )
 
-func DefaultHTTPServerEventHandler(bot *core.Bot) httpserver.EventHandlerFunc {
+func DefaultHTTPServerEventHandler(bot core.Bot) httpserver.EventHandlerFunc {
 	return func(responseChannel chan<- discord.InteractionResponse, reader io.Reader) {
-		bot.EventManager.HandleHTTP(responseChannel, events.HandleRawEvent(bot, discord.GatewayEventTypeInteractionCreate, -1, reader))
+		bot.EventManager().HandleHTTP(responseChannel, events.HandleRawEvent(bot, discord.GatewayEventTypeInteractionCreate, -1, reader))
 	}
 }
 
@@ -20,11 +20,11 @@ func GetHTTPServerHandler() core.HTTPServerEventHandler {
 	return &httpserverHandlerInteractionCreate{}
 }
 
-func DefaultGatewayEventHandler(bot *core.Bot) gateway.EventHandlerFunc {
+func DefaultGatewayEventHandler(bot core.Bot) gateway.EventHandlerFunc {
 	return func(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) {
 		reader = events.HandleRawEvent(bot, gatewayEventType, sequenceNumber, reader)
 
-		bot.EventManager.HandleGateway(gatewayEventType, sequenceNumber, reader)
+		bot.EventManager().HandleGateway(gatewayEventType, sequenceNumber, reader)
 	}
 }
 

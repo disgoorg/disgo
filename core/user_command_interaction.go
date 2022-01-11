@@ -69,7 +69,7 @@ func (i *UserCommandInteraction) TargetMember() *Member {
 }
 
 // Guild returns the Guild from the Caches
-func (i *UserCommandInteraction) Guild() *Guild {
+func (i *UserCommandInteraction) Guild() (Guild, bool) {
 	return guild(i.InteractionFields, i.GuildID)
 }
 

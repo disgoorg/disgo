@@ -55,7 +55,7 @@ func (h *Client) GetWebhook(opts ...rest.RequestOpt) (*Webhook, error) {
 	if err != nil {
 		return nil, err
 	}
-	return h.EntityBuilder.CreateWebhook(webhook), nil
+	return h.EntityBuilder().CreateWebhook(webhook), nil
 }
 
 // UpdateWebhook updates the current webhook
@@ -64,7 +64,7 @@ func (h *Client) UpdateWebhook(webhookUpdate discord.WebhookUpdateWithToken, opt
 	if err != nil {
 		return nil, err
 	}
-	return h.EntityBuilder.CreateWebhook(webhook), nil
+	return h.EntityBuilder().CreateWebhook(webhook), nil
 }
 
 // DeleteWebhook deletes the current webhook
@@ -78,7 +78,7 @@ func (h *Client) CreateMessageInThread(messageCreate discord.WebhookMessageCreat
 	if err != nil {
 		return nil, err
 	}
-	return h.EntityBuilder.CreateMessage(*message), nil
+	return h.EntityBuilder().CreateMessage(*message), nil
 }
 
 // CreateMessage creates a new message from the discord.WebhookMessageCreate
@@ -107,7 +107,7 @@ func (h *Client) UpdateMessageInThread(messageID discord.Snowflake, messageUpdat
 	if err != nil {
 		return nil, err
 	}
-	return h.EntityBuilder.CreateMessage(*message), nil
+	return h.EntityBuilder().CreateMessage(*message), nil
 }
 
 // UpdateContent updates an already sent webhook message with the content

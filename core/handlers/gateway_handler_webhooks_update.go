@@ -20,10 +20,10 @@ func (h *gatewayHandlerWebhooksUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerWebhooksUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerWebhooksUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.WebhooksUpdateGatewayEvent)
 
-	bot.EventManager.Dispatch(&events.WebhooksUpdateEvent{
+	bot.EventManager().Dispatch(&events.WebhooksUpdateEvent{
 		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 		GuildId:      payload.GuildID,
 		ChannelID:    payload.ChannelID,

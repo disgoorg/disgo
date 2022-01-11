@@ -16,7 +16,7 @@ type GenericGuildChannelEvent struct {
 // Guild returns the core.Guild the event happened in.
 // This will only check cached guilds!
 func (e GenericGuildChannelEvent) Guild() *core.Guild {
-	return e.Bot().Caches.Guilds().Get(e.GuildID)
+	return e.Bot().Caches().Guilds().Get(e.GuildID)
 }
 
 // GuildChannelCreateEvent indicates that a new Channel got created in a core.Guild

@@ -20,10 +20,10 @@ func (h *gatewayHandlerChannelPinsUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerChannelPinsUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerChannelPinsUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.ChannelPinsUpdateGatewayEvent)
 
-	channel := bot.Caches.Channels().Get(payload.ChannelID)
+	channel := bot.Caches().Channels().Get(payload.ChannelID)
 	var oldTime *discord.Time
 	if channel != nil {
 		oldTime = core.LastPinTimestamp(channel.(core.MessageChannel))
@@ -52,14 +52,14 @@ func (h *gatewayHandlerChannelPinsUpdate) HandleGatewayEvent(bot *core.Bot, sequ
 	}
 
 	if payload.GuildID == nil {
-		bot.EventManager.Dispatch(&events.DMChannelPinsUpdateEvent{
+		bot.EventManager().Dispatch(&events.DMChannelPinsUpdateEvent{
 			GenericEvent:        events.NewGenericEvent(bot, sequenceNumber),
 			ChannelID:           payload.ChannelID,
 			OldLastPinTimestamp: oldTime,
 			NewLastPinTimestamp: payload.LastPinTimestamp,
 		})
 	} else {
-		bot.EventManager.Dispatch(&events.GuildChannelPinsUpdateEvent{
+		bot.EventManager().Dispatch(&events.GuildChannelPinsUpdateEvent{
 			GenericEvent:        events.NewGenericEvent(bot, sequenceNumber),
 			GuildID:             *payload.GuildID,
 			ChannelID:           payload.ChannelID,

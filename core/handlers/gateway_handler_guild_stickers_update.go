@@ -21,15 +21,15 @@ func (h *gatewayHandlerGuildStickersUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.GuildStickersUpdateGatewayEvent)
 
-	if bot.Caches.Config().CacheFlags.Missing(core.CacheFlagStickers) {
+	if bot.Caches().Config().CacheFlags.Missing(core.CacheFlagStickers) {
 		return
 	}
 
 	var (
-		stickerCache    = bot.Caches.Stickers().GroupCache(payload.GuildID)
+		stickerCache    = bot.Caches().Stickers().GroupCache(payload.GuildID)
 		oldStickers     = map[discord.Snowflake]*core.Sticker{}
 		newStickers     = map[discord.Snowflake]*core.Sticker{}
 		updatedStickers = map[discord.Snowflake]*core.Sticker{}
@@ -46,19 +46,19 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, se
 		if ok {
 			delete(oldStickers, current.ID)
 			if !cmp.Equal(sticker, current) {
-				updatedStickers[current.ID] = bot.EntityBuilder.CreateSticker(current, core.CacheStrategyYes)
+				updatedStickers[current.ID] = bot.EntityBuilder().CreateSticker(current, core.CacheStrategyYes)
 			}
 		} else {
-			newStickers[current.ID] = bot.EntityBuilder.CreateSticker(current, core.CacheStrategyYes)
+			newStickers[current.ID] = bot.EntityBuilder().CreateSticker(current, core.CacheStrategyYes)
 		}
 	}
 
 	for stickerID := range oldStickers {
-		bot.Caches.Stickers().Remove(payload.GuildID, stickerID)
+		bot.Caches().Stickers().Remove(payload.GuildID, stickerID)
 	}
 
 	for _, sticker := range newStickers {
-		bot.EventManager.Dispatch(&events.StickerCreateEvent{
+		bot.EventManager().Dispatch(&events.StickerCreateEvent{
 			GenericStickerEvent: &events.GenericStickerEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				GuildID:      payload.GuildID,
@@ -68,7 +68,7 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, se
 	}
 
 	for _, sticker := range updatedStickers {
-		bot.EventManager.Dispatch(&events.StickerUpdateEvent{
+		bot.EventManager().Dispatch(&events.StickerUpdateEvent{
 			GenericStickerEvent: &events.GenericStickerEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				GuildID:      payload.GuildID,
@@ -78,7 +78,7 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, se
 	}
 
 	for _, sticker := range oldStickers {
-		bot.EventManager.Dispatch(&events.StickerDeleteEvent{
+		bot.EventManager().Dispatch(&events.StickerDeleteEvent{
 			GenericStickerEvent: &events.GenericStickerEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				GuildID:      payload.GuildID,

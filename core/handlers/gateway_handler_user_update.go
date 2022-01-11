@@ -20,7 +20,7 @@ func (h *gatewayHandlerUserUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerUserUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerUserUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.OAuth2User)
 
 	var oldSelfUser *core.SelfUser
@@ -29,9 +29,9 @@ func (h *gatewayHandlerUserUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNum
 		oldSelfUser = &selfUser
 	}
 
-	bot.EventManager.Dispatch(&events.SelfUpdateEvent{
+	bot.EventManager().Dispatch(&events.SelfUpdateEvent{
 		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-		SelfUser:     bot.EntityBuilder.CreateSelfUser(payload, core.CacheStrategyYes),
+		SelfUser:     bot.EntityBuilder().CreateSelfUser(payload, core.CacheStrategyYes),
 		OldSelfUser:  oldSelfUser,
 	})
 

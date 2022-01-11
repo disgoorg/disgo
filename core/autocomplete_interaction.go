@@ -48,7 +48,7 @@ func (i *AutocompleteInteraction) CommandPath() string {
 }
 
 // Guild returns the Guild from the Caches
-func (i *AutocompleteInteraction) Guild() *Guild {
+func (i *AutocompleteInteraction) Guild() (Guild, bool) {
 	return guild(i.InteractionFields, i.GuildID)
 }
 

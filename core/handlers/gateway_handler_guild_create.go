@@ -20,37 +20,37 @@ func (h *gatewayHandlerGuildCreate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.GatewayGuild)
 
 	shard, _ := bot.Shard(payload.ID)
 	shardID := shard.ShardID()
 
-	wasUnready := bot.Caches.Guilds().IsUnready(shardID, payload.ID)
-	wasUnavailable := bot.Caches.Guilds().IsUnavailable(payload.ID)
+	wasUnready := bot.Caches().Guilds().IsUnready(shardID, payload.ID)
+	wasUnavailable := bot.Caches().Guilds().IsUnavailable(payload.ID)
 
-	guild := bot.EntityBuilder.CreateGuild(payload.Guild, core.CacheStrategyYes)
+	guild := bot.EntityBuilder().CreateGuild(payload.Guild, core.CacheStrategyYes)
 
 	for _, channel := range payload.Channels {
-		bot.EntityBuilder.CreateChannel(setGuildID(channel, payload.ID), core.CacheStrategyYes)
+		bot.EntityBuilder().CreateChannel(setGuildID(channel, payload.ID), core.CacheStrategyYes)
 	}
 
 	for _, thread := range payload.Threads {
-		bot.EntityBuilder.CreateChannel(setGuildID(thread, payload.ID), core.CacheStrategyYes)
+		bot.EntityBuilder().CreateChannel(setGuildID(thread, payload.ID), core.CacheStrategyYes)
 	}
 
 	for _, role := range payload.Roles {
 		role.GuildID = payload.ID
-		bot.EntityBuilder.CreateRole(payload.ID, role, core.CacheStrategyYes)
+		bot.EntityBuilder().CreateRole(payload.ID, role, core.CacheStrategyYes)
 	}
 
 	for _, member := range payload.Members {
-		bot.EntityBuilder.CreateMember(payload.ID, member, core.CacheStrategyYes)
+		bot.EntityBuilder().CreateMember(payload.ID, member, core.CacheStrategyYes)
 	}
 
 	for _, voiceState := range payload.VoiceStates {
 		voiceState.GuildID = payload.ID // populate unset field
-		vs := bot.EntityBuilder.CreateVoiceState(voiceState, core.CacheStrategyYes)
+		vs := bot.EntityBuilder().CreateVoiceState(voiceState, core.CacheStrategyYes)
 		if channel := vs.Channel(); channel != nil {
 			if ch, ok := channel.(*core.GuildVoiceChannel); ok {
 				ch.ConnectedMemberIDs[voiceState.UserID] = struct{}{}
@@ -61,23 +61,23 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 	}
 
 	for _, emote := range payload.Emojis {
-		bot.EntityBuilder.CreateEmoji(payload.ID, emote, core.CacheStrategyYes)
+		bot.EntityBuilder().CreateEmoji(payload.ID, emote, core.CacheStrategyYes)
 	}
 
 	for _, sticker := range payload.Stickers {
-		bot.EntityBuilder.CreateSticker(sticker, core.CacheStrategyYes)
+		bot.EntityBuilder().CreateSticker(sticker, core.CacheStrategyYes)
 	}
 
 	for _, stageInstance := range payload.StageInstances {
-		bot.EntityBuilder.CreateStageInstance(stageInstance, core.CacheStrategyYes)
+		bot.EntityBuilder().CreateStageInstance(stageInstance, core.CacheStrategyYes)
 	}
 
 	for _, guildScheduledEvent := range payload.GuildScheduledEvents {
-		bot.EntityBuilder.CreateGuildScheduledEvent(guildScheduledEvent, core.CacheStrategyYes)
+		bot.EntityBuilder().CreateGuildScheduledEvent(guildScheduledEvent, core.CacheStrategyYes)
 	}
 
 	for _, presence := range payload.Presences {
-		bot.EntityBuilder.CreatePresence(presence, core.CacheStrategyYes)
+		bot.EntityBuilder().CreatePresence(presence, core.CacheStrategyYes)
 	}
 
 	genericGuildEvent := &events.GenericGuildEvent{
@@ -87,12 +87,12 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 	}
 
 	if wasUnready {
-		bot.Caches.Guilds().SetReady(shardID, payload.ID)
-		bot.EventManager.Dispatch(&events.GuildReadyEvent{
+		bot.Caches().Guilds().SetReady(shardID, payload.ID)
+		bot.EventManager().Dispatch(&events.GuildReadyEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
-		if len(bot.Caches.Guilds().UnreadyGuilds(shardID)) == 0 {
-			bot.EventManager.Dispatch(&events.GuildsReadyEvent{
+		if len(bot.Caches().Guilds().UnreadyGuilds(shardID)) == 0 {
+			bot.EventManager().Dispatch(&events.GuildsReadyEvent{
 				GenericEvent: events.NewGenericEvent(bot, -1),
 				ShardID:      shardID,
 			})
@@ -106,12 +106,12 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 		}
 
 	} else if wasUnavailable {
-		bot.Caches.Guilds().SetAvailable(payload.ID)
-		bot.EventManager.Dispatch(&events.GuildAvailableEvent{
+		bot.Caches().Guilds().SetAvailable(payload.ID)
+		bot.EventManager().Dispatch(&events.GuildAvailableEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	} else {
-		bot.EventManager.Dispatch(&events.GuildJoinEvent{
+		bot.EventManager().Dispatch(&events.GuildJoinEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	}

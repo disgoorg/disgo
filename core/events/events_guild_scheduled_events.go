@@ -31,15 +31,15 @@ type GenericGuildScheduledEventUserEvent struct {
 }
 
 func (e *GenericGuildScheduledEventUserEvent) GuildScheduledEvent() *core.GuildScheduledEvent {
-	return e.bot.Caches.GuildScheduledEvents().Get(e.GuildScheduledEventID)
+	return e.bot.Caches().GuildScheduledEvents().Get(e.GuildScheduledEventID)
 }
 
 func (e *GenericGuildScheduledEventUserEvent) User() *core.User {
-	return e.bot.Caches.Users().Get(e.UserID)
+	return e.bot.Caches().Users().Get(e.UserID)
 }
 
 func (e *GenericGuildScheduledEventUserEvent) Member() *core.Member {
-	return e.bot.Caches.Members().Get(e.GuildID, e.UserID)
+	return e.bot.Caches().Members().Get(e.GuildID, e.UserID)
 }
 
 type GuildScheduledEventUserAddEvent struct {

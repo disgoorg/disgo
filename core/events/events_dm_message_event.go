@@ -15,7 +15,7 @@ type GenericDMMessageEvent struct {
 
 // Channel returns the Channel the GenericDMMessageEvent happened in
 func (e GenericDMMessageEvent) Channel() *core.DMChannel {
-	if ch := e.Bot().Caches.Channels().Get(e.ChannelID); ch != nil {
+	if ch := e.Bot().Caches().Channels().Get(e.ChannelID); ch != nil {
 		return ch.(*core.DMChannel)
 	}
 	return nil

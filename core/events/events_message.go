@@ -16,7 +16,7 @@ type GenericMessageEvent struct {
 
 // Channel returns the core.Channel where the GenericMessageEvent happened
 func (e *GenericMessageEvent) Channel() core.MessageChannel {
-	if ch := e.Bot().Caches.Channels().Get(e.ChannelID); ch != nil {
+	if ch := e.Bot().Caches().Channels().Get(e.ChannelID); ch != nil {
 		return ch.(core.MessageChannel)
 	}
 	return nil
@@ -27,7 +27,7 @@ func (e *GenericMessageEvent) Guild() *core.Guild {
 	if e.GuildID == nil {
 		return nil
 	}
-	return e.Bot().Caches.Guilds().Get(*e.GuildID)
+	return e.Bot().Caches().Guilds().Get(*e.GuildID)
 }
 
 // MessageCreateEvent indicates that a core.Message got received

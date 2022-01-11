@@ -16,17 +16,17 @@ func (h *gatewayHandlerThreadUpdate) New() interface{} {
 	return &discord.UnmarshalChannel{}
 }
 
-func (h *gatewayHandlerThreadUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerThreadUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber int, v interface{}) {
 	payload := v.(*discord.UnmarshalChannel).Channel
 
 	var oldThread core.GuildThread
-	if ch, ok := bot.Caches.Channels().Get(payload.ID()).(core.GuildThread); ok {
+	if ch, ok := bot.Caches().Channels().Get(payload.ID()).(core.GuildThread); ok {
 		oldThread = ch
 	}
 
-	thread := bot.EntityBuilder.CreateChannel(payload, core.CacheStrategyYes).(core.GuildThread)
+	thread := bot.EntityBuilder().CreateChannel(payload, core.CacheStrategyYes).(core.GuildThread)
 
-	bot.EventManager.Dispatch(&events.ThreadUpdateEvent{
+	bot.EventManager().Dispatch(&events.ThreadUpdateEvent{
 		GenericThreadEvent: &events.GenericThreadEvent{
 			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 			Thread:       thread,

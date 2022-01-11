@@ -93,7 +93,7 @@ func (i *SelectMenuInteraction) SelectedOptions() []discord.SelectMenuOption {
 }
 
 // Guild returns the Guild from the Caches
-func (i *SelectMenuInteraction) Guild() *Guild {
+func (i *SelectMenuInteraction) Guild() (Guild, bool) {
 	return guild(i.InteractionFields, i.GuildID)
 }
 

@@ -14,11 +14,11 @@ type AuditLog struct {
 	Webhooks             map[discord.Snowflake]Webhook
 	GuildID              discord.Snowflake
 	FilterOptions        AuditLogFilterOptions
-	Bot                  *Bot
+	Bot                  Bot
 }
 
 func (l *AuditLog) Guild() (Guild, bool) {
-	return l.Bot.Caches.Guilds().Get(l.GuildID)
+	return l.Bot.Caches().Guilds().Get(l.GuildID)
 }
 
 // AuditLogFilterOptions fields used to filter audit-log retrieving
@@ -35,9 +35,9 @@ func (l *AuditLog) Before(opts ...rest.RequestOpt) (*AuditLog, error) {
 	if len(l.Entries) > 0 {
 		before = l.Entries[len(l.Entries)-1].ID
 	}
-	auditLog, err := l.Bot.RestServices.AuditLogService().GetAuditLog(l.GuildID, l.FilterOptions.UserID, l.FilterOptions.ActionType, before, l.FilterOptions.Limit, opts...)
+	auditLog, err := l.Bot.RestServices().AuditLogService().GetAuditLog(l.GuildID, l.FilterOptions.UserID, l.FilterOptions.ActionType, before, l.FilterOptions.Limit, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return l.Bot.EntityBuilder.CreateAuditLog(l.GuildID, *auditLog, l.FilterOptions, CacheStrategyNoWs), nil
+	return l.Bot.EntityBuilder().CreateAuditLog(l.GuildID, *auditLog, l.FilterOptions, CacheStrategyNoWs), nil
 }

@@ -20,13 +20,13 @@ func (h *gatewayHandlerReady) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerReady) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerReady) HandleGatewayEvent(bot core.Bot, sequenceNumber int, v interface{}) {
 	readyEvent := *v.(*discord.GatewayEventReady)
 
-	bot.ApplicationID = readyEvent.Application.ID
+	Bot.ApplicationID() = readyEvent.Application.ID
 	bot.ClientID = readyEvent.User.ID
 
-	bot.EntityBuilder.CreateSelfUser(readyEvent.User, core.CacheStrategyYes)
+	bot.EntityBuilder().CreateSelfUser(readyEvent.User, core.CacheStrategyYes)
 
 	var shardID int
 	if readyEvent.Shard != nil {
@@ -34,10 +34,10 @@ func (h *gatewayHandlerReady) HandleGatewayEvent(bot *core.Bot, sequenceNumber i
 	}
 
 	for _, guild := range readyEvent.Guilds {
-		bot.Caches.Guilds().SetUnready(shardID, guild.ID)
+		bot.Caches().Guilds().SetUnready(shardID, guild.ID)
 	}
 
-	bot.EventManager.Dispatch(&events.ReadyEvent{
+	bot.EventManager().Dispatch(&events.ReadyEvent{
 		GenericEvent:      events.NewGenericEvent(bot, sequenceNumber),
 		GatewayEventReady: readyEvent,
 	})

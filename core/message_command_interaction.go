@@ -65,7 +65,7 @@ func (i *MessageCommandInteraction) TargetMessage() *Message {
 }
 
 // Guild returns the Guild from the Caches
-func (i *MessageCommandInteraction) Guild() *Guild {
+func (i *MessageCommandInteraction) Guild() (Guild, bool) {
 	return guild(i.InteractionFields, i.GuildID)
 }
 

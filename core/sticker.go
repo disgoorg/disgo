@@ -8,7 +8,7 @@ import (
 
 type Sticker struct {
 	discord.Sticker
-	Bot  *Bot
+	Bot  Bot
 	User *User
 }
 
@@ -27,7 +27,7 @@ func (s *Sticker) Guild() (guild Guild, ok bool) {
 	if s.Type != discord.StickerTypeGuild {
 		return
 	}
-	return s.Bot.Caches.Guilds().Get(*s.GuildID)
+	return s.Bot.Caches().Guilds().Get(*s.GuildID)
 }
 
 // Update updates this Sticker with the properties provided in discord.StickerUpdate
@@ -36,11 +36,11 @@ func (s *Sticker) Update(stickerUpdate discord.StickerUpdate, opts ...rest.Reque
 		return nil, discord.ErrStickerTypeGuild
 	}
 
-	sticker, err := s.Bot.RestServices.StickerService().UpdateSticker(*s.GuildID, s.ID, stickerUpdate, opts...)
+	sticker, err := s.Bot.RestServices().StickerService().UpdateSticker(*s.GuildID, s.ID, stickerUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return s.Bot.EntityBuilder.CreateSticker(*sticker, CacheStrategyNoWs), nil
+	return s.Bot.EntityBuilder().CreateSticker(*sticker, CacheStrategyNoWs), nil
 }
 
 // Delete deletes this Sticker
@@ -48,5 +48,5 @@ func (s *Sticker) Delete(opts ...rest.RequestOpt) error {
 	if s.Type != discord.StickerTypeGuild {
 		return discord.ErrStickerTypeGuild
 	}
-	return s.Bot.RestServices.StickerService().DeleteSticker(*s.GuildID, s.ID, opts...)
+	return s.Bot.RestServices().StickerService().DeleteSticker(*s.GuildID, s.ID, opts...)
 }

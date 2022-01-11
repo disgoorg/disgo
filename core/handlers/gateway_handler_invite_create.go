@@ -20,16 +20,16 @@ func (h *gatewayHandlerInviteCreate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerInviteCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerInviteCreate) HandleGatewayEvent(bot core.Bot, sequenceNumber int, v interface{}) {
 	invite := *v.(*discord.Invite)
 
-	bot.EventManager.Dispatch(&events.GuildInviteCreateEvent{
+	bot.EventManager().Dispatch(&events.GuildInviteCreateEvent{
 		GenericGuildInviteEvent: &events.GenericGuildInviteEvent{
 			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 			GuildID:      *invite.GuildID,
 			Code:         invite.Code,
 			ChannelID:    invite.ChannelID,
 		},
-		Invite: bot.EntityBuilder.CreateInvite(invite, core.CacheStrategyYes),
+		Invite: bot.EntityBuilder().CreateInvite(invite, core.CacheStrategyYes),
 	})
 }

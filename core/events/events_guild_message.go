@@ -17,12 +17,12 @@ type GenericGuildMessageEvent struct {
 // Guild returns the core.Guild the GenericGuildMessageEvent happened in.
 // This will only check cached guilds!
 func (e GenericGuildMessageEvent) Guild() *core.Guild {
-	return e.Bot().Caches.Guilds().Get(e.GuildID)
+	return e.Bot().Caches().Guilds().Get(e.GuildID)
 }
 
 // Channel returns the core.DMChannel where the GenericGuildMessageEvent happened
 func (e GenericGuildMessageEvent) Channel() core.GuildMessageChannel {
-	if ch := e.Bot().Caches.Channels().Get(e.ChannelID); ch != nil {
+	if ch := e.Bot().Caches().Channels().Get(e.ChannelID); ch != nil {
 		return ch.(core.GuildMessageChannel)
 	}
 	return nil

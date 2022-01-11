@@ -16,7 +16,7 @@ type GenericReactionEvent struct {
 }
 
 func (e *GenericReactionEvent) User() *core.User {
-	return e.Bot().Caches.Users().Get(e.UserID)
+	return e.Bot().Caches().Users().Get(e.UserID)
 }
 
 // MessageReactionAddEvent indicates that a core.User added a discord.MessageReaction to a core.Message in a core.Channel(this+++ requires the discord.GatewayIntentGuildMessageReactions and/or discord.GatewayIntentDirectMessageReactions)

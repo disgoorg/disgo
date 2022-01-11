@@ -102,7 +102,7 @@ var commands = []discord.ApplicationCommandCreate{
 	},
 }
 
-func registerCommands(bot *core.Bot) {
+func registerCommands(bot core.Bot) {
 	cmds, err := bot.SetGuildCommands(guildID, commands)
 	if err != nil {
 		log.Fatalf("error while registering guild commands: %s", err)

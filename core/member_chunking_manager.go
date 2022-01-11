@@ -10,7 +10,7 @@ import (
 
 var _ MemberChunkingManager = (*memberChunkingManagerImpl)(nil)
 
-func NewMemberChunkingManager(bot *Bot, memberChunkingFilter MemberChunkingFilter) MemberChunkingManager {
+func NewMemberChunkingManager(bot Bot, memberChunkingFilter MemberChunkingFilter) MemberChunkingManager {
 	return &memberChunkingManagerImpl{
 		bot:                  bot,
 		memberChunkingFilter: memberChunkingFilter,
@@ -19,7 +19,7 @@ func NewMemberChunkingManager(bot *Bot, memberChunkingFilter MemberChunkingFilte
 }
 
 type MemberChunkingManager interface {
-	Bot() *Bot
+	Bot() Bot
 	MemberChunkingFilter() MemberChunkingFilter
 
 	HandleChunk(payload discord.GuildMembersChunkGatewayEvent)
@@ -48,14 +48,14 @@ type chunkingRequest struct {
 }
 
 type memberChunkingManagerImpl struct {
-	bot                  *Bot
+	bot                  Bot
 	memberChunkingFilter MemberChunkingFilter
 
 	chunkingRequestsMu sync.RWMutex
 	chunkingRequests   map[string]*chunkingRequest
 }
 
-func (m *memberChunkingManagerImpl) Bot() *Bot {
+func (m *memberChunkingManagerImpl) Bot() Bot {
 	return m.bot
 }
 
@@ -76,7 +76,7 @@ func (m *memberChunkingManagerImpl) HandleChunk(payload discord.GuildMembersChun
 	defer request.Unlock()
 
 	for _, member := range payload.Members {
-		coreMember := m.Bot().EntityBuilder.CreateMember(payload.GuildID, member, CacheStrategyYes)
+		coreMember := m.Bot().EntityBuilder().CreateMember(payload.GuildID, member, CacheStrategyYes)
 		if request.memberFilterFunc != nil && !request.memberFilterFunc(coreMember) {
 			continue
 		}

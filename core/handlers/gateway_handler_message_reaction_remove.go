@@ -20,12 +20,12 @@ func (h *gatewayHandlerMessageReactionRemove) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerMessageReactionRemove) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerMessageReactionRemove) HandleGatewayEvent(bot core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.GatewayEventMessageReactionRemove)
 
 	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
-	bot.EventManager.Dispatch(&events.MessageReactionRemoveEvent{
+	bot.EventManager().Dispatch(&events.MessageReactionRemoveEvent{
 		GenericReactionEvent: &events.GenericReactionEvent{
 			GenericEvent: genericEvent,
 			MessageID:    payload.MessageID,
@@ -37,7 +37,7 @@ func (h *gatewayHandlerMessageReactionRemove) HandleGatewayEvent(bot *core.Bot, 
 	})
 
 	if payload.GuildID == nil {
-		bot.EventManager.Dispatch(&events.DMMessageReactionRemoveEvent{
+		bot.EventManager().Dispatch(&events.DMMessageReactionRemoveEvent{
 			GenericDMMessageReactionEvent: &events.GenericDMMessageReactionEvent{
 				GenericEvent: genericEvent,
 				MessageID:    payload.MessageID,
@@ -47,7 +47,7 @@ func (h *gatewayHandlerMessageReactionRemove) HandleGatewayEvent(bot *core.Bot, 
 			},
 		})
 	} else {
-		bot.EventManager.Dispatch(&events.GuildMessageReactionRemoveEvent{
+		bot.EventManager().Dispatch(&events.GuildMessageReactionRemoveEvent{
 			GenericGuildMessageReactionEvent: &events.GenericGuildMessageReactionEvent{
 				GenericEvent: genericEvent,
 				MessageID:    payload.MessageID,

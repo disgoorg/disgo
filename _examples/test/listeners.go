@@ -134,7 +134,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 		user := event.Data.Options.User("member")
 		role := event.Data.Options.Role("role")
 
-		if err := event.Bot().RestServices.GuildService().AddMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
+		if err := event.Bot().RestServices().GuildService().AddMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
 			_ = event.Create(discord.NewMessageCreateBuilder().AddEmbeds(
 				discord.NewEmbedBuilder().SetColor(green).SetDescriptionf("Added %s to %s", role, user).Build(),
 			).Build())
@@ -148,7 +148,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 		user := event.Data.Options.User("member")
 		role := event.Data.Options.Role("role")
 
-		if err := event.Bot().RestServices.GuildService().RemoveMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
+		if err := event.Bot().RestServices().GuildService().RemoveMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
 			_ = event.Create(discord.NewMessageCreateBuilder().AddEmbeds(
 				discord.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Removed %s from %s", role, user).Build(),
 			).Build())

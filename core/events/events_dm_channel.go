@@ -47,7 +47,7 @@ type DMUserTypingStartEvent struct {
 
 // Channel returns the core.DMChannel the DMUserTypingStartEvent happened in
 func (e DMUserTypingStartEvent) Channel() *core.DMChannel {
-	if ch := e.Bot().Caches.Channels().Get(e.ChannelID); ch != nil {
+	if ch := e.Bot().Caches().Channels().Get(e.ChannelID); ch != nil {
 		return ch.(*core.DMChannel)
 	}
 	return nil

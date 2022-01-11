@@ -13,7 +13,7 @@ func (h *httpserverHandlerInteractionCreate) New() interface{} {
 	return &discord.UnmarshalInteraction{}
 }
 
-func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(bot *core.Bot, c chan<- discord.InteractionResponse, v interface{}) {
+func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(bot core.Bot, c chan<- discord.InteractionResponse, v interface{}) {
 	interaction := (*v.(*discord.UnmarshalInteraction)).Interaction
 
 	// we just want to pong all pings

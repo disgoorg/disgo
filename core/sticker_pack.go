@@ -7,7 +7,7 @@ import (
 
 type StickerPack struct {
 	discord.StickerPack
-	Bot      *Bot
+	Bot      Bot
 	Stickers []*Sticker
 }
 

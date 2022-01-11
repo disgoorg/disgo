@@ -8,7 +8,7 @@ import (
 
 type VoiceState struct {
 	discord.VoiceState
-	Bot    *Bot
+	Bot    Bot
 	Member *Member
 }
 
@@ -24,8 +24,8 @@ func (s *VoiceState) Deaf() bool {
 
 // Guild returns the Guild of this VoiceState.
 // This will only check cached guilds!
-func (s *VoiceState) Guild() *Guild {
-	return s.Bot.Caches.Guilds().Get(s.GuildID)
+func (s *VoiceState) Guild() (Guild, bool) {
+	return s.Bot.Caches().Guilds().Get(s.GuildID)
 }
 
 // Channel returns the Channel of this VoiceState from the Caches
@@ -33,7 +33,7 @@ func (s *VoiceState) Channel() GuildAudioChannel {
 	if s.ChannelID == nil {
 		return nil
 	}
-	if ch := s.Bot.Caches.Channels().Get(*s.ChannelID); ch != nil {
+	if ch := s.Bot.Caches().Channels().Get(*s.ChannelID); ch != nil {
 		return ch.(GuildAudioChannel)
 	}
 	return nil
@@ -45,7 +45,7 @@ func (s *VoiceState) Update(suppress *bool, requestToSpeak *json.Nullable[discor
 	}
 	userVoiceUpdate := discord.UserVoiceStateUpdate{ChannelID: *s.ChannelID, Suppress: suppress, RequestToSpeakTimestamp: requestToSpeak}
 	if s.UserID == s.Bot.ClientID {
-		return s.Bot.RestServices.GuildService().UpdateCurrentUserVoiceState(s.GuildID, userVoiceUpdate, opts...)
+		return s.Bot.RestServices().GuildService().UpdateCurrentUserVoiceState(s.GuildID, userVoiceUpdate, opts...)
 	}
-	return s.Bot.RestServices.GuildService().UpdateUserVoiceState(s.GuildID, s.UserID, userVoiceUpdate, opts...)
+	return s.Bot.RestServices().GuildService().UpdateUserVoiceState(s.GuildID, s.UserID, userVoiceUpdate, opts...)
 }

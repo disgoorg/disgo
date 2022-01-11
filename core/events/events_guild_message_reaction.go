@@ -16,11 +16,11 @@ type GenericGuildMessageReactionEvent struct {
 }
 
 func (e *GenericGuildMessageReactionEvent) User() *core.User {
-	return e.Bot().Caches.Users().Get(e.UserID)
+	return e.Bot().Caches().Users().Get(e.UserID)
 }
 
 func (e *GenericGuildMessageReactionEvent) Member() *core.Member {
-	return e.Bot().Caches.Members().Get(e.GuildID, e.UserID)
+	return e.Bot().Caches().Members().Get(e.GuildID, e.UserID)
 }
 
 // GuildMessageReactionAddEvent indicates that a core.Member added a discord.ReactionEmoji to a core.Message in a core.GuildMessageChannel(requires the discord.GatewayIntentGuildMessageReactions)

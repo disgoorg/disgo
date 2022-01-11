@@ -20,15 +20,15 @@ func (h *gatewayHandlerVoiceStateUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber int, v interface{}) {
 	payload := *v.(*discord.VoiceState)
 
-	oldVoiceState := bot.Caches.VoiceStates().GetCopy(payload.GuildID, payload.UserID)
+	oldVoiceState := bot.Caches().VoiceStates().GetCopy(payload.GuildID, payload.UserID)
 
-	voiceState := bot.EntityBuilder.CreateVoiceState(payload, core.CacheStrategyYes)
+	voiceState := bot.EntityBuilder().CreateVoiceState(payload, core.CacheStrategyYes)
 
 	if oldVoiceState != nil && oldVoiceState.ChannelID != nil {
-		if channel := bot.Caches.Channels().Get(*oldVoiceState.ChannelID); channel != nil {
+		if channel := bot.Caches().Channels().Get(*oldVoiceState.ChannelID); channel != nil {
 			if ch, ok := channel.(*core.GuildVoiceChannel); ok {
 				delete(ch.ConnectedMemberIDs, voiceState.UserID)
 			} else if ch, ok := channel.(*core.GuildStageVoiceChannel); ok {
@@ -38,7 +38,7 @@ func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(bot *core.Bot, seque
 	}
 
 	if voiceState.ChannelID != nil {
-		if channel := bot.Caches.Channels().Get(*voiceState.ChannelID); channel != nil {
+		if channel := bot.Caches().Channels().Get(*voiceState.ChannelID); channel != nil {
 			if ch, ok := channel.(*core.GuildVoiceChannel); ok {
 				ch.ConnectedMemberIDs[voiceState.UserID] = struct{}{}
 			} else if ch, ok := channel.(*core.GuildStageVoiceChannel); ok {
@@ -53,22 +53,22 @@ func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(bot *core.Bot, seque
 		VoiceState:   voiceState,
 	}
 
-	bot.EventManager.Dispatch(&events.GuildVoiceStateUpdateEvent{
+	bot.EventManager().Dispatch(&events.GuildVoiceStateUpdateEvent{
 		GenericGuildVoiceEvent: genericGuildVoiceEvent,
 		OldVoiceState:          oldVoiceState,
 	})
 
 	if oldVoiceState != nil && oldVoiceState.ChannelID != nil && payload.ChannelID != nil {
-		bot.EventManager.Dispatch(&events.GuildVoiceMoveEvent{
+		bot.EventManager().Dispatch(&events.GuildVoiceMoveEvent{
 			GenericGuildVoiceEvent: genericGuildVoiceEvent,
 			OldVoiceState:          oldVoiceState,
 		})
 	} else if (oldVoiceState == nil || oldVoiceState.ChannelID == nil) && payload.ChannelID != nil {
-		bot.EventManager.Dispatch(&events.GuildVoiceJoinEvent{
+		bot.EventManager().Dispatch(&events.GuildVoiceJoinEvent{
 			GenericGuildVoiceEvent: genericGuildVoiceEvent,
 		})
 	} else if payload.ChannelID == nil {
-		bot.EventManager.Dispatch(&events.GuildVoiceLeaveEvent{
+		bot.EventManager().Dispatch(&events.GuildVoiceLeaveEvent{
 			GenericGuildVoiceEvent: genericGuildVoiceEvent,
 			OldVoiceState:          oldVoiceState,
 		})

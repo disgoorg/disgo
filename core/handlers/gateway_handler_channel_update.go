@@ -20,10 +20,10 @@ func (h *gatewayHandlerChannelUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber int, v interface{}) {
 	channel := v.(*discord.UnmarshalChannel).Channel
 
-	oldChannel := bot.Caches.Channels().GetCopy(channel.ID())
+	oldChannel := bot.Caches().Channels().GetCopy(channel.ID())
 
 	if ch, ok := channel.(discord.GuildChannel); ok {
 		var (
@@ -33,11 +33,11 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 		if c, ok := oldChannel.(core.GuildChannel); ok {
 			oldGuildChannel = c
 		}
-		if c, ok := bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyNo).(core.GuildChannel); ok {
+		if c, ok := bot.EntityBuilder().CreateChannel(channel, core.CacheStrategyNo).(core.GuildChannel); ok {
 			guildChannel = c
 		}
 
-		bot.EventManager.Dispatch(&events.GuildChannelUpdateEvent{
+		bot.EventManager().Dispatch(&events.GuildChannelUpdateEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				ChannelID:    channel.ID(),
@@ -50,9 +50,9 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 		if guild := guildChannel.Guild(); guild != nil {
 			if guildMessageChannel, ok := guildChannel.(core.GuildMessageChannel); ok && guild.SelfMember().ChannelPermissions(guildChannel).Missing(discord.PermissionViewChannel) {
 				for _, guildThread := range guildMessageChannel.Threads() {
-					bot.Caches.ThreadMembers().RemoveAll(guildThread.ID())
-					bot.Caches.Channels().Remove(guildThread.ID())
-					bot.EventManager.Dispatch(&events.ThreadHideEvent{
+					bot.Caches().ThreadMembers().RemoveAll(guildThread.ID())
+					bot.Caches().Channels().Remove(guildThread.ID())
+					bot.EventManager().Dispatch(&events.ThreadHideEvent{
 						GenericThreadEvent: &events.GenericThreadEvent{
 							GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 							Thread:       guildThread,
@@ -72,10 +72,10 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 		if c, ok := oldChannel.(*core.DMChannel); ok {
 			oldDmChannel = c
 		}
-		if c, ok := bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes).(*core.DMChannel); ok {
+		if c, ok := bot.EntityBuilder().CreateChannel(channel, core.CacheStrategyYes).(*core.DMChannel); ok {
 			dmChannel = c
 		}
-		bot.EventManager.Dispatch(&events.DMChannelUpdateEvent{
+		bot.EventManager().Dispatch(&events.DMChannelUpdateEvent{
 			GenericDMChannelEvent: &events.GenericDMChannelEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				ChannelID:    channel.ID(),
