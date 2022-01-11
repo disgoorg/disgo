@@ -91,12 +91,12 @@ func (e *eventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventTy
 		v := handler.New()
 		if v != nil {
 			if err := json.NewDecoder(reader).Decode(&v); err != nil {
-				e.Bot().Logger.Errorf("error while unmarshalling event '%s'. error: %s", gatewayEventType, err.Error())
+				e.Bot().Logger().Errorf("error while unmarshalling event '%s'. error: %s", gatewayEventType, err.Error())
 			}
 		}
 		handler.HandleGatewayEvent(e.Bot(), sequenceNumber, v)
 	} else {
-		e.Bot().Logger.Warnf("no handler for gateway event '%s' found", gatewayEventType)
+		e.Bot().Logger().Warnf("no handler for gateway event '%s' found", gatewayEventType)
 	}
 }
 
@@ -104,7 +104,7 @@ func (e *eventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventTy
 func (e *eventManagerImpl) HandleHTTP(responseChannel chan<- discord.InteractionResponse, reader io.Reader) {
 	v := e.config.HTTPServerHandler.New()
 	if err := json.NewDecoder(reader).Decode(&v); err != nil {
-		e.Bot().Logger.Error("error while unmarshalling httpserver event. error: ", err)
+		e.Bot().Logger().Error("error while unmarshalling httpserver event. error: ", err)
 	}
 	e.config.HTTPServerHandler.HandleHTTPEvent(e.Bot(), responseChannel, v)
 }
@@ -113,7 +113,7 @@ func (e *eventManagerImpl) HandleHTTP(responseChannel chan<- discord.Interaction
 func (e *eventManagerImpl) Dispatch(event Event) {
 	defer func() {
 		if r := recover(); r != nil {
-			e.Bot().Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
+			e.Bot().Logger().Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
 			return
 		}
 	}()
@@ -122,7 +122,7 @@ func (e *eventManagerImpl) Dispatch(event Event) {
 			go func() {
 				defer func() {
 					if r := recover(); r != nil {
-						e.Bot().Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
+						e.Bot().Logger().Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
 						return
 					}
 				}()

@@ -68,7 +68,7 @@ func (m *memberChunkingManagerImpl) HandleChunk(payload discord.GuildMembersChun
 	request, ok := m.chunkingRequests[payload.Nonce]
 	m.chunkingRequestsMu.RUnlock()
 	if !ok {
-		m.Bot().Logger.Debug("received unknown member chunk event: ", payload)
+		m.Bot().Logger().Debug("received unknown member chunk event: ", payload)
 		return
 	}
 

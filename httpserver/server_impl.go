@@ -28,7 +28,7 @@ func New(eventHandlerFunc EventHandlerFunc, config *Config) Server {
 
 	hexDecodedKey, err := hex.DecodeString(config.PublicKey)
 	if err != nil {
-		config.Logger.Errorf("error while decoding hex string: %s", err)
+		config.Logger().Errorf("error while decoding hex string: %s", err)
 	}
 
 	server := &serverImpl{

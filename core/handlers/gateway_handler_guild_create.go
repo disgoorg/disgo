@@ -100,7 +100,7 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot core.Bot, sequenceNum
 		if bot.MemberChunkingManager.MemberChunkingFilter()(payload.ID) {
 			go func() {
 				if _, err := bot.MemberChunkingManager.RequestMembersWithQuery(payload.ID, "", 0); err != nil {
-					bot.Logger.Error("failed to chunk guild on guild_create. error: ", err)
+					bot.Logger().Error("failed to chunk guild on guild_create. error: ", err)
 				}
 			}()
 		}

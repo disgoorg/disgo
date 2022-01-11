@@ -73,6 +73,6 @@ func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(bot core.Bot, sequen
 			OldVoiceState:          oldVoiceState,
 		})
 	} else {
-		bot.Logger.Warnf("could not decide which GuildVoiceEvent to fire")
+		bot.Logger().Warnf("could not decide which GuildVoiceEvent to fire")
 	}
 }

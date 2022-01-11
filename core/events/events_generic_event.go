@@ -11,11 +11,11 @@ func NewGenericEvent(bot core.Bot, sequenceNumber int) *GenericEvent {
 
 // GenericEvent the base event structure
 type GenericEvent struct {
-	bot            *core.Bot
+	bot            core.Bot
 	sequenceNumber int
 }
 
-func (e GenericEvent) Bot() *core.Bot {
+func (e GenericEvent) Bot() core.Bot {
 	return e.bot
 }
 

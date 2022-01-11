@@ -194,7 +194,7 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 					}
 
 				default:
-					b.Bot().Logger.Errorf("unknown slash command option with type %d received", option.Type())
+					b.Bot().Logger().Errorf("unknown slash command option with type %d received", option.Type())
 					continue
 				}
 				data.Options[option.Name()] = slashCommandOption
@@ -290,7 +290,7 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 		return autocompleteInteraction
 
 	default:
-		b.Bot().Logger.Error("unknown interaction type %d received", interaction.Type())
+		b.Bot().Logger().Error("unknown interaction type %d received", interaction.Type())
 		return nil
 	}
 }
@@ -456,7 +456,7 @@ func (b *entityBuilderImpl) CreateApplicationCommand(applicationCommand discord.
 			Bot:            b.Bot(),
 		}
 	default:
-		b.Bot().Logger.Errorf("unknown application command type %d received", applicationCommand.Type())
+		b.Bot().Logger().Errorf("unknown application command type %d received", applicationCommand.Type())
 		return nil
 	}
 }
@@ -544,7 +544,7 @@ func (b *entityBuilderImpl) CreateIntegration(guildID discord.Snowflake, integra
 		}
 
 	default:
-		b.Bot().Logger.Errorf("unknown integration type %d received", integration.Type())
+		b.Bot().Logger().Errorf("unknown integration type %d received", integration.Type())
 		return nil
 	}
 
@@ -577,7 +577,7 @@ func (b *entityBuilderImpl) CreateWebhook(webhook discord.Webhook, updateCache C
 		}
 
 	default:
-		b.Bot().Logger.Errorf("unknown webhook type %d received", webhook.Type())
+		b.Bot().Logger().Errorf("unknown webhook type %d received", webhook.Type())
 		return nil
 	}
 

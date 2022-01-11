@@ -603,6 +603,6 @@ func (l ListenerAdapter) OnEvent(event core.Event) {
 		}
 
 	default:
-		e.Bot().Logger.Errorf("unexpected event received: '%T', event: '%+v'", event, event)
+		e.Bot().Logger().Errorf("unexpected event received: '%T', event: '%+v'", event, event)
 	}
 }
