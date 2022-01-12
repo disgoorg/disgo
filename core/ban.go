@@ -9,7 +9,7 @@ import (
 type Ban struct {
 	Reason  *string
 	Bot     Bot
-	User    *User
+	User    User
 	GuildID discord.Snowflake
 }
 

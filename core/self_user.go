@@ -8,7 +8,7 @@ import (
 type SelfUser struct {
 	discord.OAuth2User
 	Bot  Bot
-	User *User
+	User User
 }
 
 // Update updates the SelfUser with the properties provided in discord.SelfUserUpdate

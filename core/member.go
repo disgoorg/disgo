@@ -12,7 +12,7 @@ import (
 
 type Member struct {
 	discord.Member
-	User *User
+	User User
 	Bot  Bot
 }
 
@@ -95,16 +95,16 @@ func (m *Member) EffectiveAvatarURL(size int) string {
 }
 
 // Update updates the Member with the properties provided in discord.MemberUpdate
-func (m *Member) Update(updateGuildMember discord.MemberUpdate, opts ...rest.RequestOpt) (*Member, error) {
+func (m *Member) Update(updateGuildMember discord.MemberUpdate, opts ...rest.RequestOpt) (Member, error) {
 	member, err := m.Bot.RestServices().GuildService().UpdateMember(m.GuildID, m.User.ID, updateGuildMember, opts...)
 	if err != nil {
-		return nil, err
+		return Member{}, err
 	}
 	return m.Bot.EntityBuilder().CreateMember(m.GuildID, *member, CacheStrategyNoWs), nil
 }
 
 // Move moves/kicks the member to/from a voice channel
-func (m *Member) Move(channelID discord.Snowflake, opts ...rest.RequestOpt) (*Member, error) {
+func (m *Member) Move(channelID discord.Snowflake, opts ...rest.RequestOpt) (Member, error) {
 	return m.Update(discord.MemberUpdate{ChannelID: json.NewNullablePtr(channelID)}, opts...)
 }
 

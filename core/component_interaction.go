@@ -5,13 +5,13 @@ import (
 	"github.com/DisgoOrg/disgo/rest"
 )
 
-type ComponentInteractionFilter func(interaction *ComponentInteraction) bool
+type ComponentInteractionFilter func(interaction ComponentInteraction) bool
 
 // ComponentInteraction represents a generic ComponentInteraction received from discord
 type ComponentInteraction struct {
-	*ReplyInteraction
+	ReplyInteraction
 	Data    ComponentInteractionData
-	Message *Message
+	Message Message
 }
 
 func (i ComponentInteraction) interaction() {}
@@ -19,12 +19,12 @@ func (i ComponentInteraction) Type() discord.InteractionType {
 	return discord.InteractionTypeComponent
 }
 
-func (i ComponentInteraction) ButtonInteractionData() *ButtonInteractionData {
-	return i.Data.(*ButtonInteractionData)
+func (i ComponentInteraction) ButtonInteractionData() ButtonInteractionData {
+	return i.Data.(ButtonInteractionData)
 }
 
-func (i ComponentInteraction) SelectMenuInteractionData() *SelectMenuInteractionData {
-	return i.Data.(*SelectMenuInteractionData)
+func (i ComponentInteraction) SelectMenuInteractionData() SelectMenuInteractionData {
+	return i.Data.(SelectMenuInteractionData)
 }
 
 func (i ComponentInteraction) Update(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
@@ -57,33 +57,35 @@ type ComponentInteractionData interface {
 
 type ButtonInteractionData struct {
 	discord.ButtonInteractionData
-	interaction *ComponentInteraction
+	interaction ComponentInteraction
 }
 
 // UpdateButton updates the clicked ButtonComponent with a new ButtonComponent
-func (d *ButtonInteractionData) UpdateButton(button discord.ButtonComponent, opts ...rest.RequestOpt) error {
+func (d ButtonInteractionData) UpdateButton(button discord.ButtonComponent, opts ...rest.RequestOpt) error {
 	return d.interaction.UpdateComponent(d.CustomID, button, opts...)
 }
 
 // ButtonComponent returns the ButtonComponent which issued this ButtonInteraction
-func (d *ButtonInteractionData) ButtonComponent() discord.ButtonComponent {
+func (d ButtonInteractionData) ButtonComponent() discord.ButtonComponent {
 	// this should never be nil
-	return *d.interaction.Message.ButtonByID(d.CustomID)
+	button, _ := d.interaction.Message.ButtonByID(d.CustomID)
+	return button
 }
 
 type SelectMenuInteractionData struct {
 	discord.SelectMenuInteractionData
-	interaction *ComponentInteraction
+	interaction ComponentInteraction
 }
 
 // SelectMenuComponent returns the SelectMenuComponent which issued this SelectMenuInteraction
-func (d *SelectMenuInteractionData) SelectMenuComponent() discord.SelectMenuComponent {
+func (d SelectMenuInteractionData) SelectMenuComponent() discord.SelectMenuComponent {
 	// this should never be nil
-	return *d.interaction.Message.SelectMenuByID(d.CustomID)
+	selectMenu, _ := d.interaction.Message.SelectMenuByID(d.CustomID)
+	return selectMenu
 }
 
 // SelectedOptions returns the selected SelectMenuOption(s)
-func (d *SelectMenuInteractionData) SelectedOptions() []discord.SelectMenuOption {
+func (d SelectMenuInteractionData) SelectedOptions() []discord.SelectMenuOption {
 	options := make([]discord.SelectMenuOption, len(d.Values))
 	for ii, option := range d.SelectMenuComponent().Options {
 		for _, value := range d.Values {

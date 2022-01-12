@@ -18,6 +18,7 @@ type Bot interface {
 	ApplicationID() discord.Snowflake
 	ClientID() discord.Snowflake
 	SelfUser() SelfUser
+	UpdateSefUser(selfUser SelfUser)
 	SelfMember(guildID discord.Snowflake) Member
 
 	Logger() log.Logger
@@ -83,7 +84,7 @@ type BotImpl struct {
 	token         string
 	applicationID discord.Snowflake
 	clientID      discord.Snowflake
-	selfUser      *SelfUser
+	selfUser      SelfUser
 
 	logger log.Logger
 
@@ -137,7 +138,11 @@ func (b *BotImpl) ClientID() discord.Snowflake {
 }
 
 func (b *BotImpl) SelfUser() SelfUser {
-	return *b.selfUser
+	return b.selfUser
+}
+
+func (b *BotImpl) UpdateSefUser(selfUser SelfUser) {
+	b.selfUser = selfUser
 }
 
 // SelfMember returns the Member for the specific Guild

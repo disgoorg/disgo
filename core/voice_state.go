@@ -8,8 +8,12 @@ import (
 
 type VoiceState struct {
 	discord.VoiceState
-	Bot    Bot
-	Member *Member
+	Bot Bot
+}
+
+// Member returns the Member from the Cache
+func (s *VoiceState) Member() (Member, bool) {
+	return s.Bot.Caches().Members().Get(s.GuildID, s.UserID)
 }
 
 // Mute returns whether the Member is muted

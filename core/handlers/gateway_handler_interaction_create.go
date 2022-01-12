@@ -29,26 +29,26 @@ func HandleInteraction(bot core.Bot, sequenceNumber int, c chan<- discord.Intera
 
 	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
-	bot.EventManager().Dispatch(&events.InteractionEvent{
+	bot.EventManager().Dispatch(events.InteractionEvent{
 		GenericEvent: genericEvent,
 		Interaction:  coreInteraction,
 	})
 
 	switch i := coreInteraction.(type) {
-	case *core.ApplicationCommandInteraction:
-		bot.EventManager().Dispatch(&events.ApplicationCommandInteractionEvent{
+	case core.ApplicationCommandInteraction:
+		bot.EventManager().Dispatch(events.ApplicationCommandInteractionEvent{
 			GenericEvent:                  genericEvent,
 			ApplicationCommandInteraction: i,
 		})
 
-	case *core.ComponentInteraction:
-		bot.EventManager().Dispatch(&events.ComponentInteractionEvent{
+	case core.ComponentInteraction:
+		bot.EventManager().Dispatch(events.ComponentInteractionEvent{
 			GenericEvent:         genericEvent,
 			ComponentInteraction: i,
 		})
 
-	case *core.AutocompleteInteraction:
-		bot.EventManager().Dispatch(&events.AutocompleteInteractionEvent{
+	case core.AutocompleteInteraction:
+		bot.EventManager().Dispatch(events.AutocompleteInteractionEvent{
 			GenericEvent:            genericEvent,
 			AutocompleteInteraction: i,
 		})

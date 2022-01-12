@@ -7,10 +7,10 @@ import (
 
 type AuditLog struct {
 	discord.AuditLog
-	GuildScheduledEvents map[discord.Snowflake]*GuildScheduledEvent
+	GuildScheduledEvents map[discord.Snowflake]GuildScheduledEvent
 	Integrations         map[discord.Snowflake]Integration
 	Threads              map[discord.Snowflake]GuildThread
-	Users                map[discord.Snowflake]*User
+	Users                map[discord.Snowflake]User
 	Webhooks             map[discord.Snowflake]Webhook
 	GuildID              discord.Snowflake
 	FilterOptions        AuditLogFilterOptions

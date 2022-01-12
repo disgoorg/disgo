@@ -7,14 +7,14 @@ import (
 
 type GuildScheduledEvent struct {
 	discord.GuildScheduledEvent
-	Creator *User
+	Creator User
 	Bot     Bot
 }
 
-func (e *GuildScheduledEvent) Update(guildScheduledEventUpdate discord.GuildScheduledEventUpdate, opts ...rest.RequestOpt) (*GuildScheduledEvent, error) {
+func (e *GuildScheduledEvent) Update(guildScheduledEventUpdate discord.GuildScheduledEventUpdate, opts ...rest.RequestOpt) (GuildScheduledEvent, error) {
 	guildScheduledEvent, err := e.Bot.RestServices().GuildScheduledEventService().UpdateGuildScheduledEvent(e.GuildID, e.ID, guildScheduledEventUpdate, opts...)
 	if err != nil {
-		return nil, err
+		return GuildScheduledEvent{}, err
 	}
 	return e.Bot.EntityBuilder().CreateGuildScheduledEvent(*guildScheduledEvent, CacheStrategyNoWs), nil
 }
@@ -23,38 +23,32 @@ func (e *GuildScheduledEvent) Delete(opts ...rest.RequestOpt) error {
 	return e.Bot.RestServices().GuildScheduledEventService().DeleteGuildScheduledEvent(e.GuildID, e.ID, opts...)
 }
 
-func (e *GuildScheduledEvent) AudioChannel() GuildAudioChannel {
+func (e *GuildScheduledEvent) AudioChannel() (GuildAudioChannel, bool) {
 	if e.EntityType != discord.ScheduledEventEntityTypeVoice && e.EntityType != discord.ScheduledEventEntityTypeStageInstance {
-		return nil
+		return nil, false
 	}
 	if e.ChannelID == nil {
-		return nil
+		return nil, false
 	}
-	if ch := e.Bot.Caches().Channels().Get(*e.ChannelID); ch != nil {
-		return ch.(GuildAudioChannel)
+	if ch, ok := e.Bot.Caches().Channels().Get(*e.ChannelID); ok {
+		return ch.(GuildAudioChannel), true
 	}
-	return nil
+	return nil, false
 }
 
-func (e *GuildScheduledEvent) VoiceChannelEntity() *GuildVoiceChannel {
-	if e.EntityType != discord.ScheduledEventEntityTypeVoice {
-		return nil
+func (e *GuildScheduledEvent) VoiceChannelEntity() (GuildVoiceChannel, bool) {
+	if e.EntityType != discord.ScheduledEventEntityTypeVoice || e.EntityID == nil {
+		return GuildVoiceChannel{}, false
 	}
-	if e.EntityID == nil {
-		return nil
+	if ch, ok := e.Bot.Caches().Channels().Get(*e.EntityID); ok {
+		return ch.(GuildVoiceChannel), true
 	}
-	if ch := e.Bot.Caches().Channels().Get(*e.EntityID); ch != nil {
-		return ch.(*GuildVoiceChannel)
-	}
-	return nil
+	return GuildVoiceChannel{}, false
 }
 
-func (e *GuildScheduledEvent) StageInstanceEntity() *StageInstance {
-	if e.EntityType != discord.ScheduledEventEntityTypeStageInstance {
-		return nil
-	}
-	if e.EntityID == nil {
-		return nil
+func (e *GuildScheduledEvent) StageInstanceEntity() (StageInstance, bool) {
+	if e.EntityType != discord.ScheduledEventEntityTypeStageInstance || e.EntityID == nil {
+		return StageInstance{}, false
 	}
 	return e.Bot.Caches().StageInstances().Get(*e.EntityID)
 }

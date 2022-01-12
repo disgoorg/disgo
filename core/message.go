@@ -11,7 +11,7 @@ type MessageFilter func(message Message) bool
 type Message struct {
 	discord.Message
 	Bot      Bot
-	Member   Member
+	Member   *Member
 	Author   User
 	Stickers []MessageSticker
 }
