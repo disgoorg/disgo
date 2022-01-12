@@ -42,7 +42,7 @@ func main() {
 }
 
 // send(s) a message to the webhook
-func send(wg *sync.WaitGroup, client *webhook.Client, i int) {
+func send(wg *sync.WaitGroup, client webhook.Client, i int) {
 	defer wg.Done()
 
 	if _, err := client.CreateMessage(discord.NewWebhookMessageCreateBuilder().

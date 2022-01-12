@@ -10,7 +10,7 @@ Import the package into your project.
 import "github.com/DisgoOrg/disgo/webhook"
 ```
 
-Create a new Webhook by `webhook_id` and `webhook_token`. (*This WebhookClient should be created once as it holds important state*)
+Create a new Webhook by `webhook_id` and `webhook_token`. (*This WebhookClient should be created once as it holds important state like rate-limits*)
 
 ```go
 client := webhook.NewClient(discord.Snowflake("webhookID"), "webhookToken")

@@ -8,7 +8,7 @@ import (
 // Webhook can be used to update or delete the Webhook
 type Webhook struct {
 	discord.IncomingWebhook
-	WebhookClient *Client
+	WebhookClient Client
 }
 
 // Update is used to update the Webhook

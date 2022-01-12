@@ -9,7 +9,7 @@ import (
 // EntityBuilder is used to transform discord package entities into webhook package entities which hold a reference to the webhook client
 type EntityBuilder interface {
 	// WebhookClient returns the underlying webhook client used by this EntityBuilder
-	WebhookClient() *Client
+	WebhookClient() Client
 
 	// CreateMessage returns a new webhook.Message from the discord.Message
 
@@ -20,17 +20,17 @@ type EntityBuilder interface {
 }
 
 // NewEntityBuilder returns a new default EntityBuilder
-func NewEntityBuilder(webhookClient *Client) EntityBuilder {
+func NewEntityBuilder(webhookClient Client) EntityBuilder {
 	return &entityBuilderImpl{
 		webhookClient: webhookClient,
 	}
 }
 
 type entityBuilderImpl struct {
-	webhookClient *Client
+	webhookClient Client
 }
 
-func (b *entityBuilderImpl) WebhookClient() *Client {
+func (b *entityBuilderImpl) WebhookClient() Client {
 	return b.webhookClient
 }
 

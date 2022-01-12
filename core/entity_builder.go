@@ -375,7 +375,7 @@ func (b *entityBuilderImpl) CreateMessage(message discord.Message, updateCache C
 func (b *entityBuilderImpl) CreateGuildTemplate(guildTemplate discord.GuildTemplate, updateCache CacheStrategy) GuildTemplate {
 	return GuildTemplate{
 		GuildTemplate: guildTemplate,
-		Creator: b.CreateUser(guildTemplate.Creator, updateCache)
+		Creator:       b.CreateUser(guildTemplate.Creator, updateCache),
 	}
 }
 

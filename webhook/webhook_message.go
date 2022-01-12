@@ -8,7 +8,7 @@ import (
 // Message represents a discord.Message which can be directly edited by the Client
 type Message struct {
 	discord.Message
-	WebhookClient *Client
+	WebhookClient Client
 }
 
 // Update allows you to edit an existing Message sent by you

@@ -22,7 +22,7 @@ var (
 	baseURL      = os.Getenv("base_url")
 	logger       = log.Default()
 	httpClient   = http.DefaultClient
-	client       *oauth2.Client
+	client       oauth2.Client
 )
 
 func main() {
@@ -45,7 +45,7 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 	var body string
 	cookie, err := r.Cookie("token")
 	if err == nil {
-		session := client.SessionController.GetSession(cookie.Value)
+		session := client.SessionController().GetSession(cookie.Value)
 		if session != nil {
 			var user *discord.OAuth2User
 			user, err = client.GetUser(session)

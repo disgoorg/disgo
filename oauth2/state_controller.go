@@ -1,5 +1,7 @@
 package oauth2
 
+import "github.com/DisgoOrg/disgo/internal/ttlmap"
+
 var (
 	_ StateController = (*stateControllerImpl)(nil)
 )
@@ -19,7 +21,7 @@ func NewStateController(config *StateControllerConfig) StateController {
 		config = &DefaultStateControllerConfig
 	}
 
-	states := NewTTLMap(config.MaxTTL)
+	var states = ttlmap.New[string, string](config.MaxTTL)
 	for state, url := range config.States {
 		states.Put(state, url)
 	}
@@ -31,7 +33,7 @@ func NewStateController(config *StateControllerConfig) StateController {
 }
 
 type stateControllerImpl struct {
-	states       *TTLMap
+	states       *ttlmap.Map[string, string]
 	newStateFunc func() string
 }
 

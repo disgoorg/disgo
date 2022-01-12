@@ -1,19 +1,19 @@
-package oauth2
+package ttlmap
 
 import (
 	"sync"
 	"time"
 )
 
-type value struct {
-	value      string
+type value[V any] struct {
+	value      V
 	insertedAt int64
 }
 
-func NewTTLMap(maxTTL time.Duration) *TTLMap {
-	m := &TTLMap{
+func New[K comparable, V any](maxTTL time.Duration) *Map[K, V] {
+	m := &Map[K, V]{
 		maxTTL: maxTTL,
-		m:      map[string]value{},
+		m:      map[K]value[V]{},
 	}
 
 	if maxTTL > 0 {
@@ -35,33 +35,34 @@ func NewTTLMap(maxTTL time.Duration) *TTLMap {
 	return m
 }
 
-type TTLMap struct {
+type Map[K comparable, V any] struct {
 	maxTTL time.Duration
-	m      map[string]value
+	m      map[K]value[V]
 	mu     sync.Mutex
 }
 
-func (m *TTLMap) Len() int {
+func (m *Map[K, V]) Len() int {
 	return len(m.m)
 }
 
-func (m *TTLMap) Put(k string, v string) {
+func (m *Map[K, V]) Put(k K, v V) {
 	m.mu.Lock()
-	m.m[k] = value{v, time.Now().Unix()}
+	m.m[k] = value[V]{v, time.Now().Unix()}
 	m.mu.Unlock()
 }
 
-func (m *TTLMap) Get(k string) string {
+func (m *Map[K, V]) Get(k K) V {
 	m.mu.Lock()
 	v, ok := m.m[k]
 	m.mu.Unlock()
 	if ok {
 		return v.value
 	}
-	return ""
+	var empty V
+	return empty
 }
 
-func (m *TTLMap) Delete(k string) {
+func (m *Map[K, V]) Delete(k K) {
 	m.mu.Lock()
 	delete(m.m, k)
 	m.mu.Unlock()
