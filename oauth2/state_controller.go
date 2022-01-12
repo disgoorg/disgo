@@ -44,8 +44,8 @@ func (c *stateControllerImpl) GenerateNewState(redirectURI string) string {
 }
 
 func (c *stateControllerImpl) ConsumeState(state string) string {
-	uri := c.states.Get(state)
-	if uri == "" {
+	uri, ok := c.states.Get(state)
+	if !ok {
 		return ""
 	}
 	c.states.Delete(state)

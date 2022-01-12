@@ -51,15 +51,15 @@ func (m *Map[K, V]) Put(k K, v V) {
 	m.mu.Unlock()
 }
 
-func (m *Map[K, V]) Get(k K) V {
+func (m *Map[K, V]) Get(k K) (V, bool) {
 	m.mu.Lock()
 	v, ok := m.m[k]
 	m.mu.Unlock()
 	if ok {
-		return v.value
+		return v.value, true
 	}
 	var empty V
-	return empty
+	return empty, false
 }
 
 func (m *Map[K, V]) Delete(k K) {
