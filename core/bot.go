@@ -372,3 +372,11 @@ func (b *Bot) CreateDMChannel(userID discord.Snowflake, opts ...rest.RequestOpt)
 	}
 	return b.EntityBuilder.CreateChannel(*sticker, CacheStrategyNoWs).(*DMChannel), nil
 }
+
+func (b *Bot) GetUser(userID discord.Snowflake, opts ...rest.RequestOpt) (*User, error) {
+	user, err := b.RestServices.UserService().GetUser(userID, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return b.EntityBuilder.CreateUser(*user, CacheStrategyNoWs), nil
+}
