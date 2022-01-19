@@ -239,6 +239,19 @@ func (b *MessageUpdateBuilder) ClearFlags() *MessageUpdateBuilder {
 	return b.SetFlags(MessageFlagNone)
 }
 
+// SetSuppressEmbeds adds/removes discord.MessageFlagSuppressEmbeds to the Message flags
+func (b *MessageUpdateBuilder) SetSuppressEmbeds(suppressEmbeds bool) *MessageUpdateBuilder {
+	if b.Flags == nil {
+		b.Flags = new(MessageFlags)
+	}
+	if suppressEmbeds {
+		*b.Flags = b.Flags.Add(MessageFlagSuppressEmbeds)
+	} else {
+		*b.Flags = b.Flags.Remove(MessageFlagSuppressEmbeds)
+	}
+	return b
+}
+
 // Build builds the MessageUpdateBuilder to a MessageUpdate struct
 func (b *MessageUpdateBuilder) Build() MessageUpdate {
 	return b.MessageUpdate

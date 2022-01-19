@@ -228,6 +228,16 @@ func (b *MessageCreateBuilder) SetEphemeral(ephemeral bool) *MessageCreateBuilde
 	return b
 }
 
+// SetSuppressEmbeds adds/removes discord.MessageFlagSuppressEmbeds to the Message flags
+func (b *MessageCreateBuilder) SetSuppressEmbeds(suppressEmbeds bool) *MessageCreateBuilder {
+	if suppressEmbeds {
+		b.Flags = b.Flags.Add(MessageFlagSuppressEmbeds)
+	} else {
+		b.Flags = b.Flags.Remove(MessageFlagSuppressEmbeds)
+	}
+	return b
+}
+
 // Build builds the MessageCreateBuilder to a MessageCreate struct
 func (b *MessageCreateBuilder) Build() MessageCreate {
 	return b.MessageCreate
