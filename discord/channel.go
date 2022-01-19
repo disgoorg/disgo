@@ -918,6 +918,7 @@ type ThreadMetadata struct {
 	ArchiveTimestamp    Time                `json:"archive_timestamp"`
 	Locked              bool                `json:"locked"`
 	Invitable           bool                `json:"invitable"`
+	CreateTimestamp     Time                `json:"create_timestamp"`
 }
 
 type AutoArchiveDuration int
