@@ -17,7 +17,7 @@ import (
 
 var (
 	token = os.Getenv("token")
-	//guildID = discord.Snowflake(os.Getenv("guild_id"))
+	//guildID = snowflake.Snowflake(os.Getenv("guild_id"))
 )
 
 func main() {

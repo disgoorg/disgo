@@ -3,6 +3,8 @@ package discord
 import (
 	"fmt"
 	"io"
+
+	"github.com/DisgoOrg/snowflake"
 )
 
 // MessageUpdateBuilder helper to build MessageUpdate easier
@@ -186,7 +188,7 @@ func (b *MessageUpdateBuilder) RetainAttachments(attachments ...Attachment) *Mes
 }
 
 // RetainAttachmentsByID removes all Attachment(s) from this Message except the ones provided
-func (b *MessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...Snowflake) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...snowflake.Snowflake) *MessageUpdateBuilder {
 	if b.Attachments == nil {
 		b.Attachments = new([]Attachment)
 	}

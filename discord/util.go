@@ -4,9 +4,10 @@ import (
 	"strings"
 
 	"github.com/DisgoOrg/disgo/rest/route"
+	"github.com/DisgoOrg/snowflake"
 )
 
-func FormatAssetURL(cdnRoute *route.CDNRoute, entityId Snowflake, assetId *string, size int) *string {
+func FormatAssetURL(cdnRoute *route.CDNRoute, entityId snowflake.Snowflake, assetId *string, size int) *string {
 	if assetId == nil {
 		return nil
 	}

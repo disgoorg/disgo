@@ -8,6 +8,7 @@ import (
 
 	"github.com/DisgoOrg/disgo/core/bot"
 	"github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/snowflake"
 
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
@@ -18,7 +19,7 @@ import (
 
 var (
 	token   = os.Getenv("disgo_token")
-	guildID = discord.Snowflake(os.Getenv("disgo_guild_id"))
+	guildID = snowflake.GetSnowflakeEnv("disgo_guild_id")
 
 	commands = []discord.ApplicationCommandCreate{
 		discord.SlashCommandCreate{

@@ -1,20 +1,23 @@
 package discord
 
-import "github.com/DisgoOrg/disgo/json"
+import (
+	"github.com/DisgoOrg/disgo/json"
+	"github.com/DisgoOrg/snowflake"
+)
 
 // Sticker is a sticker sent with a Message
 type Sticker struct {
-	ID          Snowflake         `json:"id"`
-	PackID      *Snowflake        `json:"pack_id"`
-	Name        string            `json:"name"`
-	Description *string           `json:"description"`
-	Tags        string            `json:"tags"`
-	Type        StickerType       `json:"type"`
-	FormatType  StickerFormatType `json:"format_type"`
-	Available   *bool             `json:"available"`
-	GuildID     *Snowflake        `json:"guild_id,omitempty"`
-	User        *User             `json:"user,omitempty"`
-	SortValue   *int              `json:"sort_value"`
+	ID          snowflake.Snowflake  `json:"id"`
+	PackID      *snowflake.Snowflake `json:"pack_id"`
+	Name        string               `json:"name"`
+	Description *string              `json:"description"`
+	Tags        string               `json:"tags"`
+	Type        StickerType          `json:"type"`
+	FormatType  StickerFormatType    `json:"format_type"`
+	Available   *bool                `json:"available"`
+	GuildID     *snowflake.Snowflake `json:"guild_id,omitempty"`
+	User        *User                `json:"user,omitempty"`
+	SortValue   *int                 `json:"sort_value"`
 }
 
 type StickerType int

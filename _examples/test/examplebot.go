@@ -13,6 +13,7 @@ import (
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/log"
+	"github.com/DisgoOrg/snowflake"
 )
 
 const (
@@ -23,9 +24,9 @@ const (
 
 var (
 	token       = os.Getenv("disgo_token")
-	guildID     = discord.Snowflake(os.Getenv("disgo_test_guild_id"))
-	adminRoleID = discord.Snowflake(os.Getenv("disgo_admin_role_id"))
-	testRoleID  = discord.Snowflake(os.Getenv("disgo_test_role_id"))
+	guildID     = snowflake.GetSnowflakeEnv("disgo_test_guild_id")
+	adminRoleID = snowflake.GetSnowflakeEnv("disgo_admin_role_id")
+	testRoleID  = snowflake.GetSnowflakeEnv("disgo_test_role_id")
 
 	//go:embed gopher.png
 	gopher []byte

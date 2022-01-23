@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/DisgoOrg/disgo/json"
+	"github.com/DisgoOrg/snowflake"
 )
 
 type SlashCommandOption interface {
@@ -204,8 +205,8 @@ func (SlashCommandOptionBool) slashCommandOption() {}
 var _ SlashCommandOption = (*SlashCommandOptionUser)(nil)
 
 type SlashCommandOptionUser struct {
-	OptionName string    `json:"name"`
-	Value      Snowflake `json:"value"`
+	OptionName string              `json:"name"`
+	Value      snowflake.Snowflake `json:"value"`
 }
 
 func (SlashCommandOptionUser) Type() ApplicationCommandOptionType {
@@ -221,8 +222,8 @@ func (SlashCommandOptionUser) slashCommandOption() {}
 var _ SlashCommandOption = (*SlashCommandOptionChannel)(nil)
 
 type SlashCommandOptionChannel struct {
-	OptionName string    `json:"name"`
-	Value      Snowflake `json:"value"`
+	OptionName string              `json:"name"`
+	Value      snowflake.Snowflake `json:"value"`
 }
 
 func (SlashCommandOptionChannel) Type() ApplicationCommandOptionType {
@@ -238,8 +239,8 @@ func (SlashCommandOptionChannel) slashCommandOption() {}
 var _ SlashCommandOption = (*SlashCommandOptionRole)(nil)
 
 type SlashCommandOptionRole struct {
-	OptionName string    `json:"name"`
-	Value      Snowflake `json:"value"`
+	OptionName string              `json:"name"`
+	Value      snowflake.Snowflake `json:"value"`
 }
 
 func (SlashCommandOptionRole) Type() ApplicationCommandOptionType {
@@ -255,8 +256,8 @@ func (SlashCommandOptionRole) slashCommandOption() {}
 var _ SlashCommandOption = (*SlashCommandOptionMentionable)(nil)
 
 type SlashCommandOptionMentionable struct {
-	OptionName string    `json:"name"`
-	Value      Snowflake `json:"value"`
+	OptionName string              `json:"name"`
+	Value      snowflake.Snowflake `json:"value"`
 }
 
 func (SlashCommandOptionMentionable) Type() ApplicationCommandOptionType {

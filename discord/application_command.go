@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/DisgoOrg/disgo/json"
+	"github.com/DisgoOrg/snowflake"
 )
 
 type ApplicationCommandType int
@@ -18,7 +19,7 @@ const (
 type ApplicationCommand interface {
 	json.Marshaler
 	Type() ApplicationCommandType
-	ID() Snowflake
+	ID() snowflake.Snowflake
 	applicationCommand()
 }
 
@@ -71,14 +72,14 @@ func (u *UnmarshalApplicationCommand) UnmarshalJSON(data []byte) error {
 var _ ApplicationCommand = (*SlashCommand)(nil)
 
 type SlashCommand struct {
-	CommandID         Snowflake                  `json:"id"`
-	ApplicationID     Snowflake                  `json:"application_id"`
-	GuildID           *Snowflake                 `json:"guild_id,omitempty"`
+	CommandID         snowflake.Snowflake        `json:"id"`
+	ApplicationID     snowflake.Snowflake        `json:"application_id"`
+	GuildID           *snowflake.Snowflake       `json:"guild_id,omitempty"`
 	Name              string                     `json:"name"`
 	Description       string                     `json:"description,omitempty"`
 	Options           []ApplicationCommandOption `json:"options,omitempty"`
 	DefaultPermission bool                       `json:"default_permission,omitempty"`
-	Version           Snowflake                  `json:"version"`
+	Version           snowflake.Snowflake        `json:"version"`
 }
 
 func (c SlashCommand) MarshalJSON() ([]byte, error) {
@@ -114,7 +115,7 @@ func (c *SlashCommand) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (c SlashCommand) ID() Snowflake {
+func (c SlashCommand) ID() snowflake.Snowflake {
 	return c.CommandID
 }
 
@@ -127,12 +128,12 @@ func (SlashCommand) applicationCommand() {}
 var _ ApplicationCommand = (*UserCommand)(nil)
 
 type UserCommand struct {
-	CommandID         Snowflake  `json:"id"`
-	ApplicationID     Snowflake  `json:"application_id"`
-	GuildID           *Snowflake `json:"guild_id,omitempty"`
-	Name              string     `json:"name"`
-	DefaultPermission bool       `json:"default_permission,omitempty"`
-	Version           Snowflake  `json:"version"`
+	CommandID         snowflake.Snowflake  `json:"id"`
+	ApplicationID     snowflake.Snowflake  `json:"application_id"`
+	GuildID           *snowflake.Snowflake `json:"guild_id,omitempty"`
+	Name              string               `json:"name"`
+	DefaultPermission bool                 `json:"default_permission,omitempty"`
+	Version           snowflake.Snowflake  `json:"version"`
 }
 
 func (c UserCommand) MarshalJSON() ([]byte, error) {
@@ -146,7 +147,7 @@ func (c UserCommand) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (c UserCommand) ID() Snowflake {
+func (c UserCommand) ID() snowflake.Snowflake {
 	return c.CommandID
 }
 
@@ -159,12 +160,12 @@ func (UserCommand) applicationCommand() {}
 var _ ApplicationCommand = (*MessageCommand)(nil)
 
 type MessageCommand struct {
-	CommandID         Snowflake  `json:"id"`
-	ApplicationID     Snowflake  `json:"application_id"`
-	GuildID           *Snowflake `json:"guild_id,omitempty"`
-	Name              string     `json:"name"`
-	DefaultPermission bool       `json:"default_permission,omitempty"`
-	Version           Snowflake  `json:"version"`
+	CommandID         snowflake.Snowflake  `json:"id"`
+	ApplicationID     snowflake.Snowflake  `json:"application_id"`
+	GuildID           *snowflake.Snowflake `json:"guild_id,omitempty"`
+	Name              string               `json:"name"`
+	DefaultPermission bool                 `json:"default_permission,omitempty"`
+	Version           snowflake.Snowflake  `json:"version"`
 }
 
 func (c MessageCommand) MarshalJSON() ([]byte, error) {
@@ -178,7 +179,7 @@ func (c MessageCommand) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (c MessageCommand) ID() Snowflake {
+func (c MessageCommand) ID() snowflake.Snowflake {
 	return c.CommandID
 }
 

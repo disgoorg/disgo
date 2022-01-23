@@ -2,15 +2,15 @@ package events
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 )
 
 type GenericThreadEvent struct {
 	*GenericEvent
 	Thread   core.GuildThread
-	ThreadID discord.Snowflake
-	GuildID  discord.Snowflake
-	ParentID discord.Snowflake
+	ThreadID snowflake.Snowflake
+	GuildID  snowflake.Snowflake
+	ParentID snowflake.Snowflake
 }
 
 type ThreadCreateEvent struct {
@@ -36,9 +36,9 @@ type ThreadHideEvent struct {
 
 type GenericThreadMemberEvent struct {
 	*GenericEvent
-	GuildID        discord.Snowflake
-	ThreadID       discord.Snowflake
-	ThreadMemberID discord.Snowflake
+	GuildID        snowflake.Snowflake
+	ThreadID       snowflake.Snowflake
+	ThreadMemberID snowflake.Snowflake
 	ThreadMember   *core.ThreadMember
 }
 

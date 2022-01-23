@@ -6,8 +6,8 @@ import (
 
 	srate2 "github.com/DisgoOrg/disgo/gateway/sharding/srate"
 	"github.com/DisgoOrg/disgo/internal/merrors"
+	"github.com/DisgoOrg/snowflake"
 
-	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/log"
 )
@@ -169,7 +169,7 @@ func (m *shardManagerImpl) CloseShard(ctx context.Context, shardID int) error {
 	return nil
 }
 
-func (m *shardManagerImpl) GetGuildShard(guildId discord.Snowflake) gateway.Gateway {
+func (m *shardManagerImpl) GetGuildShard(guildId snowflake.Snowflake) gateway.Gateway {
 	return m.Shard(ShardIDByGuild(guildId, m.config.ShardCount))
 }
 

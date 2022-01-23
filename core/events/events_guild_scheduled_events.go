@@ -2,7 +2,7 @@ package events
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 )
 
 type GenericGuildScheduledEventEvent struct {
@@ -25,9 +25,9 @@ type GuildScheduledEventDeleteEvent struct {
 
 type GenericGuildScheduledEventUserEvent struct {
 	*GenericEvent
-	GuildScheduledEventID discord.Snowflake
-	UserID                discord.Snowflake
-	GuildID               discord.Snowflake
+	GuildScheduledEventID snowflake.Snowflake
+	UserID                snowflake.Snowflake
+	GuildID               snowflake.Snowflake
 }
 
 func (e *GenericGuildScheduledEventUserEvent) GuildScheduledEvent() *core.GuildScheduledEvent {

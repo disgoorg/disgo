@@ -13,11 +13,12 @@ import (
 	"github.com/DisgoOrg/disgo/oauth2"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/log"
+	"github.com/DisgoOrg/snowflake"
 )
 
 var (
 	letters      = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-	clientID     = discord.Snowflake(os.Getenv("client_id"))
+	clientID     = snowflake.GetSnowflakeEnv("client_id")
 	clientSecret = os.Getenv("client_secret")
 	baseURL      = os.Getenv("base_url")
 	logger       = log.Default()

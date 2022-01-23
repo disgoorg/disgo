@@ -3,6 +3,8 @@ package discord
 import (
 	"fmt"
 	"regexp"
+
+	"github.com/DisgoOrg/snowflake"
 )
 
 type MentionType struct {
@@ -25,7 +27,7 @@ type Mentionable interface {
 }
 
 //goland:noinspection GoUnusedFunction
-func channelMention(id Snowflake) string {
+func channelMention(id snowflake.Snowflake) string {
 	return fmt.Sprintf("<#%s>", id)
 }
 
@@ -35,27 +37,27 @@ func userTag(username string, discriminator string) string {
 }
 
 //goland:noinspection GoUnusedFunction
-func userMention(id Snowflake) string {
+func userMention(id snowflake.Snowflake) string {
 	return fmt.Sprintf("<@%s>", id)
 }
 
 //goland:noinspection GoUnusedFunction
-func memberMention(id Snowflake) string {
+func memberMention(id snowflake.Snowflake) string {
 	return fmt.Sprintf("<@!%s>", id)
 }
 
 //goland:noinspection GoUnusedFunction
-func roleMention(id Snowflake) string {
+func roleMention(id snowflake.Snowflake) string {
 	return fmt.Sprintf("<@&%s>", id)
 }
 
 //goland:noinspection GoUnusedFunction
-func emojiMention(id Snowflake, name string) string {
+func emojiMention(id snowflake.Snowflake, name string) string {
 	return fmt.Sprintf("<:%s:%s>", id, name)
 }
 
 //goland:noinspection GoUnusedFunction
-func animatedEmojiMention(id Snowflake, name string) string {
+func animatedEmojiMention(id snowflake.Snowflake, name string) string {
 	return fmt.Sprintf("<a:%s:%s>", id, name)
 }
 

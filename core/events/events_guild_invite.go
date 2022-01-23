@@ -2,14 +2,14 @@ package events
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // GenericGuildInviteEvent is called upon receiving GuildInviteCreateEvent or GuildInviteDeleteEvent (requires discord.GatewayIntentGuildInvites)
 type GenericGuildInviteEvent struct {
 	*GenericEvent
-	GuildID   discord.Snowflake
-	ChannelID discord.Snowflake
+	GuildID   snowflake.Snowflake
+	ChannelID snowflake.Snowflake
 	Code      string
 }
 

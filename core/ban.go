@@ -3,6 +3,7 @@ package core
 import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // Ban represents a banned User from a Guild (https://discord.com/developers/docs/resources/guild#ban-object)
@@ -10,7 +11,7 @@ type Ban struct {
 	discord.Ban
 	Bot     *Bot
 	User    *User
-	GuildID discord.Snowflake
+	GuildID snowflake.Snowflake
 }
 
 // Unban unbans the User associated with this Ban from the Guild

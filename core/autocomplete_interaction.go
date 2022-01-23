@@ -3,6 +3,7 @@ package core
 import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
+	"github.com/DisgoOrg/snowflake"
 )
 
 type AutocompleteInteractionFilter func(autocompleteInteraction *AutocompleteInteraction) bool
@@ -189,7 +190,7 @@ func (m AutocompleteOptionsMap) MentionableOption(name string) *discord.Autocomp
 	return nil
 }
 
-func (m AutocompleteOptionsMap) Snowflake(name string) *discord.Snowflake {
+func (m AutocompleteOptionsMap) Snowflake(name string) *snowflake.Snowflake {
 	option := m.Get(name)
 	if option == nil {
 		return nil
