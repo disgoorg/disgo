@@ -16,7 +16,7 @@ type EmbedBuilder struct {
 
 // SetTitle sets the title of the EmbedBuilder
 func (b *EmbedBuilder) SetTitle(title string) *EmbedBuilder {
-	b.Title = &title
+	b.Title = title
 	return b
 }
 
@@ -27,14 +27,14 @@ func (b *EmbedBuilder) SetTitlef(title string, a ...interface{}) *EmbedBuilder {
 
 // SetDescription sets the description of the EmbedBuilder
 func (b *EmbedBuilder) SetDescription(description string) *EmbedBuilder {
-	b.Description = &description
+	b.Description = description
 	return b
 }
 
 // SetDescriptionf sets the description of the EmbedBuilder with format
 func (b *EmbedBuilder) SetDescriptionf(description string, a ...interface{}) *EmbedBuilder {
 	descriptionf := fmt.Sprintf(description, a...)
-	b.Description = &descriptionf
+	b.Description = descriptionf
 	return b
 }
 
@@ -49,9 +49,9 @@ func (b *EmbedBuilder) SetAuthor(name string, url string, iconURL string) *Embed
 	if b.Author == nil {
 		b.Author = &EmbedAuthor{}
 	}
-	b.Author.Name = &name
-	b.Author.URL = &url
-	b.Author.IconURL = &iconURL
+	b.Author.Name = name
+	b.Author.URL = url
+	b.Author.IconURL = iconURL
 	return b
 }
 
@@ -60,7 +60,7 @@ func (b *EmbedBuilder) SetAuthorName(name string) *EmbedBuilder {
 	if b.Author == nil {
 		b.Author = &EmbedAuthor{}
 	}
-	b.Author.Name = &name
+	b.Author.Name = name
 	return b
 }
 
@@ -69,7 +69,7 @@ func (b *EmbedBuilder) SetAuthorURL(url string) *EmbedBuilder {
 	if b.Author == nil {
 		b.Author = &EmbedAuthor{}
 	}
-	b.Author.URL = &url
+	b.Author.URL = url
 	return b
 }
 
@@ -78,13 +78,13 @@ func (b *EmbedBuilder) SetAuthorIcon(iconURL string) *EmbedBuilder {
 	if b.Author == nil {
 		b.Author = &EmbedAuthor{}
 	}
-	b.Author.IconURL = &iconURL
+	b.Author.IconURL = iconURL
 	return b
 }
 
 // SetColor sets the color of the EmbedBuilder
 func (b *EmbedBuilder) SetColor(color int) *EmbedBuilder {
-	b.Color = &color
+	b.Color = color
 	return b
 }
 
@@ -100,7 +100,7 @@ func (b *EmbedBuilder) SetFooter(text string, iconURL string) *EmbedBuilder {
 		b.Footer = &EmbedFooter{}
 	}
 	b.Footer.Text = text
-	b.Footer.IconURL = &iconURL
+	b.Footer.IconURL = iconURL
 	return b
 }
 
@@ -118,7 +118,7 @@ func (b *EmbedBuilder) SetFooterIcon(iconURL string) *EmbedBuilder {
 	if b.Footer == nil {
 		b.Footer = &EmbedFooter{}
 	}
-	b.Footer.IconURL = &iconURL
+	b.Footer.IconURL = iconURL
 	return b
 }
 
@@ -127,7 +127,7 @@ func (b *EmbedBuilder) SetImage(url string) *EmbedBuilder {
 	if b.Image == nil {
 		b.Image = &EmbedResource{}
 	}
-	b.Image.URL = &url
+	b.Image.URL = url
 	return b
 }
 
@@ -136,13 +136,13 @@ func (b *EmbedBuilder) SetThumbnail(url string) *EmbedBuilder {
 	if b.Thumbnail == nil {
 		b.Thumbnail = &EmbedResource{}
 	}
-	b.Thumbnail.URL = &url
+	b.Thumbnail.URL = url
 	return b
 }
 
 // SetURL sets the URL of the EmbedBuilder
 func (b *EmbedBuilder) SetURL(url string) *EmbedBuilder {
-	b.URL = &url
+	b.URL = url
 	return b
 }
 

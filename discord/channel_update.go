@@ -1,5 +1,7 @@
 package discord
 
+import "github.com/DisgoOrg/snowflake"
+
 type ChannelUpdate interface {
 	channelUpdate()
 }
@@ -17,7 +19,7 @@ type GuildTextChannelUpdate struct {
 	NSFW                       *bool                  `json:"nsfw,omitempty"`
 	RateLimitPerUser           *int                   `json:"rate_limit_per_user,omitempty"`
 	PermissionOverwrites       *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID                   *Snowflake             `json:"parent_id,omitempty"`
+	ParentID                   *snowflake.Snowflake   `json:"parent_id,omitempty"`
 	DefaultAutoArchiveDuration *int                   `json:"default_auto_archive_duration,omitempty"`
 }
 
@@ -31,7 +33,7 @@ type GuildVoiceChannelUpdate struct {
 	Bitrate                    *int                   `json:"bitrate,omitempty"`
 	UserLimit                  *int                   `json:"user_limit,omitempty"`
 	PermissionOverwrites       *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID                   *Snowflake             `json:"parent_id,omitempty"`
+	ParentID                   *snowflake.Snowflake   `json:"parent_id,omitempty"`
 	RTCRegion                  *string                `json:"rtc_region"`
 	VideoQualityMode           *VideoQualityMode      `json:"video_quality_mode"`
 	DefaultAutoArchiveDuration *int                   `json:"default_auto_archive_duration"`
@@ -60,7 +62,7 @@ type GuildNewsChannelUpdate struct {
 	Topic                      *string                `json:"topic,omitempty"`
 	RateLimitPerUser           *int                   `json:"rate_limit_per_user,omitempty"`
 	PermissionOverwrites       *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID                   *Snowflake             `json:"parent_id,omitempty"`
+	ParentID                   *snowflake.Snowflake   `json:"parent_id,omitempty"`
 	DefaultAutoArchiveDuration *int                   `json:"default_auto_archive_duration"`
 }
 
@@ -98,7 +100,7 @@ type GuildStageVoiceChannelUpdate struct {
 	Bitrate              *int                   `json:"bitrate,omitempty"`
 	UserLimit            *int                   `json:"user_limit,omitempty"`
 	PermissionOverwrites *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID             *Snowflake             `json:"parent_id,omitempty"`
+	ParentID             *snowflake.Snowflake   `json:"parent_id,omitempty"`
 	RTCRegion            *string                `json:"rtc_region"`
 	VideoQualityMode     *VideoQualityMode      `json:"video_quality_mode"`
 }

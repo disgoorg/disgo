@@ -4,6 +4,7 @@ import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -30,12 +31,12 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, se
 
 	var (
 		stickerCache    = bot.Caches.Stickers().GuildCache(payload.GuildID)
-		oldStickers     = map[discord.Snowflake]*core.Sticker{}
-		newStickers     = map[discord.Snowflake]*core.Sticker{}
-		updatedStickers = map[discord.Snowflake]*core.Sticker{}
+		oldStickers     = map[snowflake.Snowflake]*core.Sticker{}
+		newStickers     = map[snowflake.Snowflake]*core.Sticker{}
+		updatedStickers = map[snowflake.Snowflake]*core.Sticker{}
 	)
 
-	oldStickers = make(map[discord.Snowflake]*core.Sticker, len(stickerCache))
+	oldStickers = make(map[snowflake.Snowflake]*core.Sticker, len(stickerCache))
 	for key, value := range stickerCache {
 		va := *value
 		oldStickers[key] = &va

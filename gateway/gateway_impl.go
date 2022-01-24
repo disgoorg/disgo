@@ -148,11 +148,7 @@ func (g *gatewayImpl) Status() Status {
 	return g.status
 }
 
-func (g *gatewayImpl) Send(command discord.GatewayCommand) error {
-	return g.SendCtx(context.Background(), command)
-}
-
-func (g *gatewayImpl) SendCtx(ctx context.Context, command discord.GatewayCommand) error {
+func (g *gatewayImpl) Send(ctx context.Context, command discord.GatewayCommand) error {
 	if g.conn == nil {
 		return discord.ErrShardNotConnected
 	}
@@ -186,7 +182,7 @@ func (g *gatewayImpl) reconnect(ctx context.Context, delay time.Duration) {
 		if err := g.Open(ctx); err != nil {
 			g.Logger().Error(g.formatLogs("failed to reconnect gateway: ", err))
 			g.status = StatusDisconnected
-			g.reconnect(ctx, delay * 2)
+			g.reconnect(ctx, delay*2)
 		}
 	}()
 }
@@ -236,10 +232,10 @@ func (g *gatewayImpl) heartbeat() {
 func (g *gatewayImpl) sendHeartbeat() {
 	g.Logger().Debugf(g.formatLogs("sending heartbeat..."))
 
-	if err := g.Send(discord.NewGatewayCommand(discord.GatewayOpcodeHeartbeat, g.lastSequenceReceived)); err != nil {
+	if err := g.Send(context.TODO(), discord.NewGatewayCommand(discord.GatewayOpcodeHeartbeat, discord.HeartbeatCommandData(*g.lastSequenceReceived))); err != nil {
 		g.Logger().Error(g.formatLogs("failed to send heartbeat with error: ", err))
 		_ = g.closeWithCode(context.TODO(), websocket.CloseServiceRestart)
-		g.reconnect(context.TODO(), 1 * time.Second)
+		g.reconnect(context.TODO(), 1*time.Second)
 	}
 	g.lastHeartbeatSent = time.Now().UTC()
 }
@@ -254,7 +250,7 @@ func (g *gatewayImpl) listen() {
 		if err != nil {
 			g.Logger().Error(g.formatLogs("error while reading from ws. error: ", err))
 			_ = g.closeWithCode(context.TODO(), websocket.CloseServiceRestart)
-			g.reconnect(context.TODO(), 1 * time.Second)
+			g.reconnect(context.TODO(), 1*time.Second)
 			return
 		}
 
@@ -283,7 +279,7 @@ func (g *gatewayImpl) listen() {
 				g.status = StatusIdentifying
 				g.Logger().Info(g.formatLogs("sending StatusIdentifying command..."))
 
-				identify := discord.IdentifyCommand{
+				identify := discord.IdentifyCommandData{
 					Token: g.token,
 					Properties: discord.IdentifyCommandDataProperties{
 						OS:      g.config.OS,
@@ -299,20 +295,20 @@ func (g *gatewayImpl) listen() {
 					identify.Shard = []int{g.shardID, g.shardCount}
 				}
 
-				if err = g.Send(discord.NewGatewayCommand(discord.GatewayOpcodeIdentify, identify)); err != nil {
+				if err = g.Send(context.TODO(), discord.NewGatewayCommand(discord.GatewayOpcodeIdentify, identify)); err != nil {
 					g.Logger().Error(g.formatLogs("error sending identify payload. error: ", err))
 				}
 				g.status = StatusWaitingForReady
 			} else {
 				g.status = StatusResuming
-				cmd := discord.NewGatewayCommand(discord.GatewayOpcodeResume, discord.ResumeCommand{
+				cmd := discord.NewGatewayCommand(discord.GatewayOpcodeResume, discord.ResumeCommandData{
 					Token:     g.token,
 					SessionID: *g.sessionID,
 					Seq:       *g.lastSequenceReceived,
 				})
 				g.Logger().Info(g.formatLogs("sending StatusResuming command..."))
 
-				if err = g.Send(cmd); err != nil {
+				if err = g.Send(context.TODO(), cmd); err != nil {
 					g.Logger().Error(g.formatLogs("error sending resume payload. error: ", err))
 				}
 			}
@@ -351,7 +347,7 @@ func (g *gatewayImpl) listen() {
 		case discord.GatewayOpcodeReconnect:
 			g.Logger().Debug(g.formatLogs("received: OpcodeReconnect"))
 			_ = g.closeWithCode(context.TODO(), websocket.CloseServiceRestart)
-			g.reconnect(context.TODO(), 1 * time.Second)
+			g.reconnect(context.TODO(), 1*time.Second)
 
 		case discord.GatewayOpcodeInvalidSession:
 			var canResume bool
@@ -367,7 +363,7 @@ func (g *gatewayImpl) listen() {
 				g.sessionID = nil
 				g.lastSequenceReceived = nil
 			}
-			g.reconnect(context.TODO(), 5 * time.Second)
+			g.reconnect(context.TODO(), 5*time.Second)
 
 		case discord.GatewayOpcodeHeartbeatACK:
 			g.Logger().Debug(g.formatLogs("received: OpcodeHeartbeatACK"))

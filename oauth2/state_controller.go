@@ -1,8 +1,8 @@
 package oauth2
 
-import "github.com/DisgoOrg/disgo/internal/insecurerandstr"
-
-var _ StateController = (*stateControllerImpl)(nil)
+var (
+	_ StateController = (*stateControllerImpl)(nil)
+)
 
 // StateController is responsible for generating, storing and validating states
 type StateController interface {
@@ -10,34 +10,42 @@ type StateController interface {
 	GenerateNewState(redirectURI string) string
 
 	// ConsumeState validates a state and returns the redirect url or nil if it is invalid
-	ConsumeState(state string) *string
+	ConsumeState(state string) string
 }
 
 // NewStateController returns a new empty StateController
-func NewStateController() StateController {
-	return NewStateControllerWithStates(map[string]string{})
-}
+func NewStateController(config *StateControllerConfig) StateController {
+	if config == nil {
+		config = &DefaultStateControllerConfig
+	}
 
-// NewStateControllerWithStates returns a new StateController with the given states
-func NewStateControllerWithStates(states map[string]string) StateController {
-	return &stateControllerImpl{states: states}
+	states := NewTTLMap(config.MaxTTL)
+	for state, url := range config.States {
+		states.Put(state, url)
+	}
+
+	return &stateControllerImpl{
+		states:       states,
+		newStateFunc: config.NewStateFunc,
+	}
 }
 
 type stateControllerImpl struct {
-	states map[string]string
+	states       *TTLMap
+	newStateFunc func() string
 }
 
 func (c *stateControllerImpl) GenerateNewState(redirectURI string) string {
-	state := insecurerandstr.RandStr(32)
-	c.states[state] = redirectURI
+	state := c.newStateFunc()
+	c.states.Put(state, redirectURI)
 	return state
 }
 
-func (c *stateControllerImpl) ConsumeState(state string) *string {
-	uri, ok := c.states[state]
-	if !ok {
-		return nil
+func (c *stateControllerImpl) ConsumeState(state string) string {
+	uri := c.states.Get(state)
+	if uri == "" {
+		return ""
 	}
-	delete(c.states, state)
-	return &uri
+	c.states.Delete(state)
+	return uri
 }

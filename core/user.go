@@ -51,6 +51,5 @@ func (u *User) OpenDMChannel(opts ...rest.RequestOpt) (*DMChannel, error) {
 	if err != nil {
 		return nil, err
 	}
-	// TODO: should we caches it here? or do we get a gateway event?
-	return u.Bot.EntityBuilder.CreateChannel(*channel, CacheStrategyYes).(*DMChannel), nil
+	return u.Bot.EntityBuilder.CreateChannel(*channel, CacheStrategyNoWs).(*DMChannel), nil
 }

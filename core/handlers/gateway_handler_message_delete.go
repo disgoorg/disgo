@@ -4,6 +4,7 @@ import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // gatewayHandlerMessageDelete handles discord.GatewayEventTypeMessageDelete
@@ -26,7 +27,7 @@ func (h *gatewayHandlerMessageDelete) HandleGatewayEvent(bot *core.Bot, sequence
 	handleMessageDelete(bot, sequenceNumber, payload.ID, payload.ChannelID, payload.GuildID)
 }
 
-func handleMessageDelete(bot *core.Bot, sequenceNumber int, messageID discord.Snowflake, channelID discord.Snowflake, guildID *discord.Snowflake) {
+func handleMessageDelete(bot *core.Bot, sequenceNumber int, messageID snowflake.Snowflake, channelID snowflake.Snowflake, guildID *snowflake.Snowflake) {
 	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
 	message := bot.Caches.Messages().GetCopy(channelID, messageID)

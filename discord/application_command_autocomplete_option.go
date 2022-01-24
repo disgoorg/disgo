@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/DisgoOrg/disgo/json"
+	"github.com/DisgoOrg/snowflake"
 )
 
 type AutocompleteOption interface {
@@ -207,9 +208,9 @@ func (AutocompleteOptionBool) autocompleteOption() {}
 var _ AutocompleteOption = (*AutocompleteOptionUser)(nil)
 
 type AutocompleteOptionUser struct {
-	OptionName    string    `json:"name"`
-	Value         Snowflake `json:"value"`
-	OptionFocused bool      `json:"focused"`
+	OptionName    string              `json:"name"`
+	Value         snowflake.Snowflake `json:"value"`
+	OptionFocused bool                `json:"focused"`
 }
 
 func (AutocompleteOptionUser) Type() ApplicationCommandOptionType {
@@ -229,9 +230,9 @@ func (AutocompleteOptionUser) autocompleteOption() {}
 var _ AutocompleteOption = (*AutocompleteOptionChannel)(nil)
 
 type AutocompleteOptionChannel struct {
-	OptionName    string    `json:"name"`
-	Value         Snowflake `json:"value"`
-	OptionFocused bool      `json:"focused"`
+	OptionName    string              `json:"name"`
+	Value         snowflake.Snowflake `json:"value"`
+	OptionFocused bool                `json:"focused"`
 }
 
 func (AutocompleteOptionChannel) Type() ApplicationCommandOptionType {
@@ -251,9 +252,9 @@ func (AutocompleteOptionChannel) autocompleteOption() {}
 var _ AutocompleteOption = (*AutocompleteOptionRole)(nil)
 
 type AutocompleteOptionRole struct {
-	OptionName    string    `json:"name"`
-	Value         Snowflake `json:"value"`
-	OptionFocused bool      `json:"focused"`
+	OptionName    string              `json:"name"`
+	Value         snowflake.Snowflake `json:"value"`
+	OptionFocused bool                `json:"focused"`
 }
 
 func (AutocompleteOptionRole) Type() ApplicationCommandOptionType {
@@ -273,9 +274,9 @@ func (AutocompleteOptionRole) autocompleteOption() {}
 var _ AutocompleteOption = (*AutocompleteOptionMentionable)(nil)
 
 type AutocompleteOptionMentionable struct {
-	OptionName    string    `json:"name"`
-	Value         Snowflake `json:"value"`
-	OptionFocused bool      `json:"focused"`
+	OptionName    string              `json:"name"`
+	Value         snowflake.Snowflake `json:"value"`
+	OptionFocused bool                `json:"focused"`
 }
 
 func (AutocompleteOptionMentionable) Type() ApplicationCommandOptionType {

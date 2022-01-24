@@ -4,11 +4,12 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/route"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // NewEmote creates a new custom Emoji with the given parameters
 //goland:noinspection GoUnusedExportedFunction
-func NewEmote(name string, emoteID discord.Snowflake, animated bool) *Emoji {
+func NewEmote(name string, emoteID snowflake.Snowflake, animated bool) *Emoji {
 	return &Emoji{
 		Emoji: discord.Emoji{
 			Name:     name,

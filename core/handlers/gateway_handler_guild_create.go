@@ -4,6 +4,7 @@ import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // gatewayHandlerGuildCreate handles core.GuildCreateGatewayEvent
@@ -32,13 +33,11 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 	guild := bot.EntityBuilder.CreateGuild(payload.Guild, core.CacheStrategyYes)
 
 	for _, channel := range payload.Channels {
-		setGuildID(channel, payload.ID)
-		bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes)
+		bot.EntityBuilder.CreateChannel(setGuildID(channel, payload.ID), core.CacheStrategyYes)
 	}
 
 	for _, thread := range payload.Threads {
-		setGuildID(thread, payload.ID)
-		bot.EntityBuilder.CreateChannel(thread, core.CacheStrategyYes)
+		bot.EntityBuilder.CreateChannel(setGuildID(thread, payload.ID), core.CacheStrategyYes)
 	}
 
 	for _, role := range payload.Roles {
@@ -66,8 +65,16 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 		bot.EntityBuilder.CreateEmoji(payload.ID, emote, core.CacheStrategyYes)
 	}
 
+	for _, sticker := range payload.Stickers {
+		bot.EntityBuilder.CreateSticker(sticker, core.CacheStrategyYes)
+	}
+
 	for _, stageInstance := range payload.StageInstances {
 		bot.EntityBuilder.CreateStageInstance(stageInstance, core.CacheStrategyYes)
+	}
+
+	for _, guildScheduledEvent := range payload.GuildScheduledEvents {
+		bot.EntityBuilder.CreateGuildScheduledEvent(guildScheduledEvent, core.CacheStrategyYes)
 	}
 
 	for _, presence := range payload.Presences {
@@ -111,33 +118,43 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 	}
 }
 
-func setGuildID(channel discord.GuildChannel, guildID discord.Snowflake) {
+func setGuildID(channel discord.GuildChannel, guildID snowflake.Snowflake) discord.GuildChannel {
 	switch ch := channel.(type) {
 	case discord.GuildTextChannel:
 		ch.ChannelGuildID = guildID
+		return ch
 
 	case discord.GuildVoiceChannel:
 		ch.ChannelGuildID = guildID
+		return ch
 
 	case discord.GuildCategoryChannel:
 		ch.ChannelGuildID = guildID
+		return ch
 
 	case discord.GuildNewsChannel:
 		ch.ChannelGuildID = guildID
+		return ch
 
 	case discord.GuildStoreChannel:
 		ch.ChannelGuildID = guildID
+		return ch
 
 	case discord.GuildNewsThread:
 		ch.ChannelGuildID = guildID
+		return ch
 
 	case discord.GuildPrivateThread:
 		ch.ChannelGuildID = guildID
+		return ch
 
 	case discord.GuildPublicThread:
 		ch.ChannelGuildID = guildID
+		return ch
 
 	case discord.GuildStageVoiceChannel:
 		ch.ChannelGuildID = guildID
+		return ch
 	}
+	return nil
 }

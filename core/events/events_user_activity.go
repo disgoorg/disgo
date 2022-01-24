@@ -3,13 +3,14 @@ package events
 import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // GenericUserActivityEvent generic Activity event
 type GenericUserActivityEvent struct {
 	*GenericEvent
-	UserID   discord.Snowflake
-	GuildID  discord.Snowflake
+	UserID   snowflake.Snowflake
+	GuildID  snowflake.Snowflake
 	Activity discord.Activity
 }
 

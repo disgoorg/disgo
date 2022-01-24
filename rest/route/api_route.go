@@ -8,6 +8,14 @@ import (
 
 // NewAPIRoute generates a new discord api path struct
 func NewAPIRoute(method Method, path string, queryParams ...string) *APIRoute {
+	return newAPIRoute(method, path, queryParams, true)
+}
+
+func NewAPIRouteNoAuth(method Method, path string, queryParams ...string) *APIRoute {
+	return newAPIRoute(method, path, queryParams, false)
+}
+
+func newAPIRoute(method Method, path string, queryParams []string, needsAuth bool) *APIRoute {
 	params := map[string]struct{}{}
 	for _, param := range queryParams {
 		params[param] = struct{}{}
@@ -19,6 +27,7 @@ func NewAPIRoute(method Method, path string, queryParams ...string) *APIRoute {
 		queryParams:   params,
 		urlParamCount: countURLParams(path),
 		method:        method,
+		needsAuth:     needsAuth,
 	}
 }
 
@@ -37,6 +46,7 @@ type APIRoute struct {
 	queryParams   map[string]struct{}
 	urlParamCount int
 	method        Method
+	needsAuth     bool
 }
 
 // Compile returns a CompiledAPIRoute
@@ -87,6 +97,11 @@ func (r *APIRoute) Method() Method {
 // Path returns the request path used by the path
 func (r *APIRoute) Path() string {
 	return r.path
+}
+
+// NeedsAuth returns whether the route requires authentication
+func (r *APIRoute) NeedsAuth() bool {
+	return r.needsAuth
 }
 
 // CompiledAPIRoute is APIRoute compiled with all URL args

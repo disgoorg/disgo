@@ -3,6 +3,8 @@ package discord
 import (
 	"fmt"
 	"io"
+
+	"github.com/DisgoOrg/snowflake"
 )
 
 // WebhookMessageUpdateBuilder helper to build MessageUpdate easier
@@ -187,7 +189,7 @@ func (b *WebhookMessageUpdateBuilder) RetainAttachments(attachments ...Attachmen
 }
 
 // RetainAttachmentsByID removes all Attachment(s) from this Message except the ones provided
-func (b *WebhookMessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...Snowflake) *WebhookMessageUpdateBuilder {
+func (b *WebhookMessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...snowflake.Snowflake) *WebhookMessageUpdateBuilder {
 	if b.Attachments == nil {
 		b.Attachments = new([]Attachment)
 	}

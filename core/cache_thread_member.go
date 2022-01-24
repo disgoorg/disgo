@@ -1,24 +1,22 @@
 package core
 
-import (
-	"github.com/DisgoOrg/disgo/discord"
-)
+import "github.com/DisgoOrg/snowflake"
 
 type (
 	ThreadMemberFindFunc func(threadMember *ThreadMember) bool
 
 	ThreadMemberCache interface {
-		Get(threadID discord.Snowflake, userID discord.Snowflake) *ThreadMember
-		GetCopy(threadID discord.Snowflake, userID discord.Snowflake) *ThreadMember
+		Get(threadID snowflake.Snowflake, userID snowflake.Snowflake) *ThreadMember
+		GetCopy(threadID snowflake.Snowflake, userID snowflake.Snowflake) *ThreadMember
 		Set(threadMember *ThreadMember) *ThreadMember
-		Remove(threadID discord.Snowflake, userID discord.Snowflake)
-		RemoveAll(threadID discord.Snowflake)
+		Remove(threadID snowflake.Snowflake, userID snowflake.Snowflake)
+		RemoveAll(threadID snowflake.Snowflake)
 
-		Cache() map[discord.Snowflake]map[discord.Snowflake]*ThreadMember
-		All() map[discord.Snowflake][]*ThreadMember
+		Cache() map[snowflake.Snowflake]map[snowflake.Snowflake]*ThreadMember
+		All() map[snowflake.Snowflake][]*ThreadMember
 
-		ThreadCache(threadID discord.Snowflake) map[discord.Snowflake]*ThreadMember
-		ThreadAll(threadID discord.Snowflake) []*ThreadMember
+		ThreadCache(threadID snowflake.Snowflake) map[snowflake.Snowflake]*ThreadMember
+		ThreadAll(threadID snowflake.Snowflake) []*ThreadMember
 
 		FindFirst(threadMemberFindFunc ThreadMemberFindFunc) *ThreadMember
 		FindAll(threadMemberFindFunc ThreadMemberFindFunc) []*ThreadMember
@@ -26,25 +24,25 @@ type (
 
 	threadMemberCacheImpl struct {
 		cacheFlags    CacheFlags
-		threadMembers map[discord.Snowflake]map[discord.Snowflake]*ThreadMember
+		threadMembers map[snowflake.Snowflake]map[snowflake.Snowflake]*ThreadMember
 	}
 )
 
 func NewThreadMemberCache(cacheFlags CacheFlags) ThreadMemberCache {
 	return &threadMemberCacheImpl{
 		cacheFlags:    cacheFlags,
-		threadMembers: map[discord.Snowflake]map[discord.Snowflake]*ThreadMember{},
+		threadMembers: map[snowflake.Snowflake]map[snowflake.Snowflake]*ThreadMember{},
 	}
 }
 
-func (c *threadMemberCacheImpl) Get(threadID discord.Snowflake, userID discord.Snowflake) *ThreadMember {
+func (c *threadMemberCacheImpl) Get(threadID snowflake.Snowflake, userID snowflake.Snowflake) *ThreadMember {
 	if _, ok := c.threadMembers[threadID]; !ok {
 		return nil
 	}
 	return c.threadMembers[threadID][userID]
 }
 
-func (c *threadMemberCacheImpl) GetCopy(threadID discord.Snowflake, userID discord.Snowflake) *ThreadMember {
+func (c *threadMemberCacheImpl) GetCopy(threadID snowflake.Snowflake, userID snowflake.Snowflake) *ThreadMember {
 	if threadMember := c.Get(threadID, userID); threadMember != nil {
 		m := *threadMember
 		return &m
@@ -58,7 +56,7 @@ func (c *threadMemberCacheImpl) Set(threadMember *ThreadMember) *ThreadMember {
 		return threadMember
 	}
 	if _, ok := c.threadMembers[threadMember.ThreadID]; !ok {
-		c.threadMembers[threadMember.ThreadID] = map[discord.Snowflake]*ThreadMember{}
+		c.threadMembers[threadMember.ThreadID] = map[snowflake.Snowflake]*ThreadMember{}
 	}
 	rol, ok := c.threadMembers[threadMember.ThreadID][threadMember.UserID]
 	if ok {
@@ -70,23 +68,23 @@ func (c *threadMemberCacheImpl) Set(threadMember *ThreadMember) *ThreadMember {
 	return threadMember
 }
 
-func (c *threadMemberCacheImpl) Remove(threadID discord.Snowflake, userID discord.Snowflake) {
+func (c *threadMemberCacheImpl) Remove(threadID snowflake.Snowflake, userID snowflake.Snowflake) {
 	if _, ok := c.threadMembers[threadID]; !ok {
 		return
 	}
 	delete(c.threadMembers[threadID], userID)
 }
 
-func (c *threadMemberCacheImpl) RemoveAll(threadID discord.Snowflake) {
+func (c *threadMemberCacheImpl) RemoveAll(threadID snowflake.Snowflake) {
 	delete(c.threadMembers, threadID)
 }
 
-func (c *threadMemberCacheImpl) Cache() map[discord.Snowflake]map[discord.Snowflake]*ThreadMember {
+func (c *threadMemberCacheImpl) Cache() map[snowflake.Snowflake]map[snowflake.Snowflake]*ThreadMember {
 	return c.threadMembers
 }
 
-func (c *threadMemberCacheImpl) All() map[discord.Snowflake][]*ThreadMember {
-	threadMembers := make(map[discord.Snowflake][]*ThreadMember, len(c.threadMembers))
+func (c *threadMemberCacheImpl) All() map[snowflake.Snowflake][]*ThreadMember {
+	threadMembers := make(map[snowflake.Snowflake][]*ThreadMember, len(c.threadMembers))
 	for threadID, guildThreadMembers := range c.threadMembers {
 		threadMembers[threadID] = make([]*ThreadMember, len(guildThreadMembers))
 		i := 0
@@ -98,14 +96,14 @@ func (c *threadMemberCacheImpl) All() map[discord.Snowflake][]*ThreadMember {
 	return threadMembers
 }
 
-func (c *threadMemberCacheImpl) ThreadCache(threadID discord.Snowflake) map[discord.Snowflake]*ThreadMember {
+func (c *threadMemberCacheImpl) ThreadCache(threadID snowflake.Snowflake) map[snowflake.Snowflake]*ThreadMember {
 	if _, ok := c.threadMembers[threadID]; !ok {
 		return nil
 	}
 	return c.threadMembers[threadID]
 }
 
-func (c *threadMemberCacheImpl) ThreadAll(threadID discord.Snowflake) []*ThreadMember {
+func (c *threadMemberCacheImpl) ThreadAll(threadID snowflake.Snowflake) []*ThreadMember {
 	if _, ok := c.threadMembers[threadID]; !ok {
 		return nil
 	}

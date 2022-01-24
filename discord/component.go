@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/DisgoOrg/disgo/json"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // ComponentType defines different Component(s)
@@ -88,9 +89,9 @@ func (u *UnmarshalComponent) UnmarshalJSON(data []byte) error {
 }
 
 type ComponentEmoji struct {
-	ID       Snowflake `json:"id,omitempty"`
-	Name     string    `json:"name,omitempty"`
-	Animated bool      `json:"animated,omitempty"`
+	ID       snowflake.Snowflake `json:"id,omitempty"`
+	Name     string              `json:"name,omitempty"`
+	Animated bool                `json:"animated,omitempty"`
 }
 
 var (

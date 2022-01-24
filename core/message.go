@@ -3,6 +3,7 @@ package core
 import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // MessageFilter used to filter Message(s) in a collectors.MessageCollector
@@ -187,10 +188,10 @@ func (m *Message) IsWebhookMessage() bool {
 type MessageReactionAddFilter func(e *MessageReactionAdd) bool
 
 type MessageReactionAdd struct {
-	UserID    discord.Snowflake
-	ChannelID discord.Snowflake
-	MessageID discord.Snowflake
-	GuildID   *discord.Snowflake
+	UserID    snowflake.Snowflake
+	ChannelID snowflake.Snowflake
+	MessageID snowflake.Snowflake
+	GuildID   *snowflake.Snowflake
 	Member    *Member
 	Emoji     discord.ReactionEmoji
 }
@@ -199,9 +200,9 @@ type MessageReactionAdd struct {
 type MessageReactionRemoveFilter func(e *MessageReactionRemove) bool
 
 type MessageReactionRemove struct {
-	UserID    discord.Snowflake
-	ChannelID discord.Snowflake
-	MessageID discord.Snowflake
-	GuildID   *discord.Snowflake
+	UserID    snowflake.Snowflake
+	ChannelID snowflake.Snowflake
+	MessageID snowflake.Snowflake
+	GuildID   *snowflake.Snowflake
 	Emoji     discord.ReactionEmoji
 }

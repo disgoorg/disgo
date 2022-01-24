@@ -2,50 +2,22 @@ package events
 
 import "github.com/DisgoOrg/disgo/core"
 
-type InteractionCreateEvent struct {
+type InteractionEvent struct {
 	*GenericEvent
 	core.Interaction
 }
 
-type ApplicationCommandInteractionCreateEvent struct {
+type ApplicationCommandInteractionEvent struct {
 	*GenericEvent
-	core.ApplicationCommandInteraction
+	*core.ApplicationCommandInteraction
 }
 
-// SlashCommandEvent indicates that a slash discord.ApplicationCommand was run
-type SlashCommandEvent struct {
+type ComponentInteractionEvent struct {
 	*GenericEvent
-	*core.SlashCommandInteraction
+	*core.ComponentInteraction
 }
 
-type UserCommandEvent struct {
-	*GenericEvent
-	*core.UserCommandInteraction
-}
-
-type MessageCommandEvent struct {
-	*GenericEvent
-	*core.MessageCommandInteraction
-}
-
-type ComponentInteractionCreateEvent struct {
-	*GenericEvent
-	core.ComponentInteraction
-}
-
-// ButtonClickEvent indicates that a discord.ButtonComponent was clicked
-type ButtonClickEvent struct {
-	*GenericEvent
-	*core.ButtonInteraction
-}
-
-// SelectMenuSubmitEvent indicates that a discord.SelectMenuComponent was submitted
-type SelectMenuSubmitEvent struct {
-	*GenericEvent
-	*core.SelectMenuInteraction
-}
-
-type AutocompleteEvent struct {
+type AutocompleteInteractionEvent struct {
 	*GenericEvent
 	*core.AutocompleteInteraction
 }

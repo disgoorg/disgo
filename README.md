@@ -39,12 +39,12 @@ disgo is a [Discord](https://discord.com) API wrapper written in [Go](https://go
 * [Webhook](https://discord.com/developers/docs/resources/webhook)
 * [OAuth2](https://discord.com/developers/docs/topics/oauth2)
 * [Threads](https://discord.com/developers/docs/topics/threads)
+* [Guild Scheduled Event](https://discord.com/developers/docs/resources/guild-scheduled-event)
 
 ### Missing Features
 
 * [Voice](https://discord.com/developers/docs/topics/voice-connections)
 * [RPC](https://discord.com/developers/docs/topics/rpc)
-* [Guild Scheduled Event](https://discord.com/developers/docs/resources/guild-scheduled-event)
 
 ## Getting Started
 
@@ -177,17 +177,9 @@ Being used in production by FredBoat, Dyno, LewdBot, and more.
 
 [Lavalink Client](https://github.com/freyacodes/Lavalink) which can be used to communicate with LavaLink to play/search tracks
 
-### [disgofy](https://github.com/DisgoOrg/disgofy)
-
-[disgolink](https://github.com/DisgoOrg/disgolink) Spotify integration. disgofy resolved Spotify urls to tracks/albums/playlists and lazy searches for them on YouTube
-
 ### [dislog](https://github.com/DisgoOrg/dislog)
 
 Discord webhook logger integration for [logrus](https://github.com/sirupsen/logrus)
-
-### [disgommand](https://github.com/DisgoOrg/disgommand)
-
-Command framework for disgo in [gorilla/mux](https://github.com/gorilla/mux) style
 
 ## Why another library?
 

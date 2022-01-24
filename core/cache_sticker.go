@@ -1,23 +1,21 @@
 package core
 
-import (
-	"github.com/DisgoOrg/disgo/discord"
-)
+import "github.com/DisgoOrg/snowflake"
 
 type (
 	StickerFindFunc func(sticker *Sticker) bool
 
 	StickerCache interface {
-		Get(guildID discord.Snowflake, stickerID discord.Snowflake) *Sticker
-		GetCopy(guildID discord.Snowflake, stickerID discord.Snowflake) *Sticker
+		Get(guildID snowflake.Snowflake, stickerID snowflake.Snowflake) *Sticker
+		GetCopy(guildID snowflake.Snowflake, stickerID snowflake.Snowflake) *Sticker
 		Set(sticker *Sticker) *Sticker
-		Remove(guildID discord.Snowflake, stickerID discord.Snowflake)
+		Remove(guildID snowflake.Snowflake, stickerID snowflake.Snowflake)
 
-		Cache() map[discord.Snowflake]map[discord.Snowflake]*Sticker
-		All() map[discord.Snowflake][]*Sticker
+		Cache() map[snowflake.Snowflake]map[snowflake.Snowflake]*Sticker
+		All() map[snowflake.Snowflake][]*Sticker
 
-		GuildCache(guildID discord.Snowflake) map[discord.Snowflake]*Sticker
-		GuildAll(guildID discord.Snowflake) []*Sticker
+		GuildCache(guildID snowflake.Snowflake) map[snowflake.Snowflake]*Sticker
+		GuildAll(guildID snowflake.Snowflake) []*Sticker
 
 		FindFirst(stickerFindFunc StickerFindFunc) *Sticker
 		FindAll(stickerFindFunc StickerFindFunc) []*Sticker
@@ -25,25 +23,25 @@ type (
 
 	stickerCacheImpl struct {
 		cacheFlags CacheFlags
-		stickers   map[discord.Snowflake]map[discord.Snowflake]*Sticker
+		stickers   map[snowflake.Snowflake]map[snowflake.Snowflake]*Sticker
 	}
 )
 
 func NewStickerCache(cacheFlags CacheFlags) StickerCache {
 	return &stickerCacheImpl{
 		cacheFlags: cacheFlags,
-		stickers:   map[discord.Snowflake]map[discord.Snowflake]*Sticker{},
+		stickers:   map[snowflake.Snowflake]map[snowflake.Snowflake]*Sticker{},
 	}
 }
 
-func (c *stickerCacheImpl) Get(guildID discord.Snowflake, stickerID discord.Snowflake) *Sticker {
+func (c *stickerCacheImpl) Get(guildID snowflake.Snowflake, stickerID snowflake.Snowflake) *Sticker {
 	if _, ok := c.stickers[guildID]; !ok {
 		return nil
 	}
 	return c.stickers[guildID][stickerID]
 }
 
-func (c *stickerCacheImpl) GetCopy(guildID discord.Snowflake, stickerID discord.Snowflake) *Sticker {
+func (c *stickerCacheImpl) GetCopy(guildID snowflake.Snowflake, stickerID snowflake.Snowflake) *Sticker {
 	if sticker := c.Get(guildID, stickerID); sticker != nil {
 		st := *sticker
 		return &st
@@ -59,7 +57,7 @@ func (c *stickerCacheImpl) Set(sticker *Sticker) *Sticker {
 		return sticker
 	}
 	if _, ok := c.stickers[*sticker.GuildID]; !ok {
-		c.stickers[*sticker.GuildID] = map[discord.Snowflake]*Sticker{}
+		c.stickers[*sticker.GuildID] = map[snowflake.Snowflake]*Sticker{}
 	}
 	st, ok := c.stickers[*sticker.GuildID][sticker.ID]
 	if ok {
@@ -71,19 +69,19 @@ func (c *stickerCacheImpl) Set(sticker *Sticker) *Sticker {
 	return sticker
 }
 
-func (c *stickerCacheImpl) Remove(guildID discord.Snowflake, stickerID discord.Snowflake) {
+func (c *stickerCacheImpl) Remove(guildID snowflake.Snowflake, stickerID snowflake.Snowflake) {
 	if _, ok := c.stickers[guildID]; !ok {
 		return
 	}
 	delete(c.stickers[guildID], stickerID)
 }
 
-func (c *stickerCacheImpl) Cache() map[discord.Snowflake]map[discord.Snowflake]*Sticker {
+func (c *stickerCacheImpl) Cache() map[snowflake.Snowflake]map[snowflake.Snowflake]*Sticker {
 	return c.stickers
 }
 
-func (c *stickerCacheImpl) All() map[discord.Snowflake][]*Sticker {
-	stickers := make(map[discord.Snowflake][]*Sticker, len(c.stickers))
+func (c *stickerCacheImpl) All() map[snowflake.Snowflake][]*Sticker {
+	stickers := make(map[snowflake.Snowflake][]*Sticker, len(c.stickers))
 	for guildID, guildStickers := range c.stickers {
 		stickers[guildID] = make([]*Sticker, len(guildStickers))
 		i := 0
@@ -95,14 +93,14 @@ func (c *stickerCacheImpl) All() map[discord.Snowflake][]*Sticker {
 	return stickers
 }
 
-func (c *stickerCacheImpl) GuildCache(guildID discord.Snowflake) map[discord.Snowflake]*Sticker {
+func (c *stickerCacheImpl) GuildCache(guildID snowflake.Snowflake) map[snowflake.Snowflake]*Sticker {
 	if _, ok := c.stickers[guildID]; !ok {
 		return nil
 	}
 	return c.stickers[guildID]
 }
 
-func (c *stickerCacheImpl) GuildAll(guildID discord.Snowflake) []*Sticker {
+func (c *stickerCacheImpl) GuildAll(guildID snowflake.Snowflake) []*Sticker {
 	if _, ok := c.stickers[guildID]; !ok {
 		return nil
 	}
