@@ -1,6 +1,9 @@
 package core
 
-import "github.com/DisgoOrg/disgo/discord"
+import (
+	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
+)
 
 type ApplicationCommandInteractionFilter func(interaction *ApplicationCommandInteraction) bool
 
@@ -53,10 +56,10 @@ func (i SlashCommandInteractionData) CommandPath() string {
 
 // SlashCommandResolved contains resolved mention data for SlashCommand(s)
 type SlashCommandResolved struct {
-	Users    map[discord.Snowflake]*User
-	Members  map[discord.Snowflake]*Member
-	Roles    map[discord.Snowflake]*Role
-	Channels map[discord.Snowflake]Channel
+	Users    map[snowflake.Snowflake]*User
+	Members  map[snowflake.Snowflake]*Member
+	Roles    map[snowflake.Snowflake]*Role
+	Channels map[snowflake.Snowflake]Channel
 }
 
 type UserCommandInteractionData struct {
@@ -73,8 +76,8 @@ func (i *UserCommandInteractionData) TargetMember() *Member {
 }
 
 type UserCommandResolved struct {
-	Users   map[discord.Snowflake]*User
-	Members map[discord.Snowflake]*Member
+	Users   map[snowflake.Snowflake]*User
+	Members map[snowflake.Snowflake]*Member
 }
 
 type MessageCommandInteractionData struct {
@@ -87,5 +90,5 @@ func (i *MessageCommandInteractionData) TargetMessage() *Message {
 }
 
 type MessageCommandResolved struct {
-	Messages map[discord.Snowflake]*Message
+	Messages map[snowflake.Snowflake]*Message
 }

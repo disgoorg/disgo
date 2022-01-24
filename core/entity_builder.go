@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // CacheStrategy is used to determine whether something should be cached when making an api request. When using the
@@ -38,25 +39,25 @@ type EntityBuilder interface {
 	CreateStageInstance(stageInstance discord.StageInstance, updateCache CacheStrategy) *StageInstance
 
 	CreateGuildScheduledEvent(guildScheduledEvent discord.GuildScheduledEvent, updateCache CacheStrategy) *GuildScheduledEvent
-	CreateGuildScheduledEventUser(guildID discord.Snowflake, guildScheduledEventUser discord.GuildScheduledEventUser, updateCache CacheStrategy) *GuildScheduledEventUser
+	CreateGuildScheduledEventUser(guildID snowflake.Snowflake, guildScheduledEventUser discord.GuildScheduledEventUser, updateCache CacheStrategy) *GuildScheduledEventUser
 
-	CreateRole(guildID discord.Snowflake, role discord.Role, updateCache CacheStrategy) *Role
-	CreateMember(guildID discord.Snowflake, member discord.Member, updateCache CacheStrategy) *Member
-	CreateBan(guildID discord.Snowflake, ban discord.Ban, updateCache CacheStrategy) *Ban
+	CreateRole(guildID snowflake.Snowflake, role discord.Role, updateCache CacheStrategy) *Role
+	CreateMember(guildID snowflake.Snowflake, member discord.Member, updateCache CacheStrategy) *Member
+	CreateBan(guildID snowflake.Snowflake, ban discord.Ban, updateCache CacheStrategy) *Ban
 	CreateVoiceState(voiceState discord.VoiceState, updateCache CacheStrategy) *VoiceState
 
 	CreateApplicationCommand(applicationCommand discord.ApplicationCommand) ApplicationCommand
 	CreateApplicationCommandPermissions(guildCommandPermissions discord.ApplicationCommandPermissions) *ApplicationCommandPermissions
 
-	CreateAuditLog(guildID discord.Snowflake, auditLog discord.AuditLog, filterOptions AuditLogFilterOptions, updateCache CacheStrategy) *AuditLog
-	CreateIntegration(guildID discord.Snowflake, integration discord.Integration, updateCache CacheStrategy) Integration
+	CreateAuditLog(guildID snowflake.Snowflake, auditLog discord.AuditLog, filterOptions AuditLogFilterOptions, updateCache CacheStrategy) *AuditLog
+	CreateIntegration(guildID snowflake.Snowflake, integration discord.Integration, updateCache CacheStrategy) Integration
 
 	CreateChannel(channel discord.Channel, updateCache CacheStrategy) Channel
 	CreateThreadMember(threadMember discord.ThreadMember, updateCache CacheStrategy) *ThreadMember
 
 	CreateInvite(invite discord.Invite, updateCache CacheStrategy) *Invite
 
-	CreateEmoji(guildID discord.Snowflake, emoji discord.Emoji, updateCache CacheStrategy) *Emoji
+	CreateEmoji(guildID snowflake.Snowflake, emoji discord.Emoji, updateCache CacheStrategy) *Emoji
 	CreateStickerPack(stickerPack discord.StickerPack, updateCache CacheStrategy) *StickerPack
 	CreateSticker(sticker discord.Sticker, updateCache CacheStrategy) *Sticker
 	CreateMessageSticker(sticker discord.MessageSticker) *MessageSticker
@@ -103,10 +104,10 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 			data := &SlashCommandInteractionData{
 				SlashCommandInteractionData: d,
 				Resolved: &SlashCommandResolved{
-					Users:    map[discord.Snowflake]*User{},
-					Members:  map[discord.Snowflake]*Member{},
-					Roles:    map[discord.Snowflake]*Role{},
-					Channels: map[discord.Snowflake]Channel{},
+					Users:    map[snowflake.Snowflake]*User{},
+					Members:  map[snowflake.Snowflake]*Member{},
+					Roles:    map[snowflake.Snowflake]*Role{},
+					Channels: map[snowflake.Snowflake]Channel{},
 				},
 			}
 			for id, u := range d.Resolved.Users {
@@ -205,8 +206,8 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 			data := &UserCommandInteractionData{
 				UserCommandInteractionData: d,
 				Resolved: &UserCommandResolved{
-					Users:   map[discord.Snowflake]*User{},
-					Members: map[discord.Snowflake]*Member{},
+					Users:   map[snowflake.Snowflake]*User{},
+					Members: map[snowflake.Snowflake]*Member{},
 				},
 			}
 			for id, u := range d.Resolved.Users {
@@ -224,7 +225,7 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 			data := &MessageCommandInteractionData{
 				MessageCommandInteractionData: d,
 				Resolved: &MessageCommandResolved{
-					Messages: map[discord.Snowflake]*Message{},
+					Messages: map[snowflake.Snowflake]*Message{},
 				},
 			}
 			for id, message := range d.Resolved.Messages {
@@ -295,7 +296,7 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 	}
 }
 
-func (b *entityBuilderImpl) parseMemberOrUser(guildID *discord.Snowflake, member *discord.Member, user *discord.User, updateCache CacheStrategy) (rMember *Member, rUser *User) {
+func (b *entityBuilderImpl) parseMemberOrUser(guildID *snowflake.Snowflake, member *discord.Member, user *discord.User, updateCache CacheStrategy) (rMember *Member, rUser *User) {
 	if member != nil {
 		rMember = b.CreateMember(*guildID, *member, updateCache)
 		rUser = rMember.User
@@ -396,7 +397,7 @@ func (b *entityBuilderImpl) CreateGuild(guild discord.Guild, updateCache CacheSt
 }
 
 // CreateMember returns a new discord.Member entity
-func (b *entityBuilderImpl) CreateMember(guildID discord.Snowflake, member discord.Member, updateCache CacheStrategy) *Member {
+func (b *entityBuilderImpl) CreateMember(guildID snowflake.Snowflake, member discord.Member, updateCache CacheStrategy) *Member {
 	coreMember := &Member{
 		Member: member,
 		Bot:    b.Bot(),
@@ -410,7 +411,7 @@ func (b *entityBuilderImpl) CreateMember(guildID discord.Snowflake, member disco
 	return coreMember
 }
 
-func (b *entityBuilderImpl) CreateBan(guildID discord.Snowflake, ban discord.Ban, updateCache CacheStrategy) *Ban {
+func (b *entityBuilderImpl) CreateBan(guildID snowflake.Snowflake, ban discord.Ban, updateCache CacheStrategy) *Ban {
 	return &Ban{
 		Ban:     ban,
 		Bot:     b.Bot(),
@@ -472,7 +473,7 @@ func (b *entityBuilderImpl) CreateApplicationCommandPermissions(guildCommandPerm
 }
 
 // CreateRole returns a new discord.Role entity
-func (b *entityBuilderImpl) CreateRole(guildID discord.Snowflake, role discord.Role, updateCache CacheStrategy) *Role {
+func (b *entityBuilderImpl) CreateRole(guildID snowflake.Snowflake, role discord.Role, updateCache CacheStrategy) *Role {
 	coreRole := &Role{
 		Role: role,
 	}
@@ -486,7 +487,7 @@ func (b *entityBuilderImpl) CreateRole(guildID discord.Snowflake, role discord.R
 }
 
 // CreateAuditLog returns a new discord.AuditLog entity
-func (b *entityBuilderImpl) CreateAuditLog(guildID discord.Snowflake, auditLog discord.AuditLog, filterOptions AuditLogFilterOptions, updateCache CacheStrategy) *AuditLog {
+func (b *entityBuilderImpl) CreateAuditLog(guildID snowflake.Snowflake, auditLog discord.AuditLog, filterOptions AuditLogFilterOptions, updateCache CacheStrategy) *AuditLog {
 	coreAuditLog := &AuditLog{
 		AuditLog:      auditLog,
 		GuildID:       guildID,
@@ -512,7 +513,7 @@ func (b *entityBuilderImpl) CreateAuditLog(guildID discord.Snowflake, auditLog d
 }
 
 // CreateIntegration returns a new discord.Integration entity
-func (b *entityBuilderImpl) CreateIntegration(guildID discord.Snowflake, integration discord.Integration, updateCache CacheStrategy) Integration {
+func (b *entityBuilderImpl) CreateIntegration(guildID snowflake.Snowflake, integration discord.Integration, updateCache CacheStrategy) Integration {
 	var coreIntegration Integration
 
 	switch i := integration.(type) {
@@ -604,7 +605,7 @@ func (b *entityBuilderImpl) CreateChannel(channel discord.Channel, updateCache C
 		c = &GuildVoiceChannel{
 			GuildVoiceChannel:  ch,
 			Bot:                b.Bot(),
-			ConnectedMemberIDs: map[discord.Snowflake]struct{}{},
+			ConnectedMemberIDs: map[snowflake.Snowflake]struct{}{},
 		}
 
 	case discord.GroupDMChannel:
@@ -654,7 +655,7 @@ func (b *entityBuilderImpl) CreateChannel(channel discord.Channel, updateCache C
 			GuildStageVoiceChannel: ch,
 			Bot:                    b.Bot(),
 			StageInstanceID:        nil,
-			ConnectedMemberIDs:     map[discord.Snowflake]struct{}{},
+			ConnectedMemberIDs:     map[snowflake.Snowflake]struct{}{},
 		}
 
 	default:
@@ -710,7 +711,7 @@ func (b *entityBuilderImpl) CreateGuildScheduledEvent(guildScheduledEvent discor
 	return coreGuildScheduledEvent
 }
 
-func (b *entityBuilderImpl) CreateGuildScheduledEventUser(guildID discord.Snowflake, guildScheduledEventUser discord.GuildScheduledEventUser, updateCache CacheStrategy) *GuildScheduledEventUser {
+func (b *entityBuilderImpl) CreateGuildScheduledEventUser(guildID snowflake.Snowflake, guildScheduledEventUser discord.GuildScheduledEventUser, updateCache CacheStrategy) *GuildScheduledEventUser {
 	coreGuildScheduledEventUser := &GuildScheduledEventUser{
 		GuildScheduledEventUser: guildScheduledEventUser, Bot: b.Bot(),
 		User: b.CreateUser(guildScheduledEventUser.User, updateCache),
@@ -740,7 +741,7 @@ func (b *entityBuilderImpl) CreateInvite(invite discord.Invite, updateCache Cach
 }
 
 // CreateEmoji returns a new discord.Emoji entity
-func (b *entityBuilderImpl) CreateEmoji(guildID discord.Snowflake, emoji discord.Emoji, updateCache CacheStrategy) *Emoji {
+func (b *entityBuilderImpl) CreateEmoji(guildID snowflake.Snowflake, emoji discord.Emoji, updateCache CacheStrategy) *Emoji {
 	coreEmoji := &Emoji{
 		Emoji: emoji,
 		Bot:   b.Bot(),

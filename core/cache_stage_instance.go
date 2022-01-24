@@ -1,19 +1,17 @@
 package core
 
-import (
-	"github.com/DisgoOrg/disgo/discord"
-)
+import "github.com/DisgoOrg/snowflake"
 
 type (
 	StageInstanceFindFunc func(stageInstance *StageInstance) bool
 
 	StageInstanceCache interface {
-		Get(stageInstanceID discord.Snowflake) *StageInstance
-		GetCopy(stageInstanceID discord.Snowflake) *StageInstance
+		Get(stageInstanceID snowflake.Snowflake) *StageInstance
+		GetCopy(stageInstanceID snowflake.Snowflake) *StageInstance
 		Set(stageInstance *StageInstance) *StageInstance
-		Remove(stageInstanceID discord.Snowflake)
+		Remove(stageInstanceID snowflake.Snowflake)
 
-		Cache() map[discord.Snowflake]*StageInstance
+		Cache() map[snowflake.Snowflake]*StageInstance
 		All() []*StageInstance
 
 		FindFirst(stageInstanceFindFunc StageInstanceFindFunc) *StageInstance
@@ -22,22 +20,22 @@ type (
 
 	stageInstanceCacheImpl struct {
 		cacheFlags     CacheFlags
-		stageInstances map[discord.Snowflake]*StageInstance
+		stageInstances map[snowflake.Snowflake]*StageInstance
 	}
 )
 
 func NewStageInstanceCache(cacheFlags CacheFlags) StageInstanceCache {
 	return &stageInstanceCacheImpl{
 		cacheFlags:     cacheFlags,
-		stageInstances: map[discord.Snowflake]*StageInstance{},
+		stageInstances: map[snowflake.Snowflake]*StageInstance{},
 	}
 }
 
-func (c *stageInstanceCacheImpl) Get(stageInstanceID discord.Snowflake) *StageInstance {
+func (c *stageInstanceCacheImpl) Get(stageInstanceID snowflake.Snowflake) *StageInstance {
 	return c.stageInstances[stageInstanceID]
 }
 
-func (c *stageInstanceCacheImpl) GetCopy(stageInstanceID discord.Snowflake) *StageInstance {
+func (c *stageInstanceCacheImpl) GetCopy(stageInstanceID snowflake.Snowflake) *StageInstance {
 	if stageInstance := c.Get(stageInstanceID); stageInstance != nil {
 		st := *stageInstance
 		return &st
@@ -58,11 +56,11 @@ func (c *stageInstanceCacheImpl) Set(stageInstance *StageInstance) *StageInstanc
 	return stageInstance
 }
 
-func (c *stageInstanceCacheImpl) Remove(id discord.Snowflake) {
+func (c *stageInstanceCacheImpl) Remove(id snowflake.Snowflake) {
 	delete(c.stageInstances, id)
 }
 
-func (c *stageInstanceCacheImpl) Cache() map[discord.Snowflake]*StageInstance {
+func (c *stageInstanceCacheImpl) Cache() map[snowflake.Snowflake]*StageInstance {
 	return c.stageInstances
 }
 

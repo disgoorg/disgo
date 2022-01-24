@@ -1,19 +1,17 @@
 package core
 
-import (
-	"github.com/DisgoOrg/disgo/discord"
-)
+import "github.com/DisgoOrg/snowflake"
 
 type (
 	UserFindFunc func(user *User) bool
 
 	UserCache interface {
-		Get(userID discord.Snowflake) *User
-		GetCopy(userID discord.Snowflake) *User
+		Get(userID snowflake.Snowflake) *User
+		GetCopy(userID snowflake.Snowflake) *User
 		Set(user *User) *User
-		Remove(userID discord.Snowflake)
+		Remove(userID snowflake.Snowflake)
 
-		Cache() map[discord.Snowflake]*User
+		Cache() map[snowflake.Snowflake]*User
 		All() []*User
 
 		FindFirst(userFindFunc UserFindFunc) *User
@@ -21,20 +19,20 @@ type (
 	}
 
 	userCacheImpl struct {
-		users      map[discord.Snowflake]*User
+		users      map[snowflake.Snowflake]*User
 		cacheFlags CacheFlags
 	}
 )
 
 func NewUserCache(cacheFlags CacheFlags) UserCache {
-	return &userCacheImpl{users: map[discord.Snowflake]*User{}, cacheFlags: cacheFlags}
+	return &userCacheImpl{users: map[snowflake.Snowflake]*User{}, cacheFlags: cacheFlags}
 }
 
-func (c *userCacheImpl) Get(userID discord.Snowflake) *User {
+func (c *userCacheImpl) Get(userID snowflake.Snowflake) *User {
 	return c.users[userID]
 }
 
-func (c *userCacheImpl) GetCopy(userID discord.Snowflake) *User {
+func (c *userCacheImpl) GetCopy(userID snowflake.Snowflake) *User {
 	if user := c.Get(userID); user != nil {
 		us := *user
 		return &us
@@ -53,11 +51,11 @@ func (c *userCacheImpl) Set(user *User) *User {
 	return user
 }
 
-func (c *userCacheImpl) Remove(id discord.Snowflake) {
+func (c *userCacheImpl) Remove(id snowflake.Snowflake) {
 	delete(c.users, id)
 }
 
-func (c *userCacheImpl) Cache() map[discord.Snowflake]*User {
+func (c *userCacheImpl) Cache() map[snowflake.Snowflake]*User {
 	return c.users
 }
 

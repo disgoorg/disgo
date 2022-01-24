@@ -14,6 +14,7 @@ import (
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/log"
+	"github.com/DisgoOrg/snowflake"
 	"github.com/pkg/errors"
 )
 
@@ -176,7 +177,7 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 
 // IDFromToken returns the applicationID from the BotToken
 //goland:noinspection GoUnusedExportedFunction
-func IDFromToken(token string) (*discord.Snowflake, error) {
+func IDFromToken(token string) (*snowflake.Snowflake, error) {
 	strs := strings.Split(token, ".")
 	if len(strs) == 0 {
 		return nil, discord.ErrInvalidBotToken
@@ -185,6 +186,6 @@ func IDFromToken(token string) (*discord.Snowflake, error) {
 	if err != nil {
 		return nil, err
 	}
-	strID := discord.Snowflake(byteID)
+	strID := snowflake.Snowflake(byteID)
 	return &strID, nil
 }

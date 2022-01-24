@@ -5,6 +5,7 @@ import (
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // AudioController lets you Connect / Disconnect from a Channel
@@ -13,10 +14,10 @@ type AudioController interface {
 	Bot() *Bot
 
 	// Connect sends a discord.GatewayCommand to connect to the specified Channel
-	Connect(ctx context.Context, guildID discord.Snowflake, channelID discord.Snowflake) error
+	Connect(ctx context.Context, guildID snowflake.Snowflake, channelID snowflake.Snowflake) error
 
 	// Disconnect sends a discord.GatewayCommand to disconnect from a Channel
-	Disconnect(ctx context.Context, guildID discord.Snowflake) error
+	Disconnect(ctx context.Context, guildID snowflake.Snowflake) error
 }
 
 func NewAudioController(bot *Bot) AudioController {
@@ -31,7 +32,7 @@ func (c *audioControllerImpl) Bot() *Bot {
 	return c.bot
 }
 
-func (c *audioControllerImpl) Connect(ctx context.Context, guildID discord.Snowflake, channelID discord.Snowflake) error {
+func (c *audioControllerImpl) Connect(ctx context.Context, guildID snowflake.Snowflake, channelID snowflake.Snowflake) error {
 	shard, err := c.getShard(guildID)
 	if err != nil {
 		return err
@@ -42,7 +43,7 @@ func (c *audioControllerImpl) Connect(ctx context.Context, guildID discord.Snowf
 	}))
 }
 
-func (c *audioControllerImpl) Disconnect(ctx context.Context, guildID discord.Snowflake) error {
+func (c *audioControllerImpl) Disconnect(ctx context.Context, guildID snowflake.Snowflake) error {
 	shard, err := c.getShard(guildID)
 	if err != nil {
 		return err
@@ -53,7 +54,7 @@ func (c *audioControllerImpl) Disconnect(ctx context.Context, guildID discord.Sn
 	}))
 }
 
-func (c *audioControllerImpl) getShard(guildID discord.Snowflake) (gateway.Gateway, error) {
+func (c *audioControllerImpl) getShard(guildID snowflake.Snowflake) (gateway.Gateway, error) {
 	shard, err := c.Bot().Shard(guildID)
 	if err != nil {
 		return nil, err

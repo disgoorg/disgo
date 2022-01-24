@@ -1,23 +1,21 @@
 package core
 
-import (
-	"github.com/DisgoOrg/disgo/discord"
-)
+import "github.com/DisgoOrg/snowflake"
 
 type (
 	PresenceFindFunc func(presence *Presence) bool
 
 	PresenceCache interface {
-		Get(guildID discord.Snowflake, userID discord.Snowflake) *Presence
-		GetCopy(guildID discord.Snowflake, userID discord.Snowflake) *Presence
+		Get(guildID snowflake.Snowflake, userID snowflake.Snowflake) *Presence
+		GetCopy(guildID snowflake.Snowflake, userID snowflake.Snowflake) *Presence
 		Set(presence *Presence) *Presence
-		Remove(guildID discord.Snowflake, userID discord.Snowflake)
+		Remove(guildID snowflake.Snowflake, userID snowflake.Snowflake)
 
-		Cache() map[discord.Snowflake]map[discord.Snowflake]*Presence
-		All() map[discord.Snowflake][]*Presence
+		Cache() map[snowflake.Snowflake]map[snowflake.Snowflake]*Presence
+		All() map[snowflake.Snowflake][]*Presence
 
-		GuildCache(guildID discord.Snowflake) map[discord.Snowflake]*Presence
-		GuildAll(guildID discord.Snowflake) []*Presence
+		GuildCache(guildID snowflake.Snowflake) map[snowflake.Snowflake]*Presence
+		GuildAll(guildID snowflake.Snowflake) []*Presence
 
 		FindFirst(presenceFindFunc PresenceFindFunc) *Presence
 		FindAll(presenceFindFunc PresenceFindFunc) []*Presence
@@ -25,25 +23,25 @@ type (
 
 	presenceCacheImpl struct {
 		cacheFlags CacheFlags
-		presences  map[discord.Snowflake]map[discord.Snowflake]*Presence
+		presences  map[snowflake.Snowflake]map[snowflake.Snowflake]*Presence
 	}
 )
 
 func NewPresenceCache(cacheFlags CacheFlags) PresenceCache {
 	return &presenceCacheImpl{
 		cacheFlags: cacheFlags,
-		presences:  map[discord.Snowflake]map[discord.Snowflake]*Presence{},
+		presences:  map[snowflake.Snowflake]map[snowflake.Snowflake]*Presence{},
 	}
 }
 
-func (c *presenceCacheImpl) Get(guildID discord.Snowflake, userID discord.Snowflake) *Presence {
+func (c *presenceCacheImpl) Get(guildID snowflake.Snowflake, userID snowflake.Snowflake) *Presence {
 	if _, ok := c.presences[guildID]; !ok {
 		return nil
 	}
 	return c.presences[guildID][userID]
 }
 
-func (c *presenceCacheImpl) GetCopy(guildID discord.Snowflake, userID discord.Snowflake) *Presence {
+func (c *presenceCacheImpl) GetCopy(guildID snowflake.Snowflake, userID snowflake.Snowflake) *Presence {
 	if presence := c.Get(guildID, userID); presence != nil {
 		m := *presence
 		return &m
@@ -56,7 +54,7 @@ func (c *presenceCacheImpl) Set(presence *Presence) *Presence {
 		return presence
 	}
 	if _, ok := c.presences[presence.GuildID]; !ok {
-		c.presences[presence.GuildID] = map[discord.Snowflake]*Presence{}
+		c.presences[presence.GuildID] = map[snowflake.Snowflake]*Presence{}
 	}
 	rol, ok := c.presences[presence.GuildID][presence.PresenceUser.ID]
 	if ok {
@@ -68,19 +66,19 @@ func (c *presenceCacheImpl) Set(presence *Presence) *Presence {
 	return presence
 }
 
-func (c *presenceCacheImpl) Remove(guildID discord.Snowflake, userID discord.Snowflake) {
+func (c *presenceCacheImpl) Remove(guildID snowflake.Snowflake, userID snowflake.Snowflake) {
 	if _, ok := c.presences[guildID]; !ok {
 		return
 	}
 	delete(c.presences[guildID], userID)
 }
 
-func (c *presenceCacheImpl) Cache() map[discord.Snowflake]map[discord.Snowflake]*Presence {
+func (c *presenceCacheImpl) Cache() map[snowflake.Snowflake]map[snowflake.Snowflake]*Presence {
 	return c.presences
 }
 
-func (c *presenceCacheImpl) All() map[discord.Snowflake][]*Presence {
-	presences := make(map[discord.Snowflake][]*Presence, len(c.presences))
+func (c *presenceCacheImpl) All() map[snowflake.Snowflake][]*Presence {
+	presences := make(map[snowflake.Snowflake][]*Presence, len(c.presences))
 	for guildID, guildPresences := range c.presences {
 		presences[guildID] = make([]*Presence, len(guildPresences))
 		i := 0
@@ -92,14 +90,14 @@ func (c *presenceCacheImpl) All() map[discord.Snowflake][]*Presence {
 	return presences
 }
 
-func (c *presenceCacheImpl) GuildCache(guildID discord.Snowflake) map[discord.Snowflake]*Presence {
+func (c *presenceCacheImpl) GuildCache(guildID snowflake.Snowflake) map[snowflake.Snowflake]*Presence {
 	if _, ok := c.presences[guildID]; !ok {
 		return nil
 	}
 	return c.presences[guildID]
 }
 
-func (c *presenceCacheImpl) GuildAll(guildID discord.Snowflake) []*Presence {
+func (c *presenceCacheImpl) GuildAll(guildID snowflake.Snowflake) []*Presence {
 	if _, ok := c.presences[guildID]; !ok {
 		return nil
 	}

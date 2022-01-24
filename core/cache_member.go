@@ -1,24 +1,22 @@
 package core
 
-import (
-	"github.com/DisgoOrg/disgo/discord"
-)
+import "github.com/DisgoOrg/snowflake"
 
 type (
 	MemberFindFunc func(member *Member) bool
 
 	MemberCache interface {
-		Get(guildID discord.Snowflake, userID discord.Snowflake) *Member
-		GetCopy(guildID discord.Snowflake, userID discord.Snowflake) *Member
+		Get(guildID snowflake.Snowflake, userID snowflake.Snowflake) *Member
+		GetCopy(guildID snowflake.Snowflake, userID snowflake.Snowflake) *Member
 		Set(member *Member) *Member
-		Remove(guildID discord.Snowflake, userID discord.Snowflake)
-		RemoveAll(guildID discord.Snowflake)
+		Remove(guildID snowflake.Snowflake, userID snowflake.Snowflake)
+		RemoveAll(guildID snowflake.Snowflake)
 
-		Cache() map[discord.Snowflake]map[discord.Snowflake]*Member
-		All() map[discord.Snowflake][]*Member
+		Cache() map[snowflake.Snowflake]map[snowflake.Snowflake]*Member
+		All() map[snowflake.Snowflake][]*Member
 
-		GuildCache(guildID discord.Snowflake) map[discord.Snowflake]*Member
-		GuildAll(guildID discord.Snowflake) []*Member
+		GuildCache(guildID snowflake.Snowflake) map[snowflake.Snowflake]*Member
+		GuildAll(guildID snowflake.Snowflake) []*Member
 
 		FindFirst(memberFindFunc MemberFindFunc) *Member
 		FindAll(memberFindFunc MemberFindFunc) []*Member
@@ -26,7 +24,7 @@ type (
 
 	memberCacheImpl struct {
 		memberCachePolicy MemberCachePolicy
-		members           map[discord.Snowflake]map[discord.Snowflake]*Member
+		members           map[snowflake.Snowflake]map[snowflake.Snowflake]*Member
 	}
 )
 
@@ -36,18 +34,18 @@ func NewMemberCache(memberCachePolicy MemberCachePolicy) MemberCache {
 	}
 	return &memberCacheImpl{
 		memberCachePolicy: memberCachePolicy,
-		members:           map[discord.Snowflake]map[discord.Snowflake]*Member{},
+		members:           map[snowflake.Snowflake]map[snowflake.Snowflake]*Member{},
 	}
 }
 
-func (c *memberCacheImpl) Get(guildID discord.Snowflake, userID discord.Snowflake) *Member {
+func (c *memberCacheImpl) Get(guildID snowflake.Snowflake, userID snowflake.Snowflake) *Member {
 	if _, ok := c.members[guildID]; !ok {
 		return nil
 	}
 	return c.members[guildID][userID]
 }
 
-func (c *memberCacheImpl) GetCopy(guildID discord.Snowflake, userID discord.Snowflake) *Member {
+func (c *memberCacheImpl) GetCopy(guildID snowflake.Snowflake, userID snowflake.Snowflake) *Member {
 	if member := c.Get(guildID, userID); member != nil {
 		m := *member
 		return &m
@@ -61,7 +59,7 @@ func (c *memberCacheImpl) Set(member *Member) *Member {
 		return member
 	}
 	if _, ok := c.members[member.GuildID]; !ok {
-		c.members[member.GuildID] = map[discord.Snowflake]*Member{}
+		c.members[member.GuildID] = map[snowflake.Snowflake]*Member{}
 	}
 	rol, ok := c.members[member.GuildID][member.User.ID]
 	if ok {
@@ -73,23 +71,23 @@ func (c *memberCacheImpl) Set(member *Member) *Member {
 	return member
 }
 
-func (c *memberCacheImpl) Remove(guildID discord.Snowflake, userID discord.Snowflake) {
+func (c *memberCacheImpl) Remove(guildID snowflake.Snowflake, userID snowflake.Snowflake) {
 	if _, ok := c.members[guildID]; !ok {
 		return
 	}
 	delete(c.members[guildID], userID)
 }
 
-func (c *memberCacheImpl) RemoveAll(guildID discord.Snowflake) {
+func (c *memberCacheImpl) RemoveAll(guildID snowflake.Snowflake) {
 	delete(c.members, guildID)
 }
 
-func (c *memberCacheImpl) Cache() map[discord.Snowflake]map[discord.Snowflake]*Member {
+func (c *memberCacheImpl) Cache() map[snowflake.Snowflake]map[snowflake.Snowflake]*Member {
 	return c.members
 }
 
-func (c *memberCacheImpl) All() map[discord.Snowflake][]*Member {
-	members := make(map[discord.Snowflake][]*Member, len(c.members))
+func (c *memberCacheImpl) All() map[snowflake.Snowflake][]*Member {
+	members := make(map[snowflake.Snowflake][]*Member, len(c.members))
 	for guildID, guildMembers := range c.members {
 		members[guildID] = make([]*Member, len(guildMembers))
 		i := 0
@@ -101,14 +99,14 @@ func (c *memberCacheImpl) All() map[discord.Snowflake][]*Member {
 	return members
 }
 
-func (c *memberCacheImpl) GuildCache(guildID discord.Snowflake) map[discord.Snowflake]*Member {
+func (c *memberCacheImpl) GuildCache(guildID snowflake.Snowflake) map[snowflake.Snowflake]*Member {
 	if _, ok := c.members[guildID]; !ok {
 		return nil
 	}
 	return c.members[guildID]
 }
 
-func (c *memberCacheImpl) GuildAll(guildID discord.Snowflake) []*Member {
+func (c *memberCacheImpl) GuildAll(guildID snowflake.Snowflake) []*Member {
 	if _, ok := c.members[guildID]; !ok {
 		return nil
 	}

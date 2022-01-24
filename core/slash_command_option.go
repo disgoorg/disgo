@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 )
 
 type SlashCommandOption interface {
@@ -30,7 +31,7 @@ func (o *SlashCommandOptionString) MentionedUsers() []*User {
 		return nil
 	}
 	for i := range matches {
-		users[i] = o.Resolved.Users[discord.Snowflake(matches[i][1])]
+		users[i] = o.Resolved.Users[snowflake.Snowflake(matches[i][1])]
 	}
 	return users
 }
@@ -42,7 +43,7 @@ func (o *SlashCommandOptionString) MentionedMembers() []*Member {
 		return nil
 	}
 	for i := range matches {
-		if member, ok := o.Resolved.Members[discord.Snowflake(matches[i][1])]; ok {
+		if member, ok := o.Resolved.Members[snowflake.Snowflake(matches[i][1])]; ok {
 			members[i] = member
 		}
 	}
@@ -56,7 +57,7 @@ func (o *SlashCommandOptionString) MentionedChannels() []Channel {
 		return nil
 	}
 	for i := range matches {
-		if channel, ok := o.Resolved.Channels[discord.Snowflake(matches[i][1])]; ok {
+		if channel, ok := o.Resolved.Channels[snowflake.Snowflake(matches[i][1])]; ok {
 			channels[i] = channel
 		}
 	}
@@ -70,7 +71,7 @@ func (o *SlashCommandOptionString) MentionedRoles() []*Role {
 		return nil
 	}
 	for i := range matches {
-		if role, ok := o.Resolved.Roles[discord.Snowflake(matches[i][1])]; ok {
+		if role, ok := o.Resolved.Roles[snowflake.Snowflake(matches[i][1])]; ok {
 			roles[i] = role
 		}
 	}
@@ -300,7 +301,7 @@ func (m SlashCommandOptionsMap) MentionableOption(name string) *SlashCommandOpti
 	return nil
 }
 
-func (m SlashCommandOptionsMap) Snowflake(name string) *discord.Snowflake {
+func (m SlashCommandOptionsMap) Snowflake(name string) *snowflake.Snowflake {
 	option := m.Get(name)
 	if option == nil {
 		return nil

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/DisgoOrg/disgo/json"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // WebhookType (https: //discord.com/developers/docs/resources/webhook#webhook-object-webhook-types)
@@ -21,7 +22,7 @@ const (
 type Webhook interface {
 	json.Marshaler
 	Type() WebhookType
-	ID() Snowflake
+	ID() snowflake.Snowflake
 	webhook()
 }
 
@@ -74,14 +75,14 @@ func (w *UnmarshalWebhook) UnmarshalJSON(data []byte) error {
 var _ Webhook = (*IncomingWebhook)(nil)
 
 type IncomingWebhook struct {
-	WebhookID     Snowflake  `json:"id"`
-	Name          string     `json:"name"`
-	Avatar        *string    `json:"avatar"`
-	ChannelID     Snowflake  `json:"channel_id"`
-	GuildID       Snowflake  `json:"guild_id"`
-	Token         string     `json:"token"`
-	ApplicationID *Snowflake `json:"application_id"`
-	User          User       `json:"user"`
+	WebhookID     snowflake.Snowflake  `json:"id"`
+	Name          string               `json:"name"`
+	Avatar        *string              `json:"avatar"`
+	ChannelID     snowflake.Snowflake  `json:"channel_id"`
+	GuildID       snowflake.Snowflake  `json:"guild_id"`
+	Token         string               `json:"token"`
+	ApplicationID *snowflake.Snowflake `json:"application_id"`
+	User          User                 `json:"user"`
 }
 
 func (w IncomingWebhook) MarshalJSON() ([]byte, error) {
@@ -101,18 +102,18 @@ func (IncomingWebhook) Type() WebhookType {
 
 func (IncomingWebhook) webhook() {}
 
-func (w IncomingWebhook) ID() Snowflake {
+func (w IncomingWebhook) ID() snowflake.Snowflake {
 	return w.WebhookID
 }
 
 var _ Webhook = (*ChannelFollowerWebhook)(nil)
 
 type ChannelFollowerWebhook struct {
-	WebhookID     Snowflake            `json:"id"`
+	WebhookID     snowflake.Snowflake  `json:"id"`
 	Name          string               `json:"name"`
 	Avatar        *string              `json:"avatar"`
-	ChannelID     Snowflake            `json:"channel_id"`
-	GuildID       Snowflake            `json:"guild_id"`
+	ChannelID     snowflake.Snowflake  `json:"channel_id"`
+	GuildID       snowflake.Snowflake  `json:"guild_id"`
 	SourceGuild   WebhookSourceGuild   `json:"source_guild"`
 	SourceChannel WebhookSourceChannel `json:"source_channel"`
 	User          User                 `json:"user"`
@@ -135,17 +136,17 @@ func (ChannelFollowerWebhook) Type() WebhookType {
 
 func (ChannelFollowerWebhook) webhook() {}
 
-func (w ChannelFollowerWebhook) ID() Snowflake {
+func (w ChannelFollowerWebhook) ID() snowflake.Snowflake {
 	return w.WebhookID
 }
 
 var _ Webhook = (*ApplicationWebhook)(nil)
 
 type ApplicationWebhook struct {
-	WebhookID     Snowflake `json:"id"`
-	Name          string    `json:"name"`
-	Avatar        *string   `json:"avatar"`
-	ApplicationID Snowflake `json:"application_id"`
+	WebhookID     snowflake.Snowflake `json:"id"`
+	Name          string              `json:"name"`
+	Avatar        *string             `json:"avatar"`
+	ApplicationID snowflake.Snowflake `json:"application_id"`
 }
 
 func (w ApplicationWebhook) MarshalJSON() ([]byte, error) {
@@ -165,19 +166,19 @@ func (ApplicationWebhook) Type() WebhookType {
 
 func (ApplicationWebhook) webhook() {}
 
-func (w ApplicationWebhook) ID() Snowflake {
+func (w ApplicationWebhook) ID() snowflake.Snowflake {
 	return w.WebhookID
 }
 
 type WebhookSourceGuild struct {
-	ID   Snowflake `json:"id"`
-	Name string    `json:"name"`
-	Icon *string   `json:"icon"`
+	ID   snowflake.Snowflake `json:"id"`
+	Name string              `json:"name"`
+	Icon *string             `json:"icon"`
 }
 
 type WebhookSourceChannel struct {
-	ID   Snowflake `json:"id"`
-	Name string    `json:"name"`
+	ID   snowflake.Snowflake `json:"id"`
+	Name string              `json:"name"`
 }
 
 // WebhookCreate is used to create a Webhook
@@ -188,9 +189,9 @@ type WebhookCreate struct {
 
 // WebhookUpdate is used to update a Webhook
 type WebhookUpdate struct {
-	Name      *string    `json:"name,omitempty"`
-	Avatar    *NullIcon  `json:"avatar,omitempty"`
-	ChannelID *Snowflake `json:"channel_id"`
+	Name      *string              `json:"name,omitempty"`
+	Avatar    *NullIcon            `json:"avatar,omitempty"`
+	ChannelID *snowflake.Snowflake `json:"channel_id"`
 }
 
 // WebhookUpdateWithToken is used to update a Webhook with the token

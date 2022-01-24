@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/DisgoOrg/disgo/json"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // InteractionType is the type of Interaction
@@ -24,16 +25,16 @@ type Interaction interface {
 }
 
 type BaseInteraction struct {
-	ID            Snowflake  `json:"id"`
-	ApplicationID Snowflake  `json:"application_id"`
-	Token         string     `json:"token"`
-	Version       int        `json:"version"`
-	GuildID       *Snowflake `json:"guild_id,omitempty"`
-	ChannelID     Snowflake  `json:"channel_id"`
-	Locale        Locale     `json:"locale"`
-	GuildLocale   *Locale    `json:"guild_locale,omitempty"`
-	Member        *Member    `json:"member,omitempty"`
-	User          *User      `json:"user,omitempty"`
+	ID            snowflake.Snowflake  `json:"id"`
+	ApplicationID snowflake.Snowflake  `json:"application_id"`
+	Token         string               `json:"token"`
+	Version       int                  `json:"version"`
+	GuildID       *snowflake.Snowflake `json:"guild_id,omitempty"`
+	ChannelID     snowflake.Snowflake  `json:"channel_id"`
+	Locale        Locale               `json:"locale"`
+	GuildLocale   *Locale              `json:"guild_locale,omitempty"`
+	Member        *Member              `json:"member,omitempty"`
+	User          *User                `json:"user,omitempty"`
 }
 
 type UnmarshalInteraction struct {
@@ -89,10 +90,10 @@ func (i *UnmarshalInteraction) UnmarshalJSON(data []byte) error {
 var _ Interaction = (*PingInteraction)(nil)
 
 type PingInteraction struct {
-	ID            Snowflake `json:"id"`
-	ApplicationID Snowflake `json:"application_id"`
-	Token         string    `json:"token"`
-	Version       int       `json:"version"`
+	ID            snowflake.Snowflake `json:"id"`
+	ApplicationID snowflake.Snowflake `json:"application_id"`
+	Token         string              `json:"token"`
+	Version       int                 `json:"version"`
 }
 
 func (PingInteraction) interaction() {}
@@ -171,7 +172,7 @@ type ApplicationCommandInteractionData interface {
 }
 
 type SlashCommandInteractionData struct {
-	CommandID   Snowflake            `json:"id"`
+	CommandID   snowflake.Snowflake  `json:"id"`
 	CommandName string               `json:"name"`
 	Resolved    SlashCommandResolved `json:"resolved"`
 	Options     []SlashCommandOption `json:"options"`
@@ -206,10 +207,10 @@ func (d *SlashCommandInteractionData) UnmarshalJSON(data []byte) error {
 }
 
 type SlashCommandResolved struct {
-	Users    map[Snowflake]User    `json:"users,omitempty"`
-	Members  map[Snowflake]Member  `json:"members,omitempty"`
-	Roles    map[Snowflake]Role    `json:"roles,omitempty"`
-	Channels map[Snowflake]Channel `json:"channels,omitempty"`
+	Users    map[snowflake.Snowflake]User    `json:"users,omitempty"`
+	Members  map[snowflake.Snowflake]Member  `json:"members,omitempty"`
+	Roles    map[snowflake.Snowflake]Role    `json:"roles,omitempty"`
+	Channels map[snowflake.Snowflake]Channel `json:"channels,omitempty"`
 }
 
 var (
@@ -217,10 +218,10 @@ var (
 )
 
 type UserCommandInteractionData struct {
-	CommandID   Snowflake           `json:"id"`
+	CommandID   snowflake.Snowflake `json:"id"`
 	CommandName string              `json:"name"`
 	Resolved    UserCommandResolved `json:"resolved"`
-	TargetID    Snowflake           `json:"target_id"`
+	TargetID    snowflake.Snowflake `json:"target_id"`
 }
 
 func (UserCommandInteractionData) applicationCommandInteractionData() {}
@@ -229,8 +230,8 @@ func (UserCommandInteractionData) Type() ApplicationCommandType {
 }
 
 type UserCommandResolved struct {
-	Users   map[Snowflake]User   `json:"users,omitempty"`
-	Members map[Snowflake]Member `json:"members,omitempty"`
+	Users   map[snowflake.Snowflake]User   `json:"users,omitempty"`
+	Members map[snowflake.Snowflake]Member `json:"members,omitempty"`
 }
 
 var (
@@ -238,10 +239,10 @@ var (
 )
 
 type MessageCommandInteractionData struct {
-	CommandID   Snowflake              `json:"id"`
+	CommandID   snowflake.Snowflake    `json:"id"`
 	CommandName string                 `json:"name"`
 	Resolved    MessageCommandResolved `json:"resolved"`
-	TargetID    Snowflake              `json:"target_id"`
+	TargetID    snowflake.Snowflake    `json:"target_id"`
 }
 
 func (MessageCommandInteractionData) applicationCommandInteractionData() {}
@@ -250,7 +251,7 @@ func (MessageCommandInteractionData) Type() ApplicationCommandType {
 }
 
 type MessageCommandResolved struct {
-	Messages map[Snowflake]Message `json:"messages,omitempty"`
+	Messages map[snowflake.Snowflake]Message `json:"messages,omitempty"`
 }
 
 var (
@@ -358,7 +359,7 @@ func (AutocompleteInteraction) Type() InteractionType {
 }
 
 type AutocompleteInteractionData struct {
-	CommandID   Snowflake            `json:"id"`
+	CommandID   snowflake.Snowflake  `json:"id"`
 	CommandName string               `json:"name"`
 	Options     []AutocompleteOption `json:"options"`
 }
@@ -389,17 +390,17 @@ func (d *AutocompleteInteractionData) UnmarshalJSON(data []byte) error {
 // to consider using them in Resolved
 /*
 type ResolvedMember struct {
-	GuildID      Snowflake   `json:"guild_id"`
+	GuildID      snowflake.Snowflake   `json:"guild_id"`
 	User         User        `json:"user"`
 	Nick         *string     `json:"nick"`
-	RoleIDs      []Snowflake `json:"roles,omitempty"`
+	RoleIDs      []snowflake.Snowflake `json:"roles,omitempty"`
 	JoinedAt     Time        `json:"joined_at"`
 	PremiumSince *Time       `json:"premium_since,omitempty"`
 	Permissions  Permissions `json:"permissions,omitempty"`
 }
 
 type ResolvedChannel struct {
-	CommandID          Snowflake   `json:"id"`
+	CommandID          snowflake.Snowflake   `json:"id"`
 	CommandName        string      `json:"name"`
 	InteractionType        ChannelType `json:"type"`
 	Permissions Permissions `json:"permissions"`

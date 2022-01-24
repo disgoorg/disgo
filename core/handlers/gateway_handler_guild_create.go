@@ -4,6 +4,7 @@ import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // gatewayHandlerGuildCreate handles core.GuildCreateGatewayEvent
@@ -117,7 +118,7 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 	}
 }
 
-func setGuildID(channel discord.GuildChannel, guildID discord.Snowflake) discord.GuildChannel {
+func setGuildID(channel discord.GuildChannel, guildID snowflake.Snowflake) discord.GuildChannel {
 	switch ch := channel.(type) {
 	case discord.GuildTextChannel:
 		ch.ChannelGuildID = guildID

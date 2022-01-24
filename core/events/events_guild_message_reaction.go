@@ -3,15 +3,16 @@ package events
 import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // GenericGuildMessageReactionEvent is called upon receiving GuildMessageReactionAddEvent or GuildMessageReactionRemoveEvent
 type GenericGuildMessageReactionEvent struct {
 	*GenericEvent
-	UserID    discord.Snowflake
-	ChannelID discord.Snowflake
-	MessageID discord.Snowflake
-	GuildID   discord.Snowflake
+	UserID    snowflake.Snowflake
+	ChannelID snowflake.Snowflake
+	MessageID snowflake.Snowflake
+	GuildID   snowflake.Snowflake
 	Emoji     discord.ReactionEmoji
 }
 
@@ -37,16 +38,16 @@ type GuildMessageReactionRemoveEvent struct {
 // GuildMessageReactionRemoveEmojiEvent indicates someone removed all discord.MessageReaction of a specific core.Emoji from a core.Message in a Channel (requires the discord.GatewayIntentGuildMessageReactions)
 type GuildMessageReactionRemoveEmojiEvent struct {
 	*GenericEvent
-	ChannelID discord.Snowflake
-	MessageID discord.Snowflake
-	GuildID   discord.Snowflake
+	ChannelID snowflake.Snowflake
+	MessageID snowflake.Snowflake
+	GuildID   snowflake.Snowflake
 	Emoji     discord.ReactionEmoji
 }
 
 // GuildMessageReactionRemoveAllEvent indicates someone removed all discord.MessageReaction(s) from a core.Message in a Channel (requires the discord.GatewayIntentGuildMessageReactions)
 type GuildMessageReactionRemoveAllEvent struct {
 	*GenericEvent
-	ChannelID discord.Snowflake
-	MessageID discord.Snowflake
-	GuildID   discord.Snowflake
+	ChannelID snowflake.Snowflake
+	MessageID snowflake.Snowflake
+	GuildID   snowflake.Snowflake
 }

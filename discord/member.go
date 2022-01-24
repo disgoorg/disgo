@@ -1,21 +1,23 @@
 package discord
 
+import "github.com/DisgoOrg/snowflake"
+
 var _ Mentionable = (*Member)(nil)
 
 // Member is a discord GuildMember
 type Member struct {
-	GuildID                    Snowflake    `json:"guild_id"`
-	User                       User         `json:"user"`
-	Nick                       *string      `json:"nick"`
-	Avatar                     *string      `json:"avatar"`
-	RoleIDs                    []Snowflake  `json:"roles,omitempty"`
-	JoinedAt                   Time         `json:"joined_at"`
-	PremiumSince               *Time        `json:"premium_since,omitempty"`
-	Deaf                       bool         `json:"deaf,omitempty"`
-	Mute                       bool         `json:"mute,omitempty"`
-	Pending                    bool         `json:"pending"`
-	CommunicationDisabledUntil *Time        `json:"communication_disabled_until"`
-	Permissions                *Permissions `json:"permissions"` // only sent from slash commands & should not be cached
+	GuildID                    snowflake.Snowflake   `json:"guild_id"`
+	User                       User                  `json:"user"`
+	Nick                       *string               `json:"nick"`
+	Avatar                     *string               `json:"avatar"`
+	RoleIDs                    []snowflake.Snowflake `json:"roles,omitempty"`
+	JoinedAt                   Time                  `json:"joined_at"`
+	PremiumSince               *Time                 `json:"premium_since,omitempty"`
+	Deaf                       bool                  `json:"deaf,omitempty"`
+	Mute                       bool                  `json:"mute,omitempty"`
+	Pending                    bool                  `json:"pending"`
+	CommunicationDisabledUntil *Time                 `json:"communication_disabled_until"`
+	Permissions                *Permissions          `json:"permissions"` // only sent from slash commands & should not be cached
 }
 
 // EffectiveName returns either the nickname or username depending on if the user has a nickname
@@ -36,21 +38,21 @@ func (m Member) Mention() string {
 
 // MemberAdd is used to add a member via the oauth2 access token to a guild
 type MemberAdd struct {
-	AccessToken string      `json:"access_token"`
-	Nick        string      `json:"nick,omitempty"`
-	Roles       []Snowflake `json:"roles,omitempty"`
-	Mute        bool        `json:"mute,omitempty"`
-	Deaf        bool        `json:"deaf,omitempty"`
+	AccessToken string                `json:"access_token"`
+	Nick        string                `json:"nick,omitempty"`
+	Roles       []snowflake.Snowflake `json:"roles,omitempty"`
+	Mute        bool                  `json:"mute,omitempty"`
+	Deaf        bool                  `json:"deaf,omitempty"`
 }
 
 // MemberUpdate is used to modify
 type MemberUpdate struct {
-	ChannelID                  *Snowflake  `json:"channel_id,omitempty"`
-	Nick                       *string     `json:"nick,omitempty"`
-	Roles                      []Snowflake `json:"roles,omitempty"`
-	Mute                       *bool       `json:"mute,omitempty"`
-	Deaf                       *bool       `json:"deaf,omitempty"`
-	CommunicationDisabledUntil *NullTime   `json:"communication_disabled_until,omitempty"`
+	ChannelID                  *snowflake.Snowflake  `json:"channel_id,omitempty"`
+	Nick                       *string               `json:"nick,omitempty"`
+	Roles                      []snowflake.Snowflake `json:"roles,omitempty"`
+	Mute                       *bool                 `json:"mute,omitempty"`
+	Deaf                       *bool                 `json:"deaf,omitempty"`
+	CommunicationDisabledUntil *NullTime             `json:"communication_disabled_until,omitempty"`
 }
 
 // SelfNickUpdate is used to update your own nick

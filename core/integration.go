@@ -3,6 +3,7 @@ package core
 import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
+	"github.com/DisgoOrg/snowflake"
 )
 
 type Integration interface {
@@ -12,7 +13,7 @@ type Integration interface {
 type TwitchIntegration struct {
 	discord.TwitchIntegration
 	Bot     *Bot
-	GuildID discord.Snowflake
+	GuildID snowflake.Snowflake
 	User    *User
 }
 
@@ -34,7 +35,7 @@ func (i *TwitchIntegration) Delete(opts ...rest.RequestOpt) error {
 type YouTubeIntegration struct {
 	discord.YouTubeIntegration
 	Bot     *Bot
-	GuildID discord.Snowflake
+	GuildID snowflake.Snowflake
 	User    *User
 }
 
@@ -56,7 +57,7 @@ func (i *YouTubeIntegration) Delete(opts ...rest.RequestOpt) error {
 type BotIntegration struct {
 	discord.BotIntegration
 	Bot         *Bot
-	GuildID     discord.Snowflake
+	GuildID     snowflake.Snowflake
 	Application *IntegrationApplication
 }
 

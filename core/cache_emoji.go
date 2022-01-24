@@ -1,23 +1,21 @@
 package core
 
-import (
-	"github.com/DisgoOrg/disgo/discord"
-)
+import "github.com/DisgoOrg/snowflake"
 
 type (
 	EmojiFindFunc func(emoji *Emoji) bool
 
 	EmojiCache interface {
-		Get(guildID discord.Snowflake, emojiID discord.Snowflake) *Emoji
-		GetCopy(guildID discord.Snowflake, emojiID discord.Snowflake) *Emoji
+		Get(guildID snowflake.Snowflake, emojiID snowflake.Snowflake) *Emoji
+		GetCopy(guildID snowflake.Snowflake, emojiID snowflake.Snowflake) *Emoji
 		Set(emoji *Emoji) *Emoji
-		Remove(guildID discord.Snowflake, emojiID discord.Snowflake)
+		Remove(guildID snowflake.Snowflake, emojiID snowflake.Snowflake)
 
-		Cache() map[discord.Snowflake]map[discord.Snowflake]*Emoji
-		All() map[discord.Snowflake][]*Emoji
+		Cache() map[snowflake.Snowflake]map[snowflake.Snowflake]*Emoji
+		All() map[snowflake.Snowflake][]*Emoji
 
-		GuildCache(guildID discord.Snowflake) map[discord.Snowflake]*Emoji
-		GuildAll(guildID discord.Snowflake) []*Emoji
+		GuildCache(guildID snowflake.Snowflake) map[snowflake.Snowflake]*Emoji
+		GuildAll(guildID snowflake.Snowflake) []*Emoji
 
 		FindFirst(emojiFindFunc EmojiFindFunc) *Emoji
 		FindAll(emojiFindFunc EmojiFindFunc) []*Emoji
@@ -25,25 +23,25 @@ type (
 
 	emojiCacheImpl struct {
 		cacheFlags CacheFlags
-		emojis     map[discord.Snowflake]map[discord.Snowflake]*Emoji
+		emojis     map[snowflake.Snowflake]map[snowflake.Snowflake]*Emoji
 	}
 )
 
 func NewEmojiCache(cacheFlags CacheFlags) EmojiCache {
 	return &emojiCacheImpl{
 		cacheFlags: cacheFlags,
-		emojis:     map[discord.Snowflake]map[discord.Snowflake]*Emoji{},
+		emojis:     map[snowflake.Snowflake]map[snowflake.Snowflake]*Emoji{},
 	}
 }
 
-func (c *emojiCacheImpl) Get(guildID discord.Snowflake, emojiID discord.Snowflake) *Emoji {
+func (c *emojiCacheImpl) Get(guildID snowflake.Snowflake, emojiID snowflake.Snowflake) *Emoji {
 	if _, ok := c.emojis[guildID]; !ok {
 		return nil
 	}
 	return c.emojis[guildID][emojiID]
 }
 
-func (c *emojiCacheImpl) GetCopy(guildID discord.Snowflake, emojiID discord.Snowflake) *Emoji {
+func (c *emojiCacheImpl) GetCopy(guildID snowflake.Snowflake, emojiID snowflake.Snowflake) *Emoji {
 	if emoji := c.Get(guildID, emojiID); emoji != nil {
 		em := *emoji
 		return &em
@@ -56,7 +54,7 @@ func (c *emojiCacheImpl) Set(emoji *Emoji) *Emoji {
 		return emoji
 	}
 	if _, ok := c.emojis[emoji.GuildID]; !ok {
-		c.emojis[emoji.GuildID] = map[discord.Snowflake]*Emoji{}
+		c.emojis[emoji.GuildID] = map[snowflake.Snowflake]*Emoji{}
 	}
 	em, ok := c.emojis[emoji.GuildID][emoji.ID]
 	if ok {
@@ -68,19 +66,19 @@ func (c *emojiCacheImpl) Set(emoji *Emoji) *Emoji {
 	return emoji
 }
 
-func (c *emojiCacheImpl) Remove(guildID discord.Snowflake, emojiID discord.Snowflake) {
+func (c *emojiCacheImpl) Remove(guildID snowflake.Snowflake, emojiID snowflake.Snowflake) {
 	if _, ok := c.emojis[guildID]; !ok {
 		return
 	}
 	delete(c.emojis[guildID], emojiID)
 }
 
-func (c *emojiCacheImpl) Cache() map[discord.Snowflake]map[discord.Snowflake]*Emoji {
+func (c *emojiCacheImpl) Cache() map[snowflake.Snowflake]map[snowflake.Snowflake]*Emoji {
 	return c.emojis
 }
 
-func (c *emojiCacheImpl) All() map[discord.Snowflake][]*Emoji {
-	emojis := make(map[discord.Snowflake][]*Emoji, len(c.emojis))
+func (c *emojiCacheImpl) All() map[snowflake.Snowflake][]*Emoji {
+	emojis := make(map[snowflake.Snowflake][]*Emoji, len(c.emojis))
 	for guildID, guildEmojis := range c.emojis {
 		emojis[guildID] = make([]*Emoji, len(guildEmojis))
 		i := 0
@@ -92,14 +90,14 @@ func (c *emojiCacheImpl) All() map[discord.Snowflake][]*Emoji {
 	return emojis
 }
 
-func (c *emojiCacheImpl) GuildCache(guildID discord.Snowflake) map[discord.Snowflake]*Emoji {
+func (c *emojiCacheImpl) GuildCache(guildID snowflake.Snowflake) map[snowflake.Snowflake]*Emoji {
 	if _, ok := c.emojis[guildID]; !ok {
 		return nil
 	}
 	return c.emojis[guildID]
 }
 
-func (c *emojiCacheImpl) GuildAll(guildID discord.Snowflake) []*Emoji {
+func (c *emojiCacheImpl) GuildAll(guildID snowflake.Snowflake) []*Emoji {
 	if _, ok := c.emojis[guildID]; !ok {
 		return nil
 	}

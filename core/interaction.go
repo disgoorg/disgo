@@ -3,6 +3,7 @@ package core
 import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
+	"github.com/DisgoOrg/snowflake"
 )
 
 type InteractionFilter func(interaction Interaction) bool
@@ -15,12 +16,12 @@ type Interaction interface {
 }
 
 type BaseInteraction struct {
-	ID              discord.Snowflake
-	ApplicationID   discord.Snowflake
+	ID              snowflake.Snowflake
+	ApplicationID   snowflake.Snowflake
 	Token           string
 	Version         int
-	GuildID         *discord.Snowflake
-	ChannelID       discord.Snowflake
+	GuildID         *snowflake.Snowflake
+	ChannelID       snowflake.Snowflake
 	Locale          discord.Locale
 	GuildLocale     *discord.Locale
 	Member          *Member
@@ -101,7 +102,7 @@ func (i ReplyInteraction) DeferCreate(ephemeral bool, opts ...rest.RequestOpt) e
 	return i.Respond(discord.InteractionCallbackTypeDeferredChannelMessageWithSource, data, opts...)
 }
 
-func (i ReplyInteraction) GetFollowupMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
+func (i ReplyInteraction) GetFollowupMessage(messageID snowflake.Snowflake, opts ...rest.RequestOpt) (*Message, error) {
 	message, err := i.Bot.RestServices.InteractionService().GetFollowupMessage(i.ApplicationID, i.Token, messageID, opts...)
 	if err != nil {
 		return nil, err
@@ -117,7 +118,7 @@ func (i ReplyInteraction) CreateFollowupMessage(messageCreate discord.MessageCre
 	return i.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-func (i ReplyInteraction) UpdateFollowupMessage(messageID discord.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
+func (i ReplyInteraction) UpdateFollowupMessage(messageID snowflake.Snowflake, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
 	message, err := i.Bot.RestServices.InteractionService().UpdateFollowupMessage(i.ApplicationID, i.Token, messageID, messageUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -125,6 +126,6 @@ func (i ReplyInteraction) UpdateFollowupMessage(messageID discord.Snowflake, mes
 	return i.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-func (i ReplyInteraction) DeleteFollowupMessage(messageID discord.Snowflake, opts ...rest.RequestOpt) error {
+func (i ReplyInteraction) DeleteFollowupMessage(messageID snowflake.Snowflake, opts ...rest.RequestOpt) error {
 	return i.Bot.RestServices.InteractionService().DeleteFollowupMessage(i.ApplicationID, i.Token, messageID, opts...)
 }

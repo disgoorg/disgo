@@ -5,6 +5,7 @@ import (
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest/route"
+	"github.com/DisgoOrg/snowflake"
 )
 
 var (
@@ -22,11 +23,11 @@ type OAuth2Service interface {
 
 	GetCurrentAuthorizationInfo(bearerToken string, opts ...RequestOpt) (*discord.AuthorizationInformation, error)
 	GetCurrentUser(bearerToken string, opts ...RequestOpt) (*discord.OAuth2User, error)
-	GetCurrentUserGuilds(bearerToken string, before discord.Snowflake, after discord.Snowflake, limit int, opts ...RequestOpt) ([]discord.OAuth2Guild, error)
+	GetCurrentUserGuilds(bearerToken string, before snowflake.Snowflake, after snowflake.Snowflake, limit int, opts ...RequestOpt) ([]discord.OAuth2Guild, error)
 	GetCurrentUserConnections(bearerToken string, opts ...RequestOpt) ([]discord.Connection, error)
 
-	GetAccessToken(clientID discord.Snowflake, clientSecret string, code string, redirectURI string, opts ...RequestOpt) (*discord.AccessTokenExchange, error)
-	RefreshAccessToken(clientID discord.Snowflake, clientSecret string, refreshToken string, opts ...RequestOpt) (*discord.AccessTokenExchange, error)
+	GetAccessToken(clientID snowflake.Snowflake, clientSecret string, code string, redirectURI string, opts ...RequestOpt) (*discord.AccessTokenExchange, error)
+	RefreshAccessToken(clientID snowflake.Snowflake, clientSecret string, refreshToken string, opts ...RequestOpt) (*discord.AccessTokenExchange, error)
 }
 
 type oAuth2ServiceImpl struct {
@@ -75,7 +76,7 @@ func (s *oAuth2ServiceImpl) GetCurrentUser(bearerToken string, opts ...RequestOp
 	return
 }
 
-func (s *oAuth2ServiceImpl) GetCurrentUserGuilds(bearerToken string, before discord.Snowflake, after discord.Snowflake, limit int, opts ...RequestOpt) (guilds []discord.OAuth2Guild, err error) {
+func (s *oAuth2ServiceImpl) GetCurrentUserGuilds(bearerToken string, before snowflake.Snowflake, after snowflake.Snowflake, limit int, opts ...RequestOpt) (guilds []discord.OAuth2Guild, err error) {
 	queryParams := route.QueryValues{}
 	if before != "" {
 		queryParams["before"] = before
@@ -108,7 +109,7 @@ func (s *oAuth2ServiceImpl) GetCurrentUserConnections(bearerToken string, opts .
 	return
 }
 
-func (s *oAuth2ServiceImpl) exchangeAccessToken(clientID discord.Snowflake, clientSecret string, grantType discord.GrantType, codeOrRefreshToken string, redirectURI string, opts ...RequestOpt) (exchange *discord.AccessTokenExchange, err error) {
+func (s *oAuth2ServiceImpl) exchangeAccessToken(clientID snowflake.Snowflake, clientSecret string, grantType discord.GrantType, codeOrRefreshToken string, redirectURI string, opts ...RequestOpt) (exchange *discord.AccessTokenExchange, err error) {
 	values := url.Values{
 		"client_id":     []string{clientID.String()},
 		"client_secret": []string{clientSecret},
@@ -132,10 +133,10 @@ func (s *oAuth2ServiceImpl) exchangeAccessToken(clientID discord.Snowflake, clie
 	return
 }
 
-func (s *oAuth2ServiceImpl) GetAccessToken(clientID discord.Snowflake, clientSecret string, code string, redirectURI string, opts ...RequestOpt) (exchange *discord.AccessTokenExchange, err error) {
+func (s *oAuth2ServiceImpl) GetAccessToken(clientID snowflake.Snowflake, clientSecret string, code string, redirectURI string, opts ...RequestOpt) (exchange *discord.AccessTokenExchange, err error) {
 	return s.exchangeAccessToken(clientID, clientSecret, discord.GrantTypeAuthorizationCode, code, redirectURI, opts...)
 }
 
-func (s *oAuth2ServiceImpl) RefreshAccessToken(clientID discord.Snowflake, clientSecret string, refreshToken string, opts ...RequestOpt) (exchange *discord.AccessTokenExchange, err error) {
+func (s *oAuth2ServiceImpl) RefreshAccessToken(clientID snowflake.Snowflake, clientSecret string, refreshToken string, opts ...RequestOpt) (exchange *discord.AccessTokenExchange, err error) {
 	return s.exchangeAccessToken(clientID, clientSecret, discord.GrantTypeRefreshToken, refreshToken, "", opts...)
 }

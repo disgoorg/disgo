@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/DisgoOrg/disgo/json"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // PermissionOverwriteType is the type of PermissionOverwrite
@@ -28,7 +29,7 @@ var permissionOverwrites = map[PermissionOverwriteType]func() PermissionOverwrit
 // PermissionOverwrite is used to determine who can perform particular actions in a GetGuildChannel
 type PermissionOverwrite interface {
 	Type() PermissionOverwriteType
-	ID() Snowflake
+	ID() snowflake.Snowflake
 }
 
 type UnmarshalPermissionOverwrite struct {
@@ -59,12 +60,12 @@ func (o *UnmarshalPermissionOverwrite) UnmarshalJSON(data []byte) error {
 }
 
 type RolePermissionOverwrite struct {
-	RoleID Snowflake   `json:"id"`
-	Allow  Permissions `json:"allow"`
-	Deny   Permissions `json:"deny"`
+	RoleID snowflake.Snowflake `json:"id"`
+	Allow  Permissions         `json:"allow"`
+	Deny   Permissions         `json:"deny"`
 }
 
-func (o RolePermissionOverwrite) ID() Snowflake {
+func (o RolePermissionOverwrite) ID() snowflake.Snowflake {
 	return o.RoleID
 }
 
@@ -84,12 +85,12 @@ func (o RolePermissionOverwrite) Type() PermissionOverwriteType {
 }
 
 type MemberPermissionOverwrite struct {
-	UserID Snowflake   `json:"id"`
-	Allow  Permissions `json:"allow"`
-	Deny   Permissions `json:"deny"`
+	UserID snowflake.Snowflake `json:"id"`
+	Allow  Permissions         `json:"allow"`
+	Deny   Permissions         `json:"deny"`
 }
 
-func (o MemberPermissionOverwrite) ID() Snowflake {
+func (o MemberPermissionOverwrite) ID() snowflake.Snowflake {
 	return o.UserID
 }
 
