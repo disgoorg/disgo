@@ -9,7 +9,7 @@ type ComponentInteractionFilter func(interaction *ComponentInteraction) bool
 
 // ComponentInteraction represents a generic ComponentInteraction received from discord
 type ComponentInteraction struct {
-	*ReplyInteraction
+	*ModalReplyInteraction
 	Data    ComponentInteractionData
 	Message *Message
 }
@@ -19,15 +19,15 @@ func (i ComponentInteraction) Type() discord.InteractionType {
 	return discord.InteractionTypeComponent
 }
 
-func (i ComponentInteraction) ButtonInteractionData() *ButtonInteractionData {
-	return i.Data.(*ButtonInteractionData)
+func (i ComponentInteraction) ButtonInteractionData() ButtonInteractionData {
+	return i.Data.(ButtonInteractionData)
 }
 
-func (i ComponentInteraction) SelectMenuInteractionData() *SelectMenuInteractionData {
-	return i.Data.(*SelectMenuInteractionData)
+func (i ComponentInteraction) SelectMenuInteractionData() SelectMenuInteractionData {
+	return i.Data.(SelectMenuInteractionData)
 }
 
-func (i ComponentInteraction) Update(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
+func (i ComponentInteraction) UpdateMessage(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
 	return i.Respond(discord.InteractionCallbackTypeUpdateMessage, messageUpdate, opts...)
 }
 
@@ -44,10 +44,10 @@ func (i ComponentInteraction) UpdateComponent(customID discord.CustomID, compone
 		}
 	}
 
-	return i.Update(discord.NewMessageUpdateBuilder().SetContainerComponents(containerComponents...).Build(), opts...)
+	return i.UpdateMessage(discord.NewMessageUpdateBuilder().SetContainerComponents(containerComponents...).Build(), opts...)
 }
 
-func (i ComponentInteraction) DeferUpdate(opts ...rest.RequestOpt) error {
+func (i ComponentInteraction) DeferUpdateMessage(opts ...rest.RequestOpt) error {
 	return i.Respond(discord.InteractionCallbackTypeDeferredUpdateMessage, nil, opts...)
 }
 

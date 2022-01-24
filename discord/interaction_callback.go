@@ -69,12 +69,12 @@ type AutocompleteChoiceFloat struct {
 
 func (AutocompleteChoiceFloat) autoCompleteChoice() {}
 
-var _ InteractionCallbackData = (*Modal)(nil)
+var _ InteractionCallbackData = (*ModalCreate)(nil)
 
-type Modal struct {
-	CustomID   CustomID             `json:"custom_id"`
-	Title      string               `json:"title"`
-	Components []ContainerComponent `json:"components"`
+type ModalCreate struct {
+	CustomID   CustomID                  `json:"custom_id"`
+	Title      string                    `json:"title"`
+	Components []ModalContainerComponent `json:"components"`
 }
 
-func (m Modal) interactionCallbackData() {}
+func (m ModalCreate) interactionCallbackData() {}

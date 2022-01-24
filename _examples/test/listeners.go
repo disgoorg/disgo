@@ -25,19 +25,19 @@ func componentListener(event *events.ComponentInteractionEvent) {
 	case *core.ButtonInteractionData:
 		switch data.CustomID {
 		case "test1":
-			_ = event.Create(discord.NewMessageCreateBuilder().
+			_ = event.CreateMessage(discord.NewMessageCreateBuilder().
 				SetContent(data.CustomID.String()).
 				Build(),
 			)
 
 		case "test2":
-			_ = event.DeferCreate(false)
+			_ = event.DeferCreateMessage(false)
 
 		case "test3":
-			_ = event.DeferUpdate()
+			_ = event.DeferUpdateMessage()
 
 		case "test4":
-			_ = event.Update(discord.NewMessageUpdateBuilder().
+			_ = event.UpdateMessage(discord.NewMessageUpdateBuilder().
 				SetContent(data.CustomID.String()).
 				Build(),
 			)
@@ -46,7 +46,7 @@ func componentListener(event *events.ComponentInteractionEvent) {
 	case *core.SelectMenuInteractionData:
 		switch data.CustomID {
 		case "test3":
-			if err := event.DeferUpdate(); err != nil {
+			if err := event.DeferUpdateMessage(); err != nil {
 				log.Errorf("error sending interaction response: %s", err)
 			}
 			_, _ = event.CreateFollowupMessage(discord.NewMessageCreateBuilder().
@@ -62,7 +62,7 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionEvent
 	data := event.SlashCommandInteractionData()
 	switch data.CommandName {
 	case "locale":
-		err := event.Create(discord.NewMessageCreateBuilder().
+		err := event.CreateMessage(discord.NewMessageCreateBuilder().
 			SetContentf("Guild Locale: %s\nLocale: %s", event.GuildLocale, event.Locale).
 			Build(),
 		)
@@ -79,7 +79,7 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionEvent
 				AddField("Time", "...", true).
 				AddField("Code", "```go\n"+code+"\n```", false).
 				AddField("Output", "```\n...\n```", false)
-			_ = event.Create(discord.NewMessageCreateBuilder().SetEmbeds(embed.Build()).Build())
+			_ = event.CreateMessage(discord.NewMessageCreateBuilder().SetEmbeds(embed.Build()).Build())
 
 			start := time.Now()
 			output, err := gval.Evaluate(code, map[string]interface{}{
@@ -91,7 +91,7 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionEvent
 			embed.SetField(1, "Time", strconv.Itoa(int(elapsed.Milliseconds()))+"ms", true)
 
 			if err != nil {
-				_, err = event.UpdateResponse(discord.NewMessageUpdateBuilder().
+				_, err = event.UpdateOriginalMessage(discord.NewMessageUpdateBuilder().
 					SetEmbeds(embed.
 						SetColor(red).
 						SetField(0, "Status", "Failed", true).
@@ -105,7 +105,7 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionEvent
 				}
 				return
 			}
-			_, err = event.UpdateResponse(discord.NewMessageUpdateBuilder().
+			_, err = event.UpdateOriginalMessage(discord.NewMessageUpdateBuilder().
 				SetEmbeds(embed.
 					SetColor(green).
 					SetField(0, "Status", "Success", true).
@@ -120,7 +120,7 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionEvent
 		}()
 
 	case "say":
-		_ = event.Create(discord.NewMessageCreateBuilder().
+		_ = event.CreateMessage(discord.NewMessageCreateBuilder().
 			SetContent(*data.Options.String("message")).
 			SetEphemeral(*data.Options.Bool("ephemeral")).
 			ClearAllowedMentions().
@@ -129,13 +129,13 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionEvent
 
 	case "test":
 		go func() {
-			_ = event.DeferCreate(true)
+			_ = event.DeferCreateMessage(true)
 			members, err := event.Guild().RequestMembersWithQuery("", 0)
 			if err != nil {
-				_, _ = event.UpdateResponse(discord.NewMessageUpdateBuilder().SetContentf("failed to load members. error: %s", err).Build())
+				_, _ = event.UpdateOriginalMessage(discord.NewMessageUpdateBuilder().SetContentf("failed to load members. error: %s", err).Build())
 				return
 			}
-			_, _ = event.UpdateResponse(discord.NewMessageUpdateBuilder().
+			_, _ = event.UpdateOriginalMessage(discord.NewMessageUpdateBuilder().
 				SetContentf("loaded %d members", len(members)).
 				Build(),
 			)
@@ -146,11 +146,11 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionEvent
 		role := data.Options.Role("role")
 
 		if err := event.Bot().RestServices.GuildService().AddMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
-			_ = event.Create(discord.NewMessageCreateBuilder().AddEmbeds(
+			_ = event.CreateMessage(discord.NewMessageCreateBuilder().AddEmbeds(
 				discord.NewEmbedBuilder().SetColor(green).SetDescriptionf("Added %s to %s", role, user).Build(),
 			).Build())
 		} else {
-			_ = event.Create(discord.NewMessageCreateBuilder().AddEmbeds(
+			_ = event.CreateMessage(discord.NewMessageCreateBuilder().AddEmbeds(
 				discord.NewEmbedBuilder().SetColor(red).SetDescriptionf("Failed to add %s to %s", role, user).Build(),
 			).Build())
 		}
@@ -160,11 +160,11 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionEvent
 		role := data.Options.Role("role")
 
 		if err := event.Bot().RestServices.GuildService().RemoveMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
-			_ = event.Create(discord.NewMessageCreateBuilder().AddEmbeds(
+			_ = event.CreateMessage(discord.NewMessageCreateBuilder().AddEmbeds(
 				discord.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Removed %s from %s", role, user).Build(),
 			).Build())
 		} else {
-			_ = event.Create(discord.NewMessageCreateBuilder().AddEmbeds(
+			_ = event.CreateMessage(discord.NewMessageCreateBuilder().AddEmbeds(
 				discord.NewEmbedBuilder().SetColor(16711680).SetDescriptionf("Failed to remove %s from %s", role, user).Build(),
 			).Build())
 		}

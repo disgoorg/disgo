@@ -77,6 +77,11 @@ func (i *UnmarshalInteraction) UnmarshalJSON(data []byte) error {
 		err = json.Unmarshal(data, &v)
 		interaction = v
 
+	case InteractionTypeModalSubmit:
+		v := ModalSubmitInteraction{}
+		err = json.Unmarshal(data, &v)
+		interaction = v
+
 	default:
 		return fmt.Errorf("unkown interaction with type %d received", iType.Type)
 	}
@@ -392,33 +397,26 @@ var (
 )
 
 type ModalSubmitInteraction struct {
-	ID            Snowflake                  `json:"id"`
-	ApplicationID Snowflake                  `json:"application_id"`
-	Token         string                     `json:"token"`
-	Version       int                        `json:"version"`
-	GuildID       *Snowflake                 `json:"guild_id,omitempty"`
-	ChannelID     Snowflake                  `json:"channel_id"`
-	Member        *Member                    `json:"member,omitempty"`
-	User          *User                      `json:"user,omitempty"`
-	Data          ModalSubmitInteractionData `json:"data"`
+	BaseInteraction
+	Data ModalSubmitInteractionData `json:"data"`
 }
 
 func (ModalSubmitInteraction) interaction() {}
 
-func (ModalSubmitInteraction) InteractionType() InteractionType {
+func (ModalSubmitInteraction) Type() InteractionType {
 	return InteractionTypeModalSubmit
 }
 
 type ModalSubmitInteractionData struct {
-	CustomID   CustomID                        `json:"custom_id"`
-	Components []ModalSubmitContainerComponent `json:"components"`
+	CustomID   CustomID                  `json:"custom_id"`
+	Components []ModalContainerComponent `json:"components"`
 }
 
 func (d *ModalSubmitInteractionData) Unmarshal(data []byte) error {
 	type modalSubmitInteractionData ModalSubmitInteractionData
 	var iData struct {
+		Components []UnmarshalModalComponent `json:"components"`
 		modalSubmitInteractionData
-		Components []UnmarshalModalSubmitComponent `json:"components"`
 	}
 
 	if err := json.Unmarshal(data, &iData); err != nil {
@@ -428,9 +426,9 @@ func (d *ModalSubmitInteractionData) Unmarshal(data []byte) error {
 	*d = ModalSubmitInteractionData(iData.modalSubmitInteractionData)
 
 	if len(iData.Components) > 0 {
-		d.Components = make([]ModalSubmitContainerComponent, len(iData.Components))
+		d.Components = make([]ModalContainerComponent, len(iData.Components))
 		for i := range iData.Components {
-			d.Components[i] = iData.Components[i].ModalSubmitComponent.(ModalSubmitContainerComponent)
+			d.Components[i] = iData.Components[i].ModalComponent.(ModalContainerComponent)
 		}
 	}
 

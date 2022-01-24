@@ -101,7 +101,7 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 		var interactionData ApplicationCommandInteractionData
 		switch d := i.Data.(type) {
 		case discord.SlashCommandInteractionData:
-			data := &SlashCommandInteractionData{
+			data := SlashCommandInteractionData{
 				SlashCommandInteractionData: d,
 				Resolved: &SlashCommandResolved{
 					Users:    map[snowflake.Snowflake]*User{},
@@ -203,7 +203,7 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 			interactionData = data
 
 		case discord.UserCommandInteractionData:
-			data := &UserCommandInteractionData{
+			data := UserCommandInteractionData{
 				UserCommandInteractionData: d,
 				Resolved: &UserCommandResolved{
 					Users:   map[snowflake.Snowflake]*User{},
@@ -222,7 +222,7 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 			interactionData = data
 
 		case discord.MessageCommandInteractionData:
-			data := &MessageCommandInteractionData{
+			data := MessageCommandInteractionData{
 				MessageCommandInteractionData: d,
 				Resolved: &MessageCommandResolved{
 					Messages: map[snowflake.Snowflake]*Message{},
@@ -234,24 +234,24 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 			interactionData = data
 		}
 		return &ApplicationCommandInteraction{
-			ReplyInteraction: &ReplyInteraction{BaseInteraction: b.baseInteraction(i.BaseInteraction, c, updateCache)},
-			Data:             interactionData,
+			ModalReplyInteraction: &ModalReplyInteraction{ReplyInteraction: &ReplyInteraction{BaseInteraction: b.baseInteraction(i.BaseInteraction, c, updateCache)}},
+			Data:                  interactionData,
 		}
 
 	case discord.ComponentInteraction:
 		componentInteraction := &ComponentInteraction{
-			ReplyInteraction: &ReplyInteraction{BaseInteraction: b.baseInteraction(i.BaseInteraction, c, updateCache)},
-			Message:          b.CreateMessage(i.Message, updateCache),
+			ModalReplyInteraction: &ModalReplyInteraction{ReplyInteraction: &ReplyInteraction{BaseInteraction: b.baseInteraction(i.BaseInteraction, c, updateCache)}},
+			Message:               b.CreateMessage(i.Message, updateCache),
 		}
 		switch d := i.Data.(type) {
 		case discord.ButtonInteractionData:
-			componentInteraction.Data = &ButtonInteractionData{
+			componentInteraction.Data = ButtonInteractionData{
 				ButtonInteractionData: d,
 				interaction:           componentInteraction,
 			}
 
 		case discord.SelectMenuInteractionData:
-			componentInteraction.Data = &SelectMenuInteractionData{
+			componentInteraction.Data = SelectMenuInteractionData{
 				SelectMenuInteractionData: d,
 				interaction:               componentInteraction,
 			}
@@ -289,6 +289,14 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 		}
 
 		return autocompleteInteraction
+
+	case discord.ModalSubmitInteraction:
+		modalSubmitInteraction := &ModalSubmitInteraction{
+			ReplyInteraction: &ReplyInteraction{BaseInteraction: b.baseInteraction(i.BaseInteraction, c, updateCache)},
+			Data:             i.Data,
+		}
+
+		return modalSubmitInteraction
 
 	default:
 		b.Bot().Logger.Error("unknown interaction type %d received", interaction.Type())

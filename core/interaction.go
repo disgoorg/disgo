@@ -1,6 +1,8 @@
 package core
 
 import (
+	"time"
+
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/snowflake"
@@ -37,6 +39,10 @@ func (i *BaseInteraction) Respond(callbackType discord.InteractionCallbackType, 
 	}
 	i.Acknowledged = true
 
+	if time.Now().After(i.ID.Time().Add(3 * time.Second)) {
+		return discord.ErrInteractionExpired
+	}
+
 	response := discord.InteractionResponse{
 		Type: callbackType,
 		Data: callbackData,
@@ -70,7 +76,7 @@ type ReplyInteraction struct {
 	*BaseInteraction
 }
 
-func (i ReplyInteraction) GetResponse(opts ...rest.RequestOpt) (*Message, error) {
+func (i ReplyInteraction) GetOriginalMessage(opts ...rest.RequestOpt) (*Message, error) {
 	message, err := i.Bot.RestServices.InteractionService().GetInteractionResponse(i.ApplicationID, i.Token, opts...)
 	if err != nil {
 		return nil, err
@@ -78,7 +84,7 @@ func (i ReplyInteraction) GetResponse(opts ...rest.RequestOpt) (*Message, error)
 	return i.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-func (i ReplyInteraction) UpdateResponse(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
+func (i ReplyInteraction) UpdateOriginalMessage(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*Message, error) {
 	message, err := i.Bot.RestServices.InteractionService().UpdateInteractionResponse(i.ApplicationID, i.Token, messageUpdate, opts...)
 	if err != nil {
 		return nil, err
@@ -86,15 +92,15 @@ func (i ReplyInteraction) UpdateResponse(messageUpdate discord.MessageUpdate, op
 	return i.Bot.EntityBuilder.CreateMessage(*message, CacheStrategyNoWs), nil
 }
 
-func (i ReplyInteraction) DeleteResponse(opts ...rest.RequestOpt) error {
+func (i ReplyInteraction) DeleteOriginalMessage(opts ...rest.RequestOpt) error {
 	return i.Bot.RestServices.InteractionService().DeleteInteractionResponse(i.ApplicationID, i.Token, opts...)
 }
 
-func (i ReplyInteraction) Create(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
+func (i ReplyInteraction) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
 	return i.Respond(discord.InteractionCallbackTypeChannelMessageWithSource, messageCreate, opts...)
 }
 
-func (i ReplyInteraction) DeferCreate(ephemeral bool, opts ...rest.RequestOpt) error {
+func (i ReplyInteraction) DeferCreateMessage(ephemeral bool, opts ...rest.RequestOpt) error {
 	var data discord.InteractionCallbackData
 	if ephemeral {
 		data = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
@@ -128,4 +134,12 @@ func (i ReplyInteraction) UpdateFollowupMessage(messageID snowflake.Snowflake, m
 
 func (i ReplyInteraction) DeleteFollowupMessage(messageID snowflake.Snowflake, opts ...rest.RequestOpt) error {
 	return i.Bot.RestServices.InteractionService().DeleteFollowupMessage(i.ApplicationID, i.Token, messageID, opts...)
+}
+
+type ModalReplyInteraction struct {
+	*ReplyInteraction
+}
+
+func (i ModalReplyInteraction) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
+	return i.Respond(discord.InteractionCallbackTypeModal, modalCreate, opts...)
 }
