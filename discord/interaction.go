@@ -169,6 +169,8 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 type ApplicationCommandInteractionData interface {
 	applicationCommandInteractionData()
 	Type() ApplicationCommandType
+	ID() snowflake.Snowflake
+	Name() string
 }
 
 type SlashCommandInteractionData struct {
