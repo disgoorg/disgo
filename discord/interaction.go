@@ -394,22 +394,21 @@ type AutocompleteInteractionData struct {
 func (d *AutocompleteInteractionData) UnmarshalJSON(data []byte) error {
 	type autocompleteInteractionData AutocompleteInteractionData
 	var iData struct {
-		autocompleteInteractionData
 		Options []UnmarshalAutocompleteOption `json:"options"`
+		autocompleteInteractionData
 	}
 
 	if err := json.Unmarshal(data, &iData); err != nil {
 		return err
 	}
 
+	*d = AutocompleteInteractionData(iData.autocompleteInteractionData)
 	if len(iData.Options) > 0 {
 		d.Options = make([]AutocompleteOption, len(iData.Options))
 		for i, option := range iData.Options {
 			d.Options[i] = option.AutocompleteOption
 		}
 	}
-
-	*d = AutocompleteInteractionData(iData.autocompleteInteractionData)
 
 	return nil
 }
