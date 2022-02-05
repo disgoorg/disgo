@@ -298,6 +298,7 @@ func (g *gatewayImpl) listen() {
 				if err = g.Send(context.TODO(), discord.NewGatewayCommand(discord.GatewayOpcodeIdentify, identify)); err != nil {
 					g.Logger().Error(g.formatLogs("error sending identify payload. error: ", err))
 				}
+				g.lastHeartbeatSent = time.Now().UTC()
 				g.status = StatusWaitingForReady
 			} else {
 				g.status = StatusResuming
@@ -335,7 +336,6 @@ func (g *gatewayImpl) listen() {
 				}
 				g.sessionID = &readyEvent.SessionID
 				g.status = StatusWaitingForGuilds
-				g.lastHeartbeatReceived = time.Now().UTC()
 				g.Logger().Info(g.formatLogs("ready event received"))
 			}
 
