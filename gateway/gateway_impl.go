@@ -335,6 +335,7 @@ func (g *gatewayImpl) listen() {
 				}
 				g.sessionID = &readyEvent.SessionID
 				g.status = StatusWaitingForGuilds
+				g.lastHeartbeatReceived = time.Now().UTC()
 				g.Logger().Info(g.formatLogs("ready event received"))
 			}
 
