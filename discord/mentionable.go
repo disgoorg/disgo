@@ -53,12 +53,12 @@ func roleMention(id snowflake.Snowflake) string {
 
 //goland:noinspection GoUnusedFunction
 func emojiMention(id snowflake.Snowflake, name string) string {
-	return fmt.Sprintf("<:%s:%s>", id, name)
+	return fmt.Sprintf("<:%s:%s>", name, id)
 }
 
 //goland:noinspection GoUnusedFunction
 func animatedEmojiMention(id snowflake.Snowflake, name string) string {
-	return fmt.Sprintf("<a:%s:%s>", id, name)
+	return fmt.Sprintf("<a:%s:%s>", name, id)
 }
 
 //goland:noinspection GoUnusedFunction
