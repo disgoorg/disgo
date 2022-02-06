@@ -45,13 +45,14 @@ const (
 	PermissionManageEmojisAndStickers
 	PermissionUseApplicationCommands
 	PermissionRequestToSpeak
-	_
+	PermissionManageEvents
 	PermissionManageThreads
 	PermissionCreatePublicThread
 	PermissionCreatePrivateThread
 	PermissionUseExternalStickers
 	PermissionSendMessagesInThreads
 	PermissionStartEmbeddedActivities
+	PermissionModerateMembers
 )
 
 // Constants for the different bit offsets of general permissions
