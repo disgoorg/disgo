@@ -97,7 +97,7 @@ const (
 	GuildFeatureTicketedEventsEnabled         GuildFeature = "TICKETED_EVENTS_ENABLED"
 	GuildFeatureVanityURL                     GuildFeature = "VANITY_URL"
 	GuildFeatureVerified                      GuildFeature = "VERIFIED"
-	GuildFeatureVipRegions                    GuildFeature = "VIP_REGIONS"	
+	GuildFeatureVipRegions                    GuildFeature = "VIP_REGIONS"
 	GuildFeatureWelcomeScreenEnabled          GuildFeature = "WELCOME_SCREEN_ENABLED"
 )
 
@@ -124,6 +124,7 @@ type Guild struct {
 	SystemChannelID             *snowflake.Snowflake       `json:"system_channel_id"`
 	SystemChannelFlags          SystemChannelFlags         `json:"system_channel_flags"`
 	RulesChannelID              *snowflake.Snowflake       `json:"rules_channel_id"`
+	MemberCount                 int                        `json:"member_count"`
 	MaxPresences                *int                       `json:"max_presences"`
 	MaxMembers                  int                        `json:"max_members"`
 	VanityURLCode               *string                    `json:"vanity_url_code"`
@@ -138,6 +139,7 @@ type Guild struct {
 	NSFWLevel                   NSFWLevel                  `json:"nsfw_level"`
 	BoostProgressBarEnabled     bool                       `json:"premium_progress_bar_enabled"`
 	Stickers                    []Sticker                  `json:"stickers"`
+	JoinedAt                    Time                       `json:"joined_at"`
 
 	// only over GET /guilds/{guild.id}
 	ApproximateMemberCount   int `json:"approximate_member_count"`
@@ -146,10 +148,8 @@ type Guild struct {
 
 type GatewayGuild struct {
 	Guild
-	JoinedAt             Time                  `json:"joined_at"`
 	Large                bool                  `json:"large"`
 	Unavailable          bool                  `json:"unavailable"`
-	MemberCount          int                   `json:"member_count"`
 	VoiceStates          []VoiceState          `json:"voice_states"`
 	Members              []Member              `json:"members"`
 	Channels             []GuildChannel        `json:"channels"`
