@@ -12,15 +12,22 @@ const (
 	UserFlagPartneredServerOwner
 	UserFlagHypeSquadEvents
 	UserFlagBugHunterLevel1
+	_
+	_
 	UserFlagHouseBravery
 	UserFlagHouseBrilliance
 	UserFlagHouseBalance
 	UserFlagEarlySupporter
 	UserFlagTeamUser
+	_
+	_
+	_
 	UserFlagBugHunterLevel2
+	_
 	UserFlagVerifiedBot
 	UserFlagEarlyVerifiedBotDeveloper
 	UserFlagDiscordCertifiedModerator
+	UserFlagBotHTTPInteractions
 	UserFlagNone UserFlags = 0
 )
 
