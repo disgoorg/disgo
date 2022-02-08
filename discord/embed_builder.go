@@ -2,6 +2,7 @@ package discord
 
 import (
 	"fmt"
+	"time"
 )
 
 // NewEmbedBuilder returns a new embed builder
@@ -143,6 +144,12 @@ func (b *EmbedBuilder) SetThumbnail(url string) *EmbedBuilder {
 // SetURL sets the URL of the EmbedBuilder
 func (b *EmbedBuilder) SetURL(url string) *EmbedBuilder {
 	b.URL = url
+	return b
+}
+
+// SetTimestamp sets the timestamp of the EmbedBuilder
+func (b *EmbedBuilder) SetTimestamp(time time.Time) *EmbedBuilder {
+	b.Timestamp = &Time{Time: time}
 	return b
 }
 

@@ -77,22 +77,28 @@ type GuildFeature string
 // Constants for GuildFeature
 //goland:noinspection GoUnusedConst
 const (
-	GuildFeatureInviteSplash                  GuildFeature = "INVITE_SPLASH"
-	GuildFeatureVipRegions                    GuildFeature = "VIP_REGIONS"
-	GuildFeatureVanityURL                     GuildFeature = "VANITY_URL"
-	GuildFeatureVERIFIED                      GuildFeature = "VERIFIED"
-	GuildFeaturePARTNERED                     GuildFeature = "PARTNERED"
-	GuildFeatureCOMMUNITY                     GuildFeature = "COMMUNITY"
-	GuildFeatureCOMMERCE                      GuildFeature = "COMMERCE"
-	GuildFeatureNews                          GuildFeature = "NEWS"
+	GuildFeatureAnimatedIcon                  GuildFeature = "ANIMATED_ICON"
+	GuildFeatureBanner                        GuildFeature = "BANNER"
+	GuildFeatureCommerce                      GuildFeature = "COMMERCE"
+	GuildFeatureCommunity                     GuildFeature = "COMMUNITY"
 	GuildFeatureDiscoverable                  GuildFeature = "DISCOVERABLE"
 	GuildFeatureFeaturable                    GuildFeature = "FEATURABLE"
-	GuildFeatureAnimatedIcon                  GuildFeature = "ANIMATED_ICON"
-	GuildFeatureBANNER                        GuildFeature = "BANNER"
-	GuildFeatureWelcomeScreenEnabled          GuildFeature = "WELCOME_SCREEN_ENABLED"
+	GuildFeatureInviteSplash                  GuildFeature = "INVITE_SPLASH"
 	GuildFeatureMemberVerificationGateEnabled GuildFeature = "MEMBER_VERIFICATION_GATE_ENABLED"
+	GuildFeatureMonetizationEnabled           GuildFeature = "MONETIZATION_ENABLED"
+	GuildFeatureMoreStickers                  GuildFeature = "MORE_STICKERS"
+	GuildFeatureNews                          GuildFeature = "NEWS"
+	GuildFeaturePartnered                     GuildFeature = "PARTNERED"
 	GuildFeaturePreviewEnabled                GuildFeature = "PREVIEW_ENABLED"
+	GuildFeaturePrivateThreads                GuildFeature = "PRIVATE_THREADS"
 	GuildFeatureRoleIcons                     GuildFeature = "ROLE_ICONS"
+	GuildFeatureSevenDayThreadArchive         GuildFeature = "SEVEN_DAY_THREAD_ARCHIVE"
+	GuildFeatureThreeDayThreadArchive         GuildFeature = "THREE_DAY_THREAD_ARCHIVE"
+	GuildFeatureTicketedEventsEnabled         GuildFeature = "TICKETED_EVENTS_ENABLED"
+	GuildFeatureVanityURL                     GuildFeature = "VANITY_URL"
+	GuildFeatureVerified                      GuildFeature = "VERIFIED"
+	GuildFeatureVipRegions                    GuildFeature = "VIP_REGIONS"
+	GuildFeatureWelcomeScreenEnabled          GuildFeature = "WELCOME_SCREEN_ENABLED"
 )
 
 // Guild represents a discord Guild
@@ -118,6 +124,7 @@ type Guild struct {
 	SystemChannelID             *snowflake.Snowflake       `json:"system_channel_id"`
 	SystemChannelFlags          SystemChannelFlags         `json:"system_channel_flags"`
 	RulesChannelID              *snowflake.Snowflake       `json:"rules_channel_id"`
+	MemberCount                 int                        `json:"member_count"`
 	MaxPresences                *int                       `json:"max_presences"`
 	MaxMembers                  int                        `json:"max_members"`
 	VanityURLCode               *string                    `json:"vanity_url_code"`
@@ -132,6 +139,7 @@ type Guild struct {
 	NSFWLevel                   NSFWLevel                  `json:"nsfw_level"`
 	BoostProgressBarEnabled     bool                       `json:"premium_progress_bar_enabled"`
 	Stickers                    []Sticker                  `json:"stickers"`
+	JoinedAt                    Time                       `json:"joined_at"`
 
 	// only over GET /guilds/{guild.id}
 	ApproximateMemberCount   int `json:"approximate_member_count"`
@@ -140,10 +148,8 @@ type Guild struct {
 
 type GatewayGuild struct {
 	Guild
-	JoinedAt             Time                  `json:"joined_at"`
 	Large                bool                  `json:"large"`
 	Unavailable          bool                  `json:"unavailable"`
-	MemberCount          int                   `json:"member_count"`
 	VoiceStates          []VoiceState          `json:"voice_states"`
 	Members              []Member              `json:"members"`
 	Channels             []GuildChannel        `json:"channels"`

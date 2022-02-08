@@ -1,11 +1,11 @@
 github.com/DisgoOrg/log v1.1.2 h1:tGJS4jaH1PyjPRHybHp8WpYJ/4fR3fYWT4Mv1PoDGBM=
 github.com/DisgoOrg/log v1.1.2/go.mod h1:tSMofXaNhQNvzLRoL4tAiCG9yGY1ES5DLvduh7e9GRU=
-github.com/DisgoOrg/snowflake v1.0.1 h1:+UKgfjOnj2KBj/20tWKFNzhbo9awzThkY12ZaOQzaSg=
-github.com/DisgoOrg/snowflake v1.0.1/go.mod h1:jIQVlVmElm2OGt6v52ITf/71ODaU09chUCflxt8+3yM=
+github.com/DisgoOrg/snowflake v1.0.3 h1:KfzswrZOr8ISu/J5P3C5+QC9yKxW7nNJWeCJpkldxbI=
+github.com/DisgoOrg/snowflake v1.0.3/go.mod h1:jIQVlVmElm2OGt6v52ITf/71ODaU09chUCflxt8+3yM=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/google/go-cmp v0.5.6 h1:BKbKCqvP6I+rmFHt06ZmyQtvB8xAkWdhFyr0ZUNZcxQ=
-github.com/google/go-cmp v0.5.6/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
+github.com/google/go-cmp v0.5.7 h1:81/ik6ipDQS2aGcBfIN5dHDB36BwrStyeAQquSYCV4o=
+github.com/google/go-cmp v0.5.7/go.mod h1:n+brtR0CgQNWTVd5ZUFpTBC8YFBDLK/h/bpaJ8/DtOE=
 github.com/gorilla/websocket v1.4.2 h1:+/TMaTYc4QFitKJxsQ7Yye35DkWvkdLcvGKqM+x0Ufc=
 github.com/gorilla/websocket v1.4.2/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=

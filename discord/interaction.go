@@ -175,6 +175,8 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 type ApplicationCommandInteractionData interface {
 	applicationCommandInteractionData()
 	Type() ApplicationCommandType
+	ID() snowflake.Snowflake
+	Name() string
 }
 
 type SlashCommandInteractionData struct {
@@ -187,6 +189,12 @@ type SlashCommandInteractionData struct {
 func (SlashCommandInteractionData) applicationCommandInteractionData() {}
 func (SlashCommandInteractionData) Type() ApplicationCommandType {
 	return ApplicationCommandTypeSlash
+}
+func (d SlashCommandInteractionData) ID() snowflake.Snowflake {
+	return d.CommandID
+}
+func (d SlashCommandInteractionData) Name() string {
+	return d.CommandName
 }
 
 func (d *SlashCommandInteractionData) UnmarshalJSON(data []byte) error {
@@ -234,6 +242,12 @@ func (UserCommandInteractionData) applicationCommandInteractionData() {}
 func (UserCommandInteractionData) Type() ApplicationCommandType {
 	return ApplicationCommandTypeUser
 }
+func (d UserCommandInteractionData) ID() snowflake.Snowflake {
+	return d.CommandID
+}
+func (d UserCommandInteractionData) Name() string {
+	return d.CommandName
+}
 
 type UserCommandResolved struct {
 	Users   map[snowflake.Snowflake]User   `json:"users,omitempty"`
@@ -254,6 +268,12 @@ type MessageCommandInteractionData struct {
 func (MessageCommandInteractionData) applicationCommandInteractionData() {}
 func (MessageCommandInteractionData) Type() ApplicationCommandType {
 	return ApplicationCommandTypeMessage
+}
+func (d MessageCommandInteractionData) ID() snowflake.Snowflake {
+	return d.CommandID
+}
+func (d MessageCommandInteractionData) Name() string {
+	return d.CommandName
 }
 
 type MessageCommandResolved struct {
@@ -325,6 +345,7 @@ func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
 type ComponentInteractionData interface {
 	componentInteractionData()
 	Type() ComponentType
+	ID() CustomID
 }
 
 type ButtonInteractionData struct {
@@ -334,6 +355,9 @@ type ButtonInteractionData struct {
 func (ButtonInteractionData) componentInteractionData() {}
 func (ButtonInteractionData) Type() ComponentType {
 	return ComponentTypeButton
+}
+func (d ButtonInteractionData) ID() CustomID {
+	return d.CustomID
 }
 
 var (
@@ -348,6 +372,9 @@ type SelectMenuInteractionData struct {
 func (SelectMenuInteractionData) componentInteractionData() {}
 func (SelectMenuInteractionData) Type() ComponentType {
 	return ComponentTypeSelectMenu
+}
+func (d SelectMenuInteractionData) ID() CustomID {
+	return d.CustomID
 }
 
 var (
@@ -373,8 +400,8 @@ type AutocompleteInteractionData struct {
 func (d *AutocompleteInteractionData) UnmarshalJSON(data []byte) error {
 	type autocompleteInteractionData AutocompleteInteractionData
 	var iData struct {
-		autocompleteInteractionData
 		Options []UnmarshalAutocompleteOption `json:"options"`
+		autocompleteInteractionData
 	}
 
 	if err := json.Unmarshal(data, &iData); err != nil {
