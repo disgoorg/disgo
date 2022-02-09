@@ -92,6 +92,7 @@ func (e *eventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventTy
 		if v != nil {
 			if err := json.NewDecoder(reader).Decode(&v); err != nil {
 				e.Bot().Logger.Errorf("error while unmarshalling event '%s'. error: %s", gatewayEventType, err.Error())
+				return
 			}
 		}
 		handler.HandleGatewayEvent(e.Bot(), sequenceNumber, v)

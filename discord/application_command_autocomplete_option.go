@@ -103,6 +103,29 @@ type AutocompleteOptionSubCommand struct {
 	Options     []AutocompleteOption `json:"options,omitempty"`
 }
 
+func (o *AutocompleteOptionSubCommand) UnmarshalJSON(data []byte) error {
+	type autocompleteOptionSubCommand AutocompleteOptionSubCommand
+	var iData struct {
+		Options []UnmarshalAutocompleteOption `json:"options"`
+		autocompleteOptionSubCommand
+	}
+
+	if err := json.Unmarshal(data, &iData); err != nil {
+		return err
+	}
+
+	*o = AutocompleteOptionSubCommand(iData.autocompleteOptionSubCommand)
+	if len(iData.Options) > 0 {
+		o.Options = make([]AutocompleteOption, len(iData.Options))
+		for i := range iData.Options {
+			o.Options[i] = iData.Options[i].AutocompleteOption
+		}
+	}
+
+	return nil
+}
+
+func (AutocompleteOptionSubCommand) autocompleteOption() {}
 func (AutocompleteOptionSubCommand) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeSubCommand
 }
@@ -115,8 +138,6 @@ func (o AutocompleteOptionSubCommand) Focused() bool {
 	return false
 }
 
-func (AutocompleteOptionSubCommand) autocompleteOption() {}
-
 var _ AutocompleteOption = (*AutocompleteOptionSubCommandGroup)(nil)
 
 type AutocompleteOptionSubCommandGroup struct {
@@ -125,6 +146,7 @@ type AutocompleteOptionSubCommandGroup struct {
 	Options     []AutocompleteOptionSubCommand `json:"options,omitempty"`
 }
 
+func (AutocompleteOptionSubCommandGroup) autocompleteOption() {}
 func (AutocompleteOptionSubCommandGroup) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeSubCommandGroup
 }
@@ -137,8 +159,6 @@ func (o AutocompleteOptionSubCommandGroup) Focused() bool {
 	return false
 }
 
-func (AutocompleteOptionSubCommandGroup) autocompleteOption() {}
-
 var _ AutocompleteOption = (*AutocompleteOptionString)(nil)
 
 type AutocompleteOptionString struct {
@@ -147,6 +167,7 @@ type AutocompleteOptionString struct {
 	OptionFocused bool   `json:"focused"`
 }
 
+func (AutocompleteOptionString) autocompleteOption() {}
 func (AutocompleteOptionString) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeString
 }
@@ -159,8 +180,6 @@ func (o AutocompleteOptionString) Focused() bool {
 	return o.OptionFocused
 }
 
-func (AutocompleteOptionString) autocompleteOption() {}
-
 var _ AutocompleteOption = (*AutocompleteOptionInt)(nil)
 
 type AutocompleteOptionInt struct {
@@ -169,6 +188,7 @@ type AutocompleteOptionInt struct {
 	OptionFocused bool   `json:"focused"`
 }
 
+func (AutocompleteOptionInt) autocompleteOption() {}
 func (AutocompleteOptionInt) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeInt
 }
@@ -181,8 +201,6 @@ func (o AutocompleteOptionInt) Focused() bool {
 	return o.OptionFocused
 }
 
-func (AutocompleteOptionInt) autocompleteOption() {}
-
 var _ AutocompleteOption = (*AutocompleteOptionBool)(nil)
 
 type AutocompleteOptionBool struct {
@@ -191,6 +209,7 @@ type AutocompleteOptionBool struct {
 	OptionFocused bool   `json:"focused"`
 }
 
+func (AutocompleteOptionBool) autocompleteOption() {}
 func (AutocompleteOptionBool) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeBool
 }
@@ -203,8 +222,6 @@ func (o AutocompleteOptionBool) Focused() bool {
 	return o.OptionFocused
 }
 
-func (AutocompleteOptionBool) autocompleteOption() {}
-
 var _ AutocompleteOption = (*AutocompleteOptionUser)(nil)
 
 type AutocompleteOptionUser struct {
@@ -213,6 +230,7 @@ type AutocompleteOptionUser struct {
 	OptionFocused bool                `json:"focused"`
 }
 
+func (AutocompleteOptionUser) autocompleteOption() {}
 func (AutocompleteOptionUser) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeUser
 }
@@ -225,8 +243,6 @@ func (o AutocompleteOptionUser) Focused() bool {
 	return o.OptionFocused
 }
 
-func (AutocompleteOptionUser) autocompleteOption() {}
-
 var _ AutocompleteOption = (*AutocompleteOptionChannel)(nil)
 
 type AutocompleteOptionChannel struct {
@@ -235,6 +251,7 @@ type AutocompleteOptionChannel struct {
 	OptionFocused bool                `json:"focused"`
 }
 
+func (AutocompleteOptionChannel) autocompleteOption() {}
 func (AutocompleteOptionChannel) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeChannel
 }
@@ -247,8 +264,6 @@ func (o AutocompleteOptionChannel) Focused() bool {
 	return o.OptionFocused
 }
 
-func (AutocompleteOptionChannel) autocompleteOption() {}
-
 var _ AutocompleteOption = (*AutocompleteOptionRole)(nil)
 
 type AutocompleteOptionRole struct {
@@ -257,6 +272,7 @@ type AutocompleteOptionRole struct {
 	OptionFocused bool                `json:"focused"`
 }
 
+func (AutocompleteOptionRole) autocompleteOption() {}
 func (AutocompleteOptionRole) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeRole
 }
@@ -269,8 +285,6 @@ func (o AutocompleteOptionRole) Focused() bool {
 	return o.OptionFocused
 }
 
-func (AutocompleteOptionRole) autocompleteOption() {}
-
 var _ AutocompleteOption = (*AutocompleteOptionMentionable)(nil)
 
 type AutocompleteOptionMentionable struct {
@@ -279,6 +293,7 @@ type AutocompleteOptionMentionable struct {
 	OptionFocused bool                `json:"focused"`
 }
 
+func (AutocompleteOptionMentionable) autocompleteOption() {}
 func (AutocompleteOptionMentionable) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeMentionable
 }
@@ -290,8 +305,6 @@ func (o AutocompleteOptionMentionable) Name() string {
 func (o AutocompleteOptionMentionable) Focused() bool {
 	return o.OptionFocused
 }
-
-func (AutocompleteOptionMentionable) autocompleteOption() {}
 
 var _ AutocompleteOption = (*AutocompleteOptionFloat)(nil)
 
@@ -314,3 +327,24 @@ func (o AutocompleteOptionFloat) Focused() bool {
 }
 
 func (AutocompleteOptionFloat) autocompleteOption() {}
+
+var _ AutocompleteOption = (*AutocompleteOptionAttachment)(nil)
+
+type AutocompleteOptionAttachment struct {
+	OptionName    string              `json:"name"`
+	Value         snowflake.Snowflake `json:"value"`
+	OptionFocused bool                `json:"focused"`
+}
+
+func (AutocompleteOptionAttachment) autocompleteOption() {}
+func (AutocompleteOptionAttachment) Type() ApplicationCommandOptionType {
+	return ApplicationCommandOptionTypeFloat
+}
+
+func (o AutocompleteOptionAttachment) Name() string {
+	return o.OptionName
+}
+
+func (o AutocompleteOptionAttachment) Focused() bool {
+	return o.OptionFocused
+}

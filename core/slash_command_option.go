@@ -138,6 +138,15 @@ type SlashCommandOptionFloat struct {
 	discord.SlashCommandOptionFloat
 }
 
+type SlashCommandOptionAttachment struct {
+	discord.SlashCommandOptionAttachment
+	Resolved *SlashCommandResolved
+}
+
+func (o SlashCommandOptionAttachment) Attachment() discord.Attachment {
+	return o.Resolved.Attachments[o.Value]
+}
+
 type SlashCommandOptionsMap map[string]SlashCommandOption
 
 func (m SlashCommandOptionsMap) Get(name string) SlashCommandOption {
