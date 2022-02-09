@@ -53,6 +53,12 @@ func HandleInteraction(bot *core.Bot, sequenceNumber int, c chan<- discord.Inter
 			AutocompleteInteraction: i,
 		})
 
+	case *core.ModalSubmitInteraction:
+		bot.EventManager.Dispatch(&events.ModalSubmitInteractionEvent{
+			GenericEvent:           genericEvent,
+			ModalSubmitInteraction: i,
+		})
+
 	default:
 		bot.Logger.Errorf("unknown interaction with type %d received", interaction.Type())
 	}

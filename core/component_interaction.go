@@ -7,9 +7,11 @@ import (
 
 type ComponentInteractionFilter func(interaction *ComponentInteraction) bool
 
+var _ Interaction = (*ComponentInteraction)(nil)
+
 // ComponentInteraction represents a generic ComponentInteraction received from discord
 type ComponentInteraction struct {
-	*ModalReplyInteraction
+	CreateInteraction
 	Data    ComponentInteractionData
 	Message *Message
 }
@@ -31,6 +33,10 @@ func (i ComponentInteraction) UpdateMessage(messageUpdate discord.MessageUpdate,
 	return i.Respond(discord.InteractionCallbackTypeUpdateMessage, messageUpdate, opts...)
 }
 
+func (i ComponentInteraction) DeferUpdateMessage(opts ...rest.RequestOpt) error {
+	return i.Respond(discord.InteractionCallbackTypeDeferredUpdateMessage, nil, opts...)
+}
+
 func (i ComponentInteraction) UpdateComponent(customID discord.CustomID, component discord.InteractiveComponent, opts ...rest.RequestOpt) error {
 	containerComponents := make([]discord.ContainerComponent, len(i.Message.Components))
 	for ii := range i.Message.Components {
@@ -47,8 +53,8 @@ func (i ComponentInteraction) UpdateComponent(customID discord.CustomID, compone
 	return i.UpdateMessage(discord.NewMessageUpdateBuilder().SetContainerComponents(containerComponents...).Build(), opts...)
 }
 
-func (i ComponentInteraction) DeferUpdateMessage(opts ...rest.RequestOpt) error {
-	return i.Respond(discord.InteractionCallbackTypeDeferredUpdateMessage, nil, opts...)
+func (i ComponentInteraction) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
+	return i.Respond(discord.InteractionCallbackTypeModal, modalCreate, opts...)
 }
 
 type ComponentInteractionData interface {

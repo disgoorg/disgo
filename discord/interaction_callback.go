@@ -72,9 +72,9 @@ func (AutocompleteChoiceFloat) autoCompleteChoice() {}
 var _ InteractionCallbackData = (*ModalCreate)(nil)
 
 type ModalCreate struct {
-	CustomID   CustomID                  `json:"custom_id"`
-	Title      string                    `json:"title"`
-	Components []ModalContainerComponent `json:"components"`
+	CustomID   CustomID             `json:"custom_id"`
+	Title      string               `json:"title"`
+	Components []ContainerComponent `json:"components"`
 }
 
 func (m ModalCreate) interactionCallbackData() {}

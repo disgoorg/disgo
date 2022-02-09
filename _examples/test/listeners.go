@@ -2,28 +2,68 @@ package main
 
 import (
 	"bytes"
-	"fmt"
-	"strconv"
+	"strings"
 	"time"
 
-	"github.com/DisgoOrg/disgo/core/events"
-
 	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/log"
-	"github.com/PaesslerAG/gval"
 )
 
 var listener = &events.ListenerAdapter{
 	OnGuildMessageCreate:            messageListener,
 	OnApplicationCommandInteraction: applicationCommandListener,
 	OnComponentInteraction:          componentListener,
+	OnModalSubmit:                   modalListener,
+}
+
+func modalListener(event *events.ModalSubmitInteractionEvent) {
+	switch event.Data.CustomID {
+	case "test1":
+		value := event.Data.Components[0].Components()[0].(discord.TextInputComponent).Value
+		_ = event.CreateMessage(discord.MessageCreate{Content: value})
+
+	case "test2":
+		value := event.Data.Components[0].Components()[0].(discord.TextInputComponent).Value
+		_ = event.DeferCreateMessage(false)
+		go func() {
+			time.Sleep(time.Second * 5)
+			_, _ = event.UpdateOriginalMessage(discord.MessageUpdate{Content: &value})
+		}()
+
+	case "test3":
+		value := event.Data.Components[0].Components()[0].(discord.TextInputComponent).Value
+		_ = event.UpdateMessage(discord.MessageUpdate{Content: &value})
+
+	case "test4":
+		_ = event.DeferUpdateMessage()
+	}
 }
 
 func componentListener(event *events.ComponentInteractionEvent) {
 	switch data := event.Data.(type) {
-	case *core.ButtonInteractionData:
-		switch data.CustomID {
+	case core.ButtonInteractionData:
+		ids := strings.Split(data.CustomID.String(), ":")
+		switch ids[0] {
+		case "modal":
+			_ = event.CreateModal(discord.ModalCreate{
+				CustomID: discord.CustomID("test" + ids[1]),
+				Title:    "Test" + ids[1] + " Modal",
+				Components: []discord.ContainerComponent{
+					discord.ActionRowComponent{
+						discord.TextInputComponent{
+							CustomID:    "test_input",
+							Style:       discord.TextInputStyleShort,
+							Label:       "qwq",
+							Required:    true,
+							Placeholder: "test placeholder",
+							Value:       "uwu",
+						},
+					},
+				},
+			})
+
 		case "test1":
 			_ = event.CreateMessage(discord.NewMessageCreateBuilder().
 				SetContent(data.CustomID.String()).
@@ -43,7 +83,7 @@ func componentListener(event *events.ComponentInteractionEvent) {
 			)
 		}
 
-	case *core.SelectMenuInteractionData:
+	case core.SelectMenuInteractionData:
 		switch data.CustomID {
 		case "test3":
 			if err := event.DeferUpdateMessage(); err != nil {
@@ -70,55 +110,6 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionEvent
 			event.Bot().Logger.Error("error on sending response: ", err)
 		}
 
-	case "eval":
-		go func() {
-			code := *data.Options.String("code")
-			embed := discord.NewEmbedBuilder().
-				SetColor(orange).
-				AddField("Status", "...", true).
-				AddField("Time", "...", true).
-				AddField("Code", "```go\n"+code+"\n```", false).
-				AddField("Output", "```\n...\n```", false)
-			_ = event.CreateMessage(discord.NewMessageCreateBuilder().SetEmbeds(embed.Build()).Build())
-
-			start := time.Now()
-			output, err := gval.Evaluate(code, map[string]interface{}{
-				"bot":   event.Bot(),
-				"event": event,
-			})
-
-			elapsed := time.Since(start)
-			embed.SetField(1, "Time", strconv.Itoa(int(elapsed.Milliseconds()))+"ms", true)
-
-			if err != nil {
-				_, err = event.UpdateOriginalMessage(discord.NewMessageUpdateBuilder().
-					SetEmbeds(embed.
-						SetColor(red).
-						SetField(0, "Status", "Failed", true).
-						SetField(3, "Output", "```"+err.Error()+"```", false).
-						Build(),
-					).
-					Build(),
-				)
-				if err != nil {
-					log.Errorf("error sending interaction response: %s", err)
-				}
-				return
-			}
-			_, err = event.UpdateOriginalMessage(discord.NewMessageUpdateBuilder().
-				SetEmbeds(embed.
-					SetColor(green).
-					SetField(0, "Status", "Success", true).
-					SetField(3, "Output", "```"+fmt.Sprintf("%+v", output)+"```", false).
-					Build(),
-				).
-				Build(),
-			)
-			if err != nil {
-				log.Errorf("error sending interaction response: %s", err)
-			}
-		}()
-
 	case "say":
 		_ = event.CreateMessage(discord.NewMessageCreateBuilder().
 			SetContent(*data.Options.String("message")).
@@ -128,46 +119,16 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionEvent
 		)
 
 	case "test":
-		go func() {
-			_ = event.DeferCreateMessage(true)
-			members, err := event.Guild().RequestMembersWithQuery("", 0)
-			if err != nil {
-				_, _ = event.UpdateOriginalMessage(discord.NewMessageUpdateBuilder().SetContentf("failed to load members. error: %s", err).Build())
-				return
-			}
-			_, _ = event.UpdateOriginalMessage(discord.NewMessageUpdateBuilder().
-				SetContentf("loaded %d members", len(members)).
-				Build(),
-			)
-		}()
-
-	case "addrole":
-		user := data.Options.User("member")
-		role := data.Options.Role("role")
-
-		if err := event.Bot().RestServices.GuildService().AddMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
-			_ = event.CreateMessage(discord.NewMessageCreateBuilder().AddEmbeds(
-				discord.NewEmbedBuilder().SetColor(green).SetDescriptionf("Added %s to %s", role, user).Build(),
-			).Build())
-		} else {
-			_ = event.CreateMessage(discord.NewMessageCreateBuilder().AddEmbeds(
-				discord.NewEmbedBuilder().SetColor(red).SetDescriptionf("Failed to add %s to %s", role, user).Build(),
-			).Build())
-		}
-
-	case "removerole":
-		user := data.Options.User("member")
-		role := data.Options.Role("role")
-
-		if err := event.Bot().RestServices.GuildService().RemoveMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
-			_ = event.CreateMessage(discord.NewMessageCreateBuilder().AddEmbeds(
-				discord.NewEmbedBuilder().SetColor(65280).SetDescriptionf("Removed %s from %s", role, user).Build(),
-			).Build())
-		} else {
-			_ = event.CreateMessage(discord.NewMessageCreateBuilder().AddEmbeds(
-				discord.NewEmbedBuilder().SetColor(16711680).SetDescriptionf("Failed to remove %s from %s", role, user).Build(),
-			).Build())
-		}
+		_ = event.CreateMessage(discord.NewMessageCreateBuilder().
+			SetContent("test").
+			AddActionRow(
+				discord.NewPrimaryButton("test1", "modal:1"),
+				discord.NewPrimaryButton("test2", "modal:2"),
+				discord.NewPrimaryButton("test3", "modal:3"),
+				discord.NewPrimaryButton("test4", "modal:4"),
+			).
+			Build(),
+		)
 	}
 }
 

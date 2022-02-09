@@ -435,14 +435,14 @@ func (ModalSubmitInteraction) Type() InteractionType {
 }
 
 type ModalSubmitInteractionData struct {
-	CustomID   CustomID                  `json:"custom_id"`
-	Components []ModalContainerComponent `json:"components"`
+	CustomID   CustomID             `json:"custom_id"`
+	Components []ContainerComponent `json:"components"`
 }
 
-func (d *ModalSubmitInteractionData) Unmarshal(data []byte) error {
+func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
 	type modalSubmitInteractionData ModalSubmitInteractionData
 	var iData struct {
-		Components []UnmarshalModalComponent `json:"components"`
+		Components []UnmarshalComponent `json:"components"`
 		modalSubmitInteractionData
 	}
 
@@ -453,9 +453,9 @@ func (d *ModalSubmitInteractionData) Unmarshal(data []byte) error {
 	*d = ModalSubmitInteractionData(iData.modalSubmitInteractionData)
 
 	if len(iData.Components) > 0 {
-		d.Components = make([]ModalContainerComponent, len(iData.Components))
+		d.Components = make([]ContainerComponent, len(iData.Components))
 		for i := range iData.Components {
-			d.Components[i] = iData.Components[i].ModalComponent.(ModalContainerComponent)
+			d.Components[i] = iData.Components[i].Component.(ContainerComponent)
 		}
 	}
 

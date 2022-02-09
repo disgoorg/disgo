@@ -120,6 +120,7 @@ type ListenerAdapter struct {
 	OnApplicationCommandInteraction func(event *ApplicationCommandInteractionEvent)
 	OnComponentInteraction          func(event *ComponentInteractionEvent)
 	OnAutocompleteInteraction       func(event *AutocompleteInteractionEvent)
+	OnModalSubmit                   func(event *ModalSubmitInteractionEvent)
 
 	// Message Events
 	OnMessageCreate func(event *MessageCreateEvent)
@@ -496,6 +497,10 @@ func (l ListenerAdapter) OnEvent(event core.Event) {
 		}
 	case *AutocompleteInteractionEvent:
 		if listener := l.OnAutocompleteInteraction; listener != nil {
+			listener(e)
+		}
+	case *ModalSubmitInteractionEvent:
+		if listener := l.OnModalSubmit; listener != nil {
 			listener(e)
 		}
 

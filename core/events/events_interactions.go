@@ -22,7 +22,7 @@ type AutocompleteInteractionEvent struct {
 	*core.AutocompleteInteraction
 }
 
-type ModalSubmitEvent struct {
+type ModalSubmitInteractionEvent struct {
 	*GenericEvent
 	*core.ModalSubmitInteraction
 }

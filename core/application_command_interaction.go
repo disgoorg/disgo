@@ -2,14 +2,17 @@ package core
 
 import (
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/snowflake"
 )
 
 type ApplicationCommandInteractionFilter func(interaction *ApplicationCommandInteraction) bool
 
+var _ Interaction = (*ApplicationCommandInteraction)(nil)
+
 // ApplicationCommandInteraction represents a generic ApplicationCommandInteraction received from discord
 type ApplicationCommandInteraction struct {
-	*ModalReplyInteraction
+	CreateInteraction
 	Data ApplicationCommandInteractionData
 }
 
@@ -28,6 +31,10 @@ func (i ApplicationCommandInteraction) UserCommandInteractionData() UserCommandI
 
 func (i ApplicationCommandInteraction) MessageCommandInteractionData() MessageCommandInteractionData {
 	return i.Data.(MessageCommandInteractionData)
+}
+
+func (i ApplicationCommandInteraction) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
+	return i.Respond(discord.InteractionCallbackTypeModal, modalCreate, opts...)
 }
 
 type ApplicationCommandInteractionData interface {

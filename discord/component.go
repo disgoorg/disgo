@@ -16,7 +16,7 @@ const (
 	ComponentTypeActionRow = iota + 1
 	ComponentTypeButton
 	ComponentTypeSelectMenu
-	ComponentTypeInputText
+	ComponentTypeTextInput
 )
 
 type CustomID string
@@ -74,6 +74,11 @@ func (u *UnmarshalComponent) UnmarshalJSON(data []byte) error {
 
 	case ComponentTypeSelectMenu:
 		v := SelectMenuComponent{}
+		err = json.Unmarshal(data, &v)
+		component = v
+
+	case ComponentTypeTextInput:
+		v := TextInputComponent{}
 		err = json.Unmarshal(data, &v)
 		component = v
 
@@ -497,45 +502,47 @@ func (o SelectMenuOption) WithDefault(defaultOption bool) SelectMenuOption {
 }
 
 var (
-	_ Component            = (*InputText)(nil)
-	_ InteractiveComponent = (*InputText)(nil)
+	_ Component            = (*TextInputComponent)(nil)
+	_ InteractiveComponent = (*TextInputComponent)(nil)
 )
 
-type InputText struct {
-	TextStyle   TextStyle    `json:"text_style"`
-	CustomID    CustomID     `json:"custom_id"`
-	Label       string       `json:"label"`
-	Placeholder string       `json:"placeholder,omitempty"`
-	MinLength   json.NullInt `json:"min_length,omitempty"`
-	MaxLength   json.NullInt `json:"max_length,omitempty"`
+type TextInputComponent struct {
+	CustomID    CustomID       `json:"custom_id"`
+	Style       TextInputStyle `json:"style"`
+	Label       string         `json:"label,omitempty"`
+	MinLength   int            `json:"min_length,omitempty"`
+	MaxLength   int            `json:"max_length,omitempty"`
+	Required    bool           `json:"required,omitempty"`
+	Placeholder string         `json:"placeholder,omitempty"`
+	Value       string         `json:"value,omitempty"`
 }
 
-func (t InputText) MarshalJSON() ([]byte, error) {
-	type inputText InputText
+func (t TextInputComponent) MarshalJSON() ([]byte, error) {
+	type textInput TextInputComponent
 	return json.Marshal(struct {
 		Type ComponentType `json:"type"`
-		inputText
+		textInput
 	}{
 		Type:      t.Type(),
-		inputText: inputText(t),
+		textInput: textInput(t),
 	})
 }
 
-func (t InputText) Type() ComponentType {
-	return ComponentTypeInputText
+func (t TextInputComponent) Type() ComponentType {
+	return ComponentTypeTextInput
 }
 
-func (t InputText) ID() CustomID {
+func (t TextInputComponent) ID() CustomID {
 	return t.CustomID
 }
 
-func (t InputText) component()            {}
-func (t InputText) interactiveComponent() {}
+func (t TextInputComponent) component()            {}
+func (t TextInputComponent) interactiveComponent() {}
 
-type TextStyle int
+type TextInputStyle int
 
 //goland:noinspection GoUnusedConst
 const (
-	TextStyleShort = iota + 1
-	TextStyleParagraph
+	TextInputStyleShort = iota + 1
+	TextInputStyleParagraph
 )
