@@ -194,6 +194,12 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 						SlashCommandOptionFloat: o,
 					}
 
+				case discord.SlashCommandOptionAttachment:
+					slashCommandOption = SlashCommandOptionAttachment{
+						SlashCommandOptionAttachment: o,
+						Resolved:                     data.Resolved,
+					}
+
 				default:
 					b.Bot().Logger.Errorf("unknown slash command option with type %d received", option.Type())
 					continue

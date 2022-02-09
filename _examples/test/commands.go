@@ -47,6 +47,18 @@ var commands = []discord.ApplicationCommandCreate{
 		},
 	},
 	discord.SlashCommandCreate{
+		Name:        "attachment-test",
+		Description: "test attachment upload",
+		Options: []discord.ApplicationCommandOption{
+			discord.ApplicationCommandOptionAttachment{
+				Name:        "test",
+				Description: "test attachment",
+				Required:    true,
+			},
+		},
+		DefaultPermission: true,
+	},
+	discord.SlashCommandCreate{
 		Name:              "addrole",
 		Description:       "This command adds a role to a member",
 		DefaultPermission: true,
@@ -107,37 +119,7 @@ var commands = []discord.ApplicationCommandCreate{
 }
 
 func registerCommands(bot *core.Bot) {
-	cmds, err := bot.SetGuildCommands(guildID, commands)
-	if err != nil {
+	if _, err := bot.SetGuildCommands(guildID, commands); err != nil {
 		log.Fatalf("error while registering guild commands: %s", err)
-	}
-
-	var cmdsPermissions []discord.ApplicationCommandPermissionsSet
-	for _, cmd := range cmds {
-		var perms discord.ApplicationCommandPermission
-		if c, ok := cmd.(core.SlashCommand); ok {
-			if c.Name == "eval" {
-				perms = discord.ApplicationCommandPermissionRole{
-					RoleID:     adminRoleID,
-					Permission: true,
-				}
-			} else {
-				perms = discord.ApplicationCommandPermissionRole{
-					RoleID:     testRoleID,
-					Permission: true,
-				}
-				cmdsPermissions = append(cmdsPermissions, discord.ApplicationCommandPermissionsSet{
-					ID:          c.ID(),
-					Permissions: []discord.ApplicationCommandPermission{perms},
-				})
-			}
-			cmdsPermissions = append(cmdsPermissions, discord.ApplicationCommandPermissionsSet{
-				ID:          c.ID(),
-				Permissions: []discord.ApplicationCommandPermission{perms},
-			})
-		}
-	}
-	if _, err = bot.SetGuildCommandsPermissions(guildID, cmdsPermissions); err != nil {
-		log.Fatalf("error while setting command permissions: %s", err)
 	}
 }

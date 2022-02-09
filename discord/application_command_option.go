@@ -22,6 +22,7 @@ const (
 	ApplicationCommandOptionTypeRole
 	ApplicationCommandOptionTypeMentionable
 	ApplicationCommandOptionTypeFloat
+	ApplicationCommandOptionTypeAttachment
 )
 
 type ApplicationCommandOption interface {
@@ -99,6 +100,11 @@ func (u *UnmarshalApplicationCommandOption) UnmarshalJSON(data []byte) error {
 		err = json.Unmarshal(data, &v)
 		applicationCommandOption = v
 
+	case ApplicationCommandOptionTypeAttachment:
+		var v ApplicationCommandOptionAttachment
+		err = json.Unmarshal(data, &v)
+		applicationCommandOption = v
+
 	default:
 		err = fmt.Errorf("unkown application command option with type %d received", oType.Type)
 	}
@@ -152,11 +158,10 @@ func (o *ApplicationCommandOptionSubCommand) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (ApplicationCommandOptionSubCommand) applicationCommandOption() {}
 func (ApplicationCommandOptionSubCommand) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeSubCommand
 }
-
-func (ApplicationCommandOptionSubCommand) applicationCommandOption() {}
 
 var _ ApplicationCommandOption = (*ApplicationCommandOptionSubCommandGroup)(nil)
 
@@ -177,11 +182,10 @@ func (o ApplicationCommandOptionSubCommandGroup) MarshalJSON() ([]byte, error) {
 	})
 }
 
+func (ApplicationCommandOptionSubCommandGroup) applicationCommandOption() {}
 func (ApplicationCommandOptionSubCommandGroup) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeSubCommandGroup
 }
-
-func (ApplicationCommandOptionSubCommandGroup) applicationCommandOption() {}
 
 var _ ApplicationCommandOption = (*ApplicationCommandOptionString)(nil)
 
@@ -204,11 +208,10 @@ func (o ApplicationCommandOptionString) MarshalJSON() ([]byte, error) {
 	})
 }
 
+func (ApplicationCommandOptionString) applicationCommandOption() {}
 func (ApplicationCommandOptionString) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeString
 }
-
-func (ApplicationCommandOptionString) applicationCommandOption() {}
 
 var _ ApplicationCommandOption = (*ApplicationCommandOptionInt)(nil)
 
@@ -233,11 +236,10 @@ func (o ApplicationCommandOptionInt) MarshalJSON() ([]byte, error) {
 	})
 }
 
+func (ApplicationCommandOptionInt) applicationCommandOption() {}
 func (ApplicationCommandOptionInt) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeInt
 }
-
-func (ApplicationCommandOptionInt) applicationCommandOption() {}
 
 var _ ApplicationCommandOption = (*ApplicationCommandOptionBool)(nil)
 
@@ -258,11 +260,10 @@ func (o ApplicationCommandOptionBool) MarshalJSON() ([]byte, error) {
 	})
 }
 
+func (ApplicationCommandOptionBool) applicationCommandOption() {}
 func (ApplicationCommandOptionBool) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeBool
 }
-
-func (ApplicationCommandOptionBool) applicationCommandOption() {}
 
 var _ ApplicationCommandOption = (*ApplicationCommandOptionUser)(nil)
 
@@ -283,11 +284,10 @@ func (o ApplicationCommandOptionUser) MarshalJSON() ([]byte, error) {
 	})
 }
 
+func (ApplicationCommandOptionUser) applicationCommandOption() {}
 func (ApplicationCommandOptionUser) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeUser
 }
-
-func (ApplicationCommandOptionUser) applicationCommandOption() {}
 
 var _ ApplicationCommandOption = (*ApplicationCommandOptionChannel)(nil)
 
@@ -309,11 +309,10 @@ func (o ApplicationCommandOptionChannel) MarshalJSON() ([]byte, error) {
 	})
 }
 
+func (ApplicationCommandOptionChannel) applicationCommandOption() {}
 func (ApplicationCommandOptionChannel) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeChannel
 }
-
-func (ApplicationCommandOptionChannel) applicationCommandOption() {}
 
 var _ ApplicationCommandOption = (*ApplicationCommandOptionRole)(nil)
 
@@ -334,11 +333,10 @@ func (o ApplicationCommandOptionRole) MarshalJSON() ([]byte, error) {
 	})
 }
 
+func (ApplicationCommandOptionRole) applicationCommandOption() {}
 func (ApplicationCommandOptionRole) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeRole
 }
-
-func (ApplicationCommandOptionRole) applicationCommandOption() {}
 
 var _ ApplicationCommandOption = (*ApplicationCommandOptionMentionable)(nil)
 
@@ -359,11 +357,10 @@ func (o ApplicationCommandOptionMentionable) MarshalJSON() ([]byte, error) {
 	})
 }
 
+func (ApplicationCommandOptionMentionable) applicationCommandOption() {}
 func (ApplicationCommandOptionMentionable) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeMentionable
 }
-
-func (ApplicationCommandOptionMentionable) applicationCommandOption() {}
 
 var _ ApplicationCommandOption = (*ApplicationCommandOptionFloat)(nil)
 
@@ -388,11 +385,10 @@ func (o ApplicationCommandOptionFloat) MarshalJSON() ([]byte, error) {
 	})
 }
 
+func (ApplicationCommandOptionFloat) applicationCommandOption() {}
 func (ApplicationCommandOptionFloat) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeFloat
 }
-
-func (ApplicationCommandOptionFloat) applicationCommandOption() {}
 
 type ApplicationCommandOptionChoice interface {
 	applicationCommandOptionChoice()
@@ -424,3 +420,25 @@ type ApplicationCommandOptionChoiceFloat struct {
 }
 
 func (ApplicationCommandOptionChoiceFloat) applicationCommandOptionChoice() {}
+
+type ApplicationCommandOptionAttachment struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Required    bool   `json:"required,omitempty"`
+}
+
+func (o ApplicationCommandOptionAttachment) MarshalJSON() ([]byte, error) {
+	type applicationCommandOptionAttachment ApplicationCommandOptionAttachment
+	return json.Marshal(struct {
+		Type ApplicationCommandOptionType `json:"type"`
+		applicationCommandOptionAttachment
+	}{
+		Type:                               o.Type(),
+		applicationCommandOptionAttachment: applicationCommandOptionAttachment(o),
+	})
+}
+
+func (ApplicationCommandOptionAttachment) applicationCommandOption() {}
+func (ApplicationCommandOptionAttachment) Type() ApplicationCommandOptionType {
+	return ApplicationCommandOptionTypeAttachment
+}
