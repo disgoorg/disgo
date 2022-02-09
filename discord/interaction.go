@@ -405,8 +405,8 @@ func (d *AutocompleteInteractionData) UnmarshalJSON(data []byte) error {
 	*d = AutocompleteInteractionData(iData.autocompleteInteractionData)
 	if len(iData.Options) > 0 {
 		d.Options = make([]AutocompleteOption, len(iData.Options))
-		for i, option := range iData.Options {
-			d.Options[i] = option.AutocompleteOption
+		for i := range iData.Options {
+			d.Options[i] = iData.Options[i].AutocompleteOption
 		}
 	}
 
