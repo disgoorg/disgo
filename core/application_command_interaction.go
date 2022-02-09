@@ -56,10 +56,11 @@ func (i SlashCommandInteractionData) CommandPath() string {
 
 // SlashCommandResolved contains resolved mention data for SlashCommand(s)
 type SlashCommandResolved struct {
-	Users    map[snowflake.Snowflake]*User
-	Members  map[snowflake.Snowflake]*Member
-	Roles    map[snowflake.Snowflake]*Role
-	Channels map[snowflake.Snowflake]Channel
+	Users       map[snowflake.Snowflake]*User
+	Members     map[snowflake.Snowflake]*Member
+	Roles       map[snowflake.Snowflake]*Role
+	Channels    map[snowflake.Snowflake]Channel
+	Attachments map[snowflake.Snowflake]discord.Attachment
 }
 
 type UserCommandInteractionData struct {
