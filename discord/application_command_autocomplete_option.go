@@ -103,6 +103,28 @@ type AutocompleteOptionSubCommand struct {
 	Options     []AutocompleteOption `json:"options,omitempty"`
 }
 
+func (o *AutocompleteOptionSubCommand) UnmarshalJSON(data []byte) error {
+	type autocompleteOptionSubCommand AutocompleteOptionSubCommand
+	var iData struct {
+		Options []UnmarshalAutocompleteOption `json:"options"`
+		autocompleteOptionSubCommand
+	}
+
+	if err := json.Unmarshal(data, &iData); err != nil {
+		return err
+	}
+
+	*o = AutocompleteOptionSubCommand(iData.autocompleteOptionSubCommand)
+	if len(iData.Options) > 0 {
+		o.Options = make([]AutocompleteOption, len(iData.Options))
+		for i := range iData.Options {
+			o.Options[i] = iData.Options[i].AutocompleteOption
+		}
+	}
+
+	return nil
+}
+
 func (AutocompleteOptionSubCommand) autocompleteOption() {}
 func (AutocompleteOptionSubCommand) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeSubCommand

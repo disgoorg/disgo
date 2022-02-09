@@ -1,7 +1,7 @@
 github.com/DisgoOrg/log v1.1.2 h1:tGJS4jaH1PyjPRHybHp8WpYJ/4fR3fYWT4Mv1PoDGBM=
 github.com/DisgoOrg/log v1.1.2/go.mod h1:tSMofXaNhQNvzLRoL4tAiCG9yGY1ES5DLvduh7e9GRU=
-github.com/DisgoOrg/snowflake v1.0.3 h1:KfzswrZOr8ISu/J5P3C5+QC9yKxW7nNJWeCJpkldxbI=
-github.com/DisgoOrg/snowflake v1.0.3/go.mod h1:jIQVlVmElm2OGt6v52ITf/71ODaU09chUCflxt8+3yM=
+github.com/DisgoOrg/snowflake v1.0.4 h1:hgeXSaXRDVdoNJ0rfHXyVsgxQMzctP346S5WXlBmoOU=
+github.com/DisgoOrg/snowflake v1.0.4/go.mod h1:jIQVlVmElm2OGt6v52ITf/71ODaU09chUCflxt8+3yM=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
