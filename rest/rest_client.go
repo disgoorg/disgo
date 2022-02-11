@@ -108,7 +108,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 				return errors.Wrap(err, "failed to marshal request body")
 			}
 		}
-		c.Logger().Debugf("request to %s, body: %s", rqURL, string(rawRqBody))
+		c.Logger().Tracef("request to %s, body: %s", rqURL, string(rawRqBody))
 	}
 
 	rq, err := http.NewRequest(cRoute.APIRoute.Method().String(), rqURL, bytes.NewReader(rawRqBody))
@@ -165,7 +165,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 		if rawRsBody, err = ioutil.ReadAll(rs.Body); err != nil {
 			return errors.Wrap(err, "error reading response body in rest client")
 		}
-		c.Logger().Debugf("response from %s, code %d, body: %s", rqURL, rs.StatusCode, string(rawRsBody))
+		c.Logger().Tracef("response from %s, code %d, body: %s", rqURL, rs.StatusCode, string(rawRsBody))
 	}
 
 	switch rs.StatusCode {

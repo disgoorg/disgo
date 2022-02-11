@@ -349,7 +349,7 @@ func (g *gatewayImpl) listen() {
 			go g.heartbeat()
 
 		case discord.GatewayOpcodeDispatch:
-			g.Logger().Debugf(g.formatLogsf("received: OpcodeDispatch %s, data: %s", event.T, string(event.D)))
+			g.Logger().Trace(g.formatLogsf("received: OpcodeDispatch %s, data: %s", event.T, string(event.D)))
 
 			// set last sequence received
 			g.lastSequenceReceived = &event.S
