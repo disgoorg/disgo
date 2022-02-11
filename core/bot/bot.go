@@ -1,8 +1,6 @@
 package bot
 
 import (
-	"net/http"
-
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/collectors"
 	"github.com/DisgoOrg/disgo/core/handlers"
@@ -14,7 +12,6 @@ import (
 	"github.com/DisgoOrg/disgo/internal/tokenhelper"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/log"
-	"github.com/DisgoOrg/snowflake"
 	"github.com/pkg/errors"
 )
 

@@ -20,7 +20,7 @@ func (h *gatewayHandlerVoiceServerUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerVoiceServerUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerVoiceServerUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.VoiceServerUpdate)
 
 	bot.EventManager.Dispatch(&events.VoiceServerUpdateEvent{

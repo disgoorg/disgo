@@ -20,7 +20,7 @@ func (h *gatewayHandlerGuildScheduledEventDelete) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildScheduledEventDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerGuildScheduledEventDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.GuildScheduledEvent)
 
 	bot.Caches.GuildScheduledEvents().Remove(payload.ID)

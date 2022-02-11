@@ -16,7 +16,7 @@ func (h *gatewayHandlerThreadCreate) New() interface{} {
 	return &discord.GatewayEventThreadCreate{}
 }
 
-func (h *gatewayHandlerThreadCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerThreadCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.GatewayEventThreadCreate)
 
 	bot.EventManager.Dispatch(&events.ThreadCreateEvent{

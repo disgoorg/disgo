@@ -64,7 +64,7 @@ type gatewayImpl struct {
 	lastHeartbeatSent     time.Time
 	lastHeartbeatReceived time.Time
 	sessionID             *string
-	lastSequenceReceived  *int
+	lastSequenceReceived  *discord.GatewaySequence
 }
 
 func (g *gatewayImpl) Logger() log.Logger {
@@ -353,7 +353,7 @@ func (g *gatewayImpl) listen() {
 				g.status = StatusWaitingForReady
 			} else {
 				g.status = StatusResuming
-				resume := discord.ResumeCommand{
+				resume := discord.ResumeCommandData{
 					Token:     g.token,
 					SessionID: *g.sessionID,
 					Seq:       *g.lastSequenceReceived,

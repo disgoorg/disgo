@@ -20,7 +20,7 @@ func (h *gatewayHandlerVoiceStateUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.VoiceState)
 
 	oldVoiceState := bot.Caches.VoiceStates().GetCopy(payload.GuildID, payload.UserID)

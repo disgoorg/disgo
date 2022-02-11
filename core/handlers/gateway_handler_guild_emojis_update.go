@@ -22,7 +22,7 @@ func (h *gatewayHandlerGuildEmojisUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.GuildEmojisUpdateGatewayEvent)
 
 	if bot.Caches.Config().CacheFlags.Missing(core.CacheFlagEmojis) {

@@ -19,7 +19,7 @@ func (h *gatewayHandlerGuildMembersChunk) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildMembersChunk) HandleGatewayEvent(bot *core.Bot, _ int, v interface{}) {
+func (h *gatewayHandlerGuildMembersChunk) HandleGatewayEvent(bot *core.Bot, _ discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.GuildMembersChunkGatewayEvent)
 
 	if bot.MemberChunkingManager != nil {

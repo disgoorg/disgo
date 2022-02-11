@@ -10,7 +10,7 @@ import (
 // GatewayPayload raw GatewayEvent type
 type GatewayPayload struct {
 	Op GatewayOpcode    `json:"op"`
-	S  int              `json:"s,omitempty"`
+	S  GatewaySequence  `json:"s,omitempty"`
 	T  GatewayEventType `json:"t,omitempty"`
 	D  json.RawMessage  `json:"d,omitempty"`
 }
