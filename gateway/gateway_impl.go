@@ -98,7 +98,7 @@ func (g *gatewayImpl) formatLogs(a ...interface{}) string {
 }
 
 func (g *gatewayImpl) Open(ctx context.Context) error {
-	g.Logger().Info(g.formatLogs("opening gateway connection"))
+	g.Logger().Debug(g.formatLogs("opening gateway connection"))
 	if g.conn != nil {
 		return discord.ErrGatewayAlreadyConnected
 	}
@@ -180,7 +180,7 @@ func (g *gatewayImpl) Send(ctx context.Context, command discord.GatewayCommand) 
 	if err != nil {
 		return err
 	}
-	g.Logger().Debugf(g.formatLogs("sending gateway command: ", string(data)))
+	g.Logger().Trace(g.formatLogs("sending gateway command: ", string(data)))
 	return g.conn.WriteMessage(websocket.TextMessage, data)
 }
 
@@ -309,7 +309,7 @@ func (g *gatewayImpl) listen() {
 
 			if g.lastSequenceReceived == nil || g.sessionID == nil {
 				g.status = StatusIdentifying
-				g.Logger().Info(g.formatLogs("sending Identify command..."))
+				g.Logger().Debug(g.formatLogs("sending Identify command..."))
 
 				identify := discord.IdentifyCommandData{
 					Token: g.token,
@@ -411,7 +411,7 @@ func (g *gatewayImpl) listen() {
 
 func (g *gatewayImpl) parseGatewayEvent(mt int, reader io.Reader) (*discord.GatewayPayload, error) {
 	if mt == websocket.BinaryMessage {
-		g.Logger().Debug(g.formatLogs("binary message received. decompressing..."))
+		g.Logger().Trace(g.formatLogs("binary message received. decompressing..."))
 		readCloser, err := zlib.NewReader(reader)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to decompress zlib")
