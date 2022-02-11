@@ -139,7 +139,7 @@ func (g *gatewayImpl) Close(ctx context.Context) {
 }
 
 func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int) {
-	g.Logger().Info(g.formatLogs("closing gateway connection with code: ", code))
+	g.Logger().Debug(g.formatLogs("closing gateway connection with code: ", code))
 	_ = g.config.RateLimiter.Close(ctx)
 
 	if g.heartbeatChan != nil {
@@ -258,26 +258,10 @@ func (g *gatewayImpl) listen() {
 		if err != nil {
 			reconnect := true
 			if closeError, ok := err.(*websocket.CloseError); ok {
-				switch discord.GatewayCloseEventCode(closeError.Code) {
-				case websocket.CloseNormalClosure:
-					g.Logger().Debug(g.formatLogs("gracefully closed gateway"))
-					reconnect = false
+				closeCode := discord.GatewayCloseEventCode(closeError.Code)
+				reconnect = closeCode.ShouldReconnect()
 
-				case discord.GatewayCloseEventCodeUnknownError:
-					g.Logger().Error(g.formatLogsf("unknown gateway error tying ro reconnect. code: %d error: %s", closeError.Code, closeError.Text))
-
-				case discord.GatewayCloseEventCodeRateLimited:
-					g.Logger().Error(g.formatLogs("sent too much gateway commands. reconnecting..."))
-
-				case discord.GatewayCloseEventCodeInvalidShard:
-					g.Logger().Error(g.formatLogs("invalid sharding config supplied"))
-					reconnect = false
-
-				case discord.GatewayCloseEventCodeInvalidIntents:
-					g.Logger().Error(g.formatLogs("invalid gateway intents supplied. intents: ", g.config.GatewayIntents))
-					reconnect = false
-
-				case discord.GatewayCloseEventCodeDisallowedIntents:
+				if closeCode == discord.GatewayCloseEventCodeDisallowedIntents {
 					var intentsURL string
 					if id, err := tokenhelper.IDFromToken(g.token); err == nil {
 						intentsURL = fmt.Sprintf("https://discord.com/developers/applications/%s/bot", *id)
@@ -285,14 +269,11 @@ func (g *gatewayImpl) listen() {
 						intentsURL = "https://discord.com/developers/applications"
 					}
 					g.Logger().Error(g.formatLogsf("disallowed gateway intents supplied. go to %s and enable the privileged intent for your application. intents: %d", intentsURL, g.config.GatewayIntents))
-					reconnect = false
-
-				case discord.GatewayCloseEventCodeInvalidSeq:
+				} else if closeCode == discord.GatewayCloseEventCodeInvalidSeq {
 					g.Logger().Error(g.formatLogs("invalid sequence provided. reconnecting..."))
 					g.lastSequenceReceived = nil
-
-				default:
-					g.Logger().Error(g.formatLogsf("unknown close code trying to reconnect. code: %d error: %s", closeError.Code, closeError.Text))
+				} else {
+					g.Logger().Error(g.formatLogsf("gateway close received, reconnect: %b, code: %d, error: %s", reconnect, closeError.Code, closeError.Text))
 				}
 			}
 
