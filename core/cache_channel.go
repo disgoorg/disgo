@@ -2,18 +2,19 @@ package core
 
 import (
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 )
 
 type (
 	ChannelFindFunc func(channel Channel) bool
 
 	ChannelCache interface {
-		Get(channelID discord.Snowflake) Channel
-		GetCopy(channelID discord.Snowflake) Channel
+		Get(channelID snowflake.Snowflake) Channel
+		GetCopy(channelID snowflake.Snowflake) Channel
 		Set(channel Channel) Channel
-		Remove(channelID discord.Snowflake)
+		Remove(channelID snowflake.Snowflake)
 
-		Cache() map[discord.Snowflake]Channel
+		Cache() map[snowflake.Snowflake]Channel
 		All() []Channel
 
 		FindFirst(channelFindFunc ChannelFindFunc) Channel
@@ -23,20 +24,20 @@ type (
 	}
 
 	channelCacheImpl struct {
-		channels   map[discord.Snowflake]Channel
+		channels   map[snowflake.Snowflake]Channel
 		cacheFlags CacheFlags
 	}
 )
 
 func NewChannelCache(cacheFlags CacheFlags) ChannelCache {
-	return &channelCacheImpl{channels: map[discord.Snowflake]Channel{}, cacheFlags: cacheFlags}
+	return &channelCacheImpl{channels: map[snowflake.Snowflake]Channel{}, cacheFlags: cacheFlags}
 }
 
-func (c *channelCacheImpl) Get(channelID discord.Snowflake) Channel {
+func (c *channelCacheImpl) Get(channelID snowflake.Snowflake) Channel {
 	return c.channels[channelID]
 }
 
-func (c *channelCacheImpl) GetCopy(channelID discord.Snowflake) Channel {
+func (c *channelCacheImpl) GetCopy(channelID snowflake.Snowflake) Channel {
 	if channel := c.Get(channelID); channel != nil {
 		ch := &channel
 		return *ch
@@ -45,7 +46,7 @@ func (c *channelCacheImpl) GetCopy(channelID discord.Snowflake) Channel {
 }
 
 func (c *channelCacheImpl) Set(channel Channel) Channel {
-	if c.cacheFlags.Missing(getCacheFLagForChannelType(channel.Type())) {
+	if c.cacheFlags.Missing(getCacheFlagForChannelType(channel.Type())) {
 		return channel
 	}
 	ch, ok := c.channels[channel.ID()]
@@ -57,11 +58,11 @@ func (c *channelCacheImpl) Set(channel Channel) Channel {
 	return channel
 }
 
-func (c *channelCacheImpl) Remove(id discord.Snowflake) {
+func (c *channelCacheImpl) Remove(id snowflake.Snowflake) {
 	delete(c.channels, id)
 }
 
-func (c *channelCacheImpl) Cache() map[discord.Snowflake]Channel {
+func (c *channelCacheImpl) Cache() map[snowflake.Snowflake]Channel {
 	return c.channels
 }
 
@@ -100,7 +101,7 @@ func (c *channelCacheImpl) ForAll(channelFunc func(channel Channel)) {
 	}
 }
 
-func getCacheFLagForChannelType(channelType discord.ChannelType) CacheFlags {
+func getCacheFlagForChannelType(channelType discord.ChannelType) CacheFlags {
 	switch channelType {
 	case discord.ChannelTypeGuildText:
 		return CacheFlagGuildTextChannels

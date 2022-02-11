@@ -55,8 +55,8 @@ func main() {
 					return
 				}
 				gse, _ := event.Guild().CreateGuildScheduledEvent(discord.GuildScheduledEventCreate{
-					ChannelID: "885677988916641802",
-					Name:      "test",
+					ChannelID:    "885677988916641802",
+					Name:         "test",
 					PrivacyLevel: discord.ScheduledEventPrivacyLevelGuildOnly,
 					ScheduledStartTime: discord.Time{
 						Time: time.Now().Add(time.Hour),

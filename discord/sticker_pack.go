@@ -1,13 +1,15 @@
 package discord
 
+import "github.com/DisgoOrg/snowflake"
+
 type StickerPack struct {
-	ID             Snowflake `json:"id"`
-	Stickers       []Sticker `json:"stickers"`
-	Name           string    `json:"name"`
-	SkuID          Snowflake `json:"sku_id"`
-	CoverStickerID Snowflake `json:"cover_sticker_id"`
-	Description    string    `json:"description"`
-	BannerAssetID  Snowflake `json:"banner_asset_id"`
+	ID             snowflake.Snowflake `json:"id"`
+	Stickers       []Sticker           `json:"stickers"`
+	Name           string              `json:"name"`
+	SkuID          snowflake.Snowflake `json:"sku_id"`
+	CoverStickerID snowflake.Snowflake `json:"cover_sticker_id"`
+	Description    string              `json:"description"`
+	BannerAssetID  snowflake.Snowflake `json:"banner_asset_id"`
 }
 
 type StickerPacks struct {

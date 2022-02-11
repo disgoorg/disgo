@@ -24,7 +24,7 @@ func (h *gatewayHandlerGuildMemberAdd) HandleGatewayEvent(bot *core.Bot, sequenc
 	payload := *v.(*discord.Member)
 
 	if guild := bot.Caches.Guilds().Get(payload.GuildID); guild != nil {
-		guild.ApproximateMemberCount++
+		guild.MemberCount++
 	}
 
 	bot.EventManager.Dispatch(&events.GuildMemberJoinEvent{

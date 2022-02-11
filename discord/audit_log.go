@@ -1,5 +1,10 @@
 package discord
 
+import (
+	"github.com/DisgoOrg/disgo/json"
+	"github.com/DisgoOrg/snowflake"
+)
+
 // AuditLogEvent is an 8-bit unsigned integer representing an audit log event.
 type AuditLogEvent int
 
@@ -86,20 +91,83 @@ const (
 	AuditLogEventStageInstanceDelete
 )
 
+// AuditLogEventStickerCreate
+//goland:noinspection GoUnusedConst
+const (
+	AuditLogEventStickerCreate AuditLogEvent = iota + 90
+	AuditLogEventStickerUpdate
+	AuditLogEventStickerDelete
+)
+
+// AuditLogGuildScheduledEventCreate
+//goland:noinspection GoUnusedConst
+const (
+	AuditLogGuildScheduledEventCreate AuditLogEvent = iota + 100
+	AuditLogGuildScheduledEventUpdate
+	AuditLogGuildScheduledEventDelete
+)
+
+// AuditLogThreadCreate
+//goland:noinspection GoUnusedConst
+const (
+	AuditLogThreadCreate AuditLogEvent = iota + 100
+	AuditLogThreadUpdate
+	AuditLogThreadDelete
+)
+
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord
 type AuditLog struct {
-	Webhooks     []Webhook       `json:"webhooks"`
-	Users        []User          `json:"users"`
-	Integrations []Integration   `json:"integrations"`
-	Entries      []AuditLogEntry `json:"entries"`
+	Entries              []AuditLogEntry       `json:"entries"`
+	GuildScheduledEvents []GuildScheduledEvent `json:"guild_scheduled_events"`
+	Integrations         []Integration         `json:"integrations"`
+	Threads              []GuildThread         `json:"threads"`
+	Users                []User                `json:"users"`
+	Webhooks             []Webhook             `json:"webhooks"`
+}
+
+func (l *AuditLog) UnmarshalJSON(data []byte) error {
+	type auditLog AuditLog
+	var v struct {
+		Integrations []UnmarshalIntegration `json:"integrations"`
+		Threads      []UnmarshalChannel     `json:"threads"`
+		Webhooks     []UnmarshalWebhook     `json:"webhooks"`
+		auditLog
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*l = AuditLog(v.auditLog)
+
+	if v.Integrations != nil {
+		l.Integrations = make([]Integration, len(v.Integrations))
+		for i := range v.Integrations {
+			l.Integrations[i] = v.Integrations[i].Integration
+		}
+	}
+
+	if v.Threads != nil {
+		l.Threads = make([]GuildThread, len(v.Threads))
+		for i := range v.Integrations {
+			l.Threads[i] = v.Threads[i].Channel.(GuildThread)
+		}
+	}
+
+	if v.Webhooks != nil {
+		l.Webhooks = make([]Webhook, len(v.Webhooks))
+		for i := range v.Webhooks {
+			l.Webhooks[i] = v.Webhooks[i].Webhook
+		}
+	}
+
+	return nil
 }
 
 // AuditLogEntry (https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object)
 type AuditLogEntry struct {
-	TargetID   *Snowflake                 `json:"target_id"`
+	TargetID   *snowflake.Snowflake       `json:"target_id"`
 	Changes    []AuditLogChangeKey        `json:"changes"`
-	UserID     Snowflake                  `json:"user_id"`
-	ID         Snowflake                  `json:"id"`
+	UserID     snowflake.Snowflake        `json:"user_id"`
+	ID         snowflake.Snowflake        `json:"id"`
 	ActionType AuditLogEvent              `json:"action_type"`
 	Options    *OptionalAuditLogEntryInfo `json:"options"`
 	Reason     *string                    `json:"reason"`
@@ -113,13 +181,13 @@ type AuditLogChangeKey struct {
 	SplashHash                  *string                     `json:"splash_hash"`
 	DiscoverySplashHash         *string                     `json:"discovery_splash_hash"`
 	BannerHash                  *string                     `json:"banner_hash"`
-	OwnerID                     *Snowflake                  `json:"owner_id"`
+	OwnerID                     *snowflake.Snowflake        `json:"owner_id"`
 	Region                      *string                     `json:"region"`
 	PreferredLocale             *string                     `json:"preferred_locale"`
-	AFKChannelID                *Snowflake                  `json:"afk_channel_id"`
+	AFKChannelID                *snowflake.Snowflake        `json:"afk_channel_id"`
 	AFKTimeout                  *int                        `json:"afk_timeout"`
-	RulesChannelID              *Snowflake                  `json:"rules_channel_id"`
-	PublicUpdatesChannelID      *Snowflake                  `json:"public_updates_channel_id"`
+	RulesChannelID              *snowflake.Snowflake        `json:"rules_channel_id"`
+	PublicUpdatesChannelID      *snowflake.Snowflake        `json:"public_updates_channel_id"`
 	MFALevel                    *MFALevel                   `json:"mfa_level"`
 	VerificationLevel           *VerificationLevel          `json:"verification_level"`
 	ExplicitContentFilterLevel  *ExplicitContentFilterLevel `json:"explicit_content_filter"`
@@ -136,7 +204,7 @@ type AuditLogChangeKey struct {
 	Bitrate                     *int                        `json:"bitrate"`
 	PermissionOverwrites        []PermissionOverwrite       `json:"permission_overwrites"`
 	NSFW                        *bool                       `json:"nsfw"`
-	ApplicationID               *Snowflake                  `json:"application_id"`
+	ApplicationID               *snowflake.Snowflake        `json:"application_id"`
 	RateLimitPerUser            *int                        `json:"ratelimit_per_user"`
 	Permissions                 *string                     `json:"permissions"`
 	Color                       *int                        `json:"color"`
@@ -145,8 +213,8 @@ type AuditLogChangeKey struct {
 	Allow                       *Permissions                `json:"allow"`
 	Deny                        *Permissions                `json:"deny"`
 	Code                        *string                     `json:"code"`
-	ChannelID                   *Snowflake                  `json:"channel_id"`
-	InviterID                   *Snowflake                  `json:"inviter_id"`
+	ChannelID                   *snowflake.Snowflake        `json:"channel_id"`
+	InviterID                   *snowflake.Snowflake        `json:"inviter_id"`
 	MaxUses                     *int                        `json:"max_uses"`
 	Uses                        *int                        `json:"uses"`
 	MaxAge                      *string                     `json:"max_age"`
@@ -155,7 +223,7 @@ type AuditLogChangeKey struct {
 	Mute                        *bool                       `json:"mute"`
 	Nick                        *string                     `json:"nick"`
 	AvatarHash                  *string                     `json:"avatar_hash"`
-	ID                          *Snowflake                  `json:"id"`
+	ID                          *snowflake.Snowflake        `json:"id"`
 	Type                        interface{}                 `json:"type"`
 	EnableEmoticons             *bool                       `json:"enable_emoticons"`
 	ExpireBehavior              *int                        `json:"expire_behavior"`
@@ -166,12 +234,12 @@ type AuditLogChangeKey struct {
 
 // OptionalAuditLogEntryInfo (https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object-optional-audit-entry-info)
 type OptionalAuditLogEntryInfo struct {
-	DeleteMemberDays *string    `json:"delete_member_days"`
-	MembersRemoved   *string    `json:"members_removed"`
-	ChannelID        *Snowflake `json:"channel_id"`
-	MessageID        *Snowflake `json:"message_id"`
-	Count            *string    `json:"count"`
-	ID               *string    `json:"id"`
-	Type             *string    `json:"type"`
-	RoleName         *string    `json:"role_name"`
+	DeleteMemberDays *string              `json:"delete_member_days"`
+	MembersRemoved   *string              `json:"members_removed"`
+	ChannelID        *snowflake.Snowflake `json:"channel_id"`
+	MessageID        *snowflake.Snowflake `json:"message_id"`
+	Count            *string              `json:"count"`
+	ID               *string              `json:"id"`
+	Type             *string              `json:"type"`
+	RoleName         *string              `json:"role_name"`
 }

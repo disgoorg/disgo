@@ -1,5 +1,7 @@
 package discord
 
+import "github.com/DisgoOrg/snowflake"
+
 // UserFlags defines certain flags/badges a user can have (https://discord.com/developers/docs/resources/user#user-object-user-flags)
 type UserFlags int
 
@@ -10,15 +12,22 @@ const (
 	UserFlagPartneredServerOwner
 	UserFlagHypeSquadEvents
 	UserFlagBugHunterLevel1
+	_
+	_
 	UserFlagHouseBravery
 	UserFlagHouseBrilliance
 	UserFlagHouseBalance
 	UserFlagEarlySupporter
 	UserFlagTeamUser
+	_
+	_
+	_
 	UserFlagBugHunterLevel2
+	_
 	UserFlagVerifiedBot
 	UserFlagEarlyVerifiedBotDeveloper
 	UserFlagDiscordCertifiedModerator
+	UserFlagBotHTTPInteractions
 	UserFlagNone UserFlags = 0
 )
 
@@ -26,15 +35,15 @@ var _ Mentionable = (*User)(nil)
 
 // User is a struct for interacting with discord's users
 type User struct {
-	ID            Snowflake `json:"id"`
-	Username      string    `json:"username"`
-	Discriminator string    `json:"discriminator"`
-	Avatar        *string   `json:"avatar"`
-	Banner        *string   `json:"banner"`
-	AccentColor   *int      `json:"accent_color"`
-	BotUser       bool      `json:"bot"`
-	System        bool      `json:"system"`
-	PublicFlags   UserFlags `json:"public_flags"`
+	ID            snowflake.Snowflake `json:"id"`
+	Username      string              `json:"username"`
+	Discriminator string              `json:"discriminator"`
+	Avatar        *string             `json:"avatar"`
+	Banner        *string             `json:"banner"`
+	AccentColor   *int                `json:"accent_color"`
+	BotUser       bool                `json:"bot"`
+	System        bool                `json:"system"`
+	PublicFlags   UserFlags           `json:"public_flags"`
 }
 
 func (u User) String() string {

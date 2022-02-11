@@ -1,6 +1,9 @@
 package discord
 
-import "github.com/DisgoOrg/disgo/json"
+import (
+	"github.com/DisgoOrg/disgo/json"
+	"github.com/DisgoOrg/snowflake"
+)
 
 type ChannelCreate interface {
 	json.Marshaler
@@ -22,10 +25,10 @@ type CChannelCreate struct {
 	RateLimitPerUser     int                   `json:"rate_limit_per_user,omitempty"`
 	Position             int                   `json:"position,omitempty"`
 	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID             Snowflake             `json:"parent_id,omitempty"`
+	ParentID             snowflake.Snowflake   `json:"parent_id,omitempty"`
 	NSFW                 bool                  `json:"nsfw,omitempty"`
 }
 
 type DMChannelCreate struct {
-	RecipientID Snowflake `json:"recipient_id"`
+	RecipientID snowflake.Snowflake `json:"recipient_id"`
 }

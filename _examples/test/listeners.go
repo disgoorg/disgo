@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"strconv"
 	"time"
@@ -14,53 +15,64 @@ import (
 )
 
 var listener = &events.ListenerAdapter{
-	OnGuildMessageCreate: messageListener,
-	OnSlashCommand:       slashCommandListener,
-	OnButtonClick:        buttonClickListener,
-	OnSelectMenuSubmit:   selectMenuSubmitListener,
+	OnGuildMessageCreate:            messageListener,
+	OnApplicationCommandInteraction: applicationCommandListener,
+	OnComponentInteraction:          componentListener,
 }
 
-func buttonClickListener(event *events.ButtonClickEvent) {
-	switch event.Data.CustomID {
-	case "test1":
-		_ = event.Create(discord.NewMessageCreateBuilder().
-			SetContent(event.Data.CustomID.String()).
-			Build(),
-		)
+func componentListener(event *events.ComponentInteractionEvent) {
+	switch data := event.Data.(type) {
+	case *core.ButtonInteractionData:
+		switch data.CustomID {
+		case "test1":
+			_ = event.Create(discord.NewMessageCreateBuilder().
+				SetContent(data.CustomID.String()).
+				Build(),
+			)
 
-	case "test2":
-		_ = event.DeferCreate(false)
+		case "test2":
+			_ = event.DeferCreate(false)
 
-	case "test3":
-		_ = event.DeferUpdate()
+		case "test3":
+			_ = event.DeferUpdate()
 
-	case "test4":
-		_ = event.Update(discord.NewMessageUpdateBuilder().
-			SetContent(event.Data.CustomID.String()).
-			Build(),
-		)
-	}
-}
-
-func selectMenuSubmitListener(event *events.SelectMenuSubmitEvent) {
-	switch event.Data.CustomID {
-	case "test3":
-		if err := event.DeferUpdate(); err != nil {
-			log.Errorf("error sending interaction response: %s", err)
+		case "test4":
+			_ = event.Update(discord.NewMessageUpdateBuilder().
+				SetContent(data.CustomID.String()).
+				Build(),
+			)
 		}
-		_, _ = event.CreateFollowup(discord.NewMessageCreateBuilder().
-			SetEphemeral(true).
-			SetContentf("selected options: %s", event.Data.Values).
-			Build(),
-		)
+
+	case *core.SelectMenuInteractionData:
+		switch data.CustomID {
+		case "test3":
+			if err := event.DeferUpdate(); err != nil {
+				log.Errorf("error sending interaction response: %s", err)
+			}
+			_, _ = event.CreateFollowupMessage(discord.NewMessageCreateBuilder().
+				SetEphemeral(true).
+				SetContentf("selected options: %s", data.Values).
+				Build(),
+			)
+		}
 	}
 }
 
-func slashCommandListener(event *events.SlashCommandEvent) {
-	switch event.Data.CommandName {
+func applicationCommandListener(event *events.ApplicationCommandInteractionEvent) {
+	data := event.SlashCommandInteractionData()
+	switch data.CommandName {
+	case "locale":
+		err := event.Create(discord.NewMessageCreateBuilder().
+			SetContentf("Guild Locale: %s\nLocale: %s", event.GuildLocale, event.Locale).
+			Build(),
+		)
+		if err != nil {
+			event.Bot().Logger.Error("error on sending response: ", err)
+		}
+
 	case "eval":
 		go func() {
-			code := *event.Data.Options.String("code")
+			code := *data.Options.String("code")
 			embed := discord.NewEmbedBuilder().
 				SetColor(orange).
 				AddField("Status", "...", true).
@@ -79,7 +91,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 			embed.SetField(1, "Time", strconv.Itoa(int(elapsed.Milliseconds()))+"ms", true)
 
 			if err != nil {
-				_, err = event.UpdateOriginal(discord.NewMessageUpdateBuilder().
+				_, err = event.UpdateResponse(discord.NewMessageUpdateBuilder().
 					SetEmbeds(embed.
 						SetColor(red).
 						SetField(0, "Status", "Failed", true).
@@ -93,7 +105,7 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 				}
 				return
 			}
-			_, err = event.UpdateOriginal(discord.NewMessageUpdateBuilder().
+			_, err = event.UpdateResponse(discord.NewMessageUpdateBuilder().
 				SetEmbeds(embed.
 					SetColor(green).
 					SetField(0, "Status", "Success", true).
@@ -109,8 +121,8 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 
 	case "say":
 		_ = event.Create(discord.NewMessageCreateBuilder().
-			SetContent(*event.Data.Options.String("message")).
-			SetEphemeral(*event.Data.Options.Bool("ephemeral")).
+			SetContent(*data.Options.String("message")).
+			SetEphemeral(*data.Options.Bool("ephemeral")).
 			ClearAllowedMentions().
 			Build(),
 		)
@@ -120,18 +132,18 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 			_ = event.DeferCreate(true)
 			members, err := event.Guild().RequestMembersWithQuery("", 0)
 			if err != nil {
-				_, _ = event.UpdateOriginal(discord.NewMessageUpdateBuilder().SetContentf("failed to load members. error: %s", err).Build())
+				_, _ = event.UpdateResponse(discord.NewMessageUpdateBuilder().SetContentf("failed to load members. error: %s", err).Build())
 				return
 			}
-			_, _ = event.UpdateOriginal(discord.NewMessageUpdateBuilder().
+			_, _ = event.UpdateResponse(discord.NewMessageUpdateBuilder().
 				SetContentf("loaded %d members", len(members)).
 				Build(),
 			)
 		}()
 
 	case "addrole":
-		user := event.Data.Options.User("member")
-		role := event.Data.Options.Role("role")
+		user := data.Options.User("member")
+		role := data.Options.Role("role")
 
 		if err := event.Bot().RestServices.GuildService().AddMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
 			_ = event.Create(discord.NewMessageCreateBuilder().AddEmbeds(
@@ -144,8 +156,8 @@ func slashCommandListener(event *events.SlashCommandEvent) {
 		}
 
 	case "removerole":
-		user := event.Data.Options.User("member")
-		role := event.Data.Options.Role("role")
+		user := data.Options.User("member")
+		role := data.Options.Role("role")
 
 		if err := event.Bot().RestServices.GuildService().RemoveMemberRole(*event.GuildID, user.ID, role.ID); err == nil {
 			_ = event.Create(discord.NewMessageCreateBuilder().AddEmbeds(
@@ -165,6 +177,9 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 	}
 
 	switch event.Message.Content {
+	case "gopher":
+		_, _ = event.Message.Reply(discord.NewMessageCreateBuilder().SetContent("gopher").AddFile("gopher.png", bytes.NewBuffer(gopher)).AddFile("gopher.png", bytes.NewBuffer(gopher)).Build())
+
 	case "panic":
 		panic("panic in the disco")
 

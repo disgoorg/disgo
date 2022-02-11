@@ -2,13 +2,13 @@ package events
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 )
 
 type WebhooksUpdateEvent struct {
 	*GenericEvent
-	GuildId   discord.Snowflake
-	ChannelID discord.Snowflake
+	GuildId   snowflake.Snowflake
+	ChannelID snowflake.Snowflake
 }
 
 // Guild returns the Guild the webhook was updated in.

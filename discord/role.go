@@ -2,24 +2,25 @@ package discord
 
 import (
 	"github.com/DisgoOrg/disgo/json"
+	"github.com/DisgoOrg/snowflake"
 )
 
 var _ Mentionable = (*Role)(nil)
 
 // Role is a Guild Role object
 type Role struct {
-	ID          Snowflake   `json:"id"`
-	GuildID     Snowflake   `json:"guild_id"`
-	Name        string      `json:"name"`
-	Color       int         `json:"color"`
-	Hoist       bool        `json:"hoist"`
-	Position    int         `json:"position"`
-	Permissions Permissions `json:"permissions"`
-	Managed     bool        `json:"managed"`
-	Icon        *string     `json:"icon"`
-	Emoji       *string     `json:"unicode_emoji"`
-	Mentionable bool        `json:"mentionable"`
-	Tags        *RoleTag    `json:"tags,omitempty"`
+	ID          snowflake.Snowflake `json:"id"`
+	GuildID     snowflake.Snowflake `json:"guild_id"`
+	Name        string              `json:"name"`
+	Color       int                 `json:"color"`
+	Hoist       bool                `json:"hoist"`
+	Position    int                 `json:"position"`
+	Permissions Permissions         `json:"permissions"`
+	Managed     bool                `json:"managed"`
+	Icon        *string             `json:"icon"`
+	Emoji       *string             `json:"unicode_emoji"`
+	Mentionable bool                `json:"mentionable"`
+	Tags        *RoleTag            `json:"tags,omitempty"`
 }
 
 func (r Role) String() string {
@@ -32,9 +33,9 @@ func (r Role) Mention() string {
 
 // RoleTag are tags a Role has
 type RoleTag struct {
-	BotID             *Snowflake `json:"bot_id,omitempty"`
-	IntegrationID     *Snowflake `json:"integration_id,omitempty"`
-	PremiumSubscriber bool       `json:"premium_subscriber"`
+	BotID             *snowflake.Snowflake `json:"bot_id,omitempty"`
+	IntegrationID     *snowflake.Snowflake `json:"integration_id,omitempty"`
+	PremiumSubscriber bool                 `json:"premium_subscriber"`
 }
 
 // RoleCreate is the payload to create a Role
@@ -61,12 +62,12 @@ type RoleUpdate struct {
 
 // RolePositionUpdate is the payload to update a Role(s) position
 type RolePositionUpdate struct {
-	ID       Snowflake `json:"id"`
-	Position *int      `json:"position"`
+	ID       snowflake.Snowflake `json:"id"`
+	Position *int                `json:"position"`
 }
 
 // PartialRole holds basic info about a Role
 type PartialRole struct {
-	ID   Snowflake `json:"id"`
-	Name string    `json:"name"`
+	ID   snowflake.Snowflake `json:"id"`
+	Name string              `json:"name"`
 }

@@ -3,6 +3,7 @@ package core
 import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
+	"github.com/DisgoOrg/snowflake"
 )
 
 type GuildScheduledEvent struct {
@@ -73,7 +74,7 @@ func (e *GuildScheduledEvent) Channel() GuildChannel {
 	return nil
 }
 
-func (e *GuildScheduledEvent) GetUsers(limit int, withMember bool, before discord.Snowflake, after discord.Snowflake, opts ...rest.RequestOpt) ([]*GuildScheduledEventUser, error) {
+func (e *GuildScheduledEvent) GetUsers(limit int, withMember bool, before snowflake.Snowflake, after snowflake.Snowflake, opts ...rest.RequestOpt) ([]*GuildScheduledEventUser, error) {
 	users, err := e.Bot.RestServices.GuildScheduledEventService().GetGuildScheduledEventUsers(e.GuildID, e.ID, limit, withMember, before, after, opts...)
 	if err != nil {
 		return nil, err

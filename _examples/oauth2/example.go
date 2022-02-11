@@ -13,11 +13,12 @@ import (
 	"github.com/DisgoOrg/disgo/oauth2"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/log"
+	"github.com/DisgoOrg/snowflake"
 )
 
 var (
 	letters      = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-	clientID     = discord.Snowflake(os.Getenv("client_id"))
+	clientID     = snowflake.GetSnowflakeEnv("client_id")
 	clientSecret = os.Getenv("client_secret")
 	baseURL      = os.Getenv("base_url")
 	logger       = log.Default()
@@ -85,7 +86,7 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleLogin(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, client.GenerateAuthorizationURL(baseURL+"/trylogin", discord.ApplicationScopeIdentify, discord.ApplicationScopeGuilds, discord.ApplicationScopeEmail, discord.ApplicationScopeConnections, discord.ApplicationScopeWebhookIncoming), http.StatusMovedPermanently)
+	http.Redirect(w, r, client.GenerateAuthorizationURL(baseURL+"/trylogin", discord.PermissionsNone, "", false, discord.ApplicationScopeIdentify, discord.ApplicationScopeGuilds, discord.ApplicationScopeEmail, discord.ApplicationScopeConnections, discord.ApplicationScopeWebhookIncoming), http.StatusMovedPermanently)
 }
 
 func handleTryLogin(w http.ResponseWriter, r *http.Request) {

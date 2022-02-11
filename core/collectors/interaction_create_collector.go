@@ -33,7 +33,7 @@ type InteractionCollector struct {
 
 // OnEvent used to get events for the ButtonCollector
 func (c *InteractionCollector) OnEvent(e core.Event) {
-	if event, ok := e.(*events.InteractionCreateEvent); ok {
+	if event, ok := e.(*events.InteractionEvent); ok {
 		if !c.Filter(event.Interaction) {
 			return
 		}

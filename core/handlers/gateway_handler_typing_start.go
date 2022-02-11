@@ -25,15 +25,18 @@ func (h *gatewayHandlerTypingStart) HandleGatewayEvent(bot *core.Bot, sequenceNu
 
 	bot.EventManager.Dispatch(&events.UserTypingStartEvent{
 		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-		UserID:       payload.UserID,
 		ChannelID:    payload.ChannelID,
+		GuildID:      payload.GuildID,
+		UserID:       payload.UserID,
+		Timestamp:    payload.Timestamp,
 	})
 
 	if payload.GuildID == nil {
-		bot.EventManager.Dispatch(&events.DMChannelUserTypingStartEvent{
+		bot.EventManager.Dispatch(&events.DMUserTypingStartEvent{
 			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-			UserID:       payload.UserID,
 			ChannelID:    payload.ChannelID,
+			UserID:       payload.UserID,
+			Timestamp:    payload.Timestamp,
 		})
 	} else {
 		bot.EventManager.Dispatch(&events.GuildMemberTypingStartEvent{

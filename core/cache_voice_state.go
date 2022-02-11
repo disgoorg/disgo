@@ -1,23 +1,21 @@
 package core
 
-import (
-	"github.com/DisgoOrg/disgo/discord"
-)
+import "github.com/DisgoOrg/snowflake"
 
 type (
 	VoiceStateFindFunc func(voiceState *VoiceState) bool
 
 	VoiceStateCache interface {
-		Get(guildID discord.Snowflake, userID discord.Snowflake) *VoiceState
-		GetCopy(guildID discord.Snowflake, userID discord.Snowflake) *VoiceState
+		Get(guildID snowflake.Snowflake, userID snowflake.Snowflake) *VoiceState
+		GetCopy(guildID snowflake.Snowflake, userID snowflake.Snowflake) *VoiceState
 		Set(voiceState *VoiceState) *VoiceState
-		Remove(guildID discord.Snowflake, userID discord.Snowflake)
+		Remove(guildID snowflake.Snowflake, userID snowflake.Snowflake)
 
-		Cache() map[discord.Snowflake]map[discord.Snowflake]*VoiceState
-		All() map[discord.Snowflake][]*VoiceState
+		Cache() map[snowflake.Snowflake]map[snowflake.Snowflake]*VoiceState
+		All() map[snowflake.Snowflake][]*VoiceState
 
-		GuildCache(guildID discord.Snowflake) map[discord.Snowflake]*VoiceState
-		GuildAll(guildID discord.Snowflake) []*VoiceState
+		GuildCache(guildID snowflake.Snowflake) map[snowflake.Snowflake]*VoiceState
+		GuildAll(guildID snowflake.Snowflake) []*VoiceState
 
 		FindFirst(voiceStateFindFunc VoiceStateFindFunc) *VoiceState
 		FindAll(voiceStateFindFunc VoiceStateFindFunc) []*VoiceState
@@ -25,25 +23,25 @@ type (
 
 	voiceStateCacheImpl struct {
 		cacheFlags  CacheFlags
-		voiceStates map[discord.Snowflake]map[discord.Snowflake]*VoiceState
+		voiceStates map[snowflake.Snowflake]map[snowflake.Snowflake]*VoiceState
 	}
 )
 
 func NewVoiceStateCache(cacheFlags CacheFlags) VoiceStateCache {
 	return &voiceStateCacheImpl{
 		cacheFlags:  cacheFlags,
-		voiceStates: map[discord.Snowflake]map[discord.Snowflake]*VoiceState{},
+		voiceStates: map[snowflake.Snowflake]map[snowflake.Snowflake]*VoiceState{},
 	}
 }
 
-func (c *voiceStateCacheImpl) Get(guildID discord.Snowflake, userID discord.Snowflake) *VoiceState {
+func (c *voiceStateCacheImpl) Get(guildID snowflake.Snowflake, userID snowflake.Snowflake) *VoiceState {
 	if _, ok := c.voiceStates[guildID]; !ok {
 		return nil
 	}
 	return c.voiceStates[guildID][userID]
 }
 
-func (c *voiceStateCacheImpl) GetCopy(guildID discord.Snowflake, userID discord.Snowflake) *VoiceState {
+func (c *voiceStateCacheImpl) GetCopy(guildID snowflake.Snowflake, userID snowflake.Snowflake) *VoiceState {
 	if voiceState := c.Get(guildID, userID); voiceState != nil {
 		vs := *voiceState
 		return &vs
@@ -56,7 +54,7 @@ func (c *voiceStateCacheImpl) Set(voiceState *VoiceState) *VoiceState {
 		return voiceState
 	}
 	if _, ok := c.voiceStates[voiceState.GuildID]; !ok {
-		c.voiceStates[voiceState.GuildID] = map[discord.Snowflake]*VoiceState{}
+		c.voiceStates[voiceState.GuildID] = map[snowflake.Snowflake]*VoiceState{}
 	}
 	rol, ok := c.voiceStates[voiceState.GuildID][voiceState.UserID]
 	if ok {
@@ -68,19 +66,19 @@ func (c *voiceStateCacheImpl) Set(voiceState *VoiceState) *VoiceState {
 	return voiceState
 }
 
-func (c *voiceStateCacheImpl) Remove(guildID discord.Snowflake, userID discord.Snowflake) {
+func (c *voiceStateCacheImpl) Remove(guildID snowflake.Snowflake, userID snowflake.Snowflake) {
 	if _, ok := c.voiceStates[guildID]; !ok {
 		return
 	}
 	delete(c.voiceStates[guildID], userID)
 }
 
-func (c *voiceStateCacheImpl) Cache() map[discord.Snowflake]map[discord.Snowflake]*VoiceState {
+func (c *voiceStateCacheImpl) Cache() map[snowflake.Snowflake]map[snowflake.Snowflake]*VoiceState {
 	return c.voiceStates
 }
 
-func (c *voiceStateCacheImpl) All() map[discord.Snowflake][]*VoiceState {
-	voiceStates := make(map[discord.Snowflake][]*VoiceState, len(c.voiceStates))
+func (c *voiceStateCacheImpl) All() map[snowflake.Snowflake][]*VoiceState {
+	voiceStates := make(map[snowflake.Snowflake][]*VoiceState, len(c.voiceStates))
 	for guildID, guildVoiceStates := range c.voiceStates {
 		voiceStates[guildID] = make([]*VoiceState, len(guildVoiceStates))
 		i := 0
@@ -92,14 +90,14 @@ func (c *voiceStateCacheImpl) All() map[discord.Snowflake][]*VoiceState {
 	return voiceStates
 }
 
-func (c *voiceStateCacheImpl) GuildCache(guildID discord.Snowflake) map[discord.Snowflake]*VoiceState {
+func (c *voiceStateCacheImpl) GuildCache(guildID snowflake.Snowflake) map[snowflake.Snowflake]*VoiceState {
 	if _, ok := c.voiceStates[guildID]; !ok {
 		return nil
 	}
 	return c.voiceStates[guildID]
 }
 
-func (c *voiceStateCacheImpl) GuildAll(guildID discord.Snowflake) []*VoiceState {
+func (c *voiceStateCacheImpl) GuildAll(guildID snowflake.Snowflake) []*VoiceState {
 	if _, ok := c.voiceStates[guildID]; !ok {
 		return nil
 	}

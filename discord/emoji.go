@@ -1,19 +1,21 @@
 package discord
 
+import "github.com/DisgoOrg/snowflake"
+
 var _ Mentionable = (*Emoji)(nil)
 
 // Emoji allows you to interact with emojis & emotes
 type Emoji struct {
-	ID            Snowflake   `json:"id,omitempty"`
-	Name          string      `json:"name,omitempty"` // may be empty for deleted emojis
-	Roles         []Snowflake `json:"roles,omitempty"`
-	Creator       *User       `json:"creator,omitempty"`
-	RequireColons bool        `json:"require_colons,omitempty"`
-	Managed       bool        `json:"managed,omitempty"`
-	Animated      bool        `json:"animated,omitempty"`
-	Available     bool        `json:"available,omitempty"`
+	ID            snowflake.Snowflake   `json:"id,omitempty"`
+	Name          string                `json:"name,omitempty"` // may be empty for deleted emojis
+	Roles         []snowflake.Snowflake `json:"roles,omitempty"`
+	Creator       *User                 `json:"creator,omitempty"`
+	RequireColons bool                  `json:"require_colons,omitempty"`
+	Managed       bool                  `json:"managed,omitempty"`
+	Animated      bool                  `json:"animated,omitempty"`
+	Available     bool                  `json:"available,omitempty"`
 
-	GuildID Snowflake `json:"guild_id,omitempty"`
+	GuildID snowflake.Snowflake `json:"guild_id,omitempty"`
 }
 
 // Mention returns the string used to send the Emoji
@@ -30,18 +32,18 @@ func (e Emoji) String() string {
 }
 
 type EmojiCreate struct {
-	Name  string      `json:"name"`
-	Image Icon        `json:"image"`
-	Roles []Snowflake `json:"roles,omitempty"`
+	Name  string                `json:"name"`
+	Image Icon                  `json:"image"`
+	Roles []snowflake.Snowflake `json:"roles,omitempty"`
 }
 
 type EmojiUpdate struct {
-	Name  string      `json:"name,omitempty"`
-	Roles []Snowflake `json:"roles,omitempty"`
+	Name  string                `json:"name,omitempty"`
+	Roles []snowflake.Snowflake `json:"roles,omitempty"`
 }
 
 type ReactionEmoji struct {
-	ID       Snowflake `json:"id,omitempty"`
-	Name     string    `json:"name,omitempty"`
-	Animated bool      `json:"animated"`
+	ID       snowflake.Snowflake `json:"id,omitempty"`
+	Name     string              `json:"name,omitempty"`
+	Animated bool                `json:"animated"`
 }

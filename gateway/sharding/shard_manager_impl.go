@@ -7,8 +7,8 @@ import (
 
 	srate2 "github.com/DisgoOrg/disgo/gateway/sharding/srate"
 	"github.com/DisgoOrg/disgo/internal/merrors"
+	"github.com/DisgoOrg/snowflake"
 
-	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/log"
 )
@@ -146,12 +146,12 @@ func (m *shardManagerImpl) OpenShard(ctx context.Context, shardID int) error {
 func (m *shardManagerImpl) ReOpenShard(ctx context.Context, shardID int) error {
 	m.Logger().Infof("reopening shard %d...", shardID)
 	shard := m.shards.Get(shardID)
-	if shard == nil {
-		// TODO: should we start the shard if not already here?
-		return nil
+	if shard != nil {
+		if err := shard.Close(ctx); err != nil {
+			return err
+		}
 	}
-	shard.Close(ctx)
-	return shard.ReOpen(ctx, time.Second)
+	return shard.Open(ctx)
 }
 
 func (m *shardManagerImpl) CloseShard(ctx context.Context, shardID int) {
@@ -163,7 +163,7 @@ func (m *shardManagerImpl) CloseShard(ctx context.Context, shardID int) {
 	}
 }
 
-func (m *shardManagerImpl) GetGuildShard(guildId discord.Snowflake) gateway.Gateway {
+func (m *shardManagerImpl) GetGuildShard(guildId snowflake.Snowflake) gateway.Gateway {
 	return m.Shard(ShardIDByGuild(guildId, m.config.ShardCount))
 }
 

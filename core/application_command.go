@@ -3,6 +3,7 @@ package core
 import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
+	"github.com/DisgoOrg/snowflake"
 )
 
 type ApplicationCommand interface {
@@ -55,7 +56,7 @@ func (c *SlashCommand) Update(commandUpdate discord.SlashCommandUpdate, opts ...
 }
 
 // SetPermissions sets the ApplicationCommandPermissions for a specific Guild. this overrides all existing ApplicationCommandPermission(s). thx discord for that
-func (c *SlashCommand) SetPermissions(guildID discord.Snowflake, commandPermissions []discord.ApplicationCommandPermission, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
+func (c *SlashCommand) SetPermissions(guildID snowflake.Snowflake, commandPermissions []discord.ApplicationCommandPermission, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
 	permissions, err := c.Bot.RestServices.ApplicationService().SetGuildCommandPermissions(c.Bot.ApplicationID, guildID, c.ID(), commandPermissions, opts...)
 	if err != nil {
 		return nil, err
@@ -64,7 +65,7 @@ func (c *SlashCommand) SetPermissions(guildID discord.Snowflake, commandPermissi
 }
 
 // GetPermissions fetched the ApplicationCommandPermissions for a specific Guild from discord
-func (c *SlashCommand) GetPermissions(guildID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
+func (c *SlashCommand) GetPermissions(guildID snowflake.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
 	permissions, err := c.Bot.RestServices.ApplicationService().GetGuildCommandPermissions(c.Bot.ApplicationID, guildID, c.ID(), opts...)
 	if err != nil {
 		return nil, err
@@ -123,7 +124,7 @@ func (c *UserCommand) Update(commandUpdate discord.UserCommandUpdate, opts ...re
 }
 
 // SetPermissions sets the ApplicationCommandPermissions for a specific Guild. this overrides all existing ApplicationCommandPermission(s). thx discord for that
-func (c *UserCommand) SetPermissions(guildID discord.Snowflake, commandPermissions []discord.ApplicationCommandPermission, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
+func (c *UserCommand) SetPermissions(guildID snowflake.Snowflake, commandPermissions []discord.ApplicationCommandPermission, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
 	permissions, err := c.Bot.RestServices.ApplicationService().SetGuildCommandPermissions(c.Bot.ApplicationID, guildID, c.ID(), commandPermissions, opts...)
 	if err != nil {
 		return nil, err
@@ -132,7 +133,7 @@ func (c *UserCommand) SetPermissions(guildID discord.Snowflake, commandPermissio
 }
 
 // GetPermissions fetched the ApplicationCommandPermissions for a specific Guild from discord
-func (c *UserCommand) GetPermissions(guildID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
+func (c *UserCommand) GetPermissions(guildID snowflake.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
 	permissions, err := c.Bot.RestServices.ApplicationService().GetGuildCommandPermissions(c.Bot.ApplicationID, guildID, c.ID(), opts...)
 	if err != nil {
 		return nil, err
@@ -191,7 +192,7 @@ func (c *MessageCommand) Update(commandUpdate discord.MessageCommandUpdate, opts
 }
 
 // SetPermissions sets the ApplicationCommandPermissions for a specific Guild. this overrides all existing ApplicationCommandPermission(s). thx discord for that
-func (c *MessageCommand) SetPermissions(guildID discord.Snowflake, commandPermissions []discord.ApplicationCommandPermission, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
+func (c *MessageCommand) SetPermissions(guildID snowflake.Snowflake, commandPermissions []discord.ApplicationCommandPermission, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
 	permissions, err := c.Bot.RestServices.ApplicationService().SetGuildCommandPermissions(c.Bot.ApplicationID, guildID, c.ID(), commandPermissions, opts...)
 	if err != nil {
 		return nil, err
@@ -200,7 +201,7 @@ func (c *MessageCommand) SetPermissions(guildID discord.Snowflake, commandPermis
 }
 
 // GetPermissions fetched the ApplicationCommandPermissions for a specific Guild from discord
-func (c *MessageCommand) GetPermissions(guildID discord.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
+func (c *MessageCommand) GetPermissions(guildID snowflake.Snowflake, opts ...rest.RequestOpt) (*ApplicationCommandPermissions, error) {
 	permissions, err := c.Bot.RestServices.ApplicationService().GetGuildCommandPermissions(c.Bot.ApplicationID, guildID, c.ID(), opts...)
 	if err != nil {
 		return nil, err

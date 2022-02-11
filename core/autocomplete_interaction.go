@@ -3,14 +3,62 @@ package core
 import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
+	"github.com/DisgoOrg/snowflake"
 )
 
 type AutocompleteInteractionFilter func(autocompleteInteraction *AutocompleteInteraction) bool
 
 type AutocompleteInteraction struct {
-	discord.AutocompleteInteraction
-	*InteractionFields
+	*BaseInteraction
 	Data AutocompleteInteractionData
+}
+
+func (i AutocompleteInteraction) interaction() {}
+func (i AutocompleteInteraction) Type() discord.InteractionType {
+	return discord.InteractionTypeAutocomplete
+}
+
+func (i AutocompleteInteraction) Result(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
+	return i.Respond(discord.InteractionCallbackTypeAutocompleteResult, discord.AutocompleteResult{Choices: choices}, opts...)
+}
+
+func (i AutocompleteInteraction) ResultMapString(resultMap map[string]string, opts ...rest.RequestOpt) error {
+	choices := make([]discord.AutocompleteChoice, len(resultMap))
+	ii := 0
+	for name, value := range resultMap {
+		choices[ii] = discord.AutocompleteChoiceString{
+			Name:  name,
+			Value: value,
+		}
+		ii++
+	}
+	return i.Result(choices, opts...)
+}
+
+func (i AutocompleteInteraction) ResultMapInt(resultMap map[string]int, opts ...rest.RequestOpt) error {
+	choices := make([]discord.AutocompleteChoice, len(resultMap))
+	ii := 0
+	for name, value := range resultMap {
+		choices[ii] = discord.AutocompleteChoiceInt{
+			Name:  name,
+			Value: value,
+		}
+		ii++
+	}
+	return i.Result(choices, opts...)
+}
+
+func (i AutocompleteInteraction) ResultMapFloat(resultMap map[string]float64, opts ...rest.RequestOpt) error {
+	choices := make([]discord.AutocompleteChoice, len(resultMap))
+	ii := 0
+	for name, value := range resultMap {
+		choices[ii] = discord.AutocompleteChoiceFloat{
+			Name:  name,
+			Value: value,
+		}
+		ii++
+	}
+	return i.Result(choices, opts...)
 }
 
 type AutocompleteInteractionData struct {
@@ -20,42 +68,16 @@ type AutocompleteInteractionData struct {
 	Options             AutocompleteOptionsMap
 }
 
-func (i *AutocompleteInteraction) Respond(callbackType discord.InteractionCallbackType, callbackData discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
-	return respond(i.InteractionFields, i.ID, i.Token, callbackType, callbackData, opts...)
-}
-
-func (i *AutocompleteInteraction) Result(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
-	return result(i.InteractionFields, i.ID, i.Token, choices, opts...)
-}
-
-func (i *AutocompleteInteraction) ResultMapString(resultMap map[string]string, opts ...rest.RequestOpt) error {
-	return resultMapString(i.InteractionFields, i.ID, i.Token, resultMap, opts...)
-}
-
-func (i *AutocompleteInteraction) ResultMapInt(resultMap map[string]int, opts ...rest.RequestOpt) error {
-	return resultMapInt(i.InteractionFields, i.ID, i.Token, resultMap, opts...)
-}
-
-func (i *AutocompleteInteraction) ResultMapFloat(resultMap map[string]float64, opts ...rest.RequestOpt) error {
-	return resultMapFloat(i.InteractionFields, i.ID, i.Token, resultMap, opts...)
-}
-
 // CommandPath returns the ApplicationCommand path
-func (i *AutocompleteInteraction) CommandPath() string {
-	return commandPath(i.Data.CommandName, i.Data.SubCommandName, i.Data.SubCommandGroupName)
-}
-
-// Guild returns the Guild from the Caches
-func (i *AutocompleteInteraction) Guild() *Guild {
-	if i.GuildID == nil {
-		return nil
+func (i *AutocompleteInteractionData) CommandPath() string {
+	path := i.CommandName
+	if name := i.SubCommandName; name != nil {
+		path += "/" + *name
 	}
-	return i.Bot.Caches.Guilds().Get(*i.GuildID)
-}
-
-// Channel returns the Channel from the Caches
-func (i *AutocompleteInteraction) Channel() Channel {
-	return i.Bot.Caches.Channels().Get(i.ChannelID)
+	if name := i.SubCommandGroupName; name != nil {
+		path += "/" + *name
+	}
+	return path
 }
 
 type AutocompleteOptionsMap map[string]discord.AutocompleteOption
@@ -168,7 +190,7 @@ func (m AutocompleteOptionsMap) MentionableOption(name string) *discord.Autocomp
 	return nil
 }
 
-func (m AutocompleteOptionsMap) Snowflake(name string) *discord.Snowflake {
+func (m AutocompleteOptionsMap) Snowflake(name string) *snowflake.Snowflake {
 	option := m.Get(name)
 	if option == nil {
 		return nil

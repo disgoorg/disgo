@@ -4,6 +4,7 @@ import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -30,12 +31,12 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot *core.Bot, sequ
 
 	var (
 		emojiCache    = bot.Caches.Emojis().GuildCache(payload.GuildID)
-		oldEmojis     = map[discord.Snowflake]*core.Emoji{}
-		newEmojis     = map[discord.Snowflake]*core.Emoji{}
-		updatedEmojis = map[discord.Snowflake]*core.Emoji{}
+		oldEmojis     = map[snowflake.Snowflake]*core.Emoji{}
+		newEmojis     = map[snowflake.Snowflake]*core.Emoji{}
+		updatedEmojis = map[snowflake.Snowflake]*core.Emoji{}
 	)
 
-	oldEmojis = make(map[discord.Snowflake]*core.Emoji, len(emojiCache))
+	oldEmojis = make(map[snowflake.Snowflake]*core.Emoji, len(emojiCache))
 	for key, value := range emojiCache {
 		va := *value
 		oldEmojis[key] = &va

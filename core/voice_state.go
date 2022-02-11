@@ -28,11 +28,14 @@ func (s *VoiceState) Guild() *Guild {
 }
 
 // Channel returns the Channel of this VoiceState from the Caches
-func (s *VoiceState) Channel() Channel {
+func (s *VoiceState) Channel() GuildAudioChannel {
 	if s.ChannelID == nil {
 		return nil
 	}
-	return s.Bot.Caches.Channels().Get(*s.ChannelID)
+	if ch := s.Bot.Caches.Channels().Get(*s.ChannelID); ch != nil {
+		return ch.(GuildAudioChannel)
+	}
+	return nil
 }
 
 func (s *VoiceState) Update(suppress *bool, requestToSpeak *discord.NullTime, opts ...rest.RequestOpt) error {

@@ -8,11 +8,6 @@ var DefaultConfig = core.CollectorsConfig{
 	NewMessageReactionRemoveCollectorFunc:         NewMessageReactionRemoveCollector,
 	NewInteractionCollectorFunc:                   NewInteractionCollector,
 	NewApplicationCommandInteractionCollectorFunc: NewApplicationCommandInteractionCollector,
-	NewSlashCommandCollectorFunc:                  NewSlashCommandCollector,
-	NewMessageCommandCollectorFunc:                NewMessageCommandCollector,
-	NewUserCommandCollectorFunc:                   NewUserCommandCollector,
 	NewComponentInteractionCollectorFunc:          NewComponentInteractionCollector,
-	NewButtonClickCollectorFunc:                   NewButtonClickCollector,
-	NewSelectMenuSubmitCollectorFunc:              NewSelectMenuSubmitCollector,
-	NewAutocompleteCollectorFunc:                  NewAutocompleteCollector,
+	NewAutocompleteCollectorFunc:                  NewAutocompleteInteractionCollector,
 }

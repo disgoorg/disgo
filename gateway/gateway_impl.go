@@ -330,7 +330,7 @@ func (g *gatewayImpl) listen() {
 				g.status = StatusIdentifying
 				g.Logger().Info(g.formatLogs("sending Identify command..."))
 
-				identify := discord.IdentifyCommand{
+				identify := discord.IdentifyCommandData{
 					Token: g.token,
 					Properties: discord.IdentifyCommandDataProperties{
 						OS:      g.config.OS,
@@ -349,6 +349,7 @@ func (g *gatewayImpl) listen() {
 				if err = g.Send(context.TODO(), discord.NewGatewayCommand(discord.GatewayOpcodeIdentify, identify)); err != nil {
 					g.Logger().Error(g.formatLogs("error sending Identify command err: ", err))
 				}
+				g.lastHeartbeatSent = time.Now().UTC()
 				g.status = StatusWaitingForReady
 			} else {
 				g.status = StatusResuming

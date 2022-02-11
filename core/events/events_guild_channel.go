@@ -3,14 +3,15 @@ package events
 import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // GenericGuildChannelEvent is called upon receiving GuildChannelCreateEvent, GuildChannelUpdateEvent or GuildChannelDeleteEvent
 type GenericGuildChannelEvent struct {
 	*GenericEvent
-	ChannelID discord.Snowflake
+	ChannelID snowflake.Snowflake
 	Channel   core.GuildChannel
-	GuildID   discord.Snowflake
+	GuildID   snowflake.Snowflake
 }
 
 // Guild returns the core.Guild the event happened in.
@@ -37,8 +38,8 @@ type GuildChannelDeleteEvent struct {
 
 type GuildChannelPinsUpdateEvent struct {
 	*GenericEvent
-	GuildID             discord.Snowflake
-	ChannelID           discord.Snowflake
+	GuildID             snowflake.Snowflake
+	ChannelID           snowflake.Snowflake
 	NewLastPinTimestamp *discord.Time
 	OldLastPinTimestamp *discord.Time
 }

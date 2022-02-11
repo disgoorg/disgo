@@ -7,13 +7,8 @@ type Collectors interface {
 	NewMessageReactionAddCollector(filter MessageReactionAddFilter) (<-chan *MessageReactionAdd, func())
 	NewMessageReactionRemoveCollector(filter MessageReactionRemoveFilter) (<-chan *MessageReactionRemove, func())
 	NewInteractionCollector(filter InteractionFilter) (<-chan Interaction, func())
-	NewApplicationCommandInteractionCollector(filter ApplicationCommandInteractionFilter) (<-chan ApplicationCommandInteraction, func())
-	NewSlashCommandCollector(filter SlashCommandInteractionFilter) (<-chan *SlashCommandInteraction, func())
-	NewMessageCommandCollector(filter MessageCommandInteractionFilter) (<-chan *MessageCommandInteraction, func())
-	NewUserCommandCollector(filter UserCommandInteractionFilter) (<-chan *UserCommandInteraction, func())
-	NewComponentInteractionCollector(filter ComponentInteractionFilter) (<-chan ComponentInteraction, func())
-	NewButtonClickCollector(filter ButtonInteractionFilter) (<-chan *ButtonInteraction, func())
-	NewSelectMenuSubmitCollector(filter SelectMenuInteractionFilter) (<-chan *SelectMenuInteraction, func())
+	NewApplicationCommandInteractionCollector(filter ApplicationCommandInteractionFilter) (<-chan *ApplicationCommandInteraction, func())
+	NewComponentInteractionCollector(filter ComponentInteractionFilter) (<-chan *ComponentInteraction, func())
 	NewAutocompleteCollector(filter AutocompleteInteractionFilter) (<-chan *AutocompleteInteraction, func())
 }
 
@@ -26,13 +21,8 @@ type CollectorsConfig struct {
 	NewMessageReactionAddCollectorFunc            func(bot *Bot, filter MessageReactionAddFilter) (<-chan *MessageReactionAdd, func())
 	NewMessageReactionRemoveCollectorFunc         func(bot *Bot, filter MessageReactionRemoveFilter) (<-chan *MessageReactionRemove, func())
 	NewInteractionCollectorFunc                   func(bot *Bot, filter InteractionFilter) (<-chan Interaction, func())
-	NewApplicationCommandInteractionCollectorFunc func(bot *Bot, filter ApplicationCommandInteractionFilter) (<-chan ApplicationCommandInteraction, func())
-	NewSlashCommandCollectorFunc                  func(bot *Bot, filter SlashCommandInteractionFilter) (<-chan *SlashCommandInteraction, func())
-	NewMessageCommandCollectorFunc                func(bot *Bot, filter MessageCommandInteractionFilter) (<-chan *MessageCommandInteraction, func())
-	NewUserCommandCollectorFunc                   func(bot *Bot, filter UserCommandInteractionFilter) (<-chan *UserCommandInteraction, func())
-	NewComponentInteractionCollectorFunc          func(bot *Bot, filter ComponentInteractionFilter) (<-chan ComponentInteraction, func())
-	NewButtonClickCollectorFunc                   func(bot *Bot, filter ButtonInteractionFilter) (<-chan *ButtonInteraction, func())
-	NewSelectMenuSubmitCollectorFunc              func(bot *Bot, filter SelectMenuInteractionFilter) (<-chan *SelectMenuInteraction, func())
+	NewApplicationCommandInteractionCollectorFunc func(bot *Bot, filter ApplicationCommandInteractionFilter) (<-chan *ApplicationCommandInteraction, func())
+	NewComponentInteractionCollectorFunc          func(bot *Bot, filter ComponentInteractionFilter) (<-chan *ComponentInteraction, func())
 	NewAutocompleteCollectorFunc                  func(bot *Bot, filter AutocompleteInteractionFilter) (<-chan *AutocompleteInteraction, func())
 }
 
@@ -43,10 +33,6 @@ type collectorsImpl struct {
 
 func (c *collectorsImpl) NewMessageCollector(filter MessageFilter) (<-chan *Message, func()) {
 	return c.NewMessageCollectorFunc(c.Bot, filter)
-}
-
-func (c *collectorsImpl) NewMessageCommandCollector(filter MessageCommandInteractionFilter) (<-chan *MessageCommandInteraction, func()) {
-	return c.NewMessageCommandCollectorFunc(c.Bot, filter)
 }
 
 func (c *collectorsImpl) NewMessageReactionAddCollector(filter MessageReactionAddFilter) (<-chan *MessageReactionAdd, func()) {
@@ -61,28 +47,12 @@ func (c *collectorsImpl) NewInteractionCollector(filter InteractionFilter) (<-ch
 	return c.NewInteractionCollectorFunc(c.Bot, filter)
 }
 
-func (c *collectorsImpl) NewApplicationCommandInteractionCollector(filter ApplicationCommandInteractionFilter) (<-chan ApplicationCommandInteraction, func()) {
+func (c *collectorsImpl) NewApplicationCommandInteractionCollector(filter ApplicationCommandInteractionFilter) (<-chan *ApplicationCommandInteraction, func()) {
 	return c.NewApplicationCommandInteractionCollectorFunc(c.Bot, filter)
 }
 
-func (c *collectorsImpl) NewSlashCommandCollector(filter SlashCommandInteractionFilter) (<-chan *SlashCommandInteraction, func()) {
-	return c.NewSlashCommandCollectorFunc(c.Bot, filter)
-}
-
-func (c *collectorsImpl) NewUserCommandCollector(filter UserCommandInteractionFilter) (<-chan *UserCommandInteraction, func()) {
-	return c.NewUserCommandCollectorFunc(c.Bot, filter)
-}
-
-func (c *collectorsImpl) NewComponentInteractionCollector(filter ComponentInteractionFilter) (<-chan ComponentInteraction, func()) {
+func (c *collectorsImpl) NewComponentInteractionCollector(filter ComponentInteractionFilter) (<-chan *ComponentInteraction, func()) {
 	return c.NewComponentInteractionCollectorFunc(c.Bot, filter)
-}
-
-func (c *collectorsImpl) NewButtonClickCollector(filter ButtonInteractionFilter) (<-chan *ButtonInteraction, func()) {
-	return c.NewButtonClickCollectorFunc(c.Bot, filter)
-}
-
-func (c *collectorsImpl) NewSelectMenuSubmitCollector(filter SelectMenuInteractionFilter) (<-chan *SelectMenuInteraction, func()) {
-	return c.NewSelectMenuSubmitCollectorFunc(c.Bot, filter)
 }
 
 func (c *collectorsImpl) NewAutocompleteCollector(filter AutocompleteInteractionFilter) (<-chan *AutocompleteInteraction, func()) {

@@ -14,6 +14,7 @@ import (
 	"github.com/DisgoOrg/disgo/internal/tokenhelper"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/log"
+	"github.com/DisgoOrg/snowflake"
 	"github.com/pkg/errors"
 )
 
@@ -65,11 +66,8 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 		if config.RestClientConfig.Logger == nil {
 			config.RestClientConfig.Logger = config.Logger
 		}
-		if config.RestClientConfig.Headers == nil {
-			config.RestClientConfig.Headers = http.Header{}
-		}
-		if _, ok := config.RestClientConfig.Headers["Authorization"]; !ok {
-			config.RestClientConfig.Headers["Authorization"] = []string{discord.TokenTypeBot.Apply(token)}
+		if config.RestClientConfig.BotTokenFunc == nil {
+			config.RestClientConfig.BotTokenFunc = func() string { return bot.Token }
 		}
 		config.RestClient = rest.NewClient(config.RestClientConfig)
 	}

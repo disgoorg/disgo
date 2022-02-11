@@ -26,6 +26,17 @@ func (r *Role) Guild() *Guild {
 	return r.Bot.Caches.Guilds().Get(r.GuildID)
 }
 
+//ComparePositionTo compares the position of this Role to another Role.
+func (r *Role) ComparePositionTo(role *Role) int {
+	if role == nil {
+		panic("Role argument cannot be nil")
+	}
+	if r.Position == role.Position {
+		return int(r.ID.Time().Sub(role.ID.Time()).Nanoseconds())
+	}
+	return r.Position - role.Position
+}
+
 // Update updates this Role with the properties provided in discord.RoleUpdate
 func (r *Role) Update(roleUpdate discord.RoleUpdate, opts ...rest.RequestOpt) (*Role, error) {
 	role, err := r.Bot.RestServices.GuildService().UpdateRole(r.GuildID, r.ID, roleUpdate, opts...)

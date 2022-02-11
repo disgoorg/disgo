@@ -3,6 +3,8 @@ package discord
 import (
 	"fmt"
 	"io"
+
+	"github.com/DisgoOrg/snowflake"
 )
 
 // MessageUpdateBuilder helper to build MessageUpdate easier
@@ -186,7 +188,7 @@ func (b *MessageUpdateBuilder) RetainAttachments(attachments ...Attachment) *Mes
 }
 
 // RetainAttachmentsByID removes all Attachment(s) from this Message except the ones provided
-func (b *MessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...Snowflake) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...snowflake.Snowflake) *MessageUpdateBuilder {
 	if b.Attachments == nil {
 		b.Attachments = new([]Attachment)
 	}
@@ -237,6 +239,19 @@ func (b *MessageUpdateBuilder) RemoveFlags(flags ...MessageFlags) *MessageUpdate
 // ClearFlags clears the MessageFlags of the Message
 func (b *MessageUpdateBuilder) ClearFlags() *MessageUpdateBuilder {
 	return b.SetFlags(MessageFlagNone)
+}
+
+// SetSuppressEmbeds adds/removes discord.MessageFlagSuppressEmbeds to the Message flags
+func (b *MessageUpdateBuilder) SetSuppressEmbeds(suppressEmbeds bool) *MessageUpdateBuilder {
+	if b.Flags == nil {
+		b.Flags = new(MessageFlags)
+	}
+	if suppressEmbeds {
+		*b.Flags = b.Flags.Add(MessageFlagSuppressEmbeds)
+	} else {
+		*b.Flags = b.Flags.Remove(MessageFlagSuppressEmbeds)
+	}
+	return b
 }
 
 // Build builds the MessageUpdateBuilder to a MessageUpdate struct

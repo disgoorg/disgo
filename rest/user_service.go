@@ -3,6 +3,7 @@ package rest
 import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest/route"
+	"github.com/DisgoOrg/snowflake"
 )
 
 var (
@@ -16,13 +17,12 @@ func NewUserService(restClient Client) UserService {
 
 type UserService interface {
 	Service
-	GetUser(userID discord.Snowflake, opts ...RequestOpt) (*discord.User, error)
-	GetSelfUser(opts ...RequestOpt) (*discord.OAuth2User, error)
+	GetUser(userID snowflake.Snowflake, opts ...RequestOpt) (*discord.User, error)
 	UpdateSelfUser(selfUserUpdate discord.SelfUserUpdate, opts ...RequestOpt) (*discord.OAuth2User, error)
 	GetGuilds(before int, after int, limit int, opts ...RequestOpt) ([]discord.OAuth2Guild, error)
-	LeaveGuild(guildID discord.Snowflake, opts ...RequestOpt) error
+	LeaveGuild(guildID snowflake.Snowflake, opts ...RequestOpt) error
 	GetDMChannels(opts ...RequestOpt) ([]discord.Channel, error)
-	CreateDMChannel(userID discord.Snowflake, opts ...RequestOpt) (*discord.Channel, error)
+	CreateDMChannel(userID snowflake.Snowflake, opts ...RequestOpt) (*discord.Channel, error)
 }
 
 type userServiceImpl struct {
@@ -33,23 +33,13 @@ func (s *userServiceImpl) RestClient() Client {
 	return s.restClient
 }
 
-func (s *userServiceImpl) GetUser(userID discord.Snowflake, opts ...RequestOpt) (user *discord.User, err error) {
+func (s *userServiceImpl) GetUser(userID snowflake.Snowflake, opts ...RequestOpt) (user *discord.User, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetUser.Compile(nil, userID)
 	if err != nil {
 		return
 	}
 	err = s.restClient.Do(compiledRoute, nil, &user, opts...)
-	return
-}
-
-func (s *userServiceImpl) GetSelfUser(opts ...RequestOpt) (selfUser *discord.OAuth2User, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetCurrentUser.Compile(nil)
-	if err != nil {
-		return
-	}
-	err = s.restClient.Do(compiledRoute, nil, &selfUser, opts...)
 	return
 }
 
@@ -85,7 +75,7 @@ func (s *userServiceImpl) GetGuilds(before int, after int, limit int, opts ...Re
 	return
 }
 
-func (s *userServiceImpl) LeaveGuild(guildID discord.Snowflake, opts ...RequestOpt) error {
+func (s *userServiceImpl) LeaveGuild(guildID snowflake.Snowflake, opts ...RequestOpt) error {
 	compiledRoute, err := route.LeaveGuild.Compile(nil, guildID)
 	if err != nil {
 		return err
@@ -104,7 +94,7 @@ func (s *userServiceImpl) GetDMChannels(opts ...RequestOpt) (channels []discord.
 	return
 }
 
-func (s *userServiceImpl) CreateDMChannel(userID discord.Snowflake, opts ...RequestOpt) (channel *discord.Channel, err error) {
+func (s *userServiceImpl) CreateDMChannel(userID snowflake.Snowflake, opts ...RequestOpt) (channel *discord.Channel, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateDMChannel.Compile(nil)
 	if err != nil {

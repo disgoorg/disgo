@@ -5,6 +5,7 @@ import (
 
 	"github.com/DisgoOrg/disgo/json"
 	"github.com/DisgoOrg/disgo/rest/route"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // ChannelType for interacting with discord's channels
@@ -33,7 +34,7 @@ type Channel interface {
 	json.Marshaler
 	fmt.Stringer
 	Type() ChannelType
-	ID() Snowflake
+	ID() snowflake.Snowflake
 	Name() string
 	channel()
 }
@@ -41,7 +42,7 @@ type Channel interface {
 type GuildChannel interface {
 	Channel
 	Mentionable
-	GuildID() Snowflake
+	GuildID() snowflake.Snowflake
 	guildChannel()
 }
 
@@ -63,7 +64,7 @@ type GuildMessageChannel interface {
 
 type GuildThread interface {
 	BaseGuildMessageChannel
-	ParentID() Snowflake
+	ParentID() snowflake.Snowflake
 	guildThread()
 }
 
@@ -167,16 +168,16 @@ var (
 )
 
 type GuildTextChannel struct {
-	ChannelID                   Snowflake             `json:"id"`
-	ChannelGuildID              Snowflake             `json:"guild_id,omitempty"`
+	ChannelID                   snowflake.Snowflake   `json:"id"`
+	ChannelGuildID              snowflake.Snowflake   `json:"guild_id,omitempty"`
 	Position                    int                   `json:"position,omitempty"`
 	ChannelPermissionOverwrites []PermissionOverwrite `json:"permission_overwrites"`
 	ChannelName                 string                `json:"name,omitempty"`
 	Topic                       *string               `json:"topic,omitempty"`
 	NSFW                        bool                  `json:"nsfw,omitempty"`
-	LastMessageID               *Snowflake            `json:"last_message_id,omitempty"`
+	LastMessageID               *snowflake.Snowflake  `json:"last_message_id,omitempty"`
 	RateLimitPerUser            int                   `json:"rate_limit_per_user,omitempty"`
-	ParentID                    *Snowflake            `json:"parent_id,omitempty"`
+	ParentID                    *snowflake.Snowflake  `json:"parent_id,omitempty"`
 	LastPinTimestamp            *Time                 `json:"last_pin_timestamp,omitempty"`
 	DefaultAutoArchiveDuration  AutoArchiveDuration   `json:"default_auto_archive_duration"`
 	InteractionPermissions      Permissions           `json:"permissions,omitempty"`
@@ -225,11 +226,11 @@ func (c GuildTextChannel) Name() string {
 	return c.ChannelName
 }
 
-func (c GuildTextChannel) ID() Snowflake {
+func (c GuildTextChannel) ID() snowflake.Snowflake {
 	return c.ChannelID
 }
 
-func (c GuildTextChannel) GuildID() Snowflake {
+func (c GuildTextChannel) GuildID() snowflake.Snowflake {
 	return c.ChannelGuildID
 }
 
@@ -245,10 +246,10 @@ var (
 )
 
 type DMChannel struct {
-	ChannelID        Snowflake  `json:"id"`
-	LastMessageID    *Snowflake `json:"last_message_id,omitempty"`
-	Recipients       []User     `json:"recipients,omitempty"`
-	LastPinTimestamp *Time      `json:"last_pin_timestamp,omitempty"`
+	ChannelID        snowflake.Snowflake  `json:"id"`
+	LastMessageID    *snowflake.Snowflake `json:"last_message_id,omitempty"`
+	Recipients       []User               `json:"recipients,omitempty"`
+	LastPinTimestamp *Time                `json:"last_pin_timestamp,omitempty"`
 }
 
 func (c DMChannel) MarshalJSON() ([]byte, error) {
@@ -270,7 +271,7 @@ func (DMChannel) Type() ChannelType {
 	return ChannelTypeGuildText
 }
 
-func (c DMChannel) ID() Snowflake {
+func (c DMChannel) ID() snowflake.Snowflake {
 	return c.ChannelID
 }
 
@@ -288,8 +289,8 @@ var (
 )
 
 type GuildVoiceChannel struct {
-	ChannelID                   Snowflake             `json:"id"`
-	ChannelGuildID              Snowflake             `json:"guild_id,omitempty"`
+	ChannelID                   snowflake.Snowflake   `json:"id"`
+	ChannelGuildID              snowflake.Snowflake   `json:"guild_id,omitempty"`
 	Position                    int                   `json:"position,omitempty"`
 	ChannelPermissionOverwrites []PermissionOverwrite `json:"permission_overwrites"`
 	ChannelName                 string                `json:"name,omitempty"`
@@ -297,7 +298,7 @@ type GuildVoiceChannel struct {
 	Topic                       *string               `json:"topic,omitempty"`
 	Bitrate                     int                   `json:"bitrate,omitempty"`
 	UserLimit                   int                   `json:"user_limit,omitempty"`
-	ParentID                    *Snowflake            `json:"parent_id,omitempty"`
+	ParentID                    *snowflake.Snowflake  `json:"parent_id,omitempty"`
 	RTCRegion                   string                `json:"rtc_region"`
 	VideoQualityMode            VideoQualityMode      `json:"video_quality_mode"`
 	InteractionPermissions      Permissions           `json:"permissions,omitempty"`
@@ -342,7 +343,7 @@ func (GuildVoiceChannel) Type() ChannelType {
 	return ChannelTypeGuildText
 }
 
-func (c GuildVoiceChannel) ID() Snowflake {
+func (c GuildVoiceChannel) ID() snowflake.Snowflake {
 	return c.ChannelID
 }
 
@@ -350,7 +351,7 @@ func (c GuildVoiceChannel) Name() string {
 	return c.ChannelName
 }
 
-func (c GuildVoiceChannel) GuildID() Snowflake {
+func (c GuildVoiceChannel) GuildID() snowflake.Snowflake {
 	return c.ChannelGuildID
 }
 
@@ -364,14 +365,14 @@ var (
 )
 
 type GroupDMChannel struct {
-	ChannelID        Snowflake  `json:"id"`
-	ChannelName      string     `json:"name,omitempty"`
-	LastMessageID    *Snowflake `json:"last_message_id,omitempty"`
-	Recipients       []User     `json:"recipients,omitempty"`
-	Icon             *string    `json:"icon,omitempty"`
-	OwnerID          Snowflake  `json:"owner_id,omitempty"`
-	ApplicationID    Snowflake  `json:"application_id,omitempty"`
-	LastPinTimestamp *Time      `json:"last_pin_timestamp,omitempty"`
+	ChannelID        snowflake.Snowflake  `json:"id"`
+	ChannelName      string               `json:"name,omitempty"`
+	LastMessageID    *snowflake.Snowflake `json:"last_message_id,omitempty"`
+	Recipients       []User               `json:"recipients,omitempty"`
+	Icon             *string              `json:"icon,omitempty"`
+	OwnerID          snowflake.Snowflake  `json:"owner_id,omitempty"`
+	ApplicationID    snowflake.Snowflake  `json:"application_id,omitempty"`
+	LastPinTimestamp *Time                `json:"last_pin_timestamp,omitempty"`
 }
 
 func (c GroupDMChannel) MarshalJSON() ([]byte, error) {
@@ -392,7 +393,7 @@ func (c GroupDMChannel) String() string {
 func (GroupDMChannel) Type() ChannelType {
 	return ChannelTypeGuildText
 }
-func (c GroupDMChannel) ID() Snowflake {
+func (c GroupDMChannel) ID() snowflake.Snowflake {
 	return c.ChannelID
 }
 
@@ -409,8 +410,8 @@ var (
 )
 
 type GuildCategoryChannel struct {
-	ChannelID                   Snowflake             `json:"id"`
-	ChannelGuildID              Snowflake             `json:"guild_id"`
+	ChannelID                   snowflake.Snowflake   `json:"id"`
+	ChannelGuildID              snowflake.Snowflake   `json:"guild_id"`
 	Position                    int                   `json:"position"`
 	ChannelPermissionOverwrites []PermissionOverwrite `json:"permission_overwrites"`
 	ChannelName                 string                `json:"name"`
@@ -457,7 +458,7 @@ func (GuildCategoryChannel) Type() ChannelType {
 	return ChannelTypeGuildCategory
 }
 
-func (c GuildCategoryChannel) ID() Snowflake {
+func (c GuildCategoryChannel) ID() snowflake.Snowflake {
 	return c.ChannelID
 }
 
@@ -465,7 +466,7 @@ func (c GuildCategoryChannel) Name() string {
 	return c.ChannelName
 }
 
-func (c GuildCategoryChannel) GuildID() Snowflake {
+func (c GuildCategoryChannel) GuildID() snowflake.Snowflake {
 	return c.ChannelGuildID
 }
 
@@ -481,16 +482,16 @@ var (
 )
 
 type GuildNewsChannel struct {
-	ChannelID                   Snowflake             `json:"id"`
-	ChannelGuildID              Snowflake             `json:"guild_id,omitempty"`
+	ChannelID                   snowflake.Snowflake   `json:"id"`
+	ChannelGuildID              snowflake.Snowflake   `json:"guild_id,omitempty"`
 	Position                    int                   `json:"position,omitempty"`
 	ChannelPermissionOverwrites []PermissionOverwrite `json:"permission_overwrites"`
 	ChannelName                 string                `json:"name,omitempty"`
 	Topic                       *string               `json:"topic,omitempty"`
 	NSFW                        bool                  `json:"nsfw,omitempty"`
-	LastMessageID               *Snowflake            `json:"last_message_id,omitempty"`
+	LastMessageID               *snowflake.Snowflake  `json:"last_message_id,omitempty"`
 	RateLimitPerUser            int                   `json:"rate_limit_per_user,omitempty"`
-	ParentID                    *Snowflake            `json:"parent_id,omitempty"`
+	ParentID                    *snowflake.Snowflake  `json:"parent_id,omitempty"`
 	LastPinTimestamp            *Time                 `json:"last_pin_timestamp,omitempty"`
 	DefaultAutoArchiveDuration  AutoArchiveDuration   `json:"default_auto_archive_duration"`
 	InteractionPermissions      Permissions           `json:"permissions,omitempty"`
@@ -535,7 +536,7 @@ func (GuildNewsChannel) Type() ChannelType {
 	return ChannelTypeGuildNews
 }
 
-func (c GuildNewsChannel) ID() Snowflake {
+func (c GuildNewsChannel) ID() snowflake.Snowflake {
 	return c.ChannelID
 }
 
@@ -543,7 +544,7 @@ func (c GuildNewsChannel) Name() string {
 	return c.ChannelName
 }
 
-func (c GuildNewsChannel) GuildID() Snowflake {
+func (c GuildNewsChannel) GuildID() snowflake.Snowflake {
 	return c.ChannelGuildID
 }
 
@@ -559,13 +560,13 @@ var (
 )
 
 type GuildStoreChannel struct {
-	ChannelID                   Snowflake             `json:"id"`
-	ChannelGuildID              Snowflake             `json:"guild_id"`
+	ChannelID                   snowflake.Snowflake   `json:"id"`
+	ChannelGuildID              snowflake.Snowflake   `json:"guild_id"`
 	Position                    int                   `json:"position"`
 	ChannelPermissionOverwrites []PermissionOverwrite `json:"permission_overwrites"`
 	ChannelName                 string                `json:"name"`
 	NSFW                        bool                  `json:"nsfw,omitempty"`
-	ParentID                    *Snowflake            `json:"parent_id"`
+	ParentID                    *snowflake.Snowflake  `json:"parent_id"`
 	InteractionPermissions      Permissions           `json:"permissions,omitempty"`
 }
 
@@ -608,7 +609,7 @@ func (GuildStoreChannel) Type() ChannelType {
 	return ChannelTypeGuildStore
 }
 
-func (c GuildStoreChannel) ID() Snowflake {
+func (c GuildStoreChannel) ID() snowflake.Snowflake {
 	return c.ChannelID
 }
 
@@ -616,7 +617,7 @@ func (c GuildStoreChannel) Name() string {
 	return c.ChannelName
 }
 
-func (c GuildStoreChannel) GuildID() Snowflake {
+func (c GuildStoreChannel) GuildID() snowflake.Snowflake {
 	return c.ChannelGuildID
 }
 
@@ -632,18 +633,18 @@ var (
 )
 
 type GuildNewsThread struct {
-	ChannelID        Snowflake      `json:"id"`
-	ChannelGuildID   Snowflake      `json:"guild_id"`
-	ChannelName      string         `json:"name"`
-	NSFW             bool           `json:"nsfw"`
-	LastMessageID    Snowflake      `json:"last_message_id"`
-	LastPinTimestamp *Time          `json:"last_pin_timestamp"`
-	RateLimitPerUser int            `json:"rate_limit_per_user"`
-	OwnerID          Snowflake      `json:"owner_id"`
-	ParentChannelID  Snowflake      `json:"parent_id"`
-	MessageCount     int            `json:"message_count"`
-	MemberCount      int            `json:"member_count"`
-	ThreadMetadata   ThreadMetadata `json:"thread_metadata"`
+	ChannelID        snowflake.Snowflake `json:"id"`
+	ChannelGuildID   snowflake.Snowflake `json:"guild_id"`
+	ChannelName      string              `json:"name"`
+	NSFW             bool                `json:"nsfw"`
+	LastMessageID    snowflake.Snowflake `json:"last_message_id"`
+	LastPinTimestamp *Time               `json:"last_pin_timestamp"`
+	RateLimitPerUser int                 `json:"rate_limit_per_user"`
+	OwnerID          snowflake.Snowflake `json:"owner_id"`
+	ParentChannelID  snowflake.Snowflake `json:"parent_id"`
+	MessageCount     int                 `json:"message_count"`
+	MemberCount      int                 `json:"member_count"`
+	ThreadMetadata   ThreadMetadata      `json:"thread_metadata"`
 }
 
 func (c GuildNewsThread) MarshalJSON() ([]byte, error) {
@@ -669,11 +670,11 @@ func (GuildNewsThread) Type() ChannelType {
 	return ChannelTypeGuildNewsThread
 }
 
-func (c GuildNewsThread) ID() Snowflake {
+func (c GuildNewsThread) ID() snowflake.Snowflake {
 	return c.ChannelID
 }
 
-func (c GuildNewsThread) ParentID() Snowflake {
+func (c GuildNewsThread) ParentID() snowflake.Snowflake {
 	return c.ParentChannelID
 }
 
@@ -681,7 +682,7 @@ func (c GuildNewsThread) Name() string {
 	return c.ChannelName
 }
 
-func (c GuildNewsThread) GuildID() Snowflake {
+func (c GuildNewsThread) GuildID() snowflake.Snowflake {
 	return c.ChannelGuildID
 }
 
@@ -700,18 +701,18 @@ var (
 )
 
 type GuildPublicThread struct {
-	ChannelID        Snowflake      `json:"id"`
-	ChannelGuildID   Snowflake      `json:"guild_id"`
-	ChannelName      string         `json:"name"`
-	NSFW             bool           `json:"nsfw"`
-	LastMessageID    Snowflake      `json:"last_message_id"`
-	LastPinTimestamp *Time          `json:"last_pin_timestamp"`
-	RateLimitPerUser int            `json:"rate_limit_per_user"`
-	OwnerID          Snowflake      `json:"owner_id"`
-	ParentChannelID  Snowflake      `json:"parent_id"`
-	MessageCount     int            `json:"message_count"`
-	MemberCount      int            `json:"member_count"`
-	ThreadMetadata   ThreadMetadata `json:"thread_metadata"`
+	ChannelID        snowflake.Snowflake `json:"id"`
+	ChannelGuildID   snowflake.Snowflake `json:"guild_id"`
+	ChannelName      string              `json:"name"`
+	NSFW             bool                `json:"nsfw"`
+	LastMessageID    snowflake.Snowflake `json:"last_message_id"`
+	LastPinTimestamp *Time               `json:"last_pin_timestamp"`
+	RateLimitPerUser int                 `json:"rate_limit_per_user"`
+	OwnerID          snowflake.Snowflake `json:"owner_id"`
+	ParentChannelID  snowflake.Snowflake `json:"parent_id"`
+	MessageCount     int                 `json:"message_count"`
+	MemberCount      int                 `json:"member_count"`
+	ThreadMetadata   ThreadMetadata      `json:"thread_metadata"`
 }
 
 func (c GuildPublicThread) MarshalJSON() ([]byte, error) {
@@ -737,11 +738,11 @@ func (GuildPublicThread) Type() ChannelType {
 	return ChannelTypeGuildPublicThread
 }
 
-func (c GuildPublicThread) ID() Snowflake {
+func (c GuildPublicThread) ID() snowflake.Snowflake {
 	return c.ChannelID
 }
 
-func (c GuildPublicThread) ParentID() Snowflake {
+func (c GuildPublicThread) ParentID() snowflake.Snowflake {
 	return c.ParentChannelID
 }
 
@@ -749,7 +750,7 @@ func (c GuildPublicThread) Name() string {
 	return c.ChannelName
 }
 
-func (c GuildPublicThread) GuildID() Snowflake {
+func (c GuildPublicThread) GuildID() snowflake.Snowflake {
 	return c.ChannelGuildID
 }
 
@@ -768,18 +769,18 @@ var (
 )
 
 type GuildPrivateThread struct {
-	ChannelID        Snowflake      `json:"id"`
-	ChannelGuildID   Snowflake      `json:"guild_id"`
-	ChannelName      string         `json:"name"`
-	NSFW             bool           `json:"nsfw"`
-	LastMessageID    Snowflake      `json:"last_message_id"`
-	LastPinTimestamp *Time          `json:"last_pin_timestamp"`
-	RateLimitPerUser int            `json:"rate_limit_per_user"`
-	OwnerID          Snowflake      `json:"owner_id"`
-	ParentChannelID  Snowflake      `json:"parent_id"`
-	MessageCount     int            `json:"message_count"`
-	MemberCount      int            `json:"member_count"`
-	ThreadMetadata   ThreadMetadata `json:"thread_metadata"`
+	ChannelID        snowflake.Snowflake `json:"id"`
+	ChannelGuildID   snowflake.Snowflake `json:"guild_id"`
+	ChannelName      string              `json:"name"`
+	NSFW             bool                `json:"nsfw"`
+	LastMessageID    snowflake.Snowflake `json:"last_message_id"`
+	LastPinTimestamp *Time               `json:"last_pin_timestamp"`
+	RateLimitPerUser int                 `json:"rate_limit_per_user"`
+	OwnerID          snowflake.Snowflake `json:"owner_id"`
+	ParentChannelID  snowflake.Snowflake `json:"parent_id"`
+	MessageCount     int                 `json:"message_count"`
+	MemberCount      int                 `json:"member_count"`
+	ThreadMetadata   ThreadMetadata      `json:"thread_metadata"`
 }
 
 func (c GuildPrivateThread) MarshalJSON() ([]byte, error) {
@@ -805,11 +806,11 @@ func (GuildPrivateThread) Type() ChannelType {
 	return ChannelTypeGuildPrivateThread
 }
 
-func (c GuildPrivateThread) ID() Snowflake {
+func (c GuildPrivateThread) ID() snowflake.Snowflake {
 	return c.ChannelID
 }
 
-func (c GuildPrivateThread) ParentID() Snowflake {
+func (c GuildPrivateThread) ParentID() snowflake.Snowflake {
 	return c.ParentChannelID
 }
 
@@ -817,7 +818,7 @@ func (c GuildPrivateThread) Name() string {
 	return c.ChannelName
 }
 
-func (c GuildPrivateThread) GuildID() Snowflake {
+func (c GuildPrivateThread) GuildID() snowflake.Snowflake {
 	return c.ChannelGuildID
 }
 
@@ -834,15 +835,15 @@ var (
 )
 
 type GuildStageVoiceChannel struct {
-	ChannelID                   Snowflake             `json:"id"`
-	ChannelGuildID              Snowflake             `json:"guild_id,omitempty"`
+	ChannelID                   snowflake.Snowflake   `json:"id"`
+	ChannelGuildID              snowflake.Snowflake   `json:"guild_id,omitempty"`
 	Position                    int                   `json:"position,omitempty"`
 	ChannelPermissionOverwrites []PermissionOverwrite `json:"permission_overwrites"`
 	ChannelName                 string                `json:"name,omitempty"`
 	Topic                       *string               `json:"topic,omitempty"`
 	Bitrate                     int                   `json:"bitrate,omitempty"`
 	UserLimit                   int                   `json:"user_limit,omitempty"`
-	ParentID                    *Snowflake            `json:"parent_id,omitempty"`
+	ParentID                    *snowflake.Snowflake  `json:"parent_id,omitempty"`
 	RTCRegion                   string                `json:"rtc_region"`
 	VideoQualityMode            VideoQualityMode      `json:"video_quality_mode"`
 	InteractionPermissions      Permissions           `json:"permissions,omitempty"`
@@ -887,7 +888,7 @@ func (GuildStageVoiceChannel) Type() ChannelType {
 	return ChannelTypeGuildStageVoice
 }
 
-func (c GuildStageVoiceChannel) ID() Snowflake {
+func (c GuildStageVoiceChannel) ID() snowflake.Snowflake {
 	return c.ChannelID
 }
 
@@ -895,7 +896,7 @@ func (c GuildStageVoiceChannel) Name() string {
 	return c.ChannelName
 }
 
-func (c GuildStageVoiceChannel) GuildID() Snowflake {
+func (c GuildStageVoiceChannel) GuildID() snowflake.Snowflake {
 	return c.ChannelGuildID
 }
 
@@ -918,6 +919,7 @@ type ThreadMetadata struct {
 	ArchiveTimestamp    Time                `json:"archive_timestamp"`
 	Locked              bool                `json:"locked"`
 	Invitable           bool                `json:"invitable"`
+	CreateTimestamp     Time                `json:"create_timestamp"`
 }
 
 type AutoArchiveDuration int
@@ -932,10 +934,10 @@ const (
 
 // PartialChannel contains basic info about a Channel
 type PartialChannel struct {
-	ID   Snowflake   `json:"id"`
-	Type ChannelType `json:"type"`
-	Name string      `json:"name"`
-	Icon *string     `json:"icon,omitempty"`
+	ID   snowflake.Snowflake `json:"id"`
+	Type ChannelType         `json:"type"`
+	Name string              `json:"name"`
+	Icon *string             `json:"icon,omitempty"`
 }
 
 // GetIconURL returns the Icon URL of this channel.

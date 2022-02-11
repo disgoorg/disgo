@@ -2,12 +2,12 @@ package events
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 )
 
 type GenericIntegrationEvent struct {
 	*GenericEvent
-	GuildID     discord.Snowflake
+	GuildID     snowflake.Snowflake
 	Integration core.Integration
 }
 
@@ -30,12 +30,12 @@ type IntegrationUpdateEvent struct {
 // IntegrationDeleteEvent indicates that an Integration was deleted from a Guild
 type IntegrationDeleteEvent struct {
 	*GenericEvent
-	ID            discord.Snowflake
-	GuildID       discord.Snowflake
-	ApplicationID *discord.Snowflake
+	ID            snowflake.Snowflake
+	GuildID       snowflake.Snowflake
+	ApplicationID *snowflake.Snowflake
 }
 
 type GuildIntegrationsUpdateEvent struct {
 	*GenericEvent
-	GuildID discord.Snowflake
+	GuildID snowflake.Snowflake
 }

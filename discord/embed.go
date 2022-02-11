@@ -16,12 +16,12 @@ const (
 
 // Embed allows you to send embeds to discord
 type Embed struct {
-	Title       *string        `json:"title,omitempty"`
-	Type        *EmbedType     `json:"type,omitempty"`
-	Description *string        `json:"description,omitempty"`
-	URL         *string        `json:"url,omitempty"`
+	Title       string         `json:"title,omitempty"`
+	Type        EmbedType      `json:"type,omitempty"`
+	Description string         `json:"description,omitempty"`
+	URL         string         `json:"url,omitempty"`
 	Timestamp   *Time          `json:"timestamp,omitempty"`
-	Color       *int           `json:"color,omitempty"`
+	Color       int            `json:"color,omitempty"`
 	Footer      *EmbedFooter   `json:"footer,omitempty"`
 	Image       *EmbedResource `json:"image,omitempty"`
 	Thumbnail   *EmbedResource `json:"thumbnail,omitempty"`
@@ -33,31 +33,31 @@ type Embed struct {
 
 // The EmbedResource of an Embed.Image/Embed.Thumbnail/Embed.Video
 type EmbedResource struct {
-	URL      *string `json:"url,omitempty"`
-	ProxyURL *string `json:"proxy_url,omitempty"`
-	Height   *int    `json:"height,omitempty"`
-	Width    *int    `json:"width,omitempty"`
+	URL      string `json:"url,omitempty"`
+	ProxyURL string `json:"proxy_url,omitempty"`
+	Height   int    `json:"height,omitempty"`
+	Width    int    `json:"width,omitempty"`
 }
 
 // The EmbedProvider of an Embed
 type EmbedProvider struct {
-	Name *string `json:"name,omitempty"`
-	URL  *string `json:"url,omitempty"`
+	Name string `json:"name,omitempty"`
+	URL  string `json:"url,omitempty"`
 }
 
 // The EmbedAuthor of an Embed
 type EmbedAuthor struct {
-	Name         *string `json:"name,omitempty"`
-	URL          *string `json:"url,omitempty"`
-	IconURL      *string `json:"icon_url,omitempty"`
-	ProxyIconURL *string `json:"proxy_icon_url,omitempty"`
+	Name         string `json:"name,omitempty"`
+	URL          string `json:"url,omitempty"`
+	IconURL      string `json:"icon_url,omitempty"`
+	ProxyIconURL string `json:"proxy_icon_url,omitempty"`
 }
 
 // The EmbedFooter of an Embed
 type EmbedFooter struct {
-	Text         string  `json:"text"`
-	IconURL      *string `json:"icon_url,omitempty"`
-	ProxyIconURL *string `json:"proxy_icon_url,omitempty"`
+	Text         string `json:"text"`
+	IconURL      string `json:"icon_url,omitempty"`
+	ProxyIconURL string `json:"proxy_icon_url,omitempty"`
 }
 
 // EmbedField (s) of an Embed

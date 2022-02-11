@@ -27,7 +27,7 @@ type Config struct {
 	MaxReconnectTries int
 	RateLimiter       grate.Limiter
 	RateLimiterConfig *grate.Config
-	Presence          *discord.PresenceUpdate
+	Presence          *discord.UpdatePresenceCommandData
 	OS                string
 	Browser           string
 	Device            string
@@ -98,7 +98,7 @@ func WithRateLimiterConfigOpts(opts ...grate.ConfigOpt) ConfigOpt {
 }
 
 //goland:noinspection GoUnusedExportedFunction
-func WithPresence(presence discord.PresenceUpdate) ConfigOpt {
+func WithPresence(presence discord.UpdatePresenceCommandData) ConfigOpt {
 	return func(config *Config) {
 		config.Presence = &presence
 	}

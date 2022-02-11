@@ -3,16 +3,19 @@ package core
 import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
+	"github.com/DisgoOrg/snowflake"
 )
 
 type AuditLog struct {
 	discord.AuditLog
-	Bot           *Bot
-	GuildID       discord.Snowflake
-	Users         map[discord.Snowflake]*User
-	Integrations  map[discord.Snowflake]Integration
-	Webhooks      map[discord.Snowflake]Webhook
-	FilterOptions AuditLogFilterOptions
+	GuildScheduledEvents map[snowflake.Snowflake]*GuildScheduledEvent
+	Integrations         map[snowflake.Snowflake]Integration
+	Threads              map[snowflake.Snowflake]GuildThread
+	Users                map[snowflake.Snowflake]*User
+	Webhooks             map[snowflake.Snowflake]Webhook
+	GuildID              snowflake.Snowflake
+	FilterOptions        AuditLogFilterOptions
+	Bot                  *Bot
 }
 
 func (l *AuditLog) Guild() *Guild {
@@ -21,15 +24,15 @@ func (l *AuditLog) Guild() *Guild {
 
 // AuditLogFilterOptions fields used to filter audit-log retrieving
 type AuditLogFilterOptions struct {
-	UserID     discord.Snowflake
+	UserID     snowflake.Snowflake
 	ActionType discord.AuditLogEvent
-	Before     discord.Snowflake
+	Before     snowflake.Snowflake
 	Limit      int
 }
 
 // Before gets new AuditLog(s) from Discord before the last one
 func (l *AuditLog) Before(opts ...rest.RequestOpt) (*AuditLog, error) {
-	before := discord.Snowflake("")
+	before := snowflake.Snowflake("")
 	if len(l.Entries) > 0 {
 		before = l.Entries[len(l.Entries)-1].ID
 	}
