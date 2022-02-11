@@ -273,7 +273,7 @@ func (g *gatewayImpl) listen() {
 					g.Logger().Error(g.formatLogs("invalid sequence provided. reconnecting..."))
 					g.lastSequenceReceived = nil
 				} else {
-					g.Logger().Error(g.formatLogsf("gateway close received, reconnect: %b, code: %d, error: %s", reconnect, closeError.Code, closeError.Text))
+					g.Logger().Error(g.formatLogsf("gateway close received, reconnect: %t, code: %d, error: %s", reconnect, closeError.Code, closeError.Text))
 				}
 			}
 
