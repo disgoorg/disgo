@@ -8,6 +8,8 @@ import (
 
 type AutocompleteInteractionFilter func(autocompleteInteraction *AutocompleteInteraction) bool
 
+var _ Interaction = (*AutocompleteInteraction)(nil)
+
 type AutocompleteInteraction struct {
 	*BaseInteraction
 	Data AutocompleteInteractionData

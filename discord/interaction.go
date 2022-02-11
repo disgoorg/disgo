@@ -16,6 +16,7 @@ const (
 	InteractionTypeApplicationCommand
 	InteractionTypeComponent
 	InteractionTypeAutocomplete
+	InteractionTypeModalSubmit
 )
 
 // Interaction is used for easier unmarshalling of different Interaction(s)
@@ -73,6 +74,11 @@ func (i *UnmarshalInteraction) UnmarshalJSON(data []byte) error {
 
 	case InteractionTypeAutocomplete:
 		v := AutocompleteInteraction{}
+		err = json.Unmarshal(data, &v)
+		interaction = v
+
+	case InteractionTypeModalSubmit:
+		v := ModalSubmitInteraction{}
 		err = json.Unmarshal(data, &v)
 		interaction = v
 
@@ -407,6 +413,49 @@ func (d *AutocompleteInteractionData) UnmarshalJSON(data []byte) error {
 		d.Options = make([]AutocompleteOption, len(iData.Options))
 		for i := range iData.Options {
 			d.Options[i] = iData.Options[i].AutocompleteOption
+		}
+	}
+
+	return nil
+}
+
+var (
+	_ Interaction = (*ModalSubmitInteraction)(nil)
+)
+
+type ModalSubmitInteraction struct {
+	BaseInteraction
+	Data ModalSubmitInteractionData `json:"data"`
+}
+
+func (ModalSubmitInteraction) interaction() {}
+
+func (ModalSubmitInteraction) Type() InteractionType {
+	return InteractionTypeModalSubmit
+}
+
+type ModalSubmitInteractionData struct {
+	CustomID   CustomID             `json:"custom_id"`
+	Components []ContainerComponent `json:"components"`
+}
+
+func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
+	type modalSubmitInteractionData ModalSubmitInteractionData
+	var iData struct {
+		Components []UnmarshalComponent `json:"components"`
+		modalSubmitInteractionData
+	}
+
+	if err := json.Unmarshal(data, &iData); err != nil {
+		return err
+	}
+
+	*d = ModalSubmitInteractionData(iData.modalSubmitInteractionData)
+
+	if len(iData.Components) > 0 {
+		d.Components = make([]ContainerComponent, len(iData.Components))
+		for i := range iData.Components {
+			d.Components[i] = iData.Components[i].Component.(ContainerComponent)
 		}
 	}
 

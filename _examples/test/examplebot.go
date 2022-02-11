@@ -16,17 +16,9 @@ import (
 	"github.com/DisgoOrg/snowflake"
 )
 
-const (
-	red    = 16711680
-	orange = 16562691
-	green  = 65280
-)
-
 var (
-	token       = os.Getenv("disgo_token")
-	guildID     = snowflake.GetSnowflakeEnv("disgo_test_guild_id")
-	adminRoleID = snowflake.GetSnowflakeEnv("disgo_admin_role_id")
-	testRoleID  = snowflake.GetSnowflakeEnv("disgo_test_role_id")
+	token   = os.Getenv("disgo_token")
+	guildID = snowflake.GetSnowflakeEnv("disgo_test_guild_id")
 
 	//go:embed gopher.png
 	gopher []byte

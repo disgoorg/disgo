@@ -24,6 +24,7 @@ var (
 	ErrSelfDM = errors.New("can't open a dm channel to yourself")
 
 	ErrInteractionAlreadyReplied = errors.New("you already replied to this interaction")
+	ErrInteractionExpired        = errors.New("this interaction has expired")
 
 	ErrChannelNotTypeNews = errors.New("channel type is not 'NEWS'")
 

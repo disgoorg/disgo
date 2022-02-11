@@ -13,18 +13,6 @@ var commands = []discord.ApplicationCommandCreate{
 		DefaultPermission: true,
 	},
 	discord.SlashCommandCreate{
-		Name:              "eval",
-		Description:       "runs some go code",
-		DefaultPermission: true,
-		Options: []discord.ApplicationCommandOption{
-			discord.ApplicationCommandOptionString{
-				Name:        "code",
-				Description: "the code to eval",
-				Required:    true,
-			},
-		},
-	},
-	discord.SlashCommandCreate{
 		Name:              "test",
 		Description:       "test",
 		DefaultPermission: true,
@@ -43,76 +31,6 @@ var commands = []discord.ApplicationCommandCreate{
 				Name:        "ephemeral",
 				Description: "ephemeral",
 				Required:    true,
-			},
-		},
-	},
-	discord.SlashCommandCreate{
-		Name:        "attachment-test",
-		Description: "test attachment upload",
-		Options: []discord.ApplicationCommandOption{
-			discord.ApplicationCommandOptionAttachment{
-				Name:        "test",
-				Description: "test attachment",
-				Required:    true,
-			},
-		},
-		DefaultPermission: true,
-	},
-	discord.SlashCommandCreate{
-		Name:              "addrole",
-		Description:       "This command adds a role to a member",
-		DefaultPermission: true,
-		Options: []discord.ApplicationCommandOption{
-			discord.ApplicationCommandOptionUser{
-				Name:        "member",
-				Description: "The member to add a role to",
-				Required:    true,
-			},
-			discord.ApplicationCommandOptionRole{
-				Name:        "role",
-				Description: "The role to add to a member",
-				Required:    true,
-			},
-		},
-	},
-	discord.SlashCommandCreate{
-		Name:              "removerole",
-		Description:       "This command removes a role from a member",
-		DefaultPermission: true,
-		Options: []discord.ApplicationCommandOption{
-			discord.ApplicationCommandOptionUser{
-				Name:        "member",
-				Description: "The member to removes a role from",
-				Required:    true,
-			},
-			discord.ApplicationCommandOptionRole{
-				Name:        "role",
-				Description: "The role to removes from a member",
-				Required:    true,
-			},
-		},
-	},
-	discord.SlashCommandCreate{
-		Name:              "root",
-		Description:       "root command",
-		DefaultPermission: true,
-		Options: []discord.ApplicationCommandOption{
-			discord.ApplicationCommandOptionSubCommandGroup{
-				Name:        "group",
-				Description: "group command",
-				Options: []discord.ApplicationCommandOptionSubCommand{
-					{
-						Name:        "sub",
-						Description: "sub command",
-						Options: []discord.ApplicationCommandOption{
-							discord.ApplicationCommandOptionString{
-								Name:        "test",
-								Description: "test",
-								Required:    true,
-							},
-						},
-					},
-				},
 			},
 		},
 	},

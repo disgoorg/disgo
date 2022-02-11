@@ -73,7 +73,7 @@ func main() {
 func commandListener(event *events.ApplicationCommandInteractionEvent) {
 	data := event.SlashCommandInteractionData()
 	if data.CommandName == "say" {
-		err := event.Create(discord.NewMessageCreateBuilder().
+		err := event.CreateMessage(discord.NewMessageCreateBuilder().
 			SetContent(*data.Options.String("message")).
 			Build(),
 		)
