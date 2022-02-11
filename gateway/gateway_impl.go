@@ -204,7 +204,7 @@ func (g *gatewayImpl) reOpen(ctx context.Context, try int, delay time.Duration) 
 	case <-timer.C:
 	}
 
-	g.Logger().Info(g.formatLogs("reconnecting gateway..."))
+	g.Logger().Debug(g.formatLogs("reconnecting gateway..."))
 	if err := g.Open(ctx); err != nil {
 		if err == discord.ErrGatewayAlreadyConnected {
 			return err
