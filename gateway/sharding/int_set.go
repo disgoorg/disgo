@@ -8,58 +8,58 @@ import (
 
 func NewIntSet(ints ...int) *IntSet {
 	set := &IntSet{
-		Set: make(map[int]struct{}, len(ints)),
+		set: make(map[int]struct{}, len(ints)),
 	}
 	for _, i := range ints {
-		set.Set[i] = struct{}{}
+		set.set[i] = struct{}{}
 	}
 	return set
 }
 
 type IntSet struct {
-	sync.RWMutex
-	Set map[int]struct{}
+	mu  sync.RWMutex
+	set map[int]struct{}
 }
 
 func (s *IntSet) Add(i int) {
-	s.Lock()
-	s.Set[i] = struct{}{}
-	s.Unlock()
+	s.mu.Lock()
+	s.set[i] = struct{}{}
+	s.mu.Unlock()
 }
 
 func (s *IntSet) Has(i int) bool {
-	s.RLock()
-	defer s.RUnlock()
-	_, ok := s.Set[i]
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	_, ok := s.set[i]
 	return ok
 }
 
 func (s *IntSet) Delete(i int) {
-	s.RLock()
-	_, ok := s.Set[i]
-	s.RUnlock()
+	s.mu.RLock()
+	_, ok := s.set[i]
+	s.mu.RUnlock()
 	if ok {
-		s.Lock()
-		delete(s.Set, i)
-		s.Unlock()
+		s.mu.Lock()
+		delete(s.set, i)
+		s.mu.Unlock()
 	}
 }
 
 func (s *IntSet) Len() int {
-	return len(s.Set)
+	return len(s.set)
 }
 
 func (s *IntSet) String() string {
 	var builder strings.Builder
 	builder.WriteString("[")
-	s.RLock()
-	for i := range s.Set {
+	s.mu.RLock()
+	for i := range s.set {
 		builder.WriteString(strconv.Itoa(i))
-		if i < len(s.Set)-1 {
+		if i < len(s.set)-1 {
 			builder.WriteString(", ")
 		}
 	}
-	s.RUnlock()
+	s.mu.RUnlock()
 	builder.WriteString("]")
 	return builder.String()
 }

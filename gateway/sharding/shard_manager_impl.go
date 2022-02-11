@@ -71,7 +71,7 @@ func (m *shardManagerImpl) Open(ctx context.Context) error {
 	var wg sync.WaitGroup
 	var errs merrors.Error
 
-	for shardInt := range m.config.Shards.Set {
+	for shardInt := range m.config.Shards.set {
 		shardID := shardInt
 		if m.shards.Has(shardID) {
 			continue
@@ -102,7 +102,7 @@ func (m *shardManagerImpl) ReOpen(ctx context.Context) error {
 	var wg sync.WaitGroup
 	var errs merrors.Error
 
-	for shardID := range m.shards.Shards {
+	for shardID := range m.shards.AllIDs() {
 		wg.Add(1)
 		shard := m.shards.Get(shardID)
 		go func() {
@@ -123,7 +123,7 @@ func (m *shardManagerImpl) Close(ctx context.Context) {
 	m.Logger().Infof("closing %v shards...", m.config.Shards)
 	var wg sync.WaitGroup
 
-	for shardID := range m.shards.Shards {
+	for shardID := range m.shards.AllIDs() {
 		m.config.Shards.Delete(shardID)
 		shard := m.shards.Delete(shardID)
 		wg.Add(1)

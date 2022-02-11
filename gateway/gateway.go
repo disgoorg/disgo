@@ -12,9 +12,14 @@ import (
 // Status is the state that the client is currently in
 type Status int
 
-// IsConnected returns whether you can send payloads to the Gateway
+// IsConnected returns whether the Gateway is connected
 func (s Status) IsConnected() bool {
-	return s == StatusReady
+	switch s {
+	case StatusWaitingForHello, StatusIdentifying, StatusWaitingForReady, StatusReady:
+		return true
+	default:
+		return false
+	}
 }
 
 // Indicates how far along the client is to connecting
