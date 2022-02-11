@@ -9,12 +9,13 @@ import (
 
 //goland:noinspection GoUnusedGlobalVariable
 var DefaultConfig = Config{
-	LargeThreshold: 50,
-	GatewayIntents: discord.GatewayIntentsDefault,
-	Compress:       true,
-	OS:             info.OS,
-	Browser:        info.Name,
-	Device:         info.Name,
+	LargeThreshold:    50,
+	GatewayIntents:    discord.GatewayIntentsDefault,
+	Compress:          true,
+	MaxReconnectTries: 10,
+	OS:                info.OS,
+	Browser:           info.Name,
+	Device:            info.Name,
 }
 
 type Config struct {
@@ -23,6 +24,7 @@ type Config struct {
 	LargeThreshold    int
 	GatewayIntents    discord.GatewayIntents
 	Compress          bool
+	MaxReconnectTries int
 	RateLimiter       grate.Limiter
 	RateLimiterConfig *grate.Config
 	Presence          *discord.UpdatePresenceCommandData
@@ -61,6 +63,13 @@ func WithGatewayIntents(gatewayIntents ...discord.GatewayIntents) ConfigOpt {
 func WithCompress(compress bool) ConfigOpt {
 	return func(config *Config) {
 		config.Compress = compress
+	}
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func WithMaxReconnectTries(maxReconnectTries int) ConfigOpt {
+	return func(config *Config) {
+		config.MaxReconnectTries = maxReconnectTries
 	}
 }
 

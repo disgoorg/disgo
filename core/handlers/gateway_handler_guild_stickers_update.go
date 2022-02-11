@@ -22,7 +22,7 @@ func (h *gatewayHandlerGuildStickersUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.GuildStickersUpdateGatewayEvent)
 
 	if bot.Caches.Config().CacheFlags.Missing(core.CacheFlagStickers) {

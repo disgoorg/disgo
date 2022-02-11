@@ -1,5 +1,7 @@
 package discord
 
+import "github.com/gorilla/websocket"
+
 // GatewayOpcode are opcodes used by discord
 type GatewayOpcode int
 
@@ -40,6 +42,22 @@ const (
 	GatewayCloseEventCodeInvalidIntents
 	GatewayCloseEventCodeDisallowedIntents
 )
+
+func (c GatewayCloseEventCode) ShouldReconnect() bool {
+	switch c {
+	case websocket.CloseNormalClosure,
+		GatewayCloseEventCodeAuthenticationFailed,
+		GatewayCloseEventCodeInvalidShard,
+		GatewayCloseEventCodeShardingRequired,
+		GatewayCloseEventCodeInvalidAPIVersion,
+		GatewayCloseEventCodeInvalidIntents,
+		GatewayCloseEventCodeDisallowedIntents:
+		return false
+
+	default:
+		return true
+	}
+}
 
 type VoiceOpcode int
 

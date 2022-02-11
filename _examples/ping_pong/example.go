@@ -15,12 +15,13 @@ import (
 )
 
 func main() {
+	log.SetLevel(log.LevelDebug)
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	disgo, err := bot.New(os.Getenv("token"),
 		bot.WithGatewayOpts(
 			gateway.WithGatewayIntents(
-				discord.GatewayIntentGuilds,
-				discord.GatewayIntentGuildMessages,
-				discord.GatewayIntentDirectMessages,
+				discord.GatewayIntentsNone,
 			),
 		),
 		bot.WithCacheOpts(core.WithCacheFlags(core.CacheFlagsDefault)),

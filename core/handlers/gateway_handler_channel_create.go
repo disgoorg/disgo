@@ -20,7 +20,7 @@ func (h *gatewayHandlerChannelCreate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerChannelCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerChannelCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	channel := v.(*discord.UnmarshalChannel).Channel
 
 	if ch, ok := channel.(discord.GuildChannel); ok {

@@ -10,6 +10,7 @@ var (
 	ErrNoGuildMembersIntent    = errors.New("this operation requires the GUILD_MEMBERS intent")
 	ErrNoShardManager          = errors.New("no shard manager configured")
 	ErrNoGateway               = errors.New("no gateway configured")
+	ErrGatewayAlreadyConnected = errors.New("gateway is already connected")
 	ErrShardNotConnected       = errors.New("shard is not connected")
 	ErrShardNotFound           = errors.New("shard not found in shard manager")
 	ErrGatewayCompressedData   = errors.New("disgo does not currently support compressed gateway data")

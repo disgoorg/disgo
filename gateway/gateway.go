@@ -12,10 +12,10 @@ import (
 // Status is the state that the client is currently in
 type Status int
 
-// IsConnected returns whether you can send payloads to the Gateway
+// IsConnected returns whether the Gateway is connected
 func (s Status) IsConnected() bool {
 	switch s {
-	case StatusWaitingForGuilds, StatusReady:
+	case StatusWaitingForHello, StatusIdentifying, StatusWaitingForReady, StatusReady:
 		return true
 	default:
 		return false
@@ -26,17 +26,15 @@ func (s Status) IsConnected() bool {
 const (
 	StatusUnconnected Status = iota
 	StatusConnecting
-	StatusReconnecting
-	StatusIdentifying
 	StatusWaitingForHello
+	StatusIdentifying
+	StatusResuming
 	StatusWaitingForReady
-	StatusWaitingForGuilds
 	StatusReady
 	StatusDisconnected
-	StatusResuming
 )
 
-type EventHandlerFunc func(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader)
+type EventHandlerFunc func(gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, payload io.Reader)
 
 // Gateway is what is used to connect to discord
 type Gateway interface {
@@ -45,7 +43,9 @@ type Gateway interface {
 	ShardID() int
 	ShardCount() int
 	Open(ctx context.Context) error
-	Close(ctx context.Context) error
+	ReOpen(ctx context.Context, delay time.Duration) error
+	Close(ctx context.Context)
+	CloseWithCode(ctx context.Context, code int)
 	Status() Status
 	Send(ctx context.Context, command discord.GatewayCommand) error
 	Latency() time.Duration

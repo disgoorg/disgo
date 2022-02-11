@@ -20,7 +20,7 @@ func (h *gatewayHandlerChannelUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	channel := v.(*discord.UnmarshalChannel).Channel
 
 	oldChannel := bot.Caches.Channels().GetCopy(channel.ID())

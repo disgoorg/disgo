@@ -23,6 +23,12 @@ type GatewayCommandData interface {
 	gatewayCommandData()
 }
 
+var _ GatewayCommandData = (*GatewaySequence)(nil)
+
+type GatewaySequence int
+
+func (GatewaySequence) gatewayCommandData() {}
+
 var _ GatewayCommandData = (*IdentifyCommandData)(nil)
 
 // IdentifyCommandData is the data used in IdentifyCommandData
@@ -51,9 +57,9 @@ var _ GatewayCommandData = (*IdentifyCommandData)(nil)
 // ResumeCommandData is used to resume a connection to discord in the case that you are disconnected. Is automatically
 // handled by the library and should rarely be used.
 type ResumeCommandData struct {
-	Token     string `json:"token"`
-	SessionID string `json:"session_id"`
-	Seq       int    `json:"seq"`
+	Token     string          `json:"token"`
+	SessionID string          `json:"session_id"`
+	Seq       GatewaySequence `json:"seq"`
 }
 
 func (ResumeCommandData) gatewayCommandData() {}

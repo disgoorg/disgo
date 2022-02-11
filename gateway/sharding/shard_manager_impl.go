@@ -3,6 +3,7 @@ package sharding
 import (
 	"context"
 	"sync"
+	"time"
 
 	srate2 "github.com/DisgoOrg/disgo/gateway/sharding/srate"
 	"github.com/DisgoOrg/disgo/internal/merrors"
@@ -70,7 +71,7 @@ func (m *shardManagerImpl) Open(ctx context.Context) error {
 	var wg sync.WaitGroup
 	var errs merrors.Error
 
-	for shardInt := range m.config.Shards.Set {
+	for shardInt := range m.config.Shards.set {
 		shardID := shardInt
 		if m.shards.Has(shardID) {
 			continue
@@ -101,17 +102,15 @@ func (m *shardManagerImpl) ReOpen(ctx context.Context) error {
 	var wg sync.WaitGroup
 	var errs merrors.Error
 
-	for shardID := range m.shards.Shards {
+	for shardID := range m.shards.AllIDs() {
 		wg.Add(1)
 		shard := m.shards.Get(shardID)
 		go func() {
 			defer wg.Done()
 			if shard != nil {
-				if err := shard.Close(ctx); err != nil {
-					errs.Add(err)
-				}
+				shard.Close(ctx)
 			}
-			if err := shard.Open(ctx); err != nil {
+			if err := shard.ReOpen(ctx, time.Second); err != nil {
 				errs.Add(err)
 			}
 		}()
@@ -120,24 +119,20 @@ func (m *shardManagerImpl) ReOpen(ctx context.Context) error {
 	return errs
 }
 
-func (m *shardManagerImpl) Close(ctx context.Context) error {
+func (m *shardManagerImpl) Close(ctx context.Context) {
 	m.Logger().Infof("closing %v shards...", m.config.Shards)
 	var wg sync.WaitGroup
-	var errs merrors.Error
 
-	for shardID := range m.shards.Shards {
+	for shardID := range m.shards.AllIDs() {
 		m.config.Shards.Delete(shardID)
 		shard := m.shards.Delete(shardID)
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			if err := shard.Close(ctx); err != nil {
-				errs.Add(err)
-			}
+			shard.Close(ctx)
 		}()
 	}
 	wg.Wait()
-	return errs
 }
 
 func (m *shardManagerImpl) OpenShard(ctx context.Context, shardID int) error {
@@ -152,21 +147,18 @@ func (m *shardManagerImpl) ReOpenShard(ctx context.Context, shardID int) error {
 	m.Logger().Infof("reopening shard %d...", shardID)
 	shard := m.shards.Get(shardID)
 	if shard != nil {
-		if err := shard.Close(ctx); err != nil {
-			return err
-		}
+		shard.Close(ctx)
 	}
 	return shard.Open(ctx)
 }
 
-func (m *shardManagerImpl) CloseShard(ctx context.Context, shardID int) error {
+func (m *shardManagerImpl) CloseShard(ctx context.Context, shardID int) {
 	m.Logger().Infof("closing shard %d...", shardID)
 	m.config.Shards.Delete(shardID)
 	shard := m.shards.Delete(shardID)
 	if shard != nil {
-		return shard.Close(ctx)
+		shard.Close(ctx)
 	}
-	return nil
 }
 
 func (m *shardManagerImpl) GetGuildShard(guildId snowflake.Snowflake) gateway.Gateway {

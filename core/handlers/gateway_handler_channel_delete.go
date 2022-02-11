@@ -20,7 +20,7 @@ func (h *gatewayHandlerChannelDelete) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerChannelDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerChannelDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := v.(*discord.UnmarshalChannel).Channel
 
 	bot.Caches.Channels().Remove(payload.ID())

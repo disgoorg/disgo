@@ -20,7 +20,7 @@ func (h *gatewayHandlerMessageUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.Message)
 
 	oldMessage := bot.Caches.Messages().GetCopy(payload.ChannelID, payload.ID)

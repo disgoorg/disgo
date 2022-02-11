@@ -11,7 +11,7 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 )
 
-func HandleRawEvent(bot *core.Bot, gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) io.Reader {
+func HandleRawEvent(bot *core.Bot, gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, reader io.Reader) io.Reader {
 	if bot.EventManager.Config().RawEventsEnabled {
 		var buf bytes.Buffer
 		data, err := ioutil.ReadAll(io.TeeReader(reader, &buf))

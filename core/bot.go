@@ -7,7 +7,6 @@ import (
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/gateway/sharding"
 	"github.com/DisgoOrg/disgo/httpserver"
-	"github.com/DisgoOrg/disgo/internal/merrors"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/log"
 	"github.com/DisgoOrg/snowflake"
@@ -40,29 +39,19 @@ type Bot struct {
 }
 
 // Close will clean up all disgo internals and close the discord connection safely
-func (b *Bot) Close(ctx context.Context) error {
-	var errs merrors.Error
+func (b *Bot) Close(ctx context.Context) {
 	if b.RestServices != nil {
-		if err := b.RestServices.Close(ctx); err != nil {
-			errs.Add(err)
-		}
+		b.RestServices.Close(ctx)
 	}
 	if b.Gateway != nil {
-		if err := b.Gateway.Close(ctx); err != nil {
-			errs.Add(err)
-		}
+		b.Gateway.Close(ctx)
 	}
 	if b.ShardManager != nil {
-		if err := b.ShardManager.Close(ctx); err != nil {
-			errs.Add(err)
-		}
+		b.ShardManager.Close(ctx)
 	}
 	if b.HTTPServer != nil {
-		if err := b.HTTPServer.Close(ctx); err != nil {
-			errs.Add(err)
-		}
+		b.HTTPServer.Close(ctx)
 	}
-	return nil
 }
 
 // SelfMember returns a core.OAuth2User for the client, if available

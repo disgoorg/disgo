@@ -138,6 +138,6 @@ func (h *Client) URL() string {
 }
 
 // Close closes all connections the webhook client has open
-func (h *Client) Close(ctx context.Context) error {
-	return h.RestClient.Close(ctx)
+func (h *Client) Close(ctx context.Context) {
+	h.RestClient.Close(ctx)
 }

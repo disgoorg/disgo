@@ -20,7 +20,7 @@ func (h *gatewayHandlerMessageReactionRemoveAll) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerMessageReactionRemoveAll) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerMessageReactionRemoveAll) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	messageReaction := *v.(*discord.GatewayEventMessageReactionRemoveAll)
 
 	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
