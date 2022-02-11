@@ -91,7 +91,7 @@ func (s *serverImpl) Start() {
 
 // Close shuts down the serverImpl
 func (s *serverImpl) Close(ctx context.Context) {
-	_ =  s.server.Shutdown(ctx)
+	_ = s.server.Shutdown(ctx)
 }
 
 type WebhookInteractionHandler struct {
