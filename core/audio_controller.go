@@ -59,7 +59,7 @@ func (c *audioControllerImpl) getShard(guildID snowflake.Snowflake) (gateway.Gat
 	if err != nil {
 		return nil, err
 	}
-	if !shard.Status().IsConnected() {
+	if shard.Status() != gateway.StatusReady {
 		return nil, discord.ErrShardNotConnected
 	}
 	return shard, nil
