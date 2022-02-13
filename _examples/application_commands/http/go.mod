@@ -1,4 +1,4 @@
-module github.com/DisgoOrg/disgo/_examples/slash_commands/http
+module github.com/DisgoOrg/disgo/_examples/application_commands/http
 
 go 1.17
 

@@ -1,4 +1,4 @@
-module github.com/DisgoOrg/disgo/_examples/slash_commands/gateway
+module github.com/DisgoOrg/disgo/_examples/application_commands/gateway
 
 go 1.17
 
