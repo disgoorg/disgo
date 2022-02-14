@@ -3,7 +3,6 @@ package httpserver
 import (
 	"bytes"
 	"context"
-	"crypto/ed25519"
 	"encoding/hex"
 	"io"
 	"io/ioutil"
@@ -56,7 +55,7 @@ func New(eventHandlerFunc EventHandlerFunc, config *Config) Server {
 // serverImpl is used in Bot's webhook server for interactions
 type serverImpl struct {
 	config    Config
-	publicKey ed25519.PublicKey
+	publicKey PublicKey
 	server    *http.Server
 }
 
@@ -65,7 +64,7 @@ func (s *serverImpl) Logger() log.Logger {
 }
 
 // PublicKey returns the parsed ed25519.PublicKey
-func (s *serverImpl) PublicKey() ed25519.PublicKey {
+func (s *serverImpl) PublicKey() PublicKey {
 	return s.publicKey
 }
 
@@ -99,7 +98,7 @@ type WebhookInteractionHandler struct {
 }
 
 func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if ok := Verify(h.server.Logger(), r, h.server.PublicKey()); !ok {
+	if ok := VerifyRequest(h.server.Logger(), r, h.server.PublicKey()); !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		data, _ := ioutil.ReadAll(r.Body)
 		h.server.Logger().Debug("received http interaction with invalid signature. body: ", string(data))

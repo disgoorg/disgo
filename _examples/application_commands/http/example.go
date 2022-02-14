@@ -8,12 +8,11 @@ import (
 
 	"github.com/DisgoOrg/disgo/core/bot"
 	"github.com/DisgoOrg/disgo/core/events"
-	"github.com/DisgoOrg/snowflake"
-
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/log"
+	"github.com/DisgoOrg/snowflake"
 )
 
 var (
