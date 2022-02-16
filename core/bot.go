@@ -82,7 +82,8 @@ func (b *Bot) ConnectShardManager(ctx context.Context) error {
 	if b.ShardManager == nil {
 		return discord.ErrNoShardManager
 	}
-	return b.ShardManager.Open(ctx)
+	b.ShardManager.Open(ctx)
+	return nil
 }
 
 // HasGateway returns whether this Bot has an active gateway.Gateway connection

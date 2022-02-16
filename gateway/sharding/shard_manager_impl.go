@@ -5,12 +5,10 @@ import (
 	"sync"
 	"time"
 
-	srate2 "github.com/DisgoOrg/disgo/gateway/sharding/srate"
-	"github.com/DisgoOrg/disgo/internal/merrors"
-	"github.com/DisgoOrg/snowflake"
-
 	"github.com/DisgoOrg/disgo/gateway"
+	"github.com/DisgoOrg/disgo/gateway/sharding/srate"
 	"github.com/DisgoOrg/log"
+	"github.com/DisgoOrg/snowflake"
 )
 
 var _ ShardManager = (*shardManagerImpl)(nil)
@@ -34,7 +32,7 @@ func New(token string, gatewayURL string, eventHandlerFunc gateway.EventHandlerF
 		}
 	}
 	if config.RateLimiter == nil {
-		config.RateLimiter = srate2.NewLimiter(&srate2.DefaultConfig)
+		config.RateLimiter = srate.NewLimiter(&srate.DefaultConfig)
 	}
 	return &shardManagerImpl{
 		shards:           NewShardsMap(),
@@ -62,16 +60,15 @@ func (m *shardManagerImpl) Config() Config {
 	return m.config
 }
 
-func (m *shardManagerImpl) RateLimiter() srate2.Limiter {
+func (m *shardManagerImpl) RateLimiter() srate.Limiter {
 	return m.config.RateLimiter
 }
 
-func (m *shardManagerImpl) Open(ctx context.Context) error {
+func (m *shardManagerImpl) Open(ctx context.Context) {
 	m.Logger().Infof("opening %s shards...", m.config.Shards)
 	var wg sync.WaitGroup
-	var errs merrors.Error
 
-	for shardInt := range m.config.Shards.set {
+	for _, shardInt := range m.config.Shards.Values() {
 		shardID := shardInt
 		if m.shards.Has(shardID) {
 			continue
@@ -82,25 +79,23 @@ func (m *shardManagerImpl) Open(ctx context.Context) error {
 			defer wg.Done()
 			defer m.RateLimiter().UnlockBucket(shardID)
 			if err := m.RateLimiter().WaitBucket(ctx, shardID); err != nil {
-				errs.Add(err)
+				m.Logger().Errorf("failed to wait shard bucket %d: %s", shardID, err)
 				return
 			}
 
 			shard := m.config.GatewayCreateFunc(m.token, m.gatewayURL, shardID, m.config.ShardCount, m.eventHandlerFunc, m.config.GatewayConfig)
 			m.shards.Set(shardID, shard)
 			if err := shard.Open(ctx); err != nil {
-				errs.Add(err)
+				m.Logger().Errorf("failed to open shard %d: %s", shardID, err)
 			}
 		}()
 	}
 	wg.Wait()
-	return errs
 }
 
-func (m *shardManagerImpl) ReOpen(ctx context.Context) error {
+func (m *shardManagerImpl) ReOpen(ctx context.Context) {
 	m.Logger().Infof("reopening %s shards...", m.config.Shards)
 	var wg sync.WaitGroup
-	var errs merrors.Error
 
 	for shardID := range m.shards.AllIDs() {
 		wg.Add(1)
@@ -111,12 +106,11 @@ func (m *shardManagerImpl) ReOpen(ctx context.Context) error {
 				shard.Close(ctx)
 			}
 			if err := shard.ReOpen(ctx, time.Second); err != nil {
-				errs.Add(err)
+				m.Logger().Errorf("failed to reopen shard %d: %s", shard.ShardID(), err)
 			}
 		}()
 	}
 	wg.Wait()
-	return errs
 }
 
 func (m *shardManagerImpl) Close(ctx context.Context) {

@@ -2,7 +2,7 @@ package sharding
 
 import (
 	"github.com/DisgoOrg/disgo/gateway"
-	srate2 "github.com/DisgoOrg/disgo/gateway/sharding/srate"
+	"github.com/DisgoOrg/disgo/gateway/sharding/srate"
 	"github.com/DisgoOrg/log"
 )
 
@@ -13,7 +13,7 @@ var DefaultConfig = Config{
 		return gateway.New(token, url, shardID, shardCount, eventHandlerFunc, config)
 	},
 	GatewayConfig: &gateway.DefaultConfig,
-	RateLimiter:   srate2.NewLimiter(&srate2.DefaultConfig),
+	RateLimiter:   srate.NewLimiter(&srate.DefaultConfig),
 }
 
 type Config struct {
@@ -23,8 +23,8 @@ type Config struct {
 	ShardCount        int
 	GatewayCreateFunc func(token string, url string, shardID int, shardCount int, eventHandlerFunc gateway.EventHandlerFunc, config *gateway.Config) gateway.Gateway
 	GatewayConfig     *gateway.Config
-	RateLimiter       srate2.Limiter
-	RateLimiterConfig *srate2.Config
+	RateLimiter       srate.Limiter
+	RateLimiterConfig *srate.Config
 }
 
 type ConfigOpt func(config *Config)
@@ -88,24 +88,24 @@ func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) ConfigOpt {
 }
 
 //goland:noinspection GoUnusedExportedFunction
-func WithRateLimiter(rateLimiter srate2.Limiter) ConfigOpt {
+func WithRateLimiter(rateLimiter srate.Limiter) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiter = rateLimiter
 	}
 }
 
 //goland:noinspection GoUnusedExportedFunction
-func WithRateLimiterConfig(rateConfig srate2.Config) ConfigOpt {
+func WithRateLimiterConfig(rateConfig srate.Config) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiterConfig = &rateConfig
 	}
 }
 
 //goland:noinspection GoUnusedExportedFunction
-func WithRateLimiterConfigOpt(opts ...srate2.ConfigOpt) ConfigOpt {
+func WithRateLimiterConfigOpt(opts ...srate.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		if config.RateLimiterConfig == nil {
-			config.RateLimiterConfig = &srate2.DefaultConfig
+			config.RateLimiterConfig = &srate.DefaultConfig
 		}
 		config.RateLimiterConfig.Apply(opts)
 	}

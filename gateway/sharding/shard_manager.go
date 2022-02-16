@@ -14,8 +14,8 @@ type ShardManager interface {
 	Config() Config
 	RateLimiter() srate.Limiter
 
-	Open(ctx context.Context) error
-	ReOpen(ctx context.Context) error
+	Open(ctx context.Context)
+	ReOpen(ctx context.Context)
 	Close(ctx context.Context)
 
 	OpenShard(ctx context.Context, shardID int) error
