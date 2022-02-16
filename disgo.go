@@ -14,7 +14,6 @@ import (
 	_ "github.com/DisgoOrg/disgo/httpserver"
 	_ "github.com/DisgoOrg/disgo/info"
 	_ "github.com/DisgoOrg/disgo/internal/insecurerandstr"
-	_ "github.com/DisgoOrg/disgo/internal/merrors"
 	_ "github.com/DisgoOrg/disgo/internal/rwsync"
 	_ "github.com/DisgoOrg/disgo/internal/tokenhelper"
 	_ "github.com/DisgoOrg/disgo/json"
