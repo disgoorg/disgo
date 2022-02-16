@@ -40,6 +40,7 @@ type ContainerComponent interface {
 type InteractiveComponent interface {
 	Component
 	ID() CustomID
+	SetID(id CustomID) InteractiveComponent
 	interactiveComponent()
 }
 
@@ -283,6 +284,11 @@ func (c ButtonComponent) ID() CustomID {
 	return c.CustomID
 }
 
+func (c ButtonComponent) SetID(id CustomID) InteractiveComponent {
+	c.CustomID = id
+	return c
+}
+
 func (c ButtonComponent) component()            {}
 func (c ButtonComponent) interactiveComponent() {}
 
@@ -375,6 +381,11 @@ func (c SelectMenuComponent) Type() ComponentType {
 
 func (c SelectMenuComponent) ID() CustomID {
 	return c.CustomID
+}
+
+func (c SelectMenuComponent) SetID(id CustomID) InteractiveComponent {
+	c.CustomID = id
+	return c
 }
 
 func (c SelectMenuComponent) component()            {}
@@ -534,6 +545,11 @@ func (t TextInputComponent) Type() ComponentType {
 
 func (t TextInputComponent) ID() CustomID {
 	return t.CustomID
+}
+
+func (t TextInputComponent) SetID(id CustomID) InteractiveComponent {
+	t.CustomID = id
+	return t
 }
 
 func (t TextInputComponent) component()            {}
