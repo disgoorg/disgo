@@ -204,6 +204,8 @@ func (g *gatewayImpl) reOpen(ctx context.Context, try int, delay time.Duration) 
 	case <-timer.C:
 	}
 
+	g.Close(ctx)
+
 	g.Logger().Debug(g.formatLogs("reconnecting gateway..."))
 	if err := g.Open(ctx); err != nil {
 		if err == discord.ErrGatewayAlreadyConnected {
@@ -280,7 +282,7 @@ func (g *gatewayImpl) listen() {
 			if reconnect {
 				go func() {
 					if err = g.ReOpen(context.TODO(), 1*time.Second); err != nil {
-						g.Logger().Error(g.formatLogs(err))
+						g.Logger().Error(g.formatLogs("failed to reopen gateway", err))
 					}
 				}()
 			} else {
