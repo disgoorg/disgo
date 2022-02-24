@@ -110,18 +110,17 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 	g.conn, rs, err = websocket.DefaultDialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
 		g.Close(ctx)
-		var body []byte
+		body := "null"
 		if rs != nil && rs.Body != nil {
-			body, err = ioutil.ReadAll(rs.Body)
-			if err != nil {
+			defer rs.Body.Close()
+			rawBody, bErr := ioutil.ReadAll(rs.Body)
+			if bErr != nil {
 				g.Logger().Error(g.formatLogs("error while reading response body: ", err))
-				return err
 			}
-		} else {
-			body = []byte("null")
+			body = string(rawBody)
 		}
 
-		g.Logger().Error(g.formatLogsf("error connecting to gateway. url: %s, error: %s, body: %s", gatewayURL, err, string(body)))
+		g.Logger().Error(g.formatLogsf("error connecting to the gateway. url: %s, error: %s, body: %s", gatewayURL, err, body))
 		return err
 	}
 
@@ -218,6 +217,20 @@ func (g *gatewayImpl) reOpen(ctx context.Context, try int, delay time.Duration) 
 	return nil
 }
 
+func (g *gatewayImpl) reconnect(ctx context.Context) {
+	delay := time.Second
+	for {
+		err := g.ReOpen(ctx, delay)
+		if err == nil || err == discord.ErrGatewayAlreadyConnected {
+			return
+		}
+		if ctx.Err() != nil {
+			g.Logger().Error(g.formatLogs("failed to reopen gateway", err))
+		}
+		delay *= 2
+	}
+}
+
 func (g *gatewayImpl) heartbeat() {
 	defer g.Logger().Debug(g.formatLogs("exiting heartbeat goroutine..."))
 	ticker := time.NewTicker(g.heartbeatInterval)
@@ -240,11 +253,7 @@ func (g *gatewayImpl) sendHeartbeat() {
 	if err := g.Send(ctx, discord.NewGatewayCommand(discord.GatewayOpcodeHeartbeat, g.lastSequenceReceived)); err != nil && err != discord.ErrShardNotConnected {
 		g.Logger().Error(g.formatLogs("failed to send heartbeat. error: ", err))
 		g.CloseWithCode(context.TODO(), websocket.CloseServiceRestart)
-		go func() {
-			if err = g.ReOpen(context.TODO(), 1*time.Second); err != nil {
-				g.Logger().Error(g.formatLogs(err))
-			}
-		}()
+		go g.reconnect(context.TODO())
 		return
 	}
 	g.lastHeartbeatSent = time.Now().UTC()
@@ -280,11 +289,7 @@ func (g *gatewayImpl) listen() {
 			}
 
 			if reconnect {
-				go func() {
-					if err = g.ReOpen(context.TODO(), 1*time.Second); err != nil {
-						g.Logger().Error(g.formatLogs("failed to reopen gateway", err))
-					}
-				}()
+				go g.reconnect(context.TODO())
 			} else {
 				g.Close(context.TODO())
 			}
