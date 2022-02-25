@@ -359,7 +359,7 @@ type SelectMenuComponent struct {
 	CustomID    CustomID           `json:"custom_id"`
 	Placeholder string             `json:"placeholder,omitempty"`
 	MinValues   json.NullInt       `json:"min_values,omitempty"`
-	MaxValues   json.NullInt       `json:"max_values,omitempty"`
+	MaxValues   int                `json:"max_values,omitempty"`
 	Disabled    bool               `json:"disabled,omitempty"`
 	Options     []SelectMenuOption `json:"options,omitempty"`
 }
@@ -411,7 +411,7 @@ func (c SelectMenuComponent) WithMinValues(minValue int) SelectMenuComponent {
 
 // WithMaxValues returns a new SelectMenuComponent with the provided maxValue
 func (c SelectMenuComponent) WithMaxValues(maxValue int) SelectMenuComponent {
-	c.MaxValues = *json.NewInt(maxValue)
+	c.MaxValues = maxValue
 	return c
 }
 
@@ -517,43 +517,100 @@ var (
 	_ InteractiveComponent = (*TextInputComponent)(nil)
 )
 
+//goland:noinspection GoUnusedExportedFunction
+func NewTextInput(customID CustomID, style TextInputStyle, label string) TextInputComponent {
+	return TextInputComponent{}
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func NewShortTextInput(customID CustomID, label string) TextInputComponent {
+	return NewTextInput(customID, TextInputStyleShort, label)
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func NewParagraphTextInput(customID CustomID, label string) TextInputComponent {
+	return NewTextInput(customID, TextInputStyleParagraph, label)
+}
+
 type TextInputComponent struct {
 	CustomID    CustomID       `json:"custom_id"`
 	Style       TextInputStyle `json:"style"`
-	Label       string         `json:"label,omitempty"`
-	MinLength   int            `json:"min_length,omitempty"`
+	Label       string         `json:"label"`
+	MinLength   json.NullInt   `json:"min_length,omitempty"`
 	MaxLength   int            `json:"max_length,omitempty"`
 	Required    bool           `json:"required,omitempty"`
 	Placeholder string         `json:"placeholder,omitempty"`
 	Value       string         `json:"value,omitempty"`
 }
 
-func (t TextInputComponent) MarshalJSON() ([]byte, error) {
-	type textInput TextInputComponent
+func (c TextInputComponent) MarshalJSON() ([]byte, error) {
+	type textInputComponent TextInputComponent
 	return json.Marshal(struct {
 		Type ComponentType `json:"type"`
-		textInput
+		textInputComponent
 	}{
-		Type:      t.Type(),
-		textInput: textInput(t),
+		Type:               c.Type(),
+		textInputComponent: textInputComponent(c),
 	})
 }
 
-func (t TextInputComponent) Type() ComponentType {
+func (c TextInputComponent) Type() ComponentType {
 	return ComponentTypeTextInput
 }
 
-func (t TextInputComponent) ID() CustomID {
-	return t.CustomID
+func (c TextInputComponent) ID() CustomID {
+	return c.CustomID
 }
 
-func (t TextInputComponent) SetID(id CustomID) InteractiveComponent {
-	t.CustomID = id
-	return t
+func (c TextInputComponent) SetID(id CustomID) InteractiveComponent {
+	c.CustomID = id
+	return c
 }
 
-func (t TextInputComponent) component()            {}
-func (t TextInputComponent) interactiveComponent() {}
+func (c TextInputComponent) component()            {}
+func (c TextInputComponent) interactiveComponent() {}
+
+// WithCustomID returns a new SelectMenuComponent with the provided customID
+func (c TextInputComponent) WithCustomID(customID CustomID) TextInputComponent {
+	c.CustomID = customID
+	return c
+}
+
+// WithStyle returns a new SelectMenuComponent with the provided TextInputStyle
+func (c TextInputComponent) WithStyle(style TextInputStyle) TextInputComponent {
+	c.Style = style
+	return c
+}
+
+// WithMinLength returns a new TextInputComponent with the provided minLength
+func (c TextInputComponent) WithMinLength(minLength int) TextInputComponent {
+	c.MinLength = *json.NewInt(minLength)
+	return c
+}
+
+// WithMaxLength returns a new TextInputComponent with the provided maxLength
+func (c TextInputComponent) WithMaxLength(maxLength int) TextInputComponent {
+	c.MaxLength = maxLength
+	return c
+}
+
+// WithRequired returns a new TextInputComponent with the provided required
+func (c TextInputComponent) WithRequired(required bool) TextInputComponent {
+	c.Required = required
+	return c
+}
+
+// WithPlaceholder returns a new TextInputComponent with the provided placeholder
+func (c TextInputComponent) WithPlaceholder(placeholder string) TextInputComponent {
+	c.Placeholder = placeholder
+	return c
+}
+
+// WithValue returns a new TextInputComponent with the provided value
+func (c TextInputComponent) WithValue(value string) TextInputComponent {
+	c.Value = value
+	return c
+}
 
 type TextInputStyle int
 
