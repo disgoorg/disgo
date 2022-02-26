@@ -45,7 +45,7 @@ type Gateway interface {
 	Open(ctx context.Context) error
 	ReOpen(ctx context.Context, delay time.Duration) error
 	Close(ctx context.Context)
-	CloseWithCode(ctx context.Context, code int)
+	CloseWithCode(ctx context.Context, code int, message string)
 	Status() Status
 	Send(ctx context.Context, command discord.GatewayCommand) error
 	Latency() time.Duration
