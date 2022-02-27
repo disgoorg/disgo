@@ -31,6 +31,11 @@ var (
 					Description: "What to say",
 					Required:    true,
 				},
+				discord.ApplicationCommandOptionBool{
+					Name:        "ephemeral",
+					Description: "If the response should only be visible to you",
+					Required:    true,
+				},
 			},
 		},
 	}
