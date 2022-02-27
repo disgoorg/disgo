@@ -134,7 +134,7 @@ func (g *gatewayImpl) Close(ctx context.Context) {
 }
 
 func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message string) {
-	g.Logger().Debug(g.formatLogsf("closing gateway connection with code: %s, message: %s", code, message))
+	g.Logger().Debug(g.formatLogsf("closing gateway connection with code: %d, message: %s", code, message))
 	_ = g.config.RateLimiter.Close(ctx)
 
 	if g.heartbeatChan != nil {
