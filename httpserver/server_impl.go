@@ -101,7 +101,7 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	if ok := VerifyRequest(h.server.Logger(), r, h.server.PublicKey()); !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		data, _ := ioutil.ReadAll(r.Body)
-		h.server.Logger().Debug("received http interaction with invalid signature. body: ", string(data))
+		h.server.Logger().Trace("received http interaction with invalid signature. body: ", string(data))
 		return
 	}
 
@@ -109,19 +109,35 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 		_ = r.Body.Close()
 	}()
 
-	body := &bytes.Buffer{}
-	data, _ := ioutil.ReadAll(io.TeeReader(r.Body, body))
-
-	h.server.Logger().Debug("received http interaction. body: ", string(data))
+	rqBody := &bytes.Buffer{}
+	rqData, _ := ioutil.ReadAll(io.TeeReader(r.Body, rqBody))
+	h.server.Logger().Trace("received http interaction. body: ", string(rqData))
 
 	responseChannel := make(chan discord.InteractionResponse, 1)
-	h.server.Config().EventHandlerFunc(responseChannel, body)
+	h.server.Config().EventHandlerFunc(responseChannel, rqBody)
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	err := json.NewEncoder(w).Encode(<-responseChannel)
+	response, err := (<-responseChannel).ToBody()
 	if err != nil {
-		h.server.Logger().Error("error writing body: ", err)
+		h.server.Logger().Error("error while converting interaction response to body: ", err)
+		return
 	}
+
+	rsBody := &bytes.Buffer{}
+	multiWriter := io.MultiWriter(w, rsBody)
+
+	if multiPart, ok := response.(*discord.MultipartBuffer); ok {
+		w.Header().Set("Content-Type", multiPart.ContentType)
+		_, err = io.Copy(multiWriter, multiPart.Buffer)
+
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		err = json.NewEncoder(multiWriter).Encode(response)
+	}
+	if err != nil {
+		h.server.Logger().Error("error writing http interaction response error: ", err)
+		return
+	}
+
+	rsData, _ := ioutil.ReadAll(rsBody)
+	h.server.Logger().Trace("response to http interaction. body: ", string(rsData))
 }

@@ -31,6 +31,11 @@ var (
 					Description: "What to say",
 					Required:    true,
 				},
+				discord.ApplicationCommandOptionBool{
+					Name:        "ephemeral",
+					Description: "If the response should only be visible to you",
+					Required:    true,
+				},
 			},
 		},
 	}
@@ -77,6 +82,7 @@ func commandListener(event *events.ApplicationCommandInteractionEvent) {
 	if data.CommandName == "say" {
 		err := event.CreateMessage(discord.NewMessageCreateBuilder().
 			SetContent(*data.Options.String("message")).
+			SetEphemeral(*data.Options.Bool("ephemeral")).
 			Build(),
 		)
 		if err != nil {
