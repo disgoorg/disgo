@@ -116,8 +116,6 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	responseChannel := make(chan discord.InteractionResponse, 1)
 	h.server.Config().EventHandlerFunc(responseChannel, rqBody)
 
-	w.WriteHeader(http.StatusOK)
-
 	response, err := (<-responseChannel).ToBody()
 	if err != nil {
 		h.server.Logger().Error("error while converting interaction response to body: ", err)
@@ -137,7 +135,9 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	}
 	if err != nil {
 		h.server.Logger().Error("error writing body: ", err)
+		return
 	}
+	w.WriteHeader(http.StatusOK)
 
 	rsData, _ := ioutil.ReadAll(rsBody)
 	h.server.Logger().Trace("response to http interaction. body: ", string(rsData))
