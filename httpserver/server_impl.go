@@ -124,22 +124,19 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 
 	rsBody := &bytes.Buffer{}
 	multiWriter := io.MultiWriter(w, rsBody)
-	var contentType string
 
 	if multiPart, ok := response.(*discord.MultipartBuffer); ok {
-		contentType = multiPart.ContentType
+		w.Header().Set("Content-Type", multiPart.ContentType)
 		_, err = io.Copy(multiWriter, multiPart.Buffer)
 
 	} else {
-		contentType = "application/json"
+		w.Header().Set("Content-Type", "application/json")
 		err = json.NewEncoder(multiWriter).Encode(response)
 	}
 	if err != nil {
 		h.server.Logger().Error("error writing http interaction response error: ", err)
 		return
 	}
-	w.Header().Set("Content-Type", contentType)
-	w.WriteHeader(http.StatusOK)
 
 	rsData, _ := ioutil.ReadAll(rsBody)
 	h.server.Logger().Trace("response to http interaction. body: ", string(rsData))

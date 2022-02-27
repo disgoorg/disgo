@@ -75,6 +75,7 @@ func commandListener(event *events.ApplicationCommandInteractionEvent) {
 	if data.CommandName == "say" {
 		err := event.CreateMessage(discord.NewMessageCreateBuilder().
 			SetContent(*data.Options.String("message")).
+			SetEphemeral(*data.Options.Bool("ephemeral")).
 			Build(),
 		)
 		if err != nil {
