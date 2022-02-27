@@ -100,7 +100,7 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 		if config.GatewayConfig.Logger == nil {
 			config.GatewayConfig.Logger = bot.Logger
 		}
-		config.Gateway = gateway.New(token, gatewayRs.URL, 0, 0, handlers.DefaultGatewayEventHandler(bot), config.GatewayConfig)
+		config.Gateway = gateway.New(token, gatewayRs.URL, handlers.DefaultGatewayEventHandler(bot), config.GatewayConfig)
 	}
 	bot.Gateway = config.Gateway
 
@@ -124,9 +124,9 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 		// apply recommended shard count
 		if !config.ShardManagerConfig.CustomShards {
 			config.ShardManagerConfig.ShardCount = gatewayBotRs.Shards
-			config.ShardManagerConfig.Shards = sharding.NewIntSet()
+			config.ShardManagerConfig.ShardIDs = sharding.NewIntSet()
 			for i := 0; i < gatewayBotRs.Shards; i++ {
-				config.ShardManagerConfig.Shards.Add(i)
+				config.ShardManagerConfig.ShardIDs.Add(i)
 			}
 		}
 		if config.ShardManager == nil {

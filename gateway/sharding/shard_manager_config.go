@@ -8,9 +8,8 @@ import (
 
 //goland:noinspection GoUnusedGlobalVariable
 var DefaultConfig = Config{
-	CustomShards: false,
 	GatewayCreateFunc: func(token string, url string, shardID int, shardCount int, eventHandlerFunc gateway.EventHandlerFunc, config *gateway.Config) gateway.Gateway {
-		return gateway.New(token, url, shardID, shardCount, eventHandlerFunc, config)
+		return gateway.New(token, url, eventHandlerFunc, config)
 	},
 	GatewayConfig: &gateway.DefaultConfig,
 	RateLimiter:   srate.NewLimiter(&srate.DefaultConfig),
@@ -18,8 +17,9 @@ var DefaultConfig = Config{
 
 type Config struct {
 	Logger            log.Logger
+	AutoScaling       bool
 	CustomShards      bool
-	Shards            *IntSet
+	ShardIDs          map[int]struct{}
 	ShardCount        int
 	GatewayCreateFunc func(token string, url string, shardID int, shardCount int, eventHandlerFunc gateway.EventHandlerFunc, config *gateway.Config) gateway.Gateway
 	GatewayConfig     *gateway.Config
@@ -43,14 +43,24 @@ func WithLogger(logger log.Logger) ConfigOpt {
 }
 
 //goland:noinspection GoUnusedExportedFunction
-func WithShards(shards ...int) ConfigOpt {
+func WithAutoScaling(autoScaling bool) ConfigOpt {
+	return func(config *Config) {
+		config.AutoScaling = autoScaling
+	}
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func WithShards(shardIDs ...int) ConfigOpt {
 	return func(config *Config) {
 		config.CustomShards = true
-		if config.Shards == nil {
-			config.Shards = NewIntSet(shards...)
+		if config.ShardIDs == nil {
+			config.ShardIDs = make(map[int]struct{}, len(shardIDs))
 		}
-		for _, shardID := range shards {
-			config.Shards.Add(shardID)
+		for _, shardID := range shardIDs {
+			config.ShardIDs[shardID] = struct{}{}
+		}
+		if config.ShardCount == 0 {
+			config.ShardCount = len(config.ShardIDs)
 		}
 	}
 }

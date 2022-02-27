@@ -23,6 +23,8 @@ type Config struct {
 	EventHandlerFunc  EventHandlerFunc
 	LargeThreshold    int
 	GatewayIntents    discord.GatewayIntents
+	ShardID           int
+	ShardCount        int
 	Compress          bool
 	MaxReconnectTries int
 	RateLimiter       grate.Limiter

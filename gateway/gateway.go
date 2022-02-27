@@ -34,7 +34,7 @@ const (
 	StatusDisconnected
 )
 
-type EventHandlerFunc func(gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, payload io.Reader)
+type EventHandlerFunc func(gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, shardID int, payload io.Reader)
 
 // Gateway is what is used to connect to discord
 type Gateway interface {

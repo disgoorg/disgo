@@ -23,7 +23,7 @@ import (
 
 var _ Gateway = (*gatewayImpl)(nil)
 
-func New(token string, url string, shardID int, shardCount int, eventHandlerFunc EventHandlerFunc, config *Config) Gateway {
+func New(token string, url string, eventHandlerFunc EventHandlerFunc, config *Config) Gateway {
 	if config == nil {
 		config = &DefaultConfig
 	}
@@ -42,12 +42,10 @@ func New(token string, url string, shardID int, shardCount int, eventHandlerFunc
 	config.EventHandlerFunc = eventHandlerFunc
 
 	return &gatewayImpl{
-		config:     *config,
-		token:      token,
-		url:        url,
-		shardID:    shardID,
-		shardCount: shardCount,
-		status:     StatusUnconnected,
+		config: *config,
+		token:  token,
+		url:    url,
+		status: StatusUnconnected,
 	}
 }
 
@@ -55,8 +53,6 @@ type gatewayImpl struct {
 	config                Config
 	token                 string
 	url                   string
-	shardID               int
-	shardCount            int
 	conn                  *websocket.Conn
 	heartbeatChan         chan struct{}
 	status                Status
@@ -76,23 +72,23 @@ func (g *gatewayImpl) Config() Config {
 }
 
 func (g *gatewayImpl) ShardID() int {
-	return g.shardID
+	return g.config.ShardID
 }
 
 func (g *gatewayImpl) ShardCount() int {
-	return g.shardCount
+	return g.config.ShardCount
 }
 
 func (g *gatewayImpl) formatLogsf(format string, a ...interface{}) string {
-	if g.shardCount > 1 {
-		return fmt.Sprintf("[%d/%d] %s", g.shardID, g.shardCount, fmt.Sprintf(format, a...))
+	if g.ShardCount() > 1 {
+		return fmt.Sprintf("[%d/%d] %s", g.ShardID(), g.ShardCount(), fmt.Sprintf(format, a...))
 	}
 	return fmt.Sprintf(format, a...)
 }
 
 func (g *gatewayImpl) formatLogs(a ...interface{}) string {
-	if g.shardCount > 1 {
-		return fmt.Sprintf("[%d/%d] %s", g.shardID, g.shardCount, fmt.Sprint(a...))
+	if g.ShardCount() > 1 {
+		return fmt.Sprintf("[%d/%d] %s", g.ShardID(), g.ShardCount(), fmt.Sprint(a...))
 	}
 	return fmt.Sprint(a...)
 }
@@ -325,8 +321,8 @@ func (g *gatewayImpl) listen() {
 					GatewayIntents: g.config.GatewayIntents,
 					Presence:       g.config.Presence,
 				}
-				if g.shardCount > 1 {
-					identify.Shard = []int{g.shardID, g.shardCount}
+				if g.ShardCount() > 1 {
+					identify.Shard = []int{g.ShardID(), g.ShardCount()}
 				}
 
 				if err = g.Send(context.TODO(), discord.NewGatewayCommand(discord.GatewayOpcodeIdentify, identify)); err != nil {
@@ -369,7 +365,7 @@ func (g *gatewayImpl) listen() {
 			}
 
 			// push event to the command manager
-			g.config.EventHandlerFunc(event.T, event.S, bytes.NewBuffer(event.D))
+			g.config.EventHandlerFunc(event.T, event.S, g.ShardID(), bytes.NewBuffer(event.D))
 
 		case discord.GatewayOpcodeHeartbeat:
 			g.Logger().Debug(g.formatLogs("received: OpcodeHeartbeat"))

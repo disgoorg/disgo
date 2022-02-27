@@ -57,3 +57,11 @@ func (m *ShardsMap) Delete(shardId int) gateway.Gateway {
 	}
 	return shard
 }
+
+func (m *ShardsMap) For(forFunc func(shardID int, shard gateway.Gateway)) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	for shardID, shard := range m.shards {
+		forFunc(shardID, shard)
+	}
+}

@@ -6,14 +6,15 @@ import (
 )
 
 // NewGenericEvent constructs a new GenericEvent with the provided Bot instance
-func NewGenericEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence) *GenericEvent {
-	return &GenericEvent{bot: bot, sequenceNumber: sequenceNumber}
+func NewGenericEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, shardID int) *GenericEvent {
+	return &GenericEvent{bot: bot, sequenceNumber: sequenceNumber, shardID: shardID}
 }
 
 // GenericEvent the base event structure
 type GenericEvent struct {
 	bot            *core.Bot
 	sequenceNumber discord.GatewaySequence
+	shardID        int
 }
 
 func (e GenericEvent) Bot() *core.Bot {
@@ -23,4 +24,9 @@ func (e GenericEvent) Bot() *core.Bot {
 // SequenceNumber returns the sequence number of the gateway event
 func (e GenericEvent) SequenceNumber() discord.GatewaySequence {
 	return e.sequenceNumber
+}
+
+// ShardID returns the shard id of the gateway event
+func (e GenericEvent) ShardID() int {
+	return e.shardID
 }
