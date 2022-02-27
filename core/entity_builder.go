@@ -300,9 +300,24 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 
 	case discord.ModalSubmitInteraction:
 		baseInteraction := b.baseInteraction(i.BaseInteraction, c, updateCache)
+
+		componentsMap := ModalComponentsMap{}
+
+		for j := range i.Data.Components {
+			for k := range i.Data.Components[j].Components() {
+				component := i.Data.Components[j].Components()[k]
+				if inputComponent, ok := component.(discord.InputComponent); ok {
+					componentsMap[inputComponent.ID()] = inputComponent
+				}
+			}
+		}
+
 		modalSubmitInteraction := &ModalSubmitInteraction{
 			CreateInteraction: CreateInteraction{BaseInteraction: baseInteraction},
-			Data:              i.Data,
+			Data: ModalSubmitInteractionData{
+				ModalSubmitInteractionData: i.Data,
+				Components:                 componentsMap,
+			},
 		}
 
 		return modalSubmitInteraction
