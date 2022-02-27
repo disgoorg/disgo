@@ -13,6 +13,7 @@ import (
 	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/log"
 	"github.com/DisgoOrg/snowflake"
+	"github.com/oasisprotocol/curve25519-voi/primitives/ed25519"
 )
 
 var (
@@ -45,6 +46,11 @@ func main() {
 	log.SetLevel(log.LevelDebug)
 	log.Info("starting example...")
 	log.Info("disgo version: ", info.Version)
+
+	// use custom ed25519 verify implementation
+	httpserver.Verify = func(publicKey httpserver.PublicKey, message, sig []byte) bool {
+		return ed25519.Verify(publicKey, message, sig)
+	}
 
 	disgo, err := bot.New(token,
 		bot.WithHTTPServerOpts(
