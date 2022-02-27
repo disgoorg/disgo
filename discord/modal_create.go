@@ -71,3 +71,8 @@ func (b *ModalCreateBuilder) ClearContainerComponents() *ModalCreateBuilder {
 	b.Components = []ContainerComponent{}
 	return b
 }
+
+// Build builds the ModalCreateBuilder to a ModalCreate struct
+func (b *ModalCreateBuilder) Build() ModalCreate {
+	return b.ModalCreate
+}
