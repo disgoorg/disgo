@@ -519,7 +519,11 @@ var (
 
 //goland:noinspection GoUnusedExportedFunction
 func NewTextInput(customID CustomID, style TextInputStyle, label string) TextInputComponent {
-	return TextInputComponent{}
+	return TextInputComponent{
+		CustomID: customID,
+		Style:    style,
+		Label:    label,
+	}
 }
 
 //goland:noinspection GoUnusedExportedFunction
