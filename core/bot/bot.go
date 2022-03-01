@@ -1,9 +1,6 @@
 package bot
 
 import (
-	"encoding/base64"
-	"strings"
-
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/collectors"
 	"github.com/DisgoOrg/disgo/core/handlers"
@@ -12,6 +9,7 @@ import (
 	"github.com/DisgoOrg/disgo/gateway/sharding"
 	"github.com/DisgoOrg/disgo/gateway/sharding/srate"
 	"github.com/DisgoOrg/disgo/httpserver"
+	"github.com/DisgoOrg/disgo/internal/tokenhelper"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/log"
 	"github.com/pkg/errors"
@@ -41,7 +39,7 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 	if token == "" {
 		return nil, discord.ErrNoBotToken
 	}
-	id, err := IDFromToken(token)
+	id, err := tokenhelper.IDFromToken(token)
 	if err != nil {
 		return nil, errors.Wrap(err, "error while getting application id from BotToken")
 	}
@@ -172,19 +170,4 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 	bot.Caches = config.Caches
 
 	return bot, nil
-}
-
-// IDFromToken returns the applicationID from the BotToken
-//goland:noinspection GoUnusedExportedFunction
-func IDFromToken(token string) (*discord.Snowflake, error) {
-	strs := strings.Split(token, ".")
-	if len(strs) == 0 {
-		return nil, discord.ErrInvalidBotToken
-	}
-	byteID, err := base64.StdEncoding.DecodeString(strs[0])
-	if err != nil {
-		return nil, err
-	}
-	strID := discord.Snowflake(byteID)
-	return &strID, nil
 }

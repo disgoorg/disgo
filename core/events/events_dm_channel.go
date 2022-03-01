@@ -5,13 +5,14 @@ import (
 
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // GenericDMChannelEvent is called upon receiving DMChannelCreateEvent, DMChannelUpdateEvent, DMChannelDeleteEvent or DMUserTypingStartEvent
 type GenericDMChannelEvent struct {
 	*GenericEvent
 	Channel   *core.DMChannel
-	ChannelID discord.Snowflake
+	ChannelID snowflake.Snowflake
 }
 
 // DMChannelCreateEvent indicates that a new core.DMChannel got created
@@ -32,7 +33,7 @@ type DMChannelDeleteEvent struct {
 
 type DMChannelPinsUpdateEvent struct {
 	*GenericEvent
-	ChannelID           discord.Snowflake
+	ChannelID           snowflake.Snowflake
 	NewLastPinTimestamp *discord.Time
 	OldLastPinTimestamp *discord.Time
 }
@@ -40,8 +41,8 @@ type DMChannelPinsUpdateEvent struct {
 // DMUserTypingStartEvent indicates that a core.User started typing in a core.DMChannel(requires discord.GatewayIntentDirectMessageTyping)
 type DMUserTypingStartEvent struct {
 	*GenericEvent
-	ChannelID discord.Snowflake
-	UserID    discord.Snowflake
+	ChannelID snowflake.Snowflake
+	UserID    snowflake.Snowflake
 	Timestamp time.Time
 }
 

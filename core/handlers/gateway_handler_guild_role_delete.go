@@ -20,7 +20,7 @@ func (h *gatewayHandlerGuildRoleDelete) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildRoleDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerGuildRoleDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.GuildRoleDeleteGatewayEvent)
 
 	role := bot.Caches.Roles().GetCopy(payload.GuildID, payload.RoleID)

@@ -1,19 +1,17 @@
 package core
 
-import (
-	"github.com/DisgoOrg/disgo/discord"
-)
+import "github.com/DisgoOrg/snowflake"
 
 type (
 	GuildScheduledEventFindFunc func(guildScheduledEvent *GuildScheduledEvent) bool
 
 	GuildScheduledEventCache interface {
-		Get(guildScheduledEventID discord.Snowflake) *GuildScheduledEvent
-		GetCopy(guildScheduledEventID discord.Snowflake) *GuildScheduledEvent
+		Get(guildScheduledEventID snowflake.Snowflake) *GuildScheduledEvent
+		GetCopy(guildScheduledEventID snowflake.Snowflake) *GuildScheduledEvent
 		Set(guildScheduledEvent *GuildScheduledEvent) *GuildScheduledEvent
-		Remove(guildScheduledEventID discord.Snowflake)
+		Remove(guildScheduledEventID snowflake.Snowflake)
 
-		Cache() map[discord.Snowflake]*GuildScheduledEvent
+		Cache() map[snowflake.Snowflake]*GuildScheduledEvent
 		All() []*GuildScheduledEvent
 
 		FindFirst(guildScheduledEventFindFunc GuildScheduledEventFindFunc) *GuildScheduledEvent
@@ -22,22 +20,22 @@ type (
 
 	guildScheduledEventCacheImpl struct {
 		cacheFlags           CacheFlags
-		guildScheduledEvents map[discord.Snowflake]*GuildScheduledEvent
+		guildScheduledEvents map[snowflake.Snowflake]*GuildScheduledEvent
 	}
 )
 
 func NewGuildScheduledEventCache(cacheFlags CacheFlags) GuildScheduledEventCache {
 	return &guildScheduledEventCacheImpl{
 		cacheFlags:           cacheFlags,
-		guildScheduledEvents: map[discord.Snowflake]*GuildScheduledEvent{},
+		guildScheduledEvents: map[snowflake.Snowflake]*GuildScheduledEvent{},
 	}
 }
 
-func (c *guildScheduledEventCacheImpl) Get(guildScheduledEventID discord.Snowflake) *GuildScheduledEvent {
+func (c *guildScheduledEventCacheImpl) Get(guildScheduledEventID snowflake.Snowflake) *GuildScheduledEvent {
 	return c.guildScheduledEvents[guildScheduledEventID]
 }
 
-func (c *guildScheduledEventCacheImpl) GetCopy(guildScheduledEventID discord.Snowflake) *GuildScheduledEvent {
+func (c *guildScheduledEventCacheImpl) GetCopy(guildScheduledEventID snowflake.Snowflake) *GuildScheduledEvent {
 	if guildScheduledEvent := c.Get(guildScheduledEventID); guildScheduledEvent != nil {
 		st := *guildScheduledEvent
 		return &st
@@ -58,11 +56,11 @@ func (c *guildScheduledEventCacheImpl) Set(guildScheduledEvent *GuildScheduledEv
 	return guildScheduledEvent
 }
 
-func (c *guildScheduledEventCacheImpl) Remove(id discord.Snowflake) {
+func (c *guildScheduledEventCacheImpl) Remove(id snowflake.Snowflake) {
 	delete(c.guildScheduledEvents, id)
 }
 
-func (c *guildScheduledEventCacheImpl) Cache() map[discord.Snowflake]*GuildScheduledEvent {
+func (c *guildScheduledEventCacheImpl) Cache() map[snowflake.Snowflake]*GuildScheduledEvent {
 	return c.guildScheduledEvents
 }
 

@@ -38,9 +38,9 @@ func main() {
 					)
 				}
 			},
-			OnButtonClick: func(event *events.ButtonClickEvent) {
-				if event.Data.CustomID == "danger" {
-					_ = event.Create(discord.NewMessageCreateBuilder().SetEphemeral(true).SetContent("Ey that was danger").Build())
+			OnComponentInteraction: func(event *events.ComponentInteractionEvent) {
+				if event.ButtonInteractionData().CustomID == "danger" {
+					_ = event.CreateMessage(discord.NewMessageCreateBuilder().SetEphemeral(true).SetContent("Ey that was danger").Build())
 				}
 			},
 		}),

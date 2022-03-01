@@ -2,16 +2,16 @@ package events
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // GenericGuildMessageEvent is called upon receiving GuildMessageCreateEvent, GuildMessageUpdateEvent or GuildMessageDeleteEvent
 type GenericGuildMessageEvent struct {
 	*GenericEvent
-	MessageID discord.Snowflake
+	MessageID snowflake.Snowflake
 	Message   *core.Message
-	ChannelID discord.Snowflake
-	GuildID   discord.Snowflake
+	ChannelID snowflake.Snowflake
+	GuildID   snowflake.Snowflake
 }
 
 // Guild returns the core.Guild the GenericGuildMessageEvent happened in.

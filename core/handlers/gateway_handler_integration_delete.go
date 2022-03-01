@@ -20,7 +20,7 @@ func (h *gatewayHandlerIntegrationDelete) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerIntegrationDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerIntegrationDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.IntegrationDeleteGatewayEvent)
 
 	bot.EventManager.Dispatch(&events.IntegrationDeleteEvent{

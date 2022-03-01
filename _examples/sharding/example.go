@@ -50,10 +50,7 @@ func main() {
 		log.Fatalf("error while building disgo: %s", err)
 	}
 
-	defer func() {
-		err = disgo.Close(context.TODO())
-		log.Error("error while closing disgo: ", err)
-	}()
+	defer disgo.Close(context.TODO())
 
 	if err = disgo.ConnectShardManager(context.TODO()); err != nil {
 		log.Fatal("error while connecting to gateway: ", err)

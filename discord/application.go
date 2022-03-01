@@ -3,35 +3,37 @@ package discord
 import (
 	"fmt"
 	"strings"
+
+	"github.com/DisgoOrg/snowflake"
 )
 
 type Application struct {
-	ID                    Snowflake           `json:"id"`
-	Name                  string              `json:"name"`
-	Icon                  *string             `json:"icon,omitempty"`
-	Description           string              `json:"description"`
-	RPCOrigins            []string            `json:"rpc_origins"`
-	BotPublic             bool                `json:"bot_public"`
-	BotRequireCodeGrant   bool                `json:"bot_require_code_grant"`
-	TermsOfServiceURL     *string             `json:"terms_of_service_url,omitempty"`
-	PrivacyPolicyURL      *string             `json:"privacy_policy_url,omitempty"`
-	CustomInstallationURL *string             `json:"custom_install_url,omitempty"`
-	InstallationParams    *InstallationParams `json:"install_params"`
-	Tags                  []string            `json:"tags"`
-	Owner                 *User               `json:"owner,omitempty"`
-	Summary               string              `json:"summary"`
-	VerifyKey             string              `json:"verify_key"`
-	Team                  *Team               `json:"team,omitempty"`
-	GuildID               *Snowflake          `json:"guild_id,omitempty"`
-	PrimarySkuID          *Snowflake          `json:"primary_sku_id,omitempty"`
-	Slug                  *string             `json:"slug,omitempty"`
-	CoverImage            *string             `json:"cover_image,omitempty"`
-	Flags                 ApplicationFlags    `json:"flags,omitempty"`
+	ID                    snowflake.Snowflake  `json:"id"`
+	Name                  string               `json:"name"`
+	Icon                  *string              `json:"icon,omitempty"`
+	Description           string               `json:"description"`
+	RPCOrigins            []string             `json:"rpc_origins"`
+	BotPublic             bool                 `json:"bot_public"`
+	BotRequireCodeGrant   bool                 `json:"bot_require_code_grant"`
+	TermsOfServiceURL     *string              `json:"terms_of_service_url,omitempty"`
+	PrivacyPolicyURL      *string              `json:"privacy_policy_url,omitempty"`
+	CustomInstallationURL *string              `json:"custom_install_url,omitempty"`
+	InstallationParams    *InstallationParams  `json:"install_params"`
+	Tags                  []string             `json:"tags"`
+	Owner                 *User                `json:"owner,omitempty"`
+	Summary               string               `json:"summary"`
+	VerifyKey             string               `json:"verify_key"`
+	Team                  *Team                `json:"team,omitempty"`
+	GuildID               *snowflake.Snowflake `json:"guild_id,omitempty"`
+	PrimarySkuID          *snowflake.Snowflake `json:"primary_sku_id,omitempty"`
+	Slug                  *string              `json:"slug,omitempty"`
+	CoverImage            *string              `json:"cover_image,omitempty"`
+	Flags                 ApplicationFlags     `json:"flags,omitempty"`
 }
 
 type PartialApplication struct {
-	ID    Snowflake        `json:"id"`
-	Flags ApplicationFlags `json:"flags"`
+	ID    snowflake.Snowflake `json:"id"`
+	Flags ApplicationFlags    `json:"flags"`
 }
 
 type AuthorizationInformation struct {
@@ -176,18 +178,18 @@ func (f ApplicationFlags) Missing(bits ...ApplicationFlags) bool {
 }
 
 type Team struct {
-	Icon    *string      `json:"icon"`
-	ID      string       `json:"id"`
-	Members []TeamMember `json:"members"`
-	Name    string       `json:"name"`
-	OwnerID Snowflake    `json:"owner_user_id"`
+	Icon    *string             `json:"icon"`
+	ID      string              `json:"id"`
+	Members []TeamMember        `json:"members"`
+	Name    string              `json:"name"`
+	OwnerID snowflake.Snowflake `json:"owner_user_id"`
 }
 
 type TeamMember struct {
-	MembershipState MembershipState   `json:"membership_state"`
-	Permissions     []TeamPermissions `json:"permissions"`
-	TeamID          Snowflake         `json:"team_id"`
-	User            User              `json:"user"`
+	MembershipState MembershipState     `json:"membership_state"`
+	Permissions     []TeamPermissions   `json:"permissions"`
+	TeamID          snowflake.Snowflake `json:"team_id"`
+	User            User                `json:"user"`
 }
 
 type MembershipState int

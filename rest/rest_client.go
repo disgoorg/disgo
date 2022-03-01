@@ -55,7 +55,7 @@ type Client interface {
 	Config() Config
 
 	// Close closes the rest client and awaits all pending requests to finish. You can use a cancelling context to abort the waiting
-	Close(ctx context.Context) error
+	Close(ctx context.Context)
 
 	// Do makes a request to the given route.CompiledAPIRoute and marshals the given interface{} as json and unmarshalls the response into the given interface
 	Do(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) error
@@ -65,9 +65,9 @@ type clientImpl struct {
 	config Config
 }
 
-func (c *clientImpl) Close(_ context.Context) error {
+func (c *clientImpl) Close(ctx context.Context) {
+	c.config.RateLimiter.Close(ctx)
 	c.config.HTTPClient.CloseIdleConnections()
-	return nil
 }
 
 func (c *clientImpl) Logger() log.Logger {
@@ -108,7 +108,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 				return errors.Wrap(err, "failed to marshal request body")
 			}
 		}
-		c.Logger().Debugf("request to %s, body: %s", rqURL, string(rawRqBody))
+		c.Logger().Tracef("request to %s, body: %s", rqURL, string(rawRqBody))
 	}
 
 	rq, err := http.NewRequest(cRoute.APIRoute.Method().String(), rqURL, bytes.NewReader(rawRqBody))
@@ -165,7 +165,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 		if rawRsBody, err = ioutil.ReadAll(rs.Body); err != nil {
 			return errors.Wrap(err, "error reading response body in rest client")
 		}
-		c.Logger().Debugf("response from %s, code %d, body: %s", rqURL, rs.StatusCode, string(rawRsBody))
+		c.Logger().Tracef("response from %s, code %d, body: %s", rqURL, rs.StatusCode, string(rawRsBody))
 	}
 
 	switch rs.StatusCode {

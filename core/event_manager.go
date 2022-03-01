@@ -41,7 +41,7 @@ type EventManager interface {
 
 	AddEventListeners(eventListeners ...EventListener)
 	RemoveEventListeners(eventListeners ...EventListener)
-	HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader)
+	HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, payload io.Reader)
 	HandleHTTP(responseChannel chan<- discord.InteractionResponse, payload io.Reader)
 	Dispatch(event Event)
 }
@@ -54,14 +54,14 @@ type EventListener interface {
 // Event the basic interface each event implement
 type Event interface {
 	Bot() *Bot
-	SequenceNumber() int
+	SequenceNumber() discord.GatewaySequence
 }
 
 // GatewayEventHandler is used to handle Gateway Event(s)
 type GatewayEventHandler interface {
 	EventType() discord.GatewayEventType
 	New() interface{}
-	HandleGatewayEvent(bot *Bot, sequenceNumber int, v interface{})
+	HandleGatewayEvent(bot *Bot, sequenceNumber discord.GatewaySequence, v interface{})
 }
 
 // HTTPServerEventHandler is used to handle HTTP Event(s)
@@ -86,12 +86,13 @@ func (e *eventManagerImpl) Config() EventManagerConfig {
 }
 
 // HandleGateway calls the correct core.EventHandler
-func (e *eventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) {
+func (e *eventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, reader io.Reader) {
 	if handler, ok := e.config.GatewayHandlers[gatewayEventType]; ok {
 		v := handler.New()
 		if v != nil {
 			if err := json.NewDecoder(reader).Decode(&v); err != nil {
 				e.Bot().Logger.Errorf("error while unmarshalling event '%s'. error: %s", gatewayEventType, err.Error())
+				return
 			}
 		}
 		handler.HandleGatewayEvent(e.Bot(), sequenceNumber, v)

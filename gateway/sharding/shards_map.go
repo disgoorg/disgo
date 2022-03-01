@@ -7,41 +7,53 @@ import (
 )
 
 func NewShardsMap() *ShardsMap {
-	return &ShardsMap{Shards: map[int]gateway.Gateway{}}
+	return &ShardsMap{shards: map[int]gateway.Gateway{}}
 }
 
 type ShardsMap struct {
-	sync.RWMutex
-	Shards map[int]gateway.Gateway
+	mu     sync.RWMutex
+	shards map[int]gateway.Gateway
+}
+
+func (m *ShardsMap) AllIDs() []int {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	ids := make([]int, len(m.shards))
+	i := 0
+	for id := range m.shards {
+		ids[i] = id
+		i++
+	}
+	return ids
 }
 
 func (m *ShardsMap) Get(shardId int) gateway.Gateway {
-	m.RLock()
-	defer m.RUnlock()
-	return m.Shards[shardId]
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.shards[shardId]
 }
 
 func (m *ShardsMap) Set(shardId int, shard gateway.Gateway) {
-	m.Lock()
-	defer m.Unlock()
-	m.Shards[shardId] = shard
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.shards[shardId] = shard
 }
 
 func (m *ShardsMap) Has(shardId int) bool {
-	m.RLock()
-	defer m.RUnlock()
-	_, ok := m.Shards[shardId]
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	_, ok := m.shards[shardId]
 	return ok
 }
 
 func (m *ShardsMap) Delete(shardId int) gateway.Gateway {
-	m.RLock()
-	shard, ok := m.Shards[shardId]
-	m.RUnlock()
+	m.mu.RLock()
+	shard, ok := m.shards[shardId]
+	m.mu.RUnlock()
 	if ok {
-		m.Lock()
-		delete(m.Shards, shardId)
-		m.Unlock()
+		m.mu.Lock()
+		delete(m.shards, shardId)
+		m.mu.Unlock()
 	}
 	return shard
 }

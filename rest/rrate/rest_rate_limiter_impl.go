@@ -85,10 +85,10 @@ func (l *limiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor {
 func (l *limiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *bucket {
 	hash := l.getRouteHash(route)
 
-	l.Logger().Debug("locking rest rate limiter")
+	l.Logger().Trace("locking rest rate limiter")
 	l.Lock()
 	defer func() {
-		l.Logger().Debug("unlocking rest rate limiter")
+		l.Logger().Trace("unlocking rest rate limiter")
 		l.Unlock()
 	}()
 	b, ok := l.buckets[hash]
@@ -109,7 +109,7 @@ func (l *limiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *buc
 
 func (l *limiterImpl) WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error {
 	b := l.getBucket(route, true)
-	l.Logger().Debugf("locking rest bucket: %+v", b)
+	l.Logger().Tracef("locking rest bucket: %+v", b)
 	if err := b.CLock(ctx); err != nil {
 		return err
 	}
@@ -145,7 +145,7 @@ func (l *limiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.H
 		return nil
 	}
 	defer func() {
-		l.Logger().Debugf("unlocking rest bucket: %+v", b)
+		l.Logger().Tracef("unlocking rest bucket: %+v", b)
 		b.Unlock()
 	}()
 
@@ -165,7 +165,7 @@ func (l *limiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.H
 	reset := headers.Get("X-RateLimit-Reset")
 	retryAfter := headers.Get("Retry-After")
 
-	l.Logger().Debugf("headers: global %s, remaining: %s, limit: %s, reset: %s, retryAfter: %s", global, remaining, limit, reset, retryAfter)
+	l.Logger().Tracef("headers: global %s, remaining: %s, limit: %s, reset: %s, retryAfter: %s", global, remaining, limit, reset, retryAfter)
 
 	switch {
 	case retryAfter != "":

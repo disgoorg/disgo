@@ -8,6 +8,7 @@ import (
 
 	"github.com/DisgoOrg/disgo/core/bot"
 	"github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/snowflake"
 
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
@@ -18,17 +19,22 @@ import (
 
 var (
 	token   = os.Getenv("disgo_token")
-	guildID = discord.Snowflake(os.Getenv("disgo_guild_id"))
+	guildID = snowflake.GetSnowflakeEnv("disgo_guild_id")
 
 	commands = []discord.ApplicationCommandCreate{
 		discord.SlashCommandCreate{
-			Name:              "say",
+			CommandName:       "say",
 			Description:       "says what you say",
 			DefaultPermission: true,
 			Options: []discord.ApplicationCommandOption{
 				discord.ApplicationCommandOptionString{
 					Name:        "message",
 					Description: "What to say",
+					Required:    true,
+				},
+				discord.ApplicationCommandOptionBool{
+					Name:        "ephemeral",
+					Description: "If the response should only be visible to you",
 					Required:    true,
 				},
 			},
@@ -45,7 +51,7 @@ func main() {
 		bot.WithGatewayOpts(gateway.WithGatewayIntents(discord.GatewayIntentsNone)),
 		bot.WithCacheOpts(core.WithCacheFlags(core.CacheFlagsDefault)),
 		bot.WithEventListeners(&events.ListenerAdapter{
-			OnSlashCommand: commandListener,
+			OnApplicationCommandInteraction: commandListener,
 		}),
 	)
 	if err != nil {
@@ -55,8 +61,7 @@ func main() {
 
 	defer disgo.Close(context.TODO())
 
-	_, err = disgo.SetGuildCommands(guildID, commands)
-	if err != nil {
+	if _, err = disgo.SetGuildCommands(guildID, commands); err != nil {
 		log.Fatal("error while registering commands: ", err)
 	}
 
@@ -70,10 +75,12 @@ func main() {
 	<-s
 }
 
-func commandListener(event *events.SlashCommandEvent) {
-	if event.Data.CommandName == "say" {
-		err := event.Create(discord.NewMessageCreateBuilder().
-			SetContent(*event.Data.Options.String("message")).
+func commandListener(event *events.ApplicationCommandInteractionEvent) {
+	data := event.SlashCommandInteractionData()
+	if data.CommandName == "say" {
+		err := event.CreateMessage(discord.NewMessageCreateBuilder().
+			SetContent(*data.Options.String("message")).
+			SetEphemeral(*data.Options.Bool("ephemeral")).
 			Build(),
 		)
 		if err != nil {

@@ -8,59 +8,67 @@ import (
 
 func NewIntSet(ints ...int) *IntSet {
 	set := &IntSet{
-		Set: make(map[int]struct{}, len(ints)),
+		set: make(map[int]struct{}, len(ints)),
 	}
 	for _, i := range ints {
-		set.Set[i] = struct{}{}
+		set.set[i] = struct{}{}
 	}
 	return set
 }
 
 type IntSet struct {
-	sync.RWMutex
-	Set map[int]struct{}
+	mu  sync.RWMutex
+	set map[int]struct{}
+}
+
+func (s *IntSet) Values() []int {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	values := make([]int, len(s.set))
+	i := 0
+	for ii := range s.set {
+		values[i] = ii
+		i++
+	}
+	return values
 }
 
 func (s *IntSet) Add(i int) {
-	s.Lock()
-	s.Set[i] = struct{}{}
-	s.Unlock()
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.set[i] = struct{}{}
 }
 
 func (s *IntSet) Has(i int) bool {
-	s.RLock()
-	defer s.RUnlock()
-	_, ok := s.Set[i]
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	_, ok := s.set[i]
 	return ok
 }
 
 func (s *IntSet) Delete(i int) {
-	s.RLock()
-	_, ok := s.Set[i]
-	s.RUnlock()
-	if ok {
-		s.Lock()
-		delete(s.Set, i)
-		s.Unlock()
-	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	delete(s.set, i)
 }
 
 func (s *IntSet) Len() int {
-	return len(s.Set)
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return len(s.set)
 }
 
 func (s *IntSet) String() string {
 	var builder strings.Builder
 	builder.WriteString("[")
-	s.RLock()
-	for i := range s.Set {
-		builder.WriteString("")
+	values := s.Values()
+	for i := range values {
 		builder.WriteString(strconv.Itoa(i))
-		if i < len(s.Set)-1 {
+		if i < len(values)-1 {
 			builder.WriteString(", ")
 		}
 	}
-	s.RUnlock()
 	builder.WriteString("]")
 	return builder.String()
 }

@@ -8,27 +8,33 @@ import (
 
 	"github.com/DisgoOrg/disgo/core/bot"
 	"github.com/DisgoOrg/disgo/core/events"
-
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/log"
+	"github.com/DisgoOrg/snowflake"
+	"github.com/oasisprotocol/curve25519-voi/primitives/ed25519"
 )
 
 var (
 	token     = os.Getenv("disgo_token")
 	publicKey = os.Getenv("disgo_public_key")
-	guildID   = discord.Snowflake(os.Getenv("disgo_guild_id"))
+	guildID   = snowflake.GetSnowflakeEnv("disgo_guild_id")
 
 	commands = []discord.ApplicationCommandCreate{
 		discord.SlashCommandCreate{
-			Name:              "say",
+			CommandName:       "say",
 			Description:       "says what you say",
 			DefaultPermission: true,
 			Options: []discord.ApplicationCommandOption{
 				discord.ApplicationCommandOptionString{
 					Name:        "message",
 					Description: "What to say",
+					Required:    true,
+				},
+				discord.ApplicationCommandOptionBool{
+					Name:        "ephemeral",
+					Description: "If the response should only be visible to you",
 					Required:    true,
 				},
 			},
@@ -41,6 +47,11 @@ func main() {
 	log.Info("starting example...")
 	log.Info("disgo version: ", info.Version)
 
+	// use custom ed25519 verify implementation
+	httpserver.Verify = func(publicKey httpserver.PublicKey, message, sig []byte) bool {
+		return ed25519.Verify(publicKey, message, sig)
+	}
+
 	disgo, err := bot.New(token,
 		bot.WithHTTPServerOpts(
 			httpserver.WithURL("/interactions/callback"),
@@ -48,7 +59,7 @@ func main() {
 			httpserver.WithPublicKey(publicKey),
 		),
 		bot.WithEventListeners(&events.ListenerAdapter{
-			OnSlashCommand: commandListener,
+			OnApplicationCommandInteraction: commandListener,
 		}),
 	)
 	if err != nil {
@@ -58,13 +69,11 @@ func main() {
 
 	defer disgo.Close(context.TODO())
 
-	_, err = disgo.SetGuildCommands(guildID, commands)
-	if err != nil {
+	if _, err = disgo.SetGuildCommands(guildID, commands); err != nil {
 		log.Fatal("error while registering commands: ", err)
 	}
 
-	err = disgo.StartHTTPServer()
-	if err != nil {
+	if err = disgo.StartHTTPServer(); err != nil {
 		log.Fatal("error while starting http server: ", err)
 	}
 
@@ -74,13 +83,16 @@ func main() {
 	<-s
 }
 
-func commandListener(event *events.SlashCommandEvent) {
-	if event.Data.CommandName == "say" {
-		if err := event.Create(discord.NewMessageCreateBuilder().
-			SetContent(*event.Data.Options.String("message")).
+func commandListener(event *events.ApplicationCommandInteractionEvent) {
+	data := event.SlashCommandInteractionData()
+	if data.CommandName == "say" {
+		err := event.CreateMessage(discord.NewMessageCreateBuilder().
+			SetContent(*data.Options.String("message")).
+			SetEphemeral(*data.Options.Bool("ephemeral")).
 			Build(),
-		); err != nil {
-			log.Error("error sending interaction response: ", err)
+		)
+		if err != nil {
+			event.Bot().Logger.Error("error on sending response: ", err)
 		}
 	}
 }

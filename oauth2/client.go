@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/DisgoOrg/snowflake"
 	"github.com/pkg/errors"
 
 	"github.com/DisgoOrg/disgo/discord"
@@ -22,7 +23,7 @@ var (
 )
 
 // New returns a new OAuth2 client
-func New(id discord.Snowflake, secret string, opts ...ConfigOpt) *Client {
+func New(id snowflake.Snowflake, secret string, opts ...ConfigOpt) *Client {
 	config := &DefaultConfig
 	config.Apply(opts)
 
@@ -48,19 +49,19 @@ func New(id discord.Snowflake, secret string, opts ...ConfigOpt) *Client {
 
 // Client is an OAuth2 client
 type Client struct {
-	ID     discord.Snowflake
+	ID     snowflake.Snowflake
 	Secret string
 	Config
 }
 
 // GenerateAuthorizationURL generates an authorization URL with the given redirect URI, permissions, guildID, disableGuildSelect & scopes, state is automatically generated
-func (c *Client) GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID discord.Snowflake, disableGuildSelect bool, scopes ...discord.ApplicationScope) string {
+func (c *Client) GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID snowflake.Snowflake, disableGuildSelect bool, scopes ...discord.ApplicationScope) string {
 	url, _ := c.GenerateAuthorizationURLState(redirectURI, permissions, guildID, disableGuildSelect, scopes...)
 	return url
 }
 
 // GenerateAuthorizationURLState generates an authorization URL with the given redirect URI, permissions, guildID, disableGuildSelect & scopes, state is automatically generated & returned
-func (c *Client) GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID discord.Snowflake, disableGuildSelect bool, scopes ...discord.ApplicationScope) (string, string) {
+func (c *Client) GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.Snowflake, disableGuildSelect bool, scopes ...discord.ApplicationScope) (string, string) {
 	state := c.StateController.GenerateNewState(redirectURI)
 	values := route.QueryValues{
 		"client_id":     c.ID,

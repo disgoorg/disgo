@@ -1,5 +1,7 @@
 package discord
 
+import "github.com/DisgoOrg/snowflake"
+
 // NewGatewayCommand returns a new GatewayCommand struct with the given payload
 func NewGatewayCommand(op GatewayOpcode, d GatewayCommandData) GatewayCommand {
 	return GatewayCommand{
@@ -20,6 +22,12 @@ type GatewayCommand struct {
 type GatewayCommandData interface {
 	gatewayCommandData()
 }
+
+var _ GatewayCommandData = (*GatewaySequence)(nil)
+
+type GatewaySequence int
+
+func (GatewaySequence) gatewayCommandData() {}
 
 var _ GatewayCommandData = (*IdentifyCommandData)(nil)
 
@@ -49,9 +57,9 @@ var _ GatewayCommandData = (*IdentifyCommandData)(nil)
 // ResumeCommandData is used to resume a connection to discord in the case that you are disconnected. Is automatically
 // handled by the library and should rarely be used.
 type ResumeCommandData struct {
-	Token     string `json:"token"`
-	SessionID string `json:"session_id"`
-	Seq       int    `json:"seq"`
+	Token     string          `json:"token"`
+	SessionID string          `json:"session_id"`
+	Seq       GatewaySequence `json:"seq"`
 }
 
 func (ResumeCommandData) gatewayCommandData() {}
@@ -66,22 +74,22 @@ func (HeartbeatCommandData) gatewayCommandData() {}
 // RequestGuildMembersCommandData is used for fetching all the members of a guild_events. It is recommended you have a strict
 // member caching policy when using this.
 type RequestGuildMembersCommandData struct {
-	GuildID   Snowflake   `json:"guild_id"`
-	Query     *string     `json:"query,omitempty"` //If specified, user_ids must not be entered
-	Limit     *int        `json:"limit,omitempty"` //Must be >=1 if query/user_ids is used, otherwise 0
-	Presences bool        `json:"presences,omitempty"`
-	UserIDs   []Snowflake `json:"user_ids,omitempty"` //If specified, query must not be entered
-	Nonce     string      `json:"nonce,omitempty"`    //All responses are hashed with this nonce, optional
+	GuildID   snowflake.Snowflake   `json:"guild_id"`
+	Query     *string               `json:"query,omitempty"` //If specified, user_ids must not be entered
+	Limit     *int                  `json:"limit,omitempty"` //Must be >=1 if query/user_ids is used, otherwise 0
+	Presences bool                  `json:"presences,omitempty"`
+	UserIDs   []snowflake.Snowflake `json:"user_ids,omitempty"` //If specified, query must not be entered
+	Nonce     string                `json:"nonce,omitempty"`    //All responses are hashed with this nonce, optional
 }
 
 func (RequestGuildMembersCommandData) gatewayCommandData() {}
 
 // UpdateVoiceStateCommandData is used for updating the bots voice state in a guild_events
 type UpdateVoiceStateCommandData struct {
-	GuildID   Snowflake  `json:"guild_id"`
-	ChannelID *Snowflake `json:"channel_id"`
-	SelfMute  bool       `json:"self_mute"`
-	SelfDeaf  bool       `json:"self_deaf"`
+	GuildID   snowflake.Snowflake  `json:"guild_id"`
+	ChannelID *snowflake.Snowflake `json:"channel_id"`
+	SelfMute  bool                 `json:"self_mute"`
+	SelfDeaf  bool                 `json:"self_deaf"`
 }
 
 func (UpdateVoiceStateCommandData) gatewayCommandData() {}

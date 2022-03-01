@@ -2,16 +2,16 @@ package events
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // GenericMessageEvent generic core.Message event
 type GenericMessageEvent struct {
 	*GenericEvent
-	MessageID discord.Snowflake
+	MessageID snowflake.Snowflake
 	Message   *core.Message
-	ChannelID discord.Snowflake
-	GuildID   *discord.Snowflake
+	ChannelID snowflake.Snowflake
+	GuildID   *snowflake.Snowflake
 }
 
 // Channel returns the core.Channel where the GenericMessageEvent happened

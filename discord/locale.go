@@ -1,0 +1,82 @@
+package discord
+
+type Locale string
+
+func (l Locale) String() string {
+	if name, ok := Locales[l]; ok {
+		return name
+	}
+	return Unknown.String()
+}
+
+func (l Locale) Code() string {
+	return string(l)
+}
+
+const (
+	EnglishUS    Locale = "en-US"
+	EnglishGB    Locale = "en-GB"
+	Bulgarian    Locale = "bg"
+	ChineseCN    Locale = "zh-CN"
+	ChineseTW    Locale = "zh-TW"
+	Croatian     Locale = "hr"
+	Czech        Locale = "cs"
+	Danish       Locale = "da"
+	Dutch        Locale = "nl"
+	Finnish      Locale = "fi"
+	French       Locale = "fr"
+	German       Locale = "de"
+	Greek        Locale = "el"
+	Hindi        Locale = "hi"
+	Hungarian    Locale = "hu"
+	Italian      Locale = "it"
+	Japanese     Locale = "ja"
+	Korean       Locale = "ko"
+	Lithuanian   Locale = "lt"
+	Norwegian    Locale = "no"
+	Polish       Locale = "pl"
+	PortugueseBR Locale = "pt-BR"
+	Romanian     Locale = "ro"
+	Russian      Locale = "ru"
+	SpanishES    Locale = "es-ES"
+	Swedish      Locale = "sv-SE"
+	Thai         Locale = "th"
+	Turkish      Locale = "tr"
+	Ukrainian    Locale = "uk"
+	Vietnamese   Locale = "vi"
+	Unknown      Locale = ""
+)
+
+var Locales = map[Locale]string{
+	EnglishUS:    "English (United States)",
+	EnglishGB:    "English (Great Britain)",
+	Bulgarian:    "Bulgarian",
+	ChineseCN:    "Chinese (China)",
+	ChineseTW:    "Chinese (Taiwan)",
+	Croatian:     "Croatian",
+	Czech:        "Czech",
+	Danish:       "Danish",
+	Dutch:        "Dutch",
+	Finnish:      "Finnish",
+	French:       "French",
+	German:       "German",
+	Greek:        "Greek",
+	Hindi:        "Hindi",
+	Hungarian:    "Hungarian",
+	Italian:      "Italian",
+	Japanese:     "Japanese",
+	Korean:       "Korean",
+	Lithuanian:   "Lithuanian",
+	Norwegian:    "Norwegian",
+	Polish:       "Polish",
+	PortugueseBR: "Portuguese (Brazil)",
+	Romanian:     "Romanian",
+	Russian:      "Russian",
+	SpanishES:    "Spanish (Spain)",
+	Swedish:      "Swedish",
+	Thai:         "Thai",
+	Turkish:      "Turkish",
+	Ukrainian:    "Ukrainian",
+	Vietnamese:   "Vietnamese",
+	Unknown:      "unknown",
+}

@@ -13,19 +13,12 @@ import (
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/log"
-)
-
-const (
-	red    = 16711680
-	orange = 16562691
-	green  = 65280
+	"github.com/DisgoOrg/snowflake"
 )
 
 var (
-	token       = os.Getenv("disgo_token")
-	guildID     = discord.Snowflake(os.Getenv("disgo_guild_id"))
-	adminRoleID = discord.Snowflake(os.Getenv("disgo_admin_role_id"))
-	testRoleID  = discord.Snowflake(os.Getenv("disgo_test_role_id"))
+	token   = os.Getenv("disgo_token")
+	guildID = snowflake.GetSnowflakeEnv("disgo_test_guild_id")
 
 	//go:embed gopher.png
 	gopher []byte
@@ -40,7 +33,7 @@ func main() {
 	disgo, err := bot.New(token,
 		//bot.WithRawEventsEnabled(),
 		bot.WithGatewayOpts(
-			gateway.WithGatewayIntents(discord.GatewayIntentsAll),
+			gateway.WithGatewayIntents(discord.GatewayIntentsNonPrivileged),
 			gateway.WithPresence(core.NewListeningPresence("your bullshit", discord.OnlineStatusOnline, false)),
 		),
 		bot.WithCacheOpts(

@@ -7,8 +7,8 @@ import (
 
 // NewApplicationCommandInteractionCollector gives you a channel to receive on and a function to close the collector
 //goland:noinspection GoUnusedExportedFunction
-func NewApplicationCommandInteractionCollector(disgo *core.Bot, filter core.ApplicationCommandInteractionFilter) (<-chan core.ApplicationCommandInteraction, func()) {
-	ch := make(chan core.ApplicationCommandInteraction)
+func NewApplicationCommandInteractionCollector(disgo *core.Bot, filter core.ApplicationCommandInteractionFilter) (<-chan *core.ApplicationCommandInteraction, func()) {
+	ch := make(chan *core.ApplicationCommandInteraction)
 
 	col := &ApplicationCommandInteractionCollector{
 		Filter: filter,
@@ -27,13 +27,13 @@ func NewApplicationCommandInteractionCollector(disgo *core.Bot, filter core.Appl
 // ApplicationCommandInteractionCollector used to collect core.ApplicationCommandInteractionApplicationCommandInteraction(s) from a core.Message using a ButtonFilter function
 type ApplicationCommandInteractionCollector struct {
 	Filter core.ApplicationCommandInteractionFilter
-	Chan   chan<- core.ApplicationCommandInteraction
+	Chan   chan<- *core.ApplicationCommandInteraction
 	Close  func()
 }
 
 // OnEvent used to get events for the ButtonCollector
 func (c *ApplicationCommandInteractionCollector) OnEvent(e core.Event) {
-	if event, ok := e.(*events.ApplicationCommandInteractionCreateEvent); ok {
+	if event, ok := e.(*events.ApplicationCommandInteractionEvent); ok {
 		if !c.Filter(event.ApplicationCommandInteraction) {
 			return
 		}

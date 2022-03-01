@@ -20,7 +20,7 @@ func (h *gatewayHandlerResumed) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerResumed) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, _ interface{}) {
+func (h *gatewayHandlerResumed) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, _ interface{}) {
 	bot.EventManager.Dispatch(&events.ResumedEvent{
 		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 	})

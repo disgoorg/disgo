@@ -20,7 +20,7 @@ func (h *gatewayHandlerGuildUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerGuildUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	guild := *v.(*discord.Guild)
 
 	oldGuild := bot.Caches.Guilds().GetCopy(guild.ID)

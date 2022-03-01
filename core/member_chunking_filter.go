@@ -1,18 +1,18 @@
 package core
 
-import "github.com/DisgoOrg/disgo/discord"
+import "github.com/DisgoOrg/snowflake"
 
-type MemberChunkingFilter func(guildID discord.Snowflake) bool
+type MemberChunkingFilter func(guildID snowflake.Snowflake) bool
 
 //goland:noinspection GoUnusedGlobalVariable
 var (
-	MemberChunkingFilterAll  MemberChunkingFilter = func(_ discord.Snowflake) bool { return true }
-	MemberChunkingFilterNone MemberChunkingFilter = func(_ discord.Snowflake) bool { return false }
+	MemberChunkingFilterAll  MemberChunkingFilter = func(_ snowflake.Snowflake) bool { return true }
+	MemberChunkingFilterNone MemberChunkingFilter = func(_ snowflake.Snowflake) bool { return false }
 )
 
-func (f MemberChunkingFilter) Include(guildIDs ...discord.Snowflake) MemberChunkingFilter {
-	return func(guildID discord.Snowflake) bool {
-		return f(guildID) || func(guildID discord.Snowflake) bool {
+func (f MemberChunkingFilter) Include(guildIDs ...snowflake.Snowflake) MemberChunkingFilter {
+	return func(guildID snowflake.Snowflake) bool {
+		return f(guildID) || func(guildID snowflake.Snowflake) bool {
 			for _, gID := range guildIDs {
 				if gID == guildID {
 					return true
@@ -23,9 +23,9 @@ func (f MemberChunkingFilter) Include(guildIDs ...discord.Snowflake) MemberChunk
 	}
 }
 
-func (f MemberChunkingFilter) Exclude(guildIDs ...discord.Snowflake) MemberChunkingFilter {
-	return func(guildID discord.Snowflake) bool {
-		return f(guildID) || func(guildID discord.Snowflake) bool {
+func (f MemberChunkingFilter) Exclude(guildIDs ...snowflake.Snowflake) MemberChunkingFilter {
+	return func(guildID snowflake.Snowflake) bool {
+		return f(guildID) || func(guildID snowflake.Snowflake) bool {
 			for _, gID := range guildIDs {
 				if gID == guildID {
 					return false

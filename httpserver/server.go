@@ -3,7 +3,6 @@ package httpserver
 import (
 	"bytes"
 	"context"
-	"crypto/ed25519"
 	"encoding/hex"
 	"io"
 	"io/ioutil"
@@ -18,15 +17,15 @@ type EventHandlerFunc func(responseChannel chan<- discord.InteractionResponse, p
 // Server is used for receiving an Interaction over httpserver
 type Server interface {
 	Logger() log.Logger
-	PublicKey() ed25519.PublicKey
+	PublicKey() PublicKey
 	Config() Config
 	Start()
-	Close(ctx context.Context) error
+	Close(ctx context.Context)
 }
 
-// Verify implements the verification side of the discord interactions api signing algorithm, as documented here: https://discord.com/developers/docs/interactions/slash-commands#security-and-authorization
+// VerifyRequest implements the verification side of the discord interactions api signing algorithm, as documented here: https://discord.com/developers/docs/interactions/slash-commands#security-and-authorization
 // Credit: https://github.com/bsdlp/discord-interactions-go/blob/main/interactions/verify.go
-func Verify(logger log.Logger, r *http.Request, key ed25519.PublicKey) bool {
+func VerifyRequest(logger log.Logger, r *http.Request, key PublicKey) bool {
 	var msg bytes.Buffer
 
 	signature := r.Header.Get("X-Signature-Ed25519")
@@ -39,7 +38,7 @@ func Verify(logger log.Logger, r *http.Request, key ed25519.PublicKey) bool {
 		return false
 	}
 
-	if len(sig) != ed25519.SignatureSize || sig[63]&224 != 0 {
+	if len(sig) != SignatureSize || sig[63]&224 != 0 {
 		return false
 	}
 
@@ -67,5 +66,5 @@ func Verify(logger log.Logger, r *http.Request, key ed25519.PublicKey) bool {
 		return false
 	}
 
-	return ed25519.Verify(key, msg.Bytes(), sig)
+	return Verify(key, msg.Bytes(), sig)
 }

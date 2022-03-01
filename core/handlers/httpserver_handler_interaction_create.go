@@ -18,8 +18,8 @@ func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(bot *core.Bot, c ch
 
 	// we just want to pong all pings
 	// no need for any event
-	if interaction.InteractionType() == discord.InteractionTypePing {
-		bot.Logger.Info("received http interaction ping. responding with pong")
+	if interaction.Type() == discord.InteractionTypePing {
+		bot.Logger.Debug("received http interaction ping. responding with pong")
 		c <- discord.InteractionResponse{
 			Type: discord.InteractionCallbackTypePong,
 		}

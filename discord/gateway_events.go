@@ -4,12 +4,13 @@ import (
 	"time"
 
 	"github.com/DisgoOrg/disgo/json"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // GatewayPayload raw GatewayEvent type
 type GatewayPayload struct {
 	Op GatewayOpcode    `json:"op"`
-	S  int              `json:"s,omitempty"`
+	S  GatewaySequence  `json:"s,omitempty"`
 	T  GatewayEventType `json:"t,omitempty"`
 	D  json.RawMessage  `json:"d,omitempty"`
 }
@@ -61,17 +62,17 @@ func (e *GatewayEventThreadUpdate) UnmarshalJSON(data []byte) error {
 }
 
 type GatewayEventThreadDelete struct {
-	ID       Snowflake   `json:"id"`
-	GuildID  Snowflake   `json:"guild_id"`
-	ParentID Snowflake   `json:"parent_id"`
-	Type     ChannelType `json:"type"`
+	ID       snowflake.Snowflake `json:"id"`
+	GuildID  snowflake.Snowflake `json:"guild_id"`
+	ParentID snowflake.Snowflake `json:"parent_id"`
+	Type     ChannelType         `json:"type"`
 }
 
 type GatewayEventThreadListSync struct {
-	GuildID    Snowflake      `json:"guild_id"`
-	ChannelIDs []Snowflake    `json:"channel_ids"`
-	Threads    []GuildThread  `json:"threads"`
-	Members    []ThreadMember `json:"members"`
+	GuildID    snowflake.Snowflake   `json:"guild_id"`
+	ChannelIDs []snowflake.Snowflake `json:"channel_ids"`
+	Threads    []GuildThread         `json:"threads"`
+	Members    []ThreadMember        `json:"members"`
 }
 
 func (e *GatewayEventThreadListSync) UnmarshalJSON(data []byte) error {
@@ -94,11 +95,11 @@ func (e *GatewayEventThreadListSync) UnmarshalJSON(data []byte) error {
 }
 
 type GatewayEventThreadMembersUpdate struct {
-	ID               Snowflake                  `json:"id"`
-	GuildID          Snowflake                  `json:"guild_id"`
+	ID               snowflake.Snowflake        `json:"id"`
+	GuildID          snowflake.Snowflake        `json:"guild_id"`
 	MemberCount      int                        `json:"member_count"`
 	AddedMembers     []ThreadMembersAddedMember `json:"added_members"`
-	RemovedMemberIDs []Snowflake                `json:"removed_member_ids"`
+	RemovedMemberIDs []snowflake.Snowflake      `json:"removed_member_ids"`
 }
 
 type ThreadMembersAddedMember struct {
@@ -108,31 +109,31 @@ type ThreadMembersAddedMember struct {
 }
 
 type GatewayEventMessageReactionAdd struct {
-	UserID    Snowflake     `json:"user_id"`
-	ChannelID Snowflake     `json:"channel_id"`
-	MessageID Snowflake     `json:"message_id"`
-	GuildID   *Snowflake    `json:"guild_id"`
-	Member    *Member       `json:"member"`
-	Emoji     ReactionEmoji `json:"emoji"`
+	UserID    snowflake.Snowflake  `json:"user_id"`
+	ChannelID snowflake.Snowflake  `json:"channel_id"`
+	MessageID snowflake.Snowflake  `json:"message_id"`
+	GuildID   *snowflake.Snowflake `json:"guild_id"`
+	Member    *Member              `json:"member"`
+	Emoji     ReactionEmoji        `json:"emoji"`
 }
 
 type GatewayEventMessageReactionRemove struct {
-	UserID    Snowflake     `json:"user_id"`
-	ChannelID Snowflake     `json:"channel_id"`
-	MessageID Snowflake     `json:"message_id"`
-	GuildID   *Snowflake    `json:"guild_id"`
-	Emoji     ReactionEmoji `json:"emoji"`
+	UserID    snowflake.Snowflake  `json:"user_id"`
+	ChannelID snowflake.Snowflake  `json:"channel_id"`
+	MessageID snowflake.Snowflake  `json:"message_id"`
+	GuildID   *snowflake.Snowflake `json:"guild_id"`
+	Emoji     ReactionEmoji        `json:"emoji"`
 }
 
 type GatewayEventMessageReactionRemoveEmoji struct {
-	ChannelID Snowflake     `json:"channel_id"`
-	MessageID Snowflake     `json:"message_id"`
-	GuildID   *Snowflake    `json:"guild_id"`
-	Emoji     ReactionEmoji `json:"emoji"`
+	ChannelID snowflake.Snowflake  `json:"channel_id"`
+	MessageID snowflake.Snowflake  `json:"message_id"`
+	GuildID   *snowflake.Snowflake `json:"guild_id"`
+	Emoji     ReactionEmoji        `json:"emoji"`
 }
 
 type GatewayEventMessageReactionRemoveAll struct {
-	ChannelID Snowflake  `json:"channel_id"`
-	MessageID Snowflake  `json:"message_id"`
-	GuildID   *Snowflake `json:"guild_id"`
+	ChannelID snowflake.Snowflake  `json:"channel_id"`
+	MessageID snowflake.Snowflake  `json:"message_id"`
+	GuildID   *snowflake.Snowflake `json:"guild_id"`
 }

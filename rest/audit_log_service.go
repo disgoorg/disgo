@@ -3,6 +3,7 @@ package rest
 import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest/route"
+	"github.com/DisgoOrg/snowflake"
 )
 
 var (
@@ -16,7 +17,7 @@ func NewAuditLogService(restClient Client) AuditLogService {
 
 type AuditLogService interface {
 	Service
-	GetAuditLog(guildID discord.Snowflake, userID discord.Snowflake, actionType discord.AuditLogEvent, before discord.Snowflake, limit int, opts ...RequestOpt) (*discord.AuditLog, error)
+	GetAuditLog(guildID snowflake.Snowflake, userID snowflake.Snowflake, actionType discord.AuditLogEvent, before snowflake.Snowflake, limit int, opts ...RequestOpt) (*discord.AuditLog, error)
 }
 
 type AuditLogServiceImpl struct {
@@ -27,7 +28,7 @@ func (s *AuditLogServiceImpl) RestClient() Client {
 	return s.restClient
 }
 
-func (s *AuditLogServiceImpl) GetAuditLog(guildID discord.Snowflake, userID discord.Snowflake, actionType discord.AuditLogEvent, before discord.Snowflake, limit int, opts ...RequestOpt) (auditLog *discord.AuditLog, err error) {
+func (s *AuditLogServiceImpl) GetAuditLog(guildID snowflake.Snowflake, userID snowflake.Snowflake, actionType discord.AuditLogEvent, before snowflake.Snowflake, limit int, opts ...RequestOpt) (auditLog *discord.AuditLog, err error) {
 	values := route.QueryValues{}
 	if userID != "" {
 		values["user_id"] = userID

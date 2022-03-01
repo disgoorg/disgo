@@ -21,7 +21,7 @@ func (h *gatewayHandlerPresenceUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber int, v interface{}) {
+func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.Presence)
 
 	oldPresence := bot.Caches.Presences().GetCopy(payload.GuildID, payload.PresenceUser.ID)

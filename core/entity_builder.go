@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // CacheStrategy is used to determine whether something should be cached when making an api request. When using the
@@ -38,25 +39,25 @@ type EntityBuilder interface {
 	CreateStageInstance(stageInstance discord.StageInstance, updateCache CacheStrategy) *StageInstance
 
 	CreateGuildScheduledEvent(guildScheduledEvent discord.GuildScheduledEvent, updateCache CacheStrategy) *GuildScheduledEvent
-	CreateGuildScheduledEventUser(guildID discord.Snowflake, guildScheduledEventUser discord.GuildScheduledEventUser, updateCache CacheStrategy) *GuildScheduledEventUser
+	CreateGuildScheduledEventUser(guildID snowflake.Snowflake, guildScheduledEventUser discord.GuildScheduledEventUser, updateCache CacheStrategy) *GuildScheduledEventUser
 
-	CreateRole(guildID discord.Snowflake, role discord.Role, updateCache CacheStrategy) *Role
-	CreateMember(guildID discord.Snowflake, member discord.Member, updateCache CacheStrategy) *Member
-	CreateBan(guildID discord.Snowflake, ban discord.Ban, updateCache CacheStrategy) *Ban
+	CreateRole(guildID snowflake.Snowflake, role discord.Role, updateCache CacheStrategy) *Role
+	CreateMember(guildID snowflake.Snowflake, member discord.Member, updateCache CacheStrategy) *Member
+	CreateBan(guildID snowflake.Snowflake, ban discord.Ban, updateCache CacheStrategy) *Ban
 	CreateVoiceState(voiceState discord.VoiceState, updateCache CacheStrategy) *VoiceState
 
 	CreateApplicationCommand(applicationCommand discord.ApplicationCommand) ApplicationCommand
 	CreateApplicationCommandPermissions(guildCommandPermissions discord.ApplicationCommandPermissions) *ApplicationCommandPermissions
 
-	CreateAuditLog(guildID discord.Snowflake, auditLog discord.AuditLog, filterOptions AuditLogFilterOptions, updateCache CacheStrategy) *AuditLog
-	CreateIntegration(guildID discord.Snowflake, integration discord.Integration, updateCache CacheStrategy) Integration
+	CreateAuditLog(guildID snowflake.Snowflake, auditLog discord.AuditLog, filterOptions AuditLogFilterOptions, updateCache CacheStrategy) *AuditLog
+	CreateIntegration(guildID snowflake.Snowflake, integration discord.Integration, updateCache CacheStrategy) Integration
 
 	CreateChannel(channel discord.Channel, updateCache CacheStrategy) Channel
 	CreateThreadMember(threadMember discord.ThreadMember, updateCache CacheStrategy) *ThreadMember
 
 	CreateInvite(invite discord.Invite, updateCache CacheStrategy) *Invite
 
-	CreateEmoji(guildID discord.Snowflake, emoji discord.Emoji, updateCache CacheStrategy) *Emoji
+	CreateEmoji(guildID snowflake.Snowflake, emoji discord.Emoji, updateCache CacheStrategy) *Emoji
 	CreateStickerPack(stickerPack discord.StickerPack, updateCache CacheStrategy) *StickerPack
 	CreateSticker(sticker discord.Sticker, updateCache CacheStrategy) *Sticker
 	CreateMessageSticker(sticker discord.MessageSticker) *MessageSticker
@@ -74,22 +75,200 @@ func (b *entityBuilderImpl) Bot() *Bot {
 	return b.bot
 }
 
+func (b *entityBuilderImpl) baseInteraction(baseInteraction discord.BaseInteraction, c chan<- discord.InteractionResponse, updateCache CacheStrategy) *BaseInteraction {
+	member, user := b.parseMemberOrUser(baseInteraction.GuildID, baseInteraction.Member, baseInteraction.User, updateCache)
+	return &BaseInteraction{
+		ID:              baseInteraction.ID,
+		ApplicationID:   baseInteraction.ApplicationID,
+		Token:           baseInteraction.Token,
+		Version:         baseInteraction.Version,
+		GuildID:         baseInteraction.GuildID,
+		ChannelID:       baseInteraction.ChannelID,
+		Locale:          baseInteraction.Locale,
+		GuildLocale:     baseInteraction.GuildLocale,
+		Member:          member,
+		User:            user,
+		ResponseChannel: c,
+		Acknowledged:    false,
+		Bot:             b.bot,
+	}
+}
+
 // CreateInteraction creates an Interaction from the discord.Interaction response
 func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c chan<- discord.InteractionResponse, updateCache CacheStrategy) Interaction {
-	interactionFields := &InteractionFields{
-		Bot:             b.Bot(),
-		ResponseChannel: c,
-	}
-
 	switch i := interaction.(type) {
-	case discord.AutocompleteInteraction:
-		member, user := b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
+	case discord.ApplicationCommandInteraction:
+		var interactionData ApplicationCommandInteractionData
+		switch d := i.Data.(type) {
+		case discord.SlashCommandInteractionData:
+			data := SlashCommandInteractionData{
+				SlashCommandInteractionData: d,
+				Resolved: &SlashCommandResolved{
+					Users:    map[snowflake.Snowflake]*User{},
+					Members:  map[snowflake.Snowflake]*Member{},
+					Roles:    map[snowflake.Snowflake]*Role{},
+					Channels: map[snowflake.Snowflake]Channel{},
+				},
+			}
+			for id, u := range d.Resolved.Users {
+				data.Resolved.Users[id] = b.CreateUser(u, updateCache)
+			}
 
+			for id, m := range d.Resolved.Members {
+				// discord omits the user field Oof
+				m.User = d.Resolved.Users[id]
+				data.Resolved.Members[id] = b.CreateMember(*i.GuildID, m, updateCache)
+			}
+
+			for id, r := range d.Resolved.Roles {
+				data.Resolved.Roles[id] = b.CreateRole(*i.GuildID, r, updateCache)
+			}
+
+			for id, c := range d.Resolved.Channels {
+				data.Resolved.Channels[id] = b.CreateChannel(c, updateCache)
+			}
+
+			unmarshalOptions := d.Options
+			if len(unmarshalOptions) > 0 {
+				unmarshalOption := unmarshalOptions[0]
+				if option, ok := unmarshalOption.(discord.SlashCommandOptionSubCommandGroup); ok {
+					data.SubCommandGroupName = &option.OptionName
+					unmarshalOptions = make([]discord.SlashCommandOption, len(option.Options))
+					for ii := range option.Options {
+						unmarshalOptions[ii] = option.Options[ii]
+					}
+					unmarshalOption = option.Options[0]
+				}
+				if option, ok := unmarshalOption.(discord.SlashCommandOptionSubCommand); ok {
+					data.SubCommandName = &option.OptionName
+					unmarshalOptions = option.Options
+				}
+			}
+
+			data.Options = make(map[string]SlashCommandOption, len(unmarshalOptions))
+			for _, option := range unmarshalOptions {
+				var slashCommandOption SlashCommandOption
+				switch o := option.(type) {
+				case discord.SlashCommandOptionString:
+					slashCommandOption = SlashCommandOptionString{
+						SlashCommandOptionString: o,
+						Resolved:                 data.Resolved,
+					}
+
+				case discord.SlashCommandOptionInt:
+					slashCommandOption = SlashCommandOptionInt{
+						SlashCommandOptionInt: o,
+					}
+
+				case discord.SlashCommandOptionBool:
+					slashCommandOption = SlashCommandOptionBool{
+						SlashCommandOptionBool: o,
+					}
+
+				case discord.SlashCommandOptionUser:
+					slashCommandOption = SlashCommandOptionUser{
+						SlashCommandOptionUser: o,
+						Resolved:               data.Resolved,
+					}
+
+				case discord.SlashCommandOptionChannel:
+					slashCommandOption = SlashCommandOptionChannel{
+						SlashCommandOptionChannel: o,
+						Resolved:                  data.Resolved,
+					}
+
+				case discord.SlashCommandOptionRole:
+					slashCommandOption = SlashCommandOptionRole{
+						SlashCommandOptionRole: o,
+						Resolved:               data.Resolved,
+					}
+
+				case discord.SlashCommandOptionMentionable:
+					slashCommandOption = SlashCommandOptionMentionable{
+						SlashCommandOptionMentionable: o,
+						Resolved:                      data.Resolved,
+					}
+
+				case discord.SlashCommandOptionFloat:
+					slashCommandOption = SlashCommandOptionFloat{
+						SlashCommandOptionFloat: o,
+					}
+
+				case discord.SlashCommandOptionAttachment:
+					slashCommandOption = SlashCommandOptionAttachment{
+						SlashCommandOptionAttachment: o,
+						Resolved:                     data.Resolved,
+					}
+
+				default:
+					b.Bot().Logger.Errorf("unknown slash command option with type %d received", option.Type())
+					continue
+				}
+				data.Options[option.Name()] = slashCommandOption
+			}
+			interactionData = data
+
+		case discord.UserCommandInteractionData:
+			data := UserCommandInteractionData{
+				UserCommandInteractionData: d,
+				Resolved: &UserCommandResolved{
+					Users:   map[snowflake.Snowflake]*User{},
+					Members: map[snowflake.Snowflake]*Member{},
+				},
+			}
+			for id, u := range d.Resolved.Users {
+				data.Resolved.Users[id] = b.CreateUser(u, updateCache)
+			}
+
+			for id, m := range d.Resolved.Members {
+				// discord omits the user field Oof
+				m.User = d.Resolved.Users[id]
+				data.Resolved.Members[id] = b.CreateMember(*i.GuildID, m, updateCache)
+			}
+			interactionData = data
+
+		case discord.MessageCommandInteractionData:
+			data := MessageCommandInteractionData{
+				MessageCommandInteractionData: d,
+				Resolved: &MessageCommandResolved{
+					Messages: map[snowflake.Snowflake]*Message{},
+				},
+			}
+			for id, message := range d.Resolved.Messages {
+				data.Resolved.Messages[id] = b.CreateMessage(message, updateCache)
+			}
+			interactionData = data
+		}
+		baseInteraction := b.baseInteraction(i.BaseInteraction, c, updateCache)
+		return &ApplicationCommandInteraction{
+			CreateInteraction: CreateInteraction{BaseInteraction: baseInteraction},
+			Data:              interactionData,
+		}
+
+	case discord.ComponentInteraction:
+		baseInteraction := b.baseInteraction(i.BaseInteraction, c, updateCache)
+		componentInteraction := &ComponentInteraction{
+			CreateInteraction: CreateInteraction{BaseInteraction: baseInteraction},
+			Message:           b.CreateMessage(i.Message, updateCache),
+		}
+		switch d := i.Data.(type) {
+		case discord.ButtonInteractionData:
+			componentInteraction.Data = ButtonInteractionData{
+				ButtonInteractionData: d,
+				interaction:           componentInteraction,
+			}
+
+		case discord.SelectMenuInteractionData:
+			componentInteraction.Data = SelectMenuInteractionData{
+				SelectMenuInteractionData: d,
+				interaction:               componentInteraction,
+			}
+		}
+		return componentInteraction
+
+	case discord.AutocompleteInteraction:
 		autocompleteInteraction := &AutocompleteInteraction{
-			AutocompleteInteraction: i,
-			InteractionFields:       interactionFields,
-			User:                    user,
-			Member:                  member,
+			BaseInteraction: b.baseInteraction(i.BaseInteraction, c, updateCache),
 			Data: AutocompleteInteractionData{
 				AutocompleteInteractionData: i.Data,
 			},
@@ -119,203 +298,37 @@ func (b *entityBuilderImpl) CreateInteraction(interaction discord.Interaction, c
 
 		return autocompleteInteraction
 
-	case discord.SlashCommandInteraction:
-		member, user := b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
+	case discord.ModalSubmitInteraction:
+		baseInteraction := b.baseInteraction(i.BaseInteraction, c, updateCache)
 
-		slashCommandInteraction := &SlashCommandInteraction{
-			SlashCommandInteraction: i,
-			InteractionFields:       interactionFields,
-			User:                    user,
-			Member:                  member,
-			Data: SlashCommandInteractionData{
-				SlashCommandInteractionData: i.Data,
-			},
-		}
+		componentsMap := ModalComponentsMap{}
 
-		resolved := &SlashCommandResolved{
-			Users:    map[discord.Snowflake]*User{},
-			Members:  map[discord.Snowflake]*Member{},
-			Roles:    map[discord.Snowflake]*Role{},
-			Channels: map[discord.Snowflake]Channel{},
-		}
-		slashCommandInteraction.Data.Resolved = resolved
-		for id, u := range i.Data.Resolved.Users {
-			resolved.Users[id] = b.CreateUser(u, updateCache)
-		}
-
-		for id, m := range i.Data.Resolved.Members {
-			// discord omits the user field Oof
-			m.User = i.Data.Resolved.Users[id]
-			resolved.Members[id] = b.CreateMember(*i.GuildID, m, updateCache)
-		}
-
-		for id, r := range i.Data.Resolved.Roles {
-			resolved.Roles[id] = b.CreateRole(*i.GuildID, r, updateCache)
-		}
-
-		for id, c := range i.Data.Resolved.Channels {
-			resolved.Channels[id] = b.CreateChannel(c, updateCache)
-		}
-
-		unmarshalOptions := i.Data.Options
-		if len(unmarshalOptions) > 0 {
-			unmarshalOption := unmarshalOptions[0]
-			if option, ok := unmarshalOption.(discord.SlashCommandOptionSubCommandGroup); ok {
-				slashCommandInteraction.Data.SubCommandGroupName = &option.OptionName
-				unmarshalOptions = make([]discord.SlashCommandOption, len(option.Options))
-				for ii := range option.Options {
-					unmarshalOptions[ii] = option.Options[ii]
+		for j := range i.Data.Components {
+			for k := range i.Data.Components[j].Components() {
+				component := i.Data.Components[j].Components()[k]
+				if inputComponent, ok := component.(discord.InputComponent); ok {
+					componentsMap[inputComponent.ID()] = inputComponent
 				}
-				unmarshalOption = option.Options[0]
-			}
-			if option, ok := unmarshalOption.(discord.SlashCommandOptionSubCommand); ok {
-				slashCommandInteraction.Data.SubCommandName = &option.OptionName
-				unmarshalOptions = option.Options
 			}
 		}
 
-		slashCommandInteraction.Data.Options = make(map[string]SlashCommandOption, len(unmarshalOptions))
-		for _, option := range unmarshalOptions {
-			var slashCommandOption SlashCommandOption
-			switch o := option.(type) {
-			case discord.SlashCommandOptionString:
-				slashCommandOption = SlashCommandOptionString{
-					SlashCommandOptionString: o,
-					Resolved:                 resolved,
-				}
-
-			case discord.SlashCommandOptionInt:
-				slashCommandOption = SlashCommandOptionInt{
-					SlashCommandOptionInt: o,
-				}
-
-			case discord.SlashCommandOptionBool:
-				slashCommandOption = SlashCommandOptionBool{
-					SlashCommandOptionBool: o,
-				}
-
-			case discord.SlashCommandOptionUser:
-				slashCommandOption = SlashCommandOptionUser{
-					SlashCommandOptionUser: o,
-					Resolved:               resolved,
-				}
-
-			case discord.SlashCommandOptionChannel:
-				slashCommandOption = SlashCommandOptionChannel{
-					SlashCommandOptionChannel: o,
-					Resolved:                  resolved,
-				}
-
-			case discord.SlashCommandOptionRole:
-				slashCommandOption = SlashCommandOptionRole{
-					SlashCommandOptionRole: o,
-					Resolved:               resolved,
-				}
-
-			case discord.SlashCommandOptionMentionable:
-				slashCommandOption = SlashCommandOptionMentionable{
-					SlashCommandOptionMentionable: o,
-					Resolved:                      resolved,
-				}
-
-			case discord.SlashCommandOptionFloat:
-				slashCommandOption = SlashCommandOptionFloat{
-					SlashCommandOptionFloat: o,
-				}
-
-			default:
-				b.Bot().Logger.Errorf("unknown slash command option with type %d received", option.Type())
-				continue
-			}
-			slashCommandInteraction.Data.Options[option.Name()] = slashCommandOption
-		}
-
-		return slashCommandInteraction
-
-	case discord.UserCommandInteraction:
-		member, user := b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
-
-		userCommandInteraction := &UserCommandInteraction{
-			UserCommandInteraction: i,
-			InteractionFields:      interactionFields,
-			User:                   user,
-			Member:                 member,
-			Data: UserCommandInteractionData{
-				UserCommandInteractionData: i.Data,
-				Resolved: &UserCommandResolved{
-					Users:   map[discord.Snowflake]*User{},
-					Members: map[discord.Snowflake]*Member{},
-				},
+		modalSubmitInteraction := &ModalSubmitInteraction{
+			CreateInteraction: CreateInteraction{BaseInteraction: baseInteraction},
+			Data: ModalSubmitInteractionData{
+				ModalSubmitInteractionData: i.Data,
+				Components:                 componentsMap,
 			},
 		}
 
-		for id, u := range i.Data.Resolved.Users {
-			userCommandInteraction.Data.Resolved.Users[id] = b.CreateUser(u, updateCache)
-		}
-
-		for id, m := range i.Data.Resolved.Members {
-			// discord omits the user field Oof
-			m.User = i.Data.Resolved.Users[id]
-			userCommandInteraction.Data.Resolved.Members[id] = b.CreateMember(*i.GuildID, m, updateCache)
-		}
-
-		return userCommandInteraction
-
-	case discord.MessageCommandInteraction:
-		member, user := b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
-
-		messageCommandInteraction := &MessageCommandInteraction{
-			MessageCommandInteraction: i,
-			InteractionFields:         interactionFields,
-			User:                      user,
-			Member:                    member,
-			Data: MessageCommandInteractionData{
-				MessageCommandInteractionData: i.Data,
-				Resolved: &MessageCommandResolved{
-					Messages: map[discord.Snowflake]*Message{},
-				},
-			},
-		}
-
-		for id, message := range i.Data.Resolved.Messages {
-			messageCommandInteraction.Data.Resolved.Messages[id] = b.CreateMessage(message, updateCache)
-		}
-
-		return messageCommandInteraction
-
-	case discord.ButtonInteraction:
-		member, user := b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
-
-		message := b.CreateMessage(i.Message, updateCache)
-
-		return &ButtonInteraction{
-			ButtonInteraction: i,
-			InteractionFields: interactionFields,
-			User:              user,
-			Member:            member,
-			Message:           message,
-		}
-
-	case discord.SelectMenuInteraction:
-		member, user := b.parseMemberOrUser(i.GuildID, i.Member, i.User, updateCache)
-
-		message := b.CreateMessage(i.Message, updateCache)
-
-		return &SelectMenuInteraction{
-			SelectMenuInteraction: i,
-			InteractionFields:     interactionFields,
-			User:                  user,
-			Member:                member,
-			Message:               message,
-		}
+		return modalSubmitInteraction
 
 	default:
-		b.Bot().Logger.Error("unknown interaction type %d received", interaction.InteractionType())
+		b.Bot().Logger.Error("unknown interaction type %d received", interaction.Type())
 		return nil
 	}
 }
 
-func (b *entityBuilderImpl) parseMemberOrUser(guildID *discord.Snowflake, member *discord.Member, user *discord.User, updateCache CacheStrategy) (rMember *Member, rUser *User) {
+func (b *entityBuilderImpl) parseMemberOrUser(guildID *snowflake.Snowflake, member *discord.Member, user *discord.User, updateCache CacheStrategy) (rMember *Member, rUser *User) {
 	if member != nil {
 		rMember = b.CreateMember(*guildID, *member, updateCache)
 		rUser = rMember.User
@@ -416,7 +429,7 @@ func (b *entityBuilderImpl) CreateGuild(guild discord.Guild, updateCache CacheSt
 }
 
 // CreateMember returns a new discord.Member entity
-func (b *entityBuilderImpl) CreateMember(guildID discord.Snowflake, member discord.Member, updateCache CacheStrategy) *Member {
+func (b *entityBuilderImpl) CreateMember(guildID snowflake.Snowflake, member discord.Member, updateCache CacheStrategy) *Member {
 	coreMember := &Member{
 		Member: member,
 		Bot:    b.Bot(),
@@ -430,7 +443,7 @@ func (b *entityBuilderImpl) CreateMember(guildID discord.Snowflake, member disco
 	return coreMember
 }
 
-func (b *entityBuilderImpl) CreateBan(guildID discord.Snowflake, ban discord.Ban, updateCache CacheStrategy) *Ban {
+func (b *entityBuilderImpl) CreateBan(guildID snowflake.Snowflake, ban discord.Ban, updateCache CacheStrategy) *Ban {
 	return &Ban{
 		Ban:     ban,
 		Bot:     b.Bot(),
@@ -492,7 +505,7 @@ func (b *entityBuilderImpl) CreateApplicationCommandPermissions(guildCommandPerm
 }
 
 // CreateRole returns a new discord.Role entity
-func (b *entityBuilderImpl) CreateRole(guildID discord.Snowflake, role discord.Role, updateCache CacheStrategy) *Role {
+func (b *entityBuilderImpl) CreateRole(guildID snowflake.Snowflake, role discord.Role, updateCache CacheStrategy) *Role {
 	coreRole := &Role{
 		Role: role,
 	}
@@ -506,7 +519,7 @@ func (b *entityBuilderImpl) CreateRole(guildID discord.Snowflake, role discord.R
 }
 
 // CreateAuditLog returns a new discord.AuditLog entity
-func (b *entityBuilderImpl) CreateAuditLog(guildID discord.Snowflake, auditLog discord.AuditLog, filterOptions AuditLogFilterOptions, updateCache CacheStrategy) *AuditLog {
+func (b *entityBuilderImpl) CreateAuditLog(guildID snowflake.Snowflake, auditLog discord.AuditLog, filterOptions AuditLogFilterOptions, updateCache CacheStrategy) *AuditLog {
 	coreAuditLog := &AuditLog{
 		AuditLog:      auditLog,
 		GuildID:       guildID,
@@ -532,7 +545,7 @@ func (b *entityBuilderImpl) CreateAuditLog(guildID discord.Snowflake, auditLog d
 }
 
 // CreateIntegration returns a new discord.Integration entity
-func (b *entityBuilderImpl) CreateIntegration(guildID discord.Snowflake, integration discord.Integration, updateCache CacheStrategy) Integration {
+func (b *entityBuilderImpl) CreateIntegration(guildID snowflake.Snowflake, integration discord.Integration, updateCache CacheStrategy) Integration {
 	var coreIntegration Integration
 
 	switch i := integration.(type) {
@@ -624,7 +637,7 @@ func (b *entityBuilderImpl) CreateChannel(channel discord.Channel, updateCache C
 		c = &GuildVoiceChannel{
 			GuildVoiceChannel:  ch,
 			Bot:                b.Bot(),
-			ConnectedMemberIDs: map[discord.Snowflake]struct{}{},
+			ConnectedMemberIDs: map[snowflake.Snowflake]struct{}{},
 		}
 
 	case discord.GroupDMChannel:
@@ -674,7 +687,7 @@ func (b *entityBuilderImpl) CreateChannel(channel discord.Channel, updateCache C
 			GuildStageVoiceChannel: ch,
 			Bot:                    b.Bot(),
 			StageInstanceID:        nil,
-			ConnectedMemberIDs:     map[discord.Snowflake]struct{}{},
+			ConnectedMemberIDs:     map[snowflake.Snowflake]struct{}{},
 		}
 
 	default:
@@ -730,7 +743,7 @@ func (b *entityBuilderImpl) CreateGuildScheduledEvent(guildScheduledEvent discor
 	return coreGuildScheduledEvent
 }
 
-func (b *entityBuilderImpl) CreateGuildScheduledEventUser(guildID discord.Snowflake, guildScheduledEventUser discord.GuildScheduledEventUser, updateCache CacheStrategy) *GuildScheduledEventUser {
+func (b *entityBuilderImpl) CreateGuildScheduledEventUser(guildID snowflake.Snowflake, guildScheduledEventUser discord.GuildScheduledEventUser, updateCache CacheStrategy) *GuildScheduledEventUser {
 	coreGuildScheduledEventUser := &GuildScheduledEventUser{
 		GuildScheduledEventUser: guildScheduledEventUser, Bot: b.Bot(),
 		User: b.CreateUser(guildScheduledEventUser.User, updateCache),
@@ -760,7 +773,7 @@ func (b *entityBuilderImpl) CreateInvite(invite discord.Invite, updateCache Cach
 }
 
 // CreateEmoji returns a new discord.Emoji entity
-func (b *entityBuilderImpl) CreateEmoji(guildID discord.Snowflake, emoji discord.Emoji, updateCache CacheStrategy) *Emoji {
+func (b *entityBuilderImpl) CreateEmoji(guildID snowflake.Snowflake, emoji discord.Emoji, updateCache CacheStrategy) *Emoji {
 	coreEmoji := &Emoji{
 		Emoji: emoji,
 		Bot:   b.Bot(),

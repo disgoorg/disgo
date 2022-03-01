@@ -2,10 +2,12 @@ package core
 
 import (
 	"strings"
+	"time"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/disgo/rest/route"
+	"github.com/DisgoOrg/snowflake"
 )
 
 type Member struct {
@@ -62,6 +64,11 @@ func (m *Member) IsOwner() bool {
 	return false
 }
 
+// IsTimedOut returns whether this Member is timed out
+func (m *Member) IsTimedOut() bool {
+	return m.CommunicationDisabledUntil != nil && m.CommunicationDisabledUntil.After(time.Now())
+}
+
 // AvatarURL returns the Avatar URL of the Member for this guild
 func (m *Member) AvatarURL(size int) *string {
 	if m.Avatar == nil {
@@ -97,7 +104,7 @@ func (m *Member) Update(updateGuildMember discord.MemberUpdate, opts ...rest.Req
 }
 
 // Move moves/kicks the member to/from a voice channel
-func (m *Member) Move(channelID discord.Snowflake, opts ...rest.RequestOpt) (*Member, error) {
+func (m *Member) Move(channelID snowflake.Snowflake, opts ...rest.RequestOpt) (*Member, error) {
 	return m.Update(discord.MemberUpdate{ChannelID: &channelID}, opts...)
 }
 
@@ -117,11 +124,11 @@ func (m *Member) Unban(opts ...rest.RequestOpt) error {
 }
 
 // AddRole adds a specific Role the Member
-func (m *Member) AddRole(roleID discord.Snowflake, opts ...rest.RequestOpt) error {
+func (m *Member) AddRole(roleID snowflake.Snowflake, opts ...rest.RequestOpt) error {
 	return m.Bot.RestServices.GuildService().AddMemberRole(m.GuildID, m.User.ID, roleID, opts...)
 }
 
 // RemoveRole removes a specific Role this Member
-func (m *Member) RemoveRole(roleID discord.Snowflake, opts ...rest.RequestOpt) error {
+func (m *Member) RemoveRole(roleID snowflake.Snowflake, opts ...rest.RequestOpt) error {
 	return m.Bot.RestServices.GuildService().RemoveMemberRole(m.GuildID, m.User.ID, roleID, opts...)
 }
