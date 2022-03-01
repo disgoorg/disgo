@@ -277,8 +277,8 @@ func (g *gatewayImpl) resume() {
 	g.status = StatusResuming
 	resume := discord.ResumeCommandData{
 		Token:     g.token,
-		SessionID: *g.sessionID,
-		Seq:       *g.lastSequenceReceived,
+		SessionID: *g.config.SessionID,
+		Seq:       *g.config.LastSequenceReceived,
 	}
 
 	g.Logger().Info(g.formatLogs("sending Resume command..."))
@@ -346,7 +346,7 @@ func (g *gatewayImpl) listen() {
 
 			g.heartbeatInterval = eventData.HeartbeatInterval * time.Millisecond
 
-			if g.lastSequenceReceived == nil || g.sessionID == nil {
+			if g.config.LastSequenceReceived == nil || g.config.SessionID == nil {
 				g.connect()
 			} else {
 				g.resume()
