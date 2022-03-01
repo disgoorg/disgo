@@ -140,6 +140,7 @@ type Guild struct {
 	NSFWLevel                   NSFWLevel                  `json:"nsfw_level"`
 	BoostProgressBarEnabled     bool                       `json:"premium_progress_bar_enabled"`
 	Stickers                    []Sticker                  `json:"stickers"`
+	JoinedAt                    Time                       `json:"joined_at"`
 
 	// only over GET /guilds/{guild.id}
 	ApproximateMemberCount   int `json:"approximate_member_count"`
@@ -148,7 +149,6 @@ type Guild struct {
 
 type GatewayGuild struct {
 	Guild
-	JoinedAt             Time                  `json:"joined_at"`
 	Large                bool                  `json:"large"`
 	Unavailable          bool                  `json:"unavailable"`
 	VoiceStates          []VoiceState          `json:"voice_states"`
