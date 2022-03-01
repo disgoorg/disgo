@@ -20,10 +20,10 @@ func (h *gatewayHandlerMessageReactionRemoveEmoji) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerMessageReactionRemoveEmoji) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerMessageReactionRemoveEmoji) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, shardID int, v interface{}) {
 	payload := *v.(*discord.GatewayEventMessageReactionRemoveEmoji)
 
-	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber, shardID)
 
 	bot.EventManager.Dispatch(&events.MessageReactionRemoveEmojiEvent{
 		GenericEvent: genericEvent,

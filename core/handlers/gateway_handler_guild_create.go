@@ -21,11 +21,8 @@ func (h *gatewayHandlerGuildCreate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, shardID int, v interface{}) {
 	payload := *v.(*discord.GatewayGuild)
-
-	shard, _ := bot.Shard(payload.ID)
-	shardID := shard.ShardID()
 
 	wasUnready := bot.Caches.Guilds().IsUnready(shardID, payload.ID)
 	wasUnavailable := bot.Caches.Guilds().IsUnavailable(payload.ID)
@@ -82,7 +79,7 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 	}
 
 	genericGuildEvent := &events.GenericGuildEvent{
-		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber, shardID),
 		GuildID:      payload.ID,
 		Guild:        guild,
 	}
@@ -94,7 +91,7 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 		})
 		if len(bot.Caches.Guilds().UnreadyGuilds(shardID)) == 0 {
 			bot.EventManager.Dispatch(&events.GuildsReadyEvent{
-				GenericEvent: events.NewGenericEvent(bot, -1),
+				GenericEvent: events.NewGenericEvent(bot, -1, shardID),
 				ShardID:      shardID,
 			})
 		}

@@ -16,7 +16,7 @@ func (h *gatewayHandlerThreadListSync) New() interface{} {
 	return &discord.GatewayEventThreadListSync{}
 }
 
-func (h *gatewayHandlerThreadListSync) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerThreadListSync) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, shardID int, v interface{}) {
 	payload := *v.(*discord.GatewayEventThreadListSync)
 
 	for i := range payload.Threads {

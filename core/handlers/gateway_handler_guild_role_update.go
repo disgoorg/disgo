@@ -20,14 +20,14 @@ func (h *gatewayHandlerGuildRoleUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildRoleUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerGuildRoleUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, shardID int, v interface{}) {
 	payload := *v.(*discord.GuildRoleUpdateGatewayEvent)
 
 	oldRole := bot.Caches.Roles().GetCopy(payload.GuildID, payload.Role.ID)
 
 	bot.EventManager.Dispatch(&events.RoleUpdateEvent{
 		GenericRoleEvent: &events.GenericRoleEvent{
-			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+			GenericEvent: events.NewGenericEvent(bot, sequenceNumber, shardID),
 			GuildID:      payload.GuildID,
 			RoleID:       payload.Role.ID,
 			Role:         bot.EntityBuilder.CreateRole(payload.GuildID, payload.Role, core.CacheStrategyYes),

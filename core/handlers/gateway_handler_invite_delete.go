@@ -20,12 +20,12 @@ func (h *gatewayHandlerInviteDelete) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerInviteDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerInviteDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, shardID int, v interface{}) {
 	payload := *v.(*discord.InviteDeleteGatewayEvent)
 
 	bot.EventManager.Dispatch(&events.GuildInviteDeleteEvent{
 		GenericGuildInviteEvent: &events.GenericGuildInviteEvent{
-			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+			GenericEvent: events.NewGenericEvent(bot, sequenceNumber, shardID),
 			GuildID:      *payload.GuildID,
 			ChannelID:    payload.ChannelID,
 			Code:         payload.Code,

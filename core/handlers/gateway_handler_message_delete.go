@@ -21,14 +21,14 @@ func (h *gatewayHandlerMessageDelete) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerMessageDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerMessageDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, shardID int, v interface{}) {
 	payload := *v.(*discord.MessageDeleteGatewayEvent)
 
-	handleMessageDelete(bot, sequenceNumber, payload.ID, payload.ChannelID, payload.GuildID)
+	handleMessageDelete(bot, sequenceNumber, shardID, payload.ID, payload.ChannelID, payload.GuildID)
 }
 
-func handleMessageDelete(bot *core.Bot, sequenceNumber discord.GatewaySequence, messageID snowflake.Snowflake, channelID snowflake.Snowflake, guildID *snowflake.Snowflake) {
-	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
+func handleMessageDelete(bot *core.Bot, sequenceNumber discord.GatewaySequence, shardID int, messageID snowflake.Snowflake, channelID snowflake.Snowflake, guildID *snowflake.Snowflake) {
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber, shardID)
 
 	message := bot.Caches.Messages().GetCopy(channelID, messageID)
 	bot.Caches.Messages().Remove(channelID, messageID)

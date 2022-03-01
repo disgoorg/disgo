@@ -20,12 +20,12 @@ func (h *gatewayHandlerIntegrationCreate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerIntegrationCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerIntegrationCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, shardID int, v interface{}) {
 	payload := *v.(*discord.IntegrationCreateGatewayEvent)
 
 	bot.EventManager.Dispatch(&events.IntegrationCreateEvent{
 		GenericIntegrationEvent: &events.GenericIntegrationEvent{
-			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+			GenericEvent: events.NewGenericEvent(bot, sequenceNumber, shardID),
 			GuildID:      payload.GuildID,
 			Integration:  bot.EntityBuilder.CreateIntegration(payload.GuildID, payload.Integration, core.CacheStrategyYes),
 		},

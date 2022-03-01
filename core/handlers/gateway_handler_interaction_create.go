@@ -20,14 +20,14 @@ func (h *gatewayHandlerInteractionCreate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerInteractionCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
-	HandleInteraction(bot, sequenceNumber, nil, (*v.(*discord.UnmarshalInteraction)).Interaction)
+func (h *gatewayHandlerInteractionCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, shardID int, v interface{}) {
+	HandleInteraction(bot, sequenceNumber, shardID, nil, (*v.(*discord.UnmarshalInteraction)).Interaction)
 }
 
-func HandleInteraction(bot *core.Bot, sequenceNumber discord.GatewaySequence, c chan<- discord.InteractionResponse, interaction discord.Interaction) {
+func HandleInteraction(bot *core.Bot, sequenceNumber discord.GatewaySequence, shardID int, c chan<- discord.InteractionResponse, interaction discord.Interaction) {
 	coreInteraction := bot.EntityBuilder.CreateInteraction(interaction, c, core.CacheStrategyYes)
 
-	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber, shardID)
 
 	bot.EventManager.Dispatch(&events.InteractionEvent{
 		GenericEvent: genericEvent,

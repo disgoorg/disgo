@@ -16,12 +16,12 @@ func (h *gatewayHandlerThreadCreate) New() interface{} {
 	return &discord.GatewayEventThreadCreate{}
 }
 
-func (h *gatewayHandlerThreadCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerThreadCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, shardID int, v interface{}) {
 	payload := *v.(*discord.GatewayEventThreadCreate)
 
 	bot.EventManager.Dispatch(&events.ThreadCreateEvent{
 		GenericThreadEvent: &events.GenericThreadEvent{
-			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+			GenericEvent: events.NewGenericEvent(bot, sequenceNumber, shardID),
 			ThreadID:     payload.ID(),
 			GuildID:      payload.GuildID(),
 			Thread:       bot.EntityBuilder.CreateChannel(payload.GuildThread, core.CacheStrategyYes).(core.GuildThread),

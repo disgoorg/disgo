@@ -124,9 +124,9 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 		// apply recommended shard count
 		if !config.ShardManagerConfig.CustomShards {
 			config.ShardManagerConfig.ShardCount = gatewayBotRs.Shards
-			config.ShardManagerConfig.ShardIDs = sharding.NewIntSet()
+			config.ShardManagerConfig.ShardIDs = map[int]struct{}{}
 			for i := 0; i < gatewayBotRs.Shards; i++ {
-				config.ShardManagerConfig.ShardIDs.Add(i)
+				config.ShardManagerConfig.ShardIDs[i] = struct{}{}
 			}
 		}
 		if config.ShardManager == nil {

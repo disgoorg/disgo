@@ -20,7 +20,7 @@ func (h *gatewayHandlerChannelUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, shardID int, v interface{}) {
 	channel := v.(*discord.UnmarshalChannel).Channel
 
 	oldChannel := bot.Caches.Channels().GetCopy(channel.ID())
@@ -39,7 +39,7 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 
 		bot.EventManager.Dispatch(&events.GuildChannelUpdateEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
-				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber, shardID),
 				ChannelID:    channel.ID(),
 				Channel:      guildChannel,
 				GuildID:      ch.GuildID(),
@@ -54,7 +54,7 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 					bot.Caches.Channels().Remove(guildThread.ID())
 					bot.EventManager.Dispatch(&events.ThreadHideEvent{
 						GenericThreadEvent: &events.GenericThreadEvent{
-							GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+							GenericEvent: events.NewGenericEvent(bot, sequenceNumber, shardID),
 							Thread:       guildThread,
 							ThreadID:     guildThread.ID(),
 							GuildID:      guildThread.GuildID(),
@@ -77,7 +77,7 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 		}
 		bot.EventManager.Dispatch(&events.DMChannelUpdateEvent{
 			GenericDMChannelEvent: &events.GenericDMChannelEvent{
-				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber, shardID),
 				ChannelID:    channel.ID(),
 				Channel:      dmChannel,
 			},

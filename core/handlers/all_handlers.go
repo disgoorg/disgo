@@ -12,7 +12,7 @@ import (
 
 func DefaultHTTPServerEventHandler(bot *core.Bot) httpserver.EventHandlerFunc {
 	return func(responseChannel chan<- discord.InteractionResponse, reader io.Reader) {
-		bot.EventManager.HandleHTTP(responseChannel, events.HandleRawEvent(bot, discord.GatewayEventTypeInteractionCreate, -1, reader))
+		bot.EventManager.HandleHTTP(responseChannel, events.HandleRawEvent(bot, discord.GatewayEventTypeInteractionCreate, -1, -1, reader))
 	}
 }
 
@@ -21,10 +21,10 @@ func GetHTTPServerHandler() core.HTTPServerEventHandler {
 }
 
 func DefaultGatewayEventHandler(bot *core.Bot) gateway.EventHandlerFunc {
-	return func(gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, reader io.Reader) {
-		reader = events.HandleRawEvent(bot, gatewayEventType, sequenceNumber, reader)
+	return func(gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, shardID int, reader io.Reader) {
+		reader = events.HandleRawEvent(bot, gatewayEventType, sequenceNumber, shardID, reader)
 
-		bot.EventManager.HandleGateway(gatewayEventType, sequenceNumber, reader)
+		bot.EventManager.HandleGateway(gatewayEventType, sequenceNumber, shardID, reader)
 	}
 }
 

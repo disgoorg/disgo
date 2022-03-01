@@ -20,7 +20,7 @@ func (h *gatewayHandlerGuildMemberRemove) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildMemberRemove) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerGuildMemberRemove) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, shardID int, v interface{}) {
 	payload := *v.(*discord.GuildMemberRemoveGatewayEvent)
 
 	if guild := bot.Caches.Guilds().Get(payload.GuildID); guild != nil {
@@ -34,7 +34,7 @@ func (h *gatewayHandlerGuildMemberRemove) HandleGatewayEvent(bot *core.Bot, sequ
 	user := bot.EntityBuilder.CreateUser(payload.User, core.CacheStrategyYes)
 
 	bot.EventManager.Dispatch(&events.GuildMemberLeaveEvent{
-		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+		GenericEvent: events.NewGenericEvent(bot, sequenceNumber, shardID),
 		GuildID:      payload.GuildID,
 		User:         user,
 		Member:       member,

@@ -16,7 +16,7 @@ func (h *gatewayHandlerThreadDelete) New() interface{} {
 	return &discord.GatewayEventThreadDelete{}
 }
 
-func (h *gatewayHandlerThreadDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerThreadDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, shardID int, v interface{}) {
 	payload := *v.(*discord.GatewayEventThreadDelete)
 
 	channel := bot.Caches.Channels().GetCopy(payload.ID)
@@ -29,7 +29,7 @@ func (h *gatewayHandlerThreadDelete) HandleGatewayEvent(bot *core.Bot, sequenceN
 
 	bot.EventManager.Dispatch(&events.ThreadDeleteEvent{
 		GenericThreadEvent: &events.GenericThreadEvent{
-			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+			GenericEvent: events.NewGenericEvent(bot, sequenceNumber, shardID),
 			ThreadID:     payload.ID,
 			GuildID:      payload.GuildID,
 			ParentID:     payload.ParentID,

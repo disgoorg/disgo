@@ -25,5 +25,5 @@ func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(bot *core.Bot, c ch
 		}
 		return
 	}
-	HandleInteraction(bot, -1, c, interaction)
+	HandleInteraction(bot, -1, -1, c, interaction)
 }

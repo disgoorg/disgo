@@ -20,14 +20,14 @@ func (h *gatewayHandlerMessageUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, shardID int, v interface{}) {
 	payload := *v.(*discord.Message)
 
 	oldMessage := bot.Caches.Messages().GetCopy(payload.ChannelID, payload.ID)
 
 	message := bot.EntityBuilder.CreateMessage(payload, core.CacheStrategyYes)
 
-	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
+	genericEvent := events.NewGenericEvent(bot, sequenceNumber, shardID)
 
 	bot.EventManager.Dispatch(&events.MessageUpdateEvent{
 		GenericMessageEvent: &events.GenericMessageEvent{

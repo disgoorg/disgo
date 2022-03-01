@@ -100,7 +100,7 @@ func (b *Bot) Shard(guildID snowflake.Snowflake) (gateway.Gateway, error) {
 	if b.HasGateway() {
 		return b.Gateway, nil
 	} else if b.HasShardManager() {
-		shard := b.ShardManager.GetGuildShard(guildID)
+		shard := b.ShardManager.ShardByGuildID(guildID)
 		if shard == nil {
 			return nil, discord.ErrShardNotFound
 		}

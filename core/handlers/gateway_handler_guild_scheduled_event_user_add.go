@@ -20,12 +20,12 @@ func (h *gatewayHandlerGuildScheduledEventUserAdd) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildScheduledEventUserAdd) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerGuildScheduledEventUserAdd) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, shardID int, v interface{}) {
 	payload := *v.(*discord.GuildScheduledEventUserEvent)
 
 	bot.EventManager.Dispatch(&events.GuildScheduledEventUserAddEvent{
 		GenericGuildScheduledEventUserEvent: &events.GenericGuildScheduledEventUserEvent{
-			GenericEvent:          events.NewGenericEvent(bot, sequenceNumber),
+			GenericEvent:          events.NewGenericEvent(bot, sequenceNumber, shardID),
 			GuildScheduledEventID: payload.GuildScheduledEventID,
 			UserID:                payload.UserID,
 			GuildID:               payload.GuildID,

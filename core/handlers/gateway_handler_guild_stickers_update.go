@@ -22,7 +22,7 @@ func (h *gatewayHandlerGuildStickersUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, shardID int, v interface{}) {
 	payload := *v.(*discord.GuildStickersUpdateGatewayEvent)
 
 	if bot.Caches.Config().CacheFlags.Missing(core.CacheFlagStickers) {
@@ -61,7 +61,7 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, se
 	for _, sticker := range newStickers {
 		bot.EventManager.Dispatch(&events.StickerCreateEvent{
 			GenericStickerEvent: &events.GenericStickerEvent{
-				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber, shardID),
 				GuildID:      payload.GuildID,
 				Sticker:      sticker,
 			},
@@ -71,7 +71,7 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, se
 	for _, sticker := range updatedStickers {
 		bot.EventManager.Dispatch(&events.StickerUpdateEvent{
 			GenericStickerEvent: &events.GenericStickerEvent{
-				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber, shardID),
 				GuildID:      payload.GuildID,
 				Sticker:      sticker,
 			},
@@ -81,7 +81,7 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(bot *core.Bot, se
 	for _, sticker := range oldStickers {
 		bot.EventManager.Dispatch(&events.StickerDeleteEvent{
 			GenericStickerEvent: &events.GenericStickerEvent{
-				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
+				GenericEvent: events.NewGenericEvent(bot, sequenceNumber, shardID),
 				GuildID:      payload.GuildID,
 				Sticker:      sticker,
 			},
