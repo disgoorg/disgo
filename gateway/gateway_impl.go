@@ -52,14 +52,16 @@ func New(token string, url string, shardID int, shardCount int, eventHandlerFunc
 }
 
 type gatewayImpl struct {
-	config                Config
-	token                 string
-	url                   string
-	shardID               int
-	shardCount            int
-	conn                  *websocket.Conn
-	heartbeatChan         chan struct{}
-	status                Status
+	config     Config
+	token      string
+	url        string
+	shardID    int
+	shardCount int
+
+	conn            *websocket.Conn
+	heartbeatTicker *time.Ticker
+	status          Status
+
 	heartbeatInterval     time.Duration
 	lastHeartbeatSent     time.Time
 	lastHeartbeatReceived time.Time
@@ -142,10 +144,10 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int) {
 	g.Logger().Debug(g.formatLogs("closing gateway connection with code: ", code))
 	_ = g.config.RateLimiter.Close(ctx)
 
-	if g.heartbeatChan != nil {
+	if g.heartbeatTicker != nil {
 		g.Logger().Debug(g.formatLogs("closing heartbeat goroutines..."))
-		close(g.heartbeatChan)
-		g.heartbeatChan = nil
+		g.heartbeatTicker.Stop()
+		g.heartbeatTicker = nil
 	}
 
 	if g.conn != nil {
@@ -219,16 +221,12 @@ func (g *gatewayImpl) reOpen(ctx context.Context, try int, delay time.Duration) 
 }
 
 func (g *gatewayImpl) heartbeat() {
+	g.heartbeatTicker = time.NewTicker(g.heartbeatInterval)
+	defer g.heartbeatTicker.Stop()
 	defer g.Logger().Debug(g.formatLogs("exiting heartbeat goroutine..."))
-	ticker := time.NewTicker(g.heartbeatInterval)
-	defer ticker.Stop()
-	for {
-		select {
-		case <-ticker.C:
-			g.sendHeartbeat()
-		case <-g.heartbeatChan:
-			return
-		}
+
+	for range g.heartbeatTicker.C {
+		g.sendHeartbeat()
 	}
 }
 
@@ -248,6 +246,46 @@ func (g *gatewayImpl) sendHeartbeat() {
 		return
 	}
 	g.lastHeartbeatSent = time.Now().UTC()
+}
+
+func (g *gatewayImpl) connect() {
+	g.status = StatusIdentifying
+	g.Logger().Debug(g.formatLogs("sending Identify command..."))
+
+	identify := discord.IdentifyCommandData{
+		Token: g.token,
+		Properties: discord.IdentifyCommandDataProperties{
+			OS:      g.config.OS,
+			Browser: g.config.Browser,
+			Device:  g.config.Device,
+		},
+		Compress:       g.config.Compress,
+		LargeThreshold: g.config.LargeThreshold,
+		GatewayIntents: g.config.GatewayIntents,
+		Presence:       g.config.Presence,
+	}
+	if g.ShardCount() > 1 {
+		identify.Shard = []int{g.ShardID(), g.ShardCount()}
+	}
+
+	if err := g.Send(context.TODO(), discord.NewGatewayCommand(discord.GatewayOpcodeIdentify, identify)); err != nil {
+		g.Logger().Error(g.formatLogs("error sending Identify command err: ", err))
+	}
+	g.status = StatusWaitingForReady
+}
+
+func (g *gatewayImpl) resume() {
+	g.status = StatusResuming
+	resume := discord.ResumeCommandData{
+		Token:     g.token,
+		SessionID: *g.sessionID,
+		Seq:       *g.lastSequenceReceived,
+	}
+
+	g.Logger().Info(g.formatLogs("sending Resume command..."))
+	if err := g.Send(context.TODO(), discord.NewGatewayCommand(discord.GatewayOpcodeResume, resume)); err != nil {
+		g.Logger().Error(g.formatLogs("error sending resume command err: ", err))
+	}
 }
 
 func (g *gatewayImpl) listen() {
@@ -300,6 +338,7 @@ func (g *gatewayImpl) listen() {
 		switch event.Op {
 		case discord.GatewayOpcodeHello:
 			g.lastHeartbeatReceived = time.Now().UTC()
+			g.lastHeartbeatSent = time.Now().UTC()
 
 			var eventData discord.GatewayEventHello
 			if err = json.Unmarshal(event.D, &eventData); err != nil {
@@ -310,44 +349,10 @@ func (g *gatewayImpl) listen() {
 			g.heartbeatInterval = eventData.HeartbeatInterval * time.Millisecond
 
 			if g.lastSequenceReceived == nil || g.sessionID == nil {
-				g.status = StatusIdentifying
-				g.Logger().Debug(g.formatLogs("sending Identify command..."))
-
-				identify := discord.IdentifyCommandData{
-					Token: g.token,
-					Properties: discord.IdentifyCommandDataProperties{
-						OS:      g.config.OS,
-						Browser: g.config.Browser,
-						Device:  g.config.Device,
-					},
-					Compress:       g.config.Compress,
-					LargeThreshold: g.config.LargeThreshold,
-					GatewayIntents: g.config.GatewayIntents,
-					Presence:       g.config.Presence,
-				}
-				if g.shardCount > 1 {
-					identify.Shard = []int{g.shardID, g.shardCount}
-				}
-
-				if err = g.Send(context.TODO(), discord.NewGatewayCommand(discord.GatewayOpcodeIdentify, identify)); err != nil {
-					g.Logger().Error(g.formatLogs("error sending Identify command err: ", err))
-				}
-				g.lastHeartbeatSent = time.Now().UTC()
-				g.status = StatusWaitingForReady
+				g.connect()
 			} else {
-				g.status = StatusResuming
-				resume := discord.ResumeCommandData{
-					Token:     g.token,
-					SessionID: *g.sessionID,
-					Seq:       *g.lastSequenceReceived,
-				}
-
-				g.Logger().Info(g.formatLogs("sending Resume command..."))
-				if err = g.Send(context.TODO(), discord.NewGatewayCommand(discord.GatewayOpcodeResume, resume)); err != nil {
-					g.Logger().Error(g.formatLogs("error sending resume command err: ", err))
-				}
+				g.resume()
 			}
-			g.heartbeatChan = make(chan struct{})
 			go g.heartbeat()
 
 		case discord.GatewayOpcodeDispatch:
