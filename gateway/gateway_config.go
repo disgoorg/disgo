@@ -12,6 +12,7 @@ var DefaultConfig = Config{
 	LargeThreshold:    50,
 	GatewayIntents:    discord.GatewayIntentsDefault,
 	Compress:          true,
+	AutoReconnect:     true,
 	MaxReconnectTries: 10,
 	OS:                info.OS,
 	Browser:           info.Name,
@@ -19,20 +20,23 @@ var DefaultConfig = Config{
 }
 
 type Config struct {
-	Logger            log.Logger
-	EventHandlerFunc  EventHandlerFunc
-	LargeThreshold    int
-	GatewayIntents    discord.GatewayIntents
-	ShardID           int
-	ShardCount        int
-	Compress          bool
-	MaxReconnectTries int
-	RateLimiter       grate.Limiter
-	RateLimiterConfig *grate.Config
-	Presence          *discord.UpdatePresenceCommandData
-	OS                string
-	Browser           string
-	Device            string
+	Logger               log.Logger
+	EventHandlerFunc     EventHandlerFunc
+	LargeThreshold       int
+	GatewayIntents       discord.GatewayIntents
+	ShardID              int
+	ShardCount           int
+	Compress             bool
+	SessionID            *string
+	LastSequenceReceived *discord.GatewaySequence
+	AutoReconnect        bool
+	MaxReconnectTries    int
+	RateLimiter          grate.Limiter
+	RateLimiterConfig    *grate.Config
+	Presence             *discord.UpdatePresenceCommandData
+	OS                   string
+	Browser              string
+	Device               string
 }
 
 type ConfigOpt func(config *Config)
@@ -65,6 +69,27 @@ func WithGatewayIntents(gatewayIntents ...discord.GatewayIntents) ConfigOpt {
 func WithCompress(compress bool) ConfigOpt {
 	return func(config *Config) {
 		config.Compress = compress
+	}
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func WithSessionID(sessionID string) ConfigOpt {
+	return func(config *Config) {
+		config.SessionID = &sessionID
+	}
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func WithSequence(sequence discord.GatewaySequence) ConfigOpt {
+	return func(config *Config) {
+		config.LastSequenceReceived = &sequence
+	}
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func WithAutoReconnect(autoReconnect bool) ConfigOpt {
+	return func(config *Config) {
+		config.AutoReconnect = autoReconnect
 	}
 }
 

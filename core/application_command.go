@@ -32,7 +32,7 @@ func (c *SlashCommand) IsGlobal() bool {
 // ToCreate return the ApplicationCommandCreate for this ApplicationCommand
 func (c *SlashCommand) ToCreate() discord.SlashCommandCreate {
 	return discord.SlashCommandCreate{
-		Name:              c.Name,
+		CommandName:       c.CommandName,
 		Description:       c.Description,
 		Options:           c.Options,
 		DefaultPermission: c.DefaultPermission,
@@ -102,7 +102,7 @@ func (c *UserCommand) IsGlobal() bool {
 // ToCreate return the ApplicationCommandCreate for this ApplicationCommand
 func (c *UserCommand) ToCreate() discord.UserCommandCreate {
 	return discord.UserCommandCreate{
-		Name:              c.Name,
+		CommandName:       c.CommandName,
 		DefaultPermission: c.DefaultPermission,
 	}
 }
@@ -170,7 +170,7 @@ func (c *MessageCommand) IsGlobal() bool {
 // ToCreate return the ApplicationCommandCreate for this ApplicationCommand
 func (c *MessageCommand) ToCreate() discord.MessageCommandCreate {
 	return discord.MessageCommandCreate{
-		Name:              c.Name,
+		CommandName:       c.CommandName,
 		DefaultPermission: c.DefaultPermission,
 	}
 }

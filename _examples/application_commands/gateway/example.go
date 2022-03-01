@@ -23,7 +23,7 @@ var (
 
 	commands = []discord.ApplicationCommandCreate{
 		discord.SlashCommandCreate{
-			Name:              "say",
+			CommandName:       "say",
 			Description:       "says what you say",
 			DefaultPermission: true,
 			Options: []discord.ApplicationCommandOption{

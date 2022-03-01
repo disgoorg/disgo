@@ -8,17 +8,17 @@ import (
 
 var commands = []discord.ApplicationCommandCreate{
 	discord.SlashCommandCreate{
-		Name:              "locale",
+		CommandName:       "locale",
 		Description:       "return the guild & your locale",
 		DefaultPermission: true,
 	},
 	discord.SlashCommandCreate{
-		Name:              "test",
+		CommandName:       "test",
 		Description:       "test",
 		DefaultPermission: true,
 	},
 	discord.SlashCommandCreate{
-		Name:              "say",
+		CommandName:       "say",
 		Description:       "says what you say",
 		DefaultPermission: true,
 		Options: []discord.ApplicationCommandOption{

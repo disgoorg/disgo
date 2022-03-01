@@ -5,11 +5,12 @@ import "github.com/DisgoOrg/disgo/json"
 type ApplicationCommandCreate interface {
 	json.Marshaler
 	Type() ApplicationCommandType
+	Name() string
 	applicationCommandCreate()
 }
 
 type SlashCommandCreate struct {
-	Name              string                     `json:"name"`
+	CommandName       string                     `json:"name"`
 	Description       string                     `json:"description"`
 	Options           []ApplicationCommandOption `json:"options,omitempty"`
 	DefaultPermission bool                       `json:"default_permission,omitempty"`
@@ -30,10 +31,14 @@ func (SlashCommandCreate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeSlash
 }
 
+func (c SlashCommandCreate) Name() string {
+	return c.CommandName
+}
+
 func (SlashCommandCreate) applicationCommandCreate() {}
 
 type UserCommandCreate struct {
-	Name              string `json:"name"`
+	CommandName       string `json:"name"`
 	DefaultPermission bool   `json:"default_permission,omitempty"`
 }
 
@@ -52,10 +57,14 @@ func (UserCommandCreate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeUser
 }
 
+func (c UserCommandCreate) Name() string {
+	return c.CommandName
+}
+
 func (UserCommandCreate) applicationCommandCreate() {}
 
 type MessageCommandCreate struct {
-	Name              string `json:"name"`
+	CommandName       string `json:"name"`
 	DefaultPermission bool   `json:"default_permission,omitempty"`
 }
 
@@ -72,6 +81,10 @@ func (c MessageCommandCreate) MarshalJSON() ([]byte, error) {
 
 func (MessageCommandCreate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeMessage
+}
+
+func (c MessageCommandCreate) Name() string {
+	return c.CommandName
 }
 
 func (MessageCommandCreate) applicationCommandCreate() {}
