@@ -21,11 +21,11 @@ var listener = &events.ListenerAdapter{
 func modalListener(event *events.ModalSubmitInteractionEvent) {
 	switch event.Data.CustomID {
 	case "test1":
-		value := event.Data.Components[0].Components()[0].(discord.TextInputComponent).Value
+		value := *event.Data.Components.Text("test_input")
 		_ = event.CreateMessage(discord.MessageCreate{Content: value})
 
 	case "test2":
-		value := event.Data.Components[0].Components()[0].(discord.TextInputComponent).Value
+		value := *event.Data.Components.Text("test_input")
 		_ = event.DeferCreateMessage(false)
 		go func() {
 			time.Sleep(time.Second * 5)
@@ -33,7 +33,7 @@ func modalListener(event *events.ModalSubmitInteractionEvent) {
 		}()
 
 	case "test3":
-		value := event.Data.Components[0].Components()[0].(discord.TextInputComponent).Value
+		value := *event.Data.Components.Text("test_input")
 		_ = event.UpdateMessage(discord.MessageUpdate{Content: &value})
 
 	case "test4":

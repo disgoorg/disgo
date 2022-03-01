@@ -20,6 +20,7 @@ type ApplicationCommand interface {
 	json.Marshaler
 	Type() ApplicationCommandType
 	ID() snowflake.Snowflake
+	Name() string
 	applicationCommand()
 }
 
@@ -75,7 +76,7 @@ type SlashCommand struct {
 	CommandID         snowflake.Snowflake        `json:"id"`
 	ApplicationID     snowflake.Snowflake        `json:"application_id"`
 	GuildID           *snowflake.Snowflake       `json:"guild_id,omitempty"`
-	Name              string                     `json:"name"`
+	CommandName       string                     `json:"name"`
 	Description       string                     `json:"description,omitempty"`
 	Options           []ApplicationCommandOption `json:"options,omitempty"`
 	DefaultPermission bool                       `json:"default_permission,omitempty"`
@@ -123,6 +124,10 @@ func (SlashCommand) Type() ApplicationCommandType {
 	return ApplicationCommandTypeSlash
 }
 
+func (c SlashCommand) Name() string {
+	return c.CommandName
+}
+
 func (SlashCommand) applicationCommand() {}
 
 var _ ApplicationCommand = (*UserCommand)(nil)
@@ -131,7 +136,7 @@ type UserCommand struct {
 	CommandID         snowflake.Snowflake  `json:"id"`
 	ApplicationID     snowflake.Snowflake  `json:"application_id"`
 	GuildID           *snowflake.Snowflake `json:"guild_id,omitempty"`
-	Name              string               `json:"name"`
+	CommandName       string               `json:"name"`
 	DefaultPermission bool                 `json:"default_permission,omitempty"`
 	Version           snowflake.Snowflake  `json:"version"`
 }
@@ -155,6 +160,10 @@ func (c UserCommand) Type() ApplicationCommandType {
 	return ApplicationCommandTypeUser
 }
 
+func (c UserCommand) Name() string {
+	return c.CommandName
+}
+
 func (UserCommand) applicationCommand() {}
 
 var _ ApplicationCommand = (*MessageCommand)(nil)
@@ -163,7 +172,7 @@ type MessageCommand struct {
 	CommandID         snowflake.Snowflake  `json:"id"`
 	ApplicationID     snowflake.Snowflake  `json:"application_id"`
 	GuildID           *snowflake.Snowflake `json:"guild_id,omitempty"`
-	Name              string               `json:"name"`
+	CommandName       string               `json:"name"`
 	DefaultPermission bool                 `json:"default_permission,omitempty"`
 	Version           snowflake.Snowflake  `json:"version"`
 }
@@ -185,6 +194,10 @@ func (c MessageCommand) ID() snowflake.Snowflake {
 
 func (MessageCommand) Type() ApplicationCommandType {
 	return ApplicationCommandTypeMessage
+}
+
+func (c MessageCommand) Name() string {
+	return c.CommandName
 }
 
 func (MessageCommand) applicationCommand() {}

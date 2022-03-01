@@ -44,6 +44,11 @@ type InteractiveComponent interface {
 	interactiveComponent()
 }
 
+type InputComponent interface {
+	InteractiveComponent
+	inputComponent()
+}
+
 type UnmarshalComponent struct {
 	Component
 }
@@ -141,12 +146,12 @@ func (c *ActionRowComponent) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (c ActionRowComponent) Type() ComponentType {
+func (ActionRowComponent) Type() ComponentType {
 	return ComponentTypeActionRow
 }
 
-func (c ActionRowComponent) component()          {}
-func (c ActionRowComponent) containerComponent() {}
+func (ActionRowComponent) component()          {}
+func (ActionRowComponent) containerComponent() {}
 
 func (c ActionRowComponent) Components() []InteractiveComponent {
 	return c
@@ -276,7 +281,7 @@ func (c ButtonComponent) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (c ButtonComponent) Type() ComponentType {
+func (ButtonComponent) Type() ComponentType {
 	return ComponentTypeButton
 }
 
@@ -289,8 +294,8 @@ func (c ButtonComponent) SetID(id CustomID) InteractiveComponent {
 	return c
 }
 
-func (c ButtonComponent) component()            {}
-func (c ButtonComponent) interactiveComponent() {}
+func (ButtonComponent) component()            {}
+func (ButtonComponent) interactiveComponent() {}
 
 // WithStyle returns a new ButtonComponent with the provided style
 func (c ButtonComponent) WithStyle(style ButtonStyle) ButtonComponent {
@@ -375,7 +380,7 @@ func (c SelectMenuComponent) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (c SelectMenuComponent) Type() ComponentType {
+func (SelectMenuComponent) Type() ComponentType {
 	return ComponentTypeSelectMenu
 }
 
@@ -388,8 +393,8 @@ func (c SelectMenuComponent) SetID(id CustomID) InteractiveComponent {
 	return c
 }
 
-func (c SelectMenuComponent) component()            {}
-func (c SelectMenuComponent) interactiveComponent() {}
+func (SelectMenuComponent) component()            {}
+func (SelectMenuComponent) interactiveComponent() {}
 
 // WithCustomID returns a new SelectMenuComponent with the provided customID
 func (c SelectMenuComponent) WithCustomID(customID CustomID) SelectMenuComponent {
@@ -515,11 +520,16 @@ func (o SelectMenuOption) WithDefault(defaultOption bool) SelectMenuOption {
 var (
 	_ Component            = (*TextInputComponent)(nil)
 	_ InteractiveComponent = (*TextInputComponent)(nil)
+	_ InputComponent       = (*TextInputComponent)(nil)
 )
 
 //goland:noinspection GoUnusedExportedFunction
 func NewTextInput(customID CustomID, style TextInputStyle, label string) TextInputComponent {
-	return TextInputComponent{}
+	return TextInputComponent{
+		CustomID: customID,
+		Style:    style,
+		Label:    label,
+	}
 }
 
 //goland:noinspection GoUnusedExportedFunction
@@ -554,7 +564,7 @@ func (c TextInputComponent) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (c TextInputComponent) Type() ComponentType {
+func (TextInputComponent) Type() ComponentType {
 	return ComponentTypeTextInput
 }
 
@@ -567,8 +577,9 @@ func (c TextInputComponent) SetID(id CustomID) InteractiveComponent {
 	return c
 }
 
-func (c TextInputComponent) component()            {}
-func (c TextInputComponent) interactiveComponent() {}
+func (TextInputComponent) component()            {}
+func (TextInputComponent) interactiveComponent() {}
+func (TextInputComponent) inputComponent()       {}
 
 // WithCustomID returns a new SelectMenuComponent with the provided customID
 func (c TextInputComponent) WithCustomID(customID CustomID) TextInputComponent {
