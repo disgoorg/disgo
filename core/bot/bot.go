@@ -70,7 +70,7 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 	}
 
 	if config.RestServices == nil {
-		config.RestServices = rest.NewServices(bot.Logger, config.RestClient)
+		config.RestServices = rest.NewServices(config.RestClient)
 	}
 	bot.RestServices = config.RestServices
 
