@@ -3,19 +3,16 @@ package rest
 import (
 	"context"
 	"net/http"
-
-	"github.com/DisgoOrg/log"
 )
 
 var _ Services = (*servicesImpl)(nil)
 
 // NewServices returns a new default Services
-func NewServices(logger log.Logger, restClient Client) Services {
+func NewServices(restClient Client) Services {
 	if restClient == nil {
 		restClient = NewClient(&DefaultConfig)
 	}
 	return &servicesImpl{
-		logger:                     logger,
 		restClient:                 restClient,
 		applicationService:         NewApplicationService(restClient),
 		oauth2Service:              NewOAuth2Service(restClient),
@@ -39,7 +36,6 @@ func NewServices(logger log.Logger, restClient Client) Services {
 
 // Services is a manager for all of disgo's HTTP requests
 type Services interface {
-	Logger() log.Logger
 	RestClient() Client
 	HTTPClient() *http.Client
 	Close(ctx context.Context)
@@ -63,7 +59,6 @@ type Services interface {
 }
 
 type servicesImpl struct {
-	logger     log.Logger
 	restClient Client
 
 	applicationService         ApplicationService
@@ -83,10 +78,6 @@ type servicesImpl struct {
 	emojiService               EmojiService
 	stickerService             StickerService
 	guildScheduledEventService GuildScheduledEventService
-}
-
-func (s *servicesImpl) Logger() log.Logger {
-	return s.logger
 }
 
 func (s *servicesImpl) RestClient() Client {
