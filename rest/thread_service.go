@@ -28,7 +28,7 @@ type ThreadService interface {
 
 	GetPublicArchivedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
 	GetPrivateArchivedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
-	GetJoinedPrivateAchievedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
+	GetJoinedPrivateArchivedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
 
 	GetActiveGuildThreads(guildID snowflake.Snowflake, opts ...RequestOpt) (threads *discord.GetAllThreads, err error)
 }
@@ -155,7 +155,7 @@ func (s *threadServiceImpl) GetPrivateArchivedThreads(channelID snowflake.Snowfl
 	return
 }
 
-func (s *threadServiceImpl) GetJoinedPrivateAchievedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
+func (s *threadServiceImpl) GetJoinedPrivateArchivedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
 	queryValues := route.QueryValues{}
 	if !before.IsZero() {
 		queryValues["before"] = before
