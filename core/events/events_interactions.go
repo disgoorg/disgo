@@ -1,28 +1,30 @@
 package events
 
-import "github.com/DisgoOrg/disgo/core"
+import (
+	"github.com/DisgoOrg/disgo/discord"
+)
 
 type InteractionEvent struct {
 	*GenericEvent
-	core.Interaction
+	discord.Interaction
 }
 
 type ApplicationCommandInteractionEvent struct {
 	*GenericEvent
-	*core.ApplicationCommandInteraction
+	discord.ApplicationCommandInteraction
 }
 
 type ComponentInteractionEvent struct {
 	*GenericEvent
-	*core.ComponentInteraction
+	discord.ComponentInteraction
 }
 
 type AutocompleteInteractionEvent struct {
 	*GenericEvent
-	*core.AutocompleteInteraction
+	discord.AutocompleteInteraction
 }
 
 type ModalSubmitInteractionEvent struct {
 	*GenericEvent
-	*core.ModalSubmitInteraction
+	discord.ModalSubmitInteraction
 }

@@ -20,7 +20,7 @@ const (
 	ChannelTypeGroupDM
 	ChannelTypeGuildCategory
 	ChannelTypeGuildNews
-	ChannelTypeGuildStore
+	_
 	_
 	_
 	_
@@ -39,6 +39,11 @@ type Channel interface {
 	channel()
 }
 
+type MessageChannel interface {
+	Channel
+	messageChannel()
+}
+
 type GuildChannel interface {
 	Channel
 	Mentionable
@@ -46,30 +51,29 @@ type GuildChannel interface {
 	guildChannel()
 }
 
-type MessageChannel interface {
-	Channel
-	messageChannel()
-}
-
-type BaseGuildMessageChannel interface {
+type GuildPermissionChannel interface {
 	GuildChannel
-	MessageChannel
-	baseGuildMessageChannel()
+	PermissionOverwrites() []PermissionOverwrite
+	PermissionOverwrite(overwriteType PermissionOverwriteType, id snowflake.Snowflake) PermissionOverwrite
+	RolePermissionOverwrite(id snowflake.Snowflake) *RolePermissionOverwrite
+	MemberPermissionOverwrite(id snowflake.Snowflake) *MemberPermissionOverwrite
+	guildPermissionChannel()
 }
 
 type GuildMessageChannel interface {
-	BaseGuildMessageChannel
+	GuildChannel
+	MessageChannel
 	guildMessageChannel()
 }
 
 type GuildThread interface {
-	BaseGuildMessageChannel
+	GuildMessageChannel
 	ParentID() snowflake.Snowflake
 	guildThread()
 }
 
 type GuildAudioChannel interface {
-	GuildChannel
+	GuildPermissionChannel
 	guildAudioChannel()
 }
 
@@ -107,11 +111,6 @@ func (u *UnmarshalChannel) UnmarshalJSON(data []byte) error {
 		err = json.Unmarshal(data, &v)
 		channel = v
 
-	case ChannelTypeGroupDM:
-		var v GroupDMChannel
-		err = json.Unmarshal(data, &v)
-		channel = v
-
 	case ChannelTypeGuildCategory:
 		var v GuildCategoryChannel
 		err = json.Unmarshal(data, &v)
@@ -119,11 +118,6 @@ func (u *UnmarshalChannel) UnmarshalJSON(data []byte) error {
 
 	case ChannelTypeGuildNews:
 		var v GuildNewsChannel
-		err = json.Unmarshal(data, &v)
-		channel = v
-
-	case ChannelTypeGuildStore:
-		var v GuildStoreChannel
 		err = json.Unmarshal(data, &v)
 		channel = v
 
@@ -232,6 +226,22 @@ func (c GuildTextChannel) ID() snowflake.Snowflake {
 
 func (c GuildTextChannel) GuildID() snowflake.Snowflake {
 	return c.ChannelGuildID
+}
+
+func (c GuildTextChannel) PermissionOverwrites() []PermissionOverwrite {
+	return c.ChannelPermissionOverwrites
+}
+
+func (c GuildTextChannel) PermissionOverwrite(overwriteType PermissionOverwriteType, id snowflake.Snowflake) PermissionOverwrite {
+	return getPermissionOverwrite(c, overwriteType, id)
+}
+
+func (c GuildTextChannel) RolePermissionOverwrite(id snowflake.Snowflake) *RolePermissionOverwrite {
+	return getPermissionOverwrite(c, PermissionOverwriteTypeRole, id).(*RolePermissionOverwrite)
+}
+
+func (c GuildTextChannel) MemberPermissionOverwrite(id snowflake.Snowflake) *MemberPermissionOverwrite {
+	return getPermissionOverwrite(c, PermissionOverwriteTypeMember, id).(*MemberPermissionOverwrite)
 }
 
 func (GuildTextChannel) channel()                 {}
@@ -355,54 +365,25 @@ func (c GuildVoiceChannel) GuildID() snowflake.Snowflake {
 	return c.ChannelGuildID
 }
 
+func (c GuildVoiceChannel) PermissionOverwrites() []PermissionOverwrite {
+	return c.ChannelPermissionOverwrites
+}
+
+func (c GuildVoiceChannel) PermissionOverwrite(overwriteType PermissionOverwriteType, id snowflake.Snowflake) PermissionOverwrite {
+	return getPermissionOverwrite(c, overwriteType, id)
+}
+
+func (c GuildVoiceChannel) RolePermissionOverwrite(id snowflake.Snowflake) *RolePermissionOverwrite {
+	return getPermissionOverwrite(c, PermissionOverwriteTypeRole, id).(*RolePermissionOverwrite)
+}
+
+func (c GuildVoiceChannel) MemberPermissionOverwrite(id snowflake.Snowflake) *MemberPermissionOverwrite {
+	return getPermissionOverwrite(c, PermissionOverwriteTypeMember, id).(*MemberPermissionOverwrite)
+}
+
 func (GuildVoiceChannel) channel()           {}
 func (GuildVoiceChannel) guildChannel()      {}
 func (GuildVoiceChannel) guildAudioChannel() {}
-
-var (
-	_ Channel        = (*GroupDMChannel)(nil)
-	_ MessageChannel = (*GroupDMChannel)(nil)
-)
-
-type GroupDMChannel struct {
-	ChannelID        snowflake.Snowflake  `json:"id"`
-	ChannelName      string               `json:"name,omitempty"`
-	LastMessageID    *snowflake.Snowflake `json:"last_message_id,omitempty"`
-	Recipients       []User               `json:"recipients,omitempty"`
-	Icon             *string              `json:"icon,omitempty"`
-	OwnerID          snowflake.Snowflake  `json:"owner_id,omitempty"`
-	ApplicationID    snowflake.Snowflake  `json:"application_id,omitempty"`
-	LastPinTimestamp *Time                `json:"last_pin_timestamp,omitempty"`
-}
-
-func (c GroupDMChannel) MarshalJSON() ([]byte, error) {
-	type groupDMChannel GroupDMChannel
-	return json.Marshal(struct {
-		Type ChannelType `json:"type"`
-		groupDMChannel
-	}{
-		Type:           c.Type(),
-		groupDMChannel: groupDMChannel(c),
-	})
-}
-
-func (c GroupDMChannel) String() string {
-	return channelString(c)
-}
-
-func (GroupDMChannel) Type() ChannelType {
-	return ChannelTypeGuildText
-}
-func (c GroupDMChannel) ID() snowflake.Snowflake {
-	return c.ChannelID
-}
-
-func (c GroupDMChannel) Name() string {
-	return c.ChannelName
-}
-
-func (GroupDMChannel) channel()        {}
-func (GroupDMChannel) messageChannel() {}
 
 var (
 	_ Channel      = (*GuildCategoryChannel)(nil)
@@ -468,6 +449,22 @@ func (c GuildCategoryChannel) Name() string {
 
 func (c GuildCategoryChannel) GuildID() snowflake.Snowflake {
 	return c.ChannelGuildID
+}
+
+func (c GuildCategoryChannel) PermissionOverwrites() []PermissionOverwrite {
+	return c.ChannelPermissionOverwrites
+}
+
+func (c GuildCategoryChannel) PermissionOverwrite(overwriteType PermissionOverwriteType, id snowflake.Snowflake) PermissionOverwrite {
+	return getPermissionOverwrite(c, overwriteType, id)
+}
+
+func (c GuildCategoryChannel) RolePermissionOverwrite(id snowflake.Snowflake) *RolePermissionOverwrite {
+	return getPermissionOverwrite(c, PermissionOverwriteTypeRole, id).(*RolePermissionOverwrite)
+}
+
+func (c GuildCategoryChannel) MemberPermissionOverwrite(id snowflake.Snowflake) *MemberPermissionOverwrite {
+	return getPermissionOverwrite(c, PermissionOverwriteTypeMember, id).(*MemberPermissionOverwrite)
 }
 
 func (GuildCategoryChannel) channel()      {}
@@ -548,81 +545,27 @@ func (c GuildNewsChannel) GuildID() snowflake.Snowflake {
 	return c.ChannelGuildID
 }
 
+func (c GuildNewsChannel) PermissionOverwrites() []PermissionOverwrite {
+	return c.ChannelPermissionOverwrites
+}
+
+func (c GuildNewsChannel) PermissionOverwrite(overwriteType PermissionOverwriteType, id snowflake.Snowflake) PermissionOverwrite {
+	return getPermissionOverwrite(c, overwriteType, id)
+}
+
+func (c GuildNewsChannel) RolePermissionOverwrite(id snowflake.Snowflake) *RolePermissionOverwrite {
+	return getPermissionOverwrite(c, PermissionOverwriteTypeRole, id).(*RolePermissionOverwrite)
+}
+
+func (c GuildNewsChannel) MemberPermissionOverwrite(id snowflake.Snowflake) *MemberPermissionOverwrite {
+	return getPermissionOverwrite(c, PermissionOverwriteTypeMember, id).(*MemberPermissionOverwrite)
+}
+
 func (GuildNewsChannel) channel()                 {}
 func (GuildNewsChannel) guildChannel()            {}
 func (GuildNewsChannel) messageChannel()          {}
 func (GuildNewsChannel) baseGuildMessageChannel() {}
 func (GuildNewsChannel) guildMessageChannel()     {}
-
-var (
-	_ Channel      = (*GuildStoreChannel)(nil)
-	_ GuildChannel = (*GuildStoreChannel)(nil)
-)
-
-type GuildStoreChannel struct {
-	ChannelID                   snowflake.Snowflake   `json:"id"`
-	ChannelGuildID              snowflake.Snowflake   `json:"guild_id"`
-	Position                    int                   `json:"position"`
-	ChannelPermissionOverwrites []PermissionOverwrite `json:"permission_overwrites"`
-	ChannelName                 string                `json:"name"`
-	NSFW                        bool                  `json:"nsfw,omitempty"`
-	ParentID                    *snowflake.Snowflake  `json:"parent_id"`
-	InteractionPermissions      Permissions           `json:"permissions,omitempty"`
-}
-
-func (c *GuildStoreChannel) UnmarshalJSON(data []byte) error {
-	type guildStoreChannel GuildStoreChannel
-	var v struct {
-		ChannelPermissionOverwrites []UnmarshalPermissionOverwrite `json:"permission_overwrites"`
-		guildStoreChannel
-	}
-
-	if err := json.Unmarshal(data, &v); err != nil {
-		return err
-	}
-
-	*c = GuildStoreChannel(v.guildStoreChannel)
-	c.ChannelPermissionOverwrites = parsePermissionOverwrites(v.ChannelPermissionOverwrites)
-	return nil
-}
-
-func (c GuildStoreChannel) MarshalJSON() ([]byte, error) {
-	type guildStoreChannel GuildStoreChannel
-	return json.Marshal(struct {
-		Type ChannelType `json:"type"`
-		guildStoreChannel
-	}{
-		Type:              c.Type(),
-		guildStoreChannel: guildStoreChannel(c),
-	})
-}
-
-func (c GuildStoreChannel) String() string {
-	return channelString(c)
-}
-
-func (c GuildStoreChannel) Mention() string {
-	return channelMention(c.ID())
-}
-
-func (GuildStoreChannel) Type() ChannelType {
-	return ChannelTypeGuildStore
-}
-
-func (c GuildStoreChannel) ID() snowflake.Snowflake {
-	return c.ChannelID
-}
-
-func (c GuildStoreChannel) Name() string {
-	return c.ChannelName
-}
-
-func (c GuildStoreChannel) GuildID() snowflake.Snowflake {
-	return c.ChannelGuildID
-}
-
-func (GuildStoreChannel) channel()      {}
-func (GuildStoreChannel) guildChannel() {}
 
 var (
 	_ Channel                 = (*GuildNewsThread)(nil)
@@ -956,4 +899,13 @@ func parsePermissionOverwrites(unmarshalOverwrites []UnmarshalPermissionOverwrit
 
 func channelString(channel Channel) string {
 	return fmt.Sprintf("%d:%s(%s)", channel.Type(), channel.Name(), channel.ID())
+}
+
+func getPermissionOverwrite(channel GuildChannel, overwriteType PermissionOverwriteType, id snowflake.Snowflake) PermissionOverwrite {
+	for _, overwrite := range channel.PermissionOverwrites() {
+		if overwrite.Type() == overwriteType && overwrite.ID() == id {
+			return overwrite
+		}
+	}
+	return nil
 }

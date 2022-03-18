@@ -20,7 +20,7 @@ func (h *gatewayHandlerChannelCreate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerChannelCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerChannelCreate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	channel := v.(*discord.UnmarshalChannel).Channel
 
 	if ch, ok := channel.(discord.GuildChannel); ok {
@@ -28,7 +28,7 @@ func (h *gatewayHandlerChannelCreate) HandleGatewayEvent(bot *core.Bot, sequence
 		if c, ok := bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes).(core.GuildChannel); ok {
 			guildChannel = c
 		}
-		bot.EventManager.Dispatch(&events.GuildChannelCreateEvent{
+		bot.EventManager().Dispatch(&events.GuildChannelCreateEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				ChannelID:    channel.ID(),
@@ -41,7 +41,7 @@ func (h *gatewayHandlerChannelCreate) HandleGatewayEvent(bot *core.Bot, sequence
 		if c, ok := bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes).(*core.DMChannel); ok {
 			dmChannel = c
 		}
-		bot.EventManager.Dispatch(&events.DMChannelCreateEvent{
+		bot.EventManager().Dispatch(&events.DMChannelCreateEvent{
 			GenericDMChannelEvent: &events.GenericDMChannelEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				ChannelID:    channel.ID(),

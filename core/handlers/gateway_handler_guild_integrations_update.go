@@ -20,10 +20,10 @@ func (h *gatewayHandlerGuildIntegrationsUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildIntegrationsUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerGuildIntegrationsUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.GuildIntegrationsUpdateGatewayEvent)
 
-	bot.EventManager.Dispatch(&events.GuildIntegrationsUpdateEvent{
+	bot.EventManager().Dispatch(&events.GuildIntegrationsUpdateEvent{
 		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 		GuildID:      payload.GuildID,
 	})

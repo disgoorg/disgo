@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/snowflake"
 )
 
@@ -9,13 +9,13 @@ import (
 type GenericGuildEvent struct {
 	*GenericEvent
 	GuildID snowflake.Snowflake
-	Guild   *core.Guild
+	Guild   discord.Guild
 }
 
 // GuildUpdateEvent is called upon receiving core.Guild updates
 type GuildUpdateEvent struct {
 	*GenericGuildEvent
-	OldGuild *core.Guild
+	OldGuild discord.Guild
 }
 
 // GuildAvailableEvent is called when an unavailable core.Guild becomes available
@@ -53,12 +53,12 @@ type GuildsReadyEvent struct {
 type GuildBanEvent struct {
 	*GenericEvent
 	GuildID snowflake.Snowflake
-	User    *core.User
+	User    discord.User
 }
 
 // GuildUnbanEvent is called when a core.Member/core.User is unbanned from the core.Guild
 type GuildUnbanEvent struct {
 	*GenericEvent
 	GuildID snowflake.Snowflake
-	User    *core.User
+	User    discord.User
 }

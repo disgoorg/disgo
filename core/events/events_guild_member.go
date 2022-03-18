@@ -3,7 +3,7 @@ package events
 import (
 	"time"
 
-	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/snowflake"
 )
 
@@ -11,7 +11,7 @@ import (
 type GenericGuildMemberEvent struct {
 	*GenericEvent
 	GuildID snowflake.Snowflake
-	Member  *core.Member
+	Member  discord.Member
 }
 
 // GuildMemberJoinEvent indicates that a core.Member joined the core.Guild
@@ -22,15 +22,15 @@ type GuildMemberJoinEvent struct {
 // GuildMemberUpdateEvent indicates that a core.Member updated
 type GuildMemberUpdateEvent struct {
 	*GenericGuildMemberEvent
-	OldMember *core.Member
+	OldMember discord.Member
 }
 
 // GuildMemberLeaveEvent indicates that a core.Member left the core.Guild
 type GuildMemberLeaveEvent struct {
 	*GenericEvent
 	GuildID snowflake.Snowflake
-	User    *core.User
-	Member  *core.Member
+	User    discord.User
+	Member  discord.Member
 }
 
 // GuildMemberTypingStartEvent indicates that a core.Member started typing in a core.BaseGuildMessageChannel(requires discord.GatewayIntentGuildMessageTyping)
@@ -40,13 +40,10 @@ type GuildMemberTypingStartEvent struct {
 	UserID    snowflake.Snowflake
 	GuildID   snowflake.Snowflake
 	Timestamp time.Time
-	Member    *core.Member
+	Member    discord.Member
 }
 
 // Channel returns the core.BaseGuildMessageChannel the GuildMemberTypingStartEvent happened in
-func (e GuildMemberTypingStartEvent) Channel() core.BaseGuildMessageChannel {
-	if ch := e.Bot().Caches.Channels().Get(e.ChannelID); ch != nil {
-		return ch.(core.BaseGuildMessageChannel)
-	}
-	return nil
+func (e GuildMemberTypingStartEvent) Channel() (discord.BaseGuildMessageChannel, bool) {
+	return e.Bot().Caches().Channels().GetBaseGuildMessageChannel(e.ChannelID)
 }

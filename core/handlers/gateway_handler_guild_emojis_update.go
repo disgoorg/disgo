@@ -22,7 +22,7 @@ func (h *gatewayHandlerGuildEmojisUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.GuildEmojisUpdateGatewayEvent)
 
 	if bot.Caches.Config().CacheFlags.Missing(core.CacheFlagEmojis) {
@@ -59,7 +59,7 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot *core.Bot, sequ
 	}
 
 	for _, emoji := range newEmojis {
-		bot.EventManager.Dispatch(&events.EmojiCreateEvent{
+		bot.EventManager().Dispatch(&events.EmojiCreateEvent{
 			GenericEmojiEvent: &events.GenericEmojiEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				GuildID:      payload.GuildID,
@@ -69,7 +69,7 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot *core.Bot, sequ
 	}
 
 	for _, emoji := range updatedEmojis {
-		bot.EventManager.Dispatch(&events.EmojiUpdateEvent{
+		bot.EventManager().Dispatch(&events.EmojiUpdateEvent{
 			GenericEmojiEvent: &events.GenericEmojiEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				GuildID:      payload.GuildID,
@@ -79,7 +79,7 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot *core.Bot, sequ
 	}
 
 	for _, emoji := range oldEmojis {
-		bot.EventManager.Dispatch(&events.EmojiDeleteEvent{
+		bot.EventManager().Dispatch(&events.EmojiDeleteEvent{
 			GenericEmojiEvent: &events.GenericEmojiEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				GuildID:      payload.GuildID,

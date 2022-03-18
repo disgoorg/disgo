@@ -69,12 +69,6 @@ type GuildNewsChannelUpdate struct {
 func (GuildNewsChannelUpdate) channelUpdate()      {}
 func (GuildNewsChannelUpdate) guildChannelUpdate() {}
 
-type GuildStoreChannelUpdate struct {
-}
-
-func (GuildStoreChannelUpdate) channelUpdate()      {}
-func (GuildStoreChannelUpdate) guildChannelUpdate() {}
-
 type GuildNewsThreadUpdate struct {
 }
 

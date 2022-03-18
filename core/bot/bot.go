@@ -2,7 +2,6 @@ package bot
 
 import (
 	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/core/collectors"
 	"github.com/DisgoOrg/disgo/core/handlers"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
@@ -17,7 +16,7 @@ import (
 
 // New creates a new core.Bot instance with the provided bot token & ConfigOpt(s)
 //goland:noinspection GoUnusedExportedFunction
-func New(token string, opts ...ConfigOpt) (*core.Bot, error) {
+func New(token string, opts ...ConfigOpt) (core.Bot, error) {
 	config := &Config{}
 	config.Apply(opts)
 
@@ -35,7 +34,7 @@ func New(token string, opts ...ConfigOpt) (*core.Bot, error) {
 	return buildBot(token, *config)
 }
 
-func buildBot(token string, config Config) (*core.Bot, error) {
+func buildBot(token string, config Config) (core.Bot, error) {
 	if token == "" {
 		return nil, discord.ErrNoBotToken
 	}
@@ -43,18 +42,18 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "error while getting application id from BotToken")
 	}
-	bot := &core.Bot{
-		Token: token,
+	bot := &core.BotImpl{
+		BotToken: token,
 	}
 
 	// TODO: figure out how we handle different application & client ids
-	bot.ApplicationID = *id
-	bot.ClientID = *id
+	bot.BotApplicationID = *id
+	bot.BotClientID = *id
 
 	if config.Logger == nil {
 		config.Logger = log.Default()
 	}
-	bot.Logger = config.Logger
+	bot.BotLogger = config.Logger
 
 	if config.RestClient == nil {
 		if config.RestClientConfig == nil {
@@ -64,7 +63,7 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 			config.RestClientConfig.Logger = config.Logger
 		}
 		if config.RestClientConfig.BotTokenFunc == nil {
-			config.RestClientConfig.BotTokenFunc = func() string { return bot.Token }
+			config.RestClientConfig.BotTokenFunc = func() string { return bot.BotToken }
 		}
 		config.RestClient = rest.NewClient(config.RestClientConfig)
 	}
@@ -81,15 +80,7 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 
 		config.EventManager = core.NewEventManager(bot, config.EventManagerConfig)
 	}
-	bot.EventManager = config.EventManager
-
-	if config.Collectors == nil {
-		if config.CollectorsConfig == nil {
-			config.CollectorsConfig = &collectors.DefaultConfig
-		}
-		config.Collectors = core.NewCollectors(bot, *config.CollectorsConfig)
-	}
-	bot.Collectors = config.Collectors
+	bot.BotEventManager = config.EventManager
 
 	if config.Gateway == nil && config.GatewayConfig != nil {
 		var gatewayRs *discord.Gateway
@@ -98,11 +89,11 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 			return nil, err
 		}
 		if config.GatewayConfig.Logger == nil {
-			config.GatewayConfig.Logger = bot.Logger
+			config.GatewayConfig.Logger = bot.BotLogger
 		}
 		config.Gateway = gateway.New(token, gatewayRs.URL, 0, 0, handlers.DefaultGatewayEventHandler(bot), config.GatewayConfig)
 	}
-	bot.Gateway = config.Gateway
+	bot.BotGateway = config.Gateway
 
 	if config.ShardManager == nil && config.ShardManagerConfig != nil {
 		var gatewayBotRs *discord.GatewayBot
@@ -133,7 +124,7 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 			config.ShardManager = sharding.New(token, gatewayBotRs.URL, handlers.DefaultGatewayEventHandler(bot), config.ShardManagerConfig)
 		}
 	}
-	bot.ShardManager = config.ShardManager
+	bot.BotShardManager = config.ShardManager
 
 	if config.HTTPServer == nil && config.HTTPServerConfig != nil {
 		if config.HTTPServerConfig.Logger == nil {
@@ -141,12 +132,12 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 		}
 		config.HTTPServer = httpserver.New(handlers.DefaultHTTPServerEventHandler(bot), config.HTTPServerConfig)
 	}
-	bot.HTTPServer = config.HTTPServer
+	bot.BotHTTPServer = config.HTTPServer
 
 	if config.AudioController == nil {
 		config.AudioController = core.NewAudioController(bot)
 	}
-	bot.AudioController = config.AudioController
+	bot.BotAudioController = config.AudioController
 
 	if config.MemberChunkingManager == nil {
 		if config.MemberChunkingFilter == nil {
@@ -154,12 +145,7 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 		}
 		config.MemberChunkingManager = core.NewMemberChunkingManager(bot, *config.MemberChunkingFilter)
 	}
-	bot.MemberChunkingManager = config.MemberChunkingManager
-
-	if config.EntityBuilder == nil {
-		config.EntityBuilder = core.NewEntityBuilder(bot)
-	}
-	bot.EntityBuilder = config.EntityBuilder
+	bot.BotMemberChunkingManager = config.MemberChunkingManager
 
 	if config.Caches == nil {
 		if config.CacheConfig == nil {
@@ -167,7 +153,7 @@ func buildBot(token string, config Config) (*core.Bot, error) {
 		}
 		config.Caches = core.NewCaches(*config.CacheConfig)
 	}
-	bot.Caches = config.Caches
+	bot.BotCaches = config.Caches
 
 	return bot, nil
 }

@@ -1,7 +1,6 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/snowflake"
 )
@@ -10,14 +9,14 @@ import (
 type GenericGuildChannelEvent struct {
 	*GenericEvent
 	ChannelID snowflake.Snowflake
-	Channel   core.GuildChannel
+	Channel   discord.GuildChannel
 	GuildID   snowflake.Snowflake
 }
 
 // Guild returns the core.Guild the event happened in.
 // This will only check cached guilds!
-func (e GenericGuildChannelEvent) Guild() *core.Guild {
-	return e.Bot().Caches.Guilds().Get(e.GuildID)
+func (e GenericGuildChannelEvent) Guild() (discord.Guild, bool) {
+	return e.Bot().Caches().Guilds().Get(e.GuildID)
 }
 
 // GuildChannelCreateEvent indicates that a new Channel got created in a core.Guild
@@ -28,7 +27,7 @@ type GuildChannelCreateEvent struct {
 // GuildChannelUpdateEvent indicates that a Channel got updated in a core.Guild
 type GuildChannelUpdateEvent struct {
 	*GenericGuildChannelEvent
-	OldChannel core.GuildChannel
+	OldChannel discord.GuildChannel
 }
 
 // GuildChannelDeleteEvent indicates that a Channel got deleted in a core.Guild

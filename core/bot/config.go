@@ -21,9 +21,6 @@ type Config struct {
 	EventManager       core.EventManager
 	EventManagerConfig *core.EventManagerConfig
 
-	Collectors       core.Collectors
-	CollectorsConfig *core.CollectorsConfig
-
 	Gateway       gateway.Gateway
 	GatewayConfig *gateway.Config
 
@@ -37,7 +34,6 @@ type Config struct {
 	CacheConfig *core.CacheConfig
 
 	AudioController       core.AudioController
-	EntityBuilder         core.EntityBuilder
 	MemberChunkingManager core.MemberChunkingManager
 	MemberChunkingFilter  *core.MemberChunkingFilter
 }
@@ -123,20 +119,6 @@ func WithAsyncEventsEnabled() ConfigOpt {
 			config.EventManagerConfig = &core.DefaultEventManagerConfig
 		}
 		config.EventManagerConfig.AsyncEventsEnabled = true
-	}
-}
-
-//goland:noinspection GoUnusedExportedFunction
-func WithCollectors(collectors core.Collectors) ConfigOpt {
-	return func(config *Config) {
-		config.Collectors = collectors
-	}
-}
-
-//goland:noinspection GoUnusedExportedFunction
-func WithCollectorsConfig(collectorsConfig core.CollectorsConfig) ConfigOpt {
-	return func(config *Config) {
-		config.CollectorsConfig = &collectorsConfig
 	}
 }
 
@@ -233,13 +215,6 @@ func WithCacheOpts(opts ...core.CacheConfigOpt) ConfigOpt {
 			config.CacheConfig = &core.DefaultCacheConfig
 		}
 		config.CacheConfig.Apply(opts)
-	}
-}
-
-//goland:noinspection GoUnusedExportedFunction
-func WithEntityBuilder(entityBuilder core.EntityBuilder) ConfigOpt {
-	return func(config *Config) {
-		config.EntityBuilder = entityBuilder
 	}
 }
 

@@ -107,7 +107,7 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionEvent
 			Build(),
 		)
 		if err != nil {
-			event.Bot().Logger.Error("error on sending response: ", err)
+			event.Bot().Logger().Error("error on sending response: ", err)
 		}
 
 	case "say":

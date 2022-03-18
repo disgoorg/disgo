@@ -21,7 +21,7 @@ func (h *gatewayHandlerGuildCreate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.GatewayGuild)
 
 	shard, _ := bot.Shard(payload.ID)
@@ -89,11 +89,11 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 
 	if wasUnready {
 		bot.Caches.Guilds().SetReady(shardID, payload.ID)
-		bot.EventManager.Dispatch(&events.GuildReadyEvent{
+		bot.EventManager().Dispatch(&events.GuildReadyEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 		if len(bot.Caches.Guilds().UnreadyGuilds(shardID)) == 0 {
-			bot.EventManager.Dispatch(&events.GuildsReadyEvent{
+			bot.EventManager().Dispatch(&events.GuildsReadyEvent{
 				GenericEvent: events.NewGenericEvent(bot, -1),
 				ShardID:      shardID,
 			})
@@ -101,18 +101,18 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(bot *core.Bot, sequenceNu
 		if bot.MemberChunkingManager.MemberChunkingFilter()(payload.ID) {
 			go func() {
 				if _, err := bot.MemberChunkingManager.RequestMembersWithQuery(payload.ID, "", 0); err != nil {
-					bot.Logger.Error("failed to chunk guild on guild_create. error: ", err)
+					bot.Logger().Error("failed to chunk guild on guild_create. error: ", err)
 				}
 			}()
 		}
 
 	} else if wasUnavailable {
 		bot.Caches.Guilds().SetAvailable(payload.ID)
-		bot.EventManager.Dispatch(&events.GuildAvailableEvent{
+		bot.EventManager().Dispatch(&events.GuildAvailableEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	} else {
-		bot.EventManager.Dispatch(&events.GuildJoinEvent{
+		bot.EventManager().Dispatch(&events.GuildJoinEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	}
@@ -133,10 +133,6 @@ func setGuildID(channel discord.GuildChannel, guildID snowflake.Snowflake) disco
 		return ch
 
 	case discord.GuildNewsChannel:
-		ch.ChannelGuildID = guildID
-		return ch
-
-	case discord.GuildStoreChannel:
 		ch.ChannelGuildID = guildID
 		return ch
 

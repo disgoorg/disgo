@@ -1,7 +1,6 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/snowflake"
 )
@@ -16,14 +15,14 @@ type GenericReactionEvent struct {
 	Emoji     discord.ReactionEmoji
 }
 
-func (e *GenericReactionEvent) User() *core.User {
-	return e.Bot().Caches.Users().Get(e.UserID)
+func (e *GenericReactionEvent) User() (discord.User, bool) {
+	return e.Bot().Caches().Users().Get(e.UserID)
 }
 
 // MessageReactionAddEvent indicates that a core.User added a discord.MessageReaction to a core.Message in a core.Channel(this+++ requires the discord.GatewayIntentGuildMessageReactions and/or discord.GatewayIntentDirectMessageReactions)
 type MessageReactionAddEvent struct {
 	*GenericReactionEvent
-	Member *core.Member
+	Member discord.Member
 }
 
 // MessageReactionRemoveEvent indicates that a core.User removed a discord.MessageReaction from a core.Message in a core.GetChannel(requires the discord.GatewayIntentGuildMessageReactions and/or discord.GatewayIntentDirectMessageReactions)

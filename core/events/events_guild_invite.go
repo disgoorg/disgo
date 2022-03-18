@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/snowflake"
 )
 
@@ -14,17 +14,14 @@ type GenericGuildInviteEvent struct {
 }
 
 // Channel returns the Channel the GenericGuildInviteEvent happened in.
-func (e GenericGuildInviteEvent) Channel() core.GuildChannel {
-	if ch := e.Bot().Caches.Channels().Get(e.ChannelID); ch != nil {
-		return ch.(core.GuildChannel)
-	}
-	return nil
+func (e GenericGuildInviteEvent) Channel() (discord.GuildChannel, bool) {
+	return e.Bot().Caches().Channels().GetGuildChannel(e.ChannelID)
 }
 
 // GuildInviteCreateEvent is called upon creation of a new core.Invite in a core.Guild (requires discord.GatewayIntentGuildInvites)
 type GuildInviteCreateEvent struct {
 	*GenericGuildInviteEvent
-	Invite *core.Invite
+	Invite discord.Invite
 }
 
 // GuildInviteDeleteEvent is called upon deletion of a core.Invite in a core.Guild (requires discord.GatewayIntentGuildInvites)

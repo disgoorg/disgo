@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/snowflake"
 )
 
@@ -10,7 +10,7 @@ type GenericRoleEvent struct {
 	*GenericEvent
 	GuildID snowflake.Snowflake
 	RoleID  snowflake.Snowflake
-	Role    *core.Role
+	Role    discord.Role
 }
 
 // RoleCreateEvent indicates that a core.Role got created
@@ -21,7 +21,7 @@ type RoleCreateEvent struct {
 // RoleUpdateEvent indicates that a core.Role got updated
 type RoleUpdateEvent struct {
 	*GenericRoleEvent
-	OldRole *core.Role
+	OldRole discord.Role
 }
 
 // RoleDeleteEvent indicates that a core.Role got deleted

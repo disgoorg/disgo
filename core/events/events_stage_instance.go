@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/snowflake"
 )
 
@@ -9,7 +9,7 @@ import (
 type GenericStageInstanceEvent struct {
 	*GenericEvent
 	StageInstanceID snowflake.Snowflake
-	StageInstance   *core.StageInstance
+	StageInstance   discord.StageInstance
 }
 
 // StageInstanceCreateEvent indicates that a StageInstance got created
@@ -20,7 +20,7 @@ type StageInstanceCreateEvent struct {
 // StageInstanceUpdateEvent indicates that a StageInstance got updated
 type StageInstanceUpdateEvent struct {
 	*GenericStageInstanceEvent
-	OldStageInstance *core.StageInstance
+	OldStageInstance discord.StageInstance
 }
 
 // StageInstanceDeleteEvent indicates that a StageInstance got deleted

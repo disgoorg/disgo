@@ -19,7 +19,7 @@ func (h *gatewayHandlerMessageDeleteBulk) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerMessageDeleteBulk) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerMessageDeleteBulk) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.MessageDeleteBulkGatewayEvent)
 
 	for _, messageID := range payload.IDs {

@@ -20,7 +20,7 @@ func (h *gatewayHandlerMessageUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.Message)
 
 	oldMessage := bot.Caches.Messages().GetCopy(payload.ChannelID, payload.ID)
@@ -29,7 +29,7 @@ func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 
 	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
-	bot.EventManager.Dispatch(&events.MessageUpdateEvent{
+	bot.EventManager().Dispatch(&events.MessageUpdateEvent{
 		GenericMessageEvent: &events.GenericMessageEvent{
 			GenericEvent: genericEvent,
 			MessageID:    payload.ID,
@@ -41,7 +41,7 @@ func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 	})
 
 	if payload.GuildID == nil {
-		bot.EventManager.Dispatch(&events.DMMessageUpdateEvent{
+		bot.EventManager().Dispatch(&events.DMMessageUpdateEvent{
 			GenericDMMessageEvent: &events.GenericDMMessageEvent{
 				GenericEvent: genericEvent,
 				MessageID:    payload.ID,
@@ -51,7 +51,7 @@ func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(bot *core.Bot, sequence
 			OldMessage: oldMessage,
 		})
 	} else {
-		bot.EventManager.Dispatch(&events.GuildMessageUpdateEvent{
+		bot.EventManager().Dispatch(&events.GuildMessageUpdateEvent{
 			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
 				GenericEvent: genericEvent,
 				MessageID:    payload.ID,

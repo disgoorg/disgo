@@ -3,7 +3,6 @@ package events
 import (
 	"time"
 
-	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/snowflake"
 )
@@ -11,7 +10,7 @@ import (
 // GenericDMChannelEvent is called upon receiving DMChannelCreateEvent, DMChannelUpdateEvent, DMChannelDeleteEvent or DMUserTypingStartEvent
 type GenericDMChannelEvent struct {
 	*GenericEvent
-	Channel   *core.DMChannel
+	Channel   discord.DMChannel
 	ChannelID snowflake.Snowflake
 }
 
@@ -23,7 +22,7 @@ type DMChannelCreateEvent struct {
 // DMChannelUpdateEvent indicates that a core.DMChannel got updated
 type DMChannelUpdateEvent struct {
 	*GenericDMChannelEvent
-	OldChannel *core.DMChannel
+	OldChannel discord.DMChannel
 }
 
 // DMChannelDeleteEvent indicates that a core.DMChannel got deleted
@@ -47,9 +46,9 @@ type DMUserTypingStartEvent struct {
 }
 
 // Channel returns the core.DMChannel the DMUserTypingStartEvent happened in
-func (e DMUserTypingStartEvent) Channel() *core.DMChannel {
-	if ch := e.Bot().Caches.Channels().Get(e.ChannelID); ch != nil {
-		return ch.(*core.DMChannel)
+func (e DMUserTypingStartEvent) Channel() (discord.DMChannel, bool) {
+	if channel, ok := e.Bot().Caches().Channels().Get(e.ChannelID); ok {
+		return channel.(discord.DMChannel), false
 	}
-	return nil
+	return discord.DMChannel{}, true
 }

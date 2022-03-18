@@ -20,7 +20,7 @@ func (h *gatewayHandlerStageInstanceDelete) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerStageInstanceDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerStageInstanceDelete) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.StageInstance)
 
 	bot.Caches.StageInstances().Remove(payload.ID)
@@ -31,7 +31,7 @@ func (h *gatewayHandlerStageInstanceDelete) HandleGatewayEvent(bot *core.Bot, se
 		}
 	}
 
-	bot.EventManager.Dispatch(&events.StageInstanceDeleteEvent{
+	bot.EventManager().Dispatch(&events.StageInstanceDeleteEvent{
 		GenericStageInstanceEvent: &events.GenericStageInstanceEvent{
 			GenericEvent:    events.NewGenericEvent(bot, sequenceNumber),
 			StageInstanceID: payload.ID,

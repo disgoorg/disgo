@@ -11,7 +11,7 @@ import (
 // AudioController lets you Connect / Disconnect from a Channel
 type AudioController interface {
 	// Bot returns the core.Bot instance
-	Bot() *Bot
+	Bot() Bot
 
 	// Connect sends a discord.GatewayCommand to connect to the specified Channel
 	Connect(ctx context.Context, guildID snowflake.Snowflake, channelID snowflake.Snowflake) error
@@ -20,15 +20,15 @@ type AudioController interface {
 	Disconnect(ctx context.Context, guildID snowflake.Snowflake) error
 }
 
-func NewAudioController(bot *Bot) AudioController {
+func NewAudioController(bot Bot) AudioController {
 	return &audioControllerImpl{bot: bot}
 }
 
 type audioControllerImpl struct {
-	bot *Bot
+	bot Bot
 }
 
-func (c *audioControllerImpl) Bot() *Bot {
+func (c *audioControllerImpl) Bot() Bot {
 	return c.bot
 }
 

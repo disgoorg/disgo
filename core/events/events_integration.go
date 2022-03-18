@@ -1,20 +1,20 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/snowflake"
 )
 
 type GenericIntegrationEvent struct {
 	*GenericEvent
 	GuildID     snowflake.Snowflake
-	Integration core.Integration
+	Integration discord.Integration
 }
 
 // Guild returns the Guild this Integration was created in.
 // This will only check cached guilds!
-func (e *GenericIntegrationEvent) Guild() *core.Guild {
-	return e.Bot().Caches.Guilds().Get(e.GuildID)
+func (e *GenericIntegrationEvent) Guild() (discord.Guild, bool) {
+	return e.Bot().Caches().Guilds().Get(e.GuildID)
 }
 
 // IntegrationCreateEvent indicates that a new Integration was created in a Guild

@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/snowflake"
 )
 
@@ -9,7 +9,7 @@ import (
 type GenericStickerEvent struct {
 	*GenericEvent
 	GuildID snowflake.Snowflake
-	Sticker *core.Sticker
+	Sticker discord.Sticker
 }
 
 // StickerCreateEvent indicates that a new core.Sticker got created in a core.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
@@ -20,7 +20,7 @@ type StickerCreateEvent struct {
 // StickerUpdateEvent indicates that a core.Sticker got updated in a core.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
 type StickerUpdateEvent struct {
 	*GenericStickerEvent
-	OldSticker *core.Sticker
+	OldSticker discord.Sticker
 }
 
 // StickerDeleteEvent indicates that a core.Sticker got deleted in a core.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)

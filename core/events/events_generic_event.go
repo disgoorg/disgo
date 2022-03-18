@@ -6,17 +6,17 @@ import (
 )
 
 // NewGenericEvent constructs a new GenericEvent with the provided Bot instance
-func NewGenericEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence) *GenericEvent {
+func NewGenericEvent(bot core.Bot, sequenceNumber discord.GatewaySequence) *GenericEvent {
 	return &GenericEvent{bot: bot, sequenceNumber: sequenceNumber}
 }
 
 // GenericEvent the base event structure
 type GenericEvent struct {
-	bot            *core.Bot
+	bot            core.Bot
 	sequenceNumber discord.GatewaySequence
 }
 
-func (e GenericEvent) Bot() *core.Bot {
+func (e GenericEvent) Bot() core.Bot {
 	return e.bot
 }
 

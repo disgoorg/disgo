@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/snowflake"
 )
 
@@ -9,7 +9,7 @@ import (
 type GenericEmojiEvent struct {
 	*GenericEvent
 	GuildID snowflake.Snowflake
-	Emoji   *core.Emoji
+	Emoji   discord.Emoji
 }
 
 // EmojiCreateEvent indicates that a new core.Emoji got created in a core.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
@@ -20,7 +20,7 @@ type EmojiCreateEvent struct {
 // EmojiUpdateEvent indicates that a core.Emoji got updated in a core.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
 type EmojiUpdateEvent struct {
 	*GenericEmojiEvent
-	OldEmoji *core.Emoji
+	OldEmoji discord.Emoji
 }
 
 // EmojiDeleteEvent indicates that a core.Emoji got deleted in a core.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)

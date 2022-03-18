@@ -20,10 +20,10 @@ func (h *gatewayHandlerTypingStart) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerTypingStart) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerTypingStart) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.TypingStartGatewayEvent)
 
-	bot.EventManager.Dispatch(&events.UserTypingStartEvent{
+	bot.EventManager().Dispatch(&events.UserTypingStartEvent{
 		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 		ChannelID:    payload.ChannelID,
 		GuildID:      payload.GuildID,
@@ -32,14 +32,14 @@ func (h *gatewayHandlerTypingStart) HandleGatewayEvent(bot *core.Bot, sequenceNu
 	})
 
 	if payload.GuildID == nil {
-		bot.EventManager.Dispatch(&events.DMUserTypingStartEvent{
+		bot.EventManager().Dispatch(&events.DMUserTypingStartEvent{
 			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 			ChannelID:    payload.ChannelID,
 			UserID:       payload.UserID,
 			Timestamp:    payload.Timestamp,
 		})
 	} else {
-		bot.EventManager.Dispatch(&events.GuildMemberTypingStartEvent{
+		bot.EventManager().Dispatch(&events.GuildMemberTypingStartEvent{
 			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 			ChannelID:    payload.ChannelID,
 			UserID:       payload.UserID,

@@ -20,7 +20,7 @@ func (h *gatewayHandlerGuildDelete) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildDelete) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerGuildDelete) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.UnavailableGuild)
 
 	guild := bot.Caches.Guilds().Get(payload.ID)
@@ -35,11 +35,11 @@ func (h *gatewayHandlerGuildDelete) HandleGatewayEvent(bot *core.Bot, sequenceNu
 	}
 
 	if payload.Unavailable {
-		bot.EventManager.Dispatch(&events.GuildUnavailableEvent{
+		bot.EventManager().Dispatch(&events.GuildUnavailableEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	} else {
-		bot.EventManager.Dispatch(&events.GuildLeaveEvent{
+		bot.EventManager().Dispatch(&events.GuildLeaveEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	}

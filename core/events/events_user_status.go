@@ -1,7 +1,6 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/snowflake"
 )
@@ -16,8 +15,8 @@ type UserStatusUpdateEvent struct {
 
 // User returns the User that changed their Status.
 // This will only check cached users!
-func (g *UserStatusUpdateEvent) User() *core.User {
-	return g.Bot().Caches.Users().Get(g.UserID)
+func (g *UserStatusUpdateEvent) User() (discord.User, bool) {
+	return g.Bot().Caches().Users().Get(g.UserID)
 }
 
 // UserClientStatusUpdateEvent generic client-specific Status event
@@ -30,6 +29,6 @@ type UserClientStatusUpdateEvent struct {
 
 // User returns the User that changed their Status.
 // This will only check cached users!
-func (g *UserClientStatusUpdateEvent) User() *core.User {
-	return g.Bot().Caches.Users().Get(g.UserID)
+func (g *UserClientStatusUpdateEvent) User() (discord.User, bool) {
+	return g.Bot().Caches().Users().Get(g.UserID)
 }

@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/snowflake"
 )
 
@@ -9,16 +9,16 @@ import (
 type GenericDMMessageEvent struct {
 	*GenericEvent
 	MessageID snowflake.Snowflake
-	Message   *core.Message
+	Message   discord.Message
 	ChannelID snowflake.Snowflake
 }
 
 // Channel returns the Channel the GenericDMMessageEvent happened in
-func (e GenericDMMessageEvent) Channel() *core.DMChannel {
-	if ch := e.Bot().Caches.Channels().Get(e.ChannelID); ch != nil {
-		return ch.(*core.DMChannel)
+func (e GenericDMMessageEvent) Channel() (discord.DMChannel, bool) {
+	if ch, ok := e.Bot().Caches().Channels().Get(e.ChannelID); ok {
+		return ch.(discord.DMChannel), true
 	}
-	return nil
+	return discord.DMChannel{}, false
 }
 
 // DMMessageCreateEvent is called upon receiving a core.Message in a Channel (requires discord.GatewayIntentsDirectMessage)
@@ -29,7 +29,7 @@ type DMMessageCreateEvent struct {
 // DMMessageUpdateEvent is called upon editing a core.Message in a Channel (requires discord.GatewayIntentsDirectMessage)
 type DMMessageUpdateEvent struct {
 	*GenericDMMessageEvent
-	OldMessage *core.Message
+	OldMessage discord.Message
 }
 
 // DMMessageDeleteEvent is called upon deleting a core.Message in a Channel (requires discord.GatewayIntentsDirectMessage)

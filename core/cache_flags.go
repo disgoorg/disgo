@@ -1,6 +1,6 @@
 package core
 
-// CacheFlags are used to enable/disable certain internal caches
+// CacheFlags are used to enable/disable certain internal BotCaches
 type CacheFlags int
 
 // values for CacheFlags
@@ -8,7 +8,10 @@ type CacheFlags int
 const (
 	CacheFlagGuilds CacheFlags = 1 << iota
 	CacheFlagGuildScheduledEvents
-
+	CacheFlagUsers
+	CacheFlagMembers
+	CacheFlagThreadMembers
+	CacheFlagMessages
 	CacheFlagPresences
 
 	CacheFlagGuildTextChannels
@@ -17,7 +20,6 @@ const (
 	CacheFlagGroupDMChannels
 	CacheFlagGuildCategories
 	CacheFlagGuildNewsChannels
-	CacheFlagGuildStoreChannels
 	CacheFlagGuildNewsThreads
 	CacheFlagGuildPublicThreads
 	CacheFlagGuildPrivateThreads
@@ -41,7 +43,6 @@ const (
 		CacheFlagGroupDMChannels |
 		CacheFlagGuildCategories |
 		CacheFlagGuildNewsChannels |
-		CacheFlagGuildStoreChannels |
 		CacheFlagGuildNewsThreads |
 		CacheFlagGuildPublicThreads |
 		CacheFlagGuildPrivateThreads |

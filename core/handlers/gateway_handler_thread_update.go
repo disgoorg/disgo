@@ -16,7 +16,7 @@ func (h *gatewayHandlerThreadUpdate) New() interface{} {
 	return &discord.UnmarshalChannel{}
 }
 
-func (h *gatewayHandlerThreadUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerThreadUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := v.(*discord.UnmarshalChannel).Channel
 
 	var oldThread core.GuildThread
@@ -26,7 +26,7 @@ func (h *gatewayHandlerThreadUpdate) HandleGatewayEvent(bot *core.Bot, sequenceN
 
 	thread := bot.EntityBuilder.CreateChannel(payload, core.CacheStrategyYes).(core.GuildThread)
 
-	bot.EventManager.Dispatch(&events.ThreadUpdateEvent{
+	bot.EventManager().Dispatch(&events.ThreadUpdateEvent{
 		GenericThreadEvent: &events.GenericThreadEvent{
 			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 			Thread:       thread,

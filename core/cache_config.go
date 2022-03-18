@@ -1,5 +1,7 @@
 package core
 
+import "github.com/DisgoOrg/disgo/discord"
+
 //goland:noinspection GoUnusedGlobalVariable
 var DefaultCacheConfig = CacheConfig{
 	CacheFlags:         CacheFlagsDefault,
@@ -9,8 +11,8 @@ var DefaultCacheConfig = CacheConfig{
 
 type CacheConfig struct {
 	CacheFlags         CacheFlags
-	MemberCachePolicy  MemberCachePolicy
-	MessageCachePolicy MessageCachePolicy
+	MemberCachePolicy  CachePolicy[discord.Member]
+	MessageCachePolicy CachePolicy[discord.Message]
 }
 
 type CacheConfigOpt func(config *CacheConfig)
@@ -33,14 +35,14 @@ func WithCacheFlags(cacheFlags ...CacheFlags) CacheConfigOpt {
 }
 
 //goland:noinspection GoUnusedExportedFunction
-func WithMemberCachePolicy(memberCachePolicy MemberCachePolicy) CacheConfigOpt {
+func WithMemberCachePolicy(memberCachePolicy CachePolicy[discord.Member]) CacheConfigOpt {
 	return func(config *CacheConfig) {
 		config.MemberCachePolicy = memberCachePolicy
 	}
 }
 
 //goland:noinspection GoUnusedExportedFunction
-func WithMessageCachePolicy(messageCachePolicy MessageCachePolicy) CacheConfigOpt {
+func WithMessageCachePolicy(messageCachePolicy CachePolicy[discord.Message]) CacheConfigOpt {
 	return func(config *CacheConfig) {
 		config.MessageCachePolicy = messageCachePolicy
 	}

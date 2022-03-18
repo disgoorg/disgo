@@ -1,7 +1,6 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/snowflake"
 )
@@ -16,18 +15,18 @@ type GenericGuildMessageReactionEvent struct {
 	Emoji     discord.ReactionEmoji
 }
 
-func (e *GenericGuildMessageReactionEvent) User() *core.User {
-	return e.Bot().Caches.Users().Get(e.UserID)
+func (e *GenericGuildMessageReactionEvent) User() (discord.User, bool) {
+	return e.Bot().Caches().Users().Get(e.UserID)
 }
 
-func (e *GenericGuildMessageReactionEvent) Member() *core.Member {
-	return e.Bot().Caches.Members().Get(e.GuildID, e.UserID)
+func (e *GenericGuildMessageReactionEvent) Member() (discord.Member, bool) {
+	return e.Bot().Caches().Members().Get(e.GuildID, e.UserID)
 }
 
 // GuildMessageReactionAddEvent indicates that a core.Member added a discord.ReactionEmoji to a core.Message in a core.GuildMessageChannel(requires the discord.GatewayIntentGuildMessageReactions)
 type GuildMessageReactionAddEvent struct {
 	*GenericGuildMessageReactionEvent
-	Member *core.Member
+	Member discord.Member
 }
 
 // GuildMessageReactionRemoveEvent indicates that a core.Member removed a discord.MessageReaction from a core.Message in a Channel (requires the discord.GatewayIntentGuildMessageReactions)

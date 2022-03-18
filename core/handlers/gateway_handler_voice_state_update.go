@@ -20,7 +20,7 @@ func (h *gatewayHandlerVoiceStateUpdate) New() interface{} {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(bot *core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.VoiceState)
 
 	oldVoiceState := bot.Caches.VoiceStates().GetCopy(payload.GuildID, payload.UserID)
@@ -53,26 +53,26 @@ func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(bot *core.Bot, seque
 		VoiceState:   voiceState,
 	}
 
-	bot.EventManager.Dispatch(&events.GuildVoiceStateUpdateEvent{
+	bot.EventManager().Dispatch(&events.GuildVoiceStateUpdateEvent{
 		GenericGuildVoiceEvent: genericGuildVoiceEvent,
 		OldVoiceState:          oldVoiceState,
 	})
 
 	if oldVoiceState != nil && oldVoiceState.ChannelID != nil && payload.ChannelID != nil {
-		bot.EventManager.Dispatch(&events.GuildVoiceMoveEvent{
+		bot.EventManager().Dispatch(&events.GuildVoiceMoveEvent{
 			GenericGuildVoiceEvent: genericGuildVoiceEvent,
 			OldVoiceState:          oldVoiceState,
 		})
 	} else if (oldVoiceState == nil || oldVoiceState.ChannelID == nil) && payload.ChannelID != nil {
-		bot.EventManager.Dispatch(&events.GuildVoiceJoinEvent{
+		bot.EventManager().Dispatch(&events.GuildVoiceJoinEvent{
 			GenericGuildVoiceEvent: genericGuildVoiceEvent,
 		})
 	} else if payload.ChannelID == nil {
-		bot.EventManager.Dispatch(&events.GuildVoiceLeaveEvent{
+		bot.EventManager().Dispatch(&events.GuildVoiceLeaveEvent{
 			GenericGuildVoiceEvent: genericGuildVoiceEvent,
 			OldVoiceState:          oldVoiceState,
 		})
 	} else {
-		bot.Logger.Warnf("could not decide which GuildVoiceEvent to fire")
+		bot.Logger().Warnf("could not decide which GuildVoiceEvent to fire")
 	}
 }

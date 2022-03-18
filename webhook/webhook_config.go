@@ -19,7 +19,6 @@ type Config struct {
 	RestClient             rest.Client
 	RestClientConfig       *rest.Config
 	WebhookService         rest.WebhookService
-	EntityBuilder          EntityBuilder
 	DefaultAllowedMentions *discord.AllowedMentions
 }
 
@@ -73,14 +72,6 @@ func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 func WithWebhookService(webhookService rest.WebhookService) ConfigOpt {
 	return func(config *Config) {
 		config.WebhookService = webhookService
-	}
-}
-
-// WithEntityBuilder sets the entity builder for the webhook client
-//goland:noinspection GoUnusedExportedFunction
-func WithEntityBuilder(entityBuilder EntityBuilder) ConfigOpt {
-	return func(config *Config) {
-		config.EntityBuilder = entityBuilder
 	}
 }
 

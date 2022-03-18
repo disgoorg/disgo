@@ -3,7 +3,7 @@ package events
 import (
 	"time"
 
-	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/snowflake"
 )
 
@@ -11,13 +11,13 @@ import (
 type GenericUserEvent struct {
 	*GenericEvent
 	UserID snowflake.Snowflake
-	User   *core.User
+	User   discord.User
 }
 
 // UserUpdateEvent  indicates that a core.User updated
 type UserUpdateEvent struct {
 	*GenericUserEvent
-	OldUser *core.User
+	OldUser discord.User
 }
 
 // UserTypingStartEvent indicates that a core.User started typing in a core.DMChannel or core.MessageChanel(requires the discord.GatewayIntentDirectMessageTyping and/or discord.GatewayIntentGuildMessageTyping)
@@ -29,10 +29,7 @@ type UserTypingStartEvent struct {
 	Timestamp time.Time
 }
 
-// Channel returns the core.GetChannel the core.User started typing in
-func (e *UserTypingStartEvent) Channel() core.MessageChannel {
-	if ch := e.Bot().Caches.Channels().Get(e.ChannelID); ch != nil {
-		return ch.(core.MessageChannel)
-	}
-	return nil
+// MessageChannel returns the core.GetChannel the core.User started typing in
+func (e *UserTypingStartEvent) MessageChannel() (discord.MessageChannel, bool) {
+	return e.Bot().Caches().Channels().GetMessageChannel(e.ChannelID)
 }

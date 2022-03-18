@@ -23,7 +23,7 @@ type EventManagerConfig struct {
 
 var _ EventManager = (*eventManagerImpl)(nil)
 
-func NewEventManager(bot *Bot, config *EventManagerConfig) EventManager {
+func NewEventManager(bot Bot, config *EventManagerConfig) EventManager {
 	if config == nil {
 		config = &DefaultEventManagerConfig
 	}
@@ -34,9 +34,9 @@ func NewEventManager(bot *Bot, config *EventManagerConfig) EventManager {
 	}
 }
 
-// EventManager lets you listen for specific events triggered by raw gateway events
+// EventManager lets you listen for specific events triggered by raw BotGateway events
 type EventManager interface {
-	Bot() *Bot
+	Bot() Bot
 	Config() EventManagerConfig
 
 	AddEventListeners(eventListeners ...EventListener)
@@ -53,7 +53,7 @@ type EventListener interface {
 
 // Event the basic interface each event implement
 type Event interface {
-	Bot() *Bot
+	Bot() Bot
 	SequenceNumber() discord.GatewaySequence
 }
 
@@ -61,23 +61,23 @@ type Event interface {
 type GatewayEventHandler interface {
 	EventType() discord.GatewayEventType
 	New() interface{}
-	HandleGatewayEvent(bot *Bot, sequenceNumber discord.GatewaySequence, v interface{})
+	HandleGatewayEvent(bot Bot, sequenceNumber discord.GatewaySequence, v interface{})
 }
 
 // HTTPServerEventHandler is used to handle HTTP Event(s)
 type HTTPServerEventHandler interface {
 	New() interface{}
-	HandleHTTPEvent(bot *Bot, responseChannel chan<- discord.InteractionResponse, v interface{})
+	HandleHTTPEvent(bot Bot, responseChannel chan<- discord.InteractionResponse, v interface{})
 }
 
 // eventManagerImpl is the implementation of core.EventManager
 type eventManagerImpl struct {
-	bot    *Bot
+	bot    Bot
 	config EventManagerConfig
 }
 
 // Bot returns the core.Bot instance used by the core.EventManager
-func (e *eventManagerImpl) Bot() *Bot {
+func (e *eventManagerImpl) Bot() Bot {
 	return e.bot
 }
 
@@ -91,13 +91,13 @@ func (e *eventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventTy
 		v := handler.New()
 		if v != nil {
 			if err := json.NewDecoder(reader).Decode(&v); err != nil {
-				e.Bot().Logger.Errorf("error while unmarshalling event '%s'. error: %s", gatewayEventType, err.Error())
+				e.Bot().Logger().Errorf("error while unmarshalling event '%s'. error: %s", gatewayEventType, err.Error())
 				return
 			}
 		}
 		handler.HandleGatewayEvent(e.Bot(), sequenceNumber, v)
 	} else {
-		e.Bot().Logger.Warnf("no handler for gateway event '%s' found", gatewayEventType)
+		e.Bot().Logger().Warnf("no handler for BotGateway event '%s' found", gatewayEventType)
 	}
 }
 
@@ -105,7 +105,7 @@ func (e *eventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventTy
 func (e *eventManagerImpl) HandleHTTP(responseChannel chan<- discord.InteractionResponse, reader io.Reader) {
 	v := e.config.HTTPServerHandler.New()
 	if err := json.NewDecoder(reader).Decode(&v); err != nil {
-		e.Bot().Logger.Error("error while unmarshalling httpserver event. error: ", err)
+		e.Bot().Logger().Error("error while unmarshalling httpserver event. error: ", err)
 	}
 	e.config.HTTPServerHandler.HandleHTTPEvent(e.Bot(), responseChannel, v)
 }
@@ -114,7 +114,7 @@ func (e *eventManagerImpl) HandleHTTP(responseChannel chan<- discord.Interaction
 func (e *eventManagerImpl) Dispatch(event Event) {
 	defer func() {
 		if r := recover(); r != nil {
-			e.Bot().Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
+			e.Bot().Logger().Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
 			return
 		}
 	}()
@@ -123,7 +123,7 @@ func (e *eventManagerImpl) Dispatch(event Event) {
 			go func() {
 				defer func() {
 					if r := recover(); r != nil {
-						e.Bot().Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
+						e.Bot().Logger().Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
 						return
 					}
 				}()
