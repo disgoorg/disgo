@@ -21,7 +21,7 @@ const (
 	GatewayIntentDirectMessages
 	GatewayIntentDirectMessageReactions
 	GatewayIntentDirectMessageTyping
-	_
+	GatewayIntentMessageContent
 	GatewayIntentGuildScheduledEvents
 
 	GatewayIntentsGuild = GatewayIntentGuilds |
@@ -58,7 +58,7 @@ const (
 		GatewayIntentGuildScheduledEvents
 
 	GatewayIntentsPrivileged = GatewayIntentGuildMembers |
-		GatewayIntentGuildPresences
+		GatewayIntentGuildPresences | GatewayIntentMessageContent
 
 	GatewayIntentsAll = GatewayIntentsNonPrivileged |
 		GatewayIntentsPrivileged
