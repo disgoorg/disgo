@@ -19,7 +19,7 @@ const (
 
 // ApplicationCommandPermissionsSet is used to bulk overwrite all ApplicationCommandPermissions
 type ApplicationCommandPermissionsSet struct {
-	ID          snowflake.Snowflake            `json:"id"`
+	ID          snowflake.Snowflake            `json:"id,omitempty"`
 	Permissions []ApplicationCommandPermission `json:"permissions"`
 }
 
