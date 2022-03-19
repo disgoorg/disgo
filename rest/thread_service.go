@@ -29,8 +29,6 @@ type ThreadService interface {
 	GetPublicArchivedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
 	GetPrivateArchivedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
 	GetJoinedPrivateArchivedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
-
-	GetActiveGuildThreads(guildID snowflake.Snowflake, opts ...RequestOpt) (threads *discord.GetAllThreads, err error)
 }
 
 type threadServiceImpl struct {
@@ -165,16 +163,6 @@ func (s *threadServiceImpl) GetJoinedPrivateArchivedThreads(channelID snowflake.
 	}
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetJoinedAchievedPrivateThreads.Compile(queryValues, channelID)
-	if err != nil {
-		return
-	}
-	err = s.restClient.Do(compiledRoute, nil, &threads, opts...)
-	return
-}
-
-func (s *threadServiceImpl) GetActiveGuildThreads(guildID snowflake.Snowflake, opts ...RequestOpt) (threads *discord.GetAllThreads, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetActiveGuildThreads.Compile(nil, guildID)
 	if err != nil {
 		return
 	}
