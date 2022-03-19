@@ -190,7 +190,7 @@ func (s *channelServiceImpl) GetMessages(channelID snowflake.Snowflake, around s
 		values["limit"] = limit
 	}
 	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetMessages.Compile(nil, channelID)
+	compiledRoute, err = route.GetMessages.Compile(values, channelID)
 	if err != nil {
 		return
 	}
