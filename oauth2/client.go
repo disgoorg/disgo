@@ -2,15 +2,12 @@ package oauth2
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/DisgoOrg/snowflake"
 	"github.com/pkg/errors"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/rest"
-	"github.com/DisgoOrg/disgo/rest/route"
-	"github.com/DisgoOrg/log"
 )
 
 // errors returned by the OAuth2 client
@@ -22,122 +19,33 @@ var (
 	}
 )
 
-// New returns a new OAuth2 client
-func New(id snowflake.Snowflake, secret string, opts ...ConfigOpt) *Client {
-	config := &DefaultConfig
-	config.Apply(opts)
+type Client interface {
+	// ID returns the configured client ID
+	ID() snowflake.Snowflake
+	// Secret returns the configured client secret
+	Secret() string
+	// Config returns the configured Config
+	Config() Config
 
-	if config.Logger == nil {
-		config.Logger = log.Default()
-	}
+	// SessionController returns the configured SessionController
+	SessionController() SessionController
+	// StateController returns the configured StateController
+	StateController() StateController
 
-	if config.RestClient == nil {
-		config.RestClient = rest.NewClient(config.RestClientConfig)
-	}
-	if config.OAuth2Service == nil {
-		config.OAuth2Service = rest.NewOAuth2Service(config.RestClient)
-	}
-	if config.SessionController == nil {
-		config.SessionController = NewSessionController()
-	}
-	if config.StateController == nil {
-		config.StateController = NewStateController(config.StateControllerConfig)
-	}
+	// GenerateAuthorizationURL generates an authorization URL with the given redirect URI, permissions, guildID, disableGuildSelect & scopes. State is automatically generated
+	GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID snowflake.Snowflake, disableGuildSelect bool, scopes ...discord.ApplicationScope) string
+	// GenerateAuthorizationURLState generates an authorization URL with the given redirect URI, permissions, guildID, disableGuildSelect & scopes. State is automatically generated & returned
+	GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.Snowflake, disableGuildSelect bool, scopes ...discord.ApplicationScope) (string, string)
 
-	return &Client{ID: id, Secret: secret, Config: *config}
-}
+	// StartSession starts a new Session with the given authorization code & state
+	StartSession(code string, state string, identifier string, opts ...rest.RequestOpt) (Session, error)
+	// RefreshSession refreshes the given Session with the refresh token
+	RefreshSession(identifier string, session Session, opts ...rest.RequestOpt) (Session, error)
 
-// Client is an OAuth2 client
-type Client struct {
-	ID     snowflake.Snowflake
-	Secret string
-	Config
-}
-
-// GenerateAuthorizationURL generates an authorization URL with the given redirect URI, permissions, guildID, disableGuildSelect & scopes, state is automatically generated
-func (c *Client) GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID snowflake.Snowflake, disableGuildSelect bool, scopes ...discord.ApplicationScope) string {
-	url, _ := c.GenerateAuthorizationURLState(redirectURI, permissions, guildID, disableGuildSelect, scopes...)
-	return url
-}
-
-// GenerateAuthorizationURLState generates an authorization URL with the given redirect URI, permissions, guildID, disableGuildSelect & scopes, state is automatically generated & returned
-func (c *Client) GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.Snowflake, disableGuildSelect bool, scopes ...discord.ApplicationScope) (string, string) {
-	state := c.StateController.GenerateNewState(redirectURI)
-	values := route.QueryValues{
-		"client_id":     c.ID,
-		"redirect_uri":  redirectURI,
-		"response_type": "code",
-		"scope":         discord.JoinScopes(scopes),
-		"state":         state,
-	}
-	if permissions != discord.PermissionsNone {
-		values["permissions"] = permissions
-	}
-	if guildID != "" {
-		values["guild_id"] = guildID
-	}
-	if disableGuildSelect {
-		values["disable_guild_select"] = true
-	}
-	compiledRoute, _ := route.Authorize.Compile(values)
-	return compiledRoute.URL(), state
-}
-
-// StartSession starts a new session with the given authorization code & state
-func (c *Client) StartSession(code string, state string, identifier string, opts ...rest.RequestOpt) (Session, error) {
-	redirectURI := c.StateController.ConsumeState(state)
-	if redirectURI == "" {
-		return nil, ErrStateNotFound
-	}
-	exchange, err := c.OAuth2Service.GetAccessToken(c.ID, c.Secret, code, redirectURI, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.SessionController.CreateSessionFromExchange(identifier, *exchange), nil
-}
-
-// RefreshSession refreshes the given session with the refresh token
-func (c *Client) RefreshSession(identifier string, session Session, opts ...rest.RequestOpt) (Session, error) {
-	exchange, err := c.OAuth2Service.RefreshAccessToken(c.ID, c.Secret, session.RefreshToken(), opts...)
-	if err != nil {
-		return nil, err
-	}
-	return c.SessionController.CreateSessionFromExchange(identifier, *exchange), nil
-}
-
-// GetUser returns the discord.OAuth2User associated with the given session. Fields filled in the struct depend on the Session.Scopes
-func (c *Client) GetUser(session Session, opts ...rest.RequestOpt) (*discord.OAuth2User, error) {
-	if session.Expiration().Before(time.Now()) {
-		return nil, ErrAccessTokenExpired
-	}
-	if !discord.HasScope(discord.ApplicationScopeIdentify, session.Scopes()...) {
-		return nil, ErrMissingOAuth2Scope(discord.ApplicationScopeIdentify)
-	}
-
-	return c.OAuth2Service.GetCurrentUser(session.AccessToken(), opts...)
-}
-
-// GetGuilds returns the discord.OAuth2Guild(s) the user is a member of. This requires the discord.ApplicationScopeGuilds scope in the session
-func (c *Client) GetGuilds(session Session, opts ...rest.RequestOpt) ([]discord.OAuth2Guild, error) {
-	if session.Expiration().Before(time.Now()) {
-		return nil, ErrAccessTokenExpired
-	}
-	if !discord.HasScope(discord.ApplicationScopeGuilds, session.Scopes()...) {
-		return nil, ErrMissingOAuth2Scope(discord.ApplicationScopeGuilds)
-	}
-
-	return c.OAuth2Service.GetCurrentUserGuilds(session.AccessToken(), "", "", 0, opts...)
-}
-
-// GetConnections returns the discord.Connection(s) the user has connected. This requires the discord.ApplicationScopeConnections scope in the session
-func (c *Client) GetConnections(session Session, opts ...rest.RequestOpt) ([]discord.Connection, error) {
-	if session.Expiration().Before(time.Now()) {
-		return nil, ErrAccessTokenExpired
-	}
-	if !discord.HasScope(discord.ApplicationScopeConnections, session.Scopes()...) {
-		return nil, ErrMissingOAuth2Scope(discord.ApplicationScopeConnections)
-	}
-
-	return c.OAuth2Service.GetCurrentUserConnections(session.AccessToken(), opts...)
+	// GetUser returns the discord.OAuth2User associated with the given Session. Fields filled in the struct depend on the Session.Scopes
+	GetUser(session Session, opts ...rest.RequestOpt) (*discord.OAuth2User, error)
+	// GetGuilds returns the discord.OAuth2Guild(s) the user is a member of. This requires the discord.ApplicationScopeGuilds scope in the Session
+	GetGuilds(session Session, opts ...rest.RequestOpt) ([]discord.OAuth2Guild, error)
+	// GetConnections returns the discord.Connection(s) the user has connected. This requires the discord.ApplicationScopeConnections scope in the Session
+	GetConnections(session Session, opts ...rest.RequestOpt) ([]discord.Connection, error)
 }

@@ -8,15 +8,15 @@ import (
 
 func TestNullBool(t *testing.T) {
 	type v struct {
-		NullBool NullBool `json:"null_bool"`
+		NullBool Nullable[bool] `json:"null_bool"`
 	}
 	cases := []struct {
-		input NullBool
+		input Nullable[bool]
 		data  string
 	}{
-		{*NewNullBool(), `{"null_bool":null}`},
-		{*NewBool(true), `{"null_bool":true}`},
-		{*NewBool(false), `{"null_bool":false}`},
+		{Null[bool](), `{"null_bool":null}`},
+		{New(true), `{"null_bool":true}`},
+		{New(false), `{"null_bool":false}`},
 	}
 
 	for _, c := range cases {
@@ -30,16 +30,16 @@ func TestNullBool(t *testing.T) {
 
 func TestNullBoolPtr(t *testing.T) {
 	type v struct {
-		NullBool *NullBool `json:"null_bool,omitempty"`
+		NullBool *Nullable[bool] `json:"null_bool,omitempty"`
 	}
 	cases := []struct {
-		input *NullBool
+		input *Nullable[bool]
 		data  string
 	}{
 		{nil, `{}`},
-		{NewNullBool(), `{"null_bool":null}`},
-		{NewBool(true), `{"null_bool":true}`},
-		{NewBool(false), `{"null_bool":false}`},
+		{OptionalNull[bool](), `{"null_bool":null}`},
+		{NewOptional(true), `{"null_bool":true}`},
+		{NewOptional(false), `{"null_bool":false}`},
 	}
 
 	for _, c := range cases {
