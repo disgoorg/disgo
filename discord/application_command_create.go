@@ -12,7 +12,7 @@ type ApplicationCommandCreate interface {
 type SlashCommandCreate struct {
 	CommandName       string                     `json:"name"`
 	Description       string                     `json:"description"`
-	Options           []ApplicationCommandOption `json:"options,omitempty"`
+	Options           []ApplicationCommandOption `json:"options"`
 	DefaultPermission bool                       `json:"default_permission"`
 }
 
