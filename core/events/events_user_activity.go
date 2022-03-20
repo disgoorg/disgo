@@ -22,7 +22,7 @@ func (g *GenericUserActivityEvent) User() (discord.User, bool) {
 // Member returns the Member that changed their Activity.
 // This will only check cached members!
 func (g *GenericUserActivityEvent) Member() (discord.Member, bool) {
-	return g.Bot().Caches().Members().Get(g.UserID)
+	return g.Bot().Caches().Members().Get(g.GuildID, g.UserID)
 }
 
 // Guild returns the Guild that changed their Activity.

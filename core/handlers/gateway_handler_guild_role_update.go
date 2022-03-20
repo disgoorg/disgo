@@ -23,14 +23,15 @@ func (h *gatewayHandlerGuildRoleUpdate) New() interface{} {
 func (h *gatewayHandlerGuildRoleUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.GuildRoleUpdateGatewayEvent)
 
-	oldRole := bot.Caches.Roles().GetCopy(payload.GuildID, payload.Role.ID)
+	oldRole, _ := bot.Caches().Roles().Get(payload.GuildID, payload.Role.ID)
+	bot.Caches().Roles().Put(payload.GuildID, payload.Role.ID, payload.Role)
 
 	bot.EventManager().Dispatch(&events.RoleUpdateEvent{
 		GenericRoleEvent: &events.GenericRoleEvent{
 			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 			GuildID:      payload.GuildID,
 			RoleID:       payload.Role.ID,
-			Role:         bot.EntityBuilder.CreateRole(payload.GuildID, payload.Role, core.CacheStrategyYes),
+			Role:         payload.Role,
 		},
 		OldRole: oldRole,
 	})

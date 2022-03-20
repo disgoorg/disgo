@@ -171,9 +171,9 @@ func (w ApplicationWebhook) ID() snowflake.Snowflake {
 }
 
 type WebhookSourceGuild struct {
-	ID   snowflake.Snowflake `json:"id"`
-	Name string              `json:"name"`
-	Icon *string             `json:"icon"`
+	ID   snowflake.Snowflake  `json:"id"`
+	Name string               `json:"name"`
+	Icon *json.Nullable[Icon] `json:"icon"`
 }
 
 type WebhookSourceChannel struct {
@@ -190,12 +190,12 @@ type WebhookCreate struct {
 // WebhookUpdate is used to update a Webhook
 type WebhookUpdate struct {
 	Name      *string              `json:"name,omitempty"`
-	Avatar    *NullIcon            `json:"avatar,omitempty"`
+	Avatar    *json.Nullable[Icon] `json:"avatar,omitempty"`
 	ChannelID *snowflake.Snowflake `json:"channel_id"`
 }
 
 // WebhookUpdateWithToken is used to update a Webhook with the token
 type WebhookUpdateWithToken struct {
-	Name   *string   `json:"name,omitempty"`
-	Avatar *NullIcon `json:"avatar,omitempty"`
+	Name   *string `json:"name,omitempty"`
+	Avatar *string `json:"avatar,omitempty"`
 }

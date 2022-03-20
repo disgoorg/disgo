@@ -30,8 +30,8 @@ func (h *gatewayHandlerMessageDelete) HandleGatewayEvent(bot core.Bot, sequenceN
 func handleMessageDelete(bot core.Bot, sequenceNumber discord.GatewaySequence, messageID snowflake.Snowflake, channelID snowflake.Snowflake, guildID *snowflake.Snowflake) {
 	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
-	message := bot.Caches.Messages().GetCopy(channelID, messageID)
-	bot.Caches.Messages().Remove(channelID, messageID)
+	message := bot.Caches().Messages().GetCopy(channelID, messageID)
+	bot.Caches().Messages().Remove(channelID, messageID)
 
 	bot.EventManager().Dispatch(&events.MessageDeleteEvent{
 		GenericMessageEvent: &events.GenericMessageEvent{

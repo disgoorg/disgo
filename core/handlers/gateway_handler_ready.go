@@ -23,18 +23,15 @@ func (h *gatewayHandlerReady) New() interface{} {
 func (h *gatewayHandlerReady) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	readyEvent := *v.(*discord.GatewayEventReady)
 
-	bot.ApplicationID = readyEvent.Application.ID
-	bot.ClientID = readyEvent.User.ID
-
-	bot.EntityBuilder.CreateSelfUser(readyEvent.User, core.CacheStrategyYes)
-
 	var shardID int
 	if readyEvent.Shard != nil {
 		shardID = readyEvent.Shard[0]
 	}
 
+	bot.HandleReadyEvent(readyEvent)
+
 	for _, guild := range readyEvent.Guilds {
-		bot.Caches.Guilds().SetUnready(shardID, guild.ID)
+		bot.Caches().Guilds().SetUnready(shardID, guild.ID)
 	}
 
 	bot.EventManager().Dispatch(&events.ReadyEvent{

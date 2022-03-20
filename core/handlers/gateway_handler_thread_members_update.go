@@ -21,7 +21,7 @@ func (h *gatewayHandlerThreadMembersUpdate) HandleGatewayEvent(bot core.Bot, seq
 
 	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
-	if channel := bot.Caches.Channels().Get(payload.ID); channel != nil {
+	if channel := bot.Caches().Channels().Get(payload.ID); channel != nil {
 		switch thread := channel.(type) {
 		case *core.GuildNewsThread:
 			thread.MemberCount = payload.MemberCount
@@ -54,8 +54,8 @@ func (h *gatewayHandlerThreadMembersUpdate) HandleGatewayEvent(bot core.Bot, seq
 	}
 
 	for i := range payload.RemovedMemberIDs {
-		threadMember := bot.Caches.ThreadMembers().GetCopy(payload.ID, payload.RemovedMemberIDs[i])
-		bot.Caches.ThreadMembers().Remove(payload.ID, payload.RemovedMemberIDs[i])
+		threadMember := bot.Caches().ThreadMembers().GetCopy(payload.ID, payload.RemovedMemberIDs[i])
+		bot.Caches().ThreadMembers().Remove(payload.ID, payload.RemovedMemberIDs[i])
 
 		bot.EventManager().Dispatch(&events.ThreadMemberRemoveEvent{
 			GenericThreadMemberEvent: &events.GenericThreadMemberEvent{

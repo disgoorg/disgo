@@ -49,9 +49,9 @@ func (f TimestampStyle) FormatTime(time time.Time) string {
 // Format returns the seconds formatted as markdown string
 func (f TimestampStyle) Format(seconds int64) string {
 	if f == TimestampStyleNone {
-		return timestampMention(seconds)
+		return TimestampMention(seconds)
 	}
-	return formattedTimestampMention(seconds, f)
+	return FormattedTimestampMention(seconds, f)
 }
 
 // ParseTimestamps parses all Timestamp(s) found in the provided string

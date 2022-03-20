@@ -1,8 +1,6 @@
 package events
 
-import (
-	"github.com/DisgoOrg/disgo/core"
-)
+import "github.com/DisgoOrg/disgo/core"
 
 // ListenerAdapter lets you override the handles for receiving events
 type ListenerAdapter struct {

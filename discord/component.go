@@ -363,7 +363,7 @@ var (
 type SelectMenuComponent struct {
 	CustomID    CustomID           `json:"custom_id"`
 	Placeholder string             `json:"placeholder,omitempty"`
-	MinValues   json.NullInt       `json:"min_values,omitempty"`
+	MinValues   *int               `json:"min_values,omitempty"`
 	MaxValues   int                `json:"max_values,omitempty"`
 	Disabled    bool               `json:"disabled,omitempty"`
 	Options     []SelectMenuOption `json:"options,omitempty"`
@@ -410,7 +410,7 @@ func (c SelectMenuComponent) WithPlaceholder(placeholder string) SelectMenuCompo
 
 // WithMinValues returns a new SelectMenuComponent with the provided minValue
 func (c SelectMenuComponent) WithMinValues(minValue int) SelectMenuComponent {
-	c.MinValues = *json.NewInt(minValue)
+	c.MinValues = &minValue
 	return c
 }
 
@@ -546,7 +546,7 @@ type TextInputComponent struct {
 	CustomID    CustomID       `json:"custom_id"`
 	Style       TextInputStyle `json:"style"`
 	Label       string         `json:"label"`
-	MinLength   json.NullInt   `json:"min_length,omitempty"`
+	MinLength   *int           `json:"min_length,omitempty"`
 	MaxLength   int            `json:"max_length,omitempty"`
 	Required    bool           `json:"required,omitempty"`
 	Placeholder string         `json:"placeholder,omitempty"`
@@ -595,7 +595,7 @@ func (c TextInputComponent) WithStyle(style TextInputStyle) TextInputComponent {
 
 // WithMinLength returns a new TextInputComponent with the provided minLength
 func (c TextInputComponent) WithMinLength(minLength int) TextInputComponent {
-	c.MinLength = *json.NewInt(minLength)
+	c.MinLength = &minLength
 	return c
 }
 

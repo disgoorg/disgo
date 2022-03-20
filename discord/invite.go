@@ -1,6 +1,9 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import (
+	"github.com/DisgoOrg/disgo/rest/route"
+	"github.com/DisgoOrg/snowflake"
+)
 
 // InviteTargetType is type of target an Invite uses
 type InviteTargetType int
@@ -17,7 +20,7 @@ type Invite struct {
 	Code                     string               `json:"code"`
 	Guild                    *InviteGuild         `json:"guild"`
 	GuildID                  *snowflake.Snowflake `json:"guild_id"`
-	Channel                  PartialChannel       `json:"channel"`
+	Channel                  InviteChannel        `json:"channel"`
 	ChannelID                snowflake.Snowflake  `json:"channel_id"`
 	Inviter                  *User                `json:"inviter"`
 	TargetUser               *User                `json:"target_user"`
@@ -29,6 +32,19 @@ type Invite struct {
 	MaxAge                   *int                 `json:"max_age"`
 	Temporary                *bool                `json:"temporary"`
 	CreatedAt                *Time                `json:"created_at"`
+}
+
+type InviteChannel struct {
+	ID   snowflake.Snowflake `json:"id"`
+	Type ChannelType         `json:"type"`
+	Name string              `json:"name"`
+	Icon *string             `json:"icon,omitempty"`
+}
+
+// GetIconURL returns the Icon URL of this channel.
+// This will be nil for every ChannelType except ChannelTypeGroupDM
+func (c InviteChannel) GetIconURL(size int) *string {
+	return FormatAssetURL(route.ChannelIcon, c.ID, c.Icon, size)
 }
 
 // An InviteGuild is the Guild of an Invite

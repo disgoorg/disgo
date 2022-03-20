@@ -23,12 +23,13 @@ func (h *gatewayHandlerGuildUpdate) New() interface{} {
 func (h *gatewayHandlerGuildUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	guild := *v.(*discord.Guild)
 
-	oldGuild := bot.Caches.Guilds().GetCopy(guild.ID)
+	oldGuild, _ := bot.Caches().Guilds().Get(guild.ID)
+	bot.Caches().Guilds().Put(guild.ID, guild)
 
 	bot.EventManager().Dispatch(&events.GuildUpdateEvent{
 		GenericGuildEvent: &events.GenericGuildEvent{
 			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-			Guild:        bot.EntityBuilder.CreateGuild(guild, core.CacheStrategyYes),
+			Guild:        guild,
 		},
 		OldGuild: oldGuild,
 	})

@@ -23,9 +23,7 @@ func (h *gatewayHandlerGuildRoleDelete) New() interface{} {
 func (h *gatewayHandlerGuildRoleDelete) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.GuildRoleDeleteGatewayEvent)
 
-	role := bot.Caches.Roles().GetCopy(payload.GuildID, payload.RoleID)
-
-	bot.Caches.Roles().Remove(payload.GuildID, payload.RoleID)
+	role, _ := bot.Caches().Roles().Remove(payload.GuildID, payload.RoleID)
 
 	bot.EventManager().Dispatch(&events.RoleDeleteEvent{
 		GenericRoleEvent: &events.GenericRoleEvent{

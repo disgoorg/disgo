@@ -23,12 +23,12 @@ func (h *gatewayHandlerVoiceStateUpdate) New() interface{} {
 func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.VoiceState)
 
-	oldVoiceState := bot.Caches.VoiceStates().GetCopy(payload.GuildID, payload.UserID)
+	oldVoiceState := bot.Caches().VoiceStates().GetCopy(payload.GuildID, payload.UserID)
 
 	voiceState := bot.EntityBuilder.CreateVoiceState(payload, core.CacheStrategyYes)
 
 	if oldVoiceState != nil && oldVoiceState.ChannelID != nil {
-		if channel := bot.Caches.Channels().Get(*oldVoiceState.ChannelID); channel != nil {
+		if channel := bot.Caches().Channels().Get(*oldVoiceState.ChannelID); channel != nil {
 			if ch, ok := channel.(*core.GuildVoiceChannel); ok {
 				delete(ch.ConnectedMemberIDs, voiceState.UserID)
 			} else if ch, ok := channel.(*core.GuildStageVoiceChannel); ok {
@@ -38,7 +38,7 @@ func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(bot core.Bot, sequen
 	}
 
 	if voiceState.ChannelID != nil {
-		if channel := bot.Caches.Channels().Get(*voiceState.ChannelID); channel != nil {
+		if channel := bot.Caches().Channels().Get(*voiceState.ChannelID); channel != nil {
 			if ch, ok := channel.(*core.GuildVoiceChannel); ok {
 				ch.ConnectedMemberIDs[voiceState.UserID] = struct{}{}
 			} else if ch, ok := channel.(*core.GuildStageVoiceChannel); ok {

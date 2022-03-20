@@ -1,6 +1,9 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import (
+	"github.com/DisgoOrg/disgo/json"
+	"github.com/DisgoOrg/snowflake"
+)
 
 var _ Mentionable = (*Member)(nil)
 
@@ -17,7 +20,6 @@ type Member struct {
 	Mute                       bool                  `json:"mute,omitempty"`
 	Pending                    bool                  `json:"pending"`
 	CommunicationDisabledUntil *Time                 `json:"communication_disabled_until"`
-	Permissions                *Permissions          `json:"permissions"` // only sent from slash commands & should not be cached
 }
 
 // EffectiveName returns either the nickname or username depending on if the user has a nickname
@@ -29,7 +31,7 @@ func (m Member) EffectiveName() string {
 }
 
 func (m Member) String() string {
-	return memberMention(m.User.ID)
+	return MemberMention(m.User.ID)
 }
 
 func (m Member) Mention() string {
@@ -52,7 +54,7 @@ type MemberUpdate struct {
 	Roles                      []snowflake.Snowflake `json:"roles,omitempty"`
 	Mute                       *bool                 `json:"mute,omitempty"`
 	Deaf                       *bool                 `json:"deaf,omitempty"`
-	CommunicationDisabledUntil *NullTime             `json:"communication_disabled_until,omitempty"`
+	CommunicationDisabledUntil *json.Nullable[Time]  `json:"communication_disabled_until,omitempty"`
 }
 
 // SelfNickUpdate is used to update your own nick

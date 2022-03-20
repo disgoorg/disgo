@@ -7,25 +7,25 @@ import (
 	"github.com/DisgoOrg/snowflake"
 )
 
-// GenericGuildMemberEvent generic core.Member event
+// GenericGuildMemberEvent generic discord.Member event
 type GenericGuildMemberEvent struct {
 	*GenericEvent
 	GuildID snowflake.Snowflake
 	Member  discord.Member
 }
 
-// GuildMemberJoinEvent indicates that a core.Member joined the core.Guild
+// GuildMemberJoinEvent indicates that a discord.Member joined the discord.Guild
 type GuildMemberJoinEvent struct {
 	*GenericGuildMemberEvent
 }
 
-// GuildMemberUpdateEvent indicates that a core.Member updated
+// GuildMemberUpdateEvent indicates that a discord.Member updated
 type GuildMemberUpdateEvent struct {
 	*GenericGuildMemberEvent
 	OldMember discord.Member
 }
 
-// GuildMemberLeaveEvent indicates that a core.Member left the core.Guild
+// GuildMemberLeaveEvent indicates that a discord.Member left the discord.Guild
 type GuildMemberLeaveEvent struct {
 	*GenericEvent
 	GuildID snowflake.Snowflake
@@ -33,7 +33,7 @@ type GuildMemberLeaveEvent struct {
 	Member  discord.Member
 }
 
-// GuildMemberTypingStartEvent indicates that a core.Member started typing in a core.BaseGuildMessageChannel(requires discord.GatewayIntentGuildMessageTyping)
+// GuildMemberTypingStartEvent indicates that a discord.Member started typing in a discord.BaseGuildMessageChannel(requires discord.GatewayIntentGuildMessageTyping)
 type GuildMemberTypingStartEvent struct {
 	*GenericEvent
 	ChannelID snowflake.Snowflake
@@ -43,7 +43,7 @@ type GuildMemberTypingStartEvent struct {
 	Member    discord.Member
 }
 
-// Channel returns the core.BaseGuildMessageChannel the GuildMemberTypingStartEvent happened in
-func (e GuildMemberTypingStartEvent) Channel() (discord.BaseGuildMessageChannel, bool) {
-	return e.Bot().Caches().Channels().GetBaseGuildMessageChannel(e.ChannelID)
+// Channel returns the discord.BaseGuildMessageChannel the GuildMemberTypingStartEvent happened in
+func (e GuildMemberTypingStartEvent) Channel() (discord.GuildMessageChannel, bool) {
+	return e.Bot().Caches().Channels().GetGuildMessageChannel(e.ChannelID)
 }

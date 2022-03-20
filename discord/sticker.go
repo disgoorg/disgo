@@ -1,7 +1,6 @@
 package discord
 
 import (
-	"github.com/DisgoOrg/disgo/json"
 	"github.com/DisgoOrg/snowflake"
 )
 
@@ -55,7 +54,7 @@ func (c *StickerCreate) ToBody() (interface{}, error) {
 }
 
 type StickerUpdate struct {
-	Name        *string          `json:"name,omitempty"`
-	Description *json.NullString `json:"description,omitempty"`
-	Tags        *string          `json:"tags,omitempty"`
+	Name        *string `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Tags        *string `json:"tags,omitempty"`
 }

@@ -12,18 +12,18 @@ type GenericStickerEvent struct {
 	Sticker discord.Sticker
 }
 
-// StickerCreateEvent indicates that a new core.Sticker got created in a core.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
+// StickerCreateEvent indicates that a new discord.Sticker got created in a discord.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
 type StickerCreateEvent struct {
 	*GenericStickerEvent
 }
 
-// StickerUpdateEvent indicates that a core.Sticker got updated in a core.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
+// StickerUpdateEvent indicates that a discord.Sticker got updated in a discord.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
 type StickerUpdateEvent struct {
 	*GenericStickerEvent
 	OldSticker discord.Sticker
 }
 
-// StickerDeleteEvent indicates that a core.Sticker got deleted in a core.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
+// StickerDeleteEvent indicates that a discord.Sticker got deleted in a discord.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
 type StickerDeleteEvent struct {
 	*GenericStickerEvent
 }

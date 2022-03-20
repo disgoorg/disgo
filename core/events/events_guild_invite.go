@@ -18,13 +18,13 @@ func (e GenericGuildInviteEvent) Channel() (discord.GuildChannel, bool) {
 	return e.Bot().Caches().Channels().GetGuildChannel(e.ChannelID)
 }
 
-// GuildInviteCreateEvent is called upon creation of a new core.Invite in a core.Guild (requires discord.GatewayIntentGuildInvites)
+// GuildInviteCreateEvent is called upon creation of a new discord.Invite in a discord.Guild (requires discord.GatewayIntentGuildInvites)
 type GuildInviteCreateEvent struct {
 	*GenericGuildInviteEvent
 	Invite discord.Invite
 }
 
-// GuildInviteDeleteEvent is called upon deletion of a core.Invite in a core.Guild (requires discord.GatewayIntentGuildInvites)
+// GuildInviteDeleteEvent is called upon deletion of a discord.Invite in a discord.Guild (requires discord.GatewayIntentGuildInvites)
 type GuildInviteDeleteEvent struct {
 	*GenericGuildInviteEvent
 }

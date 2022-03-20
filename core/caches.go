@@ -9,10 +9,9 @@ type Caches interface {
 	Config() CacheConfig
 
 	GetMemberPermissions(member discord.Member) discord.Permissions
-	GetMemberPermissionsInChannel(channelID snowflake.Snowflake, member discord.Member) discord.Permissions
+	GetMemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member) discord.Permissions
 	MemberRoles(member discord.Member) []discord.Role
 
-	Users() Cache[discord.User]
 	Roles() GroupedCache[discord.Role]
 	Members() GroupedCache[discord.Member]
 	ThreadMembers() GroupedCache[discord.ThreadMember]
@@ -21,8 +20,8 @@ type Caches interface {
 	Messages() GroupedCache[discord.Message]
 	Emojis() GroupedCache[discord.Emoji]
 	Stickers() GroupedCache[discord.Sticker]
-	Guilds() Cache[discord.Guild]
-	Channels() *ChannelCache
+	Guilds() GuildCache
+	Channels() ChannelCache
 	StageInstances() Cache[discord.StageInstance]
 	GuildScheduledEvents() Cache[discord.GuildScheduledEvent]
 }
@@ -31,28 +30,26 @@ func NewCaches(config CacheConfig) Caches {
 	return &cachesImpl{
 		config: config,
 
-		userCache:                NewCache[discord.User](config.CacheFlags, CacheFlagUsers),
-		guildCache:               NewCache[discord.Guild](config.CacheFlags, CacheFlagGuilds),
-		channelCache:             &ChannelCache{Cache: NewCache[discord.Channel](config.CacheFlags, CacheFlagsAllChannels)},
-		stageInstanceCache:       NewCache[discord.StageInstance](config.CacheFlags, CacheFlagStageInstances),
-		guildScheduledEventCache: NewCache[discord.GuildScheduledEvent](config.CacheFlags, CacheFlagGuildScheduledEvents),
-		roleCache:                NewGroupedCache[discord.Role](config.CacheFlags, CacheFlagRoles),
+		guildCache:               NewGuildCache(config.CacheFlags, CacheFlagGuilds, nil),
+		channelCache:             NewChannelCache(config.CacheFlags, CacheFlagsAllChannels, nil),
+		stageInstanceCache:       NewCache[discord.StageInstance](config.CacheFlags, CacheFlagStageInstances, nil),
+		guildScheduledEventCache: NewCache[discord.GuildScheduledEvent](config.CacheFlags, CacheFlagGuildScheduledEvents, nil),
+		roleCache:                NewGroupedCache[discord.Role](config.CacheFlags, CacheFlagRoles, nil),
 		memberCache:              NewGroupedCache[discord.Member](config.CacheFlags, CacheFlagMembers, config.MemberCachePolicy),
-		threadMemberCache:        NewGroupedCache[discord.ThreadMember](config.CacheFlags, CacheFlagThreadMembers),
-		presenceCache:            NewGroupedCache[discord.Presence](config.CacheFlags, CacheFlagPresences),
-		voiceStateCache:          NewGroupedCache[discord.VoiceState](config.CacheFlags, CacheFlagVoiceStates),
+		threadMemberCache:        NewGroupedCache[discord.ThreadMember](config.CacheFlags, CacheFlagThreadMembers, nil),
+		presenceCache:            NewGroupedCache[discord.Presence](config.CacheFlags, CacheFlagPresences, nil),
+		voiceStateCache:          NewGroupedCache[discord.VoiceState](config.CacheFlags, CacheFlagVoiceStates, nil),
 		messageCache:             NewGroupedCache[discord.Message](config.CacheFlags, CacheFlagMessages, config.MessageCachePolicy),
-		emojiCache:               NewGroupedCache[discord.Emoji](config.CacheFlags, CacheFlagEmojis),
-		stickerCache:             NewGroupedCache[discord.Sticker](config.CacheFlags, CacheFlagStickers),
+		emojiCache:               NewGroupedCache[discord.Emoji](config.CacheFlags, CacheFlagEmojis, nil),
+		stickerCache:             NewGroupedCache[discord.Sticker](config.CacheFlags, CacheFlagStickers, nil),
 	}
 }
 
 type cachesImpl struct {
 	config CacheConfig
 
-	userCache                Cache[discord.User]
-	guildCache               Cache[discord.Guild]
-	channelCache             *ChannelCache
+	guildCache               GuildCache
+	channelCache             ChannelCache
 	stageInstanceCache       Cache[discord.StageInstance]
 	guildScheduledEventCache Cache[discord.GuildScheduledEvent]
 	roleCache                GroupedCache[discord.Role]
@@ -91,8 +88,9 @@ func (c *cachesImpl) GetMemberPermissions(member discord.Member) discord.Permiss
 	return permissions
 }
 
-func (c *cachesImpl) GetMemberPermissionsInChannel(channelID snowflake.Snowflake, member discord.Member) discord.Permissions {
-	channel, ok := c.Channels().GetGuildChannel(channelID)
+func (c *cachesImpl) GetMemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member) discord.Permissions {
+	return 0
+	/*channel, ok := c.Channels().GetGuildChannel(channelID)
 	if !ok {
 		return discord.PermissionsNone
 	}
@@ -146,7 +144,7 @@ func (c *cachesImpl) GetMemberPermissionsInChannel(channelID snowflake.Snowflake
 	if member.CommunicationDisabledUntil != nil {
 		permissions &= discord.PermissionViewChannel | discord.PermissionReadMessageHistory
 	}
-	return permissions
+	return permissions*/
 }
 
 func (c *cachesImpl) MemberRoles(member discord.Member) []discord.Role {
@@ -161,10 +159,6 @@ func (c *cachesImpl) MemberRoles(member discord.Member) []discord.Role {
 		}
 		return false
 	})
-}
-
-func (c *cachesImpl) Users() Cache[discord.User] {
-	return c.userCache
 }
 
 func (c *cachesImpl) Roles() GroupedCache[discord.Role] {
@@ -199,11 +193,11 @@ func (c *cachesImpl) Stickers() GroupedCache[discord.Sticker] {
 	return c.stickerCache
 }
 
-func (c *cachesImpl) Guilds() Cache[discord.Guild] {
+func (c *cachesImpl) Guilds() GuildCache {
 	return c.guildCache
 }
 
-func (c *cachesImpl) Channels() *ChannelCache {
+func (c *cachesImpl) Channels() ChannelCache {
 	return c.channelCache
 }
 

@@ -251,11 +251,11 @@ type GuildUpdate struct {
 	ExplicitContentFilterLevel      *ExplicitContentFilterLevel `json:"explicit_content_filter_level,omitempty"`
 	AFKChannelID                    *snowflake.Snowflake        `json:"afk_channel_id,omitempty"`
 	AFKTimeout                      *int                        `json:"afk_timeout,omitempty"`
-	Icon                            *NullIcon                   `json:"icon,omitempty"`
+	Icon                            *json.Nullable[Icon]        `json:"icon,omitempty"`
 	OwnerID                         *snowflake.Snowflake        `json:"owner_id,omitempty"`
-	Splash                          *NullIcon                   `json:"splash,omitempty"`
-	DiscoverySplash                 *NullIcon                   `json:"discovery_splash,omitempty"`
-	Banner                          *NullIcon                   `json:"banner,omitempty"`
+	Splash                          *json.Nullable[Icon]        `json:"splash,omitempty"`
+	DiscoverySplash                 *json.Nullable[Icon]        `json:"discovery_splash,omitempty"`
+	Banner                          *json.Nullable[Icon]        `json:"banner,omitempty"`
 	SystemChannelID                 *snowflake.Snowflake        `json:"system_channel_id,omitempty"`
 	SystemChannelFlags              *SystemChannelFlags         `json:"system_channel_flags,omitempty"`
 	RulesChannelID                  *snowflake.Snowflake        `json:"rules_channel_id,omitempty"`

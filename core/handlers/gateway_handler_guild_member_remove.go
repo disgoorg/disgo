@@ -23,20 +23,17 @@ func (h *gatewayHandlerGuildMemberRemove) New() interface{} {
 func (h *gatewayHandlerGuildMemberRemove) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.GuildMemberRemoveGatewayEvent)
 
-	if guild := bot.Caches.Guilds().Get(payload.GuildID); guild != nil {
+	if guild, ok := bot.Caches().Guilds().Get(payload.GuildID); ok {
 		guild.MemberCount--
+		bot.Caches().Guilds().Put(guild.ID, guild)
 	}
 
-	member := bot.Caches.Members().GetCopy(payload.GuildID, payload.User.ID)
-
-	bot.Caches.Members().Remove(payload.GuildID, payload.User.ID)
-
-	user := bot.EntityBuilder.CreateUser(payload.User, core.CacheStrategyYes)
+	member, _ := bot.Caches().Members().Remove(payload.GuildID, payload.User.ID)
 
 	bot.EventManager().Dispatch(&events.GuildMemberLeaveEvent{
 		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 		GuildID:      payload.GuildID,
-		User:         user,
+		User:         payload.User,
 		Member:       member,
 	})
 }

@@ -14,13 +14,13 @@ type GenericUserEvent struct {
 	User   discord.User
 }
 
-// UserUpdateEvent  indicates that a core.User updated
+// UserUpdateEvent  indicates that a discord.User updated
 type UserUpdateEvent struct {
 	*GenericUserEvent
 	OldUser discord.User
 }
 
-// UserTypingStartEvent indicates that a core.User started typing in a core.DMChannel or core.MessageChanel(requires the discord.GatewayIntentDirectMessageTyping and/or discord.GatewayIntentGuildMessageTyping)
+// UserTypingStartEvent indicates that a discord.User started typing in a discord.DMChannel or discord.MessageChanel(requires the discord.GatewayIntentDirectMessageTyping and/or discord.GatewayIntentGuildMessageTyping)
 type UserTypingStartEvent struct {
 	*GenericEvent
 	ChannelID snowflake.Snowflake
@@ -29,7 +29,7 @@ type UserTypingStartEvent struct {
 	Timestamp time.Time
 }
 
-// MessageChannel returns the core.GetChannel the core.User started typing in
-func (e *UserTypingStartEvent) MessageChannel() (discord.MessageChannel, bool) {
+// Channel returns the discord.MessageChannel the discord.User started typing in
+func (e *UserTypingStartEvent) Channel() (discord.MessageChannel, bool) {
 	return e.Bot().Caches().Channels().GetMessageChannel(e.ChannelID)
 }

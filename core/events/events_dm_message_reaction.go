@@ -20,17 +20,17 @@ func (e *GenericDMMessageReactionEvent) User() (discord.User, bool) {
 	return e.Bot().Caches().Users().Get(e.UserID)
 }
 
-// DMMessageReactionAddEvent indicates that a core.User added a discord.MessageReaction to a core.Message in a Channel (requires the discord.GatewayIntentDirectMessageReactions)
+// DMMessageReactionAddEvent indicates that a discord.User added a discord.MessageReaction to a discord.Message in a Channel (requires the discord.GatewayIntentDirectMessageReactions)
 type DMMessageReactionAddEvent struct {
 	*GenericDMMessageReactionEvent
 }
 
-// DMMessageReactionRemoveEvent indicates that a core.User removed a discord.MessageReaction from a core.Message in a Channel (requires the discord.GatewayIntentDirectMessageReactions)
+// DMMessageReactionRemoveEvent indicates that a discord.User removed a discord.MessageReaction from a discord.Message in a Channel (requires the discord.GatewayIntentDirectMessageReactions)
 type DMMessageReactionRemoveEvent struct {
 	*GenericDMMessageReactionEvent
 }
 
-// DMMessageReactionRemoveEmojiEvent indicates someone removed all discord.MessageReaction(s) of a specific core.Emoji from a core.Message in a Channel (requires the discord.GatewayIntentDirectMessageReactions)
+// DMMessageReactionRemoveEmojiEvent indicates someone removed all discord.MessageReaction(s) of a specific discord.Emoji from a discord.Message in a Channel (requires the discord.GatewayIntentDirectMessageReactions)
 type DMMessageReactionRemoveEmojiEvent struct {
 	*GenericEvent
 	ChannelID snowflake.Snowflake
@@ -38,7 +38,7 @@ type DMMessageReactionRemoveEmojiEvent struct {
 	Emoji     discord.ReactionEmoji
 }
 
-// DMMessageReactionRemoveAllEvent indicates someone removed all discord.MessageReaction(s) from a core.Message in a Channel (requires the discord.GatewayIntentDirectMessageReactions)
+// DMMessageReactionRemoveAllEvent indicates someone removed all discord.MessageReaction(s) from a discord.Message in a Channel (requires the discord.GatewayIntentDirectMessageReactions)
 type DMMessageReactionRemoveAllEvent struct {
 	*GenericEvent
 	ChannelID snowflake.Snowflake

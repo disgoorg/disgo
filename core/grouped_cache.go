@@ -10,18 +10,18 @@ type GroupedCacheFindFunc[T any] func(groupID snowflake.Snowflake, entity T) boo
 
 type GroupedCache[T any] interface {
 	Get(groupID snowflake.Snowflake, id snowflake.Snowflake) (T, bool)
-	Put(groupID snowflake.Snowflake, id snowflake.Snowflake, entity T) T
+	Put(groupID snowflake.Snowflake, id snowflake.Snowflake, entity T)
 	Remove(groupID snowflake.Snowflake, id snowflake.Snowflake) (T, bool)
 	RemoveAll(groupID snowflake.Snowflake)
 
-	Cache() map[snowflake.Snowflake]map[snowflake.Snowflake]T
 	All() map[snowflake.Snowflake][]T
-
-	GroupCache(groupID snowflake.Snowflake) map[snowflake.Snowflake]T
 	GroupAll(groupID snowflake.Snowflake) []T
 
 	FindFirst(cacheFindFunc GroupedCacheFindFunc[T]) (T, bool)
+	GroupFindFirst(groupID snowflake.Snowflake, cacheFindFunc GroupedCacheFindFunc[T]) (T, bool)
+
 	FindAll(cacheFindFunc GroupedCacheFindFunc[T]) []T
+	GroupFindAll(groupID snowflake.Snowflake, cacheFindFunc GroupedCacheFindFunc[T]) []T
 
 	ForEach(func(groupID snowflake.Snowflake, entity T))
 	ForEachGroup(groupID snowflake.Snowflake, forEachFunc func(entity T))
@@ -60,12 +60,12 @@ func (c *DefaultGroupedCache[T]) Get(groupID snowflake.Snowflake, id snowflake.S
 	return entity, false
 }
 
-func (c *DefaultGroupedCache[T]) Put(groupID snowflake.Snowflake, id snowflake.Snowflake, entity T) T {
+func (c *DefaultGroupedCache[T]) Put(groupID snowflake.Snowflake, id snowflake.Snowflake, entity T) {
 	if c.neededFlags != CacheFlagsNone && c.flags.Missing(c.neededFlags) {
-		return entity
+		return
 	}
 	if c.policy != nil && !c.policy(entity) {
-		return entity
+		return
 	}
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -81,8 +81,6 @@ func (c *DefaultGroupedCache[T]) Put(groupID snowflake.Snowflake, id snowflake.S
 		groupEntities[id] = entity
 		c.cache[groupID] = groupEntities
 	}
-
-	return entity
 }
 
 func (c *DefaultGroupedCache[T]) Remove(groupID snowflake.Snowflake, id snowflake.Snowflake) (entity T, ok bool) {
@@ -168,6 +166,20 @@ func (c *DefaultGroupedCache[T]) FindFirst(cacheFindFunc GroupedCacheFindFunc[T]
 	return entity, false
 }
 
+func (c *DefaultGroupedCache[T]) GroupFindFirst(groupID snowflake.Snowflake, cacheFindFunc GroupedCacheFindFunc[T]) (T, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	for _, entity := range c.cache[groupID] {
+		if cacheFindFunc(groupID, entity) {
+			return entity, true
+		}
+	}
+
+	var entity T
+	return entity, false
+}
+
 func (c *DefaultGroupedCache[T]) FindAll(cacheFindFunc GroupedCacheFindFunc[T]) []T {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -178,6 +190,19 @@ func (c *DefaultGroupedCache[T]) FindAll(cacheFindFunc GroupedCacheFindFunc[T]) 
 			if cacheFindFunc(groupID, entity) {
 				all = append(all, entity)
 			}
+		}
+	}
+	return all
+}
+
+func (c *DefaultGroupedCache[T]) GroupFindAll(groupID snowflake.Snowflake, cacheFindFunc GroupedCacheFindFunc[T]) []T {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	all := make([]T, 0)
+	for _, entity := range c.cache[groupID] {
+		if cacheFindFunc(groupID, entity) {
+			all = append(all, entity)
 		}
 	}
 	return all

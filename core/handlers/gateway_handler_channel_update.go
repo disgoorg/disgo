@@ -23,65 +23,50 @@ func (h *gatewayHandlerChannelUpdate) New() interface{} {
 func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	channel := v.(*discord.UnmarshalChannel).Channel
 
-	oldChannel := bot.Caches.Channels().GetCopy(channel.ID())
-
-	if ch, ok := channel.(discord.GuildChannel); ok {
-		var (
-			oldGuildChannel core.GuildChannel
-			guildChannel    core.GuildChannel
-		)
-		if c, ok := oldChannel.(core.GuildChannel); ok {
-			oldGuildChannel = c
-		}
-		if c, ok := bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyNo).(core.GuildChannel); ok {
-			guildChannel = c
-		}
+	if guildChannel, ok := channel.(discord.GuildChannel); ok {
+		oldGuildChannel, _ := bot.Caches().Channels().GetGuildChannel(channel.ID())
+		bot.Caches().Channels().Put(channel.ID(), channel)
 
 		bot.EventManager().Dispatch(&events.GuildChannelUpdateEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				ChannelID:    channel.ID(),
 				Channel:      guildChannel,
-				GuildID:      ch.GuildID(),
+				GuildID:      guildChannel.GuildID(),
 			},
 			OldChannel: oldGuildChannel,
 		})
 
-		if guild := guildChannel.Guild(); guild != nil {
-			if guildMessageChannel, ok := guildChannel.(core.GuildMessageChannel); ok && guild.SelfMember().ChannelPermissions(guildChannel).Missing(discord.PermissionViewChannel) {
-				for _, guildThread := range guildMessageChannel.Threads() {
-					bot.Caches.ThreadMembers().RemoveAll(guildThread.ID())
-					bot.Caches.Channels().Remove(guildThread.ID())
+		if channel.Type() == discord.ChannelTypeGuildText || channel.Type() == discord.ChannelTypeGuildNews {
+			if member, ok := bot.Caches().Members().Get(guildChannel.GuildID(), bot.ClientID()); ok &&
+				bot.Caches().GetMemberPermissionsInChannel(guildChannel, member).Missing(discord.PermissionViewChannel) {
+				for _, guildThread := range bot.Caches().Channels().GuildThreadsInChannel(channel.ID()) {
+					bot.Caches().ThreadMembers().RemoveAll(guildThread.ID())
+					bot.Caches().Channels().Remove(guildThread.ID())
 					bot.EventManager().Dispatch(&events.ThreadHideEvent{
 						GenericThreadEvent: &events.GenericThreadEvent{
 							GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 							Thread:       guildThread,
 							ThreadID:     guildThread.ID(),
 							GuildID:      guildThread.GuildID(),
-							ParentID:     guildThread.ParentID(),
+							ParentID:     *guildThread.ParentID(),
 						},
 					})
 				}
 			}
+
 		}
-	} else {
-		var (
-			oldDmChannel *core.DMChannel
-			dmChannel    *core.DMChannel
-		)
-		if c, ok := oldChannel.(*core.DMChannel); ok {
-			oldDmChannel = c
-		}
-		if c, ok := bot.EntityBuilder.CreateChannel(channel, core.CacheStrategyYes).(*core.DMChannel); ok {
-			dmChannel = c
-		}
+	} else if dmChannel, ok := channel.(discord.DMChannel); ok {
+		oldDMChannel, _ := bot.Caches().Channels().GetDMChannel(channel.ID())
+		bot.Caches().Channels().Put(channel.ID(), channel)
+
 		bot.EventManager().Dispatch(&events.DMChannelUpdateEvent{
 			GenericDMChannelEvent: &events.GenericDMChannelEvent{
 				GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 				ChannelID:    channel.ID(),
 				Channel:      dmChannel,
 			},
-			OldChannel: oldDmChannel,
+			OldChannel: oldDMChannel,
 		})
 	}
 }

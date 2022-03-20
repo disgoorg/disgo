@@ -23,32 +23,11 @@ func (h *gatewayHandlerChannelPinsUpdate) New() interface{} {
 func (h *gatewayHandlerChannelPinsUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.ChannelPinsUpdateGatewayEvent)
 
-	channel := bot.Caches.Channels().Get(payload.ChannelID)
 	var oldTime *discord.Time
-	if channel != nil {
-		oldTime = core.LastPinTimestamp(channel.(core.MessageChannel))
-		switch ch := channel.(type) {
-		case *core.GuildTextChannel:
-			ch.LastPinTimestamp = payload.LastPinTimestamp
-
-		case *core.DMChannel:
-			ch.LastPinTimestamp = payload.LastPinTimestamp
-
-		case *core.GroupDMChannel:
-			ch.LastPinTimestamp = payload.LastPinTimestamp
-
-		case *core.GuildNewsChannel:
-			ch.LastPinTimestamp = payload.LastPinTimestamp
-
-		case *core.GuildNewsThread:
-			ch.LastPinTimestamp = payload.LastPinTimestamp
-
-		case *core.GuildPrivateThread:
-			ch.LastPinTimestamp = payload.LastPinTimestamp
-
-		case *core.GuildPublicThread:
-			ch.LastPinTimestamp = payload.LastPinTimestamp
-		}
+	channel, ok := bot.Caches().Channels().GetMessageChannel(payload.ChannelID)
+	if ok {
+		// TODO: update channels last pinned timestamp
+		oldTime = channel.LastPinTimestamp()
 	}
 
 	if payload.GuildID == nil {

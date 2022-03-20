@@ -21,18 +21,18 @@ func (e GenericDMMessageEvent) Channel() (discord.DMChannel, bool) {
 	return discord.DMChannel{}, false
 }
 
-// DMMessageCreateEvent is called upon receiving a core.Message in a Channel (requires discord.GatewayIntentsDirectMessage)
+// DMMessageCreateEvent is called upon receiving a discord.Message in a Channel (requires discord.GatewayIntentsDirectMessage)
 type DMMessageCreateEvent struct {
 	*GenericDMMessageEvent
 }
 
-// DMMessageUpdateEvent is called upon editing a core.Message in a Channel (requires discord.GatewayIntentsDirectMessage)
+// DMMessageUpdateEvent is called upon editing a discord.Message in a Channel (requires discord.GatewayIntentsDirectMessage)
 type DMMessageUpdateEvent struct {
 	*GenericDMMessageEvent
 	OldMessage discord.Message
 }
 
-// DMMessageDeleteEvent is called upon deleting a core.Message in a Channel (requires discord.GatewayIntentsDirectMessage)
+// DMMessageDeleteEvent is called upon deleting a discord.Message in a Channel (requires discord.GatewayIntentsDirectMessage)
 type DMMessageDeleteEvent struct {
 	*GenericDMMessageEvent
 }

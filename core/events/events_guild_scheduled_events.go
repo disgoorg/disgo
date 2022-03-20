@@ -34,10 +34,6 @@ func (e *GenericGuildScheduledEventUserEvent) GuildScheduledEvent() (discord.Gui
 	return e.bot.Caches().GuildScheduledEvents().Get(e.GuildScheduledEventID)
 }
 
-func (e *GenericGuildScheduledEventUserEvent) User() (discord.User, bool) {
-	return e.bot.Caches().Users().Get(e.UserID)
-}
-
 func (e *GenericGuildScheduledEventUserEvent) Member() (discord.Member, bool) {
 	return e.bot.Caches().Members().Get(e.GuildID, e.UserID)
 }

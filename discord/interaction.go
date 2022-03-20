@@ -221,10 +221,10 @@ func (d *SlashCommandInteractionData) UnmarshalJSON(data []byte) error {
 }
 
 type SlashCommandResolved struct {
-	Users    map[snowflake.Snowflake]User    `json:"users,omitempty"`
-	Members  map[snowflake.Snowflake]Member  `json:"members,omitempty"`
-	Roles    map[snowflake.Snowflake]Role    `json:"roles,omitempty"`
-	Channels map[snowflake.Snowflake]Channel `json:"channels,omitempty"`
+	Users    map[snowflake.Snowflake]User            `json:"users,omitempty"`
+	Members  map[snowflake.Snowflake]ResolvedMember  `json:"members,omitempty"`
+	Roles    map[snowflake.Snowflake]Role            `json:"roles,omitempty"`
+	Channels map[snowflake.Snowflake]ResolvedChannel `json:"channels,omitempty"`
 }
 
 var (
@@ -250,8 +250,8 @@ func (d UserCommandInteractionData) Name() string {
 }
 
 type UserCommandResolved struct {
-	Users   map[snowflake.Snowflake]User   `json:"users,omitempty"`
-	Members map[snowflake.Snowflake]Member `json:"members,omitempty"`
+	Users   map[snowflake.Snowflake]User           `json:"users,omitempty"`
+	Members map[snowflake.Snowflake]ResolvedMember `json:"members,omitempty"`
 }
 
 var (
@@ -463,20 +463,17 @@ func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
 }
 
 // to consider using them in Resolved
-/*
+
 type ResolvedMember struct {
-	GuildID      snowflake.Snowflake   `json:"guild_id"`
-	User         User        `json:"user"`
-	Nick         *string     `json:"nick"`
-	RoleIDs      []snowflake.Snowflake `json:"roles,omitempty"`
-	JoinedAt     Time        `json:"joined_at"`
-	PremiumSince *Time       `json:"premium_since,omitempty"`
-	Permissions  Permissions `json:"permissions,omitempty"`
+	Member
+	Permissions Permissions `json:"permissions,omitempty"`
 }
 
 type ResolvedChannel struct {
-	CommandID          snowflake.Snowflake   `json:"id"`
-	CommandName        string      `json:"name"`
-	InteractionType        ChannelType `json:"type"`
-	Permissions Permissions `json:"permissions"`
-}*/
+	ID             snowflake.Snowflake `json:"id"`
+	Name           string              `json:"name"`
+	Type           ChannelType         `json:"type"`
+	Permissions    Permissions         `json:"permissions"`
+	ThreadMetadata ThreadMetadata      `json:"thread_metadata"`
+	ParentID       snowflake.Snowflake `json:"parent_id"`
+}

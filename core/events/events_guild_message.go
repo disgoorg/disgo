@@ -14,29 +14,29 @@ type GenericGuildMessageEvent struct {
 	GuildID   snowflake.Snowflake
 }
 
-// Guild returns the core.Guild the GenericGuildMessageEvent happened in.
+// Guild returns the discord.Guild the GenericGuildMessageEvent happened in.
 // This will only check cached guilds!
 func (e GenericGuildMessageEvent) Guild() (discord.Guild, bool) {
 	return e.Bot().Caches().Guilds().Get(e.GuildID)
 }
 
-// Channel returns the core.DMChannel where the GenericGuildMessageEvent happened
+// Channel returns the discord.DMChannel where the GenericGuildMessageEvent happened
 func (e GenericGuildMessageEvent) Channel() (discord.GuildMessageChannel, bool) {
 	return e.Bot().Caches().Channels().GetGuildMessageChannel(e.ChannelID)
 }
 
-// GuildMessageCreateEvent is called upon receiving a core.Message in a Channel
+// GuildMessageCreateEvent is called upon receiving a discord.Message in a Channel
 type GuildMessageCreateEvent struct {
 	*GenericGuildMessageEvent
 }
 
-// GuildMessageUpdateEvent is called upon editing a core.Message in a Channel
+// GuildMessageUpdateEvent is called upon editing a discord.Message in a Channel
 type GuildMessageUpdateEvent struct {
 	*GenericGuildMessageEvent
 	OldMessage discord.Message
 }
 
-// GuildMessageDeleteEvent is called upon deleting a core.Message in a Channel
+// GuildMessageDeleteEvent is called upon deleting a discord.Message in a Channel
 type GuildMessageDeleteEvent struct {
 	*GenericGuildMessageEvent
 }

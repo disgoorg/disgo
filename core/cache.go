@@ -13,7 +13,6 @@ type Cache[T any] interface {
 	Put(id snowflake.Snowflake, entity T)
 	Remove(id snowflake.Snowflake) (T, bool)
 
-	Cache() map[snowflake.Snowflake]T
 	All() []T
 
 	FindFirst(cacheFindFunc CacheFindFunc[T]) (T, bool)
@@ -69,12 +68,6 @@ func (c *DefaultCache[T]) Remove(id snowflake.Snowflake) (T, bool) {
 		delete(c.cache, id)
 	}
 	return entity, ok
-}
-
-func (c *DefaultCache[T]) Cache() map[snowflake.Snowflake]T {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-	return c.cache
 }
 
 func (c *DefaultCache[T]) All() []T {

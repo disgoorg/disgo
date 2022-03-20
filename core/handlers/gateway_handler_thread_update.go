@@ -20,7 +20,7 @@ func (h *gatewayHandlerThreadUpdate) HandleGatewayEvent(bot core.Bot, sequenceNu
 	payload := v.(*discord.UnmarshalChannel).Channel
 
 	var oldThread core.GuildThread
-	if ch, ok := bot.Caches.Channels().Get(payload.ID()).(core.GuildThread); ok {
+	if ch, ok := bot.Caches().Channels().Get(payload.ID()).(core.GuildThread); ok {
 		oldThread = ch
 	}
 

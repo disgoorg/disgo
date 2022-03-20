@@ -25,6 +25,7 @@ type Bot interface {
 	SelfMember(guildID snowflake.Snowflake) *discord.Member
 	Caches() Caches
 	Rest() rest.Services
+	HandleReadyEvent(event discord.GatewayEventReady)
 
 	AddEventListeners(listeners ...EventListener)
 	RemoveEventListeners(listeners ...EventListener)
@@ -121,6 +122,12 @@ func (b *BotImpl) Caches() Caches {
 
 func (b *BotImpl) Rest() rest.Services {
 	return b.RestServices
+}
+
+func (b *BotImpl) HandleReadyEvent(event discord.GatewayEventReady) {
+	b.BotApplicationID = event.Application.ID
+	b.BotClientID = event.User.ID
+	b.BotSelfUser = &event.User
 }
 
 // AddEventListeners adds one or more EventListener(s) to the EventManager

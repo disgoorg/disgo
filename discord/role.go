@@ -10,7 +10,6 @@ var _ Mentionable = (*Role)(nil)
 // Role is a Guild Role object
 type Role struct {
 	ID          snowflake.Snowflake `json:"id"`
-	GuildID     snowflake.Snowflake `json:"guild_id"`
 	Name        string              `json:"name"`
 	Color       int                 `json:"color"`
 	Hoist       bool                `json:"hoist"`
@@ -24,7 +23,7 @@ type Role struct {
 }
 
 func (r Role) String() string {
-	return roleMention(r.ID)
+	return RoleMention(r.ID)
 }
 
 func (r Role) Mention() string {
@@ -51,13 +50,13 @@ type RoleCreate struct {
 
 // RoleUpdate is the payload to update a Role
 type RoleUpdate struct {
-	Name        *string          `json:"name"`
-	Permissions *Permissions     `json:"permissions"`
-	Color       *int             `json:"color"`
-	Hoist       *bool            `json:"hoist"`
-	Icon        *NullIcon        `json:"icon,omitempty"`
-	Emoji       *json.NullString `json:"unicode_emoji,omitempty"`
-	Mentionable *bool            `json:"mentionable"`
+	Name        *string              `json:"name"`
+	Permissions *Permissions         `json:"permissions"`
+	Color       *int                 `json:"color"`
+	Hoist       *bool                `json:"hoist"`
+	Icon        *json.Nullable[Icon] `json:"icon,omitempty"`
+	Emoji       *string              `json:"unicode_emoji,omitempty"`
+	Mentionable *bool                `json:"mentionable"`
 }
 
 // RolePositionUpdate is the payload to update a Role(s) position

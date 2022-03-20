@@ -1,6 +1,9 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import (
+	"github.com/DisgoOrg/disgo/json"
+	"github.com/DisgoOrg/snowflake"
+)
 
 // VoiceState from Discord
 type VoiceState struct {
@@ -20,7 +23,7 @@ type VoiceState struct {
 }
 
 type UserVoiceStateUpdate struct {
-	ChannelID               snowflake.Snowflake `json:"channel_id"`
-	Suppress                *bool               `json:"suppress,omitempty"`
-	RequestToSpeakTimestamp *NullTime           `json:"request_to_speak_timestamp,omitempty"`
+	ChannelID               snowflake.Snowflake  `json:"channel_id"`
+	Suppress                *bool                `json:"suppress,omitempty"`
+	RequestToSpeakTimestamp *json.Nullable[Time] `json:"request_to_speak_timestamp,omitempty"`
 }

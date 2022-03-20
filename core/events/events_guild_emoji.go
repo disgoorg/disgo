@@ -12,18 +12,18 @@ type GenericEmojiEvent struct {
 	Emoji   discord.Emoji
 }
 
-// EmojiCreateEvent indicates that a new core.Emoji got created in a core.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
+// EmojiCreateEvent indicates that a new discord.Emoji got created in a discord.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
 type EmojiCreateEvent struct {
 	*GenericEmojiEvent
 }
 
-// EmojiUpdateEvent indicates that a core.Emoji got updated in a core.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
+// EmojiUpdateEvent indicates that a discord.Emoji got updated in a discord.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
 type EmojiUpdateEvent struct {
 	*GenericEmojiEvent
 	OldEmoji discord.Emoji
 }
 
-// EmojiDeleteEvent indicates that a core.Emoji got deleted in a core.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
+// EmojiDeleteEvent indicates that a discord.Emoji got deleted in a discord.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
 type EmojiDeleteEvent struct {
 	*GenericEmojiEvent
 }

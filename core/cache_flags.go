@@ -8,7 +8,6 @@ type CacheFlags int
 const (
 	CacheFlagGuilds CacheFlags = 1 << iota
 	CacheFlagGuildScheduledEvents
-	CacheFlagUsers
 	CacheFlagMembers
 	CacheFlagThreadMembers
 	CacheFlagMessages

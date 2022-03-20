@@ -1,6 +1,9 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import (
+	"github.com/DisgoOrg/disgo/json"
+	"github.com/DisgoOrg/snowflake"
+)
 
 // UserFlags defines certain flags/badges a user can have (https://discord.com/developers/docs/resources/user#user-object-user-flags)
 type UserFlags int
@@ -47,7 +50,7 @@ type User struct {
 }
 
 func (u User) String() string {
-	return userMention(u.ID)
+	return UserMention(u.ID)
 }
 
 func (u User) Mention() string {
@@ -55,7 +58,7 @@ func (u User) Mention() string {
 }
 
 func (u User) Tag() string {
-	return userTag(u.Username, u.Discriminator)
+	return UserTag(u.Username, u.Discriminator)
 }
 
 // OAuth2User represents a full User returned by the oauth2 endpoints
@@ -85,6 +88,6 @@ const (
 
 // SelfUserUpdate is the payload used to update the OAuth2User
 type SelfUserUpdate struct {
-	Username string    `json:"username"`
-	Avatar   *NullIcon `json:"avatar"`
+	Username string               `json:"username"`
+	Avatar   *json.Nullable[Icon] `json:"avatar"`
 }

@@ -25,12 +25,12 @@ func (h *gatewayHandlerGuildEmojisUpdate) New() interface{} {
 func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.GuildEmojisUpdateGatewayEvent)
 
-	if bot.Caches.Config().CacheFlags.Missing(core.CacheFlagEmojis) {
+	if bot.Caches().Config().CacheFlags.Missing(core.CacheFlagEmojis) {
 		return
 	}
 
 	var (
-		emojiCache    = bot.Caches.Emojis().GuildCache(payload.GuildID)
+		emojiCache    = bot.Caches().Emojis().GuildCache(payload.GuildID)
 		oldEmojis     = map[snowflake.Snowflake]*core.Emoji{}
 		newEmojis     = map[snowflake.Snowflake]*core.Emoji{}
 		updatedEmojis = map[snowflake.Snowflake]*core.Emoji{}
@@ -55,7 +55,7 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(bot core.Bot, seque
 	}
 
 	for emojiID := range oldEmojis {
-		bot.Caches.Emojis().Remove(payload.GuildID, emojiID)
+		bot.Caches().Emojis().Remove(payload.GuildID, emojiID)
 	}
 
 	for _, emoji := range newEmojis {

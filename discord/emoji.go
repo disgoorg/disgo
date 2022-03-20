@@ -21,9 +21,9 @@ type Emoji struct {
 // Mention returns the string used to send the Emoji
 func (e Emoji) Mention() string {
 	if e.Animated {
-		return animatedEmojiMention(e.ID, e.Name)
+		return AnimatedEmojiMention(e.ID, e.Name)
 	}
-	return emojiMention(e.ID, e.Name)
+	return EmojiMention(e.ID, e.Name)
 }
 
 // String formats the Emoji as string

@@ -22,7 +22,7 @@ func (h *gatewayHandlerGuildMembersChunk) New() interface{} {
 func (h *gatewayHandlerGuildMembersChunk) HandleGatewayEvent(bot core.Bot, _ discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.GuildMembersChunkGatewayEvent)
 
-	if bot.MemberChunkingManager != nil {
-		bot.MemberChunkingManager.HandleChunk(payload)
+	if bot.MemberChunkingManager() != nil {
+		bot.MemberChunkingManager().HandleChunk(payload)
 	}
 }

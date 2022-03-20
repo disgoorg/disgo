@@ -23,7 +23,7 @@ func (h *gatewayHandlerMessageUpdate) New() interface{} {
 func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.Message)
 
-	oldMessage := bot.Caches.Messages().GetCopy(payload.ChannelID, payload.ID)
+	oldMessage := bot.Caches().Messages().GetCopy(payload.ChannelID, payload.ID)
 
 	message := bot.EntityBuilder.CreateMessage(payload, core.CacheStrategyYes)
 

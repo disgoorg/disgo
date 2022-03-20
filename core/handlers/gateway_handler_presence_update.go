@@ -24,7 +24,7 @@ func (h *gatewayHandlerPresenceUpdate) New() interface{} {
 func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
 	payload := *v.(*discord.Presence)
 
-	oldPresence := bot.Caches.Presences().GetCopy(payload.GuildID, payload.PresenceUser.ID)
+	oldPresence := bot.Caches().Presences().GetCopy(payload.GuildID, payload.PresenceUser.ID)
 
 	_ = bot.EntityBuilder.CreatePresence(payload, core.CacheStrategyYes)
 
