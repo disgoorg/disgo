@@ -8,8 +8,8 @@ const (
 	InteractionCallbackTypePong InteractionCallbackType = iota + 1
 	_
 	_
-	InteractionCallbackTypeChannelMessageWithSource
-	InteractionCallbackTypeDeferredChannelMessageWithSource
+	InteractionCallbackTypeCreateMessage
+	InteractionCallbackTypeDeferredCreateMessage
 	InteractionCallbackTypeDeferredUpdateMessage
 	InteractionCallbackTypeUpdateMessage
 	InteractionCallbackTypeAutocompleteResult

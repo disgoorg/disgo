@@ -1,6 +1,10 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import (
+	"time"
+
+	"github.com/DisgoOrg/snowflake"
+)
 
 // NewGatewayCommand returns a new GatewayCommand struct with the given payload
 func NewGatewayCommand(op GatewayOpcode, d GatewayCommandData) GatewayCommand {
@@ -94,7 +98,7 @@ type UpdateVoiceStateCommandData struct {
 
 func (UpdateVoiceStateCommandData) gatewayCommandData() {}
 
-// UpdatePresenceCommandData is used for updating Bot's presence
+// UpdatePresenceCommandData is used for updating Client's presence
 type UpdatePresenceCommandData struct {
 	Since      *int64       `json:"since"`
 	Activities []Activity   `json:"activities"`
@@ -103,3 +107,62 @@ type UpdatePresenceCommandData struct {
 }
 
 func (UpdatePresenceCommandData) gatewayCommandData() {}
+
+// NewPresence creates a new Presence with the provided properties
+//goland:noinspection GoUnusedExportedFunction
+func NewPresence(activityType ActivityType, name string, url string, status OnlineStatus, afk bool) UpdatePresenceCommandData {
+	var since *int64
+	if status == OnlineStatusIdle {
+		unix := time.Now().Unix()
+		since = &unix
+	}
+
+	var activities []Activity
+	if name != "" {
+		activity := Activity{
+			Name: name,
+			Type: activityType,
+		}
+		if activityType == ActivityTypeStreaming && url != "" {
+			activity.URL = &url
+		}
+		activities = append(activities, activity)
+	}
+
+	return UpdatePresenceCommandData{
+		Since:      since,
+		Activities: activities,
+		Status:     status,
+		AFK:        afk,
+	}
+}
+
+// NewGamePresence creates a new Presence of type ActivityTypeGame
+//goland:noinspection GoUnusedExportedFunction
+func NewGamePresence(name string, status OnlineStatus, afk bool) UpdatePresenceCommandData {
+	return NewPresence(ActivityTypeGame, name, "", status, afk)
+}
+
+// NewStreamingPresence creates a new Presence of type ActivityTypeStreaming
+//goland:noinspection GoUnusedExportedFunction
+func NewStreamingPresence(name string, url string, status OnlineStatus, afk bool) UpdatePresenceCommandData {
+	return NewPresence(ActivityTypeStreaming, name, url, status, afk)
+}
+
+// NewListeningPresence creates a new Presence of type ActivityTypeListening
+//goland:noinspection GoUnusedExportedFunction
+func NewListeningPresence(name string, status OnlineStatus, afk bool) UpdatePresenceCommandData {
+	return NewPresence(ActivityTypeListening, name, "", status, afk)
+}
+
+// NewWatchingPresence creates a new Presence of type ActivityTypeWatching
+//goland:noinspection GoUnusedExportedFunction
+func NewWatchingPresence(name string, status OnlineStatus, afk bool) UpdatePresenceCommandData {
+	return NewPresence(ActivityTypeWatching, name, "", status, afk)
+}
+
+// NewCompetingPresence creates a new Presence of type ActivityTypeCompeting
+//goland:noinspection GoUnusedExportedFunction
+func NewCompetingPresence(name string, status OnlineStatus, afk bool) UpdatePresenceCommandData {
+	return NewPresence(ActivityTypeCompeting, name, "", status, afk)
+}

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo/bot"
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/log"
 )
@@ -36,8 +36,8 @@ var commands = []discord.ApplicationCommandCreate{
 	},
 }
 
-func registerCommands(bot core.Bot) {
-	if _, err := bot.Rest().ApplicationService().SetGuildCommands(bot.ApplicationID(), guildID, commands); err != nil {
+func registerCommands(client bot.Client) {
+	if _, err := client.Rest().ApplicationService().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
 		log.Fatalf("error while registering guild commands: %s", err)
 	}
 }

@@ -23,7 +23,7 @@ import (
 
 var _ Gateway = (*gatewayImpl)(nil)
 
-func New(token string, url string, shardID int, shardCount int, eventHandlerFunc EventHandlerFunc, config *Config) Gateway {
+func New(token string, url string, shardID int, shardCount int, config *Config) Gateway {
 	if config == nil {
 		config = &DefaultConfig
 	}
@@ -39,7 +39,6 @@ func New(token string, url string, shardID int, shardCount int, eventHandlerFunc
 	if config.RateLimiter == nil {
 		config.RateLimiter = grate.NewLimiter(config.RateLimiterConfig)
 	}
-	config.EventHandlerFunc = eventHandlerFunc
 
 	return &gatewayImpl{
 		config:     *config,

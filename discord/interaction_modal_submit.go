@@ -46,27 +46,29 @@ func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (d ModalSubmitInteractionData) Get(customID CustomID) InputComponent {
-	if component, ok := d.Components[customID]; ok {
-		return component
-	}
-	return nil
+func (d ModalSubmitInteractionData) Component(customID CustomID) (InputComponent, bool) {
+	component, ok := d.Components[customID]
+	return component, ok
 }
 
-func (d ModalSubmitInteractionData) TextComponent(customID CustomID) *TextInputComponent {
-	component := d.Get(customID)
-	if component == nil {
-		return nil
+func (d ModalSubmitInteractionData) TextInputComponent(customID CustomID) (TextInputComponent, bool) {
+	if component, ok := d.Component(customID); ok {
+		textInputComponent, ok := component.(TextInputComponent)
+		return textInputComponent, ok
 	}
-	if cmp, ok := component.(TextInputComponent); ok {
-		return &cmp
-	}
-	return nil
+	return TextInputComponent{}, false
 }
 
-func (d ModalSubmitInteractionData) Text(customID CustomID) *string {
-	if component := d.TextComponent(customID); component != nil {
-		return &component.Value
+func (d ModalSubmitInteractionData) OptText(customID CustomID) (string, bool) {
+	if textInputComponent, ok := d.TextInputComponent(customID); ok {
+		return textInputComponent.Value, true
 	}
-	return nil
+	return "", false
+}
+
+func (d ModalSubmitInteractionData) Text(customID CustomID) string {
+	if text, ok := d.OptText(customID); ok {
+		return text
+	}
+	return ""
 }

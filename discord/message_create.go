@@ -19,6 +19,7 @@ type MessageCreate struct {
 func (MessageCreate) interactionCallbackData()          {}
 func (MessageCreate) componentInteractionCallbackData() {}
 func (MessageCreate) commandInteractionCallbackData()   {}
+func (m MessageCreate) modalInteractionCallbackData()   {}
 
 // ToBody returns the MessageCreate ready for body
 func (m MessageCreate) ToBody() (any, error) {

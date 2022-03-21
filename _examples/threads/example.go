@@ -6,10 +6,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/core/bot"
-	"github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo"
+	"github.com/DisgoOrg/disgo/bot"
+	"github.com/DisgoOrg/disgo/cache"
+
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/events"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/log"
@@ -26,19 +28,21 @@ func main() {
 	log.Info("starting example...")
 	log.Infof("bot version: %s", info.Version)
 
-	disgo, err := bot.New(token,
-		bot.WithGatewayOpts(
+	client, err := disgo.New(token,
+		bot.WithGatewayConfigOpts(
 			gateway.WithGatewayIntents(discord.GatewayIntentsAll),
 		),
-		bot.WithCacheOpts(
-			core.WithCacheFlags(core.CacheFlagsAll),
-			core.WithMemberCachePolicy(core.MemberCachePolicyAll),
+		bot.WithCacheConfigOpts(
+			cache.WithCacheFlags(cache.FlagsAll),
+			cache.WithMemberCachePolicy(cache.MemberCachePolicyAll),
 		),
-		bot.WithMemberChunkingFilter(core.MemberChunkingFilterAll),
+		bot.WithMemberChunkingFilter(bot.MemberChunkingFilterAll),
 		bot.WithEventListeners(&events.ListenerAdapter{
 			OnMessageCreate: func(event *events.MessageCreateEvent) {
-				if _, ok := event.Channel().(core.GuildThread); ok {
-					println("MessageCreateEvent")
+				if channel, ok := event.Channel(); ok {
+					if _, ok = channel.(discord.GuildThread); ok {
+						println("MessageCreateEvent")
+					}
 				}
 			},
 			OnThreadCreate: func(event *events.ThreadCreateEvent) {
@@ -72,9 +76,9 @@ func main() {
 		return
 	}
 
-	defer disgo.Close(context.TODO())
+	defer client.Close(context.TODO())
 
-	if err = disgo.ConnectGateway(context.TODO()); err != nil {
+	if err = client.ConnectGateway(context.TODO()); err != nil {
 		log.Fatal("error while connecting to discord: ", err)
 	}
 

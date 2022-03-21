@@ -7,8 +7,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/core/bot"
+	"github.com/DisgoOrg/disgo"
+	"github.com/DisgoOrg/disgo/bot"
+	"github.com/DisgoOrg/disgo/cache"
+
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
@@ -30,17 +32,17 @@ func main() {
 	log.Info("starting example...")
 	log.Infof("bot version: %s", info.Version)
 
-	disgo, err := bot.New(token,
+	client, err := disgo.New(token,
 		//bot.WithRawEventsEnabled(),
-		bot.WithGatewayOpts(
+		bot.WithGatewayConfigOpts(
 			gateway.WithGatewayIntents(discord.GatewayIntentsNonPrivileged),
-			gateway.WithPresence(core.NewListeningPresence("your bullshit", discord.OnlineStatusOnline, false)),
+			gateway.WithPresence(discord.NewListeningPresence("your bullshit", discord.OnlineStatusOnline, false)),
 		),
-		bot.WithCacheOpts(
-			core.WithCacheFlags(core.CacheFlagsAll),
-			core.WithMemberCachePolicy(core.MemberCachePolicyAll),
+		bot.WithCacheConfigOpts(
+			cache.WithCacheFlags(cache.FlagsAll),
+			cache.WithMemberCachePolicy(cache.MemberCachePolicyAll),
 		),
-		bot.WithMemberChunkingFilter(core.MemberChunkingFilterNone),
+		bot.WithMemberChunkingFilter(bot.MemberChunkingFilterNone),
 		bot.WithEventListeners(listener),
 	)
 	if err != nil {
@@ -48,13 +50,13 @@ func main() {
 		return
 	}
 
-	registerCommands(disgo)
+	registerCommands(client)
 
-	if err = disgo.ConnectGateway(context.TODO()); err != nil {
+	if err = client.ConnectGateway(context.TODO()); err != nil {
 		log.Fatal("error while connecting to discord: ", err)
 	}
 
-	defer disgo.Close(context.TODO())
+	defer client.Close(context.TODO())
 
 	log.Info("ExampleBot is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)

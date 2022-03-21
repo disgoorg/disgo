@@ -17,14 +17,13 @@ import (
 
 var _ Server = (*serverImpl)(nil)
 
-func New(eventHandlerFunc EventHandlerFunc, config *Config) Server {
+func New(config *Config) Server {
 	if config == nil {
 		config = &DefaultConfig
 	}
 	if config.Logger == nil {
 		config.Logger = log.Default()
 	}
-	config.EventHandlerFunc = eventHandlerFunc
 
 	hexDecodedKey, err := hex.DecodeString(config.PublicKey)
 	if err != nil {
@@ -53,7 +52,7 @@ func New(eventHandlerFunc EventHandlerFunc, config *Config) Server {
 	return server
 }
 
-// serverImpl is used in Bot's webhook server for interactions
+// serverImpl is used in Client's webhook server for interactions
 type serverImpl struct {
 	config    Config
 	publicKey PublicKey

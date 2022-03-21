@@ -16,11 +16,6 @@ type ComponentInteraction struct {
 	Message Message                  `json:"message"`
 }
 
-func (ComponentInteraction) interaction() {}
-func (ComponentInteraction) Type() InteractionType {
-	return InteractionTypeComponent
-}
-
 func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
 	type componentInteraction ComponentInteraction
 	var vInteraction struct {
@@ -67,6 +62,20 @@ func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
 	i.Data = interactionData
 	return nil
 }
+
+func (ComponentInteraction) Type() InteractionType {
+	return InteractionTypeComponent
+}
+
+func (i ComponentInteraction) ButtonInteractionData() ButtonInteractionData {
+	return i.Data.(ButtonInteractionData)
+}
+
+func (i ComponentInteraction) SelectMenuInteractionData() SelectMenuInteractionData {
+	return i.Data.(SelectMenuInteractionData)
+}
+
+func (ComponentInteraction) interaction() {}
 
 type ComponentInteractionData interface {
 	Type() ComponentType

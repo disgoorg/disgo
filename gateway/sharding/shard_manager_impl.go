@@ -13,7 +13,7 @@ import (
 
 var _ ShardManager = (*shardManagerImpl)(nil)
 
-func New(token string, gatewayURL string, eventHandlerFunc gateway.EventHandlerFunc, config *Config) ShardManager {
+func New(token string, gatewayURL string, config *Config) ShardManager {
 	if config.Logger == nil {
 		config.Logger = log.Default()
 	}
@@ -27,29 +27,27 @@ func New(token string, gatewayURL string, eventHandlerFunc gateway.EventHandlerF
 		config.GatewayConfig = &gateway.DefaultConfig
 	}
 	if config.GatewayCreateFunc == nil {
-		config.GatewayCreateFunc = func(token string, url string, shardID int, shardCount int, eventHandlerFunc gateway.EventHandlerFunc, config *gateway.Config) gateway.Gateway {
-			return gateway.New(token, url, shardID, shardCount, eventHandlerFunc, config)
+		config.GatewayCreateFunc = func(token string, url string, shardID int, shardCount int, config *gateway.Config) gateway.Gateway {
+			return gateway.New(token, url, shardID, shardCount, config)
 		}
 	}
 	if config.RateLimiter == nil {
 		config.RateLimiter = srate.NewLimiter(&srate.DefaultConfig)
 	}
 	return &shardManagerImpl{
-		shards:           NewShardsMap(),
-		token:            token,
-		gatewayURL:       gatewayURL,
-		eventHandlerFunc: eventHandlerFunc,
-		config:           *config,
+		shards:     NewShardsMap(),
+		token:      token,
+		gatewayURL: gatewayURL,
+		config:     *config,
 	}
 }
 
 type shardManagerImpl struct {
 	shards *ShardsMap
 
-	token            string
-	gatewayURL       string
-	eventHandlerFunc gateway.EventHandlerFunc
-	config           Config
+	token      string
+	gatewayURL string
+	config     Config
 }
 
 func (m *shardManagerImpl) Logger() log.Logger {
@@ -83,7 +81,7 @@ func (m *shardManagerImpl) Open(ctx context.Context) {
 				return
 			}
 
-			shard := m.config.GatewayCreateFunc(m.token, m.gatewayURL, shardID, m.config.ShardCount, m.eventHandlerFunc, m.config.GatewayConfig)
+			shard := m.config.GatewayCreateFunc(m.token, m.gatewayURL, shardID, m.config.ShardCount, m.config.GatewayConfig)
 			m.shards.Set(shardID, shard)
 			if err := shard.Open(ctx); err != nil {
 				m.Logger().Errorf("failed to open shard %d: %s", shardID, err)
@@ -131,7 +129,7 @@ func (m *shardManagerImpl) Close(ctx context.Context) {
 
 func (m *shardManagerImpl) OpenShard(ctx context.Context, shardID int) error {
 	m.Logger().Infof("opening shard %d...", shardID)
-	shard := m.config.GatewayCreateFunc(m.token, m.gatewayURL, shardID, m.config.ShardCount, m.eventHandlerFunc, m.config.GatewayConfig)
+	shard := m.config.GatewayCreateFunc(m.token, m.gatewayURL, shardID, m.config.ShardCount, m.config.GatewayConfig)
 	m.config.Shards.Add(shardID)
 	m.shards.Set(shardID, shard)
 	return shard.Open(ctx)

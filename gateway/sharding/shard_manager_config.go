@@ -9,8 +9,8 @@ import (
 //goland:noinspection GoUnusedGlobalVariable
 var DefaultConfig = Config{
 	CustomShards: false,
-	GatewayCreateFunc: func(token string, url string, shardID int, shardCount int, eventHandlerFunc gateway.EventHandlerFunc, config *gateway.Config) gateway.Gateway {
-		return gateway.New(token, url, shardID, shardCount, eventHandlerFunc, config)
+	GatewayCreateFunc: func(token string, url string, shardID int, shardCount int, config *gateway.Config) gateway.Gateway {
+		return gateway.New(token, url, shardID, shardCount, config)
 	},
 	GatewayConfig: &gateway.DefaultConfig,
 	RateLimiter:   srate.NewLimiter(&srate.DefaultConfig),
@@ -21,7 +21,7 @@ type Config struct {
 	CustomShards      bool
 	Shards            *IntSet
 	ShardCount        int
-	GatewayCreateFunc func(token string, url string, shardID int, shardCount int, eventHandlerFunc gateway.EventHandlerFunc, config *gateway.Config) gateway.Gateway
+	GatewayCreateFunc func(token string, url string, shardID int, shardCount int, config *gateway.Config) gateway.Gateway
 	GatewayConfig     *gateway.Config
 	RateLimiter       srate.Limiter
 	RateLimiterConfig *srate.Config
@@ -64,16 +64,9 @@ func WithShardCount(shardCount int) ConfigOpt {
 }
 
 //goland:noinspection GoUnusedExportedFunction
-func WithGatewayCreateFunc(gatewayCreateFunc func(token string, url string, shardID int, shardCount int, eventHandlerFunc gateway.EventHandlerFunc, config *gateway.Config) gateway.Gateway) ConfigOpt {
+func WithGatewayCreateFunc(gatewayCreateFunc func(token string, url string, shardID int, shardCount int, config *gateway.Config) gateway.Gateway) ConfigOpt {
 	return func(config *Config) {
 		config.GatewayCreateFunc = gatewayCreateFunc
-	}
-}
-
-//goland:noinspection GoUnusedExportedFunction
-func WithGatewayConfig(gatewayConfig gateway.Config) ConfigOpt {
-	return func(config *Config) {
-		config.GatewayConfig = &gatewayConfig
 	}
 }
 
@@ -91,13 +84,6 @@ func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) ConfigOpt {
 func WithRateLimiter(rateLimiter srate.Limiter) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiter = rateLimiter
-	}
-}
-
-//goland:noinspection GoUnusedExportedFunction
-func WithRateLimiterConfig(rateConfig srate.Config) ConfigOpt {
-	return func(config *Config) {
-		config.RateLimiterConfig = &rateConfig
 	}
 }
 

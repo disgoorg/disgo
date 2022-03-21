@@ -71,12 +71,24 @@ func (ApplicationCommandInteraction) Type() InteractionType {
 	return InteractionTypeApplicationCommand
 }
 
+func (i ApplicationCommandInteraction) SlashCommandInteractionData() SlashCommandInteractionData {
+	return i.Data.(SlashCommandInteractionData)
+}
+
+func (i ApplicationCommandInteraction) UserCommandInteractionData() UserCommandInteractionData {
+	return i.Data.(UserCommandInteractionData)
+}
+
+func (i ApplicationCommandInteraction) MessageCommandInteractionData() MessageCommandInteractionData {
+	return i.Data.(MessageCommandInteractionData)
+}
+
 func (ApplicationCommandInteraction) interaction() {}
 
 type ApplicationCommandInteractionData interface {
 	Type() ApplicationCommandType
-	ID() snowflake.Snowflake
-	Name() string
+	CommandID() snowflake.Snowflake
+	CommandName() string
 
 	applicationCommandInteractionData()
 }
@@ -151,7 +163,7 @@ func (d *SlashCommandInteractionData) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (d *SlashCommandInteractionData) MarshalJSON() ([]byte, error) {
+func (d SlashCommandInteractionData) MarshalJSON() ([]byte, error) {
 	options := make([]SlashCommandOption, len(d.Options))
 	i := 0
 	for _, option := range d.Options {
@@ -192,12 +204,303 @@ func (SlashCommandInteractionData) Type() ApplicationCommandType {
 	return ApplicationCommandTypeSlash
 }
 
-func (d SlashCommandInteractionData) ID() snowflake.Snowflake {
+func (d SlashCommandInteractionData) CommandID() snowflake.Snowflake {
 	return d.id
 }
 
-func (d SlashCommandInteractionData) Name() string {
+func (d SlashCommandInteractionData) CommandName() string {
 	return d.name
+}
+
+func (d SlashCommandInteractionData) Option(name string) (SlashCommandOption, bool) {
+	option, ok := d.Options[name]
+	return option, ok
+}
+
+func (d SlashCommandInteractionData) StringOption(name string) (SlashCommandOptionString, bool) {
+	if option, ok := d.Option(name); ok {
+		opt, ok := option.(SlashCommandOptionString)
+		return opt, ok
+	}
+	return SlashCommandOptionString{}, false
+}
+
+func (d SlashCommandInteractionData) OptString(name string) (string, bool) {
+	if option, ok := d.StringOption(name); ok {
+		return option.Value, true
+	}
+	return "", false
+}
+
+func (d SlashCommandInteractionData) String(name string) string {
+	if option, ok := d.OptString(name); ok {
+		return option
+	}
+	return ""
+}
+
+func (d SlashCommandInteractionData) IntOption(name string) (SlashCommandOptionInt, bool) {
+	if option, ok := d.Option(name); ok {
+		opt, ok := option.(SlashCommandOptionInt)
+		return opt, ok
+	}
+	return SlashCommandOptionInt{}, false
+}
+
+func (d SlashCommandInteractionData) OptInt(name string) (int, bool) {
+	if option, ok := d.IntOption(name); ok {
+		return option.Value, true
+	}
+	return 0, false
+}
+
+func (d SlashCommandInteractionData) Int(name string) int {
+	if option, ok := d.OptInt(name); ok {
+		return option
+	}
+	return 0
+}
+
+func (d SlashCommandInteractionData) BoolOption(name string) (SlashCommandOptionBool, bool) {
+	if option, ok := d.Option(name); ok {
+		opt, ok := option.(SlashCommandOptionBool)
+		return opt, ok
+	}
+	return SlashCommandOptionBool{}, false
+}
+
+func (d SlashCommandInteractionData) OptBool(name string) (bool, bool) {
+	if option, ok := d.BoolOption(name); ok {
+		return option.Value, true
+	}
+	return false, false
+}
+
+func (d SlashCommandInteractionData) Bool(name string) bool {
+	if option, ok := d.OptBool(name); ok {
+		return option
+	}
+	return false
+}
+
+func (d SlashCommandInteractionData) UserOption(name string) (SlashCommandOptionUser, bool) {
+	if option, ok := d.Option(name); ok {
+		opt, ok := option.(SlashCommandOptionUser)
+		return opt, ok
+	}
+	return SlashCommandOptionUser{}, false
+}
+
+func (d SlashCommandInteractionData) OptUser(name string) (User, bool) {
+	if option, ok := d.Option(name); ok {
+		var (
+			userID   snowflake.Snowflake
+			userIDOk bool
+		)
+		switch opt := option.(type) {
+		case SlashCommandOptionUser:
+			opt, ok := option.(SlashCommandOptionUser)
+			userID = opt.Value
+			userIDOk = ok
+		case SlashCommandOptionMentionable:
+			opt, ok := option.(SlashCommandOptionMentionable)
+			userID = opt.Value
+			userIDOk = ok
+		}
+		if userIDOk {
+			user, userOk := d.Resolved.Users[userID]
+			return user, userOk
+		}
+	}
+	return User{}, false
+}
+
+func (d SlashCommandInteractionData) User(name string) User {
+	if user, ok := d.OptUser(name); ok {
+		return user
+	}
+	return User{}
+}
+
+func (d SlashCommandInteractionData) OptMember(name string) (ResolvedMember, bool) {
+	if option, ok := d.Option(name); ok {
+		var (
+			userID   snowflake.Snowflake
+			userIDOk bool
+		)
+		switch opt := option.(type) {
+		case SlashCommandOptionUser:
+			opt, ok := option.(SlashCommandOptionUser)
+			userID = opt.Value
+			userIDOk = ok
+		case SlashCommandOptionMentionable:
+			opt, ok := option.(SlashCommandOptionMentionable)
+			userID = opt.Value
+			userIDOk = ok
+		}
+		if userIDOk {
+			member, memberOk := d.Resolved.Members[userID]
+			return member, memberOk
+		}
+	}
+	return ResolvedMember{}, false
+}
+
+func (d SlashCommandInteractionData) Member(name string) ResolvedMember {
+	if member, ok := d.OptMember(name); ok {
+		return member
+	}
+	return ResolvedMember{}
+}
+
+func (d SlashCommandInteractionData) ChannelOption(name string) (SlashCommandOptionChannel, bool) {
+	if option, ok := d.Option(name); ok {
+		opt, ok := option.(SlashCommandOptionChannel)
+		return opt, ok
+	}
+	return SlashCommandOptionChannel{}, false
+}
+
+func (d SlashCommandInteractionData) OptChannel(name string) (ResolvedChannel, bool) {
+	if option, ok := d.ChannelOption(name); ok {
+		channel, ok := d.Resolved.Channels[option.Value]
+		return channel, ok
+	}
+	return ResolvedChannel{}, false
+}
+
+func (d SlashCommandInteractionData) Channel(name string) ResolvedChannel {
+	if channel, ok := d.OptChannel(name); ok {
+		return channel
+	}
+	return ResolvedChannel{}
+}
+
+func (d SlashCommandInteractionData) RoleOption(name string) (SlashCommandOptionRole, bool) {
+	if option, ok := d.Option(name); ok {
+		opt, ok := option.(SlashCommandOptionRole)
+		return opt, ok
+	}
+	return SlashCommandOptionRole{}, false
+}
+
+func (d SlashCommandInteractionData) OptRole(name string) (Role, bool) {
+	if option, ok := d.Option(name); ok {
+		var (
+			roleID   snowflake.Snowflake
+			roleIDOk bool
+		)
+		switch opt := option.(type) {
+		case SlashCommandOptionRole:
+			opt, ok := option.(SlashCommandOptionRole)
+			roleID = opt.Value
+			roleIDOk = ok
+		case SlashCommandOptionMentionable:
+			opt, ok := option.(SlashCommandOptionMentionable)
+			roleID = opt.Value
+			roleIDOk = ok
+		}
+		if roleIDOk {
+			role, roleOk := d.Resolved.Roles[roleID]
+			return role, roleOk
+		}
+	}
+	return Role{}, false
+}
+
+func (d SlashCommandInteractionData) Role(name string) Role {
+	if role, ok := d.OptRole(name); ok {
+		return role
+	}
+	return Role{}
+}
+
+func (d SlashCommandInteractionData) MentionableOption(name string) (SlashCommandOptionMentionable, bool) {
+	if option, ok := d.Option(name); ok {
+		opt, ok := option.(SlashCommandOptionMentionable)
+		return opt, ok
+	}
+	return SlashCommandOptionMentionable{}, false
+}
+
+func (d SlashCommandInteractionData) OptSnowflake(name string) (snowflake.Snowflake, bool) {
+	if option, ok := d.Option(name); ok {
+		switch opt := option.(type) {
+		case SlashCommandOptionChannel:
+			return opt.Value, true
+		case SlashCommandOptionRole:
+			return opt.Value, true
+		case SlashCommandOptionUser:
+			return opt.Value, true
+		case SlashCommandOptionMentionable:
+			return opt.Value, true
+		}
+	}
+	return "", false
+}
+
+func (d SlashCommandInteractionData) Snowflake(name string) snowflake.Snowflake {
+	if id, ok := d.OptSnowflake(name); ok {
+		return id
+	}
+	return ""
+}
+
+func (d SlashCommandInteractionData) FloatOption(name string) (SlashCommandOptionFloat, bool) {
+	if option, ok := d.Option(name); ok {
+		opt, ok := option.(SlashCommandOptionFloat)
+		return opt, ok
+	}
+	return SlashCommandOptionFloat{}, false
+}
+
+func (d SlashCommandInteractionData) OptFloat(name string) (float64, bool) {
+	if option, ok := d.FloatOption(name); ok {
+		return option.Value, true
+	}
+	return 0, false
+}
+
+func (d SlashCommandInteractionData) Float(name string) float64 {
+	if option, ok := d.FloatOption(name); ok {
+		return option.Value
+	}
+	return 0
+}
+
+func (d SlashCommandInteractionData) All() []SlashCommandOption {
+	options := make([]SlashCommandOption, len(d.Options))
+	i := 0
+	for _, option := range d.Options {
+		options[i] = option
+		i++
+	}
+	return options
+}
+
+func (d SlashCommandInteractionData) GetByType(optionType ApplicationCommandOptionType) []SlashCommandOption {
+	return d.FindAll(func(option SlashCommandOption) bool {
+		return option.Type() == optionType
+	})
+}
+
+func (d SlashCommandInteractionData) Find(optionFindFunc func(option SlashCommandOption) bool) (SlashCommandOption, bool) {
+	for _, option := range d.Options {
+		if optionFindFunc(option) {
+			return option, true
+		}
+	}
+	return nil, false
+}
+
+func (d SlashCommandInteractionData) FindAll(optionFindFunc func(option SlashCommandOption) bool) []SlashCommandOption {
+	var options []SlashCommandOption
+	for _, option := range d.Options {
+		if optionFindFunc(option) {
+			options = append(options, option)
+		}
+	}
+	return options
 }
 
 func (SlashCommandInteractionData) applicationCommandInteractionData() {}
@@ -259,10 +562,10 @@ func (d *UserCommandInteractionData) MarshalJSON() ([]byte, error) {
 func (UserCommandInteractionData) Type() ApplicationCommandType {
 	return ApplicationCommandTypeUser
 }
-func (d UserCommandInteractionData) ID() snowflake.Snowflake {
+func (d UserCommandInteractionData) CommandID() snowflake.Snowflake {
 	return d.id
 }
-func (d UserCommandInteractionData) Name() string {
+func (d UserCommandInteractionData) CommandName() string {
 	return d.name
 }
 func (d UserCommandInteractionData) TargetID() snowflake.Snowflake {
@@ -326,10 +629,10 @@ func (d *MessageCommandInteractionData) MarshalJSON() ([]byte, error) {
 func (MessageCommandInteractionData) Type() ApplicationCommandType {
 	return ApplicationCommandTypeMessage
 }
-func (d MessageCommandInteractionData) ID() snowflake.Snowflake {
+func (d MessageCommandInteractionData) CommandID() snowflake.Snowflake {
 	return d.id
 }
-func (d MessageCommandInteractionData) Name() string {
+func (d MessageCommandInteractionData) CommandName() string {
 	return d.name
 }
 func (d MessageCommandInteractionData) TargetID() snowflake.Snowflake {

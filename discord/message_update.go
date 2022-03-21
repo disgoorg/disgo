@@ -13,6 +13,7 @@ type MessageUpdate struct {
 
 func (MessageUpdate) interactionCallbackData()          {}
 func (MessageUpdate) componentInteractionCallbackData() {}
+func (m MessageUpdate) modalInteractionCallbackData()   {}
 
 // ToBody returns the MessageUpdate ready for body
 func (m MessageUpdate) ToBody() (any, error) {

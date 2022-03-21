@@ -48,14 +48,6 @@ func WithRestClient(restClient rest.Client) ConfigOpt {
 	}
 }
 
-// WithRestClientConfig sets the rest client configuration for the webhook client
-//goland:noinspection GoUnusedExportedFunction
-func WithRestClientConfig(restConfig rest.Config) ConfigOpt {
-	return func(config *Config) {
-		config.RestClientConfig = &restConfig
-	}
-}
-
 // WithRestClientConfigOpts sets the rest client configuration for the webhook client
 //goland:noinspection GoUnusedExportedFunction
 func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {

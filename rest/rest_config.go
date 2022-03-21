@@ -23,7 +23,6 @@ type Config struct {
 	HTTPClient        *http.Client
 	RateLimiter       rrate.Limiter
 	RateLimiterConfig *rrate.Config
-	BotTokenFunc      func() string
 	UserAgent         string
 }
 
@@ -61,14 +60,6 @@ func WithRateLimiter(rateLimiter rrate.Limiter) ConfigOpt {
 	}
 }
 
-// WithRateLimiterConfig applies a custom logger to the rest rate limiter
-//goland:noinspection GoUnusedExportedFunction
-func WithRateLimiterConfig(rateLimiterConfig rrate.Config) ConfigOpt {
-	return func(config *Config) {
-		config.RateLimiterConfig = &rateLimiterConfig
-	}
-}
-
 // WithRateLimiterConfigOpts applies rrate.ConfigOpt for the rrate.Limiter to the rest rate limiter
 //goland:noinspection GoUnusedExportedFunction
 func WithRateLimiterConfigOpts(opts ...rrate.ConfigOpt) ConfigOpt {
@@ -77,14 +68,6 @@ func WithRateLimiterConfigOpts(opts ...rrate.ConfigOpt) ConfigOpt {
 			config.RateLimiterConfig = &rrate.DefaultConfig
 		}
 		config.RateLimiterConfig.Apply(opts)
-	}
-}
-
-// WithBotTokenFunc sets the function to get the bot token
-//goland:noinspection GoUnusedExportedFunction
-func WithBotTokenFunc(botTokenFunc func() string) ConfigOpt {
-	return func(config *Config) {
-		config.BotTokenFunc = botTokenFunc
 	}
 }
 

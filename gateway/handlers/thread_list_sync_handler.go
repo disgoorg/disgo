@@ -1,0 +1,32 @@
+package handlers
+
+import (
+	"github.com/DisgoOrg/disgo/bot"
+	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/events"
+)
+
+type gatewayHandlerThreadListSync struct{}
+
+func (h *gatewayHandlerThreadListSync) EventType() discord.GatewayEventType {
+	return discord.GatewayEventTypeThreadListSync
+}
+
+func (h *gatewayHandlerThreadListSync) New() any {
+	return &discord.GatewayEventThreadListSync{}
+}
+
+func (h *gatewayHandlerThreadListSync) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
+	payload := *v.(*discord.GatewayEventThreadListSync)
+
+	for _, thread := range payload.Threads {
+		client.Caches().Channels().Put(thread.ID(), thread)
+		client.EventManager().Dispatch(&events.ThreadShowEvent{
+			GenericThreadEvent: &events.GenericThreadEvent{
+				Thread:   thread,
+				ThreadID: thread.ID(),
+				GuildID:  payload.GuildID,
+			},
+		})
+	}
+}

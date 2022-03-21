@@ -31,7 +31,7 @@ type IntegrationApplication struct {
 	Icon        string              `json:"icon"`
 	Description string              `json:"description"`
 	Summary     string              `json:"summary"`
-	Bot         User                `json:"bot"`
+	Client      User                `json:"bot"`
 }
 
 // Integration (https://discord.com/developers/docs/resources/guild#integration-object)

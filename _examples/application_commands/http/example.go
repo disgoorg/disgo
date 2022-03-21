@@ -6,9 +6,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/DisgoOrg/disgo/core/bot"
-	"github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo"
+	"github.com/DisgoOrg/disgo/bot"
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/events"
 	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/log"
@@ -52,8 +53,8 @@ func main() {
 		return ed25519.Verify(publicKey, message, sig)
 	}
 
-	disgo, err := bot.New(token,
-		bot.WithHTTPServerOpts(
+	client, err := disgo.New(token,
+		bot.WithHTTPServerConfigOpts(
 			httpserver.WithURL("/interactions/callback"),
 			httpserver.WithPort(":80"),
 			httpserver.WithPublicKey(publicKey),
@@ -67,13 +68,13 @@ func main() {
 		return
 	}
 
-	defer disgo.Close(context.TODO())
+	defer client.Close(context.TODO())
 
-	if _, err = disgo.SetGuildCommands(guildID, commands); err != nil {
+	if _, err = client.Rest().ApplicationService().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
 		log.Fatal("error while registering commands: ", err)
 	}
 
-	if err = disgo.StartHTTPServer(); err != nil {
+	if err = client.StartHTTPServer(); err != nil {
 		log.Fatal("error while starting http server: ", err)
 	}
 
@@ -85,14 +86,14 @@ func main() {
 
 func commandListener(event *events.ApplicationCommandInteractionEvent) {
 	data := event.SlashCommandInteractionData()
-	if data.CommandName == "say" {
-		err := event.CreateMessage(discord.NewMessageCreateBuilder().
-			SetContent(*data.Options.String("message")).
-			SetEphemeral(*data.Options.Bool("ephemeral")).
+	if data.CommandName() == "say" {
+		err := event.Respond(discord.InteractionCallbackTypeCreateMessage, discord.NewMessageCreateBuilder().
+			SetContent(data.String("message")).
+			SetEphemeral(data.Bool("ephemeral")).
 			Build(),
 		)
 		if err != nil {
-			event.Bot().Logger().Error("error on sending response: ", err)
+			event.Client().Logger().Error("error on sending response: ", err)
 		}
 	}
 }

@@ -17,7 +17,7 @@ func NewInteractionService(restClient Client) InteractionService {
 
 type InteractionService interface {
 	Service
-	GetInteractionResponse(interactionID snowflake.Snowflake, interactionToken string, opts ...RequestOpt) (*discord.Message, error)
+	GetInteractionResponse(applicationID snowflake.Snowflake, interactionToken string, opts ...RequestOpt) (*discord.Message, error)
 	CreateInteractionResponse(interactionID snowflake.Snowflake, interactionToken string, interactionResponse discord.InteractionResponse, opts ...RequestOpt) error
 	UpdateInteractionResponse(applicationID snowflake.Snowflake, interactionToken string, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (*discord.Message, error)
 	DeleteInteractionResponse(applicationID snowflake.Snowflake, interactionToken string, opts ...RequestOpt) error

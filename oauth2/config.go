@@ -90,14 +90,6 @@ func WithStateController(stateController StateController) ConfigOpt {
 	}
 }
 
-// WithStateControllerConfig applies a custom StateControllerConfig to the SessionController
-//goland:noinspection GoUnusedExportedFunction
-func WithStateControllerConfig(stateControllerConfig StateControllerConfig) ConfigOpt {
-	return func(config *Config) {
-		config.StateControllerConfig = &stateControllerConfig
-	}
-}
-
 // WithStateControllerOpts applies all StateControllerConfigOpt(s) to the StateController
 //goland:noinspection GoUnusedExportedFunction
 func WithStateControllerOpts(opts ...StateControllerConfigOpt) ConfigOpt {

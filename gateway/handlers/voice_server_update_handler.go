@@ -1,0 +1,30 @@
+package handlers
+
+import (
+	"github.com/DisgoOrg/disgo/bot"
+	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/events"
+)
+
+// gatewayHandlerVoiceServerUpdate handles discord.GatewayEventTypeVoiceServerUpdate
+type gatewayHandlerVoiceServerUpdate struct{}
+
+// EventType returns the discord.GatewayEventType
+func (h *gatewayHandlerVoiceServerUpdate) EventType() discord.GatewayEventType {
+	return discord.GatewayEventTypeVoiceServerUpdate
+}
+
+// New constructs a new payload receiver for the raw gateway event
+func (h *gatewayHandlerVoiceServerUpdate) New() any {
+	return &discord.VoiceServerUpdate{}
+}
+
+// HandleGatewayEvent handles the specific raw gateway event
+func (h *gatewayHandlerVoiceServerUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
+	payload := *v.(*discord.VoiceServerUpdate)
+
+	client.EventManager().Dispatch(&events.VoiceServerUpdateEvent{
+		GenericEvent:      events.NewGenericEvent(client, sequenceNumber),
+		VoiceServerUpdate: payload,
+	})
+}

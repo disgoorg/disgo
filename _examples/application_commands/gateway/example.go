@@ -6,15 +6,15 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/DisgoOrg/disgo/core/bot"
-	"github.com/DisgoOrg/disgo/core/events"
-	"github.com/DisgoOrg/snowflake"
-
-	"github.com/DisgoOrg/disgo/core"
+	"github.com/DisgoOrg/disgo"
+	"github.com/DisgoOrg/disgo/bot"
+	"github.com/DisgoOrg/disgo/cache"
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/events"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/log"
+	"github.com/DisgoOrg/snowflake"
 )
 
 var (
@@ -49,9 +49,9 @@ func main() {
 	log.Info("starting example...")
 	log.Infof("disgo version: %s", info.Version)
 
-	disgo, err := bot.New(token,
-		bot.WithGatewayOpts(gateway.WithGatewayIntents(discord.GatewayIntentsNone)),
-		bot.WithCacheOpts(core.WithCacheFlags(core.CacheFlagsDefault)),
+	client, err := disgo.New(token,
+		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentsNone)),
+		bot.WithCacheConfigOpts(cache.WithCacheFlags(cache.FlagsDefault)),
 		bot.WithEventListeners(&events.ListenerAdapter{
 			OnApplicationCommandInteraction: commandListener,
 		}),
@@ -61,13 +61,13 @@ func main() {
 		return
 	}
 
-	defer disgo.Close(context.TODO())
+	defer client.Close(context.TODO())
 
-	if _, err = disgo.Rest().ApplicationService().SetGuildCommands(guildID, commands); err != nil {
+	if _, err = client.Rest().ApplicationService().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
 		log.Fatal("error while registering commands: ", err)
 	}
 
-	if err = disgo.ConnectGateway(context.TODO()); err != nil {
+	if err = client.ConnectGateway(context.TODO()); err != nil {
 		log.Fatal("error while connecting to gateway: ", err)
 	}
 
@@ -79,14 +79,14 @@ func main() {
 
 func commandListener(event *events.ApplicationCommandInteractionEvent) {
 	data := event.SlashCommandInteractionData()
-	if data.CommandName == "say" {
-		err := event.CreateMessage(discord.NewMessageCreateBuilder().
-			SetContent(*data.Options.String("message")).
-			SetEphemeral(*data.Options.Bool("ephemeral")).
+	if data.CommandName() == "say" {
+		err := event.Respond(discord.InteractionCallbackTypeCreateMessage, discord.NewMessageCreateBuilder().
+			SetContent(data.String("message")).
+			SetEphemeral(data.Bool("ephemeral")).
 			Build(),
 		)
 		if err != nil {
-			event.Bot().Logger().Error("error on sending response: ", err)
+			event.Client().Logger().Error("error on sending response: ", err)
 		}
 	}
 }

@@ -19,10 +19,9 @@ import (
 
 // NewClient constructs a new Client with the given Config struct
 //goland:noinspection GoUnusedExportedFunction
-func NewClient(config *Config) Client {
-	if config == nil {
-		config = &DefaultConfig
-	}
+func NewClient(botToken string, opts ...ConfigOpt) Client {
+	config := &DefaultConfig
+
 	if config.Logger == nil {
 		config.Logger = log.Default()
 	}
@@ -62,7 +61,8 @@ type Client interface {
 }
 
 type clientImpl struct {
-	config Config
+	botToken string
+	config   Config
 }
 
 func (c *clientImpl) Close(ctx context.Context) {
@@ -122,7 +122,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 	}
 
 	if cRoute.APIRoute.NeedsAuth() {
-		opts = applyBotToken(c.Config().BotTokenFunc(), opts)
+		opts = applyBotToken(c.botToken, opts)
 	}
 
 	config := &RequestConfig{Request: rq}

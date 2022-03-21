@@ -114,13 +114,6 @@ func WithRateLimiter(rateLimiter grate.Limiter) ConfigOpt {
 }
 
 //goland:noinspection GoUnusedExportedFunction
-func WithRateLimiterConfig(rateLimiterConfig grate.Config) ConfigOpt {
-	return func(config *Config) {
-		config.RateLimiterConfig = &rateLimiterConfig
-	}
-}
-
-//goland:noinspection GoUnusedExportedFunction
 func WithRateLimiterConfigOpts(opts ...grate.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		if config.RateLimiterConfig == nil {

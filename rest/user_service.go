@@ -22,7 +22,7 @@ type UserService interface {
 	GetGuilds(before int, after int, limit int, opts ...RequestOpt) ([]discord.OAuth2Guild, error)
 	LeaveGuild(guildID snowflake.Snowflake, opts ...RequestOpt) error
 	GetDMChannels(opts ...RequestOpt) ([]discord.Channel, error)
-	CreateDMChannel(userID snowflake.Snowflake, opts ...RequestOpt) (*discord.Channel, error)
+	CreateDMChannel(userID snowflake.Snowflake, opts ...RequestOpt) (*discord.DMChannel, error)
 }
 
 type userServiceImpl struct {
@@ -94,7 +94,7 @@ func (s *userServiceImpl) GetDMChannels(opts ...RequestOpt) (channels []discord.
 	return
 }
 
-func (s *userServiceImpl) CreateDMChannel(userID snowflake.Snowflake, opts ...RequestOpt) (channel *discord.Channel, err error) {
+func (s *userServiceImpl) CreateDMChannel(userID snowflake.Snowflake, opts ...RequestOpt) (channel *discord.DMChannel, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateDMChannel.Compile(nil)
 	if err != nil {

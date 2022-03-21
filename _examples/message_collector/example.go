@@ -8,10 +8,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/core/bot"
-	"github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo"
+	"github.com/DisgoOrg/disgo/bot"
+
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/events"
 	"github.com/DisgoOrg/disgo/gateway"
 	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/log"
@@ -26,8 +27,8 @@ func main() {
 	log.Info("starting example...")
 	log.Infof("disgo version: %s", info.Version)
 
-	disgo, err := bot.New(token,
-		bot.WithGatewayOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
+	client, err := disgo.New(token,
+		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
 		bot.WithEventListeners(&events.ListenerAdapter{
 			OnMessageCreate: onMessageCreate,
 		}),
@@ -36,9 +37,9 @@ func main() {
 		log.Fatal("error while building bot: ", err)
 	}
 
-	defer disgo.Close(context.TODO())
+	defer client.Close(context.TODO())
 
-	if err = disgo.ConnectGateway(context.TODO()); err != nil {
+	if err = client.ConnectGateway(context.TODO()); err != nil {
 		log.Fatal("error while connecting to gateway: ", err)
 	}
 
@@ -54,8 +55,8 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 	}
 	if event.Message.Content == "start" {
 		go func() {
-			ch, cls := event.Bot().Collectors.NewMessageCollector(func(message *core.Message) bool {
-				return message.ChannelID == event.ChannelID && message.Author.ID == event.Message.Author.ID && message.Content != ""
+			ch, cls := bot.NewCollector(event.Client(), func(event *events.MessageCreateEvent) bool {
+				return event.ChannelID == event.ChannelID && event.Message.Author.ID == event.Message.Author.ID && event.Message.Content != ""
 			})
 			i := 1
 			str := ">>> "
@@ -64,15 +65,15 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 			for {
 				select {
 				case <-ctx.Done():
-					_, _ = event.Channel().CreateMessage(discord.NewMessageCreateBuilder().SetContent("cancelled").Build())
+					_, _ = event.Client().Rest().ChannelService().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent("cancelled").Build())
 					return
 
-				case message := <-ch:
-					str += strconv.Itoa(i) + ". " + message.Content + "\n\n"
+				case messageEvent := <-ch:
+					str += strconv.Itoa(i) + ". " + messageEvent.Message.Content + "\n\n"
 
 					if i == 3 {
 						cls()
-						_, _ = message.Channel().CreateMessage(discord.NewMessageCreateBuilder().SetContent(str).Build())
+						_, _ = event.Client().Rest().ChannelService().CreateMessage(messageEvent.ChannelID, discord.NewMessageCreateBuilder().SetContent(str).Build())
 					}
 					i++
 				}

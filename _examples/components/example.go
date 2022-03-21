@@ -6,8 +6,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/DisgoOrg/disgo/core/bot"
-	"github.com/DisgoOrg/disgo/core/events"
+	"github.com/DisgoOrg/disgo"
+	"github.com/DisgoOrg/disgo/bot"
+	"github.com/DisgoOrg/disgo/events"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
@@ -24,23 +25,24 @@ func main() {
 	log.Info("starting example...")
 	log.Infof("disgo version: %s", info.Version)
 
-	disgo, err := bot.New(token,
-		bot.WithGatewayOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
+	client, err := disgo.New(token,
+		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
 		bot.WithEventListeners(&events.ListenerAdapter{
 			OnMessageCreate: func(event *events.MessageCreateEvent) {
 				if event.Message.Author.BotUser || event.Message.Author.System {
 					return
 				}
 				if event.Message.Content == "test" {
-					_, _ = event.Message.Reply(discord.NewMessageCreateBuilder().
+					_, _ = event.Client().Rest().ChannelService().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().
 						AddActionRow(discord.NewDangerButton("danger", "danger")).
+						SetMessageReferenceByID(event.Message.ID).
 						Build(),
 					)
 				}
 			},
 			OnComponentInteraction: func(event *events.ComponentInteractionEvent) {
-				if event.ButtonInteractionData().CustomID == "danger" {
-					_ = event.CreateMessage(discord.NewMessageCreateBuilder().SetEphemeral(true).SetContent("Ey that was danger").Build())
+				if event.ButtonInteractionData().CustomID() == "danger" {
+					_, _ = event.Client().Rest().ChannelService().CreateMessage(event.ChannelID(), discord.NewMessageCreateBuilder().SetEphemeral(true).SetContent("Ey that was danger").Build())
 				}
 			},
 		}),
@@ -49,9 +51,9 @@ func main() {
 		log.Fatal("error while building bot: ", err)
 	}
 
-	defer disgo.Close(context.TODO())
+	defer client.Close(context.TODO())
 
-	if err = disgo.ConnectGateway(context.TODO()); err != nil {
+	if err = client.ConnectGateway(context.TODO()); err != nil {
 		log.Fatal("error while connecting to gateway: ", err)
 	}
 

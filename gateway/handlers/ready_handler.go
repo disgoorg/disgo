@@ -1,0 +1,42 @@
+package handlers
+
+import (
+	"github.com/DisgoOrg/disgo/bot"
+	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/disgo/events"
+)
+
+// gatewayHandlerReady handles discord.GatewayEventTypeReady
+type gatewayHandlerReady struct{}
+
+// EventType returns the gateway.EventType
+func (h *gatewayHandlerReady) EventType() discord.GatewayEventType {
+	return discord.GatewayEventTypeReady
+}
+
+// New constructs a new payload receiver for the raw gateway event
+func (h *gatewayHandlerReady) New() any {
+	return &discord.GatewayEventReady{}
+}
+
+// HandleGatewayEvent handles the specific raw gateway event
+func (h *gatewayHandlerReady) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
+	readyEvent := *v.(*discord.GatewayEventReady)
+
+	var shardID int
+	if readyEvent.Shard != nil {
+		shardID = readyEvent.Shard[0]
+	}
+
+	client.HandleReadyEvent(readyEvent)
+
+	for _, guild := range readyEvent.Guilds {
+		client.Caches().Guilds().SetUnready(shardID, guild.ID)
+	}
+
+	client.EventManager().Dispatch(&events.ReadyEvent{
+		GenericEvent:      events.NewGenericEvent(client, sequenceNumber),
+		GatewayEventReady: readyEvent,
+	})
+
+}

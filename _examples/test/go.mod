@@ -1,6 +1,6 @@
 module github.com/DisgoOrg/disgo/_examples/test
 
-go 1.17
+go 1.18
 
 replace github.com/DisgoOrg/disgo => ../../
 
