@@ -1,6 +1,7 @@
 package discord
 
 import (
+	"github.com/DisgoOrg/disgo/json"
 	"github.com/DisgoOrg/snowflake"
 )
 
@@ -91,3 +92,10 @@ type GuildStageVoiceChannelUpdate struct {
 
 func (GuildStageVoiceChannelUpdate) channelUpdate()      {}
 func (GuildStageVoiceChannelUpdate) guildChannelUpdate() {}
+
+type GuildChannelPositionUpdate struct {
+	ID              snowflake.Snowflake                 `json:"id"`
+	Position        *json.Nullable[int]                 `json:"position"`
+	LockPermissions *json.Nullable[bool]                `json:"lock_permissions,omitempty"`
+	ParentID        *json.Nullable[snowflake.Snowflake] `json:"parent_id,omitempty"`
+}

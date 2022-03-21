@@ -23,7 +23,9 @@ type GuildService interface {
 	UpdateGuild(guildID snowflake.Snowflake, guildUpdate discord.GuildUpdate, opts ...RequestOpt) (*discord.Guild, error)
 	DeleteGuild(guildID snowflake.Snowflake, opts ...RequestOpt) error
 
-	CreateChannel(guildID snowflake.Snowflake, guildChannelCreate discord.GuildChannelCreate, opts ...RequestOpt) (discord.GuildChannel, error)
+	CreateGuildChannel(guildID snowflake.Snowflake, guildChannelCreate discord.GuildChannelCreate, opts ...RequestOpt) (discord.GuildChannel, error)
+	GetGuildChannels(guildID snowflake.Snowflake, opts ...RequestOpt) ([]discord.GuildChannel, error)
+	UpdateChannelPositions(guildID snowflake.Snowflake, guildChannelPositionUpdates []discord.GuildChannelPositionUpdate, opts ...RequestOpt) error
 
 	GetRoles(guildID snowflake.Snowflake, opts ...RequestOpt) ([]discord.Role, error)
 	GetRole(guildID snowflake.Snowflake, roleID snowflake.Snowflake, opts ...RequestOpt) ([]discord.Role, error)
@@ -116,7 +118,7 @@ func (s *guildServiceImpl) DeleteGuild(guildID snowflake.Snowflake, opts ...Requ
 	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
-func (s *guildServiceImpl) CreateChannel(guildID snowflake.Snowflake, guildChannelCreate discord.GuildChannelCreate, opts ...RequestOpt) (guildChannel discord.GuildChannel, err error) {
+func (s *guildServiceImpl) CreateGuildChannel(guildID snowflake.Snowflake, guildChannelCreate discord.GuildChannelCreate, opts ...RequestOpt) (guildChannel discord.GuildChannel, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateGuildChannel.Compile(nil, guildID)
 	if err != nil {
@@ -128,6 +130,24 @@ func (s *guildServiceImpl) CreateChannel(guildID snowflake.Snowflake, guildChann
 		guildChannel = ch.Channel.(discord.GuildChannel)
 	}
 	return
+}
+
+func (s *guildServiceImpl) GetGuildChannels(guildID snowflake.Snowflake, opts ...RequestOpt) (channels []discord.GuildChannel, err error) {
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.GetGuildChannels.Compile(nil, guildID)
+	if err != nil {
+		return
+	}
+	err = s.restClient.Do(compiledRoute, nil, &channels, opts...)
+	return
+}
+
+func (s *guildServiceImpl) UpdateChannelPositions(guildID snowflake.Snowflake, guildChannelPositionUpdates []discord.GuildChannelPositionUpdate, opts ...RequestOpt) error {
+	compiledRoute, err := route.UpdateChannelPositions.Compile(nil, guildID)
+	if err != nil {
+		return err
+	}
+	return s.restClient.Do(compiledRoute, guildChannelPositionUpdates, nil, opts...)
 }
 
 func (s *guildServiceImpl) GetRoles(guildID snowflake.Snowflake, opts ...RequestOpt) (roles []discord.Role, err error) {
@@ -227,7 +247,7 @@ func (s *guildServiceImpl) SearchMembers(guildID snowflake.Snowflake, query stri
 
 func (s *guildServiceImpl) AddMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, memberAdd discord.MemberAdd, opts ...RequestOpt) (member *discord.Member, err error) {
 	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetMembers.Compile(nil, guildID, userID)
+	compiledRoute, err = route.AddMember.Compile(nil, guildID, userID)
 	if err != nil {
 		return
 	}
