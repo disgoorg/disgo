@@ -11,7 +11,7 @@ import (
 )
 
 type Payload interface {
-	ToBody() (interface{}, error)
+	ToBody() (any, error)
 }
 
 // MultipartBuffer holds the Body & ContentType of the multipart body
@@ -22,7 +22,7 @@ type MultipartBuffer struct {
 
 // PayloadWithFiles returns the given payload as multipart body with all files in it
 //goland:noinspection GoUnusedExportedFunction
-func PayloadWithFiles(v interface{}, files ...*File) (*MultipartBuffer, error) {
+func PayloadWithFiles(v any, files ...*File) (*MultipartBuffer, error) {
 	buffer := &bytes.Buffer{}
 	writer := multipart.NewWriter(buffer)
 	writer.FormDataContentType()

@@ -15,10 +15,6 @@ type GenericGuildMessageReactionEvent struct {
 	Emoji     discord.ReactionEmoji
 }
 
-func (e *GenericGuildMessageReactionEvent) User() (discord.User, bool) {
-	return e.Bot().Caches().Users().Get(e.UserID)
-}
-
 func (e *GenericGuildMessageReactionEvent) Member() (discord.Member, bool) {
 	return e.Bot().Caches().Members().Get(e.GuildID, e.UserID)
 }

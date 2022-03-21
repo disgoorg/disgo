@@ -11,17 +11,18 @@ type MessageUpdate struct {
 	Flags           *MessageFlags         `json:"flags,omitempty"`
 }
 
-func (MessageUpdate) interactionCallbackData() {}
+func (MessageUpdate) interactionCallbackData()          {}
+func (MessageUpdate) componentInteractionCallbackData() {}
 
 // ToBody returns the MessageUpdate ready for body
-func (m MessageUpdate) ToBody() (interface{}, error) {
+func (m MessageUpdate) ToBody() (any, error) {
 	if len(m.Files) > 0 {
 		return PayloadWithFiles(m, m.Files...)
 	}
 	return m, nil
 }
 
-func (m MessageUpdate) ToResponseBody(response InteractionResponse) (interface{}, error) {
+func (m MessageUpdate) ToResponseBody(response InteractionResponse) (any, error) {
 	if len(m.Files) > 0 {
 		return PayloadWithFiles(response, m.Files...)
 	}

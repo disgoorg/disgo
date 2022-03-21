@@ -39,6 +39,7 @@ type Services interface {
 	RestClient() Client
 	HTTPClient() *http.Client
 	Close(ctx context.Context)
+
 	ApplicationService() ApplicationService
 	OAuth2Service() OAuth2Service
 	AuditLogService() AuditLogService

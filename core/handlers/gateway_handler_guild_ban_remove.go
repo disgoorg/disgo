@@ -15,15 +15,13 @@ func (h *gatewayHandlerGuildBanRemove) EventType() discord.GatewayEventType {
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerGuildBanRemove) New() interface{} {
+func (h *gatewayHandlerGuildBanRemove) New() any {
 	return &discord.GuildBanRemoveGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildBanRemove) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerGuildBanRemove) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
 	payload := *v.(*discord.GuildBanRemoveGatewayEvent)
-
-	bot.Caches().Users().Put(payload.User.ID, payload.User)
 
 	bot.EventManager().Dispatch(&events.GuildUnbanEvent{
 		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),

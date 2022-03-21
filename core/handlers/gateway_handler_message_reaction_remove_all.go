@@ -15,12 +15,12 @@ func (h *gatewayHandlerMessageReactionRemoveAll) EventType() discord.GatewayEven
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerMessageReactionRemoveAll) New() interface{} {
+func (h *gatewayHandlerMessageReactionRemoveAll) New() any {
 	return &discord.GatewayEventMessageReactionRemoveAll{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerMessageReactionRemoveAll) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerMessageReactionRemoveAll) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
 	messageReaction := *v.(*discord.GatewayEventMessageReactionRemoveAll)
 
 	genericEvent := events.NewGenericEvent(bot, sequenceNumber)

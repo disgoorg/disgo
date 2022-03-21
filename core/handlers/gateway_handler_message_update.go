@@ -15,38 +15,36 @@ func (h *gatewayHandlerMessageUpdate) EventType() discord.GatewayEventType {
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerMessageUpdate) New() interface{} {
+func (h *gatewayHandlerMessageUpdate) New() any {
 	return &discord.Message{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
-	payload := *v.(*discord.Message)
+func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
+	message := *v.(*discord.Message)
 
-	oldMessage := bot.Caches().Messages().GetCopy(payload.ChannelID, payload.ID)
-
-	message := bot.EntityBuilder.CreateMessage(payload, core.CacheStrategyYes)
+	oldMessage, _ := bot.Caches().Messages().Get(message.ChannelID, message.ID)
+	bot.Caches().Messages().Put(message.ChannelID, message.ID, message)
 
 	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
-
 	bot.EventManager().Dispatch(&events.MessageUpdateEvent{
 		GenericMessageEvent: &events.GenericMessageEvent{
 			GenericEvent: genericEvent,
-			MessageID:    payload.ID,
+			MessageID:    message.ID,
 			Message:      message,
-			ChannelID:    payload.ChannelID,
-			GuildID:      payload.GuildID,
+			ChannelID:    message.ChannelID,
+			GuildID:      message.GuildID,
 		},
 		OldMessage: oldMessage,
 	})
 
-	if payload.GuildID == nil {
+	if message.GuildID == nil {
 		bot.EventManager().Dispatch(&events.DMMessageUpdateEvent{
 			GenericDMMessageEvent: &events.GenericDMMessageEvent{
 				GenericEvent: genericEvent,
-				MessageID:    payload.ID,
+				MessageID:    message.ID,
 				Message:      message,
-				ChannelID:    payload.ChannelID,
+				ChannelID:    message.ChannelID,
 			},
 			OldMessage: oldMessage,
 		})
@@ -54,10 +52,10 @@ func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(bot core.Bot, sequenceN
 		bot.EventManager().Dispatch(&events.GuildMessageUpdateEvent{
 			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
 				GenericEvent: genericEvent,
-				MessageID:    payload.ID,
+				MessageID:    message.ID,
 				Message:      message,
-				ChannelID:    payload.ChannelID,
-				GuildID:      *payload.GuildID,
+				ChannelID:    message.ChannelID,
+				GuildID:      *message.GuildID,
 			},
 			OldMessage: oldMessage,
 		})

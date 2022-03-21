@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/DisgoOrg/disgo/json"
 
@@ -116,22 +117,37 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	responseChannel := make(chan discord.InteractionResponse, 1)
 	h.server.Config().EventHandlerFunc(responseChannel, rqBody)
 
-	response, err := (<-responseChannel).ToBody()
+	timer := time.NewTimer(time.Second * 3)
+	defer timer.Stop()
+	var (
+		body any
+		err  error
+	)
+	select {
+	case response := <-responseChannel:
+		body, err = response.ToBody()
+	case <-timer.C:
+		h.server.Logger().Warn("interaction timed out")
+		http.Error(w, "interaction timed out", http.StatusRequestTimeout)
+		return
+	}
+
 	if err != nil {
 		h.server.Logger().Error("error while converting interaction response to body: ", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	rsBody := &bytes.Buffer{}
 	multiWriter := io.MultiWriter(w, rsBody)
 
-	if multiPart, ok := response.(*discord.MultipartBuffer); ok {
+	if multiPart, ok := body.(*discord.MultipartBuffer); ok {
 		w.Header().Set("Content-Type", multiPart.ContentType)
 		_, err = io.Copy(multiWriter, multiPart.Buffer)
 
 	} else {
 		w.Header().Set("Content-Type", "application/json")
-		err = json.NewEncoder(multiWriter).Encode(response)
+		err = json.NewEncoder(multiWriter).Encode(body)
 	}
 	if err != nil {
 		h.server.Logger().Error("error writing http interaction response error: ", err)

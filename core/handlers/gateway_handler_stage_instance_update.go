@@ -15,21 +15,22 @@ func (h *gatewayHandlerStageInstanceUpdate) EventType() discord.GatewayEventType
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerStageInstanceUpdate) New() interface{} {
+func (h *gatewayHandlerStageInstanceUpdate) New() any {
 	return &discord.StageInstance{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerStageInstanceUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerStageInstanceUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
 	stageInstance := *v.(*discord.StageInstance)
 
-	oldStageInstance := bot.Caches().StageInstances().GetCopy(stageInstance.ID)
+	oldStageInstance, _ := bot.Caches().StageInstances().Get(stageInstance.GuildID, stageInstance.ID)
+	bot.Caches().StageInstances().Put(stageInstance.GuildID, stageInstance.ID, stageInstance)
 
 	bot.EventManager().Dispatch(&events.StageInstanceUpdateEvent{
 		GenericStageInstanceEvent: &events.GenericStageInstanceEvent{
 			GenericEvent:    events.NewGenericEvent(bot, sequenceNumber),
 			StageInstanceID: stageInstance.ID,
-			StageInstance:   bot.EntityBuilder.CreateStageInstance(stageInstance, core.CacheStrategyYes),
+			StageInstance:   stageInstance,
 		},
 		OldStageInstance: oldStageInstance,
 	})

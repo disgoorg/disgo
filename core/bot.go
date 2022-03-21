@@ -22,6 +22,7 @@ type Bot interface {
 	ApplicationID() snowflake.Snowflake
 	ClientID() snowflake.Snowflake
 	SelfUser() *discord.OAuth2User
+	SetSelfUser(user discord.OAuth2User)
 	SelfMember(guildID snowflake.Snowflake) *discord.Member
 	Caches() Caches
 	Rest() rest.Services
@@ -106,6 +107,10 @@ func (b *BotImpl) ClientID() snowflake.Snowflake {
 }
 func (b *BotImpl) SelfUser() *discord.OAuth2User {
 	return b.BotSelfUser
+}
+
+func (b *BotImpl) SetSelfUser(user discord.OAuth2User) {
+	b.BotSelfUser = &user
 }
 
 // SelfMember returns a core.OAuth2User for the client, if available

@@ -4,6 +4,7 @@ import (
 	"github.com/DisgoOrg/disgo/core"
 	"github.com/DisgoOrg/disgo/core/events"
 	"github.com/DisgoOrg/disgo/discord"
+	"github.com/DisgoOrg/snowflake"
 )
 
 // gatewayHandlerInviteCreate handles discord.GatewayEventTypeInviteCreate
@@ -15,21 +16,26 @@ func (h *gatewayHandlerInviteCreate) EventType() discord.GatewayEventType {
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerInviteCreate) New() interface{} {
+func (h *gatewayHandlerInviteCreate) New() any {
 	return &discord.Invite{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerInviteCreate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerInviteCreate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
 	invite := *v.(*discord.Invite)
 
-	bot.EventManager().Dispatch(&events.GuildInviteCreateEvent{
-		GenericGuildInviteEvent: &events.GenericGuildInviteEvent{
+	var guildID *snowflake.Snowflake
+	if invite.Guild != nil {
+		guildID = &invite.Guild.ID
+	}
+
+	bot.EventManager().Dispatch(&events.InviteCreateEvent{
+		GenericInviteEvent: &events.GenericInviteEvent{
 			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-			GuildID:      *invite.GuildID,
+			GuildID:      guildID,
 			Code:         invite.Code,
 			ChannelID:    invite.ChannelID,
 		},
-		Invite: bot.EntityBuilder.CreateInvite(invite, core.CacheStrategyYes),
+		Invite: invite,
 	})
 }

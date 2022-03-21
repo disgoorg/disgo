@@ -224,7 +224,7 @@ type AuditLogChangeKey struct {
 	Nick                        *string                     `json:"nick"`
 	AvatarHash                  *string                     `json:"avatar_hash"`
 	ID                          *snowflake.Snowflake        `json:"id"`
-	Type                        interface{}                 `json:"type"`
+	Type                        any                         `json:"type"`
 	EnableEmoticons             *bool                       `json:"enable_emoticons"`
 	ExpireBehavior              *int                        `json:"expire_behavior"`
 	ExpireGracePeriod           *int                        `json:"expire_grace_period"`

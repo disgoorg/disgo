@@ -15,12 +15,12 @@ func (h *gatewayHandlerResumed) EventType() discord.GatewayEventType {
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerResumed) New() interface{} {
+func (h *gatewayHandlerResumed) New() any {
 	return nil
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerResumed) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, _ interface{}) {
+func (h *gatewayHandlerResumed) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, _ any) {
 	bot.EventManager().Dispatch(&events.ResumedEvent{
 		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 	})

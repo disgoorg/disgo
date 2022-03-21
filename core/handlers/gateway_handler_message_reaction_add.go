@@ -15,19 +15,18 @@ func (h *gatewayHandlerMessageReactionAdd) EventType() discord.GatewayEventType 
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerMessageReactionAdd) New() interface{} {
+func (h *gatewayHandlerMessageReactionAdd) New() any {
 	return &discord.GatewayEventMessageReactionAdd{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerMessageReactionAdd) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerMessageReactionAdd) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
 	payload := *v.(*discord.GatewayEventMessageReactionAdd)
 
 	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
-	var member *core.Member
 	if payload.Member != nil {
-		member = bot.EntityBuilder.CreateMember(*payload.GuildID, *payload.Member, core.CacheStrategyYes)
+		bot.Caches().Members().Put(*payload.GuildID, payload.UserID, *payload.Member)
 	}
 
 	bot.EventManager().Dispatch(&events.MessageReactionAddEvent{
@@ -39,7 +38,7 @@ func (h *gatewayHandlerMessageReactionAdd) HandleGatewayEvent(bot core.Bot, sequ
 			UserID:       payload.UserID,
 			Emoji:        payload.Emoji,
 		},
-		Member: member,
+		Member: payload.Member,
 	})
 
 	if payload.GuildID == nil {
@@ -62,7 +61,7 @@ func (h *gatewayHandlerMessageReactionAdd) HandleGatewayEvent(bot core.Bot, sequ
 				UserID:       payload.UserID,
 				Emoji:        payload.Emoji,
 			},
-			Member: member,
+			Member: *payload.Member,
 		})
 	}
 }

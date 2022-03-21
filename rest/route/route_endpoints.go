@@ -220,7 +220,7 @@ var (
 
 // Invites
 var (
-	GetInvite    = NewAPIRoute(GET, "/invites/{code}")
+	GetInvite    = NewAPIRoute(GET, "/invites/{code}", "with_counts", "with_expiration", "guild_scheduled_event_id")
 	CreateInvite = NewAPIRoute(POST, "/channels/{channel.id}/invites")
 	DeleteInvite = NewAPIRoute(DELETE, "/invites/{code}")
 

@@ -6,17 +6,18 @@ import (
 	"github.com/DisgoOrg/snowflake"
 )
 
-type CacheFindFunc[T any] func(T) bool
+type CacheFilterFunc[T any] func(T) bool
 
 type Cache[T any] interface {
 	Get(id snowflake.Snowflake) (T, bool)
 	Put(id snowflake.Snowflake, entity T)
 	Remove(id snowflake.Snowflake) (T, bool)
+	RemoveIf(filterFunc CacheFilterFunc[T])
 
 	All() []T
 
-	FindFirst(cacheFindFunc CacheFindFunc[T]) (T, bool)
-	FindAll(cacheFindFunc CacheFindFunc[T]) []T
+	FindFirst(cacheFindFunc CacheFilterFunc[T]) (T, bool)
+	FindAll(cacheFindFunc CacheFilterFunc[T]) []T
 
 	ForEach(func(entity T))
 }
@@ -70,6 +71,16 @@ func (c *DefaultCache[T]) Remove(id snowflake.Snowflake) (T, bool) {
 	return entity, ok
 }
 
+func (c *DefaultCache[T]) RemoveIf(filterFunc CacheFilterFunc[T]) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	for id, entity := range c.cache {
+		if filterFunc(entity) {
+			delete(c.cache, id)
+		}
+	}
+}
+
 func (c *DefaultCache[T]) All() []T {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -82,7 +93,7 @@ func (c *DefaultCache[T]) All() []T {
 	return entities
 }
 
-func (c *DefaultCache[T]) FindFirst(cacheFindFunc CacheFindFunc[T]) (T, bool) {
+func (c *DefaultCache[T]) FindFirst(cacheFindFunc CacheFilterFunc[T]) (T, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	for _, entity := range c.cache {
@@ -94,7 +105,7 @@ func (c *DefaultCache[T]) FindFirst(cacheFindFunc CacheFindFunc[T]) (T, bool) {
 	return entity, false
 }
 
-func (c *DefaultCache[T]) FindAll(cacheFindFunc CacheFindFunc[T]) []T {
+func (c *DefaultCache[T]) FindAll(cacheFindFunc CacheFilterFunc[T]) []T {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	var entities []T

@@ -15,12 +15,12 @@ func (h *gatewayHandlerGuildMemberAdd) EventType() discord.GatewayEventType {
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerGuildMemberAdd) New() interface{} {
+func (h *gatewayHandlerGuildMemberAdd) New() any {
 	return &discord.Member{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildMemberAdd) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerGuildMemberAdd) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
 	member := *v.(*discord.Member)
 
 	if guild, ok := bot.Caches().Guilds().Get(member.GuildID); ok {

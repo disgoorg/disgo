@@ -12,34 +12,26 @@ func (h *gatewayHandlerThreadMembersUpdate) EventType() discord.GatewayEventType
 	return discord.GatewayEventTypeThreadMembersUpdate
 }
 
-func (h *gatewayHandlerThreadMembersUpdate) New() interface{} {
+func (h *gatewayHandlerThreadMembersUpdate) New() any {
 	return &discord.GatewayEventThreadMembersUpdate{}
 }
 
-func (h *gatewayHandlerThreadMembersUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerThreadMembersUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
 	payload := *v.(*discord.GatewayEventThreadMembersUpdate)
 
 	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
 
-	if channel := bot.Caches().Channels().Get(payload.ID); channel != nil {
-		switch thread := channel.(type) {
-		case *core.GuildNewsThread:
-			thread.MemberCount = payload.MemberCount
-
-		case *core.GuildPublicThread:
-			thread.MemberCount = payload.MemberCount
-
-		case *core.GuildPrivateThread:
-			thread.MemberCount = payload.MemberCount
-		}
+	if thread, ok := bot.Caches().Channels().GetGuildThread(payload.ID); ok {
+		thread.MemberCount = payload.MemberCount
+		bot.Caches().Channels().Put(thread.ID(), thread)
 	}
 
-	for i := range payload.AddedMembers {
-		threadMember := bot.EntityBuilder.CreateThreadMember(payload.AddedMembers[i].ThreadMember, core.CacheStrategyYes)
+	for _, addedMember := range payload.AddedMembers {
+		bot.Caches().ThreadMembers().Put(payload.ID, addedMember.UserID, addedMember.ThreadMember)
+		bot.Caches().Members().Put(payload.GuildID, addedMember.UserID, addedMember.Member)
 
-		bot.EntityBuilder.CreateMember(payload.GuildID, payload.AddedMembers[i].Member, core.CacheStrategyYes)
-		if presence := payload.AddedMembers[i].Presence; presence != nil {
-			bot.EntityBuilder.CreatePresence(*presence, core.CacheStrategyYes)
+		if addedMember.Presence != nil {
+			bot.Caches().Presences().Put(payload.GuildID, addedMember.UserID, *addedMember.Presence)
 		}
 
 		bot.EventManager().Dispatch(&events.ThreadMemberAddEvent{
@@ -47,22 +39,21 @@ func (h *gatewayHandlerThreadMembersUpdate) HandleGatewayEvent(bot core.Bot, seq
 				GenericEvent:   genericEvent,
 				GuildID:        payload.GuildID,
 				ThreadID:       payload.ID,
-				ThreadMemberID: payload.AddedMembers[i].UserID,
-				ThreadMember:   threadMember,
+				ThreadMemberID: addedMember.UserID,
+				ThreadMember:   addedMember.ThreadMember,
 			},
 		})
 	}
 
-	for i := range payload.RemovedMemberIDs {
-		threadMember := bot.Caches().ThreadMembers().GetCopy(payload.ID, payload.RemovedMemberIDs[i])
-		bot.Caches().ThreadMembers().Remove(payload.ID, payload.RemovedMemberIDs[i])
+	for _, removedMemberID := range payload.RemovedMemberIDs {
+		threadMember, _ := bot.Caches().ThreadMembers().Remove(payload.ID, removedMemberID)
 
 		bot.EventManager().Dispatch(&events.ThreadMemberRemoveEvent{
 			GenericThreadMemberEvent: &events.GenericThreadMemberEvent{
 				GenericEvent:   genericEvent,
 				GuildID:        payload.GuildID,
 				ThreadID:       payload.ID,
-				ThreadMemberID: payload.RemovedMemberIDs[i],
+				ThreadMemberID: removedMemberID,
 				ThreadMember:   threadMember,
 			},
 		})

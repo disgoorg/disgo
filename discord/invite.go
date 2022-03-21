@@ -19,19 +19,24 @@ const (
 type Invite struct {
 	Code                     string               `json:"code"`
 	Guild                    *InviteGuild         `json:"guild"`
-	GuildID                  *snowflake.Snowflake `json:"guild_id"`
-	Channel                  InviteChannel        `json:"channel"`
+	Channel                  *InviteChannel       `json:"channel"`
 	ChannelID                snowflake.Snowflake  `json:"channel_id"`
 	Inviter                  *User                `json:"inviter"`
 	TargetUser               *User                `json:"target_user"`
-	TargetType               *InviteTargetType    `json:"target_user_type"`
-	ApproximatePresenceCount *int                 `json:"approximate_presence_count"`
-	ApproximateMemberCount   *int                 `json:"approximate_member_count"`
-	Uses                     *int                 `json:"uses"`
-	MaxUses                  *int                 `json:"max_uses"`
-	MaxAge                   *int                 `json:"max_age"`
-	Temporary                *bool                `json:"temporary"`
-	CreatedAt                *Time                `json:"created_at"`
+	TargetType               InviteTargetType     `json:"target_user_type"`
+	ApproximatePresenceCount int                  `json:"approximate_presence_count"`
+	ApproximateMemberCount   int                  `json:"approximate_member_count"`
+	ExpiresAt                *Time                `json:"created_at"`
+	GuildScheduledEvent      *GuildScheduledEvent `json:"guild_scheduled_event"`
+}
+
+type ExtendedInvite struct {
+	Invite
+	Uses      int  `json:"uses"`
+	MaxUses   int  `json:"max_uses"`
+	MaxAge    int  `json:"max_age"`
+	Temporary bool `json:"temporary"`
+	CreatedAt Time `json:"created_at"`
 }
 
 type InviteChannel struct {

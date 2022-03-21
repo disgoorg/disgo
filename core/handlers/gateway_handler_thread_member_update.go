@@ -11,12 +11,10 @@ func (h *gatewayHandlerThreadMemberUpdate) EventType() discord.GatewayEventType 
 	return discord.GatewayEventTypeThreadMemberUpdate
 }
 
-func (h *gatewayHandlerThreadMemberUpdate) New() interface{} {
+func (h *gatewayHandlerThreadMemberUpdate) New() any {
 	return &discord.ThreadMember{}
 }
 
-func (h *gatewayHandlerThreadMemberUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
-	payload := *v.(*discord.ThreadMember)
-
-	bot.EntityBuilder.CreateThreadMember(payload, core.CacheStrategyYes)
+func (h *gatewayHandlerThreadMemberUpdate) HandleGatewayEvent(_ core.Bot, _ discord.GatewaySequence, _ any) {
+	// ThreadMembersUpdate kinda handles this already?
 }

@@ -27,7 +27,7 @@ func (m Method) String() string {
 }
 
 // QueryValues is used to supply query param value pairs to Route.Compile
-type QueryValues map[string]interface{}
+type QueryValues map[string]any
 
 // ImageFormat is the type of image on Discord's CDN (https://discord.com/developers/docs/reference#image-formatting-image-formats)
 type ImageFormat string

@@ -42,7 +42,7 @@ type CDNRoute struct {
 }
 
 // Compile builds a full request URL based on provided arguments
-func (r *CDNRoute) Compile(queryValues QueryValues, imageFormat ImageFormat, size int, params ...interface{}) (*CompiledCDNRoute, error) {
+func (r *CDNRoute) Compile(queryValues QueryValues, imageFormat ImageFormat, size int, params ...any) (*CompiledCDNRoute, error) {
 	supported := false
 	for _, supportedFileExtension := range r.supportedImageFormats {
 		if supportedFileExtension == imageFormat {

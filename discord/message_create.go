@@ -16,17 +16,19 @@ type MessageCreate struct {
 	Flags            MessageFlags          `json:"flags,omitempty"`
 }
 
-func (MessageCreate) interactionCallbackData() {}
+func (MessageCreate) interactionCallbackData()          {}
+func (MessageCreate) componentInteractionCallbackData() {}
+func (MessageCreate) commandInteractionCallbackData()   {}
 
 // ToBody returns the MessageCreate ready for body
-func (m MessageCreate) ToBody() (interface{}, error) {
+func (m MessageCreate) ToBody() (any, error) {
 	if len(m.Files) > 0 {
 		return PayloadWithFiles(m, m.Files...)
 	}
 	return m, nil
 }
 
-func (m MessageCreate) ToResponseBody(response InteractionResponse) (interface{}, error) {
+func (m MessageCreate) ToResponseBody(response InteractionResponse) (any, error) {
 	if len(m.Files) > 0 {
 		return PayloadWithFiles(response, m.Files...)
 	}

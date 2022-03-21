@@ -15,12 +15,12 @@ func (h *gatewayHandlerTypingStart) EventType() discord.GatewayEventType {
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerTypingStart) New() interface{} {
+func (h *gatewayHandlerTypingStart) New() any {
 	return &discord.TypingStartGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerTypingStart) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerTypingStart) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
 	payload := *v.(*discord.TypingStartGatewayEvent)
 
 	bot.EventManager().Dispatch(&events.UserTypingStartEvent{
@@ -39,13 +39,14 @@ func (h *gatewayHandlerTypingStart) HandleGatewayEvent(bot core.Bot, sequenceNum
 			Timestamp:    payload.Timestamp,
 		})
 	} else {
+		bot.Caches().Members().Put(*payload.GuildID, payload.UserID, *payload.Member)
 		bot.EventManager().Dispatch(&events.GuildMemberTypingStartEvent{
 			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
 			ChannelID:    payload.ChannelID,
 			UserID:       payload.UserID,
 			GuildID:      *payload.GuildID,
 			Timestamp:    payload.Timestamp,
-			Member:       bot.EntityBuilder.CreateMember(*payload.GuildID, *payload.Member, core.CacheStrategyYes),
+			Member:       *payload.Member,
 		})
 	}
 }

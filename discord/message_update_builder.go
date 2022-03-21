@@ -28,7 +28,7 @@ func (b *MessageUpdateBuilder) SetContent(content string) *MessageUpdateBuilder 
 }
 
 // SetContentf sets content of the Message
-func (b *MessageUpdateBuilder) SetContentf(content string, a ...interface{}) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) SetContentf(content string, a ...any) *MessageUpdateBuilder {
 	return b.SetContent(fmt.Sprintf(content, a...))
 }
 

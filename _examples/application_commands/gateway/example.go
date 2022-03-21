@@ -39,6 +39,8 @@ var (
 				},
 			},
 		},
+		discord.UserCommandCreate{},
+		discord.MessageCommandCreate{},
 	}
 )
 
@@ -61,7 +63,7 @@ func main() {
 
 	defer disgo.Close(context.TODO())
 
-	if _, err = disgo.SetGuildCommands(guildID, commands); err != nil {
+	if _, err = disgo.Rest().ApplicationService().SetGuildCommands(guildID, commands); err != nil {
 		log.Fatal("error while registering commands: ", err)
 	}
 

@@ -15,12 +15,12 @@ func (h *gatewayHandlerGuildRoleDelete) EventType() discord.GatewayEventType {
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerGuildRoleDelete) New() interface{} {
+func (h *gatewayHandlerGuildRoleDelete) New() any {
 	return &discord.GuildRoleDeleteGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildRoleDelete) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerGuildRoleDelete) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
 	payload := *v.(*discord.GuildRoleDeleteGatewayEvent)
 
 	role, _ := bot.Caches().Roles().Remove(payload.GuildID, payload.RoleID)

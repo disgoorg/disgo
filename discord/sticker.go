@@ -46,7 +46,7 @@ type StickerCreate struct {
 }
 
 // ToBody returns the MessageCreate ready for body
-func (c *StickerCreate) ToBody() (interface{}, error) {
+func (c *StickerCreate) ToBody() (any, error) {
 	if c.File != nil {
 		return PayloadWithFiles(c, c.File)
 	}

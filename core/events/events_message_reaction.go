@@ -15,14 +15,10 @@ type GenericReactionEvent struct {
 	Emoji     discord.ReactionEmoji
 }
 
-func (e *GenericReactionEvent) User() (discord.User, bool) {
-	return e.Bot().Caches().Users().Get(e.UserID)
-}
-
 // MessageReactionAddEvent indicates that a discord.User added a discord.MessageReaction to a discord.Message in a discord.Channel(this+++ requires the discord.GatewayIntentGuildMessageReactions and/or discord.GatewayIntentDirectMessageReactions)
 type MessageReactionAddEvent struct {
 	*GenericReactionEvent
-	Member discord.Member
+	Member *discord.Member
 }
 
 // MessageReactionRemoveEvent indicates that a discord.User removed a discord.MessageReaction from a discord.Message in a discord.GetChannel(requires the discord.GatewayIntentGuildMessageReactions and/or discord.GatewayIntentDirectMessageReactions)

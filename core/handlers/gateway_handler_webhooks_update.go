@@ -15,12 +15,12 @@ func (h *gatewayHandlerWebhooksUpdate) EventType() discord.GatewayEventType {
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerWebhooksUpdate) New() interface{} {
+func (h *gatewayHandlerWebhooksUpdate) New() any {
 	return &discord.WebhooksUpdateGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerWebhooksUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerWebhooksUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
 	payload := *v.(*discord.WebhooksUpdateGatewayEvent)
 
 	bot.EventManager().Dispatch(&events.WebhooksUpdateEvent{

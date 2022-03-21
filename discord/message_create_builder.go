@@ -29,7 +29,7 @@ func (b *MessageCreateBuilder) SetContent(content string) *MessageCreateBuilder 
 }
 
 // SetContentf sets the content of the Message but with format
-func (b *MessageCreateBuilder) SetContentf(content string, a ...interface{}) *MessageCreateBuilder {
+func (b *MessageCreateBuilder) SetContentf(content string, a ...any) *MessageCreateBuilder {
 	return b.SetContent(fmt.Sprintf(content, a...))
 }
 

@@ -22,8 +22,8 @@ type Caches interface {
 	Stickers() GroupedCache[discord.Sticker]
 	Guilds() GuildCache
 	Channels() ChannelCache
-	StageInstances() Cache[discord.StageInstance]
-	GuildScheduledEvents() Cache[discord.GuildScheduledEvent]
+	StageInstances() GroupedCache[discord.StageInstance]
+	GuildScheduledEvents() GroupedCache[discord.GuildScheduledEvent]
 }
 
 func NewCaches(config CacheConfig) Caches {
@@ -32,8 +32,8 @@ func NewCaches(config CacheConfig) Caches {
 
 		guildCache:               NewGuildCache(config.CacheFlags, CacheFlagGuilds, nil),
 		channelCache:             NewChannelCache(config.CacheFlags, CacheFlagsAllChannels, nil),
-		stageInstanceCache:       NewCache[discord.StageInstance](config.CacheFlags, CacheFlagStageInstances, nil),
-		guildScheduledEventCache: NewCache[discord.GuildScheduledEvent](config.CacheFlags, CacheFlagGuildScheduledEvents, nil),
+		stageInstanceCache:       NewGroupedCache[discord.StageInstance](config.CacheFlags, CacheFlagStageInstances, nil),
+		guildScheduledEventCache: NewGroupedCache[discord.GuildScheduledEvent](config.CacheFlags, CacheFlagGuildScheduledEvents, nil),
 		roleCache:                NewGroupedCache[discord.Role](config.CacheFlags, CacheFlagRoles, nil),
 		memberCache:              NewGroupedCache[discord.Member](config.CacheFlags, CacheFlagMembers, config.MemberCachePolicy),
 		threadMemberCache:        NewGroupedCache[discord.ThreadMember](config.CacheFlags, CacheFlagThreadMembers, nil),
@@ -50,8 +50,8 @@ type cachesImpl struct {
 
 	guildCache               GuildCache
 	channelCache             ChannelCache
-	stageInstanceCache       Cache[discord.StageInstance]
-	guildScheduledEventCache Cache[discord.GuildScheduledEvent]
+	stageInstanceCache       GroupedCache[discord.StageInstance]
+	guildScheduledEventCache GroupedCache[discord.GuildScheduledEvent]
 	roleCache                GroupedCache[discord.Role]
 	memberCache              GroupedCache[discord.Member]
 	threadMemberCache        GroupedCache[discord.ThreadMember]
@@ -201,10 +201,10 @@ func (c *cachesImpl) Channels() ChannelCache {
 	return c.channelCache
 }
 
-func (c *cachesImpl) StageInstances() Cache[discord.StageInstance] {
+func (c *cachesImpl) StageInstances() GroupedCache[discord.StageInstance] {
 	return c.stageInstanceCache
 }
 
-func (c *cachesImpl) GuildScheduledEvents() Cache[discord.GuildScheduledEvent] {
+func (c *cachesImpl) GuildScheduledEvents() GroupedCache[discord.GuildScheduledEvent] {
 	return c.guildScheduledEventCache
 }

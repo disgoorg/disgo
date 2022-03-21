@@ -22,7 +22,7 @@ func (b *EmbedBuilder) SetTitle(title string) *EmbedBuilder {
 }
 
 // SetTitlef sets the title of the EmbedBuilder with format
-func (b *EmbedBuilder) SetTitlef(title string, a ...interface{}) *EmbedBuilder {
+func (b *EmbedBuilder) SetTitlef(title string, a ...any) *EmbedBuilder {
 	return b.SetTitle(fmt.Sprintf(title, a...))
 }
 
@@ -33,7 +33,7 @@ func (b *EmbedBuilder) SetDescription(description string) *EmbedBuilder {
 }
 
 // SetDescriptionf sets the description of the EmbedBuilder with format
-func (b *EmbedBuilder) SetDescriptionf(description string, a ...interface{}) *EmbedBuilder {
+func (b *EmbedBuilder) SetDescriptionf(description string, a ...any) *EmbedBuilder {
 	descriptionf := fmt.Sprintf(description, a...)
 	b.Description = descriptionf
 	return b

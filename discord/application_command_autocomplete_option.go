@@ -98,7 +98,7 @@ func (o *UnmarshalAutocompleteOption) UnmarshalJSON(data []byte) error {
 var _ AutocompleteOption = (*AutocompleteOptionSubCommand)(nil)
 
 type AutocompleteOptionSubCommand struct {
-	CommandName string               `json:"name"`
+	OptionName  string               `json:"name"`
 	Description string               `json:"description"`
 	Options     []AutocompleteOption `json:"options,omitempty"`
 }
@@ -131,7 +131,7 @@ func (AutocompleteOptionSubCommand) Type() ApplicationCommandOptionType {
 }
 
 func (o AutocompleteOptionSubCommand) Name() string {
-	return o.CommandName
+	return o.OptionName
 }
 
 func (o AutocompleteOptionSubCommand) Focused() bool {
@@ -141,7 +141,7 @@ func (o AutocompleteOptionSubCommand) Focused() bool {
 var _ AutocompleteOption = (*AutocompleteOptionSubCommandGroup)(nil)
 
 type AutocompleteOptionSubCommandGroup struct {
-	GroupName   string                         `json:"name"`
+	OptionName  string                         `json:"name"`
 	Description string                         `json:"description"`
 	Options     []AutocompleteOptionSubCommand `json:"options,omitempty"`
 }
@@ -152,7 +152,7 @@ func (AutocompleteOptionSubCommandGroup) Type() ApplicationCommandOptionType {
 }
 
 func (o AutocompleteOptionSubCommandGroup) Name() string {
-	return o.GroupName
+	return o.OptionName
 }
 
 func (o AutocompleteOptionSubCommandGroup) Focused() bool {

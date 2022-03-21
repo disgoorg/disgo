@@ -13,12 +13,6 @@ type GenericUserActivityEvent struct {
 	Activity discord.Activity
 }
 
-// User returns the User that changed their Activity.
-// This will only check cached users!
-func (g *GenericUserActivityEvent) User() (discord.User, bool) {
-	return g.Bot().Caches().Users().Get(g.UserID)
-}
-
 // Member returns the Member that changed their Activity.
 // This will only check cached members!
 func (g *GenericUserActivityEvent) Member() (discord.Member, bool) {

@@ -12,7 +12,7 @@ type WebhookMessageCreate struct {
 }
 
 // ToBody returns the MessageCreate ready for body
-func (m WebhookMessageCreate) ToBody() (interface{}, error) {
+func (m WebhookMessageCreate) ToBody() (any, error) {
 	if len(m.Files) > 0 {
 		return PayloadWithFiles(m, m.Files...)
 	}

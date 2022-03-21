@@ -60,14 +60,14 @@ type Event interface {
 // GatewayEventHandler is used to handle Gateway Event(s)
 type GatewayEventHandler interface {
 	EventType() discord.GatewayEventType
-	New() interface{}
-	HandleGatewayEvent(bot Bot, sequenceNumber discord.GatewaySequence, v interface{})
+	New() any
+	HandleGatewayEvent(bot Bot, sequenceNumber discord.GatewaySequence, v any)
 }
 
 // HTTPServerEventHandler is used to handle HTTP Event(s)
 type HTTPServerEventHandler interface {
-	New() interface{}
-	HandleHTTPEvent(bot Bot, responseChannel chan<- discord.InteractionResponse, v interface{})
+	New() any
+	HandleHTTPEvent(bot Bot, responseChannel chan<- discord.InteractionResponse, v any)
 }
 
 // eventManagerImpl is the implementation of core.EventManager

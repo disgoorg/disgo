@@ -15,24 +15,24 @@ func (h *gatewayHandlerMessageCreate) EventType() discord.GatewayEventType {
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerMessageCreate) New() interface{} {
+func (h *gatewayHandlerMessageCreate) New() any {
 	return &discord.Message{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerMessageCreate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
-	payload := *v.(*discord.Message)
+func (h *gatewayHandlerMessageCreate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
+	message := *v.(*discord.Message)
+
+	bot.Caches().Messages().Put(message.ChannelID, message.ID, message)
 
 	genericEvent := events.NewGenericEvent(bot, sequenceNumber)
-	message := bot.EntityBuilder.CreateMessage(payload, core.CacheStrategyYes)
-
 	bot.EventManager().Dispatch(&events.MessageCreateEvent{
 		GenericMessageEvent: &events.GenericMessageEvent{
 			GenericEvent: genericEvent,
-			MessageID:    payload.ID,
+			MessageID:    message.ID,
 			Message:      message,
-			ChannelID:    payload.ChannelID,
-			GuildID:      payload.GuildID,
+			ChannelID:    message.ChannelID,
+			GuildID:      message.GuildID,
 		},
 	})
 
@@ -40,19 +40,19 @@ func (h *gatewayHandlerMessageCreate) HandleGatewayEvent(bot core.Bot, sequenceN
 		bot.EventManager().Dispatch(&events.DMMessageCreateEvent{
 			GenericDMMessageEvent: &events.GenericDMMessageEvent{
 				GenericEvent: genericEvent,
-				MessageID:    payload.ID,
+				MessageID:    message.ID,
 				Message:      message,
-				ChannelID:    payload.ChannelID,
+				ChannelID:    message.ChannelID,
 			},
 		})
 	} else {
 		bot.EventManager().Dispatch(&events.GuildMessageCreateEvent{
 			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
 				GenericEvent: genericEvent,
-				MessageID:    payload.ID,
+				MessageID:    message.ID,
 				Message:      message,
-				ChannelID:    payload.ChannelID,
-				GuildID:      *payload.GuildID,
+				ChannelID:    message.ChannelID,
+				GuildID:      *message.GuildID,
 			},
 		})
 	}

@@ -29,7 +29,7 @@ func (b *WebhookMessageUpdateBuilder) SetContent(content string) *WebhookMessage
 }
 
 // SetContentf sets content of the Message
-func (b *WebhookMessageUpdateBuilder) SetContentf(content string, a ...interface{}) *WebhookMessageUpdateBuilder {
+func (b *WebhookMessageUpdateBuilder) SetContentf(content string, a ...any) *WebhookMessageUpdateBuilder {
 	return b.SetContent(fmt.Sprintf(content, a...))
 }
 

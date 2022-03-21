@@ -15,6 +15,7 @@ type GenericThreadEvent struct {
 
 type ThreadCreateEvent struct {
 	*GenericThreadEvent
+	ThreadMember discord.ThreadMember
 }
 
 type ThreadUpdateEvent struct {

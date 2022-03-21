@@ -44,7 +44,6 @@ func New(token string, url string, shardID int, shardCount int, eventHandlerFunc
 	return &gatewayImpl{
 		config:     *config,
 		token:      token,
-		url:        url,
 		shardID:    shardID,
 		shardCount: shardCount,
 		status:     StatusUnconnected,
@@ -83,14 +82,14 @@ func (g *gatewayImpl) ShardCount() int {
 	return g.shardCount
 }
 
-func (g *gatewayImpl) formatLogsf(format string, a ...interface{}) string {
+func (g *gatewayImpl) formatLogsf(format string, a ...any) string {
 	if g.shardCount > 1 {
 		return fmt.Sprintf("[%d/%d] %s", g.shardID, g.shardCount, fmt.Sprintf(format, a...))
 	}
 	return fmt.Sprintf(format, a...)
 }
 
-func (g *gatewayImpl) formatLogs(a ...interface{}) string {
+func (g *gatewayImpl) formatLogs(a ...any) string {
 	if g.shardCount > 1 {
 		return fmt.Sprintf("[%d/%d] %s", g.shardID, g.shardCount, fmt.Sprint(a...))
 	}

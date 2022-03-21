@@ -15,12 +15,12 @@ func (h *gatewayHandlerVoiceServerUpdate) EventType() discord.GatewayEventType {
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerVoiceServerUpdate) New() interface{} {
+func (h *gatewayHandlerVoiceServerUpdate) New() any {
 	return &discord.VoiceServerUpdate{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerVoiceServerUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerVoiceServerUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
 	payload := *v.(*discord.VoiceServerUpdate)
 
 	bot.EventManager().Dispatch(&events.VoiceServerUpdateEvent{

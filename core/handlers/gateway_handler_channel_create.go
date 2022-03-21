@@ -15,12 +15,12 @@ func (h *gatewayHandlerChannelCreate) EventType() discord.GatewayEventType {
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerChannelCreate) New() interface{} {
+func (h *gatewayHandlerChannelCreate) New() any {
 	return &discord.UnmarshalChannel{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerChannelCreate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerChannelCreate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
 	channel := v.(*discord.UnmarshalChannel).Channel
 	bot.Caches().Channels().Put(channel.ID(), channel)
 

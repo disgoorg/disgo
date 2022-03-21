@@ -5,26 +5,26 @@ import (
 	"github.com/DisgoOrg/snowflake"
 )
 
-// GenericGuildInviteEvent is called upon receiving GuildInviteCreateEvent or GuildInviteDeleteEvent (requires discord.GatewayIntentGuildInvites)
-type GenericGuildInviteEvent struct {
+// GenericInviteEvent is called upon receiving InviteCreateEvent or InviteDeleteEvent (requires discord.GatewayIntentGuildInvites)
+type GenericInviteEvent struct {
 	*GenericEvent
-	GuildID   snowflake.Snowflake
+	GuildID   *snowflake.Snowflake
 	ChannelID snowflake.Snowflake
 	Code      string
 }
 
-// Channel returns the Channel the GenericGuildInviteEvent happened in.
-func (e GenericGuildInviteEvent) Channel() (discord.GuildChannel, bool) {
+// Channel returns the Channel the GenericInviteEvent happened in.
+func (e GenericInviteEvent) Channel() (discord.GuildChannel, bool) {
 	return e.Bot().Caches().Channels().GetGuildChannel(e.ChannelID)
 }
 
-// GuildInviteCreateEvent is called upon creation of a new discord.Invite in a discord.Guild (requires discord.GatewayIntentGuildInvites)
-type GuildInviteCreateEvent struct {
-	*GenericGuildInviteEvent
+// InviteCreateEvent is called upon creation of a new discord.Invite (requires discord.GatewayIntentGuildInvites)
+type InviteCreateEvent struct {
+	*GenericInviteEvent
 	Invite discord.Invite
 }
 
-// GuildInviteDeleteEvent is called upon deletion of a discord.Invite in a discord.Guild (requires discord.GatewayIntentGuildInvites)
-type GuildInviteDeleteEvent struct {
-	*GenericGuildInviteEvent
+// InviteDeleteEvent is called upon deletion of a discord.Invite (requires discord.GatewayIntentGuildInvites)
+type InviteDeleteEvent struct {
+	*GenericInviteEvent
 }

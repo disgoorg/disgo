@@ -15,24 +15,24 @@ func (h *gatewayHandlerUserUpdate) EventType() discord.GatewayEventType {
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerUserUpdate) New() interface{} {
+func (h *gatewayHandlerUserUpdate) New() any {
 	return &discord.OAuth2User{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerUserUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
-	payload := *v.(*discord.OAuth2User)
+func (h *gatewayHandlerUserUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
+	user := *v.(*discord.OAuth2User)
 
-	var oldSelfUser *core.SelfUser
-	if bot.SelfUser != nil {
-		selfUser := *bot.SelfUser
-		oldSelfUser = &selfUser
+	var oldUser discord.OAuth2User
+	if bot.SelfUser() != nil {
+		oldUser = *bot.SelfUser()
 	}
+	bot.SetSelfUser(user)
 
 	bot.EventManager().Dispatch(&events.SelfUpdateEvent{
 		GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-		SelfUser:     bot.EntityBuilder.CreateSelfUser(payload, core.CacheStrategyYes),
-		OldSelfUser:  oldSelfUser,
+		SelfUser:     user,
+		OldSelfUser:  oldUser,
 	})
 
 }

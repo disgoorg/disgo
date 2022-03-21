@@ -12,28 +12,24 @@ func (h *gatewayHandlerThreadUpdate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeThreadUpdate
 }
 
-func (h *gatewayHandlerThreadUpdate) New() interface{} {
-	return &discord.UnmarshalChannel{}
+func (h *gatewayHandlerThreadUpdate) New() any {
+	return &discord.GuildThread{}
 }
 
-func (h *gatewayHandlerThreadUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
-	payload := v.(*discord.UnmarshalChannel).Channel
+func (h *gatewayHandlerThreadUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
+	guildThread := *v.(*discord.GuildThread)
 
-	var oldThread core.GuildThread
-	if ch, ok := bot.Caches().Channels().Get(payload.ID()).(core.GuildThread); ok {
-		oldThread = ch
-	}
-
-	thread := bot.EntityBuilder.CreateChannel(payload, core.CacheStrategyYes).(core.GuildThread)
+	oldGuildThread, _ := bot.Caches().Channels().GetGuildThread(guildThread.ID())
+	bot.Caches().Channels().Put(guildThread.ID(), guildThread)
 
 	bot.EventManager().Dispatch(&events.ThreadUpdateEvent{
 		GenericThreadEvent: &events.GenericThreadEvent{
 			GenericEvent: events.NewGenericEvent(bot, sequenceNumber),
-			Thread:       thread,
-			ThreadID:     thread.ID(),
-			GuildID:      thread.GuildID(),
-			ParentID:     thread.ParentID(),
+			Thread:       guildThread,
+			ThreadID:     guildThread.ID(),
+			GuildID:      guildThread.GuildID(),
+			ParentID:     *guildThread.ParentID(),
 		},
-		OldThread: oldThread,
+		OldThread: oldGuildThread,
 	})
 }

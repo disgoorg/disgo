@@ -15,15 +15,15 @@ func (h *gatewayHandlerGuildScheduledEventDelete) EventType() discord.GatewayEve
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerGuildScheduledEventDelete) New() interface{} {
+func (h *gatewayHandlerGuildScheduledEventDelete) New() any {
 	return &discord.GuildScheduledEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildScheduledEventDelete) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerGuildScheduledEventDelete) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
 	guildScheduledEvent := *v.(*discord.GuildScheduledEvent)
 
-	bot.Caches().GuildScheduledEvents().Remove(guildScheduledEvent.ID)
+	bot.Caches().GuildScheduledEvents().Remove(guildScheduledEvent.GuildID, guildScheduledEvent.ID)
 
 	bot.EventManager().Dispatch(&events.GuildScheduledEventDeleteEvent{
 		GenericGuildScheduledEventEvent: &events.GenericGuildScheduledEventEvent{

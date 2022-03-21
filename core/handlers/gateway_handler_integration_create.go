@@ -15,12 +15,12 @@ func (h *gatewayHandlerIntegrationCreate) EventType() discord.GatewayEventType {
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerIntegrationCreate) New() interface{} {
+func (h *gatewayHandlerIntegrationCreate) New() any {
 	return &discord.IntegrationCreateGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerIntegrationCreate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerIntegrationCreate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
 	payload := *v.(*discord.IntegrationCreateGatewayEvent)
 
 	bot.EventManager().Dispatch(&events.IntegrationCreateEvent{

@@ -57,8 +57,8 @@ type Client interface {
 	// Close closes the rest client and awaits all pending requests to finish. You can use a cancelling context to abort the waiting
 	Close(ctx context.Context)
 
-	// Do makes a request to the given route.CompiledAPIRoute and marshals the given interface{} as json and unmarshalls the response into the given interface
-	Do(route *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) error
+	// Do makes a request to the given route.CompiledAPIRoute and marshals the given any as json and unmarshalls the response into the given interface
+	Do(route *route.CompiledAPIRoute, rqBody any, rsBody any, opts ...RequestOpt) error
 }
 
 type clientImpl struct {
@@ -86,7 +86,7 @@ func (c *clientImpl) Config() Config {
 	return c.config
 }
 
-func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, tries int, opts []RequestOpt) error {
+func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody any, tries int, opts []RequestOpt) error {
 	rqURL := cRoute.URL()
 	var rawRqBody []byte
 	var err error
@@ -197,7 +197,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody interface{}, r
 	}
 }
 
-func (c *clientImpl) Do(cRoute *route.CompiledAPIRoute, rqBody interface{}, rsBody interface{}, opts ...RequestOpt) error {
+func (c *clientImpl) Do(cRoute *route.CompiledAPIRoute, rqBody any, rsBody any, opts ...RequestOpt) error {
 	return c.retry(cRoute, rqBody, rsBody, 1, opts)
 }
 

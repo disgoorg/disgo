@@ -70,8 +70,8 @@ type ListenerAdapter struct {
 	OnGuildUnban       func(event *GuildUnbanEvent)
 
 	// Guild Invite Events
-	OnGuildInviteCreate func(event *GuildInviteCreateEvent)
-	OnGuildInviteDelete func(event *GuildInviteDeleteEvent)
+	OnGuildInviteCreate func(event *InviteCreateEvent)
+	OnGuildInviteDelete func(event *InviteDeleteEvent)
 
 	// Guild Member Events
 	OnGuildMemberJoin   func(event *GuildMemberJoinEvent)
@@ -353,11 +353,11 @@ func (l ListenerAdapter) OnEvent(event core.Event) {
 		}
 
 	// Guild Invite Events
-	case *GuildInviteCreateEvent:
+	case *InviteCreateEvent:
 		if listener := l.OnGuildInviteCreate; listener != nil {
 			listener(e)
 		}
-	case *GuildInviteDeleteEvent:
+	case *InviteDeleteEvent:
 		if listener := l.OnGuildInviteDelete; listener != nil {
 			listener(e)
 		}

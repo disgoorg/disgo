@@ -15,12 +15,12 @@ func (h *gatewayHandlerGuildRoleUpdate) EventType() discord.GatewayEventType {
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerGuildRoleUpdate) New() interface{} {
+func (h *gatewayHandlerGuildRoleUpdate) New() any {
 	return &discord.GuildRoleUpdateGatewayEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildRoleUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerGuildRoleUpdate) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
 	payload := *v.(*discord.GuildRoleUpdateGatewayEvent)
 
 	oldRole, _ := bot.Caches().Roles().Get(payload.GuildID, payload.Role.ID)

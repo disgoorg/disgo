@@ -25,6 +25,7 @@ type Config struct {
 	LargeThreshold       int
 	GatewayIntents       discord.GatewayIntents
 	Compress             bool
+	GatewayURL           *string
 	SessionID            *string
 	LastSequenceReceived *discord.GatewaySequence
 	AutoReconnect        bool
@@ -67,6 +68,13 @@ func WithGatewayIntents(gatewayIntents ...discord.GatewayIntents) ConfigOpt {
 func WithCompress(compress bool) ConfigOpt {
 	return func(config *Config) {
 		config.Compress = compress
+	}
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func WithGatewayURL(gatewayURL string) ConfigOpt {
+	return func(config *Config) {
+		config.GatewayURL = &gatewayURL
 	}
 }
 

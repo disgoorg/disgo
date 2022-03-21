@@ -12,15 +12,15 @@ func (h *gatewayHandlerThreadListSync) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeThreadListSync
 }
 
-func (h *gatewayHandlerThreadListSync) New() interface{} {
+func (h *gatewayHandlerThreadListSync) New() any {
 	return &discord.GatewayEventThreadListSync{}
 }
 
-func (h *gatewayHandlerThreadListSync) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerThreadListSync) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
 	payload := *v.(*discord.GatewayEventThreadListSync)
 
-	for i := range payload.Threads {
-		thread := bot.EntityBuilder.CreateChannel(payload.Threads[i], core.CacheStrategyYes).(core.GuildThread)
+	for _, thread := range payload.Threads {
+		bot.Caches().Channels().Put(thread.ID(), thread)
 		bot.EventManager().Dispatch(&events.ThreadShowEvent{
 			GenericThreadEvent: &events.GenericThreadEvent{
 				Thread:   thread,

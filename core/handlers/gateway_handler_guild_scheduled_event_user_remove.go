@@ -15,12 +15,12 @@ func (h *gatewayHandlerGuildScheduledEventUserRemove) EventType() discord.Gatewa
 }
 
 // New constructs a new payload receiver for the raw gateway event
-func (h *gatewayHandlerGuildScheduledEventUserRemove) New() interface{} {
+func (h *gatewayHandlerGuildScheduledEventUserRemove) New() any {
 	return &discord.GuildScheduledEventUserEvent{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildScheduledEventUserRemove) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v interface{}) {
+func (h *gatewayHandlerGuildScheduledEventUserRemove) HandleGatewayEvent(bot core.Bot, sequenceNumber discord.GatewaySequence, v any) {
 	payload := *v.(*discord.GuildScheduledEventUserEvent)
 
 	bot.EventManager().Dispatch(&events.GuildScheduledEventUserRemoveEvent{

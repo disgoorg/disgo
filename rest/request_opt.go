@@ -73,7 +73,7 @@ func WithHeader(key string, value string) RequestOpt {
 
 // WithQueryParam applies a custom query parameter to the request
 //goland:noinspection GoUnusedExportedFunction
-func WithQueryParam(param string, value interface{}) RequestOpt {
+func WithQueryParam(param string, value any) RequestOpt {
 	return func(config *RequestConfig) {
 		values := config.Request.URL.Query()
 		values.Add(param, fmt.Sprint(value))

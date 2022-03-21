@@ -23,7 +23,7 @@ type InteractionResponse struct {
 }
 
 // ToBody returns the InteractionResponse ready for body
-func (r InteractionResponse) ToBody() (interface{}, error) {
+func (r InteractionResponse) ToBody() (any, error) {
 	if v, ok := r.Data.(InteractionResponseCreator); ok {
 		return v.ToResponseBody(r)
 	}
@@ -34,8 +34,23 @@ type InteractionCallbackData interface {
 	interactionCallbackData()
 }
 
+type ComponentInteractionCallbackData interface {
+	InteractionCallbackData
+	componentInteractionCallbackData()
+}
+
+type CommandInteractionCallbackData interface {
+	InteractionCallbackData
+	commandInteractionCallbackData()
+}
+
+type ModalInteractionCallbackData interface {
+	InteractionCallbackData
+	modalInteractionCallbackData()
+}
+
 type InteractionResponseCreator interface {
-	ToResponseBody(response InteractionResponse) (interface{}, error)
+	ToResponseBody(response InteractionResponse) (any, error)
 }
 
 type AutocompleteResult struct {

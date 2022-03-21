@@ -38,7 +38,7 @@ type Route struct {
 }
 
 // Compile returns a CompiledRoute
-func (r *Route) Compile(queryValues QueryValues, params ...interface{}) (*CompiledRoute, error) {
+func (r *Route) Compile(queryValues QueryValues, params ...any) (*CompiledRoute, error) {
 	if len(params) != r.urlParamCount {
 		return nil, ErrInvalidArgCount(r.urlParamCount, len(params))
 	}

@@ -11,7 +11,7 @@ type WebhookMessageUpdate struct {
 }
 
 // ToBody returns the WebhookMessageUpdate ready for body
-func (m WebhookMessageUpdate) ToBody() (interface{}, error) {
+func (m WebhookMessageUpdate) ToBody() (any, error) {
 	if len(m.Files) > 0 {
 		return PayloadWithFiles(m, m.Files...)
 	}

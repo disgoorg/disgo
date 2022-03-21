@@ -50,7 +50,7 @@ type APIRoute struct {
 }
 
 // Compile returns a CompiledAPIRoute
-func (r *APIRoute) Compile(queryValues QueryValues, params ...interface{}) (*CompiledAPIRoute, error) {
+func (r *APIRoute) Compile(queryValues QueryValues, params ...any) (*CompiledAPIRoute, error) {
 	if len(params) != r.urlParamCount {
 		return nil, ErrInvalidArgCount(r.urlParamCount, len(params))
 	}
