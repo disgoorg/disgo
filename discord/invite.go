@@ -30,6 +30,13 @@ type Invite struct {
 	GuildScheduledEvent      *GuildScheduledEvent `json:"guild_scheduled_event"`
 }
 
+func (i Invite) URL() string {
+	if compiledRoute, err := route.InviteURL.Compile(nil, i.Code); err == nil {
+		return compiledRoute.URL()
+	}
+	return ""
+}
+
 type ExtendedInvite struct {
 	Invite
 	Uses      int  `json:"uses"`
@@ -46,10 +53,10 @@ type InviteChannel struct {
 	Icon *string             `json:"icon,omitempty"`
 }
 
-// GetIconURL returns the Icon URL of this channel.
+// IconURL returns the Icon URL of this channel.
 // This will be nil for every ChannelType except ChannelTypeGroupDM
-func (c InviteChannel) GetIconURL(size int) *string {
-	return FormatAssetURL(route.ChannelIcon, c.ID, c.Icon, size)
+func (c InviteChannel) IconURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.ChannelIcon, opts, c.ID, c.Icon)
 }
 
 // An InviteGuild is the Guild of an Invite

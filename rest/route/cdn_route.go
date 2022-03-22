@@ -55,7 +55,9 @@ func (r *CDNRoute) Compile(queryValues QueryValues, imageFormat ImageFormat, siz
 	if queryValues == nil {
 		queryValues = QueryValues{}
 	}
-	queryValues["size"] = size
+	if size > 0 {
+		queryValues["size"] = size
+	}
 
 	path := r.path
 	for _, param := range params {

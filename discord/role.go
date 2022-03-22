@@ -2,6 +2,7 @@ package discord
 
 import (
 	"github.com/DisgoOrg/disgo/json"
+	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/snowflake"
 )
 
@@ -28,6 +29,10 @@ func (r Role) String() string {
 
 func (r Role) Mention() string {
 	return r.String()
+}
+
+func (r Role) IconURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.RoleIcon, opts, r.ID, r.Icon)
 }
 
 // RoleTag are tags a Role has

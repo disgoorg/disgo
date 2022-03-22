@@ -1,6 +1,9 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import (
+	"github.com/DisgoOrg/disgo/rest/route"
+	"github.com/DisgoOrg/snowflake"
+)
 
 var _ Mentionable = (*Emoji)(nil)
 
@@ -29,6 +32,13 @@ func (e Emoji) Mention() string {
 // String formats the Emoji as string
 func (e Emoji) String() string {
 	return e.Mention()
+}
+
+func (e Emoji) URL(opts ...CDNOpt) string {
+	if avatar := formatAssetURL(route.CustomEmoji, opts, e.ID); avatar != nil {
+		return *avatar
+	}
+	return ""
 }
 
 type EmojiCreate struct {

@@ -1,6 +1,7 @@
 package discord
 
 import (
+	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/snowflake"
 )
 
@@ -17,6 +18,17 @@ type Sticker struct {
 	GuildID     *snowflake.Snowflake `json:"guild_id,omitempty"`
 	User        *User                `json:"user,omitempty"`
 	SortValue   *int                 `json:"sort_value"`
+}
+
+func (s Sticker) URL(opts ...CDNOpt) string {
+	format := route.PNG
+	if s.FormatType == StickerFormatTypeLottie {
+		format = route.Lottie
+	}
+	if avatar := formatAssetURL(route.CustomSticker, append(opts, WithFormat(format)), s.ID); avatar != nil {
+		return *avatar
+	}
+	return ""
 }
 
 type StickerType int
@@ -57,4 +69,22 @@ type StickerUpdate struct {
 	Name        *string `json:"name,omitempty"`
 	Description *string `json:"description,omitempty"`
 	Tags        *string `json:"tags,omitempty"`
+}
+
+type StickerPack struct {
+	ID             snowflake.Snowflake `json:"id"`
+	Stickers       []Sticker           `json:"stickers"`
+	Name           string              `json:"name"`
+	SkuID          snowflake.Snowflake `json:"sku_id"`
+	CoverStickerID snowflake.Snowflake `json:"cover_sticker_id"`
+	Description    string              `json:"description"`
+	BannerAssetID  snowflake.Snowflake `json:"banner_asset_id"`
+}
+
+func (p StickerPack) BannerURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.StickerPackBanner, opts, p.BannerAssetID)
+}
+
+type StickerPacks struct {
+	StickerPacks []StickerPack `json:"sticker_packs"`
 }

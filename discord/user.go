@@ -1,7 +1,10 @@
 package discord
 
 import (
+	"strconv"
+
 	"github.com/DisgoOrg/disgo/json"
+	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/snowflake"
 )
 
@@ -59,6 +62,35 @@ func (u User) Mention() string {
 
 func (u User) Tag() string {
 	return UserTag(u.Username, u.Discriminator)
+}
+
+func (u User) EffectiveAvatarURL(opts ...CDNOpt) string {
+	if u.Avatar == nil {
+		return u.DefaultAvatarURL(opts...)
+	}
+	if avatar := u.AvatarURL(opts...); avatar != nil {
+		return *avatar
+	}
+	return ""
+}
+
+func (u User) AvatarURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.UserAvatar, opts, u.ID, u.Avatar)
+}
+
+func (u User) DefaultAvatarURL(opts ...CDNOpt) string {
+	discrim, err := strconv.Atoi(u.Discriminator)
+	if err != nil {
+		return ""
+	}
+	if avatar := formatAssetURL(route.DefaultUserAvatar, opts, discrim%5); avatar != nil {
+		return *avatar
+	}
+	return ""
+}
+
+func (u User) BannerURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.UserBanner, opts, u.ID, u.Avatar)
 }
 
 // OAuth2User represents a full User returned by the oauth2 endpoints

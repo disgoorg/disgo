@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/snowflake"
 )
 
@@ -27,8 +28,16 @@ type Application struct {
 	GuildID               *snowflake.Snowflake `json:"guild_id,omitempty"`
 	PrimarySkuID          *snowflake.Snowflake `json:"primary_sku_id,omitempty"`
 	Slug                  *string              `json:"slug,omitempty"`
-	CoverImage            *string              `json:"cover_image,omitempty"`
+	Cover                 *string              `json:"cover_image,omitempty"`
 	Flags                 ApplicationFlags     `json:"flags,omitempty"`
+}
+
+func (a Application) IconURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.ApplicationIcon, opts, a.ID, a.Icon)
+}
+
+func (a Application) CoverURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.ApplicationCover, opts, a.ID, a.Cover)
 }
 
 type PartialApplication struct {
@@ -179,10 +188,14 @@ func (f ApplicationFlags) Missing(bits ...ApplicationFlags) bool {
 
 type Team struct {
 	Icon    *string             `json:"icon"`
-	ID      string              `json:"id"`
+	ID      snowflake.Snowflake `json:"id"`
 	Members []TeamMember        `json:"members"`
 	Name    string              `json:"name"`
 	OwnerID snowflake.Snowflake `json:"owner_user_id"`
+}
+
+func (t Team) IconURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.TeamIcon, opts, t.ID, t.Icon)
 }
 
 type TeamMember struct {

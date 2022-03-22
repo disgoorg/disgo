@@ -2,6 +2,7 @@ package discord
 
 import (
 	"github.com/DisgoOrg/disgo/json"
+	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/snowflake"
 )
 
@@ -144,6 +145,22 @@ type Guild struct {
 	// only over GET /guilds/{guild.id}
 	ApproximateMemberCount   int `json:"approximate_member_count"`
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
+}
+
+func (g Guild) IconURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.GuildIcon, opts, g.ID, g.Icon)
+}
+
+func (g Guild) SplashURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.GuildSplash, opts, g.ID, g.Splash)
+}
+
+func (g Guild) DiscoverySplashURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.GuildDiscoverySplash, opts, g.ID, g.DiscoverySplash)
+}
+
+func (g Guild) BannerURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.GuildBanner, opts, g.ID, g.Banner)
 }
 
 type GatewayGuild struct {

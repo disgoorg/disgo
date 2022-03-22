@@ -45,3 +45,12 @@ const (
 func (f ImageFormat) String() string {
 	return string(f)
 }
+
+func (f ImageFormat) CanBeAnimated() bool {
+	switch f {
+	case WebP, GIF:
+		return true
+	default:
+		return false
+	}
+}

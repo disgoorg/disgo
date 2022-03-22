@@ -141,7 +141,7 @@ func (d *SelectMenuInteractionData) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (d *SelectMenuInteractionData) MarshalJSON() ([]byte, error) {
+func (d SelectMenuInteractionData) MarshalJSON() ([]byte, error) {
 	return json.Marshal(rawSelectMenuInteractionData{
 		Custom: d.customID,
 		Values: d.Values,

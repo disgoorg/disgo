@@ -23,6 +23,7 @@ var (
 )
 
 type Mentionable interface {
+	fmt.Stringer
 	Mention() string
 }
 

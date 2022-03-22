@@ -2,6 +2,7 @@ package discord
 
 import (
 	"github.com/DisgoOrg/disgo/json"
+	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/snowflake"
 )
 
@@ -22,6 +23,14 @@ type Member struct {
 	CommunicationDisabledUntil *Time                 `json:"communication_disabled_until"`
 }
 
+func (m Member) String() string {
+	return MemberMention(m.User.ID)
+}
+
+func (m Member) Mention() string {
+	return m.String()
+}
+
 // EffectiveName returns either the nickname or username depending on if the user has a nickname
 func (m Member) EffectiveName() string {
 	if m.Nick != nil {
@@ -30,12 +39,18 @@ func (m Member) EffectiveName() string {
 	return m.User.Username
 }
 
-func (m Member) String() string {
-	return MemberMention(m.User.ID)
+func (m Member) EffectiveAvatarURL(opts ...CDNOpt) string {
+	if m.Avatar == nil {
+		return m.User.EffectiveAvatarURL(opts...)
+	}
+	if avatar := m.AvatarURL(opts...); avatar != nil {
+		return *avatar
+	}
+	return ""
 }
 
-func (m Member) Mention() string {
-	return m.String()
+func (m Member) AvatarURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.MemberAvatar, opts, m.User.ID, m.Avatar)
 }
 
 // MemberAdd is used to add a member via the oauth2 access token to a guild
