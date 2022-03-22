@@ -121,18 +121,20 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 		rq.Header.Set("Content-Type", contentType)
 	}
 
-	if cRoute.APIRoute.NeedsAuth() {
-		opts = applyBotToken(c.botToken, opts)
+	if cRoute.APIRoute.NeedsBotAuth() {
+		opts = append([]RequestOpt{WithToken(discord.TokenTypeBot, c.botToken)}, opts...)
 	}
 
-	config := &RequestConfig{Request: rq}
+	config := DefaultRequestConfig(rq)
 	config.Apply(opts)
 
 	if config.Delay > 0 {
+		timer := time.NewTimer(config.Delay)
+		defer timer.Stop()
 		select {
 		case <-config.Ctx.Done():
 			return config.Ctx.Err()
-		case <-time.After(config.Delay):
+		case <-timer.C:
 		}
 	}
 
@@ -201,14 +203,6 @@ func (c *clientImpl) Do(cRoute *route.CompiledAPIRoute, rqBody any, rsBody any, 
 	return c.retry(cRoute, rqBody, rsBody, 1, opts)
 }
 
-func applyToken(tokenType discord.TokenType, token string, opts []RequestOpt) []RequestOpt {
+func applyAuthHeader(tokenType discord.TokenType, token string, opts []RequestOpt) []RequestOpt {
 	return append(opts, WithHeader("authorization", tokenType.Apply(token)))
-}
-
-func applyBotToken(botToken string, opts []RequestOpt) []RequestOpt {
-	return applyToken(discord.TokenTypeBot, botToken, opts)
-}
-
-func applyBearerToken(bearerToken string, opts []RequestOpt) []RequestOpt {
-	return applyToken(discord.TokenTypeBearer, bearerToken, opts)
 }

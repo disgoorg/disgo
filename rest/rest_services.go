@@ -8,9 +8,9 @@ import (
 var _ Services = (*servicesImpl)(nil)
 
 // NewServices returns a new default Services
-func NewServices(restClient Client) Services {
+func NewServices(token string, restClient Client) Services {
 	if restClient == nil {
-		restClient = NewClient(&DefaultConfig)
+		restClient = NewClient(token)
 	}
 	return &servicesImpl{
 		restClient:                 restClient,

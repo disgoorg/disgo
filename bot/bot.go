@@ -42,11 +42,16 @@ type Client interface {
 	HasShardManager() bool
 	Shard(guildID snowflake.Snowflake) (gateway.Gateway, error)
 
-	AudioController() AudioController
-	MemberChunkingManager() MemberChunkingManager
+	Connect(ctx context.Context, guildID snowflake.Snowflake, channelID snowflake.Snowflake) error
+	Disconnect(ctx context.Context, guildID snowflake.Snowflake) error
+
+	RequestMembers(ctx context.Context, guildID snowflake.Snowflake, presence bool, nonce string, userIDs ...snowflake.Snowflake) error
+	RequestMembersWithQuery(ctx context.Context, guildID snowflake.Snowflake, presence bool, nonce string, query string, limit int) error
 
 	SetPresence(ctx context.Context, presenceUpdate discord.UpdatePresenceCommandData) error
 	SetPresenceForShard(ctx context.Context, shardId int, presenceUpdate discord.UpdatePresenceCommandData) error
+
+	MemberChunkingManager() MemberChunkingManager
 
 	StartHTTPServer() error
 	HTTPServer() httpserver.Server
@@ -73,123 +78,122 @@ type ClientImpl struct {
 
 	BotCaches cache.Caches
 
-	BotAudioController       AudioController
 	BotMemberChunkingManager MemberChunkingManager
 }
 
-func (b *ClientImpl) Logger() log.Logger {
-	return b.BotLogger
+func (c *ClientImpl) Logger() log.Logger {
+	return c.BotLogger
 }
 
 // Close will clean up all disgo internals and close the discord connection safely
-func (b *ClientImpl) Close(ctx context.Context) {
-	if b.RestServices != nil {
-		b.RestServices.Close(ctx)
+func (c *ClientImpl) Close(ctx context.Context) {
+	if c.RestServices != nil {
+		c.RestServices.Close(ctx)
 	}
-	if b.BotGateway != nil {
-		b.BotGateway.Close(ctx)
+	if c.BotGateway != nil {
+		c.BotGateway.Close(ctx)
 	}
-	if b.BotShardManager != nil {
-		b.BotShardManager.Close(ctx)
+	if c.BotShardManager != nil {
+		c.BotShardManager.Close(ctx)
 	}
-	if b.BotHTTPServer != nil {
-		b.BotHTTPServer.Close(ctx)
+	if c.BotHTTPServer != nil {
+		c.BotHTTPServer.Close(ctx)
 	}
 }
 
-func (b *ClientImpl) Token() string {
-	return b.BotToken
+func (c *ClientImpl) Token() string {
+	return c.BotToken
 }
-func (b *ClientImpl) ApplicationID() snowflake.Snowflake {
-	return b.BotApplicationID
+func (c *ClientImpl) ApplicationID() snowflake.Snowflake {
+	return c.BotApplicationID
 }
-func (b *ClientImpl) ID() snowflake.Snowflake {
-	return b.BotClientID
+func (c *ClientImpl) ID() snowflake.Snowflake {
+	return c.BotClientID
 }
-func (b *ClientImpl) SelfUser() *discord.OAuth2User {
-	return b.BotSelfUser
+func (c *ClientImpl) SelfUser() *discord.OAuth2User {
+	return c.BotSelfUser
 }
 
-func (b *ClientImpl) SetSelfUser(user discord.OAuth2User) {
-	b.BotSelfUser = &user
+func (c *ClientImpl) SetSelfUser(user discord.OAuth2User) {
+	c.BotSelfUser = &user
 }
 
 // SelfMember returns a core.OAuth2User for the client, if available
-func (b *ClientImpl) SelfMember(guildID snowflake.Snowflake) *discord.Member {
-	if member, ok := b.BotCaches.Members().Get(guildID, b.BotClientID); ok {
+func (c *ClientImpl) SelfMember(guildID snowflake.Snowflake) *discord.Member {
+	if member, ok := c.BotCaches.Members().Get(guildID, c.BotClientID); ok {
 		return &member
 	}
 	return nil
 }
 
-func (b *ClientImpl) Caches() cache.Caches {
-	return b.BotCaches
+func (c *ClientImpl) Caches() cache.Caches {
+	return c.BotCaches
 }
 
-func (b *ClientImpl) Rest() rest.Services {
-	return b.RestServices
+func (c *ClientImpl) Rest() rest.Services {
+	return c.RestServices
 }
 
-func (b *ClientImpl) HandleReadyEvent(event discord.GatewayEventReady) {
-	b.BotApplicationID = event.Application.ID
-	b.BotClientID = event.User.ID
-	b.BotSelfUser = &event.User
+func (c *ClientImpl) HandleReadyEvent(event discord.GatewayEventReady) {
+	c.BotApplicationID = event.Application.ID
+	c.BotClientID = event.User.ID
+	c.BotSelfUser = &event.User
 }
 
 // AddEventListeners adds one or more EventListener(s) to the EventManager
-func (b *ClientImpl) AddEventListeners(listeners ...EventListener) {
-	b.BotEventManager.AddEventListeners(listeners...)
+func (c *ClientImpl) AddEventListeners(listeners ...EventListener) {
+	c.BotEventManager.AddEventListeners(listeners...)
 }
 
 // RemoveEventListeners removes one or more EventListener(s) from the EventManager
-func (b *ClientImpl) RemoveEventListeners(listeners ...EventListener) {
-	b.BotEventManager.RemoveEventListeners(listeners...)
+func (c *ClientImpl) RemoveEventListeners(listeners ...EventListener) {
+	c.BotEventManager.RemoveEventListeners(listeners...)
 }
 
-func (b *ClientImpl) EventManager() EventManager {
-	return b.BotEventManager
+func (c *ClientImpl) EventManager() EventManager {
+	return c.BotEventManager
 }
 
 // ConnectGateway opens the BotGateway connection to discord
-func (b *ClientImpl) ConnectGateway(ctx context.Context) error {
-	if b.BotGateway == nil {
+func (c *ClientImpl) ConnectGateway(ctx context.Context) error {
+	if c.BotGateway == nil {
 		return discord.ErrNoGateway
 	}
-	return b.BotGateway.Open(ctx)
+	return c.BotGateway.Open(ctx)
 }
 
-func (b *ClientImpl) Gateway() gateway.Gateway {
-	return b.BotGateway
+func (c *ClientImpl) Gateway() gateway.Gateway {
+	return c.BotGateway
 }
 
 // HasGateway returns whether this Client has an active gateway.Gateway connection
-func (b *ClientImpl) HasGateway() bool {
-	return b.BotGateway != nil
+func (c *ClientImpl) HasGateway() bool {
+	return c.BotGateway != nil
 }
 
 // ConnectShardManager opens the BotGateway connection to discord
-func (b *ClientImpl) ConnectShardManager(ctx context.Context) error {
-	if b.BotShardManager == nil {
+func (c *ClientImpl) ConnectShardManager(ctx context.Context) error {
+	if c.BotShardManager == nil {
 		return discord.ErrNoShardManager
 	}
-	b.BotShardManager.Open(ctx)
+	c.BotShardManager.Open(ctx)
 	return nil
 }
 
-func (b *ClientImpl) ShardManager() sharding.ShardManager {
-	return b.BotShardManager
+func (c *ClientImpl) ShardManager() sharding.ShardManager {
+	return c.BotShardManager
 }
 
 // HasShardManager returns whether this Client is sharded
-func (b *ClientImpl) HasShardManager() bool {
-	return b.BotShardManager != nil
+func (c *ClientImpl) HasShardManager() bool {
+	return c.BotShardManager != nil
 }
 
-func (b *ClientImpl) Shard(guildID snowflake.Snowflake) (gateway.Gateway, error) {
-	if b.HasGateway() {
-		return b.BotGateway, nil
-	} else if b.HasShardManager() {
-		if shard := b.BotShardManager.GetGuildShard(guildID); shard != nil {
+func (c *ClientImpl) Shard(guildID snowflake.Snowflake) (gateway.Gateway, error) {
+	if c.HasGateway() {
+		return c.BotGateway, nil
+	} else if c.HasShardManager() {
+		if shard := c.BotShardManager.GetGuildShard(guildID); shard != nil {
 			return shard, nil
 		}
 		return nil, discord.ErrShardNotFound
@@ -197,47 +201,91 @@ func (b *ClientImpl) Shard(guildID snowflake.Snowflake) (gateway.Gateway, error)
 	return nil, discord.ErrNoGatewayOrShardManager
 }
 
-func (b *ClientImpl) AudioController() AudioController {
-	return b.BotAudioController
+func (c *ClientImpl) Connect(ctx context.Context, guildID snowflake.Snowflake, channelID snowflake.Snowflake) error {
+	shard, err := c.Shard(guildID)
+	if err != nil {
+		return err
+	}
+	return shard.Send(ctx, discord.GatewayOpcodeVoiceStateUpdate, discord.UpdateVoiceStateCommandData{
+		GuildID:   guildID,
+		ChannelID: &channelID,
+	})
 }
 
-func (b *ClientImpl) MemberChunkingManager() MemberChunkingManager {
-	return b.BotMemberChunkingManager
+func (c *ClientImpl) Disconnect(ctx context.Context, guildID snowflake.Snowflake) error {
+	shard, err := c.Shard(guildID)
+	if err != nil {
+		return err
+	}
+	return shard.Send(ctx, discord.GatewayOpcodeVoiceStateUpdate, discord.UpdateVoiceStateCommandData{
+		GuildID:   guildID,
+		ChannelID: nil,
+	})
 }
 
-func (b *ClientImpl) SetPresence(ctx context.Context, presenceUpdate discord.UpdatePresenceCommandData) error {
-	if !b.HasGateway() {
+func (c *ClientImpl) RequestMembers(ctx context.Context, guildID snowflake.Snowflake, presence bool, nonce string, userIDs ...snowflake.Snowflake) error {
+	shard, err := c.Shard(guildID)
+	if err != nil {
+		return err
+	}
+	return shard.Send(ctx, discord.GatewayOpcodeRequestGuildMembers, discord.RequestGuildMembersCommandData{
+		GuildID:   guildID,
+		Presences: presence,
+		UserIDs:   userIDs,
+		Nonce:     nonce,
+	})
+}
+func (c *ClientImpl) RequestMembersWithQuery(ctx context.Context, guildID snowflake.Snowflake, presence bool, nonce string, query string, limit int) error {
+	shard, err := c.Shard(guildID)
+	if err != nil {
+		return err
+	}
+	return shard.Send(ctx, discord.GatewayOpcodeRequestGuildMembers, discord.RequestGuildMembersCommandData{
+		GuildID:   guildID,
+		Query:     &query,
+		Limit:     &limit,
+		Presences: presence,
+		Nonce:     nonce,
+	})
+}
+
+func (c *ClientImpl) SetPresence(ctx context.Context, presenceUpdate discord.UpdatePresenceCommandData) error {
+	if !c.HasGateway() {
 		return discord.ErrNoGateway
 	}
-	return b.BotGateway.Send(ctx, discord.NewGatewayCommand(discord.GatewayOpcodePresenceUpdate, presenceUpdate))
+	return c.BotGateway.Send(ctx, discord.GatewayOpcodePresenceUpdate, presenceUpdate)
 }
 
 // SetPresenceForShard sets the Presence of this Client for the provided shard
-func (b *ClientImpl) SetPresenceForShard(ctx context.Context, shardId int, presenceUpdate discord.UpdatePresenceCommandData) error {
-	if !b.HasShardManager() {
+func (c *ClientImpl) SetPresenceForShard(ctx context.Context, shardId int, presenceUpdate discord.UpdatePresenceCommandData) error {
+	if !c.HasShardManager() {
 		return discord.ErrNoShardManager
 	}
-	shard := b.BotShardManager.Shard(shardId)
+	shard := c.BotShardManager.Shard(shardId)
 	if shard == nil {
 		return discord.ErrShardNotFound
 	}
-	return shard.Send(ctx, discord.NewGatewayCommand(discord.GatewayOpcodePresenceUpdate, presenceUpdate))
+	return shard.Send(ctx, discord.GatewayOpcodePresenceUpdate, presenceUpdate)
+}
+
+func (c *ClientImpl) MemberChunkingManager() MemberChunkingManager {
+	return c.BotMemberChunkingManager
 }
 
 // StartHTTPServer starts the interaction webhook server
-func (b *ClientImpl) StartHTTPServer() error {
-	if b.BotHTTPServer == nil {
+func (c *ClientImpl) StartHTTPServer() error {
+	if c.BotHTTPServer == nil {
 		return discord.ErrNoHTTPServer
 	}
-	b.BotHTTPServer.Start()
+	c.BotHTTPServer.Start()
 	return nil
 }
 
-func (b *ClientImpl) HTTPServer() httpserver.Server {
-	return b.BotHTTPServer
+func (c *ClientImpl) HTTPServer() httpserver.Server {
+	return c.BotHTTPServer
 }
 
 // HasHTTPServer returns whether Client has an active httpserver.Server
-func (b *ClientImpl) HasHTTPServer() bool {
-	return b.BotHTTPServer != nil
+func (c *ClientImpl) HasHTTPServer() bool {
+	return c.BotHTTPServer != nil
 }

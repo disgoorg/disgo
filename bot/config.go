@@ -37,7 +37,6 @@ type Config struct {
 	Caches          cache.Caches
 	CacheConfigOpts []cache.ConfigOpt
 
-	AudioController       AudioController
 	MemberChunkingManager MemberChunkingManager
 	MemberChunkingFilter  *MemberChunkingFilter
 }
@@ -146,13 +145,6 @@ func WithCaches(caches cache.Caches) ConfigOpt {
 func WithCacheConfigOpts(opts ...cache.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		config.CacheConfigOpts = append(config.CacheConfigOpts, opts...)
-	}
-}
-
-//goland:noinspection GoUnusedExportedFunction
-func WithAudioController(audioController AudioController) ConfigOpt {
-	return func(config *Config) {
-		config.AudioController = audioController
 	}
 }
 

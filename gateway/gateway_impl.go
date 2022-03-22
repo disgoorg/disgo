@@ -161,7 +161,7 @@ func (g *gatewayImpl) Status() Status {
 	return g.status
 }
 
-func (g *gatewayImpl) Send(ctx context.Context, command discord.GatewayCommand) error {
+func (g *gatewayImpl) Send(ctx context.Context, op discord.GatewayOpcode, d discord.GatewayCommandData) error {
 	if g.conn == nil {
 		return discord.ErrShardNotConnected
 	}
@@ -171,7 +171,12 @@ func (g *gatewayImpl) Send(ctx context.Context, command discord.GatewayCommand) 
 	}
 
 	defer g.config.RateLimiter.Unlock()
-	data, err := json.Marshal(command)
+	data, err := json.Marshal(discord.GatewayCommand{
+		GatewayPayload: discord.GatewayPayload{
+			Op: op,
+		},
+		D: d,
+	})
 	if err != nil {
 		return err
 	}
@@ -236,7 +241,7 @@ func (g *gatewayImpl) sendHeartbeat() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), g.heartbeatInterval)
 	defer cancel()
-	if err := g.Send(ctx, discord.NewGatewayCommand(discord.GatewayOpcodeHeartbeat, g.config.LastSequenceReceived)); err != nil && err != discord.ErrShardNotConnected {
+	if err := g.Send(ctx, discord.GatewayOpcodeHeartbeat, g.config.LastSequenceReceived); err != nil && err != discord.ErrShardNotConnected {
 		g.Logger().Error(g.formatLogs("failed to send heartbeat. error: ", err))
 		g.CloseWithCode(context.TODO(), websocket.CloseServiceRestart, "heartbeat timeout")
 		go g.reconnect(context.TODO())
@@ -265,7 +270,7 @@ func (g *gatewayImpl) connect() {
 		identify.Shard = []int{g.ShardID(), g.ShardCount()}
 	}
 
-	if err := g.Send(context.TODO(), discord.NewGatewayCommand(discord.GatewayOpcodeIdentify, identify)); err != nil {
+	if err := g.Send(context.TODO(), discord.GatewayOpcodeIdentify, identify); err != nil {
 		g.Logger().Error(g.formatLogs("error sending Identify command err: ", err))
 	}
 	g.status = StatusWaitingForReady
@@ -280,7 +285,7 @@ func (g *gatewayImpl) resume() {
 	}
 
 	g.Logger().Info(g.formatLogs("sending Resume command..."))
-	if err := g.Send(context.TODO(), discord.NewGatewayCommand(discord.GatewayOpcodeResume, resume)); err != nil {
+	if err := g.Send(context.TODO(), discord.GatewayOpcodeResume, resume); err != nil {
 		g.Logger().Error(g.formatLogs("error sending resume command err: ", err))
 	}
 }

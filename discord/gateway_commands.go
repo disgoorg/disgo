@@ -6,16 +6,6 @@ import (
 	"github.com/DisgoOrg/snowflake"
 )
 
-// NewGatewayCommand returns a new GatewayCommand struct with the given payload
-func NewGatewayCommand(op GatewayOpcode, d GatewayCommandData) GatewayCommand {
-	return GatewayCommand{
-		GatewayPayload: GatewayPayload{
-			Op: op,
-		},
-		D: d,
-	}
-}
-
 // GatewayCommand object is used when sending data to discord's websocket, it's recommended that you don't use these
 //goland:noinspection GoNameStartsWithPackageName
 type GatewayCommand struct {

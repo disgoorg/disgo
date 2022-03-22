@@ -34,11 +34,11 @@ type oAuth2ServiceImpl struct {
 	restClient Client
 }
 
-func (s *oAuth2ServiceImpl) botOrBearerToken(bearerToken string, opts []RequestOpt) []RequestOpt {
-	if bearerToken == "" {
-		return applyBotToken(s.RestClient().Config().BotTokenFunc(), opts)
+func withBearerToken(bearerToken string, opts []RequestOpt) []RequestOpt {
+	if bearerToken != "" {
+		return append(opts, WithToken(discord.TokenTypeBearer, bearerToken))
 	}
-	return applyBearerToken(bearerToken, opts)
+	return opts
 }
 
 func (s *oAuth2ServiceImpl) RestClient() Client {
@@ -61,7 +61,7 @@ func (s *oAuth2ServiceImpl) GetCurrentAuthorizationInfo(bearerToken string, opts
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &info, applyBearerToken(bearerToken, opts)...)
+	err = s.restClient.Do(compiledRoute, nil, &info, withBearerToken(bearerToken, opts)...)
 	return
 }
 
@@ -72,7 +72,7 @@ func (s *oAuth2ServiceImpl) GetCurrentUser(bearerToken string, opts ...RequestOp
 		return
 	}
 
-	err = s.restClient.Do(compiledRoute, nil, &user, s.botOrBearerToken(bearerToken, opts)...)
+	err = s.restClient.Do(compiledRoute, nil, &user, withBearerToken(bearerToken, opts)...)
 	return
 }
 
@@ -94,7 +94,7 @@ func (s *oAuth2ServiceImpl) GetCurrentUserGuilds(bearerToken string, before snow
 		return
 	}
 
-	err = s.restClient.Do(compiledRoute, nil, &guilds, s.botOrBearerToken(bearerToken, opts)...)
+	err = s.restClient.Do(compiledRoute, nil, &guilds, withBearerToken(bearerToken, opts)...)
 	return
 }
 
@@ -105,7 +105,7 @@ func (s *oAuth2ServiceImpl) GetCurrentUserConnections(bearerToken string, opts .
 		return
 	}
 
-	err = s.restClient.Do(compiledRoute, nil, &connections, s.botOrBearerToken(bearerToken, opts)...)
+	err = s.restClient.Do(compiledRoute, nil, &connections, withBearerToken(bearerToken, opts)...)
 	return
 }
 

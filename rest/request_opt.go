@@ -5,14 +5,25 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/DisgoOrg/disgo/discord"
 )
+
+func DefaultRequestConfig(rq *http.Request) *RequestConfig {
+	return &RequestConfig{
+		Request: rq,
+		Ctx:     context.TODO(),
+	}
+}
 
 // RequestConfig are additional options for the request
 type RequestConfig struct {
-	Request *http.Request
-	Ctx     context.Context
-	Checks  []Check
-	Delay   time.Duration
+	Request   *http.Request
+	Ctx       context.Context
+	Checks    []Check
+	Delay     time.Duration
+	TokenType discord.TokenType
+	Token     string
 }
 
 // Check is a function which gets executed right before a request is made
@@ -78,5 +89,13 @@ func WithQueryParam(param string, value any) RequestOpt {
 		values := config.Request.URL.Query()
 		values.Add(param, fmt.Sprint(value))
 		config.Request.URL.RawQuery = values.Encode()
+	}
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func WithToken(tokenType discord.TokenType, token string) RequestOpt {
+	return func(config *RequestConfig) {
+		config.TokenType = tokenType
+		config.Token = token
 	}
 }
