@@ -8,9 +8,7 @@ type ModalCreate struct {
 	Components []ContainerComponent `json:"components"`
 }
 
-func (ModalCreate) interactionCallbackData()          {}
-func (ModalCreate) commandInteractionCallbackData()   {}
-func (ModalCreate) componentInteractionCallbackData() {}
+func (ModalCreate) interactionCallbackData() {}
 
 // NewModalCreateBuilder creates a new ModalCreateBuilder to be built later
 //goland:noinspection GoUnusedExportedFunction

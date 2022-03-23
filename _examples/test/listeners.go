@@ -21,11 +21,11 @@ var listener = &events.ListenerAdapter{
 func modalListener(event *events.ModalSubmitInteractionEvent) {
 	switch event.Data.CustomID {
 	case "test1":
-		_ = event.Respond(discord.InteractionCallbackTypeCreateMessage, discord.MessageCreate{Content: event.Data.Text("test_input")})
+		_ = event.CreateMessage(discord.MessageCreate{Content: event.Data.Text("test_input")})
 
 	case "test2":
 		value := event.Data.Text("test_input")
-		_ = event.Respond(discord.InteractionCallbackTypeDeferredCreateMessage, nil)
+		_ = event.DeferCreateMessage(false)
 		go func() {
 			time.Sleep(time.Second * 5)
 			_, _ = event.Client().Rest().InteractionService().UpdateInteractionResponse(event.ApplicationID(), event.Token(), discord.MessageUpdate{Content: &value})
@@ -33,10 +33,10 @@ func modalListener(event *events.ModalSubmitInteractionEvent) {
 
 	case "test3":
 		value := event.Data.Text("test_input")
-		_ = event.Respond(discord.InteractionCallbackTypeUpdateMessage, discord.MessageUpdate{Content: &value})
+		_ = event.UpdateMessage(discord.MessageUpdate{Content: &value})
 
 	case "test4":
-		_ = event.Respond(discord.InteractionCallbackTypeDeferredUpdateMessage, nil)
+		_ = event.DeferUpdateMessage()
 	}
 }
 
@@ -46,7 +46,7 @@ func componentListener(event *events.ComponentInteractionEvent) {
 		ids := strings.Split(data.CustomID().String(), ":")
 		switch ids[0] {
 		case "modal":
-			_ = event.Respond(discord.InteractionCallbackTypeModal, discord.ModalCreate{
+			_ = event.CreateModal(discord.ModalCreate{
 				CustomID: discord.CustomID("test" + ids[1]),
 				Title:    "Test" + ids[1] + " Modal",
 				Components: []discord.ContainerComponent{
@@ -64,19 +64,19 @@ func componentListener(event *events.ComponentInteractionEvent) {
 			})
 
 		case "test1":
-			_ = event.Respond(discord.InteractionCallbackTypeDeferredCreateMessage, discord.NewMessageCreateBuilder().
+			_ = event.CreateMessage(discord.NewMessageCreateBuilder().
 				SetContent(data.CustomID().String()).
 				Build(),
 			)
 
 		case "test2":
-			_ = event.Respond(discord.InteractionCallbackTypeDeferredCreateMessage, nil)
+			_ = event.DeferCreateMessage(false)
 
 		case "test3":
-			_ = event.Respond(discord.InteractionCallbackTypeDeferredUpdateMessage, nil)
+			_ = event.DeferUpdateMessage()
 
 		case "test4":
-			_ = event.Respond(discord.InteractionCallbackTypeUpdateMessage, discord.NewMessageUpdateBuilder().
+			_ = event.UpdateMessage(discord.NewMessageUpdateBuilder().
 				SetContent(data.CustomID().String()).
 				Build(),
 			)
@@ -85,7 +85,7 @@ func componentListener(event *events.ComponentInteractionEvent) {
 	case discord.SelectMenuInteractionData:
 		switch data.CustomID() {
 		case "test3":
-			if err := event.Respond(discord.InteractionCallbackTypeDeferredUpdateMessage, nil); err != nil {
+			if err := event.DeferUpdateMessage(); err != nil {
 				log.Errorf("error sending interaction response: %s", err)
 			}
 			_, _ = event.Client().Rest().InteractionService().CreateFollowupMessage(event.ApplicationID(), event.Token(), discord.NewMessageCreateBuilder().
@@ -101,7 +101,7 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionEvent
 	data := event.SlashCommandInteractionData()
 	switch data.CommandName() {
 	case "locale":
-		err := event.Respond(discord.InteractionCallbackTypeCreateMessage, discord.NewMessageCreateBuilder().
+		err := event.CreateMessage(discord.NewMessageCreateBuilder().
 			SetContentf("Guild Locale: %s\nLocale: %s", event.GuildLocale(), event.Locale()).
 			Build(),
 		)
@@ -110,7 +110,7 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionEvent
 		}
 
 	case "say":
-		_ = event.Respond(discord.InteractionCallbackTypeCreateMessage, discord.NewMessageCreateBuilder().
+		_ = event.CreateMessage(discord.NewMessageCreateBuilder().
 			SetContent(data.String("message")).
 			SetEphemeral(data.Bool("ephemeral")).
 			ClearAllowedMentions().
@@ -118,7 +118,7 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionEvent
 		)
 
 	case "test":
-		_ = event.Respond(discord.InteractionCallbackTypeCreateMessage, discord.NewMessageCreateBuilder().
+		_ = event.CreateMessage(discord.NewMessageCreateBuilder().
 			SetContent("test").
 			AddActionRow(
 				discord.NewPrimaryButton("test1", "modal:1"),

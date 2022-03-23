@@ -34,21 +34,6 @@ type InteractionCallbackData interface {
 	interactionCallbackData()
 }
 
-type ComponentInteractionCallbackData interface {
-	InteractionCallbackData
-	componentInteractionCallbackData()
-}
-
-type CommandInteractionCallbackData interface {
-	InteractionCallbackData
-	commandInteractionCallbackData()
-}
-
-type ModalInteractionCallbackData interface {
-	InteractionCallbackData
-	modalInteractionCallbackData()
-}
-
 type InteractionResponseCreator interface {
 	ToResponseBody(response InteractionResponse) (any, error)
 }

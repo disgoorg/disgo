@@ -41,7 +41,7 @@ func main() {
 			},
 			OnComponentInteraction: func(event *events.ComponentInteractionEvent) {
 				if event.ButtonInteractionData().CustomID() == "danger" {
-					_, _ = event.Client().Rest().ChannelService().CreateMessage(event.ChannelID(), discord.NewMessageCreateBuilder().SetEphemeral(true).SetContent("Ey that was danger").Build())
+					_ = event.CreateMessage(discord.NewMessageCreateBuilder().SetEphemeral(true).SetContent("Ey that was danger").Build())
 				}
 			},
 		}),

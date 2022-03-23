@@ -16,10 +16,7 @@ type MessageCreate struct {
 	Flags            MessageFlags          `json:"flags,omitempty"`
 }
 
-func (MessageCreate) interactionCallbackData()          {}
-func (MessageCreate) componentInteractionCallbackData() {}
-func (MessageCreate) commandInteractionCallbackData()   {}
-func (m MessageCreate) modalInteractionCallbackData()   {}
+func (MessageCreate) interactionCallbackData() {}
 
 // ToBody returns the MessageCreate ready for body
 func (m MessageCreate) ToBody() (any, error) {

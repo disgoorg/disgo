@@ -11,9 +11,7 @@ type MessageUpdate struct {
 	Flags           *MessageFlags         `json:"flags,omitempty"`
 }
 
-func (MessageUpdate) interactionCallbackData()          {}
-func (MessageUpdate) componentInteractionCallbackData() {}
-func (m MessageUpdate) modalInteractionCallbackData()   {}
+func (MessageUpdate) interactionCallbackData() {}
 
 // ToBody returns the MessageUpdate ready for body
 func (m MessageUpdate) ToBody() (any, error) {

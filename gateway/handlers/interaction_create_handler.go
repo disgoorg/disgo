@@ -4,6 +4,7 @@ import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/rest"
 )
 
 // gatewayHandlerInteractionCreate handles core.InteractionCreateGatewayEvent
@@ -24,12 +25,18 @@ func (h *gatewayHandlerInteractionCreate) HandleGatewayEvent(client bot.Client, 
 	HandleInteraction(client, sequenceNumber, nil, (*v.(*discord.UnmarshalInteraction)).Interaction)
 }
 
-func respond(client bot.Client, c chan<- discord.InteractionResponse, interaction discord.BaseInteraction, response discord.InteractionResponse) error {
-	if c != nil {
-		c <- response
-		return nil
+func respond(client bot.Client, c chan<- discord.InteractionResponse, interaction discord.BaseInteraction) events.InteractionResponderFunc {
+	return func(callbackType discord.InteractionCallbackType, data discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
+		response := discord.InteractionResponse{
+			Type: callbackType,
+			Data: data,
+		}
+		if c != nil {
+			c <- response
+			return nil
+		}
+		return client.Rest().InteractionService().CreateInteractionResponse(interaction.ID(), interaction.Token(), response, opts...)
 	}
-	return client.Rest().InteractionService().CreateInteractionResponse(interaction.ID(), interaction.Token(), response)
 }
 
 func HandleInteraction(client bot.Client, sequenceNumber discord.GatewaySequence, c chan<- discord.InteractionResponse, interaction discord.Interaction) {
@@ -39,60 +46,36 @@ func HandleInteraction(client bot.Client, sequenceNumber discord.GatewaySequence
 	client.EventManager().Dispatch(&events.InteractionEvent{
 		GenericEvent: genericEvent,
 		Interaction:  interaction,
-		Respond: func(callbackType discord.InteractionCallbackType, data discord.InteractionCallbackData) error {
-			return respond(client, c, interaction, discord.InteractionResponse{
-				Type: callbackType,
-				Data: data,
-			})
-		}})
+		Respond:      respond(client, c, interaction),
+	})
 
 	switch i := interaction.(type) {
 	case discord.ApplicationCommandInteraction:
 		client.EventManager().Dispatch(&events.ApplicationCommandInteractionEvent{
 			GenericEvent:                  genericEvent,
 			ApplicationCommandInteraction: i,
-			Respond: func(callbackType discord.InteractionCallbackType, data discord.CommandInteractionCallbackData) error {
-				return respond(client, c, interaction, discord.InteractionResponse{
-					Type: callbackType,
-					Data: data,
-				})
-			},
+			Respond:                       respond(client, c, interaction),
 		})
 
 	case discord.ComponentInteraction:
 		client.EventManager().Dispatch(&events.ComponentInteractionEvent{
 			GenericEvent:         genericEvent,
 			ComponentInteraction: i,
-			Respond: func(callbackType discord.InteractionCallbackType, data discord.ComponentInteractionCallbackData) error {
-				return respond(client, c, interaction, discord.InteractionResponse{
-					Type: callbackType,
-					Data: data,
-				})
-			},
+			Respond:              respond(client, c, interaction),
 		})
 
 	case discord.AutocompleteInteraction:
 		client.EventManager().Dispatch(&events.AutocompleteInteractionEvent{
 			GenericEvent:            genericEvent,
 			AutocompleteInteraction: i,
-			Respond: func(data discord.AutocompleteResult) error {
-				return respond(client, c, interaction, discord.InteractionResponse{
-					Type: discord.InteractionCallbackTypeApplicationCommandAutocompleteResult,
-					Data: data,
-				})
-			},
+			Respond:                 respond(client, c, interaction),
 		})
 
 	case discord.ModalSubmitInteraction:
 		client.EventManager().Dispatch(&events.ModalSubmitInteractionEvent{
 			GenericEvent:           genericEvent,
 			ModalSubmitInteraction: i,
-			Respond: func(callbackType discord.InteractionCallbackType, data discord.ModalInteractionCallbackData) error {
-				return respond(client, c, interaction, discord.InteractionResponse{
-					Type: callbackType,
-					Data: data,
-				})
-			},
+			Respond:                respond(client, c, interaction),
 		})
 
 	default:
