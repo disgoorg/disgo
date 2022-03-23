@@ -3,7 +3,6 @@ package webhook
 import (
 	"context"
 
-	"github.com/DisgoOrg/log"
 	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest"
@@ -13,22 +12,8 @@ import (
 // NewClient returns a new Client
 //goland:noinspection GoUnusedExportedFunction
 func NewClient(id snowflake.Snowflake, token string, opts ...ConfigOpt) Client {
-	config := &DefaultConfig
+	config := DefaultConfig()
 	config.Apply(opts)
-
-	if config.Logger == nil {
-		config.Logger = log.Default()
-	}
-
-	if config.WebhookService == nil {
-		if config.RestClient == nil {
-			config.RestClient = rest.NewClient(config.RestClientConfig)
-		}
-		config.WebhookService = rest.NewWebhookService(config.RestClient)
-	}
-	if config.DefaultAllowedMentions == nil {
-		config.DefaultAllowedMentions = &discord.DefaultAllowedMentions
-	}
 
 	return &ClientImpl{
 		id:     id,
@@ -56,11 +41,6 @@ func (c *ClientImpl) Token() string {
 func (c *ClientImpl) URL() string {
 	compiledRoute, _ := route.GetWebhook.Compile(nil, c.ID, c.Token)
 	return compiledRoute.URL()
-}
-
-// Config returns the configured Config
-func (c *ClientImpl) Config() Config {
-	return c.config
 }
 
 // Close closes all connections the webhook client has open

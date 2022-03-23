@@ -7,10 +7,12 @@ import (
 )
 
 // DefaultStateControllerConfig is the default configuration for the StateController
-var DefaultStateControllerConfig = StateControllerConfig{
-	States:       map[string]string{},
-	NewStateFunc: func() string { return insecurerandstr.RandStr(32) },
-	MaxTTL:       time.Hour,
+func DefaultStateControllerConfig() *StateControllerConfig {
+	return &StateControllerConfig{
+		States:       map[string]string{},
+		NewStateFunc: func() string { return insecurerandstr.RandStr(32) },
+		MaxTTL:       time.Hour,
+	}
 }
 
 // StateControllerConfig is the configuration for the StateController

@@ -15,8 +15,6 @@ type Client interface {
 	Token() string
 	// URL returns the full Webhook URL
 	URL() string
-	// Config returns the configured Config
-	Config() Config
 	// Close closes all connections the Webhook Client has open
 	Close(ctx context.Context)
 	// WebhookService returns the underlying rest.WebhookService

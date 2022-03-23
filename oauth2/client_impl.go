@@ -3,7 +3,6 @@ package oauth2
 import (
 	"time"
 
-	"github.com/DisgoOrg/log"
 	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest"
@@ -12,25 +11,8 @@ import (
 
 // New returns a new OAuth2 client
 func New(id snowflake.Snowflake, secret string, opts ...ConfigOpt) Client {
-	config := &DefaultConfig
+	config := DefaultConfig()
 	config.Apply(opts)
-
-	if config.Logger == nil {
-		config.Logger = log.Default()
-	}
-
-	if config.RestClient == nil {
-		config.RestClient = rest.NewClient(config.RestClientConfig)
-	}
-	if config.OAuth2Service == nil {
-		config.OAuth2Service = rest.NewOAuth2Service(config.RestClient)
-	}
-	if config.SessionController == nil {
-		config.SessionController = NewSessionController()
-	}
-	if config.StateController == nil {
-		config.StateController = NewStateController(config.StateControllerConfig)
-	}
 
 	return &ClientImpl{id: id, secret: secret, config: *config}
 }
@@ -50,11 +32,6 @@ func (c *ClientImpl) ID() snowflake.Snowflake {
 // Secret returns the configured client secret
 func (c *ClientImpl) Secret() string {
 	return c.secret
-}
-
-// Config returns the configured Config
-func (c *ClientImpl) Config() Config {
-	return c.config
 }
 
 // SessionController returns the configured SessionController

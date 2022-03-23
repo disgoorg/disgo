@@ -6,19 +6,19 @@ import (
 )
 
 // DefaultConfig is the configuration which is used by default
-var DefaultConfig = Config{
-	RestClientConfig: &rest.DefaultConfig,
+func DefaultConfig() *Config {
+	return &Config{}
 }
 
 // Config is the configuration for the OAuth2 client
 type Config struct {
-	Logger                log.Logger
-	RestClient            rest.Client
-	RestClientConfig      *rest.Config
-	OAuth2Service         rest.OAuth2Service
-	SessionController     SessionController
-	StateControllerConfig *StateControllerConfig
-	StateController       StateController
+	Logger                    log.Logger
+	RestClient                rest.Client
+	RestClientConfigOpts      []rest.ConfigOpt
+	OAuth2Service             rest.OAuth2Service
+	SessionController         SessionController
+	StateControllerConfigOpts []StateControllerConfigOpt
+	StateController           StateController
 }
 
 // ConfigOpt can be used to supply optional parameters to New
@@ -47,22 +47,11 @@ func WithRestClient(restClient rest.Client) ConfigOpt {
 	}
 }
 
-// WithRestClientConfig applies a custom rest.Config to the OAuth2 client
-//goland:noinspection GoUnusedExportedFunction
-func WithRestClientConfig(restConfig rest.Config) ConfigOpt {
-	return func(config *Config) {
-		config.RestClientConfig = &restConfig
-	}
-}
-
 // WithRestClientConfigOpts applies rest.ConfigOpt for the rest.Client to the OAuth2 client
 //goland:noinspection GoUnusedExportedFunction
 func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
-		if config.RestClientConfig == nil {
-			config.RestClientConfig = &rest.DefaultConfig
-		}
-		config.RestClientConfig.Apply(opts)
+		config.RestClientConfigOpts = append(config.RestClientConfigOpts, opts...)
 	}
 }
 
@@ -94,9 +83,6 @@ func WithStateController(stateController StateController) ConfigOpt {
 //goland:noinspection GoUnusedExportedFunction
 func WithStateControllerOpts(opts ...StateControllerConfigOpt) ConfigOpt {
 	return func(config *Config) {
-		if config.StateControllerConfig == nil {
-			config.StateControllerConfig = &DefaultStateControllerConfig
-		}
-		config.StateControllerConfig.Apply(opts)
+		config.StateControllerConfigOpts = append(config.StateControllerConfigOpts, opts...)
 	}
 }

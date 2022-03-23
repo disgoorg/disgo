@@ -25,7 +25,6 @@ type Client interface {
 	// Secret returns the configured client secret
 	Secret() string
 	// Config returns the configured Config
-	Config() Config
 
 	// SessionController returns the configured SessionController
 	SessionController() SessionController

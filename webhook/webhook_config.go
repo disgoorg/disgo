@@ -8,16 +8,18 @@ import (
 
 // DefaultConfig is the default configuration for the webhook client
 //goland:noinspection GoUnusedGlobalVariable
-var DefaultConfig = Config{
-	RestClientConfig:       &rest.DefaultConfig,
-	DefaultAllowedMentions: &discord.DefaultAllowedMentions,
+func DefaultConfig() *Config {
+	return &Config{
+		Logger:                 log.Default(),
+		DefaultAllowedMentions: &discord.DefaultAllowedMentions,
+	}
 }
 
 // Config is the configuration for the webhook client
 type Config struct {
 	Logger                 log.Logger
 	RestClient             rest.Client
-	RestClientConfig       *rest.Config
+	RestClientConfigOpts   []rest.ConfigOpt
 	WebhookService         rest.WebhookService
 	DefaultAllowedMentions *discord.AllowedMentions
 }
@@ -52,10 +54,7 @@ func WithRestClient(restClient rest.Client) ConfigOpt {
 //goland:noinspection GoUnusedExportedFunction
 func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
-		if config.RestClientConfig == nil {
-			config.RestClientConfig = &rest.DefaultConfig
-		}
-		config.RestClientConfig.Apply(opts)
+		config.RestClientConfigOpts = append(config.RestClientConfigOpts, opts...)
 	}
 }
 
