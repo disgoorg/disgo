@@ -65,8 +65,8 @@ func (d *rawAutocompleteInteractionData) UnmarshalJSON(data []byte) error {
 }
 
 type AutocompleteInteractionData struct {
-	ID                  snowflake.Snowflake
-	Name                string
+	CommandID           snowflake.Snowflake
+	CommandName         string
 	SubCommandName      *string
 	SubCommandGroupName *string
 	Options             map[string]AutocompleteOption
@@ -78,8 +78,8 @@ func (d *AutocompleteInteractionData) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &iData); err != nil {
 		return err
 	}
-	d.ID = iData.ID
-	d.Name = iData.Name
+	d.CommandID = iData.ID
+	d.CommandName = iData.Name
 
 	d.Options = make(map[string]AutocompleteOption)
 	if len(iData.Options) > 0 {
@@ -136,8 +136,8 @@ func (d AutocompleteInteractionData) MarshalJSON() ([]byte, error) {
 	}
 
 	return json.Marshal(rawAutocompleteInteractionData{
-		ID:      d.ID,
-		Name:    d.Name,
+		ID:      d.CommandID,
+		Name:    d.CommandName,
 		Options: options,
 	})
 }
