@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/DisgoOrg/log"
 	"github.com/disgoorg/disgo/rest/rrate"
+	"github.com/disgoorg/log"
 )
 
 // DefaultConfig is the configuration which is used by default

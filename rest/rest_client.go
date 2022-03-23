@@ -11,10 +11,10 @@ import (
 	"github.com/disgoorg/disgo/json"
 	"github.com/pkg/errors"
 
-	"github.com/DisgoOrg/log"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/disgo/rest/rrate"
+	"github.com/disgoorg/log"
 )
 
 // NewClient constructs a new Client with the given Config struct

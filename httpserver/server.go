@@ -8,8 +8,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/DisgoOrg/log"
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/log"
 )
 
 type EventHandlerFunc func(responseChannel chan<- discord.InteractionResponse, payload io.Reader)

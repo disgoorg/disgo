@@ -1,8 +1,8 @@
 package discord
 
 import (
-	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/snowflake"
 )
 
 // AuditLogEvent is an 8-bit unsigned integer representing an audit log event.

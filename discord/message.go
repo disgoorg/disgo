@@ -1,8 +1,8 @@
 package discord
 
 import (
-	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/snowflake"
 )
 
 // The MessageType indicates the Message type

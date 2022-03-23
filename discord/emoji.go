@@ -1,8 +1,8 @@
 package discord
 
 import (
-	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo/rest/route"
+	"github.com/disgoorg/snowflake"
 )
 
 var _ Mentionable = (*Emoji)(nil)

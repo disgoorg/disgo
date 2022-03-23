@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/DisgoOrg/log"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/log"
 )
 
 var listener = &events.ListenerAdapter{

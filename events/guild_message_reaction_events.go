@@ -1,8 +1,8 @@
 package events
 
 import (
-	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/snowflake"
 )
 
 // GenericGuildMessageReactionEvent is called upon receiving GuildMessageReactionAddEvent or GuildMessageReactionRemoveEvent

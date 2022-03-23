@@ -4,8 +4,8 @@ import (
 	"encoding/base64"
 	"strings"
 
-	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/snowflake"
 )
 
 // IDFromToken returns the applicationID from the token

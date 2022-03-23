@@ -7,13 +7,13 @@ import (
 	"os"
 	"time"
 
-	"github.com/DisgoOrg/log"
-	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/disgo/oauth2"
 	"github.com/disgoorg/disgo/rest"
+	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake"
 )
 
 var (

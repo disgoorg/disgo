@@ -1,9 +1,9 @@
 package sharding
 
 import (
-	"github.com/DisgoOrg/log"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/sharding/srate"
+	"github.com/disgoorg/log"
 )
 
 //goland:noinspection GoUnusedGlobalVariable

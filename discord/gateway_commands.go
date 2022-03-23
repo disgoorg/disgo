@@ -3,7 +3,7 @@ package discord
 import (
 	"time"
 
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/snowflake"
 )
 
 // GatewayCommand object is used when sending data to discord's websocket, it's recommended that you don't use these

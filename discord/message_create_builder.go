@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/snowflake"
 )
 
 // MessageCreateBuilder helper to build Message(s) easier

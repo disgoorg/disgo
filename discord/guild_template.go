@@ -1,6 +1,6 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import "github.com/disgoorg/snowflake"
 
 // GuildTemplate is a template used for copying guilds https://discord.com/developers/docs/resources/guild-template
 type GuildTemplate struct {

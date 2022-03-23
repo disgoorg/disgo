@@ -11,8 +11,8 @@ import (
 
 	"github.com/disgoorg/disgo/json"
 
-	"github.com/DisgoOrg/log"
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/log"
 )
 
 var _ Server = (*serverImpl)(nil)

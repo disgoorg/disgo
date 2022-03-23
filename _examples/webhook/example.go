@@ -6,12 +6,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/DisgoOrg/log"
-	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/webhook"
+	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake"
 )
 
 var (

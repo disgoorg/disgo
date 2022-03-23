@@ -5,10 +5,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/DisgoOrg/log"
-	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo/gateway"
 	srate2 "github.com/disgoorg/disgo/sharding/srate"
+	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake"
 )
 
 var _ ShardManager = (*shardManagerImpl)(nil)

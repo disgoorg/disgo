@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/DisgoOrg/log"
 	"github.com/disgoorg/disgo/rest/route"
+	"github.com/disgoorg/log"
 )
 
 // Limiter can be used to supply your own rate limit implementation

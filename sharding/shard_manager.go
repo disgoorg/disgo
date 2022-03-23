@@ -3,10 +3,10 @@ package sharding
 import (
 	"context"
 
-	"github.com/DisgoOrg/log"
-	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/sharding/srate"
+	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake"
 )
 
 type ShardManager interface {

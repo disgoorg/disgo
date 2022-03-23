@@ -3,8 +3,8 @@ package discord
 import (
 	"time"
 
-	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/snowflake"
 )
 
 // GatewayPayload raw GatewayEvent type

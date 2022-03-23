@@ -5,8 +5,8 @@ import (
 	"io"
 	"time"
 
-	"github.com/DisgoOrg/log"
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/log"
 )
 
 // Status is the state that the client is currently in

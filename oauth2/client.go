@@ -3,7 +3,7 @@ package oauth2
 import (
 	"fmt"
 
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/snowflake"
 	"github.com/pkg/errors"
 
 	"github.com/disgoorg/disgo/discord"

@@ -3,7 +3,6 @@ package bot
 import (
 	"fmt"
 
-	"github.com/DisgoOrg/log"
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
@@ -11,6 +10,7 @@ import (
 	"github.com/disgoorg/disgo/internal/tokenhelper"
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/sharding"
+	"github.com/disgoorg/log"
 	"github.com/pkg/errors"
 )
 

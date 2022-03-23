@@ -3,10 +3,10 @@ package webhook
 import (
 	"context"
 
-	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/rest/route"
+	"github.com/disgoorg/snowflake"
 )
 
 // NewClient returns a new Client

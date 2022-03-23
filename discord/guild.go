@@ -1,9 +1,9 @@
 package discord
 
 import (
-	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/disgo/rest/route"
+	"github.com/disgoorg/snowflake"
 )
 
 // PremiumTier tells you the boost level of a Guild

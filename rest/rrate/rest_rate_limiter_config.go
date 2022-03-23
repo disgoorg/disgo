@@ -1,7 +1,7 @@
 package rrate
 
 import (
-	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/log"
 )
 
 // DefaultConfig is the configuration which is used by default

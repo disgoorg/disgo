@@ -1,8 +1,8 @@
 package discord
 
 import (
-	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/snowflake"
 )
 
 var _ Interaction = (*PingInteraction)(nil)

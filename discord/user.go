@@ -3,9 +3,9 @@ package discord
 import (
 	"strconv"
 
-	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/disgo/rest/route"
+	"github.com/disgoorg/snowflake"
 )
 
 // UserFlags defines certain flags/badges a user can have (https://discord.com/developers/docs/resources/user#user-object-user-flags)

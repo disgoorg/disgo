@@ -3,7 +3,7 @@ package cache
 import (
 	"sync"
 
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/snowflake"
 )
 
 type FilterFunc[T any] func(T) bool

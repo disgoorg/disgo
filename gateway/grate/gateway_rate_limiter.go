@@ -3,7 +3,7 @@ package grate
 import (
 	"context"
 
-	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/log"
 )
 
 type Limiter interface {

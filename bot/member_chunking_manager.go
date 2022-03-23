@@ -4,9 +4,9 @@ import (
 	"context"
 	"sync"
 
-	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/internal/insecurerandstr"
+	"github.com/disgoorg/snowflake"
 )
 
 var _ MemberChunkingManager = (*memberChunkingManagerImpl)(nil)

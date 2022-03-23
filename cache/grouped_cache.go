@@ -3,7 +3,7 @@ package cache
 import (
 	"sync"
 
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/snowflake"
 )
 
 type GroupedCacheFilterFunc[T any] func(groupID snowflake.Snowflake, entity T) bool

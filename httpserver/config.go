@@ -3,7 +3,7 @@ package httpserver
 import (
 	"net/http"
 
-	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/log"
 )
 
 //goland:noinspection GoUnusedGlobalVariable

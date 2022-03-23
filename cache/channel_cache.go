@@ -1,8 +1,8 @@
 package cache
 
 import (
-	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/snowflake"
 )
 
 func NewChannelCache(flags Flags, neededFlags Flags, policy Policy[discord.Channel]) ChannelCache {

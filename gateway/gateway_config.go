@@ -1,9 +1,9 @@
 package gateway
 
 import (
-	"github.com/DisgoOrg/log"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway/grate"
+	"github.com/disgoorg/log"
 )
 
 //goland:noinspection GoUnusedGlobalVariable

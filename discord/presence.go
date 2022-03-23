@@ -1,6 +1,6 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import "github.com/disgoorg/snowflake"
 
 // Presence (https://discord.com/developers/docs/topics/gateway#presence-update)
 type Presence struct {

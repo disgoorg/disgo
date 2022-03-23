@@ -3,14 +3,14 @@ package bot
 import (
 	"context"
 
-	"github.com/DisgoOrg/log"
-	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/httpserver"
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/sharding"
+	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake"
 )
 
 var _ Client = (*clientImpl)(nil)

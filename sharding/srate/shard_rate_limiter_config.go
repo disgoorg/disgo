@@ -1,7 +1,7 @@
 package srate
 
 import (
-	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/log"
 )
 
 func DefaultConfig() *Config {

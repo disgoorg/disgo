@@ -3,8 +3,8 @@ package cache
 import (
 	"sync"
 
-	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/snowflake"
 )
 
 func NewGuildCache(flags Flags, neededFlags Flags, policy Policy[discord.Guild]) GuildCache {

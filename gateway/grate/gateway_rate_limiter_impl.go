@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/log"
 	"github.com/sasha-s/go-csync"
 )
 

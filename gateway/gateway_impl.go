@@ -10,11 +10,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/DisgoOrg/log"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/internal/tokenhelper"
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/disgo/rest/route"
+	"github.com/disgoorg/log"
 	"github.com/pkg/errors"
 
 	"github.com/gorilla/websocket"

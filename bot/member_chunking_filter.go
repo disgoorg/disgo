@@ -1,6 +1,6 @@
 package bot
 
-import "github.com/DisgoOrg/snowflake"
+import "github.com/disgoorg/snowflake"
 
 type MemberChunkingFilter func(guildID snowflake.Snowflake) bool
 

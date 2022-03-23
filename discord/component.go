@@ -3,8 +3,8 @@ package discord
 import (
 	"fmt"
 
-	"github.com/DisgoOrg/snowflake"
 	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/snowflake"
 )
 
 // ComponentType defines different Component(s)
