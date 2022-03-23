@@ -17,15 +17,14 @@ func DefaultConfig() *Config {
 }
 
 type Config struct {
-	Logger           log.Logger
-	HTTPServer       *http.Server
-	ServeMux         *http.ServeMux
-	EventHandlerFunc EventHandlerFunc
-	URL              string
-	Address          string
-	PublicKey        string
-	CertFile         string
-	KeyFile          string
+	Logger     log.Logger
+	HTTPServer *http.Server
+	ServeMux   *http.ServeMux
+	URL        string
+	Address    string
+	PublicKey  string
+	CertFile   string
+	KeyFile    string
 }
 
 type ConfigOpt func(config *Config)
@@ -40,13 +39,6 @@ func (c *Config) Apply(opts []ConfigOpt) {
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
-	}
-}
-
-//goland:noinspection GoUnusedExportedFunction
-func WithEventHandlerFunc(eventHandlerFunc EventHandlerFunc) ConfigOpt {
-	return func(config *Config) {
-		config.EventHandlerFunc = eventHandlerFunc
 	}
 }
 

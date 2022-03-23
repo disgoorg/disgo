@@ -12,7 +12,7 @@ const (
 	InteractionCallbackTypeDeferredCreateMessage
 	InteractionCallbackTypeDeferredUpdateMessage
 	InteractionCallbackTypeUpdateMessage
-	InteractionCallbackTypeAutocompleteResult
+	InteractionCallbackTypeApplicationCommandAutocompleteResult
 	InteractionCallbackTypeModal
 )
 

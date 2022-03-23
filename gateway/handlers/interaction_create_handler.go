@@ -77,7 +77,7 @@ func HandleInteraction(client bot.Client, sequenceNumber discord.GatewaySequence
 			AutocompleteInteraction: i,
 			Respond: func(data discord.AutocompleteResult) error {
 				return respond(client, c, interaction, discord.InteractionResponse{
-					Type: discord.InteractionCallbackTypeAutocompleteResult,
+					Type: discord.InteractionCallbackTypeApplicationCommandAutocompleteResult,
 					Data: data,
 				})
 			},

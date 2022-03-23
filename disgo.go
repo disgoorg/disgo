@@ -52,13 +52,17 @@ func New(token string, opts ...bot.ConfigOpt) (bot.Client, error) {
 	config := bot.DefaultConfig(handlers.GetGatewayHandlers(), handlers.GetHTTPServerHandler())
 	config.Apply(opts)
 
-	return bot.BuildClient(token, *config,
+	return bot.BuildClient(token,
+		*config,
 		func(client bot.Client) gateway.EventHandlerFunc {
 			return handlers.DefaultGatewayEventHandler(client)
 		},
 		func(client bot.Client) httpserver.EventHandlerFunc {
 			return handlers.DefaultHTTPServerEventHandler(client)
 		},
-		OS, Name, GitHub, Version,
+		OS,
+		Name,
+		GitHub,
+		Version,
 	)
 }

@@ -101,6 +101,13 @@ func WithEventManagerConfigOpts(opts ...EventManagerConfigOpt) ConfigOpt {
 }
 
 //goland:noinspection GoUnusedExportedFunction
+func WithEventListeners(eventListeners ...EventListener) ConfigOpt {
+	return func(config *Config) {
+		config.EventManagerConfigOpts = append(config.EventManagerConfigOpts, WithListeners(eventListeners...))
+	}
+}
+
+//goland:noinspection GoUnusedExportedFunction
 func WithGateway(gateway gateway.Gateway) ConfigOpt {
 	return func(config *Config) {
 		config.Gateway = gateway
@@ -179,7 +186,8 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 		return nil, errors.Wrap(err, "error while getting application id from token")
 	}
 	client := &clientImpl{
-		token: token,
+		token:  token,
+		logger: config.Logger,
 	}
 
 	// TODO: figure out how we handle different application & client ids
@@ -188,7 +196,10 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 
 	if config.RestClient == nil {
 		// prepend standard user-agent. this can be overridden as it's appended to the front of the slice
-		config.RestClientConfigOpts = append([]rest.ConfigOpt{rest.WithUserAgent(fmt.Sprintf("DiscordBot (%s, %s)", github, version))}, config.RestClientConfigOpts...)
+		config.RestClientConfigOpts = append([]rest.ConfigOpt{
+			rest.WithUserAgent(fmt.Sprintf("DiscordBot (%s, %s)", github, version)),
+			rest.WithLogger(client.logger),
+		}, config.RestClientConfigOpts...)
 
 		config.RestClient = rest.NewClient(client.token, config.RestClientConfigOpts...)
 	}
@@ -210,9 +221,12 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 			return nil, err
 		}
 
-		config.GatewayConfigOpts = append([]gateway.ConfigOpt{gateway.WithGatewayURL(gatewayRs.URL)}, config.GatewayConfigOpts...)
+		config.GatewayConfigOpts = append([]gateway.ConfigOpt{
+			gateway.WithGatewayURL(gatewayRs.URL),
+			gateway.WithLogger(client.logger),
+		}, config.GatewayConfigOpts...)
 
-		config.Gateway = gateway.New(token, config.GatewayConfigOpts...)
+		config.Gateway = gateway.New(token, gatewayEventHandlerFunc(client), config.GatewayConfigOpts...)
 	}
 	client.gateway = config.Gateway
 
@@ -231,17 +245,23 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 		config.ShardManagerConfigOpts = append([]sharding.ConfigOpt{
 			sharding.WithShardCount(gatewayBotRs.Shards),
 			sharding.WithShards(shardIDs...),
-			sharding.WithGatewayConfigOpts(gateway.WithGatewayURL(gatewayBotRs.URL), gateway.WithEventHandlerFunc(gatewayEventHandlerFunc(client))),
+			sharding.WithGatewayConfigOpts(
+				gateway.WithGatewayURL(gatewayBotRs.URL),
+				gateway.WithLogger(client.logger),
+			),
+			sharding.WithLogger(client.logger),
 		}, config.ShardManagerConfigOpts...)
 
-		config.ShardManager = sharding.New(token, config.ShardManagerConfigOpts...)
+		config.ShardManager = sharding.New(token, gatewayEventHandlerFunc(client), config.ShardManagerConfigOpts...)
 	}
 	client.shardManager = config.ShardManager
 
 	if config.HTTPServer == nil && config.HTTPServerConfigOpts != nil {
-		config.HTTPServerConfigOpts = append([]httpserver.ConfigOpt{httpserver.WithEventHandlerFunc(httpServerEventHandlerFunc(client))}, config.HTTPServerConfigOpts...)
+		config.HTTPServerConfigOpts = append([]httpserver.ConfigOpt{
+			httpserver.WithLogger(client.logger),
+		}, config.HTTPServerConfigOpts...)
 
-		config.HTTPServer = httpserver.New(config.HTTPServerConfigOpts...)
+		config.HTTPServer = httpserver.New(httpServerEventHandlerFunc(client), config.HTTPServerConfigOpts...)
 	}
 	client.httpServer = config.HTTPServer
 

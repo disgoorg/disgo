@@ -21,7 +21,6 @@ func DefaultConfig() *Config {
 
 type Config struct {
 	Logger                log.Logger
-	EventHandlerFunc      EventHandlerFunc
 	LargeThreshold        int
 	GatewayIntents        discord.GatewayIntents
 	Compress              bool
@@ -46,6 +45,16 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
+	if c.RateLimiter == nil {
+		c.RateLimiter = grate.NewLimiter(c.RateLimiterConfigOpts...)
+	}
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func WithLogger(logger log.Logger) ConfigOpt {
+	return func(config *Config) {
+		config.Logger = logger
+	}
 }
 
 //goland:noinspection GoUnusedExportedFunction
@@ -63,13 +72,6 @@ func WithGatewayIntents(gatewayIntents ...discord.GatewayIntents) ConfigOpt {
 			intents = intents.Add(intent)
 		}
 		config.GatewayIntents = intents
-	}
-}
-
-//goland:noinspection GoUnusedExportedFunction
-func WithEventHandlerFunc(eventHandlerFunc EventHandlerFunc) ConfigOpt {
-	return func(config *Config) {
-		config.EventHandlerFunc = eventHandlerFunc
 	}
 }
 

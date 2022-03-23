@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/DisgoOrg/disgo/bot"
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/events"
 	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/events"
 )
 
 var listener = &events.ListenerAdapter{
@@ -102,7 +102,7 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionEvent
 	switch data.CommandName() {
 	case "locale":
 		err := event.Respond(discord.InteractionCallbackTypeCreateMessage, discord.NewMessageCreateBuilder().
-			SetContentf("Guild Locale: %s\nLocale: %s", event.GuildLocale, event.Locale).
+			SetContentf("Guild Locale: %s\nLocale: %s", event.GuildLocale(), event.Locale()).
 			Build(),
 		)
 		if err != nil {

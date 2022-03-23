@@ -5,8 +5,11 @@ import (
 )
 
 // DefaultConfig is the configuration which is used by default
-var DefaultConfig = Config{
-	MaxRetries: 10,
+func DefaultConfig() *Config {
+	return &Config{
+		Logger:     log.Default(),
+		MaxRetries: 10,
+	}
 }
 
 // Config is the configuration for the rate limiter

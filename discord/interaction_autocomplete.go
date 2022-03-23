@@ -10,13 +10,34 @@ var (
 )
 
 type AutocompleteInteraction struct {
-	baseInteractionImpl
+	BaseInteraction
 	Data AutocompleteInteractionData `json:"data"`
+}
+
+func (i *AutocompleteInteraction) UnmarshalJSON(data []byte) error {
+	var baseInteraction baseInteractionImpl
+	if err := json.Unmarshal(data, &baseInteraction); err != nil {
+		return err
+	}
+
+	var interaction struct {
+		Data AutocompleteInteractionData `json:"data"`
+	}
+	if err := json.Unmarshal(data, &interaction); err != nil {
+		return err
+	}
+
+	i.BaseInteraction = baseInteraction
+
+	i.Data = interaction.Data
+	return nil
 }
 
 func (AutocompleteInteraction) Type() InteractionType {
 	return InteractionTypeAutocomplete
 }
+
+func (AutocompleteInteraction) interaction() {}
 
 type rawAutocompleteInteractionData struct {
 	ID      snowflake.Snowflake  `json:"id"`

@@ -107,11 +107,17 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 		rq.Header.Set("Content-Type", contentType)
 	}
 
+	var (
+		tokenType discord.TokenType
+		token     string
+	)
+
 	if cRoute.APIRoute.NeedsBotAuth() {
-		opts = append([]RequestOpt{WithToken(discord.TokenTypeBot, c.botToken)}, opts...)
+		tokenType = discord.TokenTypeBot
+		token = c.botToken
 	}
 
-	config := DefaultRequestConfig(rq)
+	config := DefaultRequestConfig(rq, tokenType, token)
 	config.Apply(opts)
 
 	if config.Delay > 0 {

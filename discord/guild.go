@@ -180,7 +180,6 @@ func (g *GatewayGuild) UnmarshalJSON(data []byte) error {
 	type gatewayGuild GatewayGuild
 	var v struct {
 		Channels []UnmarshalChannel `json:"channels"`
-		Threads  []UnmarshalChannel `json:"threads"`
 		gatewayGuild
 	}
 	if err := json.Unmarshal(data, &v); err != nil {
@@ -192,11 +191,6 @@ func (g *GatewayGuild) UnmarshalJSON(data []byte) error {
 	g.Channels = make([]GuildChannel, len(v.Channels))
 	for i := range v.Channels {
 		g.Channels[i] = v.Channels[i].Channel.(GuildChannel)
-	}
-
-	g.Threads = make([]GuildThread, len(v.Threads))
-	for i := range v.Threads {
-		g.Threads[i] = v.Threads[i].Channel.(GuildThread)
 	}
 
 	return nil

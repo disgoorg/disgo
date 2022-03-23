@@ -7,13 +7,33 @@ var (
 )
 
 type ModalSubmitInteraction struct {
-	baseInteractionImpl
+	BaseInteraction
 	Data ModalSubmitInteractionData `json:"data"`
+}
+
+func (i *ModalSubmitInteraction) UnmarshalJSON(data []byte) error {
+	var baseInteraction baseInteractionImpl
+	if err := json.Unmarshal(data, &baseInteraction); err != nil {
+		return err
+	}
+
+	var interaction struct {
+		Data ModalSubmitInteractionData `json:"data"`
+	}
+	if err := json.Unmarshal(data, &interaction); err != nil {
+		return err
+	}
+
+	i.BaseInteraction = baseInteraction
+	i.Data = interaction.Data
+	return nil
 }
 
 func (ModalSubmitInteraction) Type() InteractionType {
 	return InteractionTypeModalSubmit
 }
+
+func (ModalSubmitInteraction) interaction() {}
 
 type ModalSubmitInteractionData struct {
 	CustomID   CustomID                    `json:"custom_id"`

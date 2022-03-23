@@ -16,13 +16,10 @@ import (
 // TODO: do we need some cleanup task?
 
 // NewLimiter return a new default implementation of a rest rate limiter
-func NewLimiter(config *Config) Limiter {
-	if config == nil {
-		config = &DefaultConfig
-	}
-	if config.Logger == nil {
-		config.Logger = log.Default()
-	}
+func NewLimiter(opts ...ConfigOpt) Limiter {
+	config := DefaultConfig()
+	config.Apply(opts)
+
 	return &limiterImpl{
 		config:  *config,
 		hashes:  map[*route.APIRoute]routeHash{},

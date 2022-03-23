@@ -9,10 +9,12 @@ import (
 	"github.com/disgoorg/disgo/discord"
 )
 
-func DefaultRequestConfig(rq *http.Request) *RequestConfig {
+func DefaultRequestConfig(rq *http.Request, tokenType discord.TokenType, token string) *RequestConfig {
 	return &RequestConfig{
-		Request: rq,
-		Ctx:     context.TODO(),
+		Request:   rq,
+		Ctx:       context.TODO(),
+		TokenType: tokenType,
+		Token:     token,
 	}
 }
 
@@ -34,6 +36,9 @@ type RequestOpt func(config *RequestConfig)
 
 // Apply applies the given RequestOpt(s) to the RequestConfig & sets the context if none is set
 func (c *RequestConfig) Apply(opts []RequestOpt) {
+	if c.TokenType != "" && c.Token != "" {
+		c.Request.Header.Set("Authorization", c.TokenType.Apply(c.Token))
+	}
 	for _, opt := range opts {
 		opt(c)
 	}

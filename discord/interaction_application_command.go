@@ -12,24 +12,26 @@ var (
 )
 
 type ApplicationCommandInteraction struct {
-	baseInteractionImpl
+	BaseInteraction
 	Data ApplicationCommandInteractionData `json:"data"`
 }
 
 func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
-	type applicationCommandInteraction ApplicationCommandInteraction
-	var vInteraction struct {
-		Data json.RawMessage `json:"data"`
-		applicationCommandInteraction
+	var baseInteraction baseInteractionImpl
+	if err := json.Unmarshal(data, &baseInteraction); err != nil {
+		return err
 	}
 
-	if err := json.Unmarshal(data, &vInteraction); err != nil {
+	var interaction struct {
+		Data json.RawMessage `json:"data"`
+	}
+	if err := json.Unmarshal(data, &interaction); err != nil {
 		return err
 	}
 	var cType struct {
 		Type ApplicationCommandType `json:"type"`
 	}
-	if err := json.Unmarshal(vInteraction.Data, &cType); err != nil {
+	if err := json.Unmarshal(interaction.Data, &cType); err != nil {
 		return err
 	}
 
@@ -41,17 +43,17 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 	switch cType.Type {
 	case ApplicationCommandTypeSlash:
 		v := SlashCommandInteractionData{}
-		err = json.Unmarshal(vInteraction.Data, &v)
+		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
 	case ApplicationCommandTypeUser:
 		v := UserCommandInteractionData{}
-		err = json.Unmarshal(vInteraction.Data, &v)
+		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
 	case ApplicationCommandTypeMessage:
 		v := MessageCommandInteractionData{}
-		err = json.Unmarshal(vInteraction.Data, &v)
+		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
 
 	default:
@@ -61,7 +63,7 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	*i = ApplicationCommandInteraction(vInteraction.applicationCommandInteraction)
+	i.BaseInteraction = baseInteraction
 
 	i.Data = interactionData
 	return nil

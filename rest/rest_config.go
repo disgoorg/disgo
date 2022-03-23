@@ -33,6 +33,9 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
+	if c.RateLimiter == nil {
+		c.RateLimiter = rrate.NewLimiter(c.RateLimiterConfigOpts...)
+	}
 }
 
 // WithLogger applies a custom logger to the rest rate limiter

@@ -32,6 +32,12 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
+	if c.RestClient == nil {
+		c.RestClient = rest.NewClient("", c.RestClientConfigOpts...)
+	}
+	if c.WebhookService == nil {
+		c.WebhookService = rest.NewWebhookService(c.RestClient)
+	}
 }
 
 // WithLogger sets the logger for the webhook client

@@ -6,9 +6,11 @@ import (
 	"github.com/disgoorg/disgo/rest/route"
 )
 
-var DefaultCDNConfig = CDNConfig{
-	Size:   0,
-	Format: route.PNG,
+func DefaultCDNConfig() *CDNConfig {
+	return &CDNConfig{
+		Size:   0,
+		Format: route.PNG,
+	}
 }
 
 type CDNConfig struct {
@@ -62,7 +64,7 @@ func formatAssetURL(cdnRoute *route.CDNRoute, opts []CDNOpt, params ...any) *str
 		lastStringParam = *ptrStr
 	}
 
-	config := &DefaultCDNConfig
+	config := DefaultCDNConfig()
 	config.Apply(opts)
 
 	if strings.HasPrefix(lastStringParam, "a_") && !config.Format.CanBeAnimated() {

@@ -1,6 +1,9 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import (
+	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/json"
+)
 
 type BaseInteraction interface {
 	ID() snowflake.Snowflake
@@ -26,6 +29,39 @@ type baseInteractionImpl struct {
 	guildLocale   *Locale
 	member        *ResolvedMember
 	user          *User
+}
+
+func (i *baseInteractionImpl) UnmarshalJSON(data []byte) error {
+	var v rawInteraction
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	i.id = v.ID
+	i.applicationID = v.ApplicationID
+	i.token = v.Token
+	i.version = v.Version
+	i.guildID = v.GuildID
+	i.channelID = v.ChannelID
+	i.locale = v.Locale
+	i.guildLocale = v.GuildLocale
+	i.member = v.Member
+	i.user = v.User
+	return nil
+}
+
+func (i baseInteractionImpl) MarshalJSON() ([]byte, error) {
+	return json.Marshal(rawInteraction{
+		ID:            i.id,
+		ApplicationID: i.applicationID,
+		Token:         i.token,
+		Version:       i.version,
+		GuildID:       i.guildID,
+		ChannelID:     i.channelID,
+		Locale:        i.locale,
+		GuildLocale:   i.guildLocale,
+		Member:        i.member,
+		User:          i.user,
+	})
 }
 
 func (i baseInteractionImpl) ID() snowflake.Snowflake {

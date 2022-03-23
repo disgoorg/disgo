@@ -24,7 +24,7 @@ func (c *EventManagerConfig) Apply(opts []EventManagerConfigOpt) {
 }
 
 //goland:noinspection GoUnusedExportedFunction
-func WithEventListeners(listeners ...EventListener) EventManagerConfigOpt {
+func WithListeners(listeners ...EventListener) EventManagerConfigOpt {
 	return func(config *EventManagerConfig) {
 		config.EventListeners = append(config.EventListeners, listeners...)
 	}

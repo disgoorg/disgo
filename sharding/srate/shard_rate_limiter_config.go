@@ -4,9 +4,12 @@ import (
 	"github.com/DisgoOrg/log"
 )
 
-var DefaultConfig = Config{
-	MaxConcurrency: 1,
-	StartupDelay:   5,
+func DefaultConfig() *Config {
+	return &Config{
+		Logger:         log.Default(),
+		MaxConcurrency: 1,
+		StartupDelay:   5,
+	}
 }
 
 type Config struct {

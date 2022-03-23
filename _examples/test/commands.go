@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/DisgoOrg/disgo/bot"
-	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/discord"
 )
 
 var commands = []discord.ApplicationCommandCreate{

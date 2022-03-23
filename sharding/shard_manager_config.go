@@ -9,14 +9,13 @@ import (
 //goland:noinspection GoUnusedGlobalVariable
 func DefaultConfig() *Config {
 	return &Config{
-		CustomShards:      false,
+		Logger:            log.Default(),
 		GatewayCreateFunc: gateway.New,
 	}
 }
 
 type Config struct {
 	Logger                log.Logger
-	CustomShards          bool
 	Shards                *IntSet
 	ShardCount            int
 	GatewayCreateFunc     gateway.CreateFunc
@@ -30,6 +29,9 @@ type ConfigOpt func(config *Config)
 func (c *Config) Apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
+	}
+	if c.RateLimiter == nil {
+		c.RateLimiter = srate.NewLimiter(c.RateLimiterConfigOpts...)
 	}
 }
 

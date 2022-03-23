@@ -36,7 +36,7 @@ const (
 
 type EventHandlerFunc func(gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, payload io.Reader)
 
-type CreateFunc func(token string, opts ...ConfigOpt) Gateway
+type CreateFunc func(token string, eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Gateway
 
 // Gateway is what is used to connect to discord
 type Gateway interface {

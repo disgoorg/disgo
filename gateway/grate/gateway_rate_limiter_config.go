@@ -4,8 +4,11 @@ import (
 	"github.com/DisgoOrg/log"
 )
 
-var DefaultConfig = Config{
-	CommandsPerMinute: 120,
+func DefaultConfig() *Config {
+	return &Config{
+		Logger:            log.Default(),
+		CommandsPerMinute: 120,
+	}
 }
 
 type Config struct {

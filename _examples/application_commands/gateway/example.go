@@ -38,24 +38,20 @@ var (
 				},
 			},
 		},
-		discord.UserCommandCreate{},
-		discord.MessageCommandCreate{},
 	}
 )
 
 func main() {
-	log.SetLevel(log.LevelDebug)
+	log.SetLevel(log.LevelTrace)
 	log.Info("starting example...")
 	log.Infof("disgo version: %s", disgo.Version)
 
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentsNone)),
 		bot.WithCacheConfigOpts(cache.WithCacheFlags(cache.FlagsDefault)),
-		bot.WithEventManagerConfigOpts(
-			bot.WithEventListeners(&events.ListenerAdapter{
-				OnApplicationCommandInteraction: commandListener,
-			}),
-		),
+		bot.WithEventListeners(&events.ListenerAdapter{
+			OnApplicationCommandInteraction: commandListener,
+		}),
 	)
 	if err != nil {
 		log.Fatal("error while building disgo instance: ", err)

@@ -58,11 +58,9 @@ func main() {
 			httpserver.WithAddress(":80"),
 			httpserver.WithPublicKey(publicKey),
 		),
-		bot.WithEventManagerConfigOpts(
-			bot.WithEventListeners(&events.ListenerAdapter{
-				OnApplicationCommandInteraction: commandListener,
-			}),
-		),
+		bot.WithEventListeners(&events.ListenerAdapter{
+			OnApplicationCommandInteraction: commandListener,
+		}),
 	)
 	if err != nil {
 		log.Fatal("error while building disgo instance: ", err)

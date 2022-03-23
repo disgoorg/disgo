@@ -2,6 +2,7 @@ package discord
 
 import (
 	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/json"
 )
 
 type dmChannel struct {
@@ -28,6 +29,25 @@ type guildTextChannel struct {
 	DefaultAutoArchiveDuration AutoArchiveDuration   `json:"default_auto_archive_duration"`
 }
 
+func (t *guildTextChannel) UnmarshalJSON(data []byte) error {
+	type guildTextChannelAlias guildTextChannel
+	var v struct {
+		PermissionOverwrites []UnmarshalPermissionOverwrite `json:"permission_overwrites"`
+		guildTextChannelAlias
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*t = guildTextChannel(v.guildTextChannelAlias)
+	if len(v.PermissionOverwrites) > 0 {
+		t.PermissionOverwrites = make([]PermissionOverwrite, len(v.PermissionOverwrites))
+		for i := range v.PermissionOverwrites {
+			t.PermissionOverwrites[i] = v.PermissionOverwrites[i].PermissionOverwrite
+		}
+	}
+	return nil
+}
+
 type guildNewsChannel struct {
 	ID                         snowflake.Snowflake   `json:"id"`
 	Type                       ChannelType           `json:"type"`
@@ -42,6 +62,25 @@ type guildNewsChannel struct {
 	LastMessageID              *snowflake.Snowflake  `json:"last_message_id"`
 	LastPinTimestamp           *Time                 `json:"last_pin_timestamp"`
 	DefaultAutoArchiveDuration AutoArchiveDuration   `json:"default_auto_archive_duration"`
+}
+
+func (t *guildNewsChannel) UnmarshalJSON(data []byte) error {
+	type guildNewsChannelAlias guildNewsChannel
+	var v struct {
+		PermissionOverwrites []UnmarshalPermissionOverwrite `json:"permission_overwrites"`
+		guildNewsChannelAlias
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*t = guildNewsChannel(v.guildNewsChannelAlias)
+	if len(v.PermissionOverwrites) > 0 {
+		t.PermissionOverwrites = make([]PermissionOverwrite, len(v.PermissionOverwrites))
+		for i := range v.PermissionOverwrites {
+			t.PermissionOverwrites[i] = v.PermissionOverwrites[i].PermissionOverwrite
+		}
+	}
+	return nil
 }
 
 type guildThread struct {
@@ -69,6 +108,25 @@ type guildCategoryChannel struct {
 	Name                 string                `json:"name"`
 }
 
+func (t *guildCategoryChannel) UnmarshalJSON(data []byte) error {
+	type guildCategoryChannelAlias guildCategoryChannel
+	var v struct {
+		PermissionOverwrites []UnmarshalPermissionOverwrite `json:"permission_overwrites"`
+		guildCategoryChannelAlias
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*t = guildCategoryChannel(v.guildCategoryChannelAlias)
+	if len(v.PermissionOverwrites) > 0 {
+		t.PermissionOverwrites = make([]PermissionOverwrite, len(v.PermissionOverwrites))
+		for i := range v.PermissionOverwrites {
+			t.PermissionOverwrites[i] = v.PermissionOverwrites[i].PermissionOverwrite
+		}
+	}
+	return nil
+}
+
 type guildVoiceChannel struct {
 	ID                   snowflake.Snowflake   `json:"id"`
 	Type                 ChannelType           `json:"type"`
@@ -83,6 +141,25 @@ type guildVoiceChannel struct {
 	VideoQualityMode     VideoQualityMode      `json:"video_quality_mode"`
 }
 
+func (t *guildVoiceChannel) UnmarshalJSON(data []byte) error {
+	type guildVoiceChannelAlias guildVoiceChannel
+	var v struct {
+		PermissionOverwrites []UnmarshalPermissionOverwrite `json:"permission_overwrites"`
+		guildVoiceChannelAlias
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*t = guildVoiceChannel(v.guildVoiceChannelAlias)
+	if len(v.PermissionOverwrites) > 0 {
+		t.PermissionOverwrites = make([]PermissionOverwrite, len(v.PermissionOverwrites))
+		for i := range v.PermissionOverwrites {
+			t.PermissionOverwrites[i] = v.PermissionOverwrites[i].PermissionOverwrite
+		}
+	}
+	return nil
+}
+
 type guildStageVoiceChannel struct {
 	ID                   snowflake.Snowflake   `json:"id"`
 	Type                 ChannelType           `json:"type"`
@@ -93,4 +170,23 @@ type guildStageVoiceChannel struct {
 	Bitrate              int                   `json:"bitrate,"`
 	ParentID             *snowflake.Snowflake  `json:"parent_id"`
 	RTCRegion            string                `json:"rtc_region"`
+}
+
+func (t *guildStageVoiceChannel) UnmarshalJSON(data []byte) error {
+	type guildStageVoiceChannelAlias guildStageVoiceChannel
+	var v struct {
+		PermissionOverwrites []UnmarshalPermissionOverwrite `json:"permission_overwrites"`
+		guildStageVoiceChannelAlias
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*t = guildStageVoiceChannel(v.guildStageVoiceChannelAlias)
+	if len(v.PermissionOverwrites) > 0 {
+		t.PermissionOverwrites = make([]PermissionOverwrite, len(v.PermissionOverwrites))
+		for i := range v.PermissionOverwrites {
+			t.PermissionOverwrites[i] = v.PermissionOverwrites[i].PermissionOverwrite
+		}
+	}
+	return nil
 }

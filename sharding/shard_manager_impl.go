@@ -13,22 +13,24 @@ import (
 
 var _ ShardManager = (*shardManagerImpl)(nil)
 
-func New(token string, opts ...ConfigOpt) ShardManager {
+func New(token string, eventHandlerFunc gateway.EventHandlerFunc, opts ...ConfigOpt) ShardManager {
 	config := DefaultConfig()
 	config.Apply(opts)
 
 	return &shardManagerImpl{
-		shards: NewShardsMap(),
-		token:  token,
-		config: *config,
+		shards:           NewShardsMap(),
+		token:            token,
+		eventHandlerFunc: eventHandlerFunc,
+		config:           *config,
 	}
 }
 
 type shardManagerImpl struct {
 	shards *ShardsMap
 
-	token  string
-	config Config
+	token            string
+	eventHandlerFunc gateway.EventHandlerFunc
+	config           Config
 }
 
 func (m *shardManagerImpl) Logger() log.Logger {
@@ -58,7 +60,7 @@ func (m *shardManagerImpl) Open(ctx context.Context) {
 				return
 			}
 
-			shard := m.config.GatewayCreateFunc(m.token, append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(m.config.ShardCount))...)
+			shard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(m.config.ShardCount))...)
 			m.shards.Set(shardID, shard)
 			if err := shard.Open(ctx); err != nil {
 				m.Logger().Errorf("failed to open shard %d: %s", shardID, err)
@@ -106,7 +108,7 @@ func (m *shardManagerImpl) Close(ctx context.Context) {
 
 func (m *shardManagerImpl) OpenShard(ctx context.Context, shardID int) error {
 	m.Logger().Infof("opening shard %d...", shardID)
-	shard := m.config.GatewayCreateFunc(m.token, append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(m.config.ShardCount))...)
+	shard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(m.config.ShardCount))...)
 	m.config.Shards.Add(shardID)
 	m.shards.Set(shardID, shard)
 	return shard.Open(ctx)

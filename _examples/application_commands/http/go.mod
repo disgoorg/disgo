@@ -1,4 +1,4 @@
-module http
+module github.com/disgoorg/disgo/_examples/application_commands/http
 
 go 1.18
 

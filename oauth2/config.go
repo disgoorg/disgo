@@ -7,7 +7,10 @@ import (
 
 // DefaultConfig is the configuration which is used by default
 func DefaultConfig() *Config {
-	return &Config{}
+	return &Config{
+		Logger:            log.Default(),
+		SessionController: NewSessionController(),
+	}
 }
 
 // Config is the configuration for the OAuth2 client
@@ -17,8 +20,8 @@ type Config struct {
 	RestClientConfigOpts      []rest.ConfigOpt
 	OAuth2Service             rest.OAuth2Service
 	SessionController         SessionController
-	StateControllerConfigOpts []StateControllerConfigOpt
 	StateController           StateController
+	StateControllerConfigOpts []StateControllerConfigOpt
 }
 
 // ConfigOpt can be used to supply optional parameters to New
@@ -28,6 +31,15 @@ type ConfigOpt func(config *Config)
 func (c *Config) Apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
+	}
+	if c.RestClient == nil {
+		c.RestClient = rest.NewClient("", c.RestClientConfigOpts...)
+	}
+	if c.OAuth2Service == nil {
+		c.OAuth2Service = rest.NewOAuth2Service(c.RestClient)
+	}
+	if c.StateController == nil {
+		c.StateController = NewStateController(c.StateControllerConfigOpts...)
 	}
 }
 

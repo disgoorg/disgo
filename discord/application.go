@@ -126,7 +126,7 @@ type TokenType string
 //goland:noinspection GoUnusedConst
 const (
 	TokenTypeBearer TokenType = "Bearer"
-	TokenTypeBot    TokenType = "Client"
+	TokenTypeBot    TokenType = "Bot"
 )
 
 func (t TokenType) String() string {

@@ -11,16 +11,10 @@ import (
 
 var _ Limiter = (*limiterImpl)(nil)
 
-func NewLimiter(config *Config) Limiter {
-	if config == nil {
-		config = &DefaultConfig
-	}
-	if config.Logger == nil {
-		config.Logger = log.Default()
-	}
-	if config.StartupDelay == 0 {
-		config.StartupDelay = 5
-	}
+func NewLimiter(opts ...ConfigOpt) Limiter {
+	config := DefaultConfig()
+	config.Apply(opts)
+
 	return &limiterImpl{
 		buckets: map[int]*bucket{},
 		config:  *config,

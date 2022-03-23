@@ -17,7 +17,7 @@ import (
 
 var _ Server = (*serverImpl)(nil)
 
-func New(opts ...ConfigOpt) Server {
+func New(eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Server {
 	config := DefaultConfig()
 	config.Apply(opts)
 
@@ -27,15 +27,17 @@ func New(opts ...ConfigOpt) Server {
 	}
 
 	return &serverImpl{
-		publicKey: hexDecodedKey,
-		config:    *config,
+		publicKey:        hexDecodedKey,
+		eventHandlerFunc: eventHandlerFunc,
+		config:           *config,
 	}
 }
 
 // serverImpl is used in Client's webhook server for interactions
 type serverImpl struct {
-	config    Config
-	publicKey PublicKey
+	config           Config
+	eventHandlerFunc EventHandlerFunc
+	publicKey        PublicKey
 }
 
 func (s *serverImpl) Logger() log.Logger {
@@ -48,7 +50,7 @@ func (s *serverImpl) PublicKey() PublicKey {
 }
 
 func (s *serverImpl) EventHandlerFunc() EventHandlerFunc {
-	return s.config.EventHandlerFunc
+	return s.eventHandlerFunc
 }
 
 // Start makes the serverImpl listen on the specified port and handle requests
