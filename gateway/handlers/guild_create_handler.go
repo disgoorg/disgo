@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/events"
 )
 
 // gatewayHandlerGuildCreate handles core.GuildCreateGatewayEvent
@@ -20,84 +21,82 @@ func (h *gatewayHandlerGuildCreate) New() any {
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
-	/*payload := *v.(*discord.GatewayGuild)
+	gatewayGuild := *v.(*discord.GatewayGuild)
 
-	shard, _ := bot.Shard(payload.ID)
+	shard, _ := client.Shard(gatewayGuild.ID)
 	shardID := shard.ShardID()
 
-	wasUnready := client.Caches().Guilds().IsUnready(shardID, payload.ID)
-	wasUnavailable := client.Caches().Guilds().IsUnavailable(payload.ID)
+	wasUnready := client.Caches().Guilds().IsUnready(shardID, gatewayGuild.ID)
+	wasUnavailable := client.Caches().Guilds().IsUnavailable(gatewayGuild.ID)
 
-	for _, channel := range payload.Channels {
-
+	for _, channel := range gatewayGuild.Channels {
+		client.Caches().Channels().Put(channel.ID(), channel)
 	}
 
-	for _, thread := range payload.Threads {
-
+	for _, thread := range gatewayGuild.Threads {
+		client.Caches().Channels().Put(thread.ID(), thread)
 	}
 
-	for _, role := range payload.Roles {
-		role.GuildID = payload.ID
-
+	for _, role := range gatewayGuild.Roles {
+		client.Caches().Roles().Put(gatewayGuild.ID, role.ID, role)
 	}
 
-	for _, member := range payload.Members {
-
+	for _, member := range gatewayGuild.Members {
+		client.Caches().Members().Put(gatewayGuild.ID, member.User.ID, member)
 	}
 
-	for _, voiceState := range payload.VoiceStates {
-		voiceState.GuildID = payload.ID // populate unset field
-
+	for _, voiceState := range gatewayGuild.VoiceStates {
+		voiceState.GuildID = gatewayGuild.ID // populate unset field
+		client.Caches().VoiceStates().Put(voiceState.GuildID, voiceState.UserID, voiceState)
 	}
 
-	for _, emoji := range payload.Emojis {
-		emoji.GuildID = payload.ID
-
+	for _, emoji := range gatewayGuild.Emojis {
+		client.Caches().Emojis().Put(gatewayGuild.ID, emoji.ID, emoji)
 	}
 
-	for _, sticker := range payload.Stickers {
-
+	for _, sticker := range gatewayGuild.Stickers {
+		client.Caches().Stickers().Put(gatewayGuild.ID, sticker.ID, sticker)
 	}
 
-	for _, stageInstance := range payload.StageInstances {
-
+	for _, stageInstance := range gatewayGuild.StageInstances {
+		client.Caches().StageInstances().Put(gatewayGuild.ID, stageInstance.ID, stageInstance)
 	}
 
-	for _, guildScheduledEvent := range payload.GuildScheduledEvents {
-
+	for _, guildScheduledEvent := range gatewayGuild.GuildScheduledEvents {
+		client.Caches().GuildScheduledEvents().Put(gatewayGuild.ID, guildScheduledEvent.ID, guildScheduledEvent)
 	}
 
-	for _, presence := range payload.Presences {
-
+	for _, presence := range gatewayGuild.Presences {
+		client.Caches().Presences().Put(gatewayGuild.ID, presence.PresenceUser.ID, presence)
 	}
 
 	genericGuildEvent := &events.GenericGuildEvent{
 		GenericEvent: events.NewGenericEvent(client, sequenceNumber),
-		GuildID:      payload.ID,
-		Guild:        guild,
+		GuildID:      gatewayGuild.ID,
+		Guild:        gatewayGuild.Guild,
 	}
 
 	if wasUnready {
-		client.Caches().Guilds().SetReady(shardID, payload.ID)
+		client.Caches().Guilds().SetReady(shardID, gatewayGuild.ID)
 		client.EventManager().Dispatch(&events.GuildReadyEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 		if len(client.Caches().Guilds().UnreadyGuilds(shardID)) == 0 {
 			client.EventManager().Dispatch(&events.GuildsReadyEvent{
-				GenericEvent: events.NewGenericEvent(bot, -1),
+				GenericEvent: events.NewGenericEvent(client, -1),
 				ShardID:      shardID,
 			})
 		}
-		if bot.MemberChunkingManager().MemberChunkingFilter()(payload.ID) {
+		if client.MemberChunkingManager().MemberChunkingFilter()(gatewayGuild.ID) {
 			go func() {
-				if _, err := bot.MemberChunkingManager().RequestMembersWithQuery(payload.ID, "", 0); err != nil {
-					bot.Logger().Error("failed to chunk guild on guild_create. error: ", err)
+				if _, err := client.MemberChunkingManager().RequestMembersWithQuery(gatewayGuild.ID, "", 0); err != nil {
+					client.Logger().Error("failed to chunk guild on guild_create. error: ", err)
 				}
 			}()
 		}
 
 	} else if wasUnavailable {
-		client.Caches().Guilds().SetAvailable(payload.ID)
+		client.Caches().Guilds().SetAvailable(gatewayGuild.ID)
 		client.EventManager().Dispatch(&events.GuildAvailableEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
@@ -105,5 +104,5 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(client bot.Client, sequen
 		client.EventManager().Dispatch(&events.GuildJoinEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
-	}*/
+	}
 }

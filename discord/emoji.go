@@ -17,8 +17,6 @@ type Emoji struct {
 	Managed       bool                  `json:"managed,omitempty"`
 	Animated      bool                  `json:"animated,omitempty"`
 	Available     bool                  `json:"available,omitempty"`
-
-	GuildID snowflake.Snowflake `json:"guild_id,omitempty"`
 }
 
 // Mention returns the string used to send the Emoji
