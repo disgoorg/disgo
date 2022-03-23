@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"github.com/DisgoOrg/disgo/bot"
-	"github.com/DisgoOrg/disgo/discord"
+	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/discord"
 )
 
 // gatewayHandlerGuildCreate handles core.GuildCreateGatewayEvent

@@ -10,12 +10,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway/grate"
-	"github.com/DisgoOrg/disgo/internal/tokenhelper"
-	"github.com/DisgoOrg/disgo/json"
-	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/internal/tokenhelper"
+	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/disgo/rest/route"
 	"github.com/pkg/errors"
 
 	"github.com/gorilla/websocket"
@@ -23,38 +22,20 @@ import (
 
 var _ Gateway = (*gatewayImpl)(nil)
 
-func New(token string, url string, shardID int, shardCount int, config *Config) Gateway {
-	if config == nil {
-		config = &DefaultConfig
-	}
-	if config.Logger == nil {
-		config.Logger = log.Default()
-	}
-	if config.RateLimiterConfig == nil {
-		config.RateLimiterConfig = &grate.DefaultConfig
-	}
-	if config.RateLimiterConfig.Logger == nil {
-		config.RateLimiterConfig.Logger = config.Logger
-	}
-	if config.RateLimiter == nil {
-		config.RateLimiter = grate.NewLimiter(config.RateLimiterConfig)
-	}
+func New(token string, opts ...ConfigOpt) Gateway {
+	config := DefaultConfig()
+	config.Apply(opts)
 
 	return &gatewayImpl{
-		config:     *config,
-		token:      token,
-		shardID:    shardID,
-		shardCount: shardCount,
-		status:     StatusUnconnected,
+		config: *config,
+		token:  token,
+		status: StatusUnconnected,
 	}
 }
 
 type gatewayImpl struct {
-	config     Config
-	token      string
-	url        string
-	shardID    int
-	shardCount int
+	config Config
+	token  string
 
 	conn            *websocket.Conn
 	heartbeatTicker *time.Ticker
@@ -69,28 +50,28 @@ func (g *gatewayImpl) Logger() log.Logger {
 	return g.config.Logger
 }
 
-func (g *gatewayImpl) Config() Config {
-	return g.config
-}
-
 func (g *gatewayImpl) ShardID() int {
-	return g.shardID
+	return g.config.ShardID
 }
 
 func (g *gatewayImpl) ShardCount() int {
-	return g.shardCount
+	return g.config.ShardCount
+}
+
+func (g *gatewayImpl) GatewayIntents() discord.GatewayIntents {
+	return g.config.GatewayIntents
 }
 
 func (g *gatewayImpl) formatLogsf(format string, a ...any) string {
-	if g.shardCount > 1 {
-		return fmt.Sprintf("[%d/%d] %s", g.shardID, g.shardCount, fmt.Sprintf(format, a...))
+	if g.config.ShardCount > 1 {
+		return fmt.Sprintf("[%d/%d] %s", g.config.ShardID, g.config.ShardCount, fmt.Sprintf(format, a...))
 	}
 	return fmt.Sprintf(format, a...)
 }
 
 func (g *gatewayImpl) formatLogs(a ...any) string {
-	if g.shardCount > 1 {
-		return fmt.Sprintf("[%d/%d] %s", g.shardID, g.shardCount, fmt.Sprint(a...))
+	if g.config.ShardCount > 1 {
+		return fmt.Sprintf("[%d/%d] %s", g.config.ShardID, g.config.ShardCount, fmt.Sprint(a...))
 	}
 	return fmt.Sprint(a...)
 }
@@ -102,7 +83,7 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 	}
 	g.status = StatusConnecting
 
-	gatewayURL := g.url + "?v=" + route.APIVersion + "&encoding=json"
+	gatewayURL := g.config.GatewayURL + "?v=" + route.APIVersion + "&encoding=json"
 	var rs *http.Response
 	var err error
 	g.conn, rs, err = websocket.DefaultDialer.DialContext(ctx, gatewayURL, nil)

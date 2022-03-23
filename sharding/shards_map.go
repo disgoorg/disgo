@@ -3,7 +3,7 @@ package sharding
 import (
 	"sync"
 
-	"github.com/DisgoOrg/disgo/gateway"
+	"github.com/disgoorg/disgo/gateway"
 )
 
 func NewShardsMap() *ShardsMap {

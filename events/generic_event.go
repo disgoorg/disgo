@@ -1,8 +1,8 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/bot"
-	"github.com/DisgoOrg/disgo/discord"
+	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/discord"
 )
 
 // NewGenericEvent constructs a new GenericEvent with the provided Client instance

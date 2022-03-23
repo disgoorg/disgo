@@ -5,10 +5,10 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/DisgoOrg/disgo/bot"
-	"github.com/DisgoOrg/disgo/json"
+	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/json"
 
-	"github.com/DisgoOrg/disgo/discord"
+	"github.com/disgoorg/disgo/discord"
 )
 
 func HandleRawEvent(client bot.Client, gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, reader io.Reader) io.Reader {

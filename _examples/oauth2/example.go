@@ -7,13 +7,13 @@ import (
 	"os"
 	"time"
 
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/info"
-	"github.com/DisgoOrg/disgo/json"
-	"github.com/DisgoOrg/disgo/oauth2"
-	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/log"
 	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/disgo/oauth2"
+	"github.com/disgoorg/disgo/rest"
 )
 
 var (
@@ -31,7 +31,7 @@ func main() {
 
 	logger.SetLevel(log.LevelDebug)
 	logger.Info("starting example...")
-	logger.Infof("disgo %s", info.Version)
+	logger.Infof("disgo %s", disgo.Version)
 
 	client = oauth2.New(clientID, clientSecret, oauth2.WithLogger(logger), oauth2.WithRestClientConfigOpts(rest.WithHTTPClient(httpClient)))
 

@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/disgo/rest/route"
 	"github.com/sasha-s/go-csync"
 )
 

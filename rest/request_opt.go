@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/DisgoOrg/disgo/discord"
+	"github.com/disgoorg/disgo/discord"
 )
 
 func DefaultRequestConfig(rq *http.Request) *RequestConfig {

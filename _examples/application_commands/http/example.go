@@ -11,9 +11,9 @@ import (
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/events"
 	"github.com/DisgoOrg/disgo/httpserver"
-	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/log"
 	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/DisGo"
 	"github.com/oasisprotocol/curve25519-voi/primitives/ed25519"
 )
 
@@ -46,7 +46,7 @@ var (
 func main() {
 	log.SetLevel(log.LevelDebug)
 	log.Info("starting example...")
-	log.Info("disgo version: ", info.Version)
+	log.Info("disgo version: ", DisGo.Version)
 
 	// use custom ed25519 verify implementation
 	httpserver.Verify = func(publicKey httpserver.PublicKey, message, sig []byte) bool {

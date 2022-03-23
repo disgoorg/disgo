@@ -3,9 +3,9 @@ package rest
 import (
 	"net/url"
 
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/rest/route"
 )
 
 var (

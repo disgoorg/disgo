@@ -9,54 +9,33 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/DisgoOrg/disgo/json"
+	"github.com/disgoorg/disgo/json"
 
-	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/disgo/discord"
 )
 
 var _ Server = (*serverImpl)(nil)
 
-func New(config *Config) Server {
-	if config == nil {
-		config = &DefaultConfig
-	}
-	if config.Logger == nil {
-		config.Logger = log.Default()
-	}
+func New(opts ...ConfigOpt) Server {
+	config := DefaultConfig()
+	config.Apply(opts)
 
 	hexDecodedKey, err := hex.DecodeString(config.PublicKey)
 	if err != nil {
 		config.Logger.Errorf("error while decoding hex string: %s", err)
 	}
 
-	server := &serverImpl{
+	return &serverImpl{
 		publicKey: hexDecodedKey,
+		config:    *config,
 	}
-
-	if config.HTTPServer == nil {
-		config.HTTPServer = &http.Server{
-			Addr: config.Port,
-		}
-	}
-	server.server = config.HTTPServer
-
-	if config.HTTPServer.Handler == nil {
-		if config.ServeMux == nil {
-			config.ServeMux = http.NewServeMux()
-		}
-		config.ServeMux.Handle(config.URL, &WebhookInteractionHandler{server: server})
-		config.HTTPServer.Handler = config.ServeMux
-	}
-	server.config = *config
-	return server
 }
 
 // serverImpl is used in Client's webhook server for interactions
 type serverImpl struct {
 	config    Config
 	publicKey PublicKey
-	server    *http.Server
 }
 
 func (s *serverImpl) Logger() log.Logger {
@@ -68,19 +47,20 @@ func (s *serverImpl) PublicKey() PublicKey {
 	return s.publicKey
 }
 
-// Config returns the Config
-func (s *serverImpl) Config() Config {
-	return s.config
+func (s *serverImpl) EventHandlerFunc() EventHandlerFunc {
+	return s.config.EventHandlerFunc
 }
 
 // Start makes the serverImpl listen on the specified port and handle requests
 func (s *serverImpl) Start() {
 	go func() {
+		s.config.ServeMux.Handle(s.config.URL, &WebhookInteractionHandler{server: s})
+		s.config.HTTPServer.Addr = s.config.Address
 		var err error
 		if s.config.CertFile != "" && s.config.KeyFile != "" {
-			err = s.server.ListenAndServeTLS(s.config.CertFile, s.config.KeyFile)
+			err = s.config.HTTPServer.ListenAndServeTLS(s.config.CertFile, s.config.KeyFile)
 		} else {
-			err = s.server.ListenAndServe()
+			err = s.config.HTTPServer.ListenAndServe()
 		}
 		if err != nil {
 			s.Logger().Error("error starting http server: ", err)
@@ -90,7 +70,7 @@ func (s *serverImpl) Start() {
 
 // Close shuts down the serverImpl
 func (s *serverImpl) Close(ctx context.Context) {
-	_ = s.server.Shutdown(ctx)
+	_ = s.config.HTTPServer.Shutdown(ctx)
 }
 
 type WebhookInteractionHandler struct {
@@ -114,7 +94,7 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	h.server.Logger().Trace("received http interaction. body: ", string(rqData))
 
 	responseChannel := make(chan discord.InteractionResponse, 1)
-	h.server.Config().EventHandlerFunc(responseChannel, rqBody)
+	h.server.EventHandlerFunc()(responseChannel, rqBody)
 
 	timer := time.NewTimer(time.Second * 3)
 	defer timer.Stop()

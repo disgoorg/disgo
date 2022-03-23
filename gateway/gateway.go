@@ -5,8 +5,8 @@ import (
 	"io"
 	"time"
 
-	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/disgo/discord"
 )
 
 // Status is the state that the client is currently in
@@ -36,12 +36,15 @@ const (
 
 type EventHandlerFunc func(gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, payload io.Reader)
 
+type CreateFunc func(token string, opts ...ConfigOpt) Gateway
+
 // Gateway is what is used to connect to discord
 type Gateway interface {
 	Logger() log.Logger
-	Config() Config
 	ShardID() int
 	ShardCount() int
+	GatewayIntents() discord.GatewayIntents
+
 	Open(ctx context.Context) error
 	ReOpen(ctx context.Context, delay time.Duration) error
 	Close(ctx context.Context)

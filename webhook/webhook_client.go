@@ -3,9 +3,9 @@ package webhook
 import (
 	"context"
 
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/rest"
 	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/rest"
 )
 
 type Client interface {

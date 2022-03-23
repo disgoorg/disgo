@@ -3,8 +3,8 @@ package events
 import (
 	"time"
 
-	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/discord"
 )
 
 // GenericUserEvent is called upon receiving UserUpdateEvent or UserTypingStartEvent

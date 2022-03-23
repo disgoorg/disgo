@@ -1,41 +1,43 @@
 package gateway
 
 import (
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway/grate"
-	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/gateway/grate"
 )
 
 //goland:noinspection GoUnusedGlobalVariable
-var DefaultConfig = Config{
-	LargeThreshold:    50,
-	GatewayIntents:    discord.GatewayIntentsDefault,
-	Compress:          true,
-	AutoReconnect:     true,
-	MaxReconnectTries: 10,
-	OS:                info.OS,
-	Browser:           info.Name,
-	Device:            info.Name,
+func DefaultConfig() *Config {
+	return &Config{
+		LargeThreshold:    50,
+		GatewayIntents:    discord.GatewayIntentsDefault,
+		Compress:          true,
+		ShardID:           0,
+		ShardCount:        1,
+		AutoReconnect:     true,
+		MaxReconnectTries: 10,
+	}
 }
 
 type Config struct {
-	Logger               log.Logger
-	EventHandlerFunc     EventHandlerFunc
-	LargeThreshold       int
-	GatewayIntents       discord.GatewayIntents
-	Compress             bool
-	GatewayURL           *string
-	SessionID            *string
-	LastSequenceReceived *discord.GatewaySequence
-	AutoReconnect        bool
-	MaxReconnectTries    int
-	RateLimiter          grate.Limiter
-	RateLimiterConfig    *grate.Config
-	Presence             *discord.UpdatePresenceCommandData
-	OS                   string
-	Browser              string
-	Device               string
+	Logger                log.Logger
+	EventHandlerFunc      EventHandlerFunc
+	LargeThreshold        int
+	GatewayIntents        discord.GatewayIntents
+	Compress              bool
+	GatewayURL            string
+	ShardID               int
+	ShardCount            int
+	SessionID             *string
+	LastSequenceReceived  *discord.GatewaySequence
+	AutoReconnect         bool
+	MaxReconnectTries     int
+	RateLimiter           grate.Limiter
+	RateLimiterConfigOpts []grate.ConfigOpt
+	Presence              *discord.UpdatePresenceCommandData
+	OS                    string
+	Browser               string
+	Device                string
 }
 
 type ConfigOpt func(config *Config)
@@ -65,6 +67,13 @@ func WithGatewayIntents(gatewayIntents ...discord.GatewayIntents) ConfigOpt {
 }
 
 //goland:noinspection GoUnusedExportedFunction
+func WithEventHandlerFunc(eventHandlerFunc EventHandlerFunc) ConfigOpt {
+	return func(config *Config) {
+		config.EventHandlerFunc = eventHandlerFunc
+	}
+}
+
+//goland:noinspection GoUnusedExportedFunction
 func WithCompress(compress bool) ConfigOpt {
 	return func(config *Config) {
 		config.Compress = compress
@@ -74,7 +83,21 @@ func WithCompress(compress bool) ConfigOpt {
 //goland:noinspection GoUnusedExportedFunction
 func WithGatewayURL(gatewayURL string) ConfigOpt {
 	return func(config *Config) {
-		config.GatewayURL = &gatewayURL
+		config.GatewayURL = gatewayURL
+	}
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func WithShardID(shardID int) ConfigOpt {
+	return func(config *Config) {
+		config.ShardID = shardID
+	}
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func WithShardCount(shardCount int) ConfigOpt {
+	return func(config *Config) {
+		config.ShardCount = shardCount
 	}
 }
 
@@ -116,10 +139,7 @@ func WithRateLimiter(rateLimiter grate.Limiter) ConfigOpt {
 //goland:noinspection GoUnusedExportedFunction
 func WithRateLimiterConfigOpts(opts ...grate.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
-		if config.RateLimiterConfig == nil {
-			config.RateLimiterConfig = &grate.DefaultConfig
-		}
-		config.RateLimiterConfig.Apply(opts)
+		config.RateLimiterConfigOpts = append(config.RateLimiterConfigOpts, opts...)
 	}
 }
 

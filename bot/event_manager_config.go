@@ -1,13 +1,10 @@
 package bot
 
-import "github.com/DisgoOrg/disgo/discord"
+import "github.com/disgoorg/disgo/discord"
 
-var (
-	DefaultEventManagerConfig = EventManagerConfig{
-		RawEventsEnabled:   false,
-		AsyncEventsEnabled: false,
-	}
-)
+func DefaultEventManagerConfig() *EventManagerConfig {
+	return &EventManagerConfig{}
+}
 
 type EventManagerConfig struct {
 	EventListeners     []EventListener
@@ -44,5 +41,19 @@ func WithRawEventsEnabled() EventManagerConfigOpt {
 func WithAsyncEventsEnabled() EventManagerConfigOpt {
 	return func(config *EventManagerConfig) {
 		config.AsyncEventsEnabled = true
+	}
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func WithGatewayHandlers(handlers map[discord.GatewayEventType]GatewayEventHandler) EventManagerConfigOpt {
+	return func(config *EventManagerConfig) {
+		config.GatewayHandlers = handlers
+	}
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func WithHTTPServerHandler(handler HTTPServerEventHandler) EventManagerConfigOpt {
+	return func(config *EventManagerConfig) {
+		config.HTTPServerHandler = handler
 	}
 }

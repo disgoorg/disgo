@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/discord"
+	"github.com/disgoorg/disgo/discord"
 )
 
 type InteractionEvent struct {

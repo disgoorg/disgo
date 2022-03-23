@@ -7,9 +7,13 @@ import (
 )
 
 //goland:noinspection GoUnusedGlobalVariable
-var DefaultConfig = Config{
-	URL:  "/interactions/callback",
-	Port: ":80",
+func DefaultConfig() *Config {
+	return &Config{
+		URL:        "/interactions/callback",
+		Address:    ":80",
+		HTTPServer: &http.Server{},
+		ServeMux:   http.NewServeMux(),
+	}
 }
 
 type Config struct {
@@ -18,7 +22,7 @@ type Config struct {
 	ServeMux         *http.ServeMux
 	EventHandlerFunc EventHandlerFunc
 	URL              string
-	Port             string
+	Address          string
 	PublicKey        string
 	CertFile         string
 	KeyFile          string
@@ -36,6 +40,13 @@ func (c *Config) Apply(opts []ConfigOpt) {
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
+	}
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func WithEventHandlerFunc(eventHandlerFunc EventHandlerFunc) ConfigOpt {
+	return func(config *Config) {
+		config.EventHandlerFunc = eventHandlerFunc
 	}
 }
 
@@ -61,9 +72,9 @@ func WithURL(url string) ConfigOpt {
 }
 
 //goland:noinspection GoUnusedExportedFunction
-func WithPort(port string) ConfigOpt {
+func WithAddress(address string) ConfigOpt {
 	return func(config *Config) {
-		config.Port = port
+		config.Address = address
 	}
 }
 

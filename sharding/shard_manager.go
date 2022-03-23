@@ -3,15 +3,14 @@ package sharding
 import (
 	"context"
 
-	"github.com/DisgoOrg/disgo/gateway"
-	"github.com/DisgoOrg/disgo/gateway/sharding/srate"
 	"github.com/DisgoOrg/log"
 	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/disgo/sharding/srate"
 )
 
 type ShardManager interface {
 	Logger() log.Logger
-	Config() Config
 	RateLimiter() srate.Limiter
 
 	Open(ctx context.Context)

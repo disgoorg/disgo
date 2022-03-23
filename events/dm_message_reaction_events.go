@@ -1,8 +1,8 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/discord"
 )
 
 // GenericDMMessageReactionEvent is called upon receiving DMMessageReactionAddEvent or DMMessageReactionRemoveEvent (requires the discord.GatewayIntentDirectMessageReactions)

@@ -3,7 +3,7 @@ package discord
 import (
 	"fmt"
 
-	"github.com/DisgoOrg/disgo/json"
+	"github.com/disgoorg/disgo/json"
 )
 
 var (

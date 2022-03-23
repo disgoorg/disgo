@@ -3,8 +3,8 @@ package discord
 import (
 	"time"
 
-	"github.com/DisgoOrg/disgo/json"
 	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/json"
 )
 
 type Gateway struct {

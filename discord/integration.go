@@ -3,8 +3,8 @@ package discord
 import (
 	"fmt"
 
-	"github.com/DisgoOrg/disgo/json"
 	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/json"
 )
 
 // IntegrationType the type of Integration

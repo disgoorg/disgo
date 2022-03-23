@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/discord"
+	"github.com/disgoorg/disgo/discord"
 )
 
 // SelfUpdateEvent is called when something about this discord.User updates

@@ -3,7 +3,7 @@ package oauth2
 import (
 	"time"
 
-	"github.com/DisgoOrg/disgo/internal/insecurerandstr"
+	"github.com/disgoorg/disgo/internal/insecurerandstr"
 )
 
 // DefaultStateControllerConfig is the default configuration for the StateController

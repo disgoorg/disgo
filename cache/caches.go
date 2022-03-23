@@ -1,8 +1,8 @@
 package cache
 
 import (
-	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/discord"
 )
 
 type Caches interface {
@@ -26,9 +26,12 @@ type Caches interface {
 	GuildScheduledEvents() GroupedCache[discord.GuildScheduledEvent]
 }
 
-func NewCaches(config Config) Caches {
+func NewCaches(opts ...ConfigOpt) Caches {
+	config := DefaultConfig()
+	config.Apply(opts)
+
 	return &cachesImpl{
-		config: config,
+		config: *config,
 
 		guildCache:               NewGuildCache(config.CacheFlags, FlagGuilds, nil),
 		channelCache:             NewChannelCache(config.CacheFlags, FlagsAllChannels, nil),

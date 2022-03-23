@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/discord"
+	"github.com/disgoorg/disgo/discord"
 )
 
 // ReadyEvent indicates we received the ReadyEvent from the gateway.Gateway

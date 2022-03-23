@@ -1,6 +1,6 @@
 package discord
 
-import "github.com/DisgoOrg/disgo/json"
+import "github.com/disgoorg/disgo/json"
 
 type ThreadCreateWithMessage struct {
 	Name                string              `json:"name"`

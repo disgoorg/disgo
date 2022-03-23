@@ -3,11 +3,11 @@ package handlers
 import (
 	"io"
 
-	"github.com/DisgoOrg/disgo/bot"
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/events"
-	"github.com/DisgoOrg/disgo/gateway"
-	"github.com/DisgoOrg/disgo/httpserver"
+	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/disgo/httpserver"
 )
 
 func DefaultHTTPServerEventHandler(client bot.Client) httpserver.EventHandlerFunc {

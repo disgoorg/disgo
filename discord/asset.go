@@ -3,7 +3,7 @@ package discord
 import (
 	"strings"
 
-	"github.com/DisgoOrg/disgo/rest/route"
+	"github.com/disgoorg/disgo/rest/route"
 )
 
 var DefaultCDNConfig = CDNConfig{

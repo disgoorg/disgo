@@ -1,17 +1,25 @@
 package bot
 
 import (
-	"github.com/DisgoOrg/disgo/cache"
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway"
-	"github.com/DisgoOrg/disgo/gateway/sharding"
-	"github.com/DisgoOrg/disgo/gateway/sharding/srate"
-	"github.com/DisgoOrg/disgo/httpserver"
-	"github.com/DisgoOrg/disgo/internal/tokenhelper"
-	"github.com/DisgoOrg/disgo/rest"
+	"fmt"
+
 	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/disgo/cache"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/disgo/httpserver"
+	"github.com/disgoorg/disgo/internal/tokenhelper"
+	"github.com/disgoorg/disgo/rest"
+	"github.com/disgoorg/disgo/sharding"
 	"github.com/pkg/errors"
 )
+
+func DefaultConfig(gatewayHandlers map[discord.GatewayEventType]GatewayEventHandler, httpHandler HTTPServerEventHandler) *Config {
+	return &Config{
+		Logger:                 log.Default(),
+		EventManagerConfigOpts: []EventManagerConfigOpt{WithGatewayHandlers(gatewayHandlers), WithHTTPServerHandler(httpHandler)},
+	}
+}
 
 // Config lets you configure your Client instance
 // Config is the core.Client config used to configure everything
@@ -38,7 +46,7 @@ type Config struct {
 	CacheConfigOpts []cache.ConfigOpt
 
 	MemberChunkingManager MemberChunkingManager
-	MemberChunkingFilter  *MemberChunkingFilter
+	MemberChunkingFilter  MemberChunkingFilter
 }
 
 type ConfigOpt func(config *Config)
@@ -158,127 +166,94 @@ func WithMemberChunkingManager(memberChunkingManager MemberChunkingManager) Conf
 //goland:noinspection GoUnusedExportedFunction
 func WithMemberChunkingFilter(memberChunkingFilter MemberChunkingFilter) ConfigOpt {
 	return func(config *Config) {
-		config.MemberChunkingFilter = &memberChunkingFilter
+		config.MemberChunkingFilter = memberChunkingFilter
 	}
 }
 
-func BuildClient(token string, config Config, gatewayEventHandlerFunc func(client Client) gateway.EventHandlerFunc, httpServerEventHandlerFunc func(client Client) httpserver.EventHandlerFunc) (Client, error) {
+func BuildClient(token string, config Config, gatewayEventHandlerFunc func(client Client) gateway.EventHandlerFunc, httpServerEventHandlerFunc func(client Client) httpserver.EventHandlerFunc, os string, name string, github string, version string) (Client, error) {
 	if token == "" {
 		return nil, discord.ErrNoBotToken
 	}
 	id, err := tokenhelper.IDFromToken(token)
 	if err != nil {
-		return nil, errors.Wrap(err, "error while getting application id from BotToken")
+		return nil, errors.Wrap(err, "error while getting application id from token")
 	}
-	client := &ClientImpl{
-		BotToken: token,
+	client := &clientImpl{
+		token: token,
 	}
 
 	// TODO: figure out how we handle different application & client ids
-	client.BotApplicationID = *id
-	client.BotClientID = *id
-
-	if config.Logger == nil {
-		config.Logger = log.Default()
-	}
-	client.BotLogger = config.Logger
+	client.applicationID = *id
+	client.clientID = *id
 
 	if config.RestClient == nil {
-		if config.RestClientConfig == nil {
-			config.RestClientConfig = &rest.DefaultConfig
-		}
-		if config.RestClientConfig.Logger == nil {
-			config.RestClientConfig.Logger = config.Logger
-		}
-		config.RestClient = rest.NewClient(client.BotToken, config.RestClientConfigOpts)
+		// prepend standard user-agent. this can be overridden as it's appended to the front of the slice
+		config.RestClientConfigOpts = append([]rest.ConfigOpt{rest.WithUserAgent(fmt.Sprintf("DiscordBot (%s, %s)", github, version))}, config.RestClientConfigOpts...)
+
+		config.RestClient = rest.NewClient(client.token, config.RestClientConfigOpts...)
 	}
 
 	if config.RestServices == nil {
-		config.RestServices = rest.NewServices(config.RestClient)
+		config.RestServices = rest.NewServices(token, config.RestClient)
 	}
-	client.RestServices = config.RestServices
+	client.restServices = config.RestServices
 
 	if config.EventManager == nil {
-		if config.EventManagerConfig == nil {
-			config.EventManagerConfig = &DefaultEventManagerConfig
-		}
-
-		config.EventManager = NewEventManager(client, config.EventManagerConfig)
+		config.EventManager = NewEventManager(client, config.EventManagerConfigOpts...)
 	}
-	client.BotEventManager = config.EventManager
+	client.eventManager = config.EventManager
 
-	if config.Gateway == nil && config.GatewayConfig != nil {
+	if config.Gateway == nil && config.GatewayConfigOpts != nil {
 		var gatewayRs *discord.Gateway
-		gatewayRs, err = client.RestServices.GatewayService().GetGateway()
+		gatewayRs, err = client.restServices.GatewayService().GetGateway()
 		if err != nil {
 			return nil, err
 		}
-		if config.GatewayConfig.Logger == nil {
-			config.GatewayConfig.Logger = client.BotLogger
-		}
-		config.Gateway = gateway.New(token, gatewayRs.URL, 0, 0, config.GatewayConfig)
-	}
-	client.BotGateway = config.Gateway
 
-	if config.ShardManager == nil && config.ShardManagerConfig != nil {
+		config.GatewayConfigOpts = append([]gateway.ConfigOpt{gateway.WithGatewayURL(gatewayRs.URL)}, config.GatewayConfigOpts...)
+
+		config.Gateway = gateway.New(token, config.GatewayConfigOpts...)
+	}
+	client.gateway = config.Gateway
+
+	if config.ShardManager == nil && config.ShardManagerConfigOpts != nil {
 		var gatewayBotRs *discord.GatewayBot
-		gatewayBotRs, err = client.RestServices.GatewayService().GetGatewayBot()
+		gatewayBotRs, err = client.restServices.GatewayService().GetGatewayBot()
 		if err != nil {
 			return nil, err
 		}
 
-		if config.ShardManagerConfig.RateLimiterConfig == nil {
-			config.ShardManagerConfig.RateLimiterConfig = &srate.DefaultConfig
-		}
-		if config.ShardManagerConfig.RateLimiterConfig.Logger == nil {
-			config.ShardManagerConfig.RateLimiterConfig.Logger = config.Logger
-		}
-		if config.ShardManagerConfig.RateLimiterConfig.MaxConcurrency == 0 {
-			config.ShardManagerConfig.RateLimiterConfig.MaxConcurrency = gatewayBotRs.SessionStartLimit.MaxConcurrency
+		shardIDs := make([]int, gatewayBotRs.Shards-1)
+		for i := 0; i < gatewayBotRs.Shards-1; i++ {
+			shardIDs[i] = i
 		}
 
-		// apply recommended shard count
-		if !config.ShardManagerConfig.CustomShards {
-			config.ShardManagerConfig.ShardCount = gatewayBotRs.Shards
-			config.ShardManagerConfig.Shards = sharding.NewIntSet()
-			for i := 0; i < gatewayBotRs.Shards; i++ {
-				config.ShardManagerConfig.Shards.Add(i)
-			}
-		}
-		if config.ShardManager == nil {
-			config.ShardManager = sharding.New(token, gatewayBotRs.URL, config.ShardManagerConfig)
-		}
-	}
-	client.BotShardManager = config.ShardManager
+		config.ShardManagerConfigOpts = append([]sharding.ConfigOpt{
+			sharding.WithShardCount(gatewayBotRs.Shards),
+			sharding.WithShards(shardIDs...),
+			sharding.WithGatewayConfigOpts(gateway.WithGatewayURL(gatewayBotRs.URL), gateway.WithEventHandlerFunc(gatewayEventHandlerFunc(client))),
+		}, config.ShardManagerConfigOpts...)
 
-	if config.HTTPServer == nil && config.HTTPServerConfig != nil {
-		if config.HTTPServerConfig.Logger == nil {
-			config.HTTPServerConfig.Logger = config.Logger
-		}
-		config.HTTPServer = httpserver.New(config.HTTPServerConfig)
+		config.ShardManager = sharding.New(token, config.ShardManagerConfigOpts...)
 	}
-	client.BotHTTPServer = config.HTTPServer
+	client.shardManager = config.ShardManager
 
-	if config.AudioController == nil {
-		config.AudioController = NewAudioController(client)
+	if config.HTTPServer == nil && config.HTTPServerConfigOpts != nil {
+		config.HTTPServerConfigOpts = append([]httpserver.ConfigOpt{httpserver.WithEventHandlerFunc(httpServerEventHandlerFunc(client))}, config.HTTPServerConfigOpts...)
+
+		config.HTTPServer = httpserver.New(config.HTTPServerConfigOpts...)
 	}
-	client.BotAudioController = config.AudioController
+	client.httpServer = config.HTTPServer
 
 	if config.MemberChunkingManager == nil {
-		if config.MemberChunkingFilter == nil {
-			config.MemberChunkingFilter = &MemberChunkingFilterNone
-		}
-		config.MemberChunkingManager = NewMemberChunkingManager(client, *config.MemberChunkingFilter)
+		config.MemberChunkingManager = NewMemberChunkingManager(client, config.MemberChunkingFilter)
 	}
-	client.BotMemberChunkingManager = config.MemberChunkingManager
+	client.memberChunkingManager = config.MemberChunkingManager
 
 	if config.Caches == nil {
-		if config.CacheConfig == nil {
-			config.CacheConfig = &cache.DefaultConfig
-		}
-		config.Caches = cache.NewCaches(*config.CacheConfig)
+		config.Caches = cache.NewCaches(config.CacheConfigOpts...)
 	}
-	client.BotCaches = config.Caches
+	client.caches = config.Caches
 
 	return client, nil
 }

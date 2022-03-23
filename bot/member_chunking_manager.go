@@ -4,9 +4,9 @@ import (
 	"context"
 	"sync"
 
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/internal/insecurerandstr"
 	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/internal/insecurerandstr"
 )
 
 var _ MemberChunkingManager = (*memberChunkingManagerImpl)(nil)
@@ -106,7 +106,7 @@ func (m *memberChunkingManagerImpl) requestGuildMembersChan(ctx context.Context,
 		return nil, nil, err
 	}
 
-	if shard.Config().GatewayIntents.Missing(discord.GatewayIntentGuildMembers) {
+	if shard.GatewayIntents().Missing(discord.GatewayIntentGuildMembers) {
 		return nil, nil, discord.ErrNoGuildMembersIntent
 	}
 
@@ -135,7 +135,7 @@ func (m *memberChunkingManagerImpl) requestGuildMembersChan(ctx context.Context,
 		GuildID:   guildID,
 		Query:     query,
 		Limit:     limit,
-		Presences: shard.Config().GatewayIntents.Has(discord.GatewayIntentGuildPresences),
+		Presences: shard.GatewayIntents().Has(discord.GatewayIntentGuildPresences),
 		UserIDs:   userIDs,
 		Nonce:     nonce,
 	}

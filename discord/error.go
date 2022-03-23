@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"github.com/DisgoOrg/disgo/json"
+	"github.com/disgoorg/disgo/json"
 	"github.com/pkg/errors"
 )
 

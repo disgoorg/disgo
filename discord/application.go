@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/rest/route"
 )
 
 type Application struct {

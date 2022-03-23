@@ -1,14 +1,16 @@
 package cache
 
 import (
-	"github.com/DisgoOrg/disgo/discord"
+	"github.com/disgoorg/disgo/discord"
 )
 
 //goland:noinspection GoUnusedGlobalVariable
-var DefaultConfig = Config{
-	CacheFlags:         FlagsDefault,
-	MemberCachePolicy:  MemberCachePolicyDefault,
-	MessageCachePolicy: MessageCachePolicyDefault,
+func DefaultConfig() *Config {
+	return &Config{
+		CacheFlags:         FlagsDefault,
+		MemberCachePolicy:  MemberCachePolicyDefault,
+		MessageCachePolicy: MessageCachePolicyDefault,
+	}
 }
 
 type Config struct {

@@ -1,6 +1,6 @@
 package cache
 
-// Flags are used to enable/disable certain internal BotCaches
+// Flags are used to enable/disable certain internal caches
 type Flags int
 
 // values for CacheFlags

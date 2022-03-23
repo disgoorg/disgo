@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"github.com/DisgoOrg/disgo/bot"
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/events"
 	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/events"
 )
 
 // gatewayHandlerInviteCreate handles discord.GatewayEventTypeInviteCreate

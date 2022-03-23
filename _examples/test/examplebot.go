@@ -10,10 +10,10 @@ import (
 	"github.com/DisgoOrg/disgo"
 	"github.com/DisgoOrg/disgo/bot"
 	"github.com/DisgoOrg/disgo/cache"
+	"github.com/disgoorg/DisGo"
 
 	"github.com/DisgoOrg/disgo/discord"
 	"github.com/DisgoOrg/disgo/gateway"
-	"github.com/DisgoOrg/disgo/info"
 	"github.com/DisgoOrg/log"
 	"github.com/DisgoOrg/snowflake"
 )
@@ -30,7 +30,7 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetLevel(log.LevelDebug)
 	log.Info("starting example...")
-	log.Infof("bot version: %s", info.Version)
+	log.Infof("bot version: %s", DisGo.Version)
 
 	client, err := disgo.New(token,
 		//bot.WithRawEventsEnabled(),

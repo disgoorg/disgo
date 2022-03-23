@@ -3,9 +3,9 @@ package discord
 import (
 	"fmt"
 
-	"github.com/DisgoOrg/disgo/json"
-	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/disgo/rest/route"
 )
 
 // WebhookType (https: //discord.com/developers/docs/resources/webhook#webhook-object-webhook-types)

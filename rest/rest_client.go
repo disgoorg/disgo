@@ -8,36 +8,22 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/DisgoOrg/disgo/json"
+	"github.com/disgoorg/disgo/json"
 	"github.com/pkg/errors"
 
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/rest/route"
-	"github.com/DisgoOrg/disgo/rest/rrate"
 	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/rest/route"
+	"github.com/disgoorg/disgo/rest/rrate"
 )
 
 // NewClient constructs a new Client with the given Config struct
 //goland:noinspection GoUnusedExportedFunction
 func NewClient(botToken string, opts ...ConfigOpt) Client {
-	config := &DefaultConfig
+	config := DefaultConfig()
+	config.Apply(opts)
 
-	if config.Logger == nil {
-		config.Logger = log.Default()
-	}
-	if config.HTTPClient == nil {
-		config.HTTPClient = http.DefaultClient
-	}
-	if config.RateLimiterConfig == nil {
-		config.RateLimiterConfig = &rrate.DefaultConfig
-	}
-	if config.RateLimiterConfig.Logger == nil {
-		config.RateLimiterConfig.Logger = config.Logger
-	}
-	if config.RateLimiter == nil {
-		config.RateLimiter = rrate.NewLimiter(config.RateLimiterConfig)
-	}
-	return &clientImpl{config: *config}
+	return &clientImpl{botToken: botToken, config: *config}
 }
 
 // Client allows doing requests to different endpoints

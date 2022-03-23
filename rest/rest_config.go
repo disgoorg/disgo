@@ -1,29 +1,28 @@
 package rest
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/DisgoOrg/disgo/info"
-	"github.com/DisgoOrg/disgo/rest/rrate"
 	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/disgo/rest/rrate"
 )
 
 // DefaultConfig is the configuration which is used by default
-var DefaultConfig = Config{
-	HTTPClient:        &http.Client{Timeout: 20 * time.Second},
-	RateLimiterConfig: &rrate.DefaultConfig,
-	UserAgent:         fmt.Sprintf("DiscordBot (%s, %s)", info.GitHub, info.Version),
+func DefaultConfig() *Config {
+	return &Config{
+		Logger:     log.Default(),
+		HTTPClient: &http.Client{Timeout: 20 * time.Second},
+	}
 }
 
 // Config is the configuration for the rest client
 type Config struct {
-	Logger            log.Logger
-	HTTPClient        *http.Client
-	RateLimiter       rrate.Limiter
-	RateLimiterConfig *rrate.Config
-	UserAgent         string
+	Logger                log.Logger
+	HTTPClient            *http.Client
+	RateLimiter           rrate.Limiter
+	RateLimiterConfigOpts []rrate.ConfigOpt
+	UserAgent             string
 }
 
 // ConfigOpt can be used to supply optional parameters to NewClient
@@ -64,10 +63,7 @@ func WithRateLimiter(rateLimiter rrate.Limiter) ConfigOpt {
 //goland:noinspection GoUnusedExportedFunction
 func WithRateLimiterConfigOpts(opts ...rrate.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
-		if config.RateLimiterConfig == nil {
-			config.RateLimiterConfig = &rrate.DefaultConfig
-		}
-		config.RateLimiterConfig.Apply(opts)
+		config.RateLimiterConfigOpts = append(config.RateLimiterConfigOpts, opts...)
 	}
 }
 

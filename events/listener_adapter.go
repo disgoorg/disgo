@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/DisgoOrg/disgo/bot"
+	"github.com/disgoorg/disgo/bot"
 )
 
 // ListenerAdapter lets you override the handles for receiving events

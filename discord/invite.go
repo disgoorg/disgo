@@ -1,8 +1,8 @@
 package discord
 
 import (
-	"github.com/DisgoOrg/disgo/rest/route"
 	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/rest/route"
 )
 
 // InviteTargetType is type of target an Invite uses

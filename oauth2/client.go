@@ -6,8 +6,8 @@ import (
 	"github.com/DisgoOrg/snowflake"
 	"github.com/pkg/errors"
 
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/rest"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/rest"
 )
 
 // errors returned by the OAuth2 client

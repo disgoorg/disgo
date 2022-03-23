@@ -1,30 +1,28 @@
 package sharding
 
 import (
-	"github.com/DisgoOrg/disgo/gateway"
-	"github.com/DisgoOrg/disgo/gateway/sharding/srate"
 	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/disgo/sharding/srate"
 )
 
 //goland:noinspection GoUnusedGlobalVariable
-var DefaultConfig = Config{
-	CustomShards: false,
-	GatewayCreateFunc: func(token string, url string, shardID int, shardCount int, config *gateway.Config) gateway.Gateway {
-		return gateway.New(token, url, shardID, shardCount, config)
-	},
-	GatewayConfig: &gateway.DefaultConfig,
-	RateLimiter:   srate.NewLimiter(&srate.DefaultConfig),
+func DefaultConfig() *Config {
+	return &Config{
+		CustomShards:      false,
+		GatewayCreateFunc: gateway.New,
+	}
 }
 
 type Config struct {
-	Logger            log.Logger
-	CustomShards      bool
-	Shards            *IntSet
-	ShardCount        int
-	GatewayCreateFunc func(token string, url string, shardID int, shardCount int, config *gateway.Config) gateway.Gateway
-	GatewayConfig     *gateway.Config
-	RateLimiter       srate.Limiter
-	RateLimiterConfig *srate.Config
+	Logger                log.Logger
+	CustomShards          bool
+	Shards                *IntSet
+	ShardCount            int
+	GatewayCreateFunc     gateway.CreateFunc
+	GatewayConfigOpts     []gateway.ConfigOpt
+	RateLimiter           srate.Limiter
+	RateLimiterConfigOpts []srate.ConfigOpt
 }
 
 type ConfigOpt func(config *Config)
@@ -45,7 +43,6 @@ func WithLogger(logger log.Logger) ConfigOpt {
 //goland:noinspection GoUnusedExportedFunction
 func WithShards(shards ...int) ConfigOpt {
 	return func(config *Config) {
-		config.CustomShards = true
 		if config.Shards == nil {
 			config.Shards = NewIntSet(shards...)
 		}
@@ -58,13 +55,12 @@ func WithShards(shards ...int) ConfigOpt {
 //goland:noinspection GoUnusedExportedFunction
 func WithShardCount(shardCount int) ConfigOpt {
 	return func(config *Config) {
-		config.CustomShards = true
 		config.ShardCount = shardCount
 	}
 }
 
 //goland:noinspection GoUnusedExportedFunction
-func WithGatewayCreateFunc(gatewayCreateFunc func(token string, url string, shardID int, shardCount int, config *gateway.Config) gateway.Gateway) ConfigOpt {
+func WithGatewayCreateFunc(gatewayCreateFunc gateway.CreateFunc) ConfigOpt {
 	return func(config *Config) {
 		config.GatewayCreateFunc = gatewayCreateFunc
 	}
@@ -73,10 +69,7 @@ func WithGatewayCreateFunc(gatewayCreateFunc func(token string, url string, shar
 //goland:noinspection GoUnusedExportedFunction
 func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
-		if config.GatewayConfig == nil {
-			config.GatewayConfig = &gateway.DefaultConfig
-		}
-		config.GatewayConfig.Apply(opts)
+		config.GatewayConfigOpts = append(config.GatewayConfigOpts, opts...)
 	}
 }
 
@@ -90,9 +83,6 @@ func WithRateLimiter(rateLimiter srate.Limiter) ConfigOpt {
 //goland:noinspection GoUnusedExportedFunction
 func WithRateLimiterConfigOpt(opts ...srate.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
-		if config.RateLimiterConfig == nil {
-			config.RateLimiterConfig = &srate.DefaultConfig
-		}
-		config.RateLimiterConfig.Apply(opts)
+		config.RateLimiterConfigOpts = append(config.RateLimiterConfigOpts, opts...)
 	}
 }

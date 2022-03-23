@@ -3,7 +3,7 @@ package cache
 import (
 	"time"
 
-	"github.com/DisgoOrg/disgo/discord"
+	"github.com/disgoorg/disgo/discord"
 )
 
 // Policy can be used to define your own policy for caching cache
@@ -14,7 +14,7 @@ type Policy[T any] func(entity T) bool
 var (
 	MessageCachePolicyNone Policy[discord.Message] = func(_ discord.Message) bool { return false }
 
-	// MessageCachePolicyDuration creates a new CachePolicy which BotCaches discord.Message(s) for the give time.Duration
+	// MessageCachePolicyDuration creates a new CachePolicy which caches discord.Message(s) for the give time.Duration
 	MessageCachePolicyDuration = func(duration time.Duration) Policy[discord.Message] {
 		return func(message discord.Message) bool {
 			return message.CreatedAt.Add(duration).After(time.Now())

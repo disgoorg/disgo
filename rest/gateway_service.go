@@ -1,8 +1,8 @@
 package rest
 
 import (
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/rest/route"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/rest/route"
 )
 
 var (
