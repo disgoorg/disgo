@@ -6,14 +6,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/DisgoOrg/disgo"
-	"github.com/DisgoOrg/disgo/bot"
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/events"
-	"github.com/DisgoOrg/disgo/httpserver"
 	"github.com/DisgoOrg/log"
 	"github.com/DisgoOrg/snowflake"
-	"github.com/disgoorg/DisGo"
+	"github.com/disgoorg/disgo"
+	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/httpserver"
 	"github.com/oasisprotocol/curve25519-voi/primitives/ed25519"
 )
 
@@ -46,7 +45,7 @@ var (
 func main() {
 	log.SetLevel(log.LevelDebug)
 	log.Info("starting example...")
-	log.Info("disgo version: ", DisGo.Version)
+	log.Info("disgo version: ", disgo.Version)
 
 	// use custom ed25519 verify implementation
 	httpserver.Verify = func(publicKey httpserver.PublicKey, message, sig []byte) bool {
@@ -56,12 +55,14 @@ func main() {
 	client, err := disgo.New(token,
 		bot.WithHTTPServerConfigOpts(
 			httpserver.WithURL("/interactions/callback"),
-			httpserver.WithPort(":80"),
+			httpserver.WithAddress(":80"),
 			httpserver.WithPublicKey(publicKey),
 		),
-		bot.WithEventListeners(&events.ListenerAdapter{
-			OnApplicationCommandInteraction: commandListener,
-		}),
+		bot.WithEventManagerConfigOpts(
+			bot.WithEventListeners(&events.ListenerAdapter{
+				OnApplicationCommandInteraction: commandListener,
+			}),
+		),
 	)
 	if err != nil {
 		log.Fatal("error while building disgo instance: ", err)

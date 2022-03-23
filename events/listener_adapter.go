@@ -4,6 +4,8 @@ import (
 	"github.com/disgoorg/disgo/bot"
 )
 
+var _ bot.EventListener = (*ListenerAdapter)(nil)
+
 // ListenerAdapter lets you override the handles for receiving events
 type ListenerAdapter struct {
 	// Other events

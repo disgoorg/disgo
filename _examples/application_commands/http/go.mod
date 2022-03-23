@@ -2,10 +2,10 @@ module http
 
 go 1.18
 
-replace github.com/DisgoOrg/disgo => ../../../
+replace github.com/disgoorg/disgo => ../../../
 
 require (
-	github.com/DisgoOrg/disgo v0.7.4
+	github.com/disgoorg/disgo v0.7.4
 	github.com/DisgoOrg/log v1.1.3
 	github.com/DisgoOrg/snowflake v1.0.4
 	github.com/oasisprotocol/curve25519-voi v0.0.0-20220317090546-adb2f9614b17

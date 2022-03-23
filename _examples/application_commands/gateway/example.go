@@ -51,9 +51,11 @@ func main() {
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentsNone)),
 		bot.WithCacheConfigOpts(cache.WithCacheFlags(cache.FlagsDefault)),
-		bot.WithEventListeners(&events.ListenerAdapter{
-			OnApplicationCommandInteraction: commandListener,
-		}),
+		bot.WithEventManagerConfigOpts(
+			bot.WithEventListeners(&events.ListenerAdapter{
+				OnApplicationCommandInteraction: commandListener,
+			}),
+		),
 	)
 	if err != nil {
 		log.Fatal("error while building disgo instance: ", err)
