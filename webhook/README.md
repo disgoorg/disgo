@@ -1,13 +1,13 @@
 # webhook
 
-[Webhook](https://discord.com/developers/docs/resources/webhook) module of [disgo](https://github.com/DisgoOrg/disgo)
+[Webhook](https://discord.com/developers/docs/resources/webhook) module of [disgo](https://github.com/disgoorg/disgo)
 
 ### Usage
 
 Import the package into your project.
 
 ```go
-import "github.com/DisgoOrg/disgo/webhook"
+import "github.com/disgoorg/disgo/webhook"
 ```
 
 Create a new Webhook by `webhook_id` and `webhook_token`. (*This WebhookClient should be created once as it holds important state*)
@@ -81,4 +81,4 @@ err := client.DeleteMessage("message_id")
 
 ### Full Example
 
-a full example can be found [here](https://github.com/DisgoOrg/disgo/tree/development/_examples/webhook/example.go)
+a full example can be found [here](https://github.com/disgoorg/disgo/tree/development/_examples/webhook/example.go)

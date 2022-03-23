@@ -6,8 +6,8 @@ replace github.com/disgoorg/disgo => ../../
 
 require (
 	github.com/disgoorg/disgo v0.5.6
-	github.com/DisgoOrg/log v1.1.3
-	github.com/DisgoOrg/snowflake v1.0.4
+	github.com/disgoorg/log v1.1.3
+	github.com/disgoorg/snowflake v1.0.4
 )
 
 require (
