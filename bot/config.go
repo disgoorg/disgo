@@ -205,7 +205,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 	}
 
 	if config.RestServices == nil {
-		config.RestServices = rest.NewServices(token, config.RestClient)
+		config.RestServices = rest.NewServices(config.RestClient)
 	}
 	client.restServices = config.RestServices
 
@@ -224,6 +224,9 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 		config.GatewayConfigOpts = append([]gateway.ConfigOpt{
 			gateway.WithGatewayURL(gatewayRs.URL),
 			gateway.WithLogger(client.logger),
+			gateway.WithOS(os),
+			gateway.WithBrowser(name),
+			gateway.WithDevice(name),
 		}, config.GatewayConfigOpts...)
 
 		config.Gateway = gateway.New(token, gatewayEventHandlerFunc(client), config.GatewayConfigOpts...)
