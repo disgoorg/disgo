@@ -4,7 +4,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-//goland:noinspection GoUnusedGlobalVariable
 var (
 	ErrNoGatewayOrShardManager = errors.New("no gateway or shard manager configured")
 	ErrNoGuildMembersIntent    = errors.New("this operation requires the GUILD_MEMBERS intent")

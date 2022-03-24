@@ -10,7 +10,6 @@ import (
 type PremiumTier int
 
 // Constants for PremiumTier
-//goland:noinspection GoUnusedConst
 const (
 	PremiumTierNone PremiumTier = iota
 	PremiumTier1
@@ -22,7 +21,6 @@ const (
 type SystemChannelFlags int
 
 // Constants for SystemChannelFlags
-//goland:noinspection GoUnusedConst
 const (
 	SystemChannelFlagSuppressJoinNotifications SystemChannelFlags = 1 << iota
 	SystemChannelFlagSuppressPremiumSubscriptions
@@ -32,7 +30,6 @@ const (
 type VerificationLevel int
 
 // Constants for VerificationLevel
-//goland:noinspection GoUnusedConst
 const (
 	VerificationLevelNone VerificationLevel = iota
 	VerificationLevelLow
@@ -45,7 +42,6 @@ const (
 type MessageNotificationsLevel int
 
 // Constants for MessageNotificationsLevel
-//goland:noinspection GoUnusedConst
 const (
 	MessageNotificationsLevelAllMessages MessageNotificationsLevel = iota
 	MessageNotificationsLevelOnlyMentions
@@ -55,7 +51,6 @@ const (
 type ExplicitContentFilterLevel int
 
 // Constants for ExplicitContentFilterLevel
-//goland:noinspection GoUnusedConst
 const (
 	ExplicitContentFilterLevelDisabled ExplicitContentFilterLevel = iota
 	ExplicitContentFilterLevelMembersWithoutRoles
@@ -66,7 +61,6 @@ const (
 type MFALevel int
 
 // Constants for MFALevel
-//goland:noinspection GoUnusedConst
 const (
 	MFALevelNone MFALevel = iota
 	MFALevelElevated
@@ -76,7 +70,6 @@ const (
 type GuildFeature string
 
 // Constants for GuildFeature
-//goland:noinspection GoUnusedConst
 const (
 	GuildFeatureAnimatedIcon                  GuildFeature = "ANIMATED_ICON"
 	GuildFeatureBanner                        GuildFeature = "BANNER"
@@ -279,7 +272,6 @@ type GuildUpdate struct {
 
 type NSFWLevel int
 
-//goland:noinspection GoUnusedConst
 const (
 	NSFWLevelDefault NSFWLevel = iota
 	NSFWLevelExplicit

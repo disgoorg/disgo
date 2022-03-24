@@ -9,7 +9,6 @@ import (
 type InviteTargetType int
 
 // Constants for TargetType
-//goland:noinspection GoUnusedConst
 const (
 	InviteTargetTypeStream InviteTargetType = iota + 1
 	InviteTargetTypeEmbeddedApplication

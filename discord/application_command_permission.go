@@ -11,7 +11,6 @@ import (
 type ApplicationCommandPermissionType int
 
 // types of ApplicationCommandPermissionType
-//goland:noinspection GoUnusedConst
 const (
 	ApplicationCommandPermissionTypeRole = iota + 1
 	ApplicationCommandPermissionTypeUser

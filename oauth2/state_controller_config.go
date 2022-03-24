@@ -33,7 +33,6 @@ func (c *StateControllerConfig) Apply(opts []StateControllerConfigOpt) {
 }
 
 // WithStates loads states from an existing map
-//goland:noinspection GoUnusedExportedFunction
 func WithStates(states map[string]string) StateControllerConfigOpt {
 	return func(config *StateControllerConfig) {
 		config.States = states
@@ -41,7 +40,6 @@ func WithStates(states map[string]string) StateControllerConfigOpt {
 }
 
 // WithNewStateFunc sets the function which is used to generate a new random state
-//goland:noinspection GoUnusedExportedFunction
 func WithNewStateFunc(newStateFunc func() string) StateControllerConfigOpt {
 	return func(config *StateControllerConfig) {
 		config.NewStateFunc = newStateFunc
@@ -49,7 +47,6 @@ func WithNewStateFunc(newStateFunc func() string) StateControllerConfigOpt {
 }
 
 // WithMaxTTL sets the maximum time to live for a state
-//goland:noinspection GoUnusedExportedFunction
 func WithMaxTTL(maxTTL time.Duration) StateControllerConfigOpt {
 	return func(config *StateControllerConfig) {
 		config.MaxTTL = maxTTL

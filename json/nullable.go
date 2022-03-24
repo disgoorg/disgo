@@ -7,27 +7,22 @@ import (
 
 var nullBytes = []byte("null")
 
-//goland:noinspection GoUnusedExportedFunction
 func NewPtr[T any](t T) *T {
-	v := t
-	return &v
+	return &t
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func Null[T any]() Nullable[T] {
 	return Nullable[T]{
 		isNull: true,
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func OptionalNull[T any]() *Nullable[T] {
 	return &Nullable[T]{
 		isNull: true,
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func New[T any](t T) Nullable[T] {
 	return Nullable[T]{
 		value:  t,
@@ -35,7 +30,6 @@ func New[T any](t T) Nullable[T] {
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func NewOptional[T any](t T) *Nullable[T] {
 	return &Nullable[T]{
 		value:  t,

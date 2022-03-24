@@ -9,7 +9,6 @@ import (
 type MessageType int
 
 // Constants for the MessageType
-//goland:noinspection GoUnusedConst
 const (
 	MessageTypeDefault MessageType = iota
 	MessageTypeRecipientAdd
@@ -199,7 +198,6 @@ type MessageReaction struct {
 type MessageActivityType int
 
 //Constants for MessageActivityType
-//goland:noinspection GoUnusedConst
 const (
 	MessageActivityTypeJoin MessageActivityType = iota + 1
 	MessageActivityTypeSpectate
@@ -247,7 +245,6 @@ type MessageBulkDelete struct {
 type MessageFlags int64
 
 // Constants for MessageFlags
-//goland:noinspection GoUnusedConst
 const (
 	MessageFlagCrossposted MessageFlags = 1 << iota
 	MessageFlagIsCrosspost

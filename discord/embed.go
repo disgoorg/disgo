@@ -4,7 +4,6 @@ package discord
 type EmbedType string
 
 // Constants for EmbedType
-//goland:noinspection GoUnusedConst
 const (
 	EmbedTypeRich    EmbedType = "rich"
 	EmbedTypeImage   EmbedType = "image"

@@ -58,119 +58,102 @@ func (c *Config) Apply(opts []ConfigOpt) {
 }
 
 // WithLogger lets you inject your own logger implementing log.Logger
-//goland:noinspection GoUnusedExportedFunction
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithRestClient(restClient rest.Client) ConfigOpt {
 	return func(config *Config) {
 		config.RestClient = restClient
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		config.RestClientConfigOpts = append(config.RestClientConfigOpts, opts...)
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithRest(rest rest.Rest) ConfigOpt {
 	return func(config *Config) {
 		config.Rest = rest
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithEventManager(eventManager EventManager) ConfigOpt {
 	return func(config *Config) {
 		config.EventManager = eventManager
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithEventManagerConfigOpts(opts ...EventManagerConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		config.EventManagerConfigOpts = append(config.EventManagerConfigOpts, opts...)
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithEventListeners(eventListeners ...EventListener) ConfigOpt {
 	return func(config *Config) {
 		config.EventManagerConfigOpts = append(config.EventManagerConfigOpts, WithListeners(eventListeners...))
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithGateway(gateway gateway.Gateway) ConfigOpt {
 	return func(config *Config) {
 		config.Gateway = gateway
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		config.GatewayConfigOpts = append(config.GatewayConfigOpts, opts...)
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithShardManager(shardManager sharding.ShardManager) ConfigOpt {
 	return func(config *Config) {
 		config.ShardManager = shardManager
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithShardManagerConfigOpts(opts ...sharding.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		config.ShardManagerConfigOpts = append(config.ShardManagerConfigOpts, opts...)
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithHTTPServer(httpServer httpserver.Server) ConfigOpt {
 	return func(config *Config) {
 		config.HTTPServer = httpServer
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithHTTPServerConfigOpts(opts ...httpserver.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		config.HTTPServerConfigOpts = append(config.HTTPServerConfigOpts, opts...)
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithCaches(caches cache.Caches) ConfigOpt {
 	return func(config *Config) {
 		config.Caches = caches
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithCacheConfigOpts(opts ...cache.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		config.CacheConfigOpts = append(config.CacheConfigOpts, opts...)
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithMemberChunkingManager(memberChunkingManager MemberChunkingManager) ConfigOpt {
 	return func(config *Config) {
 		config.MemberChunkingManager = memberChunkingManager
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithMemberChunkingFilter(memberChunkingFilter MemberChunkingFilter) ConfigOpt {
 	return func(config *Config) {
 		config.MemberChunkingFilter = memberChunkingFilter

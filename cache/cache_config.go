@@ -4,7 +4,6 @@ import (
 	"github.com/disgoorg/disgo/discord"
 )
 
-//goland:noinspection GoUnusedGlobalVariable
 func DefaultConfig() *Config {
 	return &Config{
 		CacheFlags:         FlagsDefault,
@@ -27,7 +26,6 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithCacheFlags(cacheFlags ...Flags) ConfigOpt {
 	return func(config *Config) {
 		var flags Flags
@@ -38,14 +36,12 @@ func WithCacheFlags(cacheFlags ...Flags) ConfigOpt {
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithMemberCachePolicy(memberCachePolicy Policy[discord.Member]) ConfigOpt {
 	return func(config *Config) {
 		config.MemberCachePolicy = memberCachePolicy
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithMessageCachePolicy(messageCachePolicy Policy[discord.Message]) ConfigOpt {
 	return func(config *Config) {
 		config.MessageCachePolicy = messageCachePolicy

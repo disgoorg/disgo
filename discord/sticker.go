@@ -33,7 +33,6 @@ func (s Sticker) URL(opts ...CDNOpt) string {
 
 type StickerType int
 
-//goland:noinspection GoUnusedConst
 const (
 	StickerTypeStandard StickerType = iota + 1
 	StickerTypeGuild
@@ -43,7 +42,6 @@ const (
 type StickerFormatType int
 
 // Constants for StickerFormatType
-//goland:noinspection GoUnusedConst
 const (
 	StickerFormatTypePNG StickerFormatType = iota + 1
 	StickerFormatTypeAPNG

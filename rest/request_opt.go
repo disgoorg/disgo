@@ -48,7 +48,6 @@ func (c *RequestConfig) Apply(opts []RequestOpt) {
 }
 
 // WithCtx applies a custom context to the request
-//goland:noinspection GoUnusedExportedFunction
 func WithCtx(ctx context.Context) RequestOpt {
 	return func(config *RequestConfig) {
 		config.Ctx = ctx
@@ -56,7 +55,6 @@ func WithCtx(ctx context.Context) RequestOpt {
 }
 
 // WithCheck adds a new check to the request
-//goland:noinspection GoUnusedExportedFunction
 func WithCheck(check Check) RequestOpt {
 	return func(config *RequestConfig) {
 		config.Checks = append(config.Checks, check)
@@ -64,7 +62,6 @@ func WithCheck(check Check) RequestOpt {
 }
 
 // WithDelay applies a delay to the request
-//goland:noinspection GoUnusedExportedFunction
 func WithDelay(delay time.Duration) RequestOpt {
 	return func(config *RequestConfig) {
 		config.Delay = delay
@@ -72,7 +69,6 @@ func WithDelay(delay time.Duration) RequestOpt {
 }
 
 // WithReason adds a reason header to the request. Not all discord endpoints support this
-//goland:noinspection GoUnusedExportedFunction
 func WithReason(reason string) RequestOpt {
 	return func(config *RequestConfig) {
 		config.Request.Header.Set("X-Audit-Log-Reason", reason)
@@ -80,7 +76,6 @@ func WithReason(reason string) RequestOpt {
 }
 
 // WithHeader adds a custom header to the request
-//goland:noinspection GoUnusedExportedFunction
 func WithHeader(key string, value string) RequestOpt {
 	return func(config *RequestConfig) {
 		config.Request.Header.Set(key, value)
@@ -88,7 +83,6 @@ func WithHeader(key string, value string) RequestOpt {
 }
 
 // WithQueryParam applies a custom query parameter to the request
-//goland:noinspection GoUnusedExportedFunction
 func WithQueryParam(param string, value any) RequestOpt {
 	return func(config *RequestConfig) {
 		values := config.Request.URL.Query()
@@ -97,7 +91,6 @@ func WithQueryParam(param string, value any) RequestOpt {
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithToken(tokenType discord.TokenType, token string) RequestOpt {
 	return func(config *RequestConfig) {
 		config.TokenType = tokenType

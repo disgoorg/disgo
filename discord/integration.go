@@ -11,7 +11,6 @@ import (
 type IntegrationType string
 
 // All IntegrationType(s)
-//goland:noinspection GoUnusedConst
 const (
 	IntegrationTypeTwitch  IntegrationType = "twitch"
 	IntegrationTypeYouTube IntegrationType = "youtube"

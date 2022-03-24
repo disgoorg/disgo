@@ -28,21 +28,18 @@ func (c *CDNConfig) Apply(opts []CDNOpt) {
 
 type CDNOpt func(config *CDNConfig)
 
-//goland:noinspection GoUnusedExportedFunction
 func WithSize(size int) CDNOpt {
 	return func(config *CDNConfig) {
 		config.Size = size
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithFormat(format route.ImageFormat) CDNOpt {
 	return func(config *CDNConfig) {
 		config.Format = format
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithV(v int) CDNOpt {
 	return func(config *CDNConfig) {
 		config.V = v

@@ -11,7 +11,6 @@ type ModalCreate struct {
 func (ModalCreate) interactionCallbackData() {}
 
 // NewModalCreateBuilder creates a new ModalCreateBuilder to be built later
-//goland:noinspection GoUnusedExportedFunction
 func NewModalCreateBuilder() *ModalCreateBuilder {
 	return &ModalCreateBuilder{}
 }

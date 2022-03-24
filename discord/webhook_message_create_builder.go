@@ -11,7 +11,6 @@ type WebhookMessageCreateBuilder struct {
 }
 
 // NewWebhookMessageCreateBuilder creates a new WebhookMessageCreateBuilder to be built later
-//goland:noinspection GoUnusedExportedFunction
 func NewWebhookMessageCreateBuilder() *WebhookMessageCreateBuilder {
 	return &WebhookMessageCreateBuilder{
 		WebhookMessageCreate: WebhookMessageCreate{

@@ -59,7 +59,6 @@ type InstallationParams struct {
 
 type ApplicationScope string
 
-//goland:noinspection GoUnusedConst
 const (
 	ApplicationScopeActivitiesWrite ApplicationScope = "activities.write"
 	ApplicationScopeActivitiesRead  ApplicationScope = "activities.read"
@@ -123,7 +122,6 @@ func HasScope(scope ApplicationScope, scopes ...ApplicationScope) bool {
 
 type TokenType string
 
-//goland:noinspection GoUnusedConst
 const (
 	TokenTypeBearer TokenType = "Bearer"
 	TokenTypeBot    TokenType = "Bot"
@@ -140,7 +138,6 @@ func (t TokenType) Apply(token string) string {
 // ApplicationFlags (https://discord.com/developers/docs/resources/application#application-object-application-flags)
 type ApplicationFlags int
 
-//goland:noinspection GoUnusedConst
 const (
 	ApplicationFlagGatewayPresence = 1 << (iota + 12)
 	ApplicationFlagGatewayPresenceLimited
@@ -207,7 +204,6 @@ type TeamMember struct {
 
 type MembershipState int
 
-//goland:noinspection GoUnusedConst,GoUnusedConst
 const (
 	MembershipStateInvited = iota + 1
 	MembershipStateAccepted
@@ -215,7 +211,6 @@ const (
 
 type TeamPermissions string
 
-//goland:noinspection GoUnusedConst
 const (
 	TeamPermissionAdmin = "*"
 )

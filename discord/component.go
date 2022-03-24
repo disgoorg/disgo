@@ -11,7 +11,6 @@ import (
 type ComponentType int
 
 // Supported ComponentType(s)
-//goland:noinspection GoUnusedConst
 const (
 	ComponentTypeActionRow = iota + 1
 	ComponentTypeButton
@@ -110,7 +109,6 @@ var (
 	_ ContainerComponent = (*ActionRowComponent)(nil)
 )
 
-//goland:noinspection GoUnusedExportedFunction
 func NewActionRow(components ...InteractiveComponent) ActionRowComponent {
 	return components
 }
@@ -216,7 +214,6 @@ const (
 )
 
 // NewButton creates a new ButtonComponent with the provided parameters. Link ButtonComponent(s) need a URL and other ButtonComponent(s) need a customID
-//goland:noinspection GoUnusedExportedFunction
 func NewButton(style ButtonStyle, label string, customID CustomID, url string) ButtonComponent {
 	return ButtonComponent{
 		Style:    style,
@@ -227,31 +224,26 @@ func NewButton(style ButtonStyle, label string, customID CustomID, url string) B
 }
 
 // NewPrimaryButton creates a new ButtonComponent with ButtonStylePrimary & the provided parameters
-//goland:noinspection GoUnusedExportedFunction
 func NewPrimaryButton(label string, customID CustomID) ButtonComponent {
 	return NewButton(ButtonStylePrimary, label, customID, "")
 }
 
 // NewSecondaryButton creates a new ButtonComponent with ButtonStyleSecondary & the provided parameters
-//goland:noinspection GoUnusedExportedFunction
 func NewSecondaryButton(label string, customID CustomID) ButtonComponent {
 	return NewButton(ButtonStyleSecondary, label, customID, "")
 }
 
 // NewSuccessButton creates a new ButtonComponent with ButtonStyleSuccess & the provided parameters
-//goland:noinspection GoUnusedExportedFunction
 func NewSuccessButton(label string, customID CustomID) ButtonComponent {
 	return NewButton(ButtonStyleSuccess, label, customID, "")
 }
 
 // NewDangerButton creates a new ButtonComponent with ButtonStyleDanger & the provided parameters
-//goland:noinspection GoUnusedExportedFunction
 func NewDangerButton(label string, customID CustomID) ButtonComponent {
 	return NewButton(ButtonStyleDanger, label, customID, "")
 }
 
 // NewLinkButton creates a new link ButtonComponent with ButtonStyleLink & the provided parameters
-//goland:noinspection GoUnusedExportedFunction
 func NewLinkButton(label string, url string) ButtonComponent {
 	return NewButton(ButtonStyleLink, label, "", url)
 }
@@ -346,7 +338,6 @@ func (c ButtonComponent) WithDisabled(disabled bool) ButtonComponent {
 }
 
 // NewSelectMenu builds a new SelectMenuComponent from the provided values
-//goland:noinspection GoUnusedExportedFunction
 func NewSelectMenu(customID CustomID, placeholder string, options ...SelectMenuOption) SelectMenuComponent {
 	return SelectMenuComponent{
 		CustomID:    customID,
@@ -470,7 +461,6 @@ func (c SelectMenuComponent) RemoveOption(index int) SelectMenuComponent {
 }
 
 // NewSelectMenuOption builds a new SelectMenuOption
-//goland:noinspection GoUnusedExportedFunction
 func NewSelectMenuOption(label string, value string) SelectMenuOption {
 	return SelectMenuOption{
 		Label: label,
@@ -523,7 +513,6 @@ var (
 	_ InputComponent       = (*TextInputComponent)(nil)
 )
 
-//goland:noinspection GoUnusedExportedFunction
 func NewTextInput(customID CustomID, style TextInputStyle, label string) TextInputComponent {
 	return TextInputComponent{
 		CustomID: customID,
@@ -532,12 +521,10 @@ func NewTextInput(customID CustomID, style TextInputStyle, label string) TextInp
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func NewShortTextInput(customID CustomID, label string) TextInputComponent {
 	return NewTextInput(customID, TextInputStyleShort, label)
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func NewParagraphTextInput(customID CustomID, label string) TextInputComponent {
 	return NewTextInput(customID, TextInputStyleParagraph, label)
 }
@@ -625,7 +612,6 @@ func (c TextInputComponent) WithValue(value string) TextInputComponent {
 
 type TextInputStyle int
 
-//goland:noinspection GoUnusedConst
 const (
 	TextInputStyleShort = iota + 1
 	TextInputStyleParagraph

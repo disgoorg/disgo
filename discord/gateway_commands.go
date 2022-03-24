@@ -99,7 +99,6 @@ type UpdatePresenceCommandData struct {
 func (UpdatePresenceCommandData) gatewayCommandData() {}
 
 // NewPresence creates a new Presence with the provided properties
-//goland:noinspection GoUnusedExportedFunction
 func NewPresence(activityType ActivityType, name string, url string, status OnlineStatus, afk bool) UpdatePresenceCommandData {
 	var since *int64
 	if status == OnlineStatusIdle {
@@ -128,31 +127,26 @@ func NewPresence(activityType ActivityType, name string, url string, status Onli
 }
 
 // NewGamePresence creates a new Presence of type ActivityTypeGame
-//goland:noinspection GoUnusedExportedFunction
 func NewGamePresence(name string, status OnlineStatus, afk bool) UpdatePresenceCommandData {
 	return NewPresence(ActivityTypeGame, name, "", status, afk)
 }
 
 // NewStreamingPresence creates a new Presence of type ActivityTypeStreaming
-//goland:noinspection GoUnusedExportedFunction
 func NewStreamingPresence(name string, url string, status OnlineStatus, afk bool) UpdatePresenceCommandData {
 	return NewPresence(ActivityTypeStreaming, name, url, status, afk)
 }
 
 // NewListeningPresence creates a new Presence of type ActivityTypeListening
-//goland:noinspection GoUnusedExportedFunction
 func NewListeningPresence(name string, status OnlineStatus, afk bool) UpdatePresenceCommandData {
 	return NewPresence(ActivityTypeListening, name, "", status, afk)
 }
 
 // NewWatchingPresence creates a new Presence of type ActivityTypeWatching
-//goland:noinspection GoUnusedExportedFunction
 func NewWatchingPresence(name string, status OnlineStatus, afk bool) UpdatePresenceCommandData {
 	return NewPresence(ActivityTypeWatching, name, "", status, afk)
 }
 
 // NewCompetingPresence creates a new Presence of type ActivityTypeCompeting
-//goland:noinspection GoUnusedExportedFunction
 func NewCompetingPresence(name string, status OnlineStatus, afk bool) UpdatePresenceCommandData {
 	return NewPresence(ActivityTypeCompeting, name, "", status, afk)
 }

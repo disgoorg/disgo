@@ -10,7 +10,6 @@ import (
 )
 
 // NewClient returns a new Client
-//goland:noinspection GoUnusedExportedFunction
 func NewClient(id snowflake.Snowflake, token string, opts ...ConfigOpt) Client {
 	config := DefaultConfig()
 	config.Apply(opts)

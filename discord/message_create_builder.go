@@ -13,7 +13,6 @@ type MessageCreateBuilder struct {
 }
 
 // NewMessageCreateBuilder creates a new MessageCreateBuilder to be built later
-//goland:noinspection GoUnusedExportedFunction
 func NewMessageCreateBuilder() *MessageCreateBuilder {
 	return &MessageCreateBuilder{
 		MessageCreate: MessageCreate{

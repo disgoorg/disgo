@@ -12,7 +12,6 @@ import (
 type UserFlags int
 
 // All UserFlags
-//goland:noinspection GoUnusedConst
 const (
 	UserFlagDiscordEmployee UserFlags = 1 << iota
 	UserFlagPartneredServerOwner
@@ -111,7 +110,6 @@ type OAuth2User struct {
 type PremiumType int
 
 // All PremiumType(s)
-//goland:noinspection GoUnusedConst
 const (
 	PremiumTypeNone PremiumType = iota
 	PremiumTypeNitroClassic

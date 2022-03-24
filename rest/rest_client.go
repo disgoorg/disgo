@@ -18,7 +18,6 @@ import (
 )
 
 // NewClient constructs a new Client with the given Config struct
-//goland:noinspection GoUnusedExportedFunction
 func NewClient(botToken string, opts ...ConfigOpt) Client {
 	config := DefaultConfig()
 	config.Apply(opts)

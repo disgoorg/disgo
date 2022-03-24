@@ -11,13 +11,11 @@ import (
 	"github.com/disgoorg/disgo/httpserver"
 )
 
-//goland:noinspection GoUnusedConst
 const (
 	Name   = "disgo"
 	GitHub = "https://github.com/disgoorg/" + Name
 )
 
-//goland:noinspection GoUnusedGlobalVariable
 var (
 	Version = getVersion()
 	OS      = getOS()
@@ -47,7 +45,6 @@ func getOS() string {
 }
 
 // New creates a new core.Client instance with the provided bot token & ConfigOpt(s)
-//goland:noinspection GoUnusedExportedFunction
 func New(token string, opts ...bot.ConfigOpt) (bot.Client, error) {
 	config := bot.DefaultConfig(handlers.GetGatewayHandlers(), handlers.GetHTTPServerHandler())
 	config.Apply(opts)

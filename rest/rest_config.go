@@ -39,7 +39,6 @@ func (c *Config) Apply(opts []ConfigOpt) {
 }
 
 // WithLogger applies a custom logger to the rest rate limiter
-//goland:noinspection GoUnusedExportedFunction
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
@@ -47,7 +46,6 @@ func WithLogger(logger log.Logger) ConfigOpt {
 }
 
 // WithHTTPClient applies a custom http.Client to the rest rate limiter
-//goland:noinspection GoUnusedExportedFunction
 func WithHTTPClient(httpClient *http.Client) ConfigOpt {
 	return func(config *Config) {
 		config.HTTPClient = httpClient
@@ -55,7 +53,6 @@ func WithHTTPClient(httpClient *http.Client) ConfigOpt {
 }
 
 // WithRateLimiter applies a custom rrate.Limiter to the rest client
-//goland:noinspection GoUnusedExportedFunction
 func WithRateLimiter(rateLimiter rrate.Limiter) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiter = rateLimiter
@@ -63,7 +60,6 @@ func WithRateLimiter(rateLimiter rrate.Limiter) ConfigOpt {
 }
 
 // WithRateLimiterConfigOpts applies rrate.ConfigOpt for the rrate.Limiter to the rest rate limiter
-//goland:noinspection GoUnusedExportedFunction
 func WithRateLimiterConfigOpts(opts ...rrate.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiterConfigOpts = append(config.RateLimiterConfigOpts, opts...)
@@ -71,7 +67,6 @@ func WithRateLimiterConfigOpts(opts ...rrate.ConfigOpt) ConfigOpt {
 }
 
 // WithUserAgent sets the user agent for all requests
-//goland:noinspection GoUnusedExportedFunction
 func WithUserAgent(userAgent string) ConfigOpt {
 	return func(config *Config) {
 		config.UserAgent = userAgent

@@ -6,7 +6,6 @@ import "github.com/disgoorg/snowflake"
 type ActivityType int
 
 // Constants for Activity(s)
-//goland:noinspection GoUnusedConst
 const (
 	ActivityTypeGame ActivityType = iota
 	ActivityTypeStreaming

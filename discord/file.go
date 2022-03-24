@@ -21,7 +21,6 @@ type MultipartBuffer struct {
 }
 
 // PayloadWithFiles returns the given payload as multipart body with all files in it
-//goland:noinspection GoUnusedExportedFunction
 func PayloadWithFiles(v any, files ...*File) (*MultipartBuffer, error) {
 	buffer := &bytes.Buffer{}
 	writer := multipart.NewWriter(buffer)
@@ -75,7 +74,6 @@ func partHeader(contentDisposition string, contentType string) textproto.MIMEHea
 }
 
 // NewFile returns a new File struct with the given name, io.Reader & FileFlags
-//goland:noinspection GoUnusedExportedFunction
 func NewFile(name string, reader io.Reader, flags ...FileFlags) *File {
 	return &File{
 		Name:   name,

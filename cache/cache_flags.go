@@ -4,7 +4,6 @@ package cache
 type Flags int
 
 // values for CacheFlags
-//goland:noinspection GoUnusedConst
 const (
 	FlagGuilds Flags = 1 << iota
 	FlagGuildScheduledEvents

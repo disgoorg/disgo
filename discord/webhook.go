@@ -12,7 +12,6 @@ import (
 type WebhookType int
 
 // All WebhookType(s)
-//goland:noinspection GoUnusedConst
 const (
 	WebhookTypeIncoming WebhookType = iota + 1
 	WebhookTypeChannelFollower

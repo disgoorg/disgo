@@ -25,7 +25,6 @@ func NewCDNRoute(path string, supportedImageFormats ...ImageFormat) *CDNRoute {
 }
 
 // NewCustomCDNRoute generates a new custom cdn path struct
-//goland:noinspection GoUnusedExportedFunction
 func NewCustomCDNRoute(basePath string, path string, supportedImageFormats ...ImageFormat) *CDNRoute {
 	route := NewCDNRoute(path, supportedImageFormats...)
 	route.basePath = basePath

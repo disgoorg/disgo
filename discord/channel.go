@@ -11,7 +11,6 @@ import (
 type ChannelType int
 
 // Channel constants
-//goland:noinspection GoUnusedConst
 const (
 	ChannelTypeGuildText ChannelType = iota
 	ChannelTypeDM
@@ -840,7 +839,6 @@ func (GuildStageVoiceChannel) guildAudioChannel() {}
 // VideoQualityMode https://com/developers/docs/resources/channel#channel-object-video-quality-modes
 type VideoQualityMode int
 
-//goland:noinspection GoUnusedConst
 const (
 	VideoQualityModeAuto = iota + 1
 	VideoQualityModeFull
@@ -857,7 +855,6 @@ type ThreadMetadata struct {
 
 type AutoArchiveDuration int
 
-//goland:noinspection GoUnusedConst
 const (
 	AutoArchiveDuration1h  AutoArchiveDuration = 60
 	AutoArchiveDuration24h AutoArchiveDuration = 1440

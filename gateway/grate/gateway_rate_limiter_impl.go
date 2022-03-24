@@ -8,7 +8,6 @@ import (
 	"github.com/sasha-s/go-csync"
 )
 
-//goland:noinspection GoUnusedExportedFunction
 func NewLimiter(opts ...ConfigOpt) Limiter {
 	config := DefaultConfig()
 	config.Apply(opts)

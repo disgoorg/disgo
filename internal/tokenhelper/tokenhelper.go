@@ -9,7 +9,6 @@ import (
 )
 
 // IDFromToken returns the applicationID from the token
-//goland:noinspection GoUnusedExportedFunction
 func IDFromToken(token string) (*snowflake.Snowflake, error) {
 	strs := strings.Split(token, ".")
 	if len(strs) == 0 {

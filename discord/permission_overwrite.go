@@ -11,7 +11,6 @@ import (
 type PermissionOverwriteType int
 
 // Constants for PermissionOverwriteType
-//goland:noinspection GoUnusedConst
 const (
 	PermissionOverwriteTypeRole PermissionOverwriteType = iota
 	PermissionOverwriteTypeMember

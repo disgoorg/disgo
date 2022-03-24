@@ -32,7 +32,6 @@ func newAPIRoute(method Method, path string, queryParams []string, needsBotAuth 
 }
 
 // NewCustomAPIRoute generates a new custom path struct
-//goland:noinspection GoUnusedExportedFunction
 func NewCustomAPIRoute(method Method, basePath string, path string, queryParams ...string) *APIRoute {
 	route := NewAPIRoute(method, path, queryParams...)
 	route.basePath = basePath

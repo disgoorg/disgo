@@ -22,7 +22,6 @@ func NewRoute(path string, queryParams ...string) *Route {
 }
 
 // NewCustomRoute generates a new custom path struct
-//goland:noinspection GoUnusedExportedFunction
 func NewCustomRoute(basePath string, path string, queryParams ...string) *Route {
 	route := NewRoute(path, queryParams...)
 	route.basePath = basePath

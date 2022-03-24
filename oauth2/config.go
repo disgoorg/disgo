@@ -44,7 +44,6 @@ func (c *Config) Apply(opts []ConfigOpt) {
 }
 
 // WithLogger applies a custom logger to the OAuth2 client
-//goland:noinspection GoUnusedExportedFunction
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
@@ -52,7 +51,6 @@ func WithLogger(logger log.Logger) ConfigOpt {
 }
 
 // WithRestClient applies a custom rest.Client to the OAuth2 client
-//goland:noinspection GoUnusedExportedFunction
 func WithRestClient(restClient rest.Client) ConfigOpt {
 	return func(config *Config) {
 		config.RestClient = restClient
@@ -60,7 +58,6 @@ func WithRestClient(restClient rest.Client) ConfigOpt {
 }
 
 // WithRestClientConfigOpts applies rest.ConfigOpt for the rest.Client to the OAuth2 client
-//goland:noinspection GoUnusedExportedFunction
 func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		config.RestClientConfigOpts = append(config.RestClientConfigOpts, opts...)
@@ -68,7 +65,6 @@ func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 }
 
 // WithOAuth2 applies a custom rest.OAuth2 to the OAuth2 client
-//goland:noinspection GoUnusedExportedFunction
 func WithOAuth2(oauth2 rest.OAuth2) ConfigOpt {
 	return func(config *Config) {
 		config.OAuth2 = oauth2
@@ -76,7 +72,6 @@ func WithOAuth2(oauth2 rest.OAuth2) ConfigOpt {
 }
 
 // WithSessionController applies a custom SessionController to the OAuth2 client
-//goland:noinspection GoUnusedExportedFunction
 func WithSessionController(sessionController SessionController) ConfigOpt {
 	return func(config *Config) {
 		config.SessionController = sessionController
@@ -84,7 +79,6 @@ func WithSessionController(sessionController SessionController) ConfigOpt {
 }
 
 // WithStateController applies a custom StateController to the OAuth2 client
-//goland:noinspection GoUnusedExportedFunction
 func WithStateController(stateController StateController) ConfigOpt {
 	return func(config *Config) {
 		config.StateController = stateController
@@ -92,7 +86,6 @@ func WithStateController(stateController StateController) ConfigOpt {
 }
 
 // WithStateControllerOpts applies all StateControllerConfigOpt(s) to the StateController
-//goland:noinspection GoUnusedExportedFunction
 func WithStateControllerOpts(opts ...StateControllerConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		config.StateControllerConfigOpts = append(config.StateControllerConfigOpts, opts...)

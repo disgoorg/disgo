@@ -23,35 +23,30 @@ func (c *EventManagerConfig) Apply(opts []EventManagerConfigOpt) {
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithListeners(listeners ...EventListener) EventManagerConfigOpt {
 	return func(config *EventManagerConfig) {
 		config.EventListeners = append(config.EventListeners, listeners...)
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithRawEventsEnabled() EventManagerConfigOpt {
 	return func(config *EventManagerConfig) {
 		config.RawEventsEnabled = true
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithAsyncEventsEnabled() EventManagerConfigOpt {
 	return func(config *EventManagerConfig) {
 		config.AsyncEventsEnabled = true
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithGatewayHandlers(handlers map[discord.GatewayEventType]GatewayEventHandler) EventManagerConfigOpt {
 	return func(config *EventManagerConfig) {
 		config.GatewayHandlers = handlers
 	}
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func WithHTTPServerHandler(handler HTTPServerEventHandler) EventManagerConfigOpt {
 	return func(config *EventManagerConfig) {
 		config.HTTPServerHandler = handler
