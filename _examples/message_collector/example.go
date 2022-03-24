@@ -54,7 +54,7 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 	}
 	if event.Message.Content == "start" {
 		go func() {
-			ch, cls := bot.NewCollector(event.Client(), func(event *events.MessageCreateEvent) bool {
+			ch, cls := bot.NewEventCollector(event.Client(), func(event *events.MessageCreateEvent) bool {
 				return event.ChannelID == event.ChannelID && event.Message.Author.ID == event.Message.Author.ID && event.Message.Content != ""
 			})
 			i := 1

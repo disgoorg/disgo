@@ -3,6 +3,7 @@ package bot
 import (
 	"io"
 	"runtime/debug"
+	"sync"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/json"
@@ -57,8 +58,9 @@ type HTTPServerEventHandler interface {
 
 // eventManagerImpl is the implementation of core.EventManager
 type eventManagerImpl struct {
-	client Client
-	config EventManagerConfig
+	client          Client
+	eventListenerMu sync.Mutex
+	config          EventManagerConfig
 }
 
 func (e *eventManagerImpl) Config() EventManagerConfig {
@@ -98,6 +100,8 @@ func (e *eventManagerImpl) Dispatch(event Event) {
 			return
 		}
 	}()
+	e.eventListenerMu.Lock()
+	defer e.eventListenerMu.Unlock()
 	for i := range e.config.EventListeners {
 		if e.Config().AsyncEventsEnabled {
 			go func() {
@@ -117,11 +121,15 @@ func (e *eventManagerImpl) Dispatch(event Event) {
 
 // AddEventListeners adds one or more core.EventListener(s) to the core.EventManager
 func (e *eventManagerImpl) AddEventListeners(listeners ...EventListener) {
+	e.eventListenerMu.Lock()
+	defer e.eventListenerMu.Unlock()
 	e.config.EventListeners = append(e.config.EventListeners, listeners...)
 }
 
 // RemoveEventListeners removes one or more core.EventListener(s) from the core.EventManager
 func (e *eventManagerImpl) RemoveEventListeners(listeners ...EventListener) {
+	e.eventListenerMu.Lock()
+	defer e.eventListenerMu.Unlock()
 	for _, listener := range listeners {
 		for i, l := range e.config.EventListeners {
 			if l == listener {
