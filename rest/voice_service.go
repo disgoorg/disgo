@@ -5,29 +5,21 @@ import (
 	"github.com/disgoorg/disgo/rest/route"
 )
 
-var (
-	_ Service      = (*voiceServiceImpl)(nil)
-	_ VoiceService = (*voiceServiceImpl)(nil)
-)
+var _ Voice = (*voiceImpl)(nil)
 
-func NewVoiceService(restClient Client) VoiceService {
-	return &voiceServiceImpl{restClient: restClient}
+func NewVoice(restClient Client) Voice {
+	return &voiceImpl{restClient: restClient}
 }
 
-type VoiceService interface {
-	Service
+type Voice interface {
 	GetVoiceRegions(opts ...RequestOpt) ([]discord.VoiceRegion, error)
 }
 
-type voiceServiceImpl struct {
+type voiceImpl struct {
 	restClient Client
 }
 
-func (s *voiceServiceImpl) RestClient() Client {
-	return s.restClient
-}
-
-func (s *voiceServiceImpl) GetVoiceRegions(opts ...RequestOpt) (regions []discord.VoiceRegion, err error) {
+func (s *voiceImpl) GetVoiceRegions(opts ...RequestOpt) (regions []discord.VoiceRegion, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetVoiceRegions.Compile(nil)
 	if err != nil {

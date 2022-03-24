@@ -6,17 +6,13 @@ import (
 	"github.com/disgoorg/snowflake"
 )
 
-var (
-	_ Service            = (*interactionServiceImpl)(nil)
-	_ InteractionService = (*interactionServiceImpl)(nil)
-)
+var _ Interactions = (*interactionImpl)(nil)
 
-func NewInteractionService(restClient Client) InteractionService {
-	return &interactionServiceImpl{restClient: restClient}
+func NewInteractions(restClient Client) Interactions {
+	return &interactionImpl{restClient: restClient}
 }
 
-type InteractionService interface {
-	Service
+type Interactions interface {
 	GetInteractionResponse(applicationID snowflake.Snowflake, interactionToken string, opts ...RequestOpt) (*discord.Message, error)
 	CreateInteractionResponse(interactionID snowflake.Snowflake, interactionToken string, interactionResponse discord.InteractionResponse, opts ...RequestOpt) error
 	UpdateInteractionResponse(applicationID snowflake.Snowflake, interactionToken string, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (*discord.Message, error)
@@ -28,15 +24,11 @@ type InteractionService interface {
 	DeleteFollowupMessage(applicationID snowflake.Snowflake, interactionToken string, messageID snowflake.Snowflake, opts ...RequestOpt) error
 }
 
-type interactionServiceImpl struct {
+type interactionImpl struct {
 	restClient Client
 }
 
-func (s *interactionServiceImpl) RestClient() Client {
-	return s.restClient
-}
-
-func (s *interactionServiceImpl) GetInteractionResponse(interactionID snowflake.Snowflake, interactionToken string, opts ...RequestOpt) (message *discord.Message, err error) {
+func (s *interactionImpl) GetInteractionResponse(interactionID snowflake.Snowflake, interactionToken string, opts ...RequestOpt) (message *discord.Message, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetInteractionResponse.Compile(nil, interactionID, interactionToken)
 	if err != nil {
@@ -46,7 +38,7 @@ func (s *interactionServiceImpl) GetInteractionResponse(interactionID snowflake.
 	return
 }
 
-func (s *interactionServiceImpl) CreateInteractionResponse(interactionID snowflake.Snowflake, interactionToken string, interactionResponse discord.InteractionResponse, opts ...RequestOpt) error {
+func (s *interactionImpl) CreateInteractionResponse(interactionID snowflake.Snowflake, interactionToken string, interactionResponse discord.InteractionResponse, opts ...RequestOpt) error {
 	compiledRoute, err := route.CreateInteractionResponse.Compile(nil, interactionID, interactionToken)
 	if err != nil {
 		return err
@@ -60,7 +52,7 @@ func (s *interactionServiceImpl) CreateInteractionResponse(interactionID snowfla
 	return s.restClient.Do(compiledRoute, body, nil, opts...)
 }
 
-func (s *interactionServiceImpl) UpdateInteractionResponse(applicationID snowflake.Snowflake, interactionToken string, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (message *discord.Message, err error) {
+func (s *interactionImpl) UpdateInteractionResponse(applicationID snowflake.Snowflake, interactionToken string, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (message *discord.Message, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.UpdateInteractionResponse.Compile(nil, applicationID, interactionToken)
 	if err != nil {
@@ -76,7 +68,7 @@ func (s *interactionServiceImpl) UpdateInteractionResponse(applicationID snowfla
 	return
 }
 
-func (s *interactionServiceImpl) DeleteInteractionResponse(applicationID snowflake.Snowflake, interactionToken string, opts ...RequestOpt) error {
+func (s *interactionImpl) DeleteInteractionResponse(applicationID snowflake.Snowflake, interactionToken string, opts ...RequestOpt) error {
 	compiledRoute, err := route.DeleteInteractionResponse.Compile(nil, applicationID, interactionToken)
 	if err != nil {
 		return err
@@ -84,7 +76,7 @@ func (s *interactionServiceImpl) DeleteInteractionResponse(applicationID snowfla
 	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
-func (s *interactionServiceImpl) GetFollowupMessage(applicationID snowflake.Snowflake, interactionToken string, messageID snowflake.Snowflake, opts ...RequestOpt) (message *discord.Message, err error) {
+func (s *interactionImpl) GetFollowupMessage(applicationID snowflake.Snowflake, interactionToken string, messageID snowflake.Snowflake, opts ...RequestOpt) (message *discord.Message, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetFollowupMessage.Compile(nil, applicationID, interactionToken, messageID)
 	if err != nil {
@@ -95,7 +87,7 @@ func (s *interactionServiceImpl) GetFollowupMessage(applicationID snowflake.Snow
 	return
 }
 
-func (s *interactionServiceImpl) CreateFollowupMessage(applicationID snowflake.Snowflake, interactionToken string, messageCreate discord.MessageCreate, opts ...RequestOpt) (message *discord.Message, err error) {
+func (s *interactionImpl) CreateFollowupMessage(applicationID snowflake.Snowflake, interactionToken string, messageCreate discord.MessageCreate, opts ...RequestOpt) (message *discord.Message, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateFollowupMessage.Compile(nil, applicationID, interactionToken)
 	if err != nil {
@@ -111,7 +103,7 @@ func (s *interactionServiceImpl) CreateFollowupMessage(applicationID snowflake.S
 	return
 }
 
-func (s *interactionServiceImpl) UpdateFollowupMessage(applicationID snowflake.Snowflake, interactionToken string, messageID snowflake.Snowflake, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (message *discord.Message, err error) {
+func (s *interactionImpl) UpdateFollowupMessage(applicationID snowflake.Snowflake, interactionToken string, messageID snowflake.Snowflake, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (message *discord.Message, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.UpdateFollowupMessage.Compile(nil, applicationID, interactionToken, messageID)
 	if err != nil {
@@ -127,7 +119,7 @@ func (s *interactionServiceImpl) UpdateFollowupMessage(applicationID snowflake.S
 	return
 }
 
-func (s *interactionServiceImpl) DeleteFollowupMessage(applicationID snowflake.Snowflake, interactionToken string, messageID snowflake.Snowflake, opts ...RequestOpt) error {
+func (s *interactionImpl) DeleteFollowupMessage(applicationID snowflake.Snowflake, interactionToken string, messageID snowflake.Snowflake, opts ...RequestOpt) error {
 	compiledRoute, err := route.DeleteFollowupMessage.Compile(nil, applicationID, interactionToken, messageID)
 	if err != nil {
 		return err

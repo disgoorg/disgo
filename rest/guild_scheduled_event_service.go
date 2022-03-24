@@ -6,17 +6,13 @@ import (
 	"github.com/disgoorg/snowflake"
 )
 
-var (
-	_ Service                    = (*guildScheduledEventServiceImpl)(nil)
-	_ GuildScheduledEventService = (*guildScheduledEventServiceImpl)(nil)
-)
+var _ GuildScheduledEvents = (*guildScheduledEventImpl)(nil)
 
-func NewGuildScheduledEventService(restClient Client) GuildScheduledEventService {
-	return &guildScheduledEventServiceImpl{restClient: restClient}
+func NewGuildScheduledEvents(restClient Client) GuildScheduledEvents {
+	return &guildScheduledEventImpl{restClient: restClient}
 }
 
-type GuildScheduledEventService interface {
-	Service
+type GuildScheduledEvents interface {
 	GetGuildScheduledEvents(guildID snowflake.Snowflake, withUserCounts bool, opts ...RequestOpt) ([]discord.GuildScheduledEvent, error)
 	GetGuildScheduledEvent(guildID snowflake.Snowflake, guildScheduledEventID snowflake.Snowflake, withUserCounts bool, opts ...RequestOpt) (*discord.GuildScheduledEvent, error)
 	CreateGuildScheduledEvent(guildID snowflake.Snowflake, guildScheduledEventCreate discord.GuildScheduledEventCreate, opts ...RequestOpt) (*discord.GuildScheduledEvent, error)
@@ -26,15 +22,11 @@ type GuildScheduledEventService interface {
 	GetGuildScheduledEventUsers(guildID snowflake.Snowflake, guildScheduledEventID snowflake.Snowflake, limit int, withMember bool, before snowflake.Snowflake, after snowflake.Snowflake, opts ...RequestOpt) ([]discord.GuildScheduledEventUser, error)
 }
 
-type guildScheduledEventServiceImpl struct {
+type guildScheduledEventImpl struct {
 	restClient Client
 }
 
-func (s *guildScheduledEventServiceImpl) RestClient() Client {
-	return s.restClient
-}
-
-func (s *guildScheduledEventServiceImpl) GetGuildScheduledEvents(guildID snowflake.Snowflake, withUserCounts bool, opts ...RequestOpt) (guildScheduledEvents []discord.GuildScheduledEvent, err error) {
+func (s *guildScheduledEventImpl) GetGuildScheduledEvents(guildID snowflake.Snowflake, withUserCounts bool, opts ...RequestOpt) (guildScheduledEvents []discord.GuildScheduledEvent, err error) {
 	queryValues := route.QueryValues{}
 	if withUserCounts {
 		queryValues["with_user_counts"] = true
@@ -48,7 +40,7 @@ func (s *guildScheduledEventServiceImpl) GetGuildScheduledEvents(guildID snowfla
 	return
 }
 
-func (s *guildScheduledEventServiceImpl) GetGuildScheduledEvent(guildID snowflake.Snowflake, guildScheduledEventID snowflake.Snowflake, withUserCounts bool, opts ...RequestOpt) (guildScheduledEvent *discord.GuildScheduledEvent, err error) {
+func (s *guildScheduledEventImpl) GetGuildScheduledEvent(guildID snowflake.Snowflake, guildScheduledEventID snowflake.Snowflake, withUserCounts bool, opts ...RequestOpt) (guildScheduledEvent *discord.GuildScheduledEvent, err error) {
 	queryValues := route.QueryValues{}
 	if withUserCounts {
 		queryValues["with_user_counts"] = true
@@ -62,7 +54,7 @@ func (s *guildScheduledEventServiceImpl) GetGuildScheduledEvent(guildID snowflak
 	return
 }
 
-func (s *guildScheduledEventServiceImpl) CreateGuildScheduledEvent(guildID snowflake.Snowflake, guildScheduledEventCreate discord.GuildScheduledEventCreate, opts ...RequestOpt) (guildScheduledEvent *discord.GuildScheduledEvent, err error) {
+func (s *guildScheduledEventImpl) CreateGuildScheduledEvent(guildID snowflake.Snowflake, guildScheduledEventCreate discord.GuildScheduledEventCreate, opts ...RequestOpt) (guildScheduledEvent *discord.GuildScheduledEvent, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateGuildScheduledEvent.Compile(nil, guildID)
 	if err != nil {
@@ -72,7 +64,7 @@ func (s *guildScheduledEventServiceImpl) CreateGuildScheduledEvent(guildID snowf
 	return
 }
 
-func (s *guildScheduledEventServiceImpl) UpdateGuildScheduledEvent(guildID snowflake.Snowflake, guildScheduledEventID snowflake.Snowflake, guildScheduledEventUpdate discord.GuildScheduledEventUpdate, opts ...RequestOpt) (guildScheduledEvent *discord.GuildScheduledEvent, err error) {
+func (s *guildScheduledEventImpl) UpdateGuildScheduledEvent(guildID snowflake.Snowflake, guildScheduledEventID snowflake.Snowflake, guildScheduledEventUpdate discord.GuildScheduledEventUpdate, opts ...RequestOpt) (guildScheduledEvent *discord.GuildScheduledEvent, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.UpdateGuildScheduledEvent.Compile(nil, guildID, guildScheduledEventID)
 	if err != nil {
@@ -82,7 +74,7 @@ func (s *guildScheduledEventServiceImpl) UpdateGuildScheduledEvent(guildID snowf
 	return
 }
 
-func (s *guildScheduledEventServiceImpl) DeleteGuildScheduledEvent(guildID snowflake.Snowflake, guildScheduledEventID snowflake.Snowflake, opts ...RequestOpt) error {
+func (s *guildScheduledEventImpl) DeleteGuildScheduledEvent(guildID snowflake.Snowflake, guildScheduledEventID snowflake.Snowflake, opts ...RequestOpt) error {
 	compiledRoute, err := route.DeleteGuildScheduledEvent.Compile(nil, guildID, guildScheduledEventID)
 	if err != nil {
 		return err
@@ -90,7 +82,7 @@ func (s *guildScheduledEventServiceImpl) DeleteGuildScheduledEvent(guildID snowf
 	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
-func (s *guildScheduledEventServiceImpl) GetGuildScheduledEventUsers(guildID snowflake.Snowflake, guildScheduledEventID snowflake.Snowflake, limit int, withMember bool, before snowflake.Snowflake, after snowflake.Snowflake, opts ...RequestOpt) (guildScheduledEventUsers []discord.GuildScheduledEventUser, err error) {
+func (s *guildScheduledEventImpl) GetGuildScheduledEventUsers(guildID snowflake.Snowflake, guildScheduledEventID snowflake.Snowflake, limit int, withMember bool, before snowflake.Snowflake, after snowflake.Snowflake, opts ...RequestOpt) (guildScheduledEventUsers []discord.GuildScheduledEventUser, err error) {
 	queryValues := route.QueryValues{}
 	if limit > 0 {
 		queryValues["limit"] = limit

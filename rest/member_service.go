@@ -6,17 +6,13 @@ import (
 	"github.com/disgoorg/snowflake"
 )
 
-var (
-	_ Service       = (*memberServiceImpl)(nil)
-	_ MemberService = (*memberServiceImpl)(nil)
-)
+var _ Members = (*memberImpl)(nil)
 
-func NewMemberService(restClient Client) MemberService {
-	return &memberServiceImpl{restClient: restClient}
+func NewMembers(restClient Client) Members {
+	return &memberImpl{restClient: restClient}
 }
 
-type MemberService interface {
-	Service
+type Members interface {
 	GetMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, opts ...RequestOpt) (*discord.Member, error)
 	GetMembers(guildID snowflake.Snowflake, opts ...RequestOpt) ([]discord.Member, error)
 	SearchMembers(guildID snowflake.Snowflake, query string, limit int, opts ...RequestOpt) ([]discord.Member, error)
@@ -33,15 +29,11 @@ type MemberService interface {
 	UpdateUserVoiceState(guildID snowflake.Snowflake, userID snowflake.Snowflake, userVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error
 }
 
-type memberServiceImpl struct {
+type memberImpl struct {
 	restClient Client
 }
 
-func (s *memberServiceImpl) RestClient() Client {
-	return s.restClient
-}
-
-func (s *memberServiceImpl) GetMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, opts ...RequestOpt) (member *discord.Member, err error) {
+func (s *memberImpl) GetMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, opts ...RequestOpt) (member *discord.Member, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetMember.Compile(nil, guildID, userID)
 	if err != nil {
@@ -51,7 +43,7 @@ func (s *memberServiceImpl) GetMember(guildID snowflake.Snowflake, userID snowfl
 	return
 }
 
-func (s *memberServiceImpl) GetMembers(guildID snowflake.Snowflake, opts ...RequestOpt) (members []discord.Member, err error) {
+func (s *memberImpl) GetMembers(guildID snowflake.Snowflake, opts ...RequestOpt) (members []discord.Member, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetMembers.Compile(nil, guildID)
 	if err != nil {
@@ -61,7 +53,7 @@ func (s *memberServiceImpl) GetMembers(guildID snowflake.Snowflake, opts ...Requ
 	return
 }
 
-func (s *memberServiceImpl) SearchMembers(guildID snowflake.Snowflake, query string, limit int, opts ...RequestOpt) (members []discord.Member, err error) {
+func (s *memberImpl) SearchMembers(guildID snowflake.Snowflake, query string, limit int, opts ...RequestOpt) (members []discord.Member, err error) {
 	values := route.QueryValues{}
 	if query != "" {
 		values["query"] = query
@@ -78,7 +70,7 @@ func (s *memberServiceImpl) SearchMembers(guildID snowflake.Snowflake, query str
 	return
 }
 
-func (s *memberServiceImpl) AddMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, memberAdd discord.MemberAdd, opts ...RequestOpt) (member *discord.Member, err error) {
+func (s *memberImpl) AddMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, memberAdd discord.MemberAdd, opts ...RequestOpt) (member *discord.Member, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.AddMember.Compile(nil, guildID, userID)
 	if err != nil {
@@ -88,7 +80,7 @@ func (s *memberServiceImpl) AddMember(guildID snowflake.Snowflake, userID snowfl
 	return
 }
 
-func (s *memberServiceImpl) RemoveMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, opts ...RequestOpt) error {
+func (s *memberImpl) RemoveMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, opts ...RequestOpt) error {
 	compiledRoute, err := route.RemoveMember.Compile(nil, guildID, userID)
 	if err != nil {
 		return err
@@ -96,7 +88,7 @@ func (s *memberServiceImpl) RemoveMember(guildID snowflake.Snowflake, userID sno
 	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
-func (s *memberServiceImpl) UpdateMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, memberUpdate discord.MemberUpdate, opts ...RequestOpt) (member *discord.Member, err error) {
+func (s *memberImpl) UpdateMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, memberUpdate discord.MemberUpdate, opts ...RequestOpt) (member *discord.Member, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.UpdateMember.Compile(nil, guildID, userID)
 	if err != nil {
@@ -106,7 +98,7 @@ func (s *memberServiceImpl) UpdateMember(guildID snowflake.Snowflake, userID sno
 	return
 }
 
-func (s *memberServiceImpl) AddMemberRole(guildID snowflake.Snowflake, userID snowflake.Snowflake, roleID snowflake.Snowflake, opts ...RequestOpt) error {
+func (s *memberImpl) AddMemberRole(guildID snowflake.Snowflake, userID snowflake.Snowflake, roleID snowflake.Snowflake, opts ...RequestOpt) error {
 	compiledRoute, err := route.AddMemberRole.Compile(nil, guildID, userID, roleID)
 	if err != nil {
 		return err
@@ -114,7 +106,7 @@ func (s *memberServiceImpl) AddMemberRole(guildID snowflake.Snowflake, userID sn
 	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
-func (s *memberServiceImpl) RemoveMemberRole(guildID snowflake.Snowflake, userID snowflake.Snowflake, roleID snowflake.Snowflake, opts ...RequestOpt) error {
+func (s *memberImpl) RemoveMemberRole(guildID snowflake.Snowflake, userID snowflake.Snowflake, roleID snowflake.Snowflake, opts ...RequestOpt) error {
 	compiledRoute, err := route.RemoveMemberRole.Compile(nil, guildID, userID, roleID)
 	if err != nil {
 		return err
@@ -122,7 +114,7 @@ func (s *memberServiceImpl) RemoveMemberRole(guildID snowflake.Snowflake, userID
 	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
-func (s *memberServiceImpl) UpdateSelfNick(guildID snowflake.Snowflake, nick string, opts ...RequestOpt) (nickName *string, err error) {
+func (s *memberImpl) UpdateSelfNick(guildID snowflake.Snowflake, nick string, opts ...RequestOpt) (nickName *string, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.UpdateSelfNick.Compile(nil, guildID)
 	if err != nil {
@@ -132,7 +124,7 @@ func (s *memberServiceImpl) UpdateSelfNick(guildID snowflake.Snowflake, nick str
 	return
 }
 
-func (s *memberServiceImpl) UpdateCurrentUserVoiceState(guildID snowflake.Snowflake, currentUserVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error {
+func (s *memberImpl) UpdateCurrentUserVoiceState(guildID snowflake.Snowflake, currentUserVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error {
 	compiledRoute, err := route.UpdateCurrentUserVoiceState.Compile(nil, guildID)
 	if err != nil {
 		return err
@@ -140,7 +132,7 @@ func (s *memberServiceImpl) UpdateCurrentUserVoiceState(guildID snowflake.Snowfl
 	return s.restClient.Do(compiledRoute, currentUserVoiceStateUpdate, nil, opts...)
 }
 
-func (s *memberServiceImpl) UpdateUserVoiceState(guildID snowflake.Snowflake, userID snowflake.Snowflake, userVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error {
+func (s *memberImpl) UpdateUserVoiceState(guildID snowflake.Snowflake, userID snowflake.Snowflake, userVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error {
 	compiledRoute, err := route.UpdateUserVoiceState.Compile(nil, guildID, userID)
 	if err != nil {
 		return err

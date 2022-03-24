@@ -20,7 +20,7 @@ type Config struct {
 	Logger                 log.Logger
 	RestClient             rest.Client
 	RestClientConfigOpts   []rest.ConfigOpt
-	WebhookService         rest.WebhookService
+	Webhooks               rest.Webhooks
 	DefaultAllowedMentions *discord.AllowedMentions
 }
 
@@ -35,8 +35,8 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	if c.RestClient == nil {
 		c.RestClient = rest.NewClient("", c.RestClientConfigOpts...)
 	}
-	if c.WebhookService == nil {
-		c.WebhookService = rest.NewWebhookService(c.RestClient)
+	if c.Webhooks == nil {
+		c.Webhooks = rest.NewWebhooks(c.RestClient)
 	}
 }
 
@@ -64,11 +64,11 @@ func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	}
 }
 
-// WithWebhookService sets the webhook service for the webhook client
+// WithWebhooks sets the webhook service for the webhook client
 //goland:noinspection GoUnusedExportedFunction
-func WithWebhookService(webhookService rest.WebhookService) ConfigOpt {
+func WithWebhooks(webhooks rest.Webhooks) ConfigOpt {
 	return func(config *Config) {
-		config.WebhookService = webhookService
+		config.Webhooks = webhooks
 	}
 }
 

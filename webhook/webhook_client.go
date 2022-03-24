@@ -17,8 +17,8 @@ type Client interface {
 	URL() string
 	// Close closes all connections the Webhook Client has open
 	Close(ctx context.Context)
-	// WebhookService returns the underlying rest.WebhookService
-	WebhookService() rest.WebhookService
+	// Rest returns the underlying rest.Webhooks
+	Rest() rest.Webhooks
 
 	// GetWebhook fetches the current Webhook from discord
 	GetWebhook(opts ...rest.RequestOpt) (*discord.IncomingWebhook, error)

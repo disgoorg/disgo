@@ -18,7 +18,7 @@ type Config struct {
 	Logger                    log.Logger
 	RestClient                rest.Client
 	RestClientConfigOpts      []rest.ConfigOpt
-	OAuth2Service             rest.OAuth2Service
+	OAuth2                    rest.OAuth2
 	SessionController         SessionController
 	StateController           StateController
 	StateControllerConfigOpts []StateControllerConfigOpt
@@ -35,8 +35,8 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	if c.RestClient == nil {
 		c.RestClient = rest.NewClient("", c.RestClientConfigOpts...)
 	}
-	if c.OAuth2Service == nil {
-		c.OAuth2Service = rest.NewOAuth2Service(c.RestClient)
+	if c.OAuth2 == nil {
+		c.OAuth2 = rest.NewOAuth2(c.RestClient)
 	}
 	if c.StateController == nil {
 		c.StateController = NewStateController(c.StateControllerConfigOpts...)
@@ -67,11 +67,11 @@ func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	}
 }
 
-// WithOAuth2Service applies a custom rest.OAuth2Service to the OAuth2 client
+// WithOAuth2 applies a custom rest.OAuth2 to the OAuth2 client
 //goland:noinspection GoUnusedExportedFunction
-func WithOAuth2Service(oauth2service rest.OAuth2Service) ConfigOpt {
+func WithOAuth2(oauth2 rest.OAuth2) ConfigOpt {
 	return func(config *Config) {
-		config.OAuth2Service = oauth2service
+		config.OAuth2 = oauth2
 	}
 }
 

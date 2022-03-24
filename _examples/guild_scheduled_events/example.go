@@ -55,7 +55,7 @@ func main() {
 				if event.Message.Content != "test" {
 					return
 				}
-				gse, _ := event.Client().Rest().GuildScheduledEvent().CreateGuildScheduledEvent(*event.GuildID, discord.GuildScheduledEventCreate{
+				gse, _ := event.Client().Rest().GuildScheduledEvents().CreateGuildScheduledEvent(*event.GuildID, discord.GuildScheduledEventCreate{
 					ChannelID:    "885677988916641802",
 					Name:         "test",
 					PrivacyLevel: discord.ScheduledEventPrivacyLevelGuildOnly,
@@ -67,7 +67,7 @@ func main() {
 				})
 
 				status := discord.ScheduledEventStatusActive
-				gse, _ = event.Client().Rest().GuildScheduledEvent().UpdateGuildScheduledEvent(gse.GuildID, gse.ID, discord.GuildScheduledEventUpdate{
+				gse, _ = event.Client().Rest().GuildScheduledEvents().UpdateGuildScheduledEvent(gse.GuildID, gse.ID, discord.GuildScheduledEventUpdate{
 					Status: &status,
 				})
 				//_ = gse.AudioChannel().Connect()
@@ -75,10 +75,10 @@ func main() {
 				time.Sleep(time.Second * 10)
 
 				status = discord.ScheduledEventStatusCompleted
-				gse, _ = event.Client().Rest().GuildScheduledEvent().UpdateGuildScheduledEvent(gse.GuildID, gse.ID, discord.GuildScheduledEventUpdate{
+				gse, _ = event.Client().Rest().GuildScheduledEvents().UpdateGuildScheduledEvent(gse.GuildID, gse.ID, discord.GuildScheduledEventUpdate{
 					Status: &status,
 				})
-				//_ = gse.Guild().Disconnect()
+				//_ = gse.Guilds().Disconnect()
 			},
 		}),
 	)

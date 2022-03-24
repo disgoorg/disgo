@@ -6,32 +6,24 @@ import (
 	"github.com/disgoorg/snowflake"
 )
 
-var (
-	_ Service              = (*stageInstanceServiceImpl)(nil)
-	_ StageInstanceService = (*stageInstanceServiceImpl)(nil)
-)
+var _ StageInstances = (*stageInstanceImpl)(nil)
 
-func NewStageInstanceService(restClient Client) StageInstanceService {
-	return &stageInstanceServiceImpl{restClient: restClient}
+func NewStageInstances(restClient Client) StageInstances {
+	return &stageInstanceImpl{restClient: restClient}
 }
 
-type StageInstanceService interface {
-	Service
+type StageInstances interface {
 	GetStageInstance(guildID snowflake.Snowflake, opts ...RequestOpt) (*discord.StageInstance, error)
 	CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate, opts ...RequestOpt) (*discord.StageInstance, error)
 	UpdateStageInstance(guildID snowflake.Snowflake, stageInstanceUpdate discord.StageInstanceUpdate, opts ...RequestOpt) (*discord.StageInstance, error)
 	DeleteStageInstance(guildID snowflake.Snowflake, opts ...RequestOpt) error
 }
 
-type stageInstanceServiceImpl struct {
+type stageInstanceImpl struct {
 	restClient Client
 }
 
-func (s *stageInstanceServiceImpl) RestClient() Client {
-	return s.restClient
-}
-
-func (s *stageInstanceServiceImpl) GetStageInstance(guildID snowflake.Snowflake, opts ...RequestOpt) (stageInstance *discord.StageInstance, err error) {
+func (s *stageInstanceImpl) GetStageInstance(guildID snowflake.Snowflake, opts ...RequestOpt) (stageInstance *discord.StageInstance, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetStageInstance.Compile(nil, guildID)
 	if err != nil {
@@ -41,7 +33,7 @@ func (s *stageInstanceServiceImpl) GetStageInstance(guildID snowflake.Snowflake,
 	return
 }
 
-func (s *stageInstanceServiceImpl) CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate, opts ...RequestOpt) (stageInstance *discord.StageInstance, err error) {
+func (s *stageInstanceImpl) CreateStageInstance(stageInstanceCreate discord.StageInstanceCreate, opts ...RequestOpt) (stageInstance *discord.StageInstance, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateStageInstance.Compile(nil)
 	if err != nil {
@@ -51,7 +43,7 @@ func (s *stageInstanceServiceImpl) CreateStageInstance(stageInstanceCreate disco
 	return
 }
 
-func (s *stageInstanceServiceImpl) UpdateStageInstance(guildID snowflake.Snowflake, stageInstanceUpdate discord.StageInstanceUpdate, opts ...RequestOpt) (stageInstance *discord.StageInstance, err error) {
+func (s *stageInstanceImpl) UpdateStageInstance(guildID snowflake.Snowflake, stageInstanceUpdate discord.StageInstanceUpdate, opts ...RequestOpt) (stageInstance *discord.StageInstance, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.UpdateStageInstance.Compile(nil, guildID)
 	if err != nil {
@@ -61,7 +53,7 @@ func (s *stageInstanceServiceImpl) UpdateStageInstance(guildID snowflake.Snowfla
 	return
 }
 
-func (s *stageInstanceServiceImpl) DeleteStageInstance(guildID snowflake.Snowflake, opts ...RequestOpt) error {
+func (s *stageInstanceImpl) DeleteStageInstance(guildID snowflake.Snowflake, opts ...RequestOpt) error {
 	compiledRoute, err := route.DeleteStageInstance.Compile(nil, guildID)
 	if err != nil {
 		return err

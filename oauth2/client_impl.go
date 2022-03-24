@@ -34,6 +34,11 @@ func (c *ClientImpl) Secret() string {
 	return c.secret
 }
 
+// Rest returns the underlying rest.OAuth2
+func (c *ClientImpl) Rest() rest.OAuth2 {
+	return c.config.OAuth2
+}
+
 // SessionController returns the configured SessionController
 func (c *ClientImpl) SessionController() SessionController {
 	return c.config.SessionController
@@ -79,7 +84,7 @@ func (c *ClientImpl) StartSession(code string, state string, identifier string, 
 	if redirectURI == "" {
 		return nil, ErrStateNotFound
 	}
-	exchange, err := c.config.OAuth2Service.GetAccessToken(c.id, c.secret, code, redirectURI, opts...)
+	exchange, err := c.Rest().GetAccessToken(c.id, c.secret, code, redirectURI, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +94,7 @@ func (c *ClientImpl) StartSession(code string, state string, identifier string, 
 
 // RefreshSession refreshes the given session with the refresh token
 func (c *ClientImpl) RefreshSession(identifier string, session Session, opts ...rest.RequestOpt) (Session, error) {
-	exchange, err := c.config.OAuth2Service.RefreshAccessToken(c.id, c.secret, session.RefreshToken(), opts...)
+	exchange, err := c.Rest().RefreshAccessToken(c.id, c.secret, session.RefreshToken(), opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +110,7 @@ func (c *ClientImpl) GetUser(session Session, opts ...rest.RequestOpt) (*discord
 		return nil, ErrMissingOAuth2Scope(discord.ApplicationScopeIdentify)
 	}
 
-	return c.config.OAuth2Service.GetCurrentUser(session.AccessToken(), opts...)
+	return c.Rest().GetCurrentUser(session.AccessToken(), opts...)
 }
 
 // GetGuilds returns the discord.OAuth2Guild(s) the user is a member of. This requires the discord.ApplicationScopeGuilds scope in the session
@@ -117,7 +122,7 @@ func (c *ClientImpl) GetGuilds(session Session, opts ...rest.RequestOpt) ([]disc
 		return nil, ErrMissingOAuth2Scope(discord.ApplicationScopeGuilds)
 	}
 
-	return c.config.OAuth2Service.GetCurrentUserGuilds(session.AccessToken(), "", "", 0, opts...)
+	return c.Rest().GetCurrentUserGuilds(session.AccessToken(), "", "", 0, opts...)
 }
 
 // GetConnections returns the discord.Connection(s) the user has connected. This requires the discord.ApplicationScopeConnections scope in the session
@@ -129,5 +134,5 @@ func (c *ClientImpl) GetConnections(session Session, opts ...rest.RequestOpt) ([
 		return nil, ErrMissingOAuth2Scope(discord.ApplicationScopeConnections)
 	}
 
-	return c.config.OAuth2Service.GetCurrentUserConnections(session.AccessToken(), opts...)
+	return c.Rest().GetCurrentUserConnections(session.AccessToken(), opts...)
 }

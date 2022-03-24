@@ -48,13 +48,13 @@ func (c *ClientImpl) Close(ctx context.Context) {
 	c.config.RestClient.Close(ctx)
 }
 
-func (c *ClientImpl) WebhookService() rest.WebhookService {
-	return c.config.WebhookService
+func (c *ClientImpl) Rest() rest.Webhooks {
+	return c.config.Webhooks
 }
 
 // GetWebhook fetches the current webhook from discord
 func (c *ClientImpl) GetWebhook(opts ...rest.RequestOpt) (*discord.IncomingWebhook, error) {
-	webhook, err := c.WebhookService().GetWebhookWithToken(c.id, c.token, opts...)
+	webhook, err := c.Rest().GetWebhookWithToken(c.id, c.token, opts...)
 	if incomingWebhook, ok := webhook.(discord.IncomingWebhook); ok && err == nil {
 		return &incomingWebhook, nil
 	}
@@ -63,7 +63,7 @@ func (c *ClientImpl) GetWebhook(opts ...rest.RequestOpt) (*discord.IncomingWebho
 
 // UpdateWebhook updates the current webhook
 func (c *ClientImpl) UpdateWebhook(webhookUpdate discord.WebhookUpdateWithToken, opts ...rest.RequestOpt) (*discord.IncomingWebhook, error) {
-	webhook, err := c.WebhookService().UpdateWebhookWithToken(c.id, c.token, webhookUpdate, opts...)
+	webhook, err := c.Rest().UpdateWebhookWithToken(c.id, c.token, webhookUpdate, opts...)
 	if incomingWebhook, ok := webhook.(discord.IncomingWebhook); ok && err == nil {
 		return &incomingWebhook, nil
 	}
@@ -72,12 +72,12 @@ func (c *ClientImpl) UpdateWebhook(webhookUpdate discord.WebhookUpdateWithToken,
 
 // DeleteWebhook deletes the current webhook
 func (c *ClientImpl) DeleteWebhook(opts ...rest.RequestOpt) error {
-	return c.WebhookService().DeleteWebhookWithToken(c.id, c.token, opts...)
+	return c.Rest().DeleteWebhookWithToken(c.id, c.token, opts...)
 }
 
 // CreateMessageInThread creates a new Message in the provided thread
 func (c *ClientImpl) CreateMessageInThread(messageCreate discord.WebhookMessageCreate, threadID snowflake.Snowflake, opts ...rest.RequestOpt) (*discord.Message, error) {
-	return c.WebhookService().CreateMessage(c.id, c.token, messageCreate, true, threadID, opts...)
+	return c.Rest().CreateMessage(c.id, c.token, messageCreate, true, threadID, opts...)
 }
 
 // CreateMessage creates a new message from the discord.WebhookMessageCreate
@@ -102,7 +102,7 @@ func (c *ClientImpl) UpdateMessage(messageID snowflake.Snowflake, messageUpdate 
 
 // UpdateMessageInThread updates an already sent webhook message with the discord.WebhookMessageUpdate in a thread
 func (c *ClientImpl) UpdateMessageInThread(messageID snowflake.Snowflake, messageUpdate discord.WebhookMessageUpdate, threadID snowflake.Snowflake, opts ...rest.RequestOpt) (*discord.Message, error) {
-	return c.WebhookService().UpdateMessage(c.id, c.token, messageID, messageUpdate, threadID, opts...)
+	return c.Rest().UpdateMessage(c.id, c.token, messageID, messageUpdate, threadID, opts...)
 }
 
 // UpdateContent updates an already sent webhook message with the content
@@ -122,5 +122,5 @@ func (c *ClientImpl) DeleteMessage(messageID snowflake.Snowflake, opts ...rest.R
 
 // DeleteMessageInThread deletes an already sent webhook message in a thread
 func (c *ClientImpl) DeleteMessageInThread(messageID snowflake.Snowflake, threadID snowflake.Snowflake, opts ...rest.RequestOpt) error {
-	return c.WebhookService().DeleteMessage(c.id, c.token, messageID, threadID, opts...)
+	return c.Rest().DeleteMessage(c.id, c.token, messageID, threadID, opts...)
 }

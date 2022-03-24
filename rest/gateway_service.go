@@ -5,30 +5,22 @@ import (
 	"github.com/disgoorg/disgo/rest/route"
 )
 
-var (
-	_ Service        = (*gatewayServiceImpl)(nil)
-	_ GatewayService = (*gatewayServiceImpl)(nil)
-)
+var _ Gateway = (*gatewayImpl)(nil)
 
-func NewGatewayService(restClient Client) GatewayService {
-	return &gatewayServiceImpl{restClient: restClient}
+func NewGateway(restClient Client) Gateway {
+	return &gatewayImpl{restClient: restClient}
 }
 
-type GatewayService interface {
-	Service
+type Gateway interface {
 	GetGateway(opts ...RequestOpt) (*discord.Gateway, error)
 	GetGatewayBot(opts ...RequestOpt) (*discord.GatewayBot, error)
 }
 
-type gatewayServiceImpl struct {
+type gatewayImpl struct {
 	restClient Client
 }
 
-func (s *gatewayServiceImpl) RestClient() Client {
-	return s.restClient
-}
-
-func (s *gatewayServiceImpl) GetGateway(opts ...RequestOpt) (gateway *discord.Gateway, err error) {
+func (s *gatewayImpl) GetGateway(opts ...RequestOpt) (gateway *discord.Gateway, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetGateway.Compile(nil)
 	if err != nil {
@@ -38,7 +30,7 @@ func (s *gatewayServiceImpl) GetGateway(opts ...RequestOpt) (gateway *discord.Ga
 	return
 }
 
-func (s *gatewayServiceImpl) GetGatewayBot(opts ...RequestOpt) (gatewayBot *discord.GatewayBot, err error) {
+func (s *gatewayImpl) GetGatewayBot(opts ...RequestOpt) (gatewayBot *discord.GatewayBot, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetGatewayBot.Compile(nil)
 	if err != nil {

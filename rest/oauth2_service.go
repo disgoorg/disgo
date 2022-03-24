@@ -8,17 +8,13 @@ import (
 	"github.com/disgoorg/snowflake"
 )
 
-var (
-	_ Service       = (*oAuth2ServiceImpl)(nil)
-	_ OAuth2Service = (*oAuth2ServiceImpl)(nil)
-)
+var _ OAuth2 = (*oAuth2Impl)(nil)
 
-func NewOAuth2Service(restClient Client) OAuth2Service {
-	return &oAuth2ServiceImpl{restClient: restClient}
+func NewOAuth2(restClient Client) OAuth2 {
+	return &oAuth2Impl{restClient: restClient}
 }
 
-type OAuth2Service interface {
-	Service
+type OAuth2 interface {
 	GetBotApplicationInfo(opts ...RequestOpt) (*discord.Application, error)
 
 	GetCurrentAuthorizationInfo(bearerToken string, opts ...RequestOpt) (*discord.AuthorizationInformation, error)
@@ -30,7 +26,7 @@ type OAuth2Service interface {
 	RefreshAccessToken(clientID snowflake.Snowflake, clientSecret string, refreshToken string, opts ...RequestOpt) (*discord.AccessTokenExchange, error)
 }
 
-type oAuth2ServiceImpl struct {
+type oAuth2Impl struct {
 	restClient Client
 }
 
@@ -41,11 +37,7 @@ func withBearerToken(bearerToken string, opts []RequestOpt) []RequestOpt {
 	return opts
 }
 
-func (s *oAuth2ServiceImpl) RestClient() Client {
-	return s.restClient
-}
-
-func (s *oAuth2ServiceImpl) GetBotApplicationInfo(opts ...RequestOpt) (application *discord.Application, err error) {
+func (s *oAuth2Impl) GetBotApplicationInfo(opts ...RequestOpt) (application *discord.Application, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetBotApplicationInfo.Compile(nil)
 	if err != nil {
@@ -55,7 +47,7 @@ func (s *oAuth2ServiceImpl) GetBotApplicationInfo(opts ...RequestOpt) (applicati
 	return
 }
 
-func (s *oAuth2ServiceImpl) GetCurrentAuthorizationInfo(bearerToken string, opts ...RequestOpt) (info *discord.AuthorizationInformation, err error) {
+func (s *oAuth2Impl) GetCurrentAuthorizationInfo(bearerToken string, opts ...RequestOpt) (info *discord.AuthorizationInformation, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetAuthorizationInfo.Compile(nil)
 	if err != nil {
@@ -65,7 +57,7 @@ func (s *oAuth2ServiceImpl) GetCurrentAuthorizationInfo(bearerToken string, opts
 	return
 }
 
-func (s *oAuth2ServiceImpl) GetCurrentUser(bearerToken string, opts ...RequestOpt) (user *discord.OAuth2User, err error) {
+func (s *oAuth2Impl) GetCurrentUser(bearerToken string, opts ...RequestOpt) (user *discord.OAuth2User, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetCurrentUser.Compile(nil)
 	if err != nil {
@@ -76,7 +68,7 @@ func (s *oAuth2ServiceImpl) GetCurrentUser(bearerToken string, opts ...RequestOp
 	return
 }
 
-func (s *oAuth2ServiceImpl) GetCurrentUserGuilds(bearerToken string, before snowflake.Snowflake, after snowflake.Snowflake, limit int, opts ...RequestOpt) (guilds []discord.OAuth2Guild, err error) {
+func (s *oAuth2Impl) GetCurrentUserGuilds(bearerToken string, before snowflake.Snowflake, after snowflake.Snowflake, limit int, opts ...RequestOpt) (guilds []discord.OAuth2Guild, err error) {
 	queryParams := route.QueryValues{}
 	if before != "" {
 		queryParams["before"] = before
@@ -98,7 +90,7 @@ func (s *oAuth2ServiceImpl) GetCurrentUserGuilds(bearerToken string, before snow
 	return
 }
 
-func (s *oAuth2ServiceImpl) GetCurrentUserConnections(bearerToken string, opts ...RequestOpt) (connections []discord.Connection, err error) {
+func (s *oAuth2Impl) GetCurrentUserConnections(bearerToken string, opts ...RequestOpt) (connections []discord.Connection, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetCurrentUserConnections.Compile(nil)
 	if err != nil {
@@ -109,7 +101,7 @@ func (s *oAuth2ServiceImpl) GetCurrentUserConnections(bearerToken string, opts .
 	return
 }
 
-func (s *oAuth2ServiceImpl) exchangeAccessToken(clientID snowflake.Snowflake, clientSecret string, grantType discord.GrantType, codeOrRefreshToken string, redirectURI string, opts ...RequestOpt) (exchange *discord.AccessTokenExchange, err error) {
+func (s *oAuth2Impl) exchangeAccessToken(clientID snowflake.Snowflake, clientSecret string, grantType discord.GrantType, codeOrRefreshToken string, redirectURI string, opts ...RequestOpt) (exchange *discord.AccessTokenExchange, err error) {
 	values := url.Values{
 		"client_id":     []string{clientID.String()},
 		"client_secret": []string{clientSecret},
@@ -133,10 +125,10 @@ func (s *oAuth2ServiceImpl) exchangeAccessToken(clientID snowflake.Snowflake, cl
 	return
 }
 
-func (s *oAuth2ServiceImpl) GetAccessToken(clientID snowflake.Snowflake, clientSecret string, code string, redirectURI string, opts ...RequestOpt) (exchange *discord.AccessTokenExchange, err error) {
+func (s *oAuth2Impl) GetAccessToken(clientID snowflake.Snowflake, clientSecret string, code string, redirectURI string, opts ...RequestOpt) (exchange *discord.AccessTokenExchange, err error) {
 	return s.exchangeAccessToken(clientID, clientSecret, discord.GrantTypeAuthorizationCode, code, redirectURI, opts...)
 }
 
-func (s *oAuth2ServiceImpl) RefreshAccessToken(clientID snowflake.Snowflake, clientSecret string, refreshToken string, opts ...RequestOpt) (exchange *discord.AccessTokenExchange, err error) {
+func (s *oAuth2Impl) RefreshAccessToken(clientID snowflake.Snowflake, clientSecret string, refreshToken string, opts ...RequestOpt) (exchange *discord.AccessTokenExchange, err error) {
 	return s.exchangeAccessToken(clientID, clientSecret, discord.GrantTypeRefreshToken, refreshToken, "", opts...)
 }

@@ -24,7 +24,8 @@ type Client interface {
 	ID() snowflake.Snowflake
 	// Secret returns the configured client secret
 	Secret() string
-	// Config returns the configured Config
+	// Rest returns the underlying rest.OAuth2
+	Rest() rest.OAuth2
 
 	// SessionController returns the configured SessionController
 	SessionController() SessionController

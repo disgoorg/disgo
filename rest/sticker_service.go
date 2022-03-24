@@ -6,16 +6,13 @@ import (
 	"github.com/disgoorg/snowflake"
 )
 
-var (
-	_ Service        = (*stickerServiceImpl)(nil)
-	_ StickerService = (*stickerServiceImpl)(nil)
-)
+var _ Stickers = (*stickerImpl)(nil)
 
-func NewStickerService(restClient Client) StickerService {
-	return &stickerServiceImpl{restClient: restClient}
+func NewStickers(restClient Client) Stickers {
+	return &stickerImpl{restClient: restClient}
 }
 
-type StickerService interface {
+type Stickers interface {
 	GetNitroStickerPacks(opts ...RequestOpt) ([]discord.StickerPack, error)
 	GetSticker(stickerID snowflake.Snowflake, opts ...RequestOpt) (*discord.Sticker, error)
 	GetStickers(guildID snowflake.Snowflake, opts ...RequestOpt) ([]discord.Sticker, error)
@@ -24,15 +21,11 @@ type StickerService interface {
 	DeleteSticker(guildID snowflake.Snowflake, stickerID snowflake.Snowflake, opts ...RequestOpt) error
 }
 
-type stickerServiceImpl struct {
+type stickerImpl struct {
 	restClient Client
 }
 
-func (s *stickerServiceImpl) RestClient() Client {
-	return s.restClient
-}
-
-func (s *stickerServiceImpl) GetNitroStickerPacks(opts ...RequestOpt) (stickerPacks []discord.StickerPack, err error) {
+func (s *stickerImpl) GetNitroStickerPacks(opts ...RequestOpt) (stickerPacks []discord.StickerPack, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetNitroStickerPacks.Compile(nil)
 	if err != nil {
@@ -46,7 +39,7 @@ func (s *stickerServiceImpl) GetNitroStickerPacks(opts ...RequestOpt) (stickerPa
 	return
 }
 
-func (s *stickerServiceImpl) GetSticker(stickerID snowflake.Snowflake, opts ...RequestOpt) (sticker *discord.Sticker, err error) {
+func (s *stickerImpl) GetSticker(stickerID snowflake.Snowflake, opts ...RequestOpt) (sticker *discord.Sticker, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetSticker.Compile(nil, stickerID)
 	if err != nil {
@@ -56,7 +49,7 @@ func (s *stickerServiceImpl) GetSticker(stickerID snowflake.Snowflake, opts ...R
 	return
 }
 
-func (s *stickerServiceImpl) GetStickers(guildID snowflake.Snowflake, opts ...RequestOpt) (stickers []discord.Sticker, err error) {
+func (s *stickerImpl) GetStickers(guildID snowflake.Snowflake, opts ...RequestOpt) (stickers []discord.Sticker, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetGuildStickers.Compile(nil, guildID)
 	if err != nil {
@@ -66,7 +59,7 @@ func (s *stickerServiceImpl) GetStickers(guildID snowflake.Snowflake, opts ...Re
 	return
 }
 
-func (s *stickerServiceImpl) CreateSticker(guildID snowflake.Snowflake, createSticker discord.StickerCreate, opts ...RequestOpt) (sticker *discord.Sticker, err error) {
+func (s *stickerImpl) CreateSticker(guildID snowflake.Snowflake, createSticker discord.StickerCreate, opts ...RequestOpt) (sticker *discord.Sticker, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateGuildSticker.Compile(nil, guildID)
 	if err != nil {
@@ -80,7 +73,7 @@ func (s *stickerServiceImpl) CreateSticker(guildID snowflake.Snowflake, createSt
 	return
 }
 
-func (s *stickerServiceImpl) UpdateSticker(guildID snowflake.Snowflake, stickerID snowflake.Snowflake, stickerUpdate discord.StickerUpdate, opts ...RequestOpt) (sticker *discord.Sticker, err error) {
+func (s *stickerImpl) UpdateSticker(guildID snowflake.Snowflake, stickerID snowflake.Snowflake, stickerUpdate discord.StickerUpdate, opts ...RequestOpt) (sticker *discord.Sticker, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.UpdateGuildSticker.Compile(nil, guildID, stickerID)
 	if err != nil {
@@ -90,7 +83,7 @@ func (s *stickerServiceImpl) UpdateSticker(guildID snowflake.Snowflake, stickerI
 	return
 }
 
-func (s *stickerServiceImpl) DeleteSticker(guildID snowflake.Snowflake, stickerID snowflake.Snowflake, opts ...RequestOpt) error {
+func (s *stickerImpl) DeleteSticker(guildID snowflake.Snowflake, stickerID snowflake.Snowflake, opts ...RequestOpt) error {
 	compiledRoute, err := route.DeleteGuildSticker.Compile(nil, guildID, stickerID)
 	if err != nil {
 		return err
