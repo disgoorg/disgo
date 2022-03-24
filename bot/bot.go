@@ -26,7 +26,7 @@ type Client interface {
 	SetSelfUser(user discord.OAuth2User)
 	SelfMember(guildID snowflake.Snowflake) *discord.Member
 	Caches() cache.Caches
-	Rest() rest.Services
+	Rest() rest.Rest
 	HandleReadyEvent(event discord.GatewayEventReady)
 
 	AddEventListeners(listeners ...EventListener)
@@ -67,7 +67,7 @@ type clientImpl struct {
 
 	logger log.Logger
 
-	restServices rest.Services
+	restServices rest.Rest
 
 	eventManager EventManager
 
@@ -130,7 +130,7 @@ func (c *clientImpl) Caches() cache.Caches {
 	return c.caches
 }
 
-func (c *clientImpl) Rest() rest.Services {
+func (c *clientImpl) Rest() rest.Rest {
 	return c.restServices
 }
 

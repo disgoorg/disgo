@@ -28,7 +28,7 @@ type Config struct {
 
 	RestClient           rest.Client
 	RestClientConfigOpts []rest.ConfigOpt
-	RestServices         rest.Services
+	Rest                 rest.Rest
 
 	EventManager           EventManager
 	EventManagerConfigOpts []EventManagerConfigOpt
@@ -80,9 +80,9 @@ func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 }
 
 //goland:noinspection GoUnusedExportedFunction
-func WithRestServices(restServices rest.Services) ConfigOpt {
+func WithRest(rest rest.Rest) ConfigOpt {
 	return func(config *Config) {
-		config.RestServices = restServices
+		config.Rest = rest
 	}
 }
 
@@ -204,10 +204,10 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 		config.RestClient = rest.NewClient(client.token, config.RestClientConfigOpts...)
 	}
 
-	if config.RestServices == nil {
-		config.RestServices = rest.NewServices(config.RestClient)
+	if config.Rest == nil {
+		config.Rest = rest.NewRest(config.RestClient)
 	}
-	client.restServices = config.RestServices
+	client.restServices = config.Rest
 
 	if config.EventManager == nil {
 		config.EventManager = NewEventManager(client, config.EventManagerConfigOpts...)
@@ -216,7 +216,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 
 	if config.Gateway == nil && config.GatewayConfigOpts != nil {
 		var gatewayRs *discord.Gateway
-		gatewayRs, err = client.restServices.GatewayService().GetGateway()
+		gatewayRs, err = client.restServices.Gateway().GetGateway()
 		if err != nil {
 			return nil, err
 		}
@@ -235,7 +235,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 
 	if config.ShardManager == nil && config.ShardManagerConfigOpts != nil {
 		var gatewayBotRs *discord.GatewayBot
-		gatewayBotRs, err = client.restServices.GatewayService().GetGatewayBot()
+		gatewayBotRs, err = client.restServices.Gateway().GetGatewayBot()
 		if err != nil {
 			return nil, err
 		}

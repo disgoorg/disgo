@@ -5,10 +5,10 @@ import (
 	"net/http"
 )
 
-var _ Services = (*servicesImpl)(nil)
+var _ Rest = (*servicesImpl)(nil)
 
-// NewServices returns a new default Services
-func NewServices(restClient Client) Services {
+// NewRest returns a new default Rest
+func NewRest(restClient Client) Rest {
 	return &servicesImpl{
 		restClient:                 restClient,
 		applicationService:         NewApplicationService(restClient),
@@ -16,6 +16,7 @@ func NewServices(restClient Client) Services {
 		auditLogService:            NewAuditLogService(restClient),
 		gatewayService:             NewGatewayService(restClient),
 		guildService:               NewGuildService(restClient),
+		memberService:              NewMemberService(restClient),
 		channelService:             NewChannelService(restClient),
 		threadService:              NewThreadService(restClient),
 		interactionService:         NewInteractionService(restClient),
@@ -31,29 +32,30 @@ func NewServices(restClient Client) Services {
 	}
 }
 
-// Services is a manager for all of disgo's HTTP requests
-type Services interface {
+// Rest is a manager for all of disgo's HTTP requests
+type Rest interface {
 	RestClient() Client
 	HTTPClient() *http.Client
 	Close(ctx context.Context)
 
-	ApplicationService() ApplicationService
-	OAuth2Service() OAuth2Service
-	AuditLogService() AuditLogService
-	GatewayService() GatewayService
-	GuildService() GuildService
-	ChannelService() ChannelService
-	ThreadService() ThreadService
-	InteractionService() InteractionService
-	InviteService() InviteService
-	GuildTemplateService() GuildTemplateService
-	UserService() UserService
-	VoiceService() VoiceService
-	WebhookService() WebhookService
-	StageInstanceService() StageInstanceService
-	EmojiService() EmojiService
-	StickerService() StickerService
-	GuildScheduledEventService() GuildScheduledEventService
+	Application() ApplicationService
+	OAuth2() OAuth2Service
+	AuditLog() AuditLogService
+	Gateway() GatewayService
+	Guild() GuildService
+	Member() MemberService
+	Channel() ChannelService
+	Thread() ThreadService
+	Interaction() InteractionService
+	Invite() InviteService
+	GuildTemplate() GuildTemplateService
+	User() UserService
+	Voice() VoiceService
+	Webhook() WebhookService
+	StageInstance() StageInstanceService
+	Emoji() EmojiService
+	Sticker() StickerService
+	GuildScheduledEvent() GuildScheduledEventService
 }
 
 type servicesImpl struct {
@@ -64,6 +66,7 @@ type servicesImpl struct {
 	auditLogService            AuditLogService
 	gatewayService             GatewayService
 	guildService               GuildService
+	memberService              MemberService
 	channelService             ChannelService
 	threadService              ThreadService
 	interactionService         InteractionService
@@ -90,71 +93,75 @@ func (s *servicesImpl) Close(ctx context.Context) {
 	s.restClient.Close(ctx)
 }
 
-func (s *servicesImpl) ApplicationService() ApplicationService {
+func (s *servicesImpl) Application() ApplicationService {
 	return s.applicationService
 }
 
-func (s *servicesImpl) OAuth2Service() OAuth2Service {
+func (s *servicesImpl) OAuth2() OAuth2Service {
 	return s.oauth2Service
 }
 
-func (s *servicesImpl) AuditLogService() AuditLogService {
+func (s *servicesImpl) AuditLog() AuditLogService {
 	return s.auditLogService
 }
 
-func (s *servicesImpl) GatewayService() GatewayService {
+func (s *servicesImpl) Gateway() GatewayService {
 	return s.gatewayService
 }
 
-func (s *servicesImpl) GuildService() GuildService {
+func (s *servicesImpl) Guild() GuildService {
 	return s.guildService
 }
 
-func (s *servicesImpl) ChannelService() ChannelService {
+func (s *servicesImpl) Member() MemberService {
+	return s.memberService
+}
+
+func (s *servicesImpl) Channel() ChannelService {
 	return s.channelService
 }
 
-func (s *servicesImpl) ThreadService() ThreadService {
+func (s *servicesImpl) Thread() ThreadService {
 	return s.threadService
 }
 
-func (s *servicesImpl) InteractionService() InteractionService {
+func (s *servicesImpl) Interaction() InteractionService {
 	return s.interactionService
 }
 
-func (s *servicesImpl) InviteService() InviteService {
+func (s *servicesImpl) Invite() InviteService {
 	return s.inviteService
 }
 
-func (s *servicesImpl) GuildTemplateService() GuildTemplateService {
+func (s *servicesImpl) GuildTemplate() GuildTemplateService {
 	return s.guildTemplateService
 }
 
-func (s *servicesImpl) UserService() UserService {
+func (s *servicesImpl) User() UserService {
 	return s.userService
 }
 
-func (s *servicesImpl) VoiceService() VoiceService {
+func (s *servicesImpl) Voice() VoiceService {
 	return s.voiceService
 }
 
-func (s *servicesImpl) WebhookService() WebhookService {
+func (s *servicesImpl) Webhook() WebhookService {
 	return s.webhookService
 }
 
-func (s *servicesImpl) StageInstanceService() StageInstanceService {
+func (s *servicesImpl) StageInstance() StageInstanceService {
 	return s.stageInstanceService
 }
 
-func (s *servicesImpl) EmojiService() EmojiService {
+func (s *servicesImpl) Emoji() EmojiService {
 	return s.emojiService
 }
 
-func (s *servicesImpl) StickerService() StickerService {
+func (s *servicesImpl) Sticker() StickerService {
 	return s.stickerService
 }
 
-func (s *servicesImpl) GuildScheduledEventService() GuildScheduledEventService {
+func (s *servicesImpl) GuildScheduledEvent() GuildScheduledEventService {
 	return s.guildScheduledEventService
 }
 

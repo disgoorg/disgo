@@ -67,5 +67,5 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 	if event.Message.Author.BotUser {
 		return
 	}
-	_, _ = event.Client().Rest().ChannelService().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent(event.Message.Content).Build())
+	_, _ = event.Client().Rest().Channel().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent(event.Message.Content).Build())
 }

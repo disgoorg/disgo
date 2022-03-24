@@ -34,17 +34,6 @@ type GuildService interface {
 	UpdateRolePositions(guildID snowflake.Snowflake, rolePositionUpdates []discord.RolePositionUpdate, opts ...RequestOpt) ([]discord.Role, error)
 	DeleteRole(guildID snowflake.Snowflake, roleID snowflake.Snowflake, opts ...RequestOpt) error
 
-	GetMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, opts ...RequestOpt) (*discord.Member, error)
-	GetMembers(guildID snowflake.Snowflake, opts ...RequestOpt) ([]discord.Member, error)
-	SearchMembers(guildID snowflake.Snowflake, query string, limit int, opts ...RequestOpt) ([]discord.Member, error)
-	AddMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, memberAdd discord.MemberAdd, opts ...RequestOpt) (*discord.Member, error)
-	RemoveMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, opts ...RequestOpt) error
-	UpdateMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, memberUpdate discord.MemberUpdate, opts ...RequestOpt) (*discord.Member, error)
-	AddMemberRole(guildID snowflake.Snowflake, userID snowflake.Snowflake, roleID snowflake.Snowflake, opts ...RequestOpt) error
-	RemoveMemberRole(guildID snowflake.Snowflake, userID snowflake.Snowflake, roleID snowflake.Snowflake, opts ...RequestOpt) error
-
-	UpdateSelfNick(guildID snowflake.Snowflake, nick string, opts ...RequestOpt) (*string, error)
-
 	GetBans(guildID snowflake.Snowflake, opts ...RequestOpt) ([]discord.Ban, error)
 	GetBan(guildID snowflake.Snowflake, userID snowflake.Snowflake, opts ...RequestOpt) (*discord.Ban, error)
 	AddBan(guildID snowflake.Snowflake, userID snowflake.Snowflake, deleteMessageDays int, opts ...RequestOpt) error
@@ -53,9 +42,6 @@ type GuildService interface {
 	GetIntegrations(guildID snowflake.Snowflake, opts ...RequestOpt) ([]discord.Integration, error)
 	DeleteIntegration(guildID snowflake.Snowflake, integrationID snowflake.Snowflake, opts ...RequestOpt) error
 	GetWebhooks(guildID snowflake.Snowflake, opts ...RequestOpt) ([]discord.Webhook, error)
-
-	UpdateCurrentUserVoiceState(guildID snowflake.Snowflake, currentUserVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error
-	UpdateUserVoiceState(guildID snowflake.Snowflake, userID snowflake.Snowflake, userVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error
 }
 
 type guildServiceImpl struct {
@@ -208,97 +194,6 @@ func (s *guildServiceImpl) DeleteRole(guildID snowflake.Snowflake, roleID snowfl
 	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
-func (s *guildServiceImpl) GetMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, opts ...RequestOpt) (member *discord.Member, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetMember.Compile(nil, guildID, userID)
-	if err != nil {
-		return
-	}
-	err = s.restClient.Do(compiledRoute, nil, &member, opts...)
-	return
-}
-
-func (s *guildServiceImpl) GetMembers(guildID snowflake.Snowflake, opts ...RequestOpt) (members []discord.Member, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetMembers.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
-	err = s.restClient.Do(compiledRoute, nil, &members, opts...)
-	return
-}
-
-func (s *guildServiceImpl) SearchMembers(guildID snowflake.Snowflake, query string, limit int, opts ...RequestOpt) (members []discord.Member, err error) {
-	values := route.QueryValues{}
-	if query != "" {
-		values["query"] = query
-	}
-	if limit != 0 {
-		values["limit"] = limit
-	}
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.SearchMembers.Compile(values, guildID)
-	if err != nil {
-		return
-	}
-	err = s.restClient.Do(compiledRoute, nil, &members, opts...)
-	return
-}
-
-func (s *guildServiceImpl) AddMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, memberAdd discord.MemberAdd, opts ...RequestOpt) (member *discord.Member, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.AddMember.Compile(nil, guildID, userID)
-	if err != nil {
-		return
-	}
-	err = s.restClient.Do(compiledRoute, memberAdd, &member, opts...)
-	return
-}
-
-func (s *guildServiceImpl) RemoveMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, opts ...RequestOpt) error {
-	compiledRoute, err := route.RemoveMember.Compile(nil, guildID, userID)
-	if err != nil {
-		return err
-	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
-}
-
-func (s *guildServiceImpl) UpdateMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, memberUpdate discord.MemberUpdate, opts ...RequestOpt) (member *discord.Member, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.UpdateMember.Compile(nil, guildID, userID)
-	if err != nil {
-		return
-	}
-	err = s.restClient.Do(compiledRoute, memberUpdate, &member, opts...)
-	return
-}
-
-func (s *guildServiceImpl) AddMemberRole(guildID snowflake.Snowflake, userID snowflake.Snowflake, roleID snowflake.Snowflake, opts ...RequestOpt) error {
-	compiledRoute, err := route.AddMemberRole.Compile(nil, guildID, userID, roleID)
-	if err != nil {
-		return err
-	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
-}
-
-func (s *guildServiceImpl) RemoveMemberRole(guildID snowflake.Snowflake, userID snowflake.Snowflake, roleID snowflake.Snowflake, opts ...RequestOpt) error {
-	compiledRoute, err := route.RemoveMemberRole.Compile(nil, guildID, userID, roleID)
-	if err != nil {
-		return err
-	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
-}
-
-func (s *guildServiceImpl) UpdateSelfNick(guildID snowflake.Snowflake, nick string, opts ...RequestOpt) (nickName *string, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.UpdateSelfNick.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
-	err = s.restClient.Do(compiledRoute, discord.SelfNickUpdate{Nick: nick}, nickName, opts...)
-	return
-}
-
 func (s *guildServiceImpl) GetBans(guildID snowflake.Snowflake, opts ...RequestOpt) (bans []discord.Ban, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetBans.Compile(nil, guildID)
@@ -371,20 +266,4 @@ func (s *guildServiceImpl) GetEmojis(guildID snowflake.Snowflake, opts ...Reques
 	}
 	err = s.restClient.Do(compiledRoute, nil, &emojis, opts...)
 	return
-}
-
-func (s *guildServiceImpl) UpdateCurrentUserVoiceState(guildID snowflake.Snowflake, currentUserVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error {
-	compiledRoute, err := route.UpdateCurrentUserVoiceState.Compile(nil, guildID)
-	if err != nil {
-		return err
-	}
-	return s.restClient.Do(compiledRoute, currentUserVoiceStateUpdate, nil, opts...)
-}
-
-func (s *guildServiceImpl) UpdateUserVoiceState(guildID snowflake.Snowflake, userID snowflake.Snowflake, userVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error {
-	compiledRoute, err := route.UpdateUserVoiceState.Compile(nil, guildID, userID)
-	if err != nil {
-		return err
-	}
-	return s.restClient.Do(compiledRoute, userVoiceStateUpdate, nil, opts...)
 }
