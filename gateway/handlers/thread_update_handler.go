@@ -22,7 +22,7 @@ func (h *gatewayHandlerThreadUpdate) HandleGatewayEvent(client bot.Client, seque
 	oldGuildThread, _ := client.Caches().Channels().GetGuildThread(guildThread.ID())
 	client.Caches().Channels().Put(guildThread.ID(), guildThread)
 
-	client.EventManager().Dispatch(&events.ThreadUpdateEvent{
+	client.EventManager().DispatchEvent(&events.ThreadUpdateEvent{
 		GenericThreadEvent: &events.GenericThreadEvent{
 			GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 			Thread:       guildThread,

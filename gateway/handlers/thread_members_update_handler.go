@@ -34,7 +34,7 @@ func (h *gatewayHandlerThreadMembersUpdate) HandleGatewayEvent(client bot.Client
 			client.Caches().Presences().Put(payload.GuildID, addedMember.UserID, *addedMember.Presence)
 		}
 
-		client.EventManager().Dispatch(&events.ThreadMemberAddEvent{
+		client.EventManager().DispatchEvent(&events.ThreadMemberAddEvent{
 			GenericThreadMemberEvent: &events.GenericThreadMemberEvent{
 				GenericEvent:   genericEvent,
 				GuildID:        payload.GuildID,
@@ -48,7 +48,7 @@ func (h *gatewayHandlerThreadMembersUpdate) HandleGatewayEvent(client bot.Client
 	for _, removedMemberID := range payload.RemovedMemberIDs {
 		threadMember, _ := client.Caches().ThreadMembers().Remove(payload.ID, removedMemberID)
 
-		client.EventManager().Dispatch(&events.ThreadMemberRemoveEvent{
+		client.EventManager().DispatchEvent(&events.ThreadMemberRemoveEvent{
 			GenericThreadMemberEvent: &events.GenericThreadMemberEvent{
 				GenericEvent:   genericEvent,
 				GuildID:        payload.GuildID,

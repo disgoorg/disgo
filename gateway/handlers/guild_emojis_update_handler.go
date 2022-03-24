@@ -56,7 +56,7 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(client bot.Client, 
 	}
 
 	for _, emoji := range newEmojis {
-		client.EventManager().Dispatch(&events.EmojiCreateEvent{
+		client.EventManager().DispatchEvent(&events.EmojiCreateEvent{
 			GenericEmojiEvent: &events.GenericEmojiEvent{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 				GuildID:      payload.GuildID,
@@ -66,7 +66,7 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(client bot.Client, 
 	}
 
 	for _, emoji := range updatedEmojis {
-		client.EventManager().Dispatch(&events.EmojiUpdateEvent{
+		client.EventManager().DispatchEvent(&events.EmojiUpdateEvent{
 			GenericEmojiEvent: &events.GenericEmojiEvent{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 				GuildID:      payload.GuildID,
@@ -76,7 +76,7 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(client bot.Client, 
 	}
 
 	for _, emoji := range oldEmojis {
-		client.EventManager().Dispatch(&events.EmojiDeleteEvent{
+		client.EventManager().DispatchEvent(&events.EmojiDeleteEvent{
 			GenericEmojiEvent: &events.GenericEmojiEvent{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 				GuildID:      payload.GuildID,

@@ -25,7 +25,7 @@ func (h *gatewayHandlerStageInstanceDelete) HandleGatewayEvent(client bot.Client
 
 	client.Caches().StageInstances().Remove(stageInstance.GuildID, stageInstance.ID)
 
-	client.EventManager().Dispatch(&events.StageInstanceDeleteEvent{
+	client.EventManager().DispatchEvent(&events.StageInstanceDeleteEvent{
 		GenericStageInstanceEvent: &events.GenericStageInstanceEvent{
 			GenericEvent:    events.NewGenericEvent(client, sequenceNumber),
 			StageInstanceID: stageInstance.ID,

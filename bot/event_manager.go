@@ -23,13 +23,14 @@ func NewEventManager(client Client, opts ...EventManagerConfigOpt) EventManager 
 
 // EventManager lets you listen for specific events triggered by raw gateway events
 type EventManager interface {
-	Config() EventManagerConfig
+	RawEventsEnabled() bool
 
 	AddEventListeners(eventListeners ...EventListener)
 	RemoveEventListeners(eventListeners ...EventListener)
-	HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, payload io.Reader)
-	HandleHTTP(responseChannel chan<- discord.InteractionResponse, payload io.Reader)
-	Dispatch(event Event)
+
+	HandleGatewayEvent(gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, payload io.Reader)
+	HandleHTTPEvent(responseChannel chan<- discord.InteractionResponse, payload io.Reader)
+	DispatchEvent(event Event)
 }
 
 // EventListener is used to create new EventListener to listen to events
@@ -63,12 +64,12 @@ type eventManagerImpl struct {
 	config          EventManagerConfig
 }
 
-func (e *eventManagerImpl) Config() EventManagerConfig {
-	return e.config
+func (e *eventManagerImpl) RawEventsEnabled() bool {
+	return e.config.RawEventsEnabled
 }
 
-// HandleGateway calls the correct core.EventHandler
-func (e *eventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, reader io.Reader) {
+// HandleGatewayEvent calls the correct core.EventHandler
+func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, reader io.Reader) {
 	if handler, ok := e.config.GatewayHandlers[gatewayEventType]; ok {
 		v := handler.New()
 		if v != nil {
@@ -83,8 +84,8 @@ func (e *eventManagerImpl) HandleGateway(gatewayEventType discord.GatewayEventTy
 	}
 }
 
-// HandleHTTP calls the correct core.EventHandler
-func (e *eventManagerImpl) HandleHTTP(responseChannel chan<- discord.InteractionResponse, reader io.Reader) {
+// HandleHTTPEvent calls the correct core.EventHandler
+func (e *eventManagerImpl) HandleHTTPEvent(responseChannel chan<- discord.InteractionResponse, reader io.Reader) {
 	v := e.config.HTTPServerHandler.New()
 	if err := json.NewDecoder(reader).Decode(&v); err != nil {
 		e.client.Logger().Error("error while unmarshalling httpserver event. error: ", err)
@@ -92,8 +93,8 @@ func (e *eventManagerImpl) HandleHTTP(responseChannel chan<- discord.Interaction
 	e.config.HTTPServerHandler.HandleHTTPEvent(e.client, responseChannel, v)
 }
 
-// Dispatch dispatches a new event to the client
-func (e *eventManagerImpl) Dispatch(event Event) {
+// DispatchEvent dispatches a new event to the client
+func (e *eventManagerImpl) DispatchEvent(event Event) {
 	defer func() {
 		if r := recover(); r != nil {
 			e.client.Logger().Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
@@ -103,7 +104,7 @@ func (e *eventManagerImpl) Dispatch(event Event) {
 	e.eventListenerMu.Lock()
 	defer e.eventListenerMu.Unlock()
 	for i := range e.config.EventListeners {
-		if e.Config().AsyncEventsEnabled {
+		if e.config.AsyncEventsEnabled {
 			go func() {
 				defer func() {
 					if r := recover(); r != nil {

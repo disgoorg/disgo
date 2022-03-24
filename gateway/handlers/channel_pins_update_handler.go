@@ -31,14 +31,14 @@ func (h *gatewayHandlerChannelPinsUpdate) HandleGatewayEvent(client bot.Client, 
 	}
 
 	if payload.GuildID == nil {
-		client.EventManager().Dispatch(&events.DMChannelPinsUpdateEvent{
+		client.EventManager().DispatchEvent(&events.DMChannelPinsUpdateEvent{
 			GenericEvent:        events.NewGenericEvent(client, sequenceNumber),
 			ChannelID:           payload.ChannelID,
 			OldLastPinTimestamp: oldTime,
 			NewLastPinTimestamp: payload.LastPinTimestamp,
 		})
 	} else {
-		client.EventManager().Dispatch(&events.GuildChannelPinsUpdateEvent{
+		client.EventManager().DispatchEvent(&events.GuildChannelPinsUpdateEvent{
 			GenericEvent:        events.NewGenericEvent(client, sequenceNumber),
 			GuildID:             *payload.GuildID,
 			ChannelID:           payload.ChannelID,

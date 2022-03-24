@@ -35,22 +35,22 @@ func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(client bot.Client, s
 		VoiceState:   voiceState,
 	}
 
-	client.EventManager().Dispatch(&events.GuildVoiceStateUpdateEvent{
+	client.EventManager().DispatchEvent(&events.GuildVoiceStateUpdateEvent{
 		GenericGuildVoiceStateEvent: genericGuildVoiceEvent,
 		OldVoiceState:               oldVoiceState,
 	})
 
 	if oldOk && oldVoiceState.ChannelID != nil && voiceState.ChannelID != nil {
-		client.EventManager().Dispatch(&events.GuildVoiceMoveEvent{
+		client.EventManager().DispatchEvent(&events.GuildVoiceMoveEvent{
 			GenericGuildVoiceStateEvent: genericGuildVoiceEvent,
 			OldVoiceState:               oldVoiceState,
 		})
 	} else if (oldOk || oldVoiceState.ChannelID == nil) && voiceState.ChannelID != nil {
-		client.EventManager().Dispatch(&events.GuildVoiceJoinEvent{
+		client.EventManager().DispatchEvent(&events.GuildVoiceJoinEvent{
 			GenericGuildVoiceStateEvent: genericGuildVoiceEvent,
 		})
 	} else if voiceState.ChannelID == nil {
-		client.EventManager().Dispatch(&events.GuildVoiceLeaveEvent{
+		client.EventManager().DispatchEvent(&events.GuildVoiceLeaveEvent{
 			GenericGuildVoiceStateEvent: genericGuildVoiceEvent,
 			OldVoiceState:               oldVoiceState,
 		})

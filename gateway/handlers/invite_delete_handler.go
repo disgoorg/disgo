@@ -23,7 +23,7 @@ func (h *gatewayHandlerInviteDelete) New() any {
 func (h *gatewayHandlerInviteDelete) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
 	payload := *v.(*discord.InviteDeleteGatewayEvent)
 
-	client.EventManager().Dispatch(&events.InviteDeleteEvent{
+	client.EventManager().DispatchEvent(&events.InviteDeleteEvent{
 		GenericInviteEvent: &events.GenericInviteEvent{
 			GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 			GuildID:      payload.GuildID,

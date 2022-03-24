@@ -43,7 +43,7 @@ func HandleInteraction(client bot.Client, sequenceNumber discord.GatewaySequence
 
 	genericEvent := events.NewGenericEvent(client, sequenceNumber)
 
-	client.EventManager().Dispatch(&events.InteractionEvent{
+	client.EventManager().DispatchEvent(&events.InteractionEvent{
 		GenericEvent: genericEvent,
 		Interaction:  interaction,
 		Respond:      respond(client, c, interaction),
@@ -51,28 +51,28 @@ func HandleInteraction(client bot.Client, sequenceNumber discord.GatewaySequence
 
 	switch i := interaction.(type) {
 	case discord.ApplicationCommandInteraction:
-		client.EventManager().Dispatch(&events.ApplicationCommandInteractionEvent{
+		client.EventManager().DispatchEvent(&events.ApplicationCommandInteractionEvent{
 			GenericEvent:                  genericEvent,
 			ApplicationCommandInteraction: i,
 			Respond:                       respond(client, c, interaction),
 		})
 
 	case discord.ComponentInteraction:
-		client.EventManager().Dispatch(&events.ComponentInteractionEvent{
+		client.EventManager().DispatchEvent(&events.ComponentInteractionEvent{
 			GenericEvent:         genericEvent,
 			ComponentInteraction: i,
 			Respond:              respond(client, c, interaction),
 		})
 
 	case discord.AutocompleteInteraction:
-		client.EventManager().Dispatch(&events.AutocompleteInteractionEvent{
+		client.EventManager().DispatchEvent(&events.AutocompleteInteractionEvent{
 			GenericEvent:            genericEvent,
 			AutocompleteInteraction: i,
 			Respond:                 respond(client, c, interaction),
 		})
 
 	case discord.ModalSubmitInteraction:
-		client.EventManager().Dispatch(&events.ModalSubmitInteractionEvent{
+		client.EventManager().DispatchEvent(&events.ModalSubmitInteractionEvent{
 			GenericEvent:           genericEvent,
 			ModalSubmitInteraction: i,
 			Respond:                respond(client, c, interaction),

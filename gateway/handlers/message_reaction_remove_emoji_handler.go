@@ -25,7 +25,7 @@ func (h *gatewayHandlerMessageReactionRemoveEmoji) HandleGatewayEvent(client bot
 
 	genericEvent := events.NewGenericEvent(client, sequenceNumber)
 
-	client.EventManager().Dispatch(&events.MessageReactionRemoveEmojiEvent{
+	client.EventManager().DispatchEvent(&events.MessageReactionRemoveEmojiEvent{
 		GenericEvent: genericEvent,
 		MessageID:    payload.MessageID,
 		ChannelID:    payload.ChannelID,
@@ -34,14 +34,14 @@ func (h *gatewayHandlerMessageReactionRemoveEmoji) HandleGatewayEvent(client bot
 	})
 
 	if payload.GuildID == nil {
-		client.EventManager().Dispatch(&events.DMMessageReactionRemoveEmojiEvent{
+		client.EventManager().DispatchEvent(&events.DMMessageReactionRemoveEmojiEvent{
 			GenericEvent: genericEvent,
 			MessageID:    payload.MessageID,
 			ChannelID:    payload.ChannelID,
 			Emoji:        payload.Emoji,
 		})
 	} else {
-		client.EventManager().Dispatch(&events.GuildMessageReactionRemoveEmojiEvent{
+		client.EventManager().DispatchEvent(&events.GuildMessageReactionRemoveEmojiEvent{
 			GenericEvent: genericEvent,
 			MessageID:    payload.MessageID,
 			ChannelID:    payload.ChannelID,

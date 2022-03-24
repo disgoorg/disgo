@@ -56,7 +56,7 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client
 	}
 
 	for _, sticker := range newStickers {
-		client.EventManager().Dispatch(&events.StickerCreateEvent{
+		client.EventManager().DispatchEvent(&events.StickerCreateEvent{
 			GenericStickerEvent: &events.GenericStickerEvent{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 				GuildID:      payload.GuildID,
@@ -66,7 +66,7 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client
 	}
 
 	for _, sticker := range updatedStickers {
-		client.EventManager().Dispatch(&events.StickerUpdateEvent{
+		client.EventManager().DispatchEvent(&events.StickerUpdateEvent{
 			GenericStickerEvent: &events.GenericStickerEvent{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 				GuildID:      payload.GuildID,
@@ -76,7 +76,7 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client
 	}
 
 	for _, sticker := range oldStickers {
-		client.EventManager().Dispatch(&events.StickerDeleteEvent{
+		client.EventManager().DispatchEvent(&events.StickerDeleteEvent{
 			GenericStickerEvent: &events.GenericStickerEvent{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 				GuildID:      payload.GuildID,

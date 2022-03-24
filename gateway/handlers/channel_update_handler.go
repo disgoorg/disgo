@@ -27,7 +27,7 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(client bot.Client, sequ
 		oldGuildChannel, _ := client.Caches().Channels().GetGuildChannel(channel.ID())
 		client.Caches().Channels().Put(channel.ID(), channel)
 
-		client.EventManager().Dispatch(&events.GuildChannelUpdateEvent{
+		client.EventManager().DispatchEvent(&events.GuildChannelUpdateEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 				ChannelID:    channel.ID(),
@@ -43,7 +43,7 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(client bot.Client, sequ
 				for _, guildThread := range client.Caches().Channels().GuildThreadsInChannel(channel.ID()) {
 					client.Caches().ThreadMembers().RemoveAll(guildThread.ID())
 					client.Caches().Channels().Remove(guildThread.ID())
-					client.EventManager().Dispatch(&events.ThreadHideEvent{
+					client.EventManager().DispatchEvent(&events.ThreadHideEvent{
 						GenericThreadEvent: &events.GenericThreadEvent{
 							GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 							Thread:       guildThread,
@@ -60,7 +60,7 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(client bot.Client, sequ
 		oldDMChannel, _ := client.Caches().Channels().GetDMChannel(channel.ID())
 		client.Caches().Channels().Put(channel.ID(), channel)
 
-		client.EventManager().Dispatch(&events.DMChannelUpdateEvent{
+		client.EventManager().DispatchEvent(&events.DMChannelUpdateEvent{
 			GenericDMChannelEvent: &events.GenericDMChannelEvent{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 				ChannelID:    channel.ID(),

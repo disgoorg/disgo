@@ -25,7 +25,7 @@ func (h *gatewayHandlerMessageReactionRemoveAll) HandleGatewayEvent(client bot.C
 
 	genericEvent := events.NewGenericEvent(client, sequenceNumber)
 
-	client.EventManager().Dispatch(&events.MessageReactionRemoveAllEvent{
+	client.EventManager().DispatchEvent(&events.MessageReactionRemoveAllEvent{
 		GenericEvent: genericEvent,
 		MessageID:    messageReaction.MessageID,
 		ChannelID:    messageReaction.ChannelID,
@@ -33,13 +33,13 @@ func (h *gatewayHandlerMessageReactionRemoveAll) HandleGatewayEvent(client bot.C
 	})
 
 	if messageReaction.GuildID == nil {
-		client.EventManager().Dispatch(&events.DMMessageReactionRemoveAllEvent{
+		client.EventManager().DispatchEvent(&events.DMMessageReactionRemoveAllEvent{
 			GenericEvent: genericEvent,
 			MessageID:    messageReaction.MessageID,
 			ChannelID:    messageReaction.ChannelID,
 		})
 	} else {
-		client.EventManager().Dispatch(&events.GuildMessageReactionRemoveAllEvent{
+		client.EventManager().DispatchEvent(&events.GuildMessageReactionRemoveAllEvent{
 			GenericEvent: genericEvent,
 			MessageID:    messageReaction.MessageID,
 			ChannelID:    messageReaction.ChannelID,

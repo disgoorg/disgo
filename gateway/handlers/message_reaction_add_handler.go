@@ -29,7 +29,7 @@ func (h *gatewayHandlerMessageReactionAdd) HandleGatewayEvent(client bot.Client,
 		client.Caches().Members().Put(*payload.GuildID, payload.UserID, *payload.Member)
 	}
 
-	client.EventManager().Dispatch(&events.MessageReactionAddEvent{
+	client.EventManager().DispatchEvent(&events.MessageReactionAddEvent{
 		GenericReactionEvent: &events.GenericReactionEvent{
 			GenericEvent: genericEvent,
 			MessageID:    payload.MessageID,
@@ -42,7 +42,7 @@ func (h *gatewayHandlerMessageReactionAdd) HandleGatewayEvent(client bot.Client,
 	})
 
 	if payload.GuildID == nil {
-		client.EventManager().Dispatch(&events.DMMessageReactionAddEvent{
+		client.EventManager().DispatchEvent(&events.DMMessageReactionAddEvent{
 			GenericDMMessageReactionEvent: &events.GenericDMMessageReactionEvent{
 				GenericEvent: genericEvent,
 				MessageID:    payload.MessageID,
@@ -52,7 +52,7 @@ func (h *gatewayHandlerMessageReactionAdd) HandleGatewayEvent(client bot.Client,
 			},
 		})
 	} else {
-		client.EventManager().Dispatch(&events.GuildMessageReactionAddEvent{
+		client.EventManager().DispatchEvent(&events.GuildMessageReactionAddEvent{
 			GenericGuildMessageReactionEvent: &events.GenericGuildMessageReactionEvent{
 				GenericEvent: genericEvent,
 				MessageID:    payload.MessageID,

@@ -41,7 +41,7 @@ func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(client bot.Client, seq
 	}
 
 	if oldStatus != payload.Status {
-		client.EventManager().Dispatch(&events.UserStatusUpdateEvent{
+		client.EventManager().DispatchEvent(&events.UserStatusUpdateEvent{
 			GenericEvent: genericEvent,
 			UserID:       payload.PresenceUser.ID,
 			OldStatus:    oldStatus,
@@ -50,7 +50,7 @@ func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(client bot.Client, seq
 	}
 
 	if oldClientStatus == nil || oldClientStatus.Desktop != payload.ClientStatus.Desktop || oldClientStatus.Mobile != payload.ClientStatus.Mobile || oldClientStatus.Web != payload.ClientStatus.Web {
-		client.EventManager().Dispatch(&events.UserClientStatusUpdateEvent{
+		client.EventManager().DispatchEvent(&events.UserClientStatusUpdateEvent{
 			GenericEvent:    genericEvent,
 			UserID:          payload.PresenceUser.ID,
 			OldClientStatus: oldClientStatus,
@@ -74,7 +74,7 @@ func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(client bot.Client, seq
 		}
 		if !found {
 			genericUserActivityEvent.Activity = oldActivity
-			client.EventManager().Dispatch(&events.UserActivityStopEvent{
+			client.EventManager().DispatchEvent(&events.UserActivityStopEvent{
 				GenericUserActivityEvent: &genericUserActivityEvent,
 			})
 		}
@@ -90,7 +90,7 @@ func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(client bot.Client, seq
 		}
 		if !found {
 			genericUserActivityEvent.Activity = newActivity
-			client.EventManager().Dispatch(&events.UserActivityStartEvent{
+			client.EventManager().DispatchEvent(&events.UserActivityStartEvent{
 				GenericUserActivityEvent: &genericUserActivityEvent,
 			})
 		}
@@ -106,7 +106,7 @@ func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(client bot.Client, seq
 		}
 		if oldActivity != nil && !cmp.Equal(*oldActivity, newActivity) {
 			genericUserActivityEvent.Activity = newActivity
-			client.EventManager().Dispatch(&events.UserActivityUpdateEvent{
+			client.EventManager().DispatchEvent(&events.UserActivityUpdateEvent{
 				GenericUserActivityEvent: &genericUserActivityEvent,
 				OldActivity:              *oldActivity,
 			})

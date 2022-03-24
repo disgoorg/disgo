@@ -25,7 +25,7 @@ func (h *gatewayHandlerChannelCreate) HandleGatewayEvent(client bot.Client, sequ
 	client.Caches().Channels().Put(channel.ID(), channel)
 
 	if guildChannel, ok := channel.(discord.GuildChannel); ok {
-		client.EventManager().Dispatch(&events.GuildChannelCreateEvent{
+		client.EventManager().DispatchEvent(&events.GuildChannelCreateEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 				ChannelID:    channel.ID(),
@@ -34,7 +34,7 @@ func (h *gatewayHandlerChannelCreate) HandleGatewayEvent(client bot.Client, sequ
 			},
 		})
 	} else if dmChannel, ok := channel.(discord.DMChannel); ok {
-		client.EventManager().Dispatch(&events.DMChannelCreateEvent{
+		client.EventManager().DispatchEvent(&events.DMChannelCreateEvent{
 			GenericDMChannelEvent: &events.GenericDMChannelEvent{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 				ChannelID:    channel.ID(),

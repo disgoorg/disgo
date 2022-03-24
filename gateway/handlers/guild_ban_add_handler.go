@@ -23,7 +23,7 @@ func (h *gatewayHandlerGuildBanAdd) New() any {
 func (h *gatewayHandlerGuildBanAdd) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
 	payload := *v.(*discord.GuildBanAddGatewayEvent)
 
-	client.EventManager().Dispatch(&events.GuildBanEvent{
+	client.EventManager().DispatchEvent(&events.GuildBanEvent{
 		GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 		GuildID:      payload.GuildID,
 		User:         payload.User,

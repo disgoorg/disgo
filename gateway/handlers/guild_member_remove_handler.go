@@ -30,7 +30,7 @@ func (h *gatewayHandlerGuildMemberRemove) HandleGatewayEvent(client bot.Client, 
 
 	member, _ := client.Caches().Members().Remove(payload.GuildID, payload.User.ID)
 
-	client.EventManager().Dispatch(&events.GuildMemberLeaveEvent{
+	client.EventManager().DispatchEvent(&events.GuildMemberLeaveEvent{
 		GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 		GuildID:      payload.GuildID,
 		User:         payload.User,

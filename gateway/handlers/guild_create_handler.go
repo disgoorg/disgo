@@ -78,11 +78,11 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(client bot.Client, sequen
 
 	if wasUnready {
 		client.Caches().Guilds().SetReady(shardID, gatewayGuild.ID)
-		client.EventManager().Dispatch(&events.GuildReadyEvent{
+		client.EventManager().DispatchEvent(&events.GuildReadyEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 		if len(client.Caches().Guilds().UnreadyGuilds(shardID)) == 0 {
-			client.EventManager().Dispatch(&events.GuildsReadyEvent{
+			client.EventManager().DispatchEvent(&events.GuildsReadyEvent{
 				GenericEvent: events.NewGenericEvent(client, -1),
 				ShardID:      shardID,
 			})
@@ -97,11 +97,11 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(client bot.Client, sequen
 
 	} else if wasUnavailable {
 		client.Caches().Guilds().SetAvailable(gatewayGuild.ID)
-		client.EventManager().Dispatch(&events.GuildAvailableEvent{
+		client.EventManager().DispatchEvent(&events.GuildAvailableEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	} else {
-		client.EventManager().Dispatch(&events.GuildJoinEvent{
+		client.EventManager().DispatchEvent(&events.GuildJoinEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	}

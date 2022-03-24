@@ -29,7 +29,7 @@ func (h *gatewayHandlerUserUpdate) HandleGatewayEvent(client bot.Client, sequenc
 	}
 	client.SetSelfUser(user)
 
-	client.EventManager().Dispatch(&events.SelfUpdateEvent{
+	client.EventManager().DispatchEvent(&events.SelfUpdateEvent{
 		GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 		SelfUser:     user,
 		OldSelfUser:  oldUser,

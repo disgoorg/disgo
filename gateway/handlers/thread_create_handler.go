@@ -22,7 +22,7 @@ func (h *gatewayHandlerThreadCreate) HandleGatewayEvent(client bot.Client, seque
 	client.Caches().Channels().Put(payload.ID(), payload.GuildThread)
 	client.Caches().ThreadMembers().Put(payload.ID(), payload.ThreadMember.UserID, payload.ThreadMember)
 
-	client.EventManager().Dispatch(&events.ThreadCreateEvent{
+	client.EventManager().DispatchEvent(&events.ThreadCreateEvent{
 		GenericThreadEvent: &events.GenericThreadEvent{
 			GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 			ThreadID:     payload.ID(),

@@ -32,7 +32,7 @@ func handleMessageDelete(client bot.Client, sequenceNumber discord.GatewaySequen
 
 	message, _ := client.Caches().Messages().Remove(channelID, messageID)
 
-	client.EventManager().Dispatch(&events.MessageDeleteEvent{
+	client.EventManager().DispatchEvent(&events.MessageDeleteEvent{
 		GenericMessageEvent: &events.GenericMessageEvent{
 			GenericEvent: genericEvent,
 			MessageID:    messageID,
@@ -42,7 +42,7 @@ func handleMessageDelete(client bot.Client, sequenceNumber discord.GatewaySequen
 	})
 
 	if guildID == nil {
-		client.EventManager().Dispatch(&events.DMMessageDeleteEvent{
+		client.EventManager().DispatchEvent(&events.DMMessageDeleteEvent{
 			GenericDMMessageEvent: &events.GenericDMMessageEvent{
 				GenericEvent: genericEvent,
 				MessageID:    messageID,
@@ -51,7 +51,7 @@ func handleMessageDelete(client bot.Client, sequenceNumber discord.GatewaySequen
 			},
 		})
 	} else {
-		client.EventManager().Dispatch(&events.GuildMessageDeleteEvent{
+		client.EventManager().DispatchEvent(&events.GuildMessageDeleteEvent{
 			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
 				GenericEvent: genericEvent,
 				MessageID:    messageID,

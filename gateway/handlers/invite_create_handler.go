@@ -29,7 +29,7 @@ func (h *gatewayHandlerInviteCreate) HandleGatewayEvent(client bot.Client, seque
 		guildID = &invite.Guild.ID
 	}
 
-	client.EventManager().Dispatch(&events.InviteCreateEvent{
+	client.EventManager().DispatchEvent(&events.InviteCreateEvent{
 		GenericInviteEvent: &events.GenericInviteEvent{
 			GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 			GuildID:      guildID,

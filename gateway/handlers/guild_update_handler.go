@@ -26,7 +26,7 @@ func (h *gatewayHandlerGuildUpdate) HandleGatewayEvent(client bot.Client, sequen
 	oldGuild, _ := client.Caches().Guilds().Get(guild.ID)
 	client.Caches().Guilds().Put(guild.ID, guild)
 
-	client.EventManager().Dispatch(&events.GuildUpdateEvent{
+	client.EventManager().DispatchEvent(&events.GuildUpdateEvent{
 		GenericGuildEvent: &events.GenericGuildEvent{
 			GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 			Guild:        guild,

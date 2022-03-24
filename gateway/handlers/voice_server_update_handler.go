@@ -23,7 +23,7 @@ func (h *gatewayHandlerVoiceServerUpdate) New() any {
 func (h *gatewayHandlerVoiceServerUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
 	payload := *v.(*discord.VoiceServerUpdate)
 
-	client.EventManager().Dispatch(&events.VoiceServerUpdateEvent{
+	client.EventManager().DispatchEvent(&events.VoiceServerUpdateEvent{
 		GenericEvent:      events.NewGenericEvent(client, sequenceNumber),
 		VoiceServerUpdate: payload,
 	})

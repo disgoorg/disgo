@@ -23,7 +23,7 @@ func (h *gatewayHandlerTypingStart) New() any {
 func (h *gatewayHandlerTypingStart) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
 	payload := *v.(*discord.TypingStartGatewayEvent)
 
-	client.EventManager().Dispatch(&events.UserTypingStartEvent{
+	client.EventManager().DispatchEvent(&events.UserTypingStartEvent{
 		GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 		ChannelID:    payload.ChannelID,
 		GuildID:      payload.GuildID,
@@ -32,7 +32,7 @@ func (h *gatewayHandlerTypingStart) HandleGatewayEvent(client bot.Client, sequen
 	})
 
 	if payload.GuildID == nil {
-		client.EventManager().Dispatch(&events.DMUserTypingStartEvent{
+		client.EventManager().DispatchEvent(&events.DMUserTypingStartEvent{
 			GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 			ChannelID:    payload.ChannelID,
 			UserID:       payload.UserID,
@@ -40,7 +40,7 @@ func (h *gatewayHandlerTypingStart) HandleGatewayEvent(client bot.Client, sequen
 		})
 	} else {
 		client.Caches().Members().Put(*payload.GuildID, payload.UserID, *payload.Member)
-		client.EventManager().Dispatch(&events.GuildMemberTypingStartEvent{
+		client.EventManager().DispatchEvent(&events.GuildMemberTypingStartEvent{
 			GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 			ChannelID:    payload.ChannelID,
 			UserID:       payload.UserID,

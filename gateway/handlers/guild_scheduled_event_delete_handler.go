@@ -25,7 +25,7 @@ func (h *gatewayHandlerGuildScheduledEventDelete) HandleGatewayEvent(client bot.
 
 	client.Caches().GuildScheduledEvents().Remove(guildScheduledEvent.GuildID, guildScheduledEvent.ID)
 
-	client.EventManager().Dispatch(&events.GuildScheduledEventDeleteEvent{
+	client.EventManager().DispatchEvent(&events.GuildScheduledEventDeleteEvent{
 		GenericGuildScheduledEventEvent: &events.GenericGuildScheduledEventEvent{
 			GenericEvent:        events.NewGenericEvent(client, sequenceNumber),
 			GuildScheduledEvent: guildScheduledEvent,

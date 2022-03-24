@@ -26,7 +26,7 @@ func (h *gatewayHandlerGuildRoleUpdate) HandleGatewayEvent(client bot.Client, se
 	oldRole, _ := client.Caches().Roles().Get(payload.GuildID, payload.Role.ID)
 	client.Caches().Roles().Put(payload.GuildID, payload.Role.ID, payload.Role)
 
-	client.EventManager().Dispatch(&events.RoleUpdateEvent{
+	client.EventManager().DispatchEvent(&events.RoleUpdateEvent{
 		GenericRoleEvent: &events.GenericRoleEvent{
 			GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 			GuildID:      payload.GuildID,

@@ -12,13 +12,13 @@ import (
 )
 
 func HandleRawEvent(client bot.Client, gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, responseChannel chan<- discord.InteractionResponse, reader io.Reader) io.Reader {
-	if client.EventManager().Config().RawEventsEnabled {
+	if client.EventManager().RawEventsEnabled() {
 		var buf bytes.Buffer
 		data, err := ioutil.ReadAll(io.TeeReader(reader, &buf))
 		if err != nil {
 			client.Logger().Error("error reading raw payload from event")
 		}
-		client.EventManager().Dispatch(&RawEvent{
+		client.EventManager().DispatchEvent(&RawEvent{
 			GenericEvent:    NewGenericEvent(client, sequenceNumber),
 			Type:            gatewayEventType,
 			RawPayload:      data,

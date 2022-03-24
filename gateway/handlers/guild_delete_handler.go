@@ -56,11 +56,11 @@ func (h *gatewayHandlerGuildDelete) HandleGatewayEvent(client bot.Client, sequen
 	}
 
 	if unavailableGuild.Unavailable {
-		client.EventManager().Dispatch(&events.GuildUnavailableEvent{
+		client.EventManager().DispatchEvent(&events.GuildUnavailableEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	} else {
-		client.EventManager().Dispatch(&events.GuildLeaveEvent{
+		client.EventManager().DispatchEvent(&events.GuildLeaveEvent{
 			GenericGuildEvent: genericGuildEvent,
 		})
 	}

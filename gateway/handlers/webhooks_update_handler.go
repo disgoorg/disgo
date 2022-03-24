@@ -23,7 +23,7 @@ func (h *gatewayHandlerWebhooksUpdate) New() any {
 func (h *gatewayHandlerWebhooksUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
 	payload := *v.(*discord.WebhooksUpdateGatewayEvent)
 
-	client.EventManager().Dispatch(&events.WebhooksUpdateEvent{
+	client.EventManager().DispatchEvent(&events.WebhooksUpdateEvent{
 		GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 		GuildId:      payload.GuildID,
 		ChannelID:    payload.ChannelID,

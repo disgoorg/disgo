@@ -26,7 +26,7 @@ func (h *gatewayHandlerMessageCreate) HandleGatewayEvent(client bot.Client, sequ
 	client.Caches().Messages().Put(message.ChannelID, message.ID, message)
 
 	genericEvent := events.NewGenericEvent(client, sequenceNumber)
-	client.EventManager().Dispatch(&events.MessageCreateEvent{
+	client.EventManager().DispatchEvent(&events.MessageCreateEvent{
 		GenericMessageEvent: &events.GenericMessageEvent{
 			GenericEvent: genericEvent,
 			MessageID:    message.ID,
@@ -37,7 +37,7 @@ func (h *gatewayHandlerMessageCreate) HandleGatewayEvent(client bot.Client, sequ
 	})
 
 	if message.GuildID == nil {
-		client.EventManager().Dispatch(&events.DMMessageCreateEvent{
+		client.EventManager().DispatchEvent(&events.DMMessageCreateEvent{
 			GenericDMMessageEvent: &events.GenericDMMessageEvent{
 				GenericEvent: genericEvent,
 				MessageID:    message.ID,
@@ -46,7 +46,7 @@ func (h *gatewayHandlerMessageCreate) HandleGatewayEvent(client bot.Client, sequ
 			},
 		})
 	} else {
-		client.EventManager().Dispatch(&events.GuildMessageCreateEvent{
+		client.EventManager().DispatchEvent(&events.GuildMessageCreateEvent{
 			GenericGuildMessageEvent: &events.GenericGuildMessageEvent{
 				GenericEvent: genericEvent,
 				MessageID:    message.ID,

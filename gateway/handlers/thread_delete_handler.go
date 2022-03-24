@@ -22,7 +22,7 @@ func (h *gatewayHandlerThreadDelete) HandleGatewayEvent(client bot.Client, seque
 	channel, _ := client.Caches().Channels().Remove(payload.ID)
 	client.Caches().ThreadMembers().RemoveAll(payload.ID)
 
-	client.EventManager().Dispatch(&events.ThreadDeleteEvent{
+	client.EventManager().DispatchEvent(&events.ThreadDeleteEvent{
 		GenericThreadEvent: &events.GenericThreadEvent{
 			GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 			ThreadID:     payload.ID,

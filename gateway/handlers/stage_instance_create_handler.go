@@ -25,7 +25,7 @@ func (h *gatewayHandlerStageInstanceCreate) HandleGatewayEvent(client bot.Client
 
 	client.Caches().StageInstances().Put(stageInstance.GuildID, stageInstance.ID, stageInstance)
 
-	client.EventManager().Dispatch(&events.StageInstanceCreateEvent{
+	client.EventManager().DispatchEvent(&events.StageInstanceCreateEvent{
 		GenericStageInstanceEvent: &events.GenericStageInstanceEvent{
 			GenericEvent:    events.NewGenericEvent(client, sequenceNumber),
 			StageInstanceID: stageInstance.ID,

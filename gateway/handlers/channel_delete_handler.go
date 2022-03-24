@@ -26,7 +26,7 @@ func (h *gatewayHandlerChannelDelete) HandleGatewayEvent(client bot.Client, sequ
 	client.Caches().Channels().Remove(channel.ID())
 
 	if guildChannel, ok := channel.(discord.GuildChannel); ok {
-		client.EventManager().Dispatch(&events.GuildChannelDeleteEvent{
+		client.EventManager().DispatchEvent(&events.GuildChannelDeleteEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 				ChannelID:    channel.ID(),
@@ -35,7 +35,7 @@ func (h *gatewayHandlerChannelDelete) HandleGatewayEvent(client bot.Client, sequ
 			},
 		})
 	} else if dmChannel, ok := channel.(discord.DMChannel); ok {
-		client.EventManager().Dispatch(&events.DMChannelDeleteEvent{
+		client.EventManager().DispatchEvent(&events.DMChannelDeleteEvent{
 			GenericDMChannelEvent: &events.GenericDMChannelEvent{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 				ChannelID:    channel.ID(),

@@ -23,7 +23,7 @@ func (h *gatewayHandlerIntegrationDelete) New() any {
 func (h *gatewayHandlerIntegrationDelete) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
 	payload := *v.(*discord.IntegrationDeleteGatewayEvent)
 
-	client.EventManager().Dispatch(&events.IntegrationDeleteEvent{
+	client.EventManager().DispatchEvent(&events.IntegrationDeleteEvent{
 		GenericEvent:  events.NewGenericEvent(client, sequenceNumber),
 		GuildID:       payload.GuildID,
 		ID:            payload.ID,
