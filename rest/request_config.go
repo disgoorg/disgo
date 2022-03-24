@@ -82,6 +82,11 @@ func WithHeader(key string, value string) RequestOpt {
 	}
 }
 
+// WithDiscordLocale adds the X-Discord-Locale header with the passed locale to the request
+func WithDiscordLocale(locale discord.Locale) RequestOpt {
+	return WithHeader("X-Discord-Locale", locale.Code())
+}
+
 // WithQueryParam applies a custom query parameter to the request
 func WithQueryParam(param string, value any) RequestOpt {
 	return func(config *RequestConfig) {
