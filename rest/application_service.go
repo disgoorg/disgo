@@ -237,7 +237,7 @@ func (s *applicationServiceImpl) SetGuildCommandPermissions(applicationID snowfl
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, commandPermissions, &commandPerms, opts...)
+	err = s.restClient.Do(compiledRoute, discord.ApplicationCommandPermissionsSet{Permissions: commandPermissions}, &commandPerms, opts...)
 	return
 }
 

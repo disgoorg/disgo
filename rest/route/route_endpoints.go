@@ -2,7 +2,7 @@ package route
 
 // Discord Endpoint Constants
 const (
-	APIVersion = "9"
+	APIVersion = "10"
 	Base       = "https://discord.com/"
 	CDN        = "https://cdn.discordapp.com"
 	API        = Base + "api/v" + APIVersion
@@ -157,8 +157,6 @@ var (
 	GetArchivedPublicThreads        = NewAPIRoute(GET, "/channels/{channel.id}/threads/archived/public", "before", "limit")
 	GetArchivedPrivateThreads       = NewAPIRoute(GET, "/channels/{channel.id}/threads/archived/private", "before", "limit")
 	GetJoinedAchievedPrivateThreads = NewAPIRoute(GET, "/channels/{channel.id}/users/@me/threads/archived/private", "before", "limit")
-
-	GetActiveGuildThreads = NewAPIRoute(GET, "/guilds/{guild.id}/threads/active")
 )
 
 // Messages

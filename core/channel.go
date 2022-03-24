@@ -314,7 +314,7 @@ func (c *GuildTextChannel) GetPrivateArchivedThreads(before discord.Time, limit 
 }
 
 func (c *GuildTextChannel) GetJoinedPrivateAchievedThreads(before discord.Time, limit int, opts ...rest.RequestOpt) ([]*GuildPrivateThread, map[snowflake.Snowflake]*ThreadMember, bool, error) {
-	getThreads, err := c.Bot.RestServices.ThreadService().GetJoinedPrivateAchievedThreads(c.ID(), before, limit, opts...)
+	getThreads, err := c.Bot.RestServices.ThreadService().GetJoinedPrivateArchivedThreads(c.ID(), before, limit, opts...)
 	if err != nil {
 		return nil, nil, false, err
 	}

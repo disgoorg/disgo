@@ -28,9 +28,7 @@ type ThreadService interface {
 
 	GetPublicArchivedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
 	GetPrivateArchivedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
-	GetJoinedPrivateAchievedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
-
-	GetActiveGuildThreads(guildID snowflake.Snowflake, opts ...RequestOpt) (threads *discord.GetAllThreads, err error)
+	GetJoinedPrivateArchivedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
 }
 
 type threadServiceImpl struct {
@@ -155,7 +153,7 @@ func (s *threadServiceImpl) GetPrivateArchivedThreads(channelID snowflake.Snowfl
 	return
 }
 
-func (s *threadServiceImpl) GetJoinedPrivateAchievedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
+func (s *threadServiceImpl) GetJoinedPrivateArchivedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
 	queryValues := route.QueryValues{}
 	if !before.IsZero() {
 		queryValues["before"] = before
@@ -165,16 +163,6 @@ func (s *threadServiceImpl) GetJoinedPrivateAchievedThreads(channelID snowflake.
 	}
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetJoinedAchievedPrivateThreads.Compile(queryValues, channelID)
-	if err != nil {
-		return
-	}
-	err = s.restClient.Do(compiledRoute, nil, &threads, opts...)
-	return
-}
-
-func (s *threadServiceImpl) GetActiveGuildThreads(guildID snowflake.Snowflake, opts ...RequestOpt) (threads *discord.GetAllThreads, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetActiveGuildThreads.Compile(nil, guildID)
 	if err != nil {
 		return
 	}

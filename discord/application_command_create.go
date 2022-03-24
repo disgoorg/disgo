@@ -12,8 +12,8 @@ type ApplicationCommandCreate interface {
 type SlashCommandCreate struct {
 	CommandName       string                     `json:"name"`
 	Description       string                     `json:"description"`
-	Options           []ApplicationCommandOption `json:"options,omitempty"`
-	DefaultPermission bool                       `json:"default_permission,omitempty"`
+	Options           []ApplicationCommandOption `json:"options"`
+	DefaultPermission bool                       `json:"default_permission"`
 }
 
 func (c SlashCommandCreate) MarshalJSON() ([]byte, error) {
@@ -39,7 +39,7 @@ func (SlashCommandCreate) applicationCommandCreate() {}
 
 type UserCommandCreate struct {
 	CommandName       string `json:"name"`
-	DefaultPermission bool   `json:"default_permission,omitempty"`
+	DefaultPermission bool   `json:"default_permission"`
 }
 
 func (c UserCommandCreate) MarshalJSON() ([]byte, error) {
@@ -65,7 +65,7 @@ func (UserCommandCreate) applicationCommandCreate() {}
 
 type MessageCommandCreate struct {
 	CommandName       string `json:"name"`
-	DefaultPermission bool   `json:"default_permission,omitempty"`
+	DefaultPermission bool   `json:"default_permission"`
 }
 
 func (c MessageCommandCreate) MarshalJSON() ([]byte, error) {

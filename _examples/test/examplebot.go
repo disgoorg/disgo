@@ -18,7 +18,7 @@ import (
 
 var (
 	token   = os.Getenv("disgo_token")
-	guildID = snowflake.GetSnowflakeEnv("disgo_test_guild_id")
+	guildID = snowflake.GetSnowflakeEnv("disgo_guild_id")
 
 	//go:embed gopher.png
 	gopher []byte
