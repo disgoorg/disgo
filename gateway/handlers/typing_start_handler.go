@@ -16,12 +16,12 @@ func (h *gatewayHandlerTypingStart) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerTypingStart) New() any {
-	return &discord.TypingStartGatewayEvent{}
+	return &discord.GatewayEventTypingStart{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerTypingStart) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
-	payload := *v.(*discord.TypingStartGatewayEvent)
+func (h *gatewayHandlerTypingStart) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+	payload := *v.(*discord.GatewayEventTypingStart)
 
 	client.EventManager().DispatchEvent(&events.UserTypingStartEvent{
 		GenericEvent: events.NewGenericEvent(client, sequenceNumber),

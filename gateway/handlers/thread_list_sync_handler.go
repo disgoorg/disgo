@@ -16,7 +16,7 @@ func (h *gatewayHandlerThreadListSync) New() any {
 	return &discord.GatewayEventThreadListSync{}
 }
 
-func (h *gatewayHandlerThreadListSync) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
+func (h *gatewayHandlerThreadListSync) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
 	payload := *v.(*discord.GatewayEventThreadListSync)
 
 	for _, thread := range payload.Threads {

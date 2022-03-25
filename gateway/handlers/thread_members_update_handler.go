@@ -16,7 +16,7 @@ func (h *gatewayHandlerThreadMembersUpdate) New() any {
 	return &discord.GatewayEventThreadMembersUpdate{}
 }
 
-func (h *gatewayHandlerThreadMembersUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
+func (h *gatewayHandlerThreadMembersUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
 	payload := *v.(*discord.GatewayEventThreadMembersUpdate)
 
 	genericEvent := events.NewGenericEvent(client, sequenceNumber)

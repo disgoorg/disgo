@@ -16,7 +16,7 @@ func (h *gatewayHandlerThreadCreate) New() any {
 	return &discord.GatewayEventThreadCreate{}
 }
 
-func (h *gatewayHandlerThreadCreate) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
+func (h *gatewayHandlerThreadCreate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
 	payload := *v.(*discord.GatewayEventThreadCreate)
 
 	client.Caches().Channels().Put(payload.ID(), payload.GuildThread)

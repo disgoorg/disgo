@@ -16,12 +16,12 @@ func (h *gatewayHandlerChannelPinsUpdate) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerChannelPinsUpdate) New() any {
-	return &discord.ChannelPinsUpdateGatewayEvent{}
+	return &discord.GatewayEventChannelPinsUpdate{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerChannelPinsUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
-	payload := *v.(*discord.ChannelPinsUpdateGatewayEvent)
+func (h *gatewayHandlerChannelPinsUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+	payload := *v.(*discord.GatewayEventChannelPinsUpdate)
 
 	var oldTime *discord.Time
 	channel, ok := client.Caches().Channels().GetMessageChannel(payload.ChannelID)

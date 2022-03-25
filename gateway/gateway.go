@@ -34,7 +34,7 @@ const (
 	StatusDisconnected
 )
 
-type EventHandlerFunc func(gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, payload io.Reader)
+type EventHandlerFunc func(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader)
 
 type CreateFunc func(token string, eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Gateway
 
@@ -50,6 +50,6 @@ type Gateway interface {
 	Close(ctx context.Context)
 	CloseWithCode(ctx context.Context, code int, message string)
 	Status() Status
-	Send(ctx context.Context, op discord.GatewayOpcode, data discord.GatewayCommandData) error
+	Send(ctx context.Context, op discord.GatewayOpcode, data discord.GatewayMessageData) error
 	Latency() time.Duration
 }

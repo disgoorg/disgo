@@ -20,7 +20,7 @@ func (h *gatewayHandlerGuildCreate) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
+func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
 	gatewayGuild := *v.(*discord.GatewayGuild)
 
 	shard, _ := client.Shard(gatewayGuild.ID)

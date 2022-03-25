@@ -21,7 +21,7 @@ func (h *gatewayHandlerInviteCreate) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerInviteCreate) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
+func (h *gatewayHandlerInviteCreate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
 	invite := *v.(*discord.Invite)
 
 	var guildID *snowflake.Snowflake

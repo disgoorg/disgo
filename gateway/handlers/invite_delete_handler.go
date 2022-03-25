@@ -16,12 +16,12 @@ func (h *gatewayHandlerInviteDelete) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerInviteDelete) New() any {
-	return &discord.InviteDeleteGatewayEvent{}
+	return &discord.GatewayEventInviteDelete{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerInviteDelete) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
-	payload := *v.(*discord.InviteDeleteGatewayEvent)
+func (h *gatewayHandlerInviteDelete) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+	payload := *v.(*discord.GatewayEventInviteDelete)
 
 	client.EventManager().DispatchEvent(&events.InviteDeleteEvent{
 		GenericInviteEvent: &events.GenericInviteEvent{

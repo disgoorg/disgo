@@ -21,7 +21,7 @@ func GetHTTPServerHandler() bot.HTTPServerEventHandler {
 }
 
 func DefaultGatewayEventHandler(client bot.Client) gateway.EventHandlerFunc {
-	return func(gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, reader io.Reader) {
+	return func(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) {
 		client.EventManager().HandleGatewayEvent(gatewayEventType, sequenceNumber, events.HandleRawEvent(client, gatewayEventType, sequenceNumber, nil, reader))
 	}
 }

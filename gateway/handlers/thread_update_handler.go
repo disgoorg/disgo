@@ -16,7 +16,7 @@ func (h *gatewayHandlerThreadUpdate) New() any {
 	return &discord.GuildThread{}
 }
 
-func (h *gatewayHandlerThreadUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
+func (h *gatewayHandlerThreadUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
 	guildThread := *v.(*discord.GuildThread)
 
 	oldGuildThread, _ := client.Caches().Channels().GetGuildThread(guildThread.ID())

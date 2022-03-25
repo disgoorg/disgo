@@ -20,7 +20,7 @@ func (h *gatewayHandlerMessageUpdate) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
+func (h *gatewayHandlerMessageUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
 	message := *v.(*discord.Message)
 
 	oldMessage, _ := client.Caches().Messages().Get(message.ChannelID, message.ID)

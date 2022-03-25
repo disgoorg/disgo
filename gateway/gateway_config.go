@@ -27,12 +27,12 @@ type Config struct {
 	ShardID               int
 	ShardCount            int
 	SessionID             *string
-	LastSequenceReceived  *discord.GatewaySequence
+	LastSequenceReceived  *int
 	AutoReconnect         bool
 	MaxReconnectTries     int
 	RateLimiter           grate.Limiter
 	RateLimiterConfigOpts []grate.ConfigOpt
-	Presence              *discord.UpdatePresenceCommandData
+	Presence              *discord.GatewayMessageDataPresenceUpdate
 	OS                    string
 	Browser               string
 	Device                string
@@ -101,7 +101,7 @@ func WithSessionID(sessionID string) ConfigOpt {
 	}
 }
 
-func WithSequence(sequence discord.GatewaySequence) ConfigOpt {
+func WithSequence(sequence int) ConfigOpt {
 	return func(config *Config) {
 		config.LastSequenceReceived = &sequence
 	}
@@ -131,7 +131,7 @@ func WithRateLimiterConfigOpts(opts ...grate.ConfigOpt) ConfigOpt {
 	}
 }
 
-func WithPresence(presence discord.UpdatePresenceCommandData) ConfigOpt {
+func WithPresence(presence discord.GatewayMessageDataPresenceUpdate) ConfigOpt {
 	return func(config *Config) {
 		config.Presence = &presence
 	}
