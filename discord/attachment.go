@@ -7,7 +7,7 @@ type Attachment struct {
 	ID          snowflake.Snowflake `json:"id,omitempty"`
 	Filename    string              `json:"filename,omitempty"`
 	Description *string             `json:"description,omitempty"`
-	ContentType *string             `json:"size,omitempty"`
+	ContentType *string             `json:"content_type,omitempty"`
 	Size        int                 `json:"size,omitempty"`
 	URL         string              `json:"url,omitempty"`
 	ProxyURL    string              `json:"proxy_url,omitempty"`
