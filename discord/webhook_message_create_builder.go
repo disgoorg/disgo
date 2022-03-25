@@ -141,8 +141,8 @@ func (b *WebhookMessageCreateBuilder) AddFiles(files ...*File) *WebhookMessageCr
 }
 
 // AddFile adds a discord.File to the discord.MessageCreate
-func (b *WebhookMessageCreateBuilder) AddFile(name string, reader io.Reader, flags ...FileFlags) *WebhookMessageCreateBuilder {
-	b.Files = append(b.Files, NewFile(name, reader, flags...))
+func (b *WebhookMessageCreateBuilder) AddFile(name string, description string, reader io.Reader, flags ...FileFlags) *WebhookMessageCreateBuilder {
+	b.Files = append(b.Files, NewFile(name, description, reader, flags...))
 	return b
 }
 

@@ -15,3 +15,20 @@ type Attachment struct {
 	Width       *int                `json:"width,omitempty"`
 	Ephemeral   bool                `json:"ephemeral,omitempty"`
 }
+
+type AttachmentUpdate interface {
+	attachmentUpdate()
+}
+
+type AttachmentKeep struct {
+	ID snowflake.Snowflake `json:"id,omitempty"`
+}
+
+func (AttachmentKeep) attachmentUpdate() {}
+
+type AttachmentCreate struct {
+	ID          int    `json:"id"`
+	Description string `json:"description"`
+}
+
+func (AttachmentCreate) attachmentUpdate() {}

@@ -33,7 +33,7 @@ func main() {
 	client, err := disgo.New(token,
 		//bot.WithRawEventsEnabled(),
 		bot.WithGatewayConfigOpts(
-			gateway.WithGatewayIntents(discord.GatewayIntentsNonPrivileged),
+			gateway.WithGatewayIntents(discord.GatewayIntentsNonPrivileged, discord.GatewayIntentMessageContent),
 			gateway.WithPresence(discord.NewListeningPresence("your bullshit", discord.OnlineStatusOnline, false)),
 		),
 		bot.WithCacheConfigOpts(

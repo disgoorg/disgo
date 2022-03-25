@@ -7,6 +7,7 @@ type WebhookMessageCreate struct {
 	TTS             bool                 `json:"tts,omitempty"`
 	Embeds          []Embed              `json:"embeds,omitempty"`
 	Components      []ContainerComponent `json:"components,omitempty"`
+	Attachments     []AttachmentCreate   `json:"attachments,omitempty"`
 	Files           []*File              `json:"-"`
 	AllowedMentions *AllowedMentions     `json:"allowed_mentions,omitempty"`
 }
@@ -14,6 +15,7 @@ type WebhookMessageCreate struct {
 // ToBody returns the MessageCreate ready for body
 func (m WebhookMessageCreate) ToBody() (any, error) {
 	if len(m.Files) > 0 {
+		m.Attachments = parseAttachments(m.Files)
 		return PayloadWithFiles(m, m.Files...)
 	}
 	return m, nil

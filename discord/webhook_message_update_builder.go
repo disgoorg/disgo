@@ -159,8 +159,8 @@ func (b *WebhookMessageUpdateBuilder) AddFiles(files ...*File) *WebhookMessageUp
 }
 
 // AddFile adds a new discord.File to the discord.MessageUpdate
-func (b *WebhookMessageUpdateBuilder) AddFile(name string, reader io.Reader, flags ...FileFlags) *WebhookMessageUpdateBuilder {
-	b.Files = append(b.Files, NewFile(name, reader, flags...))
+func (b *WebhookMessageUpdateBuilder) AddFile(name string, description string, reader io.Reader, flags ...FileFlags) *WebhookMessageUpdateBuilder {
+	b.Files = append(b.Files, NewFile(name, description, reader, flags...))
 	return b
 }
 
@@ -181,19 +181,21 @@ func (b *WebhookMessageUpdateBuilder) RemoveFile(i int) *WebhookMessageUpdateBui
 // RetainAttachments removes all Attachment(s) from this Message except the ones provided
 func (b *WebhookMessageUpdateBuilder) RetainAttachments(attachments ...Attachment) *WebhookMessageUpdateBuilder {
 	if b.Attachments == nil {
-		b.Attachments = new([]Attachment)
+		b.Attachments = new([]AttachmentUpdate)
 	}
-	*b.Attachments = append(*b.Attachments, attachments...)
+	for _, attachment := range attachments {
+		*b.Attachments = append(*b.Attachments, AttachmentKeep{ID: attachment.ID})
+	}
 	return b
 }
 
 // RetainAttachmentsByID removes all Attachment(s) from this Message except the ones provided
 func (b *WebhookMessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...snowflake.Snowflake) *WebhookMessageUpdateBuilder {
 	if b.Attachments == nil {
-		b.Attachments = new([]Attachment)
+		b.Attachments = new([]AttachmentUpdate)
 	}
 	for _, attachmentID := range attachmentIDs {
-		*b.Attachments = append(*b.Attachments, Attachment{ID: attachmentID})
+		*b.Attachments = append(*b.Attachments, AttachmentKeep{ID: attachmentID})
 	}
 	return b
 }

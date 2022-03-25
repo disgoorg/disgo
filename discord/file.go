@@ -73,20 +73,36 @@ func partHeader(contentDisposition string, contentType string) textproto.MIMEHea
 	}
 }
 
+func parseAttachments(files []*File) []AttachmentCreate {
+	var attachments []AttachmentCreate
+	for i, file := range files {
+		if file.Description == "" {
+			continue
+		}
+		attachments = append(attachments, AttachmentCreate{
+			ID:          i,
+			Description: file.Description,
+		})
+	}
+	return attachments
+}
+
 // NewFile returns a new File struct with the given name, io.Reader & FileFlags
-func NewFile(name string, reader io.Reader, flags ...FileFlags) *File {
+func NewFile(name string, description string, reader io.Reader, flags ...FileFlags) *File {
 	return &File{
-		Name:   name,
-		Reader: reader,
-		Flags:  FileFlagNone.Add(flags...),
+		Name:        name,
+		Description: description,
+		Reader:      reader,
+		Flags:       FileFlagNone.Add(flags...),
 	}
 }
 
 // File holds all information about a given io.Reader
 type File struct {
-	Name   string
-	Reader io.Reader
-	Flags  FileFlags
+	Name        string
+	Description string
+	Reader      io.Reader
+	Flags       FileFlags
 }
 
 // FileFlags are used to mark Attachments as Spoiler

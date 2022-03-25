@@ -37,7 +37,7 @@ var commands = []discord.ApplicationCommandCreate{
 }
 
 func registerCommands(client bot.Client) {
-	if _, err := client.Rest().ApplicationService().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
+	if _, err := client.Rest().Applications().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
 		log.Fatalf("error while registering guild commands: %s", err)
 	}
 }

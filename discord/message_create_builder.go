@@ -151,8 +151,8 @@ func (b *MessageCreateBuilder) AddFiles(files ...*File) *MessageCreateBuilder {
 }
 
 // AddFile adds a discord.File to the discord.MessageCreate
-func (b *MessageCreateBuilder) AddFile(name string, reader io.Reader, flags ...FileFlags) *MessageCreateBuilder {
-	b.Files = append(b.Files, NewFile(name, reader, flags...))
+func (b *MessageCreateBuilder) AddFile(name string, description string, reader io.Reader, flags ...FileFlags) *MessageCreateBuilder {
+	b.Files = append(b.Files, NewFile(name, description, reader, flags...))
 	return b
 }
 
