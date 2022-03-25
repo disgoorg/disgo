@@ -13,14 +13,14 @@ func NewApplications(restClient Client) Applications {
 }
 
 type Applications interface {
-	GetGlobalCommands(applicationID snowflake.Snowflake, opts ...RequestOpt) ([]discord.ApplicationCommand, error)
+	GetGlobalCommands(applicationID snowflake.Snowflake, withLocalizations bool, opts ...RequestOpt) ([]discord.ApplicationCommand, error)
 	GetGlobalCommand(applicationID snowflake.Snowflake, commandID snowflake.Snowflake, opts ...RequestOpt) (discord.ApplicationCommand, error)
 	CreateGlobalCommand(applicationID snowflake.Snowflake, commandCreate discord.ApplicationCommandCreate, opts ...RequestOpt) (discord.ApplicationCommand, error)
 	SetGlobalCommands(applicationID snowflake.Snowflake, commandCreates []discord.ApplicationCommandCreate, opts ...RequestOpt) ([]discord.ApplicationCommand, error)
 	UpdateGlobalCommand(applicationID snowflake.Snowflake, commandID snowflake.Snowflake, commandUpdate discord.ApplicationCommandUpdate, opts ...RequestOpt) (discord.ApplicationCommand, error)
 	DeleteGlobalCommand(applicationID snowflake.Snowflake, commandID snowflake.Snowflake, opts ...RequestOpt) error
 
-	GetGuildCommands(applicationID snowflake.Snowflake, guildID snowflake.Snowflake, opts ...RequestOpt) ([]discord.ApplicationCommand, error)
+	GetGuildCommands(applicationID snowflake.Snowflake, guildID snowflake.Snowflake, withLocalizations bool, opts ...RequestOpt) ([]discord.ApplicationCommand, error)
 	GetGuildCommand(applicationID snowflake.Snowflake, guildID snowflake.Snowflake, commandID snowflake.Snowflake, opts ...RequestOpt) (discord.ApplicationCommand, error)
 	CreateGuildCommand(applicationID snowflake.Snowflake, guildID snowflake.Snowflake, command discord.ApplicationCommandCreate, opts ...RequestOpt) (discord.ApplicationCommand, error)
 	SetGuildCommands(applicationID snowflake.Snowflake, guildID snowflake.Snowflake, commands []discord.ApplicationCommandCreate, opts ...RequestOpt) ([]discord.ApplicationCommand, error)
@@ -37,9 +37,9 @@ type applicationsImpl struct {
 	restClient Client
 }
 
-func (s *applicationsImpl) GetGlobalCommands(applicationID snowflake.Snowflake, opts ...RequestOpt) (commands []discord.ApplicationCommand, err error) {
+func (s *applicationsImpl) GetGlobalCommands(applicationID snowflake.Snowflake, withLocalizations bool, opts ...RequestOpt) (commands []discord.ApplicationCommand, err error) {
 	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetGlobalCommands.Compile(nil, applicationID)
+	compiledRoute, err = route.GetGlobalCommands.Compile(route.QueryValues{"with_localizations": withLocalizations}, applicationID)
 	if err != nil {
 		return
 	}
@@ -115,9 +115,9 @@ func (s *applicationsImpl) DeleteGlobalCommand(applicationID snowflake.Snowflake
 	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
-func (s *applicationsImpl) GetGuildCommands(applicationID snowflake.Snowflake, guildID snowflake.Snowflake, opts ...RequestOpt) (commands []discord.ApplicationCommand, err error) {
+func (s *applicationsImpl) GetGuildCommands(applicationID snowflake.Snowflake, guildID snowflake.Snowflake, withLocalizations bool, opts ...RequestOpt) (commands []discord.ApplicationCommand, err error) {
 	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetGuildCommands.Compile(nil, applicationID, guildID)
+	compiledRoute, err = route.GetGuildCommands.Compile(route.QueryValues{"with_localizations": withLocalizations}, applicationID, guildID)
 	if err != nil {
 		return
 	}

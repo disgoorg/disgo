@@ -230,14 +230,14 @@ var (
 
 // Interactions
 var (
-	GetGlobalCommands   = NewAPIRoute(GET, "/applications/{application.id}/commands")
+	GetGlobalCommands   = NewAPIRoute(GET, "/applications/{application.id}/commands", "with_localizations")
 	GetGlobalCommand    = NewAPIRoute(GET, "/applications/{application.id}/command/{command.id}")
 	CreateGlobalCommand = NewAPIRoute(POST, "/applications/{application.id}/commands")
 	SetGlobalCommands   = NewAPIRoute(PUT, "/applications/{application.id}/commands")
 	UpdateGlobalCommand = NewAPIRoute(PATCH, "/applications/{application.id}/commands/{command.id}")
 	DeleteGlobalCommand = NewAPIRoute(DELETE, "/applications/{application.id}/commands")
 
-	GetGuildCommands   = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/commands")
+	GetGuildCommands   = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/commands", "with_localizations")
 	GetGuildCommand    = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/command/{command.id}")
 	CreateGuildCommand = NewAPIRoute(POST, "/applications/{application.id}/guilds/{guild.id}/commands")
 	SetGuildCommands   = NewAPIRoute(PUT, "/applications/{application.id}/guilds/{guild.id}/commands")

@@ -94,7 +94,7 @@ func (e *ModalSubmitInteractionEvent) DeferCreateMessage(ephemeral bool, opts ..
 }
 
 func (e *ModalSubmitInteractionEvent) UpdateMessage(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
-	return e.Respond(discord.InteractionCallbackTypeUpdateMessage, messageUpdate)
+	return e.Respond(discord.InteractionCallbackTypeUpdateMessage, messageUpdate, opts...)
 }
 
 func (e *ModalSubmitInteractionEvent) DeferUpdateMessage(opts ...rest.RequestOpt) error {
