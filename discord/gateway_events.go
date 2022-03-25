@@ -82,14 +82,14 @@ func (e *GatewayEventThreadListSync) UnmarshalJSON(data []byte) error {
 }
 
 type GatewayEventThreadMembersUpdate struct {
-	ID               snowflake.Snowflake                    `json:"id"`
-	GuildID          snowflake.Snowflake                    `json:"guild_id"`
-	MemberCount      int                                    `json:"member_count"`
-	AddedMembers     []GatewayEventThreadMembersAddedMember `json:"added_members"`
-	RemovedMemberIDs []snowflake.Snowflake                  `json:"removed_member_ids"`
+	ID               snowflake.Snowflake   `json:"id"`
+	GuildID          snowflake.Snowflake   `json:"guild_id"`
+	MemberCount      int                   `json:"member_count"`
+	AddedMembers     []AddedThreadMember   `json:"added_members"`
+	RemovedMemberIDs []snowflake.Snowflake `json:"removed_member_ids"`
 }
 
-type GatewayEventThreadMembersAddedMember struct {
+type AddedThreadMember struct {
 	ThreadMember
 	Member   Member    `json:"member"`
 	Presence *Presence `json:"presence"`
@@ -185,7 +185,7 @@ type GatewayEventGuildRoleUpdate struct {
 	Role    Role                `json:"role"`
 }
 
-type GatewayEventGuildScheduledEventUserEvent struct {
+type GatewayEventGuildScheduledEventUser struct {
 	GuildScheduledEventID snowflake.Snowflake `json:"guild_scheduled_event_id"`
 	UserID                snowflake.Snowflake `json:"user_id"`
 	GuildID               snowflake.Snowflake `json:"guild_id"`
