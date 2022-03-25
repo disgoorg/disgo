@@ -79,5 +79,5 @@ const (
 
 // EntityMetaData additional metadata for the scheduled event (https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-entity-metadata)
 type EntityMetaData struct {
-	Location string
+	Location string `json:"location"`
 }
