@@ -16,12 +16,12 @@ func (h *gatewayHandlerGuildIntegrationsUpdate) EventType() discord.GatewayEvent
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerGuildIntegrationsUpdate) New() any {
-	return &discord.GuildIntegrationsUpdateGatewayEvent{}
+	return &discord.GatewayEventGuildIntegrationsUpdate{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildIntegrationsUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
-	payload := *v.(*discord.GuildIntegrationsUpdateGatewayEvent)
+func (h *gatewayHandlerGuildIntegrationsUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+	payload := *v.(*discord.GatewayEventGuildIntegrationsUpdate)
 
 	client.EventManager().DispatchEvent(&events.GuildIntegrationsUpdateEvent{
 		GenericEvent: events.NewGenericEvent(client, sequenceNumber),

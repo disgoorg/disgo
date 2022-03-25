@@ -7,14 +7,6 @@ import (
 	"github.com/disgoorg/snowflake"
 )
 
-// GatewayPayload raw GatewayEvent type
-type GatewayPayload struct {
-	Op GatewayOpcode    `json:"op"`
-	S  GatewaySequence  `json:"s,omitempty"`
-	T  GatewayEventType `json:"t,omitempty"`
-	D  json.RawMessage  `json:"d,omitempty"`
-}
-
 // GatewayEventReady is the event sent by discord when you successfully Identify
 type GatewayEventReady struct {
 	Version     int                `json:"v"`
@@ -23,11 +15,6 @@ type GatewayEventReady struct {
 	SessionID   string             `json:"session_id"`
 	Shard       []int              `json:"shard,omitempty"`
 	Application PartialApplication `json:"application"`
-}
-
-// GatewayEventHello is sent when we connect to the gateway
-type GatewayEventHello struct {
-	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
 }
 
 type GatewayEventThreadCreate struct {
@@ -95,14 +82,14 @@ func (e *GatewayEventThreadListSync) UnmarshalJSON(data []byte) error {
 }
 
 type GatewayEventThreadMembersUpdate struct {
-	ID               snowflake.Snowflake        `json:"id"`
-	GuildID          snowflake.Snowflake        `json:"guild_id"`
-	MemberCount      int                        `json:"member_count"`
-	AddedMembers     []ThreadMembersAddedMember `json:"added_members"`
-	RemovedMemberIDs []snowflake.Snowflake      `json:"removed_member_ids"`
+	ID               snowflake.Snowflake   `json:"id"`
+	GuildID          snowflake.Snowflake   `json:"guild_id"`
+	MemberCount      int                   `json:"member_count"`
+	AddedMembers     []AddedThreadMember   `json:"added_members"`
+	RemovedMemberIDs []snowflake.Snowflake `json:"removed_member_ids"`
 }
 
-type ThreadMembersAddedMember struct {
+type AddedThreadMember struct {
 	ThreadMember
 	Member   Member    `json:"member"`
 	Presence *Presence `json:"presence"`
@@ -136,4 +123,166 @@ type GatewayEventMessageReactionRemoveAll struct {
 	ChannelID snowflake.Snowflake  `json:"channel_id"`
 	MessageID snowflake.Snowflake  `json:"message_id"`
 	GuildID   *snowflake.Snowflake `json:"guild_id"`
+}
+
+type GatewayEventChannelPinsUpdate struct {
+	GuildID          *snowflake.Snowflake `json:"guild_id"`
+	ChannelID        snowflake.Snowflake  `json:"channel_id"`
+	LastPinTimestamp *Time                `json:"last_pin_timestamp"`
+}
+
+type GatewayEventGuildMembersChunk struct {
+	GuildID    snowflake.Snowflake   `json:"guild_id"`
+	Members    []Member              `json:"members"`
+	ChunkIndex int                   `json:"chunk_index"`
+	ChunkCount int                   `json:"chunk_count"`
+	NotFound   []snowflake.Snowflake `json:"not_found"`
+	Presences  []Presence            `json:"presences"`
+	Nonce      string                `json:"nonce"`
+}
+
+type GatewayEventGuildBanAdd struct {
+	GuildID snowflake.Snowflake `json:"guild_id"`
+	User    User                `json:"user"`
+}
+
+type GatewayEventGuildBanRemove struct {
+	GuildID snowflake.Snowflake `json:"guild_id"`
+	User    User                `json:"user"`
+}
+
+type GatewayEventGuildEmojisUpdate struct {
+	GuildID snowflake.Snowflake `json:"guild_id"`
+	Emojis  []Emoji             `json:"emojis"`
+}
+
+type GatewayEventGuildStickersUpdate struct {
+	GuildID  snowflake.Snowflake `json:"guild_id"`
+	Stickers []Sticker           `json:"stickers"`
+}
+
+type GatewayEventGuildIntegrationsUpdate struct {
+	GuildID snowflake.Snowflake `json:"guild_id"`
+}
+
+type GatewayEventGuildMemberRemove struct {
+	GuildID snowflake.Snowflake `json:"guild_id"`
+	User    User                `json:"user"`
+}
+
+type GatewayEventGuildRoleCreate struct {
+	GuildID snowflake.Snowflake `json:"guild_id"`
+	Role    Role                `json:"role"`
+}
+
+type GatewayEventGuildRoleDelete struct {
+	GuildID snowflake.Snowflake `json:"guild_id"`
+	RoleID  snowflake.Snowflake `json:"role_id"`
+}
+
+type GatewayEventGuildRoleUpdate struct {
+	GuildID snowflake.Snowflake `json:"guild_id"`
+	Role    Role                `json:"role"`
+}
+
+type GatewayEventGuildScheduledEventUser struct {
+	GuildScheduledEventID snowflake.Snowflake `json:"guild_scheduled_event_id"`
+	UserID                snowflake.Snowflake `json:"user_id"`
+	GuildID               snowflake.Snowflake `json:"guild_id"`
+}
+
+type GatewayEventInviteDelete struct {
+	ChannelID snowflake.Snowflake  `json:"channel_id"`
+	GuildID   *snowflake.Snowflake `json:"guild_id"`
+	Code      string               `json:"code"`
+}
+
+type GatewayEventMessageDelete struct {
+	ID        snowflake.Snowflake  `json:"id"`
+	ChannelID snowflake.Snowflake  `json:"channel_id"`
+	GuildID   *snowflake.Snowflake `json:"guild_id,omitempty"`
+}
+
+type GatewayEventMessageDeleteBulk struct {
+	IDs       []snowflake.Snowflake `json:"id"`
+	ChannelID snowflake.Snowflake   `json:"channel_id"`
+	GuildID   *snowflake.Snowflake  `json:"guild_id,omitempty"`
+}
+
+type GatewayEventTypingStart struct {
+	ChannelID snowflake.Snowflake  `json:"channel_id"`
+	GuildID   *snowflake.Snowflake `json:"guild_id,omitempty"`
+	UserID    snowflake.Snowflake  `json:"user_id"`
+	Timestamp time.Time            `json:"timestamp"`
+	Member    *Member              `json:"member,omitempty"`
+	User      User                 `json:"user"`
+}
+
+func (e *GatewayEventTypingStart) UnmarshalJSON(data []byte) error {
+	type typingStartGatewayEvent GatewayEventTypingStart
+	var v struct {
+		Timestamp int64 `json:"timestamp"`
+		typingStartGatewayEvent
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*e = GatewayEventTypingStart(v.typingStartGatewayEvent)
+	e.Timestamp = time.Unix(v.Timestamp, 0)
+	return nil
+}
+
+type GatewayEventWebhooksUpdate struct {
+	GuildID   snowflake.Snowflake `json:"guild_id"`
+	ChannelID snowflake.Snowflake `json:"channel_id"`
+}
+
+type GatewayEventIntegrationCreate struct {
+	Integration
+	GuildID snowflake.Snowflake `json:"guild_id"`
+}
+
+func (e *GatewayEventIntegrationCreate) UnmarshalJSON(data []byte) error {
+	type integrationCreateGatewayEvent GatewayEventIntegrationCreate
+	var v struct {
+		UnmarshalIntegration
+		integrationCreateGatewayEvent
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*e = GatewayEventIntegrationCreate(v.integrationCreateGatewayEvent)
+
+	e.Integration = v.UnmarshalIntegration.Integration
+	return nil
+}
+
+type GatewayEventIntegrationUpdate struct {
+	Integration
+	GuildID snowflake.Snowflake `json:"guild_id"`
+}
+
+func (e *GatewayEventIntegrationUpdate) UnmarshalJSON(data []byte) error {
+	type integrationUpdateGatewayEvent GatewayEventIntegrationUpdate
+	var v struct {
+		UnmarshalIntegration
+		integrationUpdateGatewayEvent
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*e = GatewayEventIntegrationUpdate(v.integrationUpdateGatewayEvent)
+
+	e.Integration = v.UnmarshalIntegration.Integration
+	return nil
+}
+
+type GatewayEventIntegrationDelete struct {
+	ID            snowflake.Snowflake  `json:"id"`
+	GuildID       snowflake.Snowflake  `json:"guild_id"`
+	ApplicationID *snowflake.Snowflake `json:"application_id"`
 }

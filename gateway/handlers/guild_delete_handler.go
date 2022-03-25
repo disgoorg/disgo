@@ -21,7 +21,7 @@ func (h *gatewayHandlerGuildDelete) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildDelete) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
+func (h *gatewayHandlerGuildDelete) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
 	unavailableGuild := *v.(*discord.UnavailableGuild)
 
 	guild, _ := client.Caches().Guilds().Remove(unavailableGuild.ID)

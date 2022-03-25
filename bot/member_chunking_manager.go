@@ -23,7 +23,7 @@ type MemberChunkingManager interface {
 	Client() Client
 	MemberChunkingFilter() MemberChunkingFilter
 
-	HandleChunk(payload discord.GuildMembersChunkGatewayEvent)
+	HandleChunk(payload discord.GatewayEventGuildMembersChunk)
 
 	RequestMembers(guildID snowflake.Snowflake, userIDs ...snowflake.Snowflake) ([]discord.Member, error)
 	RequestMembersWithQuery(guildID snowflake.Snowflake, query string, limit int) ([]discord.Member, error)
@@ -64,7 +64,7 @@ func (m *memberChunkingManagerImpl) MemberChunkingFilter() MemberChunkingFilter 
 	return m.memberChunkingFilter
 }
 
-func (m *memberChunkingManagerImpl) HandleChunk(payload discord.GuildMembersChunkGatewayEvent) {
+func (m *memberChunkingManagerImpl) HandleChunk(payload discord.GatewayEventGuildMembersChunk) {
 	m.chunkingRequestsMu.RLock()
 	request, ok := m.chunkingRequests[payload.Nonce]
 	m.chunkingRequestsMu.RUnlock()
@@ -131,7 +131,7 @@ func (m *memberChunkingManagerImpl) requestGuildMembersChan(ctx context.Context,
 	m.chunkingRequests[nonce] = request
 	m.chunkingRequestsMu.Unlock()
 
-	command := discord.RequestGuildMembersCommandData{
+	command := discord.GatewayMessageDataRequestGuildMembers{
 		GuildID:   guildID,
 		Query:     query,
 		Limit:     limit,

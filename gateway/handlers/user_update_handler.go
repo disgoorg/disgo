@@ -20,7 +20,7 @@ func (h *gatewayHandlerUserUpdate) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerUserUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
+func (h *gatewayHandlerUserUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
 	user := *v.(*discord.OAuth2User)
 
 	var oldUser discord.OAuth2User

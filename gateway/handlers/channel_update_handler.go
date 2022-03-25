@@ -20,7 +20,7 @@ func (h *gatewayHandlerChannelUpdate) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
+func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
 	channel := v.(*discord.UnmarshalChannel).Channel
 
 	if guildChannel, ok := channel.(discord.GuildChannel); ok {

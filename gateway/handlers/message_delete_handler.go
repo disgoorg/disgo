@@ -17,17 +17,17 @@ func (h *gatewayHandlerMessageDelete) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerMessageDelete) New() any {
-	return &discord.MessageDeleteGatewayEvent{}
+	return &discord.GatewayEventMessageDelete{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerMessageDelete) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
-	payload := *v.(*discord.MessageDeleteGatewayEvent)
+func (h *gatewayHandlerMessageDelete) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+	payload := *v.(*discord.GatewayEventMessageDelete)
 
 	handleMessageDelete(client, sequenceNumber, payload.ID, payload.ChannelID, payload.GuildID)
 }
 
-func handleMessageDelete(client bot.Client, sequenceNumber discord.GatewaySequence, messageID snowflake.Snowflake, channelID snowflake.Snowflake, guildID *snowflake.Snowflake) {
+func handleMessageDelete(client bot.Client, sequenceNumber int, messageID snowflake.Snowflake, channelID snowflake.Snowflake, guildID *snowflake.Snowflake) {
 	genericEvent := events.NewGenericEvent(client, sequenceNumber)
 
 	message, _ := client.Caches().Messages().Remove(channelID, messageID)

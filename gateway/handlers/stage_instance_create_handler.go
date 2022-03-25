@@ -20,7 +20,7 @@ func (h *gatewayHandlerStageInstanceCreate) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerStageInstanceCreate) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
+func (h *gatewayHandlerStageInstanceCreate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
 	stageInstance := *v.(*discord.StageInstance)
 
 	client.Caches().StageInstances().Put(stageInstance.GuildID, stageInstance.ID, stageInstance)

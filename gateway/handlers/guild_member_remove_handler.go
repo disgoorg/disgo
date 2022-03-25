@@ -16,12 +16,12 @@ func (h *gatewayHandlerGuildMemberRemove) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerGuildMemberRemove) New() any {
-	return &discord.GuildMemberRemoveGatewayEvent{}
+	return &discord.GatewayEventGuildMemberRemove{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildMemberRemove) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
-	payload := *v.(*discord.GuildMemberRemoveGatewayEvent)
+func (h *gatewayHandlerGuildMemberRemove) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+	payload := *v.(*discord.GatewayEventGuildMemberRemove)
 
 	if guild, ok := client.Caches().Guilds().Get(payload.GuildID); ok {
 		guild.MemberCount--

@@ -15,12 +15,12 @@ func (h *gatewayHandlerGuildStickersUpdate) EventType() discord.GatewayEventType
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerGuildStickersUpdate) New() any {
-	return &discord.GuildStickersUpdateGatewayEvent{}
+	return &discord.GatewayEventGuildStickersUpdate{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
-	/*payload := *v.(*discord.GuildStickersUpdateGatewayEvent)
+func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+	/*payload := *v.(*discord.GatewayEventGuildStickersUpdate)
 
 	if client.Caches().Config().CacheFlags.Missing(cache.CacheFlagStickers) {
 		return

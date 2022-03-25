@@ -21,7 +21,7 @@ func (h *gatewayHandlerInteractionCreate) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerInteractionCreate) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
+func (h *gatewayHandlerInteractionCreate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
 	HandleInteraction(client, sequenceNumber, nil, (*v.(*discord.UnmarshalInteraction)).Interaction)
 }
 
@@ -39,7 +39,7 @@ func respond(client bot.Client, c chan<- discord.InteractionResponse, interactio
 	}
 }
 
-func HandleInteraction(client bot.Client, sequenceNumber discord.GatewaySequence, c chan<- discord.InteractionResponse, interaction discord.Interaction) {
+func HandleInteraction(client bot.Client, sequenceNumber int, c chan<- discord.InteractionResponse, interaction discord.Interaction) {
 
 	genericEvent := events.NewGenericEvent(client, sequenceNumber)
 

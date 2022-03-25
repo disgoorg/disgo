@@ -20,7 +20,7 @@ func (h *gatewayHandlerReady) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerReady) HandleGatewayEvent(client bot.Client, sequenceNumber discord.GatewaySequence, v any) {
+func (h *gatewayHandlerReady) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
 	readyEvent := *v.(*discord.GatewayEventReady)
 
 	var shardID int

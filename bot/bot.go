@@ -48,8 +48,8 @@ type Client interface {
 	RequestMembers(ctx context.Context, guildID snowflake.Snowflake, presence bool, nonce string, userIDs ...snowflake.Snowflake) error
 	RequestMembersWithQuery(ctx context.Context, guildID snowflake.Snowflake, presence bool, nonce string, query string, limit int) error
 
-	SetPresence(ctx context.Context, presenceUpdate discord.UpdatePresenceCommandData) error
-	SetPresenceForShard(ctx context.Context, shardId int, presenceUpdate discord.UpdatePresenceCommandData) error
+	SetPresence(ctx context.Context, presenceUpdate discord.GatewayMessageDataPresenceUpdate) error
+	SetPresenceForShard(ctx context.Context, shardId int, presenceUpdate discord.GatewayMessageDataPresenceUpdate) error
 
 	MemberChunkingManager() MemberChunkingManager
 
@@ -206,7 +206,7 @@ func (c *clientImpl) Connect(ctx context.Context, guildID snowflake.Snowflake, c
 	if err != nil {
 		return err
 	}
-	return shard.Send(ctx, discord.GatewayOpcodeVoiceStateUpdate, discord.UpdateVoiceStateCommandData{
+	return shard.Send(ctx, discord.GatewayOpcodeVoiceStateUpdate, discord.GatewayMessageDataVoiceStateUpdate{
 		GuildID:   guildID,
 		ChannelID: &channelID,
 	})
@@ -217,7 +217,7 @@ func (c *clientImpl) Disconnect(ctx context.Context, guildID snowflake.Snowflake
 	if err != nil {
 		return err
 	}
-	return shard.Send(ctx, discord.GatewayOpcodeVoiceStateUpdate, discord.UpdateVoiceStateCommandData{
+	return shard.Send(ctx, discord.GatewayOpcodeVoiceStateUpdate, discord.GatewayMessageDataVoiceStateUpdate{
 		GuildID:   guildID,
 		ChannelID: nil,
 	})
@@ -228,7 +228,7 @@ func (c *clientImpl) RequestMembers(ctx context.Context, guildID snowflake.Snowf
 	if err != nil {
 		return err
 	}
-	return shard.Send(ctx, discord.GatewayOpcodeRequestGuildMembers, discord.RequestGuildMembersCommandData{
+	return shard.Send(ctx, discord.GatewayOpcodeRequestGuildMembers, discord.GatewayMessageDataRequestGuildMembers{
 		GuildID:   guildID,
 		Presences: presence,
 		UserIDs:   userIDs,
@@ -240,7 +240,7 @@ func (c *clientImpl) RequestMembersWithQuery(ctx context.Context, guildID snowfl
 	if err != nil {
 		return err
 	}
-	return shard.Send(ctx, discord.GatewayOpcodeRequestGuildMembers, discord.RequestGuildMembersCommandData{
+	return shard.Send(ctx, discord.GatewayOpcodeRequestGuildMembers, discord.GatewayMessageDataRequestGuildMembers{
 		GuildID:   guildID,
 		Query:     &query,
 		Limit:     &limit,
@@ -249,7 +249,7 @@ func (c *clientImpl) RequestMembersWithQuery(ctx context.Context, guildID snowfl
 	})
 }
 
-func (c *clientImpl) SetPresence(ctx context.Context, presenceUpdate discord.UpdatePresenceCommandData) error {
+func (c *clientImpl) SetPresence(ctx context.Context, presenceUpdate discord.GatewayMessageDataPresenceUpdate) error {
 	if !c.HasGateway() {
 		return discord.ErrNoGateway
 	}
@@ -257,7 +257,7 @@ func (c *clientImpl) SetPresence(ctx context.Context, presenceUpdate discord.Upd
 }
 
 // SetPresenceForShard sets the Presence of this Client for the provided shard
-func (c *clientImpl) SetPresenceForShard(ctx context.Context, shardId int, presenceUpdate discord.UpdatePresenceCommandData) error {
+func (c *clientImpl) SetPresenceForShard(ctx context.Context, shardId int, presenceUpdate discord.GatewayMessageDataPresenceUpdate) error {
 	if !c.HasShardManager() {
 		return discord.ErrNoShardManager
 	}

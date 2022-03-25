@@ -28,7 +28,7 @@ type EventManager interface {
 	AddEventListeners(eventListeners ...EventListener)
 	RemoveEventListeners(eventListeners ...EventListener)
 
-	HandleGatewayEvent(gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, payload io.Reader)
+	HandleGatewayEvent(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader)
 	HandleHTTPEvent(responseChannel chan<- discord.InteractionResponse, payload io.Reader)
 	DispatchEvent(event Event)
 }
@@ -41,14 +41,14 @@ type EventListener interface {
 // Event the basic interface each event implement
 type Event interface {
 	Client() Client
-	SequenceNumber() discord.GatewaySequence
+	SequenceNumber() int
 }
 
 // GatewayEventHandler is used to handle Gateway Event(s)
 type GatewayEventHandler interface {
 	EventType() discord.GatewayEventType
 	New() any
-	HandleGatewayEvent(client Client, sequenceNumber discord.GatewaySequence, v any)
+	HandleGatewayEvent(client Client, sequenceNumber int, v any)
 }
 
 // HTTPServerEventHandler is used to handle HTTP Event(s)
@@ -69,7 +69,7 @@ func (e *eventManagerImpl) RawEventsEnabled() bool {
 }
 
 // HandleGatewayEvent calls the correct core.EventHandler
-func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType discord.GatewayEventType, sequenceNumber discord.GatewaySequence, reader io.Reader) {
+func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) {
 	if handler, ok := e.config.GatewayHandlers[gatewayEventType]; ok {
 		v := handler.New()
 		if v != nil {
