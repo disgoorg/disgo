@@ -7,9 +7,9 @@
 
 <img align="right" src="/.github/discord_gopher.png" width=192 alt="discord gopher">
 
-# disgo
+# DisGo
 
-disgo is a [Discord](https://discord.com) API wrapper written in [Go](https://golang.org/) aimed to be consistent, modular, customizable and easy to use
+DisGo is a [Discord](https://discord.com) API wrapper written in [GoLang](https://golang.org/) aimed to be consistent, modular, customizable and higher level than other Discord API wrappers.
 
 ## Summary
 
@@ -19,7 +19,7 @@ disgo is a [Discord](https://discord.com) API wrapper written in [Go](https://go
 4. [Documentation](#documentation)
 5. [Examples](#examples)
 6. [Related Projects](#related-projects)
-7. [Why another library?](#why-another-library)
+7. [Other GoLang Discord Libraries](#other-golang-discord-libraries)
 8. [Troubleshooting](#troubleshooting)
 9. [Contributing](#contributing)
 10. [License](#license)
@@ -32,6 +32,7 @@ disgo is a [Discord](https://discord.com) API wrapper written in [Go](https://go
 * [HTTP Interactions](https://discord.com/developers/docs/interactions/slash-commands#receiving-an-interaction)
 * [Application Commands](https://discord.com/developers/docs/interactions/application-commands)
 * [Message Components](https://discord.com/developers/docs/interactions/message-components)
+* [Modals](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-response-object-modal)
 * [Stage Instance](https://discord.com/developers/docs/resources/stage-instance)
 * [Guild Template](https://discord.com/developers/docs/resources/guild-template)
 * [Sticker](https://discord.com/developers/docs/resources/sticker)
@@ -157,37 +158,38 @@ Wiki is currently under construction
 
 You can find examples under [_examples](https://github.com/disgoorg/disgo/tree/master/_examples)
 
+There is also a bot template with commands & db [here](https://github.com/disgoorg/bot-template)
+
 or in these projects:
 
 * [disgo-butler](https://github.com/disgoorg/disgo-butler)
 * [BansBot](https://github.com/Skye-31/BansBot)
 * [Reddit-Discord-Bot](https://github.com/TopiSenpai/Reddit-Discord-Bot)
 * [Kitsune-Bot](https://github.com/TopiSenpai/Kitsune-Bot)
-* [Uno-Bot](https://github.com/TopiSenpai/Uno-Bot)
+* [KittyBot](https://github.com/KittyBot-Org/KittyBotGo)
 
 ## Related Projects
 
 ### [Lavalink](https://github.com/freyacodes/Lavalink)
 
-Standalone audio sending node based on Lavaplayer and JDA-Audio. Allows for sending audio without it ever reaching any of your shards.
+is a standalone audio sending node based on [Lavaplayer](https://github.com/sedmelluq/lavaplayer) and JDA-Audio. Allows for sending audio without it ever reaching any of your shards.
 
 Being used in production by FredBoat, Dyno, LewdBot, and more.
 
 ### [disgolink](https://github.com/disgoorg/disgolink)
 
-[Lavalink Client](https://github.com/freyacodes/Lavalink) which can be used to communicate with LavaLink to play/search tracks
+is a [Lavalink Client](https://github.com/freyacodes/Lavalink) which can be used to communicate with LavaLink to play/search tracks
 
 ### [dislog](https://github.com/disgoorg/dislog)
 
-Discord webhook logger integration for [logrus](https://github.com/sirupsen/logrus)
+is a discord webhook logger hook for [logrus](https://github.com/sirupsen/logrus)
 
-## Why another library?
+## Other GoLang Discord Libraries
 
-[discordgo](https://github.com/bwmarrin/discordgo) is a great library, but it's super low level and pain
-[disgord](https://github.com/andersfylling/disgord) I don't like code gen magic
-[arikawa](https://github.com/diamondburned/arikawa) v3 rewrite looks promising but when I started with disgo v2 looked kinda bad
-
-disgo aims to be a high level library that is modular and not a pain to use.
+* [discordgo](https://github.com/bwmarrin/discordgo)
+* [disgord](https://github.com/andersfylling/disgord)
+* [arikawa](https://github.com/diamondburned/arikawa)
+* [corde](https://github.com/Karitham/corde)
 
 ## Troubleshooting
 
