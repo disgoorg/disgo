@@ -35,8 +35,6 @@ type Client interface {
 
 	// RateLimiter returns the rrate.Limiter the rest client uses
 	RateLimiter() rrate.Limiter
-	// Config returns the Config the rest client uses
-	Config() Config
 
 	// Close closes the rest client and awaits all pending requests to finish. You can use a cancelling context to abort the waiting
 	Close(ctx context.Context)
@@ -65,10 +63,6 @@ func (c *clientImpl) HTTPClient() *http.Client {
 
 func (c *clientImpl) RateLimiter() rrate.Limiter {
 	return c.config.RateLimiter
-}
-
-func (c *clientImpl) Config() Config {
-	return c.config
 }
 
 func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody any, tries int, opts []RequestOpt) error {
@@ -101,7 +95,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 		return err
 	}
 
-	rq.Header.Set("User-Agent", c.Config().UserAgent)
+	rq.Header.Set("User-Agent", c.config.UserAgent)
 	if contentType != "" {
 		rq.Header.Set("Content-Type", contentType)
 	}
@@ -176,7 +170,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 		return NewError(rq, rawRqBody, rs, rawRsBody)
 
 	case http.StatusTooManyRequests:
-		if tries >= c.RateLimiter().Config().MaxRetries {
+		if tries >= c.RateLimiter().MaxRetries() {
 			return NewError(rq, rawRqBody, rs, rawRsBody)
 		}
 		return c.retry(cRoute, rqBody, rsBody, tries+1, opts)

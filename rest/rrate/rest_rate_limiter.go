@@ -13,8 +13,8 @@ type Limiter interface {
 	// Logger returns the logger the rate limiter uses
 	Logger() log.Logger
 
-	// Config returns the Config the rate limiter uses
-	Config() Config
+	// MaxRetries returns the maximum number of retries the client should do
+	MaxRetries() int
 
 	// Close closes the rate limiter and awaits all pending requests to finish. You can use a cancelling context to abort the waiting
 	Close(ctx context.Context)

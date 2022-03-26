@@ -18,6 +18,9 @@ type GroupedCache[T any] interface {
 	All() map[snowflake.Snowflake][]T
 	GroupAll(groupID snowflake.Snowflake) []T
 
+	MapAll() map[snowflake.Snowflake]map[snowflake.Snowflake]T
+	MapGroupAll(groupID snowflake.Snowflake) map[snowflake.Snowflake]T
+
 	FindFirst(cacheFindFunc GroupedCacheFilterFunc[T]) (T, bool)
 	GroupFindFirst(groupID snowflake.Snowflake, cacheFindFunc GroupedCacheFilterFunc[T]) (T, bool)
 
@@ -118,10 +121,6 @@ func (c *DefaultGroupedCache[T]) RemoveIf(filterFunc GroupedCacheFilterFunc[T]) 
 	}
 }
 
-func (c *DefaultGroupedCache[T]) Cache() map[snowflake.Snowflake]map[snowflake.Snowflake]T {
-	return c.cache
-}
-
 func (c *DefaultGroupedCache[T]) All() map[snowflake.Snowflake][]T {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -137,31 +136,51 @@ func (c *DefaultGroupedCache[T]) All() map[snowflake.Snowflake][]T {
 	return all
 }
 
-func (c *DefaultGroupedCache[T]) GroupCache(groupID snowflake.Snowflake) map[snowflake.Snowflake]T {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	if groupEntities, ok := c.cache[groupID]; ok {
-		return groupEntities
-	}
-
-	return nil
-}
-
 func (c *DefaultGroupedCache[T]) GroupAll(groupID snowflake.Snowflake) []T {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	if groupEntities, ok := c.cache[groupID]; ok {
-		all := make([]T, 0, len(groupEntities))
-		for _, entity := range groupEntities {
-			all = append(all, entity)
-		}
-
-		return all
+	groupEntities, ok := c.cache[groupID]
+	if !ok {
+		return nil
+	}
+	all := make([]T, 0, len(groupEntities))
+	for _, entity := range groupEntities {
+		all = append(all, entity)
 	}
 
-	return nil
+	return all
+}
+
+func (c *DefaultGroupedCache[T]) MapAll() map[snowflake.Snowflake]map[snowflake.Snowflake]T {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	all := make(map[snowflake.Snowflake]map[snowflake.Snowflake]T, len(c.cache))
+	for groupID, groupEntities := range c.cache {
+		all[groupID] = make(map[snowflake.Snowflake]T, len(groupEntities))
+		for entityID, entity := range groupEntities {
+			all[groupID][entityID] = entity
+		}
+	}
+
+	return all
+}
+
+func (c *DefaultGroupedCache[T]) MapGroupAll(groupID snowflake.Snowflake) map[snowflake.Snowflake]T {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	groupEntities, ok := c.cache[groupID]
+	if !ok {
+		return nil
+	}
+	all := make(map[snowflake.Snowflake]T, len(groupEntities))
+	for entityID, entity := range groupEntities {
+		all[entityID] = entity
+	}
+
+	return all
 }
 
 func (c *DefaultGroupedCache[T]) FindFirst(cacheFindFunc GroupedCacheFilterFunc[T]) (T, bool) {

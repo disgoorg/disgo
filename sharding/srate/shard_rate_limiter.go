@@ -9,7 +9,7 @@ import (
 type Limiter interface {
 	Logger() log.Logger
 	Close(ctx context.Context)
-	Config() Config
+
 	WaitBucket(ctx context.Context, shardID int) error
 	UnlockBucket(shardID int)
 }

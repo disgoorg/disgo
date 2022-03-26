@@ -2,7 +2,10 @@ package handlers
 
 import (
 	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/snowflake"
 )
 
 // gatewayHandlerGuildStickersUpdate handles discord.GatewayEventTypeGuildStickersUpdate
@@ -18,70 +21,82 @@ func (h *gatewayHandlerGuildStickersUpdate) New() any {
 	return &discord.GatewayEventGuildStickersUpdate{}
 }
 
+type updatedSticker struct {
+	old discord.Sticker
+	new discord.Sticker
+}
+
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
-	/*payload := *v.(*discord.GatewayEventGuildStickersUpdate)
+	payload := *v.(*discord.GatewayEventGuildStickersUpdate)
 
-	if client.Caches().Config().CacheFlags.Missing(cache.CacheFlagStickers) {
+	client.EventManager().DispatchEvent(&events.StickersUpdateEvent{
+		GenericEvent: events.NewGenericEvent(client, sequenceNumber),
+		GuildID:      payload.GuildID,
+		Stickers:     payload.Stickers,
+	})
+
+	if client.Caches().CacheFlags().Missing(cache.FlagStickers) {
 		return
 	}
 
-	var (
-		stickerCache    = client.Caches().Stickers().GuildCache(payload.GuildID)
-		oldStickers     = map[snowflake.Snowflake]*core.Sticker{}
-		newStickers     = map[snowflake.Snowflake]*core.Sticker{}
-		updatedStickers = map[snowflake.Snowflake]*core.Sticker{}
-	)
+	createdStickers := map[snowflake.Snowflake]discord.Sticker{}
+	deletedStickers := client.Caches().Stickers().MapGroupAll(payload.GuildID)
+	updatedStickers := map[snowflake.Snowflake]updatedSticker{}
 
-	oldStickers = make(map[snowflake.Snowflake]*core.Sticker, len(stickerCache))
-	for key, value := range stickerCache {
-		va := *value
-		oldStickers[key] = &va
-	}
-
-	for _, current := range payload.Stickers {
-		sticker, ok := stickerCache[current.ID]
+	for _, newSticker := range payload.Stickers {
+		oldSticker, ok := deletedStickers[newSticker.ID]
 		if ok {
-			delete(oldStickers, current.ID)
-			if !cmp.Equal(sticker, current) {
-				updatedStickers[current.ID] = bot.EntityBuilder.CreateSticker(current, core.CacheStrategyYes)
+			delete(deletedStickers, newSticker.ID)
+			if isStickerUpdated(oldSticker, newSticker) {
+				updatedStickers[newSticker.ID] = updatedSticker{new: newSticker, old: oldSticker}
 			}
-		} else {
-			newStickers[current.ID] = bot.EntityBuilder.CreateSticker(current, core.CacheStrategyYes)
+			continue
 		}
+		createdStickers[newSticker.ID] = newSticker
 	}
 
-	for stickerID := range oldStickers {
-		client.Caches().Stickers().Remove(payload.GuildID, stickerID)
-	}
-
-	for _, sticker := range newStickers {
+	for _, emoji := range createdStickers {
 		client.EventManager().DispatchEvent(&events.StickerCreateEvent{
 			GenericStickerEvent: &events.GenericStickerEvent{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 				GuildID:      payload.GuildID,
-				Sticker:      sticker,
+				Sticker:      emoji,
 			},
 		})
 	}
 
-	for _, sticker := range updatedStickers {
+	for _, emoji := range updatedStickers {
 		client.EventManager().DispatchEvent(&events.StickerUpdateEvent{
 			GenericStickerEvent: &events.GenericStickerEvent{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 				GuildID:      payload.GuildID,
-				Sticker:      sticker,
+				Sticker:      emoji.new,
 			},
+			OldSticker: emoji.old,
 		})
 	}
 
-	for _, sticker := range oldStickers {
+	for _, emoji := range deletedStickers {
 		client.EventManager().DispatchEvent(&events.StickerDeleteEvent{
 			GenericStickerEvent: &events.GenericStickerEvent{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 				GuildID:      payload.GuildID,
-				Sticker:      sticker,
+				Sticker:      emoji,
 			},
 		})
-	}*/
+	}
+}
+
+func isStickerUpdated(old discord.Sticker, new discord.Sticker) bool {
+	if old.Name != new.Name {
+		return true
+	}
+	if old.Description != new.Description {
+		return true
+	}
+	if old.Tags != new.Tags {
+		return true
+	}
+	return false
 }

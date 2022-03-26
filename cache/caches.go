@@ -6,7 +6,7 @@ import (
 )
 
 type Caches interface {
-	Config() Config
+	CacheFlags() Flags
 
 	GetMemberPermissions(member discord.Member) discord.Permissions
 	GetMemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member) discord.Permissions
@@ -65,8 +65,8 @@ type cachesImpl struct {
 	stickerCache             GroupedCache[discord.Sticker]
 }
 
-func (c *cachesImpl) Config() Config {
-	return c.config
+func (c *cachesImpl) CacheFlags() Flags {
+	return c.config.CacheFlags
 }
 
 func (c *cachesImpl) GetMemberPermissions(member discord.Member) discord.Permissions {

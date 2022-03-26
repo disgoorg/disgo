@@ -15,6 +15,7 @@ type Cache[T any] interface {
 	RemoveIf(filterFunc FilterFunc[T])
 
 	All() []T
+	MapAll() map[snowflake.Snowflake]T
 
 	FindFirst(cacheFindFunc FilterFunc[T]) (T, bool)
 	FindAll(cacheFindFunc FilterFunc[T]) []T
@@ -89,6 +90,16 @@ func (c *DefaultCache[T]) All() []T {
 	for _, entity := range c.cache {
 		entities[i] = entity
 		i++
+	}
+	return entities
+}
+
+func (c *DefaultCache[T]) MapAll() map[snowflake.Snowflake]T {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	entities := make(map[snowflake.Snowflake]T, len(c.cache))
+	for entityID, entity := range c.cache {
+		entities[entityID] = entity
 	}
 	return entities
 }

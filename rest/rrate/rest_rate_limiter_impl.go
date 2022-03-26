@@ -50,10 +50,6 @@ func (l *limiterImpl) Logger() log.Logger {
 	return l.config.Logger
 }
 
-func (l *limiterImpl) Config() Config {
-	return l.config
-}
-
 func (l *limiterImpl) Close(ctx context.Context) {
 	var wg sync.WaitGroup
 	for i := range l.buckets {

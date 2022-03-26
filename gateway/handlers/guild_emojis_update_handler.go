@@ -2,7 +2,11 @@ package handlers
 
 import (
 	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/snowflake"
+	"golang.org/x/exp/slices"
 )
 
 // gatewayHandlerGuildEmojisUpdate handles discord.GatewayEventTypeGuildEmojisUpdate
@@ -18,44 +22,43 @@ func (h *gatewayHandlerGuildEmojisUpdate) New() any {
 	return &discord.GatewayEventGuildEmojisUpdate{}
 }
 
+type updatedEmoji struct {
+	old discord.Emoji
+	new discord.Emoji
+}
+
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
-	/*payload := *v.(*discord.GatewayEventGuildEmojisUpdate)
+	payload := *v.(*discord.GatewayEventGuildEmojisUpdate)
 
-	if client.Caches().Config().CacheFlags.Missing(cache.CacheFlagEmojis) {
+	client.EventManager().DispatchEvent(&events.EmojisUpdateEvent{
+		GenericEvent: events.NewGenericEvent(client, sequenceNumber),
+		GuildID:      payload.GuildID,
+		Emojis:       payload.Emojis,
+	})
+
+	if client.Caches().CacheFlags().Missing(cache.FlagEmojis) {
 		return
 	}
 
-	var (
-		emojiCache    = client.Caches().Emojis().GuildCache(payload.GuildID)
-		oldEmojis     = map[snowflake.Snowflake]*core.Emoji{}
-		newEmojis     = map[snowflake.Snowflake]*core.Emoji{}
-		updatedEmojis = map[snowflake.Snowflake]*core.Emoji{}
-	)
+	createdEmojis := map[snowflake.Snowflake]discord.Emoji{}
+	deletedEmojis := client.Caches().Emojis().MapGroupAll(payload.GuildID)
+	updatedEmojis := map[snowflake.Snowflake]updatedEmoji{}
 
-	oldEmojis = make(map[snowflake.Snowflake]*core.Emoji, len(emojiCache))
-	for key, value := range emojiCache {
-		va := *value
-		oldEmojis[key] = &va
-	}
-
-	for _, current := range payload.Emojis {
-		emoji, ok := emojiCache[current.ID]
+	for _, newEmoji := range payload.Emojis {
+		oldEmoji, ok := deletedEmojis[newEmoji.ID]
 		if ok {
-			delete(oldEmojis, current.ID)
-			if !cmp.Equal(emoji, current) {
-				updatedEmojis[current.ID] = bot.EntityBuilder.CreateEmoji(payload.GuildID, current, core.CacheStrategyYes)
+			delete(deletedEmojis, newEmoji.ID)
+			if isEmojiUpdated(oldEmoji, newEmoji) {
+				updatedEmojis[newEmoji.ID] = updatedEmoji{new: newEmoji, old: oldEmoji}
 			}
-		} else {
-			newEmojis[current.ID] = bot.EntityBuilder.CreateEmoji(payload.GuildID, current, core.CacheStrategyYes)
+			continue
 		}
+		createdEmojis[newEmoji.ID] = newEmoji
 	}
 
-	for emojiID := range oldEmojis {
-		client.Caches().Emojis().Remove(payload.GuildID, emojiID)
-	}
-
-	for _, emoji := range newEmojis {
+	for _, emoji := range createdEmojis {
+		client.Caches().Emojis().Put(payload.GuildID, emoji.ID, emoji)
 		client.EventManager().DispatchEvent(&events.EmojiCreateEvent{
 			GenericEmojiEvent: &events.GenericEmojiEvent{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
@@ -66,7 +69,20 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(client bot.Client, 
 	}
 
 	for _, emoji := range updatedEmojis {
+		client.Caches().Emojis().Put(payload.GuildID, emoji.new.ID, emoji.new)
 		client.EventManager().DispatchEvent(&events.EmojiUpdateEvent{
+			GenericEmojiEvent: &events.GenericEmojiEvent{
+				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
+				GuildID:      payload.GuildID,
+				Emoji:        emoji.new,
+			},
+			OldEmoji: emoji.old,
+		})
+	}
+
+	for _, emoji := range deletedEmojis {
+		client.Caches().Emojis().Remove(payload.GuildID, emoji.ID)
+		client.EventManager().DispatchEvent(&events.EmojiDeleteEvent{
 			GenericEmojiEvent: &events.GenericEmojiEvent{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
 				GuildID:      payload.GuildID,
@@ -75,13 +91,14 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(client bot.Client, 
 		})
 	}
 
-	for _, emoji := range oldEmojis {
-		client.EventManager().DispatchEvent(&events.EmojiDeleteEvent{
-			GenericEmojiEvent: &events.GenericEmojiEvent{
-				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
-				GuildID:      payload.GuildID,
-				Emoji:        emoji,
-			},
-		})
-	}*/
+}
+
+func isEmojiUpdated(old discord.Emoji, new discord.Emoji) bool {
+	if old.Name != new.Name {
+		return true
+	}
+	if !slices.Equal(old.Roles, new.Roles) {
+		return true
+	}
+	return false
 }

@@ -49,10 +49,6 @@ func (r *limiterImpl) Close(ctx context.Context) {
 	}
 }
 
-func (r *limiterImpl) Config() Config {
-	return r.config
-}
-
 func (r *limiterImpl) getBucket(shardID int, create bool) *bucket {
 	r.Logger().Debug("locking shard srate limiter")
 	r.Lock()

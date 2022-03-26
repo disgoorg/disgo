@@ -39,10 +39,6 @@ func (l *limiterImpl) Close(ctx context.Context) error {
 	return nil
 }
 
-func (l *limiterImpl) Config() Config {
-	return l.config
-}
-
 func (l *limiterImpl) Wait(ctx context.Context) error {
 	l.Logger().Trace("locking gateway rate limiter")
 	if err := l.CLock(ctx); err != nil {
@@ -78,7 +74,7 @@ func (l *limiterImpl) Unlock() {
 	now := time.Now()
 	if l.reset.Before(now) {
 		l.reset = now.Add(time.Minute)
-		l.remaining = l.Config().CommandsPerMinute
+		l.remaining = l.config.CommandsPerMinute
 	}
 	l.Mutex.Unlock()
 }

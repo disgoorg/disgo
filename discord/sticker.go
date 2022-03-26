@@ -10,7 +10,7 @@ type Sticker struct {
 	ID          snowflake.Snowflake  `json:"id"`
 	PackID      *snowflake.Snowflake `json:"pack_id"`
 	Name        string               `json:"name"`
-	Description *string              `json:"description"`
+	Description string               `json:"description"`
 	Tags        string               `json:"tags"`
 	Type        StickerType          `json:"type"`
 	FormatType  StickerFormatType    `json:"format_type"`

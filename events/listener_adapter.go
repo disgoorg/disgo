@@ -47,14 +47,16 @@ type ListenerAdapter struct {
 	OnDMMessageReactionRemoveAll   func(event *DMMessageReactionRemoveAllEvent)
 
 	// Emoji Events
-	OnEmojiCreate func(event *EmojiCreateEvent)
-	OnEmojiUpdate func(event *EmojiUpdateEvent)
-	OnEmojiDelete func(event *EmojiDeleteEvent)
+	OnEmojisUpdate func(event *EmojisUpdateEvent)
+	OnEmojiCreate  func(event *EmojiCreateEvent)
+	OnEmojiUpdate  func(event *EmojiUpdateEvent)
+	OnEmojiDelete  func(event *EmojiDeleteEvent)
 
 	// Sticker Events
-	OnStickerCreate func(event *StickerCreateEvent)
-	OnStickerUpdate func(event *StickerUpdateEvent)
-	OnStickerDelete func(event *StickerDeleteEvent)
+	OnStickersUpdate func(event *StickersUpdateEvent)
+	OnStickerCreate  func(event *StickerCreateEvent)
+	OnStickerUpdate  func(event *StickerUpdateEvent)
+	OnStickerDelete  func(event *StickerDeleteEvent)
 
 	// gateway status Events
 	OnReady          func(event *ReadyEvent)
@@ -273,6 +275,10 @@ func (l ListenerAdapter) OnEvent(event bot.Event) {
 		}
 
 	// Emoji Events
+	case *EmojisUpdateEvent:
+		if listener := l.OnEmojisUpdate; listener != nil {
+			listener(e)
+		}
 	case *EmojiCreateEvent:
 		if listener := l.OnEmojiCreate; listener != nil {
 			listener(e)
@@ -287,6 +293,10 @@ func (l ListenerAdapter) OnEvent(event bot.Event) {
 		}
 
 	// Sticker Events
+	case *StickersUpdateEvent:
+		if listener := l.OnStickersUpdate; listener != nil {
+			listener(e)
+		}
 	case *StickerCreateEvent:
 		if listener := l.OnStickerCreate; listener != nil {
 			listener(e)
