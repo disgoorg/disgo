@@ -1,15 +1,14 @@
 package discord
 
 import (
-	"github.com/DisgoOrg/disgo/json"
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/snowflake"
 )
 
 // The MessageType indicates the Message type
 type MessageType int
 
 // Constants for the MessageType
-//goland:noinspection GoUnusedConst
 const (
 	MessageTypeDefault MessageType = iota
 	MessageTypeRecipientAdd
@@ -47,7 +46,7 @@ type Message struct {
 	Embeds            []Embed               `json:"embeds,omitempty"`
 	Components        []ContainerComponent  `json:"components,omitempty"`
 	CreatedAt         Time                  `json:"timestamp"`
-	Mentions          []interface{}         `json:"mentions"`
+	Mentions          []any                 `json:"mentions"`
 	MentionEveryone   bool                  `json:"mention_everyone"`
 	MentionRoles      []snowflake.Snowflake `json:"mention_roles"`
 	MentionChannels   []Channel             `json:"mention_channels"`
@@ -98,6 +97,90 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// ActionRows returns all ActionRowComponent(s) from this Message
+func (m *Message) ActionRows() []ActionRowComponent {
+	var actionRows []ActionRowComponent
+	for i := range m.Components {
+		if actionRow, ok := m.Components[i].(ActionRowComponent); ok {
+			actionRows = append(actionRows, actionRow)
+		}
+	}
+	return actionRows
+}
+
+// InteractiveComponents returns the InteractiveComponent(s) from this Message
+func (m *Message) InteractiveComponents() []InteractiveComponent {
+	var interactiveComponents []InteractiveComponent
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			interactiveComponents = append(interactiveComponents, m.Components[i].Components()[ii])
+		}
+	}
+	return interactiveComponents
+}
+
+// ComponentByID returns the Component with the specific CustomID
+func (m *Message) ComponentByID(customID CustomID) InteractiveComponent {
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if m.Components[i].Components()[ii].ID() == customID {
+				return m.Components[i].Components()[ii]
+			}
+		}
+	}
+	return nil
+}
+
+// Buttons returns all ButtonComponent(s) from this Message
+func (m *Message) Buttons() []ButtonComponent {
+	var buttons []ButtonComponent
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if button, ok := m.Components[i].Components()[ii].(ButtonComponent); ok {
+				buttons = append(buttons, button)
+			}
+		}
+	}
+	return buttons
+}
+
+// ButtonByID returns a ButtonComponent with the specific customID from this Message
+func (m *Message) ButtonByID(customID CustomID) *ButtonComponent {
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if button, ok := m.Components[i].Components()[ii].(*ButtonComponent); ok && button.ID() == customID {
+				return button
+			}
+		}
+	}
+	return nil
+}
+
+// SelectMenus returns all SelectMenuComponent(s) from this Message
+func (m *Message) SelectMenus() []SelectMenuComponent {
+	var selectMenus []SelectMenuComponent
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if button, ok := m.Components[i].Components()[ii].(SelectMenuComponent); ok {
+				selectMenus = append(selectMenus, button)
+			}
+		}
+	}
+	return selectMenus
+}
+
+// SelectMenuByID returns a SelectMenuComponent with the specific customID from this Message
+func (m *Message) SelectMenuByID(customID CustomID) *SelectMenuComponent {
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if button, ok := m.Components[i].Components()[ii].(*SelectMenuComponent); ok && button.ID() == customID {
+				return button
+			}
+		}
+	}
+	return nil
+}
+
 type MessageSticker struct {
 	ID         snowflake.Snowflake `json:"id"`
 	Name       string              `json:"name"`
@@ -111,11 +194,10 @@ type MessageReaction struct {
 	Emoji Emoji `json:"emoji"`
 }
 
-// MessageActivityType is the type of MessageActivity https://discord.com/developers/docs/resources/channel#message-object-message-activity-types
+// MessageActivityType is the type of MessageActivity https://com/developers/docs/resources/channel#message-object-message-activity-types
 type MessageActivityType int
 
 //Constants for MessageActivityType
-//goland:noinspection GoUnusedConst
 const (
 	MessageActivityTypeJoin MessageActivityType = iota + 1
 	MessageActivityTypeSpectate
@@ -163,7 +245,6 @@ type MessageBulkDelete struct {
 type MessageFlags int64
 
 // Constants for MessageFlags
-//goland:noinspection GoUnusedConst
 const (
 	MessageFlagCrossposted MessageFlags = 1 << iota
 	MessageFlagIsCrosspost

@@ -6,7 +6,6 @@ import "github.com/gorilla/websocket"
 type GatewayOpcode int
 
 // https://discord.com/developers/docs/topics/opcodes-and-status-codes#gateway-gateway-opcodes
-//goland:noinspection GoUnusedConst
 const (
 	GatewayOpcodeDispatch GatewayOpcode = iota
 	GatewayOpcodeHeartbeat
@@ -24,7 +23,6 @@ const (
 
 type GatewayCloseEventCode int
 
-//goland:noinspection GoUnusedConst
 const (
 	GatewayCloseEventCodeUnknownError GatewayCloseEventCode = iota + 4000
 	GatewayCloseEventCodeUnknownOpcode
@@ -61,7 +59,6 @@ func (c GatewayCloseEventCode) ShouldReconnect() bool {
 
 type VoiceOpcode int
 
-//goland:noinspection GoUnusedConst
 const (
 	VoiceOpcodeIdentify VoiceOpcode = iota
 	VoiceOpcodeSelectProtocol
@@ -81,7 +78,6 @@ const (
 
 type VoiceCloseEventCode int
 
-//goland:noinspection GoUnusedConst
 const (
 	VoiceCloseEventCodeUnknownOpcode VoiceCloseEventCode = iota + 4001
 	VoiceCloseEventCodeDecodeError

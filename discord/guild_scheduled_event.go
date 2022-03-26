@@ -1,6 +1,6 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import "github.com/disgoorg/snowflake"
 
 // GuildScheduledEvent a representation of a scheduled event in a Guild (https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object)
 type GuildScheduledEvent struct {
@@ -53,7 +53,6 @@ type GuildScheduledEventUser struct {
 // ScheduledEventPrivacyLevel the privacy level of the ScheduledEventPrivacyLevel (https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-privacy-level)
 type ScheduledEventPrivacyLevel int
 
-//goland:noinspection GoUnusedConst
 const (
 	_ ScheduledEventPrivacyLevel = iota + 1
 	ScheduledEventPrivacyLevelGuildOnly
@@ -62,7 +61,6 @@ const (
 // ScheduledEventStatus the status of the scheduled event (https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-status)
 type ScheduledEventStatus int
 
-//goland:noinspection GoUnusedConst
 const (
 	ScheduledEventStatusScheduled ScheduledEventStatus = iota + 1
 	ScheduledEventStatusActive
@@ -73,7 +71,6 @@ const (
 // ScheduledEventEntityType the type of the scheduled event (https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-entity-types)
 type ScheduledEventEntityType int
 
-//goland:noinspection GoUnusedConst
 const (
 	ScheduledEventEntityTypeStageInstance ScheduledEventEntityType = iota + 1
 	ScheduledEventEntityTypeVoice
@@ -82,5 +79,5 @@ const (
 
 // EntityMetaData additional metadata for the scheduled event (https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-entity-metadata)
 type EntityMetaData struct {
-	Location string
+	Location string `json:"location"`
 }

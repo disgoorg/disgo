@@ -1,12 +1,14 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import (
+	"github.com/disgoorg/disgo/rest/route"
+	"github.com/disgoorg/snowflake"
+)
 
 // InviteTargetType is type of target an Invite uses
 type InviteTargetType int
 
 // Constants for TargetType
-//goland:noinspection GoUnusedConst
 const (
 	InviteTargetTypeStream InviteTargetType = iota + 1
 	InviteTargetTypeEmbeddedApplication
@@ -16,19 +18,44 @@ const (
 type Invite struct {
 	Code                     string               `json:"code"`
 	Guild                    *InviteGuild         `json:"guild"`
-	GuildID                  *snowflake.Snowflake `json:"guild_id"`
-	Channel                  PartialChannel       `json:"channel"`
+	Channel                  *InviteChannel       `json:"channel"`
 	ChannelID                snowflake.Snowflake  `json:"channel_id"`
 	Inviter                  *User                `json:"inviter"`
 	TargetUser               *User                `json:"target_user"`
-	TargetType               *InviteTargetType    `json:"target_user_type"`
-	ApproximatePresenceCount *int                 `json:"approximate_presence_count"`
-	ApproximateMemberCount   *int                 `json:"approximate_member_count"`
-	Uses                     *int                 `json:"uses"`
-	MaxUses                  *int                 `json:"max_uses"`
-	MaxAge                   *int                 `json:"max_age"`
-	Temporary                *bool                `json:"temporary"`
-	CreatedAt                *Time                `json:"created_at"`
+	TargetType               InviteTargetType     `json:"target_user_type"`
+	ApproximatePresenceCount int                  `json:"approximate_presence_count"`
+	ApproximateMemberCount   int                  `json:"approximate_member_count"`
+	ExpiresAt                *Time                `json:"created_at"`
+	GuildScheduledEvent      *GuildScheduledEvent `json:"guild_scheduled_event"`
+}
+
+func (i Invite) URL() string {
+	if compiledRoute, err := route.InviteURL.Compile(nil, i.Code); err == nil {
+		return compiledRoute.URL()
+	}
+	return ""
+}
+
+type ExtendedInvite struct {
+	Invite
+	Uses      int  `json:"uses"`
+	MaxUses   int  `json:"max_uses"`
+	MaxAge    int  `json:"max_age"`
+	Temporary bool `json:"temporary"`
+	CreatedAt Time `json:"created_at"`
+}
+
+type InviteChannel struct {
+	ID   snowflake.Snowflake `json:"id"`
+	Type ChannelType         `json:"type"`
+	Name string              `json:"name"`
+	Icon *string             `json:"icon,omitempty"`
+}
+
+// IconURL returns the Icon URL of this channel.
+// This will be nil for every ChannelType except ChannelTypeGroupDM
+func (c InviteChannel) IconURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.ChannelIcon, opts, c.ID, c.Icon)
 }
 
 // An InviteGuild is the Guild of an Invite

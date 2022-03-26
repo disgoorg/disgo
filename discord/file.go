@@ -7,11 +7,11 @@ import (
 	"mime/multipart"
 	"net/textproto"
 
-	"github.com/DisgoOrg/disgo/json"
+	"github.com/disgoorg/disgo/json"
 )
 
 type Payload interface {
-	ToBody() (interface{}, error)
+	ToBody() (any, error)
 }
 
 // MultipartBuffer holds the Body & ContentType of the multipart body
@@ -21,8 +21,7 @@ type MultipartBuffer struct {
 }
 
 // PayloadWithFiles returns the given payload as multipart body with all files in it
-//goland:noinspection GoUnusedExportedFunction
-func PayloadWithFiles(v interface{}, files ...*File) (*MultipartBuffer, error) {
+func PayloadWithFiles(v any, files ...*File) (*MultipartBuffer, error) {
 	buffer := &bytes.Buffer{}
 	writer := multipart.NewWriter(buffer)
 	writer.FormDataContentType()
@@ -74,21 +73,36 @@ func partHeader(contentDisposition string, contentType string) textproto.MIMEHea
 	}
 }
 
+func parseAttachments(files []*File) []AttachmentCreate {
+	var attachments []AttachmentCreate
+	for i, file := range files {
+		if file.Description == "" {
+			continue
+		}
+		attachments = append(attachments, AttachmentCreate{
+			ID:          i,
+			Description: file.Description,
+		})
+	}
+	return attachments
+}
+
 // NewFile returns a new File struct with the given name, io.Reader & FileFlags
-//goland:noinspection GoUnusedExportedFunction
-func NewFile(name string, reader io.Reader, flags ...FileFlags) *File {
+func NewFile(name string, description string, reader io.Reader, flags ...FileFlags) *File {
 	return &File{
-		Name:   name,
-		Reader: reader,
-		Flags:  FileFlagNone.Add(flags...),
+		Name:        name,
+		Description: description,
+		Reader:      reader,
+		Flags:       FileFlagNone.Add(flags...),
 	}
 }
 
 // File holds all information about a given io.Reader
 type File struct {
-	Name   string
-	Reader io.Reader
-	Flags  FileFlags
+	Name        string
+	Description string
+	Reader      io.Reader
+	Flags       FileFlags
 }
 
 // FileFlags are used to mark Attachments as Spoiler

@@ -6,12 +6,11 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/DisgoOrg/disgo/json"
+	"github.com/disgoorg/disgo/json"
 )
 
 type IconType string
 
-//goland:noinspection GoUnusedConst
 const (
 	IconTypeJPEG    IconType = "image/jpeg"
 	IconTypePNG     IconType = "image/png"
@@ -31,7 +30,6 @@ func (t IconType) GetHeader() string {
 var _ json.Marshaler = (*Icon)(nil)
 var _ fmt.Stringer = (*Icon)(nil)
 
-//goland:noinspection GoUnusedExportedFunction
 func NewIcon(iconType IconType, reader io.Reader) (*Icon, error) {
 	data, err := ioutil.ReadAll(reader)
 	if err != nil {
@@ -40,7 +38,6 @@ func NewIcon(iconType IconType, reader io.Reader) (*Icon, error) {
 	return NewIconRaw(iconType, data), nil
 }
 
-//goland:noinspection GoUnusedExportedFunction
 func NewIconRaw(iconType IconType, src []byte) *Icon {
 	var data []byte
 	base64.StdEncoding.Encode(data, src)

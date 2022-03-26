@@ -7,12 +7,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/core/bot"
-	"github.com/DisgoOrg/disgo/core/events"
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway"
-	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/disgo"
+	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/cache"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/log"
 )
 
 var (
@@ -24,15 +25,15 @@ func main() {
 	log.SetLevel(log.LevelDebug)
 	log.Info("starting example...")
 
-	disgo, err := bot.New(token,
-		bot.WithGatewayOpts(
+	client, err := disgo.New(token,
+		bot.WithGatewayConfigOpts(
 			gateway.WithGatewayIntents(discord.GatewayIntentGuildScheduledEvents|discord.GatewayIntentGuilds|discord.GatewayIntentGuildMessages),
 		),
-		bot.WithCacheOpts(
-			core.WithCacheFlags(core.CacheFlagsAll),
-			core.WithMemberCachePolicy(core.MemberCachePolicyAll),
+		bot.WithCacheConfigOpts(
+			cache.WithCacheFlags(cache.FlagsAll),
+			cache.WithMemberCachePolicy(cache.MemberCachePolicyAll),
 		),
-		bot.WithMemberChunkingFilter(core.MemberChunkingFilterNone),
+		bot.WithMemberChunkingFilter(bot.MemberChunkingFilterNone),
 		bot.WithEventListeners(&events.ListenerAdapter{
 			OnGuildScheduledEventCreate: func(event *events.GuildScheduledEventCreateEvent) {
 				log.Infof("%T\n", event)
@@ -54,7 +55,7 @@ func main() {
 				if event.Message.Content != "test" {
 					return
 				}
-				gse, _ := event.Guild().CreateGuildScheduledEvent(discord.GuildScheduledEventCreate{
+				gse, _ := event.Client().Rest().GuildScheduledEvents().CreateGuildScheduledEvent(*event.GuildID, discord.GuildScheduledEventCreate{
 					ChannelID:    "885677988916641802",
 					Name:         "test",
 					PrivacyLevel: discord.ScheduledEventPrivacyLevelGuildOnly,
@@ -66,7 +67,7 @@ func main() {
 				})
 
 				status := discord.ScheduledEventStatusActive
-				gse, _ = gse.Update(discord.GuildScheduledEventUpdate{
+				gse, _ = event.Client().Rest().GuildScheduledEvents().UpdateGuildScheduledEvent(gse.GuildID, gse.ID, discord.GuildScheduledEventUpdate{
 					Status: &status,
 				})
 				//_ = gse.AudioChannel().Connect()
@@ -74,10 +75,10 @@ func main() {
 				time.Sleep(time.Second * 10)
 
 				status = discord.ScheduledEventStatusCompleted
-				gse, _ = gse.Update(discord.GuildScheduledEventUpdate{
+				gse, _ = event.Client().Rest().GuildScheduledEvents().UpdateGuildScheduledEvent(gse.GuildID, gse.ID, discord.GuildScheduledEventUpdate{
 					Status: &status,
 				})
-				//_ = gse.Guild().Disconnect()
+				//_ = gse.Guilds().Disconnect()
 			},
 		}),
 	)
@@ -86,7 +87,7 @@ func main() {
 		return
 	}
 
-	if err = disgo.ConnectGateway(context.TODO()); err != nil {
+	if err = client.ConnectGateway(context.TODO()); err != nil {
 		log.Fatal("error while connecting to discord: ", err)
 	}
 

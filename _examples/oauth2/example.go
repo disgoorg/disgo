@@ -7,13 +7,13 @@ import (
 	"os"
 	"time"
 
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/info"
-	"github.com/DisgoOrg/disgo/json"
-	"github.com/DisgoOrg/disgo/oauth2"
-	"github.com/DisgoOrg/disgo/rest"
-	"github.com/DisgoOrg/log"
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/disgo/oauth2"
+	"github.com/disgoorg/disgo/rest"
+	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake"
 )
 
 var (
@@ -23,7 +23,7 @@ var (
 	baseURL      = os.Getenv("base_url")
 	logger       = log.Default()
 	httpClient   = http.DefaultClient
-	client       *oauth2.Client
+	client       oauth2.Client
 )
 
 func main() {
@@ -31,7 +31,7 @@ func main() {
 
 	logger.SetLevel(log.LevelDebug)
 	logger.Info("starting example...")
-	logger.Infof("disgo %s", info.Version)
+	logger.Infof("disgo %s", disgo.Version)
 
 	client = oauth2.New(clientID, clientSecret, oauth2.WithLogger(logger), oauth2.WithRestClientConfigOpts(rest.WithHTTPClient(httpClient)))
 
@@ -46,7 +46,7 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 	var body string
 	cookie, err := r.Cookie("token")
 	if err == nil {
-		session := client.SessionController.GetSession(cookie.Value)
+		session := client.SessionController().GetSession(cookie.Value)
 		if session != nil {
 			var user *discord.OAuth2User
 			user, err = client.GetUser(session)

@@ -4,7 +4,6 @@ package discord
 type GatewayEventType string
 
 // Constants for the gateway events
-//goland:noinspection GoUnusedConst
 const (
 	GatewayEventTypeHello                         GatewayEventType = "HELLO"
 	GatewayEventTypeReady                         GatewayEventType = "READY"

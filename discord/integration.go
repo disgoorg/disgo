@@ -3,15 +3,14 @@ package discord
 import (
 	"fmt"
 
-	"github.com/DisgoOrg/disgo/json"
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/snowflake"
 )
 
 // IntegrationType the type of Integration
 type IntegrationType string
 
 // All IntegrationType(s)
-//goland:noinspection GoUnusedConst
 const (
 	IntegrationTypeTwitch  IntegrationType = "twitch"
 	IntegrationTypeYouTube IntegrationType = "youtube"
@@ -31,7 +30,7 @@ type IntegrationApplication struct {
 	Icon        string              `json:"icon"`
 	Description string              `json:"description"`
 	Summary     string              `json:"summary"`
-	Bot         User                `json:"bot"`
+	Client      User                `json:"bot"`
 }
 
 // Integration (https://discord.com/developers/docs/resources/guild#integration-object)

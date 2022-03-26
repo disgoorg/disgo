@@ -3,15 +3,14 @@ package discord
 import (
 	"fmt"
 
-	"github.com/DisgoOrg/disgo/json"
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/snowflake"
 )
 
 // ApplicationCommandPermissionType is the type of the ApplicationCommandPermission
 type ApplicationCommandPermissionType int
 
 // types of ApplicationCommandPermissionType
-//goland:noinspection GoUnusedConst
 const (
 	ApplicationCommandPermissionTypeRole = iota + 1
 	ApplicationCommandPermissionTypeUser

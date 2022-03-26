@@ -6,12 +6,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/info"
-	"github.com/DisgoOrg/disgo/rest"
-	"github.com/DisgoOrg/disgo/webhook"
-	"github.com/DisgoOrg/log"
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/rest"
+	"github.com/disgoorg/disgo/webhook"
+	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake"
 )
 
 var (
@@ -22,7 +22,7 @@ var (
 func main() {
 	log.SetLevel(log.LevelDebug)
 	log.Info("starting webhook example...")
-	log.Info("disgo version: ", info.Version)
+	log.Info("disgo version: ", disgo.Version)
 
 	// construct new webhook client
 	client := webhook.NewClient(webhookID, webhookToken)
@@ -43,7 +43,7 @@ func main() {
 }
 
 // send(s) a message to the webhook
-func send(wg *sync.WaitGroup, client *webhook.Client, i int) {
+func send(wg *sync.WaitGroup, client webhook.Client, i int) {
 	defer wg.Done()
 
 	if _, err := client.CreateMessage(discord.NewWebhookMessageCreateBuilder().

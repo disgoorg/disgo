@@ -22,7 +22,6 @@ func NewRoute(path string, queryParams ...string) *Route {
 }
 
 // NewCustomRoute generates a new custom path struct
-//goland:noinspection GoUnusedExportedFunction
 func NewCustomRoute(basePath string, path string, queryParams ...string) *Route {
 	route := NewRoute(path, queryParams...)
 	route.basePath = basePath
@@ -38,7 +37,7 @@ type Route struct {
 }
 
 // Compile returns a CompiledRoute
-func (r *Route) Compile(queryValues QueryValues, params ...interface{}) (*CompiledRoute, error) {
+func (r *Route) Compile(queryValues QueryValues, params ...any) (*CompiledRoute, error) {
 	if len(params) != r.urlParamCount {
 		return nil, ErrInvalidArgCount(r.urlParamCount, len(params))
 	}

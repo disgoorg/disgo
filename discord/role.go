@@ -1,8 +1,9 @@
 package discord
 
 import (
-	"github.com/DisgoOrg/disgo/json"
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/disgo/rest/route"
+	"github.com/disgoorg/snowflake"
 )
 
 var _ Mentionable = (*Role)(nil)
@@ -10,7 +11,6 @@ var _ Mentionable = (*Role)(nil)
 // Role is a Guild Role object
 type Role struct {
 	ID          snowflake.Snowflake `json:"id"`
-	GuildID     snowflake.Snowflake `json:"guild_id"`
 	Name        string              `json:"name"`
 	Color       int                 `json:"color"`
 	Hoist       bool                `json:"hoist"`
@@ -24,11 +24,15 @@ type Role struct {
 }
 
 func (r Role) String() string {
-	return roleMention(r.ID)
+	return RoleMention(r.ID)
 }
 
 func (r Role) Mention() string {
 	return r.String()
+}
+
+func (r Role) IconURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.RoleIcon, opts, r.ID, r.Icon)
 }
 
 // RoleTag are tags a Role has
@@ -51,13 +55,13 @@ type RoleCreate struct {
 
 // RoleUpdate is the payload to update a Role
 type RoleUpdate struct {
-	Name        *string          `json:"name"`
-	Permissions *Permissions     `json:"permissions"`
-	Color       *int             `json:"color"`
-	Hoist       *bool            `json:"hoist"`
-	Icon        *NullIcon        `json:"icon,omitempty"`
-	Emoji       *json.NullString `json:"unicode_emoji,omitempty"`
-	Mentionable *bool            `json:"mentionable"`
+	Name        *string              `json:"name"`
+	Permissions *Permissions         `json:"permissions"`
+	Color       *int                 `json:"color"`
+	Hoist       *bool                `json:"hoist"`
+	Icon        *json.Nullable[Icon] `json:"icon,omitempty"`
+	Emoji       *string              `json:"unicode_emoji,omitempty"`
+	Mentionable *bool                `json:"mentionable"`
 }
 
 // RolePositionUpdate is the payload to update a Role(s) position

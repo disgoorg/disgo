@@ -6,13 +6,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/DisgoOrg/disgo/core/bot"
-	"github.com/DisgoOrg/disgo/core/events"
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/httpserver"
-	"github.com/DisgoOrg/disgo/info"
-	"github.com/DisgoOrg/log"
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo"
+	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/httpserver"
+	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake"
 	"github.com/oasisprotocol/curve25519-voi/primitives/ed25519"
 )
 
@@ -45,17 +45,17 @@ var (
 func main() {
 	log.SetLevel(log.LevelDebug)
 	log.Info("starting example...")
-	log.Info("disgo version: ", info.Version)
+	log.Info("disgo version: ", disgo.Version)
 
 	// use custom ed25519 verify implementation
 	httpserver.Verify = func(publicKey httpserver.PublicKey, message, sig []byte) bool {
 		return ed25519.Verify(publicKey, message, sig)
 	}
 
-	disgo, err := bot.New(token,
-		bot.WithHTTPServerOpts(
+	client, err := disgo.New(token,
+		bot.WithHTTPServerConfigOpts(
 			httpserver.WithURL("/interactions/callback"),
-			httpserver.WithPort(":80"),
+			httpserver.WithAddress(":80"),
 			httpserver.WithPublicKey(publicKey),
 		),
 		bot.WithEventListeners(&events.ListenerAdapter{
@@ -67,13 +67,13 @@ func main() {
 		return
 	}
 
-	defer disgo.Close(context.TODO())
+	defer client.Close(context.TODO())
 
-	if _, err = disgo.SetGuildCommands(guildID, commands); err != nil {
+	if _, err = client.Rest().ApplicationService().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
 		log.Fatal("error while registering commands: ", err)
 	}
 
-	if err = disgo.StartHTTPServer(); err != nil {
+	if err = client.StartHTTPServer(); err != nil {
 		log.Fatal("error while starting http server: ", err)
 	}
 
@@ -85,14 +85,14 @@ func main() {
 
 func commandListener(event *events.ApplicationCommandInteractionEvent) {
 	data := event.SlashCommandInteractionData()
-	if data.CommandName == "say" {
+	if data.CommandName() == "say" {
 		err := event.CreateMessage(discord.NewMessageCreateBuilder().
-			SetContent(*data.Options.String("message")).
-			SetEphemeral(*data.Options.Bool("ephemeral")).
+			SetContent(data.String("message")).
+			SetEphemeral(data.Bool("ephemeral")).
 			Build(),
 		)
 		if err != nil {
-			event.Bot().Logger.Error("error on sending response: ", err)
+			event.Client().Logger().Error("error on sending response: ", err)
 		}
 	}
 }

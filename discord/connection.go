@@ -1,6 +1,6 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import "github.com/disgoorg/snowflake"
 
 type Connection struct {
 	ID           snowflake.Snowflake `json:"id"`
@@ -16,7 +16,6 @@ type Connection struct {
 
 type ConnectionType string
 
-//goland:noinspection GoUnusedConst
 const (
 	ConnectionTypeYouTube   ConnectionType = "youtube"
 	ConnectionTypeBattleNet ConnectionType = "battlenet"
@@ -32,7 +31,6 @@ const (
 
 type VisibilityType int
 
-//goland:noinspection GoUnusedConst
 const (
 	VisibilityTypeNone VisibilityType = iota
 	VisibilityTypeEveryone

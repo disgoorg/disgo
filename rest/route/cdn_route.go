@@ -25,7 +25,6 @@ func NewCDNRoute(path string, supportedImageFormats ...ImageFormat) *CDNRoute {
 }
 
 // NewCustomCDNRoute generates a new custom cdn path struct
-//goland:noinspection GoUnusedExportedFunction
 func NewCustomCDNRoute(basePath string, path string, supportedImageFormats ...ImageFormat) *CDNRoute {
 	route := NewCDNRoute(path, supportedImageFormats...)
 	route.basePath = basePath
@@ -42,7 +41,7 @@ type CDNRoute struct {
 }
 
 // Compile builds a full request URL based on provided arguments
-func (r *CDNRoute) Compile(queryValues QueryValues, imageFormat ImageFormat, size int, params ...interface{}) (*CompiledCDNRoute, error) {
+func (r *CDNRoute) Compile(queryValues QueryValues, imageFormat ImageFormat, size int, params ...any) (*CompiledCDNRoute, error) {
 	supported := false
 	for _, supportedFileExtension := range r.supportedImageFormats {
 		if supportedFileExtension == imageFormat {
@@ -55,7 +54,9 @@ func (r *CDNRoute) Compile(queryValues QueryValues, imageFormat ImageFormat, siz
 	if queryValues == nil {
 		queryValues = QueryValues{}
 	}
-	queryValues["size"] = size
+	if size > 0 {
+		queryValues["size"] = size
+	}
 
 	path := r.path
 	for _, param := range params {

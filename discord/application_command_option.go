@@ -3,14 +3,13 @@ package discord
 import (
 	"fmt"
 
-	"github.com/DisgoOrg/disgo/json"
+	"github.com/disgoorg/disgo/json"
 )
 
 // ApplicationCommandOptionType specifies the type of the arguments used in ApplicationCommand.Options
 type ApplicationCommandOptionType int
 
 // Constants for each slash command option type
-//goland:noinspection GoUnusedConst
 const (
 	ApplicationCommandOptionTypeSubCommand ApplicationCommandOptionType = iota + 1
 	ApplicationCommandOptionTypeSubCommandGroup
@@ -120,9 +119,11 @@ func (u *UnmarshalApplicationCommandOption) UnmarshalJSON(data []byte) error {
 var _ ApplicationCommandOption = (*ApplicationCommandOptionSubCommand)(nil)
 
 type ApplicationCommandOptionSubCommand struct {
-	Name        string                     `json:"name"`
-	Description string                     `json:"description"`
-	Options     []ApplicationCommandOption `json:"options,omitempty"`
+	Name                     string                     `json:"name"`
+	NameLocalizations        map[Locale]string          `json:"name_localizations,omitempty"`
+	Description              string                     `json:"description"`
+	DescriptionLocalizations map[Locale]string          `json:"description_localizations,omitempty"`
+	Options                  []ApplicationCommandOption `json:"options,omitempty"`
 }
 
 func (o ApplicationCommandOptionSubCommand) MarshalJSON() ([]byte, error) {
@@ -166,9 +167,11 @@ func (ApplicationCommandOptionSubCommand) Type() ApplicationCommandOptionType {
 var _ ApplicationCommandOption = (*ApplicationCommandOptionSubCommandGroup)(nil)
 
 type ApplicationCommandOptionSubCommandGroup struct {
-	Name        string                               `json:"name"`
-	Description string                               `json:"description"`
-	Options     []ApplicationCommandOptionSubCommand `json:"options,omitempty"`
+	Name                     string                               `json:"name"`
+	NameLocalizations        map[Locale]string                    `json:"name_localizations,omitempty"`
+	Description              string                               `json:"description"`
+	DescriptionLocalizations map[Locale]string                    `json:"description_localizations,omitempty"`
+	Options                  []ApplicationCommandOptionSubCommand `json:"options,omitempty"`
 }
 
 func (o ApplicationCommandOptionSubCommandGroup) MarshalJSON() ([]byte, error) {
@@ -190,11 +193,13 @@ func (ApplicationCommandOptionSubCommandGroup) Type() ApplicationCommandOptionTy
 var _ ApplicationCommandOption = (*ApplicationCommandOptionString)(nil)
 
 type ApplicationCommandOptionString struct {
-	Name         string                                 `json:"name"`
-	Description  string                                 `json:"description"`
-	Required     bool                                   `json:"required,omitempty"`
-	Choices      []ApplicationCommandOptionChoiceString `json:"choices,omitempty"`
-	Autocomplete bool                                   `json:"autocomplete,omitempty"`
+	Name                     string                                 `json:"name"`
+	NameLocalizations        map[Locale]string                      `json:"name_localizations,omitempty"`
+	Description              string                                 `json:"description"`
+	DescriptionLocalizations map[Locale]string                      `json:"description_localizations,omitempty"`
+	Required                 bool                                   `json:"required,omitempty"`
+	Choices                  []ApplicationCommandOptionChoiceString `json:"choices,omitempty"`
+	Autocomplete             bool                                   `json:"autocomplete,omitempty"`
 }
 
 func (o ApplicationCommandOptionString) MarshalJSON() ([]byte, error) {
@@ -216,13 +221,15 @@ func (ApplicationCommandOptionString) Type() ApplicationCommandOptionType {
 var _ ApplicationCommandOption = (*ApplicationCommandOptionInt)(nil)
 
 type ApplicationCommandOptionInt struct {
-	Name         string                              `json:"name"`
-	Description  string                              `json:"description"`
-	Required     bool                                `json:"required,omitempty"`
-	Choices      []ApplicationCommandOptionChoiceInt `json:"choices,omitempty"`
-	Autocomplete bool                                `json:"autocomplete,omitempty"`
-	MinValue     *json.NullInt                       `json:"min_value,omitempty"`
-	MaxValue     *json.NullInt                       `json:"max_value,omitempty"`
+	Name                     string                              `json:"name"`
+	NameLocalizations        map[Locale]string                   `json:"name_localizations,omitempty"`
+	Description              string                              `json:"description"`
+	DescriptionLocalizations map[Locale]string                   `json:"description_localizations,omitempty"`
+	Required                 bool                                `json:"required,omitempty"`
+	Choices                  []ApplicationCommandOptionChoiceInt `json:"choices,omitempty"`
+	Autocomplete             bool                                `json:"autocomplete,omitempty"`
+	MinValue                 *int                                `json:"min_value,omitempty"`
+	MaxValue                 *int                                `json:"max_value,omitempty"`
 }
 
 func (o ApplicationCommandOptionInt) MarshalJSON() ([]byte, error) {
@@ -244,9 +251,11 @@ func (ApplicationCommandOptionInt) Type() ApplicationCommandOptionType {
 var _ ApplicationCommandOption = (*ApplicationCommandOptionBool)(nil)
 
 type ApplicationCommandOptionBool struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Required    bool   `json:"required,omitempty"`
+	Name                     string            `json:"name"`
+	NameLocalizations        map[Locale]string `json:"name_localizations,omitempty"`
+	Description              string            `json:"description"`
+	DescriptionLocalizations map[Locale]string `json:"description_localizations,omitempty"`
+	Required                 bool              `json:"required,omitempty"`
 }
 
 func (o ApplicationCommandOptionBool) MarshalJSON() ([]byte, error) {
@@ -268,9 +277,11 @@ func (ApplicationCommandOptionBool) Type() ApplicationCommandOptionType {
 var _ ApplicationCommandOption = (*ApplicationCommandOptionUser)(nil)
 
 type ApplicationCommandOptionUser struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Required    bool   `json:"required,omitempty"`
+	Name                     string            `json:"name"`
+	NameLocalizations        map[Locale]string `json:"name_localizations,omitempty"`
+	Description              string            `json:"description"`
+	DescriptionLocalizations map[Locale]string `json:"description_localizations,omitempty"`
+	Required                 bool              `json:"required,omitempty"`
 }
 
 func (o ApplicationCommandOptionUser) MarshalJSON() ([]byte, error) {
@@ -292,10 +303,12 @@ func (ApplicationCommandOptionUser) Type() ApplicationCommandOptionType {
 var _ ApplicationCommandOption = (*ApplicationCommandOptionChannel)(nil)
 
 type ApplicationCommandOptionChannel struct {
-	Name         string        `json:"name"`
-	Description  string        `json:"description"`
-	Required     bool          `json:"required,omitempty"`
-	ChannelTypes []ChannelType `json:"channel_types,omitempty"`
+	Name                     string            `json:"name"`
+	NameLocalizations        map[Locale]string `json:"name_localizations,omitempty"`
+	Description              string            `json:"description"`
+	DescriptionLocalizations map[Locale]string `json:"description_localizations,omitempty"`
+	Required                 bool              `json:"required,omitempty"`
+	ChannelTypes             []ChannelType     `json:"channel_types,omitempty"`
 }
 
 func (o ApplicationCommandOptionChannel) MarshalJSON() ([]byte, error) {
@@ -317,9 +330,11 @@ func (ApplicationCommandOptionChannel) Type() ApplicationCommandOptionType {
 var _ ApplicationCommandOption = (*ApplicationCommandOptionRole)(nil)
 
 type ApplicationCommandOptionRole struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Required    bool   `json:"required,omitempty"`
+	Name                     string            `json:"name"`
+	NameLocalizations        map[Locale]string `json:"name_localizations,omitempty"`
+	Description              string            `json:"description"`
+	DescriptionLocalizations map[Locale]string `json:"description_localizations,omitempty"`
+	Required                 bool              `json:"required,omitempty"`
 }
 
 func (o ApplicationCommandOptionRole) MarshalJSON() ([]byte, error) {
@@ -341,9 +356,11 @@ func (ApplicationCommandOptionRole) Type() ApplicationCommandOptionType {
 var _ ApplicationCommandOption = (*ApplicationCommandOptionMentionable)(nil)
 
 type ApplicationCommandOptionMentionable struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Required    bool   `json:"required,omitempty"`
+	Name                     string            `json:"name"`
+	NameLocalizations        map[Locale]string `json:"name_localizations,omitempty"`
+	Description              string            `json:"description"`
+	DescriptionLocalizations map[Locale]string `json:"description_localizations,omitempty"`
+	Required                 bool              `json:"required,omitempty"`
 }
 
 func (o ApplicationCommandOptionMentionable) MarshalJSON() ([]byte, error) {
@@ -365,13 +382,15 @@ func (ApplicationCommandOptionMentionable) Type() ApplicationCommandOptionType {
 var _ ApplicationCommandOption = (*ApplicationCommandOptionFloat)(nil)
 
 type ApplicationCommandOptionFloat struct {
-	Name         string                                `json:"name"`
-	Description  string                                `json:"description"`
-	Required     bool                                  `json:"required,omitempty"`
-	Choices      []ApplicationCommandOptionChoiceFloat `json:"choices,omitempty"`
-	Autocomplete bool                                  `json:"autocomplete,omitempty"`
-	MinValue     *json.NullFloat                       `json:"min_value,omitempty"`
-	MaxValue     *json.NullFloat                       `json:"max_value,omitempty"`
+	Name                     string                                `json:"name"`
+	NameLocalizations        map[Locale]string                     `json:"name_localizations,omitempty"`
+	Description              string                                `json:"description"`
+	DescriptionLocalizations map[Locale]string                     `json:"description_localizations,omitempty"`
+	Required                 bool                                  `json:"required,omitempty"`
+	Choices                  []ApplicationCommandOptionChoiceFloat `json:"choices,omitempty"`
+	Autocomplete             bool                                  `json:"autocomplete,omitempty"`
+	MinValue                 *float64                              `json:"min_value,omitempty"`
+	MaxValue                 *float64                              `json:"max_value,omitempty"`
 }
 
 func (o ApplicationCommandOptionFloat) MarshalJSON() ([]byte, error) {
@@ -397,8 +416,9 @@ type ApplicationCommandOptionChoice interface {
 var _ ApplicationCommandOptionChoice = (*ApplicationCommandOptionChoiceInt)(nil)
 
 type ApplicationCommandOptionChoiceInt struct {
-	Name  string `json:"name"`
-	Value int    `json:"value"`
+	Name              string            `json:"name"`
+	NameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
+	Value             int               `json:"value"`
 }
 
 func (ApplicationCommandOptionChoiceInt) applicationCommandOptionChoice() {}
@@ -406,8 +426,9 @@ func (ApplicationCommandOptionChoiceInt) applicationCommandOptionChoice() {}
 var _ ApplicationCommandOptionChoice = (*ApplicationCommandOptionChoiceString)(nil)
 
 type ApplicationCommandOptionChoiceString struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Name              string            `json:"name"`
+	NameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
+	Value             string            `json:"value"`
 }
 
 func (ApplicationCommandOptionChoiceString) applicationCommandOptionChoice() {}
@@ -415,16 +436,19 @@ func (ApplicationCommandOptionChoiceString) applicationCommandOptionChoice() {}
 var _ ApplicationCommandOptionChoice = (*ApplicationCommandOptionChoiceInt)(nil)
 
 type ApplicationCommandOptionChoiceFloat struct {
-	Name  string  `json:"name"`
-	Value float64 `json:"value"`
+	Name              string            `json:"name"`
+	NameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
+	Value             float64           `json:"value"`
 }
 
 func (ApplicationCommandOptionChoiceFloat) applicationCommandOptionChoice() {}
 
 type ApplicationCommandOptionAttachment struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Required    bool   `json:"required,omitempty"`
+	Name                     string            `json:"name"`
+	NameLocalizations        map[Locale]string `json:"name_localizations,omitempty"`
+	Description              string            `json:"description"`
+	DescriptionLocalizations map[Locale]string `json:"description_localizations,omitempty"`
+	Required                 bool              `json:"required,omitempty"`
 }
 
 func (o ApplicationCommandOptionAttachment) MarshalJSON() ([]byte, error) {

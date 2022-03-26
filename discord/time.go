@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/DisgoOrg/disgo/json"
+	"github.com/disgoorg/disgo/json"
 )
 
 const TimeFormat = "2006-01-02T15:04:05+00:00"

@@ -1,8 +1,9 @@
 package discord
 
 import (
-	"github.com/DisgoOrg/disgo/json"
-	"github.com/pkg/errors"
+	"fmt"
+
+	"github.com/disgoorg/disgo/json"
 )
 
 type ErrorCode int
@@ -22,7 +23,7 @@ func (e *APIError) UnmarshalJSON(data []byte) error {
 		Errors  json.RawMessage `json:"errors"`
 	}
 	if err := json.Unmarshal(data, &v); err != nil {
-		return errors.Wrap(err, "error unmarshalling discord error")
+		return fmt.Errorf("error unmarshalling discord error: %w", err)
 	}
 
 	e.Code = v.Code

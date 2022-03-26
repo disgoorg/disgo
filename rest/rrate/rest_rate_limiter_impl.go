@@ -8,21 +8,18 @@ import (
 	"sync"
 	"time"
 
-	"github.com/DisgoOrg/disgo/rest/route"
-	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/disgo/rest/route"
+	"github.com/disgoorg/log"
 	"github.com/sasha-s/go-csync"
 )
 
 // TODO: do we need some cleanup task?
 
 // NewLimiter return a new default implementation of a rest rate limiter
-func NewLimiter(config *Config) Limiter {
-	if config == nil {
-		config = &DefaultConfig
-	}
-	if config.Logger == nil {
-		config.Logger = log.Default()
-	}
+func NewLimiter(opts ...ConfigOpt) Limiter {
+	config := DefaultConfig()
+	config.Apply(opts)
+
 	return &limiterImpl{
 		config:  *config,
 		hashes:  map[*route.APIRoute]routeHash{},
@@ -53,8 +50,8 @@ func (l *limiterImpl) Logger() log.Logger {
 	return l.config.Logger
 }
 
-func (l *limiterImpl) Config() Config {
-	return l.config
+func (l *limiterImpl) MaxRetries() int {
+	return l.config.MaxRetries
 }
 
 func (l *limiterImpl) Close(ctx context.Context) {

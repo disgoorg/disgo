@@ -3,7 +3,7 @@ package oauth2
 import (
 	"time"
 
-	"github.com/DisgoOrg/disgo/discord"
+	"github.com/disgoorg/disgo/discord"
 )
 
 var _ Session = (*sessionImpl)(nil)

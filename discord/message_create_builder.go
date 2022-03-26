@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/snowflake"
 )
 
 // MessageCreateBuilder helper to build Message(s) easier
@@ -13,7 +13,6 @@ type MessageCreateBuilder struct {
 }
 
 // NewMessageCreateBuilder creates a new MessageCreateBuilder to be built later
-//goland:noinspection GoUnusedExportedFunction
 func NewMessageCreateBuilder() *MessageCreateBuilder {
 	return &MessageCreateBuilder{
 		MessageCreate: MessageCreate{
@@ -29,7 +28,7 @@ func (b *MessageCreateBuilder) SetContent(content string) *MessageCreateBuilder 
 }
 
 // SetContentf sets the content of the Message but with format
-func (b *MessageCreateBuilder) SetContentf(content string, a ...interface{}) *MessageCreateBuilder {
+func (b *MessageCreateBuilder) SetContentf(content string, a ...any) *MessageCreateBuilder {
 	return b.SetContent(fmt.Sprintf(content, a...))
 }
 
@@ -152,8 +151,8 @@ func (b *MessageCreateBuilder) AddFiles(files ...*File) *MessageCreateBuilder {
 }
 
 // AddFile adds a discord.File to the discord.MessageCreate
-func (b *MessageCreateBuilder) AddFile(name string, reader io.Reader, flags ...FileFlags) *MessageCreateBuilder {
-	b.Files = append(b.Files, NewFile(name, reader, flags...))
+func (b *MessageCreateBuilder) AddFile(name string, description string, reader io.Reader, flags ...FileFlags) *MessageCreateBuilder {
+	b.Files = append(b.Files, NewFile(name, description, reader, flags...))
 	return b
 }
 

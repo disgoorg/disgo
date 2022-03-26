@@ -1,11 +1,10 @@
 package discord
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 // ErrNoTimestampMatch is returned when no valid Timestamp is found in the Message
@@ -14,7 +13,6 @@ var ErrNoTimestampMatch = errors.New("no matching timestamp found in string")
 // TimestampStyle is used to determine how to display the Timestamp for the User in the client
 type TimestampStyle string
 
-//goland:noinspection GoUnusedConst
 const (
 	// TimestampStyleNone formats as default
 	TimestampStyleNone TimestampStyle = ""
@@ -49,9 +47,9 @@ func (f TimestampStyle) FormatTime(time time.Time) string {
 // Format returns the seconds formatted as markdown string
 func (f TimestampStyle) Format(seconds int64) string {
 	if f == TimestampStyleNone {
-		return timestampMention(seconds)
+		return TimestampMention(seconds)
 	}
-	return formattedTimestampMention(seconds, f)
+	return FormattedTimestampMention(seconds, f)
 }
 
 // ParseTimestamps parses all Timestamp(s) found in the provided string
@@ -77,7 +75,6 @@ func ParseTimestamps(str string, n int) ([]Timestamp, error) {
 }
 
 // ParseTimestamp parses the first Timestamp found in the provided string
-//goland:noinspection GoUnusedExportedFunction
 func ParseTimestamp(str string) (*Timestamp, error) {
 	timestamps, err := ParseTimestamps(str, 1)
 	if err != nil {

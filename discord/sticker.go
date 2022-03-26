@@ -1,8 +1,8 @@
 package discord
 
 import (
-	"github.com/DisgoOrg/disgo/json"
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/rest/route"
+	"github.com/disgoorg/snowflake"
 )
 
 // Sticker is a sticker sent with a Message
@@ -10,7 +10,7 @@ type Sticker struct {
 	ID          snowflake.Snowflake  `json:"id"`
 	PackID      *snowflake.Snowflake `json:"pack_id"`
 	Name        string               `json:"name"`
-	Description *string              `json:"description"`
+	Description string               `json:"description"`
 	Tags        string               `json:"tags"`
 	Type        StickerType          `json:"type"`
 	FormatType  StickerFormatType    `json:"format_type"`
@@ -20,9 +20,19 @@ type Sticker struct {
 	SortValue   *int                 `json:"sort_value"`
 }
 
+func (s Sticker) URL(opts ...CDNOpt) string {
+	format := route.PNG
+	if s.FormatType == StickerFormatTypeLottie {
+		format = route.Lottie
+	}
+	if avatar := formatAssetURL(route.CustomSticker, append(opts, WithFormat(format)), s.ID); avatar != nil {
+		return *avatar
+	}
+	return ""
+}
+
 type StickerType int
 
-//goland:noinspection GoUnusedConst
 const (
 	StickerTypeStandard StickerType = iota + 1
 	StickerTypeGuild
@@ -32,7 +42,6 @@ const (
 type StickerFormatType int
 
 // Constants for StickerFormatType
-//goland:noinspection GoUnusedConst
 const (
 	StickerFormatTypePNG StickerFormatType = iota + 1
 	StickerFormatTypeAPNG
@@ -47,7 +56,7 @@ type StickerCreate struct {
 }
 
 // ToBody returns the MessageCreate ready for body
-func (c *StickerCreate) ToBody() (interface{}, error) {
+func (c *StickerCreate) ToBody() (any, error) {
 	if c.File != nil {
 		return PayloadWithFiles(c, c.File)
 	}
@@ -55,7 +64,25 @@ func (c *StickerCreate) ToBody() (interface{}, error) {
 }
 
 type StickerUpdate struct {
-	Name        *string          `json:"name,omitempty"`
-	Description *json.NullString `json:"description,omitempty"`
-	Tags        *string          `json:"tags,omitempty"`
+	Name        *string `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Tags        *string `json:"tags,omitempty"`
+}
+
+type StickerPack struct {
+	ID             snowflake.Snowflake `json:"id"`
+	Stickers       []Sticker           `json:"stickers"`
+	Name           string              `json:"name"`
+	SkuID          snowflake.Snowflake `json:"sku_id"`
+	CoverStickerID snowflake.Snowflake `json:"cover_sticker_id"`
+	Description    string              `json:"description"`
+	BannerAssetID  snowflake.Snowflake `json:"banner_asset_id"`
+}
+
+func (p StickerPack) BannerURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.StickerPackBanner, opts, p.BannerAssetID)
+}
+
+type StickerPacks struct {
+	StickerPacks []StickerPack `json:"sticker_packs"`
 }

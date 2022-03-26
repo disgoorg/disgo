@@ -1,25 +1,25 @@
 package webhook
 
 import (
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/rest"
-	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/rest"
+	"github.com/disgoorg/log"
 )
 
 // DefaultConfig is the default configuration for the webhook client
-//goland:noinspection GoUnusedGlobalVariable
-var DefaultConfig = Config{
-	RestClientConfig:       &rest.DefaultConfig,
-	DefaultAllowedMentions: &discord.DefaultAllowedMentions,
+func DefaultConfig() *Config {
+	return &Config{
+		Logger:                 log.Default(),
+		DefaultAllowedMentions: &discord.DefaultAllowedMentions,
+	}
 }
 
 // Config is the configuration for the webhook client
 type Config struct {
 	Logger                 log.Logger
 	RestClient             rest.Client
-	RestClientConfig       *rest.Config
-	WebhookService         rest.WebhookService
-	EntityBuilder          EntityBuilder
+	RestClientConfigOpts   []rest.ConfigOpt
+	Webhooks               rest.Webhooks
 	DefaultAllowedMentions *discord.AllowedMentions
 }
 
@@ -31,10 +31,15 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
+	if c.RestClient == nil {
+		c.RestClient = rest.NewClient("", c.RestClientConfigOpts...)
+	}
+	if c.Webhooks == nil {
+		c.Webhooks = rest.NewWebhooks(c.RestClient)
+	}
 }
 
 // WithLogger sets the logger for the webhook client
-//goland:noinspection GoUnusedExportedFunction
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
@@ -42,50 +47,27 @@ func WithLogger(logger log.Logger) ConfigOpt {
 }
 
 // WithRestClient sets the rest client for the webhook client
-//goland:noinspection GoUnusedExportedFunction
 func WithRestClient(restClient rest.Client) ConfigOpt {
 	return func(config *Config) {
 		config.RestClient = restClient
 	}
 }
 
-// WithRestClientConfig sets the rest client configuration for the webhook client
-//goland:noinspection GoUnusedExportedFunction
-func WithRestClientConfig(restConfig rest.Config) ConfigOpt {
-	return func(config *Config) {
-		config.RestClientConfig = &restConfig
-	}
-}
-
 // WithRestClientConfigOpts sets the rest client configuration for the webhook client
-//goland:noinspection GoUnusedExportedFunction
 func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
-		if config.RestClientConfig == nil {
-			config.RestClientConfig = &rest.DefaultConfig
-		}
-		config.RestClientConfig.Apply(opts)
+		config.RestClientConfigOpts = append(config.RestClientConfigOpts, opts...)
 	}
 }
 
-// WithWebhookService sets the webhook service for the webhook client
-//goland:noinspection GoUnusedExportedFunction
-func WithWebhookService(webhookService rest.WebhookService) ConfigOpt {
+// WithWebhooks sets the webhook service for the webhook client
+func WithWebhooks(webhooks rest.Webhooks) ConfigOpt {
 	return func(config *Config) {
-		config.WebhookService = webhookService
-	}
-}
-
-// WithEntityBuilder sets the entity builder for the webhook client
-//goland:noinspection GoUnusedExportedFunction
-func WithEntityBuilder(entityBuilder EntityBuilder) ConfigOpt {
-	return func(config *Config) {
-		config.EntityBuilder = entityBuilder
+		config.Webhooks = webhooks
 	}
 }
 
 // WithDefaultAllowedMentions sets the default allowed mentions for the webhook client
-//goland:noinspection GoUnusedExportedFunction
 func WithDefaultAllowedMentions(allowedMentions discord.AllowedMentions) ConfigOpt {
 	return func(config *Config) {
 		config.DefaultAllowedMentions = &allowedMentions

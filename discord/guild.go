@@ -1,15 +1,15 @@
 package discord
 
 import (
-	"github.com/DisgoOrg/disgo/json"
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/disgo/rest/route"
+	"github.com/disgoorg/snowflake"
 )
 
 // PremiumTier tells you the boost level of a Guild
 type PremiumTier int
 
 // Constants for PremiumTier
-//goland:noinspection GoUnusedConst
 const (
 	PremiumTierNone PremiumTier = iota
 	PremiumTier1
@@ -21,7 +21,6 @@ const (
 type SystemChannelFlags int
 
 // Constants for SystemChannelFlags
-//goland:noinspection GoUnusedConst
 const (
 	SystemChannelFlagSuppressJoinNotifications SystemChannelFlags = 1 << iota
 	SystemChannelFlagSuppressPremiumSubscriptions
@@ -31,7 +30,6 @@ const (
 type VerificationLevel int
 
 // Constants for VerificationLevel
-//goland:noinspection GoUnusedConst
 const (
 	VerificationLevelNone VerificationLevel = iota
 	VerificationLevelLow
@@ -44,7 +42,6 @@ const (
 type MessageNotificationsLevel int
 
 // Constants for MessageNotificationsLevel
-//goland:noinspection GoUnusedConst
 const (
 	MessageNotificationsLevelAllMessages MessageNotificationsLevel = iota
 	MessageNotificationsLevelOnlyMentions
@@ -54,7 +51,6 @@ const (
 type ExplicitContentFilterLevel int
 
 // Constants for ExplicitContentFilterLevel
-//goland:noinspection GoUnusedConst
 const (
 	ExplicitContentFilterLevelDisabled ExplicitContentFilterLevel = iota
 	ExplicitContentFilterLevelMembersWithoutRoles
@@ -65,7 +61,6 @@ const (
 type MFALevel int
 
 // Constants for MFALevel
-//goland:noinspection GoUnusedConst
 const (
 	MFALevelNone MFALevel = iota
 	MFALevelElevated
@@ -75,7 +70,6 @@ const (
 type GuildFeature string
 
 // Constants for GuildFeature
-//goland:noinspection GoUnusedConst
 const (
 	GuildFeatureAnimatedIcon                  GuildFeature = "ANIMATED_ICON"
 	GuildFeatureBanner                        GuildFeature = "BANNER"
@@ -146,6 +140,22 @@ type Guild struct {
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
 }
 
+func (g Guild) IconURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.GuildIcon, opts, g.ID, g.Icon)
+}
+
+func (g Guild) SplashURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.GuildSplash, opts, g.ID, g.Splash)
+}
+
+func (g Guild) DiscoverySplashURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.GuildDiscoverySplash, opts, g.ID, g.DiscoverySplash)
+}
+
+func (g Guild) BannerURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.GuildBanner, opts, g.ID, g.Banner)
+}
+
 type GatewayGuild struct {
 	Guild
 	Large                bool                  `json:"large"`
@@ -163,7 +173,6 @@ func (g *GatewayGuild) UnmarshalJSON(data []byte) error {
 	type gatewayGuild GatewayGuild
 	var v struct {
 		Channels []UnmarshalChannel `json:"channels"`
-		Threads  []UnmarshalChannel `json:"threads"`
 		gatewayGuild
 	}
 	if err := json.Unmarshal(data, &v); err != nil {
@@ -175,11 +184,6 @@ func (g *GatewayGuild) UnmarshalJSON(data []byte) error {
 	g.Channels = make([]GuildChannel, len(v.Channels))
 	for i := range v.Channels {
 		g.Channels[i] = v.Channels[i].Channel.(GuildChannel)
-	}
-
-	g.Threads = make([]GuildThread, len(v.Threads))
-	for i := range v.Threads {
-		g.Threads[i] = v.Threads[i].Channel.(GuildThread)
 	}
 
 	return nil
@@ -251,11 +255,11 @@ type GuildUpdate struct {
 	ExplicitContentFilterLevel      *ExplicitContentFilterLevel `json:"explicit_content_filter_level,omitempty"`
 	AFKChannelID                    *snowflake.Snowflake        `json:"afk_channel_id,omitempty"`
 	AFKTimeout                      *int                        `json:"afk_timeout,omitempty"`
-	Icon                            *NullIcon                   `json:"icon,omitempty"`
+	Icon                            *json.Nullable[Icon]        `json:"icon,omitempty"`
 	OwnerID                         *snowflake.Snowflake        `json:"owner_id,omitempty"`
-	Splash                          *NullIcon                   `json:"splash,omitempty"`
-	DiscoverySplash                 *NullIcon                   `json:"discovery_splash,omitempty"`
-	Banner                          *NullIcon                   `json:"banner,omitempty"`
+	Splash                          *json.Nullable[Icon]        `json:"splash,omitempty"`
+	DiscoverySplash                 *json.Nullable[Icon]        `json:"discovery_splash,omitempty"`
+	Banner                          *json.Nullable[Icon]        `json:"banner,omitempty"`
 	SystemChannelID                 *snowflake.Snowflake        `json:"system_channel_id,omitempty"`
 	SystemChannelFlags              *SystemChannelFlags         `json:"system_channel_flags,omitempty"`
 	RulesChannelID                  *snowflake.Snowflake        `json:"rules_channel_id,omitempty"`
@@ -268,7 +272,6 @@ type GuildUpdate struct {
 
 type NSFWLevel int
 
-//goland:noinspection GoUnusedConst
 const (
 	NSFWLevelDefault NSFWLevel = iota
 	NSFWLevelExplicit
