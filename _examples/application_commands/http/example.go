@@ -69,7 +69,7 @@ func main() {
 
 	defer client.Close(context.TODO())
 
-	if _, err = client.Rest().ApplicationService().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
+	if _, err = client.Rest().Applications().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
 		log.Fatal("error while registering commands: ", err)
 	}
 

@@ -7,11 +7,12 @@ import (
 )
 
 func DefaultConfig() *Config {
+	mux := http.NewServeMux()
 	return &Config{
 		URL:        "/interactions/callback",
 		Address:    ":80",
-		HTTPServer: &http.Server{},
-		ServeMux:   http.NewServeMux(),
+		HTTPServer: &http.Server{Handler: mux},
+		ServeMux:   mux,
 	}
 }
 
