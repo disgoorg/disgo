@@ -50,7 +50,10 @@ func (m Member) EffectiveAvatarURL(opts ...CDNOpt) string {
 }
 
 func (m Member) AvatarURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.MemberAvatar, opts, m.User.ID, m.Avatar)
+	if m.Avatar == nil {
+		return nil
+	}
+	return formatAssetURL(route.MemberAvatar, opts, m.User.ID, *m.Avatar)
 }
 
 // MemberAdd is used to add a member via the oauth2 access token to a guild

@@ -25,8 +25,8 @@ func (s Sticker) URL(opts ...CDNOpt) string {
 	if s.FormatType == StickerFormatTypeLottie {
 		format = route.Lottie
 	}
-	if avatar := formatAssetURL(route.CustomSticker, append(opts, WithFormat(format)), s.ID); avatar != nil {
-		return *avatar
+	if url := formatAssetURL(route.CustomSticker, append(opts, WithFormat(format)), s.ID); url != nil {
+		return *url
 	}
 	return ""
 }

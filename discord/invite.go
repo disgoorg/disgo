@@ -55,7 +55,10 @@ type InviteChannel struct {
 // IconURL returns the Icon URL of this channel.
 // This will be nil for every ChannelType except ChannelTypeGroupDM
 func (c InviteChannel) IconURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.ChannelIcon, opts, c.ID, c.Icon)
+	if c.Icon == nil {
+		return nil
+	}
+	return formatAssetURL(route.ChannelIcon, opts, c.ID, *c.Icon)
 }
 
 // An InviteGuild is the Guild of an Invite

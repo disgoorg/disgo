@@ -33,11 +33,17 @@ type Application struct {
 }
 
 func (a Application) IconURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.ApplicationIcon, opts, a.ID, a.Icon)
+	if a.Icon == nil {
+		return nil
+	}
+	return formatAssetURL(route.ApplicationIcon, opts, a.ID, *a.Icon)
 }
 
 func (a Application) CoverURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.ApplicationCover, opts, a.ID, a.Cover)
+	if a.Cover == nil {
+		return nil
+	}
+	return formatAssetURL(route.ApplicationCover, opts, a.ID, *a.Cover)
 }
 
 type PartialApplication struct {
@@ -192,7 +198,10 @@ type Team struct {
 }
 
 func (t Team) IconURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.TeamIcon, opts, t.ID, t.Icon)
+	if t.Icon == nil {
+		return nil
+	}
+	return formatAssetURL(route.TeamIcon, opts, t.ID, *t.Icon)
 }
 
 type TeamMember struct {

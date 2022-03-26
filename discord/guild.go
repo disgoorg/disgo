@@ -141,19 +141,31 @@ type Guild struct {
 }
 
 func (g Guild) IconURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.GuildIcon, opts, g.ID, g.Icon)
+	if g.Icon == nil {
+		return nil
+	}
+	return formatAssetURL(route.GuildIcon, opts, g.ID, *g.Icon)
 }
 
 func (g Guild) SplashURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.GuildSplash, opts, g.ID, g.Splash)
+	if g.Splash == nil {
+		return nil
+	}
+	return formatAssetURL(route.GuildSplash, opts, g.ID, *g.Splash)
 }
 
 func (g Guild) DiscoverySplashURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.GuildDiscoverySplash, opts, g.ID, g.DiscoverySplash)
+	if g.DiscoverySplash == nil {
+		return nil
+	}
+	return formatAssetURL(route.GuildDiscoverySplash, opts, g.ID, *g.DiscoverySplash)
 }
 
 func (g Guild) BannerURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.GuildBanner, opts, g.ID, g.Banner)
+	if g.Banner == nil {
+		return nil
+	}
+	return formatAssetURL(route.GuildBanner, opts, g.ID, *g.Banner)
 }
 
 type GatewayGuild struct {

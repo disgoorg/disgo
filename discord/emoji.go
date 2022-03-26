@@ -33,8 +33,8 @@ func (e Emoji) String() string {
 }
 
 func (e Emoji) URL(opts ...CDNOpt) string {
-	if avatar := formatAssetURL(route.CustomEmoji, opts, e.ID); avatar != nil {
-		return *avatar
+	if url := formatAssetURL(route.CustomEmoji, opts, e.ID); url != nil {
+		return *url
 	}
 	return ""
 }
