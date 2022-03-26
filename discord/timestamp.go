@@ -1,11 +1,10 @@
 package discord
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 // ErrNoTimestampMatch is returned when no valid Timestamp is found in the Message

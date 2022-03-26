@@ -15,7 +15,6 @@ import (
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/log"
-	"github.com/pkg/errors"
 
 	"github.com/gorilla/websocket"
 )
@@ -175,7 +174,7 @@ func (g *gatewayImpl) ReOpen(ctx context.Context, delay time.Duration) error {
 
 func (g *gatewayImpl) reOpen(ctx context.Context, try int, delay time.Duration) error {
 	if try >= g.config.MaxReconnectTries-1 {
-		return errors.Errorf("failed to reconnect. exceeded max reconnect tries of %d reached", g.config.MaxReconnectTries)
+		return fmt.Errorf("failed to reconnect. exceeded max reconnect tries of %d reached", g.config.MaxReconnectTries)
 	}
 	timer := time.NewTimer(time.Duration(try) * delay)
 	defer timer.Stop()
@@ -388,7 +387,7 @@ func (g *gatewayImpl) parseGatewayMessage(mt int, reader io.Reader) (*discord.Ga
 		g.Logger().Trace(g.formatLogs("binary message received. decompressing..."))
 		readCloser, err := zlib.NewReader(reader)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to decompress zlib")
+			return nil, fmt.Errorf("failed to decompress zlib: %w", err)
 		}
 		finalReadCloser = readCloser
 	} else {

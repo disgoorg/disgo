@@ -1,9 +1,10 @@
 package discord
 
 import (
+	"errors"
+
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/snowflake"
-	"github.com/pkg/errors"
 )
 
 // GatewayMessage raw GatewayMessage type

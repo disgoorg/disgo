@@ -11,7 +11,6 @@ import (
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/sharding"
 	"github.com/disgoorg/log"
-	"github.com/pkg/errors"
 )
 
 func DefaultConfig(gatewayHandlers map[discord.GatewayEventType]GatewayEventHandler, httpHandler HTTPServerEventHandler) *Config {
@@ -166,7 +165,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 	}
 	id, err := tokenhelper.IDFromToken(token)
 	if err != nil {
-		return nil, errors.Wrap(err, "error while getting application id from token")
+		return nil, fmt.Errorf("error while getting application id from token: %w", err)
 	}
 	client := &clientImpl{
 		token:  token,

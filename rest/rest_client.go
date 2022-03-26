@@ -3,13 +3,13 @@ package rest
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"time"
 
 	"github.com/disgoorg/disgo/json"
-	"github.com/pkg/errors"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest/route"
@@ -84,7 +84,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 		default:
 			contentType = "application/json"
 			if rawRqBody, err = json.Marshal(rqBody); err != nil {
-				return errors.Wrap(err, "failed to marshal request body")
+				return fmt.Errorf("failed to marshal request body: %w", err)
 			}
 		}
 		c.Logger().Tracef("request to %s, body: %s", rqURL, string(rawRqBody))
@@ -126,7 +126,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 	// wait for rate limits
 	err = c.RateLimiter().WaitBucket(config.Ctx, cRoute)
 	if err != nil {
-		return errors.Wrap(err, "error locking bucket in rest client")
+		return fmt.Errorf("error locking bucket in rest client: %w", err)
 	}
 	rq = rq.WithContext(config.Ctx)
 
@@ -139,18 +139,18 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 
 	rs, err := c.HTTPClient().Do(config.Request)
 	if err != nil {
-		return errors.Wrap(err, "error doing request in rest client")
+		return fmt.Errorf("error doing request in rest client: %w", err)
 	}
 
 	if err = c.RateLimiter().UnlockBucket(cRoute, rs.Header); err != nil {
 		// TODO: should we maybe retry here?
-		return errors.Wrap(err, "error unlocking bucket in rest client")
+		return fmt.Errorf("error unlocking bucket in rest client: %w", err)
 	}
 
 	var rawRsBody []byte
 	if rs.Body != nil {
 		if rawRsBody, err = ioutil.ReadAll(rs.Body); err != nil {
-			return errors.Wrap(err, "error reading response body in rest client")
+			return fmt.Errorf("error reading response body in rest client: %w", err)
 		}
 		c.Logger().Tracef("response from %s, code %d, body: %s", rqURL, rs.StatusCode, string(rawRsBody))
 	}
@@ -159,7 +159,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 	case http.StatusOK, http.StatusCreated, http.StatusNoContent:
 		if rsBody != nil && rs.Body != nil {
 			if err = json.Unmarshal(rawRsBody, rsBody); err != nil {
-				wErr := errors.Wrap(err, "error unmarshalling response body")
+				wErr := fmt.Errorf("error unmarshalling response body: %w", err)
 				c.Logger().Error(wErr)
 				return NewErrorErr(rq, rawRqBody, rs, rawRsBody, wErr)
 			}
@@ -178,7 +178,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 	default:
 		var v discord.APIError
 		if err = json.Unmarshal(rawRsBody, &v); err != nil {
-			return errors.Wrap(err, "error unmarshalling error response body")
+			return fmt.Errorf("error unmarshalling error response body: %w", err)
 		}
 		return NewErrorAPIErr(rq, rawRqBody, rs, rawRsBody, v)
 	}
