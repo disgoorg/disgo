@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/disgoorg/disgo/gateway"
-	srate2 "github.com/disgoorg/disgo/sharding/srate"
+	"github.com/disgoorg/disgo/sharding/srate"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake"
 )
@@ -40,7 +40,7 @@ func (m *shardManagerImpl) Logger() log.Logger {
 	return m.config.Logger
 }
 
-func (m *shardManagerImpl) RateLimiter() srate2.Limiter {
+func (m *shardManagerImpl) RateLimiter() srate.Limiter {
 	return m.config.RateLimiter
 }
 
