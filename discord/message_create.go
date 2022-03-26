@@ -1,6 +1,8 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import (
+	"github.com/disgoorg/snowflake"
+)
 
 // MessageCreate is the struct to create a new Message with
 type MessageCreate struct {
@@ -11,6 +13,7 @@ type MessageCreate struct {
 	Components       []ContainerComponent  `json:"components,omitempty"`
 	StickerIDs       []snowflake.Snowflake `json:"sticker_ids,omitempty"`
 	Files            []*File               `json:"-"`
+	Attachments      []AttachmentCreate    `json:"attachments,omitempty"`
 	AllowedMentions  *AllowedMentions      `json:"allowed_mentions,omitempty"`
 	MessageReference *MessageReference     `json:"message_reference,omitempty"`
 	Flags            MessageFlags          `json:"flags,omitempty"`
@@ -19,15 +22,17 @@ type MessageCreate struct {
 func (MessageCreate) interactionCallbackData() {}
 
 // ToBody returns the MessageCreate ready for body
-func (m MessageCreate) ToBody() (interface{}, error) {
+func (m MessageCreate) ToBody() (any, error) {
 	if len(m.Files) > 0 {
+		m.Attachments = parseAttachments(m.Files)
 		return PayloadWithFiles(m, m.Files...)
 	}
 	return m, nil
 }
 
-func (m MessageCreate) ToResponseBody(response InteractionResponse) (interface{}, error) {
+func (m MessageCreate) ToResponseBody(response InteractionResponse) (any, error) {
 	if len(m.Files) > 0 {
+		m.Attachments = parseAttachments(m.Files)
 		return PayloadWithFiles(response, m.Files...)
 	}
 	return response, nil

@@ -7,56 +7,37 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"time"
 
-	"github.com/DisgoOrg/disgo/json"
+	"github.com/disgoorg/disgo/json"
 
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/log"
 )
 
 var _ Server = (*serverImpl)(nil)
 
-func New(eventHandlerFunc EventHandlerFunc, config *Config) Server {
-	if config == nil {
-		config = &DefaultConfig
-	}
-	if config.Logger == nil {
-		config.Logger = log.Default()
-	}
-	config.EventHandlerFunc = eventHandlerFunc
+func New(eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Server {
+	config := DefaultConfig()
+	config.Apply(opts)
 
 	hexDecodedKey, err := hex.DecodeString(config.PublicKey)
 	if err != nil {
 		config.Logger.Errorf("error while decoding hex string: %s", err)
 	}
 
-	server := &serverImpl{
-		publicKey: hexDecodedKey,
+	return &serverImpl{
+		publicKey:        hexDecodedKey,
+		eventHandlerFunc: eventHandlerFunc,
+		config:           *config,
 	}
-
-	if config.HTTPServer == nil {
-		config.HTTPServer = &http.Server{
-			Addr: config.Port,
-		}
-	}
-	server.server = config.HTTPServer
-
-	if config.HTTPServer.Handler == nil {
-		if config.ServeMux == nil {
-			config.ServeMux = http.NewServeMux()
-		}
-		config.ServeMux.Handle(config.URL, &WebhookInteractionHandler{server: server})
-		config.HTTPServer.Handler = config.ServeMux
-	}
-	server.config = *config
-	return server
 }
 
-// serverImpl is used in Bot's webhook server for interactions
+// serverImpl is used in Client's webhook server for interactions
 type serverImpl struct {
-	config    Config
-	publicKey PublicKey
-	server    *http.Server
+	config           Config
+	eventHandlerFunc EventHandlerFunc
+	publicKey        PublicKey
 }
 
 func (s *serverImpl) Logger() log.Logger {
@@ -68,19 +49,20 @@ func (s *serverImpl) PublicKey() PublicKey {
 	return s.publicKey
 }
 
-// Config returns the Config
-func (s *serverImpl) Config() Config {
-	return s.config
+func (s *serverImpl) EventHandlerFunc() EventHandlerFunc {
+	return s.eventHandlerFunc
 }
 
 // Start makes the serverImpl listen on the specified port and handle requests
 func (s *serverImpl) Start() {
 	go func() {
+		s.config.ServeMux.Handle(s.config.URL, &WebhookInteractionHandler{server: s})
+		s.config.HTTPServer.Addr = s.config.Address
 		var err error
 		if s.config.CertFile != "" && s.config.KeyFile != "" {
-			err = s.server.ListenAndServeTLS(s.config.CertFile, s.config.KeyFile)
+			err = s.config.HTTPServer.ListenAndServeTLS(s.config.CertFile, s.config.KeyFile)
 		} else {
-			err = s.server.ListenAndServe()
+			err = s.config.HTTPServer.ListenAndServe()
 		}
 		if err != nil {
 			s.Logger().Error("error starting http server: ", err)
@@ -90,7 +72,7 @@ func (s *serverImpl) Start() {
 
 // Close shuts down the serverImpl
 func (s *serverImpl) Close(ctx context.Context) {
-	_ = s.server.Shutdown(ctx)
+	_ = s.config.HTTPServer.Shutdown(ctx)
 }
 
 type WebhookInteractionHandler struct {
@@ -114,24 +96,39 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	h.server.Logger().Trace("received http interaction. body: ", string(rqData))
 
 	responseChannel := make(chan discord.InteractionResponse, 1)
-	h.server.Config().EventHandlerFunc(responseChannel, rqBody)
+	h.server.EventHandlerFunc()(responseChannel, rqBody)
 
-	response, err := (<-responseChannel).ToBody()
+	timer := time.NewTimer(time.Second * 3)
+	defer timer.Stop()
+	var (
+		body any
+		err  error
+	)
+	select {
+	case response := <-responseChannel:
+		body, err = response.ToBody()
+	case <-timer.C:
+		h.server.Logger().Warn("interaction timed out")
+		http.Error(w, "interaction timed out", http.StatusRequestTimeout)
+		return
+	}
+
 	if err != nil {
 		h.server.Logger().Error("error while converting interaction response to body: ", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	rsBody := &bytes.Buffer{}
 	multiWriter := io.MultiWriter(w, rsBody)
 
-	if multiPart, ok := response.(*discord.MultipartBuffer); ok {
+	if multiPart, ok := body.(*discord.MultipartBuffer); ok {
 		w.Header().Set("Content-Type", multiPart.ContentType)
 		_, err = io.Copy(multiWriter, multiPart.Buffer)
 
 	} else {
 		w.Header().Set("Content-Type", "application/json")
-		err = json.NewEncoder(multiWriter).Encode(response)
+		err = json.NewEncoder(multiWriter).Encode(body)
 	}
 	if err != nil {
 		h.server.Logger().Error("error writing http interaction response error: ", err)

@@ -3,7 +3,7 @@ package discord
 import (
 	"time"
 
-	"github.com/DisgoOrg/disgo/json"
+	"github.com/disgoorg/disgo/json"
 )
 
 type AccessTokenExchange struct {

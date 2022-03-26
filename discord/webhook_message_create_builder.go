@@ -11,7 +11,6 @@ type WebhookMessageCreateBuilder struct {
 }
 
 // NewWebhookMessageCreateBuilder creates a new WebhookMessageCreateBuilder to be built later
-//goland:noinspection GoUnusedExportedFunction
 func NewWebhookMessageCreateBuilder() *WebhookMessageCreateBuilder {
 	return &WebhookMessageCreateBuilder{
 		WebhookMessageCreate: WebhookMessageCreate{
@@ -27,7 +26,7 @@ func (b *WebhookMessageCreateBuilder) SetContent(content string) *WebhookMessage
 }
 
 // SetContentf sets content of the Message
-func (b *WebhookMessageCreateBuilder) SetContentf(content string, a ...interface{}) *WebhookMessageCreateBuilder {
+func (b *WebhookMessageCreateBuilder) SetContentf(content string, a ...any) *WebhookMessageCreateBuilder {
 	return b.SetContent(fmt.Sprintf(content, a...))
 }
 
@@ -142,8 +141,8 @@ func (b *WebhookMessageCreateBuilder) AddFiles(files ...*File) *WebhookMessageCr
 }
 
 // AddFile adds a discord.File to the discord.MessageCreate
-func (b *WebhookMessageCreateBuilder) AddFile(name string, reader io.Reader, flags ...FileFlags) *WebhookMessageCreateBuilder {
-	b.Files = append(b.Files, NewFile(name, reader, flags...))
+func (b *WebhookMessageCreateBuilder) AddFile(name string, description string, reader io.Reader, flags ...FileFlags) *WebhookMessageCreateBuilder {
+	b.Files = append(b.Files, NewFile(name, description, reader, flags...))
 	return b
 }
 

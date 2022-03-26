@@ -1,6 +1,6 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import "github.com/disgoorg/snowflake"
 
 // VoiceRegion (https://discord.com/developers/docs/resources/voice#voice-region-object)
 type VoiceRegion struct {

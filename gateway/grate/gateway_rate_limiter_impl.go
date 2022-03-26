@@ -4,18 +4,14 @@ import (
 	"context"
 	"time"
 
-	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/log"
 	"github.com/sasha-s/go-csync"
 )
 
-//goland:noinspection GoUnusedExportedFunction
-func NewLimiter(config *Config) Limiter {
-	if config == nil {
-		config = &DefaultConfig
-	}
-	if config.Logger == nil {
-		config.Logger = log.Default()
-	}
+func NewLimiter(opts ...ConfigOpt) Limiter {
+	config := DefaultConfig()
+	config.Apply(opts)
+
 	return &limiterImpl{
 		config: *config,
 	}
@@ -41,10 +37,6 @@ func (l *limiterImpl) Close(ctx context.Context) error {
 	}
 	l.Unlock()
 	return nil
-}
-
-func (l *limiterImpl) Config() Config {
-	return l.config
 }
 
 func (l *limiterImpl) Wait(ctx context.Context) error {
@@ -82,7 +74,7 @@ func (l *limiterImpl) Unlock() {
 	now := time.Now()
 	if l.reset.Before(now) {
 		l.reset = now.Add(time.Minute)
-		l.remaining = l.Config().CommandsPerMinute
+		l.remaining = l.config.CommandsPerMinute
 	}
 	l.Mutex.Unlock()
 }

@@ -1,25 +1,65 @@
 package disgo
 
 import (
-	_ "github.com/DisgoOrg/disgo/core"
-	_ "github.com/DisgoOrg/disgo/core/bot"
-	_ "github.com/DisgoOrg/disgo/core/collectors"
-	_ "github.com/DisgoOrg/disgo/core/events"
-	_ "github.com/DisgoOrg/disgo/core/handlers"
-	_ "github.com/DisgoOrg/disgo/discord"
-	_ "github.com/DisgoOrg/disgo/gateway"
-	_ "github.com/DisgoOrg/disgo/gateway/grate"
-	_ "github.com/DisgoOrg/disgo/gateway/sharding"
-	_ "github.com/DisgoOrg/disgo/gateway/sharding/srate"
-	_ "github.com/DisgoOrg/disgo/httpserver"
-	_ "github.com/DisgoOrg/disgo/info"
-	_ "github.com/DisgoOrg/disgo/internal/insecurerandstr"
-	_ "github.com/DisgoOrg/disgo/internal/rwsync"
-	_ "github.com/DisgoOrg/disgo/internal/tokenhelper"
-	_ "github.com/DisgoOrg/disgo/json"
-	_ "github.com/DisgoOrg/disgo/oauth2"
-	_ "github.com/DisgoOrg/disgo/rest"
-	_ "github.com/DisgoOrg/disgo/rest/route"
-	_ "github.com/DisgoOrg/disgo/rest/rrate"
-	_ "github.com/DisgoOrg/disgo/webhook"
+	"runtime"
+	"runtime/debug"
+	"strings"
+
+	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/disgo/gateway/handlers"
+	"github.com/disgoorg/disgo/httpserver"
 )
+
+const (
+	Name   = "disgo"
+	GitHub = "https://github.com/disgoorg/" + Name
+)
+
+var (
+	Version = getVersion()
+	OS      = getOS()
+)
+
+func getVersion() string {
+	bi, ok := debug.ReadBuildInfo()
+	if ok {
+		for _, dep := range bi.Deps {
+			if strings.Contains(GitHub, dep.Path) {
+				return dep.Version
+			}
+		}
+	}
+	return "unknown"
+}
+
+func getOS() string {
+	os := runtime.GOOS
+	if strings.HasPrefix(os, "windows") {
+		return "windows"
+	}
+	if strings.HasPrefix(os, "darwin") {
+		return "darwin"
+	}
+	return "linux"
+}
+
+// New creates a new core.Client instance with the provided bot token & ConfigOpt(s)
+func New(token string, opts ...bot.ConfigOpt) (bot.Client, error) {
+	config := bot.DefaultConfig(handlers.GetGatewayHandlers(), handlers.GetHTTPServerHandler())
+	config.Apply(opts)
+
+	return bot.BuildClient(token,
+		*config,
+		func(client bot.Client) gateway.EventHandlerFunc {
+			return handlers.DefaultGatewayEventHandler(client)
+		},
+		func(client bot.Client) httpserver.EventHandlerFunc {
+			return handlers.DefaultHTTPServerEventHandler(client)
+		},
+		OS,
+		Name,
+		GitHub,
+		Version,
+	)
+}

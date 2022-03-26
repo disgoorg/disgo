@@ -1,15 +1,14 @@
-module github.com/DisgoOrg/disgo
+module github.com/disgoorg/disgo
 
-go 1.17
+go 1.18
 
 require (
-	github.com/DisgoOrg/log v1.1.3
-	github.com/DisgoOrg/snowflake v1.0.4
-	github.com/google/go-cmp v0.5.7
+	github.com/disgoorg/log v1.2.0
+	github.com/disgoorg/snowflake v1.1.0
 	github.com/gorilla/websocket v1.5.0
-	github.com/pkg/errors v0.9.1
 	github.com/sasha-s/go-csync v0.0.0-20210812194225-61421b77c44b
 	github.com/stretchr/testify v1.7.0
+	golang.org/x/exp v0.0.0-20220325121720-054d8573a5d8
 )
 
 require (

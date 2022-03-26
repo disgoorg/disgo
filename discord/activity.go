@@ -1,12 +1,11 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import "github.com/disgoorg/snowflake"
 
 // ActivityType represents the status of a user, one of Game, Streaming, Listening, Watching, Custom or Competing
 type ActivityType int
 
 // Constants for Activity(s)
-//goland:noinspection GoUnusedConst
 const (
 	ActivityTypeGame ActivityType = iota
 	ActivityTypeStreaming

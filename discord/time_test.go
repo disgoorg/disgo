@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/DisgoOrg/disgo/json"
+	"github.com/disgoorg/disgo/json"
 	"github.com/stretchr/testify/assert"
 )
 

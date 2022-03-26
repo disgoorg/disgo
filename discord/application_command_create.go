@@ -1,6 +1,6 @@
 package discord
 
-import "github.com/DisgoOrg/disgo/json"
+import "github.com/disgoorg/disgo/json"
 
 type ApplicationCommandCreate interface {
 	json.Marshaler
@@ -10,10 +10,12 @@ type ApplicationCommandCreate interface {
 }
 
 type SlashCommandCreate struct {
-	CommandName       string                     `json:"name"`
-	Description       string                     `json:"description"`
-	Options           []ApplicationCommandOption `json:"options"`
-	DefaultPermission bool                       `json:"default_permission"`
+	CommandName              string                     `json:"name"`
+	CommandNameLocalizations map[Locale]string          `json:"name_localizations,omitempty"`
+	Description              string                     `json:"description"`
+	DescriptionLocalizations map[Locale]string          `json:"description_localizations,omitempty"`
+	Options                  []ApplicationCommandOption `json:"options"`
+	DefaultPermission        bool                       `json:"default_permission"`
 }
 
 func (c SlashCommandCreate) MarshalJSON() ([]byte, error) {
@@ -38,8 +40,9 @@ func (c SlashCommandCreate) Name() string {
 func (SlashCommandCreate) applicationCommandCreate() {}
 
 type UserCommandCreate struct {
-	CommandName       string `json:"name"`
-	DefaultPermission bool   `json:"default_permission"`
+	CommandName              string            `json:"name"`
+	CommandNameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
+	DefaultPermission        bool              `json:"default_permission"`
 }
 
 func (c UserCommandCreate) MarshalJSON() ([]byte, error) {
@@ -64,8 +67,9 @@ func (c UserCommandCreate) Name() string {
 func (UserCommandCreate) applicationCommandCreate() {}
 
 type MessageCommandCreate struct {
-	CommandName       string `json:"name"`
-	DefaultPermission bool   `json:"default_permission"`
+	CommandName              string            `json:"name"`
+	CommandNameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
+	DefaultPermission        bool              `json:"default_permission"`
 }
 
 func (c MessageCommandCreate) MarshalJSON() ([]byte, error) {

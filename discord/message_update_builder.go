@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/snowflake"
 )
 
 // MessageUpdateBuilder helper to build MessageUpdate easier
@@ -28,7 +28,7 @@ func (b *MessageUpdateBuilder) SetContent(content string) *MessageUpdateBuilder 
 }
 
 // SetContentf sets content of the Message
-func (b *MessageUpdateBuilder) SetContentf(content string, a ...interface{}) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) SetContentf(content string, a ...any) *MessageUpdateBuilder {
 	return b.SetContent(fmt.Sprintf(content, a...))
 }
 
@@ -159,8 +159,8 @@ func (b *MessageUpdateBuilder) AddFiles(files ...*File) *MessageUpdateBuilder {
 }
 
 // AddFile adds a new discord.File to the discord.MessageUpdate
-func (b *MessageUpdateBuilder) AddFile(name string, reader io.Reader, flags ...FileFlags) *MessageUpdateBuilder {
-	b.Files = append(b.Files, NewFile(name, reader, flags...))
+func (b *MessageUpdateBuilder) AddFile(name string, description string, reader io.Reader, flags ...FileFlags) *MessageUpdateBuilder {
+	b.Files = append(b.Files, NewFile(name, description, reader, flags...))
 	return b
 }
 
@@ -181,19 +181,21 @@ func (b *MessageUpdateBuilder) RemoveFile(i int) *MessageUpdateBuilder {
 // RetainAttachments removes all Attachment(s) from this Message except the ones provided
 func (b *MessageUpdateBuilder) RetainAttachments(attachments ...Attachment) *MessageUpdateBuilder {
 	if b.Attachments == nil {
-		b.Attachments = new([]Attachment)
+		b.Attachments = new([]AttachmentUpdate)
 	}
-	*b.Attachments = append(*b.Attachments, attachments...)
+	for _, attachment := range attachments {
+		*b.Attachments = append(*b.Attachments, AttachmentKeep{ID: attachment.ID})
+	}
 	return b
 }
 
 // RetainAttachmentsByID removes all Attachment(s) from this Message except the ones provided
 func (b *MessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...snowflake.Snowflake) *MessageUpdateBuilder {
 	if b.Attachments == nil {
-		b.Attachments = new([]Attachment)
+		b.Attachments = new([]AttachmentUpdate)
 	}
 	for _, attachmentID := range attachmentIDs {
-		*b.Attachments = append(*b.Attachments, Attachment{ID: attachmentID})
+		*b.Attachments = append(*b.Attachments, AttachmentKeep{ID: attachmentID})
 	}
 	return b
 }

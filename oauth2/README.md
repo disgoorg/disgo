@@ -1,6 +1,6 @@
 # oauth2
 
-[OAuth2](https://discord.com/developers/docs/topics/oauth2) module of [disgo](https://github.com/DisgoOrg/disgo)
+[OAuth2](https://discord.com/developers/docs/topics/oauth2) module of [disgo](https://github.com/disgoorg/disgo)
 
 ## Getting Started
 
@@ -10,4 +10,4 @@ Next you need to put in your redirect URL.
 
 ### Usage
 
-See [here](https://github.com/DisgoOrg/disgo/blob/development/_examples/oauth2/example.go) for an example.
+See [here](https://github.com/disgoorg/disgo/blob/development/_examples/oauth2/example.go) for an example.

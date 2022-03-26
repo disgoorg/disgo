@@ -14,10 +14,9 @@ type StateController interface {
 }
 
 // NewStateController returns a new empty StateController
-func NewStateController(config *StateControllerConfig) StateController {
-	if config == nil {
-		config = &DefaultStateControllerConfig
-	}
+func NewStateController(opts ...StateControllerConfigOpt) StateController {
+	config := DefaultStateControllerConfig()
+	config.Apply(opts)
 
 	states := NewTTLMap(config.MaxTTL)
 	for state, url := range config.States {

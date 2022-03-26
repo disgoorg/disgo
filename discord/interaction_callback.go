@@ -8,11 +8,11 @@ const (
 	InteractionCallbackTypePong InteractionCallbackType = iota + 1
 	_
 	_
-	InteractionCallbackTypeChannelMessageWithSource
-	InteractionCallbackTypeDeferredChannelMessageWithSource
+	InteractionCallbackTypeCreateMessage
+	InteractionCallbackTypeDeferredCreateMessage
 	InteractionCallbackTypeDeferredUpdateMessage
 	InteractionCallbackTypeUpdateMessage
-	InteractionCallbackTypeAutocompleteResult
+	InteractionCallbackTypeApplicationCommandAutocompleteResult
 	InteractionCallbackTypeModal
 )
 
@@ -23,7 +23,7 @@ type InteractionResponse struct {
 }
 
 // ToBody returns the InteractionResponse ready for body
-func (r InteractionResponse) ToBody() (interface{}, error) {
+func (r InteractionResponse) ToBody() (any, error) {
 	if v, ok := r.Data.(InteractionResponseCreator); ok {
 		return v.ToResponseBody(r)
 	}
@@ -35,7 +35,7 @@ type InteractionCallbackData interface {
 }
 
 type InteractionResponseCreator interface {
-	ToResponseBody(response InteractionResponse) (interface{}, error)
+	ToResponseBody(response InteractionResponse) (any, error)
 }
 
 type AutocompleteResult struct {
@@ -49,22 +49,25 @@ type AutocompleteChoice interface {
 }
 
 type AutocompleteChoiceString struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Name              string            `json:"name"`
+	NameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
+	Value             string            `json:"value"`
 }
 
 func (AutocompleteChoiceString) autoCompleteChoice() {}
 
 type AutocompleteChoiceInt struct {
-	Name  string `json:"name"`
-	Value int    `json:"value"`
+	Name              string            `json:"name"`
+	NameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
+	Value             int               `json:"value"`
 }
 
 func (AutocompleteChoiceInt) autoCompleteChoice() {}
 
 type AutocompleteChoiceFloat struct {
-	Name  string  `json:"name"`
-	Value float64 `json:"value"`
+	Name              string            `json:"name"`
+	NameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
+	Value             float64           `json:"value"`
 }
 
 func (AutocompleteChoiceFloat) autoCompleteChoice() {}

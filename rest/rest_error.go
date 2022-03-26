@@ -1,9 +1,10 @@
 package rest
 
 import (
+	"fmt"
 	"net/http"
 
-	"github.com/DisgoOrg/disgo/discord"
+	"github.com/disgoorg/disgo/discord"
 )
 
 var _ error = (*Error)(nil)
@@ -65,7 +66,7 @@ func (e Error) Error() string {
 		return e.Err.Error()
 	}
 	if e.Response != nil {
-		return e.Response.Status
+		return fmt.Sprintf("Status: %s, Body: %s", e.Response.Status, string(e.RsBody))
 	}
 	return "unknown error"
 }

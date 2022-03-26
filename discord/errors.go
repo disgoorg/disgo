@@ -1,10 +1,9 @@
 package discord
 
 import (
-	"github.com/pkg/errors"
+	"errors"
 )
 
-//goland:noinspection GoUnusedGlobalVariable
 var (
 	ErrNoGatewayOrShardManager = errors.New("no gateway or shard manager configured")
 	ErrNoGuildMembersIntent    = errors.New("this operation requires the GUILD_MEMBERS intent")
@@ -18,8 +17,8 @@ var (
 
 	ErrNoDisgoInstance = errors.New("no disgo instance injected")
 
-	ErrInvalidBotToken = errors.New("BotToken is not in a valid format")
-	ErrNoBotToken      = errors.New("please specify the BotToken")
+	ErrInvalidBotToken = errors.New("token is not in a valid format")
+	ErrNoBotToken      = errors.New("please specify the token")
 
 	ErrSelfDM = errors.New("can't open a dm channel to yourself")
 

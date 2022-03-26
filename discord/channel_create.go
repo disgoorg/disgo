@@ -1,8 +1,8 @@
 package discord
 
 import (
-	"github.com/DisgoOrg/disgo/json"
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/snowflake"
 )
 
 type ChannelCreate interface {

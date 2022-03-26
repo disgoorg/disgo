@@ -1,10 +1,9 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import "github.com/disgoorg/snowflake"
 
 type StagePrivacyLevel int
 
-//goland:noinspection GoUnusedConst
 const (
 	StagePrivacyLevelPublic StagePrivacyLevel = iota + 1
 	StagePrivacyLevelGuildOnly

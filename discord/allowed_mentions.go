@@ -1,6 +1,6 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import "github.com/disgoorg/snowflake"
 
 // DefaultAllowedMentions gives you the default AllowedMentions for a Message
 var DefaultAllowedMentions = AllowedMentions{

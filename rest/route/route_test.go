@@ -12,7 +12,7 @@ var (
 )
 
 func TestAPIRoute_Compile(t *testing.T) {
-	queryParams := map[string]interface{}{
+	queryParams := map[string]any{
 		"wait": true,
 	}
 	compiledRoute, err := APITestRoute.Compile(queryParams, "test1", "test2", "test3")

@@ -1,6 +1,9 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import (
+	"github.com/disgoorg/disgo/rest/route"
+	"github.com/disgoorg/snowflake"
+)
 
 var _ Mentionable = (*Emoji)(nil)
 
@@ -14,21 +17,26 @@ type Emoji struct {
 	Managed       bool                  `json:"managed,omitempty"`
 	Animated      bool                  `json:"animated,omitempty"`
 	Available     bool                  `json:"available,omitempty"`
-
-	GuildID snowflake.Snowflake `json:"guild_id,omitempty"`
 }
 
 // Mention returns the string used to send the Emoji
 func (e Emoji) Mention() string {
 	if e.Animated {
-		return animatedEmojiMention(e.ID, e.Name)
+		return AnimatedEmojiMention(e.ID, e.Name)
 	}
-	return emojiMention(e.ID, e.Name)
+	return EmojiMention(e.ID, e.Name)
 }
 
 // String formats the Emoji as string
 func (e Emoji) String() string {
 	return e.Mention()
+}
+
+func (e Emoji) URL(opts ...CDNOpt) string {
+	if avatar := formatAssetURL(route.CustomEmoji, opts, e.ID); avatar != nil {
+		return *avatar
+	}
+	return ""
 }
 
 type EmojiCreate struct {

@@ -8,8 +8,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/log"
 )
 
 type EventHandlerFunc func(responseChannel chan<- discord.InteractionResponse, payload io.Reader)
@@ -18,7 +18,8 @@ type EventHandlerFunc func(responseChannel chan<- discord.InteractionResponse, p
 type Server interface {
 	Logger() log.Logger
 	PublicKey() PublicKey
-	Config() Config
+	EventHandlerFunc() EventHandlerFunc
+
 	Start()
 	Close(ctx context.Context)
 }

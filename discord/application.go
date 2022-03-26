@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/rest/route"
+	"github.com/disgoorg/snowflake"
 )
 
 type Application struct {
@@ -27,8 +28,16 @@ type Application struct {
 	GuildID               *snowflake.Snowflake `json:"guild_id,omitempty"`
 	PrimarySkuID          *snowflake.Snowflake `json:"primary_sku_id,omitempty"`
 	Slug                  *string              `json:"slug,omitempty"`
-	CoverImage            *string              `json:"cover_image,omitempty"`
+	Cover                 *string              `json:"cover_image,omitempty"`
 	Flags                 ApplicationFlags     `json:"flags,omitempty"`
+}
+
+func (a Application) IconURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.ApplicationIcon, opts, a.ID, a.Icon)
+}
+
+func (a Application) CoverURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.ApplicationCover, opts, a.ID, a.Cover)
 }
 
 type PartialApplication struct {
@@ -50,7 +59,6 @@ type InstallationParams struct {
 
 type ApplicationScope string
 
-//goland:noinspection GoUnusedConst
 const (
 	ApplicationScopeActivitiesWrite ApplicationScope = "activities.write"
 	ApplicationScopeActivitiesRead  ApplicationScope = "activities.read"
@@ -114,7 +122,6 @@ func HasScope(scope ApplicationScope, scopes ...ApplicationScope) bool {
 
 type TokenType string
 
-//goland:noinspection GoUnusedConst
 const (
 	TokenTypeBearer TokenType = "Bearer"
 	TokenTypeBot    TokenType = "Bot"
@@ -131,7 +138,6 @@ func (t TokenType) Apply(token string) string {
 // ApplicationFlags (https://discord.com/developers/docs/resources/application#application-object-application-flags)
 type ApplicationFlags int
 
-//goland:noinspection GoUnusedConst
 const (
 	ApplicationFlagGatewayPresence = 1 << (iota + 12)
 	ApplicationFlagGatewayPresenceLimited
@@ -179,10 +185,14 @@ func (f ApplicationFlags) Missing(bits ...ApplicationFlags) bool {
 
 type Team struct {
 	Icon    *string             `json:"icon"`
-	ID      string              `json:"id"`
+	ID      snowflake.Snowflake `json:"id"`
 	Members []TeamMember        `json:"members"`
 	Name    string              `json:"name"`
 	OwnerID snowflake.Snowflake `json:"owner_user_id"`
+}
+
+func (t Team) IconURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.TeamIcon, opts, t.ID, t.Icon)
 }
 
 type TeamMember struct {
@@ -194,7 +204,6 @@ type TeamMember struct {
 
 type MembershipState int
 
-//goland:noinspection GoUnusedConst,GoUnusedConst
 const (
 	MembershipStateInvited = iota + 1
 	MembershipStateAccepted
@@ -202,7 +211,6 @@ const (
 
 type TeamPermissions string
 
-//goland:noinspection GoUnusedConst
 const (
 	TeamPermissionAdmin = "*"
 )

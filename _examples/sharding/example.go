@@ -6,14 +6,15 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/core/bot"
-	"github.com/DisgoOrg/disgo/core/events"
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway"
-	"github.com/DisgoOrg/disgo/gateway/sharding"
-	"github.com/DisgoOrg/disgo/info"
-	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/disgo"
+	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/cache"
+	"github.com/disgoorg/disgo/sharding"
+
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/log"
 )
 
 var (
@@ -24,10 +25,10 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetLevel(log.LevelInfo)
 	log.Info("starting example...")
-	log.Info("disgo version: ", info.Version)
+	log.Info("disgo version: ", disgo.Version)
 
-	disgo, err := bot.New(token,
-		bot.WithShardManagerOpts(
+	client, err := disgo.New(token,
+		bot.WithShardManagerConfigOpts(
 			sharding.WithShards(0, 1, 2),
 			sharding.WithShardCount(3),
 			sharding.WithGatewayConfigOpts(
@@ -35,7 +36,7 @@ func main() {
 				gateway.WithCompress(true),
 			),
 		),
-		bot.WithCacheOpts(core.WithCacheFlags(core.CacheFlagsDefault)),
+		bot.WithCacheConfigOpts(cache.WithCacheFlags(cache.FlagsDefault)),
 		bot.WithEventListeners(&events.ListenerAdapter{
 			OnMessageCreate: onMessageCreate,
 			OnGuildReady: func(event *events.GuildReadyEvent) {
@@ -50,9 +51,9 @@ func main() {
 		log.Fatalf("error while building disgo: %s", err)
 	}
 
-	defer disgo.Close(context.TODO())
+	defer client.Close(context.TODO())
 
-	if err = disgo.ConnectShardManager(context.TODO()); err != nil {
+	if err = client.ConnectShardManager(context.TODO()); err != nil {
 		log.Fatal("error while connecting to gateway: ", err)
 	}
 
@@ -66,5 +67,5 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 	if event.Message.Author.BotUser {
 		return
 	}
-	_, _ = event.Message.Reply(discord.NewMessageCreateBuilder().SetContent(event.Message.Content).Build())
+	_, _ = event.Client().Rest().Channels().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent(event.Message.Content).Build())
 }

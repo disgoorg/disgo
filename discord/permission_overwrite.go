@@ -3,15 +3,14 @@ package discord
 import (
 	"fmt"
 
-	"github.com/DisgoOrg/disgo/json"
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/snowflake"
 )
 
 // PermissionOverwriteType is the type of PermissionOverwrite
 type PermissionOverwriteType int
 
 // Constants for PermissionOverwriteType
-//goland:noinspection GoUnusedConst
 const (
 	PermissionOverwriteTypeRole PermissionOverwriteType = iota
 	PermissionOverwriteTypeMember

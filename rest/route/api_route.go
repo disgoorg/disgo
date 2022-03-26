@@ -15,7 +15,7 @@ func NewAPIRouteNoAuth(method Method, path string, queryParams ...string) *APIRo
 	return newAPIRoute(method, path, queryParams, false)
 }
 
-func newAPIRoute(method Method, path string, queryParams []string, needsAuth bool) *APIRoute {
+func newAPIRoute(method Method, path string, queryParams []string, needsBotAuth bool) *APIRoute {
 	params := map[string]struct{}{}
 	for _, param := range queryParams {
 		params[param] = struct{}{}
@@ -27,12 +27,11 @@ func newAPIRoute(method Method, path string, queryParams []string, needsAuth boo
 		queryParams:   params,
 		urlParamCount: countURLParams(path),
 		method:        method,
-		needsAuth:     needsAuth,
+		needsBotAuth:  needsBotAuth,
 	}
 }
 
 // NewCustomAPIRoute generates a new custom path struct
-//goland:noinspection GoUnusedExportedFunction
 func NewCustomAPIRoute(method Method, basePath string, path string, queryParams ...string) *APIRoute {
 	route := NewAPIRoute(method, path, queryParams...)
 	route.basePath = basePath
@@ -46,11 +45,11 @@ type APIRoute struct {
 	queryParams   map[string]struct{}
 	urlParamCount int
 	method        Method
-	needsAuth     bool
+	needsBotAuth  bool
 }
 
 // Compile returns a CompiledAPIRoute
-func (r *APIRoute) Compile(queryValues QueryValues, params ...interface{}) (*CompiledAPIRoute, error) {
+func (r *APIRoute) Compile(queryValues QueryValues, params ...any) (*CompiledAPIRoute, error) {
 	if len(params) != r.urlParamCount {
 		return nil, ErrInvalidArgCount(r.urlParamCount, len(params))
 	}
@@ -99,9 +98,9 @@ func (r *APIRoute) Path() string {
 	return r.path
 }
 
-// NeedsAuth returns whether the route requires authentication
-func (r *APIRoute) NeedsAuth() bool {
-	return r.needsAuth
+// NeedsBotAuth returns whether the route requires authentication
+func (r *APIRoute) NeedsBotAuth() bool {
+	return r.needsBotAuth
 }
 
 // CompiledAPIRoute is APIRoute compiled with all URL args

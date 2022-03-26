@@ -1,6 +1,10 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import (
+	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/disgo/rest/route"
+	"github.com/disgoorg/snowflake"
+)
 
 var _ Mentionable = (*Member)(nil)
 
@@ -17,7 +21,14 @@ type Member struct {
 	Mute                       bool                  `json:"mute,omitempty"`
 	Pending                    bool                  `json:"pending"`
 	CommunicationDisabledUntil *Time                 `json:"communication_disabled_until"`
-	Permissions                *Permissions          `json:"permissions"` // only sent from slash commands & should not be cached
+}
+
+func (m Member) String() string {
+	return MemberMention(m.User.ID)
+}
+
+func (m Member) Mention() string {
+	return m.String()
 }
 
 // EffectiveName returns either the nickname or username depending on if the user has a nickname
@@ -28,12 +39,18 @@ func (m Member) EffectiveName() string {
 	return m.User.Username
 }
 
-func (m Member) String() string {
-	return memberMention(m.User.ID)
+func (m Member) EffectiveAvatarURL(opts ...CDNOpt) string {
+	if m.Avatar == nil {
+		return m.User.EffectiveAvatarURL(opts...)
+	}
+	if avatar := m.AvatarURL(opts...); avatar != nil {
+		return *avatar
+	}
+	return ""
 }
 
-func (m Member) Mention() string {
-	return m.String()
+func (m Member) AvatarURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.MemberAvatar, opts, m.User.ID, m.Avatar)
 }
 
 // MemberAdd is used to add a member via the oauth2 access token to a guild
@@ -52,7 +69,7 @@ type MemberUpdate struct {
 	Roles                      []snowflake.Snowflake `json:"roles,omitempty"`
 	Mute                       *bool                 `json:"mute,omitempty"`
 	Deaf                       *bool                 `json:"deaf,omitempty"`
-	CommunicationDisabledUntil *NullTime             `json:"communication_disabled_until,omitempty"`
+	CommunicationDisabledUntil *json.Nullable[Time]  `json:"communication_disabled_until,omitempty"`
 }
 
 // SelfNickUpdate is used to update your own nick

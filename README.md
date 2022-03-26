@@ -1,15 +1,15 @@
-[![Go Reference](https://pkg.go.dev/badge/github.com/DisgoOrg/disgo.svg)](https://pkg.go.dev/github.com/DisgoOrg/disgo)
-[![Go Report](https://goreportcard.com/badge/github.com/DisgoOrg/disgo)](https://goreportcard.com/report/github.com/DisgoOrg/disgo)
-[![Go Version](https://img.shields.io/github/go-mod/go-version/DisgoOrg/disgo)](https://golang.org/doc/devel/release.html)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/DisgoOrg/disgo/blob/master/LICENSE)
-[![Disgo Version](https://img.shields.io/github/v/tag/DisgoOrg/disgo?label=release)](https://github.com/DisgoOrg/disgo/releases/latest)
+[![Go Reference](https://pkg.go.dev/badge/github.com/disgoorg/disgo.svg)](https://pkg.go.dev/github.com/disgoorg/disgo)
+[![Go Report](https://goreportcard.com/badge/github.com/disgoorg/disgo)](https://goreportcard.com/report/github.com/disgoorg/disgo)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/disgoorg/disgo)](https://golang.org/doc/devel/release.html)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/disgoorg/disgo/blob/master/LICENSE)
+[![Disgo Version](https://img.shields.io/github/v/tag/disgoorg/disgo?label=release)](https://github.com/disgoorg/disgo/releases/latest)
 [![Disgo Discord](https://discord.com/api/guilds/817327181659111454/widget.png)](https://discord.gg/TewhTfDpvW)
 
 <img align="right" src="/.github/discord_gopher.png" width=192 alt="discord gopher">
 
-# disgo
+# DisGo
 
-disgo is a [Discord](https://discord.com) API wrapper written in [Go](https://golang.org/) aimed to be consistent, modular, customizable and easy to use
+DisGo is a [Discord](https://discord.com) API wrapper written in [GoLang](https://golang.org/) aimed to be consistent, modular, customizable and higher level than other Discord API wrappers.
 
 ## Summary
 
@@ -19,7 +19,7 @@ disgo is a [Discord](https://discord.com) API wrapper written in [Go](https://go
 4. [Documentation](#documentation)
 5. [Examples](#examples)
 6. [Related Projects](#related-projects)
-7. [Why another library?](#why-another-library)
+7. [Other GoLang Discord Libraries](#other-golang-discord-libraries)
 8. [Troubleshooting](#troubleshooting)
 9. [Contributing](#contributing)
 10. [License](#license)
@@ -32,6 +32,7 @@ disgo is a [Discord](https://discord.com) API wrapper written in [Go](https://go
 * [HTTP Interactions](https://discord.com/developers/docs/interactions/slash-commands#receiving-an-interaction)
 * [Application Commands](https://discord.com/developers/docs/interactions/application-commands)
 * [Message Components](https://discord.com/developers/docs/interactions/message-components)
+* [Modals](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-response-object-modal)
 * [Stage Instance](https://discord.com/developers/docs/resources/stage-instance)
 * [Guild Template](https://discord.com/developers/docs/resources/guild-template)
 * [Sticker](https://discord.com/developers/docs/resources/sticker)
@@ -51,7 +52,7 @@ disgo is a [Discord](https://discord.com) API wrapper written in [Go](https://go
 ### Installing
 
 ```sh
-go get github.com/DisgoOrg/disgo
+go get github.com/disgoorg/disgo
 ```
 
 ### Building a Disgo Instance
@@ -60,14 +61,15 @@ go get github.com/DisgoOrg/disgo
 package main
 
 import (
-	"github.com/DisgoOrg/disgo/core/bot"
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway"
+	"github.com/disgoorg/disgo"
+	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/gateway"
 )
 
 func main() {
-	disgo, err := bot.New("token",
-		bot.WithGatewayOpts(
+	client, err := disgo.New("token",
+		bot.WithGatewayConfigOpts(
 			gateway.WithGatewayIntents(
 				discord.GatewayIntentGuilds,
 				discord.GatewayIntentGuildMessages,
@@ -84,28 +86,28 @@ func main() {
 package main
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/core/bot"
-	"github.com/DisgoOrg/disgo/core/events"
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway"
-	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/disgo"
+	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/cache"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/log"
 )
 
 func main() {
-	disgo, err := bot.New(os.Getenv("token"),
-		bot.WithGatewayOpts(
+	client, err := disgo.New(os.Getenv("token"),
+		bot.WithGatewayConfigOpts(
 			gateway.WithGatewayIntents(
-				discord.GatewayIntentGuilds,
-				discord.GatewayIntentGuildMessages,
-				discord.GatewayIntentDirectMessages,
+				discord.GatewayIntentsNone,
 			),
 		),
-		bot.WithCacheOpts(core.WithCacheFlags(core.CacheFlagsNone)),
+		bot.WithCacheConfigOpts(cache.WithCacheFlags(cache.FlagsDefault)),
 		bot.WithEventListeners(&events.ListenerAdapter{
 			OnMessageCreate: onMessageCreate,
 		}),
@@ -114,9 +116,9 @@ func main() {
 		log.Fatal("error while building disgo: ", err)
 	}
 
-	defer disgo.Close()
+	defer client.Close(context.TODO())
 
-	if err = disgo.ConnectGateway(); err != nil {
+	if err = client.ConnectGateway(context.TODO()); err != nil {
 		log.Fatal("errors while connecting to gateway: ", err)
 	}
 
@@ -134,60 +136,60 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 		message = "ping"
 	}
 	if message != "" {
-		_, _ = event.Message.Reply(discord.NewMessageCreateBuilder().SetContent(message).Build())
+		_, _ = event.Client().Rest().ChannelService().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent(message).Build())
 	}
 }
-
 ```
 
 ### Logging
 
-disgo uses our own small [logging lib](https://github.com/DisgoOrg/log) which provides an [interface](https://github.com/DisgoOrg/log/blob/master/logger.go) you can implement. This lib also comes with a default logger which is interchangeable and based on the standard log package. You can read more about it [here](https://github.com/DisgoOrg/log)
+disgo uses our own small [logging lib](https://github.com/disgoorg/log) which provides an [interface](https://github.com/disgoorg/log/blob/master/logger.go) you can implement. This lib also comes with a default logger which is interchangeable and based on the standard log package. You can read more about it [here](https://github.com/disgoorg/log)
 
 ## Documentation
 
 Documentation is wip and can be found under
 
-* [![Go Reference](https://pkg.go.dev/badge/github.com/DisgoOrg/disgo.svg)](https://pkg.go.dev/github.com/DisgoOrg/disgo)
+* [![Go Reference](https://pkg.go.dev/badge/github.com/disgoorg/disgo.svg)](https://pkg.go.dev/github.com/disgoorg/disgo)
 * [![Discord Documentation](https://img.shields.io/badge/Discord%20Documentation-blue.svg)](https://discord.com/developers/docs)
 
 Wiki is currently under construction
 
 ## Examples
 
-You can find examples under [_examples](https://github.com/DisgoOrg/disgo/tree/master/_examples)
+You can find examples under [_examples](https://github.com/disgoorg/disgo/tree/master/_examples)
+
+There is also a bot template with commands & db [here](https://github.com/disgoorg/bot-template)
 
 or in these projects:
 
-* [disgo-butler](https://github.com/DisgoOrg/disgo-butler)
+* [disgo-butler](https://github.com/disgoorg/disgo-butler)
 * [BansBot](https://github.com/Skye-31/BansBot)
 * [Reddit-Discord-Bot](https://github.com/TopiSenpai/Reddit-Discord-Bot)
 * [Kitsune-Bot](https://github.com/TopiSenpai/Kitsune-Bot)
-* [Uno-Bot](https://github.com/TopiSenpai/Uno-Bot)
+* [KittyBot](https://github.com/KittyBot-Org/KittyBotGo)
 
 ## Related Projects
 
 ### [Lavalink](https://github.com/freyacodes/Lavalink)
 
-Standalone audio sending node based on Lavaplayer and JDA-Audio. Allows for sending audio without it ever reaching any of your shards.
+is a standalone audio sending node based on [Lavaplayer](https://github.com/sedmelluq/lavaplayer) and JDA-Audio. Allows for sending audio without it ever reaching any of your shards.
 
 Being used in production by FredBoat, Dyno, LewdBot, and more.
 
-### [disgolink](https://github.com/DisgoOrg/disgolink)
+### [disgolink](https://github.com/disgoorg/disgolink)
 
-[Lavalink Client](https://github.com/freyacodes/Lavalink) which can be used to communicate with LavaLink to play/search tracks
+is a [Lavalink Client](https://github.com/freyacodes/Lavalink) which can be used to communicate with LavaLink to play/search tracks
 
-### [dislog](https://github.com/DisgoOrg/dislog)
+### [dislog](https://github.com/disgoorg/dislog)
 
-Discord webhook logger integration for [logrus](https://github.com/sirupsen/logrus)
+is a discord webhook logger hook for [logrus](https://github.com/sirupsen/logrus)
 
-## Why another library?
+## Other GoLang Discord Libraries
 
-[discordgo](https://github.com/bwmarrin/discordgo) is a great library, but it's super low level and pain
-[disgord](https://github.com/andersfylling/disgord) I don't like code gen magic
-[arikawa](https://github.com/diamondburned/arikawa) v3 rewrite looks promising but when I started with disgo v2 looked kinda bad
-
-disgo aims to be a high level library that is modular and not a pain to use.
+* [discordgo](https://github.com/bwmarrin/discordgo)
+* [disgord](https://github.com/andersfylling/disgord)
+* [arikawa](https://github.com/diamondburned/arikawa)
+* [corde](https://github.com/Karitham/corde)
 
 ## Troubleshooting
 
@@ -199,7 +201,7 @@ Contributions are welcomed but for bigger changes please first reach out via [Di
 
 ## License
 
-Distributed under the [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/DisgoOrg/disgo/blob/master/LICENSE)
+Distributed under the [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/disgoorg/disgo/blob/master/LICENSE)
 . See LICENSE for more information.
 
 

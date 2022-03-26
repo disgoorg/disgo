@@ -4,12 +4,11 @@ import (
 	"encoding/base64"
 	"strings"
 
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/snowflake"
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/snowflake"
 )
 
-// IDFromToken returns the applicationID from the BotToken
-//goland:noinspection GoUnusedExportedFunction
+// IDFromToken returns the applicationID from the token
 func IDFromToken(token string) (*snowflake.Snowflake, error) {
 	strs := strings.Split(token, ".")
 	if len(strs) == 0 {

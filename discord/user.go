@@ -1,12 +1,17 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import (
+	"strconv"
+
+	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/disgo/rest/route"
+	"github.com/disgoorg/snowflake"
+)
 
 // UserFlags defines certain flags/badges a user can have (https://discord.com/developers/docs/resources/user#user-object-user-flags)
 type UserFlags int
 
 // All UserFlags
-//goland:noinspection GoUnusedConst
 const (
 	UserFlagDiscordEmployee UserFlags = 1 << iota
 	UserFlagPartneredServerOwner
@@ -47,7 +52,7 @@ type User struct {
 }
 
 func (u User) String() string {
-	return userMention(u.ID)
+	return UserMention(u.ID)
 }
 
 func (u User) Mention() string {
@@ -55,7 +60,36 @@ func (u User) Mention() string {
 }
 
 func (u User) Tag() string {
-	return userTag(u.Username, u.Discriminator)
+	return UserTag(u.Username, u.Discriminator)
+}
+
+func (u User) EffectiveAvatarURL(opts ...CDNOpt) string {
+	if u.Avatar == nil {
+		return u.DefaultAvatarURL(opts...)
+	}
+	if avatar := u.AvatarURL(opts...); avatar != nil {
+		return *avatar
+	}
+	return ""
+}
+
+func (u User) AvatarURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.UserAvatar, opts, u.ID, u.Avatar)
+}
+
+func (u User) DefaultAvatarURL(opts ...CDNOpt) string {
+	discrim, err := strconv.Atoi(u.Discriminator)
+	if err != nil {
+		return ""
+	}
+	if avatar := formatAssetURL(route.DefaultUserAvatar, opts, discrim%5); avatar != nil {
+		return *avatar
+	}
+	return ""
+}
+
+func (u User) BannerURL(opts ...CDNOpt) *string {
+	return formatAssetURL(route.UserBanner, opts, u.ID, u.Avatar)
 }
 
 // OAuth2User represents a full User returned by the oauth2 endpoints
@@ -76,7 +110,6 @@ type OAuth2User struct {
 type PremiumType int
 
 // All PremiumType(s)
-//goland:noinspection GoUnusedConst
 const (
 	PremiumTypeNone PremiumType = iota
 	PremiumTypeNitroClassic
@@ -85,6 +118,6 @@ const (
 
 // SelfUserUpdate is the payload used to update the OAuth2User
 type SelfUserUpdate struct {
-	Username string    `json:"username"`
-	Avatar   *NullIcon `json:"avatar"`
+	Username string               `json:"username"`
+	Avatar   *json.Nullable[Icon] `json:"avatar"`
 }

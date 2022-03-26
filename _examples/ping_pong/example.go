@@ -6,25 +6,27 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/DisgoOrg/disgo/core"
-	"github.com/DisgoOrg/disgo/core/bot"
-	"github.com/DisgoOrg/disgo/core/events"
-	"github.com/DisgoOrg/disgo/discord"
-	"github.com/DisgoOrg/disgo/gateway"
-	"github.com/DisgoOrg/log"
+	"github.com/disgoorg/disgo"
+	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/cache"
+
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/log"
 )
 
 func main() {
 	log.SetLevel(log.LevelDebug)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	disgo, err := bot.New(os.Getenv("token"),
-		bot.WithGatewayOpts(
+	client, err := disgo.New(os.Getenv("token"),
+		bot.WithGatewayConfigOpts(
 			gateway.WithGatewayIntents(
 				discord.GatewayIntentsNone,
 			),
 		),
-		bot.WithCacheOpts(core.WithCacheFlags(core.CacheFlagsDefault)),
+		bot.WithCacheConfigOpts(cache.WithCacheFlags(cache.FlagsDefault)),
 		bot.WithEventListeners(&events.ListenerAdapter{
 			OnMessageCreate: onMessageCreate,
 		}),
@@ -33,9 +35,9 @@ func main() {
 		log.Fatal("error while building disgo: ", err)
 	}
 
-	defer disgo.Close(context.TODO())
+	defer client.Close(context.TODO())
 
-	if err = disgo.ConnectGateway(context.TODO()); err != nil {
+	if err = client.ConnectGateway(context.TODO()); err != nil {
 		log.Fatal("errors while connecting to gateway: ", err)
 	}
 
@@ -53,6 +55,6 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 		message = "ping"
 	}
 	if message != "" {
-		_, _ = event.Message.Reply(discord.NewMessageCreateBuilder().SetContent(message).Build())
+		_, _ = event.Client().Rest().Channels().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent(message).Build())
 	}
 }

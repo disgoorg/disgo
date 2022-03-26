@@ -2,7 +2,6 @@ package json
 
 import "encoding/json"
 
-//goland:noinspection GoUnusedGlobalVariable
 var (
 	Marshal       = json.Marshal
 	Unmarshal     = json.Unmarshal
@@ -13,9 +12,7 @@ var (
 )
 
 type (
-	RawMessage = json.RawMessage
-
+	RawMessage  = json.RawMessage
 	Unmarshaler = json.Unmarshaler
-
-	Marshaler = json.Marshaler
+	Marshaler   = json.Marshaler
 )

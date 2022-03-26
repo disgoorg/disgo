@@ -1,6 +1,6 @@
 package discord
 
-import "github.com/DisgoOrg/snowflake"
+import "github.com/disgoorg/snowflake"
 
 type ThreadMember struct {
 	ThreadID      snowflake.Snowflake `json:"id"`
