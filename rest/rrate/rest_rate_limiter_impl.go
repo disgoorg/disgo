@@ -50,6 +50,10 @@ func (l *limiterImpl) Logger() log.Logger {
 	return l.config.Logger
 }
 
+func (l *limiterImpl) MaxRetries() int {
+	return l.config.MaxRetries
+}
+
 func (l *limiterImpl) Close(ctx context.Context) {
 	var wg sync.WaitGroup
 	for i := range l.buckets {
