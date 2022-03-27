@@ -20,10 +20,10 @@ func main() {
 	log.SetLevel(log.LevelDebug)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	client, err := disgo.New(os.Getenv("token"),
+	client, err := disgo.New(os.Getenv("disgo_token"),
 		bot.WithGatewayConfigOpts(
 			gateway.WithGatewayIntents(
-				discord.GatewayIntentsNone,
+				discord.GatewayIntentMessageContent,
 			),
 		),
 		bot.WithCacheConfigOpts(cache.WithCacheFlags(cache.FlagsDefault)),
@@ -48,6 +48,9 @@ func main() {
 }
 
 func onMessageCreate(event *events.MessageCreateEvent) {
+	if event.Message.Author.Bot {
+		return
+	}
 	var message string
 	if event.Message.Content == "ping" {
 		message = "pong"

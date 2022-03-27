@@ -132,7 +132,7 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionEvent
 }
 
 func messageListener(event *events.GuildMessageCreateEvent) {
-	if event.Message.Author.BotUser {
+	if event.Message.Author.Bot {
 		return
 	}
 
@@ -204,7 +204,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 	case "repeat":
 		go func() {
 			ch, cls := bot.NewEventCollector(event.Client(), func(event *events.MessageCreateEvent) bool {
-				return !event.Message.Author.BotUser && event.ChannelID == event.ChannelID
+				return !event.Message.Author.Bot && event.ChannelID == event.ChannelID
 			})
 
 			var count = 0

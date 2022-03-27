@@ -12,6 +12,9 @@ import (
 var _ MemberChunkingManager = (*memberChunkingManagerImpl)(nil)
 
 func NewMemberChunkingManager(client Client, memberChunkingFilter MemberChunkingFilter) MemberChunkingManager {
+	if memberChunkingFilter == nil {
+		memberChunkingFilter = MemberChunkingFilterNone
+	}
 	return &memberChunkingManagerImpl{
 		bot:                  client,
 		memberChunkingFilter: memberChunkingFilter,
