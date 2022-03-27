@@ -3,42 +3,16 @@ package rest
 import (
 	"fmt"
 	"net/http"
-
-	"github.com/disgoorg/disgo/discord"
 )
 
 var _ error = (*Error)(nil)
 
 // Error holds the http.Response & an error related to a REST request
 type Error struct {
-	discord.APIError
 	Request  *http.Request
 	RqBody   []byte
 	Response *http.Response
 	RsBody   []byte
-	Err      error
-}
-
-// NewErrorErr returns a new Error with the given http.Request, http.Response & error
-func NewErrorErr(rq *http.Request, rqBody []byte, rs *http.Response, rsBody []byte, err error) error {
-	return &Error{
-		Request:  rq,
-		RqBody:   rqBody,
-		Response: rs,
-		RsBody:   rsBody,
-		Err:      err,
-	}
-}
-
-// NewErrorAPIErr returns a new Error with the given http.Request, http.Response & discord.APIError
-func NewErrorAPIErr(rq *http.Request, rqBody []byte, rs *http.Response, rsBody []byte, apiError discord.APIError) error {
-	return &Error{
-		APIError: apiError,
-		Request:  rq,
-		RqBody:   rqBody,
-		Response: rs,
-		RsBody:   rsBody,
-	}
 }
 
 // NewError returns a new Error with the given http.Request, http.Response
@@ -62,9 +36,6 @@ func (e Error) Is(target error) bool {
 
 // Error returns the error formatted as string
 func (e Error) Error() string {
-	if e.Err != nil {
-		return e.Err.Error()
-	}
 	if e.Response != nil {
 		return fmt.Sprintf("Status: %s, Body: %s", e.Response.Status, string(e.RsBody))
 	}
