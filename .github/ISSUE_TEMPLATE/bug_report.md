@@ -10,6 +10,12 @@ assignees: ''
 **Describe the bug**
 A clear and concise description of what the bug is.
 
+**Error**
+The error which gets logged if there is any:
+```
+// logs here
+```
+
 **To Reproduce**
 Steps to reproduce the behavior:
 ```go
