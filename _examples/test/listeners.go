@@ -137,6 +137,12 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 	}
 
 	switch event.Message.Content {
+	case "channel":
+		ch, _ := event.Channel()
+		_, _ = event.Client().Rest().Channels().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().
+			SetContentf("channel:\n```\n%#v\n```", ch).
+			Build(),
+		)
 	case "gopher":
 		message, err := event.Client().Rest().Channels().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().
 			SetContent("gopher").
@@ -219,7 +225,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 				if !ok {
 					return
 				}
-				_, _ = messageEvent.Client().Rest().Channels().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContentf("Content: %s, Count: %v", messageEvent.Message.Content, count).SetMessageReferenceByID(event.MessageID).Build())
+				_, _ = messageEvent.Client().Rest().Channels().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContentf("Content: %s, Count: %v", messageEvent.Message.Content, count).SetMessageReferenceByID(messageEvent.MessageID).Build())
 			}
 		}()
 

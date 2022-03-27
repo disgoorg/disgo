@@ -23,6 +23,7 @@ func main() {
 	client, err := disgo.New(os.Getenv("disgo_token"),
 		bot.WithGatewayConfigOpts(
 			gateway.WithGatewayIntents(
+				discord.GatewayIntentGuildMessages,
 				discord.GatewayIntentMessageContent,
 			),
 		),

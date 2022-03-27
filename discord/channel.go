@@ -393,7 +393,7 @@ func (c GuildVoiceChannel) Mention() string {
 }
 
 func (GuildVoiceChannel) Type() ChannelType {
-	return ChannelTypeGuildText
+	return ChannelTypeGuildVoice
 }
 
 func (c GuildVoiceChannel) ID() snowflake.Snowflake {
@@ -632,16 +632,18 @@ func (GuildNewsChannel) messageChannel()      {}
 func (GuildNewsChannel) guildMessageChannel() {}
 
 var (
-	_ Channel        = (*GuildThread)(nil)
-	_ GuildChannel   = (*GuildThread)(nil)
-	_ MessageChannel = (*GuildThread)(nil)
+	_ Channel             = (*GuildThread)(nil)
+	_ GuildChannel        = (*GuildThread)(nil)
+	_ MessageChannel      = (*GuildThread)(nil)
+	_ GuildMessageChannel = (*GuildThread)(nil)
 )
 
 type GuildThread struct {
 	id               snowflake.Snowflake
+	channelType      ChannelType
 	guildID          snowflake.Snowflake
 	name             string
-	NSFW             bool
+	nsfw             bool
 	lastMessageID    *snowflake.Snowflake
 	lastPinTimestamp *Time
 	RateLimitPerUser int
@@ -659,9 +661,10 @@ func (c *GuildThread) UnmarshalJSON(data []byte) error {
 	}
 
 	c.id = v.ID
+	c.channelType = v.Type
 	c.guildID = v.GuildID
 	c.name = v.Name
-	c.NSFW = v.NSFW
+	c.nsfw = v.NSFW
 	c.lastMessageID = v.LastMessageID
 	c.lastPinTimestamp = v.LastPinTimestamp
 	c.RateLimitPerUser = v.RateLimitPerUser
@@ -676,10 +679,10 @@ func (c *GuildThread) UnmarshalJSON(data []byte) error {
 func (c GuildThread) MarshalJSON() ([]byte, error) {
 	return json.Marshal(guildThread{
 		ID:               c.id,
-		Type:             c.Type(),
+		Type:             c.channelType,
 		GuildID:          c.guildID,
 		Name:             c.name,
-		NSFW:             c.NSFW,
+		NSFW:             c.nsfw,
 		LastMessageID:    c.lastMessageID,
 		LastPinTimestamp: c.lastPinTimestamp,
 		RateLimitPerUser: c.RateLimitPerUser,
@@ -699,12 +702,24 @@ func (c GuildThread) Mention() string {
 	return ChannelMention(c.ID())
 }
 
-func (GuildThread) Type() ChannelType {
-	return ChannelTypeGuildNewsThread
+func (c GuildThread) Type() ChannelType {
+	return c.channelType
 }
 
 func (c GuildThread) ID() snowflake.Snowflake {
 	return c.id
+}
+
+func (c GuildThread) PermissionOverwrites() []PermissionOverwrite {
+	return nil
+}
+
+func (c GuildThread) Topic() *string {
+	return nil
+}
+
+func (c GuildThread) NSFW() bool {
+	return c.nsfw
 }
 
 func (c GuildThread) Name() string {
@@ -731,14 +746,15 @@ func (c GuildThread) ParentID() *snowflake.Snowflake {
 	return &c.parentID
 }
 
-func (c *GuildThread) PermissionOverwrites() []PermissionOverwrite {
-	return nil
+func (c GuildThread) DefaultAutoArchiveDuration() AutoArchiveDuration {
+	return 0
 }
 
-func (GuildThread) channel()        {}
-func (GuildThread) guildChannel()   {}
-func (GuildThread) messageChannel() {}
-func (GuildThread) guildThread()    {}
+func (GuildThread) channel()               {}
+func (GuildThread) guildChannel()          {}
+func (GuildThread) messageChannel()        {}
+func (c GuildThread) guildMessageChannel() {}
+func (GuildThread) guildThread()           {}
 
 var (
 	_ Channel           = (*GuildStageVoiceChannel)(nil)
@@ -797,7 +813,7 @@ func (c GuildStageVoiceChannel) Mention() string {
 }
 
 func (GuildStageVoiceChannel) Type() ChannelType {
-	return ChannelTypeGuildText
+	return ChannelTypeGuildStageVoice
 }
 
 func (c GuildStageVoiceChannel) ID() snowflake.Snowflake {
@@ -864,4 +880,34 @@ const (
 
 func channelString(channel Channel) string {
 	return fmt.Sprintf("%d:%s(%s)", channel.Type(), channel.Name(), channel.ID())
+}
+
+func ApplyGuildIDToThread(guildThread GuildThread, guildID snowflake.Snowflake) GuildThread {
+	guildThread.guildID = guildID
+	return guildThread
+}
+
+func ApplyGuildIDToChannel(channel GuildChannel, guildID snowflake.Snowflake) GuildChannel {
+	switch c := channel.(type) {
+	case GuildTextChannel:
+		c.guildID = guildID
+		return c
+	case GuildVoiceChannel:
+		c.guildID = guildID
+		return c
+	case GuildCategoryChannel:
+		c.guildID = guildID
+		return c
+	case GuildNewsChannel:
+		c.guildID = guildID
+		return c
+	case GuildStageVoiceChannel:
+		c.guildID = guildID
+		return c
+	case GuildThread:
+		c.guildID = guildID
+		return c
+	default:
+		panic("unknown channel type")
+	}
 }
