@@ -110,8 +110,6 @@ type Guild struct {
 	VerificationLevel           VerificationLevel          `json:"verification_level"`
 	DefaultMessageNotifications MessageNotificationsLevel  `json:"default_message_notifications"`
 	ExplicitContentFilter       ExplicitContentFilterLevel `json:"explicit_content_filter"`
-	Roles                       []Role                     `json:"roles"`
-	Emojis                      []Emoji                    `json:"emojis"`
 	Features                    []GuildFeature             `json:"features"`
 	MFALevel                    MFALevel                   `json:"mfa_level"`
 	ApplicationID               *snowflake.Snowflake       `json:"application_id"`
@@ -132,7 +130,6 @@ type Guild struct {
 	WelcomeScreen               WelcomeScreen              `json:"welcome_screen"`
 	NSFWLevel                   NSFWLevel                  `json:"nsfw_level"`
 	BoostProgressBarEnabled     bool                       `json:"premium_progress_bar_enabled"`
-	Stickers                    []Sticker                  `json:"stickers"`
 	JoinedAt                    Time                       `json:"joined_at"`
 
 	// only over GET /guilds/{guild.id}
@@ -168,8 +165,15 @@ func (g Guild) BannerURL(opts ...CDNOpt) *string {
 	return formatAssetURL(route.GuildBanner, opts, g.ID, *g.Banner)
 }
 
-type GatewayGuild struct {
+type RestGuild struct {
 	Guild
+	Stickers []Sticker `json:"stickers"`
+	Roles    []Role    `json:"roles"`
+	Emojis   []Emoji   `json:"emojis"`
+}
+
+type GatewayGuild struct {
+	RestGuild
 	Large                bool                  `json:"large"`
 	Unavailable          bool                  `json:"unavailable"`
 	VoiceStates          []VoiceState          `json:"voice_states"`
