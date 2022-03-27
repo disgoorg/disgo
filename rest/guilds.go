@@ -13,10 +13,10 @@ func NewGuilds(restClient Client) Guilds {
 }
 
 type Guilds interface {
-	GetGuild(guildID snowflake.Snowflake, withCounts bool, opts ...RequestOpt) (*discord.Guild, error)
+	GetGuild(guildID snowflake.Snowflake, withCounts bool, opts ...RequestOpt) (*discord.RestGuild, error)
 	GetGuildPreview(guildID snowflake.Snowflake, opts ...RequestOpt) (*discord.GuildPreview, error)
-	CreateGuild(guildCreate discord.GuildCreate, opts ...RequestOpt) (*discord.Guild, error)
-	UpdateGuild(guildID snowflake.Snowflake, guildUpdate discord.GuildUpdate, opts ...RequestOpt) (*discord.Guild, error)
+	CreateGuild(guildCreate discord.GuildCreate, opts ...RequestOpt) (*discord.RestGuild, error)
+	UpdateGuild(guildID snowflake.Snowflake, guildUpdate discord.GuildUpdate, opts ...RequestOpt) (*discord.RestGuild, error)
 	DeleteGuild(guildID snowflake.Snowflake, opts ...RequestOpt) error
 
 	CreateGuildChannel(guildID snowflake.Snowflake, guildChannelCreate discord.GuildChannelCreate, opts ...RequestOpt) (discord.GuildChannel, error)
@@ -47,7 +47,7 @@ type guildImpl struct {
 	restClient Client
 }
 
-func (s *guildImpl) GetGuild(guildID snowflake.Snowflake, withCounts bool, opts ...RequestOpt) (guild *discord.Guild, err error) {
+func (s *guildImpl) GetGuild(guildID snowflake.Snowflake, withCounts bool, opts ...RequestOpt) (guild *discord.RestGuild, err error) {
 	values := route.QueryValues{}
 	if withCounts {
 		values["withCounts"] = true
@@ -71,7 +71,7 @@ func (s *guildImpl) GetGuildPreview(guildID snowflake.Snowflake, opts ...Request
 	return
 }
 
-func (s *guildImpl) CreateGuild(guildCreate discord.GuildCreate, opts ...RequestOpt) (guild *discord.Guild, err error) {
+func (s *guildImpl) CreateGuild(guildCreate discord.GuildCreate, opts ...RequestOpt) (guild *discord.RestGuild, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateGuild.Compile(nil)
 	if err != nil {
@@ -81,7 +81,7 @@ func (s *guildImpl) CreateGuild(guildCreate discord.GuildCreate, opts ...Request
 	return
 }
 
-func (s *guildImpl) UpdateGuild(guildID snowflake.Snowflake, guildUpdate discord.GuildUpdate, opts ...RequestOpt) (guild *discord.Guild, err error) {
+func (s *guildImpl) UpdateGuild(guildID snowflake.Snowflake, guildUpdate discord.GuildUpdate, opts ...RequestOpt) (guild *discord.RestGuild, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.UpdateGuild.Compile(nil, guildID)
 	if err != nil {
