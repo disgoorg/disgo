@@ -128,17 +128,22 @@ func (t *guildCategoryChannel) UnmarshalJSON(data []byte) error {
 }
 
 type guildVoiceChannel struct {
-	ID                   snowflake.Snowflake   `json:"id"`
-	Type                 ChannelType           `json:"type"`
-	GuildID              snowflake.Snowflake   `json:"guild_id"`
-	Position             int                   `json:"position"`
-	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites"`
-	Name                 string                `json:"name"`
-	Bitrate              int                   `json:"bitrate"`
-	UserLimit            int                   `json:"user_limit"`
-	ParentID             *snowflake.Snowflake  `json:"parent_id"`
-	RTCRegion            string                `json:"rtc_region"`
-	VideoQualityMode     VideoQualityMode      `json:"video_quality_mode"`
+	ID                         snowflake.Snowflake   `json:"id"`
+	Type                       ChannelType           `json:"type"`
+	GuildID                    snowflake.Snowflake   `json:"guild_id"`
+	Position                   int                   `json:"position"`
+	PermissionOverwrites       []PermissionOverwrite `json:"permission_overwrites"`
+	Name                       string                `json:"name"`
+	Bitrate                    int                   `json:"bitrate"`
+	UserLimit                  int                   `json:"user_limit"`
+	ParentID                   *snowflake.Snowflake  `json:"parent_id"`
+	RTCRegion                  string                `json:"rtc_region"`
+	VideoQualityMode           VideoQualityMode      `json:"video_quality_mode"`
+	LastMessageID              *snowflake.Snowflake  `json:"last_message_id"`
+	LastPinTimestamp           *Time                 `json:"last_pin_timestamp"`
+	Topic                      *string               `json:"topic"`
+	NSFW                       bool                  `json:"nsfw"`
+	DefaultAutoArchiveDuration AutoArchiveDuration   `json:"default_auto_archive_duration"`
 }
 
 func (t *guildVoiceChannel) UnmarshalJSON(data []byte) error {
