@@ -58,6 +58,7 @@ func (s *serverImpl) Start() {
 	go func() {
 		s.config.ServeMux.Handle(s.config.URL, &WebhookInteractionHandler{server: s})
 		s.config.HTTPServer.Addr = s.config.Address
+		s.config.HTTPServer.Handler = s.config.ServeMux
 		var err error
 		if s.config.CertFile != "" && s.config.KeyFile != "" {
 			err = s.config.HTTPServer.ListenAndServeTLS(s.config.CertFile, s.config.KeyFile)
