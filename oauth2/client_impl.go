@@ -59,7 +59,7 @@ func (c *ClientImpl) GenerateAuthorizationURL(redirectURI string, permissions di
 func (c *ClientImpl) GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.Snowflake, disableGuildSelect bool, scopes ...discord.ApplicationScope) (string, string) {
 	state := c.StateController().GenerateNewState(redirectURI)
 	values := route.QueryValues{
-		"client_id":     c.ID,
+		"client_id":     c.ID(),
 		"redirect_uri":  redirectURI,
 		"response_type": "code",
 		"scope":         discord.JoinScopes(scopes),
