@@ -72,6 +72,7 @@ type GuildFeature string
 // Constants for GuildFeature
 const (
 	GuildFeatureAnimatedIcon                  GuildFeature = "ANIMATED_ICON"
+	GuildFeatureAnimatedBanner                GuildFeature = "ANIMATED_BANNER"
 	GuildFeatureBanner                        GuildFeature = "BANNER"
 	GuildFeatureCommerce                      GuildFeature = "COMMERCE"
 	GuildFeatureCommunity                     GuildFeature = "COMMUNITY"
