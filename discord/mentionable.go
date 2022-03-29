@@ -55,9 +55,9 @@ func AnimatedEmojiMention(id snowflake.Snowflake, name string) string {
 }
 
 func TimestampMention(timestamp int64) string {
-	return TimestampStyleNone.Format(timestamp)
+	return fmt.Sprintf("<t:%d>", timestamp)
 }
 
 func FormattedTimestampMention(timestamp int64, style TimestampStyle) string {
-	return style.Format(timestamp)
+	return fmt.Sprintf("<t:%d:%s>", timestamp, style)
 }
