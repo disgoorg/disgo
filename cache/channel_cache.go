@@ -7,9 +7,7 @@ import (
 
 func NewChannelCache(flags Flags, neededFlags Flags, policy Policy[discord.Channel]) ChannelCache {
 	return &ChannelCacheImpl{
-		Cache:         NewCache[discord.Channel](flags, neededFlags, policy),
-		guildChannels: map[snowflake.Snowflake]snowflake.Snowflake{},
-		dmChannels:    map[snowflake.Snowflake]snowflake.Snowflake{},
+		Cache: NewCache[discord.Channel](flags, neededFlags, policy),
 	}
 }
 
@@ -38,8 +36,6 @@ type ChannelCache interface {
 
 type ChannelCacheImpl struct {
 	Cache[discord.Channel]
-	guildChannels map[snowflake.Snowflake]snowflake.Snowflake
-	dmChannels    map[snowflake.Snowflake]snowflake.Snowflake
 }
 
 func (c *ChannelCacheImpl) GuildChannels(guildID snowflake.Snowflake) []discord.GuildChannel {
@@ -90,8 +86,8 @@ func (c *ChannelCacheImpl) GetMessageChannel(channelID snowflake.Snowflake) (dis
 
 func (c *ChannelCacheImpl) GetGuildMessageChannel(channelID snowflake.Snowflake) (discord.GuildMessageChannel, bool) {
 	if ch, ok := c.Get(channelID); ok {
-		if cCh, ok := ch.(discord.GuildMessageChannel); ok {
-			return cCh, true
+		if chM, ok := ch.(discord.GuildMessageChannel); ok {
+			return chM, true
 		}
 	}
 	return nil, false

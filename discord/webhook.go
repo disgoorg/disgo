@@ -144,7 +144,10 @@ func (w IncomingWebhook) EffectiveAvatarURL(opts ...CDNOpt) string {
 }
 
 func (w IncomingWebhook) AvatarURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.UserAvatar, opts, w.ID(), w.Avatar())
+	if w.Avatar() == nil {
+		return nil
+	}
+	return formatAssetURL(route.UserAvatar, opts, w.ID(), *w.Avatar())
 }
 
 func (w IncomingWebhook) DefaultAvatarURL(opts ...CDNOpt) string {
@@ -232,7 +235,7 @@ func (w ChannelFollowerWebhook) EffectiveAvatarURL(opts ...CDNOpt) string {
 }
 
 func (w ChannelFollowerWebhook) AvatarURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.UserAvatar, opts, w.ID(), w.Avatar())
+	return formatAssetURL(route.UserAvatar, opts, w.ID(), *w.Avatar())
 }
 
 func (w ChannelFollowerWebhook) DefaultAvatarURL(opts ...CDNOpt) string {
@@ -308,7 +311,10 @@ func (w ApplicationWebhook) EffectiveAvatarURL(opts ...CDNOpt) string {
 }
 
 func (w ApplicationWebhook) AvatarURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.UserAvatar, opts, w.ID(), w.Avatar())
+	if w.Avatar() == nil {
+		return nil
+	}
+	return formatAssetURL(route.UserAvatar, opts, w.ID(), *w.Avatar())
 }
 
 func (w ApplicationWebhook) DefaultAvatarURL(opts ...CDNOpt) string {

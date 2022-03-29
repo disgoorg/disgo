@@ -32,7 +32,10 @@ func (r Role) Mention() string {
 }
 
 func (r Role) IconURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.RoleIcon, opts, r.ID, r.Icon)
+	if r.Icon == nil {
+		return nil
+	}
+	return formatAssetURL(route.RoleIcon, opts, r.ID, *r.Icon)
 }
 
 // RoleTag are tags a Role has

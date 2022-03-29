@@ -161,13 +161,10 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 			if err = json.Unmarshal(rawRsBody, rsBody); err != nil {
 				wErr := fmt.Errorf("error unmarshalling response body: %w", err)
 				c.Logger().Error(wErr)
-				return NewErrorErr(rq, rawRqBody, rs, rawRsBody, wErr)
+				return wErr
 			}
 		}
 		return nil
-
-	case http.StatusBadGateway, http.StatusUnauthorized:
-		return NewError(rq, rawRqBody, rs, rawRsBody)
 
 	case http.StatusTooManyRequests:
 		if tries >= c.RateLimiter().MaxRetries() {
@@ -176,18 +173,10 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 		return c.retry(cRoute, rqBody, rsBody, tries+1, opts)
 
 	default:
-		var v discord.APIError
-		if err = json.Unmarshal(rawRsBody, &v); err != nil {
-			return fmt.Errorf("error unmarshalling error response body: %w", err)
-		}
-		return NewErrorAPIErr(rq, rawRqBody, rs, rawRsBody, v)
+		return NewError(rq, rawRqBody, rs, rawRsBody)
 	}
 }
 
 func (c *clientImpl) Do(cRoute *route.CompiledAPIRoute, rqBody any, rsBody any, opts ...RequestOpt) error {
 	return c.retry(cRoute, rqBody, rsBody, 1, opts)
-}
-
-func applyAuthHeader(tokenType discord.TokenType, token string, opts []RequestOpt) []RequestOpt {
-	return append(opts, WithHeader("authorization", tokenType.Apply(token)))
 }

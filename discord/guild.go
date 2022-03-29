@@ -110,8 +110,6 @@ type Guild struct {
 	VerificationLevel           VerificationLevel          `json:"verification_level"`
 	DefaultMessageNotifications MessageNotificationsLevel  `json:"default_message_notifications"`
 	ExplicitContentFilter       ExplicitContentFilterLevel `json:"explicit_content_filter"`
-	Roles                       []Role                     `json:"roles"`
-	Emojis                      []Emoji                    `json:"emojis"`
 	Features                    []GuildFeature             `json:"features"`
 	MFALevel                    MFALevel                   `json:"mfa_level"`
 	ApplicationID               *snowflake.Snowflake       `json:"application_id"`
@@ -132,7 +130,6 @@ type Guild struct {
 	WelcomeScreen               WelcomeScreen              `json:"welcome_screen"`
 	NSFWLevel                   NSFWLevel                  `json:"nsfw_level"`
 	BoostProgressBarEnabled     bool                       `json:"premium_progress_bar_enabled"`
-	Stickers                    []Sticker                  `json:"stickers"`
 	JoinedAt                    Time                       `json:"joined_at"`
 
 	// only over GET /guilds/{guild.id}
@@ -141,23 +138,42 @@ type Guild struct {
 }
 
 func (g Guild) IconURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.GuildIcon, opts, g.ID, g.Icon)
+	if g.Icon == nil {
+		return nil
+	}
+	return formatAssetURL(route.GuildIcon, opts, g.ID, *g.Icon)
 }
 
 func (g Guild) SplashURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.GuildSplash, opts, g.ID, g.Splash)
+	if g.Splash == nil {
+		return nil
+	}
+	return formatAssetURL(route.GuildSplash, opts, g.ID, *g.Splash)
 }
 
 func (g Guild) DiscoverySplashURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.GuildDiscoverySplash, opts, g.ID, g.DiscoverySplash)
+	if g.DiscoverySplash == nil {
+		return nil
+	}
+	return formatAssetURL(route.GuildDiscoverySplash, opts, g.ID, *g.DiscoverySplash)
 }
 
 func (g Guild) BannerURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.GuildBanner, opts, g.ID, g.Banner)
+	if g.Banner == nil {
+		return nil
+	}
+	return formatAssetURL(route.GuildBanner, opts, g.ID, *g.Banner)
+}
+
+type RestGuild struct {
+	Guild
+	Stickers []Sticker `json:"stickers"`
+	Roles    []Role    `json:"roles"`
+	Emojis   []Emoji   `json:"emojis"`
 }
 
 type GatewayGuild struct {
-	Guild
+	RestGuild
 	Large                bool                  `json:"large"`
 	Unavailable          bool                  `json:"unavailable"`
 	VoiceStates          []VoiceState          `json:"voice_states"`

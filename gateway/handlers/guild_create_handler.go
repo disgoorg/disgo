@@ -28,13 +28,17 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(client bot.Client, sequen
 
 	wasUnready := client.Caches().Guilds().IsUnready(shardID, gatewayGuild.ID)
 	wasUnavailable := client.Caches().Guilds().IsUnavailable(gatewayGuild.ID)
+	
+	client.Caches().Guilds().Put(gatewayGuild.ID, gatewayGuild.Guild)
 
 	for _, channel := range gatewayGuild.Channels {
-		client.Caches().Channels().Put(channel.ID(), channel)
+		// populate unset field
+		client.Caches().Channels().Put(channel.ID(), discord.ApplyGuildIDToChannel(channel, gatewayGuild.ID))
 	}
 
 	for _, thread := range gatewayGuild.Threads {
-		client.Caches().Channels().Put(thread.ID(), thread)
+		// populate unset field
+		client.Caches().Channels().Put(thread.ID(), discord.ApplyGuildIDToThread(thread, gatewayGuild.ID))
 	}
 
 	for _, role := range gatewayGuild.Roles {
@@ -42,6 +46,7 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(client bot.Client, sequen
 	}
 
 	for _, member := range gatewayGuild.Members {
+		member.GuildID = gatewayGuild.ID // populate unset field
 		client.Caches().Members().Put(gatewayGuild.ID, member.User.ID, member)
 	}
 
@@ -67,6 +72,7 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(client bot.Client, sequen
 	}
 
 	for _, presence := range gatewayGuild.Presences {
+		presence.GuildID = gatewayGuild.ID // populate unset field
 		client.Caches().Presences().Put(gatewayGuild.ID, presence.PresenceUser.ID, presence)
 	}
 

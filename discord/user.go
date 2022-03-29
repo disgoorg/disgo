@@ -46,7 +46,7 @@ type User struct {
 	Avatar        *string             `json:"avatar"`
 	Banner        *string             `json:"banner"`
 	AccentColor   *int                `json:"accent_color"`
-	BotUser       bool                `json:"bot"`
+	Bot           bool                `json:"bot"`
 	System        bool                `json:"system"`
 	PublicFlags   UserFlags           `json:"public_flags"`
 }
@@ -74,7 +74,10 @@ func (u User) EffectiveAvatarURL(opts ...CDNOpt) string {
 }
 
 func (u User) AvatarURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.UserAvatar, opts, u.ID, u.Avatar)
+	if u.Avatar == nil {
+		return nil
+	}
+	return formatAssetURL(route.UserAvatar, opts, u.ID, *u.Avatar)
 }
 
 func (u User) DefaultAvatarURL(opts ...CDNOpt) string {
@@ -89,7 +92,10 @@ func (u User) DefaultAvatarURL(opts ...CDNOpt) string {
 }
 
 func (u User) BannerURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.UserBanner, opts, u.ID, u.Avatar)
+	if u.Banner == nil {
+		return nil
+	}
+	return formatAssetURL(route.UserBanner, opts, u.ID, *u.Banner)
 }
 
 // OAuth2User represents a full User returned by the oauth2 endpoints

@@ -17,6 +17,7 @@ func DefaultConfig(gatewayHandlers map[discord.GatewayEventType]GatewayEventHand
 	return &Config{
 		Logger:                 log.Default(),
 		EventManagerConfigOpts: []EventManagerConfigOpt{WithGatewayHandlers(gatewayHandlers), WithHTTPServerHandler(httpHandler)},
+		MemberChunkingFilter:   MemberChunkingFilterNone,
 	}
 }
 

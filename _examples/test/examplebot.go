@@ -31,7 +31,6 @@ func main() {
 	log.Infof("bot version: %s", disgo.Version)
 
 	client, err := disgo.New(token,
-		//bot.WithRawEventsEnabled(),
 		bot.WithGatewayConfigOpts(
 			gateway.WithGatewayIntents(discord.GatewayIntentsNonPrivileged, discord.GatewayIntentMessageContent),
 			gateway.WithPresence(discord.NewListeningPresence("your bullshit", discord.OnlineStatusOnline, false)),

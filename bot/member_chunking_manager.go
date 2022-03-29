@@ -12,15 +12,17 @@ import (
 var _ MemberChunkingManager = (*memberChunkingManagerImpl)(nil)
 
 func NewMemberChunkingManager(client Client, memberChunkingFilter MemberChunkingFilter) MemberChunkingManager {
+	if memberChunkingFilter == nil {
+		memberChunkingFilter = MemberChunkingFilterNone
+	}
 	return &memberChunkingManagerImpl{
-		bot:                  client,
+		client:               client,
 		memberChunkingFilter: memberChunkingFilter,
 		chunkingRequests:     map[string]*chunkingRequest{},
 	}
 }
 
 type MemberChunkingManager interface {
-	Client() Client
 	MemberChunkingFilter() MemberChunkingFilter
 
 	HandleChunk(payload discord.GatewayEventGuildMembersChunk)
@@ -49,15 +51,11 @@ type chunkingRequest struct {
 }
 
 type memberChunkingManagerImpl struct {
-	bot                  Client
+	client               Client
 	memberChunkingFilter MemberChunkingFilter
 
 	chunkingRequestsMu sync.RWMutex
 	chunkingRequests   map[string]*chunkingRequest
-}
-
-func (m *memberChunkingManagerImpl) Client() Client {
-	return m.bot
 }
 
 func (m *memberChunkingManagerImpl) MemberChunkingFilter() MemberChunkingFilter {
@@ -69,7 +67,7 @@ func (m *memberChunkingManagerImpl) HandleChunk(payload discord.GatewayEventGuil
 	request, ok := m.chunkingRequests[payload.Nonce]
 	m.chunkingRequestsMu.RUnlock()
 	if !ok {
-		m.Client().Logger().Debug("received unknown member chunk event: ", payload)
+		m.client.Logger().Debug("received unknown member chunk event: ", payload)
 		return
 	}
 
@@ -78,7 +76,7 @@ func (m *memberChunkingManagerImpl) HandleChunk(payload discord.GatewayEventGuil
 
 	for _, member := range payload.Members {
 		// try to cache member
-		m.Client().Caches().Members().Put(member.GuildID, member.User.ID, member)
+		m.client.Caches().Members().Put(member.GuildID, member.User.ID, member)
 		if request.memberFilterFunc != nil && !request.memberFilterFunc(member) {
 			continue
 		}
@@ -101,7 +99,7 @@ func cleanupRequest(m *memberChunkingManagerImpl, request *chunkingRequest) {
 }
 
 func (m *memberChunkingManagerImpl) requestGuildMembersChan(ctx context.Context, guildID snowflake.Snowflake, query *string, limit *int, userIDs []snowflake.Snowflake, memberFilterFunc func(member discord.Member) bool) (<-chan discord.Member, func(), error) {
-	shard, err := m.Client().Shard(guildID)
+	shard, err := m.client.Shard(guildID)
 	if err != nil {
 		return nil, nil, err
 	}
