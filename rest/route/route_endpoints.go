@@ -48,7 +48,7 @@ var (
 	GetGuildChannels       = NewAPIRoute(GET, "/guilds/{guild.id}/channels")
 	UpdateChannelPositions = NewAPIRoute(PATCH, "/guilds/{guild.id}/channels")
 
-	GetBans   = NewAPIRoute(GET, "/guilds/{guild.id}/bans")
+	GetBans   = NewAPIRoute(GET, "/guilds/{guild.id}/bans", "before", "after", "limit")
 	GetBan    = NewAPIRoute(GET, "/guilds/{guild.id}/bans/{user.id}")
 	AddBan    = NewAPIRoute(PUT, "/guilds/{guild.id}/bans/{user.id}")
 	DeleteBan = NewAPIRoute(DELETE, "/guilds/{guild.id}/bans/{user.id}")
