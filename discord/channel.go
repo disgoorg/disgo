@@ -26,6 +26,7 @@ const (
 	ChannelTypeGuildPublicThread
 	ChannelTypeGuildPrivateThread
 	ChannelTypeGuildStageVoice
+	ChannelTypeGuildDirectory
 )
 
 type Channel interface {
