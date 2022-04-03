@@ -110,7 +110,7 @@ type GatewayMessageDataIdentify struct {
 	Properties     IdentifyCommandDataProperties     `json:"properties"`
 	Compress       bool                              `json:"compress,omitempty"`
 	LargeThreshold int                               `json:"large_threshold,omitempty"`
-	Shard          []int                             `json:"shard,omitempty"`
+	Shard          [2]int                            `json:"shard,omitempty"`
 	GatewayIntents GatewayIntents                    `json:"intents"`
 	Presence       *GatewayMessageDataPresenceUpdate `json:"presence,omitempty"`
 }
