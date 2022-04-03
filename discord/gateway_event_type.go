@@ -5,10 +5,8 @@ type GatewayEventType string
 
 // Constants for the gateway events
 const (
-	GatewayEventTypeHello                         GatewayEventType = "HELLO"
 	GatewayEventTypeReady                         GatewayEventType = "READY"
 	GatewayEventTypeResumed                       GatewayEventType = "RESUMED"
-	GatewayEventTypeReconnect                     GatewayEventType = "RECONNECT"
 	GatewayEventTypeChannelCreate                 GatewayEventType = "CHANNEL_CREATE"
 	GatewayEventTypeChannelUpdate                 GatewayEventType = "CHANNEL_UPDATE"
 	GatewayEventTypeChannelDelete                 GatewayEventType = "CHANNEL_DELETE"
