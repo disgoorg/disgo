@@ -9,6 +9,9 @@ import (
 	"github.com/disgoorg/log"
 )
 
+// APIVersion defines which discord API version disgo should use to connect to discord.
+const APIVersion = "10"
+
 // Status is the state that the client is currently in
 type Status int
 
