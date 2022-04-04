@@ -10,8 +10,8 @@ import (
 // GatewayMessage raw GatewayMessage type
 type GatewayMessage struct {
 	Op GatewayOpcode      `json:"op"`
-	S  int                `json:"s"`
-	T  GatewayEventType   `json:"t"`
+	S  int                `json:"s,omitempty"`
+	T  GatewayEventType   `json:"t,omitempty"`
 	D  GatewayMessageData `json:"d,omitempty"`
 }
 
@@ -110,7 +110,7 @@ type GatewayMessageDataIdentify struct {
 	Properties     IdentifyCommandDataProperties     `json:"properties"`
 	Compress       bool                              `json:"compress,omitempty"`
 	LargeThreshold int                               `json:"large_threshold,omitempty"`
-	Shard          [2]int                            `json:"shard,omitempty"`
+	Shard          *[2]int                           `json:"shard,omitempty"`
 	GatewayIntents GatewayIntents                    `json:"intents"`
 	Presence       *GatewayMessageDataPresenceUpdate `json:"presence,omitempty"`
 }

@@ -246,7 +246,7 @@ func (g *gatewayImpl) connect() {
 		Presence:       g.config.Presence,
 	}
 	if g.ShardCount() > 1 {
-		identify.Shard = [2]int{g.ShardID(), g.ShardCount()}
+		identify.Shard = &[2]int{g.ShardID(), g.ShardCount()}
 	}
 
 	if err := g.Send(context.TODO(), discord.GatewayOpcodeIdentify, identify); err != nil {
