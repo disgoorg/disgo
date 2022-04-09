@@ -1042,11 +1042,11 @@ func ApplyGuildIDToChannel(channel GuildChannel, guildID snowflake.Snowflake) Gu
 		c.guildID = guildID
 		return c
 	default:
-		panic(fmt.Sprintf("invalid channel type: %d", channel.Type()))
+		return channel
 	}
 }
 
-func ApplyLastMessageID(channel MessageChannel, channelID snowflake.Snowflake) GuildChannel {
+func ApplyLastMessageID(channel MessageChannel, channelID snowflake.Snowflake) MessageChannel {
 	switch c := channel.(type) {
 	case GuildTextChannel:
 		c.lastMessageID = &channelID
@@ -1058,11 +1058,11 @@ func ApplyLastMessageID(channel MessageChannel, channelID snowflake.Snowflake) G
 		c.lastMessageID = &channelID
 		return c
 	default:
-		panic(fmt.Sprintf("invalid channel type: %d", channel.Type()))
+		return channel
 	}
 }
 
-func ApplyLastPinTimestamp(channel MessageChannel, lastPinTimestamp *Time) GuildChannel {
+func ApplyLastPinTimestamp(channel MessageChannel, lastPinTimestamp *Time) MessageChannel {
 	switch c := channel.(type) {
 	case GuildTextChannel:
 		c.lastPinTimestamp = lastPinTimestamp
@@ -1074,6 +1074,6 @@ func ApplyLastPinTimestamp(channel MessageChannel, lastPinTimestamp *Time) Guild
 		c.lastPinTimestamp = lastPinTimestamp
 		return c
 	default:
-		panic(fmt.Sprintf("invalid channel type: %d", channel.Type()))
+		return channel
 	}
 }
