@@ -42,7 +42,7 @@ func (m *shardManagerImpl) RateLimiter() srate.Limiter {
 }
 
 func (m *shardManagerImpl) Open(ctx context.Context) {
-	m.Logger().Infof("opening %s shards...", m.config.Shards)
+	m.Logger().Debugf("opening %s shards...", m.config.Shards)
 	var wg sync.WaitGroup
 
 	for _, shardInt := range m.config.Shards.Values() {
@@ -71,7 +71,7 @@ func (m *shardManagerImpl) Open(ctx context.Context) {
 }
 
 func (m *shardManagerImpl) ReOpen(ctx context.Context) {
-	m.Logger().Infof("reopening %s shards...", m.config.Shards)
+	m.Logger().Debugf("reopening %s shards...", m.config.Shards)
 	var wg sync.WaitGroup
 
 	for shardID := range m.shards.AllIDs() {
@@ -91,7 +91,7 @@ func (m *shardManagerImpl) ReOpen(ctx context.Context) {
 }
 
 func (m *shardManagerImpl) Close(ctx context.Context) {
-	m.Logger().Infof("closing %v shards...", m.config.Shards)
+	m.Logger().Debugf("closing %v shards...", m.config.Shards)
 	var wg sync.WaitGroup
 
 	for shardID := range m.shards.AllIDs() {
@@ -107,7 +107,7 @@ func (m *shardManagerImpl) Close(ctx context.Context) {
 }
 
 func (m *shardManagerImpl) OpenShard(ctx context.Context, shardID int) error {
-	m.Logger().Infof("opening shard %d...", shardID)
+	m.Logger().Debugf("opening shard %d...", shardID)
 	shard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(m.config.ShardCount))...)
 	m.config.Shards.Add(shardID)
 	m.shards.Set(shardID, shard)
@@ -115,7 +115,7 @@ func (m *shardManagerImpl) OpenShard(ctx context.Context, shardID int) error {
 }
 
 func (m *shardManagerImpl) ReOpenShard(ctx context.Context, shardID int) error {
-	m.Logger().Infof("reopening shard %d...", shardID)
+	m.Logger().Debugf("reopening shard %d...", shardID)
 	shard := m.shards.Get(shardID)
 	if shard != nil {
 		shard.Close(ctx)
@@ -124,7 +124,7 @@ func (m *shardManagerImpl) ReOpenShard(ctx context.Context, shardID int) error {
 }
 
 func (m *shardManagerImpl) CloseShard(ctx context.Context, shardID int) {
-	m.Logger().Infof("closing shard %d...", shardID)
+	m.Logger().Debugf("closing shard %d...", shardID)
 	m.config.Shards.Delete(shardID)
 	shard := m.shards.Delete(shardID)
 	if shard != nil {

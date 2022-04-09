@@ -1,6 +1,8 @@
 package route
 
-import "strings"
+import (
+	"strings"
+)
 
 // MajorParameters is a list of url parameters which decide in which bucket a route belongs (https://discord.com/developers/docs/topics/rate-limits#rate-limits)
 const MajorParameters = "guild.id:channel.id:webhook.id:interaction.token"

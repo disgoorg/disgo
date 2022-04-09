@@ -30,7 +30,7 @@ type Guilds interface {
 	UpdateRolePositions(guildID snowflake.Snowflake, rolePositionUpdates []discord.RolePositionUpdate, opts ...RequestOpt) ([]discord.Role, error)
 	DeleteRole(guildID snowflake.Snowflake, roleID snowflake.Snowflake, opts ...RequestOpt) error
 
-	GetBans(guildID snowflake.Snowflake, opts ...RequestOpt) ([]discord.Ban, error)
+	GetBans(guildID snowflake.Snowflake, before snowflake.Snowflake, after snowflake.Snowflake, limit int, opts ...RequestOpt) ([]discord.Ban, error)
 	GetBan(guildID snowflake.Snowflake, userID snowflake.Snowflake, opts ...RequestOpt) (*discord.Ban, error)
 	AddBan(guildID snowflake.Snowflake, userID snowflake.Snowflake, deleteMessageDays int, opts ...RequestOpt) error
 	DeleteBan(guildID snowflake.Snowflake, userID snowflake.Snowflake, opts ...RequestOpt) error
@@ -189,9 +189,19 @@ func (s *guildImpl) DeleteRole(guildID snowflake.Snowflake, roleID snowflake.Sno
 	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
 
-func (s *guildImpl) GetBans(guildID snowflake.Snowflake, opts ...RequestOpt) (bans []discord.Ban, err error) {
+func (s *guildImpl) GetBans(guildID snowflake.Snowflake, before snowflake.Snowflake, after snowflake.Snowflake, limit int, opts ...RequestOpt) (bans []discord.Ban, err error) {
+	values := route.QueryValues{}
+	if before != "" {
+		values["before"] = before
+	}
+	if after != "" {
+		values["after"] = after
+	}
+	if limit != 0 {
+		values["limit"] = limit
+	}
 	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetBans.Compile(nil, guildID)
+	compiledRoute, err = route.GetBans.Compile(values, guildID)
 	if err != nil {
 		return
 	}

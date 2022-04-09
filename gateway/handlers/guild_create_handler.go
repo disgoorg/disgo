@@ -29,6 +29,8 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(client bot.Client, sequen
 	wasUnready := client.Caches().Guilds().IsUnready(shardID, gatewayGuild.ID)
 	wasUnavailable := client.Caches().Guilds().IsUnavailable(gatewayGuild.ID)
 
+	client.Caches().Guilds().Put(gatewayGuild.ID, gatewayGuild.Guild)
+
 	for _, channel := range gatewayGuild.Channels {
 		// populate unset field
 		client.Caches().Channels().Put(channel.ID(), discord.ApplyGuildIDToChannel(channel, gatewayGuild.ID))

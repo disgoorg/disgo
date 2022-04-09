@@ -39,7 +39,7 @@ func NewIcon(iconType IconType, reader io.Reader) (*Icon, error) {
 }
 
 func NewIconRaw(iconType IconType, src []byte) *Icon {
-	var data []byte
+	data := make([]byte, base64.StdEncoding.EncodedLen(len(src)))
 	base64.StdEncoding.Encode(data, src)
 	return &Icon{Type: iconType, Data: data}
 }

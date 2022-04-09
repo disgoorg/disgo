@@ -28,7 +28,7 @@ func (e *ApplicationCommandInteractionEvent) DeferCreateMessage(ephemeral bool, 
 	if ephemeral {
 		messageCreate = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
 	}
-	return e.Respond(discord.InteractionCallbackTypeCreateMessage, messageCreate, opts...)
+	return e.Respond(discord.InteractionCallbackTypeDeferredCreateMessage, messageCreate, opts...)
 }
 
 func (e *ApplicationCommandInteractionEvent) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
@@ -50,7 +50,7 @@ func (e *ComponentInteractionEvent) DeferCreateMessage(ephemeral bool, opts ...r
 	if ephemeral {
 		messageCreate = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
 	}
-	return e.Respond(discord.InteractionCallbackTypeCreateMessage, messageCreate, opts...)
+	return e.Respond(discord.InteractionCallbackTypeDeferredCreateMessage, messageCreate, opts...)
 }
 
 func (e *ComponentInteractionEvent) UpdateMessage(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
@@ -90,7 +90,7 @@ func (e *ModalSubmitInteractionEvent) DeferCreateMessage(ephemeral bool, opts ..
 	if ephemeral {
 		messageCreate = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
 	}
-	return e.Respond(discord.InteractionCallbackTypeCreateMessage, messageCreate, opts...)
+	return e.Respond(discord.InteractionCallbackTypeDeferredCreateMessage, messageCreate, opts...)
 }
 
 func (e *ModalSubmitInteractionEvent) UpdateMessage(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
