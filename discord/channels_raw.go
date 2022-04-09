@@ -190,3 +190,37 @@ func (t *guildStageVoiceChannel) UnmarshalJSON(data []byte) error {
 	}
 	return nil
 }
+
+type guildForumChannel struct {
+	ID                   snowflake.Snowflake   `json:"id"`
+	Type                 ChannelType           `json:"type"`
+	GuildID              snowflake.Snowflake   `json:"guild_id"`
+	Position             int                   `json:"position"`
+	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites"`
+	Name                 string                `json:"name"`
+	ParentID             *snowflake.Snowflake  `json:"parent_id"`
+	Topic                *string               `json:"topic"`
+	RateLimitPerUser     int                   `json:"rate_limit_per_user"`
+
+	// idk discord name your shit correctly
+	LastThreadID *snowflake.Snowflake `json:"last_message_id"`
+}
+
+func (t *guildForumChannel) UnmarshalJSON(data []byte) error {
+	type guildForumChannelAlias guildForumChannel
+	var v struct {
+		PermissionOverwrites []UnmarshalPermissionOverwrite `json:"permission_overwrites"`
+		guildForumChannelAlias
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*t = guildForumChannel(v.guildForumChannelAlias)
+	if len(v.PermissionOverwrites) > 0 {
+		t.PermissionOverwrites = make([]PermissionOverwrite, len(v.PermissionOverwrites))
+		for i := range v.PermissionOverwrites {
+			t.PermissionOverwrites[i] = v.PermissionOverwrites[i].PermissionOverwrite
+		}
+	}
+	return nil
+}

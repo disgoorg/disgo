@@ -24,10 +24,11 @@ func (h *gatewayHandlerChannelPinsUpdate) HandleGatewayEvent(client bot.Client, 
 	payload := *v.(*discord.GatewayEventChannelPinsUpdate)
 
 	var oldTime *discord.Time
-	channel, ok := client.Caches().Channels().GetMessageChannel(payload.ChannelID)
-	if ok {
-		// TODO: update channels last pinned timestamp
+
+	// update discord.MessageChannel.LastMessageID()
+	if channel, ok := client.Caches().Channels().GetMessageChannel(payload.ChannelID); ok {
 		oldTime = channel.LastPinTimestamp()
+		client.Caches().Channels().Put(payload.ChannelID, discord.ApplyLastPinTimestamp(channel, payload.LastPinTimestamp))
 	}
 
 	if payload.GuildID == nil {

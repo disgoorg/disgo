@@ -27,7 +27,51 @@ const (
 	ChannelTypeGuildPrivateThread
 	ChannelTypeGuildStageVoice
 	ChannelTypeGuildDirectory
+	ChannelTypeGuildForum
 )
+
+type ChannelFlags int
+
+const (
+	ChannelFlagsNone   ChannelFlags = 0
+	ChannelFlagsPinned ChannelFlags = 1 << iota
+)
+
+// Add allows you to add multiple bits together, producing a new bit
+func (f ChannelFlags) Add(bits ...ChannelFlags) ChannelFlags {
+	for _, bit := range bits {
+		f |= bit
+	}
+	return f
+}
+
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (f ChannelFlags) Remove(bits ...ChannelFlags) ChannelFlags {
+	for _, bit := range bits {
+		f &^= bit
+	}
+	return f
+}
+
+// Has will ensure that the bit includes all the bits entered
+func (f ChannelFlags) Has(bits ...ChannelFlags) bool {
+	for _, bit := range bits {
+		if (f & bit) != bit {
+			return false
+		}
+	}
+	return true
+}
+
+// Missing will check whether the bit is missing any one of the bits
+func (f ChannelFlags) Missing(bits ...ChannelFlags) bool {
+	for _, bit := range bits {
+		if (f & bit) != bit {
+			return true
+		}
+	}
+	return false
+}
 
 type Channel interface {
 	json.Marshaler
@@ -853,6 +897,95 @@ func (GuildStageVoiceChannel) channel()           {}
 func (GuildStageVoiceChannel) guildChannel()      {}
 func (GuildStageVoiceChannel) guildAudioChannel() {}
 
+var (
+	_ Channel      = (*GuildForumChannel)(nil)
+	_ GuildChannel = (*GuildForumChannel)(nil)
+)
+
+type GuildForumChannel struct {
+	id                   snowflake.Snowflake
+	guildID              snowflake.Snowflake
+	position             int
+	permissionOverwrites []PermissionOverwrite
+	name                 string
+	parentID             *snowflake.Snowflake
+	LastThreadID         *snowflake.Snowflake
+	Topic                *string
+	RateLimitPerUser     int
+}
+
+func (c *GuildForumChannel) UnmarshalJSON(data []byte) error {
+	var v guildForumChannel
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	c.id = v.ID
+	c.guildID = v.GuildID
+	c.position = v.Position
+	c.permissionOverwrites = v.PermissionOverwrites
+	c.name = v.Name
+	c.parentID = v.ParentID
+	c.LastThreadID = v.LastThreadID
+	c.Topic = v.Topic
+	c.RateLimitPerUser = v.RateLimitPerUser
+	return nil
+}
+
+func (c GuildForumChannel) MarshalJSON() ([]byte, error) {
+	return json.Marshal(guildForumChannel{
+		ID:                   c.id,
+		Type:                 c.Type(),
+		GuildID:              c.guildID,
+		Position:             c.position,
+		PermissionOverwrites: c.permissionOverwrites,
+		Name:                 c.name,
+		ParentID:             c.parentID,
+		LastThreadID:         c.LastThreadID,
+		Topic:                c.Topic,
+		RateLimitPerUser:     c.RateLimitPerUser,
+	})
+}
+
+func (c GuildForumChannel) String() string {
+	return channelString(c)
+}
+
+func (c GuildForumChannel) Mention() string {
+	return ChannelMention(c.ID())
+}
+
+func (GuildForumChannel) Type() ChannelType {
+	return ChannelTypeGuildForum
+}
+
+func (c GuildForumChannel) ID() snowflake.Snowflake {
+	return c.id
+}
+
+func (c GuildForumChannel) Name() string {
+	return c.name
+}
+
+func (c GuildForumChannel) GuildID() snowflake.Snowflake {
+	return c.guildID
+}
+
+func (c GuildForumChannel) PermissionOverwrites() []PermissionOverwrite {
+	return c.permissionOverwrites
+}
+
+func (c GuildForumChannel) Position() int {
+	return c.position
+}
+
+func (c GuildForumChannel) ParentID() *snowflake.Snowflake {
+	return c.parentID
+}
+
+func (GuildForumChannel) channel()      {}
+func (GuildForumChannel) guildChannel() {}
+
 // VideoQualityMode https://com/developers/docs/resources/channel#channel-object-video-quality-modes
 type VideoQualityMode int
 
@@ -909,6 +1042,38 @@ func ApplyGuildIDToChannel(channel GuildChannel, guildID snowflake.Snowflake) Gu
 		c.guildID = guildID
 		return c
 	default:
-		panic("unknown channel type")
+		panic(fmt.Sprintf("invalid channel type: %d", channel.Type()))
+	}
+}
+
+func ApplyLastMessageID(channel MessageChannel, channelID snowflake.Snowflake) GuildChannel {
+	switch c := channel.(type) {
+	case GuildTextChannel:
+		c.lastMessageID = &channelID
+		return c
+	case GuildNewsChannel:
+		c.lastMessageID = &channelID
+		return c
+	case GuildThread:
+		c.lastMessageID = &channelID
+		return c
+	default:
+		panic(fmt.Sprintf("invalid channel type: %d", channel.Type()))
+	}
+}
+
+func ApplyLastPinTimestamp(channel MessageChannel, lastPinTimestamp *Time) GuildChannel {
+	switch c := channel.(type) {
+	case GuildTextChannel:
+		c.lastPinTimestamp = lastPinTimestamp
+		return c
+	case GuildNewsChannel:
+		c.lastPinTimestamp = lastPinTimestamp
+		return c
+	case GuildThread:
+		c.lastPinTimestamp = lastPinTimestamp
+		return c
+	default:
+		panic(fmt.Sprintf("invalid channel type: %d", channel.Type()))
 	}
 }

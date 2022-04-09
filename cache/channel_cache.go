@@ -32,6 +32,7 @@ type ChannelCache interface {
 	GetGuildPublicThread(channelID snowflake.Snowflake) (discord.GuildThread, bool)
 	GetGuildPrivateThread(channelID snowflake.Snowflake) (discord.GuildThread, bool)
 	GetGuildStageVoiceChannel(channelID snowflake.Snowflake) (discord.GuildStageVoiceChannel, bool)
+	GetGuildForumChannel(channelID snowflake.Snowflake) (discord.GuildForumChannel, bool)
 }
 
 type ChannelCacheImpl struct {
@@ -184,4 +185,13 @@ func (c *ChannelCacheImpl) GetGuildStageVoiceChannel(channelID snowflake.Snowfla
 		}
 	}
 	return discord.GuildStageVoiceChannel{}, false
+}
+
+func (c *ChannelCacheImpl) GetGuildForumChannel(channelID snowflake.Snowflake) (discord.GuildForumChannel, bool) {
+	if ch, ok := c.Get(channelID); ok {
+		if cCh, ok := ch.(discord.GuildForumChannel); ok {
+			return cCh, true
+		}
+	}
+	return discord.GuildForumChannel{}, false
 }

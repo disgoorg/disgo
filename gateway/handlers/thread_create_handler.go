@@ -22,6 +22,13 @@ func (h *gatewayHandlerThreadCreate) HandleGatewayEvent(client bot.Client, seque
 	client.Caches().Channels().Put(payload.ID(), payload.GuildThread)
 	client.Caches().ThreadMembers().Put(payload.ID(), payload.ThreadMember.UserID, payload.ThreadMember)
 
+	// update discord.GuildForumChannel.LastThreadID()
+	if channel, ok := client.Caches().Channels().GetGuildForumChannel(*payload.ParentID()); ok {
+		threadID := payload.ID()
+		channel.LastThreadID = &threadID
+		client.Caches().Channels().Put(channel.ID(), channel)
+	}
+
 	client.EventManager().DispatchEvent(&events.ThreadCreateEvent{
 		GenericThreadEvent: &events.GenericThreadEvent{
 			GenericEvent: events.NewGenericEvent(client, sequenceNumber),

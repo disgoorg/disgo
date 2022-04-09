@@ -147,11 +147,11 @@ func (GuildNewsChannelCreate) channelCreate()      {}
 func (GuildNewsChannelCreate) guildChannelCreate() {}
 
 var (
-	_ ChannelCreate      = (*GuildStageChannelCreate)(nil)
-	_ GuildChannelCreate = (*GuildStageChannelCreate)(nil)
+	_ ChannelCreate      = (*GuildStageVoiceChannelCreate)(nil)
+	_ GuildChannelCreate = (*GuildStageVoiceChannelCreate)(nil)
 )
 
-type GuildStageChannelCreate struct {
+type GuildStageVoiceChannelCreate struct {
 	Name                 string                `json:"name"`
 	Topic                string                `json:"topic,omitempty"`
 	Bitrate              int                   `json:"bitrate,omitempty"`
@@ -161,23 +161,50 @@ type GuildStageChannelCreate struct {
 	ParentID             snowflake.Snowflake   `json:"parent_id,omitempty"`
 }
 
-func (c GuildStageChannelCreate) Type() ChannelType {
-	return ChannelTypeGuildNews
+func (c GuildStageVoiceChannelCreate) Type() ChannelType {
+	return ChannelTypeGuildStageVoice
 }
 
-func (c GuildStageChannelCreate) MarshalJSON() ([]byte, error) {
-	type guildStageChannelCreate GuildStageChannelCreate
+func (c GuildStageVoiceChannelCreate) MarshalJSON() ([]byte, error) {
+	type guildStageVoiceChannelCreate GuildStageVoiceChannelCreate
 	return json.Marshal(struct {
 		Type ChannelType `json:"type"`
-		guildStageChannelCreate
+		guildStageVoiceChannelCreate
 	}{
-		Type:                    c.Type(),
-		guildStageChannelCreate: guildStageChannelCreate(c),
+		Type:                         c.Type(),
+		guildStageVoiceChannelCreate: guildStageVoiceChannelCreate(c),
 	})
 }
 
-func (GuildStageChannelCreate) channelCreate()      {}
-func (GuildStageChannelCreate) guildChannelCreate() {}
+func (GuildStageVoiceChannelCreate) channelCreate()      {}
+func (GuildStageVoiceChannelCreate) guildChannelCreate() {}
+
+type GuildForumChannelCreate struct {
+	Name                 string                `json:"name"`
+	Topic                string                `json:"topic,omitempty"`
+	Position             int                   `json:"position,omitempty"`
+	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites,omitempty"`
+	ParentID             snowflake.Snowflake   `json:"parent_id,omitempty"`
+	RateLimitPerUser     int                   `json:"rate_limit_per_user"`
+}
+
+func (c GuildForumChannelCreate) Type() ChannelType {
+	return ChannelTypeGuildForum
+}
+
+func (c GuildForumChannelCreate) MarshalJSON() ([]byte, error) {
+	type guildForumChannelCreate GuildForumChannelCreate
+	return json.Marshal(struct {
+		Type ChannelType `json:"type"`
+		guildForumChannelCreate
+	}{
+		Type:                    c.Type(),
+		guildForumChannelCreate: guildForumChannelCreate(c),
+	})
+}
+
+func (GuildForumChannelCreate) channelCreate()      {}
+func (GuildForumChannelCreate) guildChannelCreate() {}
 
 type DMChannelCreate struct {
 	RecipientID snowflake.Snowflake `json:"recipient_id"`
