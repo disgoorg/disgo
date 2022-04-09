@@ -38,10 +38,6 @@ func UserMention(id snowflake.Snowflake) string {
 	return fmt.Sprintf("<@%s>", id)
 }
 
-func MemberMention(id snowflake.Snowflake) string {
-	return fmt.Sprintf("<@!%s>", id)
-}
-
 func RoleMention(id snowflake.Snowflake) string {
 	return fmt.Sprintf("<@&%s>", id)
 }
