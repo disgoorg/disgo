@@ -812,7 +812,6 @@ func (GuildThread) channel()             {}
 func (GuildThread) guildChannel()        {}
 func (GuildThread) messageChannel()      {}
 func (GuildThread) guildMessageChannel() {}
-func (GuildThread) guildThread()         {}
 
 var (
 	_ Channel           = (*GuildStageVoiceChannel)(nil)
