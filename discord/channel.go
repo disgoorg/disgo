@@ -112,6 +112,7 @@ type GuildMessageChannel interface {
 	Topic() *string
 	NSFW() bool
 	DefaultAutoArchiveDuration() AutoArchiveDuration
+	RateLimitPerUser() int
 
 	guildMessageChannel()
 }
@@ -290,6 +291,10 @@ func (c GuildTextChannel) ParentID() *snowflake.Snowflake {
 
 func (c GuildTextChannel) LastMessageID() *snowflake.Snowflake {
 	return c.lastMessageID
+}
+
+func (c GuildTextChannel) RateLimitPerUser() int {
+	return c.rateLimitPerUser
 }
 
 func (c GuildTextChannel) LastPinTimestamp() *Time {
@@ -659,6 +664,10 @@ func (c GuildNewsChannel) LastMessageID() *snowflake.Snowflake {
 	return c.lastMessageID
 }
 
+func (c GuildNewsChannel) RateLimitPerUser() int {
+	return c.rateLimitPerUser
+}
+
 func (c GuildNewsChannel) LastPinTimestamp() *Time {
 	return c.lastPinTimestamp
 }
@@ -691,7 +700,7 @@ type GuildThread struct {
 	nsfw             bool
 	lastMessageID    *snowflake.Snowflake
 	lastPinTimestamp *Time
-	RateLimitPerUser int
+	rateLimitPerUser int
 	OwnerID          snowflake.Snowflake
 	parentID         snowflake.Snowflake
 	MessageCount     int
@@ -712,7 +721,7 @@ func (c *GuildThread) UnmarshalJSON(data []byte) error {
 	c.nsfw = v.NSFW
 	c.lastMessageID = v.LastMessageID
 	c.lastPinTimestamp = v.LastPinTimestamp
-	c.RateLimitPerUser = v.RateLimitPerUser
+	c.rateLimitPerUser = v.RateLimitPerUser
 	c.OwnerID = v.OwnerID
 	c.parentID = v.ParentID
 	c.MessageCount = v.MessageCount
@@ -730,7 +739,7 @@ func (c GuildThread) MarshalJSON() ([]byte, error) {
 		NSFW:             c.nsfw,
 		LastMessageID:    c.lastMessageID,
 		LastPinTimestamp: c.lastPinTimestamp,
-		RateLimitPerUser: c.RateLimitPerUser,
+		RateLimitPerUser: c.rateLimitPerUser,
 		OwnerID:          c.OwnerID,
 		ParentID:         c.parentID,
 		MessageCount:     c.MessageCount,
@@ -779,6 +788,10 @@ func (c GuildThread) LastMessageID() *snowflake.Snowflake {
 	return c.lastMessageID
 }
 
+func (c GuildThread) RateLimitPerUser() int {
+	return 0
+}
+
 func (c GuildThread) LastPinTimestamp() *Time {
 	return c.lastPinTimestamp
 }
@@ -795,11 +808,11 @@ func (c GuildThread) DefaultAutoArchiveDuration() AutoArchiveDuration {
 	return 0
 }
 
-func (GuildThread) channel()               {}
-func (GuildThread) guildChannel()          {}
-func (GuildThread) messageChannel()        {}
-func (c GuildThread) guildMessageChannel() {}
-func (GuildThread) guildThread()           {}
+func (GuildThread) channel()             {}
+func (GuildThread) guildChannel()        {}
+func (GuildThread) messageChannel()      {}
+func (GuildThread) guildMessageChannel() {}
+func (GuildThread) guildThread()         {}
 
 var (
 	_ Channel           = (*GuildStageVoiceChannel)(nil)
