@@ -13,7 +13,6 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/internal/tokenhelper"
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/log"
 
 	"github.com/gorilla/websocket"
@@ -84,7 +83,7 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 	}
 	g.status = StatusConnecting
 
-	gatewayURL := g.config.GatewayURL + "?v=" + route.APIVersion + "&encoding=json"
+	gatewayURL := fmt.Sprintf("%s?v=%d&encoding=json", g.config.GatewayURL, Version)
 	var rs *http.Response
 	var err error
 	g.conn, rs, err = websocket.DefaultDialer.DialContext(ctx, gatewayURL, nil)
@@ -247,7 +246,7 @@ func (g *gatewayImpl) connect() {
 		Presence:       g.config.Presence,
 	}
 	if g.ShardCount() > 1 {
-		identify.Shard = []int{g.ShardID(), g.ShardCount()}
+		identify.Shard = &[2]int{g.ShardID(), g.ShardCount()}
 	}
 
 	if err := g.Send(context.TODO(), discord.GatewayOpcodeIdentify, identify); err != nil {

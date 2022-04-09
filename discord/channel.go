@@ -26,6 +26,7 @@ const (
 	ChannelTypeGuildPublicThread
 	ChannelTypeGuildPrivateThread
 	ChannelTypeGuildStageVoice
+	ChannelTypeGuildDirectory
 )
 
 type Channel interface {
@@ -750,11 +751,10 @@ func (c GuildThread) DefaultAutoArchiveDuration() AutoArchiveDuration {
 	return 0
 }
 
-func (GuildThread) channel()               {}
-func (GuildThread) guildChannel()          {}
-func (GuildThread) messageChannel()        {}
-func (c GuildThread) guildMessageChannel() {}
-func (GuildThread) guildThread()           {}
+func (GuildThread) channel()             {}
+func (GuildThread) guildChannel()        {}
+func (GuildThread) messageChannel()      {}
+func (GuildThread) guildMessageChannel() {}
 
 var (
 	_ Channel           = (*GuildStageVoiceChannel)(nil)

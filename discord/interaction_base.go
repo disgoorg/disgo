@@ -97,4 +97,3 @@ func (i baseInteractionImpl) User() User {
 	}
 	return i.member.User
 }
-func (baseInteractionImpl) interaction() {}

@@ -59,7 +59,6 @@ func (c *DefaultCache[T]) Put(id snowflake.Snowflake, entity T) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.cache[id] = entity
-	return
 }
 
 func (c *DefaultCache[T]) Remove(id snowflake.Snowflake) (T, bool) {
