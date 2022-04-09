@@ -7,7 +7,7 @@ type ThreadCreateFromMessage struct {
 	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
 }
 
-type ThreadCreateGuildForumChannel struct {
+type ThreadCreateInForum struct {
 	Name                string              `json:"name"`
 	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
 	RateLimitPerUser    int                 `json:"rate_limit_per_user,omitempty"`
@@ -15,7 +15,7 @@ type ThreadCreateGuildForumChannel struct {
 	MessageCreate
 }
 
-func (c ThreadCreateGuildForumChannel) ToBody() (any, error) {
+func (c ThreadCreateInForum) ToBody() (any, error) {
 	if len(c.Files) > 0 {
 		c.Attachments = parseAttachments(c.Files)
 		return PayloadWithFiles(c, c.Files...)
