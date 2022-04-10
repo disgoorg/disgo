@@ -180,6 +180,11 @@ func (u *UnmarshalChannel) UnmarshalJSON(data []byte) error {
 		err = json.Unmarshal(data, &v)
 		channel = v
 
+	case ChannelTypeGuildForum:
+		var v GuildForumChannel
+		err = json.Unmarshal(data, &v)
+		channel = v
+
 	default:
 		err = fmt.Errorf("unkown channel with type %d received", cType.Type)
 	}
