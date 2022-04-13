@@ -32,9 +32,8 @@ type (
 	hashMajor string
 
 	limiterImpl struct {
-		sync.Mutex
-
 		config Config
+		mu     sync.Mutex
 
 		// global Rate Limit
 		global int64
@@ -60,8 +59,8 @@ func (l *limiterImpl) Close(ctx context.Context) {
 		wg.Add(1)
 		b := l.buckets[i]
 		go func() {
-			_ = b.CLock(ctx)
-			b.Unlock()
+			_ = b.mu.CLock(ctx)
+			b.mu.Unlock()
 			wg.Done()
 		}()
 	}
@@ -83,10 +82,10 @@ func (l *limiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *buc
 	hash := l.getRouteHash(route)
 
 	l.Logger().Trace("locking rest rate limiter")
-	l.Lock()
+	l.mu.Lock()
 	defer func() {
 		l.Logger().Trace("unlocking rest rate limiter")
-		l.Unlock()
+		l.mu.Unlock()
 	}()
 	b, ok := l.buckets[hash]
 	if !ok {
@@ -107,7 +106,7 @@ func (l *limiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *buc
 func (l *limiterImpl) WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error {
 	b := l.getBucket(route, true)
 	l.Logger().Tracef("locking rest bucket: %+v", b)
-	if err := b.CLock(ctx); err != nil {
+	if err := b.mu.CLock(ctx); err != nil {
 		return err
 	}
 
@@ -128,7 +127,7 @@ func (l *limiterImpl) WaitBucket(ctx context.Context, route *route.CompiledAPIRo
 
 		select {
 		case <-ctx.Done():
-			b.Unlock()
+			b.mu.Unlock()
 			return ctx.Err()
 		case <-time.After(until.Sub(now)):
 		}
@@ -143,7 +142,7 @@ func (l *limiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.H
 	}
 	defer func() {
 		l.Logger().Tracef("unlocking rest bucket: %+v", b)
-		b.Unlock()
+		b.mu.Unlock()
 	}()
 
 	// no headers provided means we can't update anything and just unlock it
@@ -216,7 +215,7 @@ func (l *limiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.H
 }
 
 type bucket struct {
-	csync.Mutex
+	mu        csync.Mutex
 	ID        string
 	Reset     time.Time
 	Remaining int

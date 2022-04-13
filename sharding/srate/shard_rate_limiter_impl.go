@@ -22,7 +22,7 @@ func NewLimiter(opts ...ConfigOpt) Limiter {
 }
 
 type limiterImpl struct {
-	sync.Mutex
+	mu sync.Mutex
 
 	buckets map[int]*bucket
 	config  Config
@@ -34,27 +34,27 @@ func (r *limiterImpl) Logger() log.Logger {
 
 func (r *limiterImpl) Close(ctx context.Context) {
 	var wg sync.WaitGroup
-	r.Lock()
+	r.mu.Lock()
 
 	for key := range r.buckets {
 		wg.Add(1)
 		b := r.buckets[key]
 		go func() {
 			defer wg.Done()
-			if err := b.CLock(ctx); err != nil {
+			if err := b.mu.CLock(ctx); err != nil {
 				r.Logger().Error("failed to close bucket: ", err)
 			}
-			b.Unlock()
+			b.mu.Unlock()
 		}()
 	}
 }
 
 func (r *limiterImpl) getBucket(shardID int, create bool) *bucket {
 	r.Logger().Debug("locking shard srate limiter")
-	r.Lock()
+	r.mu.Lock()
 	defer func() {
 		r.Logger().Debug("unlocking shard srate limiter")
-		r.Unlock()
+		r.mu.Unlock()
 	}()
 	key := ShardMaxConcurrencyKey(shardID, r.config.MaxConcurrency)
 	b, ok := r.buckets[key]
@@ -74,7 +74,7 @@ func (r *limiterImpl) getBucket(shardID int, create bool) *bucket {
 func (r *limiterImpl) WaitBucket(ctx context.Context, shardID int) error {
 	b := r.getBucket(shardID, true)
 	r.Logger().Debugf("locking shard bucket: %+v", b)
-	if err := b.CLock(ctx); err != nil {
+	if err := b.mu.CLock(ctx); err != nil {
 		return err
 	}
 
@@ -92,7 +92,7 @@ func (r *limiterImpl) WaitBucket(ctx context.Context, shardID int) error {
 
 		select {
 		case <-ctx.Done():
-			b.Unlock()
+			b.mu.Unlock()
 			return ctx.Err()
 		case <-time.After(until.Sub(now)):
 		}
@@ -107,14 +107,14 @@ func (r *limiterImpl) UnlockBucket(shardID int) {
 	}
 	defer func() {
 		r.Logger().Debugf("unlocking shard bucket: %+v", b)
-		b.Unlock()
+		b.mu.Unlock()
 	}()
 
 	b.Reset = time.Now().Add(time.Duration(r.config.StartupDelay) * time.Second)
 }
 
 type bucket struct {
-	csync.Mutex
+	mu    csync.Mutex
 	Key   int
 	Reset time.Time
 }
