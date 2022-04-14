@@ -123,7 +123,6 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	select {
 	case response := <-responseChannel:
 		body, err = response.ToBody()
-		h.server.Logger().Info("received response from event handler")
 	case <-timer.C:
 		h.server.Logger().Warn("interaction timed out")
 		http.Error(w, "interaction timed out", http.StatusRequestTimeout)
