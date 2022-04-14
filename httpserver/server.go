@@ -18,9 +18,9 @@ type EventHandlerFunc func(responseChannel chan<- discord.InteractionResponse, p
 type Server interface {
 	Logger() log.Logger
 	PublicKey() PublicKey
-	EventHandlerFunc() EventHandlerFunc
+	Handle(c chan discord.InteractionResponse, payload io.Reader)
 
-	Start()
+	Start() error
 	Close(ctx context.Context)
 }
 

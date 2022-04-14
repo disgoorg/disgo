@@ -27,9 +27,9 @@ func New(eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Server {
 	}
 
 	return &serverImpl{
-		publicKey:        hexDecodedKey,
-		eventHandlerFunc: eventHandlerFunc,
 		config:           *config,
+		eventHandlerFunc: eventHandlerFunc,
+		publicKey:        hexDecodedKey,
 	}
 }
 
@@ -38,6 +38,12 @@ type serverImpl struct {
 	config           Config
 	eventHandlerFunc EventHandlerFunc
 	publicKey        PublicKey
+	interactionCh    chan channelReader
+}
+
+type channelReader struct {
+	channel chan discord.InteractionResponse
+	reader  io.Reader
 }
 
 func (s *serverImpl) Logger() log.Logger {
@@ -49,31 +55,40 @@ func (s *serverImpl) PublicKey() PublicKey {
 	return s.publicKey
 }
 
-func (s *serverImpl) EventHandlerFunc() EventHandlerFunc {
-	return s.eventHandlerFunc
+func (s *serverImpl) Handle(c chan discord.InteractionResponse, payload io.Reader) {
+	s.interactionCh <- channelReader{
+		channel: c,
+		reader:  payload,
+	}
+}
+
+func (s *serverImpl) listen() {
+	s.interactionCh = make(chan channelReader)
+	go func() {
+		for reader := range s.interactionCh {
+			s.eventHandlerFunc(reader.channel, reader.reader)
+		}
+	}()
 }
 
 // Start makes the serverImpl listen on the specified port and handle requests
-func (s *serverImpl) Start() {
-	go func() {
-		s.config.ServeMux.Handle(s.config.URL, &WebhookInteractionHandler{server: s})
-		s.config.HTTPServer.Addr = s.config.Address
-		s.config.HTTPServer.Handler = s.config.ServeMux
-		var err error
-		if s.config.CertFile != "" && s.config.KeyFile != "" {
-			err = s.config.HTTPServer.ListenAndServeTLS(s.config.CertFile, s.config.KeyFile)
-		} else {
-			err = s.config.HTTPServer.ListenAndServe()
-		}
-		if err != nil {
-			s.Logger().Error("error starting http server: ", err)
-		}
-	}()
+func (s *serverImpl) Start() error {
+	s.config.ServeMux.Handle(s.config.URL, &WebhookInteractionHandler{server: s})
+	s.config.HTTPServer.Addr = s.config.Address
+	s.config.HTTPServer.Handler = s.config.ServeMux
+
+	s.listen()
+
+	if s.config.CertFile != "" && s.config.KeyFile != "" {
+		return s.config.HTTPServer.ListenAndServeTLS(s.config.CertFile, s.config.KeyFile)
+	}
+	return s.config.HTTPServer.ListenAndServe()
 }
 
 // Close shuts down the serverImpl
 func (s *serverImpl) Close(ctx context.Context) {
 	_ = s.config.HTTPServer.Shutdown(ctx)
+	close(s.interactionCh)
 }
 
 type WebhookInteractionHandler struct {
@@ -97,7 +112,7 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	h.server.Logger().Trace("received http interaction. body: ", string(rqData))
 
 	responseChannel := make(chan discord.InteractionResponse, 1)
-	h.server.EventHandlerFunc()(responseChannel, rqBody)
+	go h.server.Handle(responseChannel, rqBody)
 
 	timer := time.NewTimer(time.Second * 3)
 	defer timer.Stop()
@@ -108,6 +123,7 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	select {
 	case response := <-responseChannel:
 		body, err = response.ToBody()
+		h.server.Logger().Info("received response from event handler")
 	case <-timer.C:
 		h.server.Logger().Warn("interaction timed out")
 		http.Error(w, "interaction timed out", http.StatusRequestTimeout)
