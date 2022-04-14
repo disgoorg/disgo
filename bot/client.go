@@ -277,8 +277,7 @@ func (c *clientImpl) StartHTTPServer() error {
 	if c.httpServer == nil {
 		return discord.ErrNoHTTPServer
 	}
-	c.httpServer.Start()
-	return nil
+	return c.httpServer.Start()
 }
 
 func (c *clientImpl) HTTPServer() httpserver.Server {
