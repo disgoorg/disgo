@@ -20,7 +20,7 @@ type Server interface {
 	PublicKey() PublicKey
 	Handle(c chan discord.InteractionResponse, payload io.Reader)
 
-	Start() error
+	Start()
 	Close(ctx context.Context)
 }
 

@@ -72,17 +72,22 @@ func (s *serverImpl) listen() {
 }
 
 // Start makes the serverImpl listen on the specified port and handle requests
-func (s *serverImpl) Start() error {
+func (s *serverImpl) Start() {
 	s.config.ServeMux.Handle(s.config.URL, &WebhookInteractionHandler{server: s})
 	s.config.HTTPServer.Addr = s.config.Address
 	s.config.HTTPServer.Handler = s.config.ServeMux
 
 	s.listen()
 
+	var err error
 	if s.config.CertFile != "" && s.config.KeyFile != "" {
-		return s.config.HTTPServer.ListenAndServeTLS(s.config.CertFile, s.config.KeyFile)
+		err = s.config.HTTPServer.ListenAndServeTLS(s.config.CertFile, s.config.KeyFile)
+	} else {
+		err = s.config.HTTPServer.ListenAndServe()
 	}
-	return s.config.HTTPServer.ListenAndServe()
+	if err != nil {
+		s.config.Logger.Errorf("error while starting server: %s", err)
+	}
 }
 
 // Close shuts down the serverImpl
