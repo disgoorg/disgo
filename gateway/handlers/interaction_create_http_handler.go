@@ -13,17 +13,19 @@ func (h *httpserverHandlerInteractionCreate) New() any {
 	return &discord.UnmarshalInteraction{}
 }
 
-func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(client bot.Client, c chan<- discord.InteractionResponse, v any) {
+func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(client bot.Client, respondFunc func(response discord.InteractionResponse) error, v any) {
 	interaction := (*v.(*discord.UnmarshalInteraction)).Interaction
 
 	// we just want to pong all pings
 	// no need for any event
 	if interaction.Type() == discord.InteractionTypePing {
 		client.Logger().Debug("received http interaction ping. responding with pong")
-		c <- discord.InteractionResponse{
+		if err := respondFunc(discord.InteractionResponse{
 			Type: discord.InteractionCallbackTypePong,
+		}); err != nil {
+			client.Logger().Error("failed to respond to http interaction ping: ", err)
 		}
 		return
 	}
-	HandleInteraction(client, -1, c, interaction)
+	HandleInteraction(client, -1, respondFunc, interaction)
 }
