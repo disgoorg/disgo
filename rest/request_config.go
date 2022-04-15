@@ -9,23 +9,19 @@ import (
 	"github.com/disgoorg/disgo/discord"
 )
 
-func DefaultRequestConfig(rq *http.Request, tokenType discord.TokenType, token string) *RequestConfig {
+func DefaultRequestConfig(rq *http.Request) *RequestConfig {
 	return &RequestConfig{
-		Request:   rq,
-		Ctx:       context.TODO(),
-		TokenType: tokenType,
-		Token:     token,
+		Request: rq,
+		Ctx:     context.TODO(),
 	}
 }
 
 // RequestConfig are additional options for the request
 type RequestConfig struct {
-	Request   *http.Request
-	Ctx       context.Context
-	Checks    []Check
-	Delay     time.Duration
-	TokenType discord.TokenType
-	Token     string
+	Request *http.Request
+	Ctx     context.Context
+	Checks  []Check
+	Delay   time.Duration
 }
 
 // Check is a function which gets executed right before a request is made
@@ -41,9 +37,6 @@ func (c *RequestConfig) Apply(opts []RequestOpt) {
 	}
 	if c.Ctx == nil {
 		c.Ctx = context.TODO()
-	}
-	if c.TokenType != "" && c.Token != "" {
-		c.Request.Header.Set("Authorization", c.TokenType.Apply(c.Token))
 	}
 }
 
@@ -97,8 +90,5 @@ func WithQueryParam(param string, value any) RequestOpt {
 }
 
 func WithToken(tokenType discord.TokenType, token string) RequestOpt {
-	return func(config *RequestConfig) {
-		config.TokenType = tokenType
-		config.Token = token
-	}
+	return WithHeader("Authorization", tokenType.Apply(token))
 }
