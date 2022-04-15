@@ -125,9 +125,9 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	rqData, _ := ioutil.ReadAll(io.TeeReader(r.Body, rqBody))
 	h.server.Logger().Trace("received http interaction. body: ", string(rqData))
 
-	responseChannel := make(chan discord.InteractionResponse, 1)
+	responseChannel := make(chan discord.InteractionResponse)
 	defer close(responseChannel)
-	errorChannel := make(chan error, 1)
+	errorChannel := make(chan error)
 	defer close(errorChannel)
 	var (
 		status replyStatus
