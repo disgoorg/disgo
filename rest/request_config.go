@@ -36,14 +36,14 @@ type RequestOpt func(config *RequestConfig)
 
 // Apply applies the given RequestOpt(s) to the RequestConfig & sets the context if none is set
 func (c *RequestConfig) Apply(opts []RequestOpt) {
-	if c.TokenType != "" && c.Token != "" {
-		c.Request.Header.Set("Authorization", c.TokenType.Apply(c.Token))
-	}
 	for _, opt := range opts {
 		opt(c)
 	}
 	if c.Ctx == nil {
 		c.Ctx = context.TODO()
+	}
+	if c.TokenType != "" && c.Token != "" {
+		c.Request.Header.Set("Authorization", c.TokenType.Apply(c.Token))
 	}
 }
 
