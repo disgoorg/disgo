@@ -125,41 +125,53 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	rqData, _ := ioutil.ReadAll(io.TeeReader(r.Body, rqBody))
 	h.server.Logger().Trace("received http interaction. body: ", string(rqData))
 
+	// these channels are used to communicate between the http handler and where the interaction is responded to
 	responseChannel := make(chan discord.InteractionResponse)
 	defer close(responseChannel)
 	errorChannel := make(chan error)
 	defer close(errorChannel)
+
+	// status of this interaction with a mutex to ensure usage between multiple goroutines
 	var (
 		status replyStatus
 		mu     sync.Mutex
 	)
 
-	respondFunc := func(response discord.InteractionResponse) error {
+	// send interaction to our handler
+	go h.server.Handle(func(response discord.InteractionResponse) error {
 		mu.Lock()
 		defer mu.Unlock()
+
 		if status == replyStatusTimedOut {
 			return discord.ErrInteractionExpired
 		}
+
 		if status == replyStatusReplied {
 			return discord.ErrInteractionAlreadyReplied
 		}
+
 		status = replyStatusReplied
 		responseChannel <- response
-
 		// wait if we get any error while processing the response
 		return <-errorChannel
-	}
-	go h.server.Handle(respondFunc, rqBody)
+	}, rqBody)
 
-	timer := time.NewTimer(time.Second * 3)
-	defer timer.Stop()
 	var (
 		body any
 		err  error
 	)
+
+	// wait for the interaction to be responded to or to time out after 3s
+	timer := time.NewTimer(time.Second * 3)
+	defer timer.Stop()
 	select {
 	case response := <-responseChannel:
-		body, err = response.ToBody()
+		if body, err = response.ToBody(); err != nil {
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			errorChannel <- err
+			return
+		}
+
 	case <-timer.C:
 		mu.Lock()
 		defer mu.Unlock()
@@ -167,12 +179,6 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 
 		h.server.Logger().Debug("interaction timed out")
 		http.Error(w, "interaction timed out", http.StatusRequestTimeout)
-		return
-	}
-
-	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		errorChannel <- err
 		return
 	}
 
