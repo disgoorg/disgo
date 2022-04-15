@@ -18,10 +18,10 @@ type EventHandlerFunc func(responseChannel chan<- discord.InteractionResponse, p
 type Server interface {
 	Logger() log.Logger
 	PublicKey() PublicKey
-	Handle(c chan discord.InteractionResponse, payload io.Reader)
 
 	Start()
 	Close(ctx context.Context)
+	Handle(c chan discord.InteractionResponse, payload io.Reader)
 }
 
 // VerifyRequest implements the verification side of the discord interactions api signing algorithm, as documented here: https://discord.com/developers/docs/interactions/slash-commands#security-and-authorization

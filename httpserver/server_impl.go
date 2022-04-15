@@ -64,11 +64,9 @@ func (s *serverImpl) Handle(c chan discord.InteractionResponse, payload io.Reade
 
 func (s *serverImpl) listen() {
 	s.interactionCh = make(chan channelReader)
-	go func() {
-		for reader := range s.interactionCh {
-			s.eventHandlerFunc(reader.channel, reader.reader)
-		}
-	}()
+	for reader := range s.interactionCh {
+		s.eventHandlerFunc(reader.channel, reader.reader)
+	}
 }
 
 // Start makes the serverImpl listen on the specified port and handle requests
@@ -77,17 +75,19 @@ func (s *serverImpl) Start() {
 	s.config.HTTPServer.Addr = s.config.Address
 	s.config.HTTPServer.Handler = s.config.ServeMux
 
-	s.listen()
+	go s.listen()
 
-	var err error
-	if s.config.CertFile != "" && s.config.KeyFile != "" {
-		err = s.config.HTTPServer.ListenAndServeTLS(s.config.CertFile, s.config.KeyFile)
-	} else {
-		err = s.config.HTTPServer.ListenAndServe()
-	}
-	if err != nil {
-		s.config.Logger.Errorf("error while starting server: %s", err)
-	}
+	go func() {
+		var err error
+		if s.config.CertFile != "" && s.config.KeyFile != "" {
+			err = s.config.HTTPServer.ListenAndServeTLS(s.config.CertFile, s.config.KeyFile)
+		} else {
+			err = s.config.HTTPServer.ListenAndServe()
+		}
+		if err != nil {
+			s.config.Logger.Errorf("error while starting server: %s", err)
+		}
+	}()
 }
 
 // Close shuts down the serverImpl
