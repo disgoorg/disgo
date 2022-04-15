@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/disgoorg/disgo/json"
@@ -38,12 +39,12 @@ type serverImpl struct {
 	config           Config
 	eventHandlerFunc EventHandlerFunc
 	publicKey        PublicKey
-	interactionCh    chan channelReader
+	interactionCh    chan interaction
 }
 
-type channelReader struct {
-	channel chan discord.InteractionResponse
-	reader  io.Reader
+type interaction struct {
+	respondFunc RespondFunc
+	reader      io.Reader
 }
 
 func (s *serverImpl) Logger() log.Logger {
@@ -55,17 +56,17 @@ func (s *serverImpl) PublicKey() PublicKey {
 	return s.publicKey
 }
 
-func (s *serverImpl) Handle(c chan discord.InteractionResponse, payload io.Reader) {
-	s.interactionCh <- channelReader{
-		channel: c,
-		reader:  payload,
+func (s *serverImpl) Handle(respondFunc RespondFunc, payload io.Reader) {
+	s.interactionCh <- interaction{
+		respondFunc: respondFunc,
+		reader:      payload,
 	}
 }
 
 func (s *serverImpl) listen() {
-	s.interactionCh = make(chan channelReader)
-	for reader := range s.interactionCh {
-		s.eventHandlerFunc(reader.channel, reader.reader)
+	s.interactionCh = make(chan interaction)
+	for i := range s.interactionCh {
+		s.eventHandlerFunc(i.respondFunc, i.reader)
 	}
 }
 
@@ -84,8 +85,8 @@ func (s *serverImpl) Start() {
 		} else {
 			err = s.config.HTTPServer.ListenAndServe()
 		}
-		if err != nil {
-			s.config.Logger.Errorf("error while starting server: %s", err)
+		if err != nil && err != http.ErrServerClosed {
+			s.config.Logger.Error("error while running http server: ", err)
 		}
 	}()
 }
@@ -99,6 +100,14 @@ func (s *serverImpl) Close(ctx context.Context) {
 type WebhookInteractionHandler struct {
 	server Server
 }
+
+type replyStatus int
+
+const (
+	replyStatusWaiting replyStatus = iota
+	replyStatusReplied
+	replyStatusTimedOut
+)
 
 func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if ok := VerifyRequest(h.server.Logger(), r, h.server.PublicKey()); !ok {
@@ -117,7 +126,30 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	h.server.Logger().Trace("received http interaction. body: ", string(rqData))
 
 	responseChannel := make(chan discord.InteractionResponse, 1)
-	go h.server.Handle(responseChannel, rqBody)
+	defer close(responseChannel)
+	errorChannel := make(chan error, 1)
+	defer close(errorChannel)
+	var (
+		status replyStatus
+		mu     sync.Mutex
+	)
+
+	respondFunc := func(response discord.InteractionResponse) error {
+		mu.Lock()
+		defer mu.Unlock()
+		if status == replyStatusTimedOut {
+			return discord.ErrInteractionExpired
+		}
+		if status == replyStatusReplied {
+			return discord.ErrInteractionAlreadyReplied
+		}
+		status = replyStatusReplied
+		responseChannel <- response
+
+		// wait if we get any error while processing the response
+		return <-errorChannel
+	}
+	go h.server.Handle(respondFunc, rqBody)
 
 	timer := time.NewTimer(time.Second * 3)
 	defer timer.Stop()
@@ -129,14 +161,18 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	case response := <-responseChannel:
 		body, err = response.ToBody()
 	case <-timer.C:
-		h.server.Logger().Warn("interaction timed out")
+		mu.Lock()
+		defer mu.Unlock()
+		status = replyStatusTimedOut
+
+		h.server.Logger().Debug("interaction timed out")
 		http.Error(w, "interaction timed out", http.StatusRequestTimeout)
 		return
 	}
 
 	if err != nil {
-		h.server.Logger().Error("error while converting interaction response to body: ", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
+		errorChannel <- err
 		return
 	}
 
@@ -146,13 +182,12 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	if multiPart, ok := body.(*discord.MultipartBuffer); ok {
 		w.Header().Set("Content-Type", multiPart.ContentType)
 		_, err = io.Copy(multiWriter, multiPart.Buffer)
-
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		err = json.NewEncoder(multiWriter).Encode(body)
 	}
 	if err != nil {
-		h.server.Logger().Error("error writing http interaction response error: ", err)
+		errorChannel <- err
 		return
 	}
 

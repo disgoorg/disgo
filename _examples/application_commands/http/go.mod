@@ -5,7 +5,7 @@ go 1.18
 replace github.com/disgoorg/disgo => ../../../
 
 require (
-	github.com/disgoorg/disgo v0.7.4
+	github.com/disgoorg/disgo v0.8.8
 	github.com/disgoorg/log v1.2.0
 	github.com/disgoorg/snowflake v1.1.0
 	github.com/oasisprotocol/curve25519-voi v0.0.0-20220317090546-adb2f9614b17
