@@ -63,6 +63,8 @@ type eventManagerImpl struct {
 	client          Client
 	eventListenerMu sync.Mutex
 	config          EventManagerConfig
+
+	mu sync.Mutex
 }
 
 func (e *eventManagerImpl) RawEventsEnabled() bool {
@@ -71,6 +73,8 @@ func (e *eventManagerImpl) RawEventsEnabled() bool {
 
 // HandleGatewayEvent calls the correct core.EventHandler
 func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
 	if handler, ok := e.config.GatewayHandlers[gatewayEventType]; ok {
 		v := handler.New()
 		if v != nil {
@@ -87,6 +91,8 @@ func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType discord.GatewayEv
 
 // HandleHTTPEvent calls the correct core.EventHandler
 func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, reader io.Reader) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
 	v := e.config.HTTPServerHandler.New()
 	if err := json.NewDecoder(reader).Decode(&v); err != nil {
 		e.client.Logger().Error("error while unmarshalling httpserver event. error: ", err)

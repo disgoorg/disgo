@@ -29,22 +29,16 @@ func New(eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Server {
 
 	return &serverImpl{
 		config:           *config,
-		eventHandlerFunc: eventHandlerFunc,
 		publicKey:        hexDecodedKey,
+		eventHandlerFunc: eventHandlerFunc,
 	}
 }
 
 // serverImpl is used in Client's webhook server for interactions
 type serverImpl struct {
 	config           Config
-	eventHandlerFunc EventHandlerFunc
 	publicKey        PublicKey
-	interactionCh    chan interaction
-}
-
-type interaction struct {
-	respondFunc RespondFunc
-	reader      io.Reader
+	eventHandlerFunc EventHandlerFunc
 }
 
 func (s *serverImpl) Logger() log.Logger {
@@ -57,17 +51,7 @@ func (s *serverImpl) PublicKey() PublicKey {
 }
 
 func (s *serverImpl) Handle(respondFunc RespondFunc, payload io.Reader) {
-	s.interactionCh <- interaction{
-		respondFunc: respondFunc,
-		reader:      payload,
-	}
-}
-
-func (s *serverImpl) listen() {
-	s.interactionCh = make(chan interaction)
-	for i := range s.interactionCh {
-		s.eventHandlerFunc(i.respondFunc, i.reader)
-	}
+	s.eventHandlerFunc(respondFunc, payload)
 }
 
 // Start makes the serverImpl listen on the specified port and handle requests
@@ -75,8 +59,6 @@ func (s *serverImpl) Start() {
 	s.config.ServeMux.Handle(s.config.URL, &WebhookInteractionHandler{server: s})
 	s.config.HTTPServer.Addr = s.config.Address
 	s.config.HTTPServer.Handler = s.config.ServeMux
-
-	go s.listen()
 
 	go func() {
 		var err error
@@ -86,7 +68,7 @@ func (s *serverImpl) Start() {
 			err = s.config.HTTPServer.ListenAndServe()
 		}
 		if err != nil && err != http.ErrServerClosed {
-			s.config.Logger.Error("error while running http server: ", err)
+			s.Logger().Error("error while running http server: ", err)
 		}
 	}()
 }
@@ -94,7 +76,6 @@ func (s *serverImpl) Start() {
 // Close shuts down the serverImpl
 func (s *serverImpl) Close(ctx context.Context) {
 	_ = s.config.HTTPServer.Shutdown(ctx)
-	close(s.interactionCh)
 }
 
 type WebhookInteractionHandler struct {
