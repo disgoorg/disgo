@@ -32,7 +32,7 @@ type oAuth2Impl struct {
 
 func withBearerToken(bearerToken string, opts []RequestOpt) []RequestOpt {
 	if bearerToken != "" {
-		return append(opts, WithToken(discord.TokenTypeBearer, bearerToken))
+		return append([]RequestOpt{WithToken(discord.TokenTypeBearer, bearerToken)}, opts...)
 	}
 	return opts
 }
