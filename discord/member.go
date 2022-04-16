@@ -24,7 +24,7 @@ type Member struct {
 }
 
 func (m Member) String() string {
-	return MemberMention(m.User.ID)
+	return m.User.String()
 }
 
 func (m Member) Mention() string {

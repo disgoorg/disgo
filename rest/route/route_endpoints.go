@@ -140,7 +140,8 @@ var (
 	UpdatePermissionOverwrite = NewAPIRoute(PUT, "/channels/{channel.id}/permissions/{overwrite.id}")
 	DeletePermissionOverwrite = NewAPIRoute(DELETE, "/channels/{channel.id}/permissions/{overwrite.id}")
 
-	SendTyping = NewAPIRoute(POST, "/channels/{channel.id}/typing")
+	SendTyping    = NewAPIRoute(POST, "/channels/{channel.id}/typing")
+	FollowChannel = NewAPIRoute(POST, "/channels/{channel.id}/followers")
 )
 
 // Threads

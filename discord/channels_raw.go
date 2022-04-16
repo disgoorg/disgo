@@ -39,12 +39,7 @@ func (t *guildTextChannel) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = guildTextChannel(v.guildTextChannelAlias)
-	if len(v.PermissionOverwrites) > 0 {
-		t.PermissionOverwrites = make([]PermissionOverwrite, len(v.PermissionOverwrites))
-		for i := range v.PermissionOverwrites {
-			t.PermissionOverwrites[i] = v.PermissionOverwrites[i].PermissionOverwrite
-		}
-	}
+	t.PermissionOverwrites = parsePermissionOverwrites(v.PermissionOverwrites)
 	return nil
 }
 
@@ -74,12 +69,7 @@ func (t *guildNewsChannel) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = guildNewsChannel(v.guildNewsChannelAlias)
-	if len(v.PermissionOverwrites) > 0 {
-		t.PermissionOverwrites = make([]PermissionOverwrite, len(v.PermissionOverwrites))
-		for i := range v.PermissionOverwrites {
-			t.PermissionOverwrites[i] = v.PermissionOverwrites[i].PermissionOverwrite
-		}
-	}
+	t.PermissionOverwrites = parsePermissionOverwrites(v.PermissionOverwrites)
 	return nil
 }
 
@@ -118,12 +108,7 @@ func (t *guildCategoryChannel) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = guildCategoryChannel(v.guildCategoryChannelAlias)
-	if len(v.PermissionOverwrites) > 0 {
-		t.PermissionOverwrites = make([]PermissionOverwrite, len(v.PermissionOverwrites))
-		for i := range v.PermissionOverwrites {
-			t.PermissionOverwrites[i] = v.PermissionOverwrites[i].PermissionOverwrite
-		}
-	}
+	t.PermissionOverwrites = parsePermissionOverwrites(v.PermissionOverwrites)
 	return nil
 }
 
@@ -156,12 +141,7 @@ func (t *guildVoiceChannel) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = guildVoiceChannel(v.guildVoiceChannelAlias)
-	if len(v.PermissionOverwrites) > 0 {
-		t.PermissionOverwrites = make([]PermissionOverwrite, len(v.PermissionOverwrites))
-		for i := range v.PermissionOverwrites {
-			t.PermissionOverwrites[i] = v.PermissionOverwrites[i].PermissionOverwrite
-		}
-	}
+	t.PermissionOverwrites = parsePermissionOverwrites(v.PermissionOverwrites)
 	return nil
 }
 
@@ -187,11 +167,17 @@ func (t *guildStageVoiceChannel) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = guildStageVoiceChannel(v.guildStageVoiceChannelAlias)
-	if len(v.PermissionOverwrites) > 0 {
-		t.PermissionOverwrites = make([]PermissionOverwrite, len(v.PermissionOverwrites))
-		for i := range v.PermissionOverwrites {
-			t.PermissionOverwrites[i] = v.PermissionOverwrites[i].PermissionOverwrite
-		}
-	}
+	t.PermissionOverwrites = parsePermissionOverwrites(v.PermissionOverwrites)
 	return nil
+}
+
+func parsePermissionOverwrites(overwrites []UnmarshalPermissionOverwrite) []PermissionOverwrite {
+	if len(overwrites) == 0 {
+		return nil
+	}
+	permOverwrites := make([]PermissionOverwrite, len(overwrites))
+	for i := range overwrites {
+		permOverwrites[i] = overwrites[i].PermissionOverwrite
+	}
+	return permOverwrites
 }
