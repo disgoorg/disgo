@@ -191,13 +191,10 @@ func (t *guildForumChannel) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = guildForumChannel(v.guildForumChannelAlias)
-	if len(v.PermissionOverwrites) > 0 {
-		t.PermissionOverwrites = make([]PermissionOverwrite, len(v.PermissionOverwrites))
-		for i := range v.PermissionOverwrites {
-			t.PermissionOverwrites[i] = v.PermissionOverwrites[i].PermissionOverwrite
-		}
-	}
+	t.PermissionOverwrites = parsePermissionOverwrites(v.PermissionOverwrites)
 	return nil
+}
+
 func parsePermissionOverwrites(overwrites []UnmarshalPermissionOverwrite) []PermissionOverwrite {
 	if len(overwrites) == 0 {
 		return nil
