@@ -319,3 +319,13 @@ func (s *channelImpl) UnpinMessage(channelID snowflake.Snowflake, messageID snow
 	}
 	return s.restClient.Do(compiledRoute, nil, nil, opts...)
 }
+
+func (s *channelImpl) Follow(channelID snowflake.Snowflake, targetChannelID snowflake.Snowflake, opts ...RequestOpt) (followedChannel *discord.FollowedChannel, err error) {
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.FollowChannel.Compile(nil, channelID)
+	if err != nil {
+		return
+	}
+	err = s.restClient.Do(compiledRoute, discord.FollowChannel{ChannelID: targetChannelID}, &followedChannel, opts...)
+	return
+}

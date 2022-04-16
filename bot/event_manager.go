@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/httpserver"
 	"github.com/disgoorg/disgo/json"
 )
 
@@ -29,7 +30,7 @@ type EventManager interface {
 	RemoveEventListeners(eventListeners ...EventListener)
 
 	HandleGatewayEvent(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader)
-	HandleHTTPEvent(responseChannel chan<- discord.InteractionResponse, payload io.Reader)
+	HandleHTTPEvent(respondFunc httpserver.RespondFunc, payload io.Reader)
 	DispatchEvent(event Event)
 }
 
@@ -54,7 +55,7 @@ type GatewayEventHandler interface {
 // HTTPServerEventHandler is used to handle HTTP Event(s)
 type HTTPServerEventHandler interface {
 	New() any
-	HandleHTTPEvent(client Client, responseChannel chan<- discord.InteractionResponse, v any)
+	HandleHTTPEvent(client Client, respondFunc func(response discord.InteractionResponse) error, v any)
 }
 
 // eventManagerImpl is the implementation of core.EventManager
@@ -62,6 +63,8 @@ type eventManagerImpl struct {
 	client          Client
 	eventListenerMu sync.Mutex
 	config          EventManagerConfig
+
+	mu sync.Mutex
 }
 
 func (e *eventManagerImpl) RawEventsEnabled() bool {
@@ -70,6 +73,8 @@ func (e *eventManagerImpl) RawEventsEnabled() bool {
 
 // HandleGatewayEvent calls the correct core.EventHandler
 func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
 	if handler, ok := e.config.GatewayHandlers[gatewayEventType]; ok {
 		v := handler.New()
 		if v != nil {
@@ -85,12 +90,14 @@ func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType discord.GatewayEv
 }
 
 // HandleHTTPEvent calls the correct core.EventHandler
-func (e *eventManagerImpl) HandleHTTPEvent(responseChannel chan<- discord.InteractionResponse, reader io.Reader) {
+func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, reader io.Reader) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
 	v := e.config.HTTPServerHandler.New()
 	if err := json.NewDecoder(reader).Decode(&v); err != nil {
 		e.client.Logger().Error("error while unmarshalling httpserver event. error: ", err)
 	}
-	e.config.HTTPServerHandler.HandleHTTPEvent(e.client, responseChannel, v)
+	e.config.HTTPServerHandler.HandleHTTPEvent(e.client, respondFunc, v)
 }
 
 // DispatchEvent dispatches a new event to the client

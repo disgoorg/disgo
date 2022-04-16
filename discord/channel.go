@@ -1003,6 +1003,15 @@ func (c GuildForumChannel) ParentID() *snowflake.Snowflake {
 func (GuildForumChannel) channel()      {}
 func (GuildForumChannel) guildChannel() {}
 
+type FollowedChannel struct {
+	ChannelID snowflake.Snowflake `json:"channel_id"`
+	WebhookID snowflake.Snowflake `json:"webhook_id"`
+}
+
+type FollowChannel struct {
+	ChannelID snowflake.Snowflake `json:"webhook_channel_id"`
+}
+
 // VideoQualityMode https://com/developers/docs/resources/channel#channel-object-video-quality-modes
 type VideoQualityMode int
 

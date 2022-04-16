@@ -6,12 +6,13 @@ import (
 	"io/ioutil"
 
 	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/httpserver"
 	"github.com/disgoorg/disgo/json"
 
 	"github.com/disgoorg/disgo/discord"
 )
 
-func HandleRawEvent(client bot.Client, gatewayEventType discord.GatewayEventType, sequenceNumber int, responseChannel chan<- discord.InteractionResponse, reader io.Reader) io.Reader {
+func HandleRawEvent(client bot.Client, gatewayEventType discord.GatewayEventType, sequenceNumber int, respondFunc httpserver.RespondFunc, reader io.Reader) io.Reader {
 	if client.EventManager().RawEventsEnabled() {
 		var buf bytes.Buffer
 		data, err := ioutil.ReadAll(io.TeeReader(reader, &buf))
@@ -19,10 +20,10 @@ func HandleRawEvent(client bot.Client, gatewayEventType discord.GatewayEventType
 			client.Logger().Error("error reading raw payload from event")
 		}
 		client.EventManager().DispatchEvent(&RawEvent{
-			GenericEvent:    NewGenericEvent(client, sequenceNumber),
-			Type:            gatewayEventType,
-			RawPayload:      data,
-			ResponseChannel: responseChannel,
+			GenericEvent: NewGenericEvent(client, sequenceNumber),
+			Type:         gatewayEventType,
+			RawPayload:   data,
+			RespondFunc:  respondFunc,
 		})
 
 		return &buf
@@ -33,7 +34,7 @@ func HandleRawEvent(client bot.Client, gatewayEventType discord.GatewayEventType
 // RawEvent is called for any discord.GatewayEventType we receive if enabled in the bot.Config
 type RawEvent struct {
 	*GenericEvent
-	Type            discord.GatewayEventType
-	RawPayload      json.RawMessage
-	ResponseChannel chan<- discord.InteractionResponse
+	Type        discord.GatewayEventType
+	RawPayload  json.RawMessage
+	RespondFunc httpserver.RespondFunc
 }

@@ -77,7 +77,7 @@ func main() {
 		log.Fatal("error while starting http server: ", err)
 	}
 
-	log.Infof("example is now running. Press CTRL-C to exit.")
+	log.Info("example is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-s
@@ -86,12 +86,11 @@ func main() {
 func commandListener(event *events.ApplicationCommandInteractionEvent) {
 	data := event.SlashCommandInteractionData()
 	if data.CommandName() == "say" {
-		err := event.CreateMessage(discord.NewMessageCreateBuilder().
+		if err := event.CreateMessage(discord.NewMessageCreateBuilder().
 			SetContent(data.String("message")).
 			SetEphemeral(data.Bool("ephemeral")).
 			Build(),
-		)
-		if err != nil {
+		); err != nil {
 			event.Client().Logger().Error("error on sending response: ", err)
 		}
 	}

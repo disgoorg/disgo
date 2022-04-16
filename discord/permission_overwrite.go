@@ -16,15 +16,6 @@ const (
 	PermissionOverwriteTypeMember
 )
 
-var permissionOverwrites = map[PermissionOverwriteType]func() PermissionOverwrite{
-	PermissionOverwriteTypeRole: func() PermissionOverwrite {
-		return &RolePermissionOverwrite{}
-	},
-	PermissionOverwriteTypeMember: func() PermissionOverwrite {
-		return &MemberPermissionOverwrite{}
-	},
-}
-
 // PermissionOverwrite is used to determine who can perform particular actions in a GetGuildChannel
 type PermissionOverwrite interface {
 	Type() PermissionOverwriteType
@@ -44,17 +35,31 @@ func (o *UnmarshalPermissionOverwrite) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	fn, ok := permissionOverwrites[oType.Type]
-	if !ok {
-		return fmt.Errorf("unkown permission overwrite with type %d received", oType.Type)
+	var (
+		overwrite PermissionOverwrite
+		err       error
+	)
+
+	switch oType.Type {
+	case PermissionOverwriteTypeRole:
+		var v RolePermissionOverwrite
+		err = json.Unmarshal(data, &v)
+		overwrite = v
+
+	case PermissionOverwriteTypeMember:
+		var v MemberPermissionOverwrite
+		err = json.Unmarshal(data, &v)
+		overwrite = v
+
+	default:
+		err = fmt.Errorf("unkown permission overwrite with type %d received", oType.Type)
 	}
 
-	v := fn()
-	if err := json.Unmarshal(data, &v); err != nil {
+	if err != nil {
 		return err
 	}
 
-	o.PermissionOverwrite = v
+	o.PermissionOverwrite = overwrite
 	return nil
 }
 

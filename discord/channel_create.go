@@ -22,13 +22,14 @@ var (
 )
 
 type GuildTextChannelCreate struct {
-	Name                 string                `json:"name"`
-	Topic                string                `json:"topic,omitempty"`
-	RateLimitPerUser     int                   `json:"rate_limit_per_user,omitempty"`
-	Position             int                   `json:"position,omitempty"`
-	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID             snowflake.Snowflake   `json:"parent_id,omitempty"`
-	NSFW                 bool                  `json:"nsfw,omitempty"`
+	Name                       string                `json:"name"`
+	Topic                      string                `json:"topic,omitempty"`
+	RateLimitPerUser           int                   `json:"rate_limit_per_user,omitempty"`
+	Position                   int                   `json:"position,omitempty"`
+	PermissionOverwrites       []PermissionOverwrite `json:"permission_overwrites,omitempty"`
+	ParentID                   snowflake.Snowflake   `json:"parent_id,omitempty"`
+	NSFW                       bool                  `json:"nsfw,omitempty"`
+	DefaultAutoArchiveDuration AutoArchiveDuration   `json:"default_auto_archive_days,omitempty"`
 }
 
 func (c GuildTextChannelCreate) Type() ChannelType {
@@ -92,7 +93,6 @@ type GuildCategoryChannelCreate struct {
 	Topic                string                `json:"topic,omitempty"`
 	Position             int                   `json:"position,omitempty"`
 	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID             snowflake.Snowflake   `json:"parent_id,omitempty"`
 }
 
 func (c GuildCategoryChannelCreate) Type() ChannelType {
@@ -119,13 +119,14 @@ var (
 )
 
 type GuildNewsChannelCreate struct {
-	Name                 string                `json:"name"`
-	Topic                string                `json:"topic,omitempty"`
-	RateLimitPerUser     int                   `json:"rate_limit_per_user,omitempty"`
-	Position             int                   `json:"position,omitempty"`
-	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID             snowflake.Snowflake   `json:"parent_id,omitempty"`
-	NSFW                 bool                  `json:"nsfw,omitempty"`
+	Name                       string                `json:"name"`
+	Topic                      string                `json:"topic,omitempty"`
+	RateLimitPerUser           int                   `json:"rate_limit_per_user,omitempty"`
+	Position                   int                   `json:"position,omitempty"`
+	PermissionOverwrites       []PermissionOverwrite `json:"permission_overwrites,omitempty"`
+	ParentID                   snowflake.Snowflake   `json:"parent_id,omitempty"`
+	NSFW                       bool                  `json:"nsfw,omitempty"`
+	DefaultAutoArchiveDuration AutoArchiveDuration   `json:"default_auto_archive_days,omitempty"`
 }
 
 func (c GuildNewsChannelCreate) Type() ChannelType {

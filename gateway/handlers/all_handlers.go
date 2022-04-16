@@ -11,8 +11,8 @@ import (
 )
 
 func DefaultHTTPServerEventHandler(client bot.Client) httpserver.EventHandlerFunc {
-	return func(responseChannel chan<- discord.InteractionResponse, reader io.Reader) {
-		client.EventManager().HandleHTTPEvent(responseChannel, events.HandleRawEvent(client, discord.GatewayEventTypeInteractionCreate, -1, responseChannel, reader))
+	return func(responseFunc httpserver.RespondFunc, reader io.Reader) {
+		client.EventManager().HandleHTTPEvent(responseFunc, events.HandleRawEvent(client, discord.GatewayEventTypeInteractionCreate, -1, responseFunc, reader))
 	}
 }
 

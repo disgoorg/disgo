@@ -24,11 +24,11 @@ func (e *ApplicationCommandInteractionEvent) CreateMessage(messageCreate discord
 }
 
 func (e *ApplicationCommandInteractionEvent) DeferCreateMessage(ephemeral bool, opts ...rest.RequestOpt) error {
-	var messageCreate discord.MessageCreate
+	var data discord.InteractionCallbackData
 	if ephemeral {
-		messageCreate = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
+		data = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
 	}
-	return e.Respond(discord.InteractionCallbackTypeDeferredCreateMessage, messageCreate, opts...)
+	return e.Respond(discord.InteractionCallbackTypeDeferredCreateMessage, data, opts...)
 }
 
 func (e *ApplicationCommandInteractionEvent) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
@@ -46,11 +46,11 @@ func (e *ComponentInteractionEvent) CreateMessage(messageCreate discord.MessageC
 }
 
 func (e *ComponentInteractionEvent) DeferCreateMessage(ephemeral bool, opts ...rest.RequestOpt) error {
-	var messageCreate discord.MessageCreate
+	var data discord.InteractionCallbackData
 	if ephemeral {
-		messageCreate = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
+		data = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
 	}
-	return e.Respond(discord.InteractionCallbackTypeDeferredCreateMessage, messageCreate, opts...)
+	return e.Respond(discord.InteractionCallbackTypeDeferredCreateMessage, data, opts...)
 }
 
 func (e *ComponentInteractionEvent) UpdateMessage(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
@@ -86,11 +86,11 @@ func (e *ModalSubmitInteractionEvent) CreateMessage(messageCreate discord.Messag
 }
 
 func (e *ModalSubmitInteractionEvent) DeferCreateMessage(ephemeral bool, opts ...rest.RequestOpt) error {
-	var messageCreate discord.MessageCreate
+	var data discord.InteractionCallbackData
 	if ephemeral {
-		messageCreate = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
+		data = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
 	}
-	return e.Respond(discord.InteractionCallbackTypeDeferredCreateMessage, messageCreate, opts...)
+	return e.Respond(discord.InteractionCallbackTypeDeferredCreateMessage, data, opts...)
 }
 
 func (e *ModalSubmitInteractionEvent) UpdateMessage(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {

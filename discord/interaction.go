@@ -55,35 +55,35 @@ func (i *UnmarshalInteraction) UnmarshalJSON(data []byte) error {
 	}
 
 	var (
-		vInteraction Interaction
-		err          error
+		interaction Interaction
+		err         error
 	)
 
 	switch iType.Type {
 	case InteractionTypePing:
 		v := PingInteraction{}
 		err = json.Unmarshal(data, &v)
-		vInteraction = v
+		interaction = v
 
 	case InteractionTypeApplicationCommand:
 		v := ApplicationCommandInteraction{}
 		err = json.Unmarshal(data, &v)
-		vInteraction = v
+		interaction = v
 
 	case InteractionTypeComponent:
 		v := ComponentInteraction{}
 		err = json.Unmarshal(data, &v)
-		vInteraction = v
+		interaction = v
 
 	case InteractionTypeAutocomplete:
 		v := AutocompleteInteraction{}
 		err = json.Unmarshal(data, &v)
-		vInteraction = v
+		interaction = v
 
 	case InteractionTypeModalSubmit:
 		v := ModalSubmitInteraction{}
 		err = json.Unmarshal(data, &v)
-		vInteraction = v
+		interaction = v
 
 	default:
 		return fmt.Errorf("unkown rawInteraction with type %d received", iType.Type)
@@ -92,7 +92,7 @@ func (i *UnmarshalInteraction) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	i.Interaction = vInteraction
+	i.Interaction = interaction
 	return nil
 }
 

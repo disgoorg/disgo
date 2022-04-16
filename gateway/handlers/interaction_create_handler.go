@@ -25,28 +25,27 @@ func (h *gatewayHandlerInteractionCreate) HandleGatewayEvent(client bot.Client, 
 	HandleInteraction(client, sequenceNumber, nil, (*v.(*discord.UnmarshalInteraction)).Interaction)
 }
 
-func respond(client bot.Client, c chan<- discord.InteractionResponse, interaction discord.BaseInteraction) events.InteractionResponderFunc {
+func respond(client bot.Client, respondFunc func(response discord.InteractionResponse) error, interaction discord.BaseInteraction) events.InteractionResponderFunc {
 	return func(callbackType discord.InteractionCallbackType, data discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
 		response := discord.InteractionResponse{
 			Type: callbackType,
 			Data: data,
 		}
-		if c != nil {
-			c <- response
-			return nil
+		if respondFunc != nil {
+			return respondFunc(response)
 		}
 		return client.Rest().Interactions().CreateInteractionResponse(interaction.ID(), interaction.Token(), response, opts...)
 	}
 }
 
-func HandleInteraction(client bot.Client, sequenceNumber int, c chan<- discord.InteractionResponse, interaction discord.Interaction) {
+func HandleInteraction(client bot.Client, sequenceNumber int, respondFunc func(response discord.InteractionResponse) error, interaction discord.Interaction) {
 
 	genericEvent := events.NewGenericEvent(client, sequenceNumber)
 
 	client.EventManager().DispatchEvent(&events.InteractionEvent{
 		GenericEvent: genericEvent,
 		Interaction:  interaction,
-		Respond:      respond(client, c, interaction),
+		Respond:      respond(client, respondFunc, interaction),
 	})
 
 	switch i := interaction.(type) {
@@ -54,28 +53,28 @@ func HandleInteraction(client bot.Client, sequenceNumber int, c chan<- discord.I
 		client.EventManager().DispatchEvent(&events.ApplicationCommandInteractionEvent{
 			GenericEvent:                  genericEvent,
 			ApplicationCommandInteraction: i,
-			Respond:                       respond(client, c, interaction),
+			Respond:                       respond(client, respondFunc, interaction),
 		})
 
 	case discord.ComponentInteraction:
 		client.EventManager().DispatchEvent(&events.ComponentInteractionEvent{
 			GenericEvent:         genericEvent,
 			ComponentInteraction: i,
-			Respond:              respond(client, c, interaction),
+			Respond:              respond(client, respondFunc, interaction),
 		})
 
 	case discord.AutocompleteInteraction:
 		client.EventManager().DispatchEvent(&events.AutocompleteInteractionEvent{
 			GenericEvent:            genericEvent,
 			AutocompleteInteraction: i,
-			Respond:                 respond(client, c, interaction),
+			Respond:                 respond(client, respondFunc, interaction),
 		})
 
 	case discord.ModalSubmitInteraction:
 		client.EventManager().DispatchEvent(&events.ModalSubmitInteractionEvent{
 			GenericEvent:           genericEvent,
 			ModalSubmitInteraction: i,
-			Respond:                respond(client, c, interaction),
+			Respond:                respond(client, respondFunc, interaction),
 		})
 
 	default:

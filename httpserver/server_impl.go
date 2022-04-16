@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/disgoorg/disgo/json"
@@ -27,17 +28,17 @@ func New(eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Server {
 	}
 
 	return &serverImpl{
+		config:           *config,
 		publicKey:        hexDecodedKey,
 		eventHandlerFunc: eventHandlerFunc,
-		config:           *config,
 	}
 }
 
 // serverImpl is used in Client's webhook server for interactions
 type serverImpl struct {
 	config           Config
-	eventHandlerFunc EventHandlerFunc
 	publicKey        PublicKey
+	eventHandlerFunc EventHandlerFunc
 }
 
 func (s *serverImpl) Logger() log.Logger {
@@ -49,24 +50,25 @@ func (s *serverImpl) PublicKey() PublicKey {
 	return s.publicKey
 }
 
-func (s *serverImpl) EventHandlerFunc() EventHandlerFunc {
-	return s.eventHandlerFunc
+func (s *serverImpl) Handle(respondFunc RespondFunc, payload io.Reader) {
+	s.eventHandlerFunc(respondFunc, payload)
 }
 
 // Start makes the serverImpl listen on the specified port and handle requests
 func (s *serverImpl) Start() {
+	s.config.ServeMux.Handle(s.config.URL, &WebhookInteractionHandler{server: s})
+	s.config.HTTPServer.Addr = s.config.Address
+	s.config.HTTPServer.Handler = s.config.ServeMux
+
 	go func() {
-		s.config.ServeMux.Handle(s.config.URL, &WebhookInteractionHandler{server: s})
-		s.config.HTTPServer.Addr = s.config.Address
-		s.config.HTTPServer.Handler = s.config.ServeMux
 		var err error
 		if s.config.CertFile != "" && s.config.KeyFile != "" {
 			err = s.config.HTTPServer.ListenAndServeTLS(s.config.CertFile, s.config.KeyFile)
 		} else {
 			err = s.config.HTTPServer.ListenAndServe()
 		}
-		if err != nil {
-			s.Logger().Error("error starting http server: ", err)
+		if err != nil && err != http.ErrServerClosed {
+			s.Logger().Error("error while running http server: ", err)
 		}
 	}()
 }
@@ -79,6 +81,14 @@ func (s *serverImpl) Close(ctx context.Context) {
 type WebhookInteractionHandler struct {
 	server Server
 }
+
+type replyStatus int
+
+const (
+	replyStatusWaiting replyStatus = iota
+	replyStatusReplied
+	replyStatusTimedOut
+)
 
 func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if ok := VerifyRequest(h.server.Logger(), r, h.server.PublicKey()); !ok {
@@ -96,27 +106,60 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	rqData, _ := ioutil.ReadAll(io.TeeReader(r.Body, rqBody))
 	h.server.Logger().Trace("received http interaction. body: ", string(rqData))
 
-	responseChannel := make(chan discord.InteractionResponse, 1)
-	h.server.EventHandlerFunc()(responseChannel, rqBody)
+	// these channels are used to communicate between the http handler and where the interaction is responded to
+	responseChannel := make(chan discord.InteractionResponse)
+	defer close(responseChannel)
+	errorChannel := make(chan error)
+	defer close(errorChannel)
 
-	timer := time.NewTimer(time.Second * 3)
-	defer timer.Stop()
+	// status of this interaction with a mutex to ensure usage between multiple goroutines
+	var (
+		status replyStatus
+		mu     sync.Mutex
+	)
+
+	// send interaction to our handler
+	go h.server.Handle(func(response discord.InteractionResponse) error {
+		mu.Lock()
+		defer mu.Unlock()
+
+		if status == replyStatusTimedOut {
+			return discord.ErrInteractionExpired
+		}
+
+		if status == replyStatusReplied {
+			return discord.ErrInteractionAlreadyReplied
+		}
+
+		status = replyStatusReplied
+		responseChannel <- response
+		// wait if we get any error while processing the response
+		return <-errorChannel
+	}, rqBody)
+
 	var (
 		body any
 		err  error
 	)
+
+	// wait for the interaction to be responded to or to time out after 3s
+	timer := time.NewTimer(time.Second * 3)
+	defer timer.Stop()
 	select {
 	case response := <-responseChannel:
-		body, err = response.ToBody()
-	case <-timer.C:
-		h.server.Logger().Warn("interaction timed out")
-		http.Error(w, "interaction timed out", http.StatusRequestTimeout)
-		return
-	}
+		if body, err = response.ToBody(); err != nil {
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			errorChannel <- err
+			return
+		}
 
-	if err != nil {
-		h.server.Logger().Error("error while converting interaction response to body: ", err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+	case <-timer.C:
+		mu.Lock()
+		defer mu.Unlock()
+		status = replyStatusTimedOut
+
+		h.server.Logger().Debug("interaction timed out")
+		http.Error(w, "interaction timed out", http.StatusRequestTimeout)
 		return
 	}
 
@@ -126,13 +169,12 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	if multiPart, ok := body.(*discord.MultipartBuffer); ok {
 		w.Header().Set("Content-Type", multiPart.ContentType)
 		_, err = io.Copy(multiWriter, multiPart.Buffer)
-
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		err = json.NewEncoder(multiWriter).Encode(body)
 	}
 	if err != nil {
-		h.server.Logger().Error("error writing http interaction response error: ", err)
+		errorChannel <- err
 		return
 	}
 
