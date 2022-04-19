@@ -959,7 +959,7 @@ type GuildForumChannel struct {
 	id                   snowflake.Snowflake
 	guildID              snowflake.Snowflake
 	position             int
-	permissionOverwrites []PermissionOverwrite
+	permissionOverwrites PermissionOverwrites
 	name                 string
 	parentID             *snowflake.Snowflake
 	LastThreadID         *snowflake.Snowflake
@@ -1024,7 +1024,7 @@ func (c GuildForumChannel) GuildID() snowflake.Snowflake {
 	return c.guildID
 }
 
-func (c GuildForumChannel) PermissionOverwrites() []PermissionOverwrite {
+func (c GuildForumChannel) PermissionOverwrites() PermissionOverwrites {
 	return c.permissionOverwrites
 }
 
