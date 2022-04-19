@@ -33,8 +33,13 @@ type Channel interface {
 	json.Marshaler
 	fmt.Stringer
 
+	// Type returns the ChannelType of the Channel.
 	Type() ChannelType
+
+	// ID returns the Snowflake ID of the Channel.
 	ID() snowflake.Snowflake
+
+	// Name returns the name of the Channel.
 	Name() string
 
 	channel()
@@ -43,7 +48,12 @@ type Channel interface {
 type MessageChannel interface {
 	Channel
 
+	// LastMessageID returns the ID of the last Message sent in this MessageChannel.
+	// This is nil if no Message has been sent yet.
 	LastMessageID() *snowflake.Snowflake
+
+	// LastPinTimestamp returns when the last Message in this MessageChannel was pinned.
+	// This is nil if no Message has been pinned yet.
 	LastPinTimestamp() *Time
 
 	messageChannel()
@@ -53,11 +63,18 @@ type GuildChannel interface {
 	Channel
 	Mentionable
 
+	// GuildID returns the Guild ID of the GuildChannel
 	GuildID() snowflake.Snowflake
+
+	// Position returns the position of the GuildChannel in the channel list.
+	// This is always 0 for GuildThread(s).
 	Position() int
+
+	// ParentID returns the parent Channel ID of the GuildChannel.
+	// This is never nil for GuildThread(s).
 	ParentID() *snowflake.Snowflake
 
-	// PermissionOverwrites returns the Channel's PermissionOverwrites for Role(s) and Member(s).
+	// PermissionOverwrites returns the GuildChannel's PermissionOverwrites for Role(s) and Member(s).
 	// This is always nil for GuildThread(s).
 	PermissionOverwrites() PermissionOverwrites
 
@@ -68,12 +85,14 @@ type GuildMessageChannel interface {
 	GuildChannel
 	MessageChannel
 
-	// Topic returns the topic of a Channel.
+	// Topic returns the topic of a GuildMessageChannel.
 	// This is always nil for GuildThread(s).
 	Topic() *string
+
+	// NSFW returns whether the GuildMessageChannel is marked as not safe for work.
 	NSFW() bool
 
-	// DefaultAutoArchiveDuration returns the default AutoArchiveDuration for GuildThread(s) in this Channel.
+	// DefaultAutoArchiveDuration returns the default AutoArchiveDuration for GuildThread(s) in this GuildMessageChannel.
 	// This is always 0 for GuildThread(s).
 	DefaultAutoArchiveDuration() AutoArchiveDuration
 
@@ -83,7 +102,10 @@ type GuildMessageChannel interface {
 type GuildAudioChannel interface {
 	GuildChannel
 
+	// Bitrate returns the configured bitrate of the GuildAudioChannel.
 	Bitrate() int
+
+	// RTCRegion returns the configured voice server region of the GuildAudioChannel.
 	RTCRegion() string
 
 	guildAudioChannel()
