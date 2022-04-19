@@ -8,6 +8,7 @@ import (
 type GenericGuildVoiceStateEvent struct {
 	*GenericEvent
 	VoiceState discord.VoiceState
+	Member     discord.Member
 }
 
 // GuildVoiceStateUpdateEvent indicates that the discord.VoiceState of a discord.Member has updated(requires discord.GatewayIntentsGuildVoiceStates)

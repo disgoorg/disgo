@@ -22,12 +22,9 @@ type Client interface {
 	Token() string
 	ApplicationID() snowflake.Snowflake
 	ID() snowflake.Snowflake
-	SelfUser() *discord.OAuth2User
-	SetSelfUser(user discord.OAuth2User)
-	SelfMember(guildID snowflake.Snowflake) *discord.Member
+
 	Caches() cache.Caches
 	Rest() rest.Rest
-	HandleReadyEvent(event discord.GatewayEventReady)
 
 	AddEventListeners(listeners ...EventListener)
 	RemoveEventListeners(listeners ...EventListener)
@@ -62,8 +59,6 @@ type Client interface {
 type clientImpl struct {
 	token         string
 	applicationID snowflake.Snowflake
-	clientID      snowflake.Snowflake
-	selfUser      *discord.OAuth2User
 
 	logger log.Logger
 
@@ -104,26 +99,16 @@ func (c *clientImpl) Close(ctx context.Context) {
 func (c *clientImpl) Token() string {
 	return c.token
 }
+
 func (c *clientImpl) ApplicationID() snowflake.Snowflake {
 	return c.applicationID
 }
+
 func (c *clientImpl) ID() snowflake.Snowflake {
-	return c.clientID
-}
-func (c *clientImpl) SelfUser() *discord.OAuth2User {
-	return c.selfUser
-}
-
-func (c *clientImpl) SetSelfUser(user discord.OAuth2User) {
-	c.selfUser = &user
-}
-
-// SelfMember returns a core.OAuth2User for the client, if available
-func (c *clientImpl) SelfMember(guildID snowflake.Snowflake) *discord.Member {
-	if member, ok := c.caches.Members().Get(guildID, c.clientID); ok {
-		return &member
+	if selfUser, ok := c.Caches().GetSelfUser(); ok {
+		return selfUser.ID
 	}
-	return nil
+	return ""
 }
 
 func (c *clientImpl) Caches() cache.Caches {
@@ -132,12 +117,6 @@ func (c *clientImpl) Caches() cache.Caches {
 
 func (c *clientImpl) Rest() rest.Rest {
 	return c.restServices
-}
-
-func (c *clientImpl) HandleReadyEvent(event discord.GatewayEventReady) {
-	c.applicationID = event.Application.ID
-	c.clientID = event.User.ID
-	c.selfUser = &event.User
 }
 
 // AddEventListeners adds one or more EventListener(s) to the EventManager

@@ -28,7 +28,7 @@ func (h *gatewayHandlerReady) HandleGatewayEvent(client bot.Client, sequenceNumb
 		shardID = readyEvent.Shard[0]
 	}
 
-	client.HandleReadyEvent(readyEvent)
+	client.Caches().PutSelfUser(readyEvent.User)
 
 	for _, guild := range readyEvent.Guilds {
 		client.Caches().Guilds().SetUnready(shardID, guild.ID)
