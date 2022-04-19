@@ -24,8 +24,9 @@ func (MessageCreate) interactionCallbackData() {}
 // ToBody returns the MessageCreate ready for body
 func (m MessageCreate) ToBody() (any, error) {
 	if len(m.Files) > 0 {
-		m.Attachments = parseAttachments(m.Files)
-		return PayloadWithFiles(m, m.Files...)
+		mc := m
+		mc.Attachments = parseAttachments(mc.Files)
+		return PayloadWithFiles(mc, mc.Files...)
 	}
 	return m, nil
 }
