@@ -16,23 +16,28 @@ func (h *gatewayHandlerVoiceStateUpdate) EventType() discord.GatewayEventType {
 
 // New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerVoiceStateUpdate) New() any {
-	return &discord.VoiceState{}
+	return &discord.FullVoiceState{}
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
-	voiceState := *v.(*discord.VoiceState)
+	voiceState := *v.(*discord.FullVoiceState)
+	member := voiceState.Member
+	// populate unset fields
+	member.GuildID = voiceState.GuildID
 
 	oldVoiceState, oldOk := client.Caches().VoiceStates().Get(voiceState.GuildID, voiceState.UserID)
 	if voiceState.ChannelID == nil {
 		client.Caches().VoiceStates().Remove(voiceState.GuildID, voiceState.UserID)
 	} else {
-		client.Caches().VoiceStates().Put(voiceState.GuildID, voiceState.UserID, voiceState)
+		client.Caches().VoiceStates().Put(voiceState.GuildID, voiceState.UserID, voiceState.VoiceState)
 	}
+	client.Caches().Members().Put(voiceState.GuildID, voiceState.UserID, member)
 
 	genericGuildVoiceEvent := &events.GenericGuildVoiceStateEvent{
 		GenericEvent: events.NewGenericEvent(client, sequenceNumber),
-		VoiceState:   voiceState,
+		VoiceState:   voiceState.VoiceState,
+		Member:       member,
 	}
 
 	client.EventManager().DispatchEvent(&events.GuildVoiceStateUpdateEvent{

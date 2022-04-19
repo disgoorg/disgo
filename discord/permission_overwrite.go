@@ -16,6 +16,31 @@ const (
 	PermissionOverwriteTypeMember
 )
 
+type PermissionOverwrites []PermissionOverwrite
+
+func (p PermissionOverwrites) Get(overwriteType PermissionOverwriteType, id snowflake.Snowflake) (PermissionOverwrite, bool) {
+	for _, v := range p {
+		if v.Type() == overwriteType && v.ID() == id {
+			return v, true
+		}
+	}
+	return nil, false
+}
+
+func (p PermissionOverwrites) Role(id snowflake.Snowflake) (RolePermissionOverwrite, bool) {
+	if overwrite, ok := p.Get(PermissionOverwriteTypeRole, id); ok {
+		return overwrite.(RolePermissionOverwrite), true
+	}
+	return RolePermissionOverwrite{}, false
+}
+
+func (p PermissionOverwrites) Member(id snowflake.Snowflake) (MemberPermissionOverwrite, bool) {
+	if overwrite, ok := p.Get(PermissionOverwriteTypeMember, id); ok {
+		return overwrite.(MemberPermissionOverwrite), true
+	}
+	return MemberPermissionOverwrite{}, false
+}
+
 // PermissionOverwrite is used to determine who can perform particular actions in a GetGuildChannel
 type PermissionOverwrite interface {
 	Type() PermissionOverwriteType
