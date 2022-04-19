@@ -30,9 +30,10 @@ func (m MessageCreate) ToBody() (any, error) {
 	return m, nil
 }
 
-func (m *MessageCreate) ToResponseBody(response InteractionResponse) (any, error) {
+func (m MessageCreate) ToResponseBody(response InteractionResponse) (any, error) {
 	if len(m.Files) > 0 {
 		m.Attachments = parseAttachments(m.Files)
+		response.Data = m
 		return PayloadWithFiles(response, m.Files...)
 	}
 	return response, nil

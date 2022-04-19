@@ -79,7 +79,7 @@ func main() {
 
 	log.Info("example is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
-	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
 }
 

@@ -5,12 +5,16 @@ import (
 	"github.com/disgoorg/snowflake"
 )
 
+type FullVoiceState struct {
+	VoiceState
+	Member Member `json:"member"`
+}
+
 // VoiceState from Discord
 type VoiceState struct {
 	GuildID                 snowflake.Snowflake  `json:"guild_id,omitempty"`
 	ChannelID               *snowflake.Snowflake `json:"channel_id"`
 	UserID                  snowflake.Snowflake  `json:"user_id"`
-	Member                  *Member              `json:"member,omitempty"`
 	SessionID               string               `json:"session_id"`
 	GuildDeaf               bool                 `json:"deaf"`
 	GuildMute               bool                 `json:"mute"`

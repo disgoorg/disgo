@@ -23,11 +23,8 @@ func (h *gatewayHandlerUserUpdate) New() any {
 func (h *gatewayHandlerUserUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
 	user := *v.(*discord.OAuth2User)
 
-	var oldUser discord.OAuth2User
-	if client.SelfUser() != nil {
-		oldUser = *client.SelfUser()
-	}
-	client.SetSelfUser(user)
+	oldUser, _ := client.Caches().GetSelfUser()
+	client.Caches().PutSelfUser(user)
 
 	client.EventManager().DispatchEvent(&events.SelfUpdateEvent{
 		GenericEvent: events.NewGenericEvent(client, sequenceNumber),
