@@ -56,6 +56,9 @@ type GuildChannel interface {
 	GuildID() snowflake.Snowflake
 	Position() int
 	ParentID() *snowflake.Snowflake
+
+	// PermissionOverwrites returns the Channel's PermissionOverwrites for Role(s) and Member(s).
+	// This is always nil for GuildThread(s).
 	PermissionOverwrites() PermissionOverwrites
 
 	guildChannel()
@@ -65,8 +68,13 @@ type GuildMessageChannel interface {
 	GuildChannel
 	MessageChannel
 
+	// Topic returns the topic of a Channel.
+	// This is always nil for GuildThread(s).
 	Topic() *string
 	NSFW() bool
+
+	// DefaultAutoArchiveDuration returns the default AutoArchiveDuration for GuildThread(s) in this Channel.
+	// This is always 0 for GuildThread(s).
 	DefaultAutoArchiveDuration() AutoArchiveDuration
 
 	guildMessageChannel()
@@ -503,6 +511,7 @@ func (c GuildCategoryChannel) Position() int {
 	return c.position
 }
 
+// ParentID always returns nil for GuildCategoryChannel as they can't be nested.
 func (c GuildCategoryChannel) ParentID() *snowflake.Snowflake {
 	return nil
 }
@@ -711,10 +720,12 @@ func (c GuildThread) ID() snowflake.Snowflake {
 	return c.id
 }
 
+// PermissionOverwrites always returns nil for GuildThread(s) as they do not have their own PermissionOverwrites.
 func (c GuildThread) PermissionOverwrites() PermissionOverwrites {
 	return nil
 }
 
+// Topic always returns nil for GuildThread(s) as they do not have their own topic.
 func (c GuildThread) Topic() *string {
 	return nil
 }
@@ -739,14 +750,17 @@ func (c GuildThread) LastPinTimestamp() *Time {
 	return c.lastPinTimestamp
 }
 
+// Position always returns 0 for GuildThread(s) as they do not have their own position.
 func (c GuildThread) Position() int {
 	return 0
 }
 
+// ParentID is never nil for GuildThread(s).
 func (c GuildThread) ParentID() *snowflake.Snowflake {
 	return &c.parentID
 }
 
+// DefaultAutoArchiveDuration is always 0 for GuildThread(s) as they do not have their own AutoArchiveDuration.
 func (c GuildThread) DefaultAutoArchiveDuration() AutoArchiveDuration {
 	return 0
 }
