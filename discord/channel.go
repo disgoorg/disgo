@@ -56,7 +56,7 @@ type GuildChannel interface {
 	GuildID() snowflake.Snowflake
 	Position() int
 	ParentID() *snowflake.Snowflake
-	PermissionOverwrites() []PermissionOverwrite
+	PermissionOverwrites() PermissionOverwrites
 
 	guildChannel()
 }
@@ -158,7 +158,7 @@ type GuildTextChannel struct {
 	id                         snowflake.Snowflake
 	guildID                    snowflake.Snowflake
 	position                   int
-	permissionOverwrites       []PermissionOverwrite
+	permissionOverwrites       PermissionOverwrites
 	name                       string
 	topic                      *string
 	nsfw                       bool
@@ -232,7 +232,7 @@ func (c GuildTextChannel) GuildID() snowflake.Snowflake {
 	return c.guildID
 }
 
-func (c GuildTextChannel) PermissionOverwrites() []PermissionOverwrite {
+func (c GuildTextChannel) PermissionOverwrites() PermissionOverwrites {
 	return c.permissionOverwrites
 }
 
@@ -341,7 +341,7 @@ type GuildVoiceChannel struct {
 	id                   snowflake.Snowflake
 	guildID              snowflake.Snowflake
 	position             int
-	permissionOverwrites []PermissionOverwrite
+	permissionOverwrites PermissionOverwrites
 	name                 string
 	bitrate              int
 	UserLimit            int
@@ -409,7 +409,7 @@ func (c GuildVoiceChannel) GuildID() snowflake.Snowflake {
 	return c.guildID
 }
 
-func (c GuildVoiceChannel) PermissionOverwrites() []PermissionOverwrite {
+func (c GuildVoiceChannel) PermissionOverwrites() PermissionOverwrites {
 	return c.permissionOverwrites
 }
 
@@ -442,7 +442,7 @@ type GuildCategoryChannel struct {
 	id                   snowflake.Snowflake
 	guildID              snowflake.Snowflake
 	position             int
-	permissionOverwrites []PermissionOverwrite
+	permissionOverwrites PermissionOverwrites
 	name                 string
 }
 
@@ -495,7 +495,7 @@ func (c GuildCategoryChannel) GuildID() snowflake.Snowflake {
 	return c.guildID
 }
 
-func (c GuildCategoryChannel) PermissionOverwrites() []PermissionOverwrite {
+func (c GuildCategoryChannel) PermissionOverwrites() PermissionOverwrites {
 	return c.permissionOverwrites
 }
 
@@ -521,7 +521,7 @@ type GuildNewsChannel struct {
 	id                         snowflake.Snowflake
 	guildID                    snowflake.Snowflake
 	position                   int
-	permissionOverwrites       []PermissionOverwrite
+	permissionOverwrites       PermissionOverwrites
 	name                       string
 	topic                      *string
 	nsfw                       bool
@@ -595,7 +595,7 @@ func (c GuildNewsChannel) GuildID() snowflake.Snowflake {
 	return c.guildID
 }
 
-func (c GuildNewsChannel) PermissionOverwrites() []PermissionOverwrite {
+func (c GuildNewsChannel) PermissionOverwrites() PermissionOverwrites {
 	return c.permissionOverwrites
 }
 
@@ -711,7 +711,7 @@ func (c GuildThread) ID() snowflake.Snowflake {
 	return c.id
 }
 
-func (c GuildThread) PermissionOverwrites() []PermissionOverwrite {
+func (c GuildThread) PermissionOverwrites() PermissionOverwrites {
 	return nil
 }
 
@@ -766,7 +766,7 @@ type GuildStageVoiceChannel struct {
 	id                   snowflake.Snowflake
 	guildID              snowflake.Snowflake
 	position             int
-	permissionOverwrites []PermissionOverwrite
+	permissionOverwrites PermissionOverwrites
 	name                 string
 	bitrate              int
 	parentID             *snowflake.Snowflake
@@ -828,7 +828,7 @@ func (c GuildStageVoiceChannel) GuildID() snowflake.Snowflake {
 	return c.guildID
 }
 
-func (c GuildStageVoiceChannel) PermissionOverwrites() []PermissionOverwrite {
+func (c GuildStageVoiceChannel) PermissionOverwrites() PermissionOverwrites {
 	return c.permissionOverwrites
 }
 

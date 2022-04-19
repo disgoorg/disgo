@@ -173,9 +173,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 		logger: config.Logger,
 	}
 
-	// TODO: figure out how we handle different application & client ids
 	client.applicationID = *id
-	client.clientID = *id
 
 	if config.RestClient == nil {
 		// prepend standard user-agent. this can be overridden as it's appended to the front of the slice
