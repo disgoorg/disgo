@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"compress/zlib"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"time"
 
@@ -263,7 +265,7 @@ func (g *gatewayImpl) resume() {
 		Seq:       *g.config.LastSequenceReceived,
 	}
 
-	g.Logger().Info(g.formatLogs("sending Resume command..."))
+	g.Logger().Debug(g.formatLogs("sending Resume command..."))
 	if err := g.Send(context.TODO(), discord.GatewayOpcodeResume, resume); err != nil {
 		g.Logger().Error(g.formatLogs("error sending resume command err: ", err))
 	}
@@ -295,8 +297,10 @@ func (g *gatewayImpl) listen() {
 					g.config.LastSequenceReceived = nil
 					g.config.SessionID = nil
 				} else {
-					g.Logger().Error(g.formatLogsf("gateway close received, reconnect: %t, code: %d, error: %s", reconnect && g.config.AutoReconnect, closeError.Code, closeError.Text))
+					g.Logger().Error(g.formatLogsf("gateway close received, reconnect: %t, code: %d, error: %s", g.config.AutoReconnect && reconnect, closeError.Code, closeError.Text))
 				}
+			} else if errors.Is(err, net.ErrClosed) {
+				reconnect = false
 			} else {
 				g.Logger().Error(g.formatLogs("failed to read next message from gateway. error: ", err))
 			}
