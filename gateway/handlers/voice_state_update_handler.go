@@ -23,8 +23,6 @@ func (h *gatewayHandlerVoiceStateUpdate) New() any {
 func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
 	voiceState := *v.(*discord.FullVoiceState)
 	member := voiceState.Member
-	// populate unset fields
-	member.GuildID = voiceState.GuildID
 
 	oldVoiceState, oldOk := client.Caches().VoiceStates().Get(voiceState.GuildID, voiceState.UserID)
 	if voiceState.ChannelID == nil {

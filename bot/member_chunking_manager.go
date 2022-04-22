@@ -76,7 +76,7 @@ func (m *memberChunkingManagerImpl) HandleChunk(payload discord.GatewayEventGuil
 
 	for _, member := range payload.Members {
 		// try to cache member
-		m.client.Caches().Members().Put(member.GuildID, member.User.ID, member)
+		m.client.Caches().Members().Put(payload.GuildID, member.User.ID, member)
 		if request.memberFilterFunc != nil && !request.memberFilterFunc(member) {
 			continue
 		}

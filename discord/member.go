@@ -10,7 +10,6 @@ var _ Mentionable = (*Member)(nil)
 
 // Member is a discord GuildMember
 type Member struct {
-	GuildID                    snowflake.Snowflake   `json:"guild_id"`
 	User                       User                  `json:"user"`
 	Nick                       *string               `json:"nick"`
 	Avatar                     *string               `json:"avatar"`

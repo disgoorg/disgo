@@ -10,7 +10,7 @@ import (
 type Caches interface {
 	CacheFlags() Flags
 
-	GetMemberPermissions(member discord.Member) discord.Permissions
+	GetMemberPermissions(guildID snowflake.Snowflake, member discord.Member) discord.Permissions
 	GetMemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member) discord.Permissions
 	MemberRoles(member discord.Member) []discord.Role
 	AudioChannelMembers(channel discord.GuildAudioChannel) []discord.Member
@@ -79,13 +79,13 @@ func (c *cachesImpl) CacheFlags() Flags {
 	return c.config.CacheFlags
 }
 
-func (c *cachesImpl) GetMemberPermissions(member discord.Member) discord.Permissions {
-	if guild, ok := c.Guilds().Get(member.GuildID); ok && guild.OwnerID == member.User.ID {
+func (c *cachesImpl) GetMemberPermissions(guildID snowflake.Snowflake, member discord.Member) discord.Permissions {
+	if guild, ok := c.Guilds().Get(guildID); ok && guild.OwnerID == member.User.ID {
 		return discord.PermissionsAll
 	}
 
 	var permissions discord.Permissions
-	if publicRole, ok := c.Roles().Get(member.GuildID, member.GuildID); ok {
+	if publicRole, ok := c.Roles().Get(guildID, guildID); ok {
 		permissions = publicRole.Permissions
 	}
 
@@ -102,7 +102,7 @@ func (c *cachesImpl) GetMemberPermissions(member discord.Member) discord.Permiss
 }
 
 func (c *cachesImpl) GetMemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member) discord.Permissions {
-	permissions := c.GetMemberPermissions(member)
+	permissions := c.GetMemberPermissions(channel.GuildID(), member)
 	if permissions.Has(discord.PermissionAdministrator) {
 		return discord.PermissionsAll
 	}
@@ -150,9 +150,6 @@ func (c *cachesImpl) GetMemberPermissionsInChannel(channel discord.GuildChannel,
 
 func (c *cachesImpl) MemberRoles(member discord.Member) []discord.Role {
 	return c.Roles().FindAll(func(groupID snowflake.Snowflake, role discord.Role) bool {
-		if groupID != member.GuildID {
-			return false
-		}
 		for _, roleID := range member.RoleIDs {
 			if roleID == role.ID {
 				return true
