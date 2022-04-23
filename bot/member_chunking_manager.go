@@ -11,6 +11,7 @@ import (
 
 var _ MemberChunkingManager = (*memberChunkingManagerImpl)(nil)
 
+// NewMemberChunkingManager returns a new MemberChunkingManager with the given MemberChunkingFilter.
 func NewMemberChunkingManager(client Client, memberChunkingFilter MemberChunkingFilter) MemberChunkingManager {
 	if memberChunkingFilter == nil {
 		memberChunkingFilter = MemberChunkingFilterNone
@@ -22,9 +23,12 @@ func NewMemberChunkingManager(client Client, memberChunkingFilter MemberChunking
 	}
 }
 
+// MemberChunkingManager is used to request members for guilds from the discord gateway.
 type MemberChunkingManager interface {
+	// MemberChunkingFilter returns the configured MemberChunkingFilter used by this MemberChunkingManager.
 	MemberChunkingFilter() MemberChunkingFilter
 
+	// HandleChunk handles the discord.GatewayEventGuildMembersChunk event payloads from the discord gateway.
 	HandleChunk(payload discord.GatewayEventGuildMembersChunk)
 
 	RequestMembers(guildID snowflake.Snowflake, userIDs ...snowflake.Snowflake) ([]discord.Member, error)
