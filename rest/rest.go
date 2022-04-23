@@ -1,9 +1,5 @@
 package rest
 
-import (
-	"context"
-)
-
 var _ Rest = (*servicesImpl)(nil)
 
 // NewRest returns a new default Rest
@@ -33,7 +29,6 @@ func NewRest(client Client) Rest {
 // Rest is a manager for all of disgo's HTTP requests
 type Rest interface {
 	Client
-	Close(ctx context.Context)
 
 	Applications
 	OAuth2
@@ -74,8 +69,4 @@ type servicesImpl struct {
 	Emojis
 	Stickers
 	GuildScheduledEvents
-}
-
-func (s *servicesImpl) Close(ctx context.Context) {
-	s.Client.Close(ctx)
 }
