@@ -1,10 +1,10 @@
 package rest
 
-var _ Rest = (*servicesImpl)(nil)
+var _ Rest = (*restImpl)(nil)
 
 // NewRest returns a new default Rest
 func NewRest(client Client) Rest {
-	return &servicesImpl{
+	return &restImpl{
 		Client:               client,
 		Applications:         NewApplications(client),
 		OAuth2:               NewOAuth2(client),
@@ -49,7 +49,7 @@ type Rest interface {
 	GuildScheduledEvents
 }
 
-type servicesImpl struct {
+type restImpl struct {
 	Client
 
 	Applications
