@@ -165,6 +165,11 @@ type GatewayEventGuildIntegrationsUpdate struct {
 	GuildID snowflake.Snowflake `json:"guild_id"`
 }
 
+type GatewayEventGuildMemberAdd struct {
+	GuildID snowflake.Snowflake `json:"guild_id"`
+	Member
+}
+
 type GatewayEventGuildMemberRemove struct {
 	GuildID snowflake.Snowflake `json:"guild_id"`
 	User    User                `json:"user"`

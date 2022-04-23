@@ -46,7 +46,6 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(client bot.Client, sequen
 	}
 
 	for _, member := range gatewayGuild.Members {
-		member.GuildID = gatewayGuild.ID // populate unset field
 		client.Caches().Members().Put(gatewayGuild.ID, member.User.ID, member)
 	}
 
@@ -101,7 +100,8 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(client bot.Client, sequen
 			}()
 		}
 
-	} else if wasUnavailable {
+	}
+	if wasUnavailable {
 		client.Caches().Guilds().SetAvailable(gatewayGuild.ID)
 		client.EventManager().DispatchEvent(&events.GuildAvailableEvent{
 			GenericGuildEvent: genericGuildEvent,
