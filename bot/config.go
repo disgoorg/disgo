@@ -197,7 +197,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 
 	if config.Gateway == nil && config.GatewayConfigOpts != nil {
 		var gatewayRs *discord.Gateway
-		gatewayRs, err = client.restServices.Gateway().GetGateway()
+		gatewayRs, err = client.restServices.GetGateway()
 		if err != nil {
 			return nil, err
 		}
@@ -216,7 +216,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 
 	if config.ShardManager == nil && config.ShardManagerConfigOpts != nil {
 		var gatewayBotRs *discord.GatewayBot
-		gatewayBotRs, err = client.restServices.Gateway().GetGatewayBot()
+		gatewayBotRs, err = client.restServices.GetGatewayBot()
 		if err != nil {
 			return nil, err
 		}
