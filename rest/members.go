@@ -8,8 +8,8 @@ import (
 
 var _ Members = (*memberImpl)(nil)
 
-func NewMembers(restClient Client) Members {
-	return &memberImpl{restClient: restClient}
+func NewMembers(client Client) Members {
+	return &memberImpl{client: client}
 }
 
 type Members interface {
@@ -30,7 +30,7 @@ type Members interface {
 }
 
 type memberImpl struct {
-	restClient Client
+	client Client
 }
 
 func (s *memberImpl) GetMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, opts ...RequestOpt) (member *discord.Member, err error) {
@@ -39,7 +39,7 @@ func (s *memberImpl) GetMember(guildID snowflake.Snowflake, userID snowflake.Sno
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &member, opts...)
+	err = s.client.Do(compiledRoute, nil, &member, opts...)
 	return
 }
 
@@ -49,7 +49,7 @@ func (s *memberImpl) GetMembers(guildID snowflake.Snowflake, opts ...RequestOpt)
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &members, opts...)
+	err = s.client.Do(compiledRoute, nil, &members, opts...)
 	return
 }
 
@@ -66,7 +66,7 @@ func (s *memberImpl) SearchMembers(guildID snowflake.Snowflake, query string, li
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &members, opts...)
+	err = s.client.Do(compiledRoute, nil, &members, opts...)
 	return
 }
 
@@ -76,7 +76,7 @@ func (s *memberImpl) AddMember(guildID snowflake.Snowflake, userID snowflake.Sno
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, memberAdd, &member, opts...)
+	err = s.client.Do(compiledRoute, memberAdd, &member, opts...)
 	return
 }
 
@@ -85,7 +85,7 @@ func (s *memberImpl) RemoveMember(guildID snowflake.Snowflake, userID snowflake.
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *memberImpl) UpdateMember(guildID snowflake.Snowflake, userID snowflake.Snowflake, memberUpdate discord.MemberUpdate, opts ...RequestOpt) (member *discord.Member, err error) {
@@ -94,7 +94,7 @@ func (s *memberImpl) UpdateMember(guildID snowflake.Snowflake, userID snowflake.
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, memberUpdate, &member, opts...)
+	err = s.client.Do(compiledRoute, memberUpdate, &member, opts...)
 	return
 }
 
@@ -103,7 +103,7 @@ func (s *memberImpl) AddMemberRole(guildID snowflake.Snowflake, userID snowflake
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *memberImpl) RemoveMemberRole(guildID snowflake.Snowflake, userID snowflake.Snowflake, roleID snowflake.Snowflake, opts ...RequestOpt) error {
@@ -111,7 +111,7 @@ func (s *memberImpl) RemoveMemberRole(guildID snowflake.Snowflake, userID snowfl
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *memberImpl) UpdateSelfNick(guildID snowflake.Snowflake, nick string, opts ...RequestOpt) (nickName *string, err error) {
@@ -120,7 +120,7 @@ func (s *memberImpl) UpdateSelfNick(guildID snowflake.Snowflake, nick string, op
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, discord.SelfNickUpdate{Nick: nick}, nickName, opts...)
+	err = s.client.Do(compiledRoute, discord.SelfNickUpdate{Nick: nick}, nickName, opts...)
 	return
 }
 
@@ -129,7 +129,7 @@ func (s *memberImpl) UpdateCurrentUserVoiceState(guildID snowflake.Snowflake, cu
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, currentUserVoiceStateUpdate, nil, opts...)
+	return s.client.Do(compiledRoute, currentUserVoiceStateUpdate, nil, opts...)
 }
 
 func (s *memberImpl) UpdateUserVoiceState(guildID snowflake.Snowflake, userID snowflake.Snowflake, userVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error {
@@ -137,5 +137,5 @@ func (s *memberImpl) UpdateUserVoiceState(guildID snowflake.Snowflake, userID sn
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, userVoiceStateUpdate, nil, opts...)
+	return s.client.Do(compiledRoute, userVoiceStateUpdate, nil, opts...)
 }

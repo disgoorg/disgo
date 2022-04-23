@@ -10,8 +10,8 @@ import (
 
 var _ OAuth2 = (*oAuth2Impl)(nil)
 
-func NewOAuth2(restClient Client) OAuth2 {
-	return &oAuth2Impl{restClient: restClient}
+func NewOAuth2(client Client) OAuth2 {
+	return &oAuth2Impl{client: client}
 }
 
 type OAuth2 interface {
@@ -27,7 +27,7 @@ type OAuth2 interface {
 }
 
 type oAuth2Impl struct {
-	restClient Client
+	client Client
 }
 
 func withBearerToken(bearerToken string, opts []RequestOpt) []RequestOpt {
@@ -43,7 +43,7 @@ func (s *oAuth2Impl) GetBotApplicationInfo(opts ...RequestOpt) (application *dis
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &application, opts...)
+	err = s.client.Do(compiledRoute, nil, &application, opts...)
 	return
 }
 
@@ -53,7 +53,7 @@ func (s *oAuth2Impl) GetCurrentAuthorizationInfo(bearerToken string, opts ...Req
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &info, withBearerToken(bearerToken, opts)...)
+	err = s.client.Do(compiledRoute, nil, &info, withBearerToken(bearerToken, opts)...)
 	return
 }
 
@@ -64,7 +64,7 @@ func (s *oAuth2Impl) GetCurrentUser(bearerToken string, opts ...RequestOpt) (use
 		return
 	}
 
-	err = s.restClient.Do(compiledRoute, nil, &user, withBearerToken(bearerToken, opts)...)
+	err = s.client.Do(compiledRoute, nil, &user, withBearerToken(bearerToken, opts)...)
 	return
 }
 
@@ -86,7 +86,7 @@ func (s *oAuth2Impl) GetCurrentUserGuilds(bearerToken string, before snowflake.S
 		return
 	}
 
-	err = s.restClient.Do(compiledRoute, nil, &guilds, withBearerToken(bearerToken, opts)...)
+	err = s.client.Do(compiledRoute, nil, &guilds, withBearerToken(bearerToken, opts)...)
 	return
 }
 
@@ -97,7 +97,7 @@ func (s *oAuth2Impl) GetCurrentUserConnections(bearerToken string, opts ...Reque
 		return
 	}
 
-	err = s.restClient.Do(compiledRoute, nil, &connections, withBearerToken(bearerToken, opts)...)
+	err = s.client.Do(compiledRoute, nil, &connections, withBearerToken(bearerToken, opts)...)
 	return
 }
 
@@ -121,7 +121,7 @@ func (s *oAuth2Impl) exchangeAccessToken(clientID snowflake.Snowflake, clientSec
 		return
 	}
 
-	err = s.restClient.Do(compiledRoute, values, &exchange, opts...)
+	err = s.client.Do(compiledRoute, values, &exchange, opts...)
 	return
 }
 

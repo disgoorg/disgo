@@ -8,8 +8,8 @@ import (
 
 var _ StageInstances = (*stageInstanceImpl)(nil)
 
-func NewStageInstances(restClient Client) StageInstances {
-	return &stageInstanceImpl{restClient: restClient}
+func NewStageInstances(client Client) StageInstances {
+	return &stageInstanceImpl{client: client}
 }
 
 type StageInstances interface {
@@ -20,7 +20,7 @@ type StageInstances interface {
 }
 
 type stageInstanceImpl struct {
-	restClient Client
+	client Client
 }
 
 func (s *stageInstanceImpl) GetStageInstance(guildID snowflake.Snowflake, opts ...RequestOpt) (stageInstance *discord.StageInstance, err error) {
@@ -29,7 +29,7 @@ func (s *stageInstanceImpl) GetStageInstance(guildID snowflake.Snowflake, opts .
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &stageInstance, opts...)
+	err = s.client.Do(compiledRoute, nil, &stageInstance, opts...)
 	return
 }
 
@@ -39,7 +39,7 @@ func (s *stageInstanceImpl) CreateStageInstance(stageInstanceCreate discord.Stag
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, stageInstanceCreate, &stageInstance, opts...)
+	err = s.client.Do(compiledRoute, stageInstanceCreate, &stageInstance, opts...)
 	return
 }
 
@@ -49,7 +49,7 @@ func (s *stageInstanceImpl) UpdateStageInstance(guildID snowflake.Snowflake, sta
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, stageInstanceUpdate, &stageInstance, opts...)
+	err = s.client.Do(compiledRoute, stageInstanceUpdate, &stageInstance, opts...)
 	return
 }
 
@@ -58,5 +58,5 @@ func (s *stageInstanceImpl) DeleteStageInstance(guildID snowflake.Snowflake, opt
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }

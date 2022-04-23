@@ -8,8 +8,8 @@ import (
 
 var _ Applications = (*applicationsImpl)(nil)
 
-func NewApplications(restClient Client) Applications {
-	return &applicationsImpl{restClient: restClient}
+func NewApplications(client Client) Applications {
+	return &applicationsImpl{client: client}
 }
 
 type Applications interface {
@@ -34,7 +34,7 @@ type Applications interface {
 }
 
 type applicationsImpl struct {
-	restClient Client
+	client Client
 }
 
 func (s *applicationsImpl) GetGlobalCommands(applicationID snowflake.Snowflake, withLocalizations bool, opts ...RequestOpt) (commands []discord.ApplicationCommand, err error) {
@@ -44,7 +44,7 @@ func (s *applicationsImpl) GetGlobalCommands(applicationID snowflake.Snowflake, 
 		return
 	}
 	var unmarshalCommands []discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, nil, &unmarshalCommands, opts...)
+	err = s.client.Do(compiledRoute, nil, &unmarshalCommands, opts...)
 	if err == nil {
 		commands = unmarshalApplicationCommandsToApplicationCommands(unmarshalCommands)
 	}
@@ -58,7 +58,7 @@ func (s *applicationsImpl) GetGlobalCommand(applicationID snowflake.Snowflake, c
 		return
 	}
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, nil, &command, opts...)
+	err = s.client.Do(compiledRoute, nil, &command, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -72,7 +72,7 @@ func (s *applicationsImpl) CreateGlobalCommand(applicationID snowflake.Snowflake
 		return
 	}
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, commandCreate, &command, opts...)
+	err = s.client.Do(compiledRoute, commandCreate, &command, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -86,7 +86,7 @@ func (s *applicationsImpl) SetGlobalCommands(applicationID snowflake.Snowflake, 
 		return
 	}
 	var unmarshalCommands []discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, commandCreates, &unmarshalCommands, opts...)
+	err = s.client.Do(compiledRoute, commandCreates, &unmarshalCommands, opts...)
 	if err == nil {
 		commands = unmarshalApplicationCommandsToApplicationCommands(unmarshalCommands)
 	}
@@ -100,7 +100,7 @@ func (s *applicationsImpl) UpdateGlobalCommand(applicationID snowflake.Snowflake
 		return
 	}
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, commandUpdate, &unmarshalCommand, opts...)
+	err = s.client.Do(compiledRoute, commandUpdate, &unmarshalCommand, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -112,7 +112,7 @@ func (s *applicationsImpl) DeleteGlobalCommand(applicationID snowflake.Snowflake
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *applicationsImpl) GetGuildCommands(applicationID snowflake.Snowflake, guildID snowflake.Snowflake, withLocalizations bool, opts ...RequestOpt) (commands []discord.ApplicationCommand, err error) {
@@ -122,7 +122,7 @@ func (s *applicationsImpl) GetGuildCommands(applicationID snowflake.Snowflake, g
 		return
 	}
 	var unmarshalCommands []discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, nil, &unmarshalCommands, opts...)
+	err = s.client.Do(compiledRoute, nil, &unmarshalCommands, opts...)
 	if err == nil {
 		commands = unmarshalApplicationCommandsToApplicationCommands(unmarshalCommands)
 	}
@@ -136,7 +136,7 @@ func (s *applicationsImpl) GetGuildCommand(applicationID snowflake.Snowflake, gu
 		return
 	}
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, nil, &unmarshalCommand, opts...)
+	err = s.client.Do(compiledRoute, nil, &unmarshalCommand, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -150,7 +150,7 @@ func (s *applicationsImpl) CreateGuildCommand(applicationID snowflake.Snowflake,
 		return
 	}
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, commandCreate, &unmarshalCommand, opts...)
+	err = s.client.Do(compiledRoute, commandCreate, &unmarshalCommand, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -164,7 +164,7 @@ func (s *applicationsImpl) SetGuildCommands(applicationID snowflake.Snowflake, g
 		return
 	}
 	var unmarshalCommands []discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, commandCreates, &unmarshalCommands, opts...)
+	err = s.client.Do(compiledRoute, commandCreates, &unmarshalCommands, opts...)
 	if err == nil {
 		commands = unmarshalApplicationCommandsToApplicationCommands(unmarshalCommands)
 	}
@@ -178,7 +178,7 @@ func (s *applicationsImpl) UpdateGuildCommand(applicationID snowflake.Snowflake,
 		return
 	}
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.restClient.Do(compiledRoute, commandUpdate, &unmarshalCommand, opts...)
+	err = s.client.Do(compiledRoute, commandUpdate, &unmarshalCommand, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -190,7 +190,7 @@ func (s *applicationsImpl) DeleteGuildCommand(applicationID snowflake.Snowflake,
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *applicationsImpl) GetGuildCommandsPermissions(applicationID snowflake.Snowflake, guildID snowflake.Snowflake, opts ...RequestOpt) (commandsPerms []discord.ApplicationCommandPermissions, err error) {
@@ -199,7 +199,7 @@ func (s *applicationsImpl) GetGuildCommandsPermissions(applicationID snowflake.S
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &commandsPerms, opts...)
+	err = s.client.Do(compiledRoute, nil, &commandsPerms, opts...)
 	return
 }
 
@@ -209,7 +209,7 @@ func (s *applicationsImpl) GetGuildCommandPermissions(applicationID snowflake.Sn
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &commandPerms, opts...)
+	err = s.client.Do(compiledRoute, nil, &commandPerms, opts...)
 	return
 }
 
@@ -219,7 +219,7 @@ func (s *applicationsImpl) SetGuildCommandsPermissions(applicationID snowflake.S
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, commandPermissions, &commandsPerms, opts...)
+	err = s.client.Do(compiledRoute, commandPermissions, &commandsPerms, opts...)
 	return
 }
 
@@ -229,7 +229,7 @@ func (s *applicationsImpl) SetGuildCommandPermissions(applicationID snowflake.Sn
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, discord.ApplicationCommandPermissionsSet{Permissions: commandPermissions}, &commandPerms, opts...)
+	err = s.client.Do(compiledRoute, discord.ApplicationCommandPermissionsSet{Permissions: commandPermissions}, &commandPerms, opts...)
 	return
 }
 

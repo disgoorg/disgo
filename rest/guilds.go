@@ -8,8 +8,8 @@ import (
 
 var _ Guilds = (*guildImpl)(nil)
 
-func NewGuilds(restClient Client) Guilds {
-	return &guildImpl{restClient: restClient}
+func NewGuilds(client Client) Guilds {
+	return &guildImpl{client: client}
 }
 
 type Guilds interface {
@@ -38,13 +38,13 @@ type Guilds interface {
 	GetIntegrations(guildID snowflake.Snowflake, opts ...RequestOpt) ([]discord.Integration, error)
 	DeleteIntegration(guildID snowflake.Snowflake, integrationID snowflake.Snowflake, opts ...RequestOpt) error
 
-	GetWebhooks(guildID snowflake.Snowflake, opts ...RequestOpt) ([]discord.Webhook, error)
+	GetAllWebhooks(guildID snowflake.Snowflake, opts ...RequestOpt) ([]discord.Webhook, error)
 
 	GetAuditLog(guildID snowflake.Snowflake, userID snowflake.Snowflake, actionType discord.AuditLogEvent, before snowflake.Snowflake, limit int, opts ...RequestOpt) (*discord.AuditLog, error)
 }
 
 type guildImpl struct {
-	restClient Client
+	client Client
 }
 
 func (s *guildImpl) GetGuild(guildID snowflake.Snowflake, withCounts bool, opts ...RequestOpt) (guild *discord.RestGuild, err error) {
@@ -57,7 +57,7 @@ func (s *guildImpl) GetGuild(guildID snowflake.Snowflake, withCounts bool, opts 
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &guild, opts...)
+	err = s.client.Do(compiledRoute, nil, &guild, opts...)
 	return
 }
 
@@ -67,7 +67,7 @@ func (s *guildImpl) GetGuildPreview(guildID snowflake.Snowflake, opts ...Request
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &guildPreview, opts...)
+	err = s.client.Do(compiledRoute, nil, &guildPreview, opts...)
 	return
 }
 
@@ -77,7 +77,7 @@ func (s *guildImpl) CreateGuild(guildCreate discord.GuildCreate, opts ...Request
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, guildCreate, &guild, opts...)
+	err = s.client.Do(compiledRoute, guildCreate, &guild, opts...)
 	return
 }
 
@@ -87,7 +87,7 @@ func (s *guildImpl) UpdateGuild(guildID snowflake.Snowflake, guildUpdate discord
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, guildUpdate, &guild, opts...)
+	err = s.client.Do(compiledRoute, guildUpdate, &guild, opts...)
 	return
 }
 
@@ -96,7 +96,7 @@ func (s *guildImpl) DeleteGuild(guildID snowflake.Snowflake, opts ...RequestOpt)
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *guildImpl) CreateGuildChannel(guildID snowflake.Snowflake, guildChannelCreate discord.GuildChannelCreate, opts ...RequestOpt) (guildChannel discord.GuildChannel, err error) {
@@ -106,7 +106,7 @@ func (s *guildImpl) CreateGuildChannel(guildID snowflake.Snowflake, guildChannel
 		return
 	}
 	var ch discord.UnmarshalChannel
-	err = s.restClient.Do(compiledRoute, guildChannelCreate, &ch, opts...)
+	err = s.client.Do(compiledRoute, guildChannelCreate, &ch, opts...)
 	if err == nil {
 		guildChannel = ch.Channel.(discord.GuildChannel)
 	}
@@ -119,7 +119,7 @@ func (s *guildImpl) GetGuildChannels(guildID snowflake.Snowflake, opts ...Reques
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &channels, opts...)
+	err = s.client.Do(compiledRoute, nil, &channels, opts...)
 	return
 }
 
@@ -128,7 +128,7 @@ func (s *guildImpl) UpdateChannelPositions(guildID snowflake.Snowflake, guildCha
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, guildChannelPositionUpdates, nil, opts...)
+	return s.client.Do(compiledRoute, guildChannelPositionUpdates, nil, opts...)
 }
 
 func (s *guildImpl) GetRoles(guildID snowflake.Snowflake, opts ...RequestOpt) (roles []discord.Role, err error) {
@@ -137,7 +137,7 @@ func (s *guildImpl) GetRoles(guildID snowflake.Snowflake, opts ...RequestOpt) (r
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &roles, opts...)
+	err = s.client.Do(compiledRoute, nil, &roles, opts...)
 	return
 }
 
@@ -147,7 +147,7 @@ func (s *guildImpl) GetRole(guildID snowflake.Snowflake, roleID snowflake.Snowfl
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &role, opts...)
+	err = s.client.Do(compiledRoute, nil, &role, opts...)
 	return
 }
 
@@ -157,7 +157,7 @@ func (s *guildImpl) CreateRole(guildID snowflake.Snowflake, createRole discord.R
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, createRole, &role, opts...)
+	err = s.client.Do(compiledRoute, createRole, &role, opts...)
 	return
 }
 
@@ -167,7 +167,7 @@ func (s *guildImpl) UpdateRole(guildID snowflake.Snowflake, roleID snowflake.Sno
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, roleUpdate, &role, opts...)
+	err = s.client.Do(compiledRoute, roleUpdate, &role, opts...)
 	return
 }
 
@@ -177,7 +177,7 @@ func (s *guildImpl) UpdateRolePositions(guildID snowflake.Snowflake, rolePositio
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, rolePositionUpdates, &roles, opts...)
+	err = s.client.Do(compiledRoute, rolePositionUpdates, &roles, opts...)
 	return
 }
 
@@ -186,7 +186,7 @@ func (s *guildImpl) DeleteRole(guildID snowflake.Snowflake, roleID snowflake.Sno
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *guildImpl) GetBans(guildID snowflake.Snowflake, before snowflake.Snowflake, after snowflake.Snowflake, limit int, opts ...RequestOpt) (bans []discord.Ban, err error) {
@@ -205,7 +205,7 @@ func (s *guildImpl) GetBans(guildID snowflake.Snowflake, before snowflake.Snowfl
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &bans, opts...)
+	err = s.client.Do(compiledRoute, nil, &bans, opts...)
 	return
 }
 
@@ -215,7 +215,7 @@ func (s *guildImpl) GetBan(guildID snowflake.Snowflake, userID snowflake.Snowfla
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &ban, opts...)
+	err = s.client.Do(compiledRoute, nil, &ban, opts...)
 	return
 }
 
@@ -224,7 +224,7 @@ func (s *guildImpl) AddBan(guildID snowflake.Snowflake, userID snowflake.Snowfla
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, discord.AddBan{DeleteMessageDays: deleteMessageDays}, nil, opts...)
+	return s.client.Do(compiledRoute, discord.AddBan{DeleteMessageDays: deleteMessageDays}, nil, opts...)
 }
 
 func (s *guildImpl) DeleteBan(guildID snowflake.Snowflake, userID snowflake.Snowflake, opts ...RequestOpt) error {
@@ -232,7 +232,7 @@ func (s *guildImpl) DeleteBan(guildID snowflake.Snowflake, userID snowflake.Snow
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *guildImpl) GetIntegrations(guildID snowflake.Snowflake, opts ...RequestOpt) (integrations []discord.Integration, err error) {
@@ -241,7 +241,7 @@ func (s *guildImpl) GetIntegrations(guildID snowflake.Snowflake, opts ...Request
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &integrations, opts...)
+	err = s.client.Do(compiledRoute, nil, &integrations, opts...)
 	return
 }
 
@@ -250,16 +250,16 @@ func (s *guildImpl) DeleteIntegration(guildID snowflake.Snowflake, integrationID
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }
 
-func (s *guildImpl) GetWebhooks(guildID snowflake.Snowflake, opts ...RequestOpt) (webhooks []discord.Webhook, err error) {
+func (s *guildImpl) GetAllWebhooks(guildID snowflake.Snowflake, opts ...RequestOpt) (webhooks []discord.Webhook, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetGuildWebhooks.Compile(nil, guildID)
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &webhooks, opts...)
+	err = s.client.Do(compiledRoute, nil, &webhooks, opts...)
 	return
 }
 
@@ -269,7 +269,7 @@ func (s *guildImpl) GetEmojis(guildID snowflake.Snowflake, opts ...RequestOpt) (
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &emojis, opts...)
+	err = s.client.Do(compiledRoute, nil, &emojis, opts...)
 	return
 }
 
@@ -292,6 +292,6 @@ func (s *guildImpl) GetAuditLog(guildID snowflake.Snowflake, userID snowflake.Sn
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &auditLog, opts...)
+	err = s.client.Do(compiledRoute, nil, &auditLog, opts...)
 	return
 }

@@ -8,8 +8,8 @@ import (
 
 var _ Stickers = (*stickerImpl)(nil)
 
-func NewStickers(restClient Client) Stickers {
-	return &stickerImpl{restClient: restClient}
+func NewStickers(client Client) Stickers {
+	return &stickerImpl{client: client}
 }
 
 type Stickers interface {
@@ -22,7 +22,7 @@ type Stickers interface {
 }
 
 type stickerImpl struct {
-	restClient Client
+	client Client
 }
 
 func (s *stickerImpl) GetNitroStickerPacks(opts ...RequestOpt) (stickerPacks []discord.StickerPack, err error) {
@@ -32,7 +32,7 @@ func (s *stickerImpl) GetNitroStickerPacks(opts ...RequestOpt) (stickerPacks []d
 		return
 	}
 	var stickerPacksRs discord.StickerPacks
-	err = s.restClient.Do(compiledRoute, nil, &stickerPacksRs, opts...)
+	err = s.client.Do(compiledRoute, nil, &stickerPacksRs, opts...)
 	if err == nil {
 		stickerPacks = stickerPacksRs.StickerPacks
 	}
@@ -45,7 +45,7 @@ func (s *stickerImpl) GetSticker(stickerID snowflake.Snowflake, opts ...RequestO
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &sticker, opts...)
+	err = s.client.Do(compiledRoute, nil, &sticker, opts...)
 	return
 }
 
@@ -55,7 +55,7 @@ func (s *stickerImpl) GetStickers(guildID snowflake.Snowflake, opts ...RequestOp
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &stickers, opts...)
+	err = s.client.Do(compiledRoute, nil, &stickers, opts...)
 	return
 }
 
@@ -69,7 +69,7 @@ func (s *stickerImpl) CreateSticker(guildID snowflake.Snowflake, createSticker d
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, body, &sticker, opts...)
+	err = s.client.Do(compiledRoute, body, &sticker, opts...)
 	return
 }
 
@@ -79,7 +79,7 @@ func (s *stickerImpl) UpdateSticker(guildID snowflake.Snowflake, stickerID snowf
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, stickerUpdate, &sticker, opts...)
+	err = s.client.Do(compiledRoute, stickerUpdate, &sticker, opts...)
 	return
 }
 
@@ -88,5 +88,5 @@ func (s *stickerImpl) DeleteSticker(guildID snowflake.Snowflake, stickerID snowf
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }

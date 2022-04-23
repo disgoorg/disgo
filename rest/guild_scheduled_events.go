@@ -8,8 +8,8 @@ import (
 
 var _ GuildScheduledEvents = (*guildScheduledEventImpl)(nil)
 
-func NewGuildScheduledEvents(restClient Client) GuildScheduledEvents {
-	return &guildScheduledEventImpl{restClient: restClient}
+func NewGuildScheduledEvents(client Client) GuildScheduledEvents {
+	return &guildScheduledEventImpl{client: client}
 }
 
 type GuildScheduledEvents interface {
@@ -23,7 +23,7 @@ type GuildScheduledEvents interface {
 }
 
 type guildScheduledEventImpl struct {
-	restClient Client
+	client Client
 }
 
 func (s *guildScheduledEventImpl) GetGuildScheduledEvents(guildID snowflake.Snowflake, withUserCounts bool, opts ...RequestOpt) (guildScheduledEvents []discord.GuildScheduledEvent, err error) {
@@ -36,7 +36,7 @@ func (s *guildScheduledEventImpl) GetGuildScheduledEvents(guildID snowflake.Snow
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &guildScheduledEvents, opts...)
+	err = s.client.Do(compiledRoute, nil, &guildScheduledEvents, opts...)
 	return
 }
 
@@ -50,7 +50,7 @@ func (s *guildScheduledEventImpl) GetGuildScheduledEvent(guildID snowflake.Snowf
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &guildScheduledEvent, opts...)
+	err = s.client.Do(compiledRoute, nil, &guildScheduledEvent, opts...)
 	return
 }
 
@@ -60,7 +60,7 @@ func (s *guildScheduledEventImpl) CreateGuildScheduledEvent(guildID snowflake.Sn
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, guildScheduledEventCreate, &guildScheduledEvent, opts...)
+	err = s.client.Do(compiledRoute, guildScheduledEventCreate, &guildScheduledEvent, opts...)
 	return
 }
 
@@ -70,7 +70,7 @@ func (s *guildScheduledEventImpl) UpdateGuildScheduledEvent(guildID snowflake.Sn
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, guildScheduledEventUpdate, &guildScheduledEvent, opts...)
+	err = s.client.Do(compiledRoute, guildScheduledEventUpdate, &guildScheduledEvent, opts...)
 	return
 }
 
@@ -79,7 +79,7 @@ func (s *guildScheduledEventImpl) DeleteGuildScheduledEvent(guildID snowflake.Sn
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *guildScheduledEventImpl) GetGuildScheduledEventUsers(guildID snowflake.Snowflake, guildScheduledEventID snowflake.Snowflake, limit int, withMember bool, before snowflake.Snowflake, after snowflake.Snowflake, opts ...RequestOpt) (guildScheduledEventUsers []discord.GuildScheduledEventUser, err error) {
@@ -102,6 +102,6 @@ func (s *guildScheduledEventImpl) GetGuildScheduledEventUsers(guildID snowflake.
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &guildScheduledEventUsers, opts...)
+	err = s.client.Do(compiledRoute, nil, &guildScheduledEventUsers, opts...)
 	return
 }
