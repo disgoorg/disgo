@@ -127,15 +127,11 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message strin
 	}
 
 	if g.conn != nil {
-		err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message))
-		if err != nil && err != websocket.ErrCloseSent {
-			g.Logger().Error(g.formatLogs("error writing close code. error: ", err))
+		if err := g.send(ctx, websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && err != websocket.ErrCloseSent {
+			g.Logger().Debug(g.formatLogs("error writing close code. error: ", err))
 		}
 
-		err = g.conn.Close()
-		if err != nil {
-			g.Logger().Error(g.formatLogs("error closing conn: ", err))
-		}
+		_ = g.conn.Close()
 		g.conn = nil
 	}
 }
@@ -145,6 +141,17 @@ func (g *gatewayImpl) Status() Status {
 }
 
 func (g *gatewayImpl) Send(ctx context.Context, op discord.GatewayOpcode, d discord.GatewayMessageData) error {
+	data, err := json.Marshal(discord.GatewayMessage{
+		Op: op,
+		D:  d,
+	})
+	if err != nil {
+		return err
+	}
+	return g.send(ctx, websocket.TextMessage, data)
+}
+
+func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) error {
 	if g.conn == nil {
 		return discord.ErrShardNotConnected
 	}
@@ -154,15 +161,8 @@ func (g *gatewayImpl) Send(ctx context.Context, op discord.GatewayOpcode, d disc
 	}
 
 	defer g.config.RateLimiter.Unlock()
-	data, err := json.Marshal(discord.GatewayMessage{
-		Op: op,
-		D:  d,
-	})
-	if err != nil {
-		return err
-	}
 	g.Logger().Trace(g.formatLogs("sending gateway command: ", string(data)))
-	return g.conn.WriteMessage(websocket.TextMessage, data)
+	return g.conn.WriteMessage(messageType, data)
 }
 
 func (g *gatewayImpl) Latency() time.Duration {
@@ -300,9 +300,10 @@ func (g *gatewayImpl) listen() {
 					g.Logger().Error(g.formatLogsf("gateway close received, reconnect: %t, code: %d, error: %s", g.config.AutoReconnect && reconnect, closeError.Code, closeError.Text))
 				}
 			} else if errors.Is(err, net.ErrClosed) {
+				// we closed the connection ourselves. Don't try to reconnect here
 				reconnect = false
 			} else {
-				g.Logger().Error(g.formatLogs("failed to read next message from gateway. error: ", err))
+				g.Logger().Debug(g.formatLogs("failed to read next message from gateway. error: ", err))
 			}
 
 			if g.config.AutoReconnect && reconnect {
