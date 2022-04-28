@@ -8,7 +8,7 @@ import (
 	"github.com/disgoorg/disgo/json"
 )
 
-const TimeFormat = "2006-01-02T15:04:05+00:00"
+const TimeFormat = "2006-01-02T15:04:05-07:00"
 
 var (
 	emptyJSONString = []byte(`""`)
@@ -32,7 +32,7 @@ func (t *Time) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	t.Time = parsed
+	t.Time = parsed.UTC()
 	return nil
 }
 
