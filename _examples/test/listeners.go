@@ -167,7 +167,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 		panic("panic in the disco")
 
 	case "party":
-		_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().AddStickers("886756806888673321").SetAllowedMentions(&discord.AllowedMentions{RepliedUser: false}).Build())
+		_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().AddStickers(886756806888673321).SetAllowedMentions(&discord.AllowedMentions{RepliedUser: false}).Build())
 
 	case "ping":
 		_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent("pong").SetAllowedMentions(&discord.AllowedMentions{RepliedUser: false}).Build())

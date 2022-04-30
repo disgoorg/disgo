@@ -4,20 +4,20 @@ import (
 	"sync"
 
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 type Caches interface {
 	CacheFlags() Flags
 
-	GetMemberPermissions(guildID snowflake.Snowflake, member discord.Member) discord.Permissions
+	GetMemberPermissions(guildID snowflake.ID, member discord.Member) discord.Permissions
 	GetMemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member) discord.Permissions
 	MemberRoles(member discord.Member) []discord.Role
 	AudioChannelMembers(channel discord.GuildAudioChannel) []discord.Member
 
 	GetSelfUser() (discord.OAuth2User, bool)
 	PutSelfUser(user discord.OAuth2User)
-	GetSelfMember(guildID snowflake.Snowflake) (discord.Member, bool)
+	GetSelfMember(guildID snowflake.ID) (discord.Member, bool)
 
 	Roles() GroupedCache[discord.Role]
 	Members() GroupedCache[discord.Member]
@@ -79,7 +79,7 @@ func (c *cachesImpl) CacheFlags() Flags {
 	return c.config.CacheFlags
 }
 
-func (c *cachesImpl) GetMemberPermissions(guildID snowflake.Snowflake, member discord.Member) discord.Permissions {
+func (c *cachesImpl) GetMemberPermissions(guildID snowflake.ID, member discord.Member) discord.Permissions {
 	if guild, ok := c.Guilds().Get(guildID); ok && guild.OwnerID == member.User.ID {
 		return discord.PermissionsAll
 	}
@@ -149,7 +149,7 @@ func (c *cachesImpl) GetMemberPermissionsInChannel(channel discord.GuildChannel,
 }
 
 func (c *cachesImpl) MemberRoles(member discord.Member) []discord.Role {
-	return c.Roles().FindAll(func(groupID snowflake.Snowflake, role discord.Role) bool {
+	return c.Roles().FindAll(func(groupID snowflake.ID, role discord.Role) bool {
 		for _, roleID := range member.RoleIDs {
 			if roleID == role.ID {
 				return true
@@ -186,7 +186,7 @@ func (c *cachesImpl) PutSelfUser(user discord.OAuth2User) {
 	c.selfUser = &user
 }
 
-func (c *cachesImpl) GetSelfMember(guildID snowflake.Snowflake) (discord.Member, bool) {
+func (c *cachesImpl) GetSelfMember(guildID snowflake.ID) (discord.Member, bool) {
 	selfUser, ok := c.GetSelfUser()
 	if !ok {
 		return discord.Member{}, false

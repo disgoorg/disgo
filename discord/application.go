@@ -5,31 +5,31 @@ import (
 	"strings"
 
 	"github.com/disgoorg/disgo/rest/route"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 type Application struct {
-	ID                    snowflake.Snowflake  `json:"id"`
-	Name                  string               `json:"name"`
-	Icon                  *string              `json:"icon,omitempty"`
-	Description           string               `json:"description"`
-	RPCOrigins            []string             `json:"rpc_origins"`
-	BotPublic             bool                 `json:"bot_public"`
-	BotRequireCodeGrant   bool                 `json:"bot_require_code_grant"`
-	TermsOfServiceURL     *string              `json:"terms_of_service_url,omitempty"`
-	PrivacyPolicyURL      *string              `json:"privacy_policy_url,omitempty"`
-	CustomInstallationURL *string              `json:"custom_install_url,omitempty"`
-	InstallationParams    *InstallationParams  `json:"install_params"`
-	Tags                  []string             `json:"tags"`
-	Owner                 *User                `json:"owner,omitempty"`
-	Summary               string               `json:"summary"`
-	VerifyKey             string               `json:"verify_key"`
-	Team                  *Team                `json:"team,omitempty"`
-	GuildID               *snowflake.Snowflake `json:"guild_id,omitempty"`
-	PrimarySkuID          *snowflake.Snowflake `json:"primary_sku_id,omitempty"`
-	Slug                  *string              `json:"slug,omitempty"`
-	Cover                 *string              `json:"cover_image,omitempty"`
-	Flags                 ApplicationFlags     `json:"flags,omitempty"`
+	ID                    snowflake.ID        `json:"id"`
+	Name                  string              `json:"name"`
+	Icon                  *string             `json:"icon,omitempty"`
+	Description           string              `json:"description"`
+	RPCOrigins            []string            `json:"rpc_origins"`
+	BotPublic             bool                `json:"bot_public"`
+	BotRequireCodeGrant   bool                `json:"bot_require_code_grant"`
+	TermsOfServiceURL     *string             `json:"terms_of_service_url,omitempty"`
+	PrivacyPolicyURL      *string             `json:"privacy_policy_url,omitempty"`
+	CustomInstallationURL *string             `json:"custom_install_url,omitempty"`
+	InstallationParams    *InstallationParams `json:"install_params"`
+	Tags                  []string            `json:"tags"`
+	Owner                 *User               `json:"owner,omitempty"`
+	Summary               string              `json:"summary"`
+	VerifyKey             string              `json:"verify_key"`
+	Team                  *Team               `json:"team,omitempty"`
+	GuildID               *snowflake.ID       `json:"guild_id,omitempty"`
+	PrimarySkuID          *snowflake.ID       `json:"primary_sku_id,omitempty"`
+	Slug                  *string             `json:"slug,omitempty"`
+	Cover                 *string             `json:"cover_image,omitempty"`
+	Flags                 ApplicationFlags    `json:"flags,omitempty"`
 }
 
 func (a Application) IconURL(opts ...CDNOpt) *string {
@@ -47,8 +47,8 @@ func (a Application) CoverURL(opts ...CDNOpt) *string {
 }
 
 type PartialApplication struct {
-	ID    snowflake.Snowflake `json:"id"`
-	Flags ApplicationFlags    `json:"flags"`
+	ID    snowflake.ID     `json:"id"`
+	Flags ApplicationFlags `json:"flags"`
 }
 
 type AuthorizationInformation struct {
@@ -87,12 +87,13 @@ const (
 	ApplicationScopeMessagesRead      ApplicationScope = "messages.read"
 	ApplicationScopeWebhookIncoming   ApplicationScope = "webhook.incoming"
 
-	ApplicationScopeApplicationsCommands       ApplicationScope = "applications.commands"
-	ApplicationScopeApplicationsCommandsUpdate ApplicationScope = "applications.commands.update"
-	ApplicationScopeApplicationsEntitlements   ApplicationScope = "applications.entitlements"
-	ApplicationScopeApplicationsStoreUpdate    ApplicationScope = "applications.store.update"
-	ApplicationScopeApplicationsBuildsRead     ApplicationScope = "applications.builds.read"
-	ApplicationScopeApplicationsBuildsUpload   ApplicationScope = "applications.builds.upload"
+	ApplicationScopeApplicationsCommands                  ApplicationScope = "applications.commands"
+	ApplicationScopeApplicationsCommandsUpdate            ApplicationScope = "applications.commands.update"
+	ApplicationScopeApplicationsCommandsPermissionsUpdate ApplicationScope = "applications.commands.permissions.update"
+	ApplicationScopeApplicationsEntitlements              ApplicationScope = "applications.entitlements"
+	ApplicationScopeApplicationsStoreUpdate               ApplicationScope = "applications.store.update"
+	ApplicationScopeApplicationsBuildsRead                ApplicationScope = "applications.builds.read"
+	ApplicationScopeApplicationsBuildsUpload              ApplicationScope = "applications.builds.upload"
 )
 
 func (s ApplicationScope) String() string {
@@ -190,11 +191,11 @@ func (f ApplicationFlags) Missing(bits ...ApplicationFlags) bool {
 }
 
 type Team struct {
-	Icon    *string             `json:"icon"`
-	ID      snowflake.Snowflake `json:"id"`
-	Members []TeamMember        `json:"members"`
-	Name    string              `json:"name"`
-	OwnerID snowflake.Snowflake `json:"owner_user_id"`
+	Icon    *string      `json:"icon"`
+	ID      snowflake.ID `json:"id"`
+	Members []TeamMember `json:"members"`
+	Name    string       `json:"name"`
+	OwnerID snowflake.ID `json:"owner_user_id"`
 }
 
 func (t Team) IconURL(opts ...CDNOpt) *string {
@@ -205,10 +206,10 @@ func (t Team) IconURL(opts ...CDNOpt) *string {
 }
 
 type TeamMember struct {
-	MembershipState MembershipState     `json:"membership_state"`
-	Permissions     []TeamPermissions   `json:"permissions"`
-	TeamID          snowflake.Snowflake `json:"team_id"`
-	User            User                `json:"user"`
+	MembershipState MembershipState   `json:"membership_state"`
+	Permissions     []TeamPermissions `json:"permissions"`
+	TeamID          snowflake.ID      `json:"team_id"`
+	User            User              `json:"user"`
 }
 
 type MembershipState int

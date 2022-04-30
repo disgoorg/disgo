@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // MessageCreateBuilder helper to build Message(s) easier
@@ -113,20 +113,20 @@ func (b *MessageCreateBuilder) ClearContainerComponents() *MessageCreateBuilder 
 }
 
 // AddStickers adds provided stickers to the Message
-func (b *MessageCreateBuilder) AddStickers(stickerIds ...snowflake.Snowflake) *MessageCreateBuilder {
+func (b *MessageCreateBuilder) AddStickers(stickerIds ...snowflake.ID) *MessageCreateBuilder {
 	b.StickerIDs = append(b.StickerIDs, stickerIds...)
 	return b
 }
 
 // SetStickers sets the stickers of the Message
-func (b *MessageCreateBuilder) SetStickers(stickerIds ...snowflake.Snowflake) *MessageCreateBuilder {
+func (b *MessageCreateBuilder) SetStickers(stickerIds ...snowflake.ID) *MessageCreateBuilder {
 	b.StickerIDs = stickerIds
 	return b
 }
 
 // ClearStickers removes all Sticker(s) from the Message
 func (b *MessageCreateBuilder) ClearStickers() *MessageCreateBuilder {
-	b.StickerIDs = []snowflake.Snowflake{}
+	b.StickerIDs = []snowflake.ID{}
 	return b
 }
 
@@ -188,7 +188,7 @@ func (b *MessageCreateBuilder) SetMessageReference(messageReference *MessageRefe
 }
 
 // SetMessageReferenceByID allows you to specify a Message CommandID to reply to
-func (b *MessageCreateBuilder) SetMessageReferenceByID(messageID snowflake.Snowflake) *MessageCreateBuilder {
+func (b *MessageCreateBuilder) SetMessageReferenceByID(messageID snowflake.ID) *MessageCreateBuilder {
 	if b.MessageReference == nil {
 		b.MessageReference = &MessageReference{}
 	}

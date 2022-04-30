@@ -6,11 +6,11 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/rest/route"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // NewClient returns a new Client
-func NewClient(id snowflake.Snowflake, token string, opts ...ConfigOpt) Client {
+func NewClient(id snowflake.ID, token string, opts ...ConfigOpt) Client {
 	config := DefaultConfig()
 	config.Apply(opts)
 
@@ -22,12 +22,12 @@ func NewClient(id snowflake.Snowflake, token string, opts ...ConfigOpt) Client {
 }
 
 type clientImpl struct {
-	id     snowflake.Snowflake
+	id     snowflake.ID
 	token  string
 	config Config
 }
 
-func (c *clientImpl) ID() snowflake.Snowflake {
+func (c *clientImpl) ID() snowflake.ID {
 	return c.id
 }
 
@@ -68,12 +68,12 @@ func (c *clientImpl) DeleteWebhook(opts ...rest.RequestOpt) error {
 	return c.Rest().DeleteWebhookWithToken(c.id, c.token, opts...)
 }
 
-func (c *clientImpl) CreateMessageInThread(messageCreate discord.WebhookMessageCreate, threadID snowflake.Snowflake, opts ...rest.RequestOpt) (*discord.Message, error) {
+func (c *clientImpl) CreateMessageInThread(messageCreate discord.WebhookMessageCreate, threadID snowflake.ID, opts ...rest.RequestOpt) (*discord.Message, error) {
 	return c.Rest().CreateWebhookMessage(c.id, c.token, messageCreate, true, threadID, opts...)
 }
 
 func (c *clientImpl) CreateMessage(messageCreate discord.WebhookMessageCreate, opts ...rest.RequestOpt) (*discord.Message, error) {
-	return c.CreateMessageInThread(messageCreate, "", opts...)
+	return c.CreateMessageInThread(messageCreate, 0, opts...)
 }
 
 func (c *clientImpl) CreateContent(content string, opts ...rest.RequestOpt) (*discord.Message, error) {
@@ -84,26 +84,26 @@ func (c *clientImpl) CreateEmbeds(embeds []discord.Embed, opts ...rest.RequestOp
 	return c.CreateMessage(discord.WebhookMessageCreate{Embeds: embeds}, opts...)
 }
 
-func (c *clientImpl) UpdateMessage(messageID snowflake.Snowflake, messageUpdate discord.WebhookMessageUpdate, opts ...rest.RequestOpt) (*discord.Message, error) {
-	return c.UpdateMessageInThread(messageID, messageUpdate, "", opts...)
+func (c *clientImpl) UpdateMessage(messageID snowflake.ID, messageUpdate discord.WebhookMessageUpdate, opts ...rest.RequestOpt) (*discord.Message, error) {
+	return c.UpdateMessageInThread(messageID, messageUpdate, 0, opts...)
 }
 
-func (c *clientImpl) UpdateMessageInThread(messageID snowflake.Snowflake, messageUpdate discord.WebhookMessageUpdate, threadID snowflake.Snowflake, opts ...rest.RequestOpt) (*discord.Message, error) {
+func (c *clientImpl) UpdateMessageInThread(messageID snowflake.ID, messageUpdate discord.WebhookMessageUpdate, threadID snowflake.ID, opts ...rest.RequestOpt) (*discord.Message, error) {
 	return c.Rest().UpdateWebhookMessage(c.id, c.token, messageID, messageUpdate, threadID, opts...)
 }
 
-func (c *clientImpl) UpdateContent(messageID snowflake.Snowflake, content string, opts ...rest.RequestOpt) (*discord.Message, error) {
+func (c *clientImpl) UpdateContent(messageID snowflake.ID, content string, opts ...rest.RequestOpt) (*discord.Message, error) {
 	return c.UpdateMessage(messageID, discord.WebhookMessageUpdate{Content: &content}, opts...)
 }
 
-func (c *clientImpl) UpdateEmbeds(messageID snowflake.Snowflake, embeds []discord.Embed, opts ...rest.RequestOpt) (*discord.Message, error) {
+func (c *clientImpl) UpdateEmbeds(messageID snowflake.ID, embeds []discord.Embed, opts ...rest.RequestOpt) (*discord.Message, error) {
 	return c.UpdateMessage(messageID, discord.WebhookMessageUpdate{Embeds: &embeds}, opts...)
 }
 
-func (c *clientImpl) DeleteMessage(messageID snowflake.Snowflake, opts ...rest.RequestOpt) error {
-	return c.DeleteMessageInThread(messageID, "", opts...)
+func (c *clientImpl) DeleteMessage(messageID snowflake.ID, opts ...rest.RequestOpt) error {
+	return c.DeleteMessageInThread(messageID, 0, opts...)
 }
 
-func (c *clientImpl) DeleteMessageInThread(messageID snowflake.Snowflake, threadID snowflake.Snowflake, opts ...rest.RequestOpt) error {
+func (c *clientImpl) DeleteMessageInThread(messageID snowflake.ID, threadID snowflake.ID, opts ...rest.RequestOpt) error {
 	return c.Rest().DeleteWebhookMessage(c.id, c.token, messageID, threadID, opts...)
 }

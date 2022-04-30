@@ -4,13 +4,13 @@ import (
 	"time"
 
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // GenericGuildMemberEvent generic discord.Member event
 type GenericGuildMemberEvent struct {
 	*GenericEvent
-	GuildID snowflake.Snowflake
+	GuildID snowflake.ID
 	Member  discord.Member
 }
 
@@ -28,7 +28,7 @@ type GuildMemberUpdateEvent struct {
 // GuildMemberLeaveEvent indicates that a discord.Member left the discord.Guild
 type GuildMemberLeaveEvent struct {
 	*GenericEvent
-	GuildID snowflake.Snowflake
+	GuildID snowflake.ID
 	User    discord.User
 	Member  discord.Member
 }
@@ -36,9 +36,9 @@ type GuildMemberLeaveEvent struct {
 // GuildMemberTypingStartEvent indicates that a discord.Member started typing in a discord.BaseGuildMessageChannel(requires discord.GatewayIntentGuildMessageTyping)
 type GuildMemberTypingStartEvent struct {
 	*GenericEvent
-	ChannelID snowflake.Snowflake
-	UserID    snowflake.Snowflake
-	GuildID   snowflake.Snowflake
+	ChannelID snowflake.ID
+	UserID    snowflake.ID
+	GuildID   snowflake.ID
 	Timestamp time.Time
 	Member    discord.Member
 }

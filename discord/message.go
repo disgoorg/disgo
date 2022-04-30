@@ -2,7 +2,7 @@ package discord
 
 import (
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // The MessageType indicates the Message type
@@ -38,35 +38,35 @@ const (
 
 // Message is a struct for messages sent in discord text-based channels
 type Message struct {
-	ID                snowflake.Snowflake   `json:"id"`
-	GuildID           *snowflake.Snowflake  `json:"guild_id"`
-	Reactions         []MessageReaction     `json:"reactions"`
-	Attachments       []Attachment          `json:"attachments"`
-	TTS               bool                  `json:"tts"`
-	Embeds            []Embed               `json:"embeds,omitempty"`
-	Components        []ContainerComponent  `json:"components,omitempty"`
-	CreatedAt         Time                  `json:"timestamp"`
-	Mentions          []any                 `json:"mentions"`
-	MentionEveryone   bool                  `json:"mention_everyone"`
-	MentionRoles      []snowflake.Snowflake `json:"mention_roles"`
-	MentionChannels   []Channel             `json:"mention_channels"`
-	Pinned            bool                  `json:"pinned"`
-	EditedTimestamp   *Time                 `json:"edited_timestamp"`
-	Author            User                  `json:"author"`
-	Member            *Member               `json:"member"`
-	Content           string                `json:"content,omitempty"`
-	ChannelID         snowflake.Snowflake   `json:"channel_id"`
-	Type              MessageType           `json:"type"`
-	Flags             MessageFlags          `json:"flags"`
-	MessageReference  *MessageReference     `json:"message_reference,omitempty"`
-	Interaction       *MessageInteraction   `json:"interaction,omitempty"`
-	WebhookID         *snowflake.Snowflake  `json:"webhook_id,omitempty"`
-	Activity          *MessageActivity      `json:"activity,omitempty"`
-	Application       *MessageApplication   `json:"application,omitempty"`
-	Stickers          []MessageSticker      `json:"sticker_items,omitempty"`
-	ReferencedMessage *Message              `json:"referenced_message,omitempty"`
-	LastUpdated       *Time                 `json:"last_updated,omitempty"`
-	Thread            GuildThread           `json:"thread,omitempty"`
+	ID                snowflake.ID         `json:"id"`
+	GuildID           *snowflake.ID        `json:"guild_id"`
+	Reactions         []MessageReaction    `json:"reactions"`
+	Attachments       []Attachment         `json:"attachments"`
+	TTS               bool                 `json:"tts"`
+	Embeds            []Embed              `json:"embeds,omitempty"`
+	Components        []ContainerComponent `json:"components,omitempty"`
+	CreatedAt         Time                 `json:"timestamp"`
+	Mentions          []any                `json:"mentions"`
+	MentionEveryone   bool                 `json:"mention_everyone"`
+	MentionRoles      []snowflake.ID       `json:"mention_roles"`
+	MentionChannels   []Channel            `json:"mention_channels"`
+	Pinned            bool                 `json:"pinned"`
+	EditedTimestamp   *Time                `json:"edited_timestamp"`
+	Author            User                 `json:"author"`
+	Member            *Member              `json:"member"`
+	Content           string               `json:"content,omitempty"`
+	ChannelID         snowflake.ID         `json:"channel_id"`
+	Type              MessageType          `json:"type"`
+	Flags             MessageFlags         `json:"flags"`
+	MessageReference  *MessageReference    `json:"message_reference,omitempty"`
+	Interaction       *MessageInteraction  `json:"interaction,omitempty"`
+	WebhookID         *snowflake.ID        `json:"webhook_id,omitempty"`
+	Activity          *MessageActivity     `json:"activity,omitempty"`
+	Application       *MessageApplication  `json:"application,omitempty"`
+	Stickers          []MessageSticker     `json:"sticker_items,omitempty"`
+	ReferencedMessage *Message             `json:"referenced_message,omitempty"`
+	LastUpdated       *Time                `json:"last_updated,omitempty"`
+	Thread            GuildThread          `json:"thread,omitempty"`
 }
 
 func (m *Message) UnmarshalJSON(data []byte) error {
@@ -182,9 +182,9 @@ func (m *Message) SelectMenuByID(customID CustomID) *SelectMenuComponent {
 }
 
 type MessageSticker struct {
-	ID         snowflake.Snowflake `json:"id"`
-	Name       string              `json:"name"`
-	FormatType StickerFormatType   `json:"format_type"`
+	ID         snowflake.ID      `json:"id"`
+	Name       string            `json:"name"`
+	FormatType StickerFormatType `json:"format_type"`
 }
 
 // MessageReaction contains information about the reactions of a message_events
@@ -214,31 +214,31 @@ type MessageActivity struct {
 
 //MessageApplication is used for rich presence-related chat embeds in a Message
 type MessageApplication struct {
-	ID          snowflake.Snowflake `json:"id"`
-	CoverImage  *string             `json:"cover_image,omitempty"`
-	Description string              `json:"description"`
-	Icon        *string             `json:"icon,omitempty"`
-	Name        string              `json:"name"`
+	ID          snowflake.ID `json:"id"`
+	CoverImage  *string      `json:"cover_image,omitempty"`
+	Description string       `json:"description"`
+	Icon        *string      `json:"icon,omitempty"`
+	Name        string       `json:"name"`
 }
 
 // MessageReference is a reference to another message
 type MessageReference struct {
-	MessageID       *snowflake.Snowflake `json:"message_id"`
-	ChannelID       *snowflake.Snowflake `json:"channel_id,omitempty"`
-	GuildID         *snowflake.Snowflake `json:"guild_id,omitempty"`
-	FailIfNotExists bool                 `json:"fail_if_not_exists,omitempty"`
+	MessageID       *snowflake.ID `json:"message_id"`
+	ChannelID       *snowflake.ID `json:"channel_id,omitempty"`
+	GuildID         *snowflake.ID `json:"guild_id,omitempty"`
+	FailIfNotExists bool          `json:"fail_if_not_exists,omitempty"`
 }
 
 // MessageInteraction is sent on the Message object when the message_events is a response to an interaction
 type MessageInteraction struct {
-	ID   snowflake.Snowflake `json:"id"`
-	Type InteractionType     `json:"type"`
-	Name string              `json:"name"`
-	User User                `json:"user"`
+	ID   snowflake.ID    `json:"id"`
+	Type InteractionType `json:"type"`
+	Name string          `json:"name"`
+	User User            `json:"user"`
 }
 
 type MessageBulkDelete struct {
-	Messages []snowflake.Snowflake `json:"message s"`
+	Messages []snowflake.ID `json:"message s"`
 }
 
 // The MessageFlags of a Message

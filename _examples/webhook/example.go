@@ -11,11 +11,11 @@ import (
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/webhook"
 	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
-	webhookID    = snowflake.GetSnowflakeEnv("webhook_id")
+	webhookID    = snowflake.GetEnv("webhook_id")
 	webhookToken = os.Getenv("webhook_token")
 )
 

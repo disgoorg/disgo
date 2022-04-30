@@ -1,9 +1,9 @@
 package discord
 
-import "github.com/disgoorg/snowflake"
+import "github.com/disgoorg/snowflake/v2"
 
 type VoiceServerUpdate struct {
-	Token    string              `json:"token"`
-	GuildID  snowflake.Snowflake `json:"guild_id"`
-	Endpoint *string             `json:"endpoint"`
+	Token    string       `json:"token"`
+	GuildID  snowflake.ID `json:"guild_id"`
+	Endpoint *string      `json:"endpoint"`
 }

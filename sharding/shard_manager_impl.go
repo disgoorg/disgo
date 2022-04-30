@@ -8,7 +8,7 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/sharding/srate"
 	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var _ ShardManager = (*shardManagerImpl)(nil)
@@ -132,7 +132,7 @@ func (m *shardManagerImpl) CloseShard(ctx context.Context, shardID int) {
 	}
 }
 
-func (m *shardManagerImpl) GetGuildShard(guildId snowflake.Snowflake) gateway.Gateway {
+func (m *shardManagerImpl) GetGuildShard(guildId snowflake.ID) gateway.Gateway {
 	return m.Shard(ShardIDByGuild(guildId, m.config.ShardCount))
 }
 

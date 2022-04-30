@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // ApplicationCommandPermissionType is the type of the ApplicationCommandPermission
@@ -14,19 +14,20 @@ type ApplicationCommandPermissionType int
 const (
 	ApplicationCommandPermissionTypeRole = iota + 1
 	ApplicationCommandPermissionTypeUser
+	ApplicationCommandPermissionTypeChannel
 )
 
 // ApplicationCommandPermissionsSet is used to bulk overwrite all ApplicationCommandPermissions
 type ApplicationCommandPermissionsSet struct {
-	ID          snowflake.Snowflake            `json:"id,omitempty"`
+	ID          snowflake.ID                   `json:"id,omitempty"`
 	Permissions []ApplicationCommandPermission `json:"permissions"`
 }
 
 // ApplicationCommandPermissions holds all permissions for a ApplicationCommand
 type ApplicationCommandPermissions struct {
-	ID            snowflake.Snowflake            `json:"id"`
-	ApplicationID snowflake.Snowflake            `json:"application_id"`
-	GuildID       snowflake.Snowflake            `json:"guild_id"`
+	ID            snowflake.ID                   `json:"id"`
+	ApplicationID snowflake.ID                   `json:"application_id"`
+	GuildID       snowflake.ID                   `json:"guild_id"`
 	Permissions   []ApplicationCommandPermission `json:"permissions"`
 }
 
@@ -80,6 +81,11 @@ func (p *UnmarshalApplicationCommandPermission) UnmarshalJSON(data []byte) error
 		err = json.Unmarshal(data, &v)
 		applicationCommandPermission = v
 
+	case ApplicationCommandPermissionTypeChannel:
+		var v ApplicationCommandPermissionChannel
+		err = json.Unmarshal(data, &v)
+		applicationCommandPermission = v
+
 	default:
 		err = fmt.Errorf("unkown application command permission with type %d received", pType.Type)
 	}
@@ -96,39 +102,13 @@ func (p *UnmarshalApplicationCommandPermission) UnmarshalJSON(data []byte) error
 type ApplicationCommandPermission interface {
 	json.Marshaler
 	Type() ApplicationCommandPermissionType
-	ID() snowflake.Snowflake
+	ID() snowflake.ID
 	applicationCommandPermission()
 }
 
-type ApplicationCommandPermissionUser struct {
-	UserID     snowflake.Snowflake `json:"id"`
-	Permission bool                `json:"permission"`
-}
-
-func (p ApplicationCommandPermissionUser) MarshalJSON() ([]byte, error) {
-	type applicationCommandPermissionUser ApplicationCommandPermissionUser
-	return json.Marshal(struct {
-		Type ApplicationCommandPermissionType `json:"type"`
-		applicationCommandPermissionUser
-	}{
-		Type:                             p.Type(),
-		applicationCommandPermissionUser: applicationCommandPermissionUser(p),
-	})
-}
-
-func (ApplicationCommandPermissionUser) Type() ApplicationCommandPermissionType {
-	return ApplicationCommandPermissionTypeUser
-}
-
-func (p ApplicationCommandPermissionUser) ID() snowflake.Snowflake {
-	return p.UserID
-}
-
-func (ApplicationCommandPermissionUser) applicationCommandPermission() {}
-
 type ApplicationCommandPermissionRole struct {
-	RoleID     snowflake.Snowflake `json:"id"`
-	Permission bool                `json:"permission"`
+	RoleID     snowflake.ID `json:"id"`
+	Permission bool         `json:"permission"`
 }
 
 func (p ApplicationCommandPermissionRole) MarshalJSON() ([]byte, error) {
@@ -145,9 +125,49 @@ func (p ApplicationCommandPermissionRole) MarshalJSON() ([]byte, error) {
 func (ApplicationCommandPermissionRole) Type() ApplicationCommandPermissionType {
 	return ApplicationCommandPermissionTypeRole
 }
+func (p ApplicationCommandPermissionRole) ID() snowflake.ID            { return p.RoleID }
+func (ApplicationCommandPermissionRole) applicationCommandPermission() {}
 
-func (p ApplicationCommandPermissionRole) ID() snowflake.Snowflake {
-	return p.RoleID
+type ApplicationCommandPermissionUser struct {
+	UserID     snowflake.ID `json:"id"`
+	Permission bool         `json:"permission"`
 }
 
-func (ApplicationCommandPermissionRole) applicationCommandPermission() {}
+func (p ApplicationCommandPermissionUser) MarshalJSON() ([]byte, error) {
+	type applicationCommandPermissionUser ApplicationCommandPermissionUser
+	return json.Marshal(struct {
+		Type ApplicationCommandPermissionType `json:"type"`
+		applicationCommandPermissionUser
+	}{
+		Type:                             p.Type(),
+		applicationCommandPermissionUser: applicationCommandPermissionUser(p),
+	})
+}
+
+func (ApplicationCommandPermissionUser) Type() ApplicationCommandPermissionType {
+	return ApplicationCommandPermissionTypeUser
+}
+func (p ApplicationCommandPermissionUser) ID() snowflake.ID            { return p.UserID }
+func (ApplicationCommandPermissionUser) applicationCommandPermission() {}
+
+type ApplicationCommandPermissionChannel struct {
+	ChannelID  snowflake.ID `json:"id"`
+	Permission bool         `json:"permission"`
+}
+
+func (p ApplicationCommandPermissionChannel) MarshalJSON() ([]byte, error) {
+	type applicationCommandPermissionChannel ApplicationCommandPermissionChannel
+	return json.Marshal(struct {
+		Type ApplicationCommandPermissionType `json:"type"`
+		applicationCommandPermissionChannel
+	}{
+		Type:                                p.Type(),
+		applicationCommandPermissionChannel: applicationCommandPermissionChannel(p),
+	})
+}
+
+func (ApplicationCommandPermissionChannel) Type() ApplicationCommandPermissionType {
+	return ApplicationCommandPermissionTypeChannel
+}
+func (p ApplicationCommandPermissionChannel) ID() snowflake.ID            { return p.ChannelID }
+func (ApplicationCommandPermissionChannel) applicationCommandPermission() {}

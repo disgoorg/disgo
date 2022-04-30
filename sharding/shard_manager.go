@@ -6,7 +6,7 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/sharding/srate"
 	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 type ShardManager interface {
@@ -21,12 +21,12 @@ type ShardManager interface {
 	ReOpenShard(ctx context.Context, shardID int) error
 	CloseShard(ctx context.Context, shardID int)
 
-	GetGuildShard(guildId snowflake.Snowflake) gateway.Gateway
+	GetGuildShard(guildId snowflake.ID) gateway.Gateway
 
 	Shard(shardID int) gateway.Gateway
 	Shards() *ShardsMap
 }
 
-func ShardIDByGuild(guildID snowflake.Snowflake, shardCount int) int {
-	return int((guildID.Int64() >> int64(22)) % int64(shardCount))
+func ShardIDByGuild(guildID snowflake.ID, shardCount int) int {
+	return int((uint64(guildID) >> 22) % uint64(shardCount))
 }

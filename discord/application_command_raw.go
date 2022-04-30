@@ -2,14 +2,14 @@ package discord
 
 import (
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 type rawSlashCommand struct {
-	ID                       snowflake.Snowflake        `json:"id"`
+	ID                       snowflake.ID               `json:"id"`
 	Type                     ApplicationCommandType     `json:"type"`
-	ApplicationID            snowflake.Snowflake        `json:"application_id"`
-	GuildID                  *snowflake.Snowflake       `json:"guild_id,omitempty"`
+	ApplicationID            snowflake.ID               `json:"application_id"`
+	GuildID                  *snowflake.ID              `json:"guild_id,omitempty"`
 	Name                     string                     `json:"name"`
 	NameLocalizations        map[Locale]string          `json:"name_localizations,omitempty"`
 	NameLocalized            string                     `json:"name_localized,omitempty"`
@@ -18,7 +18,7 @@ type rawSlashCommand struct {
 	DescriptionLocalized     string                     `json:"description_localized,omitempty"`
 	Options                  []ApplicationCommandOption `json:"options,omitempty"`
 	DefaultPermission        bool                       `json:"default_permission,omitempty"`
-	Version                  snowflake.Snowflake        `json:"version"`
+	Version                  snowflake.ID               `json:"version"`
 }
 
 func (c *rawSlashCommand) UnmarshalJSON(data []byte) error {
@@ -44,13 +44,13 @@ func (c *rawSlashCommand) UnmarshalJSON(data []byte) error {
 }
 
 type rawContextCommand struct {
-	ID                snowflake.Snowflake    `json:"id"`
+	ID                snowflake.ID           `json:"id"`
 	Type              ApplicationCommandType `json:"type"`
-	ApplicationID     snowflake.Snowflake    `json:"application_id"`
-	GuildID           *snowflake.Snowflake   `json:"guild_id,omitempty"`
+	ApplicationID     snowflake.ID           `json:"application_id"`
+	GuildID           *snowflake.ID          `json:"guild_id,omitempty"`
 	Name              string                 `json:"name"`
 	NameLocalizations map[Locale]string      `json:"name_localizations,omitempty"`
 	NameLocalized     string                 `json:"name_localized,omitempty"`
 	DefaultPermission bool                   `json:"default_permission,omitempty"`
-	Version           snowflake.Snowflake    `json:"version"`
+	Version           snowflake.ID           `json:"version"`
 }
