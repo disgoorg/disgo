@@ -2,6 +2,7 @@ package discord
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/snowflake"
@@ -54,7 +55,7 @@ type MessageChannel interface {
 
 	// LastPinTimestamp returns when the last Message in this MessageChannel was pinned.
 	// This is nil if no Message has been pinned yet.
-	LastPinTimestamp() *Time
+	LastPinTimestamp() *time.Time
 
 	messageChannel()
 }
@@ -195,7 +196,7 @@ type GuildTextChannel struct {
 	lastMessageID              *snowflake.Snowflake
 	rateLimitPerUser           int
 	parentID                   *snowflake.Snowflake
-	lastPinTimestamp           *Time
+	lastPinTimestamp           *time.Time
 	defaultAutoArchiveDuration AutoArchiveDuration
 }
 
@@ -278,7 +279,7 @@ func (c GuildTextChannel) LastMessageID() *snowflake.Snowflake {
 	return c.lastMessageID
 }
 
-func (c GuildTextChannel) LastPinTimestamp() *Time {
+func (c GuildTextChannel) LastPinTimestamp() *time.Time {
 	return c.lastPinTimestamp
 }
 
@@ -308,7 +309,7 @@ type DMChannel struct {
 	id               snowflake.Snowflake
 	lastMessageID    *snowflake.Snowflake
 	recipients       []User
-	lastPinTimestamp *Time
+	lastPinTimestamp *time.Time
 }
 
 func (c *DMChannel) UnmarshalJSON(data []byte) error {
@@ -354,7 +355,7 @@ func (c DMChannel) LastMessageID() *snowflake.Snowflake {
 	return c.lastMessageID
 }
 
-func (c DMChannel) LastPinTimestamp() *Time {
+func (c DMChannel) LastPinTimestamp() *time.Time {
 	return c.lastPinTimestamp
 }
 
@@ -559,7 +560,7 @@ type GuildNewsChannel struct {
 	lastMessageID              *snowflake.Snowflake
 	rateLimitPerUser           int
 	parentID                   *snowflake.Snowflake
-	lastPinTimestamp           *Time
+	lastPinTimestamp           *time.Time
 	defaultAutoArchiveDuration AutoArchiveDuration
 }
 
@@ -646,7 +647,7 @@ func (c GuildNewsChannel) LastMessageID() *snowflake.Snowflake {
 	return c.lastMessageID
 }
 
-func (c GuildNewsChannel) LastPinTimestamp() *Time {
+func (c GuildNewsChannel) LastPinTimestamp() *time.Time {
 	return c.lastPinTimestamp
 }
 
@@ -677,7 +678,7 @@ type GuildThread struct {
 	name             string
 	nsfw             bool
 	lastMessageID    *snowflake.Snowflake
-	lastPinTimestamp *Time
+	lastPinTimestamp *time.Time
 	RateLimitPerUser int
 	OwnerID          snowflake.Snowflake
 	parentID         snowflake.Snowflake
@@ -768,7 +769,7 @@ func (c GuildThread) LastMessageID() *snowflake.Snowflake {
 	return c.lastMessageID
 }
 
-func (c GuildThread) LastPinTimestamp() *Time {
+func (c GuildThread) LastPinTimestamp() *time.Time {
 	return c.lastPinTimestamp
 }
 
@@ -908,10 +909,10 @@ const (
 type ThreadMetadata struct {
 	Archived            bool                `json:"archived"`
 	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration"`
-	ArchiveTimestamp    Time                `json:"archive_timestamp"`
+	ArchiveTimestamp    time.Time           `json:"archive_timestamp"`
 	Locked              bool                `json:"locked"`
 	Invitable           bool                `json:"invitable"`
-	CreateTimestamp     Time                `json:"create_timestamp"`
+	CreateTimestamp     time.Time           `json:"create_timestamp"`
 }
 
 type AutoArchiveDuration int

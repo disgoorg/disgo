@@ -33,8 +33,8 @@ type DMChannelDeleteEvent struct {
 type DMChannelPinsUpdateEvent struct {
 	*GenericEvent
 	ChannelID           snowflake.Snowflake
-	NewLastPinTimestamp *discord.Time
-	OldLastPinTimestamp *discord.Time
+	NewLastPinTimestamp *time.Time
+	OldLastPinTimestamp *time.Time
 }
 
 // DMUserTypingStartEvent indicates that a discord.User started typing in a discord.DMChannel(requires discord.GatewayIntentDirectMessageTyping)

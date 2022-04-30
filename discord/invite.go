@@ -1,6 +1,8 @@
 package discord
 
 import (
+	"time"
+
 	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake"
 )
@@ -25,7 +27,7 @@ type Invite struct {
 	TargetType               InviteTargetType     `json:"target_user_type"`
 	ApproximatePresenceCount int                  `json:"approximate_presence_count"`
 	ApproximateMemberCount   int                  `json:"approximate_member_count"`
-	ExpiresAt                *Time                `json:"created_at"`
+	ExpiresAt                *time.Time           `json:"created_at"`
 	GuildScheduledEvent      *GuildScheduledEvent `json:"guild_scheduled_event"`
 }
 
@@ -38,11 +40,11 @@ func (i Invite) URL() string {
 
 type ExtendedInvite struct {
 	Invite
-	Uses      int  `json:"uses"`
-	MaxUses   int  `json:"max_uses"`
-	MaxAge    int  `json:"max_age"`
-	Temporary bool `json:"temporary"`
-	CreatedAt Time `json:"created_at"`
+	Uses      int       `json:"uses"`
+	MaxUses   int       `json:"max_uses"`
+	MaxAge    int       `json:"max_age"`
+	Temporary bool      `json:"temporary"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type InviteChannel struct {
