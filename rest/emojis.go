@@ -8,8 +8,8 @@ import (
 
 var _ Emojis = (*emojiImpl)(nil)
 
-func NewEmojis(restClient Client) Emojis {
-	return &emojiImpl{restClient: restClient}
+func NewEmojis(client Client) Emojis {
+	return &emojiImpl{client: client}
 }
 
 type Emojis interface {
@@ -21,7 +21,7 @@ type Emojis interface {
 }
 
 type emojiImpl struct {
-	restClient Client
+	client Client
 }
 
 func (s *emojiImpl) GetEmojis(guildID snowflake.Snowflake, opts ...RequestOpt) (emojis []discord.Emoji, err error) {
@@ -30,7 +30,7 @@ func (s *emojiImpl) GetEmojis(guildID snowflake.Snowflake, opts ...RequestOpt) (
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &emojis, opts...)
+	err = s.client.Do(compiledRoute, nil, &emojis, opts...)
 	return
 }
 
@@ -40,7 +40,7 @@ func (s *emojiImpl) GetEmoji(guildID snowflake.Snowflake, emojiID snowflake.Snow
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &emoji, opts...)
+	err = s.client.Do(compiledRoute, nil, &emoji, opts...)
 	return
 }
 
@@ -50,7 +50,7 @@ func (s *emojiImpl) CreateEmoji(guildID snowflake.Snowflake, emojiCreate discord
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, emojiCreate, &emoji, opts...)
+	err = s.client.Do(compiledRoute, emojiCreate, &emoji, opts...)
 	return
 }
 
@@ -60,7 +60,7 @@ func (s *emojiImpl) UpdateEmoji(guildID snowflake.Snowflake, emojiID snowflake.S
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, emojiUpdate, &emoji, opts...)
+	err = s.client.Do(compiledRoute, emojiUpdate, &emoji, opts...)
 	return
 }
 
@@ -69,5 +69,5 @@ func (s *emojiImpl) DeleteEmoji(guildID snowflake.Snowflake, emojiID snowflake.S
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }

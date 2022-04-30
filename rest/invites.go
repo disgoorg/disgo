@@ -8,8 +8,8 @@ import (
 
 var _ Invites = (*inviteImpl)(nil)
 
-func NewInvites(restClient Client) Invites {
-	return &inviteImpl{restClient: restClient}
+func NewInvites(client Client) Invites {
+	return &inviteImpl{client: client}
 }
 
 type Invites interface {
@@ -21,7 +21,7 @@ type Invites interface {
 }
 
 type inviteImpl struct {
-	restClient Client
+	client Client
 }
 
 func (s *inviteImpl) GetInvite(code string, opts ...RequestOpt) (invite *discord.Invite, err error) {
@@ -30,7 +30,7 @@ func (s *inviteImpl) GetInvite(code string, opts ...RequestOpt) (invite *discord
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &invite, opts...)
+	err = s.client.Do(compiledRoute, nil, &invite, opts...)
 	return
 }
 
@@ -40,7 +40,7 @@ func (s *inviteImpl) CreateInvite(channelID snowflake.Snowflake, inviteCreate di
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, inviteCreate, &invite, opts...)
+	err = s.client.Do(compiledRoute, inviteCreate, &invite, opts...)
 	return
 }
 
@@ -50,7 +50,7 @@ func (s *inviteImpl) DeleteInvite(code string, opts ...RequestOpt) (invite *disc
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &invite, opts...)
+	err = s.client.Do(compiledRoute, nil, &invite, opts...)
 	return
 }
 
@@ -60,7 +60,7 @@ func (s *inviteImpl) GetGuildInvites(guildID snowflake.Snowflake, opts ...Reques
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &invites, opts...)
+	err = s.client.Do(compiledRoute, nil, &invites, opts...)
 	return
 }
 
@@ -70,6 +70,6 @@ func (s *inviteImpl) GetChannelInvites(channelID snowflake.Snowflake, opts ...Re
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &invites, opts...)
+	err = s.client.Do(compiledRoute, nil, &invites, opts...)
 	return
 }

@@ -8,8 +8,8 @@ import (
 
 var _ Users = (*userImpl)(nil)
 
-func NewUsers(restClient Client) Users {
-	return &userImpl{restClient: restClient}
+func NewUsers(client Client) Users {
+	return &userImpl{client: client}
 }
 
 type Users interface {
@@ -22,7 +22,7 @@ type Users interface {
 }
 
 type userImpl struct {
-	restClient Client
+	client Client
 }
 
 func (s *userImpl) GetUser(userID snowflake.Snowflake, opts ...RequestOpt) (user *discord.User, err error) {
@@ -31,7 +31,7 @@ func (s *userImpl) GetUser(userID snowflake.Snowflake, opts ...RequestOpt) (user
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &user, opts...)
+	err = s.client.Do(compiledRoute, nil, &user, opts...)
 	return
 }
 
@@ -42,7 +42,7 @@ func (s *userImpl) UpdateSelfUser(updateSelfUser discord.SelfUserUpdate, opts ..
 		return
 	}
 	var user *discord.User
-	err = s.restClient.Do(compiledRoute, updateSelfUser, &user, opts...)
+	err = s.client.Do(compiledRoute, updateSelfUser, &user, opts...)
 	return
 }
 
@@ -63,7 +63,7 @@ func (s *userImpl) GetGuilds(before int, after int, limit int, opts ...RequestOp
 		return
 	}
 
-	err = s.restClient.Do(compiledRoute, nil, &guilds, opts...)
+	err = s.client.Do(compiledRoute, nil, &guilds, opts...)
 	return
 }
 
@@ -72,7 +72,7 @@ func (s *userImpl) LeaveGuild(guildID snowflake.Snowflake, opts ...RequestOpt) e
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *userImpl) GetDMChannels(opts ...RequestOpt) (channels []discord.Channel, err error) {
@@ -82,7 +82,7 @@ func (s *userImpl) GetDMChannels(opts ...RequestOpt) (channels []discord.Channel
 		return
 	}
 
-	err = s.restClient.Do(compiledRoute, nil, &channels, opts...)
+	err = s.client.Do(compiledRoute, nil, &channels, opts...)
 	return
 }
 
@@ -93,6 +93,6 @@ func (s *userImpl) CreateDMChannel(userID snowflake.Snowflake, opts ...RequestOp
 		return
 	}
 
-	err = s.restClient.Do(compiledRoute, discord.DMChannelCreate{RecipientID: userID}, &channel, opts...)
+	err = s.client.Do(compiledRoute, discord.DMChannelCreate{RecipientID: userID}, &channel, opts...)
 	return
 }

@@ -23,6 +23,10 @@ func (h *gatewayHandlerMessageCreate) New() any {
 func (h *gatewayHandlerMessageCreate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
 	message := *v.(*discord.Message)
 
+	if message.Member != nil {
+		message.Member.User = message.Author
+	}
+
 	client.Caches().Messages().Put(message.ChannelID, message.ID, message)
 
 	// update discord.MessageChannel.LastMessageID()

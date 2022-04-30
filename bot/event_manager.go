@@ -12,6 +12,7 @@ import (
 
 var _ EventManager = (*eventManagerImpl)(nil)
 
+// NewEventManager returns a new EventManager with the EventManagerConfigOpt(s) applied.
 func NewEventManager(client Client, opts ...EventManagerConfigOpt) EventManager {
 	config := DefaultEventManagerConfig()
 	config.Apply(opts)
@@ -24,13 +25,22 @@ func NewEventManager(client Client, opts ...EventManagerConfigOpt) EventManager 
 
 // EventManager lets you listen for specific events triggered by raw gateway events
 type EventManager interface {
+	// RawEventsEnabled returns whether events.RawEvent are enabled
 	RawEventsEnabled() bool
 
+	// AddEventListeners adds one or more EventListener(s) to the EventManager
 	AddEventListeners(eventListeners ...EventListener)
+
+	// RemoveEventListeners removes one or more EventListener(s) from the EventManager
 	RemoveEventListeners(eventListeners ...EventListener)
 
+	// HandleGatewayEvent calls the correct GatewayEventHandler for the payload
 	HandleGatewayEvent(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader)
+
+	// HandleHTTPEvent calls the HTTPServerEventHandler for the payload
 	HandleHTTPEvent(respondFunc httpserver.RespondFunc, payload io.Reader)
+
+	// DispatchEvent dispatches a new Event to the Client's EventListener(s)
 	DispatchEvent(event Event)
 }
 
@@ -58,7 +68,6 @@ type HTTPServerEventHandler interface {
 	HandleHTTPEvent(client Client, respondFunc func(response discord.InteractionResponse) error, v any)
 }
 
-// eventManagerImpl is the implementation of core.EventManager
 type eventManagerImpl struct {
 	client          Client
 	eventListenerMu sync.Mutex
@@ -71,7 +80,6 @@ func (e *eventManagerImpl) RawEventsEnabled() bool {
 	return e.config.RawEventsEnabled
 }
 
-// HandleGatewayEvent calls the correct core.EventHandler
 func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -89,7 +97,6 @@ func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType discord.GatewayEv
 	}
 }
 
-// HandleHTTPEvent calls the correct core.EventHandler
 func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, reader io.Reader) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -100,7 +107,6 @@ func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, r
 	e.config.HTTPServerHandler.HandleHTTPEvent(e.client, respondFunc, v)
 }
 
-// DispatchEvent dispatches a new event to the client
 func (e *eventManagerImpl) DispatchEvent(event Event) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -127,14 +133,12 @@ func (e *eventManagerImpl) DispatchEvent(event Event) {
 	}
 }
 
-// AddEventListeners adds one or more core.EventListener(s) to the core.EventManager
 func (e *eventManagerImpl) AddEventListeners(listeners ...EventListener) {
 	e.eventListenerMu.Lock()
 	defer e.eventListenerMu.Unlock()
 	e.config.EventListeners = append(e.config.EventListeners, listeners...)
 }
 
-// RemoveEventListeners removes one or more core.EventListener(s) from the core.EventManager
 func (e *eventManagerImpl) RemoveEventListeners(listeners ...EventListener) {
 	e.eventListenerMu.Lock()
 	defer e.eventListenerMu.Unlock()

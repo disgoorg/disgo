@@ -1,6 +1,7 @@
 package bot
 
-// NewEventCollector gives you a channel to receive on and a function to close the collector
+// NewEventCollector returns a channel in which the events of type T gets sent which pass the passed filter and a function which can be used to stop the event collector.
+// The close function needs to be called to stop the event collector.
 func NewEventCollector[E Event](disgo Client, filterFunc func(e E) bool) (<-chan E, func()) {
 	ch := make(chan E)
 

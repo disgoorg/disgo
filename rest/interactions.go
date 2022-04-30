@@ -8,8 +8,8 @@ import (
 
 var _ Interactions = (*interactionImpl)(nil)
 
-func NewInteractions(restClient Client) Interactions {
-	return &interactionImpl{restClient: restClient}
+func NewInteractions(client Client) Interactions {
+	return &interactionImpl{client: client}
 }
 
 type Interactions interface {
@@ -25,7 +25,7 @@ type Interactions interface {
 }
 
 type interactionImpl struct {
-	restClient Client
+	client Client
 }
 
 func (s *interactionImpl) GetInteractionResponse(interactionID snowflake.Snowflake, interactionToken string, opts ...RequestOpt) (message *discord.Message, err error) {
@@ -34,7 +34,7 @@ func (s *interactionImpl) GetInteractionResponse(interactionID snowflake.Snowfla
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &message, opts...)
+	err = s.client.Do(compiledRoute, nil, &message, opts...)
 	return
 }
 
@@ -49,7 +49,7 @@ func (s *interactionImpl) CreateInteractionResponse(interactionID snowflake.Snow
 		return err
 	}
 
-	return s.restClient.Do(compiledRoute, body, nil, opts...)
+	return s.client.Do(compiledRoute, body, nil, opts...)
 }
 
 func (s *interactionImpl) UpdateInteractionResponse(applicationID snowflake.Snowflake, interactionToken string, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (message *discord.Message, err error) {
@@ -64,7 +64,7 @@ func (s *interactionImpl) UpdateInteractionResponse(applicationID snowflake.Snow
 		return
 	}
 
-	err = s.restClient.Do(compiledRoute, body, &message, opts...)
+	err = s.client.Do(compiledRoute, body, &message, opts...)
 	return
 }
 
@@ -73,7 +73,7 @@ func (s *interactionImpl) DeleteInteractionResponse(applicationID snowflake.Snow
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *interactionImpl) GetFollowupMessage(applicationID snowflake.Snowflake, interactionToken string, messageID snowflake.Snowflake, opts ...RequestOpt) (message *discord.Message, err error) {
@@ -83,7 +83,7 @@ func (s *interactionImpl) GetFollowupMessage(applicationID snowflake.Snowflake, 
 		return
 	}
 
-	err = s.restClient.Do(compiledRoute, nil, &message, opts...)
+	err = s.client.Do(compiledRoute, nil, &message, opts...)
 	return
 }
 
@@ -99,7 +99,7 @@ func (s *interactionImpl) CreateFollowupMessage(applicationID snowflake.Snowflak
 		return
 	}
 
-	err = s.restClient.Do(compiledRoute, body, &message, opts...)
+	err = s.client.Do(compiledRoute, body, &message, opts...)
 	return
 }
 
@@ -115,7 +115,7 @@ func (s *interactionImpl) UpdateFollowupMessage(applicationID snowflake.Snowflak
 		return
 	}
 
-	err = s.restClient.Do(compiledRoute, body, &message, opts...)
+	err = s.client.Do(compiledRoute, body, &message, opts...)
 	return
 }
 
@@ -124,5 +124,5 @@ func (s *interactionImpl) DeleteFollowupMessage(applicationID snowflake.Snowflak
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }

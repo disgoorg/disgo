@@ -7,8 +7,8 @@ import (
 
 var _ Voice = (*voiceImpl)(nil)
 
-func NewVoice(restClient Client) Voice {
-	return &voiceImpl{restClient: restClient}
+func NewVoice(client Client) Voice {
+	return &voiceImpl{client: client}
 }
 
 type Voice interface {
@@ -16,7 +16,7 @@ type Voice interface {
 }
 
 type voiceImpl struct {
-	restClient Client
+	client Client
 }
 
 func (s *voiceImpl) GetVoiceRegions(opts ...RequestOpt) (regions []discord.VoiceRegion, err error) {
@@ -25,6 +25,6 @@ func (s *voiceImpl) GetVoiceRegions(opts ...RequestOpt) (regions []discord.Voice
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &regions, opts...)
+	err = s.client.Do(compiledRoute, nil, &regions, opts...)
 	return
 }

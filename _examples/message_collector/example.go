@@ -64,7 +64,7 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 			for {
 				select {
 				case <-ctx.Done():
-					_, _ = event.Client().Rest().Channels().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent("cancelled").Build())
+					_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent("cancelled").Build())
 					return
 
 				case messageEvent := <-ch:
@@ -72,7 +72,7 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 
 					if i == 3 {
 						cls()
-						_, _ = event.Client().Rest().Channels().CreateMessage(messageEvent.ChannelID, discord.NewMessageCreateBuilder().SetContent(str).Build())
+						_, _ = event.Client().Rest().CreateMessage(messageEvent.ChannelID, discord.NewMessageCreateBuilder().SetContent(str).Build())
 					}
 					i++
 				}

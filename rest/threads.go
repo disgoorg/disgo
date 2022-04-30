@@ -8,8 +8,8 @@ import (
 
 var _ Threads = (*threadImpl)(nil)
 
-func NewThreads(restClient Client) Threads {
-	return &threadImpl{restClient: restClient}
+func NewThreads(client Client) Threads {
+	return &threadImpl{client: client}
 }
 
 type Threads interface {
@@ -30,7 +30,7 @@ type Threads interface {
 }
 
 type threadImpl struct {
-	restClient Client
+	client Client
 }
 
 func (s *threadImpl) CreateThreadFromMessage(channelID snowflake.Snowflake, messageID snowflake.Snowflake, threadCreateWithMessage discord.ThreadCreateFromMessage, opts ...RequestOpt) (thread discord.GuildThread, err error) {
@@ -40,7 +40,7 @@ func (s *threadImpl) CreateThreadFromMessage(channelID snowflake.Snowflake, mess
 		return
 	}
 	var channel discord.UnmarshalChannel
-	err = s.restClient.Do(compiledRoute, threadCreateWithMessage, &channel, opts...)
+	err = s.client.Do(compiledRoute, threadCreateWithMessage, &channel, opts...)
 	if err == nil {
 		thread = channel.Channel.(discord.GuildThread)
 	}
@@ -68,7 +68,7 @@ func (s *threadImpl) CreateThread(channelID snowflake.Snowflake, threadCreate di
 		return
 	}
 	var channel discord.UnmarshalChannel
-	err = s.restClient.Do(compiledRoute, threadCreate, &channel, opts...)
+	err = s.client.Do(compiledRoute, threadCreate, &channel, opts...)
 	if err == nil {
 		thread = channel.Channel.(discord.GuildThread)
 	}
@@ -80,7 +80,7 @@ func (s *threadImpl) JoinThread(threadID snowflake.Snowflake, opts ...RequestOpt
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *threadImpl) LeaveThread(threadID snowflake.Snowflake, opts ...RequestOpt) error {
@@ -88,7 +88,7 @@ func (s *threadImpl) LeaveThread(threadID snowflake.Snowflake, opts ...RequestOp
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *threadImpl) AddThreadMember(threadID snowflake.Snowflake, userID snowflake.Snowflake, opts ...RequestOpt) error {
@@ -96,7 +96,7 @@ func (s *threadImpl) AddThreadMember(threadID snowflake.Snowflake, userID snowfl
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *threadImpl) RemoveThreadMember(threadID snowflake.Snowflake, userID snowflake.Snowflake, opts ...RequestOpt) error {
@@ -104,7 +104,7 @@ func (s *threadImpl) RemoveThreadMember(threadID snowflake.Snowflake, userID sno
 	if err != nil {
 		return err
 	}
-	return s.restClient.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(compiledRoute, nil, nil, opts...)
 }
 
 func (s *threadImpl) GetThreadMember(threadID snowflake.Snowflake, userID snowflake.Snowflake, opts ...RequestOpt) (threadMember *discord.ThreadMember, err error) {
@@ -113,7 +113,7 @@ func (s *threadImpl) GetThreadMember(threadID snowflake.Snowflake, userID snowfl
 	if err != nil {
 		return nil, err
 	}
-	err = s.restClient.Do(compiledRoute, nil, &threadMember, opts...)
+	err = s.client.Do(compiledRoute, nil, &threadMember, opts...)
 	return
 }
 
@@ -123,7 +123,7 @@ func (s *threadImpl) GetThreadMembers(threadID snowflake.Snowflake, opts ...Requ
 	if err != nil {
 		return nil, err
 	}
-	err = s.restClient.Do(compiledRoute, nil, &threadMembers, opts...)
+	err = s.client.Do(compiledRoute, nil, &threadMembers, opts...)
 	return
 }
 
@@ -140,7 +140,7 @@ func (s *threadImpl) GetPublicArchivedThreads(channelID snowflake.Snowflake, bef
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &threads, opts...)
+	err = s.client.Do(compiledRoute, nil, &threads, opts...)
 	return
 }
 
@@ -157,7 +157,7 @@ func (s *threadImpl) GetPrivateArchivedThreads(channelID snowflake.Snowflake, be
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &threads, opts...)
+	err = s.client.Do(compiledRoute, nil, &threads, opts...)
 	return
 }
 
@@ -174,6 +174,6 @@ func (s *threadImpl) GetJoinedPrivateArchivedThreads(channelID snowflake.Snowfla
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &threads, opts...)
+	err = s.client.Do(compiledRoute, nil, &threads, opts...)
 	return
 }
