@@ -7,20 +7,24 @@ type ThreadCreateFromMessage struct {
 	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
 }
 
-type ThreadCreateInForum struct {
+type ForumThreadCreate struct {
 	Name                string              `json:"name"`
 	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
 	RateLimitPerUser    int                 `json:"rate_limit_per_user,omitempty"`
-
-	MessageCreate
+	Message             MessageCreate       `json:"message"`
 }
 
-func (c ThreadCreateInForum) ToBody() (any, error) {
-	if len(c.Files) > 0 {
-		c.Attachments = parseAttachments(c.Files)
-		return PayloadWithFiles(c, c.Files...)
+func (c ForumThreadCreate) ToBody() (any, error) {
+	if len(c.Message.Files) > 0 {
+		c.Message.Attachments = parseAttachments(c.Message.Files)
+		return PayloadWithFiles(c, c.Message.Files...)
 	}
 	return c, nil
+}
+
+type ForumThread struct {
+	GuildThread
+	Message Message `json:"message"`
 }
 
 type ThreadCreate interface {

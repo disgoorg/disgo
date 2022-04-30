@@ -14,9 +14,9 @@ func NewThreads(client Client) Threads {
 
 type Threads interface {
 	// CreateThreadFromMessage does not work for discord.ChannelTypeGuildForum channels.
-	CreateThreadFromMessage(channelID snowflake.Snowflake, messageID snowflake.Snowflake, threadCreateFromMessage discord.ThreadCreateFromMessage, opts ...RequestOpt) (thread discord.GuildThread, err error)
-	CreateThreadInForum(channelID snowflake.Snowflake, threadCreateInForum discord.ThreadCreateInForum, opts ...RequestOpt) (thread discord.GuildThread, err error)
-	CreateThread(channelID snowflake.Snowflake, threadCreate discord.ThreadCreate, opts ...RequestOpt) (thread discord.GuildThread, err error)
+	CreateThreadFromMessage(channelID snowflake.Snowflake, messageID snowflake.Snowflake, threadCreateFromMessage discord.ThreadCreateFromMessage, opts ...RequestOpt) (thread *discord.GuildThread, err error)
+	CreateThreadInForum(channelID snowflake.Snowflake, threadCreateInForum discord.ForumThreadCreate, opts ...RequestOpt) (thread *discord.ForumThread, err error)
+	CreateThread(channelID snowflake.Snowflake, threadCreate discord.ThreadCreate, opts ...RequestOpt) (thread *discord.GuildThread, err error)
 	JoinThread(threadID snowflake.Snowflake, opts ...RequestOpt) error
 	LeaveThread(threadID snowflake.Snowflake, opts ...RequestOpt) error
 	AddThreadMember(threadID snowflake.Snowflake, userID snowflake.Snowflake, opts ...RequestOpt) error
@@ -33,45 +33,38 @@ type threadImpl struct {
 	client Client
 }
 
-func (s *threadImpl) CreateThreadFromMessage(channelID snowflake.Snowflake, messageID snowflake.Snowflake, threadCreateWithMessage discord.ThreadCreateFromMessage, opts ...RequestOpt) (thread discord.GuildThread, err error) {
+func (s *threadImpl) CreateThreadFromMessage(channelID snowflake.Snowflake, messageID snowflake.Snowflake, threadCreateWithMessage discord.ThreadCreateFromMessage, opts ...RequestOpt) (thread *discord.GuildThread, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateThreadWithMessage.Compile(nil, channelID, messageID)
 	if err != nil {
 		return
 	}
-	var channel discord.UnmarshalChannel
-	err = s.client.Do(compiledRoute, threadCreateWithMessage, &channel, opts...)
-	if err == nil {
-		thread = channel.Channel.(discord.GuildThread)
-	}
+	err = s.client.Do(compiledRoute, threadCreateWithMessage, &thread, opts...)
 	return
 }
 
-func (s *threadImpl) CreateThreadInForum(channelID snowflake.Snowflake, threadCreateInForum discord.ThreadCreateInForum, opts ...RequestOpt) (thread discord.GuildThread, err error) {
+func (s *threadImpl) CreateThreadInForum(channelID snowflake.Snowflake, threadCreateInForum discord.ForumThreadCreate, opts ...RequestOpt) (thread *discord.ForumThread, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateThread.Compile(nil, channelID)
 	if err != nil {
 		return
 	}
-	var channel discord.UnmarshalChannel
-	err = s.restClient.Do(compiledRoute, threadCreateInForum, &channel, opts...)
-	if err == nil {
-		thread = channel.Channel.(discord.GuildThread)
+	body, err := threadCreateInForum.ToBody()
+	if err != nil {
+		return
 	}
+
+	err = s.client.Do(compiledRoute, body, &thread, opts...)
 	return
 }
 
-func (s *threadImpl) CreateThread(channelID snowflake.Snowflake, threadCreate discord.ThreadCreate, opts ...RequestOpt) (thread discord.GuildThread, err error) {
+func (s *threadImpl) CreateThread(channelID snowflake.Snowflake, threadCreate discord.ThreadCreate, opts ...RequestOpt) (thread *discord.GuildThread, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateThread.Compile(nil, channelID)
 	if err != nil {
 		return
 	}
-	var channel discord.UnmarshalChannel
-	err = s.client.Do(compiledRoute, threadCreate, &channel, opts...)
-	if err == nil {
-		thread = channel.Channel.(discord.GuildThread)
-	}
+	err = s.client.Do(compiledRoute, threadCreate, &thread, opts...)
 	return
 }
 
