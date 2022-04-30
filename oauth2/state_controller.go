@@ -18,7 +18,7 @@ func NewStateController(opts ...StateControllerConfigOpt) StateController {
 	config := DefaultStateControllerConfig()
 	config.Apply(opts)
 
-	states := NewTTLMap(config.MaxTTL)
+	states := newTTLMap(config.MaxTTL)
 	for state, url := range config.States {
 		states.Put(state, url)
 	}
@@ -30,7 +30,7 @@ func NewStateController(opts ...StateControllerConfigOpt) StateController {
 }
 
 type stateControllerImpl struct {
-	states       *TTLMap
+	states       *ttlMap
 	newStateFunc func() string
 }
 

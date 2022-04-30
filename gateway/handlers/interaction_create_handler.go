@@ -34,7 +34,7 @@ func respond(client bot.Client, respondFunc func(response discord.InteractionRes
 		if respondFunc != nil {
 			return respondFunc(response)
 		}
-		return client.Rest().Interactions().CreateInteractionResponse(interaction.ID(), interaction.Token(), response, opts...)
+		return client.Rest().CreateInteractionResponse(interaction.ID(), interaction.Token(), response, opts...)
 	}
 }
 

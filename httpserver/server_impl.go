@@ -34,7 +34,6 @@ func New(eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Server {
 	}
 }
 
-// serverImpl is used in Client's webhook server for interactions
 type serverImpl struct {
 	config           Config
 	publicKey        PublicKey
@@ -45,7 +44,6 @@ func (s *serverImpl) Logger() log.Logger {
 	return s.config.Logger
 }
 
-// PublicKey returns the parsed ed25519.PublicKey
 func (s *serverImpl) PublicKey() PublicKey {
 	return s.publicKey
 }
@@ -54,7 +52,6 @@ func (s *serverImpl) Handle(respondFunc RespondFunc, payload io.Reader) {
 	s.eventHandlerFunc(respondFunc, payload)
 }
 
-// Start makes the serverImpl listen on the specified port and handle requests
 func (s *serverImpl) Start() {
 	s.config.ServeMux.Handle(s.config.URL, &WebhookInteractionHandler{server: s})
 	s.config.HTTPServer.Addr = s.config.Address
@@ -73,7 +70,6 @@ func (s *serverImpl) Start() {
 	}()
 }
 
-// Close shuts down the serverImpl
 func (s *serverImpl) Close(ctx context.Context) {
 	_ = s.config.HTTPServer.Shutdown(ctx)
 }

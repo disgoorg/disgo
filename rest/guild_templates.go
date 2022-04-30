@@ -8,8 +8,8 @@ import (
 
 var _ GuildTemplates = (*guildTemplateImpl)(nil)
 
-func NewGuildTemplates(restClient Client) GuildTemplates {
-	return &guildTemplateImpl{restClient: restClient}
+func NewGuildTemplates(client Client) GuildTemplates {
+	return &guildTemplateImpl{client: client}
 }
 
 type GuildTemplates interface {
@@ -23,7 +23,7 @@ type GuildTemplates interface {
 }
 
 type guildTemplateImpl struct {
-	restClient Client
+	client Client
 }
 
 func (s *guildTemplateImpl) GetGuildTemplate(templateCode string, opts ...RequestOpt) (guildTemplate *discord.GuildTemplate, err error) {
@@ -32,7 +32,7 @@ func (s *guildTemplateImpl) GetGuildTemplate(templateCode string, opts ...Reques
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &guildTemplate, opts...)
+	err = s.client.Do(compiledRoute, nil, &guildTemplate, opts...)
 	return
 }
 
@@ -42,7 +42,7 @@ func (s *guildTemplateImpl) GetGuildTemplates(guildID snowflake.Snowflake, opts 
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &guildTemplates, opts...)
+	err = s.client.Do(compiledRoute, nil, &guildTemplates, opts...)
 	return
 }
 
@@ -52,7 +52,7 @@ func (s *guildTemplateImpl) CreateGuildTemplate(guildID snowflake.Snowflake, gui
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, guildTemplateCreate, &guildTemplate, opts...)
+	err = s.client.Do(compiledRoute, guildTemplateCreate, &guildTemplate, opts...)
 	return
 }
 
@@ -62,7 +62,7 @@ func (s *guildTemplateImpl) CreateGuildFromTemplate(templateCode string, createG
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, createGuildFromTemplate, &guild, opts...)
+	err = s.client.Do(compiledRoute, createGuildFromTemplate, &guild, opts...)
 	return
 }
 
@@ -72,7 +72,7 @@ func (s *guildTemplateImpl) SyncGuildTemplate(guildID snowflake.Snowflake, templ
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &guildTemplate, opts...)
+	err = s.client.Do(compiledRoute, nil, &guildTemplate, opts...)
 	return
 }
 
@@ -82,7 +82,7 @@ func (s *guildTemplateImpl) UpdateGuildTemplate(guildID snowflake.Snowflake, tem
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, guildTemplateUpdate, &guildTemplate, opts...)
+	err = s.client.Do(compiledRoute, guildTemplateUpdate, &guildTemplate, opts...)
 	return
 }
 
@@ -92,6 +92,6 @@ func (s *guildTemplateImpl) DeleteGuildTemplate(guildID snowflake.Snowflake, tem
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &guildTemplate, opts...)
+	err = s.client.Do(compiledRoute, nil, &guildTemplate, opts...)
 	return
 }

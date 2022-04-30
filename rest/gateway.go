@@ -7,8 +7,8 @@ import (
 
 var _ Gateway = (*gatewayImpl)(nil)
 
-func NewGateway(restClient Client) Gateway {
-	return &gatewayImpl{restClient: restClient}
+func NewGateway(client Client) Gateway {
+	return &gatewayImpl{client: client}
 }
 
 type Gateway interface {
@@ -17,7 +17,7 @@ type Gateway interface {
 }
 
 type gatewayImpl struct {
-	restClient Client
+	client Client
 }
 
 func (s *gatewayImpl) GetGateway(opts ...RequestOpt) (gateway *discord.Gateway, err error) {
@@ -26,7 +26,7 @@ func (s *gatewayImpl) GetGateway(opts ...RequestOpt) (gateway *discord.Gateway, 
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &gateway, opts...)
+	err = s.client.Do(compiledRoute, nil, &gateway, opts...)
 	return
 }
 
@@ -36,6 +36,6 @@ func (s *gatewayImpl) GetGatewayBot(opts ...RequestOpt) (gatewayBot *discord.Gat
 	if err != nil {
 		return
 	}
-	err = s.restClient.Do(compiledRoute, nil, &gatewayBot, opts...)
+	err = s.client.Do(compiledRoute, nil, &gatewayBot, opts...)
 	return
 }
