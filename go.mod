@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/disgoorg/log v1.2.0
-	github.com/disgoorg/snowflake/v2 v2.0.0-20220427233926-bd27c8f79dd8
+	github.com/disgoorg/snowflake/v2 v2.0.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/sasha-s/go-csync v0.0.0-20210812194225-61421b77c44b
 	github.com/stretchr/testify v1.7.0
