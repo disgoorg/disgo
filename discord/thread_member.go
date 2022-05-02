@@ -1,11 +1,15 @@
 package discord
 
-import "github.com/disgoorg/snowflake"
+import (
+	"time"
+
+	"github.com/disgoorg/snowflake"
+)
 
 type ThreadMember struct {
 	ThreadID      snowflake.Snowflake `json:"id"`
 	UserID        snowflake.Snowflake `json:"user_id"`
-	JoinTimestamp Time                `json:"join_timestamp"`
+	JoinTimestamp time.Time           `json:"join_timestamp"`
 	Flags         ThreadMemberFlags   `json:"flags"`
 }
 

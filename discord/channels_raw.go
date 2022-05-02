@@ -1,6 +1,8 @@
 package discord
 
 import (
+	"time"
+
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/snowflake"
 )
@@ -10,7 +12,7 @@ type dmChannel struct {
 	Type             ChannelType          `json:"type"`
 	LastMessageID    *snowflake.Snowflake `json:"last_message_id"`
 	Recipients       []User               `json:"recipients"`
-	LastPinTimestamp *Time                `json:"last_pin_timestamp"`
+	LastPinTimestamp *time.Time           `json:"last_pin_timestamp"`
 }
 
 type guildTextChannel struct {
@@ -25,7 +27,7 @@ type guildTextChannel struct {
 	LastMessageID              *snowflake.Snowflake  `json:"last_message_id"`
 	RateLimitPerUser           int                   `json:"rate_limit_per_user"`
 	ParentID                   *snowflake.Snowflake  `json:"parent_id"`
-	LastPinTimestamp           *Time                 `json:"last_pin_timestamp"`
+	LastPinTimestamp           *time.Time            `json:"last_pin_timestamp"`
 	DefaultAutoArchiveDuration AutoArchiveDuration   `json:"default_auto_archive_duration"`
 }
 
@@ -55,7 +57,7 @@ type guildNewsChannel struct {
 	RateLimitPerUser           int                   `json:"rate_limit_per_user"`
 	ParentID                   *snowflake.Snowflake  `json:"parent_id"`
 	LastMessageID              *snowflake.Snowflake  `json:"last_message_id"`
-	LastPinTimestamp           *Time                 `json:"last_pin_timestamp"`
+	LastPinTimestamp           *time.Time            `json:"last_pin_timestamp"`
 	DefaultAutoArchiveDuration AutoArchiveDuration   `json:"default_auto_archive_duration"`
 }
 
@@ -83,7 +85,7 @@ type guildThread struct {
 	RateLimitPerUser int                  `json:"rate_limit_per_user"`
 	OwnerID          snowflake.Snowflake  `json:"owner_id"`
 	ParentID         snowflake.Snowflake  `json:"parent_id"`
-	LastPinTimestamp *Time                `json:"last_pin_timestamp"`
+	LastPinTimestamp *time.Time           `json:"last_pin_timestamp"`
 	MessageCount     int                  `json:"message_count"`
 	MemberCount      int                  `json:"member_count"`
 	ThreadMetadata   ThreadMetadata       `json:"thread_metadata"`
@@ -125,7 +127,7 @@ type guildVoiceChannel struct {
 	RTCRegion                  string                `json:"rtc_region"`
 	VideoQualityMode           VideoQualityMode      `json:"video_quality_mode"`
 	LastMessageID              *snowflake.Snowflake  `json:"last_message_id"`
-	LastPinTimestamp           *Time                 `json:"last_pin_timestamp"`
+	LastPinTimestamp           *time.Time            `json:"last_pin_timestamp"`
 	Topic                      *string               `json:"topic"`
 	NSFW                       bool                  `json:"nsfw"`
 	DefaultAutoArchiveDuration AutoArchiveDuration   `json:"default_auto_archive_duration"`

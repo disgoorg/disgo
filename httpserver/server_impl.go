@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/hex"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"sync"
 	"time"
@@ -89,7 +88,7 @@ const (
 func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if ok := VerifyRequest(h.server.Logger(), r, h.server.PublicKey()); !ok {
 		w.WriteHeader(http.StatusUnauthorized)
-		data, _ := ioutil.ReadAll(r.Body)
+		data, _ := io.ReadAll(r.Body)
 		h.server.Logger().Trace("received http interaction with invalid signature. body: ", string(data))
 		return
 	}
@@ -99,7 +98,7 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	}()
 
 	rqBody := &bytes.Buffer{}
-	rqData, _ := ioutil.ReadAll(io.TeeReader(r.Body, rqBody))
+	rqData, _ := io.ReadAll(io.TeeReader(r.Body, rqBody))
 	h.server.Logger().Trace("received http interaction. body: ", string(rqData))
 
 	// these channels are used to communicate between the http handler and where the interaction is responded to
@@ -174,6 +173,6 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	rsData, _ := ioutil.ReadAll(rsBody)
+	rsData, _ := io.ReadAll(rsBody)
 	h.server.Logger().Trace("response to http interaction. body: ", string(rsData))
 }
