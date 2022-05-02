@@ -39,3 +39,8 @@ type GuildIntegrationsUpdateEvent struct {
 	*GenericEvent
 	GuildID snowflake.ID
 }
+
+type GuildApplicationCommandPermissionsUpdate struct {
+	*GenericEvent
+	Permissions discord.ApplicationCommandPermissions
+}

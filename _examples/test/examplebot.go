@@ -28,7 +28,7 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetLevel(log.LevelDebug)
 	log.Info("starting example...")
-	log.Infof("bot version: %s", disgo.Version)
+	log.Info("bot version: ", disgo.Version)
 
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(

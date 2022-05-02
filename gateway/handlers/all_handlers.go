@@ -38,6 +38,8 @@ var AllEventHandlers = []bot.GatewayEventHandler{
 	&gatewayHandlerReady{},
 	&gatewayHandlerResumed{},
 
+	&gatewayHandlerApplicationCommandPermissionsUpdate{},
+
 	&gatewayHandlerChannelCreate{},
 	&gatewayHandlerChannelUpdate{},
 	&gatewayHandlerChannelDelete{},

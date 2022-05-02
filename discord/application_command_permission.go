@@ -23,7 +23,7 @@ type ApplicationCommandPermissionsSet struct {
 	Permissions []ApplicationCommandPermission `json:"permissions"`
 }
 
-// ApplicationCommandPermissions holds all permissions for a ApplicationCommand
+// ApplicationCommandPermissions holds all permissions for an ApplicationCommand
 type ApplicationCommandPermissions struct {
 	ID            snowflake.ID                   `json:"id"`
 	ApplicationID snowflake.ID                   `json:"application_id"`
