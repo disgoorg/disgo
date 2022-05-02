@@ -3,7 +3,6 @@ package events
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/httpserver"
@@ -15,7 +14,7 @@ import (
 func HandleRawEvent(client bot.Client, gatewayEventType discord.GatewayEventType, sequenceNumber int, respondFunc httpserver.RespondFunc, reader io.Reader) io.Reader {
 	if client.EventManager().RawEventsEnabled() {
 		var buf bytes.Buffer
-		data, err := ioutil.ReadAll(io.TeeReader(reader, &buf))
+		data, err := io.ReadAll(io.TeeReader(reader, &buf))
 		if err != nil {
 			client.Logger().Error("error reading raw payload from event")
 		}

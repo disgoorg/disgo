@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"time"
@@ -144,7 +144,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 
 	var rawRsBody []byte
 	if rs.Body != nil {
-		if rawRsBody, err = ioutil.ReadAll(rs.Body); err != nil {
+		if rawRsBody, err = io.ReadAll(rs.Body); err != nil {
 			return fmt.Errorf("error reading response body in rest client: %w", err)
 		}
 		c.Logger().Tracef("response from %s, code %d, body: %s", rqURL, rs.StatusCode, string(rawRsBody))
