@@ -149,7 +149,7 @@ func (b *EmbedBuilder) SetURL(url string) *EmbedBuilder {
 
 // SetTimestamp sets the timestamp of the EmbedBuilder
 func (b *EmbedBuilder) SetTimestamp(time time.Time) *EmbedBuilder {
-	b.Timestamp = &Time{Time: time}
+	b.Timestamp = &time
 	return b
 }
 

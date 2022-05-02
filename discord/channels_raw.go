@@ -1,6 +1,8 @@
 package discord
 
 import (
+	"time"
+
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -10,7 +12,7 @@ type dmChannel struct {
 	Type             ChannelType   `json:"type"`
 	LastMessageID    *snowflake.ID `json:"last_message_id"`
 	Recipients       []User        `json:"recipients"`
-	LastPinTimestamp *Time         `json:"last_pin_timestamp"`
+	LastPinTimestamp *time.Time    `json:"last_pin_timestamp"`
 }
 
 type guildTextChannel struct {
@@ -25,7 +27,7 @@ type guildTextChannel struct {
 	LastMessageID              *snowflake.ID         `json:"last_message_id"`
 	RateLimitPerUser           int                   `json:"rate_limit_per_user"`
 	ParentID                   *snowflake.ID         `json:"parent_id"`
-	LastPinTimestamp           *Time                 `json:"last_pin_timestamp"`
+	LastPinTimestamp           *time.Time            `json:"last_pin_timestamp"`
 	DefaultAutoArchiveDuration AutoArchiveDuration   `json:"default_auto_archive_duration"`
 }
 
@@ -55,7 +57,7 @@ type guildNewsChannel struct {
 	RateLimitPerUser           int                   `json:"rate_limit_per_user"`
 	ParentID                   *snowflake.ID         `json:"parent_id"`
 	LastMessageID              *snowflake.ID         `json:"last_message_id"`
-	LastPinTimestamp           *Time                 `json:"last_pin_timestamp"`
+	LastPinTimestamp           *time.Time            `json:"last_pin_timestamp"`
 	DefaultAutoArchiveDuration AutoArchiveDuration   `json:"default_auto_archive_duration"`
 }
 
@@ -83,7 +85,7 @@ type guildThread struct {
 	RateLimitPerUser int            `json:"rate_limit_per_user"`
 	OwnerID          snowflake.ID   `json:"owner_id"`
 	ParentID         snowflake.ID   `json:"parent_id"`
-	LastPinTimestamp *Time          `json:"last_pin_timestamp"`
+	LastPinTimestamp *time.Time     `json:"last_pin_timestamp"`
 	MessageCount     int            `json:"message_count"`
 	MemberCount      int            `json:"member_count"`
 	ThreadMetadata   ThreadMetadata `json:"thread_metadata"`

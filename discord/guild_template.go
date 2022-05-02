@@ -1,6 +1,10 @@
 package discord
 
-import "github.com/disgoorg/snowflake/v2"
+import (
+	"time"
+
+	"github.com/disgoorg/snowflake/v2"
+)
 
 // GuildTemplate is a template used for copying guilds https://discord.com/developers/docs/resources/guild-template
 type GuildTemplate struct {
@@ -10,8 +14,8 @@ type GuildTemplate struct {
 	UsageCount  int           `json:"usage_count"`
 	CreatorID   snowflake.ID  `json:"creator_id"`
 	Creator     User          `json:"creator"`
-	CreatedAt   Time          `json:"created_at"`
-	UpdatedAt   Time          `json:"updated_at"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
 	GuildID     snowflake.ID  `json:"source_guild_id"`
 	Guild       TemplateGuild `json:"serialized_source_guild"`
 	IsDirty     bool          `json:"is_dirty,omitempty"`

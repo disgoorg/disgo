@@ -3,6 +3,7 @@ package discord
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
@@ -54,7 +55,7 @@ type PartialApplication struct {
 type AuthorizationInformation struct {
 	Application Application        `json:"application"`
 	Scopes      []ApplicationScope `json:"scopes"`
-	Expires     Time               `json:"expires"`
+	Expires     time.Time          `json:"expires"`
 	User        *User              `json:"user"`
 }
 

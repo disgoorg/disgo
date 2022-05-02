@@ -128,7 +128,7 @@ type GatewayEventMessageReactionRemoveAll struct {
 type GatewayEventChannelPinsUpdate struct {
 	GuildID          *snowflake.ID `json:"guild_id"`
 	ChannelID        snowflake.ID  `json:"channel_id"`
-	LastPinTimestamp *Time         `json:"last_pin_timestamp"`
+	LastPinTimestamp *time.Time    `json:"last_pin_timestamp"`
 }
 
 type GatewayEventGuildMembersChunk struct {

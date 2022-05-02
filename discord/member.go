@@ -1,6 +1,8 @@
 package discord
 
 import (
+	"time"
+
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
@@ -14,12 +16,12 @@ type Member struct {
 	Nick                       *string        `json:"nick"`
 	Avatar                     *string        `json:"avatar"`
 	RoleIDs                    []snowflake.ID `json:"roles,omitempty"`
-	JoinedAt                   Time           `json:"joined_at"`
-	PremiumSince               *Time          `json:"premium_since,omitempty"`
+	JoinedAt                   time.Time      `json:"joined_at"`
+	PremiumSince               *time.Time     `json:"premium_since,omitempty"`
 	Deaf                       bool           `json:"deaf,omitempty"`
 	Mute                       bool           `json:"mute,omitempty"`
 	Pending                    bool           `json:"pending"`
-	CommunicationDisabledUntil *Time          `json:"communication_disabled_until"`
+	CommunicationDisabledUntil *time.Time     `json:"communication_disabled_until"`
 }
 
 func (m Member) String() string {
@@ -66,12 +68,12 @@ type MemberAdd struct {
 
 // MemberUpdate is used to modify
 type MemberUpdate struct {
-	ChannelID                  *snowflake.ID        `json:"channel_id,omitempty"`
-	Nick                       *string              `json:"nick,omitempty"`
-	Roles                      []snowflake.ID       `json:"roles,omitempty"`
-	Mute                       *bool                `json:"mute,omitempty"`
-	Deaf                       *bool                `json:"deaf,omitempty"`
-	CommunicationDisabledUntil *json.Nullable[Time] `json:"communication_disabled_until,omitempty"`
+	ChannelID                  *snowflake.ID             `json:"channel_id,omitempty"`
+	Nick                       *string                   `json:"nick,omitempty"`
+	Roles                      []snowflake.ID            `json:"roles,omitempty"`
+	Mute                       *bool                     `json:"mute,omitempty"`
+	Deaf                       *bool                     `json:"deaf,omitempty"`
+	CommunicationDisabledUntil *json.Nullable[time.Time] `json:"communication_disabled_until,omitempty"`
 }
 
 // SelfNickUpdate is used to update your own nick

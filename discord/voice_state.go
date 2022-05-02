@@ -1,6 +1,8 @@
 package discord
 
 import (
+	"time"
+
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -23,11 +25,11 @@ type VoiceState struct {
 	SelfStream              bool          `json:"self_stream"`
 	SelfVideo               bool          `json:"self_video"`
 	Suppress                bool          `json:"suppress"`
-	RequestToSpeakTimestamp *Time         `json:"request_to_speak_timestamp"`
+	RequestToSpeakTimestamp *time.Time    `json:"request_to_speak_timestamp"`
 }
 
 type UserVoiceStateUpdate struct {
-	ChannelID               snowflake.ID         `json:"channel_id"`
-	Suppress                *bool                `json:"suppress,omitempty"`
-	RequestToSpeakTimestamp *json.Nullable[Time] `json:"request_to_speak_timestamp,omitempty"`
+	ChannelID               snowflake.ID              `json:"channel_id"`
+	Suppress                *bool                     `json:"suppress,omitempty"`
+	RequestToSpeakTimestamp *json.Nullable[time.Time] `json:"request_to_speak_timestamp,omitempty"`
 }

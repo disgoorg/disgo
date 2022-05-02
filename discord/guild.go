@@ -1,6 +1,8 @@
 package discord
 
 import (
+	"time"
+
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
@@ -131,7 +133,7 @@ type Guild struct {
 	WelcomeScreen               WelcomeScreen              `json:"welcome_screen"`
 	NSFWLevel                   NSFWLevel                  `json:"nsfw_level"`
 	BoostProgressBarEnabled     bool                       `json:"premium_progress_bar_enabled"`
-	JoinedAt                    Time                       `json:"joined_at"`
+	JoinedAt                    time.Time                  `json:"joined_at"`
 
 	// only over GET /guilds/{guild.id}
 	ApproximateMemberCount   int `json:"approximate_member_count"`

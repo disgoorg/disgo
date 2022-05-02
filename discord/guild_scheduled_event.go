@@ -1,6 +1,10 @@
 package discord
 
-import "github.com/disgoorg/snowflake/v2"
+import (
+	"time"
+
+	"github.com/disgoorg/snowflake/v2"
+)
 
 // GuildScheduledEvent a representation of a scheduled event in a Guild (https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object)
 type GuildScheduledEvent struct {
@@ -10,8 +14,8 @@ type GuildScheduledEvent struct {
 	CreatorID          snowflake.ID               `json:"creator_id"`
 	Name               string                     `json:"name"`
 	Description        string                     `json:"description"`
-	ScheduledStartTime Time                       `json:"scheduled_start_time"`
-	ScheduledEndTime   *Time                      `json:"scheduled_end_time"`
+	ScheduledStartTime time.Time                  `json:"scheduled_start_time"`
+	ScheduledEndTime   *time.Time                 `json:"scheduled_end_time"`
 	PrivacyLevel       ScheduledEventPrivacyLevel `json:"privacy_level"`
 	Status             ScheduledEventStatus       `json:"status"`
 	EntityType         ScheduledEventEntityType   `json:"entity_type"`
@@ -26,8 +30,8 @@ type GuildScheduledEventCreate struct {
 	EntityMetaData     *EntityMetaData            `json:"entity_metadata,omitempty"`
 	Name               string                     `json:"name"`
 	PrivacyLevel       ScheduledEventPrivacyLevel `json:"privacy_level"`
-	ScheduledStartTime Time                       `json:"scheduled_start_time"`
-	ScheduledEndTime   Time                       `json:"scheduled_end_time,omitempty"`
+	ScheduledStartTime time.Time                  `json:"scheduled_start_time"`
+	ScheduledEndTime   time.Time                  `json:"scheduled_end_time,omitempty"`
 	Description        string                     `json:"description,omitempty"`
 	EntityType         ScheduledEventEntityType   `json:"entity_type"`
 }
@@ -37,8 +41,8 @@ type GuildScheduledEventUpdate struct {
 	EntityMetaData     *EntityMetaData             `json:"entity_metadata,omitempty"`
 	Name               string                      `json:"name,omitempty"`
 	PrivacyLevel       *ScheduledEventPrivacyLevel `json:"privacy_level,omitempty"`
-	ScheduledStartTime *Time                       `json:"scheduled_start_time,omitempty"`
-	ScheduledEndTime   *Time                       `json:"scheduled_end_time,omitempty"`
+	ScheduledStartTime *time.Time                  `json:"scheduled_start_time,omitempty"`
+	ScheduledEndTime   *time.Time                  `json:"scheduled_end_time,omitempty"`
 	Description        *string                     `json:"description,omitempty"`
 	EntityType         *ScheduledEventEntityType   `json:"entity_type,omitempty"`
 	Status             *ScheduledEventStatus       `json:"status,omitempty"`
