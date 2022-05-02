@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
-	"io/ioutil"
 
 	"github.com/disgoorg/disgo/json"
 )
@@ -31,7 +30,7 @@ var _ json.Marshaler = (*Icon)(nil)
 var _ fmt.Stringer = (*Icon)(nil)
 
 func NewIcon(iconType IconType, reader io.Reader) (*Icon, error) {
-	data, err := ioutil.ReadAll(reader)
+	data, err := io.ReadAll(reader)
 	if err != nil {
 		return nil, err
 	}
