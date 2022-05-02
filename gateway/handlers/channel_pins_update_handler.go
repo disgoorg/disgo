@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"time"
+
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
@@ -23,7 +25,7 @@ func (h *gatewayHandlerChannelPinsUpdate) New() any {
 func (h *gatewayHandlerChannelPinsUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
 	payload := *v.(*discord.GatewayEventChannelPinsUpdate)
 
-	var oldTime *discord.Time
+	var oldTime *time.Time
 
 	// update discord.MessageChannel.LastMessageID()
 	if channel, ok := client.Caches().Channels().GetMessageChannel(payload.ChannelID); ok {

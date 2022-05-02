@@ -1,6 +1,8 @@
 package discord
 
 import (
+	"time"
+
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/snowflake"
 )
@@ -45,13 +47,13 @@ type Message struct {
 	TTS               bool                  `json:"tts"`
 	Embeds            []Embed               `json:"embeds,omitempty"`
 	Components        []ContainerComponent  `json:"components,omitempty"`
-	CreatedAt         Time                  `json:"timestamp"`
+	CreatedAt         time.Time             `json:"timestamp"`
 	Mentions          []any                 `json:"mentions"`
 	MentionEveryone   bool                  `json:"mention_everyone"`
 	MentionRoles      []snowflake.Snowflake `json:"mention_roles"`
 	MentionChannels   []Channel             `json:"mention_channels"`
 	Pinned            bool                  `json:"pinned"`
-	EditedTimestamp   *Time                 `json:"edited_timestamp"`
+	EditedTimestamp   *time.Time            `json:"edited_timestamp"`
 	Author            User                  `json:"author"`
 	Member            *Member               `json:"member"`
 	Content           string                `json:"content,omitempty"`
@@ -65,7 +67,7 @@ type Message struct {
 	Application       *MessageApplication   `json:"application,omitempty"`
 	Stickers          []MessageSticker      `json:"sticker_items,omitempty"`
 	ReferencedMessage *Message              `json:"referenced_message,omitempty"`
-	LastUpdated       *Time                 `json:"last_updated,omitempty"`
+	LastUpdated       *time.Time            `json:"last_updated,omitempty"`
 	Thread            GuildThread           `json:"thread,omitempty"`
 }
 

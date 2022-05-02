@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/hex"
 	"io"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/disgoorg/disgo/discord"
@@ -60,7 +59,7 @@ func VerifyRequest(logger log.Logger, r *http.Request, key PublicKey) bool {
 	var body bytes.Buffer
 
 	defer func() {
-		r.Body = ioutil.NopCloser(&body)
+		r.Body = io.NopCloser(&body)
 	}()
 
 	_, err = io.Copy(&msg, io.TeeReader(r.Body, &body))

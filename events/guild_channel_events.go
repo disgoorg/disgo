@@ -1,6 +1,8 @@
 package events
 
 import (
+	"time"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake"
 )
@@ -39,6 +41,6 @@ type GuildChannelPinsUpdateEvent struct {
 	*GenericEvent
 	GuildID             snowflake.Snowflake
 	ChannelID           snowflake.Snowflake
-	NewLastPinTimestamp *discord.Time
-	OldLastPinTimestamp *discord.Time
+	NewLastPinTimestamp *time.Time
+	OldLastPinTimestamp *time.Time
 }

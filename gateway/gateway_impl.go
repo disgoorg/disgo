@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"time"
@@ -94,7 +93,7 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 		body := "null"
 		if rs != nil && rs.Body != nil {
 			defer rs.Body.Close()
-			rawBody, bErr := ioutil.ReadAll(rs.Body)
+			rawBody, bErr := io.ReadAll(rs.Body)
 			if bErr != nil {
 				g.Logger().Error(g.formatLogs("error while reading response body: ", err))
 			}

@@ -1,6 +1,8 @@
 package rest
 
 import (
+	"time"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake"
@@ -24,9 +26,9 @@ type Threads interface {
 	GetThreadMember(threadID snowflake.Snowflake, userID snowflake.Snowflake, opts ...RequestOpt) (threadMember *discord.ThreadMember, err error)
 	GetThreadMembers(threadID snowflake.Snowflake, opts ...RequestOpt) (threadMembers []discord.ThreadMember, err error)
 
-	GetPublicArchivedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
-	GetPrivateArchivedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
-	GetJoinedPrivateArchivedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
+	GetPublicArchivedThreads(channelID snowflake.Snowflake, before time.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
+	GetPrivateArchivedThreads(channelID snowflake.Snowflake, before time.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
+	GetJoinedPrivateArchivedThreads(channelID snowflake.Snowflake, before time.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
 }
 
 type threadImpl struct {
@@ -120,10 +122,10 @@ func (s *threadImpl) GetThreadMembers(threadID snowflake.Snowflake, opts ...Requ
 	return
 }
 
-func (s *threadImpl) GetPublicArchivedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
+func (s *threadImpl) GetPublicArchivedThreads(channelID snowflake.Snowflake, before time.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
 	queryValues := route.QueryValues{}
 	if !before.IsZero() {
-		queryValues["before"] = before
+		queryValues["before"] = before.Format(time.RFC3339)
 	}
 	if limit != 0 {
 		queryValues["limit"] = limit
@@ -137,10 +139,10 @@ func (s *threadImpl) GetPublicArchivedThreads(channelID snowflake.Snowflake, bef
 	return
 }
 
-func (s *threadImpl) GetPrivateArchivedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
+func (s *threadImpl) GetPrivateArchivedThreads(channelID snowflake.Snowflake, before time.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
 	queryValues := route.QueryValues{}
 	if !before.IsZero() {
-		queryValues["before"] = before
+		queryValues["before"] = before.Format(time.RFC3339)
 	}
 	if limit != 0 {
 		queryValues["limit"] = limit
@@ -154,10 +156,10 @@ func (s *threadImpl) GetPrivateArchivedThreads(channelID snowflake.Snowflake, be
 	return
 }
 
-func (s *threadImpl) GetJoinedPrivateArchivedThreads(channelID snowflake.Snowflake, before discord.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
+func (s *threadImpl) GetJoinedPrivateArchivedThreads(channelID snowflake.Snowflake, before time.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
 	queryValues := route.QueryValues{}
 	if !before.IsZero() {
-		queryValues["before"] = before
+		queryValues["before"] = before.Format(time.RFC3339)
 	}
 	if limit != 0 {
 		queryValues["limit"] = limit
