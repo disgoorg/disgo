@@ -87,7 +87,7 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 	gatewayURL := fmt.Sprintf("%s?v=%d&encoding=json", g.config.GatewayURL, Version)
 	var rs *http.Response
 	var err error
-	g.conn, rs, err = websocket.DefaultDialer.DialContext(ctx, gatewayURL, nil)
+	g.conn, rs, err = g.config.Dialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
 		g.Close(ctx)
 		body := "null"
