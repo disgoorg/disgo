@@ -2,19 +2,19 @@ package events
 
 import (
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 type StickersUpdateEvent struct {
 	*GenericEvent
-	GuildID  snowflake.Snowflake
+	GuildID  snowflake.ID
 	Stickers []discord.Sticker
 }
 
 // GenericStickerEvent is called upon receiving StickerCreateEvent, StickerUpdateEvent or StickerDeleteEvent (requires discord.GatewayIntentGuildEmojisAndStickers)
 type GenericStickerEvent struct {
 	*GenericEvent
-	GuildID snowflake.Snowflake
+	GuildID snowflake.ID
 	Sticker discord.Sticker
 }
 

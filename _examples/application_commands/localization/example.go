@@ -13,12 +13,12 @@ import (
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
 	token   = os.Getenv("disgo_token")
-	guildID = snowflake.GetSnowflakeEnv("disgo_guild_id")
+	guildID = snowflake.GetEnv("disgo_guild_id")
 
 	commands = []discord.ApplicationCommandCreate{
 		discord.SlashCommandCreate{

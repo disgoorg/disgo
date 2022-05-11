@@ -2,14 +2,14 @@ package events
 
 import (
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // GenericRoleEvent generic discord.Role event
 type GenericRoleEvent struct {
 	*GenericEvent
-	GuildID snowflake.Snowflake
-	RoleID  snowflake.Snowflake
+	GuildID snowflake.ID
+	RoleID  snowflake.ID
 	Role    discord.Role
 }
 

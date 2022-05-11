@@ -5,7 +5,7 @@ import (
 
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/disgo/rest/route"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // WebhookType (https: //discord.com/developers/docs/resources/webhook#webhook-object-webhook-types)
@@ -22,7 +22,7 @@ const (
 type Webhook interface {
 	json.Marshaler
 	Type() WebhookType
-	ID() snowflake.Snowflake
+	ID() snowflake.ID
 	Name() string
 	Avatar() *string
 	AvatarURL(opts ...CDNOpt) *string
@@ -78,22 +78,22 @@ func (w *UnmarshalWebhook) UnmarshalJSON(data []byte) error {
 var _ Webhook = (*IncomingWebhook)(nil)
 
 type IncomingWebhook struct {
-	id            snowflake.Snowflake
+	id            snowflake.ID
 	name          string
 	avatar        *string
-	ChannelID     snowflake.Snowflake  `json:"channel_id"`
-	GuildID       snowflake.Snowflake  `json:"guild_id"`
-	Token         string               `json:"token"`
-	ApplicationID *snowflake.Snowflake `json:"application_id"`
-	User          User                 `json:"user"`
+	ChannelID     snowflake.ID  `json:"channel_id"`
+	GuildID       snowflake.ID  `json:"guild_id"`
+	Token         string        `json:"token"`
+	ApplicationID *snowflake.ID `json:"application_id"`
+	User          User          `json:"user"`
 }
 
 func (w *IncomingWebhook) UnmarshalJSON(data []byte) error {
 	type incomingWebhook IncomingWebhook
 	var v struct {
-		ID     snowflake.Snowflake `json:"id"`
-		Name   string              `json:"name"`
-		Avatar *string             `json:"avatar"`
+		ID     snowflake.ID `json:"id"`
+		Name   string       `json:"name"`
+		Avatar *string      `json:"avatar"`
 		incomingWebhook
 	}
 	if err := json.Unmarshal(data, &v); err != nil {
@@ -121,7 +121,7 @@ func (IncomingWebhook) Type() WebhookType {
 	return WebhookTypeIncoming
 }
 
-func (w IncomingWebhook) ID() snowflake.Snowflake {
+func (w IncomingWebhook) ID() snowflake.ID {
 	return w.id
 }
 
@@ -169,11 +169,11 @@ func (IncomingWebhook) webhook() {}
 var _ Webhook = (*ChannelFollowerWebhook)(nil)
 
 type ChannelFollowerWebhook struct {
-	id            snowflake.Snowflake
+	id            snowflake.ID
 	name          string
 	avatar        *string
-	ChannelID     snowflake.Snowflake  `json:"channel_id"`
-	GuildID       snowflake.Snowflake  `json:"guild_id"`
+	ChannelID     snowflake.ID         `json:"channel_id"`
+	GuildID       snowflake.ID         `json:"guild_id"`
 	SourceGuild   WebhookSourceGuild   `json:"source_guild"`
 	SourceChannel WebhookSourceChannel `json:"source_channel"`
 	User          User                 `json:"user"`
@@ -182,9 +182,9 @@ type ChannelFollowerWebhook struct {
 func (w *ChannelFollowerWebhook) UnmarshalJSON(data []byte) error {
 	type channelFollowerWebhook ChannelFollowerWebhook
 	var v struct {
-		ID     snowflake.Snowflake `json:"id"`
-		Name   string              `json:"name"`
-		Avatar *string             `json:"avatar"`
+		ID     snowflake.ID `json:"id"`
+		Name   string       `json:"name"`
+		Avatar *string      `json:"avatar"`
 		channelFollowerWebhook
 	}
 	if err := json.Unmarshal(data, &v); err != nil {
@@ -212,7 +212,7 @@ func (ChannelFollowerWebhook) Type() WebhookType {
 	return WebhookTypeChannelFollower
 }
 
-func (w ChannelFollowerWebhook) ID() snowflake.Snowflake {
+func (w ChannelFollowerWebhook) ID() snowflake.ID {
 	return w.id
 }
 
@@ -250,18 +250,18 @@ func (ChannelFollowerWebhook) webhook() {}
 var _ Webhook = (*ApplicationWebhook)(nil)
 
 type ApplicationWebhook struct {
-	id            snowflake.Snowflake
+	id            snowflake.ID
 	name          string
 	avatar        *string
-	ApplicationID snowflake.Snowflake
+	ApplicationID snowflake.ID
 }
 
 func (w *ApplicationWebhook) UnmarshalJSON(data []byte) error {
 	var v struct {
-		ID            snowflake.Snowflake `json:"id"`
-		Name          string              `json:"name"`
-		Avatar        *string             `json:"avatar"`
-		ApplicationID snowflake.Snowflake `json:"application_id"`
+		ID            snowflake.ID `json:"id"`
+		Name          string       `json:"name"`
+		Avatar        *string      `json:"avatar"`
+		ApplicationID snowflake.ID `json:"application_id"`
 	}
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
@@ -288,7 +288,7 @@ func (ApplicationWebhook) Type() WebhookType {
 	return WebhookTypeApplication
 }
 
-func (w ApplicationWebhook) ID() snowflake.Snowflake {
+func (w ApplicationWebhook) ID() snowflake.ID {
 	return w.id
 }
 
@@ -327,14 +327,14 @@ func (w ApplicationWebhook) DefaultAvatarURL(opts ...CDNOpt) string {
 func (ApplicationWebhook) webhook() {}
 
 type WebhookSourceGuild struct {
-	ID   snowflake.Snowflake  `json:"id"`
+	ID   snowflake.ID         `json:"id"`
 	Name string               `json:"name"`
 	Icon *json.Nullable[Icon] `json:"icon"`
 }
 
 type WebhookSourceChannel struct {
-	ID   snowflake.Snowflake `json:"id"`
-	Name string              `json:"name"`
+	ID   snowflake.ID `json:"id"`
+	Name string       `json:"name"`
 }
 
 // WebhookCreate is used to create a Webhook
@@ -347,7 +347,7 @@ type WebhookCreate struct {
 type WebhookUpdate struct {
 	Name      *string              `json:"name,omitempty"`
 	Avatar    *json.Nullable[Icon] `json:"avatar,omitempty"`
-	ChannelID *snowflake.Snowflake `json:"channel_id"`
+	ChannelID *snowflake.ID        `json:"channel_id"`
 }
 
 // WebhookUpdateWithToken is used to update a Webhook with the token

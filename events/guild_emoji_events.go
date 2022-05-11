@@ -2,19 +2,19 @@ package events
 
 import (
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 type EmojisUpdateEvent struct {
 	*GenericEvent
-	GuildID snowflake.Snowflake
+	GuildID snowflake.ID
 	Emojis  []discord.Emoji
 }
 
 // GenericEmojiEvent is called upon receiving EmojiCreateEvent, EmojiUpdateEvent or EmojiDeleteEvent (requires discord.GatewayIntentGuildEmojisAndStickers)
 type GenericEmojiEvent struct {
 	*GenericEvent
-	GuildID snowflake.Snowflake
+	GuildID snowflake.ID
 	Emoji   discord.Emoji
 }
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 type AutocompleteOption interface {
@@ -225,9 +225,9 @@ func (o AutocompleteOptionBool) Focused() bool {
 var _ AutocompleteOption = (*AutocompleteOptionUser)(nil)
 
 type AutocompleteOptionUser struct {
-	OptionName    string              `json:"name"`
-	Value         snowflake.Snowflake `json:"value"`
-	OptionFocused bool                `json:"focused"`
+	OptionName    string       `json:"name"`
+	Value         snowflake.ID `json:"value"`
+	OptionFocused bool         `json:"focused"`
 }
 
 func (AutocompleteOptionUser) autocompleteOption() {}
@@ -246,9 +246,9 @@ func (o AutocompleteOptionUser) Focused() bool {
 var _ AutocompleteOption = (*AutocompleteOptionChannel)(nil)
 
 type AutocompleteOptionChannel struct {
-	OptionName    string              `json:"name"`
-	Value         snowflake.Snowflake `json:"value"`
-	OptionFocused bool                `json:"focused"`
+	OptionName    string       `json:"name"`
+	Value         snowflake.ID `json:"value"`
+	OptionFocused bool         `json:"focused"`
 }
 
 func (AutocompleteOptionChannel) autocompleteOption() {}
@@ -267,9 +267,9 @@ func (o AutocompleteOptionChannel) Focused() bool {
 var _ AutocompleteOption = (*AutocompleteOptionRole)(nil)
 
 type AutocompleteOptionRole struct {
-	OptionName    string              `json:"name"`
-	Value         snowflake.Snowflake `json:"value"`
-	OptionFocused bool                `json:"focused"`
+	OptionName    string       `json:"name"`
+	Value         snowflake.ID `json:"value"`
+	OptionFocused bool         `json:"focused"`
 }
 
 func (AutocompleteOptionRole) autocompleteOption() {}
@@ -288,9 +288,9 @@ func (o AutocompleteOptionRole) Focused() bool {
 var _ AutocompleteOption = (*AutocompleteOptionMentionable)(nil)
 
 type AutocompleteOptionMentionable struct {
-	OptionName    string              `json:"name"`
-	Value         snowflake.Snowflake `json:"value"`
-	OptionFocused bool                `json:"focused"`
+	OptionName    string       `json:"name"`
+	Value         snowflake.ID `json:"value"`
+	OptionFocused bool         `json:"focused"`
 }
 
 func (AutocompleteOptionMentionable) autocompleteOption() {}
@@ -331,9 +331,9 @@ func (AutocompleteOptionFloat) autocompleteOption() {}
 var _ AutocompleteOption = (*AutocompleteOptionAttachment)(nil)
 
 type AutocompleteOptionAttachment struct {
-	OptionName    string              `json:"name"`
-	Value         snowflake.Snowflake `json:"value"`
-	OptionFocused bool                `json:"focused"`
+	OptionName    string       `json:"name"`
+	Value         snowflake.ID `json:"value"`
+	OptionFocused bool         `json:"focused"`
 }
 
 func (AutocompleteOptionAttachment) autocompleteOption() {}

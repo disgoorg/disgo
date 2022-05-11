@@ -3,20 +3,20 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // Presence (https://discord.com/developers/docs/topics/gateway#presence-update)
 type Presence struct {
-	PresenceUser PresenceUser        `json:"user"`
-	GuildID      snowflake.Snowflake `json:"guild_id"`
-	Status       OnlineStatus        `json:"status"`
-	Activities   []Activity          `json:"activities"`
-	ClientStatus ClientStatus        `json:"client_status"`
+	PresenceUser PresenceUser `json:"user"`
+	GuildID      snowflake.ID `json:"guild_id"`
+	Status       OnlineStatus `json:"status"`
+	Activities   []Activity   `json:"activities"`
+	ClientStatus ClientStatus `json:"client_status"`
 }
 
 type PresenceUser struct {
-	ID snowflake.Snowflake `json:"id"`
+	ID snowflake.ID `json:"id"`
 }
 
 // OnlineStatus (https://discord.com/developers/docs/topics/gateway#update-presence-status-types)

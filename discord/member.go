@@ -5,23 +5,23 @@ import (
 
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/disgo/rest/route"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var _ Mentionable = (*Member)(nil)
 
 // Member is a discord GuildMember
 type Member struct {
-	User                       User                  `json:"user"`
-	Nick                       *string               `json:"nick"`
-	Avatar                     *string               `json:"avatar"`
-	RoleIDs                    []snowflake.Snowflake `json:"roles,omitempty"`
-	JoinedAt                   time.Time             `json:"joined_at"`
-	PremiumSince               *time.Time            `json:"premium_since,omitempty"`
-	Deaf                       bool                  `json:"deaf,omitempty"`
-	Mute                       bool                  `json:"mute,omitempty"`
-	Pending                    bool                  `json:"pending"`
-	CommunicationDisabledUntil *time.Time            `json:"communication_disabled_until"`
+	User                       User           `json:"user"`
+	Nick                       *string        `json:"nick"`
+	Avatar                     *string        `json:"avatar"`
+	RoleIDs                    []snowflake.ID `json:"roles,omitempty"`
+	JoinedAt                   time.Time      `json:"joined_at"`
+	PremiumSince               *time.Time     `json:"premium_since,omitempty"`
+	Deaf                       bool           `json:"deaf,omitempty"`
+	Mute                       bool           `json:"mute,omitempty"`
+	Pending                    bool           `json:"pending"`
+	CommunicationDisabledUntil *time.Time     `json:"communication_disabled_until"`
 }
 
 func (m Member) String() string {
@@ -59,18 +59,18 @@ func (m Member) AvatarURL(opts ...CDNOpt) *string {
 
 // MemberAdd is used to add a member via the oauth2 access token to a guild
 type MemberAdd struct {
-	AccessToken string                `json:"access_token"`
-	Nick        string                `json:"nick,omitempty"`
-	Roles       []snowflake.Snowflake `json:"roles,omitempty"`
-	Mute        bool                  `json:"mute,omitempty"`
-	Deaf        bool                  `json:"deaf,omitempty"`
+	AccessToken string         `json:"access_token"`
+	Nick        string         `json:"nick,omitempty"`
+	Roles       []snowflake.ID `json:"roles,omitempty"`
+	Mute        bool           `json:"mute,omitempty"`
+	Deaf        bool           `json:"deaf,omitempty"`
 }
 
 // MemberUpdate is used to modify
 type MemberUpdate struct {
-	ChannelID                  *snowflake.Snowflake      `json:"channel_id,omitempty"`
+	ChannelID                  *snowflake.ID             `json:"channel_id,omitempty"`
 	Nick                       *string                   `json:"nick,omitempty"`
-	Roles                      []snowflake.Snowflake     `json:"roles,omitempty"`
+	Roles                      []snowflake.ID            `json:"roles,omitempty"`
 	Mute                       *bool                     `json:"mute,omitempty"`
 	Deaf                       *bool                     `json:"deaf,omitempty"`
 	CommunicationDisabledUntil *json.Nullable[time.Time] `json:"communication_disabled_until,omitempty"`

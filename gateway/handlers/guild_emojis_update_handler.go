@@ -5,7 +5,7 @@ import (
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 	"golang.org/x/exp/slices"
 )
 
@@ -41,9 +41,9 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(client bot.Client, 
 		return
 	}
 
-	createdEmojis := map[snowflake.Snowflake]discord.Emoji{}
+	createdEmojis := map[snowflake.ID]discord.Emoji{}
 	deletedEmojis := client.Caches().Emojis().MapGroupAll(payload.GuildID)
-	updatedEmojis := map[snowflake.Snowflake]updatedEmoji{}
+	updatedEmojis := map[snowflake.ID]updatedEmoji{}
 
 	for _, newEmoji := range payload.Emojis {
 		oldEmoji, ok := deletedEmojis[newEmoji.ID]

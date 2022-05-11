@@ -3,7 +3,7 @@ package rest
 import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest/route"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var _ Emojis = (*emojiImpl)(nil)
@@ -13,18 +13,18 @@ func NewEmojis(client Client) Emojis {
 }
 
 type Emojis interface {
-	GetEmojis(guildID snowflake.Snowflake, opts ...RequestOpt) ([]discord.Emoji, error)
-	GetEmoji(guildID snowflake.Snowflake, emojiID snowflake.Snowflake, opts ...RequestOpt) (*discord.Emoji, error)
-	CreateEmoji(guildID snowflake.Snowflake, emojiCreate discord.EmojiCreate, opts ...RequestOpt) (*discord.Emoji, error)
-	UpdateEmoji(guildID snowflake.Snowflake, emojiID snowflake.Snowflake, emojiUpdate discord.EmojiUpdate, opts ...RequestOpt) (*discord.Emoji, error)
-	DeleteEmoji(guildID snowflake.Snowflake, emojiID snowflake.Snowflake, opts ...RequestOpt) error
+	GetEmojis(guildID snowflake.ID, opts ...RequestOpt) ([]discord.Emoji, error)
+	GetEmoji(guildID snowflake.ID, emojiID snowflake.ID, opts ...RequestOpt) (*discord.Emoji, error)
+	CreateEmoji(guildID snowflake.ID, emojiCreate discord.EmojiCreate, opts ...RequestOpt) (*discord.Emoji, error)
+	UpdateEmoji(guildID snowflake.ID, emojiID snowflake.ID, emojiUpdate discord.EmojiUpdate, opts ...RequestOpt) (*discord.Emoji, error)
+	DeleteEmoji(guildID snowflake.ID, emojiID snowflake.ID, opts ...RequestOpt) error
 }
 
 type emojiImpl struct {
 	client Client
 }
 
-func (s *emojiImpl) GetEmojis(guildID snowflake.Snowflake, opts ...RequestOpt) (emojis []discord.Emoji, err error) {
+func (s *emojiImpl) GetEmojis(guildID snowflake.ID, opts ...RequestOpt) (emojis []discord.Emoji, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetEmojis.Compile(nil, guildID)
 	if err != nil {
@@ -34,7 +34,7 @@ func (s *emojiImpl) GetEmojis(guildID snowflake.Snowflake, opts ...RequestOpt) (
 	return
 }
 
-func (s *emojiImpl) GetEmoji(guildID snowflake.Snowflake, emojiID snowflake.Snowflake, opts ...RequestOpt) (emoji *discord.Emoji, err error) {
+func (s *emojiImpl) GetEmoji(guildID snowflake.ID, emojiID snowflake.ID, opts ...RequestOpt) (emoji *discord.Emoji, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetEmoji.Compile(nil, guildID, emojiID)
 	if err != nil {
@@ -44,7 +44,7 @@ func (s *emojiImpl) GetEmoji(guildID snowflake.Snowflake, emojiID snowflake.Snow
 	return
 }
 
-func (s *emojiImpl) CreateEmoji(guildID snowflake.Snowflake, emojiCreate discord.EmojiCreate, opts ...RequestOpt) (emoji *discord.Emoji, err error) {
+func (s *emojiImpl) CreateEmoji(guildID snowflake.ID, emojiCreate discord.EmojiCreate, opts ...RequestOpt) (emoji *discord.Emoji, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateEmoji.Compile(nil, guildID)
 	if err != nil {
@@ -54,7 +54,7 @@ func (s *emojiImpl) CreateEmoji(guildID snowflake.Snowflake, emojiCreate discord
 	return
 }
 
-func (s *emojiImpl) UpdateEmoji(guildID snowflake.Snowflake, emojiID snowflake.Snowflake, emojiUpdate discord.EmojiUpdate, opts ...RequestOpt) (emoji *discord.Emoji, err error) {
+func (s *emojiImpl) UpdateEmoji(guildID snowflake.ID, emojiID snowflake.ID, emojiUpdate discord.EmojiUpdate, opts ...RequestOpt) (emoji *discord.Emoji, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.UpdateEmoji.Compile(nil, guildID, emojiID)
 	if err != nil {
@@ -64,7 +64,7 @@ func (s *emojiImpl) UpdateEmoji(guildID snowflake.Snowflake, emojiID snowflake.S
 	return
 }
 
-func (s *emojiImpl) DeleteEmoji(guildID snowflake.Snowflake, emojiID snowflake.Snowflake, opts ...RequestOpt) error {
+func (s *emojiImpl) DeleteEmoji(guildID snowflake.ID, emojiID snowflake.ID, opts ...RequestOpt) error {
 	compiledRoute, err := route.DeleteEmoji.Compile(nil, guildID, emojiID)
 	if err != nil {
 		return err

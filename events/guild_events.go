@@ -2,13 +2,13 @@ package events
 
 import (
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // GenericGuildEvent is called upon receiving GuildUpdateEvent, GuildAvailableEvent, GuildUnavailableEvent, GuildJoinEvent, GuildLeaveEvent, GuildReadyEvent, GuildBanEvent, GuildUnbanEvent
 type GenericGuildEvent struct {
 	*GenericEvent
-	GuildID snowflake.Snowflake
+	GuildID snowflake.ID
 	Guild   discord.Guild
 }
 
@@ -52,13 +52,13 @@ type GuildsReadyEvent struct {
 // GuildBanEvent is called when a discord.Member/discord.User is banned from the discord.Guild
 type GuildBanEvent struct {
 	*GenericEvent
-	GuildID snowflake.Snowflake
+	GuildID snowflake.ID
 	User    discord.User
 }
 
 // GuildUnbanEvent is called when a discord.Member/discord.User is unbanned from the discord.Guild
 type GuildUnbanEvent struct {
 	*GenericEvent
-	GuildID snowflake.Snowflake
+	GuildID snowflake.ID
 	User    discord.User
 }

@@ -2,7 +2,7 @@ package discord
 
 import (
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 type ChannelCreate interface {
@@ -27,7 +27,7 @@ type GuildTextChannelCreate struct {
 	RateLimitPerUser           int                   `json:"rate_limit_per_user,omitempty"`
 	Position                   int                   `json:"position,omitempty"`
 	PermissionOverwrites       []PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID                   snowflake.Snowflake   `json:"parent_id,omitempty"`
+	ParentID                   snowflake.ID          `json:"parent_id,omitempty"`
 	NSFW                       bool                  `json:"nsfw,omitempty"`
 	DefaultAutoArchiveDuration AutoArchiveDuration   `json:"default_auto_archive_days,omitempty"`
 }
@@ -62,7 +62,7 @@ type GuildVoiceChannelCreate struct {
 	UserLimit            int                   `json:"user_limit,omitempty"`
 	Position             int                   `json:"position,omitempty"`
 	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID             snowflake.Snowflake   `json:"parent_id,omitempty"`
+	ParentID             snowflake.ID          `json:"parent_id,omitempty"`
 }
 
 func (c GuildVoiceChannelCreate) Type() ChannelType {
@@ -124,7 +124,7 @@ type GuildNewsChannelCreate struct {
 	RateLimitPerUser           int                   `json:"rate_limit_per_user,omitempty"`
 	Position                   int                   `json:"position,omitempty"`
 	PermissionOverwrites       []PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID                   snowflake.Snowflake   `json:"parent_id,omitempty"`
+	ParentID                   snowflake.ID          `json:"parent_id,omitempty"`
 	NSFW                       bool                  `json:"nsfw,omitempty"`
 	DefaultAutoArchiveDuration AutoArchiveDuration   `json:"default_auto_archive_days,omitempty"`
 }
@@ -159,7 +159,7 @@ type GuildStageVoiceChannelCreate struct {
 	UserLimit            int                   `json:"user_limit,omitempty"`
 	Position             int                   `json:"position,omitempty"`
 	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID             snowflake.Snowflake   `json:"parent_id,omitempty"`
+	ParentID             snowflake.ID          `json:"parent_id,omitempty"`
 }
 
 func (c GuildStageVoiceChannelCreate) Type() ChannelType {
@@ -181,5 +181,5 @@ func (GuildStageVoiceChannelCreate) channelCreate()      {}
 func (GuildStageVoiceChannelCreate) guildChannelCreate() {}
 
 type DMChannelCreate struct {
-	RecipientID snowflake.Snowflake `json:"recipient_id"`
+	RecipientID snowflake.ID `json:"recipient_id"`
 }

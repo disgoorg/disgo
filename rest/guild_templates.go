@@ -3,7 +3,7 @@ package rest
 import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest/route"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var _ GuildTemplates = (*guildTemplateImpl)(nil)
@@ -14,12 +14,12 @@ func NewGuildTemplates(client Client) GuildTemplates {
 
 type GuildTemplates interface {
 	GetGuildTemplate(templateCode string, opts ...RequestOpt) (*discord.GuildTemplate, error)
-	GetGuildTemplates(guildID snowflake.Snowflake, opts ...RequestOpt) ([]discord.GuildTemplate, error)
-	CreateGuildTemplate(guildID snowflake.Snowflake, guildTemplateCreate discord.GuildTemplateCreate, opts ...RequestOpt) (*discord.GuildTemplate, error)
+	GetGuildTemplates(guildID snowflake.ID, opts ...RequestOpt) ([]discord.GuildTemplate, error)
+	CreateGuildTemplate(guildID snowflake.ID, guildTemplateCreate discord.GuildTemplateCreate, opts ...RequestOpt) (*discord.GuildTemplate, error)
 	CreateGuildFromTemplate(templateCode string, createGuildFromTemplate discord.GuildFromTemplateCreate, opts ...RequestOpt) (*discord.Guild, error)
-	SyncGuildTemplate(guildID snowflake.Snowflake, templateCode string, opts ...RequestOpt) (*discord.GuildTemplate, error)
-	UpdateGuildTemplate(guildID snowflake.Snowflake, templateCode string, guildTemplateUpdate discord.GuildTemplateUpdate, opts ...RequestOpt) (*discord.GuildTemplate, error)
-	DeleteGuildTemplate(guildID snowflake.Snowflake, templateCode string, opts ...RequestOpt) (*discord.GuildTemplate, error)
+	SyncGuildTemplate(guildID snowflake.ID, templateCode string, opts ...RequestOpt) (*discord.GuildTemplate, error)
+	UpdateGuildTemplate(guildID snowflake.ID, templateCode string, guildTemplateUpdate discord.GuildTemplateUpdate, opts ...RequestOpt) (*discord.GuildTemplate, error)
+	DeleteGuildTemplate(guildID snowflake.ID, templateCode string, opts ...RequestOpt) (*discord.GuildTemplate, error)
 }
 
 type guildTemplateImpl struct {
@@ -36,7 +36,7 @@ func (s *guildTemplateImpl) GetGuildTemplate(templateCode string, opts ...Reques
 	return
 }
 
-func (s *guildTemplateImpl) GetGuildTemplates(guildID snowflake.Snowflake, opts ...RequestOpt) (guildTemplates []discord.GuildTemplate, err error) {
+func (s *guildTemplateImpl) GetGuildTemplates(guildID snowflake.ID, opts ...RequestOpt) (guildTemplates []discord.GuildTemplate, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetGuildTemplates.Compile(nil, guildID)
 	if err != nil {
@@ -46,7 +46,7 @@ func (s *guildTemplateImpl) GetGuildTemplates(guildID snowflake.Snowflake, opts 
 	return
 }
 
-func (s *guildTemplateImpl) CreateGuildTemplate(guildID snowflake.Snowflake, guildTemplateCreate discord.GuildTemplateCreate, opts ...RequestOpt) (guildTemplate *discord.GuildTemplate, err error) {
+func (s *guildTemplateImpl) CreateGuildTemplate(guildID snowflake.ID, guildTemplateCreate discord.GuildTemplateCreate, opts ...RequestOpt) (guildTemplate *discord.GuildTemplate, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateGuildTemplate.Compile(nil, guildID)
 	if err != nil {
@@ -66,7 +66,7 @@ func (s *guildTemplateImpl) CreateGuildFromTemplate(templateCode string, createG
 	return
 }
 
-func (s *guildTemplateImpl) SyncGuildTemplate(guildID snowflake.Snowflake, templateCode string, opts ...RequestOpt) (guildTemplate *discord.GuildTemplate, err error) {
+func (s *guildTemplateImpl) SyncGuildTemplate(guildID snowflake.ID, templateCode string, opts ...RequestOpt) (guildTemplate *discord.GuildTemplate, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.SyncGuildTemplate.Compile(nil, guildID, templateCode)
 	if err != nil {
@@ -76,7 +76,7 @@ func (s *guildTemplateImpl) SyncGuildTemplate(guildID snowflake.Snowflake, templ
 	return
 }
 
-func (s *guildTemplateImpl) UpdateGuildTemplate(guildID snowflake.Snowflake, templateCode string, guildTemplateUpdate discord.GuildTemplateUpdate, opts ...RequestOpt) (guildTemplate *discord.GuildTemplate, err error) {
+func (s *guildTemplateImpl) UpdateGuildTemplate(guildID snowflake.ID, templateCode string, guildTemplateUpdate discord.GuildTemplateUpdate, opts ...RequestOpt) (guildTemplate *discord.GuildTemplate, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.UpdateGuildTemplate.Compile(nil, guildID, templateCode)
 	if err != nil {
@@ -86,7 +86,7 @@ func (s *guildTemplateImpl) UpdateGuildTemplate(guildID snowflake.Snowflake, tem
 	return
 }
 
-func (s *guildTemplateImpl) DeleteGuildTemplate(guildID snowflake.Snowflake, templateCode string, opts ...RequestOpt) (guildTemplate *discord.GuildTemplate, err error) {
+func (s *guildTemplateImpl) DeleteGuildTemplate(guildID snowflake.ID, templateCode string, opts ...RequestOpt) (guildTemplate *discord.GuildTemplate, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.DeleteGuildTemplate.Compile(nil, guildID, templateCode)
 	if err != nil {

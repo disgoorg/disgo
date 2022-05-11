@@ -2,7 +2,7 @@ package discord
 
 import (
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
@@ -40,7 +40,7 @@ func (AutocompleteInteraction) Type() InteractionType {
 func (AutocompleteInteraction) interaction() {}
 
 type rawAutocompleteInteractionData struct {
-	ID      snowflake.Snowflake  `json:"id"`
+	ID      snowflake.ID         `json:"id"`
 	Name    string               `json:"name"`
 	Options []AutocompleteOption `json:"options"`
 }
@@ -65,7 +65,7 @@ func (d *rawAutocompleteInteractionData) UnmarshalJSON(data []byte) error {
 }
 
 type AutocompleteInteractionData struct {
-	CommandID           snowflake.Snowflake
+	CommandID           snowflake.ID
 	CommandName         string
 	SubCommandName      *string
 	SubCommandGroupName *string
@@ -245,7 +245,7 @@ func (d AutocompleteInteractionData) MentionableOption(name string) (Autocomplet
 	return AutocompleteOptionMentionable{}, false
 }
 
-func (d AutocompleteInteractionData) OptSnowflake(name string) (snowflake.Snowflake, bool) {
+func (d AutocompleteInteractionData) OptSnowflake(name string) (snowflake.ID, bool) {
 	if option, ok := d.Option(name); ok {
 		switch opt := option.(type) {
 		case AutocompleteOptionChannel:
@@ -258,14 +258,14 @@ func (d AutocompleteInteractionData) OptSnowflake(name string) (snowflake.Snowfl
 			return opt.Value, true
 		}
 	}
-	return "", false
+	return 0, false
 }
 
-func (d AutocompleteInteractionData) Snowflake(name string) snowflake.Snowflake {
+func (d AutocompleteInteractionData) Snowflake(name string) snowflake.ID {
 	if id, ok := d.OptSnowflake(name); ok {
 		return id
 	}
-	return ""
+	return 0
 }
 
 func (d AutocompleteInteractionData) FloatOption(name string) (AutocompleteOptionFloat, bool) {

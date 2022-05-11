@@ -5,7 +5,7 @@ import (
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // gatewayHandlerGuildStickersUpdate handles discord.GatewayEventTypeGuildStickersUpdate
@@ -40,9 +40,9 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client
 		return
 	}
 
-	createdStickers := map[snowflake.Snowflake]discord.Sticker{}
+	createdStickers := map[snowflake.ID]discord.Sticker{}
 	deletedStickers := client.Caches().Stickers().MapGroupAll(payload.GuildID)
-	updatedStickers := map[snowflake.Snowflake]updatedSticker{}
+	updatedStickers := map[snowflake.ID]updatedSticker{}
 
 	for _, newSticker := range payload.Stickers {
 		oldSticker, ok := deletedStickers[newSticker.ID]
