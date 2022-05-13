@@ -46,6 +46,8 @@ type Gateway interface {
 	Logger() log.Logger
 	ShardID() int
 	ShardCount() int
+	SessionID() *string
+	LastSequenceReceived() *int
 	GatewayIntents() discord.GatewayIntents
 
 	Open(ctx context.Context) error
