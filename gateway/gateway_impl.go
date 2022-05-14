@@ -59,6 +59,14 @@ func (g *gatewayImpl) ShardCount() int {
 	return g.config.ShardCount
 }
 
+func (g *gatewayImpl) SessionID() *string {
+	return g.config.SessionID
+}
+
+func (g *gatewayImpl) LastSequenceReceived() *int {
+	return g.config.LastSequenceReceived
+}
+
 func (g *gatewayImpl) GatewayIntents() discord.GatewayIntents {
 	return g.config.GatewayIntents
 }
