@@ -192,11 +192,7 @@ func (g *gatewayImpl) Latency() time.Duration {
 	return g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
 }
 
-func (g *gatewayImpl) ReOpen(ctx context.Context, delay time.Duration) error {
-	return g.reOpen(ctx, 0, delay)
-}
-
-func (g *gatewayImpl) reOpen(ctx context.Context, try int, delay time.Duration) error {
+func (g *gatewayImpl) reconnectTry(ctx context.Context, try int, delay time.Duration) error {
 	if try >= g.config.MaxReconnectTries-1 {
 		return fmt.Errorf("failed to reconnect. exceeded max reconnect tries of %d reached", g.config.MaxReconnectTries)
 	}
@@ -209,8 +205,6 @@ func (g *gatewayImpl) reOpen(ctx context.Context, try int, delay time.Duration) 
 	case <-timer.C:
 	}
 
-	g.Close(ctx)
-
 	g.Logger().Debug(g.formatLogs("reconnecting gateway..."))
 	if err := g.Open(ctx); err != nil {
 		if err == discord.ErrGatewayAlreadyConnected {
@@ -218,13 +212,13 @@ func (g *gatewayImpl) reOpen(ctx context.Context, try int, delay time.Duration) 
 		}
 		g.Logger().Error(g.formatLogs("failed to reconnect gateway. error: ", err))
 		g.status = StatusDisconnected
-		return g.reOpen(ctx, try+1, delay)
+		return g.reconnectTry(ctx, try+1, delay)
 	}
 	return nil
 }
 
 func (g *gatewayImpl) reconnect(ctx context.Context) {
-	err := g.ReOpen(ctx, time.Second)
+	err := g.reconnectTry(ctx, 0, time.Second)
 	if ctx.Err() != nil {
 		g.Logger().Error(g.formatLogs("failed to reopen gateway", err))
 	}
@@ -398,14 +392,17 @@ func (g *gatewayImpl) listen(conn *websocket.Conn) {
 		case discord.GatewayOpcodeInvalidSession:
 			canResume := event.D.(discord.GatewayMessageDataInvalidSession)
 			g.Logger().Debug(g.formatLogs("received: OpcodeInvalidSession, canResume: ", canResume))
+
+			code := websocket.CloseNormalClosure
 			if canResume {
-				g.CloseWithCode(context.TODO(), websocket.CloseServiceRestart, "invalid session")
+				code = websocket.CloseServiceRestart
 			} else {
-				g.Close(context.TODO())
 				// clear resume info
 				g.config.SessionID = nil
 				g.config.LastSequenceReceived = nil
 			}
+
+			g.CloseWithCode(context.TODO(), code, "invalid session")
 			go g.reconnect(context.TODO())
 
 		case discord.GatewayOpcodeHeartbeatACK:
