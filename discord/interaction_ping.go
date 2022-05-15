@@ -2,14 +2,14 @@ package discord
 
 import (
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var _ Interaction = (*PingInteraction)(nil)
 
 type PingInteraction struct {
-	id            snowflake.Snowflake
-	applicationID snowflake.Snowflake
+	id            snowflake.ID
+	applicationID snowflake.ID
 	token         string
 	version       int
 }
@@ -42,11 +42,11 @@ func (PingInteraction) Type() InteractionType {
 	return InteractionTypePing
 }
 
-func (i PingInteraction) ID() snowflake.Snowflake {
+func (i PingInteraction) ID() snowflake.ID {
 	return i.id
 }
 
-func (i PingInteraction) ApplicationID() snowflake.Snowflake {
+func (i PingInteraction) ApplicationID() snowflake.ID {
 	return i.applicationID
 }
 
@@ -58,12 +58,12 @@ func (i PingInteraction) Version() int {
 	return i.version
 }
 
-func (PingInteraction) GuildID() *snowflake.Snowflake {
+func (PingInteraction) GuildID() *snowflake.ID {
 	return nil
 }
 
-func (PingInteraction) ChannelID() snowflake.Snowflake {
-	return ""
+func (PingInteraction) ChannelID() snowflake.ID {
+	return 0
 }
 
 func (PingInteraction) Locale() Locale {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // InteractionType is the type of Interaction
@@ -20,17 +20,17 @@ const (
 )
 
 type rawInteraction struct {
-	ID            snowflake.Snowflake  `json:"id"`
-	Type          InteractionType      `json:"type"`
-	ApplicationID snowflake.Snowflake  `json:"application_id"`
-	Token         string               `json:"token"`
-	Version       int                  `json:"version"`
-	GuildID       *snowflake.Snowflake `json:"guild_id,omitempty"`
-	ChannelID     snowflake.Snowflake  `json:"channel_id,omitempty"`
-	Locale        Locale               `json:"locale,omitempty"`
-	GuildLocale   *Locale              `json:"guild_locale,omitempty"`
-	Member        *ResolvedMember      `json:"member,omitempty"`
-	User          *User                `json:"user,omitempty"`
+	ID            snowflake.ID    `json:"id"`
+	Type          InteractionType `json:"type"`
+	ApplicationID snowflake.ID    `json:"application_id"`
+	Token         string          `json:"token"`
+	Version       int             `json:"version"`
+	GuildID       *snowflake.ID   `json:"guild_id,omitempty"`
+	ChannelID     snowflake.ID    `json:"channel_id,omitempty"`
+	Locale        Locale          `json:"locale,omitempty"`
+	GuildLocale   *Locale         `json:"guild_locale,omitempty"`
+	Member        *ResolvedMember `json:"member,omitempty"`
+	User          *User           `json:"user,omitempty"`
 }
 
 // Interaction is used for easier unmarshalling of different Interaction(s)
@@ -55,35 +55,35 @@ func (i *UnmarshalInteraction) UnmarshalJSON(data []byte) error {
 	}
 
 	var (
-		vInteraction Interaction
-		err          error
+		interaction Interaction
+		err         error
 	)
 
 	switch iType.Type {
 	case InteractionTypePing:
 		v := PingInteraction{}
 		err = json.Unmarshal(data, &v)
-		vInteraction = v
+		interaction = v
 
 	case InteractionTypeApplicationCommand:
 		v := ApplicationCommandInteraction{}
 		err = json.Unmarshal(data, &v)
-		vInteraction = v
+		interaction = v
 
 	case InteractionTypeComponent:
 		v := ComponentInteraction{}
 		err = json.Unmarshal(data, &v)
-		vInteraction = v
+		interaction = v
 
 	case InteractionTypeAutocomplete:
 		v := AutocompleteInteraction{}
 		err = json.Unmarshal(data, &v)
-		vInteraction = v
+		interaction = v
 
 	case InteractionTypeModalSubmit:
 		v := ModalSubmitInteraction{}
 		err = json.Unmarshal(data, &v)
-		vInteraction = v
+		interaction = v
 
 	default:
 		return fmt.Errorf("unkown rawInteraction with type %d received", iType.Type)
@@ -92,7 +92,7 @@ func (i *UnmarshalInteraction) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	i.Interaction = vInteraction
+	i.Interaction = interaction
 	return nil
 }
 
@@ -102,11 +102,11 @@ type (
 		Permissions Permissions `json:"permissions,omitempty"`
 	}
 	ResolvedChannel struct {
-		ID             snowflake.Snowflake `json:"id"`
-		Name           string              `json:"name"`
-		Type           ChannelType         `json:"type"`
-		Permissions    Permissions         `json:"permissions"`
-		ThreadMetadata ThreadMetadata      `json:"thread_metadata"`
-		ParentID       snowflake.Snowflake `json:"parent_id"`
+		ID             snowflake.ID   `json:"id"`
+		Name           string         `json:"name"`
+		Type           ChannelType    `json:"type"`
+		Permissions    Permissions    `json:"permissions"`
+		ThreadMetadata ThreadMetadata `json:"thread_metadata"`
+		ParentID       snowflake.ID   `json:"parent_id"`
 	}
 )

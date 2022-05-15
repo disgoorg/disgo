@@ -13,16 +13,22 @@ DisGo is a [Discord](https://discord.com) API wrapper written in [GoLang](https:
 
 ## Summary
 
-1. [Features](#features)
-2. [Missing Features](#missing-features)
-3. [Getting Started](#getting-started)
-4. [Documentation](#documentation)
-5. [Examples](#examples)
-6. [Related Projects](#related-projects)
-7. [Other GoLang Discord Libraries](#other-golang-discord-libraries)
-8. [Troubleshooting](#troubleshooting)
-9. [Contributing](#contributing)
-10. [License](#license)
+1. [Stability](#stability)
+2. [Features](#features)
+3. [Missing Features](#missing-features)
+4. [Getting Started](#getting-started)
+5. [Documentation](#documentation)
+6. [Examples](#examples)
+7. [Other interesting Projects to look at](#other-interesting-projects-to-look-at)
+8. [Other GoLang Discord Libraries](#other-golang-discord-libraries)
+9. [Troubleshooting](#troubleshooting)
+10. [Contributing](#contributing)
+11. [License](#license)
+
+### Stability
+The public API of DisGo is mostly stable at this point in time. Smaller breaking changes can happen before the v1 is released. 
+
+After v1 is released breaking changes may only happen if the Discord API requires them. They tend to break their released API versions now and then. In general for every new Discord APi version the major version of DisGo should be increased and with that breaking changes between non major versions should be helt to a minimum. 
 
 ### Features
 
@@ -55,95 +61,98 @@ DisGo is a [Discord](https://discord.com) API wrapper written in [GoLang](https:
 go get github.com/disgoorg/disgo
 ```
 
-### Building a Disgo Instance
+### Building a DisGo Instance
 
+Build a bot client to interact with discord
 ```go
 package main
 
 import (
-	"github.com/disgoorg/disgo"
-	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/gateway"
+    "github.com/disgoorg/disgo"
+    "github.com/disgoorg/disgo/bot"
+    "github.com/disgoorg/disgo/discord"
+    "github.com/disgoorg/disgo/gateway"
 )
 
 func main() {
-	client, err := disgo.New("token",
-		bot.WithGatewayConfigOpts(
-			gateway.WithGatewayIntents(
-				discord.GatewayIntentGuilds,
-				discord.GatewayIntentGuildMessages,
-				discord.GatewayIntentDirectMessages,
-			),
-		),
-	)
+    client, err := disgo.New("token",
+        bot.WithGatewayConfigOpts(
+            gateway.WithGatewayIntents(
+                discord.GatewayIntentGuilds,
+                discord.GatewayIntentGuildMessages,
+                discord.GatewayIntentDirectMessages,
+            ),
+        ),
+    )
 }
 ```
 
 ### Full Ping Pong Example
 
+This example can also be found [here]https://github.com/disgoorg/disgo/blob/development/_examples/ping_pong/example.go()
+
 ```go
 package main
 
 import (
-	"context"
-	"os"
-	"os/signal"
-	"syscall"
+    "context"
+    "os"
+    "os/signal"
+    "syscall"
 
-	"github.com/disgoorg/disgo"
-	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/cache"
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/events"
-	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/log"
+    "github.com/disgoorg/disgo"
+    "github.com/disgoorg/disgo/bot"
+    "github.com/disgoorg/disgo/cache"
+    "github.com/disgoorg/disgo/discord"
+    "github.com/disgoorg/disgo/events"
+    "github.com/disgoorg/disgo/gateway"
+    "github.com/disgoorg/log"
 )
 
 func main() {
-	client, err := disgo.New(os.Getenv("token"),
-		bot.WithGatewayConfigOpts(
-			gateway.WithGatewayIntents(
-				discord.GatewayIntentsNone,
-			),
-		),
-		bot.WithCacheConfigOpts(cache.WithCacheFlags(cache.FlagsDefault)),
-		bot.WithEventListeners(&events.ListenerAdapter{
-			OnMessageCreate: onMessageCreate,
-		}),
-	)
-	if err != nil {
-		log.Fatal("error while building disgo: ", err)
-	}
+    client, err := disgo.New(os.Getenv("token"),
+        bot.WithGatewayConfigOpts(
+            gateway.WithGatewayIntents(
+                discord.GatewayIntentsNone,
+            ),
+        ),
+        bot.WithCacheConfigOpts(cache.WithCacheFlags(cache.FlagsDefault)),
+        bot.WithEventListeners(&events.ListenerAdapter{
+            OnMessageCreate: onMessageCreate,
+        }),
+    )
+    if err != nil {
+        log.Fatal("error while building disgo: ", err)
+    }
 
-	defer client.Close(context.TODO())
+    defer client.Close(context.TODO())
 
-	if err = client.ConnectGateway(context.TODO()); err != nil {
-		log.Fatal("errors while connecting to gateway: ", err)
-	}
+    if err = client.ConnectGateway(context.TODO()); err != nil {
+        log.Fatal("errors while connecting to gateway: ", err)
+    }
 
-	log.Info("example is now running. Press CTRL-C to exit.")
-	s := make(chan os.Signal, 1)
-	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
-	<-s
+    log.Info("example is now running. Press CTRL-C to exit.")
+    s := make(chan os.Signal, 1)
+    signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
+    <-s
 }
 
 func onMessageCreate(event *events.MessageCreateEvent) {
-	var message string
-	if event.Message.Content == "ping" {
-		message = "pong"
-	} else if event.Message.Content == "pong" {
-		message = "ping"
-	}
-	if message != "" {
-		_, _ = event.Client().Rest().ChannelService().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent(message).Build())
-	}
+    var message string
+    if event.Message.Content == "ping" {
+        message = "pong"
+    } else if event.Message.Content == "pong" {
+        message = "ping"
+    }
+    if message != "" {
+        _, _ = event.Client().Rest().ChannelService().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent(message).Build())
+    }
 }
 ```
 
 ### Logging
 
-disgo uses our own small [logging lib](https://github.com/disgoorg/log) which provides an [interface](https://github.com/disgoorg/log/blob/master/logger.go) you can implement. This lib also comes with a default logger which is interchangeable and based on the standard log package. You can read more about it [here](https://github.com/disgoorg/log)
+DisGo uses our own small [logging interface](https://github.com/disgoorg/log) which you can use with most other logging libaries. This lib also comes with a default logger which is based on the standard log package.
 
 ## Documentation
 
@@ -152,11 +161,11 @@ Documentation is wip and can be found under
 * [![Go Reference](https://pkg.go.dev/badge/github.com/disgoorg/disgo.svg)](https://pkg.go.dev/github.com/disgoorg/disgo)
 * [![Discord Documentation](https://img.shields.io/badge/Discord%20Documentation-blue.svg)](https://discord.com/developers/docs)
 
-Wiki is currently under construction
+GitHub Wiki is currently under construction. We appreciate help here.
 
 ## Examples
 
-You can find examples under [_examples](https://github.com/disgoorg/disgo/tree/master/_examples)
+You can find examples [here](https://github.com/disgoorg/disgo/tree/master/_examples)
 
 There is also a bot template with commands & db [here](https://github.com/disgoorg/bot-template)
 
@@ -168,21 +177,21 @@ or in these projects:
 * [Kitsune-Bot](https://github.com/TopiSenpai/Kitsune-Bot)
 * [KittyBot](https://github.com/KittyBot-Org/KittyBotGo)
 
-## Related Projects
+## Other interesting Projects to look at
 
 ### [Lavalink](https://github.com/freyacodes/Lavalink)
 
-is a standalone audio sending node based on [Lavaplayer](https://github.com/sedmelluq/lavaplayer) and JDA-Audio. Allows for sending audio without it ever reaching any of your shards.
+Is a standalone audio sending node based on [Lavaplayer](https://github.com/sedmelluq/lavaplayer) and JDA-Audio. Which allows for sending audio without it ever reaching any of your shards. Lavalink can be used in combinatio with [DisGolink](https://github.com/disgoorg/disgolink) for music Bots
 
 Being used in production by FredBoat, Dyno, LewdBot, and more.
 
-### [disgolink](https://github.com/disgoorg/disgolink)
+### [DisGolink](https://github.com/disgoorg/disgolink)
 
-is a [Lavalink Client](https://github.com/freyacodes/Lavalink) which can be used to communicate with LavaLink to play/search tracks
+Is a [Lavalink-Client](https://github.com/freyacodes/Lavalink) which can be used to communicate with LavaLink to play/search tracks
 
-### [dislog](https://github.com/disgoorg/dislog)
+### [DisLog](https://github.com/disgoorg/dislog)
 
-is a discord webhook logger hook for [logrus](https://github.com/sirupsen/logrus)
+Is a Discord webhook logger hook for [logrus](https://github.com/sirupsen/logrus)
 
 ## Other GoLang Discord Libraries
 
@@ -197,7 +206,7 @@ For help feel free to open an issues or reach out on [Discord](https://discord.g
 
 ## Contributing
 
-Contributions are welcomed but for bigger changes please first reach out via [Discord](https://discord.gg/TewhTfDpvW) or create an issue to discuss your intentions and ideas.
+Contributions are welcomed but for bigger changes we recommend first reaching out via [Discord](https://discord.gg/TewhTfDpvW) or create an issue to discuss your problems, intentions and ideas.
 
 ## License
 

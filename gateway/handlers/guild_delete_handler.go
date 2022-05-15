@@ -4,7 +4,7 @@ import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // gatewayHandlerGuildDelete handles discord.GatewayEventTypeGuildDelete
@@ -37,11 +37,11 @@ func (h *gatewayHandlerGuildDelete) HandleGatewayEvent(client bot.Client, sequen
 	client.Caches().Stickers().RemoveAll(unavailableGuild.ID)
 	client.Caches().Roles().RemoveAll(unavailableGuild.ID)
 	client.Caches().StageInstances().RemoveAll(unavailableGuild.ID)
-	client.Caches().ThreadMembers().RemoveIf(func(groupID snowflake.Snowflake, threadMember discord.ThreadMember) bool {
+	client.Caches().ThreadMembers().RemoveIf(func(groupID snowflake.ID, threadMember discord.ThreadMember) bool {
 		// TODO: figure out how to remove thread members from cache via guild id
 		return false
 	})
-	client.Caches().Messages().RemoveIf(func(channelID snowflake.Snowflake, message discord.Message) bool {
+	client.Caches().Messages().RemoveIf(func(channelID snowflake.ID, message discord.Message) bool {
 		return message.GuildID != nil && *message.GuildID == unavailableGuild.ID
 	})
 

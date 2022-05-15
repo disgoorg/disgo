@@ -4,7 +4,7 @@ import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // gatewayHandlerInviteCreate handles discord.GatewayEventTypeInviteCreate
@@ -24,7 +24,7 @@ func (h *gatewayHandlerInviteCreate) New() any {
 func (h *gatewayHandlerInviteCreate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
 	invite := *v.(*discord.Invite)
 
-	var guildID *snowflake.Snowflake
+	var guildID *snowflake.ID
 	if invite.Guild != nil {
 		guildID = &invite.Guild.ID
 	}

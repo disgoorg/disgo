@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"time"
@@ -21,6 +21,8 @@ import (
 func NewClient(botToken string, opts ...ConfigOpt) Client {
 	config := DefaultConfig()
 	config.Apply(opts)
+
+	config.RateLimiter.Reset()
 
 	return &clientImpl{botToken: botToken, config: *config}
 }
@@ -100,17 +102,12 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 		rq.Header.Set("Content-Type", contentType)
 	}
 
-	var (
-		tokenType discord.TokenType
-		token     string
-	)
-
 	if cRoute.APIRoute.NeedsBotAuth() {
-		tokenType = discord.TokenTypeBot
-		token = c.botToken
+		// add token opt to the start, so you can override it
+		opts = append([]RequestOpt{WithToken(discord.TokenTypeBot, c.botToken)}, opts...)
 	}
 
-	config := DefaultRequestConfig(rq, tokenType, token)
+	config := DefaultRequestConfig(rq)
 	config.Apply(opts)
 
 	if config.Delay > 0 {
@@ -149,7 +146,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 
 	var rawRsBody []byte
 	if rs.Body != nil {
-		if rawRsBody, err = ioutil.ReadAll(rs.Body); err != nil {
+		if rawRsBody, err = io.ReadAll(rs.Body); err != nil {
 			return fmt.Errorf("error reading response body in rest client: %w", err)
 		}
 		c.Logger().Tracef("response from %s, code %d, body: %s", rqURL, rs.StatusCode, string(rawRsBody))

@@ -32,7 +32,7 @@ func main() {
 					return
 				}
 				if event.Message.Content == "test" {
-					_, _ = event.Client().Rest().Channels().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().
+					_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().
 						AddActionRow(discord.NewDangerButton("danger", "danger")).
 						SetMessageReferenceByID(event.Message.ID).
 						Build(),
@@ -58,6 +58,6 @@ func main() {
 
 	log.Infof("example is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
-	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
 }

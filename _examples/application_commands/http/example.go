@@ -12,20 +12,19 @@ import (
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/httpserver"
 	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 	"github.com/oasisprotocol/curve25519-voi/primitives/ed25519"
 )
 
 var (
 	token     = os.Getenv("disgo_token")
 	publicKey = os.Getenv("disgo_public_key")
-	guildID   = snowflake.GetSnowflakeEnv("disgo_guild_id")
+	guildID   = snowflake.GetEnv("disgo_guild_id")
 
 	commands = []discord.ApplicationCommandCreate{
 		discord.SlashCommandCreate{
-			CommandName:       "say",
-			Description:       "says what you say",
-			DefaultPermission: true,
+			CommandName: "say",
+			Description: "says what you say",
 			Options: []discord.ApplicationCommandOption{
 				discord.ApplicationCommandOptionString{
 					Name:        "message",
@@ -69,7 +68,7 @@ func main() {
 
 	defer client.Close(context.TODO())
 
-	if _, err = client.Rest().Applications().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
+	if _, err = client.Rest().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
 		log.Fatal("error while registering commands: ", err)
 	}
 
@@ -77,21 +76,20 @@ func main() {
 		log.Fatal("error while starting http server: ", err)
 	}
 
-	log.Infof("example is now running. Press CTRL-C to exit.")
+	log.Info("example is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
-	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
 }
 
 func commandListener(event *events.ApplicationCommandInteractionEvent) {
 	data := event.SlashCommandInteractionData()
 	if data.CommandName() == "say" {
-		err := event.CreateMessage(discord.NewMessageCreateBuilder().
+		if err := event.CreateMessage(discord.NewMessageCreateBuilder().
 			SetContent(data.String("message")).
 			SetEphemeral(data.Bool("ephemeral")).
 			Build(),
-		)
-		if err != nil {
+		); err != nil {
 			event.Client().Logger().Error("error on sending response: ", err)
 		}
 	}

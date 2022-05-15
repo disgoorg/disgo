@@ -4,10 +4,13 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway/grate"
 	"github.com/disgoorg/log"
+	"github.com/gorilla/websocket"
 )
 
 func DefaultConfig() *Config {
 	return &Config{
+		Logger:            log.Default(),
+		Dialer:            websocket.DefaultDialer,
 		LargeThreshold:    50,
 		GatewayIntents:    discord.GatewayIntentsDefault,
 		Compress:          true,
@@ -20,6 +23,7 @@ func DefaultConfig() *Config {
 
 type Config struct {
 	Logger                log.Logger
+	Dialer                *websocket.Dialer
 	LargeThreshold        int
 	GatewayIntents        discord.GatewayIntents
 	Compress              bool
@@ -52,6 +56,12 @@ func (c *Config) Apply(opts []ConfigOpt) {
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
+	}
+}
+
+func WithDialer(dialer *websocket.Dialer) ConfigOpt {
+	return func(config *Config) {
+		config.Dialer = dialer
 	}
 }
 

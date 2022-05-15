@@ -13,6 +13,9 @@ type ListenerAdapter struct {
 	OnHTTPRequest func(event *HTTPRequestEvent)
 	OnRaw         func(event *RawEvent)
 
+	// GuildApplicationCommandPermissionsUpdate
+	OnGuildApplicationCommandPermissionsUpdate func(event *GuildApplicationCommandPermissionsUpdate)
+
 	// Thread Events
 	OnThreadCreate func(event *ThreadCreateEvent)
 	OnThreadUpdate func(event *ThreadUpdateEvent)
@@ -25,15 +28,17 @@ type ListenerAdapter struct {
 	OnThreadMemberUpdate func(event *ThreadMemberUpdateEvent)
 	OnThreadMemberRemove func(event *ThreadMemberRemoveEvent)
 
-	// Channel Events
-	OnGuildChannelCreate func(event *GuildChannelCreateEvent)
-	OnGuildChannelUpdate func(event *GuildChannelUpdateEvent)
-	OnGuildChannelDelete func(event *GuildChannelDeleteEvent)
+	// Guild Channel Events
+	OnGuildChannelCreate     func(event *GuildChannelCreateEvent)
+	OnGuildChannelUpdate     func(event *GuildChannelUpdateEvent)
+	OnGuildChannelDelete     func(event *GuildChannelDeleteEvent)
+	OnGuildChannelPinsUpdate func(event *GuildChannelPinsUpdateEvent)
 
 	// DM Channel Events
-	OnDMChannelCreate func(event *DMChannelCreateEvent)
-	OnDMChannelUpdate func(event *DMChannelUpdateEvent)
-	OnDMChannelDelete func(event *DMChannelDeleteEvent)
+	OnDMChannelCreate     func(event *DMChannelCreateEvent)
+	OnDMChannelUpdate     func(event *DMChannelUpdateEvent)
+	OnDMChannelDelete     func(event *DMChannelDeleteEvent)
+	OnDMChannelPinsUpdate func(event *DMChannelPinsUpdateEvent)
 
 	// Channel Message Events
 	OnDMMessageCreate func(event *DMMessageCreateEvent)
@@ -178,6 +183,11 @@ func (l ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
+	case *GuildApplicationCommandPermissionsUpdate:
+		if listener := l.OnGuildApplicationCommandPermissionsUpdate; listener != nil {
+			listener(e)
+		}
+
 	// Thread Events
 	case *ThreadCreateEvent:
 		if listener := l.OnThreadCreate; listener != nil {
@@ -227,6 +237,10 @@ func (l ListenerAdapter) OnEvent(event bot.Event) {
 		if listener := l.OnGuildChannelDelete; listener != nil {
 			listener(e)
 		}
+	case *GuildChannelPinsUpdateEvent:
+		if listener := l.OnGuildChannelPinsUpdate; listener != nil {
+			listener(e)
+		}
 
 	// DMChannel Events
 	case *DMChannelCreateEvent:
@@ -239,6 +253,10 @@ func (l ListenerAdapter) OnEvent(event bot.Event) {
 		}
 	case *DMChannelDeleteEvent:
 		if listener := l.OnDMChannelDelete; listener != nil {
+			listener(e)
+		}
+	case *DMChannelPinsUpdateEvent:
+		if listener := l.OnDMChannelPinsUpdate; listener != nil {
 			listener(e)
 		}
 

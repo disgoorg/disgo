@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"compress/zlib"
 	"context"
+	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
-	"net/http"
+	"net"
+	"sync"
 	"time"
 
 	"github.com/disgoorg/disgo/discord"
@@ -38,6 +39,7 @@ type gatewayImpl struct {
 	token            string
 
 	conn            *websocket.Conn
+	connMu          sync.Mutex
 	heartbeatTicker *time.Ticker
 	status          Status
 
@@ -56,6 +58,14 @@ func (g *gatewayImpl) ShardID() int {
 
 func (g *gatewayImpl) ShardCount() int {
 	return g.config.ShardCount
+}
+
+func (g *gatewayImpl) SessionID() *string {
+	return g.config.SessionID
+}
+
+func (g *gatewayImpl) LastSequenceReceived() *int {
+	return g.config.LastSequenceReceived
 }
 
 func (g *gatewayImpl) GatewayIntents() discord.GatewayIntents {
@@ -78,21 +88,22 @@ func (g *gatewayImpl) formatLogs(a ...any) string {
 
 func (g *gatewayImpl) Open(ctx context.Context) error {
 	g.Logger().Debug(g.formatLogs("opening gateway connection"))
+
+	g.connMu.Lock()
+	defer g.connMu.Unlock()
 	if g.conn != nil {
 		return discord.ErrGatewayAlreadyConnected
 	}
 	g.status = StatusConnecting
 
 	gatewayURL := fmt.Sprintf("%s?v=%d&encoding=json", g.config.GatewayURL, Version)
-	var rs *http.Response
-	var err error
-	g.conn, rs, err = websocket.DefaultDialer.DialContext(ctx, gatewayURL, nil)
+	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
 		g.Close(ctx)
 		body := "null"
 		if rs != nil && rs.Body != nil {
 			defer rs.Body.Close()
-			rawBody, bErr := ioutil.ReadAll(rs.Body)
+			rawBody, bErr := io.ReadAll(rs.Body)
 			if bErr != nil {
 				g.Logger().Error(g.formatLogs("error while reading response body: ", err))
 			}
@@ -103,9 +114,18 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 		return err
 	}
 
+	conn.SetCloseHandler(func(code int, text string) error {
+		return nil
+	})
+
+	g.conn = conn
+
+	// reset rate limiter when connecting
+	g.config.RateLimiter.Reset()
+
 	g.status = StatusWaitingForHello
 
-	go g.listen()
+	go g.listen(conn)
 
 	return nil
 }
@@ -115,34 +135,46 @@ func (g *gatewayImpl) Close(ctx context.Context) {
 }
 
 func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message string) {
-	g.Logger().Debug(g.formatLogsf("closing gateway connection with code: %d, message: %s", code, message))
-	_ = g.config.RateLimiter.Close(ctx)
-
 	if g.heartbeatTicker != nil {
 		g.Logger().Debug(g.formatLogs("closing heartbeat goroutines..."))
 		g.heartbeatTicker.Stop()
 		g.heartbeatTicker = nil
 	}
 
+	g.connMu.Lock()
+	defer g.connMu.Unlock()
 	if g.conn != nil {
-		err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message))
-		if err != nil && err != websocket.ErrCloseSent {
-			g.Logger().Error(g.formatLogs("error writing close code. error: ", err))
+		g.config.RateLimiter.Close(ctx)
+		g.Logger().Debug(g.formatLogsf("closing gateway connection with code: %d, message: %s", code, message))
+		if err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && err != websocket.ErrCloseSent {
+			g.Logger().Debug(g.formatLogs("error writing close code. error: ", err))
 		}
-
-		err = g.conn.Close()
-		if err != nil {
-			g.Logger().Error(g.formatLogs("error closing conn: ", err))
-		}
+		_ = g.conn.Close()
 		g.conn = nil
 	}
+
 }
 
 func (g *gatewayImpl) Status() Status {
+	g.connMu.Lock()
+	defer g.connMu.Unlock()
 	return g.status
 }
 
 func (g *gatewayImpl) Send(ctx context.Context, op discord.GatewayOpcode, d discord.GatewayMessageData) error {
+	data, err := json.Marshal(discord.GatewayMessage{
+		Op: op,
+		D:  d,
+	})
+	if err != nil {
+		return err
+	}
+	return g.send(ctx, websocket.TextMessage, data)
+}
+
+func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) error {
+	g.connMu.Lock()
+	defer g.connMu.Unlock()
 	if g.conn == nil {
 		return discord.ErrShardNotConnected
 	}
@@ -152,15 +184,8 @@ func (g *gatewayImpl) Send(ctx context.Context, op discord.GatewayOpcode, d disc
 	}
 
 	defer g.config.RateLimiter.Unlock()
-	data, err := json.Marshal(discord.GatewayMessage{
-		Op: op,
-		D:  d,
-	})
-	if err != nil {
-		return err
-	}
 	g.Logger().Trace(g.formatLogs("sending gateway command: ", string(data)))
-	return g.conn.WriteMessage(websocket.TextMessage, data)
+	return g.conn.WriteMessage(messageType, data)
 }
 
 func (g *gatewayImpl) Latency() time.Duration {
@@ -263,20 +288,27 @@ func (g *gatewayImpl) resume() {
 		Seq:       *g.config.LastSequenceReceived,
 	}
 
-	g.Logger().Info(g.formatLogs("sending Resume command..."))
+	g.Logger().Debug(g.formatLogs("sending Resume command..."))
 	if err := g.Send(context.TODO(), discord.GatewayOpcodeResume, resume); err != nil {
 		g.Logger().Error(g.formatLogs("error sending resume command err: ", err))
 	}
 }
 
-func (g *gatewayImpl) listen() {
+func (g *gatewayImpl) listen(conn *websocket.Conn) {
 	defer g.Logger().Debug(g.formatLogs("exiting listen goroutine..."))
 	for {
-		if g.conn == nil {
-			return
-		}
-		mt, reader, err := g.conn.NextReader()
+		mt, reader, err := conn.NextReader()
 		if err != nil {
+
+			g.connMu.Lock()
+			sameConnection := g.conn == conn
+			g.connMu.Unlock()
+
+			// if sameConnection is false, it means the connection has been closed by the user, and we can just exit
+			if !sameConnection {
+				return
+			}
+
 			reconnect := true
 			if closeError, ok := err.(*websocket.CloseError); ok {
 				closeCode := discord.GatewayCloseEventCode(closeError.Code)
@@ -295,10 +327,13 @@ func (g *gatewayImpl) listen() {
 					g.config.LastSequenceReceived = nil
 					g.config.SessionID = nil
 				} else {
-					g.Logger().Error(g.formatLogsf("gateway close received, reconnect: %t, code: %d, error: %s", reconnect && g.config.AutoReconnect, closeError.Code, closeError.Text))
+					g.Logger().Error(g.formatLogsf("gateway close received, reconnect: %t, code: %d, error: %s", g.config.AutoReconnect && reconnect, closeError.Code, closeError.Text))
 				}
+			} else if errors.Is(err, net.ErrClosed) {
+				// we closed the connection ourselves. Don't try to reconnect here
+				reconnect = false
 			} else {
-				g.Logger().Error(g.formatLogs("failed to read next message from gateway. error: ", err))
+				g.Logger().Debug(g.formatLogs("failed to read next message from gateway. error: ", err))
 			}
 
 			if g.config.AutoReconnect && reconnect {

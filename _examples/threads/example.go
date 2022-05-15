@@ -9,6 +9,7 @@ import (
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/cache"
+	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
@@ -17,8 +18,8 @@ import (
 )
 
 var (
-	token = os.Getenv("token")
-	//guildID = snowflake.Snowflake(os.Getenv("guild_id"))
+	token   = os.Getenv("token")
+	guildID = snowflake.GetEnv("guild_id")
 )
 
 func main() {
@@ -82,6 +83,6 @@ func main() {
 	}
 
 	s := make(chan os.Signal, 1)
-	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
 }

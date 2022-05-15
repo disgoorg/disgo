@@ -2,9 +2,10 @@ package discord
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // ChannelType for interacting with discord's channels
@@ -33,8 +34,13 @@ type Channel interface {
 	json.Marshaler
 	fmt.Stringer
 
+	// Type returns the ChannelType of the Channel.
 	Type() ChannelType
-	ID() snowflake.Snowflake
+
+	// ID returns the Snowflake ID of the Channel.
+	ID() snowflake.ID
+
+	// Name returns the name of the Channel.
 	Name() string
 
 	channel()
@@ -43,8 +49,13 @@ type Channel interface {
 type MessageChannel interface {
 	Channel
 
-	LastMessageID() *snowflake.Snowflake
-	LastPinTimestamp() *Time
+	// LastMessageID returns the ID of the last Message sent in this MessageChannel.
+	// This is nil if no Message has been sent yet.
+	LastMessageID() *snowflake.ID
+
+	// LastPinTimestamp returns when the last Message in this MessageChannel was pinned.
+	// This is nil if no Message has been pinned yet.
+	LastPinTimestamp() *time.Time
 
 	messageChannel()
 }
@@ -53,10 +64,20 @@ type GuildChannel interface {
 	Channel
 	Mentionable
 
-	GuildID() snowflake.Snowflake
+	// GuildID returns the Guild ID of the GuildChannel
+	GuildID() snowflake.ID
+
+	// Position returns the position of the GuildChannel in the channel list.
+	// This is always 0 for GuildThread(s).
 	Position() int
-	ParentID() *snowflake.Snowflake
-	PermissionOverwrites() []PermissionOverwrite
+
+	// ParentID returns the parent Channel ID of the GuildChannel.
+	// This is never nil for GuildThread(s).
+	ParentID() *snowflake.ID
+
+	// PermissionOverwrites returns the GuildChannel's PermissionOverwrites for Role(s) and Member(s).
+	// This is always nil for GuildThread(s).
+	PermissionOverwrites() PermissionOverwrites
 
 	guildChannel()
 }
@@ -65,8 +86,15 @@ type GuildMessageChannel interface {
 	GuildChannel
 	MessageChannel
 
+	// Topic returns the topic of a GuildMessageChannel.
+	// This is always nil for GuildThread(s).
 	Topic() *string
+
+	// NSFW returns whether the GuildMessageChannel is marked as not safe for work.
 	NSFW() bool
+
+	// DefaultAutoArchiveDuration returns the default AutoArchiveDuration for GuildThread(s) in this GuildMessageChannel.
+	// This is always 0 for GuildThread(s).
 	DefaultAutoArchiveDuration() AutoArchiveDuration
 
 	guildMessageChannel()
@@ -75,7 +103,10 @@ type GuildMessageChannel interface {
 type GuildAudioChannel interface {
 	GuildChannel
 
+	// Bitrate returns the configured bitrate of the GuildAudioChannel.
 	Bitrate() int
+
+	// RTCRegion returns the configured voice server region of the GuildAudioChannel.
 	RTCRegion() string
 
 	guildAudioChannel()
@@ -155,17 +186,17 @@ var (
 )
 
 type GuildTextChannel struct {
-	id                         snowflake.Snowflake
-	guildID                    snowflake.Snowflake
+	id                         snowflake.ID
+	guildID                    snowflake.ID
 	position                   int
-	permissionOverwrites       []PermissionOverwrite
+	permissionOverwrites       PermissionOverwrites
 	name                       string
 	topic                      *string
 	nsfw                       bool
-	lastMessageID              *snowflake.Snowflake
+	lastMessageID              *snowflake.ID
 	rateLimitPerUser           int
-	parentID                   *snowflake.Snowflake
-	lastPinTimestamp           *Time
+	parentID                   *snowflake.ID
+	lastPinTimestamp           *time.Time
 	defaultAutoArchiveDuration AutoArchiveDuration
 }
 
@@ -216,7 +247,7 @@ func (c GuildTextChannel) Mention() string {
 	return ChannelMention(c.ID())
 }
 
-func (c GuildTextChannel) ID() snowflake.Snowflake {
+func (c GuildTextChannel) ID() snowflake.ID {
 	return c.id
 }
 
@@ -228,11 +259,11 @@ func (c GuildTextChannel) Name() string {
 	return c.name
 }
 
-func (c GuildTextChannel) GuildID() snowflake.Snowflake {
+func (c GuildTextChannel) GuildID() snowflake.ID {
 	return c.guildID
 }
 
-func (c GuildTextChannel) PermissionOverwrites() []PermissionOverwrite {
+func (c GuildTextChannel) PermissionOverwrites() PermissionOverwrites {
 	return c.permissionOverwrites
 }
 
@@ -240,15 +271,15 @@ func (c GuildTextChannel) Position() int {
 	return c.position
 }
 
-func (c GuildTextChannel) ParentID() *snowflake.Snowflake {
+func (c GuildTextChannel) ParentID() *snowflake.ID {
 	return c.parentID
 }
 
-func (c GuildTextChannel) LastMessageID() *snowflake.Snowflake {
+func (c GuildTextChannel) LastMessageID() *snowflake.ID {
 	return c.lastMessageID
 }
 
-func (c GuildTextChannel) LastPinTimestamp() *Time {
+func (c GuildTextChannel) LastPinTimestamp() *time.Time {
 	return c.lastPinTimestamp
 }
 
@@ -275,10 +306,10 @@ var (
 )
 
 type DMChannel struct {
-	id               snowflake.Snowflake
-	lastMessageID    *snowflake.Snowflake
+	id               snowflake.ID
+	lastMessageID    *snowflake.ID
 	recipients       []User
-	lastPinTimestamp *Time
+	lastPinTimestamp *time.Time
 }
 
 func (c *DMChannel) UnmarshalJSON(data []byte) error {
@@ -308,7 +339,7 @@ func (c DMChannel) String() string {
 	return channelString(c)
 }
 
-func (c DMChannel) ID() snowflake.Snowflake {
+func (c DMChannel) ID() snowflake.ID {
 	return c.id
 }
 
@@ -320,11 +351,11 @@ func (c DMChannel) Name() string {
 	return c.recipients[0].Username
 }
 
-func (c DMChannel) LastMessageID() *snowflake.Snowflake {
+func (c DMChannel) LastMessageID() *snowflake.ID {
 	return c.lastMessageID
 }
 
-func (c DMChannel) LastPinTimestamp() *Time {
+func (c DMChannel) LastPinTimestamp() *time.Time {
 	return c.lastPinTimestamp
 }
 
@@ -338,14 +369,14 @@ var (
 )
 
 type GuildVoiceChannel struct {
-	id                   snowflake.Snowflake
-	guildID              snowflake.Snowflake
+	id                   snowflake.ID
+	guildID              snowflake.ID
 	position             int
-	permissionOverwrites []PermissionOverwrite
+	permissionOverwrites PermissionOverwrites
 	name                 string
 	bitrate              int
 	UserLimit            int
-	parentID             *snowflake.Snowflake
+	parentID             *snowflake.ID
 	rtcRegion            string
 	VideoQualityMode     VideoQualityMode
 }
@@ -397,7 +428,7 @@ func (GuildVoiceChannel) Type() ChannelType {
 	return ChannelTypeGuildVoice
 }
 
-func (c GuildVoiceChannel) ID() snowflake.Snowflake {
+func (c GuildVoiceChannel) ID() snowflake.ID {
 	return c.id
 }
 
@@ -405,11 +436,11 @@ func (c GuildVoiceChannel) Name() string {
 	return c.name
 }
 
-func (c GuildVoiceChannel) GuildID() snowflake.Snowflake {
+func (c GuildVoiceChannel) GuildID() snowflake.ID {
 	return c.guildID
 }
 
-func (c GuildVoiceChannel) PermissionOverwrites() []PermissionOverwrite {
+func (c GuildVoiceChannel) PermissionOverwrites() PermissionOverwrites {
 	return c.permissionOverwrites
 }
 
@@ -425,7 +456,7 @@ func (c GuildVoiceChannel) Position() int {
 	return c.position
 }
 
-func (c GuildVoiceChannel) ParentID() *snowflake.Snowflake {
+func (c GuildVoiceChannel) ParentID() *snowflake.ID {
 	return c.parentID
 }
 
@@ -439,10 +470,10 @@ var (
 )
 
 type GuildCategoryChannel struct {
-	id                   snowflake.Snowflake
-	guildID              snowflake.Snowflake
+	id                   snowflake.ID
+	guildID              snowflake.ID
 	position             int
-	permissionOverwrites []PermissionOverwrite
+	permissionOverwrites PermissionOverwrites
 	name                 string
 }
 
@@ -483,7 +514,7 @@ func (GuildCategoryChannel) Type() ChannelType {
 	return ChannelTypeGuildCategory
 }
 
-func (c GuildCategoryChannel) ID() snowflake.Snowflake {
+func (c GuildCategoryChannel) ID() snowflake.ID {
 	return c.id
 }
 
@@ -491,11 +522,11 @@ func (c GuildCategoryChannel) Name() string {
 	return c.name
 }
 
-func (c GuildCategoryChannel) GuildID() snowflake.Snowflake {
+func (c GuildCategoryChannel) GuildID() snowflake.ID {
 	return c.guildID
 }
 
-func (c GuildCategoryChannel) PermissionOverwrites() []PermissionOverwrite {
+func (c GuildCategoryChannel) PermissionOverwrites() PermissionOverwrites {
 	return c.permissionOverwrites
 }
 
@@ -503,7 +534,8 @@ func (c GuildCategoryChannel) Position() int {
 	return c.position
 }
 
-func (c GuildCategoryChannel) ParentID() *snowflake.Snowflake {
+// ParentID always returns nil for GuildCategoryChannel as they can't be nested.
+func (c GuildCategoryChannel) ParentID() *snowflake.ID {
 	return nil
 }
 
@@ -518,17 +550,17 @@ var (
 )
 
 type GuildNewsChannel struct {
-	id                         snowflake.Snowflake
-	guildID                    snowflake.Snowflake
+	id                         snowflake.ID
+	guildID                    snowflake.ID
 	position                   int
-	permissionOverwrites       []PermissionOverwrite
+	permissionOverwrites       PermissionOverwrites
 	name                       string
 	topic                      *string
 	nsfw                       bool
-	lastMessageID              *snowflake.Snowflake
+	lastMessageID              *snowflake.ID
 	rateLimitPerUser           int
-	parentID                   *snowflake.Snowflake
-	lastPinTimestamp           *Time
+	parentID                   *snowflake.ID
+	lastPinTimestamp           *time.Time
 	defaultAutoArchiveDuration AutoArchiveDuration
 }
 
@@ -583,7 +615,7 @@ func (GuildNewsChannel) Type() ChannelType {
 	return ChannelTypeGuildNews
 }
 
-func (c GuildNewsChannel) ID() snowflake.Snowflake {
+func (c GuildNewsChannel) ID() snowflake.ID {
 	return c.id
 }
 
@@ -591,11 +623,11 @@ func (c GuildNewsChannel) Name() string {
 	return c.name
 }
 
-func (c GuildNewsChannel) GuildID() snowflake.Snowflake {
+func (c GuildNewsChannel) GuildID() snowflake.ID {
 	return c.guildID
 }
 
-func (c GuildNewsChannel) PermissionOverwrites() []PermissionOverwrite {
+func (c GuildNewsChannel) PermissionOverwrites() PermissionOverwrites {
 	return c.permissionOverwrites
 }
 
@@ -611,11 +643,11 @@ func (c GuildNewsChannel) DefaultAutoArchiveDuration() AutoArchiveDuration {
 	return c.defaultAutoArchiveDuration
 }
 
-func (c GuildNewsChannel) LastMessageID() *snowflake.Snowflake {
+func (c GuildNewsChannel) LastMessageID() *snowflake.ID {
 	return c.lastMessageID
 }
 
-func (c GuildNewsChannel) LastPinTimestamp() *Time {
+func (c GuildNewsChannel) LastPinTimestamp() *time.Time {
 	return c.lastPinTimestamp
 }
 
@@ -623,7 +655,7 @@ func (c GuildNewsChannel) Position() int {
 	return c.position
 }
 
-func (c GuildNewsChannel) ParentID() *snowflake.Snowflake {
+func (c GuildNewsChannel) ParentID() *snowflake.ID {
 	return c.parentID
 }
 
@@ -640,16 +672,16 @@ var (
 )
 
 type GuildThread struct {
-	id               snowflake.Snowflake
+	id               snowflake.ID
 	channelType      ChannelType
-	guildID          snowflake.Snowflake
+	guildID          snowflake.ID
 	name             string
 	nsfw             bool
-	lastMessageID    *snowflake.Snowflake
-	lastPinTimestamp *Time
+	lastMessageID    *snowflake.ID
+	lastPinTimestamp *time.Time
 	RateLimitPerUser int
-	OwnerID          snowflake.Snowflake
-	parentID         snowflake.Snowflake
+	OwnerID          snowflake.ID
+	parentID         snowflake.ID
 	MessageCount     int
 	MemberCount      int
 	ThreadMetadata   ThreadMetadata
@@ -707,14 +739,16 @@ func (c GuildThread) Type() ChannelType {
 	return c.channelType
 }
 
-func (c GuildThread) ID() snowflake.Snowflake {
+func (c GuildThread) ID() snowflake.ID {
 	return c.id
 }
 
-func (c GuildThread) PermissionOverwrites() []PermissionOverwrite {
+// PermissionOverwrites always returns nil for GuildThread(s) as they do not have their own PermissionOverwrites.
+func (c GuildThread) PermissionOverwrites() PermissionOverwrites {
 	return nil
 }
 
+// Topic always returns nil for GuildThread(s) as they do not have their own topic.
 func (c GuildThread) Topic() *string {
 	return nil
 }
@@ -727,26 +761,29 @@ func (c GuildThread) Name() string {
 	return c.name
 }
 
-func (c GuildThread) GuildID() snowflake.Snowflake {
+func (c GuildThread) GuildID() snowflake.ID {
 	return c.guildID
 }
 
-func (c GuildThread) LastMessageID() *snowflake.Snowflake {
+func (c GuildThread) LastMessageID() *snowflake.ID {
 	return c.lastMessageID
 }
 
-func (c GuildThread) LastPinTimestamp() *Time {
+func (c GuildThread) LastPinTimestamp() *time.Time {
 	return c.lastPinTimestamp
 }
 
+// Position always returns 0 for GuildThread(s) as they do not have their own position.
 func (c GuildThread) Position() int {
 	return 0
 }
 
-func (c GuildThread) ParentID() *snowflake.Snowflake {
+// ParentID is never nil for GuildThread(s).
+func (c GuildThread) ParentID() *snowflake.ID {
 	return &c.parentID
 }
 
+// DefaultAutoArchiveDuration is always 0 for GuildThread(s) as they do not have their own AutoArchiveDuration.
 func (c GuildThread) DefaultAutoArchiveDuration() AutoArchiveDuration {
 	return 0
 }
@@ -763,13 +800,13 @@ var (
 )
 
 type GuildStageVoiceChannel struct {
-	id                   snowflake.Snowflake
-	guildID              snowflake.Snowflake
+	id                   snowflake.ID
+	guildID              snowflake.ID
 	position             int
-	permissionOverwrites []PermissionOverwrite
+	permissionOverwrites PermissionOverwrites
 	name                 string
 	bitrate              int
-	parentID             *snowflake.Snowflake
+	parentID             *snowflake.ID
 	rtcRegion            string
 }
 
@@ -816,7 +853,7 @@ func (GuildStageVoiceChannel) Type() ChannelType {
 	return ChannelTypeGuildStageVoice
 }
 
-func (c GuildStageVoiceChannel) ID() snowflake.Snowflake {
+func (c GuildStageVoiceChannel) ID() snowflake.ID {
 	return c.id
 }
 
@@ -824,11 +861,11 @@ func (c GuildStageVoiceChannel) Name() string {
 	return c.name
 }
 
-func (c GuildStageVoiceChannel) GuildID() snowflake.Snowflake {
+func (c GuildStageVoiceChannel) GuildID() snowflake.ID {
 	return c.guildID
 }
 
-func (c GuildStageVoiceChannel) PermissionOverwrites() []PermissionOverwrite {
+func (c GuildStageVoiceChannel) PermissionOverwrites() PermissionOverwrites {
 	return c.permissionOverwrites
 }
 
@@ -844,13 +881,22 @@ func (c GuildStageVoiceChannel) Position() int {
 	return c.position
 }
 
-func (c GuildStageVoiceChannel) ParentID() *snowflake.Snowflake {
+func (c GuildStageVoiceChannel) ParentID() *snowflake.ID {
 	return c.parentID
 }
 
 func (GuildStageVoiceChannel) channel()           {}
 func (GuildStageVoiceChannel) guildChannel()      {}
 func (GuildStageVoiceChannel) guildAudioChannel() {}
+
+type FollowedChannel struct {
+	ChannelID snowflake.ID `json:"channel_id"`
+	WebhookID snowflake.ID `json:"webhook_id"`
+}
+
+type FollowChannel struct {
+	ChannelID snowflake.ID `json:"webhook_channel_id"`
+}
 
 // VideoQualityMode https://com/developers/docs/resources/channel#channel-object-video-quality-modes
 type VideoQualityMode int
@@ -863,10 +909,10 @@ const (
 type ThreadMetadata struct {
 	Archived            bool                `json:"archived"`
 	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration"`
-	ArchiveTimestamp    Time                `json:"archive_timestamp"`
+	ArchiveTimestamp    time.Time           `json:"archive_timestamp"`
 	Locked              bool                `json:"locked"`
 	Invitable           bool                `json:"invitable"`
-	CreateTimestamp     Time                `json:"create_timestamp"`
+	CreateTimestamp     time.Time           `json:"create_timestamp"`
 }
 
 type AutoArchiveDuration int
@@ -882,12 +928,12 @@ func channelString(channel Channel) string {
 	return fmt.Sprintf("%d:%s(%s)", channel.Type(), channel.Name(), channel.ID())
 }
 
-func ApplyGuildIDToThread(guildThread GuildThread, guildID snowflake.Snowflake) GuildThread {
+func ApplyGuildIDToThread(guildThread GuildThread, guildID snowflake.ID) GuildThread {
 	guildThread.guildID = guildID
 	return guildThread
 }
 
-func ApplyGuildIDToChannel(channel GuildChannel, guildID snowflake.Snowflake) GuildChannel {
+func ApplyGuildIDToChannel(channel GuildChannel, guildID snowflake.ID) GuildChannel {
 	switch c := channel.(type) {
 	case GuildTextChannel:
 		c.guildID = guildID

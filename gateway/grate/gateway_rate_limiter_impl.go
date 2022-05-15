@@ -17,9 +17,8 @@ func NewLimiter(opts ...ConfigOpt) Limiter {
 	}
 }
 
-//goland:noinspection GoNameStartsWithPackageName
 type limiterImpl struct {
-	csync.Mutex
+	mu csync.Mutex
 
 	reset     time.Time
 	remaining int
@@ -31,17 +30,19 @@ func (l *limiterImpl) Logger() log.Logger {
 	return l.config.Logger
 }
 
-func (l *limiterImpl) Close(ctx context.Context) error {
-	if err := l.CLock(ctx); err != nil {
-		return err
-	}
-	l.Unlock()
-	return nil
+func (l *limiterImpl) Close(ctx context.Context) {
+	_ = l.mu.CLock(ctx)
+}
+
+func (l *limiterImpl) Reset() {
+	l.reset = time.Time{}
+	l.remaining = 0
+	l.mu = csync.Mutex{}
 }
 
 func (l *limiterImpl) Wait(ctx context.Context) error {
 	l.Logger().Trace("locking gateway rate limiter")
-	if err := l.CLock(ctx); err != nil {
+	if err := l.mu.CLock(ctx); err != nil {
 		return err
 	}
 
@@ -76,5 +77,5 @@ func (l *limiterImpl) Unlock() {
 		l.reset = now.Add(time.Minute)
 		l.remaining = l.config.CommandsPerMinute
 	}
-	l.Mutex.Unlock()
+	l.mu.Unlock()
 }

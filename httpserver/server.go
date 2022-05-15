@@ -5,23 +5,23 @@ import (
 	"context"
 	"encoding/hex"
 	"io"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/log"
 )
 
-type EventHandlerFunc func(responseChannel chan<- discord.InteractionResponse, payload io.Reader)
+type EventHandlerFunc func(responseFunc RespondFunc, payload io.Reader)
+type RespondFunc func(response discord.InteractionResponse) error
 
 // Server is used for receiving an Interaction over httpserver
 type Server interface {
 	Logger() log.Logger
 	PublicKey() PublicKey
-	EventHandlerFunc() EventHandlerFunc
 
 	Start()
 	Close(ctx context.Context)
+	Handle(respondFunc RespondFunc, payload io.Reader)
 }
 
 // VerifyRequest implements the verification side of the discord interactions api signing algorithm, as documented here: https://discord.com/developers/docs/interactions/slash-commands#security-and-authorization
@@ -59,7 +59,7 @@ func VerifyRequest(logger log.Logger, r *http.Request, key PublicKey) bool {
 	var body bytes.Buffer
 
 	defer func() {
-		r.Body = ioutil.NopCloser(&body)
+		r.Body = io.NopCloser(&body)
 	}()
 
 	_, err = io.Copy(&msg, io.TeeReader(r.Body, &body))

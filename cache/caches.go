@@ -1,16 +1,23 @@
 package cache
 
 import (
+	"sync"
+
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 type Caches interface {
 	CacheFlags() Flags
 
-	GetMemberPermissions(member discord.Member) discord.Permissions
+	GetMemberPermissions(guildID snowflake.ID, member discord.Member) discord.Permissions
 	GetMemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member) discord.Permissions
 	MemberRoles(member discord.Member) []discord.Role
+	AudioChannelMembers(channel discord.GuildAudioChannel) []discord.Member
+
+	GetSelfUser() (discord.OAuth2User, bool)
+	PutSelfUser(user discord.OAuth2User)
+	GetSelfMember(guildID snowflake.ID) (discord.Member, bool)
 
 	Roles() GroupedCache[discord.Role]
 	Members() GroupedCache[discord.Member]
@@ -51,6 +58,9 @@ func NewCaches(opts ...ConfigOpt) Caches {
 type cachesImpl struct {
 	config Config
 
+	selfUser   *discord.OAuth2User
+	selfUserMu sync.Mutex
+
 	guildCache               GuildCache
 	channelCache             ChannelCache
 	stageInstanceCache       GroupedCache[discord.StageInstance]
@@ -69,13 +79,13 @@ func (c *cachesImpl) CacheFlags() Flags {
 	return c.config.CacheFlags
 }
 
-func (c *cachesImpl) GetMemberPermissions(member discord.Member) discord.Permissions {
-	if guild, ok := c.Guilds().Get(member.GuildID); ok && guild.OwnerID == member.User.ID {
+func (c *cachesImpl) GetMemberPermissions(guildID snowflake.ID, member discord.Member) discord.Permissions {
+	if guild, ok := c.Guilds().Get(guildID); ok && guild.OwnerID == member.User.ID {
 		return discord.PermissionsAll
 	}
 
 	var permissions discord.Permissions
-	if publicRole, ok := c.Roles().Get(member.GuildID, member.GuildID); ok {
+	if publicRole, ok := c.Roles().Get(guildID, guildID); ok {
 		permissions = publicRole.Permissions
 	}
 
@@ -92,17 +102,7 @@ func (c *cachesImpl) GetMemberPermissions(member discord.Member) discord.Permiss
 }
 
 func (c *cachesImpl) GetMemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member) discord.Permissions {
-	return 0
-	/*channel, ok := c.Channels().GetGuildChannel(channelID)
-	if !ok {
-		return discord.PermissionsNone
-	}
-
-	if guild, ok := c.Guilds().Option(channel.GuildID()); ok && guild.OwnerID == member.User.CommandID {
-		return discord.PermissionsAll
-	}
-
-	permissions := c.GetMemberPermissions(member)
+	permissions := c.GetMemberPermissions(channel.GuildID(), member)
 	if permissions.Has(discord.PermissionAdministrator) {
 		return discord.PermissionsAll
 	}
@@ -111,7 +111,7 @@ func (c *cachesImpl) GetMemberPermissionsInChannel(channel discord.GuildChannel,
 		allowRaw discord.Permissions
 		denyRaw  discord.Permissions
 	)
-	if overwrite := channel.RolePermissionOverwrite(channel.GuildID()); overwrite != nil {
+	if overwrite, ok := channel.PermissionOverwrites().Role(channel.GuildID()); ok {
 		allowRaw = overwrite.Allow
 		denyRaw = overwrite.Deny
 	}
@@ -125,18 +125,16 @@ func (c *cachesImpl) GetMemberPermissionsInChannel(channel discord.GuildChannel,
 			continue
 		}
 
-		overwrite := channel.RolePermissionOverwrite(roleID)
-		if overwrite == nil {
-			break
+		if overwrite, ok := channel.PermissionOverwrites().Role(roleID); ok {
+			allowRole = allowRole.Add(overwrite.Allow)
+			denyRole = denyRole.Add(overwrite.Deny)
 		}
-		allowRole = allowRole.Add(overwrite.Allow)
-		denyRole = denyRole.Add(overwrite.Deny)
 	}
 
 	allowRaw = (allowRaw & (denyRole - 1)) | allowRole
 	denyRaw = (denyRaw & (allowRole - 1)) | denyRole
 
-	if overwrite := channel.MemberPermissionOverwrite(member.User.CommandID); overwrite != nil {
+	if overwrite, ok := channel.PermissionOverwrites().Member(member.User.ID); ok {
 		allowRaw = (allowRaw & (overwrite.Deny - 1)) | overwrite.Allow
 		denyRaw = (denyRaw & (overwrite.Allow - 1)) | overwrite.Deny
 	}
@@ -147,14 +145,11 @@ func (c *cachesImpl) GetMemberPermissionsInChannel(channel discord.GuildChannel,
 	if member.CommunicationDisabledUntil != nil {
 		permissions &= discord.PermissionViewChannel | discord.PermissionReadMessageHistory
 	}
-	return permissions*/
+	return permissions
 }
 
 func (c *cachesImpl) MemberRoles(member discord.Member) []discord.Role {
-	return c.Roles().FindAll(func(groupID snowflake.Snowflake, role discord.Role) bool {
-		if groupID != member.GuildID {
-			return false
-		}
+	return c.Roles().FindAll(func(groupID snowflake.ID, role discord.Role) bool {
 		for _, roleID := range member.RoleIDs {
 			if roleID == role.ID {
 				return true
@@ -162,6 +157,41 @@ func (c *cachesImpl) MemberRoles(member discord.Member) []discord.Role {
 		}
 		return false
 	})
+}
+
+func (c *cachesImpl) AudioChannelMembers(channel discord.GuildAudioChannel) []discord.Member {
+	var members []discord.Member
+	c.VoiceStates().ForEachGroup(channel.GuildID(), func(state discord.VoiceState) {
+		if member, ok := c.Members().Get(channel.GuildID(), state.UserID); ok {
+			members = append(members, member)
+		}
+	})
+	return members
+}
+
+func (c *cachesImpl) GetSelfUser() (discord.OAuth2User, bool) {
+	c.selfUserMu.Lock()
+	defer c.selfUserMu.Unlock()
+
+	if c.selfUser == nil {
+		return discord.OAuth2User{}, false
+	}
+	return *c.selfUser, true
+}
+
+func (c *cachesImpl) PutSelfUser(user discord.OAuth2User) {
+	c.selfUserMu.Lock()
+	defer c.selfUserMu.Unlock()
+
+	c.selfUser = &user
+}
+
+func (c *cachesImpl) GetSelfMember(guildID snowflake.ID) (discord.Member, bool) {
+	selfUser, ok := c.GetSelfUser()
+	if !ok {
+		return discord.Member{}, false
+	}
+	return c.Members().Get(guildID, selfUser.ID)
 }
 
 func (c *cachesImpl) Roles() GroupedCache[discord.Role] {

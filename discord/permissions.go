@@ -118,7 +118,7 @@ func (p Permissions) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON unmarshalls permissions into an int64
 func (p *Permissions) UnmarshalJSON(data []byte) error {
-	if bytes.Equal(emptyJSONString, data) {
+	if bytes.Equal(data, json.EmptyStringBytes) || bytes.Equal(data, json.NullBytes) {
 		return nil
 	}
 

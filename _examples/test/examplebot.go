@@ -13,12 +13,12 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
 	token   = os.Getenv("disgo_token")
-	guildID = snowflake.GetSnowflakeEnv("disgo_guild_id")
+	guildID = snowflake.GetEnv("disgo_guild_id")
 
 	//go:embed gopher.png
 	gopher []byte
@@ -28,7 +28,7 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetLevel(log.LevelDebug)
 	log.Info("starting example...")
-	log.Infof("bot version: %s", disgo.Version)
+	log.Info("bot version: ", disgo.Version)
 
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(
@@ -57,6 +57,6 @@ func main() {
 
 	log.Info("ExampleBot is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
-	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
 }

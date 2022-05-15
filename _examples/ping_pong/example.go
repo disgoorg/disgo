@@ -44,7 +44,7 @@ func main() {
 
 	log.Info("example is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
-	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
 }
 
@@ -59,6 +59,6 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 		message = "ping"
 	}
 	if message != "" {
-		_, _ = event.Client().Rest().Channels().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent(message).Build())
+		_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent(message).Build())
 	}
 }

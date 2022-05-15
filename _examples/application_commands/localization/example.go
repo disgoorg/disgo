@@ -13,12 +13,12 @@ import (
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
 	token   = os.Getenv("disgo_token")
-	guildID = snowflake.GetSnowflakeEnv("disgo_guild_id")
+	guildID = snowflake.GetEnv("disgo_guild_id")
 
 	commands = []discord.ApplicationCommandCreate{
 		discord.SlashCommandCreate{
@@ -32,7 +32,6 @@ var (
 				discord.LocaleEnglishGB: "says what you say",
 				discord.LocaleGerman:    "sagt was du sagst",
 			},
-			DefaultPermission: true,
 			Options: []discord.ApplicationCommandOption{
 				discord.ApplicationCommandOptionString{
 					Name: "message",
@@ -84,7 +83,7 @@ func main() {
 
 	defer client.Close(context.TODO())
 
-	if _, err = client.Rest().Applications().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
+	if _, err = client.Rest().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
 		log.Fatal("error while registering commands: ", err)
 	}
 
@@ -94,7 +93,7 @@ func main() {
 
 	log.Infof("example is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
-	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
 }
 

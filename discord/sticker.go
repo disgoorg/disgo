@@ -2,22 +2,22 @@ package discord
 
 import (
 	"github.com/disgoorg/disgo/rest/route"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // Sticker is a sticker sent with a Message
 type Sticker struct {
-	ID          snowflake.Snowflake  `json:"id"`
-	PackID      *snowflake.Snowflake `json:"pack_id"`
-	Name        string               `json:"name"`
-	Description string               `json:"description"`
-	Tags        string               `json:"tags"`
-	Type        StickerType          `json:"type"`
-	FormatType  StickerFormatType    `json:"format_type"`
-	Available   *bool                `json:"available"`
-	GuildID     *snowflake.Snowflake `json:"guild_id,omitempty"`
-	User        *User                `json:"user,omitempty"`
-	SortValue   *int                 `json:"sort_value"`
+	ID          snowflake.ID      `json:"id"`
+	PackID      *snowflake.ID     `json:"pack_id"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	Tags        string            `json:"tags"`
+	Type        StickerType       `json:"type"`
+	FormatType  StickerFormatType `json:"format_type"`
+	Available   *bool             `json:"available"`
+	GuildID     *snowflake.ID     `json:"guild_id,omitempty"`
+	User        *User             `json:"user,omitempty"`
+	SortValue   *int              `json:"sort_value"`
 }
 
 func (s Sticker) URL(opts ...CDNOpt) string {
@@ -56,7 +56,7 @@ type StickerCreate struct {
 }
 
 // ToBody returns the MessageCreate ready for body
-func (c *StickerCreate) ToBody() (any, error) {
+func (c StickerCreate) ToBody() (any, error) {
 	if c.File != nil {
 		return PayloadWithFiles(c, c.File)
 	}
@@ -70,13 +70,13 @@ type StickerUpdate struct {
 }
 
 type StickerPack struct {
-	ID             snowflake.Snowflake `json:"id"`
-	Stickers       []Sticker           `json:"stickers"`
-	Name           string              `json:"name"`
-	SkuID          snowflake.Snowflake `json:"sku_id"`
-	CoverStickerID snowflake.Snowflake `json:"cover_sticker_id"`
-	Description    string              `json:"description"`
-	BannerAssetID  snowflake.Snowflake `json:"banner_asset_id"`
+	ID             snowflake.ID `json:"id"`
+	Stickers       []Sticker    `json:"stickers"`
+	Name           string       `json:"name"`
+	SkuID          snowflake.ID `json:"sku_id"`
+	CoverStickerID snowflake.ID `json:"cover_sticker_id"`
+	Description    string       `json:"description"`
+	BannerAssetID  snowflake.ID `json:"banner_asset_id"`
 }
 
 func (p StickerPack) BannerURL(opts ...CDNOpt) *string {

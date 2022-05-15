@@ -4,13 +4,13 @@ import (
 	"time"
 
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // GenericUserEvent is called upon receiving UserUpdateEvent or UserTypingStartEvent
 type GenericUserEvent struct {
 	*GenericEvent
-	UserID snowflake.Snowflake
+	UserID snowflake.ID
 	User   discord.User
 }
 
@@ -23,9 +23,9 @@ type UserUpdateEvent struct {
 // UserTypingStartEvent indicates that a discord.User started typing in a discord.DMChannel or discord.MessageChanel(requires the discord.GatewayIntentDirectMessageTyping and/or discord.GatewayIntentGuildMessageTyping)
 type UserTypingStartEvent struct {
 	*GenericEvent
-	ChannelID snowflake.Snowflake
-	GuildID   *snowflake.Snowflake
-	UserID    snowflake.Snowflake
+	ChannelID snowflake.ID
+	GuildID   *snowflake.ID
+	UserID    snowflake.ID
 	Timestamp time.Time
 }
 

@@ -55,19 +55,17 @@ func main() {
 				if event.Message.Content != "test" {
 					return
 				}
-				gse, _ := event.Client().Rest().GuildScheduledEvents().CreateGuildScheduledEvent(*event.GuildID, discord.GuildScheduledEventCreate{
-					ChannelID:    "885677988916641802",
-					Name:         "test",
-					PrivacyLevel: discord.ScheduledEventPrivacyLevelGuildOnly,
-					ScheduledStartTime: discord.Time{
-						Time: time.Now().Add(time.Hour),
-					},
-					Description: "",
-					EntityType:  discord.ScheduledEventEntityTypeVoice,
+				gse, _ := event.Client().Rest().CreateGuildScheduledEvent(*event.GuildID, discord.GuildScheduledEventCreate{
+					ChannelID:          885677988916641802,
+					Name:               "test",
+					PrivacyLevel:       discord.ScheduledEventPrivacyLevelGuildOnly,
+					ScheduledStartTime: time.Now().Add(time.Hour),
+					Description:        "",
+					EntityType:         discord.ScheduledEventEntityTypeVoice,
 				})
 
 				status := discord.ScheduledEventStatusActive
-				gse, _ = event.Client().Rest().GuildScheduledEvents().UpdateGuildScheduledEvent(gse.GuildID, gse.ID, discord.GuildScheduledEventUpdate{
+				gse, _ = event.Client().Rest().UpdateGuildScheduledEvent(gse.GuildID, gse.ID, discord.GuildScheduledEventUpdate{
 					Status: &status,
 				})
 				//_ = gse.AudioChannel().Connect()
@@ -75,7 +73,7 @@ func main() {
 				time.Sleep(time.Second * 10)
 
 				status = discord.ScheduledEventStatusCompleted
-				gse, _ = event.Client().Rest().GuildScheduledEvents().UpdateGuildScheduledEvent(gse.GuildID, gse.ID, discord.GuildScheduledEventUpdate{
+				gse, _ = event.Client().Rest().UpdateGuildScheduledEvent(gse.GuildID, gse.ID, discord.GuildScheduledEventUpdate{
 					Status: &status,
 				})
 				//_ = gse.Guilds().Disconnect()
@@ -93,6 +91,6 @@ func main() {
 
 	log.Info("Example is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
-	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
 }
