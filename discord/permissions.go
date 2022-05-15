@@ -1,6 +1,7 @@
 package discord
 
 import (
+	"bytes"
 	"strconv"
 
 	"github.com/disgoorg/disgo/json"
@@ -117,7 +118,7 @@ func (p Permissions) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON unmarshalls permissions into an int64
 func (p *Permissions) UnmarshalJSON(data []byte) error {
-	if string(data) == `""` {
+	if bytes.Equal(data, json.EmptyBytes) || bytes.Equal(data, json.NullBytes) {
 		return nil
 	}
 
