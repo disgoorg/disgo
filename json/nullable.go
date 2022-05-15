@@ -6,8 +6,8 @@ import (
 )
 
 var (
-	EmptyBytes = []byte("")
-	NullBytes  = []byte("null")
+	EmptyStringBytes = []byte(`""`)
+	NullBytes        = []byte("null")
 )
 
 func NewPtr[T any](t T) *T {
