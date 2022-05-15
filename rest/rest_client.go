@@ -22,6 +22,8 @@ func NewClient(botToken string, opts ...ConfigOpt) Client {
 	config := DefaultConfig()
 	config.Apply(opts)
 
+	config.RateLimiter.Reset()
+
 	return &clientImpl{botToken: botToken, config: *config}
 }
 

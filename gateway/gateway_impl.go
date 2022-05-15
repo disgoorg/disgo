@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"net/http"
+	"sync"
 	"time"
 
 	"github.com/disgoorg/disgo/discord"
@@ -39,6 +39,7 @@ type gatewayImpl struct {
 	token            string
 
 	conn            *websocket.Conn
+	connMu          sync.Mutex
 	heartbeatTicker *time.Ticker
 	status          Status
 
@@ -87,15 +88,16 @@ func (g *gatewayImpl) formatLogs(a ...any) string {
 
 func (g *gatewayImpl) Open(ctx context.Context) error {
 	g.Logger().Debug(g.formatLogs("opening gateway connection"))
+
+	g.connMu.Lock()
+	defer g.connMu.Unlock()
 	if g.conn != nil {
 		return discord.ErrGatewayAlreadyConnected
 	}
 	g.status = StatusConnecting
 
 	gatewayURL := fmt.Sprintf("%s?v=%d&encoding=json", g.config.GatewayURL, Version)
-	var rs *http.Response
-	var err error
-	g.conn, rs, err = g.config.Dialer.DialContext(ctx, gatewayURL, nil)
+	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
 		g.Close(ctx)
 		body := "null"
@@ -112,9 +114,18 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 		return err
 	}
 
+	conn.SetCloseHandler(func(code int, text string) error {
+		return nil
+	})
+
+	g.conn = conn
+
+	// reset rate limiter when connecting
+	g.config.RateLimiter.Reset()
+
 	g.status = StatusWaitingForHello
 
-	go g.listen()
+	go g.listen(conn)
 
 	return nil
 }
@@ -124,26 +135,29 @@ func (g *gatewayImpl) Close(ctx context.Context) {
 }
 
 func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message string) {
-	g.Logger().Debug(g.formatLogsf("closing gateway connection with code: %d, message: %s", code, message))
-	_ = g.config.RateLimiter.Close(ctx)
-
 	if g.heartbeatTicker != nil {
 		g.Logger().Debug(g.formatLogs("closing heartbeat goroutines..."))
 		g.heartbeatTicker.Stop()
 		g.heartbeatTicker = nil
 	}
 
+	g.connMu.Lock()
+	defer g.connMu.Unlock()
 	if g.conn != nil {
-		if err := g.send(ctx, websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && err != websocket.ErrCloseSent {
+		g.config.RateLimiter.Close(ctx)
+		g.Logger().Debug(g.formatLogsf("closing gateway connection with code: %d, message: %s", code, message))
+		if err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && err != websocket.ErrCloseSent {
 			g.Logger().Debug(g.formatLogs("error writing close code. error: ", err))
 		}
-
 		_ = g.conn.Close()
 		g.conn = nil
 	}
+
 }
 
 func (g *gatewayImpl) Status() Status {
+	g.connMu.Lock()
+	defer g.connMu.Unlock()
 	return g.status
 }
 
@@ -159,6 +173,8 @@ func (g *gatewayImpl) Send(ctx context.Context, op discord.GatewayOpcode, d disc
 }
 
 func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) error {
+	g.connMu.Lock()
+	defer g.connMu.Unlock()
 	if g.conn == nil {
 		return discord.ErrShardNotConnected
 	}
@@ -278,14 +294,21 @@ func (g *gatewayImpl) resume() {
 	}
 }
 
-func (g *gatewayImpl) listen() {
+func (g *gatewayImpl) listen(conn *websocket.Conn) {
 	defer g.Logger().Debug(g.formatLogs("exiting listen goroutine..."))
 	for {
-		if g.conn == nil {
-			return
-		}
-		mt, reader, err := g.conn.NextReader()
+		mt, reader, err := conn.NextReader()
 		if err != nil {
+
+			g.connMu.Lock()
+			sameConnection := g.conn == conn
+			g.connMu.Unlock()
+
+			// if sameConnection is false, it means the connection has been closed by the user, and we can just exit
+			if !sameConnection {
+				return
+			}
+
 			reconnect := true
 			if closeError, ok := err.(*websocket.CloseError); ok {
 				closeCode := discord.GatewayCloseEventCode(closeError.Code)

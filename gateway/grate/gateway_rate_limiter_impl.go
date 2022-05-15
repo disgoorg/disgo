@@ -30,12 +30,14 @@ func (l *limiterImpl) Logger() log.Logger {
 	return l.config.Logger
 }
 
-func (l *limiterImpl) Close(ctx context.Context) error {
-	if err := l.mu.CLock(ctx); err != nil {
-		return err
-	}
-	l.Unlock()
-	return nil
+func (l *limiterImpl) Close(ctx context.Context) {
+	_ = l.mu.CLock(ctx)
+}
+
+func (l *limiterImpl) Reset() {
+	l.reset = time.Time{}
+	l.remaining = 0
+	l.mu = csync.Mutex{}
 }
 
 func (l *limiterImpl) Wait(ctx context.Context) error {

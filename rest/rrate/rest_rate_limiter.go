@@ -19,6 +19,9 @@ type Limiter interface {
 	// Close closes the rate limiter and awaits all pending requests to finish. You can use a cancelling context to abort the waiting
 	Close(ctx context.Context)
 
+	// Reset resets the rate limiter to its initial state
+	Reset()
+
 	// WaitBucket waits for the given bucket to be available for new requests & locks it
 	WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error
 
