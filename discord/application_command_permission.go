@@ -150,6 +150,10 @@ func (ApplicationCommandPermissionUser) Type() ApplicationCommandPermissionType 
 func (p ApplicationCommandPermissionUser) ID() snowflake.ID            { return p.UserID }
 func (ApplicationCommandPermissionUser) applicationCommandPermission() {}
 
+func AllGuildChannels(guildID snowflake.ID) snowflake.ID {
+	return snowflake.ID(uint64(guildID) - 1)
+}
+
 type ApplicationCommandPermissionChannel struct {
 	ChannelID  snowflake.ID `json:"id"`
 	Permission bool         `json:"permission"`

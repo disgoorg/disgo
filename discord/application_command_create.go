@@ -14,8 +14,9 @@ type SlashCommandCreate struct {
 	CommandNameLocalizations map[Locale]string          `json:"name_localizations,omitempty"`
 	Description              string                     `json:"description"`
 	DescriptionLocalizations map[Locale]string          `json:"description_localizations,omitempty"`
-	Options                  []ApplicationCommandOption `json:"options"`
-	DefaultPermission        bool                       `json:"default_permission"`
+	Options                  []ApplicationCommandOption `json:"options,omitempty"`
+	DefaultMemberPermissions Permissions                `json:"default_member_permissions,omitempty"`
+	DMPermission             bool                       `json:"dm_permission"`
 }
 
 func (c SlashCommandCreate) MarshalJSON() ([]byte, error) {
@@ -42,7 +43,8 @@ func (SlashCommandCreate) applicationCommandCreate() {}
 type UserCommandCreate struct {
 	CommandName              string            `json:"name"`
 	CommandNameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
-	DefaultPermission        bool              `json:"default_permission"`
+	DefaultMemberPermissions Permissions       `json:"default_member_permissions"`
+	DMPermission             bool              `json:"dm_permission"`
 }
 
 func (c UserCommandCreate) MarshalJSON() ([]byte, error) {
@@ -69,7 +71,8 @@ func (UserCommandCreate) applicationCommandCreate() {}
 type MessageCommandCreate struct {
 	CommandName              string            `json:"name"`
 	CommandNameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
-	DefaultPermission        bool              `json:"default_permission"`
+	DefaultMemberPermissions Permissions       `json:"default_member_permissions"`
+	DMPermission             bool              `json:"dm_permission"`
 }
 
 func (c MessageCommandCreate) MarshalJSON() ([]byte, error) {

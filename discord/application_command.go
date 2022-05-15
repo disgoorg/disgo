@@ -24,7 +24,8 @@ type ApplicationCommand interface {
 	Name() string
 	NameLocalizations() map[Locale]string
 	NameLocalized() string
-	DefaultPermission() bool
+	DefaultMemberPermissions() Permissions
+	DMPermission() bool
 	Version() snowflake.ID
 	applicationCommand()
 }
@@ -88,7 +89,8 @@ type SlashCommand struct {
 	DescriptionLocalizations map[Locale]string
 	DescriptionLocalized     string
 	Options                  []ApplicationCommandOption
-	defaultPermission        bool
+	defaultMemberPermissions Permissions
+	dmPermission             bool
 	version                  snowflake.ID
 }
 
@@ -108,7 +110,8 @@ func (c *SlashCommand) UnmarshalJSON(data []byte) error {
 	c.DescriptionLocalizations = v.DescriptionLocalizations
 	c.DescriptionLocalized = v.DescriptionLocalized
 	c.Options = v.Options
-	c.defaultPermission = v.DefaultPermission
+	c.defaultMemberPermissions = v.DefaultMemberPermissions
+	c.dmPermission = v.DMPermission
 	c.version = v.Version
 	return nil
 }
@@ -126,7 +129,8 @@ func (c SlashCommand) MarshalJSON() ([]byte, error) {
 		DescriptionLocalizations: c.DescriptionLocalizations,
 		DescriptionLocalized:     c.DescriptionLocalized,
 		Options:                  c.Options,
-		DefaultPermission:        c.defaultPermission,
+		DefaultMemberPermissions: c.defaultMemberPermissions,
+		DMPermission:             c.dmPermission,
 		Version:                  c.version,
 	})
 }
@@ -159,8 +163,11 @@ func (c SlashCommand) NameLocalized() string {
 	return c.nameLocalized
 }
 
-func (c SlashCommand) DefaultPermission() bool {
-	return c.defaultPermission
+func (c SlashCommand) DefaultMemberPermissions() Permissions {
+	return c.defaultMemberPermissions
+}
+func (c SlashCommand) DMPermission() bool {
+	return c.dmPermission
 }
 
 func (c SlashCommand) Version() snowflake.ID {
@@ -172,14 +179,15 @@ func (SlashCommand) applicationCommand() {}
 var _ ApplicationCommand = (*UserCommand)(nil)
 
 type UserCommand struct {
-	id                snowflake.ID
-	applicationID     snowflake.ID
-	guildID           *snowflake.ID
-	name              string
-	nameLocalizations map[Locale]string
-	nameLocalized     string
-	defaultPermission bool
-	version           snowflake.ID
+	id                       snowflake.ID
+	applicationID            snowflake.ID
+	guildID                  *snowflake.ID
+	name                     string
+	nameLocalizations        map[Locale]string
+	nameLocalized            string
+	defaultMemberPermissions Permissions
+	dmPermission             bool
+	version                  snowflake.ID
 }
 
 func (c *UserCommand) UnmarshalJSON(data []byte) error {
@@ -194,22 +202,24 @@ func (c *UserCommand) UnmarshalJSON(data []byte) error {
 	c.name = v.Name
 	c.nameLocalizations = v.NameLocalizations
 	c.nameLocalized = v.NameLocalized
-	c.defaultPermission = v.DefaultPermission
+	c.defaultMemberPermissions = v.DefaultMemberPermissions
+	c.dmPermission = v.DMPermission
 	c.version = v.Version
 	return nil
 }
 
 func (c UserCommand) MarshalJSON() ([]byte, error) {
 	return json.Marshal(rawContextCommand{
-		ID:                c.id,
-		Type:              c.Type(),
-		ApplicationID:     c.applicationID,
-		GuildID:           c.guildID,
-		Name:              c.name,
-		NameLocalizations: c.nameLocalizations,
-		NameLocalized:     c.nameLocalized,
-		DefaultPermission: c.defaultPermission,
-		Version:           c.version,
+		ID:                       c.id,
+		Type:                     c.Type(),
+		ApplicationID:            c.applicationID,
+		GuildID:                  c.guildID,
+		Name:                     c.name,
+		NameLocalizations:        c.nameLocalizations,
+		NameLocalized:            c.nameLocalized,
+		DefaultMemberPermissions: c.defaultMemberPermissions,
+		DMPermission:             c.dmPermission,
+		Version:                  c.version,
 	})
 }
 
@@ -241,8 +251,11 @@ func (c UserCommand) NameLocalized() string {
 	return c.nameLocalized
 }
 
-func (c UserCommand) DefaultPermission() bool {
-	return c.defaultPermission
+func (c UserCommand) DefaultMemberPermissions() Permissions {
+	return c.defaultMemberPermissions
+}
+func (c UserCommand) DMPermission() bool {
+	return c.dmPermission
 }
 
 func (c UserCommand) Version() snowflake.ID {
@@ -254,14 +267,15 @@ func (UserCommand) applicationCommand() {}
 var _ ApplicationCommand = (*MessageCommand)(nil)
 
 type MessageCommand struct {
-	id                snowflake.ID
-	applicationID     snowflake.ID
-	guildID           *snowflake.ID
-	name              string
-	nameLocalizations map[Locale]string
-	nameLocalized     string
-	defaultPermission bool
-	version           snowflake.ID
+	id                       snowflake.ID
+	applicationID            snowflake.ID
+	guildID                  *snowflake.ID
+	name                     string
+	nameLocalizations        map[Locale]string
+	nameLocalized            string
+	defaultMemberPermissions Permissions
+	dmPermission             bool
+	version                  snowflake.ID
 }
 
 func (c *MessageCommand) UnmarshalJSON(data []byte) error {
@@ -276,22 +290,24 @@ func (c *MessageCommand) UnmarshalJSON(data []byte) error {
 	c.name = v.Name
 	c.nameLocalizations = v.NameLocalizations
 	c.nameLocalized = v.NameLocalized
-	c.defaultPermission = v.DefaultPermission
+	c.defaultMemberPermissions = v.DefaultMemberPermissions
+	c.dmPermission = v.DMPermission
 	c.version = v.Version
 	return nil
 }
 
 func (c MessageCommand) MarshalJSON() ([]byte, error) {
 	return json.Marshal(rawContextCommand{
-		ID:                c.id,
-		Type:              c.Type(),
-		ApplicationID:     c.applicationID,
-		GuildID:           c.guildID,
-		Name:              c.name,
-		NameLocalizations: c.nameLocalizations,
-		NameLocalized:     c.nameLocalized,
-		DefaultPermission: c.defaultPermission,
-		Version:           c.version,
+		ID:                       c.id,
+		Type:                     c.Type(),
+		ApplicationID:            c.applicationID,
+		GuildID:                  c.guildID,
+		Name:                     c.name,
+		NameLocalizations:        c.nameLocalizations,
+		NameLocalized:            c.nameLocalized,
+		DefaultMemberPermissions: c.defaultMemberPermissions,
+		DMPermission:             c.dmPermission,
+		Version:                  c.version,
 	})
 }
 
@@ -323,8 +339,11 @@ func (c MessageCommand) NameLocalized() string {
 	return c.nameLocalized
 }
 
-func (c MessageCommand) DefaultPermission() bool {
-	return c.defaultPermission
+func (c MessageCommand) DefaultMemberPermissions() Permissions {
+	return c.defaultMemberPermissions
+}
+func (c MessageCommand) DMPermission() bool {
+	return c.dmPermission
 }
 
 func (c MessageCommand) Version() snowflake.ID {
