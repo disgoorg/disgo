@@ -3,7 +3,6 @@ package sharding
 import (
 	"context"
 	"sync"
-	"time"
 
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/sharding/srate"
@@ -70,26 +69,6 @@ func (m *shardManagerImpl) Open(ctx context.Context) {
 	wg.Wait()
 }
 
-func (m *shardManagerImpl) ReOpen(ctx context.Context) {
-	m.Logger().Debugf("reopening %s shards...", m.config.Shards)
-	var wg sync.WaitGroup
-
-	for shardID := range m.shards.AllIDs() {
-		wg.Add(1)
-		shard := m.shards.Get(shardID)
-		go func() {
-			defer wg.Done()
-			if shard != nil {
-				shard.Close(ctx)
-			}
-			if err := shard.ReOpen(ctx, time.Second); err != nil {
-				m.Logger().Errorf("failed to reopen shard %d: %s", shard.ShardID(), err)
-			}
-		}()
-	}
-	wg.Wait()
-}
-
 func (m *shardManagerImpl) Close(ctx context.Context) {
 	m.Logger().Debugf("closing %v shards...", m.config.Shards)
 	var wg sync.WaitGroup
@@ -111,15 +90,6 @@ func (m *shardManagerImpl) OpenShard(ctx context.Context, shardID int) error {
 	shard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(m.config.ShardCount))...)
 	m.config.Shards.Add(shardID)
 	m.shards.Set(shardID, shard)
-	return shard.Open(ctx)
-}
-
-func (m *shardManagerImpl) ReOpenShard(ctx context.Context, shardID int) error {
-	m.Logger().Debugf("reopening shard %d...", shardID)
-	shard := m.shards.Get(shardID)
-	if shard != nil {
-		shard.Close(ctx)
-	}
 	return shard.Open(ctx)
 }
 

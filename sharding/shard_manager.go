@@ -14,11 +14,9 @@ type ShardManager interface {
 	RateLimiter() srate.Limiter
 
 	Open(ctx context.Context)
-	ReOpen(ctx context.Context)
 	Close(ctx context.Context)
 
 	OpenShard(ctx context.Context, shardID int) error
-	ReOpenShard(ctx context.Context, shardID int) error
 	CloseShard(ctx context.Context, shardID int)
 
 	GetGuildShard(guildId snowflake.ID) gateway.Gateway
