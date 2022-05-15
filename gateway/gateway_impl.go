@@ -248,7 +248,7 @@ func (g *gatewayImpl) sendHeartbeat() {
 	g.lastHeartbeatSent = time.Now().UTC()
 }
 
-func (g *gatewayImpl) connect() {
+func (g *gatewayImpl) identify() {
 	g.status = StatusIdentifying
 	g.Logger().Debug(g.formatLogs("sending Identify command..."))
 
@@ -352,7 +352,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn) {
 			g.heartbeatInterval = time.Duration(event.D.(discord.GatewayMessageDataHello).HeartbeatInterval) * time.Millisecond
 
 			if g.config.LastSequenceReceived == nil || g.config.SessionID == nil {
-				g.connect()
+				g.identify()
 			} else {
 				g.resume()
 			}
