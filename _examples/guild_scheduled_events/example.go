@@ -56,14 +56,12 @@ func main() {
 					return
 				}
 				gse, _ := event.Client().Rest().CreateGuildScheduledEvent(*event.GuildID, discord.GuildScheduledEventCreate{
-					ChannelID:    885677988916641802,
-					Name:         "test",
-					PrivacyLevel: discord.ScheduledEventPrivacyLevelGuildOnly,
-					ScheduledStartTime: discord.Time{
-						Time: time.Now().Add(time.Hour),
-					},
-					Description: "",
-					EntityType:  discord.ScheduledEventEntityTypeVoice,
+					ChannelID:          885677988916641802,
+					Name:               "test",
+					PrivacyLevel:       discord.ScheduledEventPrivacyLevelGuildOnly,
+					ScheduledStartTime: time.Now().Add(time.Hour),
+					Description:        "",
+					EntityType:         discord.ScheduledEventEntityTypeVoice,
 				})
 
 				status := discord.ScheduledEventStatusActive

@@ -32,7 +32,6 @@ var (
 				discord.LocaleEnglishGB: "says what you say",
 				discord.LocaleGerman:    "sagt was du sagst",
 			},
-			DefaultPermission: true,
 			Options: []discord.ApplicationCommandOption{
 				discord.ApplicationCommandOptionString{
 					Name: "message",
