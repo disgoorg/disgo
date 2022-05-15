@@ -33,7 +33,6 @@ type (
 
 	limiterImpl struct {
 		config Config
-		mu     sync.Mutex
 
 		// global Rate Limit
 		global int64
@@ -41,7 +40,8 @@ type (
 		// route.APIRoute -> Hash
 		hashes map[*route.APIRoute]routeHash
 		// Hash + Major Parameter -> bucket
-		buckets map[hashMajor]*bucket
+		buckets   map[hashMajor]*bucket
+		bucketsMu sync.Mutex
 	}
 )
 
@@ -60,11 +60,17 @@ func (l *limiterImpl) Close(ctx context.Context) {
 		b := l.buckets[i]
 		go func() {
 			_ = b.mu.CLock(ctx)
-			b.mu.Unlock()
 			wg.Done()
 		}()
 	}
 	wg.Wait()
+}
+
+func (l *limiterImpl) Reset() {
+	l.buckets = map[hashMajor]*bucket{}
+	l.bucketsMu = sync.Mutex{}
+	l.global = 0
+	l.hashes = map[*route.APIRoute]routeHash{}
 }
 
 func (l *limiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor {
@@ -81,11 +87,11 @@ func (l *limiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor {
 func (l *limiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *bucket {
 	hash := l.getRouteHash(route)
 
-	l.Logger().Trace("locking rest rate limiter")
-	l.mu.Lock()
+	l.Logger().Trace("locking buckets")
+	l.bucketsMu.Lock()
 	defer func() {
-		l.Logger().Trace("unlocking rest rate limiter")
-		l.mu.Unlock()
+		l.Logger().Trace("unlocking buckets")
+		l.bucketsMu.Unlock()
 	}()
 	b, ok := l.buckets[hash]
 	if !ok {
@@ -105,7 +111,7 @@ func (l *limiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *buc
 
 func (l *limiterImpl) WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error {
 	b := l.getBucket(route, true)
-	l.Logger().Tracef("locking rest bucket: %+v", b)
+	l.Logger().Tracef("locking rest bucket, ID: %s, Limit: %d, Remaining: %d, Reset: %s", b.ID, b.Limit, b.Remaining, b.Reset)
 	if err := b.mu.CLock(ctx); err != nil {
 		return err
 	}
@@ -141,7 +147,7 @@ func (l *limiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.H
 		return nil
 	}
 	defer func() {
-		l.Logger().Tracef("unlocking rest bucket: %+v", b)
+		l.Logger().Tracef("unlocking rest bucket, ID: %s, Limit: %d, Remaining: %d, Reset: %s", b.ID, b.Limit, b.Remaining, b.Reset)
 		b.mu.Unlock()
 	}()
 
