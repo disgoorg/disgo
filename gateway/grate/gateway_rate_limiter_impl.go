@@ -17,7 +17,6 @@ func NewLimiter(opts ...ConfigOpt) Limiter {
 	}
 }
 
-//goland:noinspection GoNameStartsWithPackageName
 type limiterImpl struct {
 	mu csync.Mutex
 
