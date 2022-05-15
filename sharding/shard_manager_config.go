@@ -15,8 +15,9 @@ func DefaultConfig() *Config {
 
 type Config struct {
 	Logger                log.Logger
-	Shards                *IntSet
+	ShardIDs              map[int]struct{}
 	ShardCount            int
+	AutoScaling           bool
 	GatewayCreateFunc     gateway.CreateFunc
 	GatewayConfigOpts     []gateway.ConfigOpt
 	RateLimiter           srate.Limiter
@@ -42,11 +43,11 @@ func WithLogger(logger log.Logger) ConfigOpt {
 
 func WithShards(shards ...int) ConfigOpt {
 	return func(config *Config) {
-		if config.Shards == nil {
-			config.Shards = NewIntSet(shards...)
+		if config.ShardIDs == nil {
+			config.ShardIDs = map[int]struct{}{}
 		}
 		for _, shardID := range shards {
-			config.Shards.Add(shardID)
+			config.ShardIDs[shardID] = struct{}{}
 		}
 	}
 }

@@ -35,7 +35,7 @@ type EventManager interface {
 	RemoveEventListeners(eventListeners ...EventListener)
 
 	// HandleGatewayEvent calls the correct GatewayEventHandler for the payload
-	HandleGatewayEvent(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader)
+	HandleGatewayEvent(gatewayEventType discord.GatewayEventType, sequenceNumber int, shardID int, payload io.Reader)
 
 	// HandleHTTPEvent calls the HTTPServerEventHandler for the payload
 	HandleHTTPEvent(respondFunc httpserver.RespondFunc, payload io.Reader)
@@ -59,7 +59,7 @@ type Event interface {
 type GatewayEventHandler interface {
 	EventType() discord.GatewayEventType
 	New() any
-	HandleGatewayEvent(client Client, sequenceNumber int, v any)
+	HandleGatewayEvent(client Client, sequenceNumber int, shardID int, v any)
 }
 
 // HTTPServerEventHandler is used to handle HTTP Event(s)
@@ -80,7 +80,7 @@ func (e *eventManagerImpl) RawEventsEnabled() bool {
 	return e.config.RawEventsEnabled
 }
 
-func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) {
+func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType discord.GatewayEventType, sequenceNumber int, shardID int, reader io.Reader) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	if handler, ok := e.config.GatewayHandlers[gatewayEventType]; ok {
@@ -91,7 +91,7 @@ func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType discord.GatewayEv
 				return
 			}
 		}
-		handler.HandleGatewayEvent(e.client, sequenceNumber, v)
+		handler.HandleGatewayEvent(e.client, sequenceNumber, shardID, v)
 	} else {
 		e.client.Logger().Warnf("no handler for gateway event '%s' found", gatewayEventType)
 	}

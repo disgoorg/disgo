@@ -219,7 +219,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 			},
 		}, config.GatewayConfigOpts...)
 
-		config.Gateway = gateway.New(token, gatewayEventHandlerFunc(client), config.GatewayConfigOpts...)
+		config.Gateway = gateway.New(token, gatewayEventHandlerFunc(client), nil, config.GatewayConfigOpts...)
 	}
 	client.gateway = config.Gateway
 

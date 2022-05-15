@@ -218,7 +218,7 @@ func (c *clientImpl) Shard(guildID snowflake.ID) (gateway.Gateway, error) {
 	if c.HasGateway() {
 		return c.gateway, nil
 	} else if c.HasShardManager() {
-		if shard := c.shardManager.GetGuildShard(guildID); shard != nil {
+		if shard := c.shardManager.ShardByGuildID(guildID); shard != nil {
 			return shard, nil
 		}
 		return nil, discord.ErrShardNotFound

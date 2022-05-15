@@ -4,26 +4,25 @@ import (
 	"context"
 
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/sharding/srate"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 )
 
+// ShardSplitCount defines in how many shards a shard should be split if it reaches it's max guilds.
+var ShardSplitCount = 2
+
 type ShardManager interface {
 	Logger() log.Logger
-	RateLimiter() srate.Limiter
 
 	Open(ctx context.Context)
-	ReOpen(ctx context.Context)
 	Close(ctx context.Context)
 
-	OpenShard(ctx context.Context, shardID int, shardCount int) error
-	ReOpenShard(ctx context.Context, shardID int) error
+	OpenShard(ctx context.Context, shardID int) error
 	CloseShard(ctx context.Context, shardID int)
 
 	ShardByGuildID(guildId snowflake.ID) gateway.Gateway
 	Shard(shardID int) gateway.Gateway
-	Shards() *ShardsMap
+	Shards() map[int]gateway.Gateway
 }
 
 func ShardIDByGuild(guildID snowflake.ID, shardCount int) int {

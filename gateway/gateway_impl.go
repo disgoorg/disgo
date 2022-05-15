@@ -21,13 +21,14 @@ import (
 
 var _ Gateway = (*gatewayImpl)(nil)
 
-func New(token string, eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Gateway {
+func New(token string, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...ConfigOpt) Gateway {
 	config := DefaultConfig()
 	config.Apply(opts)
 
 	return &gatewayImpl{
 		config:           *config,
 		eventHandlerFunc: eventHandlerFunc,
+		closeHandlerFunc: closeHandlerFunc,
 		token:            token,
 		status:           StatusUnconnected,
 	}
@@ -36,6 +37,7 @@ func New(token string, eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Gat
 type gatewayImpl struct {
 	config           Config
 	eventHandlerFunc EventHandlerFunc
+	closeHandlerFunc CloseHandlerFunc
 	token            string
 
 	conn            *websocket.Conn
@@ -334,6 +336,9 @@ func (g *gatewayImpl) listen(conn *websocket.Conn) {
 				go g.reconnect(context.TODO())
 			} else {
 				g.Close(context.TODO())
+				if g.closeHandlerFunc != nil {
+					go g.closeHandlerFunc(g, err)
+				}
 			}
 			return
 		}
@@ -378,7 +383,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn) {
 			}
 
 			// push event to the command manager
-			g.eventHandlerFunc(event.T, event.S, bytes.NewBuffer(data))
+			g.eventHandlerFunc(event.T, event.S, g.config.ShardID, bytes.NewBuffer(data))
 
 		case discord.GatewayOpcodeHeartbeat:
 			g.Logger().Debug(g.formatLogs("received: OpcodeHeartbeat"))

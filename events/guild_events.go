@@ -46,7 +46,6 @@ type GuildReadyEvent struct {
 // GuildsReadyEvent is called when all discord.Guild(s) are loaded after logging in
 type GuildsReadyEvent struct {
 	*GenericEvent
-	ShardID int
 }
 
 // GuildBanEvent is called when a discord.Member/discord.User is banned from the discord.Guild

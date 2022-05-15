@@ -20,7 +20,7 @@ func (h *gatewayHandlerGuildMemberUpdate) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildMemberUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+func (h *gatewayHandlerGuildMemberUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	member := *v.(*discord.GatewayEventGuildMemberAdd)
 
 	oldMember, _ := client.Caches().Members().Get(member.GuildID, member.User.ID)
@@ -28,7 +28,7 @@ func (h *gatewayHandlerGuildMemberUpdate) HandleGatewayEvent(client bot.Client, 
 
 	client.EventManager().DispatchEvent(&events.GuildMemberUpdateEvent{
 		GenericGuildMemberEvent: &events.GenericGuildMemberEvent{
-			GenericEvent: events.NewGenericEvent(client, sequenceNumber),
+			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 			GuildID:      member.GuildID,
 			Member:       member.Member,
 		},
