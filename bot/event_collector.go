@@ -5,6 +5,7 @@ import (
 	"sync"
 )
 
+// WaitForEvent waits for an event passing the filterFunc and then calls the actionFunc. You can cancel this function with the passed context.Context.
 func WaitForEvent[E Event](client Client, ctx context.Context, filterFunc func(e E) bool, actionFunc func(e E)) {
 	ch, closeFunc := NewEventCollector(client, filterFunc)
 	defer closeFunc()
