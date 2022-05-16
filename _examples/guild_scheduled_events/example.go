@@ -31,7 +31,6 @@ func main() {
 		),
 		bot.WithCacheConfigOpts(
 			cache.WithCacheFlags(cache.FlagsAll),
-			cache.WithMemberCachePolicy(cache.MemberCachePolicyAll),
 		),
 		bot.WithMemberChunkingFilter(bot.MemberChunkingFilterNone),
 		bot.WithEventListeners(&events.ListenerAdapter{
