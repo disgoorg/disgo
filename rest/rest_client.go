@@ -68,10 +68,12 @@ func (c *clientImpl) RateLimiter() rrate.Limiter {
 }
 
 func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody any, tries int, opts []RequestOpt) error {
-	rqURL := cRoute.URL()
-	var rawRqBody []byte
-	var err error
-	var contentType string
+	var (
+		rqURL       = cRoute.URL()
+		rawRqBody   []byte
+		err         error
+		contentType string
+	)
 
 	if rqBody != nil {
 		switch v := rqBody.(type) {

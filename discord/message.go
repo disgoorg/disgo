@@ -68,14 +68,13 @@ type Message struct {
 	Stickers          []MessageSticker     `json:"sticker_items,omitempty"`
 	ReferencedMessage *Message             `json:"referenced_message,omitempty"`
 	LastUpdated       *time.Time           `json:"last_updated,omitempty"`
-	Thread            GuildThread          `json:"thread,omitempty"`
+	Thread            *MessageThread       `json:"thread,omitempty"`
 }
 
 func (m *Message) UnmarshalJSON(data []byte) error {
 	type message Message
 	var v struct {
 		Components []UnmarshalComponent `json:"components"`
-		Thread     *UnmarshalChannel    `json:"thread"`
 		message
 	}
 
@@ -90,10 +89,6 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 		for i := range v.Components {
 			m.Components[i] = v.Components[i].Component.(ContainerComponent)
 		}
-	}
-
-	if v.Thread != nil {
-		m.Thread = v.Thread.Channel.(GuildThread)
 	}
 
 	return nil
@@ -181,6 +176,11 @@ func (m *Message) SelectMenuByID(customID CustomID) *SelectMenuComponent {
 		}
 	}
 	return nil
+}
+
+type MessageThread struct {
+	GuildThread
+	Member ThreadMember `json:"member"`
 }
 
 type MessageSticker struct {
