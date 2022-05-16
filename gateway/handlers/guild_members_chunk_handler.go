@@ -22,6 +22,10 @@ func (h *gatewayHandlerGuildMembersChunk) New() any {
 func (h *gatewayHandlerGuildMembersChunk) HandleGatewayEvent(client bot.Client, _ int, v any) {
 	payload := *v.(*discord.GatewayEventGuildMembersChunk)
 
+	for i := range payload.Members {
+		payload.Members[i].GuildID = payload.GuildID
+	}
+
 	if client.MemberChunkingManager() != nil {
 		client.MemberChunkingManager().HandleChunk(payload)
 	}

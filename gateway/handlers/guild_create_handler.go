@@ -32,12 +32,12 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(client bot.Client, sequen
 	client.Caches().Guilds().Put(gatewayGuild.ID, gatewayGuild.Guild)
 
 	for _, channel := range gatewayGuild.Channels {
-		// populate unset field
+		channel = discord.ApplyGuildIDToChannel(channel, gatewayGuild.ID) // populate unset field
 		client.Caches().Channels().Put(channel.ID(), discord.ApplyGuildIDToChannel(channel, gatewayGuild.ID))
 	}
 
 	for _, thread := range gatewayGuild.Threads {
-		// populate unset field
+		thread = discord.ApplyGuildIDToThread(thread, gatewayGuild.ID) // populate unset field
 		client.Caches().Channels().Put(thread.ID(), discord.ApplyGuildIDToThread(thread, gatewayGuild.ID))
 	}
 
@@ -46,6 +46,7 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(client bot.Client, sequen
 	}
 
 	for _, member := range gatewayGuild.Members {
+		member.GuildID = gatewayGuild.ID // populate unset field
 		client.Caches().Members().Put(gatewayGuild.ID, member.User.ID, member)
 	}
 

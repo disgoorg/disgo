@@ -137,6 +137,11 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 	}
 
 	switch event.Message.Content {
+	case "avatar":
+		_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().
+			SetContentf("Avatar: %s", event.Message.Member.EffectiveAvatarURL()).
+			Build(),
+		)
 	case "channel":
 		ch, _ := event.Channel()
 		_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().
