@@ -250,7 +250,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 			),
 			sharding.WithLogger(client.logger),
 			func(config *sharding.Config) {
-				config.RateLimiterConfigOpts = append([]srate.ConfigOpt{srate.WithLogger(client.logger)}, config.RateLimiterConfigOpts...)
+				config.RateLimiterConfigOpts = append([]srate.ConfigOpt{srate.WithLogger(client.logger), srate.WithMaxConcurrency(gatewayBotRs.SessionStartLimit.MaxConcurrency)}, config.RateLimiterConfigOpts...)
 			},
 		}, config.ShardManagerConfigOpts...)
 

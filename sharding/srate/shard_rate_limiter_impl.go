@@ -110,7 +110,7 @@ func (r *limiterImpl) UnlockBucket(shardID int) {
 		b.mu.Unlock()
 	}()
 
-	b.Reset = time.Now().Add(time.Duration(r.config.StartupDelay) * time.Second)
+	b.Reset = time.Now().Add(5 * time.Second)
 }
 
 type bucket struct {
