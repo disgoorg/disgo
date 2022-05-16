@@ -23,6 +23,11 @@ func (h *gatewayHandlerMessageCreate) New() any {
 func (h *gatewayHandlerMessageCreate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
 	message := *v.(*discord.Message)
 
+	if message.Flags.Has(discord.MessageFlagEphemeral) {
+		// Ignore ephemeral messages as they miss guild_id & member
+		return
+	}
+
 	if message.Member != nil {
 		message.Member.User = message.Author
 	}
