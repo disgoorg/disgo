@@ -39,7 +39,7 @@ func (m *shardManagerImpl) Logger() log.Logger {
 }
 
 func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error) {
-	if closeError, ok := err.(*websocket.CloseError); !ok || discord.GatewayCloseEventCode(closeError.Code) != discord.GatewayCloseEventCodeShardingRequired {
+	if closeError, ok := err.(*websocket.CloseError); !m.config.AutoScaling || !ok || discord.GatewayCloseEventCode(closeError.Code) != discord.GatewayCloseEventCodeShardingRequired {
 		return
 	}
 	// make sure shard is closed
