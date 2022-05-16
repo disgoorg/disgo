@@ -40,18 +40,18 @@ func NewCaches(opts ...ConfigOpt) Caches {
 	return &cachesImpl{
 		config: *config,
 
-		guildCache:               NewGuildCache(config.CacheFlags, FlagGuilds, nil),
-		channelCache:             NewChannelCache(config.CacheFlags, FlagsAllChannels, nil),
-		stageInstanceCache:       NewGroupedCache[discord.StageInstance](config.CacheFlags, FlagStageInstances, nil),
-		guildScheduledEventCache: NewGroupedCache[discord.GuildScheduledEvent](config.CacheFlags, FlagGuildScheduledEvents, nil),
-		roleCache:                NewGroupedCache[discord.Role](config.CacheFlags, FlagRoles, nil),
+		guildCache:               NewGuildCache(config.CacheFlags, FlagGuilds, config.GuildCachePolicy),
+		channelCache:             NewChannelCache(config.CacheFlags, FlagChannels, config.ChannelCachePolicy),
+		stageInstanceCache:       NewGroupedCache[discord.StageInstance](config.CacheFlags, FlagStageInstances, config.StageInstanceCachePolicy),
+		guildScheduledEventCache: NewGroupedCache[discord.GuildScheduledEvent](config.CacheFlags, FlagGuildScheduledEvents, config.GuildScheduledEventCachePolicy),
+		roleCache:                NewGroupedCache[discord.Role](config.CacheFlags, FlagRoles, config.RoleCachePolicy),
 		memberCache:              NewGroupedCache[discord.Member](config.CacheFlags, FlagMembers, config.MemberCachePolicy),
-		threadMemberCache:        NewGroupedCache[discord.ThreadMember](config.CacheFlags, FlagThreadMembers, nil),
-		presenceCache:            NewGroupedCache[discord.Presence](config.CacheFlags, FlagPresences, nil),
-		voiceStateCache:          NewGroupedCache[discord.VoiceState](config.CacheFlags, FlagVoiceStates, nil),
+		threadMemberCache:        NewGroupedCache[discord.ThreadMember](config.CacheFlags, FlagThreadMembers, config.ThreadMemberCachePolicy),
+		presenceCache:            NewGroupedCache[discord.Presence](config.CacheFlags, FlagPresences, config.PresenceCachePolicy),
+		voiceStateCache:          NewGroupedCache[discord.VoiceState](config.CacheFlags, FlagVoiceStates, config.VoiceStateCachePolicy),
 		messageCache:             NewGroupedCache[discord.Message](config.CacheFlags, FlagMessages, config.MessageCachePolicy),
-		emojiCache:               NewGroupedCache[discord.Emoji](config.CacheFlags, FlagEmojis, nil),
-		stickerCache:             NewGroupedCache[discord.Sticker](config.CacheFlags, FlagStickers, nil),
+		emojiCache:               NewGroupedCache[discord.Emoji](config.CacheFlags, FlagEmojis, config.EmojiCachePolicy),
+		stickerCache:             NewGroupedCache[discord.Sticker](config.CacheFlags, FlagStickers, config.StickerCachePolicy),
 	}
 }
 
