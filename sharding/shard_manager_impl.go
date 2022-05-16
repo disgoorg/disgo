@@ -51,7 +51,7 @@ func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error) {
 	delete(m.shards, shard.ShardID())
 	delete(m.config.ShardIDs, shard.ShardID())
 
-	newShardCount := shard.ShardCount() * ShardSplitCount
+	newShardCount := shard.ShardCount() * m.config.ShardSplitCount
 
 	if newShardCount > m.config.ShardCount {
 		m.config.ShardCount = newShardCount
@@ -59,9 +59,9 @@ func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error) {
 
 	newShardID := shard.ShardID()
 	var newShardIDs []int
-	for len(newShardIDs) < ShardSplitCount {
+	for len(newShardIDs) < m.config.ShardSplitCount {
 		newShardIDs = append(newShardIDs, newShardID)
-		newShardID += ShardSplitCount
+		newShardID += m.config.ShardSplitCount
 	}
 
 	var wg sync.WaitGroup
@@ -174,7 +174,7 @@ func (m *shardManagerImpl) ShardByGuildID(guildId snowflake.ID) gateway.Gateway 
 	var shard gateway.Gateway
 	for shard == nil || shardCount != 0 {
 		shard = m.Shard(ShardIDByGuild(guildId, shardCount))
-		shardCount /= ShardSplitCount
+		shardCount /= m.config.ShardSplitCount
 	}
 	return shard
 }

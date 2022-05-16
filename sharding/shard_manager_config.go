@@ -17,6 +17,7 @@ type Config struct {
 	Logger                log.Logger
 	ShardIDs              map[int]struct{}
 	ShardCount            int
+	ShardSplitCount       int
 	AutoScaling           bool
 	GatewayCreateFunc     gateway.CreateFunc
 	GatewayConfigOpts     []gateway.ConfigOpt
@@ -55,6 +56,12 @@ func WithShards(shards ...int) ConfigOpt {
 func WithShardCount(shardCount int) ConfigOpt {
 	return func(config *Config) {
 		config.ShardCount = shardCount
+	}
+}
+
+func WithShardSplitCount(shardSplitCount int) ConfigOpt {
+	return func(config *Config) {
+		config.ShardSplitCount = shardSplitCount
 	}
 }
 

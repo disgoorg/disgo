@@ -8,9 +8,6 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// ShardSplitCount defines in how many shards a shard should be split if it reaches it's max guilds.
-var ShardSplitCount = 2
-
 type ShardManager interface {
 	Logger() log.Logger
 
