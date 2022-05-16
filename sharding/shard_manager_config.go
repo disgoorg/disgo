@@ -58,6 +58,12 @@ func WithShardCount(shardCount int) ConfigOpt {
 	}
 }
 
+func WithAutoScaling(autoScaling bool) ConfigOpt {
+	return func(config *Config) {
+		config.AutoScaling = autoScaling
+	}
+}
+
 func WithGatewayCreateFunc(gatewayCreateFunc gateway.CreateFunc) ConfigOpt {
 	return func(config *Config) {
 		config.GatewayCreateFunc = gatewayCreateFunc

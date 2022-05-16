@@ -51,7 +51,6 @@ func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error) {
 	delete(m.shards, shard.ShardID())
 	delete(m.config.ShardIDs, shard.ShardID())
 
-	m.config.Logger.Info("Shard %d closed, sharding required", shard.ShardID())
 	newShardCount := shard.ShardCount() * ShardSplitCount
 
 	if newShardCount > m.config.ShardCount {
@@ -60,7 +59,7 @@ func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error) {
 
 	newShardID := shard.ShardID()
 	var newShardIDs []int
-	for len(newShardIDs) <= ShardSplitCount {
+	for len(newShardIDs) < ShardSplitCount {
 		newShardIDs = append(newShardIDs, newShardID)
 		newShardID += ShardSplitCount
 	}
@@ -71,6 +70,11 @@ func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
+			if err := m.config.RateLimiter.WaitBucket(context.TODO(), shardID); err != nil {
+				m.Logger().Errorf("failed to wait shard bucket %d: %s", shardID, err)
+				return
+			}
+			defer m.config.RateLimiter.UnlockBucket(shardID)
 
 			newShard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, m.closeHandler, append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(newShardCount))...)
 			m.shards[shardID] = newShard
@@ -83,7 +87,7 @@ func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error) {
 }
 
 func (m *shardManagerImpl) Open(ctx context.Context) {
-	m.Logger().Debugf("opening %s shards...", m.config.ShardIDs)
+	m.Logger().Debugf("opening %+v shards...", m.config.ShardIDs)
 	var wg sync.WaitGroup
 
 	m.shardsMu.Lock()
@@ -97,11 +101,11 @@ func (m *shardManagerImpl) Open(ctx context.Context) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			defer m.config.RateLimiter.UnlockBucket(shardID)
 			if err := m.config.RateLimiter.WaitBucket(ctx, shardID); err != nil {
 				m.Logger().Errorf("failed to wait shard bucket %d: %s", shardID, err)
 				return
 			}
+			defer m.config.RateLimiter.UnlockBucket(shardID)
 
 			shard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, m.closeHandler, append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(m.config.ShardCount))...)
 			m.shards[shardID] = shard
@@ -137,9 +141,15 @@ func (m *shardManagerImpl) OpenShard(ctx context.Context, shardID int) error {
 
 func (m *shardManagerImpl) openShard(ctx context.Context, shardID int, shardCount int) error {
 	m.Logger().Debugf("opening shard %d...", shardID)
+
+	if err := m.config.RateLimiter.WaitBucket(ctx, shardID); err != nil {
+		return err
+	}
+	defer m.config.RateLimiter.UnlockBucket(shardID)
+	shard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, m.closeHandler, append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(shardCount))...)
+
 	m.shardsMu.Lock()
 	defer m.shardsMu.Unlock()
-	shard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, m.closeHandler, append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(shardCount))...)
 	m.config.ShardIDs[shardID] = struct{}{}
 	m.shards[shardID] = shard
 	return shard.Open(ctx)

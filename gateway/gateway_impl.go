@@ -292,10 +292,10 @@ func (g *gatewayImpl) resume() {
 
 func (g *gatewayImpl) listen(conn *websocket.Conn) {
 	defer g.Logger().Debug(g.formatLogs("exiting listen goroutine..."))
+loop:
 	for {
 		mt, reader, err := conn.NextReader()
 		if err != nil {
-
 			g.connMu.Lock()
 			sameConnection := g.conn == conn
 			g.connMu.Unlock()
@@ -340,7 +340,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn) {
 					go g.closeHandlerFunc(g, err)
 				}
 			}
-			return
+			break loop
 		}
 
 		event, err := g.parseGatewayMessage(mt, reader)
@@ -393,6 +393,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn) {
 			g.Logger().Debug(g.formatLogs("received: OpcodeReconnect"))
 			g.CloseWithCode(context.TODO(), websocket.CloseServiceRestart, "received reconnect")
 			go g.reconnect(context.TODO())
+			break loop
 
 		case discord.GatewayOpcodeInvalidSession:
 			canResume := event.D.(discord.GatewayMessageDataInvalidSession)
@@ -409,6 +410,7 @@ func (g *gatewayImpl) listen(conn *websocket.Conn) {
 
 			g.CloseWithCode(context.TODO(), code, "invalid session")
 			go g.reconnect(context.TODO())
+			break loop
 
 		case discord.GatewayOpcodeHeartbeatACK:
 			g.Logger().Debug(g.formatLogs("received: OpcodeHeartbeatACK"))

@@ -9,11 +9,10 @@ import (
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/cache"
-	"github.com/disgoorg/disgo/sharding"
-
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/disgo/sharding"
 	"github.com/disgoorg/log"
 )
 
@@ -23,14 +22,15 @@ var (
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	log.SetLevel(log.LevelInfo)
+	log.SetLevel(log.LevelDebug)
 	log.Info("starting example...")
 	log.Info("disgo version: ", disgo.Version)
 
 	client, err := disgo.New(token,
 		bot.WithShardManagerConfigOpts(
-			sharding.WithShards(0, 1, 2),
-			sharding.WithShardCount(3),
+			sharding.WithShards(0, 1),
+			sharding.WithShardCount(2),
+			sharding.WithAutoScaling(true),
 			sharding.WithGatewayConfigOpts(
 				gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages),
 				gateway.WithCompress(true),
