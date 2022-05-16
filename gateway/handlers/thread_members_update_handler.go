@@ -27,6 +27,7 @@ func (h *gatewayHandlerThreadMembersUpdate) HandleGatewayEvent(client bot.Client
 	}
 
 	for _, addedMember := range payload.AddedMembers {
+		addedMember.Member.GuildID = payload.ID
 		client.Caches().ThreadMembers().Put(payload.ID, addedMember.UserID, addedMember.ThreadMember)
 		client.Caches().Members().Put(payload.GuildID, addedMember.UserID, addedMember.Member)
 
@@ -42,6 +43,8 @@ func (h *gatewayHandlerThreadMembersUpdate) HandleGatewayEvent(client bot.Client
 				ThreadMemberID: addedMember.UserID,
 				ThreadMember:   addedMember.ThreadMember,
 			},
+			Member:   addedMember.Member,
+			Presence: addedMember.Presence,
 		})
 	}
 

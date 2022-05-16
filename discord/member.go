@@ -22,6 +22,9 @@ type Member struct {
 	Mute                       bool           `json:"mute,omitempty"`
 	Pending                    bool           `json:"pending"`
 	CommunicationDisabledUntil *time.Time     `json:"communication_disabled_until"`
+
+	// This field is not present everywhere in the API and often populated by disgo
+	GuildID snowflake.ID `json:"guild_id"`
 }
 
 func (m Member) String() string {
@@ -54,7 +57,7 @@ func (m Member) AvatarURL(opts ...CDNOpt) *string {
 	if m.Avatar == nil {
 		return nil
 	}
-	return formatAssetURL(route.MemberAvatar, opts, m.User.ID, *m.Avatar)
+	return formatAssetURL(route.MemberAvatar, opts, m.GuildID, m.User.ID, *m.Avatar)
 }
 
 // MemberAdd is used to add a member via the oauth2 access token to a guild

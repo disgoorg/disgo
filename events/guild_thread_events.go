@@ -45,6 +45,8 @@ type GenericThreadMemberEvent struct {
 
 type ThreadMemberAddEvent struct {
 	*GenericThreadMemberEvent
+	Member   discord.Member
+	Presence *discord.Presence
 }
 
 type ThreadMemberUpdateEvent struct {

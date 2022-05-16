@@ -8,7 +8,6 @@ import (
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
@@ -71,7 +70,6 @@ func main() {
 
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentsNone)),
-		bot.WithCacheConfigOpts(cache.WithCacheFlags(cache.FlagsDefault)),
 		bot.WithEventListeners(&events.ListenerAdapter{
 			OnApplicationCommandInteraction: commandListener,
 		}),

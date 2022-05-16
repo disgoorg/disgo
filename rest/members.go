@@ -40,6 +40,9 @@ func (s *memberImpl) GetMember(guildID snowflake.ID, userID snowflake.ID, opts .
 		return
 	}
 	err = s.client.Do(compiledRoute, nil, &member, opts...)
+	if err == nil {
+		member.GuildID = guildID
+	}
 	return
 }
 
@@ -50,6 +53,11 @@ func (s *memberImpl) GetMembers(guildID snowflake.ID, opts ...RequestOpt) (membe
 		return
 	}
 	err = s.client.Do(compiledRoute, nil, &members, opts...)
+	if err == nil {
+		for i := range members {
+			members[i].GuildID = guildID
+		}
+	}
 	return
 }
 
@@ -67,6 +75,11 @@ func (s *memberImpl) SearchMembers(guildID snowflake.ID, query string, limit int
 		return
 	}
 	err = s.client.Do(compiledRoute, nil, &members, opts...)
+	if err == nil {
+		for i := range members {
+			members[i].GuildID = guildID
+		}
+	}
 	return
 }
 
@@ -77,6 +90,9 @@ func (s *memberImpl) AddMember(guildID snowflake.ID, userID snowflake.ID, member
 		return
 	}
 	err = s.client.Do(compiledRoute, memberAdd, &member, opts...)
+	if err == nil {
+		member.GuildID = guildID
+	}
 	return
 }
 
@@ -95,6 +111,9 @@ func (s *memberImpl) UpdateMember(guildID snowflake.ID, userID snowflake.ID, mem
 		return
 	}
 	err = s.client.Do(compiledRoute, memberUpdate, &member, opts...)
+	if err == nil {
+		member.GuildID = guildID
+	}
 	return
 }
 
