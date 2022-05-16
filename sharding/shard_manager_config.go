@@ -10,6 +10,7 @@ func DefaultConfig() *Config {
 	return &Config{
 		Logger:            log.Default(),
 		GatewayCreateFunc: gateway.New,
+		ShardSplitCount:   2,
 	}
 }
 

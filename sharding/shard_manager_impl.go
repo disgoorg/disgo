@@ -42,6 +42,7 @@ func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error) {
 	if closeError, ok := err.(*websocket.CloseError); !m.config.AutoScaling || !ok || discord.GatewayCloseEventCode(closeError.Code) != discord.GatewayCloseEventCodeShardingRequired {
 		return
 	}
+	m.Logger().Debugf("shard %d requires re-sharding", shard.ShardID())
 	// make sure shard is closed
 	shard.Close(context.TODO())
 
@@ -84,6 +85,7 @@ func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error) {
 		}()
 	}
 	wg.Wait()
+	m.Logger().Debugf("re-sharded shard %d into newShards: %d, newShardCount: %d", shard.ShardID(), newShardIDs, newShardCount)
 }
 
 func (m *shardManagerImpl) Open(ctx context.Context) {
