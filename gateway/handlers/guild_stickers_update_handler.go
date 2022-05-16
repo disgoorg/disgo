@@ -27,11 +27,11 @@ type updatedSticker struct {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	payload := *v.(*discord.GatewayEventGuildStickersUpdate)
 
 	client.EventManager().DispatchEvent(&events.StickersUpdateEvent{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber),
+		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 		GuildID:      payload.GuildID,
 		Stickers:     payload.Stickers,
 	})
@@ -59,7 +59,7 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client
 	for _, emoji := range createdStickers {
 		client.EventManager().DispatchEvent(&events.StickerCreateEvent{
 			GenericStickerEvent: &events.GenericStickerEvent{
-				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
+				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 				GuildID:      payload.GuildID,
 				Sticker:      emoji,
 			},
@@ -69,7 +69,7 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client
 	for _, emoji := range updatedStickers {
 		client.EventManager().DispatchEvent(&events.StickerUpdateEvent{
 			GenericStickerEvent: &events.GenericStickerEvent{
-				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
+				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 				GuildID:      payload.GuildID,
 				Sticker:      emoji.new,
 			},
@@ -80,7 +80,7 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client
 	for _, emoji := range deletedStickers {
 		client.EventManager().DispatchEvent(&events.StickerDeleteEvent{
 			GenericStickerEvent: &events.GenericStickerEvent{
-				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
+				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 				GuildID:      payload.GuildID,
 				Sticker:      emoji,
 			},

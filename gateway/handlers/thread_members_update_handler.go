@@ -16,10 +16,10 @@ func (h *gatewayHandlerThreadMembersUpdate) New() any {
 	return &discord.GatewayEventThreadMembersUpdate{}
 }
 
-func (h *gatewayHandlerThreadMembersUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+func (h *gatewayHandlerThreadMembersUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	payload := *v.(*discord.GatewayEventThreadMembersUpdate)
 
-	genericEvent := events.NewGenericEvent(client, sequenceNumber)
+	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
 	if thread, ok := client.Caches().Channels().GetGuildThread(payload.ID); ok {
 		thread.MemberCount = payload.MemberCount

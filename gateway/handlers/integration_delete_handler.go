@@ -20,11 +20,11 @@ func (h *gatewayHandlerIntegrationDelete) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerIntegrationDelete) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+func (h *gatewayHandlerIntegrationDelete) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	payload := *v.(*discord.GatewayEventIntegrationDelete)
 
 	client.EventManager().DispatchEvent(&events.IntegrationDeleteEvent{
-		GenericEvent:  events.NewGenericEvent(client, sequenceNumber),
+		GenericEvent:  events.NewGenericEvent(client, sequenceNumber, shardID),
 		GuildID:       payload.GuildID,
 		ID:            payload.ID,
 		ApplicationID: payload.ApplicationID,

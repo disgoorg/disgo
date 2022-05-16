@@ -219,7 +219,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 			},
 		}, config.GatewayConfigOpts...)
 
-		config.Gateway = gateway.New(token, gatewayEventHandlerFunc(client), config.GatewayConfigOpts...)
+		config.Gateway = gateway.New(token, gatewayEventHandlerFunc(client), nil, config.GatewayConfigOpts...)
 	}
 	client.gateway = config.Gateway
 
@@ -241,6 +241,12 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 			sharding.WithGatewayConfigOpts(
 				gateway.WithGatewayURL(gatewayBotRs.URL),
 				gateway.WithLogger(client.logger),
+				gateway.WithOS(os),
+				gateway.WithBrowser(name),
+				gateway.WithDevice(name),
+				func(config *gateway.Config) {
+					config.RateLimiterConfigOpts = append([]grate.ConfigOpt{grate.WithLogger(client.logger)}, config.RateLimiterConfigOpts...)
+				},
 			),
 			sharding.WithLogger(client.logger),
 			func(config *sharding.Config) {

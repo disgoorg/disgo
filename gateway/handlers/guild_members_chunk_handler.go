@@ -19,7 +19,7 @@ func (h *gatewayHandlerGuildMembersChunk) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildMembersChunk) HandleGatewayEvent(client bot.Client, _ int, v any) {
+func (h *gatewayHandlerGuildMembersChunk) HandleGatewayEvent(client bot.Client, _ int, _ int, v any) {
 	payload := *v.(*discord.GatewayEventGuildMembersChunk)
 
 	for i := range payload.Members {

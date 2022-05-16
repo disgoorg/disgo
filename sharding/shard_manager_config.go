@@ -10,13 +10,16 @@ func DefaultConfig() *Config {
 	return &Config{
 		Logger:            log.Default(),
 		GatewayCreateFunc: gateway.New,
+		ShardSplitCount:   2,
 	}
 }
 
 type Config struct {
 	Logger                log.Logger
-	Shards                *IntSet
+	ShardIDs              map[int]struct{}
 	ShardCount            int
+	ShardSplitCount       int
+	AutoScaling           bool
 	GatewayCreateFunc     gateway.CreateFunc
 	GatewayConfigOpts     []gateway.ConfigOpt
 	RateLimiter           srate.Limiter
@@ -42,11 +45,11 @@ func WithLogger(logger log.Logger) ConfigOpt {
 
 func WithShards(shards ...int) ConfigOpt {
 	return func(config *Config) {
-		if config.Shards == nil {
-			config.Shards = NewIntSet(shards...)
+		if config.ShardIDs == nil {
+			config.ShardIDs = map[int]struct{}{}
 		}
 		for _, shardID := range shards {
-			config.Shards.Add(shardID)
+			config.ShardIDs[shardID] = struct{}{}
 		}
 	}
 }
@@ -54,6 +57,18 @@ func WithShards(shards ...int) ConfigOpt {
 func WithShardCount(shardCount int) ConfigOpt {
 	return func(config *Config) {
 		config.ShardCount = shardCount
+	}
+}
+
+func WithShardSplitCount(shardSplitCount int) ConfigOpt {
+	return func(config *Config) {
+		config.ShardSplitCount = shardSplitCount
+	}
+}
+
+func WithAutoScaling(autoScaling bool) ConfigOpt {
+	return func(config *Config) {
+		config.AutoScaling = autoScaling
 	}
 }
 

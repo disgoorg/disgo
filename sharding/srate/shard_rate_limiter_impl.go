@@ -73,7 +73,7 @@ func (r *limiterImpl) getBucket(shardID int, create bool) *bucket {
 
 func (r *limiterImpl) WaitBucket(ctx context.Context, shardID int) error {
 	b := r.getBucket(shardID, true)
-	r.Logger().Debugf("locking shard bucket: %+v", b)
+	r.Logger().Debugf("locking shard bucket: Key: %d, Reset: %s", b.Key, b.Reset)
 	if err := b.mu.CLock(ctx); err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func (r *limiterImpl) UnlockBucket(shardID int) {
 		return
 	}
 	defer func() {
-		r.Logger().Debugf("unlocking shard bucket: %+v", b)
+		r.Logger().Debugf("unlocking shard bucket: Key: %d, Reset: %s", b.Key, b.Reset)
 		b.mu.Unlock()
 	}()
 

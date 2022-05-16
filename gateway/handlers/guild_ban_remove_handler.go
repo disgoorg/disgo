@@ -20,11 +20,11 @@ func (h *gatewayHandlerGuildBanRemove) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildBanRemove) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+func (h *gatewayHandlerGuildBanRemove) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	payload := *v.(*discord.GatewayEventGuildBanRemove)
 
 	client.EventManager().DispatchEvent(&events.GuildUnbanEvent{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber),
+		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 		GuildID:      payload.GuildID,
 		User:         payload.User,
 	})

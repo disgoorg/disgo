@@ -21,7 +21,7 @@ func (h *gatewayHandlerGuildDelete) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildDelete) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+func (h *gatewayHandlerGuildDelete) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	unavailableGuild := *v.(*discord.UnavailableGuild)
 
 	guild, _ := client.Caches().Guilds().Remove(unavailableGuild.ID)
@@ -50,7 +50,7 @@ func (h *gatewayHandlerGuildDelete) HandleGatewayEvent(client bot.Client, sequen
 	}
 
 	genericGuildEvent := &events.GenericGuildEvent{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber),
+		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 		GuildID:      unavailableGuild.ID,
 		Guild:        guild,
 	}

@@ -20,11 +20,8 @@ func (h *gatewayHandlerGuildCreate) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	gatewayGuild := *v.(*discord.GatewayGuild)
-
-	shard, _ := client.Shard(gatewayGuild.ID)
-	shardID := shard.ShardID()
 
 	wasUnready := client.Caches().Guilds().IsUnready(shardID, gatewayGuild.ID)
 	wasUnavailable := client.Caches().Guilds().IsUnavailable(gatewayGuild.ID)
@@ -77,7 +74,7 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(client bot.Client, sequen
 	}
 
 	genericGuildEvent := &events.GenericGuildEvent{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber),
+		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 		GuildID:      gatewayGuild.ID,
 		Guild:        gatewayGuild.Guild,
 	}
@@ -89,8 +86,7 @@ func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(client bot.Client, sequen
 		})
 		if len(client.Caches().Guilds().UnreadyGuilds(shardID)) == 0 {
 			client.EventManager().DispatchEvent(&events.GuildsReadyEvent{
-				GenericEvent: events.NewGenericEvent(client, -1),
-				ShardID:      shardID,
+				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 			})
 		}
 		if client.MemberChunkingManager().MemberChunkingFilter()(gatewayGuild.ID) {

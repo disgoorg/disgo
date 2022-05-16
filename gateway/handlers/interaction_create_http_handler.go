@@ -27,5 +27,5 @@ func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(client bot.Client, 
 		}
 		return
 	}
-	HandleInteraction(client, -1, respondFunc, interaction)
+	HandleInteraction(client, -1, -1, respondFunc, interaction)
 }
