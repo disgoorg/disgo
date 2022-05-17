@@ -113,13 +113,11 @@ func main() {
     client, err := disgo.New(os.Getenv("token"),
         bot.WithGatewayConfigOpts(
             gateway.WithGatewayIntents(
-                discord.GatewayIntentsNone,
+                discord.GatewayIntentGuildMessages,
+				discord.GatewayIntentMessageContent,
             ),
         ),
-        bot.WithCacheConfigOpts(cache.WithCacheFlags(cache.FlagsDefault)),
-        bot.WithEventListeners(&events.ListenerAdapter{
-            OnMessageCreate: onMessageCreate,
-        }),
+		bot.WithEventListenerFunc(onMessageCreate),
     )
     if err != nil {
         log.Fatal("error while building disgo: ", err)
@@ -145,7 +143,7 @@ func onMessageCreate(event *events.MessageCreateEvent) {
         message = "ping"
     }
     if message != "" {
-        _, _ = event.Client().Rest().ChannelService().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent(message).Build())
+        _, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent(message).Build())
     }
 }
 ```
