@@ -63,7 +63,7 @@ go get github.com/disgoorg/disgo
 
 ### Building a DisGo Instance
 
-Build a bot client to interact with discord
+Build a bot client to interact with the discord api
 ```go
 package main
 
@@ -71,18 +71,25 @@ import (
     "github.com/disgoorg/disgo"
     "github.com/disgoorg/disgo/bot"
     "github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/events"
     "github.com/disgoorg/disgo/gateway"
 )
 
 func main() {
     client, err := disgo.New("token",
+		// set gateway options
         bot.WithGatewayConfigOpts(
+			// set enabled intents
             gateway.WithGatewayIntents(
                 discord.GatewayIntentGuilds,
                 discord.GatewayIntentGuildMessages,
                 discord.GatewayIntentDirectMessages,
             ),
         ),
+		// add event listeners
+		bot.WithEventListenerFunc(func(e *events.MessageCreateEvent) {
+			// event code here
+		}),
     )
 }
 ```
