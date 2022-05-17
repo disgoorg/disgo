@@ -71,25 +71,25 @@ import (
     "github.com/disgoorg/disgo"
     "github.com/disgoorg/disgo/bot"
     "github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/events"
+    "github.com/disgoorg/disgo/events"
     "github.com/disgoorg/disgo/gateway"
 )
 
 func main() {
     client, err := disgo.New("token",
-		// set gateway options
+        // set gateway options
         bot.WithGatewayConfigOpts(
-			// set enabled intents
+            // set enabled intents
             gateway.WithGatewayIntents(
                 discord.GatewayIntentGuilds,
                 discord.GatewayIntentGuildMessages,
                 discord.GatewayIntentDirectMessages,
             ),
         ),
-		// add event listeners
-		bot.WithEventListenerFunc(func(e *events.MessageCreateEvent) {
-			// event code here
-		}),
+        // add event listeners
+        bot.WithEventListenerFunc(func(e *events.MessageCreateEvent) {
+            // event code here
+        }),
     )
 }
 ```
@@ -121,10 +121,10 @@ func main() {
         bot.WithGatewayConfigOpts(
             gateway.WithGatewayIntents(
                 discord.GatewayIntentGuildMessages,
-				discord.GatewayIntentMessageContent,
+                discord.GatewayIntentMessageContent,
             ),
         ),
-		bot.WithEventListenerFunc(onMessageCreate),
+        bot.WithEventListenerFunc(onMessageCreate),
     )
     if err != nil {
         log.Fatal("error while building disgo: ", err)
