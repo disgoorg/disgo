@@ -49,7 +49,7 @@ type EventListener interface {
 	OnEvent(event Event)
 }
 
-var _ EventListener = (ListenerFunc)(nil)
+var _ EventListener = (ListenerFunc[Event])(nil)
 
 func NewListenerFunc[E Event](f func(e E)) ListenerFunc[E] {
 	return f
