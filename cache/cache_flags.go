@@ -13,27 +13,18 @@ const (
 	FlagPresences
 	FlagChannels
 	FlagRoles
-	FlagRoleTags
 	FlagEmojis
 	FlagStickers
 	FlagVoiceStates
 	FlagStageInstances
 	FlagsNone Flags = 0
 
-	FlagsDefault = FlagGuilds |
-		FlagChannels |
-		FlagRoles |
-		FlagEmojis |
-		FlagStickers |
-		FlagVoiceStates
-
-	FlagsFullRoles = FlagRoles |
-		FlagRoleTags
+	FlagsDefault = FlagsNone
 
 	FlagsAll = FlagGuilds |
 		FlagGuildScheduledEvents |
 		FlagChannels |
-		FlagsFullRoles |
+		FlagRoles |
 		FlagEmojis |
 		FlagStickers |
 		FlagVoiceStates |
