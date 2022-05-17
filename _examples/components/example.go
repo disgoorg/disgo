@@ -26,7 +26,7 @@ func main() {
 
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
-		bot.WithListenerFuncs(func(event *events.MessageCreateEvent) {
+		bot.WithEventListenerFunc(func(event *events.MessageCreateEvent) {
 			if event.Message.Author.Bot || event.Message.Author.System {
 				return
 			}
@@ -38,7 +38,7 @@ func main() {
 				)
 			}
 		}),
-		bot.WithListenerFuncs(func(event *events.ComponentInteractionEvent) {
+		bot.WithEventListenerFunc(func(event *events.ComponentInteractionEvent) {
 			if event.ButtonInteractionData().CustomID() == "danger" {
 				_ = event.CreateMessage(discord.NewMessageCreateBuilder().SetEphemeral(true).SetContent("Ey that was danger").Build())
 			}

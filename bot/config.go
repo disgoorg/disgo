@@ -103,12 +103,8 @@ func WithEventListeners(eventListeners ...EventListener) ConfigOpt {
 	}
 }
 
-func WithListenerFuncs[E Event](listenerFuncs ...func(e E)) ConfigOpt {
-	listeners := make([]EventListener, len(listenerFuncs))
-	for i := range listenerFuncs {
-		listeners[i] = ListenerFunc[E](listenerFuncs[i])
-	}
-	return WithEventListeners(listeners...)
+func WithEventListenerFunc[E Event](listenerFunc func(e E)) ConfigOpt {
+	return WithEventListeners(ListenerFunc[E](listenerFunc))
 }
 
 func WithGateway(gateway gateway.Gateway) ConfigOpt {

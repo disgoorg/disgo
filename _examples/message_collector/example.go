@@ -28,7 +28,7 @@ func main() {
 
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
-		bot.WithListenerFuncs(onMessageCreate),
+		bot.WithEventListenerFunc(onMessageCreate),
 	)
 	if err != nil {
 		log.Fatal("error while building bot: ", err)

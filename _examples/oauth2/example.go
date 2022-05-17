@@ -26,9 +26,11 @@ var (
 	client       oauth2.Client
 )
 
-func main() {
+func init() {
 	rand.Seed(time.Now().UnixNano())
+}
 
+func main() {
 	logger.SetLevel(log.LevelDebug)
 	logger.Info("starting example...")
 	logger.Infof("disgo %s", disgo.Version)

@@ -28,7 +28,7 @@ func main() {
 			),
 		),
 		bot.WithCacheConfigOpts(cache.WithCacheFlags(cache.FlagsDefault)),
-		bot.WithListenerFuncs(onMessageCreate),
+		bot.WithEventListenerFunc(onMessageCreate),
 	)
 	if err != nil {
 		log.Fatal("error while building disgo: ", err)
