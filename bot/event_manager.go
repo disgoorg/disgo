@@ -49,6 +49,20 @@ type EventListener interface {
 	OnEvent(event Event)
 }
 
+var _ EventListener = (ListenerFunc[Event])(nil)
+
+func NewListenerFunc[E Event](f func(e E)) ListenerFunc[E] {
+	return f
+}
+
+type ListenerFunc[E Event] func(e E)
+
+func (l ListenerFunc[E]) OnEvent(e Event) {
+	if event, ok := e.(E); ok {
+		l(event)
+	}
+}
+
 // Event the basic interface each event implement
 type Event interface {
 	Client() Client

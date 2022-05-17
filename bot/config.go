@@ -103,6 +103,10 @@ func WithEventListeners(eventListeners ...EventListener) ConfigOpt {
 	}
 }
 
+func WithEventListenerFunc[E Event](listenerFunc func(e E)) ConfigOpt {
+	return WithEventListeners(ListenerFunc[E](listenerFunc))
+}
+
 func WithGateway(gateway gateway.Gateway) ConfigOpt {
 	return func(config *Config) {
 		config.Gateway = gateway

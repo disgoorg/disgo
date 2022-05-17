@@ -36,7 +36,10 @@ type Client interface {
 	// Rest returns the rest.Rest used by the Client.
 	Rest() rest.Rest
 
+	// AddEventListeners adds one or more EventListener(s) to the EventManager.
 	AddEventListeners(listeners ...EventListener)
+
+	// RemoveEventListeners removes one or more EventListener(s) from the EventManager
 	RemoveEventListeners(listeners ...EventListener)
 
 	// EventManager returns the EventManager used by the Client.
@@ -165,12 +168,10 @@ func (c *clientImpl) Rest() rest.Rest {
 	return c.restServices
 }
 
-// AddEventListeners adds one or more EventListener(s) to the EventManager
 func (c *clientImpl) AddEventListeners(listeners ...EventListener) {
 	c.eventManager.AddEventListeners(listeners...)
 }
 
-// RemoveEventListeners removes one or more EventListener(s) from the EventManager
 func (c *clientImpl) RemoveEventListeners(listeners ...EventListener) {
 	c.eventManager.RemoveEventListeners(listeners...)
 }
@@ -179,7 +180,6 @@ func (c *clientImpl) EventManager() EventManager {
 	return c.eventManager
 }
 
-// ConnectGateway opens the gateway connection to discord
 func (c *clientImpl) ConnectGateway(ctx context.Context) error {
 	if c.gateway == nil {
 		return discord.ErrNoGateway
@@ -191,12 +191,10 @@ func (c *clientImpl) Gateway() gateway.Gateway {
 	return c.gateway
 }
 
-// HasGateway returns whether this Client has an active gateway.Gateway connection
 func (c *clientImpl) HasGateway() bool {
 	return c.gateway != nil
 }
 
-// ConnectShardManager opens the gateway connection to discord
 func (c *clientImpl) ConnectShardManager(ctx context.Context) error {
 	if c.shardManager == nil {
 		return discord.ErrNoShardManager
@@ -209,7 +207,6 @@ func (c *clientImpl) ShardManager() sharding.ShardManager {
 	return c.shardManager
 }
 
-// HasShardManager returns whether this Client is sharded
 func (c *clientImpl) HasShardManager() bool {
 	return c.shardManager != nil
 }
@@ -260,6 +257,7 @@ func (c *clientImpl) RequestMembers(ctx context.Context, guildID snowflake.ID, p
 		Nonce:     nonce,
 	})
 }
+
 func (c *clientImpl) RequestMembersWithQuery(ctx context.Context, guildID snowflake.ID, presence bool, nonce string, query string, limit int) error {
 	shard, err := c.Shard(guildID)
 	if err != nil {
@@ -281,7 +279,6 @@ func (c *clientImpl) SetPresence(ctx context.Context, presenceUpdate discord.Gat
 	return c.gateway.Send(ctx, discord.GatewayOpcodePresenceUpdate, presenceUpdate)
 }
 
-// SetPresenceForShard sets the Presence of this Client for the provided shard
 func (c *clientImpl) SetPresenceForShard(ctx context.Context, shardId int, presenceUpdate discord.GatewayMessageDataPresenceUpdate) error {
 	if !c.HasShardManager() {
 		return discord.ErrNoShardManager
@@ -297,7 +294,6 @@ func (c *clientImpl) MemberChunkingManager() MemberChunkingManager {
 	return c.memberChunkingManager
 }
 
-// StartHTTPServer starts the interaction webhook server
 func (c *clientImpl) StartHTTPServer() error {
 	if c.httpServer == nil {
 		return discord.ErrNoHTTPServer
@@ -310,7 +306,6 @@ func (c *clientImpl) HTTPServer() httpserver.Server {
 	return c.httpServer
 }
 
-// HasHTTPServer returns whether Client has an active httpserver.Server
 func (c *clientImpl) HasHTTPServer() bool {
 	return c.httpServer != nil
 }
