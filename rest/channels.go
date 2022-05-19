@@ -18,7 +18,7 @@ type Channels interface {
 	DeleteChannel(channelID snowflake.ID, opts ...RequestOpt) error
 
 	GetWebhooks(channelID snowflake.ID, opts ...RequestOpt) ([]discord.Webhook, error)
-	CreateWebhook(channelID snowflake.ID, webhookCreate discord.WebhookCreate, opts ...RequestOpt) (discord.Webhook, error)
+	CreateWebhook(channelID snowflake.ID, webhookCreate discord.WebhookCreate, opts ...RequestOpt) (*discord.IncomingWebhook, error)
 
 	GetPermissionOverwrites(channelID snowflake.ID, opts ...RequestOpt) ([]discord.PermissionOverwrite, error)
 	GetPermissionOverwrite(channelID snowflake.ID, overwriteID snowflake.ID, opts ...RequestOpt) (*discord.PermissionOverwrite, error)
@@ -98,18 +98,14 @@ func (s *channelImpl) GetWebhooks(channelID snowflake.ID, opts ...RequestOpt) (w
 	return
 }
 
-func (s *channelImpl) CreateWebhook(channelID snowflake.ID, webhookCreate discord.WebhookCreate, opts ...RequestOpt) (webhook discord.Webhook, err error) {
+func (s *channelImpl) CreateWebhook(channelID snowflake.ID, webhookCreate discord.WebhookCreate, opts ...RequestOpt) (webhook *discord.IncomingWebhook, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateWebhook.Compile(nil, channelID)
 	if err != nil {
 		return
 	}
 
-	var unmarshalWebhook discord.UnmarshalWebhook
-	err = s.client.Do(compiledRoute, webhookCreate, &unmarshalWebhook, opts...)
-	if err == nil {
-		webhook = unmarshalWebhook.Webhook
-	}
+	err = s.client.Do(compiledRoute, webhookCreate, &webhook, opts...)
 	return
 }
 
