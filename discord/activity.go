@@ -55,8 +55,8 @@ type ActivityEmoji struct {
 
 // ActivityParty is information about the party of the player
 type ActivityParty struct {
-	ID   snowflake.ID `json:"id,omitempty"`
-	Size []int        `json:"size,omitempty"`
+	ID   string `json:"id,omitempty"`
+	Size []int  `json:"size,omitempty"`
 }
 
 // ActivityAssets are the images for the presence and hover texts
