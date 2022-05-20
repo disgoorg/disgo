@@ -29,30 +29,18 @@ func NewEventCollector[E Event](client Client, filterFunc func(e E) bool) (<-cha
 	ch := make(chan E)
 	var once sync.Once
 
-	coll := &collector[E]{
-		FilterFunc: filterFunc,
-		Chan:       ch,
-	}
-	client.EventManager().AddEventListeners(coll)
+	handler := NewListenerFunc(func(e E) {
+		if !filterFunc(e) {
+			return
+		}
+		ch <- e
+	})
+	client.EventManager().AddEventListeners(handler)
 
 	return ch, func() {
 		once.Do(func() {
-			client.EventManager().RemoveEventListeners(coll)
+			client.EventManager().RemoveEventListeners(handler)
 			close(ch)
 		})
-	}
-}
-
-type collector[E Event] struct {
-	FilterFunc func(e E) bool
-	Chan       chan<- E
-}
-
-func (c *collector[E]) OnEvent(e Event) {
-	if event, ok := e.(E); ok {
-		if !c.FilterFunc(event) {
-			return
-		}
-		c.Chan <- event
 	}
 }

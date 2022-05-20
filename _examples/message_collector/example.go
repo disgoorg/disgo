@@ -27,7 +27,7 @@ func main() {
 	log.Infof("disgo version: %s", disgo.Version)
 
 	client, err := disgo.New(token,
-		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
+		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages, discord.GatewayIntentMessageContent)),
 		bot.WithEventListenerFunc(onMessageCreate),
 	)
 	if err != nil {
@@ -52,9 +52,10 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 	}
 	if event.Message.Content == "start" {
 		go func() {
-			ch, cls := bot.NewEventCollector(event.Client(), func(event *events.MessageCreateEvent) bool {
-				return event.ChannelID == event.ChannelID && event.Message.Author.ID == event.Message.Author.ID && event.Message.Content != ""
+			ch, cls := bot.NewEventCollector(event.Client(), func(event2 *events.MessageCreateEvent) bool {
+				return event.ChannelID == event2.ChannelID && event.Message.Author.ID == event2.Message.Author.ID && event2.Message.Content != ""
 			})
+			defer cls()
 			i := 1
 			str := ">>> "
 			ctx, clsCtx := context.WithTimeout(context.Background(), 20*time.Second)
@@ -69,8 +70,8 @@ func onMessageCreate(event *events.MessageCreateEvent) {
 					str += strconv.Itoa(i) + ". " + messageEvent.Message.Content + "\n\n"
 
 					if i == 3 {
-						cls()
 						_, _ = event.Client().Rest().CreateMessage(messageEvent.ChannelID, discord.NewMessageCreateBuilder().SetContent(str).Build())
+						return
 					}
 					i++
 				}

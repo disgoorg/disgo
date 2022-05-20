@@ -49,17 +49,19 @@ type EventListener interface {
 	OnEvent(event Event)
 }
 
-var _ EventListener = (ListenerFunc[Event])(nil)
+var _ EventListener = (*ListenerFunc[Event])(nil)
 
-func NewListenerFunc[E Event](f func(e E)) ListenerFunc[E] {
-	return f
+func NewListenerFunc[E Event](f func(e E)) *ListenerFunc[E] {
+	return &ListenerFunc[E]{F: f}
 }
 
-type ListenerFunc[E Event] func(e E)
+type ListenerFunc[E Event] struct {
+	F func(e E)
+}
 
-func (l ListenerFunc[E]) OnEvent(e Event) {
+func (l *ListenerFunc[E]) OnEvent(e Event) {
 	if event, ok := e.(E); ok {
-		l(event)
+		l.F(event)
 	}
 }
 

@@ -35,7 +35,7 @@ func WithListeners(listeners ...EventListener) EventManagerConfigOpt {
 }
 
 func WithListenerFunc[E Event](listenerFunc func(e E)) EventManagerConfigOpt {
-	return WithListeners(ListenerFunc[E](listenerFunc))
+	return WithListeners(NewListenerFunc(listenerFunc))
 }
 
 func WithRawEventsEnabled() EventManagerConfigOpt {
