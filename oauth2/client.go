@@ -44,6 +44,8 @@ type Client interface {
 
 	// GetUser returns the discord.OAuth2User associated with the given Session. Fields filled in the struct depend on the Session.Scopes
 	GetUser(session Session, opts ...rest.RequestOpt) (*discord.OAuth2User, error)
+	// GetMember returns the discord.Member associated with the given Session in a specific guild.
+	GetMember(session Session, guildID snowflake.ID, opts ...rest.RequestOpt) (*discord.Member, error)
 	// GetGuilds returns the discord.OAuth2Guild(s) the user is a member of. This requires the discord.ApplicationScopeGuilds scope in the Session
 	GetGuilds(session Session, opts ...rest.RequestOpt) ([]discord.OAuth2Guild, error)
 	// GetConnections returns the discord.Connection(s) the user has connected. This requires the discord.ApplicationScopeConnections scope in the Session

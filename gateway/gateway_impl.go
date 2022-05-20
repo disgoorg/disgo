@@ -99,6 +99,7 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 	g.status = StatusConnecting
 
 	gatewayURL := fmt.Sprintf("%s?v=%d&encoding=json", g.config.GatewayURL, Version)
+	g.lastHeartbeatSent = time.Now().UTC()
 	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
 		g.Close(ctx)
@@ -352,7 +353,7 @@ loop:
 		switch event.Op {
 		case discord.GatewayOpcodeHello:
 			g.lastHeartbeatReceived = time.Now().UTC()
-			g.lastHeartbeatSent = time.Now().UTC()
+			go g.heartbeat()
 
 			g.heartbeatInterval = time.Duration(event.D.(discord.GatewayMessageDataHello).HeartbeatInterval) * time.Millisecond
 
@@ -361,7 +362,6 @@ loop:
 			} else {
 				g.resume()
 			}
-			go g.heartbeat()
 
 		case discord.GatewayOpcodeDispatch:
 			data := event.D.(discord.GatewayMessageDataDispatch)

@@ -100,6 +100,16 @@ func (c *clientImpl) GetUser(session Session, opts ...rest.RequestOpt) (*discord
 	return c.Rest().GetCurrentUser(session.AccessToken(), opts...)
 }
 
+func (c *clientImpl) GetMember(session Session, guildID snowflake.ID, opts ...rest.RequestOpt) (*discord.Member, error) {
+	if session.Expiration().Before(time.Now()) {
+		return nil, ErrAccessTokenExpired
+	}
+	if !discord.HasScope(discord.ApplicationScopeGuildsMembersRead, session.Scopes()...) {
+		return nil, ErrMissingOAuth2Scope(discord.ApplicationScopeGuildsMembersRead)
+	}
+	return c.Rest().GetCurrentMember(session.AccessToken(), guildID, opts...)
+}
+
 func (c *clientImpl) GetGuilds(session Session, opts ...rest.RequestOpt) ([]discord.OAuth2Guild, error) {
 	if session.Expiration().Before(time.Now()) {
 		return nil, ErrAccessTokenExpired

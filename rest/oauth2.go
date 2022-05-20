@@ -19,6 +19,7 @@ type OAuth2 interface {
 
 	GetCurrentAuthorizationInfo(bearerToken string, opts ...RequestOpt) (*discord.AuthorizationInformation, error)
 	GetCurrentUser(bearerToken string, opts ...RequestOpt) (*discord.OAuth2User, error)
+	GetCurrentMember(bearerToken string, guildID snowflake.ID, opts ...RequestOpt) (*discord.Member, error)
 	GetCurrentUserGuilds(bearerToken string, before snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) ([]discord.OAuth2Guild, error)
 	GetCurrentUserConnections(bearerToken string, opts ...RequestOpt) ([]discord.Connection, error)
 
@@ -67,6 +68,17 @@ func (s *oAuth2Impl) GetCurrentUser(bearerToken string, opts ...RequestOpt) (use
 	}
 
 	err = s.client.Do(compiledRoute, nil, &user, withBearerToken(bearerToken, opts)...)
+	return
+}
+
+func (s *oAuth2Impl) GetCurrentMember(bearerToken string, guildID snowflake.ID, opts ...RequestOpt) (member *discord.Member, err error) {
+	var compiledRoute *route.CompiledAPIRoute
+	compiledRoute, err = route.GetCurrentMember.Compile(nil, guildID)
+	if err != nil {
+		return
+	}
+
+	err = s.client.Do(compiledRoute, nil, &member, withBearerToken(bearerToken, opts)...)
 	return
 }
 

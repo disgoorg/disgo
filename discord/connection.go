@@ -1,9 +1,7 @@
 package discord
 
-import "github.com/disgoorg/snowflake/v2"
-
 type Connection struct {
-	ID           snowflake.ID   `json:"id"`
+	ID           string         `json:"id"`
 	Name         string         `json:"name"`
 	Type         ConnectionType `json:"type"`
 	Revoked      bool           `json:"revoked,omitempty"`
