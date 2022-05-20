@@ -73,7 +73,7 @@ type MemberAdd struct {
 type MemberUpdate struct {
 	ChannelID                  *snowflake.ID             `json:"channel_id,omitempty"`
 	Nick                       *string                   `json:"nick,omitempty"`
-	Roles                      []snowflake.ID            `json:"roles,omitempty"`
+	Roles                      *[]snowflake.ID           `json:"roles,omitempty"`
 	Mute                       *bool                     `json:"mute,omitempty"`
 	Deaf                       *bool                     `json:"deaf,omitempty"`
 	CommunicationDisabledUntil *json.Nullable[time.Time] `json:"communication_disabled_until,omitempty"`
