@@ -76,9 +76,10 @@ const (
 	ApplicationScopeRPCVoiceRead         ApplicationScope = "rpc.voice.read"
 	ApplicationScopeRPCActivitiesWrite   ApplicationScope = "rpc.activities.write"
 
-	ApplicationScopeGuilds     ApplicationScope = "guilds"
-	ApplicationScopeGuildsJoin ApplicationScope = "guilds.join"
-	ApplicationScopeGDMJoin    ApplicationScope = "gdm.join"
+	ApplicationScopeGuilds            ApplicationScope = "guilds"
+	ApplicationScopeGuildsJoin        ApplicationScope = "guilds.join"
+	ApplicationScopeGuildsMembersRead ApplicationScope = "guilds.members.read"
+	ApplicationScopeGDMJoin           ApplicationScope = "gdm.join"
 
 	ApplicationScopeRelationshipsRead ApplicationScope = "relationships.read"
 	ApplicationScopeIdentify          ApplicationScope = "identify"

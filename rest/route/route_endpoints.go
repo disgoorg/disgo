@@ -27,6 +27,7 @@ var (
 var (
 	GetUser                   = NewAPIRoute(GET, "/users/{user.id}")
 	GetCurrentUser            = NewAPIRoute(GET, "/users/@me")
+	GetCurrentMember          = NewAPIRoute(GET, "/users/@me/guilds/{guild.id}/member")
 	UpdateSelfUser            = NewAPIRoute(PATCH, "/users/@me")
 	GetCurrentUserConnections = NewAPIRouteNoAuth(GET, "/users/@me/connections")
 	GetCurrentUserGuilds      = NewAPIRouteNoAuth(GET, "/users/@me/guilds", "before", "after", "limit")
