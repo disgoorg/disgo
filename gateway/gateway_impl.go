@@ -21,6 +21,7 @@ import (
 
 var _ Gateway = (*gatewayImpl)(nil)
 
+// New creates a new Gateway instance with the provided token, eventHandlerFunc, closeHandlerFunc and ConfigOpt(s).
 func New(token string, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...ConfigOpt) Gateway {
 	config := DefaultConfig()
 	config.Apply(opts)
@@ -154,6 +155,12 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message strin
 		}
 		_ = g.conn.Close()
 		g.conn = nil
+
+		// clear resume data as we closed gracefully
+		if code == websocket.CloseNormalClosure || code == websocket.CloseGoingAway {
+			g.config.SessionID = nil
+			g.config.LastSequenceReceived = nil
+		}
 	}
 
 }

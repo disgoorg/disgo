@@ -19,7 +19,7 @@ type (
 	RespondFunc func(response discord.InteractionResponse) error
 )
 
-// Server is used for receiving an Interaction over httpserver
+// Server is used for receiving Discord's interactions via Outgoing Webhooks
 type Server interface {
 	// Logger returns the logger used by the Server
 	Logger() log.Logger
