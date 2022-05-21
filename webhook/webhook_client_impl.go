@@ -9,7 +9,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// NewClient returns a new Client
+// NewClient creates a new Client with the given ID, token and ConfigOpt(s).
 func NewClient(id snowflake.ID, token string, opts ...ConfigOpt) Client {
 	config := DefaultConfig()
 	config.Apply(opts)

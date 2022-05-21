@@ -9,7 +9,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// New returns a new OAuth2 client
+// New returns a new OAuth2 client with the given ID, secret and ConfigOpt(s).
 func New(id snowflake.ID, secret string, opts ...ConfigOpt) Client {
 	config := DefaultConfig()
 	config.Apply(opts)

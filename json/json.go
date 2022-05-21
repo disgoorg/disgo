@@ -1,5 +1,4 @@
 // Package json provides configurable interfaces for JSON encoding and decoding.
-
 package json
 
 import "encoding/json"

@@ -10,15 +10,20 @@ import (
 	"github.com/disgoorg/disgo/rest"
 )
 
-// errors returned by the OAuth2 client
 var (
-	ErrStateNotFound      = errors.New("state could not be found")
+	// ErrStateNotFound is returned when the state is not found in the SessionController.
+	ErrStateNotFound = errors.New("state could not be found")
+
+	// ErrAccessTokenExpired is returned when the access token has expired.
 	ErrAccessTokenExpired = errors.New("access token expired. refresh the session")
+
+	// ErrMissingOAuth2Scope is returned when a specific OAuth2 scope is missing.
 	ErrMissingOAuth2Scope = func(scope discord.ApplicationScope) error {
 		return fmt.Errorf("missing '%s' scope", scope)
 	}
 )
 
+// Client is a high level wrapper around Discord's OAuth2 API.
 type Client interface {
 	// ID returns the configured client ID
 	ID() snowflake.ID
