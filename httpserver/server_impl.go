@@ -17,11 +17,12 @@ import (
 
 var _ Server = (*serverImpl)(nil)
 
-func New(eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Server {
+// New creates a new Server with the given publicKey eventHandlerFunc and ConfigOpt(s)
+func New(publicKey string, eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Server {
 	config := DefaultConfig()
 	config.Apply(opts)
 
-	hexDecodedKey, err := hex.DecodeString(config.PublicKey)
+	hexDecodedKey, err := hex.DecodeString(publicKey)
 	if err != nil {
 		config.Logger.Errorf("error while decoding hex string: %s", err)
 	}

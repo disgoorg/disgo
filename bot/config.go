@@ -43,6 +43,7 @@ type Config struct {
 	ShardManagerConfigOpts []sharding.ConfigOpt
 
 	HTTPServer           httpserver.Server
+	PublicKey            string
 	HTTPServerConfigOpts []httpserver.ConfigOpt
 
 	Caches          cache.Caches
@@ -152,8 +153,9 @@ func WithHTTPServer(httpServer httpserver.Server) ConfigOpt {
 }
 
 // WithHTTPServerConfigOpts lets you configure the default httpserver.Server.
-func WithHTTPServerConfigOpts(opts ...httpserver.ConfigOpt) ConfigOpt {
+func WithHTTPServerConfigOpts(publicKey string, opts ...httpserver.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
+		config.PublicKey = publicKey
 		config.HTTPServerConfigOpts = append(config.HTTPServerConfigOpts, opts...)
 	}
 }
@@ -282,12 +284,12 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 	}
 	client.shardManager = config.ShardManager
 
-	if config.HTTPServer == nil && config.HTTPServerConfigOpts != nil {
+	if config.HTTPServer == nil && config.PublicKey != "" && config.HTTPServerConfigOpts != nil {
 		config.HTTPServerConfigOpts = append([]httpserver.ConfigOpt{
 			httpserver.WithLogger(client.logger),
 		}, config.HTTPServerConfigOpts...)
 
-		config.HTTPServer = httpserver.New(httpServerEventHandlerFunc(client), config.HTTPServerConfigOpts...)
+		config.HTTPServer = httpserver.New(config.PublicKey, httpServerEventHandlerFunc(client), config.HTTPServerConfigOpts...)
 	}
 	client.httpServer = config.HTTPServer
 

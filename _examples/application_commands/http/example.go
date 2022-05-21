@@ -52,10 +52,9 @@ func main() {
 	}
 
 	client, err := disgo.New(token,
-		bot.WithHTTPServerConfigOpts(
+		bot.WithHTTPServerConfigOpts(publicKey,
 			httpserver.WithURL("/interactions/callback"),
 			httpserver.WithAddress(":80"),
-			httpserver.WithPublicKey(publicKey),
 		),
 		bot.WithEventListenerFunc(commandListener),
 	)
