@@ -55,7 +55,7 @@ type Config struct {
 // ConfigOpt is a type alias for a function that takes a Config and is used to configure your Client.
 type ConfigOpt func(config *Config)
 
-// Apply applies the given ConfigOpt(s) to the given Config
+// Apply applies the given ConfigOpt(s) to the Config
 func (c *Config) Apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)

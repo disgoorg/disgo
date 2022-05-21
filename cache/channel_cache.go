@@ -5,35 +5,68 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-func NewChannelCache(flags Flags, neededFlags Flags, policy Policy[discord.Channel]) ChannelCache {
-	return &ChannelCacheImpl{
-		Cache: NewCache[discord.Channel](flags, neededFlags, policy),
-	}
-}
-
+// ChannelCache is a Cache for all channel types
 type ChannelCache interface {
 	Cache[discord.Channel]
 
+	// GuildChannels returns all discord.GuildChannel in a guild and a bool indicating if it exists.
 	GuildChannels(guildID snowflake.ID) []discord.GuildChannel
+
+	// GuildThreadsInChannel returns all discord.GuildThread from the ChannelCache and a bool indicating if it exists.
 	GuildThreadsInChannel(channelID snowflake.ID) []discord.GuildThread
 
+	// GetGuildChannel returns a discord.GuildChannel from the ChannelCache and a bool indicating if it exists.
 	GetGuildChannel(channelID snowflake.ID) (discord.GuildChannel, bool)
+
+	// GetMessageChannel returns a discord.MessageChannel from the ChannelCache and a bool indicating if it exists.
 	GetMessageChannel(channelID snowflake.ID) (discord.MessageChannel, bool)
+
+	// GetGuildMessageChannel returns a discord.GuildMessageChannel from the ChannelCache and a bool indicating if it exists.
 	GetGuildMessageChannel(channelID snowflake.ID) (discord.GuildMessageChannel, bool)
+
+	// GetGuildThread returns a discord.GuildThread from the ChannelCache and a bool indicating if it exists.
 	GetGuildThread(channelID snowflake.ID) (discord.GuildThread, bool)
+
+	// GetGuildAudioChannel returns a discord.GetGuildAudioChannel from the ChannelCache and a bool indicating if it exists.
 	GetGuildAudioChannel(channelID snowflake.ID) (discord.GuildAudioChannel, bool)
 
+	// GetGuildTextChannel returns a discord.GuildTextChannel from the ChannelCache and a bool indicating if it exists.
 	GetGuildTextChannel(channelID snowflake.ID) (discord.GuildTextChannel, bool)
+
+	// GetDMChannel returns a discord.DMChannel from the ChannelCache and a bool indicating if it exists.
 	GetDMChannel(channelID snowflake.ID) (discord.DMChannel, bool)
+
+	// GetGuildVoiceChannel returns a discord.GuildVoiceChannel from the ChannelCache and a bool indicating if it exists.
 	GetGuildVoiceChannel(channelID snowflake.ID) (discord.GuildVoiceChannel, bool)
+
+	// GetGuildCategoryChannel returns a discord.GuildCategoryChannel from the ChannelCache and a bool indicating if it exists.
 	GetGuildCategoryChannel(channelID snowflake.ID) (discord.GuildCategoryChannel, bool)
+
+	// GetGuildNewsChannel returns a discord.GuildNewsChannel from the ChannelCache and a bool indicating if it exists.
 	GetGuildNewsChannel(channelID snowflake.ID) (discord.GuildNewsChannel, bool)
+
+	// GetGuildNewsThread returns a discord.GuildThread from the ChannelCache and a bool indicating if it exists.
 	GetGuildNewsThread(channelID snowflake.ID) (discord.GuildThread, bool)
+
+	// GetGuildPublicThread returns a discord.GuildThread from the ChannelCache and a bool indicating if it exists.
 	GetGuildPublicThread(channelID snowflake.ID) (discord.GuildThread, bool)
+
+	// GetGuildPrivateThread returns a discord.GuildThread from the ChannelCache and a bool indicating if it exists.
 	GetGuildPrivateThread(channelID snowflake.ID) (discord.GuildThread, bool)
+
+	// GetGuildStageVoiceChannel returns a discord.GuildStageVoiceChannel from the ChannelCache and a bool indicating if it exists.
 	GetGuildStageVoiceChannel(channelID snowflake.ID) (discord.GuildStageVoiceChannel, bool)
 }
 
+// NewChannelCache returns a new ChannelCacheImpl with the given flags and policy.
+// ChannelCacheImpl is thread safe and can be used in multiple goroutines.
+func NewChannelCache(flags Flags, policy Policy[discord.Channel]) ChannelCache {
+	return &ChannelCacheImpl{
+		Cache: NewCache[discord.Channel](flags, FlagChannels, policy),
+	}
+}
+
+// ChannelCacheImpl is a thread safe ChannelCache implementation.
 type ChannelCacheImpl struct {
 	Cache[discord.Channel]
 }

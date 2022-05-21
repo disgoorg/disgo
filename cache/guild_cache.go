@@ -7,28 +7,47 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-func NewGuildCache(flags Flags, neededFlags Flags, policy Policy[discord.Guild]) GuildCache {
+// GuildCache is a Cache for guilds.
+// It also keeps track of unready and unavailable guilds.
+type GuildCache interface {
+	Cache[discord.Guild]
+
+	// SetReady sets the specified guildID as ready in the specific shard.
+	SetReady(shardID int, guildID snowflake.ID)
+
+	// SetUnready sets the specified guildID as not ready in the specific shard.
+	SetUnready(shardID int, guildID snowflake.ID)
+
+	// IsUnready returns a bool indicating if the specified guildID is ready or not in the specific shard.
+	IsUnready(shardID int, guildID snowflake.ID) bool
+
+	// UnreadyGuilds returns all guildIDs that are not ready in the specific shard.
+	UnreadyGuilds(shardID int) []snowflake.ID
+
+	// SetUnavailable sets the specified guildID as unavailable.
+	SetUnavailable(guildID snowflake.ID)
+
+	// SetAvailable sets the specified guildID as available.
+	SetAvailable(guildID snowflake.ID)
+
+	// IsUnavailable returns a bool indicating if the specified guildID is unavailable or not.
+	IsUnavailable(guildID snowflake.ID) bool
+
+	// UnavailableGuilds returns all guildIDs that are unavailable.
+	UnavailableGuilds() []snowflake.ID
+}
+
+// NewGuildCache a new GuildCacheImpl with the given flags and policy.
+// GuildCacheImpl is thread safe and can be used in multiple goroutines.
+func NewGuildCache(flags Flags, policy Policy[discord.Guild]) GuildCache {
 	return &GuildCacheImpl{
-		Cache:             NewCache[discord.Guild](flags, neededFlags, policy),
+		Cache:             NewCache[discord.Guild](flags, FlagGuilds, policy),
 		unreadyGuilds:     map[int]map[snowflake.ID]struct{}{},
 		unavailableGuilds: map[snowflake.ID]struct{}{},
 	}
 }
 
-type GuildCache interface {
-	Cache[discord.Guild]
-
-	SetReady(shardID int, guildID snowflake.ID)
-	SetUnready(shardID int, guildID snowflake.ID)
-	IsUnready(shardID int, guildID snowflake.ID) bool
-	UnreadyGuilds(shardID int) []snowflake.ID
-
-	SetUnavailable(guildID snowflake.ID)
-	SetAvailable(guildID snowflake.ID)
-	IsUnavailable(guildID snowflake.ID) bool
-	UnavailableGuilds() []snowflake.ID
-}
-
+// GuildCacheImpl is a thread safe GuildCache implementation.
 type GuildCacheImpl struct {
 	Cache[discord.Guild]
 	unreadyGuildsMu sync.RWMutex

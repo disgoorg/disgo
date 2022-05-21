@@ -27,6 +27,13 @@ func (h *gatewayHandlerGuildDelete) HandleGatewayEvent(client bot.Client, sequen
 	guild, _ := client.Caches().Guilds().Remove(unavailableGuild.ID)
 	client.Caches().VoiceStates().RemoveAll(unavailableGuild.ID)
 	client.Caches().Presences().RemoveAll(unavailableGuild.ID)
+	client.Caches().ThreadMembers().RemoveIf(func(_ snowflake.ID, threadMember discord.ThreadMember) bool {
+		// TODO: figure out a better way to remove thread members from cache via guild id without requiring cached GuildThreads
+		if thread, ok := client.Caches().Channels().GetGuildThread(threadMember.ThreadID); ok {
+			return thread.GuildID() == unavailableGuild.ID
+		}
+		return false
+	})
 	client.Caches().Channels().RemoveIf(func(channel discord.Channel) bool {
 		if guildChannel, ok := channel.(discord.GuildChannel); ok {
 			return guildChannel.GuildID() == unavailableGuild.ID
@@ -37,10 +44,7 @@ func (h *gatewayHandlerGuildDelete) HandleGatewayEvent(client bot.Client, sequen
 	client.Caches().Stickers().RemoveAll(unavailableGuild.ID)
 	client.Caches().Roles().RemoveAll(unavailableGuild.ID)
 	client.Caches().StageInstances().RemoveAll(unavailableGuild.ID)
-	client.Caches().ThreadMembers().RemoveIf(func(groupID snowflake.ID, threadMember discord.ThreadMember) bool {
-		// TODO: figure out how to remove thread members from cache via guild id
-		return false
-	})
+
 	client.Caches().Messages().RemoveIf(func(channelID snowflake.ID, message discord.Message) bool {
 		return message.GuildID != nil && *message.GuildID == unavailableGuild.ID
 	})
