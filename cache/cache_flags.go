@@ -7,64 +7,24 @@ type Flags int
 const (
 	FlagGuilds Flags = 1 << iota
 	FlagGuildScheduledEvents
-	FlagUsers
 	FlagMembers
 	FlagThreadMembers
 	FlagMessages
 	FlagPresences
-
-	FlagGuildTextChannels
-	FlagDMChannels
-	FlagGuildVoiceChannels
-	FlagGroupDMChannels
-	FlagGuildCategories
-	FlagGuildNewsChannels
-	FlagGuildNewsThreads
-	FlagGuildPublicThreads
-	FlagGuildPrivateThreads
-	FlagGuildStageVoiceChannels
-
+	FlagChannels
 	FlagRoles
-	FlagRoleTags
-
 	FlagEmojis
 	FlagStickers
-
 	FlagVoiceStates
-
 	FlagStageInstances
-
 	FlagsNone Flags = 0
 
-	FlagsAllChannels = FlagGuildTextChannels |
-		FlagDMChannels |
-		FlagGuildVoiceChannels |
-		FlagGroupDMChannels |
-		FlagGuildCategories |
-		FlagGuildNewsChannels |
-		FlagGuildNewsThreads |
-		FlagGuildPublicThreads |
-		FlagGuildPrivateThreads |
-		FlagGuildStageVoiceChannels
-
-	FlagsAllThreads = FlagGuildNewsThreads |
-		FlagGuildPublicThreads |
-		FlagGuildPrivateThreads
-
-	FlagsDefault = FlagGuilds |
-		FlagsAllChannels |
-		FlagRoles |
-		FlagEmojis |
-		FlagStickers |
-		FlagVoiceStates
-
-	FlagsFullRoles = FlagRoles |
-		FlagRoleTags
+	FlagsDefault = FlagsNone
 
 	FlagsAll = FlagGuilds |
 		FlagGuildScheduledEvents |
-		FlagsAllChannels |
-		FlagsFullRoles |
+		FlagChannels |
+		FlagRoles |
 		FlagEmojis |
 		FlagStickers |
 		FlagVoiceStates |

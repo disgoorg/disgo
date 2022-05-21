@@ -19,10 +19,10 @@ func (h *gatewayHandlerMessageDeleteBulk) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerMessageDeleteBulk) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+func (h *gatewayHandlerMessageDeleteBulk) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	payload := *v.(*discord.GatewayEventMessageDeleteBulk)
 
 	for _, messageID := range payload.IDs {
-		handleMessageDelete(client, sequenceNumber, messageID, payload.ChannelID, payload.GuildID)
+		handleMessageDelete(client, sequenceNumber, shardID, messageID, payload.ChannelID, payload.GuildID)
 	}
 }

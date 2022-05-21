@@ -2,8 +2,8 @@
 [![Go Report](https://goreportcard.com/badge/github.com/disgoorg/disgo)](https://goreportcard.com/report/github.com/disgoorg/disgo)
 [![Go Version](https://img.shields.io/github/go-mod/go-version/disgoorg/disgo)](https://golang.org/doc/devel/release.html)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/disgoorg/disgo/blob/master/LICENSE)
-[![Disgo Version](https://img.shields.io/github/v/tag/disgoorg/disgo?label=release)](https://github.com/disgoorg/disgo/releases/latest)
-[![Disgo Discord](https://discord.com/api/guilds/817327181659111454/widget.png)](https://discord.gg/TewhTfDpvW)
+[![DisGo Version](https://img.shields.io/github/v/tag/disgoorg/disgo?label=release)](https://github.com/disgoorg/disgo/releases/latest)
+[![DisGo Discord](https://discord.com/api/guilds/817327181659111454/widget.png)](https://discord.gg/TewhTfDpvW)
 
 <img align="right" src="/.github/discord_gopher.png" width=192 alt="discord gopher">
 
@@ -63,7 +63,7 @@ go get github.com/disgoorg/disgo
 
 ### Building a DisGo Instance
 
-Build a bot client to interact with discord
+Build a bot client to interact with the discord api
 ```go
 package main
 
@@ -71,18 +71,25 @@ import (
     "github.com/disgoorg/disgo"
     "github.com/disgoorg/disgo/bot"
     "github.com/disgoorg/disgo/discord"
+    "github.com/disgoorg/disgo/events"
     "github.com/disgoorg/disgo/gateway"
 )
 
 func main() {
     client, err := disgo.New("token",
+        // set gateway options
         bot.WithGatewayConfigOpts(
+            // set enabled intents
             gateway.WithGatewayIntents(
                 discord.GatewayIntentGuilds,
                 discord.GatewayIntentGuildMessages,
                 discord.GatewayIntentDirectMessages,
             ),
         ),
+        // add event listeners
+        bot.WithEventListenerFunc(func(e *events.MessageCreateEvent) {
+            // event code here
+        }),
     )
 }
 ```
@@ -113,13 +120,11 @@ func main() {
     client, err := disgo.New(os.Getenv("token"),
         bot.WithGatewayConfigOpts(
             gateway.WithGatewayIntents(
-                discord.GatewayIntentsNone,
+                discord.GatewayIntentGuildMessages,
+                discord.GatewayIntentMessageContent,
             ),
         ),
-        bot.WithCacheConfigOpts(cache.WithCacheFlags(cache.FlagsDefault)),
-        bot.WithEventListeners(&events.ListenerAdapter{
-            OnMessageCreate: onMessageCreate,
-        }),
+        bot.WithEventListenerFunc(onMessageCreate),
     )
     if err != nil {
         log.Fatal("error while building disgo: ", err)
@@ -145,7 +150,7 @@ func onMessageCreate(event *events.MessageCreateEvent) {
         message = "ping"
     }
     if message != "" {
-        _, _ = event.Client().Rest().ChannelService().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent(message).Build())
+        _, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent(message).Build())
     }
 }
 ```

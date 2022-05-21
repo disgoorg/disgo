@@ -15,6 +15,6 @@ func (h *gatewayHandlerThreadMemberUpdate) New() any {
 	return &discord.ThreadMember{}
 }
 
-func (h *gatewayHandlerThreadMemberUpdate) HandleGatewayEvent(_ bot.Client, _ int, _ any) {
+func (h *gatewayHandlerThreadMemberUpdate) HandleGatewayEvent(_ bot.Client, _ int, _ int, _ any) {
 	// ThreadMembersUpdate kinda handles this already?
 }

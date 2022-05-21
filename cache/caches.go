@@ -4,20 +4,20 @@ import (
 	"sync"
 
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 type Caches interface {
 	CacheFlags() Flags
 
-	GetMemberPermissions(guildID snowflake.Snowflake, member discord.Member) discord.Permissions
+	GetMemberPermissions(guildID snowflake.ID, member discord.Member) discord.Permissions
 	GetMemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member) discord.Permissions
 	MemberRoles(member discord.Member) []discord.Role
 	AudioChannelMembers(channel discord.GuildAudioChannel) []discord.Member
 
 	GetSelfUser() (discord.OAuth2User, bool)
 	PutSelfUser(user discord.OAuth2User)
-	GetSelfMember(guildID snowflake.Snowflake) (discord.Member, bool)
+	GetSelfMember(guildID snowflake.ID) (discord.Member, bool)
 
 	Roles() GroupedCache[discord.Role]
 	Members() GroupedCache[discord.Member]
@@ -40,18 +40,18 @@ func NewCaches(opts ...ConfigOpt) Caches {
 	return &cachesImpl{
 		config: *config,
 
-		guildCache:               NewGuildCache(config.CacheFlags, FlagGuilds, nil),
-		channelCache:             NewChannelCache(config.CacheFlags, FlagsAllChannels, nil),
-		stageInstanceCache:       NewGroupedCache[discord.StageInstance](config.CacheFlags, FlagStageInstances, nil),
-		guildScheduledEventCache: NewGroupedCache[discord.GuildScheduledEvent](config.CacheFlags, FlagGuildScheduledEvents, nil),
-		roleCache:                NewGroupedCache[discord.Role](config.CacheFlags, FlagRoles, nil),
+		guildCache:               NewGuildCache(config.CacheFlags, FlagGuilds, config.GuildCachePolicy),
+		channelCache:             NewChannelCache(config.CacheFlags, FlagChannels, config.ChannelCachePolicy),
+		stageInstanceCache:       NewGroupedCache[discord.StageInstance](config.CacheFlags, FlagStageInstances, config.StageInstanceCachePolicy),
+		guildScheduledEventCache: NewGroupedCache[discord.GuildScheduledEvent](config.CacheFlags, FlagGuildScheduledEvents, config.GuildScheduledEventCachePolicy),
+		roleCache:                NewGroupedCache[discord.Role](config.CacheFlags, FlagRoles, config.RoleCachePolicy),
 		memberCache:              NewGroupedCache[discord.Member](config.CacheFlags, FlagMembers, config.MemberCachePolicy),
-		threadMemberCache:        NewGroupedCache[discord.ThreadMember](config.CacheFlags, FlagThreadMembers, nil),
-		presenceCache:            NewGroupedCache[discord.Presence](config.CacheFlags, FlagPresences, nil),
-		voiceStateCache:          NewGroupedCache[discord.VoiceState](config.CacheFlags, FlagVoiceStates, nil),
+		threadMemberCache:        NewGroupedCache[discord.ThreadMember](config.CacheFlags, FlagThreadMembers, config.ThreadMemberCachePolicy),
+		presenceCache:            NewGroupedCache[discord.Presence](config.CacheFlags, FlagPresences, config.PresenceCachePolicy),
+		voiceStateCache:          NewGroupedCache[discord.VoiceState](config.CacheFlags, FlagVoiceStates, config.VoiceStateCachePolicy),
 		messageCache:             NewGroupedCache[discord.Message](config.CacheFlags, FlagMessages, config.MessageCachePolicy),
-		emojiCache:               NewGroupedCache[discord.Emoji](config.CacheFlags, FlagEmojis, nil),
-		stickerCache:             NewGroupedCache[discord.Sticker](config.CacheFlags, FlagStickers, nil),
+		emojiCache:               NewGroupedCache[discord.Emoji](config.CacheFlags, FlagEmojis, config.EmojiCachePolicy),
+		stickerCache:             NewGroupedCache[discord.Sticker](config.CacheFlags, FlagStickers, config.StickerCachePolicy),
 	}
 }
 
@@ -79,7 +79,7 @@ func (c *cachesImpl) CacheFlags() Flags {
 	return c.config.CacheFlags
 }
 
-func (c *cachesImpl) GetMemberPermissions(guildID snowflake.Snowflake, member discord.Member) discord.Permissions {
+func (c *cachesImpl) GetMemberPermissions(guildID snowflake.ID, member discord.Member) discord.Permissions {
 	if guild, ok := c.Guilds().Get(guildID); ok && guild.OwnerID == member.User.ID {
 		return discord.PermissionsAll
 	}
@@ -149,7 +149,7 @@ func (c *cachesImpl) GetMemberPermissionsInChannel(channel discord.GuildChannel,
 }
 
 func (c *cachesImpl) MemberRoles(member discord.Member) []discord.Role {
-	return c.Roles().FindAll(func(groupID snowflake.Snowflake, role discord.Role) bool {
+	return c.Roles().FindAll(func(groupID snowflake.ID, role discord.Role) bool {
 		for _, roleID := range member.RoleIDs {
 			if roleID == role.ID {
 				return true
@@ -186,7 +186,7 @@ func (c *cachesImpl) PutSelfUser(user discord.OAuth2User) {
 	c.selfUser = &user
 }
 
-func (c *cachesImpl) GetSelfMember(guildID snowflake.Snowflake) (discord.Member, bool) {
+func (c *cachesImpl) GetSelfMember(guildID snowflake.ID) (discord.Member, bool) {
 	selfUser, ok := c.GetSelfUser()
 	if !ok {
 		return discord.Member{}, false

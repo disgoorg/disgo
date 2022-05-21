@@ -5,7 +5,10 @@ import (
 	"encoding/json"
 )
 
-var nullBytes = []byte("null")
+var (
+	EmptyStringBytes = []byte(`""`)
+	NullBytes        = []byte("null")
+)
 
 func NewPtr[T any](t T) *T {
 	return &t
@@ -44,13 +47,13 @@ type Nullable[T any] struct {
 
 func (n Nullable[T]) MarshalJSON() ([]byte, error) {
 	if n.isNull {
-		return nullBytes, nil
+		return NullBytes, nil
 	}
 	return json.Marshal(n.value)
 }
 
 func (n *Nullable[T]) UnmarshalJSON(data []byte) error {
-	if bytes.Equal(data, nullBytes) {
+	if bytes.Equal(data, NullBytes) {
 		n.isNull = true
 		return nil
 	}

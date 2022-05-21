@@ -3,7 +3,7 @@ package rest
 import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest/route"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var _ Invites = (*inviteImpl)(nil)
@@ -14,10 +14,10 @@ func NewInvites(client Client) Invites {
 
 type Invites interface {
 	GetInvite(code string, opts ...RequestOpt) (*discord.Invite, error)
-	CreateInvite(channelID snowflake.Snowflake, inviteCreate discord.InviteCreate, opts ...RequestOpt) (*discord.Invite, error)
+	CreateInvite(channelID snowflake.ID, inviteCreate discord.InviteCreate, opts ...RequestOpt) (*discord.Invite, error)
 	DeleteInvite(code string, opts ...RequestOpt) (*discord.Invite, error)
-	GetGuildInvites(guildID snowflake.Snowflake, opts ...RequestOpt) ([]discord.Invite, error)
-	GetChannelInvites(channelID snowflake.Snowflake, opts ...RequestOpt) ([]discord.Invite, error)
+	GetGuildInvites(guildID snowflake.ID, opts ...RequestOpt) ([]discord.Invite, error)
+	GetChannelInvites(channelID snowflake.ID, opts ...RequestOpt) ([]discord.Invite, error)
 }
 
 type inviteImpl struct {
@@ -34,7 +34,7 @@ func (s *inviteImpl) GetInvite(code string, opts ...RequestOpt) (invite *discord
 	return
 }
 
-func (s *inviteImpl) CreateInvite(channelID snowflake.Snowflake, inviteCreate discord.InviteCreate, opts ...RequestOpt) (invite *discord.Invite, err error) {
+func (s *inviteImpl) CreateInvite(channelID snowflake.ID, inviteCreate discord.InviteCreate, opts ...RequestOpt) (invite *discord.Invite, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateInvite.Compile(nil, channelID)
 	if err != nil {
@@ -54,7 +54,7 @@ func (s *inviteImpl) DeleteInvite(code string, opts ...RequestOpt) (invite *disc
 	return
 }
 
-func (s *inviteImpl) GetGuildInvites(guildID snowflake.Snowflake, opts ...RequestOpt) (invites []discord.Invite, err error) {
+func (s *inviteImpl) GetGuildInvites(guildID snowflake.ID, opts ...RequestOpt) (invites []discord.Invite, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetGuildInvites.Compile(nil, guildID)
 	if err != nil {
@@ -64,7 +64,7 @@ func (s *inviteImpl) GetGuildInvites(guildID snowflake.Snowflake, opts ...Reques
 	return
 }
 
-func (s *inviteImpl) GetChannelInvites(channelID snowflake.Snowflake, opts ...RequestOpt) (invites []discord.Invite, err error) {
+func (s *inviteImpl) GetChannelInvites(channelID snowflake.ID, opts ...RequestOpt) (invites []discord.Invite, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetChannelInvites.Compile(nil, channelID)
 	if err != nil {

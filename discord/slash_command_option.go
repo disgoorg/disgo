@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 type SlashCommandOption interface {
@@ -203,8 +203,8 @@ func (o SlashCommandOptionBool) Name() string {
 var _ SlashCommandOption = (*SlashCommandOptionUser)(nil)
 
 type SlashCommandOptionUser struct {
-	OptionName string              `json:"name"`
-	Value      snowflake.Snowflake `json:"value"`
+	OptionName string       `json:"name"`
+	Value      snowflake.ID `json:"value"`
 }
 
 func (SlashCommandOptionUser) slashCommandOption() {}
@@ -219,8 +219,8 @@ func (o SlashCommandOptionUser) Name() string {
 var _ SlashCommandOption = (*SlashCommandOptionChannel)(nil)
 
 type SlashCommandOptionChannel struct {
-	OptionName string              `json:"name"`
-	Value      snowflake.Snowflake `json:"value"`
+	OptionName string       `json:"name"`
+	Value      snowflake.ID `json:"value"`
 }
 
 func (SlashCommandOptionChannel) slashCommandOption() {}
@@ -235,8 +235,8 @@ func (o SlashCommandOptionChannel) Name() string {
 var _ SlashCommandOption = (*SlashCommandOptionRole)(nil)
 
 type SlashCommandOptionRole struct {
-	OptionName string              `json:"name"`
-	Value      snowflake.Snowflake `json:"value"`
+	OptionName string       `json:"name"`
+	Value      snowflake.ID `json:"value"`
 }
 
 func (SlashCommandOptionRole) slashCommandOption() {}
@@ -251,8 +251,8 @@ func (o SlashCommandOptionRole) Name() string {
 var _ SlashCommandOption = (*SlashCommandOptionMentionable)(nil)
 
 type SlashCommandOptionMentionable struct {
-	OptionName string              `json:"name"`
-	Value      snowflake.Snowflake `json:"value"`
+	OptionName string       `json:"name"`
+	Value      snowflake.ID `json:"value"`
 }
 
 func (SlashCommandOptionMentionable) slashCommandOption() {}
@@ -283,8 +283,8 @@ func (o SlashCommandOptionFloat) Name() string {
 var _ SlashCommandOption = (*SlashCommandOptionAttachment)(nil)
 
 type SlashCommandOptionAttachment struct {
-	OptionName string              `json:"name"`
-	Value      snowflake.Snowflake `json:"value"`
+	OptionName string       `json:"name"`
+	Value      snowflake.ID `json:"value"`
 }
 
 func (SlashCommandOptionAttachment) slashCommandOption() {}

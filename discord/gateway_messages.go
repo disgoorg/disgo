@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // GatewayMessage raw GatewayMessage type
@@ -137,10 +137,10 @@ func (GatewayMessageDataPresenceUpdate) gatewayMessageData() {}
 
 // GatewayMessageDataVoiceStateUpdate is used for updating the bots voice state in a guild
 type GatewayMessageDataVoiceStateUpdate struct {
-	GuildID   snowflake.Snowflake  `json:"guild_id"`
-	ChannelID *snowflake.Snowflake `json:"channel_id"`
-	SelfMute  bool                 `json:"self_mute"`
-	SelfDeaf  bool                 `json:"self_deaf"`
+	GuildID   snowflake.ID  `json:"guild_id"`
+	ChannelID *snowflake.ID `json:"channel_id"`
+	SelfMute  bool          `json:"self_mute"`
+	SelfDeaf  bool          `json:"self_deaf"`
 }
 
 func (GatewayMessageDataVoiceStateUpdate) gatewayMessageData() {}
@@ -158,12 +158,12 @@ func (GatewayMessageDataResume) gatewayMessageData() {}
 // GatewayMessageDataRequestGuildMembers is used for fetching all the members of a guild_events. It is recommended you have a strict
 // member caching policy when using this.
 type GatewayMessageDataRequestGuildMembers struct {
-	GuildID   snowflake.Snowflake   `json:"guild_id"`
-	Query     *string               `json:"query,omitempty"` //If specified, user_ids must not be entered
-	Limit     *int                  `json:"limit,omitempty"` //Must be >=1 if query/user_ids is used, otherwise 0
-	Presences bool                  `json:"presences,omitempty"`
-	UserIDs   []snowflake.Snowflake `json:"user_ids,omitempty"` //If specified, query must not be entered
-	Nonce     string                `json:"nonce,omitempty"`    //All responses are hashed with this nonce, optional
+	GuildID   snowflake.ID   `json:"guild_id"`
+	Query     *string        `json:"query,omitempty"` //If specified, user_ids must not be entered
+	Limit     *int           `json:"limit,omitempty"` //Must be >=1 if query/user_ids is used, otherwise 0
+	Presences bool           `json:"presences,omitempty"`
+	UserIDs   []snowflake.ID `json:"user_ids,omitempty"` //If specified, query must not be entered
+	Nonce     string         `json:"nonce,omitempty"`    //All responses are hashed with this nonce, optional
 }
 
 func (GatewayMessageDataRequestGuildMembers) gatewayMessageData() {}

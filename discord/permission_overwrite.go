@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // PermissionOverwriteType is the type of PermissionOverwrite
@@ -18,7 +18,7 @@ const (
 
 type PermissionOverwrites []PermissionOverwrite
 
-func (p PermissionOverwrites) Get(overwriteType PermissionOverwriteType, id snowflake.Snowflake) (PermissionOverwrite, bool) {
+func (p PermissionOverwrites) Get(overwriteType PermissionOverwriteType, id snowflake.ID) (PermissionOverwrite, bool) {
 	for _, v := range p {
 		if v.Type() == overwriteType && v.ID() == id {
 			return v, true
@@ -27,14 +27,14 @@ func (p PermissionOverwrites) Get(overwriteType PermissionOverwriteType, id snow
 	return nil, false
 }
 
-func (p PermissionOverwrites) Role(id snowflake.Snowflake) (RolePermissionOverwrite, bool) {
+func (p PermissionOverwrites) Role(id snowflake.ID) (RolePermissionOverwrite, bool) {
 	if overwrite, ok := p.Get(PermissionOverwriteTypeRole, id); ok {
 		return overwrite.(RolePermissionOverwrite), true
 	}
 	return RolePermissionOverwrite{}, false
 }
 
-func (p PermissionOverwrites) Member(id snowflake.Snowflake) (MemberPermissionOverwrite, bool) {
+func (p PermissionOverwrites) Member(id snowflake.ID) (MemberPermissionOverwrite, bool) {
 	if overwrite, ok := p.Get(PermissionOverwriteTypeMember, id); ok {
 		return overwrite.(MemberPermissionOverwrite), true
 	}
@@ -44,7 +44,7 @@ func (p PermissionOverwrites) Member(id snowflake.Snowflake) (MemberPermissionOv
 // PermissionOverwrite is used to determine who can perform particular actions in a GetGuildChannel
 type PermissionOverwrite interface {
 	Type() PermissionOverwriteType
-	ID() snowflake.Snowflake
+	ID() snowflake.ID
 }
 
 type UnmarshalPermissionOverwrite struct {
@@ -89,12 +89,12 @@ func (o *UnmarshalPermissionOverwrite) UnmarshalJSON(data []byte) error {
 }
 
 type RolePermissionOverwrite struct {
-	RoleID snowflake.Snowflake `json:"id"`
-	Allow  Permissions         `json:"allow"`
-	Deny   Permissions         `json:"deny"`
+	RoleID snowflake.ID `json:"id"`
+	Allow  Permissions  `json:"allow"`
+	Deny   Permissions  `json:"deny"`
 }
 
-func (o RolePermissionOverwrite) ID() snowflake.Snowflake {
+func (o RolePermissionOverwrite) ID() snowflake.ID {
 	return o.RoleID
 }
 
@@ -114,12 +114,12 @@ func (o RolePermissionOverwrite) Type() PermissionOverwriteType {
 }
 
 type MemberPermissionOverwrite struct {
-	UserID snowflake.Snowflake `json:"id"`
-	Allow  Permissions         `json:"allow"`
-	Deny   Permissions         `json:"deny"`
+	UserID snowflake.ID `json:"id"`
+	Allow  Permissions  `json:"allow"`
+	Deny   Permissions  `json:"deny"`
 }
 
-func (o MemberPermissionOverwrite) ID() snowflake.Snowflake {
+func (o MemberPermissionOverwrite) ID() snowflake.ID {
 	return o.UserID
 }
 

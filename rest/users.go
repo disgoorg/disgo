@@ -3,7 +3,7 @@ package rest
 import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest/route"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var _ Users = (*userImpl)(nil)
@@ -13,19 +13,19 @@ func NewUsers(client Client) Users {
 }
 
 type Users interface {
-	GetUser(userID snowflake.Snowflake, opts ...RequestOpt) (*discord.User, error)
+	GetUser(userID snowflake.ID, opts ...RequestOpt) (*discord.User, error)
 	UpdateSelfUser(selfUserUpdate discord.SelfUserUpdate, opts ...RequestOpt) (*discord.OAuth2User, error)
 	GetGuilds(before int, after int, limit int, opts ...RequestOpt) ([]discord.OAuth2Guild, error)
-	LeaveGuild(guildID snowflake.Snowflake, opts ...RequestOpt) error
+	LeaveGuild(guildID snowflake.ID, opts ...RequestOpt) error
 	GetDMChannels(opts ...RequestOpt) ([]discord.Channel, error)
-	CreateDMChannel(userID snowflake.Snowflake, opts ...RequestOpt) (*discord.DMChannel, error)
+	CreateDMChannel(userID snowflake.ID, opts ...RequestOpt) (*discord.DMChannel, error)
 }
 
 type userImpl struct {
 	client Client
 }
 
-func (s *userImpl) GetUser(userID snowflake.Snowflake, opts ...RequestOpt) (user *discord.User, err error) {
+func (s *userImpl) GetUser(userID snowflake.ID, opts ...RequestOpt) (user *discord.User, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetUser.Compile(nil, userID)
 	if err != nil {
@@ -67,7 +67,7 @@ func (s *userImpl) GetGuilds(before int, after int, limit int, opts ...RequestOp
 	return
 }
 
-func (s *userImpl) LeaveGuild(guildID snowflake.Snowflake, opts ...RequestOpt) error {
+func (s *userImpl) LeaveGuild(guildID snowflake.ID, opts ...RequestOpt) error {
 	compiledRoute, err := route.LeaveGuild.Compile(nil, guildID)
 	if err != nil {
 		return err
@@ -86,7 +86,7 @@ func (s *userImpl) GetDMChannels(opts ...RequestOpt) (channels []discord.Channel
 	return
 }
 
-func (s *userImpl) CreateDMChannel(userID snowflake.Snowflake, opts ...RequestOpt) (channel *discord.DMChannel, err error) {
+func (s *userImpl) CreateDMChannel(userID snowflake.ID, opts ...RequestOpt) (channel *discord.DMChannel, err error) {
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.CreateDMChannel.Compile(nil)
 	if err != nil {

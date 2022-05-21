@@ -13,6 +13,9 @@ type ListenerAdapter struct {
 	OnHTTPRequest func(event *HTTPRequestEvent)
 	OnRaw         func(event *RawEvent)
 
+	// GuildApplicationCommandPermissionsUpdate
+	OnGuildApplicationCommandPermissionsUpdate func(event *GuildApplicationCommandPermissionsUpdate)
+
 	// Thread Events
 	OnThreadCreate func(event *ThreadCreateEvent)
 	OnThreadUpdate func(event *ThreadUpdateEvent)
@@ -165,7 +168,7 @@ type ListenerAdapter struct {
 }
 
 // OnEvent is getting called everytime we receive an event
-func (l ListenerAdapter) OnEvent(event bot.Event) {
+func (l *ListenerAdapter) OnEvent(event bot.Event) {
 	switch e := event.(type) {
 	case *HeartbeatEvent:
 		if listener := l.OnHeartbeat; listener != nil {
@@ -177,6 +180,11 @@ func (l ListenerAdapter) OnEvent(event bot.Event) {
 		}
 	case *RawEvent:
 		if listener := l.OnRaw; listener != nil {
+			listener(e)
+		}
+
+	case *GuildApplicationCommandPermissionsUpdate:
+		if listener := l.OnGuildApplicationCommandPermissionsUpdate; listener != nil {
 			listener(e)
 		}
 

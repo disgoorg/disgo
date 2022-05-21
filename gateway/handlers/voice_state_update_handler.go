@@ -20,7 +20,7 @@ func (h *gatewayHandlerVoiceStateUpdate) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	voiceState := *v.(*discord.FullVoiceState)
 	member := voiceState.Member
 
@@ -33,7 +33,7 @@ func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(client bot.Client, s
 	client.Caches().Members().Put(voiceState.GuildID, voiceState.UserID, member)
 
 	genericGuildVoiceEvent := &events.GenericGuildVoiceStateEvent{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber),
+		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 		VoiceState:   voiceState.VoiceState,
 		Member:       member,
 	}

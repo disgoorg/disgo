@@ -6,11 +6,11 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/rest/route"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // New returns a new OAuth2 client
-func New(id snowflake.Snowflake, secret string, opts ...ConfigOpt) Client {
+func New(id snowflake.ID, secret string, opts ...ConfigOpt) Client {
 	config := DefaultConfig()
 	config.Apply(opts)
 
@@ -18,12 +18,12 @@ func New(id snowflake.Snowflake, secret string, opts ...ConfigOpt) Client {
 }
 
 type clientImpl struct {
-	id     snowflake.Snowflake
+	id     snowflake.ID
 	secret string
 	config Config
 }
 
-func (c *clientImpl) ID() snowflake.Snowflake {
+func (c *clientImpl) ID() snowflake.ID {
 	return c.id
 }
 
@@ -43,12 +43,12 @@ func (c *clientImpl) StateController() StateController {
 	return c.config.StateController
 }
 
-func (c *clientImpl) GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID snowflake.Snowflake, disableGuildSelect bool, scopes ...discord.ApplicationScope) string {
+func (c *clientImpl) GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.ApplicationScope) string {
 	url, _ := c.GenerateAuthorizationURLState(redirectURI, permissions, guildID, disableGuildSelect, scopes...)
 	return url
 }
 
-func (c *clientImpl) GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.Snowflake, disableGuildSelect bool, scopes ...discord.ApplicationScope) (string, string) {
+func (c *clientImpl) GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.ApplicationScope) (string, string) {
 	state := c.StateController().GenerateNewState(redirectURI)
 	values := route.QueryValues{
 		"client_id":     c.ID(),
@@ -60,7 +60,7 @@ func (c *clientImpl) GenerateAuthorizationURLState(redirectURI string, permissio
 	if permissions != discord.PermissionsNone {
 		values["permissions"] = permissions
 	}
-	if guildID != "" {
+	if guildID != 0 {
 		values["guild_id"] = guildID
 	}
 	if disableGuildSelect {
@@ -100,6 +100,16 @@ func (c *clientImpl) GetUser(session Session, opts ...rest.RequestOpt) (*discord
 	return c.Rest().GetCurrentUser(session.AccessToken(), opts...)
 }
 
+func (c *clientImpl) GetMember(session Session, guildID snowflake.ID, opts ...rest.RequestOpt) (*discord.Member, error) {
+	if session.Expiration().Before(time.Now()) {
+		return nil, ErrAccessTokenExpired
+	}
+	if !discord.HasScope(discord.ApplicationScopeGuildsMembersRead, session.Scopes()...) {
+		return nil, ErrMissingOAuth2Scope(discord.ApplicationScopeGuildsMembersRead)
+	}
+	return c.Rest().GetCurrentMember(session.AccessToken(), guildID, opts...)
+}
+
 func (c *clientImpl) GetGuilds(session Session, opts ...rest.RequestOpt) ([]discord.OAuth2Guild, error) {
 	if session.Expiration().Before(time.Now()) {
 		return nil, ErrAccessTokenExpired
@@ -107,7 +117,7 @@ func (c *clientImpl) GetGuilds(session Session, opts ...rest.RequestOpt) ([]disc
 	if !discord.HasScope(discord.ApplicationScopeGuilds, session.Scopes()...) {
 		return nil, ErrMissingOAuth2Scope(discord.ApplicationScopeGuilds)
 	}
-	return c.Rest().GetCurrentUserGuilds(session.AccessToken(), "", "", 0, opts...)
+	return c.Rest().GetCurrentUserGuilds(session.AccessToken(), 0, 0, 0, opts...)
 }
 
 func (c *clientImpl) GetConnections(session Session, opts ...rest.RequestOpt) ([]discord.Connection, error) {

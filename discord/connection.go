@@ -1,17 +1,15 @@
 package discord
 
-import "github.com/disgoorg/snowflake"
-
 type Connection struct {
-	ID           snowflake.Snowflake `json:"id"`
-	Name         string              `json:"name"`
-	Type         ConnectionType      `json:"type"`
-	Revoked      bool                `json:"revoked,omitempty"`
-	Integrations []Integration       `json:"integrations,omitempty"`
-	Verified     bool                `json:"verified"`
-	FriendSync   bool                `json:"friend_sync"`
-	ShowActivity bool                `json:"show_activity"`
-	Visibility   VisibilityType      `json:"visibility"`
+	ID           string         `json:"id"`
+	Name         string         `json:"name"`
+	Type         ConnectionType `json:"type"`
+	Revoked      bool           `json:"revoked,omitempty"`
+	Integrations []Integration  `json:"integrations,omitempty"`
+	Verified     bool           `json:"verified"`
+	FriendSync   bool           `json:"friend_sync"`
+	ShowActivity bool           `json:"show_activity"`
+	Visibility   VisibilityType `json:"visibility"`
 }
 
 type ConnectionType string

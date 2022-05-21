@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // MessageUpdateBuilder helper to build MessageUpdate easier
@@ -190,7 +190,7 @@ func (b *MessageUpdateBuilder) RetainAttachments(attachments ...Attachment) *Mes
 }
 
 // RetainAttachmentsByID removes all Attachment(s) from this Message except the ones provided
-func (b *MessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...snowflake.Snowflake) *MessageUpdateBuilder {
+func (b *MessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...snowflake.ID) *MessageUpdateBuilder {
 	if b.Attachments == nil {
 		b.Attachments = new([]AttachmentUpdate)
 	}

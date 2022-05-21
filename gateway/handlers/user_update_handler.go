@@ -20,14 +20,14 @@ func (h *gatewayHandlerUserUpdate) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerUserUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+func (h *gatewayHandlerUserUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	user := *v.(*discord.OAuth2User)
 
 	oldUser, _ := client.Caches().GetSelfUser()
 	client.Caches().PutSelfUser(user)
 
 	client.EventManager().DispatchEvent(&events.SelfUpdateEvent{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber),
+		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 		SelfUser:     user,
 		OldSelfUser:  oldUser,
 	})

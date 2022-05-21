@@ -6,10 +6,13 @@ import (
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/disgo/gateway/grate"
 	"github.com/disgoorg/disgo/httpserver"
 	"github.com/disgoorg/disgo/internal/tokenhelper"
 	"github.com/disgoorg/disgo/rest"
+	"github.com/disgoorg/disgo/rest/rrate"
 	"github.com/disgoorg/disgo/sharding"
+	"github.com/disgoorg/disgo/sharding/srate"
 	"github.com/disgoorg/log"
 )
 
@@ -100,6 +103,10 @@ func WithEventListeners(eventListeners ...EventListener) ConfigOpt {
 	}
 }
 
+func WithEventListenerFunc[E Event](listenerFunc func(e E)) ConfigOpt {
+	return WithEventListeners(NewListenerFunc(listenerFunc))
+}
+
 func WithGateway(gateway gateway.Gateway) ConfigOpt {
 	return func(config *Config) {
 		config.Gateway = gateway
@@ -180,6 +187,9 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 		config.RestClientConfigOpts = append([]rest.ConfigOpt{
 			rest.WithUserAgent(fmt.Sprintf("DiscordBot (%s, %s)", github, version)),
 			rest.WithLogger(client.logger),
+			func(config *rest.Config) {
+				config.RateLimiterConfigOpts = append([]rrate.ConfigOpt{rrate.WithLogger(client.logger)}, config.RateLimiterConfigOpts...)
+			},
 		}, config.RestClientConfigOpts...)
 
 		config.RestClient = rest.NewClient(client.token, config.RestClientConfigOpts...)
@@ -208,9 +218,12 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 			gateway.WithOS(os),
 			gateway.WithBrowser(name),
 			gateway.WithDevice(name),
+			func(config *gateway.Config) {
+				config.RateLimiterConfigOpts = append([]grate.ConfigOpt{grate.WithLogger(client.logger)}, config.RateLimiterConfigOpts...)
+			},
 		}, config.GatewayConfigOpts...)
 
-		config.Gateway = gateway.New(token, gatewayEventHandlerFunc(client), config.GatewayConfigOpts...)
+		config.Gateway = gateway.New(token, gatewayEventHandlerFunc(client), nil, config.GatewayConfigOpts...)
 	}
 	client.gateway = config.Gateway
 
@@ -232,8 +245,17 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 			sharding.WithGatewayConfigOpts(
 				gateway.WithGatewayURL(gatewayBotRs.URL),
 				gateway.WithLogger(client.logger),
+				gateway.WithOS(os),
+				gateway.WithBrowser(name),
+				gateway.WithDevice(name),
+				func(config *gateway.Config) {
+					config.RateLimiterConfigOpts = append([]grate.ConfigOpt{grate.WithLogger(client.logger)}, config.RateLimiterConfigOpts...)
+				},
 			),
 			sharding.WithLogger(client.logger),
+			func(config *sharding.Config) {
+				config.RateLimiterConfigOpts = append([]srate.ConfigOpt{srate.WithLogger(client.logger), srate.WithMaxConcurrency(gatewayBotRs.SessionStartLimit.MaxConcurrency)}, config.RateLimiterConfigOpts...)
+			},
 		}, config.ShardManagerConfigOpts...)
 
 		config.ShardManager = sharding.New(token, gatewayEventHandlerFunc(client), config.ShardManagerConfigOpts...)
