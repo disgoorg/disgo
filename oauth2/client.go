@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest"
@@ -21,7 +21,7 @@ var (
 
 type Client interface {
 	// ID returns the configured client ID
-	ID() snowflake.Snowflake
+	ID() snowflake.ID
 	// Secret returns the configured client secret
 	Secret() string
 	// Rest returns the underlying rest.OAuth2
@@ -33,9 +33,9 @@ type Client interface {
 	StateController() StateController
 
 	// GenerateAuthorizationURL generates an authorization URL with the given redirect URI, permissions, guildID, disableGuildSelect & scopes. State is automatically generated
-	GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID snowflake.Snowflake, disableGuildSelect bool, scopes ...discord.ApplicationScope) string
+	GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.ApplicationScope) string
 	// GenerateAuthorizationURLState generates an authorization URL with the given redirect URI, permissions, guildID, disableGuildSelect & scopes. State is automatically generated & returned
-	GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.Snowflake, disableGuildSelect bool, scopes ...discord.ApplicationScope) (string, string)
+	GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.ApplicationScope) (string, string)
 
 	// StartSession starts a new Session with the given authorization code & state
 	StartSession(code string, state string, identifier string, opts ...rest.RequestOpt) (Session, error)
@@ -44,6 +44,8 @@ type Client interface {
 
 	// GetUser returns the discord.OAuth2User associated with the given Session. Fields filled in the struct depend on the Session.Scopes
 	GetUser(session Session, opts ...rest.RequestOpt) (*discord.OAuth2User, error)
+	// GetMember returns the discord.Member associated with the given Session in a specific guild.
+	GetMember(session Session, guildID snowflake.ID, opts ...rest.RequestOpt) (*discord.Member, error)
 	// GetGuilds returns the discord.OAuth2Guild(s) the user is a member of. This requires the discord.ApplicationScopeGuilds scope in the Session
 	GetGuilds(session Session, opts ...rest.RequestOpt) ([]discord.OAuth2Guild, error)
 	// GetConnections returns the discord.Connection(s) the user has connected. This requires the discord.ApplicationScopeConnections scope in the Session

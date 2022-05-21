@@ -37,19 +37,22 @@ const (
 	StatusDisconnected
 )
 
-type EventHandlerFunc func(gatewayEventType discord.GatewayEventType, sequenceNumber int, payload io.Reader)
-
-type CreateFunc func(token string, eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Gateway
+type (
+	EventHandlerFunc func(gatewayEventType discord.GatewayEventType, sequenceNumber int, shardID int, payload io.Reader)
+	CreateFunc       func(token string, eventHandlerFunc EventHandlerFunc, closeHandlerFUnc CloseHandlerFunc, opts ...ConfigOpt) Gateway
+	CloseHandlerFunc func(gateway Gateway, err error)
+)
 
 // Gateway is what is used to connect to discord
 type Gateway interface {
 	Logger() log.Logger
 	ShardID() int
 	ShardCount() int
+	SessionID() *string
+	LastSequenceReceived() *int
 	GatewayIntents() discord.GatewayIntents
 
 	Open(ctx context.Context) error
-	ReOpen(ctx context.Context, delay time.Duration) error
 	Close(ctx context.Context)
 	CloseWithCode(ctx context.Context, code int, message string)
 	Status() Status

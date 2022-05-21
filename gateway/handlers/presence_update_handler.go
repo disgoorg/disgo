@@ -19,14 +19,14 @@ func (h *gatewayHandlerPresenceUpdate) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	/*payload := *v.(*discord.Presence)
 
 	oldPresence := client.Caches().Presences().GetCopy(payload.GuildID, payload.PresenceUser.ID)
 
 	_ = bot.EntityBuilder.CreatePresence(payload, core.CacheStrategyYes)
 
-	genericEvent := events.NewGenericEvent(client, sequenceNumber)
+	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
 	var (
 		oldStatus       discord.OnlineStatus

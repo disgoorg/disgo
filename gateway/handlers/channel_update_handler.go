@@ -20,7 +20,7 @@ func (h *gatewayHandlerChannelUpdate) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	channel := v.(*discord.UnmarshalChannel).Channel
 
 	if guildChannel, ok := channel.(discord.GuildChannel); ok {
@@ -29,7 +29,7 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(client bot.Client, sequ
 
 		client.EventManager().DispatchEvent(&events.GuildChannelUpdateEvent{
 			GenericGuildChannelEvent: &events.GenericGuildChannelEvent{
-				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
+				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 				ChannelID:    channel.ID(),
 				Channel:      guildChannel,
 				GuildID:      guildChannel.GuildID(),
@@ -45,7 +45,7 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(client bot.Client, sequ
 					client.Caches().Channels().Remove(guildThread.ID())
 					client.EventManager().DispatchEvent(&events.ThreadHideEvent{
 						GenericThreadEvent: &events.GenericThreadEvent{
-							GenericEvent: events.NewGenericEvent(client, sequenceNumber),
+							GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 							Thread:       guildThread,
 							ThreadID:     guildThread.ID(),
 							GuildID:      guildThread.GuildID(),
@@ -62,7 +62,7 @@ func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(client bot.Client, sequ
 
 		client.EventManager().DispatchEvent(&events.DMChannelUpdateEvent{
 			GenericDMChannelEvent: &events.GenericDMChannelEvent{
-				GenericEvent: events.NewGenericEvent(client, sequenceNumber),
+				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 				ChannelID:    channel.ID(),
 				Channel:      dmChannel,
 			},

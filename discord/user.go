@@ -5,7 +5,7 @@ import (
 
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/disgo/rest/route"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // UserFlags defines certain flags/badges a user can have (https://discord.com/developers/docs/resources/user#user-object-user-flags)
@@ -40,15 +40,15 @@ var _ Mentionable = (*User)(nil)
 
 // User is a struct for interacting with discord's users
 type User struct {
-	ID            snowflake.Snowflake `json:"id"`
-	Username      string              `json:"username"`
-	Discriminator string              `json:"discriminator"`
-	Avatar        *string             `json:"avatar"`
-	Banner        *string             `json:"banner"`
-	AccentColor   *int                `json:"accent_color"`
-	Bot           bool                `json:"bot"`
-	System        bool                `json:"system"`
-	PublicFlags   UserFlags           `json:"public_flags"`
+	ID            snowflake.ID `json:"id"`
+	Username      string       `json:"username"`
+	Discriminator string       `json:"discriminator"`
+	Avatar        *string      `json:"avatar"`
+	Banner        *string      `json:"banner"`
+	AccentColor   *int         `json:"accent_color"`
+	Bot           bool         `json:"bot"`
+	System        bool         `json:"system"`
+	PublicFlags   UserFlags    `json:"public_flags"`
 }
 
 func (u User) String() string {

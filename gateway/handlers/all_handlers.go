@@ -12,7 +12,7 @@ import (
 
 func DefaultHTTPServerEventHandler(client bot.Client) httpserver.EventHandlerFunc {
 	return func(responseFunc httpserver.RespondFunc, reader io.Reader) {
-		client.EventManager().HandleHTTPEvent(responseFunc, events.HandleRawEvent(client, discord.GatewayEventTypeInteractionCreate, -1, responseFunc, reader))
+		client.EventManager().HandleHTTPEvent(responseFunc, events.HandleRawEvent(client, discord.GatewayEventTypeInteractionCreate, -1, -1, responseFunc, reader))
 	}
 }
 
@@ -21,8 +21,8 @@ func GetHTTPServerHandler() bot.HTTPServerEventHandler {
 }
 
 func DefaultGatewayEventHandler(client bot.Client) gateway.EventHandlerFunc {
-	return func(gatewayEventType discord.GatewayEventType, sequenceNumber int, reader io.Reader) {
-		client.EventManager().HandleGatewayEvent(gatewayEventType, sequenceNumber, events.HandleRawEvent(client, gatewayEventType, sequenceNumber, nil, reader))
+	return func(gatewayEventType discord.GatewayEventType, sequenceNumber int, shardID int, reader io.Reader) {
+		client.EventManager().HandleGatewayEvent(gatewayEventType, sequenceNumber, shardID, events.HandleRawEvent(client, gatewayEventType, sequenceNumber, shardID, nil, reader))
 	}
 }
 
@@ -37,6 +37,8 @@ func GetGatewayHandlers() map[discord.GatewayEventType]bot.GatewayEventHandler {
 var AllEventHandlers = []bot.GatewayEventHandler{
 	&gatewayHandlerReady{},
 	&gatewayHandlerResumed{},
+
+	&gatewayHandlerApplicationCommandPermissionsUpdate{},
 
 	&gatewayHandlerChannelCreate{},
 	&gatewayHandlerChannelUpdate{},

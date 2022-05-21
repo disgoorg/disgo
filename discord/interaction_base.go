@@ -2,16 +2,16 @@ package discord
 
 import (
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 type BaseInteraction interface {
-	ID() snowflake.Snowflake
-	ApplicationID() snowflake.Snowflake
+	ID() snowflake.ID
+	ApplicationID() snowflake.ID
 	Token() string
 	Version() int
-	GuildID() *snowflake.Snowflake
-	ChannelID() snowflake.Snowflake
+	GuildID() *snowflake.ID
+	ChannelID() snowflake.ID
 	Locale() Locale
 	GuildLocale() *Locale
 	Member() *ResolvedMember
@@ -19,12 +19,12 @@ type BaseInteraction interface {
 }
 
 type baseInteractionImpl struct {
-	id            snowflake.Snowflake
-	applicationID snowflake.Snowflake
+	id            snowflake.ID
+	applicationID snowflake.ID
 	token         string
 	version       int
-	guildID       *snowflake.Snowflake
-	channelID     snowflake.Snowflake
+	guildID       *snowflake.ID
+	channelID     snowflake.ID
 	locale        Locale
 	guildLocale   *Locale
 	member        *ResolvedMember
@@ -64,10 +64,10 @@ func (i baseInteractionImpl) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (i baseInteractionImpl) ID() snowflake.Snowflake {
+func (i baseInteractionImpl) ID() snowflake.ID {
 	return i.id
 }
-func (i baseInteractionImpl) ApplicationID() snowflake.Snowflake {
+func (i baseInteractionImpl) ApplicationID() snowflake.ID {
 	return i.applicationID
 }
 func (i baseInteractionImpl) Token() string {
@@ -76,10 +76,10 @@ func (i baseInteractionImpl) Token() string {
 func (i baseInteractionImpl) Version() int {
 	return i.version
 }
-func (i baseInteractionImpl) GuildID() *snowflake.Snowflake {
+func (i baseInteractionImpl) GuildID() *snowflake.ID {
 	return i.guildID
 }
-func (i baseInteractionImpl) ChannelID() snowflake.Snowflake {
+func (i baseInteractionImpl) ChannelID() snowflake.ID {
 	return i.channelID
 }
 func (i baseInteractionImpl) Locale() Locale {

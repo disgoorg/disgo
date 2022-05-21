@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/disgoorg/disgo/rest/route"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // InviteTargetType is type of target an Invite uses
@@ -21,7 +21,7 @@ type Invite struct {
 	Code                     string               `json:"code"`
 	Guild                    *InviteGuild         `json:"guild"`
 	Channel                  *InviteChannel       `json:"channel"`
-	ChannelID                snowflake.Snowflake  `json:"channel_id"`
+	ChannelID                snowflake.ID         `json:"channel_id"`
 	Inviter                  *User                `json:"inviter"`
 	TargetUser               *User                `json:"target_user"`
 	TargetType               InviteTargetType     `json:"target_user_type"`
@@ -48,10 +48,10 @@ type ExtendedInvite struct {
 }
 
 type InviteChannel struct {
-	ID   snowflake.Snowflake `json:"id"`
-	Type ChannelType         `json:"type"`
-	Name string              `json:"name"`
-	Icon *string             `json:"icon,omitempty"`
+	ID   snowflake.ID `json:"id"`
+	Type ChannelType  `json:"type"`
+	Name string       `json:"name"`
+	Icon *string      `json:"icon,omitempty"`
 }
 
 // IconURL returns the Icon URL of this channel.
@@ -65,23 +65,23 @@ func (c InviteChannel) IconURL(opts ...CDNOpt) *string {
 
 // An InviteGuild is the Guild of an Invite
 type InviteGuild struct {
-	ID                snowflake.Snowflake `json:"id"`
-	Name              string              `json:"name"`
-	Splash            *string             `json:"splash"`
-	Banner            *string             `json:"banner"`
-	Description       *string             `json:"description"`
-	Icon              *string             `json:"icon"`
-	Features          []GuildFeature      `json:"features"`
-	VerificationLevel VerificationLevel   `json:"verification_level"`
-	VanityURLCode     *string             `json:"vanity_url_code"`
+	ID                snowflake.ID      `json:"id"`
+	Name              string            `json:"name"`
+	Splash            *string           `json:"splash"`
+	Banner            *string           `json:"banner"`
+	Description       *string           `json:"description"`
+	Icon              *string           `json:"icon"`
+	Features          []GuildFeature    `json:"features"`
+	VerificationLevel VerificationLevel `json:"verification_level"`
+	VanityURLCode     *string           `json:"vanity_url_code"`
 }
 
 type InviteCreate struct {
-	MaxAgree            int                 `json:"max_agree,omitempty"`
-	MaxUses             int                 `json:"max_uses,omitempty"`
-	Temporary           bool                `json:"temporary,omitempty"`
-	Unique              bool                `json:"unique,omitempty"`
-	TargetType          InviteTargetType    `json:"target_type,omitempty"`
-	TargetUserID        snowflake.Snowflake `json:"target_user_id,omitempty"`
-	TargetApplicationID snowflake.Snowflake `json:"target_application_id,omitempty"`
+	MaxAgree            int              `json:"max_agree,omitempty"`
+	MaxUses             int              `json:"max_uses,omitempty"`
+	Temporary           bool             `json:"temporary,omitempty"`
+	Unique              bool             `json:"unique,omitempty"`
+	TargetType          InviteTargetType `json:"target_type,omitempty"`
+	TargetUserID        snowflake.ID     `json:"target_user_id,omitempty"`
+	TargetApplicationID snowflake.ID     `json:"target_application_id,omitempty"`
 }

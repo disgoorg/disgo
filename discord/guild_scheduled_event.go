@@ -3,15 +3,15 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // GuildScheduledEvent a representation of a scheduled event in a Guild (https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object)
 type GuildScheduledEvent struct {
-	ID                 snowflake.Snowflake        `json:"id"`
-	GuildID            snowflake.Snowflake        `json:"guild_id"`
-	ChannelID          *snowflake.Snowflake       `json:"channel_id"`
-	CreatorID          snowflake.Snowflake        `json:"creator_id"`
+	ID                 snowflake.ID               `json:"id"`
+	GuildID            snowflake.ID               `json:"guild_id"`
+	ChannelID          *snowflake.ID              `json:"channel_id"`
+	CreatorID          snowflake.ID               `json:"creator_id"`
 	Name               string                     `json:"name"`
 	Description        string                     `json:"description"`
 	ScheduledStartTime time.Time                  `json:"scheduled_start_time"`
@@ -19,14 +19,14 @@ type GuildScheduledEvent struct {
 	PrivacyLevel       ScheduledEventPrivacyLevel `json:"privacy_level"`
 	Status             ScheduledEventStatus       `json:"status"`
 	EntityType         ScheduledEventEntityType   `json:"entity_type"`
-	EntityID           *snowflake.Snowflake       `json:"entity_id"`
+	EntityID           *snowflake.ID              `json:"entity_id"`
 	EntityMetaData     *EntityMetaData            `json:"entity_metadata"`
 	Creator            User                       `json:"creator"`
 	UserCount          int                        `json:"user_count"`
 }
 
 type GuildScheduledEventCreate struct {
-	ChannelID          snowflake.Snowflake        `json:"channel_id,omitempty"`
+	ChannelID          snowflake.ID               `json:"channel_id,omitempty"`
 	EntityMetaData     *EntityMetaData            `json:"entity_metadata,omitempty"`
 	Name               string                     `json:"name"`
 	PrivacyLevel       ScheduledEventPrivacyLevel `json:"privacy_level"`
@@ -37,7 +37,7 @@ type GuildScheduledEventCreate struct {
 }
 
 type GuildScheduledEventUpdate struct {
-	ChannelID          *snowflake.Snowflake        `json:"channel_id,omitempty"`
+	ChannelID          *snowflake.ID               `json:"channel_id,omitempty"`
 	EntityMetaData     *EntityMetaData             `json:"entity_metadata,omitempty"`
 	Name               string                      `json:"name,omitempty"`
 	PrivacyLevel       *ScheduledEventPrivacyLevel `json:"privacy_level,omitempty"`
@@ -49,9 +49,9 @@ type GuildScheduledEventUpdate struct {
 }
 
 type GuildScheduledEventUser struct {
-	GuildScheduledEventID snowflake.Snowflake `json:"guild_scheduled_event_id"`
-	User                  User                `json:"user"`
-	Member                *Member             `json:"member"`
+	GuildScheduledEventID snowflake.ID `json:"guild_scheduled_event_id"`
+	User                  User         `json:"user"`
+	Member                *Member      `json:"member"`
 }
 
 // ScheduledEventPrivacyLevel the privacy level of the ScheduledEventPrivacyLevel (https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-privacy-level)

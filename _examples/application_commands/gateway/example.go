@@ -8,23 +8,21 @@ import (
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
 	token   = os.Getenv("disgo_token")
-	guildID = snowflake.GetSnowflakeEnv("disgo_guild_id")
+	guildID = snowflake.GetEnv("disgo_guild_id")
 
 	commands = []discord.ApplicationCommandCreate{
 		discord.SlashCommandCreate{
-			CommandName:       "say",
-			Description:       "says what you say",
-			DefaultPermission: true,
+			CommandName: "say",
+			Description: "says what you say",
 			Options: []discord.ApplicationCommandOption{
 				discord.ApplicationCommandOptionString{
 					Name:        "message",
@@ -48,10 +46,7 @@ func main() {
 
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentsNone)),
-		bot.WithCacheConfigOpts(cache.WithCacheFlags(cache.FlagsDefault)),
-		bot.WithEventListeners(&events.ListenerAdapter{
-			OnApplicationCommandInteraction: commandListener,
-		}),
+		bot.WithEventListenerFunc(commandListener),
 	)
 	if err != nil {
 		log.Fatal("error while building disgo instance: ", err)

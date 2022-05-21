@@ -1,39 +1,40 @@
 package bot
 
-import "github.com/disgoorg/snowflake"
-
-// MemberChunkingFilter is a filter that can be used to filter from which guilds to request members from.
-type MemberChunkingFilter func(guildID snowflake.Snowflake) bool
-
-var (
-	MemberChunkingFilterAll  MemberChunkingFilter = func(_ snowflake.Snowflake) bool { return true }
-	MemberChunkingFilterNone MemberChunkingFilter = func(_ snowflake.Snowflake) bool { return false }
+import (
+	"github.com/disgoorg/snowflake/v2"
+	"golang.org/x/exp/slices"
 )
 
-// Include includes the given guilds from being chunked.
-func (f MemberChunkingFilter) Include(guildIDs ...snowflake.Snowflake) MemberChunkingFilter {
-	return func(guildID snowflake.Snowflake) bool {
-		return f(guildID) || func(guildID snowflake.Snowflake) bool {
-			for _, gID := range guildIDs {
-				if gID == guildID {
-					return true
-				}
-			}
-			return false
-		}(guildID)
+// MemberChunkingFilter is a filter that can be used to filter from which guilds to request members from.
+type MemberChunkingFilter func(guildID snowflake.ID) bool
+
+var (
+	MemberChunkingFilterAll  MemberChunkingFilter = func(_ snowflake.ID) bool { return true }
+	MemberChunkingFilterNone MemberChunkingFilter = func(_ snowflake.ID) bool { return false }
+)
+
+func MemberChunkingFilterIncludeGuildIDs(guildIDs ...snowflake.ID) MemberChunkingFilter {
+	return func(guildID snowflake.ID) bool {
+		return slices.Contains(guildIDs, guildID)
 	}
 }
 
-// Exclude excludes the given guilds from being chunked.
-func (f MemberChunkingFilter) Exclude(guildIDs ...snowflake.Snowflake) MemberChunkingFilter {
-	return func(guildID snowflake.Snowflake) bool {
-		return f(guildID) || func(guildID snowflake.Snowflake) bool {
-			for _, gID := range guildIDs {
-				if gID == guildID {
-					return false
-				}
-			}
-			return true
-		}(guildID)
+func MemberChunkingFilterExcludeGuildIDs(guildIDs ...snowflake.ID) MemberChunkingFilter {
+	return func(guildID snowflake.ID) bool {
+		return slices.Contains(guildIDs, guildID)
+	}
+}
+
+// Or allows you to combine the MemberChunkingFilter with another, meaning either of them needs to be true for the guild to be chunked.
+func (f MemberChunkingFilter) Or(filter MemberChunkingFilter) MemberChunkingFilter {
+	return func(guildID snowflake.ID) bool {
+		return f(guildID) || filter(guildID)
+	}
+}
+
+// And allows you to require both MemberChunkingFilter(s) to be true for the guild to be chunked
+func (f MemberChunkingFilter) And(filter MemberChunkingFilter) MemberChunkingFilter {
+	return func(guildID snowflake.ID) bool {
+		return f(guildID) && filter(guildID)
 	}
 }

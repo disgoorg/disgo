@@ -20,8 +20,13 @@ func (h *gatewayHandlerMessageCreate) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerMessageCreate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+func (h *gatewayHandlerMessageCreate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	message := *v.(*discord.Message)
+
+	if message.Flags.Has(discord.MessageFlagEphemeral) {
+		// Ignore ephemeral messages as they miss guild_id & member
+		return
+	}
 
 	if message.Member != nil {
 		message.Member.User = message.Author
@@ -34,7 +39,7 @@ func (h *gatewayHandlerMessageCreate) HandleGatewayEvent(client bot.Client, sequ
 		client.Caches().Channels().Put(message.ChannelID, discord.ApplyLastMessageID(channel, message.ID))
 	}
 
-	genericEvent := events.NewGenericEvent(client, sequenceNumber)
+	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 	client.EventManager().DispatchEvent(&events.MessageCreateEvent{
 		GenericMessageEvent: &events.GenericMessageEvent{
 			GenericEvent: genericEvent,

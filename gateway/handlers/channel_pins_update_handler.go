@@ -22,7 +22,7 @@ func (h *gatewayHandlerChannelPinsUpdate) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerChannelPinsUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
+func (h *gatewayHandlerChannelPinsUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	payload := *v.(*discord.GatewayEventChannelPinsUpdate)
 
 	var oldTime *time.Time
@@ -35,14 +35,14 @@ func (h *gatewayHandlerChannelPinsUpdate) HandleGatewayEvent(client bot.Client, 
 
 	if payload.GuildID == nil {
 		client.EventManager().DispatchEvent(&events.DMChannelPinsUpdateEvent{
-			GenericEvent:        events.NewGenericEvent(client, sequenceNumber),
+			GenericEvent:        events.NewGenericEvent(client, sequenceNumber, shardID),
 			ChannelID:           payload.ChannelID,
 			OldLastPinTimestamp: oldTime,
 			NewLastPinTimestamp: payload.LastPinTimestamp,
 		})
 	} else {
 		client.EventManager().DispatchEvent(&events.GuildChannelPinsUpdateEvent{
-			GenericEvent:        events.NewGenericEvent(client, sequenceNumber),
+			GenericEvent:        events.NewGenericEvent(client, sequenceNumber, shardID),
 			GuildID:             *payload.GuildID,
 			ChannelID:           payload.ChannelID,
 			OldLastPinTimestamp: oldTime,

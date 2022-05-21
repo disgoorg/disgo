@@ -21,8 +21,8 @@ func (h *gatewayHandlerInteractionCreate) New() any {
 }
 
 // HandleGatewayEvent handles the specific raw gateway event
-func (h *gatewayHandlerInteractionCreate) HandleGatewayEvent(client bot.Client, sequenceNumber int, v any) {
-	HandleInteraction(client, sequenceNumber, nil, (*v.(*discord.UnmarshalInteraction)).Interaction)
+func (h *gatewayHandlerInteractionCreate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
+	HandleInteraction(client, sequenceNumber, shardID, nil, (*v.(*discord.UnmarshalInteraction)).Interaction)
 }
 
 func respond(client bot.Client, respondFunc func(response discord.InteractionResponse) error, interaction discord.BaseInteraction) events.InteractionResponderFunc {
@@ -38,9 +38,9 @@ func respond(client bot.Client, respondFunc func(response discord.InteractionRes
 	}
 }
 
-func HandleInteraction(client bot.Client, sequenceNumber int, respondFunc func(response discord.InteractionResponse) error, interaction discord.Interaction) {
+func HandleInteraction(client bot.Client, sequenceNumber int, shardID int, respondFunc func(response discord.InteractionResponse) error, interaction discord.Interaction) {
 
-	genericEvent := events.NewGenericEvent(client, sequenceNumber)
+	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
 	client.EventManager().DispatchEvent(&events.InteractionEvent{
 		GenericEvent: genericEvent,

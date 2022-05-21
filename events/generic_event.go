@@ -5,14 +5,15 @@ import (
 )
 
 // NewGenericEvent constructs a new GenericEvent with the provided Client instance
-func NewGenericEvent(client bot.Client, sequenceNumber int) *GenericEvent {
-	return &GenericEvent{client: client, sequenceNumber: sequenceNumber}
+func NewGenericEvent(client bot.Client, sequenceNumber int, shardID int) *GenericEvent {
+	return &GenericEvent{client: client, sequenceNumber: sequenceNumber, shardID: shardID}
 }
 
 // GenericEvent the base event structure
 type GenericEvent struct {
 	client         bot.Client
 	sequenceNumber int
+	shardID        int
 }
 
 func (e GenericEvent) Client() bot.Client {
@@ -22,4 +23,8 @@ func (e GenericEvent) Client() bot.Client {
 // SequenceNumber returns the sequence number of the gateway event
 func (e GenericEvent) SequenceNumber() int {
 	return e.sequenceNumber
+}
+
+func (e GenericEvent) ShardID() int {
+	return e.shardID
 }

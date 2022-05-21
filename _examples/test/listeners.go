@@ -137,6 +137,11 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 	}
 
 	switch event.Message.Content {
+	case "avatar":
+		_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().
+			SetContentf("Avatar: %s", event.Message.Member.EffectiveAvatarURL()).
+			Build(),
+		)
 	case "channel":
 		ch, _ := event.Channel()
 		_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().
@@ -167,7 +172,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 		panic("panic in the disco")
 
 	case "party":
-		_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().AddStickers("886756806888673321").SetAllowedMentions(&discord.AllowedMentions{RepliedUser: false}).Build())
+		_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().AddStickers(886756806888673321).SetAllowedMentions(&discord.AllowedMentions{RepliedUser: false}).Build())
 
 	case "ping":
 		_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent("pong").SetAllowedMentions(&discord.AllowedMentions{RepliedUser: false}).Build())

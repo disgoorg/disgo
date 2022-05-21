@@ -3,19 +3,19 @@ package cache
 import (
 	"sync"
 
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 type FilterFunc[T any] func(T) bool
 
 type Cache[T any] interface {
-	Get(id snowflake.Snowflake) (T, bool)
-	Put(id snowflake.Snowflake, entity T)
-	Remove(id snowflake.Snowflake) (T, bool)
+	Get(id snowflake.ID) (T, bool)
+	Put(id snowflake.ID, entity T)
+	Remove(id snowflake.ID) (T, bool)
 	RemoveIf(filterFunc FilterFunc[T])
 
 	All() []T
-	MapAll() map[snowflake.Snowflake]T
+	MapAll() map[snowflake.ID]T
 
 	FindFirst(cacheFindFunc FilterFunc[T]) (T, bool)
 	FindAll(cacheFindFunc FilterFunc[T]) []T
@@ -30,7 +30,7 @@ func NewCache[T any](flags Flags, neededFlags Flags, policy Policy[T]) Cache[T] 
 		flags:       flags,
 		neededFlags: neededFlags,
 		policy:      policy,
-		cache:       make(map[snowflake.Snowflake]T),
+		cache:       make(map[snowflake.ID]T),
 	}
 }
 
@@ -39,17 +39,17 @@ type DefaultCache[T any] struct {
 	flags       Flags
 	neededFlags Flags
 	policy      Policy[T]
-	cache       map[snowflake.Snowflake]T
+	cache       map[snowflake.ID]T
 }
 
-func (c *DefaultCache[T]) Get(id snowflake.Snowflake) (T, bool) {
+func (c *DefaultCache[T]) Get(id snowflake.ID) (T, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	entity, ok := c.cache[id]
 	return entity, ok
 }
 
-func (c *DefaultCache[T]) Put(id snowflake.Snowflake, entity T) {
+func (c *DefaultCache[T]) Put(id snowflake.ID, entity T) {
 	if c.neededFlags != FlagsNone && c.flags.Missing(c.neededFlags) {
 		return
 	}
@@ -61,7 +61,7 @@ func (c *DefaultCache[T]) Put(id snowflake.Snowflake, entity T) {
 	c.cache[id] = entity
 }
 
-func (c *DefaultCache[T]) Remove(id snowflake.Snowflake) (T, bool) {
+func (c *DefaultCache[T]) Remove(id snowflake.ID) (T, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	entity, ok := c.cache[id]
@@ -93,10 +93,10 @@ func (c *DefaultCache[T]) All() []T {
 	return entities
 }
 
-func (c *DefaultCache[T]) MapAll() map[snowflake.Snowflake]T {
+func (c *DefaultCache[T]) MapAll() map[snowflake.ID]T {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	entities := make(map[snowflake.Snowflake]T, len(c.cache))
+	entities := make(map[snowflake.ID]T, len(c.cache))
 	for entityID, entity := range c.cache {
 		entities[entityID] = entity
 	}

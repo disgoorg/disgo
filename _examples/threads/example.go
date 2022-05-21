@@ -9,17 +9,13 @@ import (
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/cache"
-
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/log"
 )
 
-var (
-	token = os.Getenv("token")
-	//guildID = snowflake.Snowflake(os.Getenv("guild_id"))
-)
+var token = os.Getenv("token")
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -33,7 +29,6 @@ func main() {
 		),
 		bot.WithCacheConfigOpts(
 			cache.WithCacheFlags(cache.FlagsAll),
-			cache.WithMemberCachePolicy(cache.MemberCachePolicyAll),
 		),
 		bot.WithMemberChunkingFilter(bot.MemberChunkingFilterAll),
 		bot.WithEventListeners(&events.ListenerAdapter{

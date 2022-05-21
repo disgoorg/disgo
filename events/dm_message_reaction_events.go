@@ -2,15 +2,15 @@ package events
 
 import (
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // GenericDMMessageReactionEvent is called upon receiving DMMessageReactionAddEvent or DMMessageReactionRemoveEvent (requires the discord.GatewayIntentDirectMessageReactions)
 type GenericDMMessageReactionEvent struct {
 	*GenericEvent
-	UserID    snowflake.Snowflake
-	ChannelID snowflake.Snowflake
-	MessageID snowflake.Snowflake
+	UserID    snowflake.ID
+	ChannelID snowflake.ID
+	MessageID snowflake.ID
 	Emoji     discord.ReactionEmoji
 }
 
@@ -27,14 +27,14 @@ type DMMessageReactionRemoveEvent struct {
 // DMMessageReactionRemoveEmojiEvent indicates someone removed all discord.MessageReaction(s) of a specific discord.Emoji from a discord.Message in a Channel (requires the discord.GatewayIntentDirectMessageReactions)
 type DMMessageReactionRemoveEmojiEvent struct {
 	*GenericEvent
-	ChannelID snowflake.Snowflake
-	MessageID snowflake.Snowflake
+	ChannelID snowflake.ID
+	MessageID snowflake.ID
 	Emoji     discord.ReactionEmoji
 }
 
 // DMMessageReactionRemoveAllEvent indicates someone removed all discord.MessageReaction(s) from a discord.Message in a Channel (requires the discord.GatewayIntentDirectMessageReactions)
 type DMMessageReactionRemoveAllEvent struct {
 	*GenericEvent
-	ChannelID snowflake.Snowflake
-	MessageID snowflake.Snowflake
+	ChannelID snowflake.ID
+	MessageID snowflake.ID
 }

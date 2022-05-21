@@ -5,11 +5,11 @@ import (
 	"strings"
 
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // IDFromToken returns the applicationID from the token
-func IDFromToken(token string) (*snowflake.Snowflake, error) {
+func IDFromToken(token string) (*snowflake.ID, error) {
 	strs := strings.Split(token, ".")
 	if len(strs) == 0 {
 		return nil, discord.ErrInvalidBotToken
@@ -18,6 +18,9 @@ func IDFromToken(token string) (*snowflake.Snowflake, error) {
 	if err != nil {
 		return nil, err
 	}
-	strID := snowflake.Snowflake(byteID)
+	strID, err := snowflake.Parse(string(byteID))
+	if err != nil {
+		return nil, err
+	}
 	return &strID, nil
 }

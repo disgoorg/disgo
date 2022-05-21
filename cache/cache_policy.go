@@ -1,37 +1,11 @@
 package cache
 
-import (
-	"time"
-
-	"github.com/disgoorg/disgo/discord"
-)
-
-// Policy can be used to define your own policy for caching cache
+// Policy can be used to define your own policy for when entities should be cached.
 type Policy[T any] func(entity T) bool
 
-// Default discord.Message CachePolicy(s)
-var (
-	MessageCachePolicyNone Policy[discord.Message] = func(_ discord.Message) bool { return false }
-
-	// MessageCachePolicyDuration creates a new CachePolicy which caches discord.Message(s) for the give time.Duration
-	MessageCachePolicyDuration = func(duration time.Duration) Policy[discord.Message] {
-		return func(message discord.Message) bool {
-			return message.CreatedAt.Add(duration).After(time.Now())
-		}
-	}
-	MessageCachePolicyDefault = MessageCachePolicyNone
-)
-
-// Default discord.Member CachePolicy(s)
-var (
-	MemberCachePolicyNone    Policy[discord.Member] = func(_ discord.Member) bool { return false }
-	MemberCachePolicyAll     Policy[discord.Member] = func(_ discord.Member) bool { return true }
-	MemberCachePolicyOwner   Policy[discord.Member] = func(member discord.Member) bool { return false /*TODO*/ }
-	MemberCachePolicyOnline  Policy[discord.Member] = func(_ discord.Member) bool { return false }
-	MemberCachePolicyVoice   Policy[discord.Member] = func(member discord.Member) bool { return false }
-	MemberCachePolicyPending Policy[discord.Member] = func(member discord.Member) bool { return member.Pending }
-	MemberCachePolicyDefault                        = MemberCachePolicyOwner.Or(MemberCachePolicyVoice)
-)
+func PolicyNone[T any](_ T) bool    { return false }
+func PolicyAll[T any](_ T) bool     { return true }
+func PolicyDefault[T any](t T) bool { return PolicyAll(t) }
 
 // Or allows you to combine the CachePolicy with another, meaning either of them needs to be true
 func (p Policy[T]) Or(policy Policy[T]) Policy[T] {

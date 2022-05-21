@@ -15,7 +15,8 @@ type SlashCommandUpdate struct {
 	Description              *string                     `json:"description,omitempty"`
 	DescriptionLocalizations *map[Locale]string          `json:"description_localizations,omitempty"`
 	Options                  *[]ApplicationCommandOption `json:"options,omitempty"`
-	DefaultPermission        *bool                       `json:"default_permission,omitempty"`
+	DefaultMemberPermissions *Permissions                `json:"default_member_permissions,omitempty"`
+	DMPermission             *bool                       `json:"dm_permission,omitempty"`
 }
 
 func (c SlashCommandUpdate) MarshalJSON() ([]byte, error) {
@@ -42,7 +43,8 @@ func (SlashCommandUpdate) applicationCommandUpdate() {}
 type UserCommandUpdate struct {
 	CommandName              *string            `json:"name"`
 	CommandNameLocalizations *map[Locale]string `json:"name_localizations,omitempty"`
-	DefaultPermission        *bool              `json:"default_permission,omitempty"`
+	DefaultMemberPermissions *Permissions       `json:"default_member_permissions,omitempty"`
+	DMPermission             *bool              `json:"dm_permission,omitempty"`
 }
 
 func (c UserCommandUpdate) MarshalJSON() ([]byte, error) {
@@ -69,7 +71,8 @@ func (UserCommandUpdate) applicationCommandUpdate() {}
 type MessageCommandUpdate struct {
 	CommandName              *string            `json:"name"`
 	CommandNameLocalizations *map[Locale]string `json:"name_localizations,omitempty"`
-	DefaultPermission        *bool              `json:"default_permission,omitempty"`
+	DefaultMemberPermissions *Permissions       `json:"default_member_permissions,omitempty"`
+	DMPermission             *bool              `json:"dm_permission,omitempty"`
 }
 
 func (c MessageCommandUpdate) MarshalJSON() ([]byte, error) {

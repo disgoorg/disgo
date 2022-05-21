@@ -1,6 +1,6 @@
 package discord
 
-import "github.com/disgoorg/snowflake"
+import "github.com/disgoorg/snowflake/v2"
 
 // ActivityType represents the status of a user, one of Game, Streaming, Listening, Watching, Custom or Competing
 type ActivityType int
@@ -23,7 +23,7 @@ type Activity struct {
 	URL           *string             `json:"url"`
 	CreatedAt     int64               `json:"created_at"`
 	Timestamps    *ActivityTimestamps `json:"timestamps,omitempty"`
-	ApplicationID snowflake.Snowflake `json:"application_id,omitempty"`
+	ApplicationID snowflake.ID        `json:"application_id,omitempty"`
 	Details       *string             `json:"details,omitempty"`
 	State         *string             `json:"state,omitempty"`
 	Emoji         *ActivityEmoji      `json:"emoji,omitempty"`
@@ -48,15 +48,15 @@ type ActivityTimestamps struct {
 
 // ActivityEmoji is an Emoji object for an Activity
 type ActivityEmoji struct {
-	Name     string               `json:"name"`
-	ID       *snowflake.Snowflake `json:"id,omitempty"`
-	Animated *bool                `json:"animated,omitempty"`
+	Name     string        `json:"name"`
+	ID       *snowflake.ID `json:"id,omitempty"`
+	Animated *bool         `json:"animated,omitempty"`
 }
 
 // ActivityParty is information about the party of the player
 type ActivityParty struct {
-	ID   snowflake.Snowflake `json:"id,omitempty"`
-	Size []int               `json:"size,omitempty"`
+	ID   string `json:"id,omitempty"`
+	Size []int  `json:"size,omitempty"`
 }
 
 // ActivityAssets are the images for the presence and hover texts

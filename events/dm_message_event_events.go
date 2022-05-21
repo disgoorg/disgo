@@ -2,15 +2,15 @@ package events
 
 import (
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/snowflake"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // GenericDMMessageEvent is called upon receiving DMMessageCreateEvent, DMMessageUpdateEvent, DMMessageDeleteEvent, GenericDMMessageReactionEvent, DMMessageReactionAddEvent, DMMessageReactionRemoveEvent, DMMessageReactionRemoveEmojiEvent or DMMessageReactionRemoveAllEvent (requires discord.GatewayIntentsDirectMessage)
 type GenericDMMessageEvent struct {
 	*GenericEvent
-	MessageID snowflake.Snowflake
+	MessageID snowflake.ID
 	Message   discord.Message
-	ChannelID snowflake.Snowflake
+	ChannelID snowflake.ID
 }
 
 // Channel returns the Channel the GenericDMMessageEvent happened in
