@@ -290,6 +290,14 @@ func (d AutocompleteInteractionData) Float(name string) float64 {
 	return 0
 }
 
+func (d AutocompleteInteractionData) AttachmentOption(name string) (AutocompleteOptionAttachment, bool) {
+	if option, ok := d.Option(name); ok {
+		opt, ok := option.(AutocompleteOptionAttachment)
+		return opt, ok
+	}
+	return AutocompleteOptionAttachment{}, false
+}
+
 func (d AutocompleteInteractionData) All() []AutocompleteOption {
 	options := make([]AutocompleteOption, len(d.Options))
 	i := 0

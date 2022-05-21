@@ -473,10 +473,32 @@ func (d SlashCommandInteractionData) OptFloat(name string) (float64, bool) {
 }
 
 func (d SlashCommandInteractionData) Float(name string) float64 {
-	if option, ok := d.FloatOption(name); ok {
-		return option.Value
+	if value, ok := d.OptFloat(name); ok {
+		return value
 	}
 	return 0
+}
+
+func (d SlashCommandInteractionData) AttachmentOption(name string) (SlashCommandOptionAttachment, bool) {
+	if option, ok := d.Option(name); ok {
+		opt, ok := option.(SlashCommandOptionAttachment)
+		return opt, ok
+	}
+	return SlashCommandOptionAttachment{}, false
+}
+
+func (d SlashCommandInteractionData) OptAttachment(name string) (Attachment, bool) {
+	if option, ok := d.AttachmentOption(name); ok {
+		return d.Resolved.Attachments[option.Value], true
+	}
+	return Attachment{}, false
+}
+
+func (d SlashCommandInteractionData) Attachment(name string) Attachment {
+	if attachment, ok := d.OptAttachment(name); ok {
+		return attachment
+	}
+	return Attachment{}
 }
 
 func (d SlashCommandInteractionData) All() []SlashCommandOption {
@@ -517,10 +539,11 @@ func (d SlashCommandInteractionData) FindAll(optionFindFunc func(option SlashCom
 func (SlashCommandInteractionData) applicationCommandInteractionData() {}
 
 type SlashCommandResolved struct {
-	Users    map[snowflake.ID]User            `json:"users,omitempty"`
-	Members  map[snowflake.ID]ResolvedMember  `json:"members,omitempty"`
-	Roles    map[snowflake.ID]Role            `json:"roles,omitempty"`
-	Channels map[snowflake.ID]ResolvedChannel `json:"channels,omitempty"`
+	Users       map[snowflake.ID]User            `json:"users,omitempty"`
+	Members     map[snowflake.ID]ResolvedMember  `json:"members,omitempty"`
+	Roles       map[snowflake.ID]Role            `json:"roles,omitempty"`
+	Channels    map[snowflake.ID]ResolvedChannel `json:"channels,omitempty"`
+	Attachments map[snowflake.ID]Attachment      `json:"attachments,omitempty"`
 }
 
 type ContextCommandInteractionData interface {
