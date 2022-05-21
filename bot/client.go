@@ -16,6 +16,7 @@ import (
 var _ Client = (*clientImpl)(nil)
 
 type Client interface {
+	// Logger returns the logger for the client.
 	Logger() log.Logger
 
 	// Close will clean up all disgo internals and close the discord gracefully.

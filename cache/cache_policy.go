@@ -6,9 +6,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-// Policy can be used to define your own policy for when entities should be cached.
-type Policy[T any] func(entity T) bool
-
 // PolicyNone returns a policy that will never cache anything.
 func PolicyNone[T any](_ T) bool { return false }
 
@@ -51,6 +48,9 @@ func PolicyChannelExclude(channelTypes ...discord.ChannelType) Policy[discord.Ch
 		return !slices.Contains(channelTypes, channel.Type())
 	}
 }
+
+// Policy can be used to define your own policy for when entities should be cached.
+type Policy[T any] func(entity T) bool
 
 // Or allows you to combine the CachePolicy with another, meaning either of them needs to be true
 func (p Policy[T]) Or(policy Policy[T]) Policy[T] {
