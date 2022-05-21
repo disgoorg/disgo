@@ -1,11 +1,56 @@
 package cache
 
+import (
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/snowflake/v2"
+	"golang.org/x/exp/slices"
+)
+
 // Policy can be used to define your own policy for when entities should be cached.
 type Policy[T any] func(entity T) bool
 
-func PolicyNone[T any](_ T) bool    { return false }
-func PolicyAll[T any](_ T) bool     { return true }
+// PolicyNone returns a policy that will never cache anything.
+func PolicyNone[T any](_ T) bool { return false }
+
+// PolicyAll returns a policy that will cache all entities.
+func PolicyAll[T any](_ T) bool { return true }
+
+// PolicyDefault returns the default cache policy.
 func PolicyDefault[T any](t T) bool { return PolicyAll(t) }
+
+// PolicyMembersInclude returns a policy that will only cache members of the given guilds.
+func PolicyMembersInclude(guildIDs ...snowflake.ID) Policy[discord.Member] {
+	return func(member discord.Member) bool {
+		return slices.Contains(guildIDs, member.GuildID)
+	}
+}
+
+// PolicyMembersPending is a policy that will only cache members that are pending.
+func PolicyMembersPending(member discord.Member) bool {
+	return member.Pending
+}
+
+// PolicyMembersInVoice returns a policy that will only cache members that are connected to an audio channel.
+func PolicyMembersInVoice(caches Caches) Policy[discord.Member] {
+	return func(member discord.Member) bool {
+		_, ok := caches.VoiceStates().Get(member.GuildID, member.User.ID)
+		return ok
+	}
+}
+
+// PolicyChannelInclude returns a policy that will only cache channels of the given types.
+func PolicyChannelInclude(channelTypes ...discord.ChannelType) Policy[discord.Channel] {
+	return func(channel discord.Channel) bool {
+		return slices.Contains(channelTypes, channel.Type())
+	}
+}
+
+// PolicyChannelExclude returns a policy that will not cache channels of the given types.
+func PolicyChannelExclude(channelTypes ...discord.ChannelType) Policy[discord.Channel] {
+	return func(channel discord.Channel) bool {
+		return !slices.Contains(channelTypes, channel.Type())
+	}
+}
 
 // Or allows you to combine the CachePolicy with another, meaning either of them needs to be true
 func (p Policy[T]) Or(policy Policy[T]) Policy[T] {
