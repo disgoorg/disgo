@@ -256,6 +256,8 @@ func (d AutocompleteInteractionData) OptSnowflake(name string) (snowflake.ID, bo
 			return opt.Value, true
 		case AutocompleteOptionMentionable:
 			return opt.Value, true
+		case AutocompleteOptionAttachment:
+			return opt.Value, true
 		}
 	}
 	return 0, false

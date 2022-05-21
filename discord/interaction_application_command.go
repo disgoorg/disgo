@@ -445,6 +445,8 @@ func (d SlashCommandInteractionData) OptSnowflake(name string) (snowflake.ID, bo
 			return opt.Value, true
 		case SlashCommandOptionMentionable:
 			return opt.Value, true
+		case SlashCommandOptionAttachment:
+			return opt.Value, true
 		}
 	}
 	return 0, false
