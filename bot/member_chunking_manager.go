@@ -31,16 +31,41 @@ type MemberChunkingManager interface {
 	// HandleChunk handles the discord.GatewayEventGuildMembersChunk event payloads from the discord gateway.
 	HandleChunk(payload discord.GatewayEventGuildMembersChunk)
 
+	// RequestMembers requests members from the given guildID and userIDs.
+	// Notice: This action requires the discord.GatewayIntentGuildMembers.
 	RequestMembers(guildID snowflake.ID, userIDs ...snowflake.ID) ([]discord.Member, error)
+	// RequestMembersWithQuery requests members from the given guildID and query.
+	// query : string the username starts with
+	// Notice: This action requires the discord.GatewayIntentGuildMembers.
 	RequestMembersWithQuery(guildID snowflake.ID, query string, limit int) ([]discord.Member, error)
+	// RequestMembersWithFilter requests members from the given guildID and userIDs. memberFilterFunc is used to filter all returned members.
+	// Notice: This action requires the discord.GatewayIntentGuildMembers.
 	RequestMembersWithFilter(guildID snowflake.ID, memberFilterFunc func(member discord.Member) bool) ([]discord.Member, error)
 
+	// RequestMembersCtx requests members from the given guildID and userIDs.
+	// Notice: This action requires the discord.GatewayIntentGuildMembers.
 	RequestMembersCtx(ctx context.Context, guildID snowflake.ID, userIDs ...snowflake.ID) ([]discord.Member, error)
+	// RequestMembersWithQueryCtx requests members from the given guildID and query.
+	// Notice: This action requires the discord.GatewayIntentGuildMembers.
 	RequestMembersWithQueryCtx(ctx context.Context, guildID snowflake.ID, query string, limit int) ([]discord.Member, error)
+	// RequestMembersWithFilterCtx requests members from the given guildID and userIDs. memberFilterFunc is used to filter all returned members.
+	// Notice: This action requires the discord.GatewayIntentGuildMembers.
 	RequestMembersWithFilterCtx(ctx context.Context, guildID snowflake.ID, memberFilterFunc func(member discord.Member) bool) ([]discord.Member, error)
 
+	// RequestMembersChan requests members from the given guildID and userIDs.
+	// Returns a channel which will receive the members.
+	// Returns a function which can be used to cancel the request and close the channel.
+	// Notice: This action requires the discord.GatewayIntentGuildMembers.
 	RequestMembersChan(guildID snowflake.ID, userIDs ...snowflake.ID) (<-chan discord.Member, func(), error)
+	// RequestMembersWithQueryChan requests members from the given guildID and query.
+	// Returns a channel which will receive the members.
+	// Returns a function which can be used to cancel the request and close the channel.
+	// Notice: This action requires the discord.GatewayIntentGuildMembers.
 	RequestMembersWithQueryChan(guildID snowflake.ID, query string, limit int) (<-chan discord.Member, func(), error)
+	// RequestMembersWithFilterChan requests members from the given guildID and userIDs. memberFilterFunc is used to filter all returned members.
+	// Returns a channel which will receive the members.
+	// Returns a function which can be used to cancel the request and close the channel.
+	// Notice: This action requires the discord.GatewayIntentGuildMembers.
 	RequestMembersWithFilterChan(guildID snowflake.ID, memberFilterFunc func(member discord.Member) bool) (<-chan discord.Member, func(), error)
 }
 

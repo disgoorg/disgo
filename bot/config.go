@@ -16,6 +16,7 @@ import (
 	"github.com/disgoorg/log"
 )
 
+// DefaultConfig returns a Config with sensible defaults.
 func DefaultConfig(gatewayHandlers map[discord.GatewayEventType]GatewayEventHandler, httpHandler HTTPServerEventHandler) *Config {
 	return &Config{
 		Logger:                 log.Default(),
@@ -24,8 +25,7 @@ func DefaultConfig(gatewayHandlers map[discord.GatewayEventType]GatewayEventHand
 	}
 }
 
-// Config lets you configure your Client instance
-// Config is the core.Client config used to configure everything
+// Config lets you configure your Client instance.
 type Config struct {
 	Logger log.Logger
 
@@ -52,121 +52,141 @@ type Config struct {
 	MemberChunkingFilter  MemberChunkingFilter
 }
 
+// ConfigOpt is a type alias for a function that takes a Config and is used to configure your Client.
 type ConfigOpt func(config *Config)
 
+// Apply applies the given ConfigOpt(s) to the given Config
 func (c *Config) Apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
 }
 
-// WithLogger lets you inject your own logger implementing log.Logger
+// WithLogger lets you inject your own logger implementing log.Logger.
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
 	}
 }
 
+// WithRestClient lets you inject your own rest.Client.
 func WithRestClient(restClient rest.Client) ConfigOpt {
 	return func(config *Config) {
 		config.RestClient = restClient
 	}
 }
 
+// WithRestClientConfigOpts let's you configure the default rest.Client.
 func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		config.RestClientConfigOpts = append(config.RestClientConfigOpts, opts...)
 	}
 }
 
+// WithRest let's you inject your own rest.Rest.
 func WithRest(rest rest.Rest) ConfigOpt {
 	return func(config *Config) {
 		config.Rest = rest
 	}
 }
 
+// WithEventManager lets you inject your own EventManager.
 func WithEventManager(eventManager EventManager) ConfigOpt {
 	return func(config *Config) {
 		config.EventManager = eventManager
 	}
 }
 
+// WithEventManagerConfigOpts lets you configure the default EventManager.
 func WithEventManagerConfigOpts(opts ...EventManagerConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		config.EventManagerConfigOpts = append(config.EventManagerConfigOpts, opts...)
 	}
 }
 
+// WithEventListeners adds the given EventListener(s) to the default EventManager.
 func WithEventListeners(eventListeners ...EventListener) ConfigOpt {
 	return func(config *Config) {
 		config.EventManagerConfigOpts = append(config.EventManagerConfigOpts, WithListeners(eventListeners...))
 	}
 }
 
+// WithEventListenerFunc adds the given ListenerFunc(s) to the default EventManager.
 func WithEventListenerFunc[E Event](listenerFunc func(e E)) ConfigOpt {
-	return WithEventListeners(ListenerFunc[E](listenerFunc))
+	return WithEventListeners(NewListenerFunc(listenerFunc))
 }
 
+// WithGateway lets you inject your own gateway.Gateway.
 func WithGateway(gateway gateway.Gateway) ConfigOpt {
 	return func(config *Config) {
 		config.Gateway = gateway
 	}
 }
 
+// WithGatewayConfigOpts lets you configure the default gateway.Gateway.
 func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		config.GatewayConfigOpts = append(config.GatewayConfigOpts, opts...)
 	}
 }
 
+// WithShardManager lets you inject your own sharding.ShardManager.
 func WithShardManager(shardManager sharding.ShardManager) ConfigOpt {
 	return func(config *Config) {
 		config.ShardManager = shardManager
 	}
 }
 
+// WithShardManagerConfigOpts lets you configure the default sharding.ShardManager.
 func WithShardManagerConfigOpts(opts ...sharding.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		config.ShardManagerConfigOpts = append(config.ShardManagerConfigOpts, opts...)
 	}
 }
 
+// WithHTTPServer lets you inject your own httpserver.Server.
 func WithHTTPServer(httpServer httpserver.Server) ConfigOpt {
 	return func(config *Config) {
 		config.HTTPServer = httpServer
 	}
 }
 
+// WithHTTPServerConfigOpts lets you configure the default httpserver.Server.
 func WithHTTPServerConfigOpts(opts ...httpserver.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		config.HTTPServerConfigOpts = append(config.HTTPServerConfigOpts, opts...)
 	}
 }
 
+// WithCaches lets you inject your own cache.Caches.
 func WithCaches(caches cache.Caches) ConfigOpt {
 	return func(config *Config) {
 		config.Caches = caches
 	}
 }
 
+// WithCacheConfigOpts lets you configure the default cache.Caches.
 func WithCacheConfigOpts(opts ...cache.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		config.CacheConfigOpts = append(config.CacheConfigOpts, opts...)
 	}
 }
 
+// WithMemberChunkingManager lets you inject your own MemberChunkingManager.
 func WithMemberChunkingManager(memberChunkingManager MemberChunkingManager) ConfigOpt {
 	return func(config *Config) {
 		config.MemberChunkingManager = memberChunkingManager
 	}
 }
 
+// WithMemberChunkingFilter lets you configure the default MemberChunkingFilter.
 func WithMemberChunkingFilter(memberChunkingFilter MemberChunkingFilter) ConfigOpt {
 	return func(config *Config) {
 		config.MemberChunkingFilter = memberChunkingFilter
 	}
 }
 
+// BuildClient creates a new Client instance with the given token, Config, gateway handlers, http handlers os, name, github & version.
 func BuildClient(token string, config Config, gatewayEventHandlerFunc func(client Client) gateway.EventHandlerFunc, httpServerEventHandlerFunc func(client Client) httpserver.EventHandlerFunc, os string, name string, github string, version string) (Client, error) {
 	if token == "" {
 		return nil, discord.ErrNoBotToken
