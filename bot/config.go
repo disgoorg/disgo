@@ -84,7 +84,7 @@ func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	}
 }
 
-// WithRest let's you inject your own rest.Rest.
+// WithRest lets you inject your own rest.Rest.
 func WithRest(rest rest.Rest) ConfigOpt {
 	return func(config *Config) {
 		config.Rest = rest
@@ -218,7 +218,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 	}
 
 	if config.Rest == nil {
-		config.Rest = rest.NewRest(config.RestClient)
+		config.Rest = rest.New(config.RestClient)
 	}
 	client.restServices = config.Rest
 
@@ -263,7 +263,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 
 		config.ShardManagerConfigOpts = append([]sharding.ConfigOpt{
 			sharding.WithShardCount(gatewayBotRs.Shards),
-			sharding.WithShards(shardIDs...),
+			sharding.WithShardIDs(shardIDs...),
 			sharding.WithGatewayConfigOpts(
 				gateway.WithGatewayURL(gatewayBotRs.URL),
 				gateway.WithLogger(client.logger),
@@ -299,7 +299,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 	client.memberChunkingManager = config.MemberChunkingManager
 
 	if config.Caches == nil {
-		config.Caches = cache.NewCaches(config.CacheConfigOpts...)
+		config.Caches = cache.New(config.CacheConfigOpts...)
 	}
 	client.caches = config.Caches
 

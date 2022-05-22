@@ -76,8 +76,8 @@ type Caches interface {
 	GuildScheduledEvents() GroupedCache[discord.GuildScheduledEvent]
 }
 
-// NewCaches returns a new default Caches instance with the given ConfigOpt(s) applied.
-func NewCaches(opts ...ConfigOpt) Caches {
+// New returns a new default Caches instance with the given ConfigOpt(s) applied.
+func New(opts ...ConfigOpt) Caches {
 	config := DefaultConfig()
 	config.Apply(opts)
 

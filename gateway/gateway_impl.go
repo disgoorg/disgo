@@ -106,7 +106,9 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 		g.Close(ctx)
 		body := "null"
 		if rs != nil && rs.Body != nil {
-			defer rs.Body.Close()
+			defer func() {
+				_ = rs.Body.Close()
+			}()
 			rawBody, bErr := io.ReadAll(rs.Body)
 			if bErr != nil {
 				g.Logger().Error(g.formatLogs("error while reading response body: ", err))
@@ -438,7 +440,9 @@ func (g *gatewayImpl) parseGatewayMessage(mt int, reader io.Reader) (*discord.Ga
 	} else {
 		finalReadCloser = io.NopCloser(reader)
 	}
-	defer finalReadCloser.Close()
+	defer func() {
+		_ = finalReadCloser.Close()
+	}()
 
 	var message discord.GatewayMessage
 	if err := json.NewDecoder(finalReadCloser).Decode(&message); err != nil {

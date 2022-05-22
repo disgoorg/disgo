@@ -34,8 +34,7 @@ func (b *EmbedBuilder) SetDescription(description string) *EmbedBuilder {
 
 // SetDescriptionf sets the description of the EmbedBuilder with format
 func (b *EmbedBuilder) SetDescriptionf(description string, a ...any) *EmbedBuilder {
-	descriptionf := fmt.Sprintf(description, a...)
-	b.Description = descriptionf
+	b.Description = fmt.Sprintf(description, a...)
 	return b
 }
 

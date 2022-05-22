@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// NewCDNRoute generates a new discord cdn path struct
+// NewCDNRoute generates a new discord cdn path struct.
 func NewCDNRoute(path string, supportedImageFormats ...ImageFormat) *CDNRoute {
 	queryParams := []string{"size", "v"}
 
@@ -24,14 +24,14 @@ func NewCDNRoute(path string, supportedImageFormats ...ImageFormat) *CDNRoute {
 	}
 }
 
-// NewCustomCDNRoute generates a new custom cdn path struct
+// NewCustomCDNRoute generates a new custom cdn path struct.
 func NewCustomCDNRoute(basePath string, path string, supportedImageFormats ...ImageFormat) *CDNRoute {
 	route := NewCDNRoute(path, supportedImageFormats...)
 	route.basePath = basePath
 	return route
 }
 
-// CDNRoute is a path for interacting with images hosted on discord's CDN
+// CDNRoute is a path for interacting with images hosted on discord's CDN.
 type CDNRoute struct {
 	basePath              string
 	path                  string
@@ -40,7 +40,7 @@ type CDNRoute struct {
 	supportedImageFormats []ImageFormat
 }
 
-// Compile builds a full request URL based on provided arguments
+// Compile builds a full request URL based on provided arguments.
 func (r *CDNRoute) Compile(queryValues QueryValues, imageFormat ImageFormat, size int, params ...any) (*CompiledCDNRoute, error) {
 	supported := false
 	for _, supportedFileExtension := range r.supportedImageFormats {
@@ -91,19 +91,19 @@ func (r *CDNRoute) Compile(queryValues QueryValues, imageFormat ImageFormat, siz
 	}, nil
 }
 
-// Path returns the request path used by the path
+// Path returns the request path used by the path.
 func (r *CDNRoute) Path() string {
 	return r.path
 }
 
-// CompiledCDNRoute is CDNRoute compiled with all URL args
+// CompiledCDNRoute is CDNRoute compiled with all URL args.
 type CompiledCDNRoute struct {
 	CDNRoute    *CDNRoute
 	path        string
 	queryParams string
 }
 
-// URL returns the full URL for the resource
+// URL returns the full URL for the resource.
 func (r *CompiledCDNRoute) URL() string {
 	u := r.CDNRoute.basePath + r.path
 	if r.queryParams != "" {

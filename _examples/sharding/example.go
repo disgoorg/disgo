@@ -28,7 +28,7 @@ func main() {
 
 	client, err := disgo.New(token,
 		bot.WithShardManagerConfigOpts(
-			sharding.WithShards(0, 1),
+			sharding.WithShardIDs(0, 1),
 			sharding.WithShardCount(2),
 			sharding.WithAutoScaling(true),
 			sharding.WithGatewayConfigOpts(

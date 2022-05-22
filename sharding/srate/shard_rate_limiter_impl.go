@@ -11,7 +11,8 @@ import (
 
 var _ Limiter = (*limiterImpl)(nil)
 
-func NewLimiter(opts ...ConfigOpt) Limiter {
+// New creates a new default Limiter with the given ConfigOpt(s).
+func New(opts ...ConfigOpt) Limiter {
 	config := DefaultConfig()
 	config.Apply(opts)
 

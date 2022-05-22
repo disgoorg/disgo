@@ -18,7 +18,7 @@ type Config struct {
 	MaxRetries int
 }
 
-// ConfigOpt can be used to supply optional parameters to NewLimiter
+// ConfigOpt can be used to supply optional parameters to New
 type ConfigOpt func(config *Config)
 
 // Apply applies the given ConfigOpt(s) to the Config

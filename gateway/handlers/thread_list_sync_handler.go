@@ -23,9 +23,10 @@ func (h *gatewayHandlerThreadListSync) HandleGatewayEvent(client bot.Client, seq
 		client.Caches().Channels().Put(thread.ID(), thread)
 		client.EventManager().DispatchEvent(&events.ThreadShowEvent{
 			GenericThreadEvent: &events.GenericThreadEvent{
-				Thread:   thread,
-				ThreadID: thread.ID(),
-				GuildID:  payload.GuildID,
+				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+				Thread:       thread,
+				ThreadID:     thread.ID(),
+				GuildID:      payload.GuildID,
 			},
 		})
 	}

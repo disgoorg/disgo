@@ -34,7 +34,7 @@ func (c *Config) Apply(opts []ConfigOpt) {
 		opt(c)
 	}
 	if c.RateLimiter == nil {
-		c.RateLimiter = rrate.NewLimiter(c.RateLimiterConfigOpts...)
+		c.RateLimiter = rrate.New(c.RateLimiterConfigOpts...)
 	}
 }
 

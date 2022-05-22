@@ -53,7 +53,7 @@ func (c *Config) Apply(opts []ConfigOpt) {
 		opt(c)
 	}
 	if c.RateLimiter == nil {
-		c.RateLimiter = grate.NewLimiter(c.RateLimiterConfigOpts...)
+		c.RateLimiter = grate.New(c.RateLimiterConfigOpts...)
 	}
 }
 

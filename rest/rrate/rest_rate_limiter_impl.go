@@ -15,8 +15,8 @@ import (
 
 // TODO: do we need some cleanup task?
 
-// NewLimiter return a new default implementation of a rest rate limiter
-func NewLimiter(opts ...ConfigOpt) Limiter {
+// New return a new default Limiter with the given ConfigOpt(s).
+func New(opts ...ConfigOpt) Limiter {
 	config := DefaultConfig()
 	config.Apply(opts)
 
