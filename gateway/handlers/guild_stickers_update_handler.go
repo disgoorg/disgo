@@ -31,9 +31,8 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client
 	payload := *v.(*discord.GatewayEventGuildStickersUpdate)
 
 	client.EventManager().DispatchEvent(&events.StickersUpdateEvent{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
-		GuildID:      payload.GuildID,
-		Stickers:     payload.Stickers,
+		GenericEvent:                    events.NewGenericEvent(client, sequenceNumber, shardID),
+		GatewayEventGuildStickersUpdate: payload,
 	})
 
 	if client.Caches().CacheFlags().Missing(cache.FlagStickers) {

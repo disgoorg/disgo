@@ -7,8 +7,7 @@ import (
 
 type StickersUpdateEvent struct {
 	*GenericEvent
-	GuildID  snowflake.ID
-	Stickers []discord.Sticker
+	discord.GatewayEventGuildStickersUpdate
 }
 
 // GenericStickerEvent is called upon receiving StickerCreateEvent, StickerUpdateEvent or StickerDeleteEvent (requires discord.GatewayIntentGuildEmojisAndStickers)

@@ -32,9 +32,8 @@ func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(client bot.Client, 
 	payload := *v.(*discord.GatewayEventGuildEmojisUpdate)
 
 	client.EventManager().DispatchEvent(&events.EmojisUpdateEvent{
-		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
-		GuildID:      payload.GuildID,
-		Emojis:       payload.Emojis,
+		GenericEvent:                  events.NewGenericEvent(client, sequenceNumber, shardID),
+		GatewayEventGuildEmojisUpdate: payload,
 	})
 
 	if client.Caches().CacheFlags().Missing(cache.FlagEmojis) {
