@@ -5,25 +5,25 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// GenericStageInstanceEvent generic StageInstance event
-type GenericStageInstanceEvent struct {
+// GenericStageInstance generic StageInstance event
+type GenericStageInstance struct {
 	*GenericEvent
 	StageInstanceID snowflake.ID
 	StageInstance   discord.StageInstance
 }
 
-// StageInstanceCreateEvent indicates that a StageInstance got created
-type StageInstanceCreateEvent struct {
-	*GenericStageInstanceEvent
+// StageInstanceCreate indicates that a StageInstance got created
+type StageInstanceCreate struct {
+	*GenericStageInstance
 }
 
-// StageInstanceUpdateEvent indicates that a StageInstance got updated
-type StageInstanceUpdateEvent struct {
-	*GenericStageInstanceEvent
+// StageInstanceUpdate indicates that a StageInstance got updated
+type StageInstanceUpdate struct {
+	*GenericStageInstance
 	OldStageInstance discord.StageInstance
 }
 
-// StageInstanceDeleteEvent indicates that a StageInstance got deleted
-type StageInstanceDeleteEvent struct {
-	*GenericStageInstanceEvent
+// StageInstanceDelete indicates that a StageInstance got deleted
+type StageInstanceDelete struct {
+	*GenericStageInstance
 }

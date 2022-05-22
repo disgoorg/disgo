@@ -7,61 +7,61 @@ import (
 
 type InteractionResponderFunc func(callbackType discord.InteractionCallbackType, data discord.InteractionCallbackData, opts ...rest.RequestOpt) error
 
-type InteractionEvent struct {
+type InteractionCreate struct {
 	*GenericEvent
 	discord.Interaction
 	Respond InteractionResponderFunc
 }
 
-func (e *InteractionEvent) Guild() (discord.Guild, bool) {
+func (e *InteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
 		return e.Client().Caches().Guilds().Get(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
 
-func (e *InteractionEvent) Channel() (discord.MessageChannel, bool) {
+func (e *InteractionCreate) Channel() (discord.MessageChannel, bool) {
 	return e.Client().Caches().Channels().GetMessageChannel(e.ChannelID())
 }
 
-func (e *InteractionEvent) DMChannel() (discord.DMChannel, bool) {
+func (e *InteractionCreate) DMChannel() (discord.DMChannel, bool) {
 	return e.Client().Caches().Channels().GetDMChannel(e.ChannelID())
 }
 
-func (e *InteractionEvent) GuildChannel() (discord.GuildMessageChannel, bool) {
+func (e *InteractionCreate) GuildChannel() (discord.GuildMessageChannel, bool) {
 	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID())
 }
 
-type ApplicationCommandInteractionEvent struct {
+type ApplicationCommandInteractionCreate struct {
 	*GenericEvent
 	discord.ApplicationCommandInteraction
 	Respond InteractionResponderFunc
 }
 
-func (e *ApplicationCommandInteractionEvent) Guild() (discord.Guild, bool) {
+func (e *ApplicationCommandInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
 		return e.Client().Caches().Guilds().Get(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
 
-func (e *ApplicationCommandInteractionEvent) Channel() (discord.MessageChannel, bool) {
+func (e *ApplicationCommandInteractionCreate) Channel() (discord.MessageChannel, bool) {
 	return e.Client().Caches().Channels().GetMessageChannel(e.ChannelID())
 }
 
-func (e *ApplicationCommandInteractionEvent) DMChannel() (discord.DMChannel, bool) {
+func (e *ApplicationCommandInteractionCreate) DMChannel() (discord.DMChannel, bool) {
 	return e.Client().Caches().Channels().GetDMChannel(e.ChannelID())
 }
 
-func (e *ApplicationCommandInteractionEvent) GuildChannel() (discord.GuildMessageChannel, bool) {
+func (e *ApplicationCommandInteractionCreate) GuildChannel() (discord.GuildMessageChannel, bool) {
 	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID())
 }
 
-func (e *ApplicationCommandInteractionEvent) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
+func (e *ApplicationCommandInteractionCreate) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeCreateMessage, messageCreate, opts...)
 }
 
-func (e *ApplicationCommandInteractionEvent) DeferCreateMessage(ephemeral bool, opts ...rest.RequestOpt) error {
+func (e *ApplicationCommandInteractionCreate) DeferCreateMessage(ephemeral bool, opts ...rest.RequestOpt) error {
 	var data discord.InteractionCallbackData
 	if ephemeral {
 		data = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
@@ -69,40 +69,40 @@ func (e *ApplicationCommandInteractionEvent) DeferCreateMessage(ephemeral bool, 
 	return e.Respond(discord.InteractionCallbackTypeDeferredCreateMessage, data, opts...)
 }
 
-func (e *ApplicationCommandInteractionEvent) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
+func (e *ApplicationCommandInteractionCreate) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeModal, modalCreate, opts...)
 }
 
-type ComponentInteractionEvent struct {
+type ComponentInteractionCreate struct {
 	*GenericEvent
 	discord.ComponentInteraction
 	Respond InteractionResponderFunc
 }
 
-func (e *ComponentInteractionEvent) Guild() (discord.Guild, bool) {
+func (e *ComponentInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
 		return e.Client().Caches().Guilds().Get(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
 
-func (e *ComponentInteractionEvent) Channel() (discord.MessageChannel, bool) {
+func (e *ComponentInteractionCreate) Channel() (discord.MessageChannel, bool) {
 	return e.Client().Caches().Channels().GetMessageChannel(e.ChannelID())
 }
 
-func (e *ComponentInteractionEvent) DMChannel() (discord.DMChannel, bool) {
+func (e *ComponentInteractionCreate) DMChannel() (discord.DMChannel, bool) {
 	return e.Client().Caches().Channels().GetDMChannel(e.ChannelID())
 }
 
-func (e *ComponentInteractionEvent) GuildChannel() (discord.GuildMessageChannel, bool) {
+func (e *ComponentInteractionCreate) GuildChannel() (discord.GuildMessageChannel, bool) {
 	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID())
 }
 
-func (e *ComponentInteractionEvent) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
+func (e *ComponentInteractionCreate) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeCreateMessage, messageCreate, opts...)
 }
 
-func (e *ComponentInteractionEvent) DeferCreateMessage(ephemeral bool, opts ...rest.RequestOpt) error {
+func (e *ComponentInteractionCreate) DeferCreateMessage(ephemeral bool, opts ...rest.RequestOpt) error {
 	var data discord.InteractionCallbackData
 	if ephemeral {
 		data = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
@@ -110,77 +110,77 @@ func (e *ComponentInteractionEvent) DeferCreateMessage(ephemeral bool, opts ...r
 	return e.Respond(discord.InteractionCallbackTypeDeferredCreateMessage, data, opts...)
 }
 
-func (e *ComponentInteractionEvent) UpdateMessage(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
+func (e *ComponentInteractionCreate) UpdateMessage(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeUpdateMessage, messageUpdate, opts...)
 }
 
-func (e *ComponentInteractionEvent) DeferUpdateMessage(opts ...rest.RequestOpt) error {
+func (e *ComponentInteractionCreate) DeferUpdateMessage(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeDeferredUpdateMessage, nil, opts...)
 }
 
-func (e *ComponentInteractionEvent) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
+func (e *ComponentInteractionCreate) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeModal, modalCreate, opts...)
 }
 
-type AutocompleteInteractionEvent struct {
+type AutocompleteInteractionCreate struct {
 	*GenericEvent
 	discord.AutocompleteInteraction
 	Respond InteractionResponderFunc
 }
 
-func (e *AutocompleteInteractionEvent) Guild() (discord.Guild, bool) {
+func (e *AutocompleteInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
 		return e.Client().Caches().Guilds().Get(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
 
-func (e *AutocompleteInteractionEvent) Channel() (discord.MessageChannel, bool) {
+func (e *AutocompleteInteractionCreate) Channel() (discord.MessageChannel, bool) {
 	return e.Client().Caches().Channels().GetMessageChannel(e.ChannelID())
 }
 
-func (e *AutocompleteInteractionEvent) DMChannel() (discord.DMChannel, bool) {
+func (e *AutocompleteInteractionCreate) DMChannel() (discord.DMChannel, bool) {
 	return e.Client().Caches().Channels().GetDMChannel(e.ChannelID())
 }
 
-func (e *AutocompleteInteractionEvent) GuildChannel() (discord.GuildMessageChannel, bool) {
+func (e *AutocompleteInteractionCreate) GuildChannel() (discord.GuildMessageChannel, bool) {
 	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID())
 }
 
-func (e *AutocompleteInteractionEvent) Result(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
+func (e *AutocompleteInteractionCreate) Result(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeApplicationCommandAutocompleteResult, discord.AutocompleteResult{Choices: choices}, opts...)
 }
 
-type ModalSubmitInteractionEvent struct {
+type ModalSubmitInteractionCreate struct {
 	*GenericEvent
 	discord.ModalSubmitInteraction
 	Respond InteractionResponderFunc
 }
 
-func (e *ModalSubmitInteractionEvent) Guild() (discord.Guild, bool) {
+func (e *ModalSubmitInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
 		return e.Client().Caches().Guilds().Get(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
 
-func (e *ModalSubmitInteractionEvent) Channel() (discord.MessageChannel, bool) {
+func (e *ModalSubmitInteractionCreate) Channel() (discord.MessageChannel, bool) {
 	return e.Client().Caches().Channels().GetMessageChannel(e.ChannelID())
 }
 
-func (e *ModalSubmitInteractionEvent) DMChannel() (discord.DMChannel, bool) {
+func (e *ModalSubmitInteractionCreate) DMChannel() (discord.DMChannel, bool) {
 	return e.Client().Caches().Channels().GetDMChannel(e.ChannelID())
 }
 
-func (e *ModalSubmitInteractionEvent) GuildChannel() (discord.GuildMessageChannel, bool) {
+func (e *ModalSubmitInteractionCreate) GuildChannel() (discord.GuildMessageChannel, bool) {
 	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID())
 }
 
-func (e *ModalSubmitInteractionEvent) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
+func (e *ModalSubmitInteractionCreate) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeCreateMessage, messageCreate, opts...)
 }
 
-func (e *ModalSubmitInteractionEvent) DeferCreateMessage(ephemeral bool, opts ...rest.RequestOpt) error {
+func (e *ModalSubmitInteractionCreate) DeferCreateMessage(ephemeral bool, opts ...rest.RequestOpt) error {
 	var data discord.InteractionCallbackData
 	if ephemeral {
 		data = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
@@ -188,10 +188,10 @@ func (e *ModalSubmitInteractionEvent) DeferCreateMessage(ephemeral bool, opts ..
 	return e.Respond(discord.InteractionCallbackTypeDeferredCreateMessage, data, opts...)
 }
 
-func (e *ModalSubmitInteractionEvent) UpdateMessage(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
+func (e *ModalSubmitInteractionCreate) UpdateMessage(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeUpdateMessage, messageUpdate, opts...)
 }
 
-func (e *ModalSubmitInteractionEvent) DeferUpdateMessage(opts ...rest.RequestOpt) error {
+func (e *ModalSubmitInteractionCreate) DeferUpdateMessage(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeDeferredUpdateMessage, nil, opts...)
 }

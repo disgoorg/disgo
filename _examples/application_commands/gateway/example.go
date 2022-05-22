@@ -69,7 +69,7 @@ func main() {
 	<-s
 }
 
-func commandListener(event *events.ApplicationCommandInteractionEvent) {
+func commandListener(event *events.ApplicationCommandInteractionCreate) {
 	data := event.SlashCommandInteractionData()
 	if data.CommandName() == "say" {
 		err := event.CreateMessage(discord.NewMessageCreateBuilder().

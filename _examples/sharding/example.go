@@ -39,10 +39,10 @@ func main() {
 		bot.WithCacheConfigOpts(cache.WithCacheFlags(cache.FlagsDefault)),
 		bot.WithEventListeners(&events.ListenerAdapter{
 			OnMessageCreate: onMessageCreate,
-			OnGuildReady: func(event *events.GuildReadyEvent) {
+			OnGuildReady: func(event *events.GuildReady) {
 				log.Infof("guild %s ready", event.GuildID)
 			},
-			OnGuildsReady: func(event *events.GuildsReadyEvent) {
+			OnGuildsReady: func(event *events.GuildsReady) {
 				log.Infof("guilds on shard %d ready", event.ShardID)
 			},
 		}),
@@ -63,7 +63,7 @@ func main() {
 	<-s
 }
 
-func onMessageCreate(event *events.MessageCreateEvent) {
+func onMessageCreate(event *events.MessageCreate) {
 	if event.Message.Author.Bot {
 		return
 	}

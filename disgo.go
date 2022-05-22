@@ -52,7 +52,7 @@ import (
 
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/gateway/handlers"
+	"github.com/disgoorg/disgo/handlers"
 	"github.com/disgoorg/disgo/httpserver"
 )
 

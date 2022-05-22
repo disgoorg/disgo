@@ -6,13 +6,10 @@ import (
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/gateway/grate"
 	"github.com/disgoorg/disgo/httpserver"
 	"github.com/disgoorg/disgo/internal/tokenhelper"
 	"github.com/disgoorg/disgo/rest"
-	"github.com/disgoorg/disgo/rest/rrate"
 	"github.com/disgoorg/disgo/sharding"
-	"github.com/disgoorg/disgo/sharding/srate"
 	"github.com/disgoorg/log"
 )
 
@@ -210,7 +207,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 			rest.WithUserAgent(fmt.Sprintf("DiscordBot (%s, %s)", github, version)),
 			rest.WithLogger(client.logger),
 			func(config *rest.Config) {
-				config.RateLimiterConfigOpts = append([]rrate.ConfigOpt{rrate.WithLogger(client.logger)}, config.RateLimiterConfigOpts...)
+				config.RateRateLimiterConfigOpts = append([]rest.RateLimiterConfigOpt{rest.WithRateLimiterLogger(client.logger)}, config.RateRateLimiterConfigOpts...)
 			},
 		}, config.RestClientConfigOpts...)
 
@@ -241,7 +238,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 			gateway.WithBrowser(name),
 			gateway.WithDevice(name),
 			func(config *gateway.Config) {
-				config.RateLimiterConfigOpts = append([]grate.ConfigOpt{grate.WithLogger(client.logger)}, config.RateLimiterConfigOpts...)
+				config.RateRateLimiterConfigOpts = append([]gateway.RateLimiterConfigOpt{gateway.WithRateLimiterLogger(client.logger)}, config.RateRateLimiterConfigOpts...)
 			},
 		}, config.GatewayConfigOpts...)
 
@@ -271,12 +268,12 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 				gateway.WithBrowser(name),
 				gateway.WithDevice(name),
 				func(config *gateway.Config) {
-					config.RateLimiterConfigOpts = append([]grate.ConfigOpt{grate.WithLogger(client.logger)}, config.RateLimiterConfigOpts...)
+					config.RateRateLimiterConfigOpts = append([]gateway.RateLimiterConfigOpt{gateway.WithRateLimiterLogger(client.logger)}, config.RateRateLimiterConfigOpts...)
 				},
 			),
 			sharding.WithLogger(client.logger),
 			func(config *sharding.Config) {
-				config.RateLimiterConfigOpts = append([]srate.ConfigOpt{srate.WithLogger(client.logger), srate.WithMaxConcurrency(gatewayBotRs.SessionStartLimit.MaxConcurrency)}, config.RateLimiterConfigOpts...)
+				config.RateRateLimiterConfigOpts = append([]sharding.RateLimiterConfigOpt{sharding.WithRateLimiterLogger(client.logger), sharding.WithMaxConcurrency(gatewayBotRs.SessionStartLimit.MaxConcurrency)}, config.RateRateLimiterConfigOpts...)
 			},
 		}, config.ShardManagerConfigOpts...)
 

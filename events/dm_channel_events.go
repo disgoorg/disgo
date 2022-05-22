@@ -7,46 +7,46 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// GenericDMChannelEvent is called upon receiving DMChannelCreateEvent, DMChannelUpdateEvent, DMChannelDeleteEvent or DMUserTypingStartEvent
-type GenericDMChannelEvent struct {
+// GenericDMChannel is called upon receiving DMChannelCreate , DMChannelUpdate , DMChannelDelete or DMUserTypingStart
+type GenericDMChannel struct {
 	*GenericEvent
 	Channel   discord.DMChannel
 	ChannelID snowflake.ID
 }
 
-// DMChannelCreateEvent indicates that a new discord.DMChannel got created
-type DMChannelCreateEvent struct {
-	*GenericDMChannelEvent
+// DMChannelCreate indicates that a new discord.DMChannel got created
+type DMChannelCreate struct {
+	*GenericDMChannel
 }
 
-// DMChannelUpdateEvent indicates that a discord.DMChannel got updated
-type DMChannelUpdateEvent struct {
-	*GenericDMChannelEvent
+// DMChannelUpdate indicates that a discord.DMChannel got updated
+type DMChannelUpdate struct {
+	*GenericDMChannel
 	OldChannel discord.DMChannel
 }
 
-// DMChannelDeleteEvent indicates that a discord.DMChannel got deleted
-type DMChannelDeleteEvent struct {
-	*GenericDMChannelEvent
+// DMChannelDelete indicates that a discord.DMChannel got deleted
+type DMChannelDelete struct {
+	*GenericDMChannel
 }
 
-type DMChannelPinsUpdateEvent struct {
+type DMChannelPinsUpdate struct {
 	*GenericEvent
 	ChannelID           snowflake.ID
 	NewLastPinTimestamp *time.Time
 	OldLastPinTimestamp *time.Time
 }
 
-// DMUserTypingStartEvent indicates that a discord.User started typing in a discord.DMChannel(requires discord.GatewayIntentDirectMessageTyping)
-type DMUserTypingStartEvent struct {
+// DMUserTypingStart indicates that a discord.User started typing in a discord.DMChannel(requires discord.GatewayIntentDirectMessageTyping)
+type DMUserTypingStart struct {
 	*GenericEvent
 	ChannelID snowflake.ID
 	UserID    snowflake.ID
 	Timestamp time.Time
 }
 
-// Channel returns the discord.DMChannel the DMUserTypingStartEvent happened in
-func (e DMUserTypingStartEvent) Channel() (discord.DMChannel, bool) {
+// Channel returns the discord.DMChannel the DMUserTypingStart happened in
+func (e DMUserTypingStart) Channel() (discord.DMChannel, bool) {
 	if channel, ok := e.Client().Caches().Channels().Get(e.ChannelID); ok {
 		return channel.(discord.DMChannel), false
 	}

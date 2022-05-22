@@ -2,7 +2,6 @@ package sharding
 
 import (
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/sharding/srate"
 	"github.com/disgoorg/log"
 )
 
@@ -17,15 +16,15 @@ func DefaultConfig() *Config {
 
 // Config lets you configure your ShardManager instance.
 type Config struct {
-	Logger                log.Logger
-	ShardIDs              map[int]struct{}
-	ShardCount            int
-	ShardSplitCount       int
-	AutoScaling           bool
-	GatewayCreateFunc     gateway.CreateFunc
-	GatewayConfigOpts     []gateway.ConfigOpt
-	RateLimiter           srate.Limiter
-	RateLimiterConfigOpts []srate.ConfigOpt
+	Logger                    log.Logger
+	ShardIDs                  map[int]struct{}
+	ShardCount                int
+	ShardSplitCount           int
+	AutoScaling               bool
+	GatewayCreateFunc         gateway.CreateFunc
+	GatewayConfigOpts         []gateway.ConfigOpt
+	RateLimiter               RateLimiter
+	RateRateLimiterConfigOpts []RateLimiterConfigOpt
 }
 
 // ConfigOpt is a type alias for a function that takes a Config and is used to configure your Server.
@@ -37,7 +36,7 @@ func (c *Config) Apply(opts []ConfigOpt) {
 		opt(c)
 	}
 	if c.RateLimiter == nil {
-		c.RateLimiter = srate.New(c.RateLimiterConfigOpts...)
+		c.RateLimiter = NewRateLimiter(c.RateRateLimiterConfigOpts...)
 	}
 }
 
@@ -96,16 +95,16 @@ func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) ConfigOpt {
 	}
 }
 
-// WithRateLimiter lets you inject your own srate.Limiter into the ShardManager.
-func WithRateLimiter(rateLimiter srate.Limiter) ConfigOpt {
+// WithRateLimiter lets you inject your own srate.RateLimiter into the ShardManager.
+func WithRateLimiter(rateLimiter RateLimiter) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiter = rateLimiter
 	}
 }
 
-// WithRateLimiterConfigOpt lets you configure the default srate.Limiter used by the ShardManager.
-func WithRateLimiterConfigOpt(opts ...srate.ConfigOpt) ConfigOpt {
+// WithRateRateLimiterConfigOpt lets you configure the default srate.RateLimiter used by the ShardManager.
+func WithRateRateLimiterConfigOpt(opts ...RateLimiterConfigOpt) ConfigOpt {
 	return func(config *Config) {
-		config.RateLimiterConfigOpts = append(config.RateLimiterConfigOpts, opts...)
+		config.RateRateLimiterConfigOpts = append(config.RateRateLimiterConfigOpts, opts...)
 	}
 }

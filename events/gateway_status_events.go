@@ -4,23 +4,23 @@ import (
 	"github.com/disgoorg/disgo/discord"
 )
 
-// ReadyEvent indicates we received the ReadyEvent from the gateway.Gateway
-type ReadyEvent struct {
+// Ready indicates we received the Ready from the gateway.Gateway
+type Ready struct {
 	*GenericEvent
 	discord.GatewayEventReady
 }
 
-// ResumedEvent indicates disgo resumed the gateway.Gateway
-type ResumedEvent struct {
+// Resumed indicates disgo resumed the gateway.Gateway
+type Resumed struct {
 	*GenericEvent
 }
 
-type InvalidSessionEvent struct {
+type InvalidSession struct {
 	*GenericEvent
 	MayResume bool
 }
 
-// DisconnectedEvent indicates disgo disconnected from the gateway.Gateway
-type DisconnectedEvent struct {
+// Disconnected indicates disgo disconnected from the gateway.Gateway
+type Disconnected struct {
 	*GenericEvent
 }

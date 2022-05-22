@@ -5,43 +5,39 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-type GenericGuildScheduledEventEvent struct {
+type GenericGuildScheduledEvent struct {
 	*GenericEvent
-	GuildScheduledEvent discord.GuildScheduledEvent
+	GuildScheduled discord.GuildScheduledEvent
 }
 
-type GuildScheduledEventCreateEvent struct {
-	*GenericGuildScheduledEventEvent
+type GuildScheduledEventCreate struct {
+	*GenericGuildScheduledEvent
 }
-
-type GuildScheduledEventUpdateEvent struct {
-	*GenericGuildScheduledEventEvent
-	OldGuildScheduledEvent discord.GuildScheduledEvent
+type GuildScheduledEventUpdate struct {
+	*GenericGuildScheduledEvent
+	OldGuildScheduled discord.GuildScheduledEvent
 }
-
-type GuildScheduledEventDeleteEvent struct {
-	*GenericGuildScheduledEventEvent
+type GuildScheduledEventDelete struct {
+	*GenericGuildScheduledEvent
 }
-
-type GenericGuildScheduledEventUserEvent struct {
+type GenericGuildScheduledEventUser struct {
 	*GenericEvent
 	GuildScheduledEventID snowflake.ID
 	UserID                snowflake.ID
 	GuildID               snowflake.ID
 }
 
-func (e *GenericGuildScheduledEventUserEvent) GuildScheduledEvent() (discord.GuildScheduledEvent, bool) {
+func (e *GenericGuildScheduledEventUser) GuildScheduledEvent() (discord.GuildScheduledEvent, bool) {
 	return e.Client().Caches().GuildScheduledEvents().Get(e.GuildID, e.GuildScheduledEventID)
 }
 
-func (e *GenericGuildScheduledEventUserEvent) Member() (discord.Member, bool) {
+func (e *GenericGuildScheduledEventUser) Member() (discord.Member, bool) {
 	return e.Client().Caches().Members().Get(e.GuildID, e.UserID)
 }
 
-type GuildScheduledEventUserAddEvent struct {
-	*GenericGuildScheduledEventUserEvent
+type GuildScheduledEventUserAdd struct {
+	*GenericGuildScheduledEventUser
 }
-
-type GuildScheduledEventUserRemoveEvent struct {
-	*GenericGuildScheduledEventUserEvent
+type GuildScheduledEventUserRemove struct {
+	*GenericGuildScheduledEventUser
 }

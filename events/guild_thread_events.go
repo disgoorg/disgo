@@ -5,7 +5,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-type GenericThreadEvent struct {
+type GenericThread struct {
 	*GenericEvent
 	Thread   discord.GuildThread
 	ThreadID snowflake.ID
@@ -13,29 +13,29 @@ type GenericThreadEvent struct {
 	ParentID snowflake.ID
 }
 
-type ThreadCreateEvent struct {
-	*GenericThreadEvent
+type ThreadCreate struct {
+	*GenericThread
 	ThreadMember discord.ThreadMember
 }
 
-type ThreadUpdateEvent struct {
-	*GenericThreadEvent
+type ThreadUpdate struct {
+	*GenericThread
 	OldThread discord.GuildThread
 }
 
-type ThreadDeleteEvent struct {
-	*GenericThreadEvent
+type ThreadDelete struct {
+	*GenericThread
 }
 
-type ThreadShowEvent struct {
-	*GenericThreadEvent
+type ThreadShow struct {
+	*GenericThread
 }
 
-type ThreadHideEvent struct {
-	*GenericThreadEvent
+type ThreadHide struct {
+	*GenericThread
 }
 
-type GenericThreadMemberEvent struct {
+type GenericThreadMember struct {
 	*GenericEvent
 	GuildID        snowflake.ID
 	ThreadID       snowflake.ID
@@ -43,17 +43,17 @@ type GenericThreadMemberEvent struct {
 	ThreadMember   discord.ThreadMember
 }
 
-type ThreadMemberAddEvent struct {
-	*GenericThreadMemberEvent
+type ThreadMemberAdd struct {
+	*GenericThreadMember
 	Member   discord.Member
 	Presence *discord.Presence
 }
 
-type ThreadMemberUpdateEvent struct {
-	*GenericThreadMemberEvent
+type ThreadMemberUpdate struct {
+	*GenericThreadMember
 	OldThreadMember discord.ThreadMember
 }
 
-type ThreadMemberRemoveEvent struct {
-	*GenericThreadMemberEvent
+type ThreadMemberRemove struct {
+	*GenericThreadMember
 }

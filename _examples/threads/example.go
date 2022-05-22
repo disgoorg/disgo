@@ -32,35 +32,35 @@ func main() {
 		),
 		bot.WithMemberChunkingFilter(bot.MemberChunkingFilterAll),
 		bot.WithEventListeners(&events.ListenerAdapter{
-			OnMessageCreate: func(event *events.MessageCreateEvent) {
+			OnMessageCreate: func(event *events.MessageCreate) {
 				if channel, ok := event.Channel(); ok {
 					if _, ok = channel.(discord.GuildThread); ok {
 						println("MessageCreateEvent")
 					}
 				}
 			},
-			OnThreadCreate: func(event *events.ThreadCreateEvent) {
+			OnThreadCreate: func(event *events.ThreadCreate) {
 				println("ThreadCreateEvent")
 			},
-			OnThreadUpdate: func(event *events.ThreadUpdateEvent) {
+			OnThreadUpdate: func(event *events.ThreadUpdate) {
 				println("ThreadUpdateEvent")
 			},
-			OnThreadDelete: func(event *events.ThreadDeleteEvent) {
+			OnThreadDelete: func(event *events.ThreadDelete) {
 				println("ThreadDeleteEvent")
 			},
-			OnThreadHide: func(event *events.ThreadHideEvent) {
+			OnThreadHide: func(event *events.ThreadHide) {
 				println("ThreadHideEvent")
 			},
-			OnThreadShow: func(event *events.ThreadShowEvent) {
+			OnThreadShow: func(event *events.ThreadShow) {
 				println("ThreadShowEvent")
 			},
-			OnThreadMemberAdd: func(event *events.ThreadMemberAddEvent) {
+			OnThreadMemberAdd: func(event *events.ThreadMemberAdd) {
 				println("ThreadMemberAddEvent")
 			},
-			OnThreadMemberUpdate: func(event *events.ThreadMemberUpdateEvent) {
+			OnThreadMemberUpdate: func(event *events.ThreadMemberUpdate) {
 				println("ThreadMemberUpdateEvent")
 			},
-			OnThreadMemberRemove: func(event *events.ThreadMemberRemoveEvent) {
+			OnThreadMemberRemove: func(event *events.ThreadMemberRemove) {
 				println("ThreadMemberRemoveEvent")
 			},
 		}),

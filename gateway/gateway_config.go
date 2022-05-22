@@ -2,7 +2,6 @@ package gateway
 
 import (
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/gateway/grate"
 	"github.com/disgoorg/log"
 	"github.com/gorilla/websocket"
 )
@@ -24,24 +23,24 @@ func DefaultConfig() *Config {
 
 // Config lets you configure your Gateway instance.
 type Config struct {
-	Logger                log.Logger
-	Dialer                *websocket.Dialer
-	LargeThreshold        int
-	GatewayIntents        discord.GatewayIntents
-	Compress              bool
-	GatewayURL            string
-	ShardID               int
-	ShardCount            int
-	SessionID             *string
-	LastSequenceReceived  *int
-	AutoReconnect         bool
-	MaxReconnectTries     int
-	RateLimiter           grate.Limiter
-	RateLimiterConfigOpts []grate.ConfigOpt
-	Presence              *discord.GatewayMessageDataPresenceUpdate
-	OS                    string
-	Browser               string
-	Device                string
+	Logger                    log.Logger
+	Dialer                    *websocket.Dialer
+	LargeThreshold            int
+	GatewayIntents            discord.GatewayIntents
+	Compress                  bool
+	GatewayURL                string
+	ShardID                   int
+	ShardCount                int
+	SessionID                 *string
+	LastSequenceReceived      *int
+	AutoReconnect             bool
+	MaxReconnectTries         int
+	RateLimiter               RateLimiter
+	RateRateLimiterConfigOpts []RateLimiterConfigOpt
+	Presence                  *discord.GatewayMessageDataPresenceUpdate
+	OS                        string
+	Browser                   string
+	Device                    string
 }
 
 // ConfigOpt is a type alias for a function that takes a Config and is used to configure your Server.
@@ -53,7 +52,7 @@ func (c *Config) Apply(opts []ConfigOpt) {
 		opt(c)
 	}
 	if c.RateLimiter == nil {
-		c.RateLimiter = grate.New(c.RateLimiterConfigOpts...)
+		c.RateLimiter = NewRateLimiter(c.RateRateLimiterConfigOpts...)
 	}
 }
 
@@ -148,17 +147,17 @@ func WithMaxReconnectTries(maxReconnectTries int) ConfigOpt {
 	}
 }
 
-// WithRateLimiter sets the grate.Limiter for the Gateway.
-func WithRateLimiter(rateLimiter grate.Limiter) ConfigOpt {
+// WithRateLimiter sets the grate.RateLimiter for the Gateway.
+func WithRateLimiter(rateLimiter RateLimiter) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiter = rateLimiter
 	}
 }
 
-// WithRateLimiterConfigOpts lets you configure the default grate.Limiter.
-func WithRateLimiterConfigOpts(opts ...grate.ConfigOpt) ConfigOpt {
+// WithRateRateLimiterConfigOpts lets you configure the default RateLimiter.
+func WithRateRateLimiterConfigOpts(opts ...RateLimiterConfigOpt) ConfigOpt {
 	return func(config *Config) {
-		config.RateLimiterConfigOpts = append(config.RateLimiterConfigOpts, opts...)
+		config.RateRateLimiterConfigOpts = append(config.RateRateLimiterConfigOpts, opts...)
 	}
 }
 

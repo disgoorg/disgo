@@ -4,37 +4,37 @@ import (
 	"github.com/disgoorg/disgo/discord"
 )
 
-// GenericGuildVoiceStateEvent is called upon receiving GuildVoiceJoinEvent, GuildVoiceMoveEvent, GuildVoiceLeaveEvent
-type GenericGuildVoiceStateEvent struct {
+// GenericGuildVoiceState is called upon receiving GuildVoiceJoin , GuildVoiceMove , GuildVoiceLeave
+type GenericGuildVoiceState struct {
 	*GenericEvent
 	VoiceState discord.VoiceState
 	Member     discord.Member
 }
 
-// GuildVoiceStateUpdateEvent indicates that the discord.VoiceState of a discord.Member has updated(requires discord.GatewayIntentsGuildVoiceStates)
-type GuildVoiceStateUpdateEvent struct {
-	*GenericGuildVoiceStateEvent
+// GuildVoiceStateUpdate indicates that the discord.VoiceState of a discord.Member has updated(requires discord.GatewayIntentsGuildVoiceStates)
+type GuildVoiceStateUpdate struct {
+	*GenericGuildVoiceState
 	OldVoiceState discord.VoiceState
 }
 
-// GuildVoiceJoinEvent indicates that a discord.Member joined a discord.Channel(requires discord.GatewayIntentsGuildVoiceStates)
-type GuildVoiceJoinEvent struct {
-	*GenericGuildVoiceStateEvent
+// GuildVoiceJoin indicates that a discord.Member joined a discord.Channel(requires discord.GatewayIntentsGuildVoiceStates)
+type GuildVoiceJoin struct {
+	*GenericGuildVoiceState
 }
 
-// GuildVoiceMoveEvent indicates that a discord.Member moved a discord.Channel(requires discord.GatewayIntentsGuildVoiceStates)
-type GuildVoiceMoveEvent struct {
-	*GenericGuildVoiceStateEvent
+// GuildVoiceMove indicates that a discord.Member moved a discord.Channel(requires discord.GatewayIntentsGuildVoiceStates)
+type GuildVoiceMove struct {
+	*GenericGuildVoiceState
 	OldVoiceState discord.VoiceState
 }
 
-// GuildVoiceLeaveEvent indicates that a discord.Member left a discord.Channel(requires discord.GatewayIntentsGuildVoiceStates)
-type GuildVoiceLeaveEvent struct {
-	*GenericGuildVoiceStateEvent
+// GuildVoiceLeave indicates that a discord.Member left a discord.Channel(requires discord.GatewayIntentsGuildVoiceStates)
+type GuildVoiceLeave struct {
+	*GenericGuildVoiceState
 	OldVoiceState discord.VoiceState
 }
 
-type VoiceServerUpdateEvent struct {
+type VoiceServerUpdate struct {
 	*GenericEvent
 	VoiceServerUpdate discord.VoiceServerUpdate
 }
