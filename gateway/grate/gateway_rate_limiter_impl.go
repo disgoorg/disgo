@@ -8,6 +8,7 @@ import (
 	"github.com/sasha-s/go-csync"
 )
 
+// NewLimiter creates a new default Limiter with the given ConfigOpt(s).
 func NewLimiter(opts ...ConfigOpt) Limiter {
 	config := DefaultConfig()
 	config.Apply(opts)

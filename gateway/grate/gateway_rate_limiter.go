@@ -18,7 +18,10 @@ type Limiter interface {
 	// Reset resets the Limiter to its initial state.
 	Reset()
 
-	// Wait waits for the
+	// Wait waits for the Limiter to be ready to send a new message.
+	// If the context deadline is exceeded, Wait will return immediately and no message will be sent.
 	Wait(ctx context.Context) error
+
+	// Unlock unlocks the Limiter and allows the next message to be sent.
 	Unlock()
 }
