@@ -7,12 +7,15 @@ import (
 
 var _ bot.HTTPServerEventHandler = (*httpserverHandlerInteractionCreate)(nil)
 
+// httpserverHandlerInteractionCreate handles discord.GatewayEventTypeInteractionCreate
 type httpserverHandlerInteractionCreate struct{}
 
+// New constructs a new payload receiver for the raw gateway event
 func (h *httpserverHandlerInteractionCreate) New() any {
 	return &discord.UnmarshalInteraction{}
 }
 
+// HandleHTTPEvent handles the specific raw http event
 func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(client bot.Client, respondFunc func(response discord.InteractionResponse) error, v any) {
 	interaction := (*v.(*discord.UnmarshalInteraction)).Interaction
 
@@ -27,5 +30,5 @@ func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(client bot.Client, 
 		}
 		return
 	}
-	HandleInteraction(client, -1, -1, respondFunc, interaction)
+	handleInteraction(client, -1, -1, respondFunc, interaction)
 }

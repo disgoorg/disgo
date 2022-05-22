@@ -10,31 +10,35 @@ import (
 	"github.com/disgoorg/disgo/httpserver"
 )
 
+// DefaultHTTPServerEventHandler is the default handler for the httpserver.Server and sends payloads to the bot.EventManager.
 func DefaultHTTPServerEventHandler(client bot.Client) httpserver.EventHandlerFunc {
 	return func(responseFunc httpserver.RespondFunc, reader io.Reader) {
 		client.EventManager().HandleHTTPEvent(responseFunc, events.HandleRawEvent(client, discord.GatewayEventTypeInteractionCreate, -1, -1, responseFunc, reader))
 	}
 }
 
+// GetHTTPServerHandler returns the default httpserver.Server event handler for processing the raw payload which gets passed into the bot.EventManager
 func GetHTTPServerHandler() bot.HTTPServerEventHandler {
 	return &httpserverHandlerInteractionCreate{}
 }
 
+// DefaultGatewayEventHandler is the default handler for the gateway.Gateway and sends payloads to the bot.EventManager.
 func DefaultGatewayEventHandler(client bot.Client) gateway.EventHandlerFunc {
 	return func(gatewayEventType discord.GatewayEventType, sequenceNumber int, shardID int, reader io.Reader) {
 		client.EventManager().HandleGatewayEvent(gatewayEventType, sequenceNumber, shardID, events.HandleRawEvent(client, gatewayEventType, sequenceNumber, shardID, nil, reader))
 	}
 }
 
+// GetGatewayHandlers returns the default gateway.Gateway event handlers for processing the raw payload which gets passed into the bot.EventManager
 func GetGatewayHandlers() map[discord.GatewayEventType]bot.GatewayEventHandler {
-	handlers := make(map[discord.GatewayEventType]bot.GatewayEventHandler, len(AllEventHandlers))
-	for _, handler := range AllEventHandlers {
+	handlers := make(map[discord.GatewayEventType]bot.GatewayEventHandler, len(allEventHandlers))
+	for _, handler := range allEventHandlers {
 		handlers[handler.EventType()] = handler
 	}
 	return handlers
 }
 
-var AllEventHandlers = []bot.GatewayEventHandler{
+var allEventHandlers = []bot.GatewayEventHandler{
 	&gatewayHandlerReady{},
 	&gatewayHandlerResumed{},
 

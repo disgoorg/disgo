@@ -9,7 +9,7 @@ import (
 // gatewayHandlerChannelCreate handles discord.GatewayEventTypeApplicationCommandPermissionsUpdate
 type gatewayHandlerApplicationCommandPermissionsUpdate struct{}
 
-// EventType returns the core.GatewayGatewayEventType
+// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerApplicationCommandPermissionsUpdate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeApplicationCommandPermissionsUpdate
 }
