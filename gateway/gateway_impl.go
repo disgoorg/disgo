@@ -428,13 +428,13 @@ loop:
 	}
 }
 
-func (g *gatewayImpl) parseGatewayMessage(mt int, reader io.Reader) (*discord.GatewayMessage, error) {
+func (g *gatewayImpl) parseGatewayMessage(mt int, reader io.Reader) (discord.GatewayMessage, error) {
 	var finalReadCloser io.ReadCloser
 	if mt == websocket.BinaryMessage {
 		g.Logger().Trace(g.formatLogs("binary message received. decompressing..."))
 		readCloser, err := zlib.NewReader(reader)
 		if err != nil {
-			return nil, fmt.Errorf("failed to decompress zlib: %w", err)
+			return discord.GatewayMessage{}, fmt.Errorf("failed to decompress zlib: %w", err)
 		}
 		finalReadCloser = readCloser
 	} else {
@@ -447,7 +447,7 @@ func (g *gatewayImpl) parseGatewayMessage(mt int, reader io.Reader) (*discord.Ga
 	var message discord.GatewayMessage
 	if err := json.NewDecoder(finalReadCloser).Decode(&message); err != nil {
 		g.Logger().Error(g.formatLogs("error decoding websocket message: ", err))
-		return nil, err
+		return discord.GatewayMessage{}, err
 	}
-	return &message, nil
+	return message, nil
 }

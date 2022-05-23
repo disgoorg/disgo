@@ -18,7 +18,7 @@ var (
 	ErrAccessTokenExpired = errors.New("access token expired. refresh the session")
 
 	// ErrMissingOAuth2Scope is returned when a specific OAuth2 scope is missing.
-	ErrMissingOAuth2Scope = func(scope discord.ApplicationScope) error {
+	ErrMissingOAuth2Scope = func(scope discord.OAuth2Scope) error {
 		return fmt.Errorf("missing '%s' scope", scope)
 	}
 )
@@ -38,9 +38,9 @@ type Client interface {
 	StateController() StateController
 
 	// GenerateAuthorizationURL generates an authorization URL with the given redirect URI, permissions, guildID, disableGuildSelect & scopes. State is automatically generated
-	GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.ApplicationScope) string
+	GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.OAuth2Scope) string
 	// GenerateAuthorizationURLState generates an authorization URL with the given redirect URI, permissions, guildID, disableGuildSelect & scopes. State is automatically generated & returned
-	GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.ApplicationScope) (string, string)
+	GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.OAuth2Scope) (string, string)
 
 	// StartSession starts a new Session with the given authorization code & state
 	StartSession(code string, state string, identifier string, opts ...rest.RequestOpt) (Session, error)
@@ -51,8 +51,8 @@ type Client interface {
 	GetUser(session Session, opts ...rest.RequestOpt) (*discord.OAuth2User, error)
 	// GetMember returns the discord.Member associated with the given Session in a specific guild.
 	GetMember(session Session, guildID snowflake.ID, opts ...rest.RequestOpt) (*discord.Member, error)
-	// GetGuilds returns the discord.OAuth2Guild(s) the user is a member of. This requires the discord.ApplicationScopeGuilds scope in the Session
+	// GetGuilds returns the discord.OAuth2Guild(s) the user is a member of. This requires the discord.OAuth2ScopeGuilds scope in the Session
 	GetGuilds(session Session, opts ...rest.RequestOpt) ([]discord.OAuth2Guild, error)
-	// GetConnections returns the discord.Connection(s) the user has connected. This requires the discord.ApplicationScopeConnections scope in the Session
+	// GetConnections returns the discord.Connection(s) the user has connected. This requires the discord.OAuth2ScopeConnections scope in the Session
 	GetConnections(session Session, opts ...rest.RequestOpt) ([]discord.Connection, error)
 }

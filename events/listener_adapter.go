@@ -8,10 +8,8 @@ var _ bot.EventListener = (*ListenerAdapter)(nil)
 
 // ListenerAdapter lets you override the handles for receiving events
 type ListenerAdapter struct {
-	// Other events
-	OnHeartbeat   func(event *Heartbeat)
-	OnHTTPRequest func(event *HTTPRequest)
-	OnRaw         func(event *Raw)
+	// raw event
+	OnRaw func(event *Raw)
 
 	// GuildApplicationCommandPermissionsUpdate
 	OnGuildApplicationCommandPermissionsUpdate func(event *GuildApplicationCommandPermissionsUpdate)
@@ -168,14 +166,6 @@ type ListenerAdapter struct {
 // OnEvent is getting called everytime we receive an event
 func (l *ListenerAdapter) OnEvent(event bot.Event) {
 	switch e := event.(type) {
-	case *Heartbeat:
-		if listener := l.OnHeartbeat; listener != nil {
-			listener(e)
-		}
-	case *HTTPRequest:
-		if listener := l.OnHTTPRequest; listener != nil {
-			listener(e)
-		}
 	case *Raw:
 		if listener := l.OnRaw; listener != nil {
 			listener(e)

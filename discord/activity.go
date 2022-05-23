@@ -35,8 +35,10 @@ type Activity struct {
 	Buttons       []string            `json:"buttons"`
 }
 
+// ActivityFlags add additional information to an activity
 type ActivityFlags int
 
+// Discord's supported ActivityFlags
 const (
 	ActivityFlagInstance ActivityFlags = 1 << iota
 	ActivityFlagJoin
@@ -49,6 +51,7 @@ const (
 	ActivityFlagEmbedded
 )
 
+// ActivityButton is a button in an activity
 type ActivityButton struct {
 	Label string `json:"label"`
 	URL   string `json:"url"`

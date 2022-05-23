@@ -101,13 +101,13 @@ func (u User) BannerURL(opts ...CDNOpt) *string {
 // OAuth2User represents a full User returned by the oauth2 endpoints
 type OAuth2User struct {
 	User
-	// Requires ApplicationScopeIdentify
+	// Requires OAuth2ScopeIdentify
 	MfaEnabled  bool        `json:"mfa_enabled"`
 	Locale      string      `json:"locale"`
 	Flags       UserFlags   `json:"flags"`
 	PremiumType PremiumType `json:"premium_type"`
 
-	// Requires ApplicationScopeEmail
+	// Requires OAuth2ScopeEmail
 	Verified bool   `json:"verified"`
 	Email    string `json:"email"`
 }
