@@ -14,13 +14,3 @@ type Ready struct {
 type Resumed struct {
 	*GenericEvent
 }
-
-type InvalidSession struct {
-	*GenericEvent
-	MayResume bool
-}
-
-// Disconnected indicates disgo disconnected from the gateway.Gateway
-type Disconnected struct {
-	*GenericEvent
-}

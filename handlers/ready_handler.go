@@ -6,20 +6,16 @@ import (
 	"github.com/disgoorg/disgo/events"
 )
 
-// gatewayHandlerReady handles discord.GatewayEventTypeReady
 type gatewayHandlerReady struct{}
 
-// EventType returns the gateway.EventType
 func (h *gatewayHandlerReady) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeReady
 }
 
-// New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerReady) New() any {
 	return &discord.GatewayEventReady{}
 }
 
-// HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerReady) HandleGatewayEvent(client bot.Client, sequenceNumber int, _ int, v any) {
 	readyEvent := *v.(*discord.GatewayEventReady)
 

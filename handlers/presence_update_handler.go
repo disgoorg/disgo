@@ -5,20 +5,16 @@ import (
 	"github.com/disgoorg/disgo/discord"
 )
 
-// gatewayHandlerGuildDelete handles discord.GatewayEventTypePresenceUpdate
 type gatewayHandlerPresenceUpdate struct{}
 
-// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerPresenceUpdate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypePresenceUpdate
 }
 
-// New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerPresenceUpdate) New() any {
 	return &discord.Presence{}
 }
 
-// HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	/*payload := *v.(*discord.Presence)
 

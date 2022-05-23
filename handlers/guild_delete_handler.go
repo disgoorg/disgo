@@ -7,20 +7,16 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// gatewayHandlerGuildDelete handles discord.GatewayEventTypeGuildDelete
 type gatewayHandlerGuildDelete struct{}
 
-// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerGuildDelete) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildDelete
 }
 
-// New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerGuildDelete) New() any {
 	return &discord.UnavailableGuild{}
 }
 
-// HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerGuildDelete) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	unavailableGuild := *v.(*discord.UnavailableGuild)
 

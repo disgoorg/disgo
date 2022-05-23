@@ -15,6 +15,9 @@ import (
 
 var _ Client = (*clientImpl)(nil)
 
+// Client is a high level interface for interacting with Discord's API.
+// It combines the functionality of the rest, gateway/sharding, httpserver and cache into one easy to use interface.
+// Create a new client with disgo.New.
 type Client interface {
 	// Logger returns the logger for the client.
 	Logger() log.Logger

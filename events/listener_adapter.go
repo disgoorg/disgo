@@ -16,60 +16,58 @@ type ListenerAdapter struct {
 	// GuildApplicationCommandPermissionsUpdate
 	OnGuildApplicationCommandPermissionsUpdate func(event *GuildApplicationCommandPermissionsUpdate)
 
-	// Thread  s
+	// Thread Events
 	OnThreadCreate func(event *ThreadCreate)
 	OnThreadUpdate func(event *ThreadUpdate)
 	OnThreadDelete func(event *ThreadDelete)
 	OnThreadShow   func(event *ThreadShow)
 	OnThreadHide   func(event *ThreadHide)
 
-	// ThreadMember  s
+	// ThreadMember Events
 	OnThreadMemberAdd    func(event *ThreadMemberAdd)
 	OnThreadMemberUpdate func(event *ThreadMemberUpdate)
 	OnThreadMemberRemove func(event *ThreadMemberRemove)
 
-	// Guild Channel  s
+	// Guild Channel Events
 	OnGuildChannelCreate     func(event *GuildChannelCreate)
 	OnGuildChannelUpdate     func(event *GuildChannelUpdate)
 	OnGuildChannelDelete     func(event *GuildChannelDelete)
 	OnGuildChannelPinsUpdate func(event *GuildChannelPinsUpdate)
 
-	// DM Channel  s
+	// DM Channel Events
 	OnDMChannelCreate     func(event *DMChannelCreate)
 	OnDMChannelUpdate     func(event *DMChannelUpdate)
 	OnDMChannelDelete     func(event *DMChannelDelete)
 	OnDMChannelPinsUpdate func(event *DMChannelPinsUpdate)
 
-	// Channel Message  s
+	// Channel Message Events
 	OnDMMessageCreate func(event *DMMessageCreate)
 	OnDMMessageUpdate func(event *DMMessageUpdate)
 	OnDMMessageDelete func(event *DMMessageDelete)
 
-	// Channel Reaction  s
+	// Channel Reaction Events
 	OnDMMessageReactionAdd         func(event *DMMessageReactionAdd)
 	OnDMMessageReactionRemove      func(event *DMMessageReactionRemove)
 	OnDMMessageReactionRemoveEmoji func(event *DMMessageReactionRemoveEmoji)
 	OnDMMessageReactionRemoveAll   func(event *DMMessageReactionRemoveAll)
 
-	// Emoji  s
+	// Emoji Events
 	OnEmojisUpdate func(event *EmojisUpdate)
 	OnEmojiCreate  func(event *EmojiCreate)
 	OnEmojiUpdate  func(event *EmojiUpdate)
 	OnEmojiDelete  func(event *EmojiDelete)
 
-	// Sticker  s
+	// Sticker Events
 	OnStickersUpdate func(event *StickersUpdate)
 	OnStickerCreate  func(event *StickerCreate)
 	OnStickerUpdate  func(event *StickerUpdate)
 	OnStickerDelete  func(event *StickerDelete)
 
-	// gateway status  s
-	OnReady          func(event *Ready)
-	OnResumed        func(event *Resumed)
-	OnInvalidSession func(event *InvalidSession)
-	OnDisconnected   func(event *Disconnected)
+	// gateway status Events
+	OnReady   func(event *Ready)
+	OnResumed func(event *Resumed)
 
-	// Guild  s
+	// Guild Events
 	OnGuildJoin        func(event *GuildJoin)
 	OnGuildUpdate      func(event *GuildUpdate)
 	OnGuildLeave       func(event *GuildLeave)
@@ -80,78 +78,78 @@ type ListenerAdapter struct {
 	OnGuildBan         func(event *GuildBan)
 	OnGuildUnban       func(event *GuildUnban)
 
-	// Guild Invite  s
+	// Guild Invite Events
 	OnGuildInviteCreate func(event *InviteCreate)
 	OnGuildInviteDelete func(event *InviteDelete)
 
-	// Guild Member  s
+	// Guild Member Events
 	OnGuildMemberJoin   func(event *GuildMemberJoin)
 	OnGuildMemberUpdate func(event *GuildMemberUpdate)
 	OnGuildMemberLeave  func(event *GuildMemberLeave)
 
-	// Guild Message  s
+	// Guild Message Events
 	OnGuildMessageCreate func(event *GuildMessageCreate)
 	OnGuildMessageUpdate func(event *GuildMessageUpdate)
 	OnGuildMessageDelete func(event *GuildMessageDelete)
 
-	// Guild Message Reaction  s
+	// Guild Message Reaction Events
 	OnGuildMessageReactionAdd         func(event *GuildMessageReactionAdd)
 	OnGuildMessageReactionRemove      func(event *GuildMessageReactionRemove)
 	OnGuildMessageReactionRemoveEmoji func(event *GuildMessageReactionRemoveEmoji)
 	OnGuildMessageReactionRemoveAll   func(event *GuildMessageReactionRemoveAll)
 
-	// Guild Voice  s
+	// Guild Voice Events
 	OnVoiceServerUpdate     func(event *VoiceServerUpdate)
 	OnGuildVoiceStateUpdate func(event *GuildVoiceStateUpdate)
 	OnGuildVoiceJoin        func(event *GuildVoiceJoin)
 	OnGuildVoiceMove        func(event *GuildVoiceMove)
 	OnGuildVoiceLeave       func(event *GuildVoiceLeave)
 
-	// Guild StageInstance  s
+	// Guild StageInstance Events
 	OnStageInstanceCreate func(event *StageInstanceCreate)
 	OnStageInstanceUpdate func(event *StageInstanceUpdate)
 	OnStageInstanceDelete func(event *StageInstanceDelete)
 
-	// Guild Role  s
+	// Guild Role Events
 	OnRoleCreate func(event *RoleCreate)
 	OnRoleUpdate func(event *RoleUpdate)
 	OnRoleDelete func(event *RoleDelete)
 
-	// Guild Scheduled  s
+	// Guild Scheduled Events
 	OnGuildScheduledEventCreate     func(event *GuildScheduledEventCreate)
 	OnGuildScheduledEventUpdate     func(event *GuildScheduledEventUpdate)
 	OnGuildScheduledEventDelete     func(event *GuildScheduledEventDelete)
 	OnGuildScheduledEventUserAdd    func(event *GuildScheduledEventUserAdd)
 	OnGuildScheduledEventUserRemove func(event *GuildScheduledEventUserRemove)
 
-	// Interaction  s
+	// Interaction Events
 	OnInteraction                   func(event *InteractionCreate)
 	OnApplicationCommandInteraction func(event *ApplicationCommandInteractionCreate)
 	OnComponentInteraction          func(event *ComponentInteractionCreate)
 	OnAutocompleteInteraction       func(event *AutocompleteInteractionCreate)
 	OnModalSubmit                   func(event *ModalSubmitInteractionCreate)
 
-	// Message  s
+	// Message Events
 	OnMessageCreate func(event *MessageCreate)
 	OnMessageUpdate func(event *MessageUpdate)
 	OnMessageDelete func(event *MessageDelete)
 
-	// Message Reaction  s
+	// Message Reaction Events
 	OnMessageReactionAdd         func(event *MessageReactionAdd)
 	OnMessageReactionRemove      func(event *MessageReactionRemove)
 	OnMessageReactionRemoveEmoji func(event *MessageReactionRemoveEmoji)
 	OnMessageReactionRemoveAll   func(event *MessageReactionRemoveAll)
 
-	// Self  s
+	// Self Events
 	OnSelfUpdate func(event *SelfUpdate)
 
-	// User  s
+	// User Events
 	OnUserUpdate             func(event *UserUpdate)
 	OnUserTypingStart        func(event *UserTypingStart)
 	OnGuildMemberTypingStart func(event *GuildMemberTypingStart)
 	OnDMUserTypingStart      func(event *DMUserTypingStart)
 
-	// User Activity  s
+	// User Activity Events
 	OnUserActivityStart  func(event *UserActivityStart)
 	OnUserActivityUpdate func(event *UserActivityUpdate)
 	OnUserActivityStop   func(event *UserActivityStop)
@@ -188,7 +186,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// Thread  s
+	// Thread Events
 	case *ThreadCreate:
 		if listener := l.OnThreadCreate; listener != nil {
 			listener(e)
@@ -210,7 +208,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// ThreadMember  s
+	// ThreadMember Events
 	case *ThreadMemberAdd:
 		if listener := l.OnThreadMemberAdd; listener != nil {
 			listener(e)
@@ -224,7 +222,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// GuildChannel  s
+	// GuildChannel Events
 	case *GuildChannelCreate:
 		if listener := l.OnGuildChannelCreate; listener != nil {
 			listener(e)
@@ -242,7 +240,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// DMChannel  s
+	// DMChannel Events
 	case *DMChannelCreate:
 		if listener := l.OnDMChannelCreate; listener != nil {
 			listener(e)
@@ -260,7 +258,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// DMChannel Message  s
+	// DMChannel Message Events
 	case *DMMessageCreate:
 		if listener := l.OnDMMessageCreate; listener != nil {
 			listener(e)
@@ -274,7 +272,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// DMChannel  s// Category  s
+	// DMChannel Events// Category Events
 	case *DMMessageReactionAdd:
 		if listener := l.OnDMMessageReactionAdd; listener != nil {
 			listener(e)
@@ -292,7 +290,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// Emoji  s
+	// Emoji Events
 	case *EmojisUpdate:
 		if listener := l.OnEmojisUpdate; listener != nil {
 			listener(e)
@@ -310,7 +308,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// Sticker  s
+	// Sticker Events
 	case *StickersUpdate:
 		if listener := l.OnStickersUpdate; listener != nil {
 			listener(e)
@@ -328,7 +326,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// gateway Status  s
+	// gateway Status Events
 	case *Ready:
 		if listener := l.OnReady; listener != nil {
 			listener(e)
@@ -337,16 +335,8 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		if listener := l.OnResumed; listener != nil {
 			listener(e)
 		}
-	case *InvalidSession:
-		if listener := l.OnInvalidSession; listener != nil {
-			listener(e)
-		}
-	case *Disconnected:
-		if listener := l.OnDisconnected; listener != nil {
-			listener(e)
-		}
 
-	// Guild  s
+	// Guild Events
 	case *GuildJoin:
 		if listener := l.OnGuildJoin; listener != nil {
 			listener(e)
@@ -384,7 +374,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// Guild Invite  s
+	// Guild Invite Events
 	case *InviteCreate:
 		if listener := l.OnGuildInviteCreate; listener != nil {
 			listener(e)
@@ -394,7 +384,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// Member  s
+	// Member Events
 	case *GuildMemberJoin:
 		if listener := l.OnGuildMemberJoin; listener != nil {
 			listener(e)
@@ -408,7 +398,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// Guild Message  s
+	// Guild Message Events
 	case *GuildMessageCreate:
 		if listener := l.OnGuildMessageCreate; listener != nil {
 			listener(e)
@@ -422,7 +412,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// Guild Message Reaction  s
+	// Guild Message Reaction Events
 	case *GuildMessageReactionAdd:
 		if listener := l.OnGuildMessageReactionAdd; listener != nil {
 			listener(e)
@@ -440,7 +430,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// Guild Voice  s
+	// Guild Voice Events
 	case *VoiceServerUpdate:
 		if listener := l.OnVoiceServerUpdate; listener != nil {
 			listener(e)
@@ -462,7 +452,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// Guild StageInstance  s
+	// Guild StageInstance Events
 	case *StageInstanceCreate:
 		if listener := l.OnStageInstanceCreate; listener != nil {
 			listener(e)
@@ -476,7 +466,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// Guild Role  s
+	// Guild Role Events
 	case *RoleCreate:
 		if listener := l.OnRoleCreate; listener != nil {
 			listener(e)
@@ -512,7 +502,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// Interaction  s
+	// Interaction Events
 	case *InteractionCreate:
 		if listener := l.OnInteraction; listener != nil {
 			listener(e)
@@ -534,7 +524,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// Message  s
+	// Message Events
 	case *MessageCreate:
 		if listener := l.OnMessageCreate; listener != nil {
 			listener(e)
@@ -548,7 +538,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// Message Reaction  s
+	// Message Reaction Events
 	case *MessageReactionAdd:
 		if listener := l.OnMessageReactionAdd; listener != nil {
 			listener(e)
@@ -566,13 +556,13 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// Self  s
+	// Self Events
 	case *SelfUpdate:
 		if listener := l.OnSelfUpdate; listener != nil {
 			listener(e)
 		}
 
-	// User  s
+	// User Events
 	case *UserUpdate:
 		if listener := l.OnUserUpdate; listener != nil {
 			listener(e)
@@ -590,7 +580,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// User Activity  s
+	// User Activity Events
 	case *UserActivityStart:
 		if listener := l.OnUserActivityStart; listener != nil {
 			listener(e)
@@ -604,7 +594,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// User Status  s
+	// User Status Events
 	case *UserStatusUpdate:
 		if listener := l.OnUserStatusUpdate; listener != nil {
 			listener(e)
@@ -614,7 +604,7 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
-	// Integration  s
+	// Integration Events
 	case *IntegrationCreate:
 		if listener := l.OnIntegrationCreate; listener != nil {
 			listener(e)

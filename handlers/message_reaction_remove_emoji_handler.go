@@ -6,20 +6,16 @@ import (
 	"github.com/disgoorg/disgo/events"
 )
 
-// gatewayHandlerMessageUpdate handles discord.GatewayEventTypeMessageReactionRemoveEmoji
 type gatewayHandlerMessageReactionRemoveEmoji struct{}
 
-// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerMessageReactionRemoveEmoji) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeMessageReactionRemoveEmoji
 }
 
-// New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerMessageReactionRemoveEmoji) New() any {
 	return &discord.GatewayEventMessageReactionRemoveEmoji{}
 }
 
-// HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerMessageReactionRemoveEmoji) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	payload := *v.(*discord.GatewayEventMessageReactionRemoveEmoji)
 

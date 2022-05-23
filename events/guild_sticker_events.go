@@ -5,6 +5,8 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
+// StickersUpdate is dispatched when a guild's stickers are updated.
+// This event does not depend on a cache like StickerCreate, StickerUpdate or StickerDelete.
 type StickersUpdate struct {
 	*GenericEvent
 	discord.GatewayEventGuildStickersUpdate

@@ -15,6 +15,7 @@ type GenericGuildMessageReaction struct {
 	Emoji     discord.ReactionEmoji
 }
 
+// Member returns the Member that reacted to the discord.Message from the cache.
 func (e *GenericGuildMessageReaction) Member() (discord.Member, bool) {
 	return e.Client().Caches().Members().Get(e.GuildID, e.UserID)
 }

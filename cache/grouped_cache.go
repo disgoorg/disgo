@@ -64,10 +64,11 @@ type GroupedCache[T any] interface {
 	GroupForEach(groupID snowflake.ID, forEachFunc func(entity T))
 }
 
-var _ GroupedCache[any] = (*DefaultGroupedCache[any])(nil)
+var _ GroupedCache[any] = (*defaultGroupedCache[any])(nil)
 
+// NewGroupedCache returns a new default GroupedCache with the provided flags, neededFlags and policy.
 func NewGroupedCache[T any](flags Flags, neededFlags Flags, policy Policy[T]) GroupedCache[T] {
-	return &DefaultGroupedCache[T]{
+	return &defaultGroupedCache[T]{
 		flags:       flags,
 		neededFlags: neededFlags,
 		policy:      policy,
@@ -75,7 +76,7 @@ func NewGroupedCache[T any](flags Flags, neededFlags Flags, policy Policy[T]) Gr
 	}
 }
 
-type DefaultGroupedCache[T any] struct {
+type defaultGroupedCache[T any] struct {
 	mu          sync.RWMutex
 	flags       Flags
 	neededFlags Flags
@@ -83,7 +84,7 @@ type DefaultGroupedCache[T any] struct {
 	cache       map[snowflake.ID]map[snowflake.ID]T
 }
 
-func (c *DefaultGroupedCache[T]) Get(groupID snowflake.ID, id snowflake.ID) (T, bool) {
+func (c *defaultGroupedCache[T]) Get(groupID snowflake.ID, id snowflake.ID) (T, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -97,7 +98,7 @@ func (c *DefaultGroupedCache[T]) Get(groupID snowflake.ID, id snowflake.ID) (T, 
 	return entity, false
 }
 
-func (c *DefaultGroupedCache[T]) Put(groupID snowflake.ID, id snowflake.ID, entity T) {
+func (c *defaultGroupedCache[T]) Put(groupID snowflake.ID, id snowflake.ID, entity T) {
 	if c.neededFlags != FlagsNone && c.flags.Missing(c.neededFlags) {
 		return
 	}
@@ -120,7 +121,7 @@ func (c *DefaultGroupedCache[T]) Put(groupID snowflake.ID, id snowflake.ID, enti
 	}
 }
 
-func (c *DefaultGroupedCache[T]) Remove(groupID snowflake.ID, id snowflake.ID) (entity T, ok bool) {
+func (c *defaultGroupedCache[T]) Remove(groupID snowflake.ID, id snowflake.ID) (entity T, ok bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -134,14 +135,14 @@ func (c *DefaultGroupedCache[T]) Remove(groupID snowflake.ID, id snowflake.ID) (
 	return
 }
 
-func (c *DefaultGroupedCache[T]) RemoveAll(groupID snowflake.ID) {
+func (c *defaultGroupedCache[T]) RemoveAll(groupID snowflake.ID) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	delete(c.cache, groupID)
 }
 
-func (c *DefaultGroupedCache[T]) RemoveIf(filterFunc GroupedFilterFunc[T]) {
+func (c *defaultGroupedCache[T]) RemoveIf(filterFunc GroupedFilterFunc[T]) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -154,7 +155,7 @@ func (c *DefaultGroupedCache[T]) RemoveIf(filterFunc GroupedFilterFunc[T]) {
 	}
 }
 
-func (c *DefaultGroupedCache[T]) Len() int {
+func (c *defaultGroupedCache[T]) Len() int {
 	var totalLen int
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -164,7 +165,7 @@ func (c *DefaultGroupedCache[T]) Len() int {
 	return totalLen
 }
 
-func (c *DefaultGroupedCache[T]) GroupLen(groupID snowflake.ID) int {
+func (c *defaultGroupedCache[T]) GroupLen(groupID snowflake.ID) int {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	if groupEntities, ok := c.cache[groupID]; ok {
@@ -173,7 +174,7 @@ func (c *DefaultGroupedCache[T]) GroupLen(groupID snowflake.ID) int {
 	return 0
 }
 
-func (c *DefaultGroupedCache[T]) All() map[snowflake.ID][]T {
+func (c *defaultGroupedCache[T]) All() map[snowflake.ID][]T {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -188,7 +189,7 @@ func (c *DefaultGroupedCache[T]) All() map[snowflake.ID][]T {
 	return all
 }
 
-func (c *DefaultGroupedCache[T]) GroupAll(groupID snowflake.ID) []T {
+func (c *defaultGroupedCache[T]) GroupAll(groupID snowflake.ID) []T {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -204,7 +205,7 @@ func (c *DefaultGroupedCache[T]) GroupAll(groupID snowflake.ID) []T {
 	return all
 }
 
-func (c *DefaultGroupedCache[T]) MapAll() map[snowflake.ID]map[snowflake.ID]T {
+func (c *defaultGroupedCache[T]) MapAll() map[snowflake.ID]map[snowflake.ID]T {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -219,7 +220,7 @@ func (c *DefaultGroupedCache[T]) MapAll() map[snowflake.ID]map[snowflake.ID]T {
 	return all
 }
 
-func (c *DefaultGroupedCache[T]) MapGroupAll(groupID snowflake.ID) map[snowflake.ID]T {
+func (c *defaultGroupedCache[T]) MapGroupAll(groupID snowflake.ID) map[snowflake.ID]T {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -235,7 +236,7 @@ func (c *DefaultGroupedCache[T]) MapGroupAll(groupID snowflake.ID) map[snowflake
 	return all
 }
 
-func (c *DefaultGroupedCache[T]) FindFirst(cacheFindFunc GroupedFilterFunc[T]) (T, bool) {
+func (c *defaultGroupedCache[T]) FindFirst(cacheFindFunc GroupedFilterFunc[T]) (T, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -251,7 +252,7 @@ func (c *DefaultGroupedCache[T]) FindFirst(cacheFindFunc GroupedFilterFunc[T]) (
 	return entity, false
 }
 
-func (c *DefaultGroupedCache[T]) GroupFindFirst(groupID snowflake.ID, cacheFindFunc GroupedFilterFunc[T]) (T, bool) {
+func (c *defaultGroupedCache[T]) GroupFindFirst(groupID snowflake.ID, cacheFindFunc GroupedFilterFunc[T]) (T, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -265,7 +266,7 @@ func (c *DefaultGroupedCache[T]) GroupFindFirst(groupID snowflake.ID, cacheFindF
 	return entity, false
 }
 
-func (c *DefaultGroupedCache[T]) FindAll(cacheFindFunc GroupedFilterFunc[T]) []T {
+func (c *defaultGroupedCache[T]) FindAll(cacheFindFunc GroupedFilterFunc[T]) []T {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -280,7 +281,7 @@ func (c *DefaultGroupedCache[T]) FindAll(cacheFindFunc GroupedFilterFunc[T]) []T
 	return all
 }
 
-func (c *DefaultGroupedCache[T]) GroupFindAll(groupID snowflake.ID, cacheFindFunc GroupedFilterFunc[T]) []T {
+func (c *defaultGroupedCache[T]) GroupFindAll(groupID snowflake.ID, cacheFindFunc GroupedFilterFunc[T]) []T {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -293,7 +294,7 @@ func (c *DefaultGroupedCache[T]) GroupFindAll(groupID snowflake.ID, cacheFindFun
 	return all
 }
 
-func (c *DefaultGroupedCache[T]) ForEach(forEachFunc func(groupID snowflake.ID, entity T)) {
+func (c *defaultGroupedCache[T]) ForEach(forEachFunc func(groupID snowflake.ID, entity T)) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -303,7 +304,7 @@ func (c *DefaultGroupedCache[T]) ForEach(forEachFunc func(groupID snowflake.ID, 
 		}
 	}
 }
-func (c *DefaultGroupedCache[T]) GroupForEach(groupID snowflake.ID, forEachFunc func(entity T)) {
+func (c *defaultGroupedCache[T]) GroupForEach(groupID snowflake.ID, forEachFunc func(entity T)) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 

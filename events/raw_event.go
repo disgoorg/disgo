@@ -10,6 +10,7 @@ import (
 	"github.com/disgoorg/disgo/json"
 )
 
+// HandleRawEvent handles raw events and dispatches the raw event.
 func HandleRawEvent(client bot.Client, gatewayEventType discord.GatewayEventType, sequenceNumber int, shardID int, respondFunc httpserver.RespondFunc, reader io.Reader) io.Reader {
 	if client.EventManager().RawEventsEnabled() {
 		var buf bytes.Buffer

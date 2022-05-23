@@ -6,20 +6,16 @@ import (
 	"github.com/disgoorg/disgo/events"
 )
 
-// gatewayHandlerVoiceStateUpdate handles discord.GatewayEventTypeVoiceStateUpdate
 type gatewayHandlerVoiceStateUpdate struct{}
 
-// EventType returns the discord.GatewayEventTypeVoiceStateUpdate
 func (h *gatewayHandlerVoiceStateUpdate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeVoiceStateUpdate
 }
 
-// New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerVoiceStateUpdate) New() any {
 	return &discord.FullVoiceState{}
 }
 
-// HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	voiceState := *v.(*discord.FullVoiceState)
 	member := voiceState.Member

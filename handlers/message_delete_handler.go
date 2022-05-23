@@ -7,20 +7,16 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// gatewayHandlerMessageDelete handles discord.GatewayEventTypeMessageDelete
 type gatewayHandlerMessageDelete struct{}
 
-// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerMessageDelete) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeMessageDelete
 }
 
-// New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerMessageDelete) New() any {
 	return &discord.GatewayEventMessageDelete{}
 }
 
-// HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerMessageDelete) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	payload := *v.(*discord.GatewayEventMessageDelete)
 

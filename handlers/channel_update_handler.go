@@ -6,20 +6,16 @@ import (
 	"github.com/disgoorg/disgo/events"
 )
 
-// gatewayHandlerChannelUpdate handles discord.GatewayEventTypeChannelUpdate
 type gatewayHandlerChannelUpdate struct{}
 
-// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerChannelUpdate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeChannelUpdate
 }
 
-// New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerChannelUpdate) New() any {
 	return &discord.UnmarshalChannel{}
 }
 
-// HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerChannelUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	channel := v.(*discord.UnmarshalChannel).Channel
 

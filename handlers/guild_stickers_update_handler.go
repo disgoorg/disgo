@@ -8,15 +8,12 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// gatewayHandlerGuildStickersUpdate handles discord.GatewayEventTypeGuildStickersUpdate
 type gatewayHandlerGuildStickersUpdate struct{}
 
-// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerGuildStickersUpdate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildStickersUpdate
 }
 
-// New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerGuildStickersUpdate) New() any {
 	return &discord.GatewayEventGuildStickersUpdate{}
 }
@@ -26,7 +23,6 @@ type updatedSticker struct {
 	new discord.Sticker
 }
 
-// HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	payload := *v.(*discord.GatewayEventGuildStickersUpdate)
 

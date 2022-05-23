@@ -6,20 +6,16 @@ import (
 	"github.com/disgoorg/disgo/events"
 )
 
-// gatewayHandlerTypingStart handles discord.GatewayEventTypeInviteDelete
 type gatewayHandlerTypingStart struct{}
 
-// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerTypingStart) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeTypingStart
 }
 
-// New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerTypingStart) New() any {
 	return &discord.GatewayEventTypingStart{}
 }
 
-// HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerTypingStart) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	payload := *v.(*discord.GatewayEventTypingStart)
 

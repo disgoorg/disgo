@@ -37,6 +37,7 @@ type GuildChannelDelete struct {
 	*GenericGuildChannel
 }
 
+// GuildChannelPinsUpdate indicates a discord.Message got pinned or unpinned in a discord.GuildMessageChannel
 type GuildChannelPinsUpdate struct {
 	*GenericEvent
 	GuildID             snowflake.ID

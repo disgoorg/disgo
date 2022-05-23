@@ -6,20 +6,16 @@ import (
 	"github.com/disgoorg/disgo/events"
 )
 
-// gatewayHandlerStageInstanceDelete handles discord.GatewayEventTypeStageInstanceDelete
 type gatewayHandlerStageInstanceDelete struct{}
 
-// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerStageInstanceDelete) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeStageInstanceDelete
 }
 
-// New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerStageInstanceDelete) New() any {
 	return &discord.StageInstance{}
 }
 
-// HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerStageInstanceDelete) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	stageInstance := *v.(*discord.StageInstance)
 

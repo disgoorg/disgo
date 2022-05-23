@@ -34,7 +34,8 @@ type GuildVoiceLeave struct {
 	OldVoiceState discord.VoiceState
 }
 
+// VoiceServerUpdate indicates that a voice server the bot is connected to has been changed
 type VoiceServerUpdate struct {
 	*GenericEvent
-	VoiceServerUpdate discord.VoiceServerUpdate
+	discord.VoiceServerUpdate
 }

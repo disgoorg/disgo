@@ -6,20 +6,16 @@ import (
 	"github.com/disgoorg/disgo/events"
 )
 
-// gatewayHandlerGuildCreate handles discord.GatewayEventTypeGuildCreate
 type gatewayHandlerGuildCreate struct{}
 
-// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerGuildCreate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildCreate
 }
 
-// New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerGuildCreate) New() any {
 	return &discord.GatewayGuild{}
 }
 
-// HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerGuildCreate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	gatewayGuild := *v.(*discord.GatewayGuild)
 

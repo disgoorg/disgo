@@ -5,6 +5,8 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
+// EmojisUpdate is dispatched when a guild's emojis are updated.
+// This event does not depend on a cache like EmojiCreate, EmojiUpdate or EmojiDelete.
 type EmojisUpdate struct {
 	*GenericEvent
 	discord.GatewayEventGuildEmojisUpdate

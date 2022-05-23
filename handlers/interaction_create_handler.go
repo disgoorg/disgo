@@ -7,20 +7,16 @@ import (
 	"github.com/disgoorg/disgo/rest"
 )
 
-// gatewayHandlerInteractionCreate handles discord.GatewayEventTypeInteractionCreate
 type gatewayHandlerInteractionCreate struct{}
 
-// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerInteractionCreate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeInteractionCreate
 }
 
-// New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerInteractionCreate) New() any {
 	return &discord.UnmarshalInteraction{}
 }
 
-// HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerInteractionCreate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	handleInteraction(client, sequenceNumber, shardID, nil, (*v.(*discord.UnmarshalInteraction)).Interaction)
 }

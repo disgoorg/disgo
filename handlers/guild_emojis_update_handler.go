@@ -9,15 +9,12 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-// gatewayHandlerGuildEmojisUpdate handles discord.GatewayEventTypeGuildEmojisUpdate
 type gatewayHandlerGuildEmojisUpdate struct{}
 
-// EventType returns the discord.GatewayEventType
 func (h *gatewayHandlerGuildEmojisUpdate) EventType() discord.GatewayEventType {
 	return discord.GatewayEventTypeGuildEmojisUpdate
 }
 
-// New constructs a new payload receiver for the raw gateway event
 func (h *gatewayHandlerGuildEmojisUpdate) New() any {
 	return &discord.GatewayEventGuildEmojisUpdate{}
 }
@@ -27,7 +24,6 @@ type updatedEmoji struct {
 	new discord.Emoji
 }
 
-// HandleGatewayEvent handles the specific raw gateway event
 func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
 	payload := *v.(*discord.GatewayEventGuildEmojisUpdate)
 

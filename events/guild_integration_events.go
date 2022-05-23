@@ -5,6 +5,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
+// GenericIntegration is called upon receiving IntegrationCreate, IntegrationUpdate or IntegrationDelete(requires the discord.GatewayIntentGuildIntegrations)
 type GenericIntegration struct {
 	*GenericEvent
 	GuildID     snowflake.ID
@@ -35,11 +36,13 @@ type IntegrationDelete struct {
 	ApplicationID *snowflake.ID
 }
 
+// GuildIntegrationsUpdate indicates that a Guild's integrations were updated
 type GuildIntegrationsUpdate struct {
 	*GenericEvent
 	GuildID snowflake.ID
 }
 
+// GuildApplicationCommandPermissionsUpdate indicates that a Guild's application's permissions were updated
 type GuildApplicationCommandPermissionsUpdate struct {
 	*GenericEvent
 	Permissions discord.ApplicationCommandPermissions
