@@ -74,6 +74,7 @@ func (s *serverImpl) Close(ctx context.Context) {
 	_ = s.config.HTTPServer.Shutdown(ctx)
 }
 
+// WebhookInteractionHandler implements the http.Handler interface and is used to handle interactions from Discord.
 type WebhookInteractionHandler struct {
 	server Server
 }

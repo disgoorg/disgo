@@ -20,7 +20,7 @@ func NewStateController(opts ...StateControllerConfigOpt) StateController {
 
 	states := newTTLMap(config.MaxTTL)
 	for state, url := range config.States {
-		states.Put(state, url)
+		states.put(state, url)
 	}
 
 	return &stateControllerImpl{
@@ -36,15 +36,15 @@ type stateControllerImpl struct {
 
 func (c *stateControllerImpl) GenerateNewState(redirectURI string) string {
 	state := c.newStateFunc()
-	c.states.Put(state, redirectURI)
+	c.states.put(state, redirectURI)
 	return state
 }
 
 func (c *stateControllerImpl) ConsumeState(state string) string {
-	uri := c.states.Get(state)
+	uri := c.states.get(state)
 	if uri == "" {
 		return ""
 	}
-	c.states.Delete(state)
+	c.states.delete(state)
 	return uri
 }
