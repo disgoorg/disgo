@@ -96,7 +96,7 @@ func main() {
 
 ### Full Ping Pong Example
 
-This example can also be found [here](https://github.com/disgoorg/disgo/blob/development/_examples/ping_pong/example.go())
+This example can also be found [here](https://github.com/disgoorg/disgo/blob/development/_examples/ping_pong/example.go)
 
 ```go
 package main
