@@ -5,31 +5,32 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-type StickersUpdateEvent struct {
+// StickersUpdate is dispatched when a guild's stickers are updated.
+// This event does not depend on a cache like StickerCreate, StickerUpdate or StickerDelete.
+type StickersUpdate struct {
 	*GenericEvent
-	GuildID  snowflake.ID
-	Stickers []discord.Sticker
+	discord.GatewayEventGuildStickersUpdate
 }
 
-// GenericStickerEvent is called upon receiving StickerCreateEvent, StickerUpdateEvent or StickerDeleteEvent (requires discord.GatewayIntentGuildEmojisAndStickers)
-type GenericStickerEvent struct {
+// GenericSticker is called upon receiving StickerCreate , StickerUpdate or StickerDelete (requires discord.GatewayIntentGuildEmojisAndStickers)
+type GenericSticker struct {
 	*GenericEvent
 	GuildID snowflake.ID
 	Sticker discord.Sticker
 }
 
-// StickerCreateEvent indicates that a new discord.Sticker got created in a discord.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
-type StickerCreateEvent struct {
-	*GenericStickerEvent
+// StickerCreate indicates that a new discord.Sticker got created in a discord.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
+type StickerCreate struct {
+	*GenericSticker
 }
 
-// StickerUpdateEvent indicates that a discord.Sticker got updated in a discord.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
-type StickerUpdateEvent struct {
-	*GenericStickerEvent
+// StickerUpdate indicates that a discord.Sticker got updated in a discord.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
+type StickerUpdate struct {
+	*GenericSticker
 	OldSticker discord.Sticker
 }
 
-// StickerDeleteEvent indicates that a discord.Sticker got deleted in a discord.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
-type StickerDeleteEvent struct {
-	*GenericStickerEvent
+// StickerDelete indicates that a discord.Sticker got deleted in a discord.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
+type StickerDelete struct {
+	*GenericSticker
 }

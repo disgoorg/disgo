@@ -5,8 +5,8 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// GenericGuildMessageEvent is called upon receiving GuildMessageCreateEvent, GuildMessageUpdateEvent or GuildMessageDeleteEvent
-type GenericGuildMessageEvent struct {
+// GenericGuildMessage is called upon receiving GuildMessageCreate , GuildMessageUpdate or GuildMessageDelete
+type GenericGuildMessage struct {
 	*GenericEvent
 	MessageID snowflake.ID
 	Message   discord.Message
@@ -14,29 +14,29 @@ type GenericGuildMessageEvent struct {
 	GuildID   snowflake.ID
 }
 
-// Guild returns the discord.Guild the GenericGuildMessageEvent happened in.
+// Guild returns the discord.Guild the GenericGuildMessage happened in.
 // This will only check cached guilds!
-func (e GenericGuildMessageEvent) Guild() (discord.Guild, bool) {
+func (e GenericGuildMessage) Guild() (discord.Guild, bool) {
 	return e.Client().Caches().Guilds().Get(e.GuildID)
 }
 
-// Channel returns the discord.DMChannel where the GenericGuildMessageEvent happened
-func (e GenericGuildMessageEvent) Channel() (discord.GuildMessageChannel, bool) {
+// Channel returns the discord.DMChannel where the GenericGuildMessage happened
+func (e GenericGuildMessage) Channel() (discord.GuildMessageChannel, bool) {
 	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID)
 }
 
-// GuildMessageCreateEvent is called upon receiving a discord.Message in a Channel
-type GuildMessageCreateEvent struct {
-	*GenericGuildMessageEvent
+// GuildMessageCreate is called upon receiving a discord.Message in a Channel
+type GuildMessageCreate struct {
+	*GenericGuildMessage
 }
 
-// GuildMessageUpdateEvent is called upon editing a discord.Message in a Channel
-type GuildMessageUpdateEvent struct {
-	*GenericGuildMessageEvent
+// GuildMessageUpdate is called upon editing a discord.Message in a Channel
+type GuildMessageUpdate struct {
+	*GenericGuildMessage
 	OldMessage discord.Message
 }
 
-// GuildMessageDeleteEvent is called upon deleting a discord.Message in a Channel
-type GuildMessageDeleteEvent struct {
-	*GenericGuildMessageEvent
+// GuildMessageDelete is called upon deleting a discord.Message in a Channel
+type GuildMessageDelete struct {
+	*GenericGuildMessage
 }

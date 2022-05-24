@@ -256,6 +256,8 @@ func (d AutocompleteInteractionData) OptSnowflake(name string) (snowflake.ID, bo
 			return opt.Value, true
 		case AutocompleteOptionMentionable:
 			return opt.Value, true
+		case AutocompleteOptionAttachment:
+			return opt.Value, true
 		}
 	}
 	return 0, false
@@ -288,6 +290,14 @@ func (d AutocompleteInteractionData) Float(name string) float64 {
 		return option.Value
 	}
 	return 0
+}
+
+func (d AutocompleteInteractionData) AttachmentOption(name string) (AutocompleteOptionAttachment, bool) {
+	if option, ok := d.Option(name); ok {
+		opt, ok := option.(AutocompleteOptionAttachment)
+		return opt, ok
+	}
+	return AutocompleteOptionAttachment{}, false
 }
 
 func (d AutocompleteInteractionData) All() []AutocompleteOption {

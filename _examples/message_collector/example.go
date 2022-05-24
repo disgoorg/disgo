@@ -46,13 +46,13 @@ func main() {
 	<-s
 }
 
-func onMessageCreate(event *events.MessageCreateEvent) {
+func onMessageCreate(event *events.MessageCreate) {
 	if event.Message.Author.Bot || event.Message.Author.System {
 		return
 	}
 	if event.Message.Content == "start" {
 		go func() {
-			ch, cls := bot.NewEventCollector(event.Client(), func(event2 *events.MessageCreateEvent) bool {
+			ch, cls := bot.NewEventCollector(event.Client(), func(event2 *events.MessageCreate) bool {
 				return event.ChannelID == event2.ChannelID && event.Message.Author.ID == event2.Message.Author.ID && event2.Message.Content != ""
 			})
 			defer cls()

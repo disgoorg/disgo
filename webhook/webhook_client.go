@@ -8,6 +8,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
+// Client is a high level interface for interacting with Discord's Webhooks API.
 type Client interface {
 	// ID returns the configured Webhook id
 	ID() snowflake.ID

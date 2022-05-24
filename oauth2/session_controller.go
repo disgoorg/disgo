@@ -14,10 +14,10 @@ type SessionController interface {
 	GetSession(identifier string) Session
 
 	// CreateSession creates a new Session from the given identifier, access token, refresh token, scope, token type, expiration and webhook
-	CreateSession(identifier string, accessToken string, refreshToken string, scopes []discord.ApplicationScope, tokenType discord.TokenType, expiration time.Time, webhook *discord.IncomingWebhook) Session
+	CreateSession(identifier string, accessToken string, refreshToken string, scopes []discord.OAuth2Scope, tokenType discord.TokenType, expiration time.Time, webhook *discord.IncomingWebhook) Session
 
-	// CreateSessionFromExchange creates a new Session from the given identifier and discord.AccessTokenExchange payload
-	CreateSessionFromExchange(identifier string, exchange discord.AccessTokenExchange) Session
+	// CreateSessionFromExchange creates a new Session from the given identifier and discord.AccessTokenResponse payload
+	CreateSessionFromExchange(identifier string, exchange discord.AccessTokenResponse) Session
 }
 
 // NewSessionController returns a new empty SessionController
@@ -38,7 +38,7 @@ func (c *sessionControllerImpl) GetSession(identifier string) Session {
 	return c.sessions[identifier]
 }
 
-func (c *sessionControllerImpl) CreateSession(identifier string, accessToken string, refreshToken string, scopes []discord.ApplicationScope, tokenType discord.TokenType, expiration time.Time, webhook *discord.IncomingWebhook) Session {
+func (c *sessionControllerImpl) CreateSession(identifier string, accessToken string, refreshToken string, scopes []discord.OAuth2Scope, tokenType discord.TokenType, expiration time.Time, webhook *discord.IncomingWebhook) Session {
 	session := &sessionImpl{
 		accessToken:  accessToken,
 		refreshToken: refreshToken,
@@ -53,6 +53,6 @@ func (c *sessionControllerImpl) CreateSession(identifier string, accessToken str
 	return session
 }
 
-func (c *sessionControllerImpl) CreateSessionFromExchange(identifier string, exchange discord.AccessTokenExchange) Session {
+func (c *sessionControllerImpl) CreateSessionFromExchange(identifier string, exchange discord.AccessTokenResponse) Session {
 	return c.CreateSession(identifier, exchange.AccessToken, exchange.RefreshToken, discord.SplitScopes(exchange.Scope), exchange.TokenType, time.Now().Add(exchange.ExpiresIn*time.Second), exchange.Webhook)
 }

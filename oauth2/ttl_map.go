@@ -41,17 +41,17 @@ type ttlMap struct {
 	mu     sync.Mutex
 }
 
-func (m *ttlMap) Len() int {
+func (m *ttlMap) len() int {
 	return len(m.m)
 }
 
-func (m *ttlMap) Put(k string, v string) {
+func (m *ttlMap) put(k string, v string) {
 	m.mu.Lock()
 	m.m[k] = value{v, time.Now().Unix()}
 	m.mu.Unlock()
 }
 
-func (m *ttlMap) Get(k string) string {
+func (m *ttlMap) get(k string) string {
 	m.mu.Lock()
 	v, ok := m.m[k]
 	m.mu.Unlock()
@@ -61,7 +61,7 @@ func (m *ttlMap) Get(k string) string {
 	return ""
 }
 
-func (m *ttlMap) Delete(k string) {
+func (m *ttlMap) delete(k string) {
 	m.mu.Lock()
 	delete(m.m, k)
 	m.mu.Unlock()

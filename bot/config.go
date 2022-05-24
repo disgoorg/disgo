@@ -6,13 +6,10 @@ import (
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/gateway/grate"
 	"github.com/disgoorg/disgo/httpserver"
 	"github.com/disgoorg/disgo/internal/tokenhelper"
 	"github.com/disgoorg/disgo/rest"
-	"github.com/disgoorg/disgo/rest/rrate"
 	"github.com/disgoorg/disgo/sharding"
-	"github.com/disgoorg/disgo/sharding/srate"
 	"github.com/disgoorg/log"
 )
 
@@ -43,6 +40,7 @@ type Config struct {
 	ShardManagerConfigOpts []sharding.ConfigOpt
 
 	HTTPServer           httpserver.Server
+	PublicKey            string
 	HTTPServerConfigOpts []httpserver.ConfigOpt
 
 	Caches          cache.Caches
@@ -55,7 +53,7 @@ type Config struct {
 // ConfigOpt is a type alias for a function that takes a Config and is used to configure your Client.
 type ConfigOpt func(config *Config)
 
-// Apply applies the given ConfigOpt(s) to the given Config
+// Apply applies the given ConfigOpt(s) to the Config
 func (c *Config) Apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
@@ -83,7 +81,7 @@ func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 	}
 }
 
-// WithRest let's you inject your own rest.Rest.
+// WithRest lets you inject your own rest.Rest.
 func WithRest(rest rest.Rest) ConfigOpt {
 	return func(config *Config) {
 		config.Rest = rest
@@ -152,8 +150,9 @@ func WithHTTPServer(httpServer httpserver.Server) ConfigOpt {
 }
 
 // WithHTTPServerConfigOpts lets you configure the default httpserver.Server.
-func WithHTTPServerConfigOpts(opts ...httpserver.ConfigOpt) ConfigOpt {
+func WithHTTPServerConfigOpts(publicKey string, opts ...httpserver.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
+		config.PublicKey = publicKey
 		config.HTTPServerConfigOpts = append(config.HTTPServerConfigOpts, opts...)
 	}
 }
@@ -208,7 +207,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 			rest.WithUserAgent(fmt.Sprintf("DiscordBot (%s, %s)", github, version)),
 			rest.WithLogger(client.logger),
 			func(config *rest.Config) {
-				config.RateLimiterConfigOpts = append([]rrate.ConfigOpt{rrate.WithLogger(client.logger)}, config.RateLimiterConfigOpts...)
+				config.RateRateLimiterConfigOpts = append([]rest.RateLimiterConfigOpt{rest.WithRateLimiterLogger(client.logger)}, config.RateRateLimiterConfigOpts...)
 			},
 		}, config.RestClientConfigOpts...)
 
@@ -216,7 +215,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 	}
 
 	if config.Rest == nil {
-		config.Rest = rest.NewRest(config.RestClient)
+		config.Rest = rest.New(config.RestClient)
 	}
 	client.restServices = config.Rest
 
@@ -239,7 +238,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 			gateway.WithBrowser(name),
 			gateway.WithDevice(name),
 			func(config *gateway.Config) {
-				config.RateLimiterConfigOpts = append([]grate.ConfigOpt{grate.WithLogger(client.logger)}, config.RateLimiterConfigOpts...)
+				config.RateRateLimiterConfigOpts = append([]gateway.RateLimiterConfigOpt{gateway.WithRateLimiterLogger(client.logger)}, config.RateRateLimiterConfigOpts...)
 			},
 		}, config.GatewayConfigOpts...)
 
@@ -261,7 +260,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 
 		config.ShardManagerConfigOpts = append([]sharding.ConfigOpt{
 			sharding.WithShardCount(gatewayBotRs.Shards),
-			sharding.WithShards(shardIDs...),
+			sharding.WithShardIDs(shardIDs...),
 			sharding.WithGatewayConfigOpts(
 				gateway.WithGatewayURL(gatewayBotRs.URL),
 				gateway.WithLogger(client.logger),
@@ -269,12 +268,12 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 				gateway.WithBrowser(name),
 				gateway.WithDevice(name),
 				func(config *gateway.Config) {
-					config.RateLimiterConfigOpts = append([]grate.ConfigOpt{grate.WithLogger(client.logger)}, config.RateLimiterConfigOpts...)
+					config.RateRateLimiterConfigOpts = append([]gateway.RateLimiterConfigOpt{gateway.WithRateLimiterLogger(client.logger)}, config.RateRateLimiterConfigOpts...)
 				},
 			),
 			sharding.WithLogger(client.logger),
 			func(config *sharding.Config) {
-				config.RateLimiterConfigOpts = append([]srate.ConfigOpt{srate.WithLogger(client.logger), srate.WithMaxConcurrency(gatewayBotRs.SessionStartLimit.MaxConcurrency)}, config.RateLimiterConfigOpts...)
+				config.RateRateLimiterConfigOpts = append([]sharding.RateLimiterConfigOpt{sharding.WithRateLimiterLogger(client.logger), sharding.WithMaxConcurrency(gatewayBotRs.SessionStartLimit.MaxConcurrency)}, config.RateRateLimiterConfigOpts...)
 			},
 		}, config.ShardManagerConfigOpts...)
 
@@ -282,12 +281,12 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 	}
 	client.shardManager = config.ShardManager
 
-	if config.HTTPServer == nil && config.HTTPServerConfigOpts != nil {
+	if config.HTTPServer == nil && config.PublicKey != "" && config.HTTPServerConfigOpts != nil {
 		config.HTTPServerConfigOpts = append([]httpserver.ConfigOpt{
 			httpserver.WithLogger(client.logger),
 		}, config.HTTPServerConfigOpts...)
 
-		config.HTTPServer = httpserver.New(httpServerEventHandlerFunc(client), config.HTTPServerConfigOpts...)
+		config.HTTPServer = httpserver.New(config.PublicKey, httpServerEventHandlerFunc(client), config.HTTPServerConfigOpts...)
 	}
 	client.httpServer = config.HTTPServer
 
@@ -297,7 +296,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 	client.memberChunkingManager = config.MemberChunkingManager
 
 	if config.Caches == nil {
-		config.Caches = cache.NewCaches(config.CacheConfigOpts...)
+		config.Caches = cache.New(config.CacheConfigOpts...)
 	}
 	client.caches = config.Caches
 

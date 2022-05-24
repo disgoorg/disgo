@@ -7,34 +7,34 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// GenericGuildMemberEvent generic discord.Member event
-type GenericGuildMemberEvent struct {
+// GenericGuildMember generic discord.Member event
+type GenericGuildMember struct {
 	*GenericEvent
 	GuildID snowflake.ID
 	Member  discord.Member
 }
 
-// GuildMemberJoinEvent indicates that a discord.Member joined the discord.Guild
-type GuildMemberJoinEvent struct {
-	*GenericGuildMemberEvent
+// GuildMemberJoin indicates that a discord.Member joined the discord.Guild
+type GuildMemberJoin struct {
+	*GenericGuildMember
 }
 
-// GuildMemberUpdateEvent indicates that a discord.Member updated
-type GuildMemberUpdateEvent struct {
-	*GenericGuildMemberEvent
+// GuildMemberUpdate indicates that a discord.Member updated
+type GuildMemberUpdate struct {
+	*GenericGuildMember
 	OldMember discord.Member
 }
 
-// GuildMemberLeaveEvent indicates that a discord.Member left the discord.Guild
-type GuildMemberLeaveEvent struct {
+// GuildMemberLeave indicates that a discord.Member left the discord.Guild
+type GuildMemberLeave struct {
 	*GenericEvent
 	GuildID snowflake.ID
 	User    discord.User
 	Member  discord.Member
 }
 
-// GuildMemberTypingStartEvent indicates that a discord.Member started typing in a discord.BaseGuildMessageChannel(requires discord.GatewayIntentGuildMessageTyping)
-type GuildMemberTypingStartEvent struct {
+// GuildMemberTypingStart indicates that a discord.Member started typing in a discord.BaseGuildMessageChannel(requires discord.GatewayIntentGuildMessageTyping)
+type GuildMemberTypingStart struct {
 	*GenericEvent
 	ChannelID snowflake.ID
 	UserID    snowflake.ID
@@ -43,7 +43,7 @@ type GuildMemberTypingStartEvent struct {
 	Member    discord.Member
 }
 
-// Channel returns the discord.BaseGuildMessageChannel the GuildMemberTypingStartEvent happened in
-func (e GuildMemberTypingStartEvent) Channel() (discord.GuildMessageChannel, bool) {
+// Channel returns the discord.BaseGuildMessageChannel the GuildMemberTypingStart happened in
+func (e GuildMemberTypingStart) Channel() (discord.GuildMessageChannel, bool) {
 	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID)
 }

@@ -31,10 +31,27 @@ type Activity struct {
 	Assets        *ActivityAssets     `json:"assets,omitempty"`
 	Secrets       *ActivitySecrets    `json:"secrets,omitempty"`
 	Instance      *bool               `json:"instance,omitempty"`
-	Flags         int                 `json:"flags,omitempty"`
+	Flags         ActivityFlags       `json:"flags,omitempty"`
 	Buttons       []string            `json:"buttons"`
 }
 
+// ActivityFlags add additional information to an activity
+type ActivityFlags int
+
+// Discord's supported ActivityFlags
+const (
+	ActivityFlagInstance ActivityFlags = 1 << iota
+	ActivityFlagJoin
+	ActivityFlagSpectate
+	ActivityFlagJoinRequest
+	ActivityFlagSync
+	ActivityFlagPlay
+	ActivityFlagPartyPrivacyFriends
+	ActivityFlagPartyPrivacyVoiceChannel
+	ActivityFlagEmbedded
+)
+
+// ActivityButton is a button in an activity
 type ActivityButton struct {
 	Label string `json:"label"`
 	URL   string `json:"url"`

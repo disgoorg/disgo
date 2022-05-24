@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/disgoorg/disgo/rest/rrate"
 	"github.com/disgoorg/log"
 )
 
@@ -18,11 +17,11 @@ func DefaultConfig() *Config {
 
 // Config is the configuration for the rest client
 type Config struct {
-	Logger                log.Logger
-	HTTPClient            *http.Client
-	RateLimiter           rrate.Limiter
-	RateLimiterConfigOpts []rrate.ConfigOpt
-	UserAgent             string
+	Logger                    log.Logger
+	HTTPClient                *http.Client
+	RateLimiter               RateLimiter
+	RateRateLimiterConfigOpts []RateLimiterConfigOpt
+	UserAgent                 string
 }
 
 // ConfigOpt can be used to supply optional parameters to NewClient
@@ -34,7 +33,7 @@ func (c *Config) Apply(opts []ConfigOpt) {
 		opt(c)
 	}
 	if c.RateLimiter == nil {
-		c.RateLimiter = rrate.NewLimiter(c.RateLimiterConfigOpts...)
+		c.RateLimiter = NewRateLimiter(c.RateRateLimiterConfigOpts...)
 	}
 }
 
@@ -52,17 +51,17 @@ func WithHTTPClient(httpClient *http.Client) ConfigOpt {
 	}
 }
 
-// WithRateLimiter applies a custom rrate.Limiter to the rest client
-func WithRateLimiter(rateLimiter rrate.Limiter) ConfigOpt {
+// WithRateLimiter applies a custom rrate.RateLimiter to the rest client
+func WithRateLimiter(rateLimiter RateLimiter) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiter = rateLimiter
 	}
 }
 
-// WithRateLimiterConfigOpts applies rrate.ConfigOpt for the rrate.Limiter to the rest rate limiter
-func WithRateLimiterConfigOpts(opts ...rrate.ConfigOpt) ConfigOpt {
+// WithRateRateLimiterConfigOpts applies rrate.ConfigOpt for the rrate.RateLimiter to the rest rate limiter
+func WithRateRateLimiterConfigOpts(opts ...RateLimiterConfigOpt) ConfigOpt {
 	return func(config *Config) {
-		config.RateLimiterConfigOpts = append(config.RateLimiterConfigOpts, opts...)
+		config.RateRateLimiterConfigOpts = append(config.RateRateLimiterConfigOpts, opts...)
 	}
 }
 

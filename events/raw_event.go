@@ -5,12 +5,12 @@ import (
 	"io"
 
 	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/httpserver"
 	"github.com/disgoorg/disgo/json"
-
-	"github.com/disgoorg/disgo/discord"
 )
 
+// HandleRawEvent handles raw events and dispatches the raw event.
 func HandleRawEvent(client bot.Client, gatewayEventType discord.GatewayEventType, sequenceNumber int, shardID int, respondFunc httpserver.RespondFunc, reader io.Reader) io.Reader {
 	if client.EventManager().RawEventsEnabled() {
 		var buf bytes.Buffer
@@ -18,7 +18,7 @@ func HandleRawEvent(client bot.Client, gatewayEventType discord.GatewayEventType
 		if err != nil {
 			client.Logger().Error("error reading raw payload from event")
 		}
-		client.EventManager().DispatchEvent(&RawEvent{
+		client.EventManager().DispatchEvent(&Raw{
 			GenericEvent: NewGenericEvent(client, sequenceNumber, shardID),
 			Type:         gatewayEventType,
 			RawPayload:   data,
@@ -30,8 +30,8 @@ func HandleRawEvent(client bot.Client, gatewayEventType discord.GatewayEventType
 	return reader
 }
 
-// RawEvent is called for any discord.GatewayEventType we receive if enabled in the bot.Config
-type RawEvent struct {
+// Raw is called for any discord.Gateway Type we receive if enabled in the bot.Config
+type Raw struct {
 	*GenericEvent
 	Type        discord.GatewayEventType
 	RawPayload  json.RawMessage
