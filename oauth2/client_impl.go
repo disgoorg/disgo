@@ -79,7 +79,7 @@ func (c *clientImpl) StartSession(code string, state string, identifier string, 
 	if err != nil {
 		return nil, err
 	}
-	return c.SessionController().CreateSessionFromExchange(identifier, *exchange), nil
+	return c.SessionController().CreateSessionFromResponse(identifier, *exchange), nil
 }
 
 func (c *clientImpl) RefreshSession(identifier string, session Session, opts ...rest.RequestOpt) (Session, error) {
@@ -87,7 +87,7 @@ func (c *clientImpl) RefreshSession(identifier string, session Session, opts ...
 	if err != nil {
 		return nil, err
 	}
-	return c.SessionController().CreateSessionFromExchange(identifier, *exchange), nil
+	return c.SessionController().CreateSessionFromResponse(identifier, *exchange), nil
 }
 
 func (c *clientImpl) GetUser(session Session, opts ...rest.RequestOpt) (*discord.OAuth2User, error) {

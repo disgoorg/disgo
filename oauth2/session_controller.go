@@ -16,8 +16,8 @@ type SessionController interface {
 	// CreateSession creates a new Session from the given identifier, access token, refresh token, scope, token type, expiration and webhook
 	CreateSession(identifier string, accessToken string, refreshToken string, scopes []discord.OAuth2Scope, tokenType discord.TokenType, expiration time.Time, webhook *discord.IncomingWebhook) Session
 
-	// CreateSessionFromExchange creates a new Session from the given identifier and discord.AccessTokenResponse payload
-	CreateSessionFromExchange(identifier string, exchange discord.AccessTokenResponse) Session
+	// CreateSessionFromResponse creates a new Session from the given identifier and discord.AccessTokenResponse payload
+	CreateSessionFromResponse(identifier string, response discord.AccessTokenResponse) Session
 }
 
 // NewSessionController returns a new empty SessionController
@@ -53,6 +53,6 @@ func (c *sessionControllerImpl) CreateSession(identifier string, accessToken str
 	return session
 }
 
-func (c *sessionControllerImpl) CreateSessionFromExchange(identifier string, exchange discord.AccessTokenResponse) Session {
-	return c.CreateSession(identifier, exchange.AccessToken, exchange.RefreshToken, discord.SplitScopes(exchange.Scope), exchange.TokenType, time.Now().Add(exchange.ExpiresIn*time.Second), exchange.Webhook)
+func (c *sessionControllerImpl) CreateSessionFromResponse(identifier string, response discord.AccessTokenResponse) Session {
+	return c.CreateSession(identifier, response.AccessToken, response.RefreshToken, response.Scope, response.TokenType, time.Now().Add(response.ExpiresIn*time.Second), response.Webhook)
 }
