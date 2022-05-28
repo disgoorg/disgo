@@ -13,18 +13,20 @@ import (
 	"github.com/sasha-s/go-csync"
 )
 
-// TODO: do we need some cleanup task?
-
 // NewRateLimiter return a new default RateLimiter with the given RateLimiterConfigOpt(s).
 func NewRateLimiter(opts ...RateLimiterConfigOpt) RateLimiter {
 	config := DefaultRateLimiterConfig()
 	config.Apply(opts)
 
-	return &rateLimiterImpl{
+	rateLimiter := &rateLimiterImpl{
 		config:  *config,
 		hashes:  map[*route.APIRoute]routeHash{},
 		buckets: map[hashMajor]*bucket{},
 	}
+
+	go rateLimiter.cleanup()
+
+	return rateLimiter
 }
 
 type (
@@ -51,6 +53,29 @@ func (l *rateLimiterImpl) Logger() log.Logger {
 
 func (l *rateLimiterImpl) MaxRetries() int {
 	return l.config.MaxRetries
+}
+
+func (l *rateLimiterImpl) cleanup() {
+	ticker := time.NewTicker(l.config.CleanupInterval)
+	for range ticker.C {
+		l.doCleanup()
+	}
+}
+
+func (l *rateLimiterImpl) doCleanup() {
+	l.bucketsMu.Lock()
+	defer l.bucketsMu.Unlock()
+	before := len(l.buckets)
+	now := time.Now()
+	for hash, b := range l.buckets {
+		if b.Reset.Before(now) {
+			l.Logger().Debugf("cleaning up bucket, Hash: %s, ID: %s, Reset: %s", hash, b.ID, b.Reset)
+			delete(l.buckets, hash)
+		}
+	}
+	if before != len(l.buckets) {
+		l.Logger().Debugf("cleaned up %d rate limit buckets", before-len(l.buckets))
+	}
 }
 
 func (l *rateLimiterImpl) Close(ctx context.Context) {
@@ -80,8 +105,10 @@ func (l *rateLimiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor 
 		hash = routeHash(route.APIRoute.Method().String() + "+" + route.APIRoute.Path())
 		l.hashes[route.APIRoute] = hash
 	}
-	// return hashMajor
-	return hashMajor(string(hash) + "+" + route.MajorParams())
+	if route.MajorParams() != "" {
+		hash += routeHash("+" + route.MajorParams())
+	}
+	return hashMajor(hash)
 }
 
 func (l *rateLimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *bucket {

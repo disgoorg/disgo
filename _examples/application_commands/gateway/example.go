@@ -42,7 +42,7 @@ var (
 func main() {
 	log.SetLevel(log.LevelTrace)
 	log.Info("starting example...")
-	log.Infof("disgo version: %s", disgo.Version)
+	log.Info("disgo version: ", disgo.Version)
 
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentsNone)),
