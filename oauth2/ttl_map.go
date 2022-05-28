@@ -41,10 +41,6 @@ type ttlMap struct {
 	mu     sync.Mutex
 }
 
-func (m *ttlMap) len() int {
-	return len(m.m)
-}
-
 func (m *ttlMap) put(k string, v string) {
 	m.mu.Lock()
 	m.m[k] = value{v, time.Now().Unix()}
