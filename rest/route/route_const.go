@@ -44,10 +44,12 @@ const (
 	BLANK  ImageFormat = ""
 )
 
+// String returns the string representation of the ImageFormat
 func (f ImageFormat) String() string {
 	return string(f)
 }
 
+// CanBeAnimated returns true if the ImageFormat can be animated
 func (f ImageFormat) CanBeAnimated() bool {
 	switch f {
 	case WebP, GIF:

@@ -13,7 +13,6 @@ import (
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest/route"
-	"github.com/disgoorg/disgo/rest/rrate"
 	"github.com/disgoorg/log"
 )
 
@@ -35,8 +34,8 @@ type Client interface {
 	// HTTPClient returns the http.Client the rest client uses
 	HTTPClient() *http.Client
 
-	// RateLimiter returns the rrate.Limiter the rest client uses
-	RateLimiter() rrate.Limiter
+	// RateLimiter returns the rrate.RateLimiter the rest client uses
+	RateLimiter() RateLimiter
 
 	// Close closes the rest client and awaits all pending requests to finish. You can use a cancelling context to abort the waiting
 	Close(ctx context.Context)
@@ -63,7 +62,7 @@ func (c *clientImpl) HTTPClient() *http.Client {
 	return c.config.HTTPClient
 }
 
-func (c *clientImpl) RateLimiter() rrate.Limiter {
+func (c *clientImpl) RateLimiter() RateLimiter {
 	return c.config.RateLimiter
 }
 

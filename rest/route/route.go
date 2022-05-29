@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// NewRoute generates a new discord path struct
+// NewRoute generates a new discord path struct.
 func NewRoute(path string, queryParams ...string) *Route {
 	params := map[string]struct{}{}
 	for _, param := range queryParams {
@@ -21,14 +21,14 @@ func NewRoute(path string, queryParams ...string) *Route {
 	}
 }
 
-// NewCustomRoute generates a new custom path struct
+// NewCustomRoute generates a new custom path struct.
 func NewCustomRoute(basePath string, path string, queryParams ...string) *Route {
 	route := NewRoute(path, queryParams...)
 	route.basePath = basePath
 	return route
 }
 
-// Route is a basic struct containing Method and URL
+// Route is a basic struct containing Method and URL.
 type Route struct {
 	basePath      string
 	path          string
@@ -36,7 +36,7 @@ type Route struct {
 	urlParamCount int
 }
 
-// Compile returns a CompiledRoute
+// Compile returns a CompiledRoute.
 func (r *Route) Compile(queryValues QueryValues, params ...any) (*CompiledRoute, error) {
 	if len(params) != r.urlParamCount {
 		return nil, ErrInvalidArgCount(r.urlParamCount, len(params))
@@ -69,19 +69,19 @@ func (r *Route) Compile(queryValues QueryValues, params ...any) (*CompiledRoute,
 	}, nil
 }
 
-// Path returns the request path used by the path
+// Path returns the request path used by the path.
 func (r *Route) Path() string {
 	return r.path
 }
 
-// CompiledRoute is Route compiled with all URL args
+// CompiledRoute is Route compiled with all URL args.
 type CompiledRoute struct {
 	route       *Route
 	path        string
 	queryParams string
 }
 
-// URL returns the full URL of the CompiledRoute
+// URL returns the full URL of the CompiledRoute.
 func (r *CompiledRoute) URL() string {
 	u := r.route.basePath + r.path
 	if r.queryParams != "" {

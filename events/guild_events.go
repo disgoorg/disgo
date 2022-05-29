@@ -5,58 +5,58 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// GenericGuildEvent is called upon receiving GuildUpdateEvent, GuildAvailableEvent, GuildUnavailableEvent, GuildJoinEvent, GuildLeaveEvent, GuildReadyEvent, GuildBanEvent, GuildUnbanEvent
-type GenericGuildEvent struct {
+// GenericGuild is called upon receiving GuildUpdate , GuildAvailable , GuildUnavailable , GuildJoin , GuildLeave , GuildReady , GuildBan , GuildUnban
+type GenericGuild struct {
 	*GenericEvent
 	GuildID snowflake.ID
 	Guild   discord.Guild
 }
 
-// GuildUpdateEvent is called upon receiving discord.Guild updates
-type GuildUpdateEvent struct {
-	*GenericGuildEvent
+// GuildUpdate is called upon receiving discord.Guild updates
+type GuildUpdate struct {
+	*GenericGuild
 	OldGuild discord.Guild
 }
 
-// GuildAvailableEvent is called when an unavailable discord.Guild becomes available
-type GuildAvailableEvent struct {
-	*GenericGuildEvent
+// GuildAvailable is called when an unavailable discord.Guild becomes available
+type GuildAvailable struct {
+	*GenericGuild
 }
 
-// GuildUnavailableEvent is called when an available discord.Guild becomes unavailable
-type GuildUnavailableEvent struct {
-	*GenericGuildEvent
+// GuildUnavailable is called when an available discord.Guild becomes unavailable
+type GuildUnavailable struct {
+	*GenericGuild
 }
 
-// GuildJoinEvent is called when the bot joins a discord.Guild
-type GuildJoinEvent struct {
-	*GenericGuildEvent
+// GuildJoin is called when the bot joins a discord.Guild
+type GuildJoin struct {
+	*GenericGuild
 }
 
-// GuildLeaveEvent is called when the bot leaves a discord.Guild
-type GuildLeaveEvent struct {
-	*GenericGuildEvent
+// GuildLeave is called when the bot leaves a discord.Guild
+type GuildLeave struct {
+	*GenericGuild
 }
 
-// GuildReadyEvent is called when a discord.Guild becomes loaded for the first time
-type GuildReadyEvent struct {
-	*GenericGuildEvent
+// GuildReady is called when a discord.Guild becomes loaded for the first time
+type GuildReady struct {
+	*GenericGuild
 }
 
-// GuildsReadyEvent is called when all discord.Guild(s) are loaded after logging in
-type GuildsReadyEvent struct {
+// GuildsReady is called when all discord.Guild(s) are loaded after logging in
+type GuildsReady struct {
 	*GenericEvent
 }
 
-// GuildBanEvent is called when a discord.Member/discord.User is banned from the discord.Guild
-type GuildBanEvent struct {
+// GuildBan is called when a discord.Member/discord.User is banned from the discord.Guild
+type GuildBan struct {
 	*GenericEvent
 	GuildID snowflake.ID
 	User    discord.User
 }
 
-// GuildUnbanEvent is called when a discord.Member/discord.User is unbanned from the discord.Guild
-type GuildUnbanEvent struct {
+// GuildUnban is called when a discord.Member/discord.User is unbanned from the discord.Guild
+type GuildUnban struct {
 	*GenericEvent
 	GuildID snowflake.ID
 	User    discord.User

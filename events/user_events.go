@@ -7,21 +7,21 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// GenericUserEvent is called upon receiving UserUpdateEvent or UserTypingStartEvent
-type GenericUserEvent struct {
+// GenericUser is called upon receiving UserUpdate or UserTypingStart
+type GenericUser struct {
 	*GenericEvent
 	UserID snowflake.ID
 	User   discord.User
 }
 
-// UserUpdateEvent  indicates that a discord.User updated
-type UserUpdateEvent struct {
-	*GenericUserEvent
+// UserUpdate  indicates that a discord.User updated
+type UserUpdate struct {
+	*GenericUser
 	OldUser discord.User
 }
 
-// UserTypingStartEvent indicates that a discord.User started typing in a discord.DMChannel or discord.MessageChanel(requires the discord.GatewayIntentDirectMessageTyping and/or discord.GatewayIntentGuildMessageTyping)
-type UserTypingStartEvent struct {
+// UserTypingStart indicates that a discord.User started typing in a discord.DMChannel or discord.MessageChanel(requires the discord.GatewayIntentDirectMessageTyping and/or discord.GatewayIntentGuildMessageTyping)
+type UserTypingStart struct {
 	*GenericEvent
 	ChannelID snowflake.ID
 	GuildID   *snowflake.ID
@@ -30,6 +30,6 @@ type UserTypingStartEvent struct {
 }
 
 // Channel returns the discord.MessageChannel the discord.User started typing in
-func (e *UserTypingStartEvent) Channel() (discord.MessageChannel, bool) {
+func (e *UserTypingStart) Channel() (discord.MessageChannel, bool) {
 	return e.Client().Caches().Channels().GetMessageChannel(e.ChannelID)
 }

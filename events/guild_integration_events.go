@@ -5,7 +5,8 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-type GenericIntegrationEvent struct {
+// GenericIntegration is called upon receiving IntegrationCreate, IntegrationUpdate or IntegrationDelete(requires the discord.GatewayIntentGuildIntegrations)
+type GenericIntegration struct {
 	*GenericEvent
 	GuildID     snowflake.ID
 	Integration discord.Integration
@@ -13,33 +14,35 @@ type GenericIntegrationEvent struct {
 
 // Guild returns the Guild this Integration was created in.
 // This will only check cached guilds!
-func (e *GenericIntegrationEvent) Guild() (discord.Guild, bool) {
+func (e *GenericIntegration) Guild() (discord.Guild, bool) {
 	return e.Client().Caches().Guilds().Get(e.GuildID)
 }
 
-// IntegrationCreateEvent indicates that a new Integration was created in a Guild
-type IntegrationCreateEvent struct {
-	*GenericIntegrationEvent
+// IntegrationCreate indicates that a new Integration was created in a Guild
+type IntegrationCreate struct {
+	*GenericIntegration
 }
 
-// IntegrationUpdateEvent indicates that an integration was updated in a Guild
-type IntegrationUpdateEvent struct {
-	*GenericIntegrationEvent
+// IntegrationUpdate indicates that an integration was updated in a Guild
+type IntegrationUpdate struct {
+	*GenericIntegration
 }
 
-// IntegrationDeleteEvent indicates that an Integration was deleted from a Guild
-type IntegrationDeleteEvent struct {
+// IntegrationDelete indicates that an Integration was deleted from a Guild
+type IntegrationDelete struct {
 	*GenericEvent
 	ID            snowflake.ID
 	GuildID       snowflake.ID
 	ApplicationID *snowflake.ID
 }
 
-type GuildIntegrationsUpdateEvent struct {
+// GuildIntegrationsUpdate indicates that a Guild's integrations were updated
+type GuildIntegrationsUpdate struct {
 	*GenericEvent
 	GuildID snowflake.ID
 }
 
+// GuildApplicationCommandPermissionsUpdate indicates that a Guild's application's permissions were updated
 type GuildApplicationCommandPermissionsUpdate struct {
 	*GenericEvent
 	Permissions discord.ApplicationCommandPermissions

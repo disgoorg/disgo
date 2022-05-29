@@ -5,43 +5,52 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-type GenericGuildScheduledEventEvent struct {
+// GenericGuildScheduledEvent is the base struct for all GuildScheduledEvents events.
+type GenericGuildScheduledEvent struct {
 	*GenericEvent
-	GuildScheduledEvent discord.GuildScheduledEvent
+	GuildScheduled discord.GuildScheduledEvent
 }
 
-type GuildScheduledEventCreateEvent struct {
-	*GenericGuildScheduledEventEvent
+// GuildScheduledEventCreate is dispatched when a guild scheduled event is created.
+type GuildScheduledEventCreate struct {
+	*GenericGuildScheduledEvent
 }
 
-type GuildScheduledEventUpdateEvent struct {
-	*GenericGuildScheduledEventEvent
-	OldGuildScheduledEvent discord.GuildScheduledEvent
+// GuildScheduledEventUpdate is dispatched when a guild scheduled event is updated.
+type GuildScheduledEventUpdate struct {
+	*GenericGuildScheduledEvent
+	OldGuildScheduled discord.GuildScheduledEvent
 }
 
-type GuildScheduledEventDeleteEvent struct {
-	*GenericGuildScheduledEventEvent
+// GuildScheduledEventDelete is dispatched when a guild scheduled event is deleted.
+type GuildScheduledEventDelete struct {
+	*GenericGuildScheduledEvent
 }
 
-type GenericGuildScheduledEventUserEvent struct {
+// GenericGuildScheduledEventUser is the base struct for all GuildScheduledEventUser events.
+type GenericGuildScheduledEventUser struct {
 	*GenericEvent
 	GuildScheduledEventID snowflake.ID
 	UserID                snowflake.ID
 	GuildID               snowflake.ID
 }
 
-func (e *GenericGuildScheduledEventUserEvent) GuildScheduledEvent() (discord.GuildScheduledEvent, bool) {
+// GuildScheduledEvent returns the discord.GuildScheduledEvent the event is for.
+func (e *GenericGuildScheduledEventUser) GuildScheduledEvent() (discord.GuildScheduledEvent, bool) {
 	return e.Client().Caches().GuildScheduledEvents().Get(e.GuildID, e.GuildScheduledEventID)
 }
 
-func (e *GenericGuildScheduledEventUserEvent) Member() (discord.Member, bool) {
+// Member returns the Member who was added/removed from the GuildScheduledEvent from the cache.
+func (e *GenericGuildScheduledEventUser) Member() (discord.Member, bool) {
 	return e.Client().Caches().Members().Get(e.GuildID, e.UserID)
 }
 
-type GuildScheduledEventUserAddEvent struct {
-	*GenericGuildScheduledEventUserEvent
+// GuildScheduledEventUserAdd is dispatched when a user is added to a discord.GuildScheduledEvent.
+type GuildScheduledEventUserAdd struct {
+	*GenericGuildScheduledEventUser
 }
 
-type GuildScheduledEventUserRemoveEvent struct {
-	*GenericGuildScheduledEventUserEvent
+// GuildScheduledEventUserRemove is dispatched when a user is removed from a discord.GuildScheduledEvent.
+type GuildScheduledEventUserRemove struct {
+	*GenericGuildScheduledEventUser
 }

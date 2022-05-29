@@ -28,7 +28,7 @@ DisGo is a [Discord](https://discord.com) API wrapper written in [GoLang](https:
 ### Stability
 The public API of DisGo is mostly stable at this point in time. Smaller breaking changes can happen before the v1 is released. 
 
-After v1 is released breaking changes may only happen if the Discord API requires them. They tend to break their released API versions now and then. In general for every new Discord APi version the major version of DisGo should be increased and with that breaking changes between non major versions should be helt to a minimum. 
+After v1 is released breaking changes may only happen if the Discord API requires them. They tend to break their released API versions now and then. In general for every new Discord APi version the major version of DisGo should be increased and with that breaking changes between non-major versions should be held to a minimum. 
 
 ### Features
 
@@ -96,7 +96,7 @@ func main() {
 
 ### Full Ping Pong Example
 
-This example can also be found [here]https://github.com/disgoorg/disgo/blob/development/_examples/ping_pong/example.go()
+This example can also be found [here](https://github.com/disgoorg/disgo/blob/development/_examples/ping_pong/example.go)
 
 ```go
 package main
@@ -215,7 +215,4 @@ Contributions are welcomed but for bigger changes we recommend first reaching ou
 
 ## License
 
-Distributed under the [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/disgoorg/disgo/blob/master/LICENSE)
-. See LICENSE for more information.
-
-
+Distributed under the [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/disgoorg/disgo/blob/master/LICENSE). See LICENSE for more information.

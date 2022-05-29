@@ -28,7 +28,7 @@ func main() {
 
 	client, err := disgo.New(token,
 		bot.WithShardManagerConfigOpts(
-			sharding.WithShards(0, 1),
+			sharding.WithShardIDs(0, 1),
 			sharding.WithShardCount(2),
 			sharding.WithAutoScaling(true),
 			sharding.WithGatewayConfigOpts(
@@ -39,10 +39,10 @@ func main() {
 		bot.WithCacheConfigOpts(cache.WithCacheFlags(cache.FlagsDefault)),
 		bot.WithEventListeners(&events.ListenerAdapter{
 			OnMessageCreate: onMessageCreate,
-			OnGuildReady: func(event *events.GuildReadyEvent) {
+			OnGuildReady: func(event *events.GuildReady) {
 				log.Infof("guild %s ready", event.GuildID)
 			},
-			OnGuildsReady: func(event *events.GuildsReadyEvent) {
+			OnGuildsReady: func(event *events.GuildsReady) {
 				log.Infof("guilds on shard %d ready", event.ShardID)
 			},
 		}),
@@ -63,7 +63,7 @@ func main() {
 	<-s
 }
 
-func onMessageCreate(event *events.MessageCreateEvent) {
+func onMessageCreate(event *events.MessageCreate) {
 	if event.Message.Author.Bot {
 		return
 	}

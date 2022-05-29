@@ -1,31 +1,5 @@
 package rest
 
-var _ Rest = (*restImpl)(nil)
-
-// NewRest returns a new default Rest
-func NewRest(client Client) Rest {
-	return &restImpl{
-		Client:               client,
-		Applications:         NewApplications(client),
-		OAuth2:               NewOAuth2(client),
-		Gateway:              NewGateway(client),
-		Guilds:               NewGuilds(client),
-		Members:              NewMembers(client),
-		Channels:             NewChannels(client),
-		Threads:              NewThreads(client),
-		Interactions:         NewInteractions(client),
-		Invites:              NewInvites(client),
-		GuildTemplates:       NewGuildTemplates(client),
-		Users:                NewUsers(client),
-		Voice:                NewVoice(client),
-		Webhooks:             NewWebhooks(client),
-		StageInstances:       NewStageInstances(client),
-		Emojis:               NewEmojis(client),
-		Stickers:             NewStickers(client),
-		GuildScheduledEvents: NewGuildScheduledEvents(client),
-	}
-}
-
 // Rest is a manager for all of disgo's HTTP requests
 type Rest interface {
 	Client
@@ -47,6 +21,32 @@ type Rest interface {
 	Emojis
 	Stickers
 	GuildScheduledEvents
+}
+
+var _ Rest = (*restImpl)(nil)
+
+// New returns a new default Rest
+func New(client Client) Rest {
+	return &restImpl{
+		Client:               client,
+		Applications:         NewApplications(client),
+		OAuth2:               NewOAuth2(client),
+		Gateway:              NewGateway(client),
+		Guilds:               NewGuilds(client),
+		Members:              NewMembers(client),
+		Channels:             NewChannels(client),
+		Threads:              NewThreads(client),
+		Interactions:         NewInteractions(client),
+		Invites:              NewInvites(client),
+		GuildTemplates:       NewGuildTemplates(client),
+		Users:                NewUsers(client),
+		Voice:                NewVoice(client),
+		Webhooks:             NewWebhooks(client),
+		StageInstances:       NewStageInstances(client),
+		Emojis:               NewEmojis(client),
+		Stickers:             NewStickers(client),
+		GuildScheduledEvents: NewGuildScheduledEvents(client),
+	}
 }
 
 type restImpl struct {

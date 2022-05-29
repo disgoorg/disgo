@@ -12,6 +12,7 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
+// RandStr returns a random string of the given length.
 func RandStr(n int) string {
 	b := make([]rune, n)
 	for i := range b {

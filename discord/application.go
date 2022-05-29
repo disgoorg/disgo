@@ -53,58 +53,64 @@ type PartialApplication struct {
 }
 
 type AuthorizationInformation struct {
-	Application Application        `json:"application"`
-	Scopes      []ApplicationScope `json:"scopes"`
-	Expires     time.Time          `json:"expires"`
-	User        *User              `json:"user"`
+	Application Application   `json:"application"`
+	Scopes      []OAuth2Scope `json:"scopes"`
+	Expires     time.Time     `json:"expires"`
+	User        *User         `json:"user"`
 }
 
 type InstallationParams struct {
-	Scopes      []ApplicationScope `json:"scopes"`
-	Permissions Permissions        `json:"permissions"`
+	Scopes      []OAuth2Scope `json:"scopes"`
+	Permissions Permissions   `json:"permissions"`
 }
 
-type ApplicationScope string
+// OAuth2Scope are the scopes you can request in the OAuth2 flow.
+type OAuth2Scope string
 
 const (
-	ApplicationScopeActivitiesWrite ApplicationScope = "activities.write"
-	ApplicationScopeActivitiesRead  ApplicationScope = "activities.read"
+	// OAuth2ScopeActivitiesRead allows your app to fetch data from a user's "Now Playing/Recently Played" list - requires Discord approval
+	OAuth2ScopeActivitiesRead OAuth2Scope = "activities.read"
+	// OAuth2ScopeActivitiesWrite allows your app to update a user's activity - requires Discord approval (NOT REQUIRED FOR GAMESDK ACTIVITY MANAGER)
+	OAuth2ScopeActivitiesWrite OAuth2Scope = "activities.write"
 
-	ApplicationScopeRPC                  ApplicationScope = "rpc"
-	ApplicationScopeRPCNotificationsRead ApplicationScope = "rpc.notifications.read"
-	ApplicationScopeRPCVoiceWrite        ApplicationScope = "rpc.voice.write"
-	ApplicationScopeRPCVoiceRead         ApplicationScope = "rpc.voice.read"
-	ApplicationScopeRPCActivitiesWrite   ApplicationScope = "rpc.activities.write"
+	// OAuth2ScopeApplicationsBuildsRead allows your app to read build data for a user's applications
+	OAuth2ScopeApplicationsBuildsRead OAuth2Scope = "applications.builds.read"
+	// OAuth2ScopeApplicationsBuildsUpload allows your app to upload/update builds for a user's applications - requires Discord approval
+	OAuth2ScopeApplicationsBuildsUpload OAuth2Scope = "applications.builds.upload"
 
-	ApplicationScopeGuilds            ApplicationScope = "guilds"
-	ApplicationScopeGuildsJoin        ApplicationScope = "guilds.join"
-	ApplicationScopeGuildsMembersRead ApplicationScope = "guilds.members.read"
-	ApplicationScopeGDMJoin           ApplicationScope = "gdm.join"
+	OAuth2ScopeApplicationsCommands                  OAuth2Scope = "applications.commands"
+	OAuth2ScopeApplicationsCommandsUpdate            OAuth2Scope = "applications.commands.update"
+	OAuth2ScopeApplicationsCommandsPermissionsUpdate OAuth2Scope = "applications.commands.permissions.update"
+	OAuth2ScopeApplicationsEntitlements              OAuth2Scope = "applications.entitlements"
+	OAuth2ScopeApplicationsStoreUpdate               OAuth2Scope = "applications.store.update"
 
-	ApplicationScopeRelationshipsRead ApplicationScope = "relationships.read"
-	ApplicationScopeIdentify          ApplicationScope = "identify"
-	ApplicationScopeEmail             ApplicationScope = "email"
-	ApplicationScopeConnections       ApplicationScope = "connections"
-	ApplicationScopeBot               ApplicationScope = "bot"
-	ApplicationScopeMessagesRead      ApplicationScope = "messages.read"
-	ApplicationScopeWebhookIncoming   ApplicationScope = "webhook.incoming"
+	OAuth2ScopeRPC                  OAuth2Scope = "rpc"
+	OAuth2ScopeRPCNotificationsRead OAuth2Scope = "rpc.notifications.read"
+	OAuth2ScopeRPCVoiceWrite        OAuth2Scope = "rpc.voice.write"
+	OAuth2ScopeRPCVoiceRead         OAuth2Scope = "rpc.voice.read"
+	OAuth2ScopeRPCActivitiesWrite   OAuth2Scope = "rpc.activities.write"
 
-	ApplicationScopeApplicationsCommands                  ApplicationScope = "applications.commands"
-	ApplicationScopeApplicationsCommandsUpdate            ApplicationScope = "applications.commands.update"
-	ApplicationScopeApplicationsCommandsPermissionsUpdate ApplicationScope = "applications.commands.permissions.update"
-	ApplicationScopeApplicationsEntitlements              ApplicationScope = "applications.entitlements"
-	ApplicationScopeApplicationsStoreUpdate               ApplicationScope = "applications.store.update"
-	ApplicationScopeApplicationsBuildsRead                ApplicationScope = "applications.builds.read"
-	ApplicationScopeApplicationsBuildsUpload              ApplicationScope = "applications.builds.upload"
+	OAuth2ScopeGuilds            OAuth2Scope = "guilds"
+	OAuth2ScopeGuildsJoin        OAuth2Scope = "guilds.join"
+	OAuth2ScopeGuildsMembersRead OAuth2Scope = "guilds.members.read"
+	OAuth2ScopeGDMJoin           OAuth2Scope = "gdm.join"
+
+	OAuth2ScopeRelationshipsRead OAuth2Scope = "relationships.read"
+	OAuth2ScopeIdentify          OAuth2Scope = "identify"
+	OAuth2ScopeEmail             OAuth2Scope = "email"
+	OAuth2ScopeConnections       OAuth2Scope = "connections"
+	OAuth2ScopeBot               OAuth2Scope = "bot"
+	OAuth2ScopeMessagesRead      OAuth2Scope = "messages.read"
+	OAuth2ScopeWebhookIncoming   OAuth2Scope = "webhook.incoming"
 )
 
-func (s ApplicationScope) String() string {
+func (s OAuth2Scope) String() string {
 	return string(s)
 }
 
 const ScopeSeparator = " "
 
-func JoinScopes(scopes []ApplicationScope) string {
+func JoinScopes(scopes []OAuth2Scope) string {
 	strScopes := make([]string, len(scopes))
 	for i, scope := range scopes {
 		strScopes[i] = scope.String()
@@ -112,15 +118,15 @@ func JoinScopes(scopes []ApplicationScope) string {
 	return strings.Join(strScopes, ScopeSeparator)
 }
 
-func SplitScopes(joinedScopes string) []ApplicationScope {
-	var scopes []ApplicationScope
+func SplitScopes(joinedScopes string) []OAuth2Scope {
+	var scopes []OAuth2Scope
 	for _, scope := range strings.Split(joinedScopes, ScopeSeparator) {
-		scopes = append(scopes, ApplicationScope(scope))
+		scopes = append(scopes, OAuth2Scope(scope))
 	}
 	return scopes
 }
 
-func HasScope(scope ApplicationScope, scopes ...ApplicationScope) bool {
+func HasScope(scope OAuth2Scope, scopes ...OAuth2Scope) bool {
 	for _, s := range scopes {
 		if s == scope {
 			return true
