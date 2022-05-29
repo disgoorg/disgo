@@ -34,22 +34,22 @@ func main() {
 		),
 		bot.WithMemberChunkingFilter(bot.MemberChunkingFilterNone),
 		bot.WithEventListeners(&events.ListenerAdapter{
-			OnGuildScheduledEventCreate: func(event *events.GuildScheduledEventCreateEvent) {
+			OnGuildScheduledEventCreate: func(event *events.GuildScheduledEventCreate) {
 				log.Infof("%T\n", event)
 			},
-			OnGuildScheduledEventUpdate: func(event *events.GuildScheduledEventUpdateEvent) {
+			OnGuildScheduledEventUpdate: func(event *events.GuildScheduledEventUpdate) {
 				log.Infof("%T\n", event)
 			},
-			OnGuildScheduledEventDelete: func(event *events.GuildScheduledEventDeleteEvent) {
+			OnGuildScheduledEventDelete: func(event *events.GuildScheduledEventDelete) {
 				log.Infof("%T\n", event)
 			},
-			OnGuildScheduledEventUserAdd: func(event *events.GuildScheduledEventUserAddEvent) {
+			OnGuildScheduledEventUserAdd: func(event *events.GuildScheduledEventUserAdd) {
 				log.Infof("%T\n", event)
 			},
-			OnGuildScheduledEventUserRemove: func(event *events.GuildScheduledEventUserRemoveEvent) {
+			OnGuildScheduledEventUserRemove: func(event *events.GuildScheduledEventUserRemove) {
 				log.Infof("%T\n", event)
 			},
-			OnMessageCreate: func(event *events.MessageCreateEvent) {
+			OnMessageCreate: func(event *events.MessageCreate) {
 				log.Infof("%T\n", event)
 				if event.Message.Content != "test" {
 					return

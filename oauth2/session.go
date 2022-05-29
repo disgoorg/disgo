@@ -16,8 +16,8 @@ type Session interface {
 	// RefreshToken allows refreshing the AccessToken
 	RefreshToken() string
 
-	// Scopes returns the discord.ApplicationScope(s) of the Session
-	Scopes() []discord.ApplicationScope
+	// Scopes returns the discord.OAuth2Scope(s) of the Session
+	Scopes() []discord.OAuth2Scope
 
 	// TokenType returns the discord.TokenType of the AccessToken
 	TokenType() discord.TokenType
@@ -25,14 +25,14 @@ type Session interface {
 	// Expiration returns the time.Time when the AccessToken expires and needs to be refreshed
 	Expiration() time.Time
 
-	// Webhook returns the discord.IncomingWebhook when the discord.ApplicationScopeWebhookIncoming is set
+	// Webhook returns the discord.IncomingWebhook when the discord.OAuth2ScopeWebhookIncoming is set
 	Webhook() *discord.IncomingWebhook
 }
 
 type sessionImpl struct {
 	accessToken  string
 	refreshToken string
-	scopes       []discord.ApplicationScope
+	scopes       []discord.OAuth2Scope
 	tokenType    discord.TokenType
 	expiration   time.Time
 	webhook      *discord.IncomingWebhook
@@ -46,7 +46,7 @@ func (s *sessionImpl) RefreshToken() string {
 	return s.refreshToken
 }
 
-func (s *sessionImpl) Scopes() []discord.ApplicationScope {
+func (s *sessionImpl) Scopes() []discord.OAuth2Scope {
 	return s.scopes
 }
 

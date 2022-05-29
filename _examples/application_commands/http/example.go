@@ -52,10 +52,9 @@ func main() {
 	}
 
 	client, err := disgo.New(token,
-		bot.WithHTTPServerConfigOpts(
+		bot.WithHTTPServerConfigOpts(publicKey,
 			httpserver.WithURL("/interactions/callback"),
 			httpserver.WithAddress(":80"),
-			httpserver.WithPublicKey(publicKey),
 		),
 		bot.WithEventListenerFunc(commandListener),
 	)
@@ -80,7 +79,7 @@ func main() {
 	<-s
 }
 
-func commandListener(event *events.ApplicationCommandInteractionEvent) {
+func commandListener(event *events.ApplicationCommandInteractionCreate) {
 	data := event.SlashCommandInteractionData()
 	if data.CommandName() == "say" {
 		if err := event.CreateMessage(discord.NewMessageCreateBuilder().

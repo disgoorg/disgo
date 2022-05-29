@@ -11,16 +11,29 @@ import (
 	"github.com/disgoorg/log"
 )
 
-type EventHandlerFunc func(responseFunc RespondFunc, payload io.Reader)
-type RespondFunc func(response discord.InteractionResponse) error
+type (
+	// EventHandlerFunc is used to handle events from Discord's Outgoing Webhooks
+	EventHandlerFunc func(responseFunc RespondFunc, payload io.Reader)
 
-// Server is used for receiving an Interaction over httpserver
+	// RespondFunc is used to respond to Discord's Outgoing Webhooks
+	RespondFunc func(response discord.InteractionResponse) error
+)
+
+// Server is used for receiving Discord's interactions via Outgoing Webhooks
 type Server interface {
+	// Logger returns the logger used by the Server
 	Logger() log.Logger
+
+	// PublicKey returns the public key used by the Server
 	PublicKey() PublicKey
 
+	// Start starts the Server
 	Start()
+
+	// Close closes the Server
 	Close(ctx context.Context)
+
+	// Handle passes a payload to the Server for processing
 	Handle(respondFunc RespondFunc, payload io.Reader)
 }
 

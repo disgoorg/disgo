@@ -21,6 +21,7 @@ import (
 
 var _ Gateway = (*gatewayImpl)(nil)
 
+// New creates a new Gateway instance with the provided token, eventHandlerFunc, closeHandlerFunc and ConfigOpt(s).
 func New(token string, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...ConfigOpt) Gateway {
 	config := DefaultConfig()
 	config.Apply(opts)
@@ -105,7 +106,9 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 		g.Close(ctx)
 		body := "null"
 		if rs != nil && rs.Body != nil {
-			defer rs.Body.Close()
+			defer func() {
+				_ = rs.Body.Close()
+			}()
 			rawBody, bErr := io.ReadAll(rs.Body)
 			if bErr != nil {
 				g.Logger().Error(g.formatLogs("error while reading response body: ", err))
@@ -154,6 +157,12 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message strin
 		}
 		_ = g.conn.Close()
 		g.conn = nil
+
+		// clear resume data as we closed gracefully
+		if code == websocket.CloseNormalClosure || code == websocket.CloseGoingAway {
+			g.config.SessionID = nil
+			g.config.LastSequenceReceived = nil
+		}
 	}
 
 }
@@ -222,7 +231,7 @@ func (g *gatewayImpl) reconnectTry(ctx context.Context, try int, delay time.Dura
 
 func (g *gatewayImpl) reconnect(ctx context.Context) {
 	err := g.reconnectTry(ctx, 0, time.Second)
-	if ctx.Err() != nil {
+	if err != nil {
 		g.Logger().Error(g.formatLogs("failed to reopen gateway", err))
 	}
 }
@@ -419,24 +428,26 @@ loop:
 	}
 }
 
-func (g *gatewayImpl) parseGatewayMessage(mt int, reader io.Reader) (*discord.GatewayMessage, error) {
+func (g *gatewayImpl) parseGatewayMessage(mt int, reader io.Reader) (discord.GatewayMessage, error) {
 	var finalReadCloser io.ReadCloser
 	if mt == websocket.BinaryMessage {
 		g.Logger().Trace(g.formatLogs("binary message received. decompressing..."))
 		readCloser, err := zlib.NewReader(reader)
 		if err != nil {
-			return nil, fmt.Errorf("failed to decompress zlib: %w", err)
+			return discord.GatewayMessage{}, fmt.Errorf("failed to decompress zlib: %w", err)
 		}
 		finalReadCloser = readCloser
 	} else {
 		finalReadCloser = io.NopCloser(reader)
 	}
-	defer finalReadCloser.Close()
+	defer func() {
+		_ = finalReadCloser.Close()
+	}()
 
 	var message discord.GatewayMessage
 	if err := json.NewDecoder(finalReadCloser).Decode(&message); err != nil {
 		g.Logger().Error(g.formatLogs("error decoding websocket message: ", err))
-		return nil, err
+		return discord.GatewayMessage{}, err
 	}
-	return &message, nil
+	return message, nil
 }

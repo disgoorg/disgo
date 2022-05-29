@@ -46,7 +46,7 @@ func main() {
 	<-s
 }
 
-func onMessageCreate(event *events.MessageCreateEvent) {
+func onMessageCreate(event *events.MessageCreate) {
 	if event.Message.Author.Bot {
 		return
 	}

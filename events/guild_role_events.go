@@ -5,26 +5,26 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// GenericRoleEvent generic discord.Role event
-type GenericRoleEvent struct {
+// GenericRole generic discord.Role event
+type GenericRole struct {
 	*GenericEvent
 	GuildID snowflake.ID
 	RoleID  snowflake.ID
 	Role    discord.Role
 }
 
-// RoleCreateEvent indicates that a discord.Role got created
-type RoleCreateEvent struct {
-	*GenericRoleEvent
+// RoleCreate indicates that a discord.Role got created
+type RoleCreate struct {
+	*GenericRole
 }
 
-// RoleUpdateEvent indicates that a discord.Role got updated
-type RoleUpdateEvent struct {
-	*GenericRoleEvent
+// RoleUpdate indicates that a discord.Role got updated
+type RoleUpdate struct {
+	*GenericRole
 	OldRole discord.Role
 }
 
-// RoleDeleteEvent indicates that a discord.Role got deleted
-type RoleDeleteEvent struct {
-	*GenericRoleEvent
+// RoleDelete indicates that a discord.Role got deleted
+type RoleDelete struct {
+	*GenericRole
 }

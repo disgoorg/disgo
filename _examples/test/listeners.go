@@ -18,7 +18,7 @@ var listener = &events.ListenerAdapter{
 	OnModalSubmit:                   modalListener,
 }
 
-func modalListener(event *events.ModalSubmitInteractionEvent) {
+func modalListener(event *events.ModalSubmitInteractionCreate) {
 	switch event.Data.CustomID {
 	case "test1":
 		_ = event.CreateMessage(discord.MessageCreate{Content: event.Data.Text("test_input")})
@@ -40,7 +40,7 @@ func modalListener(event *events.ModalSubmitInteractionEvent) {
 	}
 }
 
-func componentListener(event *events.ComponentInteractionEvent) {
+func componentListener(event *events.ComponentInteractionCreate) {
 	switch data := event.Data.(type) {
 	case discord.ButtonInteractionData:
 		ids := strings.Split(data.CustomID().String(), ":")
@@ -97,7 +97,7 @@ func componentListener(event *events.ComponentInteractionEvent) {
 	}
 }
 
-func applicationCommandListener(event *events.ApplicationCommandInteractionEvent) {
+func applicationCommandListener(event *events.ApplicationCommandInteractionCreate) {
 	data := event.SlashCommandInteractionData()
 	switch data.CommandName() {
 	case "locale":
@@ -131,7 +131,7 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionEvent
 	}
 }
 
-func messageListener(event *events.GuildMessageCreateEvent) {
+func messageListener(event *events.GuildMessageCreate) {
 	if event.Message.Author.Bot {
 		return
 	}
@@ -214,7 +214,7 @@ func messageListener(event *events.GuildMessageCreateEvent) {
 
 	case "repeat":
 		go func() {
-			ch, cls := bot.NewEventCollector(event.Client(), func(event *events.MessageCreateEvent) bool {
+			ch, cls := bot.NewEventCollector(event.Client(), func(event *events.MessageCreate) bool {
 				return !event.Message.Author.Bot && event.ChannelID == event.ChannelID
 			})
 

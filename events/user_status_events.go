@@ -5,16 +5,16 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// UserStatusUpdateEvent generic Status event
-type UserStatusUpdateEvent struct {
+// UserStatusUpdate generic Status event
+type UserStatusUpdate struct {
 	*GenericEvent
 	UserID    snowflake.ID
 	OldStatus discord.OnlineStatus
 	Status    discord.OnlineStatus
 }
 
-// UserClientStatusUpdateEvent generic client-specific Status event
-type UserClientStatusUpdateEvent struct {
+// UserClientStatusUpdate generic client-specific Status event
+type UserClientStatusUpdate struct {
 	*GenericEvent
 	UserID          snowflake.ID
 	OldClientStatus *discord.ClientStatus

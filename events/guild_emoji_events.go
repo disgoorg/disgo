@@ -5,31 +5,32 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-type EmojisUpdateEvent struct {
+// EmojisUpdate is dispatched when a guild's emojis are updated.
+// This event does not depend on a cache like EmojiCreate, EmojiUpdate or EmojiDelete.
+type EmojisUpdate struct {
 	*GenericEvent
-	GuildID snowflake.ID
-	Emojis  []discord.Emoji
+	discord.GatewayEventGuildEmojisUpdate
 }
 
-// GenericEmojiEvent is called upon receiving EmojiCreateEvent, EmojiUpdateEvent or EmojiDeleteEvent (requires discord.GatewayIntentGuildEmojisAndStickers)
-type GenericEmojiEvent struct {
+// GenericEmoji is called upon receiving EmojiCreate , EmojiUpdate or EmojiDelete (requires discord.GatewayIntentGuildEmojisAndStickers)
+type GenericEmoji struct {
 	*GenericEvent
 	GuildID snowflake.ID
 	Emoji   discord.Emoji
 }
 
-// EmojiCreateEvent indicates that a new discord.Emoji got created in a discord.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
-type EmojiCreateEvent struct {
-	*GenericEmojiEvent
+// EmojiCreate indicates that a new discord.Emoji got created in a discord.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
+type EmojiCreate struct {
+	*GenericEmoji
 }
 
-// EmojiUpdateEvent indicates that a discord.Emoji got updated in a discord.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
-type EmojiUpdateEvent struct {
-	*GenericEmojiEvent
+// EmojiUpdate indicates that a discord.Emoji got updated in a discord.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
+type EmojiUpdate struct {
+	*GenericEmoji
 	OldEmoji discord.Emoji
 }
 
-// EmojiDeleteEvent indicates that a discord.Emoji got deleted in a discord.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
-type EmojiDeleteEvent struct {
-	*GenericEmojiEvent
+// EmojiDelete indicates that a discord.Emoji got deleted in a discord.Guild (requires discord.GatewayIntentGuildEmojisAndStickers)
+type EmojiDelete struct {
+	*GenericEmoji
 }

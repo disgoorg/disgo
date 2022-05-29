@@ -13,6 +13,7 @@ import (
 
 var _ ShardManager = (*shardManagerImpl)(nil)
 
+// New creates a new default ShardManager with the given token, eventHandlerFunc and ConfigOpt(s).
 func New(token string, eventHandlerFunc gateway.EventHandlerFunc, opts ...ConfigOpt) ShardManager {
 	config := DefaultConfig()
 	config.Apply(opts)

@@ -25,7 +25,7 @@ func main() {
 	log.Info("disgo version: ", disgo.Version)
 
 	// construct new webhook client
-	client := webhook.NewClient(webhookID, webhookToken)
+	client := webhook.New(webhookID, webhookToken)
 	defer client.Close(context.TODO())
 
 	// new sync.WaitGroup to await all messages to be sent before shutting down

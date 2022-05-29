@@ -5,8 +5,8 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// GenericUserActivityEvent generic Activity event
-type GenericUserActivityEvent struct {
+// GenericUserActivity generic Activity event
+type GenericUserActivity struct {
 	*GenericEvent
 	UserID   snowflake.ID
 	GuildID  snowflake.ID
@@ -15,28 +15,28 @@ type GenericUserActivityEvent struct {
 
 // Member returns the Member that changed their Activity.
 // This will only check cached members!
-func (g *GenericUserActivityEvent) Member() (discord.Member, bool) {
+func (g *GenericUserActivity) Member() (discord.Member, bool) {
 	return g.Client().Caches().Members().Get(g.GuildID, g.UserID)
 }
 
 // Guild returns the Guild that changed their Activity.
 // This will only check cached guilds!
-func (g *GenericUserActivityEvent) Guild() (discord.Guild, bool) {
+func (g *GenericUserActivity) Guild() (discord.Guild, bool) {
 	return g.Client().Caches().Guilds().Get(g.UserID)
 }
 
-// UserActivityStartEvent indicates that a User started an Activity
-type UserActivityStartEvent struct {
-	*GenericUserActivityEvent
+// UserActivityStart indicates that a User started an Activity
+type UserActivityStart struct {
+	*GenericUserActivity
 }
 
-// UserActivityUpdateEvent indicates that a User updated their Activity
-type UserActivityUpdateEvent struct {
-	*GenericUserActivityEvent
+// UserActivityUpdate indicates that a User updated their Activity
+type UserActivityUpdate struct {
+	*GenericUserActivity
 	OldActivity discord.Activity
 }
 
-// UserActivityStopEvent indicates that a User stopped an Activity
-type UserActivityStopEvent struct {
-	*GenericUserActivityEvent
+// UserActivityStop indicates that a User stopped an Activity
+type UserActivityStop struct {
+	*GenericUserActivity
 }

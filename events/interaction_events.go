@@ -5,63 +5,90 @@ import (
 	"github.com/disgoorg/disgo/rest"
 )
 
+// InteractionResponderFunc is a function that can be used to respond to a discord.Interaction.
 type InteractionResponderFunc func(callbackType discord.InteractionCallbackType, data discord.InteractionCallbackData, opts ...rest.RequestOpt) error
 
-type InteractionEvent struct {
+// InteractionCreate indicates that a new interaction has been created.
+type InteractionCreate struct {
 	*GenericEvent
 	discord.Interaction
 	Respond InteractionResponderFunc
 }
 
-func (e *InteractionEvent) Guild() (discord.Guild, bool) {
+// Guild returns the guild that the interaction happened in if it happened in a guild.
+// If the interaction happened in a DM, it returns nil.
+// This only returns cached guilds.
+func (e *InteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
 		return e.Client().Caches().Guilds().Get(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
 
-func (e *InteractionEvent) Channel() (discord.MessageChannel, bool) {
+// Channel returns the discord.MessageChannel that the interaction happened in.
+// This only returns cached channels.
+func (e *InteractionCreate) Channel() (discord.MessageChannel, bool) {
 	return e.Client().Caches().Channels().GetMessageChannel(e.ChannelID())
 }
 
-func (e *InteractionEvent) DMChannel() (discord.DMChannel, bool) {
+// DMChannel returns the discord.DMChannel that the interaction happened in.
+// If the interaction happened in a guild, it returns nil.
+// This only returns cached channels.
+func (e *InteractionCreate) DMChannel() (discord.DMChannel, bool) {
 	return e.Client().Caches().Channels().GetDMChannel(e.ChannelID())
 }
 
-func (e *InteractionEvent) GuildChannel() (discord.GuildMessageChannel, bool) {
+// GuildChannel returns the discord.GuildMessageChannel that the interaction happened in.
+// If the interaction happened in a dm, it returns nil.
+// This only returns cached channels.
+func (e *InteractionCreate) GuildChannel() (discord.GuildMessageChannel, bool) {
 	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID())
 }
 
-type ApplicationCommandInteractionEvent struct {
+// ApplicationCommandInteractionCreate is the base struct for all application command interaction create events.
+type ApplicationCommandInteractionCreate struct {
 	*GenericEvent
 	discord.ApplicationCommandInteraction
 	Respond InteractionResponderFunc
 }
 
-func (e *ApplicationCommandInteractionEvent) Guild() (discord.Guild, bool) {
+// Guild returns the guild that the interaction happened in if it happened in a guild.
+// If the interaction happened in a DM, it returns nil.
+// This only returns cached guilds.
+func (e *ApplicationCommandInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
 		return e.Client().Caches().Guilds().Get(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
 
-func (e *ApplicationCommandInteractionEvent) Channel() (discord.MessageChannel, bool) {
+// Channel returns the discord.MessageChannel that the interaction happened in.
+// This only returns cached channels.
+func (e *ApplicationCommandInteractionCreate) Channel() (discord.MessageChannel, bool) {
 	return e.Client().Caches().Channels().GetMessageChannel(e.ChannelID())
 }
 
-func (e *ApplicationCommandInteractionEvent) DMChannel() (discord.DMChannel, bool) {
+// DMChannel returns the discord.DMChannel that the interaction happened in.
+// If the interaction happened in a guild, it returns nil.
+// This only returns cached channels.
+func (e *ApplicationCommandInteractionCreate) DMChannel() (discord.DMChannel, bool) {
 	return e.Client().Caches().Channels().GetDMChannel(e.ChannelID())
 }
 
-func (e *ApplicationCommandInteractionEvent) GuildChannel() (discord.GuildMessageChannel, bool) {
+// GuildChannel returns the discord.GuildMessageChannel that the interaction happened in.
+// If the interaction happened in a dm, it returns nil.
+// This only returns cached channels.
+func (e *ApplicationCommandInteractionCreate) GuildChannel() (discord.GuildMessageChannel, bool) {
 	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID())
 }
 
-func (e *ApplicationCommandInteractionEvent) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
+// CreateMessage responds to the interaction with a new message.
+func (e *ApplicationCommandInteractionCreate) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeCreateMessage, messageCreate, opts...)
 }
 
-func (e *ApplicationCommandInteractionEvent) DeferCreateMessage(ephemeral bool, opts ...rest.RequestOpt) error {
+// DeferCreateMessage responds to the interaction with a "bot is thinking..." message which should be edited later.
+func (e *ApplicationCommandInteractionCreate) DeferCreateMessage(ephemeral bool, opts ...rest.RequestOpt) error {
 	var data discord.InteractionCallbackData
 	if ephemeral {
 		data = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
@@ -69,40 +96,55 @@ func (e *ApplicationCommandInteractionEvent) DeferCreateMessage(ephemeral bool, 
 	return e.Respond(discord.InteractionCallbackTypeDeferredCreateMessage, data, opts...)
 }
 
-func (e *ApplicationCommandInteractionEvent) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
+// CreateModal responds to the interaction with a new modal.
+func (e *ApplicationCommandInteractionCreate) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeModal, modalCreate, opts...)
 }
 
-type ComponentInteractionEvent struct {
+// ComponentInteractionCreate indicates that a new component interaction has been created.
+type ComponentInteractionCreate struct {
 	*GenericEvent
 	discord.ComponentInteraction
 	Respond InteractionResponderFunc
 }
 
-func (e *ComponentInteractionEvent) Guild() (discord.Guild, bool) {
+// Guild returns the guild that the interaction happened in if it happened in a guild.
+// If the interaction happened in a DM, it returns nil.
+// This only returns cached guilds.
+func (e *ComponentInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
 		return e.Client().Caches().Guilds().Get(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
 
-func (e *ComponentInteractionEvent) Channel() (discord.MessageChannel, bool) {
+// Channel returns the discord.MessageChannel that the interaction happened in.
+// This only returns cached channels.
+func (e *ComponentInteractionCreate) Channel() (discord.MessageChannel, bool) {
 	return e.Client().Caches().Channels().GetMessageChannel(e.ChannelID())
 }
 
-func (e *ComponentInteractionEvent) DMChannel() (discord.DMChannel, bool) {
+// DMChannel returns the discord.DMChannel that the interaction happened in.
+// If the interaction happened in a guild, it returns nil.
+// This only returns cached channels.
+func (e *ComponentInteractionCreate) DMChannel() (discord.DMChannel, bool) {
 	return e.Client().Caches().Channels().GetDMChannel(e.ChannelID())
 }
 
-func (e *ComponentInteractionEvent) GuildChannel() (discord.GuildMessageChannel, bool) {
+// GuildChannel returns the discord.GuildMessageChannel that the interaction happened in.
+// If the interaction happened in a dm, it returns nil.
+// This only returns cached channels.
+func (e *ComponentInteractionCreate) GuildChannel() (discord.GuildMessageChannel, bool) {
 	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID())
 }
 
-func (e *ComponentInteractionEvent) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
+// CreateMessage responds to the interaction with a new message.
+func (e *ComponentInteractionCreate) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeCreateMessage, messageCreate, opts...)
 }
 
-func (e *ComponentInteractionEvent) DeferCreateMessage(ephemeral bool, opts ...rest.RequestOpt) error {
+// DeferCreateMessage responds to the interaction with a "bot is thinking..." message which should be edited later.
+func (e *ComponentInteractionCreate) DeferCreateMessage(ephemeral bool, opts ...rest.RequestOpt) error {
 	var data discord.InteractionCallbackData
 	if ephemeral {
 		data = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
@@ -110,77 +152,107 @@ func (e *ComponentInteractionEvent) DeferCreateMessage(ephemeral bool, opts ...r
 	return e.Respond(discord.InteractionCallbackTypeDeferredCreateMessage, data, opts...)
 }
 
-func (e *ComponentInteractionEvent) UpdateMessage(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
+// UpdateMessage responds to the interaction with updating the message the component is from.
+func (e *ComponentInteractionCreate) UpdateMessage(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeUpdateMessage, messageUpdate, opts...)
 }
 
-func (e *ComponentInteractionEvent) DeferUpdateMessage(opts ...rest.RequestOpt) error {
+// DeferUpdateMessage responds to the interaction with nothing.
+func (e *ComponentInteractionCreate) DeferUpdateMessage(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeDeferredUpdateMessage, nil, opts...)
 }
 
-func (e *ComponentInteractionEvent) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
+// CreateModal responds to the interaction with a new modal.
+func (e *ComponentInteractionCreate) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeModal, modalCreate, opts...)
 }
 
-type AutocompleteInteractionEvent struct {
+// AutocompleteInteractionCreate indicates that a new autocomplete interaction has been created.
+type AutocompleteInteractionCreate struct {
 	*GenericEvent
 	discord.AutocompleteInteraction
 	Respond InteractionResponderFunc
 }
 
-func (e *AutocompleteInteractionEvent) Guild() (discord.Guild, bool) {
+// Guild returns the guild that the interaction happened in if it happened in a guild.
+// If the interaction happened in a DM, it returns nil.
+// This only returns cached guilds.
+func (e *AutocompleteInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
 		return e.Client().Caches().Guilds().Get(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
 
-func (e *AutocompleteInteractionEvent) Channel() (discord.MessageChannel, bool) {
+// Channel returns the discord.MessageChannel that the interaction happened in.
+// This only returns cached channels.
+func (e *AutocompleteInteractionCreate) Channel() (discord.MessageChannel, bool) {
 	return e.Client().Caches().Channels().GetMessageChannel(e.ChannelID())
 }
 
-func (e *AutocompleteInteractionEvent) DMChannel() (discord.DMChannel, bool) {
+// DMChannel returns the discord.DMChannel that the interaction happened in.
+// If the interaction happened in a guild, it returns nil.
+// This only returns cached channels.
+func (e *AutocompleteInteractionCreate) DMChannel() (discord.DMChannel, bool) {
 	return e.Client().Caches().Channels().GetDMChannel(e.ChannelID())
 }
 
-func (e *AutocompleteInteractionEvent) GuildChannel() (discord.GuildMessageChannel, bool) {
+// GuildChannel returns the discord.GuildMessageChannel that the interaction happened in.
+// If the interaction happened in a dm, it returns nil.
+// This only returns cached channels.
+func (e *AutocompleteInteractionCreate) GuildChannel() (discord.GuildMessageChannel, bool) {
 	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID())
 }
 
-func (e *AutocompleteInteractionEvent) Result(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
+// Result responds to the interaction with a slice of choices.
+func (e *AutocompleteInteractionCreate) Result(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeApplicationCommandAutocompleteResult, discord.AutocompleteResult{Choices: choices}, opts...)
 }
 
-type ModalSubmitInteractionEvent struct {
+// ModalSubmitInteractionCreate indicates that a new modal submit interaction has been created.
+type ModalSubmitInteractionCreate struct {
 	*GenericEvent
 	discord.ModalSubmitInteraction
 	Respond InteractionResponderFunc
 }
 
-func (e *ModalSubmitInteractionEvent) Guild() (discord.Guild, bool) {
+// Guild returns the guild that the interaction happened in if it happened in a guild.
+// If the interaction happened in a DM, it returns nil.
+// This only returns cached guilds.
+func (e *ModalSubmitInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
 		return e.Client().Caches().Guilds().Get(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
 
-func (e *ModalSubmitInteractionEvent) Channel() (discord.MessageChannel, bool) {
+// Channel returns the discord.MessageChannel that the interaction happened in.
+// This only returns cached channels.
+func (e *ModalSubmitInteractionCreate) Channel() (discord.MessageChannel, bool) {
 	return e.Client().Caches().Channels().GetMessageChannel(e.ChannelID())
 }
 
-func (e *ModalSubmitInteractionEvent) DMChannel() (discord.DMChannel, bool) {
+// DMChannel returns the discord.DMChannel that the interaction happened in.
+// If the interaction happened in a guild, it returns nil.
+// This only returns cached channels.
+func (e *ModalSubmitInteractionCreate) DMChannel() (discord.DMChannel, bool) {
 	return e.Client().Caches().Channels().GetDMChannel(e.ChannelID())
 }
 
-func (e *ModalSubmitInteractionEvent) GuildChannel() (discord.GuildMessageChannel, bool) {
+// GuildChannel returns the discord.GuildMessageChannel that the interaction happened in.
+// If the interaction happened in a dm, it returns nil.
+// This only returns cached channels.
+func (e *ModalSubmitInteractionCreate) GuildChannel() (discord.GuildMessageChannel, bool) {
 	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID())
 }
 
-func (e *ModalSubmitInteractionEvent) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
+// CreateMessage responds to the interaction with a new message.
+func (e *ModalSubmitInteractionCreate) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeCreateMessage, messageCreate, opts...)
 }
 
-func (e *ModalSubmitInteractionEvent) DeferCreateMessage(ephemeral bool, opts ...rest.RequestOpt) error {
+// DeferCreateMessage responds to the interaction with a "bot is thinking..." message which should be edited later.
+func (e *ModalSubmitInteractionCreate) DeferCreateMessage(ephemeral bool, opts ...rest.RequestOpt) error {
 	var data discord.InteractionCallbackData
 	if ephemeral {
 		data = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
@@ -188,10 +260,12 @@ func (e *ModalSubmitInteractionEvent) DeferCreateMessage(ephemeral bool, opts ..
 	return e.Respond(discord.InteractionCallbackTypeDeferredCreateMessage, data, opts...)
 }
 
-func (e *ModalSubmitInteractionEvent) UpdateMessage(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
+// UpdateMessage responds to the interaction with updating the message the component is from.
+func (e *ModalSubmitInteractionCreate) UpdateMessage(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeUpdateMessage, messageUpdate, opts...)
 }
 
-func (e *ModalSubmitInteractionEvent) DeferUpdateMessage(opts ...rest.RequestOpt) error {
+// DeferUpdateMessage responds to the interaction with nothing.
+func (e *ModalSubmitInteractionCreate) DeferUpdateMessage(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionCallbackTypeDeferredUpdateMessage, nil, opts...)
 }

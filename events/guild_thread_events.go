@@ -5,7 +5,8 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-type GenericThreadEvent struct {
+// GenericThread is the base struct for all Thread events.
+type GenericThread struct {
 	*GenericEvent
 	Thread   discord.GuildThread
 	ThreadID snowflake.ID
@@ -13,29 +14,35 @@ type GenericThreadEvent struct {
 	ParentID snowflake.ID
 }
 
-type ThreadCreateEvent struct {
-	*GenericThreadEvent
+// ThreadCreate is dispatched when a thread is created.
+type ThreadCreate struct {
+	*GenericThread
 	ThreadMember discord.ThreadMember
 }
 
-type ThreadUpdateEvent struct {
-	*GenericThreadEvent
+// ThreadUpdate is dispatched when a thread is updated.
+type ThreadUpdate struct {
+	*GenericThread
 	OldThread discord.GuildThread
 }
 
-type ThreadDeleteEvent struct {
-	*GenericThreadEvent
+// ThreadDelete is dispatched when a thread is deleted.
+type ThreadDelete struct {
+	*GenericThread
 }
 
-type ThreadShowEvent struct {
-	*GenericThreadEvent
+// ThreadShow is dispatched when your bot gains access to a thread.
+type ThreadShow struct {
+	*GenericThread
 }
 
-type ThreadHideEvent struct {
-	*GenericThreadEvent
+// ThreadHide is dispatched when your bot loses access to a thread.
+type ThreadHide struct {
+	*GenericThread
 }
 
-type GenericThreadMemberEvent struct {
+// GenericThreadMember is the base struct for all ThreadMember events.
+type GenericThreadMember struct {
 	*GenericEvent
 	GuildID        snowflake.ID
 	ThreadID       snowflake.ID
@@ -43,17 +50,20 @@ type GenericThreadMemberEvent struct {
 	ThreadMember   discord.ThreadMember
 }
 
-type ThreadMemberAddEvent struct {
-	*GenericThreadMemberEvent
+// ThreadMemberAdd is dispatched when a user is added to a thread.
+type ThreadMemberAdd struct {
+	*GenericThreadMember
 	Member   discord.Member
 	Presence *discord.Presence
 }
 
-type ThreadMemberUpdateEvent struct {
-	*GenericThreadMemberEvent
+// ThreadMemberUpdate is dispatched when a user is updated in a thread.
+type ThreadMemberUpdate struct {
+	*GenericThreadMember
 	OldThreadMember discord.ThreadMember
 }
 
-type ThreadMemberRemoveEvent struct {
-	*GenericThreadMemberEvent
+// ThreadMemberRemove is dispatched when a user is removed from a thread.
+type ThreadMemberRemove struct {
+	*GenericThreadMember
 }

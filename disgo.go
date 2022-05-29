@@ -1,3 +1,48 @@
+// Package disgo is a collection of packages to interaction with the Discord Bot and OAuth2 API.
+//
+// Discord
+//
+// Package discord is a collection of structs and types of the Discord API.
+//
+// Bot
+//
+// Package bot connects the Gateway/Sharding, HTTPServer, Cache, Rest & Events packages into a single high level client interface.
+//
+// Gateway
+//
+// Package gateway is used to connect and interact with the Discord Gateway.
+//
+// Sharding
+//
+// Package sharding is used to connect and interact with the Discord Gateway.
+//
+// Cache
+//
+// Package cache provides a generic cache interface for Discord entities.
+//
+// HTTPServer
+//
+// Package httpserver is used to interact with the Discord outgoing webhooks for interactions.
+//
+// Events
+//
+// Package events provide high level events around the Discord Events.
+//
+// Rest
+//
+// Package rest is used to interaction with the Discord REST API.
+//
+// JSON
+//
+// Package json provides configurable interfaces for JSON encoding and decoding.
+//
+// Webhook
+//
+// Package webhook provides a high level client interface for interacting with Discord webhooks.
+//
+// OAuth2
+//
+// Package oauth2 provides a high level client interface for interacting with Discord oauth2.
 package disgo
 
 import (
@@ -7,18 +52,24 @@ import (
 
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/gateway/handlers"
+	"github.com/disgoorg/disgo/handlers"
 	"github.com/disgoorg/disgo/httpserver"
 )
 
 const (
-	Name   = "disgo"
+	// Name is the library name
+	Name = "disgo"
+
+	// GitHub is a link to the libraries GitHub repository
 	GitHub = "https://github.com/disgoorg/" + Name
 )
 
 var (
+	// Version is the currently used version of DisGo
 	Version = getVersion()
-	OS      = getOS()
+
+	// OS is the currently used OS
+	OS = getOS()
 )
 
 func getVersion() string {
@@ -44,7 +95,7 @@ func getOS() string {
 	return "linux"
 }
 
-// New creates a new core.Client instance with the provided bot token & ConfigOpt(s)
+// New creates a new bot.Client with the provided token & bot.ConfigOpt(s)
 func New(token string, opts ...bot.ConfigOpt) (bot.Client, error) {
 	config := bot.DefaultConfig(handlers.GetGatewayHandlers(), handlers.GetHTTPServerHandler())
 	config.Apply(opts)

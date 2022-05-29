@@ -6,11 +6,12 @@ import (
 	"strings"
 )
 
-// NewAPIRoute generates a new discord api path struct
+// NewAPIRoute generates a new discord api path struct with authentication.
 func NewAPIRoute(method Method, path string, queryParams ...string) *APIRoute {
 	return newAPIRoute(method, path, queryParams, true)
 }
 
+// NewAPIRouteNoAuth generates a new discord api path struct without authentication.
 func NewAPIRouteNoAuth(method Method, path string, queryParams ...string) *APIRoute {
 	return newAPIRoute(method, path, queryParams, false)
 }
@@ -31,14 +32,14 @@ func newAPIRoute(method Method, path string, queryParams []string, needsBotAuth 
 	}
 }
 
-// NewCustomAPIRoute generates a new custom path struct
+// NewCustomAPIRoute generates a new custom path struct.
 func NewCustomAPIRoute(method Method, basePath string, path string, queryParams ...string) *APIRoute {
 	route := NewAPIRoute(method, path, queryParams...)
 	route.basePath = basePath
 	return route
 }
 
-// APIRoute is a basic struct containing Method and URL
+// APIRoute is a basic struct containing Method and URL.
 type APIRoute struct {
 	basePath      string
 	path          string
@@ -48,7 +49,7 @@ type APIRoute struct {
 	needsBotAuth  bool
 }
 
-// Compile returns a CompiledAPIRoute
+// Compile compiles a APIRoute into a CompiledAPIRoute with the given queryValues amd path params.
 func (r *APIRoute) Compile(queryValues QueryValues, params ...any) (*CompiledAPIRoute, error) {
 	if len(params) != r.urlParamCount {
 		return nil, ErrInvalidArgCount(r.urlParamCount, len(params))
@@ -88,22 +89,22 @@ func (r *APIRoute) Compile(queryValues QueryValues, params ...any) (*CompiledAPI
 	}, nil
 }
 
-// Method returns the request method used by the path
+// Method returns the request method used by the path.
 func (r *APIRoute) Method() Method {
 	return r.method
 }
 
-// Path returns the request path used by the path
+// Path returns the request path used by the path.
 func (r *APIRoute) Path() string {
 	return r.path
 }
 
-// NeedsBotAuth returns whether the route requires authentication
+// NeedsBotAuth returns whether the route requires authentication.
 func (r *APIRoute) NeedsBotAuth() bool {
 	return r.needsBotAuth
 }
 
-// CompiledAPIRoute is APIRoute compiled with all URL args
+// CompiledAPIRoute is APIRoute compiled with all URL args.
 type CompiledAPIRoute struct {
 	APIRoute    *APIRoute
 	path        string
@@ -111,12 +112,12 @@ type CompiledAPIRoute struct {
 	majorParams string
 }
 
-// MajorParams returns the major parameter from the request
+// MajorParams returns the major parameter from the request.
 func (r *CompiledAPIRoute) MajorParams() string {
 	return r.majorParams
 }
 
-// URL returns the full URL for the request
+// URL returns the full URL for the request.
 func (r *CompiledAPIRoute) URL() string {
 	u := r.APIRoute.basePath + r.path
 	if r.queryParams != "" {

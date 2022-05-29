@@ -7,41 +7,85 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
+// Caches combines all different entity caches into one with some utility methods.
 type Caches interface {
+	// CacheFlags returns the current configured FLags of the caches.
 	CacheFlags() Flags
 
-	GetMemberPermissions(guildID snowflake.ID, member discord.Member) discord.Permissions
+	// GetMemberPermissions returns the calculated permissions of the given member.
+	// This requires the FlagRoles to be set.
+	GetMemberPermissions(member discord.Member) discord.Permissions
+
+	// GetMemberPermissionsInChannel returns the calculated permissions of the given member in the given channel.
+	// This requires the FlagRoles and FlagChannels to be set.
 	GetMemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member) discord.Permissions
+
+	// MemberRoles returns all roles of the given member.
+	// This requires the FlagRoles to be set.
 	MemberRoles(member discord.Member) []discord.Role
+
+	// AudioChannelMembers returns all members which are in the given audio channel.
+	// This requires the FlagVoiceStates to be set.
 	AudioChannelMembers(channel discord.GuildAudioChannel) []discord.Member
 
+	// GetSelfUser returns the current bot user.
+	// This is only available after we received the discord.GatewayEventTypeReady event.
 	GetSelfUser() (discord.OAuth2User, bool)
+
+	// PutSelfUser overrides the current bot user.
 	PutSelfUser(user discord.OAuth2User)
+
+	// GetSelfMember returns the current bot member from the given guildID.
+	// This is only available after we received the discord.GatewayEventTypeGuildCreate event for the given guildID.
 	GetSelfMember(guildID snowflake.ID) (discord.Member, bool)
 
+	// Roles returns the role cache.
 	Roles() GroupedCache[discord.Role]
+
+	// Members returns the member cache.
 	Members() GroupedCache[discord.Member]
+
+	// ThreadMembers returns the thread member cache.
 	ThreadMembers() GroupedCache[discord.ThreadMember]
+
+	// Presences returns the presence cache.
 	Presences() GroupedCache[discord.Presence]
+
+	// VoiceStates returns the voice state cache.
 	VoiceStates() GroupedCache[discord.VoiceState]
+
+	// Messages returns the message cache.
 	Messages() GroupedCache[discord.Message]
+
+	// Emojis returns the emoji cache.
 	Emojis() GroupedCache[discord.Emoji]
+
+	// Stickers returns the sticker cache.
 	Stickers() GroupedCache[discord.Sticker]
+
+	// Guilds returns the guild cache.
 	Guilds() GuildCache
+
+	// Channels returns the channel cache.
 	Channels() ChannelCache
+
+	// StageInstances returns the stage instance cache.
 	StageInstances() GroupedCache[discord.StageInstance]
+
+	// GuildScheduledEvents returns the guild scheduled event cache.
 	GuildScheduledEvents() GroupedCache[discord.GuildScheduledEvent]
 }
 
-func NewCaches(opts ...ConfigOpt) Caches {
+// New returns a new default Caches instance with the given ConfigOpt(s) applied.
+func New(opts ...ConfigOpt) Caches {
 	config := DefaultConfig()
 	config.Apply(opts)
 
 	return &cachesImpl{
 		config: *config,
 
-		guildCache:               NewGuildCache(config.CacheFlags, FlagGuilds, config.GuildCachePolicy),
-		channelCache:             NewChannelCache(config.CacheFlags, FlagChannels, config.ChannelCachePolicy),
+		guildCache:               NewGuildCache(config.CacheFlags, config.GuildCachePolicy),
+		channelCache:             NewChannelCache(config.CacheFlags, config.ChannelCachePolicy),
 		stageInstanceCache:       NewGroupedCache[discord.StageInstance](config.CacheFlags, FlagStageInstances, config.StageInstanceCachePolicy),
 		guildScheduledEventCache: NewGroupedCache[discord.GuildScheduledEvent](config.CacheFlags, FlagGuildScheduledEvents, config.GuildScheduledEventCachePolicy),
 		roleCache:                NewGroupedCache[discord.Role](config.CacheFlags, FlagRoles, config.RoleCachePolicy),
@@ -79,13 +123,13 @@ func (c *cachesImpl) CacheFlags() Flags {
 	return c.config.CacheFlags
 }
 
-func (c *cachesImpl) GetMemberPermissions(guildID snowflake.ID, member discord.Member) discord.Permissions {
-	if guild, ok := c.Guilds().Get(guildID); ok && guild.OwnerID == member.User.ID {
+func (c *cachesImpl) GetMemberPermissions(member discord.Member) discord.Permissions {
+	if guild, ok := c.Guilds().Get(member.GuildID); ok && guild.OwnerID == member.User.ID {
 		return discord.PermissionsAll
 	}
 
 	var permissions discord.Permissions
-	if publicRole, ok := c.Roles().Get(guildID, guildID); ok {
+	if publicRole, ok := c.Roles().Get(member.GuildID, member.GuildID); ok {
 		permissions = publicRole.Permissions
 	}
 
@@ -102,7 +146,7 @@ func (c *cachesImpl) GetMemberPermissions(guildID snowflake.ID, member discord.M
 }
 
 func (c *cachesImpl) GetMemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member) discord.Permissions {
-	permissions := c.GetMemberPermissions(channel.GuildID(), member)
+	permissions := c.GetMemberPermissions(member)
 	if permissions.Has(discord.PermissionAdministrator) {
 		return discord.PermissionsAll
 	}
@@ -161,7 +205,7 @@ func (c *cachesImpl) MemberRoles(member discord.Member) []discord.Role {
 
 func (c *cachesImpl) AudioChannelMembers(channel discord.GuildAudioChannel) []discord.Member {
 	var members []discord.Member
-	c.VoiceStates().ForEachGroup(channel.GuildID(), func(state discord.VoiceState) {
+	c.VoiceStates().GroupForEach(channel.GuildID(), func(state discord.VoiceState) {
 		if member, ok := c.Members().Get(channel.GuildID(), state.UserID); ok {
 			members = append(members, member)
 		}
