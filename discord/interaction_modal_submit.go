@@ -36,8 +36,8 @@ func (ModalSubmitInteraction) Type() InteractionType {
 func (ModalSubmitInteraction) interaction() {}
 
 type ModalSubmitInteractionData struct {
-	CustomID   CustomID                    `json:"custom_id"`
-	Components map[CustomID]InputComponent `json:"components"`
+	CustomID   CustomID                          `json:"custom_id"`
+	Components map[CustomID]InteractiveComponent `json:"components"`
 }
 
 func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
@@ -54,11 +54,11 @@ func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
 	*d = ModalSubmitInteractionData(iData.modalSubmitInteractionData)
 
 	if len(iData.Components) > 0 {
-		d.Components = make(map[CustomID]InputComponent, len(iData.Components))
+		d.Components = make(map[CustomID]InteractiveComponent, len(iData.Components))
 		for _, containerComponent := range iData.Components {
 			for _, component := range containerComponent.Component.(ContainerComponent).Components() {
-				if inputComponent, ok := component.(InputComponent); ok {
-					d.Components[inputComponent.ID()] = inputComponent
+				if interactiveComponent, ok := component.(InteractiveComponent); ok {
+					d.Components[interactiveComponent.ID()] = interactiveComponent
 				}
 			}
 		}
@@ -66,7 +66,7 @@ func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (d ModalSubmitInteractionData) Component(customID CustomID) (InputComponent, bool) {
+func (d ModalSubmitInteractionData) Component(customID CustomID) (InteractiveComponent, bool) {
 	component, ok := d.Components[customID]
 	return component, ok
 }
