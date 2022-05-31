@@ -32,14 +32,23 @@ func NewStringSelectMenu(customID string, placeholder string, options ...StringS
 	}
 }
 
+// StringSelectMenuComponent represents a select menu component that allows users to select 0 to 25 options from a list of [StringSelectMenuOption].
 type StringSelectMenuComponent struct {
-	ID          int                      `json:"id,omitempty"`
-	CustomID    string                   `json:"custom_id"`
-	Placeholder string                   `json:"placeholder,omitempty"`
-	MinValues   *int                     `json:"min_values,omitempty"`
-	MaxValues   int                      `json:"max_values,omitempty"`
-	Disabled    bool                     `json:"disabled,omitempty"`
-	Options     []StringSelectMenuOption `json:"options,omitempty"`
+	ID          int    `json:"id,omitempty"`
+	CustomID    string `json:"custom_id"`
+	Placeholder string `json:"placeholder,omitempty"`
+	// MinValues is the minimum number of options that can be selected.
+	// Defaults to 1. Minimum is 0. Maximum is 25.
+	MinValues *int `json:"min_values,omitempty"`
+	// MaxValues is the maximum number of options that can be selected.
+	// Defaults to 1. Maximum is 25.
+	MaxValues int                      `json:"max_values,omitempty"`
+	Disabled  bool                     `json:"disabled,omitempty"`
+	Options   []StringSelectMenuOption `json:"options,omitempty"`
+	// Required Indicates if the select menu is required to submit the Modal.
+	Required bool `json:"required,omitempty"`
+	// Values is only set when the StringSelectMenuComponent is received from an InteractionTypeModalSubmit
+	Values []string `json:"values,omitempty"`
 }
 
 func (c StringSelectMenuComponent) MarshalJSON() ([]byte, error) {
@@ -68,6 +77,7 @@ func (c StringSelectMenuComponent) GetCustomID() string {
 func (StringSelectMenuComponent) component()            {}
 func (StringSelectMenuComponent) interactiveComponent() {}
 func (StringSelectMenuComponent) selectMenuComponent()  {}
+func (StringSelectMenuComponent) labelSubComponent()    {}
 
 // WithCustomID returns a new StringSelectMenuComponent with the provided customID
 func (c StringSelectMenuComponent) WithCustomID(customID string) StringSelectMenuComponent {
@@ -142,8 +152,15 @@ func (c StringSelectMenuComponent) RemoveOption(index int) StringSelectMenuCompo
 	return c
 }
 
-func (c StringSelectMenuComponent) WithID(i int) InteractiveComponent {
+// WithID returns a new StringSelectMenuComponent with the provided ID
+func (c StringSelectMenuComponent) WithID(i int) StringSelectMenuComponent {
 	c.ID = i
+	return c
+}
+
+// WithRequired returns a new StringSelectMenuComponent with the provided required value
+func (c StringSelectMenuComponent) WithRequired(required bool) StringSelectMenuComponent {
+	c.Required = required
 	return c
 }
 

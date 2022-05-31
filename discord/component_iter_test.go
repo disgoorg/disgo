@@ -11,8 +11,8 @@ func TestComponentIter(t *testing.T) {
 		NewSmallSeparator().WithID(4),
 		NewActionRow(
 			NewStringSelectMenu("select1", "select1",
-				StringSelectMenuOption{Label: "option1", Value: "option1"},
-				StringSelectMenuOption{Label: "option2", Value: "option21"},
+				NewStringSelectMenuOption("option1", "option1"),
+				NewStringSelectMenuOption("option2", "option21"),
 			).WithID(6),
 		).WithID(5),
 		NewSection(
@@ -28,13 +28,21 @@ func TestComponentIter(t *testing.T) {
 				NewTextDisplayf("text%d", 4).WithID(15),
 			).WithID(13),
 		).WithID(10),
+		NewLabel("label1", NewStringSelectMenu("select2", "select2",
+			NewStringSelectMenuOption("option1", "option1"),
+			NewStringSelectMenuOption("option2", "option2"),
+		).WithID(17),
+		).WithID(16),
 	}
 
-	i := 1
+	var i int
 	for c := range componentIter(components) {
+		i++
 		if c.GetID() != i {
 			t.Errorf("expected component with ID %d, got %d", i, c.GetID())
 		}
-		i++
+	}
+	if i != 17 {
+		t.Errorf("expected 17 components, got %d", i)
 	}
 }

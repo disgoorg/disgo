@@ -152,3 +152,25 @@ func (d ModalSubmitInteractionData) Text(customID string) string {
 	}
 	return ""
 }
+
+func (d ModalSubmitInteractionData) StringSelectMenuComponent(customID string) (StringSelectMenuComponent, bool) {
+	if component, ok := d.Component(customID); ok {
+		selectMenuComponent, ok := component.(StringSelectMenuComponent)
+		return selectMenuComponent, ok
+	}
+	return StringSelectMenuComponent{}, false
+}
+
+func (d ModalSubmitInteractionData) OptStringValues(customID string) ([]string, bool) {
+	if selectMenuComponent, ok := d.StringSelectMenuComponent(customID); ok {
+		return selectMenuComponent.Values, true
+	}
+	return nil, false
+}
+
+func (d ModalSubmitInteractionData) StringValues(customID string) []string {
+	if text, ok := d.OptStringValues(customID); ok {
+		return text
+	}
+	return nil
+}
