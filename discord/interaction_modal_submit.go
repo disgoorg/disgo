@@ -57,9 +57,7 @@ func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
 		d.Components = make(map[CustomID]InteractiveComponent, len(iData.Components))
 		for _, containerComponent := range iData.Components {
 			for _, component := range containerComponent.Component.(ContainerComponent).Components() {
-				if interactiveComponent, ok := component.(InteractiveComponent); ok {
-					d.Components[interactiveComponent.ID()] = interactiveComponent
-				}
+				d.Components[component.ID()] = component
 			}
 		}
 	}
