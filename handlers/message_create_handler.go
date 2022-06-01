@@ -30,6 +30,10 @@ func (h *gatewayHandlerMessageCreate) HandleGatewayEvent(client bot.Client, sequ
 
 	client.Caches().Messages().Put(message.ChannelID, message.ID, message)
 
+	if channel, ok := client.Caches().Channels().GetMessageChannel(message.ChannelID); ok {
+		client.Caches().Channels().Put(message.ChannelID, discord.ApplyLastMessageIDToChannel(channel, message.ID))
+	}
+
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 	client.EventManager().DispatchEvent(&events.MessageCreate{
 		GenericMessage: &events.GenericMessage{

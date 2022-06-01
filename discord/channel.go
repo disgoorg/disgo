@@ -995,3 +995,22 @@ func ApplyGuildIDToChannel(channel GuildChannel, guildID snowflake.ID) GuildChan
 		panic("unknown channel type")
 	}
 }
+
+func ApplyLastMessageIDToChannel(channel MessageChannel, lastMessageID snowflake.ID) MessageChannel {
+	switch c := channel.(type) {
+	case GuildTextChannel:
+		c.lastMessageID = &lastMessageID
+		return c
+	case GuildVoiceChannel:
+		c.lastMessageID = &lastMessageID
+		return c
+	case GuildNewsChannel:
+		c.lastMessageID = &lastMessageID
+		return c
+	case GuildThread:
+		c.lastMessageID = &lastMessageID
+		return c
+	default:
+		panic("unknown channel type")
+	}
+}
