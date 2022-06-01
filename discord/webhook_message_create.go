@@ -10,6 +10,8 @@ type WebhookMessageCreate struct {
 	Attachments     []AttachmentCreate   `json:"attachments,omitempty"`
 	Files           []*File              `json:"-"`
 	AllowedMentions *AllowedMentions     `json:"allowed_mentions,omitempty"`
+	Flags           MessageFlags         `json:"flags,omitempty"`
+	ThreadName      string               `json:"thread_name,omitempty"`
 }
 
 // ToBody returns the MessageCreate ready for body

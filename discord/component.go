@@ -39,13 +39,7 @@ type ContainerComponent interface {
 type InteractiveComponent interface {
 	Component
 	ID() CustomID
-	SetID(id CustomID) InteractiveComponent
 	interactiveComponent()
-}
-
-type InputComponent interface {
-	InteractiveComponent
-	inputComponent()
 }
 
 type UnmarshalComponent struct {
@@ -175,6 +169,17 @@ func (c ActionRowComponent) SelectMenus() []SelectMenuComponent {
 		}
 	}
 	return selectMenus
+}
+
+// TextInputs returns all TextInputComponent(s) in the ActionRowComponent
+func (c ActionRowComponent) TextInputs() []TextInputComponent {
+	var textInputs []TextInputComponent
+	for i := range c {
+		if textInput, ok := c[i].(TextInputComponent); ok {
+			textInputs = append(textInputs, textInput)
+		}
+	}
+	return textInputs
 }
 
 // UpdateComponent returns a new ActionRowComponent with the Component which has the customID replaced
@@ -379,11 +384,6 @@ func (c SelectMenuComponent) ID() CustomID {
 	return c.CustomID
 }
 
-func (c SelectMenuComponent) SetID(id CustomID) InteractiveComponent {
-	c.CustomID = id
-	return c
-}
-
 func (SelectMenuComponent) component()            {}
 func (SelectMenuComponent) interactiveComponent() {}
 
@@ -510,7 +510,6 @@ func (o SelectMenuOption) WithDefault(defaultOption bool) SelectMenuOption {
 var (
 	_ Component            = (*TextInputComponent)(nil)
 	_ InteractiveComponent = (*TextInputComponent)(nil)
-	_ InputComponent       = (*TextInputComponent)(nil)
 )
 
 func NewTextInput(customID CustomID, style TextInputStyle, label string) TextInputComponent {
@@ -559,14 +558,8 @@ func (c TextInputComponent) ID() CustomID {
 	return c.CustomID
 }
 
-func (c TextInputComponent) SetID(id CustomID) InteractiveComponent {
-	c.CustomID = id
-	return c
-}
-
 func (TextInputComponent) component()            {}
 func (TextInputComponent) interactiveComponent() {}
-func (TextInputComponent) inputComponent()       {}
 
 // WithCustomID returns a new SelectMenuComponent with the provided customID
 func (c TextInputComponent) WithCustomID(customID CustomID) TextInputComponent {
