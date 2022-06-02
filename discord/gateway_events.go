@@ -286,3 +286,14 @@ type GatewayEventIntegrationDelete struct {
 	GuildID       snowflake.ID  `json:"guild_id"`
 	ApplicationID *snowflake.ID `json:"application_id"`
 }
+
+type VoiceStateUpdate struct {
+	VoiceState
+	Member Member `json:"member"`
+}
+
+type VoiceServerUpdate struct {
+	Token    string       `json:"token"`
+	GuildID  snowflake.ID `json:"guild_id"`
+	Endpoint *string      `json:"endpoint"`
+}

@@ -164,7 +164,6 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message strin
 			g.config.LastSequenceReceived = nil
 		}
 	}
-
 }
 
 func (g *gatewayImpl) Status() Status {
@@ -350,7 +349,7 @@ loop:
 					go g.closeHandlerFunc(g, err)
 				}
 			}
-			break loop
+			return
 		}
 
 		event, err := g.parseGatewayMessage(mt, reader)
@@ -361,10 +360,9 @@ loop:
 
 		switch event.Op {
 		case discord.GatewayOpcodeHello:
+			g.heartbeatInterval = time.Duration(event.D.(discord.GatewayMessageDataHello).HeartbeatInterval) * time.Millisecond
 			g.lastHeartbeatReceived = time.Now().UTC()
 			go g.heartbeat()
-
-			g.heartbeatInterval = time.Duration(event.D.(discord.GatewayMessageDataHello).HeartbeatInterval) * time.Millisecond
 
 			if g.config.LastSequenceReceived == nil || g.config.SessionID == nil {
 				g.identify()

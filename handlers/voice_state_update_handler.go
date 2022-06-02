@@ -13,11 +13,11 @@ func (h *gatewayHandlerVoiceStateUpdate) EventType() discord.GatewayEventType {
 }
 
 func (h *gatewayHandlerVoiceStateUpdate) New() any {
-	return &discord.FullVoiceState{}
+	return &discord.VoiceStateUpdate{}
 }
 
 func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
-	voiceState := *v.(*discord.FullVoiceState)
+	voiceState := *v.(*discord.VoiceStateUpdate)
 	member := voiceState.Member
 
 	oldVoiceState, oldOk := client.Caches().VoiceStates().Get(voiceState.GuildID, voiceState.UserID)
