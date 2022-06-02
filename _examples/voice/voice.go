@@ -9,6 +9,7 @@ import (
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/log"
 )
@@ -19,7 +20,8 @@ var (
 
 func main() {
 	client, err := disgo.New(token,
-		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentsNone)),
+		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuildVoiceStates)),
+		bot.WithEventListenerFunc(messageCreateListener),
 	)
 	if err != nil {
 		log.Fatal("error creating client: ", err)
@@ -35,4 +37,14 @@ func main() {
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-s
+}
+
+func messageCreateListener(e *events.MessageCreate) {
+	connection, err := e.Client().ConnectChannel(context.Background(), *e.Message.GuildID, e.Message.ChannelID)
+	if err != nil {
+		return
+
+	}
+
+	connection.SetSendHandler()
 }

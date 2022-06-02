@@ -9,6 +9,7 @@ import (
 	"github.com/disgoorg/disgo/httpserver"
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/sharding"
+	"github.com/disgoorg/disgo/voice"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -73,6 +74,8 @@ type Client interface {
 	// Connect sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway and connects the bot to the specified channel.
 	Connect(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID) error
 
+	ConnectChannel(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID) (*voice.Connection, error)
+
 	// Disconnect sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway and disconnects the bot from this guild.
 	Disconnect(ctx context.Context, guildID snowflake.ID) error
 
@@ -124,6 +127,8 @@ type clientImpl struct {
 	gateway      gateway.Gateway
 
 	httpServer httpserver.Server
+
+	voiceManager voice.Manager
 
 	caches cache.Caches
 
@@ -233,6 +238,20 @@ func (c *clientImpl) Connect(ctx context.Context, guildID snowflake.ID, channelI
 		return err
 	}
 	return shard.Send(ctx, discord.GatewayOpcodeVoiceStateUpdate, discord.GatewayMessageDataVoiceStateUpdate{
+		GuildID:   guildID,
+		ChannelID: &channelID,
+	})
+}
+
+func (c *clientImpl) ConnectChannel(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID) (*voice.Connection, error) {
+	shard, err := c.Shard(guildID)
+	if err != nil {
+		return nil, err
+	}
+
+	connection := c.voiceManager.NewConnection(guildID, channelID)
+
+	return connection, shard.Send(ctx, discord.GatewayOpcodeVoiceStateUpdate, discord.GatewayMessageDataVoiceStateUpdate{
 		GuildID:   guildID,
 		ChannelID: &channelID,
 	})

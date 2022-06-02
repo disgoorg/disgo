@@ -12,8 +12,10 @@ var (
 	ErrAlreadyConnected = errors.New("already connected")
 )
 
-func NewConnection(guildID snowflake.ID, userID snowflake.ID, opts ...ConfigOpt) *Connection {
-	config := DefaultConfig()
+type ConnectionCreateFunc func(guildID snowflake.ID, userID snowflake.ID, opts ...ConnectionConfigOpt) *Connection
+
+func NewConnection(guildID snowflake.ID, userID snowflake.ID, opts ...ConnectionConfigOpt) *Connection {
+	config := DefaultConnectionConfig()
 	config.Apply(opts)
 
 	return &Connection{
@@ -24,7 +26,7 @@ func NewConnection(guildID snowflake.ID, userID snowflake.ID, opts ...ConfigOpt)
 }
 
 type Connection struct {
-	config  Config
+	config  ConnectionConfig
 	guildID snowflake.ID
 	userID  snowflake.ID
 
@@ -32,12 +34,32 @@ type Connection struct {
 	sessionID string
 	token     string
 	endpoint  string
+	ssrc      uint32
+
+	sendHandler    SendHandler
+	receiveHandler ReceiveHandler
 
 	gateway *Gateway
 	conn    *UDPConn
 }
 
-func (c *Connection) HandleVoiceStateUpdate(update discord.VoiceStateUpdate) {
+func (c *Connection) Gateway() *Gateway {
+	return c.gateway
+}
+
+func (c *Connection) UDPConn() *UDPConn {
+	return c.conn
+}
+
+func (c *Connection) SetSendHandler(handler SendHandler) {
+	c.sendHandler = handler
+}
+
+func (c *Connection) SetReceiveHandler(handler ReceiveHandler) {
+	c.receiveHandler = handler
+}
+
+func (c *Connection) HandleVoiceStateUpdate(update discord.VoiceState) {
 	if update.GuildID != c.guildID || update.UserID != c.userID {
 		return
 	}
@@ -47,8 +69,6 @@ func (c *Connection) HandleVoiceStateUpdate(update discord.VoiceStateUpdate) {
 	}
 	c.channelID = *update.ChannelID
 	c.sessionID = update.SessionID
-
-	c.reconnect()
 }
 
 func (c *Connection) HandleVoiceServerUpdate(update discord.VoiceServerUpdate) {
@@ -57,18 +77,37 @@ func (c *Connection) HandleVoiceServerUpdate(update discord.VoiceServerUpdate) {
 	}
 	c.token = update.Token
 	c.endpoint = *update.Endpoint
-	c.reconnect()
+	go c.reconnect()
 }
 
 func (c *Connection) handleGatewayMessage(opCode GatewayOpcode, data GatewayMessageData) {
 	switch d := data.(type) {
 	case GatewayMessageDataReady:
-		c.conn
+		c.ssrc = d.SSRC
+		udpConn := c.config.UDPConnCreateFunc(d.IP, d.Port, d.SSRC)
+		address, port, err := udpConn.Open(context.Background())
+		if err != nil {
+			c.config.Logger.Error("voice: failed to open udp connection. error: ", err)
+			return
+		}
+		if err = c.Gateway().Send(GatewayOpcodeSelectProtocol, GatewayMessageDataSelectProtocol{
+			Protocol: "udp",
+			Data: GatewayMessageDataSelectProtocolData{
+				Address: address,
+				Port:    port,
+				Mode:    EncryptionModeNormal,
+			},
+		}); err != nil {
+			c.config.Logger.Error("voice: failed to send select protocol. error: ", err)
+			return
+		}
+	case GatewayMessageDataSessionDescription:
+		c.conn.HandleGatewayMessageSessionDescription(d)
 	}
 }
 
 func (c *Connection) handleGatewayClose(gateway *Gateway, err error) {
-
+	c.config.Logger.Error("voice gateway closed. error: ", err)
 }
 
 func (c *Connection) Open(ctx context.Context) error {
@@ -81,7 +120,7 @@ func (c *Connection) Open(ctx context.Context) error {
 }
 
 func (c *Connection) reconnect() {
-
+	c.Open(context.Background())
 }
 
 func (c *Connection) Close() {

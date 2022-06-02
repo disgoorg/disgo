@@ -10,6 +10,7 @@ import (
 	"github.com/disgoorg/disgo/internal/tokenhelper"
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/sharding"
+	"github.com/disgoorg/disgo/voice"
 	"github.com/disgoorg/log"
 )
 
@@ -32,6 +33,9 @@ type Config struct {
 
 	EventManager           EventManager
 	EventManagerConfigOpts []EventManagerConfigOpt
+
+	VoiceManager           *voice.Manager
+	VoiceManagerConfigOpts []voice.ManagerConfigOpt
 
 	Gateway           gateway.Gateway
 	GatewayConfigOpts []gateway.ConfigOpt
@@ -219,8 +223,13 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 	}
 	client.restServices = config.Rest
 
+	if config.VoiceManager == nil {
+		config.VoiceManager = voice.NewManager(config.VoiceManagerConfigOpts...)
+
+	}
+
 	if config.EventManager == nil {
-		config.EventManager = NewEventManager(client, config.EventManagerConfigOpts...)
+		config.EventManager = NewEventManager(client, append(config.EventManagerConfigOpts, WithListenerFunc(config.VoiceManager.HandleVoiceStateUpdate), WithListenerFunc(config.VoiceManager.HandleVoiceServerUpdate))...)
 	}
 	client.eventManager = config.EventManager
 

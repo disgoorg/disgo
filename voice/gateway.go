@@ -70,7 +70,7 @@ type Gateway struct {
 	token     string
 	endpoint  string
 
-	ssrc int
+	canResume bool
 
 	conn            *websocket.Conn
 	connMu          sync.Mutex
@@ -126,18 +126,18 @@ func (g *Gateway) Open(ctx context.Context) error {
 
 	go g.listen(g.conn)
 
-	if g.ssrc == 0 {
-		g.status = GatewayStatusIdentifying
-		err = g.Send(GatewayOpcodeIdentify, GatewayMessageDataIdentify{
+	if g.canResume {
+		g.status = GatewayStatusResuming
+		err = g.Send(GatewayOpcodeIdentify, GatewayMessageDataResume{
 			GuildID:   g.guildID,
-			UserID:    g.userID,
 			SessionID: g.sessionID,
 			Token:     g.token,
 		})
 	} else {
-		g.status = GatewayStatusResuming
-		err = g.Send(GatewayOpcodeIdentify, GatewayMessageDataResume{
+		g.status = GatewayStatusIdentifying
+		err = g.Send(GatewayOpcodeIdentify, GatewayMessageDataIdentify{
 			GuildID:   g.guildID,
+			UserID:    g.userID,
 			SessionID: g.sessionID,
 			Token:     g.token,
 		})
@@ -172,7 +172,7 @@ func (g *Gateway) CloseWithCode(code int, message string) {
 
 		// clear resume data as we closed gracefully
 		if code == websocket.CloseNormalClosure || code == websocket.CloseGoingAway {
-			g.ssrc = 0
+			g.canResume = false
 		}
 	}
 }
@@ -220,7 +220,7 @@ loop:
 
 			reconnect := true
 			if closeError, ok := err.(*websocket.CloseError); ok {
-				closeCode := discord.GatewayCloseEventCode(closeError.Code)
+				closeCode := GatewayCloseEventCode(closeError.Code)
 				reconnect = closeCode.ShouldReconnect()
 			} else if errors.Is(err, net.ErrClosed) {
 				// we closed the connection ourselves. Don't try to reconnect here
@@ -228,7 +228,7 @@ loop:
 			} else {
 				g.Logger().Debug("failed to read next message from gateway. error: ", err)
 			}
-
+			g.canResume = reconnect
 			if g.config.AutoReconnect && reconnect {
 				go g.reconnect(context.TODO())
 			} else {
@@ -247,10 +247,6 @@ loop:
 		}
 
 		switch msg := message.D.(type) {
-		case GatewayMessageDataReady:
-			g.status = GatewayStatusWaitingForHello
-			g.ssrc = msg.SSRC
-
 		case GatewayMessageDataHello:
 			g.status = GatewayStatusReady
 			g.heartbeatInterval = time.Duration(msg.HeartbeatInterval) * time.Millisecond
@@ -264,8 +260,6 @@ loop:
 				break loop
 			}
 			g.lastHeartbeatReceived = time.Now().UTC()
-
-		case GatewayMessageData:
 		}
 		g.eventHandlerFunc(message.Op, message.D)
 	}

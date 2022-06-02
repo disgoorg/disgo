@@ -110,7 +110,7 @@ type GatewayMessageDataIdentify struct {
 func (GatewayMessageDataIdentify) voiceGatewayMessageData() {}
 
 type GatewayMessageDataReady struct {
-	SSRC  int      `json:"ssrc"`
+	SSRC  uint32   `json:"ssrc"`
 	IP    string   `json:"ip"`
 	Port  int      `json:"port"`
 	Modes []string `json:"modes"`

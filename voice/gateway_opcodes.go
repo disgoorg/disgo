@@ -21,6 +21,18 @@ const (
 
 type GatewayCloseEventCode int
 
+func (c GatewayCloseEventCode) ShouldReconnect() bool {
+	switch c {
+	case GatewayCloseEventCodeNotAuthenticated, GatewayCloseEventCodeAuthenticationFailed, GatewayCloseEventCodeSessionNoLongerValid,
+		GatewayCloseEventCodeSessionTimedOut, GatewayCloseEventCodeServerNotFound, GatewayCloseEventCodeUnknownProtocol,
+		GatewayCloseEventCodeDisconnected, GatewayCloseEventCodeUnknownEncryptionMode:
+		return false
+
+	default:
+		return true
+	}
+}
+
 const (
 	GatewayCloseEventCodeUnknownOpcode GatewayCloseEventCode = iota + 4001
 	GatewayCloseEventCodeDecodeError
