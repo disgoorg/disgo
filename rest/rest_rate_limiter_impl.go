@@ -19,9 +19,7 @@ func NewRateLimiter(opts ...RateLimiterConfigOpt) RateLimiter {
 	config.Apply(opts)
 
 	rateLimiter := &rateLimiterImpl{
-		config:  *config,
-		hashes:  map[*route.APIRoute]routeHash{},
-		buckets: map[hashMajor]*bucket{},
+		config: *config,
 	}
 
 	go rateLimiter.cleanup()
@@ -40,10 +38,9 @@ type (
 		global int64
 
 		// route.APIRoute -> Hash
-		hashes map[*route.APIRoute]routeHash
+		hashes sync.Map
 		// Hash + Major Parameter -> bucket
-		buckets   map[hashMajor]*bucket
-		bucketsMu sync.Mutex
+		buckets sync.Map
 	}
 )
 
@@ -63,47 +60,50 @@ func (l *rateLimiterImpl) cleanup() {
 }
 
 func (l *rateLimiterImpl) doCleanup() {
-	l.bucketsMu.Lock()
-	defer l.bucketsMu.Unlock()
-	before := len(l.buckets)
+	before := 0
 	now := time.Now()
-	for hash, b := range l.buckets {
+	l.buckets.Range(func(hash, value any) bool {
+		b := value.(*bucket)
 		if b.Reset.Before(now) {
+			before++
 			l.Logger().Debugf("cleaning up bucket, Hash: %s, ID: %s, Reset: %s", hash, b.ID, b.Reset)
-			delete(l.buckets, hash)
+			l.buckets.Delete(hash)
 		}
-	}
-	if before != len(l.buckets) {
-		l.Logger().Debugf("cleaned up %d rate limit buckets", before-len(l.buckets))
+		return true
+	})
+	if before > 0 {
+		l.Logger().Debugf("cleaned up %d rate limit buckets", before)
 	}
 }
 
 func (l *rateLimiterImpl) Close(ctx context.Context) {
 	var wg sync.WaitGroup
-	for i := range l.buckets {
+	l.buckets.Range(func(key, value any) bool {
+		b := value.(*bucket)
 		wg.Add(1)
-		b := l.buckets[i]
 		go func() {
 			_ = b.mu.CLock(ctx)
 			wg.Done()
 		}()
-	}
+		return true
+	})
 	wg.Wait()
 }
 
 func (l *rateLimiterImpl) Reset() {
-	l.buckets = map[hashMajor]*bucket{}
-	l.bucketsMu = sync.Mutex{}
+	l.buckets = sync.Map{}
 	l.global = 0
-	l.hashes = map[*route.APIRoute]routeHash{}
+	l.hashes = sync.Map{}
 }
 
 func (l *rateLimiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor {
-	hash, ok := l.hashes[route.APIRoute]
-	if !ok {
+	var hash routeHash
+	if v, ok := l.hashes.Load(route.APIRoute); ok {
+		hash = v.(routeHash)
+	} else {
 		// generate routeHash
 		hash = routeHash(route.APIRoute.Method().String() + "+" + route.APIRoute.Path())
-		l.hashes[route.APIRoute] = hash
+		l.hashes.Store(route.APIRoute, hash)
 	}
 	if route.MajorParams() != "" {
 		hash += routeHash("+" + route.MajorParams())
@@ -115,13 +115,11 @@ func (l *rateLimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) 
 	hash := l.getRouteHash(route)
 
 	l.Logger().Trace("locking buckets")
-	l.bucketsMu.Lock()
-	defer func() {
-		l.Logger().Trace("unlocking buckets")
-		l.bucketsMu.Unlock()
-	}()
-	b, ok := l.buckets[hash]
-	if !ok {
+	defer l.Logger().Trace("unlocking buckets")
+	var b *bucket
+	if v, ok := l.buckets.Load(hash); ok {
+		b = v.(*bucket)
+	} else {
 		if !create {
 			return nil
 		}
@@ -131,7 +129,7 @@ func (l *rateLimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) 
 			// we don't know the limit yet
 			Limit: -1,
 		}
-		l.buckets[hash] = b
+		l.buckets.Store(hash, b)
 	}
 	return b
 }
