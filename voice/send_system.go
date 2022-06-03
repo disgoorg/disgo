@@ -10,10 +10,9 @@ type SendHandler interface {
 	ProvideOpus() ([]byte, error)
 }
 
-func NewSendSystem(sendHandler SendHandler, connection *Connection, tickInterval time.Duration) SendSystem {
+func NewSendSystem(sendHandler SendHandler, connection *Connection) SendSystem {
 	return &defaultSendSystem{
 		logger:       log.Default(),
-		tickInterval: tickInterval,
 		sendHandler:  sendHandler,
 		connection:   connection,
 		silentFrames: 5,
@@ -26,11 +25,10 @@ type SendSystem interface {
 }
 
 type defaultSendSystem struct {
-	logger       log.Logger
-	tickInterval time.Duration
-	ticker       *time.Ticker
-	sendHandler  SendHandler
-	connection   *Connection
+	logger      log.Logger
+	ticker      *time.Ticker
+	sendHandler SendHandler
+	connection  *Connection
 
 	silentFrames int
 	speaking     bool
@@ -39,7 +37,7 @@ type defaultSendSystem struct {
 func (s *defaultSendSystem) Start() {
 	go func() {
 		defer s.logger.Debug("closing send system")
-		s.ticker = time.NewTicker(s.tickInterval)
+		s.ticker = time.NewTicker(time.Millisecond * 20)
 		defer s.ticker.Stop()
 		for range s.ticker.C {
 			s.send()
@@ -66,20 +64,6 @@ func (s *defaultSendSystem) send() {
 		return
 	}
 
-	/*	if len(opus) == 0 {
-			if s.silentFrames == 0 && s.speaking {
-
-			}
-			if s.silentFrames > 0 {
-
-			}
-			return
-		}
-
-		if !s.speaking {
-
-		}*/
-
 	println("sent opus frame")
 	if _, err = s.connection.UDPConn().Write(opus); err != nil {
 		s.logger.Errorf("failed to send opus data: %s", err)
@@ -93,10 +77,7 @@ func (s *defaultSendSystem) intercept(opus []byte) {
 		s.silentFrames = 5
 		s.speaking = true
 
-		if err := s.connection.Gateway().Send(GatewayOpcodeSpeaking, GatewayMessageDataSpeaking{
-			SSRC:     s.connection.SSRC(),
-			Speaking: SpeakingFlagMicrophone | SpeakingFlagPriority,
-		}); err != nil {
+		if err := s.connection.Speaking(SpeakingFlagMicrophone); err != nil {
 			s.logger.Error("error sending speaking: ", err)
 		}
 	} else if opus == nil && s.speaking {
@@ -106,9 +87,7 @@ func (s *defaultSendSystem) intercept(opus []byte) {
 		}
 
 		s.speaking = false
-		if err := s.connection.Gateway().Send(GatewayOpcodeSpeaking, GatewayMessageDataSpeaking{
-			SSRC: s.connection.SSRC(),
-		}); err != nil {
+		if err := s.connection.Speaking(0); err != nil {
 			s.logger.Error("error sending speaking: ", err)
 		}
 	}
