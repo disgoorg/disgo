@@ -17,6 +17,7 @@ const (
 	_
 	_
 	GatewayOpcodeClientDisconnect
+	GatewayOpcodeGuildSync
 )
 
 type GatewayCloseEventCode int

@@ -80,6 +80,9 @@ func (m *GatewayMessage) UnmarshalJSON(data []byte) error {
 		err = json.Unmarshal(v.D, &d)
 		messageData = d
 
+	case GatewayOpcodeGuildSync:
+		// ignore this opcode
+
 	default:
 		err = errors.New("unknown gateway event type")
 	}
@@ -155,7 +158,7 @@ const (
 
 type GatewayMessageDataSpeaking struct {
 	Speaking SpeakingFlags `json:"speaking"`
-	Delay    int           `json:"delay"`
+	Delay    int           `json:"delay,omitempty"`
 	SSRC     uint32        `json:"ssrc"`
 	UserID   snowflake.ID  `json:"user_id,omitempty"`
 }
@@ -181,6 +184,14 @@ func (GatewayMessageDataResume) voiceGatewayMessageData() {}
 type GatewayMessageDataHeartbeatACK int64
 
 func (GatewayMessageDataHeartbeatACK) voiceGatewayMessageData() {}
+
+type GatewayMessageDataClientConnect struct {
+	UserID     snowflake.ID `json:"user_id"`
+	AudioCodec string       `json:"audio_codec"`
+	VideoCodec string       `json:"video_codec"`
+}
+
+func (GatewayMessageDataClientConnect) voiceGatewayMessageData() {}
 
 type GatewayMessageDataClientDisconnect struct {
 	UserID snowflake.ID `json:"user_id"`

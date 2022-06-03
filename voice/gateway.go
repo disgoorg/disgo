@@ -71,7 +71,7 @@ type Gateway struct {
 	token     string
 	endpoint  string
 
-	canResume bool
+	ssrc uint32
 
 	conn            *websocket.Conn
 	connMu          sync.Mutex
@@ -86,6 +86,10 @@ type Gateway struct {
 
 func (g *Gateway) Logger() log.Logger {
 	return g.config.Logger
+}
+
+func (g *Gateway) SSRC() uint32 {
+	return g.ssrc
 }
 
 func (g *Gateway) Open(ctx context.Context) error {
@@ -153,7 +157,7 @@ func (g *Gateway) CloseWithCode(code int, message string) {
 
 		// clear resume data as we closed gracefully
 		if code == websocket.CloseNormalClosure || code == websocket.CloseGoingAway {
-			g.canResume = false
+			g.ssrc = 0
 		}
 	}
 }
@@ -209,7 +213,6 @@ loop:
 			} else {
 				g.Logger().Debug("failed to read next message from gateway. error: ", err)
 			}
-			g.canResume = reconnect
 			if g.config.AutoReconnect && reconnect {
 				go g.reconnect(context.TODO())
 			} else {
@@ -221,31 +224,20 @@ loop:
 			return
 		}
 
-		buff := &bytes.Buffer{}
-		data, _ := io.ReadAll(io.TeeReader(reader, buff))
-		g.Logger().Infof("received message from gateway. data: %s", string(data))
-
-		message, err := g.parseGatewayMessage(buff)
+		message, err := g.parseGatewayMessage(reader)
 		if err != nil {
 			g.Logger().Error("error while parsing gateway event. error: ", err)
 			continue
 		}
 
-		switch msg := message.D.(type) {
+		switch d := message.D.(type) {
 		case GatewayMessageDataHello:
 			g.status = GatewayStatusWaitingForReady
-			g.heartbeatInterval = time.Duration(msg.HeartbeatInterval) * time.Millisecond
+			g.heartbeatInterval = time.Duration(d.HeartbeatInterval) * time.Millisecond
 			g.lastHeartbeatReceived = time.Now().UTC()
 			go g.heartbeat()
 
-			if g.canResume {
-				g.status = GatewayStatusResuming
-				err = g.Send(GatewayOpcodeIdentify, GatewayMessageDataResume{
-					GuildID:   g.guildID,
-					SessionID: g.sessionID,
-					Token:     g.token,
-				})
-			} else {
+			if g.ssrc == 0 {
 				g.status = GatewayStatusIdentifying
 				err = g.Send(GatewayOpcodeIdentify, GatewayMessageDataIdentify{
 					GuildID:   g.guildID,
@@ -253,15 +245,23 @@ loop:
 					SessionID: g.sessionID,
 					Token:     g.token,
 				})
+			} else {
+				g.status = GatewayStatusResuming
+				err = g.Send(GatewayOpcodeIdentify, GatewayMessageDataResume{
+					GuildID:   g.guildID,
+					SessionID: g.sessionID,
+					Token:     g.token,
+				})
 			}
 
 		case GatewayMessageDataReady:
 			g.status = GatewayStatusReady
+			g.ssrc = d.SSRC
 
 		case GatewayMessageDataHeartbeatACK:
 			g.config.Logger.Debug("received heartbeat ack")
-			if int64(msg) != g.lastNonce {
-				g.Logger().Errorf("received heartbeat ack with nonce: %d, expected nonce: %d", int64(msg), g.lastNonce)
+			if int64(d) != g.lastNonce {
+				g.Logger().Errorf("received heartbeat ack with nonce: %d, expected nonce: %d", int64(d), g.lastNonce)
 				go g.reconnect(context.TODO())
 				break loop
 			}
@@ -269,6 +269,10 @@ loop:
 		}
 		g.eventHandlerFunc(message.Op, message.D)
 	}
+}
+
+func (g *Gateway) Latency() time.Duration {
+	return g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
 }
 
 func (g *Gateway) Send(op GatewayOpcode, d GatewayMessageData) error {
@@ -289,7 +293,7 @@ func (g *Gateway) send(messageType int, data []byte) error {
 		return ErrGatewayNotConnected
 	}
 
-	g.Logger().Trace("sending voice gateway command: ", string(data))
+	g.Logger().Infof("sending message to gateway. data: %s", string(data))
 	return g.conn.WriteMessage(messageType, data)
 }
 
@@ -326,8 +330,12 @@ func (g *Gateway) reconnect(ctx context.Context) {
 }
 
 func (g *Gateway) parseGatewayMessage(reader io.Reader) (GatewayMessage, error) {
+	buff := &bytes.Buffer{}
+	data, _ := io.ReadAll(io.TeeReader(reader, buff))
+	g.Logger().Infof("received message from gateway. data: %s", string(data))
+
 	var message GatewayMessage
-	if err := json.NewDecoder(reader).Decode(&message); err != nil {
+	if err := json.NewDecoder(buff).Decode(&message); err != nil {
 		g.Logger().Error("error decoding voice websocket message: ", err)
 		return GatewayMessage{}, err
 	}
