@@ -6,6 +6,8 @@ import (
 	"github.com/disgoorg/log"
 )
 
+var SilenceFrames = []byte{0xF8, 0xFF, 0xFE}
+
 type SendHandler interface {
 	ProvideOpus() ([]byte, error)
 }
@@ -30,8 +32,9 @@ type defaultSendSystem struct {
 	sendHandler SendHandler
 	connection  *Connection
 
-	silentFrames int
-	speaking     bool
+	silentFrames      int
+	sentSpeakingStop  bool
+	sentSpeakingStart bool
 }
 
 func (s *defaultSendSystem) Start() {
@@ -51,45 +54,38 @@ func (s *defaultSendSystem) send() {
 		s.logger.Errorf("failed to provide opus data: %s", err)
 		return
 	}
-
-	s.intercept(opus)
-	if opus == nil {
+	if len(opus) == 0 {
+		s.logger.Debug("opus data is empty")
 		if s.silentFrames > 0 {
-			println("sent silent frame")
-			if _, err = s.connection.UDPConn().Write([]byte{0xF8, 0xFF, 0xFE}); err != nil {
-				s.logger.Errorf("failed to send opus data: %s", err)
+			println("sending silence")
+			if _, err = s.connection.UDPConn().Write(SilenceFrames); err != nil {
+				s.logger.Errorf("failed to send silence frames: %s", err)
 			}
+			s.silentFrames--
+		} else if !s.sentSpeakingStop {
+			println("sending speaking stop")
+			if err = s.connection.Speaking(0); err != nil {
+				s.logger.Errorf("failed to send speaking stop: %s", err)
+			}
+			s.sentSpeakingStop = true
+			s.sentSpeakingStart = false
 		}
-
 		return
 	}
 
-	println("sent opus frame")
+	if !s.sentSpeakingStart {
+		println("sending speaking start")
+		if err = s.connection.Speaking(SpeakingFlagMicrophone | SpeakingFlagPriority); err != nil {
+			s.logger.Errorf("failed to send speaking start: %s", err)
+		}
+		s.sentSpeakingStart = true
+		s.sentSpeakingStop = false
+		s.silentFrames = 5
+	}
+
+	println("sending opus")
 	if _, err = s.connection.UDPConn().Write(opus); err != nil {
 		s.logger.Errorf("failed to send opus data: %s", err)
-	}
-}
-
-func (s *defaultSendSystem) intercept(opus []byte) {
-	if opus != nil && !s.speaking {
-		println("sent speaking start")
-
-		s.silentFrames = 5
-		s.speaking = true
-
-		if err := s.connection.Speaking(SpeakingFlagMicrophone); err != nil {
-			s.logger.Error("error sending speaking: ", err)
-		}
-	} else if opus == nil && s.speaking {
-		s.silentFrames--
-		if s.silentFrames == 0 {
-			return
-		}
-
-		s.speaking = false
-		if err := s.connection.Speaking(0); err != nil {
-			s.logger.Error("error sending speaking: ", err)
-		}
 	}
 }
 

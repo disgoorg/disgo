@@ -120,45 +120,39 @@ func (c *UDPConn) Read(p []byte) (n int, err error) {
 	return reader.Read(p)
 }
 
-func (c *UDPConn) ReadUser() (ssrc uint32, reader io.Reader) {
+const packetHeaderSize = 12
+
+func (c *UDPConn) ReadUser() (uint32, io.Reader) {
 	for {
 		i, err := c.conn.Read(c.receiveBuffer)
 		if err != nil {
-			return 0, readFunc(func(_ []byte) (int, error) {
-				return 0, ErrDecryptionFailed
-			})
+			return 0, errorReader{err: err}
 		}
 
 		if i < 12 || (c.receiveBuffer[0] != 0x80 && c.receiveBuffer[0] != 0x90) {
 			continue
 		}
 
-		copy(c.receiveNonce[:], c.receiveBuffer[0:12])
+		copy(c.receiveNonce[:], c.receiveBuffer[0:packetHeaderSize])
 
-		var ok bool
-		c.receiveOpus, ok = secretbox.Open(c.receiveBuffer[12:], c.receiveBuffer[12:i], &c.receiveNonce, &c.secretKey)
+		opus, ok := secretbox.Open(c.receiveOpus[:0], c.receiveBuffer[packetHeaderSize:i], &c.receiveNonce, &c.secretKey)
 		if !ok {
-			return 0, readFunc(func(_ []byte) (int, error) {
-				return 0, ErrDecryptionFailed
-			})
+			return 0, errorReader{err: ErrDecryptionFailed}
 		}
 
 		isExtension := c.receiveBuffer[0]&0x10 == 0x10
 		isMarker := c.receiveBuffer[1]&0x80 != 0x0
 
 		if isExtension && !isMarker {
-			extLen := binary.BigEndian.Uint16(c.receiveOpus[2:4])
+			extLen := binary.BigEndian.Uint16(opus[2:4])
 			shift := 4 + 4*int(extLen)
 
-			if len(c.receiveOpus) > shift {
-				c.receiveOpus = c.receiveOpus[shift:]
+			if len(opus) > shift {
+				opus = opus[shift:]
 			}
 		}
-
-		r := bytes.NewReader(c.receiveOpus)
-		return binary.BigEndian.Uint32(c.receiveBuffer[8:12]), readFunc(func(p []byte) (int, error) {
-			return r.Read(p)
-		})
+		ssrc := binary.BigEndian.Uint32(c.receiveBuffer[8:12])
+		return ssrc, bytes.NewReader(opus)
 	}
 }
 
@@ -166,8 +160,10 @@ func (c *UDPConn) Close() {
 	_ = c.conn.Close()
 }
 
-type readFunc func([]byte) (int, error)
+type errorReader struct {
+	err error
+}
 
-func (f readFunc) Read(b []byte) (int, error) {
-	return f(b)
+func (f errorReader) Read(_ []byte) (int, error) {
+	return 0, f.err
 }
