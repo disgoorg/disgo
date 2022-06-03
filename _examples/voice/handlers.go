@@ -72,12 +72,17 @@ func (h *audioSendHandler) CanProvide() bool {
 func (h *audioSendHandler) ProvideOpus() ([]byte, error) {
 	var lenbuf [4]byte
 
-	if _, err := h.reader.Read(lenbuf[:]); err != nil {
+	if _, err := h.reader.Read(lenbuf[:]); err == io.EOF {
+		return nil, nil
+	} else if err != nil {
 		return nil, err
+
 	}
 
 	buf := make([]byte, int64(binary.LittleEndian.Uint32(lenbuf[:])))
-	if _, err := h.reader.Read(buf); err != nil {
+	if _, err := h.reader.Read(buf); err == io.EOF {
+		return nil, nil
+	} else if err != nil {
 		return nil, err
 	}
 

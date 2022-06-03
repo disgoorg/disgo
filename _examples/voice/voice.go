@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io"
 	"os"
 	"os/signal"
 	"syscall"
@@ -25,10 +26,13 @@ func main() {
 
 	logger := log.New(log.LstdFlags | log.Lshortfile)
 	logger.SetLevel(log.LevelInfo)
+
+	file, _ := os.Open("nico.dca")
+	defer file.Close()
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuildVoiceStates), gateway.WithLogger(logger)),
 		bot.WithEventListenerFunc(func(e *events.Ready) {
-			go play(e.Client())
+			go play(e.Client(), file)
 		}),
 	)
 	if err != nil {
@@ -47,7 +51,7 @@ func main() {
 	<-s
 }
 
-func play(client bot.Client) {
+func play(client bot.Client, reader io.Reader) {
 	connection, err := client.ConnectChannel(context.Background(), 817327181659111454, 982083072067530762)
 	if err != nil {
 		client.Logger().Error("error connecting to voice channel: ", err)
@@ -56,7 +60,8 @@ func play(client bot.Client) {
 
 	time.Sleep(2 * time.Second)
 
-	echo := newEchoHandler()
-	connection.SetReceiveHandler(echo)
-	connection.SetSendHandler(echo)
+	connection.SetSendHandler(newReaderSendHandler(reader))
+	// echo := newEchoHandler()
+	// connection.SetReceiveHandler(echo)
+	// connection.SetSendHandler(echo)
 }

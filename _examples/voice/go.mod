@@ -1,4 +1,4 @@
-module voice
+module github.com/disgoorg/disgo/_examples/voice
 
 go 1.18
 
