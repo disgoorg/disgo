@@ -97,7 +97,6 @@ func (l *rateLimiterImpl) Reset() {
 	l.bucketsMu = sync.Mutex{}
 	l.global = 0
 	l.hashes = map[*route.APIRoute]routeHash{}
-	l.hashesMu = sync.Mutex{}
 }
 
 func (l *rateLimiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor {
