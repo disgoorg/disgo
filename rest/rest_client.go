@@ -121,27 +121,28 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 		}
 	}
 
+	for _, check := range config.Checks {
+		if !check() {
+			return discord.ErrCheckFailed
+		}
+	}
+
 	// wait for rate limits
-	err = c.RateLimiter().WaitBucket(config.Ctx, cRoute)
+	lock, err := c.RateLimiter().WaitBucket(config.Ctx, cRoute)
 	if err != nil {
 		return fmt.Errorf("error locking bucket in rest client: %w", err)
 	}
 	rq = rq.WithContext(config.Ctx)
 
-	for _, check := range config.Checks {
-		if !check() {
-			_ = c.RateLimiter().UnlockBucket(cRoute, nil)
-			return discord.ErrCheckFailed
-		}
-	}
-
 	rs, err := c.HTTPClient().Do(config.Request)
 	if err != nil {
-		_ = c.RateLimiter().UnlockBucket(cRoute, nil)
+		lock.Unlock()
 		return fmt.Errorf("error doing request in rest client: %w", err)
 	}
 
-	if err = c.RateLimiter().UnlockBucket(cRoute, rs.Header); err != nil {
+	err = c.RateLimiter().UpdateBucket(cRoute, rs.Header)
+	lock.Unlock()
+	if err != nil {
 		// TODO: should we maybe retry here?
 		return fmt.Errorf("error unlocking bucket in rest client: %w", err)
 	}

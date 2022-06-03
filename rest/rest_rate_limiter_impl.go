@@ -140,11 +140,11 @@ func (l *rateLimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) 
 	return b
 }
 
-func (l *rateLimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error {
+func (l *rateLimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) (sync.Locker, error) {
 	b := l.getBucket(route, true)
 	l.Logger().Tracef("locking rest bucket, ID: %s, Limit: %d, Remaining: %d, Reset: %s", b.ID, b.Limit, b.Remaining, b.Reset)
 	if err := b.mu.CLock(ctx); err != nil {
-		return err
+		return nil, err
 	}
 
 	var until time.Time
@@ -159,28 +159,25 @@ func (l *rateLimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledA
 	if until.After(now) {
 		// TODO: do we want to return early when we know srate limit bigger than ctx deadline?
 		if deadline, ok := ctx.Deadline(); ok && until.After(deadline) {
-			return context.DeadlineExceeded
+			return nil, context.DeadlineExceeded
 		}
 
 		select {
 		case <-ctx.Done():
 			b.mu.Unlock()
-			return ctx.Err()
+			return nil, ctx.Err()
 		case <-time.After(until.Sub(now)):
 		}
 	}
-	return nil
+	return &b.mu, nil
 }
 
-func (l *rateLimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.Header) error {
+func (l *rateLimiterImpl) UpdateBucket(route *route.CompiledAPIRoute, headers http.Header) error {
 	b := l.getBucket(route, false)
 	if b == nil {
 		return nil
 	}
-	defer func() {
-		l.Logger().Tracef("unlocking rest bucket, ID: %s, Limit: %d, Remaining: %d, Reset: %s", b.ID, b.Limit, b.Remaining, b.Reset)
-		b.mu.Unlock()
-	}()
+	defer l.Logger().Tracef("unlocking rest bucket, ID: %s, Limit: %d, Remaining: %d, Reset: %s", b.ID, b.Limit, b.Remaining, b.Reset)
 
 	// no headers provided means we can't update anything and just unlock it
 	if headers == nil {
