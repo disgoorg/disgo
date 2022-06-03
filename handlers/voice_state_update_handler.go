@@ -28,6 +28,10 @@ func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(client bot.Client, s
 	}
 	client.Caches().Members().Put(voiceState.GuildID, voiceState.UserID, member)
 
+	if voiceState.UserID == client.ID() && client.VoiceManager() != nil {
+		client.VoiceManager().HandleVoiceStateUpdate(voiceState.VoiceState)
+	}
+
 	genericGuildVoiceEvent := &events.GenericGuildVoiceState{
 		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 		VoiceState:   voiceState.VoiceState,

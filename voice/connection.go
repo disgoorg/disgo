@@ -3,6 +3,8 @@ package voice
 import (
 	"context"
 	"errors"
+	"sync"
+	"time"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
@@ -22,6 +24,7 @@ func NewConnection(guildID snowflake.ID, userID snowflake.ID, opts ...Connection
 		config:  *config,
 		guildID: guildID,
 		userID:  userID,
+		ssrcs:   map[uint32]snowflake.ID{},
 	}
 }
 
@@ -41,6 +44,19 @@ type Connection struct {
 
 	gateway *Gateway
 	conn    *UDPConn
+
+	ssrcs   map[uint32]snowflake.ID
+	ssrcsMu sync.Mutex
+}
+
+func (c *Connection) UserIDBySSRC(ssrc uint32) snowflake.ID {
+	c.ssrcsMu.Lock()
+	defer c.ssrcsMu.Unlock()
+	return c.ssrcs[ssrc]
+}
+
+func (c *Connection) SSRC() uint32 {
+	return c.ssrc
 }
 
 func (c *Connection) Gateway() *Gateway {
@@ -53,10 +69,12 @@ func (c *Connection) UDPConn() *UDPConn {
 
 func (c *Connection) SetSendHandler(handler SendHandler) {
 	c.sendHandler = handler
+	NewSendSystem(c.sendHandler, c, 20*time.Microsecond).Start()
 }
 
 func (c *Connection) SetReceiveHandler(handler ReceiveHandler) {
 	c.receiveHandler = handler
+	NewReceiveSystem(c.receiveHandler, c).Start()
 }
 
 func (c *Connection) HandleVoiceStateUpdate(update discord.VoiceState) {
@@ -83,9 +101,10 @@ func (c *Connection) HandleVoiceServerUpdate(update discord.VoiceServerUpdate) {
 func (c *Connection) handleGatewayMessage(opCode GatewayOpcode, data GatewayMessageData) {
 	switch d := data.(type) {
 	case GatewayMessageDataReady:
+		println("voice: ready")
 		c.ssrc = d.SSRC
-		udpConn := c.config.UDPConnCreateFunc(d.IP, d.Port, d.SSRC)
-		address, port, err := udpConn.Open(context.Background())
+		c.conn = c.config.UDPConnCreateFunc(d.IP, d.Port, d.SSRC)
+		address, port, err := c.conn.Open(context.Background())
 		if err != nil {
 			c.config.Logger.Error("voice: failed to open udp connection. error: ", err)
 			return
@@ -101,8 +120,25 @@ func (c *Connection) handleGatewayMessage(opCode GatewayOpcode, data GatewayMess
 			c.config.Logger.Error("voice: failed to send select protocol. error: ", err)
 			return
 		}
+
 	case GatewayMessageDataSessionDescription:
+		println("voice: session description")
 		c.conn.HandleGatewayMessageSessionDescription(d)
+
+	case GatewayMessageDataSpeaking:
+		c.ssrcsMu.Lock()
+		defer c.ssrcsMu.Unlock()
+		c.ssrcs[d.SSRC] = d.UserID
+
+	case GatewayMessageDataClientDisconnect:
+		c.ssrcsMu.Lock()
+		defer c.ssrcsMu.Unlock()
+		for ssrc, userID := range c.ssrcs {
+			if userID == d.UserID {
+				delete(c.ssrcs, ssrc)
+				break
+			}
+		}
 	}
 }
 

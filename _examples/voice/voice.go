@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
@@ -19,9 +20,16 @@ var (
 )
 
 func main() {
+	log.SetLevel(log.LevelInfo)
+	log.SetFlags(log.LstdFlags | log.Llongfile)
+
+	logger := log.New(log.LstdFlags | log.Lshortfile)
+	logger.SetLevel(log.LevelInfo)
 	client, err := disgo.New(token,
-		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuildVoiceStates)),
-		bot.WithEventListenerFunc(messageCreateListener),
+		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuildVoiceStates), gateway.WithLogger(logger)),
+		bot.WithEventListenerFunc(func(e *events.Ready) {
+			go play(e.Client())
+		}),
 	)
 	if err != nil {
 		log.Fatal("error creating client: ", err)
@@ -39,12 +47,16 @@ func main() {
 	<-s
 }
 
-func messageCreateListener(e *events.MessageCreate) {
-	connection, err := e.Client().ConnectChannel(context.Background(), *e.Message.GuildID, e.Message.ChannelID)
+func play(client bot.Client) {
+	connection, err := client.ConnectChannel(context.Background(), 817327181659111454, 982083072067530762)
 	if err != nil {
+		client.Logger().Error("error connecting to voice channel: ", err)
 		return
-
 	}
 
-	connection.SetSendHandler()
+	time.Sleep(2 * time.Second)
+
+	echo := newEchoHandler()
+	connection.SetReceiveHandler(echo)
+	connection.SetSendHandler(echo)
 }

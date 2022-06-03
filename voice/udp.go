@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"strings"
 	"sync"
-	"time"
 
 	"golang.org/x/crypto/nacl/secretbox"
 )
@@ -30,10 +30,11 @@ func NewUDPConn(ip string, port int, ssrc uint32, opts ...UDPConnConfigOpt) *UDP
 	config.Apply(opts)
 
 	return &UDPConn{
-		config: *config,
-		ip:     ip,
-		port:   port,
-		ssrc:   ssrc,
+		config:        *config,
+		ip:            ip,
+		port:          port,
+		ssrc:          ssrc,
+		receiveBuffer: make([]byte, 1400),
 	}
 }
 
@@ -64,39 +65,26 @@ func (c *UDPConn) HandleGatewayMessageSessionDescription(data GatewayMessageData
 }
 
 func (c *UDPConn) Open(ctx context.Context) (string, int, error) {
+	fmt.Printf("Opening UDP connection to: %s:%d\n", c.ip, c.port)
 	conn, err := c.config.Dialer.DialContext(ctx, "udp", fmt.Sprintf("%s:%d", c.ip, c.port))
 	if err != nil {
 		return "", 0, err
 	}
 	c.conn = conn
 
-	// ip discovery
-	ssrcBuffer := [70]byte{
-		0x1, 0x2,
-	}
-	binary.BigEndian.PutUint16(ssrcBuffer[2:4], 70)
-	binary.BigEndian.PutUint32(ssrcBuffer[4:8], c.ssrc)
-
-	_, err = conn.Write(ssrcBuffer[:])
-	if err != nil {
+	sb := make([]byte, 70)
+	binary.BigEndian.PutUint32(sb, c.ssrc)
+	if _, err = conn.Write(sb); err != nil {
 		return "", 0, err
 	}
 
-	var addressBuffer [70]byte
-	_, err = io.ReadFull(conn, addressBuffer[:])
-	if err != nil {
+	rb := make([]byte, 70)
+	if _, err = conn.Read(rb); err != nil {
 		return "", 0, err
 	}
 
-	addressBody := addressBuffer[4:68]
-
-	nullPos := bytes.Index(addressBody, []byte{'\x00'})
-	if nullPos < 0 {
-		return "", 0, errors.New("UDP IP discovery did not contain a null terminator")
-	}
-
-	address := addressBody[:nullPos]
-	port := binary.LittleEndian.Uint16(addressBody[68:70])
+	address := rb[4:68]
+	port := binary.BigEndian.Uint16(rb[68:70])
 
 	c.packet = [12]byte{
 		0: 0x80, // Version + Flags
@@ -105,66 +93,81 @@ func (c *UDPConn) Open(ctx context.Context) (string, int, error) {
 		// [4:8] // Timestamp
 	}
 
-	binary.BigEndian.PutUint32(c.packet[8:12], c.ssrc)
+	binary.BigEndian.PutUint32(c.packet[8:12], c.ssrc) // SSRC
 
-	return string(address), int(port), nil
+	return strings.Replace(string(address), "\x00", "", -1), int(port), nil
 }
 
-func (c *UDPConn) Write(frameLength time.Duration) io.Writer {
-	return WriterFunc(func(b []byte) (int, error) {
-		// Write a new sequence.
-		binary.BigEndian.PutUint16(c.packet[2:4], c.sequence)
-		c.sequence++
+func (c *UDPConn) Write(b []byte) (int, error) {
+	//fmt.Printf("Opus: %v\n\n", b)
+	// Write a new sequence.
+	binary.BigEndian.PutUint16(c.packet[2:4], c.sequence)
+	c.sequence++
 
-		binary.BigEndian.PutUint32(c.packet[4:8], c.timestamp)
-		c.timestamp += uint32(frameLength.Milliseconds())
+	binary.BigEndian.PutUint32(c.packet[4:8], c.timestamp)
+	c.timestamp += 960
 
-		// Copy the first 12 bytes from the packet into the nonce.
-		copy(c.nonce[:12], c.packet[:])
+	// Copy the first 12 bytes from the packet into the nonce.
+	copy(c.nonce[:12], c.packet[:])
 
-		return c.conn.Write(secretbox.Seal(c.packet[:12], b, &c.nonce, &c.secretKey))
-	})
+	toSend := secretbox.Seal(c.packet[:12], b, &c.nonce, &c.secretKey)
+	//fmt.Printf("Sending: %v\n\n", toSend)
+	return c.conn.Write(toSend)
 }
 
-func (c *UDPConn) Read(b []byte) (n int, err error) {
-	i, err := c.conn.Read(c.receiveBuffer)
-	if err != nil {
-		return 0, err
-	}
+func (c *UDPConn) Read(p []byte) (n int, err error) {
+	_, reader := c.ReadUser()
+	return reader.Read(p)
+}
 
-	if i < 12 || (c.receiveBuffer[0] != 0x80 && c.receiveBuffer[0] != 0x90) {
-		return 0, ErrInvalidPacket
-	}
-
-	copy(c.receiveNonce[:], c.receiveBuffer[0:12])
-
-	var ok bool
-	c.receiveOpus, ok = secretbox.Open(c.receiveBuffer[12:], c.receiveBuffer[12:], &c.receiveNonce, &c.secretKey)
-	if !ok {
-		return 0, ErrDecryptionFailed
-	}
-
-	isExtension := c.receiveBuffer[0]&0x10 == 0x10
-	isMarker := c.receiveBuffer[1]&0x80 != 0x0
-
-	if isExtension && !isMarker {
-		extLen := binary.BigEndian.Uint16(c.receiveOpus[2:4])
-		shift := 4 + 4*int(extLen)
-
-		if len(c.receiveOpus) > shift {
-			c.receiveOpus = c.receiveOpus[shift:]
+func (c *UDPConn) ReadUser() (ssrc uint32, reader io.Reader) {
+	for {
+		i, err := c.conn.Read(c.receiveBuffer)
+		if err != nil {
+			return 0, readFunc(func(_ []byte) (int, error) {
+				return 0, ErrDecryptionFailed
+			})
 		}
-	}
 
-	return copy(b, c.receiveOpus), nil
+		if i < 12 || (c.receiveBuffer[0] != 0x80 && c.receiveBuffer[0] != 0x90) {
+			continue
+		}
+
+		copy(c.receiveNonce[:], c.receiveBuffer[0:12])
+
+		var ok bool
+		c.receiveOpus, ok = secretbox.Open(c.receiveBuffer[12:], c.receiveBuffer[12:i], &c.receiveNonce, &c.secretKey)
+		if !ok {
+			return 0, readFunc(func(_ []byte) (int, error) {
+				return 0, ErrDecryptionFailed
+			})
+		}
+
+		isExtension := c.receiveBuffer[0]&0x10 == 0x10
+		isMarker := c.receiveBuffer[1]&0x80 != 0x0
+
+		if isExtension && !isMarker {
+			extLen := binary.BigEndian.Uint16(c.receiveOpus[2:4])
+			shift := 4 + 4*int(extLen)
+
+			if len(c.receiveOpus) > shift {
+				c.receiveOpus = c.receiveOpus[shift:]
+			}
+		}
+
+		r := bytes.NewReader(c.receiveOpus)
+		return binary.BigEndian.Uint32(c.receiveBuffer[8:12]), readFunc(func(p []byte) (int, error) {
+			return r.Read(p)
+		})
+	}
 }
 
 func (c *UDPConn) Close() {
 	_ = c.conn.Close()
 }
 
-type WriterFunc func([]byte) (int, error)
+type readFunc func([]byte) (int, error)
 
-func (f WriterFunc) Write(b []byte) (int, error) {
+func (f readFunc) Read(b []byte) (int, error) {
 	return f(b)
 }

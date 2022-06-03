@@ -15,7 +15,7 @@ const (
 	GatewayOpcodeResumed
 	_
 	_
-	GatewayOpcodeClientConnect
+	_
 	GatewayOpcodeClientDisconnect
 )
 

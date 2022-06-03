@@ -225,11 +225,11 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 
 	if config.VoiceManager == nil {
 		config.VoiceManager = voice.NewManager(config.VoiceManagerConfigOpts...)
-
 	}
+	client.voiceManager = config.VoiceManager
 
 	if config.EventManager == nil {
-		config.EventManager = NewEventManager(client, append(config.EventManagerConfigOpts, WithListenerFunc(config.VoiceManager.HandleVoiceStateUpdate), WithListenerFunc(config.VoiceManager.HandleVoiceServerUpdate))...)
+		config.EventManager = NewEventManager(client, config.EventManagerConfigOpts...)
 	}
 	client.eventManager = config.EventManager
 

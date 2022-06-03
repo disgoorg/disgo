@@ -2,15 +2,21 @@ package voice
 
 import (
 	"context"
+	"io"
 
 	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake/v2"
 )
 
-func NewReceiveSystem(receiveHandler ReceiveHandler, connection Connection) ReceiveSystem {
+type ReceiveHandler interface {
+	HandleOpus(userID snowflake.ID, opus []byte)
+}
+
+func NewReceiveSystem(receiveHandler ReceiveHandler, connection *Connection) ReceiveSystem {
 	return &defaultReceiveSystem{
+		logger:         log.Default(),
 		receiveHandler: receiveHandler,
 		connection:     connection,
-		opusBuffer:     make([]byte, 1400),
 	}
 }
 
@@ -25,16 +31,14 @@ type defaultReceiveSystem struct {
 
 	logger         log.Logger
 	receiveHandler ReceiveHandler
-	connection     Connection
-
-	opusBuffer []byte
+	connection     *Connection
 }
 
 func (s *defaultReceiveSystem) Start() {
-	defer s.logger.Debugf("closing receive system")
-	s.ctx, s.cancelFunc = context.WithCancel(context.Background())
-	defer s.cancelFunc()
 	go func() {
+		defer s.logger.Debugf("closing receive system")
+		s.ctx, s.cancelFunc = context.WithCancel(context.Background())
+		defer s.cancelFunc()
 	loop:
 		for {
 			select {
@@ -48,16 +52,18 @@ func (s *defaultReceiveSystem) Start() {
 }
 
 func (s *defaultReceiveSystem) receive() {
-	i, err := s.connection.UDPConn().Read(s.opusBuffer)
+	ssrc, reader := s.connection.UDPConn().ReadUser()
+	data, err := io.ReadAll(reader)
 	if err != nil {
+		s.logger.Errorf("error reading opus data: %s", err)
 		return
 	}
 
-	if s.receiveHandler == nil || !s.receiveHandler.CanReceive() {
+	if s.receiveHandler == nil {
 		return
 	}
 
-	s.receiveHandler.HandleOpus(s.opusBuffer[:i])
+	s.receiveHandler.HandleOpus(s.connection.UserIDBySSRC(ssrc), data)
 }
 
 func (s *defaultReceiveSystem) Stop() {

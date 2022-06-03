@@ -75,11 +75,6 @@ func (m *GatewayMessage) UnmarshalJSON(data []byte) error {
 	case GatewayOpcodeResumed:
 		// no data
 
-	case GatewayOpcodeClientConnect:
-		var d GatewayMessageDataClientConnect
-		err = json.Unmarshal(v.D, &d)
-		messageData = d
-
 	case GatewayOpcodeClientDisconnect:
 		var d GatewayMessageDataClientDisconnect
 		err = json.Unmarshal(v.D, &d)
@@ -119,7 +114,7 @@ type GatewayMessageDataReady struct {
 func (GatewayMessageDataReady) voiceGatewayMessageData() {}
 
 type GatewayMessageDataHello struct {
-	HeartbeatInterval int `json:"heartbeat_interval"`
+	HeartbeatInterval float64 `json:"heartbeat_interval"`
 }
 
 func (GatewayMessageDataHello) voiceGatewayMessageData() {}
@@ -161,7 +156,8 @@ const (
 type GatewayMessageDataSpeaking struct {
 	Speaking SpeakingFlags `json:"speaking"`
 	Delay    int           `json:"delay"`
-	SSRC     int           `json:"ssrc"`
+	SSRC     uint32        `json:"ssrc"`
+	UserID   snowflake.ID  `json:"user_id,omitempty"`
 }
 
 func (GatewayMessageDataSpeaking) voiceGatewayMessageData() {}
@@ -185,14 +181,6 @@ func (GatewayMessageDataResume) voiceGatewayMessageData() {}
 type GatewayMessageDataHeartbeatACK int64
 
 func (GatewayMessageDataHeartbeatACK) voiceGatewayMessageData() {}
-
-type GatewayMessageDataClientConnect struct {
-	UserID    snowflake.ID `json:"user_id"`
-	AudioSSRC int          `json:"audio_ssrc"`
-	VideoSSRC int          `json:"video_ssrc"`
-}
-
-func (GatewayMessageDataClientConnect) voiceGatewayMessageData() {}
 
 type GatewayMessageDataClientDisconnect struct {
 	UserID snowflake.ID `json:"user_id"`

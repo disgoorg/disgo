@@ -3,7 +3,7 @@ package voice
 import (
 	"sync"
 
-	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -11,7 +11,8 @@ func NewManager(opts ...ManagerConfigOpt) *Manager {
 	config := DefaultManagerConfig()
 	config.Apply(opts)
 	return &Manager{
-		config: *config,
+		config:      *config,
+		connections: map[snowflake.ID]*Connection{},
 	}
 }
 
@@ -22,24 +23,24 @@ type Manager struct {
 	connectionsMu sync.Mutex
 }
 
-func (m *Manager) HandleVoiceStateUpdate(update *events.GuildVoiceStateUpdate) {
-	m.connectionsMu.Lock()
-	defer m.connectionsMu.Unlock()
-	connection, ok := m.connections[update.VoiceState.GuildID]
-	if !ok {
-		return
-	}
-	connection.HandleVoiceStateUpdate(update.VoiceState)
-}
-
-func (m *Manager) HandleVoiceServerUpdate(update *events.VoiceServerUpdate) {
+func (m *Manager) HandleVoiceStateUpdate(update discord.VoiceState) {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
 	connection, ok := m.connections[update.GuildID]
 	if !ok {
 		return
 	}
-	connection.HandleVoiceServerUpdate(update.VoiceServerUpdate)
+	connection.HandleVoiceStateUpdate(update)
+}
+
+func (m *Manager) HandleVoiceServerUpdate(update discord.VoiceServerUpdate) {
+	m.connectionsMu.Lock()
+	defer m.connectionsMu.Unlock()
+	connection, ok := m.connections[update.GuildID]
+	if !ok {
+		return
+	}
+	connection.HandleVoiceServerUpdate(update)
 }
 
 func (m *Manager) NewConnection(guildID snowflake.ID, userID snowflake.ID, opts ...ConnectionConfigOpt) *Connection {

@@ -50,6 +50,8 @@ type Client interface {
 	// EventManager returns the EventManager used by the Client.
 	EventManager() EventManager
 
+	VoiceManager() *voice.Manager
+
 	// ConnectGateway connects to the configured gateway.Gateway.
 	ConnectGateway(ctx context.Context) error
 
@@ -128,7 +130,7 @@ type clientImpl struct {
 
 	httpServer httpserver.Server
 
-	voiceManager voice.Manager
+	voiceManager *voice.Manager
 
 	caches cache.Caches
 
@@ -187,6 +189,10 @@ func (c *clientImpl) RemoveEventListeners(listeners ...EventListener) {
 
 func (c *clientImpl) EventManager() EventManager {
 	return c.eventManager
+}
+
+func (c *clientImpl) VoiceManager() *voice.Manager {
+	return c.voiceManager
 }
 
 func (c *clientImpl) ConnectGateway(ctx context.Context) error {
@@ -249,7 +255,7 @@ func (c *clientImpl) ConnectChannel(ctx context.Context, guildID snowflake.ID, c
 		return nil, err
 	}
 
-	connection := c.voiceManager.NewConnection(guildID, channelID)
+	connection := c.voiceManager.NewConnection(guildID, c.ID())
 
 	return connection, shard.Send(ctx, discord.GatewayOpcodeVoiceStateUpdate, discord.GatewayMessageDataVoiceStateUpdate{
 		GuildID:   guildID,
