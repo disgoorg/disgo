@@ -137,6 +137,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 
 	rs, err := c.HTTPClient().Do(config.Request)
 	if err != nil {
+		_ = c.RateLimiter().UnlockBucket(cRoute, nil)
 		return fmt.Errorf("error doing request in rest client: %w", err)
 	}
 

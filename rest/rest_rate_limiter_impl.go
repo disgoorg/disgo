@@ -69,7 +69,7 @@ func (l *rateLimiterImpl) doCleanup() {
 	before := len(l.buckets)
 	now := time.Now()
 	for hash, b := range l.buckets {
-		if b.Reset.Before(now) {
+		if !b.mu.TryLock() && b.Reset.Before(now) {
 			l.Logger().Debugf("cleaning up bucket, Hash: %s, ID: %s, Reset: %s", hash, b.ID, b.Reset)
 			delete(l.buckets, hash)
 		}
