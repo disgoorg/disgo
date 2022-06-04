@@ -238,6 +238,11 @@ loop:
 					Token:     g.state.token,
 				})
 			}
+			if err != nil {
+				g.CloseWithCode(websocket.CloseServiceRestart, "failed to send identify or resume")
+				go g.reconnect(context.TODO())
+				return
+			}
 
 		case GatewayMessageDataReady:
 			g.status = GatewayStatusReady

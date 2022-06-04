@@ -28,7 +28,7 @@ type SendSystem interface {
 
 type defaultSendSystem struct {
 	logger      log.Logger
-	ticker      *time.Ticker
+	closed      bool
 	sendHandler SendHandler
 	connection  *Connection
 
@@ -40,10 +40,18 @@ type defaultSendSystem struct {
 func (s *defaultSendSystem) Start() {
 	go func() {
 		defer s.logger.Debug("closing send system")
-		s.ticker = time.NewTicker(time.Millisecond * 20)
-		defer s.ticker.Stop()
-		for range s.ticker.C {
+		lastFrameSent := time.Now().UnixMilli()
+		for !s.closed {
 			s.send()
+			sleepTime := time.Duration(20 - (time.Now().UnixMilli() - lastFrameSent))
+			if sleepTime > 0 {
+				time.Sleep(sleepTime * time.Millisecond)
+			}
+			if time.Now().UnixMilli() < lastFrameSent+60 {
+				lastFrameSent += 20
+			} else {
+				lastFrameSent = time.Now().UnixMilli()
+			}
 		}
 	}()
 }
@@ -61,9 +69,11 @@ func (s *defaultSendSystem) send() {
 			}
 			s.silentFrames--
 		} else if !s.sentSpeakingStop {
-			if err = s.connection.Speaking(0); err != nil {
-				s.logger.Errorf("failed to send speaking stop: %s", err)
-			}
+			go func() {
+				if err = s.connection.Speaking(0); err != nil {
+					s.logger.Errorf("failed to send speaking stop: %s", err)
+				}
+			}()
 			s.sentSpeakingStop = true
 			s.sentSpeakingStart = false
 		}
@@ -71,9 +81,11 @@ func (s *defaultSendSystem) send() {
 	}
 
 	if !s.sentSpeakingStart {
-		if err = s.connection.Speaking(SpeakingFlagMicrophone | SpeakingFlagPriority); err != nil {
-			s.logger.Errorf("failed to send speaking start: %s", err)
-		}
+		go func() {
+			if err = s.connection.Speaking(SpeakingFlagMicrophone | SpeakingFlagPriority); err != nil {
+				s.logger.Errorf("failed to send speaking start: %s", err)
+			}
+		}()
 		s.sentSpeakingStart = true
 		s.sentSpeakingStop = false
 		s.silentFrames = 5
@@ -85,5 +97,5 @@ func (s *defaultSendSystem) send() {
 }
 
 func (s *defaultSendSystem) Stop() {
-	s.ticker.Stop()
+	s.closed = true
 }

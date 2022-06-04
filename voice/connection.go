@@ -24,8 +24,9 @@ func NewConnection(guildID snowflake.ID, channelID snowflake.ID, userID snowflak
 			userID:    userID,
 			channelID: channelID,
 		},
-		connected: make(chan struct{}),
-		ssrcs:     map[uint32]snowflake.ID{},
+		connected:    make(chan struct{}),
+		disconnected: make(chan struct{}),
+		ssrcs:        map[uint32]snowflake.ID{},
 	}
 }
 
@@ -93,6 +94,7 @@ func (c *Connection) HandleVoiceStateUpdate(update discord.VoiceStateUpdate) {
 	if update.GuildID != c.state.guildID || update.UserID != c.state.userID {
 		return
 	}
+	println("voice: voice state update")
 
 	if update.ChannelID == nil {
 		c.state.channelID = 0
@@ -100,7 +102,6 @@ func (c *Connection) HandleVoiceStateUpdate(update discord.VoiceStateUpdate) {
 		c.state.channelID = *update.ChannelID
 	}
 	c.state.sessionID = update.SessionID
-	go c.reconnect(context.Background())
 }
 
 func (c *Connection) HandleVoiceServerUpdate(update discord.VoiceServerUpdate) {
@@ -109,6 +110,7 @@ func (c *Connection) HandleVoiceServerUpdate(update discord.VoiceServerUpdate) {
 	if update.GuildID != c.state.guildID || update.Endpoint == nil {
 		return
 	}
+	println("voice: voice server update")
 	c.state.token = update.Token
 	c.state.endpoint = *update.Endpoint
 	go c.reconnect(context.Background())
@@ -140,13 +142,12 @@ func (c *Connection) handleGatewayMessage(_ GatewayOpcode, data GatewayMessageDa
 
 	case GatewayMessageDataSessionDescription:
 		c.mu.Lock()
-		defer c.mu.Unlock()
 		println("voice: session description")
 		if c.conn != nil {
 			c.conn.SetSecretKey(d.SecretKey)
 		}
-		close(c.connected)
-		c.disconnected = make(chan struct{})
+		c.mu.Unlock()
+		c.connected <- struct{}{}
 
 	case GatewayMessageDataSpeaking:
 		c.ssrcsMu.Lock()
@@ -167,19 +168,13 @@ func (c *Connection) handleGatewayMessage(_ GatewayOpcode, data GatewayMessageDa
 
 func (c *Connection) handleGatewayClose(gateway *Gateway, err error) {
 	c.config.Logger.Error("voice gateway closed. error: ", err)
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.gateway = nil
-	close(c.disconnected)
+	c.Close()
 }
 
 func (c *Connection) Open(ctx context.Context) error {
 	c.config.Logger.Debug("voice: opening connection")
 	c.mu.Lock()
-	if c.gateway != nil {
-		c.mu.Unlock()
-		return ErrAlreadyConnected
-	}
+
 	c.gateway = c.config.GatewayCreateFunc(c.state, c.handleGatewayMessage, c.handleGatewayClose, c.config.GatewayConfigOpts...)
 	c.mu.Unlock()
 	return c.gateway.Open(ctx)
@@ -199,9 +194,8 @@ func (c *Connection) reconnect(ctx context.Context) {
 
 func (c *Connection) Close() {
 	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	if c.gateway == nil && c.conn == nil {
+		c.mu.Unlock()
 		return
 	}
 
@@ -214,6 +208,8 @@ func (c *Connection) Close() {
 		c.gateway.Close()
 		c.gateway = nil
 	}
+	c.mu.Unlock()
+	c.disconnected <- struct{}{}
 }
 
 func (c *Connection) WaitUntilConnected(ctx context.Context) error {

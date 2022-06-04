@@ -1,7 +1,6 @@
 package voice
 
 import (
-	"bytes"
 	"context"
 	"encoding/binary"
 	"errors"
@@ -10,6 +9,7 @@ import (
 	"net"
 	"strings"
 	"sync"
+	"time"
 
 	"golang.org/x/crypto/nacl/secretbox"
 )
@@ -65,21 +65,23 @@ func (c *UDPConn) SetSecretKey(secretKey [32]byte) {
 }
 
 func (c *UDPConn) Open(ctx context.Context) (string, int, error) {
+	c.connMu.Lock()
+	defer c.connMu.Unlock()
 	fmt.Printf("Opening UDP connection to: %s:%d\n", c.ip, c.port)
-	conn, err := c.config.Dialer.DialContext(ctx, "udp", fmt.Sprintf("%s:%d", c.ip, c.port))
+	var err error
+	c.conn, err = c.config.Dialer.DialContext(ctx, "udp", fmt.Sprintf("%s:%d", c.ip, c.port))
 	if err != nil {
 		return "", 0, err
 	}
-	c.conn = conn
 
 	sb := make([]byte, 70)
 	binary.BigEndian.PutUint32(sb, c.ssrc)
-	if _, err = conn.Write(sb); err != nil {
+	if _, err = c.conn.Write(sb); err != nil {
 		return "", 0, err
 	}
 
 	rb := make([]byte, 70)
-	if _, err = conn.Read(rb); err != nil {
+	if _, err = c.conn.Read(rb); err != nil {
 		return "", 0, err
 	}
 
@@ -109,24 +111,47 @@ func (c *UDPConn) Write(b []byte) (int, error) {
 	// Copy the first 12 bytes from the packet into the nonce.
 	copy(c.nonce[:12], c.packet[:])
 
-	if _, err := c.conn.Write(secretbox.Seal(c.packet[:12], b, &c.nonce, &c.secretKey)); err != nil {
+	c.connMu.Lock()
+	conn := c.conn
+	c.connMu.Unlock()
+	if _, err := conn.Write(secretbox.Seal(c.packet[:12], b, &c.nonce, &c.secretKey)); err != nil {
 		return 0, err
 	}
 	return len(b), nil
 }
 
 func (c *UDPConn) Read(p []byte) (n int, err error) {
-	_, reader := c.ReadUser()
-	return reader.Read(p)
+	packet, err := c.ReadPacket()
+	if err != nil {
+		return 0, err
+	}
+	return copy(p, packet.Opus), nil
 }
 
 const packetHeaderSize = 12
 
-func (c *UDPConn) ReadUser() (uint32, io.Reader) {
+type Packet struct {
+	SSRC      uint32
+	Sequence  uint16
+	Timestamp uint32
+	Opus      []byte
+}
+
+func (c *UDPConn) SetDeadline(t time.Time) error {
+	c.connMu.Lock()
+	defer c.connMu.Unlock()
+	return c.conn.SetDeadline(t)
+}
+
+func (c *UDPConn) ReadPacket() (*Packet, error) {
+	c.connMu.Lock()
+	conn := c.conn
+	c.connMu.Unlock()
+
 	for {
-		i, err := c.conn.Read(c.receiveBuffer)
+		i, err := conn.Read(c.receiveBuffer)
 		if err != nil {
-			return 0, errorReader{err: err}
+			return nil, err
 		}
 
 		if i < 12 || (c.receiveBuffer[0] != 0x80 && c.receiveBuffer[0] != 0x90) {
@@ -137,7 +162,7 @@ func (c *UDPConn) ReadUser() (uint32, io.Reader) {
 
 		opus, ok := secretbox.Open(c.receiveOpus[:0], c.receiveBuffer[packetHeaderSize:i], &c.receiveNonce, &c.secretKey)
 		if !ok {
-			return 0, errorReader{err: ErrDecryptionFailed}
+			return nil, ErrDecryptionFailed
 		}
 
 		isExtension := c.receiveBuffer[0]&0x10 == 0x10
@@ -152,11 +177,18 @@ func (c *UDPConn) ReadUser() (uint32, io.Reader) {
 			}
 		}
 		ssrc := binary.BigEndian.Uint32(c.receiveBuffer[8:12])
-		return ssrc, bytes.NewReader(opus)
+		return &Packet{
+			SSRC:      ssrc,
+			Sequence:  binary.BigEndian.Uint16(c.receiveBuffer[2:4]),
+			Timestamp: binary.BigEndian.Uint32(c.receiveBuffer[4:8]),
+			Opus:      opus,
+		}, nil
 	}
 }
 
 func (c *UDPConn) Close() {
+	c.connMu.Lock()
+	defer c.connMu.Unlock()
 	_ = c.conn.Close()
 }
 

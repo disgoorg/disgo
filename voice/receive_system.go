@@ -2,14 +2,13 @@ package voice
 
 import (
 	"context"
-	"io"
 
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 )
 
 type ReceiveHandler interface {
-	HandleOpus(userID snowflake.ID, opus []byte)
+	HandleOpus(userID snowflake.ID, packet *Packet)
 }
 
 func NewReceiveSystem(receiveHandler ReceiveHandler, connection *Connection) ReceiveSystem {
@@ -52,18 +51,14 @@ func (s *defaultReceiveSystem) Start() {
 }
 
 func (s *defaultReceiveSystem) receive() {
-	ssrc, reader := s.connection.UDPConn().ReadUser()
-	data, err := io.ReadAll(reader)
+	packet, err := s.connection.UDPConn().ReadPacket()
 	if err != nil {
-		s.logger.Errorf("error reading opus data: %s", err)
+		s.logger.Errorf("error while reading packet: %s", err)
 		return
 	}
-
-	if s.receiveHandler == nil {
-		return
+	if s.receiveHandler != nil {
+		s.receiveHandler.HandleOpus(s.connection.UserIDBySSRC(packet.SSRC), packet)
 	}
-
-	s.receiveHandler.HandleOpus(s.connection.UserIDBySSRC(ssrc), data)
 }
 
 func (s *defaultReceiveSystem) Stop() {

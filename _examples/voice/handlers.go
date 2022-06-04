@@ -38,20 +38,19 @@ func (h *echoHandler) ProvideOpus() ([]byte, error) {
 	return buff, nil
 }
 
-func (h *echoHandler) HandleOpus(userID snowflake.ID, opus []byte) {
+func (h *echoHandler) HandleOpus(userID snowflake.ID, packet *voice.Packet) {
 	if userID != 170939974227591168 {
 		return
 	}
 	h.queueMu.Lock()
 	defer h.queueMu.Unlock()
 
-	if len(h.queue) > 10 {
+	if len(h.queue) > 60 {
+		println("dropping opus cause queue is full")
 		return
 	}
 
-	newBuff := make([]byte, len(opus))
-	copy(newBuff, opus)
-	h.queue = append(h.queue, newBuff)
+	h.queue = append(h.queue, packet.Opus)
 }
 
 func newReaderSendHandler(reader io.Reader) voice.SendHandler {

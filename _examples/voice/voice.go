@@ -58,13 +58,17 @@ func play(client bot.Client, reader io.Reader) {
 
 	//connection.SetSendHandler(newReaderSendHandler(reader))
 	/*
-		if err = connection.Speaking(voice.SpeakingFlagMicrophone); err != nil {
-			panic("error setting speaking flag: " + err.Error())
-		}
-		writeOpus(connection.UDPConn(), reader)
+			if err = connection.Speaking(voice.SpeakingFlagMicrophone); err != nil {
+				panic("error setting speaking flag: " + err.Error())
+			}
+			writeOpus(connection.UDPConn(), reader)
+
+		connection.UDPConn().ReadUser()
 	*/
 
 	echo := newEchoHandler()
 	connection.SetSendHandler(echo)
 	connection.SetReceiveHandler(echo)
+
+	//newEcho2(connection)
 }
