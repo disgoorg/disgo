@@ -21,7 +21,6 @@ func (h *gatewayHandlerVoiceServerUpdate) HandleGatewayEvent(client bot.Client, 
 
 	if client.VoiceManager() != nil {
 		client.VoiceManager().HandleVoiceServerUpdate(payload)
-		return
 	}
 
 	client.EventManager().DispatchEvent(&events.VoiceServerUpdate{

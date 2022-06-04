@@ -158,7 +158,7 @@ const (
 
 type GatewayMessageDataSpeaking struct {
 	Speaking SpeakingFlags `json:"speaking"`
-	Delay    int           `json:"delay,omitempty"`
+	Delay    int           `json:"delay"`
 	SSRC     uint32        `json:"ssrc"`
 	UserID   snowflake.ID  `json:"user_id,omitempty"`
 }

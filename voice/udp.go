@@ -60,8 +60,8 @@ type UDPConn struct {
 	receiveOpus   []byte
 }
 
-func (c *UDPConn) HandleGatewayMessageSessionDescription(data GatewayMessageDataSessionDescription) {
-	c.secretKey = data.SecretKey
+func (c *UDPConn) SetSecretKey(secretKey [32]byte) {
+	c.secretKey = secretKey
 }
 
 func (c *UDPConn) Open(ctx context.Context) (string, int, error) {
@@ -100,7 +100,6 @@ func (c *UDPConn) Open(ctx context.Context) (string, int, error) {
 
 func (c *UDPConn) Write(b []byte) (int, error) {
 	//fmt.Printf("Opus: %v\n\n", b)
-	// Write a new sequence.
 	binary.BigEndian.PutUint16(c.packet[2:4], c.sequence)
 	c.sequence++
 
@@ -110,9 +109,10 @@ func (c *UDPConn) Write(b []byte) (int, error) {
 	// Copy the first 12 bytes from the packet into the nonce.
 	copy(c.nonce[:12], c.packet[:])
 
-	toSend := secretbox.Seal(c.packet[:12], b, &c.nonce, &c.secretKey)
-	//fmt.Printf("Sending: %v\n\n", toSend)
-	return c.conn.Write(toSend)
+	if _, err := c.conn.Write(secretbox.Seal(c.packet[:12], b, &c.nonce, &c.secretKey)); err != nil {
+		return 0, err
+	}
+	return len(b), nil
 }
 
 func (c *UDPConn) Read(p []byte) (n int, err error) {

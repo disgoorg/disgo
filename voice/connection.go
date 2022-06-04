@@ -9,26 +9,27 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-var (
-	ErrAlreadyConnected = errors.New("already connected")
-)
+var ErrAlreadyConnected = errors.New("already connected")
 
-type ConnectionCreateFunc func(guildID snowflake.ID, userID snowflake.ID, opts ...ConnectionConfigOpt) *Connection
+type ConnectionCreateFunc func(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, opts ...ConnectionConfigOpt) *Connection
 
-func NewConnection(guildID snowflake.ID, userID snowflake.ID, opts ...ConnectionConfigOpt) *Connection {
+func NewConnection(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, opts ...ConnectionConfigOpt) *Connection {
 	config := DefaultConnectionConfig()
 	config.Apply(opts)
 
 	return &Connection{
-		config:  *config,
-		guildID: guildID,
-		userID:  userID,
-		ssrcs:   map[uint32]snowflake.ID{},
+		config: *config,
+		state: State{
+			guildID:   guildID,
+			userID:    userID,
+			channelID: channelID,
+		},
+		connected: make(chan struct{}),
+		ssrcs:     map[uint32]snowflake.ID{},
 	}
 }
 
-type Connection struct {
-	config  ConnectionConfig
+type State struct {
 	guildID snowflake.ID
 	userID  snowflake.ID
 
@@ -36,9 +37,18 @@ type Connection struct {
 	sessionID string
 	token     string
 	endpoint  string
+}
 
+type Connection struct {
+	config ConnectionConfig
+
+	state   State
 	gateway *Gateway
 	conn    *UDPConn
+	mu      sync.Mutex
+
+	connected    chan struct{}
+	disconnected chan struct{}
 
 	ssrcs   map[uint32]snowflake.ID
 	ssrcsMu sync.Mutex
@@ -51,6 +61,8 @@ func (c *Connection) UserIDBySSRC(ssrc uint32) snowflake.ID {
 }
 
 func (c *Connection) Gateway() *Gateway {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	return c.gateway
 }
 
@@ -62,6 +74,8 @@ func (c *Connection) Speaking(flags SpeakingFlags) error {
 }
 
 func (c *Connection) UDPConn() *UDPConn {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	return c.conn
 }
 
@@ -73,32 +87,42 @@ func (c *Connection) SetReceiveHandler(handler ReceiveHandler) {
 	NewReceiveSystem(handler, c).Start()
 }
 
-func (c *Connection) HandleVoiceStateUpdate(update discord.VoiceState) {
-	if update.GuildID != c.guildID || update.UserID != c.userID {
+func (c *Connection) HandleVoiceStateUpdate(update discord.VoiceStateUpdate) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if update.GuildID != c.state.guildID || update.UserID != c.state.userID {
 		return
 	}
+
 	if update.ChannelID == nil {
-		c.Close()
-		return
+		c.state.channelID = 0
+	} else {
+		c.state.channelID = *update.ChannelID
 	}
-	c.channelID = *update.ChannelID
-	c.sessionID = update.SessionID
+	c.state.sessionID = update.SessionID
+	go c.reconnect(context.Background())
 }
 
 func (c *Connection) HandleVoiceServerUpdate(update discord.VoiceServerUpdate) {
-	if update.GuildID != c.guildID || update.Endpoint == nil {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if update.GuildID != c.state.guildID || update.Endpoint == nil {
 		return
 	}
-	c.token = update.Token
-	c.endpoint = *update.Endpoint
-	go c.reconnect()
+	c.state.token = update.Token
+	c.state.endpoint = *update.Endpoint
+	go c.reconnect(context.Background())
 }
 
-func (c *Connection) handleGatewayMessage(opCode GatewayOpcode, data GatewayMessageData) {
+func (c *Connection) handleGatewayMessage(_ GatewayOpcode, data GatewayMessageData) {
 	switch d := data.(type) {
 	case GatewayMessageDataReady:
-		c.conn = c.config.UDPConnCreateFunc(d.IP, d.Port, d.SSRC)
-		address, port, err := c.conn.Open(context.Background())
+		c.mu.Lock()
+		println("voice: ready")
+		conn := c.config.UDPConnCreateFunc(d.IP, d.Port, d.SSRC)
+		c.conn = conn
+		c.mu.Unlock()
+		address, port, err := conn.Open(context.Background())
 		if err != nil {
 			c.config.Logger.Error("voice: failed to open udp connection. error: ", err)
 			return
@@ -112,11 +136,17 @@ func (c *Connection) handleGatewayMessage(opCode GatewayOpcode, data GatewayMess
 			},
 		}); err != nil {
 			c.config.Logger.Error("voice: failed to send select protocol. error: ", err)
-			return
 		}
 
 	case GatewayMessageDataSessionDescription:
-		c.conn.HandleGatewayMessageSessionDescription(d)
+		c.mu.Lock()
+		defer c.mu.Unlock()
+		println("voice: session description")
+		if c.conn != nil {
+			c.conn.SetSecretKey(d.SecretKey)
+		}
+		close(c.connected)
+		c.disconnected = make(chan struct{})
 
 	case GatewayMessageDataSpeaking:
 		c.ssrcsMu.Lock()
@@ -137,24 +167,69 @@ func (c *Connection) handleGatewayMessage(opCode GatewayOpcode, data GatewayMess
 
 func (c *Connection) handleGatewayClose(gateway *Gateway, err error) {
 	c.config.Logger.Error("voice gateway closed. error: ", err)
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.gateway = nil
+	close(c.disconnected)
 }
 
 func (c *Connection) Open(ctx context.Context) error {
 	c.config.Logger.Debug("voice: opening connection")
+	c.mu.Lock()
 	if c.gateway != nil {
+		c.mu.Unlock()
 		return ErrAlreadyConnected
 	}
-	c.gateway = c.config.GatewayCreateFunc(c.guildID, c.userID, c.sessionID, c.token, c.endpoint, c.handleGatewayMessage, c.handleGatewayClose, c.config.GatewayConfigOpts...)
+	c.gateway = c.config.GatewayCreateFunc(c.state, c.handleGatewayMessage, c.handleGatewayClose, c.config.GatewayConfigOpts...)
+	c.mu.Unlock()
 	return c.gateway.Open(ctx)
 }
 
-func (c *Connection) reconnect() {
-	c.Open(context.Background())
+func (c *Connection) reconnect(ctx context.Context) {
+	c.mu.Lock()
+	if c.state.endpoint == "" || c.state.token == "" {
+		c.mu.Unlock()
+		return
+	}
+	c.mu.Unlock()
+	if err := c.Open(ctx); err != nil {
+		c.config.Logger.Error("failed to reconnect to voice gateway. error: ", err)
+	}
 }
 
 func (c *Connection) Close() {
-	c.conn.Close()
-	c.conn = nil
-	c.gateway.Close()
-	c.gateway = nil
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.gateway == nil && c.conn == nil {
+		return
+	}
+
+	if c.conn != nil {
+		c.conn.Close()
+		c.conn = nil
+	}
+
+	if c.gateway != nil {
+		c.gateway.Close()
+		c.gateway = nil
+	}
+}
+
+func (c *Connection) WaitUntilConnected(ctx context.Context) error {
+	select {
+	case <-c.connected:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+}
+
+func (c *Connection) WaitUntilDisconnected(ctx context.Context) error {
+	select {
+	case <-c.disconnected:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 }

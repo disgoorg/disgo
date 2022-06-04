@@ -55,15 +55,12 @@ func (s *defaultSendSystem) send() {
 		return
 	}
 	if len(opus) == 0 {
-		s.logger.Debug("opus data is empty")
 		if s.silentFrames > 0 {
-			println("sending silence")
 			if _, err = s.connection.UDPConn().Write(SilenceFrames); err != nil {
 				s.logger.Errorf("failed to send silence frames: %s", err)
 			}
 			s.silentFrames--
 		} else if !s.sentSpeakingStop {
-			println("sending speaking stop")
 			if err = s.connection.Speaking(0); err != nil {
 				s.logger.Errorf("failed to send speaking stop: %s", err)
 			}
@@ -74,7 +71,6 @@ func (s *defaultSendSystem) send() {
 	}
 
 	if !s.sentSpeakingStart {
-		println("sending speaking start")
 		if err = s.connection.Speaking(SpeakingFlagMicrophone | SpeakingFlagPriority); err != nil {
 			s.logger.Errorf("failed to send speaking start: %s", err)
 		}
@@ -83,7 +79,6 @@ func (s *defaultSendSystem) send() {
 		s.silentFrames = 5
 	}
 
-	println("sending opus")
 	if _, err = s.connection.UDPConn().Write(opus); err != nil {
 		s.logger.Errorf("failed to send opus data: %s", err)
 	}

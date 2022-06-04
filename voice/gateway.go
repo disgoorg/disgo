@@ -14,7 +14,6 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake/v2"
 	"github.com/gorilla/websocket"
 )
 
@@ -41,10 +40,10 @@ const (
 type (
 	EventHandlerFunc  func(opCode GatewayOpcode, data GatewayMessageData)
 	CloseHandlerFunc  func(gateway *Gateway, err error)
-	GatewayCreateFunc func(guildID snowflake.ID, userID snowflake.ID, sessionID string, token string, endpoint string, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) *Gateway
+	GatewayCreateFunc func(state State, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) *Gateway
 )
 
-func NewGateway(guildID snowflake.ID, userID snowflake.ID, sessionID string, token string, endpoint string, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) *Gateway {
+func NewGateway(state State, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) *Gateway {
 	config := DefaultGatewayConfig()
 	config.Apply(opts)
 
@@ -52,11 +51,7 @@ func NewGateway(guildID snowflake.ID, userID snowflake.ID, sessionID string, tok
 		config:           *config,
 		eventHandlerFunc: eventHandlerFunc,
 		closeHandlerFunc: closeHandlerFunc,
-		guildID:          guildID,
-		userID:           userID,
-		sessionID:        sessionID,
-		token:            token,
-		endpoint:         endpoint,
+		state:            state,
 	}
 }
 
@@ -64,21 +59,15 @@ type Gateway struct {
 	config           GatewayConfig
 	eventHandlerFunc EventHandlerFunc
 	closeHandlerFunc CloseHandlerFunc
-
-	guildID   snowflake.ID
-	userID    snowflake.ID
-	sessionID string
-	token     string
-	endpoint  string
+	state            State
 
 	ssrc uint32
 
-	conn            *websocket.Conn
-	connMu          sync.Mutex
-	heartbeatTicker *time.Ticker
-	status          GatewayStatus
+	conn   *websocket.Conn
+	status GatewayStatus
+	mu     sync.Mutex
 
-	heartbeatInterval     time.Duration
+	heartbeatTicker       *time.Ticker
 	lastHeartbeatSent     time.Time
 	lastHeartbeatReceived time.Time
 	lastNonce             int64
@@ -95,14 +84,15 @@ func (g *Gateway) SSRC() uint32 {
 func (g *Gateway) Open(ctx context.Context) error {
 	g.Logger().Debug("opening voice gateway connection")
 
-	g.connMu.Lock()
-	defer g.connMu.Unlock()
+	g.mu.Lock()
+	defer g.mu.Unlock()
 	if g.conn != nil {
 		return ErrGatewayAlreadyConnected
 	}
 	g.status = GatewayStatusConnecting
 
-	gatewayURL := fmt.Sprintf("wss://%s?v=%d", g.endpoint, GatewayVersion)
+	gatewayURL := fmt.Sprintf("wss://%s?v=%d", g.state.endpoint, GatewayVersion)
+	g.Logger().Debugf("connecting to gateway at: %s", gatewayURL)
 	g.lastHeartbeatSent = time.Now().UTC()
 	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
@@ -130,7 +120,6 @@ func (g *Gateway) Open(ctx context.Context) error {
 	g.status = GatewayStatusWaitingForHello
 
 	go g.listen(g.conn)
-
 	return nil
 }
 
@@ -145,8 +134,8 @@ func (g *Gateway) CloseWithCode(code int, message string) {
 		g.heartbeatTicker = nil
 	}
 
-	g.connMu.Lock()
-	defer g.connMu.Unlock()
+	g.mu.Lock()
+	defer g.mu.Unlock()
 	if g.conn != nil {
 		g.Logger().Debugf("closing gateway connection with code: %d, message: %s", code, message)
 		if err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && err != websocket.ErrCloseSent {
@@ -162,8 +151,8 @@ func (g *Gateway) CloseWithCode(code int, message string) {
 	}
 }
 
-func (g *Gateway) heartbeat() {
-	g.heartbeatTicker = time.NewTicker(g.heartbeatInterval)
+func (g *Gateway) heartbeat(heartbeatInterval time.Duration) {
+	g.heartbeatTicker = time.NewTicker(heartbeatInterval)
 	defer g.heartbeatTicker.Stop()
 	defer g.Logger().Debug("exiting heartbeat goroutine...")
 
@@ -189,14 +178,11 @@ func (g *Gateway) listen(conn *websocket.Conn) {
 	defer g.Logger().Debug("exiting listen goroutine...")
 loop:
 	for {
-		if g.conn == nil {
-			return
-		}
-		_, reader, err := g.conn.NextReader()
+		_, reader, err := conn.NextReader()
 		if err != nil {
-			g.connMu.Lock()
+			g.mu.Lock()
 			sameConnection := g.conn == conn
-			g.connMu.Unlock()
+			g.mu.Unlock()
 
 			// if sameConnection is false, it means the connection has been closed by the user, and we can just exit
 			if !sameConnection {
@@ -233,24 +219,23 @@ loop:
 		switch d := message.D.(type) {
 		case GatewayMessageDataHello:
 			g.status = GatewayStatusWaitingForReady
-			g.heartbeatInterval = time.Duration(d.HeartbeatInterval) * time.Millisecond
 			g.lastHeartbeatReceived = time.Now().UTC()
-			go g.heartbeat()
+			go g.heartbeat(time.Duration(d.HeartbeatInterval) * time.Millisecond)
 
 			if g.ssrc == 0 {
 				g.status = GatewayStatusIdentifying
 				err = g.Send(GatewayOpcodeIdentify, GatewayMessageDataIdentify{
-					GuildID:   g.guildID,
-					UserID:    g.userID,
-					SessionID: g.sessionID,
-					Token:     g.token,
+					GuildID:   g.state.guildID,
+					UserID:    g.state.userID,
+					SessionID: g.state.sessionID,
+					Token:     g.state.token,
 				})
 			} else {
 				g.status = GatewayStatusResuming
 				err = g.Send(GatewayOpcodeIdentify, GatewayMessageDataResume{
-					GuildID:   g.guildID,
-					SessionID: g.sessionID,
-					Token:     g.token,
+					GuildID:   g.state.guildID,
+					SessionID: g.state.sessionID,
+					Token:     g.state.token,
 				})
 			}
 
@@ -287,8 +272,8 @@ func (g *Gateway) Send(op GatewayOpcode, d GatewayMessageData) error {
 }
 
 func (g *Gateway) send(messageType int, data []byte) error {
-	g.connMu.Lock()
-	defer g.connMu.Unlock()
+	g.mu.Lock()
+	defer g.mu.Unlock()
 	if g.conn == nil {
 		return ErrGatewayNotConnected
 	}

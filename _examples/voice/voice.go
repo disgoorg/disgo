@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
@@ -23,14 +22,12 @@ var (
 func main() {
 	log.SetLevel(log.LevelInfo)
 	log.SetFlags(log.LstdFlags | log.Llongfile)
-
-	logger := log.New(log.LstdFlags | log.Lshortfile)
-	logger.SetLevel(log.LevelInfo)
+	log.Info("starting up")
 
 	file, _ := os.Open("nico.dca")
 	defer file.Close()
 	client, err := disgo.New(token,
-		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuildVoiceStates), gateway.WithLogger(logger)),
+		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuildVoiceStates)),
 		bot.WithEventListenerFunc(func(e *events.Ready) {
 			go play(e.Client(), file)
 		}),
@@ -52,16 +49,22 @@ func main() {
 }
 
 func play(client bot.Client, reader io.Reader) {
-	connection, err := client.ConnectChannel(context.Background(), 817327181659111454, 982083072067530762)
+	connection, err := client.ConnectChannel(context.Background(), 817327181659111454, 982083072067530762, false, false)
 	if err != nil {
-		client.Logger().Error("error connecting to voice channel: ", err)
-		return
+		panic("error connecting to voice channel: " + err.Error())
 	}
 
-	time.Sleep(2 * time.Second)
+	println("starting playback")
 
-	connection.SetSendHandler(newReaderSendHandler(reader))
-	// echo := newEchoHandler()
-	// connection.SetReceiveHandler(echo)
-	// connection.SetSendHandler(echo)
+	//connection.SetSendHandler(newReaderSendHandler(reader))
+	/*
+		if err = connection.Speaking(voice.SpeakingFlagMicrophone); err != nil {
+			panic("error setting speaking flag: " + err.Error())
+		}
+		writeOpus(connection.UDPConn(), reader)
+	*/
+
+	echo := newEchoHandler()
+	connection.SetSendHandler(echo)
+	connection.SetReceiveHandler(echo)
 }

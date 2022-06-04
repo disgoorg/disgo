@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"io"
 	"sync"
+	"time"
 
 	"github.com/disgoorg/disgo/voice"
 	"github.com/disgoorg/snowflake/v2"
@@ -34,7 +35,6 @@ func (h *echoHandler) ProvideOpus() ([]byte, error) {
 	var buff []byte
 	buff, h.queue = h.queue[0], h.queue[1:]
 
-	println("sending opus")
 	return buff, nil
 }
 
@@ -49,7 +49,6 @@ func (h *echoHandler) HandleOpus(userID snowflake.ID, opus []byte) {
 		return
 	}
 
-	println("received opus")
 	newBuff := make([]byte, len(opus))
 	copy(newBuff, opus)
 	h.queue = append(h.queue, newBuff)
@@ -87,4 +86,30 @@ func (h *audioSendHandler) ProvideOpus() ([]byte, error) {
 	}
 
 	return buf, nil
+}
+
+func writeOpus(w io.Writer, reader io.Reader) {
+	ticker := time.NewTicker(time.Millisecond * 20)
+	defer ticker.Stop()
+
+	var lenbuf [4]byte
+	for {
+		<-ticker.C
+		_, err := io.ReadFull(reader, lenbuf[:])
+		if err != nil {
+			if err == io.EOF {
+				return
+			}
+			return
+		}
+
+		// Read the integer
+		framelen := int64(binary.LittleEndian.Uint32(lenbuf[:]))
+
+		// Copy the frame.
+		_, err = io.CopyN(w, reader, framelen)
+		if err != nil && err != io.EOF {
+			return
+		}
+	}
 }
