@@ -7,32 +7,32 @@ import (
 	"github.com/disgoorg/log"
 )
 
-func DefaultUDPConnConfig() *UDPConnConfig {
-	return &UDPConnConfig{
-		Logger:            log.Default(),
-		UDPConnCreateFunc: NewUDPConn,
+func DefaultUDPConfig() *UDPConfig {
+	return &UDPConfig{
+		Logger:        log.Default(),
+		UDPCreateFunc: NewUDP,
 		Dialer: &net.Dialer{
 			Timeout: 30 * time.Second,
 		},
 	}
 }
 
-type UDPConnConfig struct {
-	Logger            log.Logger
-	UDPConnCreateFunc UDPConnCreateFunc
-	Dialer            *net.Dialer
+type UDPConfig struct {
+	Logger        log.Logger
+	UDPCreateFunc UDPCreateFunc
+	Dialer        *net.Dialer
 }
 
-type UDPConnConfigOpt func(config *UDPConnConfig)
+type UDPConfigOpt func(config *UDPConfig)
 
-func (c *UDPConnConfig) Apply(opts []UDPConnConfigOpt) {
+func (c *UDPConfig) Apply(opts []UDPConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
 }
 
-func WithUDPConnLogger(logger log.Logger) UDPConnConfigOpt {
-	return func(config *UDPConnConfig) {
+func WithUDPLogger(logger log.Logger) UDPConfigOpt {
+	return func(config *UDPConfig) {
 		config.Logger = logger
 	}
 }

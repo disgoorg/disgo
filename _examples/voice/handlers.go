@@ -3,55 +3,10 @@ package main
 import (
 	"encoding/binary"
 	"io"
-	"sync"
 	"time"
 
 	"github.com/disgoorg/disgo/voice"
-	"github.com/disgoorg/snowflake/v2"
 )
-
-var (
-	_ voice.SendHandler    = (*echoHandler)(nil)
-	_ voice.ReceiveHandler = (*echoHandler)(nil)
-)
-
-func newEchoHandler() *echoHandler {
-	return &echoHandler{}
-}
-
-type echoHandler struct {
-	queue   [][]byte
-	queueMu sync.Mutex
-}
-
-func (h *echoHandler) ProvideOpus() ([]byte, error) {
-	h.queueMu.Lock()
-	defer h.queueMu.Unlock()
-
-	if len(h.queue) == 0 {
-		return nil, nil
-	}
-
-	var buff []byte
-	buff, h.queue = h.queue[0], h.queue[1:]
-
-	return buff, nil
-}
-
-func (h *echoHandler) HandleOpus(userID snowflake.ID, packet *voice.Packet) {
-	if userID != 170939974227591168 {
-		return
-	}
-	h.queueMu.Lock()
-	defer h.queueMu.Unlock()
-
-	if len(h.queue) > 60 {
-		println("dropping opus cause queue is full")
-		return
-	}
-
-	h.queue = append(h.queue, packet.Opus)
-}
 
 func newReaderSendHandler(reader io.Reader) voice.SendHandler {
 	return &audioSendHandler{
@@ -63,28 +18,23 @@ type audioSendHandler struct {
 	reader io.Reader
 }
 
-func (h *audioSendHandler) CanProvide() bool {
-	return true
-}
-
-func (h *audioSendHandler) ProvideOpus() ([]byte, error) {
+func (h *audioSendHandler) ProvideOpus() []byte {
 	var lenbuf [4]byte
 
 	if _, err := h.reader.Read(lenbuf[:]); err == io.EOF {
-		return nil, nil
+		return nil
 	} else if err != nil {
-		return nil, err
-
+		return nil
 	}
 
 	buf := make([]byte, int64(binary.LittleEndian.Uint32(lenbuf[:])))
 	if _, err := h.reader.Read(buf); err == io.EOF {
-		return nil, nil
+		return nil
 	} else if err != nil {
-		return nil, err
+		return nil
 	}
 
-	return buf, nil
+	return buf
 }
 
 func writeOpus(w io.Writer, reader io.Reader) {

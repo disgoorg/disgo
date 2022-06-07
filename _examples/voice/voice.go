@@ -12,6 +12,7 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/disgo/voice"
 	"github.com/disgoorg/log"
 )
 
@@ -57,18 +58,16 @@ func play(client bot.Client, reader io.Reader) {
 	println("starting playback")
 
 	//connection.SetSendHandler(newReaderSendHandler(reader))
-	/*
-			if err = connection.Speaking(voice.SpeakingFlagMicrophone); err != nil {
-				panic("error setting speaking flag: " + err.Error())
-			}
-			writeOpus(connection.UDPConn(), reader)
 
-		connection.UDPConn().ReadUser()
-	*/
+	if err = connection.Speaking(voice.SpeakingFlagMicrophone); err != nil {
+		panic("error setting speaking flag: " + err.Error())
+	}
+	writeOpus(connection.UDP(), reader)
 
-	echo := newEchoHandler()
+	/*echo := &echoHandler{}
 	connection.SetSendHandler(echo)
 	connection.SetReceiveHandler(echo)
+	*/
 
 	//newEcho2(connection)
 }

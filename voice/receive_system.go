@@ -51,7 +51,7 @@ func (s *defaultReceiveSystem) Start() {
 }
 
 func (s *defaultReceiveSystem) receive() {
-	packet, err := s.connection.UDPConn().ReadPacket()
+	packet, err := s.connection.UDP().ReadPacket()
 	if err != nil {
 		s.logger.Errorf("error while reading packet: %s", err)
 		return

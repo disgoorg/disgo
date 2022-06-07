@@ -20,16 +20,16 @@ var (
 )
 
 type (
-	UDPConnCreateFunc func(ip string, port int, ssrc uint32, opts ...UDPConnConfigOpt) *UDPConn
+	UDPCreateFunc func(ip string, port int, ssrc uint32, opts ...UDPConfigOpt) *UDP
 )
 
-var _ io.Reader = (*UDPConn)(nil)
+var _ io.Reader = (*UDP)(nil)
 
-func NewUDPConn(ip string, port int, ssrc uint32, opts ...UDPConnConfigOpt) *UDPConn {
-	config := DefaultUDPConnConfig()
+func NewUDP(ip string, port int, ssrc uint32, opts ...UDPConfigOpt) *UDP {
+	config := DefaultUDPConfig()
 	config.Apply(opts)
 
-	return &UDPConn{
+	return &UDP{
 		config:        *config,
 		ip:            ip,
 		port:          port,
@@ -38,8 +38,8 @@ func NewUDPConn(ip string, port int, ssrc uint32, opts ...UDPConnConfigOpt) *UDP
 	}
 }
 
-type UDPConn struct {
-	config UDPConnConfig
+type UDP struct {
+	config UDPConfig
 
 	ip   string
 	port int
@@ -60,11 +60,11 @@ type UDPConn struct {
 	receiveOpus   []byte
 }
 
-func (c *UDPConn) SetSecretKey(secretKey [32]byte) {
+func (c *UDP) SetSecretKey(secretKey [32]byte) {
 	c.secretKey = secretKey
 }
 
-func (c *UDPConn) Open(ctx context.Context) (string, int, error) {
+func (c *UDP) Open(ctx context.Context) (string, int, error) {
 	c.connMu.Lock()
 	defer c.connMu.Unlock()
 	fmt.Printf("Opening UDP connection to: %s:%d\n", c.ip, c.port)
@@ -100,7 +100,7 @@ func (c *UDPConn) Open(ctx context.Context) (string, int, error) {
 	return strings.Replace(string(address), "\x00", "", -1), int(port), nil
 }
 
-func (c *UDPConn) Write(b []byte) (int, error) {
+func (c *UDP) Write(b []byte) (int, error) {
 	//fmt.Printf("Opus: %v\n\n", b)
 	binary.BigEndian.PutUint16(c.packet[2:4], c.sequence)
 	c.sequence++
@@ -120,7 +120,7 @@ func (c *UDPConn) Write(b []byte) (int, error) {
 	return len(b), nil
 }
 
-func (c *UDPConn) Read(p []byte) (n int, err error) {
+func (c *UDP) Read(p []byte) (n int, err error) {
 	packet, err := c.ReadPacket()
 	if err != nil {
 		return 0, err
@@ -137,13 +137,13 @@ type Packet struct {
 	Opus      []byte
 }
 
-func (c *UDPConn) SetDeadline(t time.Time) error {
+func (c *UDP) SetDeadline(t time.Time) error {
 	c.connMu.Lock()
 	defer c.connMu.Unlock()
 	return c.conn.SetDeadline(t)
 }
 
-func (c *UDPConn) ReadPacket() (*Packet, error) {
+func (c *UDP) ReadPacket() (*Packet, error) {
 	c.connMu.Lock()
 	conn := c.conn
 	c.connMu.Unlock()
@@ -186,16 +186,8 @@ func (c *UDPConn) ReadPacket() (*Packet, error) {
 	}
 }
 
-func (c *UDPConn) Close() {
+func (c *UDP) Close() {
 	c.connMu.Lock()
 	defer c.connMu.Unlock()
 	_ = c.conn.Close()
-}
-
-type errorReader struct {
-	err error
-}
-
-func (f errorReader) Read(_ []byte) (int, error) {
-	return 0, f.err
 }

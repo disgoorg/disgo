@@ -9,7 +9,7 @@ import (
 var SilenceFrames = []byte{0xF8, 0xFF, 0xFE}
 
 type SendHandler interface {
-	ProvideOpus() ([]byte, error)
+	ProvideOpus() []byte
 }
 
 func NewSendSystem(sendHandler SendHandler, connection *Connection) SendSystem {
@@ -57,20 +57,16 @@ func (s *defaultSendSystem) Start() {
 }
 
 func (s *defaultSendSystem) send() {
-	opus, err := s.sendHandler.ProvideOpus()
-	if err != nil {
-		s.logger.Errorf("failed to provide opus data: %s", err)
-		return
-	}
+	opus := s.sendHandler.ProvideOpus()
 	if len(opus) == 0 {
 		if s.silentFrames > 0 {
-			if _, err = s.connection.UDPConn().Write(SilenceFrames); err != nil {
+			if _, err := s.connection.UDP().Write(SilenceFrames); err != nil {
 				s.logger.Errorf("failed to send silence frames: %s", err)
 			}
 			s.silentFrames--
 		} else if !s.sentSpeakingStop {
 			go func() {
-				if err = s.connection.Speaking(0); err != nil {
+				if err := s.connection.Speaking(0); err != nil {
 					s.logger.Errorf("failed to send speaking stop: %s", err)
 				}
 			}()
@@ -82,7 +78,7 @@ func (s *defaultSendSystem) send() {
 
 	if !s.sentSpeakingStart {
 		go func() {
-			if err = s.connection.Speaking(SpeakingFlagMicrophone | SpeakingFlagPriority); err != nil {
+			if err := s.connection.Speaking(SpeakingFlagMicrophone); err != nil {
 				s.logger.Errorf("failed to send speaking start: %s", err)
 			}
 		}()
@@ -91,7 +87,7 @@ func (s *defaultSendSystem) send() {
 		s.silentFrames = 5
 	}
 
-	if _, err = s.connection.UDPConn().Write(opus); err != nil {
+	if _, err := s.connection.UDP().Write(opus); err != nil {
 		s.logger.Errorf("failed to send opus data: %s", err)
 	}
 }

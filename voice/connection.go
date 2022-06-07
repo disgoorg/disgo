@@ -45,7 +45,7 @@ type Connection struct {
 
 	state   State
 	gateway *Gateway
-	conn    *UDPConn
+	udp     *UDP
 	mu      sync.Mutex
 
 	connected    chan struct{}
@@ -74,10 +74,10 @@ func (c *Connection) Speaking(flags SpeakingFlags) error {
 	})
 }
 
-func (c *Connection) UDPConn() *UDPConn {
+func (c *Connection) UDP() *UDP {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	return c.conn
+	return c.udp
 }
 
 func (c *Connection) SetSendHandler(handler SendHandler) {
@@ -122,7 +122,7 @@ func (c *Connection) handleGatewayMessage(_ GatewayOpcode, data GatewayMessageDa
 		c.mu.Lock()
 		println("voice: ready")
 		conn := c.config.UDPConnCreateFunc(d.IP, d.Port, d.SSRC)
-		c.conn = conn
+		c.udp = conn
 		c.mu.Unlock()
 		address, port, err := conn.Open(context.Background())
 		if err != nil {
@@ -143,8 +143,8 @@ func (c *Connection) handleGatewayMessage(_ GatewayOpcode, data GatewayMessageDa
 	case GatewayMessageDataSessionDescription:
 		c.mu.Lock()
 		println("voice: session description")
-		if c.conn != nil {
-			c.conn.SetSecretKey(d.SecretKey)
+		if c.udp != nil {
+			c.udp.SetSecretKey(d.SecretKey)
 		}
 		c.mu.Unlock()
 		c.connected <- struct{}{}
@@ -194,14 +194,14 @@ func (c *Connection) reconnect(ctx context.Context) {
 
 func (c *Connection) Close() {
 	c.mu.Lock()
-	if c.gateway == nil && c.conn == nil {
+	if c.gateway == nil && c.udp == nil {
 		c.mu.Unlock()
 		return
 	}
 
-	if c.conn != nil {
-		c.conn.Close()
-		c.conn = nil
+	if c.udp != nil {
+		c.udp.Close()
+		c.udp = nil
 	}
 
 	if c.gateway != nil {

@@ -8,7 +8,7 @@ func DefaultConnectionConfig() *ConnectionConfig {
 	return &ConnectionConfig{
 		Logger:            log.Default(),
 		GatewayCreateFunc: NewGateway,
-		UDPConnCreateFunc: NewUDPConn,
+		UDPConnCreateFunc: NewUDP,
 	}
 }
 
@@ -18,8 +18,8 @@ type ConnectionConfig struct {
 	GatewayCreateFunc GatewayCreateFunc
 	GatewayConfigOpts []GatewayConfigOpt
 
-	UDPConnCreateFunc UDPConnCreateFunc
-	UDPConnConfigOpts []UDPConnConfigOpt
+	UDPConnCreateFunc UDPCreateFunc
+	UDPConnConfigOpts []UDPConfigOpt
 }
 
 type ConnectionConfigOpt func(ConnectionConfig *ConnectionConfig)
