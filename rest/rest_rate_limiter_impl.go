@@ -40,7 +40,8 @@ type (
 		global int64
 
 		// route.APIRoute -> Hash
-		hashes map[*route.APIRoute]routeHash
+		hashes   map[*route.APIRoute]routeHash
+		hashesMu sync.Mutex
 		// Hash + Major Parameter -> bucket
 		buckets   map[hashMajor]*bucket
 		bucketsMu sync.Mutex
@@ -68,7 +69,7 @@ func (l *rateLimiterImpl) doCleanup() {
 	before := len(l.buckets)
 	now := time.Now()
 	for hash, b := range l.buckets {
-		if b.Reset.Before(now) {
+		if b.mu.TryLock() && b.Reset.Before(now) {
 			l.Logger().Debugf("cleaning up bucket, Hash: %s, ID: %s, Reset: %s", hash, b.ID, b.Reset)
 			delete(l.buckets, hash)
 		}
@@ -96,15 +97,18 @@ func (l *rateLimiterImpl) Reset() {
 	l.bucketsMu = sync.Mutex{}
 	l.global = 0
 	l.hashes = map[*route.APIRoute]routeHash{}
+	l.hashesMu = sync.Mutex{}
 }
 
 func (l *rateLimiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor {
+	l.hashesMu.Lock()
 	hash, ok := l.hashes[route.APIRoute]
 	if !ok {
 		// generate routeHash
 		hash = routeHash(route.APIRoute.Method().String() + "+" + route.APIRoute.Path())
 		l.hashes[route.APIRoute] = hash
 	}
+	l.hashesMu.Unlock()
 	if route.MajorParams() != "" {
 		hash += routeHash("+" + route.MajorParams())
 	}
