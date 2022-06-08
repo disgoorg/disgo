@@ -8,11 +8,11 @@ import (
 	"syscall"
 
 	"github.com/disgoorg/disgo"
+	"github.com/disgoorg/disgo/audio"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/voice"
 	"github.com/disgoorg/log"
 )
 
@@ -25,12 +25,10 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Llongfile)
 	log.Info("starting up")
 
-	file, _ := os.Open("nico.dca")
-	defer file.Close()
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuildVoiceStates)),
 		bot.WithEventListenerFunc(func(e *events.Ready) {
-			go play(e.Client(), file)
+			go play(e.Client())
 		}),
 	)
 	if err != nil {
@@ -49,25 +47,17 @@ func main() {
 	<-s
 }
 
-func play(client bot.Client, reader io.Reader) {
+func play(client bot.Client) {
 	connection, err := client.ConnectChannel(context.Background(), 817327181659111454, 982083072067530762, false, false)
 	if err != nil {
 		panic("error connecting to voice channel: " + err.Error())
 	}
 
-	println("starting playback")
+	var (
+		pcmReader io.Reader
+		pcmWriter io.Writer
+	)
 
-	//connection.SetOpusFrameProvider(newReaderSendHandler(reader))
-
-	if err = connection.Speaking(voice.SpeakingFlagMicrophone); err != nil {
-		panic("error setting speaking flag: " + err.Error())
-	}
-	writeOpus(connection.UDP(), reader)
-
-	/*echo := &echoHandler{}
-	connection.SetOpusFrameProvider(echo)
-	connection.SetOpusFraneReceiver(echo)
-	*/
-
-	//newEcho2(connection)
+	connection.SetOpusFrameProvider(audio.NewPCMOpusProvider(nil, audio.NewPCMStreamProvider(pcmReader)))
+	connection.SetOpusFraneReceiver(audio.NewPCMOpusReceiver(nil, audio.NewPCMCombinerReceiver(audio.NewPCMCombinedStreamReceiver(pcmWriter), nil)))
 }

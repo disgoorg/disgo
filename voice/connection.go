@@ -48,6 +48,9 @@ type Connection struct {
 	udp     *UDP
 	mu      sync.Mutex
 
+	audioSendSystem    AudioSendSystem
+	audioReceiveSystem AudioReceiveSystem
+
 	connected    chan struct{}
 	disconnected chan struct{}
 
@@ -80,12 +83,22 @@ func (c *Connection) UDP() *UDP {
 	return c.udp
 }
 
-func (c *Connection) SetSendHandler(handler AudioSendHandler) {
-	NewSendSystem(handler, c).Start()
+func (c *Connection) SetAudioSendSystem(sendSystem AudioSendSystem) {
+	c.audioSendSystem = sendSystem
+	go c.audioSendSystem.Open()
 }
 
-func (c *Connection) SetReceiveHandler(handler AudioReceiveHandler) {
-	NewReceiveSystem(handler, c).Start()
+func (c *Connection) SetOpusFrameProvider(handler OpusFrameProvider) {
+	c.SetAudioSendSystem(NewAudioSendSystem(handler, c))
+}
+
+func (c *Connection) SetAudioReceiveSystem(receiveSystem AudioReceiveSystem) {
+	c.audioReceiveSystem = receiveSystem
+	go c.audioReceiveSystem.Open()
+}
+
+func (c *Connection) SetOpusFraneReceiver(handler OpusFrameReceiver) {
+	c.SetAudioReceiveSystem(NewAudioReceiveSystem(handler, c))
 }
 
 func (c *Connection) SetEventHandlerFunc(eventHandlerFunc EventHandlerFunc) {
@@ -167,6 +180,7 @@ func (c *Connection) handleGatewayMessage(op GatewayOpcode, data GatewayMessageD
 				break
 			}
 		}
+		c.audioReceiveSystem.CleanupUser(d.UserID)
 	}
 	c.config.EventHandlerFunc(op, data)
 }

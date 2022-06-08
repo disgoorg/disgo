@@ -1,4 +1,4 @@
-module github.com/disgoorg/disgo/opus
+module github.com/disgoorg/disgo/audio
 
 go 1.18
 

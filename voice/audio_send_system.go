@@ -1,6 +1,7 @@
 package voice
 
 import (
+	"context"
 	"encoding/binary"
 	"io"
 	"time"
@@ -8,42 +9,46 @@ import (
 	"github.com/disgoorg/log"
 )
 
-var SilenceFrames = []byte{0xF8, 0xFF, 0xFE}
+var SilenceAudioFrames = []byte{0xF8, 0xFF, 0xFE}
 
-type AudioSendHandler interface {
-	ProvideOpus() []byte
-}
-
-func NewSendSystem(sendHandler AudioSendHandler, connection *Connection) SendSystem {
-	return &defaultSendSystem{
+func NewAudioSendSystem(opusProvider OpusFrameProvider, connection *Connection) AudioSendSystem {
+	return &defaultAudioSendSystem{
 		logger:       log.Default(),
-		sendHandler:  sendHandler,
+		opusProvider: opusProvider,
 		connection:   connection,
 		silentFrames: 5,
 	}
 }
 
-type SendSystem interface {
-	Start()
-	Stop()
+type AudioSendSystem interface {
+	Open()
+	Close()
 }
 
-type defaultSendSystem struct {
-	logger      log.Logger
-	closed      bool
-	sendHandler AudioSendHandler
-	connection  *Connection
+type defaultAudioSendSystem struct {
+	logger       log.Logger
+	cancelFunc   context.CancelFunc
+	opusProvider OpusFrameProvider
+	connection   *Connection
 
 	silentFrames      int
 	sentSpeakingStop  bool
 	sentSpeakingStart bool
 }
 
-func (s *defaultSendSystem) Start() {
-	go func() {
-		defer s.logger.Debug("closing send system")
-		lastFrameSent := time.Now().UnixMilli()
-		for !s.closed {
+func (s *defaultAudioSendSystem) Open() {
+	defer s.logger.Debug("closing send system")
+	lastFrameSent := time.Now().UnixMilli()
+	ctx, cancel := context.WithCancel(context.Background())
+	s.cancelFunc = cancel
+	defer cancel()
+loop:
+	for {
+		select {
+		case <-ctx.Done():
+			break loop
+
+		default:
 			s.send()
 			sleepTime := time.Duration(20 - (time.Now().UnixMilli() - lastFrameSent))
 			if sleepTime > 0 {
@@ -55,14 +60,14 @@ func (s *defaultSendSystem) Start() {
 				lastFrameSent = time.Now().UnixMilli()
 			}
 		}
-	}()
+	}
 }
 
-func (s *defaultSendSystem) send() {
-	opus := s.sendHandler.ProvideOpus()
+func (s *defaultAudioSendSystem) send() {
+	opus := s.opusProvider.ProvideOpusFrame()
 	if len(opus) == 0 {
 		if s.silentFrames > 0 {
-			if _, err := s.connection.UDP().Write(SilenceFrames); err != nil {
+			if _, err := s.connection.UDP().Write(SilenceAudioFrames); err != nil {
 				s.logger.Errorf("failed to send silence frames: %s", err)
 			}
 			s.silentFrames--
@@ -90,32 +95,37 @@ func (s *defaultSendSystem) send() {
 	}
 
 	if _, err := s.connection.UDP().Write(opus); err != nil {
-		s.logger.Errorf("failed to send opus data: %s", err)
+		s.logger.Errorf("failed to send audio data: %s", err)
 	}
 }
 
-func (s *defaultSendSystem) Stop() {
-	s.closed = true
+func (s *defaultAudioSendSystem) Close() {
+	s.cancelFunc()
 }
 
-var _ AudioSendHandler = (*OpusSendHandler)(nil)
+type OpusFrameProvider interface {
+	ProvideOpusFrame() []byte
+	Close()
+}
 
-func NewOpusSendHandler(r io.Reader) *OpusSendHandler {
-	return &OpusSendHandler{
+var _ OpusFrameProvider = (*OpusStreamProvider)(nil)
+
+func NewOpusStreamProvider(r io.Reader) *OpusStreamProvider {
+	return &OpusStreamProvider{
 		r:    r,
 		buff: make([]byte, 4000),
 	}
 }
 
-type OpusSendHandler struct {
+type OpusStreamProvider struct {
 	r       io.Reader
 	lenBuff [4]byte
 	buff    []byte
 }
 
-func (h *OpusSendHandler) ProvideOpus() []byte {
+func (h *OpusStreamProvider) ProvideOpusFrame() []byte {
 	_, err := h.r.Read(h.lenBuff[:])
-	if err == io.EOF {
+	if err != nil {
 		return nil
 	}
 
@@ -127,3 +137,5 @@ func (h *OpusSendHandler) ProvideOpus() []byte {
 	}
 	return buff[:n]
 }
+
+func (*OpusStreamProvider) Close() {}

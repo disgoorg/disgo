@@ -8,7 +8,7 @@ import (
 	"github.com/disgoorg/disgo/voice"
 )
 
-func newReaderSendHandler(reader io.Reader) voice.AudioSendHandler {
+func newReaderSendHandler(reader io.Reader) voice.OpusFrameProvider {
 	return &audioSendHandler{
 		reader: reader,
 	}
@@ -18,7 +18,7 @@ type audioSendHandler struct {
 	reader io.Reader
 }
 
-func (h *audioSendHandler) ProvideOpus() []byte {
+func (h *audioSendHandler) ProvideOpusFrame() []byte {
 	var lenbuf [4]byte
 
 	if _, err := h.reader.Read(lenbuf[:]); err == io.EOF {

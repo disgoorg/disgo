@@ -32,7 +32,7 @@ func (h *echoHandler) HandleOpus(userID snowflake.ID, packet *voice.Packet) {
 	defer h.queueMu.Unlock()
 
 	if len(h.queue) > 60 {
-		println("dropping opus cause queue is full")
+		println("dropping audio cause queue is full")
 		return
 	}
 
@@ -41,7 +41,7 @@ func (h *echoHandler) HandleOpus(userID snowflake.ID, packet *voice.Packet) {
 
 func newEcho2(conn *voice.Connection) {
 	conn.Speaking(voice.SpeakingFlagMicrophone)
-	conn.UDP().Write(voice.SilenceFrames)
+	conn.UDP().Write(voice.SilenceAudioFrames)
 	for {
 		packet, err := conn.UDP().ReadPacket()
 		if err != nil {
