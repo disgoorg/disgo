@@ -20,6 +20,8 @@ type ConnectionConfig struct {
 
 	UDPConnCreateFunc UDPCreateFunc
 	UDPConnConfigOpts []UDPConfigOpt
+
+	EventHandlerFunc EventHandlerFunc
 }
 
 type ConnectionConfigOpt func(ConnectionConfig *ConnectionConfig)
@@ -33,5 +35,11 @@ func (c *ConnectionConfig) Apply(opts []ConnectionConfigOpt) {
 func WithConnectionLogger(logger log.Logger) ConnectionConfigOpt {
 	return func(ConnectionConfig *ConnectionConfig) {
 		ConnectionConfig.Logger = logger
+	}
+}
+
+func WithConnectionEventHandlerFunc(eventHandlerFunc EventHandlerFunc) ConnectionConfigOpt {
+	return func(ConnectionConfig *ConnectionConfig) {
+		ConnectionConfig.EventHandlerFunc = eventHandlerFunc
 	}
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/disgoorg/disgo/voice"
 )
 
-func newReaderSendHandler(reader io.Reader) voice.SendHandler {
+func newReaderSendHandler(reader io.Reader) voice.AudioSendHandler {
 	return &audioSendHandler{
 		reader: reader,
 	}

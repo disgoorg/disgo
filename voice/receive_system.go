@@ -7,11 +7,11 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-type ReceiveHandler interface {
+type AudioReceiveHandler interface {
 	HandleOpus(userID snowflake.ID, packet *Packet)
 }
 
-func NewReceiveSystem(receiveHandler ReceiveHandler, connection *Connection) ReceiveSystem {
+func NewReceiveSystem(receiveHandler AudioReceiveHandler, connection *Connection) ReceiveSystem {
 	return &defaultReceiveSystem{
 		logger:         log.Default(),
 		receiveHandler: receiveHandler,
@@ -29,7 +29,7 @@ type defaultReceiveSystem struct {
 	cancelFunc context.CancelFunc
 
 	logger         log.Logger
-	receiveHandler ReceiveHandler
+	receiveHandler AudioReceiveHandler
 	connection     *Connection
 }
 

@@ -1,6 +1,8 @@
 package voice
 
 import (
+	"encoding/binary"
+	"io"
 	"time"
 
 	"github.com/disgoorg/log"
@@ -8,11 +10,11 @@ import (
 
 var SilenceFrames = []byte{0xF8, 0xFF, 0xFE}
 
-type SendHandler interface {
+type AudioSendHandler interface {
 	ProvideOpus() []byte
 }
 
-func NewSendSystem(sendHandler SendHandler, connection *Connection) SendSystem {
+func NewSendSystem(sendHandler AudioSendHandler, connection *Connection) SendSystem {
 	return &defaultSendSystem{
 		logger:       log.Default(),
 		sendHandler:  sendHandler,
@@ -29,7 +31,7 @@ type SendSystem interface {
 type defaultSendSystem struct {
 	logger      log.Logger
 	closed      bool
-	sendHandler SendHandler
+	sendHandler AudioSendHandler
 	connection  *Connection
 
 	silentFrames      int
@@ -94,4 +96,34 @@ func (s *defaultSendSystem) send() {
 
 func (s *defaultSendSystem) Stop() {
 	s.closed = true
+}
+
+var _ AudioSendHandler = (*OpusSendHandler)(nil)
+
+func NewOpusSendHandler(r io.Reader) *OpusSendHandler {
+	return &OpusSendHandler{
+		r:    r,
+		buff: make([]byte, 4000),
+	}
+}
+
+type OpusSendHandler struct {
+	r       io.Reader
+	lenBuff [4]byte
+	buff    []byte
+}
+
+func (h *OpusSendHandler) ProvideOpus() []byte {
+	_, err := h.r.Read(h.lenBuff[:])
+	if err == io.EOF {
+		return nil
+	}
+
+	buff := make([]byte, int64(binary.LittleEndian.Uint32(h.lenBuff[:])))
+	var n int
+	n, err = h.r.Read(buff)
+	if err != nil {
+		return nil
+	}
+	return buff[:n]
 }

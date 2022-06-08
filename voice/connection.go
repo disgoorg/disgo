@@ -80,12 +80,16 @@ func (c *Connection) UDP() *UDP {
 	return c.udp
 }
 
-func (c *Connection) SetSendHandler(handler SendHandler) {
+func (c *Connection) SetSendHandler(handler AudioSendHandler) {
 	NewSendSystem(handler, c).Start()
 }
 
-func (c *Connection) SetReceiveHandler(handler ReceiveHandler) {
+func (c *Connection) SetReceiveHandler(handler AudioReceiveHandler) {
 	NewReceiveSystem(handler, c).Start()
+}
+
+func (c *Connection) SetEventHandlerFunc(eventHandlerFunc EventHandlerFunc) {
+	c.config.EventHandlerFunc = eventHandlerFunc
 }
 
 func (c *Connection) HandleVoiceStateUpdate(update discord.VoiceStateUpdate) {
@@ -116,7 +120,7 @@ func (c *Connection) HandleVoiceServerUpdate(update discord.VoiceServerUpdate) {
 	go c.reconnect(context.Background())
 }
 
-func (c *Connection) handleGatewayMessage(_ GatewayOpcode, data GatewayMessageData) {
+func (c *Connection) handleGatewayMessage(op GatewayOpcode, data GatewayMessageData) {
 	switch d := data.(type) {
 	case GatewayMessageDataReady:
 		c.mu.Lock()
@@ -127,7 +131,7 @@ func (c *Connection) handleGatewayMessage(_ GatewayOpcode, data GatewayMessageDa
 		address, port, err := conn.Open(context.Background())
 		if err != nil {
 			c.config.Logger.Error("voice: failed to open udp connection. error: ", err)
-			return
+			break
 		}
 		if err = c.Gateway().Send(GatewayOpcodeSelectProtocol, GatewayMessageDataSelectProtocol{
 			Protocol: "udp",
@@ -164,6 +168,7 @@ func (c *Connection) handleGatewayMessage(_ GatewayOpcode, data GatewayMessageDa
 			}
 		}
 	}
+	c.config.EventHandlerFunc(op, data)
 }
 
 func (c *Connection) handleGatewayClose(gateway *Gateway, err error) {
