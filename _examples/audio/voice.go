@@ -1,8 +1,8 @@
 package main
 
 import (
+	"bytes"
 	"context"
-	"io"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,6 +13,7 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/disgo/voice"
 	"github.com/disgoorg/log"
 )
 
@@ -53,11 +54,14 @@ func play(client bot.Client) {
 		panic("error connecting to voice channel: " + err.Error())
 	}
 
-	var (
-		pcmReader io.Reader
-		pcmWriter io.Writer
-	)
+	connection.Speaking(voice.SpeakingFlagMicrophone)
 
-	connection.SetOpusFrameProvider(audio.NewPCMOpusProvider(nil, audio.NewPCMStreamProvider(pcmReader)))
-	connection.SetOpusFraneReceiver(audio.NewPCMOpusReceiver(nil, audio.NewPCMCombinerReceiver(audio.NewPCMCombinedStreamReceiver(pcmWriter), nil)))
+	connection.UDP().Write(voice.SilenceAudioFrames)
+
+	buff := &bytes.Buffer{}
+
+	connection.SetOpusFrameProvider(audio.NewPCMOpusProvider(nil, audio.NewPCMStreamProvider(buff)))
+	connection.SetOpusFraneReceiver(audio.NewPCMOpusReceiver(nil, audio.NewPCMCombinerReceiver(audio.NewPCMCombinedStreamReceiver(buff), nil)))
+
+	println("voice: ready")
 }

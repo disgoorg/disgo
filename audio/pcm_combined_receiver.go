@@ -13,13 +13,14 @@ import (
 
 func NewPCMCombinerReceiver(pcmCombinedFrameReceiver PCMCombinedFrameReceiver, receiveUserFunc voice.ReceiveUserFunc) PCMFrameReceiver {
 	if receiveUserFunc == nil {
-		receiveUserFunc = func(userID snowflake.ID) bool {
+		receiveUserFunc = func(_ snowflake.ID) bool {
 			return true
 		}
 	}
 	receiver := &pcmCombinerReceiver{
 		pcmCombinedFrameReceiver: pcmCombinedFrameReceiver,
 		receiveUserFunc:          receiveUserFunc,
+		queue:                    map[snowflake.ID]*[]audioData{},
 	}
 	go receiver.startCombinePackets()
 	return receiver
@@ -40,11 +41,20 @@ func (r *pcmCombinerReceiver) ReceivePCMFrame(userID snowflake.ID, packet *PCMPa
 	r.queueMu.Lock()
 	defer r.queueMu.Unlock()
 
+	pcm := make([]int16, len(packet.PCM))
+	copy(pcm, packet.PCM)
+
 	data := audioData{
 		time:   time.Now().UnixMilli(),
 		userID: userID,
-		packet: packet,
+		packet: &PCMPacket{
+			SSRC:      packet.SSRC,
+			Sequence:  packet.Sequence,
+			Timestamp: packet.Timestamp,
+			PCM:       pcm,
+		},
 	}
+
 	if r.queue[userID] == nil {
 		r.queue[userID] = &[]audioData{data}
 	} else {
@@ -82,14 +92,14 @@ func (r *pcmCombinerReceiver) combinePackets() {
 	r.queueMu.Lock()
 	defer r.queueMu.Unlock()
 	now := time.Now().UnixMilli()
-	audioParts := make(map[snowflake.ID]audioData)
+	var audioParts []audioData
 	var audioLen int
-	for userID, packets := range r.queue {
+	for _, packets := range r.queue {
 		if len(*packets) == 0 {
 			continue
 		}
 
-		var data *audioData
+		data := new(audioData)
 		*data, *packets = (*packets)[0], (*packets)[1:]
 		for len(*packets) > 0 && now-data.time > 100 {
 			*data, *packets = (*packets)[0], (*packets)[1:]
@@ -97,7 +107,7 @@ func (r *pcmCombinerReceiver) combinePackets() {
 		if data == nil {
 			continue
 		}
-		audioParts[userID] = *data
+		audioParts = append(audioParts, *data)
 		if len(data.packet.PCM) > audioLen {
 			audioLen = len(data.packet.PCM)
 		}
@@ -105,13 +115,13 @@ func (r *pcmCombinerReceiver) combinePackets() {
 	if len(audioParts) == 0 {
 		return
 	}
-	combinedPacket := CombinedPCMPacket{
+	combinedPacket := &CombinedPCMPacket{
 		SSRCs:      make([]uint32, len(audioParts)),
 		Sequences:  make([]uint16, len(audioParts)),
 		Timestamps: make([]uint32, len(audioParts)),
 		PCM:        make([]int16, audioLen),
 	}
-	userIds := make([]snowflake.ID, 0, len(audioParts))
+	userIds := make([]snowflake.ID, len(audioParts))
 	for i, audio := range audioParts {
 		combinedPacket.SSRCs[i] = audio.packet.SSRC
 		combinedPacket.Sequences[i] = audio.packet.Sequence
@@ -128,8 +138,9 @@ func (r *pcmCombinerReceiver) combinePackets() {
 			}
 			combinedPacket.PCM[j] = int16(newPCM)
 		}
+		i++
 	}
-	r.pcmCombinedFrameReceiver.HandlePCM(userIds, &combinedPacket)
+	r.pcmCombinedFrameReceiver.ReceiveCombinedPCMFrame(userIds, combinedPacket)
 }
 
 func (r *pcmCombinerReceiver) CleanupUser(userID snowflake.ID) {
@@ -157,7 +168,7 @@ type CombinedPCMPacket struct {
 }
 
 type PCMCombinedFrameReceiver interface {
-	HandlePCM(userIDs []snowflake.ID, packet *CombinedPCMPacket)
+	ReceiveCombinedPCMFrame(userIDs []snowflake.ID, packet *CombinedPCMPacket)
 	Close()
 }
 
@@ -171,8 +182,10 @@ type pcmCombinedStreamReceiver struct {
 	w io.Writer
 }
 
-func (p *pcmCombinedStreamReceiver) HandlePCM(_ []snowflake.ID, packet *CombinedPCMPacket) {
-	_ = binary.Write(p.w, binary.LittleEndian, packet)
+func (p *pcmCombinedStreamReceiver) ReceiveCombinedPCMFrame(_ []snowflake.ID, packet *CombinedPCMPacket) {
+	if err := binary.Write(p.w, binary.LittleEndian, packet.PCM); err != nil {
+		panic("ReceiveCombinedPCMFrame: " + err.Error())
+	}
 }
 
 func (*pcmCombinedStreamReceiver) Close() {}

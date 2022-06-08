@@ -1,8 +1,6 @@
 package audio
 
 import (
-	"bytes"
-	"encoding/binary"
 	"sync"
 
 	"github.com/disgoorg/disgo/audio/opus"
@@ -21,8 +19,6 @@ func NewPCMOpusReceiver(decoderCreateFunc func() *opus.Decoder, pcmFrameReceiver
 		decoderCreateFunc: decoderCreateFunc,
 		decoders:          map[snowflake.ID]*opus.Decoder{},
 		pcmFrameReceiver:  pcmFrameReceiver,
-		pcmBuff:           make([]int16, 960),
-		opusBuff:          make([]byte, 4000),
 	}
 }
 
@@ -31,8 +27,7 @@ type pcmOpusReceiver struct {
 	decoders          map[snowflake.ID]*opus.Decoder
 	decodersMu        sync.Mutex
 	pcmFrameReceiver  PCMFrameReceiver
-	pcmBuff           []int16
-	opusBuff          []byte
+	pcmBuff           [960 * 4]int16
 }
 
 func (r *pcmOpusReceiver) ReceiveOpusFrame(userID snowflake.ID, packet *voice.Packet) {
@@ -44,13 +39,9 @@ func (r *pcmOpusReceiver) ReceiveOpusFrame(userID snowflake.ID, packet *voice.Pa
 	}
 	r.decodersMu.Unlock()
 
-	n, err := decoder.Decode(r.opusBuff, r.pcmBuff, true)
+	_, err := decoder.Decode(packet.Opus, r.pcmBuff[:], false)
 	if err != nil {
-		return
-	}
-
-	reader := bytes.NewReader(r.opusBuff[:n])
-	if err = binary.Read(reader, binary.LittleEndian, r.pcmBuff); err != nil {
+		panic("ReceiveOpusFrame: " + err.Error())
 		return
 	}
 
@@ -58,7 +49,7 @@ func (r *pcmOpusReceiver) ReceiveOpusFrame(userID snowflake.ID, packet *voice.Pa
 		SSRC:      packet.SSRC,
 		Sequence:  packet.Sequence,
 		Timestamp: packet.Timestamp,
-		PCM:       r.pcmBuff,
+		PCM:       r.pcmBuff[:],
 	})
 }
 

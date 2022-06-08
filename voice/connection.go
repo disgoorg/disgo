@@ -182,7 +182,9 @@ func (c *Connection) handleGatewayMessage(op GatewayOpcode, data GatewayMessageD
 		}
 		c.audioReceiveSystem.CleanupUser(d.UserID)
 	}
-	c.config.EventHandlerFunc(op, data)
+	if c.config.EventHandlerFunc != nil {
+		c.config.EventHandlerFunc(op, data)
+	}
 }
 
 func (c *Connection) handleGatewayClose(gateway *Gateway, err error) {
