@@ -7,22 +7,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/disgoorg/disgo/voice"
 	"github.com/disgoorg/snowflake/v2"
 )
 
 // NewPCMCombinerReceiver creates a new PCMFrameReceiver which combines multiple PCMPacket(s) into a single CombinedPCMPacket.
 // You can process the CombinedPCMPacket by passing a PCMCombinedFrameReceiver.
-// You can filter which users should be combined by passing a voice.ShouldReceiveUserFunc.
-func NewPCMCombinerReceiver(pcmCombinedFrameReceiver PCMCombinedFrameReceiver, receiveUserFunc voice.ShouldReceiveUserFunc) PCMFrameReceiver {
-	if receiveUserFunc == nil {
-		receiveUserFunc = func(_ snowflake.ID) bool {
-			return true
-		}
-	}
+func NewPCMCombinerReceiver(pcmCombinedFrameReceiver PCMCombinedFrameReceiver) PCMFrameReceiver {
 	receiver := &pcmCombinerReceiver{
 		pcmCombinedFrameReceiver: pcmCombinedFrameReceiver,
-		receiveUserFunc:          receiveUserFunc,
 		queue:                    map[snowflake.ID]*[]audioData{},
 	}
 	go receiver.startCombinePackets()
@@ -32,15 +24,11 @@ func NewPCMCombinerReceiver(pcmCombinedFrameReceiver PCMCombinedFrameReceiver, r
 type pcmCombinerReceiver struct {
 	pcmCombinedFrameReceiver PCMCombinedFrameReceiver
 	cancelFunc               context.CancelFunc
-	receiveUserFunc          voice.ShouldReceiveUserFunc
 	queue                    map[snowflake.ID]*[]audioData
 	queueMu                  sync.Mutex
 }
 
 func (r *pcmCombinerReceiver) ReceivePCMFrame(userID snowflake.ID, packet *PCMPacket) {
-	if r.receiveUserFunc == nil && !r.receiveUserFunc(userID) {
-		return
-	}
 	r.queueMu.Lock()
 	defer r.queueMu.Unlock()
 

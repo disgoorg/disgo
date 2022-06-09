@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"encoding/binary"
 	"io"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
@@ -26,7 +28,6 @@ func main() {
 	log.Info("starting up")
 
 	file, _ := os.Open("nico.dca")
-	defer file.Close()
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuildVoiceStates)),
 		bot.WithEventListenerFunc(func(e *events.Ready) {
@@ -49,7 +50,7 @@ func main() {
 	<-s
 }
 
-func play(client bot.Client, reader io.Reader) {
+func play(client bot.Client, reader io.ReadCloser) {
 	connection, err := client.ConnectChannel(context.Background(), 817327181659111454, 982083072067530762, false, false)
 	if err != nil {
 		panic("error connecting to voice channel: " + err.Error())
@@ -57,17 +58,35 @@ func play(client bot.Client, reader io.Reader) {
 
 	println("starting playback")
 
-	//connection.SetOpusFrameProvider(newReaderSendHandler(reader))
-
 	if err = connection.Speaking(voice.SpeakingFlagMicrophone); err != nil {
 		panic("error setting speaking flag: " + err.Error())
 	}
 	writeOpus(connection.UDP(), reader)
+}
 
-	/*echo := &echoHandler{}
-	connection.SetOpusFrameProvider(echo)
-	connection.SetOpusFraneReceiver(echo)
-	*/
+func writeOpus(w io.Writer, reader io.ReadCloser) {
+	ticker := time.NewTicker(time.Millisecond * 20)
+	defer ticker.Stop()
 
-	//newEcho2(connection)
+	var lenbuf [4]byte
+	for range ticker.C {
+		_, err := io.ReadFull(reader, lenbuf[:])
+		if err != nil {
+			if err == io.EOF {
+				reader.Close()
+				return
+			}
+			return
+		}
+
+		// Read the integer
+		framelen := int64(binary.LittleEndian.Uint32(lenbuf[:]))
+
+		// Copy the frame.
+		_, err = io.CopyN(w, reader, framelen)
+		if err != nil && err != io.EOF {
+			reader.Close()
+			return
+		}
+	}
 }

@@ -12,7 +12,7 @@ var _ error = Error(0)
 type Error int
 
 func (e Error) Error() string {
-	return fmt.Sprintf("audio: %s", string(C.GoString(C.opus_strerror(C.int(e)))))
+	return fmt.Sprintf("opus: %s", string(C.GoString(C.opus_strerror(C.int(e)))))
 }
 
 const (
