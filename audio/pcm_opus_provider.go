@@ -7,6 +7,8 @@ import (
 	"github.com/disgoorg/disgo/voice"
 )
 
+// NewPCMOpusProvider creates a new voice.OpusFrameProvider which gets PCM frames from the given PCMFrameProvider and encodes the PCM frames into Opus frames.
+// You can pass your own *opus.Encoder or nil to use the default Opus encoder(48000hz sample rate, 2 channels, opus.ApplicationAudio & 64kbps bitrate).
 func NewPCMOpusProvider(encoder *opus.Encoder, pcmProvider PCMFrameProvider) voice.OpusFrameProvider {
 	if encoder == nil {
 		var err error
@@ -15,9 +17,6 @@ func NewPCMOpusProvider(encoder *opus.Encoder, pcmProvider PCMFrameProvider) voi
 		}
 		if err = encoder.Ctl(opus.SetBitrate(64000)); err != nil {
 			panic("SetBitrate: " + err.Error())
-		}
-		if err = encoder.Ctl(opus.SetComplexity(10)); err != nil {
-			panic("SetComplexity: " + err.Error())
 		}
 
 	}

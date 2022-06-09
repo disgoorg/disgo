@@ -6,11 +6,16 @@ import (
 	"io"
 )
 
+// PCMFrameProvider is an interface for providing PCM frames.
 type PCMFrameProvider interface {
+	// ProvidePCMFrame is called to get a PCM frame.
 	ProvidePCMFrame() []int16
+
+	// Close is called when the provider is no longer needed. It should close any open resources.
 	Close()
 }
 
+// NewPCMStreamProvider creates a new PCMFrameProvider which reads PCM frames from the given io.Reader.
 func NewPCMStreamProvider(r io.Reader) PCMFrameProvider {
 	return &pcmStreamProvider{
 		r: r,

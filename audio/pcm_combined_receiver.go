@@ -11,7 +11,10 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-func NewPCMCombinerReceiver(pcmCombinedFrameReceiver PCMCombinedFrameReceiver, receiveUserFunc voice.ReceiveUserFunc) PCMFrameReceiver {
+// NewPCMCombinerReceiver creates a new PCMFrameReceiver which combines multiple PCMPacket(s) into a single CombinedPCMPacket.
+// You can process the CombinedPCMPacket by passing a PCMCombinedFrameReceiver.
+// You can filter which users should be combined by passing a voice.ShouldReceiveUserFunc.
+func NewPCMCombinerReceiver(pcmCombinedFrameReceiver PCMCombinedFrameReceiver, receiveUserFunc voice.ShouldReceiveUserFunc) PCMFrameReceiver {
 	if receiveUserFunc == nil {
 		receiveUserFunc = func(_ snowflake.ID) bool {
 			return true
@@ -29,7 +32,7 @@ func NewPCMCombinerReceiver(pcmCombinedFrameReceiver PCMCombinedFrameReceiver, r
 type pcmCombinerReceiver struct {
 	pcmCombinedFrameReceiver PCMCombinedFrameReceiver
 	cancelFunc               context.CancelFunc
-	receiveUserFunc          voice.ReceiveUserFunc
+	receiveUserFunc          voice.ShouldReceiveUserFunc
 	queue                    map[snowflake.ID]*[]audioData
 	queueMu                  sync.Mutex
 }
@@ -160,6 +163,7 @@ type audioData struct {
 	packet *PCMPacket
 }
 
+// CombinedPCMPacket is a PCMPacket which got created by combining multiple PCMPacket(s).
 type CombinedPCMPacket struct {
 	SSRCs      []uint32
 	Sequences  []uint16
@@ -167,11 +171,16 @@ type CombinedPCMPacket struct {
 	PCM        []int16
 }
 
+// PCMCombinedFrameReceiver is an interface for receiving PCMPacket(s) from multiple users as one CombinedPCMPacket.
 type PCMCombinedFrameReceiver interface {
+	// ReceiveCombinedPCMFrame is called when a new CombinedPCMPacket is received.
 	ReceiveCombinedPCMFrame(userIDs []snowflake.ID, packet *CombinedPCMPacket)
+
+	// Close is called when the PCMCombinedFrameReceiver is no longer needed. It should close any open resources.
 	Close()
 }
 
+// NewPCMCombinedStreamReceiver creates a new PCMCombinedFrameReceiver which writes the CombinedPCMPacket to the given io.Writer.
 func NewPCMCombinedStreamReceiver(w io.Writer) PCMCombinedFrameReceiver {
 	return &pcmCombinedStreamReceiver{
 		w: w,

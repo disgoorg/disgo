@@ -9,7 +9,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-type ReceiveUserFunc func(userID snowflake.ID) bool
+type ShouldReceiveUserFunc func(userID snowflake.ID) bool
 
 type AudioReceiveSystem interface {
 	Open()
@@ -76,7 +76,7 @@ type OpusFrameReceiver interface {
 	Close()
 }
 
-func NewOpusStreamReceiver(w io.Writer, receiveUserFunc ReceiveUserFunc) OpusFrameReceiver {
+func NewOpusStreamReceiver(w io.Writer, receiveUserFunc ShouldReceiveUserFunc) OpusFrameReceiver {
 	return &opusStreamReceiver{
 		w:               w,
 		receiveUserFunc: receiveUserFunc,
@@ -85,7 +85,7 @@ func NewOpusStreamReceiver(w io.Writer, receiveUserFunc ReceiveUserFunc) OpusFra
 
 type opusStreamReceiver struct {
 	w               io.Writer
-	receiveUserFunc ReceiveUserFunc
+	receiveUserFunc ShouldReceiveUserFunc
 }
 
 func (r *opusStreamReceiver) ReceiveOpusFrame(userID snowflake.ID, packet *Packet) {
