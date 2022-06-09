@@ -9,6 +9,7 @@ import (
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/audio"
+	"github.com/disgoorg/disgo/audio/opus"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
@@ -60,8 +61,29 @@ func play(client bot.Client) {
 
 	buff := &bytes.Buffer{}
 
-	connection.SetOpusFrameProvider(audio.NewPCMOpusProvider(nil, audio.NewPCMStreamProvider(buff)))
-	connection.SetOpusFraneReceiver(audio.NewPCMOpusReceiver(nil, audio.NewPCMCombinerReceiver(audio.NewPCMCombinedStreamReceiver(buff), nil)))
+	encoder, err := opus.NewEncoder(24000, 2, opus.ApplicationAudio)
+	if err != nil {
+		panic("NewPCMOpusProvider: " + err.Error())
+	}
+	if err = encoder.Ctl(opus.SetBitrate(64000)); err != nil {
+		panic("SetBitrate: " + err.Error())
+	}
+
+	connection.SetOpusFrameProvider(audio.NewPCMOpusProvider(encoder, audio.NewPCMStreamProvider(buff)))
+	connection.SetOpusFraneReceiver(
+		audio.NewPCMOpusReceiver(
+			nil,
+			audio.NewPCMCombinerReceiver(
+				audio.NewSampleRateCombinedReceiver(
+					nil,
+					48000,
+					24000,
+					audio.NewPCMCombinedStreamReceiver(buff),
+				),
+			),
+			nil,
+		),
+	)
 
 	println("voice: ready")
 }
