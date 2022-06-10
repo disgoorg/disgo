@@ -57,7 +57,6 @@ type UDP struct {
 
 	receiveNonce  [24]byte
 	receiveBuffer []byte
-	receiveOpus   []byte
 }
 
 func (c *UDP) SetSecretKey(secretKey [32]byte) {
@@ -100,8 +99,7 @@ func (c *UDP) Open(ctx context.Context) (string, int, error) {
 	return strings.Replace(string(address), "\x00", "", -1), int(port), nil
 }
 
-func (c *UDP) Write(b []byte) (int, error) {
-	//fmt.Printf("Opus: %v\n\n", b)
+func (c *UDP) Write(p []byte) (int, error) {
 	binary.BigEndian.PutUint16(c.packet[2:4], c.sequence)
 	c.sequence++
 
@@ -114,10 +112,10 @@ func (c *UDP) Write(b []byte) (int, error) {
 	c.connMu.Lock()
 	conn := c.conn
 	c.connMu.Unlock()
-	if _, err := conn.Write(secretbox.Seal(c.packet[:12], b, &c.nonce, &c.secretKey)); err != nil {
+	if _, err := conn.Write(secretbox.Seal(c.packet[:], p, &c.nonce, &c.secretKey)); err != nil {
 		return 0, err
 	}
-	return len(b), nil
+	return len(p), nil
 }
 
 func (c *UDP) Read(p []byte) (n int, err error) {
@@ -131,9 +129,9 @@ func (c *UDP) Read(p []byte) (n int, err error) {
 const packetHeaderSize = 12
 
 type Packet struct {
-	SSRC      uint32
 	Sequence  uint16
 	Timestamp uint32
+	SSRC      uint32
 	Opus      []byte
 }
 
@@ -153,14 +151,13 @@ func (c *UDP) ReadPacket() (*Packet, error) {
 		if err != nil {
 			return nil, err
 		}
-
-		if i < 12 || (c.receiveBuffer[0] != 0x80 && c.receiveBuffer[0] != 0x90) {
+		if i < packetHeaderSize || (c.receiveBuffer[0] != 0x80 && c.receiveBuffer[0] != 0x90) || (c.receiveBuffer[1] != 0x78 && c.receiveBuffer[1] != 0x80) {
 			continue
 		}
 
 		copy(c.receiveNonce[:], c.receiveBuffer[0:packetHeaderSize])
 
-		opus, ok := secretbox.Open(c.receiveOpus[:0], c.receiveBuffer[packetHeaderSize:i], &c.receiveNonce, &c.secretKey)
+		opus, ok := secretbox.Open(nil, c.receiveBuffer[packetHeaderSize:i], &c.receiveNonce, &c.secretKey)
 		if !ok {
 			return nil, ErrDecryptionFailed
 		}
@@ -176,11 +173,10 @@ func (c *UDP) ReadPacket() (*Packet, error) {
 				opus = opus[shift:]
 			}
 		}
-		ssrc := binary.BigEndian.Uint32(c.receiveBuffer[8:12])
 		return &Packet{
-			SSRC:      ssrc,
 			Sequence:  binary.BigEndian.Uint16(c.receiveBuffer[2:4]),
 			Timestamp: binary.BigEndian.Uint32(c.receiveBuffer[4:8]),
+			SSRC:      binary.BigEndian.Uint32(c.receiveBuffer[8:12]),
 			Opus:      opus,
 		}, nil
 	}

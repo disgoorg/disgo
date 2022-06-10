@@ -107,16 +107,16 @@ func (r *pcmCombinerReceiver) combinePackets() {
 		return
 	}
 	combinedPacket := &CombinedPCMPacket{
-		SSRCs:      make([]uint32, len(audioParts)),
 		Sequences:  make([]uint16, len(audioParts)),
 		Timestamps: make([]uint32, len(audioParts)),
+		SSRCs:      make([]uint32, len(audioParts)),
 		PCM:        make([]int16, audioLen),
 	}
 	userIds := make([]snowflake.ID, len(audioParts))
 	for i, audio := range audioParts {
-		combinedPacket.SSRCs[i] = audio.packet.SSRC
 		combinedPacket.Sequences[i] = audio.packet.Sequence
 		combinedPacket.Timestamps[i] = audio.packet.Timestamp
+		combinedPacket.SSRCs[i] = audio.packet.SSRC
 		userIds[i] = audio.userID
 
 		for j := 0; j < len(audio.packet.PCM); j++ {
@@ -153,9 +153,9 @@ type audioData struct {
 
 // CombinedPCMPacket is a PCMPacket which got created by combining multiple PCMPacket(s).
 type CombinedPCMPacket struct {
-	SSRCs      []uint32
 	Sequences  []uint16
 	Timestamps []uint32
+	SSRCs      []uint32
 	PCM        []int16
 }
 

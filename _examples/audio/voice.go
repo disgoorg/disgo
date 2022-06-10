@@ -61,7 +61,7 @@ func play(client bot.Client) {
 	buff := &bytes.Buffer{}
 
 	connection.SetOpusFrameProvider(audio.NewPCMOpusProvider(nil, audio.NewPCMStreamProvider(buff)))
-	connection.SetOpusFraneReceiver(audio.NewPCMOpusReceiver(nil, audio.NewPCMCombinerReceiver(audio.NewPCMCombinedStreamReceiver(buff), nil)))
+	connection.SetOpusFraneReceiver(audio.NewPCMOpusReceiver(nil, audio.NewPCMCombinerReceiver(audio.NewPCMCombinedStreamReceiver(buff)), nil))
 
 	println("voice: ready")
 }
