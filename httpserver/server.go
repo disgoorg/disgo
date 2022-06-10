@@ -39,7 +39,7 @@ type Server interface {
 
 // VerifyRequest implements the verification side of the discord interactions api signing algorithm, as documented here: https://discord.com/developers/docs/interactions/slash-commands#security-and-authorization
 // Credit: https://github.com/bsdlp/discord-interactions-go/blob/main/interactions/verify.go
-func VerifyRequest(logger log.Logger, r *http.Request, key PublicKey) bool {
+func VerifyRequest(r *http.Request, key PublicKey) bool {
 	var msg bytes.Buffer
 
 	signature := r.Header.Get("X-Signature-Ed25519")
@@ -64,10 +64,7 @@ func VerifyRequest(logger log.Logger, r *http.Request, key PublicKey) bool {
 	msg.WriteString(timestamp)
 
 	defer func() {
-		err = r.Body.Close()
-		if err != nil {
-			logger.Error("error while closing request body: ", err)
-		}
+		_ = r.Body.Close()
 	}()
 	var body bytes.Buffer
 
