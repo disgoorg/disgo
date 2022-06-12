@@ -50,7 +50,7 @@ type Client interface {
 	// EventManager returns the EventManager used by the Client.
 	EventManager() EventManager
 
-	VoiceManager() *voice.Manager
+	VoiceManager() voice.Manager
 
 	// ConnectGateway connects to the configured gateway.Gateway.
 	ConnectGateway(ctx context.Context) error
@@ -76,7 +76,7 @@ type Client interface {
 	// Connect sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway and connects the bot to the specified channel.
 	Connect(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID) error
 
-	ConnectChannel(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) (*voice.Connection, error)
+	ConnectChannel(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) (voice.Connection, error)
 
 	// Disconnect sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway and disconnects the bot from this guild.
 	Disconnect(ctx context.Context, guildID snowflake.ID) error
@@ -130,7 +130,7 @@ type clientImpl struct {
 
 	httpServer httpserver.Server
 
-	voiceManager *voice.Manager
+	voiceManager voice.Manager
 
 	caches cache.Caches
 
@@ -191,7 +191,7 @@ func (c *clientImpl) EventManager() EventManager {
 	return c.eventManager
 }
 
-func (c *clientImpl) VoiceManager() *voice.Manager {
+func (c *clientImpl) VoiceManager() voice.Manager {
 	return c.voiceManager
 }
 
@@ -249,7 +249,7 @@ func (c *clientImpl) Connect(ctx context.Context, guildID snowflake.ID, channelI
 	})
 }
 
-func (c *clientImpl) ConnectChannel(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) (*voice.Connection, error) {
+func (c *clientImpl) ConnectChannel(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) (voice.Connection, error) {
 	shard, err := c.Shard(guildID)
 	if err != nil {
 		return nil, err

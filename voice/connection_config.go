@@ -38,6 +38,30 @@ func WithConnectionLogger(logger log.Logger) ConnectionConfigOpt {
 	}
 }
 
+func WithConnectionGatewayCreateFunc(gatewayCreateFunc GatewayCreateFunc) ConnectionConfigOpt {
+	return func(ConnectionConfig *ConnectionConfig) {
+		ConnectionConfig.GatewayCreateFunc = gatewayCreateFunc
+	}
+}
+
+func WithConnectionGatewayConfigOpts(opts ...GatewayConfigOpt) ConnectionConfigOpt {
+	return func(ConnectionConfig *ConnectionConfig) {
+		ConnectionConfig.GatewayConfigOpts = append(ConnectionConfig.GatewayConfigOpts, opts...)
+	}
+}
+
+func WithConnectionUDPCreateFunc(udpCreateFunc UDPCreateFunc) ConnectionConfigOpt {
+	return func(ConnectionConfig *ConnectionConfig) {
+		ConnectionConfig.UDPConnCreateFunc = udpCreateFunc
+	}
+}
+
+func WithConnectionUDPConfigOpts(opts ...UDPConfigOpt) ConnectionConfigOpt {
+	return func(ConnectionConfig *ConnectionConfig) {
+		ConnectionConfig.UDPConnConfigOpts = append(ConnectionConfig.UDPConnConfigOpts, opts...)
+	}
+}
+
 func WithConnectionEventHandlerFunc(eventHandlerFunc EventHandlerFunc) ConnectionConfigOpt {
 	return func(ConnectionConfig *ConnectionConfig) {
 		ConnectionConfig.EventHandlerFunc = eventHandlerFunc

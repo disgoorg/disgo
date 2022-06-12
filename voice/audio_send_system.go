@@ -11,7 +11,7 @@ import (
 
 var SilenceAudioFrames = []byte{0xF8, 0xFF, 0xFE}
 
-func NewAudioSendSystem(opusProvider OpusFrameProvider, connection *Connection) AudioSendSystem {
+func NewAudioSendSystem(opusProvider OpusFrameProvider, connection Connection) AudioSendSystem {
 	return &defaultAudioSendSystem{
 		logger:       log.Default(),
 		opusProvider: opusProvider,
@@ -29,7 +29,7 @@ type defaultAudioSendSystem struct {
 	logger       log.Logger
 	cancelFunc   context.CancelFunc
 	opusProvider OpusFrameProvider
-	connection   *Connection
+	connection   Connection
 
 	silentFrames      int
 	sentSpeakingStop  bool

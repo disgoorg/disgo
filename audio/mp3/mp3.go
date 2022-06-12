@@ -6,7 +6,7 @@ package mp3
 */
 import "C"
 
-type Param C.mpg123_parms
+type Param C.int
 
 const (
 	Verbose        Param = C.MPG123_VERBOSE
@@ -31,7 +31,7 @@ const (
 	FreeformatSize Param = C.MPG123_FREEFORMAT_SIZE
 )
 
-type ParamFlags C.mpg123_param_flags
+type ParamFlags C.int
 
 const (
 	ParamFlagForceMono          ParamFlags = C.MPG123_FORCE_MONO

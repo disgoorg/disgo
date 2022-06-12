@@ -30,3 +30,15 @@ func WithLogger(logger log.Logger) ManagerConfigOpt {
 		ManagerConfig.Logger = logger
 	}
 }
+
+func WithConnectionCreateFunc(f ConnectionCreateFunc) ManagerConfigOpt {
+	return func(ManagerConfig *ManagerConfig) {
+		ManagerConfig.ConnectionCreateFunc = f
+	}
+}
+
+func WithConnectionOpts(opts ...ConnectionConfigOpt) ManagerConfigOpt {
+	return func(ManagerConfig *ManagerConfig) {
+		ManagerConfig.ConnectionOpts = append(ManagerConfig.ConnectionOpts, opts...)
+	}
+}

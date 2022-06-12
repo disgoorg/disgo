@@ -34,7 +34,7 @@ type Config struct {
 	EventManager           EventManager
 	EventManagerConfigOpts []EventManagerConfigOpt
 
-	VoiceManager           *voice.Manager
+	VoiceManager           voice.Manager
 	VoiceManagerConfigOpts []voice.ManagerConfigOpt
 
 	Gateway           gateway.Gateway

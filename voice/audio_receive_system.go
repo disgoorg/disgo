@@ -17,7 +17,7 @@ type AudioReceiveSystem interface {
 	Close()
 }
 
-func NewAudioReceiveSystem(opusFrameReceiver OpusFrameReceiver, connection *Connection) AudioReceiveSystem {
+func NewAudioReceiveSystem(opusFrameReceiver OpusFrameReceiver, connection Connection) AudioReceiveSystem {
 	return &defaultAudioReceiveSystem{
 		logger:            log.Default(),
 		opusFrameReceiver: opusFrameReceiver,
@@ -30,7 +30,7 @@ type defaultAudioReceiveSystem struct {
 
 	logger            log.Logger
 	opusFrameReceiver OpusFrameReceiver
-	connection        *Connection
+	connection        Connection
 }
 
 func (s *defaultAudioReceiveSystem) Open() {

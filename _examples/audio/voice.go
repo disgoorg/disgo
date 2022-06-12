@@ -1,8 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"context"
+	"io"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,7 +14,6 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/voice"
 	"github.com/disgoorg/log"
 )
 
@@ -54,14 +54,19 @@ func play(client bot.Client) {
 		panic("error connecting to voice channel: " + err.Error())
 	}
 
-	connection.Speaking(voice.SpeakingFlagMicrophone)
+	rs, err := http.Get("https://p.scdn.co/mp3-preview/ee121ca281c629bb4e99c33d877fe98fbb752289?cid=774b29d4f13844c495f206cafdad9c86")
+	if err != nil {
+		panic("error getting audio: " + err.Error())
+	}
 
-	connection.UDP().Write(voice.SilenceAudioFrames)
+	provider, writeFunc := audio.NewMP3PCMFrameProvider(nil)
 
-	buff := &bytes.Buffer{}
+	go func() {
+		defer rs.Body.Close()
+		io.Copy(writeFunc, rs.Body)
+	}()
 
-	connection.SetOpusFrameProvider(audio.NewPCMOpusProvider(nil, audio.NewPCMStreamProvider(buff)))
-	connection.SetOpusFraneReceiver(audio.NewPCMOpusReceiver(nil, audio.NewPCMCombinerReceiver(audio.NewPCMCombinedStreamReceiver(buff)), nil))
+	connection.SetOpusFrameProvider(audio.NewPCMOpusProvider(nil, provider))
 
 	println("voice: ready")
 }

@@ -39,15 +39,25 @@ const (
 
 type (
 	EventHandlerFunc  func(opCode GatewayOpcode, data GatewayMessageData)
-	CloseHandlerFunc  func(gateway *Gateway, err error)
-	GatewayCreateFunc func(state State, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) *Gateway
+	CloseHandlerFunc  func(gateway Gateway, err error)
+	GatewayCreateFunc func(state State, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway
 )
 
-func NewGateway(state State, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) *Gateway {
+type Gateway interface {
+	Logger() log.Logger
+	SSRC() uint32
+	Open(ctx context.Context) error
+	Close()
+	CloseWithCode(code int, message string)
+	Send(opCode GatewayOpcode, data GatewayMessageData) error
+	Latency() time.Duration
+}
+
+func NewGateway(state State, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway {
 	config := DefaultGatewayConfig()
 	config.Apply(opts)
 
-	return &Gateway{
+	return &gatewayImpl{
 		config:           *config,
 		eventHandlerFunc: eventHandlerFunc,
 		closeHandlerFunc: closeHandlerFunc,
@@ -55,7 +65,7 @@ func NewGateway(state State, eventHandlerFunc EventHandlerFunc, closeHandlerFunc
 	}
 }
 
-type Gateway struct {
+type gatewayImpl struct {
 	config           GatewayConfig
 	eventHandlerFunc EventHandlerFunc
 	closeHandlerFunc CloseHandlerFunc
@@ -73,15 +83,15 @@ type Gateway struct {
 	lastNonce             int64
 }
 
-func (g *Gateway) Logger() log.Logger {
+func (g *gatewayImpl) Logger() log.Logger {
 	return g.config.Logger
 }
 
-func (g *Gateway) SSRC() uint32 {
+func (g *gatewayImpl) SSRC() uint32 {
 	return g.ssrc
 }
 
-func (g *Gateway) Open(ctx context.Context) error {
+func (g *gatewayImpl) Open(ctx context.Context) error {
 	g.Logger().Debug("opening voice gateway connection")
 
 	g.mu.Lock()
@@ -123,11 +133,11 @@ func (g *Gateway) Open(ctx context.Context) error {
 	return nil
 }
 
-func (g *Gateway) Close() {
+func (g *gatewayImpl) Close() {
 	g.CloseWithCode(websocket.CloseNormalClosure, "Shutting down")
 }
 
-func (g *Gateway) CloseWithCode(code int, message string) {
+func (g *gatewayImpl) CloseWithCode(code int, message string) {
 	if g.heartbeatTicker != nil {
 		g.Logger().Debug("closing heartbeat goroutines...")
 		g.heartbeatTicker.Stop()
@@ -151,7 +161,7 @@ func (g *Gateway) CloseWithCode(code int, message string) {
 	}
 }
 
-func (g *Gateway) heartbeat(heartbeatInterval time.Duration) {
+func (g *gatewayImpl) heartbeat(heartbeatInterval time.Duration) {
 	g.heartbeatTicker = time.NewTicker(heartbeatInterval)
 	defer g.heartbeatTicker.Stop()
 	defer g.Logger().Debug("exiting heartbeat goroutine...")
@@ -161,7 +171,7 @@ func (g *Gateway) heartbeat(heartbeatInterval time.Duration) {
 	}
 }
 
-func (g *Gateway) sendHeartbeat() {
+func (g *gatewayImpl) sendHeartbeat() {
 	g.Logger().Debug("sending heartbeat...")
 
 	g.lastNonce = time.Now().UnixMilli()
@@ -174,7 +184,7 @@ func (g *Gateway) sendHeartbeat() {
 	g.lastHeartbeatSent = time.Now().UTC()
 }
 
-func (g *Gateway) listen(conn *websocket.Conn) {
+func (g *gatewayImpl) listen(conn *websocket.Conn) {
 	defer g.Logger().Debug("exiting listen goroutine...")
 loop:
 	for {
@@ -261,11 +271,11 @@ loop:
 	}
 }
 
-func (g *Gateway) Latency() time.Duration {
+func (g *gatewayImpl) Latency() time.Duration {
 	return g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
 }
 
-func (g *Gateway) Send(op GatewayOpcode, d GatewayMessageData) error {
+func (g *gatewayImpl) Send(op GatewayOpcode, d GatewayMessageData) error {
 	data, err := json.Marshal(GatewayMessage{
 		Op: op,
 		D:  d,
@@ -276,7 +286,7 @@ func (g *Gateway) Send(op GatewayOpcode, d GatewayMessageData) error {
 	return g.send(websocket.TextMessage, data)
 }
 
-func (g *Gateway) send(messageType int, data []byte) error {
+func (g *gatewayImpl) send(messageType int, data []byte) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
 	if g.conn == nil {
@@ -287,7 +297,7 @@ func (g *Gateway) send(messageType int, data []byte) error {
 	return g.conn.WriteMessage(messageType, data)
 }
 
-func (g *Gateway) reconnectTry(ctx context.Context, try int, delay time.Duration) error {
+func (g *gatewayImpl) reconnectTry(ctx context.Context, try int, delay time.Duration) error {
 	if try >= g.config.MaxReconnectTries-1 {
 		return fmt.Errorf("failed to reconnect. exceeded max reconnect tries of %d reached", g.config.MaxReconnectTries)
 	}
@@ -312,14 +322,14 @@ func (g *Gateway) reconnectTry(ctx context.Context, try int, delay time.Duration
 	return nil
 }
 
-func (g *Gateway) reconnect(ctx context.Context) {
+func (g *gatewayImpl) reconnect(ctx context.Context) {
 	err := g.reconnectTry(ctx, 0, time.Second)
 	if err != nil {
 		g.Logger().Error("failed to reopen gateway", err)
 	}
 }
 
-func (g *Gateway) parseGatewayMessage(reader io.Reader) (GatewayMessage, error) {
+func (g *gatewayImpl) parseGatewayMessage(reader io.Reader) (GatewayMessage, error) {
 	buff := &bytes.Buffer{}
 	data, _ := io.ReadAll(io.TeeReader(reader, buff))
 	g.Logger().Infof("received message from gateway. data: %s", string(data))

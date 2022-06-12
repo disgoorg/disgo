@@ -41,8 +41,8 @@ func (d *Decoder) GetFormat() (int64, int, int) {
 	return int64(rate), int(channels), int(encoding)
 }
 
-func (d *Decoder) Param(param Param, intValue int, floatValue float32) error {
-	if err := C.mpg123_param(d.handle, C.int(param), C.int(intValue), C.float(floatValue)); err != C.MPG123_OK {
+func (d *Decoder) Param(param Param, intValue int, floatValue float64) error {
+	if err := C.mpg123_param(d.handle, C.int(param), C.long(intValue), C.double(floatValue)); err != C.MPG123_OK {
 		return Error(err)
 	}
 	return nil
@@ -54,7 +54,7 @@ func (d *Decoder) Format(rate int64, channels int, encoding int) {
 
 func (d *Decoder) Decode(in []byte, out []byte) (int, error) {
 	var done C.size_t
-	err := C.mpg123_decode(d.handle, (unsafe.Pointer)(&in[0]), C.size_t(len(in)), (unsafe.Pointer)(&out[0]), C.size_t(cap(out)), &done)
+	err := C.mpg123_decode(d.handle, (*C.uchar)(unsafe.Pointer(&in[0])), C.size_t(len(in)), (unsafe.Pointer)(&out[0]), C.size_t(cap(out)), &done)
 	if err == C.MPG123_DONE {
 		return int(done), io.EOF
 	}
@@ -80,9 +80,15 @@ func (d *Decoder) Write(p []byte) (int, error) {
 
 func (d *Decoder) Read(p []byte) (int, error) {
 	var done C.size_t
-	err := C.mpg123_read(d.handle, (unsafe.Pointer)(&p[0]), C.size_t(len(p)), &done)
+	err := C.mpg123_read(d.handle, (unsafe.Pointer)(&p[0]), C.size_t(cap(p)), &done)
 	if err == C.MPG123_DONE {
 		return int(done), io.EOF
+	}
+	if err == C.MPG123_NEW_FORMAT {
+		return d.Read(p)
+	}
+	if err == C.MPG123_NEED_MORE {
+		return 0, io.EOF
 	}
 	if err != C.MPG123_OK {
 		return 0, Error(err)

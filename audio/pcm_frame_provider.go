@@ -24,7 +24,7 @@ func NewPCMStreamProvider(r io.Reader) PCMFrameProvider {
 
 type pcmStreamProvider struct {
 	r           io.Reader
-	bytePCMBuff [1920 * 4]byte
+	bytePCMBuff [1920 * 2]byte
 	pcmBuff     [960 * 2]int16
 }
 

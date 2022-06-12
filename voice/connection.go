@@ -11,13 +11,36 @@ import (
 
 var ErrAlreadyConnected = errors.New("already connected")
 
-type ConnectionCreateFunc func(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, opts ...ConnectionConfigOpt) *Connection
+type ConnectionCreateFunc func(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, opts ...ConnectionConfigOpt) Connection
 
-func NewConnection(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, opts ...ConnectionConfigOpt) *Connection {
+type Connection interface {
+	Gateway() Gateway
+	UDP() UDP
+
+	UserIDBySSRC(ssrc uint32) snowflake.ID
+	Speaking(flags SpeakingFlags) error
+
+	SetAudioSendSystem(sendSystem AudioSendSystem)
+	SetOpusFrameProvider(handler OpusFrameProvider)
+	SetAudioReceiveSystem(receiveSystem AudioReceiveSystem)
+	SetOpusFrameReceiver(handler OpusFrameReceiver)
+	SetEventHandlerFunc(eventHandlerFunc EventHandlerFunc)
+
+	Open(ctx context.Context) error
+	Close()
+
+	HandleVoiceStateUpdate(update discord.VoiceStateUpdate)
+	HandleVoiceServerUpdate(update discord.VoiceServerUpdate)
+
+	WaitUntilConnected(ctx context.Context) error
+	WaitUntilDisconnected(ctx context.Context) error
+}
+
+func NewConnection(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, opts ...ConnectionConfigOpt) Connection {
 	config := DefaultConnectionConfig()
 	config.Apply(opts)
 
-	return &Connection{
+	return &connectionImpl{
 		config: *config,
 		state: State{
 			guildID:   guildID,
@@ -40,12 +63,12 @@ type State struct {
 	endpoint  string
 }
 
-type Connection struct {
+type connectionImpl struct {
 	config ConnectionConfig
 
 	state   State
-	gateway *Gateway
-	udp     *UDP
+	gateway Gateway
+	udp     UDP
 	mu      sync.Mutex
 
 	audioSendSystem    AudioSendSystem
@@ -58,54 +81,54 @@ type Connection struct {
 	ssrcsMu sync.Mutex
 }
 
-func (c *Connection) UserIDBySSRC(ssrc uint32) snowflake.ID {
+func (c *connectionImpl) UserIDBySSRC(ssrc uint32) snowflake.ID {
 	c.ssrcsMu.Lock()
 	defer c.ssrcsMu.Unlock()
 	return c.ssrcs[ssrc]
 }
 
-func (c *Connection) Gateway() *Gateway {
+func (c *connectionImpl) Gateway() Gateway {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return c.gateway
 }
 
-func (c *Connection) Speaking(flags SpeakingFlags) error {
+func (c *connectionImpl) Speaking(flags SpeakingFlags) error {
 	return c.gateway.Send(GatewayOpcodeSpeaking, GatewayMessageDataSpeaking{
 		SSRC:     c.Gateway().SSRC(),
 		Speaking: flags,
 	})
 }
 
-func (c *Connection) UDP() *UDP {
+func (c *connectionImpl) UDP() UDP {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return c.udp
 }
 
-func (c *Connection) SetAudioSendSystem(sendSystem AudioSendSystem) {
+func (c *connectionImpl) SetAudioSendSystem(sendSystem AudioSendSystem) {
 	c.audioSendSystem = sendSystem
 	go c.audioSendSystem.Open()
 }
 
-func (c *Connection) SetOpusFrameProvider(handler OpusFrameProvider) {
+func (c *connectionImpl) SetOpusFrameProvider(handler OpusFrameProvider) {
 	c.SetAudioSendSystem(NewAudioSendSystem(handler, c))
 }
 
-func (c *Connection) SetAudioReceiveSystem(receiveSystem AudioReceiveSystem) {
+func (c *connectionImpl) SetAudioReceiveSystem(receiveSystem AudioReceiveSystem) {
 	c.audioReceiveSystem = receiveSystem
 	go c.audioReceiveSystem.Open()
 }
 
-func (c *Connection) SetOpusFraneReceiver(handler OpusFrameReceiver) {
+func (c *connectionImpl) SetOpusFrameReceiver(handler OpusFrameReceiver) {
 	c.SetAudioReceiveSystem(NewAudioReceiveSystem(handler, c))
 }
 
-func (c *Connection) SetEventHandlerFunc(eventHandlerFunc EventHandlerFunc) {
+func (c *connectionImpl) SetEventHandlerFunc(eventHandlerFunc EventHandlerFunc) {
 	c.config.EventHandlerFunc = eventHandlerFunc
 }
 
-func (c *Connection) HandleVoiceStateUpdate(update discord.VoiceStateUpdate) {
+func (c *connectionImpl) HandleVoiceStateUpdate(update discord.VoiceStateUpdate) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if update.GuildID != c.state.guildID || update.UserID != c.state.userID {
@@ -121,7 +144,7 @@ func (c *Connection) HandleVoiceStateUpdate(update discord.VoiceStateUpdate) {
 	c.state.sessionID = update.SessionID
 }
 
-func (c *Connection) HandleVoiceServerUpdate(update discord.VoiceServerUpdate) {
+func (c *connectionImpl) HandleVoiceServerUpdate(update discord.VoiceServerUpdate) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if update.GuildID != c.state.guildID || update.Endpoint == nil {
@@ -133,7 +156,7 @@ func (c *Connection) HandleVoiceServerUpdate(update discord.VoiceServerUpdate) {
 	go c.reconnect(context.Background())
 }
 
-func (c *Connection) handleGatewayMessage(op GatewayOpcode, data GatewayMessageData) {
+func (c *connectionImpl) handleGatewayMessage(op GatewayOpcode, data GatewayMessageData) {
 	switch d := data.(type) {
 	case GatewayMessageDataReady:
 		c.mu.Lock()
@@ -187,12 +210,12 @@ func (c *Connection) handleGatewayMessage(op GatewayOpcode, data GatewayMessageD
 	}
 }
 
-func (c *Connection) handleGatewayClose(gateway *Gateway, err error) {
+func (c *connectionImpl) handleGatewayClose(gateway Gateway, err error) {
 	c.config.Logger.Error("voice gateway closed. error: ", err)
 	c.Close()
 }
 
-func (c *Connection) Open(ctx context.Context) error {
+func (c *connectionImpl) Open(ctx context.Context) error {
 	c.config.Logger.Debug("voice: opening connection")
 	c.mu.Lock()
 
@@ -201,7 +224,7 @@ func (c *Connection) Open(ctx context.Context) error {
 	return c.gateway.Open(ctx)
 }
 
-func (c *Connection) reconnect(ctx context.Context) {
+func (c *connectionImpl) reconnect(ctx context.Context) {
 	c.mu.Lock()
 	if c.state.endpoint == "" || c.state.token == "" {
 		c.mu.Unlock()
@@ -213,7 +236,7 @@ func (c *Connection) reconnect(ctx context.Context) {
 	}
 }
 
-func (c *Connection) Close() {
+func (c *connectionImpl) Close() {
 	c.mu.Lock()
 	if c.gateway == nil && c.udp == nil {
 		c.mu.Unlock()
@@ -233,7 +256,7 @@ func (c *Connection) Close() {
 	c.disconnected <- struct{}{}
 }
 
-func (c *Connection) WaitUntilConnected(ctx context.Context) error {
+func (c *connectionImpl) WaitUntilConnected(ctx context.Context) error {
 	select {
 	case <-c.connected:
 		return nil
@@ -242,7 +265,7 @@ func (c *Connection) WaitUntilConnected(ctx context.Context) error {
 	}
 }
 
-func (c *Connection) WaitUntilDisconnected(ctx context.Context) error {
+func (c *connectionImpl) WaitUntilDisconnected(ctx context.Context) error {
 	select {
 	case <-c.disconnected:
 		return nil
