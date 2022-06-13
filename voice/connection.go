@@ -17,6 +17,9 @@ type Connection interface {
 	Gateway() Gateway
 	UDP() UDP
 
+	ChannelID() snowflake.ID
+	GuildID() snowflake.ID
+
 	UserIDBySSRC(ssrc uint32) snowflake.ID
 	Speaking(flags SpeakingFlags) error
 
@@ -79,6 +82,14 @@ type connectionImpl struct {
 
 	ssrcs   map[uint32]snowflake.ID
 	ssrcsMu sync.Mutex
+}
+
+func (c *connectionImpl) ChannelID() snowflake.ID {
+	return c.state.channelID
+}
+
+func (c *connectionImpl) GuildID() snowflake.ID {
+	return c.state.guildID
 }
 
 func (c *connectionImpl) UserIDBySSRC(ssrc uint32) snowflake.ID {
