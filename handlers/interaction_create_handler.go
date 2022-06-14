@@ -22,9 +22,9 @@ func (h *gatewayHandlerInteractionCreate) HandleGatewayEvent(client bot.Client, 
 }
 
 func respond(client bot.Client, respondFunc func(response discord.InteractionResponse) error, interaction discord.BaseInteraction) events.InteractionResponderFunc {
-	return func(callbackType discord.InteractionCallbackType, data discord.InteractionCallbackData, opts ...rest.RequestOpt) error {
+	return func(responseType discord.InteractionResponseType, data discord.InteractionResponseData, opts ...rest.RequestOpt) error {
 		response := discord.InteractionResponse{
-			Type: callbackType,
+			Type: responseType,
 			Data: data,
 		}
 		if respondFunc != nil {

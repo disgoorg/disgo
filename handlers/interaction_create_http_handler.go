@@ -21,7 +21,7 @@ func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(client bot.Client, 
 	if interaction.Type() == discord.InteractionTypePing {
 		client.Logger().Debug("received http interaction ping. responding with pong")
 		if err := respondFunc(discord.InteractionResponse{
-			Type: discord.InteractionCallbackTypePong,
+			Type: discord.InteractionResponseTypePong,
 		}); err != nil {
 			client.Logger().Error("failed to respond to http interaction ping: ", err)
 		}
