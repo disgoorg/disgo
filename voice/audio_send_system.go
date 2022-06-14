@@ -64,19 +64,24 @@ loop:
 }
 
 func (s *defaultAudioSendSystem) send() {
-	opus := s.opusProvider.ProvideOpusFrame()
+	if s.opusProvider == nil {
+		return
+	}
+	opus, err := s.opusProvider.ProvideOpusFrame()
+	if err != nil && err != io.EOF {
+		s.logger.Errorf("error while reading opus frame: %s", err)
+		return
+	}
 	if len(opus) == 0 {
 		if s.silentFrames > 0 {
-			if _, err := s.connection.UDP().Write(SilenceAudioFrames); err != nil {
+			if _, err = s.connection.UDP().Write(SilenceAudioFrames); err != nil {
 				s.logger.Errorf("failed to send silence frames: %s", err)
 			}
 			s.silentFrames--
 		} else if !s.sentSpeakingStop {
-			go func() {
-				if err := s.connection.Speaking(0); err != nil {
-					s.logger.Errorf("failed to send speaking stop: %s", err)
-				}
-			}()
+			if err = s.connection.Speaking(0); err != nil {
+				s.logger.Errorf("failed to send speaking stop: %s", err)
+			}
 			s.sentSpeakingStop = true
 			s.sentSpeakingStart = false
 		}
@@ -84,17 +89,15 @@ func (s *defaultAudioSendSystem) send() {
 	}
 
 	if !s.sentSpeakingStart {
-		go func() {
-			if err := s.connection.Speaking(SpeakingFlagMicrophone); err != nil {
-				s.logger.Errorf("failed to send speaking start: %s", err)
-			}
-		}()
+		if err = s.connection.Speaking(SpeakingFlagMicrophone); err != nil {
+			s.logger.Errorf("failed to send speaking start: %s", err)
+		}
 		s.sentSpeakingStart = true
 		s.sentSpeakingStop = false
 		s.silentFrames = 5
 	}
 
-	if _, err := s.connection.UDP().Write(opus); err != nil {
+	if _, err = s.connection.UDP().Write(opus); err != nil {
 		s.logger.Errorf("failed to send audio data: %s", err)
 	}
 }
@@ -104,7 +107,7 @@ func (s *defaultAudioSendSystem) Close() {
 }
 
 type OpusFrameProvider interface {
-	ProvideOpusFrame() []byte
+	ProvideOpusFrame() ([]byte, error)
 	Close()
 }
 
@@ -123,19 +126,19 @@ type OpusStreamProvider struct {
 	buff    []byte
 }
 
-func (h *OpusStreamProvider) ProvideOpusFrame() []byte {
+func (h *OpusStreamProvider) ProvideOpusFrame() ([]byte, error) {
 	_, err := h.r.Read(h.lenBuff[:])
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	buff := make([]byte, int64(binary.LittleEndian.Uint32(h.lenBuff[:])))
 	var n int
 	n, err = h.r.Read(buff)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return buff[:n]
+	return buff[:n], nil
 }
 
 func (*OpusStreamProvider) Close() {}

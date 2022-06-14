@@ -60,7 +60,9 @@ func (s *defaultAudioReceiveSystem) receive() {
 		return
 	}
 	if s.opusFrameReceiver != nil {
-		s.opusFrameReceiver.ReceiveOpusFrame(s.connection.UserIDBySSRC(packet.SSRC), packet)
+		if err = s.opusFrameReceiver.ReceiveOpusFrame(s.connection.UserIDBySSRC(packet.SSRC), packet); err != nil {
+			s.logger.Errorf("error while receiving opus frame: %s", err)
+		}
 	}
 
 }
@@ -71,7 +73,7 @@ func (s *defaultAudioReceiveSystem) Close() {
 }
 
 type OpusFrameReceiver interface {
-	ReceiveOpusFrame(userID snowflake.ID, packet *Packet)
+	ReceiveOpusFrame(userID snowflake.ID, packet *Packet) error
 	CleanupUser(userID snowflake.ID)
 	Close()
 }
@@ -88,16 +90,17 @@ type opusStreamReceiver struct {
 	receiveUserFunc ShouldReceiveUserFunc
 }
 
-func (r *opusStreamReceiver) ReceiveOpusFrame(userID snowflake.ID, packet *Packet) {
+func (r *opusStreamReceiver) ReceiveOpusFrame(userID snowflake.ID, packet *Packet) error {
 	if r.receiveUserFunc == nil || !r.receiveUserFunc(userID) {
-		return
+		return nil
 	}
 	if err := binary.Write(r.w, binary.LittleEndian, uint32(len(packet.Opus))); err != nil {
-		return
+		return err
 	}
 	if _, err := r.w.Write(packet.Opus); err != nil {
-		return
+		return err
 	}
+	return nil
 }
 
 func (*opusStreamReceiver) CleanupUser(_ snowflake.ID) {}

@@ -13,10 +13,9 @@ import (
 	"golang.org/x/crypto/nacl/secretbox"
 )
 
-var (
-	ErrDecryptionFailed = errors.New("decryption failed")
-	ErrInvalidPacket    = errors.New("invalid packet")
-)
+const OpusPacketHeaderSize = 12
+
+var ErrDecryptionFailed = errors.New("decryption failed")
 
 type UDPCreateFunc func(ip string, port int, ssrc uint32, opts ...UDPConfigOpt) UDP
 
@@ -69,25 +68,37 @@ func (u *udpImpl) SetSecretKey(secretKey [32]byte) {
 	u.secretKey = secretKey
 }
 
+func (u *udpImpl) SetReadDeadline(t time.Time) error {
+	u.connMu.Lock()
+	defer u.connMu.Unlock()
+	return u.conn.SetReadDeadline(t)
+}
+
+func (u *udpImpl) SetWriteDeadline(t time.Time) error {
+	u.connMu.Lock()
+	defer u.connMu.Unlock()
+	return u.conn.SetWriteDeadline(t)
+}
+
 func (u *udpImpl) Open(ctx context.Context) (string, int, error) {
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
-	fmt.Printf("Opening UDP connection to: %s:%d\n", u.ip, u.port)
+	u.config.Logger.Debugf("Opening UDP connection to: %s:%d\n", u.ip, u.port)
 	var err error
 	u.conn, err = u.config.Dialer.DialContext(ctx, "udp", fmt.Sprintf("%s:%d", u.ip, u.port))
 	if err != nil {
-		return "", 0, err
+		return "", 0, fmt.Errorf("failed to open UDP connection: %w", err)
 	}
 
 	sb := make([]byte, 70)
 	binary.BigEndian.PutUint32(sb, u.ssrc)
 	if _, err = u.conn.Write(sb); err != nil {
-		return "", 0, err
+		return "", 0, fmt.Errorf("failed to write ssrc to UDP connection: %w", err)
 	}
 
 	rb := make([]byte, 70)
 	if _, err = u.conn.Read(rb); err != nil {
-		return "", 0, err
+		return "", 0, fmt.Errorf("failed to read ip discovery from UDP connection: %w", err)
 	}
 
 	address := rb[4:68]
@@ -119,7 +130,7 @@ func (u *udpImpl) Write(p []byte) (int, error) {
 	conn := u.conn
 	u.connMu.Unlock()
 	if _, err := conn.Write(secretbox.Seal(u.packet[:], p, &u.nonce, &u.secretKey)); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to write packet: %w", err)
 	}
 	return len(p), nil
 }
@@ -132,27 +143,6 @@ func (u *udpImpl) Read(p []byte) (n int, err error) {
 	return copy(p, packet.Opus), nil
 }
 
-const packetHeaderSize = 12
-
-type Packet struct {
-	Sequence  uint16
-	Timestamp uint32
-	SSRC      uint32
-	Opus      []byte
-}
-
-func (u *udpImpl) SetReadDeadline(t time.Time) error {
-	u.connMu.Lock()
-	defer u.connMu.Unlock()
-	return u.conn.SetReadDeadline(t)
-}
-
-func (u *udpImpl) SetWriteDeadline(t time.Time) error {
-	u.connMu.Lock()
-	defer u.connMu.Unlock()
-	return u.conn.SetWriteDeadline(t)
-}
-
 func (u *udpImpl) ReadPacket() (*Packet, error) {
 	u.connMu.Lock()
 	conn := u.conn
@@ -161,15 +151,15 @@ func (u *udpImpl) ReadPacket() (*Packet, error) {
 	for {
 		i, err := conn.Read(u.receiveBuffer)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read packet: %w", err)
 		}
-		if i < packetHeaderSize || (u.receiveBuffer[0] != 0x80 && u.receiveBuffer[0] != 0x90) || (u.receiveBuffer[1] != 0x78 && u.receiveBuffer[1] != 0x80) {
+		if i < OpusPacketHeaderSize || (u.receiveBuffer[0] != 0x80 && u.receiveBuffer[0] != 0x90) || (u.receiveBuffer[1] != 0x78 && u.receiveBuffer[1] != 0x80) {
 			continue
 		}
 
-		copy(u.receiveNonce[:], u.receiveBuffer[0:packetHeaderSize])
+		copy(u.receiveNonce[:], u.receiveBuffer[0:OpusPacketHeaderSize])
 
-		opus, ok := secretbox.Open(nil, u.receiveBuffer[packetHeaderSize:i], &u.receiveNonce, &u.secretKey)
+		opus, ok := secretbox.Open(nil, u.receiveBuffer[OpusPacketHeaderSize:i], &u.receiveNonce, &u.secretKey)
 		if !ok {
 			return nil, ErrDecryptionFailed
 		}
@@ -198,4 +188,11 @@ func (u *udpImpl) Close() {
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
 	_ = u.conn.Close()
+}
+
+type Packet struct {
+	Sequence  uint16
+	Timestamp uint32
+	SSRC      uint32
+	Opus      []byte
 }

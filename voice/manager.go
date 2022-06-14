@@ -58,7 +58,7 @@ func (m *managerImpl) HandleVoiceServerUpdate(update discord.VoiceServerUpdate) 
 func (m *managerImpl) CreateConnection(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, opts ...ConnectionConfigOpt) Connection {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
-	m.config.Logger.Debugf("Creating new connection for guild: %s, channel: %s, user: %s", guildID, channelID, userID)
+	m.config.Logger.Debugf("Creating new voice connection for guild: %s, channel: %s, user: %s", guildID, channelID, userID)
 	connection := m.config.ConnectionCreateFunc(guildID, channelID, userID, opts...)
 	m.connections[guildID] = connection
 	return connection
@@ -81,6 +81,9 @@ func (m *managerImpl) ForConnections(f func(connection Connection)) {
 func (m *managerImpl) RemoveConnection(guildID snowflake.ID) {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
-	m.config.Logger.Debugf("Removing connection for guild: %s", guildID)
-	delete(m.connections, guildID)
+	m.config.Logger.Debugf("Removing voice connection for guild: %s", guildID)
+	if conn, ok := m.connections[guildID]; ok {
+		conn.Close()
+		delete(m.connections, guildID)
+	}
 }

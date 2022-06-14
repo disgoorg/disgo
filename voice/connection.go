@@ -3,6 +3,7 @@ package voice
 import (
 	"context"
 	"errors"
+	"net"
 	"sync"
 
 	"github.com/disgoorg/disgo/discord"
@@ -118,8 +119,13 @@ func (c *connectionImpl) UDP() UDP {
 }
 
 func (c *connectionImpl) SetAudioSendSystem(sendSystem AudioSendSystem) {
+	if c.audioSendSystem != nil {
+		c.audioSendSystem.Close()
+	}
 	c.audioSendSystem = sendSystem
-	go c.audioSendSystem.Open()
+	if c.audioSendSystem != nil {
+		go c.audioSendSystem.Open()
+	}
 }
 
 func (c *connectionImpl) SetOpusFrameProvider(handler OpusFrameProvider) {
@@ -127,8 +133,13 @@ func (c *connectionImpl) SetOpusFrameProvider(handler OpusFrameProvider) {
 }
 
 func (c *connectionImpl) SetAudioReceiveSystem(receiveSystem AudioReceiveSystem) {
+	if c.audioReceiveSystem != nil {
+		c.audioReceiveSystem.Close()
+	}
 	c.audioReceiveSystem = receiveSystem
-	go c.audioReceiveSystem.Open()
+	if c.audioReceiveSystem != nil {
+		go c.audioReceiveSystem.Open()
+	}
 }
 
 func (c *connectionImpl) SetOpusFrameReceiver(handler OpusFrameReceiver) {
@@ -145,7 +156,6 @@ func (c *connectionImpl) HandleVoiceStateUpdate(update discord.VoiceStateUpdate)
 	if update.GuildID != c.state.guildID || update.UserID != c.state.userID {
 		return
 	}
-	println("voice: voice state update")
 
 	if update.ChannelID == nil {
 		c.state.channelID = 0
@@ -161,7 +171,7 @@ func (c *connectionImpl) HandleVoiceServerUpdate(update discord.VoiceServerUpdat
 	if update.GuildID != c.state.guildID || update.Endpoint == nil {
 		return
 	}
-	println("voice: voice server update")
+
 	c.state.token = update.Token
 	c.state.endpoint = *update.Endpoint
 	go c.reconnect(context.Background())
@@ -171,11 +181,9 @@ func (c *connectionImpl) handleGatewayMessage(op GatewayOpcode, data GatewayMess
 	switch d := data.(type) {
 	case GatewayMessageDataReady:
 		c.mu.Lock()
-		println("voice: ready")
-		conn := c.config.UDPConnCreateFunc(d.IP, d.Port, d.SSRC)
-		c.udp = conn
+		c.udp = c.config.UDPConnCreateFunc(d.IP, d.Port, d.SSRC)
 		c.mu.Unlock()
-		address, port, err := conn.Open(context.Background())
+		address, port, err := c.udp.Open(context.Background())
 		if err != nil {
 			c.config.Logger.Error("voice: failed to open udp connection. error: ", err)
 			break
@@ -193,7 +201,6 @@ func (c *connectionImpl) handleGatewayMessage(op GatewayOpcode, data GatewayMess
 
 	case GatewayMessageDataSessionDescription:
 		c.mu.Lock()
-		println("voice: session description")
 		if c.udp != nil {
 			c.udp.SetSecretKey(d.SecretKey)
 		}
@@ -222,14 +229,16 @@ func (c *connectionImpl) handleGatewayMessage(op GatewayOpcode, data GatewayMess
 }
 
 func (c *connectionImpl) handleGatewayClose(gateway Gateway, err error) {
-	c.config.Logger.Error("voice gateway closed. error: ", err)
+	if !errors.Is(err, net.ErrClosed) {
+		c.config.Logger.Error("voice gateway closed. error: ", err)
+	}
+	gateway.Close()
 	c.Close()
 }
 
 func (c *connectionImpl) Open(ctx context.Context) error {
-	c.config.Logger.Debug("voice: opening connection")
+	c.config.Logger.Debug("opening voice connection")
 	c.mu.Lock()
-
 	c.gateway = c.config.GatewayCreateFunc(c.state, c.handleGatewayMessage, c.handleGatewayClose, c.config.GatewayConfigOpts...)
 	c.mu.Unlock()
 	return c.gateway.Open(ctx)
@@ -249,11 +258,6 @@ func (c *connectionImpl) reconnect(ctx context.Context) {
 
 func (c *connectionImpl) Close() {
 	c.mu.Lock()
-	if c.gateway == nil && c.udp == nil {
-		c.mu.Unlock()
-		return
-	}
-
 	if c.udp != nil {
 		c.udp.Close()
 		c.udp = nil

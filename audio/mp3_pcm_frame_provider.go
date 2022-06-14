@@ -3,22 +3,24 @@ package audio
 import (
 	"bytes"
 	"encoding/binary"
-	"io"
+	"fmt"
 
 	"github.com/disgoorg/disgo/audio/mp3"
 )
 
-func NewMP3PCMFrameProvider(decoder *mp3.Decoder) (PCMFrameProvider, Mp3Writer) {
+// NewMP3PCMFrameProvider returns a PCMFrameProvider that reads mp3 and converts it into pcm frames.
+// Write the Mp3 data to the returned Mp3Writer.
+func NewMP3PCMFrameProvider(decoder *mp3.Decoder) (PCMFrameProvider, Mp3Writer, error) {
 	if decoder == nil {
 		var err error
 		decoder, err = mp3.CreateDecoder()
 		if err != nil {
-			panic("NewMP3PCMFrameProvider: " + err.Error())
+			return nil, nil, fmt.Errorf("failed to create mp3 decoder: %w", err)
 		}
 	}
 
 	if err := decoder.OpenFeed(); err != nil {
-		panic("NewMP3PCMFrameProvider: " + err.Error())
+		return nil, nil, fmt.Errorf("failed to open feed for mp3 decoder: %w", err)
 	}
 
 	writeFunc := func(p []byte) (int, error) {
@@ -27,7 +29,7 @@ func NewMP3PCMFrameProvider(decoder *mp3.Decoder) (PCMFrameProvider, Mp3Writer) 
 
 	return &mp3PCMFrameProvider{
 		decoder: decoder,
-	}, writeFunc
+	}, writeFunc, nil
 }
 
 type mp3PCMFrameProvider struct {
@@ -36,23 +38,16 @@ type mp3PCMFrameProvider struct {
 	pcmBuff     [960 * 2]int16
 }
 
-func (p *mp3PCMFrameProvider) ProvidePCMFrame() []int16 {
+func (p *mp3PCMFrameProvider) ProvidePCMFrame() ([]int16, error) {
 	_, err := p.decoder.Read(p.bytePCMBuff[:])
 	if err != nil {
-		if err != io.EOF {
-			panic("ProvidePCMFrame: " + err.Error())
-		}
-		return nil
+		return nil, err
 	}
 
-	r := bytes.NewReader(p.bytePCMBuff[:])
-	if err = binary.Read(r, binary.LittleEndian, p.pcmBuff[:]); err != nil {
-		if err != io.EOF {
-			panic("ProvidePCMFrame: " + err.Error())
-		}
-		return nil
+	if err = binary.Read(bytes.NewReader(p.bytePCMBuff[:]), binary.LittleEndian, p.pcmBuff[:]); err != nil {
+		return nil, err
 	}
-	return p.pcmBuff[:]
+	return p.pcmBuff[:], nil
 }
 
 func (p *mp3PCMFrameProvider) Close() {

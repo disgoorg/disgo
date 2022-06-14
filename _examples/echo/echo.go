@@ -2,23 +2,25 @@ package main
 
 import (
 	"context"
-	"io"
-	"net/http"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/disgoorg/disgo"
-	"github.com/disgoorg/disgo/audio"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/disgo/voice"
 	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
-	token = os.Getenv("disgo_token")
+	token     = os.Getenv("disgo_token")
+	guildID   = snowflake.GetEnv("disgo_guild_id")
+	channelID = snowflake.GetEnv("disgo_channel_id")
 )
 
 func main() {
@@ -49,24 +51,24 @@ func main() {
 }
 
 func play(client bot.Client) {
-	connection, err := client.ConnectChannel(context.Background(), 817327181659111454, 982083072067530762, false, false)
+	conn, err := client.ConnectVoice(context.Background(), guildID, channelID, false, false)
 	if err != nil {
 		panic("error connecting to voice channel: " + err.Error())
 	}
 
-	rs, err := http.Get("https://p.scdn.co/mp3-preview/ee121ca281c629bb4e99c33d877fe98fbb752289?cid=774b29d4f13844c495f206cafdad9c86")
-	if err != nil {
-		panic("error getting audio: " + err.Error())
+	println("starting playback")
+
+	_ = conn.Speaking(voice.SpeakingFlagMicrophone)
+	_, _ = conn.UDP().Write(voice.SilenceAudioFrames)
+	for {
+		packet, err := conn.UDP().ReadPacket()
+		if err != nil {
+			fmt.Printf("error while reading from reader: %s", err)
+			continue
+		}
+		if _, err = conn.UDP().Write(packet.Opus); err != nil {
+			fmt.Printf("error while writing to UDP: %s", err)
+			continue
+		}
 	}
-
-	provider, writeFunc := audio.NewMP3PCMFrameProvider(nil)
-
-	go func() {
-		defer rs.Body.Close()
-		io.Copy(writeFunc, rs.Body)
-	}()
-
-	connection.SetOpusFrameProvider(audio.NewPCMOpusProvider(nil, provider))
-
-	println("voice: ready")
 }

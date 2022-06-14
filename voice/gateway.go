@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"sync"
 	"time"
@@ -107,18 +106,8 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
 		g.Close()
-		body := "null"
-		if rs != nil && rs.Body != nil {
-			defer rs.Body.Close()
-			rawBody, bErr := ioutil.ReadAll(rs.Body)
-			if bErr != nil {
-				g.Logger().Error("error while reading voice response body: ", err)
-			}
-			body = string(rawBody)
-		}
-
-		g.Logger().Error("error connecting to the gateway. url: %s, error: %s, body: %s", gatewayURL, err, body)
-		return err
+		defer rs.Body.Close()
+		return fmt.Errorf("error connecting to voice gateway. err: %w", err)
 	}
 
 	conn.SetCloseHandler(func(code int, text string) error {
@@ -126,7 +115,6 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 	})
 
 	g.conn = conn
-
 	g.status = GatewayStatusWaitingForHello
 
 	go g.listen(g.conn)
@@ -164,7 +152,7 @@ func (g *gatewayImpl) CloseWithCode(code int, message string) {
 func (g *gatewayImpl) heartbeat(heartbeatInterval time.Duration) {
 	g.heartbeatTicker = time.NewTicker(heartbeatInterval)
 	defer g.heartbeatTicker.Stop()
-	defer g.Logger().Debug("exiting heartbeat goroutine...")
+	defer g.Logger().Debug("exiting voice heartbeat goroutine...")
 
 	for range g.heartbeatTicker.C {
 		g.sendHeartbeat()
@@ -172,8 +160,6 @@ func (g *gatewayImpl) heartbeat(heartbeatInterval time.Duration) {
 }
 
 func (g *gatewayImpl) sendHeartbeat() {
-	g.Logger().Debug("sending heartbeat...")
-
 	g.lastNonce = time.Now().UnixMilli()
 	if err := g.Send(GatewayOpcodeHeartbeat, GatewayMessageDataHeartbeat(g.lastNonce)); err != nil && err != ErrGatewayNotConnected {
 		g.Logger().Error("failed to send heartbeat. error: ", err)
@@ -259,7 +245,6 @@ loop:
 			g.ssrc = d.SSRC
 
 		case GatewayMessageDataHeartbeatACK:
-			g.config.Logger.Debug("received heartbeat ack")
 			if int64(d) != g.lastNonce {
 				g.Logger().Errorf("received heartbeat ack with nonce: %d, expected nonce: %d", int64(d), g.lastNonce)
 				go g.reconnect(context.TODO())
@@ -281,7 +266,7 @@ func (g *gatewayImpl) Send(op GatewayOpcode, d GatewayMessageData) error {
 		D:  d,
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to marshal voice gateway message: %w", err)
 	}
 	return g.send(websocket.TextMessage, data)
 }
@@ -293,8 +278,11 @@ func (g *gatewayImpl) send(messageType int, data []byte) error {
 		return ErrGatewayNotConnected
 	}
 
-	g.Logger().Infof("sending message to gateway. data: %s", string(data))
-	return g.conn.WriteMessage(messageType, data)
+	g.Logger().Infof("sending message to voice gateway. data: %s", string(data))
+	if err := g.conn.WriteMessage(messageType, data); err != nil {
+		return fmt.Errorf("failed to send message to voice gateway: %w", err)
+	}
+	return nil
 }
 
 func (g *gatewayImpl) reconnectTry(ctx context.Context, try int, delay time.Duration) error {
@@ -329,14 +317,13 @@ func (g *gatewayImpl) reconnect(ctx context.Context) {
 	}
 }
 
-func (g *gatewayImpl) parseGatewayMessage(reader io.Reader) (GatewayMessage, error) {
+func (g *gatewayImpl) parseGatewayMessage(r io.Reader) (GatewayMessage, error) {
 	buff := &bytes.Buffer{}
-	data, _ := io.ReadAll(io.TeeReader(reader, buff))
-	g.Logger().Infof("received message from gateway. data: %s", string(data))
+	data, _ := io.ReadAll(io.TeeReader(r, buff))
+	g.Logger().Tracef("received message from voice gateway. data: %s", string(data))
 
 	var message GatewayMessage
 	if err := json.NewDecoder(buff).Decode(&message); err != nil {
-		g.Logger().Error("error decoding voice websocket message: ", err)
 		return GatewayMessage{}, err
 	}
 	return message, nil
