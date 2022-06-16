@@ -10,7 +10,7 @@ import (
 type Manager interface {
 	HandleVoiceStateUpdate(update discord.VoiceStateUpdate)
 	HandleVoiceServerUpdate(update discord.VoiceServerUpdate)
-	CreateConnection(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, opts ...ConnectionConfigOpt) Connection
+	CreateConnection(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID) Connection
 	GetConnection(guildID snowflake.ID) Connection
 	ForConnections(f func(connection Connection))
 	RemoveConnection(guildID snowflake.ID)
@@ -55,11 +55,11 @@ func (m *managerImpl) HandleVoiceServerUpdate(update discord.VoiceServerUpdate) 
 	connection.HandleVoiceServerUpdate(update)
 }
 
-func (m *managerImpl) CreateConnection(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, opts ...ConnectionConfigOpt) Connection {
+func (m *managerImpl) CreateConnection(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID) Connection {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
 	m.config.Logger.Debugf("Creating new voice connection for guild: %s, channel: %s, user: %s", guildID, channelID, userID)
-	connection := m.config.ConnectionCreateFunc(guildID, channelID, userID, opts...)
+	connection := m.config.ConnectionCreateFunc(guildID, channelID, userID, append([]ConnectionConfigOpt{WithConnectionLogger(m.config.Logger)}, m.config.ConnectionOpts...)...)
 	m.connections[guildID] = connection
 	return connection
 }

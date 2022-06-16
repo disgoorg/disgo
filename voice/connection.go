@@ -181,7 +181,7 @@ func (c *connectionImpl) handleGatewayMessage(op GatewayOpcode, data GatewayMess
 	switch d := data.(type) {
 	case GatewayMessageDataReady:
 		c.mu.Lock()
-		c.udp = c.config.UDPConnCreateFunc(d.IP, d.Port, d.SSRC)
+		c.udp = c.config.UDPConnCreateFunc(d.IP, d.Port, d.SSRC, append([]UDPConfigOpt{WithUDPLogger(c.config.Logger)}, c.config.UDPConnConfigOpts...)...)
 		c.mu.Unlock()
 		address, port, err := c.udp.Open(context.Background())
 		if err != nil {
@@ -239,7 +239,7 @@ func (c *connectionImpl) handleGatewayClose(gateway Gateway, err error) {
 func (c *connectionImpl) Open(ctx context.Context) error {
 	c.config.Logger.Debug("opening voice connection")
 	c.mu.Lock()
-	c.gateway = c.config.GatewayCreateFunc(c.state, c.handleGatewayMessage, c.handleGatewayClose, c.config.GatewayConfigOpts...)
+	c.gateway = c.config.GatewayCreateFunc(c.state, c.handleGatewayMessage, c.handleGatewayClose, append([]GatewayConfigOpt{WithGatewayLogger(c.config.Logger)}, c.config.GatewayConfigOpts...)...)
 	c.mu.Unlock()
 	return c.gateway.Open(ctx)
 }
