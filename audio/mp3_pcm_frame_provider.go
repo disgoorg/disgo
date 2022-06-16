@@ -17,6 +17,10 @@ func NewMP3PCMFrameProvider(decoder *mp3.Decoder) (PCMFrameProvider, Mp3Writer, 
 		if err != nil {
 			return nil, nil, fmt.Errorf("failed to create mp3 decoder: %w", err)
 		}
+
+		if err = decoder.Param(mp3.ForceRate, 48000, 48000); err != nil {
+			return nil, nil, fmt.Errorf("failed to set param: %w", err)
+		}
 	}
 
 	if err := decoder.OpenFeed(); err != nil {
