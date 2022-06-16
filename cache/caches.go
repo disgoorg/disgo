@@ -120,6 +120,11 @@ func New(opts ...ConfigOpt) Caches {
 	}
 	caches.messageCache = config.MessageCache
 
+	if config.RoleCache == nil {
+		config.RoleCache = NewGroupedCache[discord.Role](config.CacheFlags, FlagEmojis, config.RoleCachePolicy)
+	}
+	caches.roleCache = config.RoleCache
+
 	if config.EmojiCache == nil {
 		config.EmojiCache = NewGroupedCache[discord.Emoji](config.CacheFlags, FlagEmojis, config.EmojiCachePolicy)
 	}
