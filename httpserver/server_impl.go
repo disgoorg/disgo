@@ -88,7 +88,7 @@ const (
 )
 
 func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if ok := VerifyRequest(h.server.Logger(), r, h.server.PublicKey()); !ok {
+	if ok := VerifyRequest(r, h.server.PublicKey()); !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		data, _ := io.ReadAll(r.Body)
 		h.server.Logger().Trace("received http interaction with invalid signature. body: ", string(data))

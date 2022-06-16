@@ -50,7 +50,7 @@ type Client interface {
 	// EventManager returns the EventManager used by the Client.
 	EventManager() EventManager
 
-	VoiceManager() *voice.Manager
+	VoiceManager() voice.Manager
 
 	// ConnectGateway connects to the configured gateway.Gateway.
 	ConnectGateway(ctx context.Context) error
@@ -73,13 +73,14 @@ type Client interface {
 	// Shard returns the gateway.Gateway the specific guildID runs on.
 	Shard(guildID snowflake.ID) (gateway.Gateway, error)
 
-	// Connect sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway and connects the bot to the specified channel.
-	Connect(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID) error
+	// ConnectVoiceManual sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway.
+	ConnectVoiceManual(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) error
 
-	ConnectChannel(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) (*voice.Connection, error)
+	// ConnectVoice sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway and returns the voice.Connection.
+	ConnectVoice(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) (voice.Connection, error)
 
-	// Disconnect sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway and disconnects the bot from this guild.
-	Disconnect(ctx context.Context, guildID snowflake.ID) error
+	// DisconnectVoice sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway and disconnects the bot from this guild.
+	DisconnectVoice(ctx context.Context, guildID snowflake.ID) error
 
 	// RequestMembers sends a discord.GatewayMessageDataRequestGuildMembers to the specific gateway.Gateway and requests the Member(s) of the specified guild.
 	//  guildID  : is the snowflake of the guild to request the members of.
@@ -130,7 +131,7 @@ type clientImpl struct {
 
 	httpServer httpserver.Server
 
-	voiceManager *voice.Manager
+	voiceManager voice.Manager
 
 	caches cache.Caches
 
@@ -191,7 +192,7 @@ func (c *clientImpl) EventManager() EventManager {
 	return c.eventManager
 }
 
-func (c *clientImpl) VoiceManager() *voice.Manager {
+func (c *clientImpl) VoiceManager() voice.Manager {
 	return c.voiceManager
 }
 
@@ -238,7 +239,7 @@ func (c *clientImpl) Shard(guildID snowflake.ID) (gateway.Gateway, error) {
 	return nil, discord.ErrNoGatewayOrShardManager
 }
 
-func (c *clientImpl) Connect(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID) error {
+func (c *clientImpl) ConnectVoiceManual(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) error {
 	shard, err := c.Shard(guildID)
 	if err != nil {
 		return err
@@ -246,35 +247,27 @@ func (c *clientImpl) Connect(ctx context.Context, guildID snowflake.ID, channelI
 	return shard.Send(ctx, discord.GatewayOpcodeVoiceStateUpdate, discord.GatewayMessageDataVoiceStateUpdate{
 		GuildID:   guildID,
 		ChannelID: &channelID,
+		SelfMute:  selfMute,
+		SelfDeaf:  selfDeaf,
 	})
 }
 
-func (c *clientImpl) ConnectChannel(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) (*voice.Connection, error) {
-	shard, err := c.Shard(guildID)
-	if err != nil {
-		return nil, err
-	}
-
+func (c *clientImpl) ConnectVoice(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) (voice.Connection, error) {
 	connection := c.voiceManager.CreateConnection(guildID, channelID, c.ID())
 
-	if err = shard.Send(ctx, discord.GatewayOpcodeVoiceStateUpdate, discord.GatewayMessageDataVoiceStateUpdate{
-		GuildID:   guildID,
-		ChannelID: &channelID,
-		SelfMute:  selfMute,
-		SelfDeaf:  selfDeaf,
-	}); err != nil {
+	if err := c.ConnectVoiceManual(ctx, guildID, channelID, selfMute, selfDeaf); err != nil {
 		c.voiceManager.RemoveConnection(guildID)
 		return nil, err
 	}
 
-	if err = connection.WaitUntilConnected(ctx); err != nil {
+	if err := connection.WaitUntilConnected(ctx); err != nil {
 		c.voiceManager.RemoveConnection(guildID)
 		return nil, err
 	}
 	return connection, nil
 }
 
-func (c *clientImpl) Disconnect(ctx context.Context, guildID snowflake.ID) error {
+func (c *clientImpl) DisconnectVoice(ctx context.Context, guildID snowflake.ID) error {
 	shard, err := c.Shard(guildID)
 	if err != nil {
 		return err

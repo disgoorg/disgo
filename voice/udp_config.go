@@ -9,8 +9,7 @@ import (
 
 func DefaultUDPConfig() *UDPConfig {
 	return &UDPConfig{
-		Logger:        log.Default(),
-		UDPCreateFunc: NewUDP,
+		Logger: log.Default(),
 		Dialer: &net.Dialer{
 			Timeout: 30 * time.Second,
 		},
@@ -18,9 +17,8 @@ func DefaultUDPConfig() *UDPConfig {
 }
 
 type UDPConfig struct {
-	Logger        log.Logger
-	UDPCreateFunc UDPCreateFunc
-	Dialer        *net.Dialer
+	Logger log.Logger
+	Dialer *net.Dialer
 }
 
 type UDPConfigOpt func(config *UDPConfig)
@@ -34,5 +32,11 @@ func (c *UDPConfig) Apply(opts []UDPConfigOpt) {
 func WithUDPLogger(logger log.Logger) UDPConfigOpt {
 	return func(config *UDPConfig) {
 		config.Logger = logger
+	}
+}
+
+func WithUDPDialer(dialer *net.Dialer) UDPConfigOpt {
+	return func(config *UDPConfig) {
+		config.Dialer = dialer
 	}
 }

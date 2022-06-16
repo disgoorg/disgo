@@ -11,7 +11,7 @@ import (
 // PCMFrameReceiver is an interface for receiving PCM frames.
 type PCMFrameReceiver interface {
 	// ReceivePCMFrame is called when a PCM frame is received.
-	ReceivePCMFrame(userID snowflake.ID, packet *PCMPacket)
+	ReceivePCMFrame(userID snowflake.ID, packet *PCMPacket) error
 
 	// CleanupUser is called when a user is disconnected. This should close any resources associated with the user.
 	CleanupUser(userID snowflake.ID)
@@ -34,11 +34,11 @@ type pcmStreamReceiver struct {
 	receiveUserFunc voice.ShouldReceiveUserFunc
 }
 
-func (p *pcmStreamReceiver) ReceivePCMFrame(userID snowflake.ID, packet *PCMPacket) {
+func (p *pcmStreamReceiver) ReceivePCMFrame(userID snowflake.ID, packet *PCMPacket) error {
 	if p.receiveUserFunc == nil && !p.receiveUserFunc(userID) {
-		return
+		return nil
 	}
-	_ = binary.Write(p.w, binary.LittleEndian, packet.PCM)
+	return binary.Write(p.w, binary.LittleEndian, packet.PCM)
 }
 
 func (p *pcmStreamReceiver) CleanupUser(userID snowflake.ID) {}

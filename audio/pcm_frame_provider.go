@@ -9,7 +9,7 @@ import (
 // PCMFrameProvider is an interface for providing PCM frames.
 type PCMFrameProvider interface {
 	// ProvidePCMFrame is called to get a PCM frame.
-	ProvidePCMFrame() []int16
+	ProvidePCMFrame() ([]int16, error)
 
 	// Close is called when the provider is no longer needed. It should close any open resources.
 	Close()
@@ -24,27 +24,21 @@ func NewPCMStreamProvider(r io.Reader) PCMFrameProvider {
 
 type pcmStreamProvider struct {
 	r           io.Reader
-	bytePCMBuff [1920 * 4]byte
+	bytePCMBuff [1920 * 2]byte
 	pcmBuff     [960 * 2]int16
 }
 
-func (p *pcmStreamProvider) ProvidePCMFrame() []int16 {
+func (p *pcmStreamProvider) ProvidePCMFrame() ([]int16, error) {
 	_, err := p.r.Read(p.bytePCMBuff[:])
 	if err != nil {
-		if err != io.EOF {
-			panic("ProvidePCMFrame: " + err.Error())
-		}
-		return nil
+		return nil, err
 	}
 
 	r := bytes.NewReader(p.bytePCMBuff[:])
 	if err = binary.Read(r, binary.LittleEndian, p.pcmBuff[:]); err != nil {
-		if err != io.EOF {
-			panic("ProvidePCMFrame: " + err.Error())
-		}
-		return nil
+		return nil, err
 	}
-	return p.pcmBuff[:]
+	return p.pcmBuff[:], nil
 }
 
 func (*pcmStreamProvider) Close() {}

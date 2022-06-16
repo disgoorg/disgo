@@ -1,25 +1,26 @@
 package main
 
 import (
-	"bytes"
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/disgoorg/disgo"
-	"github.com/disgoorg/disgo/audio"
-	"github.com/disgoorg/disgo/audio/opus"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/voice"
 	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
-	token = os.Getenv("disgo_token")
+	token     = os.Getenv("disgo_token")
+	guildID   = snowflake.GetEnv("disgo_guild_id")
+	channelID = snowflake.GetEnv("disgo_channel_id")
 )
 
 func main() {
@@ -50,40 +51,24 @@ func main() {
 }
 
 func play(client bot.Client) {
-	connection, err := client.ConnectChannel(context.Background(), 817327181659111454, 982083072067530762, false, false)
+	conn, err := client.ConnectVoice(context.Background(), guildID, channelID, false, false)
 	if err != nil {
 		panic("error connecting to voice channel: " + err.Error())
 	}
 
-	connection.Speaking(voice.SpeakingFlagMicrophone)
+	println("starting playback")
 
-	connection.UDP().Write(voice.SilenceAudioFrames)
-
-	buff := &bytes.Buffer{}
-
-	encoder, err := opus.NewEncoder(24000, 2, opus.ApplicationAudio)
-	if err != nil {
-		panic("NewPCMOpusProvider: " + err.Error())
+	_ = conn.Speaking(voice.SpeakingFlagMicrophone)
+	_, _ = conn.UDP().Write(voice.SilenceAudioFrames)
+	for {
+		packet, err := conn.UDP().ReadPacket()
+		if err != nil {
+			fmt.Printf("error while reading from reader: %s", err)
+			continue
+		}
+		if _, err = conn.UDP().Write(packet.Opus); err != nil {
+			fmt.Printf("error while writing to UDP: %s", err)
+			continue
+		}
 	}
-	if err = encoder.Ctl(opus.SetBitrate(64000)); err != nil {
-		panic("SetBitrate: " + err.Error())
-	}
-
-	connection.SetOpusFrameProvider(audio.NewPCMOpusProvider(encoder, audio.NewPCMStreamProvider(buff)))
-	connection.SetOpusFraneReceiver(
-		audio.NewPCMOpusReceiver(
-			nil,
-			audio.NewPCMCombinerReceiver(
-				audio.NewSampleRateCombinedReceiver(
-					nil,
-					48000,
-					24000,
-					audio.NewPCMCombinedStreamReceiver(buff),
-				),
-			),
-			nil,
-		),
-	)
-
-	println("voice: ready")
 }

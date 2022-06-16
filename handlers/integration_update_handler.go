@@ -13,7 +13,7 @@ func (h *gatewayHandlerIntegrationUpdate) EventType() discord.GatewayEventType {
 }
 
 func (h *gatewayHandlerIntegrationUpdate) New() any {
-	return &discord.GatewayEventIntegrationCreate{}
+	return &discord.GatewayEventIntegrationUpdate{}
 }
 
 func (h *gatewayHandlerIntegrationUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {

@@ -7,23 +7,32 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-func NewManager(opts ...ManagerConfigOpt) *Manager {
+type Manager interface {
+	HandleVoiceStateUpdate(update discord.VoiceStateUpdate)
+	HandleVoiceServerUpdate(update discord.VoiceServerUpdate)
+	CreateConnection(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID) Connection
+	GetConnection(guildID snowflake.ID) Connection
+	ForConnections(f func(connection Connection))
+	RemoveConnection(guildID snowflake.ID)
+}
+
+func NewManager(opts ...ManagerConfigOpt) Manager {
 	config := DefaultManagerConfig()
 	config.Apply(opts)
-	return &Manager{
+	return &managerImpl{
 		config:      *config,
-		connections: map[snowflake.ID]*Connection{},
+		connections: map[snowflake.ID]Connection{},
 	}
 }
 
-type Manager struct {
+type managerImpl struct {
 	config ManagerConfig
 
-	connections   map[snowflake.ID]*Connection
+	connections   map[snowflake.ID]Connection
 	connectionsMu sync.Mutex
 }
 
-func (m *Manager) HandleVoiceStateUpdate(update discord.VoiceStateUpdate) {
+func (m *managerImpl) HandleVoiceStateUpdate(update discord.VoiceStateUpdate) {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
 	connection, ok := m.connections[update.GuildID]
@@ -35,7 +44,7 @@ func (m *Manager) HandleVoiceStateUpdate(update discord.VoiceStateUpdate) {
 	connection.HandleVoiceStateUpdate(update)
 }
 
-func (m *Manager) HandleVoiceServerUpdate(update discord.VoiceServerUpdate) {
+func (m *managerImpl) HandleVoiceServerUpdate(update discord.VoiceServerUpdate) {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
 	connection, ok := m.connections[update.GuildID]
@@ -46,24 +55,35 @@ func (m *Manager) HandleVoiceServerUpdate(update discord.VoiceServerUpdate) {
 	connection.HandleVoiceServerUpdate(update)
 }
 
-func (m *Manager) CreateConnection(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, opts ...ConnectionConfigOpt) *Connection {
+func (m *managerImpl) CreateConnection(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID) Connection {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
-	m.config.Logger.Debugf("Creating new connection for guild: %s, channel: %s, user: %s", guildID, channelID, userID)
-	connection := m.config.ConnectionCreateFunc(guildID, channelID, userID, opts...)
+	m.config.Logger.Debugf("Creating new voice connection for guild: %s, channel: %s, user: %s", guildID, channelID, userID)
+	connection := m.config.ConnectionCreateFunc(guildID, channelID, userID, append([]ConnectionConfigOpt{WithConnectionLogger(m.config.Logger)}, m.config.ConnectionOpts...)...)
 	m.connections[guildID] = connection
 	return connection
 }
 
-func (m *Manager) GetConnection(guildID snowflake.ID) *Connection {
+func (m *managerImpl) GetConnection(guildID snowflake.ID) Connection {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
 	return m.connections[guildID]
 }
 
-func (m *Manager) RemoveConnection(guildID snowflake.ID) {
+func (m *managerImpl) ForConnections(f func(connection Connection)) {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
-	m.config.Logger.Debugf("Removing connection for guild: %s", guildID)
-	delete(m.connections, guildID)
+	for _, connection := range m.connections {
+		f(connection)
+	}
+}
+
+func (m *managerImpl) RemoveConnection(guildID snowflake.ID) {
+	m.connectionsMu.Lock()
+	defer m.connectionsMu.Unlock()
+	m.config.Logger.Debugf("Removing voice connection for guild: %s", guildID)
+	if conn, ok := m.connections[guildID]; ok {
+		conn.Close()
+		delete(m.connections, guildID)
+	}
 }

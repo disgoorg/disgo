@@ -1,6 +1,7 @@
 package audio
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/disgoorg/disgo/audio/opus"
@@ -11,14 +12,14 @@ import (
 // NewPCMOpusReceiver creates a new voice.OpusFrameReceiver which receives Opus frames and decodes them into PCM frames. A new decoder is created for each user.
 // You can pass your own *opus.Decoder by passing a decoderCreateFunc or nil to use the default Opus decoder(48000hz sample rate, 2 channels).
 // You can filter users by passing a voice.ShouldReceiveUserFunc or nil to receive all users.
-func NewPCMOpusReceiver(decoderCreateFunc func() *opus.Decoder, pcmFrameReceiver PCMFrameReceiver, receiveUserFunc voice.ShouldReceiveUserFunc) voice.OpusFrameReceiver {
+func NewPCMOpusReceiver(decoderCreateFunc func() (*opus.Decoder, error), pcmFrameReceiver PCMFrameReceiver, receiveUserFunc voice.ShouldReceiveUserFunc) voice.OpusFrameReceiver {
 	if decoderCreateFunc == nil {
-		decoderCreateFunc = func() *opus.Decoder {
+		decoderCreateFunc = func() (*opus.Decoder, error) {
 			decoder, err := opus.NewDecoder(48000, 2)
 			if err != nil {
-				panic("NewPCMOpusReceiver: " + err.Error())
+				return nil, fmt.Errorf("failed to create opus decoder: %w", err)
 			}
-			return decoder
+			return decoder, nil
 		}
 	}
 	if receiveUserFunc == nil {
@@ -36,32 +37,36 @@ func NewPCMOpusReceiver(decoderCreateFunc func() *opus.Decoder, pcmFrameReceiver
 
 type pcmOpusReceiver struct {
 	receiveUserFunc   voice.ShouldReceiveUserFunc
-	decoderCreateFunc func() *opus.Decoder
+	decoderCreateFunc func() (*opus.Decoder, error)
 	decoders          map[snowflake.ID]*opus.Decoder
 	decodersMu        sync.Mutex
 	pcmFrameReceiver  PCMFrameReceiver
 	pcmBuff           [960 * 4]int16
 }
 
-func (r *pcmOpusReceiver) ReceiveOpusFrame(userID snowflake.ID, packet *voice.Packet) {
+func (r *pcmOpusReceiver) ReceiveOpusFrame(userID snowflake.ID, packet *voice.Packet) error {
 	if r.receiveUserFunc != nil && !r.receiveUserFunc(userID) {
-		return
+		return nil
 	}
 	r.decodersMu.Lock()
 	decoder, ok := r.decoders[userID]
 	if !ok {
-		decoder = r.decoderCreateFunc()
+		var err error
+		decoder, err = r.decoderCreateFunc()
+		if err != nil {
+			r.decodersMu.Unlock()
+			return fmt.Errorf("failed to create opus decoder: %w", err)
+		}
 		r.decoders[userID] = decoder
 	}
 	r.decodersMu.Unlock()
 
 	_, err := decoder.Decode(packet.Opus, r.pcmBuff[:], false)
 	if err != nil {
-		panic("ReceiveOpusFrame: " + err.Error())
-		return
+		return err
 	}
 
-	r.pcmFrameReceiver.ReceivePCMFrame(userID, &PCMPacket{
+	return r.pcmFrameReceiver.ReceivePCMFrame(userID, &PCMPacket{
 		SSRC:      packet.SSRC,
 		Sequence:  packet.Sequence,
 		Timestamp: packet.Timestamp,

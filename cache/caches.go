@@ -81,27 +81,75 @@ func New(opts ...ConfigOpt) Caches {
 	config := DefaultConfig()
 	config.Apply(opts)
 
-	return &cachesImpl{
-		config: *config,
-
-		guildCache:               NewGuildCache(config.CacheFlags, config.GuildCachePolicy),
-		channelCache:             NewChannelCache(config.CacheFlags, config.ChannelCachePolicy),
-		stageInstanceCache:       NewGroupedCache[discord.StageInstance](config.CacheFlags, FlagStageInstances, config.StageInstanceCachePolicy),
-		guildScheduledEventCache: NewGroupedCache[discord.GuildScheduledEvent](config.CacheFlags, FlagGuildScheduledEvents, config.GuildScheduledEventCachePolicy),
-		roleCache:                NewGroupedCache[discord.Role](config.CacheFlags, FlagRoles, config.RoleCachePolicy),
-		memberCache:              NewGroupedCache[discord.Member](config.CacheFlags, FlagMembers, config.MemberCachePolicy),
-		threadMemberCache:        NewGroupedCache[discord.ThreadMember](config.CacheFlags, FlagThreadMembers, config.ThreadMemberCachePolicy),
-		presenceCache:            NewGroupedCache[discord.Presence](config.CacheFlags, FlagPresences, config.PresenceCachePolicy),
-		voiceStateCache:          NewGroupedCache[discord.VoiceState](config.CacheFlags, FlagVoiceStates, config.VoiceStateCachePolicy),
-		messageCache:             NewGroupedCache[discord.Message](config.CacheFlags, FlagMessages, config.MessageCachePolicy),
-		emojiCache:               NewGroupedCache[discord.Emoji](config.CacheFlags, FlagEmojis, config.EmojiCachePolicy),
-		stickerCache:             NewGroupedCache[discord.Sticker](config.CacheFlags, FlagStickers, config.StickerCachePolicy),
+	caches := &cachesImpl{
+		cacheFlags: config.CacheFlags,
 	}
+
+	if config.GuildCache == nil {
+		config.GuildCache = NewGuildCache(config.CacheFlags, config.GuildCachePolicy)
+	}
+	caches.guildCache = config.GuildCache
+
+	if config.ChannelCache == nil {
+		config.ChannelCache = NewChannelCache(config.CacheFlags, config.ChannelCachePolicy)
+	}
+	caches.channelCache = config.ChannelCache
+
+	if config.MemberCache == nil {
+		config.MemberCache = NewGroupedCache[discord.Member](config.CacheFlags, FlagMembers, config.MemberCachePolicy)
+	}
+	caches.memberCache = config.MemberCache
+
+	if config.ThreadMemberCache == nil {
+		config.ThreadMemberCache = NewGroupedCache[discord.ThreadMember](config.CacheFlags, FlagThreadMembers, config.ThreadMemberCachePolicy)
+	}
+	caches.threadMemberCache = config.ThreadMemberCache
+
+	if config.PresenceCache == nil {
+		config.PresenceCache = NewGroupedCache[discord.Presence](config.CacheFlags, FlagPresences, config.PresenceCachePolicy)
+	}
+	caches.presenceCache = config.PresenceCache
+
+	if config.VoiceStateCache == nil {
+		config.VoiceStateCache = NewGroupedCache[discord.VoiceState](config.CacheFlags, FlagVoiceStates, config.VoiceStateCachePolicy)
+	}
+	caches.voiceStateCache = config.VoiceStateCache
+
+	if config.MessageCache == nil {
+		config.MessageCache = NewGroupedCache[discord.Message](config.CacheFlags, FlagMessages, config.MessageCachePolicy)
+	}
+	caches.messageCache = config.MessageCache
+
+	if config.RoleCache == nil {
+		config.RoleCache = NewGroupedCache[discord.Role](config.CacheFlags, FlagEmojis, config.RoleCachePolicy)
+	}
+	caches.roleCache = config.RoleCache
+
+	if config.EmojiCache == nil {
+		config.EmojiCache = NewGroupedCache[discord.Emoji](config.CacheFlags, FlagEmojis, config.EmojiCachePolicy)
+	}
+	caches.emojiCache = config.EmojiCache
+
+	if config.StickerCache == nil {
+		config.StickerCache = NewGroupedCache[discord.Sticker](config.CacheFlags, FlagStickers, config.StickerCachePolicy)
+	}
+	caches.stickerCache = config.StickerCache
+
+	if config.StageInstanceCache == nil {
+		config.StageInstanceCache = NewGroupedCache[discord.StageInstance](config.CacheFlags, FlagStageInstances, config.StageInstanceCachePolicy)
+	}
+	caches.stageInstanceCache = config.StageInstanceCache
+
+	if config.GuildScheduledEventCache == nil {
+		config.GuildScheduledEventCache = NewGroupedCache[discord.GuildScheduledEvent](config.CacheFlags, FlagGuildScheduledEvents, config.GuildScheduledEventCachePolicy)
+	}
+	caches.guildScheduledEventCache = config.GuildScheduledEventCache
+
+	return caches
 }
 
 type cachesImpl struct {
-	config Config
-
+	cacheFlags Flags
 	selfUser   *discord.OAuth2User
 	selfUserMu sync.Mutex
 
@@ -120,7 +168,7 @@ type cachesImpl struct {
 }
 
 func (c *cachesImpl) CacheFlags() Flags {
-	return c.config.CacheFlags
+	return c.cacheFlags
 }
 
 func (c *cachesImpl) GetMemberPermissions(member discord.Member) discord.Permissions {

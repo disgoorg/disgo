@@ -2,19 +2,18 @@ package main
 
 import (
 	"context"
-	"encoding/binary"
 	"io"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/disgoorg/disgo"
+	"github.com/disgoorg/disgo/audio"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/voice"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -58,42 +57,27 @@ func play(client bot.Client) {
 		panic("error connecting to voice channel: " + err.Error())
 	}
 
-	println("starting playback")
-
-	if err = connection.Speaking(voice.SpeakingFlagMicrophone); err != nil {
-		panic("error setting speaking flag: " + err.Error())
-	}
-	writeOpus(connection.UDP())
-}
-
-func writeOpus(w io.Writer) {
-	file, err := os.Open("nico.dca")
+	rs, err := http.Get("https://p.scdn.co/mp3-preview/ee121ca281c629bb4e99c33d877fe98fbb752289?cid=774b29d4f13844c495f206cafdad9c86")
 	if err != nil {
-		panic("error opening file: " + err.Error())
+		panic("error getting audio: " + err.Error())
 	}
-	ticker := time.NewTicker(time.Millisecond * 20)
-	defer ticker.Stop()
 
-	var lenBuf [4]byte
-	for range ticker.C {
-		_, err = io.ReadFull(file, lenBuf[:])
-		if err != nil {
-			if err == io.EOF {
-				_ = file.Close()
-				return
-			}
-			panic("error reading file: " + err.Error())
-			return
-		}
+	provider, writeFunc, err := audio.NewMP3PCMFrameProvider(nil)
+	if err != nil {
+		panic("error creating audio provider: " + err.Error())
+	}
 
-		// Read the integer
-		frameLen := int64(binary.LittleEndian.Uint32(lenBuf[:]))
+	opusProvider, err := audio.NewPCMOpusProvider(nil, provider)
+	if err != nil {
+		panic("error creating opus provider: " + err.Error())
+	}
 
-		// Copy the frame.
-		_, err = io.CopyN(w, file, frameLen)
-		if err != nil && err != io.EOF {
-			_ = file.Close()
-			return
-		}
+	connection.SetOpusFrameProvider(opusProvider)
+
+	println("voice: ready")
+
+	defer rs.Body.Close()
+	if _, err = io.Copy(writeFunc, rs.Body); err != nil {
+		panic("error reading audio: " + err.Error())
 	}
 }

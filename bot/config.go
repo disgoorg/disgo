@@ -34,7 +34,7 @@ type Config struct {
 	EventManager           EventManager
 	EventManagerConfigOpts []EventManagerConfigOpt
 
-	VoiceManager           *voice.Manager
+	VoiceManager           voice.Manager
 	VoiceManagerConfigOpts []voice.ManagerConfigOpt
 
 	Gateway           gateway.Gateway
@@ -224,7 +224,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 	client.restServices = config.Rest
 
 	if config.VoiceManager == nil {
-		config.VoiceManager = voice.NewManager(config.VoiceManagerConfigOpts...)
+		config.VoiceManager = voice.NewManager(append([]voice.ManagerConfigOpt{voice.WithLogger(client.logger)}, config.VoiceManagerConfigOpts...)...)
 	}
 	client.voiceManager = config.VoiceManager
 
