@@ -39,7 +39,7 @@ func (p *sampleRateProvider) ProvidePCMFrame() ([]int16, error) {
 		return nil, err
 	}
 
-	return newPCM[:outputFrames*p.resampler.Channels()], nil
+	return newPCM, nil
 }
 
 func (p *sampleRateProvider) Close() {

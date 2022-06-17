@@ -35,7 +35,7 @@ func (p *sampleRateReceiver) ReceivePCMFrame(userID snowflake.ID, packet *PCMPac
 		return err
 	}
 
-	packet.PCM = newPCM[:outputFrames*p.resampler.Channels()]
+	packet.PCM = newPCM
 	return p.pcmFrameReceiver.ReceivePCMFrame(userID, packet)
 }
 
