@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/audio"
@@ -52,9 +53,15 @@ func main() {
 }
 
 func play(client bot.Client) {
-	connection, err := client.ConnectVoice(context.Background(), guildID, channelID, false, false)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	connection, err := client.ConnectVoice(ctx, guildID, channelID, false, false)
 	if err != nil {
 		panic("error connecting to voice channel: " + err.Error())
+	}
+
+	if err = connection.WaitUntilConnected(ctx); err != nil {
+		panic("error waiting for connection: " + err.Error())
 	}
 
 	rs, err := http.Get("https://p.scdn.co/mp3-preview/ee121ca281c629bb4e99c33d877fe98fbb752289?cid=774b29d4f13844c495f206cafdad9c86")

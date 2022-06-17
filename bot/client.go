@@ -259,11 +259,6 @@ func (c *clientImpl) ConnectVoice(ctx context.Context, guildID snowflake.ID, cha
 		c.voiceManager.RemoveConnection(guildID)
 		return nil, err
 	}
-
-	if err := connection.WaitUntilConnected(ctx); err != nil {
-		c.voiceManager.RemoveConnection(guildID)
-		return nil, err
-	}
 	return connection, nil
 }
 
