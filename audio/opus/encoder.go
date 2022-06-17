@@ -68,6 +68,18 @@ func (e *Encoder) Ctl(macro Macro[Encoder]) error {
 	return nil
 }
 
+func (e *Encoder) Channels() int {
+	return e.channels
+}
+
+func (e *Encoder) SampleRate() (int, error) {
+	var sampleRate int
+	if err := e.Ctl(GetEncoderSamplerate(&sampleRate)); err != nil {
+		return 0, err
+	}
+	return sampleRate, nil
+}
+
 func (e *Encoder) Destroy() {
 	if e.encoder == nil {
 		return

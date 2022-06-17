@@ -35,7 +35,7 @@ type Resampler struct {
 	channels  int
 }
 
-func (r *Resampler) Process(in []int16, out []int16, inputSampleRate int, outputSampleRate int, endOfInput int, inputFrames *int64, outputFrames *int64) error {
+func (r *Resampler) Process(in []int16, out []int16, inputSampleRate int, outputSampleRate int, endOfInput int, inputFrames *int, outputFrames *int) error {
 	inFloat := make([]float32, len(in))
 	Int16ToFloat32Slice(in, inFloat)
 
@@ -47,15 +47,14 @@ func (r *Resampler) Process(in []int16, out []int16, inputSampleRate int, output
 	return nil
 }
 
-func (r *Resampler) ProcessFloat(in []float32, out []float32, inputSampleRate int, outputSampleRate int, endOfInput int, inputFrames *int64, outputFrames *int64) error {
-	ratio := float64(inputSampleRate) / float64(outputSampleRate)
+func (r *Resampler) ProcessFloat(in []float32, out []float32, inputSampleRate int, outputSampleRate int, endOfInput int, inputFrames *int, outputFrames *int) error {
 	if err := C.bridge_src_process(r.resampler,
 		(*C.float)(&in[0]),
 		(*C.float)(&out[0]),
 		C.long(len(in))/C.long(r.channels),
 		C.long(cap(out))/C.long(r.channels),
 		C.int(endOfInput),
-		C.float(ratio),
+		C.float(float64(outputSampleRate)/float64(inputSampleRate)),
 		(*C.long)(inputFrames),
 		(*C.long)(outputFrames),
 	); err != 0 {
@@ -73,6 +72,10 @@ func (r *Resampler) Clone() (*Resampler, error) {
 	return &Resampler{
 		resampler: resampler,
 	}, nil
+}
+
+func (r *Resampler) Channels() int {
+	return r.channels
 }
 
 func (r *Resampler) Destroy() {

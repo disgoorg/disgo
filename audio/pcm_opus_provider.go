@@ -24,7 +24,7 @@ func NewPCMOpusProvider(encoder *opus.Encoder, pcmProvider PCMFrameProvider) (vo
 	return &pcmOpusProvider{
 		encoder:     encoder,
 		pcmProvider: pcmProvider,
-		opusBuff:    make([]byte, 2000),
+		opusBuff:    make([]byte, 2048),
 	}, nil
 }
 

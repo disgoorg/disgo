@@ -1,6 +1,7 @@
 package audio
 
 import (
+	"github.com/disgoorg/disgo/audio/opus"
 	"github.com/disgoorg/disgo/audio/samplerate"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -24,20 +25,18 @@ type sampleRateCombinedReceiver struct {
 	outputSampleRate int
 }
 
-func (p *sampleRateCombinedReceiver) ReceiveCombinedPCMFrame(userIDs []snowflake.ID, packet *CombinedPCMPacket) {
-	out := make([]int16, len(packet.PCM))
+func (p *sampleRateCombinedReceiver) ReceiveCombinedPCMFrame(userIDs []snowflake.ID, packet *CombinedPCMPacket) error {
+	newPCM := make([]int16, opus.GetOutputBuffSize(p.outputSampleRate, p.resampler.Channels()))
 	var (
-		inputFrames  int64
-		outputFrames int64
+		inputFrames  int
+		outputFrames int
 	)
-	if err := p.resampler.Process(packet.PCM, out, p.inputSampleRate, p.outputSampleRate, 1, &inputFrames, &outputFrames); err != nil {
-		panic("ReceivePCMFrame: " + err.Error())
+	if err := p.resampler.Process(packet.PCM, newPCM, p.inputSampleRate, p.outputSampleRate, 0, &inputFrames, &outputFrames); err != nil {
+		return err
 	}
 
-	//fmt.Printf("sampleRateCombinedReceiver: inputFrames: %d, outputFrames: %d\n", inputFrames, outputFrames)
-
-	packet.PCM = out[:outputFrames]
-	p.pcmFrameReceiver.ReceiveCombinedPCMFrame(userIDs, packet)
+	packet.PCM = newPCM[:outputFrames*p.resampler.Channels()]
+	return p.pcmFrameReceiver.ReceiveCombinedPCMFrame(userIDs, packet)
 }
 
 func (p *sampleRateCombinedReceiver) Close() {

@@ -41,6 +41,6 @@ func (p *pcmStreamReceiver) ReceivePCMFrame(userID snowflake.ID, packet *PCMPack
 	return binary.Write(p.w, binary.LittleEndian, packet.PCM)
 }
 
-func (p *pcmStreamReceiver) CleanupUser(userID snowflake.ID) {}
+func (p *pcmStreamReceiver) CleanupUser(_ snowflake.ID) {}
 
 func (*pcmStreamReceiver) Close() {}

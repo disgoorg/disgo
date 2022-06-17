@@ -9,6 +9,8 @@ import (
 	"errors"
 )
 
+const FrameSize = 20
+
 var (
 	ErrEncoderNotInitialized     = errors.New("audio encoder not initialized")
 	ErrEncoderAlreadyInitialized = errors.New("audio encoder already initialized")
@@ -30,4 +32,8 @@ const (
 
 func Version() string {
 	return C.GoString(C.opus_get_version_string())
+}
+
+func GetOutputBuffSize(rate int, channels int) int {
+	return rate / 1000 * FrameSize * channels
 }

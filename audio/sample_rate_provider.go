@@ -1,8 +1,7 @@
 package audio
 
 import (
-	"fmt"
-
+	"github.com/disgoorg/disgo/audio/opus"
 	"github.com/disgoorg/disgo/audio/samplerate"
 )
 
@@ -25,21 +24,22 @@ type sampleRateProvider struct {
 	outputSampleRate int
 }
 
-func (p *sampleRateProvider) ProvidePCMFrame() []int16 {
-	pcm := p.pcmFrameProvider.ProvidePCMFrame()
-
-	newPCM := make([]int16, len(pcm))
-	var (
-		inputFrames  int64
-		outputFrames int64
-	)
-	if err := p.resampler.Process(pcm, newPCM, p.inputSampleRate, p.outputSampleRate, 0, &inputFrames, &outputFrames); err != nil {
-		panic("sampleRateProvider: ReceivePCMFrame: " + err.Error())
+func (p *sampleRateProvider) ProvidePCMFrame() ([]int16, error) {
+	pcm, err := p.pcmFrameProvider.ProvidePCMFrame()
+	if err != nil {
+		return nil, err
 	}
 
-	fmt.Printf("inputFrames: %d, outputFrames: %d\n", inputFrames, outputFrames)
+	newPCM := make([]int16, opus.GetOutputBuffSize(p.outputSampleRate, p.resampler.Channels()))
+	var (
+		inputFrames  int
+		outputFrames int
+	)
+	if err = p.resampler.Process(pcm, newPCM, p.inputSampleRate, p.outputSampleRate, 0, &inputFrames, &outputFrames); err != nil {
+		return nil, err
+	}
 
-	return newPCM
+	return newPCM[:outputFrames*p.resampler.Channels()], nil
 }
 
 func (p *sampleRateProvider) Close() {

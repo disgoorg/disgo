@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/disgoorg/disgo/audio/opus"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -75,12 +76,12 @@ loop:
 			if err := r.combinePackets(); err != nil {
 				r.logger.Error("Error combining pcm packets: ", err)
 			}
-			sleepTime := time.Duration(20 - (time.Now().UnixMilli() - lastFrameSent))
+			sleepTime := time.Duration(opus.FrameSize - (time.Now().UnixMilli() - lastFrameSent))
 			if sleepTime > 0 {
 				time.Sleep(sleepTime * time.Millisecond)
 			}
-			if time.Now().UnixMilli() < lastFrameSent+60 {
-				lastFrameSent += 20
+			if time.Now().UnixMilli() < lastFrameSent+opus.FrameSize*2 {
+				lastFrameSent += opus.FrameSize
 			} else {
 				lastFrameSent = time.Now().UnixMilli()
 			}

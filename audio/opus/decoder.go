@@ -76,6 +76,18 @@ func (e *Decoder) Ctl(macro Macro[Decoder]) error {
 	return nil
 }
 
+func (e *Decoder) Channels() int {
+	return e.channels
+}
+
+func (e *Decoder) SampleRate() (int, error) {
+	var sampleRate int
+	if err := e.Ctl(GetDecoderSamplerate(&sampleRate)); err != nil {
+		return 0, err
+	}
+	return sampleRate, nil
+}
+
 func (e *Decoder) Destroy() {
 	if e.decoder == nil {
 		return

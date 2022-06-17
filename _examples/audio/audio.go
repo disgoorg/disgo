@@ -62,7 +62,7 @@ func play(client bot.Client) {
 		panic("error getting audio: " + err.Error())
 	}
 
-	provider, writeFunc, err := audio.NewMP3PCMFrameProvider(nil)
+	provider, writer, err := audio.NewMP3PCMFrameProvider(nil)
 	if err != nil {
 		panic("error creating audio provider: " + err.Error())
 	}
@@ -77,7 +77,7 @@ func play(client bot.Client) {
 	println("voice: ready")
 
 	defer rs.Body.Close()
-	if _, err = io.Copy(writeFunc, rs.Body); err != nil {
+	if _, err = io.Copy(writer, rs.Body); err != nil {
 		panic("error reading audio: " + err.Error())
 	}
 }

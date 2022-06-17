@@ -30,18 +30,22 @@ func NewPCMOpusReceiver(decoderCreateFunc func() (*opus.Decoder, error), pcmFram
 	return &pcmOpusReceiver{
 		receiveUserFunc:   receiveUserFunc,
 		decoderCreateFunc: decoderCreateFunc,
-		decoders:          map[snowflake.ID]*opus.Decoder{},
+		decoderStates:     map[snowflake.ID]*decoderState{},
 		pcmFrameReceiver:  pcmFrameReceiver,
 	}
+}
+
+type decoderState struct {
+	decoder *opus.Decoder
+	pcmBuff []int16
 }
 
 type pcmOpusReceiver struct {
 	receiveUserFunc   voice.ShouldReceiveUserFunc
 	decoderCreateFunc func() (*opus.Decoder, error)
-	decoders          map[snowflake.ID]*opus.Decoder
+	decoderStates     map[snowflake.ID]*decoderState
 	decodersMu        sync.Mutex
 	pcmFrameReceiver  PCMFrameReceiver
-	pcmBuff           [960 * 4]int16
 }
 
 func (r *pcmOpusReceiver) ReceiveOpusFrame(userID snowflake.ID, packet *voice.Packet) error {
@@ -49,19 +53,28 @@ func (r *pcmOpusReceiver) ReceiveOpusFrame(userID snowflake.ID, packet *voice.Pa
 		return nil
 	}
 	r.decodersMu.Lock()
-	decoder, ok := r.decoders[userID]
+	state, ok := r.decoderStates[userID]
 	if !ok {
-		var err error
-		decoder, err = r.decoderCreateFunc()
+		decoder, err := r.decoderCreateFunc()
 		if err != nil {
 			r.decodersMu.Unlock()
 			return fmt.Errorf("failed to create opus decoder: %w", err)
 		}
-		r.decoders[userID] = decoder
+
+		sampleRate, err := state.decoder.SampleRate()
+		if err != nil {
+			r.decodersMu.Unlock()
+			return fmt.Errorf("failed to get sample rate: %w", err)
+		}
+
+		r.decoderStates[userID] = &decoderState{
+			decoder: decoder,
+			pcmBuff: make([]int16, opus.GetOutputBuffSize(sampleRate, decoder.Channels())),
+		}
 	}
 	r.decodersMu.Unlock()
 
-	_, err := decoder.Decode(packet.Opus, r.pcmBuff[:], false)
+	_, err := state.decoder.Decode(packet.Opus, state.pcmBuff, false)
 	if err != nil {
 		return err
 	}
@@ -70,17 +83,17 @@ func (r *pcmOpusReceiver) ReceiveOpusFrame(userID snowflake.ID, packet *voice.Pa
 		SSRC:      packet.SSRC,
 		Sequence:  packet.Sequence,
 		Timestamp: packet.Timestamp,
-		PCM:       r.pcmBuff[:],
+		PCM:       state.pcmBuff,
 	})
 }
 
 func (r *pcmOpusReceiver) CleanupUser(userID snowflake.ID) {
 	r.decodersMu.Lock()
 	defer r.decodersMu.Unlock()
-	decoder, ok := r.decoders[userID]
+	state, ok := r.decoderStates[userID]
 	if ok {
-		decoder.Destroy()
-		delete(r.decoders, userID)
+		state.decoder.Destroy()
+		delete(r.decoderStates, userID)
 	}
 	r.pcmFrameReceiver.CleanupUser(userID)
 }
@@ -88,8 +101,8 @@ func (r *pcmOpusReceiver) CleanupUser(userID snowflake.ID) {
 func (r *pcmOpusReceiver) Close() {
 	r.decodersMu.Lock()
 	defer r.decodersMu.Unlock()
-	for _, decoder := range r.decoders {
-		decoder.Destroy()
+	for _, state := range r.decoderStates {
+		state.decoder.Destroy()
 	}
 	r.pcmFrameReceiver.Close()
 }
