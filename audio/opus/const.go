@@ -120,7 +120,7 @@ int opus_encoder_get_sample_rate(OpusEncoder *st, opus_int32 *sample_rate) {
 }
 
 int opus_decoder_get_sample_rate(OpusDecoder *st, opus_int32 *sample_rate) {
-   return opus_encoder_ctl(st, OPUS_GET_SAMPLE_RATE(sample_rate));
+   return opus_decoder_ctl(st, OPUS_GET_SAMPLE_RATE(sample_rate));
 }
 
 int opus_set_phase_inversion_disabled(OpusEncoder *st, opus_int32 phase_inversion) {
@@ -158,6 +158,7 @@ int opus_reset_state(OpusEncoder *st) {
 }
 */
 import "C"
+import "unsafe"
 
 type Macro[T any] func(t *T) C.int
 
@@ -167,15 +168,15 @@ func SetBitrate(bitrate int) Macro[Encoder] {
 	}
 }
 
-func GetEncoderSamplerate(sampleRate *int) Macro[Encoder] {
+func GetEncoderSampleRate(sampleRate *int) Macro[Encoder] {
 	return func(e *Encoder) C.int {
-		return C.opus_encoder_get_sample_rate(e.encoder, (*C.int)(sampleRate))
+		return C.opus_encoder_get_sample_rate(e.encoder, (*C.int)(unsafe.Pointer(sampleRate)))
 	}
 }
 
-func GetDecoderSamplerate(sampleRate *int) Macro[Decoder] {
+func GetDecoderSamplerRte(sampleRate *int) Macro[Decoder] {
 	return func(e *Decoder) C.int {
-		return C.opus_decoder_get_sample_rate(e.decoder, (*C.int)(sampleRate))
+		return C.opus_decoder_get_sample_rate(e.decoder, (*C.int)(unsafe.Pointer(sampleRate)))
 	}
 }
 

@@ -28,8 +28,8 @@ type sampleRateCombinedReceiver struct {
 func (p *sampleRateCombinedReceiver) ReceiveCombinedPCMFrame(userIDs []snowflake.ID, packet *CombinedPCMPacket) error {
 	newPCM := make([]int16, opus.GetOutputBuffSize(p.outputSampleRate, p.resampler.Channels()))
 	var (
-		inputFrames  int
-		outputFrames int
+		inputFrames  int64
+		outputFrames int64
 	)
 	if err := p.resampler.Process(packet.PCM, newPCM, p.inputSampleRate, p.outputSampleRate, 0, &inputFrames, &outputFrames); err != nil {
 		return err

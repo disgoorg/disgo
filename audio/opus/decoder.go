@@ -82,7 +82,7 @@ func (e *Decoder) Channels() int {
 
 func (e *Decoder) SampleRate() (int, error) {
 	var sampleRate int
-	if err := e.Ctl(GetDecoderSamplerate(&sampleRate)); err != nil {
+	if err := e.Ctl(GetDecoderSamplerRte(&sampleRate)); err != nil {
 		return 0, err
 	}
 	return sampleRate, nil

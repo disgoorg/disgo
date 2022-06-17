@@ -32,8 +32,8 @@ func (p *sampleRateProvider) ProvidePCMFrame() ([]int16, error) {
 
 	newPCM := make([]int16, opus.GetOutputBuffSize(p.outputSampleRate, p.resampler.Channels()))
 	var (
-		inputFrames  int
-		outputFrames int
+		inputFrames  int64
+		outputFrames int64
 	)
 	if err = p.resampler.Process(pcm, newPCM, p.inputSampleRate, p.outputSampleRate, 0, &inputFrames, &outputFrames); err != nil {
 		return nil, err

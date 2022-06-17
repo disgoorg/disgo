@@ -35,7 +35,7 @@ type Resampler struct {
 	channels  int
 }
 
-func (r *Resampler) Process(in []int16, out []int16, inputSampleRate int, outputSampleRate int, endOfInput int, inputFrames *int, outputFrames *int) error {
+func (r *Resampler) Process(in []int16, out []int16, inputSampleRate int, outputSampleRate int, endOfInput int, inputFrames *int64, outputFrames *int64) error {
 	inFloat := make([]float32, len(in))
 	Int16ToFloat32Slice(in, inFloat)
 
@@ -47,7 +47,7 @@ func (r *Resampler) Process(in []int16, out []int16, inputSampleRate int, output
 	return nil
 }
 
-func (r *Resampler) ProcessFloat(in []float32, out []float32, inputSampleRate int, outputSampleRate int, endOfInput int, inputFrames *int, outputFrames *int) error {
+func (r *Resampler) ProcessFloat(in []float32, out []float32, inputSampleRate int, outputSampleRate int, endOfInput int, inputFrames *int64, outputFrames *int64) error {
 	if err := C.bridge_src_process(r.resampler,
 		(*C.float)(&in[0]),
 		(*C.float)(&out[0]),
@@ -61,17 +61,6 @@ func (r *Resampler) ProcessFloat(in []float32, out []float32, inputSampleRate in
 		return Error(err)
 	}
 	return nil
-}
-
-func (r *Resampler) Clone() (*Resampler, error) {
-	var err C.int
-	resampler := C.src_clone(r.resampler, &err)
-	if err != 0 {
-		return nil, Error(err)
-	}
-	return &Resampler{
-		resampler: resampler,
-	}, nil
 }
 
 func (r *Resampler) Channels() int {

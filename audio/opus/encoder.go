@@ -74,7 +74,7 @@ func (e *Encoder) Channels() int {
 
 func (e *Encoder) SampleRate() (int, error) {
 	var sampleRate int
-	if err := e.Ctl(GetEncoderSamplerate(&sampleRate)); err != nil {
+	if err := e.Ctl(GetEncoderSampleRate(&sampleRate)); err != nil {
 		return 0, err
 	}
 	return sampleRate, nil
