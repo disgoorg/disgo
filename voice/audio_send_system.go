@@ -9,7 +9,10 @@ import (
 	"github.com/disgoorg/log"
 )
 
-var SilenceAudioFrames = []byte{0xF8, 0xFF, 0xFE}
+var (
+	SilenceAudioFrames       = []byte{0xF8, 0xFF, 0xFE}
+	OpusFrameSize      int64 = 20
+)
 
 func NewAudioSendSystem(opusProvider OpusFrameProvider, connection Connection) AudioSendSystem {
 	return &defaultAudioSendSystem{
@@ -50,12 +53,12 @@ loop:
 
 		default:
 			s.send()
-			sleepTime := time.Duration(20 - (time.Now().UnixMilli() - lastFrameSent))
+			sleepTime := time.Duration(OpusFrameSize - (time.Now().UnixMilli() - lastFrameSent))
 			if sleepTime > 0 {
 				time.Sleep(sleepTime * time.Millisecond)
 			}
-			if time.Now().UnixMilli() < lastFrameSent+60 {
-				lastFrameSent += 20
+			if time.Now().UnixMilli() < lastFrameSent+OpusFrameSize*3 {
+				lastFrameSent += OpusFrameSize
 			} else {
 				lastFrameSent = time.Now().UnixMilli()
 			}
