@@ -278,7 +278,7 @@ func (g *gatewayImpl) send(messageType int, data []byte) error {
 		return ErrGatewayNotConnected
 	}
 
-	g.Logger().Infof("sending message to voice gateway. data: %s", string(data))
+	g.Logger().Trace("sending message to voice gateway. data: ", string(data))
 	if err := g.conn.WriteMessage(messageType, data); err != nil {
 		return fmt.Errorf("failed to send message to voice gateway: %w", err)
 	}
