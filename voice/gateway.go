@@ -39,7 +39,7 @@ const (
 type (
 	EventHandlerFunc  func(opCode GatewayOpcode, data GatewayMessageData)
 	CloseHandlerFunc  func(gateway Gateway, err error)
-	GatewayCreateFunc func(state State, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway
+	GatewayCreateFunc func(state state, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway
 )
 
 type Gateway interface {
@@ -52,7 +52,7 @@ type Gateway interface {
 	Latency() time.Duration
 }
 
-func NewGateway(state State, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway {
+func NewGateway(state state, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway {
 	config := DefaultGatewayConfig()
 	config.Apply(opts)
 
@@ -68,7 +68,7 @@ type gatewayImpl struct {
 	config           GatewayConfig
 	eventHandlerFunc EventHandlerFunc
 	closeHandlerFunc CloseHandlerFunc
-	state            State
+	state            state
 
 	ssrc uint32
 

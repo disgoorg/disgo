@@ -73,18 +73,18 @@ func NewConnection(guildID snowflake.ID, channelID snowflake.ID, userID snowflak
 
 	return &connectionImpl{
 		config: *config,
-		state: State{
+		state: state{
 			guildID:   guildID,
 			userID:    userID,
 			channelID: channelID,
 		},
-		connected:    make(chan struct{}),
-		disconnected: make(chan struct{}),
+		connected:    make(chan struct{}, 1),
+		disconnected: make(chan struct{}, 1),
 		ssrcs:        map[uint32]snowflake.ID{},
 	}
 }
 
-type State struct {
+type state struct {
 	guildID snowflake.ID
 	userID  snowflake.ID
 
@@ -97,7 +97,7 @@ type State struct {
 type connectionImpl struct {
 	config ConnectionConfig
 
-	state   State
+	state   state
 	gateway Gateway
 	udp     UDP
 	mu      sync.Mutex
