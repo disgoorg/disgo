@@ -1,6 +1,7 @@
 package voice
 
 import (
+	"context"
 	"sync"
 
 	"github.com/disgoorg/disgo/discord"
@@ -14,6 +15,8 @@ type Manager interface {
 	GetConnection(guildID snowflake.ID) Connection
 	ForConnections(f func(connection Connection))
 	RemoveConnection(guildID snowflake.ID)
+
+	Close(ctx context.Context)
 }
 
 func NewManager(opts ...ManagerConfigOpt) Manager {
@@ -85,5 +88,13 @@ func (m *managerImpl) RemoveConnection(guildID snowflake.ID) {
 	if conn, ok := m.connections[guildID]; ok {
 		conn.Close()
 		delete(m.connections, guildID)
+	}
+}
+
+func (m *managerImpl) Close(ctx context.Context) {
+	m.connectionsMu.Lock()
+	defer m.connectionsMu.Unlock()
+	for _, connection := range m.connections {
+		connection.Close()
 	}
 }

@@ -296,7 +296,6 @@ func (c *connectionImpl) Close() {
 		c.gateway = nil
 	}
 	c.mu.Unlock()
-	c.disconnected <- struct{}{}
 }
 
 func (c *connectionImpl) WaitUntilConnected(ctx context.Context) error {

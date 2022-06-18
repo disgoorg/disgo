@@ -146,6 +146,9 @@ func (c *clientImpl) Close(ctx context.Context) {
 	if c.restServices != nil {
 		c.restServices.Close(ctx)
 	}
+	if c.voiceManager != nil {
+		c.voiceManager.Close(ctx)
+	}
 	if c.gateway != nil {
 		c.gateway.Close(ctx)
 	}
