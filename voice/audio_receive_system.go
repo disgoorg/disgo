@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/binary"
 	"io"
+	"net"
 
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
@@ -55,6 +56,10 @@ func (s *defaultAudioReceiveSystem) CleanupUser(userID snowflake.ID) {
 
 func (s *defaultAudioReceiveSystem) receive() {
 	packet, err := s.connection.UDP().ReadPacket()
+	if err == net.ErrClosed {
+		s.Close()
+		return
+	}
 	if err != nil {
 		s.logger.Errorf("error while reading packet: %s", err)
 		return

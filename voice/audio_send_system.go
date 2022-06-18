@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/binary"
 	"io"
+	"net"
 	"time"
 
 	"github.com/disgoorg/log"
@@ -71,6 +72,10 @@ func (s *defaultAudioSendSystem) send() {
 		return
 	}
 	opus, err := s.opusProvider.ProvideOpusFrame()
+	if err == net.ErrClosed {
+		s.Close()
+		return
+	}
 	if err != nil && err != io.EOF {
 		s.logger.Errorf("error while reading opus frame: %s", err)
 		return
