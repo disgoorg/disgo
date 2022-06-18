@@ -53,17 +53,23 @@ func main() {
 }
 
 func play(client bot.Client) {
-	connection, err := client.ConnectVoice(context.Background(), guildID, channelID, false, false)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	conn, err := client.ConnectVoice(ctx, guildID, channelID, false, false)
 	if err != nil {
 		panic("error connecting to voice channel: " + err.Error())
 	}
 
+	if err = conn.WaitUntilConnected(ctx); err != nil {
+		panic("error waiting for voice connection: " + err.Error())
+	}
+
 	println("starting playback")
 
-	if err = connection.Speaking(voice.SpeakingFlagMicrophone); err != nil {
+	if err = conn.Speaking(voice.SpeakingFlagMicrophone); err != nil {
 		panic("error setting speaking flag: " + err.Error())
 	}
-	writeOpus(connection.UDP())
+	writeOpus(conn.UDP())
 }
 
 func writeOpus(w io.Writer) {

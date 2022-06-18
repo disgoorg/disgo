@@ -3,7 +3,6 @@ package voice
 import (
 	"context"
 	"errors"
-	"net"
 	"sync"
 
 	"github.com/disgoorg/disgo/discord"
@@ -134,7 +133,13 @@ func (c *connectionImpl) Gateway() Gateway {
 }
 
 func (c *connectionImpl) Speaking(flags SpeakingFlags) error {
-	return c.gateway.Send(GatewayOpcodeSpeaking, GatewayMessageDataSpeaking{
+	c.mu.Lock()
+	gateway := c.gateway
+	c.mu.Unlock()
+	if gateway == nil {
+		return ErrGatewayNotConnected
+	}
+	return gateway.Send(GatewayOpcodeSpeaking, GatewayMessageDataSpeaking{
 		SSRC:     c.Gateway().SSRC(),
 		Speaking: flags,
 	})
@@ -187,6 +192,7 @@ func (c *connectionImpl) HandleVoiceStateUpdate(update discord.VoiceStateUpdate)
 
 	if update.ChannelID == nil {
 		c.state.channelID = 0
+		c.disconnected <- struct{}{}
 	} else {
 		c.state.channelID = *update.ChannelID
 	}
@@ -257,10 +263,6 @@ func (c *connectionImpl) handleGatewayMessage(op GatewayOpcode, data GatewayMess
 }
 
 func (c *connectionImpl) handleGatewayClose(gateway Gateway, err error) {
-	if !errors.Is(err, net.ErrClosed) {
-		c.config.Logger.Error("voice gateway closed. error: ", err)
-	}
-	gateway.Close()
 	c.Close()
 }
 
@@ -288,12 +290,10 @@ func (c *connectionImpl) Close() {
 	c.mu.Lock()
 	if c.udp != nil {
 		c.udp.Close()
-		c.udp = nil
 	}
 
 	if c.gateway != nil {
 		c.gateway.Close()
-		c.gateway = nil
 	}
 	c.mu.Unlock()
 }

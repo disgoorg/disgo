@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
@@ -51,22 +54,36 @@ func main() {
 }
 
 func play(client bot.Client) {
-	conn, err := client.ConnectVoice(context.Background(), guildID, channelID, false, false)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	conn, err := client.ConnectVoice(ctx, guildID, channelID, false, false)
 	if err != nil {
 		panic("error connecting to voice channel: " + err.Error())
 	}
 
 	println("starting playback")
 
+	if err = conn.WaitUntilConnected(ctx); err != nil {
+		panic("error waiting for voice connection: " + err.Error())
+	}
+
 	_ = conn.Speaking(voice.SpeakingFlagMicrophone)
 	_, _ = conn.UDP().Write(voice.SilenceAudioFrames)
 	for {
 		packet, err := conn.UDP().ReadPacket()
 		if err != nil {
+			if errors.Is(err, net.ErrClosed) {
+				println("connection closed")
+				return
+			}
 			fmt.Printf("error while reading from reader: %s", err)
 			continue
 		}
 		if _, err = conn.UDP().Write(packet.Opus); err != nil {
+			if errors.Is(err, net.ErrClosed) {
+				println("connection closed")
+				return
+			}
 			fmt.Printf("error while writing to UDP: %s", err)
 			continue
 		}
