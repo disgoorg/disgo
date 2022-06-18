@@ -79,7 +79,10 @@ type Client interface {
 	// ConnectVoice sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway and returns the voice.Connection.
 	ConnectVoice(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) (voice.Connection, error)
 
-	// DisconnectVoice sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway and disconnects the bot from this guild.
+	// DisconnectVoiceManual sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway and disconnects the bot from this guild.
+	DisconnectVoiceManual(ctx context.Context, guildID snowflake.ID) error
+
+	// DisconnectVoice sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway, disconnects the bot from this guild and removes the voice.Connection.
 	DisconnectVoice(ctx context.Context, guildID snowflake.ID) error
 
 	// RequestMembers sends a discord.GatewayMessageDataRequestGuildMembers to the specific gateway.Gateway and requests the Member(s) of the specified guild.
@@ -265,7 +268,7 @@ func (c *clientImpl) ConnectVoice(ctx context.Context, guildID snowflake.ID, cha
 	return connection, nil
 }
 
-func (c *clientImpl) DisconnectVoice(ctx context.Context, guildID snowflake.ID) error {
+func (c *clientImpl) DisconnectVoiceManual(ctx context.Context, guildID snowflake.ID) error {
 	shard, err := c.Shard(guildID)
 	if err != nil {
 		return err
@@ -276,25 +279,17 @@ func (c *clientImpl) DisconnectVoice(ctx context.Context, guildID snowflake.ID) 
 	})
 }
 
-func (c *clientImpl) DisconnectChannel(ctx context.Context, guildID snowflake.ID) error {
-	shard, err := c.Shard(guildID)
-	if err != nil {
-		return err
-	}
+func (c *clientImpl) DisconnectVoice(ctx context.Context, guildID snowflake.ID) error {
 	connection := c.voiceManager.GetConnection(guildID)
 	if connection == nil {
 		return nil
 	}
 	defer c.voiceManager.RemoveConnection(guildID)
 
-	if err = shard.Send(ctx, discord.GatewayOpcodeVoiceStateUpdate, discord.GatewayMessageDataVoiceStateUpdate{
-		GuildID:   guildID,
-		ChannelID: nil,
-	}); err != nil {
+	if err := c.DisconnectVoiceManual(ctx, guildID); err != nil {
 		return err
 	}
-
-	return connection.WaitUntilDisconnected(ctx)
+	return nil
 }
 
 func (c *clientImpl) RequestMembers(ctx context.Context, guildID snowflake.ID, presence bool, nonce string, userIDs ...snowflake.ID) error {
