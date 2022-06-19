@@ -286,3 +286,29 @@ type GatewayEventIntegrationDelete struct {
 	GuildID       snowflake.ID  `json:"guild_id"`
 	ApplicationID *snowflake.ID `json:"application_id"`
 }
+
+type GatewayEventAutoModerationRuleCreate struct {
+	AutoModerationRule
+}
+
+type GatewayEventAutoModerationRuleUpdate struct {
+	AutoModerationRule
+}
+
+type GatewayEventAutoModerationRuleDelete struct {
+	AutoModerationRule
+}
+
+type GatewayEventAutoModerationActionExecution struct {
+	GuildID              snowflake.ID              `json:"guild_id"`
+	Action               AutoModerationAction      `json:"action"`
+	RuleID               snowflake.ID              `json:"rule_id"`
+	RuleTriggerType      AutoModerationTriggerType `json:"rule_trigger_type"`
+	UserID               snowflake.ID              `json:"user_id"`
+	ChannelID            *snowflake.ID             `json:"channel_id,omitempty"`
+	MessageID            *snowflake.ID             `json:"message_id,omitempty"`
+	AlertSystemMessageID snowflake.ID              `json:"alert_system_message_id"`
+	Content              string                    `json:"content"`
+	MatchedKeywords      *string                   `json:"matched_keywords"`
+	MatchedContent       *string                   `json:"matched_content"`
+}

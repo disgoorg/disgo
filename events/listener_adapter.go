@@ -14,6 +14,12 @@ type ListenerAdapter struct {
 	// GuildApplicationCommandPermissionsUpdate
 	OnGuildApplicationCommandPermissionsUpdate func(event *GuildApplicationCommandPermissionsUpdate)
 
+	// AutoModeration
+	OnAutoModerationRuleCreate      func(event *AutoModerationRuleCreate)
+	OnAutoModerationRuleUpdate      func(event *AutoModerationRuleUpdate)
+	OnAutoModerationRuleDelete      func(event *AutoModerationRuleDelete)
+	OnAutoModerationActionExecution func(event *AutoModerationActionExecution)
+
 	// Thread Events
 	OnThreadCreate func(event *ThreadCreate)
 	OnThreadUpdate func(event *ThreadUpdate)
@@ -173,6 +179,24 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 
 	case *GuildApplicationCommandPermissionsUpdate:
 		if listener := l.OnGuildApplicationCommandPermissionsUpdate; listener != nil {
+			listener(e)
+		}
+
+	// Automoderation Events
+	case *AutoModerationRuleCreate:
+		if listener := l.OnAutoModerationRuleCreate; listener != nil {
+			listener(e)
+		}
+	case *AutoModerationRuleUpdate:
+		if listener := l.OnAutoModerationRuleUpdate; listener != nil {
+			listener(e)
+		}
+	case *AutoModerationRuleDelete:
+		if listener := l.OnAutoModerationRuleDelete; listener != nil {
+			listener(e)
+		}
+	case *AutoModerationActionExecution:
+		if listener := l.OnAutoModerationActionExecution; listener != nil {
 			listener(e)
 		}
 

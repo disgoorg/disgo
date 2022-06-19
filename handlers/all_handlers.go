@@ -44,6 +44,11 @@ var allEventHandlers = []bot.GatewayEventHandler{
 
 	&gatewayHandlerApplicationCommandPermissionsUpdate{},
 
+	&gatewayHandlerAutoModerationRuleCreate{},
+	&gatewayHandlerAutoModerationRuleUpdate{},
+	&gatewayHandlerAutoModerationRuleDelete{},
+	&gatewayHandlerAutoModerationActionExecution{},
+
 	&gatewayHandlerChannelCreate{},
 	&gatewayHandlerChannelUpdate{},
 	&gatewayHandlerChannelDelete{},

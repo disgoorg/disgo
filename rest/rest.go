@@ -8,6 +8,7 @@ type Rest interface {
 	OAuth2
 	Gateway
 	Guilds
+	AutoModeration
 	Members
 	Channels
 	Threads
@@ -33,6 +34,7 @@ func New(client Client) Rest {
 		OAuth2:               NewOAuth2(client),
 		Gateway:              NewGateway(client),
 		Guilds:               NewGuilds(client),
+		AutoModeration:       NewAutoModeration(client),
 		Members:              NewMembers(client),
 		Channels:             NewChannels(client),
 		Threads:              NewThreads(client),
@@ -56,6 +58,7 @@ type restImpl struct {
 	OAuth2
 	Gateway
 	Guilds
+	AutoModeration
 	Members
 	Channels
 	Threads
