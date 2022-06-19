@@ -63,7 +63,22 @@ type AutoModerationRule struct {
 }
 
 type AutoModerationRuleCreate struct {
+	Name            string                         `json:"name"`
+	EventType       AutoModerationEventType        `json:"event_type"`
+	TriggerType     AutoModerationTriggerType      `json:"trigger_type"`
+	TriggerMetadata *AutoModerationTriggerMetadata `json:"trigger_metadata,omitempty"`
+	Actions         []AutoModerationAction         `json:"actions"`
+	Enabled         bool                           `json:"enabled,omitempty"`
+	ExemptRoles     []snowflake.ID                 `json:"exempt_roles,omitempty"`
+	ExemptChannels  []snowflake.ID                 `json:"exempt_channels,omitempty"`
 }
 
 type AutoModerationRuleUpdate struct {
+	Name            *string                        `json:"name,omitempty"`
+	EventType       *AutoModerationEventType       `json:"event_type,omitempty"`
+	TriggerMetadata *AutoModerationTriggerMetadata `json:"trigger_metadata,omitempty"`
+	Actions         *[]AutoModerationAction        `json:"actions,omitempty"`
+	Enabled         *bool                          `json:"enabled,omitempty"`
+	ExemptRoles     *[]snowflake.ID                `json:"exempt_roles,omitempty"`
+	ExemptChannels  *[]snowflake.ID                `json:"exempt_channels,omitempty"`
 }
