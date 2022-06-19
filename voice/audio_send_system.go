@@ -15,9 +15,9 @@ var (
 	OpusFrameSize      int64 = 20
 )
 
-func NewAudioSendSystem(opusProvider OpusFrameProvider, connection Connection) AudioSendSystem {
+func NewAudioSendSystem(logger log.Logger, opusProvider OpusFrameProvider, connection Connection) AudioSendSystem {
 	return &defaultAudioSendSystem{
-		logger:       log.Default(),
+		logger:       logger,
 		opusProvider: opusProvider,
 		connection:   connection,
 		silentFrames: 5,

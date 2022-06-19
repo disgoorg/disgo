@@ -162,7 +162,7 @@ func (c *connectionImpl) SetAudioSendSystem(sendSystem AudioSendSystem) {
 }
 
 func (c *connectionImpl) SetOpusFrameProvider(handler OpusFrameProvider) {
-	c.SetAudioSendSystem(NewAudioSendSystem(handler, c))
+	c.SetAudioSendSystem(NewAudioSendSystem(c.config.Logger, handler, c))
 }
 
 func (c *connectionImpl) SetAudioReceiveSystem(receiveSystem AudioReceiveSystem) {
@@ -176,7 +176,7 @@ func (c *connectionImpl) SetAudioReceiveSystem(receiveSystem AudioReceiveSystem)
 }
 
 func (c *connectionImpl) SetOpusFrameReceiver(handler OpusFrameReceiver) {
-	c.SetAudioReceiveSystem(NewAudioReceiveSystem(handler, c))
+	c.SetAudioReceiveSystem(NewAudioReceiveSystem(c.config.Logger, handler, c))
 }
 
 func (c *connectionImpl) SetEventHandlerFunc(eventHandlerFunc EventHandlerFunc) {

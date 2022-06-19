@@ -18,9 +18,9 @@ type AudioReceiveSystem interface {
 	Close()
 }
 
-func NewAudioReceiveSystem(opusFrameReceiver OpusFrameReceiver, connection Connection) AudioReceiveSystem {
+func NewAudioReceiveSystem(logger log.Logger, opusFrameReceiver OpusFrameReceiver, connection Connection) AudioReceiveSystem {
 	return &defaultAudioReceiveSystem{
-		logger:            log.Default(),
+		logger:            logger,
 		opusFrameReceiver: opusFrameReceiver,
 		connection:        connection,
 	}
