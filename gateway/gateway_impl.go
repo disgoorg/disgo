@@ -232,7 +232,7 @@ func (g *gatewayImpl) reconnectTry(ctx context.Context, try int, delay time.Dura
 func (g *gatewayImpl) reconnect(ctx context.Context) {
 	err := g.reconnectTry(ctx, 0, time.Second)
 	if err != nil {
-		g.Logger().Error(g.formatLogs("failed to reopen gateway", err))
+		g.Logger().Error(g.formatLogs("failed to reopen gateway. error: ", err))
 	}
 }
 
