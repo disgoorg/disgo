@@ -19,17 +19,17 @@ const (
 	MessageTypeChannelNameChange
 	MessageTypeChannelIconChange
 	ChannelPinnedMessage
-	MessageTypeGuildMemberJoin
-	MessageTypeUserPremiumGuildSubscription
-	MessageTypeUserPremiumGuildSubscriptionTier1
-	MMessageTypeUserPremiumGuildSubscriptionTier2
-	MessageTypeUserPremiumGuildSubscriptionTier3
+	MessageTypeUserJoin
+	MessageTypeGuildBoost
+	MessageTypeGuildBoostTier1
+	MessageTypeGuildBoostTier2
+	MessageTypeGuildBoostTier3
 	MessageTypeChannelFollowAdd
 	_
 	MessageTypeGuildDiscoveryDisqualified
 	MessageTypeGuildDiscoveryRequalified
-	MessageTypeGuildDiscoveryInitialWarning
-	MessageTypeGuildDiscoveryFinalWarning
+	MessageTypeGuildDiscoveryGracePeriodInitialWarning
+	MessageTypeGuildDiscoveryGracePeriodFinalWarning
 	MessageTypeThreadCreated
 	MessageTypeReply
 	MessageTypeSlashCommand
@@ -37,6 +37,28 @@ const (
 	MessageTypeGuildInviteReminder
 	MessageTypeContextMenuCommand
 )
+
+func (t MessageType) System() bool {
+	switch t {
+	case MessageTypeDefault, MessageTypeReply, MessageTypeSlashCommand, MessageTypeThreadStarterMessage, MessageTypeContextMenuCommand:
+		return false
+
+	default:
+		return true
+	}
+}
+
+func (t MessageType) Deleteable() bool {
+	switch t {
+	case MessageTypeRecipientAdd, MessageTypeRecipientRemove, MessageTypeCall,
+		MessageTypeChannelNameChange, MessageTypeChannelIconChange, MessageTypeGuildDiscoveryDisqualified,
+		MessageTypeGuildDiscoveryRequalified, MessageTypeGuildDiscoveryGracePeriodInitialWarning,
+		MessageTypeGuildDiscoveryGracePeriodFinalWarning, MessageTypeThreadStarterMessage:
+		return false
+	default:
+		return true
+	}
+}
 
 // Message is a struct for messages sent in discord text-based channels
 type Message struct {
