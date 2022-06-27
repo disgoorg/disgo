@@ -145,13 +145,12 @@ func (h *OpusStreamProvider) ProvideOpusFrame() ([]byte, error) {
 		return nil, err
 	}
 
-	buff := make([]byte, int64(binary.LittleEndian.Uint32(h.lenBuff[:])))
-	var n int
-	n, err = h.r.Read(buff)
+	frameLen := int64(binary.LittleEndian.Uint32(h.lenBuff[:]))
+	_, err = h.r.Read(h.buff[:frameLen])
 	if err != nil {
 		return nil, err
 	}
-	return buff[:n], nil
+	return h.buff[:frameLen], nil
 }
 
 func (*OpusStreamProvider) Close() {}
