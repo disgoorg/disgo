@@ -3,6 +3,7 @@ package voice
 import (
 	"context"
 	"encoding/binary"
+	"errors"
 	"io"
 	"net"
 	"time"
@@ -72,10 +73,6 @@ func (s *defaultAudioSendSystem) send() {
 		return
 	}
 	opus, err := s.opusProvider.ProvideOpusFrame()
-	if err == net.ErrClosed {
-		s.Close()
-		return
-	}
 	if err != nil && err != io.EOF {
 		s.logger.Errorf("error while reading opus frame: %s", err)
 		return
@@ -83,12 +80,12 @@ func (s *defaultAudioSendSystem) send() {
 	if len(opus) == 0 {
 		if s.silentFrames > 0 {
 			if _, err = s.connection.UDP().Write(SilenceAudioFrames); err != nil {
-				s.logger.Errorf("failed to send silence frames: %s", err)
+				s.handleErr(err)
 			}
 			s.silentFrames--
 		} else if !s.sentSpeakingStop {
 			if err = s.connection.Speaking(0); err != nil {
-				s.logger.Errorf("failed to send speaking stop: %s", err)
+				s.handleErr(err)
 			}
 			s.sentSpeakingStop = true
 			s.sentSpeakingStart = false
@@ -98,7 +95,7 @@ func (s *defaultAudioSendSystem) send() {
 
 	if !s.sentSpeakingStart {
 		if err = s.connection.Speaking(SpeakingFlagMicrophone); err != nil {
-			s.logger.Errorf("failed to send speaking start: %s", err)
+			s.handleErr(err)
 		}
 		s.sentSpeakingStart = true
 		s.sentSpeakingStop = false
@@ -106,8 +103,16 @@ func (s *defaultAudioSendSystem) send() {
 	}
 
 	if _, err = s.connection.UDP().Write(opus); err != nil {
-		s.logger.Errorf("failed to send audio data: %s", err)
+		s.handleErr(err)
 	}
+}
+
+func (s *defaultAudioSendSystem) handleErr(err error) {
+	if errors.Is(err, net.ErrClosed) || errors.Is(err, ErrGatewayNotConnected) {
+		s.Close()
+		return
+	}
+	s.logger.Errorf("failed to send audio: %s", err)
 }
 
 func (s *defaultAudioSendSystem) Close() {
