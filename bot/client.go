@@ -259,10 +259,10 @@ func (c *clientImpl) ConnectVoiceManual(ctx context.Context, guildID snowflake.I
 }
 
 func (c *clientImpl) ConnectVoice(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) (voice.Conn, error) {
-	connection := c.voiceManager.CreateConnection(guildID, channelID, c.ID())
+	connection := c.voiceManager.CreateConn(guildID, channelID, c.ID())
 
 	if err := c.ConnectVoiceManual(ctx, guildID, channelID, selfMute, selfDeaf); err != nil {
-		c.voiceManager.RemoveConnection(guildID)
+		c.voiceManager.RemoveConn(guildID)
 		return nil, err
 	}
 	return connection, nil
@@ -280,11 +280,11 @@ func (c *clientImpl) DisconnectVoiceManual(ctx context.Context, guildID snowflak
 }
 
 func (c *clientImpl) DisconnectVoice(ctx context.Context, guildID snowflake.ID) error {
-	connection := c.voiceManager.GetConnection(guildID)
+	connection := c.voiceManager.GetConn(guildID)
 	if connection == nil {
 		return nil
 	}
-	defer c.voiceManager.RemoveConnection(guildID)
+	defer c.voiceManager.RemoveConn(guildID)
 
 	if err := c.DisconnectVoiceManual(ctx, guildID); err != nil {
 		return err
