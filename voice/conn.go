@@ -9,8 +9,10 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
+// ErrAlreadyConnected is returned when you try to connect to voice when you are already connected.
 var ErrAlreadyConnected = errors.New("already connected")
 
+// ConnCreateFunc is a type alias for a function that creates a new Conn.
 type ConnCreateFunc func(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, opts ...ConnConfigOpt) Conn
 
 // Conn is a complete voice connection to discord. It holds the voice Gateway and UDPConn connection and combines them.
