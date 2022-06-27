@@ -76,13 +76,13 @@ type Client interface {
 	// ConnectVoiceManual sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway.
 	ConnectVoiceManual(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) error
 
-	// ConnectVoice sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway and returns the voice.Connection.
-	ConnectVoice(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) (voice.Connection, error)
+	// ConnectVoice sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway and returns the voice.Conn.
+	ConnectVoice(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) (voice.Conn, error)
 
 	// DisconnectVoiceManual sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway and disconnects the bot from this guild.
 	DisconnectVoiceManual(ctx context.Context, guildID snowflake.ID) error
 
-	// DisconnectVoice sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway, disconnects the bot from this guild and removes the voice.Connection.
+	// DisconnectVoice sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway, disconnects the bot from this guild and removes the voice.Conn.
 	DisconnectVoice(ctx context.Context, guildID snowflake.ID) error
 
 	// RequestMembers sends a discord.GatewayMessageDataRequestGuildMembers to the specific gateway.Gateway and requests the Member(s) of the specified guild.
@@ -258,7 +258,7 @@ func (c *clientImpl) ConnectVoiceManual(ctx context.Context, guildID snowflake.I
 	})
 }
 
-func (c *clientImpl) ConnectVoice(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) (voice.Connection, error) {
+func (c *clientImpl) ConnectVoice(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) (voice.Conn, error) {
 	connection := c.voiceManager.CreateConnection(guildID, channelID, c.ID())
 
 	if err := c.ConnectVoiceManual(ctx, guildID, channelID, selfMute, selfDeaf); err != nil {

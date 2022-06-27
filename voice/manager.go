@@ -11,10 +11,10 @@ import (
 type Manager interface {
 	HandleVoiceStateUpdate(update discord.VoiceStateUpdate)
 	HandleVoiceServerUpdate(update discord.VoiceServerUpdate)
-	CreateConnection(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID) Connection
-	GetConnection(guildID snowflake.ID) Connection
-	ForConnections(f func(connection Connection))
-	RemoveConnection(guildID snowflake.ID)
+	CreateConn(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID) Conn
+	GetConn(guildID snowflake.ID) Conn
+	ForConns(f func(connection Conn))
+	RemoveConn(guildID snowflake.ID)
 
 	Close(ctx context.Context)
 }
@@ -24,14 +24,14 @@ func NewManager(opts ...ManagerConfigOpt) Manager {
 	config.Apply(opts)
 	return &managerImpl{
 		config:      *config,
-		connections: map[snowflake.ID]Connection{},
+		connections: map[snowflake.ID]Conn{},
 	}
 }
 
 type managerImpl struct {
 	config ManagerConfig
 
-	connections   map[snowflake.ID]Connection
+	connections   map[snowflake.ID]Conn
 	connectionsMu sync.Mutex
 }
 
@@ -58,22 +58,22 @@ func (m *managerImpl) HandleVoiceServerUpdate(update discord.VoiceServerUpdate) 
 	connection.HandleVoiceServerUpdate(update)
 }
 
-func (m *managerImpl) CreateConnection(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID) Connection {
+func (m *managerImpl) CreateConn(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID) Conn {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
 	m.config.Logger.Debugf("Creating new voice connection for guild: %s, channel: %s, user: %s", guildID, channelID, userID)
-	connection := m.config.ConnectionCreateFunc(guildID, channelID, userID, append([]ConnectionConfigOpt{WithConnectionLogger(m.config.Logger)}, m.config.ConnectionOpts...)...)
+	connection := m.config.ConnCreateFunc(guildID, channelID, userID, append([]ConnConfigOpt{WithConnLogger(m.config.Logger)}, m.config.ConnOpts...)...)
 	m.connections[guildID] = connection
 	return connection
 }
 
-func (m *managerImpl) GetConnection(guildID snowflake.ID) Connection {
+func (m *managerImpl) GetConn(guildID snowflake.ID) Conn {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
 	return m.connections[guildID]
 }
 
-func (m *managerImpl) ForConnections(f func(connection Connection)) {
+func (m *managerImpl) ForConns(f func(connection Conn)) {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
 	for _, connection := range m.connections {
@@ -81,7 +81,7 @@ func (m *managerImpl) ForConnections(f func(connection Connection)) {
 	}
 }
 
-func (m *managerImpl) RemoveConnection(guildID snowflake.ID) {
+func (m *managerImpl) RemoveConn(guildID snowflake.ID) {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
 	m.config.Logger.Debugf("Removing voice connection for guild: %s", guildID)

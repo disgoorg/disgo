@@ -18,7 +18,7 @@ type AudioReceiveSystem interface {
 	Close()
 }
 
-func NewAudioReceiveSystem(logger log.Logger, opusFrameReceiver OpusFrameReceiver, connection Connection) AudioReceiveSystem {
+func NewAudioReceiveSystem(logger log.Logger, opusFrameReceiver OpusFrameReceiver, connection Conn) AudioReceiveSystem {
 	return &defaultAudioReceiveSystem{
 		logger:            logger,
 		opusFrameReceiver: opusFrameReceiver,
@@ -31,7 +31,7 @@ type defaultAudioReceiveSystem struct {
 
 	logger            log.Logger
 	opusFrameReceiver OpusFrameReceiver
-	connection        Connection
+	connection        Conn
 }
 
 func (s *defaultAudioReceiveSystem) Open() {
@@ -55,7 +55,7 @@ func (s *defaultAudioReceiveSystem) CleanupUser(userID snowflake.ID) {
 }
 
 func (s *defaultAudioReceiveSystem) receive() {
-	packet, err := s.connection.UDP().ReadPacket()
+	packet, err := s.connection.UDPConn().ReadPacket()
 	if err == net.ErrClosed {
 		s.Close()
 		return

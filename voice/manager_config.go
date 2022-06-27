@@ -4,16 +4,16 @@ import "github.com/disgoorg/log"
 
 func DefaultManagerConfig() *ManagerConfig {
 	return &ManagerConfig{
-		Logger:               log.Default(),
-		ConnectionCreateFunc: NewConnection,
+		Logger:         log.Default(),
+		ConnCreateFunc: NewConn,
 	}
 }
 
 type ManagerConfig struct {
 	Logger log.Logger
 
-	ConnectionCreateFunc ConnectionCreateFunc
-	ConnectionOpts       []ConnectionConfigOpt
+	ConnCreateFunc ConnCreateFunc
+	ConnOpts       []ConnConfigOpt
 }
 
 type ManagerConfigOpt func(ManagerConfig *ManagerConfig)
@@ -31,14 +31,14 @@ func WithLogger(logger log.Logger) ManagerConfigOpt {
 	}
 }
 
-func WithConnectionCreateFunc(connectionCreateFunc ConnectionCreateFunc) ManagerConfigOpt {
+func WithConnCreateFunc(connectionCreateFunc ConnCreateFunc) ManagerConfigOpt {
 	return func(ManagerConfig *ManagerConfig) {
-		ManagerConfig.ConnectionCreateFunc = connectionCreateFunc
+		ManagerConfig.ConnCreateFunc = connectionCreateFunc
 	}
 }
 
-func WithConnectionConfigOpts(opts ...ConnectionConfigOpt) ManagerConfigOpt {
+func WithConnConfigOpts(opts ...ConnConfigOpt) ManagerConfigOpt {
 	return func(ManagerConfig *ManagerConfig) {
-		ManagerConfig.ConnectionOpts = append(ManagerConfig.ConnectionOpts, opts...)
+		ManagerConfig.ConnOpts = append(ManagerConfig.ConnOpts, opts...)
 	}
 }

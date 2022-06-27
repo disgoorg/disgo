@@ -11,26 +11,26 @@ import (
 
 var ErrAlreadyConnected = errors.New("already connected")
 
-type ConnectionCreateFunc func(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, opts ...ConnectionConfigOpt) Connection
+type ConnCreateFunc func(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, opts ...ConnConfigOpt) Conn
 
-// Connection is a complete voice connection to discord. It holds the voice Gateway and UDP connection and combines them.
-type Connection interface {
-	// Gateway returns the voice Gateway used by the voice Connection.
+// Conn is a complete voice connection to discord. It holds the voice Gateway and UDPConn connection and combines them.
+type Conn interface {
+	// Gateway returns the voice Gateway used by the voice Conn.
 	Gateway() Gateway
 
-	// UDP returns the UDP connection used by the voice Connection.
-	UDP() UDP
+	// UDPConn returns the UDPConn connection used by the voice Conn.
+	UDPConn() UDPConn
 
-	// ChannelID returns the ID of the voice channel the voice Connection is connected to.
+	// ChannelID returns the ID of the voice channel the voice Conn is connected to.
 	ChannelID() snowflake.ID
 
-	// GuildID returns the ID of the guild the voice Connection is connected to.
+	// GuildID returns the ID of the guild the voice Conn is connected to.
 	GuildID() snowflake.ID
 
 	// UserIDBySSRC returns the ID of the user for the given SSRC.
 	UserIDBySSRC(ssrc uint32) snowflake.ID
 
-	// Speaking sends a speaking packet to the UDP socket discord.
+	// Speaking sends a speaking packet to the UDPConn socket discord.
 	Speaking(flags SpeakingFlags) error
 
 	// SetAudioSendSystem lets you inject your own AudioSendSystem. This is useful if you want to handle audio sending yourself.
@@ -48,10 +48,10 @@ type Connection interface {
 	// SetEventHandlerFunc lets listen for voice gateway events.
 	SetEventHandlerFunc(eventHandlerFunc EventHandlerFunc)
 
-	// Open opens the voice connection. It will connect to the voice gateway and start the UDP connection after it receives the Gateway events.
+	// Open opens the voice connection. It will connect to the voice gateway and start the UDPConn connection after it receives the Gateway events.
 	Open(ctx context.Context) error
 
-	// Close closes the voice connection. It will close the UDP connection and disconnect from the voice gateway.
+	// Close closes the voice connection. It will close the UDPConn connection and disconnect from the voice gateway.
 	Close()
 
 	// HandleVoiceStateUpdate provides the discord.VoiceStateUpdate to the voice connection. Which is needed to connect to the voice Gateway.
@@ -66,9 +66,9 @@ type Connection interface {
 	WaitUntilDisconnected(ctx context.Context) error
 }
 
-// NewConnection returns a new default voice connection.
-func NewConnection(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, opts ...ConnectionConfigOpt) Connection {
-	config := DefaultConnectionConfig()
+// NewConn returns a new default voice connection.
+func NewConn(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, opts ...ConnConfigOpt) Conn {
+	config := DefaultConnConfig()
 	config.Apply(opts)
 
 	return &connectionImpl{
@@ -95,11 +95,11 @@ type state struct {
 }
 
 type connectionImpl struct {
-	config ConnectionConfig
+	config ConnConfig
 
 	state   state
 	gateway Gateway
-	udp     UDP
+	udp     UDPConn
 	mu      sync.Mutex
 
 	audioSendSystem    AudioSendSystem
@@ -145,7 +145,7 @@ func (c *connectionImpl) Speaking(flags SpeakingFlags) error {
 	})
 }
 
-func (c *connectionImpl) UDP() UDP {
+func (c *connectionImpl) UDPConn() UDPConn {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return c.udp
@@ -215,7 +215,7 @@ func (c *connectionImpl) handleGatewayMessage(op GatewayOpcode, data GatewayMess
 	switch d := data.(type) {
 	case GatewayMessageDataReady:
 		c.mu.Lock()
-		c.udp = c.config.UDPConnCreateFunc(d.IP, d.Port, d.SSRC, append([]UDPConfigOpt{WithUDPLogger(c.config.Logger)}, c.config.UDPConnConfigOpts...)...)
+		c.udp = c.config.UDPConnCreateFunc(d.IP, d.Port, d.SSRC, append([]UDPConnConfigOpt{WithUDPConnLogger(c.config.Logger)}, c.config.UDPConnConfigOpts...)...)
 		c.mu.Unlock()
 		address, port, err := c.udp.Open(context.Background())
 		if err != nil {

@@ -16,7 +16,7 @@ var (
 	OpusFrameSize      int64 = 20
 )
 
-func NewAudioSendSystem(logger log.Logger, opusProvider OpusFrameProvider, connection Connection) AudioSendSystem {
+func NewAudioSendSystem(logger log.Logger, opusProvider OpusFrameProvider, connection Conn) AudioSendSystem {
 	return &defaultAudioSendSystem{
 		logger:       logger,
 		opusProvider: opusProvider,
@@ -34,7 +34,7 @@ type defaultAudioSendSystem struct {
 	logger       log.Logger
 	cancelFunc   context.CancelFunc
 	opusProvider OpusFrameProvider
-	connection   Connection
+	connection   Conn
 
 	silentFrames      int
 	sentSpeakingStop  bool
@@ -79,7 +79,7 @@ func (s *defaultAudioSendSystem) send() {
 	}
 	if len(opus) == 0 {
 		if s.silentFrames > 0 {
-			if _, err = s.connection.UDP().Write(SilenceAudioFrames); err != nil {
+			if _, err = s.connection.UDPConn().Write(SilenceAudioFrames); err != nil {
 				s.handleErr(err)
 			}
 			s.silentFrames--
@@ -102,7 +102,7 @@ func (s *defaultAudioSendSystem) send() {
 		s.silentFrames = 5
 	}
 
-	if _, err = s.connection.UDP().Write(opus); err != nil {
+	if _, err = s.connection.UDPConn().Write(opus); err != nil {
 		s.handleErr(err)
 	}
 }

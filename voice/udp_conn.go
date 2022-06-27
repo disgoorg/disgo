@@ -17,9 +17,9 @@ const OpusPacketHeaderSize = 12
 
 var ErrDecryptionFailed = errors.New("decryption failed")
 
-type UDPCreateFunc func(ip string, port int, ssrc uint32, opts ...UDPConfigOpt) UDP
+type UDPConnCreateFunc func(ip string, port int, ssrc uint32, opts ...UDPConnConfigOpt) UDPConn
 
-type UDP interface {
+type UDPConn interface {
 	SetSecretKey(secretKey [32]byte)
 	Open(ctx context.Context) (string, int, error)
 	Write(p []byte) (int, error)
@@ -30,7 +30,7 @@ type UDP interface {
 	Close()
 }
 
-func NewUDP(ip string, port int, ssrc uint32, opts ...UDPConfigOpt) UDP {
+func NewUDPConn(ip string, port int, ssrc uint32, opts ...UDPConnConfigOpt) UDPConn {
 	config := DefaultUDPConfig()
 	config.Apply(opts)
 
@@ -44,7 +44,7 @@ func NewUDP(ip string, port int, ssrc uint32, opts ...UDPConfigOpt) UDP {
 }
 
 type udpImpl struct {
-	config UDPConfig
+	config UDPConnConfig
 
 	ip   string
 	port int
@@ -83,22 +83,22 @@ func (u *udpImpl) SetWriteDeadline(t time.Time) error {
 func (u *udpImpl) Open(ctx context.Context) (string, int, error) {
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
-	u.config.Logger.Debugf("Opening UDP connection to: %s:%d\n", u.ip, u.port)
+	u.config.Logger.Debugf("Opening UDPConn connection to: %s:%d\n", u.ip, u.port)
 	var err error
 	u.conn, err = u.config.Dialer.DialContext(ctx, "udp", fmt.Sprintf("%s:%d", u.ip, u.port))
 	if err != nil {
-		return "", 0, fmt.Errorf("failed to open UDP connection: %w", err)
+		return "", 0, fmt.Errorf("failed to open UDPConn connection: %w", err)
 	}
 
 	sb := make([]byte, 70)
 	binary.BigEndian.PutUint32(sb, u.ssrc)
 	if _, err = u.conn.Write(sb); err != nil {
-		return "", 0, fmt.Errorf("failed to write ssrc to UDP connection: %w", err)
+		return "", 0, fmt.Errorf("failed to write ssrc to UDPConn connection: %w", err)
 	}
 
 	rb := make([]byte, 70)
 	if _, err = u.conn.Read(rb); err != nil {
-		return "", 0, fmt.Errorf("failed to read ip discovery from UDP connection: %w", err)
+		return "", 0, fmt.Errorf("failed to read ip discovery from UDPConn connection: %w", err)
 	}
 
 	address := rb[4:68]

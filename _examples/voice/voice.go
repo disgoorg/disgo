@@ -69,7 +69,7 @@ func play(client bot.Client) {
 	if err = conn.Speaking(voice.SpeakingFlagMicrophone); err != nil {
 		panic("error setting speaking flag: " + err.Error())
 	}
-	writeOpus(conn.UDP())
+	writeOpus(conn.UDPConn())
 }
 
 func writeOpus(w io.Writer) {

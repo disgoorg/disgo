@@ -68,9 +68,9 @@ func play(client bot.Client) {
 	}
 
 	_ = conn.Speaking(voice.SpeakingFlagMicrophone)
-	_, _ = conn.UDP().Write(voice.SilenceAudioFrames)
+	_, _ = conn.UDPConn().Write(voice.SilenceAudioFrames)
 	for {
-		packet, err := conn.UDP().ReadPacket()
+		packet, err := conn.UDPConn().ReadPacket()
 		if err != nil {
 			if errors.Is(err, net.ErrClosed) {
 				println("connection closed")
@@ -79,12 +79,12 @@ func play(client bot.Client) {
 			fmt.Printf("error while reading from reader: %s", err)
 			continue
 		}
-		if _, err = conn.UDP().Write(packet.Opus); err != nil {
+		if _, err = conn.UDPConn().Write(packet.Opus); err != nil {
 			if errors.Is(err, net.ErrClosed) {
 				println("connection closed")
 				return
 			}
-			fmt.Printf("error while writing to UDP: %s", err)
+			fmt.Printf("error while writing to UDPConn: %s", err)
 			continue
 		}
 	}

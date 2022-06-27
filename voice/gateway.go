@@ -177,11 +177,11 @@ loop:
 		_, reader, err := conn.NextReader()
 		if err != nil {
 			g.mu.Lock()
-			sameConnection := g.conn == conn
+			sameConn := g.conn == conn
 			g.mu.Unlock()
 
-			// if sameConnection is false, it means the connection has been closed by the user, and we can just exit
-			if !sameConnection {
+			// if sameConn is false, it means the connection has been closed by the user, and we can just exit
+			if !sameConn {
 				return
 			}
 
