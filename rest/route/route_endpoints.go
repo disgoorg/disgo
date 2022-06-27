@@ -237,14 +237,14 @@ var (
 	CreateGlobalCommand = NewAPIRoute(POST, "/applications/{application.id}/commands")
 	SetGlobalCommands   = NewAPIRoute(PUT, "/applications/{application.id}/commands")
 	UpdateGlobalCommand = NewAPIRoute(PATCH, "/applications/{application.id}/commands/{command.id}")
-	DeleteGlobalCommand = NewAPIRoute(DELETE, "/applications/{application.id}/commands")
+	DeleteGlobalCommand = NewAPIRoute(DELETE, "/applications/{application.id}/commands/{command.id}")
 
 	GetGuildCommands   = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/commands", "with_localizations")
 	GetGuildCommand    = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/command/{command.id}")
 	CreateGuildCommand = NewAPIRoute(POST, "/applications/{application.id}/guilds/{guild.id}/commands")
 	SetGuildCommands   = NewAPIRoute(PUT, "/applications/{application.id}/guilds/{guild.id}/commands")
 	UpdateGuildCommand = NewAPIRoute(PATCH, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}")
-	DeleteGuildCommand = NewAPIRoute(DELETE, "/applications/{application.id}/guilds/{guild.id}/commands")
+	DeleteGuildCommand = NewAPIRoute(DELETE, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}")
 
 	GetGuildCommandsPermissions = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/commands/permissions")
 	GetGuildCommandPermissions  = NewAPIRoute(GET, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions")
