@@ -35,13 +35,13 @@ func WithGatewayLogger(logger log.Logger) GatewayConfigOpt {
 	}
 }
 
-func WithDialer(dialer *websocket.Dialer) GatewayConfigOpt {
+func WithGatewayDialer(dialer *websocket.Dialer) GatewayConfigOpt {
 	return func(config *GatewayConfig) {
 		config.Dialer = dialer
 	}
 }
 
-func WithAutoReconnect(autoReconnect bool) GatewayConfigOpt {
+func WithGatewayAutoReconnect(autoReconnect bool) GatewayConfigOpt {
 	return func(config *GatewayConfig) {
 		config.AutoReconnect = autoReconnect
 	}

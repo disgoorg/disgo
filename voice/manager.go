@@ -13,7 +13,7 @@ type Manager interface {
 	HandleVoiceServerUpdate(update discord.VoiceServerUpdate)
 	CreateConn(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID) Conn
 	GetConn(guildID snowflake.ID) Conn
-	ForConns(f func(connection Conn))
+	ForEach(f func(connection Conn))
 	RemoveConn(guildID snowflake.ID)
 
 	Close(ctx context.Context)
@@ -73,7 +73,7 @@ func (m *managerImpl) GetConn(guildID snowflake.ID) Conn {
 	return m.connections[guildID]
 }
 
-func (m *managerImpl) ForConns(f func(connection Conn)) {
+func (m *managerImpl) ForEach(f func(connection Conn)) {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
 	for _, connection := range m.connections {
