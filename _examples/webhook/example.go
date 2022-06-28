@@ -21,6 +21,7 @@ var (
 
 func main() {
 	log.SetLevel(log.LevelDebug)
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Info("starting webhook example...")
 	log.Info("disgo version: ", disgo.Version)
 
