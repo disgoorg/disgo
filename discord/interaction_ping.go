@@ -82,4 +82,8 @@ func (PingInteraction) User() User {
 	return User{}
 }
 
+func (PingInteraction) AppPermissions() *Permissions {
+	return nil
+}
+
 func (PingInteraction) interaction() {}
