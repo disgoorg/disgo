@@ -20,17 +20,18 @@ const (
 )
 
 type rawInteraction struct {
-	ID            snowflake.ID    `json:"id"`
-	Type          InteractionType `json:"type"`
-	ApplicationID snowflake.ID    `json:"application_id"`
-	Token         string          `json:"token"`
-	Version       int             `json:"version"`
-	GuildID       *snowflake.ID   `json:"guild_id,omitempty"`
-	ChannelID     snowflake.ID    `json:"channel_id,omitempty"`
-	Locale        Locale          `json:"locale,omitempty"`
-	GuildLocale   *Locale         `json:"guild_locale,omitempty"`
-	Member        *ResolvedMember `json:"member,omitempty"`
-	User          *User           `json:"user,omitempty"`
+	ID             snowflake.ID    `json:"id"`
+	Type           InteractionType `json:"type"`
+	ApplicationID  snowflake.ID    `json:"application_id"`
+	Token          string          `json:"token"`
+	Version        int             `json:"version"`
+	GuildID        *snowflake.ID   `json:"guild_id,omitempty"`
+	ChannelID      snowflake.ID    `json:"channel_id,omitempty"`
+	Locale         Locale          `json:"locale,omitempty"`
+	GuildLocale    *Locale         `json:"guild_locale,omitempty"`
+	Member         *ResolvedMember `json:"member,omitempty"`
+	User           *User           `json:"user,omitempty"`
+	AppPermissions *Permissions    `json:"app_permissions,omitempty"`
 }
 
 // Interaction is used for easier unmarshalling of different Interaction(s)

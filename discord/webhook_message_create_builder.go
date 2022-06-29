@@ -171,6 +171,45 @@ func (b *WebhookMessageCreateBuilder) ClearAllowedMentions() *WebhookMessageCrea
 	return b.SetAllowedMentions(nil)
 }
 
+// SetFlags sets the message flags of the Message
+func (b *WebhookMessageCreateBuilder) SetFlags(flags MessageFlags) *WebhookMessageCreateBuilder {
+	b.Flags = flags
+	return b
+}
+
+// AddFlags adds the MessageFlags of the Message
+func (b *WebhookMessageCreateBuilder) AddFlags(flags ...MessageFlags) *WebhookMessageCreateBuilder {
+	b.Flags = b.Flags.Add(flags...)
+	return b
+}
+
+// RemoveFlags removes the MessageFlags of the Message
+func (b *WebhookMessageCreateBuilder) RemoveFlags(flags ...MessageFlags) *WebhookMessageCreateBuilder {
+	b.Flags = b.Flags.Remove(flags...)
+	return b
+}
+
+// ClearFlags clears the discord.MessageFlags of the Message
+func (b *WebhookMessageCreateBuilder) ClearFlags() *WebhookMessageCreateBuilder {
+	return b.SetFlags(MessageFlagNone)
+}
+
+// SetSuppressEmbeds adds/removes discord.MessageFlagSuppressEmbeds to the Message flags
+func (b *WebhookMessageCreateBuilder) SetSuppressEmbeds(suppressEmbeds bool) *WebhookMessageCreateBuilder {
+	if suppressEmbeds {
+		b.Flags = b.Flags.Add(MessageFlagSuppressEmbeds)
+	} else {
+		b.Flags = b.Flags.Remove(MessageFlagSuppressEmbeds)
+	}
+	return b
+}
+
+// SetThreadName sets the thread name the new webhook message should create.
+func (b *WebhookMessageCreateBuilder) SetThreadName(threadName string) *WebhookMessageCreateBuilder {
+	b.ThreadName = threadName
+	return b
+}
+
 // Build builds the WebhookMessageCreateBuilder to a MessageCreate struct
 func (b *WebhookMessageCreateBuilder) Build() WebhookMessageCreate {
 	b.WebhookMessageCreate.Components = b.Components

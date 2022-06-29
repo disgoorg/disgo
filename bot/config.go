@@ -253,7 +253,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 			return nil, err
 		}
 
-		shardIDs := make([]int, gatewayBotRs.Shards-1)
+		shardIDs := make([]int, gatewayBotRs.Shards)
 		for i := 0; i < gatewayBotRs.Shards-1; i++ {
 			shardIDs[i] = i
 		}

@@ -1,6 +1,6 @@
 package discord
 
-var _ InteractionCallbackData = (*ModalCreate)(nil)
+var _ InteractionResponseData = (*ModalCreate)(nil)
 
 type ModalCreate struct {
 	CustomID   CustomID             `json:"custom_id"`
