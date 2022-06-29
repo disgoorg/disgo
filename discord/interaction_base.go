@@ -16,19 +16,21 @@ type BaseInteraction interface {
 	GuildLocale() *Locale
 	Member() *ResolvedMember
 	User() User
+	AppPermissions() *Permissions
 }
 
 type baseInteractionImpl struct {
-	id            snowflake.ID
-	applicationID snowflake.ID
-	token         string
-	version       int
-	guildID       *snowflake.ID
-	channelID     snowflake.ID
-	locale        Locale
-	guildLocale   *Locale
-	member        *ResolvedMember
-	user          *User
+	id             snowflake.ID
+	applicationID  snowflake.ID
+	token          string
+	version        int
+	guildID        *snowflake.ID
+	channelID      snowflake.ID
+	locale         Locale
+	guildLocale    *Locale
+	member         *ResolvedMember
+	user           *User
+	appPermissions *Permissions
 }
 
 func (i *baseInteractionImpl) UnmarshalJSON(data []byte) error {
@@ -46,21 +48,23 @@ func (i *baseInteractionImpl) UnmarshalJSON(data []byte) error {
 	i.guildLocale = v.GuildLocale
 	i.member = v.Member
 	i.user = v.User
+	i.appPermissions = v.AppPermissions
 	return nil
 }
 
 func (i baseInteractionImpl) MarshalJSON() ([]byte, error) {
 	return json.Marshal(rawInteraction{
-		ID:            i.id,
-		ApplicationID: i.applicationID,
-		Token:         i.token,
-		Version:       i.version,
-		GuildID:       i.guildID,
-		ChannelID:     i.channelID,
-		Locale:        i.locale,
-		GuildLocale:   i.guildLocale,
-		Member:        i.member,
-		User:          i.user,
+		ID:             i.id,
+		ApplicationID:  i.applicationID,
+		Token:          i.token,
+		Version:        i.version,
+		GuildID:        i.guildID,
+		ChannelID:      i.channelID,
+		Locale:         i.locale,
+		GuildLocale:    i.guildLocale,
+		Member:         i.member,
+		User:           i.user,
+		AppPermissions: i.appPermissions,
 	})
 }
 
@@ -96,4 +100,8 @@ func (i baseInteractionImpl) User() User {
 		return *i.user
 	}
 	return i.member.User
+}
+
+func (i baseInteractionImpl) AppPermissions() *Permissions {
+	return i.appPermissions
 }
