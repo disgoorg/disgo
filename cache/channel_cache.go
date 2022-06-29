@@ -56,6 +56,8 @@ type ChannelCache interface {
 
 	// GetGuildStageVoiceChannel returns a discord.GuildStageVoiceChannel from the ChannelCache and a bool indicating if it exists.
 	GetGuildStageVoiceChannel(channelID snowflake.ID) (discord.GuildStageVoiceChannel, bool)
+
+	// GetGuildForumChannel returns a discord.GuildForumChannel from the ChannelCache and a bool indicating if it exists.
 	GetGuildForumChannel(channelID snowflake.ID) (discord.GuildForumChannel, bool)
 }
 
@@ -219,7 +221,7 @@ func (c *channelCacheImpl) GetGuildStageVoiceChannel(channelID snowflake.ID) (di
 	return discord.GuildStageVoiceChannel{}, false
 }
 
-func (c *ChannelCacheImpl) GetGuildForumChannel(channelID snowflake.ID) (discord.GuildForumChannel, bool) {
+func (c *channelCacheImpl) GetGuildForumChannel(channelID snowflake.ID) (discord.GuildForumChannel, bool) {
 	if ch, ok := c.Get(channelID); ok {
 		if cCh, ok := ch.(discord.GuildForumChannel); ok {
 			return cCh, true

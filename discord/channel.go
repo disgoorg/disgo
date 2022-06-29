@@ -439,6 +439,7 @@ type GuildVoiceChannel struct {
 	topic                      *string
 	nsfw                       bool
 	defaultAutoArchiveDuration AutoArchiveDuration
+	rateLimitPerUser           int
 }
 
 func (c *GuildVoiceChannel) UnmarshalJSON(data []byte) error {
@@ -462,6 +463,7 @@ func (c *GuildVoiceChannel) UnmarshalJSON(data []byte) error {
 	c.topic = v.Topic
 	c.nsfw = v.NSFW
 	c.defaultAutoArchiveDuration = v.DefaultAutoArchiveDuration
+	c.rateLimitPerUser = v.RateLimitPerUser
 	return nil
 }
 
@@ -483,6 +485,7 @@ func (c GuildVoiceChannel) MarshalJSON() ([]byte, error) {
 		Topic:                      c.topic,
 		NSFW:                       c.nsfw,
 		DefaultAutoArchiveDuration: c.defaultAutoArchiveDuration,
+		RateLimitPerUser:           c.rateLimitPerUser,
 	})
 }
 
@@ -548,6 +551,10 @@ func (c GuildVoiceChannel) NSFW() bool {
 
 func (c GuildVoiceChannel) DefaultAutoArchiveDuration() AutoArchiveDuration {
 	return c.defaultAutoArchiveDuration
+}
+
+func (c GuildVoiceChannel) RateLimitPerUser() int {
+	return c.rateLimitPerUser
 }
 
 func (GuildVoiceChannel) channel()             {}

@@ -131,6 +131,7 @@ type guildVoiceChannel struct {
 	Topic                      *string               `json:"topic"`
 	NSFW                       bool                  `json:"nsfw"`
 	DefaultAutoArchiveDuration AutoArchiveDuration   `json:"default_auto_archive_duration"`
+	RateLimitPerUser           int                   `json:"rate_limit_per_user"`
 }
 
 func (t *guildVoiceChannel) UnmarshalJSON(data []byte) error {
