@@ -17,11 +17,11 @@ const (
 
 // Activity represents the fields of a user's presence
 type Activity struct {
-	ID            string              `json:"id"`
-	Name          string              `json:"name"`
+	ID            string              `json:"id,omitempty"`
+	Name          string              `json:"name,omitempty"`
 	Type          ActivityType        `json:"type"`
-	URL           *string             `json:"url"`
-	CreatedAt     int64               `json:"created_at"`
+	URL           *string             `json:"url,omitempty"`
+	CreatedAt     int64               `json:"created_at,omitempty"`
 	Timestamps    *ActivityTimestamps `json:"timestamps,omitempty"`
 	ApplicationID snowflake.ID        `json:"application_id,omitempty"`
 	Details       *string             `json:"details,omitempty"`
@@ -32,7 +32,7 @@ type Activity struct {
 	Secrets       *ActivitySecrets    `json:"secrets,omitempty"`
 	Instance      *bool               `json:"instance,omitempty"`
 	Flags         ActivityFlags       `json:"flags,omitempty"`
-	Buttons       []string            `json:"buttons"`
+	Buttons       []string            `json:"buttons,omitempty"`
 }
 
 // ActivityFlags add additional information to an activity
