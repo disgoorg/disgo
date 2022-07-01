@@ -49,6 +49,51 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 				err = json.Unmarshal(v.Data, &d)
 				messageData = d
 
+			case EventGuildStatus:
+				var d EventDataGuildStatus
+				err = json.Unmarshal(v.Data, &d)
+				messageData = d
+
+			case EventGuildCreate:
+				var d EventDataGuildCreate
+				err = json.Unmarshal(v.Data, &d)
+				messageData = d
+
+			case EventChannelCreate:
+				var d EventDataChannelCreate
+				err = json.Unmarshal(v.Data, &d)
+				messageData = d
+
+			case EventVoiceChannelSelect:
+				var d EventDataVoiceChannelSelect
+				err = json.Unmarshal(v.Data, &d)
+				messageData = d
+
+			case EventVoiceSettingsUpdate:
+				var d EventDataVoiceSettingsUpdate
+				err = json.Unmarshal(v.Data, &d)
+				messageData = d
+
+			case EventVoiceStateCreate:
+				var d EventDataVoiceStateCreate
+				err = json.Unmarshal(v.Data, &d)
+				messageData = d
+
+			case EventVoiceStateUpdate:
+				var d EventDataVoiceStateUpdate
+				err = json.Unmarshal(v.Data, &d)
+				messageData = d
+
+			case EventVoiceStateDelete:
+				var d EventDataVoiceStateDelete
+				err = json.Unmarshal(v.Data, &d)
+				messageData = d
+
+			case EventVoiceConnectionStatus:
+				var d EventDataVoiceConnectionStatus
+				err = json.Unmarshal(v.Data, &d)
+				messageData = d
+
 			case EventMessageCreate:
 				var d EventDataMessageCreate
 				err = json.Unmarshal(v.Data, &d)
@@ -61,6 +106,36 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 
 			case EventMessageDelete:
 				var d EventDataMessageDelete
+				err = json.Unmarshal(v.Data, &d)
+				messageData = d
+
+			case EventSpeakingStart:
+				var d EventDataSpeakingStart
+				err = json.Unmarshal(v.Data, &d)
+				messageData = d
+
+			case EventSpeakingStop:
+				var d EventDataSpeakingStop
+				err = json.Unmarshal(v.Data, &d)
+				messageData = d
+
+			case EventNotificationCreate:
+				var d EventDataNotificationCreate
+				err = json.Unmarshal(v.Data, &d)
+				messageData = d
+
+			case EventActivityJoin:
+				var d EventDataActivityJoin
+				err = json.Unmarshal(v.Data, &d)
+				messageData = d
+
+			case EventActivitySpectate:
+				var d EventDataActivitySpectate
+				err = json.Unmarshal(v.Data, &d)
+				messageData = d
+
+			case EventActivityJoinRequest:
+				var d EventDataActivityJoinRequest
 				err = json.Unmarshal(v.Data, &d)
 				messageData = d
 
@@ -77,6 +152,65 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 			var d CmdRsAuthenticate
 			err = json.Unmarshal(v.Data, &d)
 			messageData = d
+
+		case CmdGetGuild:
+			var d CmdRsGetGuild
+			err = json.Unmarshal(v.Data, &d)
+			messageData = d
+
+		case CmdGetGuilds:
+			var d CmdRsGetGuilds
+			err = json.Unmarshal(v.Data, &d)
+			messageData = d
+
+		case CmdGetChannel:
+			var d CmdRsGetChannel
+			err = json.Unmarshal(v.Data, &d)
+			messageData = d
+
+		case CmdGetChannels:
+			var d CmdRsGetChannels
+			err = json.Unmarshal(v.Data, &d)
+			messageData = d
+
+		case CmdSetUserVoiceSettings:
+			var d CmdRsSetUserVoiceSettings
+			err = json.Unmarshal(v.Data, &d)
+			messageData = d
+
+		case CmdSelectVoiceChannel:
+			var d CmdRsSelectVoiceChannel
+			err = json.Unmarshal(v.Data, &d)
+			messageData = d
+
+		case CmdGetSelectedVoiceChannel:
+			var d CmdRsGetSelectedVoiceChannel
+			err = json.Unmarshal(v.Data, &d)
+			messageData = d
+
+		case CmdSelectTextChannel:
+			var d CmdRsSelectTextChannel
+			err = json.Unmarshal(v.Data, &d)
+			messageData = d
+
+		case CmdGetVoiceSettings:
+			var d CmdRsGetVoiceSettings
+			err = json.Unmarshal(v.Data, &d)
+			messageData = d
+
+		case CmdSetVoiceSettings:
+			var d CmdRsSetVoiceSettings
+			err = json.Unmarshal(v.Data, &d)
+			messageData = d
+
+		case CmdSetCertifiedDevices:
+		// no response data
+
+		case CmdSendActivityJoinInvite:
+		// no response data
+
+		case CmdCloseActivityRequest:
+		// no response data
 
 		case CmdSubscribe:
 			var d CmdRsSubscribe
@@ -126,7 +260,7 @@ const (
 	CmdSetVoiceSettings        Cmd = "SET_VOICE_SETTINGS"
 	CmdSetCertifiedDevices     Cmd = "SET_CERTIFIED_DEVICES"
 	CmdSetActivity             Cmd = "SET_ACTIVITY"
-	CmdSendActivityRequest     Cmd = "SEND_ACTIVITY_JOIN_INVITE"
+	CmdSendActivityJoinInvite  Cmd = "SEND_ACTIVITY_JOIN_INVITE"
 	CmdCloseActivityRequest    Cmd = "CLOSE_ACTIVITY_REQUEST"
 )
 

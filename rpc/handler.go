@@ -1,25 +1,25 @@
 package rpc
 
 type internalHandler struct {
-	handler CommandHandler
+	handler Handler
 	errChan chan error
 }
 
-type CommandHandler interface {
+type Handler interface {
 	Handle(data MessageData)
 }
 
-func CmdHandler[T MessageData](handler func(data T)) CommandHandler {
-	return &defaultCommandHandler[T]{
+func NewHandler[T MessageData](handler func(data T)) Handler {
+	return &defaultHandler[T]{
 		handler: handler,
 	}
 }
 
-type defaultCommandHandler[T MessageData] struct {
+type defaultHandler[T MessageData] struct {
 	handler func(data T)
 }
 
-func (h *defaultCommandHandler[T]) Handle(data MessageData) {
+func (h *defaultHandler[T]) Handle(data MessageData) {
 	if d, ok := data.(T); ok {
 		h.handler(d)
 	}

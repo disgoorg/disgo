@@ -112,16 +112,16 @@ func (CmdRsGetChannels) messageData() {}
 
 type CmdArgsSetUserVoiceSettings struct {
 	UserID snowflake.ID `json:"user_id"`
-	Pain   *Pan         `json:"pain"`
-	Volume *int         `json:"volume"`
-	Mute   *bool        `json:"mute"`
+	Pan    *Pan         `json:"pan,omitempty"`
+	Volume *int         `json:"volume,omitempty"`
+	Mute   *bool        `json:"mute,omitempty"`
 }
 
 func (CmdArgsSetUserVoiceSettings) cmdArgs() {}
 
 type CmdRsSetUserVoiceSettings struct {
 	UserID snowflake.ID `json:"user_id"`
-	Pain   Pan          `json:"pain"`
+	Pan    Pan          `json:"pan"`
 	Volume int          `json:"volume"`
 	Mute   bool         `json:"mute"`
 }

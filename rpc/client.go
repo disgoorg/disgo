@@ -11,12 +11,11 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/internal/insecurerandstr"
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 )
 
-type EventHandleFunc func(event Event, data MessageData)
+var Version = 1
 
 type Transport interface {
 	NextWriter() (io.WriteCloser, error)
@@ -29,35 +28,35 @@ type Client interface {
 	ServerConfig() ServerConfig
 	User() discord.User
 	V() int
-	OAuth2() rest.OAuth2
 
-	Send(message Message, handler CommandHandler) error
+	Subscribe(event Event, args CmdArgs, handler Handler) error
+	Unsubscribe(event Event, args CmdArgs) error
+	Send(message Message, handler Handler) error
 	Close()
 }
 
-func NewIPCClient(clientID snowflake.ID, eventHandleFunc EventHandleFunc) (Client, error) {
+func NewIPCClient(clientID snowflake.ID) (Client, error) {
 	transport, err := NewIPCTransport(clientID)
 	if err != nil {
 		return nil, err
 	}
-	return newClient(transport, eventHandleFunc)
+	return newClient(transport)
 }
 
-func NewWSClient(clientID snowflake.ID, origin string, eventHandleFunc EventHandleFunc) (Client, error) {
+func NewWSClient(clientID snowflake.ID, origin string) (Client, error) {
 	transport, err := NewWSTransport(clientID, origin)
 	if err != nil {
 		return nil, err
 	}
-	return newClient(transport, eventHandleFunc)
+	return newClient(transport)
 }
 
-func newClient(transport Transport, eventHandleFunc EventHandleFunc) (Client, error) {
+func newClient(transport Transport) (Client, error) {
 	client := &clientImpl{
 		logger:          log.Default(),
 		transport:       transport,
-		eventHandleFunc: eventHandleFunc,
+		eventHandlers:   map[Event]Handler{},
 		commandHandlers: map[string]internalHandler{},
-		oauth2:          rest.NewOAuth2(rest.NewClient("")),
 		readyChan:       make(chan struct{}, 1),
 	}
 
@@ -75,12 +74,11 @@ func newClient(transport Transport, eventHandleFunc EventHandleFunc) (Client, er
 }
 
 type clientImpl struct {
-	logger          log.Logger
-	transport       Transport
-	eventHandleFunc EventHandleFunc
-	commandHandlers map[string]internalHandler
+	logger    log.Logger
+	transport Transport
 
-	oauth2 rest.OAuth2
+	eventHandlers   map[Event]Handler
+	commandHandlers map[string]internalHandler
 
 	readyChan    chan struct{}
 	user         discord.User
@@ -104,10 +102,6 @@ func (c *clientImpl) V() int {
 	return c.v
 }
 
-func (c *clientImpl) OAuth2() rest.OAuth2 {
-	return c.oauth2
-}
-
 func (c *clientImpl) send(r io.Reader) error {
 	writer, err := c.transport.NextWriter()
 	if err != nil {
@@ -129,7 +123,31 @@ func (c *clientImpl) send(r io.Reader) error {
 	return err
 }
 
-func (c *clientImpl) Send(message Message, handler CommandHandler) error {
+func (c *clientImpl) Subscribe(event Event, args CmdArgs, handler Handler) error {
+	if _, ok := c.eventHandlers[event]; ok {
+		return errors.New("event already subscribed")
+	}
+	c.eventHandlers[event] = handler
+	return c.Send(Message{
+		Cmd:   CmdSubscribe,
+		Args:  args,
+		Event: event,
+	}, nil)
+}
+
+func (c *clientImpl) Unsubscribe(event Event, args CmdArgs) error {
+	if _, ok := c.eventHandlers[event]; ok {
+		delete(c.eventHandlers, event)
+		return c.Send(Message{
+			Cmd:   CmdUnsubscribe,
+			Args:  args,
+			Event: event,
+		}, nil)
+	}
+	return errors.New("event not subscribed")
+}
+
+func (c *clientImpl) Send(message Message, handler Handler) error {
 	nonce := insecurerandstr.RandStr(32)
 	buff := new(bytes.Buffer)
 
@@ -187,7 +205,9 @@ loop:
 				c.serverConfig = d.Config
 				c.v = d.V
 			}
-			c.eventHandleFunc(v.Event, v.Data)
+			if handler, ok := c.eventHandlers[v.Event]; ok {
+				handler.Handle(v.Data)
+			}
 			continue
 		}
 		if handler, ok := c.commandHandlers[v.Nonce]; ok {

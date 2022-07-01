@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -23,11 +22,7 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Info("example is starting...")
 
-	eventHandler := func(event rpc.Event, data rpc.MessageData) {
-		//log.Infof("event: %s, data: %#v", event, data)
-	}
-
-	client, err := rpc.NewIPCClient(clientID, eventHandler)
+	client, err := rpc.NewIPCClient(clientID)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -41,7 +36,7 @@ func main() {
 			ClientID: clientID,
 			Scopes:   []discord.OAuth2Scope{discord.OAuth2ScopeRPC, discord.OAuth2ScopeMessagesRead},
 		},
-	}, rpc.CmdHandler(func(data rpc.CmdRsAuthorize) {
+	}, rpc.NewHandler(func(data rpc.CmdRsAuthorize) {
 		tokenRs, err = client.OAuth2().GetAccessToken(clientID, clientSecret, data.Code, "http://localhost")
 		if err != nil {
 			log.Fatal(err)
@@ -59,14 +54,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err = client.Send(rpc.Message{
-		Cmd:   rpc.CmdSubscribe,
-		Event: rpc.EventMessageCreate,
-		Args: rpc.CmdArgsSubscribeMessage{
-			ChannelID: channelID,
-		},
-	}, rpc.CmdHandler(func(data rpc.CmdRsSubscribe) {
-		fmt.Printf("handleSubscribe: %s\n", data.Evt)
+	if err = client.Subscribe(rpc.EventMessageCreate, rpc.CmdArgsSubscribeMessage{
+		ChannelID: channelID,
+	}, rpc.NewHandler(func(data rpc.EventDataMessageCreate) {
+		log.Info("message: ", data.Message.Content)
 	})); err != nil {
 		log.Fatal(err)
 	}

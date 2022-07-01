@@ -11,8 +11,6 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-var IPCVersion = 1
-
 type Handshake struct {
 	V        int          `json:"v"`
 	ClientID snowflake.ID `json:"client_id"`
@@ -61,7 +59,7 @@ func (t *ipcTransport) handshake(clientID snowflake.ID) error {
 	}()
 
 	return json.NewEncoder(w).Encode(Handshake{
-		V:        IPCVersion,
+		V:        Version,
 		ClientID: clientID,
 	})
 }
@@ -104,6 +102,11 @@ func (t *ipcTransport) NextReader() (io.Reader, error) {
 		return nil, err
 	}
 
+	if opCode == OpCodeClose {
+		_ = t.Close()
+		return nil, net.ErrClosed
+	}
+
 	var length int32
 	if err := binary.Read(t.conn, binary.LittleEndian, &length); err != nil {
 		return nil, err
@@ -114,15 +117,13 @@ func (t *ipcTransport) NextReader() (io.Reader, error) {
 		return nil, err
 	}
 
-	/*if opCode == OpCodePing {
+	if opCode == OpCodePing {
 		if w, err := t.nextWriter(OpCodePong); err == nil {
-			defer func() {
-				_ = w.Close()
-			}()
 			_, _ = w.Write(data)
+			_ = w.Close()
 		}
 		return t.NextReader()
-	}*/
+	}
 
 	return bytes.NewReader(data), nil
 }

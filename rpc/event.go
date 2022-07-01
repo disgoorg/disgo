@@ -55,12 +55,12 @@ type EventDataChannelCreate struct {
 
 func (EventDataChannelCreate) messageData() {}
 
-type EventDataSelectVoiceChannel struct {
+type EventDataVoiceChannelSelect struct {
 	ChannelID *snowflake.ID `json:"channel_id"`
 	GuildID   *snowflake.ID `json:"guild_id"`
 }
 
-func (EventDataSelectVoiceChannel) messageData() {}
+func (EventDataVoiceChannelSelect) messageData() {}
 
 type EventDataVoiceSettingsUpdate struct {
 	VoiceSettings
@@ -80,11 +80,11 @@ type EventDataVoiceStateUpdate struct {
 
 func (EventDataVoiceStateUpdate) messageData() {}
 
-type EventDataEventDataVoiceStateDelete struct {
+type EventDataVoiceStateDelete struct {
 	VoiceState
 }
 
-func (EventDataEventDataVoiceStateDelete) messageData() {}
+func (EventDataVoiceStateDelete) messageData() {}
 
 type VoiceStateType string
 
