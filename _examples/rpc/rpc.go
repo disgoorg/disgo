@@ -6,6 +6,7 @@ import (
 	"syscall"
 
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/rpc"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
@@ -22,6 +23,8 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Info("example is starting...")
 
+	oauth2Client := rest.NewOAuth2(rest.NewClient(""))
+
 	client, err := rpc.NewIPCClient(clientID)
 	if err != nil {
 		log.Fatal(err)
@@ -37,7 +40,7 @@ func main() {
 			Scopes:   []discord.OAuth2Scope{discord.OAuth2ScopeRPC, discord.OAuth2ScopeMessagesRead},
 		},
 	}, rpc.NewHandler(func(data rpc.CmdRsAuthorize) {
-		tokenRs, err = client.OAuth2().GetAccessToken(clientID, clientSecret, data.Code, "http://localhost")
+		tokenRs, err = oauth2Client.GetAccessToken(clientID, clientSecret, data.Code, "http://localhost")
 		if err != nil {
 			log.Fatal(err)
 		}
