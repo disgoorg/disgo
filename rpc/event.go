@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 type EventDataReady struct {
@@ -19,6 +20,29 @@ type ServerConfig struct {
 	APIEndpoint string `json:"api_endpoint"`
 	Environment string `json:"environment"`
 }
+
+type EventDataMessageCreate struct {
+	ChannelID snowflake.ID    `json:"channel_id"`
+	Message   discord.Message `json:"message"`
+}
+
+func (EventDataMessageCreate) messageData() {}
+
+type EventDataMessageUpdate struct {
+	ChannelID snowflake.ID    `json:"channel_id"`
+	Message   discord.Message `json:"message"`
+}
+
+func (EventDataMessageUpdate) messageData() {}
+
+type EventDataMessageDelete struct {
+	ChannelID snowflake.ID `json:"channel_id"`
+	Message   struct {
+		ID snowflake.ID `json:"id"`
+	} `json:"message"`
+}
+
+func (EventDataMessageDelete) messageData() {}
 
 var _ error = (*EventDataError)(nil)
 

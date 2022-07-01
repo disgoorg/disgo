@@ -2,67 +2,85 @@ package rpc
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"io"
 	"net"
+	"time"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/internal/insecurerandstr"
 	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 )
 
 type EventHandleFunc func(event Event, data MessageData)
 
+type Transport interface {
+	NextWriter() (io.WriteCloser, error)
+	NextReader() (io.Reader, error)
+	Close() error
+}
+
 type Client interface {
 	Logger() log.Logger
 	ServerConfig() ServerConfig
 	User() discord.User
 	V() int
+	OAuth2() rest.OAuth2
 
-	Send(cmd Cmd, args CmdArgs, handler CommandHandler) error
+	Send(message Message, handler CommandHandler) error
 	Close()
 }
 
-func NewClient(clientID snowflake.ID, eventHandleFunc EventHandleFunc) (Client, error) {
-	conn, err := DialPipe()
+func NewIPCClient(clientID snowflake.ID, eventHandleFunc EventHandleFunc) (Client, error) {
+	transport, err := NewIPCTransport(clientID)
 	if err != nil {
 		return nil, err
 	}
+	return newClient(transport, eventHandleFunc)
+}
 
+func NewWSClient(clientID snowflake.ID, origin string, eventHandleFunc EventHandleFunc) (Client, error) {
+	transport, err := NewWSTransport(clientID, origin)
+	if err != nil {
+		return nil, err
+	}
+	return newClient(transport, eventHandleFunc)
+}
+
+func newClient(transport Transport, eventHandleFunc EventHandleFunc) (Client, error) {
 	client := &clientImpl{
 		logger:          log.Default(),
-		conn:            conn,
+		transport:       transport,
 		eventHandleFunc: eventHandleFunc,
 		commandHandlers: map[string]internalHandler{},
+		oauth2:          rest.NewOAuth2(rest.NewClient("")),
 		readyChan:       make(chan struct{}, 1),
 	}
 
-	buff := new(bytes.Buffer)
-	if err = json.NewEncoder(buff).Encode(Handshake{
-		V:        1,
-		ClientID: clientID,
-	}); err != nil {
-		return nil, err
-	}
-	if err = client.send(OpCodeHandshake, buff); err != nil {
-		return nil, err
-	}
+	go client.listen(transport)
 
-	go client.listen(conn)
-
-	<-client.readyChan
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	case <-client.readyChan:
+	}
 
 	return client, nil
 }
 
 type clientImpl struct {
 	logger          log.Logger
-	conn            *Conn
-	clientID        snowflake.ID
+	transport       Transport
 	eventHandleFunc EventHandleFunc
 	commandHandlers map[string]internalHandler
+
+	oauth2 rest.OAuth2
 
 	readyChan    chan struct{}
 	user         discord.User
@@ -86,8 +104,12 @@ func (c *clientImpl) V() int {
 	return c.v
 }
 
-func (c *clientImpl) send(opCode OpCode, r io.Reader) error {
-	writer, err := c.conn.NextWriter(opCode)
+func (c *clientImpl) OAuth2() rest.OAuth2 {
+	return c.oauth2
+}
+
+func (c *clientImpl) send(r io.Reader) error {
+	writer, err := c.transport.NextWriter()
 	if err != nil {
 		return err
 	}
@@ -102,19 +124,17 @@ func (c *clientImpl) send(opCode OpCode, r io.Reader) error {
 	}
 
 	data, _ := io.ReadAll(buff)
-	c.logger.Debugf("Sending message: opCode: %d, data: %s", opCode, string(data))
+	c.logger.Debugf("Sending message: data: %s", string(data))
 
 	return err
 }
 
-func (c *clientImpl) Send(cmd Cmd, args CmdArgs, handler CommandHandler) error {
+func (c *clientImpl) Send(message Message, handler CommandHandler) error {
 	nonce := insecurerandstr.RandStr(32)
 	buff := new(bytes.Buffer)
-	if err := json.NewEncoder(buff).Encode(Message{
-		Cmd:   cmd,
-		Nonce: nonce,
-		Args:  args,
-	}); err != nil {
+
+	message.Nonce = nonce
+	if err := json.NewEncoder(buff).Encode(message); err != nil {
 		return err
 	}
 
@@ -124,7 +144,7 @@ func (c *clientImpl) Send(cmd Cmd, args CmdArgs, handler CommandHandler) error {
 		handler: handler,
 		errChan: errChan,
 	}
-	if err := c.send(OpCodeFrame, buff); err != nil {
+	if err := c.send(buff); err != nil {
 		delete(c.commandHandlers, nonce)
 		close(errChan)
 		return err
@@ -132,11 +152,10 @@ func (c *clientImpl) Send(cmd Cmd, args CmdArgs, handler CommandHandler) error {
 	return <-errChan
 }
 
-func (c *clientImpl) listen(conn *Conn) {
+func (c *clientImpl) listen(transport Transport) {
 loop:
 	for {
-		println("reading...")
-		opCode, reader, err := conn.NextReader()
+		reader, err := transport.NextReader()
 		if errors.Is(err, net.ErrClosed) {
 			c.logger.Error("Connection closed")
 			break loop
@@ -151,56 +170,45 @@ loop:
 			c.logger.Errorf("Error reading message: %s", err)
 			continue
 		}
-		c.logger.Debugf("Received message: opCode: %d, data: %s", opCode, string(data))
+		c.logger.Debugf("Received message: data: %s", string(data))
 
 		reader = bytes.NewReader(data)
 
-		switch opCode {
-		case OpCodePing:
-			if err = c.send(OpCodePong, reader); err != nil {
-				c.logger.Errorf("Error sending pong: %s", err)
-				continue
-			}
+		var v Message
+		if err = json.NewDecoder(reader).Decode(&v); err != nil {
+			c.logger.Errorf("failed to decode message: %s", err)
+			continue
+		}
 
-		case OpCodeFrame:
-			var v Message
-			if err = json.NewDecoder(reader).Decode(&v); err != nil {
-				c.logger.Errorf("failed to decode message: %s", err)
-				continue
+		if v.Cmd == CmdDispatch {
+			if d, ok := v.Data.(EventDataReady); ok {
+				c.readyChan <- struct{}{}
+				c.user = d.User
+				c.serverConfig = d.Config
+				c.v = d.V
 			}
-
-			if v.Cmd == CmdDispatch {
-				if d, ok := v.Data.(EventDataReady); ok {
-					c.readyChan <- struct{}{}
-					c.user = d.User
-					c.serverConfig = d.Config
-					c.v = d.V
-				}
-				c.eventHandleFunc(v.Event, v.Data)
-				continue
-			}
-			if handler, ok := c.commandHandlers[v.Nonce]; ok {
-				if v.Event == EventError {
-					handler.errChan <- v.Data.(EventDataError)
-				} else {
-					handler.handler.Handle(v.Data)
-					handler.errChan <- nil
-				}
-				close(handler.errChan)
-				delete(c.commandHandlers, v.Nonce)
+			c.eventHandleFunc(v.Event, v.Data)
+			continue
+		}
+		if handler, ok := c.commandHandlers[v.Nonce]; ok {
+			if v.Event == EventError {
+				handler.errChan <- v.Data.(EventDataError)
 			} else {
-				c.logger.Errorf("No handler for nonce: %s", v.Nonce)
+				if handler.handler != nil {
+					handler.handler.Handle(v.Data)
+				}
+				handler.errChan <- nil
 			}
-
-		case OpCodeClose:
-			c.Close()
-			break loop
+			close(handler.errChan)
+			delete(c.commandHandlers, v.Nonce)
+		} else {
+			c.logger.Errorf("No handler for nonce: %s", v.Nonce)
 		}
 	}
 }
 
 func (c *clientImpl) Close() {
-	if c.conn != nil {
-		_ = c.conn.Close()
+	if c.transport != nil {
+		_ = c.transport.Close()
 	}
 }

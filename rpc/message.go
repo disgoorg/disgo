@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 type Message struct {
@@ -50,12 +49,42 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 				err = json.Unmarshal(v.Data, &d)
 				messageData = d
 
+			case EventMessageCreate:
+				var d EventDataMessageCreate
+				err = json.Unmarshal(v.Data, &d)
+				messageData = d
+
+			case EventMessageUpdate:
+				var d EventDataMessageUpdate
+				err = json.Unmarshal(v.Data, &d)
+				messageData = d
+
+			case EventMessageDelete:
+				var d EventDataMessageDelete
+				err = json.Unmarshal(v.Data, &d)
+				messageData = d
+
 			default:
 				err = fmt.Errorf("unknown event: %s", v.Event)
 			}
 
 		case CmdAuthorize:
 			var d CmdRsAuthorize
+			err = json.Unmarshal(v.Data, &d)
+			messageData = d
+
+		case CmdAuthenticate:
+			var d CmdRsAuthenticate
+			err = json.Unmarshal(v.Data, &d)
+			messageData = d
+
+		case CmdSubscribe:
+			var d CmdRsSubscribe
+			err = json.Unmarshal(v.Data, &d)
+			messageData = d
+
+		case CmdUnsubscribe:
+			var d CmdRsUnsubscribe
 			err = json.Unmarshal(v.Data, &d)
 			messageData = d
 
@@ -133,18 +162,3 @@ const (
 type MessageData interface {
 	messageData()
 }
-
-type Handshake struct {
-	V        int          `json:"v"`
-	ClientID snowflake.ID `json:"client_id"`
-}
-
-type OpCode int32
-
-const (
-	OpCodeHandshake OpCode = iota
-	OpCodeFrame
-	OpCodeClose
-	OpCodePing
-	OpCodePong
-)

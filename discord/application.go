@@ -47,6 +47,14 @@ func (a Application) CoverURL(opts ...CDNOpt) *string {
 	return formatAssetURL(route.ApplicationCover, opts, a.ID, *a.Cover)
 }
 
+type OAuth2Application struct {
+	ID          snowflake.ID `json:"id"`
+	Name        string       `json:"name"`
+	Icon        *string      `json:"icon,omitempty"`
+	Description string       `json:"description"`
+	RPCOrigins  []string     `json:"rpc_origins"`
+}
+
 type PartialApplication struct {
 	ID    snowflake.ID     `json:"id"`
 	Flags ApplicationFlags `json:"flags"`

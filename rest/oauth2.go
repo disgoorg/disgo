@@ -127,9 +127,11 @@ func (s *oAuth2Impl) SetGuildCommandPermissions(bearerToken string, applicationI
 
 func (s *oAuth2Impl) exchangeAccessToken(clientID snowflake.ID, clientSecret string, grantType discord.GrantType, codeOrRefreshToken string, redirectURI string, opts ...RequestOpt) (exchange *discord.AccessTokenResponse, err error) {
 	values := url.Values{
-		"client_id":     []string{clientID.String()},
-		"client_secret": []string{clientSecret},
-		"grant_type":    []string{grantType.String()},
+		"client_id":  []string{clientID.String()},
+		"grant_type": []string{grantType.String()},
+	}
+	if clientSecret != "" {
+		values["client_secret"] = []string{clientSecret}
 	}
 	switch grantType {
 	case discord.GrantTypeAuthorizationCode:
