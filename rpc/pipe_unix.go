@@ -3,7 +3,9 @@
 package rpc
 
 import (
+	"fmt"
 	"net"
+	"os"
 )
 
 var paths = []string{"XDG_RUNTIME_DIR", "TMPDIR", "TMP", "TEMP"}

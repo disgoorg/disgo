@@ -334,3 +334,9 @@ type CmdRsSubscribe struct {
 }
 
 func (CmdRsSubscribe) messageData() {}
+
+type CmdRsUnsubscribe struct {
+	Evt string `json:"evt"`
+}
+
+func (CmdRsUnsubscribe) messageData() {}
