@@ -12,7 +12,7 @@ type FilterFunc[T any] func(T) bool
 // Cache is a simple key value store. They key is always a snowflake.ID.
 // The cache provides a simple way to store and retrieve entities. But is not guaranteed to be thread safe as this depends on the underlying implementation.
 type Cache[T any] interface {
-	// Get returns a copy of the entity with the given snowflake and a bool wheaten it was found or not.
+	// Get returns a copy of the entity with the given snowflake and a bool weather it was found or not.
 	Get(id snowflake.ID) (T, bool)
 
 	// Put stores the given entity with the given snowflake as key. If the entity is already present, it will be overwritten.

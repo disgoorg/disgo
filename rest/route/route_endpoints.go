@@ -78,6 +78,15 @@ var (
 	UpdateUserVoiceState        = NewAPIRoute(PATCH, "/guilds/{guild.id}/voice-states/{user.id}")
 )
 
+// AutoModeration
+var (
+	GetAutoModerationRules   = NewAPIRoute(GET, "/guilds/{guild.id}/auto-moderation/rules")
+	GetAutoModerationRule    = NewAPIRoute(GET, "/guilds/{guild.id}/auto-moderation/rules/{auto_moderation_rule.id}")
+	CreateAutoModerationRule = NewAPIRoute(POST, "/guilds/{guild.id}/auto-moderation/rules")
+	UpdateAutoModerationRule = NewAPIRoute(PATCH, "/guilds/{guild.id}/auto-moderation/rules/{auto_moderation_rule.id}")
+	DeleteAutoModerationRule = NewAPIRoute(DELETE, "/guilds/{guild.id}/auto-moderation/rules/{auto_moderation_rule.id}")
+)
+
 // GuildIntegrations
 var (
 	GetIntegrations   = NewAPIRoute(GET, "/guilds/{guild.id}/integrations")

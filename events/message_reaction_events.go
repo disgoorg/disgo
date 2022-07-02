@@ -15,18 +15,18 @@ type GenericReaction struct {
 	Emoji     discord.ReactionEmoji
 }
 
-// MessageReactionAdd indicates that a discord.User added a discord.MessageReaction to a discord.Message in a discord.Channel(this+++ requires the discord.GatewayIntentGuildMessageReactions and/or discord.GatewayIntentDirectMessageReactions)
+// MessageReactionAdd indicates that a discord.User added a discord.MessageReaction to a discord.Message in a discord.Channel(this+++ requires the gateway.IntentGuildMessageReactions and/or gateway.IntentDirectMessageReactions)
 type MessageReactionAdd struct {
 	*GenericReaction
 	Member *discord.Member
 }
 
-// MessageReactionRemove indicates that a discord.User removed a discord.MessageReaction from a discord.Message in a discord.GetChannel(requires the discord.GatewayIntentGuildMessageReactions and/or discord.GatewayIntentDirectMessageReactions)
+// MessageReactionRemove indicates that a discord.User removed a discord.MessageReaction from a discord.Message in a discord.GetChannel(requires the gateway.IntentGuildMessageReactions and/or gateway.IntentDirectMessageReactions)
 type MessageReactionRemove struct {
 	*GenericReaction
 }
 
-// MessageReactionRemoveEmoji indicates someone removed all discord.MessageReaction of a specific discord.Emoji from a discord.Message in a discord.Channel(requires the discord.GatewayIntentGuildMessageReactions and/or discord.GatewayIntentDirectMessageReactions)
+// MessageReactionRemoveEmoji indicates someone removed all discord.MessageReaction of a specific discord.Emoji from a discord.Message in a discord.Channel(requires the gateway.IntentGuildMessageReactions and/or gateway.IntentDirectMessageReactions)
 type MessageReactionRemoveEmoji struct {
 	*GenericEvent
 	ChannelID snowflake.ID
@@ -35,7 +35,7 @@ type MessageReactionRemoveEmoji struct {
 	Emoji     discord.ReactionEmoji
 }
 
-// MessageReactionRemoveAll indicates someone removed all discord.MessageReaction(s) from a discord.Message in a discord.Channel(requires the discord.GatewayIntentGuildMessageReactions and/or discord.GatewayIntentDirectMessageReactions)
+// MessageReactionRemoveAll indicates someone removed all discord.MessageReaction(s) from a discord.Message in a discord.Channel(requires the gateway.IntentGuildMessageReactions and/or gateway.IntentDirectMessageReactions)
 type MessageReactionRemoveAll struct {
 	*GenericEvent
 	ChannelID snowflake.ID

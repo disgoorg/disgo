@@ -5,7 +5,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// GenericDMMessage is called upon receiving DMMessageCreate , DMMessageUpdate , DMMessageDelete , GenericDMMessageReaction , DMMessageReactionAdd , DMMessageReactionRemove , DMMessageReactionRemoveEmoji or DMMessageReactionRemoveAll (requires discord.GatewayIntentsDirectMessage)
+// GenericDMMessage is called upon receiving DMMessageCreate , DMMessageUpdate , DMMessageDelete , GenericDMMessageReaction , DMMessageReactionAdd , DMMessageReactionRemove , DMMessageReactionRemoveEmoji or DMMessageReactionRemoveAll (requires gateway.IntentsDirectMessage)
 type GenericDMMessage struct {
 	*GenericEvent
 	MessageID snowflake.ID
@@ -21,18 +21,18 @@ func (e GenericDMMessage) Channel() (discord.DMChannel, bool) {
 	return discord.DMChannel{}, false
 }
 
-// DMMessageCreate is called upon receiving a discord.Message in a Channel (requires discord.GatewayIntentsDirectMessage)
+// DMMessageCreate is called upon receiving a discord.Message in a Channel (requires gateway.IntentsDirectMessage)
 type DMMessageCreate struct {
 	*GenericDMMessage
 }
 
-// DMMessageUpdate is called upon editing a discord.Message in a Channel (requires discord.GatewayIntentsDirectMessage)
+// DMMessageUpdate is called upon editing a discord.Message in a Channel (requires gateway.IntentsDirectMessage)
 type DMMessageUpdate struct {
 	*GenericDMMessage
 	OldMessage discord.Message
 }
 
-// DMMessageDelete is called upon deleting a discord.Message in a Channel (requires discord.GatewayIntentsDirectMessage)
+// DMMessageDelete is called upon deleting a discord.Message in a Channel (requires gateway.IntentsDirectMessage)
 type DMMessageDelete struct {
 	*GenericDMMessage
 }

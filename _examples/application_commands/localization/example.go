@@ -33,7 +33,7 @@ var (
 			},
 			Options: []discord.ApplicationCommandOption{
 				discord.ApplicationCommandOptionString{
-					Name: "message",
+					OptionName: "message",
 					NameLocalizations: map[discord.Locale]string{
 						discord.LocaleEnglishGB: "message",
 						discord.LocaleGerman:    "nachricht",
@@ -46,7 +46,7 @@ var (
 					Required: true,
 				},
 				discord.ApplicationCommandOptionBool{
-					Name: "ephemeral",
+					OptionName: "ephemeral",
 					NameLocalizations: map[discord.Locale]string{
 						discord.LocaleEnglishGB: "ephemeral",
 						discord.LocaleGerman:    "kurzlebig",
@@ -69,7 +69,7 @@ func main() {
 	log.Infof("disgo version: %s", disgo.Version)
 
 	client, err := disgo.New(token,
-		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentsNone)),
+		bot.WithGatewayConfigOpts(gateway.WithIntents(gateway.IntentsNone)),
 		bot.WithEventListenerFunc(commandListener),
 	)
 	if err != nil {

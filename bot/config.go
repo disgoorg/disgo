@@ -14,7 +14,7 @@ import (
 )
 
 // DefaultConfig returns a Config with sensible defaults.
-func DefaultConfig(gatewayHandlers map[discord.GatewayEventType]GatewayEventHandler, httpHandler HTTPServerEventHandler) *Config {
+func DefaultConfig(gatewayHandlers map[gateway.EventType]GatewayEventHandler, httpHandler HTTPServerEventHandler) *Config {
 	return &Config{
 		Logger:                 log.Default(),
 		EventManagerConfigOpts: []EventManagerConfigOpt{WithGatewayHandlers(gatewayHandlers), WithHTTPServerHandler(httpHandler)},
@@ -232,7 +232,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 		}
 
 		config.GatewayConfigOpts = append([]gateway.ConfigOpt{
-			gateway.WithGatewayURL(gatewayRs.URL),
+			gateway.WithURL(gatewayRs.URL),
 			gateway.WithLogger(client.logger),
 			gateway.WithOS(os),
 			gateway.WithBrowser(name),
@@ -262,7 +262,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 			sharding.WithShardCount(gatewayBotRs.Shards),
 			sharding.WithShardIDs(shardIDs...),
 			sharding.WithGatewayConfigOpts(
-				gateway.WithGatewayURL(gatewayBotRs.URL),
+				gateway.WithURL(gatewayBotRs.URL),
 				gateway.WithLogger(client.logger),
 				gateway.WithOS(os),
 				gateway.WithBrowser(name),

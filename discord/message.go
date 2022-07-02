@@ -36,6 +36,7 @@ const (
 	MessageTypeThreadStarterMessage
 	MessageTypeGuildInviteReminder
 	MessageTypeContextMenuCommand
+	MessageTypeAutoModerationAction
 )
 
 func (t MessageType) System() bool {
@@ -55,6 +56,7 @@ func (t MessageType) Deleteable() bool {
 		MessageTypeGuildDiscoveryRequalified, MessageTypeGuildDiscoveryGracePeriodInitialWarning,
 		MessageTypeGuildDiscoveryGracePeriodFinalWarning, MessageTypeThreadStarterMessage:
 		return false
+
 	default:
 		return true
 	}
