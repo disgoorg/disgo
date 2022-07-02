@@ -4,22 +4,22 @@ import (
 	"time"
 
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
 )
 
 type gatewayHandlerChannelPinsUpdate struct{}
 
-func (h *gatewayHandlerChannelPinsUpdate) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypeChannelPinsUpdate
+func (h *gatewayHandlerChannelPinsUpdate) EventType() gateway.EventType {
+	return gateway.EventTypeChannelPinsUpdate
 }
 
 func (h *gatewayHandlerChannelPinsUpdate) New() any {
-	return &discord.GatewayEventChannelPinsUpdate{}
+	return &gateway.EventChannelPinsUpdate{}
 }
 
 func (h *gatewayHandlerChannelPinsUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
-	payload := *v.(*discord.GatewayEventChannelPinsUpdate)
+	payload := *v.(*gateway.EventChannelPinsUpdate)
 
 	var oldTime *time.Time
 	channel, ok := client.Caches().Channels().GetMessageChannel(payload.ChannelID)

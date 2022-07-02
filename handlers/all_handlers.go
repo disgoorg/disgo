@@ -4,7 +4,6 @@ import (
 	"io"
 
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/httpserver"
@@ -13,7 +12,7 @@ import (
 // DefaultHTTPServerEventHandler is the default handler for the httpserver.Server and sends payloads to the bot.EventManager.
 func DefaultHTTPServerEventHandler(client bot.Client) httpserver.EventHandlerFunc {
 	return func(responseFunc httpserver.RespondFunc, reader io.Reader) {
-		client.EventManager().HandleHTTPEvent(responseFunc, events.HandleRawEvent(client, discord.GatewayEventTypeInteractionCreate, -1, -1, responseFunc, reader))
+		client.EventManager().HandleHTTPEvent(responseFunc, events.HandleRawEvent(client, gateway.EventTypeInteractionCreate, -1, -1, responseFunc, reader))
 	}
 }
 
@@ -24,14 +23,14 @@ func GetHTTPServerHandler() bot.HTTPServerEventHandler {
 
 // DefaultGatewayEventHandler is the default handler for the gateway.Gateway and sends payloads to the bot.EventManager.
 func DefaultGatewayEventHandler(client bot.Client) gateway.EventHandlerFunc {
-	return func(gatewayEventType discord.GatewayEventType, sequenceNumber int, shardID int, reader io.Reader) {
+	return func(gatewayEventType gateway.EventType, sequenceNumber int, shardID int, reader io.Reader) {
 		client.EventManager().HandleGatewayEvent(gatewayEventType, sequenceNumber, shardID, events.HandleRawEvent(client, gatewayEventType, sequenceNumber, shardID, nil, reader))
 	}
 }
 
 // GetGatewayHandlers returns the default gateway.Gateway event handlers for processing the raw payload which gets passed into the bot.EventManager
-func GetGatewayHandlers() map[discord.GatewayEventType]bot.GatewayEventHandler {
-	handlers := make(map[discord.GatewayEventType]bot.GatewayEventHandler, len(allEventHandlers))
+func GetGatewayHandlers() map[gateway.EventType]bot.GatewayEventHandler {
+	handlers := make(map[gateway.EventType]bot.GatewayEventHandler, len(allEventHandlers))
 	for _, handler := range allEventHandlers {
 		handlers[handler.EventType()] = handler
 	}

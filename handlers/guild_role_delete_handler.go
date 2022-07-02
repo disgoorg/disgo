@@ -2,22 +2,22 @@ package handlers
 
 import (
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
 )
 
 type gatewayHandlerGuildRoleDelete struct{}
 
-func (h *gatewayHandlerGuildRoleDelete) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypeGuildRoleDelete
+func (h *gatewayHandlerGuildRoleDelete) EventType() gateway.EventType {
+	return gateway.EventTypeGuildRoleDelete
 }
 
 func (h *gatewayHandlerGuildRoleDelete) New() any {
-	return &discord.GatewayEventGuildRoleDelete{}
+	return &gateway.EventGuildRoleDelete{}
 }
 
 func (h *gatewayHandlerGuildRoleDelete) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
-	payload := *v.(*discord.GatewayEventGuildRoleDelete)
+	payload := *v.(*gateway.EventGuildRoleDelete)
 
 	role, _ := client.Caches().Roles().Remove(payload.GuildID, payload.RoleID)
 

@@ -2,22 +2,22 @@ package handlers
 
 import (
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
 )
 
 type gatewayHandlerGuildScheduledEventUserRemove struct{}
 
-func (h *gatewayHandlerGuildScheduledEventUserRemove) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypeGuildScheduledEventUserRemove
+func (h *gatewayHandlerGuildScheduledEventUserRemove) EventType() gateway.EventType {
+	return gateway.EventTypeGuildScheduledEventUserRemove
 }
 
 func (h *gatewayHandlerGuildScheduledEventUserRemove) New() any {
-	return &discord.GatewayEventGuildScheduledEventUser{}
+	return &gateway.EventGuildScheduledEventUser{}
 }
 
 func (h *gatewayHandlerGuildScheduledEventUserRemove) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
-	payload := *v.(*discord.GatewayEventGuildScheduledEventUser)
+	payload := *v.(*gateway.EventGuildScheduledEventUser)
 
 	client.EventManager().DispatchEvent(&events.GuildScheduledEventUserRemove{
 		GenericGuildScheduledEventUser: &events.GenericGuildScheduledEventUser{

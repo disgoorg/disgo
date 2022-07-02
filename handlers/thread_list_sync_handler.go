@@ -2,22 +2,22 @@ package handlers
 
 import (
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
 )
 
 type gatewayHandlerThreadListSync struct{}
 
-func (h *gatewayHandlerThreadListSync) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypeThreadListSync
+func (h *gatewayHandlerThreadListSync) EventType() gateway.EventType {
+	return gateway.EventTypeThreadListSync
 }
 
 func (h *gatewayHandlerThreadListSync) New() any {
-	return &discord.GatewayEventThreadListSync{}
+	return &gateway.EventThreadListSync{}
 }
 
 func (h *gatewayHandlerThreadListSync) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
-	payload := *v.(*discord.GatewayEventThreadListSync)
+	payload := *v.(*gateway.EventThreadListSync)
 
 	for _, thread := range payload.Threads {
 		client.Caches().Channels().Put(thread.ID(), thread)

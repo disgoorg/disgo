@@ -3,12 +3,13 @@ package handlers
 import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/gateway"
 )
 
 type gatewayHandlerPresenceUpdate struct{}
 
-func (h *gatewayHandlerPresenceUpdate) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypePresenceUpdate
+func (h *gatewayHandlerPresenceUpdate) EventType() gateway.EventType {
+	return gateway.EventTypePresenceUpdate
 }
 
 func (h *gatewayHandlerPresenceUpdate) New() any {

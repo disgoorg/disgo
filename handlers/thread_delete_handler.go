@@ -4,20 +4,21 @@ import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
 )
 
 type gatewayHandlerThreadDelete struct{}
 
-func (h *gatewayHandlerThreadDelete) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypeThreadDelete
+func (h *gatewayHandlerThreadDelete) EventType() gateway.EventType {
+	return gateway.EventTypeThreadDelete
 }
 
 func (h *gatewayHandlerThreadDelete) New() any {
-	return &discord.GatewayEventThreadDelete{}
+	return &gateway.EventThreadDelete{}
 }
 
 func (h *gatewayHandlerThreadDelete) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
-	payload := *v.(*discord.GatewayEventThreadDelete)
+	payload := *v.(*gateway.EventThreadDelete)
 
 	channel, _ := client.Caches().Channels().Remove(payload.ID)
 	client.Caches().ThreadMembers().RemoveAll(payload.ID)

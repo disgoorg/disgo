@@ -2,22 +2,22 @@ package handlers
 
 import (
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
 )
 
 type gatewayHandlerReady struct{}
 
-func (h *gatewayHandlerReady) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypeReady
+func (h *gatewayHandlerReady) EventType() gateway.EventType {
+	return gateway.EventTypeReady
 }
 
 func (h *gatewayHandlerReady) New() any {
-	return &discord.GatewayEventReady{}
+	return &gateway.EventReady{}
 }
 
 func (h *gatewayHandlerReady) HandleGatewayEvent(client bot.Client, sequenceNumber int, _ int, v any) {
-	readyEvent := *v.(*discord.GatewayEventReady)
+	readyEvent := *v.(*gateway.EventReady)
 
 	var shardID int
 	if readyEvent.Shard != nil {
@@ -31,8 +31,8 @@ func (h *gatewayHandlerReady) HandleGatewayEvent(client bot.Client, sequenceNumb
 	}
 
 	client.EventManager().DispatchEvent(&events.Ready{
-		GenericEvent:      events.NewGenericEvent(client, sequenceNumber, shardID),
-		GatewayEventReady: readyEvent,
+		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+		EventReady:   readyEvent,
 	})
 
 }

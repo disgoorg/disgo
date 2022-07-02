@@ -4,12 +4,13 @@ import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
 )
 
 type gatewayHandlerGuildScheduledEventCreate struct{}
 
-func (h *gatewayHandlerGuildScheduledEventCreate) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypeGuildScheduledEventCreate
+func (h *gatewayHandlerGuildScheduledEventCreate) EventType() gateway.EventType {
+	return gateway.EventTypeGuildScheduledEventCreate
 }
 
 func (h *gatewayHandlerGuildScheduledEventCreate) New() any {

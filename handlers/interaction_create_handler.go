@@ -4,13 +4,15 @@ import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/disgo/httpserver"
 	"github.com/disgoorg/disgo/rest"
 )
 
 type gatewayHandlerInteractionCreate struct{}
 
-func (h *gatewayHandlerInteractionCreate) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypeInteractionCreate
+func (h *gatewayHandlerInteractionCreate) EventType() gateway.EventType {
+	return gateway.EventTypeInteractionCreate
 }
 
 func (h *gatewayHandlerInteractionCreate) New() any {
@@ -21,7 +23,7 @@ func (h *gatewayHandlerInteractionCreate) HandleGatewayEvent(client bot.Client, 
 	handleInteraction(client, sequenceNumber, shardID, nil, (*v.(*discord.UnmarshalInteraction)).Interaction)
 }
 
-func respond(client bot.Client, respondFunc func(response discord.InteractionResponse) error, interaction discord.BaseInteraction) events.InteractionResponderFunc {
+func respond(client bot.Client, respondFunc httpserver.RespondFunc, interaction discord.BaseInteraction) events.InteractionResponderFunc {
 	return func(responseType discord.InteractionResponseType, data discord.InteractionResponseData, opts ...rest.RequestOpt) error {
 		response := discord.InteractionResponse{
 			Type: responseType,
@@ -34,7 +36,7 @@ func respond(client bot.Client, respondFunc func(response discord.InteractionRes
 	}
 }
 
-func handleInteraction(client bot.Client, sequenceNumber int, shardID int, respondFunc func(response discord.InteractionResponse) error, interaction discord.Interaction) {
+func handleInteraction(client bot.Client, sequenceNumber int, shardID int, respondFunc httpserver.RespondFunc, interaction discord.Interaction) {
 
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 

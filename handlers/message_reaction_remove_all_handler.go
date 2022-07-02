@@ -2,22 +2,22 @@ package handlers
 
 import (
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
 )
 
 type gatewayHandlerMessageReactionRemoveAll struct{}
 
-func (h *gatewayHandlerMessageReactionRemoveAll) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypeMessageReactionRemoveAll
+func (h *gatewayHandlerMessageReactionRemoveAll) EventType() gateway.EventType {
+	return gateway.EventTypeMessageReactionRemoveAll
 }
 
 func (h *gatewayHandlerMessageReactionRemoveAll) New() any {
-	return &discord.GatewayEventMessageReactionRemoveAll{}
+	return &gateway.EventMessageReactionRemoveAll{}
 }
 
 func (h *gatewayHandlerMessageReactionRemoveAll) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
-	messageReaction := *v.(*discord.GatewayEventMessageReactionRemoveAll)
+	messageReaction := *v.(*gateway.EventMessageReactionRemoveAll)
 
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 

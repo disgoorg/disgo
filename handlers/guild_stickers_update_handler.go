@@ -5,17 +5,18 @@ import (
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/snowflake/v2"
 )
 
 type gatewayHandlerGuildStickersUpdate struct{}
 
-func (h *gatewayHandlerGuildStickersUpdate) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypeGuildStickersUpdate
+func (h *gatewayHandlerGuildStickersUpdate) EventType() gateway.EventType {
+	return gateway.EventTypeGuildStickersUpdate
 }
 
 func (h *gatewayHandlerGuildStickersUpdate) New() any {
-	return &discord.GatewayEventGuildStickersUpdate{}
+	return &gateway.EventGuildStickersUpdate{}
 }
 
 type updatedSticker struct {
@@ -24,11 +25,11 @@ type updatedSticker struct {
 }
 
 func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
-	payload := *v.(*discord.GatewayEventGuildStickersUpdate)
+	payload := *v.(*gateway.EventGuildStickersUpdate)
 
 	client.EventManager().DispatchEvent(&events.StickersUpdate{
-		GenericEvent:                    events.NewGenericEvent(client, sequenceNumber, shardID),
-		GatewayEventGuildStickersUpdate: payload,
+		GenericEvent:             events.NewGenericEvent(client, sequenceNumber, shardID),
+		EventGuildStickersUpdate: payload,
 	})
 
 	if client.Caches().CacheFlags().Missing(cache.FlagStickers) {

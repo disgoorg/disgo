@@ -11,24 +11,24 @@ type GenericGuildVoiceState struct {
 	Member     discord.Member
 }
 
-// GuildVoiceStateUpdate indicates that the discord.VoiceState of a discord.Member has updated(requires discord.GatewayIntentsGuildVoiceStates)
+// GuildVoiceStateUpdate indicates that the discord.VoiceState of a discord.Member has updated(requires gateway.IntentsGuildVoiceStates)
 type GuildVoiceStateUpdate struct {
 	*GenericGuildVoiceState
 	OldVoiceState discord.VoiceState
 }
 
-// GuildVoiceJoin indicates that a discord.Member joined a discord.Channel(requires discord.GatewayIntentsGuildVoiceStates)
+// GuildVoiceJoin indicates that a discord.Member joined a discord.Channel(requires gateway.IntentsGuildVoiceStates)
 type GuildVoiceJoin struct {
 	*GenericGuildVoiceState
 }
 
-// GuildVoiceMove indicates that a discord.Member moved a discord.Channel(requires discord.GatewayIntentsGuildVoiceStates)
+// GuildVoiceMove indicates that a discord.Member moved a discord.Channel(requires gateway.IntentsGuildVoiceStates)
 type GuildVoiceMove struct {
 	*GenericGuildVoiceState
 	OldVoiceState discord.VoiceState
 }
 
-// GuildVoiceLeave indicates that a discord.Member left a discord.Channel(requires discord.GatewayIntentsGuildVoiceStates)
+// GuildVoiceLeave indicates that a discord.Member left a discord.Channel(requires gateway.IntentsGuildVoiceStates)
 type GuildVoiceLeave struct {
 	*GenericGuildVoiceState
 	OldVoiceState discord.VoiceState

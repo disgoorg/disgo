@@ -2,22 +2,22 @@ package handlers
 
 import (
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
 )
 
 type gatewayHandlerIntegrationUpdate struct{}
 
-func (h *gatewayHandlerIntegrationUpdate) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypeIntegrationUpdate
+func (h *gatewayHandlerIntegrationUpdate) EventType() gateway.EventType {
+	return gateway.EventTypeIntegrationUpdate
 }
 
 func (h *gatewayHandlerIntegrationUpdate) New() any {
-	return &discord.GatewayEventIntegrationUpdate{}
+	return &gateway.EventIntegrationUpdate{}
 }
 
 func (h *gatewayHandlerIntegrationUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
-	payload := *v.(*discord.GatewayEventIntegrationUpdate)
+	payload := *v.(*gateway.EventIntegrationUpdate)
 
 	client.EventManager().DispatchEvent(&events.IntegrationUpdate{
 		GenericIntegration: &events.GenericIntegration{

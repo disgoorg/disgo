@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/httpserver"
 )
 
 var _ bot.HTTPServerEventHandler = (*httpserverHandlerInteractionCreate)(nil)
@@ -13,7 +14,7 @@ func (h *httpserverHandlerInteractionCreate) New() any {
 	return &discord.UnmarshalInteraction{}
 }
 
-func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(client bot.Client, respondFunc func(response discord.InteractionResponse) error, v any) {
+func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(client bot.Client, respondFunc httpserver.RespondFunc, v any) {
 	interaction := (*v.(*discord.UnmarshalInteraction)).Interaction
 
 	// we just want to pong all pings

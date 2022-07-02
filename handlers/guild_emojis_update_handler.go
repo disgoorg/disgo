@@ -5,18 +5,19 @@ import (
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/snowflake/v2"
 	"golang.org/x/exp/slices"
 )
 
 type gatewayHandlerGuildEmojisUpdate struct{}
 
-func (h *gatewayHandlerGuildEmojisUpdate) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypeGuildEmojisUpdate
+func (h *gatewayHandlerGuildEmojisUpdate) EventType() gateway.EventType {
+	return gateway.EventTypeGuildEmojisUpdate
 }
 
 func (h *gatewayHandlerGuildEmojisUpdate) New() any {
-	return &discord.GatewayEventGuildEmojisUpdate{}
+	return &gateway.EventGuildEmojisUpdate{}
 }
 
 type updatedEmoji struct {
@@ -25,11 +26,11 @@ type updatedEmoji struct {
 }
 
 func (h *gatewayHandlerGuildEmojisUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
-	payload := *v.(*discord.GatewayEventGuildEmojisUpdate)
+	payload := *v.(*gateway.EventGuildEmojisUpdate)
 
 	client.EventManager().DispatchEvent(&events.EmojisUpdate{
-		GenericEvent:                  events.NewGenericEvent(client, sequenceNumber, shardID),
-		GatewayEventGuildEmojisUpdate: payload,
+		GenericEvent:           events.NewGenericEvent(client, sequenceNumber, shardID),
+		EventGuildEmojisUpdate: payload,
 	})
 
 	if client.Caches().CacheFlags().Missing(cache.FlagEmojis) {

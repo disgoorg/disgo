@@ -5,7 +5,7 @@ import (
 	"runtime/debug"
 	"sync"
 
-	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/httpserver"
 	"github.com/disgoorg/disgo/json"
 )
@@ -35,7 +35,7 @@ type EventManager interface {
 	RemoveEventListeners(eventListeners ...EventListener)
 
 	// HandleGatewayEvent calls the correct GatewayEventHandler for the payload
-	HandleGatewayEvent(gatewayEventType discord.GatewayEventType, sequenceNumber int, shardID int, payload io.Reader)
+	HandleGatewayEvent(gatewayEventType gateway.EventType, sequenceNumber int, shardID int, payload io.Reader)
 
 	// HandleHTTPEvent calls the HTTPServerEventHandler for the payload
 	HandleHTTPEvent(respondFunc httpserver.RespondFunc, payload io.Reader)
@@ -76,7 +76,7 @@ type Event interface {
 
 // GatewayEventHandler is used to handle Gateway Event(s)
 type GatewayEventHandler interface {
-	EventType() discord.GatewayEventType
+	EventType() gateway.EventType
 	New() any
 	HandleGatewayEvent(client Client, sequenceNumber int, shardID int, v any)
 }
@@ -84,7 +84,7 @@ type GatewayEventHandler interface {
 // HTTPServerEventHandler is used to handle HTTP Event(s)
 type HTTPServerEventHandler interface {
 	New() any
-	HandleHTTPEvent(client Client, respondFunc func(response discord.InteractionResponse) error, v any)
+	HandleHTTPEvent(client Client, respondFunc httpserver.RespondFunc, v any)
 }
 
 type eventManagerImpl struct {
@@ -99,7 +99,7 @@ func (e *eventManagerImpl) RawEventsEnabled() bool {
 	return e.config.RawEventsEnabled
 }
 
-func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType discord.GatewayEventType, sequenceNumber int, shardID int, reader io.Reader) {
+func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType gateway.EventType, sequenceNumber int, shardID int, reader io.Reader) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	if handler, ok := e.config.GatewayHandlers[gatewayEventType]; ok {

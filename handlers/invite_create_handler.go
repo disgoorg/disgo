@@ -4,13 +4,14 @@ import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/snowflake/v2"
 )
 
 type gatewayHandlerInviteCreate struct{}
 
-func (h *gatewayHandlerInviteCreate) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypeInviteCreate
+func (h *gatewayHandlerInviteCreate) EventType() gateway.EventType {
+	return gateway.EventTypeInviteCreate
 }
 
 func (h *gatewayHandlerInviteCreate) New() any {

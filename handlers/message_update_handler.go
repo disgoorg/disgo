@@ -4,12 +4,13 @@ import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
 )
 
 type gatewayHandlerMessageUpdate struct{}
 
-func (h *gatewayHandlerMessageUpdate) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypeMessageUpdate
+func (h *gatewayHandlerMessageUpdate) EventType() gateway.EventType {
+	return gateway.EventTypeMessageUpdate
 }
 
 func (h *gatewayHandlerMessageUpdate) New() any {

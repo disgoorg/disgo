@@ -2,21 +2,21 @@ package handlers
 
 import (
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/gateway"
 )
 
 type gatewayHandlerMessageDeleteBulk struct{}
 
-func (h *gatewayHandlerMessageDeleteBulk) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypeMessageDeleteBulk
+func (h *gatewayHandlerMessageDeleteBulk) EventType() gateway.EventType {
+	return gateway.EventTypeMessageDeleteBulk
 }
 
 func (h *gatewayHandlerMessageDeleteBulk) New() any {
-	return &discord.GatewayEventMessageDeleteBulk{}
+	return &gateway.EventMessageDeleteBulk{}
 }
 
 func (h *gatewayHandlerMessageDeleteBulk) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
-	payload := *v.(*discord.GatewayEventMessageDeleteBulk)
+	payload := *v.(*gateway.EventMessageDeleteBulk)
 
 	for _, messageID := range payload.IDs {
 		handleMessageDelete(client, sequenceNumber, shardID, messageID, payload.ChannelID, payload.GuildID)

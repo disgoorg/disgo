@@ -4,13 +4,14 @@ import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/snowflake/v2"
 )
 
 type gatewayHandlerGuildDelete struct{}
 
-func (h *gatewayHandlerGuildDelete) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypeGuildDelete
+func (h *gatewayHandlerGuildDelete) EventType() gateway.EventType {
+	return gateway.EventTypeGuildDelete
 }
 
 func (h *gatewayHandlerGuildDelete) New() any {
