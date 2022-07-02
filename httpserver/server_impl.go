@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/json"
 
 	"github.com/disgoorg/disgo/discord"
@@ -48,8 +49,8 @@ func (s *serverImpl) PublicKey() PublicKey {
 	return s.publicKey
 }
 
-func (s *serverImpl) Handle(respondFunc RespondFunc, payload io.Reader) {
-	s.eventHandlerFunc(respondFunc, payload)
+func (s *serverImpl) Handle(respondFunc RespondFunc, event gateway.EventInteractionCreate) {
+	s.eventHandlerFunc(respondFunc, event)
 }
 
 func (s *serverImpl) Start() {
@@ -99,9 +100,15 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 		_ = r.Body.Close()
 	}()
 
-	rqBody := &bytes.Buffer{}
-	rqData, _ := io.ReadAll(io.TeeReader(r.Body, rqBody))
+	buff := new(bytes.Buffer)
+	rqData, _ := io.ReadAll(io.TeeReader(r.Body, buff))
 	h.server.Logger().Trace("received http interaction. body: ", string(rqData))
+
+	var v gateway.EventInteractionCreate
+	if err := json.NewDecoder(buff).Decode(&v); err != nil {
+		h.server.Logger().Error("error while decoding interaction: ", err)
+		return
+	}
 
 	// these channels are used to communicate between the http handler and where the interaction is responded to
 	responseChannel := make(chan discord.InteractionResponse)
@@ -132,7 +139,7 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 		responseChannel <- response
 		// wait if we get any error while processing the response
 		return <-errorChannel
-	}, rqBody)
+	}, v)
 
 	var (
 		body any

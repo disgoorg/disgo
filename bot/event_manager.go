@@ -1,13 +1,11 @@
 package bot
 
 import (
-	"io"
 	"runtime/debug"
 	"sync"
 
-	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/httpserver"
-	"github.com/disgoorg/disgo/json"
 )
 
 var _ EventManager = (*eventManagerImpl)(nil)
@@ -25,9 +23,6 @@ func NewEventManager(client Client, opts ...EventManagerConfigOpt) EventManager 
 
 // EventManager lets you listen for specific events triggered by raw gateway events
 type EventManager interface {
-	// RawEventsEnabled returns whether events.RawEvent are enabled
-	RawEventsEnabled() bool
-
 	// AddEventListeners adds one or more EventListener(s) to the EventManager
 	AddEventListeners(eventListeners ...EventListener)
 
@@ -35,10 +30,10 @@ type EventManager interface {
 	RemoveEventListeners(eventListeners ...EventListener)
 
 	// HandleGatewayEvent calls the correct GatewayEventHandler for the payload
-	HandleGatewayEvent(gatewayEventType discord.GatewayEventType, sequenceNumber int, shardID int, payload io.Reader)
+	HandleGatewayEvent(gatewayEventType gateway.EventType, sequenceNumber int, shardID int, event gateway.EventData)
 
 	// HandleHTTPEvent calls the HTTPServerEventHandler for the payload
-	HandleHTTPEvent(respondFunc httpserver.RespondFunc, payload io.Reader)
+	HandleHTTPEvent(respondFunc httpserver.RespondFunc, event gateway.EventInteractionCreate)
 
 	// DispatchEvent dispatches a new Event to the Client's EventListener(s)
 	DispatchEvent(event Event)
@@ -76,15 +71,33 @@ type Event interface {
 
 // GatewayEventHandler is used to handle Gateway Event(s)
 type GatewayEventHandler interface {
-	EventType() discord.GatewayEventType
-	New() any
-	HandleGatewayEvent(client Client, sequenceNumber int, shardID int, v any)
+	EventType() gateway.EventType
+	HandleGatewayEvent(client Client, sequenceNumber int, shardID int, event gateway.EventData)
+}
+
+// NewGatewayEventHandler returns a new GatewayEventHandler for the given GatewayEventType and handler func
+func NewGatewayEventHandler[T gateway.EventData](eventType gateway.EventType, handleFunc func(client Client, sequenceNumber int, shardID int, event T)) GatewayEventHandler {
+	return &genericGatewayEventHandler[T]{eventType: eventType, handleFunc: handleFunc}
+}
+
+type genericGatewayEventHandler[T gateway.EventData] struct {
+	eventType  gateway.EventType
+	handleFunc func(client Client, sequenceNumber int, shardID int, event T)
+}
+
+func (h *genericGatewayEventHandler[T]) EventType() gateway.EventType {
+	return h.eventType
+}
+
+func (h *genericGatewayEventHandler[T]) HandleGatewayEvent(client Client, sequenceNumber int, shardID int, event gateway.EventData) {
+	if e, ok := event.(T); ok {
+		h.handleFunc(client, sequenceNumber, shardID, e)
+	}
 }
 
 // HTTPServerEventHandler is used to handle HTTP Event(s)
 type HTTPServerEventHandler interface {
-	New() any
-	HandleHTTPEvent(client Client, respondFunc func(response discord.InteractionResponse) error, v any)
+	HandleHTTPEvent(client Client, respondFunc httpserver.RespondFunc, event gateway.EventInteractionCreate)
 }
 
 type eventManagerImpl struct {
@@ -95,35 +108,20 @@ type eventManagerImpl struct {
 	mu sync.Mutex
 }
 
-func (e *eventManagerImpl) RawEventsEnabled() bool {
-	return e.config.RawEventsEnabled
-}
-
-func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType discord.GatewayEventType, sequenceNumber int, shardID int, reader io.Reader) {
+func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType gateway.EventType, sequenceNumber int, shardID int, event gateway.EventData) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	if handler, ok := e.config.GatewayHandlers[gatewayEventType]; ok {
-		v := handler.New()
-		if v != nil {
-			if err := json.NewDecoder(reader).Decode(&v); err != nil {
-				e.client.Logger().Errorf("error while unmarshalling event '%s'. error: %s", gatewayEventType, err.Error())
-				return
-			}
-		}
-		handler.HandleGatewayEvent(e.client, sequenceNumber, shardID, v)
+		handler.HandleGatewayEvent(e.client, sequenceNumber, shardID, event)
 	} else {
 		e.client.Logger().Warnf("no handler for gateway event '%s' found", gatewayEventType)
 	}
 }
 
-func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, reader io.Reader) {
+func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, event gateway.EventInteractionCreate) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	v := e.config.HTTPServerHandler.New()
-	if err := json.NewDecoder(reader).Decode(&v); err != nil {
-		e.client.Logger().Error("error while unmarshalling httpserver event. error: ", err)
-	}
-	e.config.HTTPServerHandler.HandleHTTPEvent(e.client, respondFunc, v)
+	e.config.HTTPServerHandler.HandleHTTPEvent(e.client, respondFunc, event)
 }
 
 func (e *eventManagerImpl) DispatchEvent(event Event) {

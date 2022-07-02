@@ -20,7 +20,7 @@ type UserUpdate struct {
 	OldUser discord.User
 }
 
-// UserTypingStart indicates that a discord.User started typing in a discord.DMChannel or discord.MessageChanel(requires the discord.GatewayIntentDirectMessageTyping and/or discord.GatewayIntentGuildMessageTyping)
+// UserTypingStart indicates that a discord.User started typing in a discord.DMChannel or discord.MessageChanel(requires the gateway.IntentDirectMessageTyping and/or gateway.IntentGuildMessageTyping)
 type UserTypingStart struct {
 	*GenericEvent
 	ChannelID snowflake.ID

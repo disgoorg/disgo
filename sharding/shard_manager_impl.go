@@ -4,7 +4,6 @@ import (
 	"context"
 	"sync"
 
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
@@ -40,7 +39,7 @@ func (m *shardManagerImpl) Logger() log.Logger {
 }
 
 func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error) {
-	if closeError, ok := err.(*websocket.CloseError); !m.config.AutoScaling || !ok || discord.GatewayCloseEventCode(closeError.Code) != discord.GatewayCloseEventCodeShardingRequired {
+	if closeError, ok := err.(*websocket.CloseError); !m.config.AutoScaling || !ok || gateway.CloseEventCode(closeError.Code) != gateway.CloseEventCodeShardingRequired {
 		return
 	}
 	m.Logger().Debugf("shard %d requires re-sharding", shard.ShardID())

@@ -7,11 +7,6 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-type FullVoiceState struct {
-	VoiceState
-	Member Member `json:"member"`
-}
-
 // VoiceState from Discord
 type VoiceState struct {
 	GuildID                 snowflake.ID  `json:"guild_id,omitempty"`

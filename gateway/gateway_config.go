@@ -1,7 +1,6 @@
 package gateway
 
 import (
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/log"
 	"github.com/gorilla/websocket"
 )
@@ -12,7 +11,7 @@ func DefaultConfig() *Config {
 		Logger:            log.Default(),
 		Dialer:            websocket.DefaultDialer,
 		LargeThreshold:    50,
-		GatewayIntents:    discord.GatewayIntentsDefault,
+		Intents:           IntentsDefault,
 		Compress:          true,
 		ShardID:           0,
 		ShardCount:        1,
@@ -26,18 +25,19 @@ type Config struct {
 	Logger                    log.Logger
 	Dialer                    *websocket.Dialer
 	LargeThreshold            int
-	GatewayIntents            discord.GatewayIntents
+	Intents                   Intents
 	Compress                  bool
-	GatewayURL                string
+	URL                       string
 	ShardID                   int
 	ShardCount                int
 	SessionID                 *string
 	LastSequenceReceived      *int
 	AutoReconnect             bool
 	MaxReconnectTries         int
+	EnableRawEvents           bool
 	RateLimiter               RateLimiter
 	RateRateLimiterConfigOpts []RateLimiterConfigOpt
-	Presence                  *discord.GatewayMessageDataPresenceUpdate
+	Presence                  *MessageDataPresenceUpdate
 	OS                        string
 	Browser                   string
 	Device                    string
@@ -78,11 +78,11 @@ func WithLargeThreshold(largeThreshold int) ConfigOpt {
 	}
 }
 
-// WithGatewayIntents sets the discord.GatewayIntents for the Gateway.
+// WithIntents sets the Intents for the Gateway.
 // See here for more information: https://discord.com/developers/docs/topics/gateway#gateway-intents
-func WithGatewayIntents(gatewayIntents ...discord.GatewayIntents) ConfigOpt {
+func WithIntents(intents ...Intents) ConfigOpt {
 	return func(config *Config) {
-		config.GatewayIntents = config.GatewayIntents.Add(gatewayIntents...)
+		config.Intents = config.Intents.Add(intents...)
 	}
 }
 
@@ -94,10 +94,10 @@ func WithCompress(compress bool) ConfigOpt {
 	}
 }
 
-// WithGatewayURL sets the Gateway URL for the Gateway.
-func WithGatewayURL(gatewayURL string) ConfigOpt {
+// WithURL sets the Gateway URL for the Gateway.
+func WithURL(url string) ConfigOpt {
 	return func(config *Config) {
-		config.GatewayURL = gatewayURL
+		config.URL = url
 	}
 }
 
@@ -147,6 +147,13 @@ func WithMaxReconnectTries(maxReconnectTries int) ConfigOpt {
 	}
 }
 
+// WithEnableRawEvents enables/disables the EventTypeRaw.
+func WithEnableRawEvents(enableRawEventEvents bool) ConfigOpt {
+	return func(config *Config) {
+		config.EnableRawEvents = enableRawEventEvents
+	}
+}
+
 // WithRateLimiter sets the grate.RateLimiter for the Gateway.
 func WithRateLimiter(rateLimiter RateLimiter) ConfigOpt {
 	return func(config *Config) {
@@ -162,7 +169,7 @@ func WithRateRateLimiterConfigOpts(opts ...RateLimiterConfigOpt) ConfigOpt {
 }
 
 // WithPresence sets the initial presence the bot should display.
-func WithPresence(presence discord.GatewayMessageDataPresenceUpdate) ConfigOpt {
+func WithPresence(presence MessageDataPresenceUpdate) ConfigOpt {
 	return func(config *Config) {
 		config.Presence = &presence
 	}

@@ -1,6 +1,9 @@
 package events
 
-import "github.com/disgoorg/disgo/discord"
+import (
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/gateway"
+)
 
 type GenericAutoModerationRule struct {
 	*GenericEvent
@@ -27,7 +30,7 @@ type AutoModerationRuleDelete struct {
 
 type AutoModerationActionExecution struct {
 	*GenericEvent
-	discord.GatewayEventAutoModerationActionExecution
+	gateway.EventAutoModerationActionExecution
 }
 
 // Guild returns the discord.Guild the event happened in.

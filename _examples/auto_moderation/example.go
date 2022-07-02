@@ -30,7 +30,7 @@ func main() {
 	log.Infof("disgo version: %s", disgo.Version)
 
 	client, err := disgo.New(token,
-		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentAutoModerationConfiguration, discord.GatewayIntentAutoModerationExecution)),
+		bot.WithGatewayConfigOpts(gateway.WithIntents(gateway.IntentAutoModerationConfiguration, gateway.IntentAutoModerationExecution)),
 		bot.WithEventListenerFunc(func(event *events.Ready) {
 			go showCaseAutoMod(event.Client())
 		}),
@@ -44,7 +44,7 @@ func main() {
 			fmt.Printf("rule deleted: %#v\n", event.AutoModerationRule)
 		}),
 		bot.WithEventListenerFunc(func(event *events.AutoModerationActionExecution) {
-			fmt.Printf("action executed: %#v\n", event.GatewayEventAutoModerationActionExecution)
+			fmt.Printf("action executed: %#v\n", event.EventAutoModerationActionExecution)
 		}),
 	)
 	if err != nil {

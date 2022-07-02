@@ -33,7 +33,7 @@ type GuildMemberLeave struct {
 	Member  discord.Member
 }
 
-// GuildMemberTypingStart indicates that a discord.Member started typing in a discord.BaseGuildMessageChannel(requires discord.GatewayIntentGuildMessageTyping)
+// GuildMemberTypingStart indicates that a discord.Member started typing in a discord.BaseGuildMessageChannel(requires gateway.IntentGuildMessageTyping)
 type GuildMemberTypingStart struct {
 	*GenericEvent
 	ChannelID snowflake.ID

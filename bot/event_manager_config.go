@@ -1,6 +1,8 @@
 package bot
 
-import "github.com/disgoorg/disgo/discord"
+import (
+	"github.com/disgoorg/disgo/gateway"
+)
 
 // DefaultEventManagerConfig returns a new EventManagerConfig with all default values.
 func DefaultEventManagerConfig() *EventManagerConfig {
@@ -10,10 +12,9 @@ func DefaultEventManagerConfig() *EventManagerConfig {
 // EventManagerConfig can be used to configure the EventManager.
 type EventManagerConfig struct {
 	EventListeners     []EventListener
-	RawEventsEnabled   bool
 	AsyncEventsEnabled bool
 
-	GatewayHandlers   map[discord.GatewayEventType]GatewayEventHandler
+	GatewayHandlers   map[gateway.EventType]GatewayEventHandler
 	HTTPServerHandler HTTPServerEventHandler
 }
 
@@ -39,13 +40,6 @@ func WithListenerFunc[E Event](listenerFunc func(e E)) EventManagerConfigOpt {
 	return WithListeners(NewListenerFunc(listenerFunc))
 }
 
-// WithRawEventsEnabled enables/disables the raw events.
-func WithRawEventsEnabled() EventManagerConfigOpt {
-	return func(config *EventManagerConfig) {
-		config.RawEventsEnabled = true
-	}
-}
-
 // WithAsyncEventsEnabled enables/disables the async events.
 func WithAsyncEventsEnabled() EventManagerConfigOpt {
 	return func(config *EventManagerConfig) {
@@ -54,7 +48,7 @@ func WithAsyncEventsEnabled() EventManagerConfigOpt {
 }
 
 // WithGatewayHandlers overrides the default GatewayEventHandler(s) in the EventManagerConfig.
-func WithGatewayHandlers(handlers map[discord.GatewayEventType]GatewayEventHandler) EventManagerConfigOpt {
+func WithGatewayHandlers(handlers map[gateway.EventType]GatewayEventHandler) EventManagerConfigOpt {
 	return func(config *EventManagerConfig) {
 		config.GatewayHandlers = handlers
 	}
