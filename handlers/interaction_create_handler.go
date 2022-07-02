@@ -4,24 +4,16 @@ import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/disgo/httpserver"
 	"github.com/disgoorg/disgo/rest"
 )
 
-type gatewayHandlerInteractionCreate struct{}
-
-func (h *gatewayHandlerInteractionCreate) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypeInteractionCreate
+func gatewayHandlerInteractionCreate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventInteractionCreate) {
+	handleInteraction(client, sequenceNumber, shardID, nil, event.Interaction)
 }
 
-func (h *gatewayHandlerInteractionCreate) New() any {
-	return &discord.UnmarshalInteraction{}
-}
-
-func (h *gatewayHandlerInteractionCreate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
-	handleInteraction(client, sequenceNumber, shardID, nil, (*v.(*discord.UnmarshalInteraction)).Interaction)
-}
-
-func respond(client bot.Client, respondFunc func(response discord.InteractionResponse) error, interaction discord.BaseInteraction) events.InteractionResponderFunc {
+func respond(client bot.Client, respondFunc httpserver.RespondFunc, interaction discord.BaseInteraction) events.InteractionResponderFunc {
 	return func(responseType discord.InteractionResponseType, data discord.InteractionResponseData, opts ...rest.RequestOpt) error {
 		response := discord.InteractionResponse{
 			Type: responseType,
@@ -34,7 +26,7 @@ func respond(client bot.Client, respondFunc func(response discord.InteractionRes
 	}
 }
 
-func handleInteraction(client bot.Client, sequenceNumber int, shardID int, respondFunc func(response discord.InteractionResponse) error, interaction discord.Interaction) {
+func handleInteraction(client bot.Client, sequenceNumber int, shardID int, respondFunc httpserver.RespondFunc, interaction discord.Interaction) {
 
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
@@ -74,6 +66,6 @@ func handleInteraction(client bot.Client, sequenceNumber int, shardID int, respo
 		})
 
 	default:
-		client.Logger().Errorf("unknown interaction with type %d received", interaction.Type())
+		client.Logger().Errorf("unknown interaction with type %T received", interaction)
 	}
 }

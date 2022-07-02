@@ -5,7 +5,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -57,10 +57,10 @@ type Conn interface {
 	Close()
 
 	// HandleVoiceStateUpdate provides the discord.VoiceStateUpdate to the voice connection. Which is needed to connect to the voice Gateway.
-	HandleVoiceStateUpdate(update discord.VoiceStateUpdate)
+	HandleVoiceStateUpdate(update gateway.EventVoiceStateUpdate)
 
 	// HandleVoiceServerUpdate provides the discord.VoiceServerUpdate to the voice connection. Which is needed to connect to the voice Gateway.
-	HandleVoiceServerUpdate(update discord.VoiceServerUpdate)
+	HandleVoiceServerUpdate(update gateway.EventVoiceServerUpdate)
 
 	// WaitUntilConnected blocks the current goroutine until the voice connection is connected. Make sure you call this method in its own goroutine, or it may block the gateway goroutine.
 	WaitUntilConnected(ctx context.Context) error
@@ -185,7 +185,7 @@ func (c *connectionImpl) SetEventHandlerFunc(eventHandlerFunc EventHandlerFunc) 
 	c.config.EventHandlerFunc = eventHandlerFunc
 }
 
-func (c *connectionImpl) HandleVoiceStateUpdate(update discord.VoiceStateUpdate) {
+func (c *connectionImpl) HandleVoiceStateUpdate(update gateway.EventVoiceStateUpdate) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if update.GuildID != c.state.guildID || update.UserID != c.state.userID {
@@ -201,7 +201,7 @@ func (c *connectionImpl) HandleVoiceStateUpdate(update discord.VoiceStateUpdate)
 	c.state.sessionID = update.SessionID
 }
 
-func (c *connectionImpl) HandleVoiceServerUpdate(update discord.VoiceServerUpdate) {
+func (c *connectionImpl) HandleVoiceServerUpdate(update gateway.EventVoiceServerUpdate) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if update.GuildID != c.state.guildID || update.Endpoint == nil {

@@ -4,13 +4,13 @@ import (
 	"context"
 	"sync"
 
-	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/snowflake/v2"
 )
 
 type Manager interface {
-	HandleVoiceStateUpdate(update discord.VoiceStateUpdate)
-	HandleVoiceServerUpdate(update discord.VoiceServerUpdate)
+	HandleVoiceStateUpdate(update gateway.EventVoiceStateUpdate)
+	HandleVoiceServerUpdate(update gateway.EventVoiceServerUpdate)
 	CreateConn(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID) Conn
 	GetConn(guildID snowflake.ID) Conn
 	ForEach(f func(connection Conn))
@@ -35,7 +35,7 @@ type managerImpl struct {
 	connectionsMu sync.Mutex
 }
 
-func (m *managerImpl) HandleVoiceStateUpdate(update discord.VoiceStateUpdate) {
+func (m *managerImpl) HandleVoiceStateUpdate(update gateway.EventVoiceStateUpdate) {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
 	connection, ok := m.connections[update.GuildID]
@@ -47,7 +47,7 @@ func (m *managerImpl) HandleVoiceStateUpdate(update discord.VoiceStateUpdate) {
 	connection.HandleVoiceStateUpdate(update)
 }
 
-func (m *managerImpl) HandleVoiceServerUpdate(update discord.VoiceServerUpdate) {
+func (m *managerImpl) HandleVoiceServerUpdate(update gateway.EventVoiceServerUpdate) {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
 	connection, ok := m.connections[update.GuildID]

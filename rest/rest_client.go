@@ -141,8 +141,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 		return fmt.Errorf("error doing request in rest client: %w", err)
 	}
 
-	if err = c.RateLimiter().UnlockBucket(cRoute, rs.Header); err != nil {
-		// TODO: should we maybe retry here?
+	if err = c.RateLimiter().UnlockBucket(cRoute, rs); err != nil {
 		return fmt.Errorf("error unlocking bucket in rest client: %w", err)
 	}
 

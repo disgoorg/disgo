@@ -27,12 +27,12 @@ var (
 			Description: "says what you say",
 			Options: []discord.ApplicationCommandOption{
 				discord.ApplicationCommandOptionString{
-					Name:        "message",
+					OptionName:  "message",
 					Description: "What to say",
 					Required:    true,
 				},
 				discord.ApplicationCommandOptionBool{
-					Name:        "ephemeral",
+					OptionName:  "ephemeral",
 					Description: "If the response should only be visible to you",
 					Required:    true,
 				},

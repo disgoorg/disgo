@@ -992,7 +992,7 @@ func ApplyGuildIDToChannel(channel GuildChannel, guildID snowflake.ID) GuildChan
 		c.guildID = guildID
 		return c
 	default:
-		panic("unknown channel type")
+		panic("unsupported channel type")
 	}
 }
 
@@ -1011,6 +1011,25 @@ func ApplyLastMessageIDToChannel(channel MessageChannel, lastMessageID snowflake
 		c.lastMessageID = &lastMessageID
 		return c
 	default:
-		panic("unknown channel type")
+		panic("unsupported channel type")
+	}
+}
+
+func ApplyLastPinTimestampToChannel(channel MessageChannel, lastPinTimestamp *time.Time) MessageChannel {
+	switch c := channel.(type) {
+	case GuildTextChannel:
+		c.lastPinTimestamp = lastPinTimestamp
+		return c
+	case GuildVoiceChannel:
+		c.lastPinTimestamp = lastPinTimestamp
+		return c
+	case GuildNewsChannel:
+		c.lastPinTimestamp = lastPinTimestamp
+		return c
+	case GuildThread:
+		c.lastPinTimestamp = lastPinTimestamp
+		return c
+	default:
+		panic("unsupported channel type")
 	}
 }

@@ -8,12 +8,13 @@ import (
 	"net/http"
 
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/log"
 )
 
 type (
 	// EventHandlerFunc is used to handle events from Discord's Outgoing Webhooks
-	EventHandlerFunc func(responseFunc RespondFunc, payload io.Reader)
+	EventHandlerFunc func(responseFunc RespondFunc, event gateway.EventInteractionCreate)
 
 	// RespondFunc is used to respond to Discord's Outgoing Webhooks
 	RespondFunc func(response discord.InteractionResponse) error
@@ -34,7 +35,7 @@ type Server interface {
 	Close(ctx context.Context)
 
 	// Handle passes a payload to the Server for processing
-	Handle(respondFunc RespondFunc, payload io.Reader)
+	Handle(respondFunc RespondFunc, event gateway.EventInteractionCreate)
 }
 
 // VerifyRequest implements the verification side of the discord interactions api signing algorithm, as documented here: https://discord.com/developers/docs/interactions/slash-commands#security-and-authorization

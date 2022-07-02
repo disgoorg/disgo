@@ -32,7 +32,7 @@ func main() {
 			sharding.WithShardCount(2),
 			sharding.WithAutoScaling(true),
 			sharding.WithGatewayConfigOpts(
-				gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages),
+				gateway.WithIntents(gateway.IntentGuilds, gateway.IntentGuildMessages, gateway.IntentDirectMessages),
 				gateway.WithCompress(true),
 			),
 		),

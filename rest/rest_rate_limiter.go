@@ -27,5 +27,5 @@ type RateLimiter interface {
 	WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error
 
 	// UnlockBucket unlocks the given bucket and calculates the rate limit for the next request
-	UnlockBucket(route *route.CompiledAPIRoute, headers http.Header) error
+	UnlockBucket(route *route.CompiledAPIRoute, rs *http.Response) error
 }

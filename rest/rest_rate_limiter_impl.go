@@ -37,7 +37,7 @@ type (
 		config RateLimiterConfig
 
 		// global Rate Limit
-		global int64
+		global time.Time
 
 		// route.APIRoute -> Hash
 		hashes   map[*route.APIRoute]routeHash
@@ -99,7 +99,7 @@ func (l *rateLimiterImpl) Close(ctx context.Context) {
 func (l *rateLimiterImpl) Reset() {
 	l.buckets = map[hashMajor]*bucket{}
 	l.bucketsMu = sync.Mutex{}
-	l.global = 0
+	l.global = time.Time{}
 	l.hashes = map[*route.APIRoute]routeHash{}
 	l.hashesMu = sync.Mutex{}
 }
@@ -157,7 +157,7 @@ func (l *rateLimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledA
 	if b.Remaining == 0 && b.Reset.After(now) {
 		until = b.Reset
 	} else {
-		until = time.Unix(0, l.global)
+		until = l.global
 	}
 
 	if until.After(now) {
@@ -176,7 +176,7 @@ func (l *rateLimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledA
 	return nil
 }
 
-func (l *rateLimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers http.Header) error {
+func (l *rateLimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, rs *http.Response) error {
 	b := l.getBucket(route, false)
 	if b == nil {
 		return nil
@@ -186,72 +186,83 @@ func (l *rateLimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, headers ht
 		b.mu.Unlock()
 	}()
 
-	// no headers provided means we can't update anything and just unlock it
-	if headers == nil {
+	// no response provided means we can't update anything and just unlock it
+	if rs == nil || rs.Header == nil {
 		return nil
 	}
-	bucketID := headers.Get("X-RateLimit-Bucket")
+	bucketHeader := rs.Header.Get("X-RateLimit-Bucket")
 
-	if bucketID != "" {
-		b.ID = bucketID
+	// if we don't have a bucket header, we can't update anything
+	if bucketHeader == "" {
+		return nil
 	}
 
-	global := headers.Get("X-RateLimit-Global")
-	remaining := headers.Get("X-RateLimit-Remaining")
-	limit := headers.Get("X-RateLimit-Limit")
-	reset := headers.Get("X-RateLimit-Reset")
-	retryAfter := headers.Get("Retry-After")
+	b.ID = bucketHeader
 
-	l.Logger().Tracef("headers: global %s, remaining: %s, limit: %s, reset: %s, retryAfter: %s", global, remaining, limit, reset, retryAfter)
+	global := rs.Header.Get("X-RateLimit-Global") != ""
+	cloudflare := rs.Header.Get("via") == ""
+	remainingHeader := rs.Header.Get("X-RateLimit-Remaining")
+	limitHeader := rs.Header.Get("X-RateLimit-Limit")
+	resetHeader := rs.Header.Get("X-RateLimit-Reset")
+	resetAfterHeader := rs.Header.Get("X-RateLimit-Reset-After")
+	retryAfterHeader := rs.Header.Get("Retry-After")
 
-	switch {
-	case retryAfter != "":
-		i, err := strconv.Atoi(retryAfter)
+	l.Logger().Tracef("code: %d, headers: global %t, cloudflare: %t, remaining: %s, limit: %s, reset: %s, retryAfter: %s", rs.StatusCode, global, cloudflare, remainingHeader, limitHeader, resetHeader, retryAfterHeader)
+
+	if rs.StatusCode == http.StatusTooManyRequests {
+		retryAfter, err := strconv.Atoi(retryAfterHeader)
 		if err != nil {
-			return fmt.Errorf("invalid retryAfter %s: %s", retryAfter, err)
+			return fmt.Errorf("invalid retryAfter %s: %w", retryAfterHeader, err)
 		}
-
-		at := time.Now().Add(time.Duration(i) * time.Second)
-
-		if global != "" {
-			l.global = at.UnixNano()
+		reset := time.Now().Add(time.Second * time.Duration(retryAfter))
+		if global {
+			l.global = reset
+			l.Logger().Warnf("global rate limit exceeded, retry after: %ds", retryAfter)
+		} else if cloudflare {
+			l.global = reset
+			l.Logger().Warnf("cloudflare rate limit exceeded, retry after: %ds", retryAfter)
 		} else {
-			b.Reset = at
+			b.Remaining = 0
+			b.Reset = reset
+			l.Logger().Warnf("rate limit on route %s exceeded, retry after: %ds", route.URL(), retryAfter)
 		}
-
-	case reset != "":
-		unix, err := strconv.ParseFloat(reset, 64)
-		if err != nil {
-			return fmt.Errorf("invalid reset %s: %s", reset, err)
-		}
-
-		sec := int64(unix)
-		b.Reset = time.Unix(sec, int64((unix-float64(sec))*float64(time.Second)))
+		return nil
 	}
 
-	if limit != "" {
-		u, err := strconv.Atoi(limit)
+	if limitHeader != "" {
+		limit, err := strconv.Atoi(limitHeader)
 		if err != nil {
-			return fmt.Errorf("invalid limit %s: %s", limit, err)
+			return fmt.Errorf("invalid limit %s: %s", limitHeader, err)
 		}
-
-		b.Limit = u
+		b.Limit = limit
 	}
 
-	if remaining != "" {
-		u, err := strconv.Atoi(remaining)
+	if remainingHeader != "" {
+		remaining, err := strconv.Atoi(remainingHeader)
 		if err != nil {
-			return fmt.Errorf("invalid remaining %s: %s", remaining, err)
+			return fmt.Errorf("invalid remaining %s: %s", remainingHeader, err)
+		}
+		b.Remaining = remaining
+	}
+
+	if resetHeader != "" {
+		reset, err := strconv.ParseFloat(resetHeader, 64)
+		if err != nil {
+			return fmt.Errorf("invalid reset %s: %s", resetHeader, err)
 		}
 
-		b.Remaining = u
+		sec := int64(reset)
+		b.Reset = time.Unix(sec, int64((reset-float64(sec))*float64(time.Second)))
+	} else if resetAfterHeader != "" {
+		resetAfter, err := strconv.ParseFloat(resetAfterHeader, 64)
+		if err != nil {
+			return fmt.Errorf("invalid reset after %s: %s", resetAfterHeader, err)
+		}
+
+		b.Reset = time.Now().Add(time.Duration(resetAfter) * time.Second)
 	} else {
-		// Lower remaining one just to be safe
-		if b.Remaining > 0 {
-			b.Remaining--
-		}
+		return fmt.Errorf("no reset or reset after header found in response")
 	}
-
 	return nil
 }
 

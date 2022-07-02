@@ -5,7 +5,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// GenericIntegration is called upon receiving IntegrationCreate, IntegrationUpdate or IntegrationDelete(requires the discord.GatewayIntentGuildIntegrations)
+// GenericIntegration is called upon receiving IntegrationCreate, IntegrationUpdate or IntegrationDelete(requires the gateway.IntentGuildIntegrations)
 type GenericIntegration struct {
 	*GenericEvent
 	GuildID     snowflake.ID

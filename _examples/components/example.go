@@ -25,7 +25,7 @@ func main() {
 	log.Infof("disgo version: %s", disgo.Version)
 
 	client, err := disgo.New(token,
-		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuilds, discord.GatewayIntentGuildMessages, discord.GatewayIntentDirectMessages)),
+		bot.WithGatewayConfigOpts(gateway.WithIntents(gateway.IntentGuilds, gateway.IntentGuildMessages, gateway.IntentDirectMessages)),
 		bot.WithEventListenerFunc(func(event *events.MessageCreate) {
 			if event.Message.Author.Bot || event.Message.Author.System {
 				return
