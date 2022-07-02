@@ -21,8 +21,8 @@ func (h *gatewayHandlerAutoModerationRuleUpdate) HandleGatewayEvent(client bot.C
 
 	client.EventManager().DispatchEvent(&events.AutoModerationRuleUpdate{
 		GenericAutoModerationRule: &events.GenericAutoModerationRule{
-			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
-			AutoModerationRule:         rule.AutoModerationRule,
+			GenericEvent:       events.NewGenericEvent(client, sequenceNumber, shardID),
+			AutoModerationRule: rule.AutoModerationRule,
 		},
 	})
 }
