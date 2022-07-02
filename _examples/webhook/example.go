@@ -40,7 +40,7 @@ func main() {
 
 	// wait for all messages to be sent
 	wg.Wait()
-	log.Info("existing webhook example...")
+	log.Info("exiting webhook example...")
 }
 
 // send(s) a message to the webhook
