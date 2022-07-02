@@ -200,6 +200,8 @@ type ApplicationCommandOptionString struct {
 	Required                 bool                                   `json:"required,omitempty"`
 	Choices                  []ApplicationCommandOptionChoiceString `json:"choices,omitempty"`
 	Autocomplete             bool                                   `json:"autocomplete,omitempty"`
+	MinLength                *int                                   `json:"min_length,omitempty"`
+	MaxLength                *int                                   `json:"max_length,omitempty"`
 }
 
 func (o ApplicationCommandOptionString) MarshalJSON() ([]byte, error) {
