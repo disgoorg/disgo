@@ -22,6 +22,11 @@ const (
 	GatewayIntentDirectMessageTyping
 	GatewayIntentMessageContent
 	GatewayIntentGuildScheduledEvents
+	_
+	_
+	_
+	GatewayIntentAutoModerationConfiguration
+	GatewayIntentAutoModerationExecution
 
 	GatewayIntentsGuild = GatewayIntentGuilds |
 		GatewayIntentGuildMembers |
@@ -54,7 +59,9 @@ const (
 		GatewayIntentDirectMessages |
 		GatewayIntentDirectMessageReactions |
 		GatewayIntentDirectMessageTyping |
-		GatewayIntentGuildScheduledEvents
+		GatewayIntentGuildScheduledEvents |
+		GatewayIntentAutoModerationConfiguration |
+		GatewayIntentAutoModerationExecution
 
 	GatewayIntentsPrivileged = GatewayIntentGuildMembers |
 		GatewayIntentGuildPresences | GatewayIntentMessageContent
