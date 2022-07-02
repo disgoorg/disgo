@@ -134,8 +134,7 @@ There is also a bot template with commands & db [here](https://github.com/disgoo
 
 or in these projects:
 
-* [disgo-butler](https://github.com/disgoorg/disgo-butler)
-* [BansBot](https://github.com/Skye-31/BansBot)
+* [Disgo-Butler](https://github.com/disgoorg/disgo-butler)
 * [Reddit-Discord-Bot](https://github.com/TopiSenpai/Reddit-Discord-Bot)
 * [Kitsune-Bot](https://github.com/TopiSenpai/Kitsune-Bot)
 * [KittyBot](https://github.com/KittyBot-Org/KittyBotGo)
