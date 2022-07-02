@@ -9,7 +9,7 @@
 
 # DisGo
 
-DisGo is a [Discord](https://discord.com) API wrapper written in [GoLang](https://golang.org/) aimed to be consistent, modular, customizable and higher level than other Discord API wrappers.
+DisGo is a [Discord](https://discord.com) API wrapper written in [Golang](https://golang.org/) aimed to be consistent, modular, customizable and higher level than other Discord API wrappers.
 
 ## Summary
 
@@ -20,7 +20,7 @@ DisGo is a [Discord](https://discord.com) API wrapper written in [GoLang](https:
 5. [Documentation](#documentation)
 6. [Examples](#examples)
 7. [Other interesting Projects to look at](#other-interesting-projects-to-look-at)
-8. [Other GoLang Discord Libraries](#other-golang-discord-libraries)
+8. [Other Golang Discord Libraries](#other-golang-discord-libraries)
 9. [Troubleshooting](#troubleshooting)
 10. [Contributing](#contributing)
 11. [License](#license)
@@ -156,7 +156,7 @@ Is a [Lavalink-Client](https://github.com/freyacodes/Lavalink) which can be used
 
 Is a Discord webhook logger hook for [logrus](https://github.com/sirupsen/logrus)
 
-## Other GoLang Discord Libraries
+## Other Golang Discord Libraries
 
 * [discordgo](https://github.com/bwmarrin/discordgo)
 * [disgord](https://github.com/andersfylling/disgord)
