@@ -120,9 +120,9 @@ func (GatewayMessageDataIdentify) gatewayMessageData() {}
 // IdentifyCommandDataProperties is used for specifying to discord which library and OS the bot is using, is
 // automatically handled by the library and should rarely be used.
 type IdentifyCommandDataProperties struct {
-	OS      string `json:"$os"`      // user OS
-	Browser string `json:"$browser"` // library name
-	Device  string `json:"$device"`  // library name
+	OS      string `json:"os"`      // user OS
+	Browser string `json:"browser"` // library name
+	Device  string `json:"device"`  // library name
 }
 
 // GatewayMessageDataPresenceUpdate is used for updating Client's presence
