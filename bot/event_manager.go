@@ -75,6 +75,7 @@ type GatewayEventHandler interface {
 	HandleGatewayEvent(client Client, sequenceNumber int, shardID int, event gateway.EventData)
 }
 
+// NewGatewayEventHandler returns a new GatewayEventHandler for the given GatewayEventType and handler func
 func NewGatewayEventHandler[T gateway.EventData](eventType gateway.EventType, handleFunc func(client Client, sequenceNumber int, shardID int, event T)) GatewayEventHandler {
 	return &genericGatewayEventHandler[T]{eventType: eventType, handleFunc: handleFunc}
 }
