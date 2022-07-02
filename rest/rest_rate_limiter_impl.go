@@ -224,7 +224,7 @@ func (l *rateLimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, rs *http.R
 		} else {
 			b.Remaining = 0
 			b.Reset = reset
-			l.Logger().Warnf("rate limit exceeded, retry after: %ds", retryAfter)
+			l.Logger().Warnf("rate limit on route %s exceeded, retry after: %ds", route.URL(), retryAfter)
 		}
 		return nil
 	}

@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/json"
 
 	"github.com/disgoorg/disgo/discord"
@@ -48,7 +49,7 @@ func (s *serverImpl) PublicKey() PublicKey {
 	return s.publicKey
 }
 
-func (s *serverImpl) Handle(respondFunc RespondFunc, event EventInteractionCreate) {
+func (s *serverImpl) Handle(respondFunc RespondFunc, event gateway.EventInteractionCreate) {
 	s.eventHandlerFunc(respondFunc, event)
 }
 
@@ -103,7 +104,7 @@ func (h *WebhookInteractionHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	rqData, _ := io.ReadAll(io.TeeReader(r.Body, buff))
 	h.server.Logger().Trace("received http interaction. body: ", string(rqData))
 
-	var v EventInteractionCreate
+	var v gateway.EventInteractionCreate
 	if err := json.NewDecoder(buff).Decode(&v); err != nil {
 		h.server.Logger().Error("error while decoding interaction: ", err)
 		return

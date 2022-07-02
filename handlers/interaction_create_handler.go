@@ -9,18 +9,8 @@ import (
 	"github.com/disgoorg/disgo/rest"
 )
 
-func gatewayHandlerInteractionCreate struct {}
-
-func (h *gatewayHandlerInteractionCreate) EventType() gateway.EventType {
-	return gateway.EventTypeInteractionCreate
-}
-
-func (h *gatewayHandlerInteractionCreate) New() any {
-	return &discord.UnmarshalInteraction{}
-}
-
-func (h *gatewayHandlerInteractionCreate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
-	handleInteraction(client, sequenceNumber, shardID, nil, (*v.(*discord.UnmarshalInteraction)).Interaction)
+func gatewayHandlerInteractionCreate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventInteractionCreate) {
+	handleInteraction(client, sequenceNumber, shardID, nil, event.Interaction)
 }
 
 func respond(client bot.Client, respondFunc httpserver.RespondFunc, interaction discord.BaseInteraction) events.InteractionResponderFunc {
@@ -76,6 +66,6 @@ func handleInteraction(client bot.Client, sequenceNumber int, shardID int, respo
 		})
 
 	default:
-		client.Logger().Errorf("unknown interaction with type %d received", interaction.Type())
+		client.Logger().Errorf("unknown interaction with type %T received", interaction)
 	}
 }

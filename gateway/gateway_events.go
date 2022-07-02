@@ -94,15 +94,6 @@ type EventThreadUpdate struct {
 	discord.GuildThread
 }
 
-func (e *EventThreadUpdate) UnmarshalJSON(data []byte) error {
-	var v discord.UnmarshalChannel
-	if err := json.Unmarshal(data, &v); err != nil {
-		return err
-	}
-	e.GuildThread = v.Channel.(discord.GuildThread)
-	return nil
-}
-
 func (EventThreadUpdate) messageData() {}
 func (EventThreadUpdate) eventData()   {}
 
@@ -123,25 +114,6 @@ type EventThreadListSync struct {
 	Members    []discord.ThreadMember `json:"members"`
 }
 
-func (e *EventThreadListSync) UnmarshalJSON(data []byte) error {
-	type gatewayEventThreadListSync EventThreadListSync
-	var v struct {
-		Threads []discord.UnmarshalChannel `json:"threads"`
-		gatewayEventThreadListSync
-	}
-	if err := json.Unmarshal(data, &v); err != nil {
-		return err
-	}
-	*e = EventThreadListSync(v.gatewayEventThreadListSync)
-	if len(v.Threads) > 0 {
-		e.Threads = make([]discord.GuildThread, len(v.Threads))
-		for i := range v.Threads {
-			e.Threads[i] = v.Threads[i].Channel.(discord.GuildThread)
-		}
-	}
-	return nil
-}
-
 func (EventThreadListSync) messageData() {}
 func (EventThreadListSync) eventData()   {}
 
@@ -151,6 +123,12 @@ type EventThreadMemberUpdate struct {
 
 func (EventThreadMemberUpdate) messageData() {}
 func (EventThreadMemberUpdate) eventData()   {}
+
+type AddedThreadMember struct {
+	discord.ThreadMember
+	Member   discord.Member    `json:"member"`
+	Presence *discord.Presence `json:"presence"`
+}
 
 type EventThreadMembersUpdate struct {
 	ID               snowflake.ID        `json:"id"`
@@ -162,12 +140,6 @@ type EventThreadMembersUpdate struct {
 
 func (EventThreadMembersUpdate) messageData() {}
 func (EventThreadMembersUpdate) eventData()   {}
-
-type AddedThreadMember struct {
-	discord.ThreadMember
-	Member   discord.Member    `json:"member"`
-	Presence *discord.Presence `json:"presence"`
-}
 
 type EventGuildCreate struct {
 	discord.GatewayGuild
@@ -380,6 +352,15 @@ func (EventGuildScheduledEventUserRemove) eventData()   {}
 
 type EventInteractionCreate struct {
 	discord.Interaction
+}
+
+func (e *EventInteractionCreate) UnmarshalJSON(data []byte) error {
+	var interaction discord.UnmarshalInteraction
+	if err := json.Unmarshal(data, &interaction); err != nil {
+		return err
+	}
+	e.Interaction = interaction.Interaction
+	return nil
 }
 
 func (EventInteractionCreate) messageData() {}

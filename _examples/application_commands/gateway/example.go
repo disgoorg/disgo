@@ -40,7 +40,7 @@ var (
 )
 
 func main() {
-	log.SetLevel(log.LevelTrace)
+	log.SetLevel(log.LevelInfo)
 	log.Info("starting example...")
 	log.Info("disgo version: ", disgo.Version)
 
