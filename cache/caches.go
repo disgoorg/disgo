@@ -29,14 +29,14 @@ type Caches interface {
 	AudioChannelMembers(channel discord.GuildAudioChannel) []discord.Member
 
 	// GetSelfUser returns the current bot user.
-	// This is only available after we received the discord.GatewayEventTypeReady event.
+	// This is only available after we received the gateway.EventTypeReady event.
 	GetSelfUser() (discord.OAuth2User, bool)
 
 	// PutSelfUser overrides the current bot user.
 	PutSelfUser(user discord.OAuth2User)
 
 	// GetSelfMember returns the current bot member from the given guildID.
-	// This is only available after we received the discord.GatewayEventTypeGuildCreate event for the given guildID.
+	// This is only available after we received the gateway.EventTypeGuildCreate event for the given guildID.
 	GetSelfMember(guildID snowflake.ID) (discord.Member, bool)
 
 	// Roles returns the role cache.

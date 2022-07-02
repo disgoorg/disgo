@@ -27,7 +27,7 @@ func main() {
 
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(
-			gateway.WithGatewayIntents(discord.GatewayIntentGuildScheduledEvents|discord.GatewayIntentGuilds|discord.GatewayIntentGuildMessages),
+			gateway.WithIntents(gateway.IntentGuildScheduledEvents|gateway.IntentGuilds|gateway.IntentGuildMessages),
 		),
 		bot.WithCacheConfigOpts(
 			cache.WithCacheFlags(cache.FlagsAll),

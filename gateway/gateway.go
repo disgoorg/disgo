@@ -2,10 +2,8 @@ package gateway
 
 import (
 	"context"
-	"io"
 	"time"
 
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/log"
 )
 
@@ -33,19 +31,19 @@ const (
 	// StatusConnecting is the state when the client is connecting to the Discord gateway.
 	StatusConnecting
 
-	// StatusWaitingForHello is the state when the Gateway is waiting for the first discord.GatewayOpcodeHello packet.
+	// StatusWaitingForHello is the state when the Gateway is waiting for the first OpcodeHello packet.
 	StatusWaitingForHello
 
-	// StatusIdentifying is the state when the Gateway received its first discord.GatewayOpcodeHello packet and now sends a discord.GatewayOpcodeIdentify packet.
+	// StatusIdentifying is the state when the Gateway received its first OpcodeHello packet and now sends a OpcodeIdentify packet.
 	StatusIdentifying
 
-	// StatusResuming is the state when the Gateway received its first discord.GatewayOpcodeHello packet and now sends a discord.GatewayOpcodeResume packet.
+	// StatusResuming is the state when the Gateway received its first OpcodeHello packet and now sends a OpcodeResume packet.
 	StatusResuming
 
-	// StatusWaitingForReady is the state when the Gateway received sent a discord.GatewayOpcodeIdentify or discord.GatewayOpcodeResume packet and now waits for a discord.GatewayOpcodeDispatch with discord.GatewayEventTypeReady packet.
+	// StatusWaitingForReady is the state when the Gateway received sent a OpcodeIdentify or OpcodeResume packet and now waits for a OpcodeDispatch with EventTypeReady packet.
 	StatusWaitingForReady
 
-	// StatusReady is the state when the Gateway received a discord.GatewayOpcodeDispatch with discord.GatewayEventTypeReady packet.
+	// StatusReady is the state when the Gateway received a OpcodeDispatch with EventTypeReady packet.
 	StatusReady
 
 	// StatusDisconnected is the state when the Gateway is disconnected.
@@ -55,7 +53,7 @@ const (
 
 type (
 	// EventHandlerFunc is a function that is called when an event is received.
-	EventHandlerFunc func(gatewayEventType discord.GatewayEventType, sequenceNumber int, shardID int, payload io.Reader)
+	EventHandlerFunc func(gatewayEventType EventType, sequenceNumber int, shardID int, event EventData)
 
 	// CreateFunc is a type that is used to create a new Gateway(s).
 	CreateFunc func(token string, eventHandlerFunc EventHandlerFunc, closeHandlerFUnc CloseHandlerFunc, opts ...ConfigOpt) Gateway
@@ -83,8 +81,8 @@ type Gateway interface {
 	// This may be nil if the Gateway was never connected to Discord, was gracefully closed with websocket.CloseNormalClosure or websocket.CloseGoingAway.
 	LastSequenceReceived() *int
 
-	// GatewayIntents returns the discord.GatewayIntents that are used by this Gateway.
-	GatewayIntents() discord.GatewayIntents
+	// Intents returns the Intents that are used by this Gateway.
+	Intents() Intents
 
 	// Open connects this Gateway to the Discord API.
 	Open(ctx context.Context) error
@@ -102,7 +100,7 @@ type Gateway interface {
 
 	// Send sends a message to the Discord gateway with the opCode and data.
 	// If context is deadline exceeds, the message sending will be aborted.
-	Send(ctx context.Context, op discord.GatewayOpcode, data discord.GatewayMessageData) error
+	Send(ctx context.Context, op Opcode, data MessageData) error
 
 	// Latency returns the latency of the Gateway.
 	// This is calculated by the time it takes to send a heartbeat and receive a heartbeat ack by discord.

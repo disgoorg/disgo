@@ -38,7 +38,7 @@ type DMChannelPinsUpdate struct {
 	OldLastPinTimestamp *time.Time
 }
 
-// DMUserTypingStart indicates that a discord.User started typing in a discord.DMChannel(requires discord.GatewayIntentDirectMessageTyping).
+// DMUserTypingStart indicates that a discord.User started typing in a discord.DMChannel(requires gateway.IntentDirectMessageTyping).
 type DMUserTypingStart struct {
 	*GenericEvent
 	ChannelID snowflake.ID

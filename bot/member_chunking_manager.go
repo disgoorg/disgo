@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/internal/insecurerandstr"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -28,44 +29,44 @@ type MemberChunkingManager interface {
 	// MemberChunkingFilter returns the configured MemberChunkingFilter used by this MemberChunkingManager.
 	MemberChunkingFilter() MemberChunkingFilter
 
-	// HandleChunk handles the discord.GatewayEventGuildMembersChunk event payloads from the discord gateway.
-	HandleChunk(payload discord.GatewayEventGuildMembersChunk)
+	// HandleChunk handles the discord.EventGuildMembersChunk event payloads from the discord gateway.
+	HandleChunk(payload gateway.EventGuildMembersChunk)
 
 	// RequestMembers requests members from the given guildID and userIDs.
-	// Notice: This action requires the discord.GatewayIntentGuildMembers.
+	// Notice: This action requires the gateway.IntentGuildMembers.
 	RequestMembers(guildID snowflake.ID, userIDs ...snowflake.ID) ([]discord.Member, error)
 	// RequestMembersWithQuery requests members from the given guildID and query.
 	// query : string the username starts with
-	// Notice: This action requires the discord.GatewayIntentGuildMembers.
+	// Notice: This action requires the gateway.IntentGuildMembers.
 	RequestMembersWithQuery(guildID snowflake.ID, query string, limit int) ([]discord.Member, error)
 	// RequestMembersWithFilter requests members from the given guildID and userIDs. memberFilterFunc is used to filter all returned members.
-	// Notice: This action requires the discord.GatewayIntentGuildMembers.
+	// Notice: This action requires the gateway.IntentGuildMembers.
 	RequestMembersWithFilter(guildID snowflake.ID, memberFilterFunc func(member discord.Member) bool) ([]discord.Member, error)
 
 	// RequestMembersCtx requests members from the given guildID and userIDs.
-	// Notice: This action requires the discord.GatewayIntentGuildMembers.
+	// Notice: This action requires the gateway.IntentGuildMembers.
 	RequestMembersCtx(ctx context.Context, guildID snowflake.ID, userIDs ...snowflake.ID) ([]discord.Member, error)
 	// RequestMembersWithQueryCtx requests members from the given guildID and query.
-	// Notice: This action requires the discord.GatewayIntentGuildMembers.
+	// Notice: This action requires the gateway.IntentGuildMembers.
 	RequestMembersWithQueryCtx(ctx context.Context, guildID snowflake.ID, query string, limit int) ([]discord.Member, error)
 	// RequestMembersWithFilterCtx requests members from the given guildID and userIDs. memberFilterFunc is used to filter all returned members.
-	// Notice: This action requires the discord.GatewayIntentGuildMembers.
+	// Notice: This action requires the gateway.IntentGuildMembers.
 	RequestMembersWithFilterCtx(ctx context.Context, guildID snowflake.ID, memberFilterFunc func(member discord.Member) bool) ([]discord.Member, error)
 
 	// RequestMembersChan requests members from the given guildID and userIDs.
 	// Returns a channel which will receive the members.
 	// Returns a function which can be used to cancel the request and close the channel.
-	// Notice: This action requires the discord.GatewayIntentGuildMembers.
+	// Notice: This action requires the gateway.IntentGuildMembers.
 	RequestMembersChan(guildID snowflake.ID, userIDs ...snowflake.ID) (<-chan discord.Member, func(), error)
 	// RequestMembersWithQueryChan requests members from the given guildID and query.
 	// Returns a channel which will receive the members.
 	// Returns a function which can be used to cancel the request and close the channel.
-	// Notice: This action requires the discord.GatewayIntentGuildMembers.
+	// Notice: This action requires the gateway.IntentGuildMembers.
 	RequestMembersWithQueryChan(guildID snowflake.ID, query string, limit int) (<-chan discord.Member, func(), error)
 	// RequestMembersWithFilterChan requests members from the given guildID and userIDs. memberFilterFunc is used to filter all returned members.
 	// Returns a channel which will receive the members.
 	// Returns a function which can be used to cancel the request and close the channel.
-	// Notice: This action requires the discord.GatewayIntentGuildMembers.
+	// Notice: This action requires the gateway.IntentGuildMembers.
 	RequestMembersWithFilterChan(guildID snowflake.ID, memberFilterFunc func(member discord.Member) bool) (<-chan discord.Member, func(), error)
 }
 
@@ -91,7 +92,7 @@ func (m *memberChunkingManagerImpl) MemberChunkingFilter() MemberChunkingFilter 
 	return m.memberChunkingFilter
 }
 
-func (m *memberChunkingManagerImpl) HandleChunk(payload discord.GatewayEventGuildMembersChunk) {
+func (m *memberChunkingManagerImpl) HandleChunk(payload gateway.EventGuildMembersChunk) {
 	m.chunkingRequestsMu.RLock()
 	request, ok := m.chunkingRequests[payload.Nonce]
 	m.chunkingRequestsMu.RUnlock()
@@ -133,7 +134,7 @@ func (m *memberChunkingManagerImpl) requestGuildMembersChan(ctx context.Context,
 		return nil, nil, err
 	}
 
-	if shard.GatewayIntents().Missing(discord.GatewayIntentGuildMembers) {
+	if shard.Intents().Missing(gateway.IntentGuildMembers) {
 		return nil, nil, discord.ErrNoGuildMembersIntent
 	}
 
@@ -158,18 +159,18 @@ func (m *memberChunkingManagerImpl) requestGuildMembersChan(ctx context.Context,
 	m.chunkingRequests[nonce] = request
 	m.chunkingRequestsMu.Unlock()
 
-	command := discord.GatewayMessageDataRequestGuildMembers{
+	command := gateway.MessageDataRequestGuildMembers{
 		GuildID:   guildID,
 		Query:     query,
 		Limit:     limit,
-		Presences: shard.GatewayIntents().Has(discord.GatewayIntentGuildPresences),
+		Presences: shard.Intents().Has(gateway.IntentGuildPresences),
 		UserIDs:   userIDs,
 		Nonce:     nonce,
 	}
 
 	return memberChan, func() {
 		cleanupRequest(m, request)
-	}, shard.Send(ctx, discord.GatewayOpcodeRequestGuildMembers, command)
+	}, shard.Send(ctx, gateway.OpcodeRequestGuildMembers, command)
 }
 
 func (m *memberChunkingManagerImpl) requestGuildMembers(ctx context.Context, guildID snowflake.ID, query *string, limit *int, userIDs []snowflake.ID, memberFilterFunc func(member discord.Member) bool) ([]discord.Member, error) {

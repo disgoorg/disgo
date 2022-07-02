@@ -1154,38 +1154,6 @@ func ApplyGuildIDToChannel(channel GuildChannel, guildID snowflake.ID) GuildChan
 	}
 }
 
-func ApplyLastMessageID(channel MessageChannel, channelID snowflake.ID) MessageChannel {
-	switch c := channel.(type) {
-	case GuildTextChannel:
-		c.lastMessageID = &channelID
-		return c
-	case GuildNewsChannel:
-		c.lastMessageID = &channelID
-		return c
-	case GuildThread:
-		c.lastMessageID = &channelID
-		return c
-	default:
-		return channel
-	}
-}
-
-func ApplyLastPinTimestamp(channel MessageChannel, lastPinTimestamp *time.Time) MessageChannel {
-	switch c := channel.(type) {
-	case GuildTextChannel:
-		c.lastPinTimestamp = lastPinTimestamp
-		return c
-	case GuildNewsChannel:
-		c.lastPinTimestamp = lastPinTimestamp
-		return c
-	case GuildThread:
-		c.lastPinTimestamp = lastPinTimestamp
-		return c
-	default:
-		return channel
-	}
-}
-
 func ApplyLastMessageIDToChannel(channel MessageChannel, lastMessageID snowflake.ID) MessageChannel {
 	switch c := channel.(type) {
 	case GuildTextChannel:
@@ -1201,6 +1169,25 @@ func ApplyLastMessageIDToChannel(channel MessageChannel, lastMessageID snowflake
 		c.lastMessageID = &lastMessageID
 		return c
 	default:
-		panic("unknown channel type")
+		return channel
+	}
+}
+
+func ApplyLastPinTimestampToChannel(channel MessageChannel, lastPinTimestamp *time.Time) MessageChannel {
+	switch c := channel.(type) {
+	case GuildTextChannel:
+		c.lastPinTimestamp = lastPinTimestamp
+		return c
+	case GuildVoiceChannel:
+		c.lastPinTimestamp = lastPinTimestamp
+		return c
+	case GuildNewsChannel:
+		c.lastPinTimestamp = lastPinTimestamp
+		return c
+	case GuildThread:
+		c.lastPinTimestamp = lastPinTimestamp
+		return c
+	default:
+		return channel
 	}
 }

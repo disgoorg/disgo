@@ -2,25 +2,13 @@ package handlers
 
 import (
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/gateway"
 )
 
-type gatewayHandlerPresenceUpdate struct{}
+func gatewayHandlerPresenceUpdate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventPresenceUpdate) {
+	/*oldPresence := client.Caches().Presences().GetCopy(event.GuildID, event.PresenceUser.ID)
 
-func (h *gatewayHandlerPresenceUpdate) EventType() discord.GatewayEventType {
-	return discord.GatewayEventTypePresenceUpdate
-}
-
-func (h *gatewayHandlerPresenceUpdate) New() any {
-	return &discord.Presence{}
-}
-
-func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
-	/*payload := *v.(*discord.Presence)
-
-	oldPresence := client.Caches().Presences().GetCopy(payload.GuildID, payload.PresenceUser.ID)
-
-	_ = bot.EntityBuilder.CreatePresence(payload, core.CacheStrategyYes)
+	_ = bot.EntityBuilder.CreatePresence(event, core.CacheStrategyYes)
 
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
@@ -36,33 +24,33 @@ func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(client bot.Client, seq
 		oldActivities = oldPresence.Activities
 	}
 
-	if oldStatus != payload.Status {
+	if oldStatus != event.Status {
 		client.EventManager().DispatchEvent(&events.UserStatusUpdate{
 			GenericEvent: genericEvent,
-			UserID:       payload.PresenceUser.ID,
+			UserID:       event.PresenceUser.ID,
 			OldStatus:    oldStatus,
-			Status:       payload.Status,
+			Status:       event.Status,
 		})
 	}
 
-	if oldClientStatus == nil || oldClientStatus.Desktop != payload.ClientStatus.Desktop || oldClientStatus.Mobile != payload.ClientStatus.Mobile || oldClientStatus.Web != payload.ClientStatus.Web {
+	if oldClientStatus == nil || oldClientStatus.Desktop != event.ClientStatus.Desktop || oldClientStatus.Mobile != event.ClientStatus.Mobile || oldClientStatus.Web != event.ClientStatus.Web {
 		client.EventManager().DispatchEvent(&events.UserClientStatusUpdate{
 			GenericEvent:    genericEvent,
-			UserID:          payload.PresenceUser.ID,
+			UserID:          event.PresenceUser.ID,
 			OldClientStatus: oldClientStatus,
-			ClientStatus:    payload.ClientStatus,
+			ClientStatus:    event.ClientStatus,
 		})
 	}
 
 	genericUserActivity := events.GenericUserActivity{
 		GenericEvent: genericEvent,
-		UserID:       payload.PresenceUser.ID,
-		GuildID:      payload.GuildID,
+		UserID:       event.PresenceUser.ID,
+		GuildID:      event.GuildID,
 	}
 
 	for _, oldActivity := range oldActivities {
 		var found bool
-		for _, newActivity := range payload.Activities {
+		for _, newActivity := range event.Activities {
 			if oldActivity.ID == newActivity.ID {
 				found = true
 				break
@@ -76,7 +64,7 @@ func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(client bot.Client, seq
 		}
 	}
 
-	for _, newActivity := range payload.Activities {
+	for _, newActivity := range event.Activities {
 		var found bool
 		for _, oldActivity := range oldActivities {
 			if newActivity.ID == oldActivity.ID {
@@ -92,7 +80,7 @@ func (h *gatewayHandlerPresenceUpdate) HandleGatewayEvent(client bot.Client, seq
 		}
 	}
 
-	for _, newActivity := range payload.Activities {
+	for _, newActivity := range event.Activities {
 		var oldActivity *discord.Activity
 		for _, activity := range oldActivities {
 			if newActivity.ID == activity.ID {

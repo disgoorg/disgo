@@ -21,6 +21,7 @@ var (
 
 func main() {
 	log.SetLevel(log.LevelDebug)
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Info("starting webhook example...")
 	log.Info("disgo version: ", disgo.Version)
 
@@ -39,7 +40,7 @@ func main() {
 
 	// wait for all messages to be sent
 	wg.Wait()
-	log.Info("existing webhook example...")
+	log.Info("exiting webhook example...")
 }
 
 // send(s) a message to the webhook
