@@ -2,7 +2,6 @@ package gateway
 
 import (
 	"context"
-	"io"
 	"time"
 
 	"github.com/disgoorg/log"
@@ -54,7 +53,7 @@ const (
 
 type (
 	// EventHandlerFunc is a function that is called when an event is received.
-	EventHandlerFunc func(gatewayEventType EventType, sequenceNumber int, shardID int, payload io.Reader)
+	EventHandlerFunc func(gatewayEventType EventType, sequenceNumber int, shardID int, event EventData)
 
 	// CreateFunc is a type that is used to create a new Gateway(s).
 	CreateFunc func(token string, eventHandlerFunc EventHandlerFunc, closeHandlerFUnc CloseHandlerFunc, opts ...ConfigOpt) Gateway

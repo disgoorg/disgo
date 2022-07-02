@@ -6,7 +6,7 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
-type gatewayHandlerGuildRoleDelete struct{}
+func gatewayHandlerGuildRoleDelete struct {}
 
 func (h *gatewayHandlerGuildRoleDelete) EventType() gateway.EventType {
 	return gateway.EventTypeGuildRoleDelete

@@ -9,27 +9,15 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-type gatewayHandlerGuildStickersUpdate struct{}
-
-func (h *gatewayHandlerGuildStickersUpdate) EventType() gateway.EventType {
-	return gateway.EventTypeGuildStickersUpdate
-}
-
-func (h *gatewayHandlerGuildStickersUpdate) New() any {
-	return &gateway.EventGuildStickersUpdate{}
-}
-
 type updatedSticker struct {
 	old discord.Sticker
 	new discord.Sticker
 }
 
-func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
-	payload := *v.(*gateway.EventGuildStickersUpdate)
-
+func gatewayHandlerGuildStickersUpdate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildStickersUpdate) {
 	client.EventManager().DispatchEvent(&events.StickersUpdate{
 		GenericEvent:             events.NewGenericEvent(client, sequenceNumber, shardID),
-		EventGuildStickersUpdate: payload,
+		EventGuildStickersUpdate: event,
 	})
 
 	if client.Caches().CacheFlags().Missing(cache.FlagStickers) {
@@ -37,10 +25,10 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client
 	}
 
 	createdStickers := map[snowflake.ID]discord.Sticker{}
-	deletedStickers := client.Caches().Stickers().MapGroupAll(payload.GuildID)
+	deletedStickers := client.Caches().Stickers().MapGroupAll(event.GuildID)
 	updatedStickers := map[snowflake.ID]updatedSticker{}
 
-	for _, newSticker := range payload.Stickers {
+	for _, newSticker := range event.Stickers {
 		oldSticker, ok := deletedStickers[newSticker.ID]
 		if ok {
 			delete(deletedStickers, newSticker.ID)
@@ -56,7 +44,7 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client
 		client.EventManager().DispatchEvent(&events.StickerCreate{
 			GenericSticker: &events.GenericSticker{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
-				GuildID:      payload.GuildID,
+				GuildID:      event.GuildID,
 				Sticker:      emoji,
 			},
 		})
@@ -66,7 +54,7 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client
 		client.EventManager().DispatchEvent(&events.StickerUpdate{
 			GenericSticker: &events.GenericSticker{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
-				GuildID:      payload.GuildID,
+				GuildID:      event.GuildID,
 				Sticker:      emoji.new,
 			},
 			OldSticker: emoji.old,
@@ -77,7 +65,7 @@ func (h *gatewayHandlerGuildStickersUpdate) HandleGatewayEvent(client bot.Client
 		client.EventManager().DispatchEvent(&events.StickerDelete{
 			GenericSticker: &events.GenericSticker{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
-				GuildID:      payload.GuildID,
+				GuildID:      event.GuildID,
 				Sticker:      emoji,
 			},
 		})

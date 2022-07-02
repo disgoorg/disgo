@@ -13,11 +13,15 @@ import (
 
 type (
 	// EventHandlerFunc is used to handle events from Discord's Outgoing Webhooks
-	EventHandlerFunc func(responseFunc RespondFunc, payload io.Reader)
+	EventHandlerFunc func(responseFunc RespondFunc, event EventInteractionCreate)
 
 	// RespondFunc is used to respond to Discord's Outgoing Webhooks
 	RespondFunc func(response discord.InteractionResponse) error
 )
+
+type EventInteractionCreate struct {
+	discord.Interaction
+}
 
 // Server is used for receiving Discord's interactions via Outgoing Webhooks
 type Server interface {
@@ -34,7 +38,7 @@ type Server interface {
 	Close(ctx context.Context)
 
 	// Handle passes a payload to the Server for processing
-	Handle(respondFunc RespondFunc, payload io.Reader)
+	Handle(respondFunc RespondFunc, event EventInteractionCreate)
 }
 
 // VerifyRequest implements the verification side of the discord interactions api signing algorithm, as documented here: https://discord.com/developers/docs/interactions/slash-commands#security-and-authorization

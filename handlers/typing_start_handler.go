@@ -6,7 +6,7 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
-type gatewayHandlerTypingStart struct{}
+func gatewayHandlerTypingStart struct {}
 
 func (h *gatewayHandlerTypingStart) EventType() gateway.EventType {
 	return gateway.EventTypeTypingStart

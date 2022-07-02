@@ -2,23 +2,22 @@ package handlers
 
 import (
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 )
 
-type gatewayHandlerVoiceStateUpdate struct{}
+func gatewayHandlerVoiceStateUpdate struct {}
 
 func (h *gatewayHandlerVoiceStateUpdate) EventType() gateway.EventType {
 	return gateway.EventTypeVoiceStateUpdate
 }
 
 func (h *gatewayHandlerVoiceStateUpdate) New() any {
-	return &discord.FullVoiceState{}
+	return &gateway.EventVoiceStateUpdate{}
 }
 
 func (h *gatewayHandlerVoiceStateUpdate) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
-	voiceState := *v.(*discord.FullVoiceState)
+	voiceState := *v.(*gateway.EventVoiceStateUpdate)
 	member := voiceState.Member
 
 	oldVoiceState, oldOk := client.Caches().VoiceStates().Get(voiceState.GuildID, voiceState.UserID)

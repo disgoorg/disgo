@@ -373,26 +373,26 @@ loop:
 			}
 
 		case OpcodeDispatch:
-			data := event.D.(MessageDataDispatch)
-			g.Logger().Trace(g.formatLogsf("received: OpcodeDispatch %s, data: %s", event.T, string(data)))
+			g.Logger().Trace(g.formatLogsf("received: OpcodeDispatch %s, data: %s", event.T, string(event.RawD)))
 
 			// set last sequence received
 			g.config.LastSequenceReceived = &event.S
 
 			// get session id here
-			if event.T == EventTypeReady {
-				var readyEvent EventReady
-				if err = json.Unmarshal(data, &readyEvent); err != nil {
-					g.Logger().Error(g.formatLogs("Error parsing ready event. error: ", err))
-					continue
-				}
+			if readyEvent, ok := event.D.(EventReady); ok {
 				g.config.SessionID = &readyEvent.SessionID
 				g.status = StatusReady
 				g.Logger().Debug(g.formatLogs("ready event received"))
 			}
 
 			// push event to the command manager
-			g.eventHandlerFunc(event.T, event.S, g.config.ShardID, bytes.NewBuffer(data))
+			if g.config.EnableRawEvents {
+				g.eventHandlerFunc(EventTypeRaw, event.S, g.config.ShardID, EventRaw{
+					EventType: event.T,
+					Payload:   bytes.NewReader(event.RawD),
+				})
+			}
+			g.eventHandlerFunc(event.T, event.S, g.config.ShardID, event.D.(EventData))
 
 		case OpcodeHeartbeat:
 			g.Logger().Debug(g.formatLogs("received: OpcodeHeartbeat"))
@@ -429,23 +429,23 @@ loop:
 }
 
 func (g *gatewayImpl) parseMessage(mt int, reader io.Reader) (Message, error) {
-	var finalReadCloser io.ReadCloser
+	var readCloser io.ReadCloser
 	if mt == websocket.BinaryMessage {
 		g.Logger().Trace(g.formatLogs("binary message received. decompressing..."))
-		readCloser, err := zlib.NewReader(reader)
+		var err error
+		readCloser, err = zlib.NewReader(reader)
 		if err != nil {
 			return Message{}, fmt.Errorf("failed to decompress zlib: %w", err)
 		}
-		finalReadCloser = readCloser
 	} else {
-		finalReadCloser = io.NopCloser(reader)
+		readCloser = io.NopCloser(reader)
 	}
 	defer func() {
-		_ = finalReadCloser.Close()
+		_ = readCloser.Close()
 	}()
 
 	var message Message
-	if err := json.NewDecoder(finalReadCloser).Decode(&message); err != nil {
+	if err := json.NewDecoder(readCloser).Decode(&message); err != nil {
 		g.Logger().Error(g.formatLogs("error decoding websocket message: ", err))
 		return Message{}, err
 	}

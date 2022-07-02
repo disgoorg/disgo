@@ -7,7 +7,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-type gatewayHandlerMessageDelete struct{}
+func gatewayHandlerMessageDelete struct {}
 
 func (h *gatewayHandlerMessageDelete) EventType() gateway.EventType {
 	return gateway.EventTypeMessageDelete

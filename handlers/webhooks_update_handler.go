@@ -6,7 +6,7 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
-type gatewayHandlerWebhooksUpdate struct{}
+func gatewayHandlerWebhooksUpdate struct {}
 
 func (h *gatewayHandlerWebhooksUpdate) EventType() gateway.EventType {
 	return gateway.EventTypeWebhooksUpdate

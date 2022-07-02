@@ -7,7 +7,7 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
-type gatewayHandlerStageInstanceCreate struct{}
+func gatewayHandlerStageInstanceCreate struct {}
 
 func (h *gatewayHandlerStageInstanceCreate) EventType() gateway.EventType {
 	return gateway.EventTypeStageInstanceCreate

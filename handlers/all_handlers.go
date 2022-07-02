@@ -1,19 +1,14 @@
 package handlers
 
 import (
-	"io"
-
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/httpserver"
 )
 
 // DefaultHTTPServerEventHandler is the default handler for the httpserver.Server and sends payloads to the bot.EventManager.
 func DefaultHTTPServerEventHandler(client bot.Client) httpserver.EventHandlerFunc {
-	return func(responseFunc httpserver.RespondFunc, reader io.Reader) {
-		client.EventManager().HandleHTTPEvent(responseFunc, events.HandleRawEvent(client, gateway.EventTypeInteractionCreate, -1, -1, responseFunc, reader))
-	}
+	return client.EventManager().HandleHTTPEvent
 }
 
 // GetHTTPServerHandler returns the default httpserver.Server event handler for processing the raw payload which gets passed into the bot.EventManager
@@ -23,9 +18,7 @@ func GetHTTPServerHandler() bot.HTTPServerEventHandler {
 
 // DefaultGatewayEventHandler is the default handler for the gateway.Gateway and sends payloads to the bot.EventManager.
 func DefaultGatewayEventHandler(client bot.Client) gateway.EventHandlerFunc {
-	return func(gatewayEventType gateway.EventType, sequenceNumber int, shardID int, reader io.Reader) {
-		client.EventManager().HandleGatewayEvent(gatewayEventType, sequenceNumber, shardID, events.HandleRawEvent(client, gatewayEventType, sequenceNumber, shardID, nil, reader))
-	}
+	return client.EventManager().HandleGatewayEvent
 }
 
 // GetGatewayHandlers returns the default gateway.Gateway event handlers for processing the raw payload which gets passed into the bot.EventManager
@@ -38,84 +31,85 @@ func GetGatewayHandlers() map[gateway.EventType]bot.GatewayEventHandler {
 }
 
 var allEventHandlers = []bot.GatewayEventHandler{
-	&gatewayHandlerReady{},
-	&gatewayHandlerResumed{},
+	bot.NewGatewayEventHandler(gateway.EventTypeRaw, gatewayHandlerRaw),
+	bot.NewGatewayEventHandler(gateway.EventTypeReady, gatewayHandlerReady),
+	bot.NewGatewayEventHandler(gateway.EventTypeResumed, gatewayHandlerResumed),
 
-	&gatewayHandlerApplicationCommandPermissionsUpdate{},
+	bot.NewGatewayEventHandler(gateway.EventTypeApplicationCommandPermissionsUpdate, gatewayHandlerApplicationCommandPermissionsUpdate),
 
-	&gatewayHandlerAutoModerationRuleCreate{},
-	&gatewayHandlerAutoModerationRuleUpdate{},
-	&gatewayHandlerAutoModerationRuleDelete{},
-	&gatewayHandlerAutoModerationActionExecution{},
+	bot.NewGatewayEventHandler(gateway.EventTypeAutoModerationRuleCreate, gatewayHandlerAutoModerationRuleCreate),
+	bot.NewGatewayEventHandler(gateway.EventTypeAutoModerationRuleUpdate, gatewayHandlerAutoModerationRuleUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeAutoModerationRuleDelete, gatewayHandlerAutoModerationRuleDelete),
+	bot.NewGatewayEventHandler(gateway.EventTypeAutoModerationActionExecution, gatewayHandlerAutoModerationActionExecution),
 
-	&gatewayHandlerChannelCreate{},
-	&gatewayHandlerChannelUpdate{},
-	&gatewayHandlerChannelDelete{},
-	&gatewayHandlerChannelPinsUpdate{},
+	bot.NewGatewayEventHandler(gateway.EventTypeChannelCreate, gatewayHandlerChannelCreate),
+	bot.NewGatewayEventHandler(gateway.EventTypeChannelUpdate, gatewayHandlerChannelUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeChannelDelete, gatewayHandlerChannelDelete),
+	bot.NewGatewayEventHandler(gateway.EventTypeChannelPinsUpdate, gatewayHandlerChannelPinsUpdate),
 
-	&gatewayHandlerThreadCreate{},
-	&gatewayHandlerThreadUpdate{},
-	&gatewayHandlerThreadDelete{},
-	&gatewayHandlerThreadListSync{},
-	&gatewayHandlerThreadMemberUpdate{},
-	&gatewayHandlerThreadMembersUpdate{},
+	bot.NewGatewayEventHandler(gateway.EventTypeThreadCreate, gatewayHandlerThreadCreate),
+	bot.NewGatewayEventHandler(gateway.EventTypeThreadUpdate, gatewayHandlerThreadUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeThreadDelete, gatewayHandlerThreadDelete),
+	bot.NewGatewayEventHandler(gateway.EventTypeThreadListSync, gatewayHandlerThreadListSync),
+	bot.NewGatewayEventHandler(gateway.EventTypeThreadMemberUpdate, gatewayHandlerThreadMemberUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeThreadMembersUpdate, gatewayHandlerThreadMembersUpdate),
 
-	&gatewayHandlerGuildCreate{},
-	&gatewayHandlerGuildUpdate{},
-	&gatewayHandlerGuildDelete{},
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildCreate, gatewayHandlerGuildCreate),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildUpdate, gatewayHandlerGuildUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildDelete, gatewayHandlerGuildDelete),
 
-	&gatewayHandlerGuildBanAdd{},
-	&gatewayHandlerGuildBanRemove{},
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildBanAdd, gatewayHandlerGuildBanAdd),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildBanRemove, gatewayHandlerGuildBanRemove),
 
-	&gatewayHandlerGuildEmojisUpdate{},
-	&gatewayHandlerGuildStickersUpdate{},
-	&gatewayHandlerGuildIntegrationsUpdate{},
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildEmojisUpdate, gatewayHandlerGuildEmojisUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildStickersUpdate, gatewayHandlerGuildStickersUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildIntegrationsUpdate, gatewayHandlerGuildIntegrationsUpdate),
 
-	&gatewayHandlerGuildMemberAdd{},
-	&gatewayHandlerGuildMemberRemove{},
-	&gatewayHandlerGuildMemberUpdate{},
-	&gatewayHandlerGuildMembersChunk{},
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildMemberAdd, gatewayHandlerGuildMemberAdd),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildMemberUpdate, gatewayHandlerGuildMemberUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildMemberUpdate, gatewayHandlerGuildMemberRemove),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildMembersChunk, gatewayHandlerGuildMembersChunk),
 
-	&gatewayHandlerGuildRoleCreate{},
-	&gatewayHandlerGuildRoleUpdate{},
-	&gatewayHandlerGuildRoleDelete{},
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildRoleCreate, gatewayHandlerGuildRoleCreate),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildRoleUpdate, gatewayHandlerGuildRoleUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildRoleDelete, gatewayHandlerGuildRoleDelete),
 
-	&gatewayHandlerGuildScheduledEventCreate{},
-	&gatewayHandlerGuildScheduledEventUpdate{},
-	&gatewayHandlerGuildScheduledEventDelete{},
-	&gatewayHandlerGuildScheduledEventUserAdd{},
-	&gatewayHandlerGuildScheduledEventUserRemove{},
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildScheduledEventCreate, gatewayHandlerGuildScheduledEventCreate),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildScheduledEventUpdate, gatewayHandlerGuildScheduledEventUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildScheduledEventDelete, gatewayHandlerGuildScheduledEventDelete),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildScheduledEventUserAdd, gatewayHandlerGuildScheduledEventUserAdd),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildScheduledEventUserRemove, gatewayHandlerGuildScheduledEventUserRemove),
 
-	&gatewayHandlerIntegrationCreate{},
-	&gatewayHandlerIntegrationUpdate{},
-	&gatewayHandlerIntegrationDelete{},
+	bot.NewGatewayEventHandler(gateway.EventTypeIntegrationCreate, gatewayHandlerIntegrationCreate),
+	bot.NewGatewayEventHandler(gateway.EventTypeIntegrationUpdate, gatewayHandlerIntegrationUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeIntegrationDelete, gatewayHandlerIntegrationDelete),
 
-	&gatewayHandlerInteractionCreate{},
+	bot.NewGatewayEventHandler(gateway.EventTypeInteractionCreate, gatewayHandlerInteractionCreate),
 
-	&gatewayHandlerInviteCreate{},
-	&gatewayHandlerInviteDelete{},
+	bot.NewGatewayEventHandler(gateway.EventTypeInviteCreate, gatewayHandlerInviteCreate),
+	bot.NewGatewayEventHandler(gateway.EventTypeInviteDelete, gatewayHandlerInviteDelete),
 
-	&gatewayHandlerMessageCreate{},
-	&gatewayHandlerMessageUpdate{},
-	&gatewayHandlerMessageDelete{},
-	&gatewayHandlerMessageDeleteBulk{},
+	bot.NewGatewayEventHandler(gateway.EventTypeMessageCreate, gatewayHandlerMessageCreate),
+	bot.NewGatewayEventHandler(gateway.EventTypeMessageUpdate, gatewayHandlerMessageUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeMessageDelete, gatewayHandlerMessageDelete),
+	bot.NewGatewayEventHandler(gateway.EventTypeMessageDeleteBulk, gatewayHandlerMessageDeleteBulk),
 
-	&gatewayHandlerMessageReactionAdd{},
-	&gatewayHandlerMessageReactionRemove{},
-	&gatewayHandlerMessageReactionRemoveAll{},
-	&gatewayHandlerMessageReactionRemoveEmoji{},
+	bot.NewGatewayEventHandler(gateway.EventTypeMessageReactionAdd, gatewayHandlerMessageReactionAdd),
+	bot.NewGatewayEventHandler(gateway.EventTypeMessageReactionRemove, gatewayHandlerMessageReactionRemove),
+	bot.NewGatewayEventHandler(gateway.EventTypeMessageReactionRemoveAll, gatewayHandlerMessageReactionRemoveAll),
+	bot.NewGatewayEventHandler(gateway.EventTypeMessageReactionRemoveEmoji, gatewayHandlerMessageReactionRemoveEmoji),
 
-	&gatewayHandlerPresenceUpdate{},
+	bot.NewGatewayEventHandler(gateway.EventTypePresenceUpdate, gatewayHandlerPresenceUpdate),
 
-	&gatewayHandlerStageInstanceCreate{},
-	&gatewayHandlerStageInstanceDelete{},
-	&gatewayHandlerStageInstanceUpdate{},
+	bot.NewGatewayEventHandler(gateway.EventTypeStageInstanceCreate, gatewayHandlerStageInstanceCreate),
+	bot.NewGatewayEventHandler(gateway.EventTypeStageInstanceUpdate, gatewayHandlerStageInstanceUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeStageInstanceDelete, gatewayHandlerStageInstanceDelete),
 
-	&gatewayHandlerTypingStart{},
-	&gatewayHandlerUserUpdate{},
+	bot.NewGatewayEventHandler(gateway.EventTypeTypingStart, gatewayHandlerTypingStart),
+	bot.NewGatewayEventHandler(gateway.EventTypeUserUpdate, gatewayHandlerUserUpdate),
 
-	&gatewayHandlerVoiceStateUpdate{},
-	&gatewayHandlerVoiceServerUpdate{},
+	bot.NewGatewayEventHandler(gateway.EventTypeVoiceStateUpdate, gatewayHandlerVoiceStateUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeVoiceServerUpdate, gatewayHandlerVoiceServerUpdate),
 
-	&gatewayHandlerWebhooksUpdate{},
+	bot.NewGatewayEventHandler(gateway.EventTypeWebhooksUpdate, gatewayHandlerWebhooksUpdate),
 }

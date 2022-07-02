@@ -2,6 +2,7 @@ package events
 
 import (
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/gateway"
 )
 
 // GenericGuildVoiceState is called upon receiving GuildVoiceJoin , GuildVoiceMove , GuildVoiceLeave
@@ -37,5 +38,5 @@ type GuildVoiceLeave struct {
 // VoiceServerUpdate indicates that a voice server the bot is connected to has been changed
 type VoiceServerUpdate struct {
 	*GenericEvent
-	discord.VoiceServerUpdate
+	gateway.EventVoiceServerUpdate
 }

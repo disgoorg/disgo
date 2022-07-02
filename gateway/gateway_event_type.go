@@ -5,6 +5,8 @@ type EventType string
 
 // Constants for the gateway events
 const (
+	// EventTypeRaw is not a real event type, but is used to pass raw payloads to the bot.EventManager
+	EventTypeRaw                                 EventType = "__RAW__"
 	EventTypeReady                               EventType = "READY"
 	EventTypeResumed                             EventType = "RESUMED"
 	EventTypeApplicationCommandPermissionsUpdate EventType = "APPLICATION_COMMAND_PERMISSIONS_UPDATE"

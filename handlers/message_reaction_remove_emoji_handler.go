@@ -6,7 +6,7 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
-type gatewayHandlerMessageReactionRemoveEmoji struct{}
+func gatewayHandlerMessageReactionRemoveEmoji struct {}
 
 func (h *gatewayHandlerMessageReactionRemoveEmoji) EventType() gateway.EventType {
 	return gateway.EventTypeMessageReactionRemoveEmoji

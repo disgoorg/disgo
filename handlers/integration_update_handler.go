@@ -6,7 +6,7 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
-type gatewayHandlerIntegrationUpdate struct{}
+func gatewayHandlerIntegrationUpdate struct {}
 
 func (h *gatewayHandlerIntegrationUpdate) EventType() gateway.EventType {
 	return gateway.EventTypeIntegrationUpdate

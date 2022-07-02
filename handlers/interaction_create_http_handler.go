@@ -10,12 +10,8 @@ var _ bot.HTTPServerEventHandler = (*httpserverHandlerInteractionCreate)(nil)
 
 type httpserverHandlerInteractionCreate struct{}
 
-func (h *httpserverHandlerInteractionCreate) New() any {
-	return &discord.UnmarshalInteraction{}
-}
-
-func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(client bot.Client, respondFunc httpserver.RespondFunc, v any) {
-	interaction := (*v.(*discord.UnmarshalInteraction)).Interaction
+func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(client bot.Client, respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate) {
+	interaction := event.Interaction
 
 	// we just want to pong all pings
 	// no need for any event

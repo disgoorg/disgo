@@ -7,7 +7,7 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
-type gatewayHandlerGuildScheduledEventDelete struct{}
+func gatewayHandlerGuildScheduledEventDelete struct {}
 
 func (h *gatewayHandlerGuildScheduledEventDelete) EventType() gateway.EventType {
 	return gateway.EventTypeGuildScheduledEventDelete

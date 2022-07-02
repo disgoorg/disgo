@@ -6,18 +6,18 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
-type gatewayHandlerGuildScheduledEventUserRemove struct{}
+func gatewayHandlerGuildScheduledEventUserRemove struct {}
 
 func (h *gatewayHandlerGuildScheduledEventUserRemove) EventType() gateway.EventType {
 	return gateway.EventTypeGuildScheduledEventUserRemove
 }
 
 func (h *gatewayHandlerGuildScheduledEventUserRemove) New() any {
-	return &gateway.EventGuildScheduledEventUser{}
+	return &gateway.EventGuildScheduledEventUserRemove{}
 }
 
 func (h *gatewayHandlerGuildScheduledEventUserRemove) HandleGatewayEvent(client bot.Client, sequenceNumber int, shardID int, v any) {
-	payload := *v.(*gateway.EventGuildScheduledEventUser)
+	payload := *v.(*gateway.EventGuildScheduledEventUserRemove)
 
 	client.EventManager().DispatchEvent(&events.GuildScheduledEventUserRemove{
 		GenericGuildScheduledEventUser: &events.GenericGuildScheduledEventUser{

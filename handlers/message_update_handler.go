@@ -7,7 +7,7 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
-type gatewayHandlerMessageUpdate struct{}
+func gatewayHandlerMessageUpdate struct {}
 
 func (h *gatewayHandlerMessageUpdate) EventType() gateway.EventType {
 	return gateway.EventTypeMessageUpdate

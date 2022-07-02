@@ -5,7 +5,7 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
-type gatewayHandlerMessageDeleteBulk struct{}
+func gatewayHandlerMessageDeleteBulk struct {}
 
 func (h *gatewayHandlerMessageDeleteBulk) EventType() gateway.EventType {
 	return gateway.EventTypeMessageDeleteBulk

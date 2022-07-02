@@ -6,33 +6,22 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
-type gatewayHandlerReady struct{}
-
-func (h *gatewayHandlerReady) EventType() gateway.EventType {
-	return gateway.EventTypeReady
+func gatewayHandlerRaw(client bot.Client, sequenceNumber int, shardID int, event gateway.EventRaw) {
+	client.EventManager().DispatchEvent(&events.Raw{
+		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
+		EventRaw:     event,
+	})
 }
 
-func (h *gatewayHandlerReady) New() any {
-	return &gateway.EventReady{}
-}
+func gatewayHandlerReady(client bot.Client, sequenceNumber int, shardID int, event gateway.EventReady) {
+	client.Caches().PutSelfUser(event.User)
 
-func (h *gatewayHandlerReady) HandleGatewayEvent(client bot.Client, sequenceNumber int, _ int, v any) {
-	readyEvent := *v.(*gateway.EventReady)
-
-	var shardID int
-	if readyEvent.Shard != nil {
-		shardID = readyEvent.Shard[0]
-	}
-
-	client.Caches().PutSelfUser(readyEvent.User)
-
-	for _, guild := range readyEvent.Guilds {
+	for _, guild := range event.Guilds {
 		client.Caches().Guilds().SetUnready(shardID, guild.ID)
 	}
 
 	client.EventManager().DispatchEvent(&events.Ready{
 		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
-		EventReady:   readyEvent,
+		EventReady:   event,
 	})
-
 }

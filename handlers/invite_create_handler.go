@@ -8,7 +8,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-type gatewayHandlerInviteCreate struct{}
+func gatewayHandlerInviteCreate struct {}
 
 func (h *gatewayHandlerInviteCreate) EventType() gateway.EventType {
 	return gateway.EventTypeInviteCreate

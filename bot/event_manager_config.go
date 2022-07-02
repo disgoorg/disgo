@@ -12,7 +12,6 @@ func DefaultEventManagerConfig() *EventManagerConfig {
 // EventManagerConfig can be used to configure the EventManager.
 type EventManagerConfig struct {
 	EventListeners     []EventListener
-	RawEventsEnabled   bool
 	AsyncEventsEnabled bool
 
 	GatewayHandlers   map[gateway.EventType]GatewayEventHandler
@@ -39,13 +38,6 @@ func WithListeners(listeners ...EventListener) EventManagerConfigOpt {
 // WithListenerFunc adds the given ListenerFunc(s) to the EventManagerConfig.
 func WithListenerFunc[E Event](listenerFunc func(e E)) EventManagerConfigOpt {
 	return WithListeners(NewListenerFunc(listenerFunc))
-}
-
-// WithRawEventsEnabled enables/disables the raw events.
-func WithRawEventsEnabled() EventManagerConfigOpt {
-	return func(config *EventManagerConfig) {
-		config.RawEventsEnabled = true
-	}
 }
 
 // WithAsyncEventsEnabled enables/disables the async events.

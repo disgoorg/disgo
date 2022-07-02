@@ -9,7 +9,7 @@ import (
 	"github.com/disgoorg/disgo/rest"
 )
 
-type gatewayHandlerInteractionCreate struct{}
+func gatewayHandlerInteractionCreate struct {}
 
 func (h *gatewayHandlerInteractionCreate) EventType() gateway.EventType {
 	return gateway.EventTypeInteractionCreate

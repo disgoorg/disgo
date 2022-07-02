@@ -34,6 +34,7 @@ type Config struct {
 	LastSequenceReceived      *int
 	AutoReconnect             bool
 	MaxReconnectTries         int
+	EnableRawEvents           bool
 	RateLimiter               RateLimiter
 	RateRateLimiterConfigOpts []RateLimiterConfigOpt
 	Presence                  *MessageDataPresenceUpdate
@@ -143,6 +144,13 @@ func WithAutoReconnect(autoReconnect bool) ConfigOpt {
 func WithMaxReconnectTries(maxReconnectTries int) ConfigOpt {
 	return func(config *Config) {
 		config.MaxReconnectTries = maxReconnectTries
+	}
+}
+
+// WithEnableRawEvents enables/disables the EventTypeRaw.
+func WithEnableRawEvents(enableRawEventEvents bool) ConfigOpt {
+	return func(config *Config) {
+		config.EnableRawEvents = enableRawEventEvents
 	}
 }
 
