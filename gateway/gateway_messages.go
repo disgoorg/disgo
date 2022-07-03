@@ -403,6 +403,9 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 		var d EventWebhooksUpdate
 		err = json.Unmarshal(data, &d)
 		eventData = d
+
+	default:
+		err = fmt.Errorf("unknown event type: %s", eventType)
 	}
 
 	return eventData, err
