@@ -16,6 +16,7 @@ var listener = &events.ListenerAdapter{
 	OnApplicationCommandInteraction: applicationCommandListener,
 	OnComponentInteraction:          componentListener,
 	OnModalSubmit:                   modalListener,
+	OnAutocompleteInteraction:       autocompleteListener,
 }
 
 func modalListener(event *events.ModalSubmitInteractionCreate) {
@@ -128,6 +129,24 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionCreat
 			).
 			Build(),
 		)
+	}
+}
+
+func autocompleteListener(event *events.AutocompleteInteractionCreate) {
+	switch event.Data.CommandName {
+	case "test2":
+		if err := event.Result([]discord.AutocompleteChoice{
+			discord.AutocompleteChoiceString{
+				Name:  "test1",
+				Value: "test1",
+			},
+			discord.AutocompleteChoiceString{
+				Name:  "test2",
+				Value: "test2",
+			},
+		}); err != nil {
+			event.Client().Logger().Error("error on sending response: ", err)
+		}
 	}
 }
 

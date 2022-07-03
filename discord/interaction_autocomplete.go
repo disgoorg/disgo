@@ -20,16 +20,16 @@ func (i *AutocompleteInteraction) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	var interaction struct {
+	var v struct {
 		Data AutocompleteInteractionData `json:"data"`
 	}
-	if err := json.Unmarshal(data, &interaction); err != nil {
+	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
 
 	i.BaseInteraction = baseInteraction
 
-	i.Data = interaction.Data
+	i.Data = v.Data
 	return nil
 }
 
@@ -42,6 +42,7 @@ func (AutocompleteInteraction) interaction() {}
 type rawAutocompleteInteractionData struct {
 	ID      snowflake.ID         `json:"id"`
 	Name    string               `json:"name"`
+	GuildID *snowflake.ID        `json:"guild_id"`
 	Options []AutocompleteOption `json:"options"`
 }
 
@@ -56,9 +57,11 @@ func (d *rawAutocompleteInteractionData) UnmarshalJSON(data []byte) error {
 	}
 
 	*d = rawAutocompleteInteractionData(v.alias)
-	d.Options = make([]AutocompleteOption, len(v.Options))
-	for i := range v.Options {
-		d.Options[i] = v.Options[i].AutocompleteOption
+	if len(v.Options) > 0 {
+		d.Options = make([]AutocompleteOption, len(v.Options))
+		for i := range v.Options {
+			d.Options[i] = v.Options[i].AutocompleteOption
+		}
 	}
 
 	return nil
@@ -69,6 +72,7 @@ type AutocompleteInteractionData struct {
 	CommandName         string
 	SubCommandName      *string
 	SubCommandGroupName *string
+	GuildID             *snowflake.ID
 	Options             map[string]AutocompleteOption
 }
 

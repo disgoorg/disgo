@@ -16,6 +16,18 @@ var commands = []discord.ApplicationCommandCreate{
 		Description: "test",
 	},
 	discord.SlashCommandCreate{
+		CommandName: "test2",
+		Description: "test2",
+		Options: []discord.ApplicationCommandOption{
+			discord.ApplicationCommandOptionString{
+				OptionName:   "message",
+				Description:  "What to say",
+				Required:     true,
+				Autocomplete: true,
+			},
+		},
+	},
+	discord.SlashCommandCreate{
 		CommandName: "say",
 		Description: "says what you say",
 		Options: []discord.ApplicationCommandOption{
