@@ -40,10 +40,10 @@ func (AutocompleteInteraction) Type() InteractionType {
 func (AutocompleteInteraction) interaction() {}
 
 type rawAutocompleteInteractionData struct {
-	ID      snowflake.ID         `json:"id"`
-	Name    string               `json:"name"`
-	GuildID *snowflake.ID        `json:"guild_id"`
-	Options []AutocompleteOption `json:"options"`
+	ID      snowflake.ID                 `json:"id"`
+	Name    string                       `json:"name"`
+	GuildID *snowflake.ID                `json:"guild_id"`
+	Options []internalAutocompleteOption `json:"options"`
 }
 
 func (d *rawAutocompleteInteractionData) UnmarshalJSON(data []byte) error {
@@ -58,9 +58,9 @@ func (d *rawAutocompleteInteractionData) UnmarshalJSON(data []byte) error {
 
 	*d = rawAutocompleteInteractionData(v.alias)
 	if len(v.Options) > 0 {
-		d.Options = make([]AutocompleteOption, len(v.Options))
+		d.Options = make([]internalAutocompleteOption, len(v.Options))
 		for i := range v.Options {
-			d.Options[i] = v.Options[i].AutocompleteOption
+			d.Options[i] = v.Options[i].internalAutocompleteOption
 		}
 	}
 
@@ -84,6 +84,7 @@ func (d *AutocompleteInteractionData) UnmarshalJSON(data []byte) error {
 	}
 	d.CommandID = iData.ID
 	d.CommandName = iData.Name
+	d.GuildID = iData.GuildID
 
 	d.Options = make(map[string]AutocompleteOption)
 	if len(iData.Options) > 0 {
@@ -91,57 +92,61 @@ func (d *AutocompleteInteractionData) UnmarshalJSON(data []byte) error {
 
 		unmarshalOption := flattenedOptions[0]
 		if option, ok := unmarshalOption.(AutocompleteOptionSubCommandGroup); ok {
-			d.SubCommandGroupName = &option.OptionName
-			flattenedOptions = make([]AutocompleteOption, len(option.Options))
+			d.SubCommandGroupName = &option.GroupName
+			flattenedOptions = make([]internalAutocompleteOption, len(option.Options))
 			for ii := range option.Options {
 				flattenedOptions[ii] = option.Options[ii]
 			}
 			unmarshalOption = option.Options[0]
 		}
 		if option, ok := unmarshalOption.(AutocompleteOptionSubCommand); ok {
-			d.SubCommandName = &option.OptionName
-			flattenedOptions = option.Options
+			d.SubCommandName = &option.CommandName
+
+			flattenedOptions = make([]internalAutocompleteOption, len(option.Options))
+			for i := range option.Options {
+				flattenedOptions[i] = option.Options[i]
+			}
 		}
 
 		for _, option := range flattenedOptions {
-			d.Options[option.Name()] = option
+			d.Options[option.name()] = option.(AutocompleteOption)
 		}
 	}
 	return nil
 }
 
 func (d AutocompleteInteractionData) MarshalJSON() ([]byte, error) {
-	options := make([]AutocompleteOption, len(d.Options))
-	i := 0
+	options := make([]internalAutocompleteOption, len(d.Options))
 	for _, option := range d.Options {
-		options[i] = option
-		i++
+		options = append(options, option)
 	}
 
 	if d.SubCommandName != nil {
-		options = []AutocompleteOption{
-			AutocompleteOptionSubCommand{
-				OptionName: *d.SubCommandName,
-				Options:    options,
-			},
+		subCmd := AutocompleteOptionSubCommand{
+			CommandName: *d.SubCommandName,
+			Options:     make([]AutocompleteOption, len(options)),
 		}
+		for _, option := range options {
+			subCmd.Options = append(subCmd.Options, option.(AutocompleteOption))
+		}
+		options = []internalAutocompleteOption{subCmd}
 	}
+
 	if d.SubCommandGroupName != nil {
-		subCommandOptions := make([]AutocompleteOptionSubCommand, len(options))
-		for ii := range options {
-			subCommandOptions[ii] = options[ii].(AutocompleteOptionSubCommand)
+		groupCmd := AutocompleteOptionSubCommandGroup{
+			GroupName: *d.SubCommandGroupName,
+			Options:   make([]AutocompleteOptionSubCommand, len(options)),
 		}
-		options = []AutocompleteOption{
-			AutocompleteOptionSubCommandGroup{
-				OptionName: *d.SubCommandGroupName,
-				Options:    subCommandOptions,
-			},
+		for _, option := range options {
+			groupCmd.Options = append(groupCmd.Options, option.(AutocompleteOptionSubCommand))
 		}
+		options = []internalAutocompleteOption{groupCmd}
 	}
 
 	return json.Marshal(rawAutocompleteInteractionData{
 		ID:      d.CommandID,
 		Name:    d.CommandName,
+		GuildID: d.GuildID,
 		Options: options,
 	})
 }
@@ -151,17 +156,12 @@ func (d AutocompleteInteractionData) Option(name string) (AutocompleteOption, bo
 	return option, ok
 }
 
-func (d AutocompleteInteractionData) StringOption(name string) (AutocompleteOptionString, bool) {
-	if option, ok := d.Option(name); ok {
-		opt, ok := option.(AutocompleteOptionString)
-		return opt, ok
-	}
-	return AutocompleteOptionString{}, false
-}
-
 func (d AutocompleteInteractionData) OptString(name string) (string, bool) {
-	if option, ok := d.StringOption(name); ok {
-		return option.Value, true
+	if option, ok := d.Option(name); ok {
+		var v string
+		if err := json.Unmarshal(option.Value, &v); err == nil {
+			return v, true
+		}
 	}
 	return "", false
 }
@@ -173,17 +173,12 @@ func (d AutocompleteInteractionData) String(name string) string {
 	return ""
 }
 
-func (d AutocompleteInteractionData) IntOption(name string) (AutocompleteOptionInt, bool) {
-	if option, ok := d.Option(name); ok {
-		opt, ok := option.(AutocompleteOptionInt)
-		return opt, ok
-	}
-	return AutocompleteOptionInt{}, false
-}
-
 func (d AutocompleteInteractionData) OptInt(name string) (int, bool) {
-	if option, ok := d.IntOption(name); ok {
-		return option.Value, true
+	if option, ok := d.Option(name); ok {
+		var v int
+		if err := json.Unmarshal(option.Value, &v); err == nil {
+			return v, true
+		}
 	}
 	return 0, false
 }
@@ -195,17 +190,12 @@ func (d AutocompleteInteractionData) Int(name string) int {
 	return 0
 }
 
-func (d AutocompleteInteractionData) BoolOption(name string) (AutocompleteOptionBool, bool) {
-	if option, ok := d.Option(name); ok {
-		opt, ok := option.(AutocompleteOptionBool)
-		return opt, ok
-	}
-	return AutocompleteOptionBool{}, false
-}
-
 func (d AutocompleteInteractionData) OptBool(name string) (bool, bool) {
-	if option, ok := d.BoolOption(name); ok {
-		return option.Value, true
+	if option, ok := d.Option(name); ok {
+		var v bool
+		if err := json.Unmarshal(option.Value, &v); err == nil {
+			return v, true
+		}
 	}
 	return false, false
 }
@@ -217,51 +207,11 @@ func (d AutocompleteInteractionData) Bool(name string) bool {
 	return false
 }
 
-func (d AutocompleteInteractionData) UserOption(name string) (AutocompleteOptionUser, bool) {
-	if option, ok := d.Option(name); ok {
-		opt, ok := option.(AutocompleteOptionUser)
-		return opt, ok
-	}
-	return AutocompleteOptionUser{}, false
-}
-
-func (d AutocompleteInteractionData) ChannelOption(name string) (AutocompleteOptionChannel, bool) {
-	if option, ok := d.Option(name); ok {
-		opt, ok := option.(AutocompleteOptionChannel)
-		return opt, ok
-	}
-	return AutocompleteOptionChannel{}, false
-}
-
-func (d AutocompleteInteractionData) RoleOption(name string) (AutocompleteOptionRole, bool) {
-	if option, ok := d.Option(name); ok {
-		opt, ok := option.(AutocompleteOptionRole)
-		return opt, ok
-	}
-	return AutocompleteOptionRole{}, false
-}
-
-func (d AutocompleteInteractionData) MentionableOption(name string) (AutocompleteOptionMentionable, bool) {
-	if option, ok := d.Option(name); ok {
-		opt, ok := option.(AutocompleteOptionMentionable)
-		return opt, ok
-	}
-	return AutocompleteOptionMentionable{}, false
-}
-
 func (d AutocompleteInteractionData) OptSnowflake(name string) (snowflake.ID, bool) {
 	if option, ok := d.Option(name); ok {
-		switch opt := option.(type) {
-		case AutocompleteOptionChannel:
-			return opt.Value, true
-		case AutocompleteOptionRole:
-			return opt.Value, true
-		case AutocompleteOptionUser:
-			return opt.Value, true
-		case AutocompleteOptionMentionable:
-			return opt.Value, true
-		case AutocompleteOptionAttachment:
-			return opt.Value, true
+		var v snowflake.ID
+		if err := json.Unmarshal(option.Value, &v); err == nil {
+			return v, true
 		}
 	}
 	return 0, false
@@ -274,34 +224,21 @@ func (d AutocompleteInteractionData) Snowflake(name string) snowflake.ID {
 	return 0
 }
 
-func (d AutocompleteInteractionData) FloatOption(name string) (AutocompleteOptionFloat, bool) {
-	if option, ok := d.Option(name); ok {
-		opt, ok := option.(AutocompleteOptionFloat)
-		return opt, ok
-	}
-	return AutocompleteOptionFloat{}, false
-}
-
 func (d AutocompleteInteractionData) OptFloat(name string) (float64, bool) {
-	if option, ok := d.FloatOption(name); ok {
-		return option.Value, true
+	if option, ok := d.Option(name); ok {
+		var v float64
+		if err := json.Unmarshal(option.Value, &v); err == nil {
+			return v, true
+		}
 	}
 	return 0, false
 }
 
 func (d AutocompleteInteractionData) Float(name string) float64 {
-	if option, ok := d.FloatOption(name); ok {
-		return option.Value
+	if float, ok := d.OptFloat(name); ok {
+		return float
 	}
 	return 0
-}
-
-func (d AutocompleteInteractionData) AttachmentOption(name string) (AutocompleteOptionAttachment, bool) {
-	if option, ok := d.Option(name); ok {
-		opt, ok := option.(AutocompleteOptionAttachment)
-		return opt, ok
-	}
-	return AutocompleteOptionAttachment{}, false
 }
 
 func (d AutocompleteInteractionData) All() []AutocompleteOption {
@@ -316,7 +253,7 @@ func (d AutocompleteInteractionData) All() []AutocompleteOption {
 
 func (d AutocompleteInteractionData) GetByType(optionType ApplicationCommandOptionType) []AutocompleteOption {
 	return d.FindAll(func(option AutocompleteOption) bool {
-		return option.Type() == optionType
+		return option.Type == optionType
 	})
 }
 
@@ -326,7 +263,7 @@ func (d AutocompleteInteractionData) Find(optionFindFunc func(option Autocomplet
 			return option, true
 		}
 	}
-	return nil, false
+	return AutocompleteOption{}, false
 }
 
 func (d AutocompleteInteractionData) FindAll(optionFindFunc func(option AutocompleteOption) bool) []AutocompleteOption {

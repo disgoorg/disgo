@@ -19,7 +19,12 @@ var commands = []discord.ApplicationCommandCreate{
 		CommandName: "test2",
 		Description: "test2",
 		Options: []discord.ApplicationCommandOption{
-			discord.ApplicationCommandOptionString{
+			discord.ApplicationCommandOptionInt{
+				OptionName:  "number",
+				Description: "some number",
+				Required:    true,
+			},
+			discord.ApplicationCommandOptionInt{
 				OptionName:   "message",
 				Description:  "What to say",
 				Required:     true,

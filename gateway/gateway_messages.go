@@ -20,10 +20,10 @@ type Message struct {
 
 func (e *Message) UnmarshalJSON(data []byte) error {
 	var v struct {
-		Op Opcode    `json:"op"`
-		S  int       `json:"s,omitempty"`
-		T  EventType `json:"t,omitempty"`
-		D  json.RawMessage
+		Op Opcode          `json:"op"`
+		S  int             `json:"s,omitempty"`
+		T  EventType       `json:"t,omitempty"`
+		D  json.RawMessage `json:"d,omitempty"`
 	}
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
@@ -65,6 +65,7 @@ func (e *Message) UnmarshalJSON(data []byte) error {
 
 	case OpcodeReconnect:
 		// no data
+		messageData = MessageData(nil)
 
 	case OpcodeRequestGuildMembers:
 		var d MessageDataRequestGuildMembers
@@ -82,7 +83,8 @@ func (e *Message) UnmarshalJSON(data []byte) error {
 		messageData = d
 
 	case OpcodeHeartbeatACK:
-	// no data
+		// no data
+		messageData = MessageData(nil)
 
 	default:
 		err = fmt.Errorf("unknown opcode %d", v.Op)
@@ -115,6 +117,7 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 
 	case EventTypeResumed:
 		// no data
+		eventData = EventData(nil)
 
 	case EventTypeApplicationCommandPermissionsUpdate:
 		var d EventApplicationCommandPermissionsUpdate

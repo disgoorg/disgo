@@ -136,13 +136,13 @@ func autocompleteListener(event *events.AutocompleteInteractionCreate) {
 	switch event.Data.CommandName {
 	case "test2":
 		if err := event.Result([]discord.AutocompleteChoice{
-			discord.AutocompleteChoiceString{
+			discord.AutocompleteChoiceInt{
 				Name:  "test1",
-				Value: "test1",
+				Value: 1,
 			},
-			discord.AutocompleteChoiceString{
+			discord.AutocompleteChoiceInt{
 				Name:  "test2",
-				Value: "test2",
+				Value: 2,
 			},
 		}); err != nil {
 			event.Client().Logger().Error("error on sending response: ", err)
