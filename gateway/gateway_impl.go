@@ -355,7 +355,7 @@ loop:
 
 		event, err := g.parseMessage(mt, reader)
 		if err != nil {
-			g.Logger().Error(g.formatLogs("error while parsing gateway event. error: ", err))
+			g.Logger().Error(g.formatLogs("error while parsing gateway message. error: ", err))
 			continue
 		}
 
