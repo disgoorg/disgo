@@ -9,7 +9,7 @@
 
 # DisGo
 
-DisGo is a [Discord](https://discord.com) API wrapper written in [GoLang](https://golang.org/) aimed to be consistent, modular, customizable and higher level than other Discord API wrappers.
+DisGo is a [Discord](https://discord.com) API wrapper written in [Golang](https://golang.org/) aimed to be consistent, modular, customizable and higher level than other Discord API wrappers.
 
 ## Summary
 
@@ -20,7 +20,7 @@ DisGo is a [Discord](https://discord.com) API wrapper written in [GoLang](https:
 5. [Documentation](#documentation)
 6. [Examples](#examples)
 7. [Other interesting Projects to look at](#other-interesting-projects-to-look-at)
-8. [Other GoLang Discord Libraries](#other-golang-discord-libraries)
+8. [Other Golang Discord Libraries](#other-golang-discord-libraries)
 9. [Troubleshooting](#troubleshooting)
 10. [Contributing](#contributing)
 11. [License](#license)
@@ -68,96 +68,54 @@ Build a bot client to interact with the discord api
 package main
 
 import (
-    "github.com/disgoorg/disgo"
-    "github.com/disgoorg/disgo/bot"
-    "github.com/disgoorg/disgo/discord"
-    "github.com/disgoorg/disgo/events"
-    "github.com/disgoorg/disgo/gateway"
+	"context"
+	"os"
+	"os/signal"
+	"syscall"
+
+	"github.com/disgoorg/disgo"
+	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/gateway"
 )
 
 func main() {
-    client, err := disgo.New("token",
-        // set gateway options
-        bot.WithGatewayConfigOpts(
-            // set enabled intents
-            gateway.WithGatewayIntents(
-                discord.GatewayIntentGuilds,
-                discord.GatewayIntentGuildMessages,
-                discord.GatewayIntentDirectMessages,
-            ),
-        ),
-        // add event listeners
-        bot.WithEventListenerFunc(func(e *events.MessageCreateEvent) {
-            // event code here
-        }),
-    )
+	client, err := disgo.New("token",
+		// set gateway options
+		bot.WithGatewayConfigOpts(
+			// set enabled intents
+			gateway.WithIntents(
+				gateway.IntentGuilds,
+				gateway.IntentGuildMessages,
+				gateway.IntentDirectMessages,
+			),
+		),
+		// add event listeners
+		bot.WithEventListenerFunc(func(e *events.MessageCreate) {
+			// event code here
+		}),
+	)
+	if err != nil {
+		panic(err)
+	}
+	// connect to the gateway
+	if err = client.ConnectGateway(context.TODO()); err != nil {
+		panic(err)
+	}
+
+	s := make(chan os.Signal, 1)
+	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM)
+	<-s
 }
 ```
 
 ### Full Ping Pong Example
 
-This example can also be found [here](https://github.com/disgoorg/disgo/blob/development/_examples/ping_pong/example.go)
-
-```go
-package main
-
-import (
-    "context"
-    "os"
-    "os/signal"
-    "syscall"
-
-    "github.com/disgoorg/disgo"
-    "github.com/disgoorg/disgo/bot"
-    "github.com/disgoorg/disgo/cache"
-    "github.com/disgoorg/disgo/discord"
-    "github.com/disgoorg/disgo/events"
-    "github.com/disgoorg/disgo/gateway"
-    "github.com/disgoorg/log"
-)
-
-func main() {
-    client, err := disgo.New(os.Getenv("token"),
-        bot.WithGatewayConfigOpts(
-            gateway.WithGatewayIntents(
-                discord.GatewayIntentGuildMessages,
-                discord.GatewayIntentMessageContent,
-            ),
-        ),
-        bot.WithEventListenerFunc(onMessageCreate),
-    )
-    if err != nil {
-        log.Fatal("error while building disgo: ", err)
-    }
-
-    defer client.Close(context.TODO())
-
-    if err = client.ConnectGateway(context.TODO()); err != nil {
-        log.Fatal("errors while connecting to gateway: ", err)
-    }
-
-    log.Info("example is now running. Press CTRL-C to exit.")
-    s := make(chan os.Signal, 1)
-    signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
-    <-s
-}
-
-func onMessageCreate(event *events.MessageCreateEvent) {
-    var message string
-    if event.Message.Content == "ping" {
-        message = "pong"
-    } else if event.Message.Content == "pong" {
-        message = "ping"
-    }
-    if message != "" {
-        _, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent(message).Build())
-    }
-}
-```
+A full Ping Pong example can also be found [here](https://github.com/disgoorg/disgo/blob/development/_examples/ping_pong/example.go)
 
 ### Logging
 
-DisGo uses our own small [logging interface](https://github.com/disgoorg/log) which you can use with most other logging libaries. This lib also comes with a default logger which is based on the standard log package.
+DisGo uses our own small [logging interface](https://github.com/disgoorg/log) which you can use with most other logging libraries. This lib also comes with a default logger which is based on the standard log package.
 
 ## Documentation
 
@@ -176,8 +134,7 @@ There is also a bot template with commands & db [here](https://github.com/disgoo
 
 or in these projects:
 
-* [disgo-butler](https://github.com/disgoorg/disgo-butler)
-* [BansBot](https://github.com/Skye-31/BansBot)
+* [Disgo-Butler](https://github.com/disgoorg/disgo-butler)
 * [Reddit-Discord-Bot](https://github.com/TopiSenpai/Reddit-Discord-Bot)
 * [Kitsune-Bot](https://github.com/TopiSenpai/Kitsune-Bot)
 * [KittyBot](https://github.com/KittyBot-Org/KittyBotGo)
@@ -198,7 +155,7 @@ Is a [Lavalink-Client](https://github.com/freyacodes/Lavalink) which can be used
 
 Is a Discord webhook logger hook for [logrus](https://github.com/sirupsen/logrus)
 
-## Other GoLang Discord Libraries
+## Other Golang Discord Libraries
 
 * [discordgo](https://github.com/bwmarrin/discordgo)
 * [disgord](https://github.com/andersfylling/disgord)
