@@ -378,8 +378,14 @@ loop:
 			// set last sequence received
 			g.config.LastSequenceReceived = &event.S
 
+			data, ok := event.D.(EventData)
+			if !ok && event.D != nil {
+				g.Logger().Error(g.formatLogsf("invalid event data of type %T received", event.D))
+				continue
+			}
+
 			// get session id here
-			if readyEvent, ok := event.D.(EventReady); ok {
+			if readyEvent, ok := data.(EventReady); ok {
 				g.config.SessionID = &readyEvent.SessionID
 				g.status = StatusReady
 				g.Logger().Debug(g.formatLogs("ready event received"))
@@ -392,7 +398,7 @@ loop:
 					Payload:   bytes.NewReader(event.RawD),
 				})
 			}
-			g.eventHandlerFunc(event.T, event.S, g.config.ShardID, event.D.(EventData))
+			g.eventHandlerFunc(event.T, event.S, g.config.ShardID, data)
 
 		case OpcodeHeartbeat:
 			g.Logger().Debug(g.formatLogs("received: OpcodeHeartbeat"))

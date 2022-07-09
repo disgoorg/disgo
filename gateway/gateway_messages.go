@@ -64,8 +64,6 @@ func (e *Message) UnmarshalJSON(data []byte) error {
 		messageData = d
 
 	case OpcodeReconnect:
-		// no data
-		messageData = MessageData(nil)
 
 	case OpcodeRequestGuildMembers:
 		var d MessageDataRequestGuildMembers
@@ -83,8 +81,6 @@ func (e *Message) UnmarshalJSON(data []byte) error {
 		messageData = d
 
 	case OpcodeHeartbeatACK:
-		// no data
-		messageData = MessageData(nil)
 
 	default:
 		err = fmt.Errorf("unknown opcode %d", v.Op)
@@ -117,7 +113,6 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 
 	case EventTypeResumed:
 		// no data
-		eventData = EventData(nil)
 
 	case EventTypeApplicationCommandPermissionsUpdate:
 		var d EventApplicationCommandPermissionsUpdate
