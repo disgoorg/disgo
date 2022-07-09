@@ -20,10 +20,10 @@ type Message struct {
 
 func (e *Message) UnmarshalJSON(data []byte) error {
 	var v struct {
-		Op Opcode    `json:"op"`
-		S  int       `json:"s,omitempty"`
-		T  EventType `json:"t,omitempty"`
-		D  json.RawMessage
+		Op Opcode          `json:"op"`
+		S  int             `json:"s,omitempty"`
+		T  EventType       `json:"t,omitempty"`
+		D  json.RawMessage `json:"d,omitempty"`
 	}
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
@@ -64,7 +64,6 @@ func (e *Message) UnmarshalJSON(data []byte) error {
 		messageData = d
 
 	case OpcodeReconnect:
-		// no data
 
 	case OpcodeRequestGuildMembers:
 		var d MessageDataRequestGuildMembers
@@ -82,7 +81,6 @@ func (e *Message) UnmarshalJSON(data []byte) error {
 		messageData = d
 
 	case OpcodeHeartbeatACK:
-	// no data
 
 	default:
 		err = fmt.Errorf("unknown opcode %d", v.Op)
@@ -400,6 +398,9 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 		var d EventWebhooksUpdate
 		err = json.Unmarshal(data, &d)
 		eventData = d
+
+	default:
+		err = fmt.Errorf("unknown event type: %s", eventType)
 	}
 
 	return eventData, err
