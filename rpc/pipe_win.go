@@ -9,7 +9,7 @@ import (
 	"github.com/Microsoft/go-winio"
 )
 
-func GetDiscordIPCPath(i int) string {
+func getDiscordIPCPath(i int) string {
 	return fmt.Sprintf("\\\\?\\pipe\\discord-ipc-%d", i)
 }
 

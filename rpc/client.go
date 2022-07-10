@@ -17,6 +17,8 @@ import (
 
 var Version = 1
 
+type TransportCreate func(clientID snowflake.ID, origin string) (Transport, error)
+
 type Transport interface {
 	NextWriter() (io.WriteCloser, error)
 	NextReader() (io.Reader, error)
@@ -28,6 +30,7 @@ type Client interface {
 	ServerConfig() ServerConfig
 	User() discord.User
 	V() int
+	Transport() Transport
 
 	Subscribe(event Event, args CmdArgs, handler Handler) error
 	Unsubscribe(event Event, args CmdArgs) error
@@ -35,32 +38,27 @@ type Client interface {
 	Close()
 }
 
-func NewIPCClient(clientID snowflake.ID) (Client, error) {
-	transport, err := NewIPCTransport(clientID)
-	if err != nil {
-		return nil, err
-	}
-	return newClient(transport)
-}
+func NewClient(clientID snowflake.ID, opts ...ConfigOpt) (Client, error) {
+	config := DefaultConfig()
+	config.Apply(opts)
 
-func NewWSClient(clientID snowflake.ID, origin string) (Client, error) {
-	transport, err := NewWSTransport(clientID, origin)
-	if err != nil {
-		return nil, err
-	}
-	return newClient(transport)
-}
-
-func newClient(transport Transport) (Client, error) {
 	client := &clientImpl{
-		logger:          log.Default(),
-		transport:       transport,
+		logger:          config.Logger,
 		eventHandlers:   map[Event]Handler{},
 		commandHandlers: map[string]internalHandler{},
 		readyChan:       make(chan struct{}, 1),
 	}
 
-	go client.listen(transport)
+	if config.Transport == nil {
+		var err error
+		config.Transport, err = config.TransportCreate(clientID, config.Origin)
+		if err != nil {
+			return nil, err
+		}
+	}
+	client.transport = config.Transport
+
+	go client.listen(client.transport)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -102,6 +100,10 @@ func (c *clientImpl) V() int {
 	return c.v
 }
 
+func (c *clientImpl) Transport() Transport {
+	return c.transport
+}
+
 func (c *clientImpl) send(r io.Reader) error {
 	writer, err := c.transport.NextWriter()
 	if err != nil {
@@ -118,7 +120,7 @@ func (c *clientImpl) send(r io.Reader) error {
 	}
 
 	data, _ := io.ReadAll(buff)
-	c.logger.Debugf("Sending message: data: %s", string(data))
+	c.logger.Tracef("Sending message: data: %s", string(data))
 
 	return err
 }
@@ -144,7 +146,7 @@ func (c *clientImpl) Unsubscribe(event Event, args CmdArgs) error {
 			Event: event,
 		}, nil)
 	}
-	return errors.New("event not subscribed")
+	return nil
 }
 
 func (c *clientImpl) Send(message Message, handler Handler) error {
@@ -188,7 +190,7 @@ loop:
 			c.logger.Errorf("Error reading message: %s", err)
 			continue
 		}
-		c.logger.Debugf("Received message: data: %s", string(data))
+		c.logger.Tracef("Received message: data: %s", string(data))
 
 		reader = bytes.NewReader(data)
 

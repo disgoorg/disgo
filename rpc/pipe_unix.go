@@ -10,7 +10,7 @@ import (
 
 var paths = []string{"XDG_RUNTIME_DIR", "TMPDIR", "TMP", "TEMP"}
 
-func GetDiscordIPCPath(i int) string {
+func getDiscordIPCPath(i int) string {
 	tmpPath := "/tmp"
 	for _, path := range paths {
 		if v := os.Getenv(path); v != "" {

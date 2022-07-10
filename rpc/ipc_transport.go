@@ -26,8 +26,17 @@ const (
 	OpCodePong
 )
 
-func NewIPCTransport(clientID snowflake.ID) (Transport, error) {
-	conn, err := openPipe(GetDiscordIPCPath(0))
+func NewIPCTransport(clientID snowflake.ID, _ string) (Transport, error) {
+	var (
+		conn net.Conn
+		err  error
+	)
+	for i := 0; i < 10; i++ {
+		conn, err = openPipe(getDiscordIPCPath(i))
+		if err == nil {
+			break
+		}
+	}
 	if err != nil {
 		return nil, err
 	}
