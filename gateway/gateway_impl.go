@@ -333,7 +333,13 @@ loop:
 					g.config.LastSequenceReceived = nil
 					g.config.SessionID = nil
 				} else {
-					g.Logger().Error(g.formatLogsf("gateway close received, reconnect: %t, code: %d, error: %s", g.config.AutoReconnect && reconnect, closeError.Code, closeError.Text))
+					message := g.formatLogsf("gateway close received, reconnect: %t, code: %d, error: %s", g.config.AutoReconnect && reconnect, closeError.Code, closeError.Text)
+					if reconnect {
+						g.Logger().Debug(message)
+					} else {
+						g.Logger().Error(message)
+					}
+
 				}
 			} else if errors.Is(err, net.ErrClosed) {
 				// we closed the connection ourselves. Don't try to reconnect here
@@ -343,6 +349,8 @@ loop:
 			}
 
 			if g.config.AutoReconnect && reconnect {
+				// make sure the connection is closed before we try to reconnect
+				g.CloseWithCode(context.TODO(), websocket.CloseServiceRestart, "reconnecting")
 				go g.reconnect(context.TODO())
 			} else {
 				g.Close(context.TODO())
