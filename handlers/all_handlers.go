@@ -66,8 +66,8 @@ var allEventHandlers = []bot.GatewayEventHandler{
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildIntegrationsUpdate, gatewayHandlerGuildIntegrationsUpdate),
 
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildMemberAdd, gatewayHandlerGuildMemberAdd),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildMemberRemove, gatewayHandlerGuildMemberRemove),
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildMemberUpdate, gatewayHandlerGuildMemberUpdate),
-	bot.NewGatewayEventHandler(gateway.EventTypeGuildMemberUpdate, gatewayHandlerGuildMemberRemove),
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildMembersChunk, gatewayHandlerGuildMembersChunk),
 
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildRoleCreate, gatewayHandlerGuildRoleCreate),
