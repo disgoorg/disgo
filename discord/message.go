@@ -72,7 +72,7 @@ type Message struct {
 	Embeds            []Embed              `json:"embeds,omitempty"`
 	Components        []ContainerComponent `json:"components,omitempty"`
 	CreatedAt         time.Time            `json:"timestamp"`
-	Mentions          []any                `json:"mentions"`
+	Mentions          []User               `json:"mentions"`
 	MentionEveryone   bool                 `json:"mention_everyone"`
 	MentionRoles      []snowflake.ID       `json:"mention_roles"`
 	MentionChannels   []Channel            `json:"mention_channels"`

@@ -51,9 +51,7 @@ import (
 	"strings"
 
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/handlers"
-	"github.com/disgoorg/disgo/httpserver"
 )
 
 const (
@@ -102,12 +100,8 @@ func New(token string, opts ...bot.ConfigOpt) (bot.Client, error) {
 
 	return bot.BuildClient(token,
 		*config,
-		func(client bot.Client) gateway.EventHandlerFunc {
-			return handlers.DefaultGatewayEventHandler(client)
-		},
-		func(client bot.Client) httpserver.EventHandlerFunc {
-			return handlers.DefaultHTTPServerEventHandler(client)
-		},
+		handlers.DefaultGatewayEventHandlerFunc,
+		handlers.DefaultHTTPServerEventHandlerFunc,
 		OS,
 		Name,
 		GitHub,
