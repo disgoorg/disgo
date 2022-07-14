@@ -50,8 +50,8 @@ After v1 is released breaking changes may only happen if the Discord API require
 
 ### Missing Features
 
-* [Voice](https://discord.com/developers/docs/topics/voice-connections)
-* [RPC](https://discord.com/developers/docs/topics/rpc)
+* [Voice](https://discord.com/developers/docs/topics/voice-connections) (https://github.com/disgoorg/disgo/pull/164)
+* [RPC](https://discord.com/developers/docs/topics/rpc) (https://github.com/disgoorg/disgo/pull/170)
 
 ## Getting Started
 
