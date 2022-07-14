@@ -50,7 +50,7 @@ type guildImpl struct {
 func (s *guildImpl) GetGuild(guildID snowflake.ID, withCounts bool, opts ...RequestOpt) (guild *discord.RestGuild, err error) {
 	values := route.QueryValues{}
 	if withCounts {
-		values["withCounts"] = true
+		values["with_counts"] = true
 	}
 	var compiledRoute *route.CompiledAPIRoute
 	compiledRoute, err = route.GetGuild.Compile(values, guildID)
