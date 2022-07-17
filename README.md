@@ -51,7 +51,7 @@ After v1 is released breaking changes may only happen if the Discord API require
 
 ### Missing Features
 
-* [RPC](https://discord.com/developers/docs/topics/rpc)
+* [RPC](https://discord.com/developers/docs/topics/rpc) (https://github.com/disgoorg/disgo/pull/170)
 
 ## Getting Started
 
@@ -99,7 +99,7 @@ func main() {
 		panic(err)
 	}
 	// connect to the gateway
-	if err = client.ConnectGateway(context.TODO()); err != nil {
+	if err = client.OpenGateway(context.TODO()); err != nil {
 		panic(err)
 	}
 

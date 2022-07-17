@@ -51,9 +51,9 @@ type Client interface {
 	EventManager() EventManager
 
 	VoiceManager() voice.Manager
-
-	// ConnectGateway connects to the configured gateway.Gateway.
-	ConnectGateway(ctx context.Context) error
+	
+	// OpenGateway connects to the configured gateway.Gateway.
+	OpenGateway(ctx context.Context) error
 
 	// Gateway returns the gateway.Gateway used by the Client.
 	Gateway() gateway.Gateway
@@ -61,8 +61,8 @@ type Client interface {
 	// HasGateway returns whether the Client has a configured gateway.Gateway.
 	HasGateway() bool
 
-	// ConnectShardManager connects to the configured sharding.ShardManager.
-	ConnectShardManager(ctx context.Context) error
+	// OpenShardManager connects to the configured sharding.ShardManager.
+	OpenShardManager(ctx context.Context) error
 
 	// ShardManager returns the sharding.ShardManager used by the Client.
 	ShardManager() sharding.ShardManager
@@ -109,8 +109,8 @@ type Client interface {
 	// MemberChunkingManager returns the MemberChunkingManager used by the Client.
 	MemberChunkingManager() MemberChunkingManager
 
-	// StartHTTPServer starts the configured HTTPServer used for interactions over webhooks.
-	StartHTTPServer() error
+	// OpenHTTPServer starts the configured HTTPServer used for interactions over webhooks.
+	OpenHTTPServer() error
 
 	// HTTPServer returns the configured HTTPServer used for interactions over webhooks.
 	HTTPServer() httpserver.Server
@@ -202,7 +202,7 @@ func (c *clientImpl) VoiceManager() voice.Manager {
 	return c.voiceManager
 }
 
-func (c *clientImpl) ConnectGateway(ctx context.Context) error {
+func (c *clientImpl) OpenGateway(ctx context.Context) error {
 	if c.gateway == nil {
 		return discord.ErrNoGateway
 	}
@@ -217,7 +217,7 @@ func (c *clientImpl) HasGateway() bool {
 	return c.gateway != nil
 }
 
-func (c *clientImpl) ConnectShardManager(ctx context.Context) error {
+func (c *clientImpl) OpenShardManager(ctx context.Context) error {
 	if c.shardManager == nil {
 		return discord.ErrNoShardManager
 	}
@@ -341,7 +341,7 @@ func (c *clientImpl) MemberChunkingManager() MemberChunkingManager {
 	return c.memberChunkingManager
 }
 
-func (c *clientImpl) StartHTTPServer() error {
+func (c *clientImpl) OpenHTTPServer() error {
 	if c.httpServer == nil {
 		return discord.ErrNoHTTPServer
 	}

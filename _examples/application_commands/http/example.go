@@ -69,7 +69,7 @@ func main() {
 		log.Fatal("error while registering commands: ", err)
 	}
 
-	if err = client.StartHTTPServer(); err != nil {
+	if err = client.OpenHTTPServer(); err != nil {
 		log.Fatal("error while starting http server: ", err)
 	}
 

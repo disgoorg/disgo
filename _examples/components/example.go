@@ -50,7 +50,7 @@ func main() {
 
 	defer client.Close(context.TODO())
 
-	if err = client.ConnectGateway(context.TODO()); err != nil {
+	if err = client.OpenGateway(context.TODO()); err != nil {
 		log.Fatal("error while connecting to gateway: ", err)
 	}
 

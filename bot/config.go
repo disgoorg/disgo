@@ -125,6 +125,13 @@ func WithGateway(gateway gateway.Gateway) ConfigOpt {
 	}
 }
 
+// WithDefaultGateway creates a gateway.Gateway with sensible defaults.
+func WithDefaultGateway() ConfigOpt {
+	return func(config *Config) {
+		config.GatewayConfigOpts = append(config.GatewayConfigOpts, func(_ *gateway.Config) {})
+	}
+}
+
 // WithGatewayConfigOpts lets you configure the default gateway.Gateway.
 func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) ConfigOpt {
 	return func(config *Config) {
@@ -136,6 +143,13 @@ func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) ConfigOpt {
 func WithShardManager(shardManager sharding.ShardManager) ConfigOpt {
 	return func(config *Config) {
 		config.ShardManager = shardManager
+	}
+}
+
+// WithDefaultShardManager creates a sharding.ShardManager with sensible defaults.
+func WithDefaultShardManager() ConfigOpt {
+	return func(config *Config) {
+		config.ShardManagerConfigOpts = append(config.ShardManagerConfigOpts, func(_ *sharding.Config) {})
 	}
 }
 
@@ -233,7 +247,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 	}
 	client.eventManager = config.EventManager
 
-	if config.Gateway == nil && config.GatewayConfigOpts != nil {
+	if config.Gateway == nil && len(config.GatewayConfigOpts) > 0 {
 		var gatewayRs *discord.Gateway
 		gatewayRs, err = client.restServices.GetGateway()
 		if err != nil {
@@ -255,7 +269,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 	}
 	client.gateway = config.Gateway
 
-	if config.ShardManager == nil && config.ShardManagerConfigOpts != nil {
+	if config.ShardManager == nil && len(config.ShardManagerConfigOpts) > 0 {
 		var gatewayBotRs *discord.GatewayBot
 		gatewayBotRs, err = client.restServices.GetGatewayBot()
 		if err != nil {
@@ -290,7 +304,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 	}
 	client.shardManager = config.ShardManager
 
-	if config.HTTPServer == nil && config.PublicKey != "" && config.HTTPServerConfigOpts != nil {
+	if config.HTTPServer == nil && config.PublicKey != "" {
 		config.HTTPServerConfigOpts = append([]httpserver.ConfigOpt{
 			httpserver.WithLogger(client.logger),
 		}, config.HTTPServerConfigOpts...)
