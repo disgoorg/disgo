@@ -8,6 +8,7 @@ import (
 	"io"
 	"net"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/disgoorg/disgo/discord"
@@ -161,7 +162,10 @@ func (g *gatewayImpl) heartbeat(heartbeatInterval time.Duration) {
 
 func (g *gatewayImpl) sendHeartbeat() {
 	g.lastNonce = time.Now().UnixMilli()
-	if err := g.Send(GatewayOpcodeHeartbeat, GatewayMessageDataHeartbeat(g.lastNonce)); err != nil && err != ErrGatewayNotConnected {
+	if err := g.Send(GatewayOpcodeHeartbeat, GatewayMessageDataHeartbeat(g.lastNonce)); err != nil {
+		if err != ErrGatewayNotConnected || errors.Is(err, syscall.EPIPE) {
+			return
+		}
 		g.Logger().Error("failed to send heartbeat. error: ", err)
 		g.CloseWithCode(websocket.CloseServiceRestart, "heartbeat timeout")
 		go g.reconnect(context.TODO())
@@ -195,15 +199,13 @@ loop:
 			} else {
 				g.Logger().Debug("failed to read next message from gateway. error: ", err)
 			}
+			g.CloseWithCode(websocket.CloseServiceRestart, "listen error")
 			if g.config.AutoReconnect && reconnect {
 				go g.reconnect(context.TODO())
-			} else {
-				g.Close()
-				if g.closeHandlerFunc != nil {
-					go g.closeHandlerFunc(g, err)
-				}
+			} else if g.closeHandlerFunc != nil {
+				go g.closeHandlerFunc(g, err)
 			}
-			return
+			break loop
 		}
 
 		message, err := g.parseGatewayMessage(reader)
