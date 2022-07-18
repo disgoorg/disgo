@@ -9,6 +9,7 @@ import (
 	"io"
 	"net"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/disgoorg/disgo/discord"
@@ -251,7 +252,10 @@ func (g *gatewayImpl) sendHeartbeat() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), g.heartbeatInterval)
 	defer cancel()
-	if err := g.Send(ctx, OpcodeHeartbeat, (*MessageDataHeartbeat)(g.config.LastSequenceReceived)); err != nil && err != discord.ErrShardNotConnected {
+	if err := g.Send(ctx, OpcodeHeartbeat, MessageDataHeartbeat(*g.config.LastSequenceReceived)); err != nil {
+		if err == discord.ErrShardNotConnected || errors.Is(err, syscall.EPIPE) {
+			return
+		}
 		g.Logger().Error(g.formatLogs("failed to send heartbeat. error: ", err))
 		g.CloseWithCode(context.TODO(), websocket.CloseServiceRestart, "heartbeat timeout")
 		go g.reconnect(context.TODO())
@@ -348,15 +352,12 @@ loop:
 				g.Logger().Debug(g.formatLogs("failed to read next message from gateway. error: ", err))
 			}
 
+			// make sure the connection is properly closed
+			g.CloseWithCode(context.TODO(), websocket.CloseServiceRestart, "reconnecting")
 			if g.config.AutoReconnect && reconnect {
-				// make sure the connection is closed before we try to reconnect
-				g.CloseWithCode(context.TODO(), websocket.CloseServiceRestart, "reconnecting")
 				go g.reconnect(context.TODO())
-			} else {
-				g.Close(context.TODO())
-				if g.closeHandlerFunc != nil {
-					go g.closeHandlerFunc(g, err)
-				}
+			} else if g.closeHandlerFunc != nil {
+				go g.closeHandlerFunc(g, err)
 			}
 			break loop
 		}
