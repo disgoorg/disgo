@@ -13,23 +13,44 @@ import (
 	"golang.org/x/crypto/nacl/secretbox"
 )
 
+// OpusPacketHeaderSize is the size of the opus packet header.
 const OpusPacketHeaderSize = 12
 
+// ErrDecryptionFailed is returned when the packet decryption fails.
 var ErrDecryptionFailed = errors.New("decryption failed")
 
+// UDPConnCreateFunc is a function that creates a UDPConn.
 type UDPConnCreateFunc func(ip string, port int, ssrc uint32, opts ...UDPConnConfigOpt) UDPConn
 
+// UDPConn represents a UDP connection to discord voice servers. It is used to send/receive voice packets to/from discord.
+// It implements the io.Reader, io.Writer and io.Closer interface.
 type UDPConn interface {
+	// SetSecretKey sets the secret key used to encrypt packets.
 	SetSecretKey(secretKey [32]byte)
+
+	// Open opens the UDPConn connection.
 	Open(ctx context.Context) (string, int, error)
+
+	// Write writes a packet to the UDPConn connection. This implements the io.Writer interface.
 	Write(p []byte) (int, error)
+
+	// Read reads a packet from the UDPConn connection. This implements the io.Reader interface.
 	Read(p []byte) (int, error)
+
+	// SetReadDeadline sets the read deadline for the UDPConn connection.
 	SetReadDeadline(t time.Time) error
+
+	// SetWriteDeadline sets the write deadline for the UDPConn connection.
 	SetWriteDeadline(t time.Time) error
+
+	// ReadPacket reads a packet from the UDPConn connection.
 	ReadPacket() (*Packet, error)
+
+	// Close closes the UDPConn connection.
 	Close()
 }
 
+// NewUDPConn creates a new voice UDPConn with the given configuration.
 func NewUDPConn(ip string, port int, ssrc uint32, opts ...UDPConnConfigOpt) UDPConn {
 	config := DefaultUDPConfig()
 	config.Apply(opts)
@@ -190,9 +211,14 @@ func (u *udpImpl) Close() {
 	_ = u.conn.Close()
 }
 
+// Packet is a voice packet received from discord.
 type Packet struct {
-	Sequence  uint16
+	// Sequence is the sequence number of the packet.
+	Sequence uint16
+	// Timestamp is the timestamp of the packet.
 	Timestamp uint32
-	SSRC      uint32
-	Opus      []byte
+	// SSRC is the users SSRC of the packet.
+	SSRC uint32
+	// Opus is the actual opus data of the packet.
+	Opus []byte
 }

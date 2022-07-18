@@ -11,7 +11,6 @@ import (
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/voice"
@@ -31,7 +30,7 @@ func main() {
 	log.Info("starting up")
 
 	client, err := disgo.New(token,
-		bot.WithGatewayConfigOpts(gateway.WithGatewayIntents(discord.GatewayIntentGuildVoiceStates)),
+		bot.WithGatewayConfigOpts(gateway.WithIntents(gateway.IntentGuildVoiceStates)),
 		bot.WithEventListenerFunc(func(e *events.Ready) {
 			go play(e.Client())
 		}),
@@ -42,7 +41,7 @@ func main() {
 
 	defer client.Close(context.TODO())
 
-	if err = client.ConnectGateway(context.TODO()); err != nil {
+	if err = client.OpenGateway(context.TODO()); err != nil {
 		log.Fatal("error connecting to gateway: ", err)
 	}
 
@@ -55,7 +54,7 @@ func main() {
 func play(client bot.Client) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	conn, err := client.ConnectVoice(ctx, guildID, channelID, false, false)
+	conn, err := client.OpenVoice(ctx, guildID, channelID, false, false)
 	if err != nil {
 		panic("error connecting to voice channel: " + err.Error())
 	}
