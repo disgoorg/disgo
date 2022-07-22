@@ -118,7 +118,14 @@ func (s *guildImpl) GetGuildChannels(guildID snowflake.ID, opts ...RequestOpt) (
 	if err != nil {
 		return
 	}
-	err = s.client.Do(compiledRoute, nil, &channels, opts...)
+	var chs []discord.UnmarshalChannel
+	err = s.client.Do(compiledRoute, nil, &chs, opts...)
+	if err == nil {
+		channels = make([]discord.GuildChannel, len(chs))
+		for i := range chs {
+			channels[i] = chs[i].Channel.(discord.GuildChannel)
+		}
+	}
 	return
 }
 
