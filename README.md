@@ -159,6 +159,10 @@ Is a [Lavalink-Client](https://github.com/freyacodes/Lavalink) which can be used
 
 Is a Discord webhook logger hook for [logrus](https://github.com/sirupsen/logrus)
 
+### [DisGomd](https://github.com/eminarican/disgomd)
+
+Is a command handler utility
+
 ## Other Golang Discord Libraries
 
 * [discordgo](https://github.com/bwmarrin/discordgo)
