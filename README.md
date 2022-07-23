@@ -143,6 +143,9 @@ or in these projects:
 
 * [handler](https://github.com/disgoorg/handler) is a simple application command, component and modal handler library.
 
+* [disgomd](https://github.com/eminarican/disgomd) is a command utility library that uses struct based approach
+
+
 ## Other interesting Projects to look at
 
 ### [Lavalink](https://github.com/freyacodes/Lavalink)
@@ -158,10 +161,6 @@ Is a [Lavalink-Client](https://github.com/freyacodes/Lavalink) which can be used
 ### [DisLog](https://github.com/disgoorg/dislog)
 
 Is a Discord webhook logger hook for [logrus](https://github.com/sirupsen/logrus)
-
-### [DisGomd](https://github.com/eminarican/disgomd)
-
-Is a command handler utility
 
 ## Other Golang Discord Libraries
 
