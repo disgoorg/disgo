@@ -143,6 +143,9 @@ or in these projects:
 
 * [handler](https://github.com/disgoorg/handler) is a simple application command, component and modal handler library.
 
+* [disgomd](https://github.com/eminarican/disgomd) is a command utility library that uses struct based approach
+
+
 ## Other interesting Projects to look at
 
 ### [Lavalink](https://github.com/freyacodes/Lavalink)
