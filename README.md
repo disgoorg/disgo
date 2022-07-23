@@ -139,6 +139,10 @@ or in these projects:
 * [Kitsune-Bot](https://github.com/TopiSenpai/Kitsune-Bot)
 * [KittyBot](https://github.com/KittyBot-Org/KittyBotGo)
 
+## Libraries for DisGo
+
+* [handler](https://github.com/disgoorg/handler) is a simple application command, component and modal handler library.
+
 ## Other interesting Projects to look at
 
 ### [Lavalink](https://github.com/freyacodes/Lavalink)
