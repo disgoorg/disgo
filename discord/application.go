@@ -160,6 +160,12 @@ const (
 	ApplicationFlagGatewayGuildMemberLimited
 	ApplicationFlagVerificationPendingGuildLimit
 	ApplicationFlagEmbedded
+	ApplicationFlagGatewayMessageContent
+	ApplicationFlagGatewayMessageContentLimited
+	_
+	_
+	_
+	ApplicationFlagApplicationCommandBadge
 )
 
 // Add allows you to add multiple bits together, producing a new bit
