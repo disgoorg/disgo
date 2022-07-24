@@ -172,7 +172,7 @@ var (
 
 // Messages
 var (
-	GetMessages        = NewAPIRoute(GET, "/channels/{channel.id}/messages")
+	GetMessages        = NewAPIRoute(GET, "/channels/{channel.id}/messages", "before", "after", "limit")
 	GetMessage         = NewAPIRoute(GET, "/channels/{channel.id}/messages/{message.id}")
 	CreateMessage      = NewAPIRoute(POST, "/channels/{channel.id}/messages")
 	UpdateMessage      = NewAPIRoute(PATCH, "/channels/{channel.id}/messages/{message.id}")
