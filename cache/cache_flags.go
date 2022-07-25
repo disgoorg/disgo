@@ -17,9 +17,9 @@ const (
 	FlagStickers
 	FlagVoiceStates
 	FlagStageInstances
-	FlagsNone Flags = 0
 
-	FlagsAll = FlagGuilds |
+	FlagsNone Flags = 0
+	FlagsAll        = FlagGuilds |
 		FlagGuildScheduledEvents |
 		FlagMembers |
 		FlagThreadMembers |
