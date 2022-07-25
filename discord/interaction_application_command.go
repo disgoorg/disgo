@@ -152,7 +152,7 @@ func (d *SlashCommandInteractionData) UnmarshalJSON(data []byte) error {
 
 		unmarshalOption := flattenedOptions[0]
 		if option, ok := unmarshalOption.(SlashCommandOptionSubCommandGroup); ok {
-			d.SubCommandGroupName = &option.GroupName
+			d.SubCommandGroupName = &option.Name
 			flattenedOptions = make([]internalSlashCommandOption, len(option.Options))
 			for ii := range option.Options {
 				flattenedOptions[ii] = option.Options[ii]
@@ -160,7 +160,7 @@ func (d *SlashCommandInteractionData) UnmarshalJSON(data []byte) error {
 			unmarshalOption = option.Options[0]
 		}
 		if option, ok := unmarshalOption.(SlashCommandOptionSubCommand); ok {
-			d.SubCommandName = &option.CommandName
+			d.SubCommandName = &option.Name
 
 			flattenedOptions = make([]internalSlashCommandOption, len(option.Options))
 			for i := range option.Options {
@@ -183,8 +183,8 @@ func (d SlashCommandInteractionData) MarshalJSON() ([]byte, error) {
 
 	if d.SubCommandName != nil {
 		subCmd := SlashCommandOptionSubCommand{
-			CommandName: *d.SubCommandName,
-			Options:     make([]SlashCommandOption, len(options)),
+			Name:    *d.SubCommandName,
+			Options: make([]SlashCommandOption, len(options)),
 		}
 		for _, option := range options {
 			subCmd.Options = append(subCmd.Options, option.(SlashCommandOption))
@@ -194,8 +194,8 @@ func (d SlashCommandInteractionData) MarshalJSON() ([]byte, error) {
 
 	if d.SubCommandGroupName != nil {
 		groupCmd := SlashCommandOptionSubCommandGroup{
-			GroupName: *d.SubCommandGroupName,
-			Options:   make([]SlashCommandOptionSubCommand, len(options)),
+			Name:    *d.SubCommandGroupName,
+			Options: make([]SlashCommandOptionSubCommand, len(options)),
 		}
 		for _, option := range options {
 			groupCmd.Options = append(groupCmd.Options, option.(SlashCommandOptionSubCommand))

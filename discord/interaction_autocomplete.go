@@ -92,7 +92,7 @@ func (d *AutocompleteInteractionData) UnmarshalJSON(data []byte) error {
 
 		unmarshalOption := flattenedOptions[0]
 		if option, ok := unmarshalOption.(AutocompleteOptionSubCommandGroup); ok {
-			d.SubCommandGroupName = &option.GroupName
+			d.SubCommandGroupName = &option.Name
 			flattenedOptions = make([]internalAutocompleteOption, len(option.Options))
 			for ii := range option.Options {
 				flattenedOptions[ii] = option.Options[ii]
@@ -100,7 +100,7 @@ func (d *AutocompleteInteractionData) UnmarshalJSON(data []byte) error {
 			unmarshalOption = option.Options[0]
 		}
 		if option, ok := unmarshalOption.(AutocompleteOptionSubCommand); ok {
-			d.SubCommandName = &option.CommandName
+			d.SubCommandName = &option.Name
 
 			flattenedOptions = make([]internalAutocompleteOption, len(option.Options))
 			for i := range option.Options {
@@ -123,8 +123,8 @@ func (d AutocompleteInteractionData) MarshalJSON() ([]byte, error) {
 
 	if d.SubCommandName != nil {
 		subCmd := AutocompleteOptionSubCommand{
-			CommandName: *d.SubCommandName,
-			Options:     make([]AutocompleteOption, len(options)),
+			Name:    *d.SubCommandName,
+			Options: make([]AutocompleteOption, len(options)),
 		}
 		for _, option := range options {
 			subCmd.Options = append(subCmd.Options, option.(AutocompleteOption))
@@ -134,8 +134,8 @@ func (d AutocompleteInteractionData) MarshalJSON() ([]byte, error) {
 
 	if d.SubCommandGroupName != nil {
 		groupCmd := AutocompleteOptionSubCommandGroup{
-			GroupName: *d.SubCommandGroupName,
-			Options:   make([]AutocompleteOptionSubCommand, len(options)),
+			Name:    *d.SubCommandGroupName,
+			Options: make([]AutocompleteOptionSubCommand, len(options)),
 		}
 		for _, option := range options {
 			groupCmd.Options = append(groupCmd.Options, option.(AutocompleteOptionSubCommand))
