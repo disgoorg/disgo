@@ -100,7 +100,7 @@ const (
 func HandleInteraction(publicKey PublicKey, logger log.Logger, handleFunc EventHandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if ok := VerifyRequest(r, publicKey); !ok {
-			w.WriteHeader(http.StatusUnauthorized)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			data, _ := io.ReadAll(r.Body)
 			logger.Trace("received http interaction with invalid signature. body: ", string(data))
 			return
@@ -117,7 +117,7 @@ func HandleInteraction(publicKey PublicKey, logger log.Logger, handleFunc EventH
 		var v EventInteractionCreate
 		if err := json.NewDecoder(buff).Decode(&v); err != nil {
 			logger.Error("error while decoding interaction: ", err)
-			w.WriteHeader(http.StatusInternalServerError)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 
@@ -163,7 +163,7 @@ func HandleInteraction(publicKey PublicKey, logger log.Logger, handleFunc EventH
 		select {
 		case response := <-responseChannel:
 			if body, err = response.ToBody(); err != nil {
-				http.Error(w, "internal server error", http.StatusInternalServerError)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 				errorChannel <- err
 				return
 			}
@@ -174,7 +174,7 @@ func HandleInteraction(publicKey PublicKey, logger log.Logger, handleFunc EventH
 			status = replyStatusTimedOut
 
 			logger.Debug("interaction timed out")
-			http.Error(w, "interaction timed out", http.StatusRequestTimeout)
+			http.Error(w, "Interaction Timed Out", http.StatusRequestTimeout)
 			errorChannel <- ctx.Err()
 			return
 		}
