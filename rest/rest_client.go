@@ -13,7 +13,6 @@ import (
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest/route"
-	"github.com/disgoorg/log"
 )
 
 // NewClient constructs a new Client with the given Config struct
@@ -28,9 +27,6 @@ func NewClient(botToken string, opts ...ConfigOpt) Client {
 
 // Client allows doing requests to different endpoints
 type Client interface {
-	// Logger returns the logger the rest client uses
-	Logger() log.Logger
-
 	// HTTPClient returns the http.Client the rest client uses
 	HTTPClient() *http.Client
 
@@ -52,10 +48,6 @@ type clientImpl struct {
 func (c *clientImpl) Close(ctx context.Context) {
 	c.config.RateLimiter.Close(ctx)
 	c.config.HTTPClient.CloseIdleConnections()
-}
-
-func (c *clientImpl) Logger() log.Logger {
-	return c.config.Logger
 }
 
 func (c *clientImpl) HTTPClient() *http.Client {
@@ -90,7 +82,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 				return fmt.Errorf("failed to marshal request body: %w", err)
 			}
 		}
-		c.Logger().Tracef("request to %s, body: %s", rqURL, string(rawRqBody))
+		c.config.Logger.Tracef("request to %s, body: %s", rqURL, string(rawRqBody))
 	}
 
 	rq, err := http.NewRequest(cRoute.APIRoute.Method().String(), rqURL, bytes.NewReader(rawRqBody))
@@ -150,7 +142,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 		if rawRsBody, err = io.ReadAll(rs.Body); err != nil {
 			return fmt.Errorf("error reading response body in rest client: %w", err)
 		}
-		c.Logger().Tracef("response from %s, code %d, body: %s", rqURL, rs.StatusCode, string(rawRsBody))
+		c.config.Logger.Tracef("response from %s, code %d, body: %s", rqURL, rs.StatusCode, string(rawRsBody))
 	}
 
 	switch rs.StatusCode {
@@ -158,7 +150,7 @@ func (c *clientImpl) retry(cRoute *route.CompiledAPIRoute, rqBody any, rsBody an
 		if rsBody != nil && rs.Body != nil {
 			if err = json.Unmarshal(rawRsBody, rsBody); err != nil {
 				wErr := fmt.Errorf("error unmarshalling response body: %w", err)
-				c.Logger().Error(wErr)
+				c.config.Logger.Error(wErr)
 				return wErr
 			}
 		}

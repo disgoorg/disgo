@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/disgoorg/disgo/rest/route"
-	"github.com/disgoorg/log"
 	"github.com/sasha-s/go-csync"
 )
 
@@ -48,10 +47,6 @@ type (
 	}
 )
 
-func (l *rateLimiterImpl) Logger() log.Logger {
-	return l.config.Logger
-}
-
 func (l *rateLimiterImpl) MaxRetries() int {
 	return l.config.MaxRetries
 }
@@ -73,13 +68,13 @@ func (l *rateLimiterImpl) doCleanup() {
 			continue
 		}
 		if b.Reset.Before(now) {
-			l.Logger().Debugf("cleaning up bucket, Hash: %s, ID: %s, Reset: %s", hash, b.ID, b.Reset)
+			l.config.Logger.Debugf("cleaning up bucket, Hash: %s, ID: %s, Reset: %s", hash, b.ID, b.Reset)
 			delete(l.buckets, hash)
 		}
 		b.mu.Unlock()
 	}
 	if before != len(l.buckets) {
-		l.Logger().Debugf("cleaned up %d rate limit buckets", before-len(l.buckets))
+		l.config.Logger.Debugf("cleaned up %d rate limit buckets", before-len(l.buckets))
 	}
 }
 
@@ -122,10 +117,10 @@ func (l *rateLimiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor 
 func (l *rateLimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *bucket {
 	hash := l.getRouteHash(route)
 
-	l.Logger().Trace("locking buckets")
+	l.config.Logger.Trace("locking buckets")
 	l.bucketsMu.Lock()
 	defer func() {
-		l.Logger().Trace("unlocking buckets")
+		l.config.Logger.Trace("unlocking buckets")
 		l.bucketsMu.Unlock()
 	}()
 	b, ok := l.buckets[hash]
@@ -146,7 +141,7 @@ func (l *rateLimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) 
 
 func (l *rateLimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error {
 	b := l.getBucket(route, true)
-	l.Logger().Tracef("locking rest bucket, ID: %s, Limit: %d, Remaining: %d, Reset: %s", b.ID, b.Limit, b.Remaining, b.Reset)
+	l.config.Logger.Tracef("locking rest bucket, ID: %s, Limit: %d, Remaining: %d, Reset: %s", b.ID, b.Limit, b.Remaining, b.Reset)
 	if err := b.mu.CLock(ctx); err != nil {
 		return err
 	}
@@ -182,7 +177,7 @@ func (l *rateLimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, rs *http.R
 		return nil
 	}
 	defer func() {
-		l.Logger().Tracef("unlocking rest bucket, ID: %s, Limit: %d, Remaining: %d, Reset: %s", b.ID, b.Limit, b.Remaining, b.Reset)
+		l.config.Logger.Tracef("unlocking rest bucket, ID: %s, Limit: %d, Remaining: %d, Reset: %s", b.ID, b.Limit, b.Remaining, b.Reset)
 		b.mu.Unlock()
 	}()
 
@@ -207,7 +202,7 @@ func (l *rateLimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, rs *http.R
 	resetAfterHeader := rs.Header.Get("X-RateLimit-Reset-After")
 	retryAfterHeader := rs.Header.Get("Retry-After")
 
-	l.Logger().Tracef("code: %d, headers: global %t, cloudflare: %t, remaining: %s, limit: %s, reset: %s, retryAfter: %s", rs.StatusCode, global, cloudflare, remainingHeader, limitHeader, resetHeader, retryAfterHeader)
+	l.config.Logger.Tracef("code: %d, headers: global %t, cloudflare: %t, remaining: %s, limit: %s, reset: %s, retryAfter: %s", rs.StatusCode, global, cloudflare, remainingHeader, limitHeader, resetHeader, retryAfterHeader)
 
 	if rs.StatusCode == http.StatusTooManyRequests {
 		retryAfter, err := strconv.Atoi(retryAfterHeader)
@@ -217,14 +212,14 @@ func (l *rateLimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, rs *http.R
 		reset := time.Now().Add(time.Second * time.Duration(retryAfter))
 		if global {
 			l.global = reset
-			l.Logger().Warnf("global rate limit exceeded, retry after: %ds", retryAfter)
+			l.config.Logger.Warnf("global rate limit exceeded, retry after: %ds", retryAfter)
 		} else if cloudflare {
 			l.global = reset
-			l.Logger().Warnf("cloudflare rate limit exceeded, retry after: %ds", retryAfter)
+			l.config.Logger.Warnf("cloudflare rate limit exceeded, retry after: %ds", retryAfter)
 		} else {
 			b.Remaining = 0
 			b.Reset = reset
-			l.Logger().Warnf("rate limit on route %s exceeded, retry after: %ds", route.URL(), retryAfter)
+			l.config.Logger.Warnf("rate limit on route %s exceeded, retry after: %ds", route.URL(), retryAfter)
 		}
 		return nil
 	}

@@ -2,15 +2,10 @@ package sharding
 
 import (
 	"context"
-
-	"github.com/disgoorg/log"
 )
 
 // RateLimiter limits how many shards can log in to Discord at the same time.
 type RateLimiter interface {
-	// Logger returns the logger the RateLimiter uses
-	Logger() log.Logger
-
 	// Close gracefully closes the RateLimiter.
 	// If the context deadline is exceeded, the RateLimiter will be closed immediately.
 	Close(ctx context.Context)

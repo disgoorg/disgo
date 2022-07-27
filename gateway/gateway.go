@@ -3,8 +3,6 @@ package gateway
 import (
 	"context"
 	"time"
-
-	"github.com/disgoorg/log"
 )
 
 // Version defines which discord API version disgo should use to connect to discord.
@@ -64,9 +62,6 @@ type (
 
 // Gateway is what is used to connect to discord.
 type Gateway interface {
-	// Logger returns the logger that is used by the Gateway.
-	Logger() log.Logger
-
 	// ShardID returns the shard ID that this Gateway is configured to use.
 	ShardID() int
 

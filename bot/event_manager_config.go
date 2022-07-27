@@ -2,15 +2,19 @@ package bot
 
 import (
 	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/log"
 )
 
 // DefaultEventManagerConfig returns a new EventManagerConfig with all default values.
 func DefaultEventManagerConfig() *EventManagerConfig {
-	return &EventManagerConfig{}
+	return &EventManagerConfig{
+		Logger: log.Default(),
+	}
 }
 
 // EventManagerConfig can be used to configure the EventManager.
 type EventManagerConfig struct {
+	Logger             log.Logger
 	EventListeners     []EventListener
 	AsyncEventsEnabled bool
 
@@ -25,6 +29,13 @@ type EventManagerConfigOpt func(config *EventManagerConfig)
 func (c *EventManagerConfig) Apply(opts []EventManagerConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
+	}
+}
+
+// WithEventManagerLogger overrides the default logger in the EventManagerConfig.
+func WithEventManagerLogger(logger log.Logger) EventManagerConfigOpt {
+	return func(config *EventManagerConfig) {
+		config.Logger = logger
 	}
 }
 

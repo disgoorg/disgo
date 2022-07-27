@@ -114,7 +114,7 @@ func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType gateway.EventType
 	if handler, ok := e.config.GatewayHandlers[gatewayEventType]; ok {
 		handler.HandleGatewayEvent(e.client, sequenceNumber, shardID, event)
 	} else {
-		e.client.Logger().Warnf("no handler for gateway event '%s' found", gatewayEventType)
+		e.config.Logger.Warnf("no handler for gateway event '%s' found", gatewayEventType)
 	}
 }
 
@@ -127,7 +127,7 @@ func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, e
 func (e *eventManagerImpl) DispatchEvent(event Event) {
 	defer func() {
 		if r := recover(); r != nil {
-			e.client.Logger().Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
+			e.config.Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
 			return
 		}
 	}()
@@ -138,7 +138,7 @@ func (e *eventManagerImpl) DispatchEvent(event Event) {
 			go func() {
 				defer func() {
 					if r := recover(); r != nil {
-						e.client.Logger().Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
+						e.config.Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
 						return
 					}
 				}()
