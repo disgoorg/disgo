@@ -33,7 +33,7 @@ type EventManager interface {
 	HandleGatewayEvent(gatewayEventType gateway.EventType, sequenceNumber int, shardID int, event gateway.EventData)
 
 	// HandleHTTPEvent calls the HTTPServerEventHandler for the payload
-	HandleHTTPEvent(respondFunc httpserver.RespondFunc, event gateway.EventInteractionCreate)
+	HandleHTTPEvent(respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate)
 
 	// DispatchEvent dispatches a new Event to the Client's EventListener(s)
 	DispatchEvent(event Event)
@@ -97,7 +97,7 @@ func (h *genericGatewayEventHandler[T]) HandleGatewayEvent(client Client, sequen
 
 // HTTPServerEventHandler is used to handle HTTP Event(s)
 type HTTPServerEventHandler interface {
-	HandleHTTPEvent(client Client, respondFunc httpserver.RespondFunc, event gateway.EventInteractionCreate)
+	HandleHTTPEvent(client Client, respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate)
 }
 
 type eventManagerImpl struct {
@@ -118,7 +118,7 @@ func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType gateway.EventType
 	}
 }
 
-func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, event gateway.EventInteractionCreate) {
+func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.config.HTTPServerHandler.HandleHTTPEvent(e.client, respondFunc, event)
