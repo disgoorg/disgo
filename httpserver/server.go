@@ -20,12 +20,21 @@ type (
 
 	// RespondFunc is used to respond to Discord's Outgoing Webhooks
 	RespondFunc func(response discord.InteractionResponse) error
-
-	// EventInteractionCreate is the event payload when an interaction is created via Discord's Outgoing Webhooks
-	EventInteractionCreate struct {
-		discord.Interaction
-	}
 )
+
+// EventInteractionCreate is the event payload when an interaction is created via Discord's Outgoing Webhooks
+type EventInteractionCreate struct {
+	discord.Interaction
+}
+
+func (e *EventInteractionCreate) UnmarshalJSON(data []byte) error {
+	var interaction discord.UnmarshalInteraction
+	if err := json.Unmarshal(data, &interaction); err != nil {
+		return err
+	}
+	e.Interaction = interaction.Interaction
+	return nil
+}
 
 // Server is used for receiving Discord's interactions via Outgoing Webhooks
 type Server interface {
