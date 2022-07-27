@@ -99,9 +99,8 @@ const (
 // HandleInteraction handles an interaction from Discord's Outgoing Webhooks. It verifies and parses the interaction and then calls the passed EventHandlerFunc.
 func HandleInteraction(publicKey PublicKey, logger log.Logger, handleFunc EventHandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		if ok := VerifyRequest(r, publicKey); !ok {
-			w.WriteHeader(http.StatusUnauthorized)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			data, _ := io.ReadAll(r.Body)
 			logger.Trace("received http interaction with invalid signature. body: ", string(data))
 			return
@@ -118,13 +117,14 @@ func HandleInteraction(publicKey PublicKey, logger log.Logger, handleFunc EventH
 		var v EventInteractionCreate
 		if err := json.NewDecoder(buff).Decode(&v); err != nil {
 			logger.Error("error while decoding interaction: ", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 
 		// these channels are used to communicate between the http handler and where the interaction is responded to
-		responseChannel := make(chan discord.InteractionResponse)
+		responseChannel := make(chan discord.InteractionResponse, 1)
 		defer close(responseChannel)
-		errorChannel := make(chan error)
+		errorChannel := make(chan error, 1)
 		defer close(errorChannel)
 
 		// status of this interaction with a mutex to ensure usage between multiple goroutines
@@ -158,23 +158,24 @@ func HandleInteraction(publicKey PublicKey, logger log.Logger, handleFunc EventH
 		)
 
 		// wait for the interaction to be responded to or to time out after 3s
-		timer := time.NewTimer(time.Second * 3)
-		defer timer.Stop()
+		ctx, cancel := context.WithTimeout(context.Background(), 3100*time.Millisecond)
+		defer cancel()
 		select {
 		case response := <-responseChannel:
 			if body, err = response.ToBody(); err != nil {
-				http.Error(w, "internal server error", http.StatusInternalServerError)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 				errorChannel <- err
 				return
 			}
 
-		case <-timer.C:
+		case <-ctx.Done():
 			mu.Lock()
 			defer mu.Unlock()
 			status = replyStatusTimedOut
 
 			logger.Debug("interaction timed out")
-			http.Error(w, "interaction timed out", http.StatusRequestTimeout)
+			http.Error(w, "Interaction Timed Out", http.StatusRequestTimeout)
+			errorChannel <- ctx.Err()
 			return
 		}
 
