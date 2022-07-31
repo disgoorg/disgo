@@ -58,7 +58,7 @@ After v1 is released breaking changes may only happen if the Discord API require
 ### Installing
 
 ```sh
-go get github.com/disgoorg/disgo
+go install github.com/disgoorg/disgo@latest
 ```
 
 ### Building a DisGo Instance
