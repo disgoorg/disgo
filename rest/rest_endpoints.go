@@ -312,6 +312,9 @@ func (e *Endpoint) Compile(values discord.QueryValues, params ...any) *CompiledE
 	for _, param := range params {
 		start := strings.Index(path, "{")
 		end := strings.Index(path, "}")
+		if start == -1 || end == -1 {
+			break
+		}
 		paramName := path[start+1 : end]
 		paramValue := fmt.Sprint(param)
 		if strings.Contains(MajorParameters, paramName) {

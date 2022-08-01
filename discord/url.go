@@ -22,6 +22,9 @@ func urlPrint(url string, params ...any) string {
 	for _, param := range params {
 		start := strings.Index(url, "{")
 		end := strings.Index(url, "}")
+		if start == -1 || end == -1 {
+			break
+		}
 		url = url[:start] + fmt.Sprint(param) + url[end+1:]
 	}
 	return url
