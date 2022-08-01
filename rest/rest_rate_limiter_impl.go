@@ -8,7 +8,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/sasha-s/go-csync"
 )
 
@@ -19,7 +18,7 @@ func NewRateLimiter(opts ...RateLimiterConfigOpt) RateLimiter {
 
 	rateLimiter := &rateLimiterImpl{
 		config:  *config,
-		hashes:  map[*route.APIRoute]routeHash{},
+		hashes:  map[*Endpoint]routeHash{},
 		buckets: map[hashMajor]*bucket{},
 	}
 
@@ -38,8 +37,8 @@ type (
 		// global Rate Limit
 		global time.Time
 
-		// route.APIRoute -> Hash
-		hashes   map[*route.APIRoute]routeHash
+		// APIRoute -> Hash
+		hashes   map[*Endpoint]routeHash
 		hashesMu sync.Mutex
 		// Hash + Major Parameter -> bucket
 		buckets   map[hashMajor]*bucket
@@ -95,27 +94,27 @@ func (l *rateLimiterImpl) Reset() {
 	l.buckets = map[hashMajor]*bucket{}
 	l.bucketsMu = sync.Mutex{}
 	l.global = time.Time{}
-	l.hashes = map[*route.APIRoute]routeHash{}
+	l.hashes = map[*Endpoint]routeHash{}
 	l.hashesMu = sync.Mutex{}
 }
 
-func (l *rateLimiterImpl) getRouteHash(route *route.CompiledAPIRoute) hashMajor {
+func (l *rateLimiterImpl) getRouteHash(endpoint *CompiledEndpoint) hashMajor {
 	l.hashesMu.Lock()
-	hash, ok := l.hashes[route.APIRoute]
+	hash, ok := l.hashes[endpoint.Endpoint]
 	if !ok {
 		// generate routeHash
-		hash = routeHash(route.APIRoute.Method().String() + "+" + route.APIRoute.Path())
-		l.hashes[route.APIRoute] = hash
+		hash = routeHash(endpoint.Endpoint.Method + "+" + endpoint.Endpoint.Route)
+		l.hashes[endpoint.Endpoint] = hash
 	}
 	l.hashesMu.Unlock()
-	if route.MajorParams() != "" {
-		hash += routeHash("+" + route.MajorParams())
+	if endpoint.MajorParams != "" {
+		hash += routeHash("+" + endpoint.MajorParams)
 	}
 	return hashMajor(hash)
 }
 
-func (l *rateLimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) *bucket {
-	hash := l.getRouteHash(route)
+func (l *rateLimiterImpl) getBucket(endpoint *CompiledEndpoint, create bool) *bucket {
+	hash := l.getRouteHash(endpoint)
 
 	l.config.Logger.Trace("locking buckets")
 	l.bucketsMu.Lock()
@@ -139,8 +138,8 @@ func (l *rateLimiterImpl) getBucket(route *route.CompiledAPIRoute, create bool) 
 	return b
 }
 
-func (l *rateLimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error {
-	b := l.getBucket(route, true)
+func (l *rateLimiterImpl) WaitBucket(ctx context.Context, endpoint *CompiledEndpoint) error {
+	b := l.getBucket(endpoint, true)
 	l.config.Logger.Tracef("locking rest bucket, ID: %s, Limit: %d, Remaining: %d, Reset: %s", b.ID, b.Limit, b.Remaining, b.Reset)
 	if err := b.mu.CLock(ctx); err != nil {
 		return err
@@ -156,7 +155,7 @@ func (l *rateLimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledA
 	}
 
 	if until.After(now) {
-		// TODO: do we want to return early when we know srate limit bigger than ctx deadline?
+		// TODO: do we want to return early when we know the rate limit bigger than ctx deadline?
 		if deadline, ok := ctx.Deadline(); ok && until.After(deadline) {
 			return context.DeadlineExceeded
 		}
@@ -171,8 +170,8 @@ func (l *rateLimiterImpl) WaitBucket(ctx context.Context, route *route.CompiledA
 	return nil
 }
 
-func (l *rateLimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, rs *http.Response) error {
-	b := l.getBucket(route, false)
+func (l *rateLimiterImpl) UnlockBucket(endpoint *CompiledEndpoint, rs *http.Response) error {
+	b := l.getBucket(endpoint, false)
 	if b == nil {
 		return nil
 	}
@@ -219,7 +218,7 @@ func (l *rateLimiterImpl) UnlockBucket(route *route.CompiledAPIRoute, rs *http.R
 		} else {
 			b.Remaining = 0
 			b.Reset = reset
-			l.config.Logger.Warnf("rate limit on route %s exceeded, retry after: %ds", route.URL(), retryAfter)
+			l.config.Logger.Warnf("rate limit on route %s exceeded, retry after: %ds", endpoint.URL, retryAfter)
 		}
 		return nil
 	}

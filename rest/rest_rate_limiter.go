@@ -3,8 +3,6 @@ package rest
 import (
 	"context"
 	"net/http"
-
-	"github.com/disgoorg/disgo/rest/route"
 )
 
 // RateLimiter can be used to supply your own rate limit implementation
@@ -20,8 +18,8 @@ type RateLimiter interface {
 	Reset()
 
 	// WaitBucket waits for the given bucket to be available for new requests & locks it
-	WaitBucket(ctx context.Context, route *route.CompiledAPIRoute) error
+	WaitBucket(ctx context.Context, endpoint *CompiledEndpoint) error
 
 	// UnlockBucket unlocks the given bucket and calculates the rate limit for the next request
-	UnlockBucket(route *route.CompiledAPIRoute, rs *http.Response) error
+	UnlockBucket(endpoint *CompiledEndpoint, rs *http.Response) error
 }

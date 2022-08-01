@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -144,28 +143,32 @@ func (g Guild) IconURL(opts ...CDNOpt) *string {
 	if g.Icon == nil {
 		return nil
 	}
-	return formatAssetURL(route.GuildIcon, opts, g.ID, *g.Icon)
+	url := formatAssetURL(GuildIcon, opts, g.ID, *g.Icon)
+	return &url
 }
 
 func (g Guild) SplashURL(opts ...CDNOpt) *string {
 	if g.Splash == nil {
 		return nil
 	}
-	return formatAssetURL(route.GuildSplash, opts, g.ID, *g.Splash)
+	url := formatAssetURL(GuildSplash, opts, g.ID, *g.Splash)
+	return &url
 }
 
 func (g Guild) DiscoverySplashURL(opts ...CDNOpt) *string {
 	if g.DiscoverySplash == nil {
 		return nil
 	}
-	return formatAssetURL(route.GuildDiscoverySplash, opts, g.ID, *g.DiscoverySplash)
+	url := formatAssetURL(GuildDiscoverySplash, opts, g.ID, *g.DiscoverySplash)
+	return &url
 }
 
 func (g Guild) BannerURL(opts ...CDNOpt) *string {
 	if g.Banner == nil {
 		return nil
 	}
-	return formatAssetURL(route.GuildBanner, opts, g.ID, *g.Banner)
+	url := formatAssetURL(GuildBanner, opts, g.ID, *g.Banner)
+	return &url
 }
 
 type RestGuild struct {
@@ -213,7 +216,7 @@ type UnavailableGuild struct {
 	Unavailable bool         `json:"unavailable"`
 }
 
-// OAuth2Guild is returned on the route.GetGuilds route
+// OAuth2Guild is returned on the GetGuilds route
 type OAuth2Guild struct {
 	ID          snowflake.ID   `json:"id"`
 	Name        string         `json:"name"`

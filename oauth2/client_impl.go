@@ -5,7 +5,6 @@ import (
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest"
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -44,19 +43,20 @@ func (c *clientImpl) StateController() StateController {
 }
 
 func (c *clientImpl) GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.OAuth2Scope) string {
-	url, _ := c.GenerateAuthorizationURLState(redirectURI, permissions, guildID, disableGuildSelect, scopes...)
-	return url
+	authURL, _ := c.GenerateAuthorizationURLState(redirectURI, permissions, guildID, disableGuildSelect, scopes...)
+	return authURL
 }
 
 func (c *clientImpl) GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.OAuth2Scope) (string, string) {
 	state := c.StateController().GenerateNewState(redirectURI)
-	values := route.QueryValues{
-		"client_id":     c.ID(),
+	values := discord.QueryValues{
+		"client_id":     c.id,
 		"redirect_uri":  redirectURI,
 		"response_type": "code",
 		"scope":         discord.JoinScopes(scopes),
 		"state":         state,
 	}
+
 	if permissions != discord.PermissionsNone {
 		values["permissions"] = permissions
 	}
@@ -66,8 +66,7 @@ func (c *clientImpl) GenerateAuthorizationURLState(redirectURI string, permissio
 	if disableGuildSelect {
 		values["disable_guild_select"] = true
 	}
-	compiledRoute, _ := route.Authorize.Compile(values)
-	return compiledRoute.URL(), state
+	return discord.AuthorizeURL(values), state
 }
 
 func (c *clientImpl) StartSession(code string, state string, identifier string, opts ...rest.RequestOpt) (Session, error) {
