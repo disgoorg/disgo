@@ -13,7 +13,7 @@ var (
 	APIVersion = 10
 
 	// API is the base path of the Discord API
-	API = fmt.Sprintf("https://discord.com/api/v/%d", APIVersion)
+	API = fmt.Sprintf("https://discord.com/api/v%d", APIVersion)
 )
 
 // MajorParameters is a list of url parameters which decide in which bucket a route belongs (https://discord.com/developers/docs/topics/rate-limits#rate-limits)
