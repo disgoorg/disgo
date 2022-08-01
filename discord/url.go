@@ -8,8 +8,10 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
+// QueryValues holds key value pairs of query values
 type QueryValues map[string]any
 
+// Encode encodes the QueryValues into a string to append to the url
 func (q QueryValues) Encode() string {
 	values := url.Values{}
 	for k, v := range q {
@@ -30,14 +32,17 @@ func urlPrint(url string, params ...any) string {
 	return url
 }
 
+// InviteURL formats the invite code as an url
 func InviteURL(code string) string {
 	return urlPrint("https://discord.gg/{code}", code)
 }
 
+// WebhookURL returns the url over which the webhook can be called
 func WebhookURL(webhookID snowflake.ID, webhookToken string) string {
 	return urlPrint("https://discord.com/api/webhooks/{webhook.id}/{webhook.token}", webhookID, webhookToken)
 }
 
+// AuthorizeURL returns the OAuth2 authorize url with the given query params
 func AuthorizeURL(values QueryValues) string {
 	query := values.Encode()
 	if query != "" {

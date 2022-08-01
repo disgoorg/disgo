@@ -9,8 +9,11 @@ import (
 )
 
 var (
+	// APIVersion is the Discord API version DisGo should use
 	APIVersion = 10
-	API        = fmt.Sprintf("https://discord.com/api/v/%d", APIVersion)
+
+	// API is the base path of the Discord API
+	API = fmt.Sprintf("https://discord.com/api/v/%d", APIVersion)
 )
 
 // MajorParameters is a list of url parameters which decide in which bucket a route belongs (https://discord.com/developers/docs/topics/rate-limits#rate-limits)
@@ -277,6 +280,7 @@ var (
 	DeleteFollowupMessage = NewNoBotAuthEndpoint(http.MethodDelete, "/webhooks/{application.id}/{interaction.token}/messages/{message.id}")
 )
 
+// NewEndpoint returns a new Endpoint which requires bot auth with the given http method & route.
 func NewEndpoint(method string, route string) *Endpoint {
 	return &Endpoint{
 		Method:  method,
@@ -285,6 +289,7 @@ func NewEndpoint(method string, route string) *Endpoint {
 	}
 }
 
+// NewNoBotAuthEndpoint returns a new Endpoint which does not require bot auth with the given http method & route.
 func NewNoBotAuthEndpoint(method string, route string) *Endpoint {
 	return &Endpoint{
 		Method:  method,
@@ -293,12 +298,14 @@ func NewNoBotAuthEndpoint(method string, route string) *Endpoint {
 	}
 }
 
+// Endpoint represents a Discord Rest API endpoint.
 type Endpoint struct {
 	Method  string
 	Route   string
 	BotAuth bool
 }
 
+// CompiledEndpoint represents a Discord Rest API endpoint with applied url params & query values.
 type CompiledEndpoint struct {
 	Endpoint *Endpoint
 
@@ -306,6 +313,7 @@ type CompiledEndpoint struct {
 	MajorParams string
 }
 
+// Compile compiles an Endpoint to a CompiledEndpoint with the given url params & query values
 func (e *Endpoint) Compile(values discord.QueryValues, params ...any) *CompiledEndpoint {
 	var majorParams []string
 	path := e.Route
