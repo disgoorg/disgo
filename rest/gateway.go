@@ -2,7 +2,6 @@ package rest
 
 import (
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/rest/route"
 )
 
 var _ Gateway = (*gatewayImpl)(nil)
@@ -21,21 +20,11 @@ type gatewayImpl struct {
 }
 
 func (s *gatewayImpl) GetGateway(opts ...RequestOpt) (gateway *discord.Gateway, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetGateway.Compile(nil)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &gateway, opts...)
+	err = s.client.Do(GetGateway.Compile(nil), nil, &gateway, opts...)
 	return
 }
 
 func (s *gatewayImpl) GetGatewayBot(opts ...RequestOpt) (gatewayBot *discord.GatewayBot, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetGatewayBot.Compile(nil)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &gatewayBot, opts...)
+	err = s.client.Do(GetGatewayBot.Compile(nil), nil, &gatewayBot, opts...)
 	return
 }

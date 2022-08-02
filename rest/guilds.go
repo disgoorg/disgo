@@ -2,7 +2,6 @@ package rest
 
 import (
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -48,64 +47,35 @@ type guildImpl struct {
 }
 
 func (s *guildImpl) GetGuild(guildID snowflake.ID, withCounts bool, opts ...RequestOpt) (guild *discord.RestGuild, err error) {
-	values := route.QueryValues{
+	values := discord.QueryValues{
 		"with_counts": withCounts,
 	}
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetGuild.Compile(values, guildID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &guild, opts...)
+	err = s.client.Do(GetGuild.Compile(values, guildID), nil, &guild, opts...)
 	return
 }
 
 func (s *guildImpl) GetGuildPreview(guildID snowflake.ID, opts ...RequestOpt) (guildPreview *discord.GuildPreview, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetGuildPreview.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &guildPreview, opts...)
+	err = s.client.Do(GetGuildPreview.Compile(nil, guildID), nil, &guildPreview, opts...)
 	return
 }
 
 func (s *guildImpl) CreateGuild(guildCreate discord.GuildCreate, opts ...RequestOpt) (guild *discord.RestGuild, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.CreateGuild.Compile(nil)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, guildCreate, &guild, opts...)
+	err = s.client.Do(CreateGuild.Compile(nil), guildCreate, &guild, opts...)
 	return
 }
 
 func (s *guildImpl) UpdateGuild(guildID snowflake.ID, guildUpdate discord.GuildUpdate, opts ...RequestOpt) (guild *discord.RestGuild, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.UpdateGuild.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, guildUpdate, &guild, opts...)
+	err = s.client.Do(UpdateGuild.Compile(nil, guildID), guildUpdate, &guild, opts...)
 	return
 }
 
 func (s *guildImpl) DeleteGuild(guildID snowflake.ID, opts ...RequestOpt) error {
-	compiledRoute, err := route.DeleteGuild.Compile(nil, guildID)
-	if err != nil {
-		return err
-	}
-	return s.client.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(DeleteGuild.Compile(nil, guildID), nil, nil, opts...)
 }
 
 func (s *guildImpl) CreateGuildChannel(guildID snowflake.ID, guildChannelCreate discord.GuildChannelCreate, opts ...RequestOpt) (guildChannel discord.GuildChannel, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.CreateGuildChannel.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
 	var ch discord.UnmarshalChannel
-	err = s.client.Do(compiledRoute, guildChannelCreate, &ch, opts...)
+	err = s.client.Do(CreateGuildChannel.Compile(nil, guildID), guildChannelCreate, &ch, opts...)
 	if err == nil {
 		guildChannel = ch.Channel.(discord.GuildChannel)
 	}
@@ -113,13 +83,8 @@ func (s *guildImpl) CreateGuildChannel(guildID snowflake.ID, guildChannelCreate 
 }
 
 func (s *guildImpl) GetGuildChannels(guildID snowflake.ID, opts ...RequestOpt) (channels []discord.GuildChannel, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetGuildChannels.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
 	var chs []discord.UnmarshalChannel
-	err = s.client.Do(compiledRoute, nil, &chs, opts...)
+	err = s.client.Do(GetGuildChannels.Compile(nil, guildID), nil, &chs, opts...)
 	if err == nil {
 		channels = make([]discord.GuildChannel, len(chs))
 		for i := range chs {
@@ -130,73 +95,40 @@ func (s *guildImpl) GetGuildChannels(guildID snowflake.ID, opts ...RequestOpt) (
 }
 
 func (s *guildImpl) UpdateChannelPositions(guildID snowflake.ID, guildChannelPositionUpdates []discord.GuildChannelPositionUpdate, opts ...RequestOpt) error {
-	compiledRoute, err := route.UpdateChannelPositions.Compile(nil, guildID)
-	if err != nil {
-		return err
-	}
-	return s.client.Do(compiledRoute, guildChannelPositionUpdates, nil, opts...)
+	return s.client.Do(UpdateChannelPositions.Compile(nil, guildID), guildChannelPositionUpdates, nil, opts...)
 }
 
 func (s *guildImpl) GetRoles(guildID snowflake.ID, opts ...RequestOpt) (roles []discord.Role, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetRoles.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &roles, opts...)
+	err = s.client.Do(GetRoles.Compile(nil, guildID), nil, &roles, opts...)
 	return
 }
 
 func (s *guildImpl) GetRole(guildID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) (role []discord.Role, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetRole.Compile(nil, guildID, roleID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &role, opts...)
+	err = s.client.Do(GetRole.Compile(nil, guildID, roleID), nil, &role, opts...)
 	return
 }
 
 func (s *guildImpl) CreateRole(guildID snowflake.ID, createRole discord.RoleCreate, opts ...RequestOpt) (role *discord.Role, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.CreateRole.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, createRole, &role, opts...)
+	err = s.client.Do(CreateRole.Compile(nil, guildID), createRole, &role, opts...)
 	return
 }
 
 func (s *guildImpl) UpdateRole(guildID snowflake.ID, roleID snowflake.ID, roleUpdate discord.RoleUpdate, opts ...RequestOpt) (role *discord.Role, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.UpdateRole.Compile(nil, guildID, roleID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, roleUpdate, &role, opts...)
+	err = s.client.Do(UpdateRole.Compile(nil, guildID, roleID), roleUpdate, &role, opts...)
 	return
 }
 
 func (s *guildImpl) UpdateRolePositions(guildID snowflake.ID, rolePositionUpdates []discord.RolePositionUpdate, opts ...RequestOpt) (roles []discord.Role, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.UpdateRolePositions.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, rolePositionUpdates, &roles, opts...)
+	err = s.client.Do(UpdateRolePositions.Compile(nil, guildID), rolePositionUpdates, &roles, opts...)
 	return
 }
 
 func (s *guildImpl) DeleteRole(guildID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) error {
-	compiledRoute, err := route.DeleteRole.Compile(nil, guildID, roleID)
-	if err != nil {
-		return err
-	}
-	return s.client.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(DeleteRole.Compile(nil, guildID, roleID), nil, nil, opts...)
 }
 
 func (s *guildImpl) GetBans(guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) (bans []discord.Ban, err error) {
-	values := route.QueryValues{}
+	values := discord.QueryValues{}
 	if before != 0 {
 		values["before"] = before
 	}
@@ -206,81 +138,44 @@ func (s *guildImpl) GetBans(guildID snowflake.ID, before snowflake.ID, after sno
 	if limit != 0 {
 		values["limit"] = limit
 	}
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetBans.Compile(values, guildID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &bans, opts...)
+	err = s.client.Do(GetBans.Compile(values, guildID), nil, &bans, opts...)
 	return
 }
 
 func (s *guildImpl) GetBan(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) (ban *discord.Ban, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetBan.Compile(nil, guildID, userID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &ban, opts...)
+	err = s.client.Do(GetBan.Compile(nil, guildID, userID), nil, &ban, opts...)
 	return
 }
 
 func (s *guildImpl) AddBan(guildID snowflake.ID, userID snowflake.ID, deleteMessageDays int, opts ...RequestOpt) error {
-	compiledRoute, err := route.AddBan.Compile(nil, guildID, userID)
-	if err != nil {
-		return err
-	}
-	return s.client.Do(compiledRoute, discord.AddBan{DeleteMessageDays: deleteMessageDays}, nil, opts...)
+	return s.client.Do(AddBan.Compile(nil, guildID, userID), discord.AddBan{DeleteMessageDays: deleteMessageDays}, nil, opts...)
 }
 
 func (s *guildImpl) DeleteBan(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) error {
-	compiledRoute, err := route.DeleteBan.Compile(nil, guildID, userID)
-	if err != nil {
-		return err
-	}
-	return s.client.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(DeleteBan.Compile(nil, guildID, userID), nil, nil, opts...)
 }
 
 func (s *guildImpl) GetIntegrations(guildID snowflake.ID, opts ...RequestOpt) (integrations []discord.Integration, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetIntegrations.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &integrations, opts...)
+	err = s.client.Do(GetIntegrations.Compile(nil, guildID), nil, &integrations, opts...)
 	return
 }
 
 func (s *guildImpl) DeleteIntegration(guildID snowflake.ID, integrationID snowflake.ID, opts ...RequestOpt) error {
-	compiledRoute, err := route.DeleteIntegration.Compile(nil, guildID, integrationID)
-	if err != nil {
-		return err
-	}
-	return s.client.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(DeleteIntegration.Compile(nil, guildID, integrationID), nil, nil, opts...)
 }
 
 func (s *guildImpl) GetAllWebhooks(guildID snowflake.ID, opts ...RequestOpt) (webhooks []discord.Webhook, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetGuildWebhooks.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &webhooks, opts...)
+	err = s.client.Do(GetGuildWebhooks.Compile(nil, guildID), nil, &webhooks, opts...)
 	return
 }
 
 func (s *guildImpl) GetEmojis(guildID snowflake.ID, opts ...RequestOpt) (emojis []discord.Emoji, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetEmojis.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &emojis, opts...)
+	err = s.client.Do(GetEmojis.Compile(nil, guildID), nil, &emojis, opts...)
 	return
 }
 
 func (s *guildImpl) GetAuditLog(guildID snowflake.ID, userID snowflake.ID, actionType discord.AuditLogEvent, before snowflake.ID, limit int, opts ...RequestOpt) (auditLog *discord.AuditLog, err error) {
-	values := route.QueryValues{}
+	values := discord.QueryValues{}
 	if userID != 0 {
 		values["user_id"] = userID
 	}
@@ -293,11 +188,6 @@ func (s *guildImpl) GetAuditLog(guildID snowflake.ID, userID snowflake.ID, actio
 	if limit != 0 {
 		values["limit"] = limit
 	}
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetAuditLogs.Compile(values, guildID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &auditLog, opts...)
+	err = s.client.Do(GetAuditLogs.Compile(values, guildID), nil, &auditLog, opts...)
 	return
 }
