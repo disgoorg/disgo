@@ -128,7 +128,7 @@ GitHub Wiki is currently under construction. We appreciate help here.
 
 ## Examples
 
-You can find examples [here](https://github.com/disgoorg/disgo/tree/master/_examples)
+You can find examples [here](https://github.com/disgoorg/disgo/tree/development/_examples)
 
 There is also a bot template with commands & db [here](https://github.com/disgoorg/bot-template)
 
@@ -138,6 +138,13 @@ or in these projects:
 * [Reddit-Discord-Bot](https://github.com/TopiSenpai/Reddit-Discord-Bot)
 * [Kitsune-Bot](https://github.com/TopiSenpai/Kitsune-Bot)
 * [KittyBot](https://github.com/KittyBot-Org/KittyBotGo)
+
+## Libraries for DisGo
+
+* [handler](https://github.com/disgoorg/handler) is a simple application command, component and modal handler library.
+
+* [disgomd](https://github.com/eminarican/disgomd) is a command utility library that uses struct based approach
+
 
 ## Other interesting Projects to look at
 

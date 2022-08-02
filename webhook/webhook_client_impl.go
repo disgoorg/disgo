@@ -5,7 +5,6 @@ import (
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest"
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -36,8 +35,7 @@ func (c *clientImpl) Token() string {
 }
 
 func (c *clientImpl) URL() string {
-	compiledRoute, _ := route.GetWebhook.Compile(nil, c.ID, c.Token)
-	return compiledRoute.URL()
+	return discord.WebhookURL(c.id, c.token)
 }
 
 func (c *clientImpl) Close(ctx context.Context) {

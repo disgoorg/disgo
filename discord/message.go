@@ -264,7 +264,7 @@ type MessageInteraction struct {
 }
 
 type MessageBulkDelete struct {
-	Messages []snowflake.ID `json:"message s"`
+	Messages []snowflake.ID `json:"messages"`
 }
 
 // The MessageFlags of a Message

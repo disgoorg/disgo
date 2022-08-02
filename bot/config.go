@@ -305,7 +305,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 	client.httpServer = config.HTTPServer
 
 	if config.MemberChunkingManager == nil {
-		config.MemberChunkingManager = NewMemberChunkingManager(client, config.MemberChunkingFilter)
+		config.MemberChunkingManager = NewMemberChunkingManager(client, config.Logger, config.MemberChunkingFilter)
 	}
 	client.memberChunkingManager = config.MemberChunkingManager
 

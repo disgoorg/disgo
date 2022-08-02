@@ -17,19 +17,20 @@ const (
 	FlagStickers
 	FlagVoiceStates
 	FlagStageInstances
+
 	FlagsNone Flags = 0
-
-	FlagsDefault = FlagsNone
-
-	FlagsAll = FlagGuilds |
+	FlagsAll        = FlagGuilds |
 		FlagGuildScheduledEvents |
+		FlagMembers |
+		FlagThreadMembers |
+		FlagMessages |
+		FlagPresences |
 		FlagChannels |
 		FlagRoles |
 		FlagEmojis |
 		FlagStickers |
 		FlagVoiceStates |
-		FlagStageInstances |
-		FlagPresences
+		FlagStageInstances
 )
 
 // Add allows you to add multiple bits together, producing a new bit

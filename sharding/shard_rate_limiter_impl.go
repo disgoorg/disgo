@@ -5,7 +5,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/disgoorg/log"
 	"github.com/sasha-s/go-csync"
 )
 
@@ -29,10 +28,6 @@ type rateLimiterImpl struct {
 	config  RateLimiterConfig
 }
 
-func (r *rateLimiterImpl) Logger() log.Logger {
-	return r.config.Logger
-}
-
 func (r *rateLimiterImpl) Close(ctx context.Context) {
 	var wg sync.WaitGroup
 	r.mu.Lock()
@@ -43,7 +38,7 @@ func (r *rateLimiterImpl) Close(ctx context.Context) {
 		go func() {
 			defer wg.Done()
 			if err := b.mu.CLock(ctx); err != nil {
-				r.Logger().Error("failed to close bucket: ", err)
+				r.config.Logger.Error("failed to close bucket: ", err)
 			}
 			b.mu.Unlock()
 		}()
@@ -51,10 +46,10 @@ func (r *rateLimiterImpl) Close(ctx context.Context) {
 }
 
 func (r *rateLimiterImpl) getBucket(shardID int, create bool) *bucket {
-	r.Logger().Debug("locking shard srate limiter")
+	r.config.Logger.Debug("locking shard srate limiter")
 	r.mu.Lock()
 	defer func() {
-		r.Logger().Debug("unlocking shard srate limiter")
+		r.config.Logger.Debug("unlocking shard srate limiter")
 		r.mu.Unlock()
 	}()
 	key := ShardMaxConcurrencyKey(shardID, r.config.MaxConcurrency)
@@ -74,7 +69,7 @@ func (r *rateLimiterImpl) getBucket(shardID int, create bool) *bucket {
 
 func (r *rateLimiterImpl) WaitBucket(ctx context.Context, shardID int) error {
 	b := r.getBucket(shardID, true)
-	r.Logger().Debugf("locking shard bucket: Key: %d, Reset: %s", b.Key, b.Reset)
+	r.config.Logger.Debugf("locking shard bucket: Key: %d, Reset: %s", b.Key, b.Reset)
 	if err := b.mu.CLock(ctx); err != nil {
 		return err
 	}
@@ -107,7 +102,7 @@ func (r *rateLimiterImpl) UnlockBucket(shardID int) {
 		return
 	}
 	defer func() {
-		r.Logger().Debugf("unlocking shard bucket: Key: %d, Reset: %s", b.Key, b.Reset)
+		r.config.Logger.Debugf("unlocking shard bucket: Key: %d, Reset: %s", b.Key, b.Reset)
 		b.mu.Unlock()
 	}()
 

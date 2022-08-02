@@ -2,15 +2,10 @@ package gateway
 
 import (
 	"context"
-
-	"github.com/disgoorg/log"
 )
 
 // RateLimiter provides handles the rate limiting logic for connecting to Discord's Gateway.
 type RateLimiter interface {
-	// Logger returns the logger used by the RateLimiter.
-	Logger() log.Logger
-
 	// Close gracefully closes the RateLimiter.
 	// If the context deadline is exceeded, the RateLimiter will be closed immediately.
 	Close(ctx context.Context)
