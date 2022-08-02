@@ -128,7 +128,7 @@ GitHub Wiki is currently under construction. We appreciate help here.
 
 ## Examples
 
-You can find examples [here](https://github.com/disgoorg/disgo/tree/master/_examples)
+You can find examples [here](https://github.com/disgoorg/disgo/tree/development/_examples)
 
 There is also a bot template with commands & db [here](https://github.com/disgoorg/bot-template)
 
