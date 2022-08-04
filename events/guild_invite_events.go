@@ -14,7 +14,7 @@ type GenericInvite struct {
 }
 
 // Channel returns the Channel the GenericInvite happened in.
-func (e GenericInvite) Channel() (discord.GuildChannel, bool) {
+func (e *GenericInvite) Channel() (discord.GuildChannel, bool) {
 	return e.Client().Caches().Channels().GetGuildChannel(e.ChannelID)
 }
 
