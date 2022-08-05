@@ -171,7 +171,7 @@ Is a Discord webhook logger hook for [logrus](https://github.com/sirupsen/logrus
 
 ## Troubleshooting
 
-For help feel free to open an issues or reach out on [Discord](https://discord.gg/TewhTfDpvW)
+For help feel free to open an issue or reach out on [Discord](https://discord.gg/TewhTfDpvW)
 
 ## Contributing
 
