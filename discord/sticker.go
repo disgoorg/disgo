@@ -1,7 +1,6 @@
 package discord
 
 import (
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -21,14 +20,11 @@ type Sticker struct {
 }
 
 func (s Sticker) URL(opts ...CDNOpt) string {
-	format := route.PNG
+	format := ImageFormatPNG
 	if s.FormatType == StickerFormatTypeLottie {
-		format = route.Lottie
+		format = ImageFormatLottie
 	}
-	if url := formatAssetURL(route.CustomSticker, append(opts, WithFormat(format)), s.ID); url != nil {
-		return *url
-	}
-	return ""
+	return formatAssetURL(CustomSticker, append(opts, WithFormat(format)), s.ID)
 }
 
 type StickerType int
@@ -70,17 +66,21 @@ type StickerUpdate struct {
 }
 
 type StickerPack struct {
-	ID             snowflake.ID `json:"id"`
-	Stickers       []Sticker    `json:"stickers"`
-	Name           string       `json:"name"`
-	SkuID          snowflake.ID `json:"sku_id"`
-	CoverStickerID snowflake.ID `json:"cover_sticker_id"`
-	Description    string       `json:"description"`
-	BannerAssetID  snowflake.ID `json:"banner_asset_id"`
+	ID             snowflake.ID  `json:"id"`
+	Stickers       []Sticker     `json:"stickers"`
+	Name           string        `json:"name"`
+	SkuID          snowflake.ID  `json:"sku_id"`
+	CoverStickerID snowflake.ID  `json:"cover_sticker_id"`
+	Description    string        `json:"description"`
+	BannerAssetID  *snowflake.ID `json:"banner_asset_id"`
 }
 
 func (p StickerPack) BannerURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.StickerPackBanner, opts, p.BannerAssetID)
+	if p.BannerAssetID == nil {
+		return nil
+	}
+	url := formatAssetURL(StickerPackBanner, opts, p.BannerAssetID)
+	return &url
 }
 
 type StickerPacks struct {

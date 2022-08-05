@@ -8,8 +8,6 @@ import (
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/cache"
-
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
@@ -27,7 +25,6 @@ func main() {
 				gateway.IntentMessageContent,
 			),
 		),
-		bot.WithCacheConfigOpts(cache.WithCacheFlags(cache.FlagsDefault)),
 		bot.WithEventListenerFunc(onMessageCreate),
 	)
 	if err != nil {
@@ -36,7 +33,7 @@ func main() {
 
 	defer client.Close(context.TODO())
 
-	if err = client.ConnectGateway(context.TODO()); err != nil {
+	if err = client.OpenGateway(context.TODO()); err != nil {
 		log.Fatal("errors while connecting to gateway: ", err)
 	}
 

@@ -23,16 +23,16 @@ var (
 
 	commands = []discord.ApplicationCommandCreate{
 		discord.SlashCommandCreate{
-			CommandName: "say",
+			Name:        "say",
 			Description: "says what you say",
 			Options: []discord.ApplicationCommandOption{
 				discord.ApplicationCommandOptionString{
-					OptionName:  "message",
+					Name:        "message",
 					Description: "What to say",
 					Required:    true,
 				},
 				discord.ApplicationCommandOptionBool{
-					OptionName:  "ephemeral",
+					Name:        "ephemeral",
 					Description: "If the response should only be visible to you",
 					Required:    true,
 				},
@@ -69,7 +69,7 @@ func main() {
 		log.Fatal("error while registering commands: ", err)
 	}
 
-	if err = client.StartHTTPServer(); err != nil {
+	if err = client.OpenHTTPServer(); err != nil {
 		log.Fatal("error while starting http server: ", err)
 	}
 

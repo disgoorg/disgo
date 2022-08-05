@@ -7,19 +7,18 @@ import (
 // DefaultConfig returns a Config with sensible defaults.
 func DefaultConfig() *Config {
 	return &Config{
-		CacheFlags:                     FlagsDefault,
-		GuildCachePolicy:               PolicyDefault[discord.Guild],
-		ChannelCachePolicy:             PolicyDefault[discord.Channel],
-		StageInstanceCachePolicy:       PolicyDefault[discord.StageInstance],
-		GuildScheduledEventCachePolicy: PolicyDefault[discord.GuildScheduledEvent],
-		RoleCachePolicy:                PolicyDefault[discord.Role],
-		MemberCachePolicy:              PolicyDefault[discord.Member],
-		ThreadMemberCachePolicy:        PolicyDefault[discord.ThreadMember],
-		PresenceCachePolicy:            PolicyDefault[discord.Presence],
-		VoiceStateCachePolicy:          PolicyDefault[discord.VoiceState],
-		MessageCachePolicy:             PolicyDefault[discord.Message],
-		EmojiCachePolicy:               PolicyDefault[discord.Emoji],
-		StickerCachePolicy:             PolicyDefault[discord.Sticker],
+		GuildCachePolicy:               PolicyAll[discord.Guild],
+		ChannelCachePolicy:             PolicyAll[discord.Channel],
+		StageInstanceCachePolicy:       PolicyAll[discord.StageInstance],
+		GuildScheduledEventCachePolicy: PolicyAll[discord.GuildScheduledEvent],
+		RoleCachePolicy:                PolicyAll[discord.Role],
+		MemberCachePolicy:              PolicyAll[discord.Member],
+		ThreadMemberCachePolicy:        PolicyAll[discord.ThreadMember],
+		PresenceCachePolicy:            PolicyAll[discord.Presence],
+		VoiceStateCachePolicy:          PolicyAll[discord.VoiceState],
+		MessageCachePolicy:             PolicyAll[discord.Message],
+		EmojiCachePolicy:               PolicyAll[discord.Emoji],
+		StickerCachePolicy:             PolicyAll[discord.Sticker],
 	}
 }
 

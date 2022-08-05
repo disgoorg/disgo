@@ -8,24 +8,41 @@ import (
 
 var commands = []discord.ApplicationCommandCreate{
 	discord.SlashCommandCreate{
-		CommandName: "locale",
+		Name:        "locale",
 		Description: "return the guild & your locale",
 	},
 	discord.SlashCommandCreate{
-		CommandName: "test",
+		Name:        "test",
 		Description: "test",
 	},
 	discord.SlashCommandCreate{
-		CommandName: "say",
+		Name:        "test2",
+		Description: "test2",
+		Options: []discord.ApplicationCommandOption{
+			discord.ApplicationCommandOptionInt{
+				Name:        "number",
+				Description: "some number",
+				Required:    true,
+			},
+			discord.ApplicationCommandOptionInt{
+				Name:         "message",
+				Description:  "What to say",
+				Required:     true,
+				Autocomplete: true,
+			},
+		},
+	},
+	discord.SlashCommandCreate{
+		Name:        "say",
 		Description: "says what you say",
 		Options: []discord.ApplicationCommandOption{
 			discord.ApplicationCommandOptionString{
-				OptionName:  "message",
+				Name:        "message",
 				Description: "What to say",
 				Required:    true,
 			},
 			discord.ApplicationCommandOptionBool{
-				OptionName:  "ephemeral",
+				Name:        "ephemeral",
 				Description: "ephemeral",
 				Required:    true,
 			},

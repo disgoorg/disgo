@@ -99,7 +99,7 @@ func (c *defaultGroupedCache[T]) Get(groupID snowflake.ID, id snowflake.ID) (T, 
 }
 
 func (c *defaultGroupedCache[T]) Put(groupID snowflake.ID, id snowflake.ID, entity T) {
-	if c.neededFlags != FlagsNone && c.flags.Missing(c.neededFlags) {
+	if c.flags.Missing(c.neededFlags) {
 		return
 	}
 	if c.policy != nil && !c.policy(entity) {

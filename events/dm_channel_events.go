@@ -47,7 +47,7 @@ type DMUserTypingStart struct {
 }
 
 // Channel returns the discord.DMChannel the DMUserTypingStart happened in.
-func (e DMUserTypingStart) Channel() (discord.DMChannel, bool) {
+func (e *DMUserTypingStart) Channel() (discord.DMChannel, bool) {
 	if channel, ok := e.Client().Caches().Channels().Get(e.ChannelID); ok {
 		return channel.(discord.DMChannel), false
 	}

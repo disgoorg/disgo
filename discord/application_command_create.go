@@ -5,12 +5,12 @@ import "github.com/disgoorg/disgo/json"
 type ApplicationCommandCreate interface {
 	json.Marshaler
 	Type() ApplicationCommandType
-	Name() string
+	CommandName() string
 	applicationCommandCreate()
 }
 
 type SlashCommandCreate struct {
-	CommandName              string                     `json:"name"`
+	Name                     string                     `json:"name"`
 	CommandNameLocalizations map[Locale]string          `json:"name_localizations,omitempty"`
 	Description              string                     `json:"description"`
 	DescriptionLocalizations map[Locale]string          `json:"description_localizations,omitempty"`
@@ -34,14 +34,14 @@ func (SlashCommandCreate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeSlash
 }
 
-func (c SlashCommandCreate) Name() string {
-	return c.CommandName
+func (c SlashCommandCreate) CommandName() string {
+	return c.Name
 }
 
 func (SlashCommandCreate) applicationCommandCreate() {}
 
 type UserCommandCreate struct {
-	CommandName              string            `json:"name"`
+	Name                     string            `json:"name"`
 	CommandNameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
 	DefaultMemberPermissions Permissions       `json:"default_member_permissions"`
 	DMPermission             bool              `json:"dm_permission"`
@@ -62,14 +62,14 @@ func (UserCommandCreate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeUser
 }
 
-func (c UserCommandCreate) Name() string {
-	return c.CommandName
+func (c UserCommandCreate) CommandName() string {
+	return c.Name
 }
 
 func (UserCommandCreate) applicationCommandCreate() {}
 
 type MessageCommandCreate struct {
-	CommandName              string            `json:"name"`
+	Name                     string            `json:"name"`
 	CommandNameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
 	DefaultMemberPermissions Permissions       `json:"default_member_permissions"`
 	DMPermission             bool              `json:"dm_permission"`
@@ -90,8 +90,8 @@ func (MessageCommandCreate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeMessage
 }
 
-func (c MessageCommandCreate) Name() string {
-	return c.CommandName
+func (c MessageCommandCreate) CommandName() string {
+	return c.Name
 }
 
 func (MessageCommandCreate) applicationCommandCreate() {}

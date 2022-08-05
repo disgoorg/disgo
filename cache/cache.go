@@ -74,7 +74,7 @@ func (c *DefaultCache[T]) Get(id snowflake.ID) (T, bool) {
 }
 
 func (c *DefaultCache[T]) Put(id snowflake.ID, entity T) {
-	if c.neededFlags != FlagsNone && c.flags.Missing(c.neededFlags) {
+	if c.flags.Missing(c.neededFlags) {
 		return
 	}
 	if c.policy != nil && !c.policy(entity) {

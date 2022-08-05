@@ -2,7 +2,6 @@ package rest
 
 import (
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/rest/route"
 )
 
 var _ Voice = (*voiceImpl)(nil)
@@ -20,11 +19,6 @@ type voiceImpl struct {
 }
 
 func (s *voiceImpl) GetVoiceRegions(opts ...RequestOpt) (regions []discord.VoiceRegion, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetVoiceRegions.Compile(nil)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &regions, opts...)
+	err = s.client.Do(GetVoiceRegions.Compile(nil), nil, &regions, opts...)
 	return
 }

@@ -33,7 +33,7 @@ func main() {
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(
 			gateway.WithIntents(gateway.IntentsNonPrivileged, gateway.IntentMessageContent),
-			gateway.WithPresence(discord.NewListeningPresence("your bullshit", discord.OnlineStatusOnline, false)),
+			gateway.WithPresence(gateway.NewListeningPresence("your bullshit", discord.OnlineStatusOnline, false)),
 		),
 		bot.WithCacheConfigOpts(
 			cache.WithCacheFlags(cache.FlagsAll),
@@ -48,7 +48,7 @@ func main() {
 
 	registerCommands(client)
 
-	if err = client.ConnectGateway(context.TODO()); err != nil {
+	if err = client.OpenGateway(context.TODO()); err != nil {
 		log.Fatal("error while connecting to discord: ", err)
 	}
 

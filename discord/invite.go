@@ -3,7 +3,6 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -32,10 +31,7 @@ type Invite struct {
 }
 
 func (i Invite) URL() string {
-	if compiledRoute, err := route.InviteURL.Compile(nil, i.Code); err == nil {
-		return compiledRoute.URL()
-	}
-	return ""
+	return InviteURL(i.Code)
 }
 
 type ExtendedInvite struct {
@@ -60,7 +56,8 @@ func (c InviteChannel) IconURL(opts ...CDNOpt) *string {
 	if c.Icon == nil {
 		return nil
 	}
-	return formatAssetURL(route.ChannelIcon, opts, c.ID, *c.Icon)
+	url := formatAssetURL(ChannelIcon, opts, c.ID, *c.Icon)
+	return &url
 }
 
 // An InviteGuild is the Guild of an Invite

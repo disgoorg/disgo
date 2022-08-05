@@ -8,7 +8,6 @@ import (
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
@@ -36,7 +35,6 @@ func main() {
 				gateway.WithCompress(true),
 			),
 		),
-		bot.WithCacheConfigOpts(cache.WithCacheFlags(cache.FlagsDefault)),
 		bot.WithEventListeners(&events.ListenerAdapter{
 			OnMessageCreate: onMessageCreate,
 			OnGuildReady: func(event *events.GuildReady) {
@@ -53,7 +51,7 @@ func main() {
 
 	defer client.Close(context.TODO())
 
-	if err = client.ConnectShardManager(context.TODO()); err != nil {
+	if err = client.OpenShardManager(context.TODO()); err != nil {
 		log.Fatal("error while connecting to gateway: ", err)
 	}
 

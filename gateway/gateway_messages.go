@@ -20,10 +20,10 @@ type Message struct {
 
 func (e *Message) UnmarshalJSON(data []byte) error {
 	var v struct {
-		Op Opcode    `json:"op"`
-		S  int       `json:"s,omitempty"`
-		T  EventType `json:"t,omitempty"`
-		D  json.RawMessage
+		Op Opcode          `json:"op"`
+		S  int             `json:"s,omitempty"`
+		T  EventType       `json:"t,omitempty"`
+		D  json.RawMessage `json:"d,omitempty"`
 	}
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
@@ -36,300 +36,7 @@ func (e *Message) UnmarshalJSON(data []byte) error {
 
 	switch v.Op {
 	case OpcodeDispatch:
-		switch v.T {
-		case EventTypeReady:
-			var d EventReady
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeResumed:
-			// no data
-
-		case EventTypeApplicationCommandPermissionsUpdate:
-			var d EventApplicationCommandPermissionsUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeAutoModerationRuleCreate:
-			var d EventAutoModerationRuleCreate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeAutoModerationRuleUpdate:
-			var d EventAutoModerationRuleUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeAutoModerationRuleDelete:
-			var d EventAutoModerationRuleDelete
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeAutoModerationActionExecution:
-			var d EventAutoModerationActionExecution
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeChannelCreate:
-			var d EventChannelCreate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeChannelUpdate:
-			var d EventChannelUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeChannelDelete:
-			var d EventChannelDelete
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeChannelPinsUpdate:
-			var d EventChannelPinsUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeThreadCreate:
-			var d EventThreadCreate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeThreadUpdate:
-			var d EventThreadUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeThreadDelete:
-			var d EventThreadDelete
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeThreadListSync:
-			var d EventThreadListSync
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeThreadMemberUpdate:
-			var d EventThreadMemberUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeThreadMembersUpdate:
-			var d EventThreadMembersUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeGuildCreate:
-			var d EventGuildCreate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeGuildUpdate:
-			var d EventGuildUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeGuildDelete:
-			var d EventGuildDelete
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeGuildBanAdd:
-			var d EventGuildBanAdd
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeGuildBanRemove:
-			var d EventGuildBanRemove
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeGuildEmojisUpdate:
-			var d EventGuildEmojisUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeGuildStickersUpdate:
-			var d EventGuildStickersUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeGuildIntegrationsUpdate:
-			var d EventGuildIntegrationsUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeGuildMemberAdd:
-			var d EventGuildMemberAdd
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeGuildMemberUpdate:
-			var d EventGuildMemberUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeGuildMembersChunk:
-			var d EventGuildMembersChunk
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeGuildRoleCreate:
-			var d EventGuildRoleCreate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeGuildRoleUpdate:
-			var d EventGuildRoleUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeGuildRoleDelete:
-			var d EventGuildRoleDelete
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeGuildScheduledEventCreate:
-			var d EventGuildScheduledEventCreate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeGuildScheduledEventUpdate:
-			var d EventGuildScheduledEventUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeGuildScheduledEventDelete:
-			var d EventGuildScheduledEventDelete
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeGuildScheduledEventUserAdd:
-			var d EventGuildScheduledEventUserAdd
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeGuildScheduledEventUserRemove:
-			var d EventGuildScheduledEventUserRemove
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeIntegrationCreate:
-			var d EventIntegrationCreate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeIntegrationUpdate:
-			var d EventIntegrationUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeIntegrationDelete:
-			var d EventIntegrationDelete
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeInteractionCreate:
-			var d EventInteractionCreate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeInviteCreate:
-			var d EventInviteCreate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeInviteDelete:
-			var d EventInviteDelete
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeMessageCreate:
-			var d EventMessageCreate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeMessageUpdate:
-			var d EventMessageUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeMessageDelete:
-			var d EventMessageDelete
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeMessageDeleteBulk:
-			var d EventMessageDeleteBulk
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeMessageReactionAdd:
-			var d EventMessageReactionAdd
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeMessageReactionRemove:
-			var d EventMessageReactionRemove
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeMessageReactionRemoveAll:
-			var d EventMessageReactionRemoveAll
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeMessageReactionRemoveEmoji:
-			var d EventMessageReactionRemoveEmoji
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypePresenceUpdate:
-			var d EventPresenceUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeStageInstanceCreate:
-			var d EventStageInstanceCreate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeStageInstanceUpdate:
-			var d EventStageInstanceUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeStageInstanceDelete:
-			var d EventStageInstanceDelete
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeTypingStart:
-			var d EventTypingStart
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeUserUpdate:
-			var d EventUserUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeVoiceStateUpdate:
-			var d EventVoiceStateUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeVoiceServerUpdate:
-			var d EventVoiceServerUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-
-		case EventTypeWebhooksUpdate:
-			var d EventWebhooksUpdate
-			err = json.Unmarshal(v.D, &d)
-			messageData = d
-		}
+		messageData, err = UnmarshalEventData(v.D, v.T)
 
 	case OpcodeHeartbeat:
 		var d MessageDataHeartbeat
@@ -357,7 +64,6 @@ func (e *Message) UnmarshalJSON(data []byte) error {
 		messageData = d
 
 	case OpcodeReconnect:
-		// no data
 
 	case OpcodeRequestGuildMembers:
 		var d MessageDataRequestGuildMembers
@@ -375,7 +81,6 @@ func (e *Message) UnmarshalJSON(data []byte) error {
 		messageData = d
 
 	case OpcodeHeartbeatACK:
-	// no data
 
 	default:
 		err = fmt.Errorf("unknown opcode %d", v.Op)
@@ -395,9 +100,316 @@ type MessageData interface {
 	messageData()
 }
 
-type MessageDataDispatch json.RawMessage
+func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
+	var (
+		eventData EventData
+		err       error
+	)
+	switch eventType {
+	case EventTypeReady:
+		var d EventReady
+		err = json.Unmarshal(data, &d)
+		eventData = d
 
-func (MessageDataDispatch) messageData() {}
+	case EventTypeResumed:
+		// no data
+
+	case EventTypeApplicationCommandPermissionsUpdate:
+		var d EventApplicationCommandPermissionsUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeAutoModerationRuleCreate:
+		var d EventAutoModerationRuleCreate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeAutoModerationRuleUpdate:
+		var d EventAutoModerationRuleUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeAutoModerationRuleDelete:
+		var d EventAutoModerationRuleDelete
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeAutoModerationActionExecution:
+		var d EventAutoModerationActionExecution
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeChannelCreate:
+		var d EventChannelCreate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeChannelUpdate:
+		var d EventChannelUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeChannelDelete:
+		var d EventChannelDelete
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeChannelPinsUpdate:
+		var d EventChannelPinsUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeThreadCreate:
+		var d EventThreadCreate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeThreadUpdate:
+		var d EventThreadUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeThreadDelete:
+		var d EventThreadDelete
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeThreadListSync:
+		var d EventThreadListSync
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeThreadMemberUpdate:
+		var d EventThreadMemberUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeThreadMembersUpdate:
+		var d EventThreadMembersUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildCreate:
+		var d EventGuildCreate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildUpdate:
+		var d EventGuildUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildDelete:
+		var d EventGuildDelete
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildBanAdd:
+		var d EventGuildBanAdd
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildBanRemove:
+		var d EventGuildBanRemove
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildEmojisUpdate:
+		var d EventGuildEmojisUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildStickersUpdate:
+		var d EventGuildStickersUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildIntegrationsUpdate:
+		var d EventGuildIntegrationsUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildMemberAdd:
+		var d EventGuildMemberAdd
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildMemberRemove:
+		var d EventGuildMemberRemove
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildMemberUpdate:
+		var d EventGuildMemberUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildMembersChunk:
+		var d EventGuildMembersChunk
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildRoleCreate:
+		var d EventGuildRoleCreate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildRoleUpdate:
+		var d EventGuildRoleUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildRoleDelete:
+		var d EventGuildRoleDelete
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildScheduledEventCreate:
+		var d EventGuildScheduledEventCreate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildScheduledEventUpdate:
+		var d EventGuildScheduledEventUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildScheduledEventDelete:
+		var d EventGuildScheduledEventDelete
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildScheduledEventUserAdd:
+		var d EventGuildScheduledEventUserAdd
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildScheduledEventUserRemove:
+		var d EventGuildScheduledEventUserRemove
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeIntegrationCreate:
+		var d EventIntegrationCreate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeIntegrationUpdate:
+		var d EventIntegrationUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeIntegrationDelete:
+		var d EventIntegrationDelete
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeInteractionCreate:
+		var d EventInteractionCreate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeInviteCreate:
+		var d EventInviteCreate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeInviteDelete:
+		var d EventInviteDelete
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeMessageCreate:
+		var d EventMessageCreate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeMessageUpdate:
+		var d EventMessageUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeMessageDelete:
+		var d EventMessageDelete
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeMessageDeleteBulk:
+		var d EventMessageDeleteBulk
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeMessageReactionAdd:
+		var d EventMessageReactionAdd
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeMessageReactionRemove:
+		var d EventMessageReactionRemove
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeMessageReactionRemoveAll:
+		var d EventMessageReactionRemoveAll
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeMessageReactionRemoveEmoji:
+		var d EventMessageReactionRemoveEmoji
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypePresenceUpdate:
+		var d EventPresenceUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeStageInstanceCreate:
+		var d EventStageInstanceCreate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeStageInstanceUpdate:
+		var d EventStageInstanceUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeStageInstanceDelete:
+		var d EventStageInstanceDelete
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeTypingStart:
+		var d EventTypingStart
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeUserUpdate:
+		var d EventUserUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeVoiceStateUpdate:
+		var d EventVoiceStateUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeVoiceServerUpdate:
+		var d EventVoiceServerUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeWebhooksUpdate:
+		var d EventWebhooksUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	default:
+		err = fmt.Errorf("unknown event type: %s", eventType)
+	}
+
+	return eventData, err
+}
 
 // MessageDataHeartbeat is used to ensure the websocket connection remains open, and disconnect if not.
 type MessageDataHeartbeat int

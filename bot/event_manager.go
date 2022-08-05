@@ -33,7 +33,7 @@ type EventManager interface {
 	HandleGatewayEvent(gatewayEventType gateway.EventType, sequenceNumber int, shardID int, event gateway.EventData)
 
 	// HandleHTTPEvent calls the HTTPServerEventHandler for the payload
-	HandleHTTPEvent(respondFunc httpserver.RespondFunc, event gateway.EventInteractionCreate)
+	HandleHTTPEvent(respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate)
 
 	// DispatchEvent dispatches a new Event to the Client's EventListener(s)
 	DispatchEvent(event Event)
@@ -97,7 +97,7 @@ func (h *genericGatewayEventHandler[T]) HandleGatewayEvent(client Client, sequen
 
 // HTTPServerEventHandler is used to handle HTTP Event(s)
 type HTTPServerEventHandler interface {
-	HandleHTTPEvent(client Client, respondFunc httpserver.RespondFunc, event gateway.EventInteractionCreate)
+	HandleHTTPEvent(client Client, respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate)
 }
 
 type eventManagerImpl struct {
@@ -114,11 +114,11 @@ func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType gateway.EventType
 	if handler, ok := e.config.GatewayHandlers[gatewayEventType]; ok {
 		handler.HandleGatewayEvent(e.client, sequenceNumber, shardID, event)
 	} else {
-		e.client.Logger().Warnf("no handler for gateway event '%s' found", gatewayEventType)
+		e.config.Logger.Warnf("no handler for gateway event '%s' found", gatewayEventType)
 	}
 }
 
-func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, event gateway.EventInteractionCreate) {
+func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.config.HTTPServerHandler.HandleHTTPEvent(e.client, respondFunc, event)
@@ -127,7 +127,7 @@ func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, e
 func (e *eventManagerImpl) DispatchEvent(event Event) {
 	defer func() {
 		if r := recover(); r != nil {
-			e.client.Logger().Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
+			e.config.Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
 			return
 		}
 	}()
@@ -138,7 +138,7 @@ func (e *eventManagerImpl) DispatchEvent(event Event) {
 			go func() {
 				defer func() {
 					if r := recover(); r != nil {
-						e.client.Logger().Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
+						e.config.Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
 						return
 					}
 				}()
