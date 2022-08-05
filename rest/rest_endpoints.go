@@ -333,7 +333,7 @@ func (e *Endpoint) Compile(values discord.QueryValues, params ...any) *CompiledE
 
 	query := values.Encode()
 	if query != "" {
-		path += "?" + query
+		query = "?" + query
 	}
 
 	return &CompiledEndpoint{
