@@ -93,6 +93,18 @@ type GuildStageVoiceChannelUpdate struct {
 func (GuildStageVoiceChannelUpdate) channelUpdate()      {}
 func (GuildStageVoiceChannelUpdate) guildChannelUpdate() {}
 
+type GuildForumChannelUpdate struct {
+	Name                 *string                `json:"name,omitempty"`
+	Position             *int                   `json:"position,omitempty"`
+	Topic                *string                `json:"topic,omitempty"`
+	PermissionOverwrites *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
+	ParentID             *snowflake.ID          `json:"parent_id,omitempty"`
+	RateLimitPerUser     *int                   `json:"rate_limit_per_user"`
+}
+
+func (GuildForumChannelUpdate) channelUpdate()      {}
+func (GuildForumChannelUpdate) guildChannelUpdate() {}
+
 type GuildChannelPositionUpdate struct {
 	ID              snowflake.ID                 `json:"id"`
 	Position        *json.Nullable[int]          `json:"position"`

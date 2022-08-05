@@ -24,6 +24,14 @@ func gatewayHandlerMessageCreate(client bot.Client, sequenceNumber int, shardID 
 		client.Caches().Channels().Put(event.ChannelID, discord.ApplyLastMessageIDToChannel(channel, event.ID))
 	}
 
+	if channel, ok := client.Caches().Channels().GetGuildThread(event.ChannelID); ok {
+		channel.TotalMessageSent++
+		if channel.MessageCount < 50 {
+			channel.MessageCount++
+		}
+		client.Caches().Channels().Put(event.ChannelID, channel)
+	}
+
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 	client.EventManager().DispatchEvent(&events.MessageCreate{
 		GenericMessage: &events.GenericMessage{
@@ -60,6 +68,13 @@ func gatewayHandlerMessageCreate(client bot.Client, sequenceNumber int, shardID 
 func gatewayHandlerMessageUpdate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventMessageUpdate) {
 	oldMessage, _ := client.Caches().Messages().Get(event.ChannelID, event.ID)
 	client.Caches().Messages().Put(event.ChannelID, event.ID, event.Message)
+
+	if channel, ok := client.Caches().Channels().GetGuildThread(event.ChannelID); ok {
+		if channel.MessageCount > 0 {
+			channel.MessageCount--
+		}
+		client.Caches().Channels().Put(event.ChannelID, channel)
+	}
 
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 	client.EventManager().DispatchEvent(&events.MessageUpdate{

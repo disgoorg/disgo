@@ -2,9 +2,29 @@ package discord
 
 import "github.com/disgoorg/disgo/json"
 
-type ThreadCreateWithMessage struct {
+type ThreadCreateFromMessage struct {
 	Name                string              `json:"name"`
-	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration"`
+	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
+}
+
+type ForumThreadCreate struct {
+	Name                string              `json:"name"`
+	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
+	RateLimitPerUser    int                 `json:"rate_limit_per_user,omitempty"`
+	Message             MessageCreate       `json:"message"`
+}
+
+func (c ForumThreadCreate) ToBody() (any, error) {
+	if len(c.Message.Files) > 0 {
+		c.Message.Attachments = parseAttachments(c.Message.Files)
+		return PayloadWithFiles(c, c.Message.Files...)
+	}
+	return c, nil
+}
+
+type ForumThread struct {
+	GuildThread
+	Message Message `json:"message"`
 }
 
 type ThreadCreate interface {
@@ -14,7 +34,7 @@ type ThreadCreate interface {
 
 type GuildNewsThreadCreate struct {
 	Name                string              `json:"name"`
-	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration"`
+	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
 }
 
 func (c GuildNewsThreadCreate) MarshalJSON() ([]byte, error) {
@@ -34,7 +54,7 @@ func (GuildNewsThreadCreate) Type() ChannelType {
 
 type GuildPublicThreadCreate struct {
 	Name                string              `json:"name"`
-	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration"`
+	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
 }
 
 func (c GuildPublicThreadCreate) MarshalJSON() ([]byte, error) {
@@ -54,7 +74,7 @@ func (GuildPublicThreadCreate) Type() ChannelType {
 
 type GuildPrivateThreadCreate struct {
 	Name                string              `json:"name"`
-	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration"`
+	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
 	Invitable           bool                `json:"invitable"`
 }
 

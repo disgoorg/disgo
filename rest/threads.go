@@ -14,7 +14,9 @@ func NewThreads(client Client) Threads {
 }
 
 type Threads interface {
-	CreateThreadWithMessage(channelID snowflake.ID, messageID snowflake.ID, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...RequestOpt) (thread *discord.GuildThread, err error)
+	// CreateThreadFromMessage does not work for discord.ChannelTypeGuildForum channels.
+	CreateThreadFromMessage(channelID snowflake.ID, messageID snowflake.ID, threadCreateFromMessage discord.ThreadCreateFromMessage, opts ...RequestOpt) (thread *discord.GuildThread, err error)
+	CreateThreadInForum(channelID snowflake.ID, threadCreateInForum discord.ForumThreadCreate, opts ...RequestOpt) (thread *discord.ForumThread, err error)
 	CreateThread(channelID snowflake.ID, threadCreate discord.ThreadCreate, opts ...RequestOpt) (thread *discord.GuildThread, err error)
 	JoinThread(threadID snowflake.ID, opts ...RequestOpt) error
 	LeaveThread(threadID snowflake.ID, opts ...RequestOpt) error
@@ -32,8 +34,18 @@ type threadImpl struct {
 	client Client
 }
 
-func (s *threadImpl) CreateThreadWithMessage(channelID snowflake.ID, messageID snowflake.ID, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...RequestOpt) (thread *discord.GuildThread, err error) {
+func (s *threadImpl) CreateThreadFromMessage(channelID snowflake.ID, messageID snowflake.ID, threadCreateWithMessage discord.ThreadCreateFromMessage, opts ...RequestOpt) (thread *discord.GuildThread, err error) {
 	err = s.client.Do(CreateThreadWithMessage.Compile(nil, channelID, messageID), threadCreateWithMessage, &thread, opts...)
+	return
+}
+
+func (s *threadImpl) CreateThreadInForum(channelID snowflake.ID, threadCreateInForum discord.ForumThreadCreate, opts ...RequestOpt) (thread *discord.ForumThread, err error) {
+	body, err := threadCreateInForum.ToBody()
+	if err != nil {
+		return
+	}
+
+	err = s.client.Do(CreateThread.Compile(nil, channelID), body, &thread, opts...)
 	return
 }
 
