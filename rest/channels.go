@@ -1,6 +1,8 @@
 package rest
 
 import (
+	"fmt"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -28,6 +30,7 @@ type Channels interface {
 
 	GetMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) (*discord.Message, error)
 	GetMessages(channelID snowflake.ID, around snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) ([]discord.Message, error)
+	GetMessagesPage(channelID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) Page[discord.Message]
 	CreateMessage(channelID snowflake.ID, messageCreate discord.MessageCreate, opts ...RequestOpt) (*discord.Message, error)
 	UpdateMessage(channelID snowflake.ID, messageID snowflake.ID, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (*discord.Message, error)
 	DeleteMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
@@ -126,6 +129,38 @@ func (s *channelImpl) GetMessages(channelID snowflake.ID, around snowflake.ID, b
 	}
 	err = s.client.Do(GetMessages.Compile(values, channelID), nil, &messages, opts...)
 	return
+}
+
+func (s *channelImpl) GetMessagesPage(channelID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) Page[discord.Message] {
+	return Page[discord.Message]{
+		Before: before,
+		After:  after,
+		Limit:  limit,
+		f: func(before snowflake.ID, after snowflake.ID, limit int) ([]discord.Message, error) {
+			values := discord.QueryValues{}
+			if before != 0 {
+				values["before"] = before
+			}
+			if after != 0 {
+				values["after"] = after
+			}
+			if limit != 0 {
+				values["limit"] = limit
+			}
+			var messages []discord.Message
+			compiled := GetMessages.Compile(values, channelID)
+			fmt.Printf("url: %s\n", compiled.URL)
+			err := s.client.Do(compiled, nil, &messages, opts...)
+			return messages, err
+		},
+		lastIDFunc: func(data []discord.Message) snowflake.ID {
+			if len(data) == 0 {
+				return 0
+			}
+			return data[len(data)-1].ID
+		},
+	}
+
 }
 
 func (s *channelImpl) CreateMessage(channelID snowflake.ID, messageCreate discord.MessageCreate, opts ...RequestOpt) (message *discord.Message, err error) {
