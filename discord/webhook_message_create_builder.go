@@ -191,7 +191,7 @@ func (b *WebhookMessageCreateBuilder) RemoveFlags(flags ...MessageFlags) *Webhoo
 
 // ClearFlags clears the discord.MessageFlags of the Message
 func (b *WebhookMessageCreateBuilder) ClearFlags() *WebhookMessageCreateBuilder {
-	return b.SetFlags(MessageFlagNone)
+	return b.SetFlags(MessageFlagsNone)
 }
 
 // SetSuppressEmbeds adds/removes discord.MessageFlagSuppressEmbeds to the Message flags

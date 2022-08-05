@@ -240,7 +240,7 @@ func (b *MessageUpdateBuilder) RemoveFlags(flags ...MessageFlags) *MessageUpdate
 
 // ClearFlags clears the MessageFlags of the Message
 func (b *MessageUpdateBuilder) ClearFlags() *MessageUpdateBuilder {
-	return b.SetFlags(MessageFlagNone)
+	return b.SetFlags(MessageFlagsNone)
 }
 
 // SetSuppressEmbeds adds/removes discord.MessageFlagSuppressEmbeds to the Message flags

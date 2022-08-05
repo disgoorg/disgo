@@ -32,7 +32,7 @@ const (
 	UserFlagEarlyVerifiedBotDeveloper
 	UserFlagDiscordCertifiedModerator
 	UserFlagBotHTTPInteractions
-	UserFlagNone UserFlags = 0
+	UserFlagsNone UserFlags = 0
 )
 
 var _ Mentionable = (*User)(nil)

@@ -280,7 +280,7 @@ const (
 	MessageFlagHasThread
 	MessageFlagEphemeral
 	MessageFlagLoading              // Message is an interaction of type 5, awaiting further response
-	MessageFlagNone    MessageFlags = 0
+	MessageFlagsNone   MessageFlags = 0
 )
 
 // Add allows you to add multiple bits together, producing a new bit
