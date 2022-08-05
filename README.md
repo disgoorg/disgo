@@ -28,7 +28,7 @@ DisGo is a [Discord](https://discord.com) API wrapper written in [Golang](https:
 ### Stability
 The public API of DisGo is mostly stable at this point in time. Smaller breaking changes can happen before the v1 is released. 
 
-After v1 is released breaking changes may only happen if the Discord API requires them. They tend to break their released API versions now and then. In general for every new Discord APi version the major version of DisGo should be increased and with that breaking changes between non-major versions should be held to a minimum. 
+After v1 is released breaking changes may only happen if the Discord API requires them. They tend to break their released API versions now and then. In general for every new Discord API version the major version of DisGo should be increased and with that breaking changes between non-major versions should be held to a minimum. 
 
 ### Features
 
@@ -63,7 +63,7 @@ go get github.com/disgoorg/disgo
 
 ### Building a DisGo Instance
 
-Build a bot client to interact with the discord api
+Build a bot client to interact with the Discord API
 ```go
 package main
 
