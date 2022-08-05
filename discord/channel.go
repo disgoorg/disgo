@@ -34,8 +34,8 @@ const (
 type ChannelFlags int
 
 const (
-	ChannelFlagNone   ChannelFlags = 0
-	ChannelFlagPinned ChannelFlags = 1 << iota
+	ChannelFlagPinned ChannelFlags = 1 << (iota + 1)
+	ChannelFlagsNone  ChannelFlags = 0
 )
 
 // Add allows you to add multiple bits together, producing a new bit
