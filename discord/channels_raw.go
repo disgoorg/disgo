@@ -87,6 +87,7 @@ type guildThread struct {
 	ParentID         snowflake.ID   `json:"parent_id"`
 	LastPinTimestamp *time.Time     `json:"last_pin_timestamp"`
 	MessageCount     int            `json:"message_count"`
+	TotalMessageSent int            `json:"total_message_sent"`
 	MemberCount      int            `json:"member_count"`
 	ThreadMetadata   ThreadMetadata `json:"thread_metadata"`
 }

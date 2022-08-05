@@ -786,6 +786,7 @@ type GuildThread struct {
 	OwnerID          snowflake.ID
 	parentID         snowflake.ID
 	MessageCount     int
+	TotalMessageSent int
 	MemberCount      int
 	ThreadMetadata   ThreadMetadata
 }
@@ -807,6 +808,7 @@ func (c *GuildThread) UnmarshalJSON(data []byte) error {
 	c.OwnerID = v.OwnerID
 	c.parentID = v.ParentID
 	c.MessageCount = v.MessageCount
+	c.TotalMessageSent = v.TotalMessageSent
 	c.MemberCount = v.MemberCount
 	c.ThreadMetadata = v.ThreadMetadata
 	return nil
@@ -825,6 +827,7 @@ func (c GuildThread) MarshalJSON() ([]byte, error) {
 		OwnerID:          c.OwnerID,
 		ParentID:         c.parentID,
 		MessageCount:     c.MessageCount,
+		TotalMessageSent: c.TotalMessageSent,
 		MemberCount:      c.MemberCount,
 		ThreadMetadata:   c.ThreadMetadata,
 	})
