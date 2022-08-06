@@ -153,11 +153,8 @@ func (s *channelImpl) GetMessagesPage(channelID snowflake.ID, before snowflake.I
 			err := s.client.Do(compiled, nil, &messages, opts...)
 			return messages, err
 		},
-		lastIDFunc: func(data []discord.Message) snowflake.ID {
-			if len(data) == 0 {
-				return 0
-			}
-			return data[len(data)-1].ID
+		getIDFunc: func(msg discord.Message) snowflake.ID {
+			return msg.ID
 		},
 	}
 
