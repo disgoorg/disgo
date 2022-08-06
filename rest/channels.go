@@ -1,8 +1,6 @@
 package rest
 
 import (
-	"fmt"
-
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -132,26 +130,15 @@ func (s *channelImpl) GetMessages(channelID snowflake.ID, around snowflake.ID, b
 }
 
 func (s *channelImpl) GetMessagesPage(channelID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) Page[discord.Message] {
+	if limit == 0 {
+		limit = 100
+	}
 	return Page[discord.Message]{
 		Before: before,
 		After:  after,
 		Limit:  limit,
-		f: func(before snowflake.ID, after snowflake.ID, limit int) ([]discord.Message, error) {
-			values := discord.QueryValues{}
-			if before != 0 {
-				values["before"] = before
-			}
-			if after != 0 {
-				values["after"] = after
-			}
-			if limit != 0 {
-				values["limit"] = limit
-			}
-			var messages []discord.Message
-			compiled := GetMessages.Compile(values, channelID)
-			fmt.Printf("url: %s\n", compiled.URL)
-			err := s.client.Do(compiled, nil, &messages, opts...)
-			return messages, err
+		getItems: func(before snowflake.ID, after snowflake.ID, limit int) ([]discord.Message, error) {
+			return s.GetMessages(channelID, 0, before, after, limit, opts...)
 		},
 		getIDFunc: func(msg discord.Message) snowflake.ID {
 			return msg.ID

@@ -23,7 +23,7 @@ func main() {
 
 	var i int
 	for page.Previous() {
-		for _, m := range page.Data {
+		for _, m := range page.Items {
 			println(m.ID)
 		}
 		println("---")
