@@ -84,7 +84,7 @@ func (e CDNEndpoint) URL(format ImageFormat, values url.Values, params ...any) s
 	if query != "" {
 		query = "?" + query
 	}
-	return urlPrint(CDN+"/"+e.Route+format.String(), params...) + query
+	return urlPrint(CDN+e.Route+"."+format.String(), params...) + query
 }
 
 func DefaultCDNConfig() *CDNConfig {
