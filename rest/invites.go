@@ -2,7 +2,6 @@ package rest
 
 import (
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -25,51 +24,26 @@ type inviteImpl struct {
 }
 
 func (s *inviteImpl) GetInvite(code string, opts ...RequestOpt) (invite *discord.Invite, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetInvite.Compile(nil, code)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &invite, opts...)
+	err = s.client.Do(GetInvite.Compile(nil, code), nil, &invite, opts...)
 	return
 }
 
 func (s *inviteImpl) CreateInvite(channelID snowflake.ID, inviteCreate discord.InviteCreate, opts ...RequestOpt) (invite *discord.Invite, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.CreateInvite.Compile(nil, channelID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, inviteCreate, &invite, opts...)
+	err = s.client.Do(CreateInvite.Compile(nil, channelID), inviteCreate, &invite, opts...)
 	return
 }
 
 func (s *inviteImpl) DeleteInvite(code string, opts ...RequestOpt) (invite *discord.Invite, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.DeleteInvite.Compile(nil, code)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &invite, opts...)
+	err = s.client.Do(DeleteInvite.Compile(nil, code), nil, &invite, opts...)
 	return
 }
 
 func (s *inviteImpl) GetGuildInvites(guildID snowflake.ID, opts ...RequestOpt) (invites []discord.Invite, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetGuildInvites.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &invites, opts...)
+	err = s.client.Do(GetGuildInvites.Compile(nil, guildID), nil, &invites, opts...)
 	return
 }
 
 func (s *inviteImpl) GetChannelInvites(channelID snowflake.ID, opts ...RequestOpt) (invites []discord.Invite, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetChannelInvites.Compile(nil, channelID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &invites, opts...)
+	err = s.client.Do(GetChannelInvites.Compile(nil, channelID), nil, &invites, opts...)
 	return
 }

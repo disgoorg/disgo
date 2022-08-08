@@ -39,7 +39,10 @@ func gatewayHandlerThreadUpdate(client bot.Client, sequenceNumber int, shardID i
 }
 
 func gatewayHandlerThreadDelete(client bot.Client, sequenceNumber int, shardID int, event gateway.EventThreadDelete) {
-	channel, _ := client.Caches().Channels().Remove(event.ID)
+	var thread discord.GuildThread
+	if channel, ok := client.Caches().Channels().Remove(event.ID); ok {
+		thread, _ = channel.(discord.GuildThread)
+	}
 	client.Caches().ThreadMembers().RemoveAll(event.ID)
 
 	client.EventManager().DispatchEvent(&events.ThreadDelete{
@@ -48,7 +51,7 @@ func gatewayHandlerThreadDelete(client bot.Client, sequenceNumber int, shardID i
 			ThreadID:     event.ID,
 			GuildID:      event.GuildID,
 			ParentID:     event.ParentID,
-			Thread:       channel.(discord.GuildThread),
+			Thread:       thread,
 		},
 	})
 }

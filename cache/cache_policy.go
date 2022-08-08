@@ -12,9 +12,6 @@ func PolicyNone[T any](_ T) bool { return false }
 // PolicyAll returns a policy that will cache all entities.
 func PolicyAll[T any](_ T) bool { return true }
 
-// PolicyDefault returns the default cache policy.
-func PolicyDefault[T any](t T) bool { return PolicyAll(t) }
-
 // PolicyMembersInclude returns a policy that will only cache members of the given guilds.
 func PolicyMembersInclude(guildIDs ...snowflake.ID) Policy[discord.Member] {
 	return func(member discord.Member) bool {

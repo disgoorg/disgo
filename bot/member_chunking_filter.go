@@ -48,7 +48,7 @@ func (f MemberChunkingFilter) And(filter MemberChunkingFilter) MemberChunkingFil
 }
 
 // AnyMemberChunkingFilter is a shorthand for MemberChunkingFilter.Or(MemberChunkingFilter).Or(MemberChunkingFilter) etc.
-func AnyMemberChunkingFilter[T any](filters ...MemberChunkingFilter) MemberChunkingFilter {
+func AnyMemberChunkingFilter(filters ...MemberChunkingFilter) MemberChunkingFilter {
 	var filter MemberChunkingFilter
 	for _, f := range filters {
 		if filter == nil {
@@ -61,7 +61,7 @@ func AnyMemberChunkingFilter[T any](filters ...MemberChunkingFilter) MemberChunk
 }
 
 // AllMemberChunkingFilters is a shorthand for MemberChunkingFilter.And(MemberChunkingFilter).And(MemberChunkingFilter) etc.
-func AllMemberChunkingFilters[T any](filters ...MemberChunkingFilter) MemberChunkingFilter {
+func AllMemberChunkingFilters(filters ...MemberChunkingFilter) MemberChunkingFilter {
 	var filter MemberChunkingFilter
 	for _, f := range filters {
 		if filter == nil {

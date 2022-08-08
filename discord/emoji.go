@@ -1,7 +1,6 @@
 package discord
 
 import (
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -33,10 +32,7 @@ func (e Emoji) String() string {
 }
 
 func (e Emoji) URL(opts ...CDNOpt) string {
-	if url := formatAssetURL(route.CustomEmoji, opts, e.ID); url != nil {
-		return *url
-	}
-	return ""
+	return formatAssetURL(CustomEmoji, opts, e.ID)
 }
 
 type EmojiCreate struct {

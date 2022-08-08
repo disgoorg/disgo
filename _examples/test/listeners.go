@@ -44,11 +44,11 @@ func modalListener(event *events.ModalSubmitInteractionCreate) {
 func componentListener(event *events.ComponentInteractionCreate) {
 	switch data := event.Data.(type) {
 	case discord.ButtonInteractionData:
-		ids := strings.Split(data.CustomID().String(), ":")
+		ids := strings.Split(data.CustomID(), ":")
 		switch ids[0] {
 		case "modal":
 			_ = event.CreateModal(discord.ModalCreate{
-				CustomID: discord.CustomID("test" + ids[1]),
+				CustomID: "test" + ids[1],
 				Title:    "Test" + ids[1] + " Modal",
 				Components: []discord.ContainerComponent{
 					discord.ActionRowComponent{
@@ -66,7 +66,7 @@ func componentListener(event *events.ComponentInteractionCreate) {
 
 		case "test1":
 			_ = event.CreateMessage(discord.NewMessageCreateBuilder().
-				SetContent(data.CustomID().String()).
+				SetContent(data.CustomID()).
 				Build(),
 			)
 
@@ -78,7 +78,7 @@ func componentListener(event *events.ComponentInteractionCreate) {
 
 		case "test4":
 			_ = event.UpdateMessage(discord.NewMessageUpdateBuilder().
-				SetContent(data.CustomID().String()).
+				SetContent(data.CustomID()).
 				Build(),
 			)
 		}

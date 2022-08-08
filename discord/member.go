@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -57,7 +56,8 @@ func (m Member) AvatarURL(opts ...CDNOpt) *string {
 	if m.Avatar == nil {
 		return nil
 	}
-	return formatAssetURL(route.MemberAvatar, opts, m.GuildID, m.User.ID, *m.Avatar)
+	url := formatAssetURL(MemberAvatar, opts, m.GuildID, m.User.ID, *m.Avatar)
+	return &url
 }
 
 // MemberAdd is used to add a member via the oauth2 access token to a guild

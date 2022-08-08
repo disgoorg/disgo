@@ -2,7 +2,6 @@ package discord
 
 import (
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -35,7 +34,8 @@ func (r Role) IconURL(opts ...CDNOpt) *string {
 	if r.Icon == nil {
 		return nil
 	}
-	return formatAssetURL(route.RoleIcon, opts, r.ID, *r.Icon)
+	url := formatAssetURL(RoleIcon, opts, r.ID, *r.Icon)
+	return &url
 }
 
 // RoleTag are tags a Role has

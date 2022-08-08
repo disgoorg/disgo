@@ -28,7 +28,51 @@ const (
 	ChannelTypeGuildPrivateThread
 	ChannelTypeGuildStageVoice
 	ChannelTypeGuildDirectory
+	ChannelTypeGuildForum
 )
+
+type ChannelFlags int
+
+const (
+	ChannelFlagPinned ChannelFlags = 1 << (iota + 1)
+	ChannelFlagsNone  ChannelFlags = 0
+)
+
+// Add allows you to add multiple bits together, producing a new bit
+func (f ChannelFlags) Add(bits ...ChannelFlags) ChannelFlags {
+	for _, bit := range bits {
+		f |= bit
+	}
+	return f
+}
+
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (f ChannelFlags) Remove(bits ...ChannelFlags) ChannelFlags {
+	for _, bit := range bits {
+		f &^= bit
+	}
+	return f
+}
+
+// Has will ensure that the bit includes all the bits entered
+func (f ChannelFlags) Has(bits ...ChannelFlags) bool {
+	for _, bit := range bits {
+		if (f & bit) != bit {
+			return false
+		}
+	}
+	return true
+}
+
+// Missing will check whether the bit is missing any one of the bits
+func (f ChannelFlags) Missing(bits ...ChannelFlags) bool {
+	for _, bit := range bits {
+		if (f & bit) != bit {
+			return true
+		}
+	}
+	return false
+}
 
 type Channel interface {
 	json.Marshaler
@@ -96,6 +140,7 @@ type GuildMessageChannel interface {
 	// DefaultAutoArchiveDuration returns the default AutoArchiveDuration for GuildThread(s) in this GuildMessageChannel.
 	// This is always 0 for GuildThread(s).
 	DefaultAutoArchiveDuration() AutoArchiveDuration
+	RateLimitPerUser() int
 
 	guildMessageChannel()
 }
@@ -163,6 +208,11 @@ func (u *UnmarshalChannel) UnmarshalJSON(data []byte) error {
 
 	case ChannelTypeGuildStageVoice:
 		var v GuildStageVoiceChannel
+		err = json.Unmarshal(data, &v)
+		channel = v
+
+	case ChannelTypeGuildForum:
+		var v GuildForumChannel
 		err = json.Unmarshal(data, &v)
 		channel = v
 
@@ -279,6 +329,10 @@ func (c GuildTextChannel) LastMessageID() *snowflake.ID {
 	return c.lastMessageID
 }
 
+func (c GuildTextChannel) RateLimitPerUser() int {
+	return c.rateLimitPerUser
+}
+
 func (c GuildTextChannel) LastPinTimestamp() *time.Time {
 	return c.lastPinTimestamp
 }
@@ -385,6 +439,7 @@ type GuildVoiceChannel struct {
 	topic                      *string
 	nsfw                       bool
 	defaultAutoArchiveDuration AutoArchiveDuration
+	rateLimitPerUser           int
 }
 
 func (c *GuildVoiceChannel) UnmarshalJSON(data []byte) error {
@@ -408,6 +463,7 @@ func (c *GuildVoiceChannel) UnmarshalJSON(data []byte) error {
 	c.topic = v.Topic
 	c.nsfw = v.NSFW
 	c.defaultAutoArchiveDuration = v.DefaultAutoArchiveDuration
+	c.rateLimitPerUser = v.RateLimitPerUser
 	return nil
 }
 
@@ -429,6 +485,7 @@ func (c GuildVoiceChannel) MarshalJSON() ([]byte, error) {
 		Topic:                      c.topic,
 		NSFW:                       c.nsfw,
 		DefaultAutoArchiveDuration: c.defaultAutoArchiveDuration,
+		RateLimitPerUser:           c.rateLimitPerUser,
 	})
 }
 
@@ -494,6 +551,10 @@ func (c GuildVoiceChannel) NSFW() bool {
 
 func (c GuildVoiceChannel) DefaultAutoArchiveDuration() AutoArchiveDuration {
 	return c.defaultAutoArchiveDuration
+}
+
+func (c GuildVoiceChannel) RateLimitPerUser() int {
+	return c.rateLimitPerUser
 }
 
 func (GuildVoiceChannel) channel()             {}
@@ -685,6 +746,10 @@ func (c GuildNewsChannel) LastMessageID() *snowflake.ID {
 	return c.lastMessageID
 }
 
+func (c GuildNewsChannel) RateLimitPerUser() int {
+	return c.rateLimitPerUser
+}
+
 func (c GuildNewsChannel) LastPinTimestamp() *time.Time {
 	return c.lastPinTimestamp
 }
@@ -717,10 +782,11 @@ type GuildThread struct {
 	nsfw             bool
 	lastMessageID    *snowflake.ID
 	lastPinTimestamp *time.Time
-	RateLimitPerUser int
+	rateLimitPerUser int
 	OwnerID          snowflake.ID
 	parentID         snowflake.ID
 	MessageCount     int
+	TotalMessageSent int
 	MemberCount      int
 	ThreadMetadata   ThreadMetadata
 }
@@ -738,10 +804,11 @@ func (c *GuildThread) UnmarshalJSON(data []byte) error {
 	c.nsfw = v.NSFW
 	c.lastMessageID = v.LastMessageID
 	c.lastPinTimestamp = v.LastPinTimestamp
-	c.RateLimitPerUser = v.RateLimitPerUser
+	c.rateLimitPerUser = v.RateLimitPerUser
 	c.OwnerID = v.OwnerID
 	c.parentID = v.ParentID
 	c.MessageCount = v.MessageCount
+	c.TotalMessageSent = v.TotalMessageSent
 	c.MemberCount = v.MemberCount
 	c.ThreadMetadata = v.ThreadMetadata
 	return nil
@@ -756,10 +823,11 @@ func (c GuildThread) MarshalJSON() ([]byte, error) {
 		NSFW:             c.nsfw,
 		LastMessageID:    c.lastMessageID,
 		LastPinTimestamp: c.lastPinTimestamp,
-		RateLimitPerUser: c.RateLimitPerUser,
+		RateLimitPerUser: c.rateLimitPerUser,
 		OwnerID:          c.OwnerID,
 		ParentID:         c.parentID,
 		MessageCount:     c.MessageCount,
+		TotalMessageSent: c.TotalMessageSent,
 		MemberCount:      c.MemberCount,
 		ThreadMetadata:   c.ThreadMetadata,
 	})
@@ -805,6 +873,10 @@ func (c GuildThread) GuildID() snowflake.ID {
 
 func (c GuildThread) LastMessageID() *snowflake.ID {
 	return c.lastMessageID
+}
+
+func (c GuildThread) RateLimitPerUser() int {
+	return 0
 }
 
 func (c GuildThread) LastPinTimestamp() *time.Time {
@@ -927,6 +999,95 @@ func (GuildStageVoiceChannel) channel()           {}
 func (GuildStageVoiceChannel) guildChannel()      {}
 func (GuildStageVoiceChannel) guildAudioChannel() {}
 
+var (
+	_ Channel      = (*GuildForumChannel)(nil)
+	_ GuildChannel = (*GuildForumChannel)(nil)
+)
+
+type GuildForumChannel struct {
+	id                   snowflake.ID
+	guildID              snowflake.ID
+	position             int
+	permissionOverwrites PermissionOverwrites
+	name                 string
+	parentID             *snowflake.ID
+	LastThreadID         *snowflake.ID
+	Topic                *string
+	RateLimitPerUser     int
+}
+
+func (c *GuildForumChannel) UnmarshalJSON(data []byte) error {
+	var v guildForumChannel
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	c.id = v.ID
+	c.guildID = v.GuildID
+	c.position = v.Position
+	c.permissionOverwrites = v.PermissionOverwrites
+	c.name = v.Name
+	c.parentID = v.ParentID
+	c.LastThreadID = v.LastThreadID
+	c.Topic = v.Topic
+	c.RateLimitPerUser = v.RateLimitPerUser
+	return nil
+}
+
+func (c GuildForumChannel) MarshalJSON() ([]byte, error) {
+	return json.Marshal(guildForumChannel{
+		ID:                   c.id,
+		Type:                 c.Type(),
+		GuildID:              c.guildID,
+		Position:             c.position,
+		PermissionOverwrites: c.permissionOverwrites,
+		Name:                 c.name,
+		ParentID:             c.parentID,
+		LastThreadID:         c.LastThreadID,
+		Topic:                c.Topic,
+		RateLimitPerUser:     c.RateLimitPerUser,
+	})
+}
+
+func (c GuildForumChannel) String() string {
+	return channelString(c)
+}
+
+func (c GuildForumChannel) Mention() string {
+	return ChannelMention(c.ID())
+}
+
+func (GuildForumChannel) Type() ChannelType {
+	return ChannelTypeGuildForum
+}
+
+func (c GuildForumChannel) ID() snowflake.ID {
+	return c.id
+}
+
+func (c GuildForumChannel) Name() string {
+	return c.name
+}
+
+func (c GuildForumChannel) GuildID() snowflake.ID {
+	return c.guildID
+}
+
+func (c GuildForumChannel) PermissionOverwrites() PermissionOverwrites {
+	return c.permissionOverwrites
+}
+
+func (c GuildForumChannel) Position() int {
+	return c.position
+}
+
+func (c GuildForumChannel) ParentID() *snowflake.ID {
+	return c.parentID
+}
+
+func (GuildForumChannel) channel()      {}
+func (GuildForumChannel) guildChannel() {}
+
 type FollowedChannel struct {
 	ChannelID snowflake.ID `json:"channel_id"`
 	WebhookID snowflake.ID `json:"webhook_id"`
@@ -992,7 +1153,7 @@ func ApplyGuildIDToChannel(channel GuildChannel, guildID snowflake.ID) GuildChan
 		c.guildID = guildID
 		return c
 	default:
-		panic("unsupported channel type")
+		return channel
 	}
 }
 
@@ -1011,7 +1172,7 @@ func ApplyLastMessageIDToChannel(channel MessageChannel, lastMessageID snowflake
 		c.lastMessageID = &lastMessageID
 		return c
 	default:
-		panic("unsupported channel type")
+		return channel
 	}
 }
 
@@ -1030,6 +1191,6 @@ func ApplyLastPinTimestampToChannel(channel MessageChannel, lastPinTimestamp *ti
 		c.lastPinTimestamp = lastPinTimestamp
 		return c
 	default:
-		panic("unsupported channel type")
+		return channel
 	}
 }

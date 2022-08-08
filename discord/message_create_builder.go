@@ -216,7 +216,7 @@ func (b *MessageCreateBuilder) RemoveFlags(flags ...MessageFlags) *MessageCreate
 
 // ClearFlags clears the discord.MessageFlags of the Message
 func (b *MessageCreateBuilder) ClearFlags() *MessageCreateBuilder {
-	return b.SetFlags(MessageFlagNone)
+	return b.SetFlags(MessageFlagsNone)
 }
 
 // SetEphemeral adds/removes discord.MessageFlagEphemeral to the Message flags

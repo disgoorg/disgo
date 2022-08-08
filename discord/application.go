@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -37,14 +36,16 @@ func (a Application) IconURL(opts ...CDNOpt) *string {
 	if a.Icon == nil {
 		return nil
 	}
-	return formatAssetURL(route.ApplicationIcon, opts, a.ID, *a.Icon)
+	url := formatAssetURL(ApplicationIcon, opts, a.ID, *a.Icon)
+	return &url
 }
 
 func (a Application) CoverURL(opts ...CDNOpt) *string {
 	if a.Cover == nil {
 		return nil
 	}
-	return formatAssetURL(route.ApplicationCover, opts, a.ID, *a.Cover)
+	url := formatAssetURL(ApplicationCover, opts, a.ID, *a.Cover)
+	return &url
 }
 
 type PartialApplication struct {
@@ -160,6 +161,12 @@ const (
 	ApplicationFlagGatewayGuildMemberLimited
 	ApplicationFlagVerificationPendingGuildLimit
 	ApplicationFlagEmbedded
+	ApplicationFlagGatewayMessageContent
+	ApplicationFlagGatewayMessageContentLimited
+	_
+	_
+	_
+	ApplicationFlagApplicationCommandBadge
 )
 
 // Add allows you to add multiple bits together, producing a new bit
@@ -210,7 +217,8 @@ func (t Team) IconURL(opts ...CDNOpt) *string {
 	if t.Icon == nil {
 		return nil
 	}
-	return formatAssetURL(route.TeamIcon, opts, t.ID, *t.Icon)
+	url := formatAssetURL(TeamIcon, opts, t.ID, *t.Icon)
+	return &url
 }
 
 type TeamMember struct {

@@ -2,7 +2,6 @@ package rest
 
 import (
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -26,28 +25,17 @@ type userImpl struct {
 }
 
 func (s *userImpl) GetUser(userID snowflake.ID, opts ...RequestOpt) (user *discord.User, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetUser.Compile(nil, userID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &user, opts...)
+	err = s.client.Do(GetUser.Compile(nil, userID), nil, &user, opts...)
 	return
 }
 
 func (s *userImpl) UpdateSelfUser(updateSelfUser discord.SelfUserUpdate, opts ...RequestOpt) (selfUser *discord.OAuth2User, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.UpdateSelfUser.Compile(nil)
-	if err != nil {
-		return
-	}
-	var user *discord.User
-	err = s.client.Do(compiledRoute, updateSelfUser, &user, opts...)
+	err = s.client.Do(UpdateSelfUser.Compile(nil), updateSelfUser, &selfUser, opts...)
 	return
 }
 
 func (s *userImpl) GetGuilds(before int, after int, limit int, opts ...RequestOpt) (guilds []discord.OAuth2Guild, err error) {
-	queryParams := route.QueryValues{}
+	queryParams := discord.QueryValues{}
 	if before > 0 {
 		queryParams["before"] = before
 	}
@@ -57,42 +45,20 @@ func (s *userImpl) GetGuilds(before int, after int, limit int, opts ...RequestOp
 	if limit > 0 {
 		queryParams["limit"] = limit
 	}
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetCurrentUserGuilds.Compile(queryParams)
-	if err != nil {
-		return
-	}
-
-	err = s.client.Do(compiledRoute, nil, &guilds, opts...)
+	err = s.client.Do(GetCurrentUserGuilds.Compile(queryParams), nil, &guilds, opts...)
 	return
 }
 
 func (s *userImpl) LeaveGuild(guildID snowflake.ID, opts ...RequestOpt) error {
-	compiledRoute, err := route.LeaveGuild.Compile(nil, guildID)
-	if err != nil {
-		return err
-	}
-	return s.client.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(LeaveGuild.Compile(nil, guildID), nil, nil, opts...)
 }
 
 func (s *userImpl) GetDMChannels(opts ...RequestOpt) (channels []discord.Channel, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetDMChannels.Compile(nil)
-	if err != nil {
-		return
-	}
-
-	err = s.client.Do(compiledRoute, nil, &channels, opts...)
+	err = s.client.Do(GetDMChannels.Compile(nil), nil, &channels, opts...)
 	return
 }
 
 func (s *userImpl) CreateDMChannel(userID snowflake.ID, opts ...RequestOpt) (channel *discord.DMChannel, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.CreateDMChannel.Compile(nil)
-	if err != nil {
-		return
-	}
-
-	err = s.client.Do(compiledRoute, discord.DMChannelCreate{RecipientID: userID}, &channel, opts...)
+	err = s.client.Do(CreateDMChannel.Compile(nil), discord.DMChannelCreate{RecipientID: userID}, &channel, opts...)
 	return
 }

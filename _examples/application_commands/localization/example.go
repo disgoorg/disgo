@@ -20,7 +20,7 @@ var (
 
 	commands = []discord.ApplicationCommandCreate{
 		discord.SlashCommandCreate{
-			CommandName: "say",
+			Name: "say",
 			CommandNameLocalizations: map[discord.Locale]string{
 				discord.LocaleEnglishGB: "say",
 				discord.LocaleGerman:    "sagen",
@@ -32,7 +32,7 @@ var (
 			},
 			Options: []discord.ApplicationCommandOption{
 				discord.ApplicationCommandOptionString{
-					OptionName: "message",
+					Name: "message",
 					NameLocalizations: map[discord.Locale]string{
 						discord.LocaleEnglishGB: "message",
 						discord.LocaleGerman:    "nachricht",
@@ -45,7 +45,7 @@ var (
 					Required: true,
 				},
 				discord.ApplicationCommandOptionBool{
-					OptionName: "ephemeral",
+					Name: "ephemeral",
 					NameLocalizations: map[discord.Locale]string{
 						discord.LocaleEnglishGB: "ephemeral",
 						discord.LocaleGerman:    "kurzlebig",

@@ -16,12 +16,12 @@ type GenericGuildMessage struct {
 
 // Guild returns the discord.Guild the GenericGuildMessage happened in.
 // This will only check cached guilds!
-func (e GenericGuildMessage) Guild() (discord.Guild, bool) {
+func (e *GenericGuildMessage) Guild() (discord.Guild, bool) {
 	return e.Client().Caches().Guilds().Get(e.GuildID)
 }
 
 // Channel returns the discord.DMChannel where the GenericGuildMessage happened
-func (e GenericGuildMessage) Channel() (discord.GuildMessageChannel, bool) {
+func (e *GenericGuildMessage) Channel() (discord.GuildMessageChannel, bool) {
 	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID)
 }
 

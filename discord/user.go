@@ -4,7 +4,6 @@ import (
 	"strconv"
 
 	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -33,7 +32,7 @@ const (
 	UserFlagEarlyVerifiedBotDeveloper
 	UserFlagDiscordCertifiedModerator
 	UserFlagBotHTTPInteractions
-	UserFlagNone UserFlags = 0
+	UserFlagsNone UserFlags = 0
 )
 
 var _ Mentionable = (*User)(nil)
@@ -77,25 +76,24 @@ func (u User) AvatarURL(opts ...CDNOpt) *string {
 	if u.Avatar == nil {
 		return nil
 	}
-	return formatAssetURL(route.UserAvatar, opts, u.ID, *u.Avatar)
+	url := formatAssetURL(UserAvatar, opts, u.ID, *u.Avatar)
+	return &url
 }
 
 func (u User) DefaultAvatarURL(opts ...CDNOpt) string {
-	discrim, err := strconv.Atoi(u.Discriminator)
+	discriminator, err := strconv.Atoi(u.Discriminator)
 	if err != nil {
 		return ""
 	}
-	if avatar := formatAssetURL(route.DefaultUserAvatar, opts, discrim%5); avatar != nil {
-		return *avatar
-	}
-	return ""
+	return formatAssetURL(DefaultUserAvatar, opts, discriminator%5)
 }
 
 func (u User) BannerURL(opts ...CDNOpt) *string {
 	if u.Banner == nil {
 		return nil
 	}
-	return formatAssetURL(route.UserBanner, opts, u.ID, *u.Banner)
+	url := formatAssetURL(UserBanner, opts, u.ID, *u.Banner)
+	return &url
 }
 
 // OAuth2User represents a full User returned by the oauth2 endpoints

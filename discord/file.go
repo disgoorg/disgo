@@ -93,7 +93,7 @@ func NewFile(name string, description string, reader io.Reader, flags ...FileFla
 		Name:        name,
 		Description: description,
 		Reader:      reader,
-		Flags:       FileFlagNone.Add(flags...),
+		Flags:       FileFlagsNone.Add(flags...),
 	}
 }
 
@@ -111,7 +111,7 @@ type FileFlags int
 // all FileFlags
 const (
 	FileFlagSpoiler FileFlags = 1 << iota
-	FileFlagNone    FileFlags = 0
+	FileFlagsNone   FileFlags = 0
 )
 
 // Add allows you to add multiple bits together, producing a new bit

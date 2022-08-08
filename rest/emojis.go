@@ -2,7 +2,6 @@ package rest
 
 import (
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -25,49 +24,25 @@ type emojiImpl struct {
 }
 
 func (s *emojiImpl) GetEmojis(guildID snowflake.ID, opts ...RequestOpt) (emojis []discord.Emoji, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetEmojis.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &emojis, opts...)
+	err = s.client.Do(GetEmojis.Compile(nil, guildID), nil, &emojis, opts...)
 	return
 }
 
 func (s *emojiImpl) GetEmoji(guildID snowflake.ID, emojiID snowflake.ID, opts ...RequestOpt) (emoji *discord.Emoji, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetEmoji.Compile(nil, guildID, emojiID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &emoji, opts...)
+	err = s.client.Do(GetEmoji.Compile(nil, guildID, emojiID), nil, &emoji, opts...)
 	return
 }
 
 func (s *emojiImpl) CreateEmoji(guildID snowflake.ID, emojiCreate discord.EmojiCreate, opts ...RequestOpt) (emoji *discord.Emoji, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.CreateEmoji.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, emojiCreate, &emoji, opts...)
+	err = s.client.Do(CreateEmoji.Compile(nil, guildID), emojiCreate, &emoji, opts...)
 	return
 }
 
 func (s *emojiImpl) UpdateEmoji(guildID snowflake.ID, emojiID snowflake.ID, emojiUpdate discord.EmojiUpdate, opts ...RequestOpt) (emoji *discord.Emoji, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.UpdateEmoji.Compile(nil, guildID, emojiID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, emojiUpdate, &emoji, opts...)
+	err = s.client.Do(UpdateEmoji.Compile(nil, guildID, emojiID), emojiUpdate, &emoji, opts...)
 	return
 }
 
 func (s *emojiImpl) DeleteEmoji(guildID snowflake.ID, emojiID snowflake.ID, opts ...RequestOpt) error {
-	compiledRoute, err := route.DeleteEmoji.Compile(nil, guildID, emojiID)
-	if err != nil {
-		return err
-	}
-	return s.client.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(DeleteEmoji.Compile(nil, guildID, emojiID), nil, nil, opts...)
 }

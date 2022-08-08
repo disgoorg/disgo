@@ -14,7 +14,7 @@ func IDFromToken(token string) (*snowflake.ID, error) {
 	if len(strs) == 0 {
 		return nil, discord.ErrInvalidBotToken
 	}
-	byteID, err := base64.StdEncoding.DecodeString(strs[0])
+	byteID, err := base64.RawStdEncoding.DecodeString(strs[0])
 	if err != nil {
 		return nil, err
 	}

@@ -3,7 +3,6 @@ package handlers
 import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/httpserver"
 )
 
@@ -11,7 +10,7 @@ var _ bot.HTTPServerEventHandler = (*httpserverHandlerInteractionCreate)(nil)
 
 type httpserverHandlerInteractionCreate struct{}
 
-func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(client bot.Client, respondFunc httpserver.RespondFunc, event gateway.EventInteractionCreate) {
+func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(client bot.Client, respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate) {
 	// we just want to pong all pings
 	// no need for any event
 	if event.Type() == discord.InteractionTypePing {

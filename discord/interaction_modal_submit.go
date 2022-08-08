@@ -36,8 +36,8 @@ func (ModalSubmitInteraction) Type() InteractionType {
 func (ModalSubmitInteraction) interaction() {}
 
 type ModalSubmitInteractionData struct {
-	CustomID   CustomID                          `json:"custom_id"`
-	Components map[CustomID]InteractiveComponent `json:"components"`
+	CustomID   string                          `json:"custom_id"`
+	Components map[string]InteractiveComponent `json:"components"`
 }
 
 func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
@@ -54,7 +54,7 @@ func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
 	*d = ModalSubmitInteractionData(iData.modalSubmitInteractionData)
 
 	if len(iData.Components) > 0 {
-		d.Components = make(map[CustomID]InteractiveComponent, len(iData.Components))
+		d.Components = make(map[string]InteractiveComponent, len(iData.Components))
 		for _, containerComponent := range iData.Components {
 			for _, component := range containerComponent.Component.(ContainerComponent).Components() {
 				d.Components[component.ID()] = component
@@ -64,12 +64,12 @@ func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (d ModalSubmitInteractionData) Component(customID CustomID) (InteractiveComponent, bool) {
+func (d ModalSubmitInteractionData) Component(customID string) (InteractiveComponent, bool) {
 	component, ok := d.Components[customID]
 	return component, ok
 }
 
-func (d ModalSubmitInteractionData) TextInputComponent(customID CustomID) (TextInputComponent, bool) {
+func (d ModalSubmitInteractionData) TextInputComponent(customID string) (TextInputComponent, bool) {
 	if component, ok := d.Component(customID); ok {
 		textInputComponent, ok := component.(TextInputComponent)
 		return textInputComponent, ok
@@ -77,14 +77,14 @@ func (d ModalSubmitInteractionData) TextInputComponent(customID CustomID) (TextI
 	return TextInputComponent{}, false
 }
 
-func (d ModalSubmitInteractionData) OptText(customID CustomID) (string, bool) {
+func (d ModalSubmitInteractionData) OptText(customID string) (string, bool) {
 	if textInputComponent, ok := d.TextInputComponent(customID); ok {
 		return textInputComponent.Value, true
 	}
 	return "", false
 }
 
-func (d ModalSubmitInteractionData) Text(customID CustomID) string {
+func (d ModalSubmitInteractionData) Text(customID string) string {
 	if text, ok := d.OptText(customID); ok {
 		return text
 	}

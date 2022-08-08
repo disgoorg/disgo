@@ -141,7 +141,7 @@ func (m *Message) InteractiveComponents() []InteractiveComponent {
 }
 
 // ComponentByID returns the Component with the specific CustomID
-func (m *Message) ComponentByID(customID CustomID) InteractiveComponent {
+func (m *Message) ComponentByID(customID string) InteractiveComponent {
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
 			if m.Components[i].Components()[ii].ID() == customID {
@@ -166,7 +166,7 @@ func (m *Message) Buttons() []ButtonComponent {
 }
 
 // ButtonByID returns a ButtonComponent with the specific customID from this Message
-func (m *Message) ButtonByID(customID CustomID) *ButtonComponent {
+func (m *Message) ButtonByID(customID string) *ButtonComponent {
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
 			if button, ok := m.Components[i].Components()[ii].(*ButtonComponent); ok && button.ID() == customID {
@@ -191,7 +191,7 @@ func (m *Message) SelectMenus() []SelectMenuComponent {
 }
 
 // SelectMenuByID returns a SelectMenuComponent with the specific customID from this Message
-func (m *Message) SelectMenuByID(customID CustomID) *SelectMenuComponent {
+func (m *Message) SelectMenuByID(customID string) *SelectMenuComponent {
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
 			if button, ok := m.Components[i].Components()[ii].(*SelectMenuComponent); ok && button.ID() == customID {
@@ -223,7 +223,7 @@ type MessageReaction struct {
 // MessageActivityType is the type of MessageActivity https://com/developers/docs/resources/channel#message-object-message-activity-types
 type MessageActivityType int
 
-//Constants for MessageActivityType
+// Constants for MessageActivityType
 const (
 	MessageActivityTypeJoin MessageActivityType = iota + 1
 	MessageActivityTypeSpectate
@@ -232,13 +232,13 @@ const (
 	MessageActivityTypeJoinRequest
 )
 
-//MessageActivity is used for rich presence-related chat embeds in a Message
+// MessageActivity is used for rich presence-related chat embeds in a Message
 type MessageActivity struct {
 	Type    MessageActivityType `json:"type"`
 	PartyID *string             `json:"party_id,omitempty"`
 }
 
-//MessageApplication is used for rich presence-related chat embeds in a Message
+// MessageApplication is used for rich presence-related chat embeds in a Message
 type MessageApplication struct {
 	ID          snowflake.ID `json:"id"`
 	CoverImage  *string      `json:"cover_image,omitempty"`
@@ -264,7 +264,7 @@ type MessageInteraction struct {
 }
 
 type MessageBulkDelete struct {
-	Messages []snowflake.ID `json:"message s"`
+	Messages []snowflake.ID `json:"messages"`
 }
 
 // The MessageFlags of a Message
@@ -280,7 +280,7 @@ const (
 	MessageFlagHasThread
 	MessageFlagEphemeral
 	MessageFlagLoading              // Message is an interaction of type 5, awaiting further response
-	MessageFlagNone    MessageFlags = 0
+	MessageFlagsNone   MessageFlags = 0
 )
 
 // Add allows you to add multiple bits together, producing a new bit
