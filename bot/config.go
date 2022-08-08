@@ -109,9 +109,14 @@ func WithEventListeners(eventListeners ...EventListener) ConfigOpt {
 	}
 }
 
-// WithEventListenerFunc adds the given ListenerFunc(s) to the default EventManager.
-func WithEventListenerFunc[E Event](listenerFunc func(e E)) ConfigOpt {
-	return WithEventListeners(NewListenerFunc(listenerFunc))
+// WithEventListenerFunc adds the given func(e E) to the default EventManager.
+func WithEventListenerFunc[E Event](f func(e E)) ConfigOpt {
+	return WithEventListeners(NewListenerFunc(f))
+}
+
+// WithEventListenerChan adds the given chan<- E to the default EventManager.
+func WithEventListenerChan[E Event](c chan<- E) ConfigOpt {
+	return WithEventListeners(NewListenerChan(c))
 }
 
 // WithGateway lets you inject your own gateway.Gateway.

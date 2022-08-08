@@ -46,9 +46,14 @@ func WithListeners(listeners ...EventListener) EventManagerConfigOpt {
 	}
 }
 
-// WithListenerFunc adds the given ListenerFunc(s) to the EventManagerConfig.
-func WithListenerFunc[E Event](listenerFunc func(e E)) EventManagerConfigOpt {
-	return WithListeners(NewListenerFunc(listenerFunc))
+// WithListenerFunc adds the given func(e E) to the EventManagerConfig.
+func WithListenerFunc[E Event](f func(e E)) EventManagerConfigOpt {
+	return WithListeners(NewListenerFunc(f))
+}
+
+// WithListenerChan adds the given chan<- E to the EventManagerConfig.
+func WithListenerChan[E Event](c chan<- E) EventManagerConfigOpt {
+	return WithListeners(NewListenerChan(c))
 }
 
 // WithAsyncEventsEnabled enables/disables the async events.
