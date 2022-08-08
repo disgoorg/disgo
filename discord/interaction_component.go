@@ -83,17 +83,17 @@ func (ComponentInteraction) interaction() {}
 
 type ComponentInteractionData interface {
 	Type() ComponentType
-	CustomID() CustomID
+	CustomID() string
 
 	componentInteractionData()
 }
 
 type rawButtonInteractionData struct {
-	Custom CustomID `json:"custom_id"`
+	Custom string `json:"custom_id"`
 }
 
 type ButtonInteractionData struct {
-	customID CustomID
+	customID string
 }
 
 func (d *ButtonInteractionData) UnmarshalJSON(data []byte) error {
@@ -115,7 +115,7 @@ func (ButtonInteractionData) Type() ComponentType {
 	return ComponentTypeButton
 }
 
-func (d ButtonInteractionData) CustomID() CustomID {
+func (d ButtonInteractionData) CustomID() string {
 	return d.customID
 }
 
@@ -126,12 +126,12 @@ var (
 )
 
 type rawSelectMenuInteractionData struct {
-	Custom CustomID `json:"custom_id"`
+	Custom string   `json:"custom_id"`
 	Values []string `json:"values"`
 }
 
 type SelectMenuInteractionData struct {
-	customID CustomID
+	customID string
 	Values   []string
 }
 
@@ -156,7 +156,7 @@ func (SelectMenuInteractionData) Type() ComponentType {
 	return ComponentTypeSelectMenu
 }
 
-func (d SelectMenuInteractionData) CustomID() CustomID {
+func (d SelectMenuInteractionData) CustomID() string {
 	return d.customID
 }
 

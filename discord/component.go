@@ -18,12 +18,6 @@ const (
 	ComponentTypeTextInput
 )
 
-type CustomID string
-
-func (c CustomID) String() string {
-	return string(c)
-}
-
 type Component interface {
 	json.Marshaler
 	Type() ComponentType
@@ -38,7 +32,7 @@ type ContainerComponent interface {
 
 type InteractiveComponent interface {
 	Component
-	ID() CustomID
+	ID() string
 	interactiveComponent()
 }
 
@@ -183,7 +177,7 @@ func (c ActionRowComponent) TextInputs() []TextInputComponent {
 }
 
 // UpdateComponent returns a new ActionRowComponent with the Component which has the customID replaced
-func (c ActionRowComponent) UpdateComponent(customID CustomID, component InteractiveComponent) ActionRowComponent {
+func (c ActionRowComponent) UpdateComponent(customID string, component InteractiveComponent) ActionRowComponent {
 	for i, cc := range c {
 		if cc.ID() == customID {
 			c[i] = component
@@ -219,7 +213,7 @@ const (
 )
 
 // NewButton creates a new ButtonComponent with the provided parameters. Link ButtonComponent(s) need a URL and other ButtonComponent(s) need a customID
-func NewButton(style ButtonStyle, label string, customID CustomID, url string) ButtonComponent {
+func NewButton(style ButtonStyle, label string, customID string, url string) ButtonComponent {
 	return ButtonComponent{
 		Style:    style,
 		CustomID: customID,
@@ -229,22 +223,22 @@ func NewButton(style ButtonStyle, label string, customID CustomID, url string) B
 }
 
 // NewPrimaryButton creates a new ButtonComponent with ButtonStylePrimary & the provided parameters
-func NewPrimaryButton(label string, customID CustomID) ButtonComponent {
+func NewPrimaryButton(label string, customID string) ButtonComponent {
 	return NewButton(ButtonStylePrimary, label, customID, "")
 }
 
 // NewSecondaryButton creates a new ButtonComponent with ButtonStyleSecondary & the provided parameters
-func NewSecondaryButton(label string, customID CustomID) ButtonComponent {
+func NewSecondaryButton(label string, customID string) ButtonComponent {
 	return NewButton(ButtonStyleSecondary, label, customID, "")
 }
 
 // NewSuccessButton creates a new ButtonComponent with ButtonStyleSuccess & the provided parameters
-func NewSuccessButton(label string, customID CustomID) ButtonComponent {
+func NewSuccessButton(label string, customID string) ButtonComponent {
 	return NewButton(ButtonStyleSuccess, label, customID, "")
 }
 
 // NewDangerButton creates a new ButtonComponent with ButtonStyleDanger & the provided parameters
-func NewDangerButton(label string, customID CustomID) ButtonComponent {
+func NewDangerButton(label string, customID string) ButtonComponent {
 	return NewButton(ButtonStyleDanger, label, customID, "")
 }
 
@@ -262,7 +256,7 @@ type ButtonComponent struct {
 	Style    ButtonStyle     `json:"style"`
 	Label    string          `json:"label,omitempty"`
 	Emoji    *ComponentEmoji `json:"emoji,omitempty"`
-	CustomID CustomID        `json:"custom_id,omitempty"`
+	CustomID string          `json:"custom_id,omitempty"`
 	URL      string          `json:"url,omitempty"`
 	Disabled bool            `json:"disabled,omitempty"`
 }
@@ -282,11 +276,11 @@ func (ButtonComponent) Type() ComponentType {
 	return ComponentTypeButton
 }
 
-func (c ButtonComponent) ID() CustomID {
+func (c ButtonComponent) ID() string {
 	return c.CustomID
 }
 
-func (c ButtonComponent) SetID(id CustomID) InteractiveComponent {
+func (c ButtonComponent) SetID(id string) InteractiveComponent {
 	c.CustomID = id
 	return c
 }
@@ -313,7 +307,7 @@ func (c ButtonComponent) WithEmoji(emoji ComponentEmoji) ButtonComponent {
 }
 
 // WithCustomID returns a new ButtonComponent with the provided custom id
-func (c ButtonComponent) WithCustomID(customID CustomID) ButtonComponent {
+func (c ButtonComponent) WithCustomID(customID string) ButtonComponent {
 	c.CustomID = customID
 	return c
 }
@@ -343,7 +337,7 @@ func (c ButtonComponent) WithDisabled(disabled bool) ButtonComponent {
 }
 
 // NewSelectMenu builds a new SelectMenuComponent from the provided values
-func NewSelectMenu(customID CustomID, placeholder string, options ...SelectMenuOption) SelectMenuComponent {
+func NewSelectMenu(customID string, placeholder string, options ...SelectMenuOption) SelectMenuComponent {
 	return SelectMenuComponent{
 		CustomID:    customID,
 		Placeholder: placeholder,
@@ -357,7 +351,7 @@ var (
 )
 
 type SelectMenuComponent struct {
-	CustomID    CustomID           `json:"custom_id"`
+	CustomID    string             `json:"custom_id"`
 	Placeholder string             `json:"placeholder,omitempty"`
 	MinValues   *int               `json:"min_values,omitempty"`
 	MaxValues   int                `json:"max_values,omitempty"`
@@ -380,7 +374,7 @@ func (SelectMenuComponent) Type() ComponentType {
 	return ComponentTypeSelectMenu
 }
 
-func (c SelectMenuComponent) ID() CustomID {
+func (c SelectMenuComponent) ID() string {
 	return c.CustomID
 }
 
@@ -388,7 +382,7 @@ func (SelectMenuComponent) component()            {}
 func (SelectMenuComponent) interactiveComponent() {}
 
 // WithCustomID returns a new SelectMenuComponent with the provided customID
-func (c SelectMenuComponent) WithCustomID(customID CustomID) SelectMenuComponent {
+func (c SelectMenuComponent) WithCustomID(customID string) SelectMenuComponent {
 	c.CustomID = customID
 	return c
 }
@@ -512,7 +506,7 @@ var (
 	_ InteractiveComponent = (*TextInputComponent)(nil)
 )
 
-func NewTextInput(customID CustomID, style TextInputStyle, label string) TextInputComponent {
+func NewTextInput(customID string, style TextInputStyle, label string) TextInputComponent {
 	return TextInputComponent{
 		CustomID: customID,
 		Style:    style,
@@ -520,16 +514,16 @@ func NewTextInput(customID CustomID, style TextInputStyle, label string) TextInp
 	}
 }
 
-func NewShortTextInput(customID CustomID, label string) TextInputComponent {
+func NewShortTextInput(customID string, label string) TextInputComponent {
 	return NewTextInput(customID, TextInputStyleShort, label)
 }
 
-func NewParagraphTextInput(customID CustomID, label string) TextInputComponent {
+func NewParagraphTextInput(customID string, label string) TextInputComponent {
 	return NewTextInput(customID, TextInputStyleParagraph, label)
 }
 
 type TextInputComponent struct {
-	CustomID    CustomID       `json:"custom_id"`
+	CustomID    string         `json:"custom_id"`
 	Style       TextInputStyle `json:"style"`
 	Label       string         `json:"label"`
 	MinLength   *int           `json:"min_length,omitempty"`
@@ -554,7 +548,7 @@ func (TextInputComponent) Type() ComponentType {
 	return ComponentTypeTextInput
 }
 
-func (c TextInputComponent) ID() CustomID {
+func (c TextInputComponent) ID() string {
 	return c.CustomID
 }
 
@@ -562,7 +556,7 @@ func (TextInputComponent) component()            {}
 func (TextInputComponent) interactiveComponent() {}
 
 // WithCustomID returns a new SelectMenuComponent with the provided customID
-func (c TextInputComponent) WithCustomID(customID CustomID) TextInputComponent {
+func (c TextInputComponent) WithCustomID(customID string) TextInputComponent {
 	c.CustomID = customID
 	return c
 }
