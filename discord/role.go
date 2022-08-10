@@ -40,7 +40,7 @@ func (r Role) IconURL(opts ...CDNOpt) *string {
 	return &url
 }
 
-func (r Role) TimeCreated() time.Time {
+func (r Role) CreatedAt() time.Time {
 	return r.ID.Time()
 }
 

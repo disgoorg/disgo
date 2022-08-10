@@ -29,7 +29,7 @@ func (s Sticker) URL(opts ...CDNOpt) string {
 	return formatAssetURL(CustomSticker, append(opts, WithFormat(format)), s.ID)
 }
 
-func (s Sticker) TimeCreated() time.Time {
+func (s Sticker) CreatedAt() time.Time {
 	return s.ID.Time()
 }
 

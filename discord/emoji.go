@@ -37,7 +37,7 @@ func (e Emoji) URL(opts ...CDNOpt) string {
 	return formatAssetURL(CustomEmoji, opts, e.ID)
 }
 
-func (e Emoji) TimeCreated() time.Time {
+func (e Emoji) CreatedAt() time.Time {
 	return e.ID.Time()
 }
 

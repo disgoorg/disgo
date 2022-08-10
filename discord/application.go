@@ -48,7 +48,7 @@ func (a Application) CoverURL(opts ...CDNOpt) *string {
 	return &url
 }
 
-func (a Application) TimeCreated() time.Time {
+func (a Application) CreatedAt() time.Time {
 	return a.ID.Time()
 }
 
@@ -225,7 +225,7 @@ func (t Team) IconURL(opts ...CDNOpt) *string {
 	return &url
 }
 
-func (t Team) TimeCreated() time.Time {
+func (t Team) CreatedAt() time.Time {
 	return t.ID.Time()
 }
 

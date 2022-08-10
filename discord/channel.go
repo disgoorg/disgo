@@ -349,7 +349,7 @@ func (c GuildTextChannel) DefaultAutoArchiveDuration() AutoArchiveDuration {
 	return c.defaultAutoArchiveDuration
 }
 
-func (c GuildTextChannel) TimeCreated() time.Time {
+func (c GuildTextChannel) CreatedAt() time.Time {
 	return c.id.Time()
 }
 
@@ -417,7 +417,7 @@ func (c DMChannel) LastPinTimestamp() *time.Time {
 	return c.lastPinTimestamp
 }
 
-func (c DMChannel) TimeCreated() time.Time {
+func (c DMChannel) CreatedAt() time.Time {
 	return c.id.Time()
 }
 
@@ -565,7 +565,7 @@ func (c GuildVoiceChannel) RateLimitPerUser() int {
 	return c.rateLimitPerUser
 }
 
-func (c GuildVoiceChannel) TimeCreated() time.Time {
+func (c GuildVoiceChannel) CreatedAt() time.Time {
 	return c.id.Time()
 }
 
@@ -650,7 +650,7 @@ func (c GuildCategoryChannel) ParentID() *snowflake.ID {
 	return nil
 }
 
-func (c GuildCategoryChannel) TimeCreated() time.Time {
+func (c GuildCategoryChannel) CreatedAt() time.Time {
 	return c.id.Time()
 }
 
@@ -778,7 +778,7 @@ func (c GuildNewsChannel) ParentID() *snowflake.ID {
 	return c.parentID
 }
 
-func (c GuildNewsChannel) TimeCreated() time.Time {
+func (c GuildNewsChannel) CreatedAt() time.Time {
 	return c.id.Time()
 }
 
@@ -918,7 +918,7 @@ func (c GuildThread) DefaultAutoArchiveDuration() AutoArchiveDuration {
 	return 0
 }
 
-func (c GuildThread) TimeCreated() time.Time {
+func (c GuildThread) CreatedAt() time.Time {
 	return c.id.Time()
 }
 
@@ -1019,7 +1019,7 @@ func (c GuildStageVoiceChannel) ParentID() *snowflake.ID {
 	return c.parentID
 }
 
-func (c GuildStageVoiceChannel) TimeCreated() time.Time {
+func (c GuildStageVoiceChannel) CreatedAt() time.Time {
 	return c.id.Time()
 }
 
@@ -1113,7 +1113,7 @@ func (c GuildForumChannel) ParentID() *snowflake.ID {
 	return c.parentID
 }
 
-func (c GuildForumChannel) TimeCreated() time.Time {
+func (c GuildForumChannel) CreatedAt() time.Time {
 	return c.id.Time()
 }
 

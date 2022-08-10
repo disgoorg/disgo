@@ -156,7 +156,7 @@ func (w IncomingWebhook) URL() string {
 	return WebhookURL(w.ID(), w.Token)
 }
 
-func (w IncomingWebhook) TimeCreated() time.Time {
+func (w IncomingWebhook) CreatedAt() time.Time {
 	return w.id.Time()
 }
 
@@ -242,7 +242,7 @@ func (w ChannelFollowerWebhook) DefaultAvatarURL(opts ...CDNOpt) string {
 	return formatAssetURL(DefaultUserAvatar, opts, 0)
 }
 
-func (w ChannelFollowerWebhook) TimeCreated() time.Time {
+func (w ChannelFollowerWebhook) CreatedAt() time.Time {
 	return w.id.Time()
 }
 
@@ -323,7 +323,7 @@ func (w ApplicationWebhook) DefaultAvatarURL(opts ...CDNOpt) string {
 	return formatAssetURL(DefaultUserAvatar, opts, 0)
 }
 
-func (w ApplicationWebhook) TimeCreated() time.Time {
+func (w ApplicationWebhook) CreatedAt() time.Time {
 	return w.id.Time()
 }
 

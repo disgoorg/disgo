@@ -60,8 +60,8 @@ func (m Member) AvatarURL(opts ...CDNOpt) *string {
 	return &url
 }
 
-func (m Member) TimeCreated() time.Time {
-	return m.User.TimeCreated()
+func (m Member) CreatedAt() time.Time {
+	return m.User.CreatedAt()
 }
 
 // MemberAdd is used to add a member via the oauth2 access token to a guild

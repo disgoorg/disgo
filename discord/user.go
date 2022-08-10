@@ -97,7 +97,7 @@ func (u User) BannerURL(opts ...CDNOpt) *string {
 	return &url
 }
 
-func (u User) TimeCreated() time.Time {
+func (u User) CreatedAt() time.Time {
 	return u.ID.Time()
 }
 
