@@ -26,6 +26,7 @@ type Webhook interface {
 	Name() string
 	Avatar() *string
 	AvatarURL(opts ...CDNOpt) *string
+	CreatedAt() time.Time
 	webhook()
 }
 

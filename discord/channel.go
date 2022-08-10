@@ -87,6 +87,9 @@ type Channel interface {
 	// Name returns the name of the Channel.
 	Name() string
 
+	// CreatedAt returns the creation time of the Channel.
+	CreatedAt() time.Time
+
 	channel()
 }
 
