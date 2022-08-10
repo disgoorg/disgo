@@ -89,8 +89,8 @@ type ActivityButton struct {
 
 // ActivityTimestamps represents when a user started and ended their activity
 type ActivityTimestamps struct {
-	Start time.Time `json:"start,omitempty"`
-	End   time.Time `json:"end,omitempty"`
+	Start time.Time
+	End   time.Time
 }
 
 func (a *ActivityTimestamps) UnmarshalJSON(data []byte) error {
