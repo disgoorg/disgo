@@ -89,6 +89,7 @@ func (e CDNEndpoint) URL(format ImageFormat, values QueryValues, params ...any) 
 func DefaultCDNConfig() *CDNConfig {
 	return &CDNConfig{
 		Format: ImageFormatPNG,
+		Values: QueryValues{},
 	}
 }
 
