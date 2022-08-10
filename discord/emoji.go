@@ -38,6 +38,9 @@ func (e Emoji) URL(opts ...CDNOpt) string {
 }
 
 func (e Emoji) CreatedAt() time.Time {
+	if e.ID == 0 {
+		return time.Time{}
+	}
 	return e.ID.Time()
 }
 
