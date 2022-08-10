@@ -48,6 +48,10 @@ func (a Application) CoverURL(opts ...CDNOpt) *string {
 	return &url
 }
 
+func (a Application) TimeCreated() time.Time {
+	return a.ID.Time()
+}
+
 type PartialApplication struct {
 	ID    snowflake.ID     `json:"id"`
 	Flags ApplicationFlags `json:"flags"`
@@ -219,6 +223,10 @@ func (t Team) IconURL(opts ...CDNOpt) *string {
 	}
 	url := formatAssetURL(TeamIcon, opts, t.ID, *t.Icon)
 	return &url
+}
+
+func (t Team) TimeCreated() time.Time {
+	return t.ID.Time()
 }
 
 type TeamMember struct {

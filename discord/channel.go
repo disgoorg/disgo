@@ -349,6 +349,10 @@ func (c GuildTextChannel) DefaultAutoArchiveDuration() AutoArchiveDuration {
 	return c.defaultAutoArchiveDuration
 }
 
+func (c GuildTextChannel) TimeCreated() time.Time {
+	return c.id.Time()
+}
+
 func (GuildTextChannel) channel()             {}
 func (GuildTextChannel) guildChannel()        {}
 func (GuildTextChannel) messageChannel()      {}
@@ -411,6 +415,10 @@ func (c DMChannel) LastMessageID() *snowflake.ID {
 
 func (c DMChannel) LastPinTimestamp() *time.Time {
 	return c.lastPinTimestamp
+}
+
+func (c DMChannel) TimeCreated() time.Time {
+	return c.id.Time()
 }
 
 func (DMChannel) channel()        {}
@@ -557,6 +565,10 @@ func (c GuildVoiceChannel) RateLimitPerUser() int {
 	return c.rateLimitPerUser
 }
 
+func (c GuildVoiceChannel) TimeCreated() time.Time {
+	return c.id.Time()
+}
+
 func (GuildVoiceChannel) channel()             {}
 func (GuildVoiceChannel) messageChannel()      {}
 func (GuildVoiceChannel) guildChannel()        {}
@@ -636,6 +648,10 @@ func (c GuildCategoryChannel) Position() int {
 // ParentID always returns nil for GuildCategoryChannel as they can't be nested.
 func (c GuildCategoryChannel) ParentID() *snowflake.ID {
 	return nil
+}
+
+func (c GuildCategoryChannel) TimeCreated() time.Time {
+	return c.id.Time()
 }
 
 func (GuildCategoryChannel) channel()      {}
@@ -760,6 +776,10 @@ func (c GuildNewsChannel) Position() int {
 
 func (c GuildNewsChannel) ParentID() *snowflake.ID {
 	return c.parentID
+}
+
+func (c GuildNewsChannel) TimeCreated() time.Time {
+	return c.id.Time()
 }
 
 func (GuildNewsChannel) channel()             {}
@@ -898,6 +918,10 @@ func (c GuildThread) DefaultAutoArchiveDuration() AutoArchiveDuration {
 	return 0
 }
 
+func (c GuildThread) TimeCreated() time.Time {
+	return c.id.Time()
+}
+
 func (GuildThread) channel()             {}
 func (GuildThread) guildChannel()        {}
 func (GuildThread) messageChannel()      {}
@@ -995,6 +1019,10 @@ func (c GuildStageVoiceChannel) ParentID() *snowflake.ID {
 	return c.parentID
 }
 
+func (c GuildStageVoiceChannel) TimeCreated() time.Time {
+	return c.id.Time()
+}
+
 func (GuildStageVoiceChannel) channel()           {}
 func (GuildStageVoiceChannel) guildChannel()      {}
 func (GuildStageVoiceChannel) guildAudioChannel() {}
@@ -1083,6 +1111,10 @@ func (c GuildForumChannel) Position() int {
 
 func (c GuildForumChannel) ParentID() *snowflake.ID {
 	return c.parentID
+}
+
+func (c GuildForumChannel) TimeCreated() time.Time {
+	return c.id.Time()
 }
 
 func (GuildForumChannel) channel()      {}

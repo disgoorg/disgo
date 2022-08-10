@@ -2,6 +2,7 @@ package discord
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/snowflake/v2"
@@ -155,6 +156,10 @@ func (w IncomingWebhook) URL() string {
 	return WebhookURL(w.ID(), w.Token)
 }
 
+func (w IncomingWebhook) TimeCreated() time.Time {
+	return w.id.Time()
+}
+
 func (IncomingWebhook) webhook() {}
 
 var _ Webhook = (*ChannelFollowerWebhook)(nil)
@@ -237,6 +242,10 @@ func (w ChannelFollowerWebhook) DefaultAvatarURL(opts ...CDNOpt) string {
 	return formatAssetURL(DefaultUserAvatar, opts, 0)
 }
 
+func (w ChannelFollowerWebhook) TimeCreated() time.Time {
+	return w.id.Time()
+}
+
 func (ChannelFollowerWebhook) webhook() {}
 
 var _ Webhook = (*ApplicationWebhook)(nil)
@@ -312,6 +321,10 @@ func (w ApplicationWebhook) AvatarURL(opts ...CDNOpt) *string {
 
 func (w ApplicationWebhook) DefaultAvatarURL(opts ...CDNOpt) string {
 	return formatAssetURL(DefaultUserAvatar, opts, 0)
+}
+
+func (w ApplicationWebhook) TimeCreated() time.Time {
+	return w.id.Time()
 }
 
 func (ApplicationWebhook) webhook() {}
