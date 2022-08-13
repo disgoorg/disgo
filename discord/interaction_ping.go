@@ -1,6 +1,8 @@
 package discord
 
 import (
+	"time"
+
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -56,6 +58,10 @@ func (i PingInteraction) Token() string {
 
 func (i PingInteraction) Version() int {
 	return i.version
+}
+
+func (i PingInteraction) CreatedAt() time.Time {
+	return i.id.Time()
 }
 
 func (PingInteraction) GuildID() *snowflake.ID {
