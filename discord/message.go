@@ -93,6 +93,7 @@ type Message struct {
 	ReferencedMessage *Message             `json:"referenced_message,omitempty"`
 	LastUpdated       *time.Time           `json:"last_updated,omitempty"`
 	Thread            *MessageThread       `json:"thread,omitempty"`
+	Position          *int                 `json:"position,omitempty"`
 }
 
 func (m *Message) UnmarshalJSON(data []byte) error {
