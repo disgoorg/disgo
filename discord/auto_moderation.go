@@ -15,11 +15,14 @@ const (
 	AutoModerationTriggerTypeHarmfulLink
 	AutoModerationTriggerTypeSpam
 	AutoModerationTriggerTypeKeywordPresent
+	AutoModerationTriggerTypeMentionSpam
 )
 
 type AutoModerationTriggerMetadata struct {
-	KeywordFilter []string                      `json:"keyword_filter"`
-	Presets       []AutoModerationKeywordPreset `json:"presets"`
+	KeywordFilter     []string                      `json:"keyword_filter"`
+	Presets           []AutoModerationKeywordPreset `json:"presets"`
+	AllowList         []string                      `json:"allow_list"`
+	MentionTotalLimit int                           `json:"mention_total_limit"`
 }
 
 type AutoModerationKeywordPreset int
