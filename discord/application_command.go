@@ -2,6 +2,7 @@ package discord
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/snowflake/v2"
@@ -27,6 +28,7 @@ type ApplicationCommand interface {
 	DefaultMemberPermissions() Permissions
 	DMPermission() bool
 	Version() snowflake.ID
+	CreatedAt() time.Time
 	applicationCommand()
 }
 
@@ -174,6 +176,10 @@ func (c SlashCommand) Version() snowflake.ID {
 	return c.version
 }
 
+func (c SlashCommand) CreatedAt() time.Time {
+	return c.id.Time()
+}
+
 func (SlashCommand) applicationCommand() {}
 
 var _ ApplicationCommand = (*UserCommand)(nil)
@@ -262,6 +268,10 @@ func (c UserCommand) Version() snowflake.ID {
 	return c.version
 }
 
+func (c UserCommand) CreatedAt() time.Time {
+	return c.id.Time()
+}
+
 func (UserCommand) applicationCommand() {}
 
 var _ ApplicationCommand = (*MessageCommand)(nil)
@@ -348,6 +358,10 @@ func (c MessageCommand) DMPermission() bool {
 
 func (c MessageCommand) Version() snowflake.ID {
 	return c.version
+}
+
+func (c MessageCommand) CreatedAt() time.Time {
+	return c.id.Time()
 }
 
 func (MessageCommand) applicationCommand() {}
