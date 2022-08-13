@@ -101,7 +101,7 @@ func (o RolePermissionOverwrite) ID() snowflake.ID {
 func (o RolePermissionOverwrite) MarshalJSON() ([]byte, error) {
 	type rolePermissionOverwrite RolePermissionOverwrite
 	return json.Marshal(struct {
-		Type PermissionOverwriteType
+		Type PermissionOverwriteType `json:"type"`
 		rolePermissionOverwrite
 	}{
 		Type:                    o.Type(),
@@ -126,7 +126,7 @@ func (o MemberPermissionOverwrite) ID() snowflake.ID {
 func (o MemberPermissionOverwrite) MarshalJSON() ([]byte, error) {
 	type memberPermissionOverwrite MemberPermissionOverwrite
 	return json.Marshal(struct {
-		Type PermissionOverwriteType
+		Type PermissionOverwriteType `json:"type"`
 		memberPermissionOverwrite
 	}{
 		Type:                      o.Type(),
@@ -150,7 +150,7 @@ type RolePermissionOverwriteUpdate struct {
 func (u RolePermissionOverwriteUpdate) MarshalJSON() ([]byte, error) {
 	type rolePermissionOverwriteUpdate RolePermissionOverwriteUpdate
 	return json.Marshal(struct {
-		Type PermissionOverwriteType
+		Type PermissionOverwriteType `json:"type"`
 		rolePermissionOverwriteUpdate
 	}{
 		Type:                          u.Type(),
@@ -170,7 +170,7 @@ type MemberPermissionOverwriteUpdate struct {
 func (u MemberPermissionOverwriteUpdate) MarshalJSON() ([]byte, error) {
 	type memberPermissionOverwriteUpdate MemberPermissionOverwriteUpdate
 	return json.Marshal(struct {
-		Type PermissionOverwriteType
+		Type PermissionOverwriteType `json:"type"`
 		memberPermissionOverwriteUpdate
 	}{
 		Type:                            u.Type(),
