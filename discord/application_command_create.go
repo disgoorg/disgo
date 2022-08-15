@@ -29,13 +29,14 @@ func (c SlashCommandCreate) Validate() (err error) {
 	if err != nil {
 		return
 	}
-	err = validate.Validate(validate.New(c.Options,
+	options := c.Options
+	err = validate.Validate(validate.New(options,
 		validate.SliceNoneNil[ApplicationCommandOption],
 		validate.SliceMaxLen[ApplicationCommandOption](ApplicationCommandMaxOptions)))
 	if err != nil {
 		return
 	}
-	for _, option := range c.Options {
+	for _, option := range options {
 		if err = option.Validate(); err != nil {
 			return
 		}
