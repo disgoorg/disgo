@@ -703,7 +703,7 @@ func validateOptionProps(o ApplicationCommandOption) error {
 
 const (
 	ApplicationCommandOptionNameMaxLength        = 32
-	ApplicationCommandOptionDescriptionMaxLength = 32
+	ApplicationCommandOptionDescriptionMaxLength = 100
 
 	ApplicationCommandOptionMaxChoices                 = 25
 	ApplicationCommandOptionChoiceNameMaxLength        = 100
