@@ -1,6 +1,9 @@
 package discord
 
-import "github.com/disgoorg/disgo/json"
+import (
+	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/validate"
+)
 
 type ApplicationCommandCreate interface {
 	json.Marshaler
@@ -17,6 +20,27 @@ type SlashCommandCreate struct {
 	Options                  []ApplicationCommandOption `json:"options,omitempty"`
 	DefaultMemberPermissions Permissions                `json:"default_member_permissions,omitempty"`
 	DMPermission             bool                       `json:"dm_permission"`
+}
+
+func (c SlashCommandCreate) Validate() (err error) {
+	err = validate.Validate(
+		validate.New(c.Name, validate.Required[string], validate.StringRange(1, ApplicationCommandNameMaxLength)),
+		validate.New(c.Description, validate.Required[string], validate.StringRange(1, ApplicationCommandDescriptionMaxLength)))
+	if err != nil {
+		return
+	}
+	err = validate.Validate(validate.New(c.Options,
+		validate.SliceNoneNil[ApplicationCommandOption],
+		validate.SliceMaxLen[ApplicationCommandOption](ApplicationCommandMaxOptions)))
+	if err != nil {
+		return
+	}
+	for _, option := range c.Options {
+		if err = option.Validate(); err != nil {
+			return
+		}
+	}
+	return nil
 }
 
 func (c SlashCommandCreate) MarshalJSON() ([]byte, error) {
@@ -95,3 +119,10 @@ func (c MessageCommandCreate) CommandName() string {
 }
 
 func (MessageCommandCreate) applicationCommandCreate() {}
+
+const (
+	ApplicationCommandNameMaxLength        = 32
+	ApplicationCommandDescriptionMaxLength = 100
+
+	ApplicationCommandMaxOptions = 25
+)

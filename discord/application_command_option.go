@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/validate"
 )
 
 // ApplicationCommandOptionType specifies the type of the arguments used in ApplicationCommand.Options
@@ -26,6 +27,7 @@ const (
 
 type ApplicationCommandOption interface {
 	json.Marshaler
+	validate.Validator
 	Type() ApplicationCommandOptionType
 	OptionName() string
 	OptionDescription() string
@@ -169,6 +171,26 @@ func (o ApplicationCommandOptionSubCommand) OptionDescription() string {
 	return o.Description
 }
 
+func (o ApplicationCommandOptionSubCommand) Validate() (err error) {
+	err = validateOptionName(o)
+	if err != nil {
+		return err
+	}
+	options := o.Options
+	err = validate.Validate(validate.New(options,
+		validate.SliceNoneNil[ApplicationCommandOption],
+		validate.SliceMaxLen[ApplicationCommandOption](ApplicationCommandMaxOptions)))
+	if err != nil {
+		return
+	}
+	for _, option := range options {
+		if err = option.Validate(); err != nil {
+			return
+		}
+	}
+	return nil
+}
+
 func (ApplicationCommandOptionSubCommand) applicationCommandOption() {}
 func (ApplicationCommandOptionSubCommand) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeSubCommand
@@ -201,6 +223,26 @@ func (o ApplicationCommandOptionSubCommandGroup) OptionName() string {
 
 func (o ApplicationCommandOptionSubCommandGroup) OptionDescription() string {
 	return o.Description
+}
+
+func (o ApplicationCommandOptionSubCommandGroup) Validate() (err error) {
+	err = validateOptionName(o)
+	if err != nil {
+		return
+	}
+	subcommands := o.Options
+	err = validate.Validate(validate.New(subcommands,
+		validate.SliceNoneNil[ApplicationCommandOptionSubCommand],
+		validate.SliceMaxLen[ApplicationCommandOptionSubCommand](ApplicationCommandMaxOptions)))
+	if err != nil {
+		return
+	}
+	for _, subcommand := range subcommands {
+		if err = subcommand.Validate(); err != nil {
+			return
+		}
+	}
+	return nil
 }
 
 func (ApplicationCommandOptionSubCommandGroup) applicationCommandOption() {}
@@ -241,6 +283,27 @@ func (o ApplicationCommandOptionString) OptionDescription() string {
 	return o.Description
 }
 
+func (o ApplicationCommandOptionString) Validate() (err error) {
+	err = validateOptionName(o)
+	choices := o.Choices
+	err = validate.Validate(
+		validate.New(choices,
+			validate.SliceNoneNil[ApplicationCommandOptionChoiceString],
+			validate.SliceMaxLen[ApplicationCommandOptionChoiceString](ApplicationCommandOptionMaxChoices)))
+	if err != nil {
+		return
+	}
+	for _, choice := range choices {
+		err = validate.Validate(
+			validate.New(choice.Name, validate.Required[string], validate.StringRange(1, ApplicationCommandOptionChoiceNameMaxLength)),
+			validate.New(choice.Value, validate.Required[string], validate.StringRange(1, ApplicationCommandOptionStringChoiceValueMaxLength)))
+		if err != nil {
+			return
+		}
+	}
+	return nil
+}
+
 func (ApplicationCommandOptionString) applicationCommandOption() {}
 func (ApplicationCommandOptionString) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeString
@@ -279,6 +342,29 @@ func (o ApplicationCommandOptionInt) OptionDescription() string {
 	return o.Description
 }
 
+func (o ApplicationCommandOptionInt) Validate() (err error) {
+	err = validateOptionName(o)
+	if err != nil {
+		return
+	}
+	choices := o.Choices
+	err = validate.Validate(validate.New(choices,
+		validate.SliceNoneNil[ApplicationCommandOptionChoiceInt],
+		validate.SliceMaxLen[ApplicationCommandOptionChoiceInt](ApplicationCommandOptionMaxChoices)))
+	if err != nil {
+		return
+	}
+	for _, choice := range choices {
+		err = validate.Validate(validate.New(choice.Name,
+			validate.Required[string],
+			validate.StringRange(1, ApplicationCommandOptionChoiceNameMaxLength)))
+		if err != nil {
+			return
+		}
+	}
+	return nil
+}
+
 func (ApplicationCommandOptionInt) applicationCommandOption() {}
 func (ApplicationCommandOptionInt) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeInt
@@ -313,6 +399,10 @@ func (o ApplicationCommandOptionBool) OptionDescription() string {
 	return o.Description
 }
 
+func (o ApplicationCommandOptionBool) Validate() error {
+	return validateOptionName(o)
+}
+
 func (ApplicationCommandOptionBool) applicationCommandOption() {}
 func (ApplicationCommandOptionBool) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeBool
@@ -345,6 +435,10 @@ func (o ApplicationCommandOptionUser) OptionName() string {
 
 func (o ApplicationCommandOptionUser) OptionDescription() string {
 	return o.Description
+}
+
+func (o ApplicationCommandOptionUser) Validate() error {
+	return validateOptionName(o)
 }
 
 func (ApplicationCommandOptionUser) applicationCommandOption() {}
@@ -382,6 +476,10 @@ func (o ApplicationCommandOptionChannel) OptionDescription() string {
 	return o.Name
 }
 
+func (o ApplicationCommandOptionChannel) Validate() error {
+	return validateOptionName(o)
+}
+
 func (ApplicationCommandOptionChannel) applicationCommandOption() {}
 func (ApplicationCommandOptionChannel) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeChannel
@@ -416,6 +514,10 @@ func (o ApplicationCommandOptionRole) OptionDescription() string {
 	return o.Name
 }
 
+func (o ApplicationCommandOptionRole) Validate() error {
+	return validateOptionName(o)
+}
+
 func (ApplicationCommandOptionRole) applicationCommandOption() {}
 func (ApplicationCommandOptionRole) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeRole
@@ -448,6 +550,10 @@ func (o ApplicationCommandOptionMentionable) OptionName() string {
 
 func (o ApplicationCommandOptionMentionable) OptionDescription() string {
 	return o.Name
+}
+
+func (o ApplicationCommandOptionMentionable) Validate() error {
+	return validateOptionName(o)
 }
 
 func (ApplicationCommandOptionMentionable) applicationCommandOption() {}
@@ -486,6 +592,29 @@ func (o ApplicationCommandOptionFloat) OptionName() string {
 
 func (o ApplicationCommandOptionFloat) OptionDescription() string {
 	return o.Name
+}
+
+func (o ApplicationCommandOptionFloat) Validate() (err error) {
+	err = validateOptionName(o)
+	if err != nil {
+		return
+	}
+	choices := o.Choices
+	err = validate.Validate(
+		validate.New(choices,
+			validate.SliceNoneNil[ApplicationCommandOptionChoiceFloat],
+			validate.SliceMaxLen[ApplicationCommandOptionChoiceFloat](ApplicationCommandOptionMaxChoices)))
+	if err != nil {
+		return
+	}
+	for _, choice := range choices {
+		err = validate.Validate(
+			validate.New(choice.Name, validate.Required[string], validate.StringRange(1, ApplicationCommandOptionChoiceNameMaxLength)))
+		if err != nil {
+			return
+		}
+	}
+	return nil
 }
 
 func (ApplicationCommandOptionFloat) applicationCommandOption() {}
@@ -554,7 +683,26 @@ func (o ApplicationCommandOptionAttachment) OptionDescription() string {
 	return o.Name
 }
 
+func (o ApplicationCommandOptionAttachment) Validate() error {
+	return validateOptionName(o)
+}
+
 func (ApplicationCommandOptionAttachment) applicationCommandOption() {}
 func (ApplicationCommandOptionAttachment) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeAttachment
 }
+
+func validateOptionName(o ApplicationCommandOption) error {
+	return validate.Validate(
+		validate.New(o.OptionName(), validate.Required[string], validate.StringRange(1, ApplicationCommandOptionNameMaxLength)),
+		validate.New(o.OptionDescription(), validate.Required[string], validate.StringRange(1, ApplicationCommandOptionDescriptionMaxLength)))
+}
+
+const (
+	ApplicationCommandOptionNameMaxLength        = 32
+	ApplicationCommandOptionDescriptionMaxLength = 32
+
+	ApplicationCommandOptionMaxChoices                 = 25
+	ApplicationCommandOptionChoiceNameMaxLength        = 100
+	ApplicationCommandOptionStringChoiceValueMaxLength = 100
+)
