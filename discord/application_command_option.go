@@ -174,7 +174,7 @@ func (o ApplicationCommandOptionSubCommand) OptionDescription() string {
 func (o ApplicationCommandOptionSubCommand) Validate() (err error) {
 	err = validateOptionProps(o)
 	if err != nil {
-		return err
+		return
 	}
 	options := o.Options
 	err = validate.Validate(validate.New(options,
