@@ -172,7 +172,7 @@ func (o ApplicationCommandOptionSubCommand) OptionDescription() string {
 }
 
 func (o ApplicationCommandOptionSubCommand) Validate() (err error) {
-	err = validateOptionName(o)
+	err = validateOptionProps(o)
 	if err != nil {
 		return err
 	}
@@ -226,7 +226,7 @@ func (o ApplicationCommandOptionSubCommandGroup) OptionDescription() string {
 }
 
 func (o ApplicationCommandOptionSubCommandGroup) Validate() (err error) {
-	err = validateOptionName(o)
+	err = validateOptionProps(o)
 	if err != nil {
 		return
 	}
@@ -284,7 +284,7 @@ func (o ApplicationCommandOptionString) OptionDescription() string {
 }
 
 func (o ApplicationCommandOptionString) Validate() (err error) {
-	err = validateOptionName(o)
+	err = validateOptionProps(o)
 	if err != nil {
 		return
 	}
@@ -346,7 +346,7 @@ func (o ApplicationCommandOptionInt) OptionDescription() string {
 }
 
 func (o ApplicationCommandOptionInt) Validate() (err error) {
-	err = validateOptionName(o)
+	err = validateOptionProps(o)
 	if err != nil {
 		return
 	}
@@ -403,7 +403,7 @@ func (o ApplicationCommandOptionBool) OptionDescription() string {
 }
 
 func (o ApplicationCommandOptionBool) Validate() error {
-	return validateOptionName(o)
+	return validateOptionProps(o)
 }
 
 func (ApplicationCommandOptionBool) applicationCommandOption() {}
@@ -441,7 +441,7 @@ func (o ApplicationCommandOptionUser) OptionDescription() string {
 }
 
 func (o ApplicationCommandOptionUser) Validate() error {
-	return validateOptionName(o)
+	return validateOptionProps(o)
 }
 
 func (ApplicationCommandOptionUser) applicationCommandOption() {}
@@ -480,7 +480,7 @@ func (o ApplicationCommandOptionChannel) OptionDescription() string {
 }
 
 func (o ApplicationCommandOptionChannel) Validate() error {
-	return validateOptionName(o)
+	return validateOptionProps(o)
 }
 
 func (ApplicationCommandOptionChannel) applicationCommandOption() {}
@@ -518,7 +518,7 @@ func (o ApplicationCommandOptionRole) OptionDescription() string {
 }
 
 func (o ApplicationCommandOptionRole) Validate() error {
-	return validateOptionName(o)
+	return validateOptionProps(o)
 }
 
 func (ApplicationCommandOptionRole) applicationCommandOption() {}
@@ -556,7 +556,7 @@ func (o ApplicationCommandOptionMentionable) OptionDescription() string {
 }
 
 func (o ApplicationCommandOptionMentionable) Validate() error {
-	return validateOptionName(o)
+	return validateOptionProps(o)
 }
 
 func (ApplicationCommandOptionMentionable) applicationCommandOption() {}
@@ -598,7 +598,7 @@ func (o ApplicationCommandOptionFloat) OptionDescription() string {
 }
 
 func (o ApplicationCommandOptionFloat) Validate() (err error) {
-	err = validateOptionName(o)
+	err = validateOptionProps(o)
 	if err != nil {
 		return
 	}
@@ -687,7 +687,7 @@ func (o ApplicationCommandOptionAttachment) OptionDescription() string {
 }
 
 func (o ApplicationCommandOptionAttachment) Validate() error {
-	return validateOptionName(o)
+	return validateOptionProps(o)
 }
 
 func (ApplicationCommandOptionAttachment) applicationCommandOption() {}
@@ -695,7 +695,7 @@ func (ApplicationCommandOptionAttachment) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeAttachment
 }
 
-func validateOptionName(o ApplicationCommandOption) error {
+func validateOptionProps(o ApplicationCommandOption) error {
 	return validate.Validate(
 		validate.New(o.OptionName(), validate.Required[string], validate.StringRange(1, ApplicationCommandOptionNameMaxLength)),
 		validate.New(o.OptionDescription(), validate.Required[string], validate.StringRange(1, ApplicationCommandOptionDescriptionMaxLength)))
