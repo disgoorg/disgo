@@ -32,6 +32,7 @@ type Config struct {
 	ShardID                   int
 	ShardCount                int
 	SessionID                 *string
+	ResumeGatewayURL          *string
 	LastSequenceReceived      *int
 	AutoReconnect             bool
 	MaxReconnectTries         int
