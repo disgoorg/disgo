@@ -285,6 +285,9 @@ func (o ApplicationCommandOptionString) OptionDescription() string {
 
 func (o ApplicationCommandOptionString) Validate() (err error) {
 	err = validateOptionName(o)
+	if err != nil {
+		return
+	}
 	choices := o.Choices
 	err = validate.Validate(
 		validate.New(choices,
