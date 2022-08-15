@@ -12,7 +12,7 @@ type AutoModerationTriggerType int
 
 const (
 	AutoModerationTriggerTypeKeyword AutoModerationTriggerType = iota + 1
-	AutoModerationTriggerTypeHarmfulLink
+	_
 	AutoModerationTriggerTypeSpam
 	AutoModerationTriggerTypeKeywordPresent
 	AutoModerationTriggerTypeMentionSpam
