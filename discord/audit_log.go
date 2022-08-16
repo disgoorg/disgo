@@ -117,7 +117,8 @@ const (
 
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord
 type AuditLog struct {
-	Entries              []AuditLogEntry       `json:"entries"`
+	AuditLogEntries      []AuditLogEntry       `json:"audit_log_entries"`
+	AutoModerationRules  []AutoModerationRule  `json:"auto_moderation_rules"`
 	GuildScheduledEvents []GuildScheduledEvent `json:"guild_scheduled_events"`
 	Integrations         []Integration         `json:"integrations"`
 	Threads              []GuildThread         `json:"threads"`
