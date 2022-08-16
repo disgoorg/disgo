@@ -98,7 +98,7 @@ const (
 
 // AuditLogThreadCreate
 const (
-	AuditLogThreadCreate AuditLogEvent = iota + 100
+	AuditLogThreadCreate AuditLogEvent = iota + 110
 	AuditLogThreadUpdate
 	AuditLogThreadDelete
 )
