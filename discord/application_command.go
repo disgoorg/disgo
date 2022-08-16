@@ -174,6 +174,10 @@ func (c SlashCommand) Version() snowflake.ID {
 	return c.version
 }
 
+func (c SlashCommand) Mention() string {
+	return CommandMention(c.id, c.name)
+}
+
 func (SlashCommand) applicationCommand() {}
 
 var _ ApplicationCommand = (*UserCommand)(nil)
