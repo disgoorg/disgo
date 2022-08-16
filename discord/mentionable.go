@@ -59,6 +59,10 @@ func FormattedTimestampMention(timestamp int64, style TimestampStyle) string {
 	return fmt.Sprintf("<t:%d:%s>", timestamp, style)
 }
 
-func CommandMention(id snowflake.ID, name string) string {
-	return fmt.Sprintf("</%s:%d>", name, id)
+// CommandMention creates a command mention.
+// You can also pass a subcommand (and/or a subcommand group respectively) to the path.
+//
+//	mention := CommandMention(id, "command group subcommand")
+func CommandMention(id snowflake.ID, path string) string {
+	return fmt.Sprintf("</%s:%d>", path, id)
 }
