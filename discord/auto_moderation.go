@@ -1,6 +1,10 @@
 package discord
 
-import "github.com/disgoorg/snowflake/v2"
+import (
+	"time"
+
+	"github.com/disgoorg/snowflake/v2"
+)
 
 type AutoModerationEventType int
 
@@ -60,6 +64,10 @@ type AutoModerationRule struct {
 	Enabled         bool                          `json:"enabled"`
 	ExemptRoles     []snowflake.ID                `json:"exempt_roles"`
 	ExemptChannels  []snowflake.ID                `json:"exempt_channels"`
+}
+
+func (r AutoModerationRule) CreatedAt() time.Time {
+	return r.ID.Time()
 }
 
 type AutoModerationRuleCreate struct {
