@@ -289,10 +289,9 @@ func (o ApplicationCommandOptionString) Validate() (err error) {
 		return
 	}
 	choices := o.Choices
-	err = validate.Validate(
-		validate.New(choices,
-			validate.SliceNoneNil[ApplicationCommandOptionChoiceString],
-			validate.SliceMaxLen[ApplicationCommandOptionChoiceString](ApplicationCommandOptionMaxChoices)))
+	err = validate.Validate(validate.New(choices,
+		validate.SliceNoneNil[ApplicationCommandOptionChoiceString],
+		validate.SliceMaxLen[ApplicationCommandOptionChoiceString](ApplicationCommandOptionMaxChoices)))
 	if err != nil {
 		return
 	}
@@ -358,9 +357,9 @@ func (o ApplicationCommandOptionInt) Validate() (err error) {
 		return
 	}
 	for _, choice := range choices {
-		err = validate.Validate(validate.New(choice.Name,
-			validate.Required[string],
-			validate.StringRange(1, ApplicationCommandOptionChoiceNameMaxLength)))
+		err = validate.Validate(
+			validate.New(choice.Name, validate.Required[string], validate.StringRange(1, ApplicationCommandOptionChoiceNameMaxLength)),
+			validate.New(choice.Value, validate.Required[int]))
 		if err != nil {
 			return
 		}
@@ -612,7 +611,8 @@ func (o ApplicationCommandOptionFloat) Validate() (err error) {
 	}
 	for _, choice := range choices {
 		err = validate.Validate(
-			validate.New(choice.Name, validate.Required[string], validate.StringRange(1, ApplicationCommandOptionChoiceNameMaxLength)))
+			validate.New(choice.Name, validate.Required[string], validate.StringRange(1, ApplicationCommandOptionChoiceNameMaxLength)),
+			validate.New(choice.Value, validate.Required[float64]))
 		if err != nil {
 			return
 		}
