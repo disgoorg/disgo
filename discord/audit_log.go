@@ -247,5 +247,5 @@ type OptionalAuditLogEntryInfo struct {
 	RoleName                      *string                    `json:"role_name"`
 	ApplicationID                 *snowflake.ID              `json:"application_id"`
 	AutoModerationRuleName        *string                    `json:"auto_moderation_rule_name"`
-	AutoModerationRuleTriggerType *AutoModerationTriggerType `json:"auto_moderation_rule_trigger_type"`
+	AutoModerationRuleTriggerType *AutoModerationTriggerType `json:"auto_moderation_rule_trigger_type,string"`
 }
