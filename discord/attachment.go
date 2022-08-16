@@ -1,6 +1,10 @@
 package discord
 
-import "github.com/disgoorg/snowflake/v2"
+import (
+	"time"
+
+	"github.com/disgoorg/snowflake/v2"
+)
 
 //Attachment is used for files sent in a Message
 type Attachment struct {
@@ -14,6 +18,10 @@ type Attachment struct {
 	Height      *int         `json:"height,omitempty"`
 	Width       *int         `json:"width,omitempty"`
 	Ephemeral   bool         `json:"ephemeral,omitempty"`
+}
+
+func (a Attachment) CreatedAt() time.Time {
+	return a.ID.Time()
 }
 
 type AttachmentUpdate interface {

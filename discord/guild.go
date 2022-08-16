@@ -171,6 +171,10 @@ func (g Guild) BannerURL(opts ...CDNOpt) *string {
 	return &url
 }
 
+func (g Guild) CreatedAt() time.Time {
+	return g.ID.Time()
+}
+
 type RestGuild struct {
 	Guild
 	Stickers []Sticker `json:"stickers"`

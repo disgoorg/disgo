@@ -2,6 +2,7 @@ package discord
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/snowflake/v2"
@@ -38,6 +39,7 @@ type Integration interface {
 	json.Marshaler
 	Type() IntegrationType
 	ID() snowflake.ID
+	CreatedAt() time.Time
 }
 
 type UnmarshalIntegration struct {
@@ -121,6 +123,10 @@ func (i TwitchIntegration) ID() snowflake.ID {
 	return i.IntegrationID
 }
 
+func (i TwitchIntegration) CreatedAt() time.Time {
+	return i.IntegrationID.Time()
+}
+
 type YouTubeIntegration struct {
 	IntegrationID     snowflake.ID       `json:"id"`
 	Name              string             `json:"name"`
@@ -155,6 +161,10 @@ func (i YouTubeIntegration) ID() snowflake.ID {
 	return i.IntegrationID
 }
 
+func (i YouTubeIntegration) CreatedAt() time.Time {
+	return i.IntegrationID.Time()
+}
+
 type BotIntegration struct {
 	IntegrationID snowflake.ID           `json:"id"`
 	Name          string                 `json:"name"`
@@ -180,4 +190,8 @@ func (BotIntegration) Type() IntegrationType {
 
 func (i BotIntegration) ID() snowflake.ID {
 	return i.IntegrationID
+}
+
+func (i BotIntegration) CreatedAt() time.Time {
+	return i.IntegrationID.Time()
 }

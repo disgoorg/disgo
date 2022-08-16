@@ -2,6 +2,7 @@ package discord
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/snowflake/v2"
@@ -94,6 +95,10 @@ func (u User) BannerURL(opts ...CDNOpt) *string {
 	}
 	url := formatAssetURL(UserBanner, opts, u.ID, *u.Banner)
 	return &url
+}
+
+func (u User) CreatedAt() time.Time {
+	return u.ID.Time()
 }
 
 // OAuth2User represents a full User returned by the oauth2 endpoints
