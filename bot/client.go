@@ -78,14 +78,14 @@ type Client interface {
 
 	// RequestMembers sends a discord.MessageDataRequestGuildMembers to the specific gateway.Gateway and requests the Member(s) of the specified guild.
 	//  guildID  : is the snowflake of the guild to request the members of.
-	//  presence : Weather or not to include discord.Presence data.
+	//  presence : Whether to include discord.Presence data.
 	//  nonce	 : The nonce to return to the discord.EventGuildMembersChunk.
 	//  userIDs  : The snowflakes of the users to request the members of.
 	RequestMembers(ctx context.Context, guildID snowflake.ID, presence bool, nonce string, userIDs ...snowflake.ID) error
 
 	// RequestMembersWithQuery sends a discord.MessageDataRequestGuildMembers to the specific gateway.Gateway and requests the Member(s) of the specified guild.
 	//  guildID  : is the snowflake of the guild to request the members of.
-	//  presence : Weather or not to include discord.Presence data.
+	//  presence : Whether to include discord.Presence data.
 	//  nonce    : The nonce to return to the discord.EventGuildMembersChunk.
 	//  query    : The query to use for the request.
 	//  limit    : The number of discord.Member(s) to return.
