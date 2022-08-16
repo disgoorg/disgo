@@ -98,9 +98,21 @@ const (
 
 // AuditLogThreadCreate
 const (
-	AuditLogThreadCreate AuditLogEvent = iota + 100
+	AuditLogThreadCreate AuditLogEvent = iota + 110
 	AuditLogThreadUpdate
 	AuditLogThreadDelete
+)
+
+// AuditLogApplicationCommandPermissionUpdate ...
+const (
+	AuditLogApplicationCommandPermissionUpdate AuditLogEvent = 121
+)
+
+const (
+	AuditLogAutoModerationRuleCreate AuditLogEvent = iota + 140
+	AuditLogAutoModerationRuleUpdate
+	AuditLogAutoModerationRuleDelete
+	AuditLogAutoModerationBlockMessage
 )
 
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord
@@ -230,4 +242,5 @@ type OptionalAuditLogEntryInfo struct {
 	ID               *string       `json:"id"`
 	Type             *string       `json:"type"`
 	RoleName         *string       `json:"role_name"`
+	ApplicationID    *snowflake.ID `json:"application_id"`
 }
