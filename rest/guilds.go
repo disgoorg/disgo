@@ -147,8 +147,8 @@ func (s *guildImpl) GetBan(guildID snowflake.ID, userID snowflake.ID, opts ...Re
 	return
 }
 
-func (s *guildImpl) AddBan(guildID snowflake.ID, userID snowflake.ID, deleteMessageDays int, opts ...RequestOpt) error {
-	return s.client.Do(AddBan.Compile(nil, guildID, userID), discord.AddBan{DeleteMessageDays: deleteMessageDays}, nil, opts...)
+func (s *guildImpl) AddBan(guildID snowflake.ID, userID snowflake.ID, deleteMessageSeconds int, opts ...RequestOpt) error {
+	return s.client.Do(AddBan.Compile(nil, guildID, userID), discord.AddBan{DeleteMessageSeconds: deleteMessageSeconds}, nil, opts...)
 }
 
 func (s *guildImpl) DeleteBan(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) error {
