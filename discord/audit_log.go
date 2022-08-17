@@ -148,7 +148,7 @@ func (l *AuditLog) UnmarshalJSON(data []byte) error {
 
 	if v.Threads != nil {
 		l.Threads = make([]GuildThread, len(v.Threads))
-		for i := range v.Integrations {
+		for i := range v.Threads {
 			l.Threads[i] = v.Threads[i].Channel.(GuildThread)
 		}
 	}

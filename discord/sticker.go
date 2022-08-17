@@ -1,6 +1,8 @@
 package discord
 
 import (
+	"time"
+
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -25,6 +27,10 @@ func (s Sticker) URL(opts ...CDNOpt) string {
 		format = ImageFormatLottie
 	}
 	return formatAssetURL(CustomSticker, append(opts, WithFormat(format)), s.ID)
+}
+
+func (s Sticker) CreatedAt() time.Time {
+	return s.ID.Time()
 }
 
 type StickerType int

@@ -1,6 +1,8 @@
 package discord
 
 import (
+	"time"
+
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -36,6 +38,10 @@ func (r Role) IconURL(opts ...CDNOpt) *string {
 	}
 	url := formatAssetURL(RoleIcon, opts, r.ID, *r.Icon)
 	return &url
+}
+
+func (r Role) CreatedAt() time.Time {
+	return r.ID.Time()
 }
 
 // RoleTag are tags a Role has
