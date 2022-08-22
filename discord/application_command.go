@@ -180,6 +180,10 @@ func (c SlashCommand) CreatedAt() time.Time {
 	return c.id.Time()
 }
 
+func (c SlashCommand) Mention() string {
+	return SlashCommandMention(c.id, c.name)
+}
+
 func (SlashCommand) applicationCommand() {}
 
 var _ ApplicationCommand = (*UserCommand)(nil)
