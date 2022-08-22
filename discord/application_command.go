@@ -181,7 +181,7 @@ func (c SlashCommand) CreatedAt() time.Time {
 }
 
 func (c SlashCommand) Mention() string {
-	return CommandMention(c.id, c.name)
+	return SlashCommandMention(c.id, c.name)
 }
 
 func (SlashCommand) applicationCommand() {}
