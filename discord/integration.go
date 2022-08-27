@@ -171,6 +171,7 @@ type BotIntegration struct {
 	Enabled       bool                   `json:"enabled"`
 	Account       IntegrationAccount     `json:"account"`
 	Application   IntegrationApplication `json:"application"`
+	Scopes        []OAuth2Scope          `json:"scopes"`
 }
 
 func (i BotIntegration) MarshalJSON() ([]byte, error) {
