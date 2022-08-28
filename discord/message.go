@@ -1,6 +1,7 @@
 package discord
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/disgoorg/disgo/json"
@@ -60,6 +61,12 @@ func (t MessageType) Deleteable() bool {
 	default:
 		return true
 	}
+}
+
+const MessageURLFmt = "https://discord.com/channels/%d/%d/%d"
+
+func MessageURL(guildID snowflake.ID, channelID snowflake.ID, messageID snowflake.ID) string {
+	return fmt.Sprintf(MessageURLFmt, guildID, channelID, messageID)
 }
 
 // Message is a struct for messages sent in discord text-based channels
