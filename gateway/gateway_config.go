@@ -18,6 +18,7 @@ func DefaultConfig() *Config {
 		ShardCount:        1,
 		AutoReconnect:     true,
 		MaxReconnectTries: 10,
+		EnableResumeURL:   true,
 	}
 }
 
@@ -32,10 +33,12 @@ type Config struct {
 	ShardID                   int
 	ShardCount                int
 	SessionID                 *string
+	ResumeGatewayURL          *string
 	LastSequenceReceived      *int
 	AutoReconnect             bool
 	MaxReconnectTries         int
 	EnableRawEvents           bool
+	EnableResumeURL           bool
 	RateLimiter               RateLimiter
 	RateRateLimiterConfigOpts []RateLimiterConfigOpt
 	Presence                  *MessageDataPresenceUpdate
@@ -152,6 +155,13 @@ func WithMaxReconnectTries(maxReconnectTries int) ConfigOpt {
 func WithEnableRawEvents(enableRawEventEvents bool) ConfigOpt {
 	return func(config *Config) {
 		config.EnableRawEvents = enableRawEventEvents
+	}
+}
+
+// WithEnableResumeURL enables/disables usage of resume URLs sent by Discord.
+func WithEnableResumeURL(enableResumeURL bool) ConfigOpt {
+	return func(config *Config) {
+		config.EnableResumeURL = enableResumeURL
 	}
 }
 
