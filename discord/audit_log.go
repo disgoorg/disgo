@@ -117,6 +117,7 @@ const (
 
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord
 type AuditLog struct {
+	ApplicationCommands  []ApplicationCommand  `json:"application_commands"`
 	AuditLogEntries      []AuditLogEntry       `json:"audit_log_entries"`
 	AutoModerationRules  []AutoModerationRule  `json:"auto_moderation_rules"`
 	GuildScheduledEvents []GuildScheduledEvent `json:"guild_scheduled_events"`
@@ -129,15 +130,23 @@ type AuditLog struct {
 func (l *AuditLog) UnmarshalJSON(data []byte) error {
 	type auditLog AuditLog
 	var v struct {
-		Integrations []UnmarshalIntegration `json:"integrations"`
-		Threads      []UnmarshalChannel     `json:"threads"`
-		Webhooks     []UnmarshalWebhook     `json:"webhooks"`
+		ApplicationCommands []UnmarshalApplicationCommand `json:"application_commands"`
+		Integrations        []UnmarshalIntegration        `json:"integrations"`
+		Threads             []UnmarshalChannel            `json:"threads"`
+		Webhooks            []UnmarshalWebhook            `json:"webhooks"`
 		auditLog
 	}
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
 	*l = AuditLog(v.auditLog)
+
+	if v.ApplicationCommands != nil {
+		l.ApplicationCommands = make([]ApplicationCommand, len(v.ApplicationCommands))
+		for i := range v.ApplicationCommands {
+			l.ApplicationCommands[i] = v.ApplicationCommands[i].ApplicationCommand
+		}
+	}
 
 	if v.Integrations != nil {
 		l.Integrations = make([]Integration, len(v.Integrations))
