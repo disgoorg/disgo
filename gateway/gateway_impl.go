@@ -95,7 +95,7 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 	g.status = StatusConnecting
 
 	wsURL := g.config.URL
-	if g.config.ResumeGatewayURL != nil {
+	if g.config.ResumeGatewayURL != nil && g.config.EnableResumeURL {
 		wsURL = *g.config.ResumeGatewayURL
 	}
 	gatewayURL := fmt.Sprintf("%s?v=%d&encoding=json", wsURL, Version)
