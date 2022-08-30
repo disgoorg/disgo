@@ -24,25 +24,20 @@ func (p *Page[T]) Next() bool {
 	if p.Err != nil {
 		return false
 	}
-	if len(p.Items) != p.Limit {
-		p.Err = ErrNoMorePages
-		return false
-	}
 
 	if len(p.Items) > 0 {
 		p.After = p.getIDFunc(p.Items[0])
 	}
 
 	p.Items, p.Err = p.getItems(0, p.After, p.Limit)
+	if p.Err == nil && (len(p.Items) != p.Limit || len(p.Items) == 0) {
+		p.Err = ErrNoMorePages
+	}
 	return p.Err == nil
 }
 
 func (p *Page[T]) Previous() bool {
 	if p.Err != nil {
-		return false
-	}
-	if len(p.Items) != p.Limit {
-		p.Err = ErrNoMorePages
 		return false
 	}
 
@@ -51,5 +46,8 @@ func (p *Page[T]) Previous() bool {
 	}
 
 	p.Items, p.Err = p.getItems(p.Before, 0, p.Limit)
+	if p.Err == nil && (len(p.Items) != p.Limit || len(p.Items) == 0) {
+		p.Err = ErrNoMorePages
+	}
 	return p.Err == nil
 }

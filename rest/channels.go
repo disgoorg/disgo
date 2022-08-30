@@ -134,15 +134,15 @@ func (s *channelImpl) GetMessagesPage(channelID snowflake.ID, before snowflake.I
 		limit = 100
 	}
 	return Page[discord.Message]{
-		Before: before,
-		After:  after,
-		Limit:  limit,
 		getItems: func(before snowflake.ID, after snowflake.ID, limit int) ([]discord.Message, error) {
 			return s.GetMessages(channelID, 0, before, after, limit, opts...)
 		},
 		getIDFunc: func(msg discord.Message) snowflake.ID {
 			return msg.ID
 		},
+		Before: before,
+		After:  after,
+		Limit:  limit,
 	}
 
 }
