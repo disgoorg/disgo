@@ -10,6 +10,7 @@ import (
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/cache"
+	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
@@ -32,7 +33,7 @@ func main() {
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(
 			gateway.WithIntents(gateway.IntentsNonPrivileged, gateway.IntentMessageContent),
-			gateway.WithPresenceOpts(gateway.WithListeningActivity("your bullshit")),
+			gateway.WithPresenceOpts(gateway.WithListeningActivity("your bullshit"), gateway.WithOnlineStatus(discord.OnlineStatusDND)),
 		),
 		bot.WithCacheConfigOpts(
 			cache.WithCacheFlags(cache.FlagsAll),
