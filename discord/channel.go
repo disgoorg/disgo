@@ -1090,6 +1090,7 @@ func (c GuildForumChannel) MarshalJSON() ([]byte, error) {
 		ParentID:                      c.parentID,
 		LastThreadID:                  c.LastThreadID,
 		Topic:                         c.Topic,
+		NSFW:                          c.NSFW,
 		RateLimitPerUser:              c.RateLimitPerUser,
 		Flags:                         c.Flags,
 		AvailableTags:                 c.AvailableTags,
@@ -1168,16 +1169,16 @@ type ThreadMetadata struct {
 }
 
 type ForumTag struct {
-	ID        snowflake.ID `json:"id"`
-	Name      string       `json:"name"`
-	Moderated bool         `json:"moderated"`
-	EmojiID   snowflake.ID `json:"emoji_id"`
-	EmojiName *string      `json:"emoji_name"`
+	ID        snowflake.ID  `json:"id"`
+	Name      string        `json:"name"`
+	Moderated bool          `json:"moderated"`
+	EmojiID   *snowflake.ID `json:"emoji_id"`
+	EmojiName *string       `json:"emoji_name"`
 }
 
 type DefaultReactionEmoji struct {
-	EmojiID   snowflake.ID `json:"emoji_id"`
-	EmojiName *string      `json:"emoji_name"`
+	EmojiID   *snowflake.ID `json:"emoji_id"`
+	EmojiName *string       `json:"emoji_name"`
 }
 
 type AutoArchiveDuration int
