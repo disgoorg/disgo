@@ -34,8 +34,9 @@ const (
 type ChannelFlags int
 
 const (
-	ChannelFlagPinned ChannelFlags = 1 << (iota + 1)
-	ChannelFlagsNone  ChannelFlags = 0
+	ChannelFlagPinned     ChannelFlags = 1 << 1
+	ChannelFlagRequireTag ChannelFlags = 1 << 4
+	ChannelFlagsNone      ChannelFlags = 0
 )
 
 // Add allows you to add multiple bits together, producing a new bit
@@ -810,6 +811,7 @@ type GuildThread struct {
 	parentID         snowflake.ID
 	MessageCount     int
 	TotalMessageSent int
+	AppliedTags      []snowflake.ID
 	MemberCount      int
 	ThreadMetadata   ThreadMetadata
 }
@@ -832,6 +834,7 @@ func (c *GuildThread) UnmarshalJSON(data []byte) error {
 	c.parentID = v.ParentID
 	c.MessageCount = v.MessageCount
 	c.TotalMessageSent = v.TotalMessageSent
+	c.AppliedTags = v.AppliedTags
 	c.MemberCount = v.MemberCount
 	c.ThreadMetadata = v.ThreadMetadata
 	return nil
@@ -851,6 +854,7 @@ func (c GuildThread) MarshalJSON() ([]byte, error) {
 		ParentID:         c.parentID,
 		MessageCount:     c.MessageCount,
 		TotalMessageSent: c.TotalMessageSent,
+		AppliedTags:      c.AppliedTags,
 		MemberCount:      c.MemberCount,
 		ThreadMetadata:   c.ThreadMetadata,
 	})
@@ -1036,15 +1040,20 @@ var (
 )
 
 type GuildForumChannel struct {
-	id                   snowflake.ID
-	guildID              snowflake.ID
-	position             int
-	permissionOverwrites PermissionOverwrites
-	name                 string
-	parentID             *snowflake.ID
-	LastThreadID         *snowflake.ID
-	Topic                *string
-	RateLimitPerUser     int
+	id                            snowflake.ID
+	guildID                       snowflake.ID
+	position                      int
+	permissionOverwrites          PermissionOverwrites
+	name                          string
+	parentID                      *snowflake.ID
+	LastThreadID                  *snowflake.ID
+	Topic                         *string
+	NSFW                          bool
+	RateLimitPerUser              int
+	Flags                         ChannelFlags
+	AvailableTags                 []ForumTag
+	DefaultReactionEmoji          *DefaultReactionEmoji
+	DefaultThreadRateLimitPerUser int
 }
 
 func (c *GuildForumChannel) UnmarshalJSON(data []byte) error {
@@ -1061,22 +1070,31 @@ func (c *GuildForumChannel) UnmarshalJSON(data []byte) error {
 	c.parentID = v.ParentID
 	c.LastThreadID = v.LastThreadID
 	c.Topic = v.Topic
+	c.NSFW = v.NSFW
 	c.RateLimitPerUser = v.RateLimitPerUser
+	c.Flags = v.Flags
+	c.AvailableTags = v.AvailableTags
+	c.DefaultReactionEmoji = v.DefaultReactionEmoji
+	c.DefaultThreadRateLimitPerUser = v.DefaultThreadRateLimitPerUser
 	return nil
 }
 
 func (c GuildForumChannel) MarshalJSON() ([]byte, error) {
 	return json.Marshal(guildForumChannel{
-		ID:                   c.id,
-		Type:                 c.Type(),
-		GuildID:              c.guildID,
-		Position:             c.position,
-		PermissionOverwrites: c.permissionOverwrites,
-		Name:                 c.name,
-		ParentID:             c.parentID,
-		LastThreadID:         c.LastThreadID,
-		Topic:                c.Topic,
-		RateLimitPerUser:     c.RateLimitPerUser,
+		ID:                            c.id,
+		Type:                          c.Type(),
+		GuildID:                       c.guildID,
+		Position:                      c.position,
+		PermissionOverwrites:          c.permissionOverwrites,
+		Name:                          c.name,
+		ParentID:                      c.parentID,
+		LastThreadID:                  c.LastThreadID,
+		Topic:                         c.Topic,
+		RateLimitPerUser:              c.RateLimitPerUser,
+		Flags:                         c.Flags,
+		AvailableTags:                 c.AvailableTags,
+		DefaultReactionEmoji:          c.DefaultReactionEmoji,
+		DefaultThreadRateLimitPerUser: c.DefaultThreadRateLimitPerUser,
 	})
 }
 
@@ -1147,6 +1165,19 @@ type ThreadMetadata struct {
 	Locked              bool                `json:"locked"`
 	Invitable           bool                `json:"invitable"`
 	CreateTimestamp     time.Time           `json:"create_timestamp"`
+}
+
+type ForumTag struct {
+	ID        snowflake.ID `json:"id"`
+	Name      string       `json:"name"`
+	Moderated bool         `json:"moderated"`
+	EmojiID   snowflake.ID `json:"emoji_id"`
+	EmojiName *string      `json:"emoji_name"`
+}
+
+type DefaultReactionEmoji struct {
+	EmojiID   snowflake.ID `json:"emoji_id"`
+	EmojiName *string      `json:"emoji_name"`
 }
 
 type AutoArchiveDuration int
