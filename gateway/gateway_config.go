@@ -184,11 +184,11 @@ func WithRateRateLimiterConfigOpts(opts ...RateLimiterConfigOpt) ConfigOpt {
 // WithPresenceOpts allows to pass initial presence data the bot should display.
 func WithPresenceOpts(opts ...PresenceOpt) ConfigOpt {
 	return func(config *Config) {
-		presence := &MessageDataPresenceUpdate{}
+		presenceUpdate := &MessageDataPresenceUpdate{}
 		for _, opt := range opts {
-			opt(presence)
+			opt(presenceUpdate)
 		}
-		config.Presence = presence
+		config.Presence = presenceUpdate
 	}
 }
 

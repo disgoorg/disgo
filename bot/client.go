@@ -91,11 +91,11 @@ type Client interface {
 	//  limit    : The number of discord.Member(s) to return.
 	RequestMembersWithQuery(ctx context.Context, guildID snowflake.ID, presence bool, nonce string, query string, limit int) error
 
-	// SetPresence sends a discord.MessageDataPresenceUpdate to the gateway.Gateway.
-	SetPresence(ctx context.Context, presenceUpdate gateway.MessageDataPresenceUpdate) error
+	// SetPresence sends new presence data to the gateway.Gateway.
+	SetPresence(ctx context.Context, opts ...gateway.PresenceOpt) error
 
-	// SetPresenceForShard sends a discord.MessageDataPresenceUpdate to the specific gateway.Gateway.
-	SetPresenceForShard(ctx context.Context, shardId int, presenceUpdate gateway.MessageDataPresenceUpdate) error
+	// SetPresenceForShard sends new presence data to the specific gateway.Gateway.
+	SetPresenceForShard(ctx context.Context, shardId int, opts ...gateway.PresenceOpt) error
 
 	// MemberChunkingManager returns the MemberChunkingManager used by the Client.
 	MemberChunkingManager() MemberChunkingManager
@@ -276,14 +276,14 @@ func (c *clientImpl) RequestMembersWithQuery(ctx context.Context, guildID snowfl
 	})
 }
 
-func (c *clientImpl) SetPresence(ctx context.Context, presenceUpdate gateway.MessageDataPresenceUpdate) error {
+func (c *clientImpl) SetPresence(ctx context.Context, opts ...gateway.PresenceOpt) error {
 	if !c.HasGateway() {
 		return discord.ErrNoGateway
 	}
-	return c.gateway.Send(ctx, gateway.OpcodePresenceUpdate, presenceUpdate)
+	return c.gateway.Send(ctx, gateway.OpcodePresenceUpdate, getPresenceFromOpts(opts...))
 }
 
-func (c *clientImpl) SetPresenceForShard(ctx context.Context, shardId int, presenceUpdate gateway.MessageDataPresenceUpdate) error {
+func (c *clientImpl) SetPresenceForShard(ctx context.Context, shardId int, opts ...gateway.PresenceOpt) error {
 	if !c.HasShardManager() {
 		return discord.ErrNoShardManager
 	}
@@ -291,7 +291,15 @@ func (c *clientImpl) SetPresenceForShard(ctx context.Context, shardId int, prese
 	if shard == nil {
 		return discord.ErrShardNotFound
 	}
-	return shard.Send(ctx, gateway.OpcodePresenceUpdate, presenceUpdate)
+	return shard.Send(ctx, gateway.OpcodePresenceUpdate, getPresenceFromOpts(opts...))
+}
+
+func getPresenceFromOpts(opts ...gateway.PresenceOpt) gateway.MessageDataPresenceUpdate {
+	presenceUpdate := &gateway.MessageDataPresenceUpdate{}
+	for _, opt := range opts {
+		opt(presenceUpdate)
+	}
+	return *presenceUpdate
 }
 
 func (c *clientImpl) MemberChunkingManager() MemberChunkingManager {
