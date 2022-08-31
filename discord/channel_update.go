@@ -15,30 +15,30 @@ type GuildChannelUpdate interface {
 }
 
 type GuildTextChannelUpdate struct {
-	Name                       *string                `json:"name,omitempty"`
-	Type                       *ChannelType           `json:"type,omitempty"`
-	Position                   *int                   `json:"position,omitempty"`
-	Topic                      *string                `json:"topic,omitempty"`
-	NSFW                       *bool                  `json:"nsfw,omitempty"`
-	RateLimitPerUser           *int                   `json:"rate_limit_per_user,omitempty"`
-	PermissionOverwrites       *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID                   *snowflake.ID          `json:"parent_id,omitempty"`
-	DefaultAutoArchiveDuration *AutoArchiveDuration   `json:"default_auto_archive_duration,omitempty"`
+	Name                       *string                      `json:"name,omitempty"`
+	Type                       *ChannelType                 `json:"type,omitempty"`
+	Position                   *int                         `json:"position,omitempty"`
+	Topic                      *json.Nullable[string]       `json:"topic,omitempty"`
+	NSFW                       *bool                        `json:"nsfw,omitempty"`
+	RateLimitPerUser           *int                         `json:"rate_limit_per_user,omitempty"`
+	PermissionOverwrites       *[]PermissionOverwrite       `json:"permission_overwrites,omitempty"`
+	ParentID                   *json.Nullable[snowflake.ID] `json:"parent_id,omitempty"`
+	DefaultAutoArchiveDuration *AutoArchiveDuration         `json:"default_auto_archive_duration,omitempty"`
 }
 
 func (GuildTextChannelUpdate) channelUpdate()      {}
 func (GuildTextChannelUpdate) guildChannelUpdate() {}
 
 type GuildVoiceChannelUpdate struct {
-	Name                 *string                `json:"name,omitempty"`
-	Position             *int                   `json:"position,omitempty"`
-	RateLimitPerUser     *int                   `json:"rate_limit_per_user,omitempty"`
-	Bitrate              *int                   `json:"bitrate,omitempty"`
-	UserLimit            *int                   `json:"user_limit,omitempty"`
-	PermissionOverwrites *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID             *snowflake.ID          `json:"parent_id,omitempty"`
-	RTCRegion            *string                `json:"rtc_region"`
-	VideoQualityMode     *VideoQualityMode      `json:"video_quality_mode"`
+	Name                 *string                      `json:"name,omitempty"`
+	Position             *int                         `json:"position,omitempty"`
+	RateLimitPerUser     *int                         `json:"rate_limit_per_user,omitempty"`
+	Bitrate              *int                         `json:"bitrate,omitempty"`
+	UserLimit            *int                         `json:"user_limit,omitempty"`
+	PermissionOverwrites *[]PermissionOverwrite       `json:"permission_overwrites,omitempty"`
+	ParentID             *json.Nullable[snowflake.ID] `json:"parent_id,omitempty"`
+	RTCRegion            *json.Nullable[string]       `json:"rtc_region"`
+	VideoQualityMode     *VideoQualityMode            `json:"video_quality_mode"`
 }
 
 func (GuildVoiceChannelUpdate) channelUpdate()      {}
@@ -54,14 +54,14 @@ func (GuildCategoryChannelUpdate) channelUpdate()      {}
 func (GuildCategoryChannelUpdate) guildChannelUpdate() {}
 
 type GuildNewsChannelUpdate struct {
-	Name                       *string                `json:"name,omitempty"`
-	Type                       *ChannelType           `json:"type,omitempty"`
-	Position                   *int                   `json:"position,omitempty"`
-	Topic                      *string                `json:"topic,omitempty"`
-	RateLimitPerUser           *int                   `json:"rate_limit_per_user,omitempty"`
-	PermissionOverwrites       *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID                   *snowflake.ID          `json:"parent_id,omitempty"`
-	DefaultAutoArchiveDuration *int                   `json:"default_auto_archive_duration"`
+	Name                       *string                      `json:"name,omitempty"`
+	Type                       *ChannelType                 `json:"type,omitempty"`
+	Position                   *int                         `json:"position,omitempty"`
+	Topic                      *json.Nullable[string]       `json:"topic,omitempty"`
+	RateLimitPerUser           *int                         `json:"rate_limit_per_user,omitempty"`
+	PermissionOverwrites       *[]PermissionOverwrite       `json:"permission_overwrites,omitempty"`
+	ParentID                   *json.Nullable[snowflake.ID] `json:"parent_id,omitempty"`
+	DefaultAutoArchiveDuration *int                         `json:"default_auto_archive_duration"`
 }
 
 func (GuildNewsChannelUpdate) channelUpdate()      {}
@@ -80,26 +80,26 @@ func (GuildThreadUpdate) channelUpdate()      {}
 func (GuildThreadUpdate) guildChannelUpdate() {}
 
 type GuildStageVoiceChannelUpdate struct {
-	Name                 *string                `json:"name,omitempty"`
-	Position             *int                   `json:"position,omitempty"`
-	Topic                *string                `json:"topic,omitempty"`
-	Bitrate              *int                   `json:"bitrate,omitempty"`
-	UserLimit            *int                   `json:"user_limit,omitempty"`
-	PermissionOverwrites *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID             *snowflake.ID          `json:"parent_id,omitempty"`
-	RTCRegion            *string                `json:"rtc_region"`
+	Name                 *string                      `json:"name,omitempty"`
+	Position             *int                         `json:"position,omitempty"`
+	Topic                *json.Nullable[string]       `json:"topic,omitempty"`
+	Bitrate              *int                         `json:"bitrate,omitempty"`
+	UserLimit            *int                         `json:"user_limit,omitempty"`
+	PermissionOverwrites *[]PermissionOverwrite       `json:"permission_overwrites,omitempty"`
+	ParentID             *json.Nullable[snowflake.ID] `json:"parent_id,omitempty"`
+	RTCRegion            *json.Nullable[string]       `json:"rtc_region"`
 }
 
 func (GuildStageVoiceChannelUpdate) channelUpdate()      {}
 func (GuildStageVoiceChannelUpdate) guildChannelUpdate() {}
 
 type GuildForumChannelUpdate struct {
-	Name                 *string                `json:"name,omitempty"`
-	Position             *int                   `json:"position,omitempty"`
-	Topic                *string                `json:"topic,omitempty"`
-	PermissionOverwrites *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID             *snowflake.ID          `json:"parent_id,omitempty"`
-	RateLimitPerUser     *int                   `json:"rate_limit_per_user"`
+	Name                 *string                      `json:"name,omitempty"`
+	Position             *int                         `json:"position,omitempty"`
+	Topic                *json.Nullable[string]       `json:"topic,omitempty"`
+	PermissionOverwrites *[]PermissionOverwrite       `json:"permission_overwrites,omitempty"`
+	ParentID             *json.Nullable[snowflake.ID] `json:"parent_id,omitempty"`
+	RateLimitPerUser     *int                         `json:"rate_limit_per_user"`
 }
 
 func (GuildForumChannelUpdate) channelUpdate()      {}

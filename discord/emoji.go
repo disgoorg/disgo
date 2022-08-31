@@ -51,8 +51,8 @@ type EmojiCreate struct {
 }
 
 type EmojiUpdate struct {
-	Name  string         `json:"name,omitempty"`
-	Roles []snowflake.ID `json:"roles,omitempty"`
+	Name  *string         `json:"name,omitempty"`
+	Roles *[]snowflake.ID `json:"roles,omitempty"`
 }
 
 type ReactionEmoji struct {

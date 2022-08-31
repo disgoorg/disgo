@@ -343,19 +343,19 @@ type WebhookSourceChannel struct {
 
 // WebhookCreate is used to create a Webhook
 type WebhookCreate struct {
-	Name   string `json:"name"`
-	Avatar *Icon  `json:"avatar,omitempty"`
+	Name   string               `json:"name"`
+	Avatar *json.Nullable[Icon] `json:"avatar,omitempty"`
 }
 
 // WebhookUpdate is used to update a Webhook
 type WebhookUpdate struct {
 	Name      *string              `json:"name,omitempty"`
 	Avatar    *json.Nullable[Icon] `json:"avatar,omitempty"`
-	ChannelID *snowflake.ID        `json:"channel_id"`
+	ChannelID *snowflake.ID        `json:"channel_id,omitempty"`
 }
 
 // WebhookUpdateWithToken is used to update a Webhook with the token
 type WebhookUpdateWithToken struct {
-	Name   *string `json:"name,omitempty"`
-	Avatar *string `json:"avatar,omitempty"`
+	Name   *string              `json:"name,omitempty"`
+	Avatar *json.Nullable[Icon] `json:"avatar,omitempty"`
 }
