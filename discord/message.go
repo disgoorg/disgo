@@ -63,7 +63,7 @@ func (t MessageType) Deleteable() bool {
 	}
 }
 
-const MessageURLFmt = "https://discord.com/channels/%d/%d/%d"
+const MessageURLFmt = "https://discord.com/channels/%s/%d/%d"
 
 func MessageURL(guildID snowflake.ID, channelID snowflake.ID, messageID snowflake.ID) string {
 	return fmt.Sprintf(MessageURLFmt, guildID, channelID, messageID)
@@ -208,6 +208,14 @@ func (m *Message) SelectMenuByID(customID string) *SelectMenuComponent {
 		}
 	}
 	return nil
+}
+
+func (m *Message) JumpURL() string {
+	guildID := "@me"
+	if m.GuildID != nil {
+		guildID = m.GuildID.String()
+	}
+	return fmt.Sprintf(MessageURLFmt, guildID, m.ChannelID, m.ID) // duplicate code, but there isn't a better way without sacrificing user convenience
 }
 
 type MessageThread struct {
