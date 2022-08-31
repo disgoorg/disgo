@@ -437,57 +437,67 @@ type IdentifyCommandDataProperties struct {
 	Device  string `json:"device"`  // library name
 }
 
-// NewPresence creates a new Presence with the provided properties
-func NewPresence(activityType discord.ActivityType, name string, url string, status discord.OnlineStatus, afk bool) MessageDataPresenceUpdate {
-	var since *int64
-	if status == discord.OnlineStatusIdle {
-		unix := time.Now().Unix()
-		since = &unix
-	}
+func WithPlayingActivity(name string) PresenceOpt {
+	return withActivity(discord.Activity{
+		Name: name,
+		Type: discord.ActivityTypeGame,
+	})
+}
 
-	var activities []discord.Activity
-	if name != "" {
-		activity := discord.Activity{
-			Name: name,
-			Type: activityType,
+func WithStreamingActivity(name string, url string) PresenceOpt {
+	activity := discord.Activity{
+		Name: name,
+		Type: discord.ActivityTypeStreaming,
+	}
+	if url != "" {
+		activity.URL = &url
+	}
+	return withActivity(activity)
+}
+
+func WithListeningActivity(name string) PresenceOpt {
+	return withActivity(discord.Activity{
+		Name: name,
+		Type: discord.ActivityTypeListening,
+	})
+}
+
+func WithWatchingActivity(name string) PresenceOpt {
+	return withActivity(discord.Activity{
+		Name: name,
+		Type: discord.ActivityTypeWatching,
+	})
+}
+
+func WithCompetingActivity(name string) PresenceOpt {
+	return withActivity(discord.Activity{
+		Name: name,
+		Type: discord.ActivityTypeCompeting,
+	})
+}
+
+func withActivity(activity discord.Activity) PresenceOpt {
+	return func(presence *MessageDataPresenceUpdate) {
+		presence.Activities = append(presence.Activities, activity)
+	}
+}
+
+func WithOnlineStatus(status discord.OnlineStatus) PresenceOpt {
+	return func(presence *MessageDataPresenceUpdate) {
+		presence.Status = status
+		if status == discord.OnlineStatusIdle {
+			var since *int64
+			unix := time.Now().Unix()
+			since = &unix
+			presence.Since = since
 		}
-		if activityType == discord.ActivityTypeStreaming && url != "" {
-			activity.URL = &url
-		}
-		activities = append(activities, activity)
-	}
-
-	return MessageDataPresenceUpdate{
-		Since:      since,
-		Activities: activities,
-		Status:     status,
-		AFK:        afk,
 	}
 }
 
-// NewGamePresence creates a new Presence of type ActivityTypeGame
-func NewGamePresence(name string, status discord.OnlineStatus, afk bool) MessageDataPresenceUpdate {
-	return NewPresence(discord.ActivityTypeGame, name, "", status, afk)
-}
-
-// NewStreamingPresence creates a new Presence of type ActivityTypeStreaming
-func NewStreamingPresence(name string, url string, status discord.OnlineStatus, afk bool) MessageDataPresenceUpdate {
-	return NewPresence(discord.ActivityTypeStreaming, name, url, status, afk)
-}
-
-// NewListeningPresence creates a new Presence of type ActivityTypeListening
-func NewListeningPresence(name string, status discord.OnlineStatus, afk bool) MessageDataPresenceUpdate {
-	return NewPresence(discord.ActivityTypeListening, name, "", status, afk)
-}
-
-// NewWatchingPresence creates a new Presence of type ActivityTypeWatching
-func NewWatchingPresence(name string, status discord.OnlineStatus, afk bool) MessageDataPresenceUpdate {
-	return NewPresence(discord.ActivityTypeWatching, name, "", status, afk)
-}
-
-// NewCompetingPresence creates a new Presence of type ActivityTypeCompeting
-func NewCompetingPresence(name string, status discord.OnlineStatus, afk bool) MessageDataPresenceUpdate {
-	return NewPresence(discord.ActivityTypeCompeting, name, "", status, afk)
+func WithAfk(afk bool) PresenceOpt {
+	return func(presence *MessageDataPresenceUpdate) {
+		presence.AFK = afk
+	}
 }
 
 // MessageDataPresenceUpdate is used for updating Client's presence
