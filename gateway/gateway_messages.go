@@ -488,10 +488,8 @@ func WithOnlineStatus(status discord.OnlineStatus) PresenceOpt {
 	return func(presence *MessageDataPresenceUpdate) {
 		presence.Status = status
 		if status == discord.OnlineStatusIdle {
-			var since *int64
-			unix := time.Now().Unix()
-			since = &unix
-			presence.Since = since
+			since := time.Now().Unix()
+			presence.Since = &since
 		}
 	}
 }
