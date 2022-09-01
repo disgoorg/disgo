@@ -280,7 +280,8 @@ func (c *clientImpl) SetPresence(ctx context.Context, opts ...gateway.PresenceOp
 	if !c.HasGateway() {
 		return discord.ErrNoGateway
 	}
-	return c.gateway.Send(ctx, gateway.OpcodePresenceUpdate, getPresenceFromOpts(opts...))
+	g := c.gateway
+	return g.Send(ctx, gateway.OpcodePresenceUpdate, applyPresenceFromOpts(g, opts...))
 }
 
 func (c *clientImpl) SetPresenceForShard(ctx context.Context, shardId int, opts ...gateway.PresenceOpt) error {
@@ -291,11 +292,14 @@ func (c *clientImpl) SetPresenceForShard(ctx context.Context, shardId int, opts 
 	if shard == nil {
 		return discord.ErrShardNotFound
 	}
-	return shard.Send(ctx, gateway.OpcodePresenceUpdate, getPresenceFromOpts(opts...))
+	return shard.Send(ctx, gateway.OpcodePresenceUpdate, applyPresenceFromOpts(shard, opts...))
 }
 
-func getPresenceFromOpts(opts ...gateway.PresenceOpt) gateway.MessageDataPresenceUpdate {
-	presenceUpdate := &gateway.MessageDataPresenceUpdate{}
+func applyPresenceFromOpts(g gateway.Gateway, opts ...gateway.PresenceOpt) gateway.MessageDataPresenceUpdate {
+	presenceUpdate := g.Presence()
+	if presenceUpdate == nil {
+		presenceUpdate = &gateway.MessageDataPresenceUpdate{}
+	}
 	for _, opt := range opts {
 		opt(presenceUpdate)
 	}

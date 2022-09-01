@@ -100,4 +100,7 @@ type Gateway interface {
 	// Latency returns the latency of the Gateway.
 	// This is calculated by the time it takes to send a heartbeat and receive a heartbeat ack by discord.
 	Latency() time.Duration
+
+	// Presence returns the current presence of the Gateway.
+	Presence() *MessageDataPresenceUpdate
 }

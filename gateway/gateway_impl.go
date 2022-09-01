@@ -204,6 +204,10 @@ func (g *gatewayImpl) Latency() time.Duration {
 	return g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
 }
 
+func (g *gatewayImpl) Presence() *MessageDataPresenceUpdate {
+	return g.config.Presence
+}
+
 func (g *gatewayImpl) reconnectTry(ctx context.Context, try int, delay time.Duration) error {
 	if try >= g.config.MaxReconnectTries-1 {
 		return fmt.Errorf("failed to reconnect. exceeded max reconnect tries of %d reached", g.config.MaxReconnectTries)
