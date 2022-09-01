@@ -438,6 +438,7 @@ type IdentifyCommandDataProperties struct {
 
 type PresenceOpt func(presenceUpdate *MessageDataPresenceUpdate)
 
+// WithPlayingActivity creates a new "Playing ..." activity of type discord.ActivityTypeGame
 func WithPlayingActivity(name string) PresenceOpt {
 	return withActivity(discord.Activity{
 		Name: name,
@@ -445,6 +446,7 @@ func WithPlayingActivity(name string) PresenceOpt {
 	})
 }
 
+// WithStreamingActivity creates a new "Streaming ..." activity of type discord.ActivityTypeStreaming
 func WithStreamingActivity(name string, url string) PresenceOpt {
 	activity := discord.Activity{
 		Name: name,
@@ -456,6 +458,7 @@ func WithStreamingActivity(name string, url string) PresenceOpt {
 	return withActivity(activity)
 }
 
+// WithListeningActivity creates a new "Listening to ..." activity of type discord.ActivityTypeListening
 func WithListeningActivity(name string) PresenceOpt {
 	return withActivity(discord.Activity{
 		Name: name,
@@ -463,6 +466,7 @@ func WithListeningActivity(name string) PresenceOpt {
 	})
 }
 
+// WithWatchingActivity creates a new "Watching ..." activity of type discord.ActivityTypeWatching
 func WithWatchingActivity(name string) PresenceOpt {
 	return withActivity(discord.Activity{
 		Name: name,
@@ -470,6 +474,7 @@ func WithWatchingActivity(name string) PresenceOpt {
 	})
 }
 
+// WithCompetingActivity creates a new "Competing in ..." activity of type discord.ActivityTypeCompeting
 func WithCompetingActivity(name string) PresenceOpt {
 	return withActivity(discord.Activity{
 		Name: name,
@@ -483,18 +488,21 @@ func withActivity(activity discord.Activity) PresenceOpt {
 	}
 }
 
+// WithOnlineStatus sets the online status to the provided discord.OnlineStatus
 func WithOnlineStatus(status discord.OnlineStatus) PresenceOpt {
 	return func(presence *MessageDataPresenceUpdate) {
 		presence.Status = status
 	}
 }
 
+// WithAfk sets whether the session is afk
 func WithAfk(afk bool) PresenceOpt {
 	return func(presence *MessageDataPresenceUpdate) {
 		presence.AFK = afk
 	}
 }
 
+// WithSince sets when the session has gone afk
 func WithSince(since *int64) PresenceOpt {
 	return func(presence *MessageDataPresenceUpdate) {
 		presence.Since = since
