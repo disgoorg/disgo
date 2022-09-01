@@ -437,6 +437,8 @@ type IdentifyCommandDataProperties struct {
 	Device  string `json:"device"`  // library name
 }
 
+type PresenceOpt func(presenceUpdate *MessageDataPresenceUpdate)
+
 func WithPlayingActivity(name string) PresenceOpt {
 	return withActivity(discord.Activity{
 		Name: name,

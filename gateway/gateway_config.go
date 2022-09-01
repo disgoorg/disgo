@@ -60,8 +60,6 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	}
 }
 
-type PresenceOpt func(presenceUpdate *MessageDataPresenceUpdate)
-
 // WithLogger sets the Logger for the Gateway.
 func WithLogger(logger log.Logger) ConfigOpt {
 	return func(config *Config) {
