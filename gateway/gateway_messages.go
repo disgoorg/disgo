@@ -2,7 +2,6 @@ package gateway
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/json"
@@ -487,16 +486,18 @@ func withActivity(activity discord.Activity) PresenceOpt {
 func WithOnlineStatus(status discord.OnlineStatus) PresenceOpt {
 	return func(presence *MessageDataPresenceUpdate) {
 		presence.Status = status
-		if status == discord.OnlineStatusIdle {
-			since := time.Now().Unix()
-			presence.Since = &since
-		}
 	}
 }
 
 func WithAfk(afk bool) PresenceOpt {
 	return func(presence *MessageDataPresenceUpdate) {
 		presence.AFK = afk
+	}
+}
+
+func WithSince(since *int64) PresenceOpt {
+	return func(presence *MessageDataPresenceUpdate) {
+		presence.Since = since
 	}
 }
 
