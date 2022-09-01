@@ -478,7 +478,7 @@ func WithCompetingActivity(name string) PresenceOpt {
 
 func withActivity(activity discord.Activity) PresenceOpt {
 	return func(presence *MessageDataPresenceUpdate) {
-		presence.Activities = append(presence.Activities, activity)
+		presence.Activities = []discord.Activity{activity}
 	}
 }
 
