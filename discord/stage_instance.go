@@ -27,10 +27,10 @@ func (e StageInstance) CreatedAt() time.Time {
 }
 
 type StageInstanceCreate struct {
-	ChannelID             snowflake.ID      `json:"channel_id"`
-	Topic                 string            `json:"topic,omitempty"`
-	PrivacyLevel          StagePrivacyLevel `json:"privacy_level,omitempty"`
-	SendStartNotification bool              `json:"send_start_notification"`
+	ChannelID             snowflake.ID       `json:"channel_id"`
+	Topic                 string             `json:"topic,omitempty"`
+	PrivacyLevel          *StagePrivacyLevel `json:"privacy_level,omitempty"`
+	SendStartNotification *bool              `json:"send_start_notification,omitempty"`
 }
 
 type StageInstanceUpdate struct {

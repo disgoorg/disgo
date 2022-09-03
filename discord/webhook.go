@@ -343,8 +343,8 @@ type WebhookSourceChannel struct {
 
 // WebhookCreate is used to create a Webhook
 type WebhookCreate struct {
-	Name   string               `json:"name"`
-	Avatar *json.Nullable[Icon] `json:"avatar,omitempty"`
+	Name   string `json:"name"`
+	Avatar *Icon  `json:"avatar,omitempty"`
 }
 
 // WebhookUpdate is used to update a Webhook

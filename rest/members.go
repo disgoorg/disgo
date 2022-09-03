@@ -24,7 +24,7 @@ type Members interface {
 
 	UpdateSelfNick(guildID snowflake.ID, nick string, opts ...RequestOpt) (*string, error)
 
-	UpdateCurrentUserVoiceState(guildID snowflake.ID, currentUserVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error
+	UpdateCurrentUserVoiceState(guildID snowflake.ID, currentUserVoiceStateUpdate discord.CurrentUserVoiceStateUpdate, opts ...RequestOpt) error
 	UpdateUserVoiceState(guildID snowflake.ID, userID snowflake.ID, userVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error
 }
 
@@ -100,7 +100,7 @@ func (s *memberImpl) UpdateSelfNick(guildID snowflake.ID, nick string, opts ...R
 	return
 }
 
-func (s *memberImpl) UpdateCurrentUserVoiceState(guildID snowflake.ID, currentUserVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error {
+func (s *memberImpl) UpdateCurrentUserVoiceState(guildID snowflake.ID, currentUserVoiceStateUpdate discord.CurrentUserVoiceStateUpdate, opts ...RequestOpt) error {
 	return s.client.Do(UpdateCurrentUserVoiceState.Compile(nil, guildID), currentUserVoiceStateUpdate, nil, opts...)
 }
 

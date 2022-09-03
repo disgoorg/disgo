@@ -23,8 +23,12 @@ type VoiceState struct {
 	RequestToSpeakTimestamp *time.Time    `json:"request_to_speak_timestamp"`
 }
 
-type UserVoiceStateUpdate struct {
-	ChannelID               snowflake.ID              `json:"channel_id"`
-	Suppress                *bool                     `json:"suppress,omitempty"`
+type CurrentUserVoiceStateUpdate struct {
+	UserVoiceStateUpdate
 	RequestToSpeakTimestamp *json.Nullable[time.Time] `json:"request_to_speak_timestamp,omitempty"`
+}
+
+type UserVoiceStateUpdate struct {
+	ChannelID *json.Nullable[snowflake.ID] `json:"channel_id,omitempty"`
+	Suppress  *bool                        `json:"suppress,omitempty"`
 }
