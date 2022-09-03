@@ -73,7 +73,7 @@ type MemberAdd struct {
 	Deaf        bool           `json:"deaf,omitempty"`
 }
 
-// MemberUpdate is used to modify
+// MemberUpdate is used to modify a member
 type MemberUpdate struct {
 	ChannelID                  *snowflake.ID             `json:"channel_id,omitempty"`
 	Nick                       *string                   `json:"nick,omitempty"`
