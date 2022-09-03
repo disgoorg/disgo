@@ -83,7 +83,7 @@ type MemberUpdate struct {
 	CommunicationDisabledUntil *json.Nullable[time.Time] `json:"communication_disabled_until,omitempty"`
 }
 
-// SelfNickUpdate is used to update your own nick
-type SelfNickUpdate struct {
-	Nick string `json:"nick"`
+// CurrentMemberUpdate is used to update your own member
+type CurrentMemberUpdate struct {
+	Nick *string `json:"nick"`
 }
