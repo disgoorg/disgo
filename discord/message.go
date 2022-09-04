@@ -63,7 +63,7 @@ func (t MessageType) Deleteable() bool {
 	}
 }
 
-const MessageURLFmt = "https://discord.com/channels/%d/%d/%d"
+const MessageURLFmt = "https://discord.com/channels/%s/%d/%d"
 
 func MessageURL(guildID snowflake.ID, channelID snowflake.ID, messageID snowflake.ID) string {
 	return fmt.Sprintf(MessageURLFmt, guildID, channelID, messageID)
@@ -127,7 +127,7 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 }
 
 // ActionRows returns all ActionRowComponent(s) from this Message
-func (m *Message) ActionRows() []ActionRowComponent {
+func (m Message) ActionRows() []ActionRowComponent {
 	var actionRows []ActionRowComponent
 	for i := range m.Components {
 		if actionRow, ok := m.Components[i].(ActionRowComponent); ok {
@@ -138,7 +138,7 @@ func (m *Message) ActionRows() []ActionRowComponent {
 }
 
 // InteractiveComponents returns the InteractiveComponent(s) from this Message
-func (m *Message) InteractiveComponents() []InteractiveComponent {
+func (m Message) InteractiveComponents() []InteractiveComponent {
 	var interactiveComponents []InteractiveComponent
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
@@ -149,7 +149,7 @@ func (m *Message) InteractiveComponents() []InteractiveComponent {
 }
 
 // ComponentByID returns the Component with the specific CustomID
-func (m *Message) ComponentByID(customID string) InteractiveComponent {
+func (m Message) ComponentByID(customID string) InteractiveComponent {
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
 			if m.Components[i].Components()[ii].ID() == customID {
@@ -161,7 +161,7 @@ func (m *Message) ComponentByID(customID string) InteractiveComponent {
 }
 
 // Buttons returns all ButtonComponent(s) from this Message
-func (m *Message) Buttons() []ButtonComponent {
+func (m Message) Buttons() []ButtonComponent {
 	var buttons []ButtonComponent
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
@@ -174,7 +174,7 @@ func (m *Message) Buttons() []ButtonComponent {
 }
 
 // ButtonByID returns a ButtonComponent with the specific customID from this Message
-func (m *Message) ButtonByID(customID string) *ButtonComponent {
+func (m Message) ButtonByID(customID string) *ButtonComponent {
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
 			if button, ok := m.Components[i].Components()[ii].(*ButtonComponent); ok && button.ID() == customID {
@@ -186,7 +186,7 @@ func (m *Message) ButtonByID(customID string) *ButtonComponent {
 }
 
 // SelectMenus returns all SelectMenuComponent(s) from this Message
-func (m *Message) SelectMenus() []SelectMenuComponent {
+func (m Message) SelectMenus() []SelectMenuComponent {
 	var selectMenus []SelectMenuComponent
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
@@ -199,7 +199,7 @@ func (m *Message) SelectMenus() []SelectMenuComponent {
 }
 
 // SelectMenuByID returns a SelectMenuComponent with the specific customID from this Message
-func (m *Message) SelectMenuByID(customID string) *SelectMenuComponent {
+func (m Message) SelectMenuByID(customID string) *SelectMenuComponent {
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
 			if button, ok := m.Components[i].Components()[ii].(*SelectMenuComponent); ok && button.ID() == customID {
@@ -208,6 +208,14 @@ func (m *Message) SelectMenuByID(customID string) *SelectMenuComponent {
 		}
 	}
 	return nil
+}
+
+func (m Message) JumpURL() string {
+	guildID := "@me"
+	if m.GuildID != nil {
+		guildID = m.GuildID.String()
+	}
+	return fmt.Sprintf(MessageURLFmt, guildID, m.ChannelID, m.ID) // duplicate code, but there isn't a better way without sacrificing user convenience
 }
 
 type MessageThread struct {

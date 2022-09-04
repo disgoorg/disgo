@@ -73,7 +73,7 @@ type MemberAdd struct {
 	Deaf        bool           `json:"deaf,omitempty"`
 }
 
-// MemberUpdate is used to modify
+// MemberUpdate is used to modify a member
 type MemberUpdate struct {
 	ChannelID                  *snowflake.ID             `json:"channel_id,omitempty"`
 	Nick                       *string                   `json:"nick,omitempty"`
@@ -83,7 +83,7 @@ type MemberUpdate struct {
 	CommunicationDisabledUntil *json.Nullable[time.Time] `json:"communication_disabled_until,omitempty"`
 }
 
-// SelfNickUpdate is used to update your own nick
-type SelfNickUpdate struct {
+// CurrentMemberUpdate is used to update the current member
+type CurrentMemberUpdate struct {
 	Nick string `json:"nick"`
 }
