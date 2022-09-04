@@ -38,7 +38,7 @@ type GuildVoiceChannelUpdate struct {
 	PermissionOverwrites *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID             *snowflake.ID          `json:"parent_id,omitempty"`
 	RTCRegion            *string                `json:"rtc_region,omitempty"`
-	VideoQualityMode     *VideoQualityMode      `json:"video_quality_mode"`
+	VideoQualityMode     *VideoQualityMode      `json:"video_quality_mode,omitempty"`
 }
 
 func (GuildVoiceChannelUpdate) channelUpdate()      {}
@@ -61,7 +61,7 @@ type GuildNewsChannelUpdate struct {
 	RateLimitPerUser           *int                   `json:"rate_limit_per_user,omitempty"`
 	PermissionOverwrites       *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID                   *snowflake.ID          `json:"parent_id,omitempty"`
-	DefaultAutoArchiveDuration *int                   `json:"default_auto_archive_duration"`
+	DefaultAutoArchiveDuration *int                   `json:"default_auto_archive_duration,omitempty"`
 }
 
 func (GuildNewsChannelUpdate) channelUpdate()      {}
@@ -99,7 +99,7 @@ type GuildForumChannelUpdate struct {
 	Topic                *string                `json:"topic,omitempty"`
 	PermissionOverwrites *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID             *snowflake.ID          `json:"parent_id,omitempty"`
-	RateLimitPerUser     *int                   `json:"rate_limit_per_user"`
+	RateLimitPerUser     *int                   `json:"rate_limit_per_user,omitempty"`
 }
 
 func (GuildForumChannelUpdate) channelUpdate()      {}
