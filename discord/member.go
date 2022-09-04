@@ -85,5 +85,5 @@ type MemberUpdate struct {
 
 // CurrentMemberUpdate is used to update the current member
 type CurrentMemberUpdate struct {
-	Nick *string `json:"nick"`
+	Nick string `json:"nick"`
 }
