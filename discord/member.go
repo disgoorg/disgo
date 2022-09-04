@@ -66,21 +66,21 @@ func (m Member) CreatedAt() time.Time {
 
 // MemberAdd is used to add a member via the oauth2 access token to a guild
 type MemberAdd struct {
-	AccessToken string          `json:"access_token"`
-	Nick        *string         `json:"nick,omitempty"`
-	Roles       *[]snowflake.ID `json:"roles,omitempty"`
-	Mute        *bool           `json:"mute,omitempty"`
-	Deaf        *bool           `json:"deaf,omitempty"`
+	AccessToken string         `json:"access_token"`
+	Nick        string         `json:"nick,omitempty"`
+	Roles       []snowflake.ID `json:"roles,omitempty"`
+	Mute        bool           `json:"mute,omitempty"`
+	Deaf        bool           `json:"deaf,omitempty"`
 }
 
 // MemberUpdate is used to modify a member
 type MemberUpdate struct {
-	ChannelID                  *json.Nullable[snowflake.ID] `json:"channel_id,omitempty"`
-	Nick                       *json.Nullable[string]       `json:"nick,omitempty"`
-	Roles                      *[]snowflake.ID              `json:"roles,omitempty"`
-	Mute                       *bool                        `json:"mute,omitempty"`
-	Deaf                       *bool                        `json:"deaf,omitempty"`
-	CommunicationDisabledUntil *json.Nullable[time.Time]    `json:"communication_disabled_until,omitempty"`
+	ChannelID                  *snowflake.ID             `json:"channel_id,omitempty"`
+	Nick                       *string                   `json:"nick,omitempty"`
+	Roles                      *[]snowflake.ID           `json:"roles,omitempty"`
+	Mute                       *bool                     `json:"mute,omitempty"`
+	Deaf                       *bool                     `json:"deaf,omitempty"`
+	CommunicationDisabledUntil *json.Nullable[time.Time] `json:"communication_disabled_until,omitempty"`
 }
 
 // SelfNickUpdate is used to update your own nick

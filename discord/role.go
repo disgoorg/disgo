@@ -53,13 +53,13 @@ type RoleTag struct {
 
 // RoleCreate is the payload to create a Role
 type RoleCreate struct {
-	Name        *string      `json:"name,omitempty"`
+	Name        string       `json:"name,omitempty"`
 	Permissions *Permissions `json:"permissions,omitempty"`
-	Color       *int         `json:"color,omitempty"`
-	Hoist       *bool        `json:"hoist,omitempty"`
+	Color       int          `json:"color,omitempty"`
+	Hoist       bool         `json:"hoist,omitempty"`
 	Icon        *Icon        `json:"icon,omitempty"`
-	Emoji       *string      `json:"unicode_emoji,omitempty"`
-	Mentionable *bool        `json:"mentionable,omitempty"`
+	Emoji       string       `json:"unicode_emoji,omitempty"`
+	Mentionable bool         `json:"mentionable,omitempty"`
 }
 
 // RoleUpdate is the payload to update a Role
@@ -75,8 +75,8 @@ type RoleUpdate struct {
 
 // RolePositionUpdate is the payload to update a Role(s) position
 type RolePositionUpdate struct {
-	ID       snowflake.ID        `json:"id"`
-	Position *json.Nullable[int] `json:"position,omitempty"`
+	ID       snowflake.ID `json:"id"`
+	Position *int         `json:"position,omitempty"`
 }
 
 // PartialRole holds basic info about a Role

@@ -6,7 +6,7 @@ import (
 
 // MessageCreate is the struct to create a new Message with
 type MessageCreate struct {
-	Nonce            *string              `json:"nonce,omitempty"`
+	Nonce            string               `json:"nonce,omitempty"`
 	Content          string               `json:"content,omitempty"`
 	TTS              bool                 `json:"tts,omitempty"`
 	Embeds           []Embed              `json:"embeds,omitempty"`

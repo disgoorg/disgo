@@ -31,25 +31,25 @@ func (e GuildScheduledEvent) CreatedAt() time.Time {
 }
 
 type GuildScheduledEventCreate struct {
-	ChannelID          *snowflake.ID              `json:"channel_id,omitempty"`
+	ChannelID          snowflake.ID               `json:"channel_id,omitempty"`
 	EntityMetaData     *EntityMetaData            `json:"entity_metadata,omitempty"`
 	Name               string                     `json:"name"`
 	PrivacyLevel       ScheduledEventPrivacyLevel `json:"privacy_level"`
 	ScheduledStartTime time.Time                  `json:"scheduled_start_time"`
 	ScheduledEndTime   *time.Time                 `json:"scheduled_end_time,omitempty"`
-	Description        *string                    `json:"description,omitempty"`
+	Description        string                     `json:"description,omitempty"`
 	EntityType         ScheduledEventEntityType   `json:"entity_type"`
 	Image              *Icon                      `json:"image,omitempty"`
 }
 
 type GuildScheduledEventUpdate struct {
-	ChannelID          *json.Nullable[string]         `json:"channel_id,omitempty"`
+	ChannelID          *snowflake.ID                  `json:"channel_id,omitempty"`
 	EntityMetaData     *json.Nullable[EntityMetaData] `json:"entity_metadata,omitempty"`
 	Name               string                         `json:"name,omitempty"`
 	PrivacyLevel       *ScheduledEventPrivacyLevel    `json:"privacy_level,omitempty"`
 	ScheduledStartTime *time.Time                     `json:"scheduled_start_time,omitempty"`
 	ScheduledEndTime   *time.Time                     `json:"scheduled_end_time,omitempty"`
-	Description        *json.Nullable[string]         `json:"description,omitempty"`
+	Description        *string                        `json:"description,omitempty"`
 	EntityType         *ScheduledEventEntityType      `json:"entity_type,omitempty"`
 	Status             *ScheduledEventStatus          `json:"status,omitempty"`
 }

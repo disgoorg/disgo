@@ -279,20 +279,20 @@ type GuildUpdate struct {
 	VerificationLevel               *json.Nullable[VerificationLevel]          `json:"verification_level,omitempty"`
 	DefaultMessageNotificationLevel *json.Nullable[MessageNotificationsLevel]  `json:"default_message_notification_level,omitempty"`
 	ExplicitContentFilterLevel      *json.Nullable[ExplicitContentFilterLevel] `json:"explicit_content_filter_level,omitempty"`
-	AFKChannelID                    *json.Nullable[snowflake.ID]               `json:"afk_channel_id,omitempty"`
+	AFKChannelID                    *snowflake.ID                              `json:"afk_channel_id,omitempty"`
 	AFKTimeout                      *int                                       `json:"afk_timeout,omitempty"`
 	Icon                            *json.Nullable[Icon]                       `json:"icon,omitempty"`
 	OwnerID                         *snowflake.ID                              `json:"owner_id,omitempty"`
 	Splash                          *json.Nullable[Icon]                       `json:"splash,omitempty"`
 	DiscoverySplash                 *json.Nullable[Icon]                       `json:"discovery_splash,omitempty"`
 	Banner                          *json.Nullable[Icon]                       `json:"banner,omitempty"`
-	SystemChannelID                 *json.Nullable[snowflake.ID]               `json:"system_channel_id,omitempty"`
+	SystemChannelID                 *snowflake.ID                              `json:"system_channel_id,omitempty"`
 	SystemChannelFlags              *SystemChannelFlags                        `json:"system_channel_flags,omitempty"`
-	RulesChannelID                  *json.Nullable[snowflake.ID]               `json:"rules_channel_id,omitempty"`
-	PublicUpdatesChannelID          *json.Nullable[snowflake.ID]               `json:"public_updates_channel_id,omitempty"`
-	PreferredLocale                 *json.Nullable[string]                     `json:"preferred_locale,omitempty"`
+	RulesChannelID                  *snowflake.ID                              `json:"rules_channel_id,omitempty"`
+	PublicUpdatesChannelID          *snowflake.ID                              `json:"public_updates_channel_id,omitempty"`
+	PreferredLocale                 *string                                    `json:"preferred_locale,omitempty"`
 	Features                        []GuildFeature                             `json:"features,omitempty"`
-	Description                     *json.Nullable[string]                     `json:"description,omitempty"`
+	Description                     *string                                    `json:"description,omitempty"`
 	BoostProgressBarEnabled         *bool                                      `json:"premium_progress_bar_enabled,omitempty"`
 }
 

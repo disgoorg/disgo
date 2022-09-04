@@ -74,11 +74,11 @@ type InviteGuild struct {
 }
 
 type InviteCreate struct {
-	MaxAge              *int              `json:"max_age,omitempty"`
-	MaxUses             *int              `json:"max_uses,omitempty"`
-	Temporary           *bool             `json:"temporary,omitempty"`
-	Unique              *bool             `json:"unique,omitempty"`
-	TargetType          *InviteTargetType `json:"target_type,omitempty"`
-	TargetUserID        *snowflake.ID     `json:"target_user_id,omitempty"`
-	TargetApplicationID *snowflake.ID     `json:"target_application_id,omitempty"`
+	MaxAge              *int             `json:"max_age,omitempty"`
+	MaxUses             *int             `json:"max_uses,omitempty"`
+	Temporary           bool             `json:"temporary,omitempty"`
+	Unique              bool             `json:"unique,omitempty"`
+	TargetType          InviteTargetType `json:"target_type,omitempty"`
+	TargetUserID        snowflake.ID     `json:"target_user_id,omitempty"`
+	TargetApplicationID snowflake.ID     `json:"target_application_id,omitempty"`
 }

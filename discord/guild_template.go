@@ -3,7 +3,6 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -40,14 +39,14 @@ type TemplateGuild struct {
 
 // GuildTemplateCreate is the data used to create a GuildTemplate
 type GuildTemplateCreate struct {
-	Name        string  `json:"name"`
-	Description *string `json:"description,omitempty"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
 }
 
 // GuildTemplateUpdate is the data used to update a GuildTemplate
 type GuildTemplateUpdate struct {
-	Name        *string                `json:"name,omitempty"`
-	Description *json.Nullable[string] `json:"description,omitempty"`
+	Name        *string `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
 }
 
 // GuildFromTemplateCreate is the data used to create a Guild from a GuildTemplate
