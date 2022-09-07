@@ -65,12 +65,12 @@ func (p *AuditLogPage) Previous() bool {
 		return false
 	}
 
-	if len(p.Entries) > 0 {
-		p.ID = p.Entries[len(p.Entries)-1].ID
+	if len(p.AuditLogEntries) > 0 {
+		p.ID = p.AuditLogEntries[len(p.AuditLogEntries)-1].ID
 	}
 
 	p.AuditLog, p.Err = p.getItems(p.ID)
-	if p.Err == nil && len(p.Entries) == 0 {
+	if p.Err == nil && len(p.AuditLogEntries) == 0 {
 		p.Err = ErrNoMorePages
 	}
 	return p.Err == nil

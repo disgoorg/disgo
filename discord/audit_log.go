@@ -117,8 +117,8 @@ const (
 
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord
 type AuditLog struct {
-	Entries              []AuditLogEntry       `json:"audit_log_entries"`
 	ApplicationCommands  []ApplicationCommand  `json:"application_commands"`
+	AuditLogEntries      []AuditLogEntry       `json:"audit_log_entries"`
 	AutoModerationRules  []AutoModerationRule  `json:"auto_moderation_rules"`
 	GuildScheduledEvents []GuildScheduledEvent `json:"guild_scheduled_events"`
 	Integrations         []Integration         `json:"integrations"`
@@ -132,6 +132,7 @@ func (l *AuditLog) UnmarshalJSON(data []byte) error {
 	var v struct {
 		ApplicationCommands []UnmarshalApplicationCommand `json:"application_commands"`
 		Integrations        []UnmarshalIntegration        `json:"integrations"`
+		Threads             []UnmarshalChannel            `json:"threads"`
 		Webhooks            []UnmarshalWebhook            `json:"webhooks"`
 		auditLog
 	}
@@ -151,6 +152,13 @@ func (l *AuditLog) UnmarshalJSON(data []byte) error {
 		l.Integrations = make([]Integration, len(v.Integrations))
 		for i := range v.Integrations {
 			l.Integrations[i] = v.Integrations[i].Integration
+		}
+	}
+
+	if v.Threads != nil {
+		l.Threads = make([]GuildThread, len(v.Threads))
+		for i := range v.Threads {
+			l.Threads[i] = v.Threads[i].Channel.(GuildThread)
 		}
 	}
 
