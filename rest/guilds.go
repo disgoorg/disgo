@@ -32,6 +32,7 @@ type Guilds interface {
 	DeleteRole(guildID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) error
 
 	GetBans(guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) ([]discord.Ban, error)
+	GetBansPage(guildID snowflake.ID, startID snowflake.ID, limit int, opts ...RequestOpt) Page[discord.Ban]
 	GetBan(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) (*discord.Ban, error)
 	AddBan(guildID snowflake.ID, userID snowflake.ID, deleteMessageDuration time.Duration, opts ...RequestOpt) error
 	DeleteBan(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) error
@@ -42,6 +43,7 @@ type Guilds interface {
 	GetAllWebhooks(guildID snowflake.ID, opts ...RequestOpt) ([]discord.Webhook, error)
 
 	GetAuditLog(guildID snowflake.ID, userID snowflake.ID, actionType discord.AuditLogEvent, before snowflake.ID, limit int, opts ...RequestOpt) (*discord.AuditLog, error)
+	GetAuditLogPage(guildID snowflake.ID, userID snowflake.ID, actionType discord.AuditLogEvent, startID snowflake.ID, limit int, opts ...RequestOpt) AuditLogPage
 }
 
 type guildImpl struct {
@@ -144,6 +146,18 @@ func (s *guildImpl) GetBans(guildID snowflake.ID, before snowflake.ID, after sno
 	return
 }
 
+func (s *guildImpl) GetBansPage(guildID snowflake.ID, startID snowflake.ID, limit int, opts ...RequestOpt) Page[discord.Ban] {
+	return Page[discord.Ban]{
+		getItemsFunc: func(before snowflake.ID, after snowflake.ID) (bans []discord.Ban, err error) {
+			return s.GetBans(guildID, before, after, limit, opts...)
+		},
+		getIDFunc: func(ban discord.Ban) snowflake.ID {
+			return ban.User.ID
+		},
+		ID: startID,
+	}
+}
+
 func (s *guildImpl) GetBan(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) (ban *discord.Ban, err error) {
 	err = s.client.Do(GetBan.Compile(nil, guildID, userID), nil, &ban, opts...)
 	return
@@ -192,4 +206,18 @@ func (s *guildImpl) GetAuditLog(guildID snowflake.ID, userID snowflake.ID, actio
 	}
 	err = s.client.Do(GetAuditLogs.Compile(values, guildID), nil, &auditLog, opts...)
 	return
+}
+
+func (s *guildImpl) GetAuditLogPage(guildID snowflake.ID, userID snowflake.ID, actionType discord.AuditLogEvent, startID snowflake.ID, limit int, opts ...RequestOpt) AuditLogPage {
+	return AuditLogPage{
+		getItems: func(before snowflake.ID) (discord.AuditLog, error) {
+			log, err := s.GetAuditLog(guildID, userID, actionType, before, limit, opts...)
+			var finalLog discord.AuditLog
+			if log != nil {
+				finalLog = *log
+			}
+			return finalLog, err
+		},
+		ID: startID,
+	}
 }

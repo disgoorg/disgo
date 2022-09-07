@@ -20,6 +20,7 @@ type OAuth2 interface {
 	GetCurrentUser(bearerToken string, opts ...RequestOpt) (*discord.OAuth2User, error)
 	GetCurrentMember(bearerToken string, guildID snowflake.ID, opts ...RequestOpt) (*discord.Member, error)
 	GetCurrentUserGuilds(bearerToken string, before snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) ([]discord.OAuth2Guild, error)
+	GetCurrentUserGuildsPage(bearerToken string, startID snowflake.ID, limit int, opts ...RequestOpt) Page[discord.OAuth2Guild]
 	GetCurrentUserConnections(bearerToken string, opts ...RequestOpt) ([]discord.Connection, error)
 
 	SetGuildCommandPermissions(bearerToken string, applicationID snowflake.ID, guildID snowflake.ID, commandID snowflake.ID, commandPermissions []discord.ApplicationCommandPermission, opts ...RequestOpt) (*discord.ApplicationCommandPermissions, error)
@@ -72,6 +73,18 @@ func (s *oAuth2Impl) GetCurrentUserGuilds(bearerToken string, before snowflake.I
 	}
 	err = s.client.Do(GetCurrentUserGuilds.Compile(queryParams), nil, &guilds, withBearerToken(bearerToken, opts)...)
 	return
+}
+
+func (s *oAuth2Impl) GetCurrentUserGuildsPage(bearerToken string, startID snowflake.ID, limit int, opts ...RequestOpt) Page[discord.OAuth2Guild] {
+	return Page[discord.OAuth2Guild]{
+		getItemsFunc: func(before snowflake.ID, after snowflake.ID) ([]discord.OAuth2Guild, error) {
+			return s.GetCurrentUserGuilds(bearerToken, before, after, limit, opts...)
+		},
+		getIDFunc: func(guild discord.OAuth2Guild) snowflake.ID {
+			return guild.ID
+		},
+		ID: startID,
+	}
 }
 
 func (s *oAuth2Impl) GetCurrentUserConnections(bearerToken string, opts ...RequestOpt) (connections []discord.Connection, err error) {
