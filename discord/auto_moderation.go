@@ -79,7 +79,7 @@ type AutoModerationRuleCreate struct {
 	TriggerType     AutoModerationTriggerType      `json:"trigger_type"`
 	TriggerMetadata *AutoModerationTriggerMetadata `json:"trigger_metadata,omitempty"`
 	Actions         []AutoModerationAction         `json:"actions"`
-	Enabled         bool                           `json:"enabled,omitempty"`
+	Enabled         *bool                          `json:"enabled,omitempty"`
 	ExemptRoles     []snowflake.ID                 `json:"exempt_roles,omitempty"`
 	ExemptChannels  []snowflake.ID                 `json:"exempt_channels,omitempty"`
 }
