@@ -1,6 +1,8 @@
 package rest
 
 import (
+	"time"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -31,7 +33,7 @@ type Guilds interface {
 
 	GetBans(guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) ([]discord.Ban, error)
 	GetBan(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) (*discord.Ban, error)
-	AddBan(guildID snowflake.ID, userID snowflake.ID, deleteMessageDays int, opts ...RequestOpt) error
+	AddBan(guildID snowflake.ID, userID snowflake.ID, deleteMessageDuration time.Duration, opts ...RequestOpt) error
 	DeleteBan(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) error
 
 	GetIntegrations(guildID snowflake.ID, opts ...RequestOpt) ([]discord.Integration, error)
@@ -147,8 +149,8 @@ func (s *guildImpl) GetBan(guildID snowflake.ID, userID snowflake.ID, opts ...Re
 	return
 }
 
-func (s *guildImpl) AddBan(guildID snowflake.ID, userID snowflake.ID, deleteMessageDays int, opts ...RequestOpt) error {
-	return s.client.Do(AddBan.Compile(nil, guildID, userID), discord.AddBan{DeleteMessageDays: deleteMessageDays}, nil, opts...)
+func (s *guildImpl) AddBan(guildID snowflake.ID, userID snowflake.ID, deleteMessageDuration time.Duration, opts ...RequestOpt) error {
+	return s.client.Do(AddBan.Compile(nil, guildID, userID), discord.AddBan{DeleteMessageSeconds: int(deleteMessageDuration.Seconds())}, nil, opts...)
 }
 
 func (s *guildImpl) DeleteBan(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) error {

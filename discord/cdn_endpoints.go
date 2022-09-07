@@ -1,7 +1,6 @@
 package discord
 
 import (
-	"net/url"
 	"strings"
 )
 
@@ -79,7 +78,7 @@ type CDNEndpoint struct {
 	Formats []ImageFormat
 }
 
-func (e CDNEndpoint) URL(format ImageFormat, values url.Values, params ...any) string {
+func (e CDNEndpoint) URL(format ImageFormat, values QueryValues, params ...any) string {
 	query := values.Encode()
 	if query != "" {
 		query = "?" + query
@@ -90,13 +89,13 @@ func (e CDNEndpoint) URL(format ImageFormat, values url.Values, params ...any) s
 func DefaultCDNConfig() *CDNConfig {
 	return &CDNConfig{
 		Format: ImageFormatPNG,
+		Values: QueryValues{},
 	}
 }
 
 type CDNConfig struct {
-	Size   int
 	Format ImageFormat
-	Values url.Values
+	Values QueryValues
 }
 
 // Apply applies the given ConfigOpt(s) to the Config
@@ -110,7 +109,7 @@ type CDNOpt func(config *CDNConfig)
 
 func WithSize(size int) CDNOpt {
 	return func(config *CDNConfig) {
-		config.Size = size
+		config.Values["size"] = size
 	}
 }
 

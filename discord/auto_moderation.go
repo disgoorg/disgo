@@ -1,6 +1,10 @@
 package discord
 
-import "github.com/disgoorg/snowflake/v2"
+import (
+	"time"
+
+	"github.com/disgoorg/snowflake/v2"
+)
 
 type AutoModerationEventType int
 
@@ -12,14 +16,17 @@ type AutoModerationTriggerType int
 
 const (
 	AutoModerationTriggerTypeKeyword AutoModerationTriggerType = iota + 1
-	AutoModerationTriggerTypeHarmfulLink
+	_
 	AutoModerationTriggerTypeSpam
 	AutoModerationTriggerTypeKeywordPresent
+	AutoModerationTriggerTypeMentionSpam
 )
 
 type AutoModerationTriggerMetadata struct {
-	KeywordFilter []string                      `json:"keyword_filter"`
-	Presets       []AutoModerationKeywordPreset `json:"presets"`
+	KeywordFilter     []string                      `json:"keyword_filter"`
+	Presets           []AutoModerationKeywordPreset `json:"presets"`
+	AllowList         []string                      `json:"allow_list"`
+	MentionTotalLimit int                           `json:"mention_total_limit"`
 }
 
 type AutoModerationKeywordPreset int
@@ -60,6 +67,10 @@ type AutoModerationRule struct {
 	Enabled         bool                          `json:"enabled"`
 	ExemptRoles     []snowflake.ID                `json:"exempt_roles"`
 	ExemptChannels  []snowflake.ID                `json:"exempt_channels"`
+}
+
+func (r AutoModerationRule) CreatedAt() time.Time {
+	return r.ID.Time()
 }
 
 type AutoModerationRuleCreate struct {

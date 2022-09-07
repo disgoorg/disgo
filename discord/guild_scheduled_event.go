@@ -25,6 +25,10 @@ type GuildScheduledEvent struct {
 	UserCount          int                        `json:"user_count"`
 }
 
+func (e GuildScheduledEvent) CreatedAt() time.Time {
+	return e.ID.Time()
+}
+
 type GuildScheduledEventCreate struct {
 	ChannelID          snowflake.ID               `json:"channel_id,omitempty"`
 	EntityMetaData     *EntityMetaData            `json:"entity_metadata,omitempty"`

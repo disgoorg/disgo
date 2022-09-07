@@ -1,6 +1,8 @@
 package discord
 
 import (
+	"time"
+
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -33,6 +35,13 @@ func (e Emoji) String() string {
 
 func (e Emoji) URL(opts ...CDNOpt) string {
 	return formatAssetURL(CustomEmoji, opts, e.ID)
+}
+
+func (e Emoji) CreatedAt() time.Time {
+	if e.ID == 0 {
+		return time.Time{}
+	}
+	return e.ID.Time()
 }
 
 type EmojiCreate struct {

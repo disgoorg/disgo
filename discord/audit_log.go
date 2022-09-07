@@ -98,14 +98,28 @@ const (
 
 // AuditLogThreadCreate
 const (
-	AuditLogThreadCreate AuditLogEvent = iota + 100
+	AuditLogThreadCreate AuditLogEvent = iota + 110
 	AuditLogThreadUpdate
 	AuditLogThreadDelete
 )
 
+// AuditLogApplicationCommandPermissionUpdate ...
+const (
+	AuditLogApplicationCommandPermissionUpdate AuditLogEvent = 121
+)
+
+const (
+	AuditLogAutoModerationRuleCreate AuditLogEvent = iota + 140
+	AuditLogAutoModerationRuleUpdate
+	AuditLogAutoModerationRuleDelete
+	AuditLogAutoModerationBlockMessage
+)
+
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord
 type AuditLog struct {
-	Entries              []AuditLogEntry       `json:"entries"`
+	ApplicationCommands  []ApplicationCommand  `json:"application_commands"`
+	AuditLogEntries      []AuditLogEntry       `json:"audit_log_entries"`
+	AutoModerationRules  []AutoModerationRule  `json:"auto_moderation_rules"`
 	GuildScheduledEvents []GuildScheduledEvent `json:"guild_scheduled_events"`
 	Integrations         []Integration         `json:"integrations"`
 	Threads              []GuildThread         `json:"threads"`
@@ -116,15 +130,23 @@ type AuditLog struct {
 func (l *AuditLog) UnmarshalJSON(data []byte) error {
 	type auditLog AuditLog
 	var v struct {
-		Integrations []UnmarshalIntegration `json:"integrations"`
-		Threads      []UnmarshalChannel     `json:"threads"`
-		Webhooks     []UnmarshalWebhook     `json:"webhooks"`
+		ApplicationCommands []UnmarshalApplicationCommand `json:"application_commands"`
+		Integrations        []UnmarshalIntegration        `json:"integrations"`
+		Threads             []UnmarshalChannel            `json:"threads"`
+		Webhooks            []UnmarshalWebhook            `json:"webhooks"`
 		auditLog
 	}
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
 	*l = AuditLog(v.auditLog)
+
+	if v.ApplicationCommands != nil {
+		l.ApplicationCommands = make([]ApplicationCommand, len(v.ApplicationCommands))
+		for i := range v.ApplicationCommands {
+			l.ApplicationCommands[i] = v.ApplicationCommands[i].ApplicationCommand
+		}
+	}
 
 	if v.Integrations != nil {
 		l.Integrations = make([]Integration, len(v.Integrations))
@@ -135,7 +157,7 @@ func (l *AuditLog) UnmarshalJSON(data []byte) error {
 
 	if v.Threads != nil {
 		l.Threads = make([]GuildThread, len(v.Threads))
-		for i := range v.Integrations {
+		for i := range v.Threads {
 			l.Threads[i] = v.Threads[i].Channel.(GuildThread)
 		}
 	}
@@ -230,4 +252,5 @@ type OptionalAuditLogEntryInfo struct {
 	ID               *string       `json:"id"`
 	Type             *string       `json:"type"`
 	RoleName         *string       `json:"role_name"`
+	ApplicationID    *snowflake.ID `json:"application_id"`
 }

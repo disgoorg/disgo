@@ -18,6 +18,7 @@ func DefaultConfig() *Config {
 		ShardCount:        1,
 		AutoReconnect:     true,
 		MaxReconnectTries: 10,
+		EnableResumeURL:   true,
 	}
 }
 
@@ -32,10 +33,12 @@ type Config struct {
 	ShardID                   int
 	ShardCount                int
 	SessionID                 *string
+	ResumeGatewayURL          *string
 	LastSequenceReceived      *int
 	AutoReconnect             bool
 	MaxReconnectTries         int
 	EnableRawEvents           bool
+	EnableResumeURL           bool
 	RateLimiter               RateLimiter
 	RateRateLimiterConfigOpts []RateLimiterConfigOpt
 	Presence                  *MessageDataPresenceUpdate
@@ -155,6 +158,13 @@ func WithEnableRawEvents(enableRawEventEvents bool) ConfigOpt {
 	}
 }
 
+// WithEnableResumeURL enables/disables usage of resume URLs sent by Discord.
+func WithEnableResumeURL(enableResumeURL bool) ConfigOpt {
+	return func(config *Config) {
+		config.EnableResumeURL = enableResumeURL
+	}
+}
+
 // WithRateLimiter sets the grate.RateLimiter for the Gateway.
 func WithRateLimiter(rateLimiter RateLimiter) ConfigOpt {
 	return func(config *Config) {
@@ -169,10 +179,14 @@ func WithRateRateLimiterConfigOpts(opts ...RateLimiterConfigOpt) ConfigOpt {
 	}
 }
 
-// WithPresence sets the initial presence the bot should display.
-func WithPresence(presence MessageDataPresenceUpdate) ConfigOpt {
+// WithPresenceOpts allows to pass initial presence data the bot should display.
+func WithPresenceOpts(opts ...PresenceOpt) ConfigOpt {
 	return func(config *Config) {
-		config.Presence = &presence
+		presenceUpdate := &MessageDataPresenceUpdate{}
+		for _, opt := range opts {
+			opt(presenceUpdate)
+		}
+		config.Presence = presenceUpdate
 	}
 }
 

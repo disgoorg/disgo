@@ -73,7 +73,7 @@ var (
 	AddMemberRole    = NewEndpoint(http.MethodPut, "/guilds/{guild.id}/members/{user.id}/roles/{role.id}")
 	RemoveMemberRole = NewEndpoint(http.MethodDelete, "/guilds/{guild.id}/members/{user.id}/roles/{role.id}")
 
-	UpdateSelfNick = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/members/@me/nick")
+	UpdateCurrentMember = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/members/@me")
 
 	GetPruneMembersCount = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/prune")
 	PruneMembers         = NewEndpoint(http.MethodPost, "/guilds/{guild.id}/prune")

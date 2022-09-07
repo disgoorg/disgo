@@ -48,5 +48,5 @@ func AuthorizeURL(values QueryValues) string {
 	if query != "" {
 		query = "?" + query
 	}
-	return "https://discord.com/api/oauth2/authorize" + query
+	return "https://discord.com/oauth2/authorize" + query
 }
