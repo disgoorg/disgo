@@ -21,7 +21,7 @@ var (
 	commands = []discord.ApplicationCommandCreate{
 		discord.SlashCommandCreate{
 			Name: "say",
-			CommandNameLocalizations: map[discord.Locale]string{
+			NameLocalizations: map[discord.Locale]string{
 				discord.LocaleEnglishGB: "say",
 				discord.LocaleGerman:    "sagen",
 			},

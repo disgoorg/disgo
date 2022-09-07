@@ -11,7 +11,7 @@ type ApplicationCommandUpdate interface {
 
 type SlashCommandUpdate struct {
 	Name                     *string                     `json:"name,omitempty"`
-	CommandNameLocalizations *map[Locale]string          `json:"name_localizations,omitempty"`
+	NameLocalizations        *map[Locale]string          `json:"name_localizations,omitempty"`
 	Description              *string                     `json:"description,omitempty"`
 	DescriptionLocalizations *map[Locale]string          `json:"description_localizations,omitempty"`
 	Options                  *[]ApplicationCommandOption `json:"options,omitempty"`
@@ -42,7 +42,7 @@ func (SlashCommandUpdate) applicationCommandUpdate() {}
 
 type UserCommandUpdate struct {
 	Name                     *string                     `json:"name,omitempty"`
-	CommandNameLocalizations *map[Locale]string          `json:"name_localizations,omitempty"`
+	NameLocalizations        *map[Locale]string          `json:"name_localizations,omitempty"`
 	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
 	DMPermission             *bool                       `json:"dm_permission,omitempty"`
 }
@@ -70,7 +70,7 @@ func (UserCommandUpdate) applicationCommandUpdate() {}
 
 type MessageCommandUpdate struct {
 	Name                     *string                     `json:"name,omitempty"`
-	CommandNameLocalizations *map[Locale]string          `json:"name_localizations,omitempty"`
+	NameLocalizations        *map[Locale]string          `json:"name_localizations,omitempty"`
 	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
 	DMPermission             *bool                       `json:"dm_permission,omitempty"`
 }

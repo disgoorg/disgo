@@ -11,7 +11,7 @@ type ApplicationCommandCreate interface {
 
 type SlashCommandCreate struct {
 	Name                     string                      `json:"name"`
-	CommandNameLocalizations map[Locale]string           `json:"name_localizations,omitempty"`
+	NameLocalizations        map[Locale]string           `json:"name_localizations,omitempty"`
 	Description              string                      `json:"description"`
 	DescriptionLocalizations map[Locale]string           `json:"description_localizations,omitempty"`
 	Options                  []ApplicationCommandOption  `json:"options,omitempty"`
@@ -42,7 +42,7 @@ func (SlashCommandCreate) applicationCommandCreate() {}
 
 type UserCommandCreate struct {
 	Name                     string                      `json:"name"`
-	CommandNameLocalizations map[Locale]string           `json:"name_localizations,omitempty"`
+	NameLocalizations        map[Locale]string           `json:"name_localizations,omitempty"`
 	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
 	DMPermission             *bool                       `json:"dm_permission,omitempty"`
 }
@@ -70,7 +70,7 @@ func (UserCommandCreate) applicationCommandCreate() {}
 
 type MessageCommandCreate struct {
 	Name                     string                      `json:"name"`
-	CommandNameLocalizations map[Locale]string           `json:"name_localizations,omitempty"`
+	NameLocalizations        map[Locale]string           `json:"name_localizations,omitempty"`
 	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
 	DMPermission             *bool                       `json:"dm_permission,omitempty"`
 }
