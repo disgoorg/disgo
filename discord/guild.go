@@ -79,6 +79,7 @@ const (
 	GuildFeatureCommunity                     GuildFeature = "COMMUNITY"
 	GuildFeatureDiscoverable                  GuildFeature = "DISCOVERABLE"
 	GuildFeatureFeaturable                    GuildFeature = "FEATURABLE"
+	GuildFeatureInvitesDisabled               GuildFeature = "INVITES_DISABLED"
 	GuildFeatureInviteSplash                  GuildFeature = "INVITE_SPLASH"
 	GuildFeatureMemberVerificationGateEnabled GuildFeature = "MEMBER_VERIFICATION_GATE_ENABLED"
 	GuildFeatureMonetizationEnabled           GuildFeature = "MONETIZATION_ENABLED"
