@@ -19,10 +19,10 @@ func main() {
 
 	client := rest.New(rest.NewClient(token))
 
-	page := client.GetMessagesPage(817327182111571989, 1003431540228882432, 0, 3)
+	page := client.GetMessagesPage(817327182111571989, 1016790288607498240, 3)
 
 	var i int
-	for page.Previous() {
+	for page.Next() {
 		for _, m := range page.Items {
 			println(m.ID)
 		}
