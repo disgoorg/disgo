@@ -67,7 +67,7 @@ func (u *UnmarshalApplicationCommand) UnmarshalJSON(data []byte) error {
 		applicationCommand = v
 
 	default:
-		err = fmt.Errorf("unkown application command with type %d received", cType.Type)
+		err = fmt.Errorf("unknown application command with type %d received", cType.Type)
 	}
 
 	if err != nil {

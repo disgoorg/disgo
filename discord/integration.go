@@ -77,7 +77,7 @@ func (i *UnmarshalIntegration) UnmarshalJSON(data []byte) error {
 		integration = v
 
 	default:
-		err = fmt.Errorf("unkown integration with type %s received", cType.Type)
+		err = fmt.Errorf("unknown integration with type %s received", cType.Type)
 	}
 
 	if err != nil {

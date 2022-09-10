@@ -65,7 +65,7 @@ func (w *UnmarshalWebhook) UnmarshalJSON(data []byte) error {
 		webhook = v
 
 	default:
-		err = fmt.Errorf("unkown webhook with type %d received", wType.Type)
+		err = fmt.Errorf("unknown webhook with type %d received", wType.Type)
 	}
 
 	if err != nil {

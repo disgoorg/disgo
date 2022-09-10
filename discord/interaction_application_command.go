@@ -57,7 +57,7 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 		interactionData = v
 
 	default:
-		return fmt.Errorf("unkown application rawInteraction data with type %d received", cType.Type)
+		return fmt.Errorf("unknown application rawInteraction data with type %d received", cType.Type)
 	}
 	if err != nil {
 		return err

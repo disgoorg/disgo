@@ -77,7 +77,7 @@ func (o *UnmarshalPermissionOverwrite) UnmarshalJSON(data []byte) error {
 		overwrite = v
 
 	default:
-		err = fmt.Errorf("unkown permission overwrite with type %d received", oType.Type)
+		err = fmt.Errorf("unknown permission overwrite with type %d received", oType.Type)
 	}
 
 	if err != nil {

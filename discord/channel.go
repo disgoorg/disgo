@@ -220,7 +220,7 @@ func (u *UnmarshalChannel) UnmarshalJSON(data []byte) error {
 		channel = v
 
 	default:
-		err = fmt.Errorf("unkown channel with type %d received", cType.Type)
+		err = fmt.Errorf("unknown channel with type %d received", cType.Type)
 	}
 
 	if err != nil {
