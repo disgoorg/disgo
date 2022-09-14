@@ -35,9 +35,10 @@ type GuildScheduledEventCreate struct {
 	Name               string                     `json:"name"`
 	PrivacyLevel       ScheduledEventPrivacyLevel `json:"privacy_level"`
 	ScheduledStartTime time.Time                  `json:"scheduled_start_time"`
-	ScheduledEndTime   time.Time                  `json:"scheduled_end_time,omitempty"`
+	ScheduledEndTime   *time.Time                 `json:"scheduled_end_time,omitempty"`
 	Description        string                     `json:"description,omitempty"`
 	EntityType         ScheduledEventEntityType   `json:"entity_type"`
+	Image              *Icon                      `json:"image,omitempty"`
 }
 
 type GuildScheduledEventUpdate struct {

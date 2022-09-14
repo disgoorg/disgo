@@ -28,6 +28,7 @@ type Channels interface {
 
 	GetMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) (*discord.Message, error)
 	GetMessages(channelID snowflake.ID, around snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) ([]discord.Message, error)
+	GetMessagesPage(channelID snowflake.ID, startID snowflake.ID, limit int, opts ...RequestOpt) Page[discord.Message]
 	CreateMessage(channelID snowflake.ID, messageCreate discord.MessageCreate, opts ...RequestOpt) (*discord.Message, error)
 	UpdateMessage(channelID snowflake.ID, messageID snowflake.ID, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (*discord.Message, error)
 	DeleteMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
@@ -126,6 +127,18 @@ func (s *channelImpl) GetMessages(channelID snowflake.ID, around snowflake.ID, b
 	}
 	err = s.client.Do(GetMessages.Compile(values, channelID), nil, &messages, opts...)
 	return
+}
+
+func (s *channelImpl) GetMessagesPage(channelID snowflake.ID, startID snowflake.ID, limit int, opts ...RequestOpt) Page[discord.Message] {
+	return Page[discord.Message]{
+		getItemsFunc: func(before snowflake.ID, after snowflake.ID) ([]discord.Message, error) {
+			return s.GetMessages(channelID, 0, before, after, limit, opts...)
+		},
+		getIDFunc: func(msg discord.Message) snowflake.ID {
+			return msg.ID
+		},
+		ID: startID,
+	}
 }
 
 func (s *channelImpl) CreateMessage(channelID snowflake.ID, messageCreate discord.MessageCreate, opts ...RequestOpt) (message *discord.Message, err error) {

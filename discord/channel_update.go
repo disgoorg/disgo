@@ -38,8 +38,8 @@ type GuildVoiceChannelUpdate struct {
 	UserLimit            *int                   `json:"user_limit,omitempty"`
 	PermissionOverwrites *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID             *snowflake.ID          `json:"parent_id,omitempty"`
-	RTCRegion            *string                `json:"rtc_region"`
-	VideoQualityMode     *VideoQualityMode      `json:"video_quality_mode"`
+	RTCRegion            *string                `json:"rtc_region,omitempty"`
+	VideoQualityMode     *VideoQualityMode      `json:"video_quality_mode,omitempty"`
 }
 
 func (GuildVoiceChannelUpdate) channelUpdate()      {}
@@ -62,7 +62,7 @@ type GuildNewsChannelUpdate struct {
 	RateLimitPerUser           *int                   `json:"rate_limit_per_user,omitempty"`
 	PermissionOverwrites       *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID                   *snowflake.ID          `json:"parent_id,omitempty"`
-	DefaultAutoArchiveDuration *int                   `json:"default_auto_archive_duration"`
+	DefaultAutoArchiveDuration *int                   `json:"default_auto_archive_duration,omitempty"`
 }
 
 func (GuildNewsChannelUpdate) channelUpdate()      {}
@@ -88,7 +88,7 @@ type GuildStageVoiceChannelUpdate struct {
 	UserLimit            *int                   `json:"user_limit,omitempty"`
 	PermissionOverwrites *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID             *snowflake.ID          `json:"parent_id,omitempty"`
-	RTCRegion            *string                `json:"rtc_region"`
+	RTCRegion            *string                `json:"rtc_region,omitempty"`
 }
 
 func (GuildStageVoiceChannelUpdate) channelUpdate()      {}
@@ -117,8 +117,8 @@ type GuildForumThreadChannelUpdate struct {
 }
 
 type GuildChannelPositionUpdate struct {
-	ID              snowflake.ID                 `json:"id"`
-	Position        *json.Nullable[int]          `json:"position"`
-	LockPermissions *json.Nullable[bool]         `json:"lock_permissions,omitempty"`
-	ParentID        *json.Nullable[snowflake.ID] `json:"parent_id,omitempty"`
+	ID              snowflake.ID         `json:"id"`
+	Position        *json.Nullable[int]  `json:"position"`
+	LockPermissions *json.Nullable[bool] `json:"lock_permissions,omitempty"`
+	ParentID        *snowflake.ID        `json:"parent_id,omitempty"`
 }

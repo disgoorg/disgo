@@ -18,7 +18,8 @@ type GuildScheduledEvents interface {
 	UpdateGuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID, guildScheduledEventUpdate discord.GuildScheduledEventUpdate, opts ...RequestOpt) (*discord.GuildScheduledEvent, error)
 	DeleteGuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID, opts ...RequestOpt) error
 
-	GetGuildScheduledEventUsers(guildID snowflake.ID, guildScheduledEventID snowflake.ID, limit int, withMember bool, before snowflake.ID, after snowflake.ID, opts ...RequestOpt) ([]discord.GuildScheduledEventUser, error)
+	GetGuildScheduledEventUsers(guildID snowflake.ID, guildScheduledEventID snowflake.ID, withMember bool, before snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) ([]discord.GuildScheduledEventUser, error)
+	GetGuildScheduledEventUsersPage(guildID snowflake.ID, guildScheduledEventID snowflake.ID, withMember bool, startID snowflake.ID, limit int, opts ...RequestOpt) Page[discord.GuildScheduledEventUser]
 }
 
 type guildScheduledEventImpl struct {
@@ -57,7 +58,7 @@ func (s *guildScheduledEventImpl) DeleteGuildScheduledEvent(guildID snowflake.ID
 	return s.client.Do(DeleteGuildScheduledEvent.Compile(nil, guildID, guildScheduledEventID), nil, nil, opts...)
 }
 
-func (s *guildScheduledEventImpl) GetGuildScheduledEventUsers(guildID snowflake.ID, guildScheduledEventID snowflake.ID, limit int, withMember bool, before snowflake.ID, after snowflake.ID, opts ...RequestOpt) (guildScheduledEventUsers []discord.GuildScheduledEventUser, err error) {
+func (s *guildScheduledEventImpl) GetGuildScheduledEventUsers(guildID snowflake.ID, guildScheduledEventID snowflake.ID, withMember bool, before snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) (guildScheduledEventUsers []discord.GuildScheduledEventUser, err error) {
 	queryValues := discord.QueryValues{}
 	if limit > 0 {
 		queryValues["limit"] = limit
@@ -73,4 +74,16 @@ func (s *guildScheduledEventImpl) GetGuildScheduledEventUsers(guildID snowflake.
 	}
 	err = s.client.Do(GetGuildScheduledEventUsers.Compile(nil, guildID, guildScheduledEventID), nil, &guildScheduledEventUsers, opts...)
 	return
+}
+
+func (s *guildScheduledEventImpl) GetGuildScheduledEventUsersPage(guildID snowflake.ID, guildScheduledEventID snowflake.ID, withMember bool, startID snowflake.ID, limit int, opts ...RequestOpt) Page[discord.GuildScheduledEventUser] {
+	return Page[discord.GuildScheduledEventUser]{
+		getItemsFunc: func(before snowflake.ID, after snowflake.ID) ([]discord.GuildScheduledEventUser, error) {
+			return s.GetGuildScheduledEventUsers(guildID, guildScheduledEventID, withMember, before, after, limit, opts...)
+		},
+		getIDFunc: func(user discord.GuildScheduledEventUser) snowflake.ID {
+			return user.User.ID
+		},
+		ID: startID,
+	}
 }

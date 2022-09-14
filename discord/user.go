@@ -127,6 +127,6 @@ const (
 
 // SelfUserUpdate is the payload used to update the OAuth2User
 type SelfUserUpdate struct {
-	Username string               `json:"username"`
-	Avatar   *json.Nullable[Icon] `json:"avatar"`
+	Username string               `json:"username,omitempty"`
+	Avatar   *json.Nullable[Icon] `json:"avatar,omitempty"`
 }

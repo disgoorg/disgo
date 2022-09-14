@@ -87,7 +87,7 @@ func (p *UnmarshalApplicationCommandPermission) UnmarshalJSON(data []byte) error
 		applicationCommandPermission = v
 
 	default:
-		err = fmt.Errorf("unkown application command permission with type %d received", pType.Type)
+		err = fmt.Errorf("unknown application command permission with type %d received", pType.Type)
 	}
 
 	if err != nil {

@@ -74,8 +74,8 @@ type InviteGuild struct {
 }
 
 type InviteCreate struct {
-	MaxAge              int              `json:"max_age,omitempty"`
-	MaxUses             int              `json:"max_uses,omitempty"`
+	MaxAge              *int             `json:"max_age,omitempty"`
+	MaxUses             *int             `json:"max_uses,omitempty"`
 	Temporary           bool             `json:"temporary,omitempty"`
 	Unique              bool             `json:"unique,omitempty"`
 	TargetType          InviteTargetType `json:"target_type,omitempty"`

@@ -77,7 +77,7 @@ func (o *UnmarshalPermissionOverwrite) UnmarshalJSON(data []byte) error {
 		overwrite = v
 
 	default:
-		err = fmt.Errorf("unkown permission overwrite with type %d received", oType.Type)
+		err = fmt.Errorf("unknown permission overwrite with type %d received", oType.Type)
 	}
 
 	if err != nil {
@@ -143,8 +143,8 @@ type PermissionOverwriteUpdate interface {
 }
 
 type RolePermissionOverwriteUpdate struct {
-	Allow Permissions `json:"allow"`
-	Deny  Permissions `json:"deny"`
+	Allow *Permissions `json:"allow,omitempty"`
+	Deny  *Permissions `json:"deny,omitempty"`
 }
 
 func (u RolePermissionOverwriteUpdate) MarshalJSON() ([]byte, error) {
@@ -163,8 +163,8 @@ func (RolePermissionOverwriteUpdate) Type() PermissionOverwriteType {
 }
 
 type MemberPermissionOverwriteUpdate struct {
-	Allow Permissions `json:"allow"`
-	Deny  Permissions `json:"deny"`
+	Allow *Permissions `json:"allow,omitempty"`
+	Deny  *Permissions `json:"deny,omitempty"`
 }
 
 func (u MemberPermissionOverwriteUpdate) MarshalJSON() ([]byte, error) {

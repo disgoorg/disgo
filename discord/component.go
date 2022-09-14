@@ -76,7 +76,7 @@ func (u *UnmarshalComponent) UnmarshalJSON(data []byte) error {
 		component = v
 
 	default:
-		err = fmt.Errorf("unkown component with type %d received", cType.Type)
+		err = fmt.Errorf("unknown component with type %d received", cType.Type)
 	}
 	if err != nil {
 		return err
