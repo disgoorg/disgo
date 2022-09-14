@@ -64,6 +64,7 @@ func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
 
 	i.Data = interactionData
 	i.Message = interaction.Message
+	i.Message.GuildID = baseInteraction.guildID
 	return nil
 }
 
