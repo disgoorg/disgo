@@ -16,7 +16,7 @@ type ForumThreadCreate struct {
 	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
 	RateLimitPerUser    int                 `json:"rate_limit_per_user,omitempty"`
 	Message             MessageCreate       `json:"message"`
-	AppliedTags         *[]snowflake.ID     `json:"applied_tags,omitempty"`
+	AppliedTags         []snowflake.ID      `json:"applied_tags,omitempty"`
 }
 
 func (c ForumThreadCreate) ToBody() (any, error) {
