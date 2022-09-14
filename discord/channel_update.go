@@ -15,15 +15,16 @@ type GuildChannelUpdate interface {
 }
 
 type GuildTextChannelUpdate struct {
-	Name                       *string                `json:"name,omitempty"`
-	Type                       *ChannelType           `json:"type,omitempty"`
-	Position                   *int                   `json:"position,omitempty"`
-	Topic                      *string                `json:"topic,omitempty"`
-	NSFW                       *bool                  `json:"nsfw,omitempty"`
-	RateLimitPerUser           *int                   `json:"rate_limit_per_user,omitempty"`
-	PermissionOverwrites       *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID                   *snowflake.ID          `json:"parent_id,omitempty"`
-	DefaultAutoArchiveDuration *AutoArchiveDuration   `json:"default_auto_archive_duration,omitempty"`
+	Name                          *string                `json:"name,omitempty"`
+	Type                          *ChannelType           `json:"type,omitempty"`
+	Position                      *int                   `json:"position,omitempty"`
+	Topic                         *string                `json:"topic,omitempty"`
+	NSFW                          *bool                  `json:"nsfw,omitempty"`
+	RateLimitPerUser              *int                   `json:"rate_limit_per_user,omitempty"`
+	PermissionOverwrites          *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
+	ParentID                      *snowflake.ID          `json:"parent_id,omitempty"`
+	DefaultAutoArchiveDuration    *AutoArchiveDuration   `json:"default_auto_archive_duration,omitempty"`
+	DefaultThreadRateLimitPerUser *int                   `json:"default_thread_rate_limit_per_user,omitempty"`
 }
 
 func (GuildTextChannelUpdate) channelUpdate()      {}
@@ -94,16 +95,34 @@ func (GuildStageVoiceChannelUpdate) channelUpdate()      {}
 func (GuildStageVoiceChannelUpdate) guildChannelUpdate() {}
 
 type GuildForumChannelUpdate struct {
-	Name                 *string                `json:"name,omitempty"`
-	Position             *int                   `json:"position,omitempty"`
-	Topic                *string                `json:"topic,omitempty"`
-	PermissionOverwrites *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID             *snowflake.ID          `json:"parent_id,omitempty"`
-	RateLimitPerUser     *int                   `json:"rate_limit_per_user,omitempty"`
+	Name                          *string                              `json:"name,omitempty"`
+	Position                      *int                                 `json:"position,omitempty"`
+	Topic                         *string                              `json:"topic,omitempty"`
+	NSFW                          *bool                                `json:"nsfw,omitempty"`
+	PermissionOverwrites          *[]PermissionOverwrite               `json:"permission_overwrites,omitempty"`
+	ParentID                      *snowflake.ID                        `json:"parent_id,omitempty"`
+	RateLimitPerUser              *int                                 `json:"rate_limit_per_user"`
+	AvailableTags                 *[]ForumTag                          `json:"available_tags,omitempty"`
+	DefaultReactionEmoji          *json.Nullable[DefaultReactionEmoji] `json:"default_reaction_emoji,omitempty"`
+	DefaultThreadRateLimitPerUser *int                                 `json:"default_thread_rate_limit_per_user,omitempty"`
 }
 
 func (GuildForumChannelUpdate) channelUpdate()      {}
 func (GuildForumChannelUpdate) guildChannelUpdate() {}
+
+type GuildForumThreadChannelUpdate struct {
+	Name                *string              `json:"name,omitempty"`
+	Archived            *bool                `json:"archived,omitempty"`
+	AutoArchiveDuration *AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
+	Locked              *bool                `json:"locked,omitempty"`
+	Invitable           *bool                `json:"invitable,omitempty"`
+	RateLimitPerUser    *int                 `json:"rate_limit_per_user,omitempty"`
+	Flags               *ChannelFlags        `json:"flags,omitempty"`
+	AppliedTags         *[]snowflake.ID      `json:"applied_tags,omitempty"`
+}
+
+func (GuildForumThreadChannelUpdate) channelUpdate()      {}
+func (GuildForumThreadChannelUpdate) guildChannelUpdate() {}
 
 type GuildChannelPositionUpdate struct {
 	ID              snowflake.ID         `json:"id"`
