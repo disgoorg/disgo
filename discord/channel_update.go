@@ -111,10 +111,18 @@ func (GuildForumChannelUpdate) channelUpdate()      {}
 func (GuildForumChannelUpdate) guildChannelUpdate() {}
 
 type GuildForumThreadChannelUpdate struct {
-	GuildThreadUpdate
-	Flags       *ChannelFlags   `json:"flags,omitempty"`
-	AppliedTags *[]snowflake.ID `json:"applied_tags,omitempty"`
+	Name                *string              `json:"name,omitempty"`
+	Archived            *bool                `json:"archived,omitempty"`
+	AutoArchiveDuration *AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
+	Locked              *bool                `json:"locked,omitempty"`
+	Invitable           *bool                `json:"invitable,omitempty"`
+	RateLimitPerUser    *int                 `json:"rate_limit_per_user,omitempty"`
+	Flags               *ChannelFlags        `json:"flags,omitempty"`
+	AppliedTags         *[]snowflake.ID      `json:"applied_tags,omitempty"`
 }
+
+func (GuildForumThreadChannelUpdate) channelUpdate()      {}
+func (GuildForumThreadChannelUpdate) guildChannelUpdate() {}
 
 type GuildChannelPositionUpdate struct {
 	ID              snowflake.ID         `json:"id"`
