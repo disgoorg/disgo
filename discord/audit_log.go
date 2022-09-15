@@ -113,6 +113,8 @@ const (
 	AuditLogAutoModerationRuleUpdate
 	AuditLogAutoModerationRuleDelete
 	AuditLogAutoModerationBlockMessage
+	AuditLogAutoModerationFlagToChannel
+	AuditLogAutoModerationUserCommunicationDisabled
 )
 
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord
@@ -236,13 +238,15 @@ type AuditLogChangeKey struct {
 
 // OptionalAuditLogEntryInfo (https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object-optional-audit-entry-info)
 type OptionalAuditLogEntryInfo struct {
-	DeleteMemberDays *string       `json:"delete_member_days"`
-	MembersRemoved   *string       `json:"members_removed"`
-	ChannelID        *snowflake.ID `json:"channel_id"`
-	MessageID        *snowflake.ID `json:"message_id"`
-	Count            *string       `json:"count"`
-	ID               *string       `json:"id"`
-	Type             *string       `json:"type"`
-	RoleName         *string       `json:"role_name"`
-	ApplicationID    *snowflake.ID `json:"application_id"`
+	DeleteMemberDays              *string                    `json:"delete_member_days"`
+	MembersRemoved                *string                    `json:"members_removed"`
+	ChannelID                     *snowflake.ID              `json:"channel_id"`
+	MessageID                     *snowflake.ID              `json:"message_id"`
+	Count                         *string                    `json:"count"`
+	ID                            *string                    `json:"id"`
+	Type                          *string                    `json:"type"`
+	RoleName                      *string                    `json:"role_name"`
+	ApplicationID                 *snowflake.ID              `json:"application_id"`
+	AutoModerationRuleName        *string                    `json:"auto_moderation_rule_name"`
+	AutoModerationRuleTriggerType *AutoModerationTriggerType `json:"auto_moderation_rule_trigger_type,string"`
 }
