@@ -15,12 +15,12 @@ func gatewayHandlerGuildCreate(client bot.Client, sequenceNumber int, shardID in
 
 	for _, channel := range event.Channels {
 		channel = discord.ApplyGuildIDToChannel(channel, event.ID) // populate unset field
-		client.Caches().Channels().Put(channel.ID(), discord.ApplyGuildIDToChannel(channel, event.ID))
+		client.Caches().Channels().Put(channel.ID(), channel)
 	}
 
 	for _, thread := range event.Threads {
 		thread = discord.ApplyGuildIDToThread(thread, event.ID) // populate unset field
-		client.Caches().Channels().Put(thread.ID(), discord.ApplyGuildIDToThread(thread, event.ID))
+		client.Caches().Channels().Put(thread.ID(), thread)
 	}
 
 	for _, role := range event.Roles {

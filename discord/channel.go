@@ -1219,6 +1219,9 @@ func ApplyGuildIDToChannel(channel GuildChannel, guildID snowflake.ID) GuildChan
 	case GuildThread:
 		c.guildID = guildID
 		return c
+	case GuildForumChannel:
+		c.guildID = guildID
+		return c
 	default:
 		return channel
 	}
