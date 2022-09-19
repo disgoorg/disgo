@@ -105,6 +105,7 @@ type GuildForumChannelUpdate struct {
 	AvailableTags                 *[]ForumTag                          `json:"available_tags,omitempty"`
 	DefaultReactionEmoji          *json.Nullable[DefaultReactionEmoji] `json:"default_reaction_emoji,omitempty"`
 	DefaultThreadRateLimitPerUser *int                                 `json:"default_thread_rate_limit_per_user,omitempty"`
+	DefaultSortOrder              *DefaultSortOrder                    `json:"default_sort_order"`
 }
 
 func (GuildForumChannelUpdate) channelUpdate()      {}

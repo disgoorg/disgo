@@ -187,6 +187,7 @@ type GuildForumChannelCreate struct {
 	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID             snowflake.ID          `json:"parent_id,omitempty"`
 	RateLimitPerUser     int                   `json:"rate_limit_per_user"`
+	DefaultSortOrder     DefaultSortOrder      `json:"default_sort_order"`
 }
 
 func (c GuildForumChannelCreate) Type() ChannelType {
