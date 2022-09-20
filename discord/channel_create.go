@@ -189,7 +189,6 @@ type GuildForumChannelCreate struct {
 	RateLimitPerUser     int                   `json:"rate_limit_per_user"`
 	DefaultReactionEmoji DefaultReactionEmoji  `json:"default_reaction_emoji"`
 	AvailableTags        []ForumTag            `json:"available_tags"`
-	DefaultSortOrder     DefaultSortOrder      `json:"default_sort_order"`
 }
 
 func (c GuildForumChannelCreate) Type() ChannelType {
