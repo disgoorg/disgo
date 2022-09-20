@@ -81,6 +81,42 @@ const (
 	ActivityFlagEmbedded
 )
 
+// Add allows you to add multiple bits together, producing a new bit
+func (f ActivityFlags) Add(bits ...ActivityFlags) ActivityFlags {
+	for _, bit := range bits {
+		f |= bit
+	}
+	return f
+}
+
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (f ActivityFlags) Remove(bits ...ActivityFlags) ActivityFlags {
+	for _, bit := range bits {
+		f &^= bit
+	}
+	return f
+}
+
+// Has will ensure that the bit includes all the bits entered
+func (f ActivityFlags) Has(bits ...ActivityFlags) bool {
+	for _, bit := range bits {
+		if (f & bit) != bit {
+			return false
+		}
+	}
+	return true
+}
+
+// Missing will check whether the bit is missing any one of the bits
+func (f ActivityFlags) Missing(bits ...ActivityFlags) bool {
+	for _, bit := range bits {
+		if (f & bit) != bit {
+			return true
+		}
+	}
+	return false
+}
+
 // ActivityButton is a button in an activity
 type ActivityButton struct {
 	Label string `json:"label"`

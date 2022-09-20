@@ -27,6 +27,42 @@ const (
 	SystemChannelFlagSuppressPremiumSubscriptions
 )
 
+// Add allows you to add multiple bits together, producing a new bit
+func (f SystemChannelFlags) Add(bits ...SystemChannelFlags) SystemChannelFlags {
+	for _, bit := range bits {
+		f |= bit
+	}
+	return f
+}
+
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (f SystemChannelFlags) Remove(bits ...SystemChannelFlags) SystemChannelFlags {
+	for _, bit := range bits {
+		f &^= bit
+	}
+	return f
+}
+
+// Has will ensure that the bit includes all the bits entered
+func (f SystemChannelFlags) Has(bits ...SystemChannelFlags) bool {
+	for _, bit := range bits {
+		if (f & bit) != bit {
+			return false
+		}
+	}
+	return true
+}
+
+// Missing will check whether the bit is missing any one of the bits
+func (f SystemChannelFlags) Missing(bits ...SystemChannelFlags) bool {
+	for _, bit := range bits {
+		if (f & bit) != bit {
+			return true
+		}
+	}
+	return false
+}
+
 // The VerificationLevel of a Guild that members must be to send messages
 type VerificationLevel int
 
