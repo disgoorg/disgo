@@ -191,6 +191,7 @@ type guildForumChannel struct {
 	AvailableTags                 []ForumTag            `json:"available_tags"`
 	DefaultReactionEmoji          *DefaultReactionEmoji `json:"default_reaction_emoji"`
 	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user"`
+	DefaultSortOrder              *DefaultSortOrder     `json:"default_sort_order"`
 
 	// idk discord name your shit correctly
 	LastThreadID *snowflake.ID `json:"last_message_id"`
