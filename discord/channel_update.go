@@ -15,16 +15,15 @@ type GuildChannelUpdate interface {
 }
 
 type GuildTextChannelUpdate struct {
-	Name                          *string                `json:"name,omitempty"`
-	Type                          *ChannelType           `json:"type,omitempty"`
-	Position                      *int                   `json:"position,omitempty"`
-	Topic                         *string                `json:"topic,omitempty"`
-	NSFW                          *bool                  `json:"nsfw,omitempty"`
-	RateLimitPerUser              *int                   `json:"rate_limit_per_user,omitempty"`
-	PermissionOverwrites          *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID                      *snowflake.ID          `json:"parent_id,omitempty"`
-	DefaultAutoArchiveDuration    *AutoArchiveDuration   `json:"default_auto_archive_duration,omitempty"`
-	DefaultThreadRateLimitPerUser *int                   `json:"default_thread_rate_limit_per_user,omitempty"`
+	Name                       *string                `json:"name,omitempty"`
+	Type                       *ChannelType           `json:"type,omitempty"`
+	Position                   *int                   `json:"position,omitempty"`
+	Topic                      *string                `json:"topic,omitempty"`
+	NSFW                       *bool                  `json:"nsfw,omitempty"`
+	RateLimitPerUser           *int                   `json:"rate_limit_per_user,omitempty"`
+	PermissionOverwrites       *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
+	ParentID                   *snowflake.ID          `json:"parent_id,omitempty"`
+	DefaultAutoArchiveDuration *AutoArchiveDuration   `json:"default_auto_archive_duration,omitempty"`
 }
 
 func (GuildTextChannelUpdate) channelUpdate()      {}
