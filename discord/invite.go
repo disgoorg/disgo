@@ -26,7 +26,7 @@ type Invite struct {
 	TargetType               InviteTargetType     `json:"target_user_type"`
 	ApproximatePresenceCount int                  `json:"approximate_presence_count"`
 	ApproximateMemberCount   int                  `json:"approximate_member_count"`
-	ExpiresAt                *time.Time           `json:"created_at"`
+	ExpiresAt                *time.Time           `json:"expires_at"`
 	GuildScheduledEvent      *GuildScheduledEvent `json:"guild_scheduled_event"`
 }
 
