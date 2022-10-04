@@ -9,7 +9,7 @@ import (
 type StagePrivacyLevel int
 
 const (
-	StagePrivacyLevelGuildOnly = 2
+	StagePrivacyLevelGuildOnly StagePrivacyLevel = 2
 )
 
 type StageInstance struct {
