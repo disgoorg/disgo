@@ -122,12 +122,30 @@ func (b *EmbedBuilder) SetFooterIcon(iconURL string) *EmbedBuilder {
 	return b
 }
 
+// SetFooterIconf sets the footer icon of the EmbedBuilder
+func (b *EmbedBuilder) SetFooterIconf(iconURL string, a ...any) *EmbedBuilder {
+	if b.Footer == nil {
+		b.Footer = &EmbedFooter{}
+	}
+	b.Footer.IconURL = fmt.Sprintf(iconURL, a...)
+	return b
+}
+
 // SetImage sets the image of the EmbedBuilder
 func (b *EmbedBuilder) SetImage(url string) *EmbedBuilder {
 	if b.Image == nil {
 		b.Image = &EmbedResource{}
 	}
 	b.Image.URL = url
+	return b
+}
+
+// SetImagef sets the image of the EmbedBuilder with format
+func (b *EmbedBuilder) SetImagef(url string, a ...any) *EmbedBuilder {
+	if b.Image == nil {
+		b.Image = &EmbedResource{}
+	}
+	b.Image.URL = fmt.Sprintf(url, a...)
 	return b
 }
 
@@ -140,9 +158,24 @@ func (b *EmbedBuilder) SetThumbnail(url string) *EmbedBuilder {
 	return b
 }
 
+// SetThumbnailf sets the thumbnail of the EmbedBuilder with format
+func (b *EmbedBuilder) SetThumbnailf(url string, a ...any) *EmbedBuilder {
+	if b.Thumbnail == nil {
+		b.Thumbnail = &EmbedResource{}
+	}
+	b.Thumbnail.URL = fmt.Sprintf(url, a...)
+	return b
+}
+
 // SetURL sets the URL of the EmbedBuilder
 func (b *EmbedBuilder) SetURL(url string) *EmbedBuilder {
 	b.URL = url
+	return b
+}
+
+// SetURLf sets the URL of the EmbedBuilder with format
+func (b *EmbedBuilder) SetURLf(url string, a ...any) *EmbedBuilder {
+	b.URL = fmt.Sprintf(url, a...)
 	return b
 }
 
