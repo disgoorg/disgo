@@ -107,7 +107,7 @@ type rawSlashCommandInteractionData struct {
 	ID       snowflake.ID                 `json:"id"`
 	Name     string                       `json:"name"`
 	GuildID  *snowflake.ID                `json:"guild_id,omitempty"`
-	Resolved SlashCommandResolved         `json:"selectMenuResolved"`
+	Resolved SlashCommandResolved         `json:"resolved"`
 	Options  []internalSlashCommandOption `json:"options"`
 }
 
@@ -476,7 +476,7 @@ type rawUserCommandInteractionData struct {
 	ID       snowflake.ID        `json:"id"`
 	Name     string              `json:"name"`
 	GuildID  *snowflake.ID       `json:"guild_id,omitempty"`
-	Resolved UserCommandResolved `json:"selectMenuResolved"`
+	Resolved UserCommandResolved `json:"resolved"`
 	TargetID snowflake.ID        `json:"target_id"`
 }
 
@@ -484,7 +484,7 @@ type UserCommandInteractionData struct {
 	id       snowflake.ID
 	name     string
 	guildID  *snowflake.ID
-	Resolved UserCommandResolved `json:"selectMenuResolved"`
+	Resolved UserCommandResolved `json:"resolved"`
 	targetID snowflake.ID
 }
 
@@ -556,7 +556,7 @@ type rawMessageCommandInteractionData struct {
 	ID       snowflake.ID           `json:"id"`
 	Name     string                 `json:"name"`
 	GuildID  *snowflake.ID          `json:"guild_id,omitempty"`
-	Resolved MessageCommandResolved `json:"selectMenuResolved"`
+	Resolved MessageCommandResolved `json:"resolved"`
 	TargetID snowflake.ID           `json:"target_id"`
 }
 
@@ -564,7 +564,7 @@ type MessageCommandInteractionData struct {
 	id       snowflake.ID
 	name     string
 	guildID  *snowflake.ID
-	Resolved MessageCommandResolved `json:"selectMenuResolved"`
+	Resolved MessageCommandResolved `json:"resolved"`
 	targetID snowflake.ID
 }
 
