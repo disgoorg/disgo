@@ -174,15 +174,15 @@ func (m Message) Buttons() []ButtonComponent {
 }
 
 // ButtonByID returns a ButtonComponent with the specific customID from this Message
-func (m Message) ButtonByID(customID string) *ButtonComponent {
+func (m Message) ButtonByID(customID string) (ButtonComponent, bool) {
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
-			if button, ok := m.Components[i].Components()[ii].(*ButtonComponent); ok && button.ID() == customID {
-				return button
+			if button, ok := m.Components[i].Components()[ii].(ButtonComponent); ok && button.ID() == customID {
+				return button, true
 			}
 		}
 	}
-	return nil
+	return ButtonComponent{}, false
 }
 
 // SelectMenus returns all SelectMenuComponent(s) from this Message
@@ -190,8 +190,8 @@ func (m Message) SelectMenus() []SelectMenuComponent {
 	var selectMenus []SelectMenuComponent
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
-			if button, ok := m.Components[i].Components()[ii].(SelectMenuComponent); ok {
-				selectMenus = append(selectMenus, button)
+			if selectMenu, ok := m.Components[i].Components()[ii].(SelectMenuComponent); ok {
+				selectMenus = append(selectMenus, selectMenu)
 			}
 		}
 	}
@@ -199,15 +199,15 @@ func (m Message) SelectMenus() []SelectMenuComponent {
 }
 
 // SelectMenuByID returns a SelectMenuComponent with the specific customID from this Message
-func (m Message) SelectMenuByID(customID string) *SelectMenuComponent {
+func (m Message) SelectMenuByID(customID string) (SelectMenuComponent, bool) {
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
-			if button, ok := m.Components[i].Components()[ii].(*SelectMenuComponent); ok && button.ID() == customID {
-				return button
+			if selectMenu, ok := m.Components[i].Components()[ii].(SelectMenuComponent); ok && selectMenu.ID() == customID {
+				return selectMenu, true
 			}
 		}
 	}
-	return nil
+	return nil, false
 }
 
 func (m Message) JumpURL() string {
