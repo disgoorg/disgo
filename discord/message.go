@@ -210,6 +210,106 @@ func (m Message) SelectMenuByID(customID string) (SelectMenuComponent, bool) {
 	return nil, false
 }
 
+// UserSelectMenus returns all UserSelectMenuComponent(s) from this Message
+func (m Message) UserSelectMenus() []UserSelectMenuComponent {
+	var userSelectMenus []UserSelectMenuComponent
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if userSelectMenu, ok := m.Components[i].Components()[ii].(UserSelectMenuComponent); ok {
+				userSelectMenus = append(userSelectMenus, userSelectMenu)
+			}
+		}
+	}
+	return userSelectMenus
+}
+
+// UserSelectMenuByID returns a UserSelectMenuComponent with the specific customID from this Message
+func (m Message) UserSelectMenuByID(customID string) (UserSelectMenuComponent, bool) {
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if userSelectMenu, ok := m.Components[i].Components()[ii].(UserSelectMenuComponent); ok && userSelectMenu.ID() == customID {
+				return userSelectMenu, true
+			}
+		}
+	}
+	return UserSelectMenuComponent{}, false
+}
+
+// RoleSelectMenus returns all RoleSelectMenuComponent(s) from this Message
+func (m Message) RoleSelectMenus() []RoleSelectMenuComponent {
+	var roleSelectMenus []RoleSelectMenuComponent
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if roleSelectMenu, ok := m.Components[i].Components()[ii].(RoleSelectMenuComponent); ok {
+				roleSelectMenus = append(roleSelectMenus, roleSelectMenu)
+			}
+		}
+	}
+	return roleSelectMenus
+}
+
+// RoleSelectMenuByID returns a RoleSelectMenuComponent with the specific customID from this Message
+func (m Message) RoleSelectMenuByID(customID string) (RoleSelectMenuComponent, bool) {
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if roleSelectMenu, ok := m.Components[i].Components()[ii].(RoleSelectMenuComponent); ok && roleSelectMenu.ID() == customID {
+				return roleSelectMenu, true
+			}
+		}
+	}
+	return RoleSelectMenuComponent{}, false
+}
+
+// MentionableSelectMenus returns all MentionableSelectMenuComponent(s) from this Message
+func (m Message) MentionableSelectMenus() []MentionableSelectMenuComponent {
+	var mentionableSelectMenus []MentionableSelectMenuComponent
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if mentionableSelectMenu, ok := m.Components[i].Components()[ii].(MentionableSelectMenuComponent); ok {
+				mentionableSelectMenus = append(mentionableSelectMenus, mentionableSelectMenu)
+			}
+		}
+	}
+	return mentionableSelectMenus
+}
+
+// MentionableSelectMenuByID returns a MentionableSelectMenuComponent with the specific customID from this Message
+func (m Message) MentionableSelectMenuByID(customID string) (MentionableSelectMenuComponent, bool) {
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if mentionableSelectMenu, ok := m.Components[i].Components()[ii].(MentionableSelectMenuComponent); ok && mentionableSelectMenu.ID() == customID {
+				return mentionableSelectMenu, true
+			}
+		}
+	}
+	return MentionableSelectMenuComponent{}, false
+}
+
+// ChannelSelectMenus returns all ChannelSelectMenuComponent(s) from this Message
+func (m Message) ChannelSelectMenus() []ChannelSelectMenuComponent {
+	var channelSelectMenus []ChannelSelectMenuComponent
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if channelSelectMenu, ok := m.Components[i].Components()[ii].(ChannelSelectMenuComponent); ok {
+				channelSelectMenus = append(channelSelectMenus, channelSelectMenu)
+			}
+		}
+	}
+	return channelSelectMenus
+}
+
+// ChannelSelectMenuByID returns a ChannelSelectMenuComponent with the specific customID from this Message
+func (m Message) ChannelSelectMenuByID(customID string) (ChannelSelectMenuComponent, bool) {
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if channelSelectMenu, ok := m.Components[i].Components()[ii].(ChannelSelectMenuComponent); ok && channelSelectMenu.ID() == customID {
+				return channelSelectMenu, true
+			}
+		}
+	}
+	return ChannelSelectMenuComponent{}, false
+}
+
 func (m Message) JumpURL() string {
 	guildID := "@me"
 	if m.GuildID != nil {

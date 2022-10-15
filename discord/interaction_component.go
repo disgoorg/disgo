@@ -101,6 +101,26 @@ func (i ComponentInteraction) SelectMenuInteractionData() SelectMenuInteractionD
 	return i.Data.(SelectMenuInteractionData)
 }
 
+func (i ComponentInteraction) StringSelectMenuInteractionData() StringSelectMenuInteractionData {
+	return i.Data.(StringSelectMenuInteractionData)
+}
+
+func (i ComponentInteraction) UserSelectMenuInteractionData() UserSelectMenuInteractionData {
+	return i.Data.(UserSelectMenuInteractionData)
+}
+
+func (i ComponentInteraction) RoleSelectMenuInteractionData() RoleSelectMenuInteractionData {
+	return i.Data.(RoleSelectMenuInteractionData)
+}
+
+func (i ComponentInteraction) MentionableSelectMenuInteractionData() MentionableSelectMenuInteractionData {
+	return i.Data.(MentionableSelectMenuInteractionData)
+}
+
+func (i ComponentInteraction) ChannelSelectMenuInteractionData() ChannelSelectMenuInteractionData {
+	return i.Data.(ChannelSelectMenuInteractionData)
+}
+
 func (ComponentInteraction) interaction() {}
 
 type ComponentInteractionData interface {
