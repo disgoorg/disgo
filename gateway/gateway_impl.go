@@ -386,8 +386,6 @@ loop:
 			}
 
 		case OpcodeDispatch:
-			g.config.Logger.Trace(g.formatLogsf("received: OpcodeDispatch %s, data: %s", event.T, string(event.RawD)))
-
 			// set last sequence received
 			g.config.LastSequenceReceived = &event.S
 
@@ -415,18 +413,15 @@ loop:
 			g.eventHandlerFunc(event.T, event.S, g.config.ShardID, data)
 
 		case OpcodeHeartbeat:
-			g.config.Logger.Debug(g.formatLogs("received: OpcodeHeartbeat"))
 			g.sendHeartbeat()
 
 		case OpcodeReconnect:
-			g.config.Logger.Debug(g.formatLogs("received: OpcodeReconnect"))
 			g.CloseWithCode(context.TODO(), websocket.CloseServiceRestart, "received reconnect")
 			go g.reconnect(context.TODO())
 			break loop
 
 		case OpcodeInvalidSession:
 			canResume := event.D.(MessageDataInvalidSession)
-			g.config.Logger.Debug(g.formatLogs("received: OpcodeInvalidSession, canResume: ", canResume))
 
 			code := websocket.CloseNormalClosure
 			if canResume {
@@ -443,7 +438,6 @@ loop:
 			break loop
 
 		case OpcodeHeartbeatACK:
-			g.config.Logger.Debug(g.formatLogs("received: OpcodeHeartbeatACK"))
 			g.lastHeartbeatReceived = time.Now().UTC()
 		}
 	}
@@ -465,10 +459,13 @@ func (g *gatewayImpl) parseMessage(mt int, reader io.Reader) (Message, error) {
 		_ = readCloser.Close()
 	}()
 
+	buff := new(bytes.Buffer)
+	r := io.TeeReader(readCloser, buff)
+
+	data, _ := io.ReadAll(r)
+	g.config.Logger.Trace(g.formatLogs("received gateway message: ", string(data)))
+
 	var message Message
-	if err := json.NewDecoder(readCloser).Decode(&message); err != nil {
-		g.config.Logger.Error(g.formatLogs("error decoding websocket message: ", err))
-		return Message{}, err
-	}
-	return message, nil
+	err := json.NewDecoder(buff).Decode(&message)
+	return message, err
 }
