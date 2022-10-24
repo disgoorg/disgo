@@ -159,6 +159,7 @@ const (
 	PremiumTypeNone PremiumType = iota
 	PremiumTypeNitroClassic
 	PremiumTypeNitro
+	PremiumTypeNitroBasic
 )
 
 // SelfUserUpdate is the payload used to update the OAuth2User
