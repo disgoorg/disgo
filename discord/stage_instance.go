@@ -1,6 +1,10 @@
 package discord
 
-import "github.com/disgoorg/snowflake/v2"
+import (
+	"time"
+
+	"github.com/disgoorg/snowflake/v2"
+)
 
 type StagePrivacyLevel int
 
@@ -18,11 +22,15 @@ type StageInstance struct {
 	DiscoverableDisabled bool              `json:"discoverable_disabled"`
 }
 
+func (e StageInstance) CreatedAt() time.Time {
+	return e.ID.Time()
+}
+
 type StageInstanceCreate struct {
 	ChannelID             snowflake.ID      `json:"channel_id"`
 	Topic                 string            `json:"topic,omitempty"`
 	PrivacyLevel          StagePrivacyLevel `json:"privacy_level,omitempty"`
-	SendStartNotification bool              `json:"send_start_notification"`
+	SendStartNotification bool              `json:"send_start_notification,omitempty"`
 }
 
 type StageInstanceUpdate struct {

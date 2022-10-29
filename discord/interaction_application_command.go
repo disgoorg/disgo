@@ -55,9 +55,16 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 		v := MessageCommandInteractionData{}
 		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
+		if baseInteraction.GuildID() != nil {
+			for id := range v.Resolved.Messages {
+				msg := v.Resolved.Messages[id]
+				msg.GuildID = baseInteraction.guildID
+				v.Resolved.Messages[id] = msg
+			}
+		}
 
 	default:
-		return fmt.Errorf("unkown application rawInteraction data with type %d received", cType.Type)
+		return fmt.Errorf("unknown application rawInteraction data with type %d received", cType.Type)
 	}
 	if err != nil {
 		return err

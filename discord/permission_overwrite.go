@@ -77,7 +77,7 @@ func (o *UnmarshalPermissionOverwrite) UnmarshalJSON(data []byte) error {
 		overwrite = v
 
 	default:
-		err = fmt.Errorf("unkown permission overwrite with type %d received", oType.Type)
+		err = fmt.Errorf("unknown permission overwrite with type %d received", oType.Type)
 	}
 
 	if err != nil {
@@ -101,7 +101,7 @@ func (o RolePermissionOverwrite) ID() snowflake.ID {
 func (o RolePermissionOverwrite) MarshalJSON() ([]byte, error) {
 	type rolePermissionOverwrite RolePermissionOverwrite
 	return json.Marshal(struct {
-		Type PermissionOverwriteType
+		Type PermissionOverwriteType `json:"type"`
 		rolePermissionOverwrite
 	}{
 		Type:                    o.Type(),
@@ -126,7 +126,7 @@ func (o MemberPermissionOverwrite) ID() snowflake.ID {
 func (o MemberPermissionOverwrite) MarshalJSON() ([]byte, error) {
 	type memberPermissionOverwrite MemberPermissionOverwrite
 	return json.Marshal(struct {
-		Type PermissionOverwriteType
+		Type PermissionOverwriteType `json:"type"`
 		memberPermissionOverwrite
 	}{
 		Type:                      o.Type(),
@@ -143,14 +143,14 @@ type PermissionOverwriteUpdate interface {
 }
 
 type RolePermissionOverwriteUpdate struct {
-	Allow Permissions `json:"allow"`
-	Deny  Permissions `json:"deny"`
+	Allow *Permissions `json:"allow,omitempty"`
+	Deny  *Permissions `json:"deny,omitempty"`
 }
 
 func (u RolePermissionOverwriteUpdate) MarshalJSON() ([]byte, error) {
 	type rolePermissionOverwriteUpdate RolePermissionOverwriteUpdate
 	return json.Marshal(struct {
-		Type PermissionOverwriteType
+		Type PermissionOverwriteType `json:"type"`
 		rolePermissionOverwriteUpdate
 	}{
 		Type:                          u.Type(),
@@ -163,14 +163,14 @@ func (RolePermissionOverwriteUpdate) Type() PermissionOverwriteType {
 }
 
 type MemberPermissionOverwriteUpdate struct {
-	Allow Permissions `json:"allow"`
-	Deny  Permissions `json:"deny"`
+	Allow *Permissions `json:"allow,omitempty"`
+	Deny  *Permissions `json:"deny,omitempty"`
 }
 
 func (u MemberPermissionOverwriteUpdate) MarshalJSON() ([]byte, error) {
 	type memberPermissionOverwriteUpdate MemberPermissionOverwriteUpdate
 	return json.Marshal(struct {
-		Type PermissionOverwriteType
+		Type PermissionOverwriteType `json:"type"`
 		memberPermissionOverwriteUpdate
 	}{
 		Type:                            u.Type(),

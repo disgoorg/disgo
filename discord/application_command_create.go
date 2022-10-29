@@ -10,13 +10,13 @@ type ApplicationCommandCreate interface {
 }
 
 type SlashCommandCreate struct {
-	Name                     string                     `json:"name"`
-	CommandNameLocalizations map[Locale]string          `json:"name_localizations,omitempty"`
-	Description              string                     `json:"description"`
-	DescriptionLocalizations map[Locale]string          `json:"description_localizations,omitempty"`
-	Options                  []ApplicationCommandOption `json:"options,omitempty"`
-	DefaultMemberPermissions Permissions                `json:"default_member_permissions,omitempty"`
-	DMPermission             bool                       `json:"dm_permission"`
+	Name                     string                      `json:"name"`
+	NameLocalizations        map[Locale]string           `json:"name_localizations,omitempty"`
+	Description              string                      `json:"description"`
+	DescriptionLocalizations map[Locale]string           `json:"description_localizations,omitempty"`
+	Options                  []ApplicationCommandOption  `json:"options,omitempty"`
+	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"` // different behavior for 0 and null, optional
+	DMPermission             *bool                       `json:"dm_permission,omitempty"`
 }
 
 func (c SlashCommandCreate) MarshalJSON() ([]byte, error) {
@@ -41,10 +41,10 @@ func (c SlashCommandCreate) CommandName() string {
 func (SlashCommandCreate) applicationCommandCreate() {}
 
 type UserCommandCreate struct {
-	Name                     string            `json:"name"`
-	CommandNameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
-	DefaultMemberPermissions Permissions       `json:"default_member_permissions"`
-	DMPermission             bool              `json:"dm_permission"`
+	Name                     string                      `json:"name"`
+	NameLocalizations        map[Locale]string           `json:"name_localizations,omitempty"`
+	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
+	DMPermission             *bool                       `json:"dm_permission,omitempty"`
 }
 
 func (c UserCommandCreate) MarshalJSON() ([]byte, error) {
@@ -69,10 +69,10 @@ func (c UserCommandCreate) CommandName() string {
 func (UserCommandCreate) applicationCommandCreate() {}
 
 type MessageCommandCreate struct {
-	Name                     string            `json:"name"`
-	CommandNameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
-	DefaultMemberPermissions Permissions       `json:"default_member_permissions"`
-	DMPermission             bool              `json:"dm_permission"`
+	Name                     string                      `json:"name"`
+	NameLocalizations        map[Locale]string           `json:"name_localizations,omitempty"`
+	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
+	DMPermission             *bool                       `json:"dm_permission,omitempty"`
 }
 
 func (c MessageCommandCreate) MarshalJSON() ([]byte, error) {

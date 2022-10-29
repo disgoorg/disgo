@@ -94,7 +94,11 @@ func (g *gatewayImpl) Open(ctx context.Context) error {
 	}
 	g.status = StatusConnecting
 
-	gatewayURL := fmt.Sprintf("%s?v=%d&encoding=json", g.config.URL, Version)
+	wsURL := g.config.URL
+	if g.config.ResumeGatewayURL != nil && g.config.EnableResumeURL {
+		wsURL = *g.config.ResumeGatewayURL
+	}
+	gatewayURL := fmt.Sprintf("%s?v=%d&encoding=json", wsURL, Version)
 	g.lastHeartbeatSent = time.Now().UTC()
 	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
@@ -156,6 +160,7 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message strin
 		// clear resume data as we closed gracefully
 		if code == websocket.CloseNormalClosure || code == websocket.CloseGoingAway {
 			g.config.SessionID = nil
+			g.config.ResumeGatewayURL = nil
 			g.config.LastSequenceReceived = nil
 		}
 	}
@@ -196,6 +201,10 @@ func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) er
 
 func (g *gatewayImpl) Latency() time.Duration {
 	return g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
+}
+
+func (g *gatewayImpl) Presence() *MessageDataPresenceUpdate {
+	return g.config.Presence
 }
 
 func (g *gatewayImpl) reconnectTry(ctx context.Context, try int, delay time.Duration) error {
@@ -329,6 +338,7 @@ loop:
 					g.config.Logger.Error(g.formatLogs("invalid sequence provided. reconnecting..."))
 					g.config.LastSequenceReceived = nil
 					g.config.SessionID = nil
+					g.config.ResumeGatewayURL = nil
 				} else {
 					message := g.formatLogsf("gateway close received, reconnect: %t, code: %d, error: %s", g.config.AutoReconnect && reconnect, closeError.Code, closeError.Text)
 					if reconnect {
@@ -374,8 +384,6 @@ loop:
 			}
 
 		case OpcodeDispatch:
-			g.config.Logger.Trace(g.formatLogsf("received: OpcodeDispatch %s, data: %s", event.T, string(event.RawD)))
-
 			// set last sequence received
 			g.config.LastSequenceReceived = &event.S
 
@@ -388,6 +396,7 @@ loop:
 			// get session id here
 			if readyEvent, ok := data.(EventReady); ok {
 				g.config.SessionID = &readyEvent.SessionID
+				g.config.ResumeGatewayURL = &readyEvent.ResumeGatewayURL
 				g.status = StatusReady
 				g.config.Logger.Debug(g.formatLogs("ready event received"))
 			}
@@ -402,18 +411,15 @@ loop:
 			g.eventHandlerFunc(event.T, event.S, g.config.ShardID, data)
 
 		case OpcodeHeartbeat:
-			g.config.Logger.Debug(g.formatLogs("received: OpcodeHeartbeat"))
 			g.sendHeartbeat()
 
 		case OpcodeReconnect:
-			g.config.Logger.Debug(g.formatLogs("received: OpcodeReconnect"))
 			g.CloseWithCode(context.TODO(), websocket.CloseServiceRestart, "received reconnect")
 			go g.reconnect(context.TODO())
 			break loop
 
 		case OpcodeInvalidSession:
 			canResume := event.D.(MessageDataInvalidSession)
-			g.config.Logger.Debug(g.formatLogs("received: OpcodeInvalidSession, canResume: ", canResume))
 
 			code := websocket.CloseNormalClosure
 			if canResume {
@@ -422,6 +428,7 @@ loop:
 				// clear resume info
 				g.config.SessionID = nil
 				g.config.LastSequenceReceived = nil
+				g.config.ResumeGatewayURL = nil
 			}
 
 			g.CloseWithCode(context.TODO(), code, "invalid session")
@@ -429,7 +436,6 @@ loop:
 			break loop
 
 		case OpcodeHeartbeatACK:
-			g.config.Logger.Debug(g.formatLogs("received: OpcodeHeartbeatACK"))
 			g.lastHeartbeatReceived = time.Now().UTC()
 		}
 	}
@@ -451,10 +457,13 @@ func (g *gatewayImpl) parseMessage(mt int, reader io.Reader) (Message, error) {
 		_ = readCloser.Close()
 	}()
 
+	buff := new(bytes.Buffer)
+	r := io.TeeReader(readCloser, buff)
+
+	data, _ := io.ReadAll(r)
+	g.config.Logger.Trace(g.formatLogs("received gateway message: ", string(data)))
+
 	var message Message
-	if err := json.NewDecoder(readCloser).Decode(&message); err != nil {
-		g.config.Logger.Error(g.formatLogs("error decoding websocket message: ", err))
-		return Message{}, err
-	}
-	return message, nil
+	err := json.NewDecoder(buff).Decode(&message)
+	return message, err
 }

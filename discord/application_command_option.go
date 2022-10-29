@@ -28,6 +28,7 @@ type ApplicationCommandOption interface {
 	json.Marshaler
 	Type() ApplicationCommandOptionType
 	OptionName() string
+	OptionDescription() string
 	applicationCommandOption()
 }
 
@@ -106,7 +107,7 @@ func (u *UnmarshalApplicationCommandOption) UnmarshalJSON(data []byte) error {
 		applicationCommandOption = v
 
 	default:
-		err = fmt.Errorf("unkown application command option with type %d received", oType.Type)
+		err = fmt.Errorf("unknown application command option with type %d received", oType.Type)
 	}
 
 	if err != nil {
@@ -164,6 +165,10 @@ func (o ApplicationCommandOptionSubCommand) OptionName() string {
 	return o.Name
 }
 
+func (o ApplicationCommandOptionSubCommand) OptionDescription() string {
+	return o.Description
+}
+
 func (ApplicationCommandOptionSubCommand) applicationCommandOption() {}
 func (ApplicationCommandOptionSubCommand) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeSubCommand
@@ -192,6 +197,10 @@ func (o ApplicationCommandOptionSubCommandGroup) MarshalJSON() ([]byte, error) {
 
 func (o ApplicationCommandOptionSubCommandGroup) OptionName() string {
 	return o.Name
+}
+
+func (o ApplicationCommandOptionSubCommandGroup) OptionDescription() string {
+	return o.Description
 }
 
 func (ApplicationCommandOptionSubCommandGroup) applicationCommandOption() {}
@@ -228,6 +237,10 @@ func (o ApplicationCommandOptionString) OptionName() string {
 	return o.Name
 }
 
+func (o ApplicationCommandOptionString) OptionDescription() string {
+	return o.Description
+}
+
 func (ApplicationCommandOptionString) applicationCommandOption() {}
 func (ApplicationCommandOptionString) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeString
@@ -262,6 +275,10 @@ func (o ApplicationCommandOptionInt) OptionName() string {
 	return o.Name
 }
 
+func (o ApplicationCommandOptionInt) OptionDescription() string {
+	return o.Description
+}
+
 func (ApplicationCommandOptionInt) applicationCommandOption() {}
 func (ApplicationCommandOptionInt) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeInt
@@ -292,6 +309,10 @@ func (o ApplicationCommandOptionBool) OptionName() string {
 	return o.Name
 }
 
+func (o ApplicationCommandOptionBool) OptionDescription() string {
+	return o.Description
+}
+
 func (ApplicationCommandOptionBool) applicationCommandOption() {}
 func (ApplicationCommandOptionBool) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeBool
@@ -320,6 +341,10 @@ func (o ApplicationCommandOptionUser) MarshalJSON() ([]byte, error) {
 
 func (o ApplicationCommandOptionUser) OptionName() string {
 	return o.Name
+}
+
+func (o ApplicationCommandOptionUser) OptionDescription() string {
+	return o.Description
 }
 
 func (ApplicationCommandOptionUser) applicationCommandOption() {}
@@ -353,6 +378,10 @@ func (o ApplicationCommandOptionChannel) OptionName() string {
 	return o.Name
 }
 
+func (o ApplicationCommandOptionChannel) OptionDescription() string {
+	return o.Name
+}
+
 func (ApplicationCommandOptionChannel) applicationCommandOption() {}
 func (ApplicationCommandOptionChannel) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeChannel
@@ -383,6 +412,10 @@ func (o ApplicationCommandOptionRole) OptionName() string {
 	return o.Name
 }
 
+func (o ApplicationCommandOptionRole) OptionDescription() string {
+	return o.Name
+}
+
 func (ApplicationCommandOptionRole) applicationCommandOption() {}
 func (ApplicationCommandOptionRole) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeRole
@@ -410,6 +443,10 @@ func (o ApplicationCommandOptionMentionable) MarshalJSON() ([]byte, error) {
 }
 
 func (o ApplicationCommandOptionMentionable) OptionName() string {
+	return o.Name
+}
+
+func (o ApplicationCommandOptionMentionable) OptionDescription() string {
 	return o.Name
 }
 
@@ -444,6 +481,10 @@ func (o ApplicationCommandOptionFloat) MarshalJSON() ([]byte, error) {
 }
 
 func (o ApplicationCommandOptionFloat) OptionName() string {
+	return o.Name
+}
+
+func (o ApplicationCommandOptionFloat) OptionDescription() string {
 	return o.Name
 }
 
@@ -506,6 +547,10 @@ func (o ApplicationCommandOptionAttachment) MarshalJSON() ([]byte, error) {
 }
 
 func (o ApplicationCommandOptionAttachment) OptionName() string {
+	return o.Name
+}
+
+func (o ApplicationCommandOptionAttachment) OptionDescription() string {
 	return o.Name
 }
 

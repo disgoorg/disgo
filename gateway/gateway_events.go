@@ -16,12 +16,13 @@ type EventData interface {
 
 // EventReady is the event sent by discord when you successfully Identify
 type EventReady struct {
-	Version     int                        `json:"v"`
-	User        discord.OAuth2User         `json:"user"`
-	Guilds      []discord.UnavailableGuild `json:"guilds"`
-	SessionID   string                     `json:"session_id"`
-	Shard       []int                      `json:"shard,omitempty"`
-	Application discord.PartialApplication `json:"application"`
+	Version          int                        `json:"v"`
+	User             discord.OAuth2User         `json:"user"`
+	Guilds           []discord.UnavailableGuild `json:"guilds"`
+	SessionID        string                     `json:"session_id"`
+	ResumeGatewayURL string                     `json:"resume_gateway_url"`
+	Shard            []int                      `json:"shard,omitempty"`
+	Application      discord.PartialApplication `json:"application"`
 }
 
 func (EventReady) messageData() {}

@@ -15,16 +15,23 @@ type Connection struct {
 type ConnectionType string
 
 const (
-	ConnectionTypeYouTube   ConnectionType = "youtube"
-	ConnectionTypeBattleNet ConnectionType = "battlenet"
-	ConnectionTypeGitHub    ConnectionType = "github"
-	ConnectionTypeReddit    ConnectionType = "reddit"
-	ConnectionTypeSpotify   ConnectionType = "spotify"
-	ConnectionTypeSteam     ConnectionType = "steam"
-	ConnectionTypeTwitch    ConnectionType = "twitch"
-	ConnectionTypeTwitter   ConnectionType = "twitter"
-	ConnectionTypeXBox      ConnectionType = "xbox"
-	ConnectionTypeFacebook  ConnectionType = "facebook"
+	ConnectionTypeBattleNet          ConnectionType = "battlenet"
+	ConnectionTypeEbay               ConnectionType = "ebay"
+	ConnectionTypeEpicGames          ConnectionType = "epicgames"
+	ConnectionTypeFacebook           ConnectionType = "facebook"
+	ConnectionTypeGitHub             ConnectionType = "github"
+	ConnectionTypeLeagueOfLegends    ConnectionType = "leagueoflegends"
+	ConnectionTypePayPal             ConnectionType = "paypal"
+	ConnectionTypePlayStationNetwork ConnectionType = "playstation"
+	ConnectionTypeReddit             ConnectionType = "reddit"
+	ConnectionTypeRiotGames          ConnectionType = "riotgames"
+	ConnectionTypeSpotify            ConnectionType = "spotify"
+	ConnectionTypeSkype              ConnectionType = "skype"
+	ConnectionTypeSteam              ConnectionType = "steam"
+	ConnectionTypeTwitch             ConnectionType = "twitch"
+	ConnectionTypeTwitter            ConnectionType = "twitter"
+	ConnectionTypeXbox               ConnectionType = "xbox"
+	ConnectionTypeYouTube            ConnectionType = "youtube"
 )
 
 type VisibilityType int

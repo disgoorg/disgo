@@ -1,6 +1,8 @@
 package discord
 
 import (
+	"time"
+
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -17,6 +19,7 @@ type BaseInteraction interface {
 	Member() *ResolvedMember
 	User() User
 	AppPermissions() *Permissions
+	CreatedAt() time.Time
 }
 
 type baseInteractionImpl struct {
@@ -104,4 +107,8 @@ func (i baseInteractionImpl) User() User {
 
 func (i baseInteractionImpl) AppPermissions() *Permissions {
 	return i.appPermissions
+}
+
+func (i baseInteractionImpl) CreatedAt() time.Time {
+	return i.id.Time()
 }

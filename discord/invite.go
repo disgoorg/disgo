@@ -26,7 +26,7 @@ type Invite struct {
 	TargetType               InviteTargetType     `json:"target_user_type"`
 	ApproximatePresenceCount int                  `json:"approximate_presence_count"`
 	ApproximateMemberCount   int                  `json:"approximate_member_count"`
-	ExpiresAt                *time.Time           `json:"created_at"`
+	ExpiresAt                *time.Time           `json:"expires_at"`
 	GuildScheduledEvent      *GuildScheduledEvent `json:"guild_scheduled_event"`
 }
 
@@ -74,8 +74,8 @@ type InviteGuild struct {
 }
 
 type InviteCreate struct {
-	MaxAgree            int              `json:"max_agree,omitempty"`
-	MaxUses             int              `json:"max_uses,omitempty"`
+	MaxAge              *int             `json:"max_age,omitempty"`
+	MaxUses             *int             `json:"max_uses,omitempty"`
 	Temporary           bool             `json:"temporary,omitempty"`
 	Unique              bool             `json:"unique,omitempty"`
 	TargetType          InviteTargetType `json:"target_type,omitempty"`

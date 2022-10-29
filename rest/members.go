@@ -22,9 +22,9 @@ type Members interface {
 	AddMemberRole(guildID snowflake.ID, userID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) error
 	RemoveMemberRole(guildID snowflake.ID, userID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) error
 
-	UpdateSelfNick(guildID snowflake.ID, nick string, opts ...RequestOpt) (*string, error)
+	UpdateCurrentMember(guildID snowflake.ID, nick string, opts ...RequestOpt) (*string, error)
 
-	UpdateCurrentUserVoiceState(guildID snowflake.ID, currentUserVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error
+	UpdateCurrentUserVoiceState(guildID snowflake.ID, currentUserVoiceStateUpdate discord.CurrentUserVoiceStateUpdate, opts ...RequestOpt) error
 	UpdateUserVoiceState(guildID snowflake.ID, userID snowflake.ID, userVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error
 }
 
@@ -95,12 +95,12 @@ func (s *memberImpl) RemoveMemberRole(guildID snowflake.ID, userID snowflake.ID,
 	return s.client.Do(RemoveMemberRole.Compile(nil, guildID, userID, roleID), nil, nil, opts...)
 }
 
-func (s *memberImpl) UpdateSelfNick(guildID snowflake.ID, nick string, opts ...RequestOpt) (nickName *string, err error) {
-	err = s.client.Do(UpdateSelfNick.Compile(nil, guildID), discord.SelfNickUpdate{Nick: nick}, nickName, opts...)
+func (s *memberImpl) UpdateCurrentMember(guildID snowflake.ID, nick string, opts ...RequestOpt) (nickName *string, err error) {
+	err = s.client.Do(UpdateCurrentMember.Compile(nil, guildID), discord.CurrentMemberUpdate{Nick: nick}, nickName, opts...)
 	return
 }
 
-func (s *memberImpl) UpdateCurrentUserVoiceState(guildID snowflake.ID, currentUserVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error {
+func (s *memberImpl) UpdateCurrentUserVoiceState(guildID snowflake.ID, currentUserVoiceStateUpdate discord.CurrentUserVoiceStateUpdate, opts ...RequestOpt) error {
 	return s.client.Do(UpdateCurrentUserVoiceState.Compile(nil, guildID), currentUserVoiceStateUpdate, nil, opts...)
 }
 

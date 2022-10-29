@@ -1,6 +1,10 @@
 package discord
 
-import "github.com/disgoorg/snowflake/v2"
+import (
+	"time"
+
+	"github.com/disgoorg/snowflake/v2"
+)
 
 type AutoModerationEventType int
 
@@ -12,14 +16,17 @@ type AutoModerationTriggerType int
 
 const (
 	AutoModerationTriggerTypeKeyword AutoModerationTriggerType = iota + 1
-	AutoModerationTriggerTypeHarmfulLink
+	_
 	AutoModerationTriggerTypeSpam
 	AutoModerationTriggerTypeKeywordPresent
+	AutoModerationTriggerTypeMentionSpam
 )
 
 type AutoModerationTriggerMetadata struct {
-	KeywordFilter []string                      `json:"keyword_filter"`
-	Presets       []AutoModerationKeywordPreset `json:"presets"`
+	KeywordFilter     []string                      `json:"keyword_filter"`
+	Presets           []AutoModerationKeywordPreset `json:"presets"`
+	AllowList         []string                      `json:"allow_list"`
+	MentionTotalLimit int                           `json:"mention_total_limit"`
 }
 
 type AutoModerationKeywordPreset int
@@ -62,13 +69,17 @@ type AutoModerationRule struct {
 	ExemptChannels  []snowflake.ID                `json:"exempt_channels"`
 }
 
+func (r AutoModerationRule) CreatedAt() time.Time {
+	return r.ID.Time()
+}
+
 type AutoModerationRuleCreate struct {
 	Name            string                         `json:"name"`
 	EventType       AutoModerationEventType        `json:"event_type"`
 	TriggerType     AutoModerationTriggerType      `json:"trigger_type"`
 	TriggerMetadata *AutoModerationTriggerMetadata `json:"trigger_metadata,omitempty"`
 	Actions         []AutoModerationAction         `json:"actions"`
-	Enabled         bool                           `json:"enabled,omitempty"`
+	Enabled         *bool                          `json:"enabled,omitempty"`
 	ExemptRoles     []snowflake.ID                 `json:"exempt_roles,omitempty"`
 	ExemptChannels  []snowflake.ID                 `json:"exempt_channels,omitempty"`
 }

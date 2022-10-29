@@ -2,6 +2,7 @@ package discord
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/snowflake/v2"
@@ -34,6 +35,42 @@ const (
 	UserFlagBotHTTPInteractions
 	UserFlagsNone UserFlags = 0
 )
+
+// Add allows you to add multiple bits together, producing a new bit
+func (f UserFlags) Add(bits ...UserFlags) UserFlags {
+	for _, bit := range bits {
+		f |= bit
+	}
+	return f
+}
+
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (f UserFlags) Remove(bits ...UserFlags) UserFlags {
+	for _, bit := range bits {
+		f &^= bit
+	}
+	return f
+}
+
+// Has will ensure that the bit includes all the bits entered
+func (f UserFlags) Has(bits ...UserFlags) bool {
+	for _, bit := range bits {
+		if (f & bit) != bit {
+			return false
+		}
+	}
+	return true
+}
+
+// Missing will check whether the bit is missing any one of the bits
+func (f UserFlags) Missing(bits ...UserFlags) bool {
+	for _, bit := range bits {
+		if (f & bit) != bit {
+			return true
+		}
+	}
+	return false
+}
 
 var _ Mentionable = (*User)(nil)
 
@@ -96,6 +133,10 @@ func (u User) BannerURL(opts ...CDNOpt) *string {
 	return &url
 }
 
+func (u User) CreatedAt() time.Time {
+	return u.ID.Time()
+}
+
 // OAuth2User represents a full User returned by the oauth2 endpoints
 type OAuth2User struct {
 	User
@@ -118,10 +159,11 @@ const (
 	PremiumTypeNone PremiumType = iota
 	PremiumTypeNitroClassic
 	PremiumTypeNitro
+	PremiumTypeNitroBasic
 )
 
 // SelfUserUpdate is the payload used to update the OAuth2User
 type SelfUserUpdate struct {
-	Username string               `json:"username"`
-	Avatar   *json.Nullable[Icon] `json:"avatar"`
+	Username string               `json:"username,omitempty"`
+	Avatar   *json.Nullable[Icon] `json:"avatar,omitempty"`
 }

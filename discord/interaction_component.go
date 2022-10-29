@@ -54,7 +54,7 @@ func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
 		interactionData = v
 
 	default:
-		return fmt.Errorf("unkown component interaction data with type %d received", cType.Type)
+		return fmt.Errorf("unknown component interaction data with type %d received", cType.Type)
 	}
 	if err != nil {
 		return err
@@ -64,6 +64,7 @@ func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
 
 	i.Data = interactionData
 	i.Message = interaction.Message
+	i.Message.GuildID = baseInteraction.guildID
 	return nil
 }
 

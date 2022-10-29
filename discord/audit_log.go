@@ -98,14 +98,30 @@ const (
 
 // AuditLogThreadCreate
 const (
-	AuditLogThreadCreate AuditLogEvent = iota + 100
+	AuditLogThreadCreate AuditLogEvent = iota + 110
 	AuditLogThreadUpdate
 	AuditLogThreadDelete
 )
 
+// AuditLogApplicationCommandPermissionUpdate ...
+const (
+	AuditLogApplicationCommandPermissionUpdate AuditLogEvent = 121
+)
+
+const (
+	AuditLogAutoModerationRuleCreate AuditLogEvent = iota + 140
+	AuditLogAutoModerationRuleUpdate
+	AuditLogAutoModerationRuleDelete
+	AuditLogAutoModerationBlockMessage
+	AuditLogAutoModerationFlagToChannel
+	AuditLogAutoModerationUserCommunicationDisabled
+)
+
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord
 type AuditLog struct {
-	Entries              []AuditLogEntry       `json:"entries"`
+	ApplicationCommands  []ApplicationCommand  `json:"application_commands"`
+	AuditLogEntries      []AuditLogEntry       `json:"audit_log_entries"`
+	AutoModerationRules  []AutoModerationRule  `json:"auto_moderation_rules"`
 	GuildScheduledEvents []GuildScheduledEvent `json:"guild_scheduled_events"`
 	Integrations         []Integration         `json:"integrations"`
 	Threads              []GuildThread         `json:"threads"`
@@ -116,9 +132,9 @@ type AuditLog struct {
 func (l *AuditLog) UnmarshalJSON(data []byte) error {
 	type auditLog AuditLog
 	var v struct {
-		Integrations []UnmarshalIntegration `json:"integrations"`
-		Threads      []UnmarshalChannel     `json:"threads"`
-		Webhooks     []UnmarshalWebhook     `json:"webhooks"`
+		ApplicationCommands []UnmarshalApplicationCommand `json:"application_commands"`
+		Integrations        []UnmarshalIntegration        `json:"integrations"`
+		Webhooks            []UnmarshalWebhook            `json:"webhooks"`
 		auditLog
 	}
 	if err := json.Unmarshal(data, &v); err != nil {
@@ -126,17 +142,17 @@ func (l *AuditLog) UnmarshalJSON(data []byte) error {
 	}
 	*l = AuditLog(v.auditLog)
 
+	if v.ApplicationCommands != nil {
+		l.ApplicationCommands = make([]ApplicationCommand, len(v.ApplicationCommands))
+		for i := range v.ApplicationCommands {
+			l.ApplicationCommands[i] = v.ApplicationCommands[i].ApplicationCommand
+		}
+	}
+
 	if v.Integrations != nil {
 		l.Integrations = make([]Integration, len(v.Integrations))
 		for i := range v.Integrations {
 			l.Integrations[i] = v.Integrations[i].Integration
-		}
-	}
-
-	if v.Threads != nil {
-		l.Threads = make([]GuildThread, len(v.Threads))
-		for i := range v.Integrations {
-			l.Threads[i] = v.Threads[i].Channel.(GuildThread)
 		}
 	}
 
@@ -222,12 +238,15 @@ type AuditLogChangeKey struct {
 
 // OptionalAuditLogEntryInfo (https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object-optional-audit-entry-info)
 type OptionalAuditLogEntryInfo struct {
-	DeleteMemberDays *string       `json:"delete_member_days"`
-	MembersRemoved   *string       `json:"members_removed"`
-	ChannelID        *snowflake.ID `json:"channel_id"`
-	MessageID        *snowflake.ID `json:"message_id"`
-	Count            *string       `json:"count"`
-	ID               *string       `json:"id"`
-	Type             *string       `json:"type"`
-	RoleName         *string       `json:"role_name"`
+	DeleteMemberDays              *string                    `json:"delete_member_days"`
+	MembersRemoved                *string                    `json:"members_removed"`
+	ChannelID                     *snowflake.ID              `json:"channel_id"`
+	MessageID                     *snowflake.ID              `json:"message_id"`
+	Count                         *string                    `json:"count"`
+	ID                            *string                    `json:"id"`
+	Type                          *string                    `json:"type"`
+	RoleName                      *string                    `json:"role_name"`
+	ApplicationID                 *snowflake.ID              `json:"application_id"`
+	AutoModerationRuleName        *string                    `json:"auto_moderation_rule_name"`
+	AutoModerationRuleTriggerType *AutoModerationTriggerType `json:"auto_moderation_rule_trigger_type,string"`
 }

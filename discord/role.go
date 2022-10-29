@@ -1,6 +1,8 @@
 package discord
 
 import (
+	"time"
+
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -38,6 +40,10 @@ func (r Role) IconURL(opts ...CDNOpt) *string {
 	return &url
 }
 
+func (r Role) CreatedAt() time.Time {
+	return r.ID.Time()
+}
+
 // RoleTag are tags a Role has
 type RoleTag struct {
 	BotID             *snowflake.ID `json:"bot_id,omitempty"`
@@ -47,30 +53,30 @@ type RoleTag struct {
 
 // RoleCreate is the payload to create a Role
 type RoleCreate struct {
-	Name        string      `json:"name,omitempty"`
-	Permissions Permissions `json:"permissions,omitempty"`
-	Color       int         `json:"color,omitempty"`
-	Hoist       bool        `json:"hoist,omitempty"`
-	Icon        *Icon       `json:"icon,omitempty"`
-	Emoji       *string     `json:"unicode_emoji,omitempty"`
-	Mentionable bool        `json:"mentionable,omitempty"`
+	Name        string       `json:"name,omitempty"`
+	Permissions *Permissions `json:"permissions,omitempty"`
+	Color       int          `json:"color,omitempty"`
+	Hoist       bool         `json:"hoist,omitempty"`
+	Icon        *Icon        `json:"icon,omitempty"`
+	Emoji       string       `json:"unicode_emoji,omitempty"`
+	Mentionable bool         `json:"mentionable,omitempty"`
 }
 
 // RoleUpdate is the payload to update a Role
 type RoleUpdate struct {
-	Name        *string              `json:"name"`
-	Permissions *Permissions         `json:"permissions"`
-	Color       *int                 `json:"color"`
-	Hoist       *bool                `json:"hoist"`
+	Name        *string              `json:"name,omitempty"`
+	Permissions *Permissions         `json:"permissions,omitempty"`
+	Color       *int                 `json:"color,omitempty"`
+	Hoist       *bool                `json:"hoist,omitempty"`
 	Icon        *json.Nullable[Icon] `json:"icon,omitempty"`
 	Emoji       *string              `json:"unicode_emoji,omitempty"`
-	Mentionable *bool                `json:"mentionable"`
+	Mentionable *bool                `json:"mentionable,omitempty"`
 }
 
 // RolePositionUpdate is the payload to update a Role(s) position
 type RolePositionUpdate struct {
 	ID       snowflake.ID `json:"id"`
-	Position *int         `json:"position"`
+	Position *int         `json:"position,omitempty"`
 }
 
 // PartialRole holds basic info about a Role

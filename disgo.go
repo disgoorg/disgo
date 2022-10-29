@@ -1,4 +1,4 @@
-// Package disgo is a collection of packages to interaction with the Discord Bot and OAuth2 API.
+// Package disgo is a collection of packages for interaction with the Discord Bot and OAuth2 API.
 //
 // Discord
 //
@@ -30,7 +30,7 @@
 //
 // Rest
 //
-// Package rest is used to interaction with the Discord REST API.
+// Package rest is used to interact with the Discord REST API.
 //
 // JSON
 //

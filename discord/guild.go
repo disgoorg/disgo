@@ -27,6 +27,42 @@ const (
 	SystemChannelFlagSuppressPremiumSubscriptions
 )
 
+// Add allows you to add multiple bits together, producing a new bit
+func (f SystemChannelFlags) Add(bits ...SystemChannelFlags) SystemChannelFlags {
+	for _, bit := range bits {
+		f |= bit
+	}
+	return f
+}
+
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (f SystemChannelFlags) Remove(bits ...SystemChannelFlags) SystemChannelFlags {
+	for _, bit := range bits {
+		f &^= bit
+	}
+	return f
+}
+
+// Has will ensure that the bit includes all the bits entered
+func (f SystemChannelFlags) Has(bits ...SystemChannelFlags) bool {
+	for _, bit := range bits {
+		if (f & bit) != bit {
+			return false
+		}
+	}
+	return true
+}
+
+// Missing will check whether the bit is missing any one of the bits
+func (f SystemChannelFlags) Missing(bits ...SystemChannelFlags) bool {
+	for _, bit := range bits {
+		if (f & bit) != bit {
+			return true
+		}
+	}
+	return false
+}
+
 // The VerificationLevel of a Guild that members must be to send messages
 type VerificationLevel int
 
@@ -72,13 +108,15 @@ type GuildFeature string
 
 // Constants for GuildFeature
 const (
-	GuildFeatureAnimatedIcon                  GuildFeature = "ANIMATED_ICON"
 	GuildFeatureAnimatedBanner                GuildFeature = "ANIMATED_BANNER"
+	GuildFeatureAnimatedIcon                  GuildFeature = "ANIMATED_ICON"
+	GuildFeatureAutoModeration                GuildFeature = "AUTO_MODERATION"
 	GuildFeatureBanner                        GuildFeature = "BANNER"
-	GuildFeatureCommerce                      GuildFeature = "COMMERCE"
 	GuildFeatureCommunity                     GuildFeature = "COMMUNITY"
+	GuildFeatureDeveloperSupportServer        GuildFeature = "DEVELOPER_SUPPORT_SERVER"
 	GuildFeatureDiscoverable                  GuildFeature = "DISCOVERABLE"
 	GuildFeatureFeaturable                    GuildFeature = "FEATURABLE"
+	GuildFeatureInvitesDisabled               GuildFeature = "INVITES_DISABLED"
 	GuildFeatureInviteSplash                  GuildFeature = "INVITE_SPLASH"
 	GuildFeatureMemberVerificationGateEnabled GuildFeature = "MEMBER_VERIFICATION_GATE_ENABLED"
 	GuildFeatureMonetizationEnabled           GuildFeature = "MONETIZATION_ENABLED"
@@ -88,8 +126,6 @@ const (
 	GuildFeaturePreviewEnabled                GuildFeature = "PREVIEW_ENABLED"
 	GuildFeaturePrivateThreads                GuildFeature = "PRIVATE_THREADS"
 	GuildFeatureRoleIcons                     GuildFeature = "ROLE_ICONS"
-	GuildFeatureSevenDayThreadArchive         GuildFeature = "SEVEN_DAY_THREAD_ARCHIVE"
-	GuildFeatureThreeDayThreadArchive         GuildFeature = "THREE_DAY_THREAD_ARCHIVE"
 	GuildFeatureTicketedEventsEnabled         GuildFeature = "TICKETED_EVENTS_ENABLED"
 	GuildFeatureVanityURL                     GuildFeature = "VANITY_URL"
 	GuildFeatureVerified                      GuildFeature = "VERIFIED"
@@ -169,6 +205,10 @@ func (g Guild) BannerURL(opts ...CDNOpt) *string {
 	}
 	url := formatAssetURL(GuildBanner, opts, g.ID, *g.Banner)
 	return &url
+}
+
+func (g Guild) CreatedAt() time.Time {
+	return g.ID.Time()
 }
 
 type RestGuild struct {
@@ -271,25 +311,25 @@ type GuildCreate struct {
 
 // GuildUpdate is the payload used to update a Guild
 type GuildUpdate struct {
-	Name                            string                      `json:"name,omitempty"`
-	VerificationLevel               *VerificationLevel          `json:"verification_level,omitempty"`
-	DefaultMessageNotificationLevel *MessageNotificationsLevel  `json:"default_message_notification_level,omitempty"`
-	ExplicitContentFilterLevel      *ExplicitContentFilterLevel `json:"explicit_content_filter_level,omitempty"`
-	AFKChannelID                    *snowflake.ID               `json:"afk_channel_id,omitempty"`
-	AFKTimeout                      *int                        `json:"afk_timeout,omitempty"`
-	Icon                            *json.Nullable[Icon]        `json:"icon,omitempty"`
-	OwnerID                         *snowflake.ID               `json:"owner_id,omitempty"`
-	Splash                          *json.Nullable[Icon]        `json:"splash,omitempty"`
-	DiscoverySplash                 *json.Nullable[Icon]        `json:"discovery_splash,omitempty"`
-	Banner                          *json.Nullable[Icon]        `json:"banner,omitempty"`
-	SystemChannelID                 *snowflake.ID               `json:"system_channel_id,omitempty"`
-	SystemChannelFlags              *SystemChannelFlags         `json:"system_channel_flags,omitempty"`
-	RulesChannelID                  *snowflake.ID               `json:"rules_channel_id,omitempty"`
-	PublicUpdatesChannelID          *snowflake.ID               `json:"public_updates_channel_id,omitempty"`
-	PreferredLocale                 *string                     `json:"preferred_locale,omitempty"`
-	Features                        []GuildFeature              `json:"features,omitempty"`
-	Description                     *string                     `json:"description,omitempty"`
-	BoostProgressBarEnabled         *bool                       `json:"premium_progress_bar_enabled,omitempty"`
+	Name                            *string                                    `json:"name,omitempty"`
+	VerificationLevel               *json.Nullable[VerificationLevel]          `json:"verification_level,omitempty"`
+	DefaultMessageNotificationLevel *json.Nullable[MessageNotificationsLevel]  `json:"default_message_notification_level,omitempty"`
+	ExplicitContentFilterLevel      *json.Nullable[ExplicitContentFilterLevel] `json:"explicit_content_filter_level,omitempty"`
+	AFKChannelID                    *snowflake.ID                              `json:"afk_channel_id,omitempty"`
+	AFKTimeout                      *int                                       `json:"afk_timeout,omitempty"`
+	Icon                            *json.Nullable[Icon]                       `json:"icon,omitempty"`
+	OwnerID                         *snowflake.ID                              `json:"owner_id,omitempty"`
+	Splash                          *json.Nullable[Icon]                       `json:"splash,omitempty"`
+	DiscoverySplash                 *json.Nullable[Icon]                       `json:"discovery_splash,omitempty"`
+	Banner                          *json.Nullable[Icon]                       `json:"banner,omitempty"`
+	SystemChannelID                 *snowflake.ID                              `json:"system_channel_id,omitempty"`
+	SystemChannelFlags              *SystemChannelFlags                        `json:"system_channel_flags,omitempty"`
+	RulesChannelID                  *snowflake.ID                              `json:"rules_channel_id,omitempty"`
+	PublicUpdatesChannelID          *snowflake.ID                              `json:"public_updates_channel_id,omitempty"`
+	PreferredLocale                 *string                                    `json:"preferred_locale,omitempty"`
+	Features                        *[]GuildFeature                            `json:"features,omitempty"`
+	Description                     *string                                    `json:"description,omitempty"`
+	BoostProgressBarEnabled         *bool                                      `json:"premium_progress_bar_enabled,omitempty"`
 }
 
 type NSFWLevel int

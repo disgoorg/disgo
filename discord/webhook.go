@@ -2,6 +2,7 @@ package discord
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/snowflake/v2"
@@ -25,6 +26,7 @@ type Webhook interface {
 	Name() string
 	Avatar() *string
 	AvatarURL(opts ...CDNOpt) *string
+	CreatedAt() time.Time
 	webhook()
 }
 
@@ -63,7 +65,7 @@ func (w *UnmarshalWebhook) UnmarshalJSON(data []byte) error {
 		webhook = v
 
 	default:
-		err = fmt.Errorf("unkown webhook with type %d received", wType.Type)
+		err = fmt.Errorf("unknown webhook with type %d received", wType.Type)
 	}
 
 	if err != nil {
@@ -155,6 +157,10 @@ func (w IncomingWebhook) URL() string {
 	return WebhookURL(w.ID(), w.Token)
 }
 
+func (w IncomingWebhook) CreatedAt() time.Time {
+	return w.id.Time()
+}
+
 func (IncomingWebhook) webhook() {}
 
 var _ Webhook = (*ChannelFollowerWebhook)(nil)
@@ -237,6 +243,10 @@ func (w ChannelFollowerWebhook) DefaultAvatarURL(opts ...CDNOpt) string {
 	return formatAssetURL(DefaultUserAvatar, opts, 0)
 }
 
+func (w ChannelFollowerWebhook) CreatedAt() time.Time {
+	return w.id.Time()
+}
+
 func (ChannelFollowerWebhook) webhook() {}
 
 var _ Webhook = (*ApplicationWebhook)(nil)
@@ -314,6 +324,10 @@ func (w ApplicationWebhook) DefaultAvatarURL(opts ...CDNOpt) string {
 	return formatAssetURL(DefaultUserAvatar, opts, 0)
 }
 
+func (w ApplicationWebhook) CreatedAt() time.Time {
+	return w.id.Time()
+}
+
 func (ApplicationWebhook) webhook() {}
 
 type WebhookSourceGuild struct {
@@ -337,11 +351,11 @@ type WebhookCreate struct {
 type WebhookUpdate struct {
 	Name      *string              `json:"name,omitempty"`
 	Avatar    *json.Nullable[Icon] `json:"avatar,omitempty"`
-	ChannelID *snowflake.ID        `json:"channel_id"`
+	ChannelID *snowflake.ID        `json:"channel_id,omitempty"`
 }
 
 // WebhookUpdateWithToken is used to update a Webhook with the token
 type WebhookUpdateWithToken struct {
-	Name   *string `json:"name,omitempty"`
-	Avatar *string `json:"avatar,omitempty"`
+	Name   *string              `json:"name,omitempty"`
+	Avatar *json.Nullable[Icon] `json:"avatar,omitempty"`
 }
