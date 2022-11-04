@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 )
 
 type IconType string
