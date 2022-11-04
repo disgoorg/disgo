@@ -82,7 +82,7 @@ func showCaseAutoMod(client bot.Client) {
 				Type: discord.AutoModerationActionTypeBlockMessage,
 			},
 		},
-		Enabled: true,
+		Enabled: json.NewPtr(true),
 	})
 	if err != nil {
 		log.Error("error while creating rule: ", err)
