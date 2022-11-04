@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 )
 
 type internalAutocompleteOption interface {
