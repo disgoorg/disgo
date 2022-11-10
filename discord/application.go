@@ -171,6 +171,7 @@ const (
 	_
 	_
 	ApplicationFlagApplicationCommandBadge
+	ApplicationFlagActive
 )
 
 // Add allows you to add multiple bits together, producing a new bit
