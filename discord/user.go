@@ -33,6 +33,9 @@ const (
 	UserFlagEarlyVerifiedBotDeveloper
 	UserFlagDiscordCertifiedModerator
 	UserFlagBotHTTPInteractions
+	_
+	_
+	UserFlagActiveDeveloper
 	UserFlagsNone UserFlags = 0
 )
 
