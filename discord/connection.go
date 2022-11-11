@@ -28,6 +28,7 @@ const (
 	ConnectionTypeSpotify            ConnectionType = "spotify"
 	ConnectionTypeSkype              ConnectionType = "skype"
 	ConnectionTypeSteam              ConnectionType = "steam"
+	ConnectionTypeTikTok             ConnectionType = "tiktok"
 	ConnectionTypeTwitch             ConnectionType = "twitch"
 	ConnectionTypeTwitter            ConnectionType = "twitter"
 	ConnectionTypeXbox               ConnectionType = "xbox"
