@@ -13,14 +13,6 @@ type GenericDMMessage struct {
 	ChannelID snowflake.ID
 }
 
-// Channel returns the Channel the GenericDMMessage happened in
-func (e *GenericDMMessage) Channel() (discord.DMChannel, bool) {
-	if ch, ok := e.Client().Caches().DMCh(e.ChannelID); ok {
-		return ch.(discord.DMChannel), true
-	}
-	return discord.DMChannel{}, false
-}
-
 // DMMessageCreate is called upon receiving a discord.Message in a Channel (requires gateway.IntentsDirectMessage)
 type DMMessageCreate struct {
 	*GenericDMMessage
