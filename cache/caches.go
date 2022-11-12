@@ -41,7 +41,7 @@ func (c *selfUserCacheImpl) SetSelfUser(user discord.OAuth2User) {
 
 type GuildCache interface {
 	IsGuildUnready(guildID snowflake.ID) bool
-	SetGuildUnready(guildID snowflake.ID, ready bool)
+	SetGuildUnready(guildID snowflake.ID, unready bool)
 	UnreadyGuildIDs() []snowflake.ID
 
 	IsGuildUnavailable(guildID snowflake.ID) bool

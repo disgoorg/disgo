@@ -64,35 +64,35 @@ func gatewayHandlerChannelDelete(client bot.Client, sequenceNumber int, shardID 
 		GenericGuildChannel: &events.GenericGuildChannel{
 			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 			ChannelID:    event.ID(),
-			Channel:      guildChannel,
-			GuildID:      guildChannel.GuildID(),
+			Channel:      event.GuildChannel,
+			GuildID:      event.GuildChannel.GuildID(),
 		},
 	})
 }
 
 func gatewayHandlerChannelPinsUpdate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventChannelPinsUpdate) {
-	var oldTime *time.Time
-	channel, ok := client.Caches().MessageChannel(event.ChannelID)
-	if ok {
-		// TODO: update channels last pinned timestamp
-		oldTime = channel.LastPinTimestamp()
-		client.Caches().Channels().Put(event.ChannelID, discord.ApplyLastPinTimestampToChannel(channel, event.LastPinTimestamp))
-	}
-
 	if event.GuildID == nil {
 		client.EventManager().DispatchEvent(&events.DMChannelPinsUpdate{
 			GenericEvent:        events.NewGenericEvent(client, sequenceNumber, shardID),
 			ChannelID:           event.ChannelID,
-			OldLastPinTimestamp: oldTime,
 			NewLastPinTimestamp: event.LastPinTimestamp,
 		})
-	} else {
-		client.EventManager().DispatchEvent(&events.GuildChannelPinsUpdate{
-			GenericEvent:        events.NewGenericEvent(client, sequenceNumber, shardID),
-			GuildID:             *event.GuildID,
-			ChannelID:           event.ChannelID,
-			OldLastPinTimestamp: oldTime,
-			NewLastPinTimestamp: event.LastPinTimestamp,
-		})
+		return
 	}
+
+	var oldTime *time.Time
+	channel, ok := client.Caches().GuildMessageChannel(event.ChannelID)
+	if ok {
+		oldTime = channel.LastPinTimestamp()
+		client.Caches().AddChannel(discord.ApplyLastPinTimestampToChannel(channel, event.LastPinTimestamp))
+	}
+
+	client.EventManager().DispatchEvent(&events.GuildChannelPinsUpdate{
+		GenericEvent:        events.NewGenericEvent(client, sequenceNumber, shardID),
+		GuildID:             *event.GuildID,
+		ChannelID:           event.ChannelID,
+		OldLastPinTimestamp: oldTime,
+		NewLastPinTimestamp: event.LastPinTimestamp,
+	})
+
 }

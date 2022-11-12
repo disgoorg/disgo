@@ -172,6 +172,19 @@ type EventMessageReactionAdd struct {
 	Emoji     discord.ReactionEmoji `json:"emoji"`
 }
 
+func (e *EventMessageReactionAdd) UnmarshalJSON(data []byte) error {
+	type eventMessageReactionAdd EventMessageReactionAdd
+	var v eventMessageReactionAdd
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*e = EventMessageReactionAdd(v)
+	if e.Member != nil && e.GuildID != nil {
+		e.Member.GuildID = *e.GuildID
+	}
+	return nil
+}
+
 func (EventMessageReactionAdd) messageData() {}
 func (EventMessageReactionAdd) eventData()   {}
 

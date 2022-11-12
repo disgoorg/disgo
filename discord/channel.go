@@ -1237,7 +1237,7 @@ func ApplyGuildIDToChannel(channel GuildChannel, guildID snowflake.ID) GuildChan
 	}
 }
 
-func ApplyLastMessageIDToChannel(channel MessageChannel, lastMessageID snowflake.ID) MessageChannel {
+func ApplyLastMessageIDToChannel(channel GuildMessageChannel, lastMessageID snowflake.ID) GuildMessageChannel {
 	switch c := channel.(type) {
 	case GuildTextChannel:
 		c.lastMessageID = &lastMessageID
@@ -1256,7 +1256,7 @@ func ApplyLastMessageIDToChannel(channel MessageChannel, lastMessageID snowflake
 	}
 }
 
-func ApplyLastPinTimestampToChannel(channel MessageChannel, lastPinTimestamp *time.Time) MessageChannel {
+func ApplyLastPinTimestampToChannel(channel GuildMessageChannel, lastPinTimestamp *time.Time) GuildMessageChannel {
 	switch c := channel.(type) {
 	case GuildTextChannel:
 		c.lastPinTimestamp = lastPinTimestamp
