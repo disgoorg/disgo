@@ -8,54 +8,57 @@ import (
 )
 
 func gatewayHandlerGuildCreate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildCreate) {
-	wasUnready := client.Caches().Guilds().IsUnready(shardID, event.ID)
-	wasUnavailable := client.Caches().Guilds().IsUnavailable(event.ID)
+	wasUnready := client.Caches().IsGuildUnready(event.ID)
+	wasUnavailable := client.Caches().IsGuildUnavailable(event.ID)
 
-	client.Caches().Guilds().Put(event.ID, event.Guild)
+	client.Caches().AddGuild(event.Guild)
 
 	for _, channel := range event.Channels {
 		channel = discord.ApplyGuildIDToChannel(channel, event.ID) // populate unset field
-		client.Caches().Channels().Put(channel.ID(), channel)
+		client.Caches().AddChannel(channel)
 	}
 
 	for _, thread := range event.Threads {
 		thread = discord.ApplyGuildIDToThread(thread, event.ID) // populate unset field
-		client.Caches().Channels().Put(thread.ID(), thread)
+		client.Caches().AddChannel(thread)
 	}
 
 	for _, role := range event.Roles {
-		client.Caches().Roles().Put(event.ID, role.ID, role)
+		role.GuildID = event.ID // populate unset field
+		client.Caches().AddRole(role)
 	}
 
 	for _, member := range event.Members {
 		member.GuildID = event.ID // populate unset field
-		client.Caches().Members().Put(event.ID, member.User.ID, member)
+		client.Caches().AddMember(member)
 	}
 
 	for _, voiceState := range event.VoiceStates {
 		voiceState.GuildID = event.ID // populate unset field
-		client.Caches().VoiceStates().Put(voiceState.GuildID, voiceState.UserID, voiceState)
+		client.Caches().AddVoiceState(voiceState)
 	}
 
 	for _, emoji := range event.Emojis {
-		client.Caches().Emojis().Put(event.ID, emoji.ID, emoji)
+		emoji.GuildID = event.ID // populate unset field
+		client.Caches().AddEmoji(emoji)
 	}
 
 	for _, sticker := range event.Stickers {
-		client.Caches().Stickers().Put(event.ID, sticker.ID, sticker)
+		sticker.GuildID = &event.ID // populate unset field
+		client.Caches().AddSticker(sticker)
 	}
 
 	for _, stageInstance := range event.StageInstances {
-		client.Caches().StageInstances().Put(event.ID, stageInstance.ID, stageInstance)
+		client.Caches().AddStageInstance(stageInstance)
 	}
 
 	for _, guildScheduledEvent := range event.GuildScheduledEvents {
-		client.Caches().GuildScheduledEvents().Put(event.ID, guildScheduledEvent.ID, guildScheduledEvent)
+		client.Caches().AddGuildScheduledEvent(guildScheduledEvent)
 	}
 
 	for _, presence := range event.Presences {
 		presence.GuildID = event.ID // populate unset field
-		client.Caches().Presences().Put(event.ID, presence.PresenceUser.ID, presence)
+		client.Caches().AddPresence(presence)
 	}
 
 	genericGuildEvent := &events.GenericGuild{
@@ -65,11 +68,11 @@ func gatewayHandlerGuildCreate(client bot.Client, sequenceNumber int, shardID in
 	}
 
 	if wasUnready {
-		client.Caches().Guilds().SetReady(shardID, event.ID)
+		client.Caches().SetGuildUnready(event.ID, false)
 		client.EventManager().DispatchEvent(&events.GuildReady{
 			GenericGuild: genericGuildEvent,
 		})
-		if len(client.Caches().Guilds().UnreadyGuilds(shardID)) == 0 {
+		if len(client.Caches().UnreadyGuildIDs()) == 0 {
 			client.EventManager().DispatchEvent(&events.GuildsReady{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 			})
@@ -84,7 +87,7 @@ func gatewayHandlerGuildCreate(client bot.Client, sequenceNumber int, shardID in
 
 	}
 	if wasUnavailable {
-		client.Caches().Guilds().SetAvailable(event.ID)
+		client.Caches().SetGuildUnavailable(event.ID, false)
 		client.EventManager().DispatchEvent(&events.GuildAvailable{
 			GenericGuild: genericGuildEvent,
 		})

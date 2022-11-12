@@ -36,7 +36,7 @@ func (EventApplicationCommandPermissionsUpdate) messageData() {}
 func (EventApplicationCommandPermissionsUpdate) eventData()   {}
 
 type EventChannelCreate struct {
-	discord.Channel
+	discord.GuildChannel
 }
 
 func (e *EventChannelCreate) UnmarshalJSON(data []byte) error {
@@ -44,7 +44,7 @@ func (e *EventChannelCreate) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
-	e.Channel = v.Channel
+	e.GuildChannel = v.Channel.(discord.GuildChannel)
 	return nil
 }
 
@@ -52,7 +52,7 @@ func (EventChannelCreate) messageData() {}
 func (EventChannelCreate) eventData()   {}
 
 type EventChannelUpdate struct {
-	discord.Channel
+	discord.GuildChannel
 }
 
 func (e *EventChannelUpdate) UnmarshalJSON(data []byte) error {
@@ -60,7 +60,7 @@ func (e *EventChannelUpdate) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
-	e.Channel = v.Channel
+	e.GuildChannel = v.Channel.(discord.GuildChannel)
 	return nil
 }
 
@@ -68,7 +68,7 @@ func (EventChannelUpdate) messageData() {}
 func (EventChannelUpdate) eventData()   {}
 
 type EventChannelDelete struct {
-	discord.Channel
+	discord.GuildChannel
 }
 
 func (e *EventChannelDelete) UnmarshalJSON(data []byte) error {
@@ -76,7 +76,7 @@ func (e *EventChannelDelete) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
-	e.Channel = v.Channel
+	e.GuildChannel = v.Channel.(discord.GuildChannel)
 	return nil
 }
 
@@ -248,6 +248,19 @@ type EventGuildEmojisUpdate struct {
 	Emojis  []discord.Emoji `json:"emojis"`
 }
 
+func (e *EventGuildEmojisUpdate) UnmarshalJSON(data []byte) error {
+	type eventGuildEmojisUpdate EventGuildEmojisUpdate
+	var v eventGuildEmojisUpdate
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*e = EventGuildEmojisUpdate(v)
+	for i := range e.Emojis {
+		e.Emojis[i].GuildID = e.GuildID
+	}
+	return nil
+}
+
 func (EventGuildEmojisUpdate) messageData() {}
 func (EventGuildEmojisUpdate) eventData()   {}
 
@@ -293,6 +306,23 @@ type EventGuildRoleCreate struct {
 	Role    discord.Role `json:"role"`
 }
 
+func (e *EventGuildRoleCreate) UnmarshalJSON(data []byte) error {
+	type eventGuildRoleCreate EventGuildRoleCreate
+	var v eventGuildRoleCreate
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*e = EventGuildRoleCreate(v)
+	e.Role.GuildID = e.GuildID
+	return nil
+}
+
+func (e *EventGuildRoleCreate) MarshalJSON() ([]byte, error) {
+	type eventGuildRoleCreate EventGuildRoleCreate
+	e.GuildID = e.Role.GuildID
+	return json.Marshal(eventGuildRoleCreate(*e))
+}
+
 func (EventGuildRoleCreate) messageData() {}
 func (EventGuildRoleCreate) eventData()   {}
 
@@ -307,6 +337,23 @@ func (EventGuildRoleDelete) eventData()   {}
 type EventGuildRoleUpdate struct {
 	GuildID snowflake.ID `json:"guild_id"`
 	Role    discord.Role `json:"role"`
+}
+
+func (e *EventGuildRoleUpdate) UnmarshalJSON(data []byte) error {
+	type eventGuildRoleUpdate EventGuildRoleUpdate
+	var v eventGuildRoleUpdate
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*e = EventGuildRoleUpdate(v)
+	e.Role.GuildID = e.GuildID
+	return nil
+}
+
+func (e *EventGuildRoleUpdate) MarshalJSON() ([]byte, error) {
+	type eventGuildRoleUpdate EventGuildRoleUpdate
+	e.GuildID = e.Role.GuildID
+	return json.Marshal(eventGuildRoleUpdate(*e))
 }
 
 func (EventGuildRoleUpdate) messageData() {}

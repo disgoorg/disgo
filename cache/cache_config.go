@@ -8,7 +8,7 @@ import (
 func DefaultConfig() *Config {
 	return &Config{
 		GuildCachePolicy:               PolicyAll[discord.Guild],
-		ChannelCachePolicy:             PolicyAll[discord.Channel],
+		ChannelCachePolicy:             PolicyAll[discord.GuildChannel],
 		StageInstanceCachePolicy:       PolicyAll[discord.StageInstance],
 		GuildScheduledEventCachePolicy: PolicyAll[discord.GuildScheduledEvent],
 		RoleCachePolicy:                PolicyAll[discord.Role],
@@ -26,18 +26,41 @@ func DefaultConfig() *Config {
 type Config struct {
 	CacheFlags Flags
 
-	GuildCachePolicy               Policy[discord.Guild]
-	ChannelCachePolicy             Policy[discord.Channel]
-	StageInstanceCachePolicy       Policy[discord.StageInstance]
+	GuildCache       Cache[discord.Guild]
+	GuildCachePolicy Policy[discord.Guild]
+
+	ChannelCache       Cache[discord.GuildChannel]
+	ChannelCachePolicy Policy[discord.GuildChannel]
+
+	StageInstanceCache       GroupedCache[discord.StageInstance]
+	StageInstanceCachePolicy Policy[discord.StageInstance]
+
+	GuildScheduledEventCache       GroupedCache[discord.GuildScheduledEvent]
 	GuildScheduledEventCachePolicy Policy[discord.GuildScheduledEvent]
-	RoleCachePolicy                Policy[discord.Role]
-	MemberCachePolicy              Policy[discord.Member]
-	ThreadMemberCachePolicy        Policy[discord.ThreadMember]
-	PresenceCachePolicy            Policy[discord.Presence]
-	VoiceStateCachePolicy          Policy[discord.VoiceState]
-	MessageCachePolicy             Policy[discord.Message]
-	EmojiCachePolicy               Policy[discord.Emoji]
-	StickerCachePolicy             Policy[discord.Sticker]
+
+	RoleCache       GroupedCache[discord.Role]
+	RoleCachePolicy Policy[discord.Role]
+
+	MemberCache       GroupedCache[discord.Member]
+	MemberCachePolicy Policy[discord.Member]
+
+	ThreadMemberCache       GroupedCache[discord.ThreadMember]
+	ThreadMemberCachePolicy Policy[discord.ThreadMember]
+
+	PresenceCache       GroupedCache[discord.Presence]
+	PresenceCachePolicy Policy[discord.Presence]
+
+	VoiceStateCache       GroupedCache[discord.VoiceState]
+	VoiceStateCachePolicy Policy[discord.VoiceState]
+
+	MessageCache       GroupedCache[discord.Message]
+	MessageCachePolicy Policy[discord.Message]
+
+	EmojiCache       GroupedCache[discord.Emoji]
+	EmojiCachePolicy Policy[discord.Emoji]
+
+	StickerCache       GroupedCache[discord.Sticker]
+	StickerCachePolicy Policy[discord.Sticker]
 }
 
 // ConfigOpt is a type alias for a function that takes a Config and is used to configure your Caches.
@@ -47,6 +70,42 @@ type ConfigOpt func(config *Config)
 func (c *Config) Apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
+	}
+	if c.GuildCache == nil {
+		c.GuildCache = NewCache[discord.Guild](c.CacheFlags, FlagGuilds, c.GuildCachePolicy)
+	}
+	if c.ChannelCache == nil {
+		c.ChannelCache = NewCache[discord.GuildChannel](c.CacheFlags, FlagChannels, c.ChannelCachePolicy)
+	}
+	if c.StageInstanceCache == nil {
+		c.StageInstanceCache = NewGroupedCache[discord.StageInstance](c.CacheFlags, FlagStageInstances, c.StageInstanceCachePolicy)
+	}
+	if c.GuildScheduledEventCache == nil {
+		c.GuildScheduledEventCache = NewGroupedCache[discord.GuildScheduledEvent](c.CacheFlags, FlagGuildScheduledEvents, c.GuildScheduledEventCachePolicy)
+	}
+	if c.RoleCache == nil {
+		c.RoleCache = NewGroupedCache[discord.Role](c.CacheFlags, FlagRoles, c.RoleCachePolicy)
+	}
+	if c.MemberCache == nil {
+		c.MemberCache = NewGroupedCache[discord.Member](c.CacheFlags, FlagMembers, c.MemberCachePolicy)
+	}
+	if c.ThreadMemberCache == nil {
+		c.ThreadMemberCache = NewGroupedCache[discord.ThreadMember](c.CacheFlags, FlagThreadMembers, c.ThreadMemberCachePolicy)
+	}
+	if c.PresenceCache == nil {
+		c.PresenceCache = NewGroupedCache[discord.Presence](c.CacheFlags, FlagPresences, c.PresenceCachePolicy)
+	}
+	if c.VoiceStateCache == nil {
+		c.VoiceStateCache = NewGroupedCache[discord.VoiceState](c.CacheFlags, FlagVoiceStates, c.VoiceStateCachePolicy)
+	}
+	if c.MessageCache == nil {
+		c.MessageCache = NewGroupedCache[discord.Message](c.CacheFlags, FlagMessages, c.MessageCachePolicy)
+	}
+	if c.EmojiCache == nil {
+		c.EmojiCache = NewGroupedCache[discord.Emoji](c.CacheFlags, FlagEmojis, c.EmojiCachePolicy)
+	}
+	if c.StickerCache == nil {
+		c.StickerCache = NewGroupedCache[discord.Sticker](c.CacheFlags, FlagStickers, c.StickerCachePolicy)
 	}
 }
 
@@ -65,7 +124,7 @@ func WithGuildCachePolicy(policy Policy[discord.Guild]) ConfigOpt {
 }
 
 // WithChannelCachePolicy sets the Policy[discord.Channel] of the Config.
-func WithChannelCachePolicy(policy Policy[discord.Channel]) ConfigOpt {
+func WithChannelCachePolicy(policy Policy[discord.GuildChannel]) ConfigOpt {
 	return func(config *Config) {
 		config.ChannelCachePolicy = policy
 	}

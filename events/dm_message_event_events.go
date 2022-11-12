@@ -15,7 +15,7 @@ type GenericDMMessage struct {
 
 // Channel returns the Channel the GenericDMMessage happened in
 func (e *GenericDMMessage) Channel() (discord.DMChannel, bool) {
-	if ch, ok := e.Client().Caches().Channels().Get(e.ChannelID); ok {
+	if ch, ok := e.Client().Caches().DMCh(e.ChannelID); ok {
 		return ch.(discord.DMChannel), true
 	}
 	return discord.DMChannel{}, false
