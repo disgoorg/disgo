@@ -2,6 +2,8 @@ package cache
 
 import (
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/internal/set"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 // DefaultConfig returns a Config with sensible defaults.
@@ -26,40 +28,42 @@ func DefaultConfig() *Config {
 type Config struct {
 	CacheFlags Flags
 
-	GuildCache       Cache[discord.Guild]
+	SelfUserCache SelfUserCache
+
+	GuildCache       GuildCache
 	GuildCachePolicy Policy[discord.Guild]
 
-	ChannelCache       Cache[discord.GuildChannel]
+	ChannelCache       ChannelCache
 	ChannelCachePolicy Policy[discord.GuildChannel]
 
-	StageInstanceCache       GroupedCache[discord.StageInstance]
+	StageInstanceCache       StageInstanceCache
 	StageInstanceCachePolicy Policy[discord.StageInstance]
 
-	GuildScheduledEventCache       GroupedCache[discord.GuildScheduledEvent]
+	GuildScheduledEventCache       GuildScheduledEventCache
 	GuildScheduledEventCachePolicy Policy[discord.GuildScheduledEvent]
 
-	RoleCache       GroupedCache[discord.Role]
+	RoleCache       RoleCache
 	RoleCachePolicy Policy[discord.Role]
 
-	MemberCache       GroupedCache[discord.Member]
+	MemberCache       MemberCache
 	MemberCachePolicy Policy[discord.Member]
 
-	ThreadMemberCache       GroupedCache[discord.ThreadMember]
+	ThreadMemberCache       ThreadMemberCache
 	ThreadMemberCachePolicy Policy[discord.ThreadMember]
 
-	PresenceCache       GroupedCache[discord.Presence]
+	PresenceCache       PresenceCache
 	PresenceCachePolicy Policy[discord.Presence]
 
-	VoiceStateCache       GroupedCache[discord.VoiceState]
+	VoiceStateCache       VoiceStateCache
 	VoiceStateCachePolicy Policy[discord.VoiceState]
 
-	MessageCache       GroupedCache[discord.Message]
+	MessageCache       MessageCache
 	MessageCachePolicy Policy[discord.Message]
 
-	EmojiCache       GroupedCache[discord.Emoji]
+	EmojiCache       EmojiCache
 	EmojiCachePolicy Policy[discord.Emoji]
 
-	StickerCache       GroupedCache[discord.Sticker]
+	StickerCache       StickerCache
 	StickerCachePolicy Policy[discord.Sticker]
 }
 
@@ -71,41 +75,44 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	for _, opt := range opts {
 		opt(c)
 	}
+	if c.SelfUserCache == nil {
+		c.SelfUserCache = NewSelfUserCache()
+	}
 	if c.GuildCache == nil {
-		c.GuildCache = NewCache[discord.Guild](c.CacheFlags, FlagGuilds, c.GuildCachePolicy)
+		c.GuildCache = NewGuildCache(NewCache[discord.Guild](c.CacheFlags, FlagGuilds, c.GuildCachePolicy), set.New[snowflake.ID](), set.New[snowflake.ID]())
 	}
 	if c.ChannelCache == nil {
-		c.ChannelCache = NewCache[discord.GuildChannel](c.CacheFlags, FlagChannels, c.ChannelCachePolicy)
+		c.ChannelCache = NewChannelCache(NewCache[discord.GuildChannel](c.CacheFlags, FlagChannels, c.ChannelCachePolicy))
 	}
 	if c.StageInstanceCache == nil {
-		c.StageInstanceCache = NewGroupedCache[discord.StageInstance](c.CacheFlags, FlagStageInstances, c.StageInstanceCachePolicy)
+		c.StageInstanceCache = NewStageInstanceCache(NewGroupedCache[discord.StageInstance](c.CacheFlags, FlagStageInstances, c.StageInstanceCachePolicy))
 	}
 	if c.GuildScheduledEventCache == nil {
-		c.GuildScheduledEventCache = NewGroupedCache[discord.GuildScheduledEvent](c.CacheFlags, FlagGuildScheduledEvents, c.GuildScheduledEventCachePolicy)
+		c.GuildScheduledEventCache = NewGuildScheduledEventCache(NewGroupedCache[discord.GuildScheduledEvent](c.CacheFlags, FlagGuildScheduledEvents, c.GuildScheduledEventCachePolicy))
 	}
 	if c.RoleCache == nil {
-		c.RoleCache = NewGroupedCache[discord.Role](c.CacheFlags, FlagRoles, c.RoleCachePolicy)
+		c.RoleCache = NewRoleCache(NewGroupedCache[discord.Role](c.CacheFlags, FlagRoles, c.RoleCachePolicy))
 	}
 	if c.MemberCache == nil {
-		c.MemberCache = NewGroupedCache[discord.Member](c.CacheFlags, FlagMembers, c.MemberCachePolicy)
+		c.MemberCache = NewMemberCache(NewGroupedCache[discord.Member](c.CacheFlags, FlagMembers, c.MemberCachePolicy))
 	}
 	if c.ThreadMemberCache == nil {
-		c.ThreadMemberCache = NewGroupedCache[discord.ThreadMember](c.CacheFlags, FlagThreadMembers, c.ThreadMemberCachePolicy)
+		c.ThreadMemberCache = NewThreadMemberCache(NewGroupedCache[discord.ThreadMember](c.CacheFlags, FlagThreadMembers, c.ThreadMemberCachePolicy))
 	}
 	if c.PresenceCache == nil {
-		c.PresenceCache = NewGroupedCache[discord.Presence](c.CacheFlags, FlagPresences, c.PresenceCachePolicy)
+		c.PresenceCache = NewPresenceCache(NewGroupedCache[discord.Presence](c.CacheFlags, FlagPresences, c.PresenceCachePolicy))
 	}
 	if c.VoiceStateCache == nil {
-		c.VoiceStateCache = NewGroupedCache[discord.VoiceState](c.CacheFlags, FlagVoiceStates, c.VoiceStateCachePolicy)
+		c.VoiceStateCache = NewVoiceStateCache(NewGroupedCache[discord.VoiceState](c.CacheFlags, FlagVoiceStates, c.VoiceStateCachePolicy))
 	}
 	if c.MessageCache == nil {
-		c.MessageCache = NewGroupedCache[discord.Message](c.CacheFlags, FlagMessages, c.MessageCachePolicy)
+		c.MessageCache = NewMessageCache(NewGroupedCache[discord.Message](c.CacheFlags, FlagMessages, c.MessageCachePolicy))
 	}
 	if c.EmojiCache == nil {
-		c.EmojiCache = NewGroupedCache[discord.Emoji](c.CacheFlags, FlagEmojis, c.EmojiCachePolicy)
+		c.EmojiCache = NewEmojiCache(NewGroupedCache[discord.Emoji](c.CacheFlags, FlagEmojis, c.EmojiCachePolicy))
 	}
 	if c.StickerCache == nil {
-		c.StickerCache = NewGroupedCache[discord.Sticker](c.CacheFlags, FlagStickers, c.StickerCachePolicy)
+		c.StickerCache = NewStickerCache(NewGroupedCache[discord.Sticker](c.CacheFlags, FlagStickers, c.StickerCachePolicy))
 	}
 }
 
@@ -123,10 +130,24 @@ func WithGuildCachePolicy(policy Policy[discord.Guild]) ConfigOpt {
 	}
 }
 
+// WithGuildCache sets the GuildCache of the Config.
+func WithGuildCache(guildCache GuildCache) ConfigOpt {
+	return func(config *Config) {
+		config.GuildCache = guildCache
+	}
+}
+
 // WithChannelCachePolicy sets the Policy[discord.Channel] of the Config.
 func WithChannelCachePolicy(policy Policy[discord.GuildChannel]) ConfigOpt {
 	return func(config *Config) {
 		config.ChannelCachePolicy = policy
+	}
+}
+
+// WithChannelCache sets the ChannelCache of the Config.
+func WithChannelCache(channelCache ChannelCache) ConfigOpt {
+	return func(config *Config) {
+		config.ChannelCache = channelCache
 	}
 }
 
@@ -137,10 +158,24 @@ func WithStageInstanceCachePolicy(policy Policy[discord.StageInstance]) ConfigOp
 	}
 }
 
+// WithStageInstanceCache sets the StageInstanceCache of the Config.
+func WithStageInstanceCache(stageInstanceCache StageInstanceCache) ConfigOpt {
+	return func(config *Config) {
+		config.StageInstanceCache = stageInstanceCache
+	}
+}
+
 // WithGuildScheduledEventCachePolicy sets the Policy[discord.GuildScheduledEvent] of the Config.
 func WithGuildScheduledEventCachePolicy(policy Policy[discord.GuildScheduledEvent]) ConfigOpt {
 	return func(config *Config) {
 		config.GuildScheduledEventCachePolicy = policy
+	}
+}
+
+// WithGuildScheduledEventCache sets the GuildScheduledEventCache of the Config.
+func WithGuildScheduledEventCache(guildScheduledEventCache GuildScheduledEventCache) ConfigOpt {
+	return func(config *Config) {
+		config.GuildScheduledEventCache = guildScheduledEventCache
 	}
 }
 
@@ -151,10 +186,24 @@ func WithRoleCachePolicy(policy Policy[discord.Role]) ConfigOpt {
 	}
 }
 
+// WithRoleCache sets the RoleCache of the Config.
+func WithRoleCache(roleCache RoleCache) ConfigOpt {
+	return func(config *Config) {
+		config.RoleCache = roleCache
+	}
+}
+
 // WithMemberCachePolicy sets the Policy[discord.Member] of the Config.
 func WithMemberCachePolicy(policy Policy[discord.Member]) ConfigOpt {
 	return func(config *Config) {
 		config.MemberCachePolicy = policy
+	}
+}
+
+// WithMemberCache sets the MemberCache of the Config.
+func WithMemberCache(memberCache MemberCache) ConfigOpt {
+	return func(config *Config) {
+		config.MemberCache = memberCache
 	}
 }
 
@@ -165,10 +214,24 @@ func WithThreadMemberCachePolicy(policy Policy[discord.ThreadMember]) ConfigOpt 
 	}
 }
 
+// WithThreadMemberCache sets the ThreadMemberCache of the Config.
+func WithThreadMemberCache(threadMemberCache ThreadMemberCache) ConfigOpt {
+	return func(config *Config) {
+		config.ThreadMemberCache = threadMemberCache
+	}
+}
+
 // WithPresenceCachePolicy sets the Policy[discord.Presence] of the Config.
 func WithPresenceCachePolicy(policy Policy[discord.Presence]) ConfigOpt {
 	return func(config *Config) {
 		config.PresenceCachePolicy = policy
+	}
+}
+
+// WithPresenceCache sets the PresenceCache of the Config.
+func WithPresenceCache(presenceCache PresenceCache) ConfigOpt {
+	return func(config *Config) {
+		config.PresenceCache = presenceCache
 	}
 }
 
@@ -179,10 +242,24 @@ func WithVoiceStateCachePolicy(policy Policy[discord.VoiceState]) ConfigOpt {
 	}
 }
 
+// WithVoiceStateCache sets the VoiceStateCache of the Config.
+func WithVoiceStateCache(voiceStateCache VoiceStateCache) ConfigOpt {
+	return func(config *Config) {
+		config.VoiceStateCache = voiceStateCache
+	}
+}
+
 // WithMessageCachePolicy sets the Policy[discord.Message] of the Config.
 func WithMessageCachePolicy(policy Policy[discord.Message]) ConfigOpt {
 	return func(config *Config) {
 		config.MessageCachePolicy = policy
+	}
+}
+
+// WithMessageCache sets the MessageCache of the Config.
+func WithMessageCache(messageCache MessageCache) ConfigOpt {
+	return func(config *Config) {
+		config.MessageCache = messageCache
 	}
 }
 
@@ -193,9 +270,23 @@ func WithEmojiCachePolicy(policy Policy[discord.Emoji]) ConfigOpt {
 	}
 }
 
+// WithEmojiCache sets the EmojiCache of the Config.
+func WithEmojiCache(emojiCache EmojiCache) ConfigOpt {
+	return func(config *Config) {
+		config.EmojiCache = emojiCache
+	}
+}
+
 // WithStickerCachePolicy sets the Policy[discord.Sticker] of the Config.
 func WithStickerCachePolicy(policy Policy[discord.Sticker]) ConfigOpt {
 	return func(config *Config) {
 		config.StickerCachePolicy = policy
+	}
+}
+
+// WithStickerCache sets the StickerCache of the Config.
+func WithStickerCache(stickerCache StickerCache) ConfigOpt {
+	return func(config *Config) {
+		config.StickerCache = stickerCache
 	}
 }

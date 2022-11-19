@@ -54,18 +54,18 @@ type GuildCache interface {
 	RemoveGuild(guildID snowflake.ID) (discord.Guild, bool)
 }
 
-func NewGuildCache(cache Cache[discord.Guild]) GuildCache {
+func NewGuildCache(cache Cache[discord.Guild], unreadyGuilds set.Set[snowflake.ID], unavailableGuilds set.Set[snowflake.ID]) GuildCache {
 	return &guildCacheImpl{
 		cache:             cache,
-		unreadyGuilds:     set.New[snowflake.ID](),
-		unavailableGuilds: set.New[snowflake.ID](),
+		unreadyGuilds:     unreadyGuilds,
+		unavailableGuilds: unavailableGuilds,
 	}
 }
 
 type guildCacheImpl struct {
 	cache             Cache[discord.Guild]
-	unreadyGuilds     *set.Set[snowflake.ID]
-	unavailableGuilds *set.Set[snowflake.ID]
+	unreadyGuilds     set.Set[snowflake.ID]
+	unavailableGuilds set.Set[snowflake.ID]
 }
 
 func (c *guildCacheImpl) IsGuildUnready(guildID snowflake.ID) bool {
@@ -580,6 +580,7 @@ func (c *stickerCacheImpl) RemoveStickersByGuildID(guildID snowflake.ID) {
 
 // Caches combines all different entity caches into one with some utility methods.
 type Caches interface {
+	SelfUserCache
 	GuildCache
 	ChannelCache
 	StageInstanceCache
@@ -592,7 +593,6 @@ type Caches interface {
 	MessageCache
 	EmojiCache
 	StickerCache
-	SelfUserCache
 
 	// CacheFlags returns the current configured FLags of the caches.
 	CacheFlags() Flags
@@ -663,43 +663,20 @@ func New(opts ...ConfigOpt) Caches {
 	config.Apply(opts)
 
 	return &cachesImpl{
-		config: *config,
-		GuildCache: &guildCacheImpl{
-			cache: config.GuildCache,
-		},
-		ChannelCache: &channelCacheImpl{
-			cache: config.ChannelCache,
-		},
-		StageInstanceCache: &stageInstanceCacheImpl{
-			cache: config.StageInstanceCache,
-		},
-		GuildScheduledEventCache: &guildScheduledEventCacheImpl{
-			cache: config.GuildScheduledEventCache,
-		},
-		RoleCache: &roleCacheImpl{
-			cache: config.RoleCache,
-		},
-		MemberCache: &memberCacheImpl{
-			cache: config.MemberCache,
-		},
-		ThreadMemberCache: &threadMemberCacheImpl{
-			cache: config.ThreadMemberCache,
-		},
-		PresenceCache: &presenceCacheImpl{
-			cache: config.PresenceCache,
-		},
-		VoiceStateCache: &voiceStateCacheImpl{
-			cache: config.VoiceStateCache,
-		},
-		MessageCache: &messageCacheImpl{
-			cache: config.MessageCache,
-		},
-		EmojiCache: &emojiCacheImpl{
-			cache: config.EmojiCache,
-		},
-		StickerCache: &stickerCacheImpl{
-			cache: config.StickerCache,
-		},
+		config:                   *config,
+		SelfUserCache:            config.SelfUserCache,
+		GuildCache:               config.GuildCache,
+		ChannelCache:             config.ChannelCache,
+		StageInstanceCache:       config.StageInstanceCache,
+		GuildScheduledEventCache: config.GuildScheduledEventCache,
+		RoleCache:                config.RoleCache,
+		MemberCache:              config.MemberCache,
+		ThreadMemberCache:        config.ThreadMemberCache,
+		PresenceCache:            config.PresenceCache,
+		VoiceStateCache:          config.VoiceStateCache,
+		MessageCache:             config.MessageCache,
+		EmojiCache:               config.EmojiCache,
+		StickerCache:             config.StickerCache,
 	}
 }
 
@@ -809,7 +786,7 @@ func (c *cachesImpl) MemberRoles(member discord.Member) []discord.Role {
 func (c *cachesImpl) AudioChannelMembers(channel discord.GuildAudioChannel) []discord.Member {
 	var members []discord.Member
 	c.VoiceStatesForEach(channel.GuildID(), func(state discord.VoiceState) {
-		if member, ok := c.Member(channel.GuildID(), state.UserID); ok {
+		if member, ok := c.Member(channel.GuildID(), state.UserID); ok && state.ChannelID != nil && *state.ChannelID == channel.ID() {
 			members = append(members, member)
 		}
 	})
