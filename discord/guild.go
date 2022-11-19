@@ -124,7 +124,6 @@ const (
 	GuildFeatureNews                          GuildFeature = "NEWS"
 	GuildFeaturePartnered                     GuildFeature = "PARTNERED"
 	GuildFeaturePreviewEnabled                GuildFeature = "PREVIEW_ENABLED"
-	GuildFeaturePrivateThreads                GuildFeature = "PRIVATE_THREADS"
 	GuildFeatureRoleIcons                     GuildFeature = "ROLE_ICONS"
 	GuildFeatureTicketedEventsEnabled         GuildFeature = "TICKETED_EVENTS_ENABLED"
 	GuildFeatureVanityURL                     GuildFeature = "VANITY_URL"
