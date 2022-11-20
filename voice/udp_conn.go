@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"strings"
 	"sync"
@@ -19,36 +20,66 @@ const OpusPacketHeaderSize = 12
 // ErrDecryptionFailed is returned when the packet decryption fails.
 var ErrDecryptionFailed = errors.New("decryption failed")
 
+var (
+	_ io.Reader      = (UDPConn)(nil)
+	_ io.ReadCloser  = (UDPConn)(nil)
+	_ io.Writer      = (UDPConn)(nil)
+	_ io.WriteCloser = (UDPConn)(nil)
+	_ net.Conn       = (UDPConn)(nil)
+)
+
 // UDPConnCreateFunc is a function that creates a UDPConn.
-type UDPConnCreateFunc func(ip string, port int, ssrc uint32, opts ...UDPConnConfigOpt) UDPConn
+type (
+	UDPConnCreateFunc func(ip string, port int, ssrc uint32, opts ...UDPConnConfigOpt) UDPConn
 
-// UDPConn represents a UDP connection to discord voice servers. It is used to send/receive voice packets to/from discord.
-// It implements the io.Reader, io.Writer and io.Closer interface.
-type UDPConn interface {
-	// SetSecretKey sets the secret key used to encrypt packets.
-	SetSecretKey(secretKey [32]byte)
+	// UDPConn represents a UDP connection to discord voice servers. It is used to send/receive voice packets to/from discord.
+	// It implements the io.Reader, io.Writer and io.Closer interface.
+	UDPConn interface {
+		// LocalAddr returns the local network address, if known.
+		LocalAddr() net.Addr
 
-	// Open opens the UDPConn connection.
-	Open(ctx context.Context) (string, int, error)
+		// RemoteAddr returns the remote network address, if known.
+		RemoteAddr() net.Addr
 
-	// Write writes a packet to the UDPConn connection. This implements the io.Writer interface.
-	Write(p []byte) (int, error)
+		// SetSecretKey sets the secret key used to encrypt packets.
+		SetSecretKey(secretKey [32]byte)
 
-	// Read reads a packet from the UDPConn connection. This implements the io.Reader interface.
-	Read(p []byte) (int, error)
+		SetDeadline(t time.Time) error
 
-	// SetReadDeadline sets the read deadline for the UDPConn connection.
-	SetReadDeadline(t time.Time) error
+		// SetReadDeadline sets the read deadline for the UDPConn connection.
+		SetReadDeadline(t time.Time) error
 
-	// SetWriteDeadline sets the write deadline for the UDPConn connection.
-	SetWriteDeadline(t time.Time) error
+		// SetWriteDeadline sets the write deadline for the UDPConn connection.
+		SetWriteDeadline(t time.Time) error
 
-	// ReadPacket reads a packet from the UDPConn connection.
-	ReadPacket() (*Packet, error)
+		// Open opens the UDPConn connection.
+		Open(ctx context.Context) (string, int, error)
 
-	// Close closes the UDPConn connection.
-	Close()
-}
+		// Close closes the UDPConn connection.
+		Close() error
+
+		// Read reads a packet from the UDPConn connection. This implements the io.Reader interface.
+		Read(p []byte) (int, error)
+
+		// ReadPacket reads a packet from the UDPConn connection.
+		ReadPacket() (*Packet, error)
+
+		// Write writes a packet to the UDPConn connection. This implements the io.Writer interface.
+		Write(p []byte) (int, error)
+	}
+
+	// Packet is a voice packet received from discord.
+	Packet struct {
+		// Sequence is the sequence number of the packet.
+		Sequence uint16
+		// Timestamp is the timestamp of the packet.
+		Timestamp uint32
+		// SSRC is the users SSRC of the packet.
+		SSRC uint32
+		// Opus is the actual opus data of the packet.
+		Opus []byte
+	}
+)
 
 // NewUDPConn creates a new voice UDPConn with the given configuration.
 func NewUDPConn(ip string, port int, ssrc uint32, opts ...UDPConnConfigOpt) UDPConn {
@@ -85,8 +116,26 @@ type udpImpl struct {
 	receiveBuffer []byte
 }
 
+func (u *udpImpl) LocalAddr() net.Addr {
+	u.connMu.Lock()
+	defer u.connMu.Unlock()
+	return u.conn.LocalAddr()
+}
+
+func (u *udpImpl) RemoteAddr() net.Addr {
+	u.connMu.Lock()
+	defer u.connMu.Unlock()
+	return u.conn.RemoteAddr()
+}
+
 func (u *udpImpl) SetSecretKey(secretKey [32]byte) {
 	u.secretKey = secretKey
+}
+
+func (u *udpImpl) SetDeadline(t time.Time) error {
+	u.connMu.Lock()
+	defer u.connMu.Unlock()
+	return u.conn.SetDeadline(t)
 }
 
 func (u *udpImpl) SetReadDeadline(t time.Time) error {
@@ -205,20 +254,8 @@ func (u *udpImpl) ReadPacket() (*Packet, error) {
 	}
 }
 
-func (u *udpImpl) Close() {
+func (u *udpImpl) Close() error {
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
-	_ = u.conn.Close()
-}
-
-// Packet is a voice packet received from discord.
-type Packet struct {
-	// Sequence is the sequence number of the packet.
-	Sequence uint16
-	// Timestamp is the timestamp of the packet.
-	Timestamp uint32
-	// SSRC is the users SSRC of the packet.
-	SSRC uint32
-	// Opus is the actual opus data of the packet.
-	Opus []byte
+	return u.conn.Close()
 }

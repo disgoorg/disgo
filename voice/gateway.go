@@ -46,11 +46,12 @@ type (
 type Gateway interface {
 	Logger() log.Logger
 	SSRC() uint32
+	Latency() time.Duration
+
 	Open(ctx context.Context) error
 	Close()
 	CloseWithCode(code int, message string)
 	Send(opCode GatewayOpcode, data GatewayMessageData) error
-	Latency() time.Duration
 }
 
 func NewGateway(state state, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway {

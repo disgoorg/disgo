@@ -2,21 +2,28 @@ package voice
 
 import (
 	"context"
-	"encoding/binary"
-	"io"
 	"net"
 
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 )
 
-type ShouldReceiveUserFunc func(userID snowflake.ID) bool
+type (
+	AudioReceiveSystemCreateFunc func(logger log.Logger, receiver OpusFrameReceiver, connection Conn) AudioReceiveSystem
+	UserFilterFunc               func(userID snowflake.ID) bool
 
-type AudioReceiveSystem interface {
-	Open()
-	CleanupUser(userID snowflake.ID)
-	Close()
-}
+	AudioReceiveSystem interface {
+		Open()
+		CleanupUser(userID snowflake.ID)
+		Close()
+	}
+
+	OpusFrameReceiver interface {
+		ReceiveOpusFrame(userID snowflake.ID, packet *Packet) error
+		CleanupUser(userID snowflake.ID)
+		Close()
+	}
+)
 
 func NewAudioReceiveSystem(logger log.Logger, opusFrameReceiver OpusFrameReceiver, connection Conn) AudioReceiveSystem {
 	return &defaultAudioReceiveSystem{
@@ -76,37 +83,3 @@ func (s *defaultAudioReceiveSystem) Close() {
 	s.cancelFunc()
 	s.opusFrameReceiver.Close()
 }
-
-type OpusFrameReceiver interface {
-	ReceiveOpusFrame(userID snowflake.ID, packet *Packet) error
-	CleanupUser(userID snowflake.ID)
-	Close()
-}
-
-func NewOpusStreamReceiver(w io.Writer, receiveUserFunc ShouldReceiveUserFunc) OpusFrameReceiver {
-	return &opusStreamReceiver{
-		w:               w,
-		receiveUserFunc: receiveUserFunc,
-	}
-}
-
-type opusStreamReceiver struct {
-	w               io.Writer
-	receiveUserFunc ShouldReceiveUserFunc
-}
-
-func (r *opusStreamReceiver) ReceiveOpusFrame(userID snowflake.ID, packet *Packet) error {
-	if r.receiveUserFunc == nil || !r.receiveUserFunc(userID) {
-		return nil
-	}
-	if err := binary.Write(r.w, binary.LittleEndian, uint32(len(packet.Opus))); err != nil {
-		return err
-	}
-	if _, err := r.w.Write(packet.Opus); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (*opusStreamReceiver) CleanupUser(_ snowflake.ID) {}
-func (*opusStreamReceiver) Close()                     {}

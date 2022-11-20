@@ -2,7 +2,6 @@ package voice
 
 import (
 	"context"
-	"encoding/binary"
 	"errors"
 	"io"
 	"net"
@@ -14,6 +13,21 @@ import (
 var (
 	SilenceAudioFrames       = []byte{0xF8, 0xFF, 0xFE}
 	OpusFrameSize      int64 = 20
+	OpusStreamBuffSize int64 = 4000
+)
+
+type (
+	AudioSendSystemCreateFunc func(logger log.Logger, provider OpusFrameProvider, connection Conn) AudioSendSystem
+
+	AudioSendSystem interface {
+		Open()
+		Close()
+	}
+
+	OpusFrameProvider interface {
+		ProvideOpusFrame() ([]byte, error)
+		Close()
+	}
 )
 
 func NewAudioSendSystem(logger log.Logger, opusProvider OpusFrameProvider, connection Conn) AudioSendSystem {
@@ -23,11 +37,6 @@ func NewAudioSendSystem(logger log.Logger, opusProvider OpusFrameProvider, conne
 		connection:   connection,
 		silentFrames: 5,
 	}
-}
-
-type AudioSendSystem interface {
-	Open()
-	Close()
 }
 
 type defaultAudioSendSystem struct {
@@ -118,39 +127,3 @@ func (s *defaultAudioSendSystem) handleErr(err error) {
 func (s *defaultAudioSendSystem) Close() {
 	s.cancelFunc()
 }
-
-type OpusFrameProvider interface {
-	ProvideOpusFrame() ([]byte, error)
-	Close()
-}
-
-var _ OpusFrameProvider = (*OpusStreamProvider)(nil)
-
-func NewOpusStreamProvider(r io.Reader) *OpusStreamProvider {
-	return &OpusStreamProvider{
-		r:    r,
-		buff: make([]byte, 4000),
-	}
-}
-
-type OpusStreamProvider struct {
-	r       io.Reader
-	lenBuff [4]byte
-	buff    []byte
-}
-
-func (h *OpusStreamProvider) ProvideOpusFrame() ([]byte, error) {
-	_, err := h.r.Read(h.lenBuff[:])
-	if err != nil {
-		return nil, err
-	}
-
-	frameLen := int64(binary.LittleEndian.Uint32(h.lenBuff[:]))
-	_, err = h.r.Read(h.buff[:frameLen])
-	if err != nil {
-		return nil, err
-	}
-	return h.buff[:frameLen], nil
-}
-
-func (*OpusStreamProvider) Close() {}

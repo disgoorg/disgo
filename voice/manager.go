@@ -11,10 +11,11 @@ import (
 type Manager interface {
 	HandleVoiceStateUpdate(update gateway.EventVoiceStateUpdate)
 	HandleVoiceServerUpdate(update gateway.EventVoiceServerUpdate)
+
 	CreateConn(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID) Conn
 	GetConn(guildID snowflake.ID) Conn
-	ForEach(f func(connection Conn))
-	RemoveConn(guildID snowflake.ID)
+	ForEachCon(f func(connection Conn))
+	DeleteConn(guildID snowflake.ID)
 
 	Close(ctx context.Context)
 }
@@ -73,7 +74,7 @@ func (m *managerImpl) GetConn(guildID snowflake.ID) Conn {
 	return m.connections[guildID]
 }
 
-func (m *managerImpl) ForEach(f func(connection Conn)) {
+func (m *managerImpl) ForEachCon(f func(connection Conn)) {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
 	for _, connection := range m.connections {
@@ -81,7 +82,7 @@ func (m *managerImpl) ForEach(f func(connection Conn)) {
 	}
 }
 
-func (m *managerImpl) RemoveConn(guildID snowflake.ID) {
+func (m *managerImpl) DeleteConn(guildID snowflake.ID) {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
 	m.config.Logger.Debugf("Removing voice connection for guild: %s", guildID)

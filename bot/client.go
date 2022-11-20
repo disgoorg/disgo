@@ -73,23 +73,23 @@ type Client interface {
 	// Shard returns the gateway.Gateway the specific guildID runs on.
 	Shard(guildID snowflake.ID) (gateway.Gateway, error)
 
-	// OpenVoiceManual sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway.
-	OpenVoiceManual(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) error
+	// OpenVoiceRaw sends a gateway.MessageDataVoiceStateUpdate to the specific gateway.Gateway.
+	OpenVoiceRaw(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) error
 
-	// OpenVoice sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway and returns the voice.Conn.
+	// OpenVoice sends a gateway.MessageDataVoiceStateUpdate to the specific gateway. and returns the voice.Conn.
 	OpenVoice(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) (voice.Conn, error)
 
-	// CloseVoice sends a discord.GatewayMessageDataVoiceStateUpdate to the specific gateway.Gateway, disconnects the bot from this guild and removes the voice.Conn.
+	// CloseVoice sends a gateway.MessageDataVoiceStateUpdate to the specific gateway.Gateway, disconnects the bot from this guild and removes the voice.Conn.
 	CloseVoice(ctx context.Context, guildID snowflake.ID) error
 
-	// RequestMembers sends a discord.MessageDataRequestGuildMembers to the specific gateway.Gateway and requests the Member(s) of the specified guild.
+	// RequestMembers sends a gateway.MessageDataRequestGuildMembers to the specific gateway.Gateway and requests the Member(s) of the specified guild.
 	//  guildID  : is the snowflake of the guild to request the members of.
 	//  presence : Whether to include discord.Presence data.
 	//  nonce	 : The nonce to return to the discord.EventGuildMembersChunk.
 	//  userIDs  : The snowflakes of the users to request the members of.
 	RequestMembers(ctx context.Context, guildID snowflake.ID, presence bool, nonce string, userIDs ...snowflake.ID) error
 
-	// RequestMembersWithQuery sends a discord.MessageDataRequestGuildMembers to the specific gateway.Gateway and requests the Member(s) of the specified guild.
+	// RequestMembersWithQuery sends a gateway.MessageDataRequestGuildMembers to the specific gateway.Gateway and requests the Member(s) of the specified guild.
 	//  guildID  : is the snowflake of the guild to request the members of.
 	//  presence : Whether to include discord.Presence data.
 	//  nonce    : The nonce to return to the discord.EventGuildMembersChunk.
@@ -242,7 +242,7 @@ func (c *clientImpl) Shard(guildID snowflake.ID) (gateway.Gateway, error) {
 	return nil, discord.ErrNoGatewayOrShardManager
 }
 
-func (c *clientImpl) OpenVoiceManual(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) error {
+func (c *clientImpl) OpenVoiceRaw(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) error {
 	shard, err := c.Shard(guildID)
 	if err != nil {
 		return err
@@ -258,8 +258,8 @@ func (c *clientImpl) OpenVoiceManual(ctx context.Context, guildID snowflake.ID, 
 func (c *clientImpl) OpenVoice(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID, selfMute bool, selfDeaf bool) (voice.Conn, error) {
 	conn := c.voiceManager.CreateConn(guildID, channelID, c.ID())
 
-	if err := c.OpenVoiceManual(ctx, guildID, channelID, selfMute, selfDeaf); err != nil {
-		c.voiceManager.RemoveConn(guildID)
+	if err := c.OpenVoiceRaw(ctx, guildID, channelID, selfMute, selfDeaf); err != nil {
+		c.voiceManager.DeleteConn(guildID)
 		return nil, err
 	}
 	return conn, nil
@@ -282,7 +282,7 @@ func (c *clientImpl) CloseVoice(ctx context.Context, guildID snowflake.ID) error
 		return nil
 	}
 	conn.Close()
-	c.voiceManager.RemoveConn(guildID)
+	c.voiceManager.DeleteConn(guildID)
 	return nil
 }
 

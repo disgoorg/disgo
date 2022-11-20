@@ -6,9 +6,11 @@ import (
 
 func DefaultConnConfig() *ConnConfig {
 	return &ConnConfig{
-		Logger:            log.Default(),
-		GatewayCreateFunc: NewGateway,
-		UDPConnCreateFunc: NewUDPConn,
+		Logger:                       log.Default(),
+		GatewayCreateFunc:            NewGateway,
+		UDPConnCreateFunc:            NewUDPConn,
+		AudioSendSystemCreateFunc:    NewAudioSendSystem,
+		AudioReceiveSystemCreateFunc: NewAudioReceiveSystem,
 	}
 }
 
@@ -20,6 +22,9 @@ type ConnConfig struct {
 
 	UDPConnCreateFunc UDPConnCreateFunc
 	UDPConnConfigOpts []UDPConnConfigOpt
+
+	AudioSendSystemCreateFunc    AudioSendSystemCreateFunc
+	AudioReceiveSystemCreateFunc AudioReceiveSystemCreateFunc
 
 	EventHandlerFunc EventHandlerFunc
 }
@@ -59,6 +64,18 @@ func WithUDPConnCreateFunc(udpConnCreateFunc UDPConnCreateFunc) ConnConfigOpt {
 func WithUDPConnConfigOpts(opts ...UDPConnConfigOpt) ConnConfigOpt {
 	return func(config *ConnConfig) {
 		config.UDPConnConfigOpts = append(config.UDPConnConfigOpts, opts...)
+	}
+}
+
+func WithAudioSendSystemCreateFunc(audioSendSystemCreateFunc AudioSendSystemCreateFunc) ConnConfigOpt {
+	return func(config *ConnConfig) {
+		config.AudioSendSystemCreateFunc = audioSendSystemCreateFunc
+	}
+}
+
+func WithAudioReceiveSystemCreateFunc(audioReceiveSystemCreateFunc AudioReceiveSystemCreateFunc) ConnConfigOpt {
+	return func(config *ConnConfig) {
+		config.AudioReceiveSystemCreateFunc = audioReceiveSystemCreateFunc
 	}
 }
 
