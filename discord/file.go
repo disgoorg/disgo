@@ -7,7 +7,7 @@ import (
 	"mime/multipart"
 	"net/textproto"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 )
 
 type Payload interface {

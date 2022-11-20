@@ -24,6 +24,7 @@ const (
 
 type AutoModerationTriggerMetadata struct {
 	KeywordFilter     []string                      `json:"keyword_filter"`
+	RegexPatterns     []string                      `json:"regex_patterns"`
 	Presets           []AutoModerationKeywordPreset `json:"presets"`
 	AllowList         []string                      `json:"allow_list"`
 	MentionTotalLimit int                           `json:"mention_total_limit"`
