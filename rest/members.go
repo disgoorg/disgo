@@ -13,7 +13,7 @@ func NewMembers(client Client) Members {
 
 type Members interface {
 	GetMember(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) (*discord.Member, error)
-	GetMembers(guildID snowflake.ID, opts ...RequestOpt) ([]discord.Member, error)
+	GetMembers(guildID snowflake.ID, limit int, opts ...RequestOpt) ([]discord.Member, error)
 	SearchMembers(guildID snowflake.ID, query string, limit int, opts ...RequestOpt) ([]discord.Member, error)
 	AddMember(guildID snowflake.ID, userID snowflake.ID, memberAdd discord.MemberAdd, opts ...RequestOpt) (*discord.Member, error)
 	RemoveMember(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) error
@@ -40,8 +40,9 @@ func (s *memberImpl) GetMember(guildID snowflake.ID, userID snowflake.ID, opts .
 	return
 }
 
-func (s *memberImpl) GetMembers(guildID snowflake.ID, opts ...RequestOpt) (members []discord.Member, err error) {
-	err = s.client.Do(GetMembers.Compile(nil, guildID), nil, &members, opts...)
+func (s *memberImpl) GetMembers(guildID snowflake.ID, limit int, opts ...RequestOpt) (members []discord.Member, err error) {
+	reqOptions := append(opts, WithQueryParam("limit+", limit))
+	err = s.client.Do(GetMembers.Compile(nil, guildID), nil, &members, reqOptions...)
 	if err == nil {
 		for i := range members {
 			members[i].GuildID = guildID
