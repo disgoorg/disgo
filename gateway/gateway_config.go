@@ -1,6 +1,8 @@
 package gateway
 
 import (
+	"time"
+
 	"github.com/disgoorg/log"
 	"github.com/gorilla/websocket"
 )
@@ -36,6 +38,7 @@ type Config struct {
 	ResumeGatewayURL          *string
 	LastSequenceReceived      *int
 	AutoReconnect             bool
+	ReconnectTimeout          time.Duration
 	MaxReconnectTries         int
 	EnableRawEvents           bool
 	EnableResumeURL           bool

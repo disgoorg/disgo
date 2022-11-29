@@ -436,6 +436,16 @@ type IdentifyCommandDataProperties struct {
 	Device  string `json:"device"`  // library name
 }
 
+// MessageDataPresenceUpdate is used for updating Client's presence
+type MessageDataPresenceUpdate struct {
+	Since      *int64               `json:"since"`
+	Activities []discord.Activity   `json:"activities"`
+	Status     discord.OnlineStatus `json:"status"`
+	AFK        bool                 `json:"afk"`
+}
+
+func (MessageDataPresenceUpdate) messageData() {}
+
 type PresenceOpt func(presenceUpdate *MessageDataPresenceUpdate)
 
 // WithPlayingActivity creates a new "Playing ..." activity of type discord.ActivityTypeGame
@@ -508,16 +518,6 @@ func WithSince(since *int64) PresenceOpt {
 		presence.Since = since
 	}
 }
-
-// MessageDataPresenceUpdate is used for updating Client's presence
-type MessageDataPresenceUpdate struct {
-	Since      *int64               `json:"since"`
-	Activities []discord.Activity   `json:"activities"`
-	Status     discord.OnlineStatus `json:"status"`
-	AFK        bool                 `json:"afk"`
-}
-
-func (MessageDataPresenceUpdate) messageData() {}
 
 // MessageDataVoiceStateUpdate is used for updating the bots voice state in a guild
 type MessageDataVoiceStateUpdate struct {
