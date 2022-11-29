@@ -2,38 +2,37 @@ package voice
 
 import (
 	"context"
-	"errors"
 	"sync"
+	"time"
 
-	"github.com/disgoorg/disgo/gateway"
+	botgateway "github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/disgo/voice/gateway"
+	"github.com/disgoorg/disgo/voice/udp"
 	"github.com/disgoorg/snowflake/v2"
 )
-
-// ErrAlreadyConnected is returned when you try to connect to voice when you are already connected.
-var ErrAlreadyConnected = errors.New("already connected")
 
 // ConnCreateFunc is a type alias for a function that creates a new Conn.
 type ConnCreateFunc func(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, opts ...ConnConfigOpt) Conn
 
-// Conn is a complete voice connection to discord. It holds the voice Gateway and UDPConn connection and combines them.
+// Conn is a complete voice conn to discord. It holds the voice gateway.Gateway and udp.Conn conn and combines them.
 type Conn interface {
 	// Gateway returns the voice Gateway used by the voice Conn.
-	Gateway() Gateway
+	Gateway() gateway.Gateway
 
-	// UDPConn returns the UDPConn connection used by the voice Conn.
-	UDPConn() UDPConn
+	// Conn returns the udp.Conn conn used by the voice Conn.
+	Conn() udp.Conn
 
-	// ChannelID returns the ID of the voice channel the voice Conn is connected to.
+	// ChannelID returns the ID of the voice channel the voice Conn is openedChan to.
 	ChannelID() snowflake.ID
 
-	// GuildID returns the ID of the guild the voice Conn is connected to.
+	// GuildID returns the ID of the guild the voice Conn is openedChan to.
 	GuildID() snowflake.ID
 
 	// UserIDBySSRC returns the ID of the user for the given SSRC.
 	UserIDBySSRC(ssrc uint32) snowflake.ID
 
-	// Speaking sends a speaking packet to the UDPConn socket discord.
-	Speaking(flags SpeakingFlags) error
+	// SetSpeaking sends a speaking packet to the Conn socket discord.
+	SetSpeaking(ctx context.Context, flags gateway.SpeakingFlags) error
 
 	// SetOpusFrameProvider lets you inject your own OpusFrameProvider.
 	SetOpusFrameProvider(handler OpusFrameProvider)
@@ -42,78 +41,74 @@ type Conn interface {
 	SetOpusFrameReceiver(handler OpusFrameReceiver)
 
 	// SetEventHandlerFunc lets listen for voice gateway events.
-	SetEventHandlerFunc(eventHandlerFunc EventHandlerFunc)
+	SetEventHandlerFunc(eventHandlerFunc gateway.EventHandlerFunc)
 
-	// Open opens the voice connection. It will connect to the voice gateway and start the UDPConn connection after it receives the Gateway events.
+	// Open opens the voice conn. It will connect to the voice gateway and start the Conn conn after it receives the Gateway events.
 	Open(ctx context.Context) error
 
-	// Close closes the voice connection. It will close the UDPConn connection and disconnect from the voice gateway.
+	// Close closes the voice conn. It will close the Conn conn and disconnect from the voice gateway.
 	Close()
 
-	// HandleVoiceStateUpdate provides the discord.VoiceStateUpdate to the voice connection. Which is needed to connect to the voice Gateway.
-	HandleVoiceStateUpdate(update gateway.EventVoiceStateUpdate)
+	// HandleVoiceStateUpdate provides the gateway.EventVoiceStateUpdate to the voice conn. Which is needed to connect to the voice Gateway.
+	HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdate)
 
-	// HandleVoiceServerUpdate provides the discord.VoiceServerUpdate to the voice connection. Which is needed to connect to the voice Gateway.
-	HandleVoiceServerUpdate(update gateway.EventVoiceServerUpdate)
+	// HandleVoiceServerUpdate provides the gateway.EventVoiceServerUpdate to the voice conn. Which is needed to connect to the voice Gateway.
+	HandleVoiceServerUpdate(update botgateway.EventVoiceServerUpdate)
 
-	// WaitUntilConnected blocks the current goroutine until the voice connection is connected. Make sure you call this method in its own goroutine, or it may block the gateway goroutine.
-	WaitUntilConnected(ctx context.Context) error
-	// WaitUntilDisconnected blocks the current goroutine until the voice connection is disconnected. Make sure you call this method in its own goroutine, or it may block the gateway goroutine.
-	WaitUntilDisconnected(ctx context.Context) error
+	// WaitUntilOpened blocks the current goroutine until the voice conn is openedChan. Make sure you call this method in its own goroutine, or it may block the gateway goroutine.
+	WaitUntilOpened(ctx context.Context) error
+	// WaitUntilClosed blocks the current goroutine until the voice conn is closedChan. Make sure you call this method in its own goroutine, or it may block the gateway goroutine.
+	WaitUntilClosed(ctx context.Context) error
 }
 
-// NewConn returns a new default voice connection.
+// NewConn returns a new default voice conn.
 func NewConn(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, opts ...ConnConfigOpt) Conn {
 	config := DefaultConnConfig()
 	config.Apply(opts)
 
-	return &connImpl{
+	conn := &connImpl{
 		config: *config,
-		state: state{
-			guildID:   guildID,
-			userID:    userID,
-			channelID: channelID,
+		state: gateway.State{
+			GuildID:   guildID,
+			UserID:    userID,
+			ChannelID: channelID,
 		},
-		connected:    make(chan struct{}, 1),
-		disconnected: make(chan struct{}, 1),
-		ssrcs:        map[uint32]snowflake.ID{},
+		openedChan: make(chan struct{}, 1),
+		closedChan: make(chan struct{}, 1),
+		ssrcs:      map[uint32]snowflake.ID{},
 	}
-}
 
-type state struct {
-	guildID snowflake.ID
-	userID  snowflake.ID
+	conn.gateway = config.GatewayCreateFunc(conn.handleMessage, conn.handleGatewayClose, append([]gateway.ConfigOpt{gateway.WithLogger(config.Logger)}, config.GatewayConfigOpts...)...)
+	conn.udp = config.UDPConnCreateFunc(append([]udp.ConnConfigOpt{udp.WithLogger(config.Logger)}, config.UDPConnConfigOpts...)...)
 
-	channelID snowflake.ID
-	sessionID string
-	token     string
-	endpoint  string
+	return conn
 }
 
 type connImpl struct {
 	config ConnConfig
 
-	state   state
-	gateway Gateway
-	udp     UDPConn
-	mu      sync.Mutex
+	state   gateway.State
+	stateMu sync.Mutex
 
-	audioSendSystem    AudioSendSystem
-	audioReceiveSystem AudioReceiveSystem
+	gateway gateway.Gateway
+	udp     udp.Conn
 
-	connected    chan struct{}
-	disconnected chan struct{}
+	audioSender   AudioSender
+	audioReceiver AudioReceiver
+
+	openedChan chan struct{}
+	closedChan chan struct{}
 
 	ssrcs   map[uint32]snowflake.ID
 	ssrcsMu sync.Mutex
 }
 
 func (c *connImpl) ChannelID() snowflake.ID {
-	return c.state.channelID
+	return c.state.ChannelID
 }
 
 func (c *connImpl) GuildID() snowflake.ID {
-	return c.state.guildID
+	return c.state.GuildID
 }
 
 func (c *connImpl) UserIDBySSRC(ssrc uint32) snowflake.ID {
@@ -122,113 +117,98 @@ func (c *connImpl) UserIDBySSRC(ssrc uint32) snowflake.ID {
 	return c.ssrcs[ssrc]
 }
 
-func (c *connImpl) Gateway() Gateway {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (c *connImpl) Gateway() gateway.Gateway {
 	return c.gateway
 }
 
-func (c *connImpl) Speaking(flags SpeakingFlags) error {
-	c.mu.Lock()
-	voiceGateway := c.gateway
-	c.mu.Unlock()
-	if voiceGateway == nil {
-		return ErrGatewayNotConnected
-	}
-	return voiceGateway.Send(GatewayOpcodeSpeaking, GatewayMessageDataSpeaking{
+func (c *connImpl) SetSpeaking(ctx context.Context, flags gateway.SpeakingFlags) error {
+	return c.gateway.Send(ctx, gateway.OpcodeSpeaking, gateway.MessageDataSpeaking{
 		SSRC:     c.Gateway().SSRC(),
 		Speaking: flags,
 	})
 }
 
-func (c *connImpl) UDPConn() UDPConn {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (c *connImpl) Conn() udp.Conn {
 	return c.udp
 }
 
 func (c *connImpl) SetOpusFrameProvider(provider OpusFrameProvider) {
-	if c.audioSendSystem != nil {
-		c.audioSendSystem.Close()
+	if c.audioSender != nil {
+		c.audioSender.Close()
 	}
-	c.audioSendSystem = c.config.AudioSendSystemCreateFunc(c.config.Logger, provider, c)
+	c.audioSender = c.config.AudioSenderCreateFunc(c.config.Logger, provider, c)
+	c.audioSender.Open()
 }
 
 func (c *connImpl) SetOpusFrameReceiver(handler OpusFrameReceiver) {
-	if c.audioReceiveSystem != nil {
-		c.audioReceiveSystem.Close()
+	if c.audioReceiver != nil {
+		c.audioReceiver.Close()
 	}
-	c.audioReceiveSystem = c.config.AudioReceiveSystemCreateFunc(c.config.Logger, handler, c)
+	c.audioReceiver = c.config.AudioReceiverCreateFunc(c.config.Logger, handler, c)
+	c.audioReceiver.Open()
 }
 
-func (c *connImpl) SetEventHandlerFunc(eventHandlerFunc EventHandlerFunc) {
+func (c *connImpl) SetEventHandlerFunc(eventHandlerFunc gateway.EventHandlerFunc) {
 	c.config.EventHandlerFunc = eventHandlerFunc
 }
 
-func (c *connImpl) HandleVoiceStateUpdate(update gateway.EventVoiceStateUpdate) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if update.GuildID != c.state.guildID || update.UserID != c.state.userID {
+func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdate) {
+	if update.GuildID != c.state.GuildID || update.UserID != c.state.UserID {
 		return
 	}
 
 	if update.ChannelID == nil {
-		c.state.channelID = 0
-		c.disconnected <- struct{}{}
+		c.state.ChannelID = 0
+		c.closedChan <- struct{}{}
 	} else {
-		c.state.channelID = *update.ChannelID
+		c.state.ChannelID = *update.ChannelID
 	}
-	c.state.sessionID = update.SessionID
+	c.state.SessionID = update.SessionID
 }
 
-func (c *connImpl) HandleVoiceServerUpdate(update gateway.EventVoiceServerUpdate) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if update.GuildID != c.state.guildID || update.Endpoint == nil {
+func (c *connImpl) HandleVoiceServerUpdate(update botgateway.EventVoiceServerUpdate) {
+	c.stateMu.Lock()
+	defer c.stateMu.Unlock()
+	if update.GuildID != c.state.GuildID || update.Endpoint == nil {
 		return
 	}
 
-	c.state.token = update.Token
-	c.state.endpoint = *update.Endpoint
-	go c.reconnect(context.Background())
+	c.state.Token = update.Token
+	c.state.Endpoint = *update.Endpoint
+	go c.reconnect()
 }
 
-func (c *connImpl) handleGatewayMessage(op GatewayOpcode, data GatewayMessageData) {
+func (c *connImpl) handleMessage(op gateway.Opcode, data gateway.MessageData) {
 	switch d := data.(type) {
-	case GatewayMessageDataReady:
-		c.mu.Lock()
-		c.udp = c.config.UDPConnCreateFunc(d.IP, d.Port, d.SSRC, append([]UDPConnConfigOpt{WithUDPConnLogger(c.config.Logger)}, c.config.UDPConnConfigOpts...)...)
-		c.mu.Unlock()
-		address, port, err := c.udp.Open(context.Background())
+	case gateway.MessageDataReady:
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		ourAddress, ourPort, err := c.udp.Open(ctx, d.IP, d.Port, d.SSRC)
 		if err != nil {
-			c.config.Logger.Error("voice: failed to open udp connection. error: ", err)
+			c.config.Logger.Error("voice: failed to open udp conn. error: ", err)
 			break
 		}
-		if err = c.Gateway().Send(GatewayOpcodeSelectProtocol, GatewayMessageDataSelectProtocol{
-			Protocol: VoiceProtocolUDP,
-			Data: GatewayMessageDataSelectProtocolData{
-				Address: address,
-				Port:    port,
-				Mode:    EncryptionModeNormal,
+		if err = c.Gateway().Send(ctx, gateway.OpcodeSelectProtocol, gateway.MessageDataSelectProtocol{
+			Protocol: gateway.VoiceProtocolUDP,
+			Data: gateway.MessageDataSelectProtocolData{
+				Address: ourAddress,
+				Port:    ourPort,
+				Mode:    gateway.EncryptionModeNormal,
 			},
 		}); err != nil {
 			c.config.Logger.Error("voice: failed to send select protocol. error: ", err)
 		}
 
-	case GatewayMessageDataSessionDescription:
-		c.mu.Lock()
-		if c.udp != nil {
-			c.udp.SetSecretKey(d.SecretKey)
-		}
-		c.mu.Unlock()
-		c.connected <- struct{}{}
+	case gateway.MessageDataSessionDescription:
+		c.udp.SetSecretKey(d.SecretKey)
+		c.openedChan <- struct{}{}
 
-	case GatewayMessageDataSpeaking:
+	case gateway.MessageDataSpeaking:
 		c.ssrcsMu.Lock()
 		defer c.ssrcsMu.Unlock()
 		c.ssrcs[d.SSRC] = d.UserID
 
-	case GatewayMessageDataClientDisconnect:
+	case gateway.MessageDataClientDisconnect:
 		c.ssrcsMu.Lock()
 		defer c.ssrcsMu.Unlock()
 		for ssrc, userID := range c.ssrcs {
@@ -237,61 +217,58 @@ func (c *connImpl) handleGatewayMessage(op GatewayOpcode, data GatewayMessageDat
 				break
 			}
 		}
-		c.audioReceiveSystem.CleanupUser(d.UserID)
+		c.audioReceiver.CleanupUser(d.UserID)
 	}
 	if c.config.EventHandlerFunc != nil {
 		c.config.EventHandlerFunc(op, data)
 	}
 }
 
-func (c *connImpl) handleGatewayClose(gateway Gateway, err error) {
+func (c *connImpl) handleGatewayClose(gateway gateway.Gateway, err error) {
 	c.Close()
 }
 
 func (c *connImpl) Open(ctx context.Context) error {
-	c.config.Logger.Debug("opening voice connection")
-	c.mu.Lock()
-	c.gateway = c.config.GatewayCreateFunc(c.state, c.handleGatewayMessage, c.handleGatewayClose, append([]GatewayConfigOpt{WithGatewayLogger(c.config.Logger)}, c.config.GatewayConfigOpts...)...)
-	c.mu.Unlock()
-	return c.gateway.Open(ctx)
+	c.config.Logger.Debug("opening voice conn")
+
+	c.stateMu.Lock()
+	state := c.state
+	c.stateMu.Unlock()
+	return c.gateway.Open(ctx, state)
 }
 
-func (c *connImpl) reconnect(ctx context.Context) {
-	c.mu.Lock()
-	if c.state.endpoint == "" || c.state.token == "" {
-		c.mu.Unlock()
+func (c *connImpl) reconnect() {
+	c.stateMu.Lock()
+	if c.state.Endpoint == "" || c.state.Token == "" {
+		c.stateMu.Unlock()
 		return
 	}
-	c.mu.Unlock()
+	c.stateMu.Unlock()
+
+	ctx, cancel := context.WithTimeout(context.Background(), c.config.ReconnectTimeout)
+	defer cancel()
 	if err := c.Open(ctx); err != nil {
 		c.config.Logger.Error("failed to reconnect to voice gateway. error: ", err)
 	}
 }
 
 func (c *connImpl) Close() {
-	c.mu.Lock()
-	if c.udp != nil {
-		c.udp.Close()
-	}
-
-	if c.gateway != nil {
-		c.gateway.Close()
-	}
-	c.mu.Unlock()
+	_ = c.udp.Close()
+	c.gateway.Close()
 }
 
-func (c *connImpl) WaitUntilConnected(ctx context.Context) error {
+func (c *connImpl) WaitUntilOpened(ctx context.Context) error {
 	select {
-	case <-c.connected:
+	case <-c.openedChan:
 		return nil
 	case <-ctx.Done():
 		return ctx.Err()
 	}
 }
 
-func (c *connImpl) WaitUntilDisconnected(ctx context.Context) error {
+func (c *connImpl) WaitUntilClosed(ctx context.Context) error {
 	select {
-	case <-c.disconnected:
+	case <-c.closedChan:
 		return nil
 	case <-ctx.Done():
 		return ctx.Err()

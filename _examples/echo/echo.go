@@ -15,6 +15,7 @@ import (
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/voice"
+	gateway2 "github.com/disgoorg/disgo/voice/gateway"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -62,11 +63,11 @@ func play(client bot.Client) {
 
 	println("starting playback")
 
-	if err = conn.WaitUntilConnected(ctx); err != nil {
+	if err = conn.WaitUntilOpened(ctx); err != nil {
 		panic("error waiting for voice connection: " + err.Error())
 	}
 
-	_ = conn.Speaking(voice.SpeakingFlagMicrophone)
+	_ = conn.SetSpeaking(gateway2.SpeakingFlagMicrophone)
 	_, _ = conn.UDPConn().Write(voice.SilenceAudioFrames)
 	for {
 		packet, err := conn.UDPConn().ReadPacket()

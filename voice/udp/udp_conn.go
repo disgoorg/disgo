@@ -1,4 +1,4 @@
-package voice
+package udp
 
 import (
 	"context"
@@ -21,20 +21,20 @@ const OpusPacketHeaderSize = 12
 var ErrDecryptionFailed = errors.New("decryption failed")
 
 var (
-	_ io.Reader      = (UDPConn)(nil)
-	_ io.ReadCloser  = (UDPConn)(nil)
-	_ io.Writer      = (UDPConn)(nil)
-	_ io.WriteCloser = (UDPConn)(nil)
-	_ net.Conn       = (UDPConn)(nil)
+	_ io.Reader      = (Conn)(nil)
+	_ io.ReadCloser  = (Conn)(nil)
+	_ io.Writer      = (Conn)(nil)
+	_ io.WriteCloser = (Conn)(nil)
+	_ net.Conn       = (Conn)(nil)
 )
 
-// UDPConnCreateFunc is a function that creates a UDPConn.
+// ConnCreateFunc is a function that creates a Conn.
 type (
-	UDPConnCreateFunc func(ip string, port int, ssrc uint32, opts ...UDPConnConfigOpt) UDPConn
+	ConnCreateFunc func(opts ...ConnConfigOpt) Conn
 
-	// UDPConn represents a UDP connection to discord voice servers. It is used to send/receive voice packets to/from discord.
+	// Conn represents a UDP connection to discord voice servers. It is used to send/receive voice packets to/from discord.
 	// It implements the io.Reader, io.Writer and io.Closer interface.
-	UDPConn interface {
+	Conn interface {
 		// LocalAddr returns the local network address, if known.
 		LocalAddr() net.Addr
 
@@ -46,25 +46,25 @@ type (
 
 		SetDeadline(t time.Time) error
 
-		// SetReadDeadline sets the read deadline for the UDPConn connection.
+		// SetReadDeadline sets the read deadline for the Conn connection.
 		SetReadDeadline(t time.Time) error
 
-		// SetWriteDeadline sets the write deadline for the UDPConn connection.
+		// SetWriteDeadline sets the write deadline for the Conn connection.
 		SetWriteDeadline(t time.Time) error
 
-		// Open opens the UDPConn connection.
-		Open(ctx context.Context) (string, int, error)
+		// Open opens the Conn connection.
+		Open(ctx context.Context, ip string, port int, ssrc uint32) (string, int, error)
 
-		// Close closes the UDPConn connection.
+		// Close closes the Conn connection.
 		Close() error
 
-		// Read reads a packet from the UDPConn connection. This implements the io.Reader interface.
+		// Read reads a packet from the Conn connection. This implements the io.Reader interface.
 		Read(p []byte) (int, error)
 
-		// ReadPacket reads a packet from the UDPConn connection.
+		// ReadPacket reads a packet from the Conn connection.
 		ReadPacket() (*Packet, error)
 
-		// Write writes a packet to the UDPConn connection. This implements the io.Writer interface.
+		// Write writes a packet to the Conn connection. This implements the io.Writer interface.
 		Write(p []byte) (int, error)
 	}
 
@@ -81,29 +81,26 @@ type (
 	}
 )
 
-// NewUDPConn creates a new voice UDPConn with the given configuration.
-func NewUDPConn(ip string, port int, ssrc uint32, opts ...UDPConnConfigOpt) UDPConn {
-	config := DefaultUDPConfig()
+// NewConn creates a new voice Conn with the given configuration.
+func NewConn(opts ...ConnConfigOpt) Conn {
+	config := DefaultConfig()
 	config.Apply(opts)
 
 	return &udpImpl{
 		config:        *config,
-		ip:            ip,
-		port:          port,
-		ssrc:          ssrc,
 		receiveBuffer: make([]byte, 1400),
 	}
 }
 
 type udpImpl struct {
-	config UDPConnConfig
+	config ConnConfig
 
 	ip   string
 	port int
+	ssrc uint32
 
 	conn   net.Conn
 	connMu sync.Mutex
-	ssrc   uint32
 
 	packet    [12]byte
 	secretKey [32]byte
@@ -150,29 +147,33 @@ func (u *udpImpl) SetWriteDeadline(t time.Time) error {
 	return u.conn.SetWriteDeadline(t)
 }
 
-func (u *udpImpl) Open(ctx context.Context) (string, int, error) {
+func (u *udpImpl) Open(ctx context.Context, ip string, port int, ssrc uint32) (string, int, error) {
+	u.ip = ip
+	u.port = port
+	u.ssrc = ssrc
+
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
-	u.config.Logger.Debugf("Opening UDPConn connection to: %s:%d\n", u.ip, u.port)
+	u.config.Logger.Debugf("Opening Conn connection to: %s:%d\n", u.ip, u.port)
 	var err error
 	u.conn, err = u.config.Dialer.DialContext(ctx, "udp", fmt.Sprintf("%s:%d", u.ip, u.port))
 	if err != nil {
-		return "", 0, fmt.Errorf("failed to open UDPConn connection: %w", err)
+		return "", 0, fmt.Errorf("failed to open Conn connection: %w", err)
 	}
 
 	sb := make([]byte, 70)
 	binary.BigEndian.PutUint32(sb, u.ssrc)
 	if _, err = u.conn.Write(sb); err != nil {
-		return "", 0, fmt.Errorf("failed to write ssrc to UDPConn connection: %w", err)
+		return "", 0, fmt.Errorf("failed to write ssrc to Conn connection: %w", err)
 	}
 
 	rb := make([]byte, 70)
 	if _, err = u.conn.Read(rb); err != nil {
-		return "", 0, fmt.Errorf("failed to read ip discovery from UDPConn connection: %w", err)
+		return "", 0, fmt.Errorf("failed to read ip discovery from Conn connection: %w", err)
 	}
 
-	address := rb[4:68]
-	port := binary.BigEndian.Uint16(rb[68:70])
+	ourAddress := rb[4:68]
+	ourPort := binary.BigEndian.Uint16(rb[68:70])
 
 	u.packet = [12]byte{
 		0: 0x80, // Version + Flags
@@ -183,7 +184,7 @@ func (u *udpImpl) Open(ctx context.Context) (string, int, error) {
 
 	binary.BigEndian.PutUint32(u.packet[8:12], u.ssrc) // SSRC
 
-	return strings.Replace(string(address), "\x00", "", -1), int(port), nil
+	return strings.Replace(string(ourAddress), "\x00", "", -1), int(ourPort), nil
 }
 
 func (u *udpImpl) Write(p []byte) (int, error) {

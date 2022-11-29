@@ -4,44 +4,44 @@ import (
 	"context"
 	"net"
 
+	"github.com/disgoorg/disgo/voice/udp"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 )
 
 type (
-	AudioReceiveSystemCreateFunc func(logger log.Logger, receiver OpusFrameReceiver, connection Conn) AudioReceiveSystem
-	UserFilterFunc               func(userID snowflake.ID) bool
+	AudioReceiverCreateFunc func(logger log.Logger, receiver OpusFrameReceiver, connection Conn) AudioReceiver
+	UserFilterFunc          func(userID snowflake.ID) bool
 
-	AudioReceiveSystem interface {
+	AudioReceiver interface {
 		Open()
 		CleanupUser(userID snowflake.ID)
 		Close()
 	}
 
 	OpusFrameReceiver interface {
-		ReceiveOpusFrame(userID snowflake.ID, packet *Packet) error
+		ReceiveOpusFrame(userID snowflake.ID, packet *udp.Packet) error
 		CleanupUser(userID snowflake.ID)
 		Close()
 	}
 )
 
-func NewAudioReceiveSystem(logger log.Logger, opusFrameReceiver OpusFrameReceiver, connection Conn) AudioReceiveSystem {
-	return &defaultAudioReceiveSystem{
-		logger:            logger,
-		opusFrameReceiver: opusFrameReceiver,
-		connection:        connection,
+func NewAudioReceiver(logger log.Logger, opusReceiver OpusFrameReceiver, conn Conn) AudioReceiver {
+	return &defaultAudioReceiver{
+		logger:       logger,
+		opusReceiver: opusReceiver,
+		conn:         conn,
 	}
 }
 
-type defaultAudioReceiveSystem struct {
-	cancelFunc context.CancelFunc
-
-	logger            log.Logger
-	opusFrameReceiver OpusFrameReceiver
-	connection        Conn
+type defaultAudioReceiver struct {
+	logger       log.Logger
+	cancelFunc   context.CancelFunc
+	opusReceiver OpusFrameReceiver
+	conn         Conn
 }
 
-func (s *defaultAudioReceiveSystem) Open() {
+func (s *defaultAudioReceiver) Open() {
 	defer s.logger.Debugf("closing receive system")
 	ctx, cancel := context.WithCancel(context.Background())
 	s.cancelFunc = cancel
@@ -57,12 +57,12 @@ loop:
 	}
 }
 
-func (s *defaultAudioReceiveSystem) CleanupUser(userID snowflake.ID) {
-	s.opusFrameReceiver.CleanupUser(userID)
+func (s *defaultAudioReceiver) CleanupUser(userID snowflake.ID) {
+	s.opusReceiver.CleanupUser(userID)
 }
 
-func (s *defaultAudioReceiveSystem) receive() {
-	packet, err := s.connection.UDPConn().ReadPacket()
+func (s *defaultAudioReceiver) receive() {
+	packet, err := s.conn.Conn().ReadPacket()
 	if err == net.ErrClosed {
 		s.Close()
 		return
@@ -71,15 +71,15 @@ func (s *defaultAudioReceiveSystem) receive() {
 		s.logger.Errorf("error while reading packet: %s", err)
 		return
 	}
-	if s.opusFrameReceiver != nil {
-		if err = s.opusFrameReceiver.ReceiveOpusFrame(s.connection.UserIDBySSRC(packet.SSRC), packet); err != nil {
+	if s.opusReceiver != nil {
+		if err = s.opusReceiver.ReceiveOpusFrame(s.conn.UserIDBySSRC(packet.SSRC), packet); err != nil {
 			s.logger.Errorf("error while receiving opus frame: %s", err)
 		}
 	}
 
 }
 
-func (s *defaultAudioReceiveSystem) Close() {
+func (s *defaultAudioReceiver) Close() {
 	s.cancelFunc()
-	s.opusFrameReceiver.Close()
+	s.opusReceiver.Close()
 }

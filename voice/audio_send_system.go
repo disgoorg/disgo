@@ -7,6 +7,7 @@ import (
 	"net"
 	"time"
 
+	"github.com/disgoorg/disgo/voice/gateway"
 	"github.com/disgoorg/log"
 )
 
@@ -17,9 +18,9 @@ var (
 )
 
 type (
-	AudioSendSystemCreateFunc func(logger log.Logger, provider OpusFrameProvider, connection Conn) AudioSendSystem
+	AudioSenderCreateFunc func(logger log.Logger, provider OpusFrameProvider, conn Conn) AudioSender
 
-	AudioSendSystem interface {
+	AudioSender interface {
 		Open()
 		Close()
 	}
@@ -30,27 +31,27 @@ type (
 	}
 )
 
-func NewAudioSendSystem(logger log.Logger, opusProvider OpusFrameProvider, connection Conn) AudioSendSystem {
-	return &defaultAudioSendSystem{
+func NewAudioSender(logger log.Logger, opusProvider OpusFrameProvider, conn Conn) AudioSender {
+	return &defaultAudioSender{
 		logger:       logger,
 		opusProvider: opusProvider,
-		connection:   connection,
+		conn:         conn,
 		silentFrames: 5,
 	}
 }
 
-type defaultAudioSendSystem struct {
+type defaultAudioSender struct {
 	logger       log.Logger
 	cancelFunc   context.CancelFunc
 	opusProvider OpusFrameProvider
-	connection   Conn
+	conn         Conn
 
 	silentFrames      int
 	sentSpeakingStop  bool
 	sentSpeakingStart bool
 }
 
-func (s *defaultAudioSendSystem) Open() {
+func (s *defaultAudioSender) Open() {
 	defer s.logger.Debug("closing send system")
 	lastFrameSent := time.Now().UnixMilli()
 	ctx, cancel := context.WithCancel(context.Background())
@@ -77,7 +78,7 @@ loop:
 	}
 }
 
-func (s *defaultAudioSendSystem) send() {
+func (s *defaultAudioSender) send() {
 	if s.opusProvider == nil {
 		return
 	}
@@ -88,12 +89,14 @@ func (s *defaultAudioSendSystem) send() {
 	}
 	if len(opus) == 0 {
 		if s.silentFrames > 0 {
-			if _, err = s.connection.UDPConn().Write(SilenceAudioFrames); err != nil {
+			if _, err = s.conn.Conn().Write(SilenceAudioFrames); err != nil {
 				s.handleErr(err)
 			}
 			s.silentFrames--
 		} else if !s.sentSpeakingStop {
-			if err = s.connection.Speaking(0); err != nil {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			if err = s.conn.SetSpeaking(ctx, gateway.SpeakingFlagNone); err != nil {
 				s.handleErr(err)
 			}
 			s.sentSpeakingStop = true
@@ -103,7 +106,9 @@ func (s *defaultAudioSendSystem) send() {
 	}
 
 	if !s.sentSpeakingStart {
-		if err = s.connection.Speaking(SpeakingFlagMicrophone); err != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err = s.conn.SetSpeaking(ctx, gateway.SpeakingFlagMicrophone); err != nil {
 			s.handleErr(err)
 		}
 		s.sentSpeakingStart = true
@@ -111,19 +116,19 @@ func (s *defaultAudioSendSystem) send() {
 		s.silentFrames = 5
 	}
 
-	if _, err = s.connection.UDPConn().Write(opus); err != nil {
+	if _, err = s.conn.Conn().Write(opus); err != nil {
 		s.handleErr(err)
 	}
 }
 
-func (s *defaultAudioSendSystem) handleErr(err error) {
-	if errors.Is(err, net.ErrClosed) || errors.Is(err, ErrGatewayNotConnected) {
+func (s *defaultAudioSender) handleErr(err error) {
+	if errors.Is(err, net.ErrClosed) || errors.Is(err, gateway.ErrGatewayNotConnected) {
 		s.Close()
 		return
 	}
 	s.logger.Errorf("failed to send audio: %s", err)
 }
 
-func (s *defaultAudioSendSystem) Close() {
+func (s *defaultAudioSender) Close() {
 	s.cancelFunc()
 }

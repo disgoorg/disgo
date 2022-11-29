@@ -62,7 +62,7 @@ func (m *managerImpl) HandleVoiceServerUpdate(update gateway.EventVoiceServerUpd
 func (m *managerImpl) CreateConn(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID) Conn {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
-	m.config.Logger.Debugf("Creating new voice connection for guild: %s, channel: %s, user: %s", guildID, channelID, userID)
+	m.config.Logger.Debugf("Creating new voice conn for guild: %s, channel: %s, user: %s", guildID, channelID, userID)
 	connection := m.config.ConnCreateFunc(guildID, channelID, userID, append([]ConnConfigOpt{WithConnLogger(m.config.Logger)}, m.config.ConnOpts...)...)
 	m.connections[guildID] = connection
 	return connection
@@ -85,7 +85,7 @@ func (m *managerImpl) ForEachCon(f func(connection Conn)) {
 func (m *managerImpl) DeleteConn(guildID snowflake.ID) {
 	m.connectionsMu.Lock()
 	defer m.connectionsMu.Unlock()
-	m.config.Logger.Debugf("Removing voice connection for guild: %s", guildID)
+	m.config.Logger.Debugf("Removing voice conn for guild: %s", guildID)
 	if conn, ok := m.connections[guildID]; ok {
 		conn.Close()
 		delete(m.connections, guildID)
