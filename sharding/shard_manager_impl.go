@@ -34,7 +34,7 @@ type shardManagerImpl struct {
 }
 
 func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error) {
-	if closeError, ok := err.(*websocket.CloseError); !m.config.AutoScaling || !ok || gateway.CloseEventCode(closeError.Code) != gateway.CloseEventCodeShardingRequired {
+	if closeError, ok := err.(*websocket.CloseError); !m.config.AutoScaling || !ok || gateway.CloseEventCodeByCode(closeError.Code) != gateway.CloseEventCodeShardingRequired {
 		return
 	}
 	m.config.Logger.Debugf("shard %d requires re-sharding", shard.ShardID())
