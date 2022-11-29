@@ -451,7 +451,9 @@ func (g *gatewayImpl) parseMessage(mt int, data []byte) (Message, error) {
 		}
 		defer reader.Close()
 		finalData, err = io.ReadAll(reader)
-
+		if err != nil {
+			return Message{}, fmt.Errorf("failed to read decompressed data: %w", err)
+		}
 	} else {
 		finalData = data
 	}
