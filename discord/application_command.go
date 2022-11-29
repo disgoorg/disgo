@@ -29,6 +29,7 @@ type ApplicationCommand interface {
 	DMPermission() bool
 	Version() snowflake.ID
 	CreatedAt() time.Time
+	NSFW() bool
 	applicationCommand()
 }
 
@@ -93,6 +94,7 @@ type SlashCommand struct {
 	Options                  []ApplicationCommandOption
 	defaultMemberPermissions Permissions
 	dmPermission             bool
+	nsfw                     bool
 	version                  snowflake.ID
 }
 
@@ -114,6 +116,7 @@ func (c *SlashCommand) UnmarshalJSON(data []byte) error {
 	c.Options = v.Options
 	c.defaultMemberPermissions = v.DefaultMemberPermissions
 	c.dmPermission = v.DMPermission
+	c.nsfw = v.NSFW
 	c.version = v.Version
 	return nil
 }
@@ -133,6 +136,7 @@ func (c SlashCommand) MarshalJSON() ([]byte, error) {
 		Options:                  c.Options,
 		DefaultMemberPermissions: c.defaultMemberPermissions,
 		DMPermission:             c.dmPermission,
+		NSFW:                     c.nsfw,
 		Version:                  c.version,
 	})
 }
@@ -172,6 +176,10 @@ func (c SlashCommand) DMPermission() bool {
 	return c.dmPermission
 }
 
+func (c SlashCommand) NSFW() bool {
+	return c.nsfw
+}
+
 func (c SlashCommand) Version() snowflake.ID {
 	return c.version
 }
@@ -197,6 +205,7 @@ type UserCommand struct {
 	nameLocalized            string
 	defaultMemberPermissions Permissions
 	dmPermission             bool
+	nsfw                     bool
 	version                  snowflake.ID
 }
 
@@ -214,6 +223,7 @@ func (c *UserCommand) UnmarshalJSON(data []byte) error {
 	c.nameLocalized = v.NameLocalized
 	c.defaultMemberPermissions = v.DefaultMemberPermissions
 	c.dmPermission = v.DMPermission
+	c.nsfw = v.NSFW
 	c.version = v.Version
 	return nil
 }
@@ -229,6 +239,7 @@ func (c UserCommand) MarshalJSON() ([]byte, error) {
 		NameLocalized:            c.nameLocalized,
 		DefaultMemberPermissions: c.defaultMemberPermissions,
 		DMPermission:             c.dmPermission,
+		NSFW:                     c.nsfw,
 		Version:                  c.version,
 	})
 }
@@ -268,6 +279,10 @@ func (c UserCommand) DMPermission() bool {
 	return c.dmPermission
 }
 
+func (c UserCommand) NSFW() bool {
+	return c.nsfw
+}
+
 func (c UserCommand) Version() snowflake.ID {
 	return c.version
 }
@@ -289,6 +304,7 @@ type MessageCommand struct {
 	nameLocalized            string
 	defaultMemberPermissions Permissions
 	dmPermission             bool
+	nsfw                     bool
 	version                  snowflake.ID
 }
 
@@ -306,6 +322,7 @@ func (c *MessageCommand) UnmarshalJSON(data []byte) error {
 	c.nameLocalized = v.NameLocalized
 	c.defaultMemberPermissions = v.DefaultMemberPermissions
 	c.dmPermission = v.DMPermission
+	c.nsfw = v.NSFW
 	c.version = v.Version
 	return nil
 }
@@ -321,6 +338,7 @@ func (c MessageCommand) MarshalJSON() ([]byte, error) {
 		NameLocalized:            c.nameLocalized,
 		DefaultMemberPermissions: c.defaultMemberPermissions,
 		DMPermission:             c.dmPermission,
+		NSFW:                     c.nsfw,
 		Version:                  c.version,
 	})
 }
@@ -358,6 +376,10 @@ func (c MessageCommand) DefaultMemberPermissions() Permissions {
 }
 func (c MessageCommand) DMPermission() bool {
 	return c.dmPermission
+}
+
+func (c MessageCommand) NSFW() bool {
+	return c.nsfw
 }
 
 func (c MessageCommand) Version() snowflake.ID {
