@@ -219,6 +219,7 @@ func (l *rateLimiterImpl) UnlockBucket(endpoint *CompiledEndpoint, rs *http.Resp
 
 	l.config.Logger.Tracef("code: %d, headers: global %t, cloudflare: %t, remaining: %s, limit: %s, reset: %s, retryAfter: %s", rs.StatusCode, global, cloudflare, remainingHeader, limitHeader, resetHeader, retryAfterHeader)
 
+	// we hit a rate limit. let's see if it was global cloudflare or a route specific one
 	if rs.StatusCode == http.StatusTooManyRequests {
 		retryAfter, err := strconv.Atoi(retryAfterHeader)
 		if err != nil {
@@ -255,7 +256,15 @@ func (l *rateLimiterImpl) UnlockBucket(endpoint *CompiledEndpoint, rs *http.Resp
 		b.Remaining = remaining
 	}
 
-	if resetHeader != "" {
+	// we prioritize the reset after header over the reset header as it's more accurate due to clock differences
+	if resetAfterHeader != "" {
+		resetAfter, err := strconv.ParseFloat(resetAfterHeader, 64)
+		if err != nil {
+			return fmt.Errorf("invalid reset after %s: %s", resetAfterHeader, err)
+		}
+
+		b.Reset = time.Now().Add(time.Duration(resetAfter) * time.Second)
+	} else if resetHeader != "" {
 		reset, err := strconv.ParseFloat(resetHeader, 64)
 		if err != nil {
 			return fmt.Errorf("invalid reset %s: %s", resetHeader, err)
@@ -263,13 +272,6 @@ func (l *rateLimiterImpl) UnlockBucket(endpoint *CompiledEndpoint, rs *http.Resp
 
 		sec := int64(reset)
 		b.Reset = time.Unix(sec, int64((reset-float64(sec))*float64(time.Second)))
-	} else if resetAfterHeader != "" {
-		resetAfter, err := strconv.ParseFloat(resetAfterHeader, 64)
-		if err != nil {
-			return fmt.Errorf("invalid reset after %s: %s", resetAfterHeader, err)
-		}
-
-		b.Reset = time.Now().Add(time.Duration(resetAfter) * time.Second)
 	} else {
 		return fmt.Errorf("no reset or reset after header found in response")
 	}

@@ -32,10 +32,6 @@
 //
 // Package rest is used to interact with the Discord REST API.
 //
-// JSON
-//
-// Package json provides configurable interfaces for JSON encoding and decoding.
-//
 // Webhook
 //
 // Package webhook provides a high level client interface for interacting with Discord webhooks.

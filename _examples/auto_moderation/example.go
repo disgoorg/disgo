@@ -13,7 +13,7 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -82,7 +82,7 @@ func showCaseAutoMod(client bot.Client) {
 				Type: discord.AutoModerationActionTypeBlockMessage,
 			},
 		},
-		Enabled: true,
+		Enabled: json.Ptr(true),
 	})
 	if err != nil {
 		log.Error("error while creating rule: ", err)
@@ -92,7 +92,7 @@ func showCaseAutoMod(client bot.Client) {
 	time.Sleep(time.Second * 10)
 
 	rule, err = client.Rest().UpdateAutoModerationRule(guildID, rule.ID, discord.AutoModerationRuleUpdate{
-		Name: json.NewPtr("test-rule-updated"),
+		Name: json.Ptr("test-rule-updated"),
 		TriggerMetadata: &discord.AutoModerationTriggerMetadata{
 			KeywordFilter: []string{"*test2*"},
 		},

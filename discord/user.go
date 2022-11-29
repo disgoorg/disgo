@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -33,6 +33,9 @@ const (
 	UserFlagEarlyVerifiedBotDeveloper
 	UserFlagDiscordCertifiedModerator
 	UserFlagBotHTTPInteractions
+	_
+	_
+	UserFlagActiveDeveloper
 	UserFlagsNone UserFlags = 0
 )
 
@@ -159,6 +162,7 @@ const (
 	PremiumTypeNone PremiumType = iota
 	PremiumTypeNitroClassic
 	PremiumTypeNitro
+	PremiumTypeNitroBasic
 )
 
 // SelfUserUpdate is the payload used to update the OAuth2User

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 )
 

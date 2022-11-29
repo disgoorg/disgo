@@ -9,9 +9,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/disgoorg/disgo/json"
-
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/json"
 )
 
 // NewClient constructs a new Client with the given Config struct

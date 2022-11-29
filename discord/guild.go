@@ -3,7 +3,7 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -108,11 +108,12 @@ type GuildFeature string
 
 // Constants for GuildFeature
 const (
-	GuildFeatureAnimatedIcon                  GuildFeature = "ANIMATED_ICON"
 	GuildFeatureAnimatedBanner                GuildFeature = "ANIMATED_BANNER"
+	GuildFeatureAnimatedIcon                  GuildFeature = "ANIMATED_ICON"
+	GuildFeatureAutoModeration                GuildFeature = "AUTO_MODERATION"
 	GuildFeatureBanner                        GuildFeature = "BANNER"
-	GuildFeatureCommerce                      GuildFeature = "COMMERCE"
 	GuildFeatureCommunity                     GuildFeature = "COMMUNITY"
+	GuildFeatureDeveloperSupportServer        GuildFeature = "DEVELOPER_SUPPORT_SERVER"
 	GuildFeatureDiscoverable                  GuildFeature = "DISCOVERABLE"
 	GuildFeatureFeaturable                    GuildFeature = "FEATURABLE"
 	GuildFeatureInvitesDisabled               GuildFeature = "INVITES_DISABLED"
@@ -123,10 +124,7 @@ const (
 	GuildFeatureNews                          GuildFeature = "NEWS"
 	GuildFeaturePartnered                     GuildFeature = "PARTNERED"
 	GuildFeaturePreviewEnabled                GuildFeature = "PREVIEW_ENABLED"
-	GuildFeaturePrivateThreads                GuildFeature = "PRIVATE_THREADS"
 	GuildFeatureRoleIcons                     GuildFeature = "ROLE_ICONS"
-	GuildFeatureSevenDayThreadArchive         GuildFeature = "SEVEN_DAY_THREAD_ARCHIVE"
-	GuildFeatureThreeDayThreadArchive         GuildFeature = "THREE_DAY_THREAD_ARCHIVE"
 	GuildFeatureTicketedEventsEnabled         GuildFeature = "TICKETED_EVENTS_ENABLED"
 	GuildFeatureVanityURL                     GuildFeature = "VANITY_URL"
 	GuildFeatureVerified                      GuildFeature = "VERIFIED"
