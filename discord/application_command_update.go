@@ -17,6 +17,7 @@ type SlashCommandUpdate struct {
 	Options                  *[]ApplicationCommandOption `json:"options,omitempty"`
 	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
 	DMPermission             *bool                       `json:"dm_permission,omitempty"`
+	NSFW                     *bool                       `json:"nsfw,omitempty"`
 }
 
 func (c SlashCommandUpdate) MarshalJSON() ([]byte, error) {
@@ -45,6 +46,7 @@ type UserCommandUpdate struct {
 	NameLocalizations        *map[Locale]string          `json:"name_localizations,omitempty"`
 	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
 	DMPermission             *bool                       `json:"dm_permission,omitempty"`
+	NSFW                     *bool                       `json:"nsfw,omitempty"`
 }
 
 func (c UserCommandUpdate) MarshalJSON() ([]byte, error) {
@@ -73,6 +75,7 @@ type MessageCommandUpdate struct {
 	NameLocalizations        *map[Locale]string          `json:"name_localizations,omitempty"`
 	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
 	DMPermission             *bool                       `json:"dm_permission,omitempty"`
+	NSFW                     *bool                       `json:"nsfw,omitempty"`
 }
 
 func (c MessageCommandUpdate) MarshalJSON() ([]byte, error) {
