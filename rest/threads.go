@@ -112,6 +112,6 @@ func (s *threadImpl) GetJoinedPrivateArchivedThreads(channelID snowflake.ID, bef
 	if limit != 0 {
 		queryValues["limit"] = limit
 	}
-	err = s.client.Do(GetJoinedAchievedPrivateThreads.Compile(queryValues, channelID), nil, &threads, opts...)
+	err = s.client.Do(GetJoinedArchivedPrivateThreads.Compile(queryValues, channelID), nil, &threads, opts...)
 	return
 }
