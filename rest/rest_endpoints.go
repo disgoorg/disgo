@@ -175,9 +175,9 @@ var (
 	GetThreadMember         = NewEndpoint(http.MethodGet, "/channels/{channel.id}/thread-members/{user.id}")
 	GetThreadMembers        = NewEndpoint(http.MethodGet, "/channels/{channel.id}/thread-members")
 
-	GetArchivedPublicThreads        = NewEndpoint(http.MethodGet, "/channels/{channel.id}/threads/archived/public")
-	GetArchivedPrivateThreads       = NewEndpoint(http.MethodGet, "/channels/{channel.id}/threads/archived/private")
-	GetJoinedArchivedPrivateThreads = NewEndpoint(http.MethodGet, "/channels/{channel.id}/users/@me/threads/archived/private")
+	GetPublicArchivedThreads        = NewEndpoint(http.MethodGet, "/channels/{channel.id}/threads/archived/public")
+	GetPrivateArchivedThreads       = NewEndpoint(http.MethodGet, "/channels/{channel.id}/threads/archived/private")
+	GetJoinedPrivateArchivedThreads = NewEndpoint(http.MethodGet, "/channels/{channel.id}/users/@me/threads/archived/private")
 )
 
 // Messages
