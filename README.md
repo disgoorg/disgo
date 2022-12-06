@@ -150,7 +150,7 @@ or in these projects:
 
 ### [Lavalink](https://github.com/freyacodes/Lavalink)
 
-Is a standalone audio sending node based on [Lavaplayer](https://github.com/sedmelluq/lavaplayer) and JDA-Audio. Which allows for sending audio without it ever reaching any of your shards. Lavalink can be used in combinatio with [DisGolink](https://github.com/disgoorg/disgolink) for music Bots
+Is a standalone audio sending node based on [Lavaplayer](https://github.com/sedmelluq/lavaplayer) and JDA-Audio. Which allows for sending audio without it ever reaching any of your shards. Lavalink can be used in combination with [DisGolink](https://github.com/disgoorg/disgolink) for music Bots
 
 Being used in production by FredBoat, Dyno, LewdBot, and more.
 
