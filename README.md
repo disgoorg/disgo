@@ -156,7 +156,7 @@ Being used in production by FredBoat, Dyno, LewdBot, and more.
 
 ### [DisGolink](https://github.com/disgoorg/disgolink)
 
-Is a [Lavalink-Client](https://github.com/freyacodes/Lavalink) which can be used to communicate with LavaLink to play/search tracks
+Is a [Lavalink-Client](https://github.com/freyacodes/Lavalink) which can be used to communicate with Lavalink to play/search tracks
 
 ### [DisLog](https://github.com/disgoorg/dislog)
 
