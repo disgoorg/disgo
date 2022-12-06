@@ -84,6 +84,10 @@ func (g *gatewayImpl) formatLogs(a ...any) string {
 }
 
 func (g *gatewayImpl) Open(ctx context.Context) error {
+	return g.reconnectTry(ctx, 0)
+}
+
+func (g *gatewayImpl) open(ctx context.Context) error {
 	g.config.Logger.Debug(g.formatLogs("opening gateway connection"))
 
 	g.connMu.Lock()
@@ -207,11 +211,13 @@ func (g *gatewayImpl) Presence() *MessageDataPresenceUpdate {
 	return g.config.Presence
 }
 
-func (g *gatewayImpl) reconnectTry(ctx context.Context, try int, delay time.Duration) error {
-	if try >= g.config.MaxReconnectTries-1 {
-		return fmt.Errorf("failed to reconnect. exceeded max reconnect tries of %d reached", g.config.MaxReconnectTries)
+func (g *gatewayImpl) reconnectTry(ctx context.Context, try int) error {
+	delay := time.Duration(try) * 2 * time.Second
+	if delay > 30*time.Second {
+		delay = 30 * time.Second
 	}
-	timer := time.NewTimer(time.Duration(try) * delay)
+
+	timer := time.NewTimer(delay)
 	defer timer.Stop()
 	select {
 	case <-ctx.Done():
@@ -220,23 +226,20 @@ func (g *gatewayImpl) reconnectTry(ctx context.Context, try int, delay time.Dura
 	case <-timer.C:
 	}
 
-	g.config.Logger.Debug(g.formatLogs("reconnecting gateway..."))
-	if err := g.Open(ctx); err != nil {
+	if err := g.open(ctx); err != nil {
 		if err == discord.ErrGatewayAlreadyConnected {
 			return err
 		}
 		g.config.Logger.Error(g.formatLogs("failed to reconnect gateway. error: ", err))
 		g.status = StatusDisconnected
-		return g.reconnectTry(ctx, try+1, delay)
+		return g.reconnectTry(ctx, try+1)
 	}
 	return nil
 }
 
 func (g *gatewayImpl) reconnect() {
-	ctx, cancel := context.WithTimeout(context.Background(), g.config.ReconnectTimeout)
-	defer cancel()
-
-	if err := g.reconnectTry(ctx, 0, time.Second); err != nil {
+	err := g.reconnectTry(context.Background(), 0)
+	if err != nil {
 		g.config.Logger.Error(g.formatLogs("failed to reopen gateway. error: ", err))
 	}
 }
