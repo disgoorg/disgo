@@ -20,6 +20,8 @@ type Guilds interface {
 	UpdateGuild(guildID snowflake.ID, guildUpdate discord.GuildUpdate, opts ...RequestOpt) (*discord.RestGuild, error)
 	DeleteGuild(guildID snowflake.ID, opts ...RequestOpt) error
 
+	GetGuildVanityURL(guildID snowflake.ID, opts ...RequestOpt) (*discord.PartialInvite, error)
+
 	CreateGuildChannel(guildID snowflake.ID, guildChannelCreate discord.GuildChannelCreate, opts ...RequestOpt) (discord.GuildChannel, error)
 	GetGuildChannels(guildID snowflake.ID, opts ...RequestOpt) ([]discord.GuildChannel, error)
 	UpdateChannelPositions(guildID snowflake.ID, guildChannelPositionUpdates []discord.GuildChannelPositionUpdate, opts ...RequestOpt) error
