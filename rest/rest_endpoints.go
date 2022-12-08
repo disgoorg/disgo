@@ -75,14 +75,17 @@ var (
 
 	UpdateCurrentMember = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/members/@me")
 
-	GetPruneMembersCount = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/prune")
-	PruneMembers         = NewEndpoint(http.MethodPost, "/guilds/{guild.id}/prune")
+	GetGuildPruneCount = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/prune")
+	BeginGuildPrune    = NewEndpoint(http.MethodPost, "/guilds/{guild.id}/prune")
 
 	GetGuildWebhooks = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/webhooks")
 
 	GetAuditLogs = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/audit-logs")
 
 	GetGuildVoiceRegions = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/regions")
+
+	GetGuildWelcomeScreen    = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/welcome-screen")
+	UpdateGuildWelcomeScreen = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/welcome-screen")
 
 	UpdateCurrentUserVoiceState = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/voice-states/@me")
 	UpdateUserVoiceState        = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/voice-states/{user.id}")
