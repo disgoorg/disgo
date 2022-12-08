@@ -24,6 +24,8 @@ var (
 
 	MemberAvatar = NewCDN("/guilds/{guild.id}/users/{user.id}/avatars/{member.avatar.hash}", ImageFormatPNG, ImageFormatJPEG, ImageFormatWebP, ImageFormatGIF)
 
+	UserAvatarDecoration = NewCDN("/avatar-decorations/{user.id}/{user.avatar.decoration.hash}", ImageFormatPNG)
+
 	ApplicationIcon  = NewCDN("/app-icons/{application.id}/{icon.hash}", ImageFormatPNG, ImageFormatJPEG, ImageFormatWebP)
 	ApplicationCover = NewCDN("/app-assets/{application.id}/{cover.image.hash}", ImageFormatPNG, ImageFormatJPEG, ImageFormatWebP)
 	ApplicationAsset = NewCDN("/app-assets/{application.id}/{asset.id}", ImageFormatPNG, ImageFormatJPEG, ImageFormatWebP)
