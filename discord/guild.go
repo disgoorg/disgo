@@ -358,6 +358,12 @@ type GuildCreateChannel struct {
 	ParentID int `json:"parent_id,omitempty"`
 }
 
+type GuildPrune struct {
+	Days              int            `json:"days"`
+	ComputePruneCount bool           `json:"compute_prune_count"`
+	IncludeRoles      []snowflake.ID `json:"include_roles"`
+}
+
 type GuildPruneResult struct {
 	Pruned *int `json:"pruned"`
 }

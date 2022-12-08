@@ -75,8 +75,8 @@ var (
 
 	UpdateCurrentMember = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/members/@me")
 
-	GetPruneMembersCount = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/prune")
-	PruneMembers         = NewEndpoint(http.MethodPost, "/guilds/{guild.id}/prune")
+	GetGuildPruneCount = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/prune")
+	BeginGuildPrune    = NewEndpoint(http.MethodPost, "/guilds/{guild.id}/prune")
 
 	GetGuildWebhooks = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/webhooks")
 

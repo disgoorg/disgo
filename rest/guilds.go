@@ -42,8 +42,8 @@ type Guilds interface {
 	GetIntegrations(guildID snowflake.ID, opts ...RequestOpt) ([]discord.Integration, error)
 	DeleteIntegration(guildID snowflake.ID, integrationID snowflake.ID, opts ...RequestOpt) error
 
-	GetPruneMembersCount(guildID snowflake.ID, days int, includeRoles string, opts ...RequestOpt) (discord.GuildPruneResult, error)
-	PruneMembers(guildID snowflake.ID, days int, computePruneCount bool, includeRoles string, opts ...RequestOpt) (discord.GuildPruneResult, error)
+	GetGuildPruneCount(guildID snowflake.ID, days int, includeRoles []snowflake.ID, opts ...RequestOpt) (*discord.GuildPruneResult, error)
+	BeginGuildPrune(guildID snowflake.ID, guildPrune discord.GuildPrune, opts ...RequestOpt) (*discord.GuildPruneResult, error)
 
 	GetAllWebhooks(guildID snowflake.ID, opts ...RequestOpt) ([]discord.Webhook, error)
 
@@ -195,22 +195,24 @@ func (s *guildImpl) DeleteIntegration(guildID snowflake.ID, integrationID snowfl
 	return s.client.Do(DeleteIntegration.Compile(nil, guildID, integrationID), nil, nil, opts...)
 }
 
-func (s *guildImpl) GetPruneMembersCount(guildID snowflake.ID, days int, includeRoles string, opts ...RequestOpt) (result discord.GuildPruneResult, err error) {
+func (s *guildImpl) GetGuildPruneCount(guildID snowflake.ID, days int, includeRoles []snowflake.ID, opts ...RequestOpt) (result *discord.GuildPruneResult, err error) {
 	values := discord.QueryValues{
-		"days":          days,
-		"include_roles": includeRoles,
+		"days": days,
 	}
-	err = s.client.Do(GetPruneMembersCount.Compile(values, guildID), nil, &result, opts...)
+	var joinedRoles string
+	for i, roleID := range includeRoles {
+		joinedRoles += roleID.String()
+		if i != len(includeRoles)-1 {
+			joinedRoles += ","
+		}
+	}
+	values["include_roles"] = joinedRoles
+	err = s.client.Do(GetGuildPruneCount.Compile(values, guildID), nil, &result, opts...)
 	return
 }
 
-func (s *guildImpl) PruneMembers(guildID snowflake.ID, days int, computePruneCount bool, includeRoles string, opts ...RequestOpt) (result discord.GuildPruneResult, err error) {
-	values := discord.QueryValues{
-		"days":                days,
-		"compute_prune_count": computePruneCount,
-		"include_roles":       includeRoles,
-	}
-	err = s.client.Do(PruneMembers.Compile(values, guildID), nil, &result, opts...)
+func (s *guildImpl) BeginGuildPrune(guildID snowflake.ID, guildPrune discord.GuildPrune, opts ...RequestOpt) (result *discord.GuildPruneResult, err error) {
+	err = s.client.Do(BeginGuildPrune.Compile(nil, guildID), guildPrune, &result, opts...)
 	return
 }
 
