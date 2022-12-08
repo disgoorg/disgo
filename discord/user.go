@@ -170,3 +170,15 @@ type SelfUserUpdate struct {
 	Username string               `json:"username,omitempty"`
 	Avatar   *json.Nullable[Icon] `json:"avatar,omitempty"`
 }
+
+type ApplicationRoleConnection struct {
+	PlatformName     *string                           `json:"platform_name"`
+	PlatformUsername *string                           `json:"platform_username"`
+	Metadata         ApplicationRoleConnectionMetadata `json:"metadata"`
+}
+
+type ApplicationRoleConnectionUpdate struct {
+	PlatformName     *string                            `json:"platform_name,omitempty"`
+	PlatformUsername *string                            `json:"platform_username,omitempty"`
+	Metadata         *ApplicationRoleConnectionMetadata `json:"metadata,omitempty"`
+}

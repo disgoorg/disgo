@@ -35,15 +35,17 @@ var (
 
 // Users
 var (
-	GetUser                   = NewEndpoint(http.MethodGet, "/users/{user.id}")
-	GetCurrentUser            = NewEndpoint(http.MethodGet, "/users/@me")
-	GetCurrentMember          = NewEndpoint(http.MethodGet, "/users/@me/guilds/{guild.id}/member")
-	UpdateSelfUser            = NewEndpoint(http.MethodPatch, "/users/@me")
-	GetCurrentUserConnections = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/connections")
-	GetCurrentUserGuilds      = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/guilds")
-	LeaveGuild                = NewEndpoint(http.MethodDelete, "/users/@me/guilds/{guild.id}")
-	GetDMChannels             = NewEndpoint(http.MethodGet, "/users/@me/channels")
-	CreateDMChannel           = NewEndpoint(http.MethodPost, "/users/@me/channels")
+	GetUser                                    = NewEndpoint(http.MethodGet, "/users/{user.id}")
+	GetCurrentUser                             = NewEndpoint(http.MethodGet, "/users/@me")
+	GetCurrentMember                           = NewEndpoint(http.MethodGet, "/users/@me/guilds/{guild.id}/member")
+	UpdateSelfUser                             = NewEndpoint(http.MethodPatch, "/users/@me")
+	GetCurrentUserConnections                  = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/connections")
+	GetCurrentUserGuilds                       = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/guilds")
+	GetCurrentUserApplicationRoleConnection    = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/applications/{application.id}/role-connection")
+	UpdateCurrentUserApplicationRoleConnection = NewNoBotAuthEndpoint(http.MethodPut, "/users/@me/applications/{application.id}/role-connection")
+	LeaveGuild                                 = NewEndpoint(http.MethodDelete, "/users/@me/guilds/{guild.id}")
+	GetDMChannels                              = NewEndpoint(http.MethodGet, "/users/@me/channels")
+	CreateDMChannel                            = NewEndpoint(http.MethodPost, "/users/@me/channels")
 )
 
 // Guilds
@@ -249,7 +251,7 @@ var (
 	GetChannelInvites = NewEndpoint(http.MethodGet, "/channels/{channel.id}/invites")
 )
 
-// Interactions
+// Applications
 var (
 	GetGlobalCommands   = NewEndpoint(http.MethodGet, "/applications/{application.id}/commands")
 	GetGlobalCommand    = NewEndpoint(http.MethodGet, "/applications/{application.id}/command/{command.id}")
@@ -278,6 +280,9 @@ var (
 	CreateFollowupMessage = NewNoBotAuthEndpoint(http.MethodPost, "/webhooks/{application.id}/{interaction.token}")
 	UpdateFollowupMessage = NewNoBotAuthEndpoint(http.MethodPatch, "/webhooks/{application.id}/{interaction.token}/messages/{message.id}")
 	DeleteFollowupMessage = NewNoBotAuthEndpoint(http.MethodDelete, "/webhooks/{application.id}/{interaction.token}/messages/{message.id}")
+
+	GetApplicationRoleConnectionMetadataRecords    = NewEndpoint(http.MethodGet, "/applications/{application.id}/role-connections/metadata")
+	UpdateApplicationRoleConnectionMetadataRecords = NewEndpoint(http.MethodPut, "/applications/{application.id}/role-connections/metadata")
 )
 
 // NewEndpoint returns a new Endpoint which requires bot auth with the given http method & route.
