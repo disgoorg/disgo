@@ -18,9 +18,9 @@ type Application struct {
 	BotRequireCodeGrant            bool                `json:"bot_require_code_grant"`
 	TermsOfServiceURL              *string             `json:"terms_of_service_url,omitempty"`
 	PrivacyPolicyURL               *string             `json:"privacy_policy_url,omitempty"`
-	CustomInstallationURL          *string             `json:"custom_install_url,omitempty"`
+	CustomInstallURL               *string             `json:"custom_install_url,omitempty"`
 	RoleConnectionsVerificationURL *string             `json:"role_connections_verification_url"`
-	InstallationParams             *InstallationParams `json:"install_params"`
+	InstallParams                  *InstallParams      `json:"install_params"`
 	Tags                           []string            `json:"tags"`
 	Owner                          *User               `json:"owner,omitempty"`
 	Summary                        string              `json:"summary"`
@@ -41,11 +41,11 @@ func (a Application) IconURL(opts ...CDNOpt) *string {
 	return &url
 }
 
-func (a Application) CoverURL(opts ...CDNOpt) *string {
-	if a.Cover == nil {
+func (a Application) CoverImageURL(opts ...CDNOpt) *string {
+	if a.CoverImage == nil {
 		return nil
 	}
-	url := formatAssetURL(ApplicationCover, opts, a.ID, *a.Cover)
+	url := formatAssetURL(ApplicationCover, opts, a.ID, *a.CoverImage)
 	return &url
 }
 
@@ -65,7 +65,7 @@ type AuthorizationInformation struct {
 	User        *User         `json:"user"`
 }
 
-type InstallationParams struct {
+type InstallParams struct {
 	Scopes      []OAuth2Scope `json:"scopes"`
 	Permissions Permissions   `json:"permissions"`
 }
