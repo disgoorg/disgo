@@ -47,7 +47,7 @@ type Guilds interface {
 
 	GetAllWebhooks(guildID snowflake.ID, opts ...RequestOpt) ([]discord.Webhook, error)
 
-	GetGuildVoiceRegions(guild snowflake.ID, opts ...RequestOpt) ([]discord.VoiceRegion, error)
+	GetGuildVoiceRegions(guildID snowflake.ID, opts ...RequestOpt) ([]discord.VoiceRegion, error)
 
 	GetAuditLog(guildID snowflake.ID, userID snowflake.ID, actionType discord.AuditLogEvent, before snowflake.ID, limit int, opts ...RequestOpt) (*discord.AuditLog, error)
 	GetAuditLogPage(guildID snowflake.ID, userID snowflake.ID, actionType discord.AuditLogEvent, startID snowflake.ID, limit int, opts ...RequestOpt) AuditLogPage
@@ -219,8 +219,8 @@ func (s *guildImpl) GetAllWebhooks(guildID snowflake.ID, opts ...RequestOpt) (we
 	return
 }
 
-func (s *guildImpl) GetGuildVoiceRegions(guild snowflake.ID, opts ...RequestOpt) (regions []discord.VoiceRegion, err error) {
-	err = s.client.Do(GetGuildVoiceRegions.Compile(nil, guild), nil, &regions, opts...)
+func (s *guildImpl) GetGuildVoiceRegions(guildID snowflake.ID, opts ...RequestOpt) (regions []discord.VoiceRegion, err error) {
+	err = s.client.Do(GetGuildVoiceRegions.Compile(nil, guildID), nil, &regions, opts...)
 	return
 }
 
