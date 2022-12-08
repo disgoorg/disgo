@@ -31,6 +31,7 @@ type StageInstanceCreate struct {
 	Topic                 string            `json:"topic,omitempty"`
 	PrivacyLevel          StagePrivacyLevel `json:"privacy_level,omitempty"`
 	SendStartNotification bool              `json:"send_start_notification,omitempty"`
+	GuildScheduledEventID snowflake.ID      `json:"guild_scheduled_event_id,omitempty"`
 }
 
 type StageInstanceUpdate struct {
