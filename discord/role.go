@@ -46,9 +46,11 @@ func (r Role) CreatedAt() time.Time {
 
 // RoleTag are tags a Role has
 type RoleTag struct {
-	BotID             *snowflake.ID `json:"bot_id,omitempty"`
-	IntegrationID     *snowflake.ID `json:"integration_id,omitempty"`
-	PremiumSubscriber bool          `json:"premium_subscriber"`
+	BotID                 *snowflake.ID `json:"bot_id,omitempty"`
+	IntegrationID         *snowflake.ID `json:"integration_id,omitempty"`
+	PremiumSubscriber     bool          `json:"premium_subscriber"`
+	SubscriptionListingID *snowflake.ID `json:"subscription_listing_id"`
+	AvailableForPurchase  bool          `json:"available_for_purchase"`
 }
 
 // RoleCreate is the payload to create a Role

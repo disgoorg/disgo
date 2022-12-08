@@ -38,6 +38,7 @@ const (
 	MessageTypeGuildInviteReminder
 	MessageTypeContextMenuCommand
 	MessageTypeAutoModerationAction
+	MessageTypeRoleSubscriptionPurchase
 )
 
 func (t MessageType) System() bool {

@@ -13,9 +13,10 @@ type IntegrationType string
 
 // All IntegrationType(s)
 const (
-	IntegrationTypeTwitch  IntegrationType = "twitch"
-	IntegrationTypeYouTube IntegrationType = "youtube"
-	IntegrationTypeBot     IntegrationType = "discord"
+	IntegrationTypeTwitch            IntegrationType = "twitch"
+	IntegrationTypeYouTube           IntegrationType = "youtube"
+	IntegrationTypeBot               IntegrationType = "discord"
+	IntegrationTypeGuildSubscription IntegrationType = "guild_subscription"
 )
 
 // IntegrationAccount (https://discord.com/developers/docs/resources/guild#integration-account-object)
