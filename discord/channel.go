@@ -1055,6 +1055,7 @@ type GuildForumChannel struct {
 	DefaultReactionEmoji          *DefaultReactionEmoji
 	DefaultThreadRateLimitPerUser int
 	DefaultSortOrder              *DefaultSortOrder
+	DefaultForumLayout            DefaultForumLayout
 }
 
 func (c *GuildForumChannel) UnmarshalJSON(data []byte) error {
@@ -1078,6 +1079,7 @@ func (c *GuildForumChannel) UnmarshalJSON(data []byte) error {
 	c.DefaultReactionEmoji = v.DefaultReactionEmoji
 	c.DefaultThreadRateLimitPerUser = v.DefaultThreadRateLimitPerUser
 	c.DefaultSortOrder = v.DefaultSortOrder
+	c.DefaultForumLayout = v.DefaultForumLayout
 	return nil
 }
 
@@ -1099,6 +1101,7 @@ func (c GuildForumChannel) MarshalJSON() ([]byte, error) {
 		DefaultReactionEmoji:          c.DefaultReactionEmoji,
 		DefaultThreadRateLimitPerUser: c.DefaultThreadRateLimitPerUser,
 		DefaultSortOrder:              c.DefaultSortOrder,
+		DefaultForumLayout:            c.DefaultForumLayout,
 	})
 }
 
@@ -1189,6 +1192,14 @@ type DefaultSortOrder int
 const (
 	LatestActivity DefaultSortOrder = iota
 	CreationDate
+)
+
+type DefaultForumLayout int
+
+const (
+	Default DefaultForumLayout = iota
+	List
+	Grid
 )
 
 type AutoArchiveDuration int
