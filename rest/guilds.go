@@ -40,10 +40,18 @@ type Guilds interface {
 	GetIntegrations(guildID snowflake.ID, opts ...RequestOpt) ([]discord.Integration, error)
 	DeleteIntegration(guildID snowflake.ID, integrationID snowflake.ID, opts ...RequestOpt) error
 
+	GetPruneMembersCount(guildID snowflake.ID, days int, includeRoles string, opts ...RequestOpt) (discord.GuildPruneResult, error)
+	PruneMembers(guildID snowflake.ID, days int, computePruneCount bool, includeRoles string, opts ...RequestOpt) (discord.GuildPruneResult, error)
+
 	GetAllWebhooks(guildID snowflake.ID, opts ...RequestOpt) ([]discord.Webhook, error)
+
+	GetGuildVoiceRegions(guild snowflake.ID, opts ...RequestOpt) ([]discord.VoiceRegion, error)
 
 	GetAuditLog(guildID snowflake.ID, userID snowflake.ID, actionType discord.AuditLogEvent, before snowflake.ID, limit int, opts ...RequestOpt) (*discord.AuditLog, error)
 	GetAuditLogPage(guildID snowflake.ID, userID snowflake.ID, actionType discord.AuditLogEvent, startID snowflake.ID, limit int, opts ...RequestOpt) AuditLogPage
+
+	GetGuildWelcomeScreen(guildID snowflake.ID, opts ...RequestOpt) (*discord.GuildWelcomeScreen, error)
+	UpdateGuildWelcomeScreen(guildID snowflake.ID, screenUpdate discord.GuildWelcomeScreenUpdate, opts ...RequestOpt) (*discord.GuildWelcomeScreen, error)
 }
 
 type guildImpl struct {
@@ -75,6 +83,11 @@ func (s *guildImpl) UpdateGuild(guildID snowflake.ID, guildUpdate discord.GuildU
 
 func (s *guildImpl) DeleteGuild(guildID snowflake.ID, opts ...RequestOpt) error {
 	return s.client.Do(DeleteGuild.Compile(nil, guildID), nil, nil, opts...)
+}
+
+func (s *guildImpl) GetGuildVanityURL(guildID snowflake.ID, opts ...RequestOpt) (partialInvite *discord.PartialInvite, err error) {
+	err = s.client.Do(GetGuildVanityURL.Compile(nil, guildID), nil, &partialInvite, opts...)
+	return
 }
 
 func (s *guildImpl) CreateGuildChannel(guildID snowflake.ID, guildChannelCreate discord.GuildChannelCreate, opts ...RequestOpt) (guildChannel discord.GuildChannel, err error) {
@@ -180,13 +193,32 @@ func (s *guildImpl) DeleteIntegration(guildID snowflake.ID, integrationID snowfl
 	return s.client.Do(DeleteIntegration.Compile(nil, guildID, integrationID), nil, nil, opts...)
 }
 
+func (s *guildImpl) GetPruneMembersCount(guildID snowflake.ID, days int, includeRoles string, opts ...RequestOpt) (result discord.GuildPruneResult, err error) {
+	values := discord.QueryValues{
+		"days":          days,
+		"include_roles": includeRoles,
+	}
+	err = s.client.Do(GetPruneMembersCount.Compile(values, guildID), nil, &result, opts...)
+	return
+}
+
+func (s *guildImpl) PruneMembers(guildID snowflake.ID, days int, computePruneCount bool, includeRoles string, opts ...RequestOpt) (result discord.GuildPruneResult, err error) {
+	values := discord.QueryValues{
+		"days":                days,
+		"compute_prune_count": computePruneCount,
+		"include_roles":       includeRoles,
+	}
+	err = s.client.Do(PruneMembers.Compile(values, guildID), nil, &result, opts...)
+	return
+}
+
 func (s *guildImpl) GetAllWebhooks(guildID snowflake.ID, opts ...RequestOpt) (webhooks []discord.Webhook, err error) {
 	err = s.client.Do(GetGuildWebhooks.Compile(nil, guildID), nil, &webhooks, opts...)
 	return
 }
 
-func (s *guildImpl) GetEmojis(guildID snowflake.ID, opts ...RequestOpt) (emojis []discord.Emoji, err error) {
-	err = s.client.Do(GetEmojis.Compile(nil, guildID), nil, &emojis, opts...)
+func (s *guildImpl) GetGuildVoiceRegions(guild snowflake.ID, opts ...RequestOpt) (regions []discord.VoiceRegion, err error) {
+	err = s.client.Do(GetGuildVoiceRegions.Compile(nil, guild), nil, &regions, opts...)
 	return
 }
 
@@ -220,4 +252,14 @@ func (s *guildImpl) GetAuditLogPage(guildID snowflake.ID, userID snowflake.ID, a
 		},
 		ID: startID,
 	}
+}
+
+func (s *guildImpl) GetGuildWelcomeScreen(guildID snowflake.ID, opts ...RequestOpt) (welcomeScreen *discord.GuildWelcomeScreen, err error) {
+	err = s.client.Do(GetGuildWelcomeScreen.Compile(nil, guildID), nil, &welcomeScreen, opts...)
+	return
+}
+
+func (s *guildImpl) UpdateGuildWelcomeScreen(guildID snowflake.ID, screenUpdate discord.GuildWelcomeScreenUpdate, opts ...RequestOpt) (welcomeScreen *discord.GuildWelcomeScreen, err error) {
+	err = s.client.Do(UpdateGuildWelcomeScreen.Compile(nil, guildID), screenUpdate, &welcomeScreen, opts...)
+	return
 }
