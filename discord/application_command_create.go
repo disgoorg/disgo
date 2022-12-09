@@ -22,26 +22,13 @@ type SlashCommandCreate struct {
 	DMPermission             bool                       `json:"dm_permission"`
 }
 
-func (c SlashCommandCreate) Validate() (err error) {
-	err = validate.Validate(
-		validate.New(c.Name, validate.Required[string], validate.StringRange(1, ApplicationCommandNameMaxLength)),
-		validate.New(c.Description, validate.Required[string], validate.StringRange(1, ApplicationCommandDescriptionMaxLength)))
-	if err != nil {
-		return
-	}
-	options := c.Options
-	err = validate.Validate(validate.New(options,
-		validate.SliceNoneNil[ApplicationCommandOption],
-		validate.SliceMaxLen[ApplicationCommandOption](ApplicationCommandMaxOptions)))
-	if err != nil {
-		return
-	}
-	for _, option := range options {
-		if err = option.Validate(); err != nil {
-			return
-		}
-	}
-	return nil
+func (c SlashCommandCreate) Validate() error {
+	return validate.Validate(
+		validate.Value(c.Name, validate.Required[string], validate.StringRange(1, ApplicationCommandNameMaxLength)),
+		validate.Value(c.Description, validate.Required[string], validate.StringRange(1, ApplicationCommandDescriptionMaxLength)),
+		validate.Value(c.Options, validate.SliceMaxLen[ApplicationCommandOption](ApplicationCommandMaxOptions)),
+		validate.Slice(c.Options),
+	)
 }
 
 func (c SlashCommandCreate) MarshalJSON() ([]byte, error) {

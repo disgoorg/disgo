@@ -2,6 +2,7 @@ package discord
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/disgoorg/disgo/json"
 	"github.com/disgoorg/validate"
@@ -30,7 +31,9 @@ type ApplicationCommandOption interface {
 	validate.Validator
 	Type() ApplicationCommandOptionType
 	OptionName() string
+	OptionNameLocalizations() map[Locale]string
 	OptionDescription() string
+	OptionDescriptionLocalizations() map[Locale]string
 	applicationCommandOption()
 }
 
@@ -167,28 +170,24 @@ func (o ApplicationCommandOptionSubCommand) OptionName() string {
 	return o.Name
 }
 
+func (o ApplicationCommandOptionSubCommand) OptionNameLocalizations() map[Locale]string {
+	return o.NameLocalizations
+}
+
 func (o ApplicationCommandOptionSubCommand) OptionDescription() string {
 	return o.Description
 }
 
-func (o ApplicationCommandOptionSubCommand) Validate() (err error) {
-	err = validateOptionProps(o)
-	if err != nil {
-		return
-	}
-	options := o.Options
-	err = validate.Validate(validate.New(options,
-		validate.SliceNoneNil[ApplicationCommandOption],
-		validate.SliceMaxLen[ApplicationCommandOption](ApplicationCommandMaxOptions)))
-	if err != nil {
-		return
-	}
-	for _, option := range options {
-		if err = option.Validate(); err != nil {
-			return
-		}
-	}
-	return nil
+func (o ApplicationCommandOptionSubCommand) OptionDescriptionLocalizations() map[Locale]string {
+	return o.DescriptionLocalizations
+}
+
+func (o ApplicationCommandOptionSubCommand) Validate() error {
+	return validate.Validate(
+		applicationCommandOptionValidator(o),
+		validate.Value(o.Options, validate.SliceMaxLen[ApplicationCommandOption](ApplicationCommandMaxOptions)),
+		validate.Slice(o.Options),
+	)
 }
 
 func (ApplicationCommandOptionSubCommand) applicationCommandOption() {}
@@ -221,28 +220,24 @@ func (o ApplicationCommandOptionSubCommandGroup) OptionName() string {
 	return o.Name
 }
 
+func (o ApplicationCommandOptionSubCommandGroup) OptionNameLocalizations() map[Locale]string {
+	return o.NameLocalizations
+}
+
 func (o ApplicationCommandOptionSubCommandGroup) OptionDescription() string {
 	return o.Description
 }
 
-func (o ApplicationCommandOptionSubCommandGroup) Validate() (err error) {
-	err = validateOptionProps(o)
-	if err != nil {
-		return
-	}
-	subcommands := o.Options
-	err = validate.Validate(validate.New(subcommands,
-		validate.SliceNoneNil[ApplicationCommandOptionSubCommand],
-		validate.SliceMaxLen[ApplicationCommandOptionSubCommand](ApplicationCommandMaxOptions)))
-	if err != nil {
-		return
-	}
-	for _, subcommand := range subcommands {
-		if err = subcommand.Validate(); err != nil {
-			return
-		}
-	}
-	return nil
+func (o ApplicationCommandOptionSubCommandGroup) OptionDescriptionLocalizations() map[Locale]string {
+	return o.DescriptionLocalizations
+}
+
+func (o ApplicationCommandOptionSubCommandGroup) Validate() error {
+	return validate.Validate(
+		applicationCommandOptionValidator(o),
+		validate.Value(o.Options, validate.SliceNoneNil[ApplicationCommandOptionSubCommand], validate.SliceMaxLen[ApplicationCommandOptionSubCommand](ApplicationCommandMaxOptions)),
+		validate.Slice(o.Options),
+	)
 }
 
 func (ApplicationCommandOptionSubCommandGroup) applicationCommandOption() {}
@@ -279,31 +274,20 @@ func (o ApplicationCommandOptionString) OptionName() string {
 	return o.Name
 }
 
+func (o ApplicationCommandOptionString) OptionNameLocalizations() map[Locale]string {
+	return o.NameLocalizations
+}
+
 func (o ApplicationCommandOptionString) OptionDescription() string {
 	return o.Description
 }
 
-func (o ApplicationCommandOptionString) Validate() (err error) {
-	err = validateOptionProps(o)
-	if err != nil {
-		return
-	}
-	choices := o.Choices
-	err = validate.Validate(validate.New(choices,
-		validate.SliceNoneNil[ApplicationCommandOptionChoiceString],
-		validate.SliceMaxLen[ApplicationCommandOptionChoiceString](ApplicationCommandOptionMaxChoices)))
-	if err != nil {
-		return
-	}
-	for _, choice := range choices {
-		err = validate.Validate(
-			validate.New(choice.Name, validate.Required[string], validate.StringRange(1, ApplicationCommandOptionChoiceNameMaxLength)),
-			validate.New(choice.Value, validate.Required[string], validate.StringRange(1, ApplicationCommandOptionStringChoiceValueMaxLength)))
-		if err != nil {
-			return
-		}
-	}
-	return nil
+func (o ApplicationCommandOptionString) OptionDescriptionLocalizations() map[Locale]string {
+	return o.DescriptionLocalizations
+}
+
+func (o ApplicationCommandOptionString) Validate() error {
+	return applicationCommandOptionValidator(o).Validate()
 }
 
 func (ApplicationCommandOptionString) applicationCommandOption() {}
@@ -340,31 +324,23 @@ func (o ApplicationCommandOptionInt) OptionName() string {
 	return o.Name
 }
 
+func (o ApplicationCommandOptionInt) OptionNameLocalizations() map[Locale]string {
+	return o.NameLocalizations
+}
+
 func (o ApplicationCommandOptionInt) OptionDescription() string {
 	return o.Description
 }
 
-func (o ApplicationCommandOptionInt) Validate() (err error) {
-	err = validateOptionProps(o)
-	if err != nil {
-		return
-	}
-	choices := o.Choices
-	err = validate.Validate(validate.New(choices,
-		validate.SliceNoneNil[ApplicationCommandOptionChoiceInt],
-		validate.SliceMaxLen[ApplicationCommandOptionChoiceInt](ApplicationCommandOptionMaxChoices)))
-	if err != nil {
-		return
-	}
-	for _, choice := range choices {
-		err = validate.Validate(
-			validate.New(choice.Name, validate.Required[string], validate.StringRange(1, ApplicationCommandOptionChoiceNameMaxLength)),
-			validate.New(choice.Value, validate.Required[int]))
-		if err != nil {
-			return
-		}
-	}
-	return nil
+func (o ApplicationCommandOptionInt) OptionDescriptionLocalizations() map[Locale]string {
+	return o.DescriptionLocalizations
+}
+
+func (o ApplicationCommandOptionInt) Validate() error {
+	return validate.Validate(
+		applicationCommandOptionValidator(o),
+		validate.Value(o.MinValue, validate.NumberRangePtr[int](0, math.MaxInt32)),
+	)
 }
 
 func (ApplicationCommandOptionInt) applicationCommandOption() {}
@@ -397,12 +373,20 @@ func (o ApplicationCommandOptionBool) OptionName() string {
 	return o.Name
 }
 
+func (o ApplicationCommandOptionBool) OptionNameLocalizations() map[Locale]string {
+	return o.NameLocalizations
+}
+
 func (o ApplicationCommandOptionBool) OptionDescription() string {
 	return o.Description
 }
 
+func (o ApplicationCommandOptionBool) OptionDescriptionLocalizations() map[Locale]string {
+	return o.DescriptionLocalizations
+}
+
 func (o ApplicationCommandOptionBool) Validate() error {
-	return validateOptionProps(o)
+	return applicationCommandOptionValidator(o).Validate()
 }
 
 func (ApplicationCommandOptionBool) applicationCommandOption() {}
@@ -435,12 +419,20 @@ func (o ApplicationCommandOptionUser) OptionName() string {
 	return o.Name
 }
 
+func (o ApplicationCommandOptionUser) OptionNameLocalizations() map[Locale]string {
+	return o.NameLocalizations
+}
+
 func (o ApplicationCommandOptionUser) OptionDescription() string {
 	return o.Description
 }
 
+func (o ApplicationCommandOptionUser) OptionDescriptionLocalizations() map[Locale]string {
+	return o.DescriptionLocalizations
+}
+
 func (o ApplicationCommandOptionUser) Validate() error {
-	return validateOptionProps(o)
+	return applicationCommandOptionValidator(o).Validate()
 }
 
 func (ApplicationCommandOptionUser) applicationCommandOption() {}
@@ -474,12 +466,20 @@ func (o ApplicationCommandOptionChannel) OptionName() string {
 	return o.Name
 }
 
+func (o ApplicationCommandOptionChannel) OptionNameLocalizations() map[Locale]string {
+	return o.NameLocalizations
+}
+
 func (o ApplicationCommandOptionChannel) OptionDescription() string {
-	return o.Name
+	return o.Description
+}
+
+func (o ApplicationCommandOptionChannel) OptionDescriptionLocalizations() map[Locale]string {
+	return o.DescriptionLocalizations
 }
 
 func (o ApplicationCommandOptionChannel) Validate() error {
-	return validateOptionProps(o)
+	return applicationCommandOptionValidator(o).Validate()
 }
 
 func (ApplicationCommandOptionChannel) applicationCommandOption() {}
@@ -512,12 +512,20 @@ func (o ApplicationCommandOptionRole) OptionName() string {
 	return o.Name
 }
 
+func (o ApplicationCommandOptionRole) OptionNameLocalizations() map[Locale]string {
+	return o.NameLocalizations
+}
+
 func (o ApplicationCommandOptionRole) OptionDescription() string {
-	return o.Name
+	return o.Description
+}
+
+func (o ApplicationCommandOptionRole) OptionDescriptionLocalizations() map[Locale]string {
+	return o.DescriptionLocalizations
 }
 
 func (o ApplicationCommandOptionRole) Validate() error {
-	return validateOptionProps(o)
+	return applicationCommandOptionValidator(o).Validate()
 }
 
 func (ApplicationCommandOptionRole) applicationCommandOption() {}
@@ -550,12 +558,20 @@ func (o ApplicationCommandOptionMentionable) OptionName() string {
 	return o.Name
 }
 
+func (o ApplicationCommandOptionMentionable) OptionNameLocalizations() map[Locale]string {
+	return o.NameLocalizations
+}
+
 func (o ApplicationCommandOptionMentionable) OptionDescription() string {
-	return o.Name
+	return o.Description
+}
+
+func (o ApplicationCommandOptionMentionable) OptionDescriptionLocalizations() map[Locale]string {
+	return o.DescriptionLocalizations
 }
 
 func (o ApplicationCommandOptionMentionable) Validate() error {
-	return validateOptionProps(o)
+	return applicationCommandOptionValidator(o).Validate()
 }
 
 func (ApplicationCommandOptionMentionable) applicationCommandOption() {}
@@ -592,72 +608,30 @@ func (o ApplicationCommandOptionFloat) OptionName() string {
 	return o.Name
 }
 
-func (o ApplicationCommandOptionFloat) OptionDescription() string {
-	return o.Name
+func (o ApplicationCommandOptionFloat) OptionNameLocalizations() map[Locale]string {
+	return o.NameLocalizations
 }
 
-func (o ApplicationCommandOptionFloat) Validate() (err error) {
-	err = validateOptionProps(o)
-	if err != nil {
-		return
-	}
-	choices := o.Choices
-	err = validate.Validate(
-		validate.New(choices,
-			validate.SliceNoneNil[ApplicationCommandOptionChoiceFloat],
-			validate.SliceMaxLen[ApplicationCommandOptionChoiceFloat](ApplicationCommandOptionMaxChoices)))
-	if err != nil {
-		return
-	}
-	for _, choice := range choices {
-		err = validate.Validate(
-			validate.New(choice.Name, validate.Required[string], validate.StringRange(1, ApplicationCommandOptionChoiceNameMaxLength)),
-			validate.New(choice.Value, validate.Required[float64]))
-		if err != nil {
-			return
-		}
-	}
-	return nil
+func (o ApplicationCommandOptionFloat) OptionDescription() string {
+	return o.Description
+}
+
+func (o ApplicationCommandOptionFloat) OptionDescriptionLocalizations() map[Locale]string {
+	return o.DescriptionLocalizations
+}
+
+func (o ApplicationCommandOptionFloat) Validate() error {
+	return validate.Validate(
+		applicationCommandOptionValidator(o),
+		validate.Value(o.Choices, validate.SliceNoneNil[ApplicationCommandOptionChoiceFloat], validate.SliceMaxLen[ApplicationCommandOptionChoiceFloat](ApplicationCommandOptionMaxChoices)),
+		validate.Slice(o.Choices),
+	)
 }
 
 func (ApplicationCommandOptionFloat) applicationCommandOption() {}
 func (ApplicationCommandOptionFloat) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeFloat
 }
-
-type ApplicationCommandOptionChoice interface {
-	applicationCommandOptionChoice()
-}
-
-var _ ApplicationCommandOptionChoice = (*ApplicationCommandOptionChoiceInt)(nil)
-
-type ApplicationCommandOptionChoiceInt struct {
-	Name              string            `json:"name"`
-	NameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
-	Value             int               `json:"value"`
-}
-
-func (ApplicationCommandOptionChoiceInt) applicationCommandOptionChoice() {}
-
-var _ ApplicationCommandOptionChoice = (*ApplicationCommandOptionChoiceString)(nil)
-
-type ApplicationCommandOptionChoiceString struct {
-	Name              string            `json:"name"`
-	NameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
-	Value             string            `json:"value"`
-}
-
-func (ApplicationCommandOptionChoiceString) applicationCommandOptionChoice() {}
-
-var _ ApplicationCommandOptionChoice = (*ApplicationCommandOptionChoiceInt)(nil)
-
-type ApplicationCommandOptionChoiceFloat struct {
-	Name              string            `json:"name"`
-	NameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
-	Value             float64           `json:"value"`
-}
-
-func (ApplicationCommandOptionChoiceFloat) applicationCommandOptionChoice() {}
 
 type ApplicationCommandOptionAttachment struct {
 	Name                     string            `json:"name"`
@@ -682,12 +656,20 @@ func (o ApplicationCommandOptionAttachment) OptionName() string {
 	return o.Name
 }
 
+func (o ApplicationCommandOptionAttachment) OptionNameLocalizations() map[Locale]string {
+	return o.NameLocalizations
+}
+
 func (o ApplicationCommandOptionAttachment) OptionDescription() string {
-	return o.Name
+	return o.Description
+}
+
+func (o ApplicationCommandOptionAttachment) OptionDescriptionLocalizations() map[Locale]string {
+	return o.DescriptionLocalizations
 }
 
 func (o ApplicationCommandOptionAttachment) Validate() error {
-	return validateOptionProps(o)
+	return applicationCommandOptionValidator(o).Validate()
 }
 
 func (ApplicationCommandOptionAttachment) applicationCommandOption() {}
@@ -695,17 +677,26 @@ func (ApplicationCommandOptionAttachment) Type() ApplicationCommandOptionType {
 	return ApplicationCommandOptionTypeAttachment
 }
 
-func validateOptionProps(o ApplicationCommandOption) error {
-	return validate.Validate(
-		validate.New(o.OptionName(), validate.Required[string], validate.StringRange(1, ApplicationCommandOptionNameMaxLength)),
-		validate.New(o.OptionDescription(), validate.Required[string], validate.StringRange(1, ApplicationCommandOptionDescriptionMaxLength)))
+func applicationCommandOptionValidator(o ApplicationCommandOption) validate.Validator {
+	return validate.Combine(
+		validate.Value(o.OptionName(), validate.Required[string], validate.StringRange(1, ApplicationCommandOptionNameMaxLength)),
+		validate.Map(o.OptionNameLocalizations(), validateLocalizations(1, ApplicationCommandOptionNameMaxLength)),
+		validate.Value(o.OptionDescription(), validate.Required[string], validate.StringRange(1, ApplicationCommandOptionDescriptionMaxLength)),
+		validate.Map(o.OptionDescriptionLocalizations(), validateLocalizations(1, ApplicationCommandOptionDescriptionMaxLength)),
+	)
+}
+
+func validateLocalizations(valueMinLength int, valueMaxLength int) validate.MapValidateFunc[Locale, string] {
+	return func(k Locale, v string) error {
+		return validate.Validate(
+			validate.Value(k, validate.EnumInMapKeys(Locales)),
+			validate.Value(v, validate.Required[string], validate.StringRange(valueMinLength, valueMaxLength)),
+		)
+	}
 }
 
 const (
 	ApplicationCommandOptionNameMaxLength        = 32
 	ApplicationCommandOptionDescriptionMaxLength = 100
-
-	ApplicationCommandOptionMaxChoices                 = 25
-	ApplicationCommandOptionChoiceNameMaxLength        = 100
-	ApplicationCommandOptionStringChoiceValueMaxLength = 100
+	ApplicationCommandOptionMaxChoices           = 25
 )
