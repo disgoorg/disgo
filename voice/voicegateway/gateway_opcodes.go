@@ -1,4 +1,4 @@
-package gateway
+package voicegateway
 
 type Opcode int
 
@@ -108,7 +108,7 @@ var (
 	CloseEventCodeDisconnected = CloseEventCode{
 		Code:        4014,
 		Description: "Disconnected",
-		Explanation: "Channel was deleted, you were kicked, voice server changed, or the main gateway session was dropped. Don't reconnect.",
+		Explanation: "Channel was deleted, you were kicked, voice server changed, or the main voicegateway session was dropped. Don't reconnect.",
 		Reconnect:   false,
 	}
 

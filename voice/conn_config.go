@@ -1,38 +1,34 @@
 package voice
 
 import (
-	"time"
-
-	"github.com/disgoorg/disgo/voice/gateway"
-	"github.com/disgoorg/disgo/voice/udp"
+	"github.com/disgoorg/disgo/voice/voicegateway"
+	"github.com/disgoorg/disgo/voice/voiceudp"
 	"github.com/disgoorg/log"
 )
 
 func DefaultConnConfig() *ConnConfig {
 	return &ConnConfig{
 		Logger:                  log.Default(),
-		GatewayCreateFunc:       gateway.New,
-		UDPConnCreateFunc:       udp.NewConn,
+		GatewayCreateFunc:       voicegateway.New,
+		UDPConnCreateFunc:       voiceudp.NewConn,
 		AudioSenderCreateFunc:   NewAudioSender,
 		AudioReceiverCreateFunc: NewAudioReceiver,
-		ReconnectTimeout:        5 * time.Second,
 	}
 }
 
 type ConnConfig struct {
 	Logger log.Logger
 
-	GatewayCreateFunc gateway.CreateFunc
-	GatewayConfigOpts []gateway.ConfigOpt
+	GatewayCreateFunc voicegateway.CreateFunc
+	GatewayConfigOpts []voicegateway.ConfigOpt
 
-	UDPConnCreateFunc udp.ConnCreateFunc
-	UDPConnConfigOpts []udp.ConnConfigOpt
+	UDPConnCreateFunc voiceudp.ConnCreateFunc
+	UDPConnConfigOpts []voiceudp.ConnConfigOpt
 
 	AudioSenderCreateFunc   AudioSenderCreateFunc
 	AudioReceiverCreateFunc AudioReceiverCreateFunc
 
-	EventHandlerFunc gateway.EventHandlerFunc
-	ReconnectTimeout time.Duration
+	EventHandlerFunc voicegateway.EventHandlerFunc
 }
 
 type ConnConfigOpt func(connConfig *ConnConfig)
@@ -49,25 +45,25 @@ func WithConnLogger(logger log.Logger) ConnConfigOpt {
 	}
 }
 
-func WithConnGatewayCreateFunc(gatewayCreateFunc gateway.CreateFunc) ConnConfigOpt {
+func WithConnGatewayCreateFunc(gatewayCreateFunc voicegateway.CreateFunc) ConnConfigOpt {
 	return func(config *ConnConfig) {
 		config.GatewayCreateFunc = gatewayCreateFunc
 	}
 }
 
-func WithConnGatewayConfigOpts(opts ...gateway.ConfigOpt) ConnConfigOpt {
+func WithConnGatewayConfigOpts(opts ...voicegateway.ConfigOpt) ConnConfigOpt {
 	return func(config *ConnConfig) {
 		config.GatewayConfigOpts = append(config.GatewayConfigOpts, opts...)
 	}
 }
 
-func WithUDPConnCreateFunc(udpConnCreateFunc udp.ConnCreateFunc) ConnConfigOpt {
+func WithUDPConnCreateFunc(udpConnCreateFunc voiceudp.ConnCreateFunc) ConnConfigOpt {
 	return func(config *ConnConfig) {
 		config.UDPConnCreateFunc = udpConnCreateFunc
 	}
 }
 
-func WithUDPConnConfigOpts(opts ...udp.ConnConfigOpt) ConnConfigOpt {
+func WithUDPConnConfigOpts(opts ...voiceudp.ConnConfigOpt) ConnConfigOpt {
 	return func(config *ConnConfig) {
 		config.UDPConnConfigOpts = append(config.UDPConnConfigOpts, opts...)
 	}
@@ -85,7 +81,7 @@ func WithConnAudioReceiverCreateFunc(audioReceiverCreateFunc AudioReceiverCreate
 	}
 }
 
-func WithConnEventHandlerFunc(eventHandlerFunc gateway.EventHandlerFunc) ConnConfigOpt {
+func WithConnEventHandlerFunc(eventHandlerFunc voicegateway.EventHandlerFunc) ConnConfigOpt {
 	return func(config *ConnConfig) {
 		config.EventHandlerFunc = eventHandlerFunc
 	}

@@ -1,4 +1,4 @@
-package gateway
+package voicegateway
 
 import (
 	"errors"
@@ -84,7 +84,7 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 		// ignore this opcode
 
 	default:
-		err = errors.New("unknown gateway event type")
+		err = errors.New("unknown voicegateway event type")
 	}
 	if err != nil {
 		return err

@@ -1,4 +1,4 @@
-package gateway
+package voicegateway
 
 import (
 	"bytes"
@@ -69,7 +69,7 @@ func New(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, o
 	config.Apply(opts)
 
 	return &gatewayImpl{
-		config:           *config,
+		config:           config,
 		eventHandlerFunc: eventHandlerFunc,
 		closeHandlerFunc: closeHandlerFunc,
 	}
@@ -110,7 +110,7 @@ func (g *gatewayImpl) Open(ctx context.Context, state State) error {
 	g.status = StatusConnecting
 
 	gatewayURL := fmt.Sprintf("wss://%s?v=%d", state.Endpoint, Version)
-	g.config.Logger.Debugf("connecting to gateway at: %s", gatewayURL)
+	g.config.Logger.Debugf("connecting to voice gateway at: %s", gatewayURL)
 	g.lastHeartbeatSent = time.Now().UTC()
 	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
@@ -144,7 +144,7 @@ func (g *gatewayImpl) CloseWithCode(code int, message string) {
 	g.connMu.Lock()
 	defer g.connMu.Unlock()
 	if g.conn != nil {
-		g.config.Logger.Debugf("closing gateway connection with code: %d, message: %s", code, message)
+		g.config.Logger.Debugf("closing voice gateway connection with code: %d, message: %s", code, message)
 		if err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && err != websocket.ErrCloseSent {
 			g.config.Logger.Debug("error writing close code. error: ", err)
 		}
@@ -208,7 +208,7 @@ loop:
 				// we closed the connection ourselves. Don't try to reconnect here
 				reconnect = false
 			} else {
-				g.config.Logger.Debug("failed to read next message from gateway. error: ", err)
+				g.config.Logger.Debug("failed to read next message from voice gateway. error: ", err)
 			}
 			g.CloseWithCode(websocket.CloseServiceRestart, "listen error")
 			if g.config.AutoReconnect && reconnect {
@@ -221,7 +221,7 @@ loop:
 
 		message, err := g.parseMessage(reader)
 		if err != nil {
-			g.config.Logger.Error("error while parsing gateway event. error: ", err)
+			g.config.Logger.Error("error while parsing voice gateway event. error: ", err)
 			continue
 		}
 
@@ -308,10 +308,12 @@ func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) er
 	return nil
 }
 
-func (g *gatewayImpl) reconnectTry(ctx context.Context, try int, delay time.Duration) error {
-	if try >= g.config.MaxReconnectTries-1 {
-		return fmt.Errorf("failed to reconnect. exceeded max reconnect tries of %d reached", g.config.MaxReconnectTries)
+func (g *gatewayImpl) reconnectTry(ctx context.Context, try int) error {
+	delay := time.Duration(try) * 2 * time.Second
+	if delay > 30*time.Second {
+		delay = 30 * time.Second
 	}
+
 	timer := time.NewTimer(time.Duration(try) * delay)
 	defer timer.Stop()
 	select {
@@ -321,24 +323,21 @@ func (g *gatewayImpl) reconnectTry(ctx context.Context, try int, delay time.Dura
 	case <-timer.C:
 	}
 
-	g.config.Logger.Debug("reconnecting gateway...")
+	g.config.Logger.Debug("reconnecting voice gateway...")
 	if err := g.Open(ctx, g.state); err != nil {
 		if err == discord.ErrGatewayAlreadyConnected {
 			return err
 		}
-		g.config.Logger.Error("failed to reconnect gateway. error: ", err)
+		g.config.Logger.Error("failed to reconnect voice gateway. error: ", err)
 		g.status = StatusDisconnected
-		return g.reconnectTry(ctx, try+1, delay)
+		return g.reconnectTry(ctx, try+1)
 	}
 	return nil
 }
 
 func (g *gatewayImpl) reconnect() {
-	ctx, cancel := context.WithTimeout(context.Background(), g.config.ReconnectTimeout)
-	defer cancel()
-
-	if err := g.reconnectTry(ctx, 0, time.Second); err != nil {
-		g.config.Logger.Error("failed to reopen gateway", err)
+	if err := g.reconnectTry(context.Background(), 0); err != nil {
+		g.config.Logger.Error("failed to reopen voice gateway", err)
 	}
 }
 

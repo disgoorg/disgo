@@ -15,7 +15,7 @@ import (
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/voice"
-	gateway2 "github.com/disgoorg/disgo/voice/gateway"
+	"github.com/disgoorg/disgo/voice/voicegateway"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -27,7 +27,7 @@ var (
 )
 
 func main() {
-	log.SetLevel(log.LevelInfo)
+	log.SetLevel(log.LevelTrace)
 	log.SetFlags(log.LstdFlags | log.Llongfile)
 	log.Info("starting up")
 
@@ -44,7 +44,7 @@ func main() {
 	defer client.Close(context.TODO())
 
 	if err = client.OpenGateway(context.TODO()); err != nil {
-		log.Fatal("error connecting to gateway: ", err)
+		log.Fatal("error connecting to voicegateway: ", err)
 	}
 
 	log.Info("ExampleBot is now running. Press CTRL-C to exit.")
@@ -67,10 +67,10 @@ func play(client bot.Client) {
 		panic("error waiting for voice connection: " + err.Error())
 	}
 
-	_ = conn.SetSpeaking(gateway2.SpeakingFlagMicrophone)
-	_, _ = conn.UDPConn().Write(voice.SilenceAudioFrames)
+	_ = conn.SetSpeaking(context.TODO(), voicegateway.SpeakingFlagMicrophone)
+	_, _ = conn.Conn().Write(voice.SilenceAudioFrames)
 	for {
-		packet, err := conn.UDPConn().ReadPacket()
+		packet, err := conn.Conn().ReadPacket()
 		if err != nil {
 			if errors.Is(err, net.ErrClosed) {
 				println("connection closed")
@@ -79,7 +79,7 @@ func play(client bot.Client) {
 			fmt.Printf("error while reading from reader: %s", err)
 			continue
 		}
-		if _, err = conn.UDPConn().Write(packet.Opus); err != nil {
+		if _, err = conn.Conn().Write(packet.Opus); err != nil {
 			if errors.Is(err, net.ErrClosed) {
 				println("connection closed")
 				return

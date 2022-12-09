@@ -4,7 +4,7 @@ import (
 	"context"
 	"net"
 
-	"github.com/disgoorg/disgo/voice/udp"
+	"github.com/disgoorg/disgo/voice/voiceudp"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -20,7 +20,7 @@ type (
 	}
 
 	OpusFrameReceiver interface {
-		ReceiveOpusFrame(userID snowflake.ID, packet *udp.Packet) error
+		ReceiveOpusFrame(userID snowflake.ID, packet *voiceudp.Packet) error
 		CleanupUser(userID snowflake.ID)
 		Close()
 	}
@@ -42,7 +42,7 @@ type defaultAudioReceiver struct {
 }
 
 func (s *defaultAudioReceiver) Open() {
-	defer s.logger.Debugf("closing receive system")
+	defer s.logger.Debugf("closing audio receiver")
 	ctx, cancel := context.WithCancel(context.Background())
 	s.cancelFunc = cancel
 	defer cancel()

@@ -1,4 +1,4 @@
-package udp
+package voiceudp
 
 import (
 	"context"

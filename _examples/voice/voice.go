@@ -13,7 +13,7 @@ import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
-	gateway2 "github.com/disgoorg/disgo/voice/gateway"
+	"github.com/disgoorg/disgo/voice/voicegateway"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -65,10 +65,10 @@ func play(client bot.Client) {
 
 	println("starting playback")
 
-	if err = conn.SetSpeaking(gateway2.SpeakingFlagMicrophone); err != nil {
+	if err = conn.SetSpeaking(ctx, voicegateway.SpeakingFlagMicrophone); err != nil {
 		panic("error setting speaking flag: " + err.Error())
 	}
-	writeOpus(conn.UDPConn())
+	writeOpus(conn.Conn())
 }
 
 func writeOpus(w io.Writer) {

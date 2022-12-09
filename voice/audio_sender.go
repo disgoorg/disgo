@@ -7,7 +7,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/disgoorg/disgo/voice/gateway"
+	"github.com/disgoorg/disgo/voice/voicegateway"
 	"github.com/disgoorg/log"
 )
 
@@ -52,7 +52,7 @@ type defaultAudioSender struct {
 }
 
 func (s *defaultAudioSender) Open() {
-	defer s.logger.Debug("closing send system")
+	defer s.logger.Debug("closing audio sender")
 	lastFrameSent := time.Now().UnixMilli()
 	ctx, cancel := context.WithCancel(context.Background())
 	s.cancelFunc = cancel
@@ -96,7 +96,7 @@ func (s *defaultAudioSender) send() {
 		} else if !s.sentSpeakingStop {
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
-			if err = s.conn.SetSpeaking(ctx, gateway.SpeakingFlagNone); err != nil {
+			if err = s.conn.SetSpeaking(ctx, voicegateway.SpeakingFlagNone); err != nil {
 				s.handleErr(err)
 			}
 			s.sentSpeakingStop = true
@@ -108,7 +108,7 @@ func (s *defaultAudioSender) send() {
 	if !s.sentSpeakingStart {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		if err = s.conn.SetSpeaking(ctx, gateway.SpeakingFlagMicrophone); err != nil {
+		if err = s.conn.SetSpeaking(ctx, voicegateway.SpeakingFlagMicrophone); err != nil {
 			s.handleErr(err)
 		}
 		s.sentSpeakingStart = true
@@ -122,7 +122,7 @@ func (s *defaultAudioSender) send() {
 }
 
 func (s *defaultAudioSender) handleErr(err error) {
-	if errors.Is(err, net.ErrClosed) || errors.Is(err, gateway.ErrGatewayNotConnected) {
+	if errors.Is(err, net.ErrClosed) || errors.Is(err, voicegateway.ErrGatewayNotConnected) {
 		s.Close()
 		return
 	}
