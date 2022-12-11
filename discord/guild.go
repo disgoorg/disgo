@@ -164,7 +164,7 @@ type Guild struct {
 	PreferredLocale             string                     `json:"preferred_locale"`
 	PublicUpdatesChannelID      *snowflake.ID              `json:"public_updates_channel_id"`
 	MaxVideoChannelUsers        int                        `json:"max_video_channel_users"`
-	WelcomeScreen               WelcomeScreen              `json:"welcome_screen"`
+	WelcomeScreen               GuildWelcomeScreen         `json:"welcome_screen"`
 	NSFWLevel                   NSFWLevel                  `json:"nsfw_level"`
 	BoostProgressBarEnabled     bool                       `json:"premium_progress_bar_enabled"`
 	JoinedAt                    time.Time                  `json:"joined_at"`
@@ -265,18 +265,25 @@ type OAuth2Guild struct {
 	Features    []GuildFeature `json:"features"`
 }
 
-// WelcomeScreen is the Welcome Screen of a Guild
-type WelcomeScreen struct {
+// GuildWelcomeScreen is the Welcome Screen of a Guild
+type GuildWelcomeScreen struct {
 	Description     *string               `json:"description,omitempty"`
 	WelcomeChannels []GuildWelcomeChannel `json:"welcome_channels"`
 }
 
-// GuildWelcomeChannel is one of the channels in a WelcomeScreen
+// GuildWelcomeChannel is one of the channels in a GuildWelcomeScreen
 type GuildWelcomeChannel struct {
 	ChannelID   snowflake.ID  `json:"channel_id"`
 	Description string        `json:"description"`
 	EmojiID     *snowflake.ID `json:"emoji_id,omitempty"`
 	EmojiName   *string       `json:"emoji_name,omitempty"`
+}
+
+// GuildWelcomeScreenUpdate is used to update the GuildWelcomeScreen of a Guild
+type GuildWelcomeScreenUpdate struct {
+	Enabled         *bool                  `json:"enabled,omitempty"`
+	WelcomeChannels *[]GuildWelcomeChannel `json:"welcome_channels,omitempty"`
+	Description     *string                `json:"description,omitempty"`
 }
 
 // GuildPreview is used for previewing public Guild(s) before joining them
@@ -349,4 +356,14 @@ type GuildCreateChannel struct {
 	ChannelCreate
 	ID       int `json:"id,omitempty"`
 	ParentID int `json:"parent_id,omitempty"`
+}
+
+type GuildPrune struct {
+	Days              int            `json:"days"`
+	ComputePruneCount bool           `json:"compute_prune_count"`
+	IncludeRoles      []snowflake.ID `json:"include_roles"`
+}
+
+type GuildPruneResult struct {
+	Pruned *int `json:"pruned"`
 }

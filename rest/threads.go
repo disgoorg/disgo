@@ -88,7 +88,7 @@ func (s *threadImpl) GetPublicArchivedThreads(channelID snowflake.ID, before tim
 	if limit != 0 {
 		queryValues["limit"] = limit
 	}
-	err = s.client.Do(GetArchivedPublicThreads.Compile(queryValues, channelID), nil, &threads, opts...)
+	err = s.client.Do(GetPublicArchivedThreads.Compile(queryValues, channelID), nil, &threads, opts...)
 	return
 }
 
@@ -100,7 +100,7 @@ func (s *threadImpl) GetPrivateArchivedThreads(channelID snowflake.ID, before ti
 	if limit != 0 {
 		queryValues["limit"] = limit
 	}
-	err = s.client.Do(GetArchivedPrivateThreads.Compile(queryValues, channelID), nil, &threads, opts...)
+	err = s.client.Do(GetPrivateArchivedThreads.Compile(queryValues, channelID), nil, &threads, opts...)
 	return
 }
 
@@ -112,6 +112,6 @@ func (s *threadImpl) GetJoinedPrivateArchivedThreads(channelID snowflake.ID, bef
 	if limit != 0 {
 		queryValues["limit"] = limit
 	}
-	err = s.client.Do(GetJoinedAchievedPrivateThreads.Compile(queryValues, channelID), nil, &threads, opts...)
+	err = s.client.Do(GetJoinedPrivateArchivedThreads.Compile(queryValues, channelID), nil, &threads, opts...)
 	return
 }

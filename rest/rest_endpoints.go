@@ -75,14 +75,17 @@ var (
 
 	UpdateCurrentMember = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/members/@me")
 
-	GetPruneMembersCount = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/prune")
-	PruneMembers         = NewEndpoint(http.MethodPost, "/guilds/{guild.id}/prune")
+	GetGuildPruneCount = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/prune")
+	BeginGuildPrune    = NewEndpoint(http.MethodPost, "/guilds/{guild.id}/prune")
 
 	GetGuildWebhooks = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/webhooks")
 
 	GetAuditLogs = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/audit-logs")
 
 	GetGuildVoiceRegions = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/regions")
+
+	GetGuildWelcomeScreen    = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/welcome-screen")
+	UpdateGuildWelcomeScreen = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/welcome-screen")
 
 	UpdateCurrentUserVoiceState = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/voice-states/@me")
 	UpdateUserVoiceState        = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/voice-states/{user.id}")
@@ -175,9 +178,9 @@ var (
 	GetThreadMember         = NewEndpoint(http.MethodGet, "/channels/{channel.id}/thread-members/{user.id}")
 	GetThreadMembers        = NewEndpoint(http.MethodGet, "/channels/{channel.id}/thread-members")
 
-	GetArchivedPublicThreads        = NewEndpoint(http.MethodGet, "/channels/{channel.id}/threads/archived/public")
-	GetArchivedPrivateThreads       = NewEndpoint(http.MethodGet, "/channels/{channel.id}/threads/archived/private")
-	GetJoinedAchievedPrivateThreads = NewEndpoint(http.MethodGet, "/channels/{channel.id}/users/@me/threads/archived/private")
+	GetPublicArchivedThreads        = NewEndpoint(http.MethodGet, "/channels/{channel.id}/threads/archived/public")
+	GetPrivateArchivedThreads       = NewEndpoint(http.MethodGet, "/channels/{channel.id}/threads/archived/private")
+	GetJoinedPrivateArchivedThreads = NewEndpoint(http.MethodGet, "/channels/{channel.id}/users/@me/threads/archived/private")
 )
 
 // Messages

@@ -134,7 +134,7 @@ There is also a bot template with commands & db [here](https://github.com/disgoo
 
 or in these projects:
 
-* [Disgo-Butler](https://github.com/disgoorg/disgo-butler)
+* [DisGo-Butler](https://github.com/disgoorg/disgo-butler)
 * [Reddit-Discord-Bot](https://github.com/TopiSenpai/Reddit-Discord-Bot)
 * [Kitsune-Bot](https://github.com/TopiSenpai/Kitsune-Bot)
 * [KittyBot](https://github.com/KittyBot-Org/KittyBotGo)
@@ -150,13 +150,13 @@ or in these projects:
 
 ### [Lavalink](https://github.com/freyacodes/Lavalink)
 
-Is a standalone audio sending node based on [Lavaplayer](https://github.com/sedmelluq/lavaplayer) and JDA-Audio. Which allows for sending audio without it ever reaching any of your shards. Lavalink can be used in combinatio with [DisGolink](https://github.com/disgoorg/disgolink) for music Bots
+Is a standalone audio sending node based on [Lavaplayer](https://github.com/sedmelluq/lavaplayer) and JDA-Audio. Which allows for sending audio without it ever reaching any of your shards. Lavalink can be used in combination with [DisGolink](https://github.com/disgoorg/disgolink) for music Bots
 
 Being used in production by FredBoat, Dyno, LewdBot, and more.
 
 ### [DisGolink](https://github.com/disgoorg/disgolink)
 
-Is a [Lavalink-Client](https://github.com/freyacodes/Lavalink) which can be used to communicate with LavaLink to play/search tracks
+Is a [Lavalink-Client](https://github.com/freyacodes/Lavalink) which can be used to communicate with Lavalink to play/search tracks
 
 ### [DisLog](https://github.com/disgoorg/dislog)
 
