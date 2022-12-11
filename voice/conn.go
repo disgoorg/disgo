@@ -161,6 +161,14 @@ func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdat
 
 	if update.ChannelID == nil {
 		c.state.ChannelID = 0
+		if c.audioSender != nil {
+			c.audioSender.Close()
+			c.audioSender = nil
+		}
+		if c.audioReceiver != nil {
+			c.audioReceiver.Close()
+			c.audioReceiver = nil
+		}
 		c.udp.Close()
 		c.gateway.Close()
 		c.closedChan <- struct{}{}
@@ -263,9 +271,11 @@ func (c *connImpl) Close(ctx context.Context) {
 	defer c.udp.Close()
 
 	select {
-	case <-c.closedChan:
-		return
+	case _, ok := <-c.closedChan:
+		if ok {
+			close(c.closedChan)
+		}
 	case <-ctx.Done():
-		return
 	}
+	c.removeConnFunc()
 }

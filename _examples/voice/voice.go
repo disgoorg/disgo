@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/binary"
 	"io"
+	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"syscall"
@@ -29,46 +30,53 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Llongfile)
 	log.Info("starting up")
 
+	s := make(chan os.Signal, 1)
+
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(gateway.WithIntents(gateway.IntentGuildVoiceStates)),
 		bot.WithEventListenerFunc(func(e *events.Ready) {
-			go play(e.Client())
+			go play(e.Client(), s)
 		}),
 	)
 	if err != nil {
 		log.Fatal("error creating client: ", err)
 	}
 
-	defer client.Close(context.TODO())
+	defer func() {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+		defer cancel()
+		client.Close(ctx)
+	}()
 
 	if err = client.OpenGateway(context.TODO()); err != nil {
 		log.Fatal("error connecting to gateway: ", err)
 	}
 
 	log.Info("ExampleBot is now running. Press CTRL-C to exit.")
-	s := make(chan os.Signal, 1)
-	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+
+	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
 }
 
-func play(client bot.Client) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+func play(client bot.Client, closeChan chan os.Signal) {
+	conn := client.VoiceManager().CreateConn(guildID, channelID)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
-	conn, err := client.OpenVoice(ctx, guildID, channelID, false, false)
-	if err != nil {
+	if err := conn.Open(ctx, false, false); err != nil {
 		panic("error connecting to voice channel: " + err.Error())
 	}
+	defer func() {
+		ctx2, cancel2 := context.WithTimeout(context.Background(), time.Second*10)
+		defer cancel2()
+		conn.Close(ctx2)
+	}()
 
-	if err = conn.WaitUntilOpened(ctx); err != nil {
-		panic("error waiting for voice connection: " + err.Error())
-	}
-
-	println("starting playback")
-
-	if err = conn.SetSpeaking(ctx, voicegateway.SpeakingFlagMicrophone); err != nil {
+	if err := conn.SetSpeaking(ctx, voicegateway.SpeakingFlagMicrophone); err != nil {
 		panic("error setting speaking flag: " + err.Error())
 	}
 	writeOpus(conn.Conn())
+	closeChan <- syscall.SIGTERM
 }
 
 func writeOpus(w io.Writer) {

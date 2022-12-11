@@ -137,14 +137,14 @@ func (c *clientImpl) Logger() log.Logger {
 }
 
 func (c *clientImpl) Close(ctx context.Context) {
-	if c.restServices != nil {
-		c.restServices.Close(ctx)
-	}
 	if c.voiceManager != nil {
 		c.voiceManager.Close(ctx)
 	}
 	if c.gateway != nil {
 		c.gateway.Close(ctx)
+	}
+	if c.restServices != nil {
+		c.restServices.Close(ctx)
 	}
 	if c.shardManager != nil {
 		c.shardManager.Close(ctx)

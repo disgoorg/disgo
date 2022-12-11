@@ -72,9 +72,9 @@ func (m *managerImpl) CreateConn(guildID snowflake.ID, channelID snowflake.ID) C
 	m.connsMu.Lock()
 	defer m.connsMu.Unlock()
 
-	removeFunc := func() {
-		m.RemoveConn(guildID)
-	}
+	var once sync.Once
+	removeFunc := func() { once.Do(func() { m.RemoveConn(guildID) }) }
+
 	conn := m.config.ConnCreateFunc(guildID, channelID, m.userID, m.voiceStateUpdateFunc, removeFunc, append([]ConnConfigOpt{WithConnLogger(m.config.Logger)}, m.config.ConnOpts...)...)
 	m.conns[guildID] = conn
 
@@ -108,9 +108,10 @@ func (m *managerImpl) RemoveConn(guildID snowflake.ID) {
 
 func (m *managerImpl) Close(ctx context.Context) {
 	m.connsMu.Lock()
-	defer m.connsMu.Unlock()
-	for _, connection := range m.conns {
-		connection.Close(ctx)
+	conns := m.conns
+	m.connsMu.Unlock()
+	for i := range conns {
+		conns[i].Close(ctx)
 	}
 	m.conns = map[snowflake.ID]Conn{}
 }
