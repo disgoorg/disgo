@@ -281,8 +281,8 @@ var (
 	UpdateFollowupMessage = NewNoBotAuthEndpoint(http.MethodPatch, "/webhooks/{application.id}/{interaction.token}/messages/{message.id}")
 	DeleteFollowupMessage = NewNoBotAuthEndpoint(http.MethodDelete, "/webhooks/{application.id}/{interaction.token}/messages/{message.id}")
 
-	GetApplicationRoleConnectionMetadataRecords    = NewEndpoint(http.MethodGet, "/applications/{application.id}/role-connections/metadata")
-	UpdateApplicationRoleConnectionMetadataRecords = NewEndpoint(http.MethodPut, "/applications/{application.id}/role-connections/metadata")
+	GetApplicationRoleConnectionMetadata    = NewEndpoint(http.MethodGet, "/applications/{application.id}/role-connections/metadata")
+	UpdateApplicationRoleConnectionMetadata = NewEndpoint(http.MethodPut, "/applications/{application.id}/role-connections/metadata")
 )
 
 // NewEndpoint returns a new Endpoint which requires bot auth with the given http method & route.

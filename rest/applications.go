@@ -29,8 +29,8 @@ type Applications interface {
 	GetGuildCommandsPermissions(applicationID snowflake.ID, guildID snowflake.ID, opts ...RequestOpt) ([]discord.ApplicationCommandPermissions, error)
 	GetGuildCommandPermissions(applicationID snowflake.ID, guildID snowflake.ID, commandID snowflake.ID, opts ...RequestOpt) (*discord.ApplicationCommandPermissions, error)
 
-	GetApplicationRoleConnectionMetadataRecords(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
-	UpdateApplicationRoleConnectionMetadataRecords(applicationID snowflake.ID, newRecords []discord.ApplicationRoleConnectionMetadata, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
+	GetApplicationRoleConnectionMetadata(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
+	UpdateApplicationRoleConnectionMetadata(applicationID snowflake.ID, newRecords []discord.ApplicationRoleConnectionMetadata, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
 }
 
 type applicationsImpl struct {
@@ -145,13 +145,13 @@ func (s *applicationsImpl) GetGuildCommandPermissions(applicationID snowflake.ID
 	return
 }
 
-func (s *applicationsImpl) GetApplicationRoleConnectionMetadataRecords(applicationID snowflake.ID, opts ...RequestOpt) (metadata []discord.ApplicationRoleConnectionMetadata, err error) {
-	err = s.client.Do(GetApplicationRoleConnectionMetadataRecords.Compile(nil, applicationID), nil, &metadata, opts...)
+func (s *applicationsImpl) GetApplicationRoleConnectionMetadata(applicationID snowflake.ID, opts ...RequestOpt) (metadata []discord.ApplicationRoleConnectionMetadata, err error) {
+	err = s.client.Do(GetApplicationRoleConnectionMetadata.Compile(nil, applicationID), nil, &metadata, opts...)
 	return
 }
 
-func (s *applicationsImpl) UpdateApplicationRoleConnectionMetadataRecords(applicationID snowflake.ID, newRecords []discord.ApplicationRoleConnectionMetadata, opts ...RequestOpt) (metadata []discord.ApplicationRoleConnectionMetadata, err error) {
-	err = s.client.Do(UpdateApplicationRoleConnectionMetadataRecords.Compile(nil, applicationID), newRecords, &metadata, opts...)
+func (s *applicationsImpl) UpdateApplicationRoleConnectionMetadata(applicationID snowflake.ID, newRecords []discord.ApplicationRoleConnectionMetadata, opts ...RequestOpt) (metadata []discord.ApplicationRoleConnectionMetadata, err error) {
+	err = s.client.Do(UpdateApplicationRoleConnectionMetadata.Compile(nil, applicationID), newRecords, &metadata, opts...)
 	return
 }
 

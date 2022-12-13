@@ -12,12 +12,12 @@ type ApplicationRoleConnectionMetadata struct {
 type ApplicationRoleConnectionMetadataType int
 
 const (
-	IntegerLessThanOrEqual ApplicationRoleConnectionMetadataType = iota + 1
-	IntegerGreaterThanOrEqual
-	IntegerEqual
-	IntegerNotEqual
-	DateTimeLessThanOrEqual
-	DateTimeGreaterThanOrEqual
-	BooleanEqual
-	BooleanNotEqual
+	ApplicationRoleConnectionMetadataTypeIntegerLessThanOrEqual ApplicationRoleConnectionMetadataType = iota + 1
+	ApplicationRoleConnectionMetadataTypeIntegerGreaterThanOrEqual
+	ApplicationRoleConnectionMetadataTypeIntegerEqual
+	ApplicationRoleConnectionMetadataTypeIntegerNotEqual
+	ApplicationRoleConnectionMetadataTypeDateTimeLessThanOrEqual
+	ApplicationRoleConnectionMetadataTypeDateTimeGreaterThanOrEqual
+	ApplicationRoleConnectionMetadataTypeBooleanEqual
+	ApplicationRoleConnectionMetadataTypeBooleanNotEqual
 )
