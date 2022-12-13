@@ -1187,8 +1187,8 @@ type DefaultReactionEmoji struct {
 type DefaultSortOrder int
 
 const (
-	LatestActivity DefaultSortOrder = iota
-	CreationDate
+	DefaultSortOrderLatestActivity DefaultSortOrder = iota
+	DefaultSortOrderCreationDate
 )
 
 type AutoArchiveDuration int
