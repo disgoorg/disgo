@@ -1055,7 +1055,7 @@ type GuildForumChannel struct {
 	DefaultReactionEmoji          *DefaultReactionEmoji
 	DefaultThreadRateLimitPerUser int
 	DefaultSortOrder              *DefaultSortOrder
-	DefaultForumLayout            DefaultForumLayout
+	DefaultForumLayout            *DefaultForumLayout
 }
 
 func (c *GuildForumChannel) UnmarshalJSON(data []byte) error {
@@ -1197,9 +1197,9 @@ const (
 type DefaultForumLayout int
 
 const (
-	DefaultForumLayoutDefault DefaultForumLayout = iota
-	DefaultForumLayoutList
-	DefaultForumLayoutGrid
+	DefaultForumLayoutNotSet DefaultForumLayout = iota
+	DefaultForumLayoutListView
+	DefaultForumLayoutGalleryView
 )
 
 type AutoArchiveDuration int
