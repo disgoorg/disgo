@@ -1055,7 +1055,7 @@ type GuildForumChannel struct {
 	DefaultReactionEmoji          *DefaultReactionEmoji
 	DefaultThreadRateLimitPerUser int
 	DefaultSortOrder              *DefaultSortOrder
-	DefaultForumLayout            *DefaultForumLayout
+	DefaultForumLayout            DefaultForumLayout
 }
 
 func (c *GuildForumChannel) UnmarshalJSON(data []byte) error {
