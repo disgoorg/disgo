@@ -1197,9 +1197,9 @@ const (
 type DefaultForumLayout int
 
 const (
-	Default DefaultForumLayout = iota
-	List
-	Grid
+	DefaultForumLayoutDefault DefaultForumLayout = iota
+	DefaultForumLayoutList
+	DefaultForumLayoutGrid
 )
 
 type AutoArchiveDuration int
