@@ -30,7 +30,7 @@ func main() {
 			gateway.WithIntents(gateway.IntentGuildScheduledEvents|gateway.IntentGuilds|gateway.IntentGuildMessages),
 		),
 		bot.WithCacheConfigOpts(
-			cache.WithCacheFlags(cache.FlagsAll),
+			cache.WithCacheTypes(cache.TypesAll),
 		),
 		bot.WithMemberChunkingFilter(bot.MemberChunkingFilterNone),
 		bot.WithEventListeners(&events.ListenerAdapter{

@@ -1,40 +1,40 @@
 package cache
 
-// Flags are used to enable/disable certain internal caches
-type Flags int
+// Types are used to enable/disable certain internal caches
+type Types int
 
-// values for CacheFlags
+// values for CacheTypes
 const (
-	FlagGuilds Flags = 1 << iota
-	FlagGuildScheduledEvents
-	FlagMembers
-	FlagThreadMembers
-	FlagMessages
-	FlagPresences
-	FlagChannels
-	FlagRoles
-	FlagEmojis
-	FlagStickers
-	FlagVoiceStates
-	FlagStageInstances
+	TypeGuilds Types = 1 << iota
+	TypeGuildScheduledEvents
+	TypeMembers
+	TypeThreadMembers
+	TypeMessages
+	TypePresences
+	TypeChannels
+	TypeRoles
+	TypeEmojis
+	TypeStickers
+	TypeVoiceStates
+	TypeStageInstances
+	TypesNone Types = 0
 
-	FlagsNone Flags = 0
-	FlagsAll        = FlagGuilds |
-		FlagGuildScheduledEvents |
-		FlagMembers |
-		FlagThreadMembers |
-		FlagMessages |
-		FlagPresences |
-		FlagChannels |
-		FlagRoles |
-		FlagEmojis |
-		FlagStickers |
-		FlagVoiceStates |
-		FlagStageInstances
+	TypesAll = TypeGuilds |
+		TypeGuildScheduledEvents |
+		TypeMembers |
+		TypeThreadMembers |
+		TypeMessages |
+		TypePresences |
+		TypeChannels |
+		TypeRoles |
+		TypeEmojis |
+		TypeStickers |
+		TypeVoiceStates |
+		TypeStageInstances
 )
 
 // Add allows you to add multiple bits together, producing a new bit
-func (f Flags) Add(bits ...Flags) Flags {
+func (f Types) Add(bits ...Types) Types {
 	for _, bit := range bits {
 		f |= bit
 	}
@@ -42,7 +42,7 @@ func (f Flags) Add(bits ...Flags) Flags {
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
-func (f Flags) Remove(bits ...Flags) Flags {
+func (f Types) Remove(bits ...Types) Types {
 	for _, bit := range bits {
 		f &^= bit
 	}
@@ -50,7 +50,7 @@ func (f Flags) Remove(bits ...Flags) Flags {
 }
 
 // Has will ensure that the bit includes all the bits entered
-func (f Flags) Has(bits ...Flags) bool {
+func (f Types) Has(bits ...Types) bool {
 	for _, bit := range bits {
 		if (f & bit) != bit {
 			return false
@@ -60,7 +60,7 @@ func (f Flags) Has(bits ...Flags) bool {
 }
 
 // Missing will check whether the bit is missing any one of the bits
-func (f Flags) Missing(bits ...Flags) bool {
+func (f Types) Missing(bits ...Types) bool {
 	for _, bit := range bits {
 		if (f & bit) != bit {
 			return true

@@ -113,9 +113,7 @@ func (c *guildCacheImpl) Guild(guildID snowflake.ID) (discord.Guild, bool) {
 }
 
 func (c *guildCacheImpl) GuildsForEach(fn func(guild discord.Guild)) {
-	c.cache.ForEach(func(guild discord.Guild) {
-		fn(guild)
-	})
+	c.cache.ForEach(fn)
 }
 
 func (c *guildCacheImpl) AddGuild(guild discord.Guild) {
@@ -149,9 +147,7 @@ func (c *channelCacheImpl) Channel(channelID snowflake.ID) (discord.GuildChannel
 }
 
 func (c *channelCacheImpl) ChannelsForEach(fn func(channel discord.GuildChannel)) {
-	c.cache.ForEach(func(channel discord.GuildChannel) {
-		fn(channel)
-	})
+	c.cache.ForEach(fn)
 }
 
 func (c *channelCacheImpl) AddChannel(channel discord.GuildChannel) {
@@ -231,9 +227,7 @@ func (c *guildScheduledEventCacheImpl) GuildScheduledEvent(guildID snowflake.ID,
 }
 
 func (c *guildScheduledEventCacheImpl) GuildScheduledEventsForEach(guildID snowflake.ID, fn func(guildScheduledEvent discord.GuildScheduledEvent)) {
-	c.cache.GroupForEach(guildID, func(guildScheduledEvent discord.GuildScheduledEvent) {
-		fn(guildScheduledEvent)
-	})
+	c.cache.GroupForEach(guildID, fn)
 }
 
 func (c *guildScheduledEventCacheImpl) AddGuildScheduledEvent(guildScheduledEvent discord.GuildScheduledEvent) {
@@ -271,9 +265,7 @@ func (c *roleCacheImpl) Role(guildID snowflake.ID, roleID snowflake.ID) (discord
 }
 
 func (c *roleCacheImpl) RolesForEach(guildID snowflake.ID, fn func(role discord.Role)) {
-	c.cache.GroupForEach(guildID, func(role discord.Role) {
-		fn(role)
-	})
+	c.cache.GroupForEach(guildID, fn)
 }
 
 func (c *roleCacheImpl) AddRole(role discord.Role) {
@@ -311,9 +303,7 @@ func (c *memberCacheImpl) Member(guildID snowflake.ID, userID snowflake.ID) (dis
 }
 
 func (c *memberCacheImpl) MembersForEach(guildID snowflake.ID, fn func(member discord.Member)) {
-	c.cache.GroupForEach(guildID, func(member discord.Member) {
-		fn(member)
-	})
+	c.cache.GroupForEach(guildID, fn)
 }
 
 func (c *memberCacheImpl) AddMember(member discord.Member) {
@@ -431,9 +421,7 @@ func (c *voiceStateCacheImpl) VoiceState(guildID snowflake.ID, userID snowflake.
 }
 
 func (c *voiceStateCacheImpl) VoiceStatesForEach(guildID snowflake.ID, fn func(discord.VoiceState)) {
-	c.cache.GroupForEach(guildID, func(voiceState discord.VoiceState) {
-		fn(voiceState)
-	})
+	c.cache.GroupForEach(guildID, fn)
 }
 
 func (c *voiceStateCacheImpl) AddVoiceState(voiceState discord.VoiceState) {
@@ -472,9 +460,7 @@ func (c *messageCacheImpl) Message(channelID snowflake.ID, messageID snowflake.I
 }
 
 func (c *messageCacheImpl) MessagesForEach(channelID snowflake.ID, fn func(message discord.Message)) {
-	c.cache.GroupForEach(channelID, func(message discord.Message) {
-		fn(message)
-	})
+	c.cache.GroupForEach(channelID, fn)
 }
 
 func (c *messageCacheImpl) AddMessage(message discord.Message) {
@@ -518,9 +504,7 @@ func (c *emojiCacheImpl) Emoji(guildID snowflake.ID, emojiID snowflake.ID) (disc
 }
 
 func (c *emojiCacheImpl) EmojisForEach(guildID snowflake.ID, fn func(emoji discord.Emoji)) {
-	c.cache.GroupForEach(guildID, func(emoji discord.Emoji) {
-		fn(emoji)
-	})
+	c.cache.GroupForEach(guildID, fn)
 }
 
 func (c *emojiCacheImpl) AddEmoji(emoji discord.Emoji) {
@@ -558,9 +542,7 @@ func (c *stickerCacheImpl) Sticker(guildID snowflake.ID, stickerID snowflake.ID)
 }
 
 func (c *stickerCacheImpl) StickersForEach(guildID snowflake.ID, fn func(sticker discord.Sticker)) {
-	c.cache.GroupForEach(guildID, func(sticker discord.Sticker) {
-		fn(sticker)
-	})
+	c.cache.GroupForEach(guildID, fn)
 }
 
 func (c *stickerCacheImpl) AddSticker(sticker discord.Sticker) {
@@ -595,15 +577,15 @@ type Caches interface {
 	StickerCache
 
 	// CacheFlags returns the current configured FLags of the caches.
-	CacheFlags() Flags
+	CacheFlags() Types
 
-	// GetMemberPermissions returns the calculated permissions of the given member.
+	// MemberPermissions returns the calculated permissions of the given member.
 	// This requires the FlagRoles to be set.
-	GetMemberPermissions(member discord.Member) discord.Permissions
+	MemberPermissions(member discord.Member) discord.Permissions
 
-	// GetMemberPermissionsInChannel returns the calculated permissions of the given member in the given channel.
+	// MemberPermissionsInChannel returns the calculated permissions of the given member in the given channel.
 	// This requires the FlagRoles and FlagChannels to be set.
-	GetMemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member) discord.Permissions
+	MemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member) discord.Permissions
 
 	// MemberRoles returns all roles of the given member.
 	// This requires the FlagRoles to be set.
@@ -613,9 +595,9 @@ type Caches interface {
 	// This requires the FlagVoiceStates to be set.
 	AudioChannelMembers(channel discord.GuildAudioChannel) []discord.Member
 
-	// GetSelfMember returns the current bot member from the given guildID.
+	// SelfMember returns the current bot member from the given guildID.
 	// This is only available after we received the gateway.EventTypeGuildCreate event for the given guildID.
-	GetSelfMember(guildID snowflake.ID) (discord.Member, bool)
+	SelfMember(guildID snowflake.ID) (discord.Member, bool)
 
 	// GuildThreadsInChannel returns all discord.GuildThread from the ChannelCache and a bool indicating if it exists.
 	GuildThreadsInChannel(channelID snowflake.ID) []discord.GuildThread
@@ -698,11 +680,11 @@ type cachesImpl struct {
 	SelfUserCache
 }
 
-func (c *cachesImpl) CacheFlags() Flags {
-	return c.config.CacheFlags
+func (c *cachesImpl) CacheFlags() Types {
+	return c.config.CacheTypes
 }
 
-func (c *cachesImpl) GetMemberPermissions(member discord.Member) discord.Permissions {
+func (c *cachesImpl) MemberPermissions(member discord.Member) discord.Permissions {
 	if guild, ok := c.Guild(member.GuildID); ok && guild.OwnerID == member.User.ID {
 		return discord.PermissionsAll
 	}
@@ -724,8 +706,8 @@ func (c *cachesImpl) GetMemberPermissions(member discord.Member) discord.Permiss
 	return permissions
 }
 
-func (c *cachesImpl) GetMemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member) discord.Permissions {
-	permissions := c.GetMemberPermissions(member)
+func (c *cachesImpl) MemberPermissionsInChannel(channel discord.GuildChannel, member discord.Member) discord.Permissions {
+	permissions := c.MemberPermissions(member)
 	if permissions.Has(discord.PermissionAdministrator) {
 		return discord.PermissionsAll
 	}
@@ -793,7 +775,7 @@ func (c *cachesImpl) AudioChannelMembers(channel discord.GuildAudioChannel) []di
 	return members
 }
 
-func (c *cachesImpl) GetSelfMember(guildID snowflake.ID) (discord.Member, bool) {
+func (c *cachesImpl) SelfMember(guildID snowflake.ID) (discord.Member, bool) {
 	selfUser, ok := c.SelfUser()
 	if !ok {
 		return discord.Member{}, false
