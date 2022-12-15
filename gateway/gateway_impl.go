@@ -98,8 +98,8 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	g.status = StatusConnecting
 
 	wsURL := g.config.URL
-	if g.config.ResumeGatewayURL != nil && g.config.EnableResumeURL {
-		wsURL = *g.config.ResumeGatewayURL
+	if g.config.ResumeURL != nil && g.config.EnableResumeURL {
+		wsURL = *g.config.ResumeURL
 	}
 	gatewayURL := fmt.Sprintf("%s?v=%d&encoding=json", wsURL, Version)
 	g.lastHeartbeatSent = time.Now().UTC()
@@ -163,7 +163,7 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message strin
 		// clear resume data as we closed gracefully
 		if code == websocket.CloseNormalClosure || code == websocket.CloseGoingAway {
 			g.config.SessionID = nil
-			g.config.ResumeGatewayURL = nil
+			g.config.ResumeURL = nil
 			g.config.LastSequenceReceived = nil
 		}
 	}
@@ -334,7 +334,7 @@ loop:
 				if closeCode == CloseEventCodeInvalidSeq {
 					g.config.LastSequenceReceived = nil
 					g.config.SessionID = nil
-					g.config.ResumeGatewayURL = nil
+					g.config.ResumeURL = nil
 				}
 				message := g.formatLogsf("gateway close received, reconnect: %t, code: %d, error: %s", g.config.AutoReconnect && reconnect, closeError.Code, closeError.Text)
 				if reconnect {
@@ -394,7 +394,7 @@ loop:
 			// get session id here
 			if readyEvent, ok := eventData.(EventReady); ok {
 				g.config.SessionID = &readyEvent.SessionID
-				g.config.ResumeGatewayURL = &readyEvent.ResumeGatewayURL
+				g.config.ResumeURL = &readyEvent.ResumeGatewayURL
 				g.status = StatusReady
 				g.config.Logger.Debug(g.formatLogs("ready event received"))
 			}
@@ -428,7 +428,7 @@ loop:
 				// clear resume info
 				g.config.SessionID = nil
 				g.config.LastSequenceReceived = nil
-				g.config.ResumeGatewayURL = nil
+				g.config.ResumeURL = nil
 			}
 
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

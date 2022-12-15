@@ -1,8 +1,6 @@
 package gateway
 
 import (
-	"time"
-
 	"github.com/disgoorg/log"
 	"github.com/gorilla/websocket"
 )
@@ -34,7 +32,7 @@ type Config struct {
 	ShardID                   int
 	ShardCount                int
 	SessionID                 *string
-	ResumeGatewayURL          *string
+	ResumeURL                 *string
 	LastSequenceReceived      *int
 	AutoReconnect             bool
 	EnableRawEvents           bool
