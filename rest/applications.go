@@ -28,6 +28,9 @@ type Applications interface {
 
 	GetGuildCommandsPermissions(applicationID snowflake.ID, guildID snowflake.ID, opts ...RequestOpt) ([]discord.ApplicationCommandPermissions, error)
 	GetGuildCommandPermissions(applicationID snowflake.ID, guildID snowflake.ID, commandID snowflake.ID, opts ...RequestOpt) (*discord.ApplicationCommandPermissions, error)
+
+	GetApplicationRoleConnectionMetadata(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
+	UpdateApplicationRoleConnectionMetadata(applicationID snowflake.ID, newRecords []discord.ApplicationRoleConnectionMetadata, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
 }
 
 type applicationsImpl struct {
@@ -139,6 +142,16 @@ func (s *applicationsImpl) GetGuildCommandsPermissions(applicationID snowflake.I
 
 func (s *applicationsImpl) GetGuildCommandPermissions(applicationID snowflake.ID, guildID snowflake.ID, commandID snowflake.ID, opts ...RequestOpt) (commandPerms *discord.ApplicationCommandPermissions, err error) {
 	err = s.client.Do(GetGuildCommandPermissions.Compile(nil, applicationID, guildID, commandID), nil, &commandPerms, opts...)
+	return
+}
+
+func (s *applicationsImpl) GetApplicationRoleConnectionMetadata(applicationID snowflake.ID, opts ...RequestOpt) (metadata []discord.ApplicationRoleConnectionMetadata, err error) {
+	err = s.client.Do(GetApplicationRoleConnectionMetadata.Compile(nil, applicationID), nil, &metadata, opts...)
+	return
+}
+
+func (s *applicationsImpl) UpdateApplicationRoleConnectionMetadata(applicationID snowflake.ID, newRecords []discord.ApplicationRoleConnectionMetadata, opts ...RequestOpt) (metadata []discord.ApplicationRoleConnectionMetadata, err error) {
+	err = s.client.Do(UpdateApplicationRoleConnectionMetadata.Compile(nil, applicationID), newRecords, &metadata, opts...)
 	return
 }
 

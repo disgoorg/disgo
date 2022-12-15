@@ -13,6 +13,7 @@ var _ Mentionable = (*Role)(nil)
 type Role struct {
 	ID          snowflake.ID `json:"id"`
 	Name        string       `json:"name"`
+	Description *string      `json:"description,omitempty"`
 	Color       int          `json:"color"`
 	Hoist       bool         `json:"hoist"`
 	Position    int          `json:"position"`
