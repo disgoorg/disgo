@@ -20,7 +20,7 @@ func gatewayHandlerGuildStickersUpdate(client bot.Client, sequenceNumber int, sh
 		EventGuildStickersUpdate: event,
 	})
 
-	if client.Caches().CacheFlags().Missing(cache.FlagStickers) {
+	if client.Caches().CacheFlags().Missing(cache.TypeStickers) {
 		return
 	}
 
