@@ -8,17 +8,16 @@ import (
 // DefaultConfig returns a Config with sensible defaults.
 func DefaultConfig() *Config {
 	return &Config{
-		Logger:            log.Default(),
-		Dialer:            websocket.DefaultDialer,
-		LargeThreshold:    50,
-		Intents:           IntentsDefault,
-		Compress:          true,
-		URL:               "wss://gateway.discord.gg",
-		ShardID:           0,
-		ShardCount:        1,
-		AutoReconnect:     true,
-		MaxReconnectTries: 10,
-		EnableResumeURL:   true,
+		Logger:          log.Default(),
+		Dialer:          websocket.DefaultDialer,
+		LargeThreshold:  50,
+		Intents:         IntentsDefault,
+		Compress:        true,
+		URL:             "wss://gateway.discord.gg",
+		ShardID:         0,
+		ShardCount:      1,
+		AutoReconnect:   true,
+		EnableResumeURL: true,
 	}
 }
 
@@ -33,10 +32,9 @@ type Config struct {
 	ShardID                   int
 	ShardCount                int
 	SessionID                 *string
-	ResumeGatewayURL          *string
+	ResumeURL                 *string
 	LastSequenceReceived      *int
 	AutoReconnect             bool
-	MaxReconnectTries         int
 	EnableRawEvents           bool
 	EnableResumeURL           bool
 	RateLimiter               RateLimiter
@@ -141,13 +139,6 @@ func WithSequence(sequence int) ConfigOpt {
 func WithAutoReconnect(autoReconnect bool) ConfigOpt {
 	return func(config *Config) {
 		config.AutoReconnect = autoReconnect
-	}
-}
-
-// WithMaxReconnectTries sets the maximum number of reconnect attempts before stopping.
-func WithMaxReconnectTries(maxReconnectTries int) ConfigOpt {
-	return func(config *Config) {
-		config.MaxReconnectTries = maxReconnectTries
 	}
 }
 
