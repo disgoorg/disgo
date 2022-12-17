@@ -12,7 +12,7 @@ import (
 )
 
 // ParseURL parses a webhook URL
-func ParseURL(webhook string, opts ...ConfigOpt) (Client, error) {
+func NewWithURL(webhook string, opts ...ConfigOpt) (Client, error) {
 	u, err := url.Parse(webhook)
 	if err != nil {
 		return nil, err
