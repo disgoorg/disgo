@@ -22,11 +22,11 @@ var listener = &events.ListenerAdapter{
 func modalListener(event *events.ModalSubmitInteractionCreate) {
 	switch event.Data.CustomID {
 	case "test1":
-		_ = event.Respond(discord.InteractionResponseTypeCreateMessage, discord.MessageCreate{Content: event.Data.Text("test_input")})
+		_ = event.CreateMessage(discord.MessageCreate{Content: event.Data.Text("test_input")})
 
 	case "test2":
 		value := event.Data.Text("test_input")
-		_ = event.Respond(discord.InteractionResponseTypeDeferredCreateMessage, nil)
+		_ = event.DeferCreateMessage(false)
 		go func() {
 			time.Sleep(time.Second * 5)
 			_, _ = event.Client().Rest().UpdateInteractionResponse(event.ApplicationID(), event.Token(), discord.MessageUpdate{Content: &value})
@@ -34,10 +34,10 @@ func modalListener(event *events.ModalSubmitInteractionCreate) {
 
 	case "test3":
 		value := event.Data.Text("test_input")
-		_ = event.Respond(discord.InteractionResponseTypeUpdateMessage, discord.MessageUpdate{Content: &value})
+		_ = event.UpdateMessage(discord.MessageUpdate{Content: &value})
 
 	case "test4":
-		_ = event.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil)
+		_ = event.DeferUpdateMessage()
 	}
 }
 
@@ -47,7 +47,7 @@ func componentListener(event *events.ComponentInteractionCreate) {
 		ids := strings.Split(data.CustomID(), ":")
 		switch ids[0] {
 		case "modal":
-			_ = event.Respond(discord.InteractionResponseTypeModal, discord.ModalCreate{
+			_ = event.CreateModal(discord.ModalCreate{
 				CustomID: "test" + ids[1],
 				Title:    "Test" + ids[1] + " Modal",
 				Components: []discord.ContainerComponent{
@@ -65,19 +65,19 @@ func componentListener(event *events.ComponentInteractionCreate) {
 			})
 
 		case "test1":
-			_ = event.Respond(discord.InteractionResponseTypeCreateMessage, discord.NewMessageCreateBuilder().
+			_ = event.CreateMessage(discord.NewMessageCreateBuilder().
 				SetContent(data.CustomID()).
 				Build(),
 			)
 
 		case "test2":
-			_ = event.Respond(discord.InteractionResponseTypeDeferredCreateMessage, nil)
+			_ = event.DeferCreateMessage(false)
 
 		case "test3":
-			_ = event.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil)
+			_ = event.DeferUpdateMessage()
 
 		case "test4":
-			_ = event.Respond(discord.InteractionResponseTypeUpdateMessage, discord.NewMessageUpdateBuilder().
+			_ = event.UpdateMessage(discord.NewMessageUpdateBuilder().
 				SetContent(data.CustomID()).
 				Build(),
 			)
@@ -86,7 +86,7 @@ func componentListener(event *events.ComponentInteractionCreate) {
 	case discord.StringSelectMenuInteractionData:
 		switch data.CustomID() {
 		case "test3":
-			if err := event.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil); err != nil {
+			if err := event.DeferUpdateMessage(); err != nil {
 				log.Errorf("error sending interaction response: %s", err)
 			}
 			_, _ = event.Client().Rest().CreateFollowupMessage(event.ApplicationID(), event.Token(), discord.NewMessageCreateBuilder().
@@ -99,7 +99,7 @@ func componentListener(event *events.ComponentInteractionCreate) {
 	case discord.MentionableSelectMenuInteractionData:
 		switch data.CustomID() {
 		case "test4":
-			if err := event.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil); err != nil {
+			if err := event.DeferUpdateMessage(); err != nil {
 				log.Errorf("error sending interaction response: %s", err)
 			}
 			_, _ = event.Client().Rest().CreateFollowupMessage(event.ApplicationID(), event.Token(), discord.NewMessageCreateBuilder().
@@ -115,7 +115,7 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionCreat
 	data := event.SlashCommandInteractionData()
 	switch data.CommandName() {
 	case "locale":
-		err := event.Respond(discord.InteractionResponseTypeCreateMessage, discord.NewMessageCreateBuilder().
+		err := event.CreateMessage(discord.NewMessageCreateBuilder().
 			SetContentf("Guild Locale: %s\nLocale: %s", event.GuildLocale(), event.Locale()).
 			Build(),
 		)
@@ -124,7 +124,7 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionCreat
 		}
 
 	case "say":
-		_ = event.Respond(discord.InteractionResponseTypeCreateMessage, discord.NewMessageCreateBuilder().
+		_ = event.CreateMessage(discord.NewMessageCreateBuilder().
 			SetContent(data.String("message")).
 			SetEphemeral(data.Bool("ephemeral")).
 			ClearAllowedMentions().
@@ -132,7 +132,7 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionCreat
 		)
 
 	case "test":
-		_ = event.Respond(discord.InteractionResponseTypeCreateMessage, discord.NewMessageCreateBuilder().
+		_ = event.CreateMessage(discord.NewMessageCreateBuilder().
 			SetContent("test").
 			AddActionRow(
 				discord.NewPrimaryButton("test1", "modal:1"),
@@ -147,7 +147,7 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionCreat
 		selectMenu := discord.NewMentionableSelectMenu("test4", "select users/members/roles")
 		selectMenu.MaxValues = 3
 
-		_ = event.Respond(discord.InteractionResponseTypeCreateMessage, discord.NewMessageCreateBuilder().
+		_ = event.CreateMessage(discord.NewMessageCreateBuilder().
 			SetContent("test2").
 			AddActionRow(selectMenu).
 			Build(),
@@ -158,17 +158,16 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionCreat
 func autocompleteListener(event *events.AutocompleteInteractionCreate) {
 	switch event.Data.CommandName {
 	case "test2":
-		if err := event.Respond(discord.InteractionResponseTypeApplicationCommandAutocompleteResult, discord.AutocompleteResult{
-			Choices: []discord.AutocompleteChoice{
-				discord.AutocompleteChoiceInt{
-					Name:  "test1",
-					Value: 1,
-				},
-				discord.AutocompleteChoiceInt{
-					Name:  "test2",
-					Value: 2,
-				},
-			}}); err != nil {
+		if err := event.Result([]discord.AutocompleteChoice{
+			discord.AutocompleteChoiceInt{
+				Name:  "test1",
+				Value: 1,
+			},
+			discord.AutocompleteChoiceInt{
+				Name:  "test2",
+				Value: 2,
+			},
+		}); err != nil {
 			event.Client().Logger().Error("error on sending response: ", err)
 		}
 	}

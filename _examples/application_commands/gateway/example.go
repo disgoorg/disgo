@@ -71,7 +71,7 @@ func main() {
 func commandListener(event *events.ApplicationCommandInteractionCreate) {
 	data := event.SlashCommandInteractionData()
 	if data.CommandName() == "say" {
-		err := event.Respond(discord.InteractionResponseTypeCreateMessage, discord.NewMessageCreateBuilder().
+		err := event.CreateMessage(discord.NewMessageCreateBuilder().
 			SetContent(data.String("message")).
 			SetEphemeral(data.Bool("ephemeral")).
 			Build(),

@@ -11,35 +11,6 @@ type ComponentEvent struct {
 	*events.ComponentInteractionCreate
 }
 
-// CreateMessage responds to the interaction with a new message.
-func (e *ComponentEvent) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
-	return e.Respond(discord.InteractionResponseTypeCreateMessage, messageCreate, opts...)
-}
-
-// DeferCreateMessage responds to the interaction with a "bot is thinking..." message which should be edited later.
-func (e *ComponentEvent) DeferCreateMessage(ephemeral bool, opts ...rest.RequestOpt) error {
-	var data discord.InteractionResponseData
-	if ephemeral {
-		data = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
-	}
-	return e.Respond(discord.InteractionResponseTypeDeferredCreateMessage, data, opts...)
-}
-
-// UpdateMessage responds to the interaction with updating the message the component is from.
-func (e *ComponentEvent) UpdateMessage(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) error {
-	return e.Respond(discord.InteractionResponseTypeUpdateMessage, messageUpdate, opts...)
-}
-
-// DeferUpdateMessage responds to the interaction with nothing.
-func (e *ComponentEvent) DeferUpdateMessage(opts ...rest.RequestOpt) error {
-	return e.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil, opts...)
-}
-
-// CreateModal responds to the interaction with a new modal.
-func (e *ComponentEvent) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
-	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
-}
-
 func (e *ComponentEvent) GetInteractionResponse(opts ...rest.RequestOpt) (*discord.Message, error) {
 	return e.Client().Rest().GetInteractionResponse(e.ApplicationID(), e.Token(), opts...)
 }

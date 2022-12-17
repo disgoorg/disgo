@@ -11,25 +11,6 @@ type CommandEvent struct {
 	*events.ApplicationCommandInteractionCreate
 }
 
-// CreateMessage responds to the interaction with a new message.
-func (e *CommandEvent) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
-	return e.Respond(discord.InteractionResponseTypeCreateMessage, messageCreate, opts...)
-}
-
-// DeferCreateMessage responds to the interaction with a "bot is thinking..." message which should be edited later.
-func (e *CommandEvent) DeferCreateMessage(ephemeral bool, opts ...rest.RequestOpt) error {
-	var data discord.InteractionResponseData
-	if ephemeral {
-		data = discord.MessageCreate{Flags: discord.MessageFlagEphemeral}
-	}
-	return e.Respond(discord.InteractionResponseTypeDeferredCreateMessage, data, opts...)
-}
-
-// CreateModal responds to the interaction with a new modal.
-func (e *CommandEvent) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
-	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
-}
-
 func (e *CommandEvent) GetInteractionResponse(opts ...rest.RequestOpt) (*discord.Message, error) {
 	return e.Client().Rest().GetInteractionResponse(e.ApplicationID(), e.Token(), opts...)
 }

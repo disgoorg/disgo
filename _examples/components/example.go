@@ -40,7 +40,7 @@ func main() {
 		}),
 		bot.WithEventListenerFunc(func(event *events.ComponentInteractionCreate) {
 			if event.ButtonInteractionData().CustomID() == "danger" {
-				_ = event.Respond(discord.InteractionResponseTypeCreateMessage, discord.NewMessageCreateBuilder().SetEphemeral(true).SetContent("Ey that was danger").Build())
+				_ = event.CreateMessage(discord.NewMessageCreateBuilder().SetEphemeral(true).SetContent("Ey that was danger").Build())
 			}
 		}),
 	)

@@ -11,11 +11,6 @@ type AutocompleteEvent struct {
 	*events.AutocompleteInteractionCreate
 }
 
-// Result responds to the interaction with a slice of choices.
-func (e *AutocompleteEvent) Result(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
-	return e.Respond(discord.InteractionResponseTypeApplicationCommandAutocompleteResult, discord.AutocompleteResult{Choices: choices}, opts...)
-}
-
 func (e *AutocompleteEvent) GetInteractionResponse(opts ...rest.RequestOpt) (*discord.Message, error) {
 	return e.Client().Rest().GetInteractionResponse(e.ApplicationID(), e.Token(), opts...)
 }
