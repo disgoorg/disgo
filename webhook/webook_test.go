@@ -44,7 +44,7 @@ func TestParseURL(t *testing.T) {
 		t.Run(tc.URL, func(t *testing.T) {
 			assert := require.New(t)
 
-			c, err := ParseURL(tc.URL)
+			c, err := NewWithURL(tc.URL)
 			if tc.Err {
 				assert.Error(err, "URL parsing should have resulted in an error")
 				return
