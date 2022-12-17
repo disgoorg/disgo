@@ -8,15 +8,23 @@ import (
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/events"
-
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/disgo/handler"
 	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
-	token = os.Getenv("disgo_token")
+	token   = os.Getenv("disgo_token")
+	guildID = snowflake.GetEnv("disgo_guild_id")
+
+	commands = []discord.ApplicationCommandCreate{
+		discord.SlashCommandCreate{
+			Name:        "ping",
+			Description: "Replies with pong",
+		},
+	}
 )
 
 func main() {
@@ -24,28 +32,22 @@ func main() {
 	log.Info("starting example...")
 	log.Infof("disgo version: %s", disgo.Version)
 
+	mux := handler.New()
+	mux.HandleCommand("/ping", func(client bot.Client, event *handler.CommandEvent) error {
+		return event.CreateMessage(discord.MessageCreate{Content: "pong"})
+	})
+
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(gateway.WithIntents(gateway.IntentGuilds, gateway.IntentGuildMessages, gateway.IntentDirectMessages)),
-		bot.WithEventListenerFunc(func(event *events.MessageCreate) {
-			if event.Message.Author.Bot || event.Message.Author.System {
-				return
-			}
-			if event.Message.Content == "test" {
-				_, _ = event.Client().Rest().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().
-					AddActionRow(discord.NewDangerButton("danger", "danger")).
-					SetMessageReferenceByID(event.Message.ID).
-					Build(),
-				)
-			}
-		}),
-		bot.WithEventListenerFunc(func(event *events.ComponentInteractionCreate) {
-			if event.ButtonInteractionData().CustomID() == "danger" {
-				_ = event.Respond(discord.InteractionResponseTypeCreateMessage, discord.NewMessageCreateBuilder().SetEphemeral(true).SetContent("Ey that was danger").Build())
-			}
-		}),
+		bot.WithEventListeners(mux),
 	)
 	if err != nil {
 		log.Fatal("error while building bot: ", err)
+	}
+
+	// register commands
+	if _, err = client.Rest().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
+		log.Fatal("error while setting global commands: ", err)
 	}
 
 	defer client.Close(context.TODO())

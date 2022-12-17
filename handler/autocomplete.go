@@ -1,0 +1,45 @@
+package handler
+
+import (
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/rest"
+	"github.com/disgoorg/snowflake/v2"
+)
+
+type AutocompleteEvent struct {
+	*events.AutocompleteInteractionCreate
+}
+
+// Result responds to the interaction with a slice of choices.
+func (e *AutocompleteEvent) Result(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypeApplicationCommandAutocompleteResult, discord.AutocompleteResult{Choices: choices}, opts...)
+}
+
+func (e *AutocompleteEvent) GetInteractionResponse(opts ...rest.RequestOpt) (*discord.Message, error) {
+	return e.Client().Rest().GetInteractionResponse(e.ApplicationID(), e.Token(), opts...)
+}
+
+func (e *AutocompleteEvent) UpdateInteractionResponse(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*discord.Message, error) {
+	return e.Client().Rest().UpdateInteractionResponse(e.ApplicationID(), e.Token(), messageUpdate, opts...)
+}
+
+func (e *AutocompleteEvent) DeleteInteractionResponse(opts ...rest.RequestOpt) error {
+	return e.Client().Rest().DeleteInteractionResponse(e.ApplicationID(), e.Token(), opts...)
+}
+
+func (e *AutocompleteEvent) GetFollowupMessage(messageID snowflake.ID, opts ...rest.RequestOpt) (*discord.Message, error) {
+	return e.Client().Rest().GetFollowupMessage(e.ApplicationID(), e.Token(), messageID, opts...)
+}
+
+func (e *AutocompleteEvent) CreateFollowupMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) (*discord.Message, error) {
+	return e.Client().Rest().CreateFollowupMessage(e.ApplicationID(), e.Token(), messageCreate, opts...)
+}
+
+func (e *AutocompleteEvent) UpdateFollowupMessage(messageID snowflake.ID, messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*discord.Message, error) {
+	return e.Client().Rest().UpdateFollowupMessage(e.ApplicationID(), e.Token(), messageID, messageUpdate, opts...)
+}
+
+func (e *AutocompleteEvent) DeleteFollowupMessage(messageID snowflake.ID, opts ...rest.RequestOpt) error {
+	return e.Client().Rest().DeleteFollowupMessage(e.ApplicationID(), e.Token(), messageID, opts...)
+}
