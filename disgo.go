@@ -53,9 +53,10 @@ import (
 const (
 	// Name is the library name
 	Name = "disgo"
-
+	// Module is the library module name
+	Module = "github.com/disgoorg/disgo"
 	// GitHub is a link to the libraries GitHub repository
-	GitHub = "https://github.com/disgoorg/" + Name
+	GitHub = "https://github.com/disgoorg/disgo"
 )
 
 var (
@@ -70,7 +71,7 @@ func getVersion() string {
 	bi, ok := debug.ReadBuildInfo()
 	if ok {
 		for _, dep := range bi.Deps {
-			if strings.Contains(GitHub, dep.Path) {
+			if dep.Path == Module {
 				return dep.Version
 			}
 		}
