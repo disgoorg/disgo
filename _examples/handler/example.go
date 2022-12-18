@@ -24,6 +24,14 @@ var (
 			Name:        "ping",
 			Description: "Replies with pong",
 		},
+		discord.SlashCommandCreate{
+			Name:        "ping2",
+			Description: "Replies with pong2",
+		},
+		discord.SlashCommandCreate{
+			Name:        "ping3",
+			Description: "Replies with pong3",
+		},
 	}
 )
 
@@ -33,9 +41,9 @@ func main() {
 	log.Infof("disgo version: %s", disgo.Version)
 
 	mux := handler.New()
-	mux.HandleCommand("/ping", func(client bot.Client, event *handler.CommandEvent) error {
-		return event.CreateMessage(discord.MessageCreate{Content: "pong"})
-	})
+	mux.HandleCommand("/ping", handlePingCommand)
+	mux.HandleCommand("/{name}", handleCommand)
+	mux.HandleComponent("button1:{data}", handleComponent)
 
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(gateway.WithIntents(gateway.IntentGuilds, gateway.IntentGuildMessages, gateway.IntentDirectMessages)),
@@ -60,4 +68,25 @@ func main() {
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
+}
+
+func handlePingCommand(client bot.Client, event *handler.CommandEvent) error {
+	return event.CreateMessage(discord.MessageCreate{
+		Content: "pong",
+		Components: []discord.ContainerComponent{
+			discord.ActionRowComponent{
+				discord.NewPrimaryButton("button1", "button1/testData"),
+			},
+		},
+	})
+}
+
+func handleCommand(client bot.Client, event *handler.CommandEvent) error {
+	commandName := event.Variables["name"]
+	return event.CreateMessage(discord.MessageCreate{Content: "commandName: " + commandName})
+}
+
+func handleComponent(client bot.Client, event *handler.ComponentEvent) error {
+	data := event.Variables["data"]
+	return event.CreateMessage(discord.MessageCreate{Content: "component: " + data})
 }

@@ -9,6 +9,7 @@ import (
 
 type CommandEvent struct {
 	*events.ApplicationCommandInteractionCreate
+	Variables map[string]string
 }
 
 func (e *CommandEvent) GetInteractionResponse(opts ...rest.RequestOpt) (*discord.Message, error) {

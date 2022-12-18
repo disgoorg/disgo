@@ -9,6 +9,7 @@ import (
 
 type AutocompleteEvent struct {
 	*events.AutocompleteInteractionCreate
+	Variables map[string]string
 }
 
 func (e *AutocompleteEvent) GetInteractionResponse(opts ...rest.RequestOpt) (*discord.Message, error) {

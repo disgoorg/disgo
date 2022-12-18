@@ -9,6 +9,7 @@ import (
 
 type ComponentEvent struct {
 	*events.ComponentInteractionCreate
+	Variables map[string]string
 }
 
 func (e *ComponentEvent) GetInteractionResponse(opts ...rest.RequestOpt) (*discord.Message, error) {
