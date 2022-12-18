@@ -7,7 +7,6 @@ import (
 	"net"
 	"time"
 
-	"github.com/disgoorg/disgo/voice/voicegateway"
 	"github.com/disgoorg/log"
 )
 
@@ -96,7 +95,7 @@ func (s *defaultAudioSender) send() {
 		} else if !s.sentSpeakingStop {
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
-			if err = s.conn.SetSpeaking(ctx, voicegateway.SpeakingFlagNone); err != nil {
+			if err = s.conn.SetSpeaking(ctx, SpeakingFlagNone); err != nil {
 				s.handleErr(err)
 			}
 			s.sentSpeakingStop = true
@@ -108,7 +107,7 @@ func (s *defaultAudioSender) send() {
 	if !s.sentSpeakingStart {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		if err = s.conn.SetSpeaking(ctx, voicegateway.SpeakingFlagMicrophone); err != nil {
+		if err = s.conn.SetSpeaking(ctx, SpeakingFlagMicrophone); err != nil {
 			s.handleErr(err)
 		}
 		s.sentSpeakingStart = true
@@ -122,7 +121,7 @@ func (s *defaultAudioSender) send() {
 }
 
 func (s *defaultAudioSender) handleErr(err error) {
-	if errors.Is(err, net.ErrClosed) || errors.Is(err, voicegateway.ErrGatewayNotConnected) {
+	if errors.Is(err, net.ErrClosed) || errors.Is(err, ErrGatewayNotConnected) {
 		s.Close()
 		return
 	}

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/disgoorg/disgo/voice/voiceudp"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -50,7 +49,7 @@ type opusWriter struct {
 	userFilter UserFilterFunc
 }
 
-func (r *opusWriter) ReceiveOpusFrame(userID snowflake.ID, packet *voiceudp.Packet) error {
+func (r *opusWriter) ReceiveOpusFrame(userID snowflake.ID, packet *Packet) error {
 	if r.userFilter != nil && !r.userFilter(userID) {
 		return nil
 	}

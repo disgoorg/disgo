@@ -4,7 +4,6 @@ import (
 	"context"
 	"net"
 
-	"github.com/disgoorg/disgo/voice/voiceudp"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -20,7 +19,7 @@ type (
 	}
 
 	OpusFrameReceiver interface {
-		ReceiveOpusFrame(userID snowflake.ID, packet *voiceudp.Packet) error
+		ReceiveOpusFrame(userID snowflake.ID, packet *Packet) error
 		CleanupUser(userID snowflake.ID)
 		Close()
 	}

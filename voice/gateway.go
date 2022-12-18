@@ -1,4 +1,4 @@
-package voicegateway
+package voice
 
 import (
 	"bytes"
@@ -38,9 +38,9 @@ const (
 )
 
 type (
-	EventHandlerFunc func(opCode Opcode, data MessageData)
-	CloseHandlerFunc func(gateway Gateway, err error)
-	CreateFunc       func(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...ConfigOpt) Gateway
+	EventHandlerFunc  func(opCode Opcode, data GatewayMessageData)
+	CloseHandlerFunc  func(gateway Gateway, err error)
+	GatewayCreateFunc func(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway
 )
 
 type State struct {
@@ -61,11 +61,11 @@ type Gateway interface {
 	Close()
 	CloseWithCode(code int, message string)
 
-	Send(ctx context.Context, opCode Opcode, data MessageData) error
+	Send(ctx context.Context, opCode Opcode, data GatewayMessageData) error
 }
 
-func New(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...ConfigOpt) Gateway {
-	config := DefaultConfig()
+func NewGateway(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway {
+	config := DefaultGatewayConfig()
 	config.Apply(opts)
 
 	return &gatewayImpl{
@@ -76,7 +76,7 @@ func New(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, o
 }
 
 type gatewayImpl struct {
-	config           Config
+	config           GatewayConfig
 	eventHandlerFunc EventHandlerFunc
 	closeHandlerFunc CloseHandlerFunc
 
@@ -173,7 +173,7 @@ func (g *gatewayImpl) sendHeartbeat() {
 	ctx, cancel := context.WithTimeout(context.Background(), g.heartbeatInterval)
 	defer cancel()
 
-	if err := g.Send(ctx, OpcodeHeartbeat, MessageDataHeartbeat(g.lastNonce)); err != nil {
+	if err := g.Send(ctx, OpcodeHeartbeat, GatewayMessageDataHeartbeat(g.lastNonce)); err != nil {
 		if err != ErrGatewayNotConnected || errors.Is(err, syscall.EPIPE) {
 			return
 		}
@@ -202,7 +202,7 @@ loop:
 
 			reconnect := true
 			if closeError, ok := err.(*websocket.CloseError); ok {
-				closeCode := CloseEventCodeByCode(closeError.Code)
+				closeCode := GatewayCloseEventCodeByCode(closeError.Code)
 				reconnect = closeCode.Reconnect
 			} else if errors.Is(err, net.ErrClosed) {
 				// we closed the connection ourselves. Don't try to reconnect here
@@ -226,7 +226,7 @@ loop:
 		}
 
 		switch d := message.D.(type) {
-		case MessageDataHello:
+		case GatewayMessageDataHello:
 			g.status = StatusWaitingForReady
 			g.lastHeartbeatReceived = time.Now().UTC()
 			g.heartbeatInterval = time.Duration(d.HeartbeatInterval) * time.Millisecond
@@ -236,7 +236,7 @@ loop:
 
 			if g.ssrc == 0 {
 				g.status = StatusIdentifying
-				err = g.Send(ctx, OpcodeIdentify, MessageDataIdentify{
+				err = g.Send(ctx, OpcodeIdentify, GatewayMessageDataIdentify{
 					GuildID:   g.state.GuildID,
 					UserID:    g.state.UserID,
 					SessionID: g.state.SessionID,
@@ -244,7 +244,7 @@ loop:
 				})
 			} else {
 				g.status = StatusResuming
-				err = g.Send(ctx, OpcodeIdentify, MessageDataResume{
+				err = g.Send(ctx, OpcodeIdentify, GatewayMessageDataResume{
 					GuildID:   g.state.GuildID,
 					SessionID: g.state.SessionID,
 					Token:     g.state.Token,
@@ -257,11 +257,11 @@ loop:
 				return
 			}
 
-		case MessageDataReady:
+		case GatewayMessageDataReady:
 			g.status = StatusReady
 			g.ssrc = d.SSRC
 
-		case MessageDataHeartbeatACK:
+		case GatewayMessageDataHeartbeatACK:
 			if int64(d) != g.lastNonce {
 				g.config.Logger.Errorf("received heartbeat ack with nonce: %d, expected nonce: %d", int64(d), g.lastNonce)
 				go g.reconnect()
@@ -277,8 +277,8 @@ func (g *gatewayImpl) Latency() time.Duration {
 	return g.lastHeartbeatReceived.Sub(g.lastHeartbeatSent)
 }
 
-func (g *gatewayImpl) Send(ctx context.Context, op Opcode, d MessageData) error {
-	data, err := json.Marshal(Message{
+func (g *gatewayImpl) Send(ctx context.Context, op Opcode, d GatewayMessageData) error {
+	data, err := json.Marshal(GatewayMessage{
 		Op: op,
 		D:  d,
 	})
@@ -341,14 +341,14 @@ func (g *gatewayImpl) reconnect() {
 	}
 }
 
-func (g *gatewayImpl) parseMessage(r io.Reader) (Message, error) {
+func (g *gatewayImpl) parseMessage(r io.Reader) (GatewayMessage, error) {
 	buff := &bytes.Buffer{}
 	data, _ := io.ReadAll(io.TeeReader(r, buff))
 	g.config.Logger.Tracef("received message from voice gateway. data: %s", string(data))
 
-	var message Message
+	var message GatewayMessage
 	if err := json.NewDecoder(buff).Decode(&message); err != nil {
-		return Message{}, err
+		return GatewayMessage{}, err
 	}
 	return message, nil
 }

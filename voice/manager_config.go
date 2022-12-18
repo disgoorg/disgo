@@ -2,8 +2,8 @@ package voice
 
 import "github.com/disgoorg/log"
 
-func DefaultManagerConfig() *ManagerConfig {
-	return &ManagerConfig{
+func DefaultManagerConfig() ManagerConfig {
+	return ManagerConfig{
 		Logger:         log.Default(),
 		ConnCreateFunc: NewConn,
 	}

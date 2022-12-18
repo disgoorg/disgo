@@ -15,7 +15,6 @@ import (
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/voice"
-	"github.com/disgoorg/disgo/voice/voicegateway"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -54,21 +53,29 @@ func main() {
 }
 
 func play(client bot.Client) {
+	conn := client.VoiceManager().CreateConn(guildID, channelID)
+
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	conn, err := client.OpenVoice(ctx, guildID, channelID, false, false)
-	if err != nil {
+	if err := conn.Open(ctx, false, false); err != nil {
 		panic("error connecting to voice channel: " + err.Error())
 	}
 
+	defer func() {
+		ctx2, cancel2 := context.WithTimeout(context.Background(), time.Second*10)
+		defer cancel2()
+		conn.Close(ctx2)
+	}()
+
 	println("starting playback")
 
-	if err = conn.WaitUntilOpened(ctx); err != nil {
-		panic("error waiting for voice connection: " + err.Error())
+	if err := conn.SetSpeaking(ctx, voice.SpeakingFlagMicrophone); err != nil {
+		panic("error setting speaking flag: " + err.Error())
 	}
 
-	_ = conn.SetSpeaking(context.TODO(), voicegateway.SpeakingFlagMicrophone)
-	_, _ = conn.Conn().Write(voice.SilenceAudioFrames)
+	if _, err := conn.Conn().Write(voice.SilenceAudioFrames); err != nil {
+		panic("error sending silence: " + err.Error())
+	}
 	for {
 		packet, err := conn.Conn().ReadPacket()
 		if err != nil {

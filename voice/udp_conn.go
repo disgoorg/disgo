@@ -1,4 +1,4 @@
-package voiceudp
+package voice
 
 import (
 	"context"
@@ -21,20 +21,20 @@ const OpusPacketHeaderSize = 12
 var ErrDecryptionFailed = errors.New("decryption failed")
 
 var (
-	_ io.Reader      = (Conn)(nil)
-	_ io.ReadCloser  = (Conn)(nil)
-	_ io.Writer      = (Conn)(nil)
-	_ io.WriteCloser = (Conn)(nil)
-	_ net.Conn       = (Conn)(nil)
+	_ io.Reader      = (UDPConn)(nil)
+	_ io.ReadCloser  = (UDPConn)(nil)
+	_ io.Writer      = (UDPConn)(nil)
+	_ io.WriteCloser = (UDPConn)(nil)
+	_ net.Conn       = (UDPConn)(nil)
 )
 
-// ConnCreateFunc is a function that creates a Conn.
+// UDPConnCreateFunc is a function that creates a UDPConn.
 type (
-	ConnCreateFunc func(opts ...ConnConfigOpt) Conn
+	UDPConnCreateFunc func(opts ...UDPConnConfigOpt) UDPConn
 
-	// Conn represents a UDP connection to discord voice servers. It is used to send/receive voice packets to/from discord.
+	// UDPConn represents a UDP connection to discord voice servers. It is used to send/receive voice packets to/from discord.
 	// It implements the io.Reader, io.Writer and io.Closer interface.
-	Conn interface {
+	UDPConn interface {
 		// LocalAddr returns the local network address, if known.
 		LocalAddr() net.Addr
 
@@ -46,25 +46,25 @@ type (
 
 		SetDeadline(t time.Time) error
 
-		// SetReadDeadline sets the read deadline for the Conn connection.
+		// SetReadDeadline sets the read deadline for the UDPConn connection.
 		SetReadDeadline(t time.Time) error
 
-		// SetWriteDeadline sets the write deadline for the Conn connection.
+		// SetWriteDeadline sets the write deadline for the UDPConn connection.
 		SetWriteDeadline(t time.Time) error
 
-		// Open opens the Conn connection.
+		// Open opens the UDPConn connection.
 		Open(ctx context.Context, ip string, port int, ssrc uint32) (string, int, error)
 
-		// Close closes the Conn connection.
+		// Close closes the UDPConn connection.
 		Close() error
 
-		// Read reads a packet from the Conn connection. This implements the io.Reader interface.
+		// Read reads a packet from the UDPConn connection. This implements the io.Reader interface.
 		Read(p []byte) (int, error)
 
-		// ReadPacket reads a packet from the Conn connection.
+		// ReadPacket reads a packet from the UDPConn connection.
 		ReadPacket() (*Packet, error)
 
-		// Write writes a packet to the Conn connection. This implements the io.Writer interface.
+		// Write writes a packet to the UDPConn connection. This implements the io.Writer interface.
 		Write(p []byte) (int, error)
 	}
 
@@ -81,19 +81,19 @@ type (
 	}
 )
 
-// NewConn creates a new voice Conn with the given configuration.
-func NewConn(opts ...ConnConfigOpt) Conn {
-	config := DefaultConfig()
+// NewUDPConn creates a new voice UDPConn with the given configuration.
+func NewUDPConn(opts ...UDPConnConfigOpt) UDPConn {
+	config := DefaultUDPConnConfig()
 	config.Apply(opts)
 
-	return &udpImpl{
-		config:        *config,
+	return &udpConnImpl{
+		config:        config,
 		receiveBuffer: make([]byte, 1400),
 	}
 }
 
-type udpImpl struct {
-	config ConnConfig
+type udpConnImpl struct {
+	config UDPConnConfig
 
 	ip   string
 	port int
@@ -113,63 +113,63 @@ type udpImpl struct {
 	receiveBuffer []byte
 }
 
-func (u *udpImpl) LocalAddr() net.Addr {
+func (u *udpConnImpl) LocalAddr() net.Addr {
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
 	return u.conn.LocalAddr()
 }
 
-func (u *udpImpl) RemoteAddr() net.Addr {
+func (u *udpConnImpl) RemoteAddr() net.Addr {
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
 	return u.conn.RemoteAddr()
 }
 
-func (u *udpImpl) SetSecretKey(secretKey [32]byte) {
+func (u *udpConnImpl) SetSecretKey(secretKey [32]byte) {
 	u.secretKey = secretKey
 }
 
-func (u *udpImpl) SetDeadline(t time.Time) error {
+func (u *udpConnImpl) SetDeadline(t time.Time) error {
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
 	return u.conn.SetDeadline(t)
 }
 
-func (u *udpImpl) SetReadDeadline(t time.Time) error {
+func (u *udpConnImpl) SetReadDeadline(t time.Time) error {
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
 	return u.conn.SetReadDeadline(t)
 }
 
-func (u *udpImpl) SetWriteDeadline(t time.Time) error {
+func (u *udpConnImpl) SetWriteDeadline(t time.Time) error {
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
 	return u.conn.SetWriteDeadline(t)
 }
 
-func (u *udpImpl) Open(ctx context.Context, ip string, port int, ssrc uint32) (string, int, error) {
+func (u *udpConnImpl) Open(ctx context.Context, ip string, port int, ssrc uint32) (string, int, error) {
 	u.ip = ip
 	u.port = port
 	u.ssrc = ssrc
 
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
-	u.config.Logger.Debugf("Opening Conn connection to: %s:%d\n", u.ip, u.port)
+	u.config.Logger.Debugf("Opening UDPConn connection to: %s:%d\n", u.ip, u.port)
 	var err error
 	u.conn, err = u.config.Dialer.DialContext(ctx, "udp", fmt.Sprintf("%s:%d", u.ip, u.port))
 	if err != nil {
-		return "", 0, fmt.Errorf("failed to open Conn connection: %w", err)
+		return "", 0, fmt.Errorf("failed to open UDPConn connection: %w", err)
 	}
 
 	sb := make([]byte, 70)
 	binary.BigEndian.PutUint32(sb, u.ssrc)
 	if _, err = u.conn.Write(sb); err != nil {
-		return "", 0, fmt.Errorf("failed to write ssrc to Conn connection: %w", err)
+		return "", 0, fmt.Errorf("failed to write ssrc to UDPConn connection: %w", err)
 	}
 
 	rb := make([]byte, 70)
 	if _, err = u.conn.Read(rb); err != nil {
-		return "", 0, fmt.Errorf("failed to read ip discovery from Conn connection: %w", err)
+		return "", 0, fmt.Errorf("failed to read ip discovery from UDPConn connection: %w", err)
 	}
 
 	ourAddress := rb[4:68]
@@ -187,7 +187,7 @@ func (u *udpImpl) Open(ctx context.Context, ip string, port int, ssrc uint32) (s
 	return strings.Replace(string(ourAddress), "\x00", "", -1), int(ourPort), nil
 }
 
-func (u *udpImpl) Write(p []byte) (int, error) {
+func (u *udpConnImpl) Write(p []byte) (int, error) {
 	binary.BigEndian.PutUint16(u.packet[2:4], u.sequence)
 	u.sequence++
 
@@ -206,7 +206,7 @@ func (u *udpImpl) Write(p []byte) (int, error) {
 	return len(p), nil
 }
 
-func (u *udpImpl) Read(p []byte) (n int, err error) {
+func (u *udpConnImpl) Read(p []byte) (n int, err error) {
 	packet, err := u.ReadPacket()
 	if err != nil {
 		return 0, err
@@ -214,7 +214,7 @@ func (u *udpImpl) Read(p []byte) (n int, err error) {
 	return copy(p, packet.Opus), nil
 }
 
-func (u *udpImpl) ReadPacket() (*Packet, error) {
+func (u *udpConnImpl) ReadPacket() (*Packet, error) {
 	u.connMu.Lock()
 	conn := u.conn
 	u.connMu.Unlock()
@@ -255,7 +255,7 @@ func (u *udpImpl) ReadPacket() (*Packet, error) {
 	}
 }
 
-func (u *udpImpl) Close() error {
+func (u *udpConnImpl) Close() error {
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
 	return u.conn.Close()

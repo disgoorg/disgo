@@ -6,21 +6,19 @@ import (
 	"time"
 
 	botgateway "github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/voice/voicegateway"
-	"github.com/disgoorg/disgo/voice/voiceudp"
 	"github.com/disgoorg/snowflake/v2"
 )
 
 // ConnCreateFunc is a type alias for a function that creates a new Conn.
 type ConnCreateFunc func(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc StateUpdateFunc, removeConnFunc func(), opts ...ConnConfigOpt) Conn
 
-// Conn is a complete voice conn to discord. It holds the voicegateway.Gateway and voiceudp.Conn conn and combines them.
+// Conn is a complete voice conn to discord. It holds the Gateway and voiceudp.UDPConn conn and combines them.
 type Conn interface {
 	// Gateway returns the voice Gateway used by the voice Conn.
-	Gateway() voicegateway.Gateway
+	Gateway() Gateway
 
-	// Conn returns the voiceudp.Conn conn used by the voice Conn.
-	Conn() voiceudp.Conn
+	// Conn returns the voiceudp.UDPConn conn used by the voice Conn.
+	Conn() UDPConn
 
 	// ChannelID returns the ID of the voice channel the voice Conn is openedChan to.
 	ChannelID() snowflake.ID
@@ -32,7 +30,7 @@ type Conn interface {
 	UserIDBySSRC(ssrc uint32) snowflake.ID
 
 	// SetSpeaking sends a speaking packet to the Conn socket discord.
-	SetSpeaking(ctx context.Context, flags voicegateway.SpeakingFlags) error
+	SetSpeaking(ctx context.Context, flags SpeakingFlags) error
 
 	// SetOpusFrameProvider lets you inject your own OpusFrameProvider.
 	SetOpusFrameProvider(handler OpusFrameProvider)
@@ -41,7 +39,7 @@ type Conn interface {
 	SetOpusFrameReceiver(handler OpusFrameReceiver)
 
 	// SetEventHandlerFunc lets listen for voice gateway events.
-	SetEventHandlerFunc(eventHandlerFunc voicegateway.EventHandlerFunc)
+	SetEventHandlerFunc(eventHandlerFunc EventHandlerFunc)
 
 	// Open opens the voice conn. It will connect to the voice gateway and start the Conn conn after it receives the Gateway events.
 	Open(ctx context.Context, selfMute bool, selfDeaf bool) error
@@ -65,7 +63,7 @@ func NewConn(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, 
 		config:               *config,
 		voiceStateUpdateFunc: voiceStateUpdateFunc,
 		removeConnFunc:       removeConnFunc,
-		state: voicegateway.State{
+		state: State{
 			GuildID:   guildID,
 			UserID:    userID,
 			ChannelID: channelID,
@@ -75,8 +73,8 @@ func NewConn(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, 
 		ssrcs:      map[uint32]snowflake.ID{},
 	}
 
-	conn.gateway = config.GatewayCreateFunc(conn.handleMessage, conn.handleGatewayClose, append([]voicegateway.ConfigOpt{voicegateway.WithLogger(config.Logger)}, config.GatewayConfigOpts...)...)
-	conn.udp = config.UDPConnCreateFunc(append([]voiceudp.ConnConfigOpt{voiceudp.WithLogger(config.Logger)}, config.UDPConnConfigOpts...)...)
+	conn.gateway = config.GatewayCreateFunc(conn.handleMessage, conn.handleGatewayClose, append([]GatewayConfigOpt{WithGatewayLogger(config.Logger)}, config.GatewayConfigOpts...)...)
+	conn.udp = config.UDPConnCreateFunc(append([]UDPConnConfigOpt{WithUDPConnLogger(config.Logger)}, config.UDPConnConfigOpts...)...)
 
 	return conn
 }
@@ -86,14 +84,14 @@ type connImpl struct {
 	voiceStateUpdateFunc StateUpdateFunc
 	removeConnFunc       func()
 
-	state   voicegateway.State
+	state   State
 	stateMu sync.Mutex
 
 	selfMute bool
 	selfDeaf bool
 
-	gateway voicegateway.Gateway
-	udp     voiceudp.Conn
+	gateway Gateway
+	udp     UDPConn
 
 	audioSender   AudioSender
 	audioReceiver AudioReceiver
@@ -119,18 +117,18 @@ func (c *connImpl) UserIDBySSRC(ssrc uint32) snowflake.ID {
 	return c.ssrcs[ssrc]
 }
 
-func (c *connImpl) Gateway() voicegateway.Gateway {
+func (c *connImpl) Gateway() Gateway {
 	return c.gateway
 }
 
-func (c *connImpl) SetSpeaking(ctx context.Context, flags voicegateway.SpeakingFlags) error {
-	return c.gateway.Send(ctx, voicegateway.OpcodeSpeaking, voicegateway.MessageDataSpeaking{
+func (c *connImpl) SetSpeaking(ctx context.Context, flags SpeakingFlags) error {
+	return c.gateway.Send(ctx, OpcodeSpeaking, GatewayMessageDataSpeaking{
 		SSRC:     c.Gateway().SSRC(),
 		Speaking: flags,
 	})
 }
 
-func (c *connImpl) Conn() voiceudp.Conn {
+func (c *connImpl) Conn() UDPConn {
 	return c.udp
 }
 
@@ -150,7 +148,7 @@ func (c *connImpl) SetOpusFrameReceiver(handler OpusFrameReceiver) {
 	c.audioReceiver.Open()
 }
 
-func (c *connImpl) SetEventHandlerFunc(eventHandlerFunc voicegateway.EventHandlerFunc) {
+func (c *connImpl) SetEventHandlerFunc(eventHandlerFunc EventHandlerFunc) {
 	c.config.EventHandlerFunc = eventHandlerFunc
 }
 
@@ -194,9 +192,9 @@ func (c *connImpl) HandleVoiceServerUpdate(update botgateway.EventVoiceServerUpd
 	}()
 }
 
-func (c *connImpl) handleMessage(op voicegateway.Opcode, data voicegateway.MessageData) {
+func (c *connImpl) handleMessage(op Opcode, data GatewayMessageData) {
 	switch d := data.(type) {
-	case voicegateway.MessageDataReady:
+	case GatewayMessageDataReady:
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		ourAddress, ourPort, err := c.udp.Open(ctx, d.IP, d.Port, d.SSRC)
@@ -204,27 +202,27 @@ func (c *connImpl) handleMessage(op voicegateway.Opcode, data voicegateway.Messa
 			c.config.Logger.Error("voice: failed to open voiceudp conn. error: ", err)
 			break
 		}
-		if err = c.Gateway().Send(ctx, voicegateway.OpcodeSelectProtocol, voicegateway.MessageDataSelectProtocol{
-			Protocol: voicegateway.VoiceProtocolUDP,
-			Data: voicegateway.MessageDataSelectProtocolData{
+		if err = c.Gateway().Send(ctx, OpcodeSelectProtocol, GatewayMessageDataSelectProtocol{
+			Protocol: VoiceProtocolUDP,
+			Data: GatewayMessageDataSelectProtocolData{
 				Address: ourAddress,
 				Port:    ourPort,
-				Mode:    voicegateway.EncryptionModeNormal,
+				Mode:    EncryptionModeNormal,
 			},
 		}); err != nil {
 			c.config.Logger.Error("voice: failed to send select protocol. error: ", err)
 		}
 
-	case voicegateway.MessageDataSessionDescription:
+	case GatewayMessageDataSessionDescription:
 		c.udp.SetSecretKey(d.SecretKey)
 		c.openedChan <- struct{}{}
 
-	case voicegateway.MessageDataSpeaking:
+	case GatewayMessageDataSpeaking:
 		c.ssrcsMu.Lock()
 		defer c.ssrcsMu.Unlock()
 		c.ssrcs[d.SSRC] = d.UserID
 
-	case voicegateway.MessageDataClientDisconnect:
+	case GatewayMessageDataClientDisconnect:
 		c.ssrcsMu.Lock()
 		defer c.ssrcsMu.Unlock()
 		for ssrc, userID := range c.ssrcs {
@@ -240,7 +238,7 @@ func (c *connImpl) handleMessage(op voicegateway.Opcode, data voicegateway.Messa
 	}
 }
 
-func (c *connImpl) handleGatewayClose(gateway voicegateway.Gateway, err error) {
+func (c *connImpl) handleGatewayClose(gateway Gateway, err error) {
 	c.Close(context.Background())
 }
 

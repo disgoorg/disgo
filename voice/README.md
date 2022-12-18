@@ -8,7 +8,7 @@ For Discords Docs on voice see [here](https://discord.com/developers/docs/topics
 To send audio you need to create a voice connection. When using the `bot.Client` package you can use `bot.OpenVoice()`
 ```go
 const (
-	guildID = 12345
+    guildID = 12345
     channelID = 12345
 )
 

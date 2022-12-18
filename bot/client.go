@@ -50,6 +50,7 @@ type Client interface {
 	// EventManager returns the EventManager used by the Client.
 	EventManager() EventManager
 
+	// VoiceManager returns the voice.Manager used by the Client.
 	VoiceManager() voice.Manager
 
 	// OpenGateway connects to the configured gateway.Gateway.
