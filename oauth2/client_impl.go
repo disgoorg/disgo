@@ -90,41 +90,53 @@ func (c *clientImpl) RefreshSession(identifier string, session Session, opts ...
 }
 
 func (c *clientImpl) GetUser(session Session, opts ...rest.RequestOpt) (*discord.OAuth2User, error) {
-	if session.Expiration().Before(time.Now()) {
-		return nil, ErrAccessTokenExpired
-	}
-	if !discord.HasScope(discord.OAuth2ScopeIdentify, session.Scopes()...) {
-		return nil, ErrMissingOAuth2Scope(discord.OAuth2ScopeIdentify)
+	if err := checkSession(session, discord.OAuth2ScopeIdentify); err != nil {
+		return nil, err
 	}
 	return c.Rest().GetCurrentUser(session.AccessToken(), opts...)
 }
 
 func (c *clientImpl) GetMember(session Session, guildID snowflake.ID, opts ...rest.RequestOpt) (*discord.Member, error) {
-	if session.Expiration().Before(time.Now()) {
-		return nil, ErrAccessTokenExpired
-	}
-	if !discord.HasScope(discord.OAuth2ScopeGuildsMembersRead, session.Scopes()...) {
-		return nil, ErrMissingOAuth2Scope(discord.OAuth2ScopeGuildsMembersRead)
+	if err := checkSession(session, discord.OAuth2ScopeGuildsMembersRead); err != nil {
+		return nil, err
 	}
 	return c.Rest().GetCurrentMember(session.AccessToken(), guildID, opts...)
 }
 
 func (c *clientImpl) GetGuilds(session Session, opts ...rest.RequestOpt) ([]discord.OAuth2Guild, error) {
-	if session.Expiration().Before(time.Now()) {
-		return nil, ErrAccessTokenExpired
-	}
-	if !discord.HasScope(discord.OAuth2ScopeGuilds, session.Scopes()...) {
-		return nil, ErrMissingOAuth2Scope(discord.OAuth2ScopeGuilds)
+	if err := checkSession(session, discord.OAuth2ScopeGuilds); err != nil {
+		return nil, err
 	}
 	return c.Rest().GetCurrentUserGuilds(session.AccessToken(), 0, 0, 0, opts...)
 }
 
 func (c *clientImpl) GetConnections(session Session, opts ...rest.RequestOpt) ([]discord.Connection, error) {
-	if session.Expiration().Before(time.Now()) {
-		return nil, ErrAccessTokenExpired
-	}
-	if !discord.HasScope(discord.OAuth2ScopeConnections, session.Scopes()...) {
-		return nil, ErrMissingOAuth2Scope(discord.OAuth2ScopeConnections)
+	if err := checkSession(session, discord.OAuth2ScopeConnections); err != nil {
+		return nil, err
 	}
 	return c.Rest().GetCurrentUserConnections(session.AccessToken(), opts...)
+}
+
+func (c *clientImpl) GetApplicationRoleConnection(session Session, applicationID snowflake.ID, opts ...rest.RequestOpt) (*discord.ApplicationRoleConnection, error) {
+	if err := checkSession(session, discord.OAuth2ScopeRoleConnectionsWrite); err != nil {
+		return nil, err
+	}
+	return c.Rest().GetCurrentUserApplicationRoleConnection(session.AccessToken(), applicationID, opts...)
+}
+
+func (c *clientImpl) UpdateApplicationRoleConnection(session Session, applicationID snowflake.ID, update discord.ApplicationRoleConnectionUpdate, opts ...rest.RequestOpt) (*discord.ApplicationRoleConnection, error) {
+	if err := checkSession(session, discord.OAuth2ScopeRoleConnectionsWrite); err != nil {
+		return nil, err
+	}
+	return c.Rest().UpdateCurrentUserApplicationRoleConnection(session.AccessToken(), applicationID, update, opts...)
+}
+
+func checkSession(session Session, scope discord.OAuth2Scope) error {
+	if session.Expiration().Before(time.Now()) {
+		return ErrAccessTokenExpired
+	}
+	if !discord.HasScope(scope, session.Scopes()...) {
+		return ErrMissingOAuth2Scope(scope)
+	}
+	return nil
 }
