@@ -190,6 +190,7 @@ type GuildForumChannelCreate struct {
 	DefaultReactionEmoji DefaultReactionEmoji  `json:"default_reaction_emoji"`
 	AvailableTags        []ForumTag            `json:"available_tags"`
 	DefaultSortOrder     DefaultSortOrder      `json:"default_sort_order"`
+	DefaultForumLayout   DefaultForumLayout    `json:"default_forum_layout"`
 }
 
 func (c GuildForumChannelCreate) Type() ChannelType {
