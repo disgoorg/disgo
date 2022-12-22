@@ -124,6 +124,7 @@ const (
 	GuildFeatureNews                          GuildFeature = "NEWS"
 	GuildFeaturePartnered                     GuildFeature = "PARTNERED"
 	GuildFeaturePreviewEnabled                GuildFeature = "PREVIEW_ENABLED"
+	GuildFeatureRaidAlertsEnabled             GuildFeature = "RAID_ALERTS_ENABLED"
 	GuildFeatureRoleIcons                     GuildFeature = "ROLE_ICONS"
 	GuildFeatureTicketedEventsEnabled         GuildFeature = "TICKETED_EVENTS_ENABLED"
 	GuildFeatureVanityURL                     GuildFeature = "VANITY_URL"
@@ -168,6 +169,7 @@ type Guild struct {
 	NSFWLevel                   NSFWLevel                  `json:"nsfw_level"`
 	BoostProgressBarEnabled     bool                       `json:"premium_progress_bar_enabled"`
 	JoinedAt                    time.Time                  `json:"joined_at"`
+	SafetyAlertsChannelID       *snowflake.ID              `json:"safety_alerts_channel_id"`
 
 	// only over GET /guilds/{guild.id}
 	ApproximateMemberCount   int `json:"approximate_member_count"`
