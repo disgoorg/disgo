@@ -1,210 +1,78 @@
 package handler
 
 import (
-	"sync"
+	"errors"
+	"strings"
 
-	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 )
 
-const (
-	CommandDelimiter  = "/"
-	CustomIDDelimiter = ":"
-)
-
-type (
-	CommandHandler      func(client bot.Client, event *CommandEvent) error
-	AutocompleteHandler func(client bot.Client, event *AutocompleteEvent) error
-	ComponentHandler    func(client bot.Client, event *ComponentEvent) error
-	ModalHandler        func(client bot.Client, event *ModalEvent) error
-)
-
-type Handler interface {
-	bot.EventListener
-
-	HandleCommand(commandPath string, handler CommandHandler) func()
-	HandleAutocomplete(commandPath string, handler AutocompleteHandler) func()
-	HandleComponent(customID string, handler ComponentHandler) func()
-	HandleModal(customID string, handler ModalHandler) func()
+type handlerHolder[T any] struct {
+	pattern string
+	handler T
+	t       discord.InteractionType
 }
 
-func New() Handler {
-	return &handlerImpl{}
-}
+func (h *handlerHolder[T]) Match(path string, t discord.InteractionType) bool {
+	if h.t != t {
+		return false
+	}
+	parts := splitPath(path)
+	patternParts := splitPath(h.pattern)
 
-type handlerImpl struct {
-	commandHandlers   []*handlerHolder[CommandHandler]
-	commandHandlersMu sync.Mutex
-
-	autocompleteHandlers []*handlerHolder[AutocompleteHandler]
-	autocompleteMu       sync.Mutex
-
-	componentHandlers   []*handlerHolder[ComponentHandler]
-	componentHandlersMu sync.Mutex
-
-	modalHandlers   []*handlerHolder[ModalHandler]
-	modalHandlersMu sync.Mutex
-}
-
-func (h *handlerImpl) OnEvent(event bot.Event) {
-	var err error
-	switch e := event.(type) {
-	case *events.ApplicationCommandInteractionCreate:
-		path := e.Data.CommandName()
-		if d, ok := e.Data.(discord.SlashCommandInteractionData); ok {
-			path = d.CommandPath()
+	for i, part := range patternParts {
+		if strings.HasPrefix(part, "{") && strings.HasSuffix(part, "}") {
+			continue
 		}
-
-		handler, values, ok := findHandler(h.commandHandlers, path, CommandDelimiter)
-		if !ok {
-			return
+		if part != parts[i] {
+			return false
 		}
-		err = handler(e.Client(), &CommandEvent{
-			ApplicationCommandInteractionCreate: e,
-			Variables:                           values,
-		})
-
-	case *events.AutocompleteInteractionCreate:
-		handler, values, ok := findHandler(h.autocompleteHandlers, e.Data.CommandName, CommandDelimiter)
-		if !ok {
-			return
-		}
-		err = handler(e.Client(), &AutocompleteEvent{
-			AutocompleteInteractionCreate: e,
-			Variables:                     values,
-		})
-
-	case *events.ComponentInteractionCreate:
-		handler, values, ok := findHandler(h.componentHandlers, e.Data.CustomID(), CustomIDDelimiter)
-		if !ok {
-			return
-		}
-		err = handler(e.Client(), &ComponentEvent{
-			ComponentInteractionCreate: e,
-			Variables:                  values,
-		})
-
-	case *events.ModalSubmitInteractionCreate:
-		handler, values, ok := findHandler(h.modalHandlers, e.Data.CustomID, CustomIDDelimiter)
-		if !ok {
-			return
-		}
-		err = handler(e.Client(), &ModalEvent{
-			ModalSubmitInteractionCreate: e,
-			Variables:                    values,
-		})
 	}
 
-	if err != nil {
-		event.Client().Logger().Error("error while handling event: ", err)
-	}
+	return true
 }
 
-func (h *handlerImpl) HandleCommand(commandPath string, handler CommandHandler) func() {
-	h.commandHandlersMu.Lock()
-	defer h.commandHandlersMu.Unlock()
+func (h *handlerHolder[T]) Handle(path string, variables map[string]string, event *events.InteractionCreate) error {
+	parseVariables(path, h.pattern, variables)
 
-	holder := &handlerHolder[CommandHandler]{
-		path:    commandPath,
-		handler: handler,
-	}
-
-	h.commandHandlers = append(h.commandHandlers, holder)
-
-	var once sync.Once
-	return func() {
-		once.Do(func() {
-			h.modalHandlersMu.Lock()
-			defer h.modalHandlersMu.Unlock()
-
-			for i := range h.commandHandlers {
-				if h.commandHandlers[i] == holder {
-					h.commandHandlers = append(h.commandHandlers[:i], h.commandHandlers[i+1:]...)
-					return
-				}
-			}
+	switch handler := any(h.handler).(type) {
+	case CommandHandler:
+		return handler(event.Client(), &CommandEvent{
+			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
+				GenericEvent:                  event.GenericEvent,
+				ApplicationCommandInteraction: event.Interaction.(discord.ApplicationCommandInteraction),
+				Respond:                       event.Respond,
+			},
+			Variables: variables,
+		})
+	case AutocompleteHandler:
+		return handler(event.Client(), &AutocompleteEvent{
+			AutocompleteInteractionCreate: &events.AutocompleteInteractionCreate{
+				GenericEvent:            event.GenericEvent,
+				AutocompleteInteraction: event.Interaction.(discord.AutocompleteInteraction),
+				Respond:                 event.Respond,
+			},
+			Variables: variables,
+		})
+	case ComponentHandler:
+		return handler(event.Client(), &ComponentEvent{
+			ComponentInteractionCreate: &events.ComponentInteractionCreate{
+				GenericEvent:         event.GenericEvent,
+				ComponentInteraction: event.Interaction.(discord.ComponentInteraction),
+				Respond:              event.Respond,
+			},
+			Variables: variables,
+		})
+	case ModalHandler:
+		return handler(event.Client(), &ModalEvent{
+			ModalSubmitInteractionCreate: &events.ModalSubmitInteractionCreate{
+				GenericEvent:           event.GenericEvent,
+				ModalSubmitInteraction: event.Interaction.(discord.ModalSubmitInteraction),
+				Respond:                event.Respond,
+			},
+			Variables: variables,
 		})
 	}
-}
-
-func (h *handlerImpl) HandleAutocomplete(commandPath string, handler AutocompleteHandler) func() {
-	h.autocompleteMu.Lock()
-	defer h.autocompleteMu.Unlock()
-
-	holder := &handlerHolder[AutocompleteHandler]{
-		path:    commandPath,
-		handler: handler,
-	}
-
-	h.autocompleteHandlers = append(h.autocompleteHandlers, holder)
-
-	var once sync.Once
-	return func() {
-		once.Do(func() {
-			h.modalHandlersMu.Lock()
-			defer h.modalHandlersMu.Unlock()
-
-			for i := range h.autocompleteHandlers {
-				if h.autocompleteHandlers[i] == holder {
-					h.autocompleteHandlers = append(h.autocompleteHandlers[:i], h.autocompleteHandlers[i+1:]...)
-					return
-				}
-			}
-		})
-	}
-}
-
-func (h *handlerImpl) HandleComponent(componentID string, handler ComponentHandler) func() {
-	h.componentHandlersMu.Lock()
-	defer h.componentHandlersMu.Unlock()
-
-	holder := &handlerHolder[ComponentHandler]{
-		path:    componentID,
-		handler: handler,
-	}
-
-	h.componentHandlers = append(h.componentHandlers, holder)
-
-	var once sync.Once
-	return func() {
-		once.Do(func() {
-			h.modalHandlersMu.Lock()
-			defer h.modalHandlersMu.Unlock()
-
-			for i := range h.componentHandlers {
-				if h.componentHandlers[i] == holder {
-					h.componentHandlers = append(h.componentHandlers[:i], h.componentHandlers[i+1:]...)
-					return
-				}
-			}
-		})
-	}
-}
-
-func (h *handlerImpl) HandleModal(modalID string, handler ModalHandler) func() {
-	h.modalHandlersMu.Lock()
-	defer h.modalHandlersMu.Unlock()
-
-	holder := &handlerHolder[ModalHandler]{
-		path:    modalID,
-		handler: handler,
-	}
-
-	h.modalHandlers = append(h.modalHandlers, holder)
-
-	var once sync.Once
-	return func() {
-		once.Do(func() {
-			h.modalHandlersMu.Lock()
-			defer h.modalHandlersMu.Unlock()
-
-			for i := range h.modalHandlers {
-				if h.modalHandlers[i] == holder {
-					h.modalHandlers = append(h.modalHandlers[:i], h.modalHandlers[i+1:]...)
-					return
-				}
-			}
-		})
-	}
+	return errors.New("unknown handler type")
 }

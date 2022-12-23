@@ -9,8 +9,8 @@ import (
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/handler"
+	"github.com/disgoorg/disgo/handler/middleware"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -25,29 +25,68 @@ var (
 			Description: "Replies with pong",
 		},
 		discord.SlashCommandCreate{
-			Name:        "ping2",
-			Description: "Replies with pong2",
+			Name:        "test",
+			Description: "Replies with test",
+			Options: []discord.ApplicationCommandOption{
+				discord.ApplicationCommandOptionSubCommandGroup{
+					Name:        "idk",
+					Description: "Group command",
+					Options: []discord.ApplicationCommandOptionSubCommand{
+						{
+							Name:        "sub",
+							Description: "Sub command",
+						},
+					},
+				},
+				discord.ApplicationCommandOptionSubCommandGroup{
+					Name:        "idk2",
+					Description: "Group2 command",
+					Options: []discord.ApplicationCommandOptionSubCommand{
+						{
+							Name:        "sub",
+							Description: "Sub command",
+						},
+					},
+				},
+				discord.ApplicationCommandOptionSubCommand{
+					Name:        "sub2",
+					Description: "Sub2 command",
+				},
+			},
 		},
 		discord.SlashCommandCreate{
-			Name:        "ping3",
-			Description: "Replies with pong3",
+			Name:        "ping2",
+			Description: "Replies with pong2",
 		},
 	}
 )
 
 func main() {
-	log.SetLevel(log.LevelDebug)
+	log.SetLevel(log.LevelInfo)
 	log.Info("starting example...")
 	log.Infof("disgo version: %s", disgo.Version)
 
-	mux := handler.New()
-	mux.HandleCommand("/ping", handlePingCommand)
-	mux.HandleCommand("/{name}", handleCommand)
-	mux.HandleComponent("button1:{data}", handleComponent)
+	r := handler.New()
+	r.Use(middleware.Logger)
+	r.Group(func(r handler.Router) {
+		r.Use(middleware.Print("group1"))
+		r.Route("/test", func(r handler.Router) {
+			r.HandleCommand("/sub2", handleContent("/test/sub2"))
+			r.Route("/{group}", func(r handler.Router) {
+				r.HandleCommand("/sub", handleVariableContent)
+			})
+		})
+	})
+	r.Group(func(r handler.Router) {
+		r.Use(middleware.Print("group2"))
+		r.HandleCommand("/ping", handlePing)
+		r.HandleCommand("/ping2", handleContent("pong2"))
+		r.HandleComponent("button1/{data}", handleComponent)
+	})
 
 	client, err := disgo.New(token,
-		bot.WithGatewayConfigOpts(gateway.WithIntents(gateway.IntentGuilds, gateway.IntentGuildMessages, gateway.IntentDirectMessages)),
-		bot.WithEventListeners(mux),
+		bot.WithDefaultGateway(),
+		bot.WithEventListeners(r),
 	)
 	if err != nil {
 		log.Fatal("error while building bot: ", err)
@@ -64,13 +103,24 @@ func main() {
 		log.Fatal("error while connecting to gateway: ", err)
 	}
 
-	log.Infof("example is now running. Press CTRL-C to exit.")
+	log.Info("example is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
 }
 
-func handlePingCommand(client bot.Client, event *handler.CommandEvent) error {
+func handleContent(content string) handler.CommandHandler {
+	return func(client bot.Client, event *handler.CommandEvent) error {
+		return event.CreateMessage(discord.MessageCreate{Content: content})
+	}
+}
+
+func handleVariableContent(client bot.Client, event *handler.CommandEvent) error {
+	group := event.Variables["group"]
+	return event.CreateMessage(discord.MessageCreate{Content: "group: " + group})
+}
+
+func handlePing(client bot.Client, event *handler.CommandEvent) error {
 	return event.CreateMessage(discord.MessageCreate{
 		Content: "pong",
 		Components: []discord.ContainerComponent{
@@ -79,11 +129,6 @@ func handlePingCommand(client bot.Client, event *handler.CommandEvent) error {
 			},
 		},
 	})
-}
-
-func handleCommand(client bot.Client, event *handler.CommandEvent) error {
-	commandName := event.Variables["name"]
-	return event.CreateMessage(discord.MessageCreate{Content: "commandName: " + commandName})
 }
 
 func handleComponent(client bot.Client, event *handler.ComponentEvent) error {
