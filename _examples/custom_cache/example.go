@@ -29,7 +29,7 @@ func main() {
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(gateway.WithIntents(gateway.IntentGuilds|gateway.IntentGuildMessages|gateway.IntentDirectMessages)),
 		bot.WithCacheConfigOpts(
-			cache.WithCacheTypes(cache.TypeGuilds|cache.TypeMessages|cache.TypeMembers),
+			cache.WithCaches(cache.FlagGuilds|cache.FlagMessages|cache.FlagMembers),
 			cache.WithMemberCache(cache.NewMemberCache(newGroupedCache[discord.Member]())),
 		),
 	)

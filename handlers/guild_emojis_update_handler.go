@@ -21,7 +21,7 @@ func gatewayHandlerGuildEmojisUpdate(client bot.Client, sequenceNumber int, shar
 		EventGuildEmojisUpdate: event,
 	})
 
-	if client.Caches().CacheFlags().Missing(cache.TypeEmojis) {
+	if client.Caches().CacheFlags().Missing(cache.FlagEmojis) {
 		return
 	}
 

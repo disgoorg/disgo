@@ -26,7 +26,7 @@ func DefaultConfig() *Config {
 
 // Config lets you configure your Caches instance.
 type Config struct {
-	CacheTypes Types
+	CacheFlags Flags
 
 	SelfUserCache SelfUserCache
 
@@ -79,47 +79,47 @@ func (c *Config) Apply(opts []ConfigOpt) {
 		c.SelfUserCache = NewSelfUserCache()
 	}
 	if c.GuildCache == nil {
-		c.GuildCache = NewGuildCache(NewCache[discord.Guild](c.CacheTypes, TypeGuilds, c.GuildCachePolicy), set.New[snowflake.ID](), set.New[snowflake.ID]())
+		c.GuildCache = NewGuildCache(NewCache[discord.Guild](c.CacheFlags, FlagGuilds, c.GuildCachePolicy), set.New[snowflake.ID](), set.New[snowflake.ID]())
 	}
 	if c.ChannelCache == nil {
-		c.ChannelCache = NewChannelCache(NewCache[discord.GuildChannel](c.CacheTypes, TypeChannels, c.ChannelCachePolicy))
+		c.ChannelCache = NewChannelCache(NewCache[discord.GuildChannel](c.CacheFlags, FlagChannels, c.ChannelCachePolicy))
 	}
 	if c.StageInstanceCache == nil {
-		c.StageInstanceCache = NewStageInstanceCache(NewGroupedCache[discord.StageInstance](c.CacheTypes, TypeStageInstances, c.StageInstanceCachePolicy))
+		c.StageInstanceCache = NewStageInstanceCache(NewGroupedCache[discord.StageInstance](c.CacheFlags, FlagStageInstances, c.StageInstanceCachePolicy))
 	}
 	if c.GuildScheduledEventCache == nil {
-		c.GuildScheduledEventCache = NewGuildScheduledEventCache(NewGroupedCache[discord.GuildScheduledEvent](c.CacheTypes, TypeGuildScheduledEvents, c.GuildScheduledEventCachePolicy))
+		c.GuildScheduledEventCache = NewGuildScheduledEventCache(NewGroupedCache[discord.GuildScheduledEvent](c.CacheFlags, FlagGuildScheduledEvents, c.GuildScheduledEventCachePolicy))
 	}
 	if c.RoleCache == nil {
-		c.RoleCache = NewRoleCache(NewGroupedCache[discord.Role](c.CacheTypes, TypeRoles, c.RoleCachePolicy))
+		c.RoleCache = NewRoleCache(NewGroupedCache[discord.Role](c.CacheFlags, FlagRoles, c.RoleCachePolicy))
 	}
 	if c.MemberCache == nil {
-		c.MemberCache = NewMemberCache(NewGroupedCache[discord.Member](c.CacheTypes, TypeMembers, c.MemberCachePolicy))
+		c.MemberCache = NewMemberCache(NewGroupedCache[discord.Member](c.CacheFlags, FlagMembers, c.MemberCachePolicy))
 	}
 	if c.ThreadMemberCache == nil {
-		c.ThreadMemberCache = NewThreadMemberCache(NewGroupedCache[discord.ThreadMember](c.CacheTypes, TypeThreadMembers, c.ThreadMemberCachePolicy))
+		c.ThreadMemberCache = NewThreadMemberCache(NewGroupedCache[discord.ThreadMember](c.CacheFlags, FlagThreadMembers, c.ThreadMemberCachePolicy))
 	}
 	if c.PresenceCache == nil {
-		c.PresenceCache = NewPresenceCache(NewGroupedCache[discord.Presence](c.CacheTypes, TypePresences, c.PresenceCachePolicy))
+		c.PresenceCache = NewPresenceCache(NewGroupedCache[discord.Presence](c.CacheFlags, FlagPresences, c.PresenceCachePolicy))
 	}
 	if c.VoiceStateCache == nil {
-		c.VoiceStateCache = NewVoiceStateCache(NewGroupedCache[discord.VoiceState](c.CacheTypes, TypeVoiceStates, c.VoiceStateCachePolicy))
+		c.VoiceStateCache = NewVoiceStateCache(NewGroupedCache[discord.VoiceState](c.CacheFlags, FlagVoiceStates, c.VoiceStateCachePolicy))
 	}
 	if c.MessageCache == nil {
-		c.MessageCache = NewMessageCache(NewGroupedCache[discord.Message](c.CacheTypes, TypeMessages, c.MessageCachePolicy))
+		c.MessageCache = NewMessageCache(NewGroupedCache[discord.Message](c.CacheFlags, FlagMessages, c.MessageCachePolicy))
 	}
 	if c.EmojiCache == nil {
-		c.EmojiCache = NewEmojiCache(NewGroupedCache[discord.Emoji](c.CacheTypes, TypeEmojis, c.EmojiCachePolicy))
+		c.EmojiCache = NewEmojiCache(NewGroupedCache[discord.Emoji](c.CacheFlags, FlagEmojis, c.EmojiCachePolicy))
 	}
 	if c.StickerCache == nil {
-		c.StickerCache = NewStickerCache(NewGroupedCache[discord.Sticker](c.CacheTypes, TypeStickers, c.StickerCachePolicy))
+		c.StickerCache = NewStickerCache(NewGroupedCache[discord.Sticker](c.CacheFlags, FlagStickers, c.StickerCachePolicy))
 	}
 }
 
-// WithCacheTypes sets the Types of the Config.
-func WithCacheTypes(types ...Types) ConfigOpt {
+// WithCaches sets the Flags of the Config.
+func WithCaches(flags ...Flags) ConfigOpt {
 	return func(config *Config) {
-		config.CacheTypes = config.CacheTypes.Add(types...)
+		config.CacheFlags = config.CacheFlags.Add(flags...)
 	}
 }
 

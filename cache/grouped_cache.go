@@ -45,11 +45,11 @@ type GroupedCache[T any] interface {
 
 var _ GroupedCache[any] = (*defaultGroupedCache[any])(nil)
 
-// NewGroupedCache returns a new default GroupedCache with the provided types, neededTypes and policy.
-func NewGroupedCache[T any](types Types, neededTypes Types, policy Policy[T]) GroupedCache[T] {
+// NewGroupedCache returns a new default GroupedCache with the provided flags, neededFlags and policy.
+func NewGroupedCache[T any](flags Flags, neededFlags Flags, policy Policy[T]) GroupedCache[T] {
 	return &defaultGroupedCache[T]{
-		types:       types,
-		neededTypes: neededTypes,
+		flags:       flags,
+		neededFlags: neededFlags,
 		policy:      policy,
 		cache:       make(map[snowflake.ID]map[snowflake.ID]T),
 	}
@@ -57,8 +57,8 @@ func NewGroupedCache[T any](types Types, neededTypes Types, policy Policy[T]) Gr
 
 type defaultGroupedCache[T any] struct {
 	mu          sync.RWMutex
-	types       Types
-	neededTypes Types
+	flags       Flags
+	neededFlags Flags
 	policy      Policy[T]
 	cache       map[snowflake.ID]map[snowflake.ID]T
 }
@@ -78,7 +78,7 @@ func (c *defaultGroupedCache[T]) Get(groupID snowflake.ID, id snowflake.ID) (T, 
 }
 
 func (c *defaultGroupedCache[T]) Put(groupID snowflake.ID, id snowflake.ID, entity T) {
-	if c.types.Missing(c.neededTypes) {
+	if c.flags.Missing(c.neededFlags) {
 		return
 	}
 	if c.policy != nil && !c.policy(entity) {

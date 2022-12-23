@@ -577,7 +577,7 @@ type Caches interface {
 	StickerCache
 
 	// CacheFlags returns the current configured FLags of the caches.
-	CacheFlags() Types
+	CacheFlags() Flags
 
 	// MemberPermissions returns the calculated permissions of the given member.
 	// This requires the FlagRoles to be set.
@@ -680,8 +680,8 @@ type cachesImpl struct {
 	SelfUserCache
 }
 
-func (c *cachesImpl) CacheFlags() Types {
-	return c.config.CacheTypes
+func (c *cachesImpl) CacheFlags() Flags {
+	return c.config.CacheFlags
 }
 
 func (c *cachesImpl) MemberPermissions(member discord.Member) discord.Permissions {
