@@ -36,7 +36,7 @@ func main() {
 			gateway.WithPresenceOpts(gateway.WithListeningActivity("your bullshit"), gateway.WithOnlineStatus(discord.OnlineStatusDND)),
 		),
 		bot.WithCacheConfigOpts(
-			cache.WithCacheFlags(cache.FlagsAll),
+			cache.WithCaches(cache.FlagsAll),
 		),
 		bot.WithMemberChunkingFilter(bot.MemberChunkingFilterNone),
 		bot.WithEventListeners(listener),

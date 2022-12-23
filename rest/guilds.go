@@ -27,7 +27,7 @@ type Guilds interface {
 	UpdateChannelPositions(guildID snowflake.ID, guildChannelPositionUpdates []discord.GuildChannelPositionUpdate, opts ...RequestOpt) error
 
 	GetRoles(guildID snowflake.ID, opts ...RequestOpt) ([]discord.Role, error)
-	GetRole(guildID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) ([]discord.Role, error)
+	GetRole(guildID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) (*discord.Role, error)
 	CreateRole(guildID snowflake.ID, createRole discord.RoleCreate, opts ...RequestOpt) (*discord.Role, error)
 	UpdateRole(guildID snowflake.ID, roleID snowflake.ID, roleUpdate discord.RoleUpdate, opts ...RequestOpt) (*discord.Role, error)
 	UpdateRolePositions(guildID snowflake.ID, rolePositionUpdates []discord.RolePositionUpdate, opts ...RequestOpt) ([]discord.Role, error)
@@ -119,26 +119,45 @@ func (s *guildImpl) UpdateChannelPositions(guildID snowflake.ID, guildChannelPos
 
 func (s *guildImpl) GetRoles(guildID snowflake.ID, opts ...RequestOpt) (roles []discord.Role, err error) {
 	err = s.client.Do(GetRoles.Compile(nil, guildID), nil, &roles, opts...)
+	if err == nil {
+		for i := range roles {
+			roles[i].GuildID = guildID
+		}
+	}
 	return
 }
 
-func (s *guildImpl) GetRole(guildID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) (role []discord.Role, err error) {
+func (s *guildImpl) GetRole(guildID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) (role *discord.Role, err error) {
 	err = s.client.Do(GetRole.Compile(nil, guildID, roleID), nil, &role, opts...)
+	if err == nil {
+		role.GuildID = guildID
+	}
 	return
 }
 
 func (s *guildImpl) CreateRole(guildID snowflake.ID, createRole discord.RoleCreate, opts ...RequestOpt) (role *discord.Role, err error) {
 	err = s.client.Do(CreateRole.Compile(nil, guildID), createRole, &role, opts...)
+	if err == nil {
+		role.GuildID = guildID
+	}
 	return
 }
 
 func (s *guildImpl) UpdateRole(guildID snowflake.ID, roleID snowflake.ID, roleUpdate discord.RoleUpdate, opts ...RequestOpt) (role *discord.Role, err error) {
 	err = s.client.Do(UpdateRole.Compile(nil, guildID, roleID), roleUpdate, &role, opts...)
+	if err == nil {
+		role.GuildID = guildID
+	}
 	return
 }
 
 func (s *guildImpl) UpdateRolePositions(guildID snowflake.ID, rolePositionUpdates []discord.RolePositionUpdate, opts ...RequestOpt) (roles []discord.Role, err error) {
 	err = s.client.Do(UpdateRolePositions.Compile(nil, guildID), rolePositionUpdates, &roles, opts...)
+	if err == nil {
+		for i := range roles {
+			roles[i].GuildID = guildID
+		}
+	}
 	return
 }
 

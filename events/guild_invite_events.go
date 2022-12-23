@@ -15,7 +15,7 @@ type GenericInvite struct {
 
 // Channel returns the Channel the GenericInvite happened in.
 func (e *GenericInvite) Channel() (discord.GuildChannel, bool) {
-	return e.Client().Caches().Channels().GetGuildChannel(e.ChannelID)
+	return e.Client().Caches().Channel(e.ChannelID)
 }
 
 // InviteCreate is called upon creation of a new discord.Invite (requires gateway.IntentGuildInvites)
