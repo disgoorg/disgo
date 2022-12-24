@@ -7,7 +7,7 @@ import (
 )
 
 func gatewayHandlerStageInstanceCreate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventStageInstanceCreate) {
-	client.Caches().StageInstances().Put(event.GuildID, event.ID, event.StageInstance)
+	client.Caches().AddStageInstance(event.StageInstance)
 
 	client.EventManager().DispatchEvent(&events.StageInstanceCreate{
 		GenericStageInstance: &events.GenericStageInstance{
@@ -19,8 +19,8 @@ func gatewayHandlerStageInstanceCreate(client bot.Client, sequenceNumber int, sh
 }
 
 func gatewayHandlerStageInstanceUpdate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventStageInstanceUpdate) {
-	oldStageInstance, _ := client.Caches().StageInstances().Get(event.GuildID, event.ID)
-	client.Caches().StageInstances().Put(event.GuildID, event.ID, event.StageInstance)
+	oldStageInstance, _ := client.Caches().StageInstance(event.GuildID, event.ID)
+	client.Caches().AddStageInstance(event.StageInstance)
 
 	client.EventManager().DispatchEvent(&events.StageInstanceUpdate{
 		GenericStageInstance: &events.GenericStageInstance{
@@ -33,7 +33,7 @@ func gatewayHandlerStageInstanceUpdate(client bot.Client, sequenceNumber int, sh
 }
 
 func gatewayHandlerStageInstanceDelete(client bot.Client, sequenceNumber int, shardID int, event gateway.EventStageInstanceDelete) {
-	client.Caches().StageInstances().Remove(event.GuildID, event.ID)
+	client.Caches().RemoveStageInstance(event.GuildID, event.ID)
 
 	client.EventManager().DispatchEvent(&events.StageInstanceDelete{
 		GenericStageInstance: &events.GenericStageInstance{

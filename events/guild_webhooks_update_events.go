@@ -15,11 +15,11 @@ type WebhooksUpdate struct {
 // Guild returns the Guild the webhook was updated in.
 // This will only return cached guilds!
 func (e *WebhooksUpdate) Guild() (discord.Guild, bool) {
-	return e.Client().Caches().Guilds().Get(e.GuildId)
+	return e.Client().Caches().Guild(e.GuildId)
 }
 
 // Channel returns the Channel the webhook was updated in.
 // This will only return cached channels!
 func (e *WebhooksUpdate) Channel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID)
+	return e.Client().Caches().GuildMessageChannel(e.ChannelID)
 }

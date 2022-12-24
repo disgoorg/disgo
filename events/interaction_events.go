@@ -20,29 +20,15 @@ type InteractionCreate struct {
 // This only returns cached guilds.
 func (e *InteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guilds().Get(*e.GuildID())
+		return e.Client().Caches().Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
 
-// Channel returns the discord.MessageChannel that the interaction happened in.
+// Channel returns the discord.GuildMessageChannel that the interaction happened in.
 // This only returns cached channels.
-func (e *InteractionCreate) Channel() (discord.MessageChannel, bool) {
-	return e.Client().Caches().Channels().GetMessageChannel(e.ChannelID())
-}
-
-// DMChannel returns the discord.DMChannel that the interaction happened in.
-// If the interaction happened in a guild, it returns nil.
-// This only returns cached channels.
-func (e *InteractionCreate) DMChannel() (discord.DMChannel, bool) {
-	return e.Client().Caches().Channels().GetDMChannel(e.ChannelID())
-}
-
-// GuildChannel returns the discord.GuildMessageChannel that the interaction happened in.
-// If the interaction happened in a dm, it returns nil.
-// This only returns cached channels.
-func (e *InteractionCreate) GuildChannel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID())
+func (e *InteractionCreate) Channel() (discord.GuildMessageChannel, bool) {
+	return e.Client().Caches().GuildMessageChannel(e.ChannelID())
 }
 
 // ApplicationCommandInteractionCreate is the base struct for all application command interaction create events.
@@ -57,29 +43,15 @@ type ApplicationCommandInteractionCreate struct {
 // This only returns cached guilds.
 func (e *ApplicationCommandInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guilds().Get(*e.GuildID())
+		return e.Client().Caches().Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
 
-// Channel returns the discord.MessageChannel that the interaction happened in.
+// Channel returns the discord.GuildMessageChannel that the interaction happened in.
 // This only returns cached channels.
-func (e *ApplicationCommandInteractionCreate) Channel() (discord.MessageChannel, bool) {
-	return e.Client().Caches().Channels().GetMessageChannel(e.ChannelID())
-}
-
-// DMChannel returns the discord.DMChannel that the interaction happened in.
-// If the interaction happened in a guild, it returns nil.
-// This only returns cached channels.
-func (e *ApplicationCommandInteractionCreate) DMChannel() (discord.DMChannel, bool) {
-	return e.Client().Caches().Channels().GetDMChannel(e.ChannelID())
-}
-
-// GuildChannel returns the discord.GuildMessageChannel that the interaction happened in.
-// If the interaction happened in a dm, it returns nil.
-// This only returns cached channels.
-func (e *ApplicationCommandInteractionCreate) GuildChannel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID())
+func (e *ApplicationCommandInteractionCreate) Channel() (discord.GuildMessageChannel, bool) {
+	return e.Client().Caches().GuildMessageChannel(e.ChannelID())
 }
 
 // CreateMessage responds to the interaction with a new message.
@@ -113,29 +85,15 @@ type ComponentInteractionCreate struct {
 // This only returns cached guilds.
 func (e *ComponentInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guilds().Get(*e.GuildID())
+		return e.Client().Caches().Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
 
-// Channel returns the discord.MessageChannel that the interaction happened in.
+// Channel returns the discord.GuildMessageChannel that the interaction happened in.
 // This only returns cached channels.
-func (e *ComponentInteractionCreate) Channel() (discord.MessageChannel, bool) {
-	return e.Client().Caches().Channels().GetMessageChannel(e.ChannelID())
-}
-
-// DMChannel returns the discord.DMChannel that the interaction happened in.
-// If the interaction happened in a guild, it returns nil.
-// This only returns cached channels.
-func (e *ComponentInteractionCreate) DMChannel() (discord.DMChannel, bool) {
-	return e.Client().Caches().Channels().GetDMChannel(e.ChannelID())
-}
-
-// GuildChannel returns the discord.GuildMessageChannel that the interaction happened in.
-// If the interaction happened in a dm, it returns nil.
-// This only returns cached channels.
-func (e *ComponentInteractionCreate) GuildChannel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID())
+func (e *ComponentInteractionCreate) Channel() (discord.GuildMessageChannel, bool) {
+	return e.Client().Caches().GuildMessageChannel(e.ChannelID())
 }
 
 // CreateMessage responds to the interaction with a new message.
@@ -179,29 +137,15 @@ type AutocompleteInteractionCreate struct {
 // This only returns cached guilds.
 func (e *AutocompleteInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guilds().Get(*e.GuildID())
+		return e.Client().Caches().Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
 
-// Channel returns the discord.MessageChannel that the interaction happened in.
+// Channel returns the discord.GuildMessageChannel that the interaction happened in.
 // This only returns cached channels.
-func (e *AutocompleteInteractionCreate) Channel() (discord.MessageChannel, bool) {
-	return e.Client().Caches().Channels().GetMessageChannel(e.ChannelID())
-}
-
-// DMChannel returns the discord.DMChannel that the interaction happened in.
-// If the interaction happened in a guild, it returns nil.
-// This only returns cached channels.
-func (e *AutocompleteInteractionCreate) DMChannel() (discord.DMChannel, bool) {
-	return e.Client().Caches().Channels().GetDMChannel(e.ChannelID())
-}
-
-// GuildChannel returns the discord.GuildMessageChannel that the interaction happened in.
-// If the interaction happened in a dm, it returns nil.
-// This only returns cached channels.
-func (e *AutocompleteInteractionCreate) GuildChannel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID())
+func (e *AutocompleteInteractionCreate) Channel() (discord.GuildMessageChannel, bool) {
+	return e.Client().Caches().GuildMessageChannel(e.ChannelID())
 }
 
 // Result responds to the interaction with a slice of choices.
@@ -221,29 +165,15 @@ type ModalSubmitInteractionCreate struct {
 // This only returns cached guilds.
 func (e *ModalSubmitInteractionCreate) Guild() (discord.Guild, bool) {
 	if e.GuildID() != nil {
-		return e.Client().Caches().Guilds().Get(*e.GuildID())
+		return e.Client().Caches().Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
 }
 
-// Channel returns the discord.MessageChannel that the interaction happened in.
+// Channel returns the discord.GuildMessageChannel that the interaction happened in.
 // This only returns cached channels.
-func (e *ModalSubmitInteractionCreate) Channel() (discord.MessageChannel, bool) {
-	return e.Client().Caches().Channels().GetMessageChannel(e.ChannelID())
-}
-
-// DMChannel returns the discord.DMChannel that the interaction happened in.
-// If the interaction happened in a guild, it returns nil.
-// This only returns cached channels.
-func (e *ModalSubmitInteractionCreate) DMChannel() (discord.DMChannel, bool) {
-	return e.Client().Caches().Channels().GetDMChannel(e.ChannelID())
-}
-
-// GuildChannel returns the discord.GuildMessageChannel that the interaction happened in.
-// If the interaction happened in a dm, it returns nil.
-// This only returns cached channels.
-func (e *ModalSubmitInteractionCreate) GuildChannel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID())
+func (e *ModalSubmitInteractionCreate) Channel() (discord.GuildMessageChannel, bool) {
+	return e.Client().Caches().GuildMessageChannel(e.ChannelID())
 }
 
 // CreateMessage responds to the interaction with a new message.

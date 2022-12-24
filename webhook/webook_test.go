@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/disgoorg/snowflake/v2"
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestParseURL(t *testing.T) {
@@ -42,15 +42,13 @@ func TestParseURL(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.URL, func(t *testing.T) {
-			assert := require.New(t)
-
 			c, err := NewWithURL(tc.URL)
 			if tc.Err {
-				assert.Error(err, "URL parsing should have resulted in an error")
+				assert.Error(t, err, "URL parsing should have resulted in an error")
 				return
 			}
-			assert.Equal(tc.ID, c.ID(), "URL ID should match")
-			assert.Equal(tc.Token, c.Token(), "URL token should match")
+			assert.Equal(t, tc.ID, c.ID(), "URL ID should match")
+			assert.Equal(t, tc.Token, c.Token(), "URL token should match")
 		})
 	}
 }

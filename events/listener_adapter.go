@@ -39,9 +39,6 @@ type ListenerAdapter struct {
 	OnGuildChannelPinsUpdate func(event *GuildChannelPinsUpdate)
 
 	// DM Channel Events
-	OnDMChannelCreate     func(event *DMChannelCreate)
-	OnDMChannelUpdate     func(event *DMChannelUpdate)
-	OnDMChannelDelete     func(event *DMChannelDelete)
 	OnDMChannelPinsUpdate func(event *DMChannelPinsUpdate)
 
 	// Channel Message Events
@@ -255,18 +252,6 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 
 	// DMChannel Events
-	case *DMChannelCreate:
-		if listener := l.OnDMChannelCreate; listener != nil {
-			listener(e)
-		}
-	case *DMChannelUpdate:
-		if listener := l.OnDMChannelUpdate; listener != nil {
-			listener(e)
-		}
-	case *DMChannelDelete:
-		if listener := l.OnDMChannelDelete; listener != nil {
-			listener(e)
-		}
 	case *DMChannelPinsUpdate:
 		if listener := l.OnDMChannelPinsUpdate; listener != nil {
 			listener(e)

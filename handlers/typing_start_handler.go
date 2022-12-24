@@ -23,7 +23,7 @@ func gatewayHandlerTypingStart(client bot.Client, sequenceNumber int, shardID in
 			Timestamp:    event.Timestamp,
 		})
 	} else {
-		client.Caches().Members().Put(*event.GuildID, event.UserID, *event.Member)
+		client.Caches().AddMember(*event.Member)
 		client.EventManager().DispatchEvent(&events.GuildMemberTypingStart{
 			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 			ChannelID:    event.ChannelID,

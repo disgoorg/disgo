@@ -11,7 +11,8 @@ var _ Mentionable = (*Emoji)(nil)
 // Emoji allows you to interact with emojis & emotes
 type Emoji struct {
 	ID            snowflake.ID   `json:"id,omitempty"`
-	Name          string         `json:"name,omitempty"` // may be empty for deleted emojis
+	GuildID       snowflake.ID   `json:"guild_id,omitempty"` // not present in the API but we need it
+	Name          string         `json:"name,omitempty"`     // may be empty for deleted emojis
 	Roles         []snowflake.ID `json:"roles,omitempty"`
 	Creator       *User          `json:"creator,omitempty"`
 	RequireColons bool           `json:"require_colons,omitempty"`

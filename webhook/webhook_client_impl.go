@@ -2,7 +2,6 @@ package webhook
 
 import (
 	"context"
-	"errors"
 	"net/url"
 	"strings"
 
@@ -11,25 +10,25 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// ParseURL parses a webhook URL
-func NewWithURL(webhook string, opts ...ConfigOpt) (Client, error) {
-	u, err := url.Parse(webhook)
+// NewWithURL creates a new Client by parsing the given webhookURL for the ID and token.
+func NewWithURL(webhookURL string, opts ...ConfigOpt) (Client, error) {
+	u, err := url.Parse(webhookURL)
 	if err != nil {
 		return nil, err
 	}
 
 	parts := strings.FieldsFunc(u.Path, func(r rune) bool { return r == '/' })
 	if len(parts) != 4 {
-		return nil, errors.New("invalid webhook URL")
+		return nil, ErrInvalidWebhookURL
 	}
-	id, token := parts[2], parts[3]
 
-	sf, err := snowflake.Parse(id)
+	token := parts[3]
+	id, err := snowflake.Parse(parts[2])
 	if err != nil {
 		return nil, err
 	}
 
-	return New(sf, token, opts...), nil
+	return New(id, token, opts...), nil
 }
 
 // New creates a new Client with the given ID, token and ConfigOpt(s).
