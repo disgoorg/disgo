@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -154,9 +155,10 @@ func (u *udpConnImpl) Open(ctx context.Context, ip string, port int, ssrc uint32
 
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
-	u.config.Logger.Debugf("Opening UDPConn connection to: %s:%d\n", u.ip, u.port)
+	host := net.JoinHostPort(u.ip, strconv.Itoa(u.port))
+	u.config.Logger.Debugf("Opening UDPConn connection to: %s\n", host)
 	var err error
-	u.conn, err = u.config.Dialer.DialContext(ctx, "udp", fmt.Sprintf("%s:%d", u.ip, u.port))
+	u.conn, err = u.config.Dialer.DialContext(ctx, "udp", host)
 	if err != nil {
 		return "", 0, fmt.Errorf("failed to open UDPConn connection: %w", err)
 	}

@@ -54,7 +54,6 @@ func main() {
 	}
 
 	log.Info("ExampleBot is now running. Press CTRL-C to exit.")
-
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
 }
@@ -68,9 +67,9 @@ func play(client bot.Client, closeChan chan os.Signal) {
 		panic("error connecting to voice channel: " + err.Error())
 	}
 	defer func() {
-		ctx2, cancel2 := context.WithTimeout(context.Background(), time.Second*10)
-		defer cancel2()
-		conn.Close(ctx2)
+		closeCtx, closeCancel := context.WithTimeout(context.Background(), time.Second*10)
+		defer closeCancel()
+		conn.Close(closeCtx)
 	}()
 
 	if err := conn.SetSpeaking(ctx, voice.SpeakingFlagMicrophone); err != nil {

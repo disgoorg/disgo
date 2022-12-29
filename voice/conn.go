@@ -239,7 +239,9 @@ func (c *connImpl) handleMessage(op Opcode, data GatewayMessageData) {
 }
 
 func (c *connImpl) handleGatewayClose(gateway Gateway, err error) {
-	c.Close(context.Background())
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	c.Close(ctx)
 }
 
 func (c *connImpl) Open(ctx context.Context, selfMute bool, selfDeaf bool) error {
