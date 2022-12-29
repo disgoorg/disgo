@@ -164,7 +164,7 @@ func (c *clientImpl) ApplicationID() snowflake.ID {
 }
 
 func (c *clientImpl) ID() snowflake.ID {
-	if selfUser, ok := c.Caches().GetSelfUser(); ok {
+	if selfUser, ok := c.Caches().SelfUser(); ok {
 		return selfUser.ID
 	}
 	return 0

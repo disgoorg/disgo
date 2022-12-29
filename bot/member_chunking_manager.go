@@ -112,7 +112,7 @@ func (m *memberChunkingManagerImpl) HandleChunk(payload gateway.EventGuildMember
 
 	for _, member := range payload.Members {
 		// try to cache member
-		m.client.Caches().Members().Put(payload.GuildID, member.User.ID, member)
+		m.client.Caches().AddMember(member)
 		if request.memberFilterFunc != nil && !request.memberFilterFunc(member) {
 			continue
 		}
