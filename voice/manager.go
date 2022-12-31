@@ -9,20 +9,35 @@ import (
 )
 
 type (
+	// StateUpdateFunc is used to update the voice state of the bot from the Manager.
+	StateUpdateFunc func(ctx context.Context, guildID snowflake.ID, channelID *snowflake.ID, selfMute bool, selfDeaf bool) error
+
+	// Manager manages all voice connections.
 	Manager interface {
+		// HandleVoiceStateUpdate handles a gateway.EventVoiceStateUpdate
 		HandleVoiceStateUpdate(update gateway.EventVoiceStateUpdate)
+
+		// HandleVoiceServerUpdate handles a gateway.EventVoiceServerUpdate
 		HandleVoiceServerUpdate(update gateway.EventVoiceServerUpdate)
 
+		// CreateConn creates a new voice connection for the given guild and channel.
 		CreateConn(guildID snowflake.ID, channelID snowflake.ID) Conn
+
+		// GetConn returns the voice connection for the given guild.
 		GetConn(guildID snowflake.ID) Conn
+
+		// ForEachCon runs the given function for each voice connection. This is thread-safe.
 		ForEachCon(f func(connection Conn))
+
+		// RemoveConn removes the voice connection for the given guild.
 		RemoveConn(guildID snowflake.ID)
 
+		// Close closes all voice connections.
 		Close(ctx context.Context)
 	}
-	StateUpdateFunc func(ctx context.Context, guildID snowflake.ID, channelID *snowflake.ID, selfMute bool, selfDeaf bool) error
 )
 
+// NewManager creates a new Manager.
 func NewManager(voiceStateUpdateFunc StateUpdateFunc, userID snowflake.ID, opts ...ManagerConfigOpt) Manager {
 	config := DefaultManagerConfig()
 	config.Apply(opts)
