@@ -11,25 +11,37 @@ import (
 )
 
 var (
-	SilenceAudioFrames       = []byte{0xF8, 0xFF, 0xFE}
-	OpusFrameSize      int64 = 20
+	// SilenceAudioFrame is a 20ms opus frame of silence.
+	SilenceAudioFrame = []byte{0xF8, 0xFF, 0xFE}
+
+	// OpusFrameSize is the size of an opus frame in milliseconds.
+	OpusFrameSize int64 = 20
+
+	// OpusStreamBuffSize is the size of the buffer for receiving one opus frame.
 	OpusStreamBuffSize int64 = 4000
 )
 
 type (
+	// AudioSenderCreateFunc is used to create a new AudioSender sending audio to the given Conn.
 	AudioSenderCreateFunc func(logger log.Logger, provider OpusFrameProvider, conn Conn) AudioSender
 
+	// AudioSender is used to send audio to a Conn.
 	AudioSender interface {
 		Open()
 		Close()
 	}
 
+	// OpusFrameProvider is used to provide opus frames to an AudioSender.
 	OpusFrameProvider interface {
+		// ProvideOpusFrame provides an opus frame to the AudioSender.
 		ProvideOpusFrame() ([]byte, error)
+
+		// Close closes the OpusFrameProvider.
 		Close()
 	}
 )
 
+// NewAudioSender creates a new AudioSender sending audio from the given OpusFrameProvider to the given Conn.
 func NewAudioSender(logger log.Logger, opusProvider OpusFrameProvider, conn Conn) AudioSender {
 	return &defaultAudioSender{
 		logger:       logger,
@@ -88,7 +100,7 @@ func (s *defaultAudioSender) send() {
 	}
 	if len(opus) == 0 {
 		if s.silentFrames > 0 {
-			if _, err = s.conn.Conn().Write(SilenceAudioFrames); err != nil {
+			if _, err = s.conn.Conn().Write(SilenceAudioFrame); err != nil {
 				s.handleErr(err)
 			}
 			s.silentFrames--

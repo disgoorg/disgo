@@ -9,50 +9,52 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// ConnCreateFunc is a type alias for a function that creates a new Conn.
-type ConnCreateFunc func(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc StateUpdateFunc, removeConnFunc func(), opts ...ConnConfigOpt) Conn
+type (
+	// ConnCreateFunc is a type alias for a function that creates a new Conn.
+	ConnCreateFunc func(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc StateUpdateFunc, removeConnFunc func(), opts ...ConnConfigOpt) Conn
 
-// Conn is a complete voice conn to discord. It holds the Gateway and voiceudp.UDPConn conn and combines them.
-type Conn interface {
-	// Gateway returns the voice Gateway used by the voice Conn.
-	Gateway() Gateway
+	// Conn is a complete voice conn to discord. It holds the Gateway and voiceudp.UDPConn conn and combines them.
+	Conn interface {
+		// Gateway returns the voice Gateway used by the voice Conn.
+		Gateway() Gateway
 
-	// Conn returns the voiceudp.UDPConn conn used by the voice Conn.
-	Conn() UDPConn
+		// Conn returns the voiceudp.UDPConn conn used by the voice Conn.
+		Conn() UDPConn
 
-	// ChannelID returns the ID of the voice channel the voice Conn is openedChan to.
-	ChannelID() snowflake.ID
+		// ChannelID returns the ID of the voice channel the voice Conn is openedChan to.
+		ChannelID() snowflake.ID
 
-	// GuildID returns the ID of the guild the voice Conn is openedChan to.
-	GuildID() snowflake.ID
+		// GuildID returns the ID of the guild the voice Conn is openedChan to.
+		GuildID() snowflake.ID
 
-	// UserIDBySSRC returns the ID of the user for the given SSRC.
-	UserIDBySSRC(ssrc uint32) snowflake.ID
+		// UserIDBySSRC returns the ID of the user for the given SSRC.
+		UserIDBySSRC(ssrc uint32) snowflake.ID
 
-	// SetSpeaking sends a speaking packet to the Conn socket discord.
-	SetSpeaking(ctx context.Context, flags SpeakingFlags) error
+		// SetSpeaking sends a speaking packet to the Conn socket discord.
+		SetSpeaking(ctx context.Context, flags SpeakingFlags) error
 
-	// SetOpusFrameProvider lets you inject your own OpusFrameProvider.
-	SetOpusFrameProvider(handler OpusFrameProvider)
+		// SetOpusFrameProvider lets you inject your own OpusFrameProvider.
+		SetOpusFrameProvider(handler OpusFrameProvider)
 
-	// SetOpusFrameReceiver lets you inject your own OpusFrameReceiver.
-	SetOpusFrameReceiver(handler OpusFrameReceiver)
+		// SetOpusFrameReceiver lets you inject your own OpusFrameReceiver.
+		SetOpusFrameReceiver(handler OpusFrameReceiver)
 
-	// SetEventHandlerFunc lets listen for voice gateway events.
-	SetEventHandlerFunc(eventHandlerFunc EventHandlerFunc)
+		// SetEventHandlerFunc lets listen for voice gateway events.
+		SetEventHandlerFunc(eventHandlerFunc EventHandlerFunc)
 
-	// Open opens the voice conn. It will connect to the voice gateway and start the Conn conn after it receives the Gateway events.
-	Open(ctx context.Context, selfMute bool, selfDeaf bool) error
+		// Open opens the voice conn. It will connect to the voice gateway and start the Conn conn after it receives the Gateway events.
+		Open(ctx context.Context, selfMute bool, selfDeaf bool) error
 
-	// Close closes the voice conn. It will close the Conn conn and disconnect from the voice gateway.
-	Close(ctx context.Context)
+		// Close closes the voice conn. It will close the Conn conn and disconnect from the voice gateway.
+		Close(ctx context.Context)
 
-	// HandleVoiceStateUpdate provides the gateway.EventVoiceStateUpdate to the voice conn. Which is needed to connect to the voice Gateway.
-	HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdate)
+		// HandleVoiceStateUpdate provides the gateway.EventVoiceStateUpdate to the voice conn. Which is needed to connect to the voice Gateway.
+		HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdate)
 
-	// HandleVoiceServerUpdate provides the gateway.EventVoiceServerUpdate to the voice conn. Which is needed to connect to the voice Gateway.
-	HandleVoiceServerUpdate(update botgateway.EventVoiceServerUpdate)
-}
+		// HandleVoiceServerUpdate provides the gateway.EventVoiceServerUpdate to the voice conn. Which is needed to connect to the voice Gateway.
+		HandleVoiceServerUpdate(update botgateway.EventVoiceServerUpdate)
+	}
+)
 
 // NewConn returns a new default voice conn.
 func NewConn(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc StateUpdateFunc, removeConnFunc func(), opts ...ConnConfigOpt) Conn {

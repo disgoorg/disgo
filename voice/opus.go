@@ -8,6 +8,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
+// NewOpusReader returns a new OpusFrameProvider that reads opus frames from the given io.Reader.
 func NewOpusReader(r io.Reader) OpusFrameProvider {
 	return &opusReader{
 		r:    r,
@@ -37,6 +38,7 @@ func (h *opusReader) ProvideOpusFrame() ([]byte, error) {
 
 func (*opusReader) Close() {}
 
+// NewOpusWriter returns a new OpusFrameReceiver that writes opus frames to the given io.Writer.
 func NewOpusWriter(w io.Writer, userFilter UserFilterFunc) OpusFrameReceiver {
 	return &opusWriter{
 		w:          w,

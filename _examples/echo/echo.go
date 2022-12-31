@@ -73,7 +73,7 @@ func play(client bot.Client) {
 		panic("error setting speaking flag: " + err.Error())
 	}
 
-	if _, err := conn.Conn().Write(voice.SilenceAudioFrames); err != nil {
+	if _, err := conn.Conn().Write(voice.SilenceAudioFrame); err != nil {
 		panic("error sending silence: " + err.Error())
 	}
 	for {

@@ -29,8 +29,8 @@ var (
 	_ net.Conn       = (UDPConn)(nil)
 )
 
-// UDPConnCreateFunc is a function that creates a UDPConn.
 type (
+	// UDPConnCreateFunc is a function that creates a UDPConn.
 	UDPConnCreateFunc func(opts ...UDPConnConfigOpt) UDPConn
 
 	// UDPConn represents a UDP connection to discord voice servers. It is used to send/receive voice packets to/from discord.

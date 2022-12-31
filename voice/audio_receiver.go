@@ -9,22 +9,38 @@ import (
 )
 
 type (
+	// AudioReceiverCreateFunc is used to create a new AudioReceiver reading audio from the given Conn.
 	AudioReceiverCreateFunc func(logger log.Logger, receiver OpusFrameReceiver, connection Conn) AudioReceiver
-	UserFilterFunc          func(userID snowflake.ID) bool
 
+	// UserFilterFunc is used as a filter for which users to receive audio from.
+	UserFilterFunc func(userID snowflake.ID) bool
+
+	// AudioReceiver is used to receive audio from a voice connection and pass it to an OpusFrameReceiver.
 	AudioReceiver interface {
+		// Open starts receiving audio from the voice connection.
 		Open()
+
+		// CleanupUser cleans up any audio resources for the given user.
 		CleanupUser(userID snowflake.ID)
+
+		// Close stops receiving audio from the voice connection.
 		Close()
 	}
 
+	// OpusFrameReceiver is an interface used to receive opus frames from an AudioReceiver.
 	OpusFrameReceiver interface {
+		// ReceiveOpusFrame receives an opus frame.
 		ReceiveOpusFrame(userID snowflake.ID, packet *Packet) error
+
+		// CleanupUser cleans up any audio resources for the given user.
 		CleanupUser(userID snowflake.ID)
+
+		// Close stops receiving audio from the voice connection.
 		Close()
 	}
 )
 
+// NewAudioReceiver creates a new AudioReceiver reading audio to the given OpusFrameReceiver from the given Conn.
 func NewAudioReceiver(logger log.Logger, opusReceiver OpusFrameReceiver, conn Conn) AudioReceiver {
 	return &defaultAudioReceiver{
 		logger:       logger,
