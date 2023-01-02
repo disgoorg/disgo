@@ -77,7 +77,7 @@ func (s *defaultAudioReceiver) CleanupUser(userID snowflake.ID) {
 }
 
 func (s *defaultAudioReceiver) receive() {
-	packet, err := s.conn.Conn().ReadPacket()
+	packet, err := s.conn.UDP().ReadPacket()
 	if err == net.ErrClosed {
 		s.Close()
 		return

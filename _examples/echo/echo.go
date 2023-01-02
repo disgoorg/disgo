@@ -53,11 +53,11 @@ func main() {
 }
 
 func play(client bot.Client) {
-	conn := client.VoiceManager().CreateConn(guildID, channelID)
+	conn := client.VoiceManager().CreateConn(guildID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	if err := conn.Open(ctx, false, false); err != nil {
+	if err := conn.Open(ctx, channelID, false, false); err != nil {
 		panic("error connecting to voice channel: " + err.Error())
 	}
 
@@ -73,11 +73,11 @@ func play(client bot.Client) {
 		panic("error setting speaking flag: " + err.Error())
 	}
 
-	if _, err := conn.Conn().Write(voice.SilenceAudioFrame); err != nil {
+	if _, err := conn.UDP().Write(voice.SilenceAudioFrame); err != nil {
 		panic("error sending silence: " + err.Error())
 	}
 	for {
-		packet, err := conn.Conn().ReadPacket()
+		packet, err := conn.UDP().ReadPacket()
 		if err != nil {
 			if errors.Is(err, net.ErrClosed) {
 				println("connection closed")
@@ -86,7 +86,7 @@ func play(client bot.Client) {
 			fmt.Printf("error while reading from reader: %s", err)
 			continue
 		}
-		if _, err = conn.Conn().Write(packet.Opus); err != nil {
+		if _, err = conn.UDP().Write(packet.Opus); err != nil {
 			if errors.Is(err, net.ErrClosed) {
 				println("connection closed")
 				return

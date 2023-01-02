@@ -18,12 +18,17 @@ import (
 )
 
 var (
-	ErrGatewayNotConnected     = fmt.Errorf("voice gateway not connected")
+	// ErrGatewayNotConnected is returned when the gateway is not connected and a message is attempted to be sent.
+	ErrGatewayNotConnected = fmt.Errorf("voice gateway not connected")
+
+	// ErrGatewayAlreadyConnected is returned when the gateway is already connected and a connection is attempted to be opened.
 	ErrGatewayAlreadyConnected = fmt.Errorf("voice gateway already connected")
 )
 
-var Version = 4
+// GatewayVersion is the version of the voice gateway we are using.
+const GatewayVersion = 4
 
+// Status returns the current status of the gateway.
 type Status int
 
 const (
@@ -38,38 +43,58 @@ const (
 )
 
 type (
-	EventHandlerFunc  func(opCode Opcode, data GatewayMessageData)
-	CloseHandlerFunc  func(gateway Gateway, err error)
+	// EventHandlerFunc is a function that handles a voice gateway event.
+	EventHandlerFunc func(opCode Opcode, data GatewayMessageData)
+
+	// CloseHandlerFunc is a function that handles a voice gateway close.
+	CloseHandlerFunc func(gateway Gateway, err error)
+
+	// GatewayCreateFunc is a function that creates a new voice gateway.
 	GatewayCreateFunc func(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway
+
+	// StateProviderFunc is a function that provides the current conn state of the voice gateway.
+	StateProviderFunc func() State
 )
 
+// State is the current state of the voice conn.
 type State struct {
 	GuildID snowflake.ID
 	UserID  snowflake.ID
 
-	ChannelID snowflake.ID
+	ChannelID *snowflake.ID
 	SessionID string
 	Token     string
 	Endpoint  string
 }
 
+// Gateway is a websocket connection to the Discord voice gateway.
 type Gateway interface {
+	// SSRC returns the SSRC of the current voice connection.
 	SSRC() uint32
+
+	// Latency returns the current latency of the voice gateway connection.
 	Latency() time.Duration
 
+	// Open opens a new websocket connection to the voice gateway.
 	Open(ctx context.Context, state State) error
+
+	// Close closes the websocket connection to the voice gateway.
 	Close()
+
+	// CloseWithCode closes the websocket connection to the voice gateway with a specific close code.
 	CloseWithCode(code int, message string)
 
+	// Send sends a message to the voice gateway.
 	Send(ctx context.Context, opCode Opcode, data GatewayMessageData) error
 }
 
+// NewGateway creates a new voice Gateway.
 func NewGateway(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway {
 	config := DefaultGatewayConfig()
 	config.Apply(opts)
 
 	return &gatewayImpl{
-		config:           config,
+		config:           *config,
 		eventHandlerFunc: eventHandlerFunc,
 		closeHandlerFunc: closeHandlerFunc,
 	}
@@ -109,7 +134,7 @@ func (g *gatewayImpl) Open(ctx context.Context, state State) error {
 	}
 	g.status = StatusConnecting
 
-	gatewayURL := fmt.Sprintf("wss://%s?v=%d", state.Endpoint, Version)
+	gatewayURL := fmt.Sprintf("wss://%s?v=%d", state.Endpoint, GatewayVersion)
 	g.config.Logger.Debugf("connecting to voice gateway at: %s", gatewayURL)
 	g.lastHeartbeatSent = time.Now().UTC()
 	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
@@ -233,7 +258,6 @@ loop:
 			go g.heartbeat()
 
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-
 			if g.ssrc == 0 {
 				g.status = StatusIdentifying
 				err = g.Send(ctx, OpcodeIdentify, GatewayMessageDataIdentify{

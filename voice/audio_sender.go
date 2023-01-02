@@ -100,7 +100,7 @@ func (s *defaultAudioSender) send() {
 	}
 	if len(opus) == 0 {
 		if s.silentFrames > 0 {
-			if _, err = s.conn.Conn().Write(SilenceAudioFrame); err != nil {
+			if _, err = s.conn.UDP().Write(SilenceAudioFrame); err != nil {
 				s.handleErr(err)
 			}
 			s.silentFrames--
@@ -127,7 +127,7 @@ func (s *defaultAudioSender) send() {
 		s.silentFrames = 5
 	}
 
-	if _, err = s.conn.Conn().Write(opus); err != nil {
+	if _, err = s.conn.UDP().Write(opus); err != nil {
 		s.handleErr(err)
 	}
 }

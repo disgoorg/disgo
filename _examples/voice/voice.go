@@ -59,11 +59,11 @@ func main() {
 }
 
 func play(client bot.Client, closeChan chan os.Signal) {
-	conn := client.VoiceManager().CreateConn(guildID, channelID)
+	conn := client.VoiceManager().CreateConn(guildID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
-	if err := conn.Open(ctx, false, false); err != nil {
+	if err := conn.Open(ctx, channelID, false, false); err != nil {
 		panic("error connecting to voice channel: " + err.Error())
 	}
 	defer func() {
@@ -75,7 +75,7 @@ func play(client bot.Client, closeChan chan os.Signal) {
 	if err := conn.SetSpeaking(ctx, voice.SpeakingFlagMicrophone); err != nil {
 		panic("error setting speaking flag: " + err.Error())
 	}
-	writeOpus(conn.Conn())
+	writeOpus(conn.UDP())
 	closeChan <- syscall.SIGTERM
 }
 

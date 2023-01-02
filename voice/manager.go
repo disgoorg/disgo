@@ -20,8 +20,8 @@ type (
 		// HandleVoiceServerUpdate handles a gateway.EventVoiceServerUpdate
 		HandleVoiceServerUpdate(update gateway.EventVoiceServerUpdate)
 
-		// CreateConn creates a new voice connection for the given guild and channel.
-		CreateConn(guildID snowflake.ID, channelID snowflake.ID) Conn
+		// CreateConn creates a new voice connection for the given guild.
+		CreateConn(guildID snowflake.ID) Conn
 
 		// GetConn returns the voice connection for the given guild.
 		GetConn(guildID snowflake.ID) Conn
@@ -78,8 +78,8 @@ func (m *managerImpl) HandleVoiceServerUpdate(update gateway.EventVoiceServerUpd
 	conn.HandleVoiceServerUpdate(update)
 }
 
-func (m *managerImpl) CreateConn(guildID snowflake.ID, channelID snowflake.ID) Conn {
-	m.config.Logger.Debugf("Creating new voice conn for guild: %s, channel: %s", guildID, channelID)
+func (m *managerImpl) CreateConn(guildID snowflake.ID) Conn {
+	m.config.Logger.Debugf("Creating new voice conn for guild: %s", guildID)
 	if conn := m.GetConn(guildID); conn != nil {
 		return conn
 	}
@@ -90,7 +90,7 @@ func (m *managerImpl) CreateConn(guildID snowflake.ID, channelID snowflake.ID) C
 	var once sync.Once
 	removeFunc := func() { once.Do(func() { m.RemoveConn(guildID) }) }
 
-	conn := m.config.ConnCreateFunc(guildID, channelID, m.userID, m.voiceStateUpdateFunc, removeFunc, append([]ConnConfigOpt{WithConnLogger(m.config.Logger)}, m.config.ConnOpts...)...)
+	conn := m.config.ConnCreateFunc(guildID, m.userID, m.voiceStateUpdateFunc, removeFunc, append([]ConnConfigOpt{WithConnLogger(m.config.Logger)}, m.config.ConnOpts...)...)
 	m.conns[guildID] = conn
 
 	return conn

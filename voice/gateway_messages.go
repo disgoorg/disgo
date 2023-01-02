@@ -7,11 +7,13 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
+// GatewayMessage represents a voice gateway message
 type GatewayMessage struct {
 	Op Opcode             `json:"op"`
 	D  GatewayMessageData `json:"d,omitempty"`
 }
 
+// UnmarshalJSON unmarshalls the GatewayMessage from json
 func (m *GatewayMessage) UnmarshalJSON(data []byte) error {
 	var v struct {
 		Op Opcode          `json:"op"`
@@ -94,6 +96,7 @@ func (m *GatewayMessage) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// GatewayMessageData represents a voice gateway message data.
 type GatewayMessageData interface {
 	voiceGatewayMessageData()
 }

@@ -11,18 +11,18 @@ import (
 
 type (
 	// ConnCreateFunc is a type alias for a function that creates a new Conn.
-	ConnCreateFunc func(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc StateUpdateFunc, removeConnFunc func(), opts ...ConnConfigOpt) Conn
+	ConnCreateFunc func(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc StateUpdateFunc, removeConnFunc func(), opts ...ConnConfigOpt) Conn
 
 	// Conn is a complete voice conn to discord. It holds the Gateway and voiceudp.UDPConn conn and combines them.
 	Conn interface {
 		// Gateway returns the voice Gateway used by the voice Conn.
 		Gateway() Gateway
 
-		// Conn returns the voiceudp.UDPConn conn used by the voice Conn.
-		Conn() UDPConn
+		// UDP returns the voice UDPConn conn used by the voice Conn.
+		UDP() UDPConn
 
 		// ChannelID returns the ID of the voice channel the voice Conn is openedChan to.
-		ChannelID() snowflake.ID
+		ChannelID() *snowflake.ID
 
 		// GuildID returns the ID of the guild the voice Conn is openedChan to.
 		GuildID() snowflake.ID
@@ -43,7 +43,7 @@ type (
 		SetEventHandlerFunc(eventHandlerFunc EventHandlerFunc)
 
 		// Open opens the voice conn. It will connect to the voice gateway and start the Conn conn after it receives the Gateway events.
-		Open(ctx context.Context, selfMute bool, selfDeaf bool) error
+		Open(ctx context.Context, channelID snowflake.ID, selfMute bool, selfDeaf bool) error
 
 		// Close closes the voice conn. It will close the Conn conn and disconnect from the voice gateway.
 		Close(ctx context.Context)
@@ -57,7 +57,7 @@ type (
 )
 
 // NewConn returns a new default voice conn.
-func NewConn(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc StateUpdateFunc, removeConnFunc func(), opts ...ConnConfigOpt) Conn {
+func NewConn(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc StateUpdateFunc, removeConnFunc func(), opts ...ConnConfigOpt) Conn {
 	config := DefaultConnConfig()
 	config.Apply(opts)
 
@@ -66,9 +66,8 @@ func NewConn(guildID snowflake.ID, channelID snowflake.ID, userID snowflake.ID, 
 		voiceStateUpdateFunc: voiceStateUpdateFunc,
 		removeConnFunc:       removeConnFunc,
 		state: State{
-			GuildID:   guildID,
-			UserID:    userID,
-			ChannelID: channelID,
+			GuildID: guildID,
+			UserID:  userID,
 		},
 		openedChan: make(chan struct{}, 1),
 		closedChan: make(chan struct{}, 1),
@@ -89,9 +88,6 @@ type connImpl struct {
 	state   State
 	stateMu sync.Mutex
 
-	selfMute bool
-	selfDeaf bool
-
 	gateway Gateway
 	udp     UDPConn
 
@@ -105,7 +101,7 @@ type connImpl struct {
 	ssrcsMu sync.Mutex
 }
 
-func (c *connImpl) ChannelID() snowflake.ID {
+func (c *connImpl) ChannelID() *snowflake.ID {
 	return c.state.ChannelID
 }
 
@@ -130,7 +126,7 @@ func (c *connImpl) SetSpeaking(ctx context.Context, flags SpeakingFlags) error {
 	})
 }
 
-func (c *connImpl) Conn() UDPConn {
+func (c *connImpl) UDP() UDPConn {
 	return c.udp
 }
 
@@ -160,7 +156,7 @@ func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdat
 	}
 
 	if update.ChannelID == nil {
-		c.state.ChannelID = 0
+		c.state.ChannelID = nil
 		if c.audioSender != nil {
 			c.audioSender.Close()
 			c.audioSender = nil
@@ -169,11 +165,11 @@ func (c *connImpl) HandleVoiceStateUpdate(update botgateway.EventVoiceStateUpdat
 			c.audioReceiver.Close()
 			c.audioReceiver = nil
 		}
-		c.udp.Close()
+		_ = c.udp.Close()
 		c.gateway.Close()
 		c.closedChan <- struct{}{}
 	} else {
-		c.state.ChannelID = *update.ChannelID
+		c.state.ChannelID = update.ChannelID
 	}
 	c.state.SessionID = update.SessionID
 }
@@ -188,7 +184,9 @@ func (c *connImpl) HandleVoiceServerUpdate(update botgateway.EventVoiceServerUpd
 	c.state.Token = update.Token
 	c.state.Endpoint = *update.Endpoint
 	go func() {
-		if err := c.gateway.Open(context.Background(), c.state); err != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := c.gateway.Open(ctx, c.state); err != nil {
 			c.config.Logger.Error("error opening voice gateway. error: ", err)
 		}
 	}()
@@ -246,18 +244,12 @@ func (c *connImpl) handleGatewayClose(gateway Gateway, err error) {
 	c.Close(ctx)
 }
 
-func (c *connImpl) Open(ctx context.Context, selfMute bool, selfDeaf bool) error {
+func (c *connImpl) Open(ctx context.Context, channelID snowflake.ID, selfMute bool, selfDeaf bool) error {
 	c.config.Logger.Debug("opening voice conn")
 
-	c.selfMute = selfMute
-	c.selfDeaf = selfDeaf
-	c.stateMu.Lock()
-
-	if err := c.voiceStateUpdateFunc(ctx, c.state.GuildID, &c.state.ChannelID, selfMute, selfDeaf); err != nil {
-		c.stateMu.Unlock()
+	if err := c.voiceStateUpdateFunc(ctx, c.state.GuildID, &channelID, selfMute, selfDeaf); err != nil {
 		return err
 	}
-	c.stateMu.Unlock()
 
 	select {
 	case <-c.openedChan:
@@ -268,7 +260,7 @@ func (c *connImpl) Open(ctx context.Context, selfMute bool, selfDeaf bool) error
 }
 
 func (c *connImpl) Close(ctx context.Context) {
-	_ = c.voiceStateUpdateFunc(ctx, c.state.GuildID, nil, c.selfMute, c.selfDeaf)
+	_ = c.voiceStateUpdateFunc(ctx, c.state.GuildID, nil, false, false)
 	defer c.gateway.Close()
 	defer c.udp.Close()
 
