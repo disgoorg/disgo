@@ -141,8 +141,6 @@ or in these projects:
 
 ## Libraries for DisGo
 
-* [handler](https://github.com/disgoorg/handler) is a simple application command, component and modal handler library.
-
 * [disgomd](https://github.com/eminarican/disgomd) is a command utility library that uses struct based approach
 
 
