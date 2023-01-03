@@ -77,17 +77,17 @@ func (r *mux) Match(path string, t discord.InteractionType) bool {
 	return false
 }
 
-func (r *mux) Handle(path string, variables map[string]string, event *events.InteractionCreate) error {
+func (r *mux) Handle(path string, variables map[string]string, e *events.InteractionCreate) error {
 	path = parseVariables(path, r.pattern, variables)
-	handler := func(event *events.InteractionCreate) {}
+	middlewares := func(event *events.InteractionCreate) {}
 	for i := len(r.middlewares) - 1; i >= 0; i-- {
-		handler = r.middlewares[i](handler)
+		middlewares = r.middlewares[i](middlewares)
 	}
-	handler(event)
+	middlewares(e)
 
 	for _, route := range r.routes {
-		if route.Match(path, event.Type()) {
-			return route.Handle(path, variables, event)
+		if route.Match(path, e.Type()) {
+			return route.Handle(path, variables, e)
 		}
 	}
 	return nil
@@ -181,15 +181,16 @@ func splitPath(path string) []string {
 }
 
 func parseVariables(path string, pattern string, variables map[string]string) string {
-	if pattern != "" {
-		parts := splitPath(path)
-		patternParts := splitPath(pattern)
+	if pattern == "" {
+		return path
+	}
+	parts := splitPath(path)
+	patternParts := splitPath(pattern)
 
-		for i := range patternParts {
-			path = strings.TrimPrefix(path, "/"+parts[i])
-			if strings.HasPrefix(patternParts[i], "{") && strings.HasSuffix(patternParts[i], "}") {
-				variables[patternParts[i][1:len(patternParts[i])-1]] = parts[i]
-			}
+	for i := range patternParts {
+		path = strings.TrimPrefix(path, "/"+parts[i])
+		if strings.HasPrefix(patternParts[i], "{") && strings.HasSuffix(patternParts[i], "}") {
+			variables[patternParts[i][1:len(patternParts[i])-1]] = parts[i]
 		}
 	}
 	return path

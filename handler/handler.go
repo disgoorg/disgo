@@ -38,7 +38,7 @@ func (h *handlerHolder[T]) Handle(path string, variables map[string]string, even
 
 	switch handler := any(h.handler).(type) {
 	case CommandHandler:
-		return handler(event.Client(), &CommandEvent{
+		return handler(&CommandEvent{
 			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
 				GenericEvent:                  event.GenericEvent,
 				ApplicationCommandInteraction: event.Interaction.(discord.ApplicationCommandInteraction),
@@ -47,7 +47,7 @@ func (h *handlerHolder[T]) Handle(path string, variables map[string]string, even
 			Variables: variables,
 		})
 	case AutocompleteHandler:
-		return handler(event.Client(), &AutocompleteEvent{
+		return handler(&AutocompleteEvent{
 			AutocompleteInteractionCreate: &events.AutocompleteInteractionCreate{
 				GenericEvent:            event.GenericEvent,
 				AutocompleteInteraction: event.Interaction.(discord.AutocompleteInteraction),
@@ -56,7 +56,7 @@ func (h *handlerHolder[T]) Handle(path string, variables map[string]string, even
 			Variables: variables,
 		})
 	case ComponentHandler:
-		return handler(event.Client(), &ComponentEvent{
+		return handler(&ComponentEvent{
 			ComponentInteractionCreate: &events.ComponentInteractionCreate{
 				GenericEvent:         event.GenericEvent,
 				ComponentInteraction: event.Interaction.(discord.ComponentInteraction),
@@ -65,7 +65,7 @@ func (h *handlerHolder[T]) Handle(path string, variables map[string]string, even
 			Variables: variables,
 		})
 	case ModalHandler:
-		return handler(event.Client(), &ModalEvent{
+		return handler(&ModalEvent{
 			ModalSubmitInteractionCreate: &events.ModalSubmitInteractionCreate{
 				GenericEvent:           event.GenericEvent,
 				ModalSubmitInteraction: event.Interaction.(discord.ModalSubmitInteraction),

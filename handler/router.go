@@ -7,10 +7,10 @@ import (
 )
 
 type (
-	CommandHandler      func(client bot.Client, event *CommandEvent) error
-	AutocompleteHandler func(client bot.Client, event *AutocompleteEvent) error
-	ComponentHandler    func(client bot.Client, event *ComponentEvent) error
-	ModalHandler        func(client bot.Client, event *ModalEvent) error
+	CommandHandler      func(e *CommandEvent) error
+	AutocompleteHandler func(e *AutocompleteEvent) error
+	ComponentHandler    func(e *ComponentEvent) error
+	ModalHandler        func(e *ModalEvent) error
 )
 
 var (
@@ -23,7 +23,7 @@ type Route interface {
 	Match(path string, t discord.InteractionType) bool
 
 	// Handle handles the given interaction event.
-	Handle(path string, variables map[string]string, event *events.InteractionCreate) error
+	Handle(path string, variables map[string]string, e *events.InteractionCreate) error
 }
 
 type Router interface {

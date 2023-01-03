@@ -6,8 +6,8 @@ import (
 )
 
 var Logger handler.Middleware = func(next handler.Handler) handler.Handler {
-	return func(event *events.InteractionCreate) {
-		event.Client().Logger().Infof("handling interaction: %s\n", event.Interaction.ID())
-		next(event)
+	return func(e *events.InteractionCreate) {
+		e.Client().Logger().Infof("handling interaction: %s\n", e.Interaction.ID())
+		next(e)
 	}
 }
