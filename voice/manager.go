@@ -42,7 +42,7 @@ func NewManager(voiceStateUpdateFunc StateUpdateFunc, userID snowflake.ID, opts 
 	config := DefaultManagerConfig()
 	config.Apply(opts)
 	return &managerImpl{
-		config:               config,
+		config:               *config,
 		voiceStateUpdateFunc: voiceStateUpdateFunc,
 		userID:               userID,
 		conns:                map[snowflake.ID]Conn{},
