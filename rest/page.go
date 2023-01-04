@@ -52,12 +52,28 @@ func (p *Page[T]) Previous() bool {
 }
 
 type AuditLogPage struct {
-	getItems func(before snowflake.ID) (discord.AuditLog, error)
+	getItems func(before snowflake.ID, after snowflake.ID) (discord.AuditLog, error)
 
 	discord.AuditLog
 	Err error
 
 	ID snowflake.ID
+}
+
+func (p *AuditLogPage) Next() bool {
+	if p.Err != nil {
+		return false
+	}
+
+	if len(p.AuditLogEntries) > 0 {
+		p.ID = p.AuditLogEntries[0].ID
+	}
+
+	p.AuditLog, p.Err = p.getItems(0, p.ID)
+	if p.Err == nil && len(p.AuditLogEntries) == 0 {
+		p.Err = ErrNoMorePages
+	}
+	return p.Err == nil
 }
 
 func (p *AuditLogPage) Previous() bool {
@@ -69,7 +85,7 @@ func (p *AuditLogPage) Previous() bool {
 		p.ID = p.AuditLogEntries[len(p.AuditLogEntries)-1].ID
 	}
 
-	p.AuditLog, p.Err = p.getItems(p.ID)
+	p.AuditLog, p.Err = p.getItems(p.ID, 0)
 	if p.Err == nil && len(p.AuditLogEntries) == 0 {
 		p.Err = ErrNoMorePages
 	}
