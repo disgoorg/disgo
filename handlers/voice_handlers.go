@@ -17,6 +17,10 @@ func gatewayHandlerVoiceStateUpdate(client bot.Client, sequenceNumber int, shard
 	}
 	client.Caches().AddMember(member)
 
+	if event.UserID == client.ID() && client.VoiceManager() != nil {
+		client.VoiceManager().HandleVoiceStateUpdate(event)
+	}
+
 	genericGuildVoiceEvent := &events.GenericGuildVoiceState{
 		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 		VoiceState:   event.VoiceState,
@@ -48,6 +52,10 @@ func gatewayHandlerVoiceStateUpdate(client bot.Client, sequenceNumber int, shard
 }
 
 func gatewayHandlerVoiceServerUpdate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventVoiceServerUpdate) {
+	if client.VoiceManager() != nil {
+		client.VoiceManager().HandleVoiceServerUpdate(event)
+	}
+
 	client.EventManager().DispatchEvent(&events.VoiceServerUpdate{
 		GenericEvent:           events.NewGenericEvent(client, sequenceNumber, shardID),
 		EventVoiceServerUpdate: event,

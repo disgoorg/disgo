@@ -167,7 +167,6 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message strin
 			g.config.LastSequenceReceived = nil
 		}
 	}
-
 }
 
 func (g *gatewayImpl) Status() Status {
@@ -370,10 +369,9 @@ loop:
 
 		switch event.Op {
 		case OpcodeHello:
+			g.heartbeatInterval = time.Duration(event.D.(MessageDataHello).HeartbeatInterval) * time.Millisecond
 			g.lastHeartbeatReceived = time.Now().UTC()
 			go g.heartbeat()
-
-			g.heartbeatInterval = time.Duration(event.D.(MessageDataHello).HeartbeatInterval) * time.Millisecond
 
 			if g.config.LastSequenceReceived == nil || g.config.SessionID == nil {
 				g.identify()

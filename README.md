@@ -47,10 +47,10 @@ After v1 is released breaking changes may only happen if the Discord API require
 * [OAuth2](https://discord.com/developers/docs/topics/oauth2)
 * [Threads](https://discord.com/developers/docs/topics/threads)
 * [Guild Scheduled Event](https://discord.com/developers/docs/resources/guild-scheduled-event)
+* [Voice](https://discord.com/developers/docs/topics/voice-connections)
 
 ### Missing Features
 
-* [Voice](https://discord.com/developers/docs/topics/voice-connections) (https://github.com/disgoorg/disgo/pull/164)
 * [RPC](https://discord.com/developers/docs/topics/rpc) (https://github.com/disgoorg/disgo/pull/170)
 
 ## Getting Started
@@ -58,7 +58,7 @@ After v1 is released breaking changes may only happen if the Discord API require
 ### Installing
 
 ```sh
-go get github.com/disgoorg/disgo
+$ go get github.com/disgoorg/disgo
 ```
 
 ### Building a DisGo Instance
