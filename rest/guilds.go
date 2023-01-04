@@ -254,7 +254,7 @@ func (s *guildImpl) GetAuditLog(guildID snowflake.ID, userID snowflake.ID, actio
 		values["action_type"] = actionType
 	}
 	if before != 0 {
-		values["before"] = guildID
+		values["before"] = before
 	}
 	if limit != 0 {
 		values["limit"] = limit
