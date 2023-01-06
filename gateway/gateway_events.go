@@ -14,6 +14,12 @@ type EventData interface {
 	eventData()
 }
 
+// EventUnknown is a event that is not known to disgo
+type EventUnknown json.RawMessage
+
+func (EventUnknown) messageData() {}
+func (EventUnknown) eventData()   {}
+
 // EventReady is the event sent by discord when you successfully Identify
 type EventReady struct {
 	Version          int                        `json:"v"`

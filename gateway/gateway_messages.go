@@ -1,8 +1,6 @@
 package gateway
 
 import (
-	"fmt"
-
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
@@ -82,7 +80,9 @@ func (e *Message) UnmarshalJSON(data []byte) error {
 	case OpcodeHeartbeatACK:
 
 	default:
-		err = fmt.Errorf("unknown opcode %d", v.Op)
+		var d MessageDataUnknown
+		err = json.Unmarshal(v.D, &d)
+		messageData = d
 	}
 	if err != nil {
 		return err
@@ -404,11 +404,17 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 		eventData = d
 
 	default:
-		err = fmt.Errorf("unknown event type: %s", eventType)
+		var d EventUnknown
+		err = json.Unmarshal(data, &d)
+		eventData = d
 	}
 
 	return eventData, err
 }
+
+type MessageDataUnknown json.RawMessage
+
+func (MessageDataUnknown) messageData() {}
 
 // MessageDataHeartbeat is used to ensure the websocket connection remains open, and disconnect if not.
 type MessageDataHeartbeat int
