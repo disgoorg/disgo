@@ -230,7 +230,7 @@ type AuditLogChangeKey struct {
 	ID                          *snowflake.ID               `json:"id"`
 	Type                        any                         `json:"type"`
 	EnableEmoticons             *bool                       `json:"enable_emoticons"`
-	ExpireBehavior              *int                        `json:"expire_behavior"`
+	ExpireBehavior              *IntegrationExpireBehavior  `json:"expire_behavior"`
 	ExpireGracePeriod           *int                        `json:"expire_grace_period"`
 	UserLimit                   *int                        `json:"user_limit"`
 	PrivacyLevel                *StagePrivacyLevel          `json:"privacy_level"`
