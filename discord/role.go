@@ -51,6 +51,7 @@ type RoleTag struct {
 	BotID             *snowflake.ID `json:"bot_id,omitempty"`
 	IntegrationID     *snowflake.ID `json:"integration_id,omitempty"`
 	PremiumSubscriber bool          `json:"premium_subscriber"`
+	GuildConnections  bool          `json:"guild_connections"`
 }
 
 // RoleCreate is the payload to create a Role
