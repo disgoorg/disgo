@@ -40,11 +40,11 @@ const (
 	MessageTypeAutoModerationAction
 	_
 	MessageTypeInteractionPremiumUpsell
-	MessageTypeStageStart
-	MessageTypeStageEnd
-	MessageTypeStageSpeaker
-	MessageTypeStageRaiseHand
-	MessageTypeStageTopic
+	_
+	_
+	_
+	_
+	_
 	MessageTypeGuildApplicationPremiumSubscription
 )
 
