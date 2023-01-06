@@ -25,8 +25,12 @@ func gatewayHandlerGuildStickersUpdate(client bot.Client, sequenceNumber int, sh
 	}
 
 	createdStickers := map[snowflake.ID]discord.Sticker{}
-	deletedStickers := client.Caches().Stickers().MapGroupAll(event.GuildID)
+	deletedStickers := map[snowflake.ID]discord.Sticker{}
 	updatedStickers := map[snowflake.ID]updatedSticker{}
+
+	client.Caches().StickersForEach(event.GuildID, func(sticker discord.Sticker) {
+		deletedStickers[sticker.ID] = sticker
+	})
 
 	for _, newSticker := range event.Stickers {
 		oldSticker, ok := deletedStickers[newSticker.ID]

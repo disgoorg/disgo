@@ -39,6 +39,10 @@
 // OAuth2
 //
 // Package oauth2 provides a high level client interface for interacting with Discord oauth2.
+//
+// Voice
+//
+// Package voice provides a high level client interface for interacting with Discord voice.
 package disgo
 
 import (
@@ -53,9 +57,10 @@ import (
 const (
 	// Name is the library name
 	Name = "disgo"
-
+	// Module is the library module name
+	Module = "github.com/disgoorg/disgo"
 	// GitHub is a link to the libraries GitHub repository
-	GitHub = "https://github.com/disgoorg/" + Name
+	GitHub = "https://github.com/disgoorg/disgo"
 )
 
 var (
@@ -70,7 +75,7 @@ func getVersion() string {
 	bi, ok := debug.ReadBuildInfo()
 	if ok {
 		for _, dep := range bi.Deps {
-			if strings.Contains(GitHub, dep.Path) {
+			if dep.Path == Module {
 				return dep.Version
 			}
 		}

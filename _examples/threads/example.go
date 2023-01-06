@@ -28,7 +28,7 @@ func main() {
 			gateway.WithIntents(gateway.IntentsAll),
 		),
 		bot.WithCacheConfigOpts(
-			cache.WithCacheFlags(cache.FlagsAll),
+			cache.WithCaches(cache.FlagsAll),
 		),
 		bot.WithMemberChunkingFilter(bot.MemberChunkingFilterAll),
 		bot.WithEventListeners(&events.ListenerAdapter{

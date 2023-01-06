@@ -9,27 +9,28 @@ import (
 )
 
 type Application struct {
-	ID                    snowflake.ID        `json:"id"`
-	Name                  string              `json:"name"`
-	Icon                  *string             `json:"icon,omitempty"`
-	Description           string              `json:"description"`
-	RPCOrigins            []string            `json:"rpc_origins"`
-	BotPublic             bool                `json:"bot_public"`
-	BotRequireCodeGrant   bool                `json:"bot_require_code_grant"`
-	TermsOfServiceURL     *string             `json:"terms_of_service_url,omitempty"`
-	PrivacyPolicyURL      *string             `json:"privacy_policy_url,omitempty"`
-	CustomInstallationURL *string             `json:"custom_install_url,omitempty"`
-	InstallationParams    *InstallationParams `json:"install_params"`
-	Tags                  []string            `json:"tags"`
-	Owner                 *User               `json:"owner,omitempty"`
-	Summary               string              `json:"summary"`
-	VerifyKey             string              `json:"verify_key"`
-	Team                  *Team               `json:"team,omitempty"`
-	GuildID               *snowflake.ID       `json:"guild_id,omitempty"`
-	PrimarySkuID          *snowflake.ID       `json:"primary_sku_id,omitempty"`
-	Slug                  *string             `json:"slug,omitempty"`
-	Cover                 *string             `json:"cover_image,omitempty"`
-	Flags                 ApplicationFlags    `json:"flags,omitempty"`
+	ID                             snowflake.ID     `json:"id"`
+	Name                           string           `json:"name"`
+	Icon                           *string          `json:"icon,omitempty"`
+	Description                    string           `json:"description"`
+	RPCOrigins                     []string         `json:"rpc_origins"`
+	BotPublic                      bool             `json:"bot_public"`
+	BotRequireCodeGrant            bool             `json:"bot_require_code_grant"`
+	TermsOfServiceURL              *string          `json:"terms_of_service_url,omitempty"`
+	PrivacyPolicyURL               *string          `json:"privacy_policy_url,omitempty"`
+	CustomInstallURL               *string          `json:"custom_install_url,omitempty"`
+	RoleConnectionsVerificationURL *string          `json:"role_connections_verification_url"`
+	InstallParams                  *InstallParams   `json:"install_params"`
+	Tags                           []string         `json:"tags"`
+	Owner                          *User            `json:"owner,omitempty"`
+	Summary                        string           `json:"summary"`
+	VerifyKey                      string           `json:"verify_key"`
+	Team                           *Team            `json:"team,omitempty"`
+	GuildID                        *snowflake.ID    `json:"guild_id,omitempty"`
+	PrimarySkuID                   *snowflake.ID    `json:"primary_sku_id,omitempty"`
+	Slug                           *string          `json:"slug,omitempty"`
+	CoverImage                     *string          `json:"cover_image,omitempty"`
+	Flags                          ApplicationFlags `json:"flags,omitempty"`
 }
 
 func (a Application) IconURL(opts ...CDNOpt) *string {
@@ -40,11 +41,11 @@ func (a Application) IconURL(opts ...CDNOpt) *string {
 	return &url
 }
 
-func (a Application) CoverURL(opts ...CDNOpt) *string {
-	if a.Cover == nil {
+func (a Application) CoverImageURL(opts ...CDNOpt) *string {
+	if a.CoverImage == nil {
 		return nil
 	}
-	url := formatAssetURL(ApplicationCover, opts, a.ID, *a.Cover)
+	url := formatAssetURL(ApplicationCover, opts, a.ID, *a.CoverImage)
 	return &url
 }
 
@@ -64,7 +65,7 @@ type AuthorizationInformation struct {
 	User        *User         `json:"user"`
 }
 
-type InstallationParams struct {
+type InstallParams struct {
 	Scopes      []OAuth2Scope `json:"scopes"`
 	Permissions Permissions   `json:"permissions"`
 }
@@ -100,13 +101,14 @@ const (
 	OAuth2ScopeGuildsMembersRead OAuth2Scope = "guilds.members.read"
 	OAuth2ScopeGDMJoin           OAuth2Scope = "gdm.join"
 
-	OAuth2ScopeRelationshipsRead OAuth2Scope = "relationships.read"
-	OAuth2ScopeIdentify          OAuth2Scope = "identify"
-	OAuth2ScopeEmail             OAuth2Scope = "email"
-	OAuth2ScopeConnections       OAuth2Scope = "connections"
-	OAuth2ScopeBot               OAuth2Scope = "bot"
-	OAuth2ScopeMessagesRead      OAuth2Scope = "messages.read"
-	OAuth2ScopeWebhookIncoming   OAuth2Scope = "webhook.incoming"
+	OAuth2ScopeRelationshipsRead    OAuth2Scope = "relationships.read"
+	OAuth2ScopeRoleConnectionsWrite OAuth2Scope = "role_connections.write"
+	OAuth2ScopeIdentify             OAuth2Scope = "identify"
+	OAuth2ScopeEmail                OAuth2Scope = "email"
+	OAuth2ScopeConnections          OAuth2Scope = "connections"
+	OAuth2ScopeBot                  OAuth2Scope = "bot"
+	OAuth2ScopeMessagesRead         OAuth2Scope = "messages.read"
+	OAuth2ScopeWebhookIncoming      OAuth2Scope = "webhook.incoming"
 )
 
 func (s OAuth2Scope) String() string {

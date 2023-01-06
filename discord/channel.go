@@ -1055,6 +1055,7 @@ type GuildForumChannel struct {
 	DefaultReactionEmoji          *DefaultReactionEmoji
 	DefaultThreadRateLimitPerUser int
 	DefaultSortOrder              *DefaultSortOrder
+	DefaultForumLayout            DefaultForumLayout
 }
 
 func (c *GuildForumChannel) UnmarshalJSON(data []byte) error {
@@ -1078,6 +1079,7 @@ func (c *GuildForumChannel) UnmarshalJSON(data []byte) error {
 	c.DefaultReactionEmoji = v.DefaultReactionEmoji
 	c.DefaultThreadRateLimitPerUser = v.DefaultThreadRateLimitPerUser
 	c.DefaultSortOrder = v.DefaultSortOrder
+	c.DefaultForumLayout = v.DefaultForumLayout
 	return nil
 }
 
@@ -1099,6 +1101,7 @@ func (c GuildForumChannel) MarshalJSON() ([]byte, error) {
 		DefaultReactionEmoji:          c.DefaultReactionEmoji,
 		DefaultThreadRateLimitPerUser: c.DefaultThreadRateLimitPerUser,
 		DefaultSortOrder:              c.DefaultSortOrder,
+		DefaultForumLayout:            c.DefaultForumLayout,
 	})
 }
 
@@ -1187,8 +1190,16 @@ type DefaultReactionEmoji struct {
 type DefaultSortOrder int
 
 const (
-	LatestActivity DefaultSortOrder = iota
-	CreationDate
+	DefaultSortOrderLatestActivity DefaultSortOrder = iota
+	DefaultSortOrderCreationDate
+)
+
+type DefaultForumLayout int
+
+const (
+	DefaultForumLayoutNotSet DefaultForumLayout = iota
+	DefaultForumLayoutListView
+	DefaultForumLayoutGalleryView
 )
 
 type AutoArchiveDuration int
@@ -1237,7 +1248,7 @@ func ApplyGuildIDToChannel(channel GuildChannel, guildID snowflake.ID) GuildChan
 	}
 }
 
-func ApplyLastMessageIDToChannel(channel MessageChannel, lastMessageID snowflake.ID) MessageChannel {
+func ApplyLastMessageIDToChannel(channel GuildMessageChannel, lastMessageID snowflake.ID) GuildMessageChannel {
 	switch c := channel.(type) {
 	case GuildTextChannel:
 		c.lastMessageID = &lastMessageID
@@ -1256,7 +1267,7 @@ func ApplyLastMessageIDToChannel(channel MessageChannel, lastMessageID snowflake
 	}
 }
 
-func ApplyLastPinTimestampToChannel(channel MessageChannel, lastPinTimestamp *time.Time) MessageChannel {
+func ApplyLastPinTimestampToChannel(channel GuildMessageChannel, lastPinTimestamp *time.Time) GuildMessageChannel {
 	switch c := channel.(type) {
 	case GuildTextChannel:
 		c.lastPinTimestamp = lastPinTimestamp

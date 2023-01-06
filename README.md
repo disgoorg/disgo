@@ -47,10 +47,10 @@ After v1 is released breaking changes may only happen if the Discord API require
 * [OAuth2](https://discord.com/developers/docs/topics/oauth2)
 * [Threads](https://discord.com/developers/docs/topics/threads)
 * [Guild Scheduled Event](https://discord.com/developers/docs/resources/guild-scheduled-event)
+* [Voice](https://discord.com/developers/docs/topics/voice-connections)
 
 ### Missing Features
 
-* [Voice](https://discord.com/developers/docs/topics/voice-connections) (https://github.com/disgoorg/disgo/pull/164)
 * [RPC](https://discord.com/developers/docs/topics/rpc) (https://github.com/disgoorg/disgo/pull/170)
 
 ## Getting Started
@@ -58,7 +58,7 @@ After v1 is released breaking changes may only happen if the Discord API require
 ### Installing
 
 ```sh
-go get github.com/disgoorg/disgo
+$ go get github.com/disgoorg/disgo
 ```
 
 ### Building a DisGo Instance
@@ -99,7 +99,7 @@ func main() {
 		panic(err)
 	}
 	// connect to the gateway
-	if err = client.OpenGateway(context.TODO()); err != nil {
+	if err = client.Open(context.TODO()); err != nil {
 		panic(err)
 	}
 
@@ -140,8 +140,6 @@ or in these projects:
 * [KittyBot](https://github.com/KittyBot-Org/KittyBotGo)
 
 ## Libraries for DisGo
-
-* [handler](https://github.com/disgoorg/handler) is a simple application command, component and modal handler library.
 
 * [disgomd](https://github.com/eminarican/disgomd) is a command utility library that uses struct based approach
 

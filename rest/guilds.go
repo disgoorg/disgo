@@ -20,12 +20,14 @@ type Guilds interface {
 	UpdateGuild(guildID snowflake.ID, guildUpdate discord.GuildUpdate, opts ...RequestOpt) (*discord.RestGuild, error)
 	DeleteGuild(guildID snowflake.ID, opts ...RequestOpt) error
 
+	GetGuildVanityURL(guildID snowflake.ID, opts ...RequestOpt) (*discord.PartialInvite, error)
+
 	CreateGuildChannel(guildID snowflake.ID, guildChannelCreate discord.GuildChannelCreate, opts ...RequestOpt) (discord.GuildChannel, error)
 	GetGuildChannels(guildID snowflake.ID, opts ...RequestOpt) ([]discord.GuildChannel, error)
 	UpdateChannelPositions(guildID snowflake.ID, guildChannelPositionUpdates []discord.GuildChannelPositionUpdate, opts ...RequestOpt) error
 
 	GetRoles(guildID snowflake.ID, opts ...RequestOpt) ([]discord.Role, error)
-	GetRole(guildID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) ([]discord.Role, error)
+	GetRole(guildID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) (*discord.Role, error)
 	CreateRole(guildID snowflake.ID, createRole discord.RoleCreate, opts ...RequestOpt) (*discord.Role, error)
 	UpdateRole(guildID snowflake.ID, roleID snowflake.ID, roleUpdate discord.RoleUpdate, opts ...RequestOpt) (*discord.Role, error)
 	UpdateRolePositions(guildID snowflake.ID, rolePositionUpdates []discord.RolePositionUpdate, opts ...RequestOpt) ([]discord.Role, error)
@@ -40,10 +42,18 @@ type Guilds interface {
 	GetIntegrations(guildID snowflake.ID, opts ...RequestOpt) ([]discord.Integration, error)
 	DeleteIntegration(guildID snowflake.ID, integrationID snowflake.ID, opts ...RequestOpt) error
 
+	GetGuildPruneCount(guildID snowflake.ID, days int, includeRoles []snowflake.ID, opts ...RequestOpt) (*discord.GuildPruneResult, error)
+	BeginGuildPrune(guildID snowflake.ID, guildPrune discord.GuildPrune, opts ...RequestOpt) (*discord.GuildPruneResult, error)
+
 	GetAllWebhooks(guildID snowflake.ID, opts ...RequestOpt) ([]discord.Webhook, error)
+
+	GetGuildVoiceRegions(guildID snowflake.ID, opts ...RequestOpt) ([]discord.VoiceRegion, error)
 
 	GetAuditLog(guildID snowflake.ID, userID snowflake.ID, actionType discord.AuditLogEvent, before snowflake.ID, limit int, opts ...RequestOpt) (*discord.AuditLog, error)
 	GetAuditLogPage(guildID snowflake.ID, userID snowflake.ID, actionType discord.AuditLogEvent, startID snowflake.ID, limit int, opts ...RequestOpt) AuditLogPage
+
+	GetGuildWelcomeScreen(guildID snowflake.ID, opts ...RequestOpt) (*discord.GuildWelcomeScreen, error)
+	UpdateGuildWelcomeScreen(guildID snowflake.ID, screenUpdate discord.GuildWelcomeScreenUpdate, opts ...RequestOpt) (*discord.GuildWelcomeScreen, error)
 }
 
 type guildImpl struct {
@@ -77,6 +87,11 @@ func (s *guildImpl) DeleteGuild(guildID snowflake.ID, opts ...RequestOpt) error 
 	return s.client.Do(DeleteGuild.Compile(nil, guildID), nil, nil, opts...)
 }
 
+func (s *guildImpl) GetGuildVanityURL(guildID snowflake.ID, opts ...RequestOpt) (partialInvite *discord.PartialInvite, err error) {
+	err = s.client.Do(GetGuildVanityURL.Compile(nil, guildID), nil, &partialInvite, opts...)
+	return
+}
+
 func (s *guildImpl) CreateGuildChannel(guildID snowflake.ID, guildChannelCreate discord.GuildChannelCreate, opts ...RequestOpt) (guildChannel discord.GuildChannel, err error) {
 	var ch discord.UnmarshalChannel
 	err = s.client.Do(CreateGuildChannel.Compile(nil, guildID), guildChannelCreate, &ch, opts...)
@@ -104,26 +119,45 @@ func (s *guildImpl) UpdateChannelPositions(guildID snowflake.ID, guildChannelPos
 
 func (s *guildImpl) GetRoles(guildID snowflake.ID, opts ...RequestOpt) (roles []discord.Role, err error) {
 	err = s.client.Do(GetRoles.Compile(nil, guildID), nil, &roles, opts...)
+	if err == nil {
+		for i := range roles {
+			roles[i].GuildID = guildID
+		}
+	}
 	return
 }
 
-func (s *guildImpl) GetRole(guildID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) (role []discord.Role, err error) {
+func (s *guildImpl) GetRole(guildID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) (role *discord.Role, err error) {
 	err = s.client.Do(GetRole.Compile(nil, guildID, roleID), nil, &role, opts...)
+	if err == nil {
+		role.GuildID = guildID
+	}
 	return
 }
 
 func (s *guildImpl) CreateRole(guildID snowflake.ID, createRole discord.RoleCreate, opts ...RequestOpt) (role *discord.Role, err error) {
 	err = s.client.Do(CreateRole.Compile(nil, guildID), createRole, &role, opts...)
+	if err == nil {
+		role.GuildID = guildID
+	}
 	return
 }
 
 func (s *guildImpl) UpdateRole(guildID snowflake.ID, roleID snowflake.ID, roleUpdate discord.RoleUpdate, opts ...RequestOpt) (role *discord.Role, err error) {
 	err = s.client.Do(UpdateRole.Compile(nil, guildID, roleID), roleUpdate, &role, opts...)
+	if err == nil {
+		role.GuildID = guildID
+	}
 	return
 }
 
 func (s *guildImpl) UpdateRolePositions(guildID snowflake.ID, rolePositionUpdates []discord.RolePositionUpdate, opts ...RequestOpt) (roles []discord.Role, err error) {
 	err = s.client.Do(UpdateRolePositions.Compile(nil, guildID), rolePositionUpdates, &roles, opts...)
+	if err == nil {
+		for i := range roles {
+			roles[i].GuildID = guildID
+		}
+	}
 	return
 }
 
@@ -180,13 +214,34 @@ func (s *guildImpl) DeleteIntegration(guildID snowflake.ID, integrationID snowfl
 	return s.client.Do(DeleteIntegration.Compile(nil, guildID, integrationID), nil, nil, opts...)
 }
 
+func (s *guildImpl) GetGuildPruneCount(guildID snowflake.ID, days int, includeRoles []snowflake.ID, opts ...RequestOpt) (result *discord.GuildPruneResult, err error) {
+	values := discord.QueryValues{
+		"days": days,
+	}
+	var joinedRoles string
+	for i, roleID := range includeRoles {
+		joinedRoles += roleID.String()
+		if i != len(includeRoles)-1 {
+			joinedRoles += ","
+		}
+	}
+	values["include_roles"] = joinedRoles
+	err = s.client.Do(GetGuildPruneCount.Compile(values, guildID), nil, &result, opts...)
+	return
+}
+
+func (s *guildImpl) BeginGuildPrune(guildID snowflake.ID, guildPrune discord.GuildPrune, opts ...RequestOpt) (result *discord.GuildPruneResult, err error) {
+	err = s.client.Do(BeginGuildPrune.Compile(nil, guildID), guildPrune, &result, opts...)
+	return
+}
+
 func (s *guildImpl) GetAllWebhooks(guildID snowflake.ID, opts ...RequestOpt) (webhooks []discord.Webhook, err error) {
 	err = s.client.Do(GetGuildWebhooks.Compile(nil, guildID), nil, &webhooks, opts...)
 	return
 }
 
-func (s *guildImpl) GetEmojis(guildID snowflake.ID, opts ...RequestOpt) (emojis []discord.Emoji, err error) {
-	err = s.client.Do(GetEmojis.Compile(nil, guildID), nil, &emojis, opts...)
+func (s *guildImpl) GetGuildVoiceRegions(guildID snowflake.ID, opts ...RequestOpt) (regions []discord.VoiceRegion, err error) {
+	err = s.client.Do(GetGuildVoiceRegions.Compile(nil, guildID), nil, &regions, opts...)
 	return
 }
 
@@ -199,7 +254,7 @@ func (s *guildImpl) GetAuditLog(guildID snowflake.ID, userID snowflake.ID, actio
 		values["action_type"] = actionType
 	}
 	if before != 0 {
-		values["before"] = guildID
+		values["before"] = before
 	}
 	if limit != 0 {
 		values["limit"] = limit
@@ -220,4 +275,14 @@ func (s *guildImpl) GetAuditLogPage(guildID snowflake.ID, userID snowflake.ID, a
 		},
 		ID: startID,
 	}
+}
+
+func (s *guildImpl) GetGuildWelcomeScreen(guildID snowflake.ID, opts ...RequestOpt) (welcomeScreen *discord.GuildWelcomeScreen, err error) {
+	err = s.client.Do(GetGuildWelcomeScreen.Compile(nil, guildID), nil, &welcomeScreen, opts...)
+	return
+}
+
+func (s *guildImpl) UpdateGuildWelcomeScreen(guildID snowflake.ID, screenUpdate discord.GuildWelcomeScreenUpdate, opts ...RequestOpt) (welcomeScreen *discord.GuildWelcomeScreen, err error) {
+	err = s.client.Do(UpdateGuildWelcomeScreen.Compile(nil, guildID), screenUpdate, &welcomeScreen, opts...)
+	return
 }

@@ -10,7 +10,7 @@ func gatewayHandlerMessageReactionAdd(client bot.Client, sequenceNumber int, sha
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
 	if event.Member != nil {
-		client.Caches().Members().Put(*event.GuildID, event.UserID, *event.Member)
+		client.Caches().AddMember(*event.Member)
 	}
 
 	client.EventManager().DispatchEvent(&events.MessageReactionAdd{

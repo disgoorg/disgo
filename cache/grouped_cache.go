@@ -21,41 +21,20 @@ type GroupedCache[T any] interface {
 	// Remove removes the entity with the given groupID and ID as key and returns a copy of the entity and a bool whether it was removed or not.
 	Remove(groupID snowflake.ID, id snowflake.ID) (T, bool)
 
-	// RemoveAll removes all entities in the given groupID.
-	RemoveAll(groupID snowflake.ID)
+	// GroupRemove removes all entities in the given groupID.
+	GroupRemove(groupID snowflake.ID)
 
-	// RemoveIf removes all entities that pass the given GroupedFilterFunc
+	// RemoveIf removes all entities that pass the given GroupedFilterFunc.
 	RemoveIf(filterFunc GroupedFilterFunc[T])
+
+	// GroupRemoveIf removes all entities that pass the given GroupedFilterFunc within the groupID.
+	GroupRemoveIf(groupID snowflake.ID, filterFunc GroupedFilterFunc[T])
 
 	// Len returns the total number of entities in the cache.
 	Len() int
 
 	// GroupLen returns the number of entities in the cache within the groupID.
 	GroupLen(groupID snowflake.ID) int
-
-	// All returns a copy of all entities in the cache.
-	All() map[snowflake.ID][]T
-
-	// GroupAll returns a copy of all entities in a specific group.
-	GroupAll(groupID snowflake.ID) []T
-
-	// MapAll returns a copy of all entities in the cache as a map.
-	MapAll() map[snowflake.ID]map[snowflake.ID]T
-
-	// MapGroupAll returns a copy of all entities in a specific group as a map.
-	MapGroupAll(groupID snowflake.ID) map[snowflake.ID]T
-
-	// FindFirst returns the first entity that passes the given GroupedFilterFunc.
-	FindFirst(cacheFindFunc GroupedFilterFunc[T]) (T, bool)
-
-	// GroupFindFirst returns the first entity that passes the given GroupedFilterFunc within the groupID.
-	GroupFindFirst(groupID snowflake.ID, cacheFindFunc GroupedFilterFunc[T]) (T, bool)
-
-	// FindAll returns all entities that pass the given GroupedFilterFunc.
-	FindAll(cacheFindFunc GroupedFilterFunc[T]) []T
-
-	// GroupFindAll returns all entities that pass the given GroupedFilterFunc within the groupID.
-	GroupFindAll(groupID snowflake.ID, cacheFindFunc GroupedFilterFunc[T]) []T
 
 	// ForEach calls the given function for each entity in the cache.
 	ForEach(func(groupID snowflake.ID, entity T))
@@ -135,7 +114,7 @@ func (c *defaultGroupedCache[T]) Remove(groupID snowflake.ID, id snowflake.ID) (
 	return
 }
 
-func (c *defaultGroupedCache[T]) RemoveAll(groupID snowflake.ID) {
+func (c *defaultGroupedCache[T]) GroupRemove(groupID snowflake.ID) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -148,6 +127,19 @@ func (c *defaultGroupedCache[T]) RemoveIf(filterFunc GroupedFilterFunc[T]) {
 
 	for groupID := range c.cache {
 		for id, entity := range c.cache[groupID] {
+			if filterFunc(groupID, entity) {
+				delete(c.cache[groupID], id)
+			}
+		}
+	}
+}
+
+func (c *defaultGroupedCache[T]) GroupRemoveIf(groupID snowflake.ID, filterFunc GroupedFilterFunc[T]) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if groupEntities, ok := c.cache[groupID]; ok {
+		for id, entity := range groupEntities {
 			if filterFunc(groupID, entity) {
 				delete(c.cache[groupID], id)
 			}
@@ -172,126 +164,6 @@ func (c *defaultGroupedCache[T]) GroupLen(groupID snowflake.ID) int {
 		return len(groupEntities)
 	}
 	return 0
-}
-
-func (c *defaultGroupedCache[T]) All() map[snowflake.ID][]T {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	all := make(map[snowflake.ID][]T)
-	for groupID, groupEntities := range c.cache {
-		all[groupID] = make([]T, 0, len(groupEntities))
-		for _, entity := range groupEntities {
-			all[groupID] = append(all[groupID], entity)
-		}
-	}
-
-	return all
-}
-
-func (c *defaultGroupedCache[T]) GroupAll(groupID snowflake.ID) []T {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	groupEntities, ok := c.cache[groupID]
-	if !ok {
-		return nil
-	}
-	all := make([]T, 0, len(groupEntities))
-	for _, entity := range groupEntities {
-		all = append(all, entity)
-	}
-
-	return all
-}
-
-func (c *defaultGroupedCache[T]) MapAll() map[snowflake.ID]map[snowflake.ID]T {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	all := make(map[snowflake.ID]map[snowflake.ID]T, len(c.cache))
-	for groupID, groupEntities := range c.cache {
-		all[groupID] = make(map[snowflake.ID]T, len(groupEntities))
-		for entityID, entity := range groupEntities {
-			all[groupID][entityID] = entity
-		}
-	}
-
-	return all
-}
-
-func (c *defaultGroupedCache[T]) MapGroupAll(groupID snowflake.ID) map[snowflake.ID]T {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	groupEntities, ok := c.cache[groupID]
-	if !ok {
-		return nil
-	}
-	all := make(map[snowflake.ID]T, len(groupEntities))
-	for entityID, entity := range groupEntities {
-		all[entityID] = entity
-	}
-
-	return all
-}
-
-func (c *defaultGroupedCache[T]) FindFirst(cacheFindFunc GroupedFilterFunc[T]) (T, bool) {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	for groupID, groupEntities := range c.cache {
-		for _, entity := range groupEntities {
-			if cacheFindFunc(groupID, entity) {
-				return entity, true
-			}
-		}
-	}
-
-	var entity T
-	return entity, false
-}
-
-func (c *defaultGroupedCache[T]) GroupFindFirst(groupID snowflake.ID, cacheFindFunc GroupedFilterFunc[T]) (T, bool) {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	for _, entity := range c.cache[groupID] {
-		if cacheFindFunc(groupID, entity) {
-			return entity, true
-		}
-	}
-
-	var entity T
-	return entity, false
-}
-
-func (c *defaultGroupedCache[T]) FindAll(cacheFindFunc GroupedFilterFunc[T]) []T {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	all := make([]T, 0)
-	for groupID, groupEntities := range c.cache {
-		for _, entity := range groupEntities {
-			if cacheFindFunc(groupID, entity) {
-				all = append(all, entity)
-			}
-		}
-	}
-	return all
-}
-
-func (c *defaultGroupedCache[T]) GroupFindAll(groupID snowflake.ID, cacheFindFunc GroupedFilterFunc[T]) []T {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	all := make([]T, 0)
-	for _, entity := range c.cache[groupID] {
-		if cacheFindFunc(groupID, entity) {
-			all = append(all, entity)
-		}
-	}
-	return all
 }
 
 func (c *defaultGroupedCache[T]) ForEach(forEachFunc func(groupID snowflake.ID, entity T)) {

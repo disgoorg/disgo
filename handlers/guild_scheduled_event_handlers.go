@@ -7,7 +7,7 @@ import (
 )
 
 func gatewayHandlerGuildScheduledEventCreate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildScheduledEventCreate) {
-	client.Caches().GuildScheduledEvents().Put(event.GuildID, event.ID, event.GuildScheduledEvent)
+	client.Caches().AddGuildScheduledEvent(event.GuildScheduledEvent)
 
 	client.EventManager().DispatchEvent(&events.GuildScheduledEventCreate{
 		GenericGuildScheduledEvent: &events.GenericGuildScheduledEvent{
@@ -18,8 +18,8 @@ func gatewayHandlerGuildScheduledEventCreate(client bot.Client, sequenceNumber i
 }
 
 func gatewayHandlerGuildScheduledEventUpdate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildScheduledEventUpdate) {
-	oldGuildScheduledEvent, _ := client.Caches().GuildScheduledEvents().Get(event.GuildID, event.ID)
-	client.Caches().GuildScheduledEvents().Put(event.GuildID, event.ID, event.GuildScheduledEvent)
+	oldGuildScheduledEvent, _ := client.Caches().GuildScheduledEvent(event.GuildID, event.ID)
+	client.Caches().AddGuildScheduledEvent(event.GuildScheduledEvent)
 
 	client.EventManager().DispatchEvent(&events.GuildScheduledEventUpdate{
 		GenericGuildScheduledEvent: &events.GenericGuildScheduledEvent{
@@ -31,7 +31,7 @@ func gatewayHandlerGuildScheduledEventUpdate(client bot.Client, sequenceNumber i
 }
 
 func gatewayHandlerGuildScheduledEventDelete(client bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildScheduledEventCreate) {
-	client.Caches().GuildScheduledEvents().Remove(event.GuildID, event.ID)
+	client.Caches().RemoveGuildScheduledEvent(event.GuildID, event.ID)
 
 	client.EventManager().DispatchEvent(&events.GuildScheduledEventDelete{
 		GenericGuildScheduledEvent: &events.GenericGuildScheduledEvent{

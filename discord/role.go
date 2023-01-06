@@ -12,7 +12,9 @@ var _ Mentionable = (*Role)(nil)
 // Role is a Guild Role object
 type Role struct {
 	ID          snowflake.ID `json:"id"`
+	GuildID     snowflake.ID `json:"guild_id,omitempty"` // not present in the API but we need it
 	Name        string       `json:"name"`
+	Description *string      `json:"description,omitempty"`
 	Color       int          `json:"color"`
 	Hoist       bool         `json:"hoist"`
 	Position    int          `json:"position"`
