@@ -25,6 +25,8 @@ type SystemChannelFlags int
 const (
 	SystemChannelFlagSuppressJoinNotifications SystemChannelFlags = 1 << iota
 	SystemChannelFlagSuppressPremiumSubscriptions
+	SystemChannelFlagSuppressGuildReminderNotifications
+	SystemChannelFlagSuppressJoinNotificationReplies
 )
 
 // Add allows you to add multiple bits together, producing a new bit
