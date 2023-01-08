@@ -38,6 +38,14 @@ const (
 	MessageTypeGuildInviteReminder
 	MessageTypeContextMenuCommand
 	MessageTypeAutoModerationAction
+	_
+	MessageTypeInteractionPremiumUpsell
+	_
+	_
+	_
+	_
+	_
+	MessageTypeGuildApplicationPremiumSubscription
 )
 
 func (t MessageType) System() bool {
