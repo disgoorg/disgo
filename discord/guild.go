@@ -27,6 +27,8 @@ const (
 	SystemChannelFlagSuppressPremiumSubscriptions
 	SystemChannelFlagSuppressGuildReminderNotifications
 	SystemChannelFlagSuppressJoinNotificationReplies
+	SystemChannelFlagSuppressRoleSubscriptionPurchaseNotifications
+	SystemChannelFlagSuppressRoleSubscriptionPurchaseNotificationReplies
 )
 
 // Add allows you to add multiple bits together, producing a new bit
