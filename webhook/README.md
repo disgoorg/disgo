@@ -91,4 +91,4 @@ err := client.DeleteMessage("message_id")
 
 ### Full Example
 
-a full example can be found [here](https://github.com/disgoorg/disgo/tree/development/_examples/webhook/example.go)
+a full example can be found [here](https://github.com/disgoorg/disgo/tree/master/_examples/webhook/example.go)

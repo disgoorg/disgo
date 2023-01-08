@@ -361,15 +361,15 @@ loop:
 			break loop
 		}
 
-		event, err := g.parseMessage(mt, data)
+		message, err := g.parseMessage(mt, data)
 		if err != nil {
 			g.config.Logger.Error(g.formatLogs("error while parsing gateway message. error: ", err))
 			continue
 		}
 
-		switch event.Op {
+		switch message.Op {
 		case OpcodeHello:
-			g.heartbeatInterval = time.Duration(event.D.(MessageDataHello).HeartbeatInterval) * time.Millisecond
+			g.heartbeatInterval = time.Duration(message.D.(MessageDataHello).HeartbeatInterval) * time.Millisecond
 			g.lastHeartbeatReceived = time.Now().UTC()
 			go g.heartbeat()
 
@@ -381,11 +381,11 @@ loop:
 
 		case OpcodeDispatch:
 			// set last sequence received
-			g.config.LastSequenceReceived = &event.S
+			g.config.LastSequenceReceived = &message.S
 
-			eventData, ok := event.D.(EventData)
-			if !ok && event.D != nil {
-				g.config.Logger.Error(g.formatLogsf("invalid event data of type %T received", event.D))
+			eventData, ok := message.D.(EventData)
+			if !ok && message.D != nil {
+				g.config.Logger.Error(g.formatLogsf("invalid message data of type %T received", message.D))
 				continue
 			}
 
@@ -394,17 +394,22 @@ loop:
 				g.config.SessionID = &readyEvent.SessionID
 				g.config.ResumeURL = &readyEvent.ResumeGatewayURL
 				g.status = StatusReady
-				g.config.Logger.Debug(g.formatLogs("ready event received"))
+				g.config.Logger.Debug(g.formatLogs("ready message received"))
 			}
 
-			// push event to the command manager
+			if unknownEvent, ok := eventData.(EventUnknown); ok {
+				g.config.Logger.Debug(g.formatLogsf("unknown message received: %s, data: %s", message.T, unknownEvent))
+				continue
+			}
+
+			// push message to the command manager
 			if g.config.EnableRawEvents {
-				g.eventHandlerFunc(EventTypeRaw, event.S, g.config.ShardID, EventRaw{
-					EventType: event.T,
-					Payload:   bytes.NewReader(event.RawD),
+				g.eventHandlerFunc(EventTypeRaw, message.S, g.config.ShardID, EventRaw{
+					EventType: message.T,
+					Payload:   bytes.NewReader(message.RawD),
 				})
 			}
-			g.eventHandlerFunc(event.T, event.S, g.config.ShardID, eventData)
+			g.eventHandlerFunc(message.T, message.S, g.config.ShardID, eventData)
 
 		case OpcodeHeartbeat:
 			g.sendHeartbeat()
@@ -417,7 +422,7 @@ loop:
 			break loop
 
 		case OpcodeInvalidSession:
-			canResume := event.D.(MessageDataInvalidSession)
+			canResume := message.D.(MessageDataInvalidSession)
 
 			code := websocket.CloseNormalClosure
 			if canResume {
@@ -437,6 +442,9 @@ loop:
 
 		case OpcodeHeartbeatACK:
 			g.lastHeartbeatReceived = time.Now().UTC()
+
+		default:
+			g.config.Logger.Error(g.formatLogsf("unknown opcode received: %d, data: %s", message.Op, message.D))
 		}
 	}
 }

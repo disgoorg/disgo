@@ -111,7 +111,7 @@ func main() {
 
 ### Full Ping Pong Example
 
-A full Ping Pong example can also be found [here](https://github.com/disgoorg/disgo/blob/development/_examples/ping_pong/example.go)
+A full Ping Pong example can also be found [here](https://github.com/disgoorg/disgo/blob/master/_examples/ping_pong/example.go)
 
 ### Logging
 
@@ -128,7 +128,7 @@ GitHub Wiki is currently under construction. We appreciate help here.
 
 ## Examples
 
-You can find examples [here](https://github.com/disgoorg/disgo/tree/development/_examples)
+You can find examples [here](https://github.com/disgoorg/disgo/tree/master/_examples)
 
 There is also a bot template with commands & db [here](https://github.com/disgoorg/bot-template)
 
