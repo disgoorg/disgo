@@ -33,7 +33,7 @@ var (
 	TeamIcon = NewCDN("/team-icons/{team.id}/{team.icon.hash}", ImageFormatPNG, ImageFormatJPEG, ImageFormatWebP)
 
 	StickerPackBanner = NewCDN("app-assets/710982414301790216/store/{banner.asset.id}", ImageFormatPNG, ImageFormatJPEG, ImageFormatWebP)
-	CustomSticker     = NewCDN("/stickers/{sticker.id}", ImageFormatPNG, ImageFormatLottie)
+	CustomSticker     = NewCDN("/stickers/{sticker.id}", ImageFormatPNG, ImageFormatLottie, ImageFormatGIF)
 
 	AttachmentFile = NewCDN("/attachments/{channel.id}/{attachment.id}/{file.name}", ImageFormatNone)
 )
