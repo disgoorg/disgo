@@ -23,7 +23,7 @@ type Threads interface {
 	AddThreadMember(threadID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) error
 	RemoveThreadMember(threadID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) error
 	GetThreadMember(threadID snowflake.ID, userID snowflake.ID, withMember bool, opts ...RequestOpt) (threadMember *discord.ThreadMember, err error)
-	GetThreadMembers(threadID snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) (threadMembers []discord.ThreadMember, err error)
+	GetThreadMembers(threadID snowflake.ID, opts ...RequestOpt) (threadMembers []discord.ThreadMember, err error)
 	GetThreadMembersPage(threadID snowflake.ID, startID snowflake.ID, limit int, opts ...RequestOpt) ThreadMemberPage
 
 	GetPublicArchivedThreads(channelID snowflake.ID, before time.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
@@ -76,21 +76,13 @@ func (s *threadImpl) GetThreadMember(threadID snowflake.ID, userID snowflake.ID,
 	return
 }
 
-func (s *threadImpl) GetThreadMembers(threadID snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) (threadMembers []discord.ThreadMember, err error) {
-	queryValues := discord.QueryValues{}
-	if after != 0 {
-		queryValues["after"] = after
-	}
-	if limit != 0 {
-		queryValues["limit"] = limit
-	}
-	err = s.client.Do(GetThreadMembers.Compile(queryValues, threadID), nil, &threadMembers, opts...)
-	return
+func (s *threadImpl) GetThreadMembers(threadID snowflake.ID, opts ...RequestOpt) ([]discord.ThreadMember, error) {
+	return s.getThreadMembers(threadID, nil, opts...)
 }
 
 func (s *threadImpl) GetThreadMembersPage(threadID snowflake.ID, startID snowflake.ID, limit int, opts ...RequestOpt) ThreadMemberPage {
 	return ThreadMemberPage{
-		getItems: func(after snowflake.ID) (threadMembers []discord.ThreadMember, err error) {
+		getItems: func(after snowflake.ID) ([]discord.ThreadMember, error) {
 			queryValues := discord.QueryValues{
 				"with_member": true,
 				"after":       after,
@@ -98,8 +90,7 @@ func (s *threadImpl) GetThreadMembersPage(threadID snowflake.ID, startID snowfla
 			if limit != 0 {
 				queryValues["limit"] = limit
 			}
-			err = s.client.Do(GetThreadMembers.Compile(queryValues, threadID), nil, &threadMembers, opts...)
-			return
+			return s.getThreadMembers(threadID, queryValues, opts...)
 		},
 		ID: startID,
 	}
@@ -138,5 +129,10 @@ func (s *threadImpl) GetJoinedPrivateArchivedThreads(channelID snowflake.ID, bef
 		queryValues["limit"] = limit
 	}
 	err = s.client.Do(GetJoinedPrivateArchivedThreads.Compile(queryValues, channelID), nil, &threads, opts...)
+	return
+}
+
+func (s *threadImpl) getThreadMembers(threadID snowflake.ID, queryValues discord.QueryValues, opts ...RequestOpt) (threadMembers []discord.ThreadMember, err error) {
+	err = s.client.Do(GetThreadMembers.Compile(queryValues, threadID), nil, &threadMembers, opts...)
 	return
 }
