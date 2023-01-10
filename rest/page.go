@@ -91,3 +91,28 @@ func (p *AuditLogPage) Previous() bool {
 	}
 	return p.Err == nil
 }
+
+type ThreadMemberPage struct {
+	getItems func(after snowflake.ID) ([]discord.ThreadMember, error)
+
+	Items []discord.ThreadMember
+	Err   error
+
+	ID snowflake.ID
+}
+
+func (p *ThreadMemberPage) Next() bool {
+	if p.Err != nil {
+		return false
+	}
+
+	if len(p.Items) > 0 {
+		p.ID = p.Items[0].UserID
+	}
+
+	p.Items, p.Err = p.getItems(p.ID)
+	if p.Err == nil && len(p.Items) == 0 {
+		p.Err = ErrNoMorePages
+	}
+	return p.Err == nil
+}
