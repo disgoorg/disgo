@@ -7,7 +7,7 @@ type Intents int64
 const (
 	IntentGuilds Intents = 1 << iota
 	IntentGuildMembers
-	IntentGuildBans
+	IntentGuildModeration
 	IntentGuildEmojisAndStickers
 	IntentGuildIntegrations
 	IntentGuildWebhooks
@@ -30,7 +30,7 @@ const (
 
 	IntentsGuild = IntentGuilds |
 		IntentGuildMembers |
-		IntentGuildBans |
+		IntentGuildModeration |
 		IntentGuildEmojisAndStickers |
 		IntentGuildIntegrations |
 		IntentGuildWebhooks |
@@ -47,7 +47,7 @@ const (
 		IntentDirectMessageTyping
 
 	IntentsNonPrivileged = IntentGuilds |
-		IntentGuildBans |
+		IntentGuildModeration |
 		IntentGuildEmojisAndStickers |
 		IntentGuildIntegrations |
 		IntentGuildWebhooks |
