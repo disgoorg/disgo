@@ -62,6 +62,7 @@ type GuildUnban struct {
 	User    discord.User
 }
 
+// GuildAuditLogEntryCreate is called when a new discord.AuditLogEntry is created
 type GuildAuditLogEntryCreate struct {
 	*GenericEvent
 	GuildID       snowflake.ID
