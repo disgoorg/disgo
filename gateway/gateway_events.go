@@ -14,7 +14,7 @@ type EventData interface {
 	eventData()
 }
 
-// EventUnknown is a event that is not known to disgo
+// EventUnknown is an event that is not known to disgo
 type EventUnknown json.RawMessage
 
 func (EventUnknown) messageData() {}
@@ -168,6 +168,13 @@ type EventGuildDelete struct {
 
 func (EventGuildDelete) messageData() {}
 func (EventGuildDelete) eventData()   {}
+
+type EventGuildAuditLogEntryCreate struct {
+	discord.AuditLogEntry
+}
+
+func (EventGuildAuditLogEntryCreate) messageData() {}
+func (EventGuildAuditLogEntryCreate) eventData()   {}
 
 type EventMessageReactionAdd struct {
 	UserID    snowflake.ID          `json:"user_id"`

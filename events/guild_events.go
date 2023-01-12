@@ -61,3 +61,9 @@ type GuildUnban struct {
 	GuildID snowflake.ID
 	User    discord.User
 }
+
+type GuildAuditLogEntryCreate struct {
+	*GenericEvent
+	GuildID       snowflake.ID
+	AuditLogEntry discord.AuditLogEntry
+}
