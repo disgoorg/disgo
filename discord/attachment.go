@@ -6,7 +6,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-//Attachment is used for files sent in a Message
+// Attachment is used for files sent in a Message
 type Attachment struct {
 	ID          snowflake.ID `json:"id,omitempty"`
 	Filename    string       `json:"filename,omitempty"`

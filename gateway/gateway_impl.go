@@ -398,7 +398,7 @@ loop:
 			}
 
 			if unknownEvent, ok := eventData.(EventUnknown); ok {
-				g.config.Logger.Debug(g.formatLogsf("unknown message received: %s, data: %s", message.T, unknownEvent))
+				g.config.Logger.Debug(g.formatLogsf("unknown event received: %s, data: %s", message.T, unknownEvent))
 				continue
 			}
 
@@ -444,7 +444,7 @@ loop:
 			g.lastHeartbeatReceived = time.Now().UTC()
 
 		default:
-			g.config.Logger.Error(g.formatLogsf("unknown opcode received: %d, data: %s", message.Op, message.D))
+			g.config.Logger.Debug(g.formatLogsf("unknown opcode received: %d, data: %s", message.Op, message.D))
 		}
 	}
 }
