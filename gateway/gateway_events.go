@@ -17,6 +17,14 @@ type EventData interface {
 // EventUnknown is a event that is not known to disgo
 type EventUnknown json.RawMessage
 
+func (e EventUnknown) MarshalJSON() ([]byte, error) {
+	return json.RawMessage(e).MarshalJSON()
+}
+
+func (e *EventUnknown) UnmarshalJSON(data []byte) error {
+	return (*json.RawMessage)(e).UnmarshalJSON(data)
+}
+
 func (EventUnknown) messageData() {}
 func (EventUnknown) eventData()   {}
 
