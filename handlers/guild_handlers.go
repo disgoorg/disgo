@@ -152,7 +152,7 @@ func gatewayHandlerGuildDelete(client bot.Client, sequenceNumber int, shardID in
 func gatewayHandlerGuildAuditLogEntryCreate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildAuditLogEntryCreate) {
 	client.EventManager().DispatchEvent(&events.GuildAuditLogEntryCreate{
 		GenericEvent:  events.NewGenericEvent(client, sequenceNumber, shardID),
-		GuildID:       *event.GuildID,
+		GuildID:       event.GuildID,
 		AuditLogEntry: event.AuditLogEntry,
 	})
 }

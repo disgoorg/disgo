@@ -171,6 +171,7 @@ func (EventGuildDelete) eventData()   {}
 
 type EventGuildAuditLogEntryCreate struct {
 	discord.AuditLogEntry
+	GuildID snowflake.ID `json:"guild_id"`
 }
 
 func (EventGuildAuditLogEntryCreate) messageData() {}
