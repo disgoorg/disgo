@@ -173,7 +173,7 @@ type AuditLogEntry struct {
 	UserID     snowflake.ID               `json:"user_id"`
 	ID         snowflake.ID               `json:"id"`
 	ActionType AuditLogEvent              `json:"action_type"`
-	GuildID    snowflake.ID               `json:"guild_id"`
+	GuildID    *snowflake.ID              `json:"guild_id"`
 	Options    *OptionalAuditLogEntryInfo `json:"options"`
 	Reason     *string                    `json:"reason"`
 }
