@@ -19,6 +19,7 @@ type Member struct {
 	PremiumSince               *time.Time     `json:"premium_since,omitempty"`
 	Deaf                       bool           `json:"deaf,omitempty"`
 	Mute                       bool           `json:"mute,omitempty"`
+	Flags                      MemberFlags    `json:"flags"`
 	Pending                    bool           `json:"pending"`
 	CommunicationDisabledUntil *time.Time     `json:"communication_disabled_until"`
 
@@ -80,10 +81,57 @@ type MemberUpdate struct {
 	Roles                      *[]snowflake.ID           `json:"roles,omitempty"`
 	Mute                       *bool                     `json:"mute,omitempty"`
 	Deaf                       *bool                     `json:"deaf,omitempty"`
+	Flags                      *MemberFlags              `json:"flags,omitempty"`
 	CommunicationDisabledUntil *json.Nullable[time.Time] `json:"communication_disabled_until,omitempty"`
 }
 
 // CurrentMemberUpdate is used to update the current member
 type CurrentMemberUpdate struct {
 	Nick string `json:"nick"`
+}
+
+type MemberFlags int
+
+const (
+	MemberFlagsDidRejoin MemberFlags = 1 << iota
+	MemberFlagsCompletedOnboarding
+	MemberFlagsBypassesVerification
+	MemberFlagsStartedOnboarding
+	MemberFlagsNone MemberFlags = 0
+)
+
+// Add allows you to add multiple bits together, producing a new bit
+func (f MemberFlags) Add(bits ...MemberFlags) MemberFlags {
+	for _, bit := range bits {
+		f |= bit
+	}
+	return f
+}
+
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (f MemberFlags) Remove(bits ...MemberFlags) MemberFlags {
+	for _, bit := range bits {
+		f &^= bit
+	}
+	return f
+}
+
+// Has will ensure that the bit includes all the bits entered
+func (f MemberFlags) Has(bits ...MemberFlags) bool {
+	for _, bit := range bits {
+		if (f & bit) != bit {
+			return false
+		}
+	}
+	return true
+}
+
+// Missing will check whether the bit is missing any one of the bits
+func (f MemberFlags) Missing(bits ...MemberFlags) bool {
+	for _, bit := range bits {
+		if (f & bit) != bit {
+			return true
+		}
+	}
+	return false
 }
