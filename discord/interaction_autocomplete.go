@@ -151,6 +151,17 @@ func (d AutocompleteInteractionData) MarshalJSON() ([]byte, error) {
 	})
 }
 
+func (d AutocompleteInteractionData) CommandPath() string {
+	path := "/" + d.CommandName
+	if d.SubCommandGroupName != nil {
+		path += "/" + *d.SubCommandGroupName
+	}
+	if d.SubCommandName != nil {
+		path += "/" + *d.SubCommandName
+	}
+	return path
+}
+
 func (d AutocompleteInteractionData) Option(name string) (AutocompleteOption, bool) {
 	option, ok := d.Options[name]
 	return option, ok

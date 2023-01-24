@@ -231,6 +231,17 @@ func (d SlashCommandInteractionData) CommandName() string {
 	return d.name
 }
 
+func (d SlashCommandInteractionData) CommandPath() string {
+	path := "/" + d.name
+	if d.SubCommandGroupName != nil {
+		path += "/" + *d.SubCommandGroupName
+	}
+	if d.SubCommandName != nil {
+		path += "/" + *d.SubCommandName
+	}
+	return path
+}
+
 func (d SlashCommandInteractionData) GuildID() *snowflake.ID {
 	return d.guildID
 }
