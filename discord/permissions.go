@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/disgoorg/disgo/internal/flags"
 	"github.com/disgoorg/json"
 )
 
@@ -193,36 +194,20 @@ func (p *Permissions) UnmarshalJSON(data []byte) error {
 
 // Add allows you to add multiple bits together, producing a new bit
 func (p Permissions) Add(bits ...Permissions) Permissions {
-	for _, bit := range bits {
-		p |= bit
-	}
-	return p
+	return flags.Add(p, bits...)
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
 func (p Permissions) Remove(bits ...Permissions) Permissions {
-	for _, bit := range bits {
-		p &^= bit
-	}
-	return p
+	return flags.Remove(p, bits...)
 }
 
 // Has will ensure that the bit includes all the bits entered
 func (p Permissions) Has(bits ...Permissions) bool {
-	for _, bit := range bits {
-		if (p & bit) != bit {
-			return false
-		}
-	}
-	return true
+	return flags.Has(p, bits...)
 }
 
 // Missing will check whether the bit is missing any one of the bits
 func (p Permissions) Missing(bits ...Permissions) bool {
-	for _, bit := range bits {
-		if (p & bit) != bit {
-			return true
-		}
-	}
-	return false
+	return flags.Missing(p, bits...)
 }

@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/disgoorg/disgo/internal/flags"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -177,38 +178,22 @@ const (
 
 // Add allows you to add multiple bits together, producing a new bit
 func (f ApplicationFlags) Add(bits ...ApplicationFlags) ApplicationFlags {
-	for _, bit := range bits {
-		f |= bit
-	}
-	return f
+	return flags.Add(f, bits...)
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
 func (f ApplicationFlags) Remove(bits ...ApplicationFlags) ApplicationFlags {
-	for _, bit := range bits {
-		f &^= bit
-	}
-	return f
+	return flags.Remove(f, bits...)
 }
 
 // Has will ensure that the bit includes all the bits entered
 func (f ApplicationFlags) Has(bits ...ApplicationFlags) bool {
-	for _, bit := range bits {
-		if (f & bit) != bit {
-			return false
-		}
-	}
-	return true
+	return flags.Has(f, bits...)
 }
 
 // Missing will check whether the bit is missing any one of the bits
 func (f ApplicationFlags) Missing(bits ...ApplicationFlags) bool {
-	for _, bit := range bits {
-		if (f & bit) != bit {
-			return true
-		}
-	}
-	return false
+	return flags.Missing(f, bits...)
 }
 
 type Team struct {
