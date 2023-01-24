@@ -393,7 +393,7 @@ type MessageBulkDelete struct {
 }
 
 // The MessageFlags of a Message
-type MessageFlags int64
+type MessageFlags int
 
 // Constants for MessageFlags
 const (
