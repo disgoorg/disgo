@@ -522,3 +522,9 @@ func (c ChannelSelectMenuComponent) WithDisabled(disabled bool) ChannelSelectMen
 	c.Disabled = disabled
 	return c
 }
+
+// WithChannelTypes returns a new ChannelSelectMenuComponent with the provided channelTypes
+func (c ChannelSelectMenuComponent) WithChannelTypes(channelTypes ...ComponentType) ChannelSelectMenuComponent {
+	c.ChannelTypes = channelTypes
+	return c
+}
