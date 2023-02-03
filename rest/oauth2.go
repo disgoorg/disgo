@@ -3,8 +3,9 @@ package rest
 import (
 	"net/url"
 
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 var _ OAuth2 = (*oAuth2Impl)(nil)

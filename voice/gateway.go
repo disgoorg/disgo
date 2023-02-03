@@ -11,10 +11,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 	"github.com/gorilla/websocket"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 var (

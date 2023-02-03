@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/disgoorg/disgo/internal/flags"
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/internal/flags"
 )
 
 // The MessageType indicates the Message type

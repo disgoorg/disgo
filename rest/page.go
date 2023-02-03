@@ -3,8 +3,9 @@ package rest
 import (
 	"errors"
 
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 var ErrNoMorePages = errors.New("no more pages")

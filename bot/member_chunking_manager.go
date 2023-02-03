@@ -4,11 +4,12 @@ import (
 	"context"
 	"sync"
 
+	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake/v2"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/internal/insecurerandstr"
-	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 var _ MemberChunkingManager = (*memberChunkingManagerImpl)(nil)

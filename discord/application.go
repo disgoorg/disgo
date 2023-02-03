@@ -5,8 +5,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/disgoorg/disgo/internal/flags"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/internal/flags"
 )
 
 type Application struct {

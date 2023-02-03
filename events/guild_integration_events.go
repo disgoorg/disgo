@@ -1,8 +1,9 @@
 package events
 
 import (
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // GenericIntegration is called upon receiving IntegrationCreate, IntegrationUpdate or IntegrationDelete(requires the gateway.IntentGuildIntegrations)

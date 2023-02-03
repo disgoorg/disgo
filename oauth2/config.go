@@ -1,8 +1,9 @@
 package oauth2
 
 import (
-	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/log"
+
+	"github.com/disgoorg/disgo/rest"
 )
 
 // DefaultConfig is the configuration which is used by default

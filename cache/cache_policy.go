@@ -1,9 +1,10 @@
 package cache
 
 import (
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
 	"golang.org/x/exp/slices"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // PolicyNone returns a policy that will never cache anything.

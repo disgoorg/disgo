@@ -5,8 +5,9 @@ import (
 	"sync"
 	"time"
 
-	botgateway "github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/snowflake/v2"
+
+	botgateway "github.com/disgoorg/disgo/gateway"
 )
 
 type (

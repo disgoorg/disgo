@@ -3,8 +3,9 @@ package rest
 import (
 	"time"
 
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 var _ Guilds = (*guildImpl)(nil)

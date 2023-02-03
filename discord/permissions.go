@@ -5,8 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/disgoorg/disgo/internal/flags"
 	"github.com/disgoorg/json"
+
+	"github.com/disgoorg/disgo/internal/flags"
 )
 
 var EmptyStringBytes = []byte(`""`)

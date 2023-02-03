@@ -3,9 +3,10 @@ package oauth2
 import (
 	"time"
 
+	"github.com/disgoorg/snowflake/v2"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 // New returns a new OAuth2 client with the given ID, secret and ConfigOpt(s).

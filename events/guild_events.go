@@ -1,8 +1,9 @@
 package events
 
 import (
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // GenericGuild is called upon receiving GuildUpdate , GuildAvailable , GuildUnavailable , GuildJoin , GuildLeave , GuildReady , GuildBan , GuildUnban

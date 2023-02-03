@@ -3,9 +3,10 @@ package cache
 import (
 	"sync"
 
+	"github.com/disgoorg/snowflake/v2"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/internal/set"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 type SelfUserCache interface {

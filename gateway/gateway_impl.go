@@ -12,9 +12,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/json"
 	"github.com/gorilla/websocket"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 var _ Gateway = (*gatewayImpl)(nil)
