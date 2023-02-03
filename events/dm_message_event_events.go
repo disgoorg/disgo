@@ -1,8 +1,9 @@
 package events
 
 import (
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // GenericDMMessage is called upon receiving DMMessageCreate , DMMessageUpdate , DMMessageDelete , GenericDMMessageReaction , DMMessageReactionAdd , DMMessageReactionRemove , DMMessageReactionRemoveEmoji or DMMessageReactionRemoveAll (requires gateway.IntentsDirectMessage)
@@ -11,14 +12,6 @@ type GenericDMMessage struct {
 	MessageID snowflake.ID
 	Message   discord.Message
 	ChannelID snowflake.ID
-}
-
-// Channel returns the Channel the GenericDMMessage happened in
-func (e GenericDMMessage) Channel() (discord.DMChannel, bool) {
-	if ch, ok := e.Client().Caches().Channels().Get(e.ChannelID); ok {
-		return ch.(discord.DMChannel), true
-	}
-	return discord.DMChannel{}, false
 }
 
 // DMMessageCreate is called upon receiving a discord.Message in a Channel (requires gateway.IntentsDirectMessage)

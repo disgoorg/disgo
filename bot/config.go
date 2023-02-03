@@ -3,6 +3,8 @@ package bot
 import (
 	"fmt"
 
+	"github.com/disgoorg/log"
+
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
@@ -10,7 +12,7 @@ import (
 	"github.com/disgoorg/disgo/internal/tokenhelper"
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/sharding"
-	"github.com/disgoorg/log"
+	"github.com/disgoorg/disgo/voice"
 )
 
 // DefaultConfig returns a Config with sensible defaults.
@@ -32,6 +34,9 @@ type Config struct {
 
 	EventManager           EventManager
 	EventManagerConfigOpts []EventManagerConfigOpt
+
+	VoiceManager           voice.Manager
+	VoiceManagerConfigOpts []voice.ManagerConfigOpt
 
 	Gateway           gateway.Gateway
 	GatewayConfigOpts []gateway.ConfigOpt
@@ -109,15 +114,27 @@ func WithEventListeners(eventListeners ...EventListener) ConfigOpt {
 	}
 }
 
-// WithEventListenerFunc adds the given ListenerFunc(s) to the default EventManager.
-func WithEventListenerFunc[E Event](listenerFunc func(e E)) ConfigOpt {
-	return WithEventListeners(NewListenerFunc(listenerFunc))
+// WithEventListenerFunc adds the given func(e E) to the default EventManager.
+func WithEventListenerFunc[E Event](f func(e E)) ConfigOpt {
+	return WithEventListeners(NewListenerFunc(f))
+}
+
+// WithEventListenerChan adds the given chan<- E to the default EventManager.
+func WithEventListenerChan[E Event](c chan<- E) ConfigOpt {
+	return WithEventListeners(NewListenerChan(c))
 }
 
 // WithGateway lets you inject your own gateway.Gateway.
 func WithGateway(gateway gateway.Gateway) ConfigOpt {
 	return func(config *Config) {
 		config.Gateway = gateway
+	}
+}
+
+// WithDefaultGateway creates a gateway.Gateway with sensible defaults.
+func WithDefaultGateway() ConfigOpt {
+	return func(config *Config) {
+		config.GatewayConfigOpts = append(config.GatewayConfigOpts, func(_ *gateway.Config) {})
 	}
 }
 
@@ -132,6 +149,13 @@ func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) ConfigOpt {
 func WithShardManager(shardManager sharding.ShardManager) ConfigOpt {
 	return func(config *Config) {
 		config.ShardManager = shardManager
+	}
+}
+
+// WithDefaultShardManager creates a sharding.ShardManager with sensible defaults.
+func WithDefaultShardManager() ConfigOpt {
+	return func(config *Config) {
+		config.ShardManagerConfigOpts = append(config.ShardManagerConfigOpts, func(_ *sharding.Config) {})
 	}
 }
 
@@ -219,12 +243,17 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 	}
 	client.restServices = config.Rest
 
+	if config.VoiceManager == nil {
+		config.VoiceManager = voice.NewManager(client.UpdateVoiceState, *id, append([]voice.ManagerConfigOpt{voice.WithLogger(client.logger)}, config.VoiceManagerConfigOpts...)...)
+	}
+	client.voiceManager = config.VoiceManager
+
 	if config.EventManager == nil {
 		config.EventManager = NewEventManager(client, config.EventManagerConfigOpts...)
 	}
 	client.eventManager = config.EventManager
 
-	if config.Gateway == nil && config.GatewayConfigOpts != nil {
+	if config.Gateway == nil && len(config.GatewayConfigOpts) > 0 {
 		var gatewayRs *discord.Gateway
 		gatewayRs, err = client.restServices.GetGateway()
 		if err != nil {
@@ -246,7 +275,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 	}
 	client.gateway = config.Gateway
 
-	if config.ShardManager == nil && config.ShardManagerConfigOpts != nil {
+	if config.ShardManager == nil && len(config.ShardManagerConfigOpts) > 0 {
 		var gatewayBotRs *discord.GatewayBot
 		gatewayBotRs, err = client.restServices.GetGatewayBot()
 		if err != nil {
@@ -281,7 +310,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 	}
 	client.shardManager = config.ShardManager
 
-	if config.HTTPServer == nil && config.PublicKey != "" && config.HTTPServerConfigOpts != nil {
+	if config.HTTPServer == nil && config.PublicKey != "" {
 		config.HTTPServerConfigOpts = append([]httpserver.ConfigOpt{
 			httpserver.WithLogger(client.logger),
 		}, config.HTTPServerConfigOpts...)
@@ -291,7 +320,7 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 	client.httpServer = config.HTTPServer
 
 	if config.MemberChunkingManager == nil {
-		config.MemberChunkingManager = NewMemberChunkingManager(client, config.MemberChunkingFilter)
+		config.MemberChunkingManager = NewMemberChunkingManager(client, config.Logger, config.MemberChunkingFilter)
 	}
 	client.memberChunkingManager = config.MemberChunkingManager
 

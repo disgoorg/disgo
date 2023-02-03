@@ -2,9 +2,9 @@ package discord
 
 import (
 	"fmt"
+	"time"
 
-	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/disgo/rest/route"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -26,6 +26,7 @@ type Webhook interface {
 	Name() string
 	Avatar() *string
 	AvatarURL(opts ...CDNOpt) *string
+	CreatedAt() time.Time
 	webhook()
 }
 
@@ -64,7 +65,7 @@ func (w *UnmarshalWebhook) UnmarshalJSON(data []byte) error {
 		webhook = v
 
 	default:
-		err = fmt.Errorf("unkown webhook with type %d received", wType.Type)
+		err = fmt.Errorf("unknown webhook with type %d received", wType.Type)
 	}
 
 	if err != nil {
@@ -134,34 +135,30 @@ func (w IncomingWebhook) Avatar() *string {
 }
 
 func (w IncomingWebhook) EffectiveAvatarURL(opts ...CDNOpt) string {
-	if w.Avatar() == nil {
-		return w.DefaultAvatarURL(opts...)
+	if avatarURL := w.AvatarURL(opts...); avatarURL != nil {
+		return *avatarURL
 	}
-	if avatar := w.AvatarURL(opts...); avatar != nil {
-		return *avatar
-	}
-	return ""
+	return w.DefaultAvatarURL(opts...)
 }
 
 func (w IncomingWebhook) AvatarURL(opts ...CDNOpt) *string {
 	if w.Avatar() == nil {
 		return nil
 	}
-	return formatAssetURL(route.UserAvatar, opts, w.ID(), *w.Avatar())
+	url := formatAssetURL(UserAvatar, opts, w.ID(), *w.Avatar())
+	return &url
 }
 
 func (w IncomingWebhook) DefaultAvatarURL(opts ...CDNOpt) string {
-	if avatar := formatAssetURL(route.DefaultUserAvatar, opts, 0); avatar != nil {
-		return *avatar
-	}
-	return ""
+	return formatAssetURL(DefaultUserAvatar, opts, 0)
 }
 
 func (w IncomingWebhook) URL() string {
-	if compiledRoute, err := route.WebhookURL.Compile(nil, w.ID(), w.Token); err == nil {
-		return compiledRoute.URL()
-	}
-	return ""
+	return WebhookURL(w.ID(), w.Token)
+}
+
+func (w IncomingWebhook) CreatedAt() time.Time {
+	return w.id.Time()
 }
 
 func (IncomingWebhook) webhook() {}
@@ -235,14 +232,19 @@ func (w ChannelFollowerWebhook) EffectiveAvatarURL(opts ...CDNOpt) string {
 }
 
 func (w ChannelFollowerWebhook) AvatarURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.UserAvatar, opts, w.ID(), *w.Avatar())
+	if w.Avatar() == nil {
+		return nil
+	}
+	url := formatAssetURL(UserAvatar, opts, w.ID(), *w.Avatar())
+	return &url
 }
 
 func (w ChannelFollowerWebhook) DefaultAvatarURL(opts ...CDNOpt) string {
-	if avatar := formatAssetURL(route.DefaultUserAvatar, opts, 0); avatar != nil {
-		return *avatar
-	}
-	return ""
+	return formatAssetURL(DefaultUserAvatar, opts, 0)
+}
+
+func (w ChannelFollowerWebhook) CreatedAt() time.Time {
+	return w.id.Time()
 }
 
 func (ChannelFollowerWebhook) webhook() {}
@@ -314,14 +316,16 @@ func (w ApplicationWebhook) AvatarURL(opts ...CDNOpt) *string {
 	if w.Avatar() == nil {
 		return nil
 	}
-	return formatAssetURL(route.UserAvatar, opts, w.ID(), *w.Avatar())
+	url := formatAssetURL(UserAvatar, opts, w.ID(), *w.Avatar())
+	return &url
 }
 
 func (w ApplicationWebhook) DefaultAvatarURL(opts ...CDNOpt) string {
-	if avatar := formatAssetURL(route.DefaultUserAvatar, opts, 0); avatar != nil {
-		return *avatar
-	}
-	return ""
+	return formatAssetURL(DefaultUserAvatar, opts, 0)
+}
+
+func (w ApplicationWebhook) CreatedAt() time.Time {
+	return w.id.Time()
 }
 
 func (ApplicationWebhook) webhook() {}
@@ -347,11 +351,11 @@ type WebhookCreate struct {
 type WebhookUpdate struct {
 	Name      *string              `json:"name,omitempty"`
 	Avatar    *json.Nullable[Icon] `json:"avatar,omitempty"`
-	ChannelID *snowflake.ID        `json:"channel_id"`
+	ChannelID *snowflake.ID        `json:"channel_id,omitempty"`
 }
 
 // WebhookUpdateWithToken is used to update a Webhook with the token
 type WebhookUpdateWithToken struct {
-	Name   *string `json:"name,omitempty"`
-	Avatar *string `json:"avatar,omitempty"`
+	Name   *string              `json:"name,omitempty"`
+	Avatar *json.Nullable[Icon] `json:"avatar,omitempty"`
 }

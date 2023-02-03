@@ -1,22 +1,23 @@
 package discord
 
-import "github.com/disgoorg/disgo/json"
+import "github.com/disgoorg/json"
 
 type ApplicationCommandUpdate interface {
 	json.Marshaler
 	Type() ApplicationCommandType
-	Name() *string
+	CommandName() *string
 	applicationCommandUpdate()
 }
 
 type SlashCommandUpdate struct {
-	CommandName              *string                     `json:"name,omitempty"`
-	CommandNameLocalizations *map[Locale]string          `json:"name_localizations,omitempty"`
+	Name                     *string                     `json:"name,omitempty"`
+	NameLocalizations        *map[Locale]string          `json:"name_localizations,omitempty"`
 	Description              *string                     `json:"description,omitempty"`
 	DescriptionLocalizations *map[Locale]string          `json:"description_localizations,omitempty"`
 	Options                  *[]ApplicationCommandOption `json:"options,omitempty"`
-	DefaultMemberPermissions *Permissions                `json:"default_member_permissions,omitempty"`
+	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
 	DMPermission             *bool                       `json:"dm_permission,omitempty"`
+	NSFW                     *bool                       `json:"nsfw,omitempty"`
 }
 
 func (c SlashCommandUpdate) MarshalJSON() ([]byte, error) {
@@ -34,17 +35,18 @@ func (SlashCommandUpdate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeSlash
 }
 
-func (c SlashCommandUpdate) Name() *string {
-	return c.CommandName
+func (c SlashCommandUpdate) CommandName() *string {
+	return c.Name
 }
 
 func (SlashCommandUpdate) applicationCommandUpdate() {}
 
 type UserCommandUpdate struct {
-	CommandName              *string            `json:"name"`
-	CommandNameLocalizations *map[Locale]string `json:"name_localizations,omitempty"`
-	DefaultMemberPermissions *Permissions       `json:"default_member_permissions,omitempty"`
-	DMPermission             *bool              `json:"dm_permission,omitempty"`
+	Name                     *string                     `json:"name,omitempty"`
+	NameLocalizations        *map[Locale]string          `json:"name_localizations,omitempty"`
+	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
+	DMPermission             *bool                       `json:"dm_permission,omitempty"`
+	NSFW                     *bool                       `json:"nsfw,omitempty"`
 }
 
 func (c UserCommandUpdate) MarshalJSON() ([]byte, error) {
@@ -62,17 +64,18 @@ func (UserCommandUpdate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeUser
 }
 
-func (c UserCommandUpdate) Name() *string {
-	return c.CommandName
+func (c UserCommandUpdate) CommandName() *string {
+	return c.Name
 }
 
 func (UserCommandUpdate) applicationCommandUpdate() {}
 
 type MessageCommandUpdate struct {
-	CommandName              *string            `json:"name"`
-	CommandNameLocalizations *map[Locale]string `json:"name_localizations,omitempty"`
-	DefaultMemberPermissions *Permissions       `json:"default_member_permissions,omitempty"`
-	DMPermission             *bool              `json:"dm_permission,omitempty"`
+	Name                     *string                     `json:"name,omitempty"`
+	NameLocalizations        *map[Locale]string          `json:"name_localizations,omitempty"`
+	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
+	DMPermission             *bool                       `json:"dm_permission,omitempty"`
+	NSFW                     *bool                       `json:"nsfw,omitempty"`
 }
 
 func (c MessageCommandUpdate) MarshalJSON() ([]byte, error) {
@@ -90,8 +93,8 @@ func (MessageCommandUpdate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeMessage
 }
 
-func (c MessageCommandUpdate) Name() *string {
-	return c.CommandName
+func (c MessageCommandUpdate) CommandName() *string {
+	return c.Name
 }
 
 func (MessageCommandUpdate) applicationCommandUpdate() {}

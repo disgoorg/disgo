@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/disgoorg/log"
 	"github.com/sasha-s/go-csync"
 )
 
@@ -27,10 +26,6 @@ type rateLimiterImpl struct {
 	config RateLimiterConfig
 }
 
-func (l *rateLimiterImpl) Logger() log.Logger {
-	return l.config.Logger
-}
-
 func (l *rateLimiterImpl) Close(ctx context.Context) {
 	_ = l.mu.CLock(ctx)
 }
@@ -42,7 +37,7 @@ func (l *rateLimiterImpl) Reset() {
 }
 
 func (l *rateLimiterImpl) Wait(ctx context.Context) error {
-	l.Logger().Trace("locking gateway rate limiter")
+	l.config.Logger.Trace("locking gateway rate limiter")
 	if err := l.mu.CLock(ctx); err != nil {
 		return err
 	}
@@ -56,11 +51,6 @@ func (l *rateLimiterImpl) Wait(ctx context.Context) error {
 	}
 
 	if until.After(now) {
-		// TODO: do we want to return early when we know rate limit bigger than ctx deadline?
-		if deadline, ok := ctx.Deadline(); ok && until.After(deadline) {
-			return context.DeadlineExceeded
-		}
-
 		select {
 		case <-ctx.Done():
 			l.Unlock()
@@ -72,7 +62,7 @@ func (l *rateLimiterImpl) Wait(ctx context.Context) error {
 }
 
 func (l *rateLimiterImpl) Unlock() {
-	l.Logger().Trace("unlocking gateway rate limiter")
+	l.config.Logger.Trace("unlocking gateway rate limiter")
 	now := time.Now()
 	if l.reset.Before(now) {
 		l.reset = now.Add(time.Minute)

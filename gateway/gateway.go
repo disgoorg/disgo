@@ -3,8 +3,6 @@ package gateway
 import (
 	"context"
 	"time"
-
-	"github.com/disgoorg/log"
 )
 
 // Version defines which discord API version disgo should use to connect to discord.
@@ -64,9 +62,6 @@ type (
 
 // Gateway is what is used to connect to discord.
 type Gateway interface {
-	// Logger returns the logger that is used by the Gateway.
-	Logger() log.Logger
-
 	// ShardID returns the shard ID that this Gateway is configured to use.
 	ShardID() int
 
@@ -105,4 +100,7 @@ type Gateway interface {
 	// Latency returns the latency of the Gateway.
 	// This is calculated by the time it takes to send a heartbeat and receive a heartbeat ack by discord.
 	Latency() time.Duration
+
+	// Presence returns the current presence of the Gateway.
+	Presence() *MessageDataPresenceUpdate
 }

@@ -29,6 +29,7 @@ const (
 	LocaleGreek        Locale = "el"
 	LocaleHindi        Locale = "hi"
 	LocaleHungarian    Locale = "hu"
+	LocaleIndonesian   Locale = "id"
 	LocaleItalian      Locale = "it"
 	LocaleJapanese     Locale = "ja"
 	LocaleKorean       Locale = "ko"
@@ -63,6 +64,7 @@ var Locales = map[Locale]string{
 	LocaleGreek:        "Greek",
 	LocaleHindi:        "Hindi",
 	LocaleHungarian:    "Hungarian",
+	LocaleIndonesian:   "Indonesian",
 	LocaleItalian:      "Italian",
 	LocaleJapanese:     "Japanese",
 	LocaleKorean:       "Korean",

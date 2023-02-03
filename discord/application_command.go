@@ -2,8 +2,9 @@ package discord
 
 import (
 	"fmt"
+	"time"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -27,6 +28,8 @@ type ApplicationCommand interface {
 	DefaultMemberPermissions() Permissions
 	DMPermission() bool
 	Version() snowflake.ID
+	CreatedAt() time.Time
+	NSFW() bool
 	applicationCommand()
 }
 
@@ -65,7 +68,7 @@ func (u *UnmarshalApplicationCommand) UnmarshalJSON(data []byte) error {
 		applicationCommand = v
 
 	default:
-		err = fmt.Errorf("unkown application command with type %d received", cType.Type)
+		err = fmt.Errorf("unknown application command with type %d received", cType.Type)
 	}
 
 	if err != nil {
@@ -91,6 +94,7 @@ type SlashCommand struct {
 	Options                  []ApplicationCommandOption
 	defaultMemberPermissions Permissions
 	dmPermission             bool
+	nsfw                     bool
 	version                  snowflake.ID
 }
 
@@ -112,6 +116,7 @@ func (c *SlashCommand) UnmarshalJSON(data []byte) error {
 	c.Options = v.Options
 	c.defaultMemberPermissions = v.DefaultMemberPermissions
 	c.dmPermission = v.DMPermission
+	c.nsfw = v.NSFW
 	c.version = v.Version
 	return nil
 }
@@ -131,6 +136,7 @@ func (c SlashCommand) MarshalJSON() ([]byte, error) {
 		Options:                  c.Options,
 		DefaultMemberPermissions: c.defaultMemberPermissions,
 		DMPermission:             c.dmPermission,
+		NSFW:                     c.nsfw,
 		Version:                  c.version,
 	})
 }
@@ -170,8 +176,20 @@ func (c SlashCommand) DMPermission() bool {
 	return c.dmPermission
 }
 
+func (c SlashCommand) NSFW() bool {
+	return c.nsfw
+}
+
 func (c SlashCommand) Version() snowflake.ID {
 	return c.version
+}
+
+func (c SlashCommand) CreatedAt() time.Time {
+	return c.id.Time()
+}
+
+func (c SlashCommand) Mention() string {
+	return SlashCommandMention(c.id, c.name)
 }
 
 func (SlashCommand) applicationCommand() {}
@@ -187,6 +205,7 @@ type UserCommand struct {
 	nameLocalized            string
 	defaultMemberPermissions Permissions
 	dmPermission             bool
+	nsfw                     bool
 	version                  snowflake.ID
 }
 
@@ -204,6 +223,7 @@ func (c *UserCommand) UnmarshalJSON(data []byte) error {
 	c.nameLocalized = v.NameLocalized
 	c.defaultMemberPermissions = v.DefaultMemberPermissions
 	c.dmPermission = v.DMPermission
+	c.nsfw = v.NSFW
 	c.version = v.Version
 	return nil
 }
@@ -219,6 +239,7 @@ func (c UserCommand) MarshalJSON() ([]byte, error) {
 		NameLocalized:            c.nameLocalized,
 		DefaultMemberPermissions: c.defaultMemberPermissions,
 		DMPermission:             c.dmPermission,
+		NSFW:                     c.nsfw,
 		Version:                  c.version,
 	})
 }
@@ -258,8 +279,16 @@ func (c UserCommand) DMPermission() bool {
 	return c.dmPermission
 }
 
+func (c UserCommand) NSFW() bool {
+	return c.nsfw
+}
+
 func (c UserCommand) Version() snowflake.ID {
 	return c.version
+}
+
+func (c UserCommand) CreatedAt() time.Time {
+	return c.id.Time()
 }
 
 func (UserCommand) applicationCommand() {}
@@ -275,6 +304,7 @@ type MessageCommand struct {
 	nameLocalized            string
 	defaultMemberPermissions Permissions
 	dmPermission             bool
+	nsfw                     bool
 	version                  snowflake.ID
 }
 
@@ -292,6 +322,7 @@ func (c *MessageCommand) UnmarshalJSON(data []byte) error {
 	c.nameLocalized = v.NameLocalized
 	c.defaultMemberPermissions = v.DefaultMemberPermissions
 	c.dmPermission = v.DMPermission
+	c.nsfw = v.NSFW
 	c.version = v.Version
 	return nil
 }
@@ -307,6 +338,7 @@ func (c MessageCommand) MarshalJSON() ([]byte, error) {
 		NameLocalized:            c.nameLocalized,
 		DefaultMemberPermissions: c.defaultMemberPermissions,
 		DMPermission:             c.dmPermission,
+		NSFW:                     c.nsfw,
 		Version:                  c.version,
 	})
 }
@@ -346,8 +378,16 @@ func (c MessageCommand) DMPermission() bool {
 	return c.dmPermission
 }
 
+func (c MessageCommand) NSFW() bool {
+	return c.nsfw
+}
+
 func (c MessageCommand) Version() snowflake.ID {
 	return c.version
+}
+
+func (c MessageCommand) CreatedAt() time.Time {
+	return c.id.Time()
 }
 
 func (MessageCommand) applicationCommand() {}

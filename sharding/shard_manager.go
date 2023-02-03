@@ -3,17 +3,14 @@ package sharding
 import (
 	"context"
 
-	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/gateway"
 )
 
 // ShardManager manages multiple gateway.Gateway connections.
 // For more information on sharding see: https://discord.com/developers/docs/topics/gateway#sharding
 type ShardManager interface {
-	// Logger returns the logger used by the ShardManager.
-	Logger() log.Logger
-
 	// Open opens all configured shards.
 	Open(ctx context.Context)
 	// Close closes all shards.

@@ -7,13 +7,14 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/disgoorg/log"
+
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/log"
 )
 
 var (
@@ -30,7 +31,7 @@ func main() {
 			gateway.WithIntents(gateway.IntentGuildScheduledEvents|gateway.IntentGuilds|gateway.IntentGuildMessages),
 		),
 		bot.WithCacheConfigOpts(
-			cache.WithCacheFlags(cache.FlagsAll),
+			cache.WithCaches(cache.FlagsAll),
 		),
 		bot.WithMemberChunkingFilter(bot.MemberChunkingFilterNone),
 		bot.WithEventListeners(&events.ListenerAdapter{
@@ -84,7 +85,7 @@ func main() {
 		return
 	}
 
-	if err = client.ConnectGateway(context.TODO()); err != nil {
+	if err = client.OpenGateway(context.TODO()); err != nil {
 		log.Fatal("error while connecting to discord: ", err)
 	}
 

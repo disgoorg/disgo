@@ -6,8 +6,8 @@ import (
 	"github.com/disgoorg/disgo/httpserver"
 )
 
-// DefaultHTTPServerEventHandler is the default handler for the httpserver.Server and sends payloads to the bot.EventManager.
-func DefaultHTTPServerEventHandler(client bot.Client) httpserver.EventHandlerFunc {
+// DefaultHTTPServerEventHandlerFunc is the default handler for the httpserver.Server and sends payloads to the bot.EventManager.
+func DefaultHTTPServerEventHandlerFunc(client bot.Client) httpserver.EventHandlerFunc {
 	return client.EventManager().HandleHTTPEvent
 }
 
@@ -16,8 +16,8 @@ func GetHTTPServerHandler() bot.HTTPServerEventHandler {
 	return &httpserverHandlerInteractionCreate{}
 }
 
-// DefaultGatewayEventHandler is the default handler for the gateway.Gateway and sends payloads to the bot.EventManager.
-func DefaultGatewayEventHandler(client bot.Client) gateway.EventHandlerFunc {
+// DefaultGatewayEventHandlerFunc is the default handler for the gateway.Gateway and sends payloads to the bot.EventManager.
+func DefaultGatewayEventHandlerFunc(client bot.Client) gateway.EventHandlerFunc {
 	return client.EventManager().HandleGatewayEvent
 }
 
@@ -58,6 +58,8 @@ var allEventHandlers = []bot.GatewayEventHandler{
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildUpdate, gatewayHandlerGuildUpdate),
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildDelete, gatewayHandlerGuildDelete),
 
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildAuditLogEntryCreate, gatewayHandlerGuildAuditLogEntryCreate),
+
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildBanAdd, gatewayHandlerGuildBanAdd),
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildBanRemove, gatewayHandlerGuildBanRemove),
 
@@ -66,8 +68,8 @@ var allEventHandlers = []bot.GatewayEventHandler{
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildIntegrationsUpdate, gatewayHandlerGuildIntegrationsUpdate),
 
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildMemberAdd, gatewayHandlerGuildMemberAdd),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildMemberRemove, gatewayHandlerGuildMemberRemove),
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildMemberUpdate, gatewayHandlerGuildMemberUpdate),
-	bot.NewGatewayEventHandler(gateway.EventTypeGuildMemberUpdate, gatewayHandlerGuildMemberRemove),
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildMembersChunk, gatewayHandlerGuildMembersChunk),
 
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildRoleCreate, gatewayHandlerGuildRoleCreate),

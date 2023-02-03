@@ -3,8 +3,9 @@ package events
 import (
 	"time"
 
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // GenericUser is called upon receiving UserUpdate or UserTypingStart
@@ -29,7 +30,7 @@ type UserTypingStart struct {
 	Timestamp time.Time
 }
 
-// Channel returns the discord.MessageChannel the discord.User started typing in
-func (e *UserTypingStart) Channel() (discord.MessageChannel, bool) {
-	return e.Client().Caches().Channels().GetMessageChannel(e.ChannelID)
+// Channel returns the discord.GuildMessageChannel the discord.User started typing in
+func (e *UserTypingStart) Channel() (discord.GuildMessageChannel, bool) {
+	return e.Client().Caches().GuildMessageChannel(e.ChannelID)
 }

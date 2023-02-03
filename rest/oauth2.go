@@ -3,9 +3,9 @@ package rest
 import (
 	"net/url"
 
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 var _ OAuth2 = (*oAuth2Impl)(nil)
@@ -21,9 +21,13 @@ type OAuth2 interface {
 	GetCurrentUser(bearerToken string, opts ...RequestOpt) (*discord.OAuth2User, error)
 	GetCurrentMember(bearerToken string, guildID snowflake.ID, opts ...RequestOpt) (*discord.Member, error)
 	GetCurrentUserGuilds(bearerToken string, before snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) ([]discord.OAuth2Guild, error)
+	GetCurrentUserGuildsPage(bearerToken string, startID snowflake.ID, limit int, opts ...RequestOpt) Page[discord.OAuth2Guild]
 	GetCurrentUserConnections(bearerToken string, opts ...RequestOpt) ([]discord.Connection, error)
 
 	SetGuildCommandPermissions(bearerToken string, applicationID snowflake.ID, guildID snowflake.ID, commandID snowflake.ID, commandPermissions []discord.ApplicationCommandPermission, opts ...RequestOpt) (*discord.ApplicationCommandPermissions, error)
+
+	GetCurrentUserApplicationRoleConnection(bearerToken string, applicationID snowflake.ID, opts ...RequestOpt) (*discord.ApplicationRoleConnection, error)
+	UpdateCurrentUserApplicationRoleConnection(bearerToken string, applicationID snowflake.ID, connectionUpdate discord.ApplicationRoleConnectionUpdate, opts ...RequestOpt) (*discord.ApplicationRoleConnection, error)
 
 	GetAccessToken(clientID snowflake.ID, clientSecret string, code string, redirectURI string, opts ...RequestOpt) (*discord.AccessTokenResponse, error)
 	RefreshAccessToken(clientID snowflake.ID, clientSecret string, refreshToken string, opts ...RequestOpt) (*discord.AccessTokenResponse, error)
@@ -41,49 +45,27 @@ func withBearerToken(bearerToken string, opts []RequestOpt) []RequestOpt {
 }
 
 func (s *oAuth2Impl) GetBotApplicationInfo(opts ...RequestOpt) (application *discord.Application, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetBotApplicationInfo.Compile(nil)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &application, opts...)
+	err = s.client.Do(GetBotApplicationInfo.Compile(nil), nil, &application, opts...)
 	return
 }
 
 func (s *oAuth2Impl) GetCurrentAuthorizationInfo(bearerToken string, opts ...RequestOpt) (info *discord.AuthorizationInformation, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetAuthorizationInfo.Compile(nil)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &info, withBearerToken(bearerToken, opts)...)
+	err = s.client.Do(GetAuthorizationInfo.Compile(nil), nil, &info, withBearerToken(bearerToken, opts)...)
 	return
 }
 
 func (s *oAuth2Impl) GetCurrentUser(bearerToken string, opts ...RequestOpt) (user *discord.OAuth2User, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetCurrentUser.Compile(nil)
-	if err != nil {
-		return
-	}
-
-	err = s.client.Do(compiledRoute, nil, &user, withBearerToken(bearerToken, opts)...)
+	err = s.client.Do(GetCurrentUser.Compile(nil), nil, &user, withBearerToken(bearerToken, opts)...)
 	return
 }
 
 func (s *oAuth2Impl) GetCurrentMember(bearerToken string, guildID snowflake.ID, opts ...RequestOpt) (member *discord.Member, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetCurrentMember.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
-
-	err = s.client.Do(compiledRoute, nil, &member, withBearerToken(bearerToken, opts)...)
+	err = s.client.Do(GetCurrentMember.Compile(nil, guildID), nil, &member, withBearerToken(bearerToken, opts)...)
 	return
 }
 
 func (s *oAuth2Impl) GetCurrentUserGuilds(bearerToken string, before snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) (guilds []discord.OAuth2Guild, err error) {
-	queryParams := route.QueryValues{}
+	queryParams := discord.QueryValues{}
 	if before != 0 {
 		queryParams["before"] = before
 	}
@@ -93,35 +75,39 @@ func (s *oAuth2Impl) GetCurrentUserGuilds(bearerToken string, before snowflake.I
 	if limit != 0 {
 		queryParams["limit"] = limit
 	}
-
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetCurrentUserGuilds.Compile(queryParams)
-	if err != nil {
-		return
-	}
-
-	err = s.client.Do(compiledRoute, nil, &guilds, withBearerToken(bearerToken, opts)...)
+	err = s.client.Do(GetCurrentUserGuilds.Compile(queryParams), nil, &guilds, withBearerToken(bearerToken, opts)...)
 	return
 }
 
-func (s *oAuth2Impl) GetCurrentUserConnections(bearerToken string, opts ...RequestOpt) (connections []discord.Connection, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetCurrentUserConnections.Compile(nil)
-	if err != nil {
-		return
+func (s *oAuth2Impl) GetCurrentUserGuildsPage(bearerToken string, startID snowflake.ID, limit int, opts ...RequestOpt) Page[discord.OAuth2Guild] {
+	return Page[discord.OAuth2Guild]{
+		getItemsFunc: func(before snowflake.ID, after snowflake.ID) ([]discord.OAuth2Guild, error) {
+			return s.GetCurrentUserGuilds(bearerToken, before, after, limit, opts...)
+		},
+		getIDFunc: func(guild discord.OAuth2Guild) snowflake.ID {
+			return guild.ID
+		},
+		ID: startID,
 	}
+}
 
-	err = s.client.Do(compiledRoute, nil, &connections, withBearerToken(bearerToken, opts)...)
+func (s *oAuth2Impl) GetCurrentUserConnections(bearerToken string, opts ...RequestOpt) (connections []discord.Connection, err error) {
+	err = s.client.Do(GetCurrentUserConnections.Compile(nil), nil, &connections, withBearerToken(bearerToken, opts)...)
 	return
 }
 
 func (s *oAuth2Impl) SetGuildCommandPermissions(bearerToken string, applicationID snowflake.ID, guildID snowflake.ID, commandID snowflake.ID, commandPermissions []discord.ApplicationCommandPermission, opts ...RequestOpt) (commandPerms *discord.ApplicationCommandPermissions, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.SetGuildCommandPermissions.Compile(nil, applicationID, guildID, commandID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, discord.ApplicationCommandPermissionsSet{Permissions: commandPermissions}, &commandPerms, withBearerToken(bearerToken, opts)...)
+	err = s.client.Do(SetGuildCommandPermissions.Compile(nil, applicationID, guildID, commandID), discord.ApplicationCommandPermissionsSet{Permissions: commandPermissions}, &commandPerms, withBearerToken(bearerToken, opts)...)
+	return
+}
+
+func (s *oAuth2Impl) GetCurrentUserApplicationRoleConnection(bearerToken string, applicationID snowflake.ID, opts ...RequestOpt) (connection *discord.ApplicationRoleConnection, err error) {
+	err = s.client.Do(GetCurrentUserApplicationRoleConnection.Compile(nil, applicationID), nil, &connection, withBearerToken(bearerToken, opts)...)
+	return
+}
+
+func (s *oAuth2Impl) UpdateCurrentUserApplicationRoleConnection(bearerToken string, applicationID snowflake.ID, connectionUpdate discord.ApplicationRoleConnectionUpdate, opts ...RequestOpt) (connection *discord.ApplicationRoleConnection, err error) {
+	err = s.client.Do(UpdateCurrentUserApplicationRoleConnection.Compile(nil, applicationID), connectionUpdate, &connection, withBearerToken(bearerToken, opts)...)
 	return
 }
 
@@ -141,13 +127,7 @@ func (s *oAuth2Impl) exchangeAccessToken(clientID snowflake.ID, clientSecret str
 	case discord.GrantTypeRefreshToken:
 		values["refresh_token"] = []string{codeOrRefreshToken}
 	}
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.Token.Compile(nil)
-	if err != nil {
-		return
-	}
-
-	err = s.client.Do(compiledRoute, values, &exchange, opts...)
+	err = s.client.Do(Token.Compile(nil), values, &exchange, opts...)
 	return
 }
 

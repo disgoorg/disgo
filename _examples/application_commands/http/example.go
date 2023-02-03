@@ -6,14 +6,15 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake/v2"
+	"github.com/oasisprotocol/curve25519-voi/primitives/ed25519"
+
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/httpserver"
-	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake/v2"
-	"github.com/oasisprotocol/curve25519-voi/primitives/ed25519"
 )
 
 var (
@@ -23,16 +24,16 @@ var (
 
 	commands = []discord.ApplicationCommandCreate{
 		discord.SlashCommandCreate{
-			CommandName: "say",
+			Name:        "say",
 			Description: "says what you say",
 			Options: []discord.ApplicationCommandOption{
 				discord.ApplicationCommandOptionString{
-					OptionName:  "message",
+					Name:        "message",
 					Description: "What to say",
 					Required:    true,
 				},
 				discord.ApplicationCommandOptionBool{
-					OptionName:  "ephemeral",
+					Name:        "ephemeral",
 					Description: "If the response should only be visible to you",
 					Required:    true,
 				},
@@ -69,7 +70,7 @@ func main() {
 		log.Fatal("error while registering commands: ", err)
 	}
 
-	if err = client.StartHTTPServer(); err != nil {
+	if err = client.OpenHTTPServer(); err != nil {
 		log.Fatal("error while starting http server: ", err)
 	}
 

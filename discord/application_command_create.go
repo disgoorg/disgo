@@ -1,22 +1,23 @@
 package discord
 
-import "github.com/disgoorg/disgo/json"
+import "github.com/disgoorg/json"
 
 type ApplicationCommandCreate interface {
 	json.Marshaler
 	Type() ApplicationCommandType
-	Name() string
+	CommandName() string
 	applicationCommandCreate()
 }
 
 type SlashCommandCreate struct {
-	CommandName              string                     `json:"name"`
-	CommandNameLocalizations map[Locale]string          `json:"name_localizations,omitempty"`
-	Description              string                     `json:"description"`
-	DescriptionLocalizations map[Locale]string          `json:"description_localizations,omitempty"`
-	Options                  []ApplicationCommandOption `json:"options,omitempty"`
-	DefaultMemberPermissions Permissions                `json:"default_member_permissions,omitempty"`
-	DMPermission             bool                       `json:"dm_permission"`
+	Name                     string                      `json:"name"`
+	NameLocalizations        map[Locale]string           `json:"name_localizations,omitempty"`
+	Description              string                      `json:"description"`
+	DescriptionLocalizations map[Locale]string           `json:"description_localizations,omitempty"`
+	Options                  []ApplicationCommandOption  `json:"options,omitempty"`
+	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"` // different behavior for 0 and null, optional
+	DMPermission             *bool                       `json:"dm_permission,omitempty"`
+	NSFW                     *bool                       `json:"nsfw,omitempty"`
 }
 
 func (c SlashCommandCreate) MarshalJSON() ([]byte, error) {
@@ -34,17 +35,18 @@ func (SlashCommandCreate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeSlash
 }
 
-func (c SlashCommandCreate) Name() string {
-	return c.CommandName
+func (c SlashCommandCreate) CommandName() string {
+	return c.Name
 }
 
 func (SlashCommandCreate) applicationCommandCreate() {}
 
 type UserCommandCreate struct {
-	CommandName              string            `json:"name"`
-	CommandNameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
-	DefaultMemberPermissions Permissions       `json:"default_member_permissions"`
-	DMPermission             bool              `json:"dm_permission"`
+	Name                     string                      `json:"name"`
+	NameLocalizations        map[Locale]string           `json:"name_localizations,omitempty"`
+	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
+	DMPermission             *bool                       `json:"dm_permission,omitempty"`
+	NSFW                     *bool                       `json:"nsfw,omitempty"`
 }
 
 func (c UserCommandCreate) MarshalJSON() ([]byte, error) {
@@ -62,17 +64,18 @@ func (UserCommandCreate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeUser
 }
 
-func (c UserCommandCreate) Name() string {
-	return c.CommandName
+func (c UserCommandCreate) CommandName() string {
+	return c.Name
 }
 
 func (UserCommandCreate) applicationCommandCreate() {}
 
 type MessageCommandCreate struct {
-	CommandName              string            `json:"name"`
-	CommandNameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
-	DefaultMemberPermissions Permissions       `json:"default_member_permissions"`
-	DMPermission             bool              `json:"dm_permission"`
+	Name                     string                      `json:"name"`
+	NameLocalizations        map[Locale]string           `json:"name_localizations,omitempty"`
+	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
+	DMPermission             *bool                       `json:"dm_permission,omitempty"`
+	NSFW                     *bool                       `json:"nsfw,omitempty"`
 }
 
 func (c MessageCommandCreate) MarshalJSON() ([]byte, error) {
@@ -90,8 +93,8 @@ func (MessageCommandCreate) Type() ApplicationCommandType {
 	return ApplicationCommandTypeMessage
 }
 
-func (c MessageCommandCreate) Name() string {
-	return c.CommandName
+func (c MessageCommandCreate) CommandName() string {
+	return c.Name
 }
 
 func (MessageCommandCreate) applicationCommandCreate() {}

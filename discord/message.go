@@ -1,10 +1,13 @@
 package discord
 
 import (
+	"fmt"
 	"time"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/internal/flags"
 )
 
 // The MessageType indicates the Message type
@@ -37,6 +40,14 @@ const (
 	MessageTypeGuildInviteReminder
 	MessageTypeContextMenuCommand
 	MessageTypeAutoModerationAction
+	_
+	MessageTypeInteractionPremiumUpsell
+	_
+	_
+	_
+	_
+	_
+	MessageTypeGuildApplicationPremiumSubscription
 )
 
 func (t MessageType) System() bool {
@@ -60,6 +71,12 @@ func (t MessageType) Deleteable() bool {
 	default:
 		return true
 	}
+}
+
+const MessageURLFmt = "https://discord.com/channels/%s/%d/%d"
+
+func MessageURL(guildID snowflake.ID, channelID snowflake.ID, messageID snowflake.ID) string {
+	return fmt.Sprintf(MessageURLFmt, guildID, channelID, messageID)
 }
 
 // Message is a struct for messages sent in discord text-based channels
@@ -89,10 +106,12 @@ type Message struct {
 	WebhookID         *snowflake.ID        `json:"webhook_id,omitempty"`
 	Activity          *MessageActivity     `json:"activity,omitempty"`
 	Application       *MessageApplication  `json:"application,omitempty"`
-	Stickers          []MessageSticker     `json:"sticker_items,omitempty"`
+	ApplicationID     *snowflake.ID        `json:"application_id,omitempty"`
+	StickerItems      []MessageSticker     `json:"sticker_items,omitempty"`
 	ReferencedMessage *Message             `json:"referenced_message,omitempty"`
 	LastUpdated       *time.Time           `json:"last_updated,omitempty"`
 	Thread            *MessageThread       `json:"thread,omitempty"`
+	Position          *int                 `json:"position,omitempty"`
 }
 
 func (m *Message) UnmarshalJSON(data []byte) error {
@@ -119,7 +138,7 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 }
 
 // ActionRows returns all ActionRowComponent(s) from this Message
-func (m *Message) ActionRows() []ActionRowComponent {
+func (m Message) ActionRows() []ActionRowComponent {
 	var actionRows []ActionRowComponent
 	for i := range m.Components {
 		if actionRow, ok := m.Components[i].(ActionRowComponent); ok {
@@ -130,7 +149,7 @@ func (m *Message) ActionRows() []ActionRowComponent {
 }
 
 // InteractiveComponents returns the InteractiveComponent(s) from this Message
-func (m *Message) InteractiveComponents() []InteractiveComponent {
+func (m Message) InteractiveComponents() []InteractiveComponent {
 	var interactiveComponents []InteractiveComponent
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
@@ -141,7 +160,7 @@ func (m *Message) InteractiveComponents() []InteractiveComponent {
 }
 
 // ComponentByID returns the Component with the specific CustomID
-func (m *Message) ComponentByID(customID CustomID) InteractiveComponent {
+func (m Message) ComponentByID(customID string) InteractiveComponent {
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
 			if m.Components[i].Components()[ii].ID() == customID {
@@ -153,7 +172,7 @@ func (m *Message) ComponentByID(customID CustomID) InteractiveComponent {
 }
 
 // Buttons returns all ButtonComponent(s) from this Message
-func (m *Message) Buttons() []ButtonComponent {
+func (m Message) Buttons() []ButtonComponent {
 	var buttons []ButtonComponent
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
@@ -166,24 +185,24 @@ func (m *Message) Buttons() []ButtonComponent {
 }
 
 // ButtonByID returns a ButtonComponent with the specific customID from this Message
-func (m *Message) ButtonByID(customID CustomID) *ButtonComponent {
+func (m Message) ButtonByID(customID string) (ButtonComponent, bool) {
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
-			if button, ok := m.Components[i].Components()[ii].(*ButtonComponent); ok && button.ID() == customID {
-				return button
+			if button, ok := m.Components[i].Components()[ii].(ButtonComponent); ok && button.ID() == customID {
+				return button, true
 			}
 		}
 	}
-	return nil
+	return ButtonComponent{}, false
 }
 
 // SelectMenus returns all SelectMenuComponent(s) from this Message
-func (m *Message) SelectMenus() []SelectMenuComponent {
+func (m Message) SelectMenus() []SelectMenuComponent {
 	var selectMenus []SelectMenuComponent
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
-			if button, ok := m.Components[i].Components()[ii].(SelectMenuComponent); ok {
-				selectMenus = append(selectMenus, button)
+			if selectMenu, ok := m.Components[i].Components()[ii].(SelectMenuComponent); ok {
+				selectMenus = append(selectMenus, selectMenu)
 			}
 		}
 	}
@@ -191,15 +210,123 @@ func (m *Message) SelectMenus() []SelectMenuComponent {
 }
 
 // SelectMenuByID returns a SelectMenuComponent with the specific customID from this Message
-func (m *Message) SelectMenuByID(customID CustomID) *SelectMenuComponent {
+func (m Message) SelectMenuByID(customID string) (SelectMenuComponent, bool) {
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
-			if button, ok := m.Components[i].Components()[ii].(*SelectMenuComponent); ok && button.ID() == customID {
-				return button
+			if selectMenu, ok := m.Components[i].Components()[ii].(SelectMenuComponent); ok && selectMenu.ID() == customID {
+				return selectMenu, true
 			}
 		}
 	}
-	return nil
+	return nil, false
+}
+
+// UserSelectMenus returns all UserSelectMenuComponent(s) from this Message
+func (m Message) UserSelectMenus() []UserSelectMenuComponent {
+	var userSelectMenus []UserSelectMenuComponent
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if userSelectMenu, ok := m.Components[i].Components()[ii].(UserSelectMenuComponent); ok {
+				userSelectMenus = append(userSelectMenus, userSelectMenu)
+			}
+		}
+	}
+	return userSelectMenus
+}
+
+// UserSelectMenuByID returns a UserSelectMenuComponent with the specific customID from this Message
+func (m Message) UserSelectMenuByID(customID string) (UserSelectMenuComponent, bool) {
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if userSelectMenu, ok := m.Components[i].Components()[ii].(UserSelectMenuComponent); ok && userSelectMenu.ID() == customID {
+				return userSelectMenu, true
+			}
+		}
+	}
+	return UserSelectMenuComponent{}, false
+}
+
+// RoleSelectMenus returns all RoleSelectMenuComponent(s) from this Message
+func (m Message) RoleSelectMenus() []RoleSelectMenuComponent {
+	var roleSelectMenus []RoleSelectMenuComponent
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if roleSelectMenu, ok := m.Components[i].Components()[ii].(RoleSelectMenuComponent); ok {
+				roleSelectMenus = append(roleSelectMenus, roleSelectMenu)
+			}
+		}
+	}
+	return roleSelectMenus
+}
+
+// RoleSelectMenuByID returns a RoleSelectMenuComponent with the specific customID from this Message
+func (m Message) RoleSelectMenuByID(customID string) (RoleSelectMenuComponent, bool) {
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if roleSelectMenu, ok := m.Components[i].Components()[ii].(RoleSelectMenuComponent); ok && roleSelectMenu.ID() == customID {
+				return roleSelectMenu, true
+			}
+		}
+	}
+	return RoleSelectMenuComponent{}, false
+}
+
+// MentionableSelectMenus returns all MentionableSelectMenuComponent(s) from this Message
+func (m Message) MentionableSelectMenus() []MentionableSelectMenuComponent {
+	var mentionableSelectMenus []MentionableSelectMenuComponent
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if mentionableSelectMenu, ok := m.Components[i].Components()[ii].(MentionableSelectMenuComponent); ok {
+				mentionableSelectMenus = append(mentionableSelectMenus, mentionableSelectMenu)
+			}
+		}
+	}
+	return mentionableSelectMenus
+}
+
+// MentionableSelectMenuByID returns a MentionableSelectMenuComponent with the specific customID from this Message
+func (m Message) MentionableSelectMenuByID(customID string) (MentionableSelectMenuComponent, bool) {
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if mentionableSelectMenu, ok := m.Components[i].Components()[ii].(MentionableSelectMenuComponent); ok && mentionableSelectMenu.ID() == customID {
+				return mentionableSelectMenu, true
+			}
+		}
+	}
+	return MentionableSelectMenuComponent{}, false
+}
+
+// ChannelSelectMenus returns all ChannelSelectMenuComponent(s) from this Message
+func (m Message) ChannelSelectMenus() []ChannelSelectMenuComponent {
+	var channelSelectMenus []ChannelSelectMenuComponent
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if channelSelectMenu, ok := m.Components[i].Components()[ii].(ChannelSelectMenuComponent); ok {
+				channelSelectMenus = append(channelSelectMenus, channelSelectMenu)
+			}
+		}
+	}
+	return channelSelectMenus
+}
+
+// ChannelSelectMenuByID returns a ChannelSelectMenuComponent with the specific customID from this Message
+func (m Message) ChannelSelectMenuByID(customID string) (ChannelSelectMenuComponent, bool) {
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if channelSelectMenu, ok := m.Components[i].Components()[ii].(ChannelSelectMenuComponent); ok && channelSelectMenu.ID() == customID {
+				return channelSelectMenu, true
+			}
+		}
+	}
+	return ChannelSelectMenuComponent{}, false
+}
+
+func (m Message) JumpURL() string {
+	guildID := "@me"
+	if m.GuildID != nil {
+		guildID = m.GuildID.String()
+	}
+	return fmt.Sprintf(MessageURLFmt, guildID, m.ChannelID, m.ID) // duplicate code, but there isn't a better way without sacrificing user convenience
 }
 
 type MessageThread struct {
@@ -223,7 +350,7 @@ type MessageReaction struct {
 // MessageActivityType is the type of MessageActivity https://com/developers/docs/resources/channel#message-object-message-activity-types
 type MessageActivityType int
 
-//Constants for MessageActivityType
+// Constants for MessageActivityType
 const (
 	MessageActivityTypeJoin MessageActivityType = iota + 1
 	MessageActivityTypeSpectate
@@ -232,13 +359,13 @@ const (
 	MessageActivityTypeJoinRequest
 )
 
-//MessageActivity is used for rich presence-related chat embeds in a Message
+// MessageActivity is used for rich presence-related chat embeds in a Message
 type MessageActivity struct {
 	Type    MessageActivityType `json:"type"`
 	PartyID *string             `json:"party_id,omitempty"`
 }
 
-//MessageApplication is used for rich presence-related chat embeds in a Message
+// MessageApplication is used for rich presence-related chat embeds in a Message
 type MessageApplication struct {
 	ID          snowflake.ID `json:"id"`
 	CoverImage  *string      `json:"cover_image,omitempty"`
@@ -264,11 +391,11 @@ type MessageInteraction struct {
 }
 
 type MessageBulkDelete struct {
-	Messages []snowflake.ID `json:"message s"`
+	Messages []snowflake.ID `json:"messages"`
 }
 
 // The MessageFlags of a Message
-type MessageFlags int64
+type MessageFlags int
 
 // Constants for MessageFlags
 const (
@@ -280,41 +407,25 @@ const (
 	MessageFlagHasThread
 	MessageFlagEphemeral
 	MessageFlagLoading              // Message is an interaction of type 5, awaiting further response
-	MessageFlagNone    MessageFlags = 0
+	MessageFlagsNone   MessageFlags = 0
 )
 
 // Add allows you to add multiple bits together, producing a new bit
 func (f MessageFlags) Add(bits ...MessageFlags) MessageFlags {
-	for _, bit := range bits {
-		f |= bit
-	}
-	return f
+	return flags.Add(f, bits...)
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
 func (f MessageFlags) Remove(bits ...MessageFlags) MessageFlags {
-	for _, bit := range bits {
-		f &^= bit
-	}
-	return f
+	return flags.Remove(f, bits...)
 }
 
 // Has will ensure that the bit includes all the bits entered
 func (f MessageFlags) Has(bits ...MessageFlags) bool {
-	for _, bit := range bits {
-		if (f & bit) != bit {
-			return false
-		}
-	}
-	return true
+	return flags.Has(f, bits...)
 }
 
 // Missing will check whether the bit is missing any one of the bits
 func (f MessageFlags) Missing(bits ...MessageFlags) bool {
-	for _, bit := range bits {
-		if (f & bit) != bit {
-			return true
-		}
-	}
-	return false
+	return flags.Missing(f, bits...)
 }

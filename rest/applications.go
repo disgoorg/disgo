@@ -1,9 +1,9 @@
 package rest
 
 import (
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 var _ Applications = (*applicationsImpl)(nil)
@@ -29,6 +29,9 @@ type Applications interface {
 
 	GetGuildCommandsPermissions(applicationID snowflake.ID, guildID snowflake.ID, opts ...RequestOpt) ([]discord.ApplicationCommandPermissions, error)
 	GetGuildCommandPermissions(applicationID snowflake.ID, guildID snowflake.ID, commandID snowflake.ID, opts ...RequestOpt) (*discord.ApplicationCommandPermissions, error)
+
+	GetApplicationRoleConnectionMetadata(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
+	UpdateApplicationRoleConnectionMetadata(applicationID snowflake.ID, newRecords []discord.ApplicationRoleConnectionMetadata, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
 }
 
 type applicationsImpl struct {
@@ -36,13 +39,8 @@ type applicationsImpl struct {
 }
 
 func (s *applicationsImpl) GetGlobalCommands(applicationID snowflake.ID, withLocalizations bool, opts ...RequestOpt) (commands []discord.ApplicationCommand, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetGlobalCommands.Compile(route.QueryValues{"with_localizations": withLocalizations}, applicationID)
-	if err != nil {
-		return
-	}
 	var unmarshalCommands []discord.UnmarshalApplicationCommand
-	err = s.client.Do(compiledRoute, nil, &unmarshalCommands, opts...)
+	err = s.client.Do(GetGlobalCommands.Compile(discord.QueryValues{"with_localizations": withLocalizations}, applicationID), nil, &unmarshalCommands, opts...)
 	if err == nil {
 		commands = unmarshalApplicationCommandsToApplicationCommands(unmarshalCommands)
 	}
@@ -50,13 +48,8 @@ func (s *applicationsImpl) GetGlobalCommands(applicationID snowflake.ID, withLoc
 }
 
 func (s *applicationsImpl) GetGlobalCommand(applicationID snowflake.ID, commandID snowflake.ID, opts ...RequestOpt) (command discord.ApplicationCommand, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetGlobalCommand.Compile(nil, applicationID, commandID)
-	if err != nil {
-		return
-	}
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.client.Do(compiledRoute, nil, &command, opts...)
+	err = s.client.Do(GetGlobalCommand.Compile(nil, applicationID, commandID), nil, &command, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -64,13 +57,8 @@ func (s *applicationsImpl) GetGlobalCommand(applicationID snowflake.ID, commandI
 }
 
 func (s *applicationsImpl) CreateGlobalCommand(applicationID snowflake.ID, commandCreate discord.ApplicationCommandCreate, opts ...RequestOpt) (command discord.ApplicationCommand, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.CreateGlobalCommand.Compile(nil, applicationID)
-	if err != nil {
-		return
-	}
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.client.Do(compiledRoute, commandCreate, &command, opts...)
+	err = s.client.Do(CreateGlobalCommand.Compile(nil, applicationID), commandCreate, &command, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -78,13 +66,8 @@ func (s *applicationsImpl) CreateGlobalCommand(applicationID snowflake.ID, comma
 }
 
 func (s *applicationsImpl) SetGlobalCommands(applicationID snowflake.ID, commandCreates []discord.ApplicationCommandCreate, opts ...RequestOpt) (commands []discord.ApplicationCommand, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.SetGlobalCommands.Compile(nil, applicationID)
-	if err != nil {
-		return
-	}
 	var unmarshalCommands []discord.UnmarshalApplicationCommand
-	err = s.client.Do(compiledRoute, commandCreates, &unmarshalCommands, opts...)
+	err = s.client.Do(SetGlobalCommands.Compile(nil, applicationID), commandCreates, &unmarshalCommands, opts...)
 	if err == nil {
 		commands = unmarshalApplicationCommandsToApplicationCommands(unmarshalCommands)
 	}
@@ -92,13 +75,8 @@ func (s *applicationsImpl) SetGlobalCommands(applicationID snowflake.ID, command
 }
 
 func (s *applicationsImpl) UpdateGlobalCommand(applicationID snowflake.ID, commandID snowflake.ID, commandUpdate discord.ApplicationCommandUpdate, opts ...RequestOpt) (command discord.ApplicationCommand, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.UpdateGlobalCommand.Compile(nil, applicationID, commandID)
-	if err != nil {
-		return
-	}
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.client.Do(compiledRoute, commandUpdate, &unmarshalCommand, opts...)
+	err = s.client.Do(UpdateGlobalCommand.Compile(nil, applicationID, commandID), commandUpdate, &unmarshalCommand, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -106,21 +84,12 @@ func (s *applicationsImpl) UpdateGlobalCommand(applicationID snowflake.ID, comma
 }
 
 func (s *applicationsImpl) DeleteGlobalCommand(applicationID snowflake.ID, commandID snowflake.ID, opts ...RequestOpt) error {
-	compiledRoute, err := route.DeleteGlobalCommand.Compile(nil, applicationID, commandID)
-	if err != nil {
-		return err
-	}
-	return s.client.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(DeleteGlobalCommand.Compile(nil, applicationID, commandID), nil, nil, opts...)
 }
 
 func (s *applicationsImpl) GetGuildCommands(applicationID snowflake.ID, guildID snowflake.ID, withLocalizations bool, opts ...RequestOpt) (commands []discord.ApplicationCommand, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetGuildCommands.Compile(route.QueryValues{"with_localizations": withLocalizations}, applicationID, guildID)
-	if err != nil {
-		return
-	}
 	var unmarshalCommands []discord.UnmarshalApplicationCommand
-	err = s.client.Do(compiledRoute, nil, &unmarshalCommands, opts...)
+	err = s.client.Do(GetGuildCommands.Compile(discord.QueryValues{"with_localizations": withLocalizations}, applicationID, guildID), nil, &unmarshalCommands, opts...)
 	if err == nil {
 		commands = unmarshalApplicationCommandsToApplicationCommands(unmarshalCommands)
 	}
@@ -128,13 +97,8 @@ func (s *applicationsImpl) GetGuildCommands(applicationID snowflake.ID, guildID 
 }
 
 func (s *applicationsImpl) GetGuildCommand(applicationID snowflake.ID, guildID snowflake.ID, commandID snowflake.ID, opts ...RequestOpt) (command discord.ApplicationCommand, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetGuildCommand.Compile(nil, applicationID, guildID, commandID)
-	if err != nil {
-		return
-	}
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.client.Do(compiledRoute, nil, &unmarshalCommand, opts...)
+	err = s.client.Do(GetGuildCommand.Compile(nil, applicationID, guildID, commandID), nil, &unmarshalCommand, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -142,13 +106,8 @@ func (s *applicationsImpl) GetGuildCommand(applicationID snowflake.ID, guildID s
 }
 
 func (s *applicationsImpl) CreateGuildCommand(applicationID snowflake.ID, guildID snowflake.ID, commandCreate discord.ApplicationCommandCreate, opts ...RequestOpt) (command discord.ApplicationCommand, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.CreateGuildCommand.Compile(nil, applicationID, guildID)
-	if err != nil {
-		return
-	}
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.client.Do(compiledRoute, commandCreate, &unmarshalCommand, opts...)
+	err = s.client.Do(CreateGuildCommand.Compile(nil, applicationID, guildID), commandCreate, &unmarshalCommand, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -156,13 +115,8 @@ func (s *applicationsImpl) CreateGuildCommand(applicationID snowflake.ID, guildI
 }
 
 func (s *applicationsImpl) SetGuildCommands(applicationID snowflake.ID, guildID snowflake.ID, commandCreates []discord.ApplicationCommandCreate, opts ...RequestOpt) (commands []discord.ApplicationCommand, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.SetGuildCommands.Compile(nil, applicationID, guildID)
-	if err != nil {
-		return
-	}
 	var unmarshalCommands []discord.UnmarshalApplicationCommand
-	err = s.client.Do(compiledRoute, commandCreates, &unmarshalCommands, opts...)
+	err = s.client.Do(SetGuildCommands.Compile(nil, applicationID, guildID), commandCreates, &unmarshalCommands, opts...)
 	if err == nil {
 		commands = unmarshalApplicationCommandsToApplicationCommands(unmarshalCommands)
 	}
@@ -170,13 +124,8 @@ func (s *applicationsImpl) SetGuildCommands(applicationID snowflake.ID, guildID 
 }
 
 func (s *applicationsImpl) UpdateGuildCommand(applicationID snowflake.ID, guildID snowflake.ID, commandID snowflake.ID, commandUpdate discord.ApplicationCommandUpdate, opts ...RequestOpt) (command discord.ApplicationCommand, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.UpdateGuildCommand.Compile(nil, applicationID, guildID, commandID)
-	if err != nil {
-		return
-	}
 	var unmarshalCommand discord.UnmarshalApplicationCommand
-	err = s.client.Do(compiledRoute, commandUpdate, &unmarshalCommand, opts...)
+	err = s.client.Do(UpdateGuildCommand.Compile(nil, applicationID, guildID, commandID), commandUpdate, &unmarshalCommand, opts...)
 	if err == nil {
 		command = unmarshalCommand.ApplicationCommand
 	}
@@ -184,30 +133,26 @@ func (s *applicationsImpl) UpdateGuildCommand(applicationID snowflake.ID, guildI
 }
 
 func (s *applicationsImpl) DeleteGuildCommand(applicationID snowflake.ID, guildID snowflake.ID, commandID snowflake.ID, opts ...RequestOpt) error {
-	compiledRoute, err := route.DeleteGuildCommand.Compile(nil, applicationID, guildID, commandID)
-	if err != nil {
-		return err
-	}
-	return s.client.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(DeleteGuildCommand.Compile(nil, applicationID, guildID, commandID), nil, nil, opts...)
 }
 
 func (s *applicationsImpl) GetGuildCommandsPermissions(applicationID snowflake.ID, guildID snowflake.ID, opts ...RequestOpt) (commandsPerms []discord.ApplicationCommandPermissions, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetGuildCommandsPermissions.Compile(nil, applicationID, guildID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &commandsPerms, opts...)
+	err = s.client.Do(GetGuildCommandsPermissions.Compile(nil, applicationID, guildID), nil, &commandsPerms, opts...)
 	return
 }
 
 func (s *applicationsImpl) GetGuildCommandPermissions(applicationID snowflake.ID, guildID snowflake.ID, commandID snowflake.ID, opts ...RequestOpt) (commandPerms *discord.ApplicationCommandPermissions, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetGuildCommandPermissions.Compile(nil, applicationID, guildID, commandID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &commandPerms, opts...)
+	err = s.client.Do(GetGuildCommandPermissions.Compile(nil, applicationID, guildID, commandID), nil, &commandPerms, opts...)
+	return
+}
+
+func (s *applicationsImpl) GetApplicationRoleConnectionMetadata(applicationID snowflake.ID, opts ...RequestOpt) (metadata []discord.ApplicationRoleConnectionMetadata, err error) {
+	err = s.client.Do(GetApplicationRoleConnectionMetadata.Compile(nil, applicationID), nil, &metadata, opts...)
+	return
+}
+
+func (s *applicationsImpl) UpdateApplicationRoleConnectionMetadata(applicationID snowflake.ID, newRecords []discord.ApplicationRoleConnectionMetadata, opts ...RequestOpt) (metadata []discord.ApplicationRoleConnectionMetadata, err error) {
+	err = s.client.Do(UpdateApplicationRoleConnectionMetadata.Compile(nil, applicationID), newRecords, &metadata, opts...)
 	return
 }
 

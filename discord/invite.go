@@ -3,7 +3,6 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -27,15 +26,12 @@ type Invite struct {
 	TargetType               InviteTargetType     `json:"target_user_type"`
 	ApproximatePresenceCount int                  `json:"approximate_presence_count"`
 	ApproximateMemberCount   int                  `json:"approximate_member_count"`
-	ExpiresAt                *time.Time           `json:"created_at"`
+	ExpiresAt                *time.Time           `json:"expires_at"`
 	GuildScheduledEvent      *GuildScheduledEvent `json:"guild_scheduled_event"`
 }
 
 func (i Invite) URL() string {
-	if compiledRoute, err := route.InviteURL.Compile(nil, i.Code); err == nil {
-		return compiledRoute.URL()
-	}
-	return ""
+	return InviteURL(i.Code)
 }
 
 type ExtendedInvite struct {
@@ -45,6 +41,11 @@ type ExtendedInvite struct {
 	MaxAge    int       `json:"max_age"`
 	Temporary bool      `json:"temporary"`
 	CreatedAt time.Time `json:"created_at"`
+}
+
+type PartialInvite struct {
+	Code *string `json:"code"`
+	Uses int     `json:"uses"`
 }
 
 type InviteChannel struct {
@@ -60,7 +61,8 @@ func (c InviteChannel) IconURL(opts ...CDNOpt) *string {
 	if c.Icon == nil {
 		return nil
 	}
-	return formatAssetURL(route.ChannelIcon, opts, c.ID, *c.Icon)
+	url := formatAssetURL(ChannelIcon, opts, c.ID, *c.Icon)
+	return &url
 }
 
 // An InviteGuild is the Guild of an Invite
@@ -77,8 +79,8 @@ type InviteGuild struct {
 }
 
 type InviteCreate struct {
-	MaxAgree            int              `json:"max_agree,omitempty"`
-	MaxUses             int              `json:"max_uses,omitempty"`
+	MaxAge              *int             `json:"max_age,omitempty"`
+	MaxUses             *int             `json:"max_uses,omitempty"`
 	Temporary           bool             `json:"temporary,omitempty"`
 	Unique              bool             `json:"unique,omitempty"`
 	TargetType          InviteTargetType `json:"target_type,omitempty"`

@@ -39,9 +39,6 @@ type ListenerAdapter struct {
 	OnGuildChannelPinsUpdate func(event *GuildChannelPinsUpdate)
 
 	// DM Channel Events
-	OnDMChannelCreate     func(event *DMChannelCreate)
-	OnDMChannelUpdate     func(event *DMChannelUpdate)
-	OnDMChannelDelete     func(event *DMChannelDelete)
 	OnDMChannelPinsUpdate func(event *DMChannelPinsUpdate)
 
 	// Channel Message Events
@@ -72,15 +69,16 @@ type ListenerAdapter struct {
 	OnResumed func(event *Resumed)
 
 	// Guild Events
-	OnGuildJoin        func(event *GuildJoin)
-	OnGuildUpdate      func(event *GuildUpdate)
-	OnGuildLeave       func(event *GuildLeave)
-	OnGuildAvailable   func(event *GuildAvailable)
-	OnGuildUnavailable func(event *GuildUnavailable)
-	OnGuildReady       func(event *GuildReady)
-	OnGuildsReady      func(event *GuildsReady)
-	OnGuildBan         func(event *GuildBan)
-	OnGuildUnban       func(event *GuildUnban)
+	OnGuildJoin                func(event *GuildJoin)
+	OnGuildUpdate              func(event *GuildUpdate)
+	OnGuildLeave               func(event *GuildLeave)
+	OnGuildAvailable           func(event *GuildAvailable)
+	OnGuildUnavailable         func(event *GuildUnavailable)
+	OnGuildReady               func(event *GuildReady)
+	OnGuildsReady              func(event *GuildsReady)
+	OnGuildBan                 func(event *GuildBan)
+	OnGuildUnban               func(event *GuildUnban)
+	OnGuildAuditLogEntryCreate func(event *GuildAuditLogEntryCreate)
 
 	// Guild Invite Events
 	OnGuildInviteCreate func(event *InviteCreate)
@@ -255,18 +253,6 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 
 	// DMChannel Events
-	case *DMChannelCreate:
-		if listener := l.OnDMChannelCreate; listener != nil {
-			listener(e)
-		}
-	case *DMChannelUpdate:
-		if listener := l.OnDMChannelUpdate; listener != nil {
-			listener(e)
-		}
-	case *DMChannelDelete:
-		if listener := l.OnDMChannelDelete; listener != nil {
-			listener(e)
-		}
 	case *DMChannelPinsUpdate:
 		if listener := l.OnDMChannelPinsUpdate; listener != nil {
 			listener(e)
@@ -385,6 +371,10 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 	case *GuildUnban:
 		if listener := l.OnGuildUnban; listener != nil {
+			listener(e)
+		}
+	case *GuildAuditLogEntryCreate:
+		if listener := l.OnGuildAuditLogEntryCreate; listener != nil {
 			listener(e)
 		}
 

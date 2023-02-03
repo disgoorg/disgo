@@ -3,7 +3,7 @@ package discord
 var _ InteractionResponseData = (*ModalCreate)(nil)
 
 type ModalCreate struct {
-	CustomID   CustomID             `json:"custom_id"`
+	CustomID   string               `json:"custom_id"`
 	Title      string               `json:"title"`
 	Components []ContainerComponent `json:"components"`
 }
@@ -20,7 +20,7 @@ type ModalCreateBuilder struct {
 }
 
 // SetCustomID sets the CustomID of the ModalCreate
-func (b *ModalCreateBuilder) SetCustomID(customID CustomID) *ModalCreateBuilder {
+func (b *ModalCreateBuilder) SetCustomID(customID string) *ModalCreateBuilder {
 	b.CustomID = customID
 	return b
 }

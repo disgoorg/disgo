@@ -1,8 +1,9 @@
 package events
 
 import (
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // GenericGuildMessage is called upon receiving GuildMessageCreate , GuildMessageUpdate or GuildMessageDelete
@@ -16,13 +17,13 @@ type GenericGuildMessage struct {
 
 // Guild returns the discord.Guild the GenericGuildMessage happened in.
 // This will only check cached guilds!
-func (e GenericGuildMessage) Guild() (discord.Guild, bool) {
-	return e.Client().Caches().Guilds().Get(e.GuildID)
+func (e *GenericGuildMessage) Guild() (discord.Guild, bool) {
+	return e.Client().Caches().Guild(e.GuildID)
 }
 
 // Channel returns the discord.DMChannel where the GenericGuildMessage happened
-func (e GenericGuildMessage) Channel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID)
+func (e *GenericGuildMessage) Channel() (discord.GuildMessageChannel, bool) {
+	return e.Client().Caches().GuildMessageChannel(e.ChannelID)
 }
 
 // GuildMessageCreate is called upon receiving a discord.Message in a Channel

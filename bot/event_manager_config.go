@@ -1,16 +1,21 @@
 package bot
 
 import (
+	"github.com/disgoorg/log"
+
 	"github.com/disgoorg/disgo/gateway"
 )
 
 // DefaultEventManagerConfig returns a new EventManagerConfig with all default values.
 func DefaultEventManagerConfig() *EventManagerConfig {
-	return &EventManagerConfig{}
+	return &EventManagerConfig{
+		Logger: log.Default(),
+	}
 }
 
 // EventManagerConfig can be used to configure the EventManager.
 type EventManagerConfig struct {
+	Logger             log.Logger
 	EventListeners     []EventListener
 	AsyncEventsEnabled bool
 
@@ -28,6 +33,13 @@ func (c *EventManagerConfig) Apply(opts []EventManagerConfigOpt) {
 	}
 }
 
+// WithEventManagerLogger overrides the default logger in the EventManagerConfig.
+func WithEventManagerLogger(logger log.Logger) EventManagerConfigOpt {
+	return func(config *EventManagerConfig) {
+		config.Logger = logger
+	}
+}
+
 // WithListeners adds the given EventListener(s) to the EventManagerConfig.
 func WithListeners(listeners ...EventListener) EventManagerConfigOpt {
 	return func(config *EventManagerConfig) {
@@ -35,9 +47,14 @@ func WithListeners(listeners ...EventListener) EventManagerConfigOpt {
 	}
 }
 
-// WithListenerFunc adds the given ListenerFunc(s) to the EventManagerConfig.
-func WithListenerFunc[E Event](listenerFunc func(e E)) EventManagerConfigOpt {
-	return WithListeners(NewListenerFunc(listenerFunc))
+// WithListenerFunc adds the given func(e E) to the EventManagerConfig.
+func WithListenerFunc[E Event](f func(e E)) EventManagerConfigOpt {
+	return WithListeners(NewListenerFunc(f))
+}
+
+// WithListenerChan adds the given chan<- E to the EventManagerConfig.
+func WithListenerChan[E Event](c chan<- E) EventManagerConfigOpt {
+	return WithListeners(NewListenerChan(c))
 }
 
 // WithAsyncEventsEnabled enables/disables the async events.

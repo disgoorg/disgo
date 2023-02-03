@@ -5,10 +5,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/disgoorg/log"
+
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
-	"github.com/disgoorg/log"
 )
 
 var listener = &events.ListenerAdapter{
@@ -44,11 +45,11 @@ func modalListener(event *events.ModalSubmitInteractionCreate) {
 func componentListener(event *events.ComponentInteractionCreate) {
 	switch data := event.Data.(type) {
 	case discord.ButtonInteractionData:
-		ids := strings.Split(data.CustomID().String(), ":")
+		ids := strings.Split(data.CustomID(), ":")
 		switch ids[0] {
 		case "modal":
 			_ = event.CreateModal(discord.ModalCreate{
-				CustomID: discord.CustomID("test" + ids[1]),
+				CustomID: "test" + ids[1],
 				Title:    "Test" + ids[1] + " Modal",
 				Components: []discord.ContainerComponent{
 					discord.ActionRowComponent{
@@ -66,7 +67,7 @@ func componentListener(event *events.ComponentInteractionCreate) {
 
 		case "test1":
 			_ = event.CreateMessage(discord.NewMessageCreateBuilder().
-				SetContent(data.CustomID().String()).
+				SetContent(data.CustomID()).
 				Build(),
 			)
 
@@ -78,12 +79,12 @@ func componentListener(event *events.ComponentInteractionCreate) {
 
 		case "test4":
 			_ = event.UpdateMessage(discord.NewMessageUpdateBuilder().
-				SetContent(data.CustomID().String()).
+				SetContent(data.CustomID()).
 				Build(),
 			)
 		}
 
-	case discord.SelectMenuInteractionData:
+	case discord.StringSelectMenuInteractionData:
 		switch data.CustomID() {
 		case "test3":
 			if err := event.DeferUpdateMessage(); err != nil {
@@ -92,6 +93,19 @@ func componentListener(event *events.ComponentInteractionCreate) {
 			_, _ = event.Client().Rest().CreateFollowupMessage(event.ApplicationID(), event.Token(), discord.NewMessageCreateBuilder().
 				SetEphemeral(true).
 				SetContentf("selected options: %s", data.Values).
+				Build(),
+			)
+		}
+
+	case discord.MentionableSelectMenuInteractionData:
+		switch data.CustomID() {
+		case "test4":
+			if err := event.DeferUpdateMessage(); err != nil {
+				log.Errorf("error sending interaction response: %s", err)
+			}
+			_, _ = event.Client().Rest().CreateFollowupMessage(event.ApplicationID(), event.Token(), discord.NewMessageCreateBuilder().
+				SetEphemeral(true).
+				SetContentf("selected mentionable options: %s", data.Values).
 				Build(),
 			)
 		}
@@ -127,6 +141,16 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionCreat
 				discord.NewPrimaryButton("test3", "modal:3"),
 				discord.NewPrimaryButton("test4", "modal:4"),
 			).
+			Build(),
+		)
+
+	case "test2":
+		selectMenu := discord.NewMentionableSelectMenu("test4", "select users/members/roles")
+		selectMenu.MaxValues = 3
+
+		_ = event.CreateMessage(discord.NewMessageCreateBuilder().
+			SetContent("test2").
+			AddActionRow(selectMenu).
 			Build(),
 		)
 	}

@@ -1,9 +1,9 @@
 package rest
 
 import (
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 var _ AutoModeration = (*autoModerationImpl)(nil)
@@ -25,49 +25,25 @@ type autoModerationImpl struct {
 }
 
 func (s *autoModerationImpl) GetAutoModerationRules(guildID snowflake.ID, opts ...RequestOpt) (rules []discord.AutoModerationRule, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetAutoModerationRules.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &rules, opts...)
+	err = s.client.Do(GetAutoModerationRules.Compile(nil, guildID), nil, &rules, opts...)
 	return
 }
 
 func (s *autoModerationImpl) GetAutoModerationRule(guildID snowflake.ID, ruleID snowflake.ID, opts ...RequestOpt) (rule *discord.AutoModerationRule, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetAutoModerationRule.Compile(nil, guildID, ruleID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &rule, opts...)
+	err = s.client.Do(GetAutoModerationRule.Compile(nil, guildID, ruleID), nil, &rule, opts...)
 	return
 }
 
 func (s *autoModerationImpl) CreateAutoModerationRule(guildID snowflake.ID, ruleCreate discord.AutoModerationRuleCreate, opts ...RequestOpt) (rule *discord.AutoModerationRule, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.CreateAutoModerationRule.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, ruleCreate, &rule, opts...)
+	err = s.client.Do(CreateAutoModerationRule.Compile(nil, guildID), ruleCreate, &rule, opts...)
 	return
 }
 
 func (s *autoModerationImpl) UpdateAutoModerationRule(guildID snowflake.ID, ruleID snowflake.ID, ruleUpdate discord.AutoModerationRuleUpdate, opts ...RequestOpt) (rule *discord.AutoModerationRule, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.UpdateAutoModerationRule.Compile(nil, guildID, ruleID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, ruleUpdate, &rule, opts...)
+	err = s.client.Do(UpdateAutoModerationRule.Compile(nil, guildID, ruleID), ruleUpdate, &rule, opts...)
 	return
 }
 
 func (s *autoModerationImpl) DeleteAutoModerationRule(guildID snowflake.ID, ruleID snowflake.ID, opts ...RequestOpt) error {
-	compiledRoute, err := route.DeleteAutoModerationRule.Compile(nil, guildID, ruleID)
-	if err != nil {
-		return err
-	}
-	return s.client.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(DeleteAutoModerationRule.Compile(nil, guildID, ruleID), nil, nil, opts...)
 }

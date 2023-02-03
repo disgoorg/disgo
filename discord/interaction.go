@@ -3,7 +3,7 @@ package discord
 import (
 	"fmt"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -87,7 +87,7 @@ func (i *UnmarshalInteraction) UnmarshalJSON(data []byte) error {
 		interaction = v
 
 	default:
-		return fmt.Errorf("unkown rawInteraction with type %d received", iType.Type)
+		return fmt.Errorf("unknown rawInteraction with type %d received", iType.Type)
 	}
 	if err != nil {
 		return err

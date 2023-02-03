@@ -7,7 +7,9 @@ import (
 	"mime/multipart"
 	"net/textproto"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
+
+	"github.com/disgoorg/disgo/internal/flags"
 )
 
 type Payload interface {
@@ -93,7 +95,7 @@ func NewFile(name string, description string, reader io.Reader, flags ...FileFla
 		Name:        name,
 		Description: description,
 		Reader:      reader,
-		Flags:       FileFlagNone.Add(flags...),
+		Flags:       FileFlagsNone.Add(flags...),
 	}
 }
 
@@ -111,41 +113,25 @@ type FileFlags int
 // all FileFlags
 const (
 	FileFlagSpoiler FileFlags = 1 << iota
-	FileFlagNone    FileFlags = 0
+	FileFlagsNone   FileFlags = 0
 )
 
 // Add allows you to add multiple bits together, producing a new bit
 func (f FileFlags) Add(bits ...FileFlags) FileFlags {
-	for _, bit := range bits {
-		f |= bit
-	}
-	return f
+	return flags.Add(f, bits...)
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
 func (f FileFlags) Remove(bits ...FileFlags) FileFlags {
-	for _, bit := range bits {
-		f &^= bit
-	}
-	return f
+	return flags.Remove(f, bits...)
 }
 
 // Has will ensure that the bit includes all the bits entered
 func (f FileFlags) Has(bits ...FileFlags) bool {
-	for _, bit := range bits {
-		if (f & bit) != bit {
-			return false
-		}
-	}
-	return true
+	return flags.Has(f, bits...)
 }
 
 // Missing will check whether the bit is missing any one of the bits
 func (f FileFlags) Missing(bits ...FileFlags) bool {
-	for _, bit := range bits {
-		if (f & bit) != bit {
-			return true
-		}
-	}
-	return false
+	return flags.Missing(f, bits...)
 }

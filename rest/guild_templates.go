@@ -1,9 +1,9 @@
 package rest
 
 import (
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 var _ GuildTemplates = (*guildTemplateImpl)(nil)
@@ -27,71 +27,36 @@ type guildTemplateImpl struct {
 }
 
 func (s *guildTemplateImpl) GetGuildTemplate(templateCode string, opts ...RequestOpt) (guildTemplate *discord.GuildTemplate, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetGuildTemplate.Compile(nil, templateCode)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &guildTemplate, opts...)
+	err = s.client.Do(GetGuildTemplate.Compile(nil, templateCode), nil, &guildTemplate, opts...)
 	return
 }
 
 func (s *guildTemplateImpl) GetGuildTemplates(guildID snowflake.ID, opts ...RequestOpt) (guildTemplates []discord.GuildTemplate, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetGuildTemplates.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &guildTemplates, opts...)
+	err = s.client.Do(GetGuildTemplates.Compile(nil, guildID), nil, &guildTemplates, opts...)
 	return
 }
 
 func (s *guildTemplateImpl) CreateGuildTemplate(guildID snowflake.ID, guildTemplateCreate discord.GuildTemplateCreate, opts ...RequestOpt) (guildTemplate *discord.GuildTemplate, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.CreateGuildTemplate.Compile(nil, guildID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, guildTemplateCreate, &guildTemplate, opts...)
+	err = s.client.Do(CreateGuildTemplate.Compile(nil, guildID), guildTemplateCreate, &guildTemplate, opts...)
 	return
 }
 
 func (s *guildTemplateImpl) CreateGuildFromTemplate(templateCode string, createGuildFromTemplate discord.GuildFromTemplateCreate, opts ...RequestOpt) (guild *discord.Guild, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.CreateGuildFromTemplate.Compile(nil, templateCode)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, createGuildFromTemplate, &guild, opts...)
+	err = s.client.Do(CreateGuildFromTemplate.Compile(nil, templateCode), createGuildFromTemplate, &guild, opts...)
 	return
 }
 
 func (s *guildTemplateImpl) SyncGuildTemplate(guildID snowflake.ID, templateCode string, opts ...RequestOpt) (guildTemplate *discord.GuildTemplate, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.SyncGuildTemplate.Compile(nil, guildID, templateCode)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &guildTemplate, opts...)
+	err = s.client.Do(SyncGuildTemplate.Compile(nil, guildID, templateCode), nil, &guildTemplate, opts...)
 	return
 }
 
 func (s *guildTemplateImpl) UpdateGuildTemplate(guildID snowflake.ID, templateCode string, guildTemplateUpdate discord.GuildTemplateUpdate, opts ...RequestOpt) (guildTemplate *discord.GuildTemplate, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.UpdateGuildTemplate.Compile(nil, guildID, templateCode)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, guildTemplateUpdate, &guildTemplate, opts...)
+	err = s.client.Do(UpdateGuildTemplate.Compile(nil, guildID, templateCode), guildTemplateUpdate, &guildTemplate, opts...)
 	return
 }
 
 func (s *guildTemplateImpl) DeleteGuildTemplate(guildID snowflake.ID, templateCode string, opts ...RequestOpt) (guildTemplate *discord.GuildTemplate, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.DeleteGuildTemplate.Compile(nil, guildID, templateCode)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &guildTemplate, opts...)
+	err = s.client.Do(DeleteGuildTemplate.Compile(nil, guildID, templateCode), nil, &guildTemplate, opts...)
 	return
 }

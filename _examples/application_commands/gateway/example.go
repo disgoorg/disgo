@@ -6,13 +6,13 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake/v2"
+
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
-	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
@@ -21,16 +21,16 @@ var (
 
 	commands = []discord.ApplicationCommandCreate{
 		discord.SlashCommandCreate{
-			CommandName: "say",
+			Name:        "say",
 			Description: "says what you say",
 			Options: []discord.ApplicationCommandOption{
 				discord.ApplicationCommandOptionString{
-					OptionName:  "message",
+					Name:        "message",
 					Description: "What to say",
 					Required:    true,
 				},
 				discord.ApplicationCommandOptionBool{
-					OptionName:  "ephemeral",
+					Name:        "ephemeral",
 					Description: "If the response should only be visible to you",
 					Required:    true,
 				},
@@ -45,7 +45,7 @@ func main() {
 	log.Info("disgo version: ", disgo.Version)
 
 	client, err := disgo.New(token,
-		bot.WithGatewayConfigOpts(gateway.WithIntents(gateway.IntentsNone)),
+		bot.WithDefaultGateway(),
 		bot.WithEventListenerFunc(commandListener),
 	)
 	if err != nil {
@@ -59,7 +59,7 @@ func main() {
 		log.Fatal("error while registering commands: ", err)
 	}
 
-	if err = client.ConnectGateway(context.TODO()); err != nil {
+	if err = client.OpenGateway(context.TODO()); err != nil {
 		log.Fatal("error while connecting to gateway: ", err)
 	}
 

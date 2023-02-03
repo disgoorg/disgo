@@ -3,8 +3,9 @@ package events
 import (
 	"time"
 
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // GenericGuildMember generic discord.Member event
@@ -44,6 +45,6 @@ type GuildMemberTypingStart struct {
 }
 
 // Channel returns the discord.BaseGuildMessageChannel the GuildMemberTypingStart happened in
-func (e GuildMemberTypingStart) Channel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().Channels().GetGuildMessageChannel(e.ChannelID)
+func (e *GuildMemberTypingStart) Channel() (discord.GuildMessageChannel, bool) {
+	return e.Client().Caches().GuildMessageChannel(e.ChannelID)
 }

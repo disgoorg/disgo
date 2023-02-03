@@ -1,8 +1,9 @@
 package events
 
 import (
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // GenericGuild is called upon receiving GuildUpdate , GuildAvailable , GuildUnavailable , GuildJoin , GuildLeave , GuildReady , GuildBan , GuildUnban
@@ -60,4 +61,11 @@ type GuildUnban struct {
 	*GenericEvent
 	GuildID snowflake.ID
 	User    discord.User
+}
+
+// GuildAuditLogEntryCreate is called when a new discord.AuditLogEntry is created
+type GuildAuditLogEntryCreate struct {
+	*GenericEvent
+	GuildID       snowflake.ID
+	AuditLogEntry discord.AuditLogEntry
 }

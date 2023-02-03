@@ -1,7 +1,8 @@
 package discord
 
 import (
-	"github.com/disgoorg/disgo/rest/route"
+	"time"
+
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -10,7 +11,8 @@ var _ Mentionable = (*Emoji)(nil)
 // Emoji allows you to interact with emojis & emotes
 type Emoji struct {
 	ID            snowflake.ID   `json:"id,omitempty"`
-	Name          string         `json:"name,omitempty"` // may be empty for deleted emojis
+	GuildID       snowflake.ID   `json:"guild_id,omitempty"` // not present in the API but we need it
+	Name          string         `json:"name,omitempty"`     // may be empty for deleted emojis
 	Roles         []snowflake.ID `json:"roles,omitempty"`
 	Creator       *User          `json:"creator,omitempty"`
 	RequireColons bool           `json:"require_colons,omitempty"`
@@ -33,10 +35,14 @@ func (e Emoji) String() string {
 }
 
 func (e Emoji) URL(opts ...CDNOpt) string {
-	if url := formatAssetURL(route.CustomEmoji, opts, e.ID); url != nil {
-		return *url
+	return formatAssetURL(CustomEmoji, opts, e.ID)
+}
+
+func (e Emoji) CreatedAt() time.Time {
+	if e.ID == 0 {
+		return time.Time{}
 	}
-	return ""
+	return e.ID.Time()
 }
 
 type EmojiCreate struct {
@@ -46,8 +52,8 @@ type EmojiCreate struct {
 }
 
 type EmojiUpdate struct {
-	Name  string         `json:"name,omitempty"`
-	Roles []snowflake.ID `json:"roles,omitempty"`
+	Name  *string         `json:"name,omitempty"`
+	Roles *[]snowflake.ID `json:"roles,omitempty"`
 }
 
 type ReactionEmoji struct {

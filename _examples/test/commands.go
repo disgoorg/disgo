@@ -1,48 +1,36 @@
 package main
 
 import (
+	"github.com/disgoorg/log"
+
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/log"
 )
 
 var commands = []discord.ApplicationCommandCreate{
 	discord.SlashCommandCreate{
-		CommandName: "locale",
+		Name:        "locale",
 		Description: "return the guild & your locale",
 	},
 	discord.SlashCommandCreate{
-		CommandName: "test",
+		Name:        "test",
 		Description: "test",
 	},
 	discord.SlashCommandCreate{
-		CommandName: "test2",
-		Description: "test2",
-		Options: []discord.ApplicationCommandOption{
-			discord.ApplicationCommandOptionInt{
-				OptionName:  "number",
-				Description: "some number",
-				Required:    true,
-			},
-			discord.ApplicationCommandOptionInt{
-				OptionName:   "message",
-				Description:  "What to say",
-				Required:     true,
-				Autocomplete: true,
-			},
-		},
+		Name:        "test2",
+		Description: "test",
 	},
 	discord.SlashCommandCreate{
-		CommandName: "say",
+		Name:        "say",
 		Description: "says what you say",
 		Options: []discord.ApplicationCommandOption{
 			discord.ApplicationCommandOptionString{
-				OptionName:  "message",
+				Name:        "message",
 				Description: "What to say",
 				Required:    true,
 			},
 			discord.ApplicationCommandOptionBool{
-				OptionName:  "ephemeral",
+				Name:        "ephemeral",
 				Description: "ephemeral",
 				Required:    true,
 			},

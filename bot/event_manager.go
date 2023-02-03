@@ -33,7 +33,7 @@ type EventManager interface {
 	HandleGatewayEvent(gatewayEventType gateway.EventType, sequenceNumber int, shardID int, event gateway.EventData)
 
 	// HandleHTTPEvent calls the HTTPServerEventHandler for the payload
-	HandleHTTPEvent(respondFunc httpserver.RespondFunc, event gateway.EventInteractionCreate)
+	HandleHTTPEvent(respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate)
 
 	// DispatchEvent dispatches a new Event to the Client's EventListener(s)
 	DispatchEvent(event Event)
@@ -44,22 +44,33 @@ type EventListener interface {
 	OnEvent(event Event)
 }
 
-var _ EventListener = (*ListenerFunc[Event])(nil)
-
-// NewListenerFunc returns a new ListenerFunc for the given func(e E)
-func NewListenerFunc[E Event](f func(e E)) *ListenerFunc[E] {
-	return &ListenerFunc[E]{F: f}
+// NewListenerFunc returns a new EventListener for the given func(e E)
+func NewListenerFunc[E Event](f func(e E)) EventListener {
+	return &listenerFunc[E]{f: f}
 }
 
-// ListenerFunc is a wrapper for a func(e E) as functions are not comparable
-type ListenerFunc[E Event] struct {
-	F func(e E)
+type listenerFunc[E Event] struct {
+	f func(e E)
 }
 
-// OnEvent calls the func(e E) if E is Event
-func (l *ListenerFunc[E]) OnEvent(e Event) {
+func (l *listenerFunc[E]) OnEvent(e Event) {
 	if event, ok := e.(E); ok {
-		l.F(event)
+		l.f(event)
+	}
+}
+
+// NewListenerChan returns a new EventListener for the given chan<- Event
+func NewListenerChan[E Event](c chan<- E) EventListener {
+	return &listenerChan[E]{c: c}
+}
+
+type listenerChan[E Event] struct {
+	c chan<- E
+}
+
+func (l *listenerChan[E]) OnEvent(e Event) {
+	if event, ok := e.(E); ok {
+		l.c <- event
 	}
 }
 
@@ -97,7 +108,7 @@ func (h *genericGatewayEventHandler[T]) HandleGatewayEvent(client Client, sequen
 
 // HTTPServerEventHandler is used to handle HTTP Event(s)
 type HTTPServerEventHandler interface {
-	HandleHTTPEvent(client Client, respondFunc httpserver.RespondFunc, event gateway.EventInteractionCreate)
+	HandleHTTPEvent(client Client, respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate)
 }
 
 type eventManagerImpl struct {
@@ -114,11 +125,11 @@ func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType gateway.EventType
 	if handler, ok := e.config.GatewayHandlers[gatewayEventType]; ok {
 		handler.HandleGatewayEvent(e.client, sequenceNumber, shardID, event)
 	} else {
-		e.client.Logger().Warnf("no handler for gateway event '%s' found", gatewayEventType)
+		e.config.Logger.Warnf("no handler for gateway event '%s' found", gatewayEventType)
 	}
 }
 
-func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, event gateway.EventInteractionCreate) {
+func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.config.HTTPServerHandler.HandleHTTPEvent(e.client, respondFunc, event)
@@ -127,7 +138,7 @@ func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, e
 func (e *eventManagerImpl) DispatchEvent(event Event) {
 	defer func() {
 		if r := recover(); r != nil {
-			e.client.Logger().Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
+			e.config.Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
 			return
 		}
 	}()
@@ -138,7 +149,7 @@ func (e *eventManagerImpl) DispatchEvent(event Event) {
 			go func() {
 				defer func() {
 					if r := recover(); r != nil {
-						e.client.Logger().Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
+						e.config.Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
 						return
 					}
 				}()

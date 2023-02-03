@@ -28,7 +28,7 @@ DisGo is a [Discord](https://discord.com) API wrapper written in [Golang](https:
 ### Stability
 The public API of DisGo is mostly stable at this point in time. Smaller breaking changes can happen before the v1 is released. 
 
-After v1 is released breaking changes may only happen if the Discord API requires them. They tend to break their released API versions now and then. In general for every new Discord APi version the major version of DisGo should be increased and with that breaking changes between non-major versions should be held to a minimum. 
+After v1 is released breaking changes may only happen if the Discord API requires them. They tend to break their released API versions now and then. In general for every new Discord API version the major version of DisGo should be increased and with that breaking changes between non-major versions should be held to a minimum. 
 
 ### Features
 
@@ -47,23 +47,23 @@ After v1 is released breaking changes may only happen if the Discord API require
 * [OAuth2](https://discord.com/developers/docs/topics/oauth2)
 * [Threads](https://discord.com/developers/docs/topics/threads)
 * [Guild Scheduled Event](https://discord.com/developers/docs/resources/guild-scheduled-event)
+* [Voice](https://discord.com/developers/docs/topics/voice-connections)
 
 ### Missing Features
 
-* [Voice](https://discord.com/developers/docs/topics/voice-connections)
-* [RPC](https://discord.com/developers/docs/topics/rpc)
+* [RPC](https://discord.com/developers/docs/topics/rpc) (https://github.com/disgoorg/disgo/pull/170)
 
 ## Getting Started
 
 ### Installing
 
 ```sh
-go get github.com/disgoorg/disgo
+$ go get github.com/disgoorg/disgo
 ```
 
 ### Building a DisGo Instance
 
-Build a bot client to interact with the discord api
+Build a bot client to interact with the Discord API
 ```go
 package main
 
@@ -99,7 +99,7 @@ func main() {
 		panic(err)
 	}
 	// connect to the gateway
-	if err = client.ConnectGateway(context.TODO()); err != nil {
+	if err = client.Open(context.TODO()); err != nil {
 		panic(err)
 	}
 
@@ -111,7 +111,7 @@ func main() {
 
 ### Full Ping Pong Example
 
-A full Ping Pong example can also be found [here](https://github.com/disgoorg/disgo/blob/development/_examples/ping_pong/example.go)
+A full Ping Pong example can also be found [here](https://github.com/disgoorg/disgo/blob/master/_examples/ping_pong/example.go)
 
 ### Logging
 
@@ -134,22 +134,27 @@ There is also a bot template with commands & db [here](https://github.com/disgoo
 
 or in these projects:
 
-* [Disgo-Butler](https://github.com/disgoorg/disgo-butler)
+* [DisGo-Butler](https://github.com/disgoorg/disgo-butler)
 * [Reddit-Discord-Bot](https://github.com/TopiSenpai/Reddit-Discord-Bot)
 * [Kitsune-Bot](https://github.com/TopiSenpai/Kitsune-Bot)
 * [KittyBot](https://github.com/KittyBot-Org/KittyBotGo)
+
+## Libraries for DisGo
+
+* [disgomd](https://github.com/eminarican/disgomd) is a command utility library that uses struct based approach
+
 
 ## Other interesting Projects to look at
 
 ### [Lavalink](https://github.com/freyacodes/Lavalink)
 
-Is a standalone audio sending node based on [Lavaplayer](https://github.com/sedmelluq/lavaplayer) and JDA-Audio. Which allows for sending audio without it ever reaching any of your shards. Lavalink can be used in combinatio with [DisGolink](https://github.com/disgoorg/disgolink) for music Bots
+Is a standalone audio sending node based on [Lavaplayer](https://github.com/sedmelluq/lavaplayer) and JDA-Audio. Which allows for sending audio without it ever reaching any of your shards. Lavalink can be used in combination with [DisGolink](https://github.com/disgoorg/disgolink) for music Bots
 
 Being used in production by FredBoat, Dyno, LewdBot, and more.
 
 ### [DisGolink](https://github.com/disgoorg/disgolink)
 
-Is a [Lavalink-Client](https://github.com/freyacodes/Lavalink) which can be used to communicate with LavaLink to play/search tracks
+Is a [Lavalink-Client](https://github.com/freyacodes/Lavalink) which can be used to communicate with Lavalink to play/search tracks
 
 ### [DisLog](https://github.com/disgoorg/dislog)
 
@@ -164,7 +169,7 @@ Is a Discord webhook logger hook for [logrus](https://github.com/sirupsen/logrus
 
 ## Troubleshooting
 
-For help feel free to open an issues or reach out on [Discord](https://discord.gg/TewhTfDpvW)
+For help feel free to open an issue or reach out on [Discord](https://discord.gg/TewhTfDpvW)
 
 ## Contributing
 

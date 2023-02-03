@@ -3,7 +3,7 @@ package discord
 import (
 	"testing"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 	"github.com/stretchr/testify/assert"
 )
 

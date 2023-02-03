@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -19,6 +19,7 @@ type rawSlashCommand struct {
 	Options                  []ApplicationCommandOption `json:"options,omitempty"`
 	DefaultMemberPermissions Permissions                `json:"default_member_permissions"`
 	DMPermission             bool                       `json:"dm_permission"`
+	NSFW                     bool                       `json:"nsfw"`
 	Version                  snowflake.ID               `json:"version"`
 }
 
@@ -54,5 +55,6 @@ type rawContextCommand struct {
 	NameLocalized            string                 `json:"name_localized,omitempty"`
 	DefaultMemberPermissions Permissions            `json:"default_member_permissions"`
 	DMPermission             bool                   `json:"dm_permission"`
+	NSFW                     bool                   `json:"nsfw"`
 	Version                  snowflake.ID           `json:"version"`
 }

@@ -7,13 +7,14 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake/v2"
+
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
@@ -33,10 +34,10 @@ func main() {
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(
 			gateway.WithIntents(gateway.IntentsNonPrivileged, gateway.IntentMessageContent),
-			gateway.WithPresence(gateway.NewListeningPresence("your bullshit", discord.OnlineStatusOnline, false)),
+			gateway.WithPresenceOpts(gateway.WithListeningActivity("your bullshit"), gateway.WithOnlineStatus(discord.OnlineStatusDND)),
 		),
 		bot.WithCacheConfigOpts(
-			cache.WithCacheFlags(cache.FlagsAll),
+			cache.WithCaches(cache.FlagsAll),
 		),
 		bot.WithMemberChunkingFilter(bot.MemberChunkingFilterNone),
 		bot.WithEventListeners(listener),
@@ -48,7 +49,7 @@ func main() {
 
 	registerCommands(client)
 
-	if err = client.ConnectGateway(context.TODO()); err != nil {
+	if err = client.OpenGateway(context.TODO()); err != nil {
 		log.Fatal("error while connecting to discord: ", err)
 	}
 

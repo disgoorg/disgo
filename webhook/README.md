@@ -13,15 +13,17 @@ import "github.com/disgoorg/disgo/webhook"
 Create a new Webhook by `webhook_id` and `webhook_token`. (*This WebhookClient should be created once as it holds important state*)
 
 ```go
-client := webhook.NewClient(snowflake.ID("webhookID"), "webhookToken")
+client := webhook.New(snowflake.ID("webhookID"), "webhookToken")
+
+client, err := webhook.NewWithURL("webhookURL")
 ```
 
-`webhook.NewClient` takes a vararg of type `webhook.ConfigOpt` as third argument which lets you pass additional optional parameter like a custom logger, rest client, etc
+`webhook.New` takes a vararg of type `webhook.ConfigOpt` as third argument which lets you pass additional optional parameter like a custom logger, rest client, etc
 
 ### Optional Arguments
 
 ```go
-client := webhook.NewClient(snowflake.ID("webhookID"), "webhookToken",
+client := webhook.New(snowflake.ID("webhookID"), "webhookToken",
 	webhook.WithLogger(logrus.New()),
 	webhook.WithDefaultAllowedMentions(discord.AllowedMentions{
 		RepliedUser: false,
@@ -34,7 +36,7 @@ client := webhook.NewClient(snowflake.ID("webhookID"), "webhookToken",
 You can send a message as following
 
 ```go
-client := webhook.NewClient(snowflake.ID("webhookID"), "webhookToken")
+client := webhook.New(snowflake.ID("webhookID"), "webhookToken")
 
 message, err := client.CreateContent("hello world!")
 
@@ -47,6 +49,10 @@ message, err := client.CreateMessage(webhook.NewWebhookMessageCreateBuilder().
 	SetContent("hello world!").
 	Build(),
 )
+
+message, err := client.CreateMessage(discord.WebhookMessageCreate{
+	Content: "hello world!",
+})
 ```
 
 ### Edit Message
@@ -54,7 +60,7 @@ message, err := client.CreateMessage(webhook.NewWebhookMessageCreateBuilder().
 Messages can also be edited
 
 ```go
-client := webhook.NewClient(snowflake.ID("webhookID"), "webhookToken")
+client := webhook.New(snowflake.ID("webhookID"), "webhookToken")
 
 message, err := client.UpdateContent("870741249114652722", "hello world!")
 
@@ -63,10 +69,14 @@ message, err := client.UpdateEmbeds("870741249114652722", discord.NewEmbedBuilde
 	Build(),
 )
 
-message, err := client.UpdateMessage("870741249114652722", webhook.NewWebhookMessageUpdateBuilder().
+message, err := client.UpdateMessage("870741249114652722", discord.NewWebhookMessageUpdateBuilder().
 	SetContent("hello world!").
 	Build(),
 )
+
+message, err := client.UpdateMessage("870741249114652722", discord.WebhookMessageUpdate{
+	Content: json.Ptr("hello world!"),
+})
 ```
 
 ### Delete Message
@@ -74,11 +84,11 @@ message, err := client.UpdateMessage("870741249114652722", webhook.NewWebhookMes
 or deleted
 
 ```go
-client := webhook.NewClient(snowflake.ID("webhookID"), "webhookToken")
+client := webhook.New(snowflake.ID("webhookID"), "webhookToken")
 
 err := client.DeleteMessage("message_id")
 ```
 
 ### Full Example
 
-a full example can be found [here](https://github.com/disgoorg/disgo/tree/development/_examples/webhook/example.go)
+a full example can be found [here](https://github.com/disgoorg/disgo/tree/master/_examples/webhook/example.go)

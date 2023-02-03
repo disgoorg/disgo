@@ -8,11 +8,12 @@ import (
 	"net"
 	"time"
 
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/internal/insecurerandstr"
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/internal/insecurerandstr"
 )
 
 var Version = 1

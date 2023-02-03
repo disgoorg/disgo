@@ -4,8 +4,9 @@ import (
 	"encoding/base64"
 	"strings"
 
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // IDFromToken returns the applicationID from the token
@@ -14,7 +15,7 @@ func IDFromToken(token string) (*snowflake.ID, error) {
 	if len(strs) == 0 {
 		return nil, discord.ErrInvalidBotToken
 	}
-	byteID, err := base64.StdEncoding.DecodeString(strs[0])
+	byteID, err := base64.RawStdEncoding.DecodeString(strs[0])
 	if err != nil {
 		return nil, err
 	}

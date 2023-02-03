@@ -3,9 +3,9 @@ package rest
 import (
 	"time"
 
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/rest/route"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 var _ Threads = (*threadImpl)(nil)
@@ -15,14 +15,17 @@ func NewThreads(client Client) Threads {
 }
 
 type Threads interface {
-	CreateThreadWithMessage(channelID snowflake.ID, messageID snowflake.ID, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...RequestOpt) (thread *discord.GuildThread, err error)
+	// CreateThreadFromMessage does not work for discord.ChannelTypeGuildForum channels.
+	CreateThreadFromMessage(channelID snowflake.ID, messageID snowflake.ID, threadCreateFromMessage discord.ThreadCreateFromMessage, opts ...RequestOpt) (thread *discord.GuildThread, err error)
+	CreateThreadInForum(channelID snowflake.ID, threadCreateInForum discord.ForumThreadCreate, opts ...RequestOpt) (thread *discord.ForumThread, err error)
 	CreateThread(channelID snowflake.ID, threadCreate discord.ThreadCreate, opts ...RequestOpt) (thread *discord.GuildThread, err error)
 	JoinThread(threadID snowflake.ID, opts ...RequestOpt) error
 	LeaveThread(threadID snowflake.ID, opts ...RequestOpt) error
 	AddThreadMember(threadID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) error
 	RemoveThreadMember(threadID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) error
-	GetThreadMember(threadID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) (threadMember *discord.ThreadMember, err error)
+	GetThreadMember(threadID snowflake.ID, userID snowflake.ID, withMember bool, opts ...RequestOpt) (threadMember *discord.ThreadMember, err error)
 	GetThreadMembers(threadID snowflake.ID, opts ...RequestOpt) (threadMembers []discord.ThreadMember, err error)
+	GetThreadMembersPage(threadID snowflake.ID, startID snowflake.ID, limit int, opts ...RequestOpt) ThreadMemberPage
 
 	GetPublicArchivedThreads(channelID snowflake.ID, before time.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
 	GetPrivateArchivedThreads(channelID snowflake.ID, before time.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
@@ -33,125 +36,104 @@ type threadImpl struct {
 	client Client
 }
 
-func (s *threadImpl) CreateThreadWithMessage(channelID snowflake.ID, messageID snowflake.ID, threadCreateWithMessage discord.ThreadCreateWithMessage, opts ...RequestOpt) (thread *discord.GuildThread, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.CreateThreadWithMessage.Compile(nil, channelID, messageID)
+func (s *threadImpl) CreateThreadFromMessage(channelID snowflake.ID, messageID snowflake.ID, threadCreateWithMessage discord.ThreadCreateFromMessage, opts ...RequestOpt) (thread *discord.GuildThread, err error) {
+	err = s.client.Do(CreateThreadWithMessage.Compile(nil, channelID, messageID), threadCreateWithMessage, &thread, opts...)
+	return
+}
+
+func (s *threadImpl) CreateThreadInForum(channelID snowflake.ID, threadCreateInForum discord.ForumThreadCreate, opts ...RequestOpt) (thread *discord.ForumThread, err error) {
+	body, err := threadCreateInForum.ToBody()
 	if err != nil {
 		return
 	}
-	err = s.client.Do(compiledRoute, threadCreateWithMessage, &thread, opts...)
+
+	err = s.client.Do(CreateThread.Compile(nil, channelID), body, &thread, opts...)
 	return
 }
 
 func (s *threadImpl) CreateThread(channelID snowflake.ID, threadCreate discord.ThreadCreate, opts ...RequestOpt) (thread *discord.GuildThread, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.CreateThread.Compile(nil, channelID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, threadCreate, &thread, opts...)
+	err = s.client.Do(CreateThread.Compile(nil, channelID), threadCreate, &thread, opts...)
 	return
 }
 
 func (s *threadImpl) JoinThread(threadID snowflake.ID, opts ...RequestOpt) error {
-	compiledRoute, err := route.JoinThread.Compile(nil, threadID)
-	if err != nil {
-		return err
-	}
-	return s.client.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(JoinThread.Compile(nil, threadID), nil, nil, opts...)
 }
 
 func (s *threadImpl) LeaveThread(threadID snowflake.ID, opts ...RequestOpt) error {
-	compiledRoute, err := route.LeaveThread.Compile(nil, threadID)
-	if err != nil {
-		return err
-	}
-	return s.client.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(LeaveThread.Compile(nil, threadID), nil, nil, opts...)
 }
 
 func (s *threadImpl) AddThreadMember(threadID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) error {
-	compiledRoute, err := route.AddThreadMember.Compile(nil, threadID, userID)
-	if err != nil {
-		return err
-	}
-	return s.client.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(AddThreadMember.Compile(nil, threadID, userID), nil, nil, opts...)
 }
 
 func (s *threadImpl) RemoveThreadMember(threadID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) error {
-	compiledRoute, err := route.RemoveThreadMember.Compile(nil, threadID, userID)
-	if err != nil {
-		return err
-	}
-	return s.client.Do(compiledRoute, nil, nil, opts...)
+	return s.client.Do(RemoveThreadMember.Compile(nil, threadID, userID), nil, nil, opts...)
 }
 
-func (s *threadImpl) GetThreadMember(threadID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) (threadMember *discord.ThreadMember, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetThreadMember.Compile(nil, threadID, userID)
-	if err != nil {
-		return nil, err
-	}
-	err = s.client.Do(compiledRoute, nil, &threadMember, opts...)
+func (s *threadImpl) GetThreadMember(threadID snowflake.ID, userID snowflake.ID, withMember bool, opts ...RequestOpt) (threadMember *discord.ThreadMember, err error) {
+	err = s.client.Do(GetThreadMember.Compile(discord.QueryValues{"with_member": withMember}, threadID, userID), nil, &threadMember, opts...)
 	return
 }
 
-func (s *threadImpl) GetThreadMembers(threadID snowflake.ID, opts ...RequestOpt) (threadMembers []discord.ThreadMember, err error) {
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetThreadMembers.Compile(nil, threadID)
-	if err != nil {
-		return nil, err
+func (s *threadImpl) GetThreadMembers(threadID snowflake.ID, opts ...RequestOpt) ([]discord.ThreadMember, error) {
+	return s.getThreadMembers(threadID, nil, opts...)
+}
+
+func (s *threadImpl) GetThreadMembersPage(threadID snowflake.ID, startID snowflake.ID, limit int, opts ...RequestOpt) ThreadMemberPage {
+	return ThreadMemberPage{
+		getItems: func(after snowflake.ID) ([]discord.ThreadMember, error) {
+			queryValues := discord.QueryValues{
+				"with_member": true,
+				"after":       after,
+			}
+			if limit != 0 {
+				queryValues["limit"] = limit
+			}
+			return s.getThreadMembers(threadID, queryValues, opts...)
+		},
+		ID: startID,
 	}
-	err = s.client.Do(compiledRoute, nil, &threadMembers, opts...)
-	return
 }
 
 func (s *threadImpl) GetPublicArchivedThreads(channelID snowflake.ID, before time.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
-	queryValues := route.QueryValues{}
+	queryValues := discord.QueryValues{}
 	if !before.IsZero() {
 		queryValues["before"] = before.Format(time.RFC3339)
 	}
 	if limit != 0 {
 		queryValues["limit"] = limit
 	}
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetArchivedPublicThreads.Compile(queryValues, channelID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &threads, opts...)
+	err = s.client.Do(GetPublicArchivedThreads.Compile(queryValues, channelID), nil, &threads, opts...)
 	return
 }
 
 func (s *threadImpl) GetPrivateArchivedThreads(channelID snowflake.ID, before time.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
-	queryValues := route.QueryValues{}
+	queryValues := discord.QueryValues{}
 	if !before.IsZero() {
 		queryValues["before"] = before.Format(time.RFC3339)
 	}
 	if limit != 0 {
 		queryValues["limit"] = limit
 	}
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetArchivedPrivateThreads.Compile(queryValues, channelID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &threads, opts...)
+	err = s.client.Do(GetPrivateArchivedThreads.Compile(queryValues, channelID), nil, &threads, opts...)
 	return
 }
 
 func (s *threadImpl) GetJoinedPrivateArchivedThreads(channelID snowflake.ID, before time.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error) {
-	queryValues := route.QueryValues{}
+	queryValues := discord.QueryValues{}
 	if !before.IsZero() {
 		queryValues["before"] = before.Format(time.RFC3339)
 	}
 	if limit != 0 {
 		queryValues["limit"] = limit
 	}
-	var compiledRoute *route.CompiledAPIRoute
-	compiledRoute, err = route.GetJoinedAchievedPrivateThreads.Compile(queryValues, channelID)
-	if err != nil {
-		return
-	}
-	err = s.client.Do(compiledRoute, nil, &threads, opts...)
+	err = s.client.Do(GetJoinedPrivateArchivedThreads.Compile(queryValues, channelID), nil, &threads, opts...)
+	return
+}
+
+func (s *threadImpl) getThreadMembers(threadID snowflake.ID, queryValues discord.QueryValues, opts ...RequestOpt) (threadMembers []discord.ThreadMember, err error) {
+	err = s.client.Do(GetThreadMembers.Compile(queryValues, threadID), nil, &threadMembers, opts...)
 	return
 }

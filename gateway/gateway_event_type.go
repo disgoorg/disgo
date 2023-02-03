@@ -27,6 +27,7 @@ const (
 	EventTypeGuildCreate                         EventType = "GUILD_CREATE"
 	EventTypeGuildUpdate                         EventType = "GUILD_UPDATE"
 	EventTypeGuildDelete                         EventType = "GUILD_DELETE"
+	EventTypeGuildAuditLogEntryCreate            EventType = "GUILD_AUDIT_LOG_ENTRY_CREATE"
 	EventTypeGuildBanAdd                         EventType = "GUILD_BAN_ADD"
 	EventTypeGuildBanRemove                      EventType = "GUILD_BAN_REMOVE"
 	EventTypeGuildEmojisUpdate                   EventType = "GUILD_EMOJIS_UPDATE"

@@ -3,9 +3,10 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/disgo/rest/route"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/internal/flags"
 )
 
 var _ Mentionable = (*Member)(nil)
@@ -20,6 +21,7 @@ type Member struct {
 	PremiumSince               *time.Time     `json:"premium_since,omitempty"`
 	Deaf                       bool           `json:"deaf,omitempty"`
 	Mute                       bool           `json:"mute,omitempty"`
+	Flags                      MemberFlags    `json:"flags"`
 	Pending                    bool           `json:"pending"`
 	CommunicationDisabledUntil *time.Time     `json:"communication_disabled_until"`
 
@@ -57,7 +59,12 @@ func (m Member) AvatarURL(opts ...CDNOpt) *string {
 	if m.Avatar == nil {
 		return nil
 	}
-	return formatAssetURL(route.MemberAvatar, opts, m.GuildID, m.User.ID, *m.Avatar)
+	url := formatAssetURL(MemberAvatar, opts, m.GuildID, m.User.ID, *m.Avatar)
+	return &url
+}
+
+func (m Member) CreatedAt() time.Time {
+	return m.User.CreatedAt()
 }
 
 // MemberAdd is used to add a member via the oauth2 access token to a guild
@@ -69,17 +76,48 @@ type MemberAdd struct {
 	Deaf        bool           `json:"deaf,omitempty"`
 }
 
-// MemberUpdate is used to modify
+// MemberUpdate is used to modify a member
 type MemberUpdate struct {
 	ChannelID                  *snowflake.ID             `json:"channel_id,omitempty"`
 	Nick                       *string                   `json:"nick,omitempty"`
 	Roles                      *[]snowflake.ID           `json:"roles,omitempty"`
 	Mute                       *bool                     `json:"mute,omitempty"`
 	Deaf                       *bool                     `json:"deaf,omitempty"`
+	Flags                      *MemberFlags              `json:"flags,omitempty"`
 	CommunicationDisabledUntil *json.Nullable[time.Time] `json:"communication_disabled_until,omitempty"`
 }
 
-// SelfNickUpdate is used to update your own nick
-type SelfNickUpdate struct {
+// CurrentMemberUpdate is used to update the current member
+type CurrentMemberUpdate struct {
 	Nick string `json:"nick"`
+}
+
+type MemberFlags int
+
+const (
+	MemberFlagsDidRejoin MemberFlags = 1 << iota
+	MemberFlagsCompletedOnboarding
+	MemberFlagsBypassesVerification
+	MemberFlagsStartedOnboarding
+	MemberFlagsNone MemberFlags = 0
+)
+
+// Add allows you to add multiple bits together, producing a new bit
+func (f MemberFlags) Add(bits ...MemberFlags) MemberFlags {
+	return flags.Add(f, bits...)
+}
+
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (f MemberFlags) Remove(bits ...MemberFlags) MemberFlags {
+	return flags.Remove(f, bits...)
+}
+
+// Has will ensure that the bit includes all the bits entered
+func (f MemberFlags) Has(bits ...MemberFlags) bool {
+	return flags.Has(f, bits...)
+}
+
+// Missing will check whether the bit is missing any one of the bits
+func (f MemberFlags) Missing(bits ...MemberFlags) bool {
+	return flags.Missing(f, bits...)
 }

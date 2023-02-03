@@ -3,7 +3,7 @@ package discord
 import (
 	"fmt"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -55,9 +55,16 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 		v := MessageCommandInteractionData{}
 		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
+		if baseInteraction.GuildID() != nil {
+			for id := range v.Resolved.Messages {
+				msg := v.Resolved.Messages[id]
+				msg.GuildID = baseInteraction.guildID
+				v.Resolved.Messages[id] = msg
+			}
+		}
 
 	default:
-		return fmt.Errorf("unkown application rawInteraction data with type %d received", cType.Type)
+		return fmt.Errorf("unknown application rawInteraction data with type %d received", cType.Type)
 	}
 	if err != nil {
 		return err
@@ -152,7 +159,7 @@ func (d *SlashCommandInteractionData) UnmarshalJSON(data []byte) error {
 
 		unmarshalOption := flattenedOptions[0]
 		if option, ok := unmarshalOption.(SlashCommandOptionSubCommandGroup); ok {
-			d.SubCommandGroupName = &option.GroupName
+			d.SubCommandGroupName = &option.Name
 			flattenedOptions = make([]internalSlashCommandOption, len(option.Options))
 			for ii := range option.Options {
 				flattenedOptions[ii] = option.Options[ii]
@@ -160,7 +167,7 @@ func (d *SlashCommandInteractionData) UnmarshalJSON(data []byte) error {
 			unmarshalOption = option.Options[0]
 		}
 		if option, ok := unmarshalOption.(SlashCommandOptionSubCommand); ok {
-			d.SubCommandName = &option.CommandName
+			d.SubCommandName = &option.Name
 
 			flattenedOptions = make([]internalSlashCommandOption, len(option.Options))
 			for i := range option.Options {
@@ -183,8 +190,8 @@ func (d SlashCommandInteractionData) MarshalJSON() ([]byte, error) {
 
 	if d.SubCommandName != nil {
 		subCmd := SlashCommandOptionSubCommand{
-			CommandName: *d.SubCommandName,
-			Options:     make([]SlashCommandOption, len(options)),
+			Name:    *d.SubCommandName,
+			Options: make([]SlashCommandOption, len(options)),
 		}
 		for _, option := range options {
 			subCmd.Options = append(subCmd.Options, option.(SlashCommandOption))
@@ -194,8 +201,8 @@ func (d SlashCommandInteractionData) MarshalJSON() ([]byte, error) {
 
 	if d.SubCommandGroupName != nil {
 		groupCmd := SlashCommandOptionSubCommandGroup{
-			GroupName: *d.SubCommandGroupName,
-			Options:   make([]SlashCommandOptionSubCommand, len(options)),
+			Name:    *d.SubCommandGroupName,
+			Options: make([]SlashCommandOptionSubCommand, len(options)),
 		}
 		for _, option := range options {
 			groupCmd.Options = append(groupCmd.Options, option.(SlashCommandOptionSubCommand))
@@ -222,6 +229,17 @@ func (d SlashCommandInteractionData) CommandID() snowflake.ID {
 
 func (d SlashCommandInteractionData) CommandName() string {
 	return d.name
+}
+
+func (d SlashCommandInteractionData) CommandPath() string {
+	path := "/" + d.name
+	if d.SubCommandGroupName != nil {
+		path += "/" + *d.SubCommandGroupName
+	}
+	if d.SubCommandName != nil {
+		path += "/" + *d.SubCommandName
+	}
+	return path
 }
 
 func (d SlashCommandInteractionData) GuildID() *snowflake.ID {

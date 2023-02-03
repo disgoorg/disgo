@@ -1,7 +1,8 @@
 package discord
 
 import (
-	"github.com/disgoorg/disgo/rest/route"
+	"time"
+
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -21,14 +22,20 @@ type Sticker struct {
 }
 
 func (s Sticker) URL(opts ...CDNOpt) string {
-	format := route.PNG
-	if s.FormatType == StickerFormatTypeLottie {
-		format = route.Lottie
+	var format ImageFormat
+	switch s.FormatType {
+	case StickerFormatTypeLottie:
+		format = ImageFormatLottie
+	case StickerFormatTypeGIF:
+		format = ImageFormatGIF
+	default:
+		format = ImageFormatPNG
 	}
-	if url := formatAssetURL(route.CustomSticker, append(opts, WithFormat(format)), s.ID); url != nil {
-		return *url
-	}
-	return ""
+	return formatAssetURL(CustomSticker, append(opts, WithFormat(format)), s.ID)
+}
+
+func (s Sticker) CreatedAt() time.Time {
+	return s.ID.Time()
 }
 
 type StickerType int
@@ -46,6 +53,7 @@ const (
 	StickerFormatTypePNG StickerFormatType = iota + 1
 	StickerFormatTypeAPNG
 	StickerFormatTypeLottie
+	StickerFormatTypeGIF
 )
 
 type StickerCreate struct {
@@ -70,17 +78,21 @@ type StickerUpdate struct {
 }
 
 type StickerPack struct {
-	ID             snowflake.ID `json:"id"`
-	Stickers       []Sticker    `json:"stickers"`
-	Name           string       `json:"name"`
-	SkuID          snowflake.ID `json:"sku_id"`
-	CoverStickerID snowflake.ID `json:"cover_sticker_id"`
-	Description    string       `json:"description"`
-	BannerAssetID  snowflake.ID `json:"banner_asset_id"`
+	ID             snowflake.ID  `json:"id"`
+	Stickers       []Sticker     `json:"stickers"`
+	Name           string        `json:"name"`
+	SkuID          snowflake.ID  `json:"sku_id"`
+	CoverStickerID snowflake.ID  `json:"cover_sticker_id"`
+	Description    string        `json:"description"`
+	BannerAssetID  *snowflake.ID `json:"banner_asset_id"`
 }
 
 func (p StickerPack) BannerURL(opts ...CDNOpt) *string {
-	return formatAssetURL(route.StickerPackBanner, opts, p.BannerAssetID)
+	if p.BannerAssetID == nil {
+		return nil
+	}
+	url := formatAssetURL(StickerPackBanner, opts, p.BannerAssetID)
+	return &url
 }
 
 type StickerPacks struct {

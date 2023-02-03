@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/disgoorg/disgo/discord"
@@ -61,13 +63,6 @@ func WithDelay(delay time.Duration) RequestOpt {
 	}
 }
 
-// WithReason adds a reason header to the request. Not all discord endpoints support this
-func WithReason(reason string) RequestOpt {
-	return func(config *RequestConfig) {
-		config.Request.Header.Set("X-Audit-Log-Reason", reason)
-	}
-}
-
 // WithHeader adds a custom header to the request
 func WithHeader(key string, value string) RequestOpt {
 	return func(config *RequestConfig) {
@@ -75,9 +70,20 @@ func WithHeader(key string, value string) RequestOpt {
 	}
 }
 
+// WithReason adds a reason header to the request. Not all discord endpoints support this
+func WithReason(reason string) RequestOpt {
+	reason = strings.ReplaceAll(url.QueryEscape(reason), "+", " ")
+	return WithHeader("X-Audit-Log-Reason", reason)
+}
+
 // WithDiscordLocale adds the X-Discord-Locale header with the passed locale to the request
 func WithDiscordLocale(locale discord.Locale) RequestOpt {
 	return WithHeader("X-Discord-Locale", locale.Code())
+}
+
+// WithToken adds the Authorization header with the passed token to the request
+func WithToken(tokenType discord.TokenType, token string) RequestOpt {
+	return WithHeader("Authorization", tokenType.Apply(token))
 }
 
 // WithQueryParam applies a custom query parameter to the request
@@ -87,8 +93,4 @@ func WithQueryParam(param string, value any) RequestOpt {
 		values.Add(param, fmt.Sprint(value))
 		config.Request.URL.RawQuery = values.Encode()
 	}
-}
-
-func WithToken(tokenType discord.TokenType, token string) RequestOpt {
-	return WithHeader("Authorization", tokenType.Apply(token))
 }

@@ -3,7 +3,7 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 )
 
 // AccessTokenResponse is the response from the OAuth2 exchange endpoint.

@@ -1,9 +1,10 @@
 package cache
 
 import (
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
 	"golang.org/x/exp/slices"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // PolicyNone returns a policy that will never cache anything.
@@ -11,9 +12,6 @@ func PolicyNone[T any](_ T) bool { return false }
 
 // PolicyAll returns a policy that will cache all entities.
 func PolicyAll[T any](_ T) bool { return true }
-
-// PolicyDefault returns the default cache policy.
-func PolicyDefault[T any](t T) bool { return PolicyAll(t) }
 
 // PolicyMembersInclude returns a policy that will only cache members of the given guilds.
 func PolicyMembersInclude(guildIDs ...snowflake.ID) Policy[discord.Member] {
@@ -30,7 +28,7 @@ func PolicyMembersPending(member discord.Member) bool {
 // PolicyMembersInVoice returns a policy that will only cache members that are connected to an audio channel.
 func PolicyMembersInVoice(caches Caches) Policy[discord.Member] {
 	return func(member discord.Member) bool {
-		_, ok := caches.VoiceStates().Get(member.GuildID, member.User.ID)
+		_, ok := caches.VoiceState(member.GuildID, member.User.ID)
 		return ok
 	}
 }

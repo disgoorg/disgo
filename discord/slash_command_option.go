@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 )
 
 type internalSlashCommandOption interface {
@@ -54,24 +54,24 @@ func (o *UnmarshalSlashCommandOption) UnmarshalJSON(data []byte) error {
 var _ internalSlashCommandOption = (*SlashCommandOptionSubCommand)(nil)
 
 type SlashCommandOptionSubCommand struct {
-	CommandName string               `json:"name"`
-	Options     []SlashCommandOption `json:"options,omitempty"`
+	Name    string               `json:"name"`
+	Options []SlashCommandOption `json:"options,omitempty"`
 }
 
 func (o SlashCommandOptionSubCommand) name() string {
-	return o.CommandName
+	return o.Name
 }
 func (SlashCommandOptionSubCommand) slashCommandOption() {}
 
 var _ internalSlashCommandOption = (*SlashCommandOptionSubCommandGroup)(nil)
 
 type SlashCommandOptionSubCommandGroup struct {
-	GroupName string                         `json:"name"`
-	Options   []SlashCommandOptionSubCommand `json:"options,omitempty"`
+	Name    string                         `json:"name"`
+	Options []SlashCommandOptionSubCommand `json:"options,omitempty"`
 }
 
 func (o SlashCommandOptionSubCommandGroup) name() string {
-	return o.GroupName
+	return o.Name
 }
 func (SlashCommandOptionSubCommandGroup) slashCommandOption() {}
 
