@@ -9,9 +9,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/log"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 type (

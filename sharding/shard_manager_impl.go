@@ -4,9 +4,10 @@ import (
 	"context"
 	"sync"
 
-	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/snowflake/v2"
 	"github.com/gorilla/websocket"
+
+	"github.com/disgoorg/disgo/gateway"
 )
 
 var _ ShardManager = (*shardManagerImpl)(nil)
