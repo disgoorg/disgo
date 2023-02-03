@@ -5,11 +5,12 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake/v2"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/rpc"
-	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
