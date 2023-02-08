@@ -406,8 +406,13 @@ const (
 	MessageFlagUrgent
 	MessageFlagHasThread
 	MessageFlagEphemeral
-	MessageFlagLoading              // Message is an interaction of type 5, awaiting further response
-	MessageFlagsNone   MessageFlags = 0
+	MessageFlagLoading // Message is an interaction of type 5, awaiting further response
+	MessageFlagFailedToMentionSomeRolesInThread
+	_
+	_
+	_
+	MessageFlagSuppressNotifications
+	MessageFlagsNone MessageFlags = 0
 )
 
 // Add allows you to add multiple bits together, producing a new bit
