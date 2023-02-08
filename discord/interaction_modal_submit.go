@@ -7,26 +7,56 @@ var (
 )
 
 type ModalSubmitInteraction struct {
-	BaseInteraction
+	baseInteraction
 	Data ModalSubmitInteractionData `json:"data"`
 }
 
 func (i *ModalSubmitInteraction) UnmarshalJSON(data []byte) error {
-	var baseInteraction baseInteractionImpl
-	if err := json.Unmarshal(data, &baseInteraction); err != nil {
-		return err
-	}
-
 	var interaction struct {
+		rawInteraction
 		Data ModalSubmitInteractionData `json:"data"`
 	}
 	if err := json.Unmarshal(data, &interaction); err != nil {
 		return err
 	}
 
-	i.BaseInteraction = baseInteraction
+	i.baseInteraction.id = interaction.ID
+	i.baseInteraction.applicationID = interaction.ApplicationID
+	i.baseInteraction.token = interaction.Token
+	i.baseInteraction.version = interaction.Version
+	i.baseInteraction.guildID = interaction.GuildID
+	i.baseInteraction.channelID = interaction.ChannelID
+	i.baseInteraction.locale = interaction.Locale
+	i.baseInteraction.guildLocale = interaction.GuildLocale
+	i.baseInteraction.member = interaction.Member
+	i.baseInteraction.user = interaction.User
+	i.baseInteraction.appPermissions = interaction.AppPermissions
+
 	i.Data = interaction.Data
 	return nil
+}
+
+func (i ModalSubmitInteraction) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		rawInteraction
+		Data ModalSubmitInteractionData `json:"data"`
+	}{
+		rawInteraction: rawInteraction{
+			ID:             i.id,
+			Type:           i.Type(),
+			ApplicationID:  i.applicationID,
+			Token:          i.token,
+			Version:        i.version,
+			GuildID:        i.guildID,
+			ChannelID:      i.channelID,
+			Locale:         i.locale,
+			GuildLocale:    i.guildLocale,
+			Member:         i.member,
+			User:           i.user,
+			AppPermissions: i.appPermissions,
+		},
+		Data: i.Data,
+	})
 }
 
 func (ModalSubmitInteraction) Type() InteractionType {

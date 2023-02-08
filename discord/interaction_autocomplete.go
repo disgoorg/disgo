@@ -10,27 +10,56 @@ var (
 )
 
 type AutocompleteInteraction struct {
-	BaseInteraction
+	baseInteraction
 	Data AutocompleteInteractionData `json:"data"`
 }
 
 func (i *AutocompleteInteraction) UnmarshalJSON(data []byte) error {
-	var baseInteraction baseInteractionImpl
-	if err := json.Unmarshal(data, &baseInteraction); err != nil {
-		return err
-	}
-
-	var v struct {
+	var interaction struct {
+		rawInteraction
 		Data AutocompleteInteractionData `json:"data"`
 	}
-	if err := json.Unmarshal(data, &v); err != nil {
+	if err := json.Unmarshal(data, &interaction); err != nil {
 		return err
 	}
 
-	i.BaseInteraction = baseInteraction
+	i.baseInteraction.id = interaction.ID
+	i.baseInteraction.applicationID = interaction.ApplicationID
+	i.baseInteraction.token = interaction.Token
+	i.baseInteraction.version = interaction.Version
+	i.baseInteraction.guildID = interaction.GuildID
+	i.baseInteraction.channelID = interaction.ChannelID
+	i.baseInteraction.locale = interaction.Locale
+	i.baseInteraction.guildLocale = interaction.GuildLocale
+	i.baseInteraction.member = interaction.Member
+	i.baseInteraction.user = interaction.User
+	i.baseInteraction.appPermissions = interaction.AppPermissions
 
-	i.Data = v.Data
+	i.Data = interaction.Data
 	return nil
+}
+
+func (i AutocompleteInteraction) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		rawInteraction
+		Data AutocompleteInteractionData `json:"data"`
+	}{
+		rawInteraction: rawInteraction{
+			ID:             i.id,
+			Type:           i.Type(),
+			ApplicationID:  i.applicationID,
+			Token:          i.token,
+			Version:        i.version,
+			GuildID:        i.guildID,
+			ChannelID:      i.channelID,
+			Locale:         i.locale,
+			GuildLocale:    i.guildLocale,
+			Member:         i.member,
+			User:           i.user,
+			AppPermissions: i.appPermissions,
+		},
+		Data: i.Data,
+	})
 }
 
 func (AutocompleteInteraction) Type() InteractionType {
@@ -116,7 +145,7 @@ func (d *AutocompleteInteractionData) UnmarshalJSON(data []byte) error {
 }
 
 func (d AutocompleteInteractionData) MarshalJSON() ([]byte, error) {
-	options := make([]internalAutocompleteOption, len(d.Options))
+	options := make([]internalAutocompleteOption, 0, len(d.Options))
 	for _, option := range d.Options {
 		options = append(options, option)
 	}
@@ -124,7 +153,8 @@ func (d AutocompleteInteractionData) MarshalJSON() ([]byte, error) {
 	if d.SubCommandName != nil {
 		subCmd := AutocompleteOptionSubCommand{
 			Name:    *d.SubCommandName,
-			Options: make([]AutocompleteOption, len(options)),
+			Options: make([]AutocompleteOption, 0, len(options)),
+			Type:    ApplicationCommandOptionTypeSubCommand,
 		}
 		for _, option := range options {
 			subCmd.Options = append(subCmd.Options, option.(AutocompleteOption))
@@ -135,7 +165,8 @@ func (d AutocompleteInteractionData) MarshalJSON() ([]byte, error) {
 	if d.SubCommandGroupName != nil {
 		groupCmd := AutocompleteOptionSubCommandGroup{
 			Name:    *d.SubCommandGroupName,
-			Options: make([]AutocompleteOptionSubCommand, len(options)),
+			Options: make([]AutocompleteOptionSubCommand, 0, len(options)),
+			Type:    ApplicationCommandOptionTypeSubCommandGroup,
 		}
 		for _, option := range options {
 			groupCmd.Options = append(groupCmd.Options, option.(AutocompleteOptionSubCommand))

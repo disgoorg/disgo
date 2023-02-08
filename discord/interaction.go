@@ -2,6 +2,7 @@ package discord
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
@@ -37,22 +38,29 @@ type rawInteraction struct {
 // Interaction is used for easier unmarshalling of different Interaction(s)
 type Interaction interface {
 	Type() InteractionType
-	BaseInteraction
+	ID() snowflake.ID
+	ApplicationID() snowflake.ID
+	Token() string
+	Version() int
+	GuildID() *snowflake.ID
+	ChannelID() snowflake.ID
+	Locale() Locale
+	GuildLocale() *Locale
+	Member() *ResolvedMember
+	User() User
+	AppPermissions() *Permissions
+	CreatedAt() time.Time
 
 	interaction()
 }
 
-type UnmarshalInteraction struct {
-	Interaction
-}
-
-func (i *UnmarshalInteraction) UnmarshalJSON(data []byte) error {
+func UnmarshalInteraction(data []byte) (Interaction, error) {
 	var iType struct {
 		Type InteractionType `json:"type"`
 	}
 
 	if err := json.Unmarshal(data, &iType); err != nil {
-		return err
+		return nil, err
 	}
 
 	var (
@@ -87,14 +95,13 @@ func (i *UnmarshalInteraction) UnmarshalJSON(data []byte) error {
 		interaction = v
 
 	default:
-		return fmt.Errorf("unknown rawInteraction with type %d received", iType.Type)
+		err = fmt.Errorf("unknown rawInteraction with type %d received", iType.Type)
 	}
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	i.Interaction = interaction
-	return nil
+	return interaction, nil
 }
 
 type (
