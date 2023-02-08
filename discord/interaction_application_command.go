@@ -135,6 +135,7 @@ type ApplicationCommandInteractionData interface {
 type rawSlashCommandInteractionData struct {
 	ID       snowflake.ID                 `json:"id"`
 	Name     string                       `json:"name"`
+	Type     ApplicationCommandType       `json:"type"`
 	GuildID  *snowflake.ID                `json:"guild_id,omitempty"`
 	Resolved SlashCommandResolved         `json:"resolved"`
 	Options  []internalSlashCommandOption `json:"options"`
@@ -244,6 +245,7 @@ func (d SlashCommandInteractionData) MarshalJSON() ([]byte, error) {
 	return json.Marshal(rawSlashCommandInteractionData{
 		ID:       d.id,
 		Name:     d.name,
+		Type:     d.Type(),
 		GuildID:  d.guildID,
 		Resolved: d.Resolved,
 		Options:  options,
@@ -515,11 +517,12 @@ var (
 )
 
 type rawUserCommandInteractionData struct {
-	ID       snowflake.ID        `json:"id"`
-	Name     string              `json:"name"`
-	GuildID  *snowflake.ID       `json:"guild_id,omitempty"`
-	Resolved UserCommandResolved `json:"resolved"`
-	TargetID snowflake.ID        `json:"target_id"`
+	ID       snowflake.ID           `json:"id"`
+	Name     string                 `json:"name"`
+	Type     ApplicationCommandType `json:"type"`
+	GuildID  *snowflake.ID          `json:"guild_id,omitempty"`
+	Resolved UserCommandResolved    `json:"resolved"`
+	TargetID snowflake.ID           `json:"target_id"`
 }
 
 type UserCommandInteractionData struct {
@@ -547,6 +550,7 @@ func (d *UserCommandInteractionData) MarshalJSON() ([]byte, error) {
 	return json.Marshal(rawUserCommandInteractionData{
 		ID:       d.id,
 		Name:     d.name,
+		Type:     d.Type(),
 		GuildID:  d.guildID,
 		Resolved: d.Resolved,
 		TargetID: d.targetID,
@@ -597,6 +601,7 @@ var (
 type rawMessageCommandInteractionData struct {
 	ID       snowflake.ID           `json:"id"`
 	Name     string                 `json:"name"`
+	Type     ApplicationCommandType `json:"type"`
 	GuildID  *snowflake.ID          `json:"guild_id,omitempty"`
 	Resolved MessageCommandResolved `json:"resolved"`
 	TargetID snowflake.ID           `json:"target_id"`
@@ -627,6 +632,7 @@ func (d *MessageCommandInteractionData) MarshalJSON() ([]byte, error) {
 	return json.Marshal(rawMessageCommandInteractionData{
 		ID:       d.id,
 		Name:     d.name,
+		Type:     d.Type(),
 		GuildID:  d.guildID,
 		Resolved: d.Resolved,
 		TargetID: d.targetID,
