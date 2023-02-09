@@ -12,18 +12,14 @@ var (
 )
 
 type ComponentInteraction struct {
-	BaseInteraction
+	baseInteraction
 	Data    ComponentInteractionData `json:"data"`
 	Message Message                  `json:"message"`
 }
 
 func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
-	var baseInteraction baseInteractionImpl
-	if err := json.Unmarshal(data, &baseInteraction); err != nil {
-		return err
-	}
-
 	var interaction struct {
+		rawInteraction
 		Data    json.RawMessage `json:"data"`
 		Message Message         `json:"message"`
 	}
@@ -34,7 +30,6 @@ func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
 	var cType struct {
 		Type ComponentType `json:"component_type"`
 	}
-
 	if err := json.Unmarshal(interaction.Data, &cType); err != nil {
 		return err
 	}
@@ -81,12 +76,47 @@ func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	i.BaseInteraction = baseInteraction
+	i.baseInteraction.id = interaction.ID
+	i.baseInteraction.applicationID = interaction.ApplicationID
+	i.baseInteraction.token = interaction.Token
+	i.baseInteraction.version = interaction.Version
+	i.baseInteraction.guildID = interaction.GuildID
+	i.baseInteraction.channelID = interaction.ChannelID
+	i.baseInteraction.locale = interaction.Locale
+	i.baseInteraction.guildLocale = interaction.GuildLocale
+	i.baseInteraction.member = interaction.Member
+	i.baseInteraction.user = interaction.User
+	i.baseInteraction.appPermissions = interaction.AppPermissions
 
 	i.Data = interactionData
 	i.Message = interaction.Message
-	i.Message.GuildID = baseInteraction.guildID
+	i.Message.GuildID = i.baseInteraction.guildID
 	return nil
+}
+
+func (i ComponentInteraction) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		rawInteraction
+		Data    ComponentInteractionData `json:"data"`
+		Message Message                  `json:"message"`
+	}{
+		rawInteraction: rawInteraction{
+			ID:             i.id,
+			Type:           i.Type(),
+			ApplicationID:  i.applicationID,
+			Token:          i.token,
+			Version:        i.version,
+			GuildID:        i.guildID,
+			ChannelID:      i.channelID,
+			Locale:         i.locale,
+			GuildLocale:    i.guildLocale,
+			Member:         i.member,
+			User:           i.user,
+			AppPermissions: i.appPermissions,
+		},
+		Data:    i.Data,
+		Message: i.Message,
+	})
 }
 
 func (ComponentInteraction) Type() InteractionType {

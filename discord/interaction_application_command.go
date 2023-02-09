@@ -12,22 +12,19 @@ var (
 )
 
 type ApplicationCommandInteraction struct {
-	BaseInteraction
+	baseInteraction
 	Data ApplicationCommandInteractionData `json:"data"`
 }
 
 func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
-	var baseInteraction baseInteractionImpl
-	if err := json.Unmarshal(data, &baseInteraction); err != nil {
-		return err
-	}
-
 	var interaction struct {
+		rawInteraction
 		Data json.RawMessage `json:"data"`
 	}
 	if err := json.Unmarshal(data, &interaction); err != nil {
 		return err
 	}
+
 	var cType struct {
 		Type ApplicationCommandType `json:"type"`
 	}
@@ -39,7 +36,6 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 		interactionData ApplicationCommandInteractionData
 		err             error
 	)
-
 	switch cType.Type {
 	case ApplicationCommandTypeSlash:
 		v := SlashCommandInteractionData{}
@@ -55,10 +51,10 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 		v := MessageCommandInteractionData{}
 		err = json.Unmarshal(interaction.Data, &v)
 		interactionData = v
-		if baseInteraction.GuildID() != nil {
+		if interaction.GuildID != nil {
 			for id := range v.Resolved.Messages {
 				msg := v.Resolved.Messages[id]
-				msg.GuildID = baseInteraction.guildID
+				msg.GuildID = interaction.GuildID
 				v.Resolved.Messages[id] = msg
 			}
 		}
@@ -70,10 +66,43 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	i.BaseInteraction = baseInteraction
+	i.baseInteraction.id = interaction.ID
+	i.baseInteraction.applicationID = interaction.ApplicationID
+	i.baseInteraction.token = interaction.Token
+	i.baseInteraction.version = interaction.Version
+	i.baseInteraction.guildID = interaction.GuildID
+	i.baseInteraction.channelID = interaction.ChannelID
+	i.baseInteraction.locale = interaction.Locale
+	i.baseInteraction.guildLocale = interaction.GuildLocale
+	i.baseInteraction.member = interaction.Member
+	i.baseInteraction.user = interaction.User
+	i.baseInteraction.appPermissions = interaction.AppPermissions
 
 	i.Data = interactionData
 	return nil
+}
+
+func (i ApplicationCommandInteraction) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		rawInteraction
+		Data ApplicationCommandInteractionData `json:"data"`
+	}{
+		rawInteraction: rawInteraction{
+			ID:             i.id,
+			Type:           i.Type(),
+			ApplicationID:  i.applicationID,
+			Token:          i.token,
+			Version:        i.version,
+			GuildID:        i.guildID,
+			ChannelID:      i.channelID,
+			Locale:         i.locale,
+			GuildLocale:    i.guildLocale,
+			Member:         i.member,
+			User:           i.user,
+			AppPermissions: i.appPermissions,
+		},
+		Data: i.Data,
+	})
 }
 
 func (ApplicationCommandInteraction) Type() InteractionType {
@@ -106,6 +135,7 @@ type ApplicationCommandInteractionData interface {
 type rawSlashCommandInteractionData struct {
 	ID       snowflake.ID                 `json:"id"`
 	Name     string                       `json:"name"`
+	Type     ApplicationCommandType       `json:"type"`
 	GuildID  *snowflake.ID                `json:"guild_id,omitempty"`
 	Resolved SlashCommandResolved         `json:"resolved"`
 	Options  []internalSlashCommandOption `json:"options"`
@@ -183,7 +213,7 @@ func (d *SlashCommandInteractionData) UnmarshalJSON(data []byte) error {
 }
 
 func (d SlashCommandInteractionData) MarshalJSON() ([]byte, error) {
-	options := make([]internalSlashCommandOption, len(d.Options))
+	options := make([]internalSlashCommandOption, 0, len(d.Options))
 	for _, option := range d.Options {
 		options = append(options, option)
 	}
@@ -191,7 +221,8 @@ func (d SlashCommandInteractionData) MarshalJSON() ([]byte, error) {
 	if d.SubCommandName != nil {
 		subCmd := SlashCommandOptionSubCommand{
 			Name:    *d.SubCommandName,
-			Options: make([]SlashCommandOption, len(options)),
+			Options: make([]SlashCommandOption, 0, len(options)),
+			Type:    ApplicationCommandOptionTypeSubCommand,
 		}
 		for _, option := range options {
 			subCmd.Options = append(subCmd.Options, option.(SlashCommandOption))
@@ -202,7 +233,8 @@ func (d SlashCommandInteractionData) MarshalJSON() ([]byte, error) {
 	if d.SubCommandGroupName != nil {
 		groupCmd := SlashCommandOptionSubCommandGroup{
 			Name:    *d.SubCommandGroupName,
-			Options: make([]SlashCommandOptionSubCommand, len(options)),
+			Options: make([]SlashCommandOptionSubCommand, 0, len(options)),
+			Type:    ApplicationCommandOptionTypeSubCommandGroup,
 		}
 		for _, option := range options {
 			groupCmd.Options = append(groupCmd.Options, option.(SlashCommandOptionSubCommand))
@@ -213,6 +245,7 @@ func (d SlashCommandInteractionData) MarshalJSON() ([]byte, error) {
 	return json.Marshal(rawSlashCommandInteractionData{
 		ID:       d.id,
 		Name:     d.name,
+		Type:     d.Type(),
 		GuildID:  d.guildID,
 		Resolved: d.Resolved,
 		Options:  options,
@@ -484,11 +517,12 @@ var (
 )
 
 type rawUserCommandInteractionData struct {
-	ID       snowflake.ID        `json:"id"`
-	Name     string              `json:"name"`
-	GuildID  *snowflake.ID       `json:"guild_id,omitempty"`
-	Resolved UserCommandResolved `json:"resolved"`
-	TargetID snowflake.ID        `json:"target_id"`
+	ID       snowflake.ID           `json:"id"`
+	Name     string                 `json:"name"`
+	Type     ApplicationCommandType `json:"type"`
+	GuildID  *snowflake.ID          `json:"guild_id,omitempty"`
+	Resolved UserCommandResolved    `json:"resolved"`
+	TargetID snowflake.ID           `json:"target_id"`
 }
 
 type UserCommandInteractionData struct {
@@ -516,6 +550,7 @@ func (d *UserCommandInteractionData) MarshalJSON() ([]byte, error) {
 	return json.Marshal(rawUserCommandInteractionData{
 		ID:       d.id,
 		Name:     d.name,
+		Type:     d.Type(),
 		GuildID:  d.guildID,
 		Resolved: d.Resolved,
 		TargetID: d.targetID,
@@ -566,6 +601,7 @@ var (
 type rawMessageCommandInteractionData struct {
 	ID       snowflake.ID           `json:"id"`
 	Name     string                 `json:"name"`
+	Type     ApplicationCommandType `json:"type"`
 	GuildID  *snowflake.ID          `json:"guild_id,omitempty"`
 	Resolved MessageCommandResolved `json:"resolved"`
 	TargetID snowflake.ID           `json:"target_id"`
@@ -596,6 +632,7 @@ func (d *MessageCommandInteractionData) MarshalJSON() ([]byte, error) {
 	return json.Marshal(rawMessageCommandInteractionData{
 		ID:       d.id,
 		Name:     d.name,
+		Type:     d.Type(),
 		GuildID:  d.guildID,
 		Resolved: d.Resolved,
 		TargetID: d.targetID,

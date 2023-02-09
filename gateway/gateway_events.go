@@ -36,7 +36,7 @@ type EventReady struct {
 	Guilds           []discord.UnavailableGuild `json:"guilds"`
 	SessionID        string                     `json:"session_id"`
 	ResumeGatewayURL string                     `json:"resume_gateway_url"`
-	Shard            []int                      `json:"shard,omitempty"`
+	Shard            [2]int                     `json:"shard,omitempty"`
 	Application      discord.PartialApplication `json:"application"`
 }
 
@@ -439,12 +439,16 @@ type EventInteractionCreate struct {
 }
 
 func (e *EventInteractionCreate) UnmarshalJSON(data []byte) error {
-	var interaction discord.UnmarshalInteraction
-	if err := json.Unmarshal(data, &interaction); err != nil {
+	interaction, err := discord.UnmarshalInteraction(data)
+	if err != nil {
 		return err
 	}
-	e.Interaction = interaction.Interaction
+	e.Interaction = interaction
 	return nil
+}
+
+func (e EventInteractionCreate) MarshalJSON() ([]byte, error) {
+	return json.Marshal(e.Interaction)
 }
 
 func (EventInteractionCreate) messageData() {}

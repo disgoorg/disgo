@@ -13,7 +13,7 @@ func gatewayHandlerInteractionCreate(client bot.Client, sequenceNumber int, shar
 	handleInteraction(client, sequenceNumber, shardID, nil, event.Interaction)
 }
 
-func respond(client bot.Client, respondFunc httpserver.RespondFunc, interaction discord.BaseInteraction) events.InteractionResponderFunc {
+func respond(client bot.Client, respondFunc httpserver.RespondFunc, interaction discord.Interaction) events.InteractionResponderFunc {
 	return func(responseType discord.InteractionResponseType, data discord.InteractionResponseData, opts ...rest.RequestOpt) error {
 		response := discord.InteractionResponse{
 			Type: responseType,
@@ -27,7 +27,6 @@ func respond(client bot.Client, respondFunc httpserver.RespondFunc, interaction 
 }
 
 func handleInteraction(client bot.Client, sequenceNumber int, shardID int, respondFunc httpserver.RespondFunc, interaction discord.Interaction) {
-
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
 	client.EventManager().DispatchEvent(&events.InteractionCreate{
