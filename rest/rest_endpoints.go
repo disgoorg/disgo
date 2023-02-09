@@ -9,11 +9,11 @@ import (
 )
 
 var (
-	// APIVersion is the Discord API version DisGo should use
-	APIVersion = 10
+	// Version is the Discord API version DisGo should use
+	Version = 10
 
 	// API is the base path of the Discord API
-	API = fmt.Sprintf("https://discord.com/api/v%d", APIVersion)
+	API = "https://discord.com/api/"
 )
 
 // MajorParameters is a list of url parameters which decide in which bucket a route belongs (https://discord.com/developers/docs/topics/rate-limits#rate-limits)
@@ -346,7 +346,7 @@ func (e *Endpoint) Compile(values discord.QueryValues, params ...any) *CompiledE
 
 	return &CompiledEndpoint{
 		Endpoint:    e,
-		URL:         API + path + query,
+		URL:         path + query,
 		MajorParams: strings.Join(majorParams, ":"),
 	}
 }
