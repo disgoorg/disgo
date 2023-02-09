@@ -55,6 +55,8 @@ type Guilds interface {
 
 	GetGuildWelcomeScreen(guildID snowflake.ID, opts ...RequestOpt) (*discord.GuildWelcomeScreen, error)
 	UpdateGuildWelcomeScreen(guildID snowflake.ID, screenUpdate discord.GuildWelcomeScreenUpdate, opts ...RequestOpt) (*discord.GuildWelcomeScreen, error)
+
+	GetGuildOnboarding(guildID snowflake.ID, opts ...RequestOpt) (*discord.GuildOnboarding, error)
 }
 
 type guildImpl struct {
@@ -288,5 +290,10 @@ func (s *guildImpl) GetGuildWelcomeScreen(guildID snowflake.ID, opts ...RequestO
 
 func (s *guildImpl) UpdateGuildWelcomeScreen(guildID snowflake.ID, screenUpdate discord.GuildWelcomeScreenUpdate, opts ...RequestOpt) (welcomeScreen *discord.GuildWelcomeScreen, err error) {
 	err = s.client.Do(UpdateGuildWelcomeScreen.Compile(nil, guildID), screenUpdate, &welcomeScreen, opts...)
+	return
+}
+
+func (s *guildImpl) GetGuildOnboarding(guildID snowflake.ID, opts ...RequestOpt) (onboarding *discord.GuildOnboarding, err error) {
+	err = s.client.Do(GetGuildOnboarding.Compile(nil, guildID), nil, &onboarding, opts...)
 	return
 }
