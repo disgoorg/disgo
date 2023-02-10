@@ -72,17 +72,17 @@ func main() {
 	r.Group(func(r handler.Router) {
 		r.Use(middleware.Print("group1"))
 		r.Route("/test", func(r handler.Router) {
-			r.HandleCommand("/sub2", handleContent("/test/sub2"))
+			r.Command("/sub2", handleContent("/test/sub2"))
 			r.Route("/{group}", func(r handler.Router) {
-				r.HandleCommand("/sub", handleVariableContent)
+				r.Command("/sub", handleVariableContent)
 			})
 		})
 	})
 	r.Group(func(r handler.Router) {
 		r.Use(middleware.Print("group2"))
-		r.HandleCommand("/ping", handlePing)
-		r.HandleCommand("/ping2", handleContent("pong2"))
-		r.HandleComponent("button1/{data}", handleComponent)
+		r.Command("/ping", handlePing)
+		r.Command("/ping2", handleContent("pong2"))
+		r.Component("button1/{data}", handleComponent)
 	})
 
 	client, err := disgo.New(token,

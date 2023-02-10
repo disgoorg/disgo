@@ -131,7 +131,7 @@ func (r *mux) handle(route Route) {
 	r.routes = append(r.routes, route)
 }
 
-func (r *mux) HandleCommand(pattern string, h CommandHandler) {
+func (r *mux) Command(pattern string, h CommandHandler) {
 	checkPattern(pattern)
 	r.handle(&handlerHolder[CommandHandler]{
 		pattern: pattern,
@@ -140,7 +140,7 @@ func (r *mux) HandleCommand(pattern string, h CommandHandler) {
 	})
 }
 
-func (r *mux) HandleAutocomplete(pattern string, h AutocompleteHandler) {
+func (r *mux) Autocomplete(pattern string, h AutocompleteHandler) {
 	checkPattern(pattern)
 	r.handle(&handlerHolder[AutocompleteHandler]{
 		pattern: pattern,
@@ -149,7 +149,7 @@ func (r *mux) HandleAutocomplete(pattern string, h AutocompleteHandler) {
 	})
 }
 
-func (r *mux) HandleComponent(pattern string, h ComponentHandler) {
+func (r *mux) Component(pattern string, h ComponentHandler) {
 	checkPatternEmpty(pattern)
 	r.handle(&handlerHolder[ComponentHandler]{
 		pattern: pattern,
@@ -158,7 +158,7 @@ func (r *mux) HandleComponent(pattern string, h ComponentHandler) {
 	})
 }
 
-func (r *mux) HandleModal(pattern string, h ModalHandler) {
+func (r *mux) Modal(pattern string, h ModalHandler) {
 	checkPatternEmpty(pattern)
 	r.handle(&handlerHolder[ModalHandler]{
 		pattern: pattern,
@@ -167,7 +167,7 @@ func (r *mux) HandleModal(pattern string, h ModalHandler) {
 	})
 }
 
-func (r *mux) HandleNotFound(h NotFoundHandler) {
+func (r *mux) NotFound(h NotFoundHandler) {
 	r.notFoundHandler = h
 }
 

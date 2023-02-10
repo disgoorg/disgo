@@ -46,19 +46,19 @@ type Router interface {
 	// Mount mounts the given router with the given pattern to the current Router.
 	Mount(pattern string, r Router)
 
-	// HandleCommand registers the given CommandHandler to the current Router.
-	HandleCommand(pattern string, h CommandHandler)
+	// Command registers the given CommandHandler to the current Router.
+	Command(pattern string, h CommandHandler)
 
-	// HandleAutocomplete registers the given AutocompleteHandler to the current Router.
-	HandleAutocomplete(pattern string, h AutocompleteHandler)
+	// Autocomplete registers the given AutocompleteHandler to the current Router.
+	Autocomplete(pattern string, h AutocompleteHandler)
 
-	// HandleComponent registers the given ComponentHandler to the current Router.
-	HandleComponent(pattern string, h ComponentHandler)
+	// Component registers the given ComponentHandler to the current Router.
+	Component(pattern string, h ComponentHandler)
 
-	// HandleModal registers the given ModalHandler to the current Router.
-	HandleModal(pattern string, h ModalHandler)
+	// Modal registers the given ModalHandler to the current Router.
+	Modal(pattern string, h ModalHandler)
 
-	// HandleNotFound sets the given NotFoundHandler to handle unhandled request on the current Router.
-	// HandleNotFound will overwrite the previous handler if it is already set
-	HandleNotFound(h NotFoundHandler)
+	// NotFound sets the given NotFoundHandler to handle unhandled request on the current Router.
+	// NotFound will overwrite the previous handler if it is already set
+	NotFound(h NotFoundHandler)
 }
