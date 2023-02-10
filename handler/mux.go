@@ -21,9 +21,10 @@ func newRouter(pattern string, middlewares []Middleware, routes []Route) *mux {
 }
 
 type mux struct {
-	pattern     string
-	middlewares []Middleware
-	routes      []Route
+	pattern         string
+	middlewares     []Middleware
+	routes          []Route
+	notFoundHandler NotFoundHandler
 }
 
 func (r *mux) OnEvent(event bot.Event) {
@@ -89,6 +90,9 @@ func (r *mux) Handle(path string, variables map[string]string, e *events.Interac
 		if route.Match(path, e.Type()) {
 			return route.Handle(path, variables, e)
 		}
+	}
+	if r.notFoundHandler != nil {
+		return r.notFoundHandler(e)
 	}
 	return nil
 }
@@ -161,6 +165,10 @@ func (r *mux) HandleModal(pattern string, h ModalHandler) {
 		handler: h,
 		t:       discord.InteractionTypeModalSubmit,
 	})
+}
+
+func (r *mux) HandleNotFound(h NotFoundHandler) {
+	r.notFoundHandler = h
 }
 
 func checkPatternEmpty(pattern string) {
