@@ -57,4 +57,8 @@ type Router interface {
 
 	// HandleModal registers the given ModalHandler to the current Router.
 	HandleModal(pattern string, h ModalHandler)
+
+	// HandleNotFound sets the given NotFoundHandler to handle unhandled request on the current Router.
+	// HandleNotFound will overwrite the previous handler if it is already set
+	HandleNotFound(h NotFoundHandler)
 }
