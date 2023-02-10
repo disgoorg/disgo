@@ -95,10 +95,10 @@ type CurrentMemberUpdate struct {
 type MemberFlags int
 
 const (
-	MemberFlagsDidRejoin MemberFlags = 1 << iota
-	MemberFlagsCompletedOnboarding
-	MemberFlagsBypassesVerification
-	MemberFlagsStartedOnboarding
+	MemberFlagDidRejoin MemberFlags = 1 << iota
+	MemberFlagCompletedOnboarding
+	MemberFlagBypassesVerification
+	MemberFlagStartedOnboarding
 	MemberFlagsNone MemberFlags = 0
 )
 
