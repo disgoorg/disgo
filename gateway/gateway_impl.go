@@ -286,9 +286,7 @@ func (g *gatewayImpl) identify() {
 		LargeThreshold: g.config.LargeThreshold,
 		Intents:        g.config.Intents,
 		Presence:       g.config.Presence,
-	}
-	if g.ShardCount() > 1 {
-		identify.Shard = &[2]int{g.ShardID(), g.ShardCount()}
+		Shard:          &[2]int{g.ShardID(), g.ShardCount()},
 	}
 
 	if err := g.Send(context.TODO(), OpcodeIdentify, identify); err != nil {
