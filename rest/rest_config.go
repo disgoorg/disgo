@@ -13,7 +13,7 @@ func DefaultConfig() *Config {
 	return &Config{
 		Logger:     log.Default(),
 		HTTPClient: &http.Client{Timeout: 20 * time.Second},
-		URL:        fmt.Sprintf("%s/v%d", API, Version),
+		URL:        fmt.Sprintf("%sv%d", API, Version),
 	}
 }
 
