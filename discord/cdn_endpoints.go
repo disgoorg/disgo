@@ -30,6 +30,8 @@ var (
 
 	AchievementIcon = NewCDN("/app-assets/{application.id}/achievements/{achievement.id}/icons/{icon.hash}", ImageFormatPNG, ImageFormatJPEG, ImageFormatWebP)
 
+	StorePageAsset = NewCDN("/app-assets/{application.id}/store/{asset.id}", ImageFormatPNG, ImageFormatJPEG, ImageFormatWebP)
+
 	TeamIcon = NewCDN("/team-icons/{team.id}/{team.icon.hash}", ImageFormatPNG, ImageFormatJPEG, ImageFormatWebP)
 
 	StickerPackBanner = NewCDN("app-assets/710982414301790216/store/{banner.asset.id}", ImageFormatPNG, ImageFormatJPEG, ImageFormatWebP)
