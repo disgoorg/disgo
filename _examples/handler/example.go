@@ -12,6 +12,7 @@ import (
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/handler"
 	"github.com/disgoorg/disgo/handler/middleware"
 )
@@ -84,6 +85,7 @@ func main() {
 		r.Command("/ping2", handleContent("pong2"))
 		r.Component("button1/{data}", handleComponent)
 	})
+	r.NotFound(handleNotFound)
 
 	client, err := disgo.New(token,
 		bot.WithDefaultGateway(),
@@ -135,4 +137,8 @@ func handlePing(event *handler.CommandEvent) error {
 func handleComponent(event *handler.ComponentEvent) error {
 	data := event.Variables["data"]
 	return event.CreateMessage(discord.MessageCreate{Content: "component: " + data})
+}
+
+func handleNotFound(event *events.InteractionCreate) error {
+	return event.Respond(discord.InteractionResponseTypeCreateMessage, discord.MessageCreate{Content: "not found"})
 }
