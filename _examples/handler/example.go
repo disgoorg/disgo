@@ -111,17 +111,17 @@ func main() {
 }
 
 func handleContent(content string) handler.CommandHandler {
-	return func(client bot.Client, event *handler.CommandEvent) error {
+	return func(event *handler.CommandEvent) error {
 		return event.CreateMessage(discord.MessageCreate{Content: content})
 	}
 }
 
-func handleVariableContent(client bot.Client, event *handler.CommandEvent) error {
+func handleVariableContent(event *handler.CommandEvent) error {
 	group := event.Variables["group"]
 	return event.CreateMessage(discord.MessageCreate{Content: "group: " + group})
 }
 
-func handlePing(client bot.Client, event *handler.CommandEvent) error {
+func handlePing(event *handler.CommandEvent) error {
 	return event.CreateMessage(discord.MessageCreate{
 		Content: "pong",
 		Components: []discord.ContainerComponent{
@@ -132,7 +132,7 @@ func handlePing(client bot.Client, event *handler.CommandEvent) error {
 	})
 }
 
-func handleComponent(client bot.Client, event *handler.ComponentEvent) error {
+func handleComponent(event *handler.ComponentEvent) error {
 	data := event.Variables["data"]
 	return event.CreateMessage(discord.MessageCreate{Content: "component: " + data})
 }

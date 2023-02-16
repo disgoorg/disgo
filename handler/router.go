@@ -15,7 +15,7 @@ type (
 )
 
 var (
-	_ Route = (*mux)(nil)
+	_ Route = (*Mux)(nil)
 	_ Route = (*handlerHolder[CommandHandler])(nil)
 )
 
@@ -57,8 +57,4 @@ type Router interface {
 
 	// Modal registers the given ModalHandler to the current Router.
 	Modal(pattern string, h ModalHandler)
-
-	// NotFound sets the given NotFoundHandler to handle unhandled request on the current Router.
-	// NotFound will overwrite the previous handler if it is already set
-	NotFound(h NotFoundHandler)
 }
