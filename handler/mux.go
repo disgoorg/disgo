@@ -64,7 +64,7 @@ func (r *mux) Match(path string, t discord.InteractionType) bool {
 			if strings.HasPrefix(part, "{") && strings.HasSuffix(part, "}") {
 				continue
 			}
-			if part != parts[i] {
+			if len(parts) <= i || part != parts[i] {
 				return false
 			}
 		}
