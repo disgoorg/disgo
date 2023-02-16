@@ -8,6 +8,7 @@ import (
 	"github.com/disgoorg/disgo/events"
 )
 
+// New returns a new Router.
 func New() *Mux {
 	return &Mux{}
 }
@@ -20,6 +21,7 @@ func newRouter(pattern string, middlewares []Middleware, routes []Route) *Mux {
 	}
 }
 
+// Mux is a basic Router implementation.
 type Mux struct {
 	pattern         string
 	middlewares     []Middleware
@@ -27,6 +29,7 @@ type Mux struct {
 	notFoundHandler NotFoundHandler
 }
 
+// OnEvent is called when a new event is received.
 func (r *Mux) OnEvent(event bot.Event) {
 	e, ok := event.(*events.InteractionCreate)
 	if !ok {
@@ -54,6 +57,7 @@ func (r *Mux) OnEvent(event bot.Event) {
 	}
 }
 
+// Match returns true if the given path matches the Route.
 func (r *Mux) Match(path string, t discord.InteractionType) bool {
 	if r.pattern != "" {
 		parts := splitPath(path)
@@ -78,6 +82,7 @@ func (r *Mux) Match(path string, t discord.InteractionType) bool {
 	return false
 }
 
+// Handle handles the given interaction event.
 func (r *Mux) Handle(path string, variables map[string]string, e *events.InteractionCreate) error {
 	path = parseVariables(path, r.pattern, variables)
 	middlewares := func(event *events.InteractionCreate) {}
@@ -97,20 +102,24 @@ func (r *Mux) Handle(path string, variables map[string]string, e *events.Interac
 	return nil
 }
 
+// Use adds the given middlewares to the current Router.
 func (r *Mux) Use(middlewares ...Middleware) {
 	r.middlewares = append(r.middlewares, middlewares...)
 }
 
+// With returns a new Router with the given middlewares.
 func (r *Mux) With(middlewares ...Middleware) Router {
 	return newRouter("", middlewares, nil)
 }
 
+// Group creates a new Router and adds it to the current Router.
 func (r *Mux) Group(fn func(router Router)) {
 	router := New()
 	fn(router)
 	r.handle(router)
 }
 
+// Route creates a new sub-router with the given pattern and adds it to the current Router.
 func (r *Mux) Route(pattern string, fn func(r Router)) Router {
 	checkPattern(pattern)
 	router := newRouter(pattern, nil, nil)
@@ -119,6 +128,7 @@ func (r *Mux) Route(pattern string, fn func(r Router)) Router {
 	return router
 }
 
+// Mount mounts the given router with the given pattern to the current Router.
 func (r *Mux) Mount(pattern string, router Router) {
 	if pattern == "" {
 		r.handle(router)
@@ -131,6 +141,7 @@ func (r *Mux) handle(route Route) {
 	r.routes = append(r.routes, route)
 }
 
+// Command registers the given CommandHandler to the current Router.
 func (r *Mux) Command(pattern string, h CommandHandler) {
 	checkPattern(pattern)
 	r.handle(&handlerHolder[CommandHandler]{
@@ -140,6 +151,7 @@ func (r *Mux) Command(pattern string, h CommandHandler) {
 	})
 }
 
+// Autocomplete registers the given AutocompleteHandler to the current Router.
 func (r *Mux) Autocomplete(pattern string, h AutocompleteHandler) {
 	checkPattern(pattern)
 	r.handle(&handlerHolder[AutocompleteHandler]{
@@ -149,6 +161,7 @@ func (r *Mux) Autocomplete(pattern string, h AutocompleteHandler) {
 	})
 }
 
+// Component registers the given ComponentHandler to the current Router.
 func (r *Mux) Component(pattern string, h ComponentHandler) {
 	checkPatternEmpty(pattern)
 	r.handle(&handlerHolder[ComponentHandler]{
@@ -158,6 +171,7 @@ func (r *Mux) Component(pattern string, h ComponentHandler) {
 	})
 }
 
+// Modal registers the given ModalHandler to the current Router.
 func (r *Mux) Modal(pattern string, h ModalHandler) {
 	checkPatternEmpty(pattern)
 	r.handle(&handlerHolder[ModalHandler]{
@@ -167,6 +181,8 @@ func (r *Mux) Modal(pattern string, h ModalHandler) {
 	})
 }
 
+// NotFound sets the NotFoundHandler for this router.
+// This handler only works for the root router and will be ignored for sub routers.
 func (r *Mux) NotFound(h NotFoundHandler) {
 	r.notFoundHandler = h
 }

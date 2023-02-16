@@ -17,8 +17,12 @@ type (
 var (
 	_ Route = (*Mux)(nil)
 	_ Route = (*handlerHolder[CommandHandler])(nil)
+	_ Route = (*handlerHolder[AutocompleteHandler])(nil)
+	_ Route = (*handlerHolder[ComponentHandler])(nil)
+	_ Route = (*handlerHolder[ModalHandler])(nil)
 )
 
+// Route is a basic interface for a route in a Router.
 type Route interface {
 	// Match returns true if the given path matches the Route.
 	Match(path string, t discord.InteractionType) bool
@@ -27,14 +31,16 @@ type Route interface {
 	Handle(path string, variables map[string]string, e *events.InteractionCreate) error
 }
 
+// Router provides with the core routing functionality.
+// It is used to register handlers and middlewares and sub-routers.
 type Router interface {
 	bot.EventListener
 	Route
 
-	// Use adds the given middlewares to the current Router
+	// Use adds the given middlewares to the current Router.
 	Use(middlewares ...Middleware)
 
-	// With returns a new Router with the given middlewares
+	// With returns a new Router with the given middlewares.
 	With(middlewares ...Middleware) Router
 
 	// Group creates a new Router and adds it to the current Router.

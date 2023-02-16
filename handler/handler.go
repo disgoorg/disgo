@@ -1,3 +1,20 @@
+// Package handler provides a way to handle interactions like application commands, autocomplete, buttons, select menus & modals with a simple interface.
+//
+// The handler package is inspired by the go-chi/chi http router.
+// Each interaction has a path which is either the command name (starting with /) or the custom id. According to this path all interactions are routed to the correct handler.
+// Slash Commands can have subcommands, which are nested paths. For example /test/subcommand1 or /test/subcommandgroup/subcommand.
+//
+// The handler also supports variables in its path which is especially useful for subcommands, components and modals.
+// Variables are defined by curly braces like {variable} and can be accessed in the handler via the Variables map.
+//
+// You can also register middlewares, which are executed before the handler is called. Middlewares can be used to check permissions, validate input or do other things.
+// Middlewares can also be attached to sub-routers, which is useful if you want to have a middleware for all subcommands of a command as an example.
+// A middleware does not care which interaction type it is, it is just executed before the handler and has the following signature:
+// type Middleware func(next func(e *events.InteractionCreate)) func(e *events.InteractionCreate)
+//
+// The handler iterates over all routes until it finds the fist matching route. If no route matches, the handler will call the NotFoundHandler.
+// The NotFoundHandler can be set via the `NotFound` method on the *Mux. If no NotFoundHandler is set nothing will happen.
+
 package handler
 
 import (
