@@ -25,6 +25,7 @@ var (
 	logger       = log.Default()
 	httpClient   = http.DefaultClient
 	client       oauth2.Client
+	sessions     map[string]oauth2.Session
 )
 
 func init() {
@@ -49,8 +50,8 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 	var body string
 	cookie, err := r.Cookie("token")
 	if err == nil {
-		session := client.SessionController().GetSession(cookie.Value)
-		if session != nil {
+		session, ok := sessions[cookie.Value]
+		if ok {
 			var user *discord.OAuth2User
 			user, err = client.GetUser(session)
 			if err != nil {
@@ -100,11 +101,12 @@ func handleTryLogin(w http.ResponseWriter, r *http.Request) {
 	)
 	if code != "" && state != "" {
 		identifier := randStr(32)
-		_, err := client.StartSession(code, state, identifier)
+		session, _, err := client.StartSession(code, state)
 		if err != nil {
 			writeError(w, "error while starting session", err)
 			return
 		}
+		sessions[identifier] = session
 		http.SetCookie(w, &http.Cookie{Name: "token", Value: identifier})
 	}
 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
