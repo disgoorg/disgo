@@ -99,7 +99,7 @@ func main() {
 		panic(err)
 	}
 	// connect to the gateway
-	if err = client.Open(context.TODO()); err != nil {
+	if err = client.OpenGateway(context.TODO()); err != nil {
 		panic(err)
 	}
 
