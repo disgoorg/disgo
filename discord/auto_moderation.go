@@ -54,6 +54,7 @@ type AutoModerationAction struct {
 type AutoModerationActionMetadata struct {
 	ChannelID       snowflake.ID `json:"channel_id"`
 	DurationSeconds int          `json:"duration_seconds"`
+	CustomMessage   *string      `json:"custom_message"`
 }
 
 type AutoModerationRule struct {
