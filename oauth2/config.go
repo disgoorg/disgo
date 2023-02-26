@@ -32,13 +32,13 @@ func (c *Config) Apply(opts []ConfigOpt) {
 		opt(c)
 	}
 	if c.RestClient == nil {
-		c.RestClient = rest.NewClient("", c.RestClientConfigOpts...)
+		c.RestClient = rest.NewClient("", append([]rest.ConfigOpt{rest.WithLogger(c.Logger)}, c.RestClientConfigOpts...)...)
 	}
 	if c.OAuth2 == nil {
 		c.OAuth2 = rest.NewOAuth2(c.RestClient)
 	}
 	if c.StateController == nil {
-		c.StateController = NewStateController(c.StateControllerConfigOpts...)
+		c.StateController = NewStateController(append([]StateControllerConfigOpt{WithStateControllerLogger(c.Logger)}, c.StateControllerConfigOpts...)...)
 	}
 }
 

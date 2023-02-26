@@ -14,13 +14,19 @@ func New(id snowflake.ID, secret string, opts ...ConfigOpt) Client {
 	config := DefaultConfig()
 	config.Apply(opts)
 
-	return &clientImpl{id: id, secret: secret, config: *config}
+	return &clientImpl{
+		id:              id,
+		secret:          secret,
+		oAuth2:          config.OAuth2,
+		stateController: config.StateController,
+	}
 }
 
 type clientImpl struct {
-	id     snowflake.ID
-	secret string
-	config Config
+	id              snowflake.ID
+	secret          string
+	oAuth2          rest.OAuth2
+	stateController StateController
 }
 
 func (c *clientImpl) ID() snowflake.ID {
@@ -32,11 +38,11 @@ func (c *clientImpl) Secret() string {
 }
 
 func (c *clientImpl) Rest() rest.OAuth2 {
-	return c.config.OAuth2
+	return c.oAuth2
 }
 
 func (c *clientImpl) StateController() StateController {
-	return c.config.StateController
+	return c.stateController
 }
 
 func (c *clientImpl) GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.OAuth2Scope) string {
@@ -45,7 +51,7 @@ func (c *clientImpl) GenerateAuthorizationURL(redirectURI string, permissions di
 }
 
 func (c *clientImpl) GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.OAuth2Scope) (string, string) {
-	state := c.StateController().GenerateNewState(redirectURI)
+	state := c.StateController().NewState(redirectURI)
 	values := discord.QueryValues{
 		"client_id":     c.id,
 		"redirect_uri":  redirectURI,
@@ -67,7 +73,7 @@ func (c *clientImpl) GenerateAuthorizationURLState(redirectURI string, permissio
 }
 
 func (c *clientImpl) StartSession(code string, state string, opts ...rest.RequestOpt) (Session, *discord.IncomingWebhook, error) {
-	redirectURI := c.StateController().ConsumeState(state)
+	redirectURI := c.StateController().UseState(state)
 	if redirectURI == "" {
 		return Session{}, nil, ErrStateNotFound
 	}
