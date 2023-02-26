@@ -33,7 +33,7 @@ type Session struct {
 	RefreshToken string `json:"refresh_token"`
 
 	// Scopes returns the discord.OAuth2Scope(s) of the Session
-	Scopes []discord.OAuth2Scope `json:"scope"`
+	Scopes []discord.OAuth2Scope `json:"scopes"`
 
 	// TokenType returns the discord.TokenType of the AccessToken
 	TokenType discord.TokenType `json:"token_type"`
