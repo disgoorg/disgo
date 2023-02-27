@@ -21,9 +21,28 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
+	"github.com/disgoorg/disgo/rest"
 )
+
+// SyncCommands sets the given commands for the given guilds or globally if no guildIDs are empty. It will return on the first error for multiple guilds.
+func SyncCommands(client bot.Client, commands []discord.ApplicationCommandCreate, guildIDs []snowflake.ID, opts ...rest.RequestOpt) error {
+	if len(guildIDs) == 0 {
+		_, err := client.Rest().SetGlobalCommands(client.ApplicationID(), commands, opts...)
+		return err
+	}
+	for _, guildID := range guildIDs {
+		_, err := client.Rest().SetGuildCommands(client.ApplicationID(), guildID, commands, opts...)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
 type handlerHolder[T any] struct {
 	pattern string
