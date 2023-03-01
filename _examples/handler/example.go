@@ -95,9 +95,8 @@ func main() {
 		log.Fatal("error while building bot: ", err)
 	}
 
-	// register commands
-	if _, err = client.Rest().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
-		log.Fatal("error while setting global commands: ", err)
+	if err = handler.SyncCommands(client, commands, []snowflake.ID{guildID}); err != nil {
+		log.Fatal("error while syncing commands: ", err)
 	}
 
 	defer client.Close(context.TODO())
