@@ -96,10 +96,6 @@ func NewUDPConn(opts ...UDPConnConfigOpt) UDPConn {
 type udpConnImpl struct {
 	config UDPConnConfig
 
-	ip   string
-	port int
-	ssrc uint32
-
 	conn   net.Conn
 	connMu sync.Mutex
 
@@ -149,13 +145,9 @@ func (u *udpConnImpl) SetWriteDeadline(t time.Time) error {
 }
 
 func (u *udpConnImpl) Open(ctx context.Context, ip string, port int, ssrc uint32) (string, int, error) {
-	u.ip = ip
-	u.port = port
-	u.ssrc = ssrc
-
 	u.connMu.Lock()
 	defer u.connMu.Unlock()
-	host := net.JoinHostPort(u.ip, strconv.Itoa(u.port))
+	host := net.JoinHostPort(ip, strconv.Itoa(port))
 	u.config.Logger.Debugf("Opening UDPConn connection to: %s\n", host)
 	var err error
 	u.conn, err = u.config.Dialer.DialContext(ctx, "udp", host)
@@ -163,19 +155,43 @@ func (u *udpConnImpl) Open(ctx context.Context, ip string, port int, ssrc uint32
 		return "", 0, fmt.Errorf("failed to open UDPConn connection: %w", err)
 	}
 
-	sb := make([]byte, 70)
-	binary.BigEndian.PutUint32(sb, u.ssrc)
+	// see payload here https://discord.com/developers/docs/topics/voice-connections#ip-discovery
+	sb := make([]byte, 74)
+	binary.BigEndian.PutUint16(sb[:2], 1)      // 1 = send
+	binary.BigEndian.PutUint16(sb[2:4], 70)    // 70 = length
+	binary.BigEndian.PutUint32(sb[4:74], ssrc) // ssrc
+
+	if err = u.conn.SetWriteDeadline(time.Now().Add(5 * time.Second)); err != nil {
+		return "", 0, fmt.Errorf("failed to set write deadline on UDPConn connection: %w", err)
+	}
 	if _, err = u.conn.Write(sb); err != nil {
 		return "", 0, fmt.Errorf("failed to write ssrc to UDPConn connection: %w", err)
 	}
 
-	rb := make([]byte, 70)
+	rb := make([]byte, 74)
+	if err = u.conn.SetReadDeadline(time.Now().Add(5 * time.Second)); err != nil {
+		return "", 0, fmt.Errorf("failed to set read deadline on UDPConn connection: %w", err)
+	}
 	if _, err = u.conn.Read(rb); err != nil {
 		return "", 0, fmt.Errorf("failed to read ip discovery from UDPConn connection: %w", err)
 	}
 
-	ourAddress := rb[4:68]
-	ourPort := binary.BigEndian.Uint16(rb[68:70])
+	if binary.BigEndian.Uint16(rb[0:2]) != 2 {
+		return "", 0, fmt.Errorf("invalid ip discovery response")
+	}
+
+	size := binary.BigEndian.Uint16(rb[2:4])
+	if size != 70 {
+		return "", 0, fmt.Errorf("invalid ip discovery response size")
+	}
+
+	returnedSSRC := binary.BigEndian.Uint32(rb[4:8])   // ssrc
+	ourAddress := strings.TrimSpace(string(rb[8:72]))  // our ip
+	ourPort := int(binary.BigEndian.Uint16(rb[72:74])) // our port
+
+	if returnedSSRC != ssrc {
+		return "", 0, fmt.Errorf("invalid ssrc in ip discovery response")
+	}
 
 	u.packet = [12]byte{
 		0: 0x80, // Version + Flags
@@ -184,9 +200,9 @@ func (u *udpConnImpl) Open(ctx context.Context, ip string, port int, ssrc uint32
 		// [4:8] // Timestamp
 	}
 
-	binary.BigEndian.PutUint32(u.packet[8:12], u.ssrc) // SSRC
+	binary.BigEndian.PutUint32(u.packet[8:12], ssrc) // SSRC
 
-	return strings.Replace(string(ourAddress), "\x00", "", -1), int(ourPort), nil
+	return ourAddress, ourPort, nil
 }
 
 func (u *udpConnImpl) Write(p []byte) (int, error) {
