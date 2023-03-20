@@ -179,6 +179,7 @@ type StageInstanceCache interface {
 	StageInstance(guildID snowflake.ID, stageInstanceID snowflake.ID) (discord.StageInstance, bool)
 	StageInstanceForEach(guildID snowflake.ID, fn func(stageInstance discord.StageInstance))
 	StageInstanceLen() int
+	StageInstanceGuildLen(guildID snowflake.ID) int
 	AddStageInstance(stageInstance discord.StageInstance)
 	RemoveStageInstance(guildID snowflake.ID, stageInstanceID snowflake.ID) (discord.StageInstance, bool)
 	RemoveStageInstancesByGuildID(guildID snowflake.ID)
@@ -208,6 +209,10 @@ func (c *stageInstanceCacheImpl) StageInstanceLen() int {
 	return c.cache.Len()
 }
 
+func (c *stageInstanceCacheImpl) StageInstanceGuildLen(guildID snowflake.ID) int {
+	return c.cache.GroupLen(guildID)
+}
+
 func (c *stageInstanceCacheImpl) AddStageInstance(stageInstance discord.StageInstance) {
 	c.cache.Put(stageInstance.GuildID, stageInstance.ID, stageInstance)
 }
@@ -224,6 +229,7 @@ type GuildScheduledEventCache interface {
 	GuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID) (discord.GuildScheduledEvent, bool)
 	GuildScheduledEventsForEach(guildID snowflake.ID, fn func(guildScheduledEvent discord.GuildScheduledEvent))
 	GuildScheduledEventLen() int
+	ScheduledEventGuildLen(guildID snowflake.ID) int
 	AddGuildScheduledEvent(guildScheduledEvent discord.GuildScheduledEvent)
 	RemoveGuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID) (discord.GuildScheduledEvent, bool)
 	RemoveGuildScheduledEventsByGuildID(guildID snowflake.ID)
@@ -251,6 +257,10 @@ func (c *guildScheduledEventCacheImpl) GuildScheduledEventLen() int {
 	return c.cache.Len()
 }
 
+func (c *guildScheduledEventCacheImpl) ScheduledEventGuildLen(guildID snowflake.ID) int {
+	return c.cache.GroupLen(guildID)
+}
+
 func (c *guildScheduledEventCacheImpl) AddGuildScheduledEvent(guildScheduledEvent discord.GuildScheduledEvent) {
 	c.cache.Put(guildScheduledEvent.GuildID, guildScheduledEvent.ID, guildScheduledEvent)
 }
@@ -267,6 +277,7 @@ type RoleCache interface {
 	Role(guildID snowflake.ID, roleID snowflake.ID) (discord.Role, bool)
 	RolesForEach(guildID snowflake.ID, fn func(role discord.Role))
 	RoleLen() int
+	RoleGuildLen(guildID snowflake.ID) int
 	AddRole(role discord.Role)
 	RemoveRole(guildID snowflake.ID, roleID snowflake.ID) (discord.Role, bool)
 	RemoveRolesByGuildID(guildID snowflake.ID)
@@ -294,6 +305,10 @@ func (c *roleCacheImpl) RoleLen() int {
 	return c.cache.Len()
 }
 
+func (c *roleCacheImpl) RoleGuildLen(guildID snowflake.ID) int {
+	return c.cache.GroupLen(guildID)
+}
+
 func (c *roleCacheImpl) AddRole(role discord.Role) {
 	c.cache.Put(role.GuildID, role.ID, role)
 }
@@ -310,6 +325,7 @@ type MemberCache interface {
 	Member(guildID snowflake.ID, userID snowflake.ID) (discord.Member, bool)
 	MembersForEach(guildID snowflake.ID, fn func(member discord.Member))
 	MemberLen() int
+	MemberGuildLen(guildID snowflake.ID) int
 	AddMember(member discord.Member)
 	RemoveMember(guildID snowflake.ID, userID snowflake.ID) (discord.Member, bool)
 	RemoveMembersByGuildID(guildID snowflake.ID)
@@ -337,6 +353,10 @@ func (c *memberCacheImpl) MemberLen() int {
 	return c.cache.Len()
 }
 
+func (c *memberCacheImpl) MemberGuildLen(guildID snowflake.ID) int {
+	return c.cache.GroupLen(guildID)
+}
+
 func (c *memberCacheImpl) AddMember(member discord.Member) {
 	c.cache.Put(member.GuildID, member.User.ID, member)
 }
@@ -353,6 +373,7 @@ type ThreadMemberCache interface {
 	ThreadMember(threadID snowflake.ID, userID snowflake.ID) (discord.ThreadMember, bool)
 	ThreadMemberForEach(threadID snowflake.ID, fn func(threadMember discord.ThreadMember))
 	ThreadMemberLen() int
+	ThreadMemberGuildLen(threadID snowflake.ID) int
 	AddThreadMember(threadMember discord.ThreadMember)
 	RemoveThreadMember(threadID snowflake.ID, userID snowflake.ID) (discord.ThreadMember, bool)
 	RemoveThreadMembersByThreadID(threadID snowflake.ID)
@@ -382,6 +403,10 @@ func (c *threadMemberCacheImpl) ThreadMemberLen() int {
 	return c.cache.Len()
 }
 
+func (c *threadMemberCacheImpl) ThreadMemberGuildLen(threadID snowflake.ID) int {
+	return c.cache.GroupLen(threadID)
+}
+
 func (c *threadMemberCacheImpl) AddThreadMember(threadMember discord.ThreadMember) {
 	c.cache.Put(threadMember.ThreadID, threadMember.UserID, threadMember)
 }
@@ -398,6 +423,7 @@ type PresenceCache interface {
 	Presence(guildID snowflake.ID, userID snowflake.ID) (discord.Presence, bool)
 	PresenceForEach(guildID snowflake.ID, fn func(presence discord.Presence))
 	PresenceLen() int
+	PresenceGuildLen(guildID snowflake.ID) int
 	AddPresence(presence discord.Presence)
 	RemovePresence(guildID snowflake.ID, userID snowflake.ID) (discord.Presence, bool)
 	RemovePresencesByGuildID(guildID snowflake.ID)
@@ -427,6 +453,10 @@ func (c *presenceCacheImpl) PresenceLen() int {
 	return c.cache.Len()
 }
 
+func (c *presenceCacheImpl) PresenceGuildLen(guildID snowflake.ID) int {
+	return c.cache.GroupLen(guildID)
+}
+
 func (c *presenceCacheImpl) AddPresence(presence discord.Presence) {
 	c.cache.Put(presence.GuildID, presence.PresenceUser.ID, presence)
 }
@@ -443,6 +473,7 @@ type VoiceStateCache interface {
 	VoiceState(guildID snowflake.ID, userID snowflake.ID) (discord.VoiceState, bool)
 	VoiceStatesForEach(guildID snowflake.ID, fn func(discord.VoiceState))
 	VoiceStateLen() int
+	VoiceStateGuildLen(guildID snowflake.ID) int
 	AddVoiceState(voiceState discord.VoiceState)
 	RemoveVoiceState(guildID snowflake.ID, userID snowflake.ID) (discord.VoiceState, bool)
 	RemoveVoiceStatesByGuildID(guildID snowflake.ID)
@@ -470,6 +501,10 @@ func (c *voiceStateCacheImpl) VoiceStateLen() int {
 	return c.cache.Len()
 }
 
+func (c *voiceStateCacheImpl) VoiceStateGuildLen(guildID snowflake.ID) int {
+	return c.cache.GroupLen(guildID)
+}
+
 func (c *voiceStateCacheImpl) AddVoiceState(voiceState discord.VoiceState) {
 	c.cache.Put(voiceState.GuildID, voiceState.UserID, voiceState)
 }
@@ -486,6 +521,7 @@ type MessageCache interface {
 	Message(channelID snowflake.ID, messageID snowflake.ID) (discord.Message, bool)
 	MessagesForEach(channelID snowflake.ID, fn func(message discord.Message))
 	MessageLen() int
+	MessageGuildLen(guildID snowflake.ID) int
 	AddMessage(message discord.Message)
 	RemoveMessage(channelID snowflake.ID, messageID snowflake.ID) (discord.Message, bool)
 	RemoveMessagesByChannelID(channelID snowflake.ID)
@@ -514,6 +550,10 @@ func (c *messageCacheImpl) MessageLen() int {
 	return c.cache.Len()
 }
 
+func (c *messageCacheImpl) MessageGuildLen(guildID snowflake.ID) int {
+	return c.cache.GroupLen(guildID)
+}
+
 func (c *messageCacheImpl) AddMessage(message discord.Message) {
 	c.cache.Put(message.ChannelID, message.ID, message)
 }
@@ -536,6 +576,7 @@ type EmojiCache interface {
 	Emoji(guildID snowflake.ID, emojiID snowflake.ID) (discord.Emoji, bool)
 	EmojisForEach(guildID snowflake.ID, fn func(emoji discord.Emoji))
 	EmojiLen() int
+	EmojiGuildLen(guildID snowflake.ID) int
 	AddEmoji(emoji discord.Emoji)
 	RemoveEmoji(guildID snowflake.ID, emojiID snowflake.ID) (discord.Emoji, bool)
 	RemoveEmojisByGuildID(guildID snowflake.ID)
@@ -563,6 +604,10 @@ func (c *emojiCacheImpl) EmojiLen() int {
 	return c.cache.Len()
 }
 
+func (c *emojiCacheImpl) EmojiGuildLen(guildID snowflake.ID) int {
+	return c.cache.GroupLen(guildID)
+}
+
 func (c *emojiCacheImpl) AddEmoji(emoji discord.Emoji) {
 	c.cache.Put(emoji.GuildID, emoji.ID, emoji)
 }
@@ -579,6 +624,7 @@ type StickerCache interface {
 	Sticker(guildID snowflake.ID, stickerID snowflake.ID) (discord.Sticker, bool)
 	StickersForEach(guildID snowflake.ID, fn func(sticker discord.Sticker))
 	StickerLen() int
+	StickerGuildLen(guildID snowflake.ID) int
 	AddSticker(sticker discord.Sticker)
 	RemoveSticker(guildID snowflake.ID, stickerID snowflake.ID) (discord.Sticker, bool)
 	RemoveStickersByGuildID(guildID snowflake.ID)
@@ -604,6 +650,10 @@ func (c *stickerCacheImpl) StickersForEach(guildID snowflake.ID, fn func(sticker
 
 func (c *stickerCacheImpl) StickerLen() int {
 	return c.cache.Len()
+}
+
+func (c *stickerCacheImpl) StickerGuildLen(guildID snowflake.ID) int {
+	return c.cache.GroupLen(guildID)
 }
 
 func (c *stickerCacheImpl) AddSticker(sticker discord.Sticker) {
