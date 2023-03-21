@@ -146,7 +146,7 @@ func (e *eventManagerImpl) DispatchEvent(event Event) {
 	defer e.eventListenerMu.Unlock()
 	for i := range e.config.EventListeners {
 		if e.config.AsyncEventsEnabled {
-			go func() {
+			go func(i int) {
 				defer func() {
 					if r := recover(); r != nil {
 						e.config.Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
@@ -154,7 +154,7 @@ func (e *eventManagerImpl) DispatchEvent(event Event) {
 					}
 				}()
 				e.config.EventListeners[i].OnEvent(event)
-			}()
+			}(i)
 			continue
 		}
 		e.config.EventListeners[i].OnEvent(event)
