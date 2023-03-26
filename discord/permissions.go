@@ -44,17 +44,19 @@ const (
 	PermissionManageNicknames
 	PermissionManageRoles
 	PermissionManageWebhooks
-	PermissionManageEmojisAndStickers
+	PermissionManageGuildExpressions
 	PermissionUseApplicationCommands
 	PermissionRequestToSpeak
 	PermissionManageEvents
 	PermissionManageThreads
-	PermissionCreatePublicThread
-	PermissionCreatePrivateThread
+	PermissionCreatePublicThreads
+	PermissionCreatePrivateThreads
 	PermissionUseExternalStickers
 	PermissionSendMessagesInThreads
-	PermissionStartEmbeddedActivities
+	PermissionUseEmbeddedActivities
 	PermissionModerateMembers
+	PermissionViewCreatorMonetizationAnalytics
+	PermissionUseSoundboard
 )
 
 // Constants for the different bit offsets of general permissions
@@ -79,8 +81,8 @@ const (
 		PermissionMentionEveryone
 
 	PermissionsAllThread = PermissionManageThreads |
-		PermissionCreatePublicThread |
-		PermissionCreatePrivateThread |
+		PermissionCreatePublicThreads |
+		PermissionCreatePrivateThreads |
 		PermissionSendMessagesInThreads
 
 	PermissionsAllVoice = PermissionViewChannel |
@@ -90,7 +92,8 @@ const (
 		PermissionVoiceDeafenMembers |
 		PermissionVoiceMoveMembers |
 		PermissionVoiceUseVAD |
-		PermissionVoicePrioritySpeaker
+		PermissionVoicePrioritySpeaker |
+		PermissionUseSoundboard
 
 	PermissionsAllChannel = PermissionsAllText |
 		PermissionsAllThread |
@@ -107,7 +110,8 @@ const (
 		PermissionManageServer |
 		PermissionAdministrator |
 		PermissionManageWebhooks |
-		PermissionManageEmojisAndStickers
+		PermissionManageGuildExpressions |
+		PermissionViewCreatorMonetizationAnalytics
 
 	PermissionsStageModerator = PermissionManageChannels |
 		PermissionVoiceMuteMembers |
@@ -117,45 +121,47 @@ const (
 )
 
 var permissions = map[Permissions]string{
-	PermissionCreateInstantInvite:     "Create Instant Invite",
-	PermissionKickMembers:             "Kick Members",
-	PermissionBanMembers:              "Ban Members",
-	PermissionAdministrator:           "Administrator",
-	PermissionManageChannels:          "Manage Channels",
-	PermissionManageServer:            "Manage Server",
-	PermissionAddReactions:            "Add Reactions",
-	PermissionViewAuditLogs:           "View Audit Logs",
-	PermissionViewChannel:             "View Channel",
-	PermissionSendMessages:            "Send Messages",
-	PermissionSendTTSMessages:         "Send TTS Messages",
-	PermissionManageMessages:          "Manage Messages",
-	PermissionEmbedLinks:              "Embed Links",
-	PermissionAttachFiles:             "Attach Files",
-	PermissionReadMessageHistory:      "Read Message History",
-	PermissionMentionEveryone:         "Mention Everyone",
-	PermissionUseExternalEmojis:       "Use External Emojis",
-	PermissionVoiceConnect:            "Connect",
-	PermissionVoiceSpeak:              "Speak",
-	PermissionVoiceMuteMembers:        "Mute Members",
-	PermissionVoiceDeafenMembers:      "Deafen Members",
-	PermissionVoiceMoveMembers:        "Move Members",
-	PermissionVoiceUseVAD:             "Use Voice Activity",
-	PermissionVoicePrioritySpeaker:    "Priority Speaker",
-	PermissionChangeNickname:          "Change Nickname",
-	PermissionManageNicknames:         "Manage Nicknames",
-	PermissionManageRoles:             "Manage Roles",
-	PermissionManageWebhooks:          "Manage Webhooks",
-	PermissionManageEmojisAndStickers: "Manage Emojis and Stickers",
-	PermissionUseApplicationCommands:  "Use Application Commands",
-	PermissionRequestToSpeak:          "Request to Speak",
-	PermissionManageEvents:            "Manage Events",
-	PermissionManageThreads:           "Manage Threads",
-	PermissionCreatePublicThread:      "Create Public Threads",
-	PermissionCreatePrivateThread:     "Create Private Threads",
-	PermissionUseExternalStickers:     "Use External Stickers",
-	PermissionSendMessagesInThreads:   "Send Messages in Threads",
-	PermissionStartEmbeddedActivities: "Start Embedded Activities",
-	PermissionModerateMembers:         "Moderate Members",
+	PermissionCreateInstantInvite:              "Create Instant Invite",
+	PermissionKickMembers:                      "Kick Members",
+	PermissionBanMembers:                       "Ban Members",
+	PermissionAdministrator:                    "Administrator",
+	PermissionManageChannels:                   "Manage Channels",
+	PermissionManageServer:                     "Manage Server",
+	PermissionAddReactions:                     "Add Reactions",
+	PermissionViewAuditLogs:                    "View Audit Logs",
+	PermissionViewChannel:                      "View Channel",
+	PermissionSendMessages:                     "Send Messages",
+	PermissionSendTTSMessages:                  "Send TTS Messages",
+	PermissionManageMessages:                   "Manage Messages",
+	PermissionEmbedLinks:                       "Embed Links",
+	PermissionAttachFiles:                      "Attach Files",
+	PermissionReadMessageHistory:               "Read Message History",
+	PermissionMentionEveryone:                  "Mention Everyone",
+	PermissionUseExternalEmojis:                "Use External Emojis",
+	PermissionVoiceConnect:                     "Connect",
+	PermissionVoiceSpeak:                       "Speak",
+	PermissionVoiceMuteMembers:                 "Mute Members",
+	PermissionVoiceDeafenMembers:               "Deafen Members",
+	PermissionVoiceMoveMembers:                 "Move Members",
+	PermissionVoiceUseVAD:                      "Use Voice Activity",
+	PermissionVoicePrioritySpeaker:             "Priority Speaker",
+	PermissionChangeNickname:                   "Change Nickname",
+	PermissionManageNicknames:                  "Manage Nicknames",
+	PermissionManageRoles:                      "Manage Roles",
+	PermissionManageWebhooks:                   "Manage Webhooks",
+	PermissionManageGuildExpressions:           "Manage Emojis and Stickers",
+	PermissionUseApplicationCommands:           "Use Application Commands",
+	PermissionRequestToSpeak:                   "Request to Speak",
+	PermissionManageEvents:                     "Manage Events",
+	PermissionManageThreads:                    "Manage Threads",
+	PermissionCreatePublicThreads:              "Create Public Threads",
+	PermissionCreatePrivateThreads:             "Create Private Threads",
+	PermissionUseExternalStickers:              "Use External Stickers",
+	PermissionSendMessagesInThreads:            "Send Messages in Threads",
+	PermissionUseEmbeddedActivities:            "Use Activities",
+	PermissionModerateMembers:                  "Moderate Members",
+	PermissionViewCreatorMonetizationAnalytics: "View Creator Monetization Analytics",
+	PermissionUseSoundboard:                    "Use Soundboard",
 }
 
 func (p Permissions) String() string {
