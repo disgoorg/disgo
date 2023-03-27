@@ -178,3 +178,7 @@ Contributions are welcomed but for bigger changes we recommend first reaching ou
 ## License
 
 Distributed under the [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/disgoorg/disgo/blob/master/LICENSE). See LICENSE for more information.
+
+## Supported by Jetbrains
+
+[![Jetbrain Open Source Community Support](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png)](https://www.jetbrains.com/community/opensource)
