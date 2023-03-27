@@ -181,4 +181,4 @@ Distributed under the [![License](https://img.shields.io/badge/License-Apache%20
 
 ## Supported by Jetbrains
 
-[<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" alt="Jetbrain Open Source Community Support" width="400px">](https://www.jetbrains.com/community/opensource)
+<a href="https://www.jetbrains.com/community/opensource" target="_blank" title="Jetbrain Open Source Community Support"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" alt="Jetbrain Open Source Community Support" width="400px">
