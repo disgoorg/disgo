@@ -448,8 +448,12 @@ loop:
 			break loop
 
 		case OpcodeHeartbeatACK:
-			g.lastHeartbeatReceived = time.Now().UTC()
-			g.eventHandlerFunc(EventTypeHeartbeatAck, message.S, g.config.ShardID, nil)
+			newHeartbeat := time.Now().UTC()
+			g.eventHandlerFunc(EventTypeHeartbeatAck, message.S, g.config.ShardID, EventHeartbeatAck{
+				LastHeartbeat: g.lastHeartbeatReceived,
+				NewHeartbeat:  newHeartbeat,
+			})
+			g.lastHeartbeatReceived = newHeartbeat
 
 		default:
 			g.config.Logger.Debug(g.formatLogsf("unknown opcode received: %d, data: %s", message.Op, message.D))
