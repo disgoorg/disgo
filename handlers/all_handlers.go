@@ -32,6 +32,7 @@ func GetGatewayHandlers() map[gateway.EventType]bot.GatewayEventHandler {
 
 var allEventHandlers = []bot.GatewayEventHandler{
 	bot.NewGatewayEventHandler(gateway.EventTypeRaw, gatewayHandlerRaw),
+	bot.NewGatewayEventHandler(gateway.EventTypeHeartbeatAck, gatewayHandlerHeartbeatAck),
 	bot.NewGatewayEventHandler(gateway.EventTypeReady, gatewayHandlerReady),
 	bot.NewGatewayEventHandler(gateway.EventTypeResumed, gatewayHandlerResumed),
 

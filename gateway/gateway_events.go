@@ -692,3 +692,11 @@ type EventRaw struct {
 
 func (EventRaw) messageData() {}
 func (EventRaw) eventData()   {}
+
+type EventHeartbeatAck struct {
+	LastHeartbeat time.Time
+	NewHeartbeat  time.Time
+}
+
+func (EventHeartbeatAck) messageData() {}
+func (EventHeartbeatAck) eventData()   {}

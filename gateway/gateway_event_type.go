@@ -7,6 +7,7 @@ type EventType string
 const (
 	// EventTypeRaw is not a real event type, but is used to pass raw payloads to the bot.EventManager
 	EventTypeRaw                                 EventType = "__RAW__"
+	EventTypeHeartbeatAck                        EventType = "__HEARTBEAT_ACK__"
 	EventTypeReady                               EventType = "READY"
 	EventTypeResumed                             EventType = "RESUMED"
 	EventTypeApplicationCommandPermissionsUpdate EventType = "APPLICATION_COMMAND_PERMISSIONS_UPDATE"
