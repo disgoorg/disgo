@@ -169,7 +169,6 @@ const (
 	_
 	_
 	_
-	_
 	ApplicationFlagGatewayPresence
 	ApplicationFlagGatewayPresenceLimited
 	ApplicationFlagGatewayGuildMembers
