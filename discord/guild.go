@@ -152,6 +152,7 @@ type Guild struct {
 	PreferredLocale             string                     `json:"preferred_locale"`
 	PublicUpdatesChannelID      *snowflake.ID              `json:"public_updates_channel_id"`
 	MaxVideoChannelUsers        int                        `json:"max_video_channel_users"`
+	MaxStageVideoChannelUsers   int                        `json:"max_stage_video_channel_users"`
 	WelcomeScreen               GuildWelcomeScreen         `json:"welcome_screen"`
 	NSFWLevel                   NSFWLevel                  `json:"nsfw_level"`
 	BoostProgressBarEnabled     bool                       `json:"premium_progress_bar_enabled"`
