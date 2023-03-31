@@ -149,7 +149,7 @@ var permissions = map[Permissions]string{
 	PermissionManageNicknames:                  "Manage Nicknames",
 	PermissionManageRoles:                      "Manage Roles",
 	PermissionManageWebhooks:                   "Manage Webhooks",
-	PermissionManageGuildExpressions:           "Manage Emojis and Stickers",
+	PermissionManageGuildExpressions:           "Manage Expressions",
 	PermissionUseApplicationCommands:           "Use Application Commands",
 	PermissionRequestToSpeak:                   "Request to Speak",
 	PermissionManageEvents:                     "Manage Events",
