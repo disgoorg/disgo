@@ -163,7 +163,14 @@ func (t TokenType) Apply(token string) string {
 type ApplicationFlags int
 
 const (
-	ApplicationFlagGatewayPresence = 1 << (iota + 12)
+	ApplicationFlagApplicationAutoModerationRuleCreateBadge = 1 << (iota + 6)
+	_
+	_
+	_
+	_
+	_
+	_
+	ApplicationFlagGatewayPresence
 	ApplicationFlagGatewayPresenceLimited
 	ApplicationFlagGatewayGuildMembers
 	ApplicationFlagGatewayGuildMemberLimited
