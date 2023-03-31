@@ -3,8 +3,9 @@ package rest
 import (
 	"net/url"
 
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 var _ OAuth2 = (*oAuth2Impl)(nil)
@@ -20,9 +21,13 @@ type OAuth2 interface {
 	GetCurrentUser(bearerToken string, opts ...RequestOpt) (*discord.OAuth2User, error)
 	GetCurrentMember(bearerToken string, guildID snowflake.ID, opts ...RequestOpt) (*discord.Member, error)
 	GetCurrentUserGuilds(bearerToken string, before snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) ([]discord.OAuth2Guild, error)
+	GetCurrentUserGuildsPage(bearerToken string, startID snowflake.ID, limit int, opts ...RequestOpt) Page[discord.OAuth2Guild]
 	GetCurrentUserConnections(bearerToken string, opts ...RequestOpt) ([]discord.Connection, error)
 
 	SetGuildCommandPermissions(bearerToken string, applicationID snowflake.ID, guildID snowflake.ID, commandID snowflake.ID, commandPermissions []discord.ApplicationCommandPermission, opts ...RequestOpt) (*discord.ApplicationCommandPermissions, error)
+
+	GetCurrentUserApplicationRoleConnection(bearerToken string, applicationID snowflake.ID, opts ...RequestOpt) (*discord.ApplicationRoleConnection, error)
+	UpdateCurrentUserApplicationRoleConnection(bearerToken string, applicationID snowflake.ID, connectionUpdate discord.ApplicationRoleConnectionUpdate, opts ...RequestOpt) (*discord.ApplicationRoleConnection, error)
 
 	GetAccessToken(clientID snowflake.ID, clientSecret string, code string, redirectURI string, opts ...RequestOpt) (*discord.AccessTokenResponse, error)
 	RefreshAccessToken(clientID snowflake.ID, clientSecret string, refreshToken string, opts ...RequestOpt) (*discord.AccessTokenResponse, error)
@@ -74,6 +79,18 @@ func (s *oAuth2Impl) GetCurrentUserGuilds(bearerToken string, before snowflake.I
 	return
 }
 
+func (s *oAuth2Impl) GetCurrentUserGuildsPage(bearerToken string, startID snowflake.ID, limit int, opts ...RequestOpt) Page[discord.OAuth2Guild] {
+	return Page[discord.OAuth2Guild]{
+		getItemsFunc: func(before snowflake.ID, after snowflake.ID) ([]discord.OAuth2Guild, error) {
+			return s.GetCurrentUserGuilds(bearerToken, before, after, limit, opts...)
+		},
+		getIDFunc: func(guild discord.OAuth2Guild) snowflake.ID {
+			return guild.ID
+		},
+		ID: startID,
+	}
+}
+
 func (s *oAuth2Impl) GetCurrentUserConnections(bearerToken string, opts ...RequestOpt) (connections []discord.Connection, err error) {
 	err = s.client.Do(GetCurrentUserConnections.Compile(nil), nil, &connections, withBearerToken(bearerToken, opts)...)
 	return
@@ -81,6 +98,16 @@ func (s *oAuth2Impl) GetCurrentUserConnections(bearerToken string, opts ...Reque
 
 func (s *oAuth2Impl) SetGuildCommandPermissions(bearerToken string, applicationID snowflake.ID, guildID snowflake.ID, commandID snowflake.ID, commandPermissions []discord.ApplicationCommandPermission, opts ...RequestOpt) (commandPerms *discord.ApplicationCommandPermissions, err error) {
 	err = s.client.Do(SetGuildCommandPermissions.Compile(nil, applicationID, guildID, commandID), discord.ApplicationCommandPermissionsSet{Permissions: commandPermissions}, &commandPerms, withBearerToken(bearerToken, opts)...)
+	return
+}
+
+func (s *oAuth2Impl) GetCurrentUserApplicationRoleConnection(bearerToken string, applicationID snowflake.ID, opts ...RequestOpt) (connection *discord.ApplicationRoleConnection, err error) {
+	err = s.client.Do(GetCurrentUserApplicationRoleConnection.Compile(nil, applicationID), nil, &connection, withBearerToken(bearerToken, opts)...)
+	return
+}
+
+func (s *oAuth2Impl) UpdateCurrentUserApplicationRoleConnection(bearerToken string, applicationID snowflake.ID, connectionUpdate discord.ApplicationRoleConnectionUpdate, opts ...RequestOpt) (connection *discord.ApplicationRoleConnection, err error) {
+	err = s.client.Do(UpdateCurrentUserApplicationRoleConnection.Compile(nil, applicationID), connectionUpdate, &connection, withBearerToken(bearerToken, opts)...)
 	return
 }
 

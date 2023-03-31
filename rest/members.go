@@ -1,8 +1,9 @@
 package rest
 
 import (
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 var _ Members = (*memberImpl)(nil)
@@ -13,7 +14,7 @@ func NewMembers(client Client) Members {
 
 type Members interface {
 	GetMember(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) (*discord.Member, error)
-	GetMembers(guildID snowflake.ID, opts ...RequestOpt) ([]discord.Member, error)
+	GetMembers(guildID snowflake.ID, limit int, after snowflake.ID, opts ...RequestOpt) ([]discord.Member, error)
 	SearchMembers(guildID snowflake.ID, query string, limit int, opts ...RequestOpt) ([]discord.Member, error)
 	AddMember(guildID snowflake.ID, userID snowflake.ID, memberAdd discord.MemberAdd, opts ...RequestOpt) (*discord.Member, error)
 	RemoveMember(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) error
@@ -22,9 +23,9 @@ type Members interface {
 	AddMemberRole(guildID snowflake.ID, userID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) error
 	RemoveMemberRole(guildID snowflake.ID, userID snowflake.ID, roleID snowflake.ID, opts ...RequestOpt) error
 
-	UpdateSelfNick(guildID snowflake.ID, nick string, opts ...RequestOpt) (*string, error)
+	UpdateCurrentMember(guildID snowflake.ID, nick string, opts ...RequestOpt) (*string, error)
 
-	UpdateCurrentUserVoiceState(guildID snowflake.ID, currentUserVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error
+	UpdateCurrentUserVoiceState(guildID snowflake.ID, currentUserVoiceStateUpdate discord.CurrentUserVoiceStateUpdate, opts ...RequestOpt) error
 	UpdateUserVoiceState(guildID snowflake.ID, userID snowflake.ID, userVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error
 }
 
@@ -40,8 +41,12 @@ func (s *memberImpl) GetMember(guildID snowflake.ID, userID snowflake.ID, opts .
 	return
 }
 
-func (s *memberImpl) GetMembers(guildID snowflake.ID, opts ...RequestOpt) (members []discord.Member, err error) {
-	err = s.client.Do(GetMembers.Compile(nil, guildID), nil, &members, opts...)
+func (s *memberImpl) GetMembers(guildID snowflake.ID, limit int, after snowflake.ID, opts ...RequestOpt) (members []discord.Member, err error) {
+	values := discord.QueryValues{
+		"limit": limit,
+		"after": after,
+	}
+	err = s.client.Do(GetMembers.Compile(values, guildID), nil, &members, opts...)
 	if err == nil {
 		for i := range members {
 			members[i].GuildID = guildID
@@ -95,12 +100,12 @@ func (s *memberImpl) RemoveMemberRole(guildID snowflake.ID, userID snowflake.ID,
 	return s.client.Do(RemoveMemberRole.Compile(nil, guildID, userID, roleID), nil, nil, opts...)
 }
 
-func (s *memberImpl) UpdateSelfNick(guildID snowflake.ID, nick string, opts ...RequestOpt) (nickName *string, err error) {
-	err = s.client.Do(UpdateSelfNick.Compile(nil, guildID), discord.SelfNickUpdate{Nick: nick}, nickName, opts...)
+func (s *memberImpl) UpdateCurrentMember(guildID snowflake.ID, nick string, opts ...RequestOpt) (nickName *string, err error) {
+	err = s.client.Do(UpdateCurrentMember.Compile(nil, guildID), discord.CurrentMemberUpdate{Nick: nick}, nickName, opts...)
 	return
 }
 
-func (s *memberImpl) UpdateCurrentUserVoiceState(guildID snowflake.ID, currentUserVoiceStateUpdate discord.UserVoiceStateUpdate, opts ...RequestOpt) error {
+func (s *memberImpl) UpdateCurrentUserVoiceState(guildID snowflake.ID, currentUserVoiceStateUpdate discord.CurrentUserVoiceStateUpdate, opts ...RequestOpt) error {
 	return s.client.Do(UpdateCurrentUserVoiceState.Compile(nil, guildID), currentUserVoiceStateUpdate, nil, opts...)
 }
 

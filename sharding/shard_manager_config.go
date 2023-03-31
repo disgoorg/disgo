@@ -1,8 +1,9 @@
 package sharding
 
 import (
-	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/log"
+
+	"github.com/disgoorg/disgo/gateway"
 )
 
 // DefaultConfig returns a Config with sensible defaults.

@@ -8,16 +8,16 @@ import (
 // DefaultConfig returns a Config with sensible defaults.
 func DefaultConfig() *Config {
 	return &Config{
-		Logger:            log.Default(),
-		Dialer:            websocket.DefaultDialer,
-		LargeThreshold:    50,
-		Intents:           IntentsDefault,
-		Compress:          true,
-		URL:               "wss://gateway.discord.gg",
-		ShardID:           0,
-		ShardCount:        1,
-		AutoReconnect:     true,
-		MaxReconnectTries: 10,
+		Logger:          log.Default(),
+		Dialer:          websocket.DefaultDialer,
+		LargeThreshold:  50,
+		Intents:         IntentsDefault,
+		Compress:        true,
+		URL:             "wss://gateway.discord.gg",
+		ShardID:         0,
+		ShardCount:      1,
+		AutoReconnect:   true,
+		EnableResumeURL: true,
 	}
 }
 
@@ -32,10 +32,11 @@ type Config struct {
 	ShardID                   int
 	ShardCount                int
 	SessionID                 *string
+	ResumeURL                 *string
 	LastSequenceReceived      *int
 	AutoReconnect             bool
-	MaxReconnectTries         int
 	EnableRawEvents           bool
+	EnableResumeURL           bool
 	RateLimiter               RateLimiter
 	RateRateLimiterConfigOpts []RateLimiterConfigOpt
 	Presence                  *MessageDataPresenceUpdate
@@ -141,17 +142,17 @@ func WithAutoReconnect(autoReconnect bool) ConfigOpt {
 	}
 }
 
-// WithMaxReconnectTries sets the maximum number of reconnect attempts before stopping.
-func WithMaxReconnectTries(maxReconnectTries int) ConfigOpt {
-	return func(config *Config) {
-		config.MaxReconnectTries = maxReconnectTries
-	}
-}
-
 // WithEnableRawEvents enables/disables the EventTypeRaw.
 func WithEnableRawEvents(enableRawEventEvents bool) ConfigOpt {
 	return func(config *Config) {
 		config.EnableRawEvents = enableRawEventEvents
+	}
+}
+
+// WithEnableResumeURL enables/disables usage of resume URLs sent by Discord.
+func WithEnableResumeURL(enableResumeURL bool) ConfigOpt {
+	return func(config *Config) {
+		config.EnableResumeURL = enableResumeURL
 	}
 }
 
@@ -169,10 +170,14 @@ func WithRateRateLimiterConfigOpts(opts ...RateLimiterConfigOpt) ConfigOpt {
 	}
 }
 
-// WithPresence sets the initial presence the bot should display.
-func WithPresence(presence MessageDataPresenceUpdate) ConfigOpt {
+// WithPresenceOpts allows to pass initial presence data the bot should display.
+func WithPresenceOpts(opts ...PresenceOpt) ConfigOpt {
 	return func(config *Config) {
-		config.Presence = &presence
+		presenceUpdate := &MessageDataPresenceUpdate{}
+		for _, opt := range opts {
+			opt(presenceUpdate)
+		}
+		config.Presence = presenceUpdate
 	}
 }
 

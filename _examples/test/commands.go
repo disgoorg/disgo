@@ -1,9 +1,10 @@
 package main
 
 import (
+	"github.com/disgoorg/log"
+
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/log"
 )
 
 var commands = []discord.ApplicationCommandCreate{
@@ -17,20 +18,7 @@ var commands = []discord.ApplicationCommandCreate{
 	},
 	discord.SlashCommandCreate{
 		Name:        "test2",
-		Description: "test2",
-		Options: []discord.ApplicationCommandOption{
-			discord.ApplicationCommandOptionInt{
-				Name:        "number",
-				Description: "some number",
-				Required:    true,
-			},
-			discord.ApplicationCommandOptionInt{
-				Name:         "message",
-				Description:  "What to say",
-				Required:     true,
-				Autocomplete: true,
-			},
-		},
+		Description: "test",
 	},
 	discord.SlashCommandCreate{
 		Name:        "say",

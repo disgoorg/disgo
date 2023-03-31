@@ -1,8 +1,9 @@
 package events
 
 import (
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // GenericIntegration is called upon receiving IntegrationCreate, IntegrationUpdate or IntegrationDelete(requires the gateway.IntentGuildIntegrations)
@@ -15,7 +16,7 @@ type GenericIntegration struct {
 // Guild returns the Guild this Integration was created in.
 // This will only check cached guilds!
 func (e *GenericIntegration) Guild() (discord.Guild, bool) {
-	return e.Client().Caches().Guilds().Get(e.GuildID)
+	return e.Client().Caches().Guild(e.GuildID)
 }
 
 // IntegrationCreate indicates that a new Integration was created in a Guild

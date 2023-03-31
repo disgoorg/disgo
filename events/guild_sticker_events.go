@@ -1,9 +1,10 @@
 package events
 
 import (
+	"github.com/disgoorg/snowflake/v2"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 // StickersUpdate is dispatched when a guild's stickers are updated.

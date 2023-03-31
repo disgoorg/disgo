@@ -1,12 +1,10 @@
 package gateway
 
 import (
-	"fmt"
-	"time"
+	"github.com/disgoorg/json"
+	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/json"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 // Message raw Message type
@@ -83,7 +81,9 @@ func (e *Message) UnmarshalJSON(data []byte) error {
 	case OpcodeHeartbeatACK:
 
 	default:
-		err = fmt.Errorf("unknown opcode %d", v.Op)
+		var d MessageDataUnknown
+		err = json.Unmarshal(v.D, &d)
+		messageData = d
 	}
 	if err != nil {
 		return err
@@ -201,6 +201,11 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 
 	case EventTypeGuildDelete:
 		var d EventGuildDelete
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildAuditLogEntryCreate:
+		var d EventGuildAuditLogEntryCreate
 		err = json.Unmarshal(data, &d)
 		eventData = d
 
@@ -405,11 +410,17 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 		eventData = d
 
 	default:
-		err = fmt.Errorf("unknown event type: %s", eventType)
+		var d EventUnknown
+		err = json.Unmarshal(data, &d)
+		eventData = d
 	}
 
 	return eventData, err
 }
+
+type MessageDataUnknown json.RawMessage
+
+func (MessageDataUnknown) messageData() {}
 
 // MessageDataHeartbeat is used to ensure the websocket connection remains open, and disconnect if not.
 type MessageDataHeartbeat int
@@ -437,59 +448,6 @@ type IdentifyCommandDataProperties struct {
 	Device  string `json:"device"`  // library name
 }
 
-// NewPresence creates a new Presence with the provided properties
-func NewPresence(activityType discord.ActivityType, name string, url string, status discord.OnlineStatus, afk bool) MessageDataPresenceUpdate {
-	var since *int64
-	if status == discord.OnlineStatusIdle {
-		unix := time.Now().Unix()
-		since = &unix
-	}
-
-	var activities []discord.Activity
-	if name != "" {
-		activity := discord.Activity{
-			Name: name,
-			Type: activityType,
-		}
-		if activityType == discord.ActivityTypeStreaming && url != "" {
-			activity.URL = &url
-		}
-		activities = append(activities, activity)
-	}
-
-	return MessageDataPresenceUpdate{
-		Since:      since,
-		Activities: activities,
-		Status:     status,
-		AFK:        afk,
-	}
-}
-
-// NewGamePresence creates a new Presence of type ActivityTypeGame
-func NewGamePresence(name string, status discord.OnlineStatus, afk bool) MessageDataPresenceUpdate {
-	return NewPresence(discord.ActivityTypeGame, name, "", status, afk)
-}
-
-// NewStreamingPresence creates a new Presence of type ActivityTypeStreaming
-func NewStreamingPresence(name string, url string, status discord.OnlineStatus, afk bool) MessageDataPresenceUpdate {
-	return NewPresence(discord.ActivityTypeStreaming, name, url, status, afk)
-}
-
-// NewListeningPresence creates a new Presence of type ActivityTypeListening
-func NewListeningPresence(name string, status discord.OnlineStatus, afk bool) MessageDataPresenceUpdate {
-	return NewPresence(discord.ActivityTypeListening, name, "", status, afk)
-}
-
-// NewWatchingPresence creates a new Presence of type ActivityTypeWatching
-func NewWatchingPresence(name string, status discord.OnlineStatus, afk bool) MessageDataPresenceUpdate {
-	return NewPresence(discord.ActivityTypeWatching, name, "", status, afk)
-}
-
-// NewCompetingPresence creates a new Presence of type ActivityTypeCompeting
-func NewCompetingPresence(name string, status discord.OnlineStatus, afk bool) MessageDataPresenceUpdate {
-	return NewPresence(discord.ActivityTypeCompeting, name, "", status, afk)
-}
-
 // MessageDataPresenceUpdate is used for updating Client's presence
 type MessageDataPresenceUpdate struct {
 	Since      *int64               `json:"since"`
@@ -499,6 +457,79 @@ type MessageDataPresenceUpdate struct {
 }
 
 func (MessageDataPresenceUpdate) messageData() {}
+
+type PresenceOpt func(presenceUpdate *MessageDataPresenceUpdate)
+
+// WithPlayingActivity creates a new "Playing ..." activity of type discord.ActivityTypeGame
+func WithPlayingActivity(name string) PresenceOpt {
+	return withActivity(discord.Activity{
+		Name: name,
+		Type: discord.ActivityTypeGame,
+	})
+}
+
+// WithStreamingActivity creates a new "Streaming ..." activity of type discord.ActivityTypeStreaming
+func WithStreamingActivity(name string, url string) PresenceOpt {
+	activity := discord.Activity{
+		Name: name,
+		Type: discord.ActivityTypeStreaming,
+	}
+	if url != "" {
+		activity.URL = &url
+	}
+	return withActivity(activity)
+}
+
+// WithListeningActivity creates a new "Listening to ..." activity of type discord.ActivityTypeListening
+func WithListeningActivity(name string) PresenceOpt {
+	return withActivity(discord.Activity{
+		Name: name,
+		Type: discord.ActivityTypeListening,
+	})
+}
+
+// WithWatchingActivity creates a new "Watching ..." activity of type discord.ActivityTypeWatching
+func WithWatchingActivity(name string) PresenceOpt {
+	return withActivity(discord.Activity{
+		Name: name,
+		Type: discord.ActivityTypeWatching,
+	})
+}
+
+// WithCompetingActivity creates a new "Competing in ..." activity of type discord.ActivityTypeCompeting
+func WithCompetingActivity(name string) PresenceOpt {
+	return withActivity(discord.Activity{
+		Name: name,
+		Type: discord.ActivityTypeCompeting,
+	})
+}
+
+func withActivity(activity discord.Activity) PresenceOpt {
+	return func(presence *MessageDataPresenceUpdate) {
+		presence.Activities = []discord.Activity{activity}
+	}
+}
+
+// WithOnlineStatus sets the online status to the provided discord.OnlineStatus
+func WithOnlineStatus(status discord.OnlineStatus) PresenceOpt {
+	return func(presence *MessageDataPresenceUpdate) {
+		presence.Status = status
+	}
+}
+
+// WithAfk sets whether the session is afk
+func WithAfk(afk bool) PresenceOpt {
+	return func(presence *MessageDataPresenceUpdate) {
+		presence.AFK = afk
+	}
+}
+
+// WithSince sets when the session has gone afk
+func WithSince(since *int64) PresenceOpt {
+	return func(presence *MessageDataPresenceUpdate) {
+		presence.Since = since
+	}
+}
 
 // MessageDataVoiceStateUpdate is used for updating the bots voice state in a guild
 type MessageDataVoiceStateUpdate struct {

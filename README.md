@@ -47,10 +47,10 @@ After v1 is released breaking changes may only happen if the Discord API require
 * [OAuth2](https://discord.com/developers/docs/topics/oauth2)
 * [Threads](https://discord.com/developers/docs/topics/threads)
 * [Guild Scheduled Event](https://discord.com/developers/docs/resources/guild-scheduled-event)
+* [Voice](https://discord.com/developers/docs/topics/voice-connections)
 
 ### Missing Features
 
-* [Voice](https://discord.com/developers/docs/topics/voice-connections) (https://github.com/disgoorg/disgo/pull/164)
 * [RPC](https://discord.com/developers/docs/topics/rpc) (https://github.com/disgoorg/disgo/pull/170)
 
 ## Getting Started
@@ -58,7 +58,7 @@ After v1 is released breaking changes may only happen if the Discord API require
 ### Installing
 
 ```sh
-go get github.com/disgoorg/disgo
+$ go get github.com/disgoorg/disgo
 ```
 
 ### Building a DisGo Instance
@@ -111,7 +111,7 @@ func main() {
 
 ### Full Ping Pong Example
 
-A full Ping Pong example can also be found [here](https://github.com/disgoorg/disgo/blob/development/_examples/ping_pong/example.go)
+A full Ping Pong example can also be found [here](https://github.com/disgoorg/disgo/blob/master/_examples/ping_pong/example.go)
 
 ### Logging
 
@@ -128,20 +128,18 @@ GitHub Wiki is currently under construction. We appreciate help here.
 
 ## Examples
 
-You can find examples [here](https://github.com/disgoorg/disgo/tree/development/_examples)
+You can find examples [here](https://github.com/disgoorg/disgo/tree/master/_examples)
 
 There is also a bot template with commands & db [here](https://github.com/disgoorg/bot-template)
 
 or in these projects:
 
-* [Disgo-Butler](https://github.com/disgoorg/disgo-butler)
+* [DisGo-Butler](https://github.com/disgoorg/disgo-butler)
 * [Reddit-Discord-Bot](https://github.com/TopiSenpai/Reddit-Discord-Bot)
 * [Kitsune-Bot](https://github.com/TopiSenpai/Kitsune-Bot)
 * [KittyBot](https://github.com/KittyBot-Org/KittyBotGo)
 
 ## Libraries for DisGo
-
-* [handler](https://github.com/disgoorg/handler) is a simple application command, component and modal handler library.
 
 * [disgomd](https://github.com/eminarican/disgomd) is a command utility library that uses struct based approach
 
@@ -150,13 +148,13 @@ or in these projects:
 
 ### [Lavalink](https://github.com/freyacodes/Lavalink)
 
-Is a standalone audio sending node based on [Lavaplayer](https://github.com/sedmelluq/lavaplayer) and JDA-Audio. Which allows for sending audio without it ever reaching any of your shards. Lavalink can be used in combinatio with [DisGolink](https://github.com/disgoorg/disgolink) for music Bots
+Is a standalone audio sending node based on [Lavaplayer](https://github.com/sedmelluq/lavaplayer) and JDA-Audio. Which allows for sending audio without it ever reaching any of your shards. Lavalink can be used in combination with [DisGolink](https://github.com/disgoorg/disgolink) for music Bots
 
 Being used in production by FredBoat, Dyno, LewdBot, and more.
 
 ### [DisGolink](https://github.com/disgoorg/disgolink)
 
-Is a [Lavalink-Client](https://github.com/freyacodes/Lavalink) which can be used to communicate with LavaLink to play/search tracks
+Is a [Lavalink-Client](https://github.com/freyacodes/Lavalink) which can be used to communicate with Lavalink to play/search tracks
 
 ### [DisLog](https://github.com/disgoorg/dislog)
 
@@ -180,3 +178,7 @@ Contributions are welcomed but for bigger changes we recommend first reaching ou
 ## License
 
 Distributed under the [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/disgoorg/disgo/blob/master/LICENSE). See LICENSE for more information.
+
+## Supported by Jetbrains
+
+<a href="https://www.jetbrains.com/community/opensource" target="_blank" title="Jetbrain Open Source Community Support"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" alt="Jetbrain Open Source Community Support" width="400px">

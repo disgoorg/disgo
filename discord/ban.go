@@ -8,5 +8,5 @@ type Ban struct {
 
 // AddBan is used to ban a User (https://discord.com/developers/docs/resources/guild#create-guild-ban-json-params)
 type AddBan struct {
-	DeleteMessageDays int `json:"delete_message_days,omitempty"`
+	DeleteMessageSeconds int `json:"delete_message_seconds,omitempty"`
 }

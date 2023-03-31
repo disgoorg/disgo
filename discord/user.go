@@ -2,9 +2,12 @@ package discord
 
 import (
 	"strconv"
+	"time"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/internal/flags"
 )
 
 // UserFlags defines certain flags/badges a user can have (https://discord.com/developers/docs/resources/user#user-object-user-flags)
@@ -32,8 +35,31 @@ const (
 	UserFlagEarlyVerifiedBotDeveloper
 	UserFlagDiscordCertifiedModerator
 	UserFlagBotHTTPInteractions
+	_
+	_
+	UserFlagActiveDeveloper
 	UserFlagsNone UserFlags = 0
 )
+
+// Add allows you to add multiple bits together, producing a new bit
+func (f UserFlags) Add(bits ...UserFlags) UserFlags {
+	return flags.Add(f, bits...)
+}
+
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (f UserFlags) Remove(bits ...UserFlags) UserFlags {
+	return flags.Remove(f, bits...)
+}
+
+// Has will ensure that the bit includes all the bits entered
+func (f UserFlags) Has(bits ...UserFlags) bool {
+	return flags.Has(f, bits...)
+}
+
+// Missing will check whether the bit is missing any one of the bits
+func (f UserFlags) Missing(bits ...UserFlags) bool {
+	return flags.Missing(f, bits...)
+}
 
 var _ Mentionable = (*User)(nil)
 
@@ -96,6 +122,10 @@ func (u User) BannerURL(opts ...CDNOpt) *string {
 	return &url
 }
 
+func (u User) CreatedAt() time.Time {
+	return u.ID.Time()
+}
+
 // OAuth2User represents a full User returned by the oauth2 endpoints
 type OAuth2User struct {
 	User
@@ -118,10 +148,23 @@ const (
 	PremiumTypeNone PremiumType = iota
 	PremiumTypeNitroClassic
 	PremiumTypeNitro
+	PremiumTypeNitroBasic
 )
 
 // SelfUserUpdate is the payload used to update the OAuth2User
 type SelfUserUpdate struct {
-	Username string               `json:"username"`
-	Avatar   *json.Nullable[Icon] `json:"avatar"`
+	Username string               `json:"username,omitempty"`
+	Avatar   *json.Nullable[Icon] `json:"avatar,omitempty"`
+}
+
+type ApplicationRoleConnection struct {
+	PlatformName     *string           `json:"platform_name"`
+	PlatformUsername *string           `json:"platform_username"`
+	Metadata         map[string]string `json:"metadata"`
+}
+
+type ApplicationRoleConnectionUpdate struct {
+	PlatformName     *string            `json:"platform_name,omitempty"`
+	PlatformUsername *string            `json:"platform_username,omitempty"`
+	Metadata         *map[string]string `json:"metadata,omitempty"`
 }

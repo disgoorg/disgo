@@ -7,12 +7,12 @@ import (
 )
 
 func gatewayHandlerGuildMemberAdd(client bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildMemberAdd) {
-	if guild, ok := client.Caches().Guilds().Get(event.GuildID); ok {
+	if guild, ok := client.Caches().Guild(event.GuildID); ok {
 		guild.MemberCount++
-		client.Caches().Guilds().Put(guild.ID, guild)
+		client.Caches().AddGuild(guild)
 	}
 
-	client.Caches().Members().Put(event.GuildID, event.User.ID, event.Member)
+	client.Caches().AddMember(event.Member)
 
 	client.EventManager().DispatchEvent(&events.GuildMemberJoin{
 		GenericGuildMember: &events.GenericGuildMember{
@@ -24,8 +24,8 @@ func gatewayHandlerGuildMemberAdd(client bot.Client, sequenceNumber int, shardID
 }
 
 func gatewayHandlerGuildMemberUpdate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildMemberUpdate) {
-	oldMember, _ := client.Caches().Members().Get(event.GuildID, event.User.ID)
-	client.Caches().Members().Put(event.GuildID, event.User.ID, event.Member)
+	oldMember, _ := client.Caches().Member(event.GuildID, event.User.ID)
+	client.Caches().AddMember(event.Member)
 
 	client.EventManager().DispatchEvent(&events.GuildMemberUpdate{
 		GenericGuildMember: &events.GenericGuildMember{
@@ -38,12 +38,12 @@ func gatewayHandlerGuildMemberUpdate(client bot.Client, sequenceNumber int, shar
 }
 
 func gatewayHandlerGuildMemberRemove(client bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildMemberRemove) {
-	if guild, ok := client.Caches().Guilds().Get(event.GuildID); ok {
+	if guild, ok := client.Caches().Guild(event.GuildID); ok {
 		guild.MemberCount--
-		client.Caches().Guilds().Put(guild.ID, guild)
+		client.Caches().AddGuild(guild)
 	}
 
-	member, _ := client.Caches().Members().Remove(event.GuildID, event.User.ID)
+	member, _ := client.Caches().RemoveMember(event.GuildID, event.User.ID)
 
 	client.EventManager().DispatchEvent(&events.GuildMemberLeave{
 		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),

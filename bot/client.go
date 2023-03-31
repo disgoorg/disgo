@@ -3,14 +3,16 @@ package bot
 import (
 	"context"
 
+	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake/v2"
+
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/httpserver"
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/sharding"
-	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/disgoorg/disgo/voice"
 )
 
 var _ Client = (*clientImpl)(nil)
@@ -49,6 +51,9 @@ type Client interface {
 	// EventManager returns the EventManager used by the Client.
 	EventManager() EventManager
 
+	// VoiceManager returns the voice.Manager used by the Client.
+	VoiceManager() voice.Manager
+
 	// OpenGateway connects to the configured gateway.Gateway.
 	OpenGateway(ctx context.Context) error
 
@@ -70,32 +75,29 @@ type Client interface {
 	// Shard returns the gateway.Gateway the specific guildID runs on.
 	Shard(guildID snowflake.ID) (gateway.Gateway, error)
 
-	// Connect sends a discord.MessageDataVoiceStateUpdate to the specific gateway.Gateway and connects the bot to the specified channel.
-	Connect(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID) error
+	// UpdateVoiceState sends a gateway.MessageDataVoiceStateUpdate to the specific gateway.Gateway.
+	UpdateVoiceState(ctx context.Context, guildID snowflake.ID, channelID *snowflake.ID, selfMute bool, selfDeaf bool) error
 
-	// Disconnect sends a discord.MessageDataVoiceStateUpdate to the specific gateway.Gateway and disconnects the bot from this guild.
-	Disconnect(ctx context.Context, guildID snowflake.ID) error
-
-	// RequestMembers sends a discord.MessageDataRequestGuildMembers to the specific gateway.Gateway and requests the Member(s) of the specified guild.
+	// RequestMembers sends a gateway.MessageDataRequestGuildMembers to the specific gateway.Gateway and requests the Member(s) of the specified guild.
 	//  guildID  : is the snowflake of the guild to request the members of.
-	//  presence : Weather or not to include discord.Presence data.
+	//  presence : Whether to include discord.Presence data.
 	//  nonce	 : The nonce to return to the discord.EventGuildMembersChunk.
 	//  userIDs  : The snowflakes of the users to request the members of.
 	RequestMembers(ctx context.Context, guildID snowflake.ID, presence bool, nonce string, userIDs ...snowflake.ID) error
 
-	// RequestMembersWithQuery sends a discord.MessageDataRequestGuildMembers to the specific gateway.Gateway and requests the Member(s) of the specified guild.
+	// RequestMembersWithQuery sends a gateway.MessageDataRequestGuildMembers to the specific gateway.Gateway and requests the Member(s) of the specified guild.
 	//  guildID  : is the snowflake of the guild to request the members of.
-	//  presence : Weather or not to include discord.Presence data.
+	//  presence : Whether to include discord.Presence data.
 	//  nonce    : The nonce to return to the discord.EventGuildMembersChunk.
 	//  query    : The query to use for the request.
 	//  limit    : The number of discord.Member(s) to return.
 	RequestMembersWithQuery(ctx context.Context, guildID snowflake.ID, presence bool, nonce string, query string, limit int) error
 
-	// SetPresence sends a discord.MessageDataPresenceUpdate to the gateway.Gateway.
-	SetPresence(ctx context.Context, presenceUpdate gateway.MessageDataPresenceUpdate) error
+	// SetPresence sends new presence data to the gateway.Gateway.
+	SetPresence(ctx context.Context, opts ...gateway.PresenceOpt) error
 
-	// SetPresenceForShard sends a discord.MessageDataPresenceUpdate to the specific gateway.Gateway.
-	SetPresenceForShard(ctx context.Context, shardId int, presenceUpdate gateway.MessageDataPresenceUpdate) error
+	// SetPresenceForShard sends new presence data to the specific gateway.Gateway.
+	SetPresenceForShard(ctx context.Context, shardId int, opts ...gateway.PresenceOpt) error
 
 	// MemberChunkingManager returns the MemberChunkingManager used by the Client.
 	MemberChunkingManager() MemberChunkingManager
@@ -125,6 +127,8 @@ type clientImpl struct {
 
 	httpServer httpserver.Server
 
+	voiceManager voice.Manager
+
 	caches cache.Caches
 
 	memberChunkingManager MemberChunkingManager
@@ -135,11 +139,14 @@ func (c *clientImpl) Logger() log.Logger {
 }
 
 func (c *clientImpl) Close(ctx context.Context) {
-	if c.restServices != nil {
-		c.restServices.Close(ctx)
+	if c.voiceManager != nil {
+		c.voiceManager.Close(ctx)
 	}
 	if c.gateway != nil {
 		c.gateway.Close(ctx)
+	}
+	if c.restServices != nil {
+		c.restServices.Close(ctx)
 	}
 	if c.shardManager != nil {
 		c.shardManager.Close(ctx)
@@ -158,7 +165,7 @@ func (c *clientImpl) ApplicationID() snowflake.ID {
 }
 
 func (c *clientImpl) ID() snowflake.ID {
-	if selfUser, ok := c.Caches().GetSelfUser(); ok {
+	if selfUser, ok := c.Caches().SelfUser(); ok {
 		return selfUser.ID
 	}
 	return 0
@@ -182,6 +189,10 @@ func (c *clientImpl) RemoveEventListeners(listeners ...EventListener) {
 
 func (c *clientImpl) EventManager() EventManager {
 	return c.eventManager
+}
+
+func (c *clientImpl) VoiceManager() voice.Manager {
+	return c.voiceManager
 }
 
 func (c *clientImpl) OpenGateway(ctx context.Context) error {
@@ -227,25 +238,16 @@ func (c *clientImpl) Shard(guildID snowflake.ID) (gateway.Gateway, error) {
 	return nil, discord.ErrNoGatewayOrShardManager
 }
 
-func (c *clientImpl) Connect(ctx context.Context, guildID snowflake.ID, channelID snowflake.ID) error {
+func (c *clientImpl) UpdateVoiceState(ctx context.Context, guildID snowflake.ID, channelID *snowflake.ID, selfMute bool, selfDeaf bool) error {
 	shard, err := c.Shard(guildID)
 	if err != nil {
 		return err
 	}
 	return shard.Send(ctx, gateway.OpcodeVoiceStateUpdate, gateway.MessageDataVoiceStateUpdate{
 		GuildID:   guildID,
-		ChannelID: &channelID,
-	})
-}
-
-func (c *clientImpl) Disconnect(ctx context.Context, guildID snowflake.ID) error {
-	shard, err := c.Shard(guildID)
-	if err != nil {
-		return err
-	}
-	return shard.Send(ctx, gateway.OpcodeVoiceStateUpdate, gateway.MessageDataVoiceStateUpdate{
-		GuildID:   guildID,
-		ChannelID: nil,
+		ChannelID: channelID,
+		SelfMute:  selfMute,
+		SelfDeaf:  selfDeaf,
 	})
 }
 
@@ -276,14 +278,15 @@ func (c *clientImpl) RequestMembersWithQuery(ctx context.Context, guildID snowfl
 	})
 }
 
-func (c *clientImpl) SetPresence(ctx context.Context, presenceUpdate gateway.MessageDataPresenceUpdate) error {
+func (c *clientImpl) SetPresence(ctx context.Context, opts ...gateway.PresenceOpt) error {
 	if !c.HasGateway() {
 		return discord.ErrNoGateway
 	}
-	return c.gateway.Send(ctx, gateway.OpcodePresenceUpdate, presenceUpdate)
+	g := c.gateway
+	return g.Send(ctx, gateway.OpcodePresenceUpdate, applyPresenceFromOpts(g, opts...))
 }
 
-func (c *clientImpl) SetPresenceForShard(ctx context.Context, shardId int, presenceUpdate gateway.MessageDataPresenceUpdate) error {
+func (c *clientImpl) SetPresenceForShard(ctx context.Context, shardId int, opts ...gateway.PresenceOpt) error {
 	if !c.HasShardManager() {
 		return discord.ErrNoShardManager
 	}
@@ -291,7 +294,18 @@ func (c *clientImpl) SetPresenceForShard(ctx context.Context, shardId int, prese
 	if shard == nil {
 		return discord.ErrShardNotFound
 	}
-	return shard.Send(ctx, gateway.OpcodePresenceUpdate, presenceUpdate)
+	return shard.Send(ctx, gateway.OpcodePresenceUpdate, applyPresenceFromOpts(shard, opts...))
+}
+
+func applyPresenceFromOpts(g gateway.Gateway, opts ...gateway.PresenceOpt) gateway.MessageDataPresenceUpdate {
+	presenceUpdate := g.Presence()
+	if presenceUpdate == nil {
+		presenceUpdate = &gateway.MessageDataPresenceUpdate{}
+	}
+	for _, opt := range opts {
+		opt(presenceUpdate)
+	}
+	return *presenceUpdate
 }
 
 func (c *clientImpl) MemberChunkingManager() MemberChunkingManager {

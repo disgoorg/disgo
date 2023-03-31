@@ -1,6 +1,13 @@
 package discord
 
-import "github.com/disgoorg/snowflake/v2"
+import (
+	"time"
+
+	"github.com/disgoorg/json"
+	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/internal/flags"
+)
 
 // ActivityType represents the status of a user, one of Game, Streaming, Listening, Watching, Custom or Competing
 type ActivityType int
@@ -21,7 +28,7 @@ type Activity struct {
 	Name          string              `json:"name"`
 	Type          ActivityType        `json:"type"`
 	URL           *string             `json:"url"`
-	CreatedAt     int64               `json:"created_at"`
+	CreatedAt     time.Time           `json:"created_at"`
 	Timestamps    *ActivityTimestamps `json:"timestamps,omitempty"`
 	ApplicationID snowflake.ID        `json:"application_id,omitempty"`
 	Details       *string             `json:"details,omitempty"`
@@ -33,6 +40,31 @@ type Activity struct {
 	Instance      *bool               `json:"instance,omitempty"`
 	Flags         ActivityFlags       `json:"flags,omitempty"`
 	Buttons       []string            `json:"buttons"`
+}
+
+func (a *Activity) UnmarshalJSON(data []byte) error {
+	type activity Activity
+	var v struct {
+		CreatedAt int64 `json:"created_at"`
+		activity
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*a = Activity(v.activity)
+	a.CreatedAt = time.UnixMilli(v.CreatedAt)
+	return nil
+}
+
+func (a Activity) MarshalJSON() ([]byte, error) {
+	type activity Activity
+	return json.Marshal(struct {
+		CreatedAt int64 `json:"created_at"`
+		activity
+	}{
+		CreatedAt: a.CreatedAt.UnixMilli(),
+		activity:  (activity)(a),
+	})
 }
 
 // ActivityFlags add additional information to an activity
@@ -51,6 +83,26 @@ const (
 	ActivityFlagEmbedded
 )
 
+// Add allows you to add multiple bits together, producing a new bit
+func (f ActivityFlags) Add(bits ...ActivityFlags) ActivityFlags {
+	return flags.Add(f, bits...)
+}
+
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (f ActivityFlags) Remove(bits ...ActivityFlags) ActivityFlags {
+	return flags.Remove(f, bits...)
+}
+
+// Has will ensure that the bit includes all the bits entered
+func (f ActivityFlags) Has(bits ...ActivityFlags) bool {
+	return flags.Has(f, bits...)
+}
+
+// Missing will check whether the bit is missing any one of the bits
+func (f ActivityFlags) Missing(bits ...ActivityFlags) bool {
+	return flags.Missing(f, bits...)
+}
+
 // ActivityButton is a button in an activity
 type ActivityButton struct {
 	Label string `json:"label"`
@@ -59,8 +111,31 @@ type ActivityButton struct {
 
 // ActivityTimestamps represents when a user started and ended their activity
 type ActivityTimestamps struct {
-	Start int64 `json:"start,omitempty"`
-	End   int64 `json:"end,omitempty"`
+	Start time.Time
+	End   time.Time
+}
+
+func (a *ActivityTimestamps) UnmarshalJSON(data []byte) error {
+	var v struct {
+		Start int64 `json:"start"`
+		End   int64 `json:"end"`
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	a.Start = time.UnixMilli(v.Start)
+	a.End = time.UnixMilli(v.End)
+	return nil
+}
+
+func (a ActivityTimestamps) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Start int64 `json:"start,omitempty"`
+		End   int64 `json:"end,omitempty"`
+	}{
+		Start: a.Start.UnixMilli(),
+		End:   a.End.UnixMilli(),
+	})
 }
 
 // ActivityEmoji is an Emoji object for an Activity

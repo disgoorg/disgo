@@ -12,7 +12,7 @@ type FilterFunc[T any] func(T) bool
 // Cache is a simple key value store. They key is always a snowflake.ID.
 // The cache provides a simple way to store and retrieve entities. But is not guaranteed to be thread safe as this depends on the underlying implementation.
 type Cache[T any] interface {
-	// Get returns a copy of the entity with the given snowflake and a bool weather it was found or not.
+	// Get returns a copy of the entity with the given snowflake and a bool whether it was found or not.
 	Get(id snowflake.ID) (T, bool)
 
 	// Put stores the given entity with the given snowflake as key. If the entity is already present, it will be overwritten.
@@ -26,18 +26,6 @@ type Cache[T any] interface {
 
 	// Len returns the number of entities in the cache.
 	Len() int
-
-	// All returns a copy of all entities in this cache as a slice.
-	All() []T
-
-	// MapAll returns a copy of all entities in this cache as a map.
-	MapAll() map[snowflake.ID]T
-
-	// FindFirst returns the first entity that passes the given FilterFunc and a bool whether it was found or not.
-	FindFirst(cacheFindFunc FilterFunc[T]) (T, bool)
-
-	// FindAll returns all entities that pass the given FilterFunc as a slice.
-	FindAll(cacheFindFunc FilterFunc[T]) []T
 
 	// ForEach calls the given function for each entity in the cache.
 	ForEach(func(entity T))
@@ -109,52 +97,6 @@ func (c *DefaultCache[T]) Len() int {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return len(c.cache)
-}
-
-func (c *DefaultCache[T]) All() []T {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-	entities := make([]T, len(c.cache))
-	i := 0
-	for _, entity := range c.cache {
-		entities[i] = entity
-		i++
-	}
-	return entities
-}
-
-func (c *DefaultCache[T]) MapAll() map[snowflake.ID]T {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-	entities := make(map[snowflake.ID]T, len(c.cache))
-	for entityID, entity := range c.cache {
-		entities[entityID] = entity
-	}
-	return entities
-}
-
-func (c *DefaultCache[T]) FindFirst(cacheFindFunc FilterFunc[T]) (T, bool) {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-	for _, entity := range c.cache {
-		if cacheFindFunc(entity) {
-			return entity, true
-		}
-	}
-	var entity T
-	return entity, false
-}
-
-func (c *DefaultCache[T]) FindAll(cacheFindFunc FilterFunc[T]) []T {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-	var entities []T
-	for _, entity := range c.cache {
-		if cacheFindFunc(entity) {
-			entities = append(entities, entity)
-		}
-	}
-	return entities
 }
 
 func (c *DefaultCache[T]) ForEach(forEachFunc func(entity T)) {

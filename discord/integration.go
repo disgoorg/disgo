@@ -2,8 +2,9 @@ package discord
 
 import (
 	"fmt"
+	"time"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -38,6 +39,7 @@ type Integration interface {
 	json.Marshaler
 	Type() IntegrationType
 	ID() snowflake.ID
+	CreatedAt() time.Time
 }
 
 type UnmarshalIntegration struct {
@@ -75,7 +77,7 @@ func (i *UnmarshalIntegration) UnmarshalJSON(data []byte) error {
 		integration = v
 
 	default:
-		err = fmt.Errorf("unkown integration with type %s received", cType.Type)
+		err = fmt.Errorf("unknown integration with type %s received", cType.Type)
 	}
 
 	if err != nil {
@@ -87,19 +89,19 @@ func (i *UnmarshalIntegration) UnmarshalJSON(data []byte) error {
 }
 
 type TwitchIntegration struct {
-	IntegrationID     snowflake.ID       `json:"id"`
-	Name              string             `json:"name"`
-	Enabled           bool               `json:"enabled"`
-	Syncing           bool               `json:"syncing"`
-	RoleID            snowflake.ID       `json:"role_id"`
-	EnableEmoticons   bool               `json:"enable_emoticons"`
-	ExpireBehavior    int                `json:"expire_behavior"`
-	ExpireGracePeriod int                `json:"expire_grace_period"`
-	User              User               `json:"user"`
-	Account           IntegrationAccount `json:"account"`
-	SyncedAt          string             `json:"synced_at"`
-	SubscriberCount   int                `json:"subscriber_account"`
-	Revoked           bool               `json:"revoked"`
+	IntegrationID     snowflake.ID              `json:"id"`
+	Name              string                    `json:"name"`
+	Enabled           bool                      `json:"enabled"`
+	Syncing           bool                      `json:"syncing"`
+	RoleID            snowflake.ID              `json:"role_id"`
+	EnableEmoticons   bool                      `json:"enable_emoticons"`
+	ExpireBehavior    IntegrationExpireBehavior `json:"expire_behavior"`
+	ExpireGracePeriod int                       `json:"expire_grace_period"`
+	User              User                      `json:"user"`
+	Account           IntegrationAccount        `json:"account"`
+	SyncedAt          string                    `json:"synced_at"`
+	SubscriberCount   int                       `json:"subscriber_account"`
+	Revoked           bool                      `json:"revoked"`
 }
 
 func (i TwitchIntegration) MarshalJSON() ([]byte, error) {
@@ -121,19 +123,23 @@ func (i TwitchIntegration) ID() snowflake.ID {
 	return i.IntegrationID
 }
 
+func (i TwitchIntegration) CreatedAt() time.Time {
+	return i.IntegrationID.Time()
+}
+
 type YouTubeIntegration struct {
-	IntegrationID     snowflake.ID       `json:"id"`
-	Name              string             `json:"name"`
-	Enabled           bool               `json:"enabled"`
-	Syncing           bool               `json:"syncing"`
-	RoleID            snowflake.ID       `json:"role_id"`
-	ExpireBehavior    int                `json:"expire_behavior"`
-	ExpireGracePeriod int                `json:"expire_grace_period"`
-	User              User               `json:"user"`
-	Account           IntegrationAccount `json:"account"`
-	SyncedAt          string             `json:"synced_at"`
-	SubscriberCount   int                `json:"subscriber_account"`
-	Revoked           bool               `json:"revoked"`
+	IntegrationID     snowflake.ID              `json:"id"`
+	Name              string                    `json:"name"`
+	Enabled           bool                      `json:"enabled"`
+	Syncing           bool                      `json:"syncing"`
+	RoleID            snowflake.ID              `json:"role_id"`
+	ExpireBehavior    IntegrationExpireBehavior `json:"expire_behavior"`
+	ExpireGracePeriod int                       `json:"expire_grace_period"`
+	User              User                      `json:"user"`
+	Account           IntegrationAccount        `json:"account"`
+	SyncedAt          string                    `json:"synced_at"`
+	SubscriberCount   int                       `json:"subscriber_account"`
+	Revoked           bool                      `json:"revoked"`
 }
 
 func (i YouTubeIntegration) MarshalJSON() ([]byte, error) {
@@ -155,12 +161,24 @@ func (i YouTubeIntegration) ID() snowflake.ID {
 	return i.IntegrationID
 }
 
+func (i YouTubeIntegration) CreatedAt() time.Time {
+	return i.IntegrationID.Time()
+}
+
+type IntegrationExpireBehavior int
+
+const (
+	IntegrationExpireBehaviorRemoveRole IntegrationExpireBehavior = iota
+	IntegrationExpireBehaviorKick
+)
+
 type BotIntegration struct {
 	IntegrationID snowflake.ID           `json:"id"`
 	Name          string                 `json:"name"`
 	Enabled       bool                   `json:"enabled"`
 	Account       IntegrationAccount     `json:"account"`
 	Application   IntegrationApplication `json:"application"`
+	Scopes        []OAuth2Scope          `json:"scopes"`
 }
 
 func (i BotIntegration) MarshalJSON() ([]byte, error) {
@@ -180,4 +198,8 @@ func (BotIntegration) Type() IntegrationType {
 
 func (i BotIntegration) ID() snowflake.ID {
 	return i.IntegrationID
+}
+
+func (i BotIntegration) CreatedAt() time.Time {
+	return i.IntegrationID.Time()
 }

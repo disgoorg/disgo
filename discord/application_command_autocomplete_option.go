@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 )
 
 type internalAutocompleteOption interface {
@@ -55,9 +55,10 @@ func (o *UnmarshalAutocompleteOption) UnmarshalJSON(data []byte) error {
 var _ internalAutocompleteOption = (*AutocompleteOptionSubCommand)(nil)
 
 type AutocompleteOptionSubCommand struct {
-	Name        string               `json:"name"`
-	Description string               `json:"description"`
-	Options     []AutocompleteOption `json:"options,omitempty"`
+	Name        string                       `json:"name"`
+	Description string                       `json:"description"`
+	Type        ApplicationCommandOptionType `json:"type"`
+	Options     []AutocompleteOption         `json:"options,omitempty"`
 }
 
 func (o AutocompleteOptionSubCommand) name() string {
@@ -70,6 +71,7 @@ var _ internalAutocompleteOption = (*AutocompleteOptionSubCommandGroup)(nil)
 type AutocompleteOptionSubCommandGroup struct {
 	Name        string                         `json:"name"`
 	Description string                         `json:"description"`
+	Type        ApplicationCommandOptionType   `json:"type"`
 	Options     []AutocompleteOptionSubCommand `json:"options,omitempty"`
 }
 

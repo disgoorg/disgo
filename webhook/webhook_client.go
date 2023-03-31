@@ -2,11 +2,15 @@ package webhook
 
 import (
 	"context"
+	"errors"
+
+	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest"
-	"github.com/disgoorg/snowflake/v2"
 )
+
+var ErrInvalidWebhookURL = errors.New("invalid webhook URL")
 
 // Client is a high level interface for interacting with Discord's Webhooks API.
 type Client interface {

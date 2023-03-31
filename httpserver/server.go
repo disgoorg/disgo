@@ -9,9 +9,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/log"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 type (
@@ -28,12 +29,16 @@ type EventInteractionCreate struct {
 }
 
 func (e *EventInteractionCreate) UnmarshalJSON(data []byte) error {
-	var interaction discord.UnmarshalInteraction
-	if err := json.Unmarshal(data, &interaction); err != nil {
+	interaction, err := discord.UnmarshalInteraction(data)
+	if err != nil {
 		return err
 	}
-	e.Interaction = interaction.Interaction
+	e.Interaction = interaction
 	return nil
+}
+
+func (e EventInteractionCreate) MarshalJSON() ([]byte, error) {
+	return json.Marshal(e.Interaction)
 }
 
 // Server is used for receiving Discord's interactions via Outgoing Webhooks

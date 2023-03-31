@@ -3,6 +3,8 @@ package bot
 import (
 	"fmt"
 
+	"github.com/disgoorg/log"
+
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
@@ -10,7 +12,7 @@ import (
 	"github.com/disgoorg/disgo/internal/tokenhelper"
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/sharding"
-	"github.com/disgoorg/log"
+	"github.com/disgoorg/disgo/voice"
 )
 
 // DefaultConfig returns a Config with sensible defaults.
@@ -32,6 +34,9 @@ type Config struct {
 
 	EventManager           EventManager
 	EventManagerConfigOpts []EventManagerConfigOpt
+
+	VoiceManager           voice.Manager
+	VoiceManagerConfigOpts []voice.ManagerConfigOpt
 
 	Gateway           gateway.Gateway
 	GatewayConfigOpts []gateway.ConfigOpt
@@ -237,6 +242,11 @@ func BuildClient(token string, config Config, gatewayEventHandlerFunc func(clien
 		config.Rest = rest.New(config.RestClient)
 	}
 	client.restServices = config.Rest
+
+	if config.VoiceManager == nil {
+		config.VoiceManager = voice.NewManager(client.UpdateVoiceState, *id, append([]voice.ManagerConfigOpt{voice.WithLogger(client.logger)}, config.VoiceManagerConfigOpts...)...)
+	}
+	client.voiceManager = config.VoiceManager
 
 	if config.EventManager == nil {
 		config.EventManager = NewEventManager(client, config.EventManagerConfigOpts...)

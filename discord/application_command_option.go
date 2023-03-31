@@ -3,7 +3,7 @@ package discord
 import (
 	"fmt"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 )
 
 // ApplicationCommandOptionType specifies the type of the arguments used in ApplicationCommand.Options
@@ -107,7 +107,7 @@ func (u *UnmarshalApplicationCommandOption) UnmarshalJSON(data []byte) error {
 		applicationCommandOption = v
 
 	default:
-		err = fmt.Errorf("unkown application command option with type %d received", oType.Type)
+		err = fmt.Errorf("unknown application command option with type %d received", oType.Type)
 	}
 
 	if err != nil {

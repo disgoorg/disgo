@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -187,6 +187,10 @@ type GuildForumChannelCreate struct {
 	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID             snowflake.ID          `json:"parent_id,omitempty"`
 	RateLimitPerUser     int                   `json:"rate_limit_per_user"`
+	DefaultReactionEmoji DefaultReactionEmoji  `json:"default_reaction_emoji"`
+	AvailableTags        []ForumTag            `json:"available_tags"`
+	DefaultSortOrder     DefaultSortOrder      `json:"default_sort_order"`
+	DefaultForumLayout   DefaultForumLayout    `json:"default_forum_layout"`
 }
 
 func (c GuildForumChannelCreate) Type() ChannelType {
