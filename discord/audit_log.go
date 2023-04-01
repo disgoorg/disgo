@@ -8,12 +8,10 @@ import (
 // AuditLogEvent is an 8-bit unsigned integer representing an audit log event.
 type AuditLogEvent int
 
-// AuditLogEventGuildUpdate ...
 const (
 	AuditLogEventGuildUpdate AuditLogEvent = 1
 )
 
-// AuditLogEventChannelCreate
 const (
 	AuditLogEventChannelCreate AuditLogEvent = iota + 10
 	AuditLogEventChannelUpdate
@@ -23,7 +21,6 @@ const (
 	AuditLogEventChannelOverwriteDelete
 )
 
-// AuditLogEventMemberKick
 const (
 	AuditLogEventMemberKick AuditLogEvent = iota + 20
 	AuditLogEventMemberPrune
@@ -36,35 +33,30 @@ const (
 	AuditLogEventBotAdd
 )
 
-// AuditLogEventRoleCreate
 const (
 	AuditLogEventRoleCreate AuditLogEvent = iota + 30
 	AuditLogEventRoleUpdate
 	AuditLogEventRoleDelete
 )
 
-// AuditLogEventInviteCreate
 const (
 	AuditLogEventInviteCreate AuditLogEvent = iota + 40
 	AuditLogEventInviteUpdate
 	AuditLogEventInviteDelete
 )
 
-// AuditLogEventWebhookCreate
 const (
 	AuditLogEventWebhookCreate AuditLogEvent = iota + 50
 	AuditLogEventWebhookUpdate
 	AuditLogEventWebhookDelete
 )
 
-// AuditLogEventEmojiCreate
 const (
 	AuditLogEventEmojiCreate AuditLogEvent = iota + 60
 	AuditLogEventEmojiUpdate
 	AuditLogEventEmojiDelete
 )
 
-// AuditLogEventMessageDelete
 const (
 	AuditLogEventMessageDelete AuditLogEvent = iota + 72
 	AuditLogEventMessageBulkDelete
@@ -72,7 +64,6 @@ const (
 	AuditLogEventMessageUnpin
 )
 
-// AuditLogEventIntegrationCreate
 const (
 	AuditLogEventIntegrationCreate AuditLogEvent = iota + 80
 	AuditLogEventIntegrationUpdate
@@ -82,28 +73,24 @@ const (
 	AuditLogEventStageInstanceDelete
 )
 
-// AuditLogEventStickerCreate
 const (
 	AuditLogEventStickerCreate AuditLogEvent = iota + 90
 	AuditLogEventStickerUpdate
 	AuditLogEventStickerDelete
 )
 
-// AuditLogGuildScheduledEventCreate
 const (
 	AuditLogGuildScheduledEventCreate AuditLogEvent = iota + 100
 	AuditLogGuildScheduledEventUpdate
 	AuditLogGuildScheduledEventDelete
 )
 
-// AuditLogThreadCreate
 const (
 	AuditLogThreadCreate AuditLogEvent = iota + 110
 	AuditLogThreadUpdate
 	AuditLogThreadDelete
 )
 
-// AuditLogApplicationCommandPermissionUpdate ...
 const (
 	AuditLogApplicationCommandPermissionUpdate AuditLogEvent = 121
 )
