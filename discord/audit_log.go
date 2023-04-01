@@ -105,7 +105,11 @@ const (
 )
 
 const (
-	AuditLogGuildOnboardingUpdate AuditLogEvent = 167
+	AuditLogOnboardingQuestionCreate AuditLogEvent = iota + 163
+	AuditLogOnboardingQuestionUpdate
+	_
+	_
+	AuditLogOnboardingUpdate
 )
 
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord
