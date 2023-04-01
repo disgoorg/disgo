@@ -56,8 +56,8 @@ type EmojiUpdate struct {
 	Roles *[]snowflake.ID `json:"roles,omitempty"`
 }
 
-type ReactionEmoji struct {
-	ID       snowflake.ID `json:"id,omitempty"`
-	Name     string       `json:"name,omitempty"`
-	Animated bool         `json:"animated"`
+type PartialEmoji struct {
+	ID       *snowflake.ID `json:"id"`
+	Name     *string       `json:"name"`
+	Animated bool          `json:"animated"`
 }

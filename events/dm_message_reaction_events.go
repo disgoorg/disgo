@@ -12,7 +12,7 @@ type GenericDMMessageReaction struct {
 	UserID    snowflake.ID
 	ChannelID snowflake.ID
 	MessageID snowflake.ID
-	Emoji     discord.ReactionEmoji
+	Emoji     discord.PartialEmoji
 }
 
 // DMMessageReactionAdd indicates that a discord.User added a discord.MessageReaction to a discord.Message in a Channel (requires the gateway.IntentDirectMessageReactions)
@@ -30,7 +30,7 @@ type DMMessageReactionRemoveEmoji struct {
 	*GenericEvent
 	ChannelID snowflake.ID
 	MessageID snowflake.ID
-	Emoji     discord.ReactionEmoji
+	Emoji     discord.PartialEmoji
 }
 
 // DMMessageReactionRemoveAll indicates someone removed all discord.MessageReaction(s) from a discord.Message in a Channel (requires the gateway.IntentDirectMessageReactions)

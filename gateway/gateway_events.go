@@ -187,12 +187,12 @@ func (EventGuildAuditLogEntryCreate) messageData() {}
 func (EventGuildAuditLogEntryCreate) eventData()   {}
 
 type EventMessageReactionAdd struct {
-	UserID    snowflake.ID          `json:"user_id"`
-	ChannelID snowflake.ID          `json:"channel_id"`
-	MessageID snowflake.ID          `json:"message_id"`
-	GuildID   *snowflake.ID         `json:"guild_id"`
-	Member    *discord.Member       `json:"member"`
-	Emoji     discord.ReactionEmoji `json:"emoji"`
+	UserID    snowflake.ID         `json:"user_id"`
+	ChannelID snowflake.ID         `json:"channel_id"`
+	MessageID snowflake.ID         `json:"message_id"`
+	GuildID   *snowflake.ID        `json:"guild_id"`
+	Member    *discord.Member      `json:"member"`
+	Emoji     discord.PartialEmoji `json:"emoji"`
 }
 
 func (e *EventMessageReactionAdd) UnmarshalJSON(data []byte) error {
@@ -212,21 +212,21 @@ func (EventMessageReactionAdd) messageData() {}
 func (EventMessageReactionAdd) eventData()   {}
 
 type EventMessageReactionRemove struct {
-	UserID    snowflake.ID          `json:"user_id"`
-	ChannelID snowflake.ID          `json:"channel_id"`
-	MessageID snowflake.ID          `json:"message_id"`
-	GuildID   *snowflake.ID         `json:"guild_id"`
-	Emoji     discord.ReactionEmoji `json:"emoji"`
+	UserID    snowflake.ID         `json:"user_id"`
+	ChannelID snowflake.ID         `json:"channel_id"`
+	MessageID snowflake.ID         `json:"message_id"`
+	GuildID   *snowflake.ID        `json:"guild_id"`
+	Emoji     discord.PartialEmoji `json:"emoji"`
 }
 
 func (EventMessageReactionRemove) messageData() {}
 func (EventMessageReactionRemove) eventData()   {}
 
 type EventMessageReactionRemoveEmoji struct {
-	ChannelID snowflake.ID          `json:"channel_id"`
-	MessageID snowflake.ID          `json:"message_id"`
-	GuildID   *snowflake.ID         `json:"guild_id"`
-	Emoji     discord.ReactionEmoji `json:"emoji"`
+	ChannelID snowflake.ID         `json:"channel_id"`
+	MessageID snowflake.ID         `json:"message_id"`
+	GuildID   *snowflake.ID        `json:"guild_id"`
+	Emoji     discord.PartialEmoji `json:"emoji"`
 }
 
 func (EventMessageReactionRemoveEmoji) messageData() {}
