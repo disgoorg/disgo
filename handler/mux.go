@@ -84,22 +84,25 @@ func (r *Mux) Match(path string, t discord.InteractionType) bool {
 
 // Handle handles the given interaction event.
 func (r *Mux) Handle(path string, variables map[string]string, e *events.InteractionCreate) error {
-	path = parseVariables(path, r.pattern, variables)
-	middlewares := func(event *events.InteractionCreate) {}
-	for i := len(r.middlewares) - 1; i >= 0; i-- {
-		middlewares = r.middlewares[i](middlewares)
-	}
-	middlewares(e)
+	handlerChain := func(event *events.InteractionCreate) error {
+		path = parseVariables(path, r.pattern, variables)
 
-	for _, route := range r.routes {
-		if route.Match(path, e.Type()) {
-			return route.Handle(path, variables, e)
+		for _, route := range r.routes {
+			if route.Match(path, e.Type()) {
+				return route.Handle(path, variables, e)
+			}
 		}
+		if r.notFoundHandler != nil {
+			return r.notFoundHandler(e)
+		}
+		return nil
 	}
-	if r.notFoundHandler != nil {
-		return r.notFoundHandler(e)
+
+	for i := len(r.middlewares) - 1; i >= 0; i-- {
+		handlerChain = r.middlewares[i](handlerChain)
 	}
-	return nil
+
+	return handlerChain(e)
 }
 
 // Use adds the given middlewares to the current Router.
