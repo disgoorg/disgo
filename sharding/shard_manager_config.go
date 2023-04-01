@@ -17,14 +17,23 @@ func DefaultConfig() *Config {
 
 // Config lets you configure your ShardManager instance.
 type Config struct {
-	Logger                    log.Logger
-	ShardIDs                  map[int]struct{}
-	ShardCount                int
-	ShardSplitCount           int
-	AutoScaling               bool
-	GatewayCreateFunc         gateway.CreateFunc
-	GatewayConfigOpts         []gateway.ConfigOpt
-	RateLimiter               RateLimiter
+	// Logger is the logger of the ShardManager. Defaults to log.Default()
+	Logger log.Logger
+	// ShardIDs is a map of shardIDs the ShardManager should manage. Leave this nil to manage all shards.
+	ShardIDs map[int]struct{}
+	// ShardCount is the total shard count of the ShardManager. Leave this at 0 to let Discord calculate the shard count for you.
+	ShardCount int
+	// ShardSplitCount is the count a shard should be split into if it is too large. This is only used if AutoScaling is enabled.
+	ShardSplitCount int
+	// AutoScaling will automatically re-shard shards if they are too large. This is disabled by default.
+	AutoScaling bool
+	// GatewayCreateFunc is the function which is used by the ShardManager to create a new gateway.Gateway. Defaults to gateway.New.
+	GatewayCreateFunc gateway.CreateFunc
+	// GatewayConfigOpts are the ConfigOpt(s) which are applied to the gateway.Gateway.
+	GatewayConfigOpts []gateway.ConfigOpt
+	// RateLimiter is the RateLimiter which is used by the ShardManager. Defaults to NewRateLimiter()
+	RateLimiter RateLimiter
+	// RateRateLimiterConfigOpts are the RateLimiterConfigOpt(s) which are applied to the RateLimiter.
 	RateRateLimiterConfigOpts []RateLimiterConfigOpt
 }
 
@@ -75,7 +84,7 @@ func WithShardSplitCount(shardSplitCount int) ConfigOpt {
 	}
 }
 
-// WithAutoScaling sets whether the ShardManager should automatically re-shard shards if they are too large.
+// WithAutoScaling sets whether the ShardManager should automatically re-shard shards if they are too large. This is disabled by default.
 func WithAutoScaling(autoScaling bool) ConfigOpt {
 	return func(config *Config) {
 		config.AutoScaling = autoScaling
