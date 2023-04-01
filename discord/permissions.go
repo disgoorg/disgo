@@ -15,9 +15,19 @@ var EmptyStringBytes = []byte(`""`)
 // Permissions extends the Bit structure, and is used within roles and channels (https://discord.com/developers/docs/topics/permissions#permissions)
 type Permissions int64
 
-// Constants for the different bit offsets of text channel permissions
 const (
-	PermissionSendMessages Permissions = 1 << (iota + 11)
+	PermissionCreateInstantInvite Permissions = 1 << iota
+	PermissionKickMembers
+	PermissionBanMembers
+	PermissionAdministrator
+	PermissionManageChannels
+	PermissionManageGuild
+	PermissionAddReactions
+	PermissionViewAuditLog
+	PermissionPrioritySpeaker
+	PermissionStream
+	PermissionViewChannel
+	PermissionSendMessages
 	PermissionSendTTSMessages
 	PermissionManageMessages
 	PermissionEmbedLinks
@@ -25,22 +35,14 @@ const (
 	PermissionReadMessageHistory
 	PermissionMentionEveryone
 	PermissionUseExternalEmojis
-)
-
-// Constants for the different bit offsets of voice permissions
-const (
-	PermissionVoiceConnect Permissions = 1 << (iota + 20)
-	PermissionVoiceSpeak
-	PermissionVoiceMuteMembers
-	PermissionVoiceDeafenMembers
-	PermissionVoiceMoveMembers
-	PermissionVoiceUseVAD
-	PermissionVoicePrioritySpeaker Permissions = 1 << (iota + 2)
-)
-
-// Constants for general management.
-const (
-	PermissionChangeNickname Permissions = 1 << (iota + 26)
+	PermissionViewGuildInsights
+	PermissionConnect
+	PermissionSpeak
+	PermissionMuteMembers
+	PermissionDeafenMembers
+	PermissionMoveMembers
+	PermissionUseVAD
+	PermissionChangeNickname
 	PermissionManageNicknames
 	PermissionManageRoles
 	PermissionManageWebhooks
@@ -57,19 +59,9 @@ const (
 	PermissionModerateMembers
 	PermissionViewCreatorMonetizationAnalytics
 	PermissionUseSoundboard
-)
-
-// Constants for the different bit offsets of general permissions
-const (
-	PermissionCreateInstantInvite Permissions = 1 << iota
-	PermissionKickMembers
-	PermissionBanMembers
-	PermissionAdministrator
-	PermissionManageChannels
-	PermissionManageServer
-	PermissionAddReactions
-	PermissionViewAuditLogs
-	PermissionViewChannel Permissions = 1 << (iota + 2)
+	_
+	_
+	PermissionUseExternalSounds
 
 	PermissionsAllText = PermissionViewChannel |
 		PermissionSendMessages |
@@ -86,36 +78,44 @@ const (
 		PermissionSendMessagesInThreads
 
 	PermissionsAllVoice = PermissionViewChannel |
-		PermissionVoiceConnect |
-		PermissionVoiceSpeak |
-		PermissionVoiceMuteMembers |
-		PermissionVoiceDeafenMembers |
-		PermissionVoiceMoveMembers |
-		PermissionVoiceUseVAD |
-		PermissionVoicePrioritySpeaker |
-		PermissionUseSoundboard
+		PermissionConnect |
+		PermissionSpeak |
+		PermissionStream |
+		PermissionMuteMembers |
+		PermissionDeafenMembers |
+		PermissionMoveMembers |
+		PermissionUseVAD |
+		PermissionPrioritySpeaker |
+		PermissionUseSoundboard |
+		PermissionUseExternalSounds |
+		PermissionRequestToSpeak |
+		PermissionUseEmbeddedActivities
 
 	PermissionsAllChannel = PermissionsAllText |
 		PermissionsAllThread |
 		PermissionsAllVoice |
 		PermissionCreateInstantInvite |
-		PermissionManageRoles |
 		PermissionManageChannels |
 		PermissionAddReactions |
-		PermissionViewAuditLogs
+		PermissionUseExternalEmojis |
+		PermissionUseApplicationCommands |
+		PermissionUseExternalStickers
 
 	PermissionsAll = PermissionsAllChannel |
 		PermissionKickMembers |
 		PermissionBanMembers |
-		PermissionManageServer |
+		PermissionManageGuild |
 		PermissionAdministrator |
 		PermissionManageWebhooks |
 		PermissionManageGuildExpressions |
-		PermissionViewCreatorMonetizationAnalytics
-
-	PermissionsStageModerator = PermissionManageChannels |
-		PermissionVoiceMuteMembers |
-		PermissionVoiceMoveMembers
+		PermissionViewCreatorMonetizationAnalytics |
+		PermissionViewGuildInsights |
+		PermissionViewAuditLog |
+		PermissionManageRoles |
+		PermissionChangeNickname |
+		PermissionManageNicknames |
+		PermissionManageEvents |
+		PermissionModerateMembers
 
 	PermissionsNone Permissions = 0
 )
@@ -126,9 +126,9 @@ var permissions = map[Permissions]string{
 	PermissionBanMembers:                       "Ban Members",
 	PermissionAdministrator:                    "Administrator",
 	PermissionManageChannels:                   "Manage Channels",
-	PermissionManageServer:                     "Manage Server",
+	PermissionManageGuild:                      "Manage Server",
 	PermissionAddReactions:                     "Add Reactions",
-	PermissionViewAuditLogs:                    "View Audit Logs",
+	PermissionViewAuditLog:                     "View Audit Logs",
 	PermissionViewChannel:                      "View Channel",
 	PermissionSendMessages:                     "Send Messages",
 	PermissionSendTTSMessages:                  "Send TTS Messages",
@@ -138,13 +138,13 @@ var permissions = map[Permissions]string{
 	PermissionReadMessageHistory:               "Read Message History",
 	PermissionMentionEveryone:                  "Mention Everyone",
 	PermissionUseExternalEmojis:                "Use External Emojis",
-	PermissionVoiceConnect:                     "Connect",
-	PermissionVoiceSpeak:                       "Speak",
-	PermissionVoiceMuteMembers:                 "Mute Members",
-	PermissionVoiceDeafenMembers:               "Deafen Members",
-	PermissionVoiceMoveMembers:                 "Move Members",
-	PermissionVoiceUseVAD:                      "Use Voice Activity",
-	PermissionVoicePrioritySpeaker:             "Priority Speaker",
+	PermissionConnect:                          "Connect",
+	PermissionSpeak:                            "Speak",
+	PermissionMuteMembers:                      "Mute Members",
+	PermissionDeafenMembers:                    "Deafen Members",
+	PermissionMoveMembers:                      "Move Members",
+	PermissionUseVAD:                           "Use Voice Activity",
+	PermissionPrioritySpeaker:                  "Priority Speaker",
 	PermissionChangeNickname:                   "Change Nickname",
 	PermissionManageNicknames:                  "Manage Nicknames",
 	PermissionManageRoles:                      "Manage Roles",
@@ -162,6 +162,9 @@ var permissions = map[Permissions]string{
 	PermissionModerateMembers:                  "Moderate Members",
 	PermissionViewCreatorMonetizationAnalytics: "View Creator Monetization Analytics",
 	PermissionUseSoundboard:                    "Use Soundboard",
+	PermissionUseExternalSounds:                "Use External Sounds",
+	PermissionStream:                           "Video",
+	PermissionViewGuildInsights:                "View Server Insights",
 }
 
 func (p Permissions) String() string {
