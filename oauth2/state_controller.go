@@ -28,6 +28,7 @@ func NewStateController(opts ...StateControllerConfigOpt) StateController {
 	return &stateControllerImpl{
 		states:       states,
 		newStateFunc: config.NewStateFunc,
+		logger:       config.Logger,
 	}
 }
 
