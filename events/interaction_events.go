@@ -51,7 +51,7 @@ func (e *ApplicationCommandInteractionCreate) Guild() (discord.Guild, bool) {
 // Channel returns the discord.GuildMessageChannel that the interaction happened in.
 // This only returns cached channels.
 func (e *ApplicationCommandInteractionCreate) Channel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().GuildMessageChannel(e.ChannelID())
+	return e.Client().Caches().GuildMessageChannel(e.ApplicationCommandInteraction.Channel().ID)
 }
 
 // CreateMessage responds to the interaction with a new message.
@@ -93,7 +93,7 @@ func (e *ComponentInteractionCreate) Guild() (discord.Guild, bool) {
 // Channel returns the discord.GuildMessageChannel that the interaction happened in.
 // This only returns cached channels.
 func (e *ComponentInteractionCreate) Channel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().GuildMessageChannel(e.ChannelID())
+	return e.Client().Caches().GuildMessageChannel(e.ComponentInteraction.Channel().ID)
 }
 
 // CreateMessage responds to the interaction with a new message.
@@ -145,7 +145,7 @@ func (e *AutocompleteInteractionCreate) Guild() (discord.Guild, bool) {
 // Channel returns the discord.GuildMessageChannel that the interaction happened in.
 // This only returns cached channels.
 func (e *AutocompleteInteractionCreate) Channel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().GuildMessageChannel(e.ChannelID())
+	return e.Client().Caches().GuildMessageChannel(e.AutocompleteInteraction.Channel().ID)
 }
 
 // Result responds to the interaction with a slice of choices.
@@ -173,7 +173,7 @@ func (e *ModalSubmitInteractionCreate) Guild() (discord.Guild, bool) {
 // Channel returns the discord.GuildMessageChannel that the interaction happened in.
 // This only returns cached channels.
 func (e *ModalSubmitInteractionCreate) Channel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().GuildMessageChannel(e.ChannelID())
+	return e.Client().Caches().GuildMessageChannel(e.ModalSubmitInteraction.Channel().ID)
 }
 
 // CreateMessage responds to the interaction with a new message.
