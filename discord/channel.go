@@ -1145,6 +1145,11 @@ type FollowChannel struct {
 	ChannelID snowflake.ID `json:"webhook_channel_id"`
 }
 
+type PartialChannel struct {
+	ID   snowflake.ID `json:"id"`
+	Type ChannelType  `json:"type"`
+}
+
 // VideoQualityMode https://com/developers/docs/resources/channel#channel-object-video-quality-modes
 type VideoQualityMode int
 
