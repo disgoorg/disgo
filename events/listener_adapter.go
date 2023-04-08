@@ -11,6 +11,9 @@ type ListenerAdapter struct {
 	// raw event
 	OnRaw func(event *Raw)
 
+	// heartbeat ack event
+	OnHeartbeatAck func(event *HeartbeatAck)
+
 	// GuildApplicationCommandPermissionsUpdate
 	OnGuildApplicationCommandPermissionsUpdate func(event *GuildApplicationCommandPermissionsUpdate)
 
@@ -172,6 +175,11 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 	switch e := event.(type) {
 	case *Raw:
 		if listener := l.OnRaw; listener != nil {
+			listener(e)
+		}
+
+	case *HeartbeatAck:
+		if listener := l.OnHeartbeatAck; listener != nil {
 			listener(e)
 		}
 
