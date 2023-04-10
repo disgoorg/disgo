@@ -45,6 +45,7 @@ type Interaction interface {
 	Token() string
 	Version() int
 	GuildID() *snowflake.ID
+	// Deprecated: Use Interaction.Channel instead
 	ChannelID() snowflake.ID
 	Channel() *PartialChannel
 	Locale() Locale
