@@ -1,6 +1,7 @@
 package discord
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/disgoorg/snowflake/v2"
@@ -19,6 +20,10 @@ type Emoji struct {
 	Managed       bool           `json:"managed,omitempty"`
 	Animated      bool           `json:"animated,omitempty"`
 	Available     bool           `json:"available,omitempty"`
+}
+
+func (e Emoji) Reaction() string {
+	return reaction(&e.ID, e.Name)
 }
 
 // Mention returns the string used to send the Emoji
@@ -60,4 +65,15 @@ type PartialEmoji struct {
 	ID       *snowflake.ID `json:"id"`
 	Name     *string       `json:"name"`
 	Animated bool          `json:"animated"`
+}
+
+func (e PartialEmoji) Reaction() string {
+	return reaction(e.ID, *e.Name)
+}
+
+func reaction(id *snowflake.ID, name string) string {
+	if id == nil {
+		return name
+	}
+	return fmt.Sprintf("%s:%s", id, name)
 }
