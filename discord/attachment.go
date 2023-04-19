@@ -8,16 +8,18 @@ import (
 
 // Attachment is used for files sent in a Message
 type Attachment struct {
-	ID          snowflake.ID `json:"id,omitempty"`
-	Filename    string       `json:"filename,omitempty"`
-	Description *string      `json:"description,omitempty"`
-	ContentType *string      `json:"content_type,omitempty"`
-	Size        int          `json:"size,omitempty"`
-	URL         string       `json:"url,omitempty"`
-	ProxyURL    string       `json:"proxy_url,omitempty"`
-	Height      *int         `json:"height,omitempty"`
-	Width       *int         `json:"width,omitempty"`
-	Ephemeral   bool         `json:"ephemeral,omitempty"`
+	ID           snowflake.ID `json:"id,omitempty"`
+	Filename     string       `json:"filename,omitempty"`
+	Description  *string      `json:"description,omitempty"`
+	ContentType  *string      `json:"content_type,omitempty"`
+	Size         int          `json:"size,omitempty"`
+	URL          string       `json:"url,omitempty"`
+	ProxyURL     string       `json:"proxy_url,omitempty"`
+	Height       *int         `json:"height,omitempty"`
+	Width        *int         `json:"width,omitempty"`
+	Ephemeral    bool         `json:"ephemeral,omitempty"`
+	DurationSecs *float64     `json:"duration_secs,omitempty"`
+	Waveform     *string      `json:"waveform,omitempty"`
 }
 
 func (a Attachment) CreatedAt() time.Time {
