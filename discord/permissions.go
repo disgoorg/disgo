@@ -71,7 +71,8 @@ const (
 		PermissionEmbedLinks |
 		PermissionAttachFiles |
 		PermissionReadMessageHistory |
-		PermissionMentionEveryone
+		PermissionMentionEveryone |
+		PermissionSendVoiceMessages
 
 	PermissionsAllThread = PermissionManageThreads |
 		PermissionCreatePublicThreads |
@@ -90,8 +91,7 @@ const (
 		PermissionUseSoundboard |
 		PermissionUseExternalSounds |
 		PermissionRequestToSpeak |
-		PermissionUseEmbeddedActivities |
-		PermissionSendVoiceMessages
+		PermissionUseEmbeddedActivities
 
 	PermissionsAllChannel = PermissionsAllText |
 		PermissionsAllThread |
