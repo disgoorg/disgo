@@ -812,8 +812,7 @@ func (c *cachesImpl) MemberPermissions(member discord.Member) discord.Permission
 		}
 	}
 	if member.CommunicationDisabledUntil != nil {
-		// TODO: add all perms that are not allowed when communication is disabled
-		permissions &= ^(discord.PermissionViewChannel | discord.PermissionReadMessageHistory)
+		permissions &= discord.PermissionViewChannel | discord.PermissionReadMessageHistory
 	}
 	return permissions
 }
@@ -854,8 +853,7 @@ func (c *cachesImpl) MemberPermissionsInChannel(channel discord.GuildChannel, me
 	permissions |= allow
 
 	if member.CommunicationDisabledUntil != nil {
-		// TODO: add all perms that are not allowed when communication is disabled
-		permissions &= ^(discord.PermissionViewChannel | discord.PermissionReadMessageHistory)
+		permissions &= discord.PermissionViewChannel | discord.PermissionReadMessageHistory
 	}
 
 	return permissions
