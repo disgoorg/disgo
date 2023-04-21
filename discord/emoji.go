@@ -23,7 +23,7 @@ type Emoji struct {
 }
 
 func (e Emoji) Reaction() string {
-	return reaction(&e.ID, e.Name)
+	return reaction(e.Name, &e.ID)
 }
 
 // Mention returns the string used to send the Emoji
@@ -68,12 +68,12 @@ type PartialEmoji struct {
 }
 
 func (e PartialEmoji) Reaction() string {
-	return reaction(e.ID, *e.Name)
+	return reaction(*e.Name, e.ID)
 }
 
-func reaction(id *snowflake.ID, name string) string {
+func reaction(name string, id *snowflake.ID) string {
 	if id == nil {
 		return name
 	}
-	return fmt.Sprintf("%s:%s", id, name)
+	return fmt.Sprintf("%s:%s", name, id)
 }
