@@ -824,43 +824,38 @@ func (c *cachesImpl) MemberPermissionsInChannel(channel discord.GuildChannel, me
 	}
 
 	var (
-		allowRaw discord.Permissions
-		denyRaw  discord.Permissions
+		allow discord.Permissions
+		deny  discord.Permissions
 	)
+
 	if overwrite, ok := channel.PermissionOverwrites().Role(channel.GuildID()); ok {
-		allowRaw = overwrite.Allow
-		denyRaw = overwrite.Deny
+		permissions |= overwrite.Allow
+		permissions &= ^overwrite.Deny
 	}
 
-	var (
-		allowRole discord.Permissions
-		denyRole  discord.Permissions
-	)
 	for _, roleID := range member.RoleIDs {
 		if roleID == channel.GuildID() {
 			continue
 		}
 
 		if overwrite, ok := channel.PermissionOverwrites().Role(roleID); ok {
-			allowRole = allowRole.Add(overwrite.Allow)
-			denyRole = denyRole.Add(overwrite.Deny)
+			allow |= overwrite.Allow
+			deny |= overwrite.Deny
 		}
 	}
 
-	allowRaw = (allowRaw & (denyRole - 1)) | allowRole
-	denyRaw = (denyRaw & (allowRole - 1)) | denyRole
-
 	if overwrite, ok := channel.PermissionOverwrites().Member(member.User.ID); ok {
-		allowRaw = (allowRaw & (overwrite.Deny - 1)) | overwrite.Allow
-		denyRaw = (denyRaw & (overwrite.Allow - 1)) | overwrite.Deny
+		allow |= overwrite.Allow
+		deny |= overwrite.Deny
 	}
 
-	permissions &= denyRaw - 1
-	permissions |= allowRaw
+	permissions &= ^deny
+	permissions |= allow
 
 	if member.CommunicationDisabledUntil != nil {
 		permissions &= discord.PermissionViewChannel | discord.PermissionReadMessageHistory
 	}
+
 	return permissions
 }
 
