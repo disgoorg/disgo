@@ -22,8 +22,12 @@ type Emoji struct {
 	Available     bool           `json:"available,omitempty"`
 }
 
+// Reaction returns a string used for manipulating with reactions. May be empty if the length of Name is 0
 func (e Emoji) Reaction() string {
-	return reaction(e.Name, &e.ID)
+	if len(e.Name) == 0 {
+		return ""
+	}
+	return reaction(e.Name, e.ID)
 }
 
 // Mention returns the string used to send the Emoji
@@ -67,13 +71,17 @@ type PartialEmoji struct {
 	Animated bool          `json:"animated"`
 }
 
+// Reaction returns a string used for manipulating with reactions. May be empty if the Name is nil
 func (e PartialEmoji) Reaction() string {
-	return reaction(*e.Name, e.ID)
+	if e.Name == nil {
+		return ""
+	}
+	if e.ID == nil {
+		return *e.Name
+	}
+	return reaction(*e.Name, *e.ID)
 }
 
-func reaction(name string, id *snowflake.ID) string {
-	if id == nil {
-		return name
-	}
+func reaction(name string, id snowflake.ID) string {
 	return fmt.Sprintf("%s:%s", name, id)
 }
