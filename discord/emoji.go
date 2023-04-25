@@ -22,9 +22,9 @@ type Emoji struct {
 	Available     bool           `json:"available,omitempty"`
 }
 
-// Reaction returns a string used for manipulating with reactions. May be empty if the length of Name is 0
+// Reaction returns a string used for manipulating with reactions. May be empty if the Name is empty
 func (e Emoji) Reaction() string {
-	if len(e.Name) == 0 {
+	if e.Name == "" {
 		return ""
 	}
 	return reaction(e.Name, e.ID)
