@@ -611,6 +611,22 @@ type UserCommandResolved struct {
 	Members map[snowflake.ID]ResolvedMember `json:"members,omitempty"`
 }
 
+func (r *UserCommandResolved) UnmarshalJSON(data []byte) error {
+	type userCommandResolved UserCommandResolved
+	var v userCommandResolved
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*r = UserCommandResolved(v)
+	for id, member := range r.Members {
+		if user, ok := r.Users[id]; ok {
+			member.User = user
+			r.Members[id] = member
+		}
+	}
+	return nil
+}
+
 var (
 	_ ApplicationCommandInteractionData = (*MessageCommandInteractionData)(nil)
 	_ ContextCommandInteractionData     = (*MessageCommandInteractionData)(nil)
