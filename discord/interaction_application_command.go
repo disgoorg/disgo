@@ -506,6 +506,22 @@ type SlashCommandResolved struct {
 	Attachments map[snowflake.ID]Attachment      `json:"attachments,omitempty"`
 }
 
+func (r *SlashCommandResolved) UnmarshalJSON(data []byte) error {
+	type slashCommandResolved SlashCommandResolved
+	var v slashCommandResolved
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*r = SlashCommandResolved(v)
+	for id, member := range r.Members {
+		if user, ok := r.Users[id]; ok {
+			member.User = user
+			r.Members[id] = member
+		}
+	}
+	return nil
+}
+
 type ContextCommandInteractionData interface {
 	ApplicationCommandInteractionData
 	TargetID() snowflake.ID
