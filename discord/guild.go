@@ -112,6 +112,7 @@ const (
 	GuildFeatureNews                          GuildFeature = "NEWS"
 	GuildFeaturePartnered                     GuildFeature = "PARTNERED"
 	GuildFeaturePreviewEnabled                GuildFeature = "PREVIEW_ENABLED"
+	GuildFeatureRaidAlertsDisabled            GuildFeature = "RAID_ALERTS_DISABLED"
 	GuildFeatureRoleIcons                     GuildFeature = "ROLE_ICONS"
 	GuildFeatureTicketedEventsEnabled         GuildFeature = "TICKETED_EVENTS_ENABLED"
 	GuildFeatureVanityURL                     GuildFeature = "VANITY_URL"
@@ -157,6 +158,7 @@ type Guild struct {
 	NSFWLevel                   NSFWLevel                  `json:"nsfw_level"`
 	BoostProgressBarEnabled     bool                       `json:"premium_progress_bar_enabled"`
 	JoinedAt                    time.Time                  `json:"joined_at"`
+	SafetyAlertsChannelID       *snowflake.ID              `json:"safety_alerts_channel_id"`
 
 	// only over GET /guilds/{guild.id}
 	ApproximateMemberCount   int `json:"approximate_member_count"`
@@ -321,6 +323,7 @@ type GuildUpdate struct {
 	SystemChannelFlags              *SystemChannelFlags                        `json:"system_channel_flags,omitempty"`
 	RulesChannelID                  *snowflake.ID                              `json:"rules_channel_id,omitempty"`
 	PublicUpdatesChannelID          *snowflake.ID                              `json:"public_updates_channel_id,omitempty"`
+	SafetyAlertsChannelID           *snowflake.ID                              `json:"safety_alerts_channel_id,omitempty"`
 	PreferredLocale                 *string                                    `json:"preferred_locale,omitempty"`
 	Features                        *[]GuildFeature                            `json:"features,omitempty"`
 	Description                     *string                                    `json:"description,omitempty"`
