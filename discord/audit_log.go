@@ -112,6 +112,11 @@ const (
 	AuditLogOnboardingUpdate
 )
 
+const (
+	AuditLogServerGuideCreate AuditLogEvent = iota + 190
+	AuditLogServerGuideUpdate
+)
+
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord
 type AuditLog struct {
 	ApplicationCommands  []ApplicationCommand  `json:"application_commands"`
