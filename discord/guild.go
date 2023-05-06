@@ -289,6 +289,7 @@ type GuildPreview struct {
 	ApproximateMemberCount   *int           `json:"approximate_member_count"`
 	ApproximatePresenceCount *int           `json:"approximate_presence_count"`
 	Emojis                   []Emoji        `json:"emojis"`
+	Stickers                 []Sticker      `json:"stickers"`
 }
 
 // GuildCreate is the payload used to create a Guild
