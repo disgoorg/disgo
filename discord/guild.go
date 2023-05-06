@@ -124,7 +124,7 @@ const (
 	GuildFeatureNews                          GuildFeature = "NEWS"
 	GuildFeaturePartnered                     GuildFeature = "PARTNERED"
 	GuildFeaturePreviewEnabled                GuildFeature = "PREVIEW_ENABLED"
-	GuildFeatureRaidAlertsEnabled             GuildFeature = "RAID_ALERTS_ENABLED"
+	GuildFeatureRaidAlertsDisabled            GuildFeature = "RAID_ALERTS_DISABLED"
 	GuildFeatureRoleIcons                     GuildFeature = "ROLE_ICONS"
 	GuildFeatureTicketedEventsEnabled         GuildFeature = "TICKETED_EVENTS_ENABLED"
 	GuildFeatureVanityURL                     GuildFeature = "VANITY_URL"
