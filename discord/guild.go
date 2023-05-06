@@ -156,7 +156,7 @@ type Guild struct {
 	MaxStageVideoChannelUsers   int                        `json:"max_stage_video_channel_users"`
 	WelcomeScreen               GuildWelcomeScreen         `json:"welcome_screen"`
 	NSFWLevel                   NSFWLevel                  `json:"nsfw_level"`
-	BoostProgressBarEnabled     bool                       `json:"premium_progress_bar_enabled"`
+	PremiumProgressBarEnabled   bool                       `json:"premium_progress_bar_enabled"`
 	JoinedAt                    time.Time                  `json:"joined_at"`
 	SafetyAlertsChannelID       *snowflake.ID              `json:"safety_alerts_channel_id"`
 
@@ -328,7 +328,7 @@ type GuildUpdate struct {
 	PreferredLocale                 *string                                    `json:"preferred_locale,omitempty"`
 	Features                        *[]GuildFeature                            `json:"features,omitempty"`
 	Description                     *string                                    `json:"description,omitempty"`
-	BoostProgressBarEnabled         *bool                                      `json:"premium_progress_bar_enabled,omitempty"`
+	PremiumProgressBarEnabled       *bool                                      `json:"premium_progress_bar_enabled,omitempty"`
 }
 
 type NSFWLevel int
