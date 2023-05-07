@@ -1,8 +1,6 @@
 package voice
 
 import (
-	"errors"
-
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 )
@@ -86,7 +84,9 @@ func (m *GatewayMessage) UnmarshalJSON(data []byte) error {
 		// ignore this opcode
 
 	default:
-		err = errors.New("unknown voicegateway event type")
+		var d GatewayMessageDataUnknown
+		err = json.Unmarshal(v.D, &d)
+		messageData = d
 	}
 	if err != nil {
 		return err
@@ -208,3 +208,7 @@ type GatewayMessageDataClientDisconnect struct {
 }
 
 func (GatewayMessageDataClientDisconnect) voiceGatewayMessageData() {}
+
+type GatewayMessageDataUnknown json.RawMessage
+
+func (GatewayMessageDataUnknown) voiceGatewayMessageData() {}
