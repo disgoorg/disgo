@@ -232,7 +232,9 @@ func (c *connImpl) handleMessage(op Opcode, data GatewayMessageData) {
 				break
 			}
 		}
-		c.audioReceiver.CleanupUser(d.UserID)
+		if c.audioReceiver != nil {
+			c.audioReceiver.CleanupUser(d.UserID)
+		}
 	}
 	if c.config.EventHandlerFunc != nil {
 		c.config.EventHandlerFunc(op, data)
