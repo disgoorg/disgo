@@ -13,7 +13,7 @@ type baseInteraction struct {
 	version        int
 	guildID        *snowflake.ID
 	channelID      snowflake.ID
-	channel        *PartialChannel
+	channel        InteractionChannel
 	locale         Locale
 	guildLocale    *Locale
 	member         *ResolvedMember
@@ -41,7 +41,7 @@ func (i baseInteraction) GuildID() *snowflake.ID {
 func (i baseInteraction) ChannelID() snowflake.ID {
 	return i.channelID
 }
-func (i baseInteraction) Channel() *PartialChannel {
+func (i baseInteraction) Channel() InteractionChannel {
 	return i.channel
 }
 func (i baseInteraction) Locale() Locale {

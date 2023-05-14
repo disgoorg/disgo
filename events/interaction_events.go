@@ -25,12 +25,6 @@ func (e *InteractionCreate) Guild() (discord.Guild, bool) {
 	return discord.Guild{}, false
 }
 
-// MessageChannel returns the discord.GuildMessageChannel that the interaction happened in.
-// This only returns cached channels.
-func (e *InteractionCreate) MessageChannel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().GuildMessageChannel(e.Channel().ID)
-}
-
 // ApplicationCommandInteractionCreate is the base struct for all application command interaction create events.
 type ApplicationCommandInteractionCreate struct {
 	*GenericEvent
@@ -46,12 +40,6 @@ func (e *ApplicationCommandInteractionCreate) Guild() (discord.Guild, bool) {
 		return e.Client().Caches().Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
-}
-
-// MessageChannel returns the discord.GuildMessageChannel that the interaction happened in.
-// This only returns cached channels.
-func (e *ApplicationCommandInteractionCreate) MessageChannel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().GuildMessageChannel(e.Channel().ID)
 }
 
 // CreateMessage responds to the interaction with a new message.
@@ -88,12 +76,6 @@ func (e *ComponentInteractionCreate) Guild() (discord.Guild, bool) {
 		return e.Client().Caches().Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
-}
-
-// MessageChannel returns the discord.GuildMessageChannel that the interaction happened in.
-// This only returns cached channels.
-func (e *ComponentInteractionCreate) MessageChannel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().GuildMessageChannel(e.Channel().ID)
 }
 
 // CreateMessage responds to the interaction with a new message.
@@ -142,12 +124,6 @@ func (e *AutocompleteInteractionCreate) Guild() (discord.Guild, bool) {
 	return discord.Guild{}, false
 }
 
-// MessageChannel returns the discord.GuildMessageChannel that the interaction happened in.
-// This only returns cached channels.
-func (e *AutocompleteInteractionCreate) MessageChannel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().GuildMessageChannel(e.Channel().ID)
-}
-
 // Result responds to the interaction with a slice of choices.
 func (e *AutocompleteInteractionCreate) Result(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeApplicationCommandAutocompleteResult, discord.AutocompleteResult{Choices: choices}, opts...)
@@ -168,12 +144,6 @@ func (e *ModalSubmitInteractionCreate) Guild() (discord.Guild, bool) {
 		return e.Client().Caches().Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
-}
-
-// MessageChannel returns the discord.GuildMessageChannel that the interaction happened in.
-// This only returns cached channels.
-func (e *ModalSubmitInteractionCreate) MessageChannel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().GuildMessageChannel(e.Channel().ID)
 }
 
 // CreateMessage responds to the interaction with a new message.

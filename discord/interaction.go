@@ -28,13 +28,13 @@ type rawInteraction struct {
 	Version       int             `json:"version"`
 	GuildID       *snowflake.ID   `json:"guild_id,omitempty"`
 	// Deprecated: Use Channel instead
-	ChannelID      snowflake.ID    `json:"channel_id,omitempty"`
-	Channel        *PartialChannel `json:"channel,omitempty"`
-	Locale         Locale          `json:"locale,omitempty"`
-	GuildLocale    *Locale         `json:"guild_locale,omitempty"`
-	Member         *ResolvedMember `json:"member,omitempty"`
-	User           *User           `json:"user,omitempty"`
-	AppPermissions *Permissions    `json:"app_permissions,omitempty"`
+	ChannelID      snowflake.ID       `json:"channel_id,omitempty"`
+	Channel        InteractionChannel `json:"channel,omitempty"`
+	Locale         Locale             `json:"locale,omitempty"`
+	GuildLocale    *Locale            `json:"guild_locale,omitempty"`
+	Member         *ResolvedMember    `json:"member,omitempty"`
+	User           *User              `json:"user,omitempty"`
+	AppPermissions *Permissions       `json:"app_permissions,omitempty"`
 }
 
 // Interaction is used for easier unmarshalling of different Interaction(s)
@@ -47,7 +47,7 @@ type Interaction interface {
 	GuildID() *snowflake.ID
 	// Deprecated: Use Interaction.Channel instead
 	ChannelID() snowflake.ID
-	Channel() *PartialChannel
+	Channel() InteractionChannel
 	Locale() Locale
 	GuildLocale() *Locale
 	Member() *ResolvedMember
@@ -120,5 +120,9 @@ type (
 		Permissions    Permissions    `json:"permissions"`
 		ThreadMetadata ThreadMetadata `json:"thread_metadata"`
 		ParentID       snowflake.ID   `json:"parent_id"`
+	}
+	InteractionChannel struct {
+		MessageChannel
+		Permissions Permissions `json:"permissions"`
 	}
 )
