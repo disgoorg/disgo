@@ -108,21 +108,60 @@ func UnmarshalInteraction(data []byte) (Interaction, error) {
 	return interaction, nil
 }
 
-type (
-	ResolvedMember struct {
-		Member
-		Permissions Permissions `json:"permissions,omitempty"`
-	}
-	ResolvedChannel struct {
-		ID             snowflake.ID   `json:"id"`
-		Name           string         `json:"name"`
-		Type           ChannelType    `json:"type"`
-		Permissions    Permissions    `json:"permissions"`
-		ThreadMetadata ThreadMetadata `json:"thread_metadata"`
-		ParentID       snowflake.ID   `json:"parent_id"`
-	}
-	InteractionChannel struct {
-		MessageChannel
+type ResolvedMember struct {
+	Member
+	Permissions Permissions `json:"permissions,omitempty"`
+}
+
+type ResolvedChannel struct {
+	ID             snowflake.ID   `json:"id"`
+	Name           string         `json:"name"`
+	Type           ChannelType    `json:"type"`
+	Permissions    Permissions    `json:"permissions"`
+	ThreadMetadata ThreadMetadata `json:"thread_metadata"`
+	ParentID       snowflake.ID   `json:"parent_id"`
+}
+
+type InteractionChannel struct {
+	MessageChannel
+	Permissions Permissions `json:"permissions"`
+}
+
+func (c *InteractionChannel) UnmarshalJSON(data []byte) error {
+	var v struct {
 		Permissions Permissions `json:"permissions"`
 	}
-)
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	var vc UnmarshalChannel
+	if err := json.Unmarshal(data, &vc); err != nil {
+		return err
+	}
+	msgChannel, ok := vc.Channel.(MessageChannel)
+	if !ok {
+		return fmt.Errorf("unknown channel type: %T", vc.Channel)
+	}
+	c.MessageChannel = msgChannel
+	c.Permissions = v.Permissions
+
+	return nil
+}
+
+func (c InteractionChannel) MarshalJSON() ([]byte, error) {
+	mData, err := json.Marshal(c.MessageChannel)
+	if err != nil {
+		return nil, err
+	}
+
+	pData, err := json.Marshal(struct {
+		Permissions Permissions `json:"permissions"`
+	}{
+		Permissions: c.Permissions,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return json.Merge(mData, pData)
+}
