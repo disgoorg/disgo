@@ -6,7 +6,6 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/internal/set"
 )
 
 type SelfUserCache interface {
@@ -56,7 +55,7 @@ type GuildCache interface {
 	RemoveGuild(guildID snowflake.ID) (discord.Guild, bool)
 }
 
-func NewGuildCache(cache Cache[discord.Guild], unreadyGuilds set.Set[snowflake.ID], unavailableGuilds set.Set[snowflake.ID]) GuildCache {
+func NewGuildCache(cache Cache[discord.Guild], unreadyGuilds Set[snowflake.ID], unavailableGuilds Set[snowflake.ID]) GuildCache {
 	return &guildCacheImpl{
 		cache:             cache,
 		unreadyGuilds:     unreadyGuilds,
@@ -66,8 +65,8 @@ func NewGuildCache(cache Cache[discord.Guild], unreadyGuilds set.Set[snowflake.I
 
 type guildCacheImpl struct {
 	cache             Cache[discord.Guild]
-	unreadyGuilds     set.Set[snowflake.ID]
-	unavailableGuilds set.Set[snowflake.ID]
+	unreadyGuilds     Set[snowflake.ID]
+	unavailableGuilds Set[snowflake.ID]
 }
 
 func (c *guildCacheImpl) IsGuildUnready(guildID snowflake.ID) bool {
