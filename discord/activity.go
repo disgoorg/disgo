@@ -30,6 +30,7 @@ type Activity struct {
 	URL           *string             `json:"url"`
 	CreatedAt     time.Time           `json:"created_at"`
 	Timestamps    *ActivityTimestamps `json:"timestamps,omitempty"`
+	SyncID        *string             `json:"sync_id,omitempty"`
 	ApplicationID snowflake.ID        `json:"application_id,omitempty"`
 	Details       *string             `json:"details,omitempty"`
 	State         *string             `json:"state,omitempty"`
