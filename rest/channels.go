@@ -76,7 +76,14 @@ func (s *channelImpl) DeleteChannel(channelID snowflake.ID, opts ...RequestOpt) 
 }
 
 func (s *channelImpl) GetWebhooks(channelID snowflake.ID, opts ...RequestOpt) (webhooks []discord.Webhook, err error) {
-	err = s.client.Do(GetChannelWebhooks.Compile(nil, channelID), nil, &webhooks, opts...)
+	var whs []discord.UnmarshalWebhook
+	err = s.client.Do(GetChannelWebhooks.Compile(nil, channelID), nil, &whs, opts...)
+	if err == nil {
+		webhooks = make([]discord.Webhook, len(whs))
+		for i := range whs {
+			webhooks[i] = whs[i].Webhook
+		}
+	}
 	return
 }
 
