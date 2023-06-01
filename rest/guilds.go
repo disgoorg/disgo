@@ -239,7 +239,14 @@ func (s *guildImpl) BeginGuildPrune(guildID snowflake.ID, guildPrune discord.Gui
 }
 
 func (s *guildImpl) GetAllWebhooks(guildID snowflake.ID, opts ...RequestOpt) (webhooks []discord.Webhook, err error) {
-	err = s.client.Do(GetGuildWebhooks.Compile(nil, guildID), nil, &webhooks, opts...)
+	var whs []discord.UnmarshalWebhook
+	err = s.client.Do(GetGuildWebhooks.Compile(nil, guildID), nil, &whs, opts...)
+	if err == nil {
+		webhooks = make([]discord.Webhook, len(whs))
+		for i := range whs {
+			webhooks[i] = whs[i].Webhook
+		}
+	}
 	return
 }
 
