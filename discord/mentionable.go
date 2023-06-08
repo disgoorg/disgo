@@ -31,7 +31,11 @@ func ChannelMention(id snowflake.ID) string {
 	return fmt.Sprintf("<#%s>", id)
 }
 
+// UserTag returns a formatted string of "Username#Discriminator", falling back to the username if discriminator is "0"
 func UserTag(username string, discriminator string) string {
+	if discriminator == "0" {
+		return username
+	}
 	return fmt.Sprintf("%s#%s", username, discriminator)
 }
 

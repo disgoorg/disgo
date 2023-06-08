@@ -85,8 +85,17 @@ func (u User) Mention() string {
 	return u.String()
 }
 
+// Tag returns a formatted string of "Username#Discriminator", falling back to the username if discriminator is "0"
 func (u User) Tag() string {
 	return UserTag(u.Username, u.Discriminator)
+}
+
+// EffectiveName returns the global (display) name of the user if set, falling back to the username
+func (u User) EffectiveName() string {
+	if u.GlobalName != nil {
+		return *u.GlobalName
+	}
+	return u.Username
 }
 
 func (u User) EffectiveAvatarURL(opts ...CDNOpt) string {
