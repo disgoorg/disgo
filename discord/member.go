@@ -37,12 +37,12 @@ func (m Member) Mention() string {
 	return m.String()
 }
 
-// EffectiveName returns either the nickname or username depending on if the user has a nickname
+// EffectiveName returns the nickname of the member if set, falling back to User.EffectiveName()
 func (m Member) EffectiveName() string {
 	if m.Nick != nil {
 		return *m.Nick
 	}
-	return m.User.Username
+	return m.User.EffectiveName()
 }
 
 func (m Member) EffectiveAvatarURL(opts ...CDNOpt) string {

@@ -18,7 +18,7 @@ var (
 
 	UserBanner        = NewCDN("/banners/{user.id}/{user.banner.hash}", ImageFormatPNG, ImageFormatJPEG, ImageFormatWebP, ImageFormatGIF)
 	UserAvatar        = NewCDN("/avatars/{user.id}/{user.avatar.hash}", ImageFormatPNG, ImageFormatJPEG, ImageFormatWebP, ImageFormatGIF)
-	DefaultUserAvatar = NewCDN("/embed/avatars/{user.discriminator%5}", ImageFormatPNG)
+	DefaultUserAvatar = NewCDN("/embed/avatars/{index}", ImageFormatPNG)
 
 	ChannelIcon = NewCDN("/channel-icons/{channel.id}/{channel.icon.hash}", ImageFormatPNG, ImageFormatJPEG, ImageFormatWebP)
 

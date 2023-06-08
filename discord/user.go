@@ -68,6 +68,7 @@ type User struct {
 	ID            snowflake.ID `json:"id"`
 	Username      string       `json:"username"`
 	Discriminator string       `json:"discriminator"`
+	GlobalName    *string      `json:"global_name"`
 	Avatar        *string      `json:"avatar"`
 	Banner        *string      `json:"banner"`
 	AccentColor   *int         `json:"accent_color"`
@@ -84,8 +85,17 @@ func (u User) Mention() string {
 	return u.String()
 }
 
+// Tag returns a formatted string of "Username#Discriminator", falling back to the username if discriminator is "0"
 func (u User) Tag() string {
 	return UserTag(u.Username, u.Discriminator)
+}
+
+// EffectiveName returns the global (display) name of the user if set, falling back to the username
+func (u User) EffectiveName() string {
+	if u.GlobalName != nil {
+		return *u.GlobalName
+	}
+	return u.Username
 }
 
 func (u User) EffectiveAvatarURL(opts ...CDNOpt) string {
@@ -111,7 +121,11 @@ func (u User) DefaultAvatarURL(opts ...CDNOpt) string {
 	if err != nil {
 		return ""
 	}
-	return formatAssetURL(DefaultUserAvatar, opts, discriminator%5)
+	index := discriminator % 5
+	if index == 0 { // new username system
+		index = int((u.ID >> 22) % 6)
+	}
+	return formatAssetURL(DefaultUserAvatar, opts, index)
 }
 
 func (u User) BannerURL(opts ...CDNOpt) *string {
