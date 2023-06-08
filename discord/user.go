@@ -77,10 +77,12 @@ type User struct {
 	PublicFlags   UserFlags    `json:"public_flags"`
 }
 
+// String returns a mention of the user
 func (u User) String() string {
 	return UserMention(u.ID)
 }
 
+// Mention returns a mention of the user
 func (u User) Mention() string {
 	return u.String()
 }
@@ -98,6 +100,7 @@ func (u User) EffectiveName() string {
 	return u.Username
 }
 
+// EffectiveAvatarURL returns the avatar URL of the user if set, falling back to the default avatar URL
 func (u User) EffectiveAvatarURL(opts ...CDNOpt) string {
 	if u.Avatar == nil {
 		return u.DefaultAvatarURL(opts...)
@@ -108,6 +111,7 @@ func (u User) EffectiveAvatarURL(opts ...CDNOpt) string {
 	return ""
 }
 
+// AvatarURL returns the avatar URL of the user if set or nil
 func (u User) AvatarURL(opts ...CDNOpt) *string {
 	if u.Avatar == nil {
 		return nil
@@ -116,6 +120,7 @@ func (u User) AvatarURL(opts ...CDNOpt) *string {
 	return &url
 }
 
+// DefaultAvatarURL calculates and returns the default avatar URL
 func (u User) DefaultAvatarURL(opts ...CDNOpt) string {
 	discriminator, err := strconv.Atoi(u.Discriminator)
 	if err != nil {
@@ -128,6 +133,7 @@ func (u User) DefaultAvatarURL(opts ...CDNOpt) string {
 	return formatAssetURL(DefaultUserAvatar, opts, index)
 }
 
+// BannerURL returns the banner URL if set or nil
 func (u User) BannerURL(opts ...CDNOpt) *string {
 	if u.Banner == nil {
 		return nil
