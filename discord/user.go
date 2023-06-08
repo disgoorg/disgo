@@ -68,6 +68,7 @@ type User struct {
 	ID            snowflake.ID `json:"id"`
 	Username      string       `json:"username"`
 	Discriminator string       `json:"discriminator"`
+	GlobalName    *string      `json:"global_name"`
 	Avatar        *string      `json:"avatar"`
 	Banner        *string      `json:"banner"`
 	AccentColor   *int         `json:"accent_color"`
@@ -111,7 +112,11 @@ func (u User) DefaultAvatarURL(opts ...CDNOpt) string {
 	if err != nil {
 		return ""
 	}
-	return formatAssetURL(DefaultUserAvatar, opts, discriminator%5)
+	index := discriminator % 5
+	if index == 0 { // new username system
+		index = int((u.ID >> 22) % 6)
+	}
+	return formatAssetURL(DefaultUserAvatar, opts, index)
 }
 
 func (u User) BannerURL(opts ...CDNOpt) *string {
