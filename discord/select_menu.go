@@ -450,12 +450,12 @@ func NewChannelSelectMenu(customID string, placeholder string) ChannelSelectMenu
 }
 
 type ChannelSelectMenuComponent struct {
-	CustomID     string          `json:"custom_id"`
-	Placeholder  string          `json:"placeholder,omitempty"`
-	MinValues    *int            `json:"min_values,omitempty"`
-	MaxValues    int             `json:"max_values,omitempty"`
-	Disabled     bool            `json:"disabled,omitempty"`
-	ChannelTypes []ComponentType `json:"channel_types,omitempty"`
+	CustomID     string        `json:"custom_id"`
+	Placeholder  string        `json:"placeholder,omitempty"`
+	MinValues    *int          `json:"min_values,omitempty"`
+	MaxValues    int           `json:"max_values,omitempty"`
+	Disabled     bool          `json:"disabled,omitempty"`
+	ChannelTypes []ChannelType `json:"channel_types,omitempty"`
 }
 
 func (c ChannelSelectMenuComponent) MarshalJSON() ([]byte, error) {
@@ -524,7 +524,7 @@ func (c ChannelSelectMenuComponent) WithDisabled(disabled bool) ChannelSelectMen
 }
 
 // WithChannelTypes returns a new ChannelSelectMenuComponent with the provided channelTypes
-func (c ChannelSelectMenuComponent) WithChannelTypes(channelTypes ...ComponentType) ChannelSelectMenuComponent {
+func (c ChannelSelectMenuComponent) WithChannelTypes(channelTypes ...ChannelType) ChannelSelectMenuComponent {
 	c.ChannelTypes = channelTypes
 	return c
 }
