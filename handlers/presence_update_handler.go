@@ -110,54 +110,23 @@ func gatewayHandlerPresenceUpdate(client bot.Client, sequenceNumber int, shardID
 	}
 }
 
-// compare 2 discord.Activity and return true if they are different
 func isActivityUpdated(old discord.Activity, new discord.Activity) bool {
-	if old.Name != new.Name {
-		return true
-	}
-	if old.Type != new.Type {
-		return true
-	}
-	if compareStringPtr(old.URL, new.URL) {
-		return true
-	}
-	if old.CreatedAt.Equal(new.CreatedAt) {
-		return true
-	}
-	if compareActivityTimestampsPtr(old.Timestamps, new.Timestamps) {
-		return true
-	}
-	if compareStringPtr(old.SyncID, new.SyncID) {
-		return true
-	}
-	if old.ApplicationID != new.ApplicationID {
-		return true
-	}
-	if compareStringPtr(old.Details, new.Details) {
-		return true
-	}
-	if compareStringPtr(old.State, new.State) {
-		return true
-	}
-	if comparePartialEmojiPtr(old.Emoji, new.Emoji) {
-		return true
-	}
-	if compareActivityPartyPtr(old.Party, new.Party) {
-		return true
-	}
-	if compareActivityAssetsPtr(old.Assets, new.Assets) {
-		return true
-	}
-	if compareActivitySecretsPtr(old.Secrets, new.Secrets) {
-		return true
-	}
-	if compareBoolPtr(old.Instance, new.Instance) {
-		return true
-	}
-	if old.Flags != new.Flags {
-		return true
-	}
-	return slices.Equal(old.Buttons, new.Buttons)
+	return old.Name != new.Name ||
+		old.Type != new.Type ||
+		compareStringPtr(old.URL, new.URL) ||
+		old.CreatedAt.Equal(new.CreatedAt) ||
+		compareActivityTimestampsPtr(old.Timestamps, new.Timestamps) ||
+		compareStringPtr(old.SyncID, new.SyncID) ||
+		old.ApplicationID != new.ApplicationID ||
+		compareStringPtr(old.Details, new.Details) ||
+		compareStringPtr(old.State, new.State) ||
+		comparePartialEmojiPtr(old.Emoji, new.Emoji) ||
+		compareActivityPartyPtr(old.Party, new.Party) ||
+		compareActivityAssetsPtr(old.Assets, new.Assets) ||
+		compareActivitySecretsPtr(old.Secrets, new.Secrets) ||
+		compareBoolPtr(old.Instance, new.Instance) ||
+		old.Flags != new.Flags ||
+		slices.Equal(old.Buttons, new.Buttons)
 }
 
 func compareActivityTimestampsPtr(old *discord.ActivityTimestamps, new *discord.ActivityTimestamps) bool {
