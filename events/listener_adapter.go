@@ -154,6 +154,8 @@ type ListenerAdapter struct {
 	OnGuildMemberTypingStart func(event *GuildMemberTypingStart)
 	OnDMUserTypingStart      func(event *DMUserTypingStart)
 
+	OnPresenceUpdate func(event *PresenceUpdate)
+
 	// User Activity Events
 	OnUserActivityStart  func(event *UserActivityStart)
 	OnUserActivityUpdate func(event *UserActivityUpdate)
@@ -589,6 +591,11 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 	case *DMUserTypingStart:
 		if listener := l.OnDMUserTypingStart; listener != nil {
+			listener(e)
+		}
+
+	case *PresenceUpdate:
+		if listener := l.OnPresenceUpdate; listener != nil {
 			listener(e)
 		}
 
