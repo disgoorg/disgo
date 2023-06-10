@@ -18,6 +18,6 @@ type UserStatusUpdate struct {
 type UserClientStatusUpdate struct {
 	*GenericEvent
 	UserID          snowflake.ID
-	OldClientStatus *discord.ClientStatus
+	OldClientStatus discord.ClientStatus
 	ClientStatus    discord.ClientStatus
 }
