@@ -13,18 +13,6 @@ type AutocompleteEvent struct {
 	Variables map[string]string
 }
 
-func (e *AutocompleteEvent) GetInteractionResponse(opts ...rest.RequestOpt) (*discord.Message, error) {
-	return e.Client().Rest().GetInteractionResponse(e.ApplicationID(), e.Token(), opts...)
-}
-
-func (e *AutocompleteEvent) UpdateInteractionResponse(messageUpdate discord.MessageUpdate, opts ...rest.RequestOpt) (*discord.Message, error) {
-	return e.Client().Rest().UpdateInteractionResponse(e.ApplicationID(), e.Token(), messageUpdate, opts...)
-}
-
-func (e *AutocompleteEvent) DeleteInteractionResponse(opts ...rest.RequestOpt) error {
-	return e.Client().Rest().DeleteInteractionResponse(e.ApplicationID(), e.Token(), opts...)
-}
-
 func (e *AutocompleteEvent) GetFollowupMessage(messageID snowflake.ID, opts ...rest.RequestOpt) (*discord.Message, error) {
 	return e.Client().Rest().GetFollowupMessage(e.ApplicationID(), e.Token(), messageID, opts...)
 }
