@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"context"
+
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
@@ -29,7 +31,7 @@ type Route interface {
 	Match(path string, t discord.InteractionType) bool
 
 	// Handle handles the given interaction event.
-	Handle(path string, variables map[string]string, e *events.InteractionCreate) error
+	Handle(ctx context.Context, path string, variables map[string]string, e *events.InteractionCreate) error
 }
 
 // Router provides with the core routing functionality.

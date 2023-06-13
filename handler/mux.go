@@ -2,6 +2,7 @@ package handler
 
 import (
 	"log/slog"
+	"context"
 	"strings"
 
 	"github.com/disgoorg/disgo/bot"
@@ -33,6 +34,7 @@ type Mux struct {
 	routes          []Route
 	notFoundHandler NotFoundHandler
 	errorHandler    ErrorHandler
+	defaultContext  func() context.Context
 }
 
 // OnEvent is called when a new event is received.
@@ -58,7 +60,7 @@ func (r *Mux) OnEvent(event bot.Event) {
 		path = i.Data.CustomID
 	}
 
-	if err := r.Handle(path, make(map[string]string), e); err != nil {
+	if err := r.Handle(r.defaultContext(), path, make(map[string]string), e); err != nil {
 		if r.errorHandler != nil {
 			r.errorHandler(e, err)
 			return
@@ -109,7 +111,7 @@ func (r *Mux) Handle(path string, variables map[string]string, e *events.Interac
 	}
 
 	for i := len(r.middlewares) - 1; i >= 0; i-- {
-		handlerChain = r.middlewares[i](handlerChain)
+		handlerChain = r.middlewares[i](ctx, handlerChain)
 	}
 
 	return handlerChain(e)

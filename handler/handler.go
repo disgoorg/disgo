@@ -18,6 +18,7 @@
 package handler
 
 import (
+	"context"
 	"errors"
 	"strings"
 
@@ -69,7 +70,7 @@ func (h *handlerHolder[T]) Match(path string, t discord.InteractionType) bool {
 	return true
 }
 
-func (h *handlerHolder[T]) Handle(path string, variables map[string]string, event *events.InteractionCreate) error {
+func (h *handlerHolder[T]) Handle(ctx context.Context, path string, variables map[string]string, event *events.InteractionCreate) error {
 	parseVariables(path, h.pattern, variables)
 
 	switch handler := any(h.handler).(type) {
@@ -81,6 +82,7 @@ func (h *handlerHolder[T]) Handle(path string, variables map[string]string, even
 				Respond:                       event.Respond,
 			},
 			Variables: variables,
+			Ctx:       ctx,
 		})
 	case AutocompleteHandler:
 		return handler(&AutocompleteEvent{
@@ -90,6 +92,7 @@ func (h *handlerHolder[T]) Handle(path string, variables map[string]string, even
 				Respond:                 event.Respond,
 			},
 			Variables: variables,
+			Ctx:       ctx,
 		})
 	case ComponentHandler:
 		return handler(&ComponentEvent{
@@ -99,6 +102,7 @@ func (h *handlerHolder[T]) Handle(path string, variables map[string]string, even
 				Respond:              event.Respond,
 			},
 			Variables: variables,
+			Ctx:       ctx,
 		})
 	case ModalHandler:
 		return handler(&ModalEvent{
@@ -108,6 +112,7 @@ func (h *handlerHolder[T]) Handle(path string, variables map[string]string, even
 				Respond:                event.Respond,
 			},
 			Variables: variables,
+			Ctx:       ctx,
 		})
 	}
 	return errors.New("unknown handler type")

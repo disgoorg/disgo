@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"context"
+
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
@@ -11,6 +13,7 @@ import (
 type CommandEvent struct {
 	*events.ApplicationCommandInteractionCreate
 	Variables map[string]string
+	Ctx       context.Context
 }
 
 func (e *CommandEvent) GetInteractionResponse(opts ...rest.RequestOpt) (*discord.Message, error) {
