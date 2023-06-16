@@ -167,3 +167,9 @@ func (c InteractionChannel) MarshalJSON() ([]byte, error) {
 
 	return json.Merge(mData, pData)
 }
+
+type InteractionGuild struct {
+	ID       snowflake.ID   `json:"id"`
+	Locale   Locale         `json:"locale"`
+	Features []GuildFeature `json:"features"`
+}
