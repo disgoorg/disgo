@@ -12,8 +12,8 @@ import (
 
 type AutocompleteEvent struct {
 	*events.AutocompleteInteractionCreate
-	Variables map[string]string
-	Ctx       context.Context
+	Vars map[string]string
+	Ctx  context.Context
 }
 
 func (e *AutocompleteEvent) GetFollowupMessage(messageID snowflake.ID, opts ...rest.RequestOpt) (*discord.Message, error) {

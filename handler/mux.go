@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"log/slog"
 	"context"
+	"log/slog"
 	"strings"
 
 	"github.com/disgoorg/disgo/bot"
@@ -95,26 +95,26 @@ func (r *Mux) Match(path string, t discord.InteractionType) bool {
 }
 
 // Handle handles the given interaction event.
-func (r *Mux) Handle(path string, variables map[string]string, e *events.InteractionCreate) error {
-	handlerChain := func(event *events.InteractionCreate) error {
+func (r *Mux) Handle(ctx context.Context, path string, variables map[string]string, e *events.InteractionCreate) error {
+	handlerChain := Handler(func(ctx context.Context, event *events.InteractionCreate) error {
 		path = parseVariables(path, r.pattern, variables)
 
 		for _, route := range r.routes {
 			if route.Match(path, e.Type()) {
-				return route.Handle(path, variables, e)
+				return route.Handle(ctx, path, variables, e)
 			}
 		}
 		if r.notFoundHandler != nil {
 			return r.notFoundHandler(e)
 		}
 		return nil
-	}
+	})
 
 	for i := len(r.middlewares) - 1; i >= 0; i-- {
-		handlerChain = r.middlewares[i](ctx, handlerChain)
+		handlerChain = r.middlewares[i](handlerChain)
 	}
 
-	return handlerChain(e)
+	return handlerChain(ctx, e)
 }
 
 // Use adds the given middlewares to the current Router.

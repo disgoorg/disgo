@@ -5,7 +5,7 @@
 // Slash Commands can have subcommands, which are nested paths. For example /test/subcommand1 or /test/subcommandgroup/subcommand.
 //
 // The handler also supports variables in its path which is especially useful for subcommands, components and modals.
-// Variables are defined by curly braces like {variable} and can be accessed in the handler via the Variables map.
+// Vars are defined by curly braces like {variable} and can be accessed in the handler via the Vars map.
 //
 // You can also register middlewares, which are executed before the handler is called. Middlewares can be used to check permissions, validate input or do other things.
 // Middlewares can also be attached to sub-routers, which is useful if you want to have a middleware for all subcommands of a command as an example.
@@ -81,8 +81,8 @@ func (h *handlerHolder[T]) Handle(ctx context.Context, path string, variables ma
 				ApplicationCommandInteraction: event.Interaction.(discord.ApplicationCommandInteraction),
 				Respond:                       event.Respond,
 			},
-			Variables: variables,
-			Ctx:       ctx,
+			Vars: variables,
+			Ctx:  ctx,
 		})
 	case AutocompleteHandler:
 		return handler(&AutocompleteEvent{
@@ -91,8 +91,8 @@ func (h *handlerHolder[T]) Handle(ctx context.Context, path string, variables ma
 				AutocompleteInteraction: event.Interaction.(discord.AutocompleteInteraction),
 				Respond:                 event.Respond,
 			},
-			Variables: variables,
-			Ctx:       ctx,
+			Vars: variables,
+			Ctx:  ctx,
 		})
 	case ComponentHandler:
 		return handler(&ComponentEvent{
@@ -101,8 +101,8 @@ func (h *handlerHolder[T]) Handle(ctx context.Context, path string, variables ma
 				ComponentInteraction: event.Interaction.(discord.ComponentInteraction),
 				Respond:              event.Respond,
 			},
-			Variables: variables,
-			Ctx:       ctx,
+			Vars: variables,
+			Ctx:  ctx,
 		})
 	case ModalHandler:
 		return handler(&ModalEvent{
@@ -111,8 +111,8 @@ func (h *handlerHolder[T]) Handle(ctx context.Context, path string, variables ma
 				ModalSubmitInteraction: event.Interaction.(discord.ModalSubmitInteraction),
 				Respond:                event.Respond,
 			},
-			Variables: variables,
-			Ctx:       ctx,
+			Vars: variables,
+			Ctx:  ctx,
 		})
 	}
 	return errors.New("unknown handler type")

@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"context"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/handler"
@@ -13,7 +15,7 @@ import (
 // Note: You can use this middleware in combination with the Go middleware to defer & run in a goroutine.
 func Defer(interactionType discord.InteractionType, updateMessage bool, ephemeral bool) handler.Middleware {
 	return func(next handler.Handler) handler.Handler {
-		return func(event *events.InteractionCreate) error {
+		return func(ctx context.Context, event *events.InteractionCreate) error {
 			if event.Type() == interactionType {
 				responseType := discord.InteractionResponseTypeDeferredCreateMessage
 				if updateMessage {
@@ -30,7 +32,7 @@ func Defer(interactionType discord.InteractionType, updateMessage bool, ephemera
 					return err
 				}
 			}
-			return next(event)
+			return next(ctx, event)
 		}
 	}
 }

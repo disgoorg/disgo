@@ -12,8 +12,8 @@ import (
 
 type ModalEvent struct {
 	*events.ModalSubmitInteractionCreate
-	Variables map[string]string
-	Ctx       context.Context
+	Vars map[string]string
+	Ctx  context.Context
 }
 
 func (e *ModalEvent) GetInteractionResponse(opts ...rest.RequestOpt) (*discord.Message, error) {

@@ -118,7 +118,7 @@ func handleContent(content string) handler.CommandHandler {
 }
 
 func handleVariableContent(event *handler.CommandEvent) error {
-	group := event.Variables["group"]
+	group := event.Vars["group"]
 	return event.CreateMessage(discord.MessageCreate{Content: "group: " + group})
 }
 
@@ -134,7 +134,7 @@ func handlePing(event *handler.CommandEvent) error {
 }
 
 func handleComponent(event *handler.ComponentEvent) error {
-	data := event.Variables["data"]
+	data := event.Vars["data"]
 	return event.CreateMessage(discord.MessageCreate{Content: "component: " + data})
 }
 
