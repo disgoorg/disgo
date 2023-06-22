@@ -104,6 +104,7 @@ const (
 	GuildFeatureDeveloperSupportServer        GuildFeature = "DEVELOPER_SUPPORT_SERVER"
 	GuildFeatureDiscoverable                  GuildFeature = "DISCOVERABLE"
 	GuildFeatureFeaturable                    GuildFeature = "FEATURABLE"
+	GuildFeatureGuestsEnabled                 GuildFeature = "GUESTS_ENABLED"
 	GuildFeatureInvitesDisabled               GuildFeature = "INVITES_DISABLED"
 	GuildFeatureInviteSplash                  GuildFeature = "INVITE_SPLASH"
 	GuildFeatureMemberVerificationGateEnabled GuildFeature = "MEMBER_VERIFICATION_GATE_ENABLED"

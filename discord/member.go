@@ -17,7 +17,7 @@ type Member struct {
 	Nick                       *string        `json:"nick"`
 	Avatar                     *string        `json:"avatar"`
 	RoleIDs                    []snowflake.ID `json:"roles,omitempty"`
-	JoinedAt                   time.Time      `json:"joined_at"`
+	JoinedAt                   *time.Time     `json:"joined_at"`
 	PremiumSince               *time.Time     `json:"premium_since,omitempty"`
 	Deaf                       bool           `json:"deaf,omitempty"`
 	Mute                       bool           `json:"mute,omitempty"`
