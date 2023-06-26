@@ -27,9 +27,7 @@ func gatewayHandlerTypingStart(client bot.Client, sequenceNumber int, shardID in
 		var member discord.Member
 		if event.Member != nil {
 			member = *event.Member
-			client.Caches().AddMember(member)
 		}
-
 		client.EventManager().DispatchEvent(&events.GuildMemberTypingStart{
 			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 			ChannelID:    event.ChannelID,
