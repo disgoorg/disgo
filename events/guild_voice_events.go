@@ -5,6 +5,11 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
+type GuildVoiceChannelEffectSend struct {
+	*GenericEvent
+	gateway.EventVoiceChannelEffectSend
+}
+
 // GenericGuildVoiceState is called upon receiving GuildVoiceJoin , GuildVoiceMove , GuildVoiceLeave
 type GenericGuildVoiceState struct {
 	*GenericEvent
