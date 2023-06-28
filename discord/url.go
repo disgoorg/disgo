@@ -53,10 +53,10 @@ func AuthorizeURL(values QueryValues) string {
 
 // SoundboardSoundURL returns the url of a custom soundboard sound
 func SoundboardSoundURL(soundID snowflake.ID) string {
-	return urlPrint(CDN+"/soundboard-sounds/{sound.id}", soundID)
+	return urlPrint(SoundboardSoundFile.Path(), soundID)
 }
 
 // SoundboardDefaultSoundURL returns the url of a default soundboard sound
 func SoundboardDefaultSoundURL(path string) string {
-	return urlPrint(CDN+"/soundboard-default-sounds/{sound.override.path}", path)
+	return urlPrint(SoundboardDefaultSoundFile.Path(), path)
 }
