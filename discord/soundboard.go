@@ -1,8 +1,8 @@
 package discord
 
-type SoundboardAnimationType int
+type SoundboardEffectAnimationType int
 
 const (
-	SoundboardAnimationTypePremium SoundboardAnimationType = iota
-	SoundboardAnimationTypeBasic
+	SoundboardEffectAnimationTypePremium SoundboardEffectAnimationType = iota
+	SoundboardEffectAnimationTypeBasic
 )
