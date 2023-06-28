@@ -30,9 +30,8 @@ type SoundboardSound struct {
 func (s SoundboardSound) FileURL() string {
 	if s.ID != nil {
 		return SoundboardSoundURL(*s.ID)
-	} else {
-		return SoundboardDefaultSoundURL(*s.OverridePath)
 	}
+	return SoundboardDefaultSoundURL(*s.OverridePath)
 }
 
 type SoundboardSoundCreate struct {
