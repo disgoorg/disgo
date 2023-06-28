@@ -114,6 +114,7 @@ const (
 	GuildFeaturePreviewEnabled                GuildFeature = "PREVIEW_ENABLED"
 	GuildFeatureRaidAlertsDisabled            GuildFeature = "RAID_ALERTS_DISABLED"
 	GuildFeatureRoleIcons                     GuildFeature = "ROLE_ICONS"
+	GuildFeatureSoundboard                    GuildFeature = "SOUNDBOARD"
 	GuildFeatureTicketedEventsEnabled         GuildFeature = "TICKETED_EVENTS_ENABLED"
 	GuildFeatureVanityURL                     GuildFeature = "VANITY_URL"
 	GuildFeatureVerified                      GuildFeature = "VERIFIED"
