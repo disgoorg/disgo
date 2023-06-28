@@ -434,6 +434,28 @@ type EventGuildScheduledEventUserRemove struct {
 func (EventGuildScheduledEventUserRemove) messageData() {}
 func (EventGuildScheduledEventUserRemove) eventData()   {}
 
+type EventGuildSoundboardSoundCreate struct {
+	discord.SoundboardSound
+}
+
+func (EventGuildSoundboardSoundCreate) messageData() {}
+func (EventGuildSoundboardSoundCreate) eventData()   {}
+
+type EventGuildSoundboardSoundUpdate struct {
+	discord.SoundboardSound
+}
+
+func (EventGuildSoundboardSoundUpdate) messageData() {}
+func (EventGuildSoundboardSoundUpdate) eventData()   {}
+
+type EventGuildSoundboardSoundDelete struct {
+	SoundID snowflake.ID `json:"sound_id"`
+	GuildID snowflake.ID `json:"guild_id"`
+}
+
+func (EventGuildSoundboardSoundDelete) messageData() {}
+func (EventGuildSoundboardSoundDelete) eventData()   {}
+
 type EventInteractionCreate struct {
 	discord.Interaction
 }

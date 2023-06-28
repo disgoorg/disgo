@@ -294,6 +294,21 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 		err = json.Unmarshal(data, &d)
 		eventData = d
 
+	case EventTypeGuildSoundboardSoundCreate:
+		var d EventGuildSoundboardSoundCreate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildSoundboardSoundUpdate:
+		var d EventGuildSoundboardSoundUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildSoundboardSoundDelete:
+		var d EventGuildSoundboardSoundDelete
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
 	case EventTypeIntegrationCreate:
 		var d EventIntegrationCreate
 		err = json.Unmarshal(data, &d)
