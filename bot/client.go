@@ -278,7 +278,7 @@ func (c *clientImpl) RequestMembersWithQuery(ctx context.Context, guildID snowfl
 	})
 }
 
-func (c *clientImpl) RequestSoundboardSounds(ctx context.Context, guildIDs []snowflake.ID) error {
+func (c *clientImpl) RequestSoundboardSounds(ctx context.Context, guildIDs ...snowflake.ID) error {
 	if !c.HasGateway() {
 		return discord.ErrNoGateway
 	}
