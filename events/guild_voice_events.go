@@ -5,6 +5,7 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 )
 
+// GuildVoiceChannelEffectSend indicates that a discord.User sent an effect in a discord.GuildVoiceChannel
 type GuildVoiceChannelEffectSend struct {
 	*GenericEvent
 	gateway.EventVoiceChannelEffectSend

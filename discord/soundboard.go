@@ -5,11 +5,11 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-type SoundboardAnimationType int
+type SoundboardEffectAnimationType int
 
 const (
-	SoundboardAnimationTypePremium SoundboardAnimationType = iota
-	SoundboardAnimationTypeBasic
+	SoundboardEffectAnimationTypePremium SoundboardEffectAnimationType = iota
+	SoundboardEffectAnimationTypeBasic
 )
 
 type SoundboardSound struct {
