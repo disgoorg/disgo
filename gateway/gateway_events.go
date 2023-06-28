@@ -594,15 +594,15 @@ func (EventUserUpdate) messageData() {}
 func (EventUserUpdate) eventData()   {}
 
 type EventVoiceChannelEffectSend struct {
-	ChannelID         snowflake.ID                     `json:"channel_id"`
-	GuildID           snowflake.ID                     `json:"guild_id"`
-	UserID            snowflake.ID                     `json:"user_id"`
-	Emoji             *discord.Emoji                   `json:"emoji"`
-	AnimationType     *discord.SoundboardAnimationType `json:"animation_type,omitempty"`
-	AnimationID       *int                             `json:"animation_id,omitempty"`
-	SoundID           *snowflake.ID                    `json:"sound_id,omitempty"`
-	SoundOverridePath *string                          `json:"sound_override_path"`
-	SoundVolume       *float64                         `json:"sound_volume,omitempty"`
+	ChannelID         snowflake.ID                           `json:"channel_id"`
+	GuildID           snowflake.ID                           `json:"guild_id"`
+	UserID            snowflake.ID                           `json:"user_id"`
+	Emoji             *discord.Emoji                         `json:"emoji"`
+	AnimationType     *discord.SoundboardEffectAnimationType `json:"animation_type,omitempty"`
+	AnimationID       *int                                   `json:"animation_id,omitempty"`
+	SoundID           *snowflake.ID                          `json:"sound_id,omitempty"`
+	SoundOverridePath *string                                `json:"sound_override_path"`
+	SoundVolume       *float64                               `json:"sound_volume,omitempty"`
 }
 
 func (EventVoiceChannelEffectSend) messageData() {}
