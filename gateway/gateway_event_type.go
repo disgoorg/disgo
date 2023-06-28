@@ -64,6 +64,7 @@ const (
 	EventTypeMessageReactionRemoveAll            EventType = "MESSAGE_REACTION_REMOVE_ALL"
 	EventTypeMessageReactionRemoveEmoji          EventType = "MESSAGE_REACTION_REMOVE_EMOJI"
 	EventTypePresenceUpdate                      EventType = "PRESENCE_UPDATE"
+	EventTypeSoundboardSounds                    EventType = "SOUNDBOARD_SOUNDS"
 	EventTypeStageInstanceCreate                 EventType = "STAGE_INSTANCE_CREATE"
 	EventTypeStageInstanceDelete                 EventType = "STAGE_INSTANCE_DELETE"
 	EventTypeStageInstanceUpdate                 EventType = "STAGE_INSTANCE_UPDATE"

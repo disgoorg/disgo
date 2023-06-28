@@ -531,6 +531,14 @@ type EventPresenceUpdate struct {
 func (EventPresenceUpdate) messageData() {}
 func (EventPresenceUpdate) eventData()   {}
 
+type EventSoundboardSounds struct {
+	SoundboardSounds []discord.SoundboardSound `json:"soundboard_sounds"`
+	GuildID          snowflake.ID              `json:"guild_id"`
+}
+
+func (EventSoundboardSounds) messageData() {}
+func (EventSoundboardSounds) eventData()   {}
+
 type EventStageInstanceCreate struct {
 	discord.StageInstance
 }

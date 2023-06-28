@@ -80,6 +80,11 @@ func (e *Message) UnmarshalJSON(data []byte) error {
 
 	case OpcodeHeartbeatACK:
 
+	case OpcodeRequestSoundboardSounds:
+		var d MessageDataRequestSoundboardSounds
+		err = json.Unmarshal(v.D, &d)
+		messageData = d
+
 	default:
 		var d MessageDataUnknown
 		err = json.Unmarshal(v.D, &d)
@@ -384,6 +389,11 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 		err = json.Unmarshal(data, &d)
 		eventData = d
 
+	case EventTypeSoundboardSounds:
+		var d EventSoundboardSounds
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
 	case EventTypeStageInstanceCreate:
 		var d EventStageInstanceCreate
 		err = json.Unmarshal(data, &d)
@@ -593,3 +603,9 @@ type MessageDataHello struct {
 }
 
 func (MessageDataHello) messageData() {}
+
+type MessageDataRequestSoundboardSounds struct {
+	GuildIDs []snowflake.ID `json:"guild_ids"`
+}
+
+func (MessageDataRequestSoundboardSounds) messageData() {}

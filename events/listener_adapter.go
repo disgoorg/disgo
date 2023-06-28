@@ -103,10 +103,11 @@ type ListenerAdapter struct {
 	OnGuildMessageReactionRemoveEmoji func(event *GuildMessageReactionRemoveEmoji)
 	OnGuildMessageReactionRemoveAll   func(event *GuildMessageReactionRemoveAll)
 
-	// Guild Soundboard Sound Events
+	// Guild Soundboard Events
 	OnGuildSoundboardSoundCreate func(event *GuildSoundboardSoundCreate)
 	OnGuildSoundboardSoundUpdate func(event *GuildSoundboardSoundUpdate)
 	OnGuildSoundboardSoundDelete func(event *GuildSoundboardSoundDelete)
+	OnSoundboardSounds           func(event *SoundboardSounds)
 
 	// Guild Voice Events
 	OnVoiceServerUpdate           func(event *VoiceServerUpdate)
@@ -461,6 +462,10 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 	case *GuildSoundboardSoundDelete:
 		if listener := l.OnGuildSoundboardSoundDelete; listener != nil {
+			listener(e)
+		}
+	case *SoundboardSounds:
+		if listener := l.OnSoundboardSounds; listener != nil {
 			listener(e)
 		}
 
