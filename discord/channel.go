@@ -1069,7 +1069,6 @@ func (c *GuildForumChannel) UnmarshalJSON(data []byte) error {
 	c.Topic = v.Topic
 	c.NSFW = v.NSFW
 	c.RateLimitPerUser = v.RateLimitPerUser
-	c.RateLimitPerUser = v.RateLimitPerUser
 	c.Flags = v.Flags
 	c.AvailableTags = v.AvailableTags
 	c.DefaultReactionEmoji = v.DefaultReactionEmoji
