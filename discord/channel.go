@@ -1046,7 +1046,7 @@ type GuildForumChannel struct {
 	NSFW                          bool
 	RateLimitPerUser              int
 	Flags                         ChannelFlags
-	AvailableTags                 []ThreadChannelTag
+	AvailableTags                 []ChannelTag
 	DefaultReactionEmoji          *DefaultReactionEmoji
 	DefaultThreadRateLimitPerUser int
 	DefaultSortOrder              *DefaultSortOrder
@@ -1160,7 +1160,7 @@ type GuildMediaChannel struct {
 	NSFW                          bool
 	RateLimitPerUser              int
 	Flags                         ChannelFlags
-	AvailableTags                 []ThreadChannelTag
+	AvailableTags                 []ChannelTag
 	DefaultReactionEmoji          *DefaultReactionEmoji
 	DefaultThreadRateLimitPerUser int
 	DefaultSortOrder              *DefaultSortOrder
@@ -1285,7 +1285,7 @@ type ThreadMetadata struct {
 	CreateTimestamp     time.Time           `json:"create_timestamp"`
 }
 
-type ThreadChannelTag struct {
+type ChannelTag struct {
 	ID        snowflake.ID  `json:"id"`
 	Name      string        `json:"name"`
 	Moderated bool          `json:"moderated"`

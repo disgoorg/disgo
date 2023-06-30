@@ -188,7 +188,7 @@ type guildForumChannel struct {
 	NSFW                          bool                  `json:"nsfw"`
 	RateLimitPerUser              int                   `json:"rate_limit_per_user"`
 	Flags                         ChannelFlags          `json:"flags"`
-	AvailableTags                 []ThreadChannelTag    `json:"available_tags"`
+	AvailableTags                 []ChannelTag          `json:"available_tags"`
 	DefaultReactionEmoji          *DefaultReactionEmoji `json:"default_reaction_emoji"`
 	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user"`
 	DefaultSortOrder              *DefaultSortOrder     `json:"default_sort_order"`
@@ -224,7 +224,7 @@ type guildMediaChannel struct {
 	NSFW                          bool                  `json:"nsfw"`
 	RateLimitPerUser              int                   `json:"rate_limit_per_user"`
 	Flags                         ChannelFlags          `json:"flags"`
-	AvailableTags                 []ThreadChannelTag    `json:"available_tags"`
+	AvailableTags                 []ChannelTag          `json:"available_tags"`
 	DefaultReactionEmoji          *DefaultReactionEmoji `json:"default_reaction_emoji"`
 	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user"`
 	DefaultSortOrder              *DefaultSortOrder     `json:"default_sort_order"`

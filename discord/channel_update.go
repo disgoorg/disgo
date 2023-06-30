@@ -104,7 +104,7 @@ type GuildForumChannelUpdate struct {
 	PermissionOverwrites          *[]PermissionOverwrite               `json:"permission_overwrites,omitempty"`
 	ParentID                      *snowflake.ID                        `json:"parent_id,omitempty"`
 	RateLimitPerUser              *int                                 `json:"rate_limit_per_user"`
-	AvailableTags                 *[]ThreadChannelTag                  `json:"available_tags,omitempty"`
+	AvailableTags                 *[]ChannelTag                        `json:"available_tags,omitempty"`
 	Flags                         *ChannelFlags                        `json:"flags,omitempty"`
 	DefaultReactionEmoji          *json.Nullable[DefaultReactionEmoji] `json:"default_reaction_emoji,omitempty"`
 	DefaultThreadRateLimitPerUser *int                                 `json:"default_thread_rate_limit_per_user,omitempty"`
@@ -123,7 +123,7 @@ type GuildMediaChannelUpdate struct {
 	PermissionOverwrites          *[]PermissionOverwrite               `json:"permission_overwrites,omitempty"`
 	ParentID                      *snowflake.ID                        `json:"parent_id,omitempty"`
 	RateLimitPerUser              *int                                 `json:"rate_limit_per_user"`
-	AvailableTags                 *[]ThreadChannelTag                  `json:"available_tags,omitempty"`
+	AvailableTags                 *[]ChannelTag                        `json:"available_tags,omitempty"`
 	Flags                         *ChannelFlags                        `json:"flags,omitempty"`
 	DefaultReactionEmoji          *json.Nullable[DefaultReactionEmoji] `json:"default_reaction_emoji,omitempty"`
 	DefaultThreadRateLimitPerUser *int                                 `json:"default_thread_rate_limit_per_user,omitempty"`

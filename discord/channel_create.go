@@ -188,7 +188,7 @@ type GuildForumChannelCreate struct {
 	ParentID             snowflake.ID          `json:"parent_id,omitempty"`
 	RateLimitPerUser     int                   `json:"rate_limit_per_user"`
 	DefaultReactionEmoji DefaultReactionEmoji  `json:"default_reaction_emoji"`
-	AvailableTags        []ThreadChannelTag    `json:"available_tags"`
+	AvailableTags        []ChannelTag          `json:"available_tags"`
 	DefaultSortOrder     DefaultSortOrder      `json:"default_sort_order"`
 	DefaultForumLayout   DefaultForumLayout    `json:"default_forum_layout"`
 }
@@ -219,7 +219,7 @@ type GuildMediaChannelCreate struct {
 	ParentID             snowflake.ID          `json:"parent_id,omitempty"`
 	RateLimitPerUser     int                   `json:"rate_limit_per_user"`
 	DefaultReactionEmoji DefaultReactionEmoji  `json:"default_reaction_emoji"`
-	AvailableTags        []ThreadChannelTag    `json:"available_tags"`
+	AvailableTags        []ChannelTag          `json:"available_tags"`
 	DefaultSortOrder     DefaultSortOrder      `json:"default_sort_order"`
 }
 
