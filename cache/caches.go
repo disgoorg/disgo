@@ -747,6 +747,9 @@ type Caches interface {
 
 	// GuildForumChannel returns a discord.GuildForumChannel from the ChannelCache and a bool indicating if it exists.
 	GuildForumChannel(channelID snowflake.ID) (discord.GuildForumChannel, bool)
+
+	// GuildMediaChannel returns a discord.GuildMediaChannel from the ChannelCache and a bool indicating if it exists.
+	GuildMediaChannel(channelID snowflake.ID) (discord.GuildMediaChannel, bool)
 }
 
 // New returns a new default Caches instance with the given ConfigOpt(s) applied.
@@ -1007,4 +1010,13 @@ func (c *cachesImpl) GuildForumChannel(channelID snowflake.ID) (discord.GuildFor
 		}
 	}
 	return discord.GuildForumChannel{}, false
+}
+
+func (c *cachesImpl) GuildMediaChannel(channelID snowflake.ID) (discord.GuildMediaChannel, bool) {
+	if ch, ok := c.Channel(channelID); ok {
+		if cCh, ok := ch.(discord.GuildMediaChannel); ok {
+			return cCh, true
+		}
+	}
+	return discord.GuildMediaChannel{}, false
 }
