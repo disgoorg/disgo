@@ -5,10 +5,10 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-var _ SoundboardSounds = (*soundboardSoundsImpl)(nil)
+var _ SoundboardSounds = (*soundsImpl)(nil)
 
 func NewSoundboardSounds(client Client) SoundboardSounds {
-	return &soundboardSoundsImpl{client: client}
+	return &soundsImpl{client: client}
 }
 
 type SoundboardSounds interface {
@@ -18,25 +18,25 @@ type SoundboardSounds interface {
 	DeleteGuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID, opts ...RequestOpt) error
 }
 
-type soundboardSoundsImpl struct {
+type soundsImpl struct {
 	client Client
 }
 
-func (s *soundboardSoundsImpl) GetSoundboardDefaultSounds(opts ...RequestOpt) (sounds []discord.SoundboardSound, err error) {
+func (s *soundsImpl) GetSoundboardDefaultSounds(opts ...RequestOpt) (sounds []discord.SoundboardSound, err error) {
 	err = s.client.Do(GetSoundboardDefaultSounds.Compile(nil), nil, &sounds, opts...)
 	return
 }
 
-func (s *soundboardSoundsImpl) CreateGuildSoundboardSound(guildID snowflake.ID, soundCreate discord.SoundboardSoundCreate, opts ...RequestOpt) (sound *discord.SoundboardSound, err error) {
+func (s *soundsImpl) CreateGuildSoundboardSound(guildID snowflake.ID, soundCreate discord.SoundboardSoundCreate, opts ...RequestOpt) (sound *discord.SoundboardSound, err error) {
 	err = s.client.Do(CreateGuildSoundboardSound.Compile(nil, guildID), soundCreate, &sound, opts...)
 	return
 }
 
-func (s *soundboardSoundsImpl) UpdateGuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID, soundUpdate discord.SoundboardSoundUpdate, opts ...RequestOpt) (sound *discord.SoundboardSound, err error) {
+func (s *soundsImpl) UpdateGuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID, soundUpdate discord.SoundboardSoundUpdate, opts ...RequestOpt) (sound *discord.SoundboardSound, err error) {
 	err = s.client.Do(UpdateGuildSoundboardSound.Compile(nil, guildID, soundID), soundUpdate, &sound, opts...)
 	return
 }
 
-func (s *soundboardSoundsImpl) DeleteGuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID, opts ...RequestOpt) error {
+func (s *soundsImpl) DeleteGuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID, opts ...RequestOpt) error {
 	return s.client.Do(DeleteGuildSoundboardSound.Compile(nil, guildID, soundID), nil, nil, opts...)
 }
