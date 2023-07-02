@@ -212,3 +212,11 @@ func (GatewayMessageDataClientDisconnect) voiceGatewayMessageData() {}
 type GatewayMessageDataUnknown json.RawMessage
 
 func (GatewayMessageDataUnknown) voiceGatewayMessageData() {}
+
+func (m GatewayMessageDataUnknown) MarshalJSON() ([]byte, error) {
+	return json.RawMessage(m).MarshalJSON()
+}
+
+func (m *GatewayMessageDataUnknown) UnmarshalJSON(data []byte) error {
+	return (*json.RawMessage)(m).UnmarshalJSON(data)
+}
