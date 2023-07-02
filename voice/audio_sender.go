@@ -66,6 +66,10 @@ type defaultAudioSender struct {
 }
 
 func (s *defaultAudioSender) Open() {
+	go s.open()
+}
+
+func (s *defaultAudioSender) open() {
 	defer s.logger.Debug("closing audio sender")
 	lastFrameSent := time.Now().UnixMilli()
 	ctx, cancel := context.WithCancel(context.Background())
