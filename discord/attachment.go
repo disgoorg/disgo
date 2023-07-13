@@ -30,7 +30,7 @@ func (a Attachment) CreatedAt() time.Time {
 type AttachmentFlags int
 
 const (
-	AttachmentFlagIsClip AttachmentFlags = iota
+	AttachmentFlagIsClip AttachmentFlags = 1 << iota
 	AttachmentFlagIsThumbnail
 	AttachmentFlagIsRemix
 	AttachmentFlagsNone AttachmentFlags = 0
