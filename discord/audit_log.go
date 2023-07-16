@@ -117,6 +117,11 @@ const (
 	AuditLogAutoModerationUserCommunicationDisabled
 )
 
+const (
+	AuditLogCreatorMonetizationRequestCreated AuditLogEvent = iota + 150
+	AuditLogCreatorMonetizationTermsAccepted
+)
+
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord
 type AuditLog struct {
 	ApplicationCommands  []ApplicationCommand  `json:"application_commands"`
