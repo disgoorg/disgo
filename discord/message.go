@@ -340,11 +340,19 @@ type MessageSticker struct {
 	FormatType StickerFormatType `json:"format_type"`
 }
 
-// MessageReaction contains information about the reactions of a message_events
+// MessageReaction contains information about the reactions of a message
 type MessageReaction struct {
-	Count int   `json:"count"`
-	Me    bool  `json:"me"`
-	Emoji Emoji `json:"emoji"`
+	Count        int                  `json:"count"`
+	CountDetails ReactionCountDetails `json:"count_details"`
+	Me           bool                 `json:"me"`
+	MeBurst      bool                 `json:"me_burst"`
+	Emoji        Emoji                `json:"emoji"`
+	BurstColors  []string             `json:"burst_colors"`
+}
+
+type ReactionCountDetails struct {
+	Burst  int `json:"burst"`
+	Normal int `json:"normal"`
 }
 
 // MessageActivityType is the type of MessageActivity https://com/developers/docs/resources/channel#message-object-message-activity-types
@@ -382,7 +390,7 @@ type MessageReference struct {
 	FailIfNotExists bool          `json:"fail_if_not_exists,omitempty"`
 }
 
-// MessageInteraction is sent on the Message object when the message_events is a response to an interaction
+// MessageInteraction is sent on the Message object when the message is a response to an interaction
 type MessageInteraction struct {
 	ID   snowflake.ID    `json:"id"`
 	Type InteractionType `json:"type"`
