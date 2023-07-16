@@ -259,6 +259,9 @@ var (
 
 // Applications
 var (
+	GetCurrentApplication    = NewEndpoint(http.MethodGet, "/applications/@me")
+	UpdateCurrentApplication = NewEndpoint(http.MethodPatch, "/applications/@me")
+
 	GetGlobalCommands   = NewEndpoint(http.MethodGet, "/applications/{application.id}/commands")
 	GetGlobalCommand    = NewEndpoint(http.MethodGet, "/applications/{application.id}/command/{command.id}")
 	CreateGlobalCommand = NewEndpoint(http.MethodPost, "/applications/{application.id}/commands")

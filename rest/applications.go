@@ -13,6 +13,9 @@ func NewApplications(client Client) Applications {
 }
 
 type Applications interface {
+	GetCurrentApplication(opts ...RequestOpt) (*discord.Application, error)
+	UpdateCurrentApplication(applicationUpdate discord.ApplicationUpdate, opts ...RequestOpt) (*discord.Application, error)
+
 	GetGlobalCommands(applicationID snowflake.ID, withLocalizations bool, opts ...RequestOpt) ([]discord.ApplicationCommand, error)
 	GetGlobalCommand(applicationID snowflake.ID, commandID snowflake.ID, opts ...RequestOpt) (discord.ApplicationCommand, error)
 	CreateGlobalCommand(applicationID snowflake.ID, commandCreate discord.ApplicationCommandCreate, opts ...RequestOpt) (discord.ApplicationCommand, error)
@@ -36,6 +39,16 @@ type Applications interface {
 
 type applicationsImpl struct {
 	client Client
+}
+
+func (s *applicationsImpl) GetCurrentApplication(opts ...RequestOpt) (application *discord.Application, err error) {
+	err = s.client.Do(GetCurrentApplication.Compile(nil), nil, &application, opts...)
+	return
+}
+
+func (s *applicationsImpl) UpdateCurrentApplication(applicationUpdate discord.ApplicationUpdate, opts ...RequestOpt) (application *discord.Application, err error) {
+	err = s.client.Do(UpdateCurrentApplication.Compile(nil), applicationUpdate, &application, opts...)
+	return
 }
 
 func (s *applicationsImpl) GetGlobalCommands(applicationID snowflake.ID, withLocalizations bool, opts ...RequestOpt) (commands []discord.ApplicationCommand, err error) {
