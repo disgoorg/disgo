@@ -30,6 +30,7 @@ func gatewayHandlerMessageReactionAdd(client bot.Client, sequenceNumber int, sha
 				UserID:       event.UserID,
 				Emoji:        event.Emoji,
 			},
+			MessageAuthorID: event.MessageAuthorID,
 		})
 	} else {
 		client.EventManager().DispatchEvent(&events.GuildMessageReactionAdd{
@@ -41,7 +42,8 @@ func gatewayHandlerMessageReactionAdd(client bot.Client, sequenceNumber int, sha
 				UserID:       event.UserID,
 				Emoji:        event.Emoji,
 			},
-			Member: *event.Member,
+			Member:          *event.Member,
+			MessageAuthorID: event.MessageAuthorID,
 		})
 	}
 }

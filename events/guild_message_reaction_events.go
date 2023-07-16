@@ -24,7 +24,8 @@ func (e *GenericGuildMessageReaction) Member() (discord.Member, bool) {
 // GuildMessageReactionAdd indicates that a discord.Member added a discord.PartialEmoji to a discord.Message in a discord.GuildMessageChannel(requires the gateway.IntentGuildMessageReactions)
 type GuildMessageReactionAdd struct {
 	*GenericGuildMessageReaction
-	Member discord.Member
+	Member          discord.Member
+	MessageAuthorID snowflake.ID
 }
 
 // GuildMessageReactionRemove indicates that a discord.Member removed a discord.MessageReaction from a discord.Message in a Channel (requires the gateway.IntentGuildMessageReactions)
