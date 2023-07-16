@@ -9,10 +9,12 @@ import (
 // GenericDMMessageReaction is called upon receiving DMMessageReactionAdd or DMMessageReactionRemove (requires the gateway.IntentDirectMessageReactions)
 type GenericDMMessageReaction struct {
 	*GenericEvent
-	UserID    snowflake.ID
-	ChannelID snowflake.ID
-	MessageID snowflake.ID
-	Emoji     discord.PartialEmoji
+	UserID      snowflake.ID
+	ChannelID   snowflake.ID
+	MessageID   snowflake.ID
+	Emoji       discord.PartialEmoji
+	BurstColors []string
+	Burst       bool
 }
 
 // DMMessageReactionAdd indicates that a discord.User added a discord.MessageReaction to a discord.Message in a Channel (requires the gateway.IntentDirectMessageReactions)

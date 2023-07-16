@@ -17,6 +17,8 @@ func gatewayHandlerMessageReactionAdd(client bot.Client, sequenceNumber int, sha
 			GuildID:      event.GuildID,
 			UserID:       event.UserID,
 			Emoji:        event.Emoji,
+			BurstColors:  event.BurstColors,
+			Burst:        event.Burst,
 		},
 		Member: event.Member,
 	})
@@ -29,6 +31,8 @@ func gatewayHandlerMessageReactionAdd(client bot.Client, sequenceNumber int, sha
 				ChannelID:    event.ChannelID,
 				UserID:       event.UserID,
 				Emoji:        event.Emoji,
+				BurstColors:  event.BurstColors,
+				Burst:        event.Burst,
 			},
 			MessageAuthorID: event.MessageAuthorID,
 		})
@@ -41,6 +45,8 @@ func gatewayHandlerMessageReactionAdd(client bot.Client, sequenceNumber int, sha
 				GuildID:      *event.GuildID,
 				UserID:       event.UserID,
 				Emoji:        event.Emoji,
+				BurstColors:  event.BurstColors,
+				Burst:        event.Burst,
 			},
 			Member:          *event.Member,
 			MessageAuthorID: event.MessageAuthorID,
@@ -59,6 +65,8 @@ func gatewayHandlerMessageReactionRemove(client bot.Client, sequenceNumber int, 
 			GuildID:      event.GuildID,
 			UserID:       event.UserID,
 			Emoji:        event.Emoji,
+			BurstColors:  event.BurstColors,
+			Burst:        event.Burst,
 		},
 	})
 
@@ -70,6 +78,8 @@ func gatewayHandlerMessageReactionRemove(client bot.Client, sequenceNumber int, 
 				ChannelID:    event.ChannelID,
 				UserID:       event.UserID,
 				Emoji:        event.Emoji,
+				BurstColors:  event.BurstColors,
+				Burst:        event.Burst,
 			},
 		})
 	} else {
@@ -81,6 +91,8 @@ func gatewayHandlerMessageReactionRemove(client bot.Client, sequenceNumber int, 
 				GuildID:      *event.GuildID,
 				UserID:       event.UserID,
 				Emoji:        event.Emoji,
+				BurstColors:  event.BurstColors,
+				Burst:        event.Burst,
 			},
 		})
 	}
