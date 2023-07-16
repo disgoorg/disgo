@@ -248,12 +248,14 @@ type UnavailableGuild struct {
 
 // OAuth2Guild is returned on the GetGuilds route
 type OAuth2Guild struct {
-	ID          snowflake.ID   `json:"id"`
-	Name        string         `json:"name"`
-	Icon        *string        `json:"icon"`
-	Owner       bool           `json:"owner"`
-	Permissions Permissions    `json:"permissions"`
-	Features    []GuildFeature `json:"features"`
+	ID                       snowflake.ID   `json:"id"`
+	Name                     string         `json:"name"`
+	Icon                     *string        `json:"icon"`
+	Owner                    bool           `json:"owner"`
+	Permissions              Permissions    `json:"permissions"`
+	Features                 []GuildFeature `json:"features"`
+	ApproximateMemberCount   int            `json:"approximate_member_count"`
+	ApproximatePresenceCount int            `json:"approximate_presence_count"`
 }
 
 // GuildWelcomeScreen is the Welcome Screen of a Guild
