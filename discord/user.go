@@ -143,6 +143,7 @@ func (u User) BannerURL(opts ...CDNOpt) *string {
 	return &url
 }
 
+// AvatarDecorationURL returns the avatar decoration URL if set or nil
 func (u User) AvatarDecorationURL(opts ...CDNOpt) *string {
 	if u.AvatarDecoration == nil {
 		return nil
