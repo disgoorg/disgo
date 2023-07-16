@@ -1,8 +1,9 @@
 package events
 
 import (
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // GenericGuildMessageReaction is called upon receiving GuildMessageReactionAdd or GuildMessageReactionRemove
@@ -12,15 +13,15 @@ type GenericGuildMessageReaction struct {
 	ChannelID snowflake.ID
 	MessageID snowflake.ID
 	GuildID   snowflake.ID
-	Emoji     discord.ReactionEmoji
+	Emoji     discord.PartialEmoji
 }
 
 // Member returns the Member that reacted to the discord.Message from the cache.
 func (e *GenericGuildMessageReaction) Member() (discord.Member, bool) {
-	return e.Client().Caches().Members().Get(e.GuildID, e.UserID)
+	return e.Client().Caches().Member(e.GuildID, e.UserID)
 }
 
-// GuildMessageReactionAdd indicates that a discord.Member added a discord.ReactionEmoji to a discord.Message in a discord.GuildMessageChannel(requires the gateway.IntentGuildMessageReactions)
+// GuildMessageReactionAdd indicates that a discord.Member added a discord.PartialEmoji to a discord.Message in a discord.GuildMessageChannel(requires the gateway.IntentGuildMessageReactions)
 type GuildMessageReactionAdd struct {
 	*GenericGuildMessageReaction
 	Member discord.Member
@@ -37,7 +38,7 @@ type GuildMessageReactionRemoveEmoji struct {
 	ChannelID snowflake.ID
 	MessageID snowflake.ID
 	GuildID   snowflake.ID
-	Emoji     discord.ReactionEmoji
+	Emoji     discord.PartialEmoji
 }
 
 // GuildMessageReactionRemoveAll indicates someone removed all discord.MessageReaction(s) from a discord.Message in a Channel (requires the gateway.IntentGuildMessageReactions)

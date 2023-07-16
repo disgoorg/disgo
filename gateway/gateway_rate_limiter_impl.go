@@ -51,11 +51,6 @@ func (l *rateLimiterImpl) Wait(ctx context.Context) error {
 	}
 
 	if until.After(now) {
-		// TODO: do we want to return early when we know rate limit bigger than ctx deadline?
-		if deadline, ok := ctx.Deadline(); ok && until.After(deadline) {
-			return context.DeadlineExceeded
-		}
-
 		select {
 		case <-ctx.Done():
 			l.Unlock()

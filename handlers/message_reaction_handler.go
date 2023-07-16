@@ -9,10 +9,6 @@ import (
 func gatewayHandlerMessageReactionAdd(client bot.Client, sequenceNumber int, shardID int, event gateway.EventMessageReactionAdd) {
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
-	if event.Member != nil {
-		client.Caches().Members().Put(*event.GuildID, event.UserID, *event.Member)
-	}
-
 	client.EventManager().DispatchEvent(&events.MessageReactionAdd{
 		GenericReaction: &events.GenericReaction{
 			GenericEvent: genericEvent,

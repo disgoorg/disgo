@@ -1,11 +1,10 @@
 package gateway
 
 import (
-	"fmt"
-
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // Message raw Message type
@@ -82,7 +81,9 @@ func (e *Message) UnmarshalJSON(data []byte) error {
 	case OpcodeHeartbeatACK:
 
 	default:
-		err = fmt.Errorf("unknown opcode %d", v.Op)
+		var d MessageDataUnknown
+		err = json.Unmarshal(v.D, &d)
+		messageData = d
 	}
 	if err != nil {
 		return err
@@ -200,6 +201,11 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 
 	case EventTypeGuildDelete:
 		var d EventGuildDelete
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeGuildAuditLogEntryCreate:
+		var d EventGuildAuditLogEntryCreate
 		err = json.Unmarshal(data, &d)
 		eventData = d
 
@@ -404,11 +410,17 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 		eventData = d
 
 	default:
-		err = fmt.Errorf("unknown event type: %s", eventType)
+		var d EventUnknown
+		err = json.Unmarshal(data, &d)
+		eventData = d
 	}
 
 	return eventData, err
 }
+
+type MessageDataUnknown json.RawMessage
+
+func (MessageDataUnknown) messageData() {}
 
 // MessageDataHeartbeat is used to ensure the websocket connection remains open, and disconnect if not.
 type MessageDataHeartbeat int
@@ -435,6 +447,16 @@ type IdentifyCommandDataProperties struct {
 	Browser string `json:"browser"` // library name
 	Device  string `json:"device"`  // library name
 }
+
+// MessageDataPresenceUpdate is used for updating Client's presence
+type MessageDataPresenceUpdate struct {
+	Since      *int64               `json:"since"`
+	Activities []discord.Activity   `json:"activities"`
+	Status     discord.OnlineStatus `json:"status"`
+	AFK        bool                 `json:"afk"`
+}
+
+func (MessageDataPresenceUpdate) messageData() {}
 
 type PresenceOpt func(presenceUpdate *MessageDataPresenceUpdate)
 
@@ -508,16 +530,6 @@ func WithSince(since *int64) PresenceOpt {
 		presence.Since = since
 	}
 }
-
-// MessageDataPresenceUpdate is used for updating Client's presence
-type MessageDataPresenceUpdate struct {
-	Since      *int64               `json:"since"`
-	Activities []discord.Activity   `json:"activities"`
-	Status     discord.OnlineStatus `json:"status"`
-	AFK        bool                 `json:"afk"`
-}
-
-func (MessageDataPresenceUpdate) messageData() {}
 
 // MessageDataVoiceStateUpdate is used for updating the bots voice state in a guild
 type MessageDataVoiceStateUpdate struct {

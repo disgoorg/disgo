@@ -1,13 +1,14 @@
 package handlers
 
 import (
+	"github.com/disgoorg/snowflake/v2"
+	"golang.org/x/exp/slices"
+
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/snowflake/v2"
-	"golang.org/x/exp/slices"
 )
 
 type updatedEmoji struct {
@@ -26,8 +27,12 @@ func gatewayHandlerGuildEmojisUpdate(client bot.Client, sequenceNumber int, shar
 	}
 
 	createdEmojis := map[snowflake.ID]discord.Emoji{}
-	deletedEmojis := client.Caches().Emojis().MapGroupAll(event.GuildID)
+	deletedEmojis := map[snowflake.ID]discord.Emoji{}
 	updatedEmojis := map[snowflake.ID]updatedEmoji{}
+
+	client.Caches().EmojisForEach(event.GuildID, func(emoji discord.Emoji) {
+		deletedEmojis[emoji.ID] = emoji
+	})
 
 	for _, newEmoji := range event.Emojis {
 		oldEmoji, ok := deletedEmojis[newEmoji.ID]
@@ -42,7 +47,7 @@ func gatewayHandlerGuildEmojisUpdate(client bot.Client, sequenceNumber int, shar
 	}
 
 	for _, emoji := range createdEmojis {
-		client.Caches().Emojis().Put(event.GuildID, emoji.ID, emoji)
+		client.Caches().AddEmoji(emoji)
 		client.EventManager().DispatchEvent(&events.EmojiCreate{
 			GenericEmoji: &events.GenericEmoji{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
@@ -53,7 +58,7 @@ func gatewayHandlerGuildEmojisUpdate(client bot.Client, sequenceNumber int, shar
 	}
 
 	for _, emoji := range updatedEmojis {
-		client.Caches().Emojis().Put(event.GuildID, emoji.new.ID, emoji.new)
+		client.Caches().AddEmoji(emoji.new)
 		client.EventManager().DispatchEvent(&events.EmojiUpdate{
 			GenericEmoji: &events.GenericEmoji{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
@@ -65,7 +70,7 @@ func gatewayHandlerGuildEmojisUpdate(client bot.Client, sequenceNumber int, shar
 	}
 
 	for _, emoji := range deletedEmojis {
-		client.Caches().Emojis().Remove(event.GuildID, emoji.ID)
+		client.Caches().RemoveEmoji(event.GuildID, emoji.ID)
 		client.EventManager().DispatchEvent(&events.EmojiDelete{
 			GenericEmoji: &events.GenericEmoji{
 				GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),

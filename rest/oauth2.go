@@ -3,8 +3,9 @@ package rest
 import (
 	"net/url"
 
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 var _ OAuth2 = (*oAuth2Impl)(nil)
@@ -24,6 +25,9 @@ type OAuth2 interface {
 	GetCurrentUserConnections(bearerToken string, opts ...RequestOpt) ([]discord.Connection, error)
 
 	SetGuildCommandPermissions(bearerToken string, applicationID snowflake.ID, guildID snowflake.ID, commandID snowflake.ID, commandPermissions []discord.ApplicationCommandPermission, opts ...RequestOpt) (*discord.ApplicationCommandPermissions, error)
+
+	GetCurrentUserApplicationRoleConnection(bearerToken string, applicationID snowflake.ID, opts ...RequestOpt) (*discord.ApplicationRoleConnection, error)
+	UpdateCurrentUserApplicationRoleConnection(bearerToken string, applicationID snowflake.ID, connectionUpdate discord.ApplicationRoleConnectionUpdate, opts ...RequestOpt) (*discord.ApplicationRoleConnection, error)
 
 	GetAccessToken(clientID snowflake.ID, clientSecret string, code string, redirectURI string, opts ...RequestOpt) (*discord.AccessTokenResponse, error)
 	RefreshAccessToken(clientID snowflake.ID, clientSecret string, refreshToken string, opts ...RequestOpt) (*discord.AccessTokenResponse, error)
@@ -94,6 +98,16 @@ func (s *oAuth2Impl) GetCurrentUserConnections(bearerToken string, opts ...Reque
 
 func (s *oAuth2Impl) SetGuildCommandPermissions(bearerToken string, applicationID snowflake.ID, guildID snowflake.ID, commandID snowflake.ID, commandPermissions []discord.ApplicationCommandPermission, opts ...RequestOpt) (commandPerms *discord.ApplicationCommandPermissions, err error) {
 	err = s.client.Do(SetGuildCommandPermissions.Compile(nil, applicationID, guildID, commandID), discord.ApplicationCommandPermissionsSet{Permissions: commandPermissions}, &commandPerms, withBearerToken(bearerToken, opts)...)
+	return
+}
+
+func (s *oAuth2Impl) GetCurrentUserApplicationRoleConnection(bearerToken string, applicationID snowflake.ID, opts ...RequestOpt) (connection *discord.ApplicationRoleConnection, err error) {
+	err = s.client.Do(GetCurrentUserApplicationRoleConnection.Compile(nil, applicationID), nil, &connection, withBearerToken(bearerToken, opts)...)
+	return
+}
+
+func (s *oAuth2Impl) UpdateCurrentUserApplicationRoleConnection(bearerToken string, applicationID snowflake.ID, connectionUpdate discord.ApplicationRoleConnectionUpdate, opts ...RequestOpt) (connection *discord.ApplicationRoleConnection, err error) {
+	err = s.client.Do(UpdateCurrentUserApplicationRoleConnection.Compile(nil, applicationID), connectionUpdate, &connection, withBearerToken(bearerToken, opts)...)
 	return
 }
 

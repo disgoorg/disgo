@@ -1,44 +1,48 @@
 // Package disgo is a collection of packages for interaction with the Discord Bot and OAuth2 API.
 //
-// Discord
+// # Discord
 //
 // Package discord is a collection of structs and types of the Discord API.
 //
-// Bot
+// # Bot
 //
 // Package bot connects the Gateway/Sharding, HTTPServer, Cache, Rest & Events packages into a single high level client interface.
 //
-// Gateway
+// # Gateway
 //
 // Package gateway is used to connect and interact with the Discord Gateway.
 //
-// Sharding
+// # Sharding
 //
 // Package sharding is used to connect and interact with the Discord Gateway.
 //
-// Cache
+// # Cache
 //
 // Package cache provides a generic cache interface for Discord entities.
 //
-// HTTPServer
+// # HTTPServer
 //
 // Package httpserver is used to interact with the Discord outgoing webhooks for interactions.
 //
-// Events
+// # Events
 //
 // Package events provide high level events around the Discord Events.
 //
-// Rest
+// # Rest
 //
 // Package rest is used to interact with the Discord REST API.
 //
-// Webhook
+// # Webhook
 //
 // Package webhook provides a high level client interface for interacting with Discord webhooks.
 //
-// OAuth2
+// # OAuth2
 //
 // Package oauth2 provides a high level client interface for interacting with Discord oauth2.
+//
+// # Voice
+//
+// Package voice provides a high level client interface for interacting with Discord voice.
 package disgo
 
 import (
@@ -53,9 +57,10 @@ import (
 const (
 	// Name is the library name
 	Name = "disgo"
-
+	// Module is the library module name
+	Module = "github.com/disgoorg/disgo"
 	// GitHub is a link to the libraries GitHub repository
-	GitHub = "https://github.com/disgoorg/" + Name
+	GitHub = "https://github.com/disgoorg/disgo"
 )
 
 var (
@@ -70,7 +75,7 @@ func getVersion() string {
 	bi, ok := debug.ReadBuildInfo()
 	if ok {
 		for _, dep := range bi.Deps {
-			if strings.Contains(GitHub, dep.Path) {
+			if dep.Path == Module {
 				return dep.Version
 			}
 		}

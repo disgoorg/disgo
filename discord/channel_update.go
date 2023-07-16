@@ -89,6 +89,8 @@ type GuildStageVoiceChannelUpdate struct {
 	PermissionOverwrites *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID             *snowflake.ID          `json:"parent_id,omitempty"`
 	RTCRegion            *string                `json:"rtc_region,omitempty"`
+	NSFW                 *bool                  `json:"nsfw,omitempty"`
+	VideoQualityMode     *VideoQualityMode      `json:"video_quality_mode,omitempty"`
 }
 
 func (GuildStageVoiceChannelUpdate) channelUpdate()      {}
@@ -107,6 +109,7 @@ type GuildForumChannelUpdate struct {
 	DefaultReactionEmoji          *json.Nullable[DefaultReactionEmoji] `json:"default_reaction_emoji,omitempty"`
 	DefaultThreadRateLimitPerUser *int                                 `json:"default_thread_rate_limit_per_user,omitempty"`
 	DefaultSortOrder              *json.Nullable[DefaultSortOrder]     `json:"default_sort_order,omitempty"`
+	DefaultForumLayout            *json.Nullable[DefaultForumLayout]   `json:"default_forum_layout,omitempty"`
 }
 
 func (GuildForumChannelUpdate) channelUpdate()      {}

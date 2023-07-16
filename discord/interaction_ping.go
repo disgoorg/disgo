@@ -72,6 +72,10 @@ func (PingInteraction) ChannelID() snowflake.ID {
 	return 0
 }
 
+func (PingInteraction) Channel() InteractionChannel {
+	return InteractionChannel{}
+}
+
 func (PingInteraction) Locale() Locale {
 	return ""
 }

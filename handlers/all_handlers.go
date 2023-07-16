@@ -32,6 +32,7 @@ func GetGatewayHandlers() map[gateway.EventType]bot.GatewayEventHandler {
 
 var allEventHandlers = []bot.GatewayEventHandler{
 	bot.NewGatewayEventHandler(gateway.EventTypeRaw, gatewayHandlerRaw),
+	bot.NewGatewayEventHandler(gateway.EventTypeHeartbeatAck, gatewayHandlerHeartbeatAck),
 	bot.NewGatewayEventHandler(gateway.EventTypeReady, gatewayHandlerReady),
 	bot.NewGatewayEventHandler(gateway.EventTypeResumed, gatewayHandlerResumed),
 
@@ -57,6 +58,8 @@ var allEventHandlers = []bot.GatewayEventHandler{
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildCreate, gatewayHandlerGuildCreate),
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildUpdate, gatewayHandlerGuildUpdate),
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildDelete, gatewayHandlerGuildDelete),
+
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildAuditLogEntryCreate, gatewayHandlerGuildAuditLogEntryCreate),
 
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildBanAdd, gatewayHandlerGuildBanAdd),
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildBanRemove, gatewayHandlerGuildBanRemove),

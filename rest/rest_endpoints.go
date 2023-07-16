@@ -9,11 +9,11 @@ import (
 )
 
 var (
-	// APIVersion is the Discord API version DisGo should use
-	APIVersion = 10
+	// Version is the Discord API version DisGo should use
+	Version = 10
 
 	// API is the base path of the Discord API
-	API = fmt.Sprintf("https://discord.com/api/v%d", APIVersion)
+	API = "https://discord.com/api/"
 )
 
 // MajorParameters is a list of url parameters which decide in which bucket a route belongs (https://discord.com/developers/docs/topics/rate-limits#rate-limits)
@@ -35,15 +35,17 @@ var (
 
 // Users
 var (
-	GetUser                   = NewEndpoint(http.MethodGet, "/users/{user.id}")
-	GetCurrentUser            = NewEndpoint(http.MethodGet, "/users/@me")
-	GetCurrentMember          = NewEndpoint(http.MethodGet, "/users/@me/guilds/{guild.id}/member")
-	UpdateSelfUser            = NewEndpoint(http.MethodPatch, "/users/@me")
-	GetCurrentUserConnections = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/connections")
-	GetCurrentUserGuilds      = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/guilds")
-	LeaveGuild                = NewEndpoint(http.MethodDelete, "/users/@me/guilds/{guild.id}")
-	GetDMChannels             = NewEndpoint(http.MethodGet, "/users/@me/channels")
-	CreateDMChannel           = NewEndpoint(http.MethodPost, "/users/@me/channels")
+	GetUser                                    = NewEndpoint(http.MethodGet, "/users/{user.id}")
+	GetCurrentUser                             = NewEndpoint(http.MethodGet, "/users/@me")
+	GetCurrentMember                           = NewEndpoint(http.MethodGet, "/users/@me/guilds/{guild.id}/member")
+	UpdateSelfUser                             = NewEndpoint(http.MethodPatch, "/users/@me")
+	GetCurrentUserConnections                  = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/connections")
+	GetCurrentUserGuilds                       = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/guilds")
+	GetCurrentUserApplicationRoleConnection    = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/applications/{application.id}/role-connection")
+	UpdateCurrentUserApplicationRoleConnection = NewNoBotAuthEndpoint(http.MethodPut, "/users/@me/applications/{application.id}/role-connection")
+	LeaveGuild                                 = NewEndpoint(http.MethodDelete, "/users/@me/guilds/{guild.id}")
+	GetDMChannels                              = NewEndpoint(http.MethodGet, "/users/@me/channels")
+	CreateDMChannel                            = NewEndpoint(http.MethodPost, "/users/@me/channels")
 )
 
 // Guilds
@@ -75,14 +77,20 @@ var (
 
 	UpdateCurrentMember = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/members/@me")
 
-	GetPruneMembersCount = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/prune")
-	PruneMembers         = NewEndpoint(http.MethodPost, "/guilds/{guild.id}/prune")
+	GetGuildPruneCount = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/prune")
+	BeginGuildPrune    = NewEndpoint(http.MethodPost, "/guilds/{guild.id}/prune")
 
 	GetGuildWebhooks = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/webhooks")
 
 	GetAuditLogs = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/audit-logs")
 
 	GetGuildVoiceRegions = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/regions")
+
+	GetGuildWelcomeScreen    = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/welcome-screen")
+	UpdateGuildWelcomeScreen = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/welcome-screen")
+
+	GetGuildOnboarding    = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/onboarding")
+	UpdateGuildOnboarding = NewEndpoint(http.MethodPut, "/guilds/{guild.id}/onboarding")
 
 	UpdateCurrentUserVoiceState = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/voice-states/@me")
 	UpdateUserVoiceState        = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/voice-states/{user.id}")
@@ -249,7 +257,7 @@ var (
 	GetChannelInvites = NewEndpoint(http.MethodGet, "/channels/{channel.id}/invites")
 )
 
-// Interactions
+// Applications
 var (
 	GetGlobalCommands   = NewEndpoint(http.MethodGet, "/applications/{application.id}/commands")
 	GetGlobalCommand    = NewEndpoint(http.MethodGet, "/applications/{application.id}/command/{command.id}")
@@ -278,6 +286,9 @@ var (
 	CreateFollowupMessage = NewNoBotAuthEndpoint(http.MethodPost, "/webhooks/{application.id}/{interaction.token}")
 	UpdateFollowupMessage = NewNoBotAuthEndpoint(http.MethodPatch, "/webhooks/{application.id}/{interaction.token}/messages/{message.id}")
 	DeleteFollowupMessage = NewNoBotAuthEndpoint(http.MethodDelete, "/webhooks/{application.id}/{interaction.token}/messages/{message.id}")
+
+	GetApplicationRoleConnectionMetadata    = NewEndpoint(http.MethodGet, "/applications/{application.id}/role-connections/metadata")
+	UpdateApplicationRoleConnectionMetadata = NewEndpoint(http.MethodPut, "/applications/{application.id}/role-connections/metadata")
 )
 
 // NewEndpoint returns a new Endpoint which requires bot auth with the given http method & route.
@@ -338,7 +349,7 @@ func (e *Endpoint) Compile(values discord.QueryValues, params ...any) *CompiledE
 
 	return &CompiledEndpoint{
 		Endpoint:    e,
-		URL:         API + path + query,
+		URL:         path + query,
 		MajorParams: strings.Join(majorParams, ":"),
 	}
 }

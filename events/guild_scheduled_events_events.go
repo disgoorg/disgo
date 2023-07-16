@@ -1,8 +1,9 @@
 package events
 
 import (
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // GenericGuildScheduledEvent is the base struct for all GuildScheduledEvents events.
@@ -37,12 +38,12 @@ type GenericGuildScheduledEventUser struct {
 
 // GuildScheduledEvent returns the discord.GuildScheduledEvent the event is for.
 func (e *GenericGuildScheduledEventUser) GuildScheduledEvent() (discord.GuildScheduledEvent, bool) {
-	return e.Client().Caches().GuildScheduledEvents().Get(e.GuildID, e.GuildScheduledEventID)
+	return e.Client().Caches().GuildScheduledEvent(e.GuildID, e.GuildScheduledEventID)
 }
 
 // Member returns the Member who was added/removed from the GuildScheduledEvent from the cache.
 func (e *GenericGuildScheduledEventUser) Member() (discord.Member, bool) {
-	return e.Client().Caches().Members().Get(e.GuildID, e.UserID)
+	return e.Client().Caches().Member(e.GuildID, e.UserID)
 }
 
 // GuildScheduledEventUserAdd is dispatched when a user is added to a discord.GuildScheduledEvent.

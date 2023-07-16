@@ -9,8 +9,9 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/json"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // NewClient constructs a new Client with the given Config struct
@@ -20,7 +21,10 @@ func NewClient(botToken string, opts ...ConfigOpt) Client {
 
 	config.RateLimiter.Reset()
 
-	return &clientImpl{botToken: botToken, config: *config}
+	return &clientImpl{
+		botToken: botToken,
+		config:   *config,
+	}
 }
 
 // Client allows doing requests to different endpoints
@@ -82,7 +86,7 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 		c.config.Logger.Tracef("request to %s, body: %s", endpoint.URL, string(rawRqBody))
 	}
 
-	rq, err := http.NewRequest(endpoint.Endpoint.Method, endpoint.URL, bytes.NewReader(rawRqBody))
+	rq, err := http.NewRequest(endpoint.Endpoint.Method, c.config.URL+endpoint.URL, bytes.NewReader(rawRqBody))
 	if err != nil {
 		return err
 	}

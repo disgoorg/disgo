@@ -43,6 +43,11 @@ type ExtendedInvite struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type PartialInvite struct {
+	Code *string `json:"code"`
+	Uses int     `json:"uses"`
+}
+
 type InviteChannel struct {
 	ID   snowflake.ID `json:"id"`
 	Type ChannelType  `json:"type"`

@@ -3,8 +3,9 @@ package sharding
 import (
 	"context"
 
-	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/gateway"
 )
 
 // ShardManager manages multiple gateway.Gateway connections.

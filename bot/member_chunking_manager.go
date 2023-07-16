@@ -4,11 +4,12 @@ import (
 	"context"
 	"sync"
 
+	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake/v2"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/internal/insecurerandstr"
-	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 var _ MemberChunkingManager = (*memberChunkingManagerImpl)(nil)
@@ -112,7 +113,7 @@ func (m *memberChunkingManagerImpl) HandleChunk(payload gateway.EventGuildMember
 
 	for _, member := range payload.Members {
 		// try to cache member
-		m.client.Caches().Members().Put(payload.GuildID, member.User.ID, member)
+		m.client.Caches().AddMember(member)
 		if request.memberFilterFunc != nil && !request.memberFilterFunc(member) {
 			continue
 		}

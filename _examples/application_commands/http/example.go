@@ -6,14 +6,15 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/disgoorg/log"
+	"github.com/disgoorg/snowflake/v2"
+	"github.com/oasisprotocol/curve25519-voi/primitives/ed25519"
+
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/httpserver"
-	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake/v2"
-	"github.com/oasisprotocol/curve25519-voi/primitives/ed25519"
 )
 
 var (

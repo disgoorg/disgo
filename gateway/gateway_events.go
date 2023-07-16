@@ -4,15 +4,30 @@ import (
 	"io"
 	"time"
 
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 type EventData interface {
 	MessageData
 	eventData()
 }
+
+// EventUnknown is an event that is not known to disgo
+type EventUnknown json.RawMessage
+
+func (e EventUnknown) MarshalJSON() ([]byte, error) {
+	return json.RawMessage(e).MarshalJSON()
+}
+
+func (e *EventUnknown) UnmarshalJSON(data []byte) error {
+	return (*json.RawMessage)(e).UnmarshalJSON(data)
+}
+
+func (EventUnknown) messageData() {}
+func (EventUnknown) eventData()   {}
 
 // EventReady is the event sent by discord when you successfully Identify
 type EventReady struct {
@@ -21,7 +36,7 @@ type EventReady struct {
 	Guilds           []discord.UnavailableGuild `json:"guilds"`
 	SessionID        string                     `json:"session_id"`
 	ResumeGatewayURL string                     `json:"resume_gateway_url"`
-	Shard            []int                      `json:"shard,omitempty"`
+	Shard            [2]int                     `json:"shard,omitempty"`
 	Application      discord.PartialApplication `json:"application"`
 }
 
@@ -36,7 +51,7 @@ func (EventApplicationCommandPermissionsUpdate) messageData() {}
 func (EventApplicationCommandPermissionsUpdate) eventData()   {}
 
 type EventChannelCreate struct {
-	discord.Channel
+	discord.GuildChannel
 }
 
 func (e *EventChannelCreate) UnmarshalJSON(data []byte) error {
@@ -44,7 +59,7 @@ func (e *EventChannelCreate) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
-	e.Channel = v.Channel
+	e.GuildChannel = v.Channel.(discord.GuildChannel)
 	return nil
 }
 
@@ -52,7 +67,7 @@ func (EventChannelCreate) messageData() {}
 func (EventChannelCreate) eventData()   {}
 
 type EventChannelUpdate struct {
-	discord.Channel
+	discord.GuildChannel
 }
 
 func (e *EventChannelUpdate) UnmarshalJSON(data []byte) error {
@@ -60,7 +75,7 @@ func (e *EventChannelUpdate) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
-	e.Channel = v.Channel
+	e.GuildChannel = v.Channel.(discord.GuildChannel)
 	return nil
 }
 
@@ -68,7 +83,7 @@ func (EventChannelUpdate) messageData() {}
 func (EventChannelUpdate) eventData()   {}
 
 type EventChannelDelete struct {
-	discord.Channel
+	discord.GuildChannel
 }
 
 func (e *EventChannelDelete) UnmarshalJSON(data []byte) error {
@@ -76,7 +91,7 @@ func (e *EventChannelDelete) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
-	e.Channel = v.Channel
+	e.GuildChannel = v.Channel.(discord.GuildChannel)
 	return nil
 }
 
@@ -163,34 +178,55 @@ type EventGuildDelete struct {
 func (EventGuildDelete) messageData() {}
 func (EventGuildDelete) eventData()   {}
 
+type EventGuildAuditLogEntryCreate struct {
+	discord.AuditLogEntry
+	GuildID snowflake.ID `json:"guild_id"`
+}
+
+func (EventGuildAuditLogEntryCreate) messageData() {}
+func (EventGuildAuditLogEntryCreate) eventData()   {}
+
 type EventMessageReactionAdd struct {
-	UserID    snowflake.ID          `json:"user_id"`
-	ChannelID snowflake.ID          `json:"channel_id"`
-	MessageID snowflake.ID          `json:"message_id"`
-	GuildID   *snowflake.ID         `json:"guild_id"`
-	Member    *discord.Member       `json:"member"`
-	Emoji     discord.ReactionEmoji `json:"emoji"`
+	UserID    snowflake.ID         `json:"user_id"`
+	ChannelID snowflake.ID         `json:"channel_id"`
+	MessageID snowflake.ID         `json:"message_id"`
+	GuildID   *snowflake.ID        `json:"guild_id"`
+	Member    *discord.Member      `json:"member"`
+	Emoji     discord.PartialEmoji `json:"emoji"`
+}
+
+func (e *EventMessageReactionAdd) UnmarshalJSON(data []byte) error {
+	type eventMessageReactionAdd EventMessageReactionAdd
+	var v eventMessageReactionAdd
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*e = EventMessageReactionAdd(v)
+	if e.Member != nil && e.GuildID != nil {
+		e.Member.GuildID = *e.GuildID
+	}
+	return nil
 }
 
 func (EventMessageReactionAdd) messageData() {}
 func (EventMessageReactionAdd) eventData()   {}
 
 type EventMessageReactionRemove struct {
-	UserID    snowflake.ID          `json:"user_id"`
-	ChannelID snowflake.ID          `json:"channel_id"`
-	MessageID snowflake.ID          `json:"message_id"`
-	GuildID   *snowflake.ID         `json:"guild_id"`
-	Emoji     discord.ReactionEmoji `json:"emoji"`
+	UserID    snowflake.ID         `json:"user_id"`
+	ChannelID snowflake.ID         `json:"channel_id"`
+	MessageID snowflake.ID         `json:"message_id"`
+	GuildID   *snowflake.ID        `json:"guild_id"`
+	Emoji     discord.PartialEmoji `json:"emoji"`
 }
 
 func (EventMessageReactionRemove) messageData() {}
 func (EventMessageReactionRemove) eventData()   {}
 
 type EventMessageReactionRemoveEmoji struct {
-	ChannelID snowflake.ID          `json:"channel_id"`
-	MessageID snowflake.ID          `json:"message_id"`
-	GuildID   *snowflake.ID         `json:"guild_id"`
-	Emoji     discord.ReactionEmoji `json:"emoji"`
+	ChannelID snowflake.ID         `json:"channel_id"`
+	MessageID snowflake.ID         `json:"message_id"`
+	GuildID   *snowflake.ID        `json:"guild_id"`
+	Emoji     discord.PartialEmoji `json:"emoji"`
 }
 
 func (EventMessageReactionRemoveEmoji) messageData() {}
@@ -248,6 +284,19 @@ type EventGuildEmojisUpdate struct {
 	Emojis  []discord.Emoji `json:"emojis"`
 }
 
+func (e *EventGuildEmojisUpdate) UnmarshalJSON(data []byte) error {
+	type eventGuildEmojisUpdate EventGuildEmojisUpdate
+	var v eventGuildEmojisUpdate
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*e = EventGuildEmojisUpdate(v)
+	for i := range e.Emojis {
+		e.Emojis[i].GuildID = e.GuildID
+	}
+	return nil
+}
+
 func (EventGuildEmojisUpdate) messageData() {}
 func (EventGuildEmojisUpdate) eventData()   {}
 
@@ -293,6 +342,23 @@ type EventGuildRoleCreate struct {
 	Role    discord.Role `json:"role"`
 }
 
+func (e *EventGuildRoleCreate) UnmarshalJSON(data []byte) error {
+	type eventGuildRoleCreate EventGuildRoleCreate
+	var v eventGuildRoleCreate
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*e = EventGuildRoleCreate(v)
+	e.Role.GuildID = e.GuildID
+	return nil
+}
+
+func (e *EventGuildRoleCreate) MarshalJSON() ([]byte, error) {
+	type eventGuildRoleCreate EventGuildRoleCreate
+	e.GuildID = e.Role.GuildID
+	return json.Marshal(eventGuildRoleCreate(*e))
+}
+
 func (EventGuildRoleCreate) messageData() {}
 func (EventGuildRoleCreate) eventData()   {}
 
@@ -307,6 +373,23 @@ func (EventGuildRoleDelete) eventData()   {}
 type EventGuildRoleUpdate struct {
 	GuildID snowflake.ID `json:"guild_id"`
 	Role    discord.Role `json:"role"`
+}
+
+func (e *EventGuildRoleUpdate) UnmarshalJSON(data []byte) error {
+	type eventGuildRoleUpdate EventGuildRoleUpdate
+	var v eventGuildRoleUpdate
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*e = EventGuildRoleUpdate(v)
+	e.Role.GuildID = e.GuildID
+	return nil
+}
+
+func (e *EventGuildRoleUpdate) MarshalJSON() ([]byte, error) {
+	type eventGuildRoleUpdate EventGuildRoleUpdate
+	e.GuildID = e.Role.GuildID
+	return json.Marshal(eventGuildRoleUpdate(*e))
 }
 
 func (EventGuildRoleUpdate) messageData() {}
@@ -356,12 +439,16 @@ type EventInteractionCreate struct {
 }
 
 func (e *EventInteractionCreate) UnmarshalJSON(data []byte) error {
-	var interaction discord.UnmarshalInteraction
-	if err := json.Unmarshal(data, &interaction); err != nil {
+	interaction, err := discord.UnmarshalInteraction(data)
+	if err != nil {
 		return err
 	}
-	e.Interaction = interaction.Interaction
+	e.Interaction = interaction
 	return nil
+}
+
+func (e EventInteractionCreate) MarshalJSON() ([]byte, error) {
+	return json.Marshal(e.Interaction)
 }
 
 func (EventInteractionCreate) messageData() {}
@@ -605,3 +692,11 @@ type EventRaw struct {
 
 func (EventRaw) messageData() {}
 func (EventRaw) eventData()   {}
+
+type EventHeartbeatAck struct {
+	LastHeartbeat time.Time
+	NewHeartbeat  time.Time
+}
+
+func (EventHeartbeatAck) messageData() {}
+func (EventHeartbeatAck) eventData()   {}
