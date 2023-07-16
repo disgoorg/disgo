@@ -18,7 +18,7 @@ type GenericDMMessageReaction struct {
 // DMMessageReactionAdd indicates that a discord.User added a discord.MessageReaction to a discord.Message in a Channel (requires the gateway.IntentDirectMessageReactions)
 type DMMessageReactionAdd struct {
 	*GenericDMMessageReaction
-	MessageAuthorID snowflake.ID
+	MessageAuthorID *snowflake.ID
 }
 
 // DMMessageReactionRemove indicates that a discord.User removed a discord.MessageReaction from a discord.Message in a Channel (requires the gateway.IntentDirectMessageReactions)

@@ -193,7 +193,7 @@ type EventMessageReactionAdd struct {
 	GuildID         *snowflake.ID        `json:"guild_id"`
 	Member          *discord.Member      `json:"member"`
 	Emoji           discord.PartialEmoji `json:"emoji"`
-	MessageAuthorID snowflake.ID         `json:"message_author_id"`
+	MessageAuthorID *snowflake.ID        `json:"message_author_id"`
 }
 
 func (e *EventMessageReactionAdd) UnmarshalJSON(data []byte) error {

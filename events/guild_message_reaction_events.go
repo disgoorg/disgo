@@ -25,7 +25,7 @@ func (e *GenericGuildMessageReaction) Member() (discord.Member, bool) {
 type GuildMessageReactionAdd struct {
 	*GenericGuildMessageReaction
 	Member          discord.Member
-	MessageAuthorID snowflake.ID
+	MessageAuthorID *snowflake.ID
 }
 
 // GuildMessageReactionRemove indicates that a discord.Member removed a discord.MessageReaction from a discord.Message in a Channel (requires the gateway.IntentGuildMessageReactions)
