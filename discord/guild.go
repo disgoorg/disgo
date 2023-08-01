@@ -159,6 +159,7 @@ type Guild struct {
 	PremiumProgressBarEnabled   bool                       `json:"premium_progress_bar_enabled"`
 	JoinedAt                    time.Time                  `json:"joined_at"`
 	SafetyAlertsChannelID       *snowflake.ID              `json:"safety_alerts_channel_id"`
+	InventorySettings           GuildInventorySettings     `json:"inventory_settings"`
 
 	// only over GET /guilds/{guild.id}
 	ApproximateMemberCount   int `json:"approximate_member_count"`
@@ -277,6 +278,10 @@ type GuildWelcomeScreenUpdate struct {
 	Enabled         *bool                  `json:"enabled,omitempty"`
 	WelcomeChannels *[]GuildWelcomeChannel `json:"welcome_channels,omitempty"`
 	Description     *string                `json:"description,omitempty"`
+}
+
+type GuildInventorySettings struct {
+	IsEmojiPackCollectible bool `json:"is_emoji_pack_collectible"`
 }
 
 // GuildPreview is used for previewing public Guild(s) before joining them
