@@ -195,7 +195,7 @@ type guildForumChannel struct {
 	DefaultForumLayout            DefaultForumLayout    `json:"default_forum_layout"`
 
 	// idk discord name your shit correctly
-	LastThreadID *snowflake.ID `json:"last_message_id"`
+	LastPostID *snowflake.ID `json:"last_message_id"`
 }
 
 func (t *guildForumChannel) UnmarshalJSON(data []byte) error {
@@ -230,7 +230,7 @@ type guildMediaChannel struct {
 	DefaultSortOrder              *DefaultSortOrder     `json:"default_sort_order"`
 
 	// idk discord name your shit correctly v2
-	LastThreadID *snowflake.ID `json:"last_message_id"`
+	LastPostID *snowflake.ID `json:"last_message_id"`
 }
 
 func (t *guildMediaChannel) UnmarshalJSON(data []byte) error {

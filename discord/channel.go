@@ -1041,7 +1041,7 @@ type GuildForumChannel struct {
 	permissionOverwrites          PermissionOverwrites
 	name                          string
 	parentID                      *snowflake.ID
-	LastThreadID                  *snowflake.ID
+	LastPostID                    *snowflake.ID
 	Topic                         *string
 	NSFW                          bool
 	RateLimitPerUser              int
@@ -1065,7 +1065,7 @@ func (c *GuildForumChannel) UnmarshalJSON(data []byte) error {
 	c.permissionOverwrites = v.PermissionOverwrites
 	c.name = v.Name
 	c.parentID = v.ParentID
-	c.LastThreadID = v.LastThreadID
+	c.LastPostID = v.LastPostID
 	c.Topic = v.Topic
 	c.NSFW = v.NSFW
 	c.RateLimitPerUser = v.RateLimitPerUser
@@ -1087,7 +1087,7 @@ func (c GuildForumChannel) MarshalJSON() ([]byte, error) {
 		PermissionOverwrites:          c.permissionOverwrites,
 		Name:                          c.name,
 		ParentID:                      c.parentID,
-		LastThreadID:                  c.LastThreadID,
+		LastPostID:                    c.LastPostID,
 		Topic:                         c.Topic,
 		NSFW:                          c.NSFW,
 		RateLimitPerUser:              c.RateLimitPerUser,
@@ -1155,7 +1155,7 @@ type GuildMediaChannel struct {
 	permissionOverwrites          PermissionOverwrites
 	name                          string
 	parentID                      *snowflake.ID
-	LastThreadID                  *snowflake.ID
+	LastPostID                    *snowflake.ID
 	Topic                         *string
 	NSFW                          bool
 	RateLimitPerUser              int
@@ -1178,7 +1178,7 @@ func (c *GuildMediaChannel) UnmarshalJSON(data []byte) error {
 	c.permissionOverwrites = v.PermissionOverwrites
 	c.name = v.Name
 	c.parentID = v.ParentID
-	c.LastThreadID = v.LastThreadID
+	c.LastPostID = v.LastPostID
 	c.Topic = v.Topic
 	c.NSFW = v.NSFW
 	c.RateLimitPerUser = v.RateLimitPerUser
@@ -1199,7 +1199,7 @@ func (c GuildMediaChannel) MarshalJSON() ([]byte, error) {
 		PermissionOverwrites:          c.permissionOverwrites,
 		Name:                          c.name,
 		ParentID:                      c.parentID,
-		LastThreadID:                  c.LastThreadID,
+		LastPostID:                    c.LastPostID,
 		Topic:                         c.Topic,
 		NSFW:                          c.NSFW,
 		RateLimitPerUser:              c.RateLimitPerUser,
