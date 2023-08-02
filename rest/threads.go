@@ -17,7 +17,7 @@ func NewThreads(client Client) Threads {
 type Threads interface {
 	// CreateThreadFromMessage does not work for discord.ChannelTypeGuildForum or discord.ChannelTypeGuildMedia channels.
 	CreateThreadFromMessage(channelID snowflake.ID, messageID snowflake.ID, threadCreateFromMessage discord.ThreadCreateFromMessage, opts ...RequestOpt) (thread *discord.GuildThread, err error)
-	CreateThreadInThreadChannel(channelID snowflake.ID, threadCreateInForum discord.ThreadChannelThreadCreate, opts ...RequestOpt) (thread *discord.ThreadChannelThread, err error)
+	CreatePostInThreadChannel(channelID snowflake.ID, postCreateInChannel discord.ThreadChannelPostCreate, opts ...RequestOpt) (post *discord.ThreadChannelPost, err error)
 	CreateThread(channelID snowflake.ID, threadCreate discord.ThreadCreate, opts ...RequestOpt) (thread *discord.GuildThread, err error)
 	JoinThread(threadID snowflake.ID, opts ...RequestOpt) error
 	LeaveThread(threadID snowflake.ID, opts ...RequestOpt) error
@@ -41,8 +41,8 @@ func (s *threadImpl) CreateThreadFromMessage(channelID snowflake.ID, messageID s
 	return
 }
 
-func (s *threadImpl) CreateThreadInThreadChannel(channelID snowflake.ID, threadCreateInChannel discord.ThreadChannelThreadCreate, opts ...RequestOpt) (thread *discord.ThreadChannelThread, err error) {
-	body, err := threadCreateInChannel.ToBody()
+func (s *threadImpl) CreatePostInThreadChannel(channelID snowflake.ID, postCreateInChannel discord.ThreadChannelPostCreate, opts ...RequestOpt) (thread *discord.ThreadChannelPost, err error) {
+	body, err := postCreateInChannel.ToBody()
 	if err != nil {
 		return
 	}

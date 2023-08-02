@@ -133,7 +133,7 @@ type GuildMediaChannelUpdate struct {
 func (GuildMediaChannelUpdate) channelUpdate()      {}
 func (GuildMediaChannelUpdate) guildChannelUpdate() {}
 
-type GuildThreadChannelUpdate struct {
+type GuildPostUpdate struct {
 	Name                *string              `json:"name,omitempty"`
 	Archived            *bool                `json:"archived,omitempty"`
 	AutoArchiveDuration *AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
@@ -144,8 +144,8 @@ type GuildThreadChannelUpdate struct {
 	AppliedTags         *[]snowflake.ID      `json:"applied_tags,omitempty"`
 }
 
-func (GuildThreadChannelUpdate) channelUpdate()      {}
-func (GuildThreadChannelUpdate) guildChannelUpdate() {}
+func (GuildPostUpdate) channelUpdate()      {}
+func (GuildPostUpdate) guildChannelUpdate() {}
 
 type GuildChannelPositionUpdate struct {
 	ID              snowflake.ID         `json:"id"`
