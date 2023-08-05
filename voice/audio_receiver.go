@@ -2,6 +2,7 @@ package voice
 
 import (
 	"context"
+	"errors"
 	"net"
 
 	"github.com/disgoorg/log"
@@ -82,7 +83,7 @@ func (s *defaultAudioReceiver) CleanupUser(userID snowflake.ID) {
 
 func (s *defaultAudioReceiver) receive() {
 	packet, err := s.conn.UDP().ReadPacket()
-	if err == net.ErrClosed {
+	if errors.Is(err, net.ErrClosed) {
 		s.Close()
 		return
 	}

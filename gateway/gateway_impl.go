@@ -154,7 +154,7 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message strin
 	if g.conn != nil {
 		g.config.RateLimiter.Close(ctx)
 		g.config.Logger.Debug(g.formatLogsf("closing gateway connection with code: %d, message: %s", code, message))
-		if err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && err != websocket.ErrCloseSent {
+		if err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && !errors.Is(err, websocket.ErrCloseSent) {
 			g.config.Logger.Debug(g.formatLogs("error writing close code. error: ", err))
 		}
 		_ = g.conn.Close()
@@ -226,7 +226,7 @@ func (g *gatewayImpl) reconnectTry(ctx context.Context, try int) error {
 	}
 
 	if err := g.open(ctx); err != nil {
-		if err == discord.ErrGatewayAlreadyConnected {
+		if errors.Is(err, discord.ErrGatewayAlreadyConnected) {
 			return err
 		}
 		g.config.Logger.Error(g.formatLogs("failed to reconnect gateway. error: ", err))
@@ -268,7 +268,7 @@ func (g *gatewayImpl) sendHeartbeat() {
 	ctx, cancel := context.WithTimeout(context.Background(), g.heartbeatInterval)
 	defer cancel()
 	if err := g.Send(ctx, OpcodeHeartbeat, MessageDataHeartbeat(*g.config.LastSequenceReceived)); err != nil {
-		if err == discord.ErrShardNotConnected || errors.Is(err, syscall.EPIPE) {
+		if errors.Is(err, discord.ErrShardNotConnected) || errors.Is(err, syscall.EPIPE) {
 			return
 		}
 		g.config.Logger.Error(g.formatLogs("failed to send heartbeat. error: ", err))
@@ -333,7 +333,8 @@ loop:
 			}
 
 			reconnect := true
-			if closeError, ok := err.(*websocket.CloseError); ok {
+			var closeError *websocket.CloseError
+			if errors.As(err, &closeError) {
 				closeCode := CloseEventCodeByCode(closeError.Code)
 				reconnect = closeCode.Reconnect
 
