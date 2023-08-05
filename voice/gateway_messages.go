@@ -136,14 +136,14 @@ type GatewayMessageDataSessionDescription struct {
 
 func (GatewayMessageDataSessionDescription) voiceGatewayMessageData() {}
 
-type VoiceProtocol string
+type Protocol string
 
 const (
-	VoiceProtocolUDP VoiceProtocol = "udp"
+	ProtocolUDP Protocol = "udp"
 )
 
 type GatewayMessageDataSelectProtocol struct {
-	Protocol VoiceProtocol                        `json:"protocol"`
+	Protocol Protocol                             `json:"protocol"`
 	Data     GatewayMessageDataSelectProtocolData `json:"data"`
 }
 

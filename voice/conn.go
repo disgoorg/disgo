@@ -204,7 +204,7 @@ func (c *connImpl) handleMessage(op Opcode, data GatewayMessageData) {
 			break
 		}
 		if err = c.Gateway().Send(ctx, OpcodeSelectProtocol, GatewayMessageDataSelectProtocol{
-			Protocol: VoiceProtocolUDP,
+			Protocol: ProtocolUDP,
 			Data: GatewayMessageDataSelectProtocolData{
 				Address: ourAddress,
 				Port:    ourPort,
@@ -241,7 +241,7 @@ func (c *connImpl) handleMessage(op Opcode, data GatewayMessageData) {
 	}
 }
 
-func (c *connImpl) handleGatewayClose(gateway Gateway, err error) {
+func (c *connImpl) handleGatewayClose(_ Gateway, _ error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	c.Close(ctx)
