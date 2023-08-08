@@ -12,8 +12,8 @@ import (
 
 	"github.com/disgoorg/disgo/voice"
 
-	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
+	"log/slog"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"

@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
+	"log/slog"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/discord"

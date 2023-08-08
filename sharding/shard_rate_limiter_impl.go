@@ -2,6 +2,7 @@ package sharding
 
 import (
 	"context"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -46,10 +47,10 @@ func (r *rateLimiterImpl) Close(ctx context.Context) {
 }
 
 func (r *rateLimiterImpl) getBucket(shardID int, create bool) *bucket {
-	r.config.Logger.Debug("locking shard srate limiter")
+	r.config.Logger.Debug("locking shard rate limiter")
 	r.mu.Lock()
 	defer func() {
-		r.config.Logger.Debug("unlocking shard srate limiter")
+		r.config.Logger.Debug("unlocking shard rate limiter")
 		r.mu.Unlock()
 	}()
 	key := ShardMaxConcurrencyKey(shardID, r.config.MaxConcurrency)
@@ -69,7 +70,7 @@ func (r *rateLimiterImpl) getBucket(shardID int, create bool) *bucket {
 
 func (r *rateLimiterImpl) WaitBucket(ctx context.Context, shardID int) error {
 	b := r.getBucket(shardID, true)
-	r.config.Logger.Debugf("locking shard bucket: Key: %d, Reset: %s", b.Key, b.Reset)
+	r.config.Logger.Debug("locking shard bucket", slog.Int("key", b.Key), slog.Time("reset", b.Reset))
 	if err := b.mu.CLock(ctx); err != nil {
 		return err
 	}
@@ -102,7 +103,7 @@ func (r *rateLimiterImpl) UnlockBucket(shardID int) {
 		return
 	}
 	defer func() {
-		r.config.Logger.Debugf("unlocking shard bucket: Key: %d, Reset: %s", b.Key, b.Reset)
+		r.config.Logger.Debug("unlocking shard bucket", slog.Int("key", b.Key), slog.Time("reset", b.Reset))
 		b.mu.Unlock()
 	}()
 

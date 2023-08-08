@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -43,9 +44,8 @@ var (
 )
 
 func main() {
-	log.SetLevel(log.LevelDebug)
-	log.Info("starting example...")
-	log.Info("disgo version: ", disgo.Version)
+	slog.Info("starting example...")
+	slog.Info("disgo version", slog.String("version", disgo.Version))
 
 	// use custom ed25519 verify implementation
 	httpserver.Verify = func(publicKey httpserver.PublicKey, message, sig []byte) bool {

@@ -3,7 +3,7 @@ package httpserver
 import (
 	"net/http"
 
-	"github.com/disgoorg/log"
+	"log/slog"
 )
 
 // DefaultConfig returns a Config with sensible defaults.
@@ -18,7 +18,7 @@ func DefaultConfig() *Config {
 
 // Config lets you configure your Server instance.
 type Config struct {
-	Logger     log.Logger
+	Logger     *slog.Logger
 	HTTPServer *http.Server
 	ServeMux   *http.ServeMux
 	URL        string
@@ -38,7 +38,7 @@ func (c *Config) Apply(opts []ConfigOpt) {
 }
 
 // WithLogger sets the Logger of the Config.
-func WithLogger(logger log.Logger) ConfigOpt {
+func WithLogger(logger *slog.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
 	}

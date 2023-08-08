@@ -2,9 +2,9 @@ package bot
 
 import (
 	"context"
+	"log/slog"
 	"sync"
 
-	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
@@ -15,12 +15,12 @@ import (
 var _ MemberChunkingManager = (*memberChunkingManagerImpl)(nil)
 
 // NewMemberChunkingManager returns a new MemberChunkingManager with the given MemberChunkingFilter.
-func NewMemberChunkingManager(client Client, logger log.Logger, memberChunkingFilter MemberChunkingFilter) MemberChunkingManager {
+func NewMemberChunkingManager(client Client, logger *slog.Logger, memberChunkingFilter MemberChunkingFilter) MemberChunkingManager {
 	if memberChunkingFilter == nil {
 		memberChunkingFilter = MemberChunkingFilterNone
 	}
 	if logger == nil {
-		logger = log.Default()
+		logger = slog.Default()
 	}
 	return &memberChunkingManagerImpl{
 		client:               client,
@@ -88,7 +88,7 @@ type chunkingRequest struct {
 
 type memberChunkingManagerImpl struct {
 	client               Client
-	logger               log.Logger
+	logger               *slog.Logger
 	memberChunkingFilter MemberChunkingFilter
 
 	chunkingRequestsMu sync.RWMutex
@@ -104,7 +104,7 @@ func (m *memberChunkingManagerImpl) HandleChunk(payload gateway.EventGuildMember
 	request, ok := m.chunkingRequests[payload.Nonce]
 	m.chunkingRequestsMu.RUnlock()
 	if !ok {
-		m.logger.Debug("received unknown member chunk event: ", payload)
+		m.logger.Debug("received unknown member chunk event: ", slog.Any("payload", payload))
 		return
 	}
 

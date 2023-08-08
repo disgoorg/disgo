@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/disgoorg/log"
+	"log/slog"
 
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"

@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/disgoorg/json"
-	"github.com/disgoorg/log"
+	"log/slog"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"

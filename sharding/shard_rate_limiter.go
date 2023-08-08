@@ -4,6 +4,9 @@ import (
 	"context"
 )
 
+// MaxConcurrency is the default number of shards that can log in at the same time.
+const MaxConcurrency = 1
+
 // RateLimiter limits how many shards can log in to Discord at the same time.
 type RateLimiter interface {
 	// Close gracefully closes the RateLimiter.

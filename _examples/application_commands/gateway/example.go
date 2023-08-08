@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -40,9 +41,8 @@ var (
 )
 
 func main() {
-	log.SetLevel(log.LevelInfo)
-	log.Info("starting example...")
-	log.Info("disgo version: ", disgo.Version)
+	slog.Info("starting example...")
+	slog.Info("disgo version", slog.String("version", disgo.Version))
 
 	client, err := disgo.New(token,
 		bot.WithDefaultGateway(),

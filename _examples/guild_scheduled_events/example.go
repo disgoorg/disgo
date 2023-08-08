@@ -7,7 +7,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/disgoorg/log"
+	"log/slog"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"

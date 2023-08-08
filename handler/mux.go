@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log/slog"
 	"strings"
 
 	"github.com/disgoorg/disgo/bot"
@@ -53,7 +54,7 @@ func (r *Mux) OnEvent(event bot.Event) {
 	}
 
 	if err := r.Handle(path, make(map[string]string), e); err != nil {
-		event.Client().Logger().Errorf("error handling interaction: %v\n", err)
+		event.Client().Logger().Error("error handling interaction", slog.String("err", err.Error()))
 	}
 }
 

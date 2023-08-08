@@ -37,7 +37,7 @@ func (l *rateLimiterImpl) Reset() {
 }
 
 func (l *rateLimiterImpl) Wait(ctx context.Context) error {
-	l.config.Logger.Trace("locking gateway rate limiter")
+	l.config.Logger.Debug("locking gateway rate limiter")
 	if err := l.mu.CLock(ctx); err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func (l *rateLimiterImpl) Wait(ctx context.Context) error {
 }
 
 func (l *rateLimiterImpl) Unlock() {
-	l.config.Logger.Trace("unlocking gateway rate limiter")
+	l.config.Logger.Debug("unlocking gateway rate limiter")
 	now := time.Now()
 	if l.reset.Before(now) {
 		l.reset = now.Add(time.Minute)

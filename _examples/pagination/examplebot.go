@@ -4,7 +4,7 @@ import (
 	_ "embed"
 	"os"
 
-	"github.com/disgoorg/log"
+	"log/slog"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/rest"
