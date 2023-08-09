@@ -496,6 +496,15 @@ func WithWatchingActivity(name string) PresenceOpt {
 	})
 }
 
+// WithCustomActivity creates a new activity of type discord.ActivityTypeCustom
+func WithCustomActivity(status string) PresenceOpt {
+	return withActivity(discord.Activity{
+		Name:  "Custom Status",
+		Type:  discord.ActivityTypeCustom,
+		State: &status,
+	})
+}
+
 // WithCompetingActivity creates a new "Competing in ..." activity of type discord.ActivityTypeCompeting
 func WithCompetingActivity(name string) PresenceOpt {
 	return withActivity(discord.Activity{
