@@ -7,7 +7,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 	"github.com/oasisprotocol/curve25519-voi/primitives/ed25519"
 
@@ -60,21 +59,20 @@ func main() {
 		bot.WithEventListenerFunc(commandListener),
 	)
 	if err != nil {
-		log.Fatal("error while building disgo instance: ", err)
-		return
+		panic("error while building disgo instance: " + err.Error())
 	}
 
 	defer client.Close(context.TODO())
 
 	if _, err = client.Rest().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
-		log.Fatal("error while registering commands: ", err)
+		panic("error while registering commands: " + err.Error())
 	}
 
 	if err = client.OpenHTTPServer(); err != nil {
-		log.Fatal("error while starting http server: ", err)
+		panic("error while starting http server: " + err.Error())
 	}
 
-	log.Info("example is now running. Press CTRL-C to exit.")
+	slog.Info("example is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
