@@ -7,8 +7,6 @@ import (
 	"syscall"
 	"time"
 
-	"log/slog"
-
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/cache"

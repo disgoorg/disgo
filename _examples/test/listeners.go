@@ -5,8 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"log/slog"
-
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"

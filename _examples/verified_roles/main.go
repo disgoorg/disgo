@@ -6,13 +6,11 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/disgoorg/json"
-	"log/slog"
-
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/oauth2"
+	"github.com/disgoorg/json"
 )
 
 var (

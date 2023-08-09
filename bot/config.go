@@ -2,7 +2,6 @@ package bot
 
 import (
 	"fmt"
-
 	"log/slog"
 
 	"github.com/disgoorg/disgo/cache"

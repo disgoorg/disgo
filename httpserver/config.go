@@ -1,9 +1,8 @@
 package httpserver
 
 import (
-	"net/http"
-
 	"log/slog"
+	"net/http"
 )
 
 // DefaultConfig returns a Config with sensible defaults.

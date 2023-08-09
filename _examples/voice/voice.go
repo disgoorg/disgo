@@ -12,13 +12,11 @@ import (
 
 	"github.com/disgoorg/disgo/voice"
 
-	"github.com/disgoorg/snowflake/v2"
-	"log/slog"
-
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var (

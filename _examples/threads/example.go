@@ -6,8 +6,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"log/slog"
-
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/cache"
