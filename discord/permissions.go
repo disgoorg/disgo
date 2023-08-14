@@ -63,6 +63,7 @@ const (
 	_
 	PermissionUseExternalSounds
 	PermissionSendVoiceMessages
+	PermissionUseClydeAI
 
 	PermissionsAllText = PermissionViewChannel |
 		PermissionSendMessages |
@@ -101,7 +102,8 @@ const (
 		PermissionAddReactions |
 		PermissionUseExternalEmojis |
 		PermissionUseApplicationCommands |
-		PermissionUseExternalStickers
+		PermissionUseExternalStickers |
+		PermissionUseClydeAI
 
 	PermissionsAll = PermissionsAllChannel |
 		PermissionKickMembers |
@@ -168,6 +170,7 @@ var permissions = map[Permissions]string{
 	PermissionStream:                           "Video",
 	PermissionViewGuildInsights:                "View Server Insights",
 	PermissionSendVoiceMessages:                "Send Voice Messages",
+	PermissionUseClydeAI:                       "Use Clyde AI",
 }
 
 func (p Permissions) String() string {
