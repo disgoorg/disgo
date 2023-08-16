@@ -134,6 +134,10 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 		}
 	}
 
+	if m.Member != nil && m.GuildID != nil {
+		m.Member.GuildID = *m.GuildID
+	}
+
 	return nil
 }
 
