@@ -52,7 +52,7 @@ type RoleTag struct {
 	BotID                 *snowflake.ID `json:"bot_id,omitempty"`
 	IntegrationID         *snowflake.ID `json:"integration_id,omitempty"`
 	PremiumSubscriber     bool          `json:"premium_subscriber"`
-	SubscriptionListingID *snowflake.ID `json:"subscription_listing_id"`
+	SubscriptionListingID *snowflake.ID `json:"subscription_listing_id,omitempty"`
 	AvailableForPurchase  bool          `json:"available_for_purchase"`
 	GuildConnections      bool          `json:"guild_connections"`
 }
