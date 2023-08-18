@@ -1,11 +1,12 @@
 package handlers
 
 import (
+	"github.com/disgoorg/snowflake/v2"
+
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 func gatewayHandlerMessageCreate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventMessageCreate) {
@@ -26,9 +27,7 @@ func gatewayHandlerMessageCreate(client bot.Client, sequenceNumber int, shardID 
 
 	if channel, ok := client.Caches().GuildThread(event.ChannelID); ok {
 		channel.TotalMessageSent++
-		if channel.MessageCount < 50 {
-			channel.MessageCount++
-		}
+		channel.MessageCount++
 		client.Caches().AddChannel(channel)
 	}
 
@@ -68,13 +67,6 @@ func gatewayHandlerMessageCreate(client bot.Client, sequenceNumber int, shardID 
 func gatewayHandlerMessageUpdate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventMessageUpdate) {
 	oldMessage, _ := client.Caches().Message(event.ChannelID, event.ID)
 	client.Caches().AddMessage(event.Message)
-
-	if channel, ok := client.Caches().GuildThread(event.ChannelID); ok {
-		if channel.MessageCount > 0 {
-			channel.MessageCount--
-		}
-		client.Caches().AddChannel(channel)
-	}
 
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 	client.EventManager().DispatchEvent(&events.MessageUpdate{
@@ -127,12 +119,20 @@ func handleMessageDelete(client bot.Client, sequenceNumber int, shardID int, mes
 
 	message, _ := client.Caches().RemoveMessage(channelID, messageID)
 
+	if channel, ok := client.Caches().GuildThread(channelID); ok {
+		if channel.MessageCount > 0 {
+			channel.MessageCount--
+		}
+		client.Caches().AddChannel(channel)
+	}
+
 	client.EventManager().DispatchEvent(&events.MessageDelete{
 		GenericMessage: &events.GenericMessage{
 			GenericEvent: genericEvent,
 			MessageID:    messageID,
 			Message:      message,
 			ChannelID:    channelID,
+			GuildID:      guildID,
 		},
 	})
 

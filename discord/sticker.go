@@ -22,9 +22,14 @@ type Sticker struct {
 }
 
 func (s Sticker) URL(opts ...CDNOpt) string {
-	format := ImageFormatPNG
-	if s.FormatType == StickerFormatTypeLottie {
-		format = ImageFormatLottie
+	var format FileFormat
+	switch s.FormatType {
+	case StickerFormatTypeLottie:
+		format = FileFormatLottie
+	case StickerFormatTypeGIF:
+		format = FileFormatGIF
+	default:
+		format = FileFormatPNG
 	}
 	return formatAssetURL(CustomSticker, append(opts, WithFormat(format)), s.ID)
 }
@@ -48,6 +53,7 @@ const (
 	StickerFormatTypePNG StickerFormatType = iota + 1
 	StickerFormatTypeAPNG
 	StickerFormatTypeLottie
+	StickerFormatTypeGIF
 )
 
 type StickerCreate struct {

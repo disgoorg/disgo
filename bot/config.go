@@ -3,6 +3,8 @@ package bot
 import (
 	"fmt"
 
+	"github.com/disgoorg/log"
+
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
@@ -11,7 +13,6 @@ import (
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/sharding"
 	"github.com/disgoorg/disgo/voice"
-	"github.com/disgoorg/log"
 )
 
 // DefaultConfig returns a Config with sensible defaults.

@@ -5,6 +5,8 @@ import (
 
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/internal/flags"
 )
 
 // ActivityType represents the status of a user, one of Game, Streaming, Listening, Watching, Custom or Competing
@@ -28,10 +30,11 @@ type Activity struct {
 	URL           *string             `json:"url"`
 	CreatedAt     time.Time           `json:"created_at"`
 	Timestamps    *ActivityTimestamps `json:"timestamps,omitempty"`
+	SyncID        *string             `json:"sync_id,omitempty"`
 	ApplicationID snowflake.ID        `json:"application_id,omitempty"`
 	Details       *string             `json:"details,omitempty"`
 	State         *string             `json:"state,omitempty"`
-	Emoji         *ActivityEmoji      `json:"emoji,omitempty"`
+	Emoji         *PartialEmoji       `json:"emoji,omitempty"`
 	Party         *ActivityParty      `json:"party,omitempty"`
 	Assets        *ActivityAssets     `json:"assets,omitempty"`
 	Secrets       *ActivitySecrets    `json:"secrets,omitempty"`
@@ -83,38 +86,22 @@ const (
 
 // Add allows you to add multiple bits together, producing a new bit
 func (f ActivityFlags) Add(bits ...ActivityFlags) ActivityFlags {
-	for _, bit := range bits {
-		f |= bit
-	}
-	return f
+	return flags.Add(f, bits...)
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
 func (f ActivityFlags) Remove(bits ...ActivityFlags) ActivityFlags {
-	for _, bit := range bits {
-		f &^= bit
-	}
-	return f
+	return flags.Remove(f, bits...)
 }
 
 // Has will ensure that the bit includes all the bits entered
 func (f ActivityFlags) Has(bits ...ActivityFlags) bool {
-	for _, bit := range bits {
-		if (f & bit) != bit {
-			return false
-		}
-	}
-	return true
+	return flags.Has(f, bits...)
 }
 
 // Missing will check whether the bit is missing any one of the bits
 func (f ActivityFlags) Missing(bits ...ActivityFlags) bool {
-	for _, bit := range bits {
-		if (f & bit) != bit {
-			return true
-		}
-	}
-	return false
+	return flags.Missing(f, bits...)
 }
 
 // ActivityButton is a button in an activity
@@ -152,17 +139,10 @@ func (a ActivityTimestamps) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// ActivityEmoji is an Emoji object for an Activity
-type ActivityEmoji struct {
-	Name     string        `json:"name"`
-	ID       *snowflake.ID `json:"id,omitempty"`
-	Animated *bool         `json:"animated,omitempty"`
-}
-
 // ActivityParty is information about the party of the player
 type ActivityParty struct {
 	ID   string `json:"id,omitempty"`
-	Size []int  `json:"size,omitempty"`
+	Size [2]int `json:"size,omitempty"`
 }
 
 // ActivityAssets are the images for the presence and hover texts

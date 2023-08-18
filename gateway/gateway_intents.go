@@ -1,5 +1,7 @@
 package gateway
 
+import "github.com/disgoorg/disgo/internal/flags"
+
 // Intents is an extension of the Bit structure used when identifying with discord
 type Intents int64
 
@@ -7,7 +9,7 @@ type Intents int64
 const (
 	IntentGuilds Intents = 1 << iota
 	IntentGuildMembers
-	IntentGuildBans
+	IntentGuildModeration
 	IntentGuildEmojisAndStickers
 	IntentGuildIntegrations
 	IntentGuildWebhooks
@@ -30,7 +32,7 @@ const (
 
 	IntentsGuild = IntentGuilds |
 		IntentGuildMembers |
-		IntentGuildBans |
+		IntentGuildModeration |
 		IntentGuildEmojisAndStickers |
 		IntentGuildIntegrations |
 		IntentGuildWebhooks |
@@ -47,7 +49,7 @@ const (
 		IntentDirectMessageTyping
 
 	IntentsNonPrivileged = IntentGuilds |
-		IntentGuildBans |
+		IntentGuildModeration |
 		IntentGuildEmojisAndStickers |
 		IntentGuildIntegrations |
 		IntentGuildWebhooks |
@@ -76,36 +78,20 @@ const (
 
 // Add allows you to add multiple bits together, producing a new bit
 func (i Intents) Add(bits ...Intents) Intents {
-	for _, bit := range bits {
-		i |= bit
-	}
-	return i
+	return flags.Add(i, bits...)
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
 func (i Intents) Remove(bits ...Intents) Intents {
-	for _, bit := range bits {
-		i &^= bit
-	}
-	return i
+	return flags.Remove(i, bits...)
 }
 
 // Has will ensure that the bit includes all the bits entered
 func (i Intents) Has(bits ...Intents) bool {
-	for _, bit := range bits {
-		if (i & bit) != bit {
-			return false
-		}
-	}
-	return true
+	return flags.Has(i, bits...)
 }
 
 // Missing will check whether the bit is missing any one of the bits
 func (i Intents) Missing(bits ...Intents) bool {
-	for _, bit := range bits {
-		if (i & bit) != bit {
-			return true
-		}
-	}
-	return false
+	return flags.Missing(i, bits...)
 }

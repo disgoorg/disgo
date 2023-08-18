@@ -5,6 +5,8 @@ import (
 
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/internal/flags"
 )
 
 var _ Mentionable = (*Member)(nil)
@@ -19,6 +21,7 @@ type Member struct {
 	PremiumSince               *time.Time     `json:"premium_since,omitempty"`
 	Deaf                       bool           `json:"deaf,omitempty"`
 	Mute                       bool           `json:"mute,omitempty"`
+	Flags                      MemberFlags    `json:"flags"`
 	Pending                    bool           `json:"pending"`
 	CommunicationDisabledUntil *time.Time     `json:"communication_disabled_until"`
 
@@ -26,22 +29,25 @@ type Member struct {
 	GuildID snowflake.ID `json:"guild_id"`
 }
 
+// String returns a mention of the user
 func (m Member) String() string {
 	return m.User.String()
 }
 
+// Mention returns a mention of the user
 func (m Member) Mention() string {
 	return m.String()
 }
 
-// EffectiveName returns either the nickname or username depending on if the user has a nickname
+// EffectiveName returns the nickname of the member if set, falling back to User.EffectiveName()
 func (m Member) EffectiveName() string {
 	if m.Nick != nil {
 		return *m.Nick
 	}
-	return m.User.Username
+	return m.User.EffectiveName()
 }
 
+// EffectiveAvatarURL returns the guild-specific avatar URL of the user if set, falling back to the effective avatar URL of the user
 func (m Member) EffectiveAvatarURL(opts ...CDNOpt) string {
 	if m.Avatar == nil {
 		return m.User.EffectiveAvatarURL(opts...)
@@ -52,6 +58,7 @@ func (m Member) EffectiveAvatarURL(opts ...CDNOpt) string {
 	return ""
 }
 
+// AvatarURL returns the guild-specific avatar URL of the user if set or nil
 func (m Member) AvatarURL(opts ...CDNOpt) *string {
 	if m.Avatar == nil {
 		return nil
@@ -80,10 +87,41 @@ type MemberUpdate struct {
 	Roles                      *[]snowflake.ID           `json:"roles,omitempty"`
 	Mute                       *bool                     `json:"mute,omitempty"`
 	Deaf                       *bool                     `json:"deaf,omitempty"`
+	Flags                      *MemberFlags              `json:"flags,omitempty"`
 	CommunicationDisabledUntil *json.Nullable[time.Time] `json:"communication_disabled_until,omitempty"`
 }
 
 // CurrentMemberUpdate is used to update the current member
 type CurrentMemberUpdate struct {
 	Nick string `json:"nick"`
+}
+
+type MemberFlags int
+
+const (
+	MemberFlagDidRejoin MemberFlags = 1 << iota
+	MemberFlagCompletedOnboarding
+	MemberFlagBypassesVerification
+	MemberFlagStartedOnboarding
+	MemberFlagsNone MemberFlags = 0
+)
+
+// Add allows you to add multiple bits together, producing a new bit
+func (f MemberFlags) Add(bits ...MemberFlags) MemberFlags {
+	return flags.Add(f, bits...)
+}
+
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (f MemberFlags) Remove(bits ...MemberFlags) MemberFlags {
+	return flags.Remove(f, bits...)
+}
+
+// Has will ensure that the bit includes all the bits entered
+func (f MemberFlags) Has(bits ...MemberFlags) bool {
+	return flags.Has(f, bits...)
+}
+
+// Missing will check whether the bit is missing any one of the bits
+func (f MemberFlags) Missing(bits ...MemberFlags) bool {
+	return flags.Missing(f, bits...)
 }

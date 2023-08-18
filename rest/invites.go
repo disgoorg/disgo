@@ -1,8 +1,9 @@
 package rest
 
 import (
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 var _ Invites = (*inviteImpl)(nil)

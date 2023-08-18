@@ -3,8 +3,9 @@ package events
 import (
 	"time"
 
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // GenericGuildMember generic discord.Member event
@@ -34,6 +35,9 @@ type GuildMemberLeave struct {
 }
 
 // GuildMemberTypingStart indicates that a discord.Member started typing in a discord.BaseGuildMessageChannel(requires gateway.IntentGuildMessageTyping)
+// Member will be empty when event is triggered by [Clyde bot]
+//
+// [Clyde bot]: https://support.discord.com/hc/en-us/articles/13066317497239-Clyde-Discord-s-AI-Chatbot
 type GuildMemberTypingStart struct {
 	*GenericEvent
 	ChannelID snowflake.ID

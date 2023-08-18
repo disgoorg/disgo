@@ -4,9 +4,10 @@ import (
 	_ "embed"
 	"os"
 
+	"github.com/disgoorg/log"
+
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/rest"
-	"github.com/disgoorg/log"
 )
 
 var token = os.Getenv("disgo_token")

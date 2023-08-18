@@ -5,6 +5,8 @@ import (
 
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/internal/flags"
 )
 
 // PremiumTier tells you the boost level of a Guild
@@ -33,38 +35,22 @@ const (
 
 // Add allows you to add multiple bits together, producing a new bit
 func (f SystemChannelFlags) Add(bits ...SystemChannelFlags) SystemChannelFlags {
-	for _, bit := range bits {
-		f |= bit
-	}
-	return f
+	return flags.Add(f, bits...)
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
 func (f SystemChannelFlags) Remove(bits ...SystemChannelFlags) SystemChannelFlags {
-	for _, bit := range bits {
-		f &^= bit
-	}
-	return f
+	return flags.Remove(f, bits...)
 }
 
 // Has will ensure that the bit includes all the bits entered
 func (f SystemChannelFlags) Has(bits ...SystemChannelFlags) bool {
-	for _, bit := range bits {
-		if (f & bit) != bit {
-			return false
-		}
-	}
-	return true
+	return flags.Has(f, bits...)
 }
 
 // Missing will check whether the bit is missing any one of the bits
 func (f SystemChannelFlags) Missing(bits ...SystemChannelFlags) bool {
-	for _, bit := range bits {
-		if (f & bit) != bit {
-			return true
-		}
-	}
-	return false
+	return flags.Missing(f, bits...)
 }
 
 // The VerificationLevel of a Guild that members must be to send messages
@@ -171,10 +157,12 @@ type Guild struct {
 	PreferredLocale             string                     `json:"preferred_locale"`
 	PublicUpdatesChannelID      *snowflake.ID              `json:"public_updates_channel_id"`
 	MaxVideoChannelUsers        int                        `json:"max_video_channel_users"`
+	MaxStageVideoChannelUsers   int                        `json:"max_stage_video_channel_users"`
 	WelcomeScreen               GuildWelcomeScreen         `json:"welcome_screen"`
 	NSFWLevel                   NSFWLevel                  `json:"nsfw_level"`
-	BoostProgressBarEnabled     bool                       `json:"premium_progress_bar_enabled"`
+	PremiumProgressBarEnabled   bool                       `json:"premium_progress_bar_enabled"`
 	JoinedAt                    time.Time                  `json:"joined_at"`
+	SafetyAlertsChannelID       *snowflake.ID              `json:"safety_alerts_channel_id"`
 
 	// only over GET /guilds/{guild.id}
 	ApproximateMemberCount   int `json:"approximate_member_count"`
@@ -264,12 +252,14 @@ type UnavailableGuild struct {
 
 // OAuth2Guild is returned on the GetGuilds route
 type OAuth2Guild struct {
-	ID          snowflake.ID   `json:"id"`
-	Name        string         `json:"name"`
-	Icon        *string        `json:"icon"`
-	Owner       bool           `json:"owner"`
-	Permissions Permissions    `json:"permissions"`
-	Features    []GuildFeature `json:"features"`
+	ID                       snowflake.ID   `json:"id"`
+	Name                     string         `json:"name"`
+	Icon                     *string        `json:"icon"`
+	Owner                    bool           `json:"owner"`
+	Permissions              Permissions    `json:"permissions"`
+	Features                 []GuildFeature `json:"features"`
+	ApproximateMemberCount   int            `json:"approximate_member_count"`
+	ApproximatePresenceCount int            `json:"approximate_presence_count"`
 }
 
 // GuildWelcomeScreen is the Welcome Screen of a Guild
@@ -305,6 +295,7 @@ type GuildPreview struct {
 	ApproximateMemberCount   *int           `json:"approximate_member_count"`
 	ApproximatePresenceCount *int           `json:"approximate_presence_count"`
 	Emojis                   []Emoji        `json:"emojis"`
+	Stickers                 []Sticker      `json:"stickers"`
 }
 
 // GuildCreate is the payload used to create a Guild
@@ -339,10 +330,11 @@ type GuildUpdate struct {
 	SystemChannelFlags              *SystemChannelFlags                        `json:"system_channel_flags,omitempty"`
 	RulesChannelID                  *snowflake.ID                              `json:"rules_channel_id,omitempty"`
 	PublicUpdatesChannelID          *snowflake.ID                              `json:"public_updates_channel_id,omitempty"`
+	SafetyAlertsChannelID           *snowflake.ID                              `json:"safety_alerts_channel_id,omitempty"`
 	PreferredLocale                 *string                                    `json:"preferred_locale,omitempty"`
 	Features                        *[]GuildFeature                            `json:"features,omitempty"`
 	Description                     *string                                    `json:"description,omitempty"`
-	BoostProgressBarEnabled         *bool                                      `json:"premium_progress_bar_enabled,omitempty"`
+	PremiumProgressBarEnabled       *bool                                      `json:"premium_progress_bar_enabled,omitempty"`
 }
 
 type NSFWLevel int

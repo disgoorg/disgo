@@ -6,6 +6,8 @@ import (
 
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/internal/flags"
 )
 
 // The MessageType indicates the Message type
@@ -40,11 +42,11 @@ const (
 	MessageTypeAutoModerationAction
 	MessageTypeRoleSubscriptionPurchase
 	MessageTypeInteractionPremiumUpsell
+	MessageTypeStageStart
+	MessageTypeStageEnd
+	MessageTypeStageSpeaker
 	_
-	_
-	_
-	_
-	_
+	MessageTypeStageTopic
 	MessageTypeGuildApplicationPremiumSubscription
 )
 
@@ -131,6 +133,10 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 		for i := range v.Components {
 			m.Components[i] = v.Components[i].Component.(ContainerComponent)
 		}
+	}
+
+	if m.Member != nil && m.GuildID != nil {
+		m.Member.GuildID = *m.GuildID
 	}
 
 	return nil
@@ -394,7 +400,7 @@ type MessageBulkDelete struct {
 }
 
 // The MessageFlags of a Message
-type MessageFlags int64
+type MessageFlags int
 
 // Constants for MessageFlags
 const (
@@ -405,44 +411,34 @@ const (
 	MessageFlagUrgent
 	MessageFlagHasThread
 	MessageFlagEphemeral
-	MessageFlagLoading              // Message is an interaction of type 5, awaiting further response
-	MessageFlagsNone   MessageFlags = 0
+	MessageFlagLoading // Message is an interaction of type 5, awaiting further response
+	MessageFlagFailedToMentionSomeRolesInThread
+	_
+	_
+	_
+	MessageFlagSuppressNotifications
+	MessageFlagIsVoiceMessage
+	MessageFlagsNone MessageFlags = 0
 )
 
 // Add allows you to add multiple bits together, producing a new bit
 func (f MessageFlags) Add(bits ...MessageFlags) MessageFlags {
-	for _, bit := range bits {
-		f |= bit
-	}
-	return f
+	return flags.Add(f, bits...)
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
 func (f MessageFlags) Remove(bits ...MessageFlags) MessageFlags {
-	for _, bit := range bits {
-		f &^= bit
-	}
-	return f
+	return flags.Remove(f, bits...)
 }
 
 // Has will ensure that the bit includes all the bits entered
 func (f MessageFlags) Has(bits ...MessageFlags) bool {
-	for _, bit := range bits {
-		if (f & bit) != bit {
-			return false
-		}
-	}
-	return true
+	return flags.Has(f, bits...)
 }
 
 // Missing will check whether the bit is missing any one of the bits
 func (f MessageFlags) Missing(bits ...MessageFlags) bool {
-	for _, bit := range bits {
-		if (f & bit) != bit {
-			return true
-		}
-	}
-	return false
+	return flags.Missing(f, bits...)
 }
 
 type RoleSubscriptionData struct {

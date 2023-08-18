@@ -1,8 +1,9 @@
 package rest
 
 import (
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 var _ Users = (*userImpl)(nil)
@@ -14,7 +15,7 @@ func NewUsers(client Client) Users {
 type Users interface {
 	GetUser(userID snowflake.ID, opts ...RequestOpt) (*discord.User, error)
 	UpdateSelfUser(selfUserUpdate discord.SelfUserUpdate, opts ...RequestOpt) (*discord.OAuth2User, error)
-	GetGuilds(before int, after int, limit int, opts ...RequestOpt) ([]discord.OAuth2Guild, error)
+	GetGuilds(before int, after int, limit int, withCounts bool, opts ...RequestOpt) ([]discord.OAuth2Guild, error)
 	LeaveGuild(guildID snowflake.ID, opts ...RequestOpt) error
 	GetDMChannels(opts ...RequestOpt) ([]discord.Channel, error)
 	CreateDMChannel(userID snowflake.ID, opts ...RequestOpt) (*discord.DMChannel, error)
@@ -34,8 +35,10 @@ func (s *userImpl) UpdateSelfUser(updateSelfUser discord.SelfUserUpdate, opts ..
 	return
 }
 
-func (s *userImpl) GetGuilds(before int, after int, limit int, opts ...RequestOpt) (guilds []discord.OAuth2Guild, err error) {
-	queryParams := discord.QueryValues{}
+func (s *userImpl) GetGuilds(before int, after int, limit int, withCounts bool, opts ...RequestOpt) (guilds []discord.OAuth2Guild, err error) {
+	queryParams := discord.QueryValues{
+		"with_counts": withCounts,
+	}
 	if before > 0 {
 		queryParams["before"] = before
 	}

@@ -1,9 +1,9 @@
 package cache
 
 import (
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/internal/set"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // DefaultConfig returns a Config with sensible defaults.
@@ -79,7 +79,7 @@ func (c *Config) Apply(opts []ConfigOpt) {
 		c.SelfUserCache = NewSelfUserCache()
 	}
 	if c.GuildCache == nil {
-		c.GuildCache = NewGuildCache(NewCache[discord.Guild](c.CacheFlags, FlagGuilds, c.GuildCachePolicy), set.New[snowflake.ID](), set.New[snowflake.ID]())
+		c.GuildCache = NewGuildCache(NewCache[discord.Guild](c.CacheFlags, FlagGuilds, c.GuildCachePolicy), NewSet[snowflake.ID](), NewSet[snowflake.ID]())
 	}
 	if c.ChannelCache == nil {
 		c.ChannelCache = NewChannelCache(NewCache[discord.GuildChannel](c.CacheFlags, FlagChannels, c.ChannelCachePolicy))

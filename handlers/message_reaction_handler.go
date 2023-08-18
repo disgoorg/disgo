@@ -9,10 +9,6 @@ import (
 func gatewayHandlerMessageReactionAdd(client bot.Client, sequenceNumber int, shardID int, event gateway.EventMessageReactionAdd) {
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
 
-	if event.Member != nil {
-		client.Caches().AddMember(*event.Member)
-	}
-
 	client.EventManager().DispatchEvent(&events.MessageReactionAdd{
 		GenericReaction: &events.GenericReaction{
 			GenericEvent: genericEvent,
@@ -34,6 +30,7 @@ func gatewayHandlerMessageReactionAdd(client bot.Client, sequenceNumber int, sha
 				UserID:       event.UserID,
 				Emoji:        event.Emoji,
 			},
+			MessageAuthorID: event.MessageAuthorID,
 		})
 	} else {
 		client.EventManager().DispatchEvent(&events.GuildMessageReactionAdd{
@@ -45,7 +42,8 @@ func gatewayHandlerMessageReactionAdd(client bot.Client, sequenceNumber int, sha
 				UserID:       event.UserID,
 				Emoji:        event.Emoji,
 			},
-			Member: *event.Member,
+			Member:          *event.Member,
+			MessageAuthorID: event.MessageAuthorID,
 		})
 	}
 }

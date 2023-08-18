@@ -5,8 +5,9 @@ import (
 	"sync"
 	"time"
 
-	botgateway "github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/snowflake/v2"
+
+	botgateway "github.com/disgoorg/disgo/gateway"
 )
 
 type (
@@ -203,7 +204,7 @@ func (c *connImpl) handleMessage(op Opcode, data GatewayMessageData) {
 			break
 		}
 		if err = c.Gateway().Send(ctx, OpcodeSelectProtocol, GatewayMessageDataSelectProtocol{
-			Protocol: VoiceProtocolUDP,
+			Protocol: ProtocolUDP,
 			Data: GatewayMessageDataSelectProtocolData{
 				Address: ourAddress,
 				Port:    ourPort,
@@ -231,14 +232,16 @@ func (c *connImpl) handleMessage(op Opcode, data GatewayMessageData) {
 				break
 			}
 		}
-		c.audioReceiver.CleanupUser(d.UserID)
+		if c.audioReceiver != nil {
+			c.audioReceiver.CleanupUser(d.UserID)
+		}
 	}
 	if c.config.EventHandlerFunc != nil {
 		c.config.EventHandlerFunc(op, data)
 	}
 }
 
-func (c *connImpl) handleGatewayClose(gateway Gateway, err error) {
+func (c *connImpl) handleGatewayClose(_ Gateway, _ error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	c.Close(ctx)

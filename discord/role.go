@@ -24,6 +24,7 @@ type Role struct {
 	Emoji       *string      `json:"unicode_emoji"`
 	Mentionable bool         `json:"mentionable"`
 	Tags        *RoleTag     `json:"tags,omitempty"`
+	Flags       RoleFlags    `json:"flags"`
 }
 
 func (r Role) String() string {
@@ -55,6 +56,13 @@ type RoleTag struct {
 	AvailableForPurchase  bool          `json:"available_for_purchase"`
 	GuildConnections      bool          `json:"guild_connections"`
 }
+
+type RoleFlags int
+
+const (
+	RoleFlagInPrompt RoleFlags = 1 << iota
+	RoleFlagsNone    RoleFlags = 0
+)
 
 // RoleCreate is the payload to create a Role
 type RoleCreate struct {

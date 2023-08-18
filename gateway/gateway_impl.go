@@ -12,9 +12,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/json"
 	"github.com/gorilla/websocket"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 var _ Gateway = (*gatewayImpl)(nil)
@@ -39,10 +40,10 @@ type gatewayImpl struct {
 	closeHandlerFunc CloseHandlerFunc
 	token            string
 
-	conn            *websocket.Conn
-	connMu          sync.Mutex
-	heartbeatTicker *time.Ticker
-	status          Status
+	conn          *websocket.Conn
+	connMu        sync.Mutex
+	heartbeatChan chan struct{}
+	status        Status
 
 	heartbeatInterval     time.Duration
 	lastHeartbeatSent     time.Time
@@ -143,10 +144,9 @@ func (g *gatewayImpl) Close(ctx context.Context) {
 }
 
 func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message string) {
-	if g.heartbeatTicker != nil {
+	if g.heartbeatChan != nil {
 		g.config.Logger.Debug(g.formatLogs("closing heartbeat goroutines..."))
-		g.heartbeatTicker.Stop()
-		g.heartbeatTicker = nil
+		g.heartbeatChan <- struct{}{}
 	}
 
 	g.connMu.Lock()
@@ -154,7 +154,7 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message strin
 	if g.conn != nil {
 		g.config.RateLimiter.Close(ctx)
 		g.config.Logger.Debug(g.formatLogsf("closing gateway connection with code: %d, message: %s", code, message))
-		if err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && err != websocket.ErrCloseSent {
+		if err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && !errors.Is(err, websocket.ErrCloseSent) {
 			g.config.Logger.Debug(g.formatLogs("error writing close code. error: ", err))
 		}
 		_ = g.conn.Close()
@@ -226,7 +226,7 @@ func (g *gatewayImpl) reconnectTry(ctx context.Context, try int) error {
 	}
 
 	if err := g.open(ctx); err != nil {
-		if err == discord.ErrGatewayAlreadyConnected {
+		if errors.Is(err, discord.ErrGatewayAlreadyConnected) {
 			return err
 		}
 		g.config.Logger.Error(g.formatLogs("failed to reconnect gateway. error: ", err))
@@ -244,12 +244,21 @@ func (g *gatewayImpl) reconnect() {
 }
 
 func (g *gatewayImpl) heartbeat() {
-	g.heartbeatTicker = time.NewTicker(g.heartbeatInterval)
-	defer g.heartbeatTicker.Stop()
+	if g.heartbeatChan == nil {
+		g.heartbeatChan = make(chan struct{})
+	}
+	heartbeatTicker := time.NewTicker(g.heartbeatInterval)
+	defer heartbeatTicker.Stop()
 	defer g.config.Logger.Debug(g.formatLogs("exiting heartbeat goroutine..."))
 
-	for range g.heartbeatTicker.C {
-		g.sendHeartbeat()
+	for {
+		select {
+		case <-g.heartbeatChan:
+			return
+
+		case <-heartbeatTicker.C:
+			g.sendHeartbeat()
+		}
 	}
 }
 
@@ -259,7 +268,7 @@ func (g *gatewayImpl) sendHeartbeat() {
 	ctx, cancel := context.WithTimeout(context.Background(), g.heartbeatInterval)
 	defer cancel()
 	if err := g.Send(ctx, OpcodeHeartbeat, MessageDataHeartbeat(*g.config.LastSequenceReceived)); err != nil {
-		if err == discord.ErrShardNotConnected || errors.Is(err, syscall.EPIPE) {
+		if errors.Is(err, discord.ErrShardNotConnected) || errors.Is(err, syscall.EPIPE) {
 			return
 		}
 		g.config.Logger.Error(g.formatLogs("failed to send heartbeat. error: ", err))
@@ -285,9 +294,7 @@ func (g *gatewayImpl) identify() {
 		LargeThreshold: g.config.LargeThreshold,
 		Intents:        g.config.Intents,
 		Presence:       g.config.Presence,
-	}
-	if g.ShardCount() > 1 {
-		identify.Shard = &[2]int{g.ShardID(), g.ShardCount()}
+		Shard:          &[2]int{g.ShardID(), g.ShardCount()},
 	}
 
 	if err := g.Send(context.TODO(), OpcodeIdentify, identify); err != nil {
@@ -326,7 +333,8 @@ loop:
 			}
 
 			reconnect := true
-			if closeError, ok := err.(*websocket.CloseError); ok {
+			var closeError *websocket.CloseError
+			if errors.As(err, &closeError) {
 				closeCode := CloseEventCodeByCode(closeError.Code)
 				reconnect = closeCode.Reconnect
 
@@ -398,7 +406,7 @@ loop:
 			}
 
 			if unknownEvent, ok := eventData.(EventUnknown); ok {
-				g.config.Logger.Debug(g.formatLogsf("unknown message received: %s, data: %s", message.T, unknownEvent))
+				g.config.Logger.Debug(g.formatLogsf("unknown event received: %s, data: %s", message.T, unknownEvent))
 				continue
 			}
 
@@ -441,10 +449,15 @@ loop:
 			break loop
 
 		case OpcodeHeartbeatACK:
-			g.lastHeartbeatReceived = time.Now().UTC()
+			newHeartbeat := time.Now().UTC()
+			g.eventHandlerFunc(EventTypeHeartbeatAck, message.S, g.config.ShardID, EventHeartbeatAck{
+				LastHeartbeat: g.lastHeartbeatReceived,
+				NewHeartbeat:  newHeartbeat,
+			})
+			g.lastHeartbeatReceived = newHeartbeat
 
 		default:
-			g.config.Logger.Error(g.formatLogsf("unknown opcode received: %d, data: %s", message.Op, message.D))
+			g.config.Logger.Debug(g.formatLogsf("unknown opcode received: %d, data: %s", message.Op, message.D))
 		}
 	}
 }

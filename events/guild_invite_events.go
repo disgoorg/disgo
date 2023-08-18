@@ -1,8 +1,9 @@
 package events
 
 import (
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/discord"
 )
 
 // GenericInvite is called upon receiving InviteCreate or InviteDelete (requires gateway.IntentGuildInvites)

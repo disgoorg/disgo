@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -12,6 +13,7 @@ func DefaultConfig() *Config {
 	return &Config{
 		Logger:     log.Default(),
 		HTTPClient: &http.Client{Timeout: 20 * time.Second},
+		URL:        fmt.Sprintf("%sv%d", API, Version),
 	}
 }
 
@@ -21,6 +23,7 @@ type Config struct {
 	HTTPClient                *http.Client
 	RateLimiter               RateLimiter
 	RateRateLimiterConfigOpts []RateLimiterConfigOpt
+	URL                       string
 	UserAgent                 string
 }
 
@@ -62,6 +65,13 @@ func WithRateLimiter(rateLimiter RateLimiter) ConfigOpt {
 func WithRateRateLimiterConfigOpts(opts ...RateLimiterConfigOpt) ConfigOpt {
 	return func(config *Config) {
 		config.RateRateLimiterConfigOpts = append(config.RateRateLimiterConfigOpts, opts...)
+	}
+}
+
+// WithURL sets the api url for all requests
+func WithURL(url string) ConfigOpt {
+	return func(config *Config) {
+		config.URL = url
 	}
 }
 

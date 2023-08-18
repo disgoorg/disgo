@@ -10,15 +10,18 @@ import (
 	"github.com/disgoorg/log"
 )
 
-var (
-	// SilenceAudioFrame is a 20ms opus frame of silence.
-	SilenceAudioFrame = []byte{0xF8, 0xFF, 0xFE}
+// SilenceAudioFrame is a 20ms opus frame of silence.
+var SilenceAudioFrame = []byte{0xF8, 0xFF, 0xFE}
 
-	// OpusFrameSize is the size of an opus frame in milliseconds.
-	OpusFrameSize int64 = 20
+const (
+	// OpusFrameSizeMs is the size of an opus frame in milliseconds.
+	OpusFrameSizeMs int = 20
 
-	// OpusStreamBuffSize is the size of the buffer for receiving one opus frame.
-	OpusStreamBuffSize int64 = 4000
+	// OpusFrameSize is the size of an opus frame in bytes.
+	OpusFrameSize int = 960
+
+	// OpusFrameSizeBytes is the size of an opus frame in bytes.
+	OpusFrameSizeBytes = OpusFrameSize * 2 * 2
 )
 
 type (
@@ -63,6 +66,10 @@ type defaultAudioSender struct {
 }
 
 func (s *defaultAudioSender) Open() {
+	go s.open()
+}
+
+func (s *defaultAudioSender) open() {
 	defer s.logger.Debug("closing audio sender")
 	lastFrameSent := time.Now().UnixMilli()
 	ctx, cancel := context.WithCancel(context.Background())
@@ -76,12 +83,12 @@ loop:
 
 		default:
 			s.send()
-			sleepTime := time.Duration(OpusFrameSize - (time.Now().UnixMilli() - lastFrameSent))
+			sleepTime := time.Duration(int64(OpusFrameSizeMs) - (time.Now().UnixMilli() - lastFrameSent))
 			if sleepTime > 0 {
 				time.Sleep(sleepTime * time.Millisecond)
 			}
-			if time.Now().UnixMilli() < lastFrameSent+OpusFrameSize*3 {
-				lastFrameSent += OpusFrameSize
+			if time.Now().UnixMilli() < lastFrameSent+int64(OpusFrameSizeMs)*3 {
+				lastFrameSent += int64(OpusFrameSizeMs)
 			} else {
 				lastFrameSent = time.Now().UnixMilli()
 			}

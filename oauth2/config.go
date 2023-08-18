@@ -1,15 +1,15 @@
 package oauth2
 
 import (
-	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/log"
+
+	"github.com/disgoorg/disgo/rest"
 )
 
 // DefaultConfig is the configuration which is used by default
 func DefaultConfig() *Config {
 	return &Config{
-		Logger:            log.Default(),
-		SessionController: NewSessionController(),
+		Logger: log.Default(),
 	}
 }
 
@@ -19,7 +19,6 @@ type Config struct {
 	RestClient                rest.Client
 	RestClientConfigOpts      []rest.ConfigOpt
 	OAuth2                    rest.OAuth2
-	SessionController         SessionController
 	StateController           StateController
 	StateControllerConfigOpts []StateControllerConfigOpt
 }
@@ -33,13 +32,13 @@ func (c *Config) Apply(opts []ConfigOpt) {
 		opt(c)
 	}
 	if c.RestClient == nil {
-		c.RestClient = rest.NewClient("", c.RestClientConfigOpts...)
+		c.RestClient = rest.NewClient("", append([]rest.ConfigOpt{rest.WithLogger(c.Logger)}, c.RestClientConfigOpts...)...)
 	}
 	if c.OAuth2 == nil {
 		c.OAuth2 = rest.NewOAuth2(c.RestClient)
 	}
 	if c.StateController == nil {
-		c.StateController = NewStateController(c.StateControllerConfigOpts...)
+		c.StateController = NewStateController(append([]StateControllerConfigOpt{WithStateControllerLogger(c.Logger)}, c.StateControllerConfigOpts...)...)
 	}
 }
 
@@ -68,13 +67,6 @@ func WithRestClientConfigOpts(opts ...rest.ConfigOpt) ConfigOpt {
 func WithOAuth2(oauth2 rest.OAuth2) ConfigOpt {
 	return func(config *Config) {
 		config.OAuth2 = oauth2
-	}
-}
-
-// WithSessionController applies a custom SessionController to the OAuth2 client
-func WithSessionController(sessionController SessionController) ConfigOpt {
-	return func(config *Config) {
-		config.SessionController = sessionController
 	}
 }
 

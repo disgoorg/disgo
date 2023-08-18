@@ -11,6 +11,9 @@ type ListenerAdapter struct {
 	// raw event
 	OnRaw func(event *Raw)
 
+	// heartbeat ack event
+	OnHeartbeatAck func(event *HeartbeatAck)
+
 	// GuildApplicationCommandPermissionsUpdate
 	OnGuildApplicationCommandPermissionsUpdate func(event *GuildApplicationCommandPermissionsUpdate)
 
@@ -69,15 +72,16 @@ type ListenerAdapter struct {
 	OnResumed func(event *Resumed)
 
 	// Guild Events
-	OnGuildJoin        func(event *GuildJoin)
-	OnGuildUpdate      func(event *GuildUpdate)
-	OnGuildLeave       func(event *GuildLeave)
-	OnGuildAvailable   func(event *GuildAvailable)
-	OnGuildUnavailable func(event *GuildUnavailable)
-	OnGuildReady       func(event *GuildReady)
-	OnGuildsReady      func(event *GuildsReady)
-	OnGuildBan         func(event *GuildBan)
-	OnGuildUnban       func(event *GuildUnban)
+	OnGuildJoin                func(event *GuildJoin)
+	OnGuildUpdate              func(event *GuildUpdate)
+	OnGuildLeave               func(event *GuildLeave)
+	OnGuildAvailable           func(event *GuildAvailable)
+	OnGuildUnavailable         func(event *GuildUnavailable)
+	OnGuildReady               func(event *GuildReady)
+	OnGuildsReady              func(event *GuildsReady)
+	OnGuildBan                 func(event *GuildBan)
+	OnGuildUnban               func(event *GuildUnban)
+	OnGuildAuditLogEntryCreate func(event *GuildAuditLogEntryCreate)
 
 	// Guild Invite Events
 	OnGuildInviteCreate func(event *InviteCreate)
@@ -150,6 +154,8 @@ type ListenerAdapter struct {
 	OnGuildMemberTypingStart func(event *GuildMemberTypingStart)
 	OnDMUserTypingStart      func(event *DMUserTypingStart)
 
+	OnPresenceUpdate func(event *PresenceUpdate)
+
 	// User Activity Events
 	OnUserActivityStart  func(event *UserActivityStart)
 	OnUserActivityUpdate func(event *UserActivityUpdate)
@@ -171,6 +177,11 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 	switch e := event.(type) {
 	case *Raw:
 		if listener := l.OnRaw; listener != nil {
+			listener(e)
+		}
+
+	case *HeartbeatAck:
+		if listener := l.OnHeartbeatAck; listener != nil {
 			listener(e)
 		}
 
@@ -370,6 +381,10 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 	case *GuildUnban:
 		if listener := l.OnGuildUnban; listener != nil {
+			listener(e)
+		}
+	case *GuildAuditLogEntryCreate:
+		if listener := l.OnGuildAuditLogEntryCreate; listener != nil {
 			listener(e)
 		}
 
@@ -576,6 +591,11 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 	case *DMUserTypingStart:
 		if listener := l.OnDMUserTypingStart; listener != nil {
+			listener(e)
+		}
+
+	case *PresenceUpdate:
+		if listener := l.OnPresenceUpdate; listener != nil {
 			listener(e)
 		}
 

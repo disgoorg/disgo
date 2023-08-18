@@ -7,6 +7,7 @@ type EventType string
 const (
 	// EventTypeRaw is not a real event type, but is used to pass raw payloads to the bot.EventManager
 	EventTypeRaw                                 EventType = "__RAW__"
+	EventTypeHeartbeatAck                        EventType = "__HEARTBEAT_ACK__"
 	EventTypeReady                               EventType = "READY"
 	EventTypeResumed                             EventType = "RESUMED"
 	EventTypeApplicationCommandPermissionsUpdate EventType = "APPLICATION_COMMAND_PERMISSIONS_UPDATE"
@@ -27,6 +28,7 @@ const (
 	EventTypeGuildCreate                         EventType = "GUILD_CREATE"
 	EventTypeGuildUpdate                         EventType = "GUILD_UPDATE"
 	EventTypeGuildDelete                         EventType = "GUILD_DELETE"
+	EventTypeGuildAuditLogEntryCreate            EventType = "GUILD_AUDIT_LOG_ENTRY_CREATE"
 	EventTypeGuildBanAdd                         EventType = "GUILD_BAN_ADD"
 	EventTypeGuildBanRemove                      EventType = "GUILD_BAN_REMOVE"
 	EventTypeGuildEmojisUpdate                   EventType = "GUILD_EMOJIS_UPDATE"
