@@ -77,6 +77,11 @@ func (i *UnmarshalIntegration) UnmarshalJSON(data []byte) error {
 		err = json.Unmarshal(data, &v)
 		integration = v
 
+	case IntegrationTypeGuildSubscription:
+		var v GuildSubscriptionIntegration
+		err = json.Unmarshal(data, &v)
+		integration = v
+
 	default:
 		err = fmt.Errorf("unknown integration with type %s received", cType.Type)
 	}
@@ -202,5 +207,35 @@ func (i BotIntegration) ID() snowflake.ID {
 }
 
 func (i BotIntegration) CreatedAt() time.Time {
+	return i.IntegrationID.Time()
+}
+
+type GuildSubscriptionIntegration struct {
+	IntegrationID snowflake.ID       `json:"id"`
+	Name          string             `json:"name"`
+	Enabled       bool               `json:"enabled"`
+	Account       IntegrationAccount `json:"account"`
+}
+
+func (i GuildSubscriptionIntegration) MarshalJSON() ([]byte, error) {
+	type subscriptionIntegration GuildSubscriptionIntegration
+	return json.Marshal(struct {
+		Type IntegrationType `json:"type"`
+		subscriptionIntegration
+	}{
+		Type:                    i.Type(),
+		subscriptionIntegration: subscriptionIntegration(i),
+	})
+}
+
+func (GuildSubscriptionIntegration) Type() IntegrationType {
+	return IntegrationTypeGuildSubscription
+}
+
+func (i GuildSubscriptionIntegration) ID() snowflake.ID {
+	return i.IntegrationID
+}
+
+func (i GuildSubscriptionIntegration) CreatedAt() time.Time {
 	return i.IntegrationID.Time()
 }
