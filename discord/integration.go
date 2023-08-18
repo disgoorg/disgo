@@ -154,7 +154,7 @@ func (i YouTubeIntegration) MarshalJSON() ([]byte, error) {
 }
 
 func (YouTubeIntegration) Type() IntegrationType {
-	return IntegrationTypeTwitch
+	return IntegrationTypeYouTube
 }
 
 func (i YouTubeIntegration) ID() snowflake.ID {
