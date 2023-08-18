@@ -13,6 +13,7 @@ type InviteTargetType int
 const (
 	InviteTargetTypeStream InviteTargetType = iota + 1
 	InviteTargetTypeEmbeddedApplication
+	InviteTargetTypeRoleSubscriptionsPurchase
 )
 
 // Invite is a partial invite struct
