@@ -9,7 +9,7 @@ import (
 )
 
 var defaultErrorHandler = func(e *events.InteractionCreate, err error) {
-	e.Client().Logger().Errorf("error handling interaction: %s\n", err)
+	e.Client().Logger().Errorf("error handling interaction: %v\n", err)
 }
 
 // New returns a new Router.
