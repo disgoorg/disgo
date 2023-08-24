@@ -9,11 +9,13 @@ import (
 // GenericReaction is called upon receiving MessageReactionAdd or MessageReactionRemove
 type GenericReaction struct {
 	*GenericEvent
-	UserID    snowflake.ID
-	ChannelID snowflake.ID
-	MessageID snowflake.ID
-	GuildID   *snowflake.ID
-	Emoji     discord.PartialEmoji
+	UserID      snowflake.ID
+	ChannelID   snowflake.ID
+	MessageID   snowflake.ID
+	GuildID     *snowflake.ID
+	Emoji       discord.PartialEmoji
+	BurstColors []string
+	Burst       bool
 }
 
 // MessageReactionAdd indicates that a discord.User added a discord.MessageReaction to a discord.Message in a discord.Channel(this+++ requires the gateway.IntentGuildMessageReactions and/or gateway.IntentDirectMessageReactions)
