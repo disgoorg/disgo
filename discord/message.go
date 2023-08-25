@@ -360,6 +360,13 @@ type ReactionCountDetails struct {
 	Normal int `json:"normal"`
 }
 
+type MessageReactionType int
+
+const (
+	MessageReactionTypeNormal MessageReactionType = iota
+	MessageReactionTypeBurst
+)
+
 // MessageActivityType is the type of MessageActivity https://com/developers/docs/resources/channel#message-object-message-activity-types
 type MessageActivityType int
 
