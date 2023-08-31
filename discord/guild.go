@@ -29,6 +29,8 @@ const (
 	SystemChannelFlagSuppressPremiumSubscriptions
 	SystemChannelFlagSuppressGuildReminderNotifications
 	SystemChannelFlagSuppressJoinNotificationReplies
+	SystemChannelFlagSuppressRoleSubscriptionPurchaseNotifications
+	SystemChannelFlagSuppressRoleSubscriptionPurchaseNotificationReplies
 )
 
 // Add allows you to add multiple bits together, producing a new bit
@@ -96,29 +98,32 @@ type GuildFeature string
 
 // Constants for GuildFeature
 const (
-	GuildFeatureAnimatedBanner                GuildFeature = "ANIMATED_BANNER"
-	GuildFeatureAnimatedIcon                  GuildFeature = "ANIMATED_ICON"
-	GuildFeatureAutoModeration                GuildFeature = "AUTO_MODERATION"
-	GuildFeatureBanner                        GuildFeature = "BANNER"
-	GuildFeatureCommunity                     GuildFeature = "COMMUNITY"
-	GuildFeatureDeveloperSupportServer        GuildFeature = "DEVELOPER_SUPPORT_SERVER"
-	GuildFeatureDiscoverable                  GuildFeature = "DISCOVERABLE"
-	GuildFeatureFeaturable                    GuildFeature = "FEATURABLE"
-	GuildFeatureInvitesDisabled               GuildFeature = "INVITES_DISABLED"
-	GuildFeatureInviteSplash                  GuildFeature = "INVITE_SPLASH"
-	GuildFeatureMemberVerificationGateEnabled GuildFeature = "MEMBER_VERIFICATION_GATE_ENABLED"
-	GuildFeatureMonetizationEnabled           GuildFeature = "MONETIZATION_ENABLED"
-	GuildFeatureMoreStickers                  GuildFeature = "MORE_STICKERS"
-	GuildFeatureNews                          GuildFeature = "NEWS"
-	GuildFeaturePartnered                     GuildFeature = "PARTNERED"
-	GuildFeaturePreviewEnabled                GuildFeature = "PREVIEW_ENABLED"
-	GuildFeatureRaidAlertsDisabled            GuildFeature = "RAID_ALERTS_DISABLED"
-	GuildFeatureRoleIcons                     GuildFeature = "ROLE_ICONS"
-	GuildFeatureTicketedEventsEnabled         GuildFeature = "TICKETED_EVENTS_ENABLED"
-	GuildFeatureVanityURL                     GuildFeature = "VANITY_URL"
-	GuildFeatureVerified                      GuildFeature = "VERIFIED"
-	GuildFeatureVipRegions                    GuildFeature = "VIP_REGIONS"
-	GuildFeatureWelcomeScreenEnabled          GuildFeature = "WELCOME_SCREEN_ENABLED"
+	GuildFeatureAnimatedBanner                        GuildFeature = "ANIMATED_BANNER"
+	GuildFeatureAnimatedIcon                          GuildFeature = "ANIMATED_ICON"
+	GuildFeatureAutoModeration                        GuildFeature = "AUTO_MODERATION"
+	GuildFeatureBanner                                GuildFeature = "BANNER"
+	GuildFeatureCommunity                             GuildFeature = "COMMUNITY"
+	GuildFeatureCreatorMonetizableProvisional         GuildFeature = "CREATOR_MONETIZABLE_PROVISIONAL"
+	GuildFeatureCreatorStorePage                      GuildFeature = "CREATOR_STORE_PAGE"
+	GuildFeatureDeveloperSupportServer                GuildFeature = "DEVELOPER_SUPPORT_SERVER"
+	GuildFeatureDiscoverable                          GuildFeature = "DISCOVERABLE"
+	GuildFeatureFeaturable                            GuildFeature = "FEATURABLE"
+	GuildFeatureInvitesDisabled                       GuildFeature = "INVITES_DISABLED"
+	GuildFeatureInviteSplash                          GuildFeature = "INVITE_SPLASH"
+	GuildFeatureMemberVerificationGateEnabled         GuildFeature = "MEMBER_VERIFICATION_GATE_ENABLED"
+	GuildFeatureMoreStickers                          GuildFeature = "MORE_STICKERS"
+	GuildFeatureNews                                  GuildFeature = "NEWS"
+	GuildFeaturePartnered                             GuildFeature = "PARTNERED"
+	GuildFeaturePreviewEnabled                        GuildFeature = "PREVIEW_ENABLED"
+	GuildFeatureRaidAlertsDisabled                    GuildFeature = "RAID_ALERTS_DISABLED"
+	GuildFeatureRoleIcons                             GuildFeature = "ROLE_ICONS"
+	GuildFeatureRoleSubscriptionsAvailableForPurchase GuildFeature = "ROLE_SUBSCRIPTIONS_AVAILABLE_FOR_PURCHASE"
+	GuildFeatureRoleSubscriptionsEnabled              GuildFeature = "ROLE_SUBSCRIPTIONS_ENABLED"
+	GuildFeatureTicketedEventsEnabled                 GuildFeature = "TICKETED_EVENTS_ENABLED"
+	GuildFeatureVanityURL                             GuildFeature = "VANITY_URL"
+	GuildFeatureVerified                              GuildFeature = "VERIFIED"
+	GuildFeatureVipRegions                            GuildFeature = "VIP_REGIONS"
+	GuildFeatureWelcomeScreenEnabled                  GuildFeature = "WELCOME_SCREEN_ENABLED"
 )
 
 // Guild represents a discord Guild

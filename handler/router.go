@@ -11,7 +11,8 @@ type (
 	AutocompleteHandler func(e *AutocompleteEvent) error
 	ComponentHandler    func(e *ComponentEvent) error
 	ModalHandler        func(e *ModalEvent) error
-	NotFoundHandler     func(event *events.InteractionCreate) error
+	NotFoundHandler     func(e *events.InteractionCreate) error
+	ErrorHandler        func(e *events.InteractionCreate, err error)
 )
 
 var (

@@ -9,6 +9,10 @@ import (
 	"github.com/disgoorg/disgo/events"
 )
 
+var defaultErrorHandler = func(e *events.InteractionCreate, err error) {
+	e.Client().Logger().Error("error handling interaction", slog.String("err", err.Error()))
+}
+
 // New returns a new Router.
 func New() *Mux {
 	return &Mux{}
@@ -28,6 +32,7 @@ type Mux struct {
 	middlewares     []Middleware
 	routes          []Route
 	notFoundHandler NotFoundHandler
+	errorHandler    ErrorHandler
 }
 
 // OnEvent is called when a new event is received.
@@ -54,7 +59,11 @@ func (r *Mux) OnEvent(event bot.Event) {
 	}
 
 	if err := r.Handle(path, make(map[string]string), e); err != nil {
-		event.Client().Logger().Error("error handling interaction", slog.String("err", err.Error()))
+		if r.errorHandler != nil {
+			r.errorHandler(e, err)
+			return
+		}
+		defaultErrorHandler(e, err)
 	}
 }
 
@@ -189,6 +198,12 @@ func (r *Mux) Modal(pattern string, h ModalHandler) {
 // This handler only works for the root router and will be ignored for sub routers.
 func (r *Mux) NotFound(h NotFoundHandler) {
 	r.notFoundHandler = h
+}
+
+// Error sets the ErrorHandler for this router.
+// This handler only works for the root router and will be ignored for sub routers.
+func (r *Mux) Error(h ErrorHandler) {
+	r.errorHandler = h
 }
 
 func checkPattern(pattern string) {
