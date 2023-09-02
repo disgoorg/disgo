@@ -48,6 +48,13 @@ const (
 	_
 	MessageTypeStageTopic
 	MessageTypeGuildApplicationPremiumSubscription
+	MessageTypePrivateChannelIntegrationAdded
+	MessageTypePrivateChannelIntegrationRemoved
+	MessageTypePremiumReferral
+	MessageTypeGuildIncidentAlertModeEnabled
+	MessageTypeGuildIncidentAlertModeDisabled
+	MessageTypeGuildIncidentReportRaid
+	MessageTypeGuildIncidentReportFalseAlarm
 )
 
 func (t MessageType) System() bool {
@@ -65,7 +72,9 @@ func (t MessageType) Deleteable() bool {
 	case MessageTypeRecipientAdd, MessageTypeRecipientRemove, MessageTypeCall,
 		MessageTypeChannelNameChange, MessageTypeChannelIconChange, MessageTypeGuildDiscoveryDisqualified,
 		MessageTypeGuildDiscoveryRequalified, MessageTypeGuildDiscoveryGracePeriodInitialWarning,
-		MessageTypeGuildDiscoveryGracePeriodFinalWarning, MessageTypeThreadStarterMessage:
+		MessageTypeGuildDiscoveryGracePeriodFinalWarning, MessageTypeThreadStarterMessage,
+		MessageTypeGuildIncidentAlertModeEnabled, MessageTypeGuildIncidentAlertModeDisabled,
+		MessageTypeGuildIncidentReportRaid, MessageTypeGuildIncidentReportFalseAlarm:
 		return false
 
 	default:
