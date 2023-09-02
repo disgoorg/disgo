@@ -118,8 +118,13 @@ const (
 )
 
 const (
-	AuditLogServerGuideCreate AuditLogEvent = iota + 190
-	AuditLogServerGuideUpdate
+	AuditLogGuildHomeFeatureItem AuditLogEvent = iota + 171
+	AuditLogGuildHomeRemoveItem
+)
+
+const (
+	AuditLogHomeSettingsCreate AuditLogEvent = iota + 190
+	AuditLogHomeSettingsUpdate
 )
 
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord
