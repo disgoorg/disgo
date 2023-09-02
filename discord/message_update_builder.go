@@ -14,11 +14,7 @@ type MessageUpdateBuilder struct {
 
 // NewMessageUpdateBuilder creates a new MessageUpdateBuilder to be built later
 func NewMessageUpdateBuilder() *MessageUpdateBuilder {
-	return &MessageUpdateBuilder{
-		MessageUpdate: MessageUpdate{
-			AllowedMentions: &DefaultAllowedMentions,
-		},
-	}
+	return &MessageUpdateBuilder{}
 }
 
 // SetContent sets content of the Message

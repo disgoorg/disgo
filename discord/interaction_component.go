@@ -82,6 +82,7 @@ func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
 	i.baseInteraction.version = interaction.Version
 	i.baseInteraction.guildID = interaction.GuildID
 	i.baseInteraction.channelID = interaction.ChannelID
+	i.baseInteraction.channel = interaction.Channel
 	i.baseInteraction.locale = interaction.Locale
 	i.baseInteraction.guildLocale = interaction.GuildLocale
 	i.baseInteraction.member = interaction.Member
@@ -108,6 +109,7 @@ func (i ComponentInteraction) MarshalJSON() ([]byte, error) {
 			Version:        i.version,
 			GuildID:        i.guildID,
 			ChannelID:      i.channelID,
+			Channel:        i.channel,
 			Locale:         i.locale,
 			GuildLocale:    i.guildLocale,
 			Member:         i.member,

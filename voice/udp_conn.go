@@ -164,6 +164,9 @@ func (u *udpConnImpl) Open(ctx context.Context, ip string, port int, ssrc uint32
 	if err = u.conn.SetWriteDeadline(time.Now().Add(5 * time.Second)); err != nil {
 		return "", 0, fmt.Errorf("failed to set write deadline on UDPConn connection: %w", err)
 	}
+	defer func() {
+		_ = u.conn.SetWriteDeadline(time.Time{})
+	}()
 	if _, err = u.conn.Write(sb); err != nil {
 		return "", 0, fmt.Errorf("failed to write ssrc to UDPConn connection: %w", err)
 	}
@@ -172,6 +175,9 @@ func (u *udpConnImpl) Open(ctx context.Context, ip string, port int, ssrc uint32
 	if err = u.conn.SetReadDeadline(time.Now().Add(5 * time.Second)); err != nil {
 		return "", 0, fmt.Errorf("failed to set read deadline on UDPConn connection: %w", err)
 	}
+	defer func() {
+		_ = u.conn.SetReadDeadline(time.Time{})
+	}()
 	if _, err = u.conn.Read(rb); err != nil {
 		return "", 0, fmt.Errorf("failed to read ip discovery from UDPConn connection: %w", err)
 	}

@@ -23,26 +23,47 @@ func DefaultConfig() *Config {
 
 // Config lets you configure your Gateway instance.
 type Config struct {
-	Logger                    log.Logger
-	Dialer                    *websocket.Dialer
-	LargeThreshold            int
-	Intents                   Intents
-	Compress                  bool
-	URL                       string
-	ShardID                   int
-	ShardCount                int
-	SessionID                 *string
-	ResumeURL                 *string
-	LastSequenceReceived      *int
-	AutoReconnect             bool
-	EnableRawEvents           bool
-	EnableResumeURL           bool
-	RateLimiter               RateLimiter
+	// Logger is the logger of the Gateway. Defaults to log.Default().
+	Logger log.Logger
+	// Dialer is the websocket.Dialer of the Gateway. Defaults to websocket.DefaultDialer.
+	Dialer *websocket.Dialer
+	// LargeThreshold is the threshold for the Gateway. Defaults to 50
+	// See here for more information: https://discord.com/developers/docs/topics/gateway-events#identify-identify-structure.
+	LargeThreshold int
+	// Intents is the Intents for the Gateway. Defaults to IntentsNone.
+	Intents Intents
+	// Compress is whether the Gateway should compress payloads. Defaults to true.
+	Compress bool
+	// URL is the URL of the Gateway. Defaults to fetch from Discord.
+	URL string
+	// ShardID is the shardID of the Gateway. Defaults to 0.
+	ShardID int
+	// ShardCount is the shardCount of the Gateway. Defaults to 1.
+	ShardCount int
+	// SessionID is the last sessionID of the Gateway. Defaults to nil (no resume).
+	SessionID *string
+	// ResumeURL is the last resumeURL of the Gateway. Defaults to nil (no resume).
+	ResumeURL *string
+	// LastSequenceReceived is the last sequence received by the Gateway. Defaults to nil (no resume).
+	LastSequenceReceived *int
+	// AutoReconnect is whether the Gateway should automatically reconnect or call the CloseHandlerFunc. Defaults to true.
+	AutoReconnect bool
+	// EnableRawEvents is whether the Gateway should emit EventRaw. Defaults to false.
+	EnableRawEvents bool
+	// EnableResumeURL is whether the Gateway should enable the resumeURL. Defaults to true.
+	EnableResumeURL bool
+	// RateLimiter is the RateLimiter of the Gateway. Defaults to NewRateLimiter().
+	RateLimiter RateLimiter
+	// RateRateLimiterConfigOpts is the RateLimiterConfigOpts of the Gateway. Defaults to nil.
 	RateRateLimiterConfigOpts []RateLimiterConfigOpt
-	Presence                  *MessageDataPresenceUpdate
-	OS                        string
-	Browser                   string
-	Device                    string
+	// Presence is the presence it should send on login. Defaults to nil.
+	Presence *MessageDataPresenceUpdate
+	// OS is the OS it should send on login. Defaults to runtime.GOOS.
+	OS string
+	// Browser is the Browser it should send on login. Defaults to "disgo".
+	Browser string
+	// Device is the Device it should send on login. Defaults to "disgo".
+	Device string
 }
 
 // ConfigOpt is a type alias for a function that takes a Config and is used to configure your Server.

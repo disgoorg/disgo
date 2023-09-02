@@ -104,7 +104,7 @@ type GuildForumChannelUpdate struct {
 	PermissionOverwrites          *[]PermissionOverwrite               `json:"permission_overwrites,omitempty"`
 	ParentID                      *snowflake.ID                        `json:"parent_id,omitempty"`
 	RateLimitPerUser              *int                                 `json:"rate_limit_per_user"`
-	AvailableTags                 *[]ForumTag                          `json:"available_tags,omitempty"`
+	AvailableTags                 *[]ChannelTag                        `json:"available_tags,omitempty"`
 	Flags                         *ChannelFlags                        `json:"flags,omitempty"`
 	DefaultReactionEmoji          *json.Nullable[DefaultReactionEmoji] `json:"default_reaction_emoji,omitempty"`
 	DefaultThreadRateLimitPerUser *int                                 `json:"default_thread_rate_limit_per_user,omitempty"`
@@ -115,7 +115,25 @@ type GuildForumChannelUpdate struct {
 func (GuildForumChannelUpdate) channelUpdate()      {}
 func (GuildForumChannelUpdate) guildChannelUpdate() {}
 
-type GuildForumThreadChannelUpdate struct {
+type GuildMediaChannelUpdate struct {
+	Name                          *string                              `json:"name,omitempty"`
+	Position                      *int                                 `json:"position,omitempty"`
+	Topic                         *string                              `json:"topic,omitempty"`
+	NSFW                          *bool                                `json:"nsfw,omitempty"`
+	PermissionOverwrites          *[]PermissionOverwrite               `json:"permission_overwrites,omitempty"`
+	ParentID                      *snowflake.ID                        `json:"parent_id,omitempty"`
+	RateLimitPerUser              *int                                 `json:"rate_limit_per_user"`
+	AvailableTags                 *[]ChannelTag                        `json:"available_tags,omitempty"`
+	Flags                         *ChannelFlags                        `json:"flags,omitempty"`
+	DefaultReactionEmoji          *json.Nullable[DefaultReactionEmoji] `json:"default_reaction_emoji,omitempty"`
+	DefaultThreadRateLimitPerUser *int                                 `json:"default_thread_rate_limit_per_user,omitempty"`
+	DefaultSortOrder              *json.Nullable[DefaultSortOrder]     `json:"default_sort_order,omitempty"`
+}
+
+func (GuildMediaChannelUpdate) channelUpdate()      {}
+func (GuildMediaChannelUpdate) guildChannelUpdate() {}
+
+type GuildPostUpdate struct {
 	Name                *string              `json:"name,omitempty"`
 	Archived            *bool                `json:"archived,omitempty"`
 	AutoArchiveDuration *AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
@@ -126,8 +144,8 @@ type GuildForumThreadChannelUpdate struct {
 	AppliedTags         *[]snowflake.ID      `json:"applied_tags,omitempty"`
 }
 
-func (GuildForumThreadChannelUpdate) channelUpdate()      {}
-func (GuildForumThreadChannelUpdate) guildChannelUpdate() {}
+func (GuildPostUpdate) channelUpdate()      {}
+func (GuildPostUpdate) guildChannelUpdate() {}
 
 type GuildChannelPositionUpdate struct {
 	ID              snowflake.ID         `json:"id"`

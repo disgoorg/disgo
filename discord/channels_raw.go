@@ -188,14 +188,14 @@ type guildForumChannel struct {
 	NSFW                          bool                  `json:"nsfw"`
 	RateLimitPerUser              int                   `json:"rate_limit_per_user"`
 	Flags                         ChannelFlags          `json:"flags"`
-	AvailableTags                 []ForumTag            `json:"available_tags"`
+	AvailableTags                 []ChannelTag          `json:"available_tags"`
 	DefaultReactionEmoji          *DefaultReactionEmoji `json:"default_reaction_emoji"`
 	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user"`
 	DefaultSortOrder              *DefaultSortOrder     `json:"default_sort_order"`
 	DefaultForumLayout            DefaultForumLayout    `json:"default_forum_layout"`
 
 	// idk discord name your shit correctly
-	LastThreadID *snowflake.ID `json:"last_message_id"`
+	LastPostID *snowflake.ID `json:"last_message_id"`
 }
 
 func (t *guildForumChannel) UnmarshalJSON(data []byte) error {
@@ -208,6 +208,41 @@ func (t *guildForumChannel) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*t = guildForumChannel(v.guildForumChannelAlias)
+	t.PermissionOverwrites = parsePermissionOverwrites(v.PermissionOverwrites)
+	return nil
+}
+
+type guildMediaChannel struct {
+	ID                            snowflake.ID          `json:"id"`
+	Type                          ChannelType           `json:"type"`
+	GuildID                       snowflake.ID          `json:"guild_id"`
+	Position                      int                   `json:"position"`
+	PermissionOverwrites          []PermissionOverwrite `json:"permission_overwrites"`
+	Name                          string                `json:"name"`
+	ParentID                      *snowflake.ID         `json:"parent_id"`
+	Topic                         *string               `json:"topic"`
+	NSFW                          bool                  `json:"nsfw"`
+	RateLimitPerUser              int                   `json:"rate_limit_per_user"`
+	Flags                         ChannelFlags          `json:"flags"`
+	AvailableTags                 []ChannelTag          `json:"available_tags"`
+	DefaultReactionEmoji          *DefaultReactionEmoji `json:"default_reaction_emoji"`
+	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user"`
+	DefaultSortOrder              *DefaultSortOrder     `json:"default_sort_order"`
+
+	// idk discord name your shit correctly v2
+	LastPostID *snowflake.ID `json:"last_message_id"`
+}
+
+func (t *guildMediaChannel) UnmarshalJSON(data []byte) error {
+	type guildMediaChannelAlias guildMediaChannel
+	var v struct {
+		PermissionOverwrites []UnmarshalPermissionOverwrite `json:"permission_overwrites"`
+		guildMediaChannelAlias
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*t = guildMediaChannel(v.guildMediaChannelAlias)
 	t.PermissionOverwrites = parsePermissionOverwrites(v.PermissionOverwrites)
 	return nil
 }

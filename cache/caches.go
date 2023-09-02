@@ -6,7 +6,6 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/internal/set"
 )
 
 type SelfUserCache interface {
@@ -56,7 +55,7 @@ type GuildCache interface {
 	RemoveGuild(guildID snowflake.ID) (discord.Guild, bool)
 }
 
-func NewGuildCache(cache Cache[discord.Guild], unreadyGuilds set.Set[snowflake.ID], unavailableGuilds set.Set[snowflake.ID]) GuildCache {
+func NewGuildCache(cache Cache[discord.Guild], unreadyGuilds Set[snowflake.ID], unavailableGuilds Set[snowflake.ID]) GuildCache {
 	return &guildCacheImpl{
 		cache:             cache,
 		unreadyGuilds:     unreadyGuilds,
@@ -66,8 +65,8 @@ func NewGuildCache(cache Cache[discord.Guild], unreadyGuilds set.Set[snowflake.I
 
 type guildCacheImpl struct {
 	cache             Cache[discord.Guild]
-	unreadyGuilds     set.Set[snowflake.ID]
-	unavailableGuilds set.Set[snowflake.ID]
+	unreadyGuilds     Set[snowflake.ID]
+	unavailableGuilds Set[snowflake.ID]
 }
 
 func (c *guildCacheImpl) IsGuildUnready(guildID snowflake.ID) bool {
@@ -748,6 +747,9 @@ type Caches interface {
 
 	// GuildForumChannel returns a discord.GuildForumChannel from the ChannelCache and a bool indicating if it exists.
 	GuildForumChannel(channelID snowflake.ID) (discord.GuildForumChannel, bool)
+
+	// GuildMediaChannel returns a discord.GuildMediaChannel from the ChannelCache and a bool indicating if it exists.
+	GuildMediaChannel(channelID snowflake.ID) (discord.GuildMediaChannel, bool)
 }
 
 // New returns a new default Caches instance with the given ConfigOpt(s) applied.
@@ -824,43 +826,38 @@ func (c *cachesImpl) MemberPermissionsInChannel(channel discord.GuildChannel, me
 	}
 
 	var (
-		allowRaw discord.Permissions
-		denyRaw  discord.Permissions
+		allow discord.Permissions
+		deny  discord.Permissions
 	)
+
 	if overwrite, ok := channel.PermissionOverwrites().Role(channel.GuildID()); ok {
-		allowRaw = overwrite.Allow
-		denyRaw = overwrite.Deny
+		permissions |= overwrite.Allow
+		permissions &= ^overwrite.Deny
 	}
 
-	var (
-		allowRole discord.Permissions
-		denyRole  discord.Permissions
-	)
 	for _, roleID := range member.RoleIDs {
 		if roleID == channel.GuildID() {
 			continue
 		}
 
 		if overwrite, ok := channel.PermissionOverwrites().Role(roleID); ok {
-			allowRole = allowRole.Add(overwrite.Allow)
-			denyRole = denyRole.Add(overwrite.Deny)
+			allow |= overwrite.Allow
+			deny |= overwrite.Deny
 		}
 	}
 
-	allowRaw = (allowRaw & (denyRole - 1)) | allowRole
-	denyRaw = (denyRaw & (allowRole - 1)) | denyRole
-
 	if overwrite, ok := channel.PermissionOverwrites().Member(member.User.ID); ok {
-		allowRaw = (allowRaw & (overwrite.Deny - 1)) | overwrite.Allow
-		denyRaw = (denyRaw & (overwrite.Allow - 1)) | overwrite.Deny
+		allow |= overwrite.Allow
+		deny |= overwrite.Deny
 	}
 
-	permissions &= denyRaw - 1
-	permissions |= allowRaw
+	permissions &= ^deny
+	permissions |= allow
 
 	if member.CommunicationDisabledUntil != nil {
 		permissions &= discord.PermissionViewChannel | discord.PermissionReadMessageHistory
 	}
+
 	return permissions
 }
 
@@ -1013,4 +1010,13 @@ func (c *cachesImpl) GuildForumChannel(channelID snowflake.ID) (discord.GuildFor
 		}
 	}
 	return discord.GuildForumChannel{}, false
+}
+
+func (c *cachesImpl) GuildMediaChannel(channelID snowflake.ID) (discord.GuildMediaChannel, bool) {
+	if ch, ok := c.Channel(channelID); ok {
+		if cCh, ok := ch.(discord.GuildMediaChannel); ok {
+			return cCh, true
+		}
+	}
+	return discord.GuildMediaChannel{}, false
 }

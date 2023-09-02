@@ -7,6 +7,7 @@ type GuildOnboarding struct {
 	Prompts           []GuildOnboardingPrompt `json:"prompts"`
 	DefaultChannelIDs []snowflake.ID          `json:"default_channel_ids"`
 	Enabled           bool                    `json:"enabled"`
+	Mode              GuildOnboardingMode     `json:"mode"`
 }
 
 type GuildOnboardingPrompt struct {
@@ -23,8 +24,7 @@ type GuildOnboardingPromptOption struct {
 	ID          snowflake.ID   `json:"id"`
 	ChannelIDs  []snowflake.ID `json:"channel_ids"`
 	RoleIDs     []snowflake.ID `json:"role_ids"`
-	EmojiID     *snowflake.ID  `json:"emoji_id"`
-	EmojiName   *string        `json:"emoji_name"`
+	Emoji       PartialEmoji   `json:"emoji"`
 	Title       string         `json:"title"`
 	Description *string        `json:"description"`
 }
@@ -35,3 +35,17 @@ const (
 	GuildOnboardingPromptTypeMultipleChoice GuildOnboardingPromptType = iota
 	GuildOnboardingPromptTypeDropdown
 )
+
+type GuildOnboardingMode int
+
+const (
+	GuildOnboardingModeDefault GuildOnboardingMode = iota
+	GuildOnboardingModeAdvanced
+)
+
+type GuildOnboardingUpdate struct {
+	Prompts           *[]GuildOnboardingPrompt `json:"prompts,omitempty"`
+	DefaultChannelIDs *[]snowflake.ID          `json:"default_channel_ids,omitempty"`
+	Enabled           *bool                    `json:"enabled,omitempty"`
+	Mode              *GuildOnboardingMode     `json:"mode,omitempty"`
+}

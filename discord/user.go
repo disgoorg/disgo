@@ -65,29 +65,43 @@ var _ Mentionable = (*User)(nil)
 
 // User is a struct for interacting with discord's users
 type User struct {
-	ID            snowflake.ID `json:"id"`
-	Username      string       `json:"username"`
-	Discriminator string       `json:"discriminator"`
-	Avatar        *string      `json:"avatar"`
-	Banner        *string      `json:"banner"`
-	AccentColor   *int         `json:"accent_color"`
-	Bot           bool         `json:"bot"`
-	System        bool         `json:"system"`
-	PublicFlags   UserFlags    `json:"public_flags"`
+	ID               snowflake.ID `json:"id"`
+	Username         string       `json:"username"`
+	Discriminator    string       `json:"discriminator"`
+	GlobalName       *string      `json:"global_name"`
+	Avatar           *string      `json:"avatar"`
+	Banner           *string      `json:"banner"`
+	AccentColor      *int         `json:"accent_color"`
+	Bot              bool         `json:"bot"`
+	System           bool         `json:"system"`
+	PublicFlags      UserFlags    `json:"public_flags"`
+	AvatarDecoration *string      `json:"avatar_decoration"`
 }
 
+// String returns a mention of the user
 func (u User) String() string {
 	return UserMention(u.ID)
 }
 
+// Mention returns a mention of the user
 func (u User) Mention() string {
 	return u.String()
 }
 
+// Tag returns a formatted string of "Username#Discriminator", falling back to the username if discriminator is "0"
 func (u User) Tag() string {
 	return UserTag(u.Username, u.Discriminator)
 }
 
+// EffectiveName returns the global (display) name of the user if set, falling back to the username
+func (u User) EffectiveName() string {
+	if u.GlobalName != nil {
+		return *u.GlobalName
+	}
+	return u.Username
+}
+
+// EffectiveAvatarURL returns the avatar URL of the user if set, falling back to the default avatar URL
 func (u User) EffectiveAvatarURL(opts ...CDNOpt) string {
 	if u.Avatar == nil {
 		return u.DefaultAvatarURL(opts...)
@@ -98,6 +112,7 @@ func (u User) EffectiveAvatarURL(opts ...CDNOpt) string {
 	return ""
 }
 
+// AvatarURL returns the avatar URL of the user if set or nil
 func (u User) AvatarURL(opts ...CDNOpt) *string {
 	if u.Avatar == nil {
 		return nil
@@ -106,19 +121,34 @@ func (u User) AvatarURL(opts ...CDNOpt) *string {
 	return &url
 }
 
+// DefaultAvatarURL calculates and returns the default avatar URL
 func (u User) DefaultAvatarURL(opts ...CDNOpt) string {
 	discriminator, err := strconv.Atoi(u.Discriminator)
 	if err != nil {
 		return ""
 	}
-	return formatAssetURL(DefaultUserAvatar, opts, discriminator%5)
+	index := discriminator % 5
+	if index == 0 { // new username system
+		index = int((u.ID >> 22) % 6)
+	}
+	return formatAssetURL(DefaultUserAvatar, opts, index)
 }
 
+// BannerURL returns the banner URL if set or nil
 func (u User) BannerURL(opts ...CDNOpt) *string {
 	if u.Banner == nil {
 		return nil
 	}
 	url := formatAssetURL(UserBanner, opts, u.ID, *u.Banner)
+	return &url
+}
+
+// AvatarDecorationURL returns the avatar decoration URL if set or nil
+func (u User) AvatarDecorationURL(opts ...CDNOpt) *string {
+	if u.AvatarDecoration == nil {
+		return nil
+	}
+	url := formatAssetURL(UserAvatarDecoration, opts, u.ID, *u.AvatarDecoration)
 	return &url
 }
 

@@ -29,22 +29,25 @@ type Member struct {
 	GuildID snowflake.ID `json:"guild_id"`
 }
 
+// String returns a mention of the user
 func (m Member) String() string {
 	return m.User.String()
 }
 
+// Mention returns a mention of the user
 func (m Member) Mention() string {
 	return m.String()
 }
 
-// EffectiveName returns either the nickname or username depending on if the user has a nickname
+// EffectiveName returns the nickname of the member if set, falling back to User.EffectiveName()
 func (m Member) EffectiveName() string {
 	if m.Nick != nil {
 		return *m.Nick
 	}
-	return m.User.Username
+	return m.User.EffectiveName()
 }
 
+// EffectiveAvatarURL returns the guild-specific avatar URL of the user if set, falling back to the effective avatar URL of the user
 func (m Member) EffectiveAvatarURL(opts ...CDNOpt) string {
 	if m.Avatar == nil {
 		return m.User.EffectiveAvatarURL(opts...)
@@ -55,6 +58,7 @@ func (m Member) EffectiveAvatarURL(opts ...CDNOpt) string {
 	return ""
 }
 
+// AvatarURL returns the guild-specific avatar URL of the user if set or nil
 func (m Member) AvatarURL(opts ...CDNOpt) *string {
 	if m.Avatar == nil {
 		return nil

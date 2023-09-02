@@ -30,10 +30,11 @@ type Activity struct {
 	URL           *string             `json:"url"`
 	CreatedAt     time.Time           `json:"created_at"`
 	Timestamps    *ActivityTimestamps `json:"timestamps,omitempty"`
+	SyncID        *string             `json:"sync_id,omitempty"`
 	ApplicationID snowflake.ID        `json:"application_id,omitempty"`
 	Details       *string             `json:"details,omitempty"`
 	State         *string             `json:"state,omitempty"`
-	Emoji         *ActivityEmoji      `json:"emoji,omitempty"`
+	Emoji         *PartialEmoji       `json:"emoji,omitempty"`
 	Party         *ActivityParty      `json:"party,omitempty"`
 	Assets        *ActivityAssets     `json:"assets,omitempty"`
 	Secrets       *ActivitySecrets    `json:"secrets,omitempty"`
@@ -138,17 +139,10 @@ func (a ActivityTimestamps) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// ActivityEmoji is an Emoji object for an Activity
-type ActivityEmoji struct {
-	Name     string        `json:"name"`
-	ID       *snowflake.ID `json:"id,omitempty"`
-	Animated *bool         `json:"animated,omitempty"`
-}
-
 // ActivityParty is information about the party of the player
 type ActivityParty struct {
 	ID   string `json:"id,omitempty"`
-	Size []int  `json:"size,omitempty"`
+	Size [2]int `json:"size,omitempty"`
 }
 
 // ActivityAssets are the images for the presence and hover texts

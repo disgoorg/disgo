@@ -11,6 +11,9 @@ type ListenerAdapter struct {
 	// raw event
 	OnRaw func(event *Raw)
 
+	// heartbeat ack event
+	OnHeartbeatAck func(event *HeartbeatAck)
+
 	// GuildApplicationCommandPermissionsUpdate
 	OnGuildApplicationCommandPermissionsUpdate func(event *GuildApplicationCommandPermissionsUpdate)
 
@@ -151,6 +154,8 @@ type ListenerAdapter struct {
 	OnGuildMemberTypingStart func(event *GuildMemberTypingStart)
 	OnDMUserTypingStart      func(event *DMUserTypingStart)
 
+	OnPresenceUpdate func(event *PresenceUpdate)
+
 	// User Activity Events
 	OnUserActivityStart  func(event *UserActivityStart)
 	OnUserActivityUpdate func(event *UserActivityUpdate)
@@ -172,6 +177,11 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 	switch e := event.(type) {
 	case *Raw:
 		if listener := l.OnRaw; listener != nil {
+			listener(e)
+		}
+
+	case *HeartbeatAck:
+		if listener := l.OnHeartbeatAck; listener != nil {
 			listener(e)
 		}
 
@@ -581,6 +591,11 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 	case *DMUserTypingStart:
 		if listener := l.OnDMUserTypingStart; listener != nil {
+			listener(e)
+		}
+
+	case *PresenceUpdate:
+		if listener := l.OnPresenceUpdate; listener != nil {
 			listener(e)
 		}
 

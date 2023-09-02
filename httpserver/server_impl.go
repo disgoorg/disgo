@@ -3,6 +3,7 @@ package httpserver
 import (
 	"context"
 	"encoding/hex"
+	"errors"
 	"net/http"
 )
 
@@ -43,7 +44,7 @@ func (s *serverImpl) Start() {
 		} else {
 			err = s.config.HTTPServer.ListenAndServe()
 		}
-		if err != nil && err != http.ErrServerClosed {
+		if !errors.Is(err, http.ErrServerClosed) {
 			s.config.Logger.Error("error while running http server: ", err)
 		}
 	}()

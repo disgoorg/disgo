@@ -461,15 +461,15 @@ func (MessageDataPresenceUpdate) messageData() {}
 type PresenceOpt func(presenceUpdate *MessageDataPresenceUpdate)
 
 // WithPlayingActivity creates a new "Playing ..." activity of type discord.ActivityTypeGame
-func WithPlayingActivity(name string) PresenceOpt {
+func WithPlayingActivity(name string, opts ...ActivityOpt) PresenceOpt {
 	return withActivity(discord.Activity{
 		Name: name,
 		Type: discord.ActivityTypeGame,
-	})
+	}, opts...)
 }
 
 // WithStreamingActivity creates a new "Streaming ..." activity of type discord.ActivityTypeStreaming
-func WithStreamingActivity(name string, url string) PresenceOpt {
+func WithStreamingActivity(name string, url string, opts ...ActivityOpt) PresenceOpt {
 	activity := discord.Activity{
 		Name: name,
 		Type: discord.ActivityTypeStreaming,
@@ -477,35 +477,47 @@ func WithStreamingActivity(name string, url string) PresenceOpt {
 	if url != "" {
 		activity.URL = &url
 	}
-	return withActivity(activity)
+	return withActivity(activity, opts...)
 }
 
 // WithListeningActivity creates a new "Listening to ..." activity of type discord.ActivityTypeListening
-func WithListeningActivity(name string) PresenceOpt {
+func WithListeningActivity(name string, opts ...ActivityOpt) PresenceOpt {
 	return withActivity(discord.Activity{
 		Name: name,
 		Type: discord.ActivityTypeListening,
-	})
+	}, opts...)
 }
 
 // WithWatchingActivity creates a new "Watching ..." activity of type discord.ActivityTypeWatching
-func WithWatchingActivity(name string) PresenceOpt {
+func WithWatchingActivity(name string, opts ...ActivityOpt) PresenceOpt {
 	return withActivity(discord.Activity{
 		Name: name,
 		Type: discord.ActivityTypeWatching,
-	})
+	}, opts...)
+}
+
+// WithCustomActivity creates a new activity of type discord.ActivityTypeCustom
+func WithCustomActivity(status string, opts ...ActivityOpt) PresenceOpt {
+	return withActivity(discord.Activity{
+		Name:  "Custom Status",
+		Type:  discord.ActivityTypeCustom,
+		State: &status,
+	}, opts...)
 }
 
 // WithCompetingActivity creates a new "Competing in ..." activity of type discord.ActivityTypeCompeting
-func WithCompetingActivity(name string) PresenceOpt {
+func WithCompetingActivity(name string, opts ...ActivityOpt) PresenceOpt {
 	return withActivity(discord.Activity{
 		Name: name,
 		Type: discord.ActivityTypeCompeting,
-	})
+	}, opts...)
 }
 
-func withActivity(activity discord.Activity) PresenceOpt {
+func withActivity(activity discord.Activity, opts ...ActivityOpt) PresenceOpt {
 	return func(presence *MessageDataPresenceUpdate) {
+		for _, opt := range opts {
+			opt(activity)
+		}
 		presence.Activities = []discord.Activity{activity}
 	}
 }
@@ -528,6 +540,16 @@ func WithAfk(afk bool) PresenceOpt {
 func WithSince(since *int64) PresenceOpt {
 	return func(presence *MessageDataPresenceUpdate) {
 		presence.Since = since
+	}
+}
+
+// ActivityOpt is a type alias for a function that sets optional data for an Activity
+type ActivityOpt func(activity discord.Activity)
+
+// WithActivityState sets the Activity.State
+func WithActivityState(state string) ActivityOpt {
+	return func(activity discord.Activity) {
+		activity.State = &state
 	}
 }
 

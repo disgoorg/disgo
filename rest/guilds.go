@@ -57,6 +57,7 @@ type Guilds interface {
 	UpdateGuildWelcomeScreen(guildID snowflake.ID, screenUpdate discord.GuildWelcomeScreenUpdate, opts ...RequestOpt) (*discord.GuildWelcomeScreen, error)
 
 	GetGuildOnboarding(guildID snowflake.ID, opts ...RequestOpt) (*discord.GuildOnboarding, error)
+	UpdateGuildOnboarding(guildID snowflake.ID, onboardingUpdate discord.GuildOnboardingUpdate, opts ...RequestOpt) (*discord.GuildOnboarding, error)
 }
 
 type guildImpl struct {
@@ -239,7 +240,14 @@ func (s *guildImpl) BeginGuildPrune(guildID snowflake.ID, guildPrune discord.Gui
 }
 
 func (s *guildImpl) GetAllWebhooks(guildID snowflake.ID, opts ...RequestOpt) (webhooks []discord.Webhook, err error) {
-	err = s.client.Do(GetGuildWebhooks.Compile(nil, guildID), nil, &webhooks, opts...)
+	var whs []discord.UnmarshalWebhook
+	err = s.client.Do(GetGuildWebhooks.Compile(nil, guildID), nil, &whs, opts...)
+	if err == nil {
+		webhooks = make([]discord.Webhook, len(whs))
+		for i := range whs {
+			webhooks[i] = whs[i].Webhook
+		}
+	}
 	return
 }
 
@@ -295,5 +303,10 @@ func (s *guildImpl) UpdateGuildWelcomeScreen(guildID snowflake.ID, screenUpdate 
 
 func (s *guildImpl) GetGuildOnboarding(guildID snowflake.ID, opts ...RequestOpt) (onboarding *discord.GuildOnboarding, err error) {
 	err = s.client.Do(GetGuildOnboarding.Compile(nil, guildID), nil, &onboarding, opts...)
+	return
+}
+
+func (s *guildImpl) UpdateGuildOnboarding(guildID snowflake.ID, onboardingUpdate discord.GuildOnboardingUpdate, opts ...RequestOpt) (guildOnboarding *discord.GuildOnboarding, err error) {
+	err = s.client.Do(UpdateGuildOnboarding.Compile(nil, guildID), onboardingUpdate, &guildOnboarding, opts...)
 	return
 }

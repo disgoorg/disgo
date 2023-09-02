@@ -21,7 +21,7 @@ func (e *GenericGuildMessage) Guild() (discord.Guild, bool) {
 	return e.Client().Caches().Guild(e.GuildID)
 }
 
-// Channel returns the discord.DMChannel where the GenericGuildMessage happened
+// Channel returns the discord.GuildMessageChannel where the GenericGuildMessage happened
 func (e *GenericGuildMessage) Channel() (discord.GuildMessageChannel, bool) {
 	return e.Client().Caches().GuildMessageChannel(e.ChannelID)
 }

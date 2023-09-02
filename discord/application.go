@@ -163,7 +163,7 @@ func (t TokenType) Apply(token string) string {
 type ApplicationFlags int
 
 const (
-	ApplicationFlagApplicationAutoModerationRuleCreateBadge = 1 << (iota + 6)
+	ApplicationFlagAutoModerationRuleCreateBadge = 1 << (iota + 6)
 	_
 	_
 	_

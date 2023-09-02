@@ -105,6 +105,11 @@ const (
 )
 
 const (
+	AuditLogCreatorMonetizationRequestCreated AuditLogEvent = iota + 150
+	AuditLogCreatorMonetizationTermsAccepted
+)
+
+const (
 	AuditLogOnboardingQuestionCreate AuditLogEvent = iota + 163
 	AuditLogOnboardingQuestionUpdate
 	_
@@ -249,4 +254,5 @@ type OptionalAuditLogEntryInfo struct {
 	ApplicationID                 *snowflake.ID              `json:"application_id"`
 	AutoModerationRuleName        *string                    `json:"auto_moderation_rule_name"`
 	AutoModerationRuleTriggerType *AutoModerationTriggerType `json:"auto_moderation_rule_trigger_type,string"`
+	IntegrationType               *IntegrationType           `json:"integration_type"`
 }

@@ -72,6 +72,7 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 	i.baseInteraction.version = interaction.Version
 	i.baseInteraction.guildID = interaction.GuildID
 	i.baseInteraction.channelID = interaction.ChannelID
+	i.baseInteraction.channel = interaction.Channel
 	i.baseInteraction.locale = interaction.Locale
 	i.baseInteraction.guildLocale = interaction.GuildLocale
 	i.baseInteraction.member = interaction.Member
@@ -95,6 +96,7 @@ func (i ApplicationCommandInteraction) MarshalJSON() ([]byte, error) {
 			Version:        i.version,
 			GuildID:        i.guildID,
 			ChannelID:      i.channelID,
+			Channel:        i.channel,
 			Locale:         i.locale,
 			GuildLocale:    i.guildLocale,
 			Member:         i.member,
@@ -504,6 +506,22 @@ type SlashCommandResolved struct {
 	Attachments map[snowflake.ID]Attachment      `json:"attachments,omitempty"`
 }
 
+func (r *SlashCommandResolved) UnmarshalJSON(data []byte) error {
+	type slashCommandResolved SlashCommandResolved
+	var v slashCommandResolved
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*r = SlashCommandResolved(v)
+	for id, member := range r.Members {
+		if user, ok := r.Users[id]; ok {
+			member.User = user
+			r.Members[id] = member
+		}
+	}
+	return nil
+}
+
 type ContextCommandInteractionData interface {
 	ApplicationCommandInteractionData
 	TargetID() snowflake.ID
@@ -591,6 +609,22 @@ func (UserCommandInteractionData) contextCommandInteractionData()     {}
 type UserCommandResolved struct {
 	Users   map[snowflake.ID]User           `json:"users,omitempty"`
 	Members map[snowflake.ID]ResolvedMember `json:"members,omitempty"`
+}
+
+func (r *UserCommandResolved) UnmarshalJSON(data []byte) error {
+	type userCommandResolved UserCommandResolved
+	var v userCommandResolved
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*r = UserCommandResolved(v)
+	for id, member := range r.Members {
+		if user, ok := r.Users[id]; ok {
+			member.User = user
+			r.Members[id] = member
+		}
+	}
+	return nil
 }
 
 var (
