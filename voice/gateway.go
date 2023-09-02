@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net"
 	"sync"
 	"syscall"
 	"time"
@@ -171,7 +170,7 @@ func (g *gatewayImpl) CloseWithCode(code int, message string) {
 	defer g.connMu.Unlock()
 	if g.conn != nil {
 		g.config.Logger.Debugf("closing voice gateway connection with code: %d, message: %s", code, message)
-		if err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && err != websocket.ErrCloseSent {
+		if err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && !errors.Is(err, websocket.ErrCloseSent) {
 			g.config.Logger.Debug("error writing close code. error: ", err)
 		}
 		_ = g.conn.Close()
@@ -200,7 +199,7 @@ func (g *gatewayImpl) sendHeartbeat() {
 	defer cancel()
 
 	if err := g.Send(ctx, OpcodeHeartbeat, GatewayMessageDataHeartbeat(g.lastNonce)); err != nil {
-		if err != ErrGatewayNotConnected || errors.Is(err, syscall.EPIPE) {
+		if !errors.Is(err, ErrGatewayNotConnected) || errors.Is(err, syscall.EPIPE) {
 			return
 		}
 		g.config.Logger.Error("failed to send heartbeat. error: ", err)
@@ -227,14 +226,10 @@ loop:
 			}
 
 			reconnect := true
-			if closeError, ok := err.(*websocket.CloseError); ok {
+			var closeError *websocket.CloseError
+			if errors.As(err, &closeError) {
 				closeCode := GatewayCloseEventCodeByCode(closeError.Code)
 				reconnect = closeCode.Reconnect
-			} else if errors.Is(err, net.ErrClosed) {
-				// we closed the connection ourselves. Don't try to reconnect here
-				reconnect = false
-			} else {
-				g.config.Logger.Debug("failed to read next message from voice gateway. error: ", err)
 			}
 			g.CloseWithCode(websocket.CloseServiceRestart, "listen error")
 			if g.config.AutoReconnect && reconnect {
@@ -350,7 +345,7 @@ func (g *gatewayImpl) reconnectTry(ctx context.Context, try int) error {
 
 	g.config.Logger.Debug("reconnecting voice gateway...")
 	if err := g.Open(ctx, g.state); err != nil {
-		if err == discord.ErrGatewayAlreadyConnected {
+		if errors.Is(err, discord.ErrGatewayAlreadyConnected) {
 			return err
 		}
 		g.config.Logger.Error("failed to reconnect voice gateway. error: ", err)

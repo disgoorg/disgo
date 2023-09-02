@@ -9,20 +9,22 @@ import (
 )
 
 // NewOpusReader returns a new OpusFrameProvider that reads opus frames from the given io.Reader.
-func NewOpusReader(r io.Reader) OpusFrameProvider {
-	return &opusReader{
-		r:    r,
-		buff: make([]byte, OpusStreamBuffSize),
+func NewOpusReader(r io.Reader) *OpusReader {
+	return &OpusReader{
+		r: r,
 	}
 }
 
-type opusReader struct {
+// OpusReader is an OpusFrameProvider that reads opus frames from the given io.Reader.
+// Each opus frame is prefixed with a 4 byte little endian uint32 that represents the length of the frame.
+type OpusReader struct {
 	r       io.Reader
 	lenBuff [4]byte
-	buff    []byte
+	buff    [OpusFrameSizeBytes]byte
 }
 
-func (h *opusReader) ProvideOpusFrame() ([]byte, error) {
+// ProvideOpusFrame reads the next opus frame from the underlying io.Reader.
+func (h *OpusReader) ProvideOpusFrame() ([]byte, error) {
 	_, err := h.r.Read(h.lenBuff[:])
 	if err != nil {
 		return nil, fmt.Errorf("error while reading opus frame length: %w", err)
@@ -36,22 +38,26 @@ func (h *opusReader) ProvideOpusFrame() ([]byte, error) {
 	return h.buff[:actualLen], nil
 }
 
-func (*opusReader) Close() {}
+// Close is a no-op.
+func (*OpusReader) Close() {}
 
 // NewOpusWriter returns a new OpusFrameReceiver that writes opus frames to the given io.Writer.
-func NewOpusWriter(w io.Writer, userFilter UserFilterFunc) OpusFrameReceiver {
-	return &opusWriter{
+func NewOpusWriter(w io.Writer, userFilter UserFilterFunc) *OpusWriter {
+	return &OpusWriter{
 		w:          w,
 		userFilter: userFilter,
 	}
 }
 
-type opusWriter struct {
+// OpusWriter is an OpusFrameReceiver that writes opus frames to the given io.Writer.
+// Each opus frame is prefixed with a 4 byte little endian uint32 that represents the length of the frame.
+type OpusWriter struct {
 	w          io.Writer
 	userFilter UserFilterFunc
 }
 
-func (r *opusWriter) ReceiveOpusFrame(userID snowflake.ID, packet *Packet) error {
+// ReceiveOpusFrame writes the given opus frame to the underlying io.Writer.
+func (r *OpusWriter) ReceiveOpusFrame(userID snowflake.ID, packet *Packet) error {
 	if r.userFilter != nil && !r.userFilter(userID) {
 		return nil
 	}
@@ -64,5 +70,8 @@ func (r *opusWriter) ReceiveOpusFrame(userID snowflake.ID, packet *Packet) error
 	return nil
 }
 
-func (*opusWriter) CleanupUser(_ snowflake.ID) {}
-func (*opusWriter) Close()                     {}
+// CleanupUser is a no-op.
+func (*OpusWriter) CleanupUser(_ snowflake.ID) {}
+
+// Close is a no-op.
+func (*OpusWriter) Close() {}

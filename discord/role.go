@@ -24,6 +24,7 @@ type Role struct {
 	Emoji       *string      `json:"unicode_emoji"`
 	Mentionable bool         `json:"mentionable"`
 	Tags        *RoleTag     `json:"tags,omitempty"`
+	Flags       RoleFlags    `json:"flags"`
 }
 
 func (r Role) String() string {
@@ -48,11 +49,20 @@ func (r Role) CreatedAt() time.Time {
 
 // RoleTag are tags a Role has
 type RoleTag struct {
-	BotID             *snowflake.ID `json:"bot_id,omitempty"`
-	IntegrationID     *snowflake.ID `json:"integration_id,omitempty"`
-	PremiumSubscriber bool          `json:"premium_subscriber"`
-	GuildConnections  bool          `json:"guild_connections"`
+	BotID                 *snowflake.ID `json:"bot_id,omitempty"`
+	IntegrationID         *snowflake.ID `json:"integration_id,omitempty"`
+	PremiumSubscriber     bool          `json:"premium_subscriber"`
+	SubscriptionListingID *snowflake.ID `json:"subscription_listing_id,omitempty"`
+	AvailableForPurchase  bool          `json:"available_for_purchase"`
+	GuildConnections      bool          `json:"guild_connections"`
 }
+
+type RoleFlags int
+
+const (
+	RoleFlagInPrompt RoleFlags = 1 << iota
+	RoleFlagsNone    RoleFlags = 0
+)
 
 // RoleCreate is the payload to create a Role
 type RoleCreate struct {

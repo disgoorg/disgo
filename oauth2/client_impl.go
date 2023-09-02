@@ -118,7 +118,7 @@ func (c *clientImpl) GetGuilds(session Session, opts ...rest.RequestOpt) ([]disc
 	if err := checkSession(session, discord.OAuth2ScopeGuilds); err != nil {
 		return nil, err
 	}
-	return c.Rest().GetCurrentUserGuilds(session.AccessToken, 0, 0, 0, opts...)
+	return c.Rest().GetCurrentUserGuilds(session.AccessToken, 0, 0, 0, false, opts...)
 }
 
 func (c *clientImpl) GetConnections(session Session, opts ...rest.RequestOpt) ([]discord.Connection, error) {

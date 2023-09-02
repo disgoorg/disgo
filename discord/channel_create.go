@@ -188,7 +188,7 @@ type GuildForumChannelCreate struct {
 	ParentID             snowflake.ID          `json:"parent_id,omitempty"`
 	RateLimitPerUser     int                   `json:"rate_limit_per_user"`
 	DefaultReactionEmoji DefaultReactionEmoji  `json:"default_reaction_emoji"`
-	AvailableTags        []ForumTag            `json:"available_tags"`
+	AvailableTags        []ChannelTag          `json:"available_tags"`
 	DefaultSortOrder     DefaultSortOrder      `json:"default_sort_order"`
 	DefaultForumLayout   DefaultForumLayout    `json:"default_forum_layout"`
 }
@@ -210,6 +210,36 @@ func (c GuildForumChannelCreate) MarshalJSON() ([]byte, error) {
 
 func (GuildForumChannelCreate) channelCreate()      {}
 func (GuildForumChannelCreate) guildChannelCreate() {}
+
+type GuildMediaChannelCreate struct {
+	Name                 string                `json:"name"`
+	Topic                string                `json:"topic,omitempty"`
+	Position             int                   `json:"position,omitempty"`
+	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites,omitempty"`
+	ParentID             snowflake.ID          `json:"parent_id,omitempty"`
+	RateLimitPerUser     int                   `json:"rate_limit_per_user"`
+	DefaultReactionEmoji DefaultReactionEmoji  `json:"default_reaction_emoji"`
+	AvailableTags        []ChannelTag          `json:"available_tags"`
+	DefaultSortOrder     DefaultSortOrder      `json:"default_sort_order"`
+}
+
+func (c GuildMediaChannelCreate) Type() ChannelType {
+	return ChannelTypeGuildMedia
+}
+
+func (c GuildMediaChannelCreate) MarshalJSON() ([]byte, error) {
+	type guildMediaChannelCreate GuildMediaChannelCreate
+	return json.Marshal(struct {
+		Type ChannelType `json:"type"`
+		guildMediaChannelCreate
+	}{
+		Type:                    c.Type(),
+		guildMediaChannelCreate: guildMediaChannelCreate(c),
+	})
+}
+
+func (GuildMediaChannelCreate) channelCreate()      {}
+func (GuildMediaChannelCreate) guildChannelCreate() {}
 
 type DMChannelCreate struct {
 	RecipientID snowflake.ID `json:"recipient_id"`
