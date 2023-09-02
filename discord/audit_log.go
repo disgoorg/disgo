@@ -115,11 +115,21 @@ const (
 	AuditLogAutoModerationBlockMessage
 	AuditLogAutoModerationFlagToChannel
 	AuditLogAutoModerationUserCommunicationDisabled
+	AuditLogAutoModerationQuarantineUser
 )
 
 const (
 	AuditLogCreatorMonetizationRequestCreated AuditLogEvent = iota + 150
 	AuditLogCreatorMonetizationTermsAccepted
+)
+
+const (
+	AuditLogHarmfulLinksBlockedMessage AuditLogEvent = 180
+)
+
+const (
+	AuditLogVoiceChannelStatusCreate AuditLogEvent = iota + 192
+	AuditLogVoiceChannelStatusUpdate
 )
 
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord
