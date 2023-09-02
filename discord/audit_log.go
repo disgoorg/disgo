@@ -110,10 +110,10 @@ const (
 )
 
 const (
-	AuditLogOnboardingQuestionCreate AuditLogEvent = iota + 163
-	AuditLogOnboardingQuestionUpdate
-	_
-	_
+	AuditLogOnboardingPromptCreate AuditLogEvent = iota + 163
+	AuditLogOnboardingPromptUpdate
+	AuditLogOnboardingPromptDelete
+	AuditLogOnboardingCreate
 	AuditLogOnboardingUpdate
 )
 
