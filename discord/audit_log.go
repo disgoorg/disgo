@@ -127,11 +127,6 @@ const (
 	AuditLogHarmfulLinksBlockedMessage AuditLogEvent = 180
 )
 
-const (
-	AuditLogVoiceChannelStatusCreate AuditLogEvent = iota + 192
-	AuditLogVoiceChannelStatusUpdate
-)
-
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord
 type AuditLog struct {
 	ApplicationCommands  []ApplicationCommand  `json:"application_commands"`
