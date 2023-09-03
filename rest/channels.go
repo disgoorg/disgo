@@ -46,7 +46,7 @@ type Channels interface {
 	GetPinnedMessages(channelID snowflake.ID, opts ...RequestOpt) ([]discord.Message, error)
 	PinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 	UnpinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
-	// TODO: add missing endpoints
+	Follow(channelID snowflake.ID, targetChannelID snowflake.ID, opts ...RequestOpt) (*discord.FollowedChannel, error)
 }
 
 type channelImpl struct {
