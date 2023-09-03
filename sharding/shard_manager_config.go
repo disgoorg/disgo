@@ -33,8 +33,8 @@ type Config struct {
 	GatewayConfigOpts []gateway.ConfigOpt
 	// RateLimiter is the RateLimiter which is used by the ShardManager. Defaults to NewRateLimiter()
 	RateLimiter RateLimiter
-	// RateRateLimiterConfigOpts are the RateLimiterConfigOpt(s) which are applied to the RateLimiter.
-	RateRateLimiterConfigOpts []RateLimiterConfigOpt
+	// RateLimiterConfigOpts are the RateLimiterConfigOpt(s) which are applied to the RateLimiter.
+	RateLimiterConfigOpts []RateLimiterConfigOpt
 }
 
 // ConfigOpt is a type alias for a function that takes a Config and is used to configure your Server.
@@ -46,7 +46,7 @@ func (c *Config) Apply(opts []ConfigOpt) {
 		opt(c)
 	}
 	if c.RateLimiter == nil {
-		c.RateLimiter = NewRateLimiter(c.RateRateLimiterConfigOpts...)
+		c.RateLimiter = NewRateLimiter(c.RateLimiterConfigOpts...)
 	}
 }
 
@@ -105,16 +105,16 @@ func WithGatewayConfigOpts(opts ...gateway.ConfigOpt) ConfigOpt {
 	}
 }
 
-// WithRateLimiter lets you inject your own srate.RateLimiter into the ShardManager.
+// WithRateLimiter lets you inject your own RateLimiter into the ShardManager.
 func WithRateLimiter(rateLimiter RateLimiter) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiter = rateLimiter
 	}
 }
 
-// WithRateRateLimiterConfigOpt lets you configure the default srate.RateLimiter used by the ShardManager.
-func WithRateRateLimiterConfigOpt(opts ...RateLimiterConfigOpt) ConfigOpt {
+// WithRateLimiterConfigOpt lets you configure the default RateLimiter used by the ShardManager.
+func WithRateLimiterConfigOpt(opts ...RateLimiterConfigOpt) ConfigOpt {
 	return func(config *Config) {
-		config.RateRateLimiterConfigOpts = append(config.RateRateLimiterConfigOpts, opts...)
+		config.RateLimiterConfigOpts = append(config.RateLimiterConfigOpts, opts...)
 	}
 }
