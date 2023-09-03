@@ -40,3 +40,8 @@ type VoiceServerUpdate struct {
 	*GenericEvent
 	gateway.EventVoiceServerUpdate
 }
+
+type VoiceChannelStatusUpdate struct {
+	*GenericEvent
+	gateway.EventVoiceChannelStatusUpdate
+}

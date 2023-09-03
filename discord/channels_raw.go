@@ -131,6 +131,7 @@ type guildVoiceChannel struct {
 	LastMessageID              *snowflake.ID         `json:"last_message_id"`
 	LastPinTimestamp           *time.Time            `json:"last_pin_timestamp"`
 	Topic                      *string               `json:"topic"`
+	Status                     *string               `json:"status"`
 	NSFW                       bool                  `json:"nsfw"`
 	DefaultAutoArchiveDuration AutoArchiveDuration   `json:"default_auto_archive_duration"`
 	RateLimitPerUser           int                   `json:"rate_limit_per_user"`

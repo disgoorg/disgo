@@ -61,3 +61,10 @@ func gatewayHandlerVoiceServerUpdate(client bot.Client, sequenceNumber int, shar
 		EventVoiceServerUpdate: event,
 	})
 }
+
+func gatewayHandlerVoiceChannelStatusUpdate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventVoiceChannelStatusUpdate) {
+	client.EventManager().DispatchEvent(&events.VoiceChannelStatusUpdate{
+		GenericEvent:                  events.NewGenericEvent(client, sequenceNumber, shardID),
+		EventVoiceChannelStatusUpdate: event,
+	})
+}

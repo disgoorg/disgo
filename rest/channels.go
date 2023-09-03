@@ -222,3 +222,7 @@ func (s *channelImpl) Follow(channelID snowflake.ID, targetChannelID snowflake.I
 	err = s.client.Do(FollowChannel.Compile(nil, channelID), discord.FollowChannel{ChannelID: targetChannelID}, &followedChannel, opts...)
 	return
 }
+
+func (s *channelImpl) UpdateVoiceStatus(channelID snowflake.ID, status string, opts ...RequestOpt) error {
+	return s.client.Do(UpdateVoiceStatus.Compile(nil, channelID), discord.VoiceStatusUpdate{Status: status}, nil, opts...)
+}

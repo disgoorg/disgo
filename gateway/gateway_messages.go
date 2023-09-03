@@ -394,6 +394,11 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 		err = json.Unmarshal(data, &d)
 		eventData = d
 
+	case EventTypeVoiceChannelStatusUpdate:
+		var d EventVoiceChannelStatusUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
 	case EventTypeVoiceStateUpdate:
 		var d EventVoiceStateUpdate
 		err = json.Unmarshal(data, &d)

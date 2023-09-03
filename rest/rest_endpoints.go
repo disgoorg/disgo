@@ -170,6 +170,8 @@ var (
 
 	SendTyping    = NewEndpoint(http.MethodPost, "/channels/{channel.id}/typing")
 	FollowChannel = NewEndpoint(http.MethodPost, "/channels/{channel.id}/followers")
+
+	UpdateVoiceStatus = NewEndpoint(http.MethodPut, "/channels/{channel.id}/voice-status")
 )
 
 // Threads

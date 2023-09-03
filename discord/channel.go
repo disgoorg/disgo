@@ -444,6 +444,7 @@ type GuildVoiceChannel struct {
 	lastMessageID              *snowflake.ID
 	lastPinTimestamp           *time.Time
 	topic                      *string
+	status                     *string
 	nsfw                       bool
 	defaultAutoArchiveDuration AutoArchiveDuration
 	rateLimitPerUser           int
@@ -468,6 +469,7 @@ func (c *GuildVoiceChannel) UnmarshalJSON(data []byte) error {
 	c.lastMessageID = v.LastMessageID
 	c.lastPinTimestamp = v.LastPinTimestamp
 	c.topic = v.Topic
+	c.status = v.Status
 	c.nsfw = v.NSFW
 	c.defaultAutoArchiveDuration = v.DefaultAutoArchiveDuration
 	c.rateLimitPerUser = v.RateLimitPerUser
@@ -490,6 +492,7 @@ func (c GuildVoiceChannel) MarshalJSON() ([]byte, error) {
 		LastMessageID:              c.lastMessageID,
 		LastPinTimestamp:           c.lastPinTimestamp,
 		Topic:                      c.topic,
+		Status:                     c.status,
 		NSFW:                       c.nsfw,
 		DefaultAutoArchiveDuration: c.defaultAutoArchiveDuration,
 		RateLimitPerUser:           c.rateLimitPerUser,
@@ -550,6 +553,10 @@ func (c GuildVoiceChannel) LastPinTimestamp() *time.Time {
 
 func (c GuildVoiceChannel) Topic() *string {
 	return c.topic
+}
+
+func (c GuildVoiceChannel) Status() *string {
+	return c.status
 }
 
 func (c GuildVoiceChannel) NSFW() bool {
@@ -1266,6 +1273,10 @@ type FollowChannel struct {
 type PartialChannel struct {
 	ID   snowflake.ID `json:"id"`
 	Type ChannelType  `json:"type"`
+}
+
+type VoiceStatusUpdate struct {
+	Status string `json:"status"`
 }
 
 // VideoQualityMode https://com/developers/docs/resources/channel#channel-object-video-quality-modes

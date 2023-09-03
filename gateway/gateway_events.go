@@ -568,6 +568,15 @@ type EventUserUpdate struct {
 func (EventUserUpdate) messageData() {}
 func (EventUserUpdate) eventData()   {}
 
+type EventVoiceChannelStatusUpdate struct {
+	ID      snowflake.ID `json:"id"`
+	GuildID snowflake.ID `json:"guild_id"`
+	Status  *string      `json:"status"`
+}
+
+func (EventVoiceChannelStatusUpdate) messageData() {}
+func (EventVoiceChannelStatusUpdate) eventData()   {}
+
 type EventVoiceStateUpdate struct {
 	discord.VoiceState
 	Member discord.Member `json:"member"`
