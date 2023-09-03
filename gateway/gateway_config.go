@@ -54,8 +54,8 @@ type Config struct {
 	EnableResumeURL bool
 	// RateLimiter is the RateLimiter of the Gateway. Defaults to NewRateLimiter().
 	RateLimiter RateLimiter
-	// RateRateLimiterConfigOpts is the RateLimiterConfigOpts of the Gateway. Defaults to nil.
-	RateRateLimiterConfigOpts []RateLimiterConfigOpt
+	// RateLimiterConfigOpts is the RateLimiterConfigOpts of the Gateway. Defaults to nil.
+	RateLimiterConfigOpts []RateLimiterConfigOpt
 	// Presence is the presence it should send on login. Defaults to nil.
 	Presence *MessageDataPresenceUpdate
 	// OS is the OS it should send on login. Defaults to runtime.GOOS.
@@ -75,7 +75,7 @@ func (c *Config) Apply(opts []ConfigOpt) {
 		opt(c)
 	}
 	if c.RateLimiter == nil {
-		c.RateLimiter = NewRateLimiter(c.RateRateLimiterConfigOpts...)
+		c.RateLimiter = NewRateLimiter(c.RateLimiterConfigOpts...)
 	}
 }
 
@@ -184,10 +184,10 @@ func WithRateLimiter(rateLimiter RateLimiter) ConfigOpt {
 	}
 }
 
-// WithRateRateLimiterConfigOpts lets you configure the default RateLimiter.
-func WithRateRateLimiterConfigOpts(opts ...RateLimiterConfigOpt) ConfigOpt {
+// WithRateLimiterConfigOpts lets you configure the default RateLimiter.
+func WithRateLimiterConfigOpts(opts ...RateLimiterConfigOpt) ConfigOpt {
 	return func(config *Config) {
-		config.RateRateLimiterConfigOpts = append(config.RateRateLimiterConfigOpts, opts...)
+		config.RateLimiterConfigOpts = append(config.RateLimiterConfigOpts, opts...)
 	}
 }
 

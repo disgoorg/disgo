@@ -32,7 +32,7 @@ type Client interface {
 	// HTTPClient returns the http.Client the rest client uses
 	HTTPClient() *http.Client
 
-	// RateLimiter returns the rrate.RateLimiter the rest client uses
+	// RateLimiter returns the RateLimiter the rest client uses
 	RateLimiter() RateLimiter
 
 	// Close closes the rest client and awaits all pending requests to finish. You can use a cancelling context to abort the waiting
