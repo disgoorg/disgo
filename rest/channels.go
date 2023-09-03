@@ -47,6 +47,8 @@ type Channels interface {
 	PinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 	UnpinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 	Follow(channelID snowflake.ID, targetChannelID snowflake.ID, opts ...RequestOpt) (*discord.FollowedChannel, error)
+
+	UpdateVoiceStatus(channelID snowflake.ID, status string, opts ...RequestOpt) error
 }
 
 type channelImpl struct {
