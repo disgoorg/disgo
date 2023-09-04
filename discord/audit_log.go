@@ -260,4 +260,5 @@ type OptionalAuditLogEntryInfo struct {
 	AutoModerationRuleName        *string                    `json:"auto_moderation_rule_name"`
 	AutoModerationRuleTriggerType *AutoModerationTriggerType `json:"auto_moderation_rule_trigger_type,string"`
 	IntegrationType               *IntegrationType           `json:"integration_type"`
+	Status                        *string                    `json:"status"`
 }
