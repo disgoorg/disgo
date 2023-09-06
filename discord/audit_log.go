@@ -124,7 +124,7 @@ const (
 
 const (
 	AuditLogVoiceChannelStatusCreate AuditLogEvent = iota + 192
-	AuditLogVoiceChannelStatusUpdate
+	AuditLogVoiceChannelStatusDelete
 )
 
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord
