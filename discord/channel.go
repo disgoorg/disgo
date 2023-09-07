@@ -442,7 +442,6 @@ type GuildVoiceChannel struct {
 	rtcRegion            string
 	VideoQualityMode     VideoQualityMode
 	lastMessageID        *snowflake.ID
-	lastPinTimestamp     *time.Time
 	nsfw                 bool
 	rateLimitPerUser     int
 }
@@ -464,7 +463,6 @@ func (c *GuildVoiceChannel) UnmarshalJSON(data []byte) error {
 	c.rtcRegion = v.RTCRegion
 	c.VideoQualityMode = v.VideoQualityMode
 	c.lastMessageID = v.LastMessageID
-	c.lastPinTimestamp = v.LastPinTimestamp
 	c.nsfw = v.NSFW
 	c.rateLimitPerUser = v.RateLimitPerUser
 	return nil
@@ -484,7 +482,6 @@ func (c GuildVoiceChannel) MarshalJSON() ([]byte, error) {
 		RTCRegion:            c.rtcRegion,
 		VideoQualityMode:     c.VideoQualityMode,
 		LastMessageID:        c.lastMessageID,
-		LastPinTimestamp:     c.lastPinTimestamp,
 		NSFW:                 c.nsfw,
 		RateLimitPerUser:     c.rateLimitPerUser,
 	})
@@ -538,8 +535,9 @@ func (c GuildVoiceChannel) LastMessageID() *snowflake.ID {
 	return c.lastMessageID
 }
 
+// LastPinTimestamp always returns nil for GuildVoiceChannel(s) as they cannot have pinned messages.
 func (c GuildVoiceChannel) LastPinTimestamp() *time.Time {
-	return c.lastPinTimestamp
+	return nil
 }
 
 // Topic always returns nil for GuildVoiceChannel(s) as they do not have their own topic.
@@ -943,7 +941,6 @@ type GuildStageVoiceChannel struct {
 	rtcRegion            string
 	VideoQualityMode     VideoQualityMode
 	lastMessageID        *snowflake.ID
-	lastPinTimestamp     *time.Time
 	nsfw                 bool
 	rateLimitPerUser     int
 }
@@ -964,7 +961,6 @@ func (c *GuildStageVoiceChannel) UnmarshalJSON(data []byte) error {
 	c.rtcRegion = v.RTCRegion
 	c.VideoQualityMode = v.VideoQualityMode
 	c.lastMessageID = v.LastMessageID
-	c.lastPinTimestamp = v.LastPinTimestamp
 	c.nsfw = v.NSFW
 	c.rateLimitPerUser = v.RateLimitPerUser
 	return nil
@@ -983,7 +979,6 @@ func (c GuildStageVoiceChannel) MarshalJSON() ([]byte, error) {
 		RTCRegion:            c.rtcRegion,
 		VideoQualityMode:     c.VideoQualityMode,
 		LastMessageID:        c.lastMessageID,
-		LastPinTimestamp:     c.lastPinTimestamp,
 		NSFW:                 c.nsfw,
 		RateLimitPerUser:     c.rateLimitPerUser,
 	})
@@ -1037,8 +1032,9 @@ func (c GuildStageVoiceChannel) LastMessageID() *snowflake.ID {
 	return c.lastMessageID
 }
 
+// LastPinTimestamp always returns nil for GuildStageVoiceChannel(s) as they cannot have pinned messages.
 func (c GuildStageVoiceChannel) LastPinTimestamp() *time.Time {
-	return c.lastPinTimestamp
+	return nil
 }
 
 // Topic always returns nil for GuildStageVoiceChannel(s) as they do not have their own topic.
@@ -1424,9 +1420,6 @@ func ApplyLastMessageIDToChannel(channel GuildMessageChannel, lastMessageID snow
 func ApplyLastPinTimestampToChannel(channel GuildMessageChannel, lastPinTimestamp *time.Time) GuildMessageChannel {
 	switch c := channel.(type) {
 	case GuildTextChannel:
-		c.lastPinTimestamp = lastPinTimestamp
-		return c
-	case GuildVoiceChannel:
 		c.lastPinTimestamp = lastPinTimestamp
 		return c
 	case GuildNewsChannel:

@@ -129,7 +129,6 @@ type guildVoiceChannel struct {
 	RTCRegion            string                `json:"rtc_region"`
 	VideoQualityMode     VideoQualityMode      `json:"video_quality_mode"`
 	LastMessageID        *snowflake.ID         `json:"last_message_id"`
-	LastPinTimestamp     *time.Time            `json:"last_pin_timestamp"`
 	NSFW                 bool                  `json:"nsfw"`
 	RateLimitPerUser     int                   `json:"rate_limit_per_user"`
 }
@@ -161,7 +160,6 @@ type guildStageVoiceChannel struct {
 	RTCRegion            string                `json:"rtc_region"`
 	VideoQualityMode     VideoQualityMode      `json:"video_quality_mode"`
 	LastMessageID        *snowflake.ID         `json:"last_message_id"`
-	LastPinTimestamp     *time.Time            `json:"last_pin_timestamp"`
 	NSFW                 bool                  `json:"nsfw"`
 	RateLimitPerUser     int                   `json:"rate_limit_per_user"`
 }
