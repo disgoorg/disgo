@@ -724,7 +724,7 @@ type Caches interface {
 	// GuildTextChannel returns a discord.GuildTextChannel from the ChannelCache and a bool indicating if it exists.
 	GuildTextChannel(channelID snowflake.ID) (discord.GuildTextChannel, bool)
 
-	// GuildVoiceChannel returns a discord.GuildAudioChannel from the ChannelCache and a bool indicating if it exists.
+	// GuildVoiceChannel returns a discord.GuildAudioChannel of type discord.ChannelTypeGuildVoice from the ChannelCache and a bool indicating if it exists.
 	GuildVoiceChannel(channelID snowflake.ID) (discord.GuildAudioChannel, bool)
 
 	// GuildCategoryChannel returns a discord.GuildCategoryChannel from the ChannelCache and a bool indicating if it exists.
@@ -742,7 +742,7 @@ type Caches interface {
 	// GuildPrivateThread returns a discord.GuildThread from the ChannelCache and a bool indicating if it exists.
 	GuildPrivateThread(channelID snowflake.ID) (discord.GuildThread, bool)
 
-	// GuildStageVoiceChannel returns a discord.GuildAudioChannel from the ChannelCache and a bool indicating if it exists.
+	// GuildStageVoiceChannel returns a discord.GuildAudioChannel of type discord.ChannelTypeGuildStageVoice from the ChannelCache and a bool indicating if it exists.
 	GuildStageVoiceChannel(channelID snowflake.ID) (discord.GuildAudioChannel, bool)
 
 	// GuildForumChannel returns a discord.GuildForumChannel from the ChannelCache and a bool indicating if it exists.
