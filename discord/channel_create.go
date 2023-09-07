@@ -55,7 +55,7 @@ var (
 	_ GuildChannelCreate = (*GuildVoiceChannelCreate)(nil)
 )
 
-type GuildVoiceChannelCreate struct {
+type guildAudioChannelCreate struct {
 	Name                 string                `json:"name"`
 	Bitrate              int                   `json:"bitrate,omitempty"`
 	UserLimit            int                   `json:"user_limit,omitempty"`
@@ -67,6 +67,8 @@ type GuildVoiceChannelCreate struct {
 	RTCRegion            string                `json:"rtc_region,omitempty"`
 	VideoQualityMode     VideoQualityMode      `json:"video_quality_mode,omitempty"`
 }
+
+type GuildVoiceChannelCreate guildAudioChannelCreate
 
 func (c GuildVoiceChannelCreate) Type() ChannelType {
 	return ChannelTypeGuildVoice
@@ -85,6 +87,31 @@ func (c GuildVoiceChannelCreate) MarshalJSON() ([]byte, error) {
 
 func (GuildVoiceChannelCreate) channelCreate()      {}
 func (GuildVoiceChannelCreate) guildChannelCreate() {}
+
+var (
+	_ ChannelCreate      = (*GuildStageVoiceChannelCreate)(nil)
+	_ GuildChannelCreate = (*GuildStageVoiceChannelCreate)(nil)
+)
+
+type GuildStageVoiceChannelCreate guildAudioChannelCreate
+
+func (c GuildStageVoiceChannelCreate) Type() ChannelType {
+	return ChannelTypeGuildStageVoice
+}
+
+func (c GuildStageVoiceChannelCreate) MarshalJSON() ([]byte, error) {
+	type guildStageVoiceChannelCreate GuildStageVoiceChannelCreate
+	return json.Marshal(struct {
+		Type ChannelType `json:"type"`
+		guildStageVoiceChannelCreate
+	}{
+		Type:                         c.Type(),
+		guildStageVoiceChannelCreate: guildStageVoiceChannelCreate(c),
+	})
+}
+
+func (GuildStageVoiceChannelCreate) channelCreate()      {}
+func (GuildStageVoiceChannelCreate) guildChannelCreate() {}
 
 var (
 	_ ChannelCreate      = (*GuildCategoryChannelCreate)(nil)
@@ -149,42 +176,6 @@ func (c GuildNewsChannelCreate) MarshalJSON() ([]byte, error) {
 
 func (GuildNewsChannelCreate) channelCreate()      {}
 func (GuildNewsChannelCreate) guildChannelCreate() {}
-
-var (
-	_ ChannelCreate      = (*GuildStageVoiceChannelCreate)(nil)
-	_ GuildChannelCreate = (*GuildStageVoiceChannelCreate)(nil)
-)
-
-type GuildStageVoiceChannelCreate struct {
-	Name                 string                `json:"name"`
-	Bitrate              int                   `json:"bitrate,omitempty"`
-	UserLimit            int                   `json:"user_limit,omitempty"`
-	RateLimitPerUser     int                   `json:"rate_limit_per_user,omitempty"`
-	Position             int                   `json:"position,omitempty"`
-	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID             snowflake.ID          `json:"parent_id,omitempty"`
-	NSFW                 bool                  `json:"nsfw,omitempty"`
-	RTCRegion            string                `json:"rtc_region,omitempty"`
-	VideoQualityMode     VideoQualityMode      `json:"video_quality_mode,omitempty"`
-}
-
-func (c GuildStageVoiceChannelCreate) Type() ChannelType {
-	return ChannelTypeGuildStageVoice
-}
-
-func (c GuildStageVoiceChannelCreate) MarshalJSON() ([]byte, error) {
-	type guildStageVoiceChannelCreate GuildStageVoiceChannelCreate
-	return json.Marshal(struct {
-		Type ChannelType `json:"type"`
-		guildStageVoiceChannelCreate
-	}{
-		Type:                         c.Type(),
-		guildStageVoiceChannelCreate: guildStageVoiceChannelCreate(c),
-	})
-}
-
-func (GuildStageVoiceChannelCreate) channelCreate()      {}
-func (GuildStageVoiceChannelCreate) guildChannelCreate() {}
 
 type GuildForumChannelCreate struct {
 	Name                 string                `json:"name"`

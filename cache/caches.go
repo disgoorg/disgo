@@ -724,8 +724,8 @@ type Caches interface {
 	// GuildTextChannel returns a discord.GuildTextChannel from the ChannelCache and a bool indicating if it exists.
 	GuildTextChannel(channelID snowflake.ID) (discord.GuildTextChannel, bool)
 
-	// GuildVoiceChannel returns a discord.GuildVoiceChannel from the ChannelCache and a bool indicating if it exists.
-	GuildVoiceChannel(channelID snowflake.ID) (discord.GuildVoiceChannel, bool)
+	// GuildVoiceChannel returns a discord.GuildAudioChannel from the ChannelCache and a bool indicating if it exists.
+	GuildVoiceChannel(channelID snowflake.ID) (discord.GuildAudioChannel, bool)
 
 	// GuildCategoryChannel returns a discord.GuildCategoryChannel from the ChannelCache and a bool indicating if it exists.
 	GuildCategoryChannel(channelID snowflake.ID) (discord.GuildCategoryChannel, bool)
@@ -742,8 +742,8 @@ type Caches interface {
 	// GuildPrivateThread returns a discord.GuildThread from the ChannelCache and a bool indicating if it exists.
 	GuildPrivateThread(channelID snowflake.ID) (discord.GuildThread, bool)
 
-	// GuildStageVoiceChannel returns a discord.GuildStageVoiceChannel from the ChannelCache and a bool indicating if it exists.
-	GuildStageVoiceChannel(channelID snowflake.ID) (discord.GuildStageVoiceChannel, bool)
+	// GuildStageVoiceChannel returns a discord.GuildAudioChannel from the ChannelCache and a bool indicating if it exists.
+	GuildStageVoiceChannel(channelID snowflake.ID) (discord.GuildAudioChannel, bool)
 
 	// GuildForumChannel returns a discord.GuildForumChannel from the ChannelCache and a bool indicating if it exists.
 	GuildForumChannel(channelID snowflake.ID) (discord.GuildForumChannel, bool)
@@ -934,7 +934,7 @@ func (c *cachesImpl) GuildAudioChannel(channelID snowflake.ID) (discord.GuildAud
 			return cCh, true
 		}
 	}
-	return nil, false
+	return discord.GuildAudioChannel{}, false
 }
 
 func (c *cachesImpl) GuildTextChannel(channelID snowflake.ID) (discord.GuildTextChannel, bool) {
@@ -946,13 +946,11 @@ func (c *cachesImpl) GuildTextChannel(channelID snowflake.ID) (discord.GuildText
 	return discord.GuildTextChannel{}, false
 }
 
-func (c *cachesImpl) GuildVoiceChannel(channelID snowflake.ID) (discord.GuildVoiceChannel, bool) {
-	if ch, ok := c.Channel(channelID); ok {
-		if cCh, ok := ch.(discord.GuildVoiceChannel); ok {
-			return cCh, true
-		}
+func (c *cachesImpl) GuildVoiceChannel(channelID snowflake.ID) (discord.GuildAudioChannel, bool) {
+	if ch, ok := c.GuildAudioChannel(channelID); ok && ch.Type() == discord.ChannelTypeGuildVoice {
+		return ch, true
 	}
-	return discord.GuildVoiceChannel{}, false
+	return discord.GuildAudioChannel{}, false
 }
 
 func (c *cachesImpl) GuildCategoryChannel(channelID snowflake.ID) (discord.GuildCategoryChannel, bool) {
@@ -994,13 +992,11 @@ func (c *cachesImpl) GuildPrivateThread(channelID snowflake.ID) (discord.GuildTh
 	return discord.GuildThread{}, false
 }
 
-func (c *cachesImpl) GuildStageVoiceChannel(channelID snowflake.ID) (discord.GuildStageVoiceChannel, bool) {
-	if ch, ok := c.Channel(channelID); ok {
-		if cCh, ok := ch.(discord.GuildStageVoiceChannel); ok {
-			return cCh, true
-		}
+func (c *cachesImpl) GuildStageVoiceChannel(channelID snowflake.ID) (discord.GuildAudioChannel, bool) {
+	if ch, ok := c.GuildAudioChannel(channelID); ok && ch.Type() == discord.ChannelTypeGuildStageVoice {
+		return ch, true
 	}
-	return discord.GuildStageVoiceChannel{}, false
+	return discord.GuildAudioChannel{}, false
 }
 
 func (c *cachesImpl) GuildForumChannel(channelID snowflake.ID) (discord.GuildForumChannel, bool) {

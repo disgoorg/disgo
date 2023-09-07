@@ -116,7 +116,7 @@ func (t *guildCategoryChannel) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-type guildVoiceChannel struct {
+type guildAudioChannel struct {
 	ID                   snowflake.ID          `json:"id"`
 	Type                 ChannelType           `json:"type"`
 	GuildID              snowflake.ID          `json:"guild_id"`
@@ -129,53 +129,20 @@ type guildVoiceChannel struct {
 	RTCRegion            string                `json:"rtc_region"`
 	VideoQualityMode     VideoQualityMode      `json:"video_quality_mode"`
 	LastMessageID        *snowflake.ID         `json:"last_message_id"`
-	LastPinTimestamp     *time.Time            `json:"last_pin_timestamp"`
 	NSFW                 bool                  `json:"nsfw"`
 	RateLimitPerUser     int                   `json:"rate_limit_per_user"`
 }
 
-func (t *guildVoiceChannel) UnmarshalJSON(data []byte) error {
-	type guildVoiceChannelAlias guildVoiceChannel
+func (t *guildAudioChannel) UnmarshalJSON(data []byte) error {
+	type guildAudioChannelAlias guildAudioChannel
 	var v struct {
 		PermissionOverwrites []UnmarshalPermissionOverwrite `json:"permission_overwrites"`
-		guildVoiceChannelAlias
+		guildAudioChannelAlias
 	}
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
-	*t = guildVoiceChannel(v.guildVoiceChannelAlias)
-	t.PermissionOverwrites = parsePermissionOverwrites(v.PermissionOverwrites)
-	return nil
-}
-
-type guildStageVoiceChannel struct {
-	ID                   snowflake.ID          `json:"id"`
-	Type                 ChannelType           `json:"type"`
-	GuildID              snowflake.ID          `json:"guild_id"`
-	Position             int                   `json:"position"`
-	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites"`
-	Name                 string                `json:"name"`
-	Bitrate              int                   `json:"bitrate"`
-	UserLimit            int                   `json:"user_limit"`
-	ParentID             *snowflake.ID         `json:"parent_id"`
-	RTCRegion            string                `json:"rtc_region"`
-	VideoQualityMode     VideoQualityMode      `json:"video_quality_mode"`
-	LastMessageID        *snowflake.ID         `json:"last_message_id"`
-	LastPinTimestamp     *time.Time            `json:"last_pin_timestamp"`
-	NSFW                 bool                  `json:"nsfw"`
-	RateLimitPerUser     int                   `json:"rate_limit_per_user"`
-}
-
-func (t *guildStageVoiceChannel) UnmarshalJSON(data []byte) error {
-	type guildStageVoiceChannelAlias guildStageVoiceChannel
-	var v struct {
-		PermissionOverwrites []UnmarshalPermissionOverwrite `json:"permission_overwrites"`
-		guildStageVoiceChannelAlias
-	}
-	if err := json.Unmarshal(data, &v); err != nil {
-		return err
-	}
-	*t = guildStageVoiceChannel(v.guildStageVoiceChannelAlias)
+	*t = guildAudioChannel(v.guildAudioChannelAlias)
 	t.PermissionOverwrites = parsePermissionOverwrites(v.PermissionOverwrites)
 	return nil
 }

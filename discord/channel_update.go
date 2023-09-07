@@ -30,7 +30,7 @@ type GuildTextChannelUpdate struct {
 func (GuildTextChannelUpdate) channelUpdate()      {}
 func (GuildTextChannelUpdate) guildChannelUpdate() {}
 
-type GuildVoiceChannelUpdate struct {
+type GuildAudioChannelUpdate struct {
 	Name                 *string                `json:"name,omitempty"`
 	Position             *int                   `json:"position,omitempty"`
 	RateLimitPerUser     *int                   `json:"rate_limit_per_user,omitempty"`
@@ -43,8 +43,8 @@ type GuildVoiceChannelUpdate struct {
 	VideoQualityMode     *VideoQualityMode      `json:"video_quality_mode,omitempty"`
 }
 
-func (GuildVoiceChannelUpdate) channelUpdate()      {}
-func (GuildVoiceChannelUpdate) guildChannelUpdate() {}
+func (GuildAudioChannelUpdate) channelUpdate()      {}
+func (GuildAudioChannelUpdate) guildChannelUpdate() {}
 
 type GuildCategoryChannelUpdate struct {
 	Name                 *string                `json:"name,omitempty"`
@@ -80,22 +80,6 @@ type GuildThreadUpdate struct {
 
 func (GuildThreadUpdate) channelUpdate()      {}
 func (GuildThreadUpdate) guildChannelUpdate() {}
-
-type GuildStageVoiceChannelUpdate struct {
-	Name                 *string                `json:"name,omitempty"`
-	Position             *int                   `json:"position,omitempty"`
-	RateLimitPerUser     *int                   `json:"rate_limit_per_user,omitempty"`
-	Bitrate              *int                   `json:"bitrate,omitempty"`
-	UserLimit            *int                   `json:"user_limit,omitempty"`
-	PermissionOverwrites *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID             *snowflake.ID          `json:"parent_id,omitempty"`
-	RTCRegion            *string                `json:"rtc_region,omitempty"`
-	NSFW                 *bool                  `json:"nsfw,omitempty"`
-	VideoQualityMode     *VideoQualityMode      `json:"video_quality_mode,omitempty"`
-}
-
-func (GuildStageVoiceChannelUpdate) channelUpdate()      {}
-func (GuildStageVoiceChannelUpdate) guildChannelUpdate() {}
 
 type GuildForumChannelUpdate struct {
 	Name                          *string                              `json:"name,omitempty"`

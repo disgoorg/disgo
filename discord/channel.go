@@ -139,18 +139,6 @@ type GuildMessageChannel interface {
 	guildMessageChannel()
 }
 
-type GuildAudioChannel interface {
-	GuildChannel
-
-	// Bitrate returns the configured bitrate of the GuildAudioChannel.
-	Bitrate() int
-
-	// RTCRegion returns the configured voice server region of the GuildAudioChannel.
-	RTCRegion() string
-
-	guildAudioChannel()
-}
-
 type UnmarshalChannel struct {
 	Channel
 }
@@ -180,8 +168,8 @@ func (u *UnmarshalChannel) UnmarshalJSON(data []byte) error {
 		err = json.Unmarshal(data, &v)
 		channel = v
 
-	case ChannelTypeGuildVoice:
-		var v GuildVoiceChannel
+	case ChannelTypeGuildVoice, ChannelTypeGuildStageVoice:
+		var v GuildAudioChannel
 		err = json.Unmarshal(data, &v)
 		channel = v
 
@@ -197,11 +185,6 @@ func (u *UnmarshalChannel) UnmarshalJSON(data []byte) error {
 
 	case ChannelTypeGuildNewsThread, ChannelTypeGuildPublicThread, ChannelTypeGuildPrivateThread:
 		var v GuildThread
-		err = json.Unmarshal(data, &v)
-		channel = v
-
-	case ChannelTypeGuildStageVoice:
-		var v GuildStageVoiceChannel
 		err = json.Unmarshal(data, &v)
 		channel = v
 
@@ -424,151 +407,141 @@ func (DMChannel) channel()        {}
 func (DMChannel) messageChannel() {}
 
 var (
-	_ Channel             = (*GuildVoiceChannel)(nil)
-	_ GuildChannel        = (*GuildVoiceChannel)(nil)
-	_ GuildAudioChannel   = (*GuildVoiceChannel)(nil)
-	_ GuildMessageChannel = (*GuildVoiceChannel)(nil)
+	_ Channel             = (*GuildAudioChannel)(nil)
+	_ GuildChannel        = (*GuildAudioChannel)(nil)
+	_ GuildMessageChannel = (*GuildAudioChannel)(nil)
 )
 
-type GuildVoiceChannel struct {
+type GuildAudioChannel struct {
 	id                   snowflake.ID
+	cType                ChannelType
 	guildID              snowflake.ID
 	position             int
 	permissionOverwrites []PermissionOverwrite
 	name                 string
-	bitrate              int
+	Bitrate              int
 	UserLimit            int
 	parentID             *snowflake.ID
-	rtcRegion            string
+	RTCRegion            string
 	VideoQualityMode     VideoQualityMode
 	lastMessageID        *snowflake.ID
-	lastPinTimestamp     *time.Time
 	nsfw                 bool
 	rateLimitPerUser     int
 }
 
-func (c *GuildVoiceChannel) UnmarshalJSON(data []byte) error {
-	var v guildVoiceChannel
+func (c *GuildAudioChannel) UnmarshalJSON(data []byte) error {
+	var v guildAudioChannel
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
 
 	c.id = v.ID
+	c.cType = v.Type
 	c.guildID = v.GuildID
 	c.position = v.Position
 	c.permissionOverwrites = v.PermissionOverwrites
 	c.name = v.Name
-	c.bitrate = v.Bitrate
+	c.Bitrate = v.Bitrate
 	c.UserLimit = v.UserLimit
 	c.parentID = v.ParentID
-	c.rtcRegion = v.RTCRegion
+	c.RTCRegion = v.RTCRegion
 	c.VideoQualityMode = v.VideoQualityMode
 	c.lastMessageID = v.LastMessageID
-	c.lastPinTimestamp = v.LastPinTimestamp
 	c.nsfw = v.NSFW
 	c.rateLimitPerUser = v.RateLimitPerUser
 	return nil
 }
 
-func (c GuildVoiceChannel) MarshalJSON() ([]byte, error) {
-	return json.Marshal(guildVoiceChannel{
+func (c GuildAudioChannel) MarshalJSON() ([]byte, error) {
+	return json.Marshal(guildAudioChannel{
 		ID:                   c.id,
-		Type:                 c.Type(),
+		Type:                 c.cType,
 		GuildID:              c.guildID,
 		Position:             c.position,
 		PermissionOverwrites: c.permissionOverwrites,
 		Name:                 c.name,
-		Bitrate:              c.bitrate,
+		Bitrate:              c.Bitrate,
 		UserLimit:            c.UserLimit,
 		ParentID:             c.parentID,
-		RTCRegion:            c.rtcRegion,
+		RTCRegion:            c.RTCRegion,
 		VideoQualityMode:     c.VideoQualityMode,
 		LastMessageID:        c.lastMessageID,
-		LastPinTimestamp:     c.lastPinTimestamp,
 		NSFW:                 c.nsfw,
 		RateLimitPerUser:     c.rateLimitPerUser,
 	})
 }
 
-func (c GuildVoiceChannel) String() string {
+func (c GuildAudioChannel) String() string {
 	return channelString(c)
 }
 
-func (c GuildVoiceChannel) Mention() string {
+func (c GuildAudioChannel) Mention() string {
 	return ChannelMention(c.ID())
 }
 
-func (GuildVoiceChannel) Type() ChannelType {
-	return ChannelTypeGuildVoice
+func (c GuildAudioChannel) Type() ChannelType {
+	return c.cType
 }
 
-func (c GuildVoiceChannel) ID() snowflake.ID {
+func (c GuildAudioChannel) ID() snowflake.ID {
 	return c.id
 }
 
-func (c GuildVoiceChannel) Name() string {
+func (c GuildAudioChannel) Name() string {
 	return c.name
 }
 
-func (c GuildVoiceChannel) GuildID() snowflake.ID {
+func (c GuildAudioChannel) GuildID() snowflake.ID {
 	return c.guildID
 }
 
-func (c GuildVoiceChannel) PermissionOverwrites() PermissionOverwrites {
+func (c GuildAudioChannel) PermissionOverwrites() PermissionOverwrites {
 	return c.permissionOverwrites
 }
 
-func (c GuildVoiceChannel) Bitrate() int {
-	return c.bitrate
-}
-
-func (c GuildVoiceChannel) RTCRegion() string {
-	return c.rtcRegion
-}
-
-func (c GuildVoiceChannel) Position() int {
+func (c GuildAudioChannel) Position() int {
 	return c.position
 }
 
-func (c GuildVoiceChannel) ParentID() *snowflake.ID {
+func (c GuildAudioChannel) ParentID() *snowflake.ID {
 	return c.parentID
 }
 
-func (c GuildVoiceChannel) LastMessageID() *snowflake.ID {
+func (c GuildAudioChannel) LastMessageID() *snowflake.ID {
 	return c.lastMessageID
 }
 
-func (c GuildVoiceChannel) LastPinTimestamp() *time.Time {
-	return c.lastPinTimestamp
-}
-
-// Topic always returns nil for GuildVoiceChannel(s) as they do not have their own topic.
-func (c GuildVoiceChannel) Topic() *string {
+// LastPinTimestamp always returns nil for GuildAudioChannel(s) as they cannot have pinned messages.
+func (c GuildAudioChannel) LastPinTimestamp() *time.Time {
 	return nil
 }
 
-func (c GuildVoiceChannel) NSFW() bool {
+// Topic always returns nil for GuildAudioChannel(s) as they do not have their own topic.
+func (c GuildAudioChannel) Topic() *string {
+	return nil
+}
+
+func (c GuildAudioChannel) NSFW() bool {
 	return c.nsfw
 }
 
-// DefaultAutoArchiveDuration is always 0 for GuildVoiceChannel(s) as they do not have their own AutoArchiveDuration.
-func (c GuildVoiceChannel) DefaultAutoArchiveDuration() AutoArchiveDuration {
+// DefaultAutoArchiveDuration is always 0 for GuildAudioChannel(s) as they do not have their own AutoArchiveDuration.
+func (c GuildAudioChannel) DefaultAutoArchiveDuration() AutoArchiveDuration {
 	return 0
 }
 
-func (c GuildVoiceChannel) RateLimitPerUser() int {
+func (c GuildAudioChannel) RateLimitPerUser() int {
 	return c.rateLimitPerUser
 }
 
-func (c GuildVoiceChannel) CreatedAt() time.Time {
+func (c GuildAudioChannel) CreatedAt() time.Time {
 	return c.id.Time()
 }
 
-func (GuildVoiceChannel) channel()             {}
-func (GuildVoiceChannel) messageChannel()      {}
-func (GuildVoiceChannel) guildChannel()        {}
-func (GuildVoiceChannel) guildAudioChannel()   {}
-func (GuildVoiceChannel) guildMessageChannel() {}
+func (GuildAudioChannel) channel()             {}
+func (GuildAudioChannel) messageChannel()      {}
+func (GuildAudioChannel) guildChannel()        {}
+func (GuildAudioChannel) guildMessageChannel() {}
 
 var (
 	_ Channel      = (*GuildCategoryChannel)(nil)
@@ -926,150 +899,6 @@ func (GuildThread) messageChannel()      {}
 func (GuildThread) guildMessageChannel() {}
 
 var (
-	_ Channel             = (*GuildStageVoiceChannel)(nil)
-	_ GuildChannel        = (*GuildStageVoiceChannel)(nil)
-	_ GuildAudioChannel   = (*GuildStageVoiceChannel)(nil)
-	_ GuildMessageChannel = (*GuildStageVoiceChannel)(nil)
-)
-
-type GuildStageVoiceChannel struct {
-	id                   snowflake.ID
-	guildID              snowflake.ID
-	position             int
-	permissionOverwrites PermissionOverwrites
-	name                 string
-	bitrate              int
-	parentID             *snowflake.ID
-	rtcRegion            string
-	VideoQualityMode     VideoQualityMode
-	lastMessageID        *snowflake.ID
-	lastPinTimestamp     *time.Time
-	nsfw                 bool
-	rateLimitPerUser     int
-}
-
-func (c *GuildStageVoiceChannel) UnmarshalJSON(data []byte) error {
-	var v guildStageVoiceChannel
-	if err := json.Unmarshal(data, &v); err != nil {
-		return err
-	}
-
-	c.id = v.ID
-	c.guildID = v.GuildID
-	c.position = v.Position
-	c.permissionOverwrites = v.PermissionOverwrites
-	c.name = v.Name
-	c.bitrate = v.Bitrate
-	c.parentID = v.ParentID
-	c.rtcRegion = v.RTCRegion
-	c.VideoQualityMode = v.VideoQualityMode
-	c.lastMessageID = v.LastMessageID
-	c.lastPinTimestamp = v.LastPinTimestamp
-	c.nsfw = v.NSFW
-	c.rateLimitPerUser = v.RateLimitPerUser
-	return nil
-}
-
-func (c GuildStageVoiceChannel) MarshalJSON() ([]byte, error) {
-	return json.Marshal(guildStageVoiceChannel{
-		ID:                   c.id,
-		Type:                 c.Type(),
-		GuildID:              c.guildID,
-		Position:             c.position,
-		PermissionOverwrites: c.permissionOverwrites,
-		Name:                 c.name,
-		Bitrate:              c.bitrate,
-		ParentID:             c.parentID,
-		RTCRegion:            c.rtcRegion,
-		VideoQualityMode:     c.VideoQualityMode,
-		LastMessageID:        c.lastMessageID,
-		LastPinTimestamp:     c.lastPinTimestamp,
-		NSFW:                 c.nsfw,
-		RateLimitPerUser:     c.rateLimitPerUser,
-	})
-}
-
-func (c GuildStageVoiceChannel) String() string {
-	return channelString(c)
-}
-
-func (c GuildStageVoiceChannel) Mention() string {
-	return ChannelMention(c.ID())
-}
-
-func (GuildStageVoiceChannel) Type() ChannelType {
-	return ChannelTypeGuildStageVoice
-}
-
-func (c GuildStageVoiceChannel) ID() snowflake.ID {
-	return c.id
-}
-
-func (c GuildStageVoiceChannel) Name() string {
-	return c.name
-}
-
-func (c GuildStageVoiceChannel) GuildID() snowflake.ID {
-	return c.guildID
-}
-
-func (c GuildStageVoiceChannel) PermissionOverwrites() PermissionOverwrites {
-	return c.permissionOverwrites
-}
-
-func (c GuildStageVoiceChannel) Bitrate() int {
-	return c.bitrate
-}
-
-func (c GuildStageVoiceChannel) RTCRegion() string {
-	return c.rtcRegion
-}
-
-func (c GuildStageVoiceChannel) Position() int {
-	return c.position
-}
-
-func (c GuildStageVoiceChannel) ParentID() *snowflake.ID {
-	return c.parentID
-}
-
-func (c GuildStageVoiceChannel) LastMessageID() *snowflake.ID {
-	return c.lastMessageID
-}
-
-func (c GuildStageVoiceChannel) LastPinTimestamp() *time.Time {
-	return c.lastPinTimestamp
-}
-
-// Topic always returns nil for GuildStageVoiceChannel(s) as they do not have their own topic.
-func (c GuildStageVoiceChannel) Topic() *string {
-	return nil
-}
-
-func (c GuildStageVoiceChannel) NSFW() bool {
-	return c.nsfw
-}
-
-// DefaultAutoArchiveDuration is always 0 for GuildStageVoiceChannel(s) as they do not have their own AutoArchiveDuration.
-func (c GuildStageVoiceChannel) DefaultAutoArchiveDuration() AutoArchiveDuration {
-	return 0
-}
-
-func (c GuildStageVoiceChannel) RateLimitPerUser() int {
-	return c.rateLimitPerUser
-}
-
-func (c GuildStageVoiceChannel) CreatedAt() time.Time {
-	return c.id.Time()
-}
-
-func (GuildStageVoiceChannel) channel()             {}
-func (GuildStageVoiceChannel) messageChannel()      {}
-func (GuildStageVoiceChannel) guildChannel()        {}
-func (GuildStageVoiceChannel) guildAudioChannel()   {}
-func (GuildStageVoiceChannel) guildMessageChannel() {}
-
-var (
 	_ Channel      = (*GuildForumChannel)(nil)
 	_ GuildChannel = (*GuildForumChannel)(nil)
 )
@@ -1376,16 +1205,13 @@ func ApplyGuildIDToChannel(channel GuildChannel, guildID snowflake.ID) GuildChan
 	case GuildTextChannel:
 		c.guildID = guildID
 		return c
-	case GuildVoiceChannel:
+	case GuildAudioChannel:
 		c.guildID = guildID
 		return c
 	case GuildCategoryChannel:
 		c.guildID = guildID
 		return c
 	case GuildNewsChannel:
-		c.guildID = guildID
-		return c
-	case GuildStageVoiceChannel:
 		c.guildID = guildID
 		return c
 	case GuildThread:
@@ -1407,7 +1233,7 @@ func ApplyLastMessageIDToChannel(channel GuildMessageChannel, lastMessageID snow
 	case GuildTextChannel:
 		c.lastMessageID = &lastMessageID
 		return c
-	case GuildVoiceChannel:
+	case GuildAudioChannel:
 		c.lastMessageID = &lastMessageID
 		return c
 	case GuildNewsChannel:
@@ -1424,9 +1250,6 @@ func ApplyLastMessageIDToChannel(channel GuildMessageChannel, lastMessageID snow
 func ApplyLastPinTimestampToChannel(channel GuildMessageChannel, lastPinTimestamp *time.Time) GuildMessageChannel {
 	switch c := channel.(type) {
 	case GuildTextChannel:
-		c.lastPinTimestamp = lastPinTimestamp
-		return c
-	case GuildVoiceChannel:
 		c.lastPinTimestamp = lastPinTimestamp
 		return c
 	case GuildNewsChannel:
