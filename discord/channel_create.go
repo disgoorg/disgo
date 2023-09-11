@@ -57,12 +57,15 @@ var (
 
 type GuildVoiceChannelCreate struct {
 	Name                 string                `json:"name"`
-	Topic                string                `json:"topic,omitempty"`
 	Bitrate              int                   `json:"bitrate,omitempty"`
 	UserLimit            int                   `json:"user_limit,omitempty"`
+	RateLimitPerUser     int                   `json:"rate_limit_per_user,omitempty"`
 	Position             int                   `json:"position,omitempty"`
 	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID             snowflake.ID          `json:"parent_id,omitempty"`
+	NSFW                 bool                  `json:"nsfw,omitempty"`
+	RTCRegion            string                `json:"rtc_region,omitempty"`
+	VideoQualityMode     VideoQualityMode      `json:"video_quality_mode,omitempty"`
 }
 
 func (c GuildVoiceChannelCreate) Type() ChannelType {
@@ -154,12 +157,15 @@ var (
 
 type GuildStageVoiceChannelCreate struct {
 	Name                 string                `json:"name"`
-	Topic                string                `json:"topic,omitempty"`
 	Bitrate              int                   `json:"bitrate,omitempty"`
 	UserLimit            int                   `json:"user_limit,omitempty"`
+	RateLimitPerUser     int                   `json:"rate_limit_per_user,omitempty"`
 	Position             int                   `json:"position,omitempty"`
 	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID             snowflake.ID          `json:"parent_id,omitempty"`
+	NSFW                 bool                  `json:"nsfw,omitempty"`
+	RTCRegion            string                `json:"rtc_region,omitempty"`
+	VideoQualityMode     VideoQualityMode      `json:"video_quality_mode,omitempty"`
 }
 
 func (c GuildStageVoiceChannelCreate) Type() ChannelType {
