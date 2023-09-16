@@ -30,7 +30,7 @@ type GuildTextChannelCreate struct {
 	ParentID                      snowflake.ID          `json:"parent_id,omitempty"`
 	NSFW                          bool                  `json:"nsfw,omitempty"`
 	DefaultAutoArchiveDuration    AutoArchiveDuration   `json:"default_auto_archive_days,omitempty"`
-	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user"`
+	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user,omitempty"`
 }
 
 func (c GuildTextChannelCreate) Type() ChannelType {
@@ -131,7 +131,7 @@ type GuildNewsChannelCreate struct {
 	ParentID                      snowflake.ID          `json:"parent_id,omitempty"`
 	NSFW                          bool                  `json:"nsfw,omitempty"`
 	DefaultAutoArchiveDuration    AutoArchiveDuration   `json:"default_auto_archive_days,omitempty"`
-	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user"`
+	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user,omitempty"`
 }
 
 func (c GuildNewsChannelCreate) Type() ChannelType {
@@ -194,12 +194,12 @@ type GuildForumChannelCreate struct {
 	Position                      int                   `json:"position,omitempty"`
 	PermissionOverwrites          []PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID                      snowflake.ID          `json:"parent_id,omitempty"`
-	RateLimitPerUser              int                   `json:"rate_limit_per_user"`
+	RateLimitPerUser              int                   `json:"rate_limit_per_user,omitempty"`
 	DefaultReactionEmoji          DefaultReactionEmoji  `json:"default_reaction_emoji"`
 	AvailableTags                 []ChannelTag          `json:"available_tags"`
 	DefaultSortOrder              DefaultSortOrder      `json:"default_sort_order"`
 	DefaultForumLayout            DefaultForumLayout    `json:"default_forum_layout"`
-	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user"`
+	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user,omitempty"`
 }
 
 func (c GuildForumChannelCreate) Type() ChannelType {
@@ -226,11 +226,11 @@ type GuildMediaChannelCreate struct {
 	Position                      int                   `json:"position,omitempty"`
 	PermissionOverwrites          []PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID                      snowflake.ID          `json:"parent_id,omitempty"`
-	RateLimitPerUser              int                   `json:"rate_limit_per_user"`
+	RateLimitPerUser              int                   `json:"rate_limit_per_user,omitempty"`
 	DefaultReactionEmoji          DefaultReactionEmoji  `json:"default_reaction_emoji"`
 	AvailableTags                 []ChannelTag          `json:"available_tags"`
 	DefaultSortOrder              DefaultSortOrder      `json:"default_sort_order"`
-	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user"`
+	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user,omitempty"`
 }
 
 func (c GuildMediaChannelCreate) Type() ChannelType {
