@@ -652,6 +652,6 @@ type SelectMenuDefaultValueType string
 
 const (
 	SelectMenuDefaultValueTypeUser    SelectMenuDefaultValueType = "user"
-	SelectMenuDefaultValueTypeRole                               = "role"
-	SelectMenuDefaultValueTypeChannel                            = "channel"
+	SelectMenuDefaultValueTypeRole    SelectMenuDefaultValueType = "role"
+	SelectMenuDefaultValueTypeChannel SelectMenuDefaultValueType = "channel"
 )
