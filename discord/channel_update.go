@@ -39,6 +39,7 @@ type GuildVoiceChannelUpdate struct {
 	PermissionOverwrites *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID             *snowflake.ID          `json:"parent_id,omitempty"`
 	RTCRegion            *string                `json:"rtc_region,omitempty"`
+	NSFW                 *bool                  `json:"nsfw,omitempty"`
 	VideoQualityMode     *VideoQualityMode      `json:"video_quality_mode,omitempty"`
 }
 
@@ -83,7 +84,7 @@ func (GuildThreadUpdate) guildChannelUpdate() {}
 type GuildStageVoiceChannelUpdate struct {
 	Name                 *string                `json:"name,omitempty"`
 	Position             *int                   `json:"position,omitempty"`
-	Topic                *string                `json:"topic,omitempty"`
+	RateLimitPerUser     *int                   `json:"rate_limit_per_user,omitempty"`
 	Bitrate              *int                   `json:"bitrate,omitempty"`
 	UserLimit            *int                   `json:"user_limit,omitempty"`
 	PermissionOverwrites *[]PermissionOverwrite `json:"permission_overwrites,omitempty"`
