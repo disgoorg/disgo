@@ -108,6 +108,30 @@ func UnmarshalInteraction(data []byte) (Interaction, error) {
 	return interaction, nil
 }
 
+type ResolvedData struct {
+	Users       map[snowflake.ID]User            `json:"users,omitempty"`
+	Members     map[snowflake.ID]ResolvedMember  `json:"members,omitempty"`
+	Roles       map[snowflake.ID]Role            `json:"roles,omitempty"`
+	Channels    map[snowflake.ID]ResolvedChannel `json:"channels,omitempty"`
+	Attachments map[snowflake.ID]Attachment      `json:"attachments,omitempty"`
+}
+
+func (r *ResolvedData) UnmarshalJSON(data []byte) error {
+	type resolvedData ResolvedData
+	var v resolvedData
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*r = ResolvedData(v)
+	for id, member := range r.Members {
+		if user, ok := r.Users[id]; ok {
+			member.User = user
+			r.Members[id] = member
+		}
+	}
+	return nil
+}
+
 type ResolvedMember struct {
 	Member
 	Permissions Permissions `json:"permissions,omitempty"`

@@ -113,6 +113,7 @@ type Message struct {
 	Thread               *MessageThread        `json:"thread,omitempty"`
 	Position             *int                  `json:"position,omitempty"`
 	RoleSubscriptionData *RoleSubscriptionData `json:"role_subscription_data,omitempty"`
+	Resolved             *ResolvedData         `json:"resolved,omitempty"`
 }
 
 func (m *Message) UnmarshalJSON(data []byte) error {
