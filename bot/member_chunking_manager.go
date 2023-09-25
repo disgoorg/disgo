@@ -20,7 +20,7 @@ func NewMemberChunkingManager(client Client, logger *slog.Logger, memberChunking
 		memberChunkingFilter = MemberChunkingFilterNone
 	}
 	if logger == nil {
-		logger = slog.Default()
+		logger = slog.Default().WithGroup("member_chunking_manager")
 	}
 	return &memberChunkingManagerImpl{
 		client:               client,

@@ -64,10 +64,6 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	}
 }
 
-func (c *Config) SubLogger(name string) *slog.Logger {
-	return c.Logger.WithGroup(name)
-}
-
 // WithLogger lets you inject your own logger implementing *slog.Logger.
 func WithLogger(logger *slog.Logger) ConfigOpt {
 	return func(config *Config) {
@@ -234,7 +230,7 @@ func BuildClient(token string, cfg *Config, gatewayEventHandlerFunc func(client 
 			rest.WithUserAgent(fmt.Sprintf("DiscordBot (%s, %s)", github, version)),
 			rest.WithLogger(client.logger),
 			func(config *rest.Config) {
-				config.RateLimiterConfigOpts = append([]rest.RateLimiterConfigOpt{rest.WithRateLimiterLogger(cfg.SubLogger("rest"))}, config.RateLimiterConfigOpts...)
+				config.RateLimiterConfigOpts = append([]rest.RateLimiterConfigOpt{rest.WithRateLimiterLogger(cfg.Logger.WithGroup("rest_rate_limiter"))}, config.RateLimiterConfigOpts...)
 			},
 		}, cfg.RestClientConfigOpts...)
 
@@ -247,12 +243,12 @@ func BuildClient(token string, cfg *Config, gatewayEventHandlerFunc func(client 
 	client.restServices = cfg.Rest
 
 	if cfg.VoiceManager == nil {
-		cfg.VoiceManager = voice.NewManager(client.UpdateVoiceState, *id, append([]voice.ManagerConfigOpt{voice.WithLogger(cfg.SubLogger("voice"))}, cfg.VoiceManagerConfigOpts...)...)
+		cfg.VoiceManager = voice.NewManager(client.UpdateVoiceState, *id, append([]voice.ManagerConfigOpt{voice.WithLogger(cfg.Logger.WithGroup("voice"))}, cfg.VoiceManagerConfigOpts...)...)
 	}
 	client.voiceManager = cfg.VoiceManager
 
 	if cfg.EventManager == nil {
-		cfg.EventManager = NewEventManager(client, cfg.EventManagerConfigOpts...)
+		cfg.EventManager = NewEventManager(client, append([]EventManagerConfigOpt{WithEventManagerLogger(cfg.Logger.WithGroup("event_manager"))}, cfg.EventManagerConfigOpts...)...)
 	}
 	client.eventManager = cfg.EventManager
 
@@ -265,12 +261,12 @@ func BuildClient(token string, cfg *Config, gatewayEventHandlerFunc func(client 
 
 		cfg.GatewayConfigOpts = append([]gateway.ConfigOpt{
 			gateway.WithURL(gatewayRs.URL),
-			gateway.WithLogger(cfg.SubLogger("gateway")),
+			gateway.WithLogger(cfg.Logger.WithGroup("gateway")),
 			gateway.WithOS(os),
 			gateway.WithBrowser(name),
 			gateway.WithDevice(name),
 			func(config *gateway.Config) {
-				config.RateLimiterConfigOpts = append([]gateway.RateLimiterConfigOpt{gateway.WithRateLimiterLogger(cfg.SubLogger("gateway_rate_limiter"))}, config.RateLimiterConfigOpts...)
+				config.RateLimiterConfigOpts = append([]gateway.RateLimiterConfigOpt{gateway.WithRateLimiterLogger(cfg.Logger.WithGroup("gateway_rate_limiter"))}, config.RateLimiterConfigOpts...)
 			},
 		}, cfg.GatewayConfigOpts...)
 
@@ -295,17 +291,17 @@ func BuildClient(token string, cfg *Config, gatewayEventHandlerFunc func(client 
 			sharding.WithShardIDs(shardIDs...),
 			sharding.WithGatewayConfigOpts(
 				gateway.WithURL(gatewayBotRs.URL),
-				gateway.WithLogger(cfg.SubLogger("gateway")),
+				gateway.WithLogger(cfg.Logger.WithGroup("gateway")),
 				gateway.WithOS(os),
 				gateway.WithBrowser(name),
 				gateway.WithDevice(name),
 				func(config *gateway.Config) {
-					config.RateLimiterConfigOpts = append([]gateway.RateLimiterConfigOpt{gateway.WithRateLimiterLogger(cfg.SubLogger("gateway_rate_limiter"))}, config.RateLimiterConfigOpts...)
+					config.RateLimiterConfigOpts = append([]gateway.RateLimiterConfigOpt{gateway.WithRateLimiterLogger(cfg.Logger.WithGroup("gateway_rate_limiter"))}, config.RateLimiterConfigOpts...)
 				},
 			),
-			sharding.WithLogger(client.logger),
+			sharding.WithLogger(cfg.Logger.WithGroup("sharding")),
 			func(config *sharding.Config) {
-				config.RateLimiterConfigOpts = append([]sharding.RateLimiterConfigOpt{sharding.WithRateLimiterLogger(cfg.SubLogger("sharding_rate_limiter")), sharding.WithMaxConcurrency(gatewayBotRs.SessionStartLimit.MaxConcurrency)}, config.RateLimiterConfigOpts...)
+				config.RateLimiterConfigOpts = append([]sharding.RateLimiterConfigOpt{sharding.WithRateLimiterLogger(cfg.Logger.WithGroup("sharding_rate_limiter")), sharding.WithMaxConcurrency(gatewayBotRs.SessionStartLimit.MaxConcurrency)}, config.RateLimiterConfigOpts...)
 			},
 		}, cfg.ShardManagerConfigOpts...)
 
@@ -315,7 +311,7 @@ func BuildClient(token string, cfg *Config, gatewayEventHandlerFunc func(client 
 
 	if cfg.HTTPServer == nil && cfg.PublicKey != "" {
 		cfg.HTTPServerConfigOpts = append([]httpserver.ConfigOpt{
-			httpserver.WithLogger(cfg.SubLogger("http_server")),
+			httpserver.WithLogger(cfg.Logger.WithGroup("http_server")),
 		}, cfg.HTTPServerConfigOpts...)
 
 		cfg.HTTPServer = httpserver.New(cfg.PublicKey, httpServerEventHandlerFunc(client), cfg.HTTPServerConfigOpts...)
@@ -323,7 +319,7 @@ func BuildClient(token string, cfg *Config, gatewayEventHandlerFunc func(client 
 	client.httpServer = cfg.HTTPServer
 
 	if cfg.MemberChunkingManager == nil {
-		cfg.MemberChunkingManager = NewMemberChunkingManager(client, cfg.SubLogger("member_chunking_manager"), cfg.MemberChunkingFilter)
+		cfg.MemberChunkingManager = NewMemberChunkingManager(client, cfg.Logger.WithGroup("member_chunking_manager"), cfg.MemberChunkingFilter)
 	}
 	client.memberChunkingManager = cfg.MemberChunkingManager
 

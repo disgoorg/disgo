@@ -5,7 +5,7 @@ import "log/slog"
 // DefaultManagerConfig returns the default ManagerConfig with sensible defaults.
 func DefaultManagerConfig() *ManagerConfig {
 	return &ManagerConfig{
-		Logger:         slog.Default(),
+		Logger:         slog.Default().WithGroup("voice"),
 		ConnCreateFunc: NewConn,
 	}
 }

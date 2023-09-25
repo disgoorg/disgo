@@ -9,7 +9,7 @@ import (
 // DefaultEventManagerConfig returns a new EventManagerConfig with all default values.
 func DefaultEventManagerConfig() *EventManagerConfig {
 	return &EventManagerConfig{
-		Logger: slog.Default(),
+		Logger: slog.Default().WithGroup("event_manager"),
 	}
 }
 

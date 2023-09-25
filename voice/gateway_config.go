@@ -9,7 +9,7 @@ import (
 // DefaultGatewayConfig returns a GatewayConfig with sensible defaults.
 func DefaultGatewayConfig() *GatewayConfig {
 	return &GatewayConfig{
-		Logger:        slog.Default(),
+		Logger:        slog.Default().WithGroup("voice_gateway"),
 		Dialer:        websocket.DefaultDialer,
 		AutoReconnect: true,
 	}

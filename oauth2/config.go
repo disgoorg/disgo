@@ -9,7 +9,7 @@ import (
 // DefaultConfig is the configuration which is used by default
 func DefaultConfig() *Config {
 	return &Config{
-		Logger: slog.Default(),
+		Logger: slog.Default().WithGroup("oauth2"),
 	}
 }
 
@@ -32,13 +32,13 @@ func (c *Config) Apply(opts []ConfigOpt) {
 		opt(c)
 	}
 	if c.RestClient == nil {
-		c.RestClient = rest.NewClient("", append([]rest.ConfigOpt{rest.WithLogger(c.Logger)}, c.RestClientConfigOpts...)...)
+		c.RestClient = rest.NewClient("", append([]rest.ConfigOpt{rest.WithLogger(c.Logger.WithGroup("rest"))}, c.RestClientConfigOpts...)...)
 	}
 	if c.OAuth2 == nil {
 		c.OAuth2 = rest.NewOAuth2(c.RestClient)
 	}
 	if c.StateController == nil {
-		c.StateController = NewStateController(append([]StateControllerConfigOpt{WithStateControllerLogger(c.Logger)}, c.StateControllerConfigOpts...)...)
+		c.StateController = NewStateController(append([]StateControllerConfigOpt{WithStateControllerLogger(c.Logger.WithGroup("oauth2_state_controller"))}, c.StateControllerConfigOpts...)...)
 	}
 }
 

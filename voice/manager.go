@@ -92,7 +92,7 @@ func (m *managerImpl) CreateConn(guildID snowflake.ID) Conn {
 	var once sync.Once
 	removeFunc := func() { once.Do(func() { m.RemoveConn(guildID) }) }
 
-	conn := m.config.ConnCreateFunc(guildID, m.userID, m.voiceStateUpdateFunc, removeFunc, append([]ConnConfigOpt{WithConnLogger(m.config.Logger)}, m.config.ConnOpts...)...)
+	conn := m.config.ConnCreateFunc(guildID, m.userID, m.voiceStateUpdateFunc, removeFunc, append([]ConnConfigOpt{WithConnLogger(m.config.Logger.WithGroup("voice_conn"))}, m.config.ConnOpts...)...)
 	m.conns[guildID] = conn
 
 	return conn

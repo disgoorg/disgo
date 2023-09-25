@@ -7,7 +7,7 @@ import (
 // DefaultRateLimiterConfig returns a RateLimiterConfig with sensible defaults.
 func DefaultRateLimiterConfig() *RateLimiterConfig {
 	return &RateLimiterConfig{
-		Logger:            slog.Default(),
+		Logger:            slog.Default().WithGroup("gateway_rate_limiter"),
 		CommandsPerMinute: CommandsPerMinute,
 	}
 }

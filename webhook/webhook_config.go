@@ -10,7 +10,7 @@ import (
 // DefaultConfig is the default configuration for the webhook client
 func DefaultConfig() *Config {
 	return &Config{
-		Logger:                 slog.Default(),
+		Logger:                 slog.Default().WithGroup("webhook"),
 		DefaultAllowedMentions: &discord.DefaultAllowedMentions,
 	}
 }
@@ -33,7 +33,7 @@ func (c *Config) Apply(opts []ConfigOpt) {
 		opt(c)
 	}
 	if c.RestClient == nil {
-		c.RestClient = rest.NewClient("", c.RestClientConfigOpts...)
+		c.RestClient = rest.NewClient("", append([]rest.ConfigOpt{rest.WithLogger(c.Logger.WithGroup("rest"))}, c.RestClientConfigOpts...)...)
 	}
 	if c.Webhooks == nil {
 		c.Webhooks = rest.NewWebhooks(c.RestClient)
