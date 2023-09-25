@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log/slog"
 	"math/rand"
 	"net/http"
 	"os"
@@ -23,14 +24,14 @@ var (
 )
 
 func main() {
-	log.SetLevel(log.LevelDebug)
-	log.Info("starting example...")
-	log.Infof("disgo %s", disgo.Version)
+	slog.Info("starting example...")
+	slog.Info("disgo version", slog.String("version", disgo.Version))
 
 	var err error
 	client, err = disgo.New(token)
 	if err != nil {
-		log.Panic(err)
+		slog.Error("error creating client", slog.Any("err", err))
+		return
 	}
 
 	_, _ = client.Rest().UpdateApplicationRoleConnectionMetadata(client.ApplicationID(), []discord.ApplicationRoleConnectionMetadata{

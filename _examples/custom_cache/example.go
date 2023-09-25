@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"os/signal"
 	"sync"
@@ -21,9 +22,8 @@ var (
 )
 
 func main() {
-	log.SetLevel(log.LevelDebug)
-	log.Info("starting example...")
-	log.Infof("disgo version: %s", disgo.Version)
+	slog.Info("starting example...")
+	slog.Info("disgo version", slog.String("version", disgo.Version))
 
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(gateway.WithIntents(gateway.IntentGuilds|gateway.IntentGuildMessages|gateway.IntentDirectMessages)),
@@ -33,7 +33,8 @@ func main() {
 		),
 	)
 	if err != nil {
-		log.Fatal("error while building bot: ", err)
+		slog.Error("error while building bot", slog.Any("err", err))
+		return
 	}
 
 	defer func() {
@@ -45,10 +46,10 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err = client.OpenGateway(ctx); err != nil {
-		log.Fatal("error while connecting to gateway: ", err)
+		slog.Error("error while connecting to gateway", slog.Any("err", err))
 	}
 
-	log.Infof("example is now running. Press CTRL-C to exit.")
+	slog.Info("example is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s

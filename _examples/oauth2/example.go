@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"math/rand"
 	"net/http"
 	"os"
@@ -20,7 +21,6 @@ var (
 	clientID     = snowflake.GetEnv("client_id")
 	clientSecret = os.Getenv("client_secret")
 	baseURL      = os.Getenv("base_url")
-	logger       = log.Default()
 	httpClient   = http.DefaultClient
 	client       oauth2.Client
 	sessions     map[string]oauth2.Session
@@ -31,11 +31,10 @@ func init() {
 }
 
 func main() {
-	logger.SetLevel(log.LevelDebug)
-	logger.Info("starting example...")
-	logger.Infof("disgo %s", disgo.Version)
+	slog.Info("starting example...")
+	slog.Info("disgo version", slog.String("version", disgo.Version))
 
-	client = oauth2.New(clientID, clientSecret, oauth2.WithLogger(logger), oauth2.WithRestClientConfigOpts(rest.WithHTTPClient(httpClient)))
+	client = oauth2.New(clientID, clientSecret, oauth2.WithRestClientConfigOpts(rest.WithHTTPClient(httpClient)))
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handleRoot)

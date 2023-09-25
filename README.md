@@ -115,7 +115,7 @@ A full Ping Pong example can also be found [here](https://github.com/disgoorg/di
 
 ### Logging
 
-DisGo uses our own small [logging interface](https://github.com/disgoorg/log) which you can use with most other logging libraries. This lib also comes with a default logger which is based on the standard log package.
+DisGo uses [slog](https://pkg.go.dev/log/slog) for logging.
 
 ## Documentation
 
