@@ -705,3 +705,24 @@ type EventHeartbeatAck struct {
 
 func (EventHeartbeatAck) messageData() {}
 func (EventHeartbeatAck) eventData()   {}
+
+type EventEntitlementCreate struct {
+	discord.Entitlement
+}
+
+func (EventEntitlementCreate) messageData() {}
+func (EventEntitlementCreate) eventData()   {}
+
+type EventEntitlementUpdate struct {
+	discord.Entitlement
+}
+
+func (EventEntitlementUpdate) messageData() {}
+func (EventEntitlementUpdate) eventData()   {}
+
+type EventEntitlementDelete struct {
+	discord.Entitlement
+}
+
+func (EventEntitlementDelete) messageData() {}
+func (EventEntitlementDelete) eventData()   {}

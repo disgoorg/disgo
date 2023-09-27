@@ -35,6 +35,7 @@ type rawInteraction struct {
 	Member         *ResolvedMember    `json:"member,omitempty"`
 	User           *User              `json:"user,omitempty"`
 	AppPermissions *Permissions       `json:"app_permissions,omitempty"`
+	Entitlements   []Entitlement      `json:"entitlements"`
 }
 
 // Interaction is used for easier unmarshalling of different Interaction(s)
@@ -53,6 +54,7 @@ type Interaction interface {
 	Member() *ResolvedMember
 	User() User
 	AppPermissions() *Permissions
+	Entitlements() []Entitlement
 	CreatedAt() time.Time
 
 	interaction()

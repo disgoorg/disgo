@@ -26,3 +26,16 @@ type EntitlementType int
 const (
 	EntitlementTypeApplicationSubscription EntitlementType = 8
 )
+
+type TestEntitlementCreate struct {
+	SkuID     snowflake.ID         `json:"sku_id"`
+	OwnerID   snowflake.ID         `json:"owner_id"`
+	OwnerType EntitlementOwnerType `json:"owner_type"`
+}
+
+type EntitlementOwnerType int
+
+const (
+	EntitlementOwnerTypeGuild EntitlementOwnerType = iota + 1
+	EntitlementOwnerTypeUser
+)

@@ -179,3 +179,8 @@ func (e *ModalSubmitInteractionCreate) UpdateMessage(messageUpdate discord.Messa
 func (e *ModalSubmitInteractionCreate) DeferUpdateMessage(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil, opts...)
 }
+
+// CreateUpgradeButton responds to the interaction with an upgrade button if available.
+func (e *ModalSubmitInteractionCreate) CreateUpgradeButton(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
+}

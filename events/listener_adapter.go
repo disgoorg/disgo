@@ -61,6 +61,11 @@ type ListenerAdapter struct {
 	OnEmojiUpdate  func(event *EmojiUpdate)
 	OnEmojiDelete  func(event *EmojiDelete)
 
+	// Entitlement Events
+	OnEntitlementCreate func(event *EntitlementCreate)
+	OnEntitlementUpdate func(event *EntitlementUpdate)
+	OnEntitlementDelete func(event *EntitlementDelete)
+
 	// Sticker Events
 	OnStickersUpdate func(event *StickersUpdate)
 	OnStickerCreate  func(event *StickerCreate)
@@ -315,6 +320,20 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 	case *EmojiDelete:
 		if listener := l.OnEmojiDelete; listener != nil {
+			listener(e)
+		}
+
+	// Entitlement Events
+	case *EntitlementCreate:
+		if listener := l.OnEntitlementCreate; listener != nil {
+			listener(e)
+		}
+	case *EntitlementUpdate:
+		if listener := l.OnEntitlementUpdate; listener != nil {
+			listener(e)
+		}
+	case *EntitlementDelete:
+		if listener := l.OnEntitlementDelete; listener != nil {
 			listener(e)
 		}
 

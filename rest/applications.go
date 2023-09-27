@@ -35,6 +35,10 @@ type Applications interface {
 	UpdateApplicationRoleConnectionMetadata(applicationID snowflake.ID, newRecords []discord.ApplicationRoleConnectionMetadata, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
 
 	GetEntitlements(applicationID snowflake.ID, userID snowflake.ID, guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, excludeEnded bool, skuIDs []snowflake.ID, opts ...RequestOpt) ([]discord.Entitlement, error)
+	CreateTestEntitlement(applicationID snowflake.ID, entitlementCreate discord.TestEntitlementCreate, opts ...RequestOpt) (*discord.Entitlement, error)
+	DeleteTestEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error
+
+	GetSKUs(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.SKU, error)
 }
 
 type applicationsImpl struct {
@@ -180,6 +184,20 @@ func (s *applicationsImpl) GetEntitlements(applicationID snowflake.ID, userID sn
 		queryValues["limit"] = limit
 	}
 	err = s.client.Do(GetEntitlements.Compile(queryValues, applicationID), nil, &entitlements, opts...)
+	return
+}
+
+func (s *applicationsImpl) CreateTestEntitlement(applicationID snowflake.ID, entitlementCreate discord.TestEntitlementCreate, opts ...RequestOpt) (entitlement *discord.Entitlement, err error) {
+	err = s.client.Do(CreateTestEntitlement.Compile(nil, applicationID), entitlementCreate, &entitlement, opts...)
+	return
+}
+
+func (s *applicationsImpl) DeleteTestEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error {
+	return s.client.Do(DeleteTestEntitlement.Compile(nil, applicationID, entitlementID), nil, nil, opts...)
+}
+
+func (s *applicationsImpl) GetSKUs(applicationID snowflake.ID, opts ...RequestOpt) (skus []discord.SKU, err error) {
+	err = s.client.Do(GetSKUs.Compile(nil, applicationID), nil, &skus, opts...)
 	return
 }
 
