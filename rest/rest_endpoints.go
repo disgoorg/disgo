@@ -289,6 +289,8 @@ var (
 
 	GetApplicationRoleConnectionMetadata    = NewEndpoint(http.MethodGet, "/applications/{application.id}/role-connections/metadata")
 	UpdateApplicationRoleConnectionMetadata = NewEndpoint(http.MethodPut, "/applications/{application.id}/role-connections/metadata")
+
+	GetEntitlements = NewEndpoint(http.MethodGet, "/applications/{application.id}/entitlements")
 )
 
 // NewEndpoint returns a new Endpoint which requires bot auth with the given http method & route.

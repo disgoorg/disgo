@@ -61,6 +61,11 @@ func (e *ApplicationCommandInteractionCreate) CreateModal(modalCreate discord.Mo
 	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
 }
 
+// CreateUpgradeButton responds to the interaction with an upgrade button if available.
+func (e *ApplicationCommandInteractionCreate) CreateUpgradeButton(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
+}
+
 // ComponentInteractionCreate indicates that a new component interaction has been created.
 type ComponentInteractionCreate struct {
 	*GenericEvent
@@ -105,6 +110,11 @@ func (e *ComponentInteractionCreate) DeferUpdateMessage(opts ...rest.RequestOpt)
 // CreateModal responds to the interaction with a new modal.
 func (e *ComponentInteractionCreate) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
+}
+
+// CreateUpgradeButton responds to the interaction with an upgrade button if available.
+func (e *ComponentInteractionCreate) CreateUpgradeButton(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
 }
 
 // AutocompleteInteractionCreate indicates that a new autocomplete interaction has been created.

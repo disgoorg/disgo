@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"github.com/disgoorg/disgo/internal/slicehelper"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
@@ -32,6 +33,8 @@ type Applications interface {
 
 	GetApplicationRoleConnectionMetadata(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
 	UpdateApplicationRoleConnectionMetadata(applicationID snowflake.ID, newRecords []discord.ApplicationRoleConnectionMetadata, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
+
+	GetEntitlements(applicationID snowflake.ID, userID snowflake.ID, guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, excludeEnded bool, skuIDs []snowflake.ID, opts ...RequestOpt) ([]discord.Entitlement, error)
 }
 
 type applicationsImpl struct {
@@ -153,6 +156,30 @@ func (s *applicationsImpl) GetApplicationRoleConnectionMetadata(applicationID sn
 
 func (s *applicationsImpl) UpdateApplicationRoleConnectionMetadata(applicationID snowflake.ID, newRecords []discord.ApplicationRoleConnectionMetadata, opts ...RequestOpt) (metadata []discord.ApplicationRoleConnectionMetadata, err error) {
 	err = s.client.Do(UpdateApplicationRoleConnectionMetadata.Compile(nil, applicationID), newRecords, &metadata, opts...)
+	return
+}
+
+func (s *applicationsImpl) GetEntitlements(applicationID snowflake.ID, userID snowflake.ID, guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, excludeEnded bool, skuIDs []snowflake.ID, opts ...RequestOpt) (entitlements []discord.Entitlement, err error) {
+	queryValues := discord.QueryValues{
+		"exclude_ended": excludeEnded,
+		"sku_ids":       slicehelper.JoinSnowflakes(skuIDs),
+	}
+	if userID != 0 {
+		queryValues["user_id"] = userID
+	}
+	if guildID != 0 {
+		queryValues["guild_id"] = guildID
+	}
+	if before != 0 {
+		queryValues["before"] = before
+	}
+	if after != 0 {
+		queryValues["after"] = after
+	}
+	if limit != 0 {
+		queryValues["limit"] = limit
+	}
+	err = s.client.Do(GetEntitlements.Compile(queryValues, applicationID), nil, &entitlements, opts...)
 	return
 }
 

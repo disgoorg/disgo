@@ -3,6 +3,7 @@ package rest
 import (
 	"time"
 
+	"github.com/disgoorg/disgo/internal/slicehelper"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
@@ -220,16 +221,9 @@ func (s *guildImpl) DeleteIntegration(guildID snowflake.ID, integrationID snowfl
 
 func (s *guildImpl) GetGuildPruneCount(guildID snowflake.ID, days int, includeRoles []snowflake.ID, opts ...RequestOpt) (result *discord.GuildPruneResult, err error) {
 	values := discord.QueryValues{
-		"days": days,
+		"days":          days,
+		"include_roles": slicehelper.JoinSnowflakes(includeRoles),
 	}
-	var joinedRoles string
-	for i, roleID := range includeRoles {
-		joinedRoles += roleID.String()
-		if i != len(includeRoles)-1 {
-			joinedRoles += ","
-		}
-	}
-	values["include_roles"] = joinedRoles
 	err = s.client.Do(GetGuildPruneCount.Compile(values, guildID), nil, &result, opts...)
 	return
 }
