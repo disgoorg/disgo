@@ -267,7 +267,7 @@ func (c UserSelectMenuComponent) WithDisabled(disabled bool) UserSelectMenuCompo
 
 // SetDefaultValues returns a new UserSelectMenuComponent with the provided default values
 func (c UserSelectMenuComponent) SetDefaultValues(defaultValues ...snowflake.ID) UserSelectMenuComponent {
-	values := make([]SelectMenuDefaultValue, len(defaultValues))
+	values := make([]SelectMenuDefaultValue, 0, len(defaultValues))
 	for _, value := range defaultValues {
 		values = append(values, NewSelectMenuDefaultUser(value))
 	}
@@ -379,7 +379,7 @@ func (c RoleSelectMenuComponent) WithDisabled(disabled bool) RoleSelectMenuCompo
 
 // SetDefaultValues returns a new RoleSelectMenuComponent with the provided default values
 func (c RoleSelectMenuComponent) SetDefaultValues(defaultValues ...snowflake.ID) RoleSelectMenuComponent {
-	values := make([]SelectMenuDefaultValue, len(defaultValues))
+	values := make([]SelectMenuDefaultValue, 0, len(defaultValues))
 	for _, value := range defaultValues {
 		values = append(values, NewSelectMenuDefaultRole(value))
 	}
@@ -607,7 +607,7 @@ func (c ChannelSelectMenuComponent) WithChannelTypes(channelTypes ...ChannelType
 
 // SetDefaultValues returns a new ChannelSelectMenuComponent with the provided default values
 func (c ChannelSelectMenuComponent) SetDefaultValues(defaultValues ...snowflake.ID) ChannelSelectMenuComponent {
-	values := make([]SelectMenuDefaultValue, len(defaultValues))
+	values := make([]SelectMenuDefaultValue, 0, len(defaultValues))
 	for _, value := range defaultValues {
 		values = append(values, NewSelectMenuDefaultChannel(value))
 	}
