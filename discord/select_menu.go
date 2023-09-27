@@ -267,21 +267,17 @@ func (c UserSelectMenuComponent) WithDisabled(disabled bool) UserSelectMenuCompo
 
 // SetDefaultValues returns a new UserSelectMenuComponent with the provided default values
 func (c UserSelectMenuComponent) SetDefaultValues(defaultValues ...snowflake.ID) UserSelectMenuComponent {
-	for i, value := range defaultValues {
-		c.DefaultValues[i] = SelectMenuDefaultValue{
-			ID:   value,
-			Type: SelectMenuDefaultValueTypeUser,
-		}
+	values := make([]SelectMenuDefaultValue, len(defaultValues))
+	for _, value := range defaultValues {
+		values = append(values, NewSelectMenuDefaultUser(value))
 	}
+	c.DefaultValues = values
 	return c
 }
 
 // AddDefaultValue returns a new UserSelectMenuComponent with the provided default value added
 func (c UserSelectMenuComponent) AddDefaultValue(defaultValue snowflake.ID) UserSelectMenuComponent {
-	c.DefaultValues = append(c.DefaultValues, SelectMenuDefaultValue{
-		ID:   defaultValue,
-		Type: SelectMenuDefaultValueTypeUser,
-	})
+	c.DefaultValues = append(c.DefaultValues, NewSelectMenuDefaultUser(defaultValue))
 	return c
 }
 
@@ -383,21 +379,17 @@ func (c RoleSelectMenuComponent) WithDisabled(disabled bool) RoleSelectMenuCompo
 
 // SetDefaultValues returns a new RoleSelectMenuComponent with the provided default values
 func (c RoleSelectMenuComponent) SetDefaultValues(defaultValues ...snowflake.ID) RoleSelectMenuComponent {
-	for i, value := range defaultValues {
-		c.DefaultValues[i] = SelectMenuDefaultValue{
-			ID:   value,
-			Type: SelectMenuDefaultValueTypeRole,
-		}
+	values := make([]SelectMenuDefaultValue, len(defaultValues))
+	for _, value := range defaultValues {
+		values = append(values, NewSelectMenuDefaultRole(value))
 	}
+	c.DefaultValues = values
 	return c
 }
 
 // AddDefaultValue returns a new RoleSelectMenuComponent with the provided default value added
 func (c RoleSelectMenuComponent) AddDefaultValue(defaultValue snowflake.ID) RoleSelectMenuComponent {
-	c.DefaultValues = append(c.DefaultValues, SelectMenuDefaultValue{
-		ID:   defaultValue,
-		Type: SelectMenuDefaultValueTypeRole,
-	})
+	c.DefaultValues = append(c.DefaultValues, NewSelectMenuDefaultRole(defaultValue))
 	return c
 }
 
@@ -503,12 +495,10 @@ func (c MentionableSelectMenuComponent) SetDefaultValues(defaultValues ...Select
 	return c
 }
 
-// AddDefaultValue returns a new MentionableSelectMenuComponent with the provided default value added
-func (c MentionableSelectMenuComponent) AddDefaultValue(defaultValue snowflake.ID, t SelectMenuDefaultValueType) MentionableSelectMenuComponent {
-	c.DefaultValues = append(c.DefaultValues, SelectMenuDefaultValue{
-		ID:   defaultValue,
-		Type: t,
-	})
+// AddDefaultValue returns a new MentionableSelectMenuComponent with the provided default value added.
+// SelectMenuDefaultValue can easily be constructed using helpers like NewSelectMenuDefaultUser or NewSelectMenuDefaultRole
+func (c MentionableSelectMenuComponent) AddDefaultValue(value SelectMenuDefaultValue) MentionableSelectMenuComponent {
+	c.DefaultValues = append(c.DefaultValues, value)
 	return c
 }
 
@@ -617,21 +607,17 @@ func (c ChannelSelectMenuComponent) WithChannelTypes(channelTypes ...ChannelType
 
 // SetDefaultValues returns a new ChannelSelectMenuComponent with the provided default values
 func (c ChannelSelectMenuComponent) SetDefaultValues(defaultValues ...snowflake.ID) ChannelSelectMenuComponent {
-	for i, value := range defaultValues {
-		c.DefaultValues[i] = SelectMenuDefaultValue{
-			ID:   value,
-			Type: SelectMenuDefaultValueTypeChannel,
-		}
+	values := make([]SelectMenuDefaultValue, len(defaultValues))
+	for _, value := range defaultValues {
+		values = append(values, NewSelectMenuDefaultChannel(value))
 	}
+	c.DefaultValues = values
 	return c
 }
 
 // AddDefaultValue returns a new ChannelSelectMenuComponent with the provided default value added
 func (c ChannelSelectMenuComponent) AddDefaultValue(defaultValue snowflake.ID) ChannelSelectMenuComponent {
-	c.DefaultValues = append(c.DefaultValues, SelectMenuDefaultValue{
-		ID:   defaultValue,
-		Type: SelectMenuDefaultValueTypeChannel,
-	})
+	c.DefaultValues = append(c.DefaultValues, NewSelectMenuDefaultChannel(defaultValue))
 	return c
 }
 
@@ -655,3 +641,27 @@ const (
 	SelectMenuDefaultValueTypeRole    SelectMenuDefaultValueType = "role"
 	SelectMenuDefaultValueTypeChannel SelectMenuDefaultValueType = "channel"
 )
+
+// NewSelectMenuDefaultUser returns a new SelectMenuDefaultValue of type SelectMenuDefaultValueTypeUser
+func NewSelectMenuDefaultUser(id snowflake.ID) SelectMenuDefaultValue {
+	return SelectMenuDefaultValue{
+		ID:   id,
+		Type: SelectMenuDefaultValueTypeUser,
+	}
+}
+
+// NewSelectMenuDefaultRole returns a new SelectMenuDefaultValue of type SelectMenuDefaultValueTypeRole
+func NewSelectMenuDefaultRole(id snowflake.ID) SelectMenuDefaultValue {
+	return SelectMenuDefaultValue{
+		ID:   id,
+		Type: SelectMenuDefaultValueTypeRole,
+	}
+}
+
+// NewSelectMenuDefaultChannel returns a new SelectMenuDefaultValue of type SelectMenuDefaultValueTypeChannel
+func NewSelectMenuDefaultChannel(id snowflake.ID) SelectMenuDefaultValue {
+	return SelectMenuDefaultValue{
+		ID:   id,
+		Type: SelectMenuDefaultValueTypeChannel,
+	}
+}
