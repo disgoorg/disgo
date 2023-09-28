@@ -13,6 +13,7 @@ type Entitlement struct {
 	GuildID        *snowflake.ID   `json:"guild_id"`
 	ApplicationID  snowflake.ID    `json:"application_id"`
 	Type           EntitlementType `json:"type"`
+	Consumed       bool            `json:"consumed"`
 	StartsAt       *time.Time      `json:"starts_at"`
 	EndsAt         *time.Time      `json:"ends_at"`
 	PromotionID    *snowflake.ID   `json:"promotion_id"`
