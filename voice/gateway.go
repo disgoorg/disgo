@@ -264,7 +264,7 @@ loop:
 				})
 			} else {
 				g.status = StatusResuming
-				err = g.Send(ctx, OpcodeIdentify, GatewayMessageDataResume{
+				err = g.Send(ctx, OpcodeResume, GatewayMessageDataResume{
 					GuildID:   g.state.GuildID,
 					SessionID: g.state.SessionID,
 					Token:     g.state.Token,
