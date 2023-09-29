@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"github.com/disgoorg/disgo/internal/slicehelper"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
@@ -13,6 +14,9 @@ func NewApplications(client Client) Applications {
 }
 
 type Applications interface {
+	GetCurrentApplication(opts ...RequestOpt) (*discord.Application, error)
+	UpdateCurrentApplication(applicationUpdate discord.ApplicationUpdate, opts ...RequestOpt) (*discord.Application, error)
+
 	GetGlobalCommands(applicationID snowflake.ID, withLocalizations bool, opts ...RequestOpt) ([]discord.ApplicationCommand, error)
 	GetGlobalCommand(applicationID snowflake.ID, commandID snowflake.ID, opts ...RequestOpt) (discord.ApplicationCommand, error)
 	CreateGlobalCommand(applicationID snowflake.ID, commandCreate discord.ApplicationCommandCreate, opts ...RequestOpt) (discord.ApplicationCommand, error)
@@ -32,10 +36,26 @@ type Applications interface {
 
 	GetApplicationRoleConnectionMetadata(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
 	UpdateApplicationRoleConnectionMetadata(applicationID snowflake.ID, newRecords []discord.ApplicationRoleConnectionMetadata, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
+
+	GetEntitlements(applicationID snowflake.ID, userID snowflake.ID, guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, excludeEnded bool, skuIDs []snowflake.ID, opts ...RequestOpt) ([]discord.Entitlement, error)
+	CreateTestEntitlement(applicationID snowflake.ID, entitlementCreate discord.TestEntitlementCreate, opts ...RequestOpt) (*discord.Entitlement, error)
+	DeleteTestEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error
+
+	GetSKUs(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.SKU, error)
 }
 
 type applicationsImpl struct {
 	client Client
+}
+
+func (s *applicationsImpl) GetCurrentApplication(opts ...RequestOpt) (application *discord.Application, err error) {
+	err = s.client.Do(GetCurrentApplication.Compile(nil), nil, &application, opts...)
+	return
+}
+
+func (s *applicationsImpl) UpdateCurrentApplication(applicationUpdate discord.ApplicationUpdate, opts ...RequestOpt) (application *discord.Application, err error) {
+	err = s.client.Do(UpdateCurrentApplication.Compile(nil), applicationUpdate, &application, opts...)
+	return
 }
 
 func (s *applicationsImpl) GetGlobalCommands(applicationID snowflake.ID, withLocalizations bool, opts ...RequestOpt) (commands []discord.ApplicationCommand, err error) {
@@ -153,6 +173,44 @@ func (s *applicationsImpl) GetApplicationRoleConnectionMetadata(applicationID sn
 
 func (s *applicationsImpl) UpdateApplicationRoleConnectionMetadata(applicationID snowflake.ID, newRecords []discord.ApplicationRoleConnectionMetadata, opts ...RequestOpt) (metadata []discord.ApplicationRoleConnectionMetadata, err error) {
 	err = s.client.Do(UpdateApplicationRoleConnectionMetadata.Compile(nil, applicationID), newRecords, &metadata, opts...)
+	return
+}
+
+func (s *applicationsImpl) GetEntitlements(applicationID snowflake.ID, userID snowflake.ID, guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, excludeEnded bool, skuIDs []snowflake.ID, opts ...RequestOpt) (entitlements []discord.Entitlement, err error) {
+	queryValues := discord.QueryValues{
+		"exclude_ended": excludeEnded,
+		"sku_ids":       slicehelper.JoinSnowflakes(skuIDs),
+	}
+	if userID != 0 {
+		queryValues["user_id"] = userID
+	}
+	if guildID != 0 {
+		queryValues["guild_id"] = guildID
+	}
+	if before != 0 {
+		queryValues["before"] = before
+	}
+	if after != 0 {
+		queryValues["after"] = after
+	}
+	if limit != 0 {
+		queryValues["limit"] = limit
+	}
+	err = s.client.Do(GetEntitlements.Compile(queryValues, applicationID), nil, &entitlements, opts...)
+	return
+}
+
+func (s *applicationsImpl) CreateTestEntitlement(applicationID snowflake.ID, entitlementCreate discord.TestEntitlementCreate, opts ...RequestOpt) (entitlement *discord.Entitlement, err error) {
+	err = s.client.Do(CreateTestEntitlement.Compile(nil, applicationID), entitlementCreate, &entitlement, opts...)
+	return
+}
+
+func (s *applicationsImpl) DeleteTestEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error {
+	return s.client.Do(DeleteTestEntitlement.Compile(nil, applicationID, entitlementID), nil, nil, opts...)
+}
+
+func (s *applicationsImpl) GetSKUs(applicationID snowflake.ID, opts ...RequestOpt) (skus []discord.SKU, err error) {
+	err = s.client.Do(GetSKUs.Compile(nil, applicationID), nil, &skus, opts...)
 	return
 }
 

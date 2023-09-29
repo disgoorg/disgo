@@ -259,6 +259,9 @@ var (
 
 // Applications
 var (
+	GetCurrentApplication    = NewEndpoint(http.MethodGet, "/applications/@me")
+	UpdateCurrentApplication = NewEndpoint(http.MethodPatch, "/applications/@me")
+
 	GetGlobalCommands   = NewEndpoint(http.MethodGet, "/applications/{application.id}/commands")
 	GetGlobalCommand    = NewEndpoint(http.MethodGet, "/applications/{application.id}/command/{command.id}")
 	CreateGlobalCommand = NewEndpoint(http.MethodPost, "/applications/{application.id}/commands")
@@ -289,6 +292,12 @@ var (
 
 	GetApplicationRoleConnectionMetadata    = NewEndpoint(http.MethodGet, "/applications/{application.id}/role-connections/metadata")
 	UpdateApplicationRoleConnectionMetadata = NewEndpoint(http.MethodPut, "/applications/{application.id}/role-connections/metadata")
+
+	GetEntitlements       = NewEndpoint(http.MethodGet, "/applications/{application.id}/entitlements")
+	CreateTestEntitlement = NewEndpoint(http.MethodPost, "/applications/{application.id}/entitlements")
+	DeleteTestEntitlement = NewEndpoint(http.MethodDelete, "/applications/{application.id}/entitlements/{entitlement.id}")
+
+	GetSKUs = NewEndpoint(http.MethodGet, "/applications/{application.id}/skus")
 )
 
 // NewEndpoint returns a new Endpoint which requires bot auth with the given http method & route.

@@ -78,6 +78,7 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 	i.baseInteraction.member = interaction.Member
 	i.baseInteraction.user = interaction.User
 	i.baseInteraction.appPermissions = interaction.AppPermissions
+	i.baseInteraction.entitlements = interaction.Entitlements
 
 	i.Data = interactionData
 	return nil
@@ -102,6 +103,7 @@ func (i ApplicationCommandInteraction) MarshalJSON() ([]byte, error) {
 			Member:         i.member,
 			User:           i.user,
 			AppPermissions: i.appPermissions,
+			Entitlements:   i.entitlements,
 		},
 		Data: i.Data,
 	})
@@ -139,7 +141,7 @@ type rawSlashCommandInteractionData struct {
 	Name     string                       `json:"name"`
 	Type     ApplicationCommandType       `json:"type"`
 	GuildID  *snowflake.ID                `json:"guild_id,omitempty"`
-	Resolved SlashCommandResolved         `json:"resolved"`
+	Resolved ResolvedData                 `json:"resolved"`
 	Options  []internalSlashCommandOption `json:"options"`
 }
 
@@ -170,7 +172,7 @@ type SlashCommandInteractionData struct {
 	guildID             *snowflake.ID
 	SubCommandName      *string
 	SubCommandGroupName *string
-	Resolved            SlashCommandResolved
+	Resolved            ResolvedData
 	Options             map[string]SlashCommandOption
 }
 
@@ -497,30 +499,6 @@ func (d SlashCommandInteractionData) FindAll(optionFindFunc func(option SlashCom
 }
 
 func (SlashCommandInteractionData) applicationCommandInteractionData() {}
-
-type SlashCommandResolved struct {
-	Users       map[snowflake.ID]User            `json:"users,omitempty"`
-	Members     map[snowflake.ID]ResolvedMember  `json:"members,omitempty"`
-	Roles       map[snowflake.ID]Role            `json:"roles,omitempty"`
-	Channels    map[snowflake.ID]ResolvedChannel `json:"channels,omitempty"`
-	Attachments map[snowflake.ID]Attachment      `json:"attachments,omitempty"`
-}
-
-func (r *SlashCommandResolved) UnmarshalJSON(data []byte) error {
-	type slashCommandResolved SlashCommandResolved
-	var v slashCommandResolved
-	if err := json.Unmarshal(data, &v); err != nil {
-		return err
-	}
-	*r = SlashCommandResolved(v)
-	for id, member := range r.Members {
-		if user, ok := r.Users[id]; ok {
-			member.User = user
-			r.Members[id] = member
-		}
-	}
-	return nil
-}
 
 type ContextCommandInteractionData interface {
 	ApplicationCommandInteractionData

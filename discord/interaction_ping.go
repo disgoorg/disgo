@@ -96,4 +96,8 @@ func (PingInteraction) AppPermissions() *Permissions {
 	return nil
 }
 
+func (PingInteraction) Entitlements() []Entitlement {
+	return nil
+}
+
 func (PingInteraction) interaction() {}

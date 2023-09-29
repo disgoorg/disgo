@@ -12,8 +12,9 @@ const (
 	InteractionResponseTypeDeferredCreateMessage
 	InteractionResponseTypeDeferredUpdateMessage
 	InteractionResponseTypeUpdateMessage
-	InteractionResponseTypeApplicationCommandAutocompleteResult
+	InteractionResponseTypeAutocompleteResult
 	InteractionResponseTypeModal
+	InteractionResponseTypePremiumRequired
 )
 
 // InteractionResponse is how you answer interactions. If an answer is not sent within 3 seconds of receiving it, the interaction is failed, and you will be unable to respond to it.
