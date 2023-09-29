@@ -61,8 +61,8 @@ func (e *ApplicationCommandInteractionCreate) CreateModal(modalCreate discord.Mo
 	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
 }
 
-// CreateUpgradeButton responds to the interaction with an upgrade button if available.
-func (e *ApplicationCommandInteractionCreate) CreateUpgradeButton(opts ...rest.RequestOpt) error {
+// PremiumRequired responds to the interaction with an upgrade button if available.
+func (e *ApplicationCommandInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
 }
 
@@ -112,8 +112,8 @@ func (e *ComponentInteractionCreate) CreateModal(modalCreate discord.ModalCreate
 	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
 }
 
-// CreateUpgradeButton responds to the interaction with an upgrade button if available.
-func (e *ComponentInteractionCreate) CreateUpgradeButton(opts ...rest.RequestOpt) error {
+// PremiumRequired responds to the interaction with an upgrade button if available.
+func (e *ComponentInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
 }
 
@@ -180,7 +180,7 @@ func (e *ModalSubmitInteractionCreate) DeferUpdateMessage(opts ...rest.RequestOp
 	return e.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil, opts...)
 }
 
-// CreateUpgradeButton responds to the interaction with an upgrade button if available.
-func (e *ModalSubmitInteractionCreate) CreateUpgradeButton(opts ...rest.RequestOpt) error {
+// PremiumRequired responds to the interaction with an upgrade button if available.
+func (e *ModalSubmitInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
 }
