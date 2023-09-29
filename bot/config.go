@@ -230,7 +230,7 @@ func BuildClient(token string, cfg *Config, gatewayEventHandlerFunc func(client 
 			rest.WithUserAgent(fmt.Sprintf("DiscordBot (%s, %s)", github, version)),
 			rest.WithLogger(client.logger),
 			func(config *rest.Config) {
-				config.RateLimiterConfigOpts = append([]rest.RateLimiterConfigOpt{rest.WithRateLimiterLogger(cfg.Logger.WithGroup("rest_rate_limiter"))}, config.RateLimiterConfigOpts...)
+				config.RateLimiterConfigOpts = append([]rest.RateLimiterConfigOpt{rest.WithRateLimiterLogger(cfg.Logger.WithGroup("rate_limiter"))}, config.RateLimiterConfigOpts...)
 			},
 		}, cfg.RestClientConfigOpts...)
 
@@ -266,7 +266,7 @@ func BuildClient(token string, cfg *Config, gatewayEventHandlerFunc func(client 
 			gateway.WithBrowser(name),
 			gateway.WithDevice(name),
 			func(config *gateway.Config) {
-				config.RateLimiterConfigOpts = append([]gateway.RateLimiterConfigOpt{gateway.WithRateLimiterLogger(cfg.Logger.WithGroup("gateway_rate_limiter"))}, config.RateLimiterConfigOpts...)
+				config.RateLimiterConfigOpts = append([]gateway.RateLimiterConfigOpt{gateway.WithRateLimiterLogger(cfg.Logger.WithGroup("rate_limiter"))}, config.RateLimiterConfigOpts...)
 			},
 		}, cfg.GatewayConfigOpts...)
 
@@ -296,12 +296,12 @@ func BuildClient(token string, cfg *Config, gatewayEventHandlerFunc func(client 
 				gateway.WithBrowser(name),
 				gateway.WithDevice(name),
 				func(config *gateway.Config) {
-					config.RateLimiterConfigOpts = append([]gateway.RateLimiterConfigOpt{gateway.WithRateLimiterLogger(cfg.Logger.WithGroup("gateway_rate_limiter"))}, config.RateLimiterConfigOpts...)
+					config.RateLimiterConfigOpts = append([]gateway.RateLimiterConfigOpt{gateway.WithRateLimiterLogger(cfg.Logger.WithGroup("rate_limiter"))}, config.RateLimiterConfigOpts...)
 				},
 			),
 			sharding.WithLogger(cfg.Logger.WithGroup("sharding")),
 			func(config *sharding.Config) {
-				config.RateLimiterConfigOpts = append([]sharding.RateLimiterConfigOpt{sharding.WithRateLimiterLogger(cfg.Logger.WithGroup("sharding_rate_limiter")), sharding.WithMaxConcurrency(gatewayBotRs.SessionStartLimit.MaxConcurrency)}, config.RateLimiterConfigOpts...)
+				config.RateLimiterConfigOpts = append([]sharding.RateLimiterConfigOpt{sharding.WithRateLimiterLogger(cfg.Logger.WithGroup("rate_limiter")), sharding.WithMaxConcurrency(gatewayBotRs.SessionStartLimit.MaxConcurrency)}, config.RateLimiterConfigOpts...)
 			},
 		}, cfg.ShardManagerConfigOpts...)
 

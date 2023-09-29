@@ -38,7 +38,7 @@ func (c *Config) Apply(opts []ConfigOpt) {
 		c.OAuth2 = rest.NewOAuth2(c.RestClient)
 	}
 	if c.StateController == nil {
-		c.StateController = NewStateController(append([]StateControllerConfigOpt{WithStateControllerLogger(c.Logger.WithGroup("oauth2_state_controller"))}, c.StateControllerConfigOpts...)...)
+		c.StateController = NewStateController(append([]StateControllerConfigOpt{WithStateControllerLogger(c.Logger.WithGroup("state_controller"))}, c.StateControllerConfigOpts...)...)
 	}
 }
 

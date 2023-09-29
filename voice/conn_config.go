@@ -7,7 +7,7 @@ import (
 // DefaultConnConfig returns a ConnConfig with sensible defaults.
 func DefaultConnConfig() *ConnConfig {
 	return &ConnConfig{
-		Logger:                  slog.Default().WithGroup("voice"),
+		Logger:                  slog.Default().WithGroup("conn"),
 		GatewayCreateFunc:       NewGateway,
 		UDPConnCreateFunc:       NewUDPConn,
 		AudioSenderCreateFunc:   NewAudioSender,

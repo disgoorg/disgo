@@ -7,7 +7,7 @@ import (
 
 func DefaultUDPConnConfig() UDPConnConfig {
 	return UDPConnConfig{
-		Logger: slog.Default().WithGroup("voice_conn_udp"),
+		Logger: slog.Default().WithGroup("udp"),
 		Dialer: &net.Dialer{
 			Timeout: UDPTimeout,
 		},

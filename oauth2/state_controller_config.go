@@ -10,7 +10,7 @@ import (
 // DefaultStateControllerConfig is the default configuration for the StateController
 func DefaultStateControllerConfig() *StateControllerConfig {
 	return &StateControllerConfig{
-		Logger:       slog.Default().WithGroup("oauth2_state_controller"),
+		Logger:       slog.Default().WithGroup("state_controller"),
 		States:       map[string]string{},
 		NewStateFunc: func() string { return insecurerandstr.RandStr(32) },
 		MaxTTL:       time.Hour,
