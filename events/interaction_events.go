@@ -56,8 +56,8 @@ func (e *ApplicationCommandInteractionCreate) DeferCreateMessage(ephemeral bool,
 	return e.Respond(discord.InteractionResponseTypeDeferredCreateMessage, data, opts...)
 }
 
-// CreateModal responds to the interaction with a new modal.
-func (e *ApplicationCommandInteractionCreate) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
+// Modal responds to the interaction with a new modal.
+func (e *ApplicationCommandInteractionCreate) Modal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
 }
 
@@ -107,8 +107,8 @@ func (e *ComponentInteractionCreate) DeferUpdateMessage(opts ...rest.RequestOpt)
 	return e.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil, opts...)
 }
 
-// CreateModal responds to the interaction with a new modal.
-func (e *ComponentInteractionCreate) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
+// Modal responds to the interaction with a new modal.
+func (e *ComponentInteractionCreate) Modal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
 }
 
@@ -134,9 +134,9 @@ func (e *AutocompleteInteractionCreate) Guild() (discord.Guild, bool) {
 	return discord.Guild{}, false
 }
 
-// Result responds to the interaction with a slice of choices.
-func (e *AutocompleteInteractionCreate) Result(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
-	return e.Respond(discord.InteractionResponseTypeApplicationCommandAutocompleteResult, discord.AutocompleteResult{Choices: choices}, opts...)
+// AutocompleteResult responds to the interaction with a slice of choices.
+func (e *AutocompleteInteractionCreate) AutocompleteResult(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypeAutocompleteResult, discord.AutocompleteResult{Choices: choices}, opts...)
 }
 
 // ModalSubmitInteractionCreate indicates that a new modal submit interaction has been created.

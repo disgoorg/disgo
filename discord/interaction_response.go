@@ -12,7 +12,7 @@ const (
 	InteractionResponseTypeDeferredCreateMessage
 	InteractionResponseTypeDeferredUpdateMessage
 	InteractionResponseTypeUpdateMessage
-	InteractionResponseTypeApplicationCommandAutocompleteResult
+	InteractionResponseTypeAutocompleteResult
 	InteractionResponseTypeModal
 	InteractionResponseTypePremiumRequired
 )
