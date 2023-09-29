@@ -78,6 +78,7 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 	i.baseInteraction.member = interaction.Member
 	i.baseInteraction.user = interaction.User
 	i.baseInteraction.appPermissions = interaction.AppPermissions
+	i.baseInteraction.entitlements = interaction.Entitlements
 
 	i.Data = interactionData
 	return nil
@@ -102,6 +103,7 @@ func (i ApplicationCommandInteraction) MarshalJSON() ([]byte, error) {
 			Member:         i.member,
 			User:           i.user,
 			AppPermissions: i.appPermissions,
+			Entitlements:   i.entitlements,
 		},
 		Data: i.Data,
 	})

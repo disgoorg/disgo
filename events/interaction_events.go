@@ -61,6 +61,11 @@ func (e *ApplicationCommandInteractionCreate) CreateModal(modalCreate discord.Mo
 	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
 }
 
+// PremiumRequired responds to the interaction with an upgrade button if available.
+func (e *ApplicationCommandInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
+}
+
 // ComponentInteractionCreate indicates that a new component interaction has been created.
 type ComponentInteractionCreate struct {
 	*GenericEvent
@@ -105,6 +110,11 @@ func (e *ComponentInteractionCreate) DeferUpdateMessage(opts ...rest.RequestOpt)
 // CreateModal responds to the interaction with a new modal.
 func (e *ComponentInteractionCreate) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
+}
+
+// PremiumRequired responds to the interaction with an upgrade button if available.
+func (e *ComponentInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
 }
 
 // AutocompleteInteractionCreate indicates that a new autocomplete interaction has been created.
@@ -168,4 +178,9 @@ func (e *ModalSubmitInteractionCreate) UpdateMessage(messageUpdate discord.Messa
 // DeferUpdateMessage responds to the interaction with nothing.
 func (e *ModalSubmitInteractionCreate) DeferUpdateMessage(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil, opts...)
+}
+
+// PremiumRequired responds to the interaction with an upgrade button if available.
+func (e *ModalSubmitInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
 }

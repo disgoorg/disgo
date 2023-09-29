@@ -35,6 +35,7 @@ func (i *AutocompleteInteraction) UnmarshalJSON(data []byte) error {
 	i.baseInteraction.member = interaction.Member
 	i.baseInteraction.user = interaction.User
 	i.baseInteraction.appPermissions = interaction.AppPermissions
+	i.baseInteraction.entitlements = interaction.Entitlements
 
 	i.Data = interaction.Data
 	return nil
@@ -59,6 +60,7 @@ func (i AutocompleteInteraction) MarshalJSON() ([]byte, error) {
 			Member:         i.member,
 			User:           i.user,
 			AppPermissions: i.appPermissions,
+			Entitlements:   i.entitlements,
 		},
 		Data: i.Data,
 	})

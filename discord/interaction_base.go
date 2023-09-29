@@ -19,6 +19,7 @@ type baseInteraction struct {
 	member         *ResolvedMember
 	user           *User
 	appPermissions *Permissions
+	entitlements   []Entitlement
 }
 
 func (i baseInteraction) ID() snowflake.ID {
@@ -62,6 +63,10 @@ func (i baseInteraction) User() User {
 
 func (i baseInteraction) AppPermissions() *Permissions {
 	return i.appPermissions
+}
+
+func (i baseInteraction) Entitlements() []Entitlement {
+	return i.entitlements
 }
 
 func (i baseInteraction) CreatedAt() time.Time {
