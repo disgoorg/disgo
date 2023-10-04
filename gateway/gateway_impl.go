@@ -466,6 +466,10 @@ loop:
 				readyChan <- nil
 				close(readyChan)
 			}
+			if _, ok = eventData.(EventReady); ok {
+				readyChan <- nil
+				close(readyChan)
+			}
 
 		case OpcodeHeartbeat:
 			g.sendHeartbeat()
