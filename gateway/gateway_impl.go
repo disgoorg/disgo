@@ -147,6 +147,9 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 		return ctx.Err()
 	case err = <-readyChan:
 		if err != nil {
+			closeCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			g.Close(closeCtx)
 			return fmt.Errorf("failed to open gateway connection: %w", err)
 		}
 	}
