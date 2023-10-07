@@ -7,19 +7,15 @@ import (
 )
 
 type Entitlement struct {
-	ID             snowflake.ID    `json:"id"`
-	SkuID          snowflake.ID    `json:"sku_id"`
-	UserID         *snowflake.ID   `json:"user_id"`
-	GuildID        *snowflake.ID   `json:"guild_id"`
-	ApplicationID  snowflake.ID    `json:"application_id"`
-	Type           EntitlementType `json:"type"`
-	Consumed       bool            `json:"consumed"`
-	StartsAt       *time.Time      `json:"starts_at"`
-	EndsAt         *time.Time      `json:"ends_at"`
-	PromotionID    *snowflake.ID   `json:"promotion_id"`
-	Deleted        bool            `json:"deleted"`
-	GiftCodeFlags  int             `json:"gift_code_flags"`
-	SubscriptionID *snowflake.ID   `json:"subscription_id"`
+	ID            snowflake.ID    `json:"id"`
+	SkuID         snowflake.ID    `json:"sku_id"`
+	ApplicationID snowflake.ID    `json:"application_id"`
+	UserID        *snowflake.ID   `json:"user_id"`
+	Type          EntitlementType `json:"type"`
+	Deleted       bool            `json:"deleted"`
+	StartsAt      *time.Time      `json:"starts_at"`
+	EndsAt        *time.Time      `json:"ends_at"`
+	GuildID       *snowflake.ID   `json:"guild_id"`
 }
 
 type EntitlementType int
