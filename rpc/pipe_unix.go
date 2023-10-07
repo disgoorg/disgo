@@ -18,7 +18,7 @@ func getDiscordIPCPath(i int) string {
 			break
 		}
 	}
-	return fmt.Sprintf("%sdiscord-ipc-%d", tmpPath, i)
+	return fmt.Sprintf("%s/discord-ipc-%d", tmpPath, i)
 }
 
 func openPipe(path string) (net.Conn, error) {
