@@ -34,30 +34,20 @@ func main() {
 	defer client.Close()
 
 	var tokenRs *discord.AccessTokenResponse
-	res, err := client.Send(rpc.Message{
-		Cmd: rpc.CmdAuthorize,
-		Args: rpc.CmdArgsAuthorize{
-			ClientID: clientID,
-			Scopes:   []discord.OAuth2Scope{discord.OAuth2ScopeRPC, discord.OAuth2ScopeMessagesRead},
-		},
+	code, err := client.Authorize(rpc.CmdArgsAuthorize{
+		ClientID: clientID,
+		Scopes:   []discord.OAuth2Scope{discord.OAuth2ScopeRPC, discord.OAuth2ScopeMessagesRead},
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	authorizeResponse := res.(rpc.CmdRsAuthorize)
-
-	tokenRs, err = oauth2Client.GetAccessToken(clientID, clientSecret, authorizeResponse.Code, "http://localhost")
+	tokenRs, err = oauth2Client.GetAccessToken(clientID, clientSecret, code, "http://localhost")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if _, err := client.Send(rpc.Message{
-		Cmd: rpc.CmdAuthenticate,
-		Args: rpc.CmdArgsAuthenticate{
-			AccessToken: tokenRs.AccessToken,
-		},
-	}); err != nil {
+	if _, err := client.Authenticate(rpc.CmdArgsAuthenticate{AccessToken: tokenRs.AccessToken}); err != nil {
 		log.Fatal(err)
 	}
 

@@ -38,6 +38,9 @@ type Client interface {
 	V() int
 	Transport() Transport
 
+	Authorize(args CmdArgsAuthorize) (string, error)
+	Authenticate(args CmdArgsAuthenticate) (CmdRsAuthenticate, error)
+
 	Subscribe(event Event, args CmdArgs, handler Handler) error
 	Unsubscribe(event Event, args CmdArgs) error
 	Send(message Message) (MessageData, error)
@@ -129,6 +132,28 @@ func (c *clientImpl) send(r io.Reader) error {
 	c.logger.Tracef("Sending message: data: %s", string(data))
 
 	return err
+}
+
+func (c *clientImpl) Authorize(args CmdArgsAuthorize) (string, error) {
+	if res, err := c.Send(Message{
+		Cmd:  CmdAuthorize,
+		Args: args,
+	}); err != nil {
+		return "", err
+	} else {
+		return res.(CmdRsAuthorize).Code, nil
+	}
+}
+
+func (c *clientImpl) Authenticate(args CmdArgsAuthenticate) (CmdRsAuthenticate, error) {
+	if res, err := c.Send(Message{
+		Cmd:  CmdAuthenticate,
+		Args: args,
+	}); err != nil {
+		return CmdRsAuthenticate{}, err
+	} else {
+		return res.(CmdRsAuthenticate), nil
+	}
 }
 
 func (c *clientImpl) Subscribe(event Event, args CmdArgs, handler Handler) error {
