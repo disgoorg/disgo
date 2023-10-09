@@ -31,30 +31,12 @@ type responseMessage struct {
 	err  error
 }
 
-type Client interface {
-	Logger() log.Logger
-	ServerConfig() ServerConfig
-	User() discord.User
-	V() int
-	Transport() Transport
-
-	Authorize(args CmdArgsAuthorize) (string, error)
-	Authenticate(args CmdArgsAuthenticate) (CmdRsAuthenticate, error)
-	GetGuild(args CmdArgsGetGuild) (CmdRsGetGuild, error)
-	GetGuilds() ([]PartialGuild, error)
-
-	Subscribe(event Event, args CmdArgs, handler Handler) error
-	Unsubscribe(event Event, args CmdArgs) error
-	Send(message Message) (MessageData, error)
-	Close()
-}
-
 func NewClient(clientID snowflake.ID, opts ...ConfigOpt) (Client, error) {
 	config := DefaultConfig()
 	config.Apply(opts)
 
-	client := &clientImpl{
-		logger:          config.Logger,
+	client := Client{
+		Logger:          config.Logger,
 		eventHandlers:   map[Event]Handler{},
 		commandChannels: map[string]chan responseMessage{},
 		readyChan:       make(chan struct{}, 1),
@@ -64,59 +46,39 @@ func NewClient(clientID snowflake.ID, opts ...ConfigOpt) (Client, error) {
 		var err error
 		config.Transport, err = config.TransportCreate(clientID, config.Origin)
 		if err != nil {
-			return nil, err
+			return Client{}, err
 		}
 	}
-	client.transport = config.Transport
+	client.Transport = config.Transport
 
-	go client.listen(client.transport)
+	go client.listen(client.Transport)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	select {
 	case <-ctx.Done():
-		return nil, ctx.Err()
+		return Client{}, ctx.Err()
 	case <-client.readyChan:
 	}
 
 	return client, nil
 }
 
-type clientImpl struct {
-	logger    log.Logger
-	transport Transport
+type Client struct {
+	Logger    log.Logger
+	Transport Transport
 
 	eventHandlers   map[Event]Handler
 	commandChannels map[string]chan responseMessage
 
 	readyChan    chan struct{}
-	user         discord.User
-	serverConfig ServerConfig
-	v            int
+	User         discord.User
+	ServerConfig ServerConfig
+	V            int
 }
 
-func (c *clientImpl) Logger() log.Logger {
-	return c.logger
-}
-
-func (c *clientImpl) ServerConfig() ServerConfig {
-	return c.serverConfig
-}
-
-func (c *clientImpl) User() discord.User {
-	return c.user
-}
-
-func (c *clientImpl) V() int {
-	return c.v
-}
-
-func (c *clientImpl) Transport() Transport {
-	return c.transport
-}
-
-func (c *clientImpl) send(r io.Reader) error {
-	writer, err := c.transport.NextWriter()
+func (c *Client) send(r io.Reader) error {
+	writer, err := c.Transport.NextWriter()
 	if err != nil {
 		return err
 	}
@@ -131,12 +93,12 @@ func (c *clientImpl) send(r io.Reader) error {
 	}
 
 	data, _ := io.ReadAll(buff)
-	c.logger.Tracef("Sending message: data: %s", string(data))
+	c.Logger.Tracef("Sending message: data: %s", string(data))
 
 	return err
 }
 
-func (c *clientImpl) Authorize(args CmdArgsAuthorize) (string, error) {
+func (c *Client) Authorize(args CmdArgsAuthorize) (string, error) {
 	if res, err := c.Send(Message{
 		Cmd:  CmdAuthorize,
 		Args: args,
@@ -147,7 +109,7 @@ func (c *clientImpl) Authorize(args CmdArgsAuthorize) (string, error) {
 	}
 }
 
-func (c *clientImpl) Authenticate(args CmdArgsAuthenticate) (CmdRsAuthenticate, error) {
+func (c *Client) Authenticate(args CmdArgsAuthenticate) (CmdRsAuthenticate, error) {
 	if res, err := c.Send(Message{
 		Cmd:  CmdAuthenticate,
 		Args: args,
@@ -158,7 +120,7 @@ func (c *clientImpl) Authenticate(args CmdArgsAuthenticate) (CmdRsAuthenticate, 
 	}
 }
 
-func (c *clientImpl) GetGuild(args CmdArgsGetGuild) (CmdRsGetGuild, error) {
+func (c *Client) GetGuild(args CmdArgsGetGuild) (CmdRsGetGuild, error) {
 	if res, err := c.Send(Message{
 		Cmd:  CmdGetGuild,
 		Args: args,
@@ -169,7 +131,7 @@ func (c *clientImpl) GetGuild(args CmdArgsGetGuild) (CmdRsGetGuild, error) {
 	}
 }
 
-func (c *clientImpl) GetGuilds() ([]PartialGuild, error) {
+func (c *Client) GetGuilds() ([]PartialGuild, error) {
 	if res, err := c.Send(Message{
 		Cmd:  CmdGetGuilds,
 		Args: struct{ CmdArgs }{},
@@ -180,7 +142,7 @@ func (c *clientImpl) GetGuilds() ([]PartialGuild, error) {
 	}
 }
 
-func (c *clientImpl) Subscribe(event Event, args CmdArgs, handler Handler) error {
+func (c *Client) Subscribe(event Event, args CmdArgs, handler Handler) error {
 	if _, ok := c.eventHandlers[event]; ok {
 		return errors.New("event already subscribed")
 	}
@@ -193,7 +155,7 @@ func (c *clientImpl) Subscribe(event Event, args CmdArgs, handler Handler) error
 	return err
 }
 
-func (c *clientImpl) Unsubscribe(event Event, args CmdArgs) error {
+func (c *Client) Unsubscribe(event Event, args CmdArgs) error {
 	if _, ok := c.eventHandlers[event]; ok {
 		delete(c.eventHandlers, event)
 		_, err := c.Send(Message{
@@ -206,7 +168,7 @@ func (c *clientImpl) Unsubscribe(event Event, args CmdArgs) error {
 	return nil
 }
 
-func (c *clientImpl) Send(message Message) (MessageData, error) {
+func (c *Client) Send(message Message) (MessageData, error) {
 	nonce := insecurerandstr.RandStr(32)
 	buff := new(bytes.Buffer)
 
@@ -230,40 +192,40 @@ func (c *clientImpl) Send(message Message) (MessageData, error) {
 	return res.data, res.err
 }
 
-func (c *clientImpl) listen(transport Transport) {
+func (c *Client) listen(transport Transport) {
 loop:
 	for {
 		reader, err := transport.NextReader()
 		if errors.Is(err, net.ErrClosed) {
-			c.logger.Error("Connection closed")
+			c.Logger.Error("Connection closed")
 			break loop
 		}
 		if err != nil {
-			c.logger.Errorf("Error reading message: %s", err)
+			c.Logger.Errorf("Error reading message: %s", err)
 			continue
 		}
 
 		data, err := io.ReadAll(reader)
 		if err != nil {
-			c.logger.Errorf("Error reading message: %s", err)
+			c.Logger.Errorf("Error reading message: %s", err)
 			continue
 		}
-		c.logger.Tracef("Received message: data: %s", string(data))
+		c.Logger.Tracef("Received message: data: %s", string(data))
 
 		reader = bytes.NewReader(data)
 
 		var v Message
 		if err = json.NewDecoder(reader).Decode(&v); err != nil {
-			c.logger.Errorf("failed to decode message: %s", err)
+			c.Logger.Errorf("failed to decode message: %s", err)
 			continue
 		}
 
 		if v.Cmd == CmdDispatch {
 			if d, ok := v.Data.(EventDataReady); ok {
 				c.readyChan <- struct{}{}
-				c.user = d.User
-				c.serverConfig = d.Config
-				c.v = d.V
+				c.User = d.User
+				c.ServerConfig = d.Config
+				c.V = d.V
 			}
 			if handler, ok := c.eventHandlers[v.Event]; ok {
 				handler.Handle(v.Data)
@@ -286,13 +248,13 @@ loop:
 			close(handler)
 			delete(c.commandChannels, v.Nonce)
 		} else {
-			c.logger.Errorf("No handler for nonce: %s", v.Nonce)
+			c.Logger.Errorf("No handler for nonce: %s", v.Nonce)
 		}
 	}
 }
 
-func (c *clientImpl) Close() {
-	if c.transport != nil {
-		_ = c.transport.Close()
+func (c *Client) Close() {
+	if c.Transport != nil {
+		_ = c.Transport.Close()
 	}
 }
