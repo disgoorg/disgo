@@ -40,6 +40,7 @@ func NewClient(clientID snowflake.ID, opts ...ConfigOpt) (Client, error) {
 		eventHandlers:   map[Event]Handler{},
 		commandChannels: map[string]chan responseMessage{},
 		readyChan:       make(chan struct{}, 1),
+		clientId:        clientID,
 	}
 
 	if config.Transport == nil {
@@ -51,16 +52,6 @@ func NewClient(clientID snowflake.ID, opts ...ConfigOpt) (Client, error) {
 	}
 	client.Transport = config.Transport
 
-	go client.listen(client.Transport)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	select {
-	case <-ctx.Done():
-		return Client{}, ctx.Err()
-	case <-client.readyChan:
-	}
-
 	return client, nil
 }
 
@@ -70,11 +61,25 @@ type Client struct {
 
 	eventHandlers   map[Event]Handler
 	commandChannels map[string]chan responseMessage
+	clientId        snowflake.ID
 
 	readyChan    chan struct{}
 	User         discord.User
 	ServerConfig ServerConfig
 	V            int
+}
+
+func (c *Client) Open() error {
+	go c.listen(c.Transport)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-c.readyChan:
+	}
+	return nil
 }
 
 func (c *Client) send(r io.Reader) error {
@@ -98,7 +103,20 @@ func (c *Client) send(r io.Reader) error {
 	return err
 }
 
-func (c *Client) Authorize(args CmdArgsAuthorize) (string, error) {
+func (c *Client) Authorize(scopes []discord.OAuth2Scope, rpcToken, username string) (string, error) {
+	args := CmdArgsAuthorize{
+		ClientID: c.clientId,
+		Scopes:   scopes,
+	}
+
+	if rpcToken != "" {
+		args.RPCToken = rpcToken
+	}
+
+	if username != "" {
+		args.Username = username
+	}
+
 	if res, err := c.Send(Message{
 		Cmd:  CmdAuthorize,
 		Args: args,
@@ -109,10 +127,10 @@ func (c *Client) Authorize(args CmdArgsAuthorize) (string, error) {
 	}
 }
 
-func (c *Client) Authenticate(args CmdArgsAuthenticate) (CmdRsAuthenticate, error) {
+func (c *Client) Authenticate(accessToken string) (CmdRsAuthenticate, error) {
 	if res, err := c.Send(Message{
 		Cmd:  CmdAuthenticate,
-		Args: args,
+		Args: CmdArgsAuthenticate{AccessToken: accessToken},
 	}); err != nil {
 		return CmdRsAuthenticate{}, err
 	} else {
@@ -120,7 +138,15 @@ func (c *Client) Authenticate(args CmdArgsAuthenticate) (CmdRsAuthenticate, erro
 	}
 }
 
-func (c *Client) GetGuild(args CmdArgsGetGuild) (CmdRsGetGuild, error) {
+func (c *Client) GetGuild(guildId snowflake.ID, timeout int) (CmdRsGetGuild, error) {
+	args := CmdArgsGetGuild{
+		GuildID: guildId,
+	}
+
+	if timeout != 0 {
+		args.Timeout = timeout
+	}
+
 	if res, err := c.Send(Message{
 		Cmd:  CmdGetGuild,
 		Args: args,

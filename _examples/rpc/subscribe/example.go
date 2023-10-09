@@ -34,10 +34,7 @@ func main() {
 	defer client.Close()
 
 	var tokenRs *discord.AccessTokenResponse
-	code, err := client.Authorize(rpc.CmdArgsAuthorize{
-		ClientID: clientID,
-		Scopes:   []discord.OAuth2Scope{discord.OAuth2ScopeRPC, discord.OAuth2ScopeMessagesRead},
-	})
+	code, err := client.Authorize([]discord.OAuth2Scope{discord.OAuth2ScopeRPC, discord.OAuth2ScopeMessagesRead}, "", "")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,7 +44,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if _, err := client.Authenticate(rpc.CmdArgsAuthenticate{AccessToken: tokenRs.AccessToken}); err != nil {
+	if _, err := client.Authenticate(tokenRs.AccessToken); err != nil {
 		log.Fatal(err)
 	}
 

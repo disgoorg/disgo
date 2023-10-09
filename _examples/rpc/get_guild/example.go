@@ -30,13 +30,14 @@ func main() {
 		log.Fatal(err)
 		return
 	}
+	err = client.Open()
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer client.Close()
 
 	var tokenRs *discord.AccessTokenResponse
-	code, err := client.Authorize(rpc.CmdArgsAuthorize{
-		ClientID: clientID,
-		Scopes:   []discord.OAuth2Scope{discord.OAuth2ScopeRPC, discord.OAuth2ScopeGuilds},
-	})
+	code, err := client.Authorize([]discord.OAuth2Scope{discord.OAuth2ScopeRPC, discord.OAuth2ScopeGuilds}, "", "")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,13 +47,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if _, err := client.Authenticate(rpc.CmdArgsAuthenticate{AccessToken: tokenRs.AccessToken}); err != nil {
+	if _, err := client.Authenticate(tokenRs.AccessToken); err != nil {
 		log.Fatal(err)
 	}
 
-	if guild, err := client.GetGuild(rpc.CmdArgsGetGuild{
-		GuildID: guildId,
-	}); err != nil {
+	if guild, err := client.GetGuild(guildId, 0); err != nil {
 		log.Fatal(err)
 	} else {
 		if guild.IconURL == nil {
