@@ -40,6 +40,8 @@ type Client interface {
 
 	Authorize(args CmdArgsAuthorize) (string, error)
 	Authenticate(args CmdArgsAuthenticate) (CmdRsAuthenticate, error)
+	GetGuild(args CmdArgsGetGuild) (CmdRsGetGuild, error)
+	GetGuilds() ([]PartialGuild, error)
 
 	Subscribe(event Event, args CmdArgs, handler Handler) error
 	Unsubscribe(event Event, args CmdArgs) error
@@ -153,6 +155,28 @@ func (c *clientImpl) Authenticate(args CmdArgsAuthenticate) (CmdRsAuthenticate, 
 		return CmdRsAuthenticate{}, err
 	} else {
 		return res.(CmdRsAuthenticate), nil
+	}
+}
+
+func (c *clientImpl) GetGuild(args CmdArgsGetGuild) (CmdRsGetGuild, error) {
+	if res, err := c.Send(Message{
+		Cmd:  CmdGetGuild,
+		Args: args,
+	}); err != nil {
+		return CmdRsGetGuild{}, err
+	} else {
+		return res.(CmdRsGetGuild), nil
+	}
+}
+
+func (c *clientImpl) GetGuilds() ([]PartialGuild, error) {
+	if res, err := c.Send(Message{
+		Cmd:  CmdGetGuilds,
+		Args: struct{ CmdArgs }{},
+	}); err != nil {
+		return nil, err
+	} else {
+		return res.(CmdRsGetGuilds).Guilds, nil
 	}
 }
 
