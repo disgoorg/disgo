@@ -168,6 +168,17 @@ func (c *Client) GetGuilds() ([]PartialGuild, error) {
 	}
 }
 
+func (c *Client) GetChannel(channelId snowflake.ID) (CmdRsGetChannel, error) {
+	if res, err := c.Send(Message{
+		Cmd:  CmdGetChannel,
+		Args: CmdArgsGetChannel{ChannelID: channelId},
+	}); err != nil {
+		return CmdRsGetChannel{}, err
+	} else {
+		return res.(CmdRsGetChannel), nil
+	}
+}
+
 func (c *Client) Subscribe(event Event, args CmdArgs, handler Handler) error {
 	if _, ok := c.eventHandlers[event]; ok {
 		return errors.New("event already subscribed")
