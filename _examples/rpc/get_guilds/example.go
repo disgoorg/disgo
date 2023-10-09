@@ -29,6 +29,11 @@ func main() {
 		log.Fatal(err)
 		return
 	}
+
+	err = client.Open()
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer client.Close()
 
 	var tokenRs *discord.AccessTokenResponse
