@@ -424,6 +424,12 @@ loop:
 				return
 			}
 
+		case OpcodeResume:
+			g.config.Logger.Debug(g.formatLogs("resume successful"))
+			g.status = StatusReady
+			readyChan <- nil
+			close(readyChan)
+
 		case OpcodeDispatch:
 			// set last sequence received
 			g.config.LastSequenceReceived = &message.S
