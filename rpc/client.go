@@ -8,12 +8,12 @@ import (
 	"net"
 	"time"
 
+	"github.com/disgoorg/disgo/internal/insecurerandstr"
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/internal/insecurerandstr"
 )
 
 var Version = 1
@@ -26,6 +26,11 @@ type Transport interface {
 	Close() error
 }
 
+type responseMessage struct {
+	data MessageData
+	err  error
+}
+
 type Client interface {
 	Logger() log.Logger
 	ServerConfig() ServerConfig
@@ -35,7 +40,7 @@ type Client interface {
 
 	Subscribe(event Event, args CmdArgs, handler Handler) error
 	Unsubscribe(event Event, args CmdArgs) error
-	Send(message Message, handler Handler) error
+	Send(message Message) (MessageData, error)
 	Close()
 }
 
@@ -46,7 +51,7 @@ func NewClient(clientID snowflake.ID, opts ...ConfigOpt) (Client, error) {
 	client := &clientImpl{
 		logger:          config.Logger,
 		eventHandlers:   map[Event]Handler{},
-		commandHandlers: map[string]internalHandler{},
+		commandChannels: map[string]chan responseMessage{},
 		readyChan:       make(chan struct{}, 1),
 	}
 
@@ -77,7 +82,7 @@ type clientImpl struct {
 	transport Transport
 
 	eventHandlers   map[Event]Handler
-	commandHandlers map[string]internalHandler
+	commandChannels map[string]chan responseMessage
 
 	readyChan    chan struct{}
 	user         discord.User
@@ -131,46 +136,49 @@ func (c *clientImpl) Subscribe(event Event, args CmdArgs, handler Handler) error
 		return errors.New("event already subscribed")
 	}
 	c.eventHandlers[event] = handler
-	return c.Send(Message{
+	_, err := c.Send(Message{
 		Cmd:   CmdSubscribe,
 		Args:  args,
 		Event: event,
-	}, nil)
+	})
+	return err
 }
 
 func (c *clientImpl) Unsubscribe(event Event, args CmdArgs) error {
 	if _, ok := c.eventHandlers[event]; ok {
 		delete(c.eventHandlers, event)
-		return c.Send(Message{
+		_, err := c.Send(Message{
 			Cmd:   CmdUnsubscribe,
 			Args:  args,
 			Event: event,
-		}, nil)
+		})
+		return err
 	}
 	return nil
 }
 
-func (c *clientImpl) Send(message Message, handler Handler) error {
+func (c *clientImpl) Send(message Message) (MessageData, error) {
 	nonce := insecurerandstr.RandStr(32)
 	buff := new(bytes.Buffer)
 
 	message.Nonce = nonce
 	if err := json.NewEncoder(buff).Encode(message); err != nil {
-		return err
+		return nil, err
 	}
 
-	errChan := make(chan error, 1)
+	resChan := make(chan responseMessage, 1)
 
-	c.commandHandlers[nonce] = internalHandler{
-		handler: handler,
-		errChan: errChan,
-	}
+	c.commandChannels[nonce] = resChan
+
 	if err := c.send(buff); err != nil {
-		delete(c.commandHandlers, nonce)
-		close(errChan)
-		return err
+		delete(c.commandChannels, nonce)
+		close(resChan)
+		return nil, err
 	}
-	return <-errChan
+
+	res := <-resChan
+
+	return res.data, res.err
 }
 
 func (c *clientImpl) listen(transport Transport) {
@@ -213,17 +221,21 @@ loop:
 			}
 			continue
 		}
-		if handler, ok := c.commandHandlers[v.Nonce]; ok {
-			if v.Event == EventError {
-				handler.errChan <- v.Data.(EventDataError)
-			} else {
-				if handler.handler != nil {
-					handler.handler.Handle(v.Data)
-				}
-				handler.errChan <- nil
+
+		if handler, ok := c.commandChannels[v.Nonce]; ok {
+			res := responseMessage{
+				data: nil,
+				err:  nil,
 			}
-			close(handler.errChan)
-			delete(c.commandHandlers, v.Nonce)
+			if v.Event == EventError {
+				res.err = v.Data.(EventDataError)
+			} else {
+				res.data = v.Data
+			}
+
+			handler <- res
+			close(handler)
+			delete(c.commandChannels, v.Nonce)
 		} else {
 			c.logger.Errorf("No handler for nonce: %s", v.Nonce)
 		}
