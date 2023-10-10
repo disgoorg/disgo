@@ -37,7 +37,7 @@ func main() {
 	defer client.Close()
 
 	var tokenRs *discord.AccessTokenResponse
-	code, err := client.Authorize([]discord.OAuth2Scope{discord.OAuth2ScopeRPC /*, discord.OAuth2ScopeGuilds*/}, "", "")
+	code, err := client.Authorize([]discord.OAuth2Scope{discord.OAuth2ScopeRPC, discord.OAuth2ScopeMessagesRead}, "", "")
 	if err != nil {
 		log.Fatal(err)
 	}
