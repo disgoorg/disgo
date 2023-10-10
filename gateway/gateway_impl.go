@@ -424,12 +424,6 @@ loop:
 				return
 			}
 
-		case OpcodeResume:
-			g.config.Logger.Debug(g.formatLogs("resume successful"))
-			g.status = StatusReady
-			readyChan <- nil
-			close(readyChan)
-
 		case OpcodeDispatch:
 			// set last sequence received
 			g.config.LastSequenceReceived = &message.S
@@ -462,6 +456,12 @@ loop:
 			}
 			g.eventHandlerFunc(message.T, message.S, g.config.ShardID, eventData)
 			if _, ok = eventData.(EventReady); ok {
+				g.config.Logger.Debug(g.formatLogs("ready successful"))
+				readyChan <- nil
+				close(readyChan)
+			} else if _, ok = eventData.(EventResumed); ok {
+				g.config.Logger.Debug(g.formatLogs("resume successful"))
+				g.status = StatusReady
 				readyChan <- nil
 				close(readyChan)
 			}
