@@ -5,7 +5,7 @@ import (
 )
 
 type (
-	Handler func(e *events.InteractionCreate)
+	Handler func(e *events.InteractionCreate) error
 
 	Middleware func(next Handler) Handler
 

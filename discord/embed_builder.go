@@ -127,7 +127,7 @@ func (b *EmbedBuilder) SetFooterText(text string) *EmbedBuilder {
 	return b
 }
 
-// SetFooterText sets the footer text of the EmbedBuilder with format
+// SetFooterTextf sets the footer text of the EmbedBuilder with format
 func (b *EmbedBuilder) SetFooterTextf(text string, a ...any) *EmbedBuilder {
 	return b.SetFooterText(fmt.Sprintf(text, a...))
 }

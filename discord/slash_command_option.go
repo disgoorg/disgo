@@ -17,7 +17,6 @@ func (o *UnmarshalSlashCommandOption) UnmarshalJSON(data []byte) error {
 	var oType struct {
 		Type ApplicationCommandOptionType `json:"type"`
 	}
-
 	if err := json.Unmarshal(data, &oType); err != nil {
 		return err
 	}
@@ -54,8 +53,9 @@ func (o *UnmarshalSlashCommandOption) UnmarshalJSON(data []byte) error {
 var _ internalSlashCommandOption = (*SlashCommandOptionSubCommand)(nil)
 
 type SlashCommandOptionSubCommand struct {
-	Name    string               `json:"name"`
-	Options []SlashCommandOption `json:"options,omitempty"`
+	Name    string                       `json:"name"`
+	Type    ApplicationCommandOptionType `json:"type"`
+	Options []SlashCommandOption         `json:"options,omitempty"`
 }
 
 func (o SlashCommandOptionSubCommand) name() string {
@@ -67,6 +67,7 @@ var _ internalSlashCommandOption = (*SlashCommandOptionSubCommandGroup)(nil)
 
 type SlashCommandOptionSubCommandGroup struct {
 	Name    string                         `json:"name"`
+	Type    ApplicationCommandOptionType   `json:"type"`
 	Options []SlashCommandOptionSubCommand `json:"options,omitempty"`
 }
 

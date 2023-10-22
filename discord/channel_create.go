@@ -22,14 +22,15 @@ var (
 )
 
 type GuildTextChannelCreate struct {
-	Name                       string                `json:"name"`
-	Topic                      string                `json:"topic,omitempty"`
-	RateLimitPerUser           int                   `json:"rate_limit_per_user,omitempty"`
-	Position                   int                   `json:"position,omitempty"`
-	PermissionOverwrites       []PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID                   snowflake.ID          `json:"parent_id,omitempty"`
-	NSFW                       bool                  `json:"nsfw,omitempty"`
-	DefaultAutoArchiveDuration AutoArchiveDuration   `json:"default_auto_archive_days,omitempty"`
+	Name                          string                `json:"name"`
+	Topic                         string                `json:"topic,omitempty"`
+	RateLimitPerUser              int                   `json:"rate_limit_per_user,omitempty"`
+	Position                      int                   `json:"position,omitempty"`
+	PermissionOverwrites          []PermissionOverwrite `json:"permission_overwrites,omitempty"`
+	ParentID                      snowflake.ID          `json:"parent_id,omitempty"`
+	NSFW                          bool                  `json:"nsfw,omitempty"`
+	DefaultAutoArchiveDuration    AutoArchiveDuration   `json:"default_auto_archive_days,omitempty"`
+	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user,omitempty"`
 }
 
 func (c GuildTextChannelCreate) Type() ChannelType {
@@ -57,12 +58,15 @@ var (
 
 type GuildVoiceChannelCreate struct {
 	Name                 string                `json:"name"`
-	Topic                string                `json:"topic,omitempty"`
 	Bitrate              int                   `json:"bitrate,omitempty"`
 	UserLimit            int                   `json:"user_limit,omitempty"`
+	RateLimitPerUser     int                   `json:"rate_limit_per_user,omitempty"`
 	Position             int                   `json:"position,omitempty"`
 	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID             snowflake.ID          `json:"parent_id,omitempty"`
+	NSFW                 bool                  `json:"nsfw,omitempty"`
+	RTCRegion            string                `json:"rtc_region,omitempty"`
+	VideoQualityMode     VideoQualityMode      `json:"video_quality_mode,omitempty"`
 }
 
 func (c GuildVoiceChannelCreate) Type() ChannelType {
@@ -119,14 +123,15 @@ var (
 )
 
 type GuildNewsChannelCreate struct {
-	Name                       string                `json:"name"`
-	Topic                      string                `json:"topic,omitempty"`
-	RateLimitPerUser           int                   `json:"rate_limit_per_user,omitempty"`
-	Position                   int                   `json:"position,omitempty"`
-	PermissionOverwrites       []PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID                   snowflake.ID          `json:"parent_id,omitempty"`
-	NSFW                       bool                  `json:"nsfw,omitempty"`
-	DefaultAutoArchiveDuration AutoArchiveDuration   `json:"default_auto_archive_days,omitempty"`
+	Name                          string                `json:"name"`
+	Topic                         string                `json:"topic,omitempty"`
+	RateLimitPerUser              int                   `json:"rate_limit_per_user,omitempty"`
+	Position                      int                   `json:"position,omitempty"`
+	PermissionOverwrites          []PermissionOverwrite `json:"permission_overwrites,omitempty"`
+	ParentID                      snowflake.ID          `json:"parent_id,omitempty"`
+	NSFW                          bool                  `json:"nsfw,omitempty"`
+	DefaultAutoArchiveDuration    AutoArchiveDuration   `json:"default_auto_archive_days,omitempty"`
+	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user,omitempty"`
 }
 
 func (c GuildNewsChannelCreate) Type() ChannelType {
@@ -154,12 +159,15 @@ var (
 
 type GuildStageVoiceChannelCreate struct {
 	Name                 string                `json:"name"`
-	Topic                string                `json:"topic,omitempty"`
 	Bitrate              int                   `json:"bitrate,omitempty"`
 	UserLimit            int                   `json:"user_limit,omitempty"`
+	RateLimitPerUser     int                   `json:"rate_limit_per_user,omitempty"`
 	Position             int                   `json:"position,omitempty"`
 	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID             snowflake.ID          `json:"parent_id,omitempty"`
+	NSFW                 bool                  `json:"nsfw,omitempty"`
+	RTCRegion            string                `json:"rtc_region,omitempty"`
+	VideoQualityMode     VideoQualityMode      `json:"video_quality_mode,omitempty"`
 }
 
 func (c GuildStageVoiceChannelCreate) Type() ChannelType {
@@ -181,16 +189,17 @@ func (GuildStageVoiceChannelCreate) channelCreate()      {}
 func (GuildStageVoiceChannelCreate) guildChannelCreate() {}
 
 type GuildForumChannelCreate struct {
-	Name                 string                `json:"name"`
-	Topic                string                `json:"topic,omitempty"`
-	Position             int                   `json:"position,omitempty"`
-	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID             snowflake.ID          `json:"parent_id,omitempty"`
-	RateLimitPerUser     int                   `json:"rate_limit_per_user"`
-	DefaultReactionEmoji DefaultReactionEmoji  `json:"default_reaction_emoji"`
-	AvailableTags        []ForumTag            `json:"available_tags"`
-	DefaultSortOrder     DefaultSortOrder      `json:"default_sort_order"`
-	DefaultForumLayout   DefaultForumLayout    `json:"default_forum_layout"`
+	Name                          string                `json:"name"`
+	Topic                         string                `json:"topic,omitempty"`
+	Position                      int                   `json:"position,omitempty"`
+	PermissionOverwrites          []PermissionOverwrite `json:"permission_overwrites,omitempty"`
+	ParentID                      snowflake.ID          `json:"parent_id,omitempty"`
+	RateLimitPerUser              int                   `json:"rate_limit_per_user,omitempty"`
+	DefaultReactionEmoji          DefaultReactionEmoji  `json:"default_reaction_emoji"`
+	AvailableTags                 []ChannelTag          `json:"available_tags"`
+	DefaultSortOrder              DefaultSortOrder      `json:"default_sort_order"`
+	DefaultForumLayout            DefaultForumLayout    `json:"default_forum_layout"`
+	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user,omitempty"`
 }
 
 func (c GuildForumChannelCreate) Type() ChannelType {
@@ -210,6 +219,37 @@ func (c GuildForumChannelCreate) MarshalJSON() ([]byte, error) {
 
 func (GuildForumChannelCreate) channelCreate()      {}
 func (GuildForumChannelCreate) guildChannelCreate() {}
+
+type GuildMediaChannelCreate struct {
+	Name                          string                `json:"name"`
+	Topic                         string                `json:"topic,omitempty"`
+	Position                      int                   `json:"position,omitempty"`
+	PermissionOverwrites          []PermissionOverwrite `json:"permission_overwrites,omitempty"`
+	ParentID                      snowflake.ID          `json:"parent_id,omitempty"`
+	RateLimitPerUser              int                   `json:"rate_limit_per_user,omitempty"`
+	DefaultReactionEmoji          DefaultReactionEmoji  `json:"default_reaction_emoji"`
+	AvailableTags                 []ChannelTag          `json:"available_tags"`
+	DefaultSortOrder              DefaultSortOrder      `json:"default_sort_order"`
+	DefaultThreadRateLimitPerUser int                   `json:"default_thread_rate_limit_per_user,omitempty"`
+}
+
+func (c GuildMediaChannelCreate) Type() ChannelType {
+	return ChannelTypeGuildMedia
+}
+
+func (c GuildMediaChannelCreate) MarshalJSON() ([]byte, error) {
+	type guildMediaChannelCreate GuildMediaChannelCreate
+	return json.Marshal(struct {
+		Type ChannelType `json:"type"`
+		guildMediaChannelCreate
+	}{
+		Type:                    c.Type(),
+		guildMediaChannelCreate: guildMediaChannelCreate(c),
+	})
+}
+
+func (GuildMediaChannelCreate) channelCreate()      {}
+func (GuildMediaChannelCreate) guildChannelCreate() {}
 
 type DMChannelCreate struct {
 	RecipientID snowflake.ID `json:"recipient_id"`

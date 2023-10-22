@@ -36,7 +36,7 @@ type EventReady struct {
 	Guilds           []discord.UnavailableGuild `json:"guilds"`
 	SessionID        string                     `json:"session_id"`
 	ResumeGatewayURL string                     `json:"resume_gateway_url"`
-	Shard            []int                      `json:"shard,omitempty"`
+	Shard            [2]int                     `json:"shard,omitempty"`
 	Application      discord.PartialApplication `json:"application"`
 }
 
@@ -187,12 +187,15 @@ func (EventGuildAuditLogEntryCreate) messageData() {}
 func (EventGuildAuditLogEntryCreate) eventData()   {}
 
 type EventMessageReactionAdd struct {
-	UserID    snowflake.ID          `json:"user_id"`
-	ChannelID snowflake.ID          `json:"channel_id"`
-	MessageID snowflake.ID          `json:"message_id"`
-	GuildID   *snowflake.ID         `json:"guild_id"`
-	Member    *discord.Member       `json:"member"`
-	Emoji     discord.ReactionEmoji `json:"emoji"`
+	UserID          snowflake.ID         `json:"user_id"`
+	ChannelID       snowflake.ID         `json:"channel_id"`
+	MessageID       snowflake.ID         `json:"message_id"`
+	GuildID         *snowflake.ID        `json:"guild_id"`
+	Member          *discord.Member      `json:"member"`
+	Emoji           discord.PartialEmoji `json:"emoji"`
+	MessageAuthorID *snowflake.ID        `json:"message_author_id"`
+	BurstColors     []string             `json:"burst_colors"`
+	Burst           bool                 `json:"burst"`
 }
 
 func (e *EventMessageReactionAdd) UnmarshalJSON(data []byte) error {
@@ -212,21 +215,23 @@ func (EventMessageReactionAdd) messageData() {}
 func (EventMessageReactionAdd) eventData()   {}
 
 type EventMessageReactionRemove struct {
-	UserID    snowflake.ID          `json:"user_id"`
-	ChannelID snowflake.ID          `json:"channel_id"`
-	MessageID snowflake.ID          `json:"message_id"`
-	GuildID   *snowflake.ID         `json:"guild_id"`
-	Emoji     discord.ReactionEmoji `json:"emoji"`
+	UserID      snowflake.ID         `json:"user_id"`
+	ChannelID   snowflake.ID         `json:"channel_id"`
+	MessageID   snowflake.ID         `json:"message_id"`
+	GuildID     *snowflake.ID        `json:"guild_id"`
+	Emoji       discord.PartialEmoji `json:"emoji"`
+	BurstColors []string             `json:"burst_colors"`
+	Burst       bool                 `json:"burst"`
 }
 
 func (EventMessageReactionRemove) messageData() {}
 func (EventMessageReactionRemove) eventData()   {}
 
 type EventMessageReactionRemoveEmoji struct {
-	ChannelID snowflake.ID          `json:"channel_id"`
-	MessageID snowflake.ID          `json:"message_id"`
-	GuildID   *snowflake.ID         `json:"guild_id"`
-	Emoji     discord.ReactionEmoji `json:"emoji"`
+	ChannelID snowflake.ID         `json:"channel_id"`
+	MessageID snowflake.ID         `json:"message_id"`
+	GuildID   *snowflake.ID        `json:"guild_id"`
+	Emoji     discord.PartialEmoji `json:"emoji"`
 }
 
 func (EventMessageReactionRemoveEmoji) messageData() {}
@@ -439,12 +444,16 @@ type EventInteractionCreate struct {
 }
 
 func (e *EventInteractionCreate) UnmarshalJSON(data []byte) error {
-	var interaction discord.UnmarshalInteraction
-	if err := json.Unmarshal(data, &interaction); err != nil {
+	interaction, err := discord.UnmarshalInteraction(data)
+	if err != nil {
 		return err
 	}
-	e.Interaction = interaction.Interaction
+	e.Interaction = interaction
 	return nil
+}
+
+func (e EventInteractionCreate) MarshalJSON() ([]byte, error) {
+	return json.Marshal(e.Interaction)
 }
 
 func (EventInteractionCreate) messageData() {}
@@ -688,3 +697,32 @@ type EventRaw struct {
 
 func (EventRaw) messageData() {}
 func (EventRaw) eventData()   {}
+
+type EventHeartbeatAck struct {
+	LastHeartbeat time.Time
+	NewHeartbeat  time.Time
+}
+
+func (EventHeartbeatAck) messageData() {}
+func (EventHeartbeatAck) eventData()   {}
+
+type EventEntitlementCreate struct {
+	discord.Entitlement
+}
+
+func (EventEntitlementCreate) messageData() {}
+func (EventEntitlementCreate) eventData()   {}
+
+type EventEntitlementUpdate struct {
+	discord.Entitlement
+}
+
+func (EventEntitlementUpdate) messageData() {}
+func (EventEntitlementUpdate) eventData()   {}
+
+type EventEntitlementDelete struct {
+	discord.Entitlement
+}
+
+func (EventEntitlementDelete) messageData() {}
+func (EventEntitlementDelete) eventData()   {}

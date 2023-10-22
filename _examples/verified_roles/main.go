@@ -63,8 +63,7 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 		state = query.Get("state")
 	)
 	if code != "" && state != "" {
-		identifier := randStr(32)
-		session, err := oAuth2Client.StartSession(code, state, identifier)
+		session, _, err := oAuth2Client.StartSession(code, state)
 		if err != nil {
 			writeError(w, "error while starting session", err)
 			return
@@ -103,12 +102,4 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 func writeError(w http.ResponseWriter, text string, err error) {
 	w.WriteHeader(http.StatusInternalServerError)
 	_, _ = w.Write([]byte(text + ": " + err.Error()))
-}
-
-func randStr(n int) string {
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
-	}
-	return string(b)
 }

@@ -9,11 +9,11 @@ import (
 )
 
 var (
-	// APIVersion is the Discord API version DisGo should use
-	APIVersion = 10
+	// Version is the Discord API version DisGo should use
+	Version = 10
 
 	// API is the base path of the Discord API
-	API = fmt.Sprintf("https://discord.com/api/v%d", APIVersion)
+	API = "https://discord.com/api/"
 )
 
 // MajorParameters is a list of url parameters which decide in which bucket a route belongs (https://discord.com/developers/docs/topics/rate-limits#rate-limits)
@@ -88,6 +88,9 @@ var (
 
 	GetGuildWelcomeScreen    = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/welcome-screen")
 	UpdateGuildWelcomeScreen = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/welcome-screen")
+
+	GetGuildOnboarding    = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/onboarding")
+	UpdateGuildOnboarding = NewEndpoint(http.MethodPut, "/guilds/{guild.id}/onboarding")
 
 	UpdateCurrentUserVoiceState = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/voice-states/@me")
 	UpdateUserVoiceState        = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/voice-states/{user.id}")
@@ -256,6 +259,9 @@ var (
 
 // Applications
 var (
+	GetCurrentApplication    = NewEndpoint(http.MethodGet, "/applications/@me")
+	UpdateCurrentApplication = NewEndpoint(http.MethodPatch, "/applications/@me")
+
 	GetGlobalCommands   = NewEndpoint(http.MethodGet, "/applications/{application.id}/commands")
 	GetGlobalCommand    = NewEndpoint(http.MethodGet, "/applications/{application.id}/command/{command.id}")
 	CreateGlobalCommand = NewEndpoint(http.MethodPost, "/applications/{application.id}/commands")
@@ -286,6 +292,12 @@ var (
 
 	GetApplicationRoleConnectionMetadata    = NewEndpoint(http.MethodGet, "/applications/{application.id}/role-connections/metadata")
 	UpdateApplicationRoleConnectionMetadata = NewEndpoint(http.MethodPut, "/applications/{application.id}/role-connections/metadata")
+
+	GetEntitlements       = NewEndpoint(http.MethodGet, "/applications/{application.id}/entitlements")
+	CreateTestEntitlement = NewEndpoint(http.MethodPost, "/applications/{application.id}/entitlements")
+	DeleteTestEntitlement = NewEndpoint(http.MethodDelete, "/applications/{application.id}/entitlements/{entitlement.id}")
+
+	GetSKUs = NewEndpoint(http.MethodGet, "/applications/{application.id}/skus")
 )
 
 // NewEndpoint returns a new Endpoint which requires bot auth with the given http method & route.
@@ -346,7 +358,7 @@ func (e *Endpoint) Compile(values discord.QueryValues, params ...any) *CompiledE
 
 	return &CompiledEndpoint{
 		Endpoint:    e,
-		URL:         API + path + query,
+		URL:         path + query,
 		MajorParams: strings.Join(majorParams, ":"),
 	}
 }

@@ -35,6 +35,9 @@ type GuildMemberLeave struct {
 }
 
 // GuildMemberTypingStart indicates that a discord.Member started typing in a discord.BaseGuildMessageChannel(requires gateway.IntentGuildMessageTyping)
+// Member will be empty when event is triggered by [Clyde bot]
+//
+// [Clyde bot]: https://support.discord.com/hc/en-us/articles/13066317497239-Clyde-Discord-s-AI-Chatbot
 type GuildMemberTypingStart struct {
 	*GenericEvent
 	ChannelID snowflake.ID
@@ -44,7 +47,7 @@ type GuildMemberTypingStart struct {
 	Member    discord.Member
 }
 
-// Channel returns the discord.BaseGuildMessageChannel the GuildMemberTypingStart happened in
+// Channel returns the discord.GuildMessageChannel the GuildMemberTypingStart happened in
 func (e *GuildMemberTypingStart) Channel() (discord.GuildMessageChannel, bool) {
 	return e.Client().Caches().GuildMessageChannel(e.ChannelID)
 }

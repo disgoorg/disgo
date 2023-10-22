@@ -13,6 +13,13 @@ func gatewayHandlerRaw(client bot.Client, sequenceNumber int, shardID int, event
 	})
 }
 
+func gatewayHandlerHeartbeatAck(client bot.Client, sequenceNumber int, shardID int, event gateway.EventHeartbeatAck) {
+	client.EventManager().DispatchEvent(&events.HeartbeatAck{
+		GenericEvent:      events.NewGenericEvent(client, sequenceNumber, shardID),
+		EventHeartbeatAck: event,
+	})
+}
+
 func gatewayHandlerReady(client bot.Client, sequenceNumber int, shardID int, event gateway.EventReady) {
 	client.Caches().SetSelfUser(event.User)
 

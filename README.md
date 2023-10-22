@@ -99,7 +99,7 @@ func main() {
 		panic(err)
 	}
 	// connect to the gateway
-	if err = client.Open(context.TODO()); err != nil {
+	if err = client.OpenGateway(context.TODO()); err != nil {
 		panic(err)
 	}
 
@@ -178,3 +178,7 @@ Contributions are welcomed but for bigger changes we recommend first reaching ou
 ## License
 
 Distributed under the [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/disgoorg/disgo/blob/master/LICENSE). See LICENSE for more information.
+
+## Supported by Jetbrains
+
+<a href="https://www.jetbrains.com/community/opensource" target="_blank" title="Jetbrain Open Source Community Support"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" alt="Jetbrain Open Source Community Support" width="400px">

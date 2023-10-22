@@ -14,7 +14,7 @@ type GenericInvite struct {
 	Code      string
 }
 
-// Channel returns the Channel the GenericInvite happened in.
+// Channel returns the discord.GuildChannel the GenericInvite happened in.
 func (e *GenericInvite) Channel() (discord.GuildChannel, bool) {
 	return e.Client().Caches().Channel(e.ChannelID)
 }

@@ -117,6 +117,11 @@ const (
 	AuditLogAutoModerationUserCommunicationDisabled
 )
 
+const (
+	AuditLogCreatorMonetizationRequestCreated AuditLogEvent = iota + 150
+	AuditLogCreatorMonetizationTermsAccepted
+)
+
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord
 type AuditLog struct {
 	ApplicationCommands  []ApplicationCommand  `json:"application_commands"`
@@ -249,4 +254,5 @@ type OptionalAuditLogEntryInfo struct {
 	ApplicationID                 *snowflake.ID              `json:"application_id"`
 	AutoModerationRuleName        *string                    `json:"auto_moderation_rule_name"`
 	AutoModerationRuleTriggerType *AutoModerationTriggerType `json:"auto_moderation_rule_trigger_type,string"`
+	IntegrationType               *IntegrationType           `json:"integration_type"`
 }

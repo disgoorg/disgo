@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 )
@@ -23,14 +24,17 @@ func gatewayHandlerTypingStart(client bot.Client, sequenceNumber int, shardID in
 			Timestamp:    event.Timestamp,
 		})
 	} else {
-		client.Caches().AddMember(*event.Member)
+		var member discord.Member
+		if event.Member != nil {
+			member = *event.Member
+		}
 		client.EventManager().DispatchEvent(&events.GuildMemberTypingStart{
 			GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 			ChannelID:    event.ChannelID,
 			UserID:       event.UserID,
 			GuildID:      *event.GuildID,
 			Timestamp:    event.Timestamp,
-			Member:       *event.Member,
+			Member:       member,
 		})
 	}
 }

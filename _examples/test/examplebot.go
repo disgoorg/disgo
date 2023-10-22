@@ -34,7 +34,7 @@ func main() {
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(
 			gateway.WithIntents(gateway.IntentsNonPrivileged, gateway.IntentMessageContent),
-			gateway.WithPresenceOpts(gateway.WithListeningActivity("your bullshit"), gateway.WithOnlineStatus(discord.OnlineStatusDND)),
+			gateway.WithPresenceOpts(gateway.WithListeningActivity("your bullshit", gateway.WithActivityState("lol")), gateway.WithOnlineStatus(discord.OnlineStatusDND)),
 		),
 		bot.WithCacheConfigOpts(
 			cache.WithCaches(cache.FlagsAll),
