@@ -186,7 +186,7 @@ type Device struct {
 
 type VoiceSettingsIO struct {
 	DeviceID         string   `json:"device_id"`
-	Volume           int      `json:"volume"`
+	Volume           float32  `json:"volume"`
 	AvailableDevices []Device `json:"available_devices"`
 }
 
@@ -194,14 +194,14 @@ type VoiceSettingsModeType string
 
 const (
 	VoiceSettingsModeTypePushToTalk VoiceSettingsModeType = "PUSH_TO_TALK"
-	VoiceSettingsModeTypeActivity   VoiceSettingsModeType = "ACTIVITY"
+	VoiceSettingsModeTypeActivity   VoiceSettingsModeType = "VOICE_ACTIVITY"
 )
 
 type VoiceSettingsMode struct {
 	Type          VoiceSettingsModeType `json:"type"`
 	AutoThreshold bool                  `json:"auto_threshold"`
-	Threshold     int                   `json:"threshold"`
-	Shortcut      ShortcutKeyCombo      `json:"shortcut"`
+	Threshold     float32               `json:"threshold"`
+	Shortcut      []ShortcutKeyCombo    `json:"shortcut"`
 	Delay         float32               `json:"delay"`
 }
 
@@ -223,16 +223,21 @@ type ShortcutKeyCombo struct {
 func (CmdRsGetVoiceSettings) messageData() {}
 
 type CmdArgsSetVoiceSettings struct {
-	Input                *VoiceSettings     `json:"input"`
-	Output               *VoiceSettings     `json:"output"`
-	Mode                 *VoiceSettingsMode `json:"mode"`
-	AutomaticGainControl *bool              `json:"automatic_gain_control"`
-	EchoCancellation     *bool              `json:"echo_cancellation"`
-	NoiseSuppression     *bool              `json:"noise_suppression"`
-	QOS                  *bool              `json:"qos"`
-	SilenceWarning       *bool              `json:"silence_warning"`
-	Deaf                 *bool              `json:"deaf"`
-	Mute                 *bool              `json:"mute"`
+	Input                *VoiceSettingsIO   `json:"input,omitempty"`
+	Output               *VoiceSettingsIO   `json:"output,omitempty"`
+	Mode                 *VoiceSettingsMode `json:"mode,omitempty"`
+	AutomaticGainControl *bool              `json:"automatic_gain_control,omitempty"`
+	EchoCancellation     *bool              `json:"echo_cancellation,omitempty"`
+	NoiseSuppression     *bool              `json:"noise_suppression,omitempty"`
+	QOS                  *bool              `json:"qos,omitempty"`
+	SilenceWarning       *bool              `json:"silence_warning,omitempty"`
+	Deaf                 *bool              `json:"deaf,omitempty"`
+	Mute                 *bool              `json:"mute,omitempty"`
+}
+
+func (EmptyArgs) cmdArgs() {}
+
+type EmptyArgs struct {
 }
 
 func (CmdArgsSetVoiceSettings) cmdArgs() {}

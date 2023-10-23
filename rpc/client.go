@@ -190,6 +190,28 @@ func (c *Client) GetChannels(guildId snowflake.ID) ([]PartialChannel, error) {
 	}
 }
 
+func (c *Client) GetVoiceSettings() (CmdRsGetVoiceSettings, error) {
+	if res, err := c.Send(Message{
+		Cmd:  CmdGetVoiceSettings,
+		Args: EmptyArgs{},
+	}); err != nil {
+		return CmdRsGetVoiceSettings{}, err
+	} else {
+		return res.(CmdRsGetVoiceSettings), nil
+	}
+}
+
+func (c *Client) SetVoiceSettings(settings CmdArgsSetVoiceSettings) (CmdRsSetVoiceSettings, error) {
+	if res, err := c.Send(Message{
+		Cmd:  CmdSetVoiceSettings,
+		Args: settings,
+	}); err != nil {
+		return CmdRsSetVoiceSettings{}, err
+	} else {
+		return res.(CmdRsSetVoiceSettings), nil
+	}
+}
+
 func (c *Client) Subscribe(event Event, args CmdArgs, handler Handler) error {
 	if _, ok := c.eventHandlers[event]; ok {
 		return errors.New("event already subscribed")
