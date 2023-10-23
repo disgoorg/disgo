@@ -23,7 +23,7 @@ type ChannelMessage struct {
 	MentionRoles    []snowflake.ID `json:"mention_roles"`
 	Embeds          []Embed        `json:"embeds"`
 	Attachments     []Attachment   `json:"attachments"`
-	Author          Author         `json:"author"`
+	Author          User           `json:"author"`
 	Pinned          bool           `json:"pinned"`
 	Type            int            `json:"type"`
 }
@@ -45,7 +45,7 @@ type AvatarDecorationData struct {
 	SkuID string `json:"sku_id"`
 }
 
-type Author struct {
+type User struct {
 	ID                   snowflake.ID         `json:"id"`
 	Username             string               `json:"username"`
 	Discriminator        string               `json:"discriminator"`
@@ -53,6 +53,6 @@ type Author struct {
 	Avatar               string               `json:"avatar"`
 	AvatarDecorationData AvatarDecorationData `json:"avatar_decoration_data"`
 	Bot                  bool                 `json:"bot"`
-	Flags                int                  `json:"flags"`
+	Flags                discord.UserFlags    `json:"flags"`
 	PremiumType          discord.PremiumType  `json:"premium_type"`
 }

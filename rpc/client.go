@@ -212,6 +212,17 @@ func (c *Client) SetVoiceSettings(settings CmdArgsSetVoiceSettings) (CmdRsSetVoi
 	}
 }
 
+func (c *Client) SetUserVoiceSettings(settings CmdArgsSetUserVoiceSettings) (CmdRsSetUserVoiceSettings, error) {
+	if res, err := c.Send(Message{
+		Cmd:  CmdSetUserVoiceSettings,
+		Args: settings,
+	}); err != nil {
+		return CmdRsSetUserVoiceSettings{}, err
+	} else {
+		return res.(CmdRsSetUserVoiceSettings), nil
+	}
+}
+
 func (c *Client) Subscribe(event Event, args CmdArgs, handler Handler) error {
 	if _, ok := c.eventHandlers[event]; ok {
 		return errors.New("event already subscribed")

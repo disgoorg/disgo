@@ -83,9 +83,20 @@ type PartialChannel struct {
 }
 
 type VoiceState struct {
-	discord.VoiceState
-	Volume int `json:"volume"`
-	Pan    Pan `json:"pan"`
+	Nick       string             `json:"nick"`
+	Mute       bool               `json:"mute"`
+	Volume     float32            `json:"volume"`
+	Pan        Pan                `json:"pan"`
+	VoiceState VoiceStateInternal `json:"voice_state"`
+	User       User               `json:"user"`
+}
+
+type VoiceStateInternal struct {
+	Mute     bool `json:"mute"`
+	Deaf     bool `json:"deaf"`
+	SelfMute bool `json:"self_mute"`
+	SelfDeaf bool `json:"self_deaf"`
+	Suppress bool `json:"suppress"`
 }
 
 type Pan struct {
