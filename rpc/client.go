@@ -249,6 +249,19 @@ func (c *Client) SelectVoiceChannel(channelID snowflake.ID, force bool, navigate
 	}
 }
 
+func (c *Client) SelectTextChannel(channelID *snowflake.ID) (*PartialChannel, error) {
+	if res, err := c.Send(Message{
+		Cmd: CmdSelectTextChannel,
+		Args: CmdArgsSelectTextChannel{
+			ChannelID: channelID,
+		},
+	}); err != nil {
+		return &PartialChannel{}, err
+	} else {
+		return res.(CmdRsSelectTextChannel).PartialChannel, nil
+	}
+}
+
 func (c *Client) Subscribe(event Event, args CmdArgs, handler Handler) error {
 	if _, ok := c.eventHandlers[event]; ok {
 		return errors.New("event already subscribed")

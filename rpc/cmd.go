@@ -163,7 +163,7 @@ func (CmdRsGetSelectedVoiceChannel) messageData() {}
 
 type CmdArgsSelectTextChannel struct {
 	ChannelID *snowflake.ID `json:"channel_id"`
-	Timeout   int           `json:"timeout"`
+	Timeout   *int          `json:"timeout,omitempty"`
 }
 
 func (CmdArgsSelectTextChannel) cmdArgs() {}
