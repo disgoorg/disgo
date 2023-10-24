@@ -223,6 +223,32 @@ func (c *Client) SetUserVoiceSettings(settings CmdArgsSetUserVoiceSettings) (Cmd
 	}
 }
 
+func (c *Client) GetSelectedVoiceChannel() (*PartialChannel, error) {
+	if res, err := c.Send(Message{
+		Cmd:  CmdGetSelectedVoiceChannel,
+		Args: EmptyArgs{},
+	}); err != nil {
+		return &PartialChannel{}, err
+	} else {
+		return res.(CmdRsGetSelectedVoiceChannel).PartialChannel, nil
+	}
+}
+
+func (c *Client) SelectVoiceChannel(channelID snowflake.ID, force bool, navigate bool) (*PartialChannel, error) {
+	if res, err := c.Send(Message{
+		Cmd: CmdSelectVoiceChannel,
+		Args: CmdArgsSelectVoiceChannel{
+			ChannelID: channelID,
+			Force:     force,
+			Navigate:  navigate,
+		},
+	}); err != nil {
+		return &PartialChannel{}, err
+	} else {
+		return res.(CmdRsSelectVoiceChannel).PartialChannel, nil
+	}
+}
+
 func (c *Client) Subscribe(event Event, args CmdArgs, handler Handler) error {
 	if _, ok := c.eventHandlers[event]; ok {
 		return errors.New("event already subscribed")

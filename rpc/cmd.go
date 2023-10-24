@@ -142,14 +142,15 @@ func (CmdRsSetUserVoiceSettings) messageData() {}
 
 type CmdArgsSelectVoiceChannel struct {
 	ChannelID snowflake.ID `json:"channel_id"`
-	Timeout   int          `json:"timeout"`
+	Timeout   int          `json:"timeout,omitempty"`
 	Force     bool         `json:"force"`
+	Navigate  bool         `json:"navigate"`
 }
 
 func (CmdArgsSelectVoiceChannel) cmdArgs() {}
 
 type CmdRsSelectVoiceChannel struct {
-	PartialChannel
+	*PartialChannel
 }
 
 func (CmdRsSelectVoiceChannel) messageData() {}

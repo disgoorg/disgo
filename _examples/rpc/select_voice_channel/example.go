@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"os"
 
 	"github.com/disgoorg/log"
@@ -12,9 +13,9 @@ import (
 )
 
 var (
+	channelID    = snowflake.GetEnv("disgo_channel_id")
 	clientID     = snowflake.GetEnv("disgo_client_id")
 	clientSecret = os.Getenv("disgo_client_secret")
-	userID       = snowflake.GetEnv("disgo_user_id")
 )
 
 func main() {
@@ -51,38 +52,20 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var mute bool
-
-	if channel, err := client.GetSelectedVoiceChannel(); err != nil {
-		log.Fatal(err)
-	} else {
-		if channel == nil {
-			log.Fatal("User not in any voice channel.")
-		}
-
-		var found = false
-
-		for _, state := range channel.VoiceStates {
-			if state.User.ID != userID {
-				continue
+	if channel, err := client.SelectVoiceChannel(channelID, false, false); err != nil {
+		var dataError rpc.EventDataError
+		if errors.As(err, &dataError) {
+			if dataError.Code == 5003 { // User is in a voice channel, try again with force
+				if channel, err = client.SelectVoiceChannel(channelID, true, false); err != nil {
+					log.Fatal(err)
+				} else {
+					log.Info(channel)
+				}
 			}
-			found = true
-			mute = !state.Mute
-			break
+		} else {
+			log.Fatal(err)
 		}
-		if !found {
-			log.Fatal("Error: Voice state for specified user not found.")
-		}
-	}
-
-	settings := rpc.CmdArgsSetUserVoiceSettings{
-		UserID: userID,
-		Mute:   &mute,
-	}
-
-	if voiceSettings, err := client.SetUserVoiceSettings(settings); err != nil {
-		log.Fatal(err)
 	} else {
-		log.Info(voiceSettings)
+		log.Info(channel)
 	}
 }
