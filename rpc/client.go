@@ -262,6 +262,21 @@ func (c *Client) SelectTextChannel(channelID *snowflake.ID) (*PartialChannel, er
 	}
 }
 
+func (c *Client) SetActivity(PID int, activity discord.Activity) (CmdRsSetActivity, error) {
+	if res, err := c.Send(Message{
+		Cmd: CmdSetActivity,
+		Args: CmdArgsSetActivity{
+			PID:      PID,
+			Activity: activity,
+		},
+	}); err != nil {
+		return CmdRsSetActivity{}, err
+	} else {
+		log.Info(res)
+		return res.(CmdRsSetActivity), err
+	}
+}
+
 func (c *Client) Subscribe(event Event, args CmdArgs, handler Handler) error {
 	if _, ok := c.eventHandlers[event]; ok {
 		return errors.New("event already subscribed")
