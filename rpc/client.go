@@ -272,8 +272,33 @@ func (c *Client) SetActivity(PID int, activity discord.Activity) (CmdRsSetActivi
 	}); err != nil {
 		return CmdRsSetActivity{}, err
 	} else {
-		log.Info(res)
 		return res.(CmdRsSetActivity), err
+	}
+}
+
+func (c *Client) SendActivityJoinInvite(userID snowflake.ID) error {
+	if _, err := c.Send(Message{
+		Cmd: CmdSendActivityJoinInvite,
+		Args: CmdArgsSendActivityJoinInvite{
+			UserID: userID,
+		},
+	}); err != nil {
+		return err
+	} else {
+		return err
+	}
+}
+
+func (c *Client) CloseActivityRequest(userID snowflake.ID) error {
+	if _, err := c.Send(Message{
+		Cmd: CmdCloseActivityRequest,
+		Args: CmdArgsCloseActivityRequest{
+			UserID: userID,
+		},
+	}); err != nil {
+		return err
+	} else {
+		return err
 	}
 }
 
