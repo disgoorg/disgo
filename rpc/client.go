@@ -302,6 +302,16 @@ func (c *Client) CloseActivityRequest(userID snowflake.ID) error {
 	}
 }
 
+func (c *Client) SetCertifiedDevices(devices []CertifiedDevice) error {
+	_, err := c.Send(Message{
+		Cmd: CmdSetCertifiedDevices,
+		Args: CmdArgsSetCertifiedDevices{
+			Devices: devices,
+		},
+	})
+	return err
+}
+
 func (c *Client) Subscribe(event Event, args CmdArgs, handler Handler) error {
 	if _, ok := c.eventHandlers[event]; ok {
 		return errors.New("event already subscribed")
