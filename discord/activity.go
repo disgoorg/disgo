@@ -54,8 +54,7 @@ func (a *Activity) UnmarshalJSON(data []byte) error {
 	}
 	*a = Activity(v.activity)
 	if v.CreatedAt != nil {
-		millis := time.UnixMilli(*v.CreatedAt)
-		a.CreatedAt = &millis
+		a.CreatedAt = json.Ptr(time.UnixMilli(*v.CreatedAt))
 	}
 
 	return nil
@@ -66,8 +65,7 @@ func (a Activity) MarshalJSON() ([]byte, error) {
 	var createdAt *int64
 
 	if a.CreatedAt != nil {
-		millis := a.CreatedAt.UnixMilli()
-		createdAt = &millis
+		createdAt = json.Ptr(a.CreatedAt.UnixMilli())
 	}
 
 	return json.Marshal(struct {
@@ -136,13 +134,11 @@ func (a *ActivityTimestamps) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	if v.Start != nil {
-		start := time.UnixMilli(*v.Start)
-		a.Start = &start
+		a.Start = json.Ptr(time.UnixMilli(*v.Start))
 	}
 
 	if v.End != nil {
-		end := time.UnixMilli(*v.End)
-		a.End = &end
+		a.End = json.Ptr(time.UnixMilli(*v.End))
 	}
 	return nil
 }
@@ -150,13 +146,11 @@ func (a *ActivityTimestamps) UnmarshalJSON(data []byte) error {
 func (a ActivityTimestamps) MarshalJSON() ([]byte, error) {
 	var start *int64
 	if a.Start != nil {
-		millis := a.Start.UnixMilli()
-		start = &millis
+		start = json.Ptr(a.Start.UnixMilli())
 	}
 	var end *int64
 	if a.End != nil {
-		millis := a.End.UnixMilli()
-		end = &millis
+		end = json.Ptr(a.End.UnixMilli())
 	}
 	return json.Marshal(struct {
 		Start *int64 `json:"start,omitempty"`

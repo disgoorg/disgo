@@ -40,7 +40,7 @@ func NewClient(clientID snowflake.ID, opts ...ConfigOpt) (Client, error) {
 		eventHandlers:   map[Event]Handler{},
 		commandChannels: map[string]chan responseMessage{},
 		readyChan:       make(chan struct{}, 1),
-		clientId:        clientID,
+		clientID:        clientID,
 	}
 
 	if config.Transport == nil {
@@ -61,7 +61,7 @@ type Client struct {
 
 	eventHandlers   map[Event]Handler
 	commandChannels map[string]chan responseMessage
-	clientId        snowflake.ID
+	clientID        snowflake.ID
 
 	readyChan    chan struct{}
 	User         discord.User
@@ -103,18 +103,12 @@ func (c *Client) send(r io.Reader) error {
 	return err
 }
 
-func (c *Client) Authorize(scopes []discord.OAuth2Scope, rpcToken, username string) (string, error) {
+func (c *Client) Authorize(scopes []discord.OAuth2Scope, rpcToken string, username string) (string, error) {
 	args := CmdArgsAuthorize{
-		ClientID: c.clientId,
+		ClientID: c.clientID,
 		Scopes:   scopes,
-	}
-
-	if rpcToken != "" {
-		args.RPCToken = rpcToken
-	}
-
-	if username != "" {
-		args.Username = username
+		RPCToken: rpcToken,
+		Username: username,
 	}
 
 	if res, err := c.Send(Message{
@@ -138,9 +132,9 @@ func (c *Client) Authenticate(accessToken string) (CmdRsAuthenticate, error) {
 	}
 }
 
-func (c *Client) GetGuild(guildId snowflake.ID, timeout int) (CmdRsGetGuild, error) {
+func (c *Client) GetGuild(guildID snowflake.ID, timeout int) (CmdRsGetGuild, error) {
 	args := CmdArgsGetGuild{
-		GuildID: guildId,
+		GuildID: guildID,
 	}
 
 	if timeout != 0 {
@@ -168,10 +162,10 @@ func (c *Client) GetGuilds() ([]PartialGuild, error) {
 	}
 }
 
-func (c *Client) GetChannel(channelId snowflake.ID) (CmdRsGetChannel, error) {
+func (c *Client) GetChannel(channelID snowflake.ID) (CmdRsGetChannel, error) {
 	if res, err := c.Send(Message{
 		Cmd:  CmdGetChannel,
-		Args: CmdArgsGetChannel{ChannelID: channelId},
+		Args: CmdArgsGetChannel{ChannelID: channelID},
 	}); err != nil {
 		return CmdRsGetChannel{}, err
 	} else {
@@ -179,10 +173,10 @@ func (c *Client) GetChannel(channelId snowflake.ID) (CmdRsGetChannel, error) {
 	}
 }
 
-func (c *Client) GetChannels(guildId snowflake.ID) ([]PartialChannel, error) {
+func (c *Client) GetChannels(guildID snowflake.ID) ([]PartialChannel, error) {
 	if res, err := c.Send(Message{
 		Cmd:  CmdGetChannels,
-		Args: CmdArgsGetChannels{GuildID: guildId},
+		Args: CmdArgsGetChannels{GuildID: guildID},
 	}); err != nil {
 		return nil, err
 	} else {
@@ -262,11 +256,11 @@ func (c *Client) SelectTextChannel(channelID *snowflake.ID) (*PartialChannel, er
 	}
 }
 
-func (c *Client) SetActivity(PID int, activity discord.Activity) (CmdRsSetActivity, error) {
+func (c *Client) SetActivity(pid int, activity discord.Activity) (CmdRsSetActivity, error) {
 	if res, err := c.Send(Message{
 		Cmd: CmdSetActivity,
 		Args: CmdArgsSetActivity{
-			PID:      PID,
+			PID:      pid,
 			Activity: activity,
 		},
 	}); err != nil {
@@ -277,29 +271,23 @@ func (c *Client) SetActivity(PID int, activity discord.Activity) (CmdRsSetActivi
 }
 
 func (c *Client) SendActivityJoinInvite(userID snowflake.ID) error {
-	if _, err := c.Send(Message{
+	_, err := c.Send(Message{
 		Cmd: CmdSendActivityJoinInvite,
 		Args: CmdArgsSendActivityJoinInvite{
 			UserID: userID,
 		},
-	}); err != nil {
-		return err
-	} else {
-		return err
-	}
+	})
+	return err
 }
 
 func (c *Client) CloseActivityRequest(userID snowflake.ID) error {
-	if _, err := c.Send(Message{
+	_, err := c.Send(Message{
 		Cmd: CmdCloseActivityRequest,
 		Args: CmdArgsCloseActivityRequest{
 			UserID: userID,
 		},
-	}); err != nil {
-		return err
-	} else {
-		return err
-	}
+	})
+	return err
 }
 
 func (c *Client) SetCertifiedDevices(devices []CertifiedDevice) error {

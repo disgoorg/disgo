@@ -6,6 +6,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 
@@ -34,17 +35,13 @@ func main() {
 	}
 	defer client.Close()
 
-	details := "Lorem Ipsum"
-	state := "dolor sit amet"
-	start := time.Now()
-
 	// Not allowed to set CreatedAt, maybe only parameter when receiving presence?
 	if _, err := client.SetActivity(os.Getpid(), discord.Activity{
 		Type:    discord.ActivityTypeGame,
-		Details: &details,
-		State:   &state,
+		Details: json.Ptr("Lorem Ipsum"),
+		State:   json.Ptr("dolor sit amet"),
 		Timestamps: &discord.ActivityTimestamps{
-			Start: &start,
+			Start: json.Ptr(time.Now()),
 		},
 	}); err != nil {
 		log.Fatal(err)
