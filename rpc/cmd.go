@@ -340,12 +340,12 @@ type CmdArgsSubscribeGuild struct {
 func (CmdArgsSubscribeGuild) cmdArgs()          {}
 func (CmdArgsSubscribeGuild) cmdArgsSubscribe() {}
 
-type CmdArgsSubscribeSpeaking struct {
+type CmdArgsSubscribeChannel struct {
 	ChannelID snowflake.ID `json:"channel_id"`
 }
 
-func (CmdArgsSubscribeSpeaking) cmdArgs()          {}
-func (CmdArgsSubscribeSpeaking) cmdArgsSubscribe() {}
+func (CmdArgsSubscribeChannel) cmdArgs()          {}
+func (CmdArgsSubscribeChannel) cmdArgsSubscribe() {}
 
 type CmdRsSubscribe struct {
 	Evt string `json:"evt"`

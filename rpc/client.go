@@ -82,7 +82,7 @@ func (c *Client) Open() error {
 	return nil
 }
 
-func (c *Client) send(r io.Reader) error {
+func (c *Client) sendBytes(r io.Reader) error {
 	writer, err := c.Transport.NextWriter()
 	if err != nil {
 		return err
@@ -111,7 +111,7 @@ func (c *Client) Authorize(scopes []discord.OAuth2Scope, rpcToken string, userna
 		Username: username,
 	}
 
-	if res, err := c.Send(Message{
+	if res, err := c.send(Message{
 		Cmd:  CmdAuthorize,
 		Args: args,
 	}); err != nil {
@@ -122,7 +122,7 @@ func (c *Client) Authorize(scopes []discord.OAuth2Scope, rpcToken string, userna
 }
 
 func (c *Client) Authenticate(accessToken string) (CmdRsAuthenticate, error) {
-	if res, err := c.Send(Message{
+	if res, err := c.send(Message{
 		Cmd:  CmdAuthenticate,
 		Args: CmdArgsAuthenticate{AccessToken: accessToken},
 	}); err != nil {
@@ -141,7 +141,7 @@ func (c *Client) GetGuild(guildID snowflake.ID, timeout int) (CmdRsGetGuild, err
 		args.Timeout = timeout
 	}
 
-	if res, err := c.Send(Message{
+	if res, err := c.send(Message{
 		Cmd:  CmdGetGuild,
 		Args: args,
 	}); err != nil {
@@ -152,7 +152,7 @@ func (c *Client) GetGuild(guildID snowflake.ID, timeout int) (CmdRsGetGuild, err
 }
 
 func (c *Client) GetGuilds() ([]PartialGuild, error) {
-	if res, err := c.Send(Message{
+	if res, err := c.send(Message{
 		Cmd:  CmdGetGuilds,
 		Args: struct{ CmdArgs }{},
 	}); err != nil {
@@ -163,7 +163,7 @@ func (c *Client) GetGuilds() ([]PartialGuild, error) {
 }
 
 func (c *Client) GetChannel(channelID snowflake.ID) (CmdRsGetChannel, error) {
-	if res, err := c.Send(Message{
+	if res, err := c.send(Message{
 		Cmd:  CmdGetChannel,
 		Args: CmdArgsGetChannel{ChannelID: channelID},
 	}); err != nil {
@@ -174,7 +174,7 @@ func (c *Client) GetChannel(channelID snowflake.ID) (CmdRsGetChannel, error) {
 }
 
 func (c *Client) GetChannels(guildID snowflake.ID) ([]PartialChannel, error) {
-	if res, err := c.Send(Message{
+	if res, err := c.send(Message{
 		Cmd:  CmdGetChannels,
 		Args: CmdArgsGetChannels{GuildID: guildID},
 	}); err != nil {
@@ -185,7 +185,7 @@ func (c *Client) GetChannels(guildID snowflake.ID) ([]PartialChannel, error) {
 }
 
 func (c *Client) GetVoiceSettings() (CmdRsGetVoiceSettings, error) {
-	if res, err := c.Send(Message{
+	if res, err := c.send(Message{
 		Cmd:  CmdGetVoiceSettings,
 		Args: EmptyArgs{},
 	}); err != nil {
@@ -196,7 +196,7 @@ func (c *Client) GetVoiceSettings() (CmdRsGetVoiceSettings, error) {
 }
 
 func (c *Client) SetVoiceSettings(settings CmdArgsSetVoiceSettings) (CmdRsSetVoiceSettings, error) {
-	if res, err := c.Send(Message{
+	if res, err := c.send(Message{
 		Cmd:  CmdSetVoiceSettings,
 		Args: settings,
 	}); err != nil {
@@ -207,7 +207,7 @@ func (c *Client) SetVoiceSettings(settings CmdArgsSetVoiceSettings) (CmdRsSetVoi
 }
 
 func (c *Client) SetUserVoiceSettings(settings CmdArgsSetUserVoiceSettings) (CmdRsSetUserVoiceSettings, error) {
-	if res, err := c.Send(Message{
+	if res, err := c.send(Message{
 		Cmd:  CmdSetUserVoiceSettings,
 		Args: settings,
 	}); err != nil {
@@ -218,7 +218,7 @@ func (c *Client) SetUserVoiceSettings(settings CmdArgsSetUserVoiceSettings) (Cmd
 }
 
 func (c *Client) GetSelectedVoiceChannel() (*PartialChannel, error) {
-	if res, err := c.Send(Message{
+	if res, err := c.send(Message{
 		Cmd:  CmdGetSelectedVoiceChannel,
 		Args: EmptyArgs{},
 	}); err != nil {
@@ -229,7 +229,7 @@ func (c *Client) GetSelectedVoiceChannel() (*PartialChannel, error) {
 }
 
 func (c *Client) SelectVoiceChannel(channelID snowflake.ID, force bool, navigate bool) (*PartialChannel, error) {
-	if res, err := c.Send(Message{
+	if res, err := c.send(Message{
 		Cmd: CmdSelectVoiceChannel,
 		Args: CmdArgsSelectVoiceChannel{
 			ChannelID: channelID,
@@ -244,7 +244,7 @@ func (c *Client) SelectVoiceChannel(channelID snowflake.ID, force bool, navigate
 }
 
 func (c *Client) SelectTextChannel(channelID *snowflake.ID) (*PartialChannel, error) {
-	if res, err := c.Send(Message{
+	if res, err := c.send(Message{
 		Cmd: CmdSelectTextChannel,
 		Args: CmdArgsSelectTextChannel{
 			ChannelID: channelID,
@@ -257,7 +257,7 @@ func (c *Client) SelectTextChannel(channelID *snowflake.ID) (*PartialChannel, er
 }
 
 func (c *Client) SetActivity(pid int, activity discord.Activity) (CmdRsSetActivity, error) {
-	if res, err := c.Send(Message{
+	if res, err := c.send(Message{
 		Cmd: CmdSetActivity,
 		Args: CmdArgsSetActivity{
 			PID:      pid,
@@ -271,7 +271,7 @@ func (c *Client) SetActivity(pid int, activity discord.Activity) (CmdRsSetActivi
 }
 
 func (c *Client) SendActivityJoinInvite(userID snowflake.ID) error {
-	_, err := c.Send(Message{
+	_, err := c.send(Message{
 		Cmd: CmdSendActivityJoinInvite,
 		Args: CmdArgsSendActivityJoinInvite{
 			UserID: userID,
@@ -281,7 +281,7 @@ func (c *Client) SendActivityJoinInvite(userID snowflake.ID) error {
 }
 
 func (c *Client) CloseActivityRequest(userID snowflake.ID) error {
-	_, err := c.Send(Message{
+	_, err := c.send(Message{
 		Cmd: CmdCloseActivityRequest,
 		Args: CmdArgsCloseActivityRequest{
 			UserID: userID,
@@ -291,7 +291,7 @@ func (c *Client) CloseActivityRequest(userID snowflake.ID) error {
 }
 
 func (c *Client) SetCertifiedDevices(devices []CertifiedDevice) error {
-	_, err := c.Send(Message{
+	_, err := c.send(Message{
 		Cmd: CmdSetCertifiedDevices,
 		Args: CmdArgsSetCertifiedDevices{
 			Devices: devices,
@@ -300,12 +300,206 @@ func (c *Client) SetCertifiedDevices(devices []CertifiedDevice) error {
 	return err
 }
 
-func (c *Client) Subscribe(event Event, args CmdArgs, handler Handler) error {
-	if _, ok := c.eventHandlers[event]; ok {
+func (c *Client) SubscribeGuildStatus(guildID snowflake.ID, handler func(data EventDataGuildStatus)) error {
+	return c.subscribe(EventGuildStatus,
+		CmdArgsSubscribeGuild{GuildID: guildID},
+		NewHandler(handler))
+}
+
+func (c *Client) UnsubscribeGuildStatus(guildID snowflake.ID) error {
+	return c.unsubscribe(EventGuildStatus, CmdArgsSubscribeGuild{GuildID: guildID})
+}
+
+func (c *Client) SubscribeGuildCreate(handler func(data EventDataGuildCreate)) error {
+	return c.subscribe(EventGuildCreate,
+		EmptyArgs{},
+		NewHandler(handler))
+}
+
+func (c *Client) UnsubscribeGuildCreate() error {
+	return c.unsubscribe(EventGuildCreate, EmptyArgs{})
+}
+
+func (c *Client) SubscribeChannelCreate(handler func(data EventDataChannelCreate)) error {
+	return c.subscribe(EventChannelCreate,
+		EmptyArgs{},
+		NewHandler(handler))
+}
+
+func (c *Client) UnsubscribeChannelCreate() error {
+	return c.unsubscribe(EventChannelCreate, EmptyArgs{})
+}
+
+func (c *Client) SubscribeVoiceChannelSelect(handler func(data EventDataVoiceChannelSelect)) error {
+	return c.subscribe(EventVoiceChannelSelect,
+		EmptyArgs{},
+		NewHandler(handler))
+}
+
+func (c *Client) UnsubscribeVoiceChannelSelect() error {
+	return c.unsubscribe(EventVoiceChannelSelect, EmptyArgs{})
+}
+
+func (c *Client) SubscribeVoiceSettingsUpdate(handler func(data EventDataVoiceSettingsUpdate)) error {
+	return c.subscribe(EventVoiceSettingsUpdate,
+		EmptyArgs{},
+		NewHandler(handler))
+}
+
+func (c *Client) UnsubscribeVoiceSettingsUpdate() error {
+	return c.unsubscribe(EventVoiceSettingsUpdate, EmptyArgs{})
+}
+
+func (c *Client) SubscribeVoiceStateCreate(channelID snowflake.ID, handler func(data EventDataVoiceStateCreate)) error {
+	return c.subscribe(EventVoiceStateCreate,
+		CmdArgsSubscribeChannel{ChannelID: channelID},
+		NewHandler(handler))
+}
+
+func (c *Client) UnsubscribeVoiceStateCreate(channelID snowflake.ID) error {
+	return c.unsubscribe(EventVoiceStateCreate, CmdArgsSubscribeChannel{ChannelID: channelID})
+}
+
+func (c *Client) SubscribeVoiceStateUpdate(channelID snowflake.ID, handler func(data EventDataVoiceStateUpdate)) error {
+	return c.subscribe(EventVoiceStateUpdate,
+		CmdArgsSubscribeChannel{ChannelID: channelID},
+		NewHandler(handler))
+}
+
+func (c *Client) UnsubscribeVoiceStateUpdate(channelID snowflake.ID) error {
+	return c.unsubscribe(EventVoiceStateUpdate, CmdArgsSubscribeChannel{ChannelID: channelID})
+}
+
+func (c *Client) SubscribeVoiceStateDelete(channelID snowflake.ID, handler func(data EventDataVoiceStateDelete)) error {
+	return c.subscribe(EventVoiceStateDelete,
+		CmdArgsSubscribeChannel{ChannelID: channelID},
+		NewHandler(handler))
+}
+
+func (c *Client) UnsubscribeVoiceStateDelete(channelID snowflake.ID) error {
+	return c.unsubscribe(EventVoiceStateDelete, CmdArgsSubscribeChannel{ChannelID: channelID})
+}
+
+func (c *Client) SubscribeVoiceConnectionStatus(handler func(data EventDataVoiceConnectionStatus)) error {
+	return c.subscribe(EventVoiceConnectionStatus,
+		EmptyArgs{},
+		NewHandler(handler))
+}
+
+func (c *Client) UnsubscribeVoiceConnectionStatus() error {
+	return c.unsubscribe(EventVoiceConnectionStatus, EmptyArgs{})
+}
+
+func (c *Client) SubscribeSpeakingStart(channelID snowflake.ID, handler func(data EventDataSpeakingStart)) error {
+	return c.subscribe(EventSpeakingStart,
+		CmdArgsSubscribeChannel{ChannelID: channelID},
+		NewHandler(handler))
+}
+
+func (c *Client) UnsubscribeSpeakingStart(channelID snowflake.ID) error {
+	return c.unsubscribe(EventSpeakingStart, CmdArgsSubscribeChannel{ChannelID: channelID})
+}
+
+func (c *Client) SubscribeSpeakingStop(channelID snowflake.ID, handler func(data EventDataSpeakingStop)) error {
+	return c.subscribe(EventSpeakingStop,
+		CmdArgsSubscribeChannel{ChannelID: channelID},
+		NewHandler(handler))
+}
+
+func (c *Client) UnsubscribeSpeakingStop(channelID snowflake.ID) error {
+	return c.unsubscribe(EventSpeakingStop, CmdArgsSubscribeChannel{ChannelID: channelID})
+}
+
+func (c *Client) SubscribeMessageCreate(channelID snowflake.ID, handler func(data EventDataMessageCreate)) error {
+	return c.subscribe(EventMessageCreate,
+		CmdArgsSubscribeChannel{ChannelID: channelID},
+		NewHandler(handler))
+}
+
+func (c *Client) UnsubscribeMessageCreate(channelID snowflake.ID) error {
+	return c.unsubscribe(EventMessageCreate, CmdArgsSubscribeChannel{ChannelID: channelID})
+}
+
+func (c *Client) SubscribeMessageUpdate(channelID snowflake.ID, handler func(data EventDataMessageUpdate)) error {
+	return c.subscribe(EventMessageUpdate,
+		CmdArgsSubscribeChannel{ChannelID: channelID},
+		NewHandler(handler))
+}
+
+func (c *Client) UnsubscribeMessageUpdate(channelID snowflake.ID) error {
+	return c.unsubscribe(EventMessageUpdate, CmdArgsSubscribeChannel{ChannelID: channelID})
+}
+
+func (c *Client) SubscribeMessageDelete(channelID snowflake.ID, handler func(data EventDataMessageDelete)) error {
+	return c.subscribe(EventMessageDelete,
+		CmdArgsSubscribeChannel{ChannelID: channelID},
+		NewHandler(handler))
+}
+
+func (c *Client) UnsubscribeMessageDelete(channelID snowflake.ID) error {
+	return c.unsubscribe(EventMessageDelete, CmdArgsSubscribeChannel{ChannelID: channelID})
+}
+
+func (c *Client) SubscribeNotificationCreate(handler func(data EventDataNotificationCreate)) error {
+	return c.subscribe(EventNotificationCreate,
+		EmptyArgs{},
+		NewHandler(handler))
+}
+
+func (c *Client) UnsubscribeNotificationCreate() error {
+	return c.unsubscribe(EventNotificationCreate, EmptyArgs{})
+}
+
+func (c *Client) SubscribeActivityJoin(handler func(data EventDataActivityJoin)) error {
+	return c.subscribe(EventActivityJoin,
+		EmptyArgs{},
+		NewHandler(handler))
+}
+
+func (c *Client) UnsubscribeActivityJoin() error {
+	return c.unsubscribe(EventActivityJoin, EmptyArgs{})
+}
+
+func (c *Client) SubscribeActivitySpectate(handler func(data EventDataActivitySpectate)) error {
+	return c.subscribe(EventActivitySpectate,
+		EmptyArgs{},
+		NewHandler(handler))
+}
+
+func (c *Client) UnsubscribeActivitySpectate() error {
+	return c.unsubscribe(EventActivitySpectate, EmptyArgs{})
+}
+
+func (c *Client) SubscribeActivityJoinRequest(handler func(data EventDataActivityJoinRequest)) error {
+	return c.subscribe(EventActivityJoinRequest,
+		EmptyArgs{},
+		NewHandler(handler))
+}
+
+func (c *Client) UnsubscribeActivityJoinRequest() error {
+	return c.unsubscribe(EventActivityJoinRequest, EmptyArgs{})
+}
+
+func (c *Client) subscribe(event EventType, args CmdArgs, handler Handler) error {
+	evt := Event{
+		EventType: event,
+		CmdArgs:   args,
+	}
+
+	// These events don't return channelID when fired. Set args empty for now to only allow single event.
+	if event == EventVoiceStateCreate ||
+		event == EventVoiceStateUpdate ||
+		event == EventVoiceStateDelete ||
+		event == EventSpeakingStart ||
+		event == EventSpeakingStop {
+		evt.CmdArgs = EmptyArgs{}
+	}
+
+	if _, ok := c.eventHandlers[evt]; ok {
 		return errors.New("event already subscribed")
 	}
-	c.eventHandlers[event] = handler
-	_, err := c.Send(Message{
+	c.eventHandlers[evt] = handler
+	_, err := c.send(Message{
 		Cmd:   CmdSubscribe,
 		Args:  args,
 		Event: event,
@@ -313,10 +507,24 @@ func (c *Client) Subscribe(event Event, args CmdArgs, handler Handler) error {
 	return err
 }
 
-func (c *Client) Unsubscribe(event Event, args CmdArgs) error {
-	if _, ok := c.eventHandlers[event]; ok {
-		delete(c.eventHandlers, event)
-		_, err := c.Send(Message{
+func (c *Client) unsubscribe(event EventType, args CmdArgs) error {
+	evt := Event{
+		EventType: event,
+		CmdArgs:   args,
+	}
+
+	// These events don't return channelID when fired. Set args empty for now to only allow single event.
+	if event == EventVoiceStateCreate ||
+		event == EventVoiceStateUpdate ||
+		event == EventVoiceStateDelete ||
+		event == EventSpeakingStart ||
+		event == EventSpeakingStop {
+		evt.CmdArgs = EmptyArgs{}
+	}
+
+	if _, ok := c.eventHandlers[evt]; ok {
+		delete(c.eventHandlers, evt)
+		_, err := c.send(Message{
 			Cmd:   CmdUnsubscribe,
 			Args:  args,
 			Event: event,
@@ -326,7 +534,7 @@ func (c *Client) Unsubscribe(event Event, args CmdArgs) error {
 	return nil
 }
 
-func (c *Client) Send(message Message) (MessageData, error) {
+func (c *Client) send(message Message) (MessageData, error) {
 	nonce := insecurerandstr.RandStr(32)
 	buff := new(bytes.Buffer)
 
@@ -339,7 +547,7 @@ func (c *Client) Send(message Message) (MessageData, error) {
 
 	c.commandChannels[nonce] = resChan
 
-	if err := c.send(buff); err != nil {
+	if err := c.sendBytes(buff); err != nil {
 		delete(c.commandChannels, nonce)
 		close(resChan)
 		return nil, err
@@ -385,7 +593,12 @@ loop:
 				c.ServerConfig = d.Config
 				c.V = d.V
 			}
-			if handler, ok := c.eventHandlers[v.Event]; ok {
+			event, err := BuildIncomingEvent(v.Event, v.Data)
+			if err != nil {
+				c.Logger.Errorf("failed to build Event for eventType %s. %s", v.Event, err)
+				continue
+			}
+			if handler, ok := c.eventHandlers[event]; ok {
 				handler.Handle(v.Data)
 			}
 			continue

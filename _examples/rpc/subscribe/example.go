@@ -19,6 +19,10 @@ var (
 	channelID    = snowflake.GetEnv("disgo_channel_id")
 )
 
+func logMessage(data rpc.EventDataMessageCreate) {
+	log.Info("message: ", data.Message.Content)
+}
+
 func main() {
 	log.SetLevel(log.LevelDebug)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -53,11 +57,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err = client.Subscribe(rpc.EventMessageCreate, rpc.CmdArgsSubscribeMessage{
-		ChannelID: channelID,
-	}, rpc.NewHandler(func(data rpc.EventDataMessageCreate) {
-		log.Info("message: ", data.Message.Content)
-	})); err != nil {
+	if err = client.SubscribeMessageCreate(channelID, logMessage); err != nil {
 		log.Fatal(err)
 	}
 

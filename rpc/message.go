@@ -1,6 +1,7 @@
 package rpc
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/disgoorg/json"
@@ -10,7 +11,7 @@ type Message struct {
 	Cmd  Cmd     `json:"cmd"`
 	Args CmdArgs `json:"args,omitempty"`
 
-	Event Event       `json:"evt,omitempty"`
+	Event EventType   `json:"evt,omitempty"`
 	Data  MessageData `json:"data,omitempty"`
 
 	Nonce string `json:"nonce,omitempty"`
@@ -268,29 +269,147 @@ type CmdArgs interface {
 	cmdArgs()
 }
 
-type Event string
+type Event struct {
+	EventType
+	CmdArgs
+}
+
+func BuildIncomingEvent(eventType EventType, data MessageData) (Event, error) {
+	var err error
+	event := Event{
+		EventType: eventType,
+	}
+	switch eventType {
+	case EventReady:
+		event.CmdArgs = EmptyArgs{}
+
+	case EventGuildStatus:
+		if eventData, ok := data.(EventDataGuildStatus); !ok {
+			err = errors.New("unable to cast CmdArgs to EventDataGuildStatus")
+		} else {
+			event.CmdArgs = CmdArgsSubscribeGuild{GuildID: eventData.Guild.ID}
+		}
+
+	case EventGuildCreate:
+		event.CmdArgs = EmptyArgs{}
+
+	case EventChannelCreate:
+		event.CmdArgs = EmptyArgs{}
+
+	case EventVoiceChannelSelect:
+		event.CmdArgs = EmptyArgs{}
+
+	case EventVoiceSettingsUpdate:
+		event.CmdArgs = EmptyArgs{}
+
+	case EventVoiceStateCreate:
+		if _, ok := data.(EventDataVoiceStateCreate); !ok {
+			err = errors.New("unable to cast CmdArgs to EventDataVoiceStateCreate")
+		} else {
+			// Discord doesn't return the channelID here so we can't link it back to specific events.
+			event.CmdArgs = EmptyArgs{}
+		}
+
+	case EventVoiceStateUpdate:
+		if _, ok := data.(EventDataVoiceStateUpdate); !ok {
+			err = errors.New("unable to cast CmdArgs to EventDataVoiceStateUpdate")
+		} else {
+			// Discord doesn't return the channelID here so we can't link it back to specific events.
+			event.CmdArgs = EmptyArgs{}
+		}
+
+	case EventVoiceStateDelete:
+		if _, ok := data.(EventDataVoiceStateDelete); !ok {
+			err = errors.New("unable to cast CmdArgs to EventDataVoiceStateDelete")
+		} else {
+			// Discord doesn't return the channelID here so we can't link it back to specific events.
+			event.CmdArgs = EmptyArgs{}
+		}
+
+	case EventVoiceConnectionStatus:
+		event.CmdArgs = EmptyArgs{}
+
+	case EventMessageCreate:
+		if eventData, ok := data.(EventDataMessageCreate); !ok {
+			err = errors.New("unable to cast CmdArgs to EventDataMessageCreate")
+		} else {
+			event.CmdArgs = CmdArgsSubscribeChannel{ChannelID: eventData.ChannelID}
+		}
+
+	case EventMessageUpdate:
+		if eventData, ok := data.(EventDataMessageUpdate); !ok {
+			err = errors.New("unable to cast CmdArgs to EventDataMessageUpdate")
+		} else {
+			event.CmdArgs = CmdArgsSubscribeChannel{ChannelID: eventData.ChannelID}
+		}
+
+	case EventMessageDelete:
+		if eventData, ok := data.(EventDataMessageDelete); !ok {
+			err = errors.New("unable to cast CmdArgs to EventDataMessageDelete")
+		} else {
+			event.CmdArgs = CmdArgsSubscribeChannel{ChannelID: eventData.ChannelID}
+		}
+
+	case EventSpeakingStart:
+		if _, ok := data.(EventDataSpeakingStart); !ok {
+			err = errors.New("unable to cast CmdArgs to EventDataSpeakingStart")
+		} else {
+			// Discord doesn't return the channelID here so we can't link it back to specific events.
+			event.CmdArgs = EmptyArgs{}
+		}
+
+	case EventSpeakingStop:
+		if _, ok := data.(EventDataSpeakingStop); !ok {
+			err = errors.New("unable to cast CmdArgs to EventDataSpeakingStop")
+		} else {
+			// Discord doesn't return the channelID here so we can't link it back to specific events.
+			event.CmdArgs = EmptyArgs{}
+		}
+
+	case EventNotificationCreate:
+		event.CmdArgs = EmptyArgs{}
+
+	case EventActivityJoin:
+		event.CmdArgs = EmptyArgs{}
+
+	case EventActivitySpectate:
+		event.CmdArgs = EmptyArgs{}
+
+	case EventActivityJoinRequest:
+		event.CmdArgs = EmptyArgs{}
+
+	default:
+		err = fmt.Errorf("unknown event: %s", eventType)
+	}
+	if err != nil {
+		return Event{}, err
+	}
+	return event, nil
+}
+
+type EventType string
 
 const (
-	EventReady                 Event = "READY"
-	EventError                 Event = "ERROR"
-	EventGuildStatus           Event = "GUILD_STATUS"
-	EventGuildCreate           Event = "GUILD"
-	EventChannelCreate         Event = "CHANNEL_CREATE"
-	EventVoiceChannelSelect    Event = "VOICE_CHANNEL_SELECT"
-	EventVoiceStateCreate      Event = "VOICE_STATE_CREATE"
-	EventVoiceStateUpdate      Event = "VOICE_STATE_UPDATE"
-	EventVoiceStateDelete      Event = "VOICE_STATE_DELETE"
-	EventVoiceSettingsUpdate   Event = "VOICE_SETTINGS_UPDATE"
-	EventVoiceConnectionStatus Event = "VOICE_CONNECTION_STATUS"
-	EventSpeakingStart         Event = "SPEAKING_START"
-	EventSpeakingStop          Event = "SPEAKING_STOP"
-	EventMessageCreate         Event = "MESSAGE_CREATE"
-	EventMessageUpdate         Event = "MESSAGE_UPDATE"
-	EventMessageDelete         Event = "MESSAGE_DELETE"
-	EventNotificationCreate    Event = "NOTIFICATION_CREATE"
-	EventActivityJoin          Event = "ACTIVITY_JOIN"
-	EventActivitySpectate      Event = "ACTIVITY_SPECTATE"
-	EventActivityJoinRequest   Event = "ACTIVITY_JOIN_REQUEST"
+	EventReady                 EventType = "READY"
+	EventError                 EventType = "ERROR"
+	EventGuildStatus           EventType = "GUILD_STATUS"
+	EventGuildCreate           EventType = "GUILD"
+	EventChannelCreate         EventType = "CHANNEL_CREATE"
+	EventVoiceChannelSelect    EventType = "VOICE_CHANNEL_SELECT"
+	EventVoiceStateCreate      EventType = "VOICE_STATE_CREATE"
+	EventVoiceStateUpdate      EventType = "VOICE_STATE_UPDATE"
+	EventVoiceStateDelete      EventType = "VOICE_STATE_DELETE"
+	EventVoiceSettingsUpdate   EventType = "VOICE_SETTINGS_UPDATE"
+	EventVoiceConnectionStatus EventType = "VOICE_CONNECTION_STATUS"
+	EventSpeakingStart         EventType = "SPEAKING_START"
+	EventSpeakingStop          EventType = "SPEAKING_STOP"
+	EventMessageCreate         EventType = "MESSAGE_CREATE"
+	EventMessageUpdate         EventType = "MESSAGE_UPDATE"
+	EventMessageDelete         EventType = "MESSAGE_DELETE"
+	EventNotificationCreate    EventType = "NOTIFICATION_CREATE"
+	EventActivityJoin          EventType = "ACTIVITY_JOIN"
+	EventActivitySpectate      EventType = "ACTIVITY_SPECTATE"
+	EventActivityJoinRequest   EventType = "ACTIVITY_JOIN_REQUEST"
 )
 
 type MessageData interface {
