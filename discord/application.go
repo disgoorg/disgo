@@ -60,14 +60,6 @@ func (a Application) CreatedAt() time.Time {
 	return a.ID.Time()
 }
 
-type OAuth2Application struct {
-	ID          snowflake.ID `json:"id"`
-	Name        string       `json:"name"`
-	Icon        *string      `json:"icon,omitempty"`
-	Description string       `json:"description"`
-	RPCOrigins  []string     `json:"rpc_origins"`
-}
-
 type ApplicationUpdate struct {
 	CustomInstallURL               *string              `json:"custom_install_url,omitempty"`
 	Description                    *string              `json:"description,omitempty"`
@@ -78,6 +70,14 @@ type ApplicationUpdate struct {
 	CoverImage                     *json.Nullable[Icon] `json:"cover_image,omitempty"`
 	InteractionsEndpointURL        *string              `json:"interactions_endpoint_url,omitempty"`
 	Tags                           []string             `json:"tags,omitempty"`
+}
+
+type OAuth2Application struct {
+	ID          snowflake.ID `json:"id"`
+	Name        string       `json:"name"`
+	Icon        *string      `json:"icon,omitempty"`
+	Description string       `json:"description"`
+	RPCOrigins  []string     `json:"rpc_origins"`
 }
 
 type PartialApplication struct {
