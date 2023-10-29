@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -12,16 +13,18 @@ func DefaultConfig() *Config {
 	return &Config{
 		Logger:     log.Default(),
 		HTTPClient: &http.Client{Timeout: 20 * time.Second},
+		URL:        fmt.Sprintf("%sv%d", API, Version),
 	}
 }
 
 // Config is the configuration for the rest client
 type Config struct {
-	Logger                    log.Logger
-	HTTPClient                *http.Client
-	RateLimiter               RateLimiter
-	RateRateLimiterConfigOpts []RateLimiterConfigOpt
-	UserAgent                 string
+	Logger                log.Logger
+	HTTPClient            *http.Client
+	RateLimiter           RateLimiter
+	RateLimiterConfigOpts []RateLimiterConfigOpt
+	URL                   string
+	UserAgent             string
 }
 
 // ConfigOpt can be used to supply optional parameters to NewClient
@@ -33,7 +36,7 @@ func (c *Config) Apply(opts []ConfigOpt) {
 		opt(c)
 	}
 	if c.RateLimiter == nil {
-		c.RateLimiter = NewRateLimiter(c.RateRateLimiterConfigOpts...)
+		c.RateLimiter = NewRateLimiter(c.RateLimiterConfigOpts...)
 	}
 }
 
@@ -51,17 +54,24 @@ func WithHTTPClient(httpClient *http.Client) ConfigOpt {
 	}
 }
 
-// WithRateLimiter applies a custom rrate.RateLimiter to the rest client
+// WithRateLimiter applies a custom RateLimiter to the rest client
 func WithRateLimiter(rateLimiter RateLimiter) ConfigOpt {
 	return func(config *Config) {
 		config.RateLimiter = rateLimiter
 	}
 }
 
-// WithRateRateLimiterConfigOpts applies rrate.ConfigOpt for the rrate.RateLimiter to the rest rate limiter
-func WithRateRateLimiterConfigOpts(opts ...RateLimiterConfigOpt) ConfigOpt {
+// WithRateLimiterConfigOpts applies RateLimiterConfigOpt to the RateLimiter
+func WithRateLimiterConfigOpts(opts ...RateLimiterConfigOpt) ConfigOpt {
 	return func(config *Config) {
-		config.RateRateLimiterConfigOpts = append(config.RateRateLimiterConfigOpts, opts...)
+		config.RateLimiterConfigOpts = append(config.RateLimiterConfigOpts, opts...)
+	}
+}
+
+// WithURL sets the api url for all requests
+func WithURL(url string) ConfigOpt {
+	return func(config *Config) {
+		config.URL = url
 	}
 }
 

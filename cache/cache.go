@@ -36,10 +36,10 @@ var _ Cache[any] = (*DefaultCache[any])(nil)
 // NewCache returns a new DefaultCache implementation which filter the entities after the gives Flags and Policy.
 // This cache implementation is thread safe and can be used in multiple goroutines without any issues.
 // It also only hands out copies to the entities. Regardless these entities should be handles as immutable.
-func NewCache[T any](flags Flags, neededFLags Flags, policy Policy[T]) Cache[T] {
+func NewCache[T any](flags Flags, neededFlags Flags, policy Policy[T]) Cache[T] {
 	return &DefaultCache[T]{
 		flags:       flags,
-		neededFLags: neededFLags,
+		neededFlags: neededFlags,
 		policy:      policy,
 		cache:       make(map[snowflake.ID]T),
 	}
@@ -49,7 +49,7 @@ func NewCache[T any](flags Flags, neededFLags Flags, policy Policy[T]) Cache[T] 
 type DefaultCache[T any] struct {
 	mu          sync.RWMutex
 	flags       Flags
-	neededFLags Flags
+	neededFlags Flags
 	policy      Policy[T]
 	cache       map[snowflake.ID]T
 }
@@ -62,7 +62,7 @@ func (c *DefaultCache[T]) Get(id snowflake.ID) (T, bool) {
 }
 
 func (c *DefaultCache[T]) Put(id snowflake.ID, entity T) {
-	if c.flags.Missing(c.neededFLags) {
+	if c.flags.Missing(c.neededFlags) {
 		return
 	}
 	if c.policy != nil && !c.policy(entity) {

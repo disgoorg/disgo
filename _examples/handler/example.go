@@ -12,6 +12,7 @@ import (
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/handler"
 	"github.com/disgoorg/disgo/handler/middleware"
 )
@@ -72,18 +73,19 @@ func main() {
 	r.Group(func(r handler.Router) {
 		r.Use(middleware.Print("group1"))
 		r.Route("/test", func(r handler.Router) {
-			r.HandleCommand("/sub2", handleContent("/test/sub2"))
+			r.Command("/sub2", handleContent("/test/sub2"))
 			r.Route("/{group}", func(r handler.Router) {
-				r.HandleCommand("/sub", handleVariableContent)
+				r.Command("/sub", handleVariableContent)
 			})
 		})
 	})
 	r.Group(func(r handler.Router) {
 		r.Use(middleware.Print("group2"))
-		r.HandleCommand("/ping", handlePing)
-		r.HandleCommand("/ping2", handleContent("pong2"))
-		r.HandleComponent("button1/{data}", handleComponent)
+		r.Command("/ping", handlePing)
+		r.Command("/ping2", handleContent("pong2"))
+		r.Component("button1/{data}", handleComponent)
 	})
+	r.NotFound(handleNotFound)
 
 	client, err := disgo.New(token,
 		bot.WithDefaultGateway(),
@@ -93,9 +95,8 @@ func main() {
 		log.Fatal("error while building bot: ", err)
 	}
 
-	// register commands
-	if _, err = client.Rest().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
-		log.Fatal("error while setting global commands: ", err)
+	if err = handler.SyncCommands(client, commands, []snowflake.ID{guildID}); err != nil {
+		log.Fatal("error while syncing commands: ", err)
 	}
 
 	defer client.Close(context.TODO())
@@ -111,17 +112,17 @@ func main() {
 }
 
 func handleContent(content string) handler.CommandHandler {
-	return func(client bot.Client, event *handler.CommandEvent) error {
+	return func(event *handler.CommandEvent) error {
 		return event.CreateMessage(discord.MessageCreate{Content: content})
 	}
 }
 
-func handleVariableContent(client bot.Client, event *handler.CommandEvent) error {
+func handleVariableContent(event *handler.CommandEvent) error {
 	group := event.Variables["group"]
 	return event.CreateMessage(discord.MessageCreate{Content: "group: " + group})
 }
 
-func handlePing(client bot.Client, event *handler.CommandEvent) error {
+func handlePing(event *handler.CommandEvent) error {
 	return event.CreateMessage(discord.MessageCreate{
 		Content: "pong",
 		Components: []discord.ContainerComponent{
@@ -132,7 +133,11 @@ func handlePing(client bot.Client, event *handler.CommandEvent) error {
 	})
 }
 
-func handleComponent(client bot.Client, event *handler.ComponentEvent) error {
+func handleComponent(event *handler.ComponentEvent) error {
 	data := event.Variables["data"]
 	return event.CreateMessage(discord.MessageCreate{Content: "component: " + data})
+}
+
+func handleNotFound(event *events.InteractionCreate) error {
+	return event.Respond(discord.InteractionResponseTypeCreateMessage, discord.MessageCreate{Content: "not found"})
 }

@@ -132,6 +132,7 @@ func handleMessageDelete(client bot.Client, sequenceNumber int, shardID int, mes
 			MessageID:    messageID,
 			Message:      message,
 			ChannelID:    channelID,
+			GuildID:      guildID,
 		},
 	})
 

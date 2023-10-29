@@ -7,6 +7,7 @@ type EventType string
 const (
 	// EventTypeRaw is not a real event type, but is used to pass raw payloads to the bot.EventManager
 	EventTypeRaw                                 EventType = "__RAW__"
+	EventTypeHeartbeatAck                        EventType = "__HEARTBEAT_ACK__"
 	EventTypeReady                               EventType = "READY"
 	EventTypeResumed                             EventType = "RESUMED"
 	EventTypeApplicationCommandPermissionsUpdate EventType = "APPLICATION_COMMAND_PERMISSIONS_UPDATE"
@@ -18,6 +19,9 @@ const (
 	EventTypeChannelUpdate                       EventType = "CHANNEL_UPDATE"
 	EventTypeChannelDelete                       EventType = "CHANNEL_DELETE"
 	EventTypeChannelPinsUpdate                   EventType = "CHANNEL_PINS_UPDATE"
+	EventTypeEntitlementCreate                   EventType = "ENTITLEMENT_CREATE"
+	EventTypeEntitlementUpdate                   EventType = "ENTITLEMENT_UPDATE"
+	EventTypeEntitlementDelete                   EventType = "ENTITLEMENT_DELETE"
 	EventTypeThreadCreate                        EventType = "THREAD_CREATE"
 	EventTypeThreadUpdate                        EventType = "THREAD_UPDATE"
 	EventTypeThreadDelete                        EventType = "THREAD_DELETE"

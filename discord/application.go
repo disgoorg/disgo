@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/internal/flags"
@@ -18,9 +19,11 @@ type Application struct {
 	RPCOrigins                     []string         `json:"rpc_origins"`
 	BotPublic                      bool             `json:"bot_public"`
 	BotRequireCodeGrant            bool             `json:"bot_require_code_grant"`
+	Bot                            *User            `json:"bot,omitempty"`
 	TermsOfServiceURL              *string          `json:"terms_of_service_url,omitempty"`
 	PrivacyPolicyURL               *string          `json:"privacy_policy_url,omitempty"`
 	CustomInstallURL               *string          `json:"custom_install_url,omitempty"`
+	InteractionsEndpointURL        *string          `json:"interactions_endpoint_url,omitempty"`
 	RoleConnectionsVerificationURL *string          `json:"role_connections_verification_url"`
 	InstallParams                  *InstallParams   `json:"install_params"`
 	Tags                           []string         `json:"tags"`
@@ -29,10 +32,12 @@ type Application struct {
 	VerifyKey                      string           `json:"verify_key"`
 	Team                           *Team            `json:"team,omitempty"`
 	GuildID                        *snowflake.ID    `json:"guild_id,omitempty"`
+	Guild                          *Guild           `json:"guild,omitempty"`
 	PrimarySkuID                   *snowflake.ID    `json:"primary_sku_id,omitempty"`
 	Slug                           *string          `json:"slug,omitempty"`
 	CoverImage                     *string          `json:"cover_image,omitempty"`
 	Flags                          ApplicationFlags `json:"flags,omitempty"`
+	ApproximateGuildCount          *int             `json:"approximate_guild_count,omitempty"`
 }
 
 func (a Application) IconURL(opts ...CDNOpt) *string {
@@ -53,6 +58,18 @@ func (a Application) CoverImageURL(opts ...CDNOpt) *string {
 
 func (a Application) CreatedAt() time.Time {
 	return a.ID.Time()
+}
+
+type ApplicationUpdate struct {
+	CustomInstallURL               *string              `json:"custom_install_url,omitempty"`
+	Description                    *string              `json:"description,omitempty"`
+	RoleConnectionsVerificationURL *string              `json:"role_connections_verification_url,omitempty"`
+	InstallParams                  *InstallParams       `json:"install_params,omitempty"`
+	Flags                          *ApplicationFlags    `json:"flags,omitempty"`
+	Icon                           *json.Nullable[Icon] `json:"icon,omitempty"`
+	CoverImage                     *json.Nullable[Icon] `json:"cover_image,omitempty"`
+	InteractionsEndpointURL        *string              `json:"interactions_endpoint_url,omitempty"`
+	Tags                           []string             `json:"tags,omitempty"`
 }
 
 type OAuth2Application struct {
@@ -171,7 +188,13 @@ func (t TokenType) Apply(token string) string {
 type ApplicationFlags int
 
 const (
-	ApplicationFlagGatewayPresence = 1 << (iota + 12)
+	ApplicationFlagAutoModerationRuleCreateBadge = 1 << (iota + 6)
+	_
+	_
+	_
+	_
+	_
+	ApplicationFlagGatewayPresence
 	ApplicationFlagGatewayPresenceLimited
 	ApplicationFlagGatewayGuildMembers
 	ApplicationFlagGatewayGuildMemberLimited

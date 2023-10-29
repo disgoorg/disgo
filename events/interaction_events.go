@@ -25,12 +25,6 @@ func (e *InteractionCreate) Guild() (discord.Guild, bool) {
 	return discord.Guild{}, false
 }
 
-// Channel returns the discord.GuildMessageChannel that the interaction happened in.
-// This only returns cached channels.
-func (e *InteractionCreate) Channel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().GuildMessageChannel(e.ChannelID())
-}
-
 // ApplicationCommandInteractionCreate is the base struct for all application command interaction create events.
 type ApplicationCommandInteractionCreate struct {
 	*GenericEvent
@@ -48,12 +42,6 @@ func (e *ApplicationCommandInteractionCreate) Guild() (discord.Guild, bool) {
 	return discord.Guild{}, false
 }
 
-// Channel returns the discord.GuildMessageChannel that the interaction happened in.
-// This only returns cached channels.
-func (e *ApplicationCommandInteractionCreate) Channel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().GuildMessageChannel(e.ChannelID())
-}
-
 // CreateMessage responds to the interaction with a new message.
 func (e *ApplicationCommandInteractionCreate) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeCreateMessage, messageCreate, opts...)
@@ -68,9 +56,14 @@ func (e *ApplicationCommandInteractionCreate) DeferCreateMessage(ephemeral bool,
 	return e.Respond(discord.InteractionResponseTypeDeferredCreateMessage, data, opts...)
 }
 
-// CreateModal responds to the interaction with a new modal.
-func (e *ApplicationCommandInteractionCreate) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
+// Modal responds to the interaction with a new modal.
+func (e *ApplicationCommandInteractionCreate) Modal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
+}
+
+// PremiumRequired responds to the interaction with an upgrade button if available.
+func (e *ApplicationCommandInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
 }
 
 // ComponentInteractionCreate indicates that a new component interaction has been created.
@@ -88,12 +81,6 @@ func (e *ComponentInteractionCreate) Guild() (discord.Guild, bool) {
 		return e.Client().Caches().Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
-}
-
-// Channel returns the discord.GuildMessageChannel that the interaction happened in.
-// This only returns cached channels.
-func (e *ComponentInteractionCreate) Channel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().GuildMessageChannel(e.ChannelID())
 }
 
 // CreateMessage responds to the interaction with a new message.
@@ -120,9 +107,14 @@ func (e *ComponentInteractionCreate) DeferUpdateMessage(opts ...rest.RequestOpt)
 	return e.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil, opts...)
 }
 
-// CreateModal responds to the interaction with a new modal.
-func (e *ComponentInteractionCreate) CreateModal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
+// Modal responds to the interaction with a new modal.
+func (e *ComponentInteractionCreate) Modal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
+}
+
+// PremiumRequired responds to the interaction with an upgrade button if available.
+func (e *ComponentInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
 }
 
 // AutocompleteInteractionCreate indicates that a new autocomplete interaction has been created.
@@ -142,15 +134,9 @@ func (e *AutocompleteInteractionCreate) Guild() (discord.Guild, bool) {
 	return discord.Guild{}, false
 }
 
-// Channel returns the discord.GuildMessageChannel that the interaction happened in.
-// This only returns cached channels.
-func (e *AutocompleteInteractionCreate) Channel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().GuildMessageChannel(e.ChannelID())
-}
-
-// Result responds to the interaction with a slice of choices.
-func (e *AutocompleteInteractionCreate) Result(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
-	return e.Respond(discord.InteractionResponseTypeApplicationCommandAutocompleteResult, discord.AutocompleteResult{Choices: choices}, opts...)
+// AutocompleteResult responds to the interaction with a slice of choices.
+func (e *AutocompleteInteractionCreate) AutocompleteResult(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypeAutocompleteResult, discord.AutocompleteResult{Choices: choices}, opts...)
 }
 
 // ModalSubmitInteractionCreate indicates that a new modal submit interaction has been created.
@@ -168,12 +154,6 @@ func (e *ModalSubmitInteractionCreate) Guild() (discord.Guild, bool) {
 		return e.Client().Caches().Guild(*e.GuildID())
 	}
 	return discord.Guild{}, false
-}
-
-// Channel returns the discord.GuildMessageChannel that the interaction happened in.
-// This only returns cached channels.
-func (e *ModalSubmitInteractionCreate) Channel() (discord.GuildMessageChannel, bool) {
-	return e.Client().Caches().GuildMessageChannel(e.ChannelID())
 }
 
 // CreateMessage responds to the interaction with a new message.
@@ -198,4 +178,9 @@ func (e *ModalSubmitInteractionCreate) UpdateMessage(messageUpdate discord.Messa
 // DeferUpdateMessage responds to the interaction with nothing.
 func (e *ModalSubmitInteractionCreate) DeferUpdateMessage(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil, opts...)
+}
+
+// PremiumRequired responds to the interaction with an upgrade button if available.
+func (e *ModalSubmitInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
 }

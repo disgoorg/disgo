@@ -11,6 +11,9 @@ type ListenerAdapter struct {
 	// raw event
 	OnRaw func(event *Raw)
 
+	// heartbeat ack event
+	OnHeartbeatAck func(event *HeartbeatAck)
+
 	// GuildApplicationCommandPermissionsUpdate
 	OnGuildApplicationCommandPermissionsUpdate func(event *GuildApplicationCommandPermissionsUpdate)
 
@@ -57,6 +60,11 @@ type ListenerAdapter struct {
 	OnEmojiCreate  func(event *EmojiCreate)
 	OnEmojiUpdate  func(event *EmojiUpdate)
 	OnEmojiDelete  func(event *EmojiDelete)
+
+	// Entitlement Events
+	OnEntitlementCreate func(event *EntitlementCreate)
+	OnEntitlementUpdate func(event *EntitlementUpdate)
+	OnEntitlementDelete func(event *EntitlementDelete)
 
 	// Sticker Events
 	OnStickersUpdate func(event *StickersUpdate)
@@ -151,6 +159,8 @@ type ListenerAdapter struct {
 	OnGuildMemberTypingStart func(event *GuildMemberTypingStart)
 	OnDMUserTypingStart      func(event *DMUserTypingStart)
 
+	OnPresenceUpdate func(event *PresenceUpdate)
+
 	// User Activity Events
 	OnUserActivityStart  func(event *UserActivityStart)
 	OnUserActivityUpdate func(event *UserActivityUpdate)
@@ -172,6 +182,11 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 	switch e := event.(type) {
 	case *Raw:
 		if listener := l.OnRaw; listener != nil {
+			listener(e)
+		}
+
+	case *HeartbeatAck:
+		if listener := l.OnHeartbeatAck; listener != nil {
 			listener(e)
 		}
 
@@ -305,6 +320,20 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 	case *EmojiDelete:
 		if listener := l.OnEmojiDelete; listener != nil {
+			listener(e)
+		}
+
+	// Entitlement Events
+	case *EntitlementCreate:
+		if listener := l.OnEntitlementCreate; listener != nil {
+			listener(e)
+		}
+	case *EntitlementUpdate:
+		if listener := l.OnEntitlementUpdate; listener != nil {
+			listener(e)
+		}
+	case *EntitlementDelete:
+		if listener := l.OnEntitlementDelete; listener != nil {
 			listener(e)
 		}
 
@@ -581,6 +610,11 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 	case *DMUserTypingStart:
 		if listener := l.OnDMUserTypingStart; listener != nil {
+			listener(e)
+		}
+
+	case *PresenceUpdate:
+		if listener := l.OnPresenceUpdate; listener != nil {
 			listener(e)
 		}
 

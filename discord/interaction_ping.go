@@ -72,6 +72,10 @@ func (PingInteraction) ChannelID() snowflake.ID {
 	return 0
 }
 
+func (PingInteraction) Channel() InteractionChannel {
+	return InteractionChannel{}
+}
+
 func (PingInteraction) Locale() Locale {
 	return ""
 }
@@ -89,6 +93,10 @@ func (PingInteraction) User() User {
 }
 
 func (PingInteraction) AppPermissions() *Permissions {
+	return nil
+}
+
+func (PingInteraction) Entitlements() []Entitlement {
 	return nil
 }
 

@@ -48,7 +48,7 @@ func componentListener(event *events.ComponentInteractionCreate) {
 		ids := strings.Split(data.CustomID(), ":")
 		switch ids[0] {
 		case "modal":
-			_ = event.CreateModal(discord.ModalCreate{
+			_ = event.Modal(discord.ModalCreate{
 				CustomID: "test" + ids[1],
 				Title:    "Test" + ids[1] + " Modal",
 				Components: []discord.ContainerComponent{
@@ -159,7 +159,7 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionCreat
 func autocompleteListener(event *events.AutocompleteInteractionCreate) {
 	switch event.Data.CommandName {
 	case "test2":
-		if err := event.Result([]discord.AutocompleteChoice{
+		if err := event.AutocompleteResult([]discord.AutocompleteChoice{
 			discord.AutocompleteChoiceInt{
 				Name:  "test1",
 				Value: 1,

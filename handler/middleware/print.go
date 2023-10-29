@@ -7,9 +7,9 @@ import (
 
 func Print(content string) handler.Middleware {
 	return func(next handler.Handler) handler.Handler {
-		return func(event *events.InteractionCreate) {
+		return func(event *events.InteractionCreate) error {
 			println(content)
-			next(event)
+			return next(event)
 		}
 	}
 }

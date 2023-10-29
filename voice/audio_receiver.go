@@ -2,6 +2,7 @@ package voice
 
 import (
 	"context"
+	"errors"
 	"net"
 
 	"github.com/disgoorg/log"
@@ -57,6 +58,10 @@ type defaultAudioReceiver struct {
 }
 
 func (s *defaultAudioReceiver) Open() {
+	go s.open()
+}
+
+func (s *defaultAudioReceiver) open() {
 	defer s.logger.Debugf("closing audio receiver")
 	ctx, cancel := context.WithCancel(context.Background())
 	s.cancelFunc = cancel
@@ -78,7 +83,7 @@ func (s *defaultAudioReceiver) CleanupUser(userID snowflake.ID) {
 
 func (s *defaultAudioReceiver) receive() {
 	packet, err := s.conn.UDP().ReadPacket()
-	if err == net.ErrClosed {
+	if errors.Is(err, net.ErrClosed) {
 		s.Close()
 		return
 	}

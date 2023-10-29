@@ -46,10 +46,10 @@ func (r *rateLimiterImpl) Close(ctx context.Context) {
 }
 
 func (r *rateLimiterImpl) getBucket(shardID int, create bool) *bucket {
-	r.config.Logger.Debug("locking shard srate limiter")
+	r.config.Logger.Debug("locking shard rate limiter")
 	r.mu.Lock()
 	defer func() {
-		r.config.Logger.Debug("unlocking shard srate limiter")
+		r.config.Logger.Debug("unlocking shard rate limiter")
 		r.mu.Unlock()
 	}()
 	key := ShardMaxConcurrencyKey(shardID, r.config.MaxConcurrency)

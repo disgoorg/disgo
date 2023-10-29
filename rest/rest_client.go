@@ -21,7 +21,10 @@ func NewClient(botToken string, opts ...ConfigOpt) Client {
 
 	config.RateLimiter.Reset()
 
-	return &clientImpl{botToken: botToken, config: *config}
+	return &clientImpl{
+		botToken: botToken,
+		config:   *config,
+	}
 }
 
 // Client allows doing requests to different endpoints
@@ -29,7 +32,7 @@ type Client interface {
 	// HTTPClient returns the http.Client the rest client uses
 	HTTPClient() *http.Client
 
-	// RateLimiter returns the rrate.RateLimiter the rest client uses
+	// RateLimiter returns the RateLimiter the rest client uses
 	RateLimiter() RateLimiter
 
 	// Close closes the rest client and awaits all pending requests to finish. You can use a cancelling context to abort the waiting
@@ -83,7 +86,7 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 		c.config.Logger.Tracef("request to %s, body: %s", endpoint.URL, string(rawRqBody))
 	}
 
-	rq, err := http.NewRequest(endpoint.Endpoint.Method, endpoint.URL, bytes.NewReader(rawRqBody))
+	rq, err := http.NewRequest(endpoint.Endpoint.Method, c.config.URL+endpoint.URL, bytes.NewReader(rawRqBody))
 	if err != nil {
 		return err
 	}

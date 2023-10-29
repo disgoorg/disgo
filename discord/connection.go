@@ -20,6 +20,7 @@ const (
 	ConnectionTypeEpicGames          ConnectionType = "epicgames"
 	ConnectionTypeFacebook           ConnectionType = "facebook"
 	ConnectionTypeGitHub             ConnectionType = "github"
+	ConnectionTypeInstagram          ConnectionType = "instagram"
 	ConnectionTypeLeagueOfLegends    ConnectionType = "leagueoflegends"
 	ConnectionTypePayPal             ConnectionType = "paypal"
 	ConnectionTypePlayStationNetwork ConnectionType = "playstation"

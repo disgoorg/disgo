@@ -46,7 +46,7 @@ type Channels interface {
 	GetPinnedMessages(channelID snowflake.ID, opts ...RequestOpt) ([]discord.Message, error)
 	PinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 	UnpinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
-	// TODO: add missing endpoints
+	Follow(channelID snowflake.ID, targetChannelID snowflake.ID, opts ...RequestOpt) (*discord.FollowedChannel, error)
 }
 
 type channelImpl struct {
@@ -76,7 +76,14 @@ func (s *channelImpl) DeleteChannel(channelID snowflake.ID, opts ...RequestOpt) 
 }
 
 func (s *channelImpl) GetWebhooks(channelID snowflake.ID, opts ...RequestOpt) (webhooks []discord.Webhook, err error) {
-	err = s.client.Do(GetChannelWebhooks.Compile(nil, channelID), nil, &webhooks, opts...)
+	var whs []discord.UnmarshalWebhook
+	err = s.client.Do(GetChannelWebhooks.Compile(nil, channelID), nil, &whs, opts...)
+	if err == nil {
+		webhooks = make([]discord.Webhook, len(whs))
+		for i := range whs {
+			webhooks[i] = whs[i].Webhook
+		}
+	}
 	return
 }
 

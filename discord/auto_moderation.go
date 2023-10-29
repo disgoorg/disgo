@@ -23,11 +23,12 @@ const (
 )
 
 type AutoModerationTriggerMetadata struct {
-	KeywordFilter     []string                      `json:"keyword_filter"`
-	RegexPatterns     []string                      `json:"regex_patterns"`
-	Presets           []AutoModerationKeywordPreset `json:"presets"`
-	AllowList         []string                      `json:"allow_list"`
-	MentionTotalLimit int                           `json:"mention_total_limit"`
+	KeywordFilter                []string                      `json:"keyword_filter"`
+	RegexPatterns                []string                      `json:"regex_patterns"`
+	Presets                      []AutoModerationKeywordPreset `json:"presets"`
+	AllowList                    []string                      `json:"allow_list"`
+	MentionTotalLimit            int                           `json:"mention_total_limit"`
+	MentionRaidProtectionEnabled bool                          `json:"mention_raid_protection_enabled"`
 }
 
 type AutoModerationKeywordPreset int
@@ -54,6 +55,7 @@ type AutoModerationAction struct {
 type AutoModerationActionMetadata struct {
 	ChannelID       snowflake.ID `json:"channel_id"`
 	DurationSeconds int          `json:"duration_seconds"`
+	CustomMessage   *string      `json:"custom_message"`
 }
 
 type AutoModerationRule struct {
