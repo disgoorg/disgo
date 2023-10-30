@@ -163,7 +163,7 @@ func (c *Client) GetChannels(guildID snowflake.ID) (*CmdRsGetChannels, error) {
 func (c *Client) GetVoiceSettings() (*CmdRsGetVoiceSettings, error) {
 	res, err := c.send(Message{
 		Cmd:  CmdGetVoiceSettings,
-		Args: EmptyArgs{},
+		Args: nil,
 	})
 	if err != nil {
 		return nil, err
@@ -196,7 +196,7 @@ func (c *Client) SetUserVoiceSettings(settings CmdArgsSetUserVoiceSettings) (*Cm
 func (c *Client) GetSelectedVoiceChannel() (*CmdRsGetSelectedVoiceChannel, error) {
 	res, err := c.send(Message{
 		Cmd:  CmdGetSelectedVoiceChannel,
-		Args: EmptyArgs{},
+		Args: nil,
 	})
 	if err != nil {
 		return nil, err
@@ -300,42 +300,42 @@ func (c *Client) UnsubscribeGuildStatus(guildID snowflake.ID) error {
 
 func (c *Client) SubscribeGuildCreate(handler func(data EventDataGuildCreate)) error {
 	return c.subscribe(EventGuildCreate,
-		EmptyArgs{},
+		nil,
 		NewHandler(handler))
 }
 
 func (c *Client) UnsubscribeGuildCreate() error {
-	return c.unsubscribe(EventGuildCreate, EmptyArgs{})
+	return c.unsubscribe(EventGuildCreate, nil)
 }
 
 func (c *Client) SubscribeChannelCreate(handler func(data EventDataChannelCreate)) error {
 	return c.subscribe(EventChannelCreate,
-		EmptyArgs{},
+		nil,
 		NewHandler(handler))
 }
 
 func (c *Client) UnsubscribeChannelCreate() error {
-	return c.unsubscribe(EventChannelCreate, EmptyArgs{})
+	return c.unsubscribe(EventChannelCreate, nil)
 }
 
 func (c *Client) SubscribeVoiceChannelSelect(handler func(data EventDataVoiceChannelSelect)) error {
 	return c.subscribe(EventVoiceChannelSelect,
-		EmptyArgs{},
+		nil,
 		NewHandler(handler))
 }
 
 func (c *Client) UnsubscribeVoiceChannelSelect() error {
-	return c.unsubscribe(EventVoiceChannelSelect, EmptyArgs{})
+	return c.unsubscribe(EventVoiceChannelSelect, nil)
 }
 
 func (c *Client) SubscribeVoiceSettingsUpdate(handler func(data EventDataVoiceSettingsUpdate)) error {
 	return c.subscribe(EventVoiceSettingsUpdate,
-		EmptyArgs{},
+		nil,
 		NewHandler(handler))
 }
 
 func (c *Client) UnsubscribeVoiceSettingsUpdate() error {
-	return c.unsubscribe(EventVoiceSettingsUpdate, EmptyArgs{})
+	return c.unsubscribe(EventVoiceSettingsUpdate, nil)
 }
 
 func (c *Client) SubscribeVoiceStateCreate(channelID snowflake.ID, handler func(data EventDataVoiceStateCreate)) error {
@@ -370,12 +370,12 @@ func (c *Client) UnsubscribeVoiceStateDelete(channelID snowflake.ID) error {
 
 func (c *Client) SubscribeVoiceConnectionStatus(handler func(data EventDataVoiceConnectionStatus)) error {
 	return c.subscribe(EventVoiceConnectionStatus,
-		EmptyArgs{},
+		nil,
 		NewHandler(handler))
 }
 
 func (c *Client) UnsubscribeVoiceConnectionStatus() error {
-	return c.unsubscribe(EventVoiceConnectionStatus, EmptyArgs{})
+	return c.unsubscribe(EventVoiceConnectionStatus, nil)
 }
 
 func (c *Client) SubscribeSpeakingStart(channelID snowflake.ID, handler func(data EventDataSpeakingStart)) error {
@@ -430,42 +430,42 @@ func (c *Client) UnsubscribeMessageDelete(channelID snowflake.ID) error {
 
 func (c *Client) SubscribeNotificationCreate(handler func(data EventDataNotificationCreate)) error {
 	return c.subscribe(EventNotificationCreate,
-		EmptyArgs{},
+		nil,
 		NewHandler(handler))
 }
 
 func (c *Client) UnsubscribeNotificationCreate() error {
-	return c.unsubscribe(EventNotificationCreate, EmptyArgs{})
+	return c.unsubscribe(EventNotificationCreate, nil)
 }
 
 func (c *Client) SubscribeActivityJoin(handler func(data EventDataActivityJoin)) error {
 	return c.subscribe(EventActivityJoin,
-		EmptyArgs{},
+		nil,
 		NewHandler(handler))
 }
 
 func (c *Client) UnsubscribeActivityJoin() error {
-	return c.unsubscribe(EventActivityJoin, EmptyArgs{})
+	return c.unsubscribe(EventActivityJoin, nil)
 }
 
 func (c *Client) SubscribeActivitySpectate(handler func(data EventDataActivitySpectate)) error {
 	return c.subscribe(EventActivitySpectate,
-		EmptyArgs{},
+		nil,
 		NewHandler(handler))
 }
 
 func (c *Client) UnsubscribeActivitySpectate() error {
-	return c.unsubscribe(EventActivitySpectate, EmptyArgs{})
+	return c.unsubscribe(EventActivitySpectate, nil)
 }
 
 func (c *Client) SubscribeActivityJoinRequest(handler func(data EventDataActivityJoinRequest)) error {
 	return c.subscribe(EventActivityJoinRequest,
-		EmptyArgs{},
+		nil,
 		NewHandler(handler))
 }
 
 func (c *Client) UnsubscribeActivityJoinRequest() error {
-	return c.unsubscribe(EventActivityJoinRequest, EmptyArgs{})
+	return c.unsubscribe(EventActivityJoinRequest, nil)
 }
 
 func (c *Client) subscribe(event EventType, args CmdArgs, handler Handler) error {
@@ -480,7 +480,7 @@ func (c *Client) subscribe(event EventType, args CmdArgs, handler Handler) error
 		event == EventVoiceStateDelete ||
 		event == EventSpeakingStart ||
 		event == EventSpeakingStop {
-		evt.CmdArgs = EmptyArgs{}
+		evt.CmdArgs = nil
 	}
 
 	if _, ok := c.eventHandlers[evt]; ok {
@@ -507,7 +507,7 @@ func (c *Client) unsubscribe(event EventType, args CmdArgs) error {
 		event == EventVoiceStateDelete ||
 		event == EventSpeakingStart ||
 		event == EventSpeakingStop {
-		evt.CmdArgs = EmptyArgs{}
+		evt.CmdArgs = nil
 	}
 
 	if _, ok := c.eventHandlers[evt]; ok {

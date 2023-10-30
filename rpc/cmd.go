@@ -247,11 +247,6 @@ type CmdArgsSetVoiceSettings struct {
 	Mute                 *bool              `json:"mute,omitempty"`
 }
 
-func (EmptyArgs) cmdArgs() {}
-
-type EmptyArgs struct {
-}
-
 func (CmdArgsSetVoiceSettings) cmdArgs() {}
 
 type CmdRsSetVoiceSettings struct {

@@ -281,7 +281,7 @@ func UnmarshalEvent(eventType EventType, data MessageData) (Event, error) {
 	}
 	switch eventType {
 	case EventReady:
-		event.CmdArgs = EmptyArgs{}
+		event.CmdArgs = nil
 
 	case EventGuildStatus:
 		if eventData, ok := data.(EventDataGuildStatus); !ok {
@@ -291,23 +291,23 @@ func UnmarshalEvent(eventType EventType, data MessageData) (Event, error) {
 		}
 
 	case EventGuildCreate:
-		event.CmdArgs = EmptyArgs{}
+		event.CmdArgs = nil
 
 	case EventChannelCreate:
-		event.CmdArgs = EmptyArgs{}
+		event.CmdArgs = nil
 
 	case EventVoiceChannelSelect:
-		event.CmdArgs = EmptyArgs{}
+		event.CmdArgs = nil
 
 	case EventVoiceSettingsUpdate:
-		event.CmdArgs = EmptyArgs{}
+		event.CmdArgs = nil
 
 	case EventVoiceStateCreate:
 		if _, ok := data.(EventDataVoiceStateCreate); !ok {
 			err = errors.New("unable to cast CmdArgs to EventDataVoiceStateCreate")
 		} else {
 			// Discord doesn't return the channelID here so we can't link it back to specific events.
-			event.CmdArgs = EmptyArgs{}
+			event.CmdArgs = nil
 		}
 
 	case EventVoiceStateUpdate:
@@ -315,7 +315,7 @@ func UnmarshalEvent(eventType EventType, data MessageData) (Event, error) {
 			err = errors.New("unable to cast CmdArgs to EventDataVoiceStateUpdate")
 		} else {
 			// Discord doesn't return the channelID here so we can't link it back to specific events.
-			event.CmdArgs = EmptyArgs{}
+			event.CmdArgs = nil
 		}
 
 	case EventVoiceStateDelete:
@@ -323,11 +323,11 @@ func UnmarshalEvent(eventType EventType, data MessageData) (Event, error) {
 			err = errors.New("unable to cast CmdArgs to EventDataVoiceStateDelete")
 		} else {
 			// Discord doesn't return the channelID here so we can't link it back to specific events.
-			event.CmdArgs = EmptyArgs{}
+			event.CmdArgs = nil
 		}
 
 	case EventVoiceConnectionStatus:
-		event.CmdArgs = EmptyArgs{}
+		event.CmdArgs = nil
 
 	case EventMessageCreate:
 		if eventData, ok := data.(EventDataMessageCreate); !ok {
@@ -355,7 +355,7 @@ func UnmarshalEvent(eventType EventType, data MessageData) (Event, error) {
 			err = errors.New("unable to cast CmdArgs to EventDataSpeakingStart")
 		} else {
 			// Discord doesn't return the channelID here so we can't link it back to specific events.
-			event.CmdArgs = EmptyArgs{}
+			event.CmdArgs = nil
 		}
 
 	case EventSpeakingStop:
@@ -363,20 +363,20 @@ func UnmarshalEvent(eventType EventType, data MessageData) (Event, error) {
 			err = errors.New("unable to cast CmdArgs to EventDataSpeakingStop")
 		} else {
 			// Discord doesn't return the channelID here so we can't link it back to specific events.
-			event.CmdArgs = EmptyArgs{}
+			event.CmdArgs = nil
 		}
 
 	case EventNotificationCreate:
-		event.CmdArgs = EmptyArgs{}
+		event.CmdArgs = nil
 
 	case EventActivityJoin:
-		event.CmdArgs = EmptyArgs{}
+		event.CmdArgs = nil
 
 	case EventActivitySpectate:
-		event.CmdArgs = EmptyArgs{}
+		event.CmdArgs = nil
 
 	case EventActivityJoinRequest:
-		event.CmdArgs = EmptyArgs{}
+		event.CmdArgs = nil
 
 	default:
 		err = fmt.Errorf("unknown event: %s", eventType)
