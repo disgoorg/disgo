@@ -82,27 +82,6 @@ func (c *Client) Open() error {
 	return nil
 }
 
-func (c *Client) sendBytes(r io.Reader) error {
-	writer, err := c.Transport.NextWriter()
-	if err != nil {
-		return err
-	}
-	defer writer.Close()
-
-	buff := new(bytes.Buffer)
-	newWriter := io.MultiWriter(writer, buff)
-
-	_, err = io.Copy(newWriter, r)
-	if err != nil {
-		return err
-	}
-
-	data, _ := io.ReadAll(buff)
-	c.Logger.Tracef("Sending message: data: %s", string(data))
-
-	return err
-}
-
 func (c *Client) Authorize(scopes []discord.OAuth2Scope, rpcToken string, username string) (string, error) {
 	args := CmdArgsAuthorize{
 		ClientID: c.clientID,
@@ -536,10 +515,10 @@ func (c *Client) unsubscribe(event EventType, args CmdArgs) error {
 
 func (c *Client) send(message Message) (MessageData, error) {
 	nonce := insecurerandstr.RandStr(32)
-	buff := new(bytes.Buffer)
+	b := new(bytes.Buffer)
 
 	message.Nonce = nonce
-	if err := json.NewEncoder(buff).Encode(message); err != nil {
+	if err := json.NewEncoder(b).Encode(message); err != nil {
 		return nil, err
 	}
 
@@ -547,11 +526,28 @@ func (c *Client) send(message Message) (MessageData, error) {
 
 	c.commandChannels[nonce] = resChan
 
-	if err := c.sendBytes(buff); err != nil {
+	writer, err := c.Transport.NextWriter()
+	if err != nil {
 		delete(c.commandChannels, nonce)
 		close(resChan)
 		return nil, err
 	}
+
+	buff := new(bytes.Buffer)
+	newWriter := io.MultiWriter(writer, buff)
+
+	_, err = io.Copy(newWriter, b)
+	if err != nil {
+		delete(c.commandChannels, nonce)
+		close(resChan)
+		writer.Close()
+		return nil, err
+	}
+
+	data, _ := io.ReadAll(buff)
+	c.Logger.Tracef("Sending message: data: %s", string(data))
+
+	writer.Close()
 
 	res := <-resChan
 
