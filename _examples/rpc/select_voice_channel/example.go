@@ -38,12 +38,12 @@ func main() {
 	defer client.Close()
 
 	var tokenRs *discord.AccessTokenResponse
-	code, err := client.Authorize([]discord.OAuth2Scope{discord.OAuth2ScopeRPC}, "", "")
+	codeRs, err := client.Authorize([]discord.OAuth2Scope{discord.OAuth2ScopeRPC}, "", "")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	tokenRs, err = oauth2Client.GetAccessToken(clientID, clientSecret, code, "http://localhost")
+	tokenRs, err = oauth2Client.GetAccessToken(clientID, clientSecret, codeRs.Code, "http://localhost")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -52,20 +52,20 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if channel, err := client.SelectVoiceChannel(channelID, false, false); err != nil {
+	channel, err := client.SelectVoiceChannel(channelID, false, false)
+	if err != nil {
 		var dataError rpc.EventDataError
-		if errors.As(err, &dataError) {
-			if dataError.Code == 5003 { // User is in a voice channel, try again with force
-				if channel, err = client.SelectVoiceChannel(channelID, true, false); err != nil {
-					log.Fatal(err)
-				} else {
-					log.Info(channel)
-				}
-			}
-		} else {
+		isEventDataError := errors.As(err, &dataError)
+
+		if !isEventDataError || dataError.Code != 5003 {
 			log.Fatal(err)
 		}
-	} else {
-		log.Info(channel)
+
+		// User is in a voice channel, try again with force
+		channel, err = client.SelectVoiceChannel(channelID, true, false)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
+	log.Info(channel)
 }

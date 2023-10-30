@@ -37,12 +37,12 @@ func main() {
 	defer client.Close()
 
 	var tokenRs *discord.AccessTokenResponse
-	code, err := client.Authorize([]discord.OAuth2Scope{discord.OAuth2ScopeRPC}, "", "")
+	codeRs, err := client.Authorize([]discord.OAuth2Scope{discord.OAuth2ScopeRPC}, "", "")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	tokenRs, err = oauth2Client.GetAccessToken(clientID, clientSecret, code, "http://localhost")
+	tokenRs, err = oauth2Client.GetAccessToken(clientID, clientSecret, codeRs.Code, "http://localhost")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,26 +53,26 @@ func main() {
 
 	var mute bool
 
-	if channel, err := client.GetSelectedVoiceChannel(); err != nil {
+	channel, err := client.GetSelectedVoiceChannel()
+	if err != nil {
 		log.Fatal(err)
-	} else {
-		if channel == nil {
-			log.Fatal("User not in any voice channel.")
-		}
+	}
+	if channel == nil {
+		log.Fatal("User not in any voice channel.")
+	}
 
-		var found = false
+	var found = false
 
-		for _, state := range channel.VoiceStates {
-			if state.User.ID != userID {
-				continue
-			}
-			found = true
-			mute = !state.Mute
-			break
+	for _, state := range channel.VoiceStates {
+		if state.User.ID != userID {
+			continue
 		}
-		if !found {
-			log.Fatal("Error: Voice state for specified user not found.")
-		}
+		found = true
+		mute = !state.Mute
+		break
+	}
+	if !found {
+		log.Fatal("Error: Voice state for specified user not found.")
 	}
 
 	settings := rpc.CmdArgsSetUserVoiceSettings{
@@ -80,9 +80,9 @@ func main() {
 		Mute:   &mute,
 	}
 
-	if voiceSettings, err := client.SetUserVoiceSettings(settings); err != nil {
+	voiceSettings, err := client.SetUserVoiceSettings(settings)
+	if err != nil {
 		log.Fatal(err)
-	} else {
-		log.Info(voiceSettings)
 	}
+	log.Info(voiceSettings)
 }

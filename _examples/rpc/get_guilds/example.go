@@ -37,12 +37,12 @@ func main() {
 	defer client.Close()
 
 	var tokenRs *discord.AccessTokenResponse
-	code, err := client.Authorize([]discord.OAuth2Scope{discord.OAuth2ScopeRPC, discord.OAuth2ScopeGuilds}, "", "")
+	codeRs, err := client.Authorize([]discord.OAuth2Scope{discord.OAuth2ScopeRPC, discord.OAuth2ScopeGuilds}, "", "")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	tokenRs, err = oauth2Client.GetAccessToken(clientID, clientSecret, code, "http://localhost")
+	tokenRs, err = oauth2Client.GetAccessToken(clientID, clientSecret, codeRs.Code, "http://localhost")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,15 +51,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if guilds, err := client.GetGuilds(); err != nil {
+	guildsRs, err := client.GetGuilds()
+	if err != nil {
 		log.Fatal(err)
-	} else {
-		for _, guild := range guilds {
-			if guild.IconURL == nil {
-				log.Info(guild.Name)
-			} else {
-				log.Info(fmt.Sprintf("%s: %s", guild.Name, *guild.IconURL))
-			}
+	}
+	for _, guild := range guildsRs.Guilds {
+		if guild.IconURL == nil {
+			log.Info(guild.Name)
+			continue
 		}
+		log.Info(fmt.Sprintf("%s: %s", guild.Name, *guild.IconURL))
 	}
 }

@@ -37,12 +37,12 @@ func main() {
 	defer client.Close()
 
 	var tokenRs *discord.AccessTokenResponse
-	code, err := client.Authorize([]discord.OAuth2Scope{discord.OAuth2ScopeRPC, discord.OAuth2ScopeMessagesRead}, "", "")
+	codeRs, err := client.Authorize([]discord.OAuth2Scope{discord.OAuth2ScopeRPC, discord.OAuth2ScopeMessagesRead}, "", "")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	tokenRs, err = oauth2Client.GetAccessToken(clientID, clientSecret, code, "http://localhost")
+	tokenRs, err = oauth2Client.GetAccessToken(clientID, clientSecret, codeRs.Code, "http://localhost")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,9 +51,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if channel, err := client.GetChannel(channelID); err != nil {
+	channel, err := client.GetChannel(channelID)
+	if err != nil {
 		log.Fatal(err)
-	} else {
-		log.Info(channel)
 	}
+	log.Info(channel)
 }

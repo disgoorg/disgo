@@ -82,7 +82,7 @@ func (c *Client) Open() error {
 	return nil
 }
 
-func (c *Client) Authorize(scopes []discord.OAuth2Scope, rpcToken string, username string) (string, error) {
+func (c *Client) Authorize(scopes []discord.OAuth2Scope, rpcToken string, username string) (*CmdRsAuthorize, error) {
 	args := CmdArgsAuthorize{
 		ClientID: c.clientID,
 		Scopes:   scopes,
@@ -90,163 +90,172 @@ func (c *Client) Authorize(scopes []discord.OAuth2Scope, rpcToken string, userna
 		Username: username,
 	}
 
-	if res, err := c.send(Message{
+	res, err := c.send(Message{
 		Cmd:  CmdAuthorize,
 		Args: args,
-	}); err != nil {
-		return "", err
-	} else {
-		return res.(CmdRsAuthorize).Code, nil
+	})
+	if err != nil {
+		return nil, err
 	}
+	return json.Ptr(res.(CmdRsAuthorize)), nil
 }
 
-func (c *Client) Authenticate(accessToken string) (CmdRsAuthenticate, error) {
-	if res, err := c.send(Message{
+func (c *Client) Authenticate(accessToken string) (*CmdRsAuthenticate, error) {
+	res, err := c.send(Message{
 		Cmd:  CmdAuthenticate,
 		Args: CmdArgsAuthenticate{AccessToken: accessToken},
-	}); err != nil {
-		return CmdRsAuthenticate{}, err
-	} else {
-		return res.(CmdRsAuthenticate), nil
+	})
+	if err != nil {
+		return nil, err
 	}
+	return json.Ptr(res.(CmdRsAuthenticate)), nil
 }
 
-func (c *Client) GetGuild(guildID snowflake.ID, timeout int) (CmdRsGetGuild, error) {
+func (c *Client) GetGuild(guildID snowflake.ID, timeout int) (*CmdRsGetGuild, error) {
 	args := CmdArgsGetGuild{
 		GuildID: guildID,
+		Timeout: timeout,
 	}
 
-	if timeout != 0 {
-		args.Timeout = timeout
-	}
-
-	if res, err := c.send(Message{
+	res, err := c.send(Message{
 		Cmd:  CmdGetGuild,
 		Args: args,
-	}); err != nil {
-		return CmdRsGetGuild{}, err
-	} else {
-		return res.(CmdRsGetGuild), nil
-	}
-}
-
-func (c *Client) GetGuilds() ([]PartialGuild, error) {
-	if res, err := c.send(Message{
-		Cmd:  CmdGetGuilds,
-		Args: struct{ CmdArgs }{},
-	}); err != nil {
+	})
+	if err != nil {
 		return nil, err
-	} else {
-		return res.(CmdRsGetGuilds).Guilds, nil
 	}
+	return json.Ptr(res.(CmdRsGetGuild)), nil
 }
 
-func (c *Client) GetChannel(channelID snowflake.ID) (CmdRsGetChannel, error) {
-	if res, err := c.send(Message{
+func (c *Client) GetGuilds() (*CmdRsGetGuilds, error) {
+	res, err := c.send(Message{
+		Cmd:  CmdGetGuilds,
+		Args: nil,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return json.Ptr(res.(CmdRsGetGuilds)), nil
+}
+
+func (c *Client) GetChannel(channelID snowflake.ID) (*CmdRsGetChannel, error) {
+	res, err := c.send(Message{
 		Cmd:  CmdGetChannel,
 		Args: CmdArgsGetChannel{ChannelID: channelID},
-	}); err != nil {
-		return CmdRsGetChannel{}, err
-	} else {
-		return res.(CmdRsGetChannel), nil
+	})
+	if err != nil {
+		return nil, err
 	}
+	return json.Ptr(res.(CmdRsGetChannel)), nil
 }
 
-func (c *Client) GetChannels(guildID snowflake.ID) ([]PartialChannel, error) {
-	if res, err := c.send(Message{
+func (c *Client) GetChannels(guildID snowflake.ID) (*CmdRsGetChannels, error) {
+	res, err := c.send(Message{
 		Cmd:  CmdGetChannels,
 		Args: CmdArgsGetChannels{GuildID: guildID},
-	}); err != nil {
+	})
+	if err != nil {
 		return nil, err
-	} else {
-		return res.(CmdRsGetChannels).Channels, nil
 	}
+	return json.Ptr(res.(CmdRsGetChannels)), nil
 }
 
-func (c *Client) GetVoiceSettings() (CmdRsGetVoiceSettings, error) {
-	if res, err := c.send(Message{
+func (c *Client) GetVoiceSettings() (*CmdRsGetVoiceSettings, error) {
+	res, err := c.send(Message{
 		Cmd:  CmdGetVoiceSettings,
 		Args: EmptyArgs{},
-	}); err != nil {
-		return CmdRsGetVoiceSettings{}, err
-	} else {
-		return res.(CmdRsGetVoiceSettings), nil
+	})
+	if err != nil {
+		return nil, err
 	}
+	return json.Ptr(res.(CmdRsGetVoiceSettings)), nil
 }
 
-func (c *Client) SetVoiceSettings(settings CmdArgsSetVoiceSettings) (CmdRsSetVoiceSettings, error) {
-	if res, err := c.send(Message{
+func (c *Client) SetVoiceSettings(settings CmdArgsSetVoiceSettings) (*CmdRsSetVoiceSettings, error) {
+	res, err := c.send(Message{
 		Cmd:  CmdSetVoiceSettings,
 		Args: settings,
-	}); err != nil {
-		return CmdRsSetVoiceSettings{}, err
-	} else {
-		return res.(CmdRsSetVoiceSettings), nil
+	})
+	if err != nil {
+		return nil, err
 	}
+	return json.Ptr(res.(CmdRsSetVoiceSettings)), nil
 }
 
-func (c *Client) SetUserVoiceSettings(settings CmdArgsSetUserVoiceSettings) (CmdRsSetUserVoiceSettings, error) {
-	if res, err := c.send(Message{
+func (c *Client) SetUserVoiceSettings(settings CmdArgsSetUserVoiceSettings) (*CmdRsSetUserVoiceSettings, error) {
+	res, err := c.send(Message{
 		Cmd:  CmdSetUserVoiceSettings,
 		Args: settings,
-	}); err != nil {
-		return CmdRsSetUserVoiceSettings{}, err
-	} else {
-		return res.(CmdRsSetUserVoiceSettings), nil
+	})
+	if err != nil {
+		return nil, err
 	}
+	return json.Ptr(res.(CmdRsSetUserVoiceSettings)), nil
 }
 
-func (c *Client) GetSelectedVoiceChannel() (*PartialChannel, error) {
-	if res, err := c.send(Message{
+func (c *Client) GetSelectedVoiceChannel() (*CmdRsGetSelectedVoiceChannel, error) {
+	res, err := c.send(Message{
 		Cmd:  CmdGetSelectedVoiceChannel,
 		Args: EmptyArgs{},
-	}); err != nil {
-		return &PartialChannel{}, err
-	} else {
-		return res.(CmdRsGetSelectedVoiceChannel).PartialChannel, nil
+	})
+	if err != nil {
+		return nil, err
 	}
+	channel := res.(CmdRsGetSelectedVoiceChannel)
+	if channel.ID == 0 {
+		return nil, nil
+	}
+	return &channel, nil
 }
 
-func (c *Client) SelectVoiceChannel(channelID snowflake.ID, force bool, navigate bool) (*PartialChannel, error) {
-	if res, err := c.send(Message{
+func (c *Client) SelectVoiceChannel(channelID snowflake.ID, force bool, navigate bool) (*CmdRsSelectVoiceChannel, error) {
+	res, err := c.send(Message{
 		Cmd: CmdSelectVoiceChannel,
 		Args: CmdArgsSelectVoiceChannel{
 			ChannelID: channelID,
 			Force:     force,
 			Navigate:  navigate,
 		},
-	}); err != nil {
-		return &PartialChannel{}, err
-	} else {
-		return res.(CmdRsSelectVoiceChannel).PartialChannel, nil
+	})
+	if err != nil {
+		return nil, err
 	}
+	channel := res.(CmdRsSelectVoiceChannel)
+	if channel.ID == 0 {
+		return nil, nil
+	}
+	return &channel, nil
 }
 
-func (c *Client) SelectTextChannel(channelID *snowflake.ID) (*PartialChannel, error) {
-	if res, err := c.send(Message{
+func (c *Client) SelectTextChannel(channelID *snowflake.ID) (*CmdRsSelectTextChannel, error) {
+	res, err := c.send(Message{
 		Cmd: CmdSelectTextChannel,
 		Args: CmdArgsSelectTextChannel{
 			ChannelID: channelID,
 		},
-	}); err != nil {
-		return &PartialChannel{}, err
-	} else {
-		return res.(CmdRsSelectTextChannel).PartialChannel, nil
+	})
+	if err != nil {
+		return nil, err
 	}
+	channel := res.(CmdRsSelectTextChannel)
+	if channel.ID == 0 {
+		return nil, nil
+	}
+	return &channel, nil
 }
 
-func (c *Client) SetActivity(pid int, activity discord.Activity) (CmdRsSetActivity, error) {
-	if res, err := c.send(Message{
+func (c *Client) SetActivity(pid int, activity discord.Activity) (*CmdRsSetActivity, error) {
+	res, err := c.send(Message{
 		Cmd: CmdSetActivity,
 		Args: CmdArgsSetActivity{
 			PID:      pid,
 			Activity: activity,
 		},
-	}); err != nil {
-		return CmdRsSetActivity{}, err
-	} else {
-		return res.(CmdRsSetActivity), err
+	})
+	if err != nil {
+		return nil, err
 	}
+	return json.Ptr(res.(CmdRsSetActivity)), nil
 }
 
 func (c *Client) SendActivityJoinInvite(userID snowflake.ID) error {

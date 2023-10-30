@@ -150,13 +150,13 @@ type CmdArgsSelectVoiceChannel struct {
 func (CmdArgsSelectVoiceChannel) cmdArgs() {}
 
 type CmdRsSelectVoiceChannel struct {
-	*PartialChannel
+	PartialChannel
 }
 
 func (CmdRsSelectVoiceChannel) messageData() {}
 
 type CmdRsGetSelectedVoiceChannel struct {
-	*PartialChannel
+	PartialChannel
 }
 
 func (CmdRsGetSelectedVoiceChannel) messageData() {}
@@ -169,7 +169,7 @@ type CmdArgsSelectTextChannel struct {
 func (CmdArgsSelectTextChannel) cmdArgs() {}
 
 type CmdRsSelectTextChannel struct {
-	*PartialChannel
+	PartialChannel
 }
 
 func (CmdRsSelectTextChannel) messageData() {}

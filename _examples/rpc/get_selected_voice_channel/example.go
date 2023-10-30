@@ -12,7 +12,6 @@ import (
 )
 
 var (
-	channelID    = snowflake.GetEnv("disgo_channel_id")
 	clientID     = snowflake.GetEnv("disgo_client_id")
 	clientSecret = os.Getenv("disgo_client_secret")
 )
@@ -51,10 +50,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// channelID nil returns to DM selection screen
-	channel, err := client.SelectTextChannel(&channelID)
+	channel, err := client.GetSelectedVoiceChannel()
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Info(channel)
+	if channel == nil {
+		log.Info("User is not in a voice channel.")
+		return
+	}
+	log.Info(*channel)
 }
