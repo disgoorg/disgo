@@ -31,7 +31,7 @@ type responseMessage struct {
 	err  error
 }
 
-func NewClient(clientID snowflake.ID, opts ...ConfigOpt) (Client, error) {
+func New(clientID snowflake.ID, opts ...ConfigOpt) (Client, error) {
 	config := DefaultConfig()
 	config.Apply(opts)
 
@@ -589,7 +589,7 @@ loop:
 				c.ServerConfig = d.Config
 				c.V = d.V
 			}
-			event, err := BuildIncomingEvent(v.Event, v.Data)
+			event, err := UnmarshalEvent(v.Event, v.Data)
 			if err != nil {
 				c.Logger.Errorf("failed to build Event for eventType %s. %s", v.Event, err)
 				continue

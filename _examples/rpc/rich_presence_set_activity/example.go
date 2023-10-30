@@ -23,7 +23,7 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Info("example is starting...")
 
-	client, err := rpc.NewClient(clientID)
+	client, err := rpc.New(clientID)
 	if err != nil {
 		log.Fatal(err)
 		return

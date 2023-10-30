@@ -274,7 +274,7 @@ type Event struct {
 	CmdArgs
 }
 
-func BuildIncomingEvent(eventType EventType, data MessageData) (Event, error) {
+func UnmarshalEvent(eventType EventType, data MessageData) (Event, error) {
 	var err error
 	event := Event{
 		EventType: eventType,

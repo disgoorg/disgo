@@ -24,7 +24,7 @@ func main() {
 
 	oauth2Client := rest.NewOAuth2(rest.NewClient(""))
 
-	client, err := rpc.NewClient(clientID)
+	client, err := rpc.New(clientID)
 	if err != nil {
 		log.Fatal(err)
 		return
