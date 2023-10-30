@@ -90,7 +90,7 @@ func (c *Client) Authorize(scopes []discord.OAuth2Scope, rpcToken string, userna
 		Username: username,
 	}
 
-	res, err := c.send(Message{
+	res, err := c.send(message{
 		Cmd:  CmdAuthorize,
 		Args: args,
 	})
@@ -101,7 +101,7 @@ func (c *Client) Authorize(scopes []discord.OAuth2Scope, rpcToken string, userna
 }
 
 func (c *Client) Authenticate(accessToken string) (*CmdRsAuthenticate, error) {
-	res, err := c.send(Message{
+	res, err := c.send(message{
 		Cmd:  CmdAuthenticate,
 		Args: CmdArgsAuthenticate{AccessToken: accessToken},
 	})
@@ -117,7 +117,7 @@ func (c *Client) GetGuild(guildID snowflake.ID, timeout int) (*CmdRsGetGuild, er
 		Timeout: timeout,
 	}
 
-	res, err := c.send(Message{
+	res, err := c.send(message{
 		Cmd:  CmdGetGuild,
 		Args: args,
 	})
@@ -128,7 +128,7 @@ func (c *Client) GetGuild(guildID snowflake.ID, timeout int) (*CmdRsGetGuild, er
 }
 
 func (c *Client) GetGuilds() (*CmdRsGetGuilds, error) {
-	res, err := c.send(Message{
+	res, err := c.send(message{
 		Cmd:  CmdGetGuilds,
 		Args: nil,
 	})
@@ -139,7 +139,7 @@ func (c *Client) GetGuilds() (*CmdRsGetGuilds, error) {
 }
 
 func (c *Client) GetChannel(channelID snowflake.ID) (*CmdRsGetChannel, error) {
-	res, err := c.send(Message{
+	res, err := c.send(message{
 		Cmd:  CmdGetChannel,
 		Args: CmdArgsGetChannel{ChannelID: channelID},
 	})
@@ -150,7 +150,7 @@ func (c *Client) GetChannel(channelID snowflake.ID) (*CmdRsGetChannel, error) {
 }
 
 func (c *Client) GetChannels(guildID snowflake.ID) (*CmdRsGetChannels, error) {
-	res, err := c.send(Message{
+	res, err := c.send(message{
 		Cmd:  CmdGetChannels,
 		Args: CmdArgsGetChannels{GuildID: guildID},
 	})
@@ -161,7 +161,7 @@ func (c *Client) GetChannels(guildID snowflake.ID) (*CmdRsGetChannels, error) {
 }
 
 func (c *Client) GetVoiceSettings() (*CmdRsGetVoiceSettings, error) {
-	res, err := c.send(Message{
+	res, err := c.send(message{
 		Cmd:  CmdGetVoiceSettings,
 		Args: nil,
 	})
@@ -172,7 +172,7 @@ func (c *Client) GetVoiceSettings() (*CmdRsGetVoiceSettings, error) {
 }
 
 func (c *Client) SetVoiceSettings(settings CmdArgsSetVoiceSettings) (*CmdRsSetVoiceSettings, error) {
-	res, err := c.send(Message{
+	res, err := c.send(message{
 		Cmd:  CmdSetVoiceSettings,
 		Args: settings,
 	})
@@ -183,7 +183,7 @@ func (c *Client) SetVoiceSettings(settings CmdArgsSetVoiceSettings) (*CmdRsSetVo
 }
 
 func (c *Client) SetUserVoiceSettings(settings CmdArgsSetUserVoiceSettings) (*CmdRsSetUserVoiceSettings, error) {
-	res, err := c.send(Message{
+	res, err := c.send(message{
 		Cmd:  CmdSetUserVoiceSettings,
 		Args: settings,
 	})
@@ -194,7 +194,7 @@ func (c *Client) SetUserVoiceSettings(settings CmdArgsSetUserVoiceSettings) (*Cm
 }
 
 func (c *Client) GetSelectedVoiceChannel() (*CmdRsGetSelectedVoiceChannel, error) {
-	res, err := c.send(Message{
+	res, err := c.send(message{
 		Cmd:  CmdGetSelectedVoiceChannel,
 		Args: nil,
 	})
@@ -209,7 +209,7 @@ func (c *Client) GetSelectedVoiceChannel() (*CmdRsGetSelectedVoiceChannel, error
 }
 
 func (c *Client) SelectVoiceChannel(channelID snowflake.ID, force bool, navigate bool) (*CmdRsSelectVoiceChannel, error) {
-	res, err := c.send(Message{
+	res, err := c.send(message{
 		Cmd: CmdSelectVoiceChannel,
 		Args: CmdArgsSelectVoiceChannel{
 			ChannelID: channelID,
@@ -228,7 +228,7 @@ func (c *Client) SelectVoiceChannel(channelID snowflake.ID, force bool, navigate
 }
 
 func (c *Client) SelectTextChannel(channelID *snowflake.ID) (*CmdRsSelectTextChannel, error) {
-	res, err := c.send(Message{
+	res, err := c.send(message{
 		Cmd: CmdSelectTextChannel,
 		Args: CmdArgsSelectTextChannel{
 			ChannelID: channelID,
@@ -245,7 +245,7 @@ func (c *Client) SelectTextChannel(channelID *snowflake.ID) (*CmdRsSelectTextCha
 }
 
 func (c *Client) SetActivity(pid int, activity discord.Activity) (*CmdRsSetActivity, error) {
-	res, err := c.send(Message{
+	res, err := c.send(message{
 		Cmd: CmdSetActivity,
 		Args: CmdArgsSetActivity{
 			PID:      pid,
@@ -259,7 +259,7 @@ func (c *Client) SetActivity(pid int, activity discord.Activity) (*CmdRsSetActiv
 }
 
 func (c *Client) SendActivityJoinInvite(userID snowflake.ID) error {
-	_, err := c.send(Message{
+	_, err := c.send(message{
 		Cmd: CmdSendActivityJoinInvite,
 		Args: CmdArgsSendActivityJoinInvite{
 			UserID: userID,
@@ -269,7 +269,7 @@ func (c *Client) SendActivityJoinInvite(userID snowflake.ID) error {
 }
 
 func (c *Client) CloseActivityRequest(userID snowflake.ID) error {
-	_, err := c.send(Message{
+	_, err := c.send(message{
 		Cmd: CmdCloseActivityRequest,
 		Args: CmdArgsCloseActivityRequest{
 			UserID: userID,
@@ -279,7 +279,7 @@ func (c *Client) CloseActivityRequest(userID snowflake.ID) error {
 }
 
 func (c *Client) SetCertifiedDevices(devices []CertifiedDevice) error {
-	_, err := c.send(Message{
+	_, err := c.send(message{
 		Cmd: CmdSetCertifiedDevices,
 		Args: CmdArgsSetCertifiedDevices{
 			Devices: devices,
@@ -487,7 +487,7 @@ func (c *Client) subscribe(event EventType, args CmdArgs, handler Handler) error
 		return errors.New("event already subscribed")
 	}
 	c.eventHandlers[evt] = handler
-	_, err := c.send(Message{
+	_, err := c.send(message{
 		Cmd:   CmdSubscribe,
 		Args:  args,
 		Event: event,
@@ -512,7 +512,7 @@ func (c *Client) unsubscribe(event EventType, args CmdArgs) error {
 
 	if _, ok := c.eventHandlers[evt]; ok {
 		delete(c.eventHandlers, evt)
-		_, err := c.send(Message{
+		_, err := c.send(message{
 			Cmd:   CmdUnsubscribe,
 			Args:  args,
 			Event: event,
@@ -522,7 +522,7 @@ func (c *Client) unsubscribe(event EventType, args CmdArgs) error {
 	return nil
 }
 
-func (c *Client) send(message Message) (MessageData, error) {
+func (c *Client) send(message message) (MessageData, error) {
 	nonce := insecurerandstr.RandStr(32)
 	b := new(bytes.Buffer)
 
@@ -585,7 +585,7 @@ loop:
 
 		reader = bytes.NewReader(data)
 
-		var v Message
+		var v message
 		if err = json.NewDecoder(reader).Decode(&v); err != nil {
 			c.Logger.Errorf("failed to decode message: %s", err)
 			continue

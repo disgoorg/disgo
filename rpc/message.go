@@ -3,11 +3,81 @@ package rpc
 import (
 	"errors"
 	"fmt"
+	"time"
 
+	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/json"
+	"github.com/disgoorg/snowflake/v2"
 )
 
+type AvatarDecorationData struct {
+	Asset string `json:"asset"`
+	SkuID string `json:"sku_id"`
+}
+
+// User is a struct for interacting with discord's users
+type User struct {
+	discord.User
+}
+
+func (u *User) UnmarshalJSON(data []byte) error {
+	type user User
+	var v struct {
+		user
+		Flags                discord.UserFlags    `json:"flags"`
+		AvatarDecorationData AvatarDecorationData `json:"avatar_decoration_data"`
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*u = User(v.user)
+	u.PublicFlags = v.Flags
+	u.AvatarDecoration = &v.AvatarDecorationData.Asset
+	return nil
+}
+
+// Attachment is used for files sent in a Message
+type Attachment struct {
+	*discord.Attachment
+	Spoiler bool `json:"spoiler,omitempty"`
+}
+
+// Message is a struct for messages sent in discord text-based channels
 type Message struct {
+	discord.Message
+	Attachments []Attachment   `json:"attachments"`
+	Author      User           `json:"author"`
+	Blocked     bool           `json:"blocked"`
+	Bot         bool           `json:"bot"`
+	Embeds      []Embed        `json:"embeds"`
+	Mentions    []snowflake.ID `json:"mentions"`
+	Nick        string         `json:"nick"`
+}
+
+func (m *Message) UnmarshalJSON(data []byte) error {
+	type message Message
+	var v struct {
+		message
+		Timestamp time.Time `json:"timestamp"` // discord.Message.CreatedAt
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*m = Message(v.message)
+	m.CreatedAt = v.Timestamp
+	m.Attachments = v.Attachments
+	m.Blocked = v.Blocked
+	m.Bot = v.Bot
+	m.Embeds = v.Embeds
+	m.Mentions = v.Mentions
+	m.Nick = v.Nick
+	return nil
+}
+
+type message struct {
 	Cmd  Cmd     `json:"cmd"`
 	Args CmdArgs `json:"args,omitempty"`
 
@@ -17,11 +87,11 @@ type Message struct {
 	Nonce string `json:"nonce,omitempty"`
 }
 
-func (m *Message) UnmarshalJSON(data []byte) error {
-	type message Message
+func (m *message) UnmarshalJSON(data []byte) error {
+	type msg message
 	var v struct {
 		Data json.RawMessage `json:"data"`
-		message
+		msg
 	}
 
 	if err := json.Unmarshal(data, &v); err != nil {

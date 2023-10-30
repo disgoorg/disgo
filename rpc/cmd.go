@@ -79,7 +79,7 @@ type PartialChannel struct {
 	UserLimit   int                 `json:"user_limit,omitempty"`
 	Position    int                 `json:"position,omitempty"`
 	VoiceStates []VoiceState        `json:"voice_states,omitempty"`
-	Messages    []ChannelMessage    `json:"messages,omitempty"`
+	Messages    []Message           `json:"messages,omitempty"`
 }
 
 type VoiceState struct {

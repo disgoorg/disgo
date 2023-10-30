@@ -1,9 +1,8 @@
 package rpc
 
 import (
-	"time"
-
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/json"
 )
 
 // The EmbedResource of an Embed.Image/Embed.Thumbnail/Embed.Video
@@ -15,23 +14,50 @@ type EmbedResource struct {
 }
 
 type Embed struct {
-	ID             string                 `json:"id"`   // eg. "embed_N"
-	Type           discord.EmbedType      `json:"type"` // Only seen "rich" so far
-	RawTitle       string                 `json:"rawTitle"`
-	RawDescription string                 `json:"rawDescription"`
-	Color          string                 `json:"color"` // CSS color, why discord why.
-	Fields         []discord.EmbedField   `json:"fields"`
-	URL            string                 `json:"url,omitempty"`
-	Timestamp      *time.Time             `json:"timestamp,omitempty"`
-	Footer         *discord.EmbedFooter   `json:"footer,omitempty"`
-	Image          *EmbedResource         `json:"image,omitempty"`
-	Thumbnail      *EmbedResource         `json:"thumbnail,omitempty"`
-	Video          *EmbedResource         `json:"video,omitempty"`
-	Provider       *discord.EmbedProvider `json:"provider,omitempty"`
-	Author         *discord.EmbedAuthor   `json:"author,omitempty"`
+	discord.Embed
 }
 
-type Attachment struct {
-	*discord.Attachment
-	Spoiler bool `json:"spoiler,omitempty"`
+func (e *Embed) UnmarshalJSON(data []byte) error {
+	type embed Embed
+	var v struct {
+		embed
+		RawTitle       string         `json:"rawTitle"`
+		RawDescription string         `json:"rawDescription"`
+		Image          *EmbedResource `json:"image,omitempty"`
+		Thumbnail      *EmbedResource `json:"thumbnail,omitempty"`
+		Video          *EmbedResource `json:"video,omitempty"`
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*e = Embed(v.embed)
+	e.Title = v.RawTitle
+	e.Description = v.RawDescription
+	if v.Image != nil {
+		e.Image = &discord.EmbedResource{
+			URL:      v.Image.URL,
+			ProxyURL: v.Image.ProxyURL,
+			Height:   v.Image.Height,
+			Width:    v.Image.Width,
+		}
+	}
+	if v.Thumbnail != nil {
+		e.Thumbnail = &discord.EmbedResource{
+			URL:      v.Thumbnail.URL,
+			ProxyURL: v.Thumbnail.ProxyURL,
+			Height:   v.Thumbnail.Height,
+			Width:    v.Thumbnail.Width,
+		}
+	}
+	if v.Video != nil {
+		e.Video = &discord.EmbedResource{
+			URL:      v.Video.URL,
+			ProxyURL: v.Video.ProxyURL,
+			Height:   v.Video.Height,
+			Width:    v.Video.Width,
+		}
+	}
+	return nil
 }
