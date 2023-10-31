@@ -158,6 +158,6 @@ func newSession(accessToken discord.AccessTokenResponse) Session {
 		RefreshToken: accessToken.RefreshToken,
 		Scopes:       accessToken.Scope,
 		TokenType:    accessToken.TokenType,
-		Expiration:   time.Now().Add(accessToken.ExpiresIn * time.Second),
+		Expiration:   time.Now().Add(accessToken.ExpiresIn),
 	}
 }
