@@ -40,7 +40,7 @@ func (u *User) UnmarshalJSON(data []byte) error {
 
 // Attachment is used for files sent in a Message
 type Attachment struct {
-	*discord.Attachment
+	discord.Attachment
 	Spoiler bool `json:"spoiler,omitempty"`
 }
 
