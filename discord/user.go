@@ -181,8 +181,8 @@ const (
 	PremiumTypeNitroBasic
 )
 
-// SelfUserUpdate is the payload used to update the OAuth2User
-type SelfUserUpdate struct {
+// UserUpdate is the payload used to update the OAuth2User
+type UserUpdate struct {
 	Username string               `json:"username,omitempty"`
 	Avatar   *json.Nullable[Icon] `json:"avatar,omitempty"`
 }

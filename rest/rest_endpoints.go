@@ -29,7 +29,7 @@ var (
 // OAuth2
 var (
 	GetBotApplicationInfo = NewEndpoint(http.MethodGet, "/oauth2/applications/@me")
-	GetAuthorizationInfo  = NewEndpoint(http.MethodGet, "/oauth2/@me")
+	GetAuthorizationInfo  = NewNoBotAuthEndpoint(http.MethodGet, "/oauth2/@me")
 	Token                 = NewEndpoint(http.MethodPost, "/oauth2/token")
 )
 
@@ -37,10 +37,10 @@ var (
 var (
 	GetUser                                    = NewEndpoint(http.MethodGet, "/users/{user.id}")
 	GetCurrentUser                             = NewEndpoint(http.MethodGet, "/users/@me")
-	GetCurrentMember                           = NewEndpoint(http.MethodGet, "/users/@me/guilds/{guild.id}/member")
-	UpdateSelfUser                             = NewEndpoint(http.MethodPatch, "/users/@me")
+	UpdateCurrentUser                          = NewEndpoint(http.MethodPatch, "/users/@me")
+	GetCurrentUserGuilds                       = NewEndpoint(http.MethodGet, "/users/@me/guilds")
+	GetCurrentMember                           = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/guilds/{guild.id}/member")
 	GetCurrentUserConnections                  = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/connections")
-	GetCurrentUserGuilds                       = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/guilds")
 	GetCurrentUserApplicationRoleConnection    = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/applications/{application.id}/role-connection")
 	UpdateCurrentUserApplicationRoleConnection = NewNoBotAuthEndpoint(http.MethodPut, "/users/@me/applications/{application.id}/role-connection")
 	LeaveGuild                                 = NewEndpoint(http.MethodDelete, "/users/@me/guilds/{guild.id}")
@@ -278,7 +278,7 @@ var (
 
 	GetGuildCommandsPermissions = NewEndpoint(http.MethodGet, "/applications/{application.id}/guilds/{guild.id}/commands/permissions")
 	GetGuildCommandPermissions  = NewEndpoint(http.MethodGet, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions")
-	SetGuildCommandPermissions  = NewEndpoint(http.MethodPut, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions")
+	SetGuildCommandPermissions  = NewNoBotAuthEndpoint(http.MethodPut, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions")
 
 	GetInteractionResponse    = NewNoBotAuthEndpoint(http.MethodGet, "/webhooks/{application.id}/{interaction.token}/messages/@original")
 	CreateInteractionResponse = NewNoBotAuthEndpoint(http.MethodPost, "/interactions/{interaction.id}/{interaction.token}/callback")
