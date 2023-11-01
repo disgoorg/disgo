@@ -1,26 +1,97 @@
 package rpc
 
 import (
+	"errors"
 	"fmt"
+	"time"
 
+	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/json"
+	"github.com/disgoorg/snowflake/v2"
 )
 
+type AvatarDecorationData struct {
+	Asset string `json:"asset"`
+	SkuID string `json:"sku_id"`
+}
+
+// User is a struct for interacting with discord's users
+type User struct {
+	discord.User
+}
+
+func (u *User) UnmarshalJSON(data []byte) error {
+	type user User
+	var v struct {
+		user
+		Flags                discord.UserFlags    `json:"flags"`
+		AvatarDecorationData AvatarDecorationData `json:"avatar_decoration_data"`
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*u = User(v.user)
+	u.PublicFlags = v.Flags
+	u.AvatarDecoration = &v.AvatarDecorationData.Asset
+	return nil
+}
+
+// Attachment is used for files sent in a Message
+type Attachment struct {
+	discord.Attachment
+	Spoiler bool `json:"spoiler,omitempty"`
+}
+
+// Message is a struct for messages sent in discord text-based channels
 type Message struct {
-	Cmd  Cmd     `json:"cmd"`
-	Args CmdArgs `json:"args,omitempty"`
-
-	Event Event       `json:"evt,omitempty"`
-	Data  MessageData `json:"data,omitempty"`
-
-	Nonce string `json:"nonce,omitempty"`
+	discord.Message
+	Attachments []Attachment   `json:"attachments"`
+	Author      User           `json:"author"`
+	Blocked     bool           `json:"blocked"`
+	Bot         bool           `json:"bot"`
+	Embeds      []Embed        `json:"embeds"`
+	Mentions    []snowflake.ID `json:"mentions"`
+	Nick        string         `json:"nick"`
 }
 
 func (m *Message) UnmarshalJSON(data []byte) error {
 	type message Message
 	var v struct {
-		Data json.RawMessage `json:"data"`
 		message
+		Timestamp time.Time `json:"timestamp"` // discord.Message.CreatedAt
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	*m = Message(v.message)
+	m.CreatedAt = v.Timestamp
+	m.Attachments = v.Attachments
+	m.Blocked = v.Blocked
+	m.Bot = v.Bot
+	m.Embeds = v.Embeds
+	m.Mentions = v.Mentions
+	m.Nick = v.Nick
+	return nil
+}
+
+type message struct {
+	Cmd  Cmd     `json:"cmd"`
+	Args CmdArgs `json:"args,omitempty"`
+
+	Event EventType   `json:"evt,omitempty"`
+	Data  MessageData `json:"data,omitempty"`
+
+	Nonce string `json:"nonce,omitempty"`
+}
+
+func (m *message) UnmarshalJSON(data []byte) error {
+	type msg message
+	var v struct {
+		Data json.RawMessage `json:"data"`
+		msg
 	}
 
 	if err := json.Unmarshal(data, &v); err != nil {
@@ -268,29 +339,147 @@ type CmdArgs interface {
 	cmdArgs()
 }
 
-type Event string
+type Event struct {
+	EventType
+	CmdArgs
+}
+
+func UnmarshalEvent(eventType EventType, data MessageData) (Event, error) {
+	var err error
+	event := Event{
+		EventType: eventType,
+	}
+	switch eventType {
+	case EventReady:
+		event.CmdArgs = nil
+
+	case EventGuildStatus:
+		if eventData, ok := data.(EventDataGuildStatus); !ok {
+			err = errors.New("unable to cast CmdArgs to EventDataGuildStatus")
+		} else {
+			event.CmdArgs = CmdArgsSubscribeGuild{GuildID: eventData.Guild.ID}
+		}
+
+	case EventGuildCreate:
+		event.CmdArgs = nil
+
+	case EventChannelCreate:
+		event.CmdArgs = nil
+
+	case EventVoiceChannelSelect:
+		event.CmdArgs = nil
+
+	case EventVoiceSettingsUpdate:
+		event.CmdArgs = nil
+
+	case EventVoiceStateCreate:
+		if _, ok := data.(EventDataVoiceStateCreate); !ok {
+			err = errors.New("unable to cast CmdArgs to EventDataVoiceStateCreate")
+		} else {
+			// Discord doesn't return the channelID here so we can't link it back to specific events.
+			event.CmdArgs = nil
+		}
+
+	case EventVoiceStateUpdate:
+		if _, ok := data.(EventDataVoiceStateUpdate); !ok {
+			err = errors.New("unable to cast CmdArgs to EventDataVoiceStateUpdate")
+		} else {
+			// Discord doesn't return the channelID here so we can't link it back to specific events.
+			event.CmdArgs = nil
+		}
+
+	case EventVoiceStateDelete:
+		if _, ok := data.(EventDataVoiceStateDelete); !ok {
+			err = errors.New("unable to cast CmdArgs to EventDataVoiceStateDelete")
+		} else {
+			// Discord doesn't return the channelID here so we can't link it back to specific events.
+			event.CmdArgs = nil
+		}
+
+	case EventVoiceConnectionStatus:
+		event.CmdArgs = nil
+
+	case EventMessageCreate:
+		if eventData, ok := data.(EventDataMessageCreate); !ok {
+			err = errors.New("unable to cast CmdArgs to EventDataMessageCreate")
+		} else {
+			event.CmdArgs = CmdArgsSubscribeChannel{ChannelID: eventData.ChannelID}
+		}
+
+	case EventMessageUpdate:
+		if eventData, ok := data.(EventDataMessageUpdate); !ok {
+			err = errors.New("unable to cast CmdArgs to EventDataMessageUpdate")
+		} else {
+			event.CmdArgs = CmdArgsSubscribeChannel{ChannelID: eventData.ChannelID}
+		}
+
+	case EventMessageDelete:
+		if eventData, ok := data.(EventDataMessageDelete); !ok {
+			err = errors.New("unable to cast CmdArgs to EventDataMessageDelete")
+		} else {
+			event.CmdArgs = CmdArgsSubscribeChannel{ChannelID: eventData.ChannelID}
+		}
+
+	case EventSpeakingStart:
+		if _, ok := data.(EventDataSpeakingStart); !ok {
+			err = errors.New("unable to cast CmdArgs to EventDataSpeakingStart")
+		} else {
+			// Discord doesn't return the channelID here so we can't link it back to specific events.
+			event.CmdArgs = nil
+		}
+
+	case EventSpeakingStop:
+		if _, ok := data.(EventDataSpeakingStop); !ok {
+			err = errors.New("unable to cast CmdArgs to EventDataSpeakingStop")
+		} else {
+			// Discord doesn't return the channelID here so we can't link it back to specific events.
+			event.CmdArgs = nil
+		}
+
+	case EventNotificationCreate:
+		event.CmdArgs = nil
+
+	case EventActivityJoin:
+		event.CmdArgs = nil
+
+	case EventActivitySpectate:
+		event.CmdArgs = nil
+
+	case EventActivityJoinRequest:
+		event.CmdArgs = nil
+
+	default:
+		err = fmt.Errorf("unknown event: %s", eventType)
+	}
+	if err != nil {
+		return Event{}, err
+	}
+	return event, nil
+}
+
+type EventType string
 
 const (
-	EventReady                 Event = "READY"
-	EventError                 Event = "ERROR"
-	EventGuildStatus           Event = "GUILD_STATUS"
-	EventGuildCreate           Event = "GUILD"
-	EventChannelCreate         Event = "CHANNEL_CREATE"
-	EventVoiceChannelSelect    Event = "VOICE_CHANNEL_SELECT"
-	EventVoiceStateCreate      Event = "VOICE_STATE_CREATE"
-	EventVoiceStateUpdate      Event = "VOICE_STATE_UPDATE"
-	EventVoiceStateDelete      Event = "VOICE_STATE_DELETE"
-	EventVoiceSettingsUpdate   Event = "VOICE_SETTINGS_UPDATE"
-	EventVoiceConnectionStatus Event = "VOICE_CONNECTION_STATUS"
-	EventSpeakingStart         Event = "SPEAKING_START"
-	EventSpeakingStop          Event = "SPEAKING_STOP"
-	EventMessageCreate         Event = "MESSAGE_CREATE"
-	EventMessageUpdate         Event = "MESSAGE_UPDATE"
-	EventMessageDelete         Event = "MESSAGE_DELETE"
-	EventNotificationCreate    Event = "NOTIFICATION_CREATE"
-	EventActivityJoin          Event = "ACTIVITY_JOIN"
-	EventActivitySpectate      Event = "ACTIVITY_SPECTATE"
-	EventActivityJoinRequest   Event = "ACTIVITY_JOIN_REQUEST"
+	EventReady                 EventType = "READY"
+	EventError                 EventType = "ERROR"
+	EventGuildStatus           EventType = "GUILD_STATUS"
+	EventGuildCreate           EventType = "GUILD"
+	EventChannelCreate         EventType = "CHANNEL_CREATE"
+	EventVoiceChannelSelect    EventType = "VOICE_CHANNEL_SELECT"
+	EventVoiceStateCreate      EventType = "VOICE_STATE_CREATE"
+	EventVoiceStateUpdate      EventType = "VOICE_STATE_UPDATE"
+	EventVoiceStateDelete      EventType = "VOICE_STATE_DELETE"
+	EventVoiceSettingsUpdate   EventType = "VOICE_SETTINGS_UPDATE"
+	EventVoiceConnectionStatus EventType = "VOICE_CONNECTION_STATUS"
+	EventSpeakingStart         EventType = "SPEAKING_START"
+	EventSpeakingStop          EventType = "SPEAKING_STOP"
+	EventMessageCreate         EventType = "MESSAGE_CREATE"
+	EventMessageUpdate         EventType = "MESSAGE_UPDATE"
+	EventMessageDelete         EventType = "MESSAGE_DELETE"
+	EventNotificationCreate    EventType = "NOTIFICATION_CREATE"
+	EventActivityJoin          EventType = "ACTIVITY_JOIN"
+	EventActivitySpectate      EventType = "ACTIVITY_SPECTATE"
+	EventActivityJoinRequest   EventType = "ACTIVITY_JOIN_REQUEST"
 )
 
 type MessageData interface {

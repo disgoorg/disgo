@@ -83,9 +83,20 @@ type PartialChannel struct {
 }
 
 type VoiceState struct {
-	discord.VoiceState
-	Volume int `json:"volume"`
-	Pan    Pan `json:"pan"`
+	Nick       string             `json:"nick"`
+	Mute       bool               `json:"mute"`
+	Volume     float32            `json:"volume"`
+	Pan        Pan                `json:"pan"`
+	VoiceState VoiceStateInternal `json:"voice_state"`
+	User       User               `json:"user"`
+}
+
+type VoiceStateInternal struct {
+	Mute     bool `json:"mute"`
+	Deaf     bool `json:"deaf"`
+	SelfMute bool `json:"self_mute"`
+	SelfDeaf bool `json:"self_deaf"`
+	Suppress bool `json:"suppress"`
 }
 
 type Pan struct {
@@ -131,8 +142,9 @@ func (CmdRsSetUserVoiceSettings) messageData() {}
 
 type CmdArgsSelectVoiceChannel struct {
 	ChannelID snowflake.ID `json:"channel_id"`
-	Timeout   int          `json:"timeout"`
+	Timeout   int          `json:"timeout,omitempty"`
 	Force     bool         `json:"force"`
+	Navigate  bool         `json:"navigate"`
 }
 
 func (CmdArgsSelectVoiceChannel) cmdArgs() {}
@@ -144,20 +156,20 @@ type CmdRsSelectVoiceChannel struct {
 func (CmdRsSelectVoiceChannel) messageData() {}
 
 type CmdRsGetSelectedVoiceChannel struct {
-	*PartialChannel
+	PartialChannel
 }
 
 func (CmdRsGetSelectedVoiceChannel) messageData() {}
 
 type CmdArgsSelectTextChannel struct {
 	ChannelID *snowflake.ID `json:"channel_id"`
-	Timeout   int           `json:"timeout"`
+	Timeout   *int          `json:"timeout,omitempty"`
 }
 
 func (CmdArgsSelectTextChannel) cmdArgs() {}
 
 type CmdRsSelectTextChannel struct {
-	*PartialChannel
+	PartialChannel
 }
 
 func (CmdRsSelectTextChannel) messageData() {}
@@ -186,7 +198,7 @@ type Device struct {
 
 type VoiceSettingsIO struct {
 	DeviceID         string   `json:"device_id"`
-	Volume           int      `json:"volume"`
+	Volume           float32  `json:"volume"`
 	AvailableDevices []Device `json:"available_devices"`
 }
 
@@ -194,14 +206,14 @@ type VoiceSettingsModeType string
 
 const (
 	VoiceSettingsModeTypePushToTalk VoiceSettingsModeType = "PUSH_TO_TALK"
-	VoiceSettingsModeTypeActivity   VoiceSettingsModeType = "ACTIVITY"
+	VoiceSettingsModeTypeActivity   VoiceSettingsModeType = "VOICE_ACTIVITY"
 )
 
 type VoiceSettingsMode struct {
 	Type          VoiceSettingsModeType `json:"type"`
 	AutoThreshold bool                  `json:"auto_threshold"`
-	Threshold     int                   `json:"threshold"`
-	Shortcut      ShortcutKeyCombo      `json:"shortcut"`
+	Threshold     float32               `json:"threshold"`
+	Shortcut      []ShortcutKeyCombo    `json:"shortcut"`
 	Delay         float32               `json:"delay"`
 }
 
@@ -223,16 +235,16 @@ type ShortcutKeyCombo struct {
 func (CmdRsGetVoiceSettings) messageData() {}
 
 type CmdArgsSetVoiceSettings struct {
-	Input                *VoiceSettings     `json:"input"`
-	Output               *VoiceSettings     `json:"output"`
-	Mode                 *VoiceSettingsMode `json:"mode"`
-	AutomaticGainControl *bool              `json:"automatic_gain_control"`
-	EchoCancellation     *bool              `json:"echo_cancellation"`
-	NoiseSuppression     *bool              `json:"noise_suppression"`
-	QOS                  *bool              `json:"qos"`
-	SilenceWarning       *bool              `json:"silence_warning"`
-	Deaf                 *bool              `json:"deaf"`
-	Mute                 *bool              `json:"mute"`
+	Input                *VoiceSettingsIO   `json:"input,omitempty"`
+	Output               *VoiceSettingsIO   `json:"output,omitempty"`
+	Mode                 *VoiceSettingsMode `json:"mode,omitempty"`
+	AutomaticGainControl *bool              `json:"automatic_gain_control,omitempty"`
+	EchoCancellation     *bool              `json:"echo_cancellation,omitempty"`
+	NoiseSuppression     *bool              `json:"noise_suppression,omitempty"`
+	QOS                  *bool              `json:"qos,omitempty"`
+	SilenceWarning       *bool              `json:"silence_warning,omitempty"`
+	Deaf                 *bool              `json:"deaf,omitempty"`
+	Mute                 *bool              `json:"mute,omitempty"`
 }
 
 func (CmdArgsSetVoiceSettings) cmdArgs() {}
@@ -323,12 +335,12 @@ type CmdArgsSubscribeGuild struct {
 func (CmdArgsSubscribeGuild) cmdArgs()          {}
 func (CmdArgsSubscribeGuild) cmdArgsSubscribe() {}
 
-type CmdArgsSubscribeSpeaking struct {
+type CmdArgsSubscribeChannel struct {
 	ChannelID snowflake.ID `json:"channel_id"`
 }
 
-func (CmdArgsSubscribeSpeaking) cmdArgs()          {}
-func (CmdArgsSubscribeSpeaking) cmdArgsSubscribe() {}
+func (CmdArgsSubscribeChannel) cmdArgs()          {}
+func (CmdArgsSubscribeChannel) cmdArgsSubscribe() {}
 
 type CmdRsSubscribe struct {
 	Evt string `json:"evt"`

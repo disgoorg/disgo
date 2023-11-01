@@ -19,6 +19,10 @@ var (
 	channelID    = snowflake.GetEnv("disgo_channel_id")
 )
 
+func logMessage(data rpc.EventDataMessageCreate) {
+	log.Info("message: ", data.Message.Content)
+}
+
 func main() {
 	log.SetLevel(log.LevelDebug)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -26,43 +30,34 @@ func main() {
 
 	oauth2Client := rest.NewOAuth2(rest.NewClient(""))
 
-	client, err := rpc.NewClient(clientID)
+	client, err := rpc.New(clientID)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
+
+	err = client.Open()
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer client.Close()
 
 	var tokenRs *discord.AccessTokenResponse
-	if err = client.Send(rpc.Message{
-		Cmd: rpc.CmdAuthorize,
-		Args: rpc.CmdArgsAuthorize{
-			ClientID: clientID,
-			Scopes:   []discord.OAuth2Scope{discord.OAuth2ScopeRPC, discord.OAuth2ScopeMessagesRead},
-		},
-	}, rpc.NewHandler(func(data rpc.CmdRsAuthorize) {
-		tokenRs, err = oauth2Client.GetAccessToken(clientID, clientSecret, data.Code, "http://localhost")
-		if err != nil {
-			log.Fatal(err)
-		}
-	})); err != nil {
+	codeRs, err := client.Authorize([]discord.OAuth2Scope{discord.OAuth2ScopeRPC, discord.OAuth2ScopeMessagesRead}, "", "")
+	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err = client.Send(rpc.Message{
-		Cmd: rpc.CmdAuthenticate,
-		Args: rpc.CmdArgsAuthenticate{
-			AccessToken: tokenRs.AccessToken,
-		},
-	}, nil); err != nil {
+	tokenRs, err = oauth2Client.GetAccessToken(clientID, clientSecret, codeRs.Code, "http://localhost")
+	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err = client.Subscribe(rpc.EventMessageCreate, rpc.CmdArgsSubscribeMessage{
-		ChannelID: channelID,
-	}, rpc.NewHandler(func(data rpc.EventDataMessageCreate) {
-		log.Info("message: ", data.Message.Content)
-	})); err != nil {
+	if _, err := client.Authenticate(tokenRs.AccessToken); err != nil {
+		log.Fatal(err)
+	}
+
+	if err = client.SubscribeMessageCreate(channelID, logMessage); err != nil {
 		log.Fatal(err)
 	}
 

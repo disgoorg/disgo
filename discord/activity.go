@@ -28,7 +28,7 @@ type Activity struct {
 	Name          string              `json:"name,omitempty"`
 	Type          ActivityType        `json:"type"`
 	URL           *string             `json:"url,omitempty"`
-	CreatedAt     time.Time           `json:"created_at"`
+	CreatedAt     *time.Time          `json:"created_at,omitempty"`
 	Timestamps    *ActivityTimestamps `json:"timestamps,omitempty"`
 	SyncID        *string             `json:"sync_id,omitempty"`
 	ApplicationID snowflake.ID        `json:"application_id,omitempty"`
@@ -46,24 +46,33 @@ type Activity struct {
 func (a *Activity) UnmarshalJSON(data []byte) error {
 	type activity Activity
 	var v struct {
-		CreatedAt int64 `json:"created_at"`
+		CreatedAt *int64 `json:"created_at"`
 		activity
 	}
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
 	*a = Activity(v.activity)
-	a.CreatedAt = time.UnixMilli(v.CreatedAt)
+	if v.CreatedAt != nil {
+		a.CreatedAt = json.Ptr(time.UnixMilli(*v.CreatedAt))
+	}
+
 	return nil
 }
 
 func (a Activity) MarshalJSON() ([]byte, error) {
 	type activity Activity
+	var createdAt *int64
+
+	if a.CreatedAt != nil {
+		createdAt = json.Ptr(a.CreatedAt.UnixMilli())
+	}
+
 	return json.Marshal(struct {
-		CreatedAt int64 `json:"created_at"`
+		CreatedAt *int64 `json:"created_at,omitempty"`
 		activity
 	}{
-		CreatedAt: a.CreatedAt.UnixMilli(),
+		CreatedAt: createdAt,
 		activity:  (activity)(a),
 	})
 }
@@ -112,30 +121,43 @@ type ActivityButton struct {
 
 // ActivityTimestamps represents when a user started and ended their activity
 type ActivityTimestamps struct {
-	Start time.Time
-	End   time.Time
+	Start *time.Time
+	End   *time.Time
 }
 
 func (a *ActivityTimestamps) UnmarshalJSON(data []byte) error {
 	var v struct {
-		Start int64 `json:"start"`
-		End   int64 `json:"end"`
+		Start *int64 `json:"start,omitempty"`
+		End   *int64 `json:"end,omitempty"`
 	}
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
-	a.Start = time.UnixMilli(v.Start)
-	a.End = time.UnixMilli(v.End)
+	if v.Start != nil {
+		a.Start = json.Ptr(time.UnixMilli(*v.Start))
+	}
+
+	if v.End != nil {
+		a.End = json.Ptr(time.UnixMilli(*v.End))
+	}
 	return nil
 }
 
 func (a ActivityTimestamps) MarshalJSON() ([]byte, error) {
+	var start *int64
+	if a.Start != nil {
+		start = json.Ptr(a.Start.UnixMilli())
+	}
+	var end *int64
+	if a.End != nil {
+		end = json.Ptr(a.End.UnixMilli())
+	}
 	return json.Marshal(struct {
-		Start int64 `json:"start,omitempty"`
-		End   int64 `json:"end,omitempty"`
+		Start *int64 `json:"start,omitempty"`
+		End   *int64 `json:"end,omitempty"`
 	}{
-		Start: a.Start.UnixMilli(),
-		End:   a.End.UnixMilli(),
+		Start: start,
+		End:   end,
 	})
 }
 

@@ -18,6 +18,12 @@ func getDiscordIPCPath(i int) string {
 			break
 		}
 	}
+
+	if tmpPath[len(tmpPath)-1] != '/' {
+		tmpPath += "/"
+	}
+	// TODO: support tmpPath/snap.discord/discord-ipc-n
+	// TODO: support tmpPath/app/com.discordapp.Discord/discord-ipc-n
 	return fmt.Sprintf("%sdiscord-ipc-%d", tmpPath, i)
 }
 
