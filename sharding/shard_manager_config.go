@@ -9,7 +9,7 @@ import (
 // DefaultConfig returns a Config with sensible defaults.
 func DefaultConfig() *Config {
 	return &Config{
-		Logger:            slog.Default().WithGroup("sharding"),
+		Logger:            slog.Default(),
 		GatewayCreateFunc: gateway.New,
 		ShardSplitCount:   ShardSplitCount,
 	}

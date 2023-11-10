@@ -19,6 +19,7 @@ type StateController interface {
 func NewStateController(opts ...StateControllerConfigOpt) StateController {
 	config := DefaultStateControllerConfig()
 	config.Apply(opts)
+	config.Logger = config.Logger.With(slog.String("name", "oauth2_state_controller"))
 
 	states := newTTLMap(config.MaxTTL)
 	for state, url := range config.States {

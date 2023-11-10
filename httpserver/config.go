@@ -8,10 +8,11 @@ import (
 // DefaultConfig returns a Config with sensible defaults.
 func DefaultConfig() *Config {
 	return &Config{
-		URL:        "/interactions/callback",
-		Address:    ":80",
+		Logger:     slog.Default(),
 		HTTPServer: &http.Server{},
 		ServeMux:   http.NewServeMux(),
+		URL:        "/interactions/callback",
+		Address:    ":80",
 	}
 }
 

@@ -19,6 +19,7 @@ var _ ShardManager = (*shardManagerImpl)(nil)
 func New(token string, eventHandlerFunc gateway.EventHandlerFunc, opts ...ConfigOpt) ShardManager {
 	config := DefaultConfig()
 	config.Apply(opts)
+	config.Logger = config.Logger.With(slog.String("name", "sharding"))
 
 	return &shardManagerImpl{
 		shards:           map[int]gateway.Gateway{},
@@ -53,7 +54,6 @@ func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error) {
 	delete(m.config.ShardIDs, shard.ShardID())
 
 	newShardCount := shard.ShardCount() * m.config.ShardSplitCount
-
 	if newShardCount > m.config.ShardCount {
 		m.config.ShardCount = newShardCount
 	}

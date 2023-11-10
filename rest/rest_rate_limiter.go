@@ -42,6 +42,7 @@ type RateLimiter interface {
 func NewRateLimiter(opts ...RateLimiterConfigOpt) RateLimiter {
 	config := DefaultRateLimiterConfig()
 	config.Apply(opts)
+	config.Logger = config.Logger.With(slog.String("name", "rest_rate_limiter"))
 
 	rateLimiter := &rateLimiterImpl{
 		config:  *config,

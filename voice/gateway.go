@@ -93,6 +93,7 @@ type Gateway interface {
 func NewGateway(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway {
 	config := DefaultGatewayConfig()
 	config.Apply(opts)
+	config.Logger = config.Logger.With(slog.String("name", "voice_conn_gateway"))
 
 	return &gatewayImpl{
 		config:           *config,

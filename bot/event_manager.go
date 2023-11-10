@@ -15,6 +15,7 @@ var _ EventManager = (*eventManagerImpl)(nil)
 func NewEventManager(client Client, opts ...EventManagerConfigOpt) EventManager {
 	cfg := DefaultEventManagerConfig()
 	cfg.Apply(opts)
+	cfg.Logger = cfg.Logger.With(slog.String("name", "bot_event_manager"))
 
 	return &eventManagerImpl{
 		client:             client,

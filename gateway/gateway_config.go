@@ -9,7 +9,7 @@ import (
 // DefaultConfig returns a Config with sensible defaults.
 func DefaultConfig() *Config {
 	return &Config{
-		Logger:          slog.Default().WithGroup("gateway"),
+		Logger:          slog.Default(),
 		Dialer:          websocket.DefaultDialer,
 		LargeThreshold:  50,
 		Intents:         IntentsDefault,

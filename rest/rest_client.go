@@ -19,6 +19,7 @@ import (
 func NewClient(botToken string, opts ...ConfigOpt) Client {
 	config := DefaultConfig()
 	config.Apply(opts)
+	config.Logger = config.Logger.With(slog.String("name", "rest_client"))
 
 	config.RateLimiter.Reset()
 

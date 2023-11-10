@@ -92,6 +92,7 @@ type (
 func NewUDPConn(opts ...UDPConnConfigOpt) UDPConn {
 	config := DefaultUDPConnConfig()
 	config.Apply(opts)
+	config.Logger = config.Logger.With(slog.String("name", "voice_conn_udp_conn"))
 
 	return &udpConnImpl{
 		config:        config,

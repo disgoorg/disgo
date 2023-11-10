@@ -10,7 +10,7 @@ import (
 // DefaultConfig is the configuration which is used by default
 func DefaultConfig() *Config {
 	return &Config{
-		Logger:     slog.Default().WithGroup("rest"),
+		Logger:     slog.Default(),
 		HTTPClient: &http.Client{Timeout: 20 * time.Second},
 		URL:        fmt.Sprintf("%sv%d", API, Version),
 	}

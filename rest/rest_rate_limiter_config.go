@@ -8,7 +8,7 @@ import (
 // DefaultRateLimiterConfig is the configuration which is used by default.
 func DefaultRateLimiterConfig() *RateLimiterConfig {
 	return &RateLimiterConfig{
-		Logger:          slog.Default().WithGroup("rate_limiter"),
+		Logger:          slog.Default(),
 		MaxRetries:      MaxRetries,
 		CleanupInterval: CleanupInterval,
 	}

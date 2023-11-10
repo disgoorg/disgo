@@ -25,8 +25,7 @@ var _ Gateway = (*gatewayImpl)(nil)
 func New(token string, eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...ConfigOpt) Gateway {
 	config := DefaultConfig()
 	config.Apply(opts)
-
-	config.Logger = config.Logger.With(slog.Int("shard_id", config.ShardID), slog.Int("shard_count", config.ShardCount))
+	config.Logger = config.Logger.With(slog.String("name", "gateway"), slog.Int("shard_id", config.ShardID), slog.Int("shard_count", config.ShardCount))
 
 	return &gatewayImpl{
 		config:           *config,

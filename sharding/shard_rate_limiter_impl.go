@@ -15,6 +15,7 @@ var _ RateLimiter = (*rateLimiterImpl)(nil)
 func NewRateLimiter(opts ...RateLimiterConfigOpt) RateLimiter {
 	config := DefaultRateLimiterConfig()
 	config.Apply(opts)
+	config.Logger = config.Logger.With(slog.String("name", "sharding_rate_limiter"))
 
 	return &rateLimiterImpl{
 		buckets: map[int]*bucket{},

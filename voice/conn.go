@@ -2,6 +2,7 @@ package voice
 
 import (
 	"context"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -61,6 +62,7 @@ type (
 func NewConn(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc StateUpdateFunc, removeConnFunc func(), opts ...ConnConfigOpt) Conn {
 	config := DefaultConnConfig()
 	config.Apply(opts)
+	config.Logger = config.Logger.With(slog.String("name", "voice_conn"))
 
 	conn := &connImpl{
 		config:               *config,
@@ -75,8 +77,8 @@ func NewConn(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc Sta
 		ssrcs:      map[uint32]snowflake.ID{},
 	}
 
-	conn.gateway = config.GatewayCreateFunc(conn.handleMessage, conn.handleGatewayClose, append([]GatewayConfigOpt{WithGatewayLogger(config.Logger.WithGroup("gateway"))}, config.GatewayConfigOpts...)...)
-	conn.udp = config.UDPConnCreateFunc(append([]UDPConnConfigOpt{WithUDPConnLogger(config.Logger.WithGroup("udp"))}, config.UDPConnConfigOpts...)...)
+	conn.gateway = config.GatewayCreateFunc(conn.handleMessage, conn.handleGatewayClose, append([]GatewayConfigOpt{WithGatewayLogger(config.Logger)}, config.GatewayConfigOpts...)...)
+	conn.udp = config.UDPConnCreateFunc(append([]UDPConnConfigOpt{WithUDPConnLogger(config.Logger)}, config.UDPConnConfigOpts...)...)
 
 	return conn
 }
