@@ -1,6 +1,7 @@
 package oauth2
 
 import (
+	"log/slog"
 	"time"
 
 	"github.com/disgoorg/snowflake/v2"
@@ -13,6 +14,7 @@ import (
 func New(id snowflake.ID, secret string, opts ...ConfigOpt) Client {
 	config := DefaultConfig()
 	config.Apply(opts)
+	config.Logger = config.Logger.With(slog.String("name", "oauth2"))
 
 	return &clientImpl{
 		id:              id,

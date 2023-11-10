@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"fmt"
+	"log/slog"
+
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
@@ -65,6 +68,6 @@ func handleInteraction(client bot.Client, sequenceNumber int, shardID int, respo
 		})
 
 	default:
-		client.Logger().Errorf("unknown interaction with type %T received", interaction)
+		client.Logger().Error("unknown interaction", slog.String("type", fmt.Sprintf("%T", interaction)))
 	}
 }

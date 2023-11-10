@@ -2,9 +2,7 @@ package bot
 
 import (
 	"context"
-
-	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake/v2"
+	"log/slog"
 
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
@@ -13,6 +11,7 @@ import (
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/sharding"
 	"github.com/disgoorg/disgo/voice"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var _ Client = (*clientImpl)(nil)
@@ -22,7 +21,7 @@ var _ Client = (*clientImpl)(nil)
 // Create a new client with disgo.New.
 type Client interface {
 	// Logger returns the logger for the client.
-	Logger() log.Logger
+	Logger() *slog.Logger
 
 	// Close will clean up all disgo internals and close the discord gracefully.
 	Close(ctx context.Context)
@@ -116,7 +115,7 @@ type clientImpl struct {
 	token         string
 	applicationID snowflake.ID
 
-	logger log.Logger
+	logger *slog.Logger
 
 	restServices rest.Rest
 
@@ -134,7 +133,7 @@ type clientImpl struct {
 	memberChunkingManager MemberChunkingManager
 }
 
-func (c *clientImpl) Logger() log.Logger {
+func (c *clientImpl) Logger() *slog.Logger {
 	return c.logger
 }
 

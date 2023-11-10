@@ -100,7 +100,7 @@ func New(token string, opts ...bot.ConfigOpt) (bot.Client, error) {
 	config.Apply(opts)
 
 	return bot.BuildClient(token,
-		*config,
+		config,
 		handlers.DefaultGatewayEventHandlerFunc,
 		handlers.DefaultHTTPServerEventHandlerFunc,
 		OS,

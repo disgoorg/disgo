@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"sync"
 	"syscall"
 	"time"
@@ -92,6 +93,7 @@ type Gateway interface {
 func NewGateway(eventHandlerFunc EventHandlerFunc, closeHandlerFunc CloseHandlerFunc, opts ...GatewayConfigOpt) Gateway {
 	config := DefaultGatewayConfig()
 	config.Apply(opts)
+	config.Logger = config.Logger.With(slog.String("name", "voice_conn_gateway"))
 
 	return &gatewayImpl{
 		config:           *config,
@@ -135,13 +137,13 @@ func (g *gatewayImpl) Open(ctx context.Context, state State) error {
 	g.status = StatusConnecting
 
 	gatewayURL := fmt.Sprintf("wss://%s?v=%d", state.Endpoint, GatewayVersion)
-	g.config.Logger.Debugf("connecting to voice gateway at: %s", gatewayURL)
+	g.config.Logger.Debug("connecting to voice gateway at", slog.String("url", gatewayURL))
 	g.lastHeartbeatSent = time.Now().UTC()
 	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
 		g.Close()
 		defer rs.Body.Close()
-		return fmt.Errorf("error connecting to voice gateway. err: %w", err)
+		return fmt.Errorf("error connecting to voice gateway: %w", err)
 	}
 
 	conn.SetCloseHandler(func(code int, text string) error {
@@ -161,7 +163,7 @@ func (g *gatewayImpl) Close() {
 
 func (g *gatewayImpl) CloseWithCode(code int, message string) {
 	if g.heartbeatTicker != nil {
-		g.config.Logger.Debug("closing heartbeat goroutines...")
+		g.config.Logger.Debug("closing heartbeat goroutines")
 		g.heartbeatTicker.Stop()
 		g.heartbeatTicker = nil
 	}
@@ -169,9 +171,9 @@ func (g *gatewayImpl) CloseWithCode(code int, message string) {
 	g.connMu.Lock()
 	defer g.connMu.Unlock()
 	if g.conn != nil {
-		g.config.Logger.Debugf("closing voice gateway connection with code: %d, message: %s", code, message)
+		g.config.Logger.Debug("closing voice gateway connection", slog.Int("code", code), slog.String("message", message))
 		if err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && !errors.Is(err, websocket.ErrCloseSent) {
-			g.config.Logger.Debug("error writing close code. error: ", err)
+			g.config.Logger.Debug("error writing close code", slog.String("err", err.Error()))
 		}
 		_ = g.conn.Close()
 		g.conn = nil
@@ -186,7 +188,7 @@ func (g *gatewayImpl) CloseWithCode(code int, message string) {
 func (g *gatewayImpl) heartbeat() {
 	g.heartbeatTicker = time.NewTicker(g.heartbeatInterval)
 	defer g.heartbeatTicker.Stop()
-	defer g.config.Logger.Debug("exiting voice heartbeat goroutine...")
+	defer g.config.Logger.Debug("exiting voice heartbeat goroutine")
 
 	for range g.heartbeatTicker.C {
 		g.sendHeartbeat()
@@ -202,7 +204,7 @@ func (g *gatewayImpl) sendHeartbeat() {
 		if !errors.Is(err, ErrGatewayNotConnected) || errors.Is(err, syscall.EPIPE) {
 			return
 		}
-		g.config.Logger.Error("failed to send heartbeat. error: ", err)
+		g.config.Logger.Error("failed to send heartbeat", slog.String("err", err.Error()))
 		g.CloseWithCode(websocket.CloseServiceRestart, "heartbeat timeout")
 		go g.reconnect()
 		return
@@ -211,7 +213,7 @@ func (g *gatewayImpl) sendHeartbeat() {
 }
 
 func (g *gatewayImpl) listen(conn *websocket.Conn) {
-	defer g.config.Logger.Debug("exiting listen goroutine...")
+	defer g.config.Logger.Debug("exiting listen goroutine")
 loop:
 	for {
 		_, reader, err := conn.NextReader()
@@ -242,7 +244,7 @@ loop:
 
 		message, err := g.parseMessage(reader)
 		if err != nil {
-			g.config.Logger.Error("error while parsing voice gateway event. error: ", err)
+			g.config.Logger.Error("error while parsing voice gateway event", slog.String("err", err.Error()))
 			continue
 		}
 
@@ -283,7 +285,7 @@ loop:
 
 		case GatewayMessageDataHeartbeatACK:
 			if int64(d) != g.lastNonce {
-				g.config.Logger.Errorf("received heartbeat ack with nonce: %d, expected nonce: %d", int64(d), g.lastNonce)
+				g.config.Logger.Error("received heartbeat ack with nonce", slog.Int64("nonce", int64(d)), slog.Int64("last_nonce", g.lastNonce))
 				go g.reconnect()
 				break loop
 			}
@@ -315,7 +317,7 @@ func (g *gatewayImpl) send(ctx context.Context, messageType int, data []byte) er
 		return ErrGatewayNotConnected
 	}
 
-	g.config.Logger.Trace("sending message to voice gateway. data: ", string(data))
+	g.config.Logger.Debug("sending message to voice gateway", slog.String("data", string(data)))
 	deadline, ok := ctx.Deadline()
 	if ok {
 		if err := g.conn.SetWriteDeadline(deadline); err != nil {
@@ -343,12 +345,12 @@ func (g *gatewayImpl) reconnectTry(ctx context.Context, try int) error {
 	case <-timer.C:
 	}
 
-	g.config.Logger.Debug("reconnecting voice gateway...")
+	g.config.Logger.Debug("reconnecting voice gateway")
 	if err := g.Open(ctx, g.state); err != nil {
 		if errors.Is(err, discord.ErrGatewayAlreadyConnected) {
 			return err
 		}
-		g.config.Logger.Error("failed to reconnect voice gateway. error: ", err)
+		g.config.Logger.Error("failed to reconnect voice gateway", slog.String("err", err.Error()))
 		g.status = StatusDisconnected
 		return g.reconnectTry(ctx, try+1)
 	}
@@ -357,14 +359,14 @@ func (g *gatewayImpl) reconnectTry(ctx context.Context, try int) error {
 
 func (g *gatewayImpl) reconnect() {
 	if err := g.reconnectTry(context.Background(), 0); err != nil {
-		g.config.Logger.Error("failed to reopen voice gateway", err)
+		g.config.Logger.Error("failed to reopen voice gateway", slog.String("err", err.Error()))
 	}
 }
 
 func (g *gatewayImpl) parseMessage(r io.Reader) (GatewayMessage, error) {
 	buff := &bytes.Buffer{}
 	data, _ := io.ReadAll(io.TeeReader(r, buff))
-	g.config.Logger.Tracef("received message from voice gateway. data: %s", string(data))
+	g.config.Logger.Debug("received message from voice gateway", slog.String("data", string(data)))
 
 	var message GatewayMessage
 	if err := json.NewDecoder(buff).Decode(&message); err != nil {

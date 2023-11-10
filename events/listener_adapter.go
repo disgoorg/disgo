@@ -1,6 +1,9 @@
 package events
 
 import (
+	"fmt"
+	"log/slog"
+
 	"github.com/disgoorg/disgo/bot"
 )
 
@@ -666,6 +669,6 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 
 	default:
-		e.Client().Logger().Errorf("unexpected event received: '%T', event: '%+v'", event, event)
+		e.Client().Logger().Error("unexpected event received", slog.String("type", fmt.Sprintf("%T", event)), slog.String("data", fmt.Sprintf("%+v", event)))
 	}
 }

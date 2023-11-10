@@ -1,7 +1,7 @@
 package webhook
 
 import (
-	"github.com/disgoorg/log"
+	"log/slog"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/rest"
@@ -10,14 +10,14 @@ import (
 // DefaultConfig is the default configuration for the webhook client
 func DefaultConfig() *Config {
 	return &Config{
-		Logger:                 log.Default(),
+		Logger:                 slog.Default(),
 		DefaultAllowedMentions: &discord.DefaultAllowedMentions,
 	}
 }
 
 // Config is the configuration for the webhook client
 type Config struct {
-	Logger                 log.Logger
+	Logger                 *slog.Logger
 	RestClient             rest.Client
 	RestClientConfigOpts   []rest.ConfigOpt
 	Webhooks               rest.Webhooks
@@ -33,7 +33,7 @@ func (c *Config) Apply(opts []ConfigOpt) {
 		opt(c)
 	}
 	if c.RestClient == nil {
-		c.RestClient = rest.NewClient("", c.RestClientConfigOpts...)
+		c.RestClient = rest.NewClient("", append([]rest.ConfigOpt{rest.WithLogger(c.Logger)}, c.RestClientConfigOpts...)...)
 	}
 	if c.Webhooks == nil {
 		c.Webhooks = rest.NewWebhooks(c.RestClient)
@@ -41,7 +41,7 @@ func (c *Config) Apply(opts []ConfigOpt) {
 }
 
 // WithLogger sets the logger for the webhook client
-func WithLogger(logger log.Logger) ConfigOpt {
+func WithLogger(logger *slog.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
 	}

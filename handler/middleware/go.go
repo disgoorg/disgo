@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"log/slog"
+
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/handler"
 )
@@ -10,7 +12,7 @@ var Go handler.Middleware = func(next handler.Handler) handler.Handler {
 	return func(e *events.InteractionCreate) error {
 		go func() {
 			if err := next(e); err != nil {
-				e.Client().Logger().Errorf("failed to handle interaction: %s\n", err)
+				e.Client().Logger().Error("failed to handle interaction", slog.String("err", err.Error()))
 			}
 		}()
 		return nil

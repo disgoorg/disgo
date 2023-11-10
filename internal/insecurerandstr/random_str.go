@@ -6,17 +6,17 @@ import (
 	"time"
 )
 
-var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+var (
+	letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
+	randStr = rand.New(rand.NewSource(time.Now().UnixNano()))
+)
 
 // RandStr returns a random string of the given length.
 func RandStr(n int) string {
 	b := make([]rune, n)
 	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
+		b[i] = letters[randStr.Intn(len(letters))]
 	}
 	return string(b)
 }
