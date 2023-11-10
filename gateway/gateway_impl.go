@@ -457,11 +457,11 @@ loop:
 			}
 			g.eventHandlerFunc(message.T, message.S, g.config.ShardID, eventData)
 			if _, ok = eventData.(EventReady); ok {
-				g.config.Logger.Debug(g.formatLogs("ready successful"))
+				g.config.Logger.Debug("ready successful")
 				readyChan <- nil
 				close(readyChan)
 			} else if _, ok = eventData.(EventResumed); ok {
-				g.config.Logger.Debug(g.formatLogs("resume successful"))
+				g.config.Logger.Debug("resume successful")
 				g.status = StatusReady
 				readyChan <- nil
 				close(readyChan)
