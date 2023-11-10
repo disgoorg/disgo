@@ -156,10 +156,6 @@ Being used in production by FredBoat, Dyno, LewdBot, and more.
 
 Is a [Lavalink-Client](https://github.com/freyacodes/Lavalink) which can be used to communicate with Lavalink to play/search tracks
 
-### [DisLog](https://github.com/disgoorg/dislog)
-
-Is a Discord webhook logger hook for [logrus](https://github.com/sirupsen/logrus)
-
 ## Other Golang Discord Libraries
 
 * [discordgo](https://github.com/bwmarrin/discordgo)
