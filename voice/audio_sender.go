@@ -4,10 +4,9 @@ import (
 	"context"
 	"errors"
 	"io"
+	"log/slog"
 	"net"
 	"time"
-
-	"github.com/disgoorg/log"
 )
 
 // SilenceAudioFrame is a 20ms opus frame of silence.
@@ -26,7 +25,7 @@ const (
 
 type (
 	// AudioSenderCreateFunc is used to create a new AudioSender sending audio to the given Conn.
-	AudioSenderCreateFunc func(logger log.Logger, provider OpusFrameProvider, conn Conn) AudioSender
+	AudioSenderCreateFunc func(logger *slog.Logger, provider OpusFrameProvider, conn Conn) AudioSender
 
 	// AudioSender is used to send audio to a Conn.
 	AudioSender interface {
@@ -45,7 +44,7 @@ type (
 )
 
 // NewAudioSender creates a new AudioSender sending audio from the given OpusFrameProvider to the given Conn.
-func NewAudioSender(logger log.Logger, opusProvider OpusFrameProvider, conn Conn) AudioSender {
+func NewAudioSender(logger *slog.Logger, opusProvider OpusFrameProvider, conn Conn) AudioSender {
 	return &defaultAudioSender{
 		logger:       logger,
 		opusProvider: opusProvider,
@@ -55,7 +54,7 @@ func NewAudioSender(logger log.Logger, opusProvider OpusFrameProvider, conn Conn
 }
 
 type defaultAudioSender struct {
-	logger       log.Logger
+	logger       *slog.Logger
 	cancelFunc   context.CancelFunc
 	opusProvider OpusFrameProvider
 	conn         Conn
@@ -102,7 +101,7 @@ func (s *defaultAudioSender) send() {
 	}
 	opus, err := s.opusProvider.ProvideOpusFrame()
 	if err != nil && err != io.EOF {
-		s.logger.Errorf("error while reading opus frame: %s", err)
+		s.logger.Error("error while reading opus frame", slog.String("err", err.Error()))
 		return
 	}
 	if len(opus) == 0 {
@@ -144,7 +143,7 @@ func (s *defaultAudioSender) handleErr(err error) {
 		s.Close()
 		return
 	}
-	s.logger.Errorf("failed to send audio: %s", err)
+	s.logger.Error("failed to send audio", slog.String("err", err.Error()))
 }
 
 func (s *defaultAudioSender) Close() {

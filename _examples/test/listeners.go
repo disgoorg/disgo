@@ -2,10 +2,9 @@ package main
 
 import (
 	"bytes"
+	"log/slog"
 	"strings"
 	"time"
-
-	"github.com/disgoorg/log"
 
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
@@ -88,7 +87,7 @@ func componentListener(event *events.ComponentInteractionCreate) {
 		switch data.CustomID() {
 		case "test3":
 			if err := event.DeferUpdateMessage(); err != nil {
-				log.Errorf("error sending interaction response: %s", err)
+				slog.Error("error sending interaction response", slog.Any("err", err))
 			}
 			_, _ = event.Client().Rest().CreateFollowupMessage(event.ApplicationID(), event.Token(), discord.NewMessageCreateBuilder().
 				SetEphemeral(true).
@@ -101,7 +100,7 @@ func componentListener(event *events.ComponentInteractionCreate) {
 		switch data.CustomID() {
 		case "test4":
 			if err := event.DeferUpdateMessage(); err != nil {
-				log.Errorf("error sending interaction response: %s", err)
+				slog.Error("error sending interaction response", slog.Any("err", err))
 			}
 			_, _ = event.Client().Rest().CreateFollowupMessage(event.ApplicationID(), event.Token(), discord.NewMessageCreateBuilder().
 				SetEphemeral(true).
@@ -121,7 +120,7 @@ func applicationCommandListener(event *events.ApplicationCommandInteractionCreat
 			Build(),
 		)
 		if err != nil {
-			event.Client().Logger().Error("error on sending response: ", err)
+			slog.Error("error on sending response", slog.Any("err", err))
 		}
 
 	case "say":
@@ -169,7 +168,7 @@ func autocompleteListener(event *events.AutocompleteInteractionCreate) {
 				Value: 2,
 			},
 		}); err != nil {
-			event.Client().Logger().Error("error on sending response: ", err)
+			slog.Error("error on sending response", slog.Any("err", err))
 		}
 	}
 }
@@ -199,7 +198,7 @@ func messageListener(event *events.GuildMessageCreate) {
 			Build(),
 		)
 		if err != nil {
-			event.Client().Logger().Error("error on sending response: ", err)
+			slog.Error("error on sending response", slog.Any("err", err))
 		}
 		time.Sleep(1 * time.Second)
 		_, err = event.Client().Rest().UpdateMessage(event.ChannelID, message.ID, discord.NewMessageUpdateBuilder().
@@ -208,7 +207,7 @@ func messageListener(event *events.GuildMessageCreate) {
 			Build(),
 		)
 		if err != nil {
-			event.Client().Logger().Error("error on updating response: ", err)
+			slog.Error("error on updating response", slog.Any("err", err))
 		}
 
 	case "panic":
@@ -227,7 +226,7 @@ func messageListener(event *events.GuildMessageCreate) {
 		go func() {
 			message, err := event.Client().Rest().CreateMessage(event.ChannelID, discord.NewMessageCreateBuilder().SetContent("test").Build())
 			if err != nil {
-				log.Errorf("error while sending file: %s", err)
+				slog.Error("error while sending file", slog.Any("err", err))
 				return
 			}
 			time.Sleep(time.Second * 2)

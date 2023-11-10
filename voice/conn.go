@@ -2,6 +2,7 @@ package voice
 
 import (
 	"context"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -61,6 +62,7 @@ type (
 func NewConn(guildID snowflake.ID, userID snowflake.ID, voiceStateUpdateFunc StateUpdateFunc, removeConnFunc func(), opts ...ConnConfigOpt) Conn {
 	config := DefaultConnConfig()
 	config.Apply(opts)
+	config.Logger = config.Logger.With(slog.String("name", "voice_conn"))
 
 	conn := &connImpl{
 		config:               *config,

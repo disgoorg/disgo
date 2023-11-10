@@ -1,7 +1,7 @@
 package sharding
 
 import (
-	"github.com/disgoorg/log"
+	"log/slog"
 
 	"github.com/disgoorg/disgo/gateway"
 )
@@ -9,16 +9,16 @@ import (
 // DefaultConfig returns a Config with sensible defaults.
 func DefaultConfig() *Config {
 	return &Config{
-		Logger:            log.Default(),
+		Logger:            slog.Default(),
 		GatewayCreateFunc: gateway.New,
-		ShardSplitCount:   2,
+		ShardSplitCount:   ShardSplitCount,
 	}
 }
 
 // Config lets you configure your ShardManager instance.
 type Config struct {
 	// Logger is the logger of the ShardManager. Defaults to log.Default()
-	Logger log.Logger
+	Logger *slog.Logger
 	// ShardIDs is a map of shardIDs the ShardManager should manage. Leave this nil to manage all shards.
 	ShardIDs map[int]struct{}
 	// ShardCount is the total shard count of the ShardManager. Leave this at 0 to let Discord calculate the shard count for you.
@@ -51,7 +51,7 @@ func (c *Config) Apply(opts []ConfigOpt) {
 }
 
 // WithLogger sets the logger of the ShardManager.
-func WithLogger(logger log.Logger) ConfigOpt {
+func WithLogger(logger *slog.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
 	}

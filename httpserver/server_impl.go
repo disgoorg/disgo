@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"errors"
+	"log/slog"
 	"net/http"
 )
 
@@ -13,10 +14,11 @@ var _ Server = (*serverImpl)(nil)
 func New(publicKey string, eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt) Server {
 	config := DefaultConfig()
 	config.Apply(opts)
+	config.Logger = config.Logger.With(slog.String("name", "httpserver"))
 
 	hexDecodedKey, err := hex.DecodeString(publicKey)
 	if err != nil {
-		config.Logger.Errorf("error while decoding hex string: %s", err)
+		config.Logger.Debug("error while decoding hex string", slog.String("err", err.Error()))
 	}
 
 	return &serverImpl{
@@ -45,7 +47,7 @@ func (s *serverImpl) Start() {
 			err = s.config.HTTPServer.ListenAndServe()
 		}
 		if !errors.Is(err, http.ErrServerClosed) {
-			s.config.Logger.Error("error while running http server: ", err)
+			s.config.Logger.Error("error while running http server", slog.String("err", err.Error()))
 		}
 	}()
 }

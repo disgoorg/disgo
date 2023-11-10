@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log/slog"
 	"strings"
 
 	"github.com/disgoorg/disgo/bot"
@@ -9,7 +10,7 @@ import (
 )
 
 var defaultErrorHandler = func(e *events.InteractionCreate, err error) {
-	e.Client().Logger().Errorf("error handling interaction: %v\n", err)
+	e.Client().Logger().Error("error handling interaction", slog.String("err", err.Error()))
 }
 
 // New returns a new Router.

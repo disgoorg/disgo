@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"log/slog"
 	"runtime/debug"
 	"sync"
 
@@ -12,12 +13,17 @@ var _ EventManager = (*eventManagerImpl)(nil)
 
 // NewEventManager returns a new EventManager with the EventManagerConfigOpt(s) applied.
 func NewEventManager(client Client, opts ...EventManagerConfigOpt) EventManager {
-	config := DefaultEventManagerConfig()
-	config.Apply(opts)
+	cfg := DefaultEventManagerConfig()
+	cfg.Apply(opts)
+	cfg.Logger = cfg.Logger.With(slog.String("name", "bot_event_manager"))
 
 	return &eventManagerImpl{
-		client: client,
-		config: *config,
+		client:             client,
+		logger:             cfg.Logger,
+		eventListeners:     cfg.EventListeners,
+		asyncEventsEnabled: cfg.AsyncEventsEnabled,
+		gatewayHandlers:    cfg.GatewayHandlers,
+		httpServerHandler:  cfg.HTTPServerHandler,
 	}
 }
 
@@ -112,68 +118,72 @@ type HTTPServerEventHandler interface {
 }
 
 type eventManagerImpl struct {
-	client          Client
-	eventListenerMu sync.Mutex
-	config          EventManagerConfig
-
 	mu sync.Mutex
+
+	client             Client
+	logger             *slog.Logger
+	eventListenerMu    sync.Mutex
+	eventListeners     []EventListener
+	asyncEventsEnabled bool
+	gatewayHandlers    map[gateway.EventType]GatewayEventHandler
+	httpServerHandler  HTTPServerEventHandler
 }
 
 func (e *eventManagerImpl) HandleGatewayEvent(gatewayEventType gateway.EventType, sequenceNumber int, shardID int, event gateway.EventData) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	if handler, ok := e.config.GatewayHandlers[gatewayEventType]; ok {
+	if handler, ok := e.gatewayHandlers[gatewayEventType]; ok {
 		handler.HandleGatewayEvent(e.client, sequenceNumber, shardID, event)
 	} else {
-		e.config.Logger.Warnf("no handler for gateway event '%s' found", gatewayEventType)
+		e.logger.Warn("no handler for gateway event found", slog.Any("event_type", gatewayEventType))
 	}
 }
 
 func (e *eventManagerImpl) HandleHTTPEvent(respondFunc httpserver.RespondFunc, event httpserver.EventInteractionCreate) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	e.config.HTTPServerHandler.HandleHTTPEvent(e.client, respondFunc, event)
+	e.httpServerHandler.HandleHTTPEvent(e.client, respondFunc, event)
 }
 
 func (e *eventManagerImpl) DispatchEvent(event Event) {
 	defer func() {
 		if r := recover(); r != nil {
-			e.config.Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
+			e.logger.Error("recovered from panic in event listener", slog.Any("arg", r), slog.String("stack", string(debug.Stack())))
 			return
 		}
 	}()
 	e.eventListenerMu.Lock()
 	defer e.eventListenerMu.Unlock()
-	for i := range e.config.EventListeners {
-		if e.config.AsyncEventsEnabled {
+	for i := range e.eventListeners {
+		if e.asyncEventsEnabled {
 			go func(i int) {
 				defer func() {
 					if r := recover(); r != nil {
-						e.config.Logger.Errorf("recovered from panic in event listener: %+v\nstack: %s", r, string(debug.Stack()))
+						e.logger.Error("recovered from panic in event listener", slog.Any("arg", r), slog.String("stack", string(debug.Stack())))
 						return
 					}
 				}()
-				e.config.EventListeners[i].OnEvent(event)
+				e.eventListeners[i].OnEvent(event)
 			}(i)
 			continue
 		}
-		e.config.EventListeners[i].OnEvent(event)
+		e.eventListeners[i].OnEvent(event)
 	}
 }
 
 func (e *eventManagerImpl) AddEventListeners(listeners ...EventListener) {
 	e.eventListenerMu.Lock()
 	defer e.eventListenerMu.Unlock()
-	e.config.EventListeners = append(e.config.EventListeners, listeners...)
+	e.eventListeners = append(e.eventListeners, listeners...)
 }
 
 func (e *eventManagerImpl) RemoveEventListeners(listeners ...EventListener) {
 	e.eventListenerMu.Lock()
 	defer e.eventListenerMu.Unlock()
 	for _, listener := range listeners {
-		for i, l := range e.config.EventListeners {
+		for i, l := range e.eventListeners {
 			if l == listener {
-				e.config.EventListeners = append(e.config.EventListeners[:i], e.config.EventListeners[i+1:]...)
+				e.eventListeners = append(e.eventListeners[:i], e.eventListeners[i+1:]...)
 				break
 			}
 		}

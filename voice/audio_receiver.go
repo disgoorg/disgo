@@ -3,15 +3,15 @@ package voice
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net"
 
-	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 )
 
 type (
 	// AudioReceiverCreateFunc is used to create a new AudioReceiver reading audio from the given Conn.
-	AudioReceiverCreateFunc func(logger log.Logger, receiver OpusFrameReceiver, connection Conn) AudioReceiver
+	AudioReceiverCreateFunc func(logger *slog.Logger, receiver OpusFrameReceiver, connection Conn) AudioReceiver
 
 	// UserFilterFunc is used as a filter for which users to receive audio from.
 	UserFilterFunc func(userID snowflake.ID) bool
@@ -42,7 +42,7 @@ type (
 )
 
 // NewAudioReceiver creates a new AudioReceiver reading audio to the given OpusFrameReceiver from the given Conn.
-func NewAudioReceiver(logger log.Logger, opusReceiver OpusFrameReceiver, conn Conn) AudioReceiver {
+func NewAudioReceiver(logger *slog.Logger, opusReceiver OpusFrameReceiver, conn Conn) AudioReceiver {
 	return &defaultAudioReceiver{
 		logger:       logger,
 		opusReceiver: opusReceiver,
@@ -51,7 +51,7 @@ func NewAudioReceiver(logger log.Logger, opusReceiver OpusFrameReceiver, conn Co
 }
 
 type defaultAudioReceiver struct {
-	logger       log.Logger
+	logger       *slog.Logger
 	cancelFunc   context.CancelFunc
 	opusReceiver OpusFrameReceiver
 	conn         Conn
@@ -62,7 +62,7 @@ func (s *defaultAudioReceiver) Open() {
 }
 
 func (s *defaultAudioReceiver) open() {
-	defer s.logger.Debugf("closing audio receiver")
+	defer s.logger.Debug("closing audio receiver")
 	ctx, cancel := context.WithCancel(context.Background())
 	s.cancelFunc = cancel
 	defer cancel()
@@ -88,12 +88,12 @@ func (s *defaultAudioReceiver) receive() {
 		return
 	}
 	if err != nil {
-		s.logger.Errorf("error while reading packet: %s", err)
+		s.logger.Error("error while reading packet", slog.String("err", err.Error()))
 		return
 	}
 	if s.opusReceiver != nil {
 		if err = s.opusReceiver.ReceiveOpusFrame(s.conn.UserIDBySSRC(packet.SSRC), packet); err != nil {
-			s.logger.Errorf("error while receiving opus frame: %s", err)
+			s.logger.Error("error while receiving opus frame", slog.String("err", err.Error()))
 		}
 	}
 

@@ -2,12 +2,10 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
@@ -15,6 +13,7 @@ import (
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/handler"
 	"github.com/disgoorg/disgo/handler/middleware"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
@@ -64,9 +63,8 @@ var (
 )
 
 func main() {
-	log.SetLevel(log.LevelInfo)
-	log.Info("starting example...")
-	log.Infof("disgo version: %s", disgo.Version)
+	slog.Info("starting example...")
+	slog.Info("disgo version", slog.String("version", disgo.Version))
 
 	r := handler.New()
 	r.Use(middleware.Logger)
@@ -92,20 +90,22 @@ func main() {
 		bot.WithEventListeners(r),
 	)
 	if err != nil {
-		log.Fatal("error while building bot: ", err)
+		slog.Error("error while building bot", slog.Any("err", err))
+		return
 	}
 
 	if err = handler.SyncCommands(client, commands, []snowflake.ID{guildID}); err != nil {
-		log.Fatal("error while syncing commands: ", err)
+		slog.Error("error while syncing commands", slog.Any("err", err))
+		return
 	}
 
 	defer client.Close(context.TODO())
 
 	if err = client.OpenGateway(context.TODO()); err != nil {
-		log.Fatal("error while connecting to gateway: ", err)
+		slog.Error("error while connecting to gateway", slog.Any("err", err))
 	}
 
-	log.Info("example is now running. Press CTRL-C to exit.")
+	slog.Info("example is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s

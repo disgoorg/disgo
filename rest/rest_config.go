@@ -2,16 +2,15 @@ package rest
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
-
-	"github.com/disgoorg/log"
 )
 
 // DefaultConfig is the configuration which is used by default
 func DefaultConfig() *Config {
 	return &Config{
-		Logger:     log.Default(),
+		Logger:     slog.Default(),
 		HTTPClient: &http.Client{Timeout: 20 * time.Second},
 		URL:        fmt.Sprintf("%sv%d", API, Version),
 	}
@@ -19,7 +18,7 @@ func DefaultConfig() *Config {
 
 // Config is the configuration for the rest client
 type Config struct {
-	Logger                log.Logger
+	Logger                *slog.Logger
 	HTTPClient            *http.Client
 	RateLimiter           RateLimiter
 	RateLimiterConfigOpts []RateLimiterConfigOpt
@@ -41,7 +40,7 @@ func (c *Config) Apply(opts []ConfigOpt) {
 }
 
 // WithLogger applies a custom logger to the rest rate limiter
-func WithLogger(logger log.Logger) ConfigOpt {
+func WithLogger(logger *slog.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
 	}
