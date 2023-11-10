@@ -15,7 +15,7 @@ type Emoji struct {
 	GuildID       snowflake.ID   `json:"guild_id,omitempty"` // not present in the API but we need it
 	Name          string         `json:"name,omitempty"`     // may be empty for deleted emojis
 	Roles         []snowflake.ID `json:"roles,omitempty"`
-	Creator       *User          `json:"creator,omitempty"`
+	Creator       *User          `json:"user,omitempty"`
 	RequireColons bool           `json:"require_colons,omitempty"`
 	Managed       bool           `json:"managed,omitempty"`
 	Animated      bool           `json:"animated,omitempty"`
