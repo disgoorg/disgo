@@ -122,6 +122,11 @@ const (
 	AuditLogCreatorMonetizationTermsAccepted
 )
 
+const (
+	AuditLogVoiceChannelStatusCreate AuditLogEvent = iota + 192
+	AuditLogVoiceChannelStatusDelete
+)
+
 // AuditLog (https://discord.com/developers/docs/resources/audit-log) These are logs of events that occurred, accessible via the Discord
 type AuditLog struct {
 	ApplicationCommands  []ApplicationCommand  `json:"application_commands"`
@@ -255,4 +260,5 @@ type OptionalAuditLogEntryInfo struct {
 	AutoModerationRuleName        *string                    `json:"auto_moderation_rule_name"`
 	AutoModerationRuleTriggerType *AutoModerationTriggerType `json:"auto_moderation_rule_trigger_type,string"`
 	IntegrationType               *IntegrationType           `json:"integration_type"`
+	Status                        *string                    `json:"status"`
 }

@@ -442,6 +442,7 @@ type GuildVoiceChannel struct {
 	rtcRegion            string
 	VideoQualityMode     VideoQualityMode
 	lastMessageID        *snowflake.ID
+	status               *string
 	nsfw                 bool
 	rateLimitPerUser     int
 }
@@ -463,6 +464,7 @@ func (c *GuildVoiceChannel) UnmarshalJSON(data []byte) error {
 	c.rtcRegion = v.RTCRegion
 	c.VideoQualityMode = v.VideoQualityMode
 	c.lastMessageID = v.LastMessageID
+	c.status = v.Status
 	c.nsfw = v.NSFW
 	c.rateLimitPerUser = v.RateLimitPerUser
 	return nil
@@ -482,6 +484,7 @@ func (c GuildVoiceChannel) MarshalJSON() ([]byte, error) {
 		RTCRegion:            c.rtcRegion,
 		VideoQualityMode:     c.VideoQualityMode,
 		LastMessageID:        c.lastMessageID,
+		Status:               c.status,
 		NSFW:                 c.nsfw,
 		RateLimitPerUser:     c.rateLimitPerUser,
 	})
@@ -543,6 +546,10 @@ func (c GuildVoiceChannel) LastPinTimestamp() *time.Time {
 // Topic always returns nil for GuildVoiceChannel(s) as they do not have their own topic.
 func (c GuildVoiceChannel) Topic() *string {
 	return nil
+}
+
+func (c GuildVoiceChannel) Status() *string {
+	return c.status
 }
 
 func (c GuildVoiceChannel) NSFW() bool {
@@ -1302,6 +1309,10 @@ type FollowChannel struct {
 type PartialChannel struct {
 	ID   snowflake.ID `json:"id"`
 	Type ChannelType  `json:"type"`
+}
+
+type VoiceStatusUpdate struct {
+	Status string `json:"status"`
 }
 
 // VideoQualityMode https://com/developers/docs/resources/channel#channel-object-video-quality-modes

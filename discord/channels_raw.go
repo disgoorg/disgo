@@ -129,6 +129,7 @@ type guildVoiceChannel struct {
 	RTCRegion            string                `json:"rtc_region"`
 	VideoQualityMode     VideoQualityMode      `json:"video_quality_mode"`
 	LastMessageID        *snowflake.ID         `json:"last_message_id"`
+	Status               *string               `json:"status"`
 	NSFW                 bool                  `json:"nsfw"`
 	RateLimitPerUser     int                   `json:"rate_limit_per_user"`
 }

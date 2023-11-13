@@ -63,6 +63,8 @@ const (
 	_
 	PermissionUseExternalSounds
 	PermissionSendVoiceMessages
+	_
+	PermissionSetVoiceChannelStatus
 
 	PermissionsAllText = PermissionViewChannel |
 		PermissionSendMessages |
@@ -91,7 +93,8 @@ const (
 		PermissionUseSoundboard |
 		PermissionUseExternalSounds |
 		PermissionRequestToSpeak |
-		PermissionUseEmbeddedActivities
+		PermissionUseEmbeddedActivities |
+		PermissionSetVoiceChannelStatus
 
 	PermissionsAllChannel = PermissionsAllText |
 		PermissionsAllThread |
@@ -168,6 +171,7 @@ var permissions = map[Permissions]string{
 	PermissionStream:                           "Video",
 	PermissionViewGuildInsights:                "View Server Insights",
 	PermissionSendVoiceMessages:                "Send Voice Messages",
+	PermissionSetVoiceChannelStatus:            "Set Voice Channel Status",
 }
 
 func (p Permissions) String() string {
