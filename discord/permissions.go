@@ -59,8 +59,8 @@ const (
 	PermissionModerateMembers
 	PermissionViewCreatorMonetizationAnalytics
 	PermissionUseSoundboard
-	_
-	_
+	PermissionCreateGuildExpressions
+	PermissionCreateEvents
 	PermissionUseExternalSounds
 	PermissionSendVoiceMessages
 
@@ -91,7 +91,10 @@ const (
 		PermissionUseSoundboard |
 		PermissionUseExternalSounds |
 		PermissionRequestToSpeak |
-		PermissionUseEmbeddedActivities
+		PermissionUseEmbeddedActivities |
+		PermissionCreateGuildExpressions |
+		PermissionCreateEvents |
+		PermissionManageEvents
 
 	PermissionsAllChannel = PermissionsAllText |
 		PermissionsAllThread |
@@ -116,7 +119,6 @@ const (
 		PermissionManageRoles |
 		PermissionChangeNickname |
 		PermissionManageNicknames |
-		PermissionManageEvents |
 		PermissionModerateMembers
 
 	PermissionsNone Permissions = 0
