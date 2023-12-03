@@ -48,9 +48,9 @@ const (
 	_
 	MessageTypeStageTopic
 	MessageTypeGuildApplicationPremiumSubscription
-	MessageTypePrivateChannelIntegrationAdded
-	MessageTypePrivateChannelIntegrationRemoved
-	MessageTypePremiumReferral
+	_
+	_
+	_
 	MessageTypeGuildIncidentAlertModeEnabled
 	MessageTypeGuildIncidentAlertModeDisabled
 	MessageTypeGuildIncidentReportRaid
