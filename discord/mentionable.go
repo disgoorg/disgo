@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 )
 
 type MentionType struct {

@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 
 	botgateway "github.com/snekROmonoro/disgo/gateway"
 )

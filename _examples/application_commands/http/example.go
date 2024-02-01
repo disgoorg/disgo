@@ -7,13 +7,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/disgoorg/snowflake/v2"
 	"github.com/oasisprotocol/curve25519-voi/primitives/ed25519"
 	"github.com/snekROmonoro/disgo"
 	"github.com/snekROmonoro/disgo/bot"
 	"github.com/snekROmonoro/disgo/discord"
 	"github.com/snekROmonoro/disgo/events"
 	"github.com/snekROmonoro/disgo/httpserver"
+	"github.com/snekROmonoro/snowflake"
 )
 
 var (

@@ -1,6 +1,6 @@
 package slicehelper
 
-import "github.com/disgoorg/snowflake/v2"
+import "github.com/snekROmonoro/snowflake"
 
 func JoinSnowflakes(snowflakes []snowflake.ID) string {
 	var str string

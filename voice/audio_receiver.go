@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"net"
 
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 )
 
 type (

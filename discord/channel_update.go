@@ -2,7 +2,7 @@ package discord
 
 import (
 	"github.com/disgoorg/json"
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 )
 
 type ChannelUpdate interface {

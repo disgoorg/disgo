@@ -2,7 +2,7 @@ package voice
 
 import (
 	"github.com/disgoorg/json"
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 )
 
 // GatewayMessage represents a voice gateway message

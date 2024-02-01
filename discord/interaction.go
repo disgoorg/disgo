@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/disgoorg/json"
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 )
 
 // InteractionType is the type of Interaction

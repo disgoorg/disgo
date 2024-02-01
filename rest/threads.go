@@ -3,7 +3,7 @@ package rest
 import (
 	"time"
 
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 
 	"github.com/snekROmonoro/disgo/discord"
 )

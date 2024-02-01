@@ -3,8 +3,8 @@ package cache
 import (
 	"slices"
 
-	"github.com/disgoorg/snowflake/v2"
 	"github.com/snekROmonoro/disgo/discord"
+	"github.com/snekROmonoro/snowflake"
 )
 
 // PolicyNone returns a policy that will never cache anything.

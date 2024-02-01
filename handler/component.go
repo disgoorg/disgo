@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 
 	"github.com/snekROmonoro/disgo/discord"
 	"github.com/snekROmonoro/disgo/events"

@@ -3,7 +3,7 @@ package cache
 import (
 	"sync"
 
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 )
 
 // GroupedFilterFunc is used to filter grouped cached entities.

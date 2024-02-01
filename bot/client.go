@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/disgoorg/snowflake/v2"
 	"github.com/snekROmonoro/disgo/cache"
 	"github.com/snekROmonoro/disgo/discord"
 	"github.com/snekROmonoro/disgo/gateway"
@@ -12,6 +11,7 @@ import (
 	"github.com/snekROmonoro/disgo/rest"
 	"github.com/snekROmonoro/disgo/sharding"
 	"github.com/snekROmonoro/disgo/voice"
+	"github.com/snekROmonoro/snowflake"
 )
 
 var _ Client = (*clientImpl)(nil)

@@ -1,8 +1,8 @@
 package events
 
 import (
-	"github.com/disgoorg/snowflake/v2"
 	"github.com/snekROmonoro/disgo/gateway"
+	"github.com/snekROmonoro/snowflake"
 
 	"github.com/snekROmonoro/disgo/discord"
 )

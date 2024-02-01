@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 )
 
 var _ Mentionable = (*Emoji)(nil)

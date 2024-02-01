@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/disgoorg/json"
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 )
 
 // WebhookType (https: //discord.com/developers/docs/resources/webhook#webhook-object-webhook-types)

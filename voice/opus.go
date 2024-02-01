@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 )
 
 // NewOpusReader returns a new OpusFrameProvider that reads opus frames from the given io.Reader.

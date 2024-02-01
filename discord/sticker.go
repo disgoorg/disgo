@@ -3,7 +3,7 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 )
 
 // Sticker is a sticker sent with a Message

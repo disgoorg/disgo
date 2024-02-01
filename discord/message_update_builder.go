@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 )
 
 // MessageUpdateBuilder helper to build MessageUpdate easier

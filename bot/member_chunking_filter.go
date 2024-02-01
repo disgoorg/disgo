@@ -3,7 +3,7 @@ package bot
 import (
 	"slices"
 
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 )
 
 // MemberChunkingFilterAll is a MemberChunkingFilter which includes all guilds.

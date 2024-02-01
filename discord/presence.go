@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 )
 
 // Presence (https://discord.com/developers/docs/topics/gateway#presence-update)

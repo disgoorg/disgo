@@ -7,7 +7,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/disgoorg/snowflake/v2"
 	"github.com/snekROmonoro/disgo"
 	"github.com/snekROmonoro/disgo/bot"
 	"github.com/snekROmonoro/disgo/discord"
@@ -15,6 +14,7 @@ import (
 	"github.com/snekROmonoro/disgo/gateway"
 	"github.com/snekROmonoro/disgo/rest"
 	"github.com/snekROmonoro/disgo/sharding"
+	"github.com/snekROmonoro/snowflake"
 )
 
 var (

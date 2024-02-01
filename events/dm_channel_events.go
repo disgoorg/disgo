@@ -3,7 +3,7 @@ package events
 import (
 	"time"
 
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 )
 
 // DMChannelPinsUpdate indicates that a discord.Message got pinned or unpinned.

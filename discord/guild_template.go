@@ -3,7 +3,7 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 )
 
 // GuildTemplate is a template used for copying guilds https://discord.com/developers/docs/resources/guild-template

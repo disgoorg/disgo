@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 )
 
 // QueryValues holds key value pairs of query values

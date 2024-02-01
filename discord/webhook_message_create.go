@@ -1,6 +1,6 @@
 package discord
 
-import "github.com/disgoorg/snowflake/v2"
+import "github.com/snekROmonoro/snowflake"
 
 type WebhookMessageCreate struct {
 	Content         string               `json:"content,omitempty"`

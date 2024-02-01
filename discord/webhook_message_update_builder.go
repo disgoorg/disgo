@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 )
 
 // WebhookMessageUpdateBuilder helper to build MessageUpdate easier

@@ -3,12 +3,12 @@ package handlers
 import (
 	"slices"
 
-	"github.com/disgoorg/snowflake/v2"
 	"github.com/snekROmonoro/disgo/bot"
 	"github.com/snekROmonoro/disgo/cache"
 	"github.com/snekROmonoro/disgo/discord"
 	"github.com/snekROmonoro/disgo/events"
 	"github.com/snekROmonoro/disgo/gateway"
+	"github.com/snekROmonoro/snowflake"
 )
 
 func gatewayHandlerPresenceUpdate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventPresenceUpdate) {

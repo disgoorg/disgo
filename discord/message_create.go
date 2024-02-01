@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 )
 
 // MessageCreate is the struct to create a new Message with

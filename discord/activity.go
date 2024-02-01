@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/disgoorg/json"
-	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/snowflake"
 
 	"github.com/snekROmonoro/disgo/internal/flags"
 )
