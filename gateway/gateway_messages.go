@@ -1,6 +1,8 @@
 package gateway
 
 import (
+	"fmt"
+
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 
@@ -86,7 +88,7 @@ func (e *Message) UnmarshalJSON(data []byte) error {
 		messageData = d
 	}
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to unmarshal message data type %s: %w", v.T, err)
 	}
 	e.Op = v.Op
 	e.S = v.S
