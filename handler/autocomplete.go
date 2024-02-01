@@ -3,9 +3,9 @@ package handler
 import (
 	"github.com/disgoorg/snowflake/v2"
 
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/events"
-	"github.com/disgoorg/disgo/rest"
+	"github.com/snekROmonoro/disgo/discord"
+	"github.com/snekROmonoro/disgo/events"
+	"github.com/snekROmonoro/disgo/rest"
 )
 
 type AutocompleteEvent struct {

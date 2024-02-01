@@ -3,8 +3,8 @@ package main
 import (
 	"log/slog"
 
-	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/discord"
+	"github.com/snekROmonoro/disgo/bot"
+	"github.com/snekROmonoro/disgo/discord"
 )
 
 var commands = []discord.ApplicationCommandCreate{

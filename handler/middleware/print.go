@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"github.com/disgoorg/disgo/events"
-	"github.com/disgoorg/disgo/handler"
+	"github.com/snekROmonoro/disgo/events"
+	"github.com/snekROmonoro/disgo/handler"
 )
 
 func Print(content string) handler.Middleware {

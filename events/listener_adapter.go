@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/disgoorg/disgo/bot"
+	"github.com/snekROmonoro/disgo/bot"
 )
 
 var _ bot.EventListener = (*ListenerAdapter)(nil)

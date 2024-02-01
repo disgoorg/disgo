@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/disgoorg/disgo/events"
+	"github.com/snekROmonoro/disgo/events"
 )
 
 type (

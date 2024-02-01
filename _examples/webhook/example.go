@@ -7,11 +7,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/disgoorg/disgo"
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/rest"
-	"github.com/disgoorg/disgo/webhook"
 	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/disgo"
+	"github.com/snekROmonoro/disgo/discord"
+	"github.com/snekROmonoro/disgo/rest"
+	"github.com/snekROmonoro/disgo/webhook"
 )
 
 var (

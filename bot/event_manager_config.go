@@ -3,7 +3,7 @@ package bot
 import (
 	"log/slog"
 
-	"github.com/disgoorg/disgo/gateway"
+	"github.com/snekROmonoro/disgo/gateway"
 )
 
 // DefaultEventManagerConfig returns a new EventManagerConfig with all default values.

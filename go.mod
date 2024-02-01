@@ -1,4 +1,4 @@
-module github.com/disgoorg/disgo
+module github.com/snekROmonoro/disgo
 
 go 1.21
 

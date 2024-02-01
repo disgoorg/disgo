@@ -1,10 +1,10 @@
 package rest
 
 import (
-	"github.com/disgoorg/disgo/internal/slicehelper"
 	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/disgo/internal/slicehelper"
 
-	"github.com/disgoorg/disgo/discord"
+	"github.com/snekROmonoro/disgo/discord"
 )
 
 var _ Applications = (*applicationsImpl)(nil)

@@ -3,7 +3,7 @@ package cache
 import (
 	"github.com/disgoorg/snowflake/v2"
 
-	"github.com/disgoorg/disgo/discord"
+	"github.com/snekROmonoro/disgo/discord"
 )
 
 // DefaultConfig returns a Config with sensible defaults.

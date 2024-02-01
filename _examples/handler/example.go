@@ -7,13 +7,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/disgoorg/disgo"
-	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/events"
-	"github.com/disgoorg/disgo/handler"
-	"github.com/disgoorg/disgo/handler/middleware"
 	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/disgo"
+	"github.com/snekROmonoro/disgo/bot"
+	"github.com/snekROmonoro/disgo/discord"
+	"github.com/snekROmonoro/disgo/events"
+	"github.com/snekROmonoro/disgo/handler"
+	"github.com/snekROmonoro/disgo/handler/middleware"
 )
 
 var (

@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/events"
-	"github.com/disgoorg/disgo/handler"
+	"github.com/snekROmonoro/disgo/discord"
+	"github.com/snekROmonoro/disgo/events"
+	"github.com/snekROmonoro/disgo/handler"
 )
 
 // Defer is a middleware that defers the specified interaction type.

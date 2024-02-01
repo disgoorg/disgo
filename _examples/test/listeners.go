@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/events"
+	"github.com/snekROmonoro/disgo/bot"
+	"github.com/snekROmonoro/disgo/discord"
+	"github.com/snekROmonoro/disgo/events"
 )
 
 var listener = &events.ListenerAdapter{

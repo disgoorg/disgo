@@ -11,7 +11,7 @@ package main
 
 import (
 	"github.com/oasisprotocol/curve25519-voi/primitives/ed25519"
-	"github.com/disgoorg/disgo/httpserver"
+	"github.com/snekROmonoro/disgo/httpserver"
 )
 func main() {
 	httpserver.Verify = func(publicKey httpserver.PublicKey, message, sig []byte) bool {

@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/disgoorg/disgo/internal/insecurerandstr"
+	"github.com/snekROmonoro/disgo/internal/insecurerandstr"
 )
 
 // DefaultStateControllerConfig is the default configuration for the StateController

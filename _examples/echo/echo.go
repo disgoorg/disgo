@@ -10,12 +10,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/disgoorg/disgo"
-	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/events"
-	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/voice"
 	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/disgo"
+	"github.com/snekROmonoro/disgo/bot"
+	"github.com/snekROmonoro/disgo/events"
+	"github.com/snekROmonoro/disgo/gateway"
+	"github.com/snekROmonoro/disgo/voice"
 )
 
 var (

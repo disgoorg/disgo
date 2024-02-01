@@ -7,7 +7,7 @@ import (
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 
-	"github.com/disgoorg/disgo/discord"
+	"github.com/snekROmonoro/disgo/discord"
 )
 
 type EventData interface {

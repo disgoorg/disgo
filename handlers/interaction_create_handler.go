@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/events"
-	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/httpserver"
-	"github.com/disgoorg/disgo/rest"
+	"github.com/snekROmonoro/disgo/bot"
+	"github.com/snekROmonoro/disgo/discord"
+	"github.com/snekROmonoro/disgo/events"
+	"github.com/snekROmonoro/disgo/gateway"
+	"github.com/snekROmonoro/disgo/httpserver"
+	"github.com/snekROmonoro/disgo/rest"
 )
 
 func gatewayHandlerInteractionCreate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventInteractionCreate) {

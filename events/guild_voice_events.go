@@ -1,8 +1,8 @@
 package events
 
 import (
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/gateway"
+	"github.com/snekROmonoro/disgo/discord"
+	"github.com/snekROmonoro/disgo/gateway"
 )
 
 // GenericGuildVoiceState is called upon receiving GuildVoiceJoin , GuildVoiceMove , GuildVoiceLeave

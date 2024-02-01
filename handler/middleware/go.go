@@ -3,8 +3,8 @@ package middleware
 import (
 	"log/slog"
 
-	"github.com/disgoorg/disgo/events"
-	"github.com/disgoorg/disgo/handler"
+	"github.com/snekROmonoro/disgo/events"
+	"github.com/snekROmonoro/disgo/handler"
 )
 
 // Go is a middleware that runs the next handler in a goroutine

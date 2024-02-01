@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/events"
-	"github.com/disgoorg/disgo/gateway"
+	"github.com/snekROmonoro/disgo/bot"
+	"github.com/snekROmonoro/disgo/events"
+	"github.com/snekROmonoro/disgo/gateway"
 )
 
 func gatewayHandlerEntitlementCreate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventEntitlementCreate) {

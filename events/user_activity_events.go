@@ -1,10 +1,10 @@
 package events
 
 import (
-	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/disgo/gateway"
 
-	"github.com/disgoorg/disgo/discord"
+	"github.com/snekROmonoro/disgo/discord"
 )
 
 type PresenceUpdate struct {

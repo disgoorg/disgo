@@ -3,7 +3,7 @@ package sharding
 import (
 	"log/slog"
 
-	"github.com/disgoorg/disgo/gateway"
+	"github.com/snekROmonoro/disgo/gateway"
 )
 
 // DefaultConfig returns a Config with sensible defaults.

@@ -1,6 +1,6 @@
 package events
 
-import "github.com/disgoorg/disgo/gateway"
+import "github.com/snekROmonoro/disgo/gateway"
 
 // Ready indicates we received the Ready from the gateway.Gateway
 type Ready struct {

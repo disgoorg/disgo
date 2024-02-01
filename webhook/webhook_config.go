@@ -3,8 +3,8 @@ package webhook
 import (
 	"log/slog"
 
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/rest"
+	"github.com/snekROmonoro/disgo/discord"
+	"github.com/snekROmonoro/disgo/rest"
 )
 
 // DefaultConfig is the default configuration for the webhook client

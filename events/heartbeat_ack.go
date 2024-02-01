@@ -1,6 +1,6 @@
 package events
 
-import "github.com/disgoorg/disgo/gateway"
+import "github.com/snekROmonoro/disgo/gateway"
 
 type HeartbeatAck struct {
 	*GenericEvent

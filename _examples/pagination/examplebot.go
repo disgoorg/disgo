@@ -4,8 +4,8 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/disgoorg/disgo"
-	"github.com/disgoorg/disgo/rest"
+	"github.com/snekROmonoro/disgo"
+	"github.com/snekROmonoro/disgo/rest"
 )
 
 var token = os.Getenv("disgo_token")

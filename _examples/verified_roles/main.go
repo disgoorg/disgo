@@ -7,11 +7,11 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/disgoorg/disgo"
-	"github.com/disgoorg/disgo/bot"
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/oauth2"
 	"github.com/disgoorg/json"
+	"github.com/snekROmonoro/disgo"
+	"github.com/snekROmonoro/disgo/bot"
+	"github.com/snekROmonoro/disgo/discord"
+	"github.com/snekROmonoro/disgo/oauth2"
 )
 
 var (

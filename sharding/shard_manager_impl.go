@@ -10,7 +10,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 	"github.com/gorilla/websocket"
 
-	"github.com/disgoorg/disgo/gateway"
+	"github.com/snekROmonoro/disgo/gateway"
 )
 
 var _ ShardManager = (*shardManagerImpl)(nil)

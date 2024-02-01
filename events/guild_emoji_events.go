@@ -3,8 +3,8 @@ package events
 import (
 	"github.com/disgoorg/snowflake/v2"
 
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/gateway"
+	"github.com/snekROmonoro/disgo/discord"
+	"github.com/snekROmonoro/disgo/gateway"
 )
 
 // EmojisUpdate is dispatched when a guild's emojis are updated.

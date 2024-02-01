@@ -8,12 +8,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/disgoorg/disgo"
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/oauth2"
-	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/disgo"
+	"github.com/snekROmonoro/disgo/discord"
+	"github.com/snekROmonoro/disgo/oauth2"
+	"github.com/snekROmonoro/disgo/rest"
 )
 
 var (

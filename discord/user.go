@@ -7,7 +7,7 @@ import (
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 
-	"github.com/disgoorg/disgo/internal/flags"
+	"github.com/snekROmonoro/disgo/internal/flags"
 )
 
 // UserFlags defines certain flags/badges a user can have (https://discord.com/developers/docs/resources/user#user-object-user-flags)

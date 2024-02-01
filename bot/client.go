@@ -4,14 +4,14 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/disgoorg/disgo/cache"
-	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/gateway"
-	"github.com/disgoorg/disgo/httpserver"
-	"github.com/disgoorg/disgo/rest"
-	"github.com/disgoorg/disgo/sharding"
-	"github.com/disgoorg/disgo/voice"
 	"github.com/disgoorg/snowflake/v2"
+	"github.com/snekROmonoro/disgo/cache"
+	"github.com/snekROmonoro/disgo/discord"
+	"github.com/snekROmonoro/disgo/gateway"
+	"github.com/snekROmonoro/disgo/httpserver"
+	"github.com/snekROmonoro/disgo/rest"
+	"github.com/snekROmonoro/disgo/sharding"
+	"github.com/snekROmonoro/disgo/voice"
 )
 
 var _ Client = (*clientImpl)(nil)

@@ -12,7 +12,7 @@ import (
 
 	"github.com/disgoorg/json"
 
-	"github.com/disgoorg/disgo/discord"
+	"github.com/snekROmonoro/disgo/discord"
 )
 
 // NewClient constructs a new Client with the given Config struct

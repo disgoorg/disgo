@@ -16,7 +16,7 @@ import (
 	"github.com/disgoorg/json"
 	"github.com/gorilla/websocket"
 
-	"github.com/disgoorg/disgo/discord"
+	"github.com/snekROmonoro/disgo/discord"
 )
 
 var _ Gateway = (*gatewayImpl)(nil)
