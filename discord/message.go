@@ -92,7 +92,7 @@ type Message struct {
 	Mentions             []User                `json:"mentions"`
 	MentionEveryone      bool                  `json:"mention_everyone"`
 	MentionRoles         []snowflake.ID        `json:"mention_roles"`
-	MentionChannels      []Channel             `json:"mention_channels"`
+	MentionChannels      []MentionChannel      `json:"mention_channels"`
 	Pinned               bool                  `json:"pinned"`
 	EditedTimestamp      *time.Time            `json:"edited_timestamp"`
 	Author               User                  `json:"author"`
@@ -333,6 +333,13 @@ func (m Message) JumpURL() string {
 		guildID = m.GuildID.String()
 	}
 	return fmt.Sprintf(MessageURLFmt, guildID, m.ChannelID, m.ID) // duplicate code, but there isn't a better way without sacrificing user convenience
+}
+
+type MentionChannel struct {
+	ID      snowflake.ID `json:"id"`
+	GuildID snowflake.ID `json:"guild_id"`
+	Type    ChannelType  `json:"type"`
+	Name    string       `json:"name"`
 }
 
 type MessageThread struct {
