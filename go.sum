@@ -10,6 +10,8 @@ github.com/sasha-s/go-csync v0.0.0-20240107134140-fcbab37b09ad h1:qIQkSlF5vAUHxE
 github.com/sasha-s/go-csync v0.0.0-20240107134140-fcbab37b09ad/go.mod h1:/pA7k3zsXKdjjAiUhB5CjuKib9KJGCaLvZwtxGC8U0s=
 github.com/snekROmonoro/snowflake v0.0.0-20240201155553-8ff4946227ff h1:JKw3OPNQJ+mhrFrwfYB2zRqwPqFTNrXBmcm+uW5pz+Q=
 github.com/snekROmonoro/snowflake v0.0.0-20240201155553-8ff4946227ff/go.mod h1:Co0DVBjDeaXQe+0db+PfVwfKRPTeCBBUHntif67itMU=
+github.com/snekROmonoro/snowflake v0.0.0-20240201160248-e576bc8f2964 h1:3YVsxG8pTN0HVOupLhFjRWeZ3OzRaEmBa2T5cp9IYFQ=
+github.com/snekROmonoro/snowflake v0.0.0-20240201160248-e576bc8f2964/go.mod h1:Co0DVBjDeaXQe+0db+PfVwfKRPTeCBBUHntif67itMU=
 github.com/snekROmonoro/snowflake v2.0.1 h1:CuUxGLwggUxEswZOmZ+mZ5i0xSumQdXW9tXW7uGqe+0=
 github.com/snekROmonoro/snowflake v2.0.1/go.mod h1:SPU9c2CNn5DSyb86QcKtdZgix9osEtKrHLW4rMhfLCs=
 github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcUk=
