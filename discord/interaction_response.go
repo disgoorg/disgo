@@ -46,6 +46,8 @@ type AutocompleteResult struct {
 func (AutocompleteResult) interactionCallbackData() {}
 
 type AutocompleteChoice interface {
+	ChoiceName() string
+
 	autoCompleteChoice()
 }
 
@@ -53,6 +55,10 @@ type AutocompleteChoiceString struct {
 	Name              string            `json:"name"`
 	NameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
 	Value             string            `json:"value"`
+}
+
+func (c AutocompleteChoiceString) ChoiceName() string {
+	return c.Name
 }
 
 func (AutocompleteChoiceString) autoCompleteChoice() {}
@@ -63,12 +69,20 @@ type AutocompleteChoiceInt struct {
 	Value             int               `json:"value"`
 }
 
+func (c AutocompleteChoiceInt) ChoiceName() string {
+	return c.Name
+}
+
 func (AutocompleteChoiceInt) autoCompleteChoice() {}
 
 type AutocompleteChoiceFloat struct {
 	Name              string            `json:"name"`
 	NameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
 	Value             float64           `json:"value"`
+}
+
+func (c AutocompleteChoiceFloat) ChoiceName() string {
+	return c.Name
 }
 
 func (AutocompleteChoiceFloat) autoCompleteChoice() {}
