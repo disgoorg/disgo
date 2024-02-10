@@ -379,7 +379,7 @@ func (o ApplicationCommandOptionChannel) OptionName() string {
 }
 
 func (o ApplicationCommandOptionChannel) OptionDescription() string {
-	return o.Name
+	return o.Description
 }
 
 func (ApplicationCommandOptionChannel) applicationCommandOption() {}
@@ -413,7 +413,7 @@ func (o ApplicationCommandOptionRole) OptionName() string {
 }
 
 func (o ApplicationCommandOptionRole) OptionDescription() string {
-	return o.Name
+	return o.Description
 }
 
 func (ApplicationCommandOptionRole) applicationCommandOption() {}
@@ -447,7 +447,7 @@ func (o ApplicationCommandOptionMentionable) OptionName() string {
 }
 
 func (o ApplicationCommandOptionMentionable) OptionDescription() string {
-	return o.Name
+	return o.Description
 }
 
 func (ApplicationCommandOptionMentionable) applicationCommandOption() {}
@@ -485,7 +485,7 @@ func (o ApplicationCommandOptionFloat) OptionName() string {
 }
 
 func (o ApplicationCommandOptionFloat) OptionDescription() string {
-	return o.Name
+	return o.Description
 }
 
 func (ApplicationCommandOptionFloat) applicationCommandOption() {}
@@ -551,7 +551,7 @@ func (o ApplicationCommandOptionAttachment) OptionName() string {
 }
 
 func (o ApplicationCommandOptionAttachment) OptionDescription() string {
-	return o.Name
+	return o.Description
 }
 
 func (ApplicationCommandOptionAttachment) applicationCommandOption() {}
