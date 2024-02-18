@@ -10,7 +10,6 @@ import (
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/handler"
 	"github.com/disgoorg/disgo/handler/middleware"
 	"github.com/disgoorg/snowflake/v2"
@@ -138,6 +137,6 @@ func handleComponent(event *handler.ComponentEvent) error {
 	return event.CreateMessage(discord.MessageCreate{Content: "component: " + data})
 }
 
-func handleNotFound(event *events.InteractionCreate) error {
-	return event.Respond(discord.InteractionResponseTypeCreateMessage, discord.MessageCreate{Content: "not found"})
+func handleNotFound(event *handler.InteractionEvent) error {
+	return event.CreateMessage(discord.MessageCreate{Content: "not found"})
 }

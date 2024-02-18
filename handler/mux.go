@@ -10,8 +10,8 @@ import (
 	"github.com/disgoorg/disgo/events"
 )
 
-var defaultErrorHandler = func(e *events.InteractionCreate, err error) {
-	e.Client().Logger().Error("error handling interaction", slog.String("err", err.Error()))
+var defaultErrorHandler ErrorHandler = func(event *InteractionEvent, err error) {
+	event.Client().Logger().Error("error handling interaction", slog.String("err", err.Error()))
 }
 
 // New returns a new Router.
@@ -60,12 +60,17 @@ func (r *Mux) OnEvent(event bot.Event) {
 		path = i.Data.CustomID
 	}
 
-	if err := r.Handle(r.defaultContext(), path, make(map[string]string), e); err != nil {
+	ie := &InteractionEvent{
+		InteractionCreate: e,
+		Ctx:               r.defaultContext(),
+		Vars:              make(map[string]string),
+	}
+	if err := r.Handle(path, ie); err != nil {
 		if r.errorHandler != nil {
-			r.errorHandler(e, err)
+			r.errorHandler(ie, err)
 			return
 		}
-		defaultErrorHandler(e, err)
+		defaultErrorHandler(ie, err)
 	}
 }
 
@@ -95,17 +100,17 @@ func (r *Mux) Match(path string, t discord.InteractionType) bool {
 }
 
 // Handle handles the given interaction event.
-func (r *Mux) Handle(ctx context.Context, path string, variables map[string]string, e *events.InteractionCreate) error {
-	handlerChain := Handler(func(ctx context.Context, event *events.InteractionCreate) error {
-		path = parseVariables(path, r.pattern, variables)
+func (r *Mux) Handle(path string, event *InteractionEvent) error {
+	handlerChain := Handler(func(event *InteractionEvent) error {
+		path = parseVariables(path, r.pattern, event.Vars)
 
 		for _, route := range r.routes {
-			if route.Match(path, e.Type()) {
-				return route.Handle(ctx, path, variables, e)
+			if route.Match(path, event.Type()) {
+				return route.Handle(path, event)
 			}
 		}
 		if r.notFoundHandler != nil {
-			return r.notFoundHandler(e)
+			return r.notFoundHandler(event)
 		}
 		return nil
 	})
@@ -114,7 +119,7 @@ func (r *Mux) Handle(ctx context.Context, path string, variables map[string]stri
 		handlerChain = r.middlewares[i](handlerChain)
 	}
 
-	return handlerChain(ctx, e)
+	return handlerChain(event)
 }
 
 // Use adds the given middlewares to the current Router.
@@ -154,6 +159,17 @@ func (r *Mux) Mount(pattern string, router Router) {
 
 func (r *Mux) handle(route Route) {
 	r.routes = append(r.routes, route)
+}
+
+// Interaction registers the given InteractionHandler to the current Router.
+// This is a shortcut for Command, Autocomplete, Component and Modal.
+func (r *Mux) Interaction(pattern string, h InteractionHandler) {
+	checkPattern(pattern)
+	r.handle(&handlerHolder[InteractionHandler]{
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionType(0),
+	})
 }
 
 // Command registers the given CommandHandler to the current Router.

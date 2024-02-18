@@ -1,20 +1,18 @@
 package handler
 
 import (
-	"context"
-
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/events"
 )
 
 type (
+	InteractionHandler  func(e *InteractionEvent) error
 	CommandHandler      func(e *CommandEvent) error
 	AutocompleteHandler func(e *AutocompleteEvent) error
 	ComponentHandler    func(e *ComponentEvent) error
 	ModalHandler        func(e *ModalEvent) error
-	NotFoundHandler     func(e *events.InteractionCreate) error
-	ErrorHandler        func(e *events.InteractionCreate, err error)
+	NotFoundHandler     func(e *InteractionEvent) error
+	ErrorHandler        func(e *InteractionEvent, err error)
 )
 
 var (
@@ -31,7 +29,7 @@ type Route interface {
 	Match(path string, t discord.InteractionType) bool
 
 	// Handle handles the given interaction event.
-	Handle(ctx context.Context, path string, variables map[string]string, e *events.InteractionCreate) error
+	Handle(path string, e *InteractionEvent) error
 }
 
 // Router provides with the core routing functionality.
@@ -54,6 +52,9 @@ type Router interface {
 
 	// Mount mounts the given router with the given pattern to the current Router.
 	Mount(pattern string, r Router)
+
+	// Interaction registers the given InteractionHandler to the current Router.
+	Interaction(pattern string, h InteractionHandler)
 
 	// Command registers the given CommandHandler to the current Router.
 	Command(pattern string, h CommandHandler)

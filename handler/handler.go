@@ -18,7 +18,6 @@
 package handler
 
 import (
-	"context"
 	"errors"
 	"strings"
 
@@ -70,10 +69,12 @@ func (h *handlerHolder[T]) Match(path string, t discord.InteractionType) bool {
 	return true
 }
 
-func (h *handlerHolder[T]) Handle(ctx context.Context, path string, variables map[string]string, event *events.InteractionCreate) error {
-	parseVariables(path, h.pattern, variables)
+func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
+	parseVariables(path, h.pattern, event.Vars)
 
 	switch handler := any(h.handler).(type) {
+	case InteractionHandler:
+		return handler(event)
 	case CommandHandler:
 		return handler(&CommandEvent{
 			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
@@ -81,8 +82,8 @@ func (h *handlerHolder[T]) Handle(ctx context.Context, path string, variables ma
 				ApplicationCommandInteraction: event.Interaction.(discord.ApplicationCommandInteraction),
 				Respond:                       event.Respond,
 			},
-			Vars: variables,
-			Ctx:  ctx,
+			Vars: event.Vars,
+			Ctx:  event.Ctx,
 		})
 	case AutocompleteHandler:
 		return handler(&AutocompleteEvent{
@@ -91,8 +92,8 @@ func (h *handlerHolder[T]) Handle(ctx context.Context, path string, variables ma
 				AutocompleteInteraction: event.Interaction.(discord.AutocompleteInteraction),
 				Respond:                 event.Respond,
 			},
-			Vars: variables,
-			Ctx:  ctx,
+			Vars: event.Vars,
+			Ctx:  event.Ctx,
 		})
 	case ComponentHandler:
 		return handler(&ComponentEvent{
@@ -101,8 +102,8 @@ func (h *handlerHolder[T]) Handle(ctx context.Context, path string, variables ma
 				ComponentInteraction: event.Interaction.(discord.ComponentInteraction),
 				Respond:              event.Respond,
 			},
-			Vars: variables,
-			Ctx:  ctx,
+			Vars: event.Vars,
+			Ctx:  event.Ctx,
 		})
 	case ModalHandler:
 		return handler(&ModalEvent{
@@ -111,8 +112,8 @@ func (h *handlerHolder[T]) Handle(ctx context.Context, path string, variables ma
 				ModalSubmitInteraction: event.Interaction.(discord.ModalSubmitInteraction),
 				Respond:                event.Respond,
 			},
-			Vars: variables,
-			Ctx:  ctx,
+			Vars: event.Vars,
+			Ctx:  event.Ctx,
 		})
 	}
 	return errors.New("unknown handler type")
