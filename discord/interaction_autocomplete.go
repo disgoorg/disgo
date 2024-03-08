@@ -197,6 +197,13 @@ func (d AutocompleteInteractionData) CommandPath() string {
 	return path
 }
 
+func (d AutocompleteInteractionData) Focused() AutocompleteOption {
+	option, _ := d.Find(func(option AutocompleteOption) bool {
+		return option.Focused
+	})
+	return option
+}
+
 func (d AutocompleteInteractionData) Option(name string) (AutocompleteOption, bool) {
 	option, ok := d.Options[name]
 	return option, ok
