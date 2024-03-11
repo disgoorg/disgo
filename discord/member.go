@@ -13,17 +13,18 @@ var _ Mentionable = (*Member)(nil)
 
 // Member is a discord GuildMember
 type Member struct {
-	User                       User           `json:"user"`
-	Nick                       *string        `json:"nick"`
-	Avatar                     *string        `json:"avatar"`
-	RoleIDs                    []snowflake.ID `json:"roles,omitempty"`
-	JoinedAt                   time.Time      `json:"joined_at"`
-	PremiumSince               *time.Time     `json:"premium_since,omitempty"`
-	Deaf                       bool           `json:"deaf,omitempty"`
-	Mute                       bool           `json:"mute,omitempty"`
-	Flags                      MemberFlags    `json:"flags"`
-	Pending                    bool           `json:"pending"`
-	CommunicationDisabledUntil *time.Time     `json:"communication_disabled_until"`
+	User                       User                  `json:"user"`
+	Nick                       *string               `json:"nick"`
+	Avatar                     *string               `json:"avatar"`
+	RoleIDs                    []snowflake.ID        `json:"roles,omitempty"`
+	JoinedAt                   time.Time             `json:"joined_at"`
+	PremiumSince               *time.Time            `json:"premium_since,omitempty"`
+	Deaf                       bool                  `json:"deaf,omitempty"`
+	Mute                       bool                  `json:"mute,omitempty"`
+	Flags                      MemberFlags           `json:"flags"`
+	Pending                    bool                  `json:"pending"`
+	CommunicationDisabledUntil *time.Time            `json:"communication_disabled_until"`
+	AvatarDecorationData       *AvatarDecorationData `json:"avatar_decoration_data"`
 
 	// This field is not present everywhere in the API and often populated by disgo
 	GuildID snowflake.ID `json:"guild_id"`
