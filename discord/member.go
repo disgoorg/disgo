@@ -68,6 +68,15 @@ func (m Member) AvatarURL(opts ...CDNOpt) *string {
 	return &url
 }
 
+// AvatarDecorationURL returns the avatar decoration URL if set or nil
+func (m Member) AvatarDecorationURL(opts ...CDNOpt) *string {
+	if m.AvatarDecorationData == nil {
+		return nil
+	}
+	url := formatAssetURL(AvatarDecoration, opts, m.AvatarDecorationData.Asset)
+	return &url
+}
+
 func (m Member) CreatedAt() time.Time {
 	return m.User.CreatedAt()
 }
