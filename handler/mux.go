@@ -60,9 +60,16 @@ func (r *Mux) OnEvent(event bot.Event) {
 		path = i.Data.CustomID
 	}
 
+	var ctx context.Context
+	if r.defaultContext != nil {
+		ctx = r.defaultContext()
+	} else {
+		ctx = context.Background()
+	}
+
 	ie := &InteractionEvent{
 		InteractionCreate: e,
-		Ctx:               r.defaultContext(),
+		Ctx:               ctx,
 		Vars:              make(map[string]string),
 	}
 	if err := r.Handle(path, ie); err != nil {
@@ -222,6 +229,12 @@ func (r *Mux) NotFound(h NotFoundHandler) {
 // This handler only works for the root router and will be ignored for sub routers.
 func (r *Mux) Error(h ErrorHandler) {
 	r.errorHandler = h
+}
+
+// DefaultContext sets the default context for this router.
+// This context will be used for all interaction events.
+func (r *Mux) DefaultContext(ctx func() context.Context) {
+	r.defaultContext = ctx
 }
 
 func checkPattern(pattern string) {
