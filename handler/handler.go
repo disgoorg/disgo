@@ -19,6 +19,7 @@ package handler
 
 import (
 	"errors"
+	"slices"
 	"strings"
 
 	"github.com/disgoorg/snowflake/v2"
@@ -48,10 +49,11 @@ type handlerHolder[T any] struct {
 	pattern string
 	handler T
 	t       discord.InteractionType
+	t2      []int
 }
 
-func (h *handlerHolder[T]) Match(path string, t discord.InteractionType) bool {
-	if h.t != t {
+func (h *handlerHolder[T]) Match(path string, t discord.InteractionType, t2 int) bool {
+	if h.t != t || (len(h.t2) > 0 && !slices.Contains(h.t2, t2)) {
 		return false
 	}
 	parts := splitPath(path)
@@ -85,6 +87,39 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 			Vars: event.Vars,
 			Ctx:  event.Ctx,
 		})
+	case SlashCommandHandler:
+		commandInteraction := event.Interaction.(discord.ApplicationCommandInteraction)
+		return handler(commandInteraction.Data.(discord.SlashCommandInteractionData), &CommandEvent{
+			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
+				GenericEvent:                  event.GenericEvent,
+				ApplicationCommandInteraction: commandInteraction,
+				Respond:                       event.Respond,
+			},
+			Vars: event.Vars,
+			Ctx:  event.Ctx,
+		})
+	case UserCommandHandler:
+		commandInteraction := event.Interaction.(discord.ApplicationCommandInteraction)
+		return handler(commandInteraction.Data.(discord.UserCommandInteractionData), &CommandEvent{
+			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
+				GenericEvent:                  event.GenericEvent,
+				ApplicationCommandInteraction: commandInteraction,
+				Respond:                       event.Respond,
+			},
+			Vars: event.Vars,
+			Ctx:  event.Ctx,
+		})
+	case MessageCommandHandler:
+		commandInteraction := event.Interaction.(discord.ApplicationCommandInteraction)
+		return handler(commandInteraction.Data.(discord.MessageCommandInteractionData), &CommandEvent{
+			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
+				GenericEvent:                  event.GenericEvent,
+				ApplicationCommandInteraction: commandInteraction,
+				Respond:                       event.Respond,
+			},
+			Vars: event.Vars,
+			Ctx:  event.Ctx,
+		})
 	case AutocompleteHandler:
 		return handler(&AutocompleteEvent{
 			AutocompleteInteractionCreate: &events.AutocompleteInteractionCreate{
@@ -100,6 +135,28 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 			ComponentInteractionCreate: &events.ComponentInteractionCreate{
 				GenericEvent:         event.GenericEvent,
 				ComponentInteraction: event.Interaction.(discord.ComponentInteraction),
+				Respond:              event.Respond,
+			},
+			Vars: event.Vars,
+			Ctx:  event.Ctx,
+		})
+	case ButtonComponentHandler:
+		componentInteraction := event.Interaction.(discord.ComponentInteraction)
+		return handler(componentInteraction.Data.(discord.ButtonInteractionData), &ComponentEvent{
+			ComponentInteractionCreate: &events.ComponentInteractionCreate{
+				GenericEvent:         event.GenericEvent,
+				ComponentInteraction: componentInteraction,
+				Respond:              event.Respond,
+			},
+			Vars: event.Vars,
+			Ctx:  event.Ctx,
+		})
+	case SelectMenuComponentHandler:
+		componentInteraction := event.Interaction.(discord.ComponentInteraction)
+		return handler(componentInteraction.Data.(discord.SelectMenuInteractionData), &ComponentEvent{
+			ComponentInteractionCreate: &events.ComponentInteractionCreate{
+				GenericEvent:         event.GenericEvent,
+				ComponentInteraction: componentInteraction,
 				Respond:              event.Respond,
 			},
 			Vars: event.Vars,
