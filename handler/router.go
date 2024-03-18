@@ -6,13 +6,18 @@ import (
 )
 
 type (
-	InteractionHandler  func(e *InteractionEvent) error
-	CommandHandler      func(e *CommandEvent) error
-	AutocompleteHandler func(e *AutocompleteEvent) error
-	ComponentHandler    func(e *ComponentEvent) error
-	ModalHandler        func(e *ModalEvent) error
-	NotFoundHandler     func(e *InteractionEvent) error
-	ErrorHandler        func(e *InteractionEvent, err error)
+	InteractionHandler         func(e *InteractionEvent) error
+	CommandHandler             func(e *CommandEvent) error
+	SlashCommandHandler        func(data discord.SlashCommandInteractionData, e *CommandEvent) error
+	UserCommandHandler         func(data discord.UserCommandInteractionData, e *CommandEvent) error
+	MessageCommandHandler      func(data discord.MessageCommandInteractionData, e *CommandEvent) error
+	AutocompleteHandler        func(e *AutocompleteEvent) error
+	ComponentHandler           func(e *ComponentEvent) error
+	ButtonComponentHandler     func(data discord.ButtonInteractionData, e *ComponentEvent) error
+	SelectMenuComponentHandler func(data discord.SelectMenuInteractionData, e *ComponentEvent) error
+	ModalHandler               func(e *ModalEvent) error
+	NotFoundHandler            func(e *InteractionEvent) error
+	ErrorHandler               func(e *InteractionEvent, err error)
 )
 
 var (
@@ -26,7 +31,7 @@ var (
 // Route is a basic interface for a route in a Router.
 type Route interface {
 	// Match returns true if the given path matches the Route.
-	Match(path string, t discord.InteractionType) bool
+	Match(path string, t discord.InteractionType, t2 int) bool
 
 	// Handle handles the given interaction event.
 	Handle(path string, e *InteractionEvent) error
@@ -59,11 +64,26 @@ type Router interface {
 	// Command registers the given CommandHandler to the current Router.
 	Command(pattern string, h CommandHandler)
 
+	// SlashCommand registers the given SlashCommandHandler to the current Router.
+	SlashCommand(pattern string, h SlashCommandHandler)
+
+	// UserCommand registers the given UserCommandHandler to the current Router.
+	UserCommand(pattern string, h UserCommandHandler)
+
+	// MessageCommand registers the given MessageCommandHandler to the current Router.
+	MessageCommand(pattern string, h MessageCommandHandler)
+
 	// Autocomplete registers the given AutocompleteHandler to the current Router.
 	Autocomplete(pattern string, h AutocompleteHandler)
 
 	// Component registers the given ComponentHandler to the current Router.
 	Component(pattern string, h ComponentHandler)
+
+	// ButtonComponent registers the given ButtonComponentHandler to the current Router.
+	ButtonComponent(pattern string, h ButtonComponentHandler)
+
+	// SelectMenuComponent registers the given SelectMenuComponentHandler to the current Router.
+	SelectMenuComponent(pattern string, h SelectMenuComponentHandler)
 
 	// Modal registers the given ModalHandler to the current Router.
 	Modal(pattern string, h ModalHandler)
