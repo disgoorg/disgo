@@ -10,7 +10,6 @@ import (
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/handler"
 	"github.com/disgoorg/disgo/handler/middleware"
 	"github.com/disgoorg/snowflake/v2"
@@ -118,7 +117,7 @@ func handleContent(content string) handler.CommandHandler {
 }
 
 func handleVariableContent(event *handler.CommandEvent) error {
-	group := event.Variables["group"]
+	group := event.Vars["group"]
 	return event.CreateMessage(discord.MessageCreate{Content: "group: " + group})
 }
 
@@ -134,10 +133,10 @@ func handlePing(event *handler.CommandEvent) error {
 }
 
 func handleComponent(event *handler.ComponentEvent) error {
-	data := event.Variables["data"]
+	data := event.Vars["data"]
 	return event.CreateMessage(discord.MessageCreate{Content: "component: " + data})
 }
 
-func handleNotFound(event *events.InteractionCreate) error {
-	return event.Respond(discord.InteractionResponseTypeCreateMessage, discord.MessageCreate{Content: "not found"})
+func handleNotFound(event *handler.InteractionEvent) error {
+	return event.CreateMessage(discord.MessageCreate{Content: "not found"})
 }

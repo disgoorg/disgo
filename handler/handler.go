@@ -5,7 +5,7 @@
 // Slash Commands can have subcommands, which are nested paths. For example /test/subcommand1 or /test/subcommandgroup/subcommand.
 //
 // The handler also supports variables in its path which is especially useful for subcommands, components and modals.
-// Variables are defined by curly braces like {variable} and can be accessed in the handler via the Variables map.
+// Vars are defined by curly braces like {variable} and can be accessed in the handler via the Vars map.
 //
 // You can also register middlewares, which are executed before the handler is called. Middlewares can be used to check permissions, validate input or do other things.
 // Middlewares can also be attached to sub-routers, which is useful if you want to have a middleware for all subcommands of a command as an example.
@@ -69,10 +69,12 @@ func (h *handlerHolder[T]) Match(path string, t discord.InteractionType) bool {
 	return true
 }
 
-func (h *handlerHolder[T]) Handle(path string, variables map[string]string, event *events.InteractionCreate) error {
-	parseVariables(path, h.pattern, variables)
+func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
+	parseVariables(path, h.pattern, event.Vars)
 
 	switch handler := any(h.handler).(type) {
+	case InteractionHandler:
+		return handler(event)
 	case CommandHandler:
 		return handler(&CommandEvent{
 			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
@@ -80,7 +82,8 @@ func (h *handlerHolder[T]) Handle(path string, variables map[string]string, even
 				ApplicationCommandInteraction: event.Interaction.(discord.ApplicationCommandInteraction),
 				Respond:                       event.Respond,
 			},
-			Variables: variables,
+			Vars: event.Vars,
+			Ctx:  event.Ctx,
 		})
 	case AutocompleteHandler:
 		return handler(&AutocompleteEvent{
@@ -89,7 +92,8 @@ func (h *handlerHolder[T]) Handle(path string, variables map[string]string, even
 				AutocompleteInteraction: event.Interaction.(discord.AutocompleteInteraction),
 				Respond:                 event.Respond,
 			},
-			Variables: variables,
+			Vars: event.Vars,
+			Ctx:  event.Ctx,
 		})
 	case ComponentHandler:
 		return handler(&ComponentEvent{
@@ -98,7 +102,8 @@ func (h *handlerHolder[T]) Handle(path string, variables map[string]string, even
 				ComponentInteraction: event.Interaction.(discord.ComponentInteraction),
 				Respond:              event.Respond,
 			},
-			Variables: variables,
+			Vars: event.Vars,
+			Ctx:  event.Ctx,
 		})
 	case ModalHandler:
 		return handler(&ModalEvent{
@@ -107,7 +112,8 @@ func (h *handlerHolder[T]) Handle(path string, variables map[string]string, even
 				ModalSubmitInteraction: event.Interaction.(discord.ModalSubmitInteraction),
 				Respond:                event.Respond,
 			},
-			Variables: variables,
+			Vars: event.Vars,
+			Ctx:  event.Ctx,
 		})
 	}
 	return errors.New("unknown handler type")
