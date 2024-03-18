@@ -113,6 +113,7 @@ type Message struct {
 	Thread               *MessageThread        `json:"thread,omitempty"`
 	Position             *int                  `json:"position,omitempty"`
 	RoleSubscriptionData *RoleSubscriptionData `json:"role_subscription_data,omitempty"`
+	InteractionMetadata  *InteractionMetadata  `json:"interaction_metadata,omitempty"`
 	Resolved             *ResolvedData         `json:"resolved,omitempty"`
 }
 
@@ -462,4 +463,14 @@ type RoleSubscriptionData struct {
 	TierName                  string       `json:"tier_name"`
 	TotalMonthsSubscribed     int          `json:"total_months_subscribed"`
 	IsRenewal                 bool         `json:"is_renewal"`
+}
+
+type InteractionMetadata struct {
+	ID                            snowflake.ID                                `json:"id"`
+	Type                          InteractionType                             `json:"type"`
+	UserID                        snowflake.ID                                `json:"user_id"`
+	AuthorizingIntegrationOwners  map[ApplicationIntegrationType]snowflake.ID `json:"authorizing_integration_owners"`
+	OriginalResponseMessageID     *snowflake.ID                               `json:"original_response_message_id"`
+	InteractedMessageID           *snowflake.ID                               `json:"interacted_message_id"`
+	TriggeringInteractionMetadata *InteractionMetadata                        `json:"triggering_interaction_metadata"`
 }
