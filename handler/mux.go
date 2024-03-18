@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"log/slog"
 	"strings"
 
@@ -9,8 +10,8 @@ import (
 	"github.com/disgoorg/disgo/events"
 )
 
-var defaultErrorHandler = func(e *events.InteractionCreate, err error) {
-	e.Client().Logger().Error("error handling interaction", slog.String("err", err.Error()))
+var defaultErrorHandler ErrorHandler = func(event *InteractionEvent, err error) {
+	event.Client().Logger().Error("error handling interaction", slog.String("err", err.Error()))
 }
 
 // New returns a new Router.
@@ -33,6 +34,7 @@ type Mux struct {
 	routes          []Route
 	notFoundHandler NotFoundHandler
 	errorHandler    ErrorHandler
+	defaultContext  func() context.Context
 }
 
 // OnEvent is called when a new event is received.
@@ -58,12 +60,24 @@ func (r *Mux) OnEvent(event bot.Event) {
 		path = i.Data.CustomID
 	}
 
-	if err := r.Handle(path, make(map[string]string), e); err != nil {
+	var ctx context.Context
+	if r.defaultContext != nil {
+		ctx = r.defaultContext()
+	} else {
+		ctx = context.Background()
+	}
+
+	ie := &InteractionEvent{
+		InteractionCreate: e,
+		Ctx:               ctx,
+		Vars:              make(map[string]string),
+	}
+	if err := r.Handle(path, ie); err != nil {
 		if r.errorHandler != nil {
-			r.errorHandler(e, err)
+			r.errorHandler(ie, err)
 			return
 		}
-		defaultErrorHandler(e, err)
+		defaultErrorHandler(ie, err)
 	}
 }
 
@@ -93,26 +107,26 @@ func (r *Mux) Match(path string, t discord.InteractionType) bool {
 }
 
 // Handle handles the given interaction event.
-func (r *Mux) Handle(path string, variables map[string]string, e *events.InteractionCreate) error {
-	handlerChain := func(event *events.InteractionCreate) error {
-		path = parseVariables(path, r.pattern, variables)
+func (r *Mux) Handle(path string, event *InteractionEvent) error {
+	handlerChain := Handler(func(event *InteractionEvent) error {
+		path = parseVariables(path, r.pattern, event.Vars)
 
 		for _, route := range r.routes {
-			if route.Match(path, e.Type()) {
-				return route.Handle(path, variables, e)
+			if route.Match(path, event.Type()) {
+				return route.Handle(path, event)
 			}
 		}
 		if r.notFoundHandler != nil {
-			return r.notFoundHandler(e)
+			return r.notFoundHandler(event)
 		}
 		return nil
-	}
+	})
 
 	for i := len(r.middlewares) - 1; i >= 0; i-- {
 		handlerChain = r.middlewares[i](handlerChain)
 	}
 
-	return handlerChain(e)
+	return handlerChain(event)
 }
 
 // Use adds the given middlewares to the current Router.
@@ -152,6 +166,17 @@ func (r *Mux) Mount(pattern string, router Router) {
 
 func (r *Mux) handle(route Route) {
 	r.routes = append(r.routes, route)
+}
+
+// Interaction registers the given InteractionHandler to the current Router.
+// This is a shortcut for Command, Autocomplete, Component and Modal.
+func (r *Mux) Interaction(pattern string, h InteractionHandler) {
+	checkPattern(pattern)
+	r.handle(&handlerHolder[InteractionHandler]{
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionType(0),
+	})
 }
 
 // Command registers the given CommandHandler to the current Router.
@@ -204,6 +229,12 @@ func (r *Mux) NotFound(h NotFoundHandler) {
 // This handler only works for the root router and will be ignored for sub routers.
 func (r *Mux) Error(h ErrorHandler) {
 	r.errorHandler = h
+}
+
+// DefaultContext sets the default context for this router.
+// This context will be used for all interaction events.
+func (r *Mux) DefaultContext(ctx func() context.Context) {
+	r.defaultContext = ctx
 }
 
 func checkPattern(pattern string) {
