@@ -82,7 +82,7 @@ func (r *Mux) OnEvent(event bot.Event) {
 }
 
 // Match returns true if the given path matches the Route.
-func (r *Mux) Match(path string, t discord.InteractionType) bool {
+func (r *Mux) Match(path string, t discord.InteractionType, t2 int) bool {
 	if r.pattern != "" {
 		parts := splitPath(path)
 		patternParts := splitPath(r.pattern)
@@ -99,7 +99,7 @@ func (r *Mux) Match(path string, t discord.InteractionType) bool {
 	}
 
 	for _, matcher := range r.routes {
-		if matcher.Match(path, t) {
+		if matcher.Match(path, t, t2) {
 			return true
 		}
 	}
@@ -111,8 +111,17 @@ func (r *Mux) Handle(path string, event *InteractionEvent) error {
 	handlerChain := Handler(func(event *InteractionEvent) error {
 		path = parseVariables(path, r.pattern, event.Vars)
 
+		t := event.Type()
+		var t2 int
+		switch i := event.Interaction.(type) {
+		case discord.ApplicationCommandInteraction:
+			t2 = int(i.Data.Type())
+		case discord.ComponentInteraction:
+			t2 = int(i.Data.Type())
+		}
+
 		for _, route := range r.routes {
-			if route.Match(path, event.Type()) {
+			if route.Match(path, t, t2) {
 				return route.Handle(path, event)
 			}
 		}
@@ -189,6 +198,39 @@ func (r *Mux) Command(pattern string, h CommandHandler) {
 	})
 }
 
+// SlashCommand registers the given SlashCommandHandler to the current Router.
+func (r *Mux) SlashCommand(pattern string, h SlashCommandHandler) {
+	checkPattern(pattern)
+	r.handle(&handlerHolder[SlashCommandHandler]{
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeApplicationCommand,
+		t2:      []int{discord.ApplicationCommandTypeSlash},
+	})
+}
+
+// UserCommand registers the given UserCommandHandler to the current Router.
+func (r *Mux) UserCommand(pattern string, h UserCommandHandler) {
+	checkPattern(pattern)
+	r.handle(&handlerHolder[UserCommandHandler]{
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeApplicationCommand,
+		t2:      []int{discord.ApplicationCommandTypeUser},
+	})
+}
+
+// MessageCommand registers the given MessageCommandHandler to the current Router.
+func (r *Mux) MessageCommand(pattern string, h MessageCommandHandler) {
+	checkPattern(pattern)
+	r.handle(&handlerHolder[MessageCommandHandler]{
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeApplicationCommand,
+		t2:      []int{discord.ApplicationCommandTypeMessage},
+	})
+}
+
 // Autocomplete registers the given AutocompleteHandler to the current Router.
 func (r *Mux) Autocomplete(pattern string, h AutocompleteHandler) {
 	checkPattern(pattern)
@@ -206,6 +248,34 @@ func (r *Mux) Component(pattern string, h ComponentHandler) {
 		pattern: pattern,
 		handler: h,
 		t:       discord.InteractionTypeComponent,
+	})
+}
+
+// ButtonComponent registers the given ButtonComponentHandler to the current Router.
+func (r *Mux) ButtonComponent(pattern string, h ButtonComponentHandler) {
+	checkPattern(pattern)
+	r.handle(&handlerHolder[ButtonComponentHandler]{
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeComponent,
+		t2:      []int{discord.ComponentTypeButton},
+	})
+}
+
+// SelectMenuComponent registers the given SelectMenuComponentHandler to the current Router.
+func (r *Mux) SelectMenuComponent(pattern string, h SelectMenuComponentHandler) {
+	checkPattern(pattern)
+	r.handle(&handlerHolder[SelectMenuComponentHandler]{
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeComponent,
+		t2: []int{
+			discord.ComponentTypeStringSelectMenu,
+			discord.ComponentTypeUserSelectMenu,
+			discord.ComponentTypeRoleSelectMenu,
+			discord.ComponentTypeMentionableSelectMenu,
+			discord.ComponentTypeChannelSelectMenu,
+		},
 	})
 }
 
