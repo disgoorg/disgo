@@ -241,10 +241,10 @@ func (t Team) CreatedAt() time.Time {
 }
 
 type TeamMember struct {
-	MembershipState MembershipState   `json:"membership_state"`
-	Permissions     []TeamPermissions `json:"permissions"`
-	TeamID          snowflake.ID      `json:"team_id"`
-	User            User              `json:"user"`
+	MembershipState MembershipState `json:"membership_state"`
+	TeamID          snowflake.ID    `json:"team_id"`
+	User            User            `json:"user"`
+	Role            TeamRole        `json:"role"`
 }
 
 type MembershipState int
@@ -254,8 +254,10 @@ const (
 	MembershipStateAccepted
 )
 
-type TeamPermissions string
+type TeamRole string
 
 const (
-	TeamPermissionAdmin = "*"
+	TeamRoleAdmin     TeamRole = "admin"
+	TeamRoleDeveloper TeamRole = "developer"
+	TeamRoleReadOnly  TeamRole = "read_only"
 )
