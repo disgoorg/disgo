@@ -471,6 +471,7 @@ type InteractionMetadata struct {
 	UserID                        snowflake.ID                                `json:"user_id"`
 	AuthorizingIntegrationOwners  map[ApplicationIntegrationType]snowflake.ID `json:"authorizing_integration_owners"`
 	OriginalResponseMessageID     *snowflake.ID                               `json:"original_response_message_id"`
+	Name                          *string                                     `json:"name"`
 	InteractedMessageID           *snowflake.ID                               `json:"interacted_message_id"`
 	TriggeringInteractionMetadata *InteractionMetadata                        `json:"triggering_interaction_metadata"`
 }
