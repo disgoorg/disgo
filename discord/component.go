@@ -12,7 +12,7 @@ type ComponentType int
 
 // Supported ComponentType(s)
 const (
-	ComponentTypeActionRow = iota + 1
+	ComponentTypeActionRow ComponentType = iota + 1
 	ComponentTypeButton
 	ComponentTypeStringSelectMenu
 	ComponentTypeTextInput
@@ -229,7 +229,7 @@ type ButtonStyle int
 
 // Supported ButtonStyle(s)
 const (
-	ButtonStylePrimary = iota + 1
+	ButtonStylePrimary ButtonStyle = iota + 1
 	ButtonStyleSecondary
 	ButtonStyleSuccess
 	ButtonStyleDanger
@@ -459,6 +459,6 @@ func (c TextInputComponent) WithValue(value string) TextInputComponent {
 type TextInputStyle int
 
 const (
-	TextInputStyleShort = iota + 1
+	TextInputStyleShort TextInputStyle = iota + 1
 	TextInputStyleParagraph
 )

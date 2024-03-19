@@ -250,7 +250,7 @@ type TeamMember struct {
 type MembershipState int
 
 const (
-	MembershipStateInvited = iota + 1
+	MembershipStateInvited MembershipState = iota + 1
 	MembershipStateAccepted
 )
 
