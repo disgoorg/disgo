@@ -12,7 +12,7 @@ type ComponentType int
 
 // Supported ComponentType(s)
 const (
-	ComponentTypeActionRow ComponentType = iota + 1
+	ComponentTypeActionRow = iota + 1
 	ComponentTypeButton
 	ComponentTypeStringSelectMenu
 	ComponentTypeTextInput

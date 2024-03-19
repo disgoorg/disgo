@@ -11,7 +11,7 @@ import (
 type ApplicationCommandType int
 
 const (
-	ApplicationCommandTypeSlash ApplicationCommandType = iota + 1
+	ApplicationCommandTypeSlash = iota + 1
 	ApplicationCommandTypeUser
 	ApplicationCommandTypeMessage
 )
