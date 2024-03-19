@@ -245,12 +245,13 @@ type TeamMember struct {
 	Permissions     []TeamPermissions `json:"permissions"`
 	TeamID          snowflake.ID      `json:"team_id"`
 	User            User              `json:"user"`
+	Role            TeamRole          `json:"role"`
 }
 
 type MembershipState int
 
 const (
-	MembershipStateInvited = iota + 1
+	MembershipStateInvited MembershipState = iota + 1
 	MembershipStateAccepted
 )
 
@@ -258,4 +259,12 @@ type TeamPermissions string
 
 const (
 	TeamPermissionAdmin = "*"
+)
+
+type TeamRole string
+
+const (
+	TeamRoleAdmin     TeamRole = "admin"
+	TeamRoleDeveloper TeamRole = "developer"
+	TeamRoleReadOnly  TeamRole = "read_only"
 )
