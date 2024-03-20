@@ -55,18 +55,22 @@ func (c *clientImpl) GenerateAuthorizationURL(params AuthorizationURLParams) str
 func (c *clientImpl) GenerateAuthorizationURLState(params AuthorizationURLParams) (string, string) {
 	state := c.StateController().NewState(params.RedirectURI)
 	values := discord.QueryValues{
-		"client_id":            c.id,
-		"redirect_uri":         params.RedirectURI,
-		"response_type":        "code",
-		"scope":                discord.JoinScopes(params.Scopes),
-		"state":                state,
-		"permissions":          params.Permissions,
-		"disable_guild_select": params.DisableGuildSelect,
-		"integration_type":     params.IntegrationType,
+		"client_id":        c.id,
+		"redirect_uri":     params.RedirectURI,
+		"response_type":    "code",
+		"scope":            discord.JoinScopes(params.Scopes),
+		"state":            state,
+		"integration_type": params.IntegrationType,
 	}
 
+	if params.Permissions != discord.PermissionsNone {
+		values["permissions"] = params.Permissions
+	}
 	if params.GuildID != 0 {
 		values["guild_id"] = params.GuildID
+	}
+	if params.DisableGuildSelect {
+		values["disable_guild_select"] = true
 	}
 	return discord.AuthorizeURL(values), state
 }
