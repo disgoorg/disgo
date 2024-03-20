@@ -47,19 +47,20 @@ func (c *clientImpl) StateController() StateController {
 	return c.stateController
 }
 
-func (c *clientImpl) GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.OAuth2Scope) string {
-	authURL, _ := c.GenerateAuthorizationURLState(redirectURI, permissions, guildID, disableGuildSelect, scopes...)
+func (c *clientImpl) GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, integrationType discord.ApplicationIntegrationType, scopes ...discord.OAuth2Scope) string {
+	authURL, _ := c.GenerateAuthorizationURLState(redirectURI, permissions, guildID, disableGuildSelect, integrationType, scopes...)
 	return authURL
 }
 
-func (c *clientImpl) GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.OAuth2Scope) (string, string) {
+func (c *clientImpl) GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, integrationType discord.ApplicationIntegrationType, scopes ...discord.OAuth2Scope) (string, string) {
 	state := c.StateController().NewState(redirectURI)
 	values := discord.QueryValues{
-		"client_id":     c.id,
-		"redirect_uri":  redirectURI,
-		"response_type": "code",
-		"scope":         discord.JoinScopes(scopes),
-		"state":         state,
+		"client_id":        c.id,
+		"redirect_uri":     redirectURI,
+		"response_type":    "code",
+		"scope":            discord.JoinScopes(scopes),
+		"state":            state,
+		"integration_type": integrationType,
 	}
 
 	if permissions != discord.PermissionsNone {

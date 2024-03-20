@@ -59,9 +59,9 @@ type Client interface {
 	StateController() StateController
 
 	// GenerateAuthorizationURL generates an authorization URL with the given redirect URI, permissions, guildID, disableGuildSelect & scopes. State is automatically generated.
-	GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.OAuth2Scope) string
+	GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, integrationType discord.ApplicationIntegrationType, scopes ...discord.OAuth2Scope) string
 	// GenerateAuthorizationURLState generates an authorization URL with the given redirect URI, permissions, guildID, disableGuildSelect & scopes. State is automatically generated & returned.
-	GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.OAuth2Scope) (string, string)
+	GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, integrationType discord.ApplicationIntegrationType, scopes ...discord.OAuth2Scope) (string, string)
 
 	// StartSession starts a new Session with the given authorization code & state.
 	StartSession(code string, state string, opts ...rest.RequestOpt) (Session, *discord.IncomingWebhook, error)
