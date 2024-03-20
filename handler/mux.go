@@ -205,7 +205,7 @@ func (r *Mux) SlashCommand(pattern string, h SlashCommandHandler) {
 		pattern: pattern,
 		handler: h,
 		t:       discord.InteractionTypeApplicationCommand,
-		t2:      []int{discord.ApplicationCommandTypeSlash},
+		t2:      []int{int(discord.ApplicationCommandTypeSlash)},
 	})
 }
 
@@ -216,7 +216,7 @@ func (r *Mux) UserCommand(pattern string, h UserCommandHandler) {
 		pattern: pattern,
 		handler: h,
 		t:       discord.InteractionTypeApplicationCommand,
-		t2:      []int{discord.ApplicationCommandTypeUser},
+		t2:      []int{int(discord.ApplicationCommandTypeUser)},
 	})
 }
 
@@ -227,7 +227,7 @@ func (r *Mux) MessageCommand(pattern string, h MessageCommandHandler) {
 		pattern: pattern,
 		handler: h,
 		t:       discord.InteractionTypeApplicationCommand,
-		t2:      []int{discord.ApplicationCommandTypeMessage},
+		t2:      []int{int(discord.ApplicationCommandTypeMessage)},
 	})
 }
 
@@ -258,7 +258,7 @@ func (r *Mux) ButtonComponent(pattern string, h ButtonComponentHandler) {
 		pattern: pattern,
 		handler: h,
 		t:       discord.InteractionTypeComponent,
-		t2:      []int{discord.ComponentTypeButton},
+		t2:      []int{int(discord.ComponentTypeButton)},
 	})
 }
 
@@ -270,11 +270,11 @@ func (r *Mux) SelectMenuComponent(pattern string, h SelectMenuComponentHandler) 
 		handler: h,
 		t:       discord.InteractionTypeComponent,
 		t2: []int{
-			discord.ComponentTypeStringSelectMenu,
-			discord.ComponentTypeUserSelectMenu,
-			discord.ComponentTypeRoleSelectMenu,
-			discord.ComponentTypeMentionableSelectMenu,
-			discord.ComponentTypeChannelSelectMenu,
+			int(discord.ComponentTypeStringSelectMenu),
+			int(discord.ComponentTypeUserSelectMenu),
+			int(discord.ComponentTypeRoleSelectMenu),
+			int(discord.ComponentTypeMentionableSelectMenu),
+			int(discord.ComponentTypeChannelSelectMenu),
 		},
 	})
 }
