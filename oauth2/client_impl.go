@@ -47,32 +47,32 @@ func (c *clientImpl) StateController() StateController {
 	return c.stateController
 }
 
-func (c *clientImpl) GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, integrationType discord.ApplicationIntegrationType, scopes ...discord.OAuth2Scope) string {
-	authURL, _ := c.GenerateAuthorizationURLState(redirectURI, permissions, guildID, disableGuildSelect, integrationType, scopes...)
+func (c *clientImpl) GenerateAuthorizationURL(params AuthorizationURLParams) string {
+	authURL, _ := c.GenerateAuthorizationURLState(params)
 	return authURL
 }
 
-func (c *clientImpl) GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, integrationType discord.ApplicationIntegrationType, scopes ...discord.OAuth2Scope) (string, string) {
-	state := c.StateController().NewState(redirectURI)
+func (c *clientImpl) GenerateAuthorizationURLState(params AuthorizationURLParams) (string, string) {
+	state := c.StateController().NewState(params.RedirectURI)
 	values := discord.QueryValues{
 		"client_id":     c.id,
-		"redirect_uri":  redirectURI,
+		"redirect_uri":  params.RedirectURI,
 		"response_type": "code",
-		"scope":         discord.JoinScopes(scopes),
+		"scope":         discord.JoinScopes(params.Scopes),
 		"state":         state,
 	}
 
-	if permissions != discord.PermissionsNone {
-		values["permissions"] = permissions
+	if params.Permissions != discord.PermissionsNone {
+		values["permissions"] = params.Permissions
 	}
-	if guildID != 0 {
-		values["guild_id"] = guildID
+	if params.GuildID != 0 {
+		values["guild_id"] = params.GuildID
 	}
-	if disableGuildSelect {
+	if params.DisableGuildSelect {
 		values["disable_guild_select"] = true
 	}
-	if integrationType != 0 {
-		values["integration_type"] = integrationType
+	if params.IntegrationType != 0 {
+		values["integration_type"] = params.IntegrationType
 	}
 	return discord.AuthorizeURL(values), state
 }
