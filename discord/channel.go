@@ -1308,7 +1308,7 @@ type PartialChannel struct {
 type VideoQualityMode int
 
 const (
-	VideoQualityModeAuto = iota + 1
+	VideoQualityModeAuto VideoQualityMode = iota + 1
 	VideoQualityModeFull
 )
 
