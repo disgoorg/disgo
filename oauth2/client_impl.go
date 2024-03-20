@@ -72,6 +72,9 @@ func (c *clientImpl) GenerateAuthorizationURLState(redirectURI string, permissio
 	if disableGuildSelect {
 		values["disable_guild_select"] = true
 	}
+	if integrationType != 0 {
+		values["integration_type"] = integrationType
+	}
 	return discord.AuthorizeURL(values), state
 }
 
