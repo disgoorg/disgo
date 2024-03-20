@@ -47,30 +47,26 @@ func (c *clientImpl) StateController() StateController {
 	return c.stateController
 }
 
-func (c *clientImpl) GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, integrationType discord.ApplicationIntegrationType, scopes ...discord.OAuth2Scope) string {
-	authURL, _ := c.GenerateAuthorizationURLState(redirectURI, permissions, guildID, disableGuildSelect, integrationType, scopes...)
+func (c *clientImpl) GenerateAuthorizationURL(params AuthorizationURLParams) string {
+	authURL, _ := c.GenerateAuthorizationURLState(params)
 	return authURL
 }
 
-func (c *clientImpl) GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, integrationType discord.ApplicationIntegrationType, scopes ...discord.OAuth2Scope) (string, string) {
-	state := c.StateController().NewState(redirectURI)
+func (c *clientImpl) GenerateAuthorizationURLState(params AuthorizationURLParams) (string, string) {
+	state := c.StateController().NewState(params.RedirectURI)
 	values := discord.QueryValues{
-		"client_id":        c.id,
-		"redirect_uri":     redirectURI,
-		"response_type":    "code",
-		"scope":            discord.JoinScopes(scopes),
-		"state":            state,
-		"integration_type": integrationType,
+		"client_id":            c.id,
+		"redirect_uri":         params.RedirectURI,
+		"response_type":        "code",
+		"scope":                discord.JoinScopes(params.Scopes),
+		"state":                state,
+		"permissions":          params.Permissions,
+		"disable_guild_select": params.DisableGuildSelect,
+		"integration_type":     params.IntegrationType,
 	}
 
-	if permissions != discord.PermissionsNone {
-		values["permissions"] = permissions
-	}
-	if guildID != 0 {
-		values["guild_id"] = guildID
-	}
-	if disableGuildSelect {
-		values["disable_guild_select"] = true
+	if params.GuildID != 0 {
+		values["guild_id"] = params.GuildID
 	}
 	return discord.AuthorizeURL(values), state
 }

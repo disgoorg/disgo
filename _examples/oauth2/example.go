@@ -87,7 +87,11 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleLogin(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, client.GenerateAuthorizationURL(baseURL+"/trylogin", discord.PermissionsNone, 0, false, discord.OAuth2ScopeIdentify, discord.OAuth2ScopeGuilds, discord.OAuth2ScopeEmail, discord.OAuth2ScopeConnections, discord.OAuth2ScopeWebhookIncoming), http.StatusSeeOther)
+	params := oauth2.AuthorizationURLParams{
+		RedirectURI: baseURL + "/trylogin",
+		Scopes:      []discord.OAuth2Scope{discord.OAuth2ScopeIdentify, discord.OAuth2ScopeGuilds, discord.OAuth2ScopeEmail, discord.OAuth2ScopeConnections, discord.OAuth2ScopeWebhookIncoming},
+	}
+	http.Redirect(w, r, client.GenerateAuthorizationURL(params), http.StatusSeeOther)
 }
 
 func handleTryLogin(w http.ResponseWriter, r *http.Request) {
