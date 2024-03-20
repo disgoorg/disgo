@@ -52,7 +52,7 @@ func main() {
 }
 
 func handleVerify(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, oAuth2Client.GenerateAuthorizationURL(baseURL+"/callback", discord.PermissionsNone, 0, false, discord.OAuth2ScopeIdentify, discord.OAuth2ScopeRoleConnectionsWrite), http.StatusTemporaryRedirect)
+	http.Redirect(w, r, oAuth2Client.GenerateAuthorizationURL(baseURL+"/callback", discord.PermissionsNone, 0, false, discord.ApplicationIntegrationTypeGuildInstall, discord.OAuth2ScopeIdentify, discord.OAuth2ScopeRoleConnectionsWrite), http.StatusTemporaryRedirect)
 }
 
 func handleCallback(w http.ResponseWriter, r *http.Request) {
