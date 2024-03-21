@@ -114,6 +114,7 @@ type Message struct {
 	Position             *int                  `json:"position,omitempty"`
 	RoleSubscriptionData *RoleSubscriptionData `json:"role_subscription_data,omitempty"`
 	Resolved             *ResolvedData         `json:"resolved,omitempty"`
+	Poll                 *Poll                 `json:"poll,omitempty"`
 }
 
 func (m *Message) UnmarshalJSON(data []byte) error {

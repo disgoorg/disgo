@@ -59,6 +59,8 @@ const (
 	EventTypeMessageUpdate                       EventType = "MESSAGE_UPDATE"
 	EventTypeMessageDelete                       EventType = "MESSAGE_DELETE"
 	EventTypeMessageDeleteBulk                   EventType = "MESSAGE_DELETE_BULK"
+	EventTypeMessagePollVoteAdd                  EventType = "MESSAGE_POLL_VOTE_ADD"
+	EventTypeMessagePollVoteRemove               EventType = "MESSAGE_POLL_VOTE_REMOVE"
 	EventTypeMessageReactionAdd                  EventType = "MESSAGE_REACTION_ADD"
 	EventTypeMessageReactionRemove               EventType = "MESSAGE_REACTION_REMOVE"
 	EventTypeMessageReactionRemoveAll            EventType = "MESSAGE_REACTION_REMOVE_ALL"

@@ -210,6 +210,12 @@ func (b *WebhookMessageCreateBuilder) SetThreadName(threadName string) *WebhookM
 	return b
 }
 
+// SetPoll sets the Poll of the webhook Message
+func (b *WebhookMessageCreateBuilder) SetPoll(poll Poll) *WebhookMessageCreateBuilder {
+	b.Poll = poll
+	return b
+}
+
 // Build builds the WebhookMessageCreateBuilder to a MessageCreate struct
 func (b *WebhookMessageCreateBuilder) Build() WebhookMessageCreate {
 	b.WebhookMessageCreate.Components = b.Components

@@ -43,3 +43,23 @@ type MessageUpdate struct {
 type MessageDelete struct {
 	*GenericMessage
 }
+
+// GenericMessagePoll is a generic poll event
+type GenericMessagePoll struct {
+	*GenericEvent
+	UserID    snowflake.ID
+	ChannelID snowflake.ID
+	MessageID snowflake.ID
+	GuildID   *snowflake.ID
+	AnswerID  snowflake.ID
+}
+
+// MessagePollVoteAdd indicates that a discord.User voted on a discord.Poll
+type MessagePollVoteAdd struct {
+	*GenericMessagePoll
+}
+
+// MessagePollVoteRemove indicates that a discord.User removed their vote on a discord.Poll
+type MessagePollVoteRemove struct {
+	*GenericMessagePoll
+}
