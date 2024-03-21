@@ -512,7 +512,7 @@ type EventMessagePollVoteAdd struct {
 	ChannelID snowflake.ID  `json:"channel_id"`
 	MessageID snowflake.ID  `json:"message_id"`
 	GuildID   *snowflake.ID `json:"guild_id"`
-	AnswerID  snowflake.ID  `json:"answer_id"`
+	AnswerID  int           `json:"answer_id"`
 }
 
 func (EventMessagePollVoteAdd) messageData() {}
@@ -523,7 +523,7 @@ type EventMessagePollVoteRemove struct {
 	ChannelID snowflake.ID  `json:"channel_id"`
 	MessageID snowflake.ID  `json:"message_id"`
 	GuildID   *snowflake.ID `json:"guild_id"`
-	AnswerID  snowflake.ID  `json:"answer_id"`
+	AnswerID  int           `json:"answer_id"`
 }
 
 func (EventMessagePollVoteRemove) messageData() {}

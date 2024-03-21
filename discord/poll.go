@@ -12,7 +12,7 @@ type Poll struct {
 	Expiry           time.Time      `json:"expiry"`
 	AllowMultiselect bool           `json:"allow_multiselect"`
 	LayoutType       PollLayoutType `json:"layout_type"`
-	Results          []PollResults  `json:"results"`
+	Results          []PollResults  `json:"results,omitempty"`
 }
 
 type PollMedia struct {
@@ -21,8 +21,8 @@ type PollMedia struct {
 }
 
 type PollAnswer struct {
-	AnswerID  *snowflake.ID `json:"answer_id"`
-	PollMedia PollMedia     `json:"poll_media"`
+	AnswerID  *int      `json:"answer_id"`
+	PollMedia PollMedia `json:"poll_media"`
 }
 
 type PollResults struct {

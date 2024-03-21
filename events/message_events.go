@@ -51,7 +51,7 @@ type GenericMessagePoll struct {
 	ChannelID snowflake.ID
 	MessageID snowflake.ID
 	GuildID   *snowflake.ID
-	AnswerID  snowflake.ID
+	AnswerID  int
 }
 
 // MessagePollVoteAdd indicates that a discord.User voted on a discord.Poll

@@ -48,7 +48,7 @@ type Channels interface {
 	UnpinMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) error
 	Follow(channelID snowflake.ID, targetChannelID snowflake.ID, opts ...RequestOpt) (*discord.FollowedChannel, error)
 
-	GetPollAnswerVotes(channelID snowflake.ID, messageID snowflake.ID, answerID snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) ([]discord.User, error)
+	GetPollAnswerVotes(channelID snowflake.ID, messageID snowflake.ID, answerID int, after snowflake.ID, limit int, opts ...RequestOpt) ([]discord.User, error)
 	ExpirePoll(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) (*discord.Message, error)
 }
 
@@ -226,7 +226,7 @@ func (s *channelImpl) Follow(channelID snowflake.ID, targetChannelID snowflake.I
 	return
 }
 
-func (s *channelImpl) GetPollAnswerVotes(channelID snowflake.ID, messageID snowflake.ID, answerID snowflake.ID, after snowflake.ID, limit int, opts ...RequestOpt) (users []discord.User, err error) {
+func (s *channelImpl) GetPollAnswerVotes(channelID snowflake.ID, messageID snowflake.ID, answerID int, after snowflake.ID, limit int, opts ...RequestOpt) (users []discord.User, err error) {
 	values := discord.QueryValues{}
 	if after != 0 {
 		values["after"] = after
