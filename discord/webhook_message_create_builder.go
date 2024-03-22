@@ -211,7 +211,7 @@ func (b *WebhookMessageCreateBuilder) SetThreadName(threadName string) *WebhookM
 }
 
 // SetPoll sets the Poll of the webhook Message
-func (b *WebhookMessageCreateBuilder) SetPoll(poll Poll) *WebhookMessageCreateBuilder {
+func (b *WebhookMessageCreateBuilder) SetPoll(poll PollCreate) *WebhookMessageCreateBuilder {
 	b.Poll = poll
 	return b
 }

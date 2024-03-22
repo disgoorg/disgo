@@ -15,13 +15,21 @@ type Poll struct {
 	Results          []PollResults  `json:"results"`
 }
 
+type PollCreate struct {
+	Question         PollMedia      `json:"question"`
+	Answers          []PollAnswer   `json:"answers"`
+	Duration         int            `json:"duration"`
+	AllowMultiselect bool           `json:"allow_multiselect"`
+	LayoutType       PollLayoutType `json:"layout_type,omitempty"`
+}
+
 type PollMedia struct {
 	Text  *string       `json:"text"`
-	Emoji *PartialEmoji `json:"emoji"`
+	Emoji *PartialEmoji `json:"emoji,omitempty"`
 }
 
 type PollAnswer struct {
-	AnswerID  *int      `json:"answer_id"`
+	AnswerID  *int      `json:"answer_id,omitempty"`
 	PollMedia PollMedia `json:"poll_media"`
 }
 

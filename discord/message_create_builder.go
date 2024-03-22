@@ -252,7 +252,7 @@ func (b *MessageCreateBuilder) SetSuppressEmbeds(suppressEmbeds bool) *MessageCr
 }
 
 // SetPoll sets the Poll of the Message
-func (b *MessageCreateBuilder) SetPoll(poll Poll) *MessageCreateBuilder {
+func (b *MessageCreateBuilder) SetPoll(poll PollCreate) *MessageCreateBuilder {
 	b.Poll = poll
 	return b
 }
