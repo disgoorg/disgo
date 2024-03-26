@@ -63,6 +63,9 @@ func (i PingInteraction) Version() int {
 func (i PingInteraction) CreatedAt() time.Time {
 	return i.id.Time()
 }
+func (PingInteraction) Guild() *InteractionGuild {
+	return nil
+}
 
 func (PingInteraction) GuildID() *snowflake.ID {
 	return nil
