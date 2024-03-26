@@ -439,6 +439,28 @@ type EventGuildScheduledEventUserRemove struct {
 func (EventGuildScheduledEventUserRemove) messageData() {}
 func (EventGuildScheduledEventUserRemove) eventData()   {}
 
+type EventGuildSoundboardSoundCreate struct {
+	discord.SoundboardSound
+}
+
+func (EventGuildSoundboardSoundCreate) messageData() {}
+func (EventGuildSoundboardSoundCreate) eventData()   {}
+
+type EventGuildSoundboardSoundUpdate struct {
+	discord.SoundboardSound
+}
+
+func (EventGuildSoundboardSoundUpdate) messageData() {}
+func (EventGuildSoundboardSoundUpdate) eventData()   {}
+
+type EventGuildSoundboardSoundDelete struct {
+	SoundID snowflake.ID `json:"sound_id"`
+	GuildID snowflake.ID `json:"guild_id"`
+}
+
+func (EventGuildSoundboardSoundDelete) messageData() {}
+func (EventGuildSoundboardSoundDelete) eventData()   {}
+
 type EventInteractionCreate struct {
 	discord.Interaction
 }
@@ -514,6 +536,14 @@ type EventPresenceUpdate struct {
 func (EventPresenceUpdate) messageData() {}
 func (EventPresenceUpdate) eventData()   {}
 
+type EventSoundboardSounds struct {
+	SoundboardSounds []discord.SoundboardSound `json:"soundboard_sounds"`
+	GuildID          snowflake.ID              `json:"guild_id"`
+}
+
+func (EventSoundboardSounds) messageData() {}
+func (EventSoundboardSounds) eventData()   {}
+
 type EventStageInstanceCreate struct {
 	discord.StageInstance
 }
@@ -567,6 +597,21 @@ type EventUserUpdate struct {
 
 func (EventUserUpdate) messageData() {}
 func (EventUserUpdate) eventData()   {}
+
+type EventVoiceChannelEffectSend struct {
+	ChannelID         snowflake.ID                           `json:"channel_id"`
+	GuildID           snowflake.ID                           `json:"guild_id"`
+	UserID            snowflake.ID                           `json:"user_id"`
+	Emoji             *discord.Emoji                         `json:"emoji"`
+	AnimationType     *discord.SoundboardEffectAnimationType `json:"animation_type,omitempty"`
+	AnimationID       *int                                   `json:"animation_id,omitempty"`
+	SoundID           *snowflake.ID                          `json:"sound_id,omitempty"`
+	SoundOverridePath *string                                `json:"sound_override_path"`
+	SoundVolume       *float64                               `json:"sound_volume,omitempty"`
+}
+
+func (EventVoiceChannelEffectSend) messageData() {}
+func (EventVoiceChannelEffectSend) eventData()   {}
 
 type EventVoiceStateUpdate struct {
 	discord.VoiceState

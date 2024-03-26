@@ -111,12 +111,19 @@ type ListenerAdapter struct {
 	OnGuildMessageReactionRemoveEmoji func(event *GuildMessageReactionRemoveEmoji)
 	OnGuildMessageReactionRemoveAll   func(event *GuildMessageReactionRemoveAll)
 
+	// Guild Soundboard Events
+	OnGuildSoundboardSoundCreate func(event *GuildSoundboardSoundCreate)
+	OnGuildSoundboardSoundUpdate func(event *GuildSoundboardSoundUpdate)
+	OnGuildSoundboardSoundDelete func(event *GuildSoundboardSoundDelete)
+	OnSoundboardSounds           func(event *SoundboardSounds)
+
 	// Guild Voice Events
-	OnVoiceServerUpdate     func(event *VoiceServerUpdate)
-	OnGuildVoiceStateUpdate func(event *GuildVoiceStateUpdate)
-	OnGuildVoiceJoin        func(event *GuildVoiceJoin)
-	OnGuildVoiceMove        func(event *GuildVoiceMove)
-	OnGuildVoiceLeave       func(event *GuildVoiceLeave)
+	OnVoiceServerUpdate           func(event *VoiceServerUpdate)
+	OnGuildVoiceChannelEffectSend func(event *GuildVoiceChannelEffectSend)
+	OnGuildVoiceStateUpdate       func(event *GuildVoiceStateUpdate)
+	OnGuildVoiceJoin              func(event *GuildVoiceJoin)
+	OnGuildVoiceMove              func(event *GuildVoiceMove)
+	OnGuildVoiceLeave             func(event *GuildVoiceLeave)
 
 	// Guild StageInstance Events
 	OnStageInstanceCreate func(event *StageInstanceCreate)
@@ -466,9 +473,31 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
+	// Guild Soundboard Sound Events
+	case *GuildSoundboardSoundCreate:
+		if listener := l.OnGuildSoundboardSoundCreate; listener != nil {
+			listener(e)
+		}
+	case *GuildSoundboardSoundUpdate:
+		if listener := l.OnGuildSoundboardSoundUpdate; listener != nil {
+			listener(e)
+		}
+	case *GuildSoundboardSoundDelete:
+		if listener := l.OnGuildSoundboardSoundDelete; listener != nil {
+			listener(e)
+		}
+	case *SoundboardSounds:
+		if listener := l.OnSoundboardSounds; listener != nil {
+			listener(e)
+		}
+
 	// Guild Voice Events
 	case *VoiceServerUpdate:
 		if listener := l.OnVoiceServerUpdate; listener != nil {
+			listener(e)
+		}
+	case *GuildVoiceChannelEffectSend:
+		if listener := l.OnGuildVoiceChannelEffectSend; listener != nil {
 			listener(e)
 		}
 	case *GuildVoiceStateUpdate:

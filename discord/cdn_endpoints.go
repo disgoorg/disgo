@@ -40,6 +40,9 @@ var (
 	CustomSticker     = NewCDN("/stickers/{sticker.id}", FileFormatPNG, FileFormatLottie, FileFormatGIF)
 
 	AttachmentFile = NewCDN("/attachments/{channel.id}/{attachment.id}/{file.name}", FileFormatNone)
+
+	SoundboardSoundFile        = NewCDN("/soundboard-sounds/{sound.id}", FileFormatNone)
+	SoundboardDefaultSoundFile = NewCDN("/soundboard-default-sounds/{sound.override.path}", FileFormatNone)
 )
 
 // FileFormat is the type of file on Discord's CDN (https://discord.com/developers/docs/reference#image-formatting-image-formats)
@@ -87,7 +90,12 @@ func (e CDNEndpoint) URL(format FileFormat, values QueryValues, params ...any) s
 	if query != "" {
 		query = "?" + query
 	}
-	return urlPrint(CDN+e.Route+"."+format.String(), params...) + query
+	return urlPrint(e.Path()+"."+format.String(), params...) + query
+}
+
+// Path returns the raw Route of this CDNEndpoint
+func (e CDNEndpoint) Path() string {
+	return CDN + e.Route
 }
 
 func DefaultCDNConfig() *CDNConfig {

@@ -119,6 +119,7 @@ const (
 	GuildFeatureRoleIcons                             GuildFeature = "ROLE_ICONS"
 	GuildFeatureRoleSubscriptionsAvailableForPurchase GuildFeature = "ROLE_SUBSCRIPTIONS_AVAILABLE_FOR_PURCHASE"
 	GuildFeatureRoleSubscriptionsEnabled              GuildFeature = "ROLE_SUBSCRIPTIONS_ENABLED"
+	GuildFeatureSoundboard                            GuildFeature = "SOUNDBOARD"
 	GuildFeatureTicketedEventsEnabled                 GuildFeature = "TICKETED_EVENTS_ENABLED"
 	GuildFeatureVanityURL                             GuildFeature = "VANITY_URL"
 	GuildFeatureVerified                              GuildFeature = "VERIFIED"
