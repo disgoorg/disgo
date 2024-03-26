@@ -65,17 +65,17 @@ var _ Mentionable = (*User)(nil)
 
 // User is a struct for interacting with discord's users
 type User struct {
-	ID               snowflake.ID `json:"id"`
-	Username         string       `json:"username"`
-	Discriminator    string       `json:"discriminator"`
-	GlobalName       *string      `json:"global_name"`
-	Avatar           *string      `json:"avatar"`
-	Banner           *string      `json:"banner"`
-	AccentColor      *int         `json:"accent_color"`
-	Bot              bool         `json:"bot"`
-	System           bool         `json:"system"`
-	PublicFlags      UserFlags    `json:"public_flags"`
-	AvatarDecoration *string      `json:"avatar_decoration"`
+	ID                   snowflake.ID          `json:"id"`
+	Username             string                `json:"username"`
+	Discriminator        string                `json:"discriminator"`
+	GlobalName           *string               `json:"global_name"`
+	Avatar               *string               `json:"avatar"`
+	Banner               *string               `json:"banner"`
+	AccentColor          *int                  `json:"accent_color"`
+	Bot                  bool                  `json:"bot"`
+	System               bool                  `json:"system"`
+	PublicFlags          UserFlags             `json:"public_flags"`
+	AvatarDecorationData *AvatarDecorationData `json:"avatar_decoration_data"`
 }
 
 // String returns a mention of the user
@@ -145,10 +145,10 @@ func (u User) BannerURL(opts ...CDNOpt) *string {
 
 // AvatarDecorationURL returns the avatar decoration URL if set or nil
 func (u User) AvatarDecorationURL(opts ...CDNOpt) *string {
-	if u.AvatarDecoration == nil {
+	if u.AvatarDecorationData == nil {
 		return nil
 	}
-	url := formatAssetURL(UserAvatarDecoration, opts, u.ID, *u.AvatarDecoration)
+	url := formatAssetURL(AvatarDecoration, opts, u.AvatarDecorationData.Asset)
 	return &url
 }
 
@@ -197,4 +197,9 @@ type ApplicationRoleConnectionUpdate struct {
 	PlatformName     *string            `json:"platform_name,omitempty"`
 	PlatformUsername *string            `json:"platform_username,omitempty"`
 	Metadata         *map[string]string `json:"metadata,omitempty"`
+}
+
+type AvatarDecorationData struct {
+	Asset string       `json:"asset"`
+	SkuID snowflake.ID `json:"sku_id"`
 }
