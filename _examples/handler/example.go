@@ -80,7 +80,7 @@ func main() {
 		r.Use(middleware.Print("group2"))
 		r.Command("/ping", handlePing)
 		r.Command("/ping2", handleContent("pong2"))
-		r.Component("button1/{data}", handleComponent)
+		r.Component("/button1/{data}", handleComponent)
 	})
 	r.NotFound(handleNotFound)
 
@@ -126,7 +126,7 @@ func handlePing(event *handler.CommandEvent) error {
 		Content: "pong",
 		Components: []discord.ContainerComponent{
 			discord.ActionRowComponent{
-				discord.NewPrimaryButton("button1", "button1/testData"),
+				discord.NewPrimaryButton("button1", "/button1/testData"),
 			},
 		},
 	})
