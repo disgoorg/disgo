@@ -101,6 +101,9 @@ var allEventHandlers = []bot.GatewayEventHandler{
 	bot.NewGatewayEventHandler(gateway.EventTypeMessageDelete, gatewayHandlerMessageDelete),
 	bot.NewGatewayEventHandler(gateway.EventTypeMessageDeleteBulk, gatewayHandlerMessageDeleteBulk),
 
+	bot.NewGatewayEventHandler(gateway.EventTypeMessagePollVoteAdd, gatewayHandlerMessagePollVoteAdd),
+	bot.NewGatewayEventHandler(gateway.EventTypeMessagePollVoteRemove, gatewayHandlerMessagePollVoteRemove),
+
 	bot.NewGatewayEventHandler(gateway.EventTypeMessageReactionAdd, gatewayHandlerMessageReactionAdd),
 	bot.NewGatewayEventHandler(gateway.EventTypeMessageReactionRemove, gatewayHandlerMessageReactionRemove),
 	bot.NewGatewayEventHandler(gateway.EventTypeMessageReactionRemoveAll, gatewayHandlerMessageReactionRemoveAll),

@@ -147,6 +147,10 @@ type ListenerAdapter struct {
 	OnMessageUpdate func(event *MessageUpdate)
 	OnMessageDelete func(event *MessageDelete)
 
+	// Message Poll Events
+	OnMessagePollVoteAdd    func(event *MessagePollVoteAdd)
+	OnMessagePollVoteRemove func(event *MessagePollVoteRemove)
+
 	// Message Reaction Events
 	OnMessageReactionAdd         func(event *MessageReactionAdd)
 	OnMessageReactionRemove      func(event *MessageReactionRemove)
@@ -571,6 +575,16 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 	case *MessageDelete:
 		if listener := l.OnMessageDelete; listener != nil {
+			listener(e)
+		}
+
+	// Message Poll Events
+	case *MessagePollVoteAdd:
+		if listener := l.OnMessagePollVoteAdd; listener != nil {
+			listener(e)
+		}
+	case *MessagePollVoteRemove:
+		if listener := l.OnMessagePollVoteRemove; listener != nil {
 			listener(e)
 		}
 

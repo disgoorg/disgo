@@ -507,6 +507,28 @@ type EventMessageDeleteBulk struct {
 func (EventMessageDeleteBulk) messageData() {}
 func (EventMessageDeleteBulk) eventData()   {}
 
+type EventMessagePollVoteAdd struct {
+	UserID    snowflake.ID  `json:"user_id"`
+	ChannelID snowflake.ID  `json:"channel_id"`
+	MessageID snowflake.ID  `json:"message_id"`
+	GuildID   *snowflake.ID `json:"guild_id"`
+	AnswerID  int           `json:"answer_id"`
+}
+
+func (EventMessagePollVoteAdd) messageData() {}
+func (EventMessagePollVoteAdd) eventData()   {}
+
+type EventMessagePollVoteRemove struct {
+	UserID    snowflake.ID  `json:"user_id"`
+	ChannelID snowflake.ID  `json:"channel_id"`
+	MessageID snowflake.ID  `json:"message_id"`
+	GuildID   *snowflake.ID `json:"guild_id"`
+	AnswerID  int           `json:"answer_id"`
+}
+
+func (EventMessagePollVoteRemove) messageData() {}
+func (EventMessagePollVoteRemove) eventData()   {}
+
 type EventPresenceUpdate struct {
 	discord.Presence
 }

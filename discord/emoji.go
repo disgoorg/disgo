@@ -66,9 +66,9 @@ type EmojiUpdate struct {
 }
 
 type PartialEmoji struct {
-	ID       *snowflake.ID `json:"id"`
-	Name     *string       `json:"name"`
-	Animated bool          `json:"animated"`
+	ID       *snowflake.ID `json:"id,omitempty"`
+	Name     *string       `json:"name,omitempty"`
+	Animated bool          `json:"animated,omitempty"`
 }
 
 // Reaction returns a string used for manipulating with reactions. May be empty if the Name is nil
