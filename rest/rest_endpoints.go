@@ -65,6 +65,7 @@ var (
 	GetBan    = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/bans/{user.id}")
 	AddBan    = NewEndpoint(http.MethodPut, "/guilds/{guild.id}/bans/{user.id}")
 	DeleteBan = NewEndpoint(http.MethodDelete, "/guilds/{guild.id}/bans/{user.id}")
+	BulkBan   = NewEndpoint(http.MethodPost, "/guilds/{guild.id}/bulk-ban")
 
 	GetMember        = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/members/{user.id}")
 	GetMembers       = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/members")
