@@ -6,21 +6,23 @@ import (
 )
 
 type rawSlashCommand struct {
-	ID                       snowflake.ID               `json:"id"`
-	Type                     ApplicationCommandType     `json:"type"`
-	ApplicationID            snowflake.ID               `json:"application_id"`
-	GuildID                  *snowflake.ID              `json:"guild_id,omitempty"`
-	Name                     string                     `json:"name"`
-	NameLocalizations        map[Locale]string          `json:"name_localizations,omitempty"`
-	NameLocalized            string                     `json:"name_localized,omitempty"`
-	Description              string                     `json:"description,omitempty"`
-	DescriptionLocalizations map[Locale]string          `json:"description_localizations,omitempty"`
-	DescriptionLocalized     string                     `json:"description_localized,omitempty"`
-	Options                  []ApplicationCommandOption `json:"options,omitempty"`
-	DefaultMemberPermissions Permissions                `json:"default_member_permissions"`
-	DMPermission             bool                       `json:"dm_permission"`
-	NSFW                     bool                       `json:"nsfw"`
-	Version                  snowflake.ID               `json:"version"`
+	ID                       snowflake.ID                 `json:"id"`
+	Type                     ApplicationCommandType       `json:"type"`
+	ApplicationID            snowflake.ID                 `json:"application_id"`
+	GuildID                  *snowflake.ID                `json:"guild_id,omitempty"`
+	Name                     string                       `json:"name"`
+	NameLocalizations        map[Locale]string            `json:"name_localizations,omitempty"`
+	NameLocalized            string                       `json:"name_localized,omitempty"`
+	Description              string                       `json:"description,omitempty"`
+	DescriptionLocalizations map[Locale]string            `json:"description_localizations,omitempty"`
+	DescriptionLocalized     string                       `json:"description_localized,omitempty"`
+	Options                  []ApplicationCommandOption   `json:"options,omitempty"`
+	DefaultMemberPermissions Permissions                  `json:"default_member_permissions"`
+	DMPermission             bool                         `json:"dm_permission"`
+	NSFW                     bool                         `json:"nsfw"`
+	IntegrationTypes         []ApplicationIntegrationType `json:"integration_types"`
+	Contexts                 []InteractionContextType     `json:"contexts"`
+	Version                  snowflake.ID                 `json:"version"`
 }
 
 func (c *rawSlashCommand) UnmarshalJSON(data []byte) error {
@@ -46,15 +48,17 @@ func (c *rawSlashCommand) UnmarshalJSON(data []byte) error {
 }
 
 type rawContextCommand struct {
-	ID                       snowflake.ID           `json:"id"`
-	Type                     ApplicationCommandType `json:"type"`
-	ApplicationID            snowflake.ID           `json:"application_id"`
-	GuildID                  *snowflake.ID          `json:"guild_id,omitempty"`
-	Name                     string                 `json:"name"`
-	NameLocalizations        map[Locale]string      `json:"name_localizations,omitempty"`
-	NameLocalized            string                 `json:"name_localized,omitempty"`
-	DefaultMemberPermissions Permissions            `json:"default_member_permissions"`
-	DMPermission             bool                   `json:"dm_permission"`
-	NSFW                     bool                   `json:"nsfw"`
-	Version                  snowflake.ID           `json:"version"`
+	ID                       snowflake.ID                 `json:"id"`
+	Type                     ApplicationCommandType       `json:"type"`
+	ApplicationID            snowflake.ID                 `json:"application_id"`
+	GuildID                  *snowflake.ID                `json:"guild_id,omitempty"`
+	Name                     string                       `json:"name"`
+	NameLocalizations        map[Locale]string            `json:"name_localizations,omitempty"`
+	NameLocalized            string                       `json:"name_localized,omitempty"`
+	DefaultMemberPermissions Permissions                  `json:"default_member_permissions"`
+	DMPermission             bool                         `json:"dm_permission"`
+	NSFW                     bool                         `json:"nsfw"`
+	IntegrationTypes         []ApplicationIntegrationType `json:"integration_types"`
+	Contexts                 []InteractionContextType     `json:"contexts"`
+	Version                  snowflake.ID                 `json:"version"`
 }
