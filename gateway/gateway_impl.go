@@ -42,10 +42,10 @@ type gatewayImpl struct {
 	closeHandlerFunc CloseHandlerFunc
 	token            string
 
-	conn          *websocket.Conn
-	connMu        sync.Mutex
-	heartbeatChan chan struct{}
-	status        Status
+	conn            *websocket.Conn
+	connMu          sync.Mutex
+	heartbeatCancel context.CancelFunc
+	status          Status
 
 	heartbeatInterval     time.Duration
 	lastHeartbeatSent     time.Time
@@ -132,9 +132,9 @@ func (g *gatewayImpl) Close(ctx context.Context) {
 }
 
 func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message string) {
-	if g.heartbeatChan != nil {
+	if g.heartbeatCancel != nil {
 		g.config.Logger.Debug("closing heartbeat goroutines...")
-		g.heartbeatChan <- struct{}{}
+		g.heartbeatCancel()
 	}
 
 	g.connMu.Lock()
@@ -234,16 +234,16 @@ func (g *gatewayImpl) reconnect() {
 }
 
 func (g *gatewayImpl) heartbeat() {
-	if g.heartbeatChan == nil {
-		g.heartbeatChan = make(chan struct{})
-	}
+	ctx, cancel := context.WithCancel(context.Background())
+	g.heartbeatCancel = cancel
+
 	heartbeatTicker := time.NewTicker(g.heartbeatInterval)
 	defer heartbeatTicker.Stop()
 	defer g.config.Logger.Debug("exiting heartbeat goroutine")
 
 	for {
 		select {
-		case <-g.heartbeatChan:
+		case <-ctx.Done():
 			return
 
 		case <-heartbeatTicker.C:
