@@ -275,5 +275,5 @@ const (
 type ApplicationIntegrationTypesConfig map[ApplicationIntegrationType]ApplicationIntegrationTypeConfiguration
 
 type ApplicationIntegrationTypeConfiguration struct {
-	OAuth2InstallParams InstallParams `json:"oauth2_install_params"`
+	OAuth2InstallParams *InstallParams `json:"oauth2_install_params"`
 }
