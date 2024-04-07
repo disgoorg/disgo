@@ -100,4 +100,12 @@ func (PingInteraction) Entitlements() []Entitlement {
 	return nil
 }
 
+func (PingInteraction) AuthorizingIntegrationOwners() map[ApplicationIntegrationType]snowflake.ID {
+	return nil
+}
+
+func (PingInteraction) Context() InteractionContextType {
+	return 0
+}
+
 func (PingInteraction) interaction() {}
