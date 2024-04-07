@@ -104,8 +104,8 @@ func (PingInteraction) AuthorizingIntegrationOwners() map[ApplicationIntegration
 	return nil
 }
 
-func (PingInteraction) Context() *InteractionContextType {
-	return nil
+func (PingInteraction) Context() InteractionContextType {
+	return 0
 }
 
 func (PingInteraction) interaction() {}

@@ -21,7 +21,7 @@ type baseInteraction struct {
 	appPermissions               *Permissions
 	entitlements                 []Entitlement
 	authorizingIntegrationOwners map[ApplicationIntegrationType]snowflake.ID
-	context                      *InteractionContextType
+	context                      InteractionContextType
 }
 
 func (i baseInteraction) ID() snowflake.ID {
@@ -75,7 +75,7 @@ func (i baseInteraction) AuthorizingIntegrationOwners() map[ApplicationIntegrati
 	return i.authorizingIntegrationOwners
 }
 
-func (i baseInteraction) Context() *InteractionContextType {
+func (i baseInteraction) Context() InteractionContextType {
 	return i.context
 }
 
