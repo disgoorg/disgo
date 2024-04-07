@@ -7,19 +7,21 @@ import (
 )
 
 type baseInteraction struct {
-	id             snowflake.ID
-	applicationID  snowflake.ID
-	token          string
-	version        int
-	guildID        *snowflake.ID
-	channelID      snowflake.ID
-	channel        InteractionChannel
-	locale         Locale
-	guildLocale    *Locale
-	member         *ResolvedMember
-	user           *User
-	appPermissions *Permissions
-	entitlements   []Entitlement
+	id                           snowflake.ID
+	applicationID                snowflake.ID
+	token                        string
+	version                      int
+	guildID                      *snowflake.ID
+	channelID                    snowflake.ID
+	channel                      InteractionChannel
+	locale                       Locale
+	guildLocale                  *Locale
+	member                       *ResolvedMember
+	user                         *User
+	appPermissions               *Permissions
+	entitlements                 []Entitlement
+	authorizingIntegrationOwners map[ApplicationIntegrationType]snowflake.ID
+	context                      InteractionContextType
 }
 
 func (i baseInteraction) ID() snowflake.ID {
@@ -67,6 +69,14 @@ func (i baseInteraction) AppPermissions() *Permissions {
 
 func (i baseInteraction) Entitlements() []Entitlement {
 	return i.entitlements
+}
+
+func (i baseInteraction) AuthorizingIntegrationOwners() map[ApplicationIntegrationType]snowflake.ID {
+	return i.authorizingIntegrationOwners
+}
+
+func (i baseInteraction) Context() InteractionContextType {
+	return i.context
 }
 
 func (i baseInteraction) CreatedAt() time.Time {

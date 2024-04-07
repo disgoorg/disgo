@@ -12,32 +12,34 @@ import (
 )
 
 type Application struct {
-	ID                             snowflake.ID     `json:"id"`
-	Name                           string           `json:"name"`
-	Icon                           *string          `json:"icon,omitempty"`
-	Description                    string           `json:"description"`
-	RPCOrigins                     []string         `json:"rpc_origins"`
-	BotPublic                      bool             `json:"bot_public"`
-	BotRequireCodeGrant            bool             `json:"bot_require_code_grant"`
-	Bot                            *User            `json:"bot,omitempty"`
-	TermsOfServiceURL              *string          `json:"terms_of_service_url,omitempty"`
-	PrivacyPolicyURL               *string          `json:"privacy_policy_url,omitempty"`
-	CustomInstallURL               *string          `json:"custom_install_url,omitempty"`
-	InteractionsEndpointURL        *string          `json:"interactions_endpoint_url,omitempty"`
-	RoleConnectionsVerificationURL *string          `json:"role_connections_verification_url"`
-	InstallParams                  *InstallParams   `json:"install_params"`
-	Tags                           []string         `json:"tags"`
-	Owner                          *User            `json:"owner,omitempty"`
-	Summary                        string           `json:"summary"`
-	VerifyKey                      string           `json:"verify_key"`
-	Team                           *Team            `json:"team,omitempty"`
-	GuildID                        *snowflake.ID    `json:"guild_id,omitempty"`
-	Guild                          *Guild           `json:"guild,omitempty"`
-	PrimarySkuID                   *snowflake.ID    `json:"primary_sku_id,omitempty"`
-	Slug                           *string          `json:"slug,omitempty"`
-	CoverImage                     *string          `json:"cover_image,omitempty"`
-	Flags                          ApplicationFlags `json:"flags,omitempty"`
-	ApproximateGuildCount          *int             `json:"approximate_guild_count,omitempty"`
+	ID                             snowflake.ID                      `json:"id"`
+	Name                           string                            `json:"name"`
+	Icon                           *string                           `json:"icon,omitempty"`
+	Description                    string                            `json:"description"`
+	RPCOrigins                     []string                          `json:"rpc_origins"`
+	BotPublic                      bool                              `json:"bot_public"`
+	BotRequireCodeGrant            bool                              `json:"bot_require_code_grant"`
+	Bot                            *User                             `json:"bot,omitempty"`
+	TermsOfServiceURL              *string                           `json:"terms_of_service_url,omitempty"`
+	PrivacyPolicyURL               *string                           `json:"privacy_policy_url,omitempty"`
+	CustomInstallURL               *string                           `json:"custom_install_url,omitempty"`
+	InteractionsEndpointURL        *string                           `json:"interactions_endpoint_url,omitempty"`
+	RoleConnectionsVerificationURL *string                           `json:"role_connections_verification_url"`
+	InstallParams                  *InstallParams                    `json:"install_params"`
+	Tags                           []string                          `json:"tags"`
+	Owner                          *User                             `json:"owner,omitempty"`
+	Summary                        string                            `json:"summary"`
+	VerifyKey                      string                            `json:"verify_key"`
+	Team                           *Team                             `json:"team,omitempty"`
+	GuildID                        *snowflake.ID                     `json:"guild_id,omitempty"`
+	Guild                          *Guild                            `json:"guild,omitempty"`
+	PrimarySkuID                   *snowflake.ID                     `json:"primary_sku_id,omitempty"`
+	Slug                           *string                           `json:"slug,omitempty"`
+	CoverImage                     *string                           `json:"cover_image,omitempty"`
+	Flags                          ApplicationFlags                  `json:"flags,omitempty"`
+	ApproximateGuildCount          *int                              `json:"approximate_guild_count,omitempty"`
+	IntegrationTypes               []ApplicationIntegrationType      `json:"integration_types"`
+	IntegrationTypesConfig         ApplicationIntegrationTypesConfig `json:"integration_types_config"`
 }
 
 func (a Application) IconURL(opts ...CDNOpt) *string {
@@ -61,15 +63,16 @@ func (a Application) CreatedAt() time.Time {
 }
 
 type ApplicationUpdate struct {
-	CustomInstallURL               *string              `json:"custom_install_url,omitempty"`
-	Description                    *string              `json:"description,omitempty"`
-	RoleConnectionsVerificationURL *string              `json:"role_connections_verification_url,omitempty"`
-	InstallParams                  *InstallParams       `json:"install_params,omitempty"`
-	Flags                          *ApplicationFlags    `json:"flags,omitempty"`
-	Icon                           *json.Nullable[Icon] `json:"icon,omitempty"`
-	CoverImage                     *json.Nullable[Icon] `json:"cover_image,omitempty"`
-	InteractionsEndpointURL        *string              `json:"interactions_endpoint_url,omitempty"`
-	Tags                           []string             `json:"tags,omitempty"`
+	CustomInstallURL               *string                            `json:"custom_install_url,omitempty"`
+	Description                    *string                            `json:"description,omitempty"`
+	RoleConnectionsVerificationURL *string                            `json:"role_connections_verification_url,omitempty"`
+	InstallParams                  *InstallParams                     `json:"install_params,omitempty"`
+	Flags                          *ApplicationFlags                  `json:"flags,omitempty"`
+	Icon                           *json.Nullable[Icon]               `json:"icon,omitempty"`
+	CoverImage                     *json.Nullable[Icon]               `json:"cover_image,omitempty"`
+	InteractionsEndpointURL        *string                            `json:"interactions_endpoint_url,omitempty"`
+	Tags                           []string                           `json:"tags,omitempty"`
+	IntegrationTypesConfig         *ApplicationIntegrationTypesConfig `json:"integration_types_config,omitempty"`
 }
 
 type PartialApplication struct {
@@ -261,3 +264,16 @@ const (
 	TeamRoleDeveloper TeamRole = "developer"
 	TeamRoleReadOnly  TeamRole = "read_only"
 )
+
+type ApplicationIntegrationType int
+
+const (
+	ApplicationIntegrationTypeGuildInstall ApplicationIntegrationType = iota
+	ApplicationIntegrationTypeUserInstall
+)
+
+type ApplicationIntegrationTypesConfig map[ApplicationIntegrationType]ApplicationIntegrationTypeConfiguration
+
+type ApplicationIntegrationTypeConfiguration struct {
+	OAuth2InstallParams *InstallParams `json:"oauth2_install_params"`
+}
