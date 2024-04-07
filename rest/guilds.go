@@ -40,6 +40,7 @@ type Guilds interface {
 	GetBan(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) (*discord.Ban, error)
 	AddBan(guildID snowflake.ID, userID snowflake.ID, deleteMessageDuration time.Duration, opts ...RequestOpt) error
 	DeleteBan(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) error
+	BulkBan(guildID snowflake.ID, ban discord.BulkBan, opts ...RequestOpt) (*discord.BulkBanResult, error)
 
 	GetIntegrations(guildID snowflake.ID, opts ...RequestOpt) ([]discord.Integration, error)
 	DeleteIntegration(guildID snowflake.ID, integrationID snowflake.ID, opts ...RequestOpt) error
@@ -208,6 +209,11 @@ func (s *guildImpl) AddBan(guildID snowflake.ID, userID snowflake.ID, deleteMess
 
 func (s *guildImpl) DeleteBan(guildID snowflake.ID, userID snowflake.ID, opts ...RequestOpt) error {
 	return s.client.Do(DeleteBan.Compile(nil, guildID, userID), nil, nil, opts...)
+}
+
+func (s *guildImpl) BulkBan(guildID snowflake.ID, ban discord.BulkBan, opts ...RequestOpt) (result *discord.BulkBanResult, err error) {
+	err = s.client.Do(BulkBan.Compile(nil, guildID), ban, &result, opts...)
+	return
 }
 
 func (s *guildImpl) GetIntegrations(guildID snowflake.ID, opts ...RequestOpt) (integrations []discord.Integration, err error) {

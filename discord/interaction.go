@@ -45,7 +45,7 @@ type rawInteraction struct {
 	AppPermissions               *Permissions                                `json:"app_permissions,omitempty"`
 	Entitlements                 []Entitlement                               `json:"entitlements"`
 	AuthorizingIntegrationOwners map[ApplicationIntegrationType]snowflake.ID `json:"authorizing_integration_owners"`
-	Context                      *InteractionContextType                     `json:"context"`
+	Context                      InteractionContextType                      `json:"context"`
 }
 
 // Interaction is used for easier unmarshalling of different Interaction(s)
@@ -66,7 +66,7 @@ type Interaction interface {
 	AppPermissions() *Permissions
 	Entitlements() []Entitlement
 	AuthorizingIntegrationOwners() map[ApplicationIntegrationType]snowflake.ID
-	Context() *InteractionContextType
+	Context() InteractionContextType
 	CreatedAt() time.Time
 
 	interaction()
