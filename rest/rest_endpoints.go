@@ -172,7 +172,7 @@ var (
 	FollowChannel = NewEndpoint(http.MethodPost, "/channels/{channel.id}/followers")
 
 	GetPollAnswerVotes = NewEndpoint(http.MethodGet, "/channels/{channel.id}/polls/{message.id}/answers/{answer.id}")
-	ExpirePoll         = NewEndpoint(http.MethodPost, "/channels/{channel.id}/poll/{message.id}/expire")
+	ExpirePoll         = NewEndpoint(http.MethodPost, "/channels/{channel.id}/polls/{message.id}/expire")
 )
 
 // Threads
