@@ -4,7 +4,10 @@ import (
 	"strings"
 )
 
-const CDN = "https://cdn.discordapp.com"
+const (
+	CDN      = "https://cdn.discordapp.com"
+	CDNMedia = "https://media.discordapp.net"
+)
 
 var (
 	CustomEmoji = NewCDN("/emojis/{emote.id}", FileFormatPNG, FileFormatGIF)
@@ -87,6 +90,12 @@ func (e CDNEndpoint) URL(format FileFormat, values QueryValues, params ...any) s
 	if query != "" {
 		query = "?" + query
 	}
+
+	// for some reason custom gif stickers use a different cnd url, blame discord for this one
+	if format == FileFormatGIF && e.Route == "/stickers/{sticker.id}" {
+		return urlPrint(CDNMedia+e.Route+"."+format.String(), params...) + query
+	}
+
 	return urlPrint(CDN+e.Route+"."+format.String(), params...) + query
 }
 
@@ -141,7 +150,8 @@ func formatAssetURL(cdnRoute *CDNEndpoint, opts []CDNOpt, params ...any) string 
 		lastStringParam = *ptrStr
 	}
 
-	if strings.HasPrefix(lastStringParam, "a_") && !config.Format.Animated() {
+	// some endpoints have a_ prefix for animated images except the AvatarDecoration endpoint does not like this
+	if strings.HasPrefix(lastStringParam, "a_") && !config.Format.Animated() && cdnRoute.Route != "/avatar-decoration-presets/{user.avatar.decoration.hash}" {
 		config.Format = FileFormatGIF
 	}
 
