@@ -177,7 +177,7 @@ func (b *MessageUpdateBuilder) RemoveFile(i int) *MessageUpdateBuilder {
 // RetainAttachments removes all Attachment(s) from this Message except the ones provided
 func (b *MessageUpdateBuilder) RetainAttachments(attachments ...Attachment) *MessageUpdateBuilder {
 	if b.Attachments == nil {
-		b.Attachments = new([]AttachmentUpdate)
+		b.Attachments = &[]AttachmentUpdate{}
 	}
 	for _, attachment := range attachments {
 		*b.Attachments = append(*b.Attachments, AttachmentKeep{ID: attachment.ID})
@@ -188,7 +188,7 @@ func (b *MessageUpdateBuilder) RetainAttachments(attachments ...Attachment) *Mes
 // RetainAttachmentsByID removes all Attachment(s) from this Message except the ones provided
 func (b *MessageUpdateBuilder) RetainAttachmentsByID(attachmentIDs ...snowflake.ID) *MessageUpdateBuilder {
 	if b.Attachments == nil {
-		b.Attachments = new([]AttachmentUpdate)
+		b.Attachments = &[]AttachmentUpdate{}
 	}
 	for _, attachmentID := range attachmentIDs {
 		*b.Attachments = append(*b.Attachments, AttachmentKeep{ID: attachmentID})
