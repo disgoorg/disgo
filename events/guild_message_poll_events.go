@@ -5,7 +5,7 @@ import (
 	"github.com/disgoorg/snowflake/v2"
 )
 
-// GenericGuildMessagePollVote is called upon receiving GuildMessagePollVoteAdd or GuildMessagePollVoteRemove (requires the gateway.IntentGuildMessagePolls)
+// GenericGuildMessagePollVote is called upon receiving GuildMessagePollVoteAdd or GuildMessagePollVoteRemove (requires gateway.IntentGuildMessagePolls)
 type GenericGuildMessagePollVote struct {
 	*GenericEvent
 	UserID    snowflake.ID
