@@ -151,6 +151,14 @@ type ListenerAdapter struct {
 	OnMessagePollVoteAdd    func(event *MessagePollVoteAdd)
 	OnMessagePollVoteRemove func(event *MessagePollVoteRemove)
 
+	// DM Message Poll Events
+	OnDMMessagePollVoteAdd    func(event *DMMessagePollVoteAdd)
+	OnDMMessagePollVoteRemove func(event *DMMessagePollVoteRemove)
+
+	// Guild Message Poll Events
+	OnGuildMessagePollVoteAdd    func(event *GuildMessagePollVoteAdd)
+	OnGuildMessagePollVoteRemove func(event *GuildMessagePollVoteRemove)
+
 	// Message Reaction Events
 	OnMessageReactionAdd         func(event *MessageReactionAdd)
 	OnMessageReactionRemove      func(event *MessageReactionRemove)
@@ -585,6 +593,22 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 	case *MessagePollVoteRemove:
 		if listener := l.OnMessagePollVoteRemove; listener != nil {
+			listener(e)
+		}
+	case *DMMessagePollVoteAdd:
+		if listener := l.OnDMMessagePollVoteAdd; listener != nil {
+			listener(e)
+		}
+	case *DMMessagePollVoteRemove:
+		if listener := l.OnDMMessagePollVoteRemove; listener != nil {
+			listener(e)
+		}
+	case *GuildMessagePollVoteAdd:
+		if listener := l.OnGuildMessagePollVoteAdd; listener != nil {
+			listener(e)
+		}
+	case *GuildMessagePollVoteRemove:
+		if listener := l.OnGuildMessagePollVoteRemove; listener != nil {
 			listener(e)
 		}
 

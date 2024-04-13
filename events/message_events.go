@@ -43,23 +43,3 @@ type MessageUpdate struct {
 type MessageDelete struct {
 	*GenericMessage
 }
-
-// GenericMessagePoll is a generic poll event (requires gateway.IntentGuildMessageReactions or gateway.IntentDirectMessageReactions)
-type GenericMessagePoll struct {
-	*GenericEvent
-	UserID    snowflake.ID
-	ChannelID snowflake.ID
-	MessageID snowflake.ID
-	GuildID   *snowflake.ID
-	AnswerID  int
-}
-
-// MessagePollVoteAdd indicates that a discord.User voted on a discord.Poll (requires gateway.IntentGuildMessageReactions or gateway.IntentDirectMessageReactions)
-type MessagePollVoteAdd struct {
-	*GenericMessagePoll
-}
-
-// MessagePollVoteRemove indicates that a discord.User removed their vote on a discord.Poll (requires gateway.IntentGuildMessageReactions or gateway.IntentDirectMessageReactions)
-type MessagePollVoteRemove struct {
-	*GenericMessagePoll
-}
