@@ -9,7 +9,7 @@ import (
 type Poll struct {
 	Question         PollMedia      `json:"question"`
 	Answers          []PollAnswer   `json:"answers"`
-	Expiry           time.Time      `json:"expiry"`
+	Expiry           *time.Time     `json:"expiry"`
 	AllowMultiselect bool           `json:"allow_multiselect"`
 	LayoutType       PollLayoutType `json:"layout_type"`
 	Results          []PollResults  `json:"results"`
