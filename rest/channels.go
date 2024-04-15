@@ -49,6 +49,7 @@ type Channels interface {
 	Follow(channelID snowflake.ID, targetChannelID snowflake.ID, opts ...RequestOpt) (*discord.FollowedChannel, error)
 
 	GetPollAnswerVotes(channelID snowflake.ID, messageID snowflake.ID, answerID int, after snowflake.ID, limit int, opts ...RequestOpt) ([]discord.User, error)
+	GetPollAnswerVotesPage(channelID snowflake.ID, messageID snowflake.ID, answerID int, startID snowflake.ID, limit int, opts ...RequestOpt) PollAnswerVotesPage
 	ExpirePoll(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) (*discord.Message, error)
 }
 
@@ -236,6 +237,15 @@ func (s *channelImpl) GetPollAnswerVotes(channelID snowflake.ID, messageID snowf
 	}
 	err = s.client.Do(GetPollAnswerVotes.Compile(values, channelID, messageID, answerID), nil, &users, opts...)
 	return
+}
+
+func (s *channelImpl) GetPollAnswerVotesPage(channelID snowflake.ID, messageID snowflake.ID, answerID int, startID snowflake.ID, limit int, opts ...RequestOpt) PollAnswerVotesPage {
+	return PollAnswerVotesPage{
+		getItems: func(after snowflake.ID) ([]discord.User, error) {
+			return s.GetPollAnswerVotes(channelID, messageID, answerID, after, limit, opts...)
+		},
+		ID: startID,
+	}
 }
 
 func (s *channelImpl) ExpirePoll(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) (message *discord.Message, err error) {
