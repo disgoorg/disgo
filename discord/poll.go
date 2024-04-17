@@ -12,7 +12,7 @@ type Poll struct {
 	Expiry           *time.Time     `json:"expiry"`
 	AllowMultiselect bool           `json:"allow_multiselect"`
 	LayoutType       PollLayoutType `json:"layout_type"`
-	Results          []PollResults  `json:"results"`
+	Results          *PollResults   `json:"results"`
 }
 
 type PollCreate struct {
