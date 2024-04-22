@@ -42,7 +42,7 @@ func (b *PollCreateBuilder) ClearAnswers() *PollCreateBuilder {
 	return b
 }
 
-// SetDuration sets the duration of the Poll (in seconds)
+// SetDuration sets the duration of the Poll (in hours)
 func (b *PollCreateBuilder) SetDuration(duration int) *PollCreateBuilder {
 	b.Duration = duration
 	return b
