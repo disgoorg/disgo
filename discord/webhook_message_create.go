@@ -15,6 +15,7 @@ type WebhookMessageCreate struct {
 	Flags           MessageFlags         `json:"flags,omitempty"`
 	ThreadName      string               `json:"thread_name,omitempty"`
 	AppliedTags     []snowflake.ID       `json:"applied_tags,omitempty"`
+	Poll            *PollCreate          `json:"poll,omitempty"`
 }
 
 // ToBody returns the MessageCreate ready for body
