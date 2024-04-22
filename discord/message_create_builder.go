@@ -251,6 +251,18 @@ func (b *MessageCreateBuilder) SetSuppressEmbeds(suppressEmbeds bool) *MessageCr
 	return b
 }
 
+// SetPoll sets the Poll of the Message
+func (b *MessageCreateBuilder) SetPoll(poll PollCreate) *MessageCreateBuilder {
+	b.Poll = &poll
+	return b
+}
+
+// ClearPoll clears the Poll of the Message
+func (b *MessageCreateBuilder) ClearPoll() *MessageCreateBuilder {
+	b.Poll = nil
+	return b
+}
+
 // Build builds the MessageCreateBuilder to a MessageCreate struct
 func (b *MessageCreateBuilder) Build() MessageCreate {
 	return b.MessageCreate
