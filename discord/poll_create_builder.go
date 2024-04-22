@@ -59,3 +59,8 @@ func (b *PollCreateBuilder) SetLayoutType(layout PollLayoutType) *PollCreateBuil
 	b.LayoutType = layout
 	return b
 }
+
+// Build builds the PollCreateBuilder to a PollCreate struct
+func (b *PollCreateBuilder) Build() PollCreate {
+	return b.PollCreate
+}
