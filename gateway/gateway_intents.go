@@ -54,6 +54,9 @@ const (
 		IntentDirectMessageTyping |
 		IntentDirectMessagePolls
 
+	IntentsMessagePolls = IntentGuildMessagePolls |
+		IntentDirectMessagePolls
+
 	IntentsNonPrivileged = IntentGuilds |
 		IntentGuildModeration |
 		IntentGuildEmojisAndStickers |
