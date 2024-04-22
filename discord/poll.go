@@ -3,6 +3,7 @@ package discord
 import (
 	"time"
 
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -17,10 +18,28 @@ type Poll struct {
 
 type PollCreate struct {
 	Question         PollMedia      `json:"question"`
-	Answers          []PollAnswer   `json:"answers"`
+	Answers          []PollMedia    `json:"-"`
 	Duration         int            `json:"duration"`
 	AllowMultiselect bool           `json:"allow_multiselect"`
 	LayoutType       PollLayoutType `json:"layout_type,omitempty"`
+}
+
+func (p PollCreate) MarshalJSON() ([]byte, error) {
+	type pollCreate PollCreate
+
+	answers := make([]PollAnswer, 0, len(p.Answers))
+	for _, answer := range p.Answers {
+		answers = append(answers, PollAnswer{
+			PollMedia: answer,
+		})
+	}
+	return json.Marshal(struct {
+		Answers []PollAnswer `json:"answers"`
+		pollCreate
+	}{
+		Answers:    answers,
+		pollCreate: pollCreate(p),
+	})
 }
 
 type PollMedia struct {
