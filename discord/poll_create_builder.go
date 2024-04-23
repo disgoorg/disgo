@@ -13,14 +13,14 @@ func (b *PollCreateBuilder) SetQuestion(text string) *PollCreateBuilder {
 	return b
 }
 
-// SetPollAnswers sets the answers of the Poll
-func (b *PollCreateBuilder) SetPollAnswers(answers ...PollMedia) *PollCreateBuilder {
+// SetAnswers sets the answers of the Poll
+func (b *PollCreateBuilder) SetAnswers(answers ...PollMedia) *PollCreateBuilder {
 	b.Answers = answers
 	return b
 }
 
-// AddPollAnswer adds an answer to the Poll
-func (b *PollCreateBuilder) AddPollAnswer(text string, emoji *PartialEmoji) *PollCreateBuilder {
+// AddAnswer adds an answer to the Poll
+func (b *PollCreateBuilder) AddAnswer(text string, emoji *PartialEmoji) *PollCreateBuilder {
 	b.Answers = append(b.Answers, PollMedia{
 		Text:  &text,
 		Emoji: emoji,
