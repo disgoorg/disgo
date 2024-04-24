@@ -102,6 +102,7 @@ type Message struct {
 	Type                 MessageType           `json:"type"`
 	Flags                MessageFlags          `json:"flags"`
 	MessageReference     *MessageReference     `json:"message_reference,omitempty"`
+	MessageSnapshot      *Message              `json:"message_snapshot,omitempty"`
 	Interaction          *MessageInteraction   `json:"interaction,omitempty"`
 	WebhookID            *snowflake.ID         `json:"webhook_id,omitempty"`
 	Activity             *MessageActivity      `json:"activity,omitempty"`
@@ -399,11 +400,19 @@ type MessageApplication struct {
 
 // MessageReference is a reference to another message
 type MessageReference struct {
-	MessageID       *snowflake.ID `json:"message_id"`
-	ChannelID       *snowflake.ID `json:"channel_id,omitempty"`
-	GuildID         *snowflake.ID `json:"guild_id,omitempty"`
-	FailIfNotExists bool          `json:"fail_if_not_exists,omitempty"`
+	Type            MessageReferenceType `json:"type,omitempty"`
+	MessageID       *snowflake.ID        `json:"message_id"`
+	ChannelID       *snowflake.ID        `json:"channel_id,omitempty"`
+	GuildID         *snowflake.ID        `json:"guild_id,omitempty"`
+	FailIfNotExists bool                 `json:"fail_if_not_exists,omitempty"`
 }
+
+type MessageReferenceType int
+
+const (
+	MessageReferenceTypeDefault MessageReferenceType = iota
+	MessageReferenceTypeForward
+)
 
 // MessageInteraction is sent on the Message object when the message is a response to an interaction
 type MessageInteraction struct {
