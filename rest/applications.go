@@ -40,6 +40,7 @@ type Applications interface {
 	GetEntitlements(applicationID snowflake.ID, userID snowflake.ID, guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, excludeEnded bool, skuIDs []snowflake.ID, opts ...RequestOpt) ([]discord.Entitlement, error)
 	CreateTestEntitlement(applicationID snowflake.ID, entitlementCreate discord.TestEntitlementCreate, opts ...RequestOpt) (*discord.Entitlement, error)
 	DeleteTestEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error
+	ConsumeEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error
 
 	GetSKUs(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.SKU, error)
 }
@@ -207,6 +208,10 @@ func (s *applicationsImpl) CreateTestEntitlement(applicationID snowflake.ID, ent
 
 func (s *applicationsImpl) DeleteTestEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error {
 	return s.client.Do(DeleteTestEntitlement.Compile(nil, applicationID, entitlementID), nil, nil, opts...)
+}
+
+func (s *applicationsImpl) ConsumeEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error {
+	return s.client.Do(ConsumeEntitlement.Compile(nil, applicationID, entitlementID), nil, nil, opts...)
 }
 
 func (s *applicationsImpl) GetSKUs(applicationID snowflake.ID, opts ...RequestOpt) (skus []discord.SKU, err error) {
