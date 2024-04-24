@@ -16,12 +16,20 @@ type Entitlement struct {
 	StartsAt      *time.Time      `json:"starts_at"`
 	EndsAt        *time.Time      `json:"ends_at"`
 	GuildID       *snowflake.ID   `json:"guild_id"`
+	Consumed      *bool           `json:"consumed"`
 }
 
 type EntitlementType int
 
 const (
-	EntitlementTypeApplicationSubscription EntitlementType = 8
+	EntitlementTypePurchase EntitlementType = iota + 1
+	EntitlementTypePremiumSubscription
+	EntitlementTypeDeveloperGift
+	EntitlementTypeTestModePurchase
+	EntitlementTypeFreePurchase
+	EntitlementTypeUserGift
+	EntitlementTypePremiumPurchase
+	EntitlementTypeApplicationSubscription
 )
 
 type TestEntitlementCreate struct {

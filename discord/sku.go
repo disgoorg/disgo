@@ -24,7 +24,10 @@ type SKU struct {
 type SKUType int
 
 const (
-	SKUTypeSubscription SKUType = iota + 5
+	SKUTypeDurable SKUType = iota + 2
+	SKUTypeConsumable
+	_
+	SKUTypeSubscription
 	SKUTypeSubscriptionGroup
 )
 
