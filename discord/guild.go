@@ -302,12 +302,14 @@ type GuildPreview struct {
 
 type GuildIncidentsData struct {
 	InvitesDisabledUntil *time.Time `json:"invites_disabled_until"`
-	DmsDisabledUntil     *time.Time `json:"dms_disabled_until"`
+	DMsDisabledUntil     *time.Time `json:"dms_disabled_until"`
+	DMSpamDetectedAt     *time.Time `json:"dm_spam_detected_at"`
+	RaidDetectedAt       *time.Time `json:"raid_detected_at"`
 }
 
 type GuildIncidentActionsUpdate struct {
 	InvitesDisabledUntil *json.Nullable[time.Time] `json:"invites_disabled_until,omitempty"`
-	DmsDisabledUntil     *json.Nullable[time.Time] `json:"dms_disabled_until,omitempty"`
+	DMsDisabledUntil     *json.Nullable[time.Time] `json:"dms_disabled_until,omitempty"`
 }
 
 // GuildCreate is the payload used to create a Guild
