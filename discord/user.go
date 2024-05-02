@@ -76,6 +76,7 @@ type User struct {
 	System               bool                  `json:"system"`
 	PublicFlags          UserFlags             `json:"public_flags"`
 	AvatarDecorationData *AvatarDecorationData `json:"avatar_decoration_data"`
+	Clan                 *Clan                 `json:"clan"`
 }
 
 // String returns a mention of the user
@@ -152,6 +153,15 @@ func (u User) AvatarDecorationURL(opts ...CDNOpt) *string {
 	return &url
 }
 
+// ClanBadgeURL returns the clan badge URL if in a clan or nil
+func (u User) ClanBadgeURL(opts ...CDNOpt) *string {
+	if u.Clan == nil {
+		return nil
+	}
+	url := formatAssetURL(ClanBadge, opts, u.Clan.Badge)
+	return &url
+}
+
 func (u User) CreatedAt() time.Time {
 	return u.ID.Time()
 }
@@ -202,4 +212,11 @@ type ApplicationRoleConnectionUpdate struct {
 type AvatarDecorationData struct {
 	Asset string       `json:"asset"`
 	SkuID snowflake.ID `json:"sku_id"`
+}
+
+type Clan struct {
+	IdentityGuildID snowflake.ID `json:"identity_guild_id"`
+	IdentityEnabled bool         `json:"identity_enabled"`
+	Tag             string       `json:"tag"`
+	Badge           string       `json:"badge"`
 }
