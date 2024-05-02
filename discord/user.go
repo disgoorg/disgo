@@ -158,7 +158,7 @@ func (u User) ClanBadgeURL(opts ...CDNOpt) *string {
 	if u.Clan == nil {
 		return nil
 	}
-	url := formatAssetURL(ClanBadge, opts, u.Clan.Badge)
+	url := formatAssetURL(ClanBadge, opts, u.Clan.IdentityGuildID, u.Clan.Badge)
 	return &url
 }
 
