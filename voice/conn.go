@@ -190,7 +190,7 @@ func (c *connImpl) HandleVoiceServerUpdate(update botgateway.EventVoiceServerUpd
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		if err := c.gateway.Open(ctx, c.state); err != nil {
-			c.config.Logger.Error("error opening voice gateway. error: ", err)
+			c.config.Logger.Error("error opening voice gateway", slog.Any("err", err))
 		}
 	}()
 }
@@ -202,7 +202,7 @@ func (c *connImpl) handleMessage(op Opcode, data GatewayMessageData) {
 		defer cancel()
 		ourAddress, ourPort, err := c.udp.Open(ctx, d.IP, d.Port, d.SSRC)
 		if err != nil {
-			c.config.Logger.Error("voice: failed to open voiceudp conn. error: ", err)
+			c.config.Logger.Error("voice: failed to open voiceudp conn", slog.Any("err", err))
 			break
 		}
 		if err = c.Gateway().Send(ctx, OpcodeSelectProtocol, GatewayMessageDataSelectProtocol{
@@ -213,7 +213,7 @@ func (c *connImpl) handleMessage(op Opcode, data GatewayMessageData) {
 				Mode:    EncryptionModeNormal,
 			},
 		}); err != nil {
-			c.config.Logger.Error("voice: failed to send select protocol. error: ", err)
+			c.config.Logger.Error("voice: failed to send select protocol", slog.Any("err", err))
 		}
 
 	case GatewayMessageDataSessionDescription:

@@ -85,7 +85,7 @@ func commandListener(event *events.ApplicationCommandInteractionCreate) {
 			SetEphemeral(data.Bool("ephemeral")).
 			Build(),
 		); err != nil {
-			event.Client().Logger().Error("error on sending response: ", err)
+			event.Client().Logger().Error("error on sending response", slog.Any("err", err))
 		}
 	}
 }
