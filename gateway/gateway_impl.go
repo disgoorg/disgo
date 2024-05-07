@@ -102,12 +102,12 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 			}()
 			rawBody, bErr := io.ReadAll(rs.Body)
 			if bErr != nil {
-				g.config.Logger.Error("error while reading response body", slog.String("err", bErr.Error()))
+				g.config.Logger.Error("error while reading response body", slog.Any("err", bErr))
 			}
 			body = string(rawBody)
 		}
 
-		g.config.Logger.Error("error connecting to the gateway", slog.String("err", err.Error()), slog.String("url", gatewayURL), slog.String("body", body))
+		g.config.Logger.Error("error connecting to the gateway", slog.Any("err", err), slog.String("url", gatewayURL), slog.String("body", body))
 		return err
 	}
 
@@ -143,7 +143,7 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message strin
 		g.config.RateLimiter.Close(ctx)
 		g.config.Logger.Debug("closing gateway connection", slog.Int("code", code), slog.String("message", message))
 		if err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && !errors.Is(err, websocket.ErrCloseSent) {
-			g.config.Logger.Debug("error writing close code", slog.String("err", err.Error()))
+			g.config.Logger.Debug("error writing close code", slog.Any("err", err))
 		}
 		_ = g.conn.Close()
 		g.conn = nil
@@ -219,7 +219,7 @@ func (g *gatewayImpl) reconnectTry(ctx context.Context, try int) error {
 		if errors.Is(err, discord.ErrGatewayAlreadyConnected) {
 			return err
 		}
-		g.config.Logger.Error("failed to reconnect gateway", slog.String("err", err.Error()))
+		g.config.Logger.Error("failed to reconnect gateway", slog.Any("err", err))
 		g.status = StatusDisconnected
 		return g.reconnectTry(ctx, try+1)
 	}
@@ -229,7 +229,7 @@ func (g *gatewayImpl) reconnectTry(ctx context.Context, try int) error {
 func (g *gatewayImpl) reconnect() {
 	err := g.reconnectTry(context.Background(), 0)
 	if err != nil {
-		g.config.Logger.Error("failed to reopen gateway", slog.String("err", err.Error()))
+		g.config.Logger.Error("failed to reopen gateway", slog.Any("err", err))
 	}
 }
 
@@ -261,7 +261,7 @@ func (g *gatewayImpl) sendHeartbeat() {
 		if errors.Is(err, discord.ErrShardNotConnected) || errors.Is(err, syscall.EPIPE) {
 			return
 		}
-		g.config.Logger.Error("failed to send heartbeat", slog.String("err", err.Error()))
+		g.config.Logger.Error("failed to send heartbeat", slog.Any("err", err))
 		closeCtx, closeCancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer closeCancel()
 		g.CloseWithCode(closeCtx, websocket.CloseServiceRestart, "heartbeat timeout")
@@ -292,7 +292,7 @@ func (g *gatewayImpl) identify() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := g.Send(ctx, OpcodeIdentify, identify); err != nil {
-		g.config.Logger.Error("error sending Identify command", slog.String("err", err.Error()))
+		g.config.Logger.Error("error sending Identify command", slog.Any("err", err))
 	}
 	g.status = StatusWaitingForReady
 }
@@ -309,7 +309,7 @@ func (g *gatewayImpl) resume() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := g.Send(ctx, OpcodeResume, resume); err != nil {
-		g.config.Logger.Error("error sending resume command", slog.String("err", err.Error()))
+		g.config.Logger.Error("error sending resume command", slog.Any("err", err))
 	}
 }
 
@@ -354,7 +354,7 @@ loop:
 				// we closed the connection ourselves. Don't try to reconnect here
 				reconnect = false
 			} else {
-				g.config.Logger.Debug("failed to read next message from gateway", slog.String("err", err.Error()))
+				g.config.Logger.Debug("failed to read next message from gateway", slog.Any("err", err))
 			}
 
 			// make sure the connection is properly closed
@@ -372,7 +372,7 @@ loop:
 
 		message, err := g.parseMessage(mt, r)
 		if err != nil {
-			g.config.Logger.Error("error while parsing gateway message", slog.String("err", err.Error()))
+			g.config.Logger.Error("error while parsing gateway message", slog.Any("err", err))
 			continue
 		}
 

@@ -43,13 +43,13 @@ func main() {
 		}),
 	)
 	if err != nil {
-		slog.Error("error while building bot: ", err)
+		slog.Error("error while building bot", slog.Any("err", err))
 		return
 	}
 	defer client.Close(context.TODO())
 
 	if err = client.OpenGateway(context.TODO()); err != nil {
-		slog.Error("error while connecting to gateway: ", err)
+		slog.Error("error while connecting to gateway", slog.Any("err", err))
 		return
 	}
 

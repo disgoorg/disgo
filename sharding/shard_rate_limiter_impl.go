@@ -40,7 +40,7 @@ func (r *rateLimiterImpl) Close(ctx context.Context) {
 		go func() {
 			defer wg.Done()
 			if err := b.mu.CLock(ctx); err != nil {
-				r.config.Logger.Error("failed to close bucket: ", err)
+				r.config.Logger.Error("failed to close bucket", slog.Any("err", err))
 			}
 			b.mu.Unlock()
 		}()

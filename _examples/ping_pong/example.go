@@ -28,14 +28,14 @@ func main() {
 		bot.WithEventListenerFunc(onMessageCreate),
 	)
 	if err != nil {
-		slog.Error("error while building disgo", slog.String("err", err.Error()))
+		slog.Error("error while building disgo", slog.Any("err", err))
 		return
 	}
 
 	defer client.Close(context.TODO())
 
 	if err = client.OpenGateway(context.TODO()); err != nil {
-		slog.Error("errors while connecting to gateway", slog.String("err", err.Error()))
+		slog.Error("errors while connecting to gateway", slog.Any("err", err))
 		return
 	}
 

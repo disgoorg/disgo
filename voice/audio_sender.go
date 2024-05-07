@@ -101,7 +101,7 @@ func (s *defaultAudioSender) send() {
 	}
 	opus, err := s.opusProvider.ProvideOpusFrame()
 	if err != nil && err != io.EOF {
-		s.logger.Error("error while reading opus frame", slog.String("err", err.Error()))
+		s.logger.Error("error while reading opus frame", slog.Any("err", err))
 		return
 	}
 	if len(opus) == 0 {
@@ -143,7 +143,7 @@ func (s *defaultAudioSender) handleErr(err error) {
 		s.Close()
 		return
 	}
-	s.logger.Error("failed to send audio", slog.String("err", err.Error()))
+	s.logger.Error("failed to send audio", slog.Any("err", err))
 }
 
 func (s *defaultAudioSender) Close() {
