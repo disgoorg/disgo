@@ -1,7 +1,5 @@
 package discord
 
-import "github.com/disgoorg/snowflake/v2"
-
 // VoiceRegion (https://discord.com/developers/docs/resources/voice#voice-region-object)
 type VoiceRegion struct {
 	ID         string       `json:"id"`
