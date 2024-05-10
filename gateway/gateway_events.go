@@ -492,6 +492,17 @@ type EventMessageUpdate struct {
 	discord.Message
 }
 
+func (e *EventMessageUpdate) UnmarshalJSON(data []byte) error {
+	type eventMessageUpdate EventMessageUpdate
+	var v eventMessageUpdate
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*e = EventMessageUpdate(v)
+	e.CreatedAt = e.ID.Time()
+	return nil
+}
+
 func (EventMessageUpdate) messageData() {}
 func (EventMessageUpdate) eventData()   {}
 
