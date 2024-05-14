@@ -35,6 +35,9 @@ func (i *AutocompleteInteraction) UnmarshalJSON(data []byte) error {
 	i.baseInteraction.member = interaction.Member
 	i.baseInteraction.user = interaction.User
 	i.baseInteraction.appPermissions = interaction.AppPermissions
+	i.baseInteraction.entitlements = interaction.Entitlements
+	i.baseInteraction.authorizingIntegrationOwners = interaction.AuthorizingIntegrationOwners
+	i.baseInteraction.context = interaction.Context
 
 	i.Data = interaction.Data
 	return nil
@@ -46,19 +49,22 @@ func (i AutocompleteInteraction) MarshalJSON() ([]byte, error) {
 		Data AutocompleteInteractionData `json:"data"`
 	}{
 		rawInteraction: rawInteraction{
-			ID:             i.id,
-			Type:           i.Type(),
-			ApplicationID:  i.applicationID,
-			Token:          i.token,
-			Version:        i.version,
-			GuildID:        i.guildID,
-			ChannelID:      i.channelID,
-			Channel:        i.channel,
-			Locale:         i.locale,
-			GuildLocale:    i.guildLocale,
-			Member:         i.member,
-			User:           i.user,
-			AppPermissions: i.appPermissions,
+			ID:                           i.id,
+			Type:                         i.Type(),
+			ApplicationID:                i.applicationID,
+			Token:                        i.token,
+			Version:                      i.version,
+			GuildID:                      i.guildID,
+			ChannelID:                    i.channelID,
+			Channel:                      i.channel,
+			Locale:                       i.locale,
+			GuildLocale:                  i.guildLocale,
+			Member:                       i.member,
+			User:                         i.user,
+			AppPermissions:               i.appPermissions,
+			Entitlements:                 i.entitlements,
+			AuthorizingIntegrationOwners: i.authorizingIntegrationOwners,
+			Context:                      i.context,
 		},
 		Data: i.Data,
 	})
@@ -193,6 +199,13 @@ func (d AutocompleteInteractionData) CommandPath() string {
 		path += "/" + *d.SubCommandName
 	}
 	return path
+}
+
+func (d AutocompleteInteractionData) Focused() AutocompleteOption {
+	option, _ := d.Find(func(option AutocompleteOption) bool {
+		return option.Focused
+	})
+	return option
 }
 
 func (d AutocompleteInteractionData) Option(name string) (AutocompleteOption, bool) {

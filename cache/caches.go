@@ -2,6 +2,7 @@ package cache
 
 import (
 	"sync"
+	"time"
 
 	"github.com/disgoorg/snowflake/v2"
 
@@ -813,7 +814,7 @@ func (c *cachesImpl) MemberPermissions(member discord.Member) discord.Permission
 			return discord.PermissionsAll
 		}
 	}
-	if member.CommunicationDisabledUntil != nil {
+	if member.CommunicationDisabledUntil != nil && member.CommunicationDisabledUntil.After(time.Now()) {
 		permissions &= discord.PermissionViewChannel | discord.PermissionReadMessageHistory
 	}
 	return permissions
@@ -854,7 +855,7 @@ func (c *cachesImpl) MemberPermissionsInChannel(channel discord.GuildChannel, me
 	permissions &= ^deny
 	permissions |= allow
 
-	if member.CommunicationDisabledUntil != nil {
+	if member.CommunicationDisabledUntil != nil && member.CommunicationDisabledUntil.After(time.Now()) {
 		permissions &= discord.PermissionViewChannel | discord.PermissionReadMessageHistory
 	}
 

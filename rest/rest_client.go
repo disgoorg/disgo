@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"time"
@@ -18,6 +19,7 @@ import (
 func NewClient(botToken string, opts ...ConfigOpt) Client {
 	config := DefaultConfig()
 	config.Apply(opts)
+	config.Logger = config.Logger.With(slog.String("name", "rest_client"))
 
 	config.RateLimiter.Reset()
 
@@ -32,7 +34,7 @@ type Client interface {
 	// HTTPClient returns the http.Client the rest client uses
 	HTTPClient() *http.Client
 
-	// RateLimiter returns the rrate.RateLimiter the rest client uses
+	// RateLimiter returns the RateLimiter the rest client uses
 	RateLimiter() RateLimiter
 
 	// Close closes the rest client and awaits all pending requests to finish. You can use a cancelling context to abort the waiting
@@ -83,7 +85,7 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 				return fmt.Errorf("failed to marshal request body: %w", err)
 			}
 		}
-		c.config.Logger.Tracef("request to %s, body: %s", endpoint.URL, string(rawRqBody))
+		c.config.Logger.Debug("new request", slog.String("endpoint", endpoint.URL), slog.String("body", string(rawRqBody)))
 	}
 
 	rq, err := http.NewRequest(endpoint.Endpoint.Method, c.config.URL+endpoint.URL, bytes.NewReader(rawRqBody))
@@ -143,16 +145,15 @@ func (c *clientImpl) retry(endpoint *CompiledEndpoint, rqBody any, rsBody any, t
 		if rawRsBody, err = io.ReadAll(rs.Body); err != nil {
 			return fmt.Errorf("error reading response body in rest client: %w", err)
 		}
-		c.config.Logger.Tracef("response from %s, code %d, body: %s", endpoint.URL, rs.StatusCode, string(rawRsBody))
+		c.config.Logger.Debug("new response", slog.String("endpoint", endpoint.URL), slog.String("code", rs.Status), slog.String("body", string(rawRsBody)))
 	}
 
 	switch rs.StatusCode {
 	case http.StatusOK, http.StatusCreated, http.StatusNoContent:
 		if rsBody != nil && rs.Body != nil {
 			if err = json.Unmarshal(rawRsBody, rsBody); err != nil {
-				wErr := fmt.Errorf("error unmarshalling response body: %w", err)
-				c.config.Logger.Error(wErr)
-				return wErr
+				c.config.Logger.Error("error unmarshalling response body", slog.Any("err", err), slog.String("endpoint", endpoint.URL), slog.String("code", rs.Status), slog.String("body", string(rawRsBody)))
+				return fmt.Errorf("error unmarshalling response body: %w", err)
 			}
 		}
 		return nil

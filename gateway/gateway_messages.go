@@ -1,6 +1,8 @@
 package gateway
 
 import (
+	"fmt"
+
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 
@@ -86,7 +88,7 @@ func (e *Message) UnmarshalJSON(data []byte) error {
 		messageData = d
 	}
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to unmarshal message data: %s: %w", string(data), err)
 	}
 	e.Op = v.Op
 	e.S = v.S
@@ -156,6 +158,21 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 
 	case EventTypeChannelPinsUpdate:
 		var d EventChannelPinsUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeEntitlementCreate:
+		var d EventEntitlementCreate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeEntitlementUpdate:
+		var d EventEntitlementUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeEntitlementDelete:
+		var d EventEntitlementDelete
 		err = json.Unmarshal(data, &d)
 		eventData = d
 
@@ -415,7 +432,11 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 		eventData = d
 	}
 
-	return eventData, err
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal event data: %s: %w", string(data), err)
+	}
+
+	return eventData, nil
 }
 
 type MessageDataUnknown json.RawMessage

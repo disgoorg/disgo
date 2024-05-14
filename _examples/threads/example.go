@@ -2,11 +2,10 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/disgoorg/log"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
@@ -19,10 +18,8 @@ import (
 var token = os.Getenv("token")
 
 func main() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	log.SetLevel(log.LevelInfo)
-	log.Info("starting example...")
-	log.Infof("bot version: %s", disgo.Version)
+	slog.Info("starting example...")
+	slog.Info("bot version", slog.String("version", disgo.Version))
 
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(
@@ -36,45 +33,45 @@ func main() {
 			OnMessageCreate: func(event *events.MessageCreate) {
 				if channel, ok := event.Channel(); ok {
 					if _, ok = channel.(discord.GuildThread); ok {
-						println("MessageCreateEvent")
+						slog.Info("MessageCreateEvent")
 					}
 				}
 			},
 			OnThreadCreate: func(event *events.ThreadCreate) {
-				println("ThreadCreateEvent")
+				slog.Info("ThreadCreateEvent")
 			},
 			OnThreadUpdate: func(event *events.ThreadUpdate) {
-				println("ThreadUpdateEvent")
+				slog.Info("ThreadUpdateEvent")
 			},
 			OnThreadDelete: func(event *events.ThreadDelete) {
-				println("ThreadDeleteEvent")
+				slog.Info("ThreadDeleteEvent")
 			},
 			OnThreadHide: func(event *events.ThreadHide) {
-				println("ThreadHideEvent")
+				slog.Info("ThreadHideEvent")
 			},
 			OnThreadShow: func(event *events.ThreadShow) {
-				println("ThreadShowEvent")
+				slog.Info("ThreadShowEvent")
 			},
 			OnThreadMemberAdd: func(event *events.ThreadMemberAdd) {
-				println("ThreadMemberAddEvent")
+				slog.Info("ThreadMemberAddEvent")
 			},
 			OnThreadMemberUpdate: func(event *events.ThreadMemberUpdate) {
-				println("ThreadMemberUpdateEvent")
+				slog.Info("ThreadMemberUpdateEvent")
 			},
 			OnThreadMemberRemove: func(event *events.ThreadMemberRemove) {
-				println("ThreadMemberRemoveEvent")
+				slog.Info("ThreadMemberRemoveEvent")
 			},
 		}),
 	)
 	if err != nil {
-		log.Fatal("error while building bot instance: ", err)
+		slog.Error("error while building bot instance", slog.Any("err", err))
 		return
 	}
 
 	defer client.Close(context.TODO())
 
 	if err = client.OpenGateway(context.TODO()); err != nil {
-		log.Fatal("error while connecting to discord: ", err)
+		slog.Error("error while connecting to discord", slog.Any("err", err))
 	}
 
 	s := make(chan os.Signal, 1)

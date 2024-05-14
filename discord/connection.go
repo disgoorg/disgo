@@ -16,6 +16,7 @@ type ConnectionType string
 
 const (
 	ConnectionTypeBattleNet          ConnectionType = "battlenet"
+	ConnectionTypeBungie             ConnectionType = "bungie"
 	ConnectionTypeDomain             ConnectionType = "domain"
 	ConnectionTypeEbay               ConnectionType = "ebay"
 	ConnectionTypeEpicGames          ConnectionType = "epicgames"

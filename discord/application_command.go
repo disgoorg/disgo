@@ -11,7 +11,7 @@ import (
 type ApplicationCommandType int
 
 const (
-	ApplicationCommandTypeSlash = iota + 1
+	ApplicationCommandTypeSlash ApplicationCommandType = iota + 1
 	ApplicationCommandTypeUser
 	ApplicationCommandTypeMessage
 )
@@ -30,6 +30,8 @@ type ApplicationCommand interface {
 	Version() snowflake.ID
 	CreatedAt() time.Time
 	NSFW() bool
+	IntegrationTypes() []ApplicationIntegrationType
+	Contexts() []InteractionContextType
 	applicationCommand()
 }
 
@@ -95,6 +97,8 @@ type SlashCommand struct {
 	defaultMemberPermissions Permissions
 	dmPermission             bool
 	nsfw                     bool
+	integrationTypes         []ApplicationIntegrationType
+	contexts                 []InteractionContextType
 	version                  snowflake.ID
 }
 
@@ -117,6 +121,8 @@ func (c *SlashCommand) UnmarshalJSON(data []byte) error {
 	c.defaultMemberPermissions = v.DefaultMemberPermissions
 	c.dmPermission = v.DMPermission
 	c.nsfw = v.NSFW
+	c.integrationTypes = v.IntegrationTypes
+	c.contexts = v.Contexts
 	c.version = v.Version
 	return nil
 }
@@ -137,6 +143,8 @@ func (c SlashCommand) MarshalJSON() ([]byte, error) {
 		DefaultMemberPermissions: c.defaultMemberPermissions,
 		DMPermission:             c.dmPermission,
 		NSFW:                     c.nsfw,
+		IntegrationTypes:         c.integrationTypes,
+		Contexts:                 c.contexts,
 		Version:                  c.version,
 	})
 }
@@ -180,6 +188,14 @@ func (c SlashCommand) NSFW() bool {
 	return c.nsfw
 }
 
+func (c SlashCommand) IntegrationTypes() []ApplicationIntegrationType {
+	return c.integrationTypes
+}
+
+func (c SlashCommand) Contexts() []InteractionContextType {
+	return c.contexts
+}
+
 func (c SlashCommand) Version() snowflake.ID {
 	return c.version
 }
@@ -206,6 +222,8 @@ type UserCommand struct {
 	defaultMemberPermissions Permissions
 	dmPermission             bool
 	nsfw                     bool
+	integrationTypes         []ApplicationIntegrationType
+	contexts                 []InteractionContextType
 	version                  snowflake.ID
 }
 
@@ -224,6 +242,8 @@ func (c *UserCommand) UnmarshalJSON(data []byte) error {
 	c.defaultMemberPermissions = v.DefaultMemberPermissions
 	c.dmPermission = v.DMPermission
 	c.nsfw = v.NSFW
+	c.integrationTypes = v.IntegrationTypes
+	c.contexts = v.Contexts
 	c.version = v.Version
 	return nil
 }
@@ -240,6 +260,8 @@ func (c UserCommand) MarshalJSON() ([]byte, error) {
 		DefaultMemberPermissions: c.defaultMemberPermissions,
 		DMPermission:             c.dmPermission,
 		NSFW:                     c.nsfw,
+		IntegrationTypes:         c.integrationTypes,
+		Contexts:                 c.contexts,
 		Version:                  c.version,
 	})
 }
@@ -283,6 +305,14 @@ func (c UserCommand) NSFW() bool {
 	return c.nsfw
 }
 
+func (c UserCommand) IntegrationTypes() []ApplicationIntegrationType {
+	return c.integrationTypes
+}
+
+func (c UserCommand) Contexts() []InteractionContextType {
+	return c.contexts
+}
+
 func (c UserCommand) Version() snowflake.ID {
 	return c.version
 }
@@ -305,6 +335,8 @@ type MessageCommand struct {
 	defaultMemberPermissions Permissions
 	dmPermission             bool
 	nsfw                     bool
+	integrationTypes         []ApplicationIntegrationType
+	contexts                 []InteractionContextType
 	version                  snowflake.ID
 }
 
@@ -323,6 +355,8 @@ func (c *MessageCommand) UnmarshalJSON(data []byte) error {
 	c.defaultMemberPermissions = v.DefaultMemberPermissions
 	c.dmPermission = v.DMPermission
 	c.nsfw = v.NSFW
+	c.integrationTypes = v.IntegrationTypes
+	c.contexts = v.Contexts
 	c.version = v.Version
 	return nil
 }
@@ -339,6 +373,8 @@ func (c MessageCommand) MarshalJSON() ([]byte, error) {
 		DefaultMemberPermissions: c.defaultMemberPermissions,
 		DMPermission:             c.dmPermission,
 		NSFW:                     c.nsfw,
+		IntegrationTypes:         c.integrationTypes,
+		Contexts:                 c.contexts,
 		Version:                  c.version,
 	})
 }
@@ -380,6 +416,14 @@ func (c MessageCommand) DMPermission() bool {
 
 func (c MessageCommand) NSFW() bool {
 	return c.nsfw
+}
+
+func (c MessageCommand) IntegrationTypes() []ApplicationIntegrationType {
+	return c.integrationTypes
+}
+
+func (c MessageCommand) Contexts() []InteractionContextType {
+	return c.contexts
 }
 
 func (c MessageCommand) Version() snowflake.ID {

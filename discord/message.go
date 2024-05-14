@@ -81,18 +81,19 @@ func MessageURL(guildID snowflake.ID, channelID snowflake.ID, messageID snowflak
 
 // Message is a struct for messages sent in discord text-based channels
 type Message struct {
-	ID                   snowflake.ID          `json:"id"`
-	GuildID              *snowflake.ID         `json:"guild_id"`
-	Reactions            []MessageReaction     `json:"reactions"`
-	Attachments          []Attachment          `json:"attachments"`
-	TTS                  bool                  `json:"tts"`
-	Embeds               []Embed               `json:"embeds,omitempty"`
-	Components           []ContainerComponent  `json:"components,omitempty"`
+	ID          snowflake.ID         `json:"id"`
+	GuildID     *snowflake.ID        `json:"guild_id"`
+	Reactions   []MessageReaction    `json:"reactions"`
+	Attachments []Attachment         `json:"attachments"`
+	TTS         bool                 `json:"tts"`
+	Embeds      []Embed              `json:"embeds,omitempty"`
+	Components  []ContainerComponent `json:"components,omitempty"`
+	// Note: for message update events, this field is populated by the creation of the ID during unmarshalling
 	CreatedAt            time.Time             `json:"timestamp"`
 	Mentions             []User                `json:"mentions"`
 	MentionEveryone      bool                  `json:"mention_everyone"`
 	MentionRoles         []snowflake.ID        `json:"mention_roles"`
-	MentionChannels      []Channel             `json:"mention_channels"`
+	MentionChannels      []MentionChannel      `json:"mention_channels"`
 	Pinned               bool                  `json:"pinned"`
 	EditedTimestamp      *time.Time            `json:"edited_timestamp"`
 	Author               User                  `json:"author"`
@@ -113,6 +114,9 @@ type Message struct {
 	Thread               *MessageThread        `json:"thread,omitempty"`
 	Position             *int                  `json:"position,omitempty"`
 	RoleSubscriptionData *RoleSubscriptionData `json:"role_subscription_data,omitempty"`
+	InteractionMetadata  *InteractionMetadata  `json:"interaction_metadata,omitempty"`
+	Resolved             *ResolvedData         `json:"resolved,omitempty"`
+	Poll                 *Poll                 `json:"poll,omitempty"`
 }
 
 func (m *Message) UnmarshalJSON(data []byte) error {
@@ -334,6 +338,13 @@ func (m Message) JumpURL() string {
 	return fmt.Sprintf(MessageURLFmt, guildID, m.ChannelID, m.ID) // duplicate code, but there isn't a better way without sacrificing user convenience
 }
 
+type MentionChannel struct {
+	ID      snowflake.ID `json:"id"`
+	GuildID snowflake.ID `json:"guild_id"`
+	Type    ChannelType  `json:"type"`
+	Name    string       `json:"name"`
+}
+
 type MessageThread struct {
 	GuildThread
 	Member ThreadMember `json:"member"`
@@ -454,4 +465,15 @@ type RoleSubscriptionData struct {
 	TierName                  string       `json:"tier_name"`
 	TotalMonthsSubscribed     int          `json:"total_months_subscribed"`
 	IsRenewal                 bool         `json:"is_renewal"`
+}
+
+type InteractionMetadata struct {
+	ID                            snowflake.ID                                `json:"id"`
+	Type                          InteractionType                             `json:"type"`
+	User                          User                                        `json:"user"`
+	AuthorizingIntegrationOwners  map[ApplicationIntegrationType]snowflake.ID `json:"authorizing_integration_owners"`
+	OriginalResponseMessageID     *snowflake.ID                               `json:"original_response_message_id"`
+	Name                          *string                                     `json:"name"`
+	InteractedMessageID           *snowflake.ID                               `json:"interacted_message_id"`
+	TriggeringInteractionMetadata *InteractionMetadata                        `json:"triggering_interaction_metadata"`
 }

@@ -1,14 +1,15 @@
 package voice
 
 import (
-	"github.com/disgoorg/log"
+	"log/slog"
+
 	"github.com/gorilla/websocket"
 )
 
 // DefaultGatewayConfig returns a GatewayConfig with sensible defaults.
 func DefaultGatewayConfig() *GatewayConfig {
 	return &GatewayConfig{
-		Logger:        log.Default(),
+		Logger:        slog.Default(),
 		Dialer:        websocket.DefaultDialer,
 		AutoReconnect: true,
 	}
@@ -16,7 +17,7 @@ func DefaultGatewayConfig() *GatewayConfig {
 
 // GatewayConfig is used to configure a Gateway.
 type GatewayConfig struct {
-	Logger        log.Logger
+	Logger        *slog.Logger
 	Dialer        *websocket.Dialer
 	AutoReconnect bool
 }
@@ -32,7 +33,7 @@ func (c *GatewayConfig) Apply(opts []GatewayConfigOpt) {
 }
 
 // WithGatewayLogger sets the Gateway(s) used Logger.
-func WithGatewayLogger(logger log.Logger) GatewayConfigOpt {
+func WithGatewayLogger(logger *slog.Logger) GatewayConfigOpt {
 	return func(config *GatewayConfig) {
 		config.Logger = logger
 	}

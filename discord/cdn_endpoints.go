@@ -4,7 +4,10 @@ import (
 	"strings"
 )
 
-const CDN = "https://cdn.discordapp.com"
+const (
+	CDN      = "https://cdn.discordapp.com"
+	CDNMedia = "https://media.discordapp.net"
+)
 
 var (
 	CustomEmoji = NewCDN("/emojis/{emote.id}", FileFormatPNG, FileFormatGIF)
@@ -13,6 +16,8 @@ var (
 	GuildSplash          = NewCDN("/splashes/{guild.id}/{guild.splash.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP)
 	GuildDiscoverySplash = NewCDN("/discovery-splashes/{guild.id}/{guild.discovery.splash.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP)
 	GuildBanner          = NewCDN("/banners/{guild.id}/{guild.banner.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP, FileFormatGIF)
+
+	GuildScheduledEventCover = NewCDN("/guild-events/{event.id}/{event.cover.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP)
 
 	RoleIcon = NewCDN("/role-icons/{role.id}/{role.icon.hash}", FileFormatPNG, FileFormatJPEG)
 
@@ -24,7 +29,7 @@ var (
 
 	MemberAvatar = NewCDN("/guilds/{guild.id}/users/{user.id}/avatars/{member.avatar.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP, FileFormatGIF)
 
-	UserAvatarDecoration = NewCDN("/avatar-decorations/{user.id}/{user.avatar.decoration.hash}", FileFormatPNG)
+	AvatarDecoration = NewCDN("/avatar-decoration-presets/{user.avatar.decoration.hash}", FileFormatPNG)
 
 	ApplicationIcon  = NewCDN("/app-icons/{application.id}/{icon.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP)
 	ApplicationCover = NewCDN("/app-assets/{application.id}/{cover.image.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP)
@@ -87,6 +92,12 @@ func (e CDNEndpoint) URL(format FileFormat, values QueryValues, params ...any) s
 	if query != "" {
 		query = "?" + query
 	}
+
+	// for some reason custom gif stickers use a different cnd url, blame discord for this one
+	if format == FileFormatGIF && e.Route == "/stickers/{sticker.id}" {
+		return urlPrint(CDNMedia+e.Route+"."+format.String(), params...) + query
+	}
+
 	return urlPrint(CDN+e.Route+"."+format.String(), params...) + query
 }
 
@@ -141,7 +152,8 @@ func formatAssetURL(cdnRoute *CDNEndpoint, opts []CDNOpt, params ...any) string 
 		lastStringParam = *ptrStr
 	}
 
-	if strings.HasPrefix(lastStringParam, "a_") && !config.Format.Animated() {
+	// some endpoints have a_ prefix for animated images except the AvatarDecoration endpoint does not like this
+	if strings.HasPrefix(lastStringParam, "a_") && !config.Format.Animated() && cdnRoute.Route != "/avatar-decoration-presets/{user.avatar.decoration.hash}" {
 		config.Format = FileFormatGIF
 	}
 

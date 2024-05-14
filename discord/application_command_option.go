@@ -379,7 +379,7 @@ func (o ApplicationCommandOptionChannel) OptionName() string {
 }
 
 func (o ApplicationCommandOptionChannel) OptionDescription() string {
-	return o.Name
+	return o.Description
 }
 
 func (ApplicationCommandOptionChannel) applicationCommandOption() {}
@@ -413,7 +413,7 @@ func (o ApplicationCommandOptionRole) OptionName() string {
 }
 
 func (o ApplicationCommandOptionRole) OptionDescription() string {
-	return o.Name
+	return o.Description
 }
 
 func (ApplicationCommandOptionRole) applicationCommandOption() {}
@@ -447,7 +447,7 @@ func (o ApplicationCommandOptionMentionable) OptionName() string {
 }
 
 func (o ApplicationCommandOptionMentionable) OptionDescription() string {
-	return o.Name
+	return o.Description
 }
 
 func (ApplicationCommandOptionMentionable) applicationCommandOption() {}
@@ -485,7 +485,7 @@ func (o ApplicationCommandOptionFloat) OptionName() string {
 }
 
 func (o ApplicationCommandOptionFloat) OptionDescription() string {
-	return o.Name
+	return o.Description
 }
 
 func (ApplicationCommandOptionFloat) applicationCommandOption() {}
@@ -494,6 +494,8 @@ func (ApplicationCommandOptionFloat) Type() ApplicationCommandOptionType {
 }
 
 type ApplicationCommandOptionChoice interface {
+	ChoiceName() string
+
 	applicationCommandOptionChoice()
 }
 
@@ -503,6 +505,10 @@ type ApplicationCommandOptionChoiceInt struct {
 	Name              string            `json:"name"`
 	NameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
 	Value             int               `json:"value"`
+}
+
+func (c ApplicationCommandOptionChoiceInt) ChoiceName() string {
+	return c.Name
 }
 
 func (ApplicationCommandOptionChoiceInt) applicationCommandOptionChoice() {}
@@ -515,6 +521,10 @@ type ApplicationCommandOptionChoiceString struct {
 	Value             string            `json:"value"`
 }
 
+func (c ApplicationCommandOptionChoiceString) ChoiceName() string {
+	return c.Name
+}
+
 func (ApplicationCommandOptionChoiceString) applicationCommandOptionChoice() {}
 
 var _ ApplicationCommandOptionChoice = (*ApplicationCommandOptionChoiceInt)(nil)
@@ -523,6 +533,10 @@ type ApplicationCommandOptionChoiceFloat struct {
 	Name              string            `json:"name"`
 	NameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
 	Value             float64           `json:"value"`
+}
+
+func (c ApplicationCommandOptionChoiceFloat) ChoiceName() string {
+	return c.Name
 }
 
 func (ApplicationCommandOptionChoiceFloat) applicationCommandOptionChoice() {}
@@ -551,7 +565,7 @@ func (o ApplicationCommandOptionAttachment) OptionName() string {
 }
 
 func (o ApplicationCommandOptionAttachment) OptionDescription() string {
-	return o.Name
+	return o.Description
 }
 
 func (ApplicationCommandOptionAttachment) applicationCommandOption() {}

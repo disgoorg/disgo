@@ -1,0 +1,61 @@
+{
+    "application_id": "775799577604522054",
+    "channel_id": "772908445358620702",
+    "data": {
+        "id": "866818195033292850",
+        "name": "foo",
+        "resolved": {
+            "members": {
+                "809850198683418695": {
+                    "avatar": null,
+                    "is_pending": false,
+                    "joined_at": "2021-02-12T18:25:07.972000+00:00",
+                    "nick": null,
+                    "pending": false,
+                    "permissions": "246997699136",
+                    "premium_since": null,
+                    "roles": []
+                }
+            },
+            "users": {
+                "809850198683418695": {
+                    "avatar": "afc428077119df8aabbbd84b0dc90c74",
+                    "bot": true,
+                    "discriminator": "7302",
+                    "id": "809850198683418695",
+                    "public_flags": 0,
+                    "username": "VoltyDemo"
+                }
+            }
+        },
+        "target_id": "809850198683418695",
+        "type": 2
+    },
+    "guild_id": "772904309264089089",
+    "guild_locale": "en-US",
+    "app_permissions": "442368",
+    "id": "867794291820986368",
+    "locale": "en-US",
+    "member": {
+        "avatar": null,
+        "deaf": false,
+        "is_pending": false,
+        "joined_at": "2020-11-02T20:46:57.364000+00:00",
+        "mute": false,
+        "nick": null,
+        "pending": false,
+        "permissions": "274877906943",
+        "premium_since": null,
+        "roles": ["785609923542777878"],
+        "user": {
+            "avatar": "a_f03401914fb4f3caa9037578ab980920",
+            "discriminator": "6538",
+            "id": "167348773423415296",
+            "public_flags": 1,
+            "username": "ian"
+        }
+    },
+    "token": "UNIQUE_TOKEN",
+    "type": 2,
+    "version": 1
+}
