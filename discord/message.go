@@ -117,6 +117,7 @@ type Message struct {
 	InteractionMetadata  *InteractionMetadata  `json:"interaction_metadata,omitempty"`
 	Resolved             *ResolvedData         `json:"resolved,omitempty"`
 	Poll                 *Poll                 `json:"poll,omitempty"`
+	Call                 *MessageCall          `json:"call,omitempty"`
 }
 
 func (m *Message) UnmarshalJSON(data []byte) error {
@@ -476,4 +477,9 @@ type InteractionMetadata struct {
 	Name                          *string                                     `json:"name"`
 	InteractedMessageID           *snowflake.ID                               `json:"interacted_message_id"`
 	TriggeringInteractionMetadata *InteractionMetadata                        `json:"triggering_interaction_metadata"`
+}
+
+type MessageCall struct {
+	Participants   []snowflake.ID `json:"participants"`
+	EndedTimestamp *time.Time     `json:"ended_timestamp"`
 }
