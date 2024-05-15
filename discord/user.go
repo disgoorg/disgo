@@ -185,6 +185,7 @@ const (
 type UserUpdate struct {
 	Username string               `json:"username,omitempty"`
 	Avatar   *json.Nullable[Icon] `json:"avatar,omitempty"`
+	Banner   *json.Nullable[Icon] `json:"banner,omitempty"`
 }
 
 type ApplicationRoleConnection struct {
