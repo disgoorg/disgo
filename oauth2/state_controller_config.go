@@ -1,9 +1,8 @@
 package oauth2
 
 import (
+	"log/slog"
 	"time"
-
-	"github.com/disgoorg/log"
 
 	"github.com/disgoorg/disgo/internal/insecurerandstr"
 )
@@ -11,7 +10,7 @@ import (
 // DefaultStateControllerConfig is the default configuration for the StateController
 func DefaultStateControllerConfig() *StateControllerConfig {
 	return &StateControllerConfig{
-		Logger:       log.Default(),
+		Logger:       slog.Default(),
 		States:       map[string]string{},
 		NewStateFunc: func() string { return insecurerandstr.RandStr(32) },
 		MaxTTL:       time.Hour,
@@ -20,7 +19,7 @@ func DefaultStateControllerConfig() *StateControllerConfig {
 
 // StateControllerConfig is the configuration for the StateController
 type StateControllerConfig struct {
-	Logger       log.Logger
+	Logger       *slog.Logger
 	States       map[string]string
 	NewStateFunc func() string
 	MaxTTL       time.Duration
@@ -37,7 +36,7 @@ func (c *StateControllerConfig) Apply(opts []StateControllerConfigOpt) {
 }
 
 // WithStateControllerLogger sets the logger for the StateController
-func WithStateControllerLogger(logger log.Logger) StateControllerConfigOpt {
+func WithStateControllerLogger(logger *slog.Logger) StateControllerConfigOpt {
 	return func(config *StateControllerConfig) {
 		config.Logger = logger
 	}

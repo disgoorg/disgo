@@ -12,7 +12,7 @@ type ApplicationCommandPermissionType int
 
 // types of ApplicationCommandPermissionType
 const (
-	ApplicationCommandPermissionTypeRole = iota + 1
+	ApplicationCommandPermissionTypeRole ApplicationCommandPermissionType = iota + 1
 	ApplicationCommandPermissionTypeUser
 	ApplicationCommandPermissionTypeChannel
 )

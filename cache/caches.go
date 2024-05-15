@@ -2,6 +2,7 @@ package cache
 
 import (
 	"sync"
+	"time"
 
 	"github.com/disgoorg/snowflake/v2"
 
@@ -747,6 +748,9 @@ type Caches interface {
 
 	// GuildForumChannel returns a discord.GuildForumChannel from the ChannelCache and a bool indicating if it exists.
 	GuildForumChannel(channelID snowflake.ID) (discord.GuildForumChannel, bool)
+
+	// GuildMediaChannel returns a discord.GuildMediaChannel from the ChannelCache and a bool indicating if it exists.
+	GuildMediaChannel(channelID snowflake.ID) (discord.GuildMediaChannel, bool)
 }
 
 // New returns a new default Caches instance with the given ConfigOpt(s) applied.
@@ -810,7 +814,7 @@ func (c *cachesImpl) MemberPermissions(member discord.Member) discord.Permission
 			return discord.PermissionsAll
 		}
 	}
-	if member.CommunicationDisabledUntil != nil {
+	if member.CommunicationDisabledUntil != nil && member.CommunicationDisabledUntil.After(time.Now()) {
 		permissions &= discord.PermissionViewChannel | discord.PermissionReadMessageHistory
 	}
 	return permissions
@@ -851,7 +855,7 @@ func (c *cachesImpl) MemberPermissionsInChannel(channel discord.GuildChannel, me
 	permissions &= ^deny
 	permissions |= allow
 
-	if member.CommunicationDisabledUntil != nil {
+	if member.CommunicationDisabledUntil != nil && member.CommunicationDisabledUntil.After(time.Now()) {
 		permissions &= discord.PermissionViewChannel | discord.PermissionReadMessageHistory
 	}
 
@@ -1007,4 +1011,13 @@ func (c *cachesImpl) GuildForumChannel(channelID snowflake.ID) (discord.GuildFor
 		}
 	}
 	return discord.GuildForumChannel{}, false
+}
+
+func (c *cachesImpl) GuildMediaChannel(channelID snowflake.ID) (discord.GuildMediaChannel, bool) {
+	if ch, ok := c.Channel(channelID); ok {
+		if cCh, ok := ch.(discord.GuildMediaChannel); ok {
+			return cCh, true
+		}
+	}
+	return discord.GuildMediaChannel{}, false
 }

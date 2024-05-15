@@ -59,10 +59,13 @@ const (
 	PermissionModerateMembers
 	PermissionViewCreatorMonetizationAnalytics
 	PermissionUseSoundboard
-	_
-	_
+	PermissionCreateGuildExpressions
+	PermissionCreateEvents
 	PermissionUseExternalSounds
 	PermissionSendVoiceMessages
+	_
+	_
+	PermissionSendPolls
 
 	PermissionsAllText = PermissionViewChannel |
 		PermissionSendMessages |
@@ -72,7 +75,8 @@ const (
 		PermissionAttachFiles |
 		PermissionReadMessageHistory |
 		PermissionMentionEveryone |
-		PermissionSendVoiceMessages
+		PermissionSendVoiceMessages |
+		PermissionSendPolls
 
 	PermissionsAllThread = PermissionManageThreads |
 		PermissionCreatePublicThreads |
@@ -91,7 +95,10 @@ const (
 		PermissionUseSoundboard |
 		PermissionUseExternalSounds |
 		PermissionRequestToSpeak |
-		PermissionUseEmbeddedActivities
+		PermissionUseEmbeddedActivities |
+		PermissionCreateGuildExpressions |
+		PermissionCreateEvents |
+		PermissionManageEvents
 
 	PermissionsAllChannel = PermissionsAllText |
 		PermissionsAllThread |
@@ -116,7 +123,6 @@ const (
 		PermissionManageRoles |
 		PermissionChangeNickname |
 		PermissionManageNicknames |
-		PermissionManageEvents |
 		PermissionModerateMembers
 
 	PermissionsNone Permissions = 0
@@ -168,6 +174,7 @@ var permissions = map[Permissions]string{
 	PermissionStream:                           "Video",
 	PermissionViewGuildInsights:                "View Server Insights",
 	PermissionSendVoiceMessages:                "Send Voice Messages",
+	PermissionSendPolls:                        "Create Polls",
 }
 
 func (p Permissions) String() string {

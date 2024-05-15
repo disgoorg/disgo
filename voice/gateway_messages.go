@@ -136,14 +136,14 @@ type GatewayMessageDataSessionDescription struct {
 
 func (GatewayMessageDataSessionDescription) voiceGatewayMessageData() {}
 
-type VoiceProtocol string
+type Protocol string
 
 const (
-	VoiceProtocolUDP VoiceProtocol = "udp"
+	ProtocolUDP Protocol = "udp"
 )
 
 type GatewayMessageDataSelectProtocol struct {
-	Protocol VoiceProtocol                        `json:"protocol"`
+	Protocol Protocol                             `json:"protocol"`
 	Data     GatewayMessageDataSelectProtocolData `json:"data"`
 }
 
@@ -212,3 +212,11 @@ func (GatewayMessageDataClientDisconnect) voiceGatewayMessageData() {}
 type GatewayMessageDataUnknown json.RawMessage
 
 func (GatewayMessageDataUnknown) voiceGatewayMessageData() {}
+
+func (m GatewayMessageDataUnknown) MarshalJSON() ([]byte, error) {
+	return json.RawMessage(m).MarshalJSON()
+}
+
+func (m *GatewayMessageDataUnknown) UnmarshalJSON(data []byte) error {
+	return (*json.RawMessage)(m).UnmarshalJSON(data)
+}

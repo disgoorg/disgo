@@ -15,7 +15,7 @@ type Emoji struct {
 	GuildID       snowflake.ID   `json:"guild_id,omitempty"` // not present in the API but we need it
 	Name          string         `json:"name,omitempty"`     // may be empty for deleted emojis
 	Roles         []snowflake.ID `json:"roles,omitempty"`
-	Creator       *User          `json:"creator,omitempty"`
+	Creator       *User          `json:"user,omitempty"`
 	RequireColons bool           `json:"require_colons,omitempty"`
 	Managed       bool           `json:"managed,omitempty"`
 	Animated      bool           `json:"animated,omitempty"`
@@ -66,9 +66,9 @@ type EmojiUpdate struct {
 }
 
 type PartialEmoji struct {
-	ID       *snowflake.ID `json:"id"`
-	Name     *string       `json:"name"`
-	Animated bool          `json:"animated"`
+	ID       *snowflake.ID `json:"id,omitempty"`
+	Name     *string       `json:"name,omitempty"`
+	Animated bool          `json:"animated,omitempty"`
 }
 
 // Reaction returns a string used for manipulating with reactions. May be empty if the Name is nil

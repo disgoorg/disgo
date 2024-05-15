@@ -117,3 +117,28 @@ func (p *ThreadMemberPage) Next() bool {
 	}
 	return p.Err == nil
 }
+
+type PollAnswerVotesPage struct {
+	getItems func(after snowflake.ID) ([]discord.User, error)
+
+	Items []discord.User
+	Err   error
+
+	ID snowflake.ID
+}
+
+func (p *PollAnswerVotesPage) Next() bool {
+	if p.Err != nil {
+		return false
+	}
+
+	if len(p.Items) > 0 {
+		p.ID = p.Items[0].ID
+	}
+
+	p.Items, p.Err = p.getItems(p.ID)
+	if p.Err == nil && len(p.Items) == 0 {
+		p.Err = ErrNoMorePages
+	}
+	return p.Err == nil
+}

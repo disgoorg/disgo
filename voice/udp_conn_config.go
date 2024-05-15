@@ -1,23 +1,21 @@
 package voice
 
 import (
+	"log/slog"
 	"net"
-	"time"
-
-	"github.com/disgoorg/log"
 )
 
 func DefaultUDPConnConfig() UDPConnConfig {
 	return UDPConnConfig{
-		Logger: log.Default(),
+		Logger: slog.Default(),
 		Dialer: &net.Dialer{
-			Timeout: 30 * time.Second,
+			Timeout: UDPTimeout,
 		},
 	}
 }
 
 type UDPConnConfig struct {
-	Logger log.Logger
+	Logger *slog.Logger
 	Dialer *net.Dialer
 }
 
@@ -29,7 +27,7 @@ func (c *UDPConnConfig) Apply(opts []UDPConnConfigOpt) {
 	}
 }
 
-func WithUDPConnLogger(logger log.Logger) UDPConnConfigOpt {
+func WithUDPConnLogger(logger *slog.Logger) UDPConnConfigOpt {
 	return func(config *UDPConnConfig) {
 		config.Logger = logger
 	}

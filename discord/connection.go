@@ -16,6 +16,8 @@ type ConnectionType string
 
 const (
 	ConnectionTypeBattleNet          ConnectionType = "battlenet"
+	ConnectionTypeBungie             ConnectionType = "bungie"
+	ConnectionTypeDomain             ConnectionType = "domain"
 	ConnectionTypeEbay               ConnectionType = "ebay"
 	ConnectionTypeEpicGames          ConnectionType = "epicgames"
 	ConnectionTypeFacebook           ConnectionType = "facebook"
@@ -31,7 +33,7 @@ const (
 	ConnectionTypeSteam              ConnectionType = "steam"
 	ConnectionTypeTikTok             ConnectionType = "tiktok"
 	ConnectionTypeTwitch             ConnectionType = "twitch"
-	ConnectionTypeTwitter            ConnectionType = "twitter"
+	ConnectionTypeX                  ConnectionType = "twitter"
 	ConnectionTypeXbox               ConnectionType = "xbox"
 	ConnectionTypeYouTube            ConnectionType = "youtube"
 )

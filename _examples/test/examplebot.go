@@ -3,18 +3,17 @@ package main
 import (
 	"context"
 	_ "embed"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
@@ -26,15 +25,13 @@ var (
 )
 
 func main() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	log.SetLevel(log.LevelDebug)
-	log.Info("starting example...")
-	log.Info("bot version: ", disgo.Version)
+	slog.Info("starting example...")
+	slog.Info("disgo version", slog.Any("version", disgo.Version))
 
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(
 			gateway.WithIntents(gateway.IntentsNonPrivileged, gateway.IntentMessageContent),
-			gateway.WithPresenceOpts(gateway.WithListeningActivity("your bullshit"), gateway.WithOnlineStatus(discord.OnlineStatusDND)),
+			gateway.WithPresenceOpts(gateway.WithListeningActivity("your bullshit", gateway.WithActivityState("lol")), gateway.WithOnlineStatus(discord.OnlineStatusDND)),
 		),
 		bot.WithCacheConfigOpts(
 			cache.WithCaches(cache.FlagsAll),
@@ -43,19 +40,19 @@ func main() {
 		bot.WithEventListeners(listener),
 	)
 	if err != nil {
-		log.Fatal("error while building bot instance: ", err)
+		slog.Error("error while building bot instance", slog.Any("err", err))
 		return
 	}
 
 	registerCommands(client)
 
 	if err = client.OpenGateway(context.TODO()); err != nil {
-		log.Fatal("error while connecting to discord: ", err)
+		slog.Error("error while connecting to discord", slog.Any("err", err))
 	}
 
 	defer client.Close(context.TODO())
 
-	log.Info("ExampleBot is now running. Press CTRL-C to exit.")
+	slog.Info("ExampleBot is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s

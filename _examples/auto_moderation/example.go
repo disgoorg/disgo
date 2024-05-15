@@ -3,20 +3,19 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
-
-	"github.com/disgoorg/json"
-	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
+	"github.com/disgoorg/json"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
@@ -26,9 +25,8 @@ var (
 )
 
 func main() {
-	log.SetLevel(log.LevelInfo)
-	log.Info("starting example...")
-	log.Infof("disgo version: %s", disgo.Version)
+	slog.Info("starting example...")
+	slog.Info("disgo version", slog.String("version", disgo.Version))
 
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(gateway.WithIntents(gateway.IntentAutoModerationConfiguration, gateway.IntentAutoModerationExecution)),
@@ -49,16 +47,18 @@ func main() {
 		}),
 	)
 	if err != nil {
-		log.Fatal("error while building bot: ", err)
+		slog.Error("error while building bot", slog.Any("err", err))
+		return
 	}
 
 	defer client.Close(context.TODO())
 
 	if err = client.OpenGateway(context.TODO()); err != nil {
-		log.Fatal("error while connecting to gateway: ", err)
+		slog.Error("error while connecting to gateway", slog.Any("err", err))
+		return
 	}
 
-	log.Infof("example is now running. Press CTRL-C to exit.")
+	slog.Info("example is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
@@ -86,7 +86,7 @@ func showCaseAutoMod(client bot.Client) {
 		Enabled: json.Ptr(true),
 	})
 	if err != nil {
-		log.Error("error while creating rule: ", err)
+		slog.Error("error while creating rule", slog.Any("err", err))
 		return
 	}
 
@@ -107,7 +107,7 @@ func showCaseAutoMod(client bot.Client) {
 		},
 	})
 	if err != nil {
-		log.Error("error while updating rule: ", err)
+		slog.Error("error while updating rule", slog.Any("err", err))
 		return
 	}
 
@@ -115,7 +115,7 @@ func showCaseAutoMod(client bot.Client) {
 
 	err = client.Rest().DeleteAutoModerationRule(guildID, rule.ID)
 	if err != nil {
-		log.Error("error while deleting rule: ", err)
+		slog.Error("error while deleting rule", slog.Any("err", err))
 		return
 	}
 

@@ -1,12 +1,18 @@
 package handler
 
 import (
+	"context"
+	"log/slog"
 	"strings"
 
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 )
+
+var defaultErrorHandler ErrorHandler = func(event *InteractionEvent, err error) {
+	event.Client().Logger().Error("error handling interaction", slog.Any("err", err))
+}
 
 // New returns a new Router.
 func New() *Mux {
@@ -27,6 +33,8 @@ type Mux struct {
 	middlewares     []Middleware
 	routes          []Route
 	notFoundHandler NotFoundHandler
+	errorHandler    ErrorHandler
+	defaultContext  func() context.Context
 }
 
 // OnEvent is called when a new event is received.
@@ -52,13 +60,29 @@ func (r *Mux) OnEvent(event bot.Event) {
 		path = i.Data.CustomID
 	}
 
-	if err := r.Handle(path, make(map[string]string), e); err != nil {
-		event.Client().Logger().Errorf("error handling interaction: %v\n", err)
+	var ctx context.Context
+	if r.defaultContext != nil {
+		ctx = r.defaultContext()
+	} else {
+		ctx = context.Background()
+	}
+
+	ie := &InteractionEvent{
+		InteractionCreate: e,
+		Ctx:               ctx,
+		Vars:              make(map[string]string),
+	}
+	if err := r.Handle(path, ie); err != nil {
+		if r.errorHandler != nil {
+			r.errorHandler(ie, err)
+			return
+		}
+		defaultErrorHandler(ie, err)
 	}
 }
 
 // Match returns true if the given path matches the Route.
-func (r *Mux) Match(path string, t discord.InteractionType) bool {
+func (r *Mux) Match(path string, t discord.InteractionType, t2 int) bool {
 	if r.pattern != "" {
 		parts := splitPath(path)
 		patternParts := splitPath(r.pattern)
@@ -75,7 +99,7 @@ func (r *Mux) Match(path string, t discord.InteractionType) bool {
 	}
 
 	for _, matcher := range r.routes {
-		if matcher.Match(path, t) {
+		if matcher.Match(path, t, t2) {
 			return true
 		}
 	}
@@ -83,26 +107,35 @@ func (r *Mux) Match(path string, t discord.InteractionType) bool {
 }
 
 // Handle handles the given interaction event.
-func (r *Mux) Handle(path string, variables map[string]string, e *events.InteractionCreate) error {
-	handlerChain := func(event *events.InteractionCreate) error {
-		path = parseVariables(path, r.pattern, variables)
+func (r *Mux) Handle(path string, event *InteractionEvent) error {
+	handlerChain := Handler(func(event *InteractionEvent) error {
+		path = parseVariables(path, r.pattern, event.Vars)
+
+		t := event.Type()
+		var t2 int
+		switch i := event.Interaction.(type) {
+		case discord.ApplicationCommandInteraction:
+			t2 = int(i.Data.Type())
+		case discord.ComponentInteraction:
+			t2 = int(i.Data.Type())
+		}
 
 		for _, route := range r.routes {
-			if route.Match(path, e.Type()) {
-				return route.Handle(path, variables, e)
+			if route.Match(path, t, t2) {
+				return route.Handle(path, event)
 			}
 		}
 		if r.notFoundHandler != nil {
-			return r.notFoundHandler(e)
+			return r.notFoundHandler(event)
 		}
 		return nil
-	}
+	})
 
 	for i := len(r.middlewares) - 1; i >= 0; i-- {
 		handlerChain = r.middlewares[i](handlerChain)
 	}
 
-	return handlerChain(e)
+	return handlerChain(event)
 }
 
 // Use adds the given middlewares to the current Router.
@@ -144,6 +177,17 @@ func (r *Mux) handle(route Route) {
 	r.routes = append(r.routes, route)
 }
 
+// Interaction registers the given InteractionHandler to the current Router.
+// This is a shortcut for Command, Autocomplete, Component and Modal.
+func (r *Mux) Interaction(pattern string, h InteractionHandler) {
+	checkPattern(pattern)
+	r.handle(&handlerHolder[InteractionHandler]{
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionType(0),
+	})
+}
+
 // Command registers the given CommandHandler to the current Router.
 func (r *Mux) Command(pattern string, h CommandHandler) {
 	checkPattern(pattern)
@@ -151,6 +195,39 @@ func (r *Mux) Command(pattern string, h CommandHandler) {
 		pattern: pattern,
 		handler: h,
 		t:       discord.InteractionTypeApplicationCommand,
+	})
+}
+
+// SlashCommand registers the given SlashCommandHandler to the current Router.
+func (r *Mux) SlashCommand(pattern string, h SlashCommandHandler) {
+	checkPattern(pattern)
+	r.handle(&handlerHolder[SlashCommandHandler]{
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeApplicationCommand,
+		t2:      []int{int(discord.ApplicationCommandTypeSlash)},
+	})
+}
+
+// UserCommand registers the given UserCommandHandler to the current Router.
+func (r *Mux) UserCommand(pattern string, h UserCommandHandler) {
+	checkPattern(pattern)
+	r.handle(&handlerHolder[UserCommandHandler]{
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeApplicationCommand,
+		t2:      []int{int(discord.ApplicationCommandTypeUser)},
+	})
+}
+
+// MessageCommand registers the given MessageCommandHandler to the current Router.
+func (r *Mux) MessageCommand(pattern string, h MessageCommandHandler) {
+	checkPattern(pattern)
+	r.handle(&handlerHolder[MessageCommandHandler]{
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeApplicationCommand,
+		t2:      []int{int(discord.ApplicationCommandTypeMessage)},
 	})
 }
 
@@ -166,7 +243,7 @@ func (r *Mux) Autocomplete(pattern string, h AutocompleteHandler) {
 
 // Component registers the given ComponentHandler to the current Router.
 func (r *Mux) Component(pattern string, h ComponentHandler) {
-	checkPatternEmpty(pattern)
+	checkPattern(pattern)
 	r.handle(&handlerHolder[ComponentHandler]{
 		pattern: pattern,
 		handler: h,
@@ -174,9 +251,37 @@ func (r *Mux) Component(pattern string, h ComponentHandler) {
 	})
 }
 
+// ButtonComponent registers the given ButtonComponentHandler to the current Router.
+func (r *Mux) ButtonComponent(pattern string, h ButtonComponentHandler) {
+	checkPattern(pattern)
+	r.handle(&handlerHolder[ButtonComponentHandler]{
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeComponent,
+		t2:      []int{int(discord.ComponentTypeButton)},
+	})
+}
+
+// SelectMenuComponent registers the given SelectMenuComponentHandler to the current Router.
+func (r *Mux) SelectMenuComponent(pattern string, h SelectMenuComponentHandler) {
+	checkPattern(pattern)
+	r.handle(&handlerHolder[SelectMenuComponentHandler]{
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeComponent,
+		t2: []int{
+			int(discord.ComponentTypeStringSelectMenu),
+			int(discord.ComponentTypeUserSelectMenu),
+			int(discord.ComponentTypeRoleSelectMenu),
+			int(discord.ComponentTypeMentionableSelectMenu),
+			int(discord.ComponentTypeChannelSelectMenu),
+		},
+	})
+}
+
 // Modal registers the given ModalHandler to the current Router.
 func (r *Mux) Modal(pattern string, h ModalHandler) {
-	checkPatternEmpty(pattern)
+	checkPattern(pattern)
 	r.handle(&handlerHolder[ModalHandler]{
 		pattern: pattern,
 		handler: h,
@@ -190,14 +295,22 @@ func (r *Mux) NotFound(h NotFoundHandler) {
 	r.notFoundHandler = h
 }
 
-func checkPatternEmpty(pattern string) {
-	if pattern == "" {
-		panic("pattern must not be empty")
-	}
+// Error sets the ErrorHandler for this router.
+// This handler only works for the root router and will be ignored for sub routers.
+func (r *Mux) Error(h ErrorHandler) {
+	r.errorHandler = h
+}
+
+// DefaultContext sets the default context for this router.
+// This context will be used for all interaction events.
+func (r *Mux) DefaultContext(ctx func() context.Context) {
+	r.defaultContext = ctx
 }
 
 func checkPattern(pattern string) {
-	checkPatternEmpty(pattern)
+	if len(pattern) == 0 {
+		panic("pattern must not be empty")
+	}
 	if pattern[0] != '/' {
 		panic("pattern must start with /")
 	}

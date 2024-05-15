@@ -2,16 +2,13 @@ package handlers
 
 import (
 	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 )
 
 func gatewayHandlerMessageReactionAdd(client bot.Client, sequenceNumber int, shardID int, event gateway.EventMessageReactionAdd) {
 	genericEvent := events.NewGenericEvent(client, sequenceNumber, shardID)
-
-	if event.Member != nil {
-		client.Caches().AddMember(*event.Member)
-	}
 
 	client.EventManager().DispatchEvent(&events.MessageReactionAdd{
 		GenericReaction: &events.GenericReaction{
@@ -21,6 +18,8 @@ func gatewayHandlerMessageReactionAdd(client bot.Client, sequenceNumber int, sha
 			GuildID:      event.GuildID,
 			UserID:       event.UserID,
 			Emoji:        event.Emoji,
+			BurstColors:  event.BurstColors,
+			Burst:        event.Burst,
 		},
 		Member: event.Member,
 	})
@@ -33,9 +32,17 @@ func gatewayHandlerMessageReactionAdd(client bot.Client, sequenceNumber int, sha
 				ChannelID:    event.ChannelID,
 				UserID:       event.UserID,
 				Emoji:        event.Emoji,
+				BurstColors:  event.BurstColors,
+				Burst:        event.Burst,
 			},
+			MessageAuthorID: event.MessageAuthorID,
 		})
 	} else {
+		var member discord.Member
+		// sometimes the member is nil for some reason
+		if event.Member != nil {
+			member = *event.Member
+		}
 		client.EventManager().DispatchEvent(&events.GuildMessageReactionAdd{
 			GenericGuildMessageReaction: &events.GenericGuildMessageReaction{
 				GenericEvent: genericEvent,
@@ -44,8 +51,11 @@ func gatewayHandlerMessageReactionAdd(client bot.Client, sequenceNumber int, sha
 				GuildID:      *event.GuildID,
 				UserID:       event.UserID,
 				Emoji:        event.Emoji,
+				BurstColors:  event.BurstColors,
+				Burst:        event.Burst,
 			},
-			Member: *event.Member,
+			Member:          member,
+			MessageAuthorID: event.MessageAuthorID,
 		})
 	}
 }
@@ -61,6 +71,8 @@ func gatewayHandlerMessageReactionRemove(client bot.Client, sequenceNumber int, 
 			GuildID:      event.GuildID,
 			UserID:       event.UserID,
 			Emoji:        event.Emoji,
+			BurstColors:  event.BurstColors,
+			Burst:        event.Burst,
 		},
 	})
 
@@ -72,6 +84,8 @@ func gatewayHandlerMessageReactionRemove(client bot.Client, sequenceNumber int, 
 				ChannelID:    event.ChannelID,
 				UserID:       event.UserID,
 				Emoji:        event.Emoji,
+				BurstColors:  event.BurstColors,
+				Burst:        event.Burst,
 			},
 		})
 	} else {
@@ -83,6 +97,8 @@ func gatewayHandlerMessageReactionRemove(client bot.Client, sequenceNumber int, 
 				GuildID:      *event.GuildID,
 				UserID:       event.UserID,
 				Emoji:        event.Emoji,
+				BurstColors:  event.BurstColors,
+				Burst:        event.Burst,
 			},
 		})
 	}

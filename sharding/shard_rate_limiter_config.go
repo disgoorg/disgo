@@ -1,20 +1,20 @@
 package sharding
 
 import (
-	"github.com/disgoorg/log"
+	"log/slog"
 )
 
 // DefaultRateLimiterConfig returns a RateLimiterConfig with sensible defaults.
 func DefaultRateLimiterConfig() *RateLimiterConfig {
 	return &RateLimiterConfig{
-		Logger:         log.Default(),
-		MaxConcurrency: 1,
+		Logger:         slog.Default(),
+		MaxConcurrency: MaxConcurrency,
 	}
 }
 
 // RateLimiterConfig lets you configure your RateLimiter instance.
 type RateLimiterConfig struct {
-	Logger         log.Logger
+	Logger         *slog.Logger
 	MaxConcurrency int
 }
 
@@ -29,7 +29,7 @@ func (c *RateLimiterConfig) Apply(opts []RateLimiterConfigOpt) {
 }
 
 // WithRateLimiterLogger sets the logger for the RateLimiter.
-func WithRateLimiterLogger(logger log.Logger) RateLimiterConfigOpt {
+func WithRateLimiterLogger(logger *slog.Logger) RateLimiterConfigOpt {
 	return func(config *RateLimiterConfig) {
 		config.Logger = logger
 	}
