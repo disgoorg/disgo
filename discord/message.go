@@ -72,9 +72,7 @@ func (t MessageType) Deleteable() bool {
 	case MessageTypeRecipientAdd, MessageTypeRecipientRemove, MessageTypeCall,
 		MessageTypeChannelNameChange, MessageTypeChannelIconChange, MessageTypeGuildDiscoveryDisqualified,
 		MessageTypeGuildDiscoveryRequalified, MessageTypeGuildDiscoveryGracePeriodInitialWarning,
-		MessageTypeGuildDiscoveryGracePeriodFinalWarning, MessageTypeThreadStarterMessage,
-		MessageTypeGuildIncidentAlertModeEnabled, MessageTypeGuildIncidentAlertModeDisabled,
-		MessageTypeGuildIncidentReportRaid, MessageTypeGuildIncidentReportFalseAlarm:
+		MessageTypeGuildDiscoveryGracePeriodFinalWarning, MessageTypeThreadStarterMessage:
 		return false
 
 	default:
