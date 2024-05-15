@@ -118,11 +118,6 @@ const (
 )
 
 const (
-	AuditLogGuildHomeFeatureItem AuditLogEvent = iota + 171
-	AuditLogGuildHomeRemoveItem
-)
-
-const (
 	AuditLogHomeSettingsCreate AuditLogEvent = iota + 190
 	AuditLogHomeSettingsUpdate
 )
