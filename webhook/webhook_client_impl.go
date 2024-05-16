@@ -2,6 +2,7 @@ package webhook
 
 import (
 	"context"
+	"log/slog"
 	"net/url"
 	"strings"
 
@@ -36,6 +37,7 @@ func NewWithURL(webhookURL string, opts ...ConfigOpt) (Client, error) {
 func New(id snowflake.ID, token string, opts ...ConfigOpt) Client {
 	config := DefaultConfig()
 	config.Apply(opts)
+	config.Logger = config.Logger.With(slog.String("name", "webhook"))
 
 	return &clientImpl{
 		id:     id,

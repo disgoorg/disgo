@@ -1,6 +1,9 @@
 package events
 
 import (
+	"fmt"
+	"log/slog"
+
 	"github.com/disgoorg/disgo/bot"
 )
 
@@ -60,6 +63,11 @@ type ListenerAdapter struct {
 	OnEmojiCreate  func(event *EmojiCreate)
 	OnEmojiUpdate  func(event *EmojiUpdate)
 	OnEmojiDelete  func(event *EmojiDelete)
+
+	// Entitlement Events
+	OnEntitlementCreate func(event *EntitlementCreate)
+	OnEntitlementUpdate func(event *EntitlementUpdate)
+	OnEntitlementDelete func(event *EntitlementDelete)
 
 	// Sticker Events
 	OnStickersUpdate func(event *StickersUpdate)
@@ -139,6 +147,18 @@ type ListenerAdapter struct {
 	OnMessageCreate func(event *MessageCreate)
 	OnMessageUpdate func(event *MessageUpdate)
 	OnMessageDelete func(event *MessageDelete)
+
+	// Message Poll Events
+	OnMessagePollVoteAdd    func(event *MessagePollVoteAdd)
+	OnMessagePollVoteRemove func(event *MessagePollVoteRemove)
+
+	// DM Message Poll Events
+	OnDMMessagePollVoteAdd    func(event *DMMessagePollVoteAdd)
+	OnDMMessagePollVoteRemove func(event *DMMessagePollVoteRemove)
+
+	// Guild Message Poll Events
+	OnGuildMessagePollVoteAdd    func(event *GuildMessagePollVoteAdd)
+	OnGuildMessagePollVoteRemove func(event *GuildMessagePollVoteRemove)
 
 	// Message Reaction Events
 	OnMessageReactionAdd         func(event *MessageReactionAdd)
@@ -316,6 +336,20 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 	case *EmojiDelete:
 		if listener := l.OnEmojiDelete; listener != nil {
+			listener(e)
+		}
+
+	// Entitlement Events
+	case *EntitlementCreate:
+		if listener := l.OnEntitlementCreate; listener != nil {
+			listener(e)
+		}
+	case *EntitlementUpdate:
+		if listener := l.OnEntitlementUpdate; listener != nil {
+			listener(e)
+		}
+	case *EntitlementDelete:
+		if listener := l.OnEntitlementDelete; listener != nil {
 			listener(e)
 		}
 
@@ -557,6 +591,32 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 			listener(e)
 		}
 
+	// Message Poll Events
+	case *MessagePollVoteAdd:
+		if listener := l.OnMessagePollVoteAdd; listener != nil {
+			listener(e)
+		}
+	case *MessagePollVoteRemove:
+		if listener := l.OnMessagePollVoteRemove; listener != nil {
+			listener(e)
+		}
+	case *DMMessagePollVoteAdd:
+		if listener := l.OnDMMessagePollVoteAdd; listener != nil {
+			listener(e)
+		}
+	case *DMMessagePollVoteRemove:
+		if listener := l.OnDMMessagePollVoteRemove; listener != nil {
+			listener(e)
+		}
+	case *GuildMessagePollVoteAdd:
+		if listener := l.OnGuildMessagePollVoteAdd; listener != nil {
+			listener(e)
+		}
+	case *GuildMessagePollVoteRemove:
+		if listener := l.OnGuildMessagePollVoteRemove; listener != nil {
+			listener(e)
+		}
+
 	// Message Reaction Events
 	case *MessageReactionAdd:
 		if listener := l.OnMessageReactionAdd; listener != nil {
@@ -652,6 +712,6 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 
 	default:
-		e.Client().Logger().Errorf("unexpected event received: '%T', event: '%+v'", event, event)
+		e.Client().Logger().Error("unexpected event received", slog.String("type", fmt.Sprintf("%T", event)), slog.String("data", fmt.Sprintf("%+v", event)))
 	}
 }

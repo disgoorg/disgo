@@ -2,11 +2,10 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/disgoorg/log"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
@@ -16,8 +15,8 @@ import (
 )
 
 func main() {
-	log.SetLevel(log.LevelDebug)
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	slog.Info("starting example...")
+	slog.Info("disgo version", slog.String("version", disgo.Version))
 
 	client, err := disgo.New(os.Getenv("disgo_token"),
 		bot.WithGatewayConfigOpts(
@@ -29,16 +28,18 @@ func main() {
 		bot.WithEventListenerFunc(onMessageCreate),
 	)
 	if err != nil {
-		log.Fatal("error while building disgo: ", err)
+		slog.Error("error while building disgo", slog.Any("err", err))
+		return
 	}
 
 	defer client.Close(context.TODO())
 
 	if err = client.OpenGateway(context.TODO()); err != nil {
-		log.Fatal("errors while connecting to gateway: ", err)
+		slog.Error("errors while connecting to gateway", slog.Any("err", err))
+		return
 	}
 
-	log.Info("example is now running. Press CTRL-C to exit.")
+	slog.Info("example is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s

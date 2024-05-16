@@ -29,6 +29,10 @@ const (
 	_
 	IntentAutoModerationConfiguration
 	IntentAutoModerationExecution
+	_
+	_
+	IntentGuildMessagePolls
+	IntentDirectMessagePolls
 
 	IntentsGuild = IntentGuilds |
 		IntentGuildMembers |
@@ -42,11 +46,16 @@ const (
 		IntentGuildMessages |
 		IntentGuildMessageReactions |
 		IntentGuildMessageTyping |
-		IntentGuildScheduledEvents
+		IntentGuildScheduledEvents |
+		IntentGuildMessagePolls
 
 	IntentsDirectMessage = IntentDirectMessages |
 		IntentDirectMessageReactions |
-		IntentDirectMessageTyping
+		IntentDirectMessageTyping |
+		IntentDirectMessagePolls
+
+	IntentsMessagePolls = IntentGuildMessagePolls |
+		IntentDirectMessagePolls
 
 	IntentsNonPrivileged = IntentGuilds |
 		IntentGuildModeration |
@@ -63,7 +72,9 @@ const (
 		IntentDirectMessageTyping |
 		IntentGuildScheduledEvents |
 		IntentAutoModerationConfiguration |
-		IntentAutoModerationExecution
+		IntentAutoModerationExecution |
+		IntentGuildMessagePolls |
+		IntentDirectMessagePolls
 
 	IntentsPrivileged = IntentGuildMembers |
 		IntentGuildPresences | IntentMessageContent

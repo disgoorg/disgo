@@ -13,10 +13,12 @@ type InviteTargetType int
 const (
 	InviteTargetTypeStream InviteTargetType = iota + 1
 	InviteTargetTypeEmbeddedApplication
+	InviteTargetTypeRoleSubscriptionsPurchase
 )
 
 // Invite is a partial invite struct
 type Invite struct {
+	Type                     InviteType           `json:"type"`
 	Code                     string               `json:"code"`
 	Guild                    *InviteGuild         `json:"guild"`
 	Channel                  *InviteChannel       `json:"channel"`
@@ -33,6 +35,14 @@ type Invite struct {
 func (i Invite) URL() string {
 	return InviteURL(i.Code)
 }
+
+type InviteType int
+
+const (
+	InviteTypeGuild InviteType = iota
+	InviteTypeGroupDM
+	InviteTypeFriend
+)
 
 type ExtendedInvite struct {
 	Invite

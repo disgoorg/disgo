@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"context"
+
 	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo/discord"
@@ -10,7 +12,8 @@ import (
 
 type ComponentEvent struct {
 	*events.ComponentInteractionCreate
-	Variables map[string]string
+	Vars map[string]string
+	Ctx  context.Context
 }
 
 func (e *ComponentEvent) GetInteractionResponse(opts ...rest.RequestOpt) (*discord.Message, error) {

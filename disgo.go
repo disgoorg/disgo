@@ -67,6 +67,8 @@ var (
 	// Version is the currently used version of DisGo
 	Version = getVersion()
 
+	SemVersion = "semver:" + Version
+
 	// OS is the currently used OS
 	OS = getOS()
 )
@@ -100,7 +102,7 @@ func New(token string, opts ...bot.ConfigOpt) (bot.Client, error) {
 	config.Apply(opts)
 
 	return bot.BuildClient(token,
-		*config,
+		config,
 		handlers.DefaultGatewayEventHandlerFunc,
 		handlers.DefaultHTTPServerEventHandlerFunc,
 		OS,

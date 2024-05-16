@@ -1,23 +1,22 @@
 package rest
 
 import (
+	"log/slog"
 	"time"
-
-	"github.com/disgoorg/log"
 )
 
 // DefaultRateLimiterConfig is the configuration which is used by default.
 func DefaultRateLimiterConfig() *RateLimiterConfig {
 	return &RateLimiterConfig{
-		Logger:          log.Default(),
-		MaxRetries:      10,
-		CleanupInterval: time.Second * 10,
+		Logger:          slog.Default(),
+		MaxRetries:      MaxRetries,
+		CleanupInterval: CleanupInterval,
 	}
 }
 
 // RateLimiterConfig is the configuration for the rate limiter.
 type RateLimiterConfig struct {
-	Logger          log.Logger
+	Logger          *slog.Logger
 	MaxRetries      int
 	CleanupInterval time.Duration
 }
@@ -33,7 +32,7 @@ func (c *RateLimiterConfig) Apply(opts []RateLimiterConfigOpt) {
 }
 
 // WithRateLimiterLogger applies a custom logger to the rest rate limiter.
-func WithRateLimiterLogger(logger log.Logger) RateLimiterConfigOpt {
+func WithRateLimiterLogger(logger *slog.Logger) RateLimiterConfigOpt {
 	return func(config *RateLimiterConfig) {
 		config.Logger = logger
 	}

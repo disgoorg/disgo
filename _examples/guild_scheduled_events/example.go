@@ -2,12 +2,11 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
-
-	"github.com/disgoorg/log"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
@@ -22,9 +21,7 @@ var (
 )
 
 func main() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	log.SetLevel(log.LevelDebug)
-	log.Info("starting example...")
+	slog.Info("starting example...")
 
 	client, err := disgo.New(token,
 		bot.WithGatewayConfigOpts(
@@ -36,22 +33,22 @@ func main() {
 		bot.WithMemberChunkingFilter(bot.MemberChunkingFilterNone),
 		bot.WithEventListeners(&events.ListenerAdapter{
 			OnGuildScheduledEventCreate: func(event *events.GuildScheduledEventCreate) {
-				log.Infof("%T\n", event)
+				slog.Info("OnGuildScheduledEventCreate")
 			},
 			OnGuildScheduledEventUpdate: func(event *events.GuildScheduledEventUpdate) {
-				log.Infof("%T\n", event)
+				slog.Info("OnGuildScheduledEventUpdate")
 			},
 			OnGuildScheduledEventDelete: func(event *events.GuildScheduledEventDelete) {
-				log.Infof("%T\n", event)
+				slog.Info("OnGuildScheduledEventDelete")
 			},
 			OnGuildScheduledEventUserAdd: func(event *events.GuildScheduledEventUserAdd) {
-				log.Infof("%T\n", event)
+				slog.Info("OnGuildScheduledEventUserAdd")
 			},
 			OnGuildScheduledEventUserRemove: func(event *events.GuildScheduledEventUserRemove) {
-				log.Infof("%T\n", event)
+				slog.Info("OnGuildScheduledEventUserRemove")
 			},
 			OnMessageCreate: func(event *events.MessageCreate) {
-				log.Infof("%T\n", event)
+				slog.Info("OnMessageCreate")
 				if event.Message.Content != "test" {
 					return
 				}
@@ -60,7 +57,7 @@ func main() {
 					Name:               "test",
 					PrivacyLevel:       discord.ScheduledEventPrivacyLevelGuildOnly,
 					ScheduledStartTime: time.Now().Add(time.Hour),
-					Description:        "",
+					Description:        "test",
 					EntityType:         discord.ScheduledEventEntityTypeVoice,
 				})
 
@@ -68,7 +65,6 @@ func main() {
 				gse, _ = event.Client().Rest().UpdateGuildScheduledEvent(gse.GuildID, gse.ID, discord.GuildScheduledEventUpdate{
 					Status: &status,
 				})
-				//_ = gse.AudioChannel().Connect()
 
 				time.Sleep(time.Second * 10)
 
@@ -76,20 +72,19 @@ func main() {
 				gse, _ = event.Client().Rest().UpdateGuildScheduledEvent(gse.GuildID, gse.ID, discord.GuildScheduledEventUpdate{
 					Status: &status,
 				})
-				//_ = gse.Guilds().Disconnect()
 			},
 		}),
 	)
 	if err != nil {
-		log.Fatal("error while building bot instance: ", err)
+		slog.Error("error while building bot instance", slog.Any("err", err))
 		return
 	}
 
 	if err = client.OpenGateway(context.TODO()); err != nil {
-		log.Fatal("error while connecting to discord: ", err)
+		slog.Error("error while connecting to discord", slog.Any("err", err))
 	}
 
-	log.Info("Example is now running. Press CTRL-C to exit.")
+	slog.Info("Example is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s

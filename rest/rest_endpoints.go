@@ -29,7 +29,7 @@ var (
 // OAuth2
 var (
 	GetBotApplicationInfo = NewEndpoint(http.MethodGet, "/oauth2/applications/@me")
-	GetAuthorizationInfo  = NewEndpoint(http.MethodGet, "/oauth2/@me")
+	GetAuthorizationInfo  = NewNoBotAuthEndpoint(http.MethodGet, "/oauth2/@me")
 	Token                 = NewEndpoint(http.MethodPost, "/oauth2/token")
 )
 
@@ -37,10 +37,10 @@ var (
 var (
 	GetUser                                    = NewEndpoint(http.MethodGet, "/users/{user.id}")
 	GetCurrentUser                             = NewEndpoint(http.MethodGet, "/users/@me")
-	GetCurrentMember                           = NewEndpoint(http.MethodGet, "/users/@me/guilds/{guild.id}/member")
-	UpdateSelfUser                             = NewEndpoint(http.MethodPatch, "/users/@me")
+	UpdateCurrentUser                          = NewEndpoint(http.MethodPatch, "/users/@me")
+	GetCurrentUserGuilds                       = NewEndpoint(http.MethodGet, "/users/@me/guilds")
+	GetCurrentMember                           = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/guilds/{guild.id}/member")
 	GetCurrentUserConnections                  = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/connections")
-	GetCurrentUserGuilds                       = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/guilds")
 	GetCurrentUserApplicationRoleConnection    = NewNoBotAuthEndpoint(http.MethodGet, "/users/@me/applications/{application.id}/role-connection")
 	UpdateCurrentUserApplicationRoleConnection = NewNoBotAuthEndpoint(http.MethodPut, "/users/@me/applications/{application.id}/role-connection")
 	LeaveGuild                                 = NewEndpoint(http.MethodDelete, "/users/@me/guilds/{guild.id}")
@@ -65,6 +65,7 @@ var (
 	GetBan    = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/bans/{user.id}")
 	AddBan    = NewEndpoint(http.MethodPut, "/guilds/{guild.id}/bans/{user.id}")
 	DeleteBan = NewEndpoint(http.MethodDelete, "/guilds/{guild.id}/bans/{user.id}")
+	BulkBan   = NewEndpoint(http.MethodPost, "/guilds/{guild.id}/bulk-ban")
 
 	GetMember        = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/members/{user.id}")
 	GetMembers       = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/members")
@@ -89,7 +90,8 @@ var (
 	GetGuildWelcomeScreen    = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/welcome-screen")
 	UpdateGuildWelcomeScreen = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/welcome-screen")
 
-	GetGuildOnboarding = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/onboarding")
+	GetGuildOnboarding    = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/onboarding")
+	UpdateGuildOnboarding = NewEndpoint(http.MethodPut, "/guilds/{guild.id}/onboarding")
 
 	UpdateCurrentUserVoiceState = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/voice-states/@me")
 	UpdateUserVoiceState        = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/voice-states/{user.id}")
@@ -169,6 +171,9 @@ var (
 
 	SendTyping    = NewEndpoint(http.MethodPost, "/channels/{channel.id}/typing")
 	FollowChannel = NewEndpoint(http.MethodPost, "/channels/{channel.id}/followers")
+
+	GetPollAnswerVotes = NewEndpoint(http.MethodGet, "/channels/{channel.id}/polls/{message.id}/answers/{answer.id}")
+	ExpirePoll         = NewEndpoint(http.MethodPost, "/channels/{channel.id}/polls/{message.id}/expire")
 )
 
 // Threads
@@ -258,6 +263,9 @@ var (
 
 // Applications
 var (
+	GetCurrentApplication    = NewEndpoint(http.MethodGet, "/applications/@me")
+	UpdateCurrentApplication = NewEndpoint(http.MethodPatch, "/applications/@me")
+
 	GetGlobalCommands   = NewEndpoint(http.MethodGet, "/applications/{application.id}/commands")
 	GetGlobalCommand    = NewEndpoint(http.MethodGet, "/applications/{application.id}/command/{command.id}")
 	CreateGlobalCommand = NewEndpoint(http.MethodPost, "/applications/{application.id}/commands")
@@ -274,7 +282,7 @@ var (
 
 	GetGuildCommandsPermissions = NewEndpoint(http.MethodGet, "/applications/{application.id}/guilds/{guild.id}/commands/permissions")
 	GetGuildCommandPermissions  = NewEndpoint(http.MethodGet, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions")
-	SetGuildCommandPermissions  = NewEndpoint(http.MethodPut, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions")
+	SetGuildCommandPermissions  = NewNoBotAuthEndpoint(http.MethodPut, "/applications/{application.id}/guilds/{guild.id}/commands/{command.id}/permissions")
 
 	GetInteractionResponse    = NewNoBotAuthEndpoint(http.MethodGet, "/webhooks/{application.id}/{interaction.token}/messages/@original")
 	CreateInteractionResponse = NewNoBotAuthEndpoint(http.MethodPost, "/interactions/{interaction.id}/{interaction.token}/callback")
@@ -288,6 +296,13 @@ var (
 
 	GetApplicationRoleConnectionMetadata    = NewEndpoint(http.MethodGet, "/applications/{application.id}/role-connections/metadata")
 	UpdateApplicationRoleConnectionMetadata = NewEndpoint(http.MethodPut, "/applications/{application.id}/role-connections/metadata")
+
+	GetEntitlements       = NewEndpoint(http.MethodGet, "/applications/{application.id}/entitlements")
+	CreateTestEntitlement = NewEndpoint(http.MethodPost, "/applications/{application.id}/entitlements")
+	DeleteTestEntitlement = NewEndpoint(http.MethodDelete, "/applications/{application.id}/entitlements/{entitlement.id}")
+	ConsumeEntitlement    = NewEndpoint(http.MethodPost, "/applications/{application.id}/entitlements/{entitlement.id}/consume")
+
+	GetSKUs = NewEndpoint(http.MethodGet, "/applications/{application.id}/skus")
 )
 
 // NewEndpoint returns a new Endpoint which requires bot auth with the given http method & route.

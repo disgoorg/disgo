@@ -1,13 +1,14 @@
 package middleware
 
 import (
-	"github.com/disgoorg/disgo/events"
+	"log/slog"
+
 	"github.com/disgoorg/disgo/handler"
 )
 
 var Logger handler.Middleware = func(next handler.Handler) handler.Handler {
-	return func(e *events.InteractionCreate) error {
-		e.Client().Logger().Infof("handling interaction: %s\n", e.Interaction.ID())
-		return next(e)
+	return func(event *handler.InteractionEvent) error {
+		event.Client().Logger().Info("handling interaction", slog.Int64("interaction_id", int64(event.Interaction.ID())))
+		return next(event)
 	}
 }

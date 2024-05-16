@@ -47,7 +47,7 @@ type GuildMemberTypingStart struct {
 	Member    discord.Member
 }
 
-// Channel returns the discord.BaseGuildMessageChannel the GuildMemberTypingStart happened in
+// Channel returns the discord.GuildMessageChannel the GuildMemberTypingStart happened in
 func (e *GuildMemberTypingStart) Channel() (discord.GuildMessageChannel, bool) {
 	return e.Client().Caches().GuildMessageChannel(e.ChannelID)
 }

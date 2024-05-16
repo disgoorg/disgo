@@ -9,11 +9,13 @@ import (
 // GenericGuildMessageReaction is called upon receiving GuildMessageReactionAdd or GuildMessageReactionRemove
 type GenericGuildMessageReaction struct {
 	*GenericEvent
-	UserID    snowflake.ID
-	ChannelID snowflake.ID
-	MessageID snowflake.ID
-	GuildID   snowflake.ID
-	Emoji     discord.PartialEmoji
+	UserID      snowflake.ID
+	ChannelID   snowflake.ID
+	MessageID   snowflake.ID
+	GuildID     snowflake.ID
+	Emoji       discord.PartialEmoji
+	BurstColors []string
+	Burst       bool
 }
 
 // Member returns the Member that reacted to the discord.Message from the cache.
@@ -24,7 +26,8 @@ func (e *GenericGuildMessageReaction) Member() (discord.Member, bool) {
 // GuildMessageReactionAdd indicates that a discord.Member added a discord.PartialEmoji to a discord.Message in a discord.GuildMessageChannel(requires the gateway.IntentGuildMessageReactions)
 type GuildMessageReactionAdd struct {
 	*GenericGuildMessageReaction
-	Member discord.Member
+	Member          discord.Member
+	MessageAuthorID *snowflake.ID
 }
 
 // GuildMessageReactionRemove indicates that a discord.Member removed a discord.MessageReaction from a discord.Message in a Channel (requires the gateway.IntentGuildMessageReactions)

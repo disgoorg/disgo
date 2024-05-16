@@ -63,6 +63,9 @@ func (i PingInteraction) Version() int {
 func (i PingInteraction) CreatedAt() time.Time {
 	return i.id.Time()
 }
+func (PingInteraction) Guild() *InteractionGuild {
+	return nil
+}
 
 func (PingInteraction) GuildID() *snowflake.ID {
 	return nil
@@ -94,6 +97,18 @@ func (PingInteraction) User() User {
 
 func (PingInteraction) AppPermissions() *Permissions {
 	return nil
+}
+
+func (PingInteraction) Entitlements() []Entitlement {
+	return nil
+}
+
+func (PingInteraction) AuthorizingIntegrationOwners() map[ApplicationIntegrationType]snowflake.ID {
+	return nil
+}
+
+func (PingInteraction) Context() InteractionContextType {
+	return 0
 }
 
 func (PingInteraction) interaction() {}

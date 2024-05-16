@@ -1,6 +1,7 @@
 package oauth2
 
 import (
+	"log/slog"
 	"time"
 
 	"github.com/disgoorg/snowflake/v2"
@@ -13,6 +14,7 @@ import (
 func New(id snowflake.ID, secret string, opts ...ConfigOpt) Client {
 	config := DefaultConfig()
 	config.Apply(opts)
+	config.Logger = config.Logger.With(slog.String("name", "oauth2"))
 
 	return &clientImpl{
 		id:              id,
@@ -45,29 +47,32 @@ func (c *clientImpl) StateController() StateController {
 	return c.stateController
 }
 
-func (c *clientImpl) GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.OAuth2Scope) string {
-	authURL, _ := c.GenerateAuthorizationURLState(redirectURI, permissions, guildID, disableGuildSelect, scopes...)
+func (c *clientImpl) GenerateAuthorizationURL(params AuthorizationURLParams) string {
+	authURL, _ := c.GenerateAuthorizationURLState(params)
 	return authURL
 }
 
-func (c *clientImpl) GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.OAuth2Scope) (string, string) {
-	state := c.StateController().NewState(redirectURI)
+func (c *clientImpl) GenerateAuthorizationURLState(params AuthorizationURLParams) (string, string) {
+	state := c.StateController().NewState(params.RedirectURI)
 	values := discord.QueryValues{
 		"client_id":     c.id,
-		"redirect_uri":  redirectURI,
+		"redirect_uri":  params.RedirectURI,
 		"response_type": "code",
-		"scope":         discord.JoinScopes(scopes),
+		"scope":         discord.JoinScopes(params.Scopes),
 		"state":         state,
 	}
 
-	if permissions != discord.PermissionsNone {
-		values["permissions"] = permissions
+	if params.Permissions != discord.PermissionsNone {
+		values["permissions"] = params.Permissions
 	}
-	if guildID != 0 {
-		values["guild_id"] = guildID
+	if params.GuildID != 0 {
+		values["guild_id"] = params.GuildID
 	}
-	if disableGuildSelect {
+	if params.DisableGuildSelect {
 		values["disable_guild_select"] = true
+	}
+	if params.IntegrationType != 0 {
+		values["integration_type"] = params.IntegrationType
 	}
 	return discord.AuthorizeURL(values), state
 }
@@ -118,7 +123,7 @@ func (c *clientImpl) GetGuilds(session Session, opts ...rest.RequestOpt) ([]disc
 	if err := checkSession(session, discord.OAuth2ScopeGuilds); err != nil {
 		return nil, err
 	}
-	return c.Rest().GetCurrentUserGuilds(session.AccessToken, 0, 0, 0, opts...)
+	return c.Rest().GetCurrentUserGuilds(session.AccessToken, 0, 0, 0, false, opts...)
 }
 
 func (c *clientImpl) GetConnections(session Session, opts ...rest.RequestOpt) ([]discord.Connection, error) {
@@ -158,6 +163,6 @@ func newSession(accessToken discord.AccessTokenResponse) Session {
 		RefreshToken: accessToken.RefreshToken,
 		Scopes:       accessToken.Scope,
 		TokenType:    accessToken.TokenType,
-		Expiration:   time.Now().Add(accessToken.ExpiresIn * time.Second),
+		Expiration:   time.Now().Add(accessToken.ExpiresIn),
 	}
 }

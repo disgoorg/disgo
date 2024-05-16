@@ -1,10 +1,8 @@
 package main
 
 import (
-	_ "embed"
+	"log/slog"
 	"os"
-
-	"github.com/disgoorg/log"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/rest"
@@ -13,10 +11,8 @@ import (
 var token = os.Getenv("disgo_token")
 
 func main() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	log.SetLevel(log.LevelDebug)
-	log.Info("starting example...")
-	log.Info("bot version: ", disgo.Version)
+	slog.Info("starting example...")
+	slog.Info("disgo version", slog.String("version", disgo.Version))
 
 	client := rest.New(rest.NewClient(token))
 
@@ -25,15 +21,15 @@ func main() {
 	var i int
 	for page.Next() {
 		for _, m := range page.Items {
-			println(m.ID)
+			slog.Info(m.ID.String())
 		}
-		println("---")
+		slog.Info("---")
 		i++
 		if i >= 3 {
 			break
 		}
 	}
 	if page.Err != nil {
-		log.Error(page.Err)
+		slog.Error("error getting messages", slog.Any("err", page.Err))
 	}
 }

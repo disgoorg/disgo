@@ -16,8 +16,11 @@ type SlashCommandUpdate struct {
 	DescriptionLocalizations *map[Locale]string          `json:"description_localizations,omitempty"`
 	Options                  *[]ApplicationCommandOption `json:"options,omitempty"`
 	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
-	DMPermission             *bool                       `json:"dm_permission,omitempty"`
-	NSFW                     *bool                       `json:"nsfw,omitempty"`
+	// Deprecated: Use Contexts instead
+	DMPermission     *bool                         `json:"dm_permission,omitempty"`
+	IntegrationTypes *[]ApplicationIntegrationType `json:"integration_types,omitempty"`
+	Contexts         *[]InteractionContextType     `json:"contexts,omitempty"`
+	NSFW             *bool                         `json:"nsfw,omitempty"`
 }
 
 func (c SlashCommandUpdate) MarshalJSON() ([]byte, error) {
@@ -45,8 +48,11 @@ type UserCommandUpdate struct {
 	Name                     *string                     `json:"name,omitempty"`
 	NameLocalizations        *map[Locale]string          `json:"name_localizations,omitempty"`
 	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
-	DMPermission             *bool                       `json:"dm_permission,omitempty"`
-	NSFW                     *bool                       `json:"nsfw,omitempty"`
+	// Deprecated: Use Contexts instead
+	DMPermission     *bool                         `json:"dm_permission,omitempty"`
+	IntegrationTypes *[]ApplicationIntegrationType `json:"integration_types,omitempty"`
+	Contexts         *[]InteractionContextType     `json:"contexts,omitempty"`
+	NSFW             *bool                         `json:"nsfw,omitempty"`
 }
 
 func (c UserCommandUpdate) MarshalJSON() ([]byte, error) {
@@ -74,8 +80,11 @@ type MessageCommandUpdate struct {
 	Name                     *string                     `json:"name,omitempty"`
 	NameLocalizations        *map[Locale]string          `json:"name_localizations,omitempty"`
 	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
-	DMPermission             *bool                       `json:"dm_permission,omitempty"`
-	NSFW                     *bool                       `json:"nsfw,omitempty"`
+	// Deprecated: Use Contexts instead
+	DMPermission     *bool                         `json:"dm_permission,omitempty"`
+	IntegrationTypes *[]ApplicationIntegrationType `json:"integration_types,omitempty"`
+	Contexts         *[]InteractionContextType     `json:"contexts,omitempty"`
+	NSFW             *bool                         `json:"nsfw,omitempty"`
 }
 
 func (c MessageCommandUpdate) MarshalJSON() ([]byte, error) {
