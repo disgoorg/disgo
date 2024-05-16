@@ -273,6 +273,54 @@ func (c *guildScheduledEventCacheImpl) RemoveGuildScheduledEventsByGuildID(guild
 	c.cache.GroupRemove(guildID)
 }
 
+type GuildSoundboardSoundCache interface {
+	GuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID) (discord.SoundboardSound, bool)
+	GuildSoundboardSoundsForEach(guildID snowflake.ID, fn func(sound discord.SoundboardSound))
+	GuildSoundboardSoundsAllLen() int
+	GuildSoundboardSoundsLen(guildID snowflake.ID) int
+	AddGuildSoundboardSound(sound discord.SoundboardSound)
+	RemoveGuildSoundboardSound(guildID snowflake.ID, sound snowflake.ID) (discord.SoundboardSound, bool)
+	RemoveGuildSoundboardSoundsByGuildID(guildID snowflake.ID)
+}
+
+func NewGuildSoundboardSoundCache(cache GroupedCache[discord.SoundboardSound]) GuildSoundboardSoundCache {
+	return &guildSoundboardSoundCacheImpl{
+		cache: cache,
+	}
+}
+
+type guildSoundboardSoundCacheImpl struct {
+	cache GroupedCache[discord.SoundboardSound]
+}
+
+func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID) (discord.SoundboardSound, bool) {
+	return c.cache.Get(guildID, soundID)
+}
+
+func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSoundsForEach(guildID snowflake.ID, fn func(sound discord.SoundboardSound)) {
+	c.cache.GroupForEach(guildID, fn)
+}
+
+func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSoundsAllLen() int {
+	return c.cache.Len()
+}
+
+func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSoundsLen(guildID snowflake.ID) int {
+	return c.cache.GroupLen(guildID)
+}
+
+func (c *guildSoundboardSoundCacheImpl) AddGuildSoundboardSound(sound discord.SoundboardSound) {
+	c.cache.Put(*sound.GuildID, sound.SoundID, sound)
+}
+
+func (c *guildSoundboardSoundCacheImpl) RemoveGuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID) (discord.SoundboardSound, bool) {
+	return c.cache.Remove(guildID, soundID)
+}
+
+func (c *guildSoundboardSoundCacheImpl) RemoveGuildSoundboardSoundsByGuildID(guildID snowflake.ID) {
+	c.cache.GroupRemove(guildID)
+}
+
 type RoleCache interface {
 	Role(guildID snowflake.ID, roleID snowflake.ID) (discord.Role, bool)
 	RolesForEach(guildID snowflake.ID, fn func(role discord.Role))
@@ -678,6 +726,7 @@ type Caches interface {
 	ChannelCache
 	StageInstanceCache
 	GuildScheduledEventCache
+	GuildSoundboardSoundCache
 	RoleCache
 	MemberCache
 	ThreadMemberCache
@@ -759,20 +808,21 @@ func New(opts ...ConfigOpt) Caches {
 	config.Apply(opts)
 
 	return &cachesImpl{
-		config:                   *config,
-		SelfUserCache:            config.SelfUserCache,
-		GuildCache:               config.GuildCache,
-		ChannelCache:             config.ChannelCache,
-		StageInstanceCache:       config.StageInstanceCache,
-		GuildScheduledEventCache: config.GuildScheduledEventCache,
-		RoleCache:                config.RoleCache,
-		MemberCache:              config.MemberCache,
-		ThreadMemberCache:        config.ThreadMemberCache,
-		PresenceCache:            config.PresenceCache,
-		VoiceStateCache:          config.VoiceStateCache,
-		MessageCache:             config.MessageCache,
-		EmojiCache:               config.EmojiCache,
-		StickerCache:             config.StickerCache,
+		config:                    *config,
+		SelfUserCache:             config.SelfUserCache,
+		GuildCache:                config.GuildCache,
+		ChannelCache:              config.ChannelCache,
+		StageInstanceCache:        config.StageInstanceCache,
+		GuildScheduledEventCache:  config.GuildScheduledEventCache,
+		GuildSoundboardSoundCache: config.GuildSoundboardSoundCache,
+		RoleCache:                 config.RoleCache,
+		MemberCache:               config.MemberCache,
+		ThreadMemberCache:         config.ThreadMemberCache,
+		PresenceCache:             config.PresenceCache,
+		VoiceStateCache:           config.VoiceStateCache,
+		MessageCache:              config.MessageCache,
+		EmojiCache:                config.EmojiCache,
+		StickerCache:              config.StickerCache,
 	}
 }
 
@@ -783,6 +833,7 @@ type cachesImpl struct {
 	ChannelCache
 	StageInstanceCache
 	GuildScheduledEventCache
+	GuildSoundboardSoundCache
 	RoleCache
 	MemberCache
 	ThreadMemberCache

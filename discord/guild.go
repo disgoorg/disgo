@@ -119,6 +119,7 @@ const (
 	GuildFeatureRoleIcons                             GuildFeature = "ROLE_ICONS"
 	GuildFeatureRoleSubscriptionsAvailableForPurchase GuildFeature = "ROLE_SUBSCRIPTIONS_AVAILABLE_FOR_PURCHASE"
 	GuildFeatureRoleSubscriptionsEnabled              GuildFeature = "ROLE_SUBSCRIPTIONS_ENABLED"
+	GuildFeatureSoundboard                            GuildFeature = "SOUNDBOARD"
 	GuildFeatureTicketedEventsEnabled                 GuildFeature = "TICKETED_EVENTS_ENABLED"
 	GuildFeatureVanityURL                             GuildFeature = "VANITY_URL"
 	GuildFeatureVerified                              GuildFeature = "VERIFIED"
@@ -224,6 +225,7 @@ type GatewayGuild struct {
 	Presences            []Presence            `json:"presences"`
 	StageInstances       []StageInstance       `json:"stage_instances"`
 	GuildScheduledEvents []GuildScheduledEvent `json:"guild_scheduled_events"`
+	SoundboardSounds     []SoundboardSound     `json:"soundboard_sounds"`
 }
 
 func (g *GatewayGuild) UnmarshalJSON(data []byte) error {

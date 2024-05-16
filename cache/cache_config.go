@@ -9,18 +9,19 @@ import (
 // DefaultConfig returns a Config with sensible defaults.
 func DefaultConfig() *Config {
 	return &Config{
-		GuildCachePolicy:               PolicyAll[discord.Guild],
-		ChannelCachePolicy:             PolicyAll[discord.GuildChannel],
-		StageInstanceCachePolicy:       PolicyAll[discord.StageInstance],
-		GuildScheduledEventCachePolicy: PolicyAll[discord.GuildScheduledEvent],
-		RoleCachePolicy:                PolicyAll[discord.Role],
-		MemberCachePolicy:              PolicyAll[discord.Member],
-		ThreadMemberCachePolicy:        PolicyAll[discord.ThreadMember],
-		PresenceCachePolicy:            PolicyAll[discord.Presence],
-		VoiceStateCachePolicy:          PolicyAll[discord.VoiceState],
-		MessageCachePolicy:             PolicyAll[discord.Message],
-		EmojiCachePolicy:               PolicyAll[discord.Emoji],
-		StickerCachePolicy:             PolicyAll[discord.Sticker],
+		GuildCachePolicy:                PolicyAll[discord.Guild],
+		ChannelCachePolicy:              PolicyAll[discord.GuildChannel],
+		StageInstanceCachePolicy:        PolicyAll[discord.StageInstance],
+		GuildScheduledEventCachePolicy:  PolicyAll[discord.GuildScheduledEvent],
+		GuildSoundboardSoundCachePolicy: PolicyAll[discord.SoundboardSound],
+		RoleCachePolicy:                 PolicyAll[discord.Role],
+		MemberCachePolicy:               PolicyAll[discord.Member],
+		ThreadMemberCachePolicy:         PolicyAll[discord.ThreadMember],
+		PresenceCachePolicy:             PolicyAll[discord.Presence],
+		VoiceStateCachePolicy:           PolicyAll[discord.VoiceState],
+		MessageCachePolicy:              PolicyAll[discord.Message],
+		EmojiCachePolicy:                PolicyAll[discord.Emoji],
+		StickerCachePolicy:              PolicyAll[discord.Sticker],
 	}
 }
 
@@ -41,6 +42,9 @@ type Config struct {
 
 	GuildScheduledEventCache       GuildScheduledEventCache
 	GuildScheduledEventCachePolicy Policy[discord.GuildScheduledEvent]
+
+	GuildSoundboardSoundCache       GuildSoundboardSoundCache
+	GuildSoundboardSoundCachePolicy Policy[discord.SoundboardSound]
 
 	RoleCache       RoleCache
 	RoleCachePolicy Policy[discord.Role]
@@ -89,6 +93,9 @@ func (c *Config) Apply(opts []ConfigOpt) {
 	}
 	if c.GuildScheduledEventCache == nil {
 		c.GuildScheduledEventCache = NewGuildScheduledEventCache(NewGroupedCache[discord.GuildScheduledEvent](c.CacheFlags, FlagGuildScheduledEvents, c.GuildScheduledEventCachePolicy))
+	}
+	if c.GuildSoundboardSoundCache == nil {
+		c.GuildSoundboardSoundCache = NewGuildSoundboardSoundCache(NewGroupedCache[discord.SoundboardSound](c.CacheFlags, FlagGuildSoundboardSounds, c.GuildSoundboardSoundCachePolicy))
 	}
 	if c.RoleCache == nil {
 		c.RoleCache = NewRoleCache(NewGroupedCache[discord.Role](c.CacheFlags, FlagRoles, c.RoleCachePolicy))
@@ -176,6 +183,13 @@ func WithGuildScheduledEventCachePolicy(policy Policy[discord.GuildScheduledEven
 func WithGuildScheduledEventCache(guildScheduledEventCache GuildScheduledEventCache) ConfigOpt {
 	return func(config *Config) {
 		config.GuildScheduledEventCache = guildScheduledEventCache
+	}
+}
+
+// WithGuildSoundboardSoundCache sets the GuildSoundboardSoundCache of the Config.
+func WithGuildSoundboardSoundCache(guildSoundboardSoundCache GuildSoundboardSoundCache) ConfigOpt {
+	return func(config *Config) {
+		config.GuildSoundboardSoundCache = guildSoundboardSoundCache
 	}
 }
 
