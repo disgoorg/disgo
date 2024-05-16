@@ -2,12 +2,10 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/disgoorg/log"
-	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
@@ -16,6 +14,7 @@ import (
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/rest"
 	"github.com/disgoorg/disgo/sharding"
+	"github.com/disgoorg/snowflake/v2"
 )
 
 var (
@@ -45,9 +44,8 @@ var (
 )
 
 func main() {
-	log.SetLevel(log.LevelInfo)
-	log.Info("starting example...")
-	log.Info("disgo version: ", disgo.Version)
+	slog.Info("starting example...")
+	slog.Info("disgo version", slog.String("version", disgo.Version))
 
 	client, err := disgo.New(token,
 		bot.WithShardManagerConfigOpts(
@@ -65,21 +63,23 @@ func main() {
 	)
 
 	if err != nil {
-		log.Fatal("error while building disgo instance: ", err)
+		slog.Error("error while building disgo instance", slog.Any("err", err))
 		return
 	}
 
 	defer client.Close(context.TODO())
 
 	if _, err = client.Rest().SetGuildCommands(client.ApplicationID(), guildID, commands); err != nil {
-		log.Fatal("error while registering commands: ", err)
+		slog.Error("error while registering commands", slog.Any("err", err))
+		return
 	}
 
 	if err = client.OpenGateway(context.TODO()); err != nil {
-		log.Fatal("error while connecting to gateway: ", err)
+		slog.Error("error while connecting to gateway", slog.Any("err", err))
+		return
 	}
 
-	log.Infof("example is now running. Press CTRL-C to exit.")
+	slog.Info("example is now running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
@@ -94,7 +94,7 @@ func commandListener(event *events.ApplicationCommandInteractionCreate) {
 			Build(),
 		)
 		if err != nil {
-			event.Client().Logger().Error("error on sending response: ", err)
+			slog.Error("error on sending response", slog.Any("err", err))
 		}
 	}
 }

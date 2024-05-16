@@ -1,6 +1,6 @@
 package oauth2
 
-import "github.com/disgoorg/log"
+import "log/slog"
 
 var (
 	_ StateController = (*stateControllerImpl)(nil)
@@ -19,6 +19,7 @@ type StateController interface {
 func NewStateController(opts ...StateControllerConfigOpt) StateController {
 	config := DefaultStateControllerConfig()
 	config.Apply(opts)
+	config.Logger = config.Logger.With(slog.String("name", "oauth2_state_controller"))
 
 	states := newTTLMap(config.MaxTTL)
 	for state, url := range config.States {
@@ -33,14 +34,14 @@ func NewStateController(opts ...StateControllerConfigOpt) StateController {
 }
 
 type stateControllerImpl struct {
-	logger       log.Logger
+	logger       *slog.Logger
 	states       *ttlMap
 	newStateFunc func() string
 }
 
 func (c *stateControllerImpl) NewState(redirectURI string) string {
 	state := c.newStateFunc()
-	c.logger.Debugf("new state: %s for redirect uri: %s", state, redirectURI)
+	c.logger.Debug("new state: %s for redirect uri", slog.String("state", state), slog.String("redirect_uri", redirectURI))
 	c.states.put(state, redirectURI)
 	return state
 }
@@ -50,7 +51,7 @@ func (c *stateControllerImpl) UseState(state string) string {
 	if uri == "" {
 		return ""
 	}
-	c.logger.Debugf("using state: %s for redirect uri: %s", state, uri)
+	c.logger.Debug("using state: %s for redirect uri", slog.String("state", state), slog.String("redirect_uri", uri))
 	c.states.delete(state)
 	return uri
 }

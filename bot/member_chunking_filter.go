@@ -1,8 +1,9 @@
 package bot
 
 import (
+	"slices"
+
 	"github.com/disgoorg/snowflake/v2"
-	"golang.org/x/exp/slices"
 )
 
 // MemberChunkingFilterAll is a MemberChunkingFilter which includes all guilds.

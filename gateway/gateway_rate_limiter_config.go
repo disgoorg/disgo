@@ -1,20 +1,20 @@
 package gateway
 
 import (
-	"github.com/disgoorg/log"
+	"log/slog"
 )
 
 // DefaultRateLimiterConfig returns a RateLimiterConfig with sensible defaults.
 func DefaultRateLimiterConfig() *RateLimiterConfig {
 	return &RateLimiterConfig{
-		Logger:            log.Default(),
-		CommandsPerMinute: 120,
+		Logger:            slog.Default(),
+		CommandsPerMinute: CommandsPerMinute,
 	}
 }
 
 // RateLimiterConfig lets you configure your Gateway instance.
 type RateLimiterConfig struct {
-	Logger            log.Logger
+	Logger            *slog.Logger
 	CommandsPerMinute int
 }
 
@@ -29,7 +29,7 @@ func (c *RateLimiterConfig) Apply(opts []RateLimiterConfigOpt) {
 }
 
 // WithRateLimiterLogger sets the Logger for the Gateway.
-func WithRateLimiterLogger(logger log.Logger) RateLimiterConfigOpt {
+func WithRateLimiterLogger(logger *slog.Logger) RateLimiterConfigOpt {
 	return func(config *RateLimiterConfig) {
 		config.Logger = logger
 	}

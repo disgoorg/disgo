@@ -17,6 +17,8 @@ type MessageCreate struct {
 	AllowedMentions  *AllowedMentions     `json:"allowed_mentions,omitempty"`
 	MessageReference *MessageReference    `json:"message_reference,omitempty"`
 	Flags            MessageFlags         `json:"flags,omitempty"`
+	EnforceNonce     bool                 `json:"enforce_nonce,omitempty"`
+	Poll             *PollCreate          `json:"poll,omitempty"`
 }
 
 func (MessageCreate) interactionCallbackData() {}

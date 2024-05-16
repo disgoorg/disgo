@@ -48,6 +48,10 @@ var allEventHandlers = []bot.GatewayEventHandler{
 	bot.NewGatewayEventHandler(gateway.EventTypeChannelDelete, gatewayHandlerChannelDelete),
 	bot.NewGatewayEventHandler(gateway.EventTypeChannelPinsUpdate, gatewayHandlerChannelPinsUpdate),
 
+	bot.NewGatewayEventHandler(gateway.EventTypeEntitlementCreate, gatewayHandlerEntitlementCreate),
+	bot.NewGatewayEventHandler(gateway.EventTypeEntitlementUpdate, gatewayHandlerEntitlementUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeEntitlementDelete, gatewayHandlerEntitlementDelete),
+
 	bot.NewGatewayEventHandler(gateway.EventTypeThreadCreate, gatewayHandlerThreadCreate),
 	bot.NewGatewayEventHandler(gateway.EventTypeThreadUpdate, gatewayHandlerThreadUpdate),
 	bot.NewGatewayEventHandler(gateway.EventTypeThreadDelete, gatewayHandlerThreadDelete),
@@ -101,6 +105,9 @@ var allEventHandlers = []bot.GatewayEventHandler{
 	bot.NewGatewayEventHandler(gateway.EventTypeMessageUpdate, gatewayHandlerMessageUpdate),
 	bot.NewGatewayEventHandler(gateway.EventTypeMessageDelete, gatewayHandlerMessageDelete),
 	bot.NewGatewayEventHandler(gateway.EventTypeMessageDeleteBulk, gatewayHandlerMessageDeleteBulk),
+
+	bot.NewGatewayEventHandler(gateway.EventTypeMessagePollVoteAdd, gatewayHandlerMessagePollVoteAdd),
+	bot.NewGatewayEventHandler(gateway.EventTypeMessagePollVoteRemove, gatewayHandlerMessagePollVoteRemove),
 
 	bot.NewGatewayEventHandler(gateway.EventTypeMessageReactionAdd, gatewayHandlerMessageReactionAdd),
 	bot.NewGatewayEventHandler(gateway.EventTypeMessageReactionRemove, gatewayHandlerMessageReactionRemove),

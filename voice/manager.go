@@ -2,6 +2,7 @@ package voice
 
 import (
 	"context"
+	"log/slog"
 	"sync"
 
 	"github.com/disgoorg/snowflake/v2"
@@ -42,6 +43,8 @@ type (
 func NewManager(voiceStateUpdateFunc StateUpdateFunc, userID snowflake.ID, opts ...ManagerConfigOpt) Manager {
 	config := DefaultManagerConfig()
 	config.Apply(opts)
+	config.Logger = config.Logger.With(slog.String("name", "voice"))
+
 	return &managerImpl{
 		config:               *config,
 		voiceStateUpdateFunc: voiceStateUpdateFunc,
@@ -60,7 +63,7 @@ type managerImpl struct {
 }
 
 func (m *managerImpl) HandleVoiceStateUpdate(update gateway.EventVoiceStateUpdate) {
-	m.config.Logger.Debugf("VoiceStateUpdate for guild: %s", update.GuildID)
+	m.config.Logger.Debug("new VoiceStateUpdate", slog.Int64("guild_id", int64(update.GuildID)))
 
 	conn := m.GetConn(update.GuildID)
 	if conn == nil {
@@ -70,7 +73,7 @@ func (m *managerImpl) HandleVoiceStateUpdate(update gateway.EventVoiceStateUpdat
 }
 
 func (m *managerImpl) HandleVoiceServerUpdate(update gateway.EventVoiceServerUpdate) {
-	m.config.Logger.Debugf("VoiceServerUpdate for guild: %s", update.GuildID)
+	m.config.Logger.Debug("new VoiceServerUpdate", slog.Int64("guild_id", int64(update.GuildID)))
 
 	conn := m.GetConn(update.GuildID)
 	if conn == nil {
@@ -80,7 +83,7 @@ func (m *managerImpl) HandleVoiceServerUpdate(update gateway.EventVoiceServerUpd
 }
 
 func (m *managerImpl) CreateConn(guildID snowflake.ID) Conn {
-	m.config.Logger.Debugf("Creating new voice conn for guild: %s", guildID)
+	m.config.Logger.Debug("Creating new voice conn", slog.Int64("guild_id", int64(guildID)))
 	if conn := m.GetConn(guildID); conn != nil {
 		return conn
 	}
@@ -112,7 +115,7 @@ func (m *managerImpl) ForEachCon(f func(connection Conn)) {
 }
 
 func (m *managerImpl) RemoveConn(guildID snowflake.ID) {
-	m.config.Logger.Debugf("Removing voice conn for guild: %s", guildID)
+	m.config.Logger.Debug("Removing voice conn", slog.Int64("guild_id", int64(guildID)))
 	conn := m.GetConn(guildID)
 	if conn == nil {
 		return

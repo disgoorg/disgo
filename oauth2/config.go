@@ -1,7 +1,7 @@
 package oauth2
 
 import (
-	"github.com/disgoorg/log"
+	"log/slog"
 
 	"github.com/disgoorg/disgo/rest"
 )
@@ -9,13 +9,13 @@ import (
 // DefaultConfig is the configuration which is used by default
 func DefaultConfig() *Config {
 	return &Config{
-		Logger: log.Default(),
+		Logger: slog.Default(),
 	}
 }
 
 // Config is the configuration for the OAuth2 client
 type Config struct {
-	Logger                    log.Logger
+	Logger                    *slog.Logger
 	RestClient                rest.Client
 	RestClientConfigOpts      []rest.ConfigOpt
 	OAuth2                    rest.OAuth2
@@ -43,7 +43,7 @@ func (c *Config) Apply(opts []ConfigOpt) {
 }
 
 // WithLogger applies a custom logger to the OAuth2 client
-func WithLogger(logger log.Logger) ConfigOpt {
+func WithLogger(logger *slog.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
 	}

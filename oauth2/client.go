@@ -46,6 +46,15 @@ func (s Session) Expired() bool {
 	return s.Expiration.Before(time.Now())
 }
 
+type AuthorizationURLParams struct {
+	RedirectURI        string
+	Permissions        discord.Permissions
+	GuildID            snowflake.ID
+	DisableGuildSelect bool
+	IntegrationType    discord.ApplicationIntegrationType
+	Scopes             []discord.OAuth2Scope
+}
+
 // Client is a high level wrapper around Discord's OAuth2 API.
 type Client interface {
 	// ID returns the configured client ID.
@@ -58,10 +67,10 @@ type Client interface {
 	// StateController returns the configured StateController.
 	StateController() StateController
 
-	// GenerateAuthorizationURL generates an authorization URL with the given redirect URI, permissions, guildID, disableGuildSelect & scopes. State is automatically generated.
-	GenerateAuthorizationURL(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.OAuth2Scope) string
-	// GenerateAuthorizationURLState generates an authorization URL with the given redirect URI, permissions, guildID, disableGuildSelect & scopes. State is automatically generated & returned.
-	GenerateAuthorizationURLState(redirectURI string, permissions discord.Permissions, guildID snowflake.ID, disableGuildSelect bool, scopes ...discord.OAuth2Scope) (string, string)
+	// GenerateAuthorizationURL generates an authorization URL with the given authorization params. State is automatically generated.
+	GenerateAuthorizationURL(params AuthorizationURLParams) string
+	// GenerateAuthorizationURLState generates an authorization URL with the given authorization params. State is automatically generated & returned.
+	GenerateAuthorizationURLState(params AuthorizationURLParams) (string, string)
 
 	// StartSession starts a new Session with the given authorization code & state.
 	StartSession(code string, state string, opts ...rest.RequestOpt) (Session, *discord.IncomingWebhook, error)

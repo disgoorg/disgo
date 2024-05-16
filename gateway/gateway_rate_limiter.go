@@ -4,6 +4,9 @@ import (
 	"context"
 )
 
+// CommandsPerMinute is the default number of commands per minute that the Gateway will allow.
+const CommandsPerMinute = 120
+
 // RateLimiter provides handles the rate limiting logic for connecting to Discord's Gateway.
 type RateLimiter interface {
 	// Close gracefully closes the RateLimiter.

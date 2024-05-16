@@ -1,5 +1,7 @@
 package discord
 
+import "github.com/disgoorg/snowflake/v2"
+
 type WebhookMessageCreate struct {
 	Content         string               `json:"content,omitempty"`
 	Username        string               `json:"username,omitempty"`
@@ -12,6 +14,8 @@ type WebhookMessageCreate struct {
 	AllowedMentions *AllowedMentions     `json:"allowed_mentions,omitempty"`
 	Flags           MessageFlags         `json:"flags,omitempty"`
 	ThreadName      string               `json:"thread_name,omitempty"`
+	AppliedTags     []snowflake.ID       `json:"applied_tags,omitempty"`
+	Poll            *PollCreate          `json:"poll,omitempty"`
 }
 
 // ToBody returns the MessageCreate ready for body

@@ -1,14 +1,15 @@
 package gateway
 
 import (
-	"github.com/disgoorg/log"
+	"log/slog"
+
 	"github.com/gorilla/websocket"
 )
 
 // DefaultConfig returns a Config with sensible defaults.
 func DefaultConfig() *Config {
 	return &Config{
-		Logger:          log.Default(),
+		Logger:          slog.Default(),
 		Dialer:          websocket.DefaultDialer,
 		LargeThreshold:  50,
 		Intents:         IntentsDefault,
@@ -23,8 +24,8 @@ func DefaultConfig() *Config {
 
 // Config lets you configure your Gateway instance.
 type Config struct {
-	// Logger is the logger of the Gateway. Defaults to log.Default().
-	Logger log.Logger
+	// Logger is the Logger of the Gateway. Defaults to slog.Default().
+	Logger *slog.Logger
 	// Dialer is the websocket.Dialer of the Gateway. Defaults to websocket.DefaultDialer.
 	Dialer *websocket.Dialer
 	// LargeThreshold is the threshold for the Gateway. Defaults to 50
@@ -54,8 +55,8 @@ type Config struct {
 	EnableResumeURL bool
 	// RateLimiter is the RateLimiter of the Gateway. Defaults to NewRateLimiter().
 	RateLimiter RateLimiter
-	// RateRateLimiterConfigOpts is the RateLimiterConfigOpts of the Gateway. Defaults to nil.
-	RateRateLimiterConfigOpts []RateLimiterConfigOpt
+	// RateLimiterConfigOpts is the RateLimiterConfigOpts of the Gateway. Defaults to nil.
+	RateLimiterConfigOpts []RateLimiterConfigOpt
 	// Presence is the presence it should send on login. Defaults to nil.
 	Presence *MessageDataPresenceUpdate
 	// OS is the OS it should send on login. Defaults to runtime.GOOS.
@@ -75,12 +76,12 @@ func (c *Config) Apply(opts []ConfigOpt) {
 		opt(c)
 	}
 	if c.RateLimiter == nil {
-		c.RateLimiter = NewRateLimiter(c.RateRateLimiterConfigOpts...)
+		c.RateLimiter = NewRateLimiter(c.RateLimiterConfigOpts...)
 	}
 }
 
 // WithLogger sets the Logger for the Gateway.
-func WithLogger(logger log.Logger) ConfigOpt {
+func WithLogger(logger *slog.Logger) ConfigOpt {
 	return func(config *Config) {
 		config.Logger = logger
 	}
@@ -184,10 +185,10 @@ func WithRateLimiter(rateLimiter RateLimiter) ConfigOpt {
 	}
 }
 
-// WithRateRateLimiterConfigOpts lets you configure the default RateLimiter.
-func WithRateRateLimiterConfigOpts(opts ...RateLimiterConfigOpt) ConfigOpt {
+// WithRateLimiterConfigOpts lets you configure the default RateLimiter.
+func WithRateLimiterConfigOpts(opts ...RateLimiterConfigOpt) ConfigOpt {
 	return func(config *Config) {
-		config.RateRateLimiterConfigOpts = append(config.RateRateLimiterConfigOpts, opts...)
+		config.RateLimiterConfigOpts = append(config.RateLimiterConfigOpts, opts...)
 	}
 }
 

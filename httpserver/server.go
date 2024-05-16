@@ -5,12 +5,12 @@ import (
 	"context"
 	"encoding/hex"
 	"io"
+	"log/slog"
 	"net/http"
 	"sync"
 	"time"
 
 	"github.com/disgoorg/json"
-	"github.com/disgoorg/log"
 
 	"github.com/disgoorg/disgo/discord"
 )
@@ -102,12 +102,12 @@ const (
 )
 
 // HandleInteraction handles an interaction from Discord's Outgoing Webhooks. It verifies and parses the interaction and then calls the passed EventHandlerFunc.
-func HandleInteraction(publicKey PublicKey, logger log.Logger, handleFunc EventHandlerFunc) http.HandlerFunc {
+func HandleInteraction(publicKey PublicKey, logger *slog.Logger, handleFunc EventHandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if ok := VerifyRequest(r, publicKey); !ok {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			data, _ := io.ReadAll(r.Body)
-			logger.Trace("received http interaction with invalid signature. body: ", string(data))
+			logger.Debug("received http interaction with invalid signature", slog.String("body", string(data)))
 			return
 		}
 
@@ -117,11 +117,11 @@ func HandleInteraction(publicKey PublicKey, logger log.Logger, handleFunc EventH
 
 		buff := new(bytes.Buffer)
 		rqData, _ := io.ReadAll(io.TeeReader(r.Body, buff))
-		logger.Trace("received http interaction. body: ", string(rqData))
+		logger.Debug("received http interaction", slog.String("body", string(rqData)))
 
 		var v EventInteractionCreate
 		if err := json.NewDecoder(buff).Decode(&v); err != nil {
-			logger.Error("error while decoding interaction: ", err)
+			logger.Error("error while decoding interaction", slog.Any("err", err))
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
@@ -200,6 +200,6 @@ func HandleInteraction(publicKey PublicKey, logger log.Logger, handleFunc EventH
 		}
 
 		rsData, _ := io.ReadAll(rsBody)
-		logger.Trace("response to http interaction. body: ", string(rsData))
+		logger.Debug("response to http interaction", slog.String("body", string(rsData)))
 	}
 }

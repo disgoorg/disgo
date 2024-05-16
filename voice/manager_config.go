@@ -1,18 +1,18 @@
 package voice
 
-import "github.com/disgoorg/log"
+import "log/slog"
 
 // DefaultManagerConfig returns the default ManagerConfig with sensible defaults.
 func DefaultManagerConfig() *ManagerConfig {
 	return &ManagerConfig{
-		Logger:         log.Default(),
+		Logger:         slog.Default(),
 		ConnCreateFunc: NewConn,
 	}
 }
 
 // ManagerConfig is a function that configures a Manager.
 type ManagerConfig struct {
-	Logger log.Logger
+	Logger *slog.Logger
 
 	ConnCreateFunc ConnCreateFunc
 	ConnOpts       []ConnConfigOpt
@@ -29,7 +29,7 @@ func (c *ManagerConfig) Apply(opts []ManagerConfigOpt) {
 }
 
 // WithLogger sets the logger for the webhook client
-func WithLogger(logger log.Logger) ManagerConfigOpt {
+func WithLogger(logger *slog.Logger) ManagerConfigOpt {
 	return func(ManagerConfig *ManagerConfig) {
 		ManagerConfig.Logger = logger
 	}

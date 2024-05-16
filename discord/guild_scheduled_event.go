@@ -3,6 +3,7 @@ package discord
 import (
 	"time"
 
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -23,10 +24,20 @@ type GuildScheduledEvent struct {
 	EntityMetaData     *EntityMetaData            `json:"entity_metadata"`
 	Creator            User                       `json:"creator"`
 	UserCount          int                        `json:"user_count"`
+	Image              *string                    `json:"image"`
 }
 
 func (e GuildScheduledEvent) CreatedAt() time.Time {
 	return e.ID.Time()
+}
+
+// CoverURL returns the cover URL if set or nil
+func (e GuildScheduledEvent) CoverURL(opts ...CDNOpt) *string {
+	if e.Image == nil {
+		return nil
+	}
+	url := formatAssetURL(GuildScheduledEventCover, opts, e.ID, e.Image)
+	return &url
 }
 
 type GuildScheduledEventCreate struct {
@@ -51,6 +62,7 @@ type GuildScheduledEventUpdate struct {
 	Description        *string                     `json:"description,omitempty"`
 	EntityType         *ScheduledEventEntityType   `json:"entity_type,omitempty"`
 	Status             *ScheduledEventStatus       `json:"status,omitempty"`
+	Image              *json.Nullable[Icon]        `json:"image,omitempty"`
 }
 
 type GuildScheduledEventUser struct {
