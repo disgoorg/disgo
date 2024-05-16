@@ -19,6 +19,7 @@ type GuildSoundboardSoundCreate struct {
 // GuildSoundboardSoundUpdate indicates that a discord.SoundboardSound was updated in a discord.Guild
 type GuildSoundboardSoundUpdate struct {
 	*GenericGuildSoundboardSound
+	OldGuildSoundboardSound discord.SoundboardSound
 }
 
 // GuildSoundboardSoundDelete indicates that a discord.SoundboardSound was deleted in a discord.Guild

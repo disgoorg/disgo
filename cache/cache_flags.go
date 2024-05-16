@@ -19,6 +19,7 @@ const (
 	FlagStickers
 	FlagVoiceStates
 	FlagStageInstances
+	FlagGuildSoundboardSounds
 
 	FlagsNone Flags = 0
 	FlagsAll        = FlagGuilds |
@@ -32,7 +33,8 @@ const (
 		FlagEmojis |
 		FlagStickers |
 		FlagVoiceStates |
-		FlagStageInstances
+		FlagStageInstances |
+		FlagGuildSoundboardSounds
 )
 
 // Add allows you to add multiple bits together, producing a new bit

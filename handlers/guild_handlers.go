@@ -58,6 +58,10 @@ func gatewayHandlerGuildCreate(client bot.Client, sequenceNumber int, shardID in
 		client.Caches().AddGuildScheduledEvent(guildScheduledEvent)
 	}
 
+	for _, soundboardSound := range event.SoundboardSounds {
+		client.Caches().AddGuildSoundboardSound(soundboardSound)
+	}
+
 	for _, presence := range event.Presences {
 		presence.GuildID = event.ID // populate unset field
 		client.Caches().AddPresence(presence)
@@ -128,6 +132,7 @@ func gatewayHandlerGuildDelete(client bot.Client, sequenceNumber int, shardID in
 	client.Caches().RemoveStickersByGuildID(event.ID)
 	client.Caches().RemoveRolesByGuildID(event.ID)
 	client.Caches().RemoveStageInstancesByGuildID(event.ID)
+	client.Caches().RemoveGuildSoundboardSoundsByGuildID(event.ID)
 	client.Caches().RemoveMessagesByGuildID(event.ID)
 
 	if event.Unavailable {

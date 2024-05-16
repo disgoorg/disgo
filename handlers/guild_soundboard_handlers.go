@@ -7,6 +7,8 @@ import (
 )
 
 func gatewayHandlerGuildSoundboardSoundCreate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildSoundboardSoundCreate) {
+	client.Caches().AddGuildSoundboardSound(event.SoundboardSound)
+
 	client.EventManager().DispatchEvent(&events.GuildSoundboardSoundCreate{
 		GenericGuildSoundboardSound: &events.GenericGuildSoundboardSound{
 			GenericEvent:    events.NewGenericEvent(client, sequenceNumber, shardID),
@@ -16,15 +18,21 @@ func gatewayHandlerGuildSoundboardSoundCreate(client bot.Client, sequenceNumber 
 }
 
 func gatewayHandlerGuildSoundboardSoundUpdate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildSoundboardSoundUpdate) {
+	oldSound, _ := client.Caches().GuildSoundboardSound(*event.GuildID, event.SoundID)
+	client.Caches().AddGuildSoundboardSound(event.SoundboardSound)
+
 	client.EventManager().DispatchEvent(&events.GuildSoundboardSoundUpdate{
 		GenericGuildSoundboardSound: &events.GenericGuildSoundboardSound{
 			GenericEvent:    events.NewGenericEvent(client, sequenceNumber, shardID),
 			SoundboardSound: event.SoundboardSound,
 		},
+		OldGuildSoundboardSound: oldSound,
 	})
 }
 
 func gatewayHandlerGuildSoundboardSoundDelete(client bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildSoundboardSoundDelete) {
+	client.Caches().RemoveGuildSoundboardSound(event.GuildID, event.SoundID)
+
 	client.EventManager().DispatchEvent(&events.GuildSoundboardSoundDelete{
 		GenericEvent: events.NewGenericEvent(client, sequenceNumber, shardID),
 		SoundID:      event.SoundID,
