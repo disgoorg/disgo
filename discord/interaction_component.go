@@ -80,6 +80,7 @@ func (i *ComponentInteraction) UnmarshalJSON(data []byte) error {
 	i.baseInteraction.applicationID = interaction.ApplicationID
 	i.baseInteraction.token = interaction.Token
 	i.baseInteraction.version = interaction.Version
+	i.baseInteraction.guild = interaction.Guild
 	i.baseInteraction.guildID = interaction.GuildID
 	i.baseInteraction.channelID = interaction.ChannelID
 	i.baseInteraction.channel = interaction.Channel
@@ -110,6 +111,7 @@ func (i ComponentInteraction) MarshalJSON() ([]byte, error) {
 			ApplicationID:                i.applicationID,
 			Token:                        i.token,
 			Version:                      i.version,
+			Guild:                        i.guild,
 			GuildID:                      i.guildID,
 			ChannelID:                    i.channelID,
 			Channel:                      i.channel,
