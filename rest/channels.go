@@ -36,7 +36,7 @@ type Channels interface {
 	BulkDeleteMessages(channelID snowflake.ID, messageIDs []snowflake.ID, opts ...RequestOpt) error
 	CrosspostMessage(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) (*discord.Message, error)
 
-	GetReactions(channelID snowflake.ID, messageID snowflake.ID, emoji string, opts ...RequestOpt) ([]discord.User, error)
+	GetReactions(channelID snowflake.ID, messageID snowflake.ID, emoji string, reactionType discord.MessageReactionType, after int, limit int, opts ...RequestOpt) ([]discord.User, error)
 	AddReaction(channelID snowflake.ID, messageID snowflake.ID, emoji string, opts ...RequestOpt) error
 	RemoveOwnReaction(channelID snowflake.ID, messageID snowflake.ID, emoji string, opts ...RequestOpt) error
 	RemoveUserReaction(channelID snowflake.ID, messageID snowflake.ID, emoji string, userID snowflake.ID, opts ...RequestOpt) error
@@ -184,8 +184,17 @@ func (s *channelImpl) CrosspostMessage(channelID snowflake.ID, messageID snowfla
 	return
 }
 
-func (s *channelImpl) GetReactions(channelID snowflake.ID, messageID snowflake.ID, emoji string, opts ...RequestOpt) (users []discord.User, err error) {
-	err = s.client.Do(GetReactions.Compile(nil, channelID, messageID, emoji), nil, &users, opts...)
+func (s *channelImpl) GetReactions(channelID snowflake.ID, messageID snowflake.ID, emoji string, reactionType discord.MessageReactionType, after int, limit int, opts ...RequestOpt) (users []discord.User, err error) {
+	values := discord.QueryValues{
+		"type": reactionType,
+	}
+	if after != 0 {
+		values["after"] = after
+	}
+	if limit != 0 {
+		values["limit"] = limit
+	}
+	err = s.client.Do(GetReactions.Compile(values, channelID, messageID, emoji), nil, &users, opts...)
 	return
 }
 
