@@ -50,13 +50,3 @@ func AuthorizeURL(values QueryValues) string {
 	}
 	return "https://discord.com/oauth2/authorize" + query
 }
-
-// SoundboardSoundURL returns the url of a custom soundboard sound
-func SoundboardSoundURL(soundID snowflake.ID) string {
-	return urlPrint(SoundboardSoundFile.Path(), soundID)
-}
-
-// SoundboardDefaultSoundURL returns the url of a default soundboard sound
-func SoundboardDefaultSoundURL(path string) string {
-	return urlPrint(SoundboardDefaultSoundFile.Path(), path)
-}

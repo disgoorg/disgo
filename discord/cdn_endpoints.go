@@ -46,8 +46,7 @@ var (
 
 	AttachmentFile = NewCDN("/attachments/{channel.id}/{attachment.id}/{file.name}", FileFormatNone)
 
-	SoundboardSoundFile        = NewCDN("/soundboard-sounds/{sound.id}", FileFormatNone)
-	SoundboardDefaultSoundFile = NewCDN("/soundboard-default-sounds/{sound.override.path}", FileFormatNone)
+	SoundboardSoundFile = NewCDN("/soundboard-sounds/{sound.id}", FileFormatNone)
 )
 
 // FileFormat is the type of file on Discord's CDN (https://discord.com/developers/docs/reference#image-formatting-image-formats)

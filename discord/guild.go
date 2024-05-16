@@ -225,6 +225,7 @@ type GatewayGuild struct {
 	Presences            []Presence            `json:"presences"`
 	StageInstances       []StageInstance       `json:"stage_instances"`
 	GuildScheduledEvents []GuildScheduledEvent `json:"guild_scheduled_events"`
+	SoundboardSounds     []SoundboardSound     `json:"soundboard_sounds"`
 }
 
 func (g *GatewayGuild) UnmarshalJSON(data []byte) error {

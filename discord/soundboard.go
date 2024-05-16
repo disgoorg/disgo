@@ -26,14 +26,6 @@ type SoundboardSound struct {
 	User         *User         `json:"user"`
 }
 
-// FileURL returns the URL for this sound
-func (s SoundboardSound) FileURL() string {
-	if s.ID != nil {
-		return SoundboardSoundURL(*s.ID)
-	}
-	return SoundboardDefaultSoundURL(*s.OverridePath)
-}
-
 type SoundboardSoundCreate struct {
 	Name      string       `json:"name"`
 	Sound     Sound        `json:"sound"`
