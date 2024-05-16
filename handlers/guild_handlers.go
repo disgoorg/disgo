@@ -127,7 +127,9 @@ func gatewayHandlerGuildDelete(client bot.Client, sequenceNumber int, shardID in
 	client.Caches().RemoveEmojisByGuildID(event.ID)
 	client.Caches().RemoveStickersByGuildID(event.ID)
 	client.Caches().RemoveRolesByGuildID(event.ID)
+	client.Caches().RemoveMembersByGuildID(event.ID)
 	client.Caches().RemoveStageInstancesByGuildID(event.ID)
+	client.Caches().RemoveGuildScheduledEventsByGuildID(event.ID)
 	client.Caches().RemoveMessagesByGuildID(event.ID)
 
 	if event.Unavailable {
