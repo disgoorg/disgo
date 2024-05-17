@@ -234,41 +234,48 @@ const (
 	ButtonStyleSuccess
 	ButtonStyleDanger
 	ButtonStyleLink
+	ButtonStylePremium
 )
 
 // NewButton creates a new ButtonComponent with the provided parameters. Link ButtonComponent(s) need a URL and other ButtonComponent(s) need a customID
-func NewButton(style ButtonStyle, label string, customID string, url string) ButtonComponent {
+func NewButton(style ButtonStyle, label string, customID string, url string, skuID snowflake.ID) ButtonComponent {
 	return ButtonComponent{
 		Style:    style,
 		CustomID: customID,
 		URL:      url,
 		Label:    label,
+		SkuID:    skuID,
 	}
 }
 
 // NewPrimaryButton creates a new ButtonComponent with ButtonStylePrimary & the provided parameters
 func NewPrimaryButton(label string, customID string) ButtonComponent {
-	return NewButton(ButtonStylePrimary, label, customID, "")
+	return NewButton(ButtonStylePrimary, label, customID, "", 0)
 }
 
 // NewSecondaryButton creates a new ButtonComponent with ButtonStyleSecondary & the provided parameters
 func NewSecondaryButton(label string, customID string) ButtonComponent {
-	return NewButton(ButtonStyleSecondary, label, customID, "")
+	return NewButton(ButtonStyleSecondary, label, customID, "", 0)
 }
 
 // NewSuccessButton creates a new ButtonComponent with ButtonStyleSuccess & the provided parameters
 func NewSuccessButton(label string, customID string) ButtonComponent {
-	return NewButton(ButtonStyleSuccess, label, customID, "")
+	return NewButton(ButtonStyleSuccess, label, customID, "", 0)
 }
 
 // NewDangerButton creates a new ButtonComponent with ButtonStyleDanger & the provided parameters
 func NewDangerButton(label string, customID string) ButtonComponent {
-	return NewButton(ButtonStyleDanger, label, customID, "")
+	return NewButton(ButtonStyleDanger, label, customID, "", 0)
 }
 
 // NewLinkButton creates a new link ButtonComponent with ButtonStyleLink & the provided parameters
 func NewLinkButton(label string, url string) ButtonComponent {
-	return NewButton(ButtonStyleLink, label, "", url)
+	return NewButton(ButtonStyleLink, label, "", url, 0)
+}
+
+// NewPremiumButton creates a new ButtonComponent with ButtonStylePremium & the provided parameters
+func NewPremiumButton(label string, skuID snowflake.ID) ButtonComponent {
+	return NewButton(ButtonStylePremium, label, "", "", skuID)
 }
 
 var (
@@ -281,6 +288,7 @@ type ButtonComponent struct {
 	Label    string          `json:"label,omitempty"`
 	Emoji    *ComponentEmoji `json:"emoji,omitempty"`
 	CustomID string          `json:"custom_id,omitempty"`
+	SkuID    snowflake.ID    `json:"sku_id,omitempty"`
 	URL      string          `json:"url,omitempty"`
 	Disabled bool            `json:"disabled,omitempty"`
 }
@@ -339,6 +347,12 @@ func (c ButtonComponent) WithCustomID(customID string) ButtonComponent {
 // WithURL returns a new ButtonComponent with the provided URL
 func (c ButtonComponent) WithURL(url string) ButtonComponent {
 	c.URL = url
+	return c
+}
+
+// WithSkuID returns a new ButtonComponent with the provided skuID
+func (c ButtonComponent) WithSkuID(skuID snowflake.ID) ButtonComponent {
+	c.SkuID = skuID
 	return c
 }
 

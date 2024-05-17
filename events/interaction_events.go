@@ -61,6 +61,7 @@ func (e *ApplicationCommandInteractionCreate) Modal(modalCreate discord.ModalCre
 	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
 }
 
+// Deprecated: Respond with a discord.ButtonStylePremium button instead.
 // PremiumRequired responds to the interaction with an upgrade button if available.
 func (e *ApplicationCommandInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
@@ -112,6 +113,7 @@ func (e *ComponentInteractionCreate) Modal(modalCreate discord.ModalCreate, opts
 	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)
 }
 
+// Deprecated: Respond with a discord.ButtonStylePremium button instead.
 // PremiumRequired responds to the interaction with an upgrade button if available.
 func (e *ComponentInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
@@ -180,6 +182,7 @@ func (e *ModalSubmitInteractionCreate) DeferUpdateMessage(opts ...rest.RequestOp
 	return e.Respond(discord.InteractionResponseTypeDeferredUpdateMessage, nil, opts...)
 }
 
+// Deprecated: Respond with a discord.ButtonStylePremium button instead.
 // PremiumRequired responds to the interaction with an upgrade button if available.
 func (e *ModalSubmitInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
