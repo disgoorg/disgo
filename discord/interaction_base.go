@@ -37,7 +37,7 @@ func (i baseInteraction) Token() string {
 func (i baseInteraction) Version() int {
 	return i.version
 }
-func (i baseInteraction) Guild() *InteractionGuild {
+func (i baseInteraction) PartialGuild() *InteractionGuild {
 	return i.guild
 }
 func (i baseInteraction) GuildID() *snowflake.ID {
