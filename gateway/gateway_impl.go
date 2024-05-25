@@ -94,8 +94,7 @@ func (g *gatewayImpl) open(ctx context.Context) error {
 	g.lastHeartbeatSent = time.Now().UTC()
 	conn, rs, err := g.config.Dialer.DialContext(ctx, gatewayURL, nil)
 	if err != nil {
-		g.Close(ctx)
-		body := "empty"
+		body := ""
 		if rs != nil && rs.Body != nil {
 			defer func() {
 				_ = rs.Body.Close()
