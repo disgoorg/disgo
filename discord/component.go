@@ -274,8 +274,8 @@ func NewLinkButton(label string, url string) ButtonComponent {
 }
 
 // NewPremiumButton creates a new ButtonComponent with ButtonStylePremium & the provided parameters
-func NewPremiumButton(label string, skuID snowflake.ID) ButtonComponent {
-	return NewButton(ButtonStylePremium, label, "", "", skuID)
+func NewPremiumButton(skuID snowflake.ID) ButtonComponent {
+	return NewButton(ButtonStylePremium, "", "", "", skuID)
 }
 
 var (
