@@ -48,6 +48,13 @@ const (
 	_
 	MessageTypeStageTopic
 	MessageTypeGuildApplicationPremiumSubscription
+	_
+	_
+	_
+	MessageTypeGuildIncidentAlertModeEnabled
+	MessageTypeGuildIncidentAlertModeDisabled
+	MessageTypeGuildIncidentReportRaid
+	MessageTypeGuildIncidentReportFalseAlarm
 )
 
 func (t MessageType) System() bool {
