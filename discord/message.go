@@ -48,6 +48,7 @@ const (
 	_
 	MessageTypeStageTopic
 	MessageTypeGuildApplicationPremiumSubscription
+	MessageTypePurchaseNotification MessageType = 44
 )
 
 func (t MessageType) System() bool {
@@ -63,9 +64,7 @@ func (t MessageType) System() bool {
 func (t MessageType) Deleteable() bool {
 	switch t {
 	case MessageTypeRecipientAdd, MessageTypeRecipientRemove, MessageTypeCall,
-		MessageTypeChannelNameChange, MessageTypeChannelIconChange, MessageTypeGuildDiscoveryDisqualified,
-		MessageTypeGuildDiscoveryRequalified, MessageTypeGuildDiscoveryGracePeriodInitialWarning,
-		MessageTypeGuildDiscoveryGracePeriodFinalWarning, MessageTypeThreadStarterMessage:
+		MessageTypeChannelNameChange, MessageTypeChannelIconChange, MessageTypeThreadStarterMessage:
 		return false
 
 	default:
