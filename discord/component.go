@@ -285,7 +285,7 @@ func NewDangerButton(label string, customID string) ButtonComponent {
 // NewLinkButton creates a new link ButtonComponent with ButtonStyleLink & the provided parameters
 func NewLinkButton(label string, url string) ButtonComponent {
 	return ButtonComponent{
-		Style: ButtonStylePrimary,
+		Style: ButtonStyleLink,
 		Label: label,
 		URL:   url,
 	}
