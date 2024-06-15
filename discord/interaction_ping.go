@@ -63,7 +63,8 @@ func (i PingInteraction) Version() int {
 func (i PingInteraction) CreatedAt() time.Time {
 	return i.id.Time()
 }
-func (PingInteraction) Guild() *InteractionGuild {
+
+func (PingInteraction) PartialGuild() *InteractionGuild {
 	return nil
 }
 

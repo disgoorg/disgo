@@ -250,32 +250,55 @@ func NewButton(style ButtonStyle, label string, customID string, url string, sku
 
 // NewPrimaryButton creates a new ButtonComponent with ButtonStylePrimary & the provided parameters
 func NewPrimaryButton(label string, customID string) ButtonComponent {
-	return NewButton(ButtonStylePrimary, label, customID, "", 0)
+	return ButtonComponent{
+		Style:    ButtonStylePrimary,
+		Label:    label,
+		CustomID: customID,
+	}
 }
 
 // NewSecondaryButton creates a new ButtonComponent with ButtonStyleSecondary & the provided parameters
 func NewSecondaryButton(label string, customID string) ButtonComponent {
-	return NewButton(ButtonStyleSecondary, label, customID, "", 0)
+	return ButtonComponent{
+		Style:    ButtonStyleSecondary,
+		Label:    label,
+		CustomID: customID,
+	}
 }
 
 // NewSuccessButton creates a new ButtonComponent with ButtonStyleSuccess & the provided parameters
 func NewSuccessButton(label string, customID string) ButtonComponent {
-	return NewButton(ButtonStyleSuccess, label, customID, "", 0)
+	return ButtonComponent{
+		Style:    ButtonStyleSuccess,
+		Label:    label,
+		CustomID: customID,
+	}
 }
 
 // NewDangerButton creates a new ButtonComponent with ButtonStyleDanger & the provided parameters
 func NewDangerButton(label string, customID string) ButtonComponent {
-	return NewButton(ButtonStyleDanger, label, customID, "", 0)
+	return ButtonComponent{
+		Style:    ButtonStyleDanger,
+		Label:    label,
+		CustomID: customID,
+	}
 }
 
 // NewLinkButton creates a new link ButtonComponent with ButtonStyleLink & the provided parameters
 func NewLinkButton(label string, url string) ButtonComponent {
-	return NewButton(ButtonStyleLink, label, "", url, 0)
+	return ButtonComponent{
+		Style: ButtonStyleLink,
+		Label: label,
+		URL:   url,
+	}
 }
 
 // NewPremiumButton creates a new ButtonComponent with ButtonStylePremium & the provided parameters
 func NewPremiumButton(skuID snowflake.ID) ButtonComponent {
-	return NewButton(ButtonStylePremium, "", "", "", skuID)
+	return ButtonComponent{
+		Style: ButtonStylePremium,
+		SkuID: skuID,
+	}
 }
 
 var (

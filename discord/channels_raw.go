@@ -15,6 +15,16 @@ type dmChannel struct {
 	LastPinTimestamp *time.Time    `json:"last_pin_timestamp"`
 }
 
+type groupDMChannel struct {
+	ID               snowflake.ID  `json:"id"`
+	Type             ChannelType   `json:"type"`
+	OwnerID          *snowflake.ID `json:"owner_id"`
+	Name             string        `json:"name"`
+	LastPinTimestamp *time.Time    `json:"last_pin_timestamp"`
+	LastMessageID    *snowflake.ID `json:"last_message_id"`
+	Icon             *string       `json:"icon"`
+}
+
 type guildTextChannel struct {
 	ID                         snowflake.ID          `json:"id"`
 	Type                       ChannelType           `json:"type"`
