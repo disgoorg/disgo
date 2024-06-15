@@ -248,27 +248,47 @@ func NewButton(style ButtonStyle, label string, customID string, url string) But
 
 // NewPrimaryButton creates a new ButtonComponent with ButtonStylePrimary & the provided parameters
 func NewPrimaryButton(label string, customID string) ButtonComponent {
-	return NewButton(ButtonStylePrimary, label, customID, "")
+	return ButtonComponent{
+		Style:    ButtonStylePrimary,
+		Label:    label,
+		CustomID: customID,
+	}
 }
 
 // NewSecondaryButton creates a new ButtonComponent with ButtonStyleSecondary & the provided parameters
 func NewSecondaryButton(label string, customID string) ButtonComponent {
-	return NewButton(ButtonStyleSecondary, label, customID, "")
+	return ButtonComponent{
+		Style:    ButtonStyleSecondary,
+		Label:    label,
+		CustomID: customID,
+	}
 }
 
 // NewSuccessButton creates a new ButtonComponent with ButtonStyleSuccess & the provided parameters
 func NewSuccessButton(label string, customID string) ButtonComponent {
-	return NewButton(ButtonStyleSuccess, label, customID, "")
+	return ButtonComponent{
+		Style:    ButtonStyleSuccess,
+		Label:    label,
+		CustomID: customID,
+	}
 }
 
 // NewDangerButton creates a new ButtonComponent with ButtonStyleDanger & the provided parameters
 func NewDangerButton(label string, customID string) ButtonComponent {
-	return NewButton(ButtonStyleDanger, label, customID, "")
+	return ButtonComponent{
+		Style:    ButtonStyleDanger,
+		Label:    label,
+		CustomID: customID,
+	}
 }
 
 // NewLinkButton creates a new link ButtonComponent with ButtonStyleLink & the provided parameters
 func NewLinkButton(label string, url string) ButtonComponent {
-	return NewButton(ButtonStyleLink, label, "", url)
+	return ButtonComponent{
+		Style: ButtonStyleLink,
+		Label: label,
+		URL:   url,
+	}
 }
 
 var (
