@@ -234,15 +234,17 @@ const (
 	ButtonStyleSuccess
 	ButtonStyleDanger
 	ButtonStyleLink
+	ButtonStylePremium
 )
 
 // NewButton creates a new ButtonComponent with the provided parameters. Link ButtonComponent(s) need a URL and other ButtonComponent(s) need a customID
-func NewButton(style ButtonStyle, label string, customID string, url string) ButtonComponent {
+func NewButton(style ButtonStyle, label string, customID string, url string, skuID snowflake.ID) ButtonComponent {
 	return ButtonComponent{
 		Style:    style,
 		CustomID: customID,
 		URL:      url,
 		Label:    label,
+		SkuID:    skuID,
 	}
 }
 
@@ -291,6 +293,14 @@ func NewLinkButton(label string, url string) ButtonComponent {
 	}
 }
 
+// NewPremiumButton creates a new ButtonComponent with ButtonStylePremium & the provided parameters
+func NewPremiumButton(skuID snowflake.ID) ButtonComponent {
+	return ButtonComponent{
+		Style: ButtonStylePremium,
+		SkuID: skuID,
+	}
+}
+
 var (
 	_ Component            = (*ButtonComponent)(nil)
 	_ InteractiveComponent = (*ButtonComponent)(nil)
@@ -301,6 +311,7 @@ type ButtonComponent struct {
 	Label    string          `json:"label,omitempty"`
 	Emoji    *ComponentEmoji `json:"emoji,omitempty"`
 	CustomID string          `json:"custom_id,omitempty"`
+	SkuID    snowflake.ID    `json:"sku_id,omitempty"`
 	URL      string          `json:"url,omitempty"`
 	Disabled bool            `json:"disabled,omitempty"`
 }
@@ -359,6 +370,12 @@ func (c ButtonComponent) WithCustomID(customID string) ButtonComponent {
 // WithURL returns a new ButtonComponent with the provided URL
 func (c ButtonComponent) WithURL(url string) ButtonComponent {
 	c.URL = url
+	return c
+}
+
+// WithSkuID returns a new ButtonComponent with the provided skuID
+func (c ButtonComponent) WithSkuID(skuID snowflake.ID) ButtonComponent {
+	c.SkuID = skuID
 	return c
 }
 
