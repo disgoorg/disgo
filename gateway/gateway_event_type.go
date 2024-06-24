@@ -71,6 +71,7 @@ const (
 	EventTypeStageInstanceUpdate                 EventType = "STAGE_INSTANCE_UPDATE"
 	EventTypeTypingStart                         EventType = "TYPING_START"
 	EventTypeUserUpdate                          EventType = "USER_UPDATE"
+	EventTypeVoiceChannelEffectSend              EventType = "VOICE_CHANNEL_EFFECT_SEND"
 	EventTypeVoiceStateUpdate                    EventType = "VOICE_STATE_UPDATE"
 	EventTypeVoiceServerUpdate                   EventType = "VOICE_SERVER_UPDATE"
 	EventTypeWebhooksUpdate                      EventType = "WEBHOOKS_UPDATE"
