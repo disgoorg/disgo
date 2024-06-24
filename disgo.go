@@ -57,9 +57,9 @@ const (
 	// Name is the library name
 	Name = "disgo"
 	// Module is the library module name
-	Module = "github.com/disgoorg/disgo"
+	Module = "github.com/disgoorg/" + Name
 	// GitHub is a link to the libraries GitHub repository
-	GitHub = "https://github.com/disgoorg/disgo"
+	GitHub = "https://" + Module
 )
 
 var (
