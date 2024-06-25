@@ -10,6 +10,7 @@ import (
 type Attachment struct {
 	ID           snowflake.ID    `json:"id,omitempty"`
 	Filename     string          `json:"filename,omitempty"`
+	Title        *string         `json:"title,omitempty"`
 	Description  *string         `json:"description,omitempty"`
 	ContentType  *string         `json:"content_type,omitempty"`
 	Size         int             `json:"size,omitempty"`
