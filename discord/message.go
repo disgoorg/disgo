@@ -416,7 +416,7 @@ const (
 
 type MessageSnapshot struct {
 	Message PartialMessage `json:"message"`
-	GuildID *snowflake.ID  `json:"guild_id"`
+	Guild   *PartialGuild  `json:"guild"`
 }
 
 type PartialMessage struct {
@@ -426,6 +426,10 @@ type PartialMessage struct {
 	CreatedAt       time.Time    `json:"timestamp"`
 	EditedTimestamp *time.Time   `json:"edited_timestamp"`
 	Flags           MessageFlags `json:"flags"`
+}
+
+type PartialGuild struct {
+	ID snowflake.ID `json:"id"`
 }
 
 // MessageInteraction is sent on the Message object when the message is a response to an interaction
