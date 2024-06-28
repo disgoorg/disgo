@@ -64,6 +64,10 @@ func (i PingInteraction) CreatedAt() time.Time {
 	return i.id.Time()
 }
 
+func (PingInteraction) PartialGuild() *InteractionGuild {
+	return nil
+}
+
 func (PingInteraction) GuildID() *snowflake.ID {
 	return nil
 }

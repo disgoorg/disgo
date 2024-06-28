@@ -173,7 +173,7 @@ func (g *gatewayImpl) CloseWithCode(code int, message string) {
 	if g.conn != nil {
 		g.config.Logger.Debug("closing voice gateway connection", slog.Int("code", code), slog.String("message", message))
 		if err := g.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message)); err != nil && !errors.Is(err, websocket.ErrCloseSent) {
-			g.config.Logger.Debug("error writing close code", slog.String("err", err.Error()))
+			g.config.Logger.Debug("error writing close code", slog.Any("err", err))
 		}
 		_ = g.conn.Close()
 		g.conn = nil
@@ -204,7 +204,7 @@ func (g *gatewayImpl) sendHeartbeat() {
 		if !errors.Is(err, ErrGatewayNotConnected) || errors.Is(err, syscall.EPIPE) {
 			return
 		}
-		g.config.Logger.Error("failed to send heartbeat", slog.String("err", err.Error()))
+		g.config.Logger.Error("failed to send heartbeat", slog.Any("err", err))
 		g.CloseWithCode(websocket.CloseServiceRestart, "heartbeat timeout")
 		go g.reconnect()
 		return
@@ -244,7 +244,7 @@ loop:
 
 		message, err := g.parseMessage(reader)
 		if err != nil {
-			g.config.Logger.Error("error while parsing voice gateway event", slog.String("err", err.Error()))
+			g.config.Logger.Error("error while parsing voice gateway event", slog.Any("err", err))
 			continue
 		}
 
@@ -350,7 +350,7 @@ func (g *gatewayImpl) reconnectTry(ctx context.Context, try int) error {
 		if errors.Is(err, discord.ErrGatewayAlreadyConnected) {
 			return err
 		}
-		g.config.Logger.Error("failed to reconnect voice gateway", slog.String("err", err.Error()))
+		g.config.Logger.Error("failed to reconnect voice gateway", slog.Any("err", err))
 		g.status = StatusDisconnected
 		return g.reconnectTry(ctx, try+1)
 	}
@@ -359,7 +359,7 @@ func (g *gatewayImpl) reconnectTry(ctx context.Context, try int) error {
 
 func (g *gatewayImpl) reconnect() {
 	if err := g.reconnectTry(context.Background(), 0); err != nil {
-		g.config.Logger.Error("failed to reopen voice gateway", slog.String("err", err.Error()))
+		g.config.Logger.Error("failed to reopen voice gateway", slog.Any("err", err))
 	}
 }
 

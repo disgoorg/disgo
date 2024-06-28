@@ -121,7 +121,7 @@ func HandleInteraction(publicKey PublicKey, logger *slog.Logger, handleFunc Even
 
 		var v EventInteractionCreate
 		if err := json.NewDecoder(buff).Decode(&v); err != nil {
-			logger.Error("error while decoding interaction: ", err)
+			logger.Error("error while decoding interaction", slog.Any("err", err))
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}

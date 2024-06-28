@@ -11,6 +11,7 @@ type baseInteraction struct {
 	applicationID                snowflake.ID
 	token                        string
 	version                      int
+	guild                        *InteractionGuild
 	guildID                      *snowflake.ID
 	channelID                    snowflake.ID
 	channel                      InteractionChannel
@@ -35,6 +36,9 @@ func (i baseInteraction) Token() string {
 }
 func (i baseInteraction) Version() int {
 	return i.version
+}
+func (i baseInteraction) PartialGuild() *InteractionGuild {
+	return i.guild
 }
 func (i baseInteraction) GuildID() *snowflake.ID {
 	return i.guildID

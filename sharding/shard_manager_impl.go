@@ -72,7 +72,7 @@ func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error) {
 		go func() {
 			defer wg.Done()
 			if err := m.config.RateLimiter.WaitBucket(context.TODO(), shardID); err != nil {
-				m.config.Logger.Error("failed to wait shard bucket", slog.String("err", err.Error()), slog.Int("shard_id", shardID))
+				m.config.Logger.Error("failed to wait shard bucket", slog.Any("err", err), slog.Int("shard_id", shardID))
 				return
 			}
 			defer m.config.RateLimiter.UnlockBucket(shardID)
@@ -80,7 +80,7 @@ func (m *shardManagerImpl) closeHandler(shard gateway.Gateway, err error) {
 			newShard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, m.closeHandler, append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(newShardCount))...)
 			m.shards[shardID] = newShard
 			if err := newShard.Open(context.TODO()); err != nil {
-				m.config.Logger.Error("failed to re shard", slog.String("err", err.Error()), slog.Int("shard_id", shardID))
+				m.config.Logger.Error("failed to re shard", slog.Any("err", err), slog.Int("shard_id", shardID))
 			}
 		}()
 	}
@@ -104,7 +104,7 @@ func (m *shardManagerImpl) Open(ctx context.Context) {
 		go func() {
 			defer wg.Done()
 			if err := m.config.RateLimiter.WaitBucket(ctx, shardID); err != nil {
-				m.config.Logger.Error("failed to wait shard bucket", slog.String("err", err.Error()), slog.Int("shard_id", shardID))
+				m.config.Logger.Error("failed to wait shard bucket", slog.Any("err", err), slog.Int("shard_id", shardID))
 				return
 			}
 			defer m.config.RateLimiter.UnlockBucket(shardID)
@@ -112,7 +112,7 @@ func (m *shardManagerImpl) Open(ctx context.Context) {
 			shard := m.config.GatewayCreateFunc(m.token, m.eventHandlerFunc, m.closeHandler, append(m.config.GatewayConfigOpts, gateway.WithShardID(shardID), gateway.WithShardCount(m.config.ShardCount))...)
 			m.shards[shardID] = shard
 			if err := shard.Open(ctx); err != nil {
-				m.config.Logger.Error("failed to open shard", slog.String("err", err.Error()), slog.Int("shard_id", shardID))
+				m.config.Logger.Error("failed to open shard", slog.Any("err", err), slog.Int("shard_id", shardID))
 			}
 		}()
 	}

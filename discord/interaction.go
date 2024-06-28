@@ -29,12 +29,13 @@ const (
 )
 
 type rawInteraction struct {
-	ID            snowflake.ID    `json:"id"`
-	Type          InteractionType `json:"type"`
-	ApplicationID snowflake.ID    `json:"application_id"`
-	Token         string          `json:"token"`
-	Version       int             `json:"version"`
-	GuildID       *snowflake.ID   `json:"guild_id,omitempty"`
+	ID            snowflake.ID      `json:"id"`
+	Type          InteractionType   `json:"type"`
+	ApplicationID snowflake.ID      `json:"application_id"`
+	Token         string            `json:"token"`
+	Version       int               `json:"version"`
+	Guild         *InteractionGuild `json:"guild,omitempty"`
+	GuildID       *snowflake.ID     `json:"guild_id,omitempty"`
 	// Deprecated: Use Channel instead
 	ChannelID                    snowflake.ID                                `json:"channel_id,omitempty"`
 	Channel                      InteractionChannel                          `json:"channel,omitempty"`
@@ -55,6 +56,7 @@ type Interaction interface {
 	ApplicationID() snowflake.ID
 	Token() string
 	Version() int
+	PartialGuild() *InteractionGuild
 	GuildID() *snowflake.ID
 	// Deprecated: Use Interaction.Channel instead
 	ChannelID() snowflake.ID
@@ -202,4 +204,10 @@ func (c InteractionChannel) MarshalJSON() ([]byte, error) {
 	}
 
 	return json.Merge(mData, pData)
+}
+
+type InteractionGuild struct {
+	ID       snowflake.ID   `json:"id"`
+	Locale   Locale         `json:"locale"`
+	Features []GuildFeature `json:"features"`
 }

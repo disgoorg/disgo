@@ -18,7 +18,7 @@ func New(publicKey string, eventHandlerFunc EventHandlerFunc, opts ...ConfigOpt)
 
 	hexDecodedKey, err := hex.DecodeString(publicKey)
 	if err != nil {
-		config.Logger.Debug("error while decoding hex string", slog.String("err", err.Error()))
+		config.Logger.Debug("error while decoding hex string", slog.Any("err", err))
 	}
 
 	return &serverImpl{
@@ -47,7 +47,7 @@ func (s *serverImpl) Start() {
 			err = s.config.HTTPServer.ListenAndServe()
 		}
 		if !errors.Is(err, http.ErrServerClosed) {
-			s.config.Logger.Error("error while running http server", slog.String("err", err.Error()))
+			s.config.Logger.Error("error while running http server", slog.Any("err", err))
 		}
 	}()
 }

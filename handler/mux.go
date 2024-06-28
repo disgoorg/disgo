@@ -11,7 +11,7 @@ import (
 )
 
 var defaultErrorHandler ErrorHandler = func(event *InteractionEvent, err error) {
-	event.Client().Logger().Error("error handling interaction", slog.String("err", err.Error()))
+	event.Client().Logger().Error("error handling interaction", slog.Any("err", err))
 }
 
 // New returns a new Router.

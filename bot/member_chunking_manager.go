@@ -120,7 +120,7 @@ func (m *memberChunkingManagerImpl) HandleChunk(payload gateway.EventGuildMember
 	request, ok := m.chunkingRequests[payload.Nonce]
 	m.chunkingRequestsMu.RUnlock()
 	if !ok {
-		m.logger.Debug("received unknown member chunk event: ", slog.Any("payload", payload))
+		m.logger.Debug("received unknown member chunk event", slog.Any("payload", payload))
 		return
 	}
 

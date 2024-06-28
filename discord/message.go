@@ -48,6 +48,7 @@ const (
 	_
 	MessageTypeStageTopic
 	MessageTypeGuildApplicationPremiumSubscription
+	MessageTypePurchaseNotification MessageType = 44
 )
 
 func (t MessageType) System() bool {
@@ -63,9 +64,7 @@ func (t MessageType) System() bool {
 func (t MessageType) Deleteable() bool {
 	switch t {
 	case MessageTypeRecipientAdd, MessageTypeRecipientRemove, MessageTypeCall,
-		MessageTypeChannelNameChange, MessageTypeChannelIconChange, MessageTypeGuildDiscoveryDisqualified,
-		MessageTypeGuildDiscoveryRequalified, MessageTypeGuildDiscoveryGracePeriodInitialWarning,
-		MessageTypeGuildDiscoveryGracePeriodFinalWarning, MessageTypeThreadStarterMessage:
+		MessageTypeChannelNameChange, MessageTypeChannelIconChange, MessageTypeThreadStarterMessage:
 		return false
 
 	default:
@@ -81,13 +80,14 @@ func MessageURL(guildID snowflake.ID, channelID snowflake.ID, messageID snowflak
 
 // Message is a struct for messages sent in discord text-based channels
 type Message struct {
-	ID                   snowflake.ID          `json:"id"`
-	GuildID              *snowflake.ID         `json:"guild_id"`
-	Reactions            []MessageReaction     `json:"reactions"`
-	Attachments          []Attachment          `json:"attachments"`
-	TTS                  bool                  `json:"tts"`
-	Embeds               []Embed               `json:"embeds,omitempty"`
-	Components           []ContainerComponent  `json:"components,omitempty"`
+	ID          snowflake.ID         `json:"id"`
+	GuildID     *snowflake.ID        `json:"guild_id"`
+	Reactions   []MessageReaction    `json:"reactions"`
+	Attachments []Attachment         `json:"attachments"`
+	TTS         bool                 `json:"tts"`
+	Embeds      []Embed              `json:"embeds,omitempty"`
+	Components  []ContainerComponent `json:"components,omitempty"`
+	// Note: for message update events, this field is populated by the creation of the ID during unmarshalling
 	CreatedAt            time.Time             `json:"timestamp"`
 	Mentions             []User                `json:"mentions"`
 	MentionEveryone      bool                  `json:"mention_everyone"`
@@ -117,6 +117,7 @@ type Message struct {
 	InteractionMetadata  *InteractionMetadata  `json:"interaction_metadata,omitempty"`
 	Resolved             *ResolvedData         `json:"resolved,omitempty"`
 	Poll                 *Poll                 `json:"poll,omitempty"`
+	Call                 *MessageCall          `json:"call,omitempty"`
 }
 
 func (m *Message) UnmarshalJSON(data []byte) error {
@@ -371,6 +372,13 @@ type ReactionCountDetails struct {
 	Normal int `json:"normal"`
 }
 
+type MessageReactionType int
+
+const (
+	MessageReactionTypeNormal MessageReactionType = iota
+	MessageReactionTypeBurst
+)
+
 // MessageActivityType is the type of MessageActivity https://com/developers/docs/resources/channel#message-object-message-activity-types
 type MessageActivityType int
 
@@ -502,4 +510,9 @@ type InteractionMetadata struct {
 	Name                          *string                                     `json:"name"`
 	InteractedMessageID           *snowflake.ID                               `json:"interacted_message_id"`
 	TriggeringInteractionMetadata *InteractionMetadata                        `json:"triggering_interaction_metadata"`
+}
+
+type MessageCall struct {
+	Participants   []snowflake.ID `json:"participants"`
+	EndedTimestamp *time.Time     `json:"ended_timestamp"`
 }

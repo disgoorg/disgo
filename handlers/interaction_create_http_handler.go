@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"log/slog"
+
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/httpserver"
@@ -18,7 +20,7 @@ func (h *httpserverHandlerInteractionCreate) HandleHTTPEvent(client bot.Client, 
 		if err := respondFunc(discord.InteractionResponse{
 			Type: discord.InteractionResponseTypePong,
 		}); err != nil {
-			client.Logger().Error("failed to respond to http interaction ping: ", err)
+			client.Logger().Error("failed to respond to http interaction ping", slog.Any("err", err))
 		}
 		return
 	}
