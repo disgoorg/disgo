@@ -256,6 +256,7 @@ type OAuth2Guild struct {
 	ID                       snowflake.ID   `json:"id"`
 	Name                     string         `json:"name"`
 	Icon                     *string        `json:"icon"`
+	Banner                   *string        `json:"banner"`
 	Owner                    bool           `json:"owner"`
 	Permissions              Permissions    `json:"permissions"`
 	Features                 []GuildFeature `json:"features"`
