@@ -427,12 +427,15 @@ type MessageSnapshot struct {
 }
 
 type PartialMessage struct {
-	Content         string       `json:"content,omitempty"`
-	Embeds          []Embed      `json:"embeds,omitempty"`
-	Attachments     []Attachment `json:"attachments"`
-	CreatedAt       time.Time    `json:"timestamp"`
-	EditedTimestamp *time.Time   `json:"edited_timestamp"`
-	Flags           MessageFlags `json:"flags"`
+	Type            MessageType    `json:"type"`
+	Content         string         `json:"content,omitempty"`
+	Embeds          []Embed        `json:"embeds,omitempty"`
+	Attachments     []Attachment   `json:"attachments"`
+	CreatedAt       time.Time      `json:"timestamp"`
+	EditedTimestamp *time.Time     `json:"edited_timestamp"`
+	Flags           MessageFlags   `json:"flags"`
+	Mentions        []User         `json:"mentions"`
+	MentionRoles    []snowflake.ID `json:"mention_roles"`
 }
 
 // MessageInteraction is sent on the Message object when the message is a response to an interaction
