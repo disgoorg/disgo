@@ -264,6 +264,22 @@ type OAuth2Guild struct {
 	ApproximatePresenceCount int            `json:"approximate_presence_count"`
 }
 
+func (g OAuth2Guild) IconURL(opts ...CDNOpt) *string {
+	if g.Icon == nil {
+		return nil
+	}
+	url := formatAssetURL(GuildIcon, opts, g.ID, *g.Icon)
+	return &url
+}
+
+func (g OAuth2Guild) BannerURL(opts ...CDNOpt) *string {
+	if g.Banner == nil {
+		return nil
+	}
+	url := formatAssetURL(GuildBanner, opts, g.ID, *g.Banner)
+	return &url
+}
+
 // GuildWelcomeScreen is the Welcome Screen of a Guild
 type GuildWelcomeScreen struct {
 	Description     *string               `json:"description,omitempty"`
