@@ -28,6 +28,7 @@ const (
 	ConnectionTypePlayStationNetwork ConnectionType = "playstation"
 	ConnectionTypeReddit             ConnectionType = "reddit"
 	ConnectionTypeRiotGames          ConnectionType = "riotgames"
+	ConnectionTypeRoblox             ConnectionType = "roblox"
 	ConnectionTypeSpotify            ConnectionType = "spotify"
 	ConnectionTypeSkype              ConnectionType = "skype"
 	ConnectionTypeSteam              ConnectionType = "steam"
