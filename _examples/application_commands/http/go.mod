@@ -6,7 +6,7 @@ replace github.com/disgoorg/disgo => ../../../
 
 require (
 	github.com/disgoorg/disgo v0.18.8
-	github.com/disgoorg/snowflake/v2 v2.0.2
+	github.com/disgoorg/snowflake/v2 v2.0.3
 	github.com/oasisprotocol/curve25519-voi v0.0.0-20230904125328-1f23a7beb09a
 )
 
