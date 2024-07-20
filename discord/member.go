@@ -16,6 +16,7 @@ type Member struct {
 	User                       User                  `json:"user"`
 	Nick                       *string               `json:"nick"`
 	Avatar                     *string               `json:"avatar"`
+	Banner                     *string               `json:"banner"`
 	RoleIDs                    []snowflake.ID        `json:"roles,omitempty"`
 	JoinedAt                   time.Time             `json:"joined_at"`
 	PremiumSince               *time.Time            `json:"premium_since,omitempty"`
@@ -53,10 +54,7 @@ func (m Member) EffectiveAvatarURL(opts ...CDNOpt) string {
 	if m.Avatar == nil {
 		return m.User.EffectiveAvatarURL(opts...)
 	}
-	if avatar := m.AvatarURL(opts...); avatar != nil {
-		return *avatar
-	}
-	return ""
+	return formatAssetURL(MemberAvatar, opts, m.GuildID, m.User.ID, *m.Avatar)
 }
 
 // AvatarURL returns the guild-specific avatar URL of the user if set or nil
@@ -65,6 +63,26 @@ func (m Member) AvatarURL(opts ...CDNOpt) *string {
 		return nil
 	}
 	url := formatAssetURL(MemberAvatar, opts, m.GuildID, m.User.ID, *m.Avatar)
+	return &url
+}
+
+// EffectiveBannerURL returns the guild-specific banner URL of the user if set, falling back to the banner URL of the user
+func (m Member) EffectiveBannerURL(opts ...CDNOpt) string {
+	if m.Banner == nil {
+		if banner := m.User.BannerURL(opts...); banner != nil {
+			return *banner
+		}
+		return ""
+	}
+	return formatAssetURL(MemberBanner, opts, m.GuildID, m.User.ID, *m.Banner)
+}
+
+// BannerURL returns the guild-specific banner URL of the user if set or nil
+func (m Member) BannerURL(opts ...CDNOpt) *string {
+	if m.Banner == nil {
+		return nil
+	}
+	url := formatAssetURL(MemberBanner, opts, m.GuildID, m.User.ID, *m.Banner)
 	return &url
 }
 
