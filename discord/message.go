@@ -80,14 +80,13 @@ func MessageURL(guildID snowflake.ID, channelID snowflake.ID, messageID snowflak
 
 // Message is a struct for messages sent in discord text-based channels
 type Message struct {
-	ID          snowflake.ID         `json:"id"`
-	GuildID     *snowflake.ID        `json:"guild_id"`
-	Reactions   []MessageReaction    `json:"reactions"`
-	Attachments []Attachment         `json:"attachments"`
-	TTS         bool                 `json:"tts"`
-	Embeds      []Embed              `json:"embeds,omitempty"`
-	Components  []ContainerComponent `json:"components,omitempty"`
-	// Note: for message update events, this field is populated by the creation of the ID during unmarshalling
+	ID                   snowflake.ID          `json:"id"`
+	GuildID              *snowflake.ID         `json:"guild_id"`
+	Reactions            []MessageReaction     `json:"reactions"`
+	Attachments          []Attachment          `json:"attachments"`
+	TTS                  bool                  `json:"tts"`
+	Embeds               []Embed               `json:"embeds,omitempty"`
+	Components           []ContainerComponent  `json:"components,omitempty"`
 	CreatedAt            time.Time             `json:"timestamp"`
 	Mentions             []User                `json:"mentions"`
 	MentionEveryone      bool                  `json:"mention_everyone"`
