@@ -13,17 +13,15 @@ const (
 )
 
 type SoundboardSound struct {
-	Name         string        `json:"name"`
-	SoundID      snowflake.ID  `json:"sound_id"`
-	ID           *snowflake.ID `json:"id"`
-	Volume       float64       `json:"volume"`
-	EmojiID      *snowflake.ID `json:"emoji_id"`
-	EmojiName    *string       `json:"emoji_name"`
-	OverridePath *string       `json:"override_path"`
-	GuildID      *snowflake.ID `json:"guild_id,omitempty"`
-	UserID       snowflake.ID  `json:"user_id"`
-	Available    *bool         `json:"available,omitempty"`
-	User         *User         `json:"user"`
+	Name      string        `json:"name"`
+	SoundID   snowflake.ID  `json:"sound_id"`
+	Volume    float64       `json:"volume"`
+	EmojiID   *snowflake.ID `json:"emoji_id"`
+	EmojiName *string       `json:"emoji_name"`
+	GuildID   *snowflake.ID `json:"guild_id,omitempty"`
+	UserID    snowflake.ID  `json:"user_id"`
+	Available *bool         `json:"available,omitempty"`
+	User      *User         `json:"user"`
 }
 
 type SoundboardSoundCreate struct {
