@@ -19,7 +19,6 @@ type SoundboardSound struct {
 	EmojiID   *snowflake.ID `json:"emoji_id"`
 	EmojiName *string       `json:"emoji_name"`
 	GuildID   *snowflake.ID `json:"guild_id,omitempty"`
-	UserID    snowflake.ID  `json:"user_id"`
 	Available *bool         `json:"available,omitempty"`
 	User      *User         `json:"user"`
 }
