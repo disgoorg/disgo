@@ -14,6 +14,7 @@ const (
 	EmbedTypeArticle               EmbedType = "article"
 	EmbedTypeLink                  EmbedType = "link"
 	EmbedTypeAutoModerationMessage EmbedType = "auto_moderation_message"
+	EmbedTypePollResult            EmbedType = "poll_result"
 )
 
 // Embed allows you to send embeds to discord
