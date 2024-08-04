@@ -7,12 +7,13 @@ type EmbedType string
 
 // Constants for EmbedType
 const (
-	EmbedTypeRich    EmbedType = "rich"
-	EmbedTypeImage   EmbedType = "image"
-	EmbedTypeVideo   EmbedType = "video"
-	EmbedTypeGifV    EmbedType = "rich"
-	EmbedTypeArticle EmbedType = "article"
-	EmbedTypeLink    EmbedType = "link"
+	EmbedTypeRich                  EmbedType = "rich"
+	EmbedTypeImage                 EmbedType = "image"
+	EmbedTypeVideo                 EmbedType = "video"
+	EmbedTypeGifV                  EmbedType = "gifv"
+	EmbedTypeArticle               EmbedType = "article"
+	EmbedTypeLink                  EmbedType = "link"
+	EmbedTypeAutoModerationMessage EmbedType = "auto_moderation_message"
 )
 
 // Embed allows you to send embeds to discord
