@@ -229,6 +229,7 @@ var (
 // Stickers
 var (
 	GetNitroStickerPacks = NewEndpoint(http.MethodGet, "/sticker-packs")
+	GetNitroStickerPack  = NewEndpoint(http.MethodGet, "/sticker-packs/{pack.id}")
 	GetSticker           = NewEndpoint(http.MethodGet, "/stickers/{sticker.id}")
 	GetGuildStickers     = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/stickers")
 	CreateGuildSticker   = NewEndpoint(http.MethodPost, "/guilds/{guild.id}/stickers")
