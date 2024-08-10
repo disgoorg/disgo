@@ -38,6 +38,7 @@ type Application struct {
 	CoverImage                     *string                           `json:"cover_image,omitempty"`
 	Flags                          ApplicationFlags                  `json:"flags,omitempty"`
 	ApproximateGuildCount          *int                              `json:"approximate_guild_count,omitempty"`
+	ApproximateUserInstallCount    *int                              `json:"approximate_user_install_count,omitempty"`
 	IntegrationTypesConfig         ApplicationIntegrationTypesConfig `json:"integration_types_config"`
 }
 
