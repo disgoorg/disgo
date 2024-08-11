@@ -174,7 +174,7 @@ func (l *AuditLog) UnmarshalJSON(data []byte) error {
 // AuditLogEntry (https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object)
 type AuditLogEntry struct {
 	TargetID   *snowflake.ID              `json:"target_id"`
-	Changes    []AuditLogChangeKey        `json:"changes"`
+	Changes    []AuditLogChange           `json:"changes"`
 	UserID     snowflake.ID               `json:"user_id"`
 	ID         snowflake.ID               `json:"id"`
 	ActionType AuditLogEvent              `json:"action_type"`
@@ -182,63 +182,25 @@ type AuditLogEntry struct {
 	Reason     *string                    `json:"reason"`
 }
 
-// AuditLogChangeKey (https://discord.com/developers/docs/resources/audit-log#audit-log-change-object-audit-log-change-key) is data representing changes values/settings in an audit log.
-type AuditLogChangeKey struct {
-	Name                        *string                     `json:"name"`
-	Description                 *string                     `json:"description"`
-	IconHash                    *string                     `json:"icon_hash"`
-	SplashHash                  *string                     `json:"splash_hash"`
-	DiscoverySplashHash         *string                     `json:"discovery_splash_hash"`
-	BannerHash                  *string                     `json:"banner_hash"`
-	OwnerID                     *snowflake.ID               `json:"owner_id"`
-	Region                      *string                     `json:"region"`
-	PreferredLocale             *string                     `json:"preferred_locale"`
-	AFKChannelID                *snowflake.ID               `json:"afk_channel_id"`
-	AFKTimeout                  *int                        `json:"afk_timeout"`
-	RulesChannelID              *snowflake.ID               `json:"rules_channel_id"`
-	PublicUpdatesChannelID      *snowflake.ID               `json:"public_updates_channel_id"`
-	MFALevel                    *MFALevel                   `json:"mfa_level"`
-	VerificationLevel           *VerificationLevel          `json:"verification_level"`
-	ExplicitContentFilterLevel  *ExplicitContentFilterLevel `json:"explicit_content_filter"`
-	DefaultMessageNotifications *MessageNotificationsLevel  `json:"default_message_notifications"`
-	VanityURLCode               *string                     `json:"vanity_url_code"`
-	Add                         []PartialRole               `json:"$add"`
-	Remove                      []PartialRole               `json:"$remove"`
-	PruneDeleteDays             *int                        `json:"prune_delete_days"`
-	WidgetEnabled               *bool                       `json:"widget_enabled"`
-	WidgetChannelID             *string                     `json:"widget_channel_id"`
-	SystemChannelID             *string                     `json:"system_channel_id"`
-	Position                    *int                        `json:"position"`
-	Topic                       *string                     `json:"topic"`
-	Bitrate                     *int                        `json:"bitrate"`
-	PermissionOverwrites        []PermissionOverwrite       `json:"permission_overwrites"`
-	NSFW                        *bool                       `json:"nsfw"`
-	ApplicationID               *snowflake.ID               `json:"application_id"`
-	RateLimitPerUser            *int                        `json:"ratelimit_per_user"`
-	Permissions                 *string                     `json:"permissions"`
-	Color                       *int                        `json:"color"`
-	Hoist                       *bool                       `json:"hoist"`
-	Mentionable                 *bool                       `json:"mentionable"`
-	Allow                       *Permissions                `json:"allow"`
-	Deny                        *Permissions                `json:"deny"`
-	Code                        *string                     `json:"code"`
-	ChannelID                   *snowflake.ID               `json:"channel_id"`
-	InviterID                   *snowflake.ID               `json:"inviter_id"`
-	MaxUses                     *int                        `json:"max_uses"`
-	Uses                        *int                        `json:"uses"`
-	MaxAge                      *string                     `json:"max_age"`
-	Temporary                   *bool                       `json:"temporary"`
-	Deaf                        *bool                       `json:"deaf"`
-	Mute                        *bool                       `json:"mute"`
-	Nick                        *string                     `json:"nick"`
-	AvatarHash                  *string                     `json:"avatar_hash"`
-	ID                          *snowflake.ID               `json:"id"`
-	Type                        any                         `json:"type"`
-	EnableEmoticons             *bool                       `json:"enable_emoticons"`
-	ExpireBehavior              *IntegrationExpireBehavior  `json:"expire_behavior"`
-	ExpireGracePeriod           *int                        `json:"expire_grace_period"`
-	UserLimit                   *int                        `json:"user_limit"`
-	PrivacyLevel                *StagePrivacyLevel          `json:"privacy_level"`
+// AuditLogChange (https://discord.com/developers/docs/resources/audit-log#audit-log-change-object) contains what was changed.
+// For a list of possible keys & values see the discord documentation.
+type AuditLogChange struct {
+	// NewValue is the new value of the key after the change as a json.RawMessage.
+	NewValue json.RawMessage `json:"new_value"`
+	// OldValue is the old value of the key before the change as a json.RawMessage.
+	OldValue json.RawMessage `json:"old_value"`
+	// Key is the key of the change.
+	Key string `json:"key"`
+}
+
+// UnmarshalNewValue unmarshals the NewValue field into the provided type.
+func (c *AuditLogChange) UnmarshalNewValue(v any) error {
+	return json.Unmarshal(c.NewValue, v)
+}
+
+// UnmarshalOldValue unmarshals the OldValue field into the provided type.
+func (c *AuditLogChange) UnmarshalOldValue(v any) error {
+	return json.Unmarshal(c.OldValue, v)
 }
 
 // OptionalAuditLogEntryInfo (https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object-optional-audit-entry-info)
