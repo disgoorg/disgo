@@ -468,7 +468,18 @@ func (EventInteractionCreate) messageData() {}
 func (EventInteractionCreate) eventData()   {}
 
 type EventInviteCreate struct {
-	discord.Invite
+	ChannelID         snowflake.ID                `json:"channel_id"`
+	Code              string                      `json:"code"`
+	CreatedAt         time.Time                   `json:"created_at"`
+	GuildID           *snowflake.ID               `json:"guild_id"`
+	Inviter           *discord.User               `json:"inviter"`
+	MaxAge            int                         `json:"max_age"`
+	MaxUses           int                         `json:"max_uses"`
+	TargetType        discord.InviteTargetType    `json:"target_type"`
+	TargetUser        *discord.User               `json:"target_user"`
+	TargetApplication *discord.PartialApplication `json:"target_application"`
+	Temporary         bool                        `json:"temporary"`
+	Uses              int                         `json:"uses"`
 }
 
 func (EventInviteCreate) messageData() {}
