@@ -8,9 +8,6 @@ import (
 // AuditLogEvent is an 8-bit unsigned integer representing an audit log event.
 type AuditLogEvent int
 
-// AuditLogChangeKey is a string representing a key in the audit log change object.
-type AuditLogChangeKey string
-
 const (
 	AuditLogEventGuildUpdate AuditLogEvent = 1
 )
@@ -124,6 +121,9 @@ const (
 	AuditLogHomeSettingsCreate AuditLogEvent = iota + 190
 	AuditLogHomeSettingsUpdate
 )
+
+// AuditLogChangeKey is a string representing a key in the audit log change object.
+type AuditLogChangeKey string
 
 const (
 	AuditLogChangeKeyAFKChannelID AuditLogChangeKey = "afk_channel_id"
