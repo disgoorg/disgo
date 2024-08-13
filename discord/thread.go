@@ -80,7 +80,7 @@ func (GuildPublicThreadCreate) Type() ChannelType {
 type GuildPrivateThreadCreate struct {
 	Name                string              `json:"name"`
 	AutoArchiveDuration AutoArchiveDuration `json:"auto_archive_duration,omitempty"`
-	Invitable           bool                `json:"invitable,omitempty"`
+	Invitable           *bool               `json:"invitable,omitempty"`
 }
 
 func (c GuildPrivateThreadCreate) MarshalJSON() ([]byte, error) {
