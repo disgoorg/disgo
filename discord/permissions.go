@@ -66,6 +66,7 @@ const (
 	_
 	_
 	PermissionSendPolls
+	PermissionUseExternalApps
 
 	PermissionsAllText = PermissionViewChannel |
 		PermissionSendMessages |
@@ -76,7 +77,8 @@ const (
 		PermissionReadMessageHistory |
 		PermissionMentionEveryone |
 		PermissionSendVoiceMessages |
-		PermissionSendPolls
+		PermissionSendPolls |
+		PermissionUseExternalApps
 
 	PermissionsAllThread = PermissionManageThreads |
 		PermissionCreatePublicThreads |
@@ -175,6 +177,7 @@ var permissions = map[Permissions]string{
 	PermissionViewGuildInsights:                "View Server Insights",
 	PermissionSendVoiceMessages:                "Send Voice Messages",
 	PermissionSendPolls:                        "Create Polls",
+	PermissionUseExternalApps:                  "Use External Apps",
 }
 
 func (p Permissions) String() string {

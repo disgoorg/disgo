@@ -106,10 +106,7 @@ func (u User) EffectiveAvatarURL(opts ...CDNOpt) string {
 	if u.Avatar == nil {
 		return u.DefaultAvatarURL(opts...)
 	}
-	if avatar := u.AvatarURL(opts...); avatar != nil {
-		return *avatar
-	}
-	return ""
+	return formatAssetURL(UserAvatar, opts, u.ID, *u.Avatar)
 }
 
 // AvatarURL returns the avatar URL of the user if set or nil

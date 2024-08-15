@@ -48,7 +48,6 @@ package disgo
 import (
 	"runtime"
 	"runtime/debug"
-	"strings"
 
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/handlers"
@@ -68,9 +67,6 @@ var (
 	Version = getVersion()
 
 	SemVersion = "semver:" + Version
-
-	// OS is the currently used OS
-	OS = getOS()
 )
 
 func getVersion() string {
@@ -85,17 +81,6 @@ func getVersion() string {
 	return "unknown"
 }
 
-func getOS() string {
-	os := runtime.GOOS
-	if strings.HasPrefix(os, "windows") {
-		return "windows"
-	}
-	if strings.HasPrefix(os, "darwin") {
-		return "darwin"
-	}
-	return "linux"
-}
-
 // New creates a new bot.Client with the provided token & bot.ConfigOpt(s)
 func New(token string, opts ...bot.ConfigOpt) (bot.Client, error) {
 	config := bot.DefaultConfig(handlers.GetGatewayHandlers(), handlers.GetHTTPServerHandler())
@@ -105,7 +90,7 @@ func New(token string, opts ...bot.ConfigOpt) (bot.Client, error) {
 		config,
 		handlers.DefaultGatewayEventHandlerFunc,
 		handlers.DefaultHTTPServerEventHandlerFunc,
-		OS,
+		runtime.GOOS,
 		Name,
 		GitHub,
 		Version,

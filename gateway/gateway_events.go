@@ -462,7 +462,18 @@ func (EventInteractionCreate) messageData() {}
 func (EventInteractionCreate) eventData()   {}
 
 type EventInviteCreate struct {
-	discord.Invite
+	ChannelID         snowflake.ID                `json:"channel_id"`
+	Code              string                      `json:"code"`
+	CreatedAt         time.Time                   `json:"created_at"`
+	GuildID           *snowflake.ID               `json:"guild_id"`
+	Inviter           *discord.User               `json:"inviter"`
+	MaxAge            int                         `json:"max_age"`
+	MaxUses           int                         `json:"max_uses"`
+	TargetType        discord.InviteTargetType    `json:"target_type"`
+	TargetUser        *discord.User               `json:"target_user"`
+	TargetApplication *discord.PartialApplication `json:"target_application"`
+	Temporary         bool                        `json:"temporary"`
+	Uses              int                         `json:"uses"`
 }
 
 func (EventInviteCreate) messageData() {}
@@ -486,17 +497,6 @@ func (EventMessageCreate) eventData()   {}
 
 type EventMessageUpdate struct {
 	discord.Message
-}
-
-func (e *EventMessageUpdate) UnmarshalJSON(data []byte) error {
-	type eventMessageUpdate EventMessageUpdate
-	var v eventMessageUpdate
-	if err := json.Unmarshal(data, &v); err != nil {
-		return err
-	}
-	*e = EventMessageUpdate(v)
-	e.CreatedAt = e.ID.Time()
-	return nil
 }
 
 func (EventMessageUpdate) messageData() {}

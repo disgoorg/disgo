@@ -48,6 +48,7 @@ const (
 	_
 	MessageTypeStageTopic
 	MessageTypeGuildApplicationPremiumSubscription
+	MessageTypePurchaseNotification MessageType = 44
 )
 
 func (t MessageType) System() bool {
@@ -63,9 +64,7 @@ func (t MessageType) System() bool {
 func (t MessageType) Deleteable() bool {
 	switch t {
 	case MessageTypeRecipientAdd, MessageTypeRecipientRemove, MessageTypeCall,
-		MessageTypeChannelNameChange, MessageTypeChannelIconChange, MessageTypeGuildDiscoveryDisqualified,
-		MessageTypeGuildDiscoveryRequalified, MessageTypeGuildDiscoveryGracePeriodInitialWarning,
-		MessageTypeGuildDiscoveryGracePeriodFinalWarning, MessageTypeThreadStarterMessage:
+		MessageTypeChannelNameChange, MessageTypeChannelIconChange, MessageTypeThreadStarterMessage:
 		return false
 
 	default:
@@ -81,14 +80,13 @@ func MessageURL(guildID snowflake.ID, channelID snowflake.ID, messageID snowflak
 
 // Message is a struct for messages sent in discord text-based channels
 type Message struct {
-	ID          snowflake.ID         `json:"id"`
-	GuildID     *snowflake.ID        `json:"guild_id"`
-	Reactions   []MessageReaction    `json:"reactions"`
-	Attachments []Attachment         `json:"attachments"`
-	TTS         bool                 `json:"tts"`
-	Embeds      []Embed              `json:"embeds,omitempty"`
-	Components  []ContainerComponent `json:"components,omitempty"`
-	// Note: for message update events, this field is populated by the creation of the ID during unmarshalling
+	ID                   snowflake.ID          `json:"id"`
+	GuildID              *snowflake.ID         `json:"guild_id"`
+	Reactions            []MessageReaction     `json:"reactions"`
+	Attachments          []Attachment          `json:"attachments"`
+	TTS                  bool                  `json:"tts"`
+	Embeds               []Embed               `json:"embeds,omitempty"`
+	Components           []ContainerComponent  `json:"components,omitempty"`
 	CreatedAt            time.Time             `json:"timestamp"`
 	Mentions             []User                `json:"mentions"`
 	MentionEveryone      bool                  `json:"mention_everyone"`
@@ -103,6 +101,7 @@ type Message struct {
 	Type                 MessageType           `json:"type"`
 	Flags                MessageFlags          `json:"flags"`
 	MessageReference     *MessageReference     `json:"message_reference,omitempty"`
+	MessageSnapshots     []MessageSnapshot     `json:"message_snapshots,omitempty"`
 	Interaction          *MessageInteraction   `json:"interaction,omitempty"`
 	WebhookID            *snowflake.ID         `json:"webhook_id,omitempty"`
 	Activity             *MessageActivity      `json:"activity,omitempty"`
@@ -408,10 +407,34 @@ type MessageApplication struct {
 
 // MessageReference is a reference to another message
 type MessageReference struct {
-	MessageID       *snowflake.ID `json:"message_id"`
-	ChannelID       *snowflake.ID `json:"channel_id,omitempty"`
-	GuildID         *snowflake.ID `json:"guild_id,omitempty"`
-	FailIfNotExists bool          `json:"fail_if_not_exists,omitempty"`
+	Type            MessageReferenceType `json:"type,omitempty"`
+	MessageID       *snowflake.ID        `json:"message_id"`
+	ChannelID       *snowflake.ID        `json:"channel_id,omitempty"`
+	GuildID         *snowflake.ID        `json:"guild_id,omitempty"`
+	FailIfNotExists bool                 `json:"fail_if_not_exists,omitempty"`
+}
+
+type MessageReferenceType int
+
+const (
+	MessageReferenceTypeDefault MessageReferenceType = iota
+	MessageReferenceTypeForward
+)
+
+type MessageSnapshot struct {
+	Message PartialMessage `json:"message"`
+}
+
+type PartialMessage struct {
+	Type            MessageType    `json:"type"`
+	Content         string         `json:"content,omitempty"`
+	Embeds          []Embed        `json:"embeds,omitempty"`
+	Attachments     []Attachment   `json:"attachments"`
+	CreatedAt       time.Time      `json:"timestamp"`
+	EditedTimestamp *time.Time     `json:"edited_timestamp"`
+	Flags           MessageFlags   `json:"flags"`
+	Mentions        []User         `json:"mentions"`
+	MentionRoles    []snowflake.ID `json:"mention_roles"`
 }
 
 // MessageInteraction is sent on the Message object when the message is a response to an interaction
