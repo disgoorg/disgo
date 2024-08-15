@@ -28,6 +28,7 @@ var (
 	ChannelIcon = NewCDN("/channel-icons/{channel.id}/{channel.icon.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP)
 
 	MemberAvatar = NewCDN("/guilds/{guild.id}/users/{user.id}/avatars/{member.avatar.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP, FileFormatGIF)
+	MemberBanner = NewCDN("/guilds/{guild.id}/users/{user.id}/banners/{member.avatar.hash}", FileFormatPNG, FileFormatJPEG, FileFormatWebP, FileFormatGIF)
 
 	AvatarDecoration = NewCDN("/avatar-decoration-presets/{user.avatar.decoration.hash}", FileFormatPNG)
 

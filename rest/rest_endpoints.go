@@ -93,6 +93,8 @@ var (
 	GetGuildOnboarding    = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/onboarding")
 	UpdateGuildOnboarding = NewEndpoint(http.MethodPut, "/guilds/{guild.id}/onboarding")
 
+	GetCurrentUserVoiceState    = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/voice-states/@me")
+	GetUserVoiceState           = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/voice-states/{user.id}")
 	UpdateCurrentUserVoiceState = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/voice-states/@me")
 	UpdateUserVoiceState        = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/voice-states/{user.id}")
 )
@@ -235,6 +237,7 @@ var (
 // Stickers
 var (
 	GetNitroStickerPacks = NewEndpoint(http.MethodGet, "/sticker-packs")
+	GetNitroStickerPack  = NewEndpoint(http.MethodGet, "/sticker-packs/{pack.id}")
 	GetSticker           = NewEndpoint(http.MethodGet, "/stickers/{sticker.id}")
 	GetGuildStickers     = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/stickers")
 	CreateGuildSticker   = NewEndpoint(http.MethodPost, "/guilds/{guild.id}/stickers")
@@ -311,6 +314,12 @@ var (
 	ConsumeEntitlement    = NewEndpoint(http.MethodPost, "/applications/{application.id}/entitlements/{entitlement.id}/consume")
 
 	GetSKUs = NewEndpoint(http.MethodGet, "/applications/{application.id}/skus")
+
+	GetApplicationEmojis   = NewEndpoint(http.MethodGet, "/applications/{application.id}/emojis")
+	GetApplicationEmoji    = NewEndpoint(http.MethodGet, "/applications/{application.id}/emojis/{emoji.id}")
+	CreateApplicationEmoji = NewEndpoint(http.MethodPost, "/applications/{application.id}/emojis")
+	UpdateApplicationEmoji = NewEndpoint(http.MethodPatch, "/applications/{application.id}/emojis/{emoji.id}")
+	DeleteApplicationEmoji = NewEndpoint(http.MethodDelete, "/applications/{application.id}/emojis/{emoji.id}")
 )
 
 // NewEndpoint returns a new Endpoint which requires bot auth with the given http method & route.

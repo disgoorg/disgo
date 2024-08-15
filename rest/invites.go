@@ -16,8 +16,8 @@ type Invites interface {
 	GetInvite(code string, opts ...RequestOpt) (*discord.Invite, error)
 	CreateInvite(channelID snowflake.ID, inviteCreate discord.InviteCreate, opts ...RequestOpt) (*discord.Invite, error)
 	DeleteInvite(code string, opts ...RequestOpt) (*discord.Invite, error)
-	GetGuildInvites(guildID snowflake.ID, opts ...RequestOpt) ([]discord.Invite, error)
-	GetChannelInvites(channelID snowflake.ID, opts ...RequestOpt) ([]discord.Invite, error)
+	GetGuildInvites(guildID snowflake.ID, opts ...RequestOpt) ([]discord.ExtendedInvite, error)
+	GetChannelInvites(channelID snowflake.ID, opts ...RequestOpt) ([]discord.ExtendedInvite, error)
 }
 
 type inviteImpl struct {
@@ -39,12 +39,12 @@ func (s *inviteImpl) DeleteInvite(code string, opts ...RequestOpt) (invite *disc
 	return
 }
 
-func (s *inviteImpl) GetGuildInvites(guildID snowflake.ID, opts ...RequestOpt) (invites []discord.Invite, err error) {
+func (s *inviteImpl) GetGuildInvites(guildID snowflake.ID, opts ...RequestOpt) (invites []discord.ExtendedInvite, err error) {
 	err = s.client.Do(GetGuildInvites.Compile(nil, guildID), nil, &invites, opts...)
 	return
 }
 
-func (s *inviteImpl) GetChannelInvites(channelID snowflake.ID, opts ...RequestOpt) (invites []discord.Invite, err error) {
+func (s *inviteImpl) GetChannelInvites(channelID snowflake.ID, opts ...RequestOpt) (invites []discord.ExtendedInvite, err error) {
 	err = s.client.Do(GetChannelInvites.Compile(nil, channelID), nil, &invites, opts...)
 	return
 }

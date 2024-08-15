@@ -56,7 +56,7 @@ type Interaction interface {
 	ApplicationID() snowflake.ID
 	Token() string
 	Version() int
-	Guild() *InteractionGuild
+	PartialGuild() *InteractionGuild
 	GuildID() *snowflake.ID
 	// Deprecated: Use Interaction.Channel instead
 	ChannelID() snowflake.ID

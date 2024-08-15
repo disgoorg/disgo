@@ -22,7 +22,6 @@ type Invite struct {
 	Code                     string               `json:"code"`
 	Guild                    *InviteGuild         `json:"guild"`
 	Channel                  *InviteChannel       `json:"channel"`
-	ChannelID                snowflake.ID         `json:"channel_id"`
 	Inviter                  *User                `json:"inviter"`
 	TargetUser               *User                `json:"target_user"`
 	TargetType               InviteTargetType     `json:"target_user_type"`
