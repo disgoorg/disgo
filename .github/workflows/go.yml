@@ -2,7 +2,17 @@ name: Go
 
 on:
   push:
+    paths:
+      - '**/*.go'
+      - '**/go.mod'
+      - '**/go.sum'
+      - '.github/workflows/go.yml'
   pull_request_target:
+    paths:
+      - '**/*.go'
+      - '**/go.mod'
+      - '**/go.sum'
+      - '.github/workflows/go.yml'
 
 jobs:
   gobuild:
