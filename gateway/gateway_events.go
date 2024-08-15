@@ -463,6 +463,11 @@ type EventGuildSoundboardSoundDelete struct {
 func (EventGuildSoundboardSoundDelete) messageData() {}
 func (EventGuildSoundboardSoundDelete) eventData()   {}
 
+type EventGuildSoundboardSoundsUpdate []discord.SoundboardSound
+
+func (EventGuildSoundboardSoundsUpdate) messageData() {}
+func (EventGuildSoundboardSoundsUpdate) eventData()   {}
+
 type EventInteractionCreate struct {
 	discord.Interaction
 }

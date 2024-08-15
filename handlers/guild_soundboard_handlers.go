@@ -40,6 +40,17 @@ func gatewayHandlerGuildSoundboardSoundDelete(client bot.Client, sequenceNumber 
 	})
 }
 
+func gatewayHandlerGuildSoundboardSoundsUpdate(client bot.Client, sequenceNumber int, shardID int, event gateway.EventGuildSoundboardSoundsUpdate) {
+	for _, sound := range event {
+		client.Caches().AddGuildSoundboardSound(sound)
+	}
+
+	client.EventManager().DispatchEvent(&events.GuildSoundboardSoundsUpdate{
+		GenericEvent:     events.NewGenericEvent(client, sequenceNumber, shardID),
+		SoundboardSounds: event,
+	})
+}
+
 func gatewayHandlerSoundboardSounds(client bot.Client, sequenceNumber int, shardID int, event gateway.EventSoundboardSounds) {
 	client.EventManager().DispatchEvent(&events.SoundboardSounds{
 		GenericEvent:     events.NewGenericEvent(client, sequenceNumber, shardID),

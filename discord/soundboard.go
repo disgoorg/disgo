@@ -37,3 +37,8 @@ type SoundboardSoundUpdate struct {
 	EmojiID   *json.Nullable[snowflake.ID] `json:"emoji_id,omitempty"`
 	EmojiName *json.Nullable[string]       `json:"emoji_name,omitempty"`
 }
+
+type SendSoundboardSound struct {
+	SoundID       snowflake.ID  `json:"sound_id"`
+	SourceGuildID *snowflake.ID `json:"source_guild_id,omitempty"`
+}

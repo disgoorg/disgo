@@ -14,25 +14,25 @@ type StickersUpdate struct {
 	gateway.EventGuildStickersUpdate
 }
 
-// GenericSticker is called upon receiving StickerCreate , StickerUpdate or StickerDelete (requires gateway.IntentGuildEmojisAndStickers)
+// GenericSticker is called upon receiving StickerCreate , StickerUpdate or StickerDelete (requires gateway.IntentGuildExpressions)
 type GenericSticker struct {
 	*GenericEvent
 	GuildID snowflake.ID
 	Sticker discord.Sticker
 }
 
-// StickerCreate indicates that a new discord.Sticker got created in a discord.Guild (requires gateway.IntentGuildEmojisAndStickers)
+// StickerCreate indicates that a new discord.Sticker got created in a discord.Guild (requires gateway.IntentGuildExpressions)
 type StickerCreate struct {
 	*GenericSticker
 }
 
-// StickerUpdate indicates that a discord.Sticker got updated in a discord.Guild (requires gateway.IntentGuildEmojisAndStickers)
+// StickerUpdate indicates that a discord.Sticker got updated in a discord.Guild (requires gateway.IntentGuildExpressions)
 type StickerUpdate struct {
 	*GenericSticker
 	OldSticker discord.Sticker
 }
 
-// StickerDelete indicates that a discord.Sticker got deleted in a discord.Guild (requires gateway.IntentGuildEmojisAndStickers)
+// StickerDelete indicates that a discord.Sticker got deleted in a discord.Guild (requires gateway.IntentGuildExpressions)
 type StickerDelete struct {
 	*GenericSticker
 }

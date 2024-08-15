@@ -90,6 +90,7 @@ var allEventHandlers = []bot.GatewayEventHandler{
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildSoundboardSoundCreate, gatewayHandlerGuildSoundboardSoundCreate),
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildSoundboardSoundUpdate, gatewayHandlerGuildSoundboardSoundUpdate),
 	bot.NewGatewayEventHandler(gateway.EventTypeGuildSoundboardSoundDelete, gatewayHandlerGuildSoundboardSoundDelete),
+	bot.NewGatewayEventHandler(gateway.EventTypeGuildSoundboardSoundsUpdate, gatewayHandlerGuildSoundboardSoundsUpdate),
 	bot.NewGatewayEventHandler(gateway.EventTypeSoundboardSounds, gatewayHandlerSoundboardSounds),
 
 	bot.NewGatewayEventHandler(gateway.EventTypeIntegrationCreate, gatewayHandlerIntegrationCreate),

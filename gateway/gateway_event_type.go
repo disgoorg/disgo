@@ -52,6 +52,7 @@ const (
 	EventTypeGuildSoundboardSoundCreate          EventType = "GUILD_SOUNDBOARD_SOUND_CREATE"
 	EventTypeGuildSoundboardSoundUpdate          EventType = "GUILD_SOUNDBOARD_SOUND_UPDATE"
 	EventTypeGuildSoundboardSoundDelete          EventType = "GUILD_SOUNDBOARD_SOUND_DELETE"
+	EventTypeGuildSoundboardSoundsUpdate         EventType = "GUILD_SOUNDBOARD_SOUNDS_UPDATE"
 	EventTypeIntegrationCreate                   EventType = "INTEGRATION_CREATE"
 	EventTypeIntegrationUpdate                   EventType = "INTEGRATION_UPDATE"
 	EventTypeIntegrationDelete                   EventType = "INTEGRATION_DELETE"
