@@ -23,6 +23,10 @@ type SoundboardSound struct {
 	User      *User         `json:"user"`
 }
 
+func (s SoundboardSound) URL(opts ...CDNOpt) string {
+	return formatAssetURL(SoundboardSoundFile, opts, s.SoundID)
+}
+
 type SoundboardSoundCreate struct {
 	Name      string       `json:"name"`
 	Sound     Sound        `json:"sound"`
