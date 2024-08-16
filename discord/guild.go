@@ -384,3 +384,8 @@ type GuildPrune struct {
 type GuildPruneResult struct {
 	Pruned *int `json:"pruned"`
 }
+
+type GuildActiveThreads struct {
+	Threads []GuildThread  `json:"threads"`
+	Members []ThreadMember `json:"members"`
+}

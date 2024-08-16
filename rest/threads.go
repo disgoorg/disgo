@@ -30,6 +30,7 @@ type Threads interface {
 	GetPublicArchivedThreads(channelID snowflake.ID, before time.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
 	GetPrivateArchivedThreads(channelID snowflake.ID, before time.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
 	GetJoinedPrivateArchivedThreads(channelID snowflake.ID, before time.Time, limit int, opts ...RequestOpt) (threads *discord.GetThreads, err error)
+	GetActiveGuildThreads(guildID snowflake.ID, opts ...RequestOpt) (*discord.GuildActiveThreads, error)
 }
 
 type threadImpl struct {
@@ -130,6 +131,11 @@ func (s *threadImpl) GetJoinedPrivateArchivedThreads(channelID snowflake.ID, bef
 		queryValues["limit"] = limit
 	}
 	err = s.client.Do(GetJoinedPrivateArchivedThreads.Compile(queryValues, channelID), nil, &threads, opts...)
+	return
+}
+
+func (s *threadImpl) GetActiveGuildThreads(guildID snowflake.ID, opts ...RequestOpt) (activeThreads *discord.GuildActiveThreads, err error) {
+	err = s.client.Do(GetActiveGuildThreads.Compile(nil, guildID), nil, &activeThreads, opts...)
 	return
 }
 
