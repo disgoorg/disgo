@@ -48,7 +48,9 @@ const (
 	_
 	MessageTypeStageTopic
 	MessageTypeGuildApplicationPremiumSubscription
-	MessageTypePurchaseNotification MessageType = 44
+	MessageTypePurchaseNotification MessageType = iota + 11
+	_
+	MessageTypePollResult
 )
 
 func (t MessageType) System() bool {
