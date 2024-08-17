@@ -831,38 +831,55 @@ func New(opts ...ConfigOpt) Caches {
 
 	return &cachesImpl{
 		config:                   *config,
-		SelfUserCache:            config.SelfUserCache,
-		GuildCache:               config.GuildCache,
-		ChannelCache:             config.ChannelCache,
-		StageInstanceCache:       config.StageInstanceCache,
-		GuildScheduledEventCache: config.GuildScheduledEventCache,
-		RoleCache:                config.RoleCache,
-		MemberCache:              config.MemberCache,
-		ThreadMemberCache:        config.ThreadMemberCache,
-		PresenceCache:            config.PresenceCache,
-		VoiceStateCache:          config.VoiceStateCache,
-		MessageCache:             config.MessageCache,
-		EmojiCache:               config.EmojiCache,
-		StickerCache:             config.StickerCache,
+		selfUserCache:            config.SelfUserCache,
+		guildCache:               config.GuildCache,
+		channelCache:             config.ChannelCache,
+		stageInstanceCache:       config.StageInstanceCache,
+		guildScheduledEventCache: config.GuildScheduledEventCache,
+		roleCache:                config.RoleCache,
+		memberCache:              config.MemberCache,
+		threadMemberCache:        config.ThreadMemberCache,
+		presenceCache:            config.PresenceCache,
+		voiceStateCache:          config.VoiceStateCache,
+		messageCache:             config.MessageCache,
+		emojiCache:               config.EmojiCache,
+		stickerCache:             config.StickerCache,
 	}
 }
+
+// these type aliases are needed to allow having the GuildCache, ChannelCache, etc. as methods on the cachesImpl struct
+type (
+	guildCache               = GuildCache
+	channelCache             = ChannelCache
+	stageInstanceCache       = StageInstanceCache
+	guildScheduledEventCache = GuildScheduledEventCache
+	roleCache                = RoleCache
+	memberCache              = MemberCache
+	threadMemberCache        = ThreadMemberCache
+	presenceCache            = PresenceCache
+	voiceStateCache          = VoiceStateCache
+	messageCache             = MessageCache
+	emojiCache               = EmojiCache
+	stickerCache             = StickerCache
+	selfUserCache            = SelfUserCache
+)
 
 type cachesImpl struct {
 	config Config
 
-	GuildCache
-	ChannelCache
-	StageInstanceCache
-	GuildScheduledEventCache
-	RoleCache
-	MemberCache
-	ThreadMemberCache
-	PresenceCache
-	VoiceStateCache
-	MessageCache
-	EmojiCache
-	StickerCache
-	SelfUserCache
+	guildCache
+	channelCache
+	stageInstanceCache
+	guildScheduledEventCache
+	roleCache
+	memberCache
+	threadMemberCache
+	presenceCache
+	voiceStateCache
+	messageCache
+	emojiCache
+	stickerCache
+	selfUserCache
 }
 
 func (c *cachesImpl) CacheFlags() Flags {
