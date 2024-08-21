@@ -211,6 +211,18 @@ func (b *WebhookMessageUpdateBuilder) ClearAllowedMentions() *WebhookMessageUpda
 	return b.SetAllowedMentions(nil)
 }
 
+// SetPoll sets the Poll of the webhook Message
+func (b *WebhookMessageUpdateBuilder) SetPoll(poll PollCreate) *WebhookMessageUpdateBuilder {
+	b.Poll = &poll
+	return b
+}
+
+// ClearPoll clears the Poll of the webhook Message
+func (b *WebhookMessageUpdateBuilder) ClearPoll() *WebhookMessageUpdateBuilder {
+	b.Poll = nil
+	return b
+}
+
 // Build builds the WebhookMessageUpdateBuilder to a MessageUpdate struct
 func (b *WebhookMessageUpdateBuilder) Build() WebhookMessageUpdate {
 	return b.WebhookMessageUpdate
