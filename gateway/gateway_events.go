@@ -610,7 +610,7 @@ type EventVoiceChannelEffectSend struct {
 	Emoji         *discord.Emoji                           `json:"emoji"`
 	AnimationType *discord.VoiceChannelEffectAnimationType `json:"animation_type,omitempty"`
 	AnimationID   *int                                     `json:"animation_id,omitempty"`
-	SoundID       *snowflake.ID                            `json:"sound_id,string"`
+	SoundID       *snowflake.ID                            `json:"sound_id,omitempty"`
 	SoundVolume   *float64                                 `json:"sound_volume,omitempty"`
 }
 
