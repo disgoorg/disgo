@@ -885,7 +885,7 @@ func New(opts ...ConfigOpt) Caches {
 		channelCache:              config.ChannelCache,
 		stageInstanceCache:        config.StageInstanceCache,
 		guildScheduledEventCache:  config.GuildScheduledEventCache,
-    guildSoundboardSoundCache: config.GuildSoundboardSoundCache,
+		guildSoundboardSoundCache: config.GuildSoundboardSoundCache,
 		roleCache:                 config.RoleCache,
 		memberCache:               config.MemberCache,
 		threadMemberCache:         config.ThreadMemberCache,
@@ -899,19 +899,20 @@ func New(opts ...ConfigOpt) Caches {
 
 // these type aliases are needed to allow having the GuildCache, ChannelCache, etc. as methods on the cachesImpl struct
 type (
-	guildCache               = GuildCache
-	channelCache             = ChannelCache
-	stageInstanceCache       = StageInstanceCache
-	guildScheduledEventCache = GuildScheduledEventCache
-	roleCache                = RoleCache
-	memberCache              = MemberCache
-	threadMemberCache        = ThreadMemberCache
-	presenceCache            = PresenceCache
-	voiceStateCache          = VoiceStateCache
-	messageCache             = MessageCache
-	emojiCache               = EmojiCache
-	stickerCache             = StickerCache
-	selfUserCache            = SelfUserCache
+	guildCache                = GuildCache
+	channelCache              = ChannelCache
+	stageInstanceCache        = StageInstanceCache
+	guildScheduledEventCache  = GuildScheduledEventCache
+	guildSoundboardSoundCache = GuildSoundboardSoundCache
+	roleCache                 = RoleCache
+	memberCache               = MemberCache
+	threadMemberCache         = ThreadMemberCache
+	presenceCache             = PresenceCache
+	voiceStateCache           = VoiceStateCache
+	messageCache              = MessageCache
+	emojiCache                = EmojiCache
+	stickerCache              = StickerCache
+	selfUserCache             = SelfUserCache
 )
 
 type cachesImpl struct {
@@ -921,7 +922,7 @@ type cachesImpl struct {
 	channelCache
 	stageInstanceCache
 	guildScheduledEventCache
-  guildSoundboardSoundCache
+	guildSoundboardSoundCache
 	roleCache
 	memberCache
 	threadMemberCache
