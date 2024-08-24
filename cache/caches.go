@@ -41,6 +41,8 @@ func (c *selfUserCacheImpl) SetSelfUser(user discord.OAuth2User) {
 }
 
 type GuildCache interface {
+	GuildCache() Cache[discord.Guild]
+
 	IsGuildUnready(guildID snowflake.ID) bool
 	SetGuildUnready(guildID snowflake.ID, unready bool)
 	UnreadyGuildIDs() []snowflake.ID
@@ -68,6 +70,10 @@ type guildCacheImpl struct {
 	cache             Cache[discord.Guild]
 	unreadyGuilds     Set[snowflake.ID]
 	unavailableGuilds Set[snowflake.ID]
+}
+
+func (c *guildCacheImpl) GuildCache() Cache[discord.Guild] {
+	return c.cache
 }
 
 func (c *guildCacheImpl) IsGuildUnready(guildID snowflake.ID) bool {
@@ -131,6 +137,8 @@ func (c *guildCacheImpl) RemoveGuild(guildID snowflake.ID) (discord.Guild, bool)
 }
 
 type ChannelCache interface {
+	ChannelCache() Cache[discord.GuildChannel]
+
 	Channel(channelID snowflake.ID) (discord.GuildChannel, bool)
 	ChannelsForEach(fn func(channel discord.GuildChannel))
 	ChannelsLen() int
@@ -147,6 +155,10 @@ func NewChannelCache(cache Cache[discord.GuildChannel]) ChannelCache {
 
 type channelCacheImpl struct {
 	cache Cache[discord.GuildChannel]
+}
+
+func (c *channelCacheImpl) ChannelCache() Cache[discord.GuildChannel] {
+	return c.cache
 }
 
 func (c *channelCacheImpl) Channel(channelID snowflake.ID) (discord.GuildChannel, bool) {
@@ -176,6 +188,8 @@ func (c *channelCacheImpl) RemoveChannelsByGuildID(guildID snowflake.ID) {
 }
 
 type StageInstanceCache interface {
+	StageInstanceCache() GroupedCache[discord.StageInstance]
+
 	StageInstance(guildID snowflake.ID, stageInstanceID snowflake.ID) (discord.StageInstance, bool)
 	StageInstanceForEach(guildID snowflake.ID, fn func(stageInstance discord.StageInstance))
 	StageInstancesAllLen() int
@@ -193,6 +207,10 @@ func NewStageInstanceCache(cache GroupedCache[discord.StageInstance]) StageInsta
 
 type stageInstanceCacheImpl struct {
 	cache GroupedCache[discord.StageInstance]
+}
+
+func (c *stageInstanceCacheImpl) StageInstanceCache() GroupedCache[discord.StageInstance] {
+	return c.cache
 }
 
 func (c *stageInstanceCacheImpl) StageInstance(guildID snowflake.ID, stageInstanceID snowflake.ID) (discord.StageInstance, bool) {
@@ -226,6 +244,7 @@ func (c *stageInstanceCacheImpl) RemoveStageInstancesByGuildID(guildID snowflake
 }
 
 type GuildScheduledEventCache interface {
+	GuildScheduledEventCache() GroupedCache[discord.GuildScheduledEvent]
 	GuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID) (discord.GuildScheduledEvent, bool)
 	GuildScheduledEventsForEach(guildID snowflake.ID, fn func(guildScheduledEvent discord.GuildScheduledEvent))
 	GuildScheduledEventsAllLen() int
@@ -243,6 +262,10 @@ func NewGuildScheduledEventCache(cache GroupedCache[discord.GuildScheduledEvent]
 
 type guildScheduledEventCacheImpl struct {
 	cache GroupedCache[discord.GuildScheduledEvent]
+}
+
+func (c *guildScheduledEventCacheImpl) GuildScheduledEventCache() GroupedCache[discord.GuildScheduledEvent] {
+	return c.cache
 }
 
 func (c *guildScheduledEventCacheImpl) GuildScheduledEvent(guildID snowflake.ID, guildScheduledEventID snowflake.ID) (discord.GuildScheduledEvent, bool) {
@@ -322,6 +345,8 @@ func (c *guildSoundboardSoundCacheImpl) RemoveGuildSoundboardSoundsByGuildID(gui
 }
 
 type RoleCache interface {
+	RoleCache() GroupedCache[discord.Role]
+
 	Role(guildID snowflake.ID, roleID snowflake.ID) (discord.Role, bool)
 	RolesForEach(guildID snowflake.ID, fn func(role discord.Role))
 	RolesAllLen() int
@@ -339,6 +364,10 @@ func NewRoleCache(cache GroupedCache[discord.Role]) RoleCache {
 
 type roleCacheImpl struct {
 	cache GroupedCache[discord.Role]
+}
+
+func (c *roleCacheImpl) RoleCache() GroupedCache[discord.Role] {
+	return c.cache
 }
 
 func (c *roleCacheImpl) Role(guildID snowflake.ID, roleID snowflake.ID) (discord.Role, bool) {
@@ -370,6 +399,8 @@ func (c *roleCacheImpl) RemoveRolesByGuildID(guildID snowflake.ID) {
 }
 
 type MemberCache interface {
+	MemberCache() GroupedCache[discord.Member]
+
 	Member(guildID snowflake.ID, userID snowflake.ID) (discord.Member, bool)
 	MembersForEach(guildID snowflake.ID, fn func(member discord.Member))
 	MembersAllLen() int
@@ -387,6 +418,10 @@ func NewMemberCache(cache GroupedCache[discord.Member]) MemberCache {
 
 type memberCacheImpl struct {
 	cache GroupedCache[discord.Member]
+}
+
+func (c *memberCacheImpl) MemberCache() GroupedCache[discord.Member] {
+	return c.cache
 }
 
 func (c *memberCacheImpl) Member(guildID snowflake.ID, userID snowflake.ID) (discord.Member, bool) {
@@ -418,6 +453,8 @@ func (c *memberCacheImpl) RemoveMembersByGuildID(guildID snowflake.ID) {
 }
 
 type ThreadMemberCache interface {
+	ThreadMemberCache() GroupedCache[discord.ThreadMember]
+
 	ThreadMember(threadID snowflake.ID, userID snowflake.ID) (discord.ThreadMember, bool)
 	ThreadMemberForEach(threadID snowflake.ID, fn func(threadMember discord.ThreadMember))
 	ThreadMembersAllLen() int
@@ -435,6 +472,10 @@ func NewThreadMemberCache(cache GroupedCache[discord.ThreadMember]) ThreadMember
 
 type threadMemberCacheImpl struct {
 	cache GroupedCache[discord.ThreadMember]
+}
+
+func (c *threadMemberCacheImpl) ThreadMemberCache() GroupedCache[discord.ThreadMember] {
+	return c.cache
 }
 
 func (c *threadMemberCacheImpl) ThreadMember(threadID snowflake.ID, userID snowflake.ID) (discord.ThreadMember, bool) {
@@ -468,6 +509,8 @@ func (c *threadMemberCacheImpl) RemoveThreadMembersByThreadID(threadID snowflake
 }
 
 type PresenceCache interface {
+	PresenceCache() GroupedCache[discord.Presence]
+
 	Presence(guildID snowflake.ID, userID snowflake.ID) (discord.Presence, bool)
 	PresenceForEach(guildID snowflake.ID, fn func(presence discord.Presence))
 	PresencesAllLen() int
@@ -485,6 +528,10 @@ func NewPresenceCache(cache GroupedCache[discord.Presence]) PresenceCache {
 
 type presenceCacheImpl struct {
 	cache GroupedCache[discord.Presence]
+}
+
+func (c *presenceCacheImpl) PresenceCache() GroupedCache[discord.Presence] {
+	return c.cache
 }
 
 func (c *presenceCacheImpl) Presence(guildID snowflake.ID, userID snowflake.ID) (discord.Presence, bool) {
@@ -518,6 +565,8 @@ func (c *presenceCacheImpl) RemovePresencesByGuildID(guildID snowflake.ID) {
 }
 
 type VoiceStateCache interface {
+	VoiceStateCache() GroupedCache[discord.VoiceState]
+
 	VoiceState(guildID snowflake.ID, userID snowflake.ID) (discord.VoiceState, bool)
 	VoiceStatesForEach(guildID snowflake.ID, fn func(discord.VoiceState))
 	VoiceStatesAllLen() int
@@ -535,6 +584,10 @@ func NewVoiceStateCache(cache GroupedCache[discord.VoiceState]) VoiceStateCache 
 
 type voiceStateCacheImpl struct {
 	cache GroupedCache[discord.VoiceState]
+}
+
+func (c *voiceStateCacheImpl) VoiceStateCache() GroupedCache[discord.VoiceState] {
+	return c.cache
 }
 
 func (c *voiceStateCacheImpl) VoiceState(guildID snowflake.ID, userID snowflake.ID) (discord.VoiceState, bool) {
@@ -566,6 +619,8 @@ func (c *voiceStateCacheImpl) RemoveVoiceStatesByGuildID(guildID snowflake.ID) {
 }
 
 type MessageCache interface {
+	MessageCache() GroupedCache[discord.Message]
+
 	Message(channelID snowflake.ID, messageID snowflake.ID) (discord.Message, bool)
 	MessagesForEach(channelID snowflake.ID, fn func(message discord.Message))
 	MessagesAllLen() int
@@ -584,6 +639,10 @@ func NewMessageCache(cache GroupedCache[discord.Message]) MessageCache {
 
 type messageCacheImpl struct {
 	cache GroupedCache[discord.Message]
+}
+
+func (c *messageCacheImpl) MessageCache() GroupedCache[discord.Message] {
+	return c.cache
 }
 
 func (c *messageCacheImpl) Message(channelID snowflake.ID, messageID snowflake.ID) (discord.Message, bool) {
@@ -621,6 +680,8 @@ func (c *messageCacheImpl) RemoveMessagesByGuildID(guildID snowflake.ID) {
 }
 
 type EmojiCache interface {
+	EmojiCache() GroupedCache[discord.Emoji]
+
 	Emoji(guildID snowflake.ID, emojiID snowflake.ID) (discord.Emoji, bool)
 	EmojisForEach(guildID snowflake.ID, fn func(emoji discord.Emoji))
 	EmojisAllLen() int
@@ -638,6 +699,10 @@ func NewEmojiCache(cache GroupedCache[discord.Emoji]) EmojiCache {
 
 type emojiCacheImpl struct {
 	cache GroupedCache[discord.Emoji]
+}
+
+func (c *emojiCacheImpl) EmojiCache() GroupedCache[discord.Emoji] {
+	return c.cache
 }
 
 func (c *emojiCacheImpl) Emoji(guildID snowflake.ID, emojiID snowflake.ID) (discord.Emoji, bool) {
@@ -669,6 +734,8 @@ func (c *emojiCacheImpl) RemoveEmojisByGuildID(guildID snowflake.ID) {
 }
 
 type StickerCache interface {
+	StickerCache() GroupedCache[discord.Sticker]
+
 	Sticker(guildID snowflake.ID, stickerID snowflake.ID) (discord.Sticker, bool)
 	StickersForEach(guildID snowflake.ID, fn func(sticker discord.Sticker))
 	StickersAllLen() int
@@ -686,6 +753,10 @@ func NewStickerCache(cache GroupedCache[discord.Sticker]) StickerCache {
 
 type stickerCacheImpl struct {
 	cache GroupedCache[discord.Sticker]
+}
+
+func (c *stickerCacheImpl) StickerCache() GroupedCache[discord.Sticker] {
+	return c.cache
 }
 
 func (c *stickerCacheImpl) Sticker(guildID snowflake.ID, stickerID snowflake.ID) (discord.Sticker, bool) {
@@ -809,40 +880,57 @@ func New(opts ...ConfigOpt) Caches {
 
 	return &cachesImpl{
 		config:                    *config,
-		SelfUserCache:             config.SelfUserCache,
-		GuildCache:                config.GuildCache,
-		ChannelCache:              config.ChannelCache,
-		StageInstanceCache:        config.StageInstanceCache,
-		GuildScheduledEventCache:  config.GuildScheduledEventCache,
-		GuildSoundboardSoundCache: config.GuildSoundboardSoundCache,
-		RoleCache:                 config.RoleCache,
-		MemberCache:               config.MemberCache,
-		ThreadMemberCache:         config.ThreadMemberCache,
-		PresenceCache:             config.PresenceCache,
-		VoiceStateCache:           config.VoiceStateCache,
-		MessageCache:              config.MessageCache,
-		EmojiCache:                config.EmojiCache,
-		StickerCache:              config.StickerCache,
+		selfUserCache:             config.SelfUserCache,
+		guildCache:                config.GuildCache,
+		channelCache:              config.ChannelCache,
+		stageInstanceCache:        config.StageInstanceCache,
+		guildScheduledEventCache:  config.GuildScheduledEventCache,
+    guildSoundboardSoundCache: config.GuildSoundboardSoundCache,
+		roleCache:                 config.RoleCache,
+		memberCache:               config.MemberCache,
+		threadMemberCache:         config.ThreadMemberCache,
+		presenceCache:             config.PresenceCache,
+		voiceStateCache:           config.VoiceStateCache,
+		messageCache:              config.MessageCache,
+		emojiCache:                config.EmojiCache,
+		stickerCache:              config.StickerCache,
 	}
 }
+
+// these type aliases are needed to allow having the GuildCache, ChannelCache, etc. as methods on the cachesImpl struct
+type (
+	guildCache               = GuildCache
+	channelCache             = ChannelCache
+	stageInstanceCache       = StageInstanceCache
+	guildScheduledEventCache = GuildScheduledEventCache
+	roleCache                = RoleCache
+	memberCache              = MemberCache
+	threadMemberCache        = ThreadMemberCache
+	presenceCache            = PresenceCache
+	voiceStateCache          = VoiceStateCache
+	messageCache             = MessageCache
+	emojiCache               = EmojiCache
+	stickerCache             = StickerCache
+	selfUserCache            = SelfUserCache
+)
 
 type cachesImpl struct {
 	config Config
 
-	GuildCache
-	ChannelCache
-	StageInstanceCache
-	GuildScheduledEventCache
-	GuildSoundboardSoundCache
-	RoleCache
-	MemberCache
-	ThreadMemberCache
-	PresenceCache
-	VoiceStateCache
-	MessageCache
-	EmojiCache
-	StickerCache
-	SelfUserCache
+	guildCache
+	channelCache
+	stageInstanceCache
+	guildScheduledEventCache
+  guildSoundboardSoundCache
+	roleCache
+	memberCache
+	threadMemberCache
+	presenceCache
+	voiceStateCache
+	messageCache
+	emojiCache
+	stickerCache
+	selfUserCache
 }
 
 func (c *cachesImpl) CacheFlags() Flags {
