@@ -118,6 +118,7 @@ var allEventHandlers = []bot.GatewayEventHandler{
 	bot.NewGatewayEventHandler(gateway.EventTypeTypingStart, gatewayHandlerTypingStart),
 	bot.NewGatewayEventHandler(gateway.EventTypeUserUpdate, gatewayHandlerUserUpdate),
 
+	bot.NewGatewayEventHandler(gateway.EventTypeVoiceChannelEffectSend, gatewayHandlerVoiceChannelEffectSend),
 	bot.NewGatewayEventHandler(gateway.EventTypeVoiceStateUpdate, gatewayHandlerVoiceStateUpdate),
 	bot.NewGatewayEventHandler(gateway.EventTypeVoiceServerUpdate, gatewayHandlerVoiceServerUpdate),
 
