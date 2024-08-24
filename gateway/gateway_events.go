@@ -645,8 +645,29 @@ type EventVoiceChannelEffectSend struct {
 	Emoji         *discord.Emoji                           `json:"emoji"`
 	AnimationType *discord.VoiceChannelEffectAnimationType `json:"animation_type,omitempty"`
 	AnimationID   *int                                     `json:"animation_id,omitempty"`
-	SoundID       *snowflake.ID                            `json:"sound_id,omitempty"`
+	SoundID       *int64                                   `json:"-"`
 	SoundVolume   *float64                                 `json:"sound_volume,omitempty"`
+}
+
+func (e *EventVoiceChannelEffectSend) UnmarshalJSON(data []byte) error {
+	type eventVoiceChannelEffectSend EventVoiceChannelEffectSend
+	var v struct {
+		SoundID *json.Number `json:"sound_id"`
+		eventVoiceChannelEffectSend
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*e = EventVoiceChannelEffectSend(v.eventVoiceChannelEffectSend)
+	if v.SoundID == nil {
+		return nil
+	}
+	i, err := v.SoundID.Int64()
+	if err != nil {
+		return err
+	}
+	e.SoundID = &i
+	return nil
 }
 
 func (EventVoiceChannelEffectSend) messageData() {}
