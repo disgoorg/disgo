@@ -186,6 +186,7 @@ func (c SlashCommand) NameLocalized() string {
 func (c SlashCommand) DefaultMemberPermissions() Permissions {
 	return c.defaultMemberPermissions
 }
+
 func (c SlashCommand) DMPermission() bool {
 	return c.dmPermission
 }
@@ -303,6 +304,7 @@ func (c UserCommand) NameLocalized() string {
 func (c UserCommand) DefaultMemberPermissions() Permissions {
 	return c.defaultMemberPermissions
 }
+
 func (c UserCommand) DMPermission() bool {
 	return c.dmPermission
 }
@@ -416,6 +418,7 @@ func (c MessageCommand) NameLocalized() string {
 func (c MessageCommand) DefaultMemberPermissions() Permissions {
 	return c.defaultMemberPermissions
 }
+
 func (c MessageCommand) DMPermission() bool {
 	return c.dmPermission
 }
@@ -532,6 +535,7 @@ func (c EntryPointCommand) NameLocalized() string {
 func (c EntryPointCommand) DefaultMemberPermissions() Permissions {
 	return c.defaultMemberPermissions
 }
+
 func (c EntryPointCommand) DMPermission() bool {
 	return c.dmPermission
 }
