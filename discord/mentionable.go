@@ -20,7 +20,8 @@ var (
 	MentionTypeSlashCommand    = MentionType{regexp.MustCompile(`</(\w+) ?((\w+)|(\w+ \w+)):(\d+)>`)}
 	MentionTypeHere            = MentionType{regexp.MustCompile(`@here`)}
 	MentionTypeEveryone        = MentionType{regexp.MustCompile(`@everyone`)}
-	MentionTypeGuildNavigation = MentionType{regexp.MustCompile("<id:(browse|customize|guide)>")}
+	MentionTypeGuildNavigation = MentionType{regexp.MustCompile("<id:(browse|customize|guide|linked-roles)>")}
+	MentionTypeLinkedRole      = MentionType{regexp.MustCompile(`<id:linked-roles:(\d+)>`)}
 )
 
 type Mentionable interface {
@@ -82,4 +83,12 @@ func NavigationCustomizeMention() string {
 
 func NavigationGuideMention() string {
 	return "<id:guide>"
+}
+
+func NavigationLinkedRoles() string {
+	return "<id:linked-roles>"
+}
+
+func NavigationLinkedRole(id snowflake.ID) string {
+	return fmt.Sprintf("<id:linked-roles:%d>", id)
 }
