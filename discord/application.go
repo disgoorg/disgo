@@ -277,3 +277,25 @@ type ApplicationIntegrationTypesConfig map[ApplicationIntegrationType]Applicatio
 type ApplicationIntegrationTypeConfiguration struct {
 	OAuth2InstallParams *InstallParams `json:"oauth2_install_params"`
 }
+
+type ActivityInstance struct {
+	ApplicationID snowflake.ID     `json:"application_id"`
+	InstanceID    string           `json:"instance_id"`
+	LaunchID      snowflake.ID     `json:"launch_id"`
+	Location      ActivityLocation `json:"location"`
+	Users         []snowflake.ID   `json:"users"`
+}
+
+type ActivityLocation struct {
+	ID        string               `json:"id"`
+	Kind      ActivityLocationKind `json:"kind"`
+	ChannelID snowflake.ID         `json:"channel_id"`
+	GuildID   *snowflake.ID        `json:"guild_id"`
+}
+
+type ActivityLocationKind string
+
+const (
+	ActivityLocationKindGC ActivityLocationKind = "gc"
+	ActivityLocationKindPC ActivityLocationKind = "pc"
+)

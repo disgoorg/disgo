@@ -49,6 +49,8 @@ type Applications interface {
 	CreateApplicationEmoji(applicationID snowflake.ID, emojiCreate discord.EmojiCreate, opts ...RequestOpt) (*discord.Emoji, error)
 	UpdateApplicationEmoji(applicationID snowflake.ID, emojiID snowflake.ID, emojiUpdate discord.EmojiUpdate, opts ...RequestOpt) (*discord.Emoji, error)
 	DeleteApplicationEmoji(applicationID snowflake.ID, emojiID snowflake.ID, opts ...RequestOpt) error
+
+	GetActivityInstance(applicationID snowflake.ID, instanceID string, opts ...RequestOpt) (*discord.ActivityInstance, error)
 }
 
 type applicationsImpl struct {
@@ -251,6 +253,11 @@ func (s *applicationsImpl) UpdateApplicationEmoji(applicationID snowflake.ID, em
 
 func (s *applicationsImpl) DeleteApplicationEmoji(applicationID snowflake.ID, emojiID snowflake.ID, opts ...RequestOpt) error {
 	return s.client.Do(DeleteApplicationEmoji.Compile(nil, applicationID, emojiID), nil, nil, opts...)
+}
+
+func (s *applicationsImpl) GetActivityInstance(applicationID snowflake.ID, instanceID string, opts ...RequestOpt) (instance *discord.ActivityInstance, err error) {
+	err = s.client.Do(GetActivityInstance.Compile(nil, applicationID, instanceID), nil, &instance, opts...)
+	return
 }
 
 func unmarshalApplicationCommandsToApplicationCommands(unmarshalCommands []discord.UnmarshalApplicationCommand) []discord.ApplicationCommand {
