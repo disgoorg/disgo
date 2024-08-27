@@ -313,6 +313,8 @@ var (
 	CreateApplicationEmoji = NewEndpoint(http.MethodPost, "/applications/{application.id}/emojis")
 	UpdateApplicationEmoji = NewEndpoint(http.MethodPatch, "/applications/{application.id}/emojis/{emoji.id}")
 	DeleteApplicationEmoji = NewEndpoint(http.MethodDelete, "/applications/{application.id}/emojis/{emoji.id}")
+
+	GetActivityInstance = NewEndpoint(http.MethodGet, "/applications/{application.id}/activity-instances/{instance.id}")
 )
 
 // NewEndpoint returns a new Endpoint which requires bot auth with the given http method & route.
