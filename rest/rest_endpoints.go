@@ -306,8 +306,6 @@ var (
 	DeleteTestEntitlement = NewEndpoint(http.MethodDelete, "/applications/{application.id}/entitlements/{entitlement.id}")
 	ConsumeEntitlement    = NewEndpoint(http.MethodPost, "/applications/{application.id}/entitlements/{entitlement.id}/consume")
 
-	GetSKUs = NewEndpoint(http.MethodGet, "/applications/{application.id}/skus")
-
 	GetApplicationEmojis   = NewEndpoint(http.MethodGet, "/applications/{application.id}/emojis")
 	GetApplicationEmoji    = NewEndpoint(http.MethodGet, "/applications/{application.id}/emojis/{emoji.id}")
 	CreateApplicationEmoji = NewEndpoint(http.MethodPost, "/applications/{application.id}/emojis")
@@ -315,6 +313,14 @@ var (
 	DeleteApplicationEmoji = NewEndpoint(http.MethodDelete, "/applications/{application.id}/emojis/{emoji.id}")
 
 	GetActivityInstance = NewEndpoint(http.MethodGet, "/applications/{application.id}/activity-instances/{instance.id}")
+)
+
+// SKUs
+var (
+	GetSKUs = NewEndpoint(http.MethodGet, "/applications/{application.id}/skus")
+
+	GetSKUSubscriptions = NewEndpoint(http.MethodGet, "/skus/{sku.id}/subscriptions")
+	GetSKUSubscription  = NewEndpoint(http.MethodGet, "/skus/{sku.id}/subscriptions/{subscription.id}")
 )
 
 // NewEndpoint returns a new Endpoint which requires bot auth with the given http method & route.
