@@ -41,6 +41,7 @@ func (s *interactionImpl) CreateInteractionResponse(interactionID snowflake.ID, 
 	if err != nil {
 		return err
 	}
+
 	return s.client.Do(CreateInteractionResponse.Compile(nil, interactionID, interactionToken), body, nil, opts...)
 }
 
