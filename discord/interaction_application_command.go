@@ -707,11 +707,8 @@ type rawEntryPointCommandInteractionData struct {
 }
 
 type EntryPointCommandInteractionData struct {
-	id       snowflake.ID
-	name     string
-	guildID  *snowflake.ID
-	Resolved UserCommandResolved `json:"resolved"`
-	targetID snowflake.ID
+	id   snowflake.ID
+	name string
 }
 
 func (d *EntryPointCommandInteractionData) UnmarshalJSON(data []byte) error {
