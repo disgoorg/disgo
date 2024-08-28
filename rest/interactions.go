@@ -34,8 +34,8 @@ func (s *interactionImpl) GetInteractionResponse(interactionID snowflake.ID, int
 	return
 }
 
-// CreateInteractionResponse calls CreateInteractionResponseWithCallback with `withCallback: false`.
-// The signature of this function might be adjusted in the future.
+// CreateInteractionResponse responds to the interaction without returning the callback.
+// If you need the callback, use CreateInteractionResponseWithCallback.
 func (s *interactionImpl) CreateInteractionResponse(interactionID snowflake.ID, interactionToken string, interactionResponse discord.InteractionResponse, opts ...RequestOpt) error {
 	body, err := interactionResponse.ToBody()
 	if err != nil {
