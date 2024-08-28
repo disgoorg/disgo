@@ -460,7 +460,7 @@ type EntryPointCommand struct {
 	integrationTypes         []ApplicationIntegrationType
 	contexts                 []InteractionContextType
 	version                  snowflake.ID
-	handler                  EntryPointCommandHandlerType
+	handler                  *EntryPointCommandHandlerType
 }
 
 func (c *EntryPointCommand) UnmarshalJSON(data []byte) error {
@@ -556,7 +556,7 @@ func (c EntryPointCommand) Version() snowflake.ID {
 	return c.version
 }
 
-func (c EntryPointCommand) Handler() EntryPointCommandHandlerType {
+func (c EntryPointCommand) Handler() *EntryPointCommandHandlerType {
 	return c.handler
 }
 
