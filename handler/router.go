@@ -11,6 +11,7 @@ type (
 	SlashCommandHandler        func(data discord.SlashCommandInteractionData, e *CommandEvent) error
 	UserCommandHandler         func(data discord.UserCommandInteractionData, e *CommandEvent) error
 	MessageCommandHandler      func(data discord.MessageCommandInteractionData, e *CommandEvent) error
+	EntryPointCommandHandler   func(data discord.EntryPointCommandInteractionData, e *CommandEvent) error
 	AutocompleteHandler        func(e *AutocompleteEvent) error
 	ComponentHandler           func(e *ComponentEvent) error
 	ButtonComponentHandler     func(data discord.ButtonInteractionData, e *ComponentEvent) error
@@ -72,6 +73,9 @@ type Router interface {
 
 	// MessageCommand registers the given MessageCommandHandler to the current Router.
 	MessageCommand(pattern string, h MessageCommandHandler)
+
+	// EntryPointCommand registers the given EntryPointCommandHandler to the current Router.
+	EntryPointCommand(pattern string, h EntryPointCommandHandler)
 
 	// Autocomplete registers the given AutocompleteHandler to the current Router.
 	Autocomplete(pattern string, h AutocompleteHandler)
