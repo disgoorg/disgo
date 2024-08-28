@@ -113,11 +113,11 @@ type EntryPointCommandCreate struct {
 	NameLocalizations        map[Locale]string           `json:"name_localizations,omitempty"`
 	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
 	// Deprecated: Use Contexts instead
-	DMPermission     *bool                        `json:"dm_permission,omitempty"`
-	IntegrationTypes []ApplicationIntegrationType `json:"integration_types,omitempty"`
-	Contexts         []InteractionContextType     `json:"contexts,omitempty"`
-	NSFW             *bool                        `json:"nsfw,omitempty"`
-	Handler          EntryPointCommandHandlerType `json:"handler"`
+	DMPermission     *bool                         `json:"dm_permission,omitempty"`
+	IntegrationTypes []ApplicationIntegrationType  `json:"integration_types,omitempty"`
+	Contexts         []InteractionContextType      `json:"contexts,omitempty"`
+	NSFW             *bool                         `json:"nsfw,omitempty"`
+	Handler          *EntryPointCommandHandlerType `json:"handler,omitempty"`
 }
 
 func (c EntryPointCommandCreate) MarshalJSON() ([]byte, error) {
