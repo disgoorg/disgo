@@ -42,8 +42,6 @@ type Applications interface {
 	DeleteTestEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error
 	ConsumeEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error
 
-	GetSKUs(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.SKU, error)
-
 	GetApplicationEmojis(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.Emoji, error)
 	GetApplicationEmoji(applicationID snowflake.ID, emojiID snowflake.ID, opts ...RequestOpt) (*discord.Emoji, error)
 	CreateApplicationEmoji(applicationID snowflake.ID, emojiCreate discord.EmojiCreate, opts ...RequestOpt) (*discord.Emoji, error)
@@ -220,11 +218,6 @@ func (s *applicationsImpl) DeleteTestEntitlement(applicationID snowflake.ID, ent
 
 func (s *applicationsImpl) ConsumeEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error {
 	return s.client.Do(ConsumeEntitlement.Compile(nil, applicationID, entitlementID), nil, nil, opts...)
-}
-
-func (s *applicationsImpl) GetSKUs(applicationID snowflake.ID, opts ...RequestOpt) (skus []discord.SKU, err error) {
-	err = s.client.Do(GetSKUs.Compile(nil, applicationID), nil, &skus, opts...)
-	return
 }
 
 func (s *applicationsImpl) GetApplicationEmojis(applicationID snowflake.ID, opts ...RequestOpt) (emojis []discord.Emoji, err error) {

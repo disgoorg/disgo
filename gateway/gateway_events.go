@@ -802,3 +802,24 @@ type EventEntitlementDelete struct {
 
 func (EventEntitlementDelete) messageData() {}
 func (EventEntitlementDelete) eventData()   {}
+
+type EventSubscriptionCreate struct {
+	discord.Subscription
+}
+
+func (EventSubscriptionCreate) messageData() {}
+func (EventSubscriptionCreate) eventData()   {}
+
+type EventSubscriptionUpdate struct {
+	discord.Subscription
+}
+
+func (EventSubscriptionUpdate) messageData() {}
+func (EventSubscriptionUpdate) eventData()   {}
+
+type EventSubscriptionDelete struct {
+	discord.Subscription
+}
+
+func (EventSubscriptionDelete) messageData() {}
+func (EventSubscriptionDelete) eventData()   {}
