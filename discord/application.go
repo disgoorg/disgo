@@ -28,7 +28,6 @@ type Application struct {
 	InstallParams                  *InstallParams                    `json:"install_params"`
 	Tags                           []string                          `json:"tags"`
 	Owner                          *User                             `json:"owner,omitempty"`
-	Summary                        string                            `json:"summary"`
 	VerifyKey                      string                            `json:"verify_key"`
 	Team                           *Team                             `json:"team,omitempty"`
 	GuildID                        *snowflake.ID                     `json:"guild_id,omitempty"`
