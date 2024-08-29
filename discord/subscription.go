@@ -21,7 +21,7 @@ type Subscription struct {
 type SubscriptionStatus int
 
 const (
-	SubscriptionStatusActive SubscriptionStatus = iota + 1
+	SubscriptionStatusActive SubscriptionStatus = iota
 	SubscriptionStatusEnding
 	SubscriptionStatusInactive
 )
