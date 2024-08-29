@@ -2,6 +2,7 @@ package discord
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -155,12 +156,7 @@ func SplitScopes(joinedScopes string) []OAuth2Scope {
 }
 
 func HasScope(scope OAuth2Scope, scopes ...OAuth2Scope) bool {
-	for _, s := range scopes {
-		if s == scope {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(scopes, scope)
 }
 
 type TokenType string
