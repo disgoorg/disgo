@@ -8,7 +8,10 @@ type MessageUpdate struct {
 	Attachments     *[]AttachmentUpdate   `json:"attachments,omitempty"`
 	Files           []*File               `json:"-"`
 	AllowedMentions *AllowedMentions      `json:"allowed_mentions,omitempty"`
-	Flags           *MessageFlags         `json:"flags,omitempty"`
+	// Flags are the MessageFlags of the message.
+	// Be careful not to override the current flags when editing messages from other users - this will result in a permission error.
+	// Use MessageFlags.Add for flags like discord.MessageFlagSuppressEmbeds.
+	Flags *MessageFlags `json:"flags,omitempty"`
 }
 
 func (MessageUpdate) interactionCallbackData() {}
