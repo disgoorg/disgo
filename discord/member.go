@@ -131,6 +131,12 @@ const (
 	MemberFlagCompletedOnboarding
 	MemberFlagBypassesVerification
 	MemberFlagStartedOnboarding
+	MemberFlagIsGuest
+	MemberFlagStartedHomeActions
+	MemberFlagCompletedHomeActions
+	MemberFlagAutomodQuarantinedUsername
+	_
+	MemberFlagDMSettingsUpsellAcknowledged
 	MemberFlagsNone MemberFlags = 0
 )
 
