@@ -10,10 +10,10 @@ type InteractionCallbackResponse struct {
 type InteractionCallback struct {
 	ID                       snowflake.ID    `json:"id"`
 	Type                     InteractionType `json:"type"`
-	ActivityInstanceID       *string         `json:"activity_instance_id"`
-	ResponseMessageID        *snowflake.ID   `json:"response_message_id"`
-	ResponseMessageLoading   *bool           `json:"response_message_loading"`
-	ResponseMessageEphemeral *bool           `json:"response_message_ephemeral"`
+	ActivityInstanceID       string          `json:"activity_instance_id"`
+	ResponseMessageID        snowflake.ID    `json:"response_message_id"`
+	ResponseMessageLoading   bool            `json:"response_message_loading"`
+	ResponseMessageEphemeral bool            `json:"response_message_ephemeral"`
 }
 
 type InteractionCallbackResource struct {
