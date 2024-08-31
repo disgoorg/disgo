@@ -120,6 +120,17 @@ func (h *handlerHolder[T]) Handle(path string, event *InteractionEvent) error {
 			Vars: event.Vars,
 			Ctx:  event.Ctx,
 		})
+	case EntryPointCommandHandler:
+		commandInteraction := event.Interaction.(discord.ApplicationCommandInteraction)
+		return handler(commandInteraction.Data.(discord.EntryPointCommandInteractionData), &CommandEvent{
+			ApplicationCommandInteractionCreate: &events.ApplicationCommandInteractionCreate{
+				GenericEvent:                  event.GenericEvent,
+				ApplicationCommandInteraction: commandInteraction,
+				Respond:                       event.Respond,
+			},
+			Vars: event.Vars,
+			Ctx:  event.Ctx,
+		})
 	case AutocompleteHandler:
 		return handler(&AutocompleteEvent{
 			AutocompleteInteractionCreate: &events.AutocompleteInteractionCreate{

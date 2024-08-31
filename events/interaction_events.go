@@ -67,6 +67,11 @@ func (e *ApplicationCommandInteractionCreate) PremiumRequired(opts ...rest.Reque
 	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
 }
 
+// LaunchActivity responds to the interaction by launching activity associated with the app.
+func (e *ApplicationCommandInteractionCreate) LaunchActivity(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypeLaunchActivity, nil, opts...)
+}
+
 // ComponentInteractionCreate indicates that a new component interaction has been created.
 type ComponentInteractionCreate struct {
 	*GenericEvent
@@ -117,6 +122,11 @@ func (e *ComponentInteractionCreate) Modal(modalCreate discord.ModalCreate, opts
 // PremiumRequired responds to the interaction with an upgrade button if available.
 func (e *ComponentInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
+}
+
+// LaunchActivity responds to the interaction by launching activity associated with the app.
+func (e *ComponentInteractionCreate) LaunchActivity(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypeLaunchActivity, nil, opts...)
 }
 
 // AutocompleteInteractionCreate indicates that a new autocomplete interaction has been created.
@@ -186,4 +196,9 @@ func (e *ModalSubmitInteractionCreate) DeferUpdateMessage(opts ...rest.RequestOp
 // PremiumRequired responds to the interaction with an upgrade button if available.
 func (e *ModalSubmitInteractionCreate) PremiumRequired(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
+}
+
+// LaunchActivity responds to the interaction by launching activity associated with the app.
+func (e *ModalSubmitInteractionCreate) LaunchActivity(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypeLaunchActivity, nil, opts...)
 }
