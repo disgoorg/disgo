@@ -111,6 +111,7 @@ const (
 	GuildFeatureInvitesDisabled                       GuildFeature = "INVITES_DISABLED"
 	GuildFeatureInviteSplash                          GuildFeature = "INVITE_SPLASH"
 	GuildFeatureMemberVerificationGateEnabled         GuildFeature = "MEMBER_VERIFICATION_GATE_ENABLED"
+	GuildFeatureMoreSoundboard                        GuildFeature = "MORE_SOUNDBOARD"
 	GuildFeatureMoreStickers                          GuildFeature = "MORE_STICKERS"
 	GuildFeatureNews                                  GuildFeature = "NEWS"
 	GuildFeaturePartnered                             GuildFeature = "PARTNERED"
