@@ -46,6 +46,11 @@ func (e *InteractionEvent) PremiumRequired(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypePremiumRequired, nil, opts...)
 }
 
+// LaunchActivity responds to the interaction by launching activity associated with the app.
+func (e *InteractionEvent) LaunchActivity(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypeLaunchActivity, nil, opts...)
+}
+
 // Modal responds to the interaction with a new modal.
 func (e *InteractionEvent) Modal(modalCreate discord.ModalCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeModal, modalCreate, opts...)

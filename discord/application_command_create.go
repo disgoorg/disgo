@@ -107,3 +107,36 @@ func (c MessageCommandCreate) CommandName() string {
 }
 
 func (MessageCommandCreate) applicationCommandCreate() {}
+
+type EntryPointCommandCreate struct {
+	Name                     string                      `json:"name"`
+	NameLocalizations        map[Locale]string           `json:"name_localizations,omitempty"`
+	DefaultMemberPermissions *json.Nullable[Permissions] `json:"default_member_permissions,omitempty"`
+	// Deprecated: Use Contexts instead
+	DMPermission     *bool                        `json:"dm_permission,omitempty"`
+	IntegrationTypes []ApplicationIntegrationType `json:"integration_types,omitempty"`
+	Contexts         []InteractionContextType     `json:"contexts,omitempty"`
+	NSFW             *bool                        `json:"nsfw,omitempty"`
+	Handler          EntryPointCommandHandlerType `json:"handler,omitempty"`
+}
+
+func (c EntryPointCommandCreate) MarshalJSON() ([]byte, error) {
+	type entryPointCommandCreate EntryPointCommandCreate
+	return json.Marshal(struct {
+		Type ApplicationCommandType `json:"type"`
+		entryPointCommandCreate
+	}{
+		Type:                    c.Type(),
+		entryPointCommandCreate: entryPointCommandCreate(c),
+	})
+}
+
+func (EntryPointCommandCreate) Type() ApplicationCommandType {
+	return ApplicationCommandTypePrimaryEntryPoint
+}
+
+func (c EntryPointCommandCreate) CommandName() string {
+	return c.Name
+}
+
+func (EntryPointCommandCreate) applicationCommandCreate() {}

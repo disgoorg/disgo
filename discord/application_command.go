@@ -14,6 +14,7 @@ const (
 	ApplicationCommandTypeSlash ApplicationCommandType = iota + 1
 	ApplicationCommandTypeUser
 	ApplicationCommandTypeMessage
+	ApplicationCommandTypePrimaryEntryPoint
 )
 
 type ApplicationCommand interface {
@@ -66,6 +67,11 @@ func (u *UnmarshalApplicationCommand) UnmarshalJSON(data []byte) error {
 
 	case ApplicationCommandTypeMessage:
 		var v MessageCommand
+		err = json.Unmarshal(data, &v)
+		applicationCommand = v
+
+	case ApplicationCommandTypePrimaryEntryPoint:
+		var v EntryPointCommand
 		err = json.Unmarshal(data, &v)
 		applicationCommand = v
 
@@ -180,6 +186,7 @@ func (c SlashCommand) NameLocalized() string {
 func (c SlashCommand) DefaultMemberPermissions() Permissions {
 	return c.defaultMemberPermissions
 }
+
 func (c SlashCommand) DMPermission() bool {
 	return c.dmPermission
 }
@@ -297,6 +304,7 @@ func (c UserCommand) NameLocalized() string {
 func (c UserCommand) DefaultMemberPermissions() Permissions {
 	return c.defaultMemberPermissions
 }
+
 func (c UserCommand) DMPermission() bool {
 	return c.dmPermission
 }
@@ -410,6 +418,7 @@ func (c MessageCommand) NameLocalized() string {
 func (c MessageCommand) DefaultMemberPermissions() Permissions {
 	return c.defaultMemberPermissions
 }
+
 func (c MessageCommand) DMPermission() bool {
 	return c.dmPermission
 }
@@ -435,3 +444,127 @@ func (c MessageCommand) CreatedAt() time.Time {
 }
 
 func (MessageCommand) applicationCommand() {}
+
+var _ ApplicationCommand = (*EntryPointCommand)(nil)
+
+type EntryPointCommand struct {
+	id                       snowflake.ID
+	applicationID            snowflake.ID
+	guildID                  *snowflake.ID
+	name                     string
+	nameLocalizations        map[Locale]string
+	nameLocalized            string
+	defaultMemberPermissions Permissions
+	dmPermission             bool
+	nsfw                     bool
+	integrationTypes         []ApplicationIntegrationType
+	contexts                 []InteractionContextType
+	version                  snowflake.ID
+	Handler                  EntryPointCommandHandlerType
+}
+
+func (c *EntryPointCommand) UnmarshalJSON(data []byte) error {
+	var v rawEntryPointCommand
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	c.id = v.ID
+	c.applicationID = v.ApplicationID
+	c.guildID = v.GuildID
+	c.name = v.Name
+	c.nameLocalizations = v.NameLocalizations
+	c.nameLocalized = v.NameLocalized
+	c.defaultMemberPermissions = v.DefaultMemberPermissions
+	c.dmPermission = v.DMPermission
+	c.nsfw = v.NSFW
+	c.integrationTypes = v.IntegrationTypes
+	c.contexts = v.Contexts
+	c.version = v.Version
+	c.Handler = v.Handler
+	return nil
+}
+
+func (c EntryPointCommand) MarshalJSON() ([]byte, error) {
+	return json.Marshal(rawEntryPointCommand{
+		ID:                       c.id,
+		Type:                     c.Type(),
+		ApplicationID:            c.applicationID,
+		GuildID:                  c.guildID,
+		Name:                     c.name,
+		NameLocalizations:        c.nameLocalizations,
+		NameLocalized:            c.nameLocalized,
+		DefaultMemberPermissions: c.defaultMemberPermissions,
+		DMPermission:             c.dmPermission,
+		NSFW:                     c.nsfw,
+		IntegrationTypes:         c.integrationTypes,
+		Contexts:                 c.contexts,
+		Version:                  c.version,
+		Handler:                  c.Handler,
+	})
+}
+
+func (c EntryPointCommand) ID() snowflake.ID {
+	return c.id
+}
+
+func (EntryPointCommand) Type() ApplicationCommandType {
+	return ApplicationCommandTypePrimaryEntryPoint
+}
+
+func (c EntryPointCommand) ApplicationID() snowflake.ID {
+	return c.applicationID
+}
+
+func (c EntryPointCommand) GuildID() *snowflake.ID {
+	return c.guildID
+}
+
+func (c EntryPointCommand) Name() string {
+	return c.name
+}
+
+func (c EntryPointCommand) NameLocalizations() map[Locale]string {
+	return c.nameLocalizations
+}
+
+func (c EntryPointCommand) NameLocalized() string {
+	return c.nameLocalized
+}
+
+func (c EntryPointCommand) DefaultMemberPermissions() Permissions {
+	return c.defaultMemberPermissions
+}
+
+func (c EntryPointCommand) DMPermission() bool {
+	return c.dmPermission
+}
+
+func (c EntryPointCommand) NSFW() bool {
+	return c.nsfw
+}
+
+func (c EntryPointCommand) IntegrationTypes() []ApplicationIntegrationType {
+	return c.integrationTypes
+}
+
+func (c EntryPointCommand) Contexts() []InteractionContextType {
+	return c.contexts
+}
+
+func (c EntryPointCommand) Version() snowflake.ID {
+	return c.version
+}
+
+func (c EntryPointCommand) CreatedAt() time.Time {
+	return c.id.Time()
+}
+
+func (EntryPointCommand) applicationCommand() {}
+
+type EntryPointCommandHandlerType int
+
+const (
+	EntryPointCommandHandlerTypeAppHandler EntryPointCommandHandlerType = iota + 1
+	EntryPointCommandHandlerTypeDiscordLaunchActivity
+)
