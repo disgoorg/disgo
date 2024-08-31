@@ -297,6 +297,7 @@ func (c *guildScheduledEventCacheImpl) RemoveGuildScheduledEventsByGuildID(guild
 }
 
 type GuildSoundboardSoundCache interface {
+	GuildSoundboardSoundCache() GroupedCache[discord.SoundboardSound]
 	GuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID) (discord.SoundboardSound, bool)
 	GuildSoundboardSoundsForEach(guildID snowflake.ID, fn func(sound discord.SoundboardSound))
 	GuildSoundboardSoundsAllLen() int
@@ -314,6 +315,10 @@ func NewGuildSoundboardSoundCache(cache GroupedCache[discord.SoundboardSound]) G
 
 type guildSoundboardSoundCacheImpl struct {
 	cache GroupedCache[discord.SoundboardSound]
+}
+
+func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSoundCache() GroupedCache[discord.SoundboardSound] {
+	return c.cache
 }
 
 func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID) (discord.SoundboardSound, bool) {
