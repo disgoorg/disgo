@@ -460,7 +460,7 @@ type EntryPointCommand struct {
 	integrationTypes         []ApplicationIntegrationType
 	contexts                 []InteractionContextType
 	version                  snowflake.ID
-	handler                  *EntryPointCommandHandlerType
+	Handler                  EntryPointCommandHandlerType
 }
 
 func (c *EntryPointCommand) UnmarshalJSON(data []byte) error {
@@ -481,7 +481,7 @@ func (c *EntryPointCommand) UnmarshalJSON(data []byte) error {
 	c.integrationTypes = v.IntegrationTypes
 	c.contexts = v.Contexts
 	c.version = v.Version
-	c.handler = v.Handler
+	c.Handler = v.Handler
 	return nil
 }
 
@@ -500,7 +500,7 @@ func (c EntryPointCommand) MarshalJSON() ([]byte, error) {
 		IntegrationTypes:         c.integrationTypes,
 		Contexts:                 c.contexts,
 		Version:                  c.version,
-		Handler:                  c.handler,
+		Handler:                  c.Handler,
 	})
 }
 
@@ -554,10 +554,6 @@ func (c EntryPointCommand) Contexts() []InteractionContextType {
 
 func (c EntryPointCommand) Version() snowflake.ID {
 	return c.version
-}
-
-func (c EntryPointCommand) Handler() *EntryPointCommandHandlerType {
-	return c.handler
 }
 
 func (c EntryPointCommand) CreatedAt() time.Time {
