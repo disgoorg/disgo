@@ -15,6 +15,7 @@ type Connection struct {
 type ConnectionType string
 
 const (
+	ConnectionTypeAmazonMusic        ConnectionType = "amazon-music"
 	ConnectionTypeBattleNet          ConnectionType = "battlenet"
 	ConnectionTypeBungie             ConnectionType = "bungie"
 	ConnectionTypeDomain             ConnectionType = "domain"
