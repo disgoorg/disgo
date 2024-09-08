@@ -21,7 +21,7 @@ const (
 	MessageTypeCall
 	MessageTypeChannelNameChange
 	MessageTypeChannelIconChange
-	ChannelPinnedMessage
+	MessageTypeChannelPinnedMessage
 	MessageTypeUserJoin
 	MessageTypeGuildBoost
 	MessageTypeGuildBoostTier1
