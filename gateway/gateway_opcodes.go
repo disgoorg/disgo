@@ -17,6 +17,7 @@ const (
 	OpcodeInvalidSession
 	OpcodeHello
 	OpcodeHeartbeatACK
+	OpcodeRequestSoundboardSounds Opcode = 31
 )
 
 type CloseEventCode struct {

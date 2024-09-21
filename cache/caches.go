@@ -296,6 +296,59 @@ func (c *guildScheduledEventCacheImpl) RemoveGuildScheduledEventsByGuildID(guild
 	c.cache.GroupRemove(guildID)
 }
 
+type GuildSoundboardSoundCache interface {
+	GuildSoundboardSoundCache() GroupedCache[discord.SoundboardSound]
+	GuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID) (discord.SoundboardSound, bool)
+	GuildSoundboardSoundsForEach(guildID snowflake.ID, fn func(sound discord.SoundboardSound))
+	GuildSoundboardSoundsAllLen() int
+	GuildSoundboardSoundsLen(guildID snowflake.ID) int
+	AddGuildSoundboardSound(sound discord.SoundboardSound)
+	RemoveGuildSoundboardSound(guildID snowflake.ID, sound snowflake.ID) (discord.SoundboardSound, bool)
+	RemoveGuildSoundboardSoundsByGuildID(guildID snowflake.ID)
+}
+
+func NewGuildSoundboardSoundCache(cache GroupedCache[discord.SoundboardSound]) GuildSoundboardSoundCache {
+	return &guildSoundboardSoundCacheImpl{
+		cache: cache,
+	}
+}
+
+type guildSoundboardSoundCacheImpl struct {
+	cache GroupedCache[discord.SoundboardSound]
+}
+
+func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSoundCache() GroupedCache[discord.SoundboardSound] {
+	return c.cache
+}
+
+func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID) (discord.SoundboardSound, bool) {
+	return c.cache.Get(guildID, soundID)
+}
+
+func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSoundsForEach(guildID snowflake.ID, fn func(sound discord.SoundboardSound)) {
+	c.cache.GroupForEach(guildID, fn)
+}
+
+func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSoundsAllLen() int {
+	return c.cache.Len()
+}
+
+func (c *guildSoundboardSoundCacheImpl) GuildSoundboardSoundsLen(guildID snowflake.ID) int {
+	return c.cache.GroupLen(guildID)
+}
+
+func (c *guildSoundboardSoundCacheImpl) AddGuildSoundboardSound(sound discord.SoundboardSound) {
+	c.cache.Put(*sound.GuildID, sound.SoundID, sound)
+}
+
+func (c *guildSoundboardSoundCacheImpl) RemoveGuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID) (discord.SoundboardSound, bool) {
+	return c.cache.Remove(guildID, soundID)
+}
+
+func (c *guildSoundboardSoundCacheImpl) RemoveGuildSoundboardSoundsByGuildID(guildID snowflake.ID) {
+	c.cache.GroupRemove(guildID)
+}
+
 type RoleCache interface {
 	RoleCache() GroupedCache[discord.Role]
 
@@ -749,6 +802,7 @@ type Caches interface {
 	ChannelCache
 	StageInstanceCache
 	GuildScheduledEventCache
+	GuildSoundboardSoundCache
 	RoleCache
 	MemberCache
 	ThreadMemberCache
@@ -830,38 +884,40 @@ func New(opts ...ConfigOpt) Caches {
 	config.Apply(opts)
 
 	return &cachesImpl{
-		config:                   *config,
-		selfUserCache:            config.SelfUserCache,
-		guildCache:               config.GuildCache,
-		channelCache:             config.ChannelCache,
-		stageInstanceCache:       config.StageInstanceCache,
-		guildScheduledEventCache: config.GuildScheduledEventCache,
-		roleCache:                config.RoleCache,
-		memberCache:              config.MemberCache,
-		threadMemberCache:        config.ThreadMemberCache,
-		presenceCache:            config.PresenceCache,
-		voiceStateCache:          config.VoiceStateCache,
-		messageCache:             config.MessageCache,
-		emojiCache:               config.EmojiCache,
-		stickerCache:             config.StickerCache,
+		config:                    *config,
+		selfUserCache:             config.SelfUserCache,
+		guildCache:                config.GuildCache,
+		channelCache:              config.ChannelCache,
+		stageInstanceCache:        config.StageInstanceCache,
+		guildScheduledEventCache:  config.GuildScheduledEventCache,
+		guildSoundboardSoundCache: config.GuildSoundboardSoundCache,
+		roleCache:                 config.RoleCache,
+		memberCache:               config.MemberCache,
+		threadMemberCache:         config.ThreadMemberCache,
+		presenceCache:             config.PresenceCache,
+		voiceStateCache:           config.VoiceStateCache,
+		messageCache:              config.MessageCache,
+		emojiCache:                config.EmojiCache,
+		stickerCache:              config.StickerCache,
 	}
 }
 
 // these type aliases are needed to allow having the GuildCache, ChannelCache, etc. as methods on the cachesImpl struct
 type (
-	guildCache               = GuildCache
-	channelCache             = ChannelCache
-	stageInstanceCache       = StageInstanceCache
-	guildScheduledEventCache = GuildScheduledEventCache
-	roleCache                = RoleCache
-	memberCache              = MemberCache
-	threadMemberCache        = ThreadMemberCache
-	presenceCache            = PresenceCache
-	voiceStateCache          = VoiceStateCache
-	messageCache             = MessageCache
-	emojiCache               = EmojiCache
-	stickerCache             = StickerCache
-	selfUserCache            = SelfUserCache
+	guildCache                = GuildCache
+	channelCache              = ChannelCache
+	stageInstanceCache        = StageInstanceCache
+	guildScheduledEventCache  = GuildScheduledEventCache
+	guildSoundboardSoundCache = GuildSoundboardSoundCache
+	roleCache                 = RoleCache
+	memberCache               = MemberCache
+	threadMemberCache         = ThreadMemberCache
+	presenceCache             = PresenceCache
+	voiceStateCache           = VoiceStateCache
+	messageCache              = MessageCache
+	emojiCache                = EmojiCache
+	stickerCache              = StickerCache
+	selfUserCache             = SelfUserCache
 )
 
 type cachesImpl struct {
@@ -871,6 +927,7 @@ type cachesImpl struct {
 	channelCache
 	stageInstanceCache
 	guildScheduledEventCache
+	guildSoundboardSoundCache
 	roleCache
 	memberCache
 	threadMemberCache

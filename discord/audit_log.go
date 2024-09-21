@@ -96,6 +96,12 @@ const (
 )
 
 const (
+	AuditLogSoundboardSoundCreate AuditLogEvent = iota + 130
+	AuditLogSoundboardSoundUpdate
+	AuditLogSoundboardSoundDelete
+)
+
+const (
 	AuditLogAutoModerationRuleCreate AuditLogEvent = iota + 140
 	AuditLogAutoModerationRuleUpdate
 	AuditLogAutoModerationRuleDelete
