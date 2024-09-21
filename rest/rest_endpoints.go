@@ -144,7 +144,7 @@ var (
 	GetSoundboardDefaultSounds = NewEndpoint(http.MethodGet, "/soundboard-default-sounds")
 	GetGuildSoundboardSounds   = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/soundboard-sounds")
 	CreateGuildSoundboardSound = NewEndpoint(http.MethodPost, "/guilds/{guild.id}/soundboard-sounds")
-	GetGuildSoundboardSound    = NewEndpoint(http.MethodPost, "/guilds/{guild.id}/soundboard-sounds/{sound.id}")
+	GetGuildSoundboardSound    = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/soundboard-sounds/{sound.id}")
 	UpdateGuildSoundboardSound = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/soundboard-sounds/{sound.id}")
 	DeleteGuildSoundboardSound = NewEndpoint(http.MethodDelete, "/guilds/{guild.id}/soundboard-sounds/{sound.id}")
 )
