@@ -18,11 +18,11 @@ const (
 	IconTypeUnknown          = IconTypeJPEG
 )
 
-func (t IconType) GetMIME() string {
+func (t IconType) MIME() string {
 	return string(t)
 }
 
-func (t IconType) GetHeader() string {
+func (t IconType) Header() string {
 	return "data:" + string(t) + ";base64"
 }
 
@@ -56,5 +56,5 @@ func (i Icon) String() string {
 	if len(i.Data) == 0 {
 		return ""
 	}
-	return i.Type.GetHeader() + "," + string(i.Data)
+	return i.Type.Header() + "," + string(i.Data)
 }
