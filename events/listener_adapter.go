@@ -69,6 +69,11 @@ type ListenerAdapter struct {
 	OnEntitlementUpdate func(event *EntitlementUpdate)
 	OnEntitlementDelete func(event *EntitlementDelete)
 
+	// Subscription Events
+	OnSubscriptionCreate func(event *SubscriptionCreate)
+	OnSubscriptionUpdate func(event *SubscriptionUpdate)
+	OnSubscriptionDelete func(event *SubscriptionDelete)
+
 	// Sticker Events
 	OnStickersUpdate func(event *StickersUpdate)
 	OnStickerCreate  func(event *StickerCreate)
@@ -357,6 +362,20 @@ func (l *ListenerAdapter) OnEvent(event bot.Event) {
 		}
 	case *EntitlementDelete:
 		if listener := l.OnEntitlementDelete; listener != nil {
+			listener(e)
+		}
+
+	// Subscription Events
+	case *SubscriptionCreate:
+		if listener := l.OnSubscriptionCreate; listener != nil {
+			listener(e)
+		}
+	case *SubscriptionUpdate:
+		if listener := l.OnSubscriptionUpdate; listener != nil {
+			listener(e)
+		}
+	case *SubscriptionDelete:
+		if listener := l.OnSubscriptionDelete; listener != nil {
 			listener(e)
 		}
 

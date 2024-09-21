@@ -15,6 +15,7 @@ func NewInteractions(client Client) Interactions {
 type Interactions interface {
 	GetInteractionResponse(applicationID snowflake.ID, interactionToken string, opts ...RequestOpt) (*discord.Message, error)
 	CreateInteractionResponse(interactionID snowflake.ID, interactionToken string, interactionResponse discord.InteractionResponse, opts ...RequestOpt) error
+	CreateInteractionResponseWithCallback(interactionID snowflake.ID, interactionToken string, interactionResponse discord.InteractionResponse, opts ...RequestOpt) (*discord.InteractionCallbackResponse, error)
 	UpdateInteractionResponse(applicationID snowflake.ID, interactionToken string, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (*discord.Message, error)
 	DeleteInteractionResponse(applicationID snowflake.ID, interactionToken string, opts ...RequestOpt) error
 
@@ -33,6 +34,8 @@ func (s *interactionImpl) GetInteractionResponse(interactionID snowflake.ID, int
 	return
 }
 
+// CreateInteractionResponse responds to the interaction without returning the callback.
+// If you need the callback, use CreateInteractionResponseWithCallback.
 func (s *interactionImpl) CreateInteractionResponse(interactionID snowflake.ID, interactionToken string, interactionResponse discord.InteractionResponse, opts ...RequestOpt) error {
 	body, err := interactionResponse.ToBody()
 	if err != nil {
@@ -40,6 +43,18 @@ func (s *interactionImpl) CreateInteractionResponse(interactionID snowflake.ID, 
 	}
 
 	return s.client.Do(CreateInteractionResponse.Compile(nil, interactionID, interactionToken), body, nil, opts...)
+}
+
+func (s *interactionImpl) CreateInteractionResponseWithCallback(interactionID snowflake.ID, interactionToken string, interactionResponse discord.InteractionResponse, opts ...RequestOpt) (callback *discord.InteractionCallbackResponse, err error) {
+	body, err := interactionResponse.ToBody()
+	if err != nil {
+		return nil, err
+	}
+	values := discord.QueryValues{
+		"with_response": true,
+	}
+	err = s.client.Do(CreateInteractionResponse.Compile(values, interactionID, interactionToken), body, &callback, opts...)
+	return
 }
 
 func (s *interactionImpl) UpdateInteractionResponse(applicationID snowflake.ID, interactionToken string, messageUpdate discord.MessageUpdate, opts ...RequestOpt) (message *discord.Message, err error) {

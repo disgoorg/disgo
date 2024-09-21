@@ -36,6 +36,9 @@ func TestCommandMux(t *testing.T) {
 	messageData, err := os.ReadFile("testdata/command/message_command.json")
 	assert.NoError(t, err)
 
+	entryPointData, err := os.ReadFile("testdata/command/entry_point_command.json")
+	assert.NoError(t, err)
+
 	data := []struct {
 		data     []byte
 		expected *discord.InteractionResponse
@@ -67,6 +70,15 @@ func TestCommandMux(t *testing.T) {
 				},
 			},
 		},
+		{
+			data: entryPointData,
+			expected: &discord.InteractionResponse{
+				Type: discord.InteractionResponseTypeCreateMessage,
+				Data: discord.MessageCreate{
+					Content: "bar4",
+				},
+			},
+		},
 	}
 
 	mux := New()
@@ -83,6 +95,11 @@ func TestCommandMux(t *testing.T) {
 	mux.MessageCommand("/foo", func(data discord.MessageCommandInteractionData, e *CommandEvent) error {
 		return e.CreateMessage(discord.MessageCreate{
 			Content: "bar3",
+		})
+	})
+	mux.EntryPointCommand("/foo", func(data discord.EntryPointCommandInteractionData, e *CommandEvent) error {
+		return e.CreateMessage(discord.MessageCreate{
+			Content: "bar4",
 		})
 	})
 

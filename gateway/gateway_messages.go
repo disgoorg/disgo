@@ -431,6 +431,21 @@ func UnmarshalEventData(data []byte, eventType EventType) (EventData, error) {
 		err = json.Unmarshal(data, &d)
 		eventData = d
 
+	case EventTypeSubscriptionCreate:
+		var d EventSubscriptionCreate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeSubscriptionUpdate:
+		var d EventSubscriptionUpdate
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
+	case EventTypeSubscriptionDelete:
+		var d EventSubscriptionDelete
+		err = json.Unmarshal(data, &d)
+		eventData = d
+
 	case EventTypeTypingStart:
 		var d EventTypingStart
 		err = json.Unmarshal(data, &d)

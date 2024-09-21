@@ -22,6 +22,7 @@ type Rest interface {
 	StageInstances
 	Emojis
 	Stickers
+	SKUs
 	GuildScheduledEvents
 }
 
@@ -49,6 +50,7 @@ func New(client Client) Rest {
 		StageInstances:       NewStageInstances(client),
 		Emojis:               NewEmojis(client),
 		Stickers:             NewStickers(client),
+		SKUs:                 NewSKUs(client),
 		GuildScheduledEvents: NewGuildScheduledEvents(client),
 	}
 }
@@ -74,5 +76,6 @@ type restImpl struct {
 	StageInstances
 	Emojis
 	Stickers
+	SKUs
 	GuildScheduledEvents
 }

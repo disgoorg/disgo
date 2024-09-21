@@ -2,6 +2,7 @@ package discord
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -28,7 +29,6 @@ type Application struct {
 	InstallParams                  *InstallParams                    `json:"install_params"`
 	Tags                           []string                          `json:"tags"`
 	Owner                          *User                             `json:"owner,omitempty"`
-	Summary                        string                            `json:"summary"`
 	VerifyKey                      string                            `json:"verify_key"`
 	Team                           *Team                             `json:"team,omitempty"`
 	GuildID                        *snowflake.ID                     `json:"guild_id,omitempty"`
@@ -156,12 +156,7 @@ func SplitScopes(joinedScopes string) []OAuth2Scope {
 }
 
 func HasScope(scope OAuth2Scope, scopes ...OAuth2Scope) bool {
-	for _, s := range scopes {
-		if s == scope {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(scopes, scope)
 }
 
 type TokenType string
@@ -277,3 +272,25 @@ type ApplicationIntegrationTypesConfig map[ApplicationIntegrationType]Applicatio
 type ApplicationIntegrationTypeConfiguration struct {
 	OAuth2InstallParams *InstallParams `json:"oauth2_install_params"`
 }
+
+type ActivityInstance struct {
+	ApplicationID snowflake.ID     `json:"application_id"`
+	InstanceID    string           `json:"instance_id"`
+	LaunchID      snowflake.ID     `json:"launch_id"`
+	Location      ActivityLocation `json:"location"`
+	Users         []snowflake.ID   `json:"users"`
+}
+
+type ActivityLocation struct {
+	ID        string               `json:"id"`
+	Kind      ActivityLocationKind `json:"kind"`
+	ChannelID snowflake.ID         `json:"channel_id"`
+	GuildID   *snowflake.ID        `json:"guild_id"`
+}
+
+type ActivityLocationKind string
+
+const (
+	ActivityLocationKindGC ActivityLocationKind = "gc"
+	ActivityLocationKindPC ActivityLocationKind = "pc"
+)

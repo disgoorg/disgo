@@ -58,6 +58,10 @@ func (i *ApplicationCommandInteraction) UnmarshalJSON(data []byte) error {
 				v.Resolved.Messages[id] = msg
 			}
 		}
+	case ApplicationCommandTypePrimaryEntryPoint:
+		v := EntryPointCommandInteractionData{}
+		err = json.Unmarshal(interaction.Data, &v)
+		interactionData = v
 
 	default:
 		return fmt.Errorf("unknown application rawInteraction data with type %d received", cType.Type)
@@ -129,6 +133,10 @@ func (i ApplicationCommandInteraction) UserCommandInteractionData() UserCommandI
 
 func (i ApplicationCommandInteraction) MessageCommandInteractionData() MessageCommandInteractionData {
 	return i.Data.(MessageCommandInteractionData)
+}
+
+func (i ApplicationCommandInteraction) EntryPointCommandInteractionData() EntryPointCommandInteractionData {
+	return i.Data.(EntryPointCommandInteractionData)
 }
 
 func (ApplicationCommandInteraction) interaction() {}
@@ -687,3 +695,54 @@ func (MessageCommandInteractionData) contextCommandInteractionData()     {}
 type MessageCommandResolved struct {
 	Messages map[snowflake.ID]Message `json:"messages,omitempty"`
 }
+
+var (
+	_ ApplicationCommandInteractionData = (*EntryPointCommandInteractionData)(nil)
+)
+
+type rawEntryPointCommandInteractionData struct {
+	ID   snowflake.ID           `json:"id"`
+	Name string                 `json:"name"`
+	Type ApplicationCommandType `json:"type"`
+}
+
+type EntryPointCommandInteractionData struct {
+	id   snowflake.ID
+	name string
+}
+
+func (d *EntryPointCommandInteractionData) UnmarshalJSON(data []byte) error {
+	var iData rawEntryPointCommandInteractionData
+	if err := json.Unmarshal(data, &iData); err != nil {
+		return err
+	}
+	d.id = iData.ID
+	d.name = iData.Name
+	return nil
+}
+
+func (d *EntryPointCommandInteractionData) MarshalJSON() ([]byte, error) {
+	return json.Marshal(rawEntryPointCommandInteractionData{
+		ID:   d.id,
+		Name: d.name,
+		Type: d.Type(),
+	})
+}
+
+func (EntryPointCommandInteractionData) Type() ApplicationCommandType {
+	return ApplicationCommandTypePrimaryEntryPoint
+}
+
+func (d EntryPointCommandInteractionData) CommandID() snowflake.ID {
+	return d.id
+}
+
+func (d EntryPointCommandInteractionData) CommandName() string {
+	return d.name
+}
+
+func (d EntryPointCommandInteractionData) GuildID() *snowflake.ID {
+	return nil
+}
+
+func (EntryPointCommandInteractionData) applicationCommandInteractionData() {}

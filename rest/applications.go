@@ -42,13 +42,13 @@ type Applications interface {
 	DeleteTestEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error
 	ConsumeEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error
 
-	GetSKUs(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.SKU, error)
-
 	GetApplicationEmojis(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.Emoji, error)
 	GetApplicationEmoji(applicationID snowflake.ID, emojiID snowflake.ID, opts ...RequestOpt) (*discord.Emoji, error)
 	CreateApplicationEmoji(applicationID snowflake.ID, emojiCreate discord.EmojiCreate, opts ...RequestOpt) (*discord.Emoji, error)
 	UpdateApplicationEmoji(applicationID snowflake.ID, emojiID snowflake.ID, emojiUpdate discord.EmojiUpdate, opts ...RequestOpt) (*discord.Emoji, error)
 	DeleteApplicationEmoji(applicationID snowflake.ID, emojiID snowflake.ID, opts ...RequestOpt) error
+
+	GetActivityInstance(applicationID snowflake.ID, instanceID string, opts ...RequestOpt) (*discord.ActivityInstance, error)
 }
 
 type applicationsImpl struct {
@@ -220,11 +220,6 @@ func (s *applicationsImpl) ConsumeEntitlement(applicationID snowflake.ID, entitl
 	return s.client.Do(ConsumeEntitlement.Compile(nil, applicationID, entitlementID), nil, nil, opts...)
 }
 
-func (s *applicationsImpl) GetSKUs(applicationID snowflake.ID, opts ...RequestOpt) (skus []discord.SKU, err error) {
-	err = s.client.Do(GetSKUs.Compile(nil, applicationID), nil, &skus, opts...)
-	return
-}
-
 func (s *applicationsImpl) GetApplicationEmojis(applicationID snowflake.ID, opts ...RequestOpt) (emojis []discord.Emoji, err error) {
 	var rs emojisResponse
 	err = s.client.Do(GetApplicationEmojis.Compile(nil, applicationID), nil, &rs, opts...)
@@ -251,6 +246,11 @@ func (s *applicationsImpl) UpdateApplicationEmoji(applicationID snowflake.ID, em
 
 func (s *applicationsImpl) DeleteApplicationEmoji(applicationID snowflake.ID, emojiID snowflake.ID, opts ...RequestOpt) error {
 	return s.client.Do(DeleteApplicationEmoji.Compile(nil, applicationID, emojiID), nil, nil, opts...)
+}
+
+func (s *applicationsImpl) GetActivityInstance(applicationID snowflake.ID, instanceID string, opts ...RequestOpt) (instance *discord.ActivityInstance, err error) {
+	err = s.client.Do(GetActivityInstance.Compile(nil, applicationID, instanceID), nil, &instance, opts...)
+	return
 }
 
 func unmarshalApplicationCommandsToApplicationCommands(unmarshalCommands []discord.UnmarshalApplicationCommand) []discord.ApplicationCommand {

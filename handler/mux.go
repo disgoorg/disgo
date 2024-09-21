@@ -231,6 +231,17 @@ func (r *Mux) MessageCommand(pattern string, h MessageCommandHandler) {
 	})
 }
 
+// EntryPointCommand registers the given EntryPointCommandHandler to the current Router.
+func (r *Mux) EntryPointCommand(pattern string, h EntryPointCommandHandler) {
+	checkPattern(pattern)
+	r.handle(&handlerHolder[EntryPointCommandHandler]{
+		pattern: pattern,
+		handler: h,
+		t:       discord.InteractionTypeApplicationCommand,
+		t2:      []int{int(discord.ApplicationCommandTypePrimaryEntryPoint)},
+	})
+}
+
 // Autocomplete registers the given AutocompleteHandler to the current Router.
 func (r *Mux) Autocomplete(pattern string, h AutocompleteHandler) {
 	checkPattern(pattern)

@@ -121,6 +121,10 @@ var allEventHandlers = []bot.GatewayEventHandler{
 	bot.NewGatewayEventHandler(gateway.EventTypeStageInstanceUpdate, gatewayHandlerStageInstanceUpdate),
 	bot.NewGatewayEventHandler(gateway.EventTypeStageInstanceDelete, gatewayHandlerStageInstanceDelete),
 
+	bot.NewGatewayEventHandler(gateway.EventTypeSubscriptionCreate, gatewayHandlerSubscriptionCreate),
+	bot.NewGatewayEventHandler(gateway.EventTypeSubscriptionUpdate, gatewayHandlerSubscriptionUpdate),
+	bot.NewGatewayEventHandler(gateway.EventTypeSubscriptionDelete, gatewayHandlerSubscriptionDelete),
+
 	bot.NewGatewayEventHandler(gateway.EventTypeTypingStart, gatewayHandlerTypingStart),
 	bot.NewGatewayEventHandler(gateway.EventTypeUserUpdate, gatewayHandlerUserUpdate),
 

@@ -154,6 +154,7 @@ func (g *gatewayImpl) CloseWithCode(ctx context.Context, code int, message strin
 			g.config.LastSequenceReceived = nil
 		}
 	}
+	g.status = StatusDisconnected
 }
 
 func (g *gatewayImpl) Status() Status {
