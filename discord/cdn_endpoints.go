@@ -137,9 +137,12 @@ func WithFormat(format FileFormat) CDNOpt {
 
 func formatAssetURL(cdnRoute *CDNEndpoint, opts []CDNOpt, params ...any) string {
 	config := DefaultCDNConfig()
-	// use the first provided format in the route definition itself. if the user provides a different format, this will be overriden by the Apply function call below
-	// previously, the default format was png, which would cause issues for cdn endpoints like attachments and soundboard sounds, requiring custom "overrides"
-	config.Format = cdnRoute.Formats[0]
+
+	if len(cdnRoute.Formats) != 0 { // just in case someone fucks up
+		// use the first provided format in the route definition itself. if the user provides a different format, this will be overriden by the Apply function call below
+		// previously, the default format was png, which would cause issues for cdn endpoints like attachments and soundboard sounds, requiring custom "overrides"
+		config.Format = cdnRoute.Formats[0]
+	}
 	config.Apply(opts)
 
 	var lastStringParam string
