@@ -17,11 +17,11 @@ const (
 	SoundTypeUnknown           = SoundTypeMP3
 )
 
-func (t SoundType) GetMIME() string {
+func (t SoundType) MIME() string {
 	return string(t)
 }
 
-func (t SoundType) GetHeader() string {
+func (t SoundType) Header() string {
 	return "data:" + string(t) + ";base64"
 }
 
@@ -55,5 +55,5 @@ func (s Sound) String() string {
 	if len(s.Data) == 0 {
 		return ""
 	}
-	return s.Type.GetHeader() + "," + string(s.Data)
+	return s.Type.Header() + "," + string(s.Data)
 }
