@@ -92,6 +92,9 @@ type Client interface {
 	//  limit    : The number of discord.Member(s) to return.
 	RequestMembersWithQuery(ctx context.Context, guildID snowflake.ID, presence bool, nonce string, query string, limit int) error
 
+	// RequestSoundboardSounds a gateway.MessageDataRequestSoundboardSounds to the specific gateway.Gateway and requests the SoundboardSounds of the specified guilds.
+	RequestSoundboardSounds(ctx context.Context, guildIDs ...snowflake.ID) error
+
 	// SetPresence sends new presence data to the gateway.Gateway.
 	SetPresence(ctx context.Context, opts ...gateway.PresenceOpt) error
 
