@@ -139,6 +139,16 @@ var (
 	GetGuildScheduledEventUsers = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/scheduled-events/{guild_scheduled_event.id}/users")
 )
 
+// Sounds
+var (
+	GetSoundboardDefaultSounds = NewEndpoint(http.MethodGet, "/soundboard-default-sounds")
+	GetGuildSoundboardSounds   = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/soundboard-sounds")
+	CreateGuildSoundboardSound = NewEndpoint(http.MethodPost, "/guilds/{guild.id}/soundboard-sounds")
+	GetGuildSoundboardSound    = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/soundboard-sounds/{sound.id}")
+	UpdateGuildSoundboardSound = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/soundboard-sounds/{sound.id}")
+	DeleteGuildSoundboardSound = NewEndpoint(http.MethodDelete, "/guilds/{guild.id}/soundboard-sounds/{sound.id}")
+)
+
 // StageInstance
 var (
 	GetStageInstance    = NewEndpoint(http.MethodGet, "/stage-instances/{channel.id}")
@@ -176,6 +186,8 @@ var (
 
 	GetPollAnswerVotes = NewEndpoint(http.MethodGet, "/channels/{channel.id}/polls/{message.id}/answers/{answer.id}")
 	ExpirePoll         = NewEndpoint(http.MethodPost, "/channels/{channel.id}/polls/{message.id}/expire")
+
+	SendSoundboardSound = NewEndpoint(http.MethodPost, "/channels/{channel.id}/send-soundboard-sound")
 )
 
 // Threads

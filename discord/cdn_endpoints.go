@@ -46,6 +46,8 @@ var (
 	CustomSticker     = NewCDN("/stickers/{sticker.id}", FileFormatPNG, FileFormatLottie, FileFormatGIF)
 
 	AttachmentFile = NewCDN("/attachments/{channel.id}/{attachment.id}/{file.name}", FileFormatNone)
+
+	SoundboardSoundFile = NewCDN("/soundboard-sounds/{sound.id}", FileFormatNone)
 )
 
 // FileFormat is the type of file on Discord's CDN (https://discord.com/developers/docs/reference#image-formatting-image-formats)
