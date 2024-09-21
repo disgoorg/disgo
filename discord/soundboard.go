@@ -20,7 +20,7 @@ type SoundboardSound struct {
 	EmojiName *string       `json:"emoji_name"`
 	GuildID   *snowflake.ID `json:"guild_id,omitempty"`
 	Available *bool         `json:"available,omitempty"`
-	User      *User         `json:"user"`
+	User      *User         `json:"user,omitempty"`
 }
 
 func (s SoundboardSound) URL(opts ...CDNOpt) string {
