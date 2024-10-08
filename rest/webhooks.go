@@ -50,9 +50,8 @@ func (s *webhookImpl) UpdateWebhook(webhookID snowflake.ID, webhookUpdate discor
 	return
 }
 
-func (s *webhookImpl) DeleteWebhook(webhookID snowflake.ID, opts ...RequestOpt) (err error) {
-	err = s.client.Do(DeleteWebhook.Compile(nil, webhookID), nil, nil, opts...)
-	return
+func (s *webhookImpl) DeleteWebhook(webhookID snowflake.ID, opts ...RequestOpt) error {
+	return s.client.Do(DeleteWebhook.Compile(nil, webhookID), nil, nil, opts...)
 }
 
 func (s *webhookImpl) GetWebhookWithToken(webhookID snowflake.ID, webhookToken string, opts ...RequestOpt) (webhook discord.Webhook, err error) {
@@ -73,9 +72,8 @@ func (s *webhookImpl) UpdateWebhookWithToken(webhookID snowflake.ID, webhookToke
 	return
 }
 
-func (s *webhookImpl) DeleteWebhookWithToken(webhookID snowflake.ID, webhookToken string, opts ...RequestOpt) (err error) {
-	err = s.client.Do(DeleteWebhookWithToken.Compile(nil, webhookID, webhookToken), nil, nil, opts...)
-	return
+func (s *webhookImpl) DeleteWebhookWithToken(webhookID snowflake.ID, webhookToken string, opts ...RequestOpt) error {
+	return s.client.Do(DeleteWebhookWithToken.Compile(nil, webhookID, webhookToken), nil, nil, opts...)
 }
 
 func (s *webhookImpl) createWebhookMessage(webhookID snowflake.ID, webhookToken string, messageCreate discord.Payload, wait bool, threadID snowflake.ID, endpoint *Endpoint, opts []RequestOpt) (message *discord.Message, err error) {
@@ -127,11 +125,10 @@ func (s *webhookImpl) UpdateWebhookMessage(webhookID snowflake.ID, webhookToken 
 	return
 }
 
-func (s *webhookImpl) DeleteWebhookMessage(webhookID snowflake.ID, webhookToken string, messageID snowflake.ID, threadID snowflake.ID, opts ...RequestOpt) (err error) {
+func (s *webhookImpl) DeleteWebhookMessage(webhookID snowflake.ID, webhookToken string, messageID snowflake.ID, threadID snowflake.ID, opts ...RequestOpt) error {
 	params := discord.QueryValues{}
 	if threadID != 0 {
 		params["thread_id"] = threadID
 	}
-	err = s.client.Do(DeleteWebhookMessage.Compile(params, webhookID, webhookToken, messageID), nil, nil, opts...)
-	return
+	return s.client.Do(DeleteWebhookMessage.Compile(params, webhookID, webhookToken, messageID), nil, nil, opts...)
 }
