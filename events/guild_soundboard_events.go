@@ -33,6 +33,7 @@ type GuildSoundboardSoundDelete struct {
 type GuildSoundboardSoundsUpdate struct {
 	*GenericEvent
 	SoundboardSounds []discord.SoundboardSound
+	GuildID          snowflake.ID
 }
 
 // SoundboardSounds is a response to gateway.OpcodeRequestSoundboardSounds

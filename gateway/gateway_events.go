@@ -463,7 +463,10 @@ type EventGuildSoundboardSoundDelete struct {
 func (EventGuildSoundboardSoundDelete) messageData() {}
 func (EventGuildSoundboardSoundDelete) eventData()   {}
 
-type EventGuildSoundboardSoundsUpdate []discord.SoundboardSound
+type EventGuildSoundboardSoundsUpdate struct {
+	SoundboardSounds []discord.SoundboardSound `json:"soundboard_sounds"`
+	GuildID          snowflake.ID              `json:"guild_id"`
+}
 
 func (EventGuildSoundboardSoundsUpdate) messageData() {}
 func (EventGuildSoundboardSoundsUpdate) eventData()   {}
