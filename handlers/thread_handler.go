@@ -19,6 +19,7 @@ func gatewayHandlerThreadCreate(client bot.Client, sequenceNumber int, shardID i
 			Thread:       event.GuildThread,
 		},
 		ThreadMember: event.ThreadMember,
+		NewlyCreated: event.NewlyCreated,
 	})
 }
 
