@@ -38,7 +38,7 @@ func main() {
 				}
 			},
 			OnThreadCreate: func(event *events.ThreadCreate) {
-				slog.Info("ThreadCreateEvent")
+				slog.Info("ThreadCreateEvent", slog.Any("newly_created", event.NewlyCreated))
 			},
 			OnThreadUpdate: func(event *events.ThreadUpdate) {
 				slog.Info("ThreadUpdateEvent")

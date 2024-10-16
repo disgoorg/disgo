@@ -107,6 +107,48 @@ func (EventChannelDelete) eventData()   {}
 type EventThreadCreate struct {
 	discord.GuildThread
 	ThreadMember discord.ThreadMember `json:"thread_member"`
+	NewlyCreated bool                 `json:"newly_created"`
+}
+
+func (e *EventThreadCreate) UnmarshalJSON(data []byte) error {
+	var guildThread discord.GuildThread
+	if err := json.Unmarshal(data, &guildThread); err != nil {
+		return err
+	}
+
+	e.GuildThread = guildThread
+
+	var v struct {
+		ThreadMember discord.ThreadMember `json:"thread_member"`
+		NewlyCreated bool                 `json:"newly_created"`
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	e.ThreadMember = v.ThreadMember
+	e.NewlyCreated = v.NewlyCreated
+	return nil
+}
+
+func (e EventThreadCreate) MarshalJSON() ([]byte, error) {
+	data1, err := json.Marshal(e.GuildThread)
+	if err != nil {
+		return nil, err
+	}
+
+	data2, err := json.Marshal(struct {
+		ThreadMember discord.ThreadMember `json:"thread_member"`
+		NewlyCreated bool                 `json:"newly_created"`
+	}{
+		ThreadMember: e.ThreadMember,
+		NewlyCreated: e.NewlyCreated,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return json.SimpleMerge(data1, data2)
 }
 
 func (EventThreadCreate) messageData() {}
@@ -713,20 +755,39 @@ type EventIntegrationCreate struct {
 }
 
 func (e *EventIntegrationCreate) UnmarshalJSON(data []byte) error {
-	type integrationCreateEvent EventIntegrationCreate
-	var v struct {
-		discord.UnmarshalIntegration
-		integrationCreateEvent
+	var integration discord.UnmarshalIntegration
+	if err := json.Unmarshal(data, &integration); err != nil {
+		return err
 	}
 
+	var v struct {
+		GuildID snowflake.ID `json:"guild_id"`
+	}
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
 
-	*e = EventIntegrationCreate(v.integrationCreateEvent)
-
-	e.Integration = v.UnmarshalIntegration.Integration
+	e.Integration = integration.Integration
+	e.GuildID = v.GuildID
 	return nil
+}
+
+func (e EventIntegrationCreate) MarshalJSON() ([]byte, error) {
+	data1, err := json.Marshal(e.Integration)
+	if err != nil {
+		return nil, err
+	}
+
+	data2, err := json.Marshal(struct {
+		GuildID snowflake.ID `json:"guild_id"`
+	}{
+		GuildID: e.GuildID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return json.SimpleMerge(data1, data2)
 }
 
 func (EventIntegrationCreate) messageData() {}
@@ -738,20 +799,39 @@ type EventIntegrationUpdate struct {
 }
 
 func (e *EventIntegrationUpdate) UnmarshalJSON(data []byte) error {
-	type integrationUpdateEvent EventIntegrationUpdate
-	var v struct {
-		discord.UnmarshalIntegration
-		integrationUpdateEvent
+	var integration discord.UnmarshalIntegration
+	if err := json.Unmarshal(data, &integration); err != nil {
+		return err
 	}
 
+	var v struct {
+		GuildID snowflake.ID `json:"guild_id"`
+	}
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
 
-	*e = EventIntegrationUpdate(v.integrationUpdateEvent)
-
-	e.Integration = v.UnmarshalIntegration.Integration
+	e.Integration = integration.Integration
+	e.GuildID = v.GuildID
 	return nil
+}
+
+func (e EventIntegrationUpdate) MarshalJSON() ([]byte, error) {
+	data1, err := json.Marshal(e.Integration)
+	if err != nil {
+		return nil, err
+	}
+
+	data2, err := json.Marshal(struct {
+		GuildID snowflake.ID `json:"guild_id"`
+	}{
+		GuildID: e.GuildID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return json.SimpleMerge(data1, data2)
 }
 
 func (EventIntegrationUpdate) messageData() {}

@@ -19,6 +19,7 @@ type GenericThread struct {
 type ThreadCreate struct {
 	*GenericThread
 	ThreadMember discord.ThreadMember
+	NewlyCreated bool
 }
 
 // ThreadUpdate is dispatched when a thread is updated.
