@@ -20,8 +20,6 @@ type Channels interface {
 	GetWebhooks(channelID snowflake.ID, opts ...RequestOpt) ([]discord.Webhook, error)
 	CreateWebhook(channelID snowflake.ID, webhookCreate discord.WebhookCreate, opts ...RequestOpt) (*discord.IncomingWebhook, error)
 
-	GetPermissionOverwrites(channelID snowflake.ID, opts ...RequestOpt) ([]discord.PermissionOverwrite, error)
-	GetPermissionOverwrite(channelID snowflake.ID, overwriteID snowflake.ID, opts ...RequestOpt) (*discord.PermissionOverwrite, error)
 	UpdatePermissionOverwrite(channelID snowflake.ID, overwriteID snowflake.ID, permissionOverwrite discord.PermissionOverwriteUpdate, opts ...RequestOpt) error
 	DeletePermissionOverwrite(channelID snowflake.ID, overwriteID snowflake.ID, opts ...RequestOpt) error
 
@@ -93,16 +91,6 @@ func (s *channelImpl) GetWebhooks(channelID snowflake.ID, opts ...RequestOpt) (w
 
 func (s *channelImpl) CreateWebhook(channelID snowflake.ID, webhookCreate discord.WebhookCreate, opts ...RequestOpt) (webhook *discord.IncomingWebhook, err error) {
 	err = s.client.Do(CreateWebhook.Compile(nil, channelID), webhookCreate, &webhook, opts...)
-	return
-}
-
-func (s *channelImpl) GetPermissionOverwrites(channelID snowflake.ID, opts ...RequestOpt) (overwrites []discord.PermissionOverwrite, err error) {
-	err = s.client.Do(GetPermissionOverwrites.Compile(nil, channelID), nil, &overwrites, opts...)
-	return
-}
-
-func (s *channelImpl) GetPermissionOverwrite(channelID snowflake.ID, overwriteID snowflake.ID, opts ...RequestOpt) (overwrite *discord.PermissionOverwrite, err error) {
-	err = s.client.Do(GetPermissionOverwrite.Compile(nil, channelID, overwriteID), nil, &overwrite, opts...)
 	return
 }
 
