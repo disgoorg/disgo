@@ -530,7 +530,7 @@ type InteractionMetadata struct {
 	// See https://discord.com/developers/docs/resources/message#message-interaction-metadata-object-application-command-interaction-metadata-structure
 	TargetUser *User `json:"target_user"`
 	// This field will only be present for application command interactions of ApplicationCommandTypeMessage.
-	// See https://discord.com/developers/docs/resources/message#message-interaction-metadata-object-message-command-interaction-metadata-structure
+	// See https://discord.com/developers/docs/resources/message#message-interaction-metadata-object-application-command-interaction-metadata-structure
 	TargetMessageID *snowflake.ID `json:"target_message_id"`
 	// This field will only be present for InteractionTypeComponent interactions.
 	// See https://discord.com/developers/docs/resources/message#message-interaction-metadata-object-message-component-interaction-metadata-structure
