@@ -521,14 +521,23 @@ type RoleSubscriptionData struct {
 }
 
 type InteractionMetadata struct {
-	ID                            snowflake.ID                                `json:"id"`
-	Type                          InteractionType                             `json:"type"`
-	User                          User                                        `json:"user"`
-	AuthorizingIntegrationOwners  map[ApplicationIntegrationType]snowflake.ID `json:"authorizing_integration_owners"`
-	OriginalResponseMessageID     *snowflake.ID                               `json:"original_response_message_id"`
-	Name                          *string                                     `json:"name"`
-	InteractedMessageID           *snowflake.ID                               `json:"interacted_message_id"`
-	TriggeringInteractionMetadata *InteractionMetadata                        `json:"triggering_interaction_metadata"`
+	ID                           snowflake.ID                                `json:"id"`
+	Type                         InteractionType                             `json:"type"`
+	User                         User                                        `json:"user"`
+	AuthorizingIntegrationOwners map[ApplicationIntegrationType]snowflake.ID `json:"authorizing_integration_owners"`
+	OriginalResponseMessageID    *snowflake.ID                               `json:"original_response_message_id"`
+	// This field will only be present for application command interactions of ApplicationCommandTypeUser.
+	// See https://discord.com/developers/docs/resources/message#message-interaction-metadata-object-application-command-interaction-metadata-structure
+	TargetUser *User `json:"target_user"`
+	// This field will only be present for application command interactions of ApplicationCommandTypeMessage.
+	// See https://discord.com/developers/docs/resources/message#message-interaction-metadata-object-application-command-interaction-metadata-structure
+	TargetMessageID *snowflake.ID `json:"target_message_id"`
+	// This field will only be present for InteractionTypeComponent interactions.
+	// See https://discord.com/developers/docs/resources/message#message-interaction-metadata-object-message-component-interaction-metadata-structure
+	InteractedMessageID *snowflake.ID `json:"interacted_message_id"`
+	// This field will only be present for InteractionTypeModalSubmit interactions.
+	// See https://discord.com/developers/docs/resources/message#message-interaction-metadata-object-modal-submit-interaction-metadata-structure
+	TriggeringInteractionMetadata *InteractionMetadata `json:"triggering_interaction_metadata"`
 }
 
 type MessageCall struct {
