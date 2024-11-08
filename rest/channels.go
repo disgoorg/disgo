@@ -232,7 +232,11 @@ func (s *channelImpl) GetPollAnswerVotes(channelID snowflake.ID, messageID snowf
 	if limit != 0 {
 		values["limit"] = limit
 	}
-	err = s.client.Do(GetPollAnswerVotes.Compile(values, channelID, messageID, answerID), nil, &users, opts...)
+	var rs pollAnswerVotesResponse
+	err = s.client.Do(GetPollAnswerVotes.Compile(values, channelID, messageID, answerID), nil, &rs, opts...)
+	if err == nil {
+		users = rs.Users
+	}
 	return
 }
 
@@ -248,4 +252,8 @@ func (s *channelImpl) GetPollAnswerVotesPage(channelID snowflake.ID, messageID s
 func (s *channelImpl) ExpirePoll(channelID snowflake.ID, messageID snowflake.ID, opts ...RequestOpt) (message *discord.Message, err error) {
 	err = s.client.Do(ExpirePoll.Compile(nil, channelID, messageID), nil, &message, opts...)
 	return
+}
+
+type pollAnswerVotesResponse struct {
+	Users []discord.User `json:"users"`
 }
