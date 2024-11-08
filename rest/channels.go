@@ -232,7 +232,10 @@ func (s *channelImpl) GetPollAnswerVotes(channelID snowflake.ID, messageID snowf
 	if limit != 0 {
 		values["limit"] = limit
 	}
-	err = s.client.Do(GetPollAnswerVotes.Compile(values, channelID, messageID, answerID), nil, &users, opts...)
+	u := struct {
+		Users *[]discord.User `json:"users"`
+	}{Users: &users}
+	err = s.client.Do(GetPollAnswerVotes.Compile(values, channelID, messageID, answerID), nil, &u, opts...)
 	return
 }
 
