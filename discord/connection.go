@@ -17,6 +17,7 @@ type ConnectionType string
 const (
 	ConnectionTypeAmazonMusic        ConnectionType = "amazon-music"
 	ConnectionTypeBattleNet          ConnectionType = "battlenet"
+	ConnectionTypeBluesky            ConnectionType = "bluesky"
 	ConnectionTypeBungie             ConnectionType = "bungie"
 	ConnectionTypeCrunchyroll        ConnectionType = "crunchyroll"
 	ConnectionTypeDomain             ConnectionType = "domain"
