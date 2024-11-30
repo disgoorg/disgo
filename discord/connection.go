@@ -18,6 +18,7 @@ const (
 	ConnectionTypeAmazonMusic        ConnectionType = "amazon-music"
 	ConnectionTypeBattleNet          ConnectionType = "battlenet"
 	ConnectionTypeBungie             ConnectionType = "bungie"
+	ConnectionTypeCrunchyroll        ConnectionType = "crunchyroll"
 	ConnectionTypeDomain             ConnectionType = "domain"
 	ConnectionTypeEbay               ConnectionType = "ebay"
 	ConnectionTypeEpicGames          ConnectionType = "epicgames"
