@@ -37,7 +37,8 @@ type Applications interface {
 	GetApplicationRoleConnectionMetadata(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
 	UpdateApplicationRoleConnectionMetadata(applicationID snowflake.ID, newRecords []discord.ApplicationRoleConnectionMetadata, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
 
-	GetEntitlements(applicationID snowflake.ID, userID snowflake.ID, guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, excludeEnded bool, skuIDs []snowflake.ID, opts ...RequestOpt) ([]discord.Entitlement, error)
+	GetEntitlements(applicationID snowflake.ID, userID snowflake.ID, guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, excludeEnded bool, excludeDeleted bool, skuIDs []snowflake.ID, opts ...RequestOpt) ([]discord.Entitlement, error)
+	GetEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) (*discord.Entitlement, error)
 	CreateTestEntitlement(applicationID snowflake.ID, entitlementCreate discord.TestEntitlementCreate, opts ...RequestOpt) (*discord.Entitlement, error)
 	DeleteTestEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error
 	ConsumeEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error
@@ -183,10 +184,11 @@ func (s *applicationsImpl) UpdateApplicationRoleConnectionMetadata(applicationID
 	return
 }
 
-func (s *applicationsImpl) GetEntitlements(applicationID snowflake.ID, userID snowflake.ID, guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, excludeEnded bool, skuIDs []snowflake.ID, opts ...RequestOpt) (entitlements []discord.Entitlement, err error) {
+func (s *applicationsImpl) GetEntitlements(applicationID snowflake.ID, userID snowflake.ID, guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, excludeEnded bool, excludeDeleted bool, skuIDs []snowflake.ID, opts ...RequestOpt) (entitlements []discord.Entitlement, err error) {
 	queryValues := discord.QueryValues{
-		"exclude_ended": excludeEnded,
-		"sku_ids":       slicehelper.JoinSnowflakes(skuIDs),
+		"exclude_ended":   excludeEnded,
+		"exclude_deleted": excludeDeleted,
+		"sku_ids":         slicehelper.JoinSnowflakes(skuIDs),
 	}
 	if userID != 0 {
 		queryValues["user_id"] = userID
@@ -204,6 +206,11 @@ func (s *applicationsImpl) GetEntitlements(applicationID snowflake.ID, userID sn
 		queryValues["limit"] = limit
 	}
 	err = s.client.Do(GetEntitlements.Compile(queryValues, applicationID), nil, &entitlements, opts...)
+	return
+}
+
+func (s *applicationsImpl) GetEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) (entitlement *discord.Entitlement, err error) {
+	err = s.client.Do(GetEntitlement.Compile(nil, applicationID, entitlementID), nil, &entitlement, opts...)
 	return
 }
 
