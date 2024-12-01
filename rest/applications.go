@@ -42,7 +42,7 @@ type Applications interface {
 	DeleteTestEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error
 	ConsumeEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error
 
-	GetApplicationEmojis(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.Emoji, error)
+	GetApplicationEmojis(applicationID snowflake.ID, opts ...RequestOpt) (ItemsResponse[discord.Emoji], error)
 	GetApplicationEmoji(applicationID snowflake.ID, emojiID snowflake.ID, opts ...RequestOpt) (*discord.Emoji, error)
 	CreateApplicationEmoji(applicationID snowflake.ID, emojiCreate discord.EmojiCreate, opts ...RequestOpt) (*discord.Emoji, error)
 	UpdateApplicationEmoji(applicationID snowflake.ID, emojiID snowflake.ID, emojiUpdate discord.EmojiUpdate, opts ...RequestOpt) (*discord.Emoji, error)
@@ -220,12 +220,8 @@ func (s *applicationsImpl) ConsumeEntitlement(applicationID snowflake.ID, entitl
 	return s.client.Do(ConsumeEntitlement.Compile(nil, applicationID, entitlementID), nil, nil, opts...)
 }
 
-func (s *applicationsImpl) GetApplicationEmojis(applicationID snowflake.ID, opts ...RequestOpt) (emojis []discord.Emoji, err error) {
-	var rs emojisResponse
-	err = s.client.Do(GetApplicationEmojis.Compile(nil, applicationID), nil, &rs, opts...)
-	if err == nil {
-		emojis = rs.Items
-	}
+func (s *applicationsImpl) GetApplicationEmojis(applicationID snowflake.ID, opts ...RequestOpt) (emojis ItemsResponse[discord.Emoji], err error) {
+	err = s.client.Do(GetApplicationEmojis.Compile(nil, applicationID), nil, &emojis, opts...)
 	return
 }
 
@@ -259,8 +255,4 @@ func unmarshalApplicationCommandsToApplicationCommands(unmarshalCommands []disco
 		commands[i] = unmarshalCommands[i].ApplicationCommand
 	}
 	return commands
-}
-
-type emojisResponse struct {
-	Items []discord.Emoji `json:"items"`
 }

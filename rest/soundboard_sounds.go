@@ -13,7 +13,7 @@ func NewSoundboardSounds(client Client) SoundboardSounds {
 
 type SoundboardSounds interface {
 	GetSoundboardDefaultSounds(opts ...RequestOpt) ([]discord.SoundboardSound, error)
-	GetGuildSoundboardSounds(guildID snowflake.ID, opts ...RequestOpt) ([]discord.SoundboardSound, error)
+	GetGuildSoundboardSounds(guildID snowflake.ID, opts ...RequestOpt) (ItemsResponse[discord.SoundboardSound], error)
 	CreateGuildSoundboardSound(guildID snowflake.ID, soundCreate discord.SoundboardSoundCreate, opts ...RequestOpt) (*discord.SoundboardSound, error)
 	GetGuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID, opts ...RequestOpt) (*discord.SoundboardSound, error)
 	UpdateGuildSoundboardSound(guildID snowflake.ID, soundID snowflake.ID, soundUpdate discord.SoundboardSoundUpdate, opts ...RequestOpt) (*discord.SoundboardSound, error)
@@ -30,12 +30,8 @@ func (s *soundsImpl) GetSoundboardDefaultSounds(opts ...RequestOpt) (sounds []di
 	return
 }
 
-func (s *soundsImpl) GetGuildSoundboardSounds(guildID snowflake.ID, opts ...RequestOpt) (sounds []discord.SoundboardSound, err error) {
-	var rs soundsResponse
-	err = s.client.Do(GetGuildSoundboardSounds.Compile(nil, guildID), nil, &rs, opts...)
-	if err == nil {
-		sounds = rs.Items
-	}
+func (s *soundsImpl) GetGuildSoundboardSounds(guildID snowflake.ID, opts ...RequestOpt) (sounds ItemsResponse[discord.SoundboardSound], err error) {
+	err = s.client.Do(GetGuildSoundboardSounds.Compile(nil, guildID), nil, &sounds, opts...)
 	return
 }
 
@@ -60,8 +56,4 @@ func (s *soundsImpl) DeleteGuildSoundboardSound(guildID snowflake.ID, soundID sn
 
 func (s *soundsImpl) SendSoundboardSound(channelID snowflake.ID, sendSound discord.SendSoundboardSound, opts ...RequestOpt) error {
 	return s.client.Do(SendSoundboardSound.Compile(nil, channelID), sendSound, nil, opts...)
-}
-
-type soundsResponse struct {
-	Items []discord.SoundboardSound `json:"items"`
 }
