@@ -37,7 +37,7 @@ type Applications interface {
 	GetApplicationRoleConnectionMetadata(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
 	UpdateApplicationRoleConnectionMetadata(applicationID snowflake.ID, newRecords []discord.ApplicationRoleConnectionMetadata, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
 
-	GetEntitlements(applicationID snowflake.ID, params ParamsGetEntitlements, opts ...RequestOpt) ([]discord.Entitlement, error)
+	GetEntitlements(applicationID snowflake.ID, params GetEntitlementsParams, opts ...RequestOpt) ([]discord.Entitlement, error)
 	GetEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) (*discord.Entitlement, error)
 	CreateTestEntitlement(applicationID snowflake.ID, entitlementCreate discord.TestEntitlementCreate, opts ...RequestOpt) (*discord.Entitlement, error)
 	DeleteTestEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error
@@ -52,8 +52,8 @@ type Applications interface {
 	GetActivityInstance(applicationID snowflake.ID, instanceID string, opts ...RequestOpt) (*discord.ActivityInstance, error)
 }
 
-// ParamsGetEntitlements holds query parameters for Applications.GetEntitlements (https://discord.com/developers/docs/resources/entitlement#list-entitlements)
-type ParamsGetEntitlements struct {
+// GetEntitlementsParams holds query parameters for Applications.GetEntitlements (https://discord.com/developers/docs/resources/entitlement#list-entitlements)
+type GetEntitlementsParams struct {
 	UserID         snowflake.ID
 	SkuIDs         []snowflake.ID
 	Before         int
@@ -64,7 +64,7 @@ type ParamsGetEntitlements struct {
 	ExcludeDeleted bool
 }
 
-func (p ParamsGetEntitlements) ToQueryValues() discord.QueryValues {
+func (p GetEntitlementsParams) ToQueryValues() discord.QueryValues {
 	queryValues := discord.QueryValues{
 		"exclude_ended":   p.ExcludeEnded,
 		"exclude_deleted": p.ExcludeDeleted,
@@ -220,7 +220,7 @@ func (s *applicationsImpl) UpdateApplicationRoleConnectionMetadata(applicationID
 	return
 }
 
-func (s *applicationsImpl) GetEntitlements(applicationID snowflake.ID, params ParamsGetEntitlements, opts ...RequestOpt) (entitlements []discord.Entitlement, err error) {
+func (s *applicationsImpl) GetEntitlements(applicationID snowflake.ID, params GetEntitlementsParams, opts ...RequestOpt) (entitlements []discord.Entitlement, err error) {
 	err = s.client.Do(GetEntitlements.Compile(params.ToQueryValues(), applicationID), nil, &entitlements, opts...)
 	return
 }
