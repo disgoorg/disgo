@@ -37,7 +37,8 @@ type Applications interface {
 	GetApplicationRoleConnectionMetadata(applicationID snowflake.ID, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
 	UpdateApplicationRoleConnectionMetadata(applicationID snowflake.ID, newRecords []discord.ApplicationRoleConnectionMetadata, opts ...RequestOpt) ([]discord.ApplicationRoleConnectionMetadata, error)
 
-	GetEntitlements(applicationID snowflake.ID, userID snowflake.ID, guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, excludeEnded bool, skuIDs []snowflake.ID, opts ...RequestOpt) ([]discord.Entitlement, error)
+	GetEntitlements(applicationID snowflake.ID, params GetEntitlementsParams, opts ...RequestOpt) ([]discord.Entitlement, error)
+	GetEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) (*discord.Entitlement, error)
 	CreateTestEntitlement(applicationID snowflake.ID, entitlementCreate discord.TestEntitlementCreate, opts ...RequestOpt) (*discord.Entitlement, error)
 	DeleteTestEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error
 	ConsumeEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) error
@@ -49,6 +50,42 @@ type Applications interface {
 	DeleteApplicationEmoji(applicationID snowflake.ID, emojiID snowflake.ID, opts ...RequestOpt) error
 
 	GetActivityInstance(applicationID snowflake.ID, instanceID string, opts ...RequestOpt) (*discord.ActivityInstance, error)
+}
+
+// GetEntitlementsParams holds query parameters for Applications.GetEntitlements (https://discord.com/developers/docs/resources/entitlement#list-entitlements)
+type GetEntitlementsParams struct {
+	UserID         snowflake.ID
+	SkuIDs         []snowflake.ID
+	Before         int
+	After          int
+	Limit          int
+	GuildID        snowflake.ID
+	ExcludeEnded   bool
+	ExcludeDeleted bool
+}
+
+func (p GetEntitlementsParams) ToQueryValues() discord.QueryValues {
+	queryValues := discord.QueryValues{
+		"exclude_ended":   p.ExcludeEnded,
+		"exclude_deleted": p.ExcludeDeleted,
+		"sku_ids":         slicehelper.JoinSnowflakes(p.SkuIDs),
+	}
+	if p.UserID != 0 {
+		queryValues["user_id"] = p.UserID
+	}
+	if p.Before != 0 {
+		queryValues["before"] = p.Before
+	}
+	if p.After != 0 {
+		queryValues["after"] = p.After
+	}
+	if p.Limit != 0 {
+		queryValues["limit"] = p.Limit
+	}
+	if p.GuildID != 0 {
+		queryValues["guild_id"] = p.GuildID
+	}
+	return queryValues
 }
 
 type applicationsImpl struct {
@@ -183,27 +220,13 @@ func (s *applicationsImpl) UpdateApplicationRoleConnectionMetadata(applicationID
 	return
 }
 
-func (s *applicationsImpl) GetEntitlements(applicationID snowflake.ID, userID snowflake.ID, guildID snowflake.ID, before snowflake.ID, after snowflake.ID, limit int, excludeEnded bool, skuIDs []snowflake.ID, opts ...RequestOpt) (entitlements []discord.Entitlement, err error) {
-	queryValues := discord.QueryValues{
-		"exclude_ended": excludeEnded,
-		"sku_ids":       slicehelper.JoinSnowflakes(skuIDs),
-	}
-	if userID != 0 {
-		queryValues["user_id"] = userID
-	}
-	if guildID != 0 {
-		queryValues["guild_id"] = guildID
-	}
-	if before != 0 {
-		queryValues["before"] = before
-	}
-	if after != 0 {
-		queryValues["after"] = after
-	}
-	if limit != 0 {
-		queryValues["limit"] = limit
-	}
-	err = s.client.Do(GetEntitlements.Compile(queryValues, applicationID), nil, &entitlements, opts...)
+func (s *applicationsImpl) GetEntitlements(applicationID snowflake.ID, params GetEntitlementsParams, opts ...RequestOpt) (entitlements []discord.Entitlement, err error) {
+	err = s.client.Do(GetEntitlements.Compile(params.ToQueryValues(), applicationID), nil, &entitlements, opts...)
+	return
+}
+
+func (s *applicationsImpl) GetEntitlement(applicationID snowflake.ID, entitlementID snowflake.ID, opts ...RequestOpt) (entitlement *discord.Entitlement, err error) {
+	err = s.client.Do(GetEntitlement.Compile(nil, applicationID, entitlementID), nil, &entitlement, opts...)
 	return
 }
 
