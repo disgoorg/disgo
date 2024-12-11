@@ -16,7 +16,6 @@ type Users interface {
 	GetUser(userID snowflake.ID, opts ...RequestOpt) (*discord.User, error)
 	UpdateCurrentUser(userUpdate discord.UserUpdate, opts ...RequestOpt) (*discord.OAuth2User, error)
 	LeaveGuild(guildID snowflake.ID, opts ...RequestOpt) error
-	GetDMChannels(opts ...RequestOpt) ([]discord.Channel, error)
 	CreateDMChannel(userID snowflake.ID, opts ...RequestOpt) (*discord.DMChannel, error)
 }
 
@@ -36,11 +35,6 @@ func (s *userImpl) UpdateCurrentUser(userUpdate discord.UserUpdate, opts ...Requ
 
 func (s *userImpl) LeaveGuild(guildID snowflake.ID, opts ...RequestOpt) error {
 	return s.client.Do(LeaveGuild.Compile(nil, guildID), nil, nil, opts...)
-}
-
-func (s *userImpl) GetDMChannels(opts ...RequestOpt) (channels []discord.Channel, err error) {
-	err = s.client.Do(GetDMChannels.Compile(nil), nil, &channels, opts...)
-	return
 }
 
 func (s *userImpl) CreateDMChannel(userID snowflake.ID, opts ...RequestOpt) (channel *discord.DMChannel, err error) {
