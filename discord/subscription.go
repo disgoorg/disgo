@@ -11,6 +11,7 @@ type Subscription struct {
 	UserID             snowflake.ID       `json:"user_id"`
 	SkuIDs             []snowflake.ID     `json:"sku_ids"`
 	EntitlementIDs     []snowflake.ID     `json:"entitlement_ids"`
+	RenewalSkuIDs      []snowflake.ID     `json:"renewal_sku_ids"`
 	CurrentPeriodStart time.Time          `json:"current_period_start"`
 	CurrentPeriodEnd   time.Time          `json:"current_period_end"`
 	Status             SubscriptionStatus `json:"status"`
