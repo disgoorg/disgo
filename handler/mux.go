@@ -108,9 +108,9 @@ func (r *Mux) Match(path string, t discord.InteractionType, t2 int) bool {
 
 // Handle handles the given interaction event.
 func (r *Mux) Handle(path string, event *InteractionEvent) error {
-	handlerChain := Handler(func(event *InteractionEvent) error {
-		path = parseVariables(path, r.pattern, event.Vars)
+	path = parseVariables(path, r.pattern, event.Vars)
 
+	handlerChain := Handler(func(event *InteractionEvent) error {
 		t := event.Type()
 		var t2 int
 		switch i := event.Interaction.(type) {
