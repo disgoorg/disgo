@@ -27,6 +27,7 @@ const (
 	ConnectionTypeGitHub             ConnectionType = "github"
 	ConnectionTypeInstagram          ConnectionType = "instagram"
 	ConnectionTypeLeagueOfLegends    ConnectionType = "leagueoflegends"
+	ConnectionTypeMastodon           ConnectionType = "mastodon"
 	ConnectionTypePayPal             ConnectionType = "paypal"
 	ConnectionTypePlayStationNetwork ConnectionType = "playstation"
 	ConnectionTypeReddit             ConnectionType = "reddit"
