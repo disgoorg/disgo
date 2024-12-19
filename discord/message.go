@@ -1,7 +1,9 @@
 package discord
 
 import (
+	"bytes"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/disgoorg/json"
@@ -119,6 +121,7 @@ type Message struct {
 	Resolved             *ResolvedData         `json:"resolved,omitempty"`
 	Poll                 *Poll                 `json:"poll,omitempty"`
 	Call                 *MessageCall          `json:"call,omitempty"`
+	Nonce                Nonce                 `json:"nonce,omitempty"`
 }
 
 func (m *Message) UnmarshalJSON(data []byte) error {
@@ -551,4 +554,27 @@ func unmarshalComponents(components []UnmarshalComponent) []ContainerComponent {
 		containerComponents[i] = components[i].Component.(ContainerComponent)
 	}
 	return containerComponents
+}
+
+// Nonce is a string or int used when sending a message to discord.
+type Nonce string
+
+// UnmarshalJSON unmarshals the Nonce from a string or int.
+func (n *Nonce) UnmarshalJSON(b []byte) error {
+	if bytes.Equal(b, []byte("null")) {
+		return nil
+	}
+
+	unquoted, err := strconv.Unquote(string(b))
+	if err != nil {
+		i, err := strconv.ParseInt(string(b), 10, 64)
+		if err != nil {
+			return err
+		}
+		*n = Nonce(strconv.FormatInt(i, 10))
+	} else {
+		*n = Nonce(unquoted)
+	}
+
+	return nil
 }
