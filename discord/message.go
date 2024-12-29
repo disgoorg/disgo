@@ -493,6 +493,7 @@ const (
 	_
 	MessageFlagSuppressNotifications
 	MessageFlagIsVoiceMessage
+	MessageFlagHasSnapshot
 	MessageFlagsNone MessageFlags = 0
 )
 
