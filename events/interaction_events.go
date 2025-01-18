@@ -47,6 +47,8 @@ func (e *ApplicationCommandInteractionCreate) Guild() (discord.Guild, bool) {
 // This is used strictly for acknowledging the HTTP interaction request from discord. This responds with 202 Accepted.
 //
 // This does not produce a visible loading state to the user.
+// You are expected to send a new http request within 3 seconds to respond to the interaction.
+// This allows you to gracefully handle errors with your sent response & access the resulting message.
 // If you want to create a visible loading state, use DeferCreateMessage.
 //
 // Source docs: https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-callback
