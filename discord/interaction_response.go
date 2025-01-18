@@ -5,7 +5,9 @@ type InteractionResponseType int
 
 // Constants for the InteractionResponseType(s)
 const (
-	InteractionResponseTypePong InteractionResponseType = iota + 1
+	// This is stricly internal and will never be sent to discord. It is used to indicate that the HTTP response should be 202 Accepted
+	InteractionResponseTypeAcknowledge InteractionResponseType = iota
+	InteractionResponseTypePong        InteractionResponseType = iota
 	_
 	_
 	InteractionResponseTypeCreateMessage

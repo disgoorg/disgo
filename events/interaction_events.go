@@ -42,6 +42,18 @@ func (e *ApplicationCommandInteractionCreate) Guild() (discord.Guild, bool) {
 	return discord.Guild{}, false
 }
 
+// Acknowledge acknowledges the interaction.
+//
+// This is used strictly for acknowledging the HTTP interaction request from discord. This responds with 202 Accepted.
+//
+// This does not produce a visible loading state to the user.
+// If you want to create a visible loading state, use DeferCreateMessage.
+//
+// Source docs: https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-callback
+func (e *ApplicationCommandInteractionCreate) Acknowledge(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypeAcknowledge, nil, opts...)
+}
+
 // CreateMessage responds to the interaction with a new message.
 func (e *ApplicationCommandInteractionCreate) CreateMessage(messageCreate discord.MessageCreate, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeCreateMessage, messageCreate, opts...)

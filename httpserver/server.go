@@ -167,6 +167,15 @@ func HandleInteraction(publicKey PublicKey, logger *slog.Logger, handleFunc Even
 		defer cancel()
 		select {
 		case response := <-responseChannel:
+
+			// if we only acknowledge the interaction, we don't need to send a response body
+			// we just need to send a 202 Accepted status
+			if response.Type == discord.InteractionResponseTypeAcknowledge {
+				w.WriteHeader(http.StatusAccepted)
+				w.Write(nil)
+				return
+			}
+
 			if body, err = response.ToBody(); err != nil {
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 				errorChannel <- err
