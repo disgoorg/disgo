@@ -46,7 +46,7 @@ func (e *ApplicationCommandInteractionCreate) Guild() (discord.Guild, bool) {
 //
 // This is used strictly for acknowledging the HTTP interaction request from discord. This responds with 202 Accepted.
 //
-// When using this, your first http request must be <event>.Client().Rest().CreateInteractionResponse()
+// When using this, your first http request must be [rest.Interactions.CreateInteractionResponse] or [rest.Interactions.CreateInteractionResponseWithCallback]
 //
 // This does not produce a visible loading state to the user.
 // You are expected to send a new http request within 3 seconds to respond to the interaction.
@@ -54,7 +54,11 @@ func (e *ApplicationCommandInteractionCreate) Guild() (discord.Guild, bool) {
 //
 // If you want to create a visible loading state, use DeferCreateMessage.
 //
-// Source docs: https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-callback
+// Source docs: [Discord Source docs]
+//
+// [rest.Interactions.CreateInteractionResponse]: https://pkg.go.dev/github.com/disgoorg/disgo/rest#Interactions.CreateInteractionResponse
+// [rest.Interactions.CreateInteractionResponseWithCallback]: https://pkg.go.dev/github.com/disgoorg/disgo/rest#Interactions.CreateInteractionResponseWithCallback
+// [Discord Source docs]: https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-callback
 func (e *ApplicationCommandInteractionCreate) Acknowledge(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeAcknowledge, nil, opts...)
 }
@@ -110,7 +114,7 @@ func (e *ComponentInteractionCreate) Guild() (discord.Guild, bool) {
 //
 // This is used strictly for acknowledging the HTTP interaction request from discord. This responds with 202 Accepted.
 //
-// When using this, your first http request must be <event>.Client().Rest().CreateInteractionResponse()
+// When using this, your first http request must be [rest.Interactions.CreateInteractionResponse] or [rest.Interactions.CreateInteractionResponseWithCallback]
 //
 // This does not produce a visible loading state to the user.
 // You are expected to send a new http request within 3 seconds to respond to the interaction.
@@ -118,7 +122,11 @@ func (e *ComponentInteractionCreate) Guild() (discord.Guild, bool) {
 //
 // If you want to create a visible loading state, use DeferCreateMessage.
 //
-// Source docs: https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-callback
+// Source docs: [Discord Source docs]
+//
+// [rest.Interactions.CreateInteractionResponse]: https://pkg.go.dev/github.com/disgoorg/disgo/rest#Interactions.CreateInteractionResponse
+// [rest.Interactions.CreateInteractionResponseWithCallback]: https://pkg.go.dev/github.com/disgoorg/disgo/rest#Interactions.CreateInteractionResponseWithCallback
+// [Discord Source docs]: https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-callback
 func (e *ComponentInteractionCreate) Acknowledge(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeAcknowledge, nil, opts...)
 }
@@ -206,7 +214,7 @@ func (e *ModalSubmitInteractionCreate) Guild() (discord.Guild, bool) {
 //
 // This is used strictly for acknowledging the HTTP interaction request from discord. This responds with 202 Accepted.
 //
-// When using this, your first http request must be <event>.Client().Rest().CreateInteractionResponse()
+// When using this, your first http request must be [rest.Interactions.CreateInteractionResponse] or [rest.Interactions.CreateInteractionResponseWithCallback]
 //
 // This does not produce a visible loading state to the user.
 // You are expected to send a new http request within 3 seconds to respond to the interaction.
@@ -214,7 +222,11 @@ func (e *ModalSubmitInteractionCreate) Guild() (discord.Guild, bool) {
 //
 // If you want to create a visible loading state, use DeferCreateMessage.
 //
-// Source docs: https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-callback
+// Source docs: [Discord Source docs]
+//
+// [rest.Interactions.CreateInteractionResponse]: https://pkg.go.dev/github.com/disgoorg/disgo/rest#Interactions.CreateInteractionResponse
+// [rest.Interactions.CreateInteractionResponseWithCallback]: https://pkg.go.dev/github.com/disgoorg/disgo/rest#Interactions.CreateInteractionResponseWithCallback
+// [Discord Source docs]: https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-callback
 func (e *ModalSubmitInteractionCreate) Acknowledge(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeAcknowledge, nil, opts...)
 }
