@@ -46,7 +46,7 @@ func (e *ApplicationCommandInteractionCreate) Guild() (discord.Guild, bool) {
 //
 // This is used strictly for acknowledging the HTTP interaction request from discord. This responds with 202 Accepted.
 //
-// When using this, you must respond with <event>.Client().Rest().CreateInteractionResponse()
+// When using this, your first http request must be <event>.Client().Rest().CreateInteractionResponse()
 //
 // This does not produce a visible loading state to the user.
 // You are expected to send a new http request within 3 seconds to respond to the interaction.
@@ -110,7 +110,7 @@ func (e *ComponentInteractionCreate) Guild() (discord.Guild, bool) {
 //
 // This is used strictly for acknowledging the HTTP interaction request from discord. This responds with 202 Accepted.
 //
-// When using this, you must respond with <event>.Client().Rest().CreateInteractionResponse()
+// When using this, your first http request must be <event>.Client().Rest().CreateInteractionResponse()
 //
 // This does not produce a visible loading state to the user.
 // You are expected to send a new http request within 3 seconds to respond to the interaction.
@@ -206,7 +206,7 @@ func (e *ModalSubmitInteractionCreate) Guild() (discord.Guild, bool) {
 //
 // This is used strictly for acknowledging the HTTP interaction request from discord. This responds with 202 Accepted.
 //
-// When using this, you must respond with <event>.Client().Rest().CreateInteractionResponse()
+// When using this, your first http request must be <event>.Client().Rest().CreateInteractionResponse()
 //
 // This does not produce a visible loading state to the user.
 // You are expected to send a new http request within 3 seconds to respond to the interaction.
