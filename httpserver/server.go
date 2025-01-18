@@ -172,7 +172,6 @@ func HandleInteraction(publicKey PublicKey, logger *slog.Logger, handleFunc Even
 			// we just need to send a 202 Accepted status
 			if response.Type == discord.InteractionResponseTypeAcknowledge {
 				w.WriteHeader(http.StatusAccepted)
-				w.Write(nil)
 				return
 			}
 
