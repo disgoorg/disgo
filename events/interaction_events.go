@@ -184,6 +184,25 @@ func (e *AutocompleteInteractionCreate) Guild() (discord.Guild, bool) {
 	return discord.Guild{}, false
 }
 
+// Acknowledge acknowledges the interaction.
+//
+// This is used strictly for acknowledging the HTTP interaction request from discord. This responds with 202 Accepted.
+//
+// When using this, your first http request must be [rest.Interactions.CreateInteractionResponse] or [rest.Interactions.CreateInteractionResponseWithCallback]
+//
+// This does not produce a visible loading state to the user.
+// You are expected to send a new http request within 3 seconds to respond to the interaction.
+// This allows you to gracefully handle errors with your sent response & access the resulting message.
+//
+// If you want to create a visible loading state, use DeferCreateMessage.
+//
+// Source docs: [Discord Source docs]
+//
+// [Discord Source docs]: https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-callback
+func (e *AutocompleteInteractionCreate) Acknowledge(opts ...rest.RequestOpt) error {
+	return e.Respond(discord.InteractionResponseTypeAcknowledge, nil, opts...)
+}
+
 // AutocompleteResult responds to the interaction with a slice of choices.
 func (e *AutocompleteInteractionCreate) AutocompleteResult(choices []discord.AutocompleteChoice, opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeAutocompleteResult, discord.AutocompleteResult{Choices: choices}, opts...)
