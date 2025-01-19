@@ -56,8 +56,6 @@ func (e *ApplicationCommandInteractionCreate) Guild() (discord.Guild, bool) {
 //
 // Source docs: [Discord Source docs]
 //
-// [rest.Interactions.CreateInteractionResponse]: https://pkg.go.dev/github.com/disgoorg/disgo/rest#Interactions.CreateInteractionResponse
-// [rest.Interactions.CreateInteractionResponseWithCallback]: https://pkg.go.dev/github.com/disgoorg/disgo/rest#Interactions.CreateInteractionResponseWithCallback
 // [Discord Source docs]: https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-callback
 func (e *ApplicationCommandInteractionCreate) Acknowledge(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeAcknowledge, nil, opts...)
@@ -124,8 +122,6 @@ func (e *ComponentInteractionCreate) Guild() (discord.Guild, bool) {
 //
 // Source docs: [Discord Source docs]
 //
-// [rest.Interactions.CreateInteractionResponse]: https://pkg.go.dev/github.com/disgoorg/disgo/rest#Interactions.CreateInteractionResponse
-// [rest.Interactions.CreateInteractionResponseWithCallback]: https://pkg.go.dev/github.com/disgoorg/disgo/rest#Interactions.CreateInteractionResponseWithCallback
 // [Discord Source docs]: https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-callback
 func (e *ComponentInteractionCreate) Acknowledge(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeAcknowledge, nil, opts...)
@@ -224,8 +220,6 @@ func (e *ModalSubmitInteractionCreate) Guild() (discord.Guild, bool) {
 //
 // Source docs: [Discord Source docs]
 //
-// [rest.Interactions.CreateInteractionResponse]: https://pkg.go.dev/github.com/disgoorg/disgo/rest#Interactions.CreateInteractionResponse
-// [rest.Interactions.CreateInteractionResponseWithCallback]: https://pkg.go.dev/github.com/disgoorg/disgo/rest#Interactions.CreateInteractionResponseWithCallback
 // [Discord Source docs]: https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-callback
 func (e *ModalSubmitInteractionCreate) Acknowledge(opts ...rest.RequestOpt) error {
 	return e.Respond(discord.InteractionResponseTypeAcknowledge, nil, opts...)
