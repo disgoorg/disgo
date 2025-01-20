@@ -3,6 +3,11 @@ package discord
 // InteractionResponseType indicates the type of slash command response, whether it's responding immediately or deferring to edit your response later
 type InteractionResponseType int
 
+// InteractionResponseTypeAcknowledge is stricly internal and will never be sent to discord.
+//
+// It is used to indicate that the HTTP response should be 202 Accepted
+const InteractionResponseTypeAcknowledge InteractionResponseType = -1
+
 // Constants for the InteractionResponseType(s)
 const (
 	InteractionResponseTypePong InteractionResponseType = iota + 1
