@@ -50,7 +50,18 @@ const (
 	_
 	MessageTypeStageTopic
 	MessageTypeGuildApplicationPremiumSubscription
-	MessageTypePurchaseNotification MessageType = iota + 11
+	_
+	_
+	_
+	MessageTypeGuildIncidentAlertModeEnabled
+	MessageTypeGuildIncidentAlertModeDisabled
+	MessageTypeGuildIncidentReportRaid
+	MessageTypeGuildIncidentReportFalseAlarm
+	_
+	_
+	_
+	_
+	MessageTypePurchaseNotification
 	_
 	MessageTypePollResult
 )

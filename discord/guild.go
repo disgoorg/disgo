@@ -166,6 +166,7 @@ type Guild struct {
 	PremiumProgressBarEnabled   bool                       `json:"premium_progress_bar_enabled"`
 	JoinedAt                    time.Time                  `json:"joined_at"`
 	SafetyAlertsChannelID       *snowflake.ID              `json:"safety_alerts_channel_id"`
+	IncidentsData               *GuildIncidentsData        `json:"incidents_data"`
 
 	// only over GET /guilds/{guild.id}
 	ApproximateMemberCount   int `json:"approximate_member_count"`
@@ -317,6 +318,18 @@ type GuildPreview struct {
 	ApproximatePresenceCount *int           `json:"approximate_presence_count"`
 	Emojis                   []Emoji        `json:"emojis"`
 	Stickers                 []Sticker      `json:"stickers"`
+}
+
+type GuildIncidentsData struct {
+	InvitesDisabledUntil *time.Time `json:"invites_disabled_until"`
+	DMsDisabledUntil     *time.Time `json:"dms_disabled_until"`
+	DMSpamDetectedAt     *time.Time `json:"dm_spam_detected_at"`
+	RaidDetectedAt       *time.Time `json:"raid_detected_at"`
+}
+
+type GuildIncidentActionsUpdate struct {
+	InvitesDisabledUntil *json.Nullable[time.Time] `json:"invites_disabled_until,omitempty"`
+	DMsDisabledUntil     *json.Nullable[time.Time] `json:"dms_disabled_until,omitempty"`
 }
 
 // GuildCreate is the payload used to create a Guild
