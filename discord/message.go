@@ -57,10 +57,10 @@ const (
 	MessageTypeGuildIncidentAlertModeDisabled
 	MessageTypeGuildIncidentReportRaid
 	MessageTypeGuildIncidentReportFalseAlarm
-  _
-  _
-  _
-  _
+	_
+	_
+	_
+	_
 	MessageTypePurchaseNotification
 	_
 	MessageTypePollResult
