@@ -92,6 +92,8 @@ var (
 	GetGuildOnboarding    = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/onboarding")
 	UpdateGuildOnboarding = NewEndpoint(http.MethodPut, "/guilds/{guild.id}/onboarding")
 
+	UpdateGuildIncidentActions = NewEndpoint(http.MethodPut, "/guilds/{guild.id}/incident-actions")
+
 	GetCurrentUserVoiceState    = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/voice-states/@me")
 	GetUserVoiceState           = NewEndpoint(http.MethodGet, "/guilds/{guild.id}/voice-states/{user.id}")
 	UpdateCurrentUserVoiceState = NewEndpoint(http.MethodPatch, "/guilds/{guild.id}/voice-states/@me")
