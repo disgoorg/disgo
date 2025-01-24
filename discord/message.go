@@ -122,6 +122,7 @@ type Message struct {
 	Poll                 *Poll                 `json:"poll,omitempty"`
 	Call                 *MessageCall          `json:"call,omitempty"`
 	Nonce                Nonce                 `json:"nonce,omitempty"`
+	SoundboardSounds     []SoundboardSound     `json:"soundboard_sounds,omitempty"`
 }
 
 func (m *Message) UnmarshalJSON(data []byte) error {
